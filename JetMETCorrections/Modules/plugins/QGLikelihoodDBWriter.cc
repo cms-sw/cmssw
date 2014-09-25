@@ -2,6 +2,7 @@
 // Email:  benedikt.hegner@cern.ch, tom.cornelis@cern.ch
 
 #include "TFile.h"
+#include "TVector.h"
 #include "TList.h"
 #include "TKey.h"
 #include "TH1.h"
@@ -54,61 +55,62 @@ void QGLikelihoodDBWriter::beginJob(){
   QGLikelihoodObject *payload = new QGLikelihoodObject();
   payload->data.clear();
 
-  // Get the ROOT files and the keys to the histogram
+  // Get the ROOT file and the vectors with binning information
   TFile *f = TFile::Open(edm::FileInPath(inputRootFile.c_str()).fullPath().c_str());
+  TVectorT<float> *etaBins; 	f->GetObject("etaBins", etaBins);
+  TVectorT<float> *ptBinsC; 	f->GetObject("ptBinsC", ptBinsC);
+  TVectorT<float> *ptBinsF; 	f->GetObject("ptBinsF", ptBinsF);
+  TVectorT<float> *rhoBins; 	f->GetObject("rhoBins", rhoBins);
+
+  // Get keys to the histograms
   TList *keys = f->GetListOfKeys();
   if(!keys){
     edm::LogError("NoKeys") << "There are no keys in the input file." << std::endl;
     return;
   }
-  
+ 
   // Loop over directories/histograms
   TIter nextdir(keys);
   TKey *keydir;
   while((keydir = (TKey*)nextdir())){
+    if(!keydir->IsFolder()) continue;
     TDirectory *dir = (TDirectory*)keydir->ReadObj() ;
     TIter nexthist(dir->GetListOfKeys());
     TKey *keyhist;
     while((keyhist = (TKey*)nexthist())){
-
-      float ptMin, ptMax, rhoMin, rhoMax, etaMin, etaMax;
+      std::string histname = keyhist->GetName();
       int varIndex, qgIndex;
 
-      std::string histname = keyhist->GetName();
-      std::string histname_ = keyhist->GetName();
-
       // First check the variable name, and use index in same order as RecoJets/JetProducers/plugins/QGTagger.cc:73
-      if(extractString("nPFCand_QC_ptCutJet0", histname)) varIndex = 0;
-      else if(extractString("ptD_QCJet0", histname)) varIndex = 1;
-      else if(extractString("axis2_QCJet0", histname)) varIndex = 2;
+      if(extractString("mult", histname)) varIndex = 0;
+      else if(extractString("ptD", histname)) varIndex = 1;
+      else if(extractString("axis2", histname)) varIndex = 2;
       else continue;
-
-      // Check pseudorapidity range
-      if(extractString("_F", histname)){ etaMin = 2.5; etaMax = 4.7;}
-      else { etaMin = 0.;etaMax = 2.5;}
 
       // Check quark or gluon
       if(extractString("quark", histname)) qgIndex = 0;
       else if(extractString("gluon", histname)) qgIndex = 1;
       else continue;
 
-      // Access the pt information
-      extractString("pt", histname);
-      ptMin = std::atof(histname.substr(0, histname.find("_")).c_str());
-      extractString("_", histname);
-      ptMax = std::atof(histname.substr(0, histname.find("rho")).c_str());
+      // Get eta, pt and rho ranges
+      extractString("eta-", histname);
+      int etaBin = std::atoi(histname.substr(0, histname.find("_")).c_str());
+      extractString("pt-", histname);
+      int ptBin = std::atoi(histname.substr(0, histname.find("_")).c_str());
+      extractString("rho-", histname);
+      int rhoBin = std::atoi(histname.substr(0, histname.find("_")).c_str());
 
-      if(etaMin == 2.5 && ptMin > 128) continue;		//In forward use one bin for 127->2000
-      if(etaMin == 2.5 && ptMin == 127) ptMax = 4000;
-
-      // Access the rho information
-      extractString("rho", histname);
-      rhoMin = std::atof(histname.c_str());
-      rhoMax = rhoMin + 1.; // WARNING: Check if this is still valid when changed to fixedGrid rho (try to move it in the name...)
+      float etaMin = (*etaBins)[etaBin];
+      float etaMax = (*etaBins)[etaBin+1];
+      TVectorT<float> *ptBins = (etaBin == 0? ptBinsC : ptBinsF);
+      float ptMin = (*ptBins)[ptBin];
+      float ptMax = (*ptBins)[ptBin+1];
+      float rhoMin = (*rhoBins)[rhoBin];
+      float rhoMax = (*rhoBins)[rhoBin+1];
 
       // Print out for debugging      
       char buff[1000];
-      sprintf(buff, "%50s : var=%1d, qg=%1d, etaMin=%6.2f, etaMax=%6.2f, ptMin=%8.2f, ptMax=%8.2f, rhoMin=%6.2f, rhoMax=%6.2f", histname_.c_str(), varIndex, qgIndex, etaMin, etaMax, ptMin, ptMax, rhoMin, rhoMax );
+      sprintf(buff, "%50s : var=%1d, qg=%1d, etaMin=%6.2f, etaMax=%6.2f, ptMin=%8.2f, ptMax=%8.2f, rhoMin=%6.2f, rhoMax=%6.2f", keyhist->GetName(), varIndex, qgIndex, etaMin, etaMax, ptMin, ptMax, rhoMin, rhoMax );
       edm::LogVerbatim("HistName") << buff << std::endl;
 
       // Define category parameters
@@ -125,11 +127,6 @@ void QGLikelihoodDBWriter::beginJob(){
       // Get TH1 
       TH1* th1hist = (TH1*) keyhist->ReadObj();
 
-      // In the future, this part will (preferably) move to the making of the root files
-      if(th1hist->GetEntries()<50 ) 		th1hist->Rebin(5); 	// try to make it more stable
-      else if(th1hist->GetEntries()<500 ) 	th1hist->Rebin(2); 	// try to make it more stable
-      th1hist->Scale(1./th1hist->Integral("width")); 
-
       // Transform ROOT TH1 to QGLikelihoodObject (same indexing)
       QGLikelihoodObject::Histogram histogram(th1hist->GetNbinsX(), th1hist->GetXaxis()->GetBinLowEdge(1), th1hist->GetXaxis()->GetBinUpEdge(th1hist->GetNbinsX()));
       for(int ibin = 0; ibin <= th1hist->GetNbinsX() + 1; ++ibin){
@@ -144,14 +141,13 @@ void QGLikelihoodDBWriter::beginJob(){
       payload->data.push_back(entry);
     }
   }
-
   // Define the valid range, if no category is found within these bounds a warning will be thrown
-  payload->qgValidRange.RhoMin = 0;
-  payload->qgValidRange.RhoMax = 46;
-  payload->qgValidRange.EtaMin = 0;
-  payload->qgValidRange.EtaMax = 4.7;
-  payload->qgValidRange.PtMin  = 20;
-  payload->qgValidRange.PtMax  = 4000;
+  payload->qgValidRange.RhoMin = rhoBins->Min();
+  payload->qgValidRange.RhoMax = rhoBins->Max();
+  payload->qgValidRange.EtaMin = etaBins->Min();
+  payload->qgValidRange.EtaMax = etaBins->Max();
+  payload->qgValidRange.PtMin  = ptBinsC->Min();
+  payload->qgValidRange.PtMax  = ptBinsC->Max();
   payload->qgValidRange.QGIndex = -1;
   payload->qgValidRange.VarIndex = -1;
 
