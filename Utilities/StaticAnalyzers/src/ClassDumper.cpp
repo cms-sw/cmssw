@@ -1,4 +1,5 @@
 #include "ClassDumper.h"
+#include "CmsSupport.h"
 #include <iostream>
 #include <fstream>
 #include <iterator>
@@ -10,18 +11,6 @@ using namespace llvm;
 
 namespace clangcms {
 
-void writeLog(std::string ostring,std::string tfstring) {
-	const char * pPath = std::getenv("LOCALRT");
-	std::string tname = "";
-	if ( pPath != NULL ) tname += std::string(pPath);
-	tname+=tfstring;
-	std::fstream file;
-	file.open(tname.c_str(),std::ios::out|std::ios::app);
-	file<<ostring<<"\n";
-	file.close();
-//	std::cout<<ostring<<"\n";
-	return;
-}
 
 void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::AnalysisManager& mgr,
                     clang::ento::BugReporter &BR, std::string tname ) const {
@@ -42,7 +31,7 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
 		llvm::raw_string_ostream os(buf);
 		SD->getNameForDiagnostic(os,Policy,1);
 		crname = crname+os.str()+"'";
-		writeLog(crname, tname);
+		support::writeLog(crname, tname);
 		for (unsigned J = 0, F = SD->getTemplateArgs().size(); J!=F; ++J) {
 			if (SD->getTemplateArgs().get(J).getKind() == clang::TemplateArgument::Type) {
 				std::string taname;
@@ -58,7 +47,7 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
 				if ( ! ( taname == "")  ) {
 					std::string sdname = SD->getQualifiedNameAsString();
 					std::string cfname = "templated data class '"+sdname+"' template type class '"+taname+"'";
-					writeLog(crname+" "+cfname,tname);
+					support::writeLog(crname+" "+cfname,tname);
 				}
 			}
 		}
@@ -66,7 +55,7 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
 	} else {
 // Dump the class name
 		crname = crname+rname+"'";
-		writeLog(crname,tname);
+		support::writeLog(crname,tname);
 
 	}
 
@@ -86,7 +75,7 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
 							llvm::raw_string_ostream os(buf);
 							SD->getNameForDiagnostic(os,Policy,1);
 							std::string cfname ="member data class '"+os.str()+"'";
-							writeLog(crname+" "+cfname,tname);
+							support::writeLog(crname+" "+cfname,tname);
 					// Recurse the template args
 							for (unsigned J = 0, F = SD->getTemplateArgs().size(); J!=F; ++J) {
 								if (SD->getTemplateArgs().get(J).getKind() == clang::TemplateArgument::Type) {
@@ -103,13 +92,13 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
 									if (!(taname == "")) {
 										std::string sdname = SD->getQualifiedNameAsString();
 										std::string cfname = "templated member data class '"+sdname+"' template type class '"+taname+"'";
-										writeLog(crname+" "+cfname,tname);
+										support::writeLog(crname+" "+cfname,tname);
 									}
 								}
 							}
 					} else {
 							std::string cfname ="member data class '"+fname+"' ";
-							writeLog(crname+" "+cfname,tname);
+							support::writeLog(crname+" "+cfname,tname);
 					}
 				}
 			}
@@ -125,7 +114,7 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
 			if (!BRD) continue;
 			std::string bname = BRD->getQualifiedNameAsString();
 			std::string cbname = "base class '"+bname+"'";
-			writeLog(crname+" "+cbname,tname);
+			support::writeLog(crname+" "+cbname,tname);
 		}
 
 
@@ -137,7 +126,7 @@ void ClassDumperCT::checkASTDecl(const clang::ClassTemplateDecl *TD,clang::ento:
  	const char *sfile=BR.getSourceManager().getPresumedLoc(TD->getLocation()).getFilename();
  	if (!support::isCmsLocalFile(sfile)) return;
 
-	std::string pname = "/tmp/classes.txt.dumperct.unsorted";
+	std::string pname = "classes.txt.dumperct.unsorted";
 	std::string tname = TD->getTemplatedDecl()->getQualifiedNameAsString();
 	if ( tname == "edm::Wrapper" || tname == "edm::RunCache" || tname == "edm::LuminosityBlockCache" || tname == "edm::GlobalCache" ) {
 		for ( auto I = TD->spec_begin(),
@@ -161,7 +150,7 @@ void ClassDumperFT::checkASTDecl(const clang::FunctionTemplateDecl *TD,clang::en
  	const char *sfile=BR.getSourceManager().getPresumedLoc(TD->getLocation()).getFilename();
  	if (!support::isCmsLocalFile(sfile)) return;
 
-	std::string pname = "/tmp/classes.txt.dumperft.unsorted";
+	std::string pname = "classes.txt.dumperft.unsorted";
 	if (TD->getTemplatedDecl()->getQualifiedNameAsString().find("typelookup") != std::string::npos ) {
 		for ( auto I = TD->spec_begin(),
 				E = TD->spec_end(); I != E; ++I) {

@@ -1,5 +1,4 @@
 #include "Validation/Geometry/interface/MaterialBudgetCategorizer.h"
-//#include "Utilities/UI/interface/SimpleConfigurable.h"
 
 #include "G4LogicalVolumeStore.hh"
 #include "G4Material.hh"
