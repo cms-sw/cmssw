@@ -5,7 +5,8 @@ hltSMPValidator = cms.EDAnalyzer("HLTHiggsValidator",
 		
     hltProcessName = cms.string("HLT"),
     histDirectory  = cms.string("HLT/SMP"),
-    analysis       = cms.vstring("SingleEle", "SingleMu", "SinglePhoton"),
+#    analysis       = cms.vstring("SingleEle", "SingleMu", "SinglePhoton"),
+    analysis       = cms.vstring("SinglePhoton"),
     
     # -- The instance name of the reco::GenParticles collection
     genParticleLabel = cms.string("genParticles"),
@@ -18,8 +19,9 @@ hltSMPValidator = cms.EDAnalyzer("HLTHiggsValidator",
                                    1, 8, 9, 10,
                                    11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
                                    22, 24, 26, 28, 30, 32, 34, 36, 38, 40,
-                                   45, 50, 55, 60, 65, 70,
-                                   80, 100, 120, 150, 200
+                                   45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 
+                                   110, 120, 130, 140, 150, 160, 170, 180, 190, 200,
+                                   220, 250, 300
                                    ),
 
     # -- (NBins, minVal, maxValue) for the Eta,Phi and nInterations efficiency plots
@@ -75,23 +77,23 @@ hltSMPValidator = cms.EDAnalyzer("HLTHiggsValidator",
     # for any object you want.
     #    * Var_genCut, Var_recCut (cms.string): where Var=Mu, Ele, Photon, MET, PFTau (see above)
 
-    SingleEle = cms.PSet( 
-	    hltPathsToCheck = cms.vstring(
-		    "HLT_Ele27_WP85_Gsf_v",
-		    ),
-	    recElecLabel  = cms.string("gedGsfElectrons"),
-	    # -- Analysis specific cuts
-	    minCandidates = cms.uint32(1),
-	    ),
-    SingleMu = cms.PSet( 
-	    hltPathsToCheck = cms.vstring(
-		    "HLT_IsoMu24_IterTrk02_v",
-		    "HLT_IsoTkMu24_IterTrk02_v",
-		    ),
-	    recMuonLabel  = cms.string("muons"),
-	    # -- Analysis specific cuts
-	    minCandidates = cms.uint32(1), 
-	    ),
+    # SingleEle = cms.PSet( 
+    #         hltPathsToCheck = cms.vstring(
+    #     	    "HLT_Ele27_WP85_Gsf_v",
+    #     	    ),
+    #         recElecLabel  = cms.string("gedGsfElectrons"),
+    #         # -- Analysis specific cuts
+    #         minCandidates = cms.uint32(1),
+    #         ),
+    # SingleMu = cms.PSet( 
+    #         hltPathsToCheck = cms.vstring(
+    #     	    "HLT_IsoMu24_IterTrk02_v",
+    #     	    "HLT_IsoTkMu24_IterTrk02_v",
+    #     	    ),
+    #         recMuonLabel  = cms.string("muons"),
+    #         # -- Analysis specific cuts
+    #         minCandidates = cms.uint32(1), 
+    #         ),
     SinglePhoton = cms.PSet( 
 	    hltPathsToCheck = cms.vstring(
 		    "HLT_Photon155_v",
