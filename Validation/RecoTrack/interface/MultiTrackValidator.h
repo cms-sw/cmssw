@@ -11,26 +11,25 @@
 #include "Validation/RecoTrack/interface/MultiTrackValidatorBase.h"
 #include "Validation/RecoTrack/interface/MTVHistoProducerAlgo.h"
 
-
-class MultiTrackValidator : public DQMEDAnalyzer, protected MultiTrackValidatorBase {
+class MultiTrackValidator : public DQMEDAnalyzer,
+                            protected MultiTrackValidatorBase {
  public:
   /// Constructor
   MultiTrackValidator(const edm::ParameterSet& pset);
-  
+
   /// Destructor
   virtual ~MultiTrackValidator();
 
-
   /// Method called once per event
-  void analyze(const edm::Event&, const edm::EventSetup& );
+  void analyze(const edm::Event&, const edm::EventSetup&);
   /// Method called at the end of the event loop
   void endRun(edm::Run const&, edm::EventSetup const&);
   /// Method called to book the DQM histograms
-  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&);
-
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&,
+                      edm::EventSetup const&);
 
  protected:
-  //these are used by MTVGenPs
+  // these are used by MTVGenPs
   edm::InputTag assMapInput;
   edm::EDGetTokenT<reco::SimToRecoCollection> associatormapStR;
   edm::EDGetTokenT<reco::RecoToSimCollection> associatormapRtS;
@@ -42,16 +41,15 @@ class MultiTrackValidator : public DQMEDAnalyzer, protected MultiTrackValidatorB
 
   bool useGsf;
   bool runStandalone;
-  // select tracking particles 
+  // select tracking particles
   //(i.e. "denominator" of the efficiency ratio)
-  TrackingParticleSelector tpSelector;				      
+  TrackingParticleSelector tpSelector;
   CosmicTrackingParticleSelector cosmictpSelector;
-  TrackingParticleSelector dRtpSelector;				      
+  TrackingParticleSelector dRtpSelector;
 
-  edm::EDGetTokenT<SimHitTPAssociationProducer::SimHitTPAssociationList> _simHitTpMapTag;
+  edm::EDGetTokenT<SimHitTPAssociationProducer::SimHitTPAssociationList>
+      _simHitTpMapTag;
   edm::EDGetTokenT<edm::View<reco::Track> > labelTokenForDrCalculation;
-
 };
-
 
 #endif
