@@ -198,6 +198,10 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 	LogError("l1t|stage 1 Converter") <<" Unknown EtSumType --- EtSum collection will not be saved...\n ";
       }
     }
+    etMissResult->resize(1);
+    htMissResult->resize(1);
+    etTotResult->resize(1);
+    etHadResult->resize(1);
 
     for (l1t::CaloSpareBxCollection::const_iterator itCaloSpare = CaloSpare->begin(itBX);
 	 itCaloSpare != CaloSpare->end(itBX); ++itCaloSpare){
@@ -236,6 +240,8 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 	hfRingEtSumResult->push_back(sum);
       }
     }
+    hfRingEtSumResult->resize(1);
+    hfBitCountResult->resize(1);
   }
 
   e.put(isoEmResult,"isoEm");
