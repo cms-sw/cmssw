@@ -214,5 +214,14 @@ namespace edm {
         m->postForkReacquireResources(iChildIndex,iNumberOfChildren);
       }
     }
+
+    template< typename T>
+    void
+    ProducingModuleAdaptorBase<T>::doRegisterThinnedAssociations(ProductRegistry const& registry,
+                                                                 ThinnedAssociationsHelper& helper) {
+      assert(not m_streamModules.empty());
+      auto mod = m_streamModules[0];
+      mod->registerThinnedAssociations(registry, helper);
+    }
   }
 }

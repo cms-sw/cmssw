@@ -9,8 +9,8 @@
 namespace edmtest {
   class ThingAlgorithm {
   public:
-    ThingAlgorithm(long iOffsetDelta = 0) : theDebugLevel(0), offset(0), offsetDelta(iOffsetDelta) {}
-    
+  ThingAlgorithm(long iOffsetDelta = 0, int nThings = 20) : theDebugLevel(0), offset(0), offsetDelta(iOffsetDelta),
+      nThings_(nThings) {}
 
     /// Runs the algorithm and returns a list of Things
     /// The user declares the vector and calls this method.
@@ -19,6 +19,7 @@ namespace edmtest {
     int    theDebugLevel;
     long   offset;
     long   offsetDelta;
+    int    nThings_;
   };
 
 }

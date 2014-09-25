@@ -1,6 +1,7 @@
 #include "Mixing/Base/interface/PileUp.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
@@ -44,6 +45,7 @@ namespace edm {
                                                                    ModuleDescription(),
                                                                    *productRegistry_,
                                                                    std::make_shared<BranchIDListHelper>(),
+                                                                   std::make_shared<ThinnedAssociationsHelper>(),
                                                                    std::make_shared<ActivityRegistry>(),
                                                                    -1, -1, -1,
                                                                    PreallocationConfiguration()
@@ -74,6 +76,7 @@ namespace edm {
     // A modified HistoryAppender must be used for unscheduled processing.
     eventPrincipal_.reset(new EventPrincipal(input_->productRegistry(),
                                        input_->branchIDListHelper(),
+                                       input_->thinnedAssociationsHelper(),
                                        *processConfiguration_,
                                        nullptr));
 

@@ -7,6 +7,7 @@
 #include "ProvenanceAdaptor.h"
 
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
+#include "DataFormats/Common/interface/ThinnedAssociation.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
@@ -17,6 +18,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/StoredProductProvenance.h"
+#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -152,6 +154,8 @@ namespace edm {
                      ProductSelectorRules const& productSelectorRules,
                      InputType inputType,
                      std::shared_ptr<BranchIDListHelper> branchIDListHelper,
+                     std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper,
+                     std::vector<BranchID> const& associationsFromSecondary,
                      std::shared_ptr<DuplicateChecker> duplicateChecker,
                      bool dropDescendants,
                      ProcessHistoryRegistry& processHistoryRegistry,
@@ -193,6 +197,8 @@ namespace edm {
       productRegistry_(),
       branchIDLists_(),
       branchIDListHelper_(branchIDListHelper),
+      fileThinnedAssociationsHelper_(),
+      thinnedAssociationsHelper_(thinnedAssociationsHelper),
       processingMode_(processingMode),
       forcedRunOffset_(0),
       newBranchToOldBranch_(),
@@ -307,6 +313,14 @@ namespace edm {
       metaDataTree->SetBranchAddress(poolNames::branchIDListBranchName().c_str(), &branchIDListsPtr);
     }
 
+    if(inputType != InputType::SecondarySource) {
+      fileThinnedAssociationsHelper_.reset(new ThinnedAssociationsHelper);
+      ThinnedAssociationsHelper* thinnedAssociationsHelperPtr = fileThinnedAssociationsHelper_.get();
+      if(metaDataTree->FindBranch(poolNames::thinnedAssociationsHelperBranchName().c_str()) != nullptr) {
+        metaDataTree->SetBranchAddress(poolNames::thinnedAssociationsHelperBranchName().c_str(), &thinnedAssociationsHelperPtr);
+      }
+    }
+
     BranchChildren* branchChildrenBuffer = branchChildren_.get();
     if(metaDataTree->FindBranch(poolNames::productDependenciesBranchName().c_str()) != nullptr) {
       metaDataTree->SetBranchAddress(poolNames::productDependenciesBranchName().c_str(), &branchChildrenBuffer);
@@ -367,6 +381,13 @@ namespace edm {
           << "Failed to find branchIDLists branch in metaData tree.\n";
       }
       branchIDLists_.reset(branchIDListsAPtr.release());
+    }
+
+    if(fileFormatVersion().hasThinnedAssociations()) {
+      if(metaDataTree->FindBranch(poolNames::thinnedAssociationsHelperBranchName().c_str()) == nullptr) {
+        throw Exception(errors::EventCorruption)
+          << "Failed to find thinnedAssociationsHelper branch in metaData tree.\n";
+      }
     }
 
     if(!bypassVersionCheck) { 
@@ -456,7 +477,7 @@ namespace edm {
           if(fileFormatVersion().splitProductIDs()) {
             throw Exception(errors::UnimplementedFeature)
               << "Cannot change friendly class name algorithm without more development work\n"
-              << "to update BranchIDLists.  Contact the framework group.\n";
+              << "to update BranchIDLists and ThinnedAssociationsHelper.  Contact the framework group.\n";
           }
           BranchDescription newBD(prod);
           newBD.updateFriendlyClassName();
@@ -465,6 +486,11 @@ namespace edm {
         }
       }
       dropOnInput(*newReg, productSelectorRules, dropDescendants, inputType);
+      if(inputType != InputType::SecondarySource) {
+        thinnedAssociationsHelper->updateFromInput(*fileThinnedAssociationsHelper_,
+                                                   inputType == InputType::SecondaryFile,
+                                                   associationsFromSecondary);
+      }
       // freeze the product registry
       newReg->setFrozen(inputType != InputType::Primary);
       productRegistry_.reset(newReg.release());
@@ -667,6 +693,11 @@ namespace edm {
   void
   RootFile::setPosition(IndexIntoFile::IndexIntoFileItr const& position) {
     indexIntoFileIter_.copyPosition(position);
+  }
+
+  void
+  RootFile::initAssociationsFromSecondary(std::vector<BranchID> const& associationsFromSecondary) {
+    thinnedAssociationsHelper_->initAssociationsFromSecondary(associationsFromSecondary, *fileThinnedAssociationsHelper_);
   }
 
   bool
@@ -1665,23 +1696,80 @@ namespace edm {
   }
 
   void
+  RootFile::markBranchToBeDropped(bool dropDescendants, BranchID const& branchID, std::set<BranchID>& branchesToDrop) const {
+   if(dropDescendants) {
+     branchChildren_->appendToDescendants(branchID, branchesToDrop);
+    } else {
+      branchesToDrop.insert(branchID);
+    }
+  }
+
+  void
   RootFile::dropOnInput (ProductRegistry& reg, ProductSelectorRules const& rules, bool dropDescendants, InputType inputType) {
-    // This is the selector for drop on input.
+
+  // This is the selector for drop on input.
     ProductSelector productSelector;
     productSelector.initialize(rules, reg.allBranchDescriptions());
+
+    std::vector<BranchDescription const*> associationDescriptions;
 
     ProductRegistry::ProductList& prodList = reg.productListUpdator();
     // Do drop on input. On the first pass, just fill in a set of branches to be dropped.
     std::set<BranchID> branchesToDrop;
     for(auto const& product : prodList) {
       BranchDescription const& prod = product.second;
-      if(!productSelector.selected(prod)) {
-        if(dropDescendants) {
-          branchChildren_->appendToDescendants(prod.branchID(), branchesToDrop);
+      // Special handling for ThinnedAssociations
+      if(prod.unwrappedType().typeInfo() == typeid(ThinnedAssociation) && prod.present()) {
+        if(inputType != InputType::SecondarySource) {
+          associationDescriptions.push_back(&prod);
         } else {
-          branchesToDrop.insert(prod.branchID());
+          markBranchToBeDropped(dropDescendants, prod.branchID(), branchesToDrop);
+        }
+      } else if(!productSelector.selected(prod)) {
+        markBranchToBeDropped(dropDescendants, prod.branchID(), branchesToDrop);
+      }
+    }
+
+    if(inputType != InputType::SecondarySource) {
+
+      // Decide whether to keep the thinned associations and corresponding
+      // entries in the helper. For secondary source they are all dropped,
+      // but in other cases we look for thinned collections the associations
+      // redirect a Ref or Ptr to when dereferencing them.
+
+      // Need a list of kept products in order to determine which thinned associations
+      // are kept.
+      std::set<BranchID> keptProductsInEvent;
+      for(auto const& product : prodList) {
+        BranchDescription const& prod = product.second;
+        if( branchesToDrop.find(prod.branchID()) == branchesToDrop.end() &&
+            prod.present() &&
+            prod.branchType() == InEvent) {
+          keptProductsInEvent.insert(prod.branchID());
         }
       }
+
+      // Decide which ThinnedAssociations to keep and store the decision in keepAssociation
+      std::map<BranchID, bool> keepAssociation;
+      fileThinnedAssociationsHelper_->selectAssociationProducts(associationDescriptions,
+                                                              keptProductsInEvent,
+                                                              keepAssociation);
+
+      for(auto association : associationDescriptions) {
+        if(!keepAssociation[association->branchID()]) {
+          markBranchToBeDropped(dropDescendants, association->branchID(), branchesToDrop);
+        }
+      }
+
+      // Also delete the dropped associations from the ThinnedAssociationsHelper
+      std::unique_ptr<ThinnedAssociationsHelper> temp(new ThinnedAssociationsHelper);
+      for(auto const& associationBranches : fileThinnedAssociationsHelper_->data()) {
+        auto iter = keepAssociation.find(associationBranches.association());
+        if(iter != keepAssociation.end() && iter->second) {
+          temp->addAssociation(associationBranches);
+        }
+      }
+      fileThinnedAssociationsHelper_.reset(temp.release());
     }
 
     // On this pass, actually drop the branches.
@@ -1690,7 +1778,7 @@ namespace edm {
       BranchDescription const& prod = it->second;
       bool drop = branchesToDrop.find(prod.branchID()) != branchesToDropEnd;
       if(drop) {
-        if(productSelector.selected(prod)) {
+        if(productSelector.selected(prod) && prod.unwrappedType().typeInfo() != typeid(ThinnedAssociation)) {
           LogWarning("RootFile")
             << "Branch '" << prod.branchName() << "' is being dropped from the input\n"
             << "of file '" << file_ << "' because it is dependent on a branch\n"

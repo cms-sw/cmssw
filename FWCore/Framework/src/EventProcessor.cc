@@ -121,6 +121,7 @@ namespace edm {
             CommonParams const& common,
             ProductRegistry& preg,
             std::shared_ptr<BranchIDListHelper> branchIDListHelper,
+            std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper,
             std::shared_ptr<ActivityRegistry> areg,
             std::shared_ptr<ProcessConfiguration const> processConfiguration,
             PreallocationConfiguration const& allocations) {
@@ -164,7 +165,10 @@ namespace edm {
                          processConfiguration.get(),
                          ModuleDescription::getUniqueID());
 
-    InputSourceDescription isdesc(md, preg, branchIDListHelper, areg, common.maxEventsInput_, common.maxLumisInput_, common.maxSecondsUntilRampdown_, allocations);
+    InputSourceDescription isdesc(md, preg, branchIDListHelper, thinnedAssociationsHelper, areg,
+                                  common.maxEventsInput_, common.maxLumisInput_,
+                                  common.maxSecondsUntilRampdown_, allocations);
+
     areg->preSourceConstructionSignal_(md);
     std::unique_ptr<InputSource> input;
     try {
@@ -515,7 +519,7 @@ namespace edm {
     preallocations_ = PreallocationConfiguration{nThreads,nStreams,nConcurrentLumis,nConcurrentRuns};
 
     // initialize the input source
-    input_ = makeInput(*parameterSet, *common, *items.preg_, items.branchIDListHelper_, items.actReg_, items.processConfiguration_, preallocations_);
+    input_ = makeInput(*parameterSet, *common, *items.preg_, items.branchIDListHelper_, items.thinnedAssociationsHelper_, items.actReg_, items.processConfiguration_, preallocations_);
 
     // intialize the Schedule
     schedule_ = items.initSchedule(*parameterSet,subProcessParameterSet.get(),preallocations_,&processContext_);
@@ -525,6 +529,7 @@ namespace edm {
     actReg_ = items.actReg_;
     preg_.reset(items.preg_.release());
     branchIDListHelper_ = items.branchIDListHelper_;
+    thinnedAssociationsHelper_ = items.thinnedAssociationsHelper_;
     processConfiguration_ = items.processConfiguration_;
     processContext_.setProcessConfiguration(processConfiguration_.get());
     principalCache_.setProcessHistoryRegistry(input_->processHistoryRegistry());
@@ -534,7 +539,7 @@ namespace edm {
     principalCache_.setNumberOfConcurrentPrincipals(preallocations_);
     for(unsigned int index = 0; index<preallocations_.numberOfStreams(); ++index ) {
       // Reusable event principal
-      auto ep = std::make_shared<EventPrincipal>(preg_, branchIDListHelper_, *processConfiguration_, historyAppender_.get(), index);
+      auto ep = std::make_shared<EventPrincipal>(preg_, branchIDListHelper_, thinnedAssociationsHelper_, *processConfiguration_, historyAppender_.get(), index);
       ep->preModuleDelayedGetSignal_.connect(std::cref(actReg_->preModuleEventDelayedGetSignal_));
       ep->postModuleDelayedGetSignal_.connect(std::cref(actReg_->postModuleEventDelayedGetSignal_));
       principalCache_.insert(ep);
@@ -545,6 +550,7 @@ namespace edm {
                                        *parameterSet,
                                        preg_,
                                        branchIDListHelper_,
+                                       *thinnedAssociationsHelper_,
                                        *espController_,
                                        *actReg_,
                                        token,

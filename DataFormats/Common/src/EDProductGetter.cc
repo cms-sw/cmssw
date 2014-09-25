@@ -14,6 +14,7 @@
 
 // user include files
 #include "DataFormats/Common/interface/EDProductGetter.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 namespace edm {
