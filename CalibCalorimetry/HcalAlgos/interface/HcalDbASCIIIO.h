@@ -78,7 +78,7 @@ namespace HcalDbASCIIIO {
   bool dumpObject (std::ostream& fOutput, const HcalRecoParams& fObject);
   bool getObject (std::istream& fInput, HcalLongRecoParams* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalLongRecoParams& fObject);
- 
+
   bool getObject (std::istream& fInput, HcalZDCLowGainFractions* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalZDCLowGainFractions& fObject);
 

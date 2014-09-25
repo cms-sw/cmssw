@@ -132,6 +132,8 @@ namespace edmtest
       dumpIt(new HcalTimingParams(&(*topology)), new HcalTimingParamsRcd, e,context,"TimingParams");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("LongRecoParams")) != mDumpRequest.end())
       dumpIt(new HcalLongRecoParams(&(*topology)), new HcalLongRecoParamsRcd, e,context,"LongRecoParams");
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ZDCLowGainFractions")) != mDumpRequest.end())
+      dumpIt(new HcalZDCLowGainFractions(&(*topology)), new HcalZDCLowGainFractionsRcd, e,context,"ZDCLowGainFractions");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("MCParams")) != mDumpRequest.end())
       dumpIt(new HcalMCParams(&(*topology)), new HcalMCParamsRcd, e,context,"MCParams");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("FlagHFDigiTimeParams")) != mDumpRequest.end())

@@ -376,6 +376,8 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalTimeCorrs& fObj
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalZSThresholds* fObject) {return getHcalSingleIntObject (fInput, fObject, new HcalZSThreshold); }
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalZSThresholds& fObject) {return dumpHcalSingleIntObject (fOutput, fObject); }
 
+bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalZDCLowGainFractions& fObject) {return dumpHcalSingleFloatObject (fOutput, fObject); }
+
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalValidationCorrs* fObject) {return getHcalSingleFloatObject (fInput, fObject, new HcalValidationCorr); }
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalValidationCorrs& fObject) {return dumpHcalSingleFloatObject (fOutput, fObject); }
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalCholeskyMatrices* fObject) {return getHcalMatrixObject (fInput, fObject, new HcalCholeskyMatrix); }
@@ -608,6 +610,33 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalLongRecoParams* fObject
   }
   return true;
 }
+
+bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalZDCLowGainFractions* fObject)
+{
+  if (!fObject) return false; // fObject = new HcalZDCLowGainFractions();
+  char buffer [1024];
+  while (fInput.getline(buffer, 1024)) {
+    if (buffer [0] == '#') continue; //ignore comment
+    std::vector <std::string> items = splitString (std::string (buffer));
+    if (items.size()==0) continue; // blank line
+    if (items.size() < 4) {
+      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 5 items: eta, phi, depth, subdet, lowGainFrac" << std::endl;
+      continue;
+    }
+    if (items.size() > 6) {
+      edm::LogWarning("Format Problem ?") << "Check line: " << buffer << "\n line must contain 5 items: eta, phi, depth, subdet, lowGainFrac" << std::endl;
+      continue;
+    }
+    DetId id = HcalDbASCIIIO::getId (items);
+
+    HcalZDCLowGainFraction* fCondObject = new HcalZDCLowGainFraction(id, atof (items[4].c_str()));
+    fObject->addValues(*fCondObject);
+    delete fCondObject;
+  }
+  return true;
+}
+
+
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalTimingParams* fObject)
 {
   if (!fObject) return false; // fObject = new HcalTimingParams();
@@ -654,10 +683,10 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalTimingParams& f
   return true;
 }
 
-bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalLongRecoParams& fObject)
+bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalZDCLowGainFractions& fObject)
 {
   char buffer [1024];
-  sprintf (buffer, "# %15s %15s %15s %15s %10s %10s %10s\n", "eta", "phi", "dep", "det", "signalTSs", "noiseTSs", "DetId");
+  sprintf (buffer, "# %15s %15s %15s %15s %10s %10s %10s\n", "eta", "phi", "dep", "det", "lowGainFrac", "DetId");
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels ();
   std::sort (channels.begin(), channels.end(), DetIdLess ());
@@ -667,31 +696,32 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalLongRecoParams&
     HcalGenericDetId fId(*channel);
     if (fId.isHcalZDCDetId())
       {
-	std::vector<unsigned int> vSignalTS = fObject.getValues (*channel)->signalTS();
-	std::vector<unsigned int> vNoiseTS = fObject.getValues (*channel)->noiseTS();
-	HcalDbASCIIIO::dumpId (fOutput, *channel);
-	sprintf (buffer, "    ");
-	fOutput << buffer;
-	for (unsigned int i=0; i<vSignalTS.size(); i++)
-	  {
-	    if (i>0) {sprintf (buffer, ",");   fOutput << buffer;}
-	    sprintf (buffer, "%u", vSignalTS.at(i));
-	    fOutput << buffer;
-	  }
-	sprintf (buffer, "       ");
-	fOutput << buffer;
-	for (unsigned int i=0; i<vNoiseTS.size(); i++)
-	  {
-	    if (i>0) { sprintf (buffer, ",");   fOutput << buffer;}
-	    sprintf (buffer, "%u", vNoiseTS.at(i));
-	    fOutput << buffer;
-	  }
+        std::vector<unsigned int> vSignalTS = fObject.getValues (*channel)->signalTS();
+        std::vector<unsigned int> vNoiseTS = fObject.getValues (*channel)->noiseTS();
+        HcalDbASCIIIO::dumpId (fOutput, *channel);
+        sprintf (buffer, "    ");
+        fOutput << buffer;
+        for (unsigned int i=0; i<vSignalTS.size(); i++)
+          {
+            if (i>0) {sprintf (buffer, ",");   fOutput << buffer;}
+            sprintf (buffer, "%u", vSignalTS.at(i));
+            fOutput << buffer;
+          }
+	sprintf (buffer, "	 ");
+        fOutput << buffer;
+        for (unsigned int i=0; i<vNoiseTS.size(); i++)
+          {
+            if (i>0) { sprintf (buffer, ",");   fOutput << buffer;}
+            sprintf (buffer, "%u", vNoiseTS.at(i));
+            fOutput << buffer;
+          }
 	sprintf (buffer, "     %10X\n", channel->rawId ());
-	fOutput << buffer;
+        fOutput << buffer;
       }
   }
   return true;
 }
+
 
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalMCParams* fObject)
 {
