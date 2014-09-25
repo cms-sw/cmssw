@@ -31,6 +31,8 @@ namespace edm {
   class ModuleCallingContext;
   class PreallocationConfiguration;
   class ActivityRegistry;
+  class ProductRegistry;
+  class ThinnedAssociationsHelper;
 
   class EDFilter : public ProducerBase, public EDConsumerBase {
   public:
@@ -68,6 +70,8 @@ namespace edm {
     void doRespondToCloseInputFile(FileBlock const& fb);
     void doPreForkReleaseResources();
     void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
+    void doRegisterThinnedAssociations(ProductRegistry const&,
+                                       ThinnedAssociationsHelper&) { }
 
     void registerProductsAndCallbacks(EDFilter* module, ProductRegistry* reg) {
       registerProducts(module, reg, moduleDescription_);
