@@ -68,7 +68,7 @@ addJetCollection(
       ,'doubleSecondaryVertexHighEffBJetTags'
       ,'combinedInclusiveSecondaryVertexBJetTags'
       ,'combinedInclusiveSecondaryVertexPositiveBJetTags'
-      #,'combinedMVABJetTags'
+      ,'combinedMVABJetTags'
       ,'positiveCombinedMVABJetTags'
       ,'negativeCombinedMVABJetTags'
       #,'combinedSecondaryVertexSoftPFLeptonV1BJetTags'

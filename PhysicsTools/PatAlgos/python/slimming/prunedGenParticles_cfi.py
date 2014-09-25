@@ -26,6 +26,7 @@ prunedGenParticles = cms.EDProducer("GenParticlePruner",
 # additional b hadrons for jet fragmentation studies
 	"keep abs(pdgId) = 10511 || abs(pdgId) = 10521 || abs(pdgId) = 10513 || abs(pdgId) = 10523 || abs(pdgId) = 20513 || abs(pdgId) = 20523 || abs(pdgId) = 10531 || abs(pdgId) = 10533 || abs(pdgId) = 20533 || abs(pdgId) = 10541 || abs(pdgId) = 10543 || abs(pdgId) = 20543", 
 # keep protons 
+	"keep (1000001 <= abs(pdgId) <= 1000039 ) ||  ( 2000001 <= abs(pdgId) <= 2000015)",
         "keep pdgId = 2212",
         "keep status == 3 || status == 22 || status == 23 || ( 11 <= status <= 19)",  #keep event summary status3 (for pythia), 22,23 (pythia8)
 

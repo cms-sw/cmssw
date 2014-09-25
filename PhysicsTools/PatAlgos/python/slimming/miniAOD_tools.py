@@ -72,7 +72,7 @@ def miniAOD_customizeCommon(process):
     switchJetCollection(process, jetSource = cms.InputTag('ak4PFJetsCHS'),  
     jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), ''),
     btagDiscriminators = ['jetBProbabilityBJetTags', 'jetProbabilityBJetTags', 'trackCountingHighPurBJetTags', 'trackCountingHighEffBJetTags', 'simpleSecondaryVertexHighEffBJetTags',
-                         'simpleSecondaryVertexHighPurBJetTags', 'combinedSecondaryVertexBJetTags' , 'combinedInclusiveSecondaryVertexBJetTags' ],
+                         'simpleSecondaryVertexHighPurBJetTags', 'combinedSecondaryVertexBJetTags' , 'combinedInclusiveSecondaryVertexBJetTags','combinedMVABJetTags' ],
     )
     #add AK8   
     from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
