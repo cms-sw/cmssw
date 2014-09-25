@@ -130,18 +130,6 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 	}
       }
     }
-    while (isoCount<4 && 0==itBX){
-      bool iso=true;
-      L1GctEmCand EmCand(0, 0, 0, iso, 0, 0, itBX);
-      isoEmResult->push_back(EmCand);
-      isoCount++;
-    }
-    while (nonIsoCount<4 && 0==itBX){
-      bool iso=false;
-      L1GctEmCand EmCand(0, 0, 0, iso, 0, 0, itBX);
-      nonIsoEmResult->push_back(EmCand);
-      nonIsoCount++;
-    }
 
     //looping over Tau elments with a specific BX
     int tauCount = 0; //max 4
@@ -158,13 +146,6 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 	tauJetResult->push_back(TauCand);
 	tauCount++;
       }
-    }
-    while (tauCount<4 && 0==itBX){
-      bool forward=false;
-      L1GctJetCand JetCand(0, 0, 0,
-			   true, forward,0, 0, itBX);
-      tauJetResult->push_back(JetCand);
-      tauCount++;
     }
 
     //looping over Jet elments with a specific BX
@@ -191,21 +172,6 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 	}
       }
     }
-    while (forCount<4 && 0==itBX){
-      bool forward=true;
-      L1GctJetCand JetCand(0, 0, 0,
-			   false, forward,0, 0, itBX);
-      forJetResult->push_back(JetCand);
-      forCount++;
-    }
-    while (cenCount<4 && 0==itBX){
-      bool forward=false;
-      L1GctJetCand JetCand(0, 0, 0,
-			   false, forward,0, 0, itBX);
-      cenJetResult->push_back(JetCand);
-      cenCount++;
-    }
-
 
     //looping over EtSum elments with a specific BX
     for (l1t::EtSumBxCollection::const_iterator itEtSum = EtSum->begin(itBX);
