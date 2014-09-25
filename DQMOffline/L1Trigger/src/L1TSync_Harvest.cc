@@ -37,7 +37,6 @@ using namespace std;
 //-------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------
 L1TSync_Harvest::L1TSync_Harvest(const ParameterSet & pset){
-  m_verbose = false;
 
 ///  m_parameters = pset;
 ///  
