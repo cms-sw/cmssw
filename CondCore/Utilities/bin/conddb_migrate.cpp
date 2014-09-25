@@ -45,12 +45,21 @@ cond::MigrateUtilities::~MigrateUtilities(){
 int cond::MigrateUtilities::execute(){
 
   bool debug = hasDebug();
+  int filterPosition = -1;
   std::string tag("");
   if( hasOptionValue("tag")) {
     tag = getOptionValue<std::string>("tag");
     if(debug){
       std::cout << "tag " << tag << std::endl;
     }  
+    if( tag[0] == '*' ){ 
+      tag = tag.substr(1);
+      filterPosition = 0;
+    }
+    if( tag[tag.size()-1] == '*' ){
+      tag = tag.substr(0,tag.size()-1);
+      filterPosition = 1;
+    }
   }
   bool replace = hasOptionValue("replace");
   bool validate = !hasOptionValue("fast");
@@ -66,10 +75,18 @@ int cond::MigrateUtilities::execute(){
   sourcedb.transaction().start( true );
   cond::MetaData  metadata(sourcedb);
   std::vector<std::string> tagToProcess;
-  if( !tag.empty() ){
+  if( !tag.empty() && filterPosition == -1 ){
     tagToProcess.push_back( tag );
   } else {
     metadata.listAllTags( tagToProcess );
+    if( filterPosition != -1 ) {
+      std::vector<std::string> filteredList;
+      for( const auto& t: tagToProcess ) {
+	size_t ptr = t.find( tag );
+	if( ptr != std::string::npos && ptr < filterPosition ) filteredList.push_back( t );
+      }
+      tagToProcess = filteredList;
+    }
   }
 
   cond::DbSession logdb = openDbSession("log", cond::Auth::COND_READER_ROLE, true ); 
