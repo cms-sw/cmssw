@@ -788,6 +788,19 @@ namespace edm {
     return nullptr;
   }
 
+  WrapperBase const*
+  Principal::getThinnedProduct(ProductID const&, unsigned int&) const {
+    assert(nullptr);
+    return nullptr;
+  }
+
+  void
+  Principal::getThinnedProducts(ProductID const&,
+                                  std::vector<WrapperBase const*>&,
+                                  std::vector<unsigned int>&) const {
+    assert(nullptr);
+  }
+
   void
   Principal::checkUniquenessAndType(WrapperBase const* prod, ProductHolderBase const* phb) const {
     if(prod == nullptr) return;

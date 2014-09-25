@@ -17,6 +17,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
+#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
@@ -79,6 +80,7 @@ private:
   edm::ProcessConfiguration m_procConfig;
   std::shared_ptr<edm::ProductRegistry> m_prodReg;
   std::shared_ptr<edm::BranchIDListHelper> m_idHelper;
+  std::shared_ptr<edm::ThinnedAssociationsHelper> m_associationsHelper;
   std::unique_ptr<edm::EventPrincipal> m_ep;
   edm::HistoryAppender historyAppender_;
   std::shared_ptr<edm::LuminosityBlockPrincipal> m_lbp;
@@ -230,6 +232,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testOneOutputModule);
 testOneOutputModule::testOneOutputModule():
 m_prodReg(new edm::ProductRegistry{}),
 m_idHelper(new edm::BranchIDListHelper{}),
+m_associationsHelper(new edm::ThinnedAssociationsHelper{}),
 m_ep()
 {
   //Setup the principals
@@ -248,6 +251,7 @@ m_ep()
 
   m_ep.reset(new edm::EventPrincipal(m_prodReg,
                                      m_idHelper,
+                                     m_associationsHelper,
                                      m_procConfig,nullptr));
   edm::ProcessHistoryRegistry phr;
   m_ep->fillEventPrincipal(eventAux, phr);

@@ -11,6 +11,7 @@ namespace edm {
   class ExceptionToActionTable;
   class ActivityRegistry;
   class BranchIDListHelper;
+  class ThinnedAssociationsHelper;
   struct CommonParams;
   class SubProcess;
   class ParameterSet;
@@ -52,12 +53,12 @@ namespace edm {
     void
     clear();
 
-    std::shared_ptr<ActivityRegistry>           actReg_;
-    std::unique_ptr<SignallingProductRegistry>    preg_;
-    std::shared_ptr<BranchIDListHelper>         branchIDListHelper_;
-    std::unique_ptr<ExceptionToActionTable const>            act_table_;
-    std::shared_ptr<ProcessConfiguration>       processConfiguration_;
+    std::shared_ptr<ActivityRegistry> actReg_;
+    std::unique_ptr<SignallingProductRegistry> preg_;
+    std::shared_ptr<BranchIDListHelper> branchIDListHelper_;
+    std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper_;
+    std::unique_ptr<ExceptionToActionTable const> act_table_;
+    std::shared_ptr<ProcessConfiguration> processConfiguration_;
   };
 }
-
 #endif
