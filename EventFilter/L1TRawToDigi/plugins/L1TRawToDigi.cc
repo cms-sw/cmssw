@@ -57,7 +57,6 @@ namespace l1t {
          int fedId_;
 
          std::auto_ptr<UnpackerProvider> prov_;
-         UnpackerMap unpackers_;
 
          // header and trailer sizes in chars
          int slinkHeaderSize_;
@@ -74,7 +73,6 @@ namespace l1t {
       fedData_ = consumes<FEDRawDataCollection>(config.getParameter<edm::InputTag>("InputLabel"));
 
       prov_ = UnpackerProviderFactory::get()->make("l1t::CaloSetup", *this);
-      unpackers_ = prov_->getUnpackers();
 
       slinkHeaderSize_ = config.getUntrackedParameter<int>("lenSlinkHeader", 16);
       slinkTrailerSize_ = config.getUntrackedParameter<int>("lenSlinkTrailer", 16);
@@ -178,6 +176,8 @@ namespace l1t {
 
       unsigned fw = fw_id;
 
+      auto unpackers = prov_->getUnpackers(fedId_, 1, fw_id);
+
       auto payload_end = idx + payload_size * 4;
       for (unsigned int b = 0; idx < payload_end; ++b) {
          // Parse block
@@ -188,8 +188,8 @@ namespace l1t {
          LogDebug("L1T") << "Found MP7 header: block ID " << block_id << " block size " << block_size;
 
          // set AMC id to 1 for now
-         auto unpacker = unpackers_.find(std::make_tuple(fedId_, 1, (int) block_id, (int) fw_id));
-         if (unpacker == unpackers_.end()) {
+         auto unpacker = unpackers.find(block_id);
+         if (unpacker == unpackers.end()) {
             LogWarning("L1T") << "Cannot find an unpacker for block ID "
                << block_id << ", FED ID " << fedId_ << ", and FW ID "
                << fw << "!";

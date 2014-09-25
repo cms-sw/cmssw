@@ -15,14 +15,14 @@ namespace edm {
 }
 
 namespace l1t {
-   typedef std::tuple<int, int, int, int> UnpackerVersion;
-   typedef std::map<UnpackerVersion, std::shared_ptr<Unpacker>> UnpackerMap;
+   // Mapping of block id to unpacker.  Different for each set of (FED, AMC, Firmware) ids.
+   typedef std::map<int, std::shared_ptr<Unpacker>> UnpackerMap;
 
    class UnpackerProvider {
       public:
          UnpackerProvider(edm::one::EDProducerBase&) {};
 
-         virtual UnpackerMap getUnpackers() = 0;
+         virtual UnpackerMap getUnpackers(int, int, int) = 0;
          virtual std::unique_ptr<UnpackerCollections> getCollections(edm::Event&) = 0;
    };
 

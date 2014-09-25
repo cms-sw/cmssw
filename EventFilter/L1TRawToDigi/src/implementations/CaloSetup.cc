@@ -23,7 +23,7 @@ namespace l1t {
             return std::unique_ptr<UnpackerCollections>(new CaloCollections(e));
          };
 
-         virtual UnpackerMap getUnpackers() override {
+         virtual UnpackerMap getUnpackers(int fed, int amc, int fw) override {
             auto tower_unp = UnpackerFactory::get()->make("CaloTowerUnpacker");
             auto egamma_unp = UnpackerFactory::get()->make("EGammaUnpacker");
             auto etsum_unp = UnpackerFactory::get()->make("EtSumUnpacker");
@@ -33,20 +33,22 @@ namespace l1t {
             auto mp_unp = UnpackerFactory::get()->make("MPUnpacker");
 
             UnpackerMap res;
-            res[std::make_tuple(1, 1, 1, 1)] = egamma_unp;
-            res[std::make_tuple(1, 1, 3, 1)] = etsum_unp;
-            res[std::make_tuple(1, 1, 5, 1)] = jet_unp;
-            res[std::make_tuple(1, 1, 7, 1)] = tau_unp;
+            if (fed == 1) {
+               res[1] = egamma_unp;
+               res[3] = etsum_unp;
+               res[5] = jet_unp;
+               res[7] = tau_unp;
+            } else if (fed == 2) {
+               res[1] = mp_unp;
+               res[3] = mp_unp;
+               res[5] = mp_unp;
+               res[7] = mp_unp;
+               res[9] = mp_unp;
+               res[11] = mp_unp;
 
-            res[std::make_tuple(2, 1, 1, 1)] = mp_unp;
-            res[std::make_tuple(2, 3, 1, 1)] = mp_unp;
-            res[std::make_tuple(2, 5, 1, 1)] = mp_unp;
-            res[std::make_tuple(2, 7, 1, 1)] = mp_unp;
-            res[std::make_tuple(2, 9, 1, 1)] = mp_unp;
-            res[std::make_tuple(2, 11, 1, 1)] = mp_unp;
-
-            for (int link = 0; link < 144; link += 2)
-               res[std::make_tuple(2, 1, link, 1)] = tower_unp;
+               for (int link = 0; link < 144; link += 2)
+                  res[link] = tower_unp;
+            }
 
             return res;
          };
