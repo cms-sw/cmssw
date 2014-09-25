@@ -326,7 +326,7 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
     aPhoton.setELeft( ecalRegData.eLeft() );
     aPhoton.setERight( ecalRegData.eRight() );
     aPhoton.setSee( ecalRegData.sigmaIEtaIEta() );
-    aPhoton.setSep( ecalRegData.sigmaIEtaIPhi() );
+    aPhoton.setSep( ecalRegData.sigmaIEtaIPhi()*ecalRegData.sigmaIEtaIEta()*ecalRegData.sigmaIPhiIPhi() ); //there is a conflict on what sigmaIEtaIPhi actually is, regression and ID have it differently, this may change in later releases
     aPhoton.setSpp( ecalRegData.sigmaIPhiIPhi() );
    
     aPhoton.setMaxDR( ecalRegData.maxSubClusDR() );
