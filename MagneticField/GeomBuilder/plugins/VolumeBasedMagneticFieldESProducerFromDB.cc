@@ -31,7 +31,7 @@
 #include "CondFormats/Common/interface/FileBlob.h"
 #include "Geometry/Records/interface/GeometryFileRcd.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "MagFieldConfig.h"
+#include "CondFormats/MFObjects/interface/MagFieldConfig.h"
 
 #include <string>
 #include <vector>

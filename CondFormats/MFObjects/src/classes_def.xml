@@ -1,0 +1,6 @@
+<lcgdict>
+  <class name="std::pair<std::string, int>"/>  
+  <class name="std::map<unsigned int, std::pair<std::string, int> >"/>
+  <class name="MagFieldConfig"/>
+</lcgdict>
+

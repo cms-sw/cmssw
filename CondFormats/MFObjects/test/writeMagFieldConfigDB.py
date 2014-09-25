@@ -1,33 +1,49 @@
 import FWCore.ParameterSet.Config as cms
 
-
-# This cfi contains everything needed to use the VolumeBased magnetic
-# field engine version 090322 (based on 2007 geometry, model with extended R and Z)
-# with separate tables for different sectors
+DBFILE = "MFConfig_090322_2pi_scaled"
 
 
-ParametrizedMagneticFieldProducer = cms.ESProducer("ParametrizedMagneticFieldProducer",
-    version = cms.string('OAE_1103l_071212'),
-    parameters = cms.PSet(
-        BValue = cms.string('3_8T')
-    ),
-    label = cms.untracked.string('parametrizedField')
+process = cms.Process("DumpToDB")
+
+process.load("CondCore.DBCommon.CondDBSetup_cfi")
+
+process.source = cms.Source("EmptySource",
+    numberEventsInRun = cms.untracked.uint32(1),
+    firstRun = cms.untracked.uint32(300000)
 )
 
-#Apply scaling factors
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(1)
+)
+
+
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag.globaltag = "START72_V1::All"
+#process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
+
+# VDrift, TTrig, TZero, Noise or channels Map into DB
+process.PoolDBOutputService = cms.Service("PoolDBOutputService",
+                                          process.CondDBSetup,
+                                          connect = cms.string("sqlite_file:"+DBFILE+".db"),
+                                          toPut = cms.VPSet(cms.PSet(record = cms.string("MagFieldConfigRcd"),
+                                                                     tag = cms.string("MagFieldConfig_test"))))
+
+
+
 from MagneticField.Engine.ScalingFactors_090322_2pi_090520_cfi import *
 
-VolumeBasedMagneticFieldESProducer = cms.ESProducer("VolumeBasedMagneticFieldESProducerFromDB",
+#Module to dump a file into a DB
+process.dumpToDB = cms.EDAnalyzer("MagFieldConfigDBWriter",
     fieldScaling,
-    label = cms.untracked.string(''),
-    debugBuilder = cms.untracked.bool(False),
-    valueOverride = cms.int32(-1),
+###    label = cms.untracked.string(''),
+###    debugBuilder = cms.untracked.bool(False),
+###    valueOverride = cms.int32(-1),
     # Parameters to be moved to the config DB
     version = cms.string('grid_1103l_090322_3_8t'),
     geometryVersion = cms.int32(90322),
     paramLabel = cms.string('parametrizedField'), #FIXME
     paramData = cms.vdouble(3.8),#FIXME
-    cacheLastVolume = cms.untracked.bool(True),#FIXME
+###    cacheLastVolume = cms.untracked.bool(True),#FIXME
                                                     
     gridFiles = cms.VPSet(
         cms.PSet( # Default tables, replicate sector 1
@@ -73,4 +89,8 @@ VolumeBasedMagneticFieldESProducer = cms.ESProducer("VolumeBasedMagneticFieldESP
         ),
     )
 )
+                                
+
+process.p = cms.Path(process.dumpToDB)
+    
 

@@ -12,7 +12,7 @@
 #include "MagneticField/Interpolation/interface/MagProviderInterpol.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
-#include <MagneticField/GeomBuilder/plugins/MagFieldConfig.h>
+#include "CondFormats/MFObjects/interface/MagFieldConfig.h"
 
 #include <string>
 #include <vector>

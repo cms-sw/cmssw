@@ -14,7 +14,7 @@
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "MagneticField/GeomBuilder/src/MagGeoBuilderFromDDD.h"
-#include "MagFieldConfig.h"
+#include "CondFormats/MFObjects/interface/MagFieldConfig.h"
 
 #include <string>
 #include <vector>
