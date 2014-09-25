@@ -80,6 +80,49 @@ namespace edm {
     return product;
   }
 
+  WrapperBase const*
+  RefCore::tryToGetProductPtr(std::type_info const& type) const {
+    ProductID tId = id();
+    assert (!isTransient());
+    if (!tId.isValid()) {
+      throwInvalidRefFromNullOrInvalidRef(TypeID(type));
+    }
+
+    if (cachePtr_ == 0) {
+      throwInvalidRefFromNoCache(TypeID(type),tId);
+    }
+    WrapperBase const* product = productGetter()->getIt(tId);
+    if(product != nullptr && !(type == product->dynamicTypeInfo())) {
+      wrongTypeException(type, product->dynamicTypeInfo());
+    }
+    return product;
+  }
+
+  WrapperBase const*
+  RefCore::getThinnedProductPtr(std::type_info const& type, unsigned int& thinnedKey) const {
+
+    ProductID tId = id();
+    WrapperBase const* product = productGetter()->getThinnedProduct(tId, thinnedKey);
+
+    if (product == nullptr) {
+      productNotFoundException(type);
+    }
+    if(!(type == product->dynamicTypeInfo())) {
+      wrongTypeException(type, product->dynamicTypeInfo());
+    }
+    return product;
+  }
+
+  bool
+  RefCore::isThinnedAvailable(unsigned int thinnedKey) const {
+    ProductID tId = id();
+    if(!tId.isValid() || productGetter() == nullptr) {
+      return false;
+    }
+    WrapperBase const* product = productGetter()->getThinnedProduct(tId, thinnedKey);
+    return product != nullptr;
+  }
+
   void
   RefCore::productNotFoundException(std::type_info const& type) const {
     throw edm::Exception(errors::ProductNotFound)

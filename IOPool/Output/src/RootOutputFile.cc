@@ -26,6 +26,7 @@
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
@@ -534,6 +535,13 @@ namespace edm {
   void RootOutputFile::writeBranchIDListRegistry() {
     BranchIDLists const* p = om_->branchIDLists();
     TBranch* b = metaDataTree_->Branch(poolNames::branchIDListBranchName().c_str(), &p, om_->basketSize(), 0);
+    assert(b);
+    b->Fill();
+  }
+
+  void RootOutputFile::writeThinnedAssociationsHelper() {
+    ThinnedAssociationsHelper const* p = om_->thinnedAssociationsHelper();
+    TBranch* b = metaDataTree_->Branch(poolNames::thinnedAssociationsHelperBranchName().c_str(), &p, om_->basketSize(), 0);
     assert(b);
     b->Fill();
   }

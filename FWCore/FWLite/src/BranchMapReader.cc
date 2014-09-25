@@ -24,6 +24,7 @@
 #include "DataFormats/Provenance/interface/History.h"
 #include "DataFormats/Provenance/interface/ProductIDToBranchID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include "TBranch.h"
@@ -66,17 +67,20 @@ namespace fwlite {
       virtual bool updateMap() override { return true; }
       virtual edm::BranchID productToBranchID(edm::ProductID const& pid) override;
       virtual edm::BranchDescription const& productToBranch(edm::ProductID const& pid) override;
+      virtual edm::BranchDescription const& branchIDToBranch(edm::BranchID const& bid) const override;
       virtual std::vector<edm::BranchDescription> const& getBranchDescriptions() override;
+      virtual edm::ThinnedAssociationsHelper const& thinnedAssociationsHelper() const override { return *thinnedAssociationsHelper_; }
 
       TBranch* getBranchRegistry(edm::ProductRegistry** pReg);
 
       bidToDesc branchDescriptionMap_;
       std::vector<edm::BranchDescription> bDesc_;
       bool mapperFilled_;
+      std::unique_ptr<edm::ThinnedAssociationsHelper> thinnedAssociationsHelper_;
     };
 
     Strategy::Strategy(TFile* file, int fileVersion)
-      : BMRStrategy(file, fileVersion), mapperFilled_(false) {
+      : BMRStrategy(file, fileVersion), mapperFilled_(false), thinnedAssociationsHelper_(new edm::ThinnedAssociationsHelper) {
       // do in derived obects
       // updateFile(file);
     }
@@ -126,6 +130,15 @@ namespace fwlite {
     edm::BranchDescription const &
     Strategy::productToBranch(edm::ProductID const& pid) {
       edm::BranchID bid = productToBranchID(pid);
+      bidToDesc::const_iterator bdi = branchDescriptionMap_.find(bid);
+      if(branchDescriptionMap_.end() == bdi) {
+        return kDefaultBranchDescription;
+      }
+      return bdi->second;
+    }
+
+    edm::BranchDescription const &
+    Strategy::branchIDToBranch(edm::BranchID const& bid) const {
       bidToDesc::const_iterator bdi = branchDescriptionMap_.find(bid);
       if(branchDescriptionMap_.end() == bdi) {
         return kDefaultBranchDescription;
@@ -472,6 +485,15 @@ namespace fwlite {
       if(0==metaDataTree) {
          throw edm::Exception(edm::errors::EventCorruption) <<"No "<<edm::poolNames::metaDataTreeName()<<" TTree in file";
       }
+
+      thinnedAssociationsHelper_.reset(new edm::ThinnedAssociationsHelper);
+      edm::ThinnedAssociationsHelper* thinnedAssociationsHelperPtr = thinnedAssociationsHelper_.get();
+      if(metaDataTree->FindBranch(edm::poolNames::thinnedAssociationsHelperBranchName().c_str()) != nullptr) {
+        TBranch* b = metaDataTree->GetBranch(edm::poolNames::thinnedAssociationsHelperBranchName().c_str());
+        b->SetAddress(&thinnedAssociationsHelperPtr);
+        b->GetEntry(0);
+      }
+
       branchIDLists_.reset(new edm::BranchIDLists);
       edm::BranchIDLists* branchIDListsPtr = branchIDLists_.get();
       if(metaDataTree->FindBranch(edm::poolNames::branchIDListBranchName().c_str()) != 0) {

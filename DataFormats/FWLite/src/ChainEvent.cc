@@ -278,6 +278,16 @@ edm::WrapperBase const* ChainEvent::getByProductID(edm::ProductID const& iID) co
   return event_->getByProductID(iID);
 }
 
+edm::WrapperBase const* ChainEvent::getThinnedProduct(edm::ProductID const& pid, unsigned int& key) const {
+  return event_->getThinnedProduct(pid, key);
+}
+
+void ChainEvent::getThinnedProducts(edm::ProductID const& pid,
+                                    std::vector<edm::WrapperBase const*>& foundContainers,
+                                    std::vector<unsigned int>& keys) const {
+  event_->getThinnedProducts(pid, foundContainers, keys);
+}
+
 bool
 ChainEvent::isValid() const
 {
