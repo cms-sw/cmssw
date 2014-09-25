@@ -63,14 +63,7 @@ def customise_Validation(process):
 
 def customise_Sim(process):
     # enable 2015 HF shower library
-    process.g4SimHits.HCalSD.UseShowerLibrary   = True
-    process.g4SimHits.HCalSD.UseParametrize     = False
-    process.g4SimHits.HCalSD.UsePMTHits         = False
-    process.g4SimHits.HCalSD.UseFibreBundleHits = False
-    process.g4SimHits.HFShowerLibrary.FileName  = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_eta4_16en.root'
-    process.g4SimHits.HFShowerLibrary.BranchPost= ''
-    process.g4SimHits.HFShowerLibrary.BranchPre = ''
-    process.g4SimHits.HFShowerLibrary.BranchEvt = ''
+    process.g4SimHits.HFShowerLibrary.FileName  = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en.root'
     return process
 
 
@@ -107,6 +100,21 @@ def customise_HLT(process):
 
 
 def customise_Reco(process):
+    #lowering HO threshold with SiPM
+    for prod in process.particleFlowRecHitHO.producers:
+        prod.qualityTests = cms.VPSet(
+            cms.PSet(
+                name = cms.string("PFRecHitQTestThreshold"),
+                threshold = cms.double(0.05) # new threshold for SiPM HO
+            ),
+            cms.PSet(
+                name = cms.string("PFRecHitQTestHCALChannel"),
+                maxSeverities      = cms.vint32(11),
+                cleaningThresholds = cms.vdouble(0.0),
+                flags              = cms.vstring('Standard')
+            )
+        )
+
     return process
 
 

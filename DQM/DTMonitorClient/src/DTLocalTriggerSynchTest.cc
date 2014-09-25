@@ -125,7 +125,9 @@ void DTLocalTriggerSynchTest::runClientDiagnostic() {
 	  MonitorElement* ratioH = innerME.find(fullName(ratioHistoTag))->second;
 	  makeRatioME(numH,denH,ratioH);
 	  try {
-	    getHisto<TH1F>(ratioH)->Fit("pol8","CQO");
+	    //Need our own copy to avoid threading problems
+	    TF1 mypol8("mypol8","pol8");
+	    getHisto<TH1F>(ratioH)->Fit(&mypol8,"CQO");
 	  } catch (cms::Exception& iException) {
 	    edm::LogPrint(category()) << "[" << testName 
 				     << "Test]: Error fitting " 
@@ -174,7 +176,7 @@ void DTLocalTriggerSynchTest::endJob(){
 
 	TH1F *ratioH     = getHisto<TH1F>(dbe->get(getMEName(ratioHistoTag,"", chId)));    
 	if (ratioH->GetEntries()>minEntries) {	      
-	  TF1 *fitF=ratioH->GetFunction("pol8");
+	  TF1 *fitF=ratioH->GetFunction("mypol8");
 	  if (fitF) { fineDelay=fitF->GetMaximumX(0,bxTime); }
 	} else {
 	  LogInfo(category()) << "[" << testName 

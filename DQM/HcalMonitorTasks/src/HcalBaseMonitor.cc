@@ -18,9 +18,7 @@ HcalBaseMonitor::~HcalBaseMonitor() {}
 
 void HcalBaseMonitor::beginRun(){ievt_=0;levt_=0;LBprocessed_=false;}
 
-void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore* dbe){
-  m_dbe = NULL;
-  if(dbe != NULL) m_dbe = dbe;
+void HcalBaseMonitor::setup(const edm::ParameterSet& ps, DQMStore::IBooker& ib){
 
   std::vector<std::string> dummy;
   dummy.clear();
@@ -109,11 +107,8 @@ void HcalBaseMonitor::processEvent()
   ++levt_;
   ++tevt_;
   // Fill MonitorElements
-  if (m_dbe)
-    {
-      if (meEVT_) meEVT_->Fill(ievt_);
-      if (meTOTALEVT_) meTOTALEVT_->Fill(tevt_);
-    }
+  if (meEVT_) meEVT_->Fill(ievt_);
+  if (meTOTALEVT_) meTOTALEVT_->Fill(tevt_);
   return;
 }
 
@@ -178,23 +173,21 @@ void HcalBaseMonitor::done(){}
 
 void HcalBaseMonitor::clearME(){
 
-  if(m_dbe){
+/*  if(m_dbe){
     m_dbe->setCurrentFolder(baseFolder_);
     m_dbe->removeContents();    
-    /*
-    m_dbe->setCurrentFolder(baseFolder_+"/HB");
-    m_dbe->removeContents();
-    
-    m_dbe->setCurrentFolder(baseFolder_+"/HE");
-    m_dbe->removeContents();
-
-    m_dbe->setCurrentFolder(baseFolder_+"/HO");
-    m_dbe->removeContents();
-
-    m_dbe->setCurrentFolder(baseFolder_+"/HF");
-    m_dbe->removeContents();
-    */
-  }
+//    m_dbe->setCurrentFolder(baseFolder_+"/HB");
+//    m_dbe->removeContents();
+//    
+//    m_dbe->setCurrentFolder(baseFolder_+"/HE");
+//    m_dbe->removeContents();
+//
+//    m_dbe->setCurrentFolder(baseFolder_+"/HO");
+//    m_dbe->removeContents();
+//
+//    m_dbe->setCurrentFolder(baseFolder_+"/HF");
+//    m_dbe->removeContents();
+  }*/
   return;
 } // void HcalBaseMonitor::clearME();
 
@@ -245,7 +238,7 @@ void HcalBaseMonitor::hideKnownBadCells()
 
 // *********************************************************** //
 
-void HcalBaseMonitor::SetupEtaPhiHists(MonitorElement* &h, EtaPhiHists & hh, std::string Name, std::string Units)
+void HcalBaseMonitor::SetupEtaPhiHists(DQMStore::IBooker &ib, MonitorElement* &h, EtaPhiHists & hh, std::string Name, std::string Units)
 {
   std::stringstream name;
   name<<Name;
@@ -262,7 +255,7 @@ void HcalBaseMonitor::SetupEtaPhiHists(MonitorElement* &h, EtaPhiHists & hh, std
       unittitle<<Units;
     }
 
-  h=m_dbe->book2D(("All "+name.str()+unitname.str()).c_str(),
+  h=ib.book2D(("All "+name.str()+unitname.str()).c_str(),
 		  (name.str() + " for all HCAL ("+unittitle.str().c_str()+")"),
 		  85,-42.5,42.5,
 		  72,0.5,72.5);
@@ -270,17 +263,17 @@ void HcalBaseMonitor::SetupEtaPhiHists(MonitorElement* &h, EtaPhiHists & hh, std
   h->setAxisTitle("i#eta",1);
   h->setAxisTitle("i#phi",2);
   
-  SetupEtaPhiHists(hh, Name, Units);
+  SetupEtaPhiHists(ib, hh, Name, Units);
   return;
 }
 
-void HcalBaseMonitor::SetupEtaPhiHists(EtaPhiHists & hh, std::string Name, std::string Units)
+void HcalBaseMonitor::SetupEtaPhiHists(DQMStore::IBooker &ib, EtaPhiHists & hh, std::string Name, std::string Units)
 {
-  hh.setup(m_dbe, Name, Units);
+  hh.setup(ib, Name, Units);
   return;
 }
 
-void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, std::string Name, std::string Units)
+void HcalBaseMonitor::setupDepthHists2D(DQMStore::IBooker &ib, MonitorElement* &h, std::vector<MonitorElement*> &hh, std::string Name, std::string Units)
 {
   /* Code makes overall 2D MonitorElement histogram,
      and the vector of 2D MonitorElements for each individual depth.
@@ -309,14 +302,14 @@ void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorE
       unittitle<<Units;
     }
 
-  h=m_dbe->book2D(("All "+name.str()+unitname.str()).c_str(),
+  h=ib.book2D(("All "+name.str()+unitname.str()).c_str(),
 		  (name.str() + " for all HCAL ("+unittitle.str().c_str()+")"),
 		  etaBins_, etaMin_, etaMax_,
 		  phiBins_, phiMin_, phiMax_);
   h->setAxisTitle("i#eta",1);
   h->setAxisTitle("i#phi",2);
   
-  setupDepthHists2D(hh, Name, Units);
+  setupDepthHists2D(ib, hh, Name, Units);
   /*
   if (showTiming)
     {
@@ -329,7 +322,7 @@ void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorE
 
 // *************************************** //
 
-void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, std::string Name, std::string Units)
+void HcalBaseMonitor::setupDepthHists2D(DQMStore::IBooker &ib, std::vector<MonitorElement*> &hh, std::string Name, std::string Units)
 {
   /* Code makes vector of 2D MonitorElements for all 6 depths
      (4 depths, + 2 for separate HE histograms).
@@ -360,27 +353,27 @@ void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, std::s
     }
 
   // Push back depth plots -- remove ZDC names at some point?
-  hh.push_back(m_dbe->book2D(("HB HF Depth 1 "+name.str()+unitname.str()).c_str(),
+  hh.push_back(ib.book2D(("HB HF Depth 1 "+name.str()+unitname.str()).c_str(),
 			     (name.str()+" Depth 1 -- HB & HF only ("+unittitle.str().c_str()+")"),
 			     etaBins_,etaMin_,etaMax_,
 			     phiBins_,phiMin_,phiMax_));
-  hh.push_back( m_dbe->book2D(("HB HF Depth 2 "+name.str()+unitname.str()).c_str(),
+  hh.push_back( ib.book2D(("HB HF Depth 2 "+name.str()+unitname.str()).c_str(),
 			      (name.str()+" Depth 2 -- HB & HF only ("+unittitle.str().c_str()+")"),
 			      etaBins_,etaMin_,etaMax_,
 			      phiBins_,phiMin_,phiMax_));
-  hh.push_back( m_dbe->book2D(("HE Depth 3 "+name.str()+unitname.str()).c_str(),
+  hh.push_back( ib.book2D(("HE Depth 3 "+name.str()+unitname.str()).c_str(),
 			      (name.str()+" Depth 3 -- HE ("+unittitle.str().c_str()+")"),
 			      etaBins_,etaMin_,etaMax_,
 			      phiBins_,phiMin_,phiMax_));
-  hh.push_back( m_dbe->book2D(("HO ZDC "+name.str()+unitname.str()).c_str(),
+  hh.push_back( ib.book2D(("HO ZDC "+name.str()+unitname.str()).c_str(),
 			      (name.str()+" -- HO & ZDC ("+unittitle.str().c_str()+")"),
 			      etaBins_,etaMin_,etaMax_,
 			      phiBins_,phiMin_,phiMax_));
-  hh.push_back(m_dbe->book2D(("HE Depth 1 "+name.str()+unitname.str()).c_str(),
+  hh.push_back(ib.book2D(("HE Depth 1 "+name.str()+unitname.str()).c_str(),
 			     (name.str()+" Depth 1 -- HE only ("+unittitle.str().c_str()+")"),
 			     etaBins_,etaMin_,etaMax_,
 			     phiBins_,phiMin_,phiMax_));
-  hh.push_back(m_dbe->book2D(("HE Depth 2 "+name.str()+unitname.str()).c_str(),
+  hh.push_back(ib.book2D(("HE Depth 2 "+name.str()+unitname.str()).c_str(),
 			     (name.str()+" Depth 2 -- HE only ("+unittitle.str().c_str()+")"),
 			     etaBins_,etaMin_,etaMax_,
 			     phiBins_,phiMin_,phiMax_));
@@ -401,7 +394,7 @@ void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, std::s
 
 // *************************************************************** //
 
-void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorElement*> &hh, std::string Name, std::string Units, 
+void HcalBaseMonitor::setupDepthHists2D(DQMStore::IBooker &ib, MonitorElement* &h, std::vector<MonitorElement*> &hh, std::string Name, std::string Units, 
 					int nbinsx, int lowboundx, int highboundx, 
 					int nbinsy, int lowboundy, int highboundy)
 {
@@ -431,12 +424,12 @@ void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorE
       unittitle<<Units;
     }
 
-  h=m_dbe->book2D(("All "+name.str()+unitname.str()).c_str(),
+  h=ib.book2D(("All "+name.str()+unitname.str()).c_str(),
                   (name.str() + " for all HCAL ("+unittitle.str().c_str()+")"),
 		  nbinsx, lowboundx, highboundx,
 		  nbinsy, lowboundy, highboundy);
 
-  setupDepthHists2D(hh, Name, Units, 
+  setupDepthHists2D(ib, hh, Name, Units, 
 		    nbinsx, lowboundx, highboundx,
 		    nbinsy, lowboundy, highboundy);
 
@@ -451,7 +444,7 @@ void HcalBaseMonitor::setupDepthHists2D(MonitorElement* &h, std::vector<MonitorE
 // *************************************************************** //
 
 
-void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, std::string Name, std::string Units,
+void HcalBaseMonitor::setupDepthHists2D(DQMStore::IBooker &ib, std::vector<MonitorElement*> &hh, std::string Name, std::string Units,
 					int nbinsx, int lowboundx, int highboundx,
 					int nbinsy, int lowboundy, int highboundy)
 {
@@ -485,27 +478,27 @@ void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, std::s
     }
 
   // Push back depth plots
-  hh.push_back(m_dbe->book2D(("HB HF Depth 1 "+name.str()+unitname.str()).c_str(),
+  hh.push_back(ib.book2D(("HB HF Depth 1 "+name.str()+unitname.str()).c_str(),
 			     (name.str()+" Depth 1 -- HB & HF only ("+unittitle.str().c_str()+")"),
 			     nbinsx, lowboundx, highboundx,
 			     nbinsy, lowboundy, highboundy));
-  hh.push_back( m_dbe->book2D(("HB HF Depth 2 "+name.str()+unitname.str()).c_str(),
+  hh.push_back( ib.book2D(("HB HF Depth 2 "+name.str()+unitname.str()).c_str(),
 			      (name.str()+" Depth 2 -- HB & HF only ("+unittitle.str().c_str()+")"),
 			      nbinsx, lowboundx, highboundx,
 			      nbinsy, lowboundy, highboundy));
-  hh.push_back( m_dbe->book2D(("HE Depth 3 "+name.str()+unitname.str()).c_str(),
+  hh.push_back( ib.book2D(("HE Depth 3 "+name.str()+unitname.str()).c_str(),
 			      (name.str()+" Depth 3 -- HE ("+unittitle.str().c_str()+")"),
 			      nbinsx, lowboundx, highboundx,
 			      nbinsy, lowboundy, highboundy));
-  hh.push_back( m_dbe->book2D(("HO ZDC "+name.str()+unitname.str()).c_str(),
+  hh.push_back( ib.book2D(("HO ZDC "+name.str()+unitname.str()).c_str(),
 			      (name.str()+" -- HO & ZDC ("+unittitle.str().c_str()+")"),
 			      nbinsx, lowboundx, highboundx,
 			      nbinsy, lowboundy, highboundy));
-  hh.push_back(m_dbe->book2D(("HE Depth 1 "+name.str()+unitname.str()).c_str(),
+  hh.push_back(ib.book2D(("HE Depth 1 "+name.str()+unitname.str()).c_str(),
 			     (name.str()+" Depth 1 -- HE only ("+unittitle.str().c_str()+")"),
 			     nbinsx, lowboundx, highboundx,
 			     nbinsy, lowboundy, highboundy));
-  hh.push_back(m_dbe->book2D(("HE Depth 2 "+name.str()+unitname.str()).c_str(),
+  hh.push_back(ib.book2D(("HE Depth 2 "+name.str()+unitname.str()).c_str(),
 			     (name.str()+" Depth 2 -- HE only ("+unittitle.str().c_str()+")"),
 			     nbinsx, lowboundx, highboundx,
 			     nbinsy, lowboundy, highboundy));
@@ -520,7 +513,7 @@ void HcalBaseMonitor::setupDepthHists2D(std::vector<MonitorElement*> &hh, std::s
 
 // ****************************************** //
 
-void HcalBaseMonitor::setupDepthHists1D(MonitorElement* &h, std::vector<MonitorElement*> &hh, std::string Name, std::string Units, int lowbound, int highbound, int Nbins)
+void HcalBaseMonitor::setupDepthHists1D(DQMStore::IBooker &ib, MonitorElement* &h, std::vector<MonitorElement*> &hh, std::string Name, std::string Units, int lowbound, int highbound, int Nbins)
 {
   // Makes an overall 1D Monitor Element (for summing over depths) for h, and creates individual depth Monitor Elements for hh
   if (showTiming)
@@ -545,13 +538,13 @@ void HcalBaseMonitor::setupDepthHists1D(MonitorElement* &h, std::vector<MonitorE
     }
   
   // Create overall 1D Monitor Element
-  h=m_dbe->book1D(("All "+name.str()+unitname.str()).c_str(),
+  h=ib.book1D(("All "+name.str()+unitname.str()).c_str(),
 		  (name.str() + " for all HCAL ("+unittitle.str().c_str()+")"),
 		  Nbins,lowbound,highbound);
   h->setAxisTitle(unitname.str().c_str(),1);
   
   // Create vector of Monitor Elements for individual depths
-  setupDepthHists1D(hh, Name, Units, lowbound, highbound, Nbins);
+  setupDepthHists1D(ib, hh, Name, Units, lowbound, highbound, Nbins);
 
    if (showTiming)
     {
@@ -563,7 +556,7 @@ void HcalBaseMonitor::setupDepthHists1D(MonitorElement* &h, std::vector<MonitorE
 
 
 
-void HcalBaseMonitor::setupDepthHists1D(std::vector<MonitorElement*> &hh, std::string Name, std::string Units, int lowbound, int highbound, int Nbins)
+void HcalBaseMonitor::setupDepthHists1D(DQMStore::IBooker &ib, std::vector<MonitorElement*> &hh, std::string Name, std::string Units, int lowbound, int highbound, int Nbins)
 {
   // Makes histograms just for the vector of Monitor Elements
   if (showTiming)
@@ -587,16 +580,16 @@ void HcalBaseMonitor::setupDepthHists1D(std::vector<MonitorElement*> &hh, std::s
     }
 
   // Push back depth plots
-  hh.push_back(m_dbe->book1D(("HB "+name.str()+unitname.str()).c_str(),
+  hh.push_back(ib.book1D(("HB "+name.str()+unitname.str()).c_str(),
 			     (name.str()+" HB ("+unittitle.str().c_str()+")"),
 			     Nbins,lowbound,highbound));
-  hh.push_back( m_dbe->book1D(("HE "+name.str()+unitname.str()).c_str(),
+  hh.push_back( ib.book1D(("HE "+name.str()+unitname.str()).c_str(),
 			      (name.str()+" HE ("+unittitle.str().c_str()+")"),
 			      Nbins,lowbound,highbound));
-  hh.push_back( m_dbe->book1D(("HO "+name.str()+unitname.str()).c_str(),
+  hh.push_back( ib.book1D(("HO "+name.str()+unitname.str()).c_str(),
 			      (name.str()+" HO ("+unittitle.str().c_str()+")"),
 			      Nbins,lowbound,highbound));
-  hh.push_back( m_dbe->book1D(("HF "+name.str()+unitname.str()).c_str(),
+  hh.push_back( ib.book1D(("HF "+name.str()+unitname.str()).c_str(),
 			      (name.str()+" HF ("+unittitle.str().c_str()+")"),
 			      Nbins,lowbound,highbound));
 

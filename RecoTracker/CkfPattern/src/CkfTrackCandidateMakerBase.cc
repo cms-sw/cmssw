@@ -42,7 +42,9 @@
 #include<functional>
 
 #include <thread>
+#ifdef VI_TBB
 #include "tbb/parallel_for.h"
+#endif
 
 #include "RecoTracker/CkfPattern/interface/PrintoutHelper.h"
 
@@ -199,7 +201,7 @@ namespace cms{
     if ((*collseed).size()>0){
 
       unsigned int lastCleanResult=0;
-      vector<Trajectory> rawResult;
+      std::vector<Trajectory> rawResult;
       rawResult.reserve(collseed->size() * 4);
 
       if (theSeedCleaner) theSeedCleaner->init( &rawResult );
@@ -208,16 +210,52 @@ namespace cms{
       countSeedsDebugger();
 
       // the mutex
-     std::mutex theMutex;
-     using Lock = std::unique_lock<std::mutex>;
+      std::mutex theMutex;
+      using Lock = std::unique_lock<std::mutex>;
 
       // Loop over seeds
       size_t collseed_size = collseed->size();
 
-      auto theLoop = [&](size_t j) {    
+      unsigned int indeces[collseed_size]; for (auto i=0U; i< collseed_size; ++i) indeces[i]=i;
+      // std::random_shuffle(indeces,indeces+collseed_size);
 
-      // to be moved inside a par section
-      vector<Trajectory> theTmpTrajectories;
+
+      /* 
+       * here only for reference: does not seems to help
+     
+      auto const & seeds = *collseed;
+      
+      
+      float val[collseed_size]; 
+      for (auto i=0U; i< collseed_size; ++i) 
+        {  val[i] =  seeds[i].startingState().pt();};
+      //  { val[i] =  std::abs((*seeds[i].recHits().first).surface()->eta());}
+      
+
+      unsigned long long val[collseed_size];
+      for (auto i=0U; i< collseed_size; ++i) {
+        if (seeds[i].nHits()<2) { val[i]=0; continue;}
+        auto h = seeds[i].recHits().first;  
+        auto const & hit = static_cast<BaseTrackerRecHit const&>(*h);
+        val[i] = hit.firstClusterRef().key(); 
+        if (++h != seeds[i].recHits().second) {
+          auto	const &	hit = static_cast<BaseTrackerRecHit const&>(*h);
+    	  val[i] |= (unsigned long long)(hit.firstClusterRef().key())<<32; 
+        }
+      }
+
+      std::sort(indeces,indeces+collseed_size, [&](unsigned int i, unsigned int j){return val[i]<val[j];});
+             
+
+      // std::cout << spt(indeces[0]) << ' ' << spt(indeces[collseed_size-1]) << std::endl;
+      
+      */
+
+      auto theLoop = [&](size_t ii) {    
+        auto j = indeces[ii];
+
+        // to be moved inside a par section (how with tbb??)
+        std::vector<Trajectory> theTmpTrajectories;
 
 
 	LogDebug("CkfPattern") << "======== Begin to look for trajectories from seed " << j << " ========"<<endl;
@@ -299,7 +337,7 @@ namespace cms{
       // end of loop over seeds
 
 
-#ifndef VI_NOTBB
+#ifdef VI_TBB
      tbb::parallel_for(0UL,collseed_size,1UL,theLoop);
 #else
 #ifdef VI_OMP

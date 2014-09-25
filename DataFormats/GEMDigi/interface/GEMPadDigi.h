@@ -1,5 +1,5 @@
-#ifndef GEMDigi_GEMPadDigi_h
-#define GEMDigi_GEMPadDigi_h
+#ifndef DataFormats_GEMDigi_GEMPadDigi_h
+#define DataFormats_GEMDigi_GEMPadDigi_h
 
 /** \class GEMPadDigi
  *

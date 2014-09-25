@@ -1,7 +1,6 @@
 #include "FWCore/Services/src/InitRootHandlers.h"
 
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
-#include "DataFormats/Streamer/interface/StreamedProductStreamer.h"
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -124,6 +123,9 @@ namespace {
           (el_message.find("already in TClassTable") != std::string::npos) ||
           (el_message.find("matrix not positive definite") != std::string::npos) ||
           (el_message.find("not a TStreamerInfo object") != std::string::npos) ||
+	  //This deals with a missing dictionary problem
+	  ( (el_message.find("Collection proxy for") !=std::string::npos && 
+	     el_message.find("was not properly initialized!") != std::string::npos)) ||
           (el_location.find("Fit") != std::string::npos) ||
           (el_location.find("TDecompChol::Solve") != std::string::npos) ||
           (el_location.find("THistPainter::PaintInit") != std::string::npos) ||
@@ -278,7 +280,6 @@ namespace edm {
 
       // Set custom streamers
       setRefCoreStreamer();
-      setStreamedProductStreamer();
 
       // Load the library containing dictionaries for std:: classes, if not already loaded.
       if (!TypeWithDict(typeid(std::vector<std::vector<unsigned int> >)).hasDictionary()) {

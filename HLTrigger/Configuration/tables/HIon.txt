@@ -1,24 +1,15 @@
-# "HIon" menu
+# "HIon" menu (placeholder)
 
-HLT_CaloJet260_v*                                       # JIRA: CMSHLT-67
-
-HLT_Physics_v*						# skim
+HLT_CaloJet260_v*
+HLT_PFJet260_v*
+HLT_Photon20_CaloIdVL_IsoL_v*
+HLT_Ele27_WP85_Gsf_v*
+HLT_Mu40_v*
+HLT_Physics_v*
 
 HLTriggerFirstPath
 HLTriggerFinalPath
 HLTAnalyzerEndpath
-AOutput
 
-#AForHIOutput
-#ALCAP0Output
-#ALCAPHISYMOutput
-#ALCALUMIPIXELSOutput
-#CalibrationOutput
-DQMOutput						# online DQMFileSaver
-#EcalCalibrationOutput
-#ExpressForHIOutput
-#HLTDQMOutput
-#HLTDQMResultsOutput					# Removed from the master since /dev/CMSSW_5_2_1/HLT/V435
-#HLTMONOutput
-#NanoDSTOutput
-#RPCMONOutput
+AOutput
+DQMOutput

@@ -121,9 +121,9 @@ public:
   DDsvalues_type mergedSpecifics( void ) const;
   
   //! \b don't \b use, internal only /todo make it private
-  void addSpecifics( const std::pair<DDPartSelection*,DDsvalues_type*> &);
+  void addSpecifics( const std::pair<const DDPartSelection*, const DDsvalues_type*> &);
   void removeSpecifics( const std::pair<DDPartSelection*,DDsvalues_type*> &);
-  const std::vector< std::pair<DDPartSelection*,DDsvalues_type*> > & attachedSpecifics( void ) const;
+  const std::vector< std::pair<const DDPartSelection*, const DDsvalues_type*> > & attachedSpecifics( void ) const;
   bool hasDDValue( const DDValue & ) const;
 };
 

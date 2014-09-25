@@ -35,8 +35,8 @@ namespace edm {
 
   void
   IntSource::produce(edm::Event& e) {
-    std::auto_ptr<edmtest::IntProduct> p(new edmtest::IntProduct(4));
-    e.put(p);
+    std::unique_ptr<edmtest::IntProduct> p(new edmtest::IntProduct(4));
+    e.put(std::move(p));
   }
 
   void

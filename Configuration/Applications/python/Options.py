@@ -121,6 +121,11 @@ expertSettings.add_option("--customise",
                           default=[],
                           action="append",
                           dest="customisation_file")
+expertSettings.add_option("--customise_unsch",
+                          help="Specify the file where the code to modify the process object is stored.",
+                          default=[],
+                          action="append",
+                          dest="customisation_file_unsch")
 expertSettings.add_option("--customise_commands",
                           help="Specify a string of commands",
                           default="",

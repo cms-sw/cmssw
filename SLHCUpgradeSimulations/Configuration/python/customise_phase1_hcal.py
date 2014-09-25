@@ -83,8 +83,8 @@ def customise(process):
     process.load("RecoLocalCalo.HcalRecAlgos.hcalRecAlgoESProd_cfi")
     process.load("RecoLocalCalo.Configuration.RecoLocalCalo_cff")
 
-    process.ecalGlobalUncalibRecHit.EBdigiCollection = cms.InputTag("simEcalDigis","ebDigis")
-    process.ecalGlobalUncalibRecHit.EEdigiCollection = cms.InputTag("simEcalDigis","eeDigis")
+    process.ecalMultiFitUncalibRecHit.EBdigiCollection = cms.InputTag("simEcalDigis","ebDigis")
+    process.ecalMultiFitUncalibRecHit.EEdigiCollection = cms.InputTag("simEcalDigis","eeDigis")
     process.ecalRecHit.ebDetIdToBeRecovered = cms.InputTag("","")
     process.ecalRecHit.eeDetIdToBeRecovered = cms.InputTag("","")
     process.ecalRecHit.eeFEToBeRecovered = cms.InputTag("","")
@@ -114,7 +114,7 @@ def customise(process):
     process.jetHighLevelReco = cms.Sequence(process.recoJetAssociations*process.recoPFJets*process.recoJPTJets)
 
 ### Place to add in the reco steps one by one ######################################
-    process.calolocalreco = cms.Sequence(process.ecalGlobalUncalibRecHit+
+    process.calolocalreco = cms.Sequence(process.ecalMultiFitUncalibRecHit+
                                 process.ecalDetIdToBeRecovered+
                                 process.ecalRecHit+
                                 process.ecalCompactTrigPrim+

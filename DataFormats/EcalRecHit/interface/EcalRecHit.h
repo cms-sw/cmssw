@@ -107,7 +107,7 @@ public:
 
   /* the new bit structure
    * 0..6   - chi2 in time events (chi2()), offset=0, width=7
-   * 8..20  - energy in out-of-time (outOfTimeEnergy()), offset=8, width=13
+   * 8..20  - energy uncertainty, offset=8, width=13
    * 24..31 - timeError(), offset=24, width=8
    */
   float chi2() const {
@@ -123,18 +123,17 @@ public:
     uint32_t rawChi2 = lround(chi2 / 64. * ((1<<7)-1));
     extra_ = setMasked(extra_, rawChi2, 0, 7);
   }
-
-
-  float outOfTimeEnergy() const {
+  
+  float energyError() const {
     uint32_t rawEnergy = getMasked(extra_, 8, 13);
     uint16_t exponent = rawEnergy >> 10;
     uint16_t significand = ~(0xE<<9) & rawEnergy;
     return (float) significand*pow(10,exponent-5);
   }
 
-  // set the energy for out of time events
+  // set the energy uncertainty
   // (only energy >= 0 will be stored)
-  void setOutOfTimeEnergy(float energy) {
+  void setEnergyError(float energy) {
     uint32_t rawEnergy = 0;
     if (energy > 0.001) {
       uint16_t exponent = lround(floor(log10(energy))) + 3;
@@ -164,10 +163,7 @@ public:
   void setTimeError(uint8_t timeErrBits) {
     extra_ = setMasked(extra_, timeErrBits & 0xFF, 24, 8);
   }
-
-  float outOfTimeChi2() const { return 0; }
-  void setOutOfTimeChi2(short chi2) { /* not used */ }
-
+  
   /// set the flags (from Flags or ESFlags) 
   void setFlag(int flag) {flagBits_|= (0x1 << flag);}
   void unsetFlag(int flag) {flagBits_ &= ~(0x1 << flag);}
@@ -209,7 +205,7 @@ private:
   /// store rechit condition (see Flags enum) in a bit-wise way 
   uint32_t flagBits_;
 
-  // packed uint32_t for timeError, chi2, outOfTimeEnergy
+  // packed uint32_t for timeError, chi2, energyError
   uint32_t extra_;
 };
 

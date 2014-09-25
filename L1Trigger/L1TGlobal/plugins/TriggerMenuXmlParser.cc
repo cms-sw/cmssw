@@ -1428,77 +1428,17 @@ bool l1t::TriggerMenuXmlParser::getMuonMipIsoBits(XERCES_CPP_NAMESPACE::DOMNode*
 }
 
 
-std::string l1t::TriggerMenuXmlParser::l1t2string( l1t::MenuName data ){
+template <typename T> std::string l1t::TriggerMenuXmlParser::l1t2string( T data ){
   std::stringstream ss;
   ss << data;
   return ss.str();
 }
-std::string l1t::TriggerMenuXmlParser::l1t2string( l1t::ScalesKey data ){
-  std::stringstream ss;
-  ss << data;
-  return ss.str();
-}
-std::string l1t::TriggerMenuXmlParser::l1t2string( l1t::FirmwareVersion data ){
-  std::stringstream ss;
-  ss << data;
-  return ss.str();
-}
-std::string l1t::TriggerMenuXmlParser::l1t2string( l1t::DateTime date ){
+std::string l1t::TriggerMenuXmlParser::l1tDateTime2string( l1t::DateTime date ){
   std::stringstream ss;
   ss << std::setfill('0');
   ss << std::setw(4) << date.year() << "-" << std::setw(2) << date.month() << "-" << std::setw(2) << date.day() << "T";
   ss << std::setw(2) << date.hours() << ":" << std::setw(2) << date.minutes() << ":" << std::setw(2) << date.seconds();
   //ss << data;
-  return ss.str();
-}
-std::string l1t::TriggerMenuXmlParser::l1t2string( l1t::Label data ){
-  std::stringstream ss;
-  ss << data;
-  return ss.str();
-}
-std::string l1t::TriggerMenuXmlParser::l1t2string( l1t::Description data ){
-  std::stringstream ss;
-  ss << data;
-  return ss.str();
-}
-std::string l1t::TriggerMenuXmlParser::l1t2string( l1t::ConditionName data ){
-  std::stringstream ss;
-  ss << data;
-  return ss.str();
-}
-std::string l1t::TriggerMenuXmlParser::l1t2string( l1t::ConditionType data ){
-  std::stringstream ss;
-  ss << data;
-  return ss.str();
-}
-std::string l1t::TriggerMenuXmlParser::l1t2string( l1t::EtComparison data ){
-  std::stringstream ss;
-  ss << data;
-  return ss.str();
-}
-std::string l1t::TriggerMenuXmlParser::l1t2string( l1t::CalorimeterObjectType data ){
-  std::stringstream ss;
-  ss << data;
-  return ss.str();
-}
-std::string l1t::TriggerMenuXmlParser::l1t2string( l1t::AlgorithmName data ){
-  std::stringstream ss;
-  ss << data;
-  return ss.str();
-}
-std::string l1t::TriggerMenuXmlParser::l1t2string( l1t::AlgorithmIndex data ){
-  std::stringstream ss;
-  ss << data;
-  return ss.str();
-}
-std::string l1t::TriggerMenuXmlParser::l1t2string( l1t::AlgorithmEquation data ){
-  std::stringstream ss;
-  ss << data;
-  return ss.str();
-}
-std::string l1t::TriggerMenuXmlParser::l1t2string( l1t::EtThreshold data ){
-  std::stringstream ss;
-  ss << data;
   return ss.str();
 }
 int l1t::TriggerMenuXmlParser::l1t2int( l1t::RelativeBx data ){
@@ -1529,12 +1469,17 @@ bool l1t::TriggerMenuXmlParser::parseMuon(l1t::MuonCondition condMu,
 
     // get condition, particle name (must be muon) and type name
     std::string condition = "muon";
-    std::string particle = "mu";//l1t2string( condMu.objectType() );
-    std::string type = "single";//l1t2string( condMu.type() );
+    std::string particle = "muon";//l1t2string( condMu.objectType() );
+    std::string type = l1t2string( condMu.type() );
     std::string name = l1t2string( condMu.name() );
 
     if( particle=="mu" ) particle = "muon";
-    if( type=="single" ) type = "1_s";
+
+    if( type=="double_wsc" )  type = "2_wsc";
+    else if( type=="single" ) type = "1_s";
+    else if( type=="double" ) type = "2_s";
+    else if( type=="triple" ) type = "3";
+    else if( type=="quad"   ) type = "4";
 
     LogDebug("l1t|Global")
       << "\n ****************************************** "
@@ -1552,7 +1497,7 @@ bool l1t::TriggerMenuXmlParser::parseMuon(l1t::MuonCondition condMu,
     }
 
     // get greater equal flag
-    std::string str_etComparison = l1t2string( condMu.etComparison() );
+    std::string str_etComparison = l1t2string( condMu.comparison_operator() );
 
     int nrObj = getNumFromType(type);
     if (nrObj < 0) {
@@ -1579,198 +1524,193 @@ bool l1t::TriggerMenuXmlParser::parseMuon(l1t::MuonCondition condMu,
 
     // need at least two values for deltaPhi
     std::vector<boost::uint64_t> tmpValues((nrObj > 2) ? nrObj : 2);
+    tmpValues.reserve( nrObj );
 
+    if( int(condMu.objectRequirements().objectRequirement().size())!=nrObj ){
+      edm::LogError("TriggerMenuXmlParser") << " condMu objects: nrObj = " << nrObj
+					    << "condMu.objectRequirements().objectRequirement().size() = " 
+					    << condMu.objectRequirements().objectRequirement().size()
+					    << std::endl;
+      return false;
+    }
+
+    
+    std::string str_chargeCorrelation = l1t2string( condMu.requestedChargeCorr() );
+
+    unsigned int chargeCorrelation = 0;
+    if( str_chargeCorrelation=="ig" )      chargeCorrelation = 0;
+    else if( str_chargeCorrelation=="ls" ) chargeCorrelation = 1;
+    else if( str_chargeCorrelation=="os" ) chargeCorrelation = 2;
+
+    //getXMLHexTextValue("1", dst);
+    corrParameter.chargeCorrelation = chargeCorrelation;//tmpValues[0];
+
+    std::string str_condMu = "";
+    boost::uint64_t tempUIntH, tempUIntL;
     boost::uint64_t dst;
+    int cnt = 0;
+    for( l1t::MuonObjectRequirementList::objectRequirement_const_iterator objPar = condMu.objectRequirements().objectRequirement().begin();
+	 objPar != condMu.objectRequirements().objectRequirement().end(); ++objPar ){
 
-    // need this for future DP
-//     // get ptHighThreshold values and fill into structure
-//     if ( !getConditionChildValuesOld(node, m_xmlTagPtHighThreshold, nrObj, tmpValues) ) {
-//         return false;
-//     }
+      // ET Threshold
+      str_condMu = l1t2string( objPar->ptThreshold() );
+      if( !getXMLHexTextValue(str_condMu, dst) ) return false;
+      //if( cnt<nrObj ) objParameter[cnt].etThreshold = dst;
+      /// DMP: Use dec instead of hex
+      if( cnt<nrObj ){
+	objParameter[cnt].ptHighThreshold = objPar->ptThreshold();
+	objParameter[cnt].ptLowThreshold  = objPar->ptThreshold();
+      }
 
-    for (int i = 0; i < nrObj; i++) {
-      getXMLHexTextValue("0a", dst);
+      // Eta Range
+      //str_condMu = "ffff";
+      str_condMu = "7f7f";
+      //str_condMu = "0f0f";
+      if( !getXMLHexTextValue(str_condMu, dst) ) return false;
+      if( cnt<nrObj ) objParameter[cnt].etaRange = dst;
 
-      objParameter[i].ptHighThreshold = dst;//tmpValues[i];
-
-//       LogTrace("TriggerMenuXmlParser")
-//         << "      Muon pT high threshold (hex) for muon " << i << " = "
-//         << std::hex << objParameter[i].ptHighThreshold << std::dec
-//         << std::endl;
-    }
-
-    // need this for future DP
-//     // get ptLowThreshold values  and fill into structure
-//     if ( !getConditionChildValuesOld(node, m_xmlTagPtLowThreshold, nrObj, tmpValues) ) {
-//         return false;
-//     }
-
-    for (int i = 0; i < nrObj; i++) {
-        //LogTrace("TriggerMenuXmlParser")
-        //<< "        Muon pT low threshold word (hex) for muon " << i << " = "
-        //<< std::hex << tmpValues[i] << std::dec
-        //<< std::endl;
-
-        // TODO FIXME stupid format in def.xml...
-        // one takes mip bit also, therefore one divide by 16
-    // need this for future DP
-      //tmpValues[i] = (tmpValues[i])/16;
-
-    // need this for future DP
-        getXMLHexTextValue("0a", dst);
-	objParameter[i].ptLowThreshold = dst;//tmpValues[i];
-
-        //LogTrace("TriggerMenuXmlParser")
-        //<< "      Muon pT low threshold (hex) for muon  " << i << " = "
-        //<< std::hex << objParameter[i].ptLowThreshold << std::dec
-        //<< std::endl;
-    }
-
-    // need this for future DP
-//     // get qualityRange and fill into structure
-//     if ( !getConditionChildValuesOld(node, m_xmlTagQuality, nrObj, tmpValues) ) {
-//         return false;
-//     }
-
-    for (int i = 0; i < nrObj; i++) {
-    // need this for future DP
-        getXMLHexTextValue("f0", dst);
-      objParameter[i].qualityRange = dst;//tmpValues[i];
-
-        //LogTrace("TriggerMenuXmlParser")
-        //<< "      qualityRange mask (hex) for muon " << i << " = "
-        //<< std::hex << objParameter[i].qualityRange << std::dec
-        //<< std::endl;
-    }
-
-    // need this for future DP
-//     // get etaRange and fill into structure
-//     if ( !getConditionChildValuesOld(node, m_xmlTagEta, nrObj, tmpValues) ) {
-//         return false;
-//     }
-
-    for (int i = 0; i < nrObj; i++) {
-
-        getXMLHexTextValue("FFFFFFFFFFFFFFFF", dst);
-        objParameter[i].etaRange = dst;//tmpValues[i];
-
-        //LogTrace("TriggerMenuXmlParser")
-        //<< "      etaRange (hex) for muon " << i << " = "
-        //<< std::hex << objParameter[i].etaRange << std::dec
-        //<< std::endl;
-    }
-
-    // need this for future DP
-//     // get phiHigh values and fill into structure
-//     if ( !getConditionChildValuesOld(node, m_xmlTagPhiHigh, nrObj, tmpValues) ) {
-//         return false;
-//     }
-
-    for (int i = 0; i < nrObj; i++) {
+      // Phi Range
+      str_condMu = "3ffff";
+      if( !getXMLHexTextValue(str_condMu, dst) ) return false;
+      //if( cnt<nrObj ) objParameter[cnt].phiRange = dst;
       getXMLHexTextValue("8f", dst);
-      objParameter[i].phiHigh = dst;//tmpValues[i];
+      objParameter[cnt].phiHigh = dst;//tmpValues[i];
+      objParameter[cnt].phiLow  = dst;//tmpValues[i];
 
-        //LogTrace("TriggerMenuXmlParser")
-        //<< "      phiHigh (hex) for muon " << i << " = "
-        //<< std::hex << objParameter[i].phiHigh << std::dec
-        //<< std::endl;
+      objParameter[cnt].enableMip = false;//tmpMip[i];
+      objParameter[cnt].enableIso = false;//tmpEnableIso[i];
+      objParameter[cnt].requestIso = false;//tmpRequestIso[i];
+
+      getXMLHexTextValue("f0", dst);
+      objParameter[cnt].qualityRange = dst;//tmpValues[i];
+ 
+
+      int cntEta=0;
+      unsigned int etaWindowLower=-1, etaWindowUpper=-1, etaWindowVetoLower=-1, etaWindowVetoUpper=-1;
+      // Temporary before translation
+      for( l1t::CalorimeterObjectRequirement::etaWindow_const_iterator etaWindow =objPar->etaWindow().begin();
+	   etaWindow != objPar->etaWindow().end(); ++etaWindow ){
+	
+	LogDebug("l1t|Global")
+	  << "\n etaWindow lower = " << etaWindow->lower()
+	  << "\n etaWindow upper = " << etaWindow->upper() 
+	  << std::endl;
+	if( cntEta==0 ){      etaWindowLower = etaWindow->lower(); etaWindowUpper = etaWindow->upper(); }
+	else if( cntEta==1 ){ etaWindowVetoLower = etaWindow->lower(); etaWindowVetoUpper = etaWindow->upper(); }
+	cntEta++;
+      }
+
+      int cntPhi=0;
+      unsigned int phiWindowLower=-1, phiWindowUpper=-1, phiWindowVetoLower=-1, phiWindowVetoUpper=-1;
+      for( l1t::CalorimeterObjectRequirement::phiWindow_const_iterator phiWindow =objPar->phiWindow().begin();
+	   phiWindow != objPar->phiWindow().end(); ++phiWindow ){
+ 
+	LogDebug("l1t|Global")
+	  << "\n phiWindow begin = " << phiWindow->lower()
+	  << "\n phiWindow end   = " << phiWindow->upper() 
+	  << std::endl;
+
+	if( cntPhi==0 ){      phiWindowLower = phiWindow->lower(); phiWindowUpper = phiWindow->upper(); }
+	else if( cntPhi==1 ){ phiWindowVetoLower = phiWindow->lower(); phiWindowVetoUpper = phiWindow->upper(); }
+	cntPhi++;
+      }
+
+      objParameter[cnt].etaWindowLower     = etaWindowLower;
+      objParameter[cnt].etaWindowUpper     = etaWindowUpper;
+      objParameter[cnt].etaWindowVetoLower = etaWindowVetoLower;
+      objParameter[cnt].etaWindowVetoUpper = etaWindowVetoUpper;
+
+      objParameter[cnt].phiWindowLower     = phiWindowLower;
+      objParameter[cnt].phiWindowUpper     = phiWindowUpper;
+      objParameter[cnt].phiWindowVetoLower = phiWindowVetoLower;
+      objParameter[cnt].phiWindowVetoUpper = phiWindowVetoUpper;
+
+      
+      // Output for debugging
+      LogDebug("l1t|Global") 
+	<< "\n      Muon PT high threshold (hex) for muon object " << cnt << " = "
+	<< std::hex << objParameter[cnt].ptHighThreshold << std::dec
+	<< "\n      etaWindow (hex) for muon object " << cnt << " = "
+	<< std::hex << objParameter[cnt].etaRange << std::dec
+	// << "\n      phiRange (hex) for muon object " << cnt << " = "
+	// << std::hex << objParameter[cnt].phiRange << std::dec
+	<< "\n      etaWindow Lower / Upper for muon object " << cnt << " = "
+	<< objParameter[cnt].etaWindowLower << " / " << objParameter[cnt].etaWindowUpper
+	<< "\n      etaWindowVeto Lower / Upper for muon object " << cnt << " = "
+	<< objParameter[cnt].etaWindowVetoLower << " / " << objParameter[cnt].etaWindowVetoUpper
+	<< "\n      phiWindow Lower / Upper for muon object " << cnt << " = "
+	<< objParameter[cnt].phiWindowLower << " / " << objParameter[cnt].phiWindowUpper
+	<< "\n      phiWindowVeto Lower / Upper for muon object " << cnt << " = "
+	<< objParameter[cnt].phiWindowVetoLower << " / " << objParameter[cnt].phiWindowVetoUpper
+	<< std::endl;
+
+      cnt++;
     }
 
-    // need this for future DP
-//     // get phiLow values and fill into structure
-//     if ( !getConditionChildValuesOld(node, m_xmlTagPhiLow, nrObj, tmpValues) ) {
-//         return false;
-//     }
 
-    for (int i = 0; i < nrObj; i++) {
-      getXMLHexTextValue("00", dst);
-      objParameter[i].phiLow = dst;//tmpValues[i];
-
-        //LogTrace("TriggerMenuXmlParser")
-        //<< "      phiLow (hex) for muon " << i << " = "
-        //<< std::hex << objParameter[i].phiLow << std::dec
-        //<< std::endl;
-    }
-
-    // need this for future DP
-//     // get charge correlation and fill into structure
-//     if ( !getXMLHexTextValueOld(findXMLChild(node->getFirstChild(), m_xmlTagChargeCorrelation),
-//         tmpValues[0]) ) {
-
-//         LogDebug("TriggerMenuXmlParser")
-//             << "    Error getting charge correlation from muon condition (" << name << ")"
-//             << std::endl;
-//         return false;
-//     }
-
-    getXMLHexTextValue("1", dst);
-    corrParameter.chargeCorrelation = dst;//tmpValues[0];
-
-//     //LogTrace("TriggerMenuXmlParser")
-//     //<< "      charge correlation" << " = "
-//     //<< std::hex << corrParameter.chargeCorrelation << std::dec
-//     //<< std::endl;
-
-    // get mip and iso bits and fill into structure
-
-    std::vector<bool> tmpMip(nrObj);
-    std::vector<bool> tmpEnableIso(nrObj);
-    std::vector<bool> tmpRequestIso(nrObj);
-
-    // need this for future DP
-//     if ( !getMuonMipIsoBits(node, nrObj, tmpMip, tmpEnableIso, tmpRequestIso) ) {
-//         edm::LogError("TriggerMenuXmlParser")
-//             << "    Could not get mip and iso bits from muon condition (" << name << ")"
-//             << std::endl;
-//         return false;
-//     }
-
-    for (int i = 0; i < nrObj; i++) {
-      objParameter[i].enableMip = false;//tmpMip[i];
-      objParameter[i].enableIso = false;//tmpEnableIso[i];
-      objParameter[i].requestIso = false;//tmpRequestIso[i];
-    }
 
     // indicates if a correlation is used
     bool wscVal = (type == m_xmlConditionAttrType2wsc );
 
-    if (wscVal) {
-    // need this for future DP
-//         // get deltaEtaRange
-//         if ( !getConditionChildValuesOld(node, m_xmlTagDeltaEta, 1, tmpValues) ) {
-//             return false;
-//         }
+    if( wscVal ){
 
-//         corrParameter.deltaEtaRange = tmpValues[0];
+      xsd::cxx::tree::optional<l1t::DeltaRequirement> condRanges = condMu.deltaRequirement();
+      LogDebug("l1t|Global") 
+	<< "\t condRanges->deltaEtaRange().lower() = " << condRanges->deltaEtaRange().lower()
+	<< "\n\t condRanges->deltaEtaRange().upper()   = " << condRanges->deltaEtaRange().upper()
+	<< "\n\t condRanges->deltaPhiRange().lower() = " << condRanges->deltaPhiRange().lower()
+	<< "\n\t condRanges->deltaPhiRange().upper() = " << condRanges->deltaPhiRange().upper() 
+	<< std::endl;
 
-//         // deltaPhi is larger than 64bit
-//         if ( !getXMLHexTextValue128Old(findXMLChild(node->getFirstChild(), m_xmlTagDeltaPhi),
-//             tmpValues[0], tmpValues[1])) {
-//             edm::LogError("TriggerMenuXmlParser")
-//                 << "    Could not get deltaPhi for muon condition with wsc (" << name << ")"
-//                 << std::endl;
-//             return false;
-//         }
+      corrParameter.deltaEtaRangeLower = condRanges->deltaEtaRange().lower();
+      corrParameter.deltaEtaRangeUpper = condRanges->deltaEtaRange().upper();
 
-//         corrParameter.deltaPhiRange0Word = tmpValues[0];
-//         corrParameter.deltaPhiRange1Word = tmpValues[1];
+      corrParameter.deltaPhiRangeLower = condRanges->deltaPhiRange().lower();
+      corrParameter.deltaPhiRangeUpper = condRanges->deltaPhiRange().upper();
 
-//         // get maximum number of bits for delta phi
-//         //LogTrace("TriggerMenuXmlParser")
-//         //<< "      Counting deltaPhiMaxbits"
-//         //<< std::endl;
+      //
+      /// Temporary
+      //
 
-//         unsigned int maxbits;
+      // Eta Range
+      str_condMu = "0003";
+      if ( !hexString2UInt128(str_condMu, tempUIntL, tempUIntH) ) {
+	return false;
+      }
+      if( tempUIntH != 0 ){
+        edm::LogError("TriggerMenuXmlParser") << "Too large hex-value!" << std::endl;
+        return false;
+      }
+      corrParameter.deltaEtaRange = tempUIntL;
 
-//         if ( !countConditionChildMaxBits2(node, m_xmlTagDeltaPhi, maxbits) ) {
-//             return false;
-//         }
+      // Phi Range
+      str_condMu = "003";
+      if ( !hexString2UInt128(str_condMu, tempUIntL, tempUIntH) ) {
+	return false;
+      }
+      if( tempUIntH != 0 ){
+        edm::LogError("TriggerMenuXmlParser") << "Too large hex-value!" << std::endl;
+        return false;
+      }
+      corrParameter.deltaPhiRange = tempUIntL;
 
-//         corrParameter.deltaPhiMaxbits = maxbits;
-//         //LogTrace("TriggerMenuXmlParser")
-//         //<< "        deltaPhiMaxbits (dec) = " << maxbits
-//         //<< std::endl;
+
+
+      // Max Phi Range
+      std::string maxString = "3FF";
+
+      unsigned int maxbits = 0;
+
+      if ( !countConditionChildMaxBits(maxString, maxbits) ) {
+	return false;
+      }
+
+      corrParameter.deltaPhiMaxbits = maxbits;
+      LogTrace("TriggerMenuXmlParser")
+        << "        deltaPhiMaxbits (dec) = " << maxbits
+        << std::endl;
     }
+
 
     // get the type of the condition, as defined in enum, from the condition type
     // as defined in the XML file
@@ -1828,6 +1768,13 @@ bool l1t::TriggerMenuXmlParser::parseMuon(l1t::MuonCondition condMu,
         }
 
     }
+
+
+    LogDebug("l1t|Global") 
+      << "\n intGEq  = " << intGEq
+      << " nrObj   = " << nrObj 
+      << "\n ****************************************** " 
+      << std::endl;
 
     //
     return true;
@@ -1897,7 +1844,7 @@ bool l1t::TriggerMenuXmlParser::parseCalo(l1t::CalorimeterCondition condCalo,
     else if( type=="quad"   ) type = "4";
 
 
-    std::string str_etComparison = l1t2string( condCalo.etComparison() );
+    std::string str_etComparison = l1t2string( condCalo.comparison_operator() );
 
     int nrObj = getNumFromType(type);
     if (nrObj < 0) {
@@ -3554,26 +3501,26 @@ bool l1t::TriggerMenuXmlParser::parseId( l1t::Meta meta ) {
     m_triggerMenuInterface = l1t2string( meta.name() );
     m_triggerMenuInterfaceDate = "2013-010-24T15:33:24";
     m_triggerMenuInterfaceAuthor = "Darren Puigh";
-    m_triggerMenuInterfaceDescription = l1t2string( meta.description() );
+    m_triggerMenuInterfaceDescription = l1t2string( meta.comment() );
 //     m_algorithmImplementation = l1t2string( meta.firmwareVersion() );
 //     m_triggerMenuDate = l1t2string( meta.changesDate() );
 //     m_triggerMenuAuthor = l1t2string( meta.changesAuthor() );
-    m_triggerMenuDescription = l1t2string( meta.description() );
-    m_scaleDbKey = l1t2string( meta.scalesKey() );
+    m_triggerMenuDescription = l1t2string( meta.comment() );
+    m_scaleDbKey = l1t2string( meta.scale_set() );
 
 
     int cnt = 0;
-    for( l1t::History::revision_const_iterator revision = meta.history().revision().begin();
-	 revision != meta.history().revision().end(); ++revision ){
+    for( l1t::RevisionList::revision_const_iterator revision = meta.revisions().revision().begin();
+	 revision != meta.revisions().revision().end(); ++revision ){
 
       LogDebug("l1t|Global")
 	<< "\t Revision " << cnt
 	<< "\t\t author = " << l1t2string( revision->author() )
-	<< "\t\t datetime = " << l1t2string( revision->datetime() ) 
+	<< "\t\t datetime = " << l1tDateTime2string( revision->datetime() ) 
 	<< std::endl;
 
       if( cnt==0 ){
-	m_triggerMenuDate = l1t2string( revision->datetime() );
+	m_triggerMenuDate = l1tDateTime2string( revision->datetime() );
 	m_triggerMenuAuthor = l1t2string( revision->author() );
       }
       cnt++;
@@ -3739,7 +3686,7 @@ bool l1t::TriggerMenuXmlParser::parseConditions( l1t::ConditionList conditions )
 
       LogDebug("l1t|Global")
 	<< condCalo->name()  << " {"                    
-	<< "  description: " << condCalo->description()
+	<< "  comment: " << condCalo->comment()
 	<< "  locked: "      << condCalo->locked()     
 	<< "}" 
 	<< std::endl;
@@ -3755,7 +3702,7 @@ bool l1t::TriggerMenuXmlParser::parseConditions( l1t::ConditionList conditions )
 
       LogDebug("l1t|Global")
 	<< condMu->name()  << " {"                    
-	<< "  description: " << condMu->description()
+	<< "  comment: " << condMu->comment()
 	<< "  locked: "      << condMu->locked()     
 	<< "}" 
 	<< std::endl;
@@ -3811,7 +3758,7 @@ bool l1t::TriggerMenuXmlParser::workAlgorithm( l1t::Algorithm algorithm,
     }
 
     // get the logical expression
-    std::string logExpression = l1t2string( algorithm.equation() );
+    std::string logExpression = l1t2string( algorithm.logical_expression() );
 
     LogDebug("l1t|Global")
       << "      Logical expression: " << logExpression
@@ -3898,8 +3845,8 @@ bool l1t::TriggerMenuXmlParser::parseAlgorithms( l1t::AlgorithmList algorithms )
       LogDebug("l1t|Global") 
 	<< algorithm.name()  << " {"                    
 	<< "  index: "       << algorithm.index()       
-	<< "  equation: "    << algorithm.equation()    
-	<< "  description: " << algorithm.description() 
+	<< "  equation: "    << algorithm.logical_expression()    
+	<< "  comment: "     << algorithm.comment() 
 	<< "  locked: "      << algorithm.locked()      
 	<< "}" 
 	<< std::endl;

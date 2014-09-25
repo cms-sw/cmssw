@@ -93,6 +93,11 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
 		    "HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v",
 		    "HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v",
 		    "HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v",
+		    "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v",
+                    "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v",
+                    "HLT_Mu23_TrkIsoVVL_Ele12_Gsf_CaloId_TrackId_Iso_MediumWP_v",
+                    "HLT_Mu8_TrkIsoVVL_Ele23_Gsf_CaloId_TrackId_Iso_MediumWP_v",
+                    "HLT_Ele23_Ele12_CaloId_TrackId_Iso_v"
 		    ),
 	    recMuonLabel  = cms.string("muons"),
 	    recElecLabel  = cms.string("gedGsfElectrons"),
@@ -103,6 +108,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
 	    hltPathsToCheck = cms.vstring(
 		    "HLT_Mu17_TkMu8_v",
 		    "HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v",
+            "HLT_Ele17_Ele12_Ele10_CaloId_TrackId_v"
 		    ),
 	    recMuonLabel  = cms.string("muons"),
 	    recElecLabel  = cms.string("gedGsfElectrons"),
@@ -115,6 +121,8 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
 		    "HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v",
 		    "HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v",
 		    "HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon10_R9Id85_OR_CaloId10_Iso50_Mass80_v",
+  	 	    "HLT_Photon36_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon18_AND_HE10_R9Id65_Mass95_v",
+		    "HLT_Photon42_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon22_AND_HE10_R9Id65_v"
 		    ),
 	    recPhotonLabel  = cms.string("photons"),
 	    # -- Analysis specific cuts
@@ -124,6 +132,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
 	    hltPathsToCheck = cms.vstring(
 		    "HLT_LooseIsoPFTau35_Trk20_Prong1_MET70_v",
 		    "HLT_LooseIsoPFTau35_Trk20_Prong1_MET75_v",
+                    "HLT_LooseIsoPFTau50_Trk30_eta2p1_MET120_v"
 		    ),
 	    recPFTauLabel   = cms.string("hpsPFTauProducer"),
 	    recCaloMETLabel = cms.string("caloMet"),
@@ -133,8 +142,10 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
     H2tau  = cms.PSet( 
 	    hltPathsToCheck = cms.vstring(
 		    "HLT_Ele22_eta2p1_WP90Rho_LooseIsoPFTau20_v",#?
+                    "HLT_Ele22_eta2p1_WP90Rho_Gsf_LooseIsoPFTau20_v",
 #		    "HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v",
-		    "HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v"
+		    "HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v",
+                    "HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v"
 		    ),
 	    recPFTauLabel  = cms.string("hpsPFTauProducer"),
 	    recMuonLabel   = cms.string("muons"),

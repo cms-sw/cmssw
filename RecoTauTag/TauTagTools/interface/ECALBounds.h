@@ -13,9 +13,9 @@ class Disk;
 
 class ECALBounds {
 public:
-  static const Surface& barrelBound()    {check(); return *theCylinder;}
-  static const Surface& negativeEndcapDisk() {check(); return *theNegativeDisk;}
-  static const Surface& positiveEndcapDisk() {check(); return *thePositiveDisk;}
+  static const Surface& barrelBound()    { return theCylinder;}
+  static const Surface& negativeEndcapDisk() {return theNegativeDisk;}
+  static const Surface& positiveEndcapDisk() { return thePositiveDisk;}
   /** Hard-wired numbers defining the envelope of the sensitive volumes.
    */
   static float barrel_innerradius()     {return 129.0f;}
@@ -33,12 +33,9 @@ public:
   static std::pair<float,float> crack_absEtaIntervalD() {return std::pair<float,float>(1.127f,1.163f);}
   static std::pair<float,float> crack_absEtaIntervalE() {return std::pair<float,float>(1.460f,1.558f);}
  private:
-  static ReferenceCountingPointer<Surface> theCylinder;
-  static ReferenceCountingPointer<Surface> theNegativeDisk;
-  static ReferenceCountingPointer<Surface> thePositiveDisk;
-  static bool theInit;
-  static void check() {if (!theInit) initialize();}
-  static void initialize();
+  static const BoundCylinder theCylinder;
+  static const BoundDisk theNegativeDisk;
+  static const BoundDisk thePositiveDisk;
 };
 
 #endif

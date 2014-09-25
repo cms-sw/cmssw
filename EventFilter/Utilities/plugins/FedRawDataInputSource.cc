@@ -565,8 +565,8 @@ void FedRawDataInputSource::deleteFile(std::string const& fileName)
 
 void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal)
 {
-  std::auto_ptr<FEDRawDataCollection> rawData(new FEDRawDataCollection);
-  edm::Timestamp tstamp = fillFEDRawDataCollection(rawData);
+  std::unique_ptr<FEDRawDataCollection> rawData(new FEDRawDataCollection);
+  edm::Timestamp tstamp = fillFEDRawDataCollection(*rawData);
 
   if (useL1EventID_)
     eventID_ = edm::EventID(eventRunNumber_, currentLumiSection_, L1EventID_); 
@@ -580,14 +580,13 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal)
   aux.setProcessHistoryID(processHistoryID_);
   makeEvent(eventPrincipal, aux);
 
-  edm::WrapperOwningHolder edp(new edm::Wrapper<FEDRawDataCollection>(rawData),
-                               edm::Wrapper<FEDRawDataCollection>::getInterface());
+  std::unique_ptr<edm::WrapperBase> edp(new edm::Wrapper<FEDRawDataCollection>(std::move(rawData)));
 
   //FWCore/Sources DaqProvenanceHelper before 7_1_0_pre3
   //eventPrincipal.put(daqProvenanceHelper_.constBranchDescription_, edp,
   //                   daqProvenanceHelper_.dummyProvenance_);
   
-  eventPrincipal.put(daqProvenanceHelper_.branchDescription(), edp,
+  eventPrincipal.put(daqProvenanceHelper_.branchDescription(), std::move(edp),
                      daqProvenanceHelper_.dummyProvenance());
 
   eventsThisLumi_++;
@@ -619,7 +618,7 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal)
   return;
 }
 
-edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(std::auto_ptr<FEDRawDataCollection>& rawData)
+edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(FEDRawDataCollection& rawData)
 {
   edm::Timestamp tstamp;
   uint32_t eventSize = event_->eventSize();
@@ -649,7 +648,7 @@ edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(std::auto_ptr<FED
         GTPEventID_ = evf::evtn::gtpe_get((unsigned char*) fedHeader);
       }
     }
-    FEDRawData& fedData = rawData->FEDData(fedId);
+    FEDRawData& fedData = rawData.FEDData(fedId);
     fedData.resize(fedSize);
     memcpy(fedData.data(), event + eventSize, fedSize);
   }

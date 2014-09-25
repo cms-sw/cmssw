@@ -41,11 +41,14 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+
 
 namespace edm
 {
   template <class HAD, class DEC> class HadronizerFilter : public one::EDFilter<EndRunProducer,
+										EndLuminosityBlockProducer,
                                                                                 one::WatchRuns,
                                                                                 one::WatchLuminosityBlocks,
                                                                                 one::SharedResources>
@@ -66,6 +69,7 @@ namespace edm
     virtual void endRunProduce(Run &, EventSetup const&) override;
     virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
     virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
+    virtual void endLuminosityBlockProduce(LuminosityBlock &, EventSetup const&) override;
 
   private:
     Hadronizer hadronizer_;
@@ -132,6 +136,7 @@ namespace edm
 
     produces<edm::HepMCProduct>();
     produces<GenEventInfoProduct>();
+    produces<GenLumiInfoProduct, edm::InLumi>();
     produces<GenRunInfoProduct, edm::InRun>();
   }
 
@@ -156,6 +161,7 @@ namespace edm
     else
       ev.getByLabel("externalLHEProducer", product);
 
+
     lhef::LHEEvent *lheEvent =
 		new lhef::LHEEvent(hadronizer_.getLHERunInfo(), *product);
     hadronizer_.setLHEEvent( lheEvent );
@@ -179,7 +185,7 @@ namespace edm
     //
     if ( decayer_ ) 
     {
-      event.reset( decayer_->decay( event.get() ) );
+      event.reset( decayer_->decay( event.get(),lheEvent ) );
     }
 
     if ( !event.get() ) return false;
@@ -232,6 +238,9 @@ namespace edm
     edm::Handle<LHERunInfoProduct> lheRunInfoProduct;
     run.getByLabel(runInfoProductTag_, lheRunInfoProduct);
     hadronizer_.setLHERunInfo( new lhef::LHERunInfo(*lheRunInfoProduct) );
+    lhef::LHERunInfo* lheRunInfo = hadronizer_.getLHERunInfo().get();
+    lheRunInfo->initLumi();
+
   }
 
   template <class HAD, class DEC>
@@ -249,7 +258,7 @@ namespace edm
     lhef::LHERunInfo::XSec xsec = lheRunInfo->xsec();
 
     GenRunInfoProduct& genRunInfo = hadronizer_.getGenRunInfo();
-    genRunInfo.setInternalXSec( GenRunInfoProduct::XSec(xsec.value, xsec.error) );
+    genRunInfo.setInternalXSec( GenRunInfoProduct::XSec(xsec.value(), xsec.error()) );
 
     // If relevant, record the integrated luminosity for this run
     // here.  To do so, we would need a standard function to invoke on
@@ -268,6 +277,9 @@ namespace edm
   void
   HadronizerFilter<HAD,DEC>::beginLuminosityBlock(LuminosityBlock const& lumi, EventSetup const& es)
   {
+    lhef::LHERunInfo* lheRunInfo = hadronizer_.getLHERunInfo().get();
+    lheRunInfo->initLumi();
+
     RandomEngineSentry<HAD> randomEngineSentry(&hadronizer_, lumi.index());
     RandomEngineSentry<DEC> randomEngineSentryDecay(decayer_, lumi.index());
 
@@ -302,6 +314,42 @@ namespace edm
   void
   HadronizerFilter<HAD,DEC>::endLuminosityBlock(LuminosityBlock const&, EventSetup const&)
   {}
+
+  template <class HAD, class DEC>
+  void
+  HadronizerFilter<HAD,DEC>::endLuminosityBlockProduce(LuminosityBlock & lumi, EventSetup const&)
+  {
+    const lhef::LHERunInfo* lheRunInfo = hadronizer_.getLHERunInfo().get();
+
+
+    std::vector<lhef::LHERunInfo::Process> LHELumiProcess = lheRunInfo->getLumiProcesses();
+    std::vector<GenLumiInfoProduct::ProcessInfo> GenLumiProcess;
+    for(unsigned int i=0; i < LHELumiProcess.size(); i++){
+      lhef::LHERunInfo::Process thisProcess=LHELumiProcess[i];
+
+      GenLumiInfoProduct::ProcessInfo temp;      
+      temp.setProcess(thisProcess.process());
+      temp.setLheXSec(thisProcess.getLHEXSec().value(),thisProcess.getLHEXSec().error());
+      temp.setNPassPos(thisProcess.nPassPos());
+      temp.setNPassNeg(thisProcess.nPassNeg());
+      temp.setNTotalPos(thisProcess.nTotalPos());
+      temp.setNTotalNeg(thisProcess.nTotalNeg());
+      temp.setTried(thisProcess.tried().n(), thisProcess.tried().sum(), thisProcess.tried().sum2());
+      temp.setSelected(thisProcess.selected().n(), thisProcess.selected().sum(), thisProcess.selected().sum2());
+      temp.setKilled(thisProcess.killed().n(), thisProcess.killed().sum(), thisProcess.killed().sum2());
+      temp.setAccepted(thisProcess.accepted().n(), thisProcess.accepted().sum(), thisProcess.accepted().sum2());
+      temp.setAcceptedBr(thisProcess.acceptedBr().n(), thisProcess.acceptedBr().sum(), thisProcess.acceptedBr().sum2());
+      GenLumiProcess.push_back(temp);
+    }
+    std::auto_ptr<GenLumiInfoProduct> genLumiInfo(new GenLumiInfoProduct());
+    genLumiInfo->setHEPIDWTUP(lheRunInfo->getHEPRUP()->IDWTUP);
+    genLumiInfo->setProcessInfo( GenLumiProcess );
+    lumi.put(genLumiInfo);
+
+
+  }
+
+
 }
 
 #endif // gen_HadronizerFilter_h

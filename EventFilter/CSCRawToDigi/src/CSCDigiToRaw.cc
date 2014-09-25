@@ -87,14 +87,15 @@ bool accept(const CSCDetId & cscId, const CSCCLCTPreTriggerCollection & lcts,
 
 
 CSCDigiToRaw::CSCDigiToRaw(const edm::ParameterSet & pset)
-    : alctWindowMin_(pset.getParameter<int>("alctWindowMin")),
+  : alctWindowMin_(pset.getParameter<int>("alctWindowMin")),
     alctWindowMax_(pset.getParameter<int>("alctWindowMax")),
     clctWindowMin_(pset.getParameter<int>("clctWindowMin")),
     clctWindowMax_(pset.getParameter<int>("clctWindowMax")),
     preTriggerWindowMin_(pset.getParameter<int>("preTriggerWindowMin")),
     preTriggerWindowMax_(pset.getParameter<int>("preTriggerWindowMax")),
-    theFormatVersion(2005),
-    usePreTriggers(true)
+    formatVersion_(2005),
+    usePreTriggers_(true),
+    packEverything_(false)
 {}
 
 void CSCDigiToRaw::beginEvent(const CSCChamberMap* electronicsMap)
@@ -113,12 +114,12 @@ CSCEventData & CSCDigiToRaw::findEventData(const CSCDetId & cscDetId)
     {
       // make an entry, telling it the correct chamberType
       int chamberType = chamberId.iChamberType();
-      chamberMapItr = theChamberDataMap.insert(pair<CSCDetId, CSCEventData>(chamberId, CSCEventData(chamberType, theFormatVersion))).first;
+      chamberMapItr = theChamberDataMap.insert(pair<CSCDetId, CSCEventData>(chamberId, CSCEventData(chamberType, formatVersion_))).first;
     }
   CSCEventData & cscData = chamberMapItr->second;
   cscData.dmbHeader()->setCrateAddress(theElectronicsMap->crate(cscDetId), theElectronicsMap->dmb(cscDetId));
 
-  if (theFormatVersion == 2013)
+  if (formatVersion_ == 2013)
     {
       // Set DMB version field to distinguish between ME11s and other chambers (ME11 - 2, others - 1)
       bool me11 = ((chamberId.station()==1) && (chamberId.ring()==4)) || ((chamberId.station()==1) && (chamberId.ring()==1));
@@ -146,8 +147,8 @@ void CSCDigiToRaw::add(const CSCStripDigiCollection& stripDigis,
       // only digitize if there are pre-triggers
       
       /* !!! Testing. Uncomment for production */
-     if (!usePreTriggers || 
-	(usePreTriggers && cscd2r::accept(cscDetId, preTriggers, preTriggerWindowMin_, preTriggerWindowMax_)) )
+     if (!usePreTriggers_ || packEverything_ ||
+	(usePreTriggers_ && cscd2r::accept(cscDetId, preTriggers, preTriggerWindowMin_, preTriggerWindowMax_)) )
         {
           bool me1a = (cscDetId.station()==1) && (cscDetId.ring()==4);
           bool zplus = (cscDetId.endcap() == 1);
@@ -161,7 +162,7 @@ void CSCDigiToRaw::add(const CSCStripDigiCollection& stripDigis,
             {
               CSCStripDigi digi = *digiItr;
               int strip = digi.getStrip();
-              if (theFormatVersion == 2013)
+              if (formatVersion_ == 2013)
                 {
                   if ( me1a && zplus )
                     {
@@ -208,7 +209,7 @@ void CSCDigiToRaw::add(const CSCWireDigiCollection& wireDigis,
   for (CSCWireDigiCollection::DigiRangeIterator j=wireDigis.begin(); j!=wireDigis.end(); ++j)
     {
       CSCDetId cscDetId=(*j).first;
-      if (cscd2r::accept(cscDetId, alctDigis, alctWindowMin_, alctWindowMax_))
+      if (packEverything_ || cscd2r::accept(cscDetId, alctDigis, alctWindowMin_, alctWindowMax_))
         {
           CSCEventData & cscData = findEventData(cscDetId);
           std::vector<CSCWireDigi>::const_iterator digiItr = (*j).second.first;
@@ -230,14 +231,14 @@ void CSCDigiToRaw::add(const CSCComparatorDigiCollection & comparatorDigis,
     {
       CSCDetId cscDetId=(*j).first;
       CSCEventData & cscData = findEventData(cscDetId);
-      if (cscd2r::accept(cscDetId, clctDigis, clctWindowMin_, clctWindowMax_))
+      if (packEverything_ || cscd2r::accept(cscDetId, clctDigis, clctWindowMin_, clctWindowMax_))
         {
           bool me1a = (cscDetId.station()==1) && (cscDetId.ring()==4);
 	  
 
-          BOOST_FOREACH(CSCComparatorDigi digi, (*j).second)
+	  BOOST_FOREACH(CSCComparatorDigi digi, (*j).second)
           {
-            if (theFormatVersion == 2013)
+            if (formatVersion_ == 2013)
               {
                 // Move ME1/A comparators from CFEB=0 to CFEB=4 if this has not
                 // been done already.
@@ -320,11 +321,13 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
                                     const CSCCorrelatedLCTDigiCollection& correlatedLCTDigis,
                                     FEDRawDataCollection& fed_buffers,
                                     const CSCChamberMap* mapping,
-                                    Event & e, uint16_t format_version, bool use_pre_triggers)
+                                    Event & e, uint16_t format_version, bool use_pre_triggers,
+				    bool packEverything)
 {
 
-  theFormatVersion = format_version;
-  usePreTriggers = use_pre_triggers;
+  formatVersion_ = format_version;
+  usePreTriggers_ = use_pre_triggers;
+  packEverything_ = packEverything;
   //bits of code from ORCA/Muon/METBFormatter - thanks, Rick:)!
 
   //get fed object from fed_buffers
@@ -339,7 +342,7 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
   int bx = l1a;//same as above
   //int startingFED = FEDNumbering::MINCSCFEDID;
 
-  if (theFormatVersion == 2005) /// Handle pre-LS1 format data
+  if (formatVersion_ == 2005) /// Handle pre-LS1 format data
     {
       std::map<int, CSCDCCEventData> dccMap;
       for (int idcc=FEDNumbering::MINCSCFEDID;
@@ -378,7 +381,7 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
                   int dduSlot  = mapping->dduSlot(chamberItr->first);
                   int dduInput = mapping->dduInput(chamberItr->first);
                   int dmbId    = mapping->dmb(chamberItr->first);
-                  dccMapItr->second.addChamber(chamberItr->second, dduId, dduSlot, dduInput, dmbId, theFormatVersion);
+                  dccMapItr->second.addChamber(chamberItr->second, dduId, dduSlot, dduInput, dmbId, formatVersion_);
                 }
             }
         }
@@ -399,7 +402,7 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
         }
 
     }
-  else if (theFormatVersion == 2013) /// Handle post-LS1 format data
+  else if (formatVersion_ == 2013) /// Handle post-LS1 format data
     {
 
       std::map<int, CSCDDUEventData> dduMap;
@@ -461,7 +464,7 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
                   int dduInput = mapping->dduInput(chamberItr->first);
                   int dmbId    = mapping->dmb(chamberItr->first);
 		  // int crateId  = mapping->crate(chamberItr->first);
-                  dduMapItr->second.add( chamberItr->second, dmbId, dduInput, theFormatVersion );
+                  dduMapItr->second.add( chamberItr->second, dmbId, dduInput, formatVersion_ );
                 }
             }
         }

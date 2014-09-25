@@ -165,9 +165,9 @@ void detsetTest() {
 namespace {
   template<typename T>
   struct DSVGetter : edm::EDProductGetter {
-    DSVGetter() : edm::EDProductGetter(), prod_(0) {}
-    virtual WrapperHolder
-    getIt(ProductID const&) const override {return WrapperHolder(prod_, prod_->getInterface());}
+    DSVGetter() : edm::EDProductGetter(), prod_(nullptr) {}
+    virtual WrapperBase const*
+    getIt(ProductID const&) const override {return prod_;}
     virtual unsigned int
     transitionIndex_() const override {return 0U;}
 
@@ -193,8 +193,8 @@ void refTest() {
   c.insert(d1);
   c.post_insert();
 
-  std::auto_ptr<coll_type> pC(new coll_type(c));
-  edm::Wrapper<coll_type> wrapper(pC);
+  std::unique_ptr<coll_type> pC(new coll_type(c));
+  edm::Wrapper<coll_type> wrapper(std::move(pC));
   DSVGetter<coll_type> theGetter;
   theGetter.prod_ = &wrapper;
 

@@ -22,7 +22,7 @@ SingleTopSingleMuonHLTValidation = cms.EDAnalyzer('TopSingleLeptonHLTValidation'
         etaJets      = cms.untracked.double(5.),
         minJets      = cms.untracked.uint32(2),
         # Trigger
-        sTrigger     = cms.untracked.string("TriggerResults"),
+        iTrigger     = cms.untracked.InputTag("TriggerResults","","HLT"),
         vsPaths      = cms.untracked.vstring(['HLT_IsoMu24_IterTrk02_v', 'HLT_IsoMu24_IterTrk02_TriCentralPFJet60_50_35_v', 'HLT_IsoMu24_IterTrk02_TriCentralPFJet40_v', 'HLT_IsoMu24_IterTrk02_CentralPFJet30_BTagCSV_v']),
 )
 
@@ -48,6 +48,6 @@ SingleTopSingleElectronHLTValidation = cms.EDAnalyzer('TopSingleLeptonHLTValidat
         etaJets      = cms.untracked.double(5.),
         minJets      = cms.untracked.uint32(2),
         # Trigger
-        sTrigger     = cms.untracked.string("TriggerResults"),
-        vsPaths      = cms.untracked.vstring(['HLT_Ele27_WP80_Gsf_v', 'HLT_Ele27_WP80_Gsf_TriCentralPFJet40_v', 'HLT_Ele27_WP80_Gsf_TriCentralPFJet60_50_35_v', 'HLT_Ele27_WP80_Gsf_CentralPFJet30_BTagCSV_v']),
+        iTrigger     = cms.untracked.InputTag("TriggerResults","","HLT"),
+        vsPaths      = cms.untracked.vstring(['HLT_Ele27_WP85_Gsf_v', 'HLT_Ele27_WP85_Gsf_TriCentralPFJet40_v', 'HLT_Ele27_WP85_Gsf_TriCentralPFJet60_50_35_v', 'HLT_Ele27_WP85_Gsf_CentralPFJet30_BTagCSV_v']),
 )

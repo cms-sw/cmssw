@@ -86,10 +86,10 @@ bool SiPixelHistoryDQMService::setDBValuesForUser(std::vector<MonitorElement*>::
     // }
     // else
     // if(  ) {
-    Hist->Fit("pol0");
-    TF1* Fit = Hist->GetFunction("pol0");
-    float FitValue = Fit ? Fit->GetParameter(0) : 0;
-    float FitError = Fit ? Fit->GetParError(0) : 0;
+    TF1 Fit("mypol0","pol0");
+    Hist->Fit(&Fit);
+    float FitValue = Fit.GetParameter(0) ;
+    float FitError = Fit.GetParError(0) ;
     std::cout << "FITERROR: " << FitError << std::endl;
 
     values.push_back( FitValue );

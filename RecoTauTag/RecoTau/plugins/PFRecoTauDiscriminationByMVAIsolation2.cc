@@ -103,7 +103,7 @@ class PFRecoTauDiscriminationByIsolationMVA2 : public PFTauDiscriminationProduce
 
   void beginEvent(const edm::Event&, const edm::EventSetup&);
 
-  double discriminate(const PFTauRef&);
+  double discriminate(const PFTauRef&) const;
 
   void endEvent(edm::Event&);
 
@@ -142,7 +142,6 @@ class PFRecoTauDiscriminationByIsolationMVA2 : public PFTauDiscriminationProduce
 
   edm::Handle<TauCollection> taus_;
   std::auto_ptr<PFTauDiscriminator> category_output_;
-  size_t tauIndex_;
 
   std::vector<TFile*> inputFilesToDelete_;
 
@@ -167,15 +166,13 @@ void PFRecoTauDiscriminationByIsolationMVA2::beginEvent(const edm::Event& evt, c
 
   evt.getByToken(Tau_token, taus_);
   category_output_.reset(new PFTauDiscriminator(TauRefProd(taus_)));
-  tauIndex_ = 0;
 }
 
-double PFRecoTauDiscriminationByIsolationMVA2::discriminate(const PFTauRef& tau)
+double PFRecoTauDiscriminationByIsolationMVA2::discriminate(const PFTauRef& tau) const
 {
   // CV: define dummy category index in order to use RecoTauDiscriminantCutMultiplexer module to appy WP cuts
   double category = 0.; 
   category_output_->setValue(tauIndex_, category);
-  ++tauIndex_;
 
   // CV: computation of MVA value requires presence of leading charged hadron
   if ( tau->leadPFChargedHadrCand().isNull() ) return 0.;

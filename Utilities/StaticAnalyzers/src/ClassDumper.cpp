@@ -16,7 +16,7 @@ void writeLog(std::string ostring,std::string tfstring) {
 	if ( pPath != NULL ) tname += std::string(pPath);
 	tname+=tfstring;
 	std::fstream file;
-	file.open(tname.c_str(),std::ios::in|std::ios::out|std::ios::app);
+	file.open(tname.c_str(),std::ios::out|std::ios::app);
 	file<<ostring<<"\n";
 	file.close();
 //	std::cout<<ostring<<"\n";

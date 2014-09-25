@@ -42,7 +42,19 @@ namespace cond {
 
   namespace persistency {
 
-    cond::Hash import( const std::string& inputTypeName, const void* inputPtr, Session& destination ){
+    std::pair<std::string,boost::shared_ptr<void> > fetchIfExists( const cond::Hash& payloadId, Session& session, bool& exists ){
+      boost::shared_ptr<void> payloadPtr;
+      cond::Binary data;
+      cond::Binary streamerInfo;
+      std::string payloadTypeName;
+      exists = session.fetchPayloadData( payloadId, payloadTypeName, data, streamerInfo );
+      if( exists ) {
+	bool isOra = session.isOraSession();
+	return fetchOne(payloadTypeName, data, streamerInfo, payloadPtr, isOra);
+      } else return std::make_pair( std::string(""), boost::shared_ptr<void>() );
+    }
+
+    cond::Hash import( Session& source, const cond::Hash& sourcePayloadId, const std::string& inputTypeName, const void* inputPtr, Session& destination ){
       cond::Hash payloadId("");
       bool newInsert = false;
       bool match = false;
@@ -208,33 +220,40 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( L1RPCHsbConfig ) 
       IMPORT_PAYLOAD_CASE( L1RPCHwConfig )
       IMPORT_PAYLOAD_CASE( L1TriggerKey )
-      IMPORT_PAYLOAD_CASE( L1TriggerKeyList )
+      if( inputTypeName == "L1TriggerKeyList" ){ 
+	match = true;
+	const L1TriggerKeyList& obj = *static_cast<const L1TriggerKeyList*>( inputPtr );
+        L1TriggerKeyList converted;
+	for( const auto& kitem : obj.tscKeyToTokenMap() ){
+	  std::string pid("0");
+	  std::string sourcePid = source.parsePoolToken( kitem.second );
+	  if( !destination.lookupMigratedPayload( source.connectionString(), sourcePid, pid ) ){
+	    std::cout <<"WARNING: L1Trigger key stored on "<<sourcePid<<" has not been migrated (yet?). Attemping to do the export..."<<std::endl;
+	    bool exists = false;
+            std::pair<std::string,boost::shared_ptr<void> > missingPayload = fetchIfExists( sourcePid, source, exists );
+	    if( exists ) pid = import( source, sourcePid, missingPayload.first, missingPayload.second.get(), destination );
+	  }
+          converted.addKey( kitem.first, pid );
+	}
+	for( const auto& ritem : obj.recordTypeToKeyToTokenMap() ){
+	  for( const auto& kitem : ritem.second ){
+	    std::string pid("0");
+	    std::string sourcePid = source.parsePoolToken( kitem.second );
+	    if( !destination.lookupMigratedPayload( source.connectionString(), sourcePid, pid ) ){
+	      std::cout <<"WARNING: L1Trigger key stored on "<<sourcePid<<" has not been migrated (yet?). Attemping to do the export..."<<std::endl;
+	      bool exists = false;
+	      std::pair<std::string,boost::shared_ptr<void> > missingPayload = fetchIfExists( sourcePid, source, exists );
+	      if( exists ) pid = import( source, sourcePid, missingPayload.first, missingPayload.second.get(), destination );
+	    }
+	    converted.addKey( ritem.first, kitem.first, pid );
+	  }
+	}
+	payloadId = destination.storePayload( converted, boost::posix_time::microsec_clock::universal_time() );
+      }
+      //IMPORT_PAYLOAD_CASE( L1TriggerKeyList )
       IMPORT_PAYLOAD_CASE( lumi::LumiSectionData )
       IMPORT_PAYLOAD_CASE( MixingModuleConfig )
       IMPORT_PAYLOAD_CASE( MuScleFitDBobject )
-      /**
-      if( inputTypeName == "PhysicsTools::Calibration::MVAComputerContainer" ){ \
-      std::cout <<"@@@@@ MVAComputer!"<<std::endl;\
-      match = true;\
-      const PhysicsTools::Calibration::MVAComputerContainer& obj = *static_cast<const PhysicsTools::Calibration::MVAComputerContainer*>( inputPtr ); \
-      PhysicsTools::Calibration::MVAComputerContainer tmp;		\
-      for( auto entry : obj.entries ) {					\
-      std::cout <<"#Adding new entry label="<<entry.first<<std::endl;	\
-      PhysicsTools::Calibration::MVAComputer& c = tmp.add( entry.first ); \
-      c.inputSet = entry.second.inputSet;				\
-      c.output =  entry.second.output;					\
-      auto ps = entry.second.getProcessors();				\
-      for( size_t i=0;i<ps.size();i++ ){				\
-      std::cout <<"PRocess type="<<demangledName( typeid(*ps[i] ) )<<std::endl;	\
-      c.addProcessor( ps[i] );						\
-      }									\
-      }									\
-      std::pair<std::string,bool> st = destination.storePayload( tmp, boost::posix_time::microsec_clock::universal_time() ); \
-      payloadId = st.first;						\
-      newInsert = st.second;						\
-      } 
-      **/
-
       IMPORT_PAYLOAD_CASE( PhysicsTools::Calibration::MVAComputerContainer )
       IMPORT_PAYLOAD_CASE( PCaloGeometry )
       IMPORT_PAYLOAD_CASE( PGeometricDet )

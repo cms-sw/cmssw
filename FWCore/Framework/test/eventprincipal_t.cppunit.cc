@@ -162,7 +162,7 @@ void test_ep::setUp() {
     typedef edmtest::DummyProduct PRODUCT_TYPE;
     typedef edm::Wrapper<PRODUCT_TYPE> WDP;
 
-    edm::WrapperOwningHolder product(new WDP(std::auto_ptr<PRODUCT_TYPE>(new PRODUCT_TYPE)), WDP::getInterface());
+    std::unique_ptr<edm::WrapperBase> product(new WDP(std::auto_ptr<PRODUCT_TYPE>(new PRODUCT_TYPE)));
 
     std::string tag("rick");
     assert(branchDescriptions_[tag]);
@@ -193,7 +193,7 @@ void test_ep::setUp() {
     edm::ProcessHistoryRegistry phr;
     pEvent_->fillEventPrincipal(eventAux, phr);
     pEvent_->setLuminosityBlockPrincipal(lbp);
-    pEvent_->put(branchFromRegistry, product, prov);
+    pEvent_->put(branchFromRegistry, std::move(product), prov);
   }
   CPPUNIT_ASSERT(pEvent_->size() == 1);
 }

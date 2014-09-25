@@ -15,7 +15,9 @@
 class dso_hidden PhotonConversionTrajectorySeedProducerFromSingleLeg final : public edm::stream::EDProducer<> {
 public:
   PhotonConversionTrajectorySeedProducerFromSingleLeg(const edm::ParameterSet& );
-  ~PhotonConversionTrajectorySeedProducerFromSingleLeg(){}
+  ~PhotonConversionTrajectorySeedProducerFromSingleLeg(){delete _theFinder;}
+  PhotonConversionTrajectorySeedProducerFromSingleLeg(const PhotonConversionTrajectorySeedProducerFromSingleLeg&)=delete;
+  PhotonConversionTrajectorySeedProducerFromSingleLeg& operator=(const PhotonConversionTrajectorySeedProducerFromSingleLeg&)=delete;
   void produce(edm::Event& , const edm::EventSetup& ) override;
 
 private:

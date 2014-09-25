@@ -1,4 +1,4 @@
-<flags   CXXFLAGS="-Ofast -mrecip"/>
+<flags   CXXFLAGS="-Ofast"/>
 <use   name="DataFormats/BeamSpot"/>
 <use   name="DataFormats/VertexReco"/>
 <use   name="FWCore/Framework"/>

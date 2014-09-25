@@ -158,14 +158,14 @@ void testRef::comparisonTest() {
 
 namespace {
    struct TestGetter : public edm::EDProductGetter {
-      WrapperHolder hold_;
-      virtual WrapperHolder getIt(ProductID const&) const override {
+      WrapperBase const* hold_;
+      virtual WrapperBase const* getIt(ProductID const&) const override {
          return hold_;
       }
       virtual unsigned int transitionIndex_() const override {
         return 0U;
       }
-      TestGetter() : hold_() {}
+      TestGetter() : hold_(nullptr) {}
    };
 
    struct IntValue {
@@ -176,14 +176,14 @@ namespace {
 
 void testRef::getTest() {
    typedef std::vector<IntValue> IntCollection;
-   std::auto_ptr<IntCollection> ptr(new IntCollection);
+   std::unique_ptr<IntCollection> ptr(new IntCollection);
 
    ptr->push_back(0);
    ptr->push_back(1);
 
-   edm::Wrapper<IntCollection> wrapper(ptr);
+   edm::Wrapper<IntCollection> wrapper(std::move(ptr));
    TestGetter tester;
-   tester.hold_ = WrapperHolder(&wrapper, wrapper.getInterface());
+   tester.hold_ = &wrapper;
 
    ProductID const pid(1, 1);
 

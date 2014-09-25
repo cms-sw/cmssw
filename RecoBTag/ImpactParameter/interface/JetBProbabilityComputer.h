@@ -54,7 +54,7 @@ class JetBProbabilityComputer : public JetTagComputer
       const reco::TrackIPTagInfo & tkip = ti.get<reco::TrackIPTagInfo>();
       const edm::RefVector<reco::TrackCollection> & tracks(tkip.selectedTracks());
       const std::vector<float> & allProbabilities((tkip.probabilities(m_ipType)));
-      const std::vector<reco::TrackIPTagInfo::TrackIPData> & impactParameters((tkip.impactParameterData()));
+      const std::vector<reco::btag::TrackIPData> & impactParameters((tkip.impactParameterData()));
 
       if(tkip.primaryVertex().isNull()) return 0;
 
@@ -136,7 +136,7 @@ double jetProbability( const std::vector<float> & v ) const
   }
  private:
  bool useVariableJTA_;
- reco::TrackIPTagInfo::variableJTAParameters varJTApars;
+ reco::btag::variableJTAParameters varJTApars;
    double m_minTrackProb;
    int m_ipType;
    double m_deltaR;

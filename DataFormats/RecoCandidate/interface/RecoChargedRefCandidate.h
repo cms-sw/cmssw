@@ -21,6 +21,14 @@ namespace reco {
     reco::TrackRef const & track() const {
       return ref_;
     }
+    // return a pointer to the best track, if available.
+    // otherwise, return a null pointer
+    virtual const reco::Track * bestTrack() const {
+      if ( track().isNonnull() && track().isAvailable() )
+        return &(*track());
+      else
+        return nullptr;
+    }
   };
 }
 

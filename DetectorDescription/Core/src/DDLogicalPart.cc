@@ -238,7 +238,7 @@ DDsvalues_type DDLogicalPart::mergedSpecifics() const
 }  
 
 // for internal use only
-void DDLogicalPart::addSpecifics(const std::pair<DDPartSelection*,DDsvalues_type*> & s)
+void DDLogicalPart::addSpecifics(const std::pair<const DDPartSelection*, const DDsvalues_type*> & s)
 {
    DCOUT('S', "lp=" << name());
    rep().addSpecifics(s);
@@ -403,7 +403,7 @@ DDIsValid( const std::string & ns, const std::string & nm, std::vector<DDLogical
   return std::make_pair(flag,message);
 }
 
-const std::vector< std::pair<DDPartSelection*,DDsvalues_type*> > & 
+const std::vector< std::pair<const DDPartSelection*, const DDsvalues_type*> > & 
 DDLogicalPart::attachedSpecifics( void ) const
 {
   return rep().attachedSpecifics();

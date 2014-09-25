@@ -73,6 +73,7 @@ SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig)
   edm::ParameterSet ParametersClusterCharge =  conf_.getParameter<edm::ParameterSet>("TH1ClusterCharge");
   layerswitchcluschargeon = ParametersClusterCharge.getParameter<bool>("layerswitchon");
   moduleswitchcluschargeon = ParametersClusterCharge.getParameter<bool>("moduleswitchon");
+  subdetswitchcluschargeon = ParametersClusterCharge.getParameter<bool>("subdetswitchon");
 
   edm::ParameterSet ParametersClusterStoN =  conf_.getParameter<edm::ParameterSet>("TH1ClusterStoN");
   layerswitchclusstonon = ParametersClusterStoN.getParameter<bool>("layerswitchon");
@@ -97,6 +98,7 @@ SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig)
   edm::ParameterSet ParametersClusterWidth =  conf_.getParameter<edm::ParameterSet>("TH1ClusterWidth");
   layerswitchcluswidthon = ParametersClusterWidth.getParameter<bool>("layerswitchon");
   moduleswitchcluswidthon = ParametersClusterWidth.getParameter<bool>("moduleswitchon");
+  subdetswitchcluswidthon = ParametersClusterWidth.getParameter<bool>("subdetswitchon");
 
   edm::ParameterSet ParametersModuleLocalOccupancy =  conf_.getParameter<edm::ParameterSet>("TH1ModuleLocalOccupancy");
   layerswitchlocaloccupancy = ParametersModuleLocalOccupancy.getParameter<bool>("layerswitchon");
@@ -569,7 +571,8 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
       }
 
       //cluster_detset is a structure, cluster_detset.data is a std::vector<SiStripCluster>, cluster_detset.id is uint32_t
-      edmNew::DetSet<SiStripCluster> cluster_detset = (*cluster_detsetvektor)[detid]; // the statement above makes sure there exists an element with 'detid'
+      //      edmNew::DetSet<SiStripCluster> cluster_detset = (*cluster_detsetvektor)[detid]; // the statement above makes sure there exists an element with 'detid'
+      edmNew::DetSet<SiStripCluster> cluster_detset = (*isearch);
 
       // Filling TkHistoMap with number of clusters for each module
       if(clustertkhistomapon) {
@@ -643,6 +646,16 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 	  if (layerswitchclusterwidthprofon)
 	    layer_single.LayerClusterWidthProfile->Fill(iDet, cluster_width);
 	}
+	
+	if (subdetswitchcluschargeon || subdetswitchcluswidthon)
+	  {
+	    std::map<std::string, SubDetMEs>::iterator iSubdet  = SubDetMEsMap.find(subdet_label);
+	    if(iSubdet != SubDetMEsMap.end()) 
+	      {
+		if (subdetswitchcluschargeon) iSubdet->second.SubDetClusterChargeTH1->Fill(cluster_signal);
+		if (subdetswitchcluswidthon)  iSubdet->second.SubDetClusterWidthTH1->Fill(cluster_width);
+	      }
+	  }
       } // end loop over clusters
 
       short total_nr_strips = SiStripDetCabling_->nApvPairs(detid) * 2 * 128; // get correct # of avp pairs
@@ -936,8 +949,24 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label , DQMStore::IBooke
   subdetMEs.SubDetClusterApvTH2       = 0;
   subdetMEs.SubDetClusterDBxCycleProf = 0;
   subdetMEs.SubDetApvDBxProf2         = 0;
+  subdetMEs.SubDetClusterChargeTH1    = 0;
+  subdetMEs.SubDetClusterWidthTH1     = 0;
 
   std::string HistoName;
+  // cluster charge
+  if (subdetswitchcluschargeon){
+    HistoName = "ClusterCharge__" + label;
+    subdetMEs.SubDetClusterChargeTH1 = bookME1D("TH1ClusterCharge",HistoName.c_str() , ibooker);
+    subdetMEs.SubDetClusterChargeTH1->setAxisTitle("Cluster charge [ADC counts]");
+    subdetMEs.SubDetClusterChargeTH1->getTH1()->StatOverflows(kTRUE);  // over/underflows in Mean calculation
+  }
+  // cluster width
+  if (subdetswitchcluswidthon){
+    HistoName = "ClusterWidth__" + label;
+    subdetMEs.SubDetClusterWidthTH1 = bookME1D("TH1ClusterWidth",HistoName.c_str() , ibooker);
+    subdetMEs.SubDetClusterWidthTH1->setAxisTitle("Cluster width [strips]");
+    subdetMEs.SubDetClusterWidthTH1->getTH1()->StatOverflows(kTRUE);  // over/underflows in Mean calculation
+  }
   // Total Number of Cluster - 1D
   if (subdetswitchtotclusth1on){
     HistoName = "TotalNumberOfCluster__" + label;

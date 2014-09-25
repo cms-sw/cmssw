@@ -19,7 +19,7 @@ class HcalCaloTowerMonitor: public HcalBaseMonitor {
   HcalCaloTowerMonitor(); 
   ~HcalCaloTowerMonitor(); 
 
-  void setup(const edm::ParameterSet& ps, DQMStore* dbe);
+  void setup(const edm::ParameterSet& ps, DQMStore::IBooker& ib);
   void processEvent(const CaloTowerCollection& calotower);
   void reset();
   int getIeta(double eta); // get ieta index, given physical coordinate eta

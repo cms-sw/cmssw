@@ -26,16 +26,16 @@ namespace edm {
   public:
     typedef T ModuleType;
     typedef WorkerT<T> WorkerType;
-    WorkerT(T*,
+    WorkerT(std::shared_ptr<T>,
             ModuleDescription const&,
             ExceptionToActionTable const* actions);
 
     virtual ~WorkerT();
 
-  void setModule( T* iModule) {
-    module_ = iModule;
-    resetModuleDescription(&(module_->moduleDescription()));
-  }
+    void setModule( std::shared_ptr<T> iModule) {
+      module_ = iModule;
+      resetModuleDescription(&(module_->moduleDescription()));
+    }
     
     virtual Types moduleType() const override;
 
@@ -112,7 +112,7 @@ namespace edm {
 
     virtual std::vector<ProductHolderIndexAndSkipBit> const& itemsToGetFromEvent() const override { return module_->itemsToGetFromEvent(); }
 
-    T* module_;
+    std::shared_ptr<T> module_;
   };
 
 }

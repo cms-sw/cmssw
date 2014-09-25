@@ -21,12 +21,10 @@ ak4PFCHSResidual.algorithm = 'AK5PFchs'
 
 ######### DATA ############
 from DQMOffline.RecoB.bTagAnalysisData_cfi import *
-bTagAnalysis.finalizePlots = False
-bTagAnalysis.finalizeOnly = False
 bTagAnalysis.ptRanges = cms.vdouble(0.0)
-#Residual correction will be added inside the c++ code only for data (checking the presence of genParticles collection), not explicit here as this sequence also ran on MC FullSim
 bTagAnalysis.doJetID = True
 bTagAnalysis.doJEC = True
+#Residual correction will be added inside the c++ code only for data (checking the presence of genParticles collection), not explicit here as this sequence also ran on MC FullSim
 bTagAnalysis.JECsource = cms.string("newak4PFCHSL1FastL2L3") 
 bTagPlotsDATA = cms.Sequence(bTagAnalysis)
 
@@ -51,20 +49,17 @@ newpatJetGenJetMatch = patJetGenJetMatch.clone(
 
 # Module execution for MC
 from Validation.RecoB.bTagAnalysis_cfi import *
-bTagValidation.finalizePlots = False
-bTagValidation.finalizeOnly = False
 bTagValidation.jetMCSrc = 'AK4byValAlgo'
 bTagValidation.ptRanges = cms.vdouble(0.0)
 bTagValidation.etaRanges = cms.vdouble(0.0)
 bTagValidation.doJetID = True
 bTagValidation.doJEC = True
 bTagValidation.JECsource = cms.string("newak4PFCHSL1FastL2L3")
-bTagValidation.doPUid = cms.bool(True)
 bTagValidation.genJetsMatched = cms.InputTag("newpatJetGenJetMatch")
 #to run on fastsim
 prebTagSequenceMC = cms.Sequence(ak4GenJetsForPUid*newpatJetGenJetMatch*myPartons*AK4Flavour)
 bTagPlotsMC = cms.Sequence(bTagValidation)
 
 #to run on fullsim in the validation sequence, all histograms produced in the dqmoffline sequence
-bTagValidationNoall = bTagValidation.clone(flavPlots="noall")
-bTagPlotsMCbcl = cms.Sequence(myPartons*AK4Flavour*bTagValidationNoall)
+bTagValidationNoall = bTagValidation.clone(flavPlots="noallbcl")
+bTagPlotsMCbcl = cms.Sequence(bTagValidationNoall)

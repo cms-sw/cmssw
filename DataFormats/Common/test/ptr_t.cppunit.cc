@@ -287,8 +287,8 @@ void testPtr::comparisonTest() {
 
 namespace {
    struct TestGetter : public edm::EDProductGetter {
-      WrapperHolder hold_;
-      virtual WrapperHolder getIt(ProductID const&) const override {
+      WrapperBase const* hold_;
+      virtual WrapperBase const* getIt(ProductID const&) const override {
          return hold_;
       }
       virtual unsigned int transitionIndex_() const override {
@@ -301,14 +301,14 @@ namespace {
 
 void testPtr::getTest() {
    typedef std::vector<IntValue> IntCollection;
-   std::auto_ptr<IntCollection> ptr(new IntCollection);
+   std::unique_ptr<IntCollection> ptr(new IntCollection);
 
    ptr->push_back(0);
    ptr->push_back(1);
 
-   edm::Wrapper<IntCollection> wrapper(ptr);
+   edm::Wrapper<IntCollection> wrapper(std::move(ptr));
    TestGetter tester;
-   tester.hold_ = WrapperHolder(&wrapper, wrapper.getInterface());
+   tester.hold_ = &wrapper;
 
    ProductID const pid(1, 1);
 
@@ -332,16 +332,16 @@ void testPtr::getTest() {
 
    {
      typedef std::vector<IntValue2> SDCollection;
-     std::auto_ptr<SDCollection> ptr(new SDCollection);
+     std::unique_ptr<SDCollection> ptr(new SDCollection);
      
      ptr->push_back(IntValue2(0));
      ptr->back().value_ = 0;
      ptr->push_back(IntValue2(1));
      ptr->back().value_ = 1;
      
-     edm::Wrapper<SDCollection> wrapper(ptr);
+     edm::Wrapper<SDCollection> wrapper(std::move(ptr));
      TestGetter tester;
-     tester.hold_ = WrapperHolder(&wrapper, wrapper.getInterface());
+     tester.hold_ = &wrapper;
      
      ProductID const pid(1, 1);
      
@@ -365,7 +365,7 @@ void testPtr::getTest() {
    
    {
       TestGetter tester;
-      tester.hold_ = WrapperHolder();
+      tester.hold_ = nullptr;
       ProductID const pid(1, 1);
 
       Ptr<IntValue> ref0(pid, 0,&tester);

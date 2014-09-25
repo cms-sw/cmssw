@@ -112,13 +112,15 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi) con
   {
     std::vector<std::string> systems = (dbe_->cd(), dbe_->getSubdirs());
 
-    std::cout << " DQMFileSaver: storing EventInfo folders for Run: "
+    edm::LogAbsolute msg("fileAction");
+    msg << "DQMFileSaver: storing EventInfo folders for Run: "
               << run << ", Lumi Section: " << lumi << ", Subsystems: " ;
 
     for (size_t i = 0, e = systems.size(); i != e; ++i) {
       if (systems[i] != "Reference") {
         dbe_->cd();
-	std::cout << systems[i] << "  " ;
+        msg << systems[i] << "  " ;
+
         dbe_->save(filename,
                    systems[i]+"/EventInfo", "^(Reference/)?([^/]+)",
                    rewrite,
@@ -127,8 +129,9 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi) con
                    DQMStore::SaveWithoutReference,
                    dqm::qstatus::STATUS_OK,
                    fileUpdate_ ? "UPDATE" : "RECREATE");
-	// from now on update newly created file
-	if (fileUpdate_.load() == 0) fileUpdate_ = 1;
+
+        // from now on update newly created file
+        if (fileUpdate_.load() == 0) fileUpdate_ = 1;
       }
     }
   }
@@ -260,7 +263,7 @@ DQMFileSaver::fillJson(int run, int lumi, const std::string& dataFilePathName, b
   std::string dataFileName = bfs::path(dataFilePathName).filename().string();
   // The availability test of the FastMonitoringService was done in the ctor.
   bpt::ptree data;
-  bpt::ptree processedEvents, acceptedEvents, errorEvents, bitmask, fileList, fileSize, inputFiles;
+  bpt::ptree processedEvents, acceptedEvents, errorEvents, bitmask, fileList, fileSize, inputFiles, fileAdler32;
 
   processedEvents.put("", fms_ ? (fms_->getEventsProcessedForLumi(lumi)) : -1); // Processed events
   acceptedEvents.put("", fms_ ? (fms_->getEventsProcessedForLumi(lumi)) : -1); // Accepted events, same as processed for our purposes
@@ -270,6 +273,7 @@ DQMFileSaver::fillJson(int run, int lumi, const std::string& dataFilePathName, b
   fileList.put("", dataFileName); // Data file the information refers to
   fileSize.put("", dataFileStat.st_size); // Size in bytes of the data file
   inputFiles.put("", ""); // We do not care about input files!
+  fileAdler32.put("", -1); // placeholder to match output json definition
 
   data.push_back(std::make_pair("", processedEvents));
   data.push_back(std::make_pair("", acceptedEvents));
@@ -278,6 +282,7 @@ DQMFileSaver::fillJson(int run, int lumi, const std::string& dataFilePathName, b
   data.push_back(std::make_pair("", fileList));
   data.push_back(std::make_pair("", fileSize));
   data.push_back(std::make_pair("", inputFiles));
+  data.push_back(std::make_pair("", fileAdler32));
 
   pt.add_child("data", data);
 

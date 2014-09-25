@@ -7,9 +7,11 @@
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
+namespace {
+
 using namespace reco;
 
-class PFRecoTauDiscriminationAgainstElectron : public PFTauDiscriminationProducerBase  {
+class PFRecoTauDiscriminationAgainstElectron final : public PFTauDiscriminationProducerBase  {
    public:
       explicit PFRecoTauDiscriminationAgainstElectron(const edm::ParameterSet& iConfig):PFTauDiscriminationProducerBase(iConfig) {
 
@@ -55,7 +57,7 @@ class PFRecoTauDiscriminationAgainstElectron : public PFTauDiscriminationProduce
 
       }
 
-      double discriminate(const PFTauRef& pfTau) override;
+      double discriminate(const PFTauRef& pfTau) const override;
 
       ~PFRecoTauDiscriminationAgainstElectron(){}
 
@@ -100,7 +102,7 @@ class PFRecoTauDiscriminationAgainstElectron : public PFTauDiscriminationProduce
 
 };
 
-double PFRecoTauDiscriminationAgainstElectron::discriminate(const PFTauRef& thePFTauRef)
+double PFRecoTauDiscriminationAgainstElectron::discriminate(const PFTauRef& thePFTauRef) const 
 {
 
 
@@ -237,6 +239,7 @@ PFRecoTauDiscriminationAgainstElectron::isInEcalCrack(double eta) const
 	  (eta>0.770 && eta<0.806) ||
 	  (eta>1.127 && eta<1.163) ||
 	  (eta>1.460 && eta<1.558));
+}
 }
 
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationAgainstElectron);

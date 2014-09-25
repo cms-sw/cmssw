@@ -13,9 +13,9 @@ hbheprereco = cms.EDProducer(
     tsFromDB = cms.bool(True),
     recoParamsFromDB = cms.bool(True),
     useLeakCorrection = cms.bool(False),
-    dataOOTCorrectionName = cms.string(""),
+    dataOOTCorrectionName = cms.string("HBHE"),
     dataOOTCorrectionCategory = cms.string("Data"),
-    mcOOTCorrectionName = cms.string(""),
+    mcOOTCorrectionName = cms.string("HBHE"),
     mcOOTCorrectionCategory = cms.string("MC"),
 
     # Set time slice for first digi to be stored in aux word
@@ -30,6 +30,7 @@ hbheprereco = cms.EDProducer(
     setTimingShapedCutsFlags  = cms.bool(True),
     setTimingTrustFlags       = cms.bool(False), # timing flags currently only implemented for HF
     setPulseShapeFlags        = cms.bool(True),
+    setNegativeFlags          = cms.bool(True), # only in HBHE
 
     flagParameters= cms.PSet(nominalPedestal=cms.double(3.0),  #fC
                              hitEnergyMinimum=cms.double(1.0), #GeV
@@ -74,6 +75,13 @@ hbheprereco = cms.EDProducer(
                                     TS4TS5LowerCut = cms.vdouble(-1, -0.7, -0.5, -0.4, -0.3, 0.1),
                                     UseDualFit = cms.bool(True),
                                     TriangleIgnoreSlow = cms.bool(False)),
+
+    negativeParameters = cms.PSet(MinimumChargeThreshold = cms.double(20),
+                                  TS4TS5ChargeThreshold = cms.double(70),
+                                  First = cms.int32(4),
+                                  Last = cms.int32(6),
+                                  Threshold = cms.vdouble(100, 120, 160, 200, 300, 500),
+                                  Cut = cms.vdouble(-50, -100, -100, -100, -100, -100)),
 
     # shaped cut parameters are triples of (energy, low time threshold, high time threshold) values.
     # The low and high thresholds must straddle zero (i.e., low<0, high>0); use win_offset to shift.

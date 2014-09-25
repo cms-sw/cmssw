@@ -3,10 +3,10 @@
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 
 GeomDet::GeomDet( Plane* plane):
-  thePlane(plane), theAlignmentPositionError(0), theLocalAlignmentError(InvalidError()), m_index(-1) {}
+  thePlane(plane), m_index(-1), theAlignmentPositionError(nullptr) {}
 
 GeomDet::GeomDet( const ReferenceCountingPointer<Plane>& plane) :
-  thePlane(plane), theAlignmentPositionError(0), theLocalAlignmentError(InvalidError()), m_index(-1) {}
+  thePlane(plane), m_index(-1), theAlignmentPositionError(nullptr) {}
 
 GeomDet::~GeomDet() {delete theAlignmentPositionError;}
 
@@ -33,18 +33,61 @@ void GeomDet::setPosition( const Surface::PositionType& position,
 									  rotation);
 }
 
-#include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 bool GeomDet::setAlignmentPositionError (const AlignmentPositionError& ape) 
 {
   if (!theAlignmentPositionError) {
     if (ape.valid()) theAlignmentPositionError = new AlignmentPositionError(ape);
   } 
   else *theAlignmentPositionError = ape;
-
-  theLocalAlignmentError = ape.valid() ?
-    ErrorFrameTransformer().transform( ape.globalError(),
-                                       surface()
-				       ) :
-    InvalidError();
   return ape.valid();
 }
+
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+GeomDet::SubDetector GeomDet::subDetector() const {
+  return type().subDetector();
+}
+
+void GeomDet::setSurfaceDeformation(const SurfaceDeformation * /*deformation*/)
+{
+  throw cms::Exception("Geometry")
+    << "setting SurfaceDeformation not implemented for DetId "
+    << geographicalId().rawId() << " det="
+    << geographicalId().det() << " subdetId="
+    << geographicalId().subdetId();
+}
+
+
+
+#include "Geometry/CommonTopologies/interface/Topology.h"
+
+namespace {
+struct DummyTopology final : public Topology {
+  virtual LocalPoint localPosition( const MeasurementPoint& ) const { return LocalPoint();}
+  virtual LocalError
+  localError( const MeasurementPoint&, const MeasurementError& ) const { return LocalError();}
+  virtual MeasurementPoint measurementPosition( const LocalPoint&) const { return MeasurementPoint();}
+  virtual MeasurementError
+  measurementError( const LocalPoint&, const LocalError& ) const { return MeasurementError();}
+  virtual int channel( const LocalPoint& p) const { return -1;}
+};
+  const DummyTopology dummyTopology{};
+
+struct DummyGeomDetType final : public GeomDetType {
+   DummyGeomDetType() : GeomDetType("", GeomDetEnumerators::invalidDet){}
+   const Topology& topology() const { return dummyTopology;}
+};
+  const DummyGeomDetType dummyGeomDetType{};
+}
+
+
+const Topology& GeomDet::topology() const {
+  return dummyTopology;
+}
+
+const GeomDetType& GeomDet::type() const {
+  return dummyGeomDetType;
+}
+

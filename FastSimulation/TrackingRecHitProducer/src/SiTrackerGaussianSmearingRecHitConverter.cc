@@ -42,8 +42,6 @@
 // Numbering scheme
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
-#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 
 //For Pileup events
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
@@ -782,16 +780,12 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(const edm::PSimHitConta
       
       // Inflate errors in case of geometry misaligniment  
       // (still needed! what done in constructor of BaseTrackerRecHit is not effective ad geometry is not missaligned)
-      const GeomDet* theMADet = misAlignedGeometry->idToDet(det);
-      if ( theMADet->alignmentPositionError() != 0 ) { 
-	LocalError lape = 
-	  ErrorFrameTransformer().transform ( theMADet->alignmentPositionError()->globalError(),
-					      theMADet->surface() );
-        // std::cout << "ori lape " << det.rawId() << ' ' <<  lape << " det lape " << theDetUnit.localAlignmentError() << std::endl;
+      auto theMADet = misAlignedGeometry->idToDet(det);
+      auto const & lape  =  theMADet->localAlignmentError();
+      if ( lape.valid() )
 	error = LocalError ( error.xx()+lape.xx(),
 			     error.xy()+lape.xy(),
 			     error.yy()+lape.yy() );
-      }
 
       float chargeADC = (*isim).energyLoss()/(GevPerElectron * ElectronsPerADC);
 

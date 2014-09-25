@@ -1,6 +1,5 @@
 #include "FWCore/Framework/interface/RunPrincipal.h"
 
-#include "DataFormats/Common/interface/WrapperOwningHolder.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
@@ -33,19 +32,19 @@ namespace edm {
   void
   RunPrincipal::put(
         BranchDescription const& bd,
-        WrapperOwningHolder const& edp) {
+        std::unique_ptr<WrapperBase>  edp) {
 
     // Assert commented out for LHESource.
     // assert(bd.produced());
-    if(!edp.isValid()) {
+    if(edp.get() == nullptr) {
       throw edm::Exception(edm::errors::InsertFailure,"Null Pointer")
-        << "put: Cannot put because auto_ptr to product is null."
+        << "put: Cannot put because unique_ptr to product is null."
         << "\n";
     }
     ProductHolderBase* phb = getExistingProduct(bd.branchID());
     assert(phb);
     // ProductHolder assumes ownership
-    putOrMerge(edp, phb);
+    putOrMerge(std::move(edp), phb);
   }
 
   void
@@ -67,11 +66,11 @@ namespace edm {
 
     // must attempt to load from persistent store
     BranchKey const bk = BranchKey(phb.branchDescription());
-    WrapperOwningHolder edp(reader()->getProduct(bk, phb.productData().getInterface(), this));
+    std::unique_ptr<WrapperBase> edp(reader()->getProduct(bk, this));
 
     // Now fix up the ProductHolder
-    if(edp.isValid()) {
-      putOrMerge(edp, &phb);
+    if(edp.get() != nullptr) {
+      putOrMerge(std::move(edp), &phb);
     }
   }
 
