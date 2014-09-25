@@ -90,41 +90,41 @@ HLTDiJetAveEtaFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
     int n(0);
 
     if(objects->size() > 1){ // events with two or more jets
-        typename TCollection::const_iterator iTag ( objects->begin() );
+        typename TCollection::const_iterator iProbe ( objects->begin() );
         typename TCollection::const_iterator iEnd ( objects->end() );
-        for (; iTag!=iEnd; ++iTag) {
-            if (iTag->pt() < minPtJet_) continue;
+        for (; iProbe!=iEnd; ++iProbe) {
+            if (iProbe->pt() < minPtJet_) continue;
 
-            // for easier trigger efficiency evaluation save all tag/probe 
+            // for easier trigger efficiency evaluation save all probe/tag 
             // objects passing the minPT/eta criteria (outer loop)
-            float eta = std::abs(iTag->eta());
-            bool isGood = false; // tag or probe
-            bool isTag = false;
-            if ( eta > tagEtaMin_ && eta < tagEtaMax_ ){
-                isGood = true;
-                isTag =  true;
-            }
+            float eta = std::abs(iProbe->eta());
+            bool isGood = false; // probe or tag
+            bool isProbe = false;
             if ( eta > probeEtaMin_ && eta < probeEtaMax_ ){
+                isGood = true;
+                isProbe =  true;
+            }
+            if ( eta > tagEtaMin_ && eta < tagEtaMax_ ){
                 isGood = true;
             }
             if (isGood){
-                filterproduct.addObject(triggerType_,  TRef(objects,distance(objects->begin(),iTag)));
+                filterproduct.addObject(triggerType_,  TRef(objects,distance(objects->begin(),iProbe)));
             }
 
-            if (!isTag) continue;
+            if (!isProbe) continue;
 
-            typename TCollection::const_iterator iProbe ( objects->begin() );
-            for (;iProbe != iEnd; ++iProbe){
-                if (iProbe==iTag) continue;
-                if (iProbe->pt() < minPtJet_) continue;
-                float eta2 = std::abs(iProbe->eta());
-                if ( eta2 < probeEtaMin_ || eta2 > probeEtaMax_ ) continue;
-                double dphi = std::abs(deltaPhi(iTag->phi(),iProbe->phi() ));
+            typename TCollection::const_iterator iTag ( objects->begin() );
+            for (;iTag != iEnd; ++iTag){
+                if (iTag==iProbe) continue;
+                if (iTag->pt() < minPtJet_) continue;
+                float eta2 = std::abs(iTag->eta());
+                if ( eta2 < tagEtaMin_ || eta2 > tagEtaMax_ ) continue;
+                double dphi = std::abs(deltaPhi(iProbe->phi(),iTag->phi() ));
                 if (dphi<minDphi_) {    
                     continue;
                 }
 
-                double ptAve = (iTag->pt() + iProbe->pt())/2;
+                double ptAve = (iProbe->pt() + iTag->pt())/2;
                 if (ptAve<minPtAve_ ) {
                     continue;
                 }
