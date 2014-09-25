@@ -113,9 +113,9 @@ HLTDiJetAveEtaFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
 
             if (!isTag) continue;
 
-            typename TCollection::const_iterator iProbe ( iTag );
-            ++iProbe;
+            typename TCollection::const_iterator iProbe ( objects->begin() );
             for (;iProbe != iEnd; ++iProbe){
+                if (iProbe==iTag) continue;
                 if (iProbe->pt() < minPtJet_) continue;
                 float eta2 = std::abs(iProbe->eta());
                 if ( eta2 < probeEtaMin_ || eta2 > probeEtaMax_ ) continue;
