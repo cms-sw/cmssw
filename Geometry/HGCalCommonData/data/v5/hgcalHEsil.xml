@@ -2,9 +2,9 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 
 <ConstantsSection label="hgcalHEsil.xml" eval="true">
-  <Constant name="ZmaxHEsil" value="4110.0*mm"/>
+  <Constant name="ZmaxHEsil" value="4109.85*mm"/>
   <Constant name="rMinHEsil" value="[etaMax:slope]*[ZmaxHEsil]"/>
-  <Constant name="rMaxHEsil" value="([hgcal:slope3]*([ZmaxHEsil]-[hgcal:z1Beam]))"/>
+  <Constant name="rMaxHEsil" value="[(hgcal:rMaxHGCal2]+([hgcal:slope3]*([ZmaxHEsil]-[hgcal:zHGCal2])))"/>
   <Constant name="rMapHEsil" value="[rMaxHEsil]*[hgcal:factor1]"/>
 </ConstantsSection> 
 
