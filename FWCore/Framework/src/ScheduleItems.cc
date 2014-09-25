@@ -3,6 +3,7 @@
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
+#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/Provenance/interface/SelectedProducts.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/CommonParams.h"
@@ -25,6 +26,7 @@ namespace edm {
       actReg_(new ActivityRegistry),
       preg_(new SignallingProductRegistry),
       branchIDListHelper_(new BranchIDListHelper),
+      thinnedAssociationsHelper_(new ThinnedAssociationsHelper),
       act_table_(),
       processConfiguration_() {
   }
@@ -33,6 +35,7 @@ namespace edm {
       actReg_(new ActivityRegistry),
       preg_(new SignallingProductRegistry(preg)),
       branchIDListHelper_(new BranchIDListHelper),
+      thinnedAssociationsHelper_(new ThinnedAssociationsHelper),
       act_table_(),
       processConfiguration_() {
 
@@ -134,6 +137,7 @@ namespace edm {
                      ServiceRegistry::instance().get<service::TriggerNamesService>(),
                      *preg_,
                      *branchIDListHelper_,
+                     *thinnedAssociationsHelper_,
                      *act_table_,
                      actReg_,
                      processConfiguration_,
@@ -148,7 +152,7 @@ namespace edm {
     actReg_.reset();
     preg_.reset();
     branchIDListHelper_.reset();
+    thinnedAssociationsHelper_.reset();
     processConfiguration_.reset();
   }
 }
-

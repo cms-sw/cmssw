@@ -3,8 +3,8 @@
 
 namespace edmtest {
   void ThingAlgorithm::run(ThingCollection & thingCollection) {
-    thingCollection.reserve(20);
-    for (int i = 0; i < 20; ++i) {
+    thingCollection.reserve(nThings_);
+    for (int i = 0; i < nThings_; ++i) {
       Thing tc;
       tc.a = i+offset;
       thingCollection.push_back(tc);

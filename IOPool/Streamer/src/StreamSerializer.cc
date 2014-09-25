@@ -42,7 +42,9 @@ namespace edm {
    * into the specified InitMessage.
    */
 
-  int StreamSerializer::serializeRegistry(SerializeDataBuffer &data_buffer, const BranchIDLists &branchIDLists) {
+  int StreamSerializer::serializeRegistry(SerializeDataBuffer &data_buffer,
+                                          const BranchIDLists &branchIDLists,
+                                          ThinnedAssociationsHelper const& thinnedAssociationsHelper) {
     FDEBUG(6) << "StreamSerializer::serializeRegistry" << std::endl;
     SendJobHeader sd;
 
@@ -56,6 +58,7 @@ namespace edm {
     }
     Service<ConstProductRegistry> reg;
     sd.setBranchIDLists(branchIDLists);
+    sd.setThinnedAssociationsHelper(thinnedAssociationsHelper);
     SendJobHeader::ParameterSetMap psetMap;
 
     pset::Registry::instance()->fillMap(psetMap);

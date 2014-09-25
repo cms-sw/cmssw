@@ -24,6 +24,10 @@
       edm::EDProductGetter::assignEDProductGetter(reinterpret_cast<edm::EDProductGetter const*&>(cachePtr_));
     ]]>
   </ioread>
+ <class name="edm::ThinnedAssociation" ClassVersion="10">
+  <version ClassVersion="10" checksum="1914950449"/>
+ </class>
+ <class name="edm::Wrapper<edm::ThinnedAssociation>" splitLevel="0"/>
  <class name="edm::ConstPtrCache" ClassVersion="10">
   <version ClassVersion="10" checksum="2166959629"/>
    <field name="ptr_" transient="true"/>
