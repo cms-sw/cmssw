@@ -9,7 +9,7 @@
 #include "HepMC/GenParticle.h"
 
 #include "Pythia8/Pythia.h"
-#include "Pythia8/Pythia8ToHepMC.h"
+#include "Pythia8Plugins/HepMC2.h"
 
 #include "GeneratorInterface/Pythia8Interface/interface/Py8InterfaceBase.h"
 
@@ -18,8 +18,8 @@
 // PS matchning prototype
 //
 #include "GeneratorInterface/Pythia8Interface/plugins/JetMatchingHook.h"
-#include "GeneratorInterface/PartonShowerVeto/interface/JetMatchingPy8Internal.h"
-#include "GeneratorInterface/PartonShowerVeto/interface/SetNumberOfPartonsDynamically.h"
+#include "Pythia8Plugins/JetMatching.h"
+#include "Pythia8Plugins/aMCatNLOHooks.h"
 
 // Emission Veto Hooks
 //
@@ -99,8 +99,8 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
     // PS matching prototype
     //
     JetMatchingHook* fJetMatchingHook;
-    JetMatchingMadgraph *fJetMatchingPy8InternalHook;
-    SetNumberOfPartonsDynamically *fSetNumberOfPartonsDynamicallyHook;
+    Pythia8::JetMatchingMadgraph *fJetMatchingPy8InternalHook;
+    Pythia8::amcnlo_unitarised_interface *fMergingHook;
     
     // Emission Veto Hooks
     //
@@ -133,7 +133,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   LHEInputFileName(params.getUntrackedParameter<string>("LHEInputFileName","")),
   fInitialState(PP),
   fReweightUserHook(0),fReweightRapUserHook(0),fReweightPtHatRapUserHook(0),
-  fJetMatchingHook(0),fJetMatchingPy8InternalHook(0), fSetNumberOfPartonsDynamicallyHook(0),
+  fJetMatchingHook(0),fJetMatchingPy8InternalHook(0), fMergingHook(0),
   fEmissionVetoHook(0),fEmissionVetoHook1(0), nME(-1), nMEFiltered(-1)
 {
 
@@ -178,8 +178,10 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
     std::string slhafilenameshort = params.getParameter<string>("SLHAFileForPythia8");
     edm::FileInPath f1( slhafilenameshort );
     slhafile_ = f1.fullPath();
-    std::string pythiacommandslha = std::string("SLHA:file = ") + slhafile_;
-    fMasterGen->readString(pythiacommandslha);
+    
+    fMasterGen->settings.mode("SLHA:readFrom", 2);
+    fMasterGen->settings.word("SLHA:file", slhafile_);    
+    
     for ( ParameterCollector::const_iterator line = fParameters.begin();
           line != fParameters.end(); ++line ) {
       if (line->find("SLHA:file") != std::string::npos)
@@ -237,12 +239,6 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
       {
          fJetMatchingHook = new JetMatchingHook( jmParams, &fMasterGen->info );
       }
-      else if (scheme == "MadgraphPy8Internal") {
-        fJetMatchingPy8InternalHook = new ::JetMatchingMadgraph;
-      }
-      else if (scheme == "CKKWPy8Internal") {
-        fSetNumberOfPartonsDynamicallyHook = new SetNumberOfPartonsDynamically;
-      }
   }
 
   // Emission vetos
@@ -283,8 +279,6 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   if(fReweightRapUserHook) NHooks++;
   if(fReweightPtHatRapUserHook) NHooks++;
   if(fJetMatchingHook) NHooks++;
-  if(fJetMatchingPy8InternalHook) NHooks++;
-  if (fSetNumberOfPartonsDynamicallyHook) NHooks++;
   if(fEmissionVetoHook) NHooks++;
   if(fEmissionVetoHook1) NHooks++;
   if(NHooks > 1)
@@ -294,8 +288,6 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   if(fReweightRapUserHook) fMasterGen->setUserHooksPtr(fReweightRapUserHook);
   if(fReweightPtHatRapUserHook) fMasterGen->setUserHooksPtr(fReweightPtHatRapUserHook);
   if(fJetMatchingHook) fMasterGen->setUserHooksPtr(fJetMatchingHook);
-  if(fJetMatchingPy8InternalHook) fMasterGen->setUserHooksPtr(fJetMatchingPy8InternalHook);
-  if (fSetNumberOfPartonsDynamicallyHook) fMasterGen->setUserHooksPtr(fSetNumberOfPartonsDynamicallyHook);
   if(fEmissionVetoHook || fEmissionVetoHook1) {
     std::cout << "Turning on Emission Veto Hook";
     if(fEmissionVetoHook1) std::cout << " 1";
@@ -316,20 +308,29 @@ Pythia8Hadronizer::~Pythia8Hadronizer()
 
 bool Pythia8Hadronizer::initializeForInternalPartons()
 {
-
-  // pythiaEvent = &pythia->event;
-
   if ( fInitialState == PP ) // default
   {
-    fMasterGen->init(2212, 2212, comEnergy);
+    //fMasterGen->init(2212, 2212, comEnergy);
+    fMasterGen->settings.mode("Beams:idA", 2212);
+    fMasterGen->settings.mode("Beams:idB", 2212);
+    fMasterGen->settings.parm("Beams:eCM", comEnergy);
+    fMasterGen->init();
   }
   else if ( fInitialState == PPbar )
   {
-    fMasterGen->init(2212, -2212, comEnergy);
+    //fMasterGen->init(2212, -2212, comEnergy);
+    fMasterGen->settings.mode("Beams:idA", 2212);
+    fMasterGen->settings.mode("Beams:idB", -2212);
+    fMasterGen->settings.parm("Beams:eCM", comEnergy);
+    fMasterGen->init();
   }
   else if ( fInitialState == ElectronPositron )
   {
-    fMasterGen->init(11, -11, comEnergy);
+    //fMasterGen->init(11, -11, comEnergy);
+    fMasterGen->settings.mode("Beams:idA", 11);
+    fMasterGen->settings.mode("Beams:idB", -11);
+    fMasterGen->settings.parm("Beams:eCM", comEnergy);
+    fMasterGen->init();
   }    
   else 
   {
@@ -349,8 +350,10 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
   }
 
   // init decayer
-  fDecayer->readString("ProcessLevel:all = off"); // trick
-  fDecayer->readString("ProcessLevel::resonanceDecays=on");
+  //fDecayer->readString("ProcessLevel:all = off"); // trick
+  //fDecayer->readString("ProcessLevel::resonanceDecays=on");
+  fDecayer->settings.flag("ProcessLevel:all", false ); // trick
+  fDecayer->settings.flag("ProcessLevel:resonanceDecays", true );
   fDecayer->init();
 
   return true;
@@ -362,12 +365,44 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
 
   std::cout << "Initializing for external partons" << std::endl;
 
+  //adapted from main89.cc in pythia8 examples
+  bool internalMatching = fMasterGen->settings.flag("JetMatching:merge");
+  bool internalMerging = !(fMasterGen->settings.word("Merging:Process").compare("void")==0);
+  
+  if (internalMatching && internalMerging) {
+    throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
+      <<" Only one jet matching/merging scheme can be used at a time. \n";
+  }
+  
+  if (internalMatching && !fJetMatchingPy8InternalHook) {
+    fJetMatchingPy8InternalHook = new Pythia8::JetMatchingMadgraph;
+    fMasterGen->setUserHooksPtr(fJetMatchingPy8InternalHook);
+  }
+  
+  if (internalMerging && !fMergingHook) {
+    int scheme = ( fMasterGen->settings.flag("Merging:doUMEPSTree")
+                || fMasterGen->settings.flag("Merging:doUMEPSSubt")) ?
+                1 :
+                 ( ( fMasterGen->settings.flag("Merging:doUNLOPSTree")
+                || fMasterGen->settings.flag("Merging:doUNLOPSSubt")
+                || fMasterGen->settings.flag("Merging:doUNLOPSLoop")
+                || fMasterGen->settings.flag("Merging:doUNLOPSSubtNLO")) ?
+                2 :
+                0 );
+    fMergingHook = new Pythia8::amcnlo_unitarised_interface(scheme);
+    fMasterGen->setUserHooksPtr(fMergingHook);
+  }
+  
+  
   if(LHEInputFileName != string()) {
 
-    std::cout << std::endl;
-    std::cout << "LHE Input File Name = " << LHEInputFileName << std::endl;
-    std::cout << std::endl;
-    fMasterGen->init(LHEInputFileName);
+    edm::LogInfo("Pythia8Interface") << "Initialize direct pythia8 reading from LHE file "
+                                     << LHEInputFileName;
+    edm::LogInfo("Pythia8Interface") << "Some LHE information can be not stored";
+    //fMasterGen->init(LHEInputFileName);
+    fMasterGen->settings.mode("Beams:frameType", 4);
+    fMasterGen->settings.word("Beams:LHEF", LHEInputFileName);
+    fMasterGen->init();
 
   } else {
 
@@ -379,36 +414,10 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
        fJetMatchingHook->init ( lheRunInfo() );
     }
     
-    //pythia 8 doesn't currently support reading SLHA table from lhe header in memory
-    //so dump it to a temp file and set the appropriate pythia parameters to read it
-    std::vector<std::string> slha = lheRunInfo()->findHeader("slha");
-    const char *fname = std::tmpnam(NULL);
-    //read slha header from lhe only if header is present AND no slha header was specified
-    //for manual loading.
-    bool doslha = !slha.empty() && slhafile_.empty();
-    
-    if (doslha) {
-      std::ofstream file(fname, std::fstream::out | std::fstream::trunc);
-      std::string block;
-      for(std::vector<std::string>::const_iterator iter = slha.begin();
-        iter != slha.end(); ++iter) {
-              file << *iter;
-      }
-      file.close();
-
-      std::string lhareadcmd = "SLHA:readFrom = 2";    
-      std::string lhafilecmd = std::string("SLHA:file = ") + std::string(fname);
-
-      fMasterGen->readString(lhareadcmd);    
-      fMasterGen->readString(lhafilecmd); 
-    }
-    
-    fMasterGen->init(lhaUP.get());
-    
-    if (doslha) {
-      std::remove( fname );
-    }
-
+    //fMasterGen->init(lhaUP.get());
+    fMasterGen->settings.mode("Beams:frameType", 5);
+    fMasterGen->setLHAupPtr(lhaUP.get());
+    fMasterGen->init();
   }
   
   if ( pythiaPylistVerbosity > 10 )
@@ -420,8 +429,10 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
   }
 
   // init decayer
-  fDecayer->readString("ProcessLevel:all = off"); // trick
-  fDecayer->readString("ProcessLevel::resonanceDecays=on");
+  //fDecayer->readString("ProcessLevel:all = off"); // trick
+  //fDecayer->readString("ProcessLevel::resonanceDecays=on");
+  fDecayer->settings.flag("ProcessLevel:all", false ); // trick
+  fDecayer->settings.flag("ProcessLevel:resonanceDecays", true );
   fDecayer->init();
 
   return true;
@@ -430,7 +441,7 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
 
 void Pythia8Hadronizer::statistics()
 {
-  fMasterGen->statistics();
+  fMasterGen->stat();
 
   double xsec = fMasterGen->info.sigmaGen(); // cross section in mb
   xsec *= 1.0e9; // translate to pb (CMS/Gen "convention" as of May 2009)
@@ -482,8 +493,8 @@ bool Pythia8Hadronizer::hadronize()
       DJR.push_back(djrmatch[idjr]);
     }
     
-    nME=fJetMatchingPy8InternalHook->nMEPartons()[0];
-    nMEFiltered=fJetMatchingPy8InternalHook->nMEPartons()[1];
+    nME=fJetMatchingPy8InternalHook->nMEpartons().first;
+    nMEFiltered=fJetMatchingPy8InternalHook->nMEpartons().second;
   }
   
   // update LHE matching statistics
