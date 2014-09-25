@@ -14,7 +14,7 @@
 class VolumeBasedMagneticField : public MagneticField {
  public:
   //  VolumeBasedMagneticField(const DDCompactView & cpv);
-  VolumeBasedMagneticField( const edm::ParameterSet& config,
+  VolumeBasedMagneticField( int geomVersion,
 			    const std::vector<MagBLayer *>& theBLayers,
 			    const std::vector<MagESector *>& theESectors,
 			    const std::vector<MagVolume6Faces*>& theBVolumes,

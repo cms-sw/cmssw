@@ -4,12 +4,13 @@
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
+#include "CondFormats/DataRecord/interface/MagFieldConfigRcd.h"
 #include "Geometry/Records/interface/GeometryFileRcd.h"
 #include "boost/mpl/vector.hpp"
 
 // class IdealMagneticFieldRecord : public edm::eventsetup::EventSetupRecordImplementation<IdealMagneticFieldRecord> {};
 
-class IdealMagneticFieldRecord : public edm::eventsetup::DependentRecordImplementation<IdealMagneticFieldRecord,boost::mpl::vector<GeometryFileRcd,RunInfoRcd> > {};
+class IdealMagneticFieldRecord : public edm::eventsetup::DependentRecordImplementation<IdealMagneticFieldRecord,boost::mpl::vector<GeometryFileRcd,RunInfoRcd,MagFieldConfigRcd> > {};
 
 #endif
 

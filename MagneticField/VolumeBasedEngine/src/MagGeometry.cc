@@ -12,7 +12,6 @@
 
 #include "Utilities/BinningTools/interface/PeriodicBinFinderInPhi.h"
 
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include "FWCore/Utilities/interface/isFinite.h"
 
 #include "MagneticField/Layers/interface/MagVerbosity.h"
@@ -21,23 +20,19 @@
 using namespace std;
 using namespace edm;
 
-MagGeometry::MagGeometry(const edm::ParameterSet& config, const std::vector<MagBLayer *>& tbl,
+MagGeometry::MagGeometry(int geomVersion, const std::vector<MagBLayer *>& tbl,
 			 const std::vector<MagESector *>& tes,
 			 const std::vector<MagVolume6Faces*>& tbv,
 			 const std::vector<MagVolume6Faces*>& tev) :
-  MagGeometry(config, reinterpret_cast<std::vector<MagBLayer const*> const&>(tbl), reinterpret_cast<std::vector<MagESector const*> const&>(tes), 
+  MagGeometry(geomVersion, reinterpret_cast<std::vector<MagBLayer const*> const&>(tbl), reinterpret_cast<std::vector<MagESector const*> const&>(tes), 
 	      reinterpret_cast<std::vector<MagVolume6Faces const*> const&>(tbv), reinterpret_cast<std::vector<MagVolume6Faces const*> const&>(tev)) {}
 
-MagGeometry::MagGeometry(const edm::ParameterSet& config, const std::vector<MagBLayer const*>& tbl,
+MagGeometry::MagGeometry(int geomVersion, const std::vector<MagBLayer const*>& tbl,
 			 const std::vector<MagESector const*>& tes,
 			 const std::vector<MagVolume6Faces const*>& tbv,
 			 const std::vector<MagVolume6Faces const*>& tev) : 
-  lastVolume(0), theBLayers(tbl), theESectors(tes), theBVolumes(tbv), theEVolumes(tev), geometryVersion(0)
+  lastVolume(0), theBLayers(tbl), theESectors(tes), theBVolumes(tbv), theEVolumes(tev), cacheLastVolume(true), geometryVersion(geomVersion)
 {
-  
-  cacheLastVolume = config.getUntrackedParameter<bool>("cacheLastVolume", true);
-  geometryVersion = config.getParameter<int>("geometryVersion");
-
   vector<double> rBorders;
 
   for (vector<MagBLayer const*>::const_iterator ilay = theBLayers.begin();

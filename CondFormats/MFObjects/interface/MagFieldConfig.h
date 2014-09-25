@@ -18,7 +18,7 @@
 namespace edm {class ParameterSet;}
 
 namespace magneticfield {
-  typedef std::map<unsigned int, std::pair<std::string, int> > TableFileMap;
+  typedef std::map<int, std::pair<std::string, int> > TableFileMap;
 }
 
 

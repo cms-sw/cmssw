@@ -220,6 +220,7 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( L1RPCHsbConfig ) 
       IMPORT_PAYLOAD_CASE( L1RPCHwConfig )
       IMPORT_PAYLOAD_CASE( L1TriggerKey )
+      IMPORT_PAYLOAD_CASE( MagFieldConfig )
       if( inputTypeName == "L1TriggerKeyList" ){ 
 	match = true;
 	const L1TriggerKeyList& obj = *static_cast<const L1TriggerKeyList*>( inputPtr );
@@ -574,6 +575,7 @@ namespace cond {
     FETCH_PAYLOAD_CASE( EcalCondObjectContainer<EcalTPGPedestal> )
     FETCH_PAYLOAD_CASE( EcalCondObjectContainer<EcalXtalGroupId> )
     FETCH_PAYLOAD_CASE( EcalCondObjectContainer<float> )
+    FETCH_PAYLOAD_CASE( MagFieldConfig )
 
     //   
     if( payloadTypeName == "PhysicsTools::Calibration::Histogram3D<double,double,double,double>" ){    

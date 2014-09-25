@@ -65,7 +65,7 @@ std::auto_ptr<MagneticField> VolumeBasedMagneticFieldESProducer::produce(const I
   if (pset.getParameter<bool>("useParametrizedTrackerField")) {;
     iRecord.get(pset.getParameter<string>("paramLabel"),paramField);
   }
-  std::auto_ptr<MagneticField> s(new VolumeBasedMagneticField(pset,builder.barrelLayers(), builder.endcapSectors(), builder.barrelVolumes(), builder.endcapVolumes(), builder.maxR(), builder.maxZ(), paramField.product(), false));
+  std::auto_ptr<MagneticField> s(new VolumeBasedMagneticField(conf->geometryVersion,builder.barrelLayers(), builder.endcapSectors(), builder.barrelVolumes(), builder.endcapVolumes(), builder.maxR(), builder.maxZ(), paramField.product(), false));
   return s;
 }
 

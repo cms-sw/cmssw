@@ -32,6 +32,7 @@
 #include "Geometry/Records/interface/GeometryFileRcd.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "CondFormats/MFObjects/interface/MagFieldConfig.h"
+#include "CondFormats/DataRecord/interface/MagFieldConfigRcd.h"
 
 #include <string>
 #include <vector>
@@ -57,10 +58,12 @@ namespace magneticfield {
     // forbid copy ctor and assignment op.
     VolumeBasedMagneticFieldESProducerFromDB(const VolumeBasedMagneticFieldESProducerFromDB&);
     const VolumeBasedMagneticFieldESProducerFromDB& operator=(const VolumeBasedMagneticFieldESProducerFromDB&);
-
-    std::string closerModel(float current);
+    std::string closerNominalLabel(float current);
 
     edm::ParameterSet pset;
+    std::vector<int> nominalCurrents;
+    std::vector<std::string> nominalLabels;
+
   };
 }
 
@@ -68,6 +71,8 @@ namespace magneticfield {
 VolumeBasedMagneticFieldESProducerFromDB::VolumeBasedMagneticFieldESProducerFromDB(const edm::ParameterSet& iConfig) : pset(iConfig)
 {
   setWhatProduced(this, pset.getUntrackedParameter<std::string>("label",""));
+  nominalCurrents={-1, 0,9558,14416,16819,18268,19262};
+  nominalLabels  ={"3.8T","0T","2T", "3T", "3.5T", "3.8T", "4T"};
 }
 
 
@@ -77,11 +82,8 @@ std::auto_ptr<MagneticField> VolumeBasedMagneticFieldESProducerFromDB::produce(c
 {
 
   bool debug = pset.getUntrackedParameter<bool>("debugBuilder", false);
-  if (debug) {
-    cout << "VolumeBasedMagneticFieldESProducerFromDB::produce() " << pset.getParameter<std::string>("version") << endl;
-  }
 
-  // Value of the current from condition DB
+  // Get value of the current from condition DB
   float current = pset.getParameter<int>("valueOverride");
   string message;
   if (current < 0) {
@@ -92,12 +94,17 @@ std::auto_ptr<MagneticField> VolumeBasedMagneticFieldESProducerFromDB::produce(c
   } else {
     message = " (from valueOverride card)";
   }
-  string model  = closerModel(current);
-  edm::LogInfo("MagneticField|AutoMagneticField") << "Current: " << current << message << "; using map with label: " << model;
+  string configLabel  = closerNominalLabel(current);
+  edm::LogInfo("MagneticField|AutoMagneticField") << "Current: " << current << message << "; using map configuration with label: " << configLabel;
 
+  // Get configuration
+  ESHandle<MagFieldConfig> confESH;
+  iRecord.getRecord<MagFieldConfigRcd>().get(configLabel, confESH);
+  const MagFieldConfig* conf = &*confESH;
 
-  //TAKE THIS FROM DB, BASED ON CURRENT
-  MagFieldConfig* conf = new MagFieldConfig(pset, debug);
+  if (debug) {
+    cout << "VolumeBasedMagneticFieldESProducerFromDB::produce() " << conf->version << endl;
+  }
 
   MagGeoBuilderFromDDD builder(conf->version,
 			       conf->geometryVersion,
@@ -114,7 +121,7 @@ std::auto_ptr<MagneticField> VolumeBasedMagneticFieldESProducerFromDB::produce(c
   }
   
 
-  // build the DDDCompactView from the DB blob
+  // Build the geomeytry (DDDCompactView) from the DB blob
   // (code taken from GeometryReaders/XMLIdealGeometryESSource/src/XMLIdealMagneticFieldGeometryESProducer.cc) 
   edm::ESTransientHandle<FileBlob> gdd;
   iRecord.getRecord<GeometryFileRcd>().get( boost::lexical_cast<string>(conf->geometryVersion), gdd );
@@ -138,22 +145,21 @@ std::auto_ptr<MagneticField> VolumeBasedMagneticFieldESProducerFromDB::produce(c
   if (conf->slaveFieldVersion!="") {
     iRecord.get(conf->slaveFieldVersion,paramField);
   }
-  std::auto_ptr<MagneticField> s(new VolumeBasedMagneticField(pset,builder.barrelLayers(), builder.endcapSectors(), builder.barrelVolumes(), builder.endcapVolumes(), builder.maxR(), builder.maxZ(), paramField.product(), false));
+  std::auto_ptr<MagneticField> s(new VolumeBasedMagneticField(conf->geometryVersion,builder.barrelLayers(), builder.endcapSectors(), builder.barrelVolumes(), builder.endcapVolumes(), builder.maxR(), builder.maxZ(), paramField.product(), false));
 
-  delete conf;
   return s;
 }
 
 
 //FIXME
- std::string VolumeBasedMagneticFieldESProducerFromDB::closerModel(float current) {
-//   int i=0;
-//   for(;i<(int)maps.size()-1;i++) {
-//     if(2*current < nominalCurrents[i]+nominalCurrents[i+1] )
-//       return maps[i];
-//   }
-//   return  maps[i];
-   return "090322_3_8t";
+ std::string VolumeBasedMagneticFieldESProducerFromDB::closerNominalLabel(float current) {
+
+   int i=0;
+   for(;i<(int)nominalLabels.size()-1;i++) {
+     if(2*current < nominalCurrents[i]+nominalCurrents[i+1] )
+       return nominalLabels[i];
+   }
+   return nominalLabels[i];
  }
 
 
