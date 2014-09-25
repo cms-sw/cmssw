@@ -38,6 +38,9 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     )
 )
 
+# in order to use lhapdf PDF add a line like this to pythia8_example02:
+# 'PDF:pSet = LHAPDF5:MRST2004nlo.LHpdf'
+
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(
