@@ -1,29 +1,24 @@
 
 import FWCore.ParameterSet.Config as cms
 
-#def customiseSimL1EmulatorForPostLS1(process):
-#    return (process)
-
-#
-# customize to use upgrade L1 emulation based on carrying forward simGctDigis
-#  (converted-to-legacy-format output of Stage 1 calo)
-#
+# customize to use upgrade L1 emulation 
 
 # customization of run L1 emulator for 2015 run configuration
 def customiseSimL1EmulatorForPostLS1(process):
-    print "INFO:  Customising L1T emulator for 2015 run configuration"
-#    print "INFO:  Customize the L1 menu"
-#    process=customiseL1Menu(process)
-    print "INFO:  loading RCT LUTs"
+    #print "INFO:  Customising L1T emulator for 2015 run configuration"
+    #print "INFO:  Customize the L1 menu"
+    # the following line will break HLT if HLT menu is not updated with the corresponding menu
+    process=customiseL1Menu(process)
+    #print "INFO:  loading RCT LUTs"
     process.load("L1Trigger.L1TCalorimeter.caloStage1RCTLuts_cff")
     if hasattr(process,'L1simulation_step'):
-        print "INFO:  Removing GCT from simulation and adding new Stage 1"
+        #print "INFO:  Removing GCT from simulation and adding new Stage 1"
         process.load('L1Trigger.L1TCalorimeter.caloStage1Params_cfi')
         process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_cff')
         process.L1simulation_step.replace(process.simGctDigis,process.L1TCaloStage1)
         process.rctUpgradeFormatDigis.regionTag = cms.InputTag("simRctDigis")
         process.rctUpgradeFormatDigis.emTag = cms.InputTag("simRctDigis")
-        print "New L1 simulation step is:", process.L1simulation_step
+        #print "New L1 simulation step is:", process.L1simulation_step
         process.simGtDigis.GmtInputTag = 'gtDigis'
         process.simGtDigis.GctInputTag = 'caloStage1LegacyFormatDigis'
         process.simGtDigis.TechnicalTriggersInputTags = cms.VInputTag( )
@@ -31,7 +26,7 @@ def customiseSimL1EmulatorForPostLS1(process):
     return process
 
 #    #
-#    # Plan B:  (Not Needed if packing unpacking works)
+#    # Plan B:  (Not Needed if packing/unpacking of Stage 1 calo via legacy formats and GCT packer works)
 #    #
 #    process.digi2raw_step.remove(process.gctDigiToRaw)
 #   
