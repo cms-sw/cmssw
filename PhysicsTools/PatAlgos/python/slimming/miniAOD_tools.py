@@ -75,9 +75,25 @@ def miniAOD_customizeCommon(process):
     btagDiscriminators = ['jetBProbabilityBJetTags', 'jetProbabilityBJetTags', 'trackCountingHighPurBJetTags', 'trackCountingHighEffBJetTags', 'simpleSecondaryVertexHighEffBJetTags',
                          'simpleSecondaryVertexHighPurBJetTags', 'combinedSecondaryVertexBJetTags' , 'combinedInclusiveSecondaryVertexBJetTags' ],
     )
-    #add CA8   
+
+    # add CMS top tagger
+    from RecoJets.JetProducers.caTopTaggers_cff import caTopTagInfos as toptag
+    process.cmsttRaw = toptag.clone()
+    process.caTopTagInfos = cms.EDProducer("RecoJetDeltaRTagInfoValueMapProducer",
+                                    src = cms.InputTag("ak8PFJetsCHS"),
+                                    matched = cms.InputTag("cmsTopTagPFJetsCHS"),
+                                    matchedTagInfos = cms.InputTag("cmsttRaw"),
+                                    distMax = cms.double(0.8)
+                        )
+    
+    #add AK8
     from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
-    addJetCollection(process, labelName = 'AK8', jetSource = cms.InputTag('ak8PFJetsCHS'),algo= 'AK', rParam = 0.8, jetCorrections = ('AK7PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None') )
+    addJetCollection(process, labelName = 'AK8',                     
+                     jetSource = cms.InputTag('ak8PFJetsCHS'),
+                     algo= 'AK', rParam = 0.8,
+                     jetCorrections = ('AK8PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
+                     btagInfos = ['caTopTagInfos']
+                     )
     process.patJetsAK8.userData.userFloats.src = [] # start with empty list of user floats
     process.selectedPatJetsAK8.cut = cms.string("pt > 100")
     process.patJetGenJetMatchAK8.matched =  'slimmedGenJets'
@@ -88,21 +104,22 @@ def miniAOD_customizeCommon(process):
     process.ak8PFJetsCHSFiltered = ak8PFJetsCHSFiltered.clone()
     process.load("RecoJets.JetProducers.ak8PFJetsCHS_groomingValueMaps_cfi")
     process.patJetsAK8.userData.userFloats.src += ['ak8PFJetsCHSPrunedLinks','ak8PFJetsCHSTrimmedLinks','ak8PFJetsCHSFilteredLinks']
-    ### CA8 groomed masses (for the matched jet): doesn't seem to work, it produces tons of warnings "Matched jets separated by dR greater than distMax=0.8"
-    # from RecoJets.Configuration.RecoPFJets_cff import ca8PFJetsCHSFiltered, ca8PFJetsCHSTrimmed # ca8PFJetsCHSPruned is already in AOD
-    # process.ca8PFJetsCHSTrimmed  = ca8PFJetsCHSTrimmed.clone()
-    # process.ca8PFJetsCHSFiltered = ca8PFJetsCHSFiltered.clone()
-    # process.load("RecoJets.JetProducers.ca8PFJetsCHS_groomingValueMaps_cfi")
-    # process.ca8PFJetsCHSPrunedLinks.src   = cms.InputTag("ak8PFJetsCHS")
-    # process.ca8PFJetsCHSTrimmedLinks.src  = cms.InputTag("ak8PFJetsCHS")
-    # process.ca8PFJetsCHSFilteredLinks.src = cms.InputTag("ak8PFJetsCHS")
-    # process.patJetsAK8.userData.userFloats.src += ['ca8PFJetsCHSPrunedLinks','ca8PFJetsCHSTrimmedLinks','ca8PFJetsCHSFilteredLinks']
-    ## cmsTopTagger (note: it is already run in RECO, we just add the value)
-    process.cmsTopTagPFJetsCHSLinksAK8 = process.ak8PFJetsCHSPrunedLinks.clone()
-    process.cmsTopTagPFJetsCHSLinksAK8.src = cms.InputTag("ak8PFJetsCHS")
-    process.cmsTopTagPFJetsCHSLinksAK8.matched = cms.InputTag("cmsTopTagPFJetsCHS")
-    process.patJetsAK8.userData.userFloats.src += ['cmsTopTagPFJetsCHSLinksAK8']
 
+    # Add AK8 top tagging variables
+    process.patJetsAK8.tagInfoSources = cms.VInputTag(cms.InputTag("caTopTagInfos"))
+    process.patJetsAK8.addTagInfos = cms.bool(True) 
+
+
+
+    # add Njetiness
+    process.load('RecoJets.JetProducers.nJettinessAdder_cfi')
+    process.NjettinessAK8 = process.Njettiness.clone()
+    process.NjettinessAK8.src = cms.InputTag("ak8PFJetsCHS")
+    process.NjettinessAK8.cone = cms.double(0.8)
+    process.patJetsAK8.userData.userFloats.src += ['NjettinessAK8:tau1','NjettinessAK8:tau2','NjettinessAK8:tau3']
+
+            
+    
     #
     from PhysicsTools.PatAlgos.tools.trigTools import switchOnTriggerStandAlone
     switchOnTriggerStandAlone( process, outputModule = '' )
