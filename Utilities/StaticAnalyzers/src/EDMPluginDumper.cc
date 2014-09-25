@@ -22,14 +22,9 @@ void EDMPluginDumper::checkASTDecl(const clang::ClassTemplateDecl *TD,clang::ent
 				llvm::raw_svector_ostream os(buf);
 				I->getTemplateArgs().get(J).print(mgr.getASTContext().getPrintingPolicy(),os);
 				std::string rname = os.str();
-				const char * pPath = std::getenv("LOCALRT");
-				std::string dname("");
-				if ( pPath != NULL ) dname = std::string(pPath);
-				std::string fname("/tmp/plugins.txt.unsorted");
-				std::string tname = dname + fname;
+				std::string fname("plugins.txt.unsorted");
 				std::string ostring = rname +"\n";
-				std::ofstream file(tname.c_str(),std::ios::app);
-				file<<ostring;
+				support::writeLog(ostring,fname);
 			}
 		}
 	} 		
