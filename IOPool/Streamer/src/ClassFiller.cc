@@ -28,7 +28,7 @@ namespace edm {
     FDEBUG(1) << "Loading dictionary for " << name << "\n";
     edmplugin::PluginCapabilities::get()->load(dictionaryPlugInPrefix() + name);
     TClass* cl = TClass::GetClass(name.c_str());
-    loadType(TypeID(cl->GetTypeInfo()));
+    loadType(TypeID(*cl->GetTypeInfo()));
   }
 
   void doBuildRealData(std::string const& name) {
