@@ -8,6 +8,7 @@ hgceeDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer"),
                            digiCollection    = cms.string("HGCDigisEE"),
                            maxSimHitsAccTime = cms.uint32(100),
                            bxTime            = cms.int32(25),
+                           tofDelay          = cms.double(1),
                            digitizationType  = cms.uint32(0),
                            makeDigiSimLinks  = cms.bool(False),
                            useAllChannels    = cms.bool(True),
@@ -16,7 +17,9 @@ hgceeDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer"),
                                                lsbInMIP      = cms.double(0.25),
                                                mip2noise     = cms.double(7.0),
                                                adcThreshold  = cms.uint32(2),
-                                               doTimeSamples = cms.bool(True)
+                                               doTimeSamples = cms.bool(False),
+                                               shaperN       = cms.double(1.),
+                                               shaperTau     = cms.double(0.)
                                                )
                            )
 
@@ -26,6 +29,7 @@ hgchefrontDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer"
                                 digiCollection = cms.string("HGCDigisHEfront"),
                                 maxSimHitsAccTime = cms.uint32(100),
                                 bxTime            = cms.int32(25),
+                                tofDelay          = cms.double(1),
                                 digitizationType  = cms.uint32(0),
                                 makeDigiSimLinks  = cms.bool(False),
                                 useAllChannels    = cms.bool(True),
@@ -34,7 +38,10 @@ hgchefrontDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer"
                                                     lsbInMIP      = cms.double(0.25),
                                                     mip2noise     = cms.double(7.0),
                                                     adcThreshold  = cms.uint32(2),
-                                                    doTimeSamples = cms.bool(True) )
+                                                    doTimeSamples = cms.bool(False),
+                                                    shaperN       = cms.double(1.),
+                                                    shaperTau     = cms.double(0.)
+                                                    )
                                 )
                                                     
 
@@ -44,6 +51,7 @@ hgchebackDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer")
                                digiCollection = cms.string("HGCDigisHEback"),
                                maxSimHitsAccTime = cms.uint32(100),
                                bxTime            = cms.int32(25),
+                               tofDelay          = cms.double(1),
                                digitizationType  = cms.uint32(1),
                                makeDigiSimLinks  = cms.bool(False),
                                useAllChannels    = cms.bool(True),
@@ -52,7 +60,9 @@ hgchebackDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer")
                                                    lsbInMIP = cms.double(0.25),
                                                    mip2noise = cms.double(5.0),
                                                    adcThreshold  = cms.uint32(4),
-                                                   doTimeSamples = cms.bool(True),
+                                                   doTimeSamples = cms.bool(False),
+                                                   shaperN       = cms.double(1.),
+                                                   shaperTau     = cms.double(0.),
                                                    caliceSpecific = cms.PSet( nPEperMIP = cms.double(11.0),
                                                                               nTotalPE  = cms.double(1156),
                                                                               xTalk     = cms.double(0.25),

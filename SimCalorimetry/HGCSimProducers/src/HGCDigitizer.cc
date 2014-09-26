@@ -18,7 +18,8 @@
 HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps) :
   checkValidDetIds_(true),
   simHitAccumulator_( new HGCSimHitDataAccumulator ),
-  mySubDet_(ForwardSubdetector::ForwardEmpty)
+  mySubDet_(ForwardSubdetector::ForwardEmpty),
+  refSpeed_(0.1*CLHEP::c_light) //[CLHEP::c_light]=mm/ns convert to cm/ns
 {
   //configure from cfg
   hitCollection_     = ps.getParameter< std::string >("hitCollection");
@@ -28,7 +29,8 @@ HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps) :
   digitizationType_  = ps.getParameter< uint32_t >("digitizationType");
   useAllChannels_    = ps.getParameter< bool >("useAllChannels");
   verbosity_         = ps.getUntrackedParameter< int32_t >("verbosity",0);
-  
+  tofDelay_          = ps.getParameter< double >("tofDelay");  
+
   //get the random number generator
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable()) {
@@ -132,24 +134,21 @@ void HGCDigitizer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup con
 //
 void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, int bxCrossing,const edm::ESHandle<HGCalGeometry> &geom)
 {
+  if(!geom.isValid()) return;
+  const HGCalTopology &topo=geom->topology();
+  const HGCalDDDConstants &dddConst=topo.dddConstants();
+
   for(edm::PCaloHitContainer::const_iterator hit_it = hits->begin(); hit_it != hits->end(); ++hit_it)
     {
       HGCalDetId simId( hit_it->id() );
 
-      //gang SIM->RECO cells
+      //skip this hit if after ganging it is not valid
       int layer(simId.layer()), cell(simId.cell());
-      float zPos(0.);
-      if(geom.isValid())
-	{
-	  const HGCalTopology &topo=geom->topology();
-	  const HGCalDDDConstants &dddConst=topo.dddConstants();
-	  zPos=dddConst.getFirstTrForm()->h3v.z();
-	  std::pair<int,int> recoLayerCell=dddConst.simToReco(cell,layer,topo.detectorType());
-	  cell  = recoLayerCell.first;
-	  layer = recoLayerCell.second;
-	  if(layer<0) continue;
-	}
-
+      std::pair<int,int> recoLayerCell=dddConst.simToReco(cell,layer,topo.detectorType());
+      cell  = recoLayerCell.first;
+      layer = recoLayerCell.second;
+      if(layer<0 || cell<0) continue;
+     
       //assign the RECO DetId
       DetId id( producesEEDigis() ?
 		(uint32_t)HGCEEDetId(mySubDet_,simId.zside(),layer,simId.sector(),simId.subsector(),cell):
@@ -161,11 +160,20 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, i
 	else
 	  std::cout << "HGCDigitizer: i/p " << simId << " o/p " << HGCHEDetId(id) << std::endl;
       }
-      //hit time: [time()]=ns  [zPos]=cm [CLHEP::c_light]=mm/ns
-      //for now accumulate in buckets of bxTime_
-      int itime=floor( (hit_it->time()-zPos/(0.1*CLHEP::c_light))/bxTime_);
-      itime += bxCrossing;
-      if(itime<0) continue;
+
+      //distance to the center of the detector
+      float dist2center( geom->getPosition(id).mag() );
+
+      //hit time: [time()]=ns  [centerDist]=cm [refSpeed_]=cm/ns + delay by 1ns
+      //accumulate in 6 buckets of 25ns (4 pre-samples, 1 in-time, 1 post-sample)
+      float tof(hit_it->time()-dist2center/refSpeed_+tofDelay_);
+      int itime=floor( tof/bxTime_ ) ;
+      
+      //no need to add bx crossing - tof comes already corrected from the mixing module
+      //itime += bxCrossing;
+      itime += 4;
+      
+      if(itime<0 || itime>5) continue; 
       
       //energy deposited 
       HGCSimEn_t ien( hit_it->energy() );
@@ -180,9 +188,8 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, i
 	  simHitIt=simHitAccumulator_->find(id);
 	}
       
-      //check if time is ok
-      if( itime >= (int)(simHitIt->second.size()) ) continue;
-      
+      //check if time index is ok and store energy
+      if(itime >= (int)simHitIt->second.size() ) continue;
       (simHitIt->second)[itime] += ien;
     }
   
