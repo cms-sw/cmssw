@@ -13,4 +13,5 @@ DEFINE_EDM_PLUGIN(PFRecHitQTestFactory, PFRecHitQTestHCALCalib29, "PFRecHitQTest
 DEFINE_EDM_PLUGIN(PFRecHitQTestFactory, PFRecHitQTestHCALChannel, "PFRecHitQTestHCALChannel");
 DEFINE_EDM_PLUGIN(PFRecHitQTestFactory, PFRecHitQTestHCALTimeVsDepth, "PFRecHitQTestHCALTimeVsDepth");
 DEFINE_EDM_PLUGIN(PFRecHitQTestFactory, PFRecHitQTestHCALThresholdVsDepth, "PFRecHitQTestHCALThresholdVsDepth");
+DEFINE_EDM_PLUGIN(PFRecHitQTestFactory, PFRecHitQTestShashlikTiming, "PFRecHitQTestShashlikTiming");
 

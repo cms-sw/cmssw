@@ -19,7 +19,12 @@ particleFlowRecHitEK = cms.EDProducer("PFRecHitProducer",
                   name = cms.string("PFRecHitQTestThreshold"),
                   threshold = cms.double(0.08)
                   ),
-                )
+                cms.PSet(
+                  name = cms.string("PFRecHitQTestShashlikTiming"),
+                  UseSafetyCuts = cms.bool(True),
+                  BadTimingEThreshold = cms.double(0.250)
+                  )
+                )             
            )          
     )          
 )
