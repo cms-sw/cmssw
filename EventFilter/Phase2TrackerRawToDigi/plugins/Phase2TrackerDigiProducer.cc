@@ -18,6 +18,8 @@
 #include <iomanip>
 #include <ext/algorithm>
 
+#define EDM_ML_DEBUG // remove this !
+
 using namespace std;
 
 namespace Phase2Tracker {
@@ -293,7 +295,7 @@ namespace Phase2Tracker {
                   {
                     unpacker++;
                     #ifdef EDM_ML_DEBUG
-                    ss << dec << "PonPS cluster at position: " << unpacker.clusterIndex() <<" , "<<  unpacker.clusterZpos() << " with size: " << clusterSize() << endl;
+                    ss << dec << "PonPS cluster at position: " << unpacker.clusterIndex() <<" , "<<  unpacker.clusterZpos() << " with size: " << unpacker.clusterSize() << endl;
                     #endif
                     // clustersBottom.push_back(DummyClusterDigi((int)(STRIPS_PER_CBC*icbc + unpacker.clusterIndex())/2,unpacker.clusterSize(),unpacker.clusterZpos()));
                     clustersBottom.push_back(DummyClusterDigi((int)(STRIPS_PER_CBC*icbc + unpacker.clusterIndex())/2,unpacker.clusterSize()));
