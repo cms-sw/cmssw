@@ -18,12 +18,13 @@ caloStage1Params.egRelativeJetIsolationBarrelCut = cms.double(0.3)  # 0.3 for lo
 caloStage1Params.egRelativeJetIsolationEndcapCut = cms.double(0.5)  # 0.5 for loose, 0.4 for tight
 
 # Tau
-caloStage1Params.tauSeedThreshold      = cms.double(7.)
-caloStage1Params.tauNeighbourThreshold         = cms.double(0.)
-caloStage1Params.switchOffTauVeto              = cms.double(70.)
-caloStage1Params.switchOffTauIso               = cms.double(60.)
+caloStage1Params.tauSeedThreshold = cms.double(7.)
+caloStage1Params.tauNeighbourThreshold = cms.double(0.)
+#Tau parameters below are only used for setting tau isolation flag
+caloStage1Params.switchOffTauVeto = cms.double(64.)
+caloStage1Params.switchOffTauIso = cms.double(192.)
 caloStage1Params.tauRelativeJetIsolationLimit  = cms.double(100.)
-caloStage1Params.tauRelativeJetIsolationCut = cms.double(0.15)
+caloStage1Params.tauRelativeJetIsolationCut = cms.double(0.1)
 
 # jets
 caloStage1Params.jetLsb                = cms.double(0.5)
