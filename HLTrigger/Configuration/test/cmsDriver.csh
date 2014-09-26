@@ -94,6 +94,7 @@ foreach gtag ( MC DATA )
       set InputGenSim = $InputGenSimGRun
       set InputLHCRaw = $InputLHCRawGRun
       set Custom = $Custom2
+      set L1REPACK = NONE
     else if ( $table == Fake ) then
       set XL1T = $XL1TPP3
       set XHLT = HLT:Fake
@@ -103,6 +104,7 @@ foreach gtag ( MC DATA )
       set InputGenSim = $InputGenSimGRun
       set InputLHCRaw = $InputLHCRawGRun
       set Custom = $Custom1
+      set L1REPACK = L1REPACK
     else if ( $table == 2014 ) then
       set XL1T = $XL1TPP2
       set XHLT = HLT:2014
@@ -112,6 +114,7 @@ foreach gtag ( MC DATA )
       set InputGenSim = $InputGenSimGRun
       set InputLHCRaw = $InputLHCRawGRun
       set Custom = $Custom1
+      set L1REPACK = L1REPACK
     else if ( $table == GRun ) then
       set XL1T = $XL1TPP3
       set XHLT = HLT:GRun
@@ -121,6 +124,7 @@ foreach gtag ( MC DATA )
       set InputGenSim = $InputGenSimGRun
       set InputLHCRaw = $InputLHCRawGRun
       set Custom = $Custom2
+      set L1REPACK = NONE
     else if ( $table == HIon ) then
       set XL1T = $XL1THI
       set XHLT = HLT:HIon
@@ -130,6 +134,7 @@ foreach gtag ( MC DATA )
       set InputGenSim = $InputGenSimHIon
       set InputLHCRaw = $InputLHCRawHIon
       set Custom = $Custom2
+      set L1REPACK = NONE
     else if ( $table == PIon ) then
       set XL1T = $XL1TPI
       set XHLT = HLT:PIon
@@ -139,6 +144,7 @@ foreach gtag ( MC DATA )
       set InputGenSim = $InputGenSimPIon
       set InputLHCRaw = $InputLHCRawPIon
       set Custom = $Custom2
+      set L1REPACK = NONE
     else
       # unsupported
       continue
@@ -149,8 +155,7 @@ foreach gtag ( MC DATA )
 
     echo
     echo "Creating L1RePack $name"
-#   cmsDriver.py RelVal                --step=L1REPACK                             --conditions=$GTAG --filein=$InputLHCRaw                        --custom_conditions=$XL1T --fileout=RelVal_L1RePack_$name.root      --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-DIGI-RAW'      --eventcontent=RAW          --customise=HLTrigger/Configuration/CustomConfigs.L1T     --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_L1RePack_$name.py
-    cmsDriver.py RelVal                --step=NONE                                 --conditions=$GTAG --filein=$InputLHCRaw                        --custom_conditions=$XL1T --fileout=RelVal_L1RePack_$name.root      --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-DIGI-RAW'      --eventcontent=RAW          --customise=HLTrigger/Configuration/CustomConfigs.L1T     --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_L1RePack_$name.py
+    cmsDriver.py RelVal                --step=$L1REPACK                            --conditions=$GTAG --filein=$InputLHCRaw                        --custom_conditions=$XL1T --fileout=RelVal_L1RePack_$name.root      --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-DIGI-RAW'      --eventcontent=RAW          --customise=HLTrigger/Configuration/CustomConfigs.L1T     --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_L1RePack_$name.py
 
     else
 
