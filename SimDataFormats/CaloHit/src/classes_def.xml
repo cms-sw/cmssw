@@ -25,4 +25,5 @@
   <class name="std::vector<HFShowerLibraryEventInfo>"/>
   <class name="edm::Wrapper<HFShowerLibraryEventInfo>" />
   <class name="edm::Wrapper<std::vector<HFShowerLibraryEventInfo> >"/>
+  <typedef name="CastorShowerEvent::Point" />
 </lcgdict>
