@@ -11,6 +11,7 @@ namespace Phase2Tracker
   {
     // make a local copy of header (first two words)
     memcpy(headercopy_,headerPointer,16);
+    memcpy(&header_first_word_,headerPointer,8);
     // decode the Tracker Header and store info
     init();
   }
@@ -47,7 +48,7 @@ namespace Phase2Tracker
   uint8_t Phase2TrackerFEDHeader::dataFormatVersion() const
   {
     uint8_t Version = static_cast<uint8_t>(read_n_at_m(headercopy_,VERSION_L,VERSION_S));
-    if (Version != 1)
+    if (Version != 2)
     {
       std::ostringstream ss;
       ss << "[Phase2Tracker::Phase2TrackerFEDHeader::"<<__func__<<"] ";
