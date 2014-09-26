@@ -155,11 +155,11 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
 
   // select tracks
-  std::vector<reco::TransientTrack> seltks = theTrackFilter->select( t_tks );
+  std::vector<reco::TransientTrack> && seltks = theTrackFilter->select( t_tks );
 
 
   // clusterize tracks in Z
-  std::vector< std::vector<reco::TransientTrack> > clusters =  theTrackClusterizer->clusterize(seltks);
+  std::vector< std::vector<reco::TransientTrack> > && clusters =  theTrackClusterizer->clusterize(seltks);
   if (fVerbose){std::cout <<  " clustering returned  "<< clusters.size() << " clusters  from " << seltks.size() << " selected tracks" <<std::endl;}
 
 
@@ -168,7 +168,7 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
 
     std::auto_ptr<reco::VertexCollection> result(new reco::VertexCollection);
-    reco::VertexCollection vColl;
+    reco::VertexCollection & vColl = (*result);
 
 
     std::vector<TransientVertex> pvs;
@@ -204,8 +204,11 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     }
 
 
+    if (clusters.size()>2 && clusters.size() > 2*pvs.size()) 
+      edm::LogWarning("PrimaryVertexProducer") << "more than half of candidate vertices lost " << pvs.size()  << ' ' << clusters.size();
 
-    
+    if (pvs.empty() && seltks.size()>5) 
+       edm::LogWarning("PrimaryVertexProducer") << "no vertex found with " << seltks.size() << " tracks and " << clusters.size() <<" vertex-candidates";    
 
     // sort vertices by pt**2  vertex (aka signal vertex tagging)
     if(pvs.size()>1){
@@ -262,8 +265,6 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       }
     }
 
-  
-    *result = vColl;
     iEvent.put(result, algorithm->label); 
   }
   
