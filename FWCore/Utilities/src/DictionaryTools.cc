@@ -123,7 +123,7 @@ namespace edm {
     TClass *cl = TClass::GetClass(type.typeInfo(), true);
     if(cl == nullptr) {
       throw Exception(errors::DictionaryNotFound)
-          << "No TClass for class: '" << cl->GetName() << "'" << std::endl;
+          << "No TClass for class: '" << type.className() << "'" << std::endl;
     }
     if(!cl->HasDictionary()) {
       missingTypes().insert(type);
@@ -137,7 +137,7 @@ namespace edm {
     TClass *cl = TClass::GetClass(type.typeInfo(), true);
     if(cl == nullptr) {
       throw Exception(errors::DictionaryNotFound)
-          << "No TClass for class: '" << cl->GetName() << "'" << std::endl;
+          << "No TClass for class: '" << type.className() << "'" << std::endl;
     }
     THashTable result;
     cl->GetMissingDictionaries(result, recursive); 
