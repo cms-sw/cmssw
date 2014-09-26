@@ -230,8 +230,8 @@ bool L1RCTLookupTables::activityBit(float ecal, float hcal,bool fgbit) const
   bool aBit = false;
   if(rctParameters_->eMinForHoECut() < rctParameters_->eMaxForHoECut()) {
     // For RCT operations HoE cut and tauVeto are used
-    aBit = ((ecal > rctParameters_->eActivityCut()) || 
-	    (hcal > rctParameters_->hActivityCut()));
+    aBit = ((ecal >= rctParameters_->eActivityCut()) || 
+	    (hcal >= rctParameters_->hActivityCut()));
   }
   else {
     // We redefine tauVeto() for upgrade as EM activity only  -- 
