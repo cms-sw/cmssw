@@ -162,18 +162,20 @@ bool PulseChiSqSNNLS::updateCov(const SampleMatrix &samplecor, double pederr, co
   const unsigned int nsample = SampleVector::RowsAtCompileTime;
   const unsigned int npulse = _bxs.rows();
   
-  _invcov.triangularView<Eigen::Lower>() = (pederr*pederr)*samplecor;
+  // don't remove this triangular view, greatly speeds up constant*matrix
+  _invcov.triangularView<Eigen::Lower>() = (pederr*pederr)*samplecor; //
   
   for (unsigned int ipulse=0; ipulse<npulse; ++ipulse) {
     if (_ampvec.coeff(ipulse)==0.) continue;
     int bx = _bxs.coeff(ipulse);
     int firstsamplet = std::max(0,bx + 3);
     int offset = 7-3-bx;
-        
-    double ampsq = _ampvec.coeff(ipulse)*_ampvec.coeff(ipulse);
+    
+    const double ampveccoef = _ampvec.coeff(ipulse);
+    const double ampsq = ampveccoef*ampveccoef;
     
     const unsigned int nsamplepulse = nsample-firstsamplet;    
-    _invcov.block(firstsamplet,firstsamplet,nsamplepulse,nsamplepulse).triangularView<Eigen::Lower>() += ampsq*fullpulsecov.block(firstsamplet+offset,firstsamplet+offset,nsamplepulse,nsamplepulse);    
+    _invcov.block(firstsamplet,firstsamplet,nsamplepulse,nsamplepulse).triangularView<Eigen::Lower>() += ampsq*fullpulsecov.block(firstsamplet+offset,firstsamplet+offset,nsamplepulse,nsamplepulse); //   
   }
   
   _covdecomp.compute(_invcov);
@@ -208,22 +210,23 @@ bool PulseChiSqSNNLS::NNLS() {
   const unsigned int npulse = _bxs.rows();
   
   invcovp = _covdecomp.matrixL().solve(_pulsemat);
-  aTamat.triangularView<Eigen::Lower>() = invcovp.transpose()*invcovp;
-  aTamat = aTamat.selfadjointView<Eigen::Lower>();
+  aTamat = invcovp.transpose()*invcovp; //.triangularView<Eigen::Lower>()
+  //aTamat = aTamat.selfadjointView<Eigen::Lower>();
   aTbvec = invcovp.transpose()*_covdecomp.matrixL().solve(_sampvec);  
   
   int iter = 0;
+  Index idxwmax;
+  double wmax = 0.0;
+  //work = PulseVector::zeros();
   while (true) {    
     //can only perform this step if solution is guaranteed viable
     if (iter>0 || _nP==0) {
       if ( _nP==npulse ) break;                  
       
       const unsigned int nActive = npulse - _nP;
-           
-      wvec.tail(nActive) = aTbvec.tail(nActive) - (aTamat.selfadjointView<Eigen::Lower>()*_ampvec).tail(nActive);       
       
-      Index idxwmax;
-      double wmax = wvec.tail(nActive).maxCoeff(&idxwmax);
+      updatework = aTbvec - (aTamat*_ampvec);      
+      wmax = updatework.tail(nActive).maxCoeff(&idxwmax);
       
       //convergence
       if (wmax<1e-11) break;
@@ -237,6 +240,9 @@ bool PulseChiSqSNNLS::NNLS() {
       std::swap(aTbvec.coeffRef(_nP),aTbvec.coeffRef(idxp));
       std::swap(_ampvec.coeffRef(_nP),_ampvec.coeffRef(idxp));
       std::swap(_bxs.coeffRef(_nP),_bxs.coeffRef(idxp));
+      
+      // update now that we are done doing work
+      wvec.tail(nActive) = updatework.tail(nActive); 
       ++_nP;
     }
 
@@ -260,10 +266,12 @@ bool PulseChiSqSNNLS::NNLS() {
       //update parameter vector
       Index minratioidx=0;
       
+      // no realizable optimization here
       double minratio = std::numeric_limits<double>::max();
       for (unsigned int ipulse=0; ipulse<_nP; ++ipulse) {
         if (ampvecpermtest.coeff(ipulse)<=0.) {
-          double ratio = _ampvec.coeff(ipulse)/(_ampvec.coeff(ipulse)-ampvecpermtest.coeff(ipulse));
+	  const double c_ampvec = _ampvec.coeff(ipulse);
+          const double ratio = c_ampvec/(c_ampvec-ampvecpermtest.coeff(ipulse));
           if (ratio<minratio) {
             minratio = ratio;
             minratioidx = ipulse;

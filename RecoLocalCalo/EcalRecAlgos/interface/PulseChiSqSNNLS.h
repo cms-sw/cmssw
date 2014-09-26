@@ -1,6 +1,7 @@
 #ifndef PulseChiSqSNNLS_h
 #define PulseChiSqSNNLS_h
 
+#define EIGEN_NO_DEBUG // kill throws in eigen code
 #include "RecoLocalCalo/EcalRecAlgos/interface/EigenMatrixTypes.h"
 
 #include <set>
@@ -53,6 +54,8 @@ class PulseChiSqSNNLS {
     PulseMatrix aTamat;
     PulseVector aTbvec;
     PulseVector wvec;
+    PulseVector updatework;
+    
     PulseVector ampvecpermtest;
     
     double _chisq;

@@ -1,6 +1,7 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Framework"/>
 <use   name="clhep"/>
+<Flags CXXFLAGS="-g"/>
 <export>
   <lib   name="1"/>
 </export>
