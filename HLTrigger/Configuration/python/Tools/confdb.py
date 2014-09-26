@@ -264,6 +264,13 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
 
     else:
 
+      if self.config.type not in ('2014','Fake',) :
+        self.data += """
+# load PostLS1 customisation
+from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1
+process = customisePostLS1(process)
+"""
+
       # override the process name and adapt the relevant filters
       self.overrideProcessName()
 

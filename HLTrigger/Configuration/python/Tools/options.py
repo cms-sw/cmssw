@@ -1,10 +1,12 @@
 # available "type"s and relative global tags
 globalTag = {
-  'FULL': 'auto:startup',
-  'GRun': 'auto:startup',       # use as default
-  'data': 'auto:hltonline',
-  'HIon': 'auto:starthi',
-  'PIon': 'auto:startup',
+  '2014': 'auto:run1_mc_2014',
+  'Fake': 'auto:run1_mc_Fake',
+  'FULL': 'auto:run2_mc_FULL',
+  'GRun': 'auto:run2_mc_GRun',       # use as default
+  'HIon': 'auto:run2_mc_HIon',
+  'PIon': 'auto:run2_mc_PIon',
+  'data': 'auto:run1_hlt',
 }
 
 
