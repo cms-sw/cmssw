@@ -9,7 +9,7 @@
  *  For details, cf TkBfield.h
  *   
  *
- *  \author N. Amapane - CERN
+ *  \author N. Amapane - Torino
  */
 
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -20,10 +20,13 @@ namespace magfieldparam { class TkBfield; }
 
 class OAEParametrizedMagneticField : public MagneticField {
  public:
-  /// Constructor 
+  /// Constructor, pass value for nominal field
+  explicit OAEParametrizedMagneticField(float B);
+
+  /// Constructor, pass string for nominal field [deprecated]
   explicit OAEParametrizedMagneticField(std::string T="3_8T");
 
-  /// Constructor. Parameters taken from a PSet
+  /// Constructor. Parameters taken from a PSet [deprecated]
   explicit OAEParametrizedMagneticField(const edm::ParameterSet& parameters);
 
   /// Destructor

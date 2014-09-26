@@ -12,6 +12,9 @@
 using namespace std;
 using namespace magfieldparam;
 
+OAEParametrizedMagneticField::OAEParametrizedMagneticField(float B) : 
+  theParam(B){}
+
 OAEParametrizedMagneticField::OAEParametrizedMagneticField(string T) : 
   theParam(T){}
 
