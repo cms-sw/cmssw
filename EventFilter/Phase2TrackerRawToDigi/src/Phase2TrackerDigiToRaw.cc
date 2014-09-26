@@ -2,6 +2,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "CondFormats/DataRecord/interface/Phase2TrackerCablingRcd.h"
+#include "CondFormats/SiStripObjects/interface/Phase2TrackerCabling.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 
@@ -28,17 +29,16 @@ namespace Phase2Tracker
     // store active connections for a given fedid
     std::vector<bool> festatus (72,false);
     // iterate on all possible channels 
-    std::vector<Phase2TrackerModule> conns = cabling_->connections();
-    std::vector<Phase2TrackerModule>::iterator iconn;
+    Phase2TrackerCabling::cabling conns = cabling_->orderedConnections(0);
+    Phase2TrackerCabling::cabling::const_iterator iconn;
     int fedid_current = -1;
     for(iconn = conns.begin(); iconn != conns.end(); iconn++) 
     {
-      std::pair<unsigned int, unsigned int> fedch = iconn->getCh();
-      int detid = iconn->getDetid();
+      std::pair<unsigned int, unsigned int> fedch = (*iconn)->getCh();
+      int detid = (*iconn)->getDetid();
       edmNew::DetSetVector<SiPixelCluster>::const_iterator  digis = digishandle_->find(detid);
       if((int)fedch.first != fedid_current and fedid_current >= 0)
       {
-        // std::cout << "building buffer for fed " << fedid_current << " with " << digis_t.size() << " modules" << std::endl;
         FedHeader_.setFrontendStatus(festatus);
         std::vector<uint64_t> fedbuffer = makeBuffer(digis_t);
         FEDRawData& frd = rcollection->FEDData(fedid_current);
@@ -46,8 +46,7 @@ namespace Phase2Tracker
         uint8_t arrtemp[size];
         vec_to_array(fedbuffer,arrtemp);
         frd.resize(size);
-        memcpy(arrtemp,frd.data(),size);
-        // TODO : check arrtemp
+        memcpy(frd.data(),arrtemp,size);
         /* 
         std::cout << std::showbase << std::internal << std::setfill('0');
         std::vector<uint64_t>::iterator it;
