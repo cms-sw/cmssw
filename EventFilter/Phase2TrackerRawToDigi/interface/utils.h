@@ -242,7 +242,7 @@ namespace Phase2Tracker {
     }
     
     // 3) mask according to expected size
-    data &= (uint64_t)((1LL<<size)-1);
+    if(size < 64) { data &= (uint64_t)((1LL<<size)-1); }
     return data;
   }
 
