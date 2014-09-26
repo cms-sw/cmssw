@@ -19,7 +19,6 @@
 namespace clangcms {
 
 class edmChecker : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::CXXRecordDecl> > {
-  mutable clang::OwningPtr< clang::ento::BugType> BT;
 
 
 public:

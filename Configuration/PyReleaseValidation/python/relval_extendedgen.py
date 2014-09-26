@@ -15,8 +15,6 @@ workflows = Matrix()
 # the two sets are exclusive
 
 # LO Generators
-workflows[505]=['',['DYToLL_M-50_13TeV_pythia8','HARVGEN']]
-workflows[506]=['',['WToLNu_13TeV_pythia8','HARVGEN']]
 workflows[507]=['',['SoftQCDDiffractive_13TeV_pythia8','HARVGEN']]
 workflows[508]=['',['SoftQCDnonDiffractive_13TeV_pythia8','HARVGEN']]
 workflows[509]=['',['SoftQCDelastic_13TeV_pythia8','HARVGEN']]

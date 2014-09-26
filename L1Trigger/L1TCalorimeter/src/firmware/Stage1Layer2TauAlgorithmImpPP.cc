@@ -125,19 +125,17 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
       int regionTauVeto = region->hwQual() & 0x1;  // tauVeto should be the first bit of quality integer
       //std::cout<< "regiontauveto, neighbor " << regionTauVeto << " " << highestNeighborTauVeto << std::endl;
 
-      if ((highestNeighborTauVeto == 0 && regionTauVeto == 0) || tauEt > switchOffTauVeto) {
-
 	double jetIsolation = JetIsolation(tauEt, region->hwEta(), region->hwPhi(), *unCorrJets);
 
-	if (jetIsolation < tauRelativeJetIsolationCut || (tauEt >= switchOffTauIso && jetIsolation < tauRelativeJetIsolationLimit)
-	    || (std::abs(jetIsolation - 999.) < 0.1) ) isoFlag=1;
-	
+	if ((highestNeighborTauVeto == 0 && regionTauVeto == 0) || tauEt > switchOffTauVeto) {
+	  if (jetIsolation < tauRelativeJetIsolationCut || (tauEt >= switchOffTauIso && jetIsolation < tauRelativeJetIsolationLimit)
+	      || (std::abs(jetIsolation - 999.) < 0.1) ) isoFlag=1;
+	}
 	ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > tauLorentz(0,0,0,0);
 	
 	l1t::Tau theTau(*&tauLorentz, tauEt, region->hwEta(), region->hwPhi(), quality, isoFlag);
 	
 	preGtTaus->push_back(theTau);
-      }
     }
   }
   TauToGtScales(params_, preGtTaus, taus);

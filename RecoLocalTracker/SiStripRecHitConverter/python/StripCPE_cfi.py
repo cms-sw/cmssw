@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-StripCPEESProducer = cms.ESProducer("StripCPEESProducer",
-                                    ComponentName = cms.string('SimpleStripCPE'),
-                                    ComponentType = cms.string('SimpleStripCPE')
-)
+from RecoLocalTracker.SiStripRecHitConverter.StripCPEESProducer_cfi import *
+StripCPEESProducer = stripCPEESProducer.clone()
+StripCPEESProducer.ComponentName = cms.string('SimpleStripCPE')
+StripCPEESProducer.ComponentType = cms.string('SimpleStripCPE')
+StripCPEESProducer.parameters    = cms.PSet()
 
 

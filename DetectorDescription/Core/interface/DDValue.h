@@ -4,7 +4,6 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <map>
 #include <memory>
 #include <atomic>
 #include "tbb/concurrent_vector.h"
@@ -12,21 +11,14 @@
 
 #include "DetectorDescription/Core/interface/DDValuePair.h"
 
-class DDValue;
-class DDSpecifics;
-class DDLSpecPar;
-
 /** A DDValue std::maps a std::vector of DDValuePair (std::string,double) to a name. Names of DDValues are stored
  transiently. Furthermore, an ID is assigned std::mapping to the name.
- If a particular DDValue is not used anymore, use DDValue::clear() to free the internally
- allocated memory. Use DDValue::setEvalState(true) to indicate whether the double numbers stored in
+ Use DDValue::setEvalState(true) to indicate whether the double numbers stored in
  the DDValuePair make sense, otherwise an exception will be thrown when trying to get access
  to these values via DDValue::doubles() or DDValue::operator[].
 */
 class DDValue
 {
-  friend class DDSpecifics;
-  friend class DDLSpecPar;
 public:
   //! create a unnamed emtpy value. One can assing a named DDValue to it.
   DDValue( void ) : id_(0), vecPair_() { }
