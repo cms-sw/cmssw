@@ -206,6 +206,11 @@ cmsswVersion = os.environ['CMSSW_VERSION']
       self.build_source()
 
     # manual override some parameters
+    if self.config.type in ('HIon', ):
+      if self.config.data:
+        if not self.config.fragment:
+          self._fix_parameter( type = 'InputTag', value = 'rawDataCollector',  replace = 'rawDataRepacker')
+
 #    if self.config.type in ('HIon', ):
 #      self.data += """
 ## Disable HF Noise filters in HIon menu
