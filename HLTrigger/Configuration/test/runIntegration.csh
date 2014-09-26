@@ -54,8 +54,8 @@ foreach gtag ( $1 )
 #   -x "--l1-emulator" -x "--l1 L1GtTriggerMenu_L1Menu_Collisions2012_v1_mc" 
 
     date
-    echo "hltIntegrationTests $config -d $name -i $infile -n 100 -j 4 $flags -x ${autogt} >& $name.log"
-    time  hltIntegrationTests $config -d $name -i $infile -n 100 -j 4 $flags -x ${autogt} >& $name.log
+    echo "hltIntegrationTests $config -d $name -i $infile -n 100 -j 4 $flags -x ${autogt} -x --type=$table >& $name.log"
+    time  hltIntegrationTests $config -d $name -i $infile -n 100 -j 4 $flags -x ${autogt} -x --type=$table >& $name.log
     set STATUS = $?
     echo "exit status: $STATUS"
     rm -f  ${name}/*.root
