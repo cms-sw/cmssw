@@ -148,10 +148,13 @@ DetId HGCalGeometry::getClosestCell( const GlobalPoint& r ) const {
 	      << ":" << id_.iLay << ":" << id_.iSec << ":" << id_.iSubSec
 	      << ":" << id_.iCell << " Cell " << m_cellVec[cellIndex];
 #endif
-    return topology().encode(id_);
-  } else {
-    return DetId();
+
+    //check if returned cell is valid
+    if(id_.iCell>=0) return topology().encode(id_);
   }
+
+  //if not valid or out of bounds return a null DetId
+  return DetId();
 }
 
 HGCalGeometry::DetIdSet HGCalGeometry::getCells( const GlobalPoint& r, double dR ) const {

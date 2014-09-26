@@ -22,7 +22,7 @@ HGCNumberingScheme::~HGCNumberingScheme() {
 }
 
 //
-uint32_t HGCNumberingScheme::getUnitID(ForwardSubdetector &subdet, int &layer, int &sector, int &iz, G4ThreeVector &pos) {
+uint32_t HGCNumberingScheme::getUnitID(ForwardSubdetector &subdet, int &layer, int &sector, int &iz, const G4ThreeVector &pos) {
   
   std::pair<int,int> phicell = hgcons->assignCell(pos.x(),pos.y(),layer,0,false);
   int phiSector = phicell.first;
