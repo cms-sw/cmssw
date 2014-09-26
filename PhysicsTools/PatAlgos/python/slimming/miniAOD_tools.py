@@ -66,15 +66,6 @@ def miniAOD_customizeCommon(process):
     process.selectedPatElectrons.cut = cms.string("") 
     process.selectedPatTaus.cut = cms.string("pt > 18. && tauID('decayModeFinding')> 0.5")
     process.selectedPatPhotons.cut = cms.string("")
-    #
-    from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
-    #switch to AK4 (though it should soon be unnecessary as ak4 should become the 71X default)
-    #FIXME: still using AK5PFchs for jet energy corrections, while waiting for a new globalTag
-    switchJetCollection(process, jetSource = cms.InputTag('ak4PFJetsCHS'),  
-    jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), ''),
-    btagDiscriminators = ['jetBProbabilityBJetTags', 'jetProbabilityBJetTags', 'trackCountingHighPurBJetTags', 'trackCountingHighEffBJetTags', 'simpleSecondaryVertexHighEffBJetTags',
-                         'simpleSecondaryVertexHighPurBJetTags', 'combinedSecondaryVertexBJetTags' , 'combinedInclusiveSecondaryVertexBJetTags' ],
-    )
 
     # add CMS top tagger
     from RecoJets.JetProducers.caTopTaggers_cff import caTopTagInfos as toptag
@@ -148,8 +139,14 @@ def miniAOD_customizeCommon(process):
     '?(tagInfoSecondaryVertex().nVertices()>0)?(tagInfoSecondaryVertex().secondaryVertex(0).nTracks):(0)',
     '?(tagInfoSecondaryVertex().nVertices()>0)?(tagInfoSecondaryVertex().flightDistance(0).value):(0)',
     '?(tagInfoSecondaryVertex().nVertices()>0)?(tagInfoSecondaryVertex().flightDistance(0).significance):(0)',
+    '?(tagInfoSecondaryVertex().nVertices()>0)?(tagInfoSecondaryVertex().secondaryVertex(0).p4.x):(0)',
+    '?(tagInfoSecondaryVertex().nVertices()>0)?(tagInfoSecondaryVertex().secondaryVertex(0).p4.y):(0)',
+    '?(tagInfoSecondaryVertex().nVertices()>0)?(tagInfoSecondaryVertex().secondaryVertex(0).p4.z):(0)',
+    '?(tagInfoSecondaryVertex().nVertices()>0)?(tagInfoSecondaryVertex().secondaryVertex(0).position.x):(0)',
+    '?(tagInfoSecondaryVertex().nVertices()>0)?(tagInfoSecondaryVertex().secondaryVertex(0).position.y):(0)',
+    '?(tagInfoSecondaryVertex().nVertices()>0)?(tagInfoSecondaryVertex().secondaryVertex(0).position.z):(0)',
     )
-    process.patJets.userData.userFunctionLabels = cms.vstring('vtxMass','vtxNtracks','vtx3DVal','vtx3DSig')
+    process.patJets.userData.userFunctionLabels = cms.vstring('vtxMass','vtxNtracks','vtx3DVal','vtx3DSig','vtxPx','vtxPy','vtxPz','vtxPosX','vtxPosY','vtxPosZ')
     process.patJets.tagInfoSources = cms.VInputTag(cms.InputTag("secondaryVertexTagInfos"))
     process.patJets.addTagInfos = cms.bool(True)
     #
@@ -185,6 +182,7 @@ def miniAOD_customizeMC(process):
     process.photonMatch.matched = "prunedGenParticles"
     process.photonMatch.src = cms.InputTag("reducedEgamma","reducedGedPhotons")
     process.tauMatch.matched = "prunedGenParticles"
+    process.tauGenJets.GenParticles = "prunedGenParticles"
     process.patJetPartonMatch.matched = "prunedGenParticles"
     process.patJetPartonMatch.mcStatus = [ 3, 23 ]
     process.patJetGenJetMatch.matched = "slimmedGenJets"

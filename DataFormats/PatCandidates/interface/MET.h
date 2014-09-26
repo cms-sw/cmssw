@@ -168,7 +168,7 @@ namespace pat {
       enum METUncertainty {
         JetEnUp=0, JetEnDown=1, JetResUp=2, JetResDown=3,
         MuonEnUp=4, MuonEnDown=5, ElectronEnUp=6, ElectronEnDown=7, TauEnUp=8,TauEnDown=9,
-        UnclusteredEnUp=10,UnclusteredEnDown=11, METUncertaintySize=12
+        UnclusteredEnUp=10,UnclusteredEnDown=11, NoShift=12, METUncertaintySize=13
       };
       enum METUncertaintyLevel {
         Raw=0, Type1=1, Type1p2=2
