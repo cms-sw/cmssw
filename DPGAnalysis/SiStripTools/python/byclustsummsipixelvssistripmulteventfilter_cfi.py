@@ -5,12 +5,12 @@ byclustsummsipixelvssistripmulteventfilter = cms.EDFilter('ByClusterSummaryMulti
                                                                            firstMultiplicityConfig = cms.PSet(
                                                                                                      clusterSummaryCollection = cms.InputTag("clusterSummaryProducer"),
                                                                                                      subDetEnum = cms.int32(5),
-                                                                                                     subDetVariable = cms.string("pHits")
+                                                                                                     varEnum = cms.int32(0)
                                                                                                      ),
                                                                            secondMultiplicityConfig = cms.PSet(
                                                                                                       clusterSummaryCollection = cms.InputTag("clusterSummaryProducer"),
                                                                                                       subDetEnum = cms.int32(0),
-                                                                                                      subDetVariable = cms.string("cHits")
+                                                                                                      varEnum = cms.int32(0)
                                                                                                       ),
                                                                            ),
                                                           cut = cms.string("(mult2 > 30000) && ( mult2 > 20000+7*mult1)")
