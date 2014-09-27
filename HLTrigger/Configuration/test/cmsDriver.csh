@@ -90,6 +90,7 @@ foreach gtag ( MC DATA )
       set XL1T = $XL1TPP3
       set XHLT = HLT:FULL
       set GTAG = ${BASE2}_FULL
+      set RTAG = ${BASE2RD}_full
       set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun
@@ -101,6 +102,7 @@ foreach gtag ( MC DATA )
       set XL1T = $XL1TPP3
       set XHLT = HLT:Fake
       set GTAG = ${BASE1}_Fake
+      set RTAG = ${BASE1RD}_Fake
       set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun
@@ -112,6 +114,7 @@ foreach gtag ( MC DATA )
       set XL1T = $XL1TPP2
       set XHLT = HLT:2014
       set GTAG = ${BASE1}_2014
+      set RTAG = ${BASE1RD}_2014
       set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun
@@ -123,6 +126,7 @@ foreach gtag ( MC DATA )
       set XL1T = $XL1TPP3
       set XHLT = HLT:GRun
       set GTAG = ${BASE2}_GRun
+      set RTAG = ${BASE2RD}_GRun
       set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun
@@ -134,6 +138,7 @@ foreach gtag ( MC DATA )
       set XL1T = $XL1THI
       set XHLT = HLT:HIon
       set GTAG = ${BASE2}_HIon
+      set RTAG = ${BASE2RD}_HIon
       set NN   = $NNHI
       set SCEN = HeavyIons
       set InputGenSim = $InputGenSimHIon
@@ -148,6 +153,7 @@ foreach gtag ( MC DATA )
       set XL1T = $XL1TPI
       set XHLT = HLT:PIon
       set GTAG = ${BASE2}_PIon
+      set RTAG = ${BASE2RD}_PIon
       set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimPIon
@@ -201,8 +207,6 @@ foreach gtag ( MC DATA )
 
 
     if ( $gtag == DATA ) then
-
-    set RTAG = ${BASE1RD}_$table
 
     echo
     echo "Creating HLT+RECO $name"
