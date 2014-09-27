@@ -90,7 +90,7 @@ foreach gtag ( MC DATA )
       set XL1T = $XL1TPP3
       set XHLT = HLT:FULL
       set GTAG = ${BASE2}_FULL
-      set RTAG = ${BASE2RD}_full
+      set RTAG = ${BASE2RD}_FULL
       set NN   = $NNPP
       set SCEN = pp
       set InputGenSim = $InputGenSimGRun
