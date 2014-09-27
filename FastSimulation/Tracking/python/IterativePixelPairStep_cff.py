@@ -57,7 +57,7 @@ pixelPairStepTracks = cms.EDProducer("FastTrackMerger",
                                                                     cms.InputTag("iterativePixelPairTracks")),
                                      RemoveTrackProducers =  cms.untracked.VInputTag(cms.InputTag("initialStepTracks"),
                                                                                      cms.InputTag("lowPtTripletStepTracks")),
-                                     trackAlgo = cms.untracked.uint32(6), # iter2
+                                     trackAlgo = cms.untracked.uint32(6), # pixelPairStep
                                      MinNumberOfTrajHits = cms.untracked.uint32(3),
                                      MaxLostTrajHits = cms.untracked.uint32(1)
                                      )
