@@ -4,7 +4,7 @@ byclustsummsipixelmulteventfilter = cms.EDFilter('ByClusterSummarySingleMultipli
                                                  multiplicityConfig = cms.PSet(
                                                                  clusterSummaryCollection = cms.InputTag("clusterSummaryProducer"),
                                                                  subDetEnum = cms.int32(5),
-                                                                 subDetVariable = cms.string("pHits")
+                                                                 varEnum = cms.int32(0)
                                                                  ),
                                                  cut = cms.string("mult > 300")
                                                  )
