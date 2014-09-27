@@ -221,11 +221,6 @@ steps['ZMuSkim2012C']={'INPUT':InputInfo(dataSet='/SingleMu/Run2012C-ZMu-PromptS
 steps['WElSkim2012C']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2012C-WElectron-PromptSkim-v3/USER',label='wEl2012C',location='STD',run=Run2012Csk)}
 steps['ZElSkim2012C']={'INPUT':InputInfo(dataSet='/DoubleElectron/Run2012C-ZElectron-PromptSkim-v3/RAW-RECO',label='zEl2012C',location='STD',run=Run2012Csk)}
 
-# needed but can't be tested because of DBS => das hanging forever 
-#RunHighPU2012C=[198588]
-#steps['RunZBias2012C']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2012C-v1/RAW',label='zb2012C',location='STD',run=RunHighPU2012C,events=100000)}
-
-
 Run2012D=[208307]
 Run2012Dsk=Run2012D+[207454]
 steps['RunMinBias2012D']={'INPUT':InputInfo(dataSet='/MinimumBias/Run2012D-v1/RAW',label='mb2012D',run=Run2012D, events=100000,location='STD')}
@@ -258,7 +253,6 @@ steps['ProdMinBias_13']=gen2015('MinBias_13TeV_cfi',Kby(9,100))
 steps['ProdTTbar_13']=gen2015('TTbar_Tauola_13TeV_cfi',Kby(9,100))
 steps['ProdZEE_13']=gen2015('ZEE_13TeV_cfi',Kby(9,100))
 steps['ProdQCD_Pt_3000_3500_13']=gen2015('QCD_Pt_3000_3500_13TeV_cfi',Kby(9,100))
-# GF include branched wf comparing relVal and prod
 
 steps['MinBias']=gen('MinBias_8TeV_cfi',Kby(9,300))
 steps['QCD_Pt_3000_3500']=gen('QCD_Pt_3000_3500_8TeV_cfi',Kby(9,25))
@@ -364,9 +358,6 @@ steps['LM1_sftsINPUT']={'INPUT':InputInfo(dataSet='/RelValLM1_sfts/%s/GEN-SIM'%(
 steps['QCD_FlatPt_15_3000INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_FlatPt_15_3000/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 
 steps['QCD_FlatPt_15_3000HSINPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_FlatPt_15_3000HS/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
-# the following dataset used to be in input but is currently not valid dbs datasets
-# candidate for removal..
-# steps['QCD_FlatPt_15_3000HS__DIGIPU1INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_FlatPt_15_3000/CMSSW_5_2_2-PU_START52_V4_special_120326-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',location='STD')}
 steps['TTbar__DIGIPU1INPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar/CMSSW_5_2_2-PU_START52_V4_special_120326-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',location='STD')}
 
 # 13 TeV recycle GEN-SIM input
@@ -387,7 +378,15 @@ steps['ZpEE_2250_13TeV_TauolaINPUT']={'INPUT':InputInfo(dataSet='/RelValZpEE_225
 steps['ZpTT_1500_13TeV_TauolaINPUT']={'INPUT':InputInfo(dataSet='/RelValZpTT_1500_13TeV_Tauola/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
 steps['MinBiasHS_13INPUT']={'INPUT':InputInfo(dataSet='/RelValMinBiasHS_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
 steps['Higgs200ChargedTaus_13INPUT']={'INPUT':InputInfo(dataSet='/RelValHiggs200ChargedTaus_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
-steps['JpsiMM_13INPUT']={'INPUT':InputInfo(dataSet='/RelValJpsiMM_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
+
+# remove JpsiMM_13 at the next round
+# steps['JpsiMM_13INPUT']={'INPUT':InputInfo(dataSet='/RelValJpsiMM_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
+
+# activate GEN-SIM recycling once we'll have the first set of gen-sim
+# steps['Upsilon1SToMuMu_13INPUT']={'INPUT':InputInfo(dataSet='/Upsilon1SToMuMu_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
+# steps['BsToMuMu_13INPUT']={'INPUT':InputInfo(dataSet='/BsToMuMu_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
+# steps['BuToKstarMuMu_13INPUT']={'INPUT':InputInfo(dataSet='/BuToKstarMuMu_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
+
 steps['WE_13INPUT']={'INPUT':InputInfo(dataSet='/RelValWE_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
 steps['WM_13INPUT']={'INPUT':InputInfo(dataSet='/RelValWM_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
 steps['WpM_13INPUT']={'INPUT':InputInfo(dataSet='/RelValWpM_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
@@ -455,7 +454,11 @@ steps['WpM']=genS('WpM_8TeV_cfi',Kby(9,200))
 steps['ZMM']=genS('ZMM_8TeV_cfi',Kby(18,300))
 steps['ZpMM']=genS('ZpMM_8TeV_cfi',Kby(9,200))
 steps['Higgs200ChargedTaus_13']=gen2015('H200ChargedTaus_Tauola_13TeV_cfi',Kby(9,100))
-steps['JpsiMM_13']=gen2015('JpsiMM_13TeV_cfi',Kby(66,1000))
+# remove JpsiMM_13 at the next round
+# steps['JpsiMM_13']=gen2015('JpsiMM_13TeV_cfi',Kby(66,1000))
+steps['Upsilon1SToMuMu_13']=gen2015('Upsilon1SToMuMu_forSTEAM_13TeV_cfi',Kby(64,709))
+steps['BsToMuMu_13']=gen2015('BsToMuMu_forSTEAM_13TeV_cfi',Kby(30000,333333))
+steps['BuToKstarMuMu_13']=gen2015('BuToKstarMuMu_forSTEAM_13TeV_cfi',Kby(2250,25000))
 steps['WE_13']=gen2015('WE_13TeV_cfi',Kby(9,100))
 steps['WM_13']=gen2015('WM_13TeV_cfi',Kby(9,200))
 steps['WpM_13']=gen2015('WpM_13TeV_cfi',Kby(9,200))
@@ -474,8 +477,8 @@ steps['ZmumuJets_Pt_20_300']=gen('ZmumuJets_Pt_20_300_GEN_8TeV_cfg',Kby(25,100))
 steps['ZmumuJets_Pt_20_300_13']=gen2015('ZmumuJets_Pt_20_300_GEN_13TeV_cfg',Kby(25,50))
 steps['ADDMonoJet_d3MD3']=genS('ADDMonoJet_8TeV_d3MD3_cfi',Kby(9,100))
 steps['ADDMonoJet_d3MD3_13']=gen2015('ADDMonoJet_13TeV_d3MD3_cfi',Kby(9,100))
-steps['RSKKGluon_m3000GeV_13']=gen2015('RSKKGluon_m3000GeV_13TeV_cff',Kby(9,100))                  # re-named to remove RelvalRelval in the dataset name 
-steps['Pythia6_BuJpsiK_TuneZ2star_13']=gen2015('Pythia6_BuJpsiK_TuneZ2star_13TeV_cfi',Kby(36000,400000))  # check recycling a the next GEN-SIM refresh
+steps['RSKKGluon_m3000GeV_13']=gen2015('RSKKGluon_m3000GeV_13TeV_cff',Kby(9,100))
+steps['Pythia6_BuJpsiK_TuneZ2star_13']=gen2015('Pythia6_BuJpsiK_TuneZ2star_13TeV_cfi',Kby(36000,400000))
 
 steps['MinBias2INPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['Higgs200ChargedTausINPUT']={'INPUT':InputInfo(dataSet='/RelValHiggs200ChargedTaus/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
@@ -611,10 +614,6 @@ steps['MinBias_TuneZ2star_UPGPhase1_14']=genepi('MinBias_TuneZ2star_14TeV_pythia
 steps['WM_UPGPhase1_14']=genepi('WM_14TeV_cfi',Kby(9,200))
 steps['ZMM_UPGPhase1_14']=genepi('ZMM_14TeV_cfi',Kby(18,300))
 
-#steps['ADDMonoJet_d3MD3_UPGPhase1_14']=genepi('ADDMonoJet_14TeV_d3MD3_cfi',Kby(9,100))
-#steps['ZpMM_UPGPhase1_14']=genepi('ZpMM_14TeV_cfi',Kby(9,200))
-#steps['WpM_UPGPhase1_14']=genepi('WpM_14TeV_cfi',Kby(9,200))
-
 
 ## 2015
 steps['FourMuPt1_200_UPG2015']=gen2015('FourMuPt_1_200_cfi',Kby(10,100))
@@ -680,10 +679,6 @@ steps['QQH1352T_Tauola_UPG2015_14']=gen2015('QQH1352T_Tauola_14TeV_cfi',Kby(9,10
 steps['MinBias_TuneZ2star_UPG2015_14']=gen2015('MinBias_TuneZ2star_14TeV_pythia6_cff',Kby(9,300))
 steps['WM_UPG2015_14']=gen2015('WM_14TeV_cfi',Kby(9,200))
 steps['ZMM_UPG2015_14']=gen2015('ZMM_14TeV_cfi',Kby(18,300))
-
-#steps['ADDMonoJet_d3MD3_UPG2015_14']=gen2015('ADDMonoJet_14TeV_d3MD3_cfi',Kby(9,100))
-#steps['ZpMM_UPG2015_14']=gen2015('ZpMM_14TeV_cfi',Kby(9,200))
-#steps['WpM_UPG2015_14']=gen2015('WpM_14TeV_cfi',Kby(9,200))
 
 
 
@@ -886,22 +881,6 @@ def identityFS(wf):
 
 steps['SingleMuPt10FS_ID']=identityFS(steps['SingleMuPt10FS'])
 steps['TTbarFS_ID']=identityFS(steps['TTbarFS'])
-
-#### generator test section ####
-#step1GenDefaults=merge([{'-s':'GEN,VALIDATION:genvalid',
-#                         '--relval':'1000000,20000',
-#                         '--eventcontent':'RAWSIM',
-#                         '--datatier':'GEN'},
-#                        step1Defaults])
-#def genvalid(fragment,d,suffix='all',fi=''):
-#    import copy
-#    c=copy.copy(d)
-#    if suffix:
-#        c['-s']=c['-s'].replace('genvalid','genvalid_'+suffix)
-#    if fi:
-#        c['--filein']='lhe:%d'%(fi,)
-#    c['cfg']=fragment
-#    return c
  
 step1GenDefaults=merge([{'-s':'GEN,VALIDATION:genvalid',
                          '--relval':'250000,20000',
@@ -1032,7 +1011,6 @@ steps['RESIMDIGI']=merge([{'-s':'reGEN,reSIM,DIGI,L1,DIGI2RAW,HLT:@relval,RAW2DI
     
 steps['DIGIHI']=merge([{'--conditions':'auto:starthi_HIon', '-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:HIon,RAW2DIGI,L1Reco', '--inputCommands':'"keep *","drop *_simEcalPreshowerDigis_*_*"', '-n':10}, hiDefaults, step2Defaults])
 
-#wmsplit['DIGIHI']=5
 
 #for pix phase1
 step2Upgpixphase1Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
@@ -1055,8 +1033,6 @@ step2Upg2017Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '--geometry' : 'Extended2017' #check geo
                   }
 steps['DIGIUP17']=merge([step2Upg2017Defaults])
-#add this line when testing from an input file that is not strictly GEN-SIM
-#addForAll(step2,{'--process':'DIGI'})
 
 
 # PRE-MIXING : https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideSimulation#Pre_Mixing_Instructions
@@ -1117,7 +1093,6 @@ steps['HLTD']=merge([{'--process':'reHLT',
                       '--data':'',
                       '--output':'\'[{"e":"RAW","t":"RAW","o":["drop FEDRawDataCollection_rawDataCollector__LHC"]}]\'',
                       },])
-#wmsplit['HLTD']=5
 
 steps['RECOD']=merge([{'--scenario':'pp',},dataReco])
 steps['RECODSplit']=steps['RECOD'] # finer job splitting  
@@ -1207,7 +1182,6 @@ steps['RECOUP15']=merge([step3Up2015Defaults]) # todo: remove UP from label
 steps['RECOUP15PROD1']=merge([{ '-s' : 'RAW2DIGI,L1Reco,RECO,EI', '--datatier' : 'GEN-SIM-RECO,AODSIM', '--eventcontent' : 'RECOSIM,AODSIM'},step3Up2015Defaults])
 
 steps['RECODreHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:com10_%s'%menu},steps['RECOD']])
-#wmsplit['RECODreHLT']=2
 
 steps['RECO']=merge([step3Defaults])
 steps['RECODBG']=merge([{'--eventcontent':'RECODEBUG,DQM'},steps['RECO']])
@@ -1255,14 +1229,14 @@ steps['RECOPRMXUP15PROD_PU50']=merge([
         {'--conditions':'auto:upgradePLS150ns'},
         recoPremixUp15prod])
 
-#wmsplit['RECOPU1']=1
+
 steps['RECOPUDBG']=merge([{'--eventcontent':'RECODEBUG,DQM'},steps['RECOPU1']])
 steps['RERECOPU1']=merge([{'--hltProcess':'REDIGI'},steps['RECOPU1']])
 
 steps['RECO_ID']=merge([{'--hltProcess':'HLT2'},steps['RECO']])
 
 steps['RECOHI']=merge([hiDefaults,{'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM'},step3Defaults])
-#wmsplit['RECOHI']=5
+
 
 steps['DIGIHISt3']=steps['DIGIHI']
 
