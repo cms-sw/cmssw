@@ -66,6 +66,8 @@ class ThreeThresholdAlgorithm final : public StripClusterizerAlgorithm {
   void appendBadNeighbors();
   void applyGains();
 
+  template<class T> void splitCluster(T&) const;
+
   float ChannelThreshold, SeedThreshold, ClusterThresholdSquared;
   uint8_t MaxSequentialHoles, MaxSequentialBad, MaxAdjacentBad;
   bool RemoveApvShots;
