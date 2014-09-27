@@ -45,8 +45,7 @@ foreach gtag ( $1 )
     if ( ($table == 2014) || ($table == Fake) ) then
       set basegt = auto:run1_${infix}_${table}
     else
-#     set basegt = auto:run2_${infix}_${table}
-      set basegt = auto:run1_${infix}_${table}
+      set basegt = auto:run2_${infix}_${table}
     endif
     set autogt = "--globaltag=${basegt}"
     set infile = file:../RelVal_Raw_${table}_${gtag}.root
