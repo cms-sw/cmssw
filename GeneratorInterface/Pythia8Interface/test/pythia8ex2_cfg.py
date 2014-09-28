@@ -12,9 +12,9 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     filterEfficiency = cms.untracked.double(1.0),
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     comEnergy = cms.double(7000.),
-    #PPbarInitialState  = cms.PSet(),
+    #PPbarInitialState = cms.PSet(),
     #SLHAFileForPythia8 = cms.string('Configuration/Generator/data/CSA07SUSYBSM_LM9p_sftsdkpyt_slha.out'),
-    #reweightGen = cms.untracked.PSet(),
+    #reweightGen = cms.PSet(),
     PythiaParameters = cms.PSet(
         pythia8_example02 = cms.vstring('HardQCD:all = on',
                                         'PhaseSpace:pTHatMin = 20.'),
@@ -32,11 +32,9 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        generator = cms.untracked.uint32(123456),
-        g4SimHits = cms.untracked.uint32(123456788),
-        VtxSmeared = cms.untracked.uint32(123456789)
-    ),
+    generator = cms.PSet(
+        initialSeed = cms.untracked.uint32(123456789),
+    )
 )
 
 process.maxEvents = cms.untracked.PSet(

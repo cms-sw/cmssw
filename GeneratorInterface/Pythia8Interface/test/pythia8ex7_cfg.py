@@ -20,7 +20,7 @@ process.generator = cms.EDFilter("Pythia8HadronizerFilter",
     emissionVeto1 = cms.untracked.PSet(),
     EV1_nFinal = cms.int32(2),
     EV1_vetoOn = cms.bool(True),
-    EV1_maxVetoCount = cms.int32(10000),   
+    EV1_maxVetoCount = cms.int32(10000),
     EV1_pThardMode = cms.int32(1),
     EV1_pTempMode = cms.int32(0),
     EV1_emittedMode = cms.int32(0),
@@ -45,11 +45,9 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        generator = cms.untracked.uint32(123456),
-        g4SimHits = cms.untracked.uint32(123456788),
-        VtxSmeared = cms.untracked.uint32(123456789)
-    ),
+    generator = cms.PSet(
+        initialSeed = cms.untracked.uint32(123456789),
+    )
 )
 
 process.maxEvents = cms.untracked.PSet(

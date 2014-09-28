@@ -15,7 +15,7 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     comEnergy = cms.double(7000.),
     PythiaParameters = cms.PSet(
-        pythia8_example05 = cms.vstring('SoftQCD:nonDiffractive = on',
+        pythia8_example05 = cms.vstring('SoftQCD:minBias = on',
                                         'SoftQCD:singleDiffractive = on',
                                         'SoftQCD:doubleDiffractive = on',
                                         'Tune:pp 2'),
@@ -33,11 +33,9 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        generator = cms.untracked.uint32(123456),
-        g4SimHits = cms.untracked.uint32(123456788),
-        VtxSmeared = cms.untracked.uint32(123456789)
-    ),
+    generator = cms.PSet(
+        initialSeed = cms.untracked.uint32(123456789),
+    )
 )
 
 process.maxEvents = cms.untracked.PSet(

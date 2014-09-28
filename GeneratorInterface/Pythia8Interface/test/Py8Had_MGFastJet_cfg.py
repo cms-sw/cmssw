@@ -6,11 +6,10 @@ process.load("Configuration.StandardSequences.SimulationRandomNumberGeneratorSee
 
 process.source = cms.Source("LHESource",
     fileNames = cms.untracked.vstring('file:../../Pythia6Interface/test/ttbar_5flavours_xqcut20_10TeV.lhe')
-    # fileNames = cms.untracked.vstring('file:/storage/local/data1/condor/mrenna/lhe/7TeV_Zbb_run45040_unweighted_events_qcut13_mgPostv2.lhe')
-    # fileNames = cms.untracked.vstring('file:/uscmst1b_scratch/lpc1/3DayLifetime/recovery_for_julia/storage/local/data1/condor/mrenna/lhe/7TeV_ttbarjets_run621_unweighted_events_qcut40_mgPost.lhe')
+    # fileNames = cms.untracked.vstring('file:/uscms_data/d2/yarba_j/lhe_for_tests/7TeV_Zbb_run45040_unweighted_events_qcut13_mgPostv2.lhe')
+    # fileNames = cms.untracked.vstring('file:/uscms_data/d2/yarba_j/lhe_for_tests/7TeV_ttbarjets_run621_unweighted_events_qcut40_mgPost.lhe')
     # fileNames = cms.untracked.vstring('file:/storage/local/data1/condor/mrenna/lhe/7TeV_avjets_run50000_unweighted_events_qcut15_mgPost.lhe')
     # fileNames = cms.untracked.vstring('file:/storage/local/data1/condor/mrenna/lhe/7TeV_zvv_200_HT_inf_run114000_unweighted_events_qcut20_mgPostv2.lhe')
-    # fileNames = cms.untracked.vstring('/store/user/mrenna/7TeV_ZbbToLL_M_50_run1001to1018_3processes_unweighted_events.lhe')
 )
 
 
@@ -23,7 +22,7 @@ process.generator = cms.EDFilter("Pythia8HadronizerFilter",
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     comEnergy = cms.double(7000.),
     jetMatching = cms.untracked.PSet(
-       scheme = cms.string("Madgraph"),
+       scheme = cms.string("MadgraphFastJet"),
        mode = cms.string("auto"),	# soup, or "inclusive"/"exclusive"
        #
        # ATTENTION PLEASE !
@@ -41,7 +40,7 @@ process.generator = cms.EDFilter("Pythia8HadronizerFilter",
                                            # If nqmatch=4, then all showered partons from b's are NOT taken into account.
 				           # In many cases the D=5
        MEMAIN_excres = cms.string(""),
-       outTree_flag = cms.int32(0)         # 1=yes, write out the tree for future sanity check
+       outTree_flag = cms.int32(1)         # 1=yes, write out the tree for future sanity check
     ),    
     PythiaParameters = cms.PSet(
         pythia8_mg = cms.vstring(''), # this pset is for very initial testing
@@ -75,7 +74,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
     ),
 )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
 
 process.GEN = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('Py8Had_mgmatching.root')

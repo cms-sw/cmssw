@@ -6,7 +6,7 @@ void EmissionVetoHook::fatalEmissionVeto(string message) {
     << "EmissionVeto: " << message << endl;
 }
 
-// Use VetoMPIStep to analyse the incoming LHEF event and
+// Use VetoMIStep to analyse the incoming LHEF event and
 // extract the veto scale
 bool EmissionVetoHook::doVetoMPIStep(int, const Pythia8::Event &e) {
   int first=-1, myid;
