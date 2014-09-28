@@ -53,11 +53,9 @@ GenFilterEfficiencyProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   edm::Handle<edm::TriggerResults> trigR;
   iEvent.getByLabel(theTrig,trigR); 
   edm::Handle<GenEventInfoProduct>    genEventScale;
-  double weight = 1;
-  if (iEvent.getByLabel("generator", genEventScale)) 
-    weight = genEventScale->weight();
+  if (!iEvent.getByLabel("generator", genEventScale))return;
+  double weight = genEventScale->weight();
   
-
   unsigned int nSize = (*trigR).size();
   // std::cout << "Number of paths in TriggerResults = " << nSize  << std::endl;
   if ( nSize >= pathIndex ) {
