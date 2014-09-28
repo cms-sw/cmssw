@@ -1,6 +1,6 @@
 # "GRun" menu
 
-HLT_Ele27_WP85_Gsf_v*					# JIRA: CMSHLT-63, updated by CMSHLT-71 and CMSHLT-91 and CMSHLT-111
+HLT_Ele27_eta2p1_WP85_Gsf_v*				# JIRA: CMSHLT-63, updated by CMSHLT-71 and CMSHLT-91 and CMSHLT-111, renamed by CMSHLT-115
 #HLT_Ele17_Ele8_Gsf_v*					# JIRA: CMSHLT-63, updated by CMSHLT-71 -> TEMPLATE PATH, not for GRun
 HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v*			# JIRA: CMSHLT-63, updated by CMSHLT-71
 #HLT_Photon20_CaloIdVL_IsoL_v*				# JIRA: CMSHLT-63, updated by CMSHLT-71 -> TEMPLATE PATH, not for GRun
@@ -37,10 +37,10 @@ HLT_ReducedIterativeTracking_v*				# JIRA: CMSHLT-68, updated by CMSHLT-107 -> T
 
 HLT_IsoMu24_IterTrk02_TriCentralPFJet60_50_35_v*	# JIRA: CMSHLT-77, updated by CMSHLT-111
 HLT_IsoMu24_IterTrk02_TriCentralPFJet40_v*		# JIRA: CMSHLT-77, updated by CMSHLT-111
-HLT_Ele27_WP85_Gsf_TriCentralPFJet40_v*			# JIRA: CMSHLT-77, updated by CMSHLT-91 and by CMSHLT-111
-HLT_Ele27_WP85_Gsf_TriCentralPFJet60_50_35_v*		# JIRA: CMSHLT-77, updated by CMSHLT-91 and by CMSHLT-111
+HLT_Ele27_eta2p1_WP85_Gsf_TriCentralPFJet40_v*		# JIRA: CMSHLT-77, updated by CMSHLT-91 and by CMSHLT-111, renamed by CMSHLT-115
+HLT_Ele27_eta2p1_WP85_Gsf_TriCentralPFJet60_50_35_v*	# JIRA: CMSHLT-77, updated by CMSHLT-91 and by CMSHLT-111, renamed by CMSHLT-115
 HLT_IsoMu24_IterTrk02_CentralPFJet30_BTagCSV_v*		# JIRA: CMSHLT-77, updated by CMSHLT-111
-HLT_Ele27_WP85_Gsf_CentralPFJet30_BTagCSV_v*		# JIRA: CMSHLT-77, updated by CMSHLT-91 and by CMSHLT-111
+HLT_Ele27_eta2p1_WP85_Gsf_CentralPFJet30_BTagCSV_v*	# JIRA: CMSHLT-77, updated by CMSHLT-91 and by CMSHLT-111, renamed by CMSHLT-115
 
 HLT_Ele23_Ele12_CaloId_TrackId_Iso_v*			  	# JIRA: CMSHLT-78
 HLT_Ele17_Ele12_Ele10_CaloId_TrackId_v*				# JIRA: CMSHLT-78
