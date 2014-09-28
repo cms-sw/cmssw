@@ -466,9 +466,9 @@ bool Pythia8Hadronizer::hadronize()
   double mergeweight = fMasterGen.get()->info.mergingWeight();
   
   //protect against 0-weight from ckkw or similar
-  if (!py8next || mergeweight<=0.)
+  if (!py8next || std::abs(mergeweight)==0.)
   {
-    lheEvent()->count( lhef::LHERunInfo::kSelected );
+    lheEvent()->count( lhef::LHERunInfo::kSelected, 1.0, mergeweight );
     event().reset();
     return false;
   }
@@ -487,7 +487,7 @@ bool Pythia8Hadronizer::hadronize()
   
   // update LHE matching statistics
   //
-  lheEvent()->count( lhef::LHERunInfo::kAccepted );
+  lheEvent()->count( lhef::LHERunInfo::kAccepted, 1.0, mergeweight );
 
   event().reset(new HepMC::GenEvent);
   bool py8hepmc =  toHepMC.fill_next_event( *(fMasterGen.get()), event().get());
