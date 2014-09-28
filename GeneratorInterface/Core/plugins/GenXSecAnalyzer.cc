@@ -136,10 +136,6 @@ GenXSecAnalyzer::compute()
 	GenLumiInfoProduct::ProcessInfo proc = products_[i].getProcessInfos()[ip];	  
 	double hepxsec_value = proc.lheXSec().value();
 	double hepxsec_error = proc.lheXSec().error();
-	std::cout << "hepxsec_value = " << hepxsec_value << std::endl;
-	std::cout << "hepxsec_error = " << hepxsec_error << std::endl;
-	std::cout << "proc.killed().sum() = " << proc.killed().sum() << std::endl;
-	std::cout << "proc.selected().sum() = " << proc.selected().sum() << std::endl;
 
 	if (!proc.killed().n())
 	  continue;
