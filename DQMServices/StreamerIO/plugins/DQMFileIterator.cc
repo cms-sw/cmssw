@@ -202,7 +202,7 @@ void DQMFileIterator::collect(bool ignoreTimers) {
 
   directory_iterator dend;
   for (directory_iterator di(runPath_); di != dend; ++di) {
-    const boost::regex fn_re("run(\\d+)_ls(\\d+)(_.*).jsn");
+    const boost::regex fn_re("run(\\d+)_ls(\\d+)_(\\w+)([_.]*)\\.jsn");
 
     const std::string filename = di->path().filename().string();
     const std::string fn = di->path().string();
@@ -212,12 +212,13 @@ void DQMFileIterator::collect(bool ignoreTimers) {
       unsigned int run = std::stoi(result[1]);
       unsigned int lumi = std::stoi(result[2]);
       std::string label = result[3];
+      std::string leftover = result[4];
 
       if (run != runNumber_) continue;
 
       // check if this is EoR
       // for various reasons we have to load it after all other files
-      if ((lumi == 0) && (label == "_EoR") && (!eor_.loaded)) {
+      if ((lumi == 0) && (label == "EoR") && (!eor_.loaded)) {
         fn_eor = fn;
         continue;
       }
@@ -229,8 +230,10 @@ void DQMFileIterator::collect(bool ignoreTimers) {
 
       // check if this belongs to us
       if (label != streamLabel_) {
-        logFileAction("Found and skipped json file (stream label mismatch): ",
-                      fn);
+        std::string msg("Found and skipped json file (stream label mismatch, ");
+        msg += label + " != " + streamLabel_;
+        msg += "): ";
+        logFileAction(msg, fn);
         continue;
       }
 
