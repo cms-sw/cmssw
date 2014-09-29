@@ -178,21 +178,21 @@ void DQMFileIterator::collect(bool ignoreTimers) {
       now - runPathLastCollect_).count();
 
   // don't refresh if it's too soon
-  if ((!ignoreTimers) && (last_ms < 100)) {
+  if ((!ignoreTimers) && (last_ms >= 0) && (last_ms < 100)) {
     return;
   }
 
   // check if directory changed
-  std::time_t t = boost::filesystem::last_write_time(runPath_);
+  std::time_t mtime_now = boost::filesystem::last_write_time(runPath_);
 
-  if ((!ignoreTimers) && (last_ms < forceFileCheckTimeoutMillis_) && (t == runPathMTime_)) {
+  if ((!ignoreTimers) && (last_ms < forceFileCheckTimeoutMillis_) && (mtime_now  == runPathMTime_)) {
     //logFileAction("Directory hasn't changed.");
     return;
   } else {
     //logFileAction("Directory changed, updating.");
   }
 
-  runPathMTime_ = t;
+  runPathMTime_ = mtime_now;
   runPathLastCollect_ = now;
 
   using boost::filesystem::directory_iterator;
@@ -234,9 +234,17 @@ void DQMFileIterator::collect(bool ignoreTimers) {
         continue;
       }
 
-      LumiEntry lumi_jsn = LumiEntry::load_json(fn, lumi, datafnPosition_);
-      lumiSeen_.emplace(lumi, lumi_jsn);
-      logFileAction("Found and loaded json file: ", fn);
+      try {
+        LumiEntry lumi_jsn = LumiEntry::load_json(fn, lumi, datafnPosition_);
+        lumiSeen_.emplace(lumi, lumi_jsn);
+        logFileAction("Found and loaded json file: ", fn);
+      } catch (const std::exception& e) {
+        // don't reset the mtime, keep it waiting
+        std::string msg("Found, tried to load the json, but failed (");
+        msg += e.what();
+        msg += "): ";
+        logFileAction(msg, fn);
+      }
     }
   }
 
