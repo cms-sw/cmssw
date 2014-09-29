@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("digiTest")
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(5)
+    input = cms.untracked.int32(-1)
 )
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('siPixelRawData'),
@@ -13,7 +13,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 process.source = cms.Source("PoolSource",
     fileNames =  cms.untracked.vstring(
-       'file:/afs/cern.ch/work/d/dutta/public/Digitizer/CMSSW_6_2_0_SLHC2/src/prod/SingleElec_TK_BE5D_new.root'
+       'file:SingleElectron.root'
        )
 )
 process.load('Configuration.StandardSequences.Services_cff')
@@ -21,8 +21,10 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtendedPhase2TkBEReco_cff')
-process.load('Configuration.Geometry.GeometryExtendedPhase2TkBE_cff')
+process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023Muon_cff')
+process.load('Geometry.TrackerGeometryBuilder.StackedTrackerGeometry_cfi')
+
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedGauss_cfi')
@@ -35,16 +37,16 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 # Other statements
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'POSTLS161_V15::All', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 
 #-------------
 # Output ROOT file
 #-------------
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('./Elec_test.root')
+    fileName = cms.string('./Electron_DigiTest.root')
 )
 process.analysis = cms.EDAnalyzer("DigiValidation",
-    Verbosity = cms.untracked.bool(True),
+    Verbosity = cms.untracked.bool(False),
 #    src = cms.InputTag("SiPixelDigis"),
     src = cms.InputTag("simSiPixelDigis"),
     simG4 = cms.InputTag("g4SimHits")                              
