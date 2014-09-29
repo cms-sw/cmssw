@@ -140,7 +140,7 @@ namespace Phase2Tracker {
 	      const Phase2TrackerFEDChannel& channel = buffer->channel(ichan);
 	      if(channel.length() > 0)
 	      {
-                // get fedid from cabling
+                // get detid from cabling
                 const Phase2TrackerModule mod = cabling_->findFedCh(std::make_pair(fedIndex, ife));
                 uint32_t detid = mod.getDetid();
                 #ifdef EDM_ML_DEBUG

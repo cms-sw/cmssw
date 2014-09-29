@@ -2,6 +2,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#define EDM_ML_DEBUG // remove this !
+
 namespace Phase2Tracker
 {
 
@@ -19,7 +21,7 @@ namespace Phase2Tracker
         << std::hex << std::setw(16) << std::setfill('0') << word << std::dec << std::endl;
       }
       LogTrace("Phase2TrackerFEDBuffer") << std::endl;
-      
+
       // reserve all channels to avoid vector reservation updates (should be 16x16 in our case)
       channels_.reserve(MAX_FE_PER_FED*MAX_CBC_PER_FE);
       // first 64 bits word is for DAQ header
@@ -40,7 +42,7 @@ namespace Phase2Tracker
   
   void Phase2TrackerFEDBuffer::findChannels()
   {
-    // each FED can be connectd to up to 16 frontends (read from header)
+    // each FED can be connectd to up to 72 frontends (read from header)
     // each fronted can be connected to up to 16 CBC
     // in unsparsified (raw) mode, a header of 16bits tells which CBC are activated on this FE
     // in sparsified (ZS) mode, the header tells how many P and S clusters to expect for this FE. Each cluster contains the CBC ID at the beginning
@@ -103,7 +105,7 @@ namespace Phase2Tracker
           uint8_t mod_type = static_cast<uint8_t>(read_n_at_m(payloadPointer_,1,bitOffset));
           // note the index of the next channel to fill
           int ichan = channels_.size();
-          // add the proper number of channels for this FE (2 channels per chip because of PS) 
+          // add the proper number of channels for this FE (2 channels per chip) 
           channels_.insert(channels_.end(),size_t(MAX_CBC_PER_FE*2),Phase2TrackerFEDChannel(payloadPointer_,0,0));
           // read number of clusters of each type
           uint8_t num_p, num_s;
@@ -126,45 +128,45 @@ namespace Phase2Tracker
           for (int i=0; i<num_p; i++)
           {
               // test if new chip (CBC for 2S, ??? for PS)
-              iCBC = static_cast<uint8_t>(read_n_at_m(payloadPointer_,4,bitOffset));
-              if(iCBC != currCBC)
+              iCBC = static_cast<uint8_t>(read_n_at_m(payloadPointer_,4,bitOffset+14));
+              if(iCBC != currCBC or i==num_p-1)
               {
-                  if(iCBC > 0) 
+                  if(currCBC >= 0) 
                   {
                       // save channel (P channels start after S channels)
                       channels_[ichan + iCBC + MAX_CBC_PER_FE] = Phase2TrackerFEDChannel(payloadPointer_,bitOffset/8,(chanSize + 8 -1)/8,bitOffset%8,DET_PonPS);
-                      // advance bit pointer
-                      bitOffset += chanSize;
                   }
-                  currCBC = iCBC;
                   chanSize = P_CLUSTER_SIZE_BITS;
               }
               else 
               {
                   chanSize += P_CLUSTER_SIZE_BITS;
               }
+              // advance bit pointer
+              bitOffset += P_CLUSTER_SIZE_BITS;
+              currCBC = iCBC;
           }
           currCBC = -1;
           for (int i=0; i<num_s; i++)
           {
-              iCBC = static_cast<uint8_t>(read_n_at_m(payloadPointer_,4,bitOffset));
-              if(iCBC != currCBC)
+              iCBC = static_cast<uint8_t>(read_n_at_m(payloadPointer_,4,bitOffset+11));
+              if(iCBC != currCBC or i==num_s-1)
               {
-                  if(iCBC > 0) 
+                  if(currCBC >= 0) 
                   {
                       // save channel
                       DET_TYPE det_type = (mod_type == 0) ? DET_SonPS : DET_Son2S;
                       channels_[ichan + iCBC] = Phase2TrackerFEDChannel(payloadPointer_,bitOffset/8,(chanSize + 8 -1)/8,bitOffset%8,det_type);
-                      // advance bit pointer
-                      bitOffset += chanSize;
                   }
-                  currCBC = iCBC;
                   chanSize = S_CLUSTER_SIZE_BITS;
               }
               else 
               {
                   chanSize += S_CLUSTER_SIZE_BITS;
               }
+              // advance bit pointer
+              bitOffset += S_CLUSTER_SIZE_BITS;
+              currCBC = iCBC;
           }
         }
         else

@@ -16,7 +16,6 @@ namespace Phase2Tracker
     FedDaqHeader_(0,0,0,DAQ_EVENT_TYPE_SIMULATED), // TODO : add L1ID
     FedDaqTrailer_(0,0)
   {
-    // TODO : add software version
     FedHeader_.setDataFormatVersion(2);
     FedHeader_.setDebugMode(SUMMARY); 
     FedHeader_.setEventType((uint8_t)0x04);
@@ -37,7 +36,7 @@ namespace Phase2Tracker
       std::pair<unsigned int, unsigned int> fedch = (*iconn)->getCh();
       int detid = (*iconn)->getDetid();
       edmNew::DetSetVector<SiPixelCluster>::const_iterator  digis = digishandle_->find(detid);
-      if((int)fedch.first != fedid_current and fedid_current >= 0)
+      if(((int)fedch.first != fedid_current or (conns.end()-iconn)==1) and fedid_current >= 0)
       {
         FedHeader_.setFrontendStatus(festatus);
         std::vector<uint64_t> fedbuffer = makeBuffer(digis_t);
@@ -47,12 +46,12 @@ namespace Phase2Tracker
         vec_to_array(fedbuffer,arrtemp);
         frd.resize(size);
         memcpy(frd.data(),arrtemp,size);
-        /* 
+        /*
         std::cout << std::showbase << std::internal << std::setfill('0');
-        std::vector<uint64_t>::iterator it;
-        for (it = fedbuffer.begin(); it != fedbuffer.end(); it++)
+        for ( int i = 0;  i < size; i += 8)
         {
-          std::cout << std::hex << std::setw(18) << *it << std::dec << std::endl;
+          uint64_t word  = read64(i,arrtemp);
+          std::cout << std::hex << std::setw(18) << word << std::dec << std::endl;
         }
         */
         digis_t.clear();
@@ -80,9 +79,11 @@ namespace Phase2Tracker
     fedbuffer.push_back(*(uint64_t*)(feh+8));
     bitindex += 128;
     // looping on detids
+    int ndigis = 0;
     std::vector<edmNew::DetSet<SiPixelCluster>>::const_iterator idigi;
     for (idigi = digis.begin(); idigi != digis.end(); idigi++ )
     {
+      ndigis += idigi->size();
       // loop on digis for this detid
       writeFeHeaderSparsified(fedbuffer,bitindex,0,0,idigi->size());
       edmNew::DetSet<SiPixelCluster>::const_iterator it;
@@ -98,17 +99,17 @@ namespace Phase2Tracker
 
   void Phase2TrackerDigiToRaw::writeFeHeaderSparsified(std::vector<uint64_t> & buffer, uint64_t & bitpointer, int modtype, int np, int ns)
   {
-    uint8_t length = 6;
-    uint16_t header = (uint16_t)ns & 0x1F;
+    uint8_t  length = 6;
+    uint16_t header = (uint16_t)modtype & 0x01;
     if (modtype == 1)
     {
-      header |= ((uint16_t)np & 0x1F)<<5;
-      header |= (uint16_t)0x01 << 10; 
+      header |= ((uint16_t)np & 0x1F)<<1;
+      header |= ((uint16_t)ns & 0x1F)<<6;
       length = 11;
     }
-    else
+    else 
     {
-      header |= (uint16_t)0x01 << 5;
+      header |= ((uint16_t)ns & 0x1F)<<1;
     }
     write_n_at_m(buffer,length,bitpointer,header);
     bitpointer += length;
@@ -117,10 +118,10 @@ namespace Phase2Tracker
   void Phase2TrackerDigiToRaw::writeSCluster(std::vector<uint64_t> & buffer, uint64_t & bitpointer, const SiPixelCluster * digi)
   {
     std::pair<int,int> chipstrip = calcChipId(digi);
-    uint32_t pcluster = (chipstrip.first & 0x0F) << 11;
-    pcluster |= (chipstrip.second & 0xFF) << 3;
-    pcluster |= (digi->sizeX() & 0x07);
-    write_n_at_m(buffer,15,bitpointer,pcluster);
+    uint16_t scluster = (chipstrip.first & 0x0F) << 11;
+    scluster |= (chipstrip.second & 0xFF) << 3;
+    scluster |= (digi->sizeX() & 0x07);
+    write_n_at_m(buffer,15,bitpointer,scluster);
     bitpointer += 15;
   }
 
