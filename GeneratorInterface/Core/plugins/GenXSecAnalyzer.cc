@@ -247,10 +247,15 @@ GenXSecAnalyzer::endJob() {
   double jetmatching_eff_total = jetMatchEffStat_.filterEfficiency(hepidwtup_);
   double jetmatching_err_total = jetMatchEffStat_.filterEfficiencyError(hepidwtup_);
 
+  std::cout << std::endl;
+  std::cout << "------------------------------------" << std::endl;
+  std::cout << "Overall cross-section summary:" << std::endl;
+  std::cout << "------------------------------------" << std::endl;
+  
   std::cout << "jet matching efficiency = " << 
     jetMatchEffStat_.sumPassWeights() << "/" << 
     jetMatchEffStat_.sumWeights() << " = " 
-	    << jetmatching_eff_total << " +- " << jetmatching_err_total << std::endl;
+	   << std::setprecision(6) << jetmatching_eff_total << " +- " << jetmatching_err_total << std::endl;
 
   std::cout << "Before filter: cross section = " << std::setprecision(6)  << xsec_.value() << " +- " << std::setprecision(6) << xsec_.error() <<  " pb" << std::endl;
 
