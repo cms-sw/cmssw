@@ -24,7 +24,6 @@ DQMMonitoringService::DQMMonitoringService(const edm::ParameterSet &pset, edm::A
   last_report_nevents_ = 0;
   last_report_time_ = std::chrono::high_resolution_clock::now();
 
-
   ar.watchPreGlobalBeginLumi(this, &DQMMonitoringService::evLumi);
   ar.watchPreSourceEvent(this, &DQMMonitoringService::evEvent);
 }
@@ -44,7 +43,25 @@ void DQMMonitoringService::evLumi(GlobalContext const& iContext) {
 
 void DQMMonitoringService::evEvent(StreamID const& iContext) {
   nevents_ += 1;
-  keepAlive();
+
+  using std::chrono::duration_cast;
+  using std::chrono::seconds;
+ 
+  auto now = std::chrono::high_resolution_clock::now();
+  auto count = duration_cast<seconds>(now - last_report_time_).count();
+
+  ptree doc;
+  doc.put("events_total", nevents_);
+
+  if (count > 0) {
+    float rate = (nevents_ - last_report_nevents_) / count;
+    doc.put("events_rate", rate);
+  }
+
+  last_report_time_ = now; 
+  last_report_nevents_ = nevents_;
+
+  outputUpdate(doc);
 }
 
 void DQMMonitoringService::outputUpdate(ptree& doc) {
@@ -60,33 +77,6 @@ void DQMMonitoringService::outputUpdate(ptree& doc) {
     // pass
   }
 }
-
-// void DQMMonitoringService::makeReport() {
-//   if (!mstream_)
-//     return;
-// 
-//   try {
-//     using std::chrono::duration_cast;
-//     using std::chrono::milliseconds;
-//     using std::chrono::seconds;
-// 
-//     auto now = std::chrono::high_resolution_clock::now();
-//     float rate = (nevents_ - last_report_nevents_);
-//     rate = rate / duration_cast<seconds>(now - last_report_time_).count();
-// 
-//     doc_.put("events_total", nevents_);
-//     doc_.put("events_rate", rate);
-//     doc_.put("cmsRun_timestamp", std::time(NULL));
-// 
-//     write_json(*mstream_, doc_, false);
-//     mstream_->flush();
-// 
-//     last_report_time_ = now; 
-//     last_report_nevents_ = nevents_;
-//   } catch (...) {
-//     // pass
-//   }
-// }
 
 void DQMMonitoringService::keepAlive() {
   if (!mstream_)

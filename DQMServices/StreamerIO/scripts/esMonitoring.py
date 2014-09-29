@@ -33,7 +33,6 @@ class ElasticReport(object):
 
         self.defaults()
 
-
     def defaults(self):
         self.id_format = u"%(type)s-run%(run)06d-host%(hostname)s-pid%(pid)06d"
         self.doc["type"] = "dqm-source-state"
@@ -259,14 +258,16 @@ def create_fifo():
     atexit.register(os.unlink, fn)
     return fn
 
-def launch(args):
+def launch_monitoring(args):
     fifo = create_fifo()
+    mon_fd = os.open(fifo, os.O_RDONLY | os.O_NONBLOCK)
+    mon_fd = os.fdopen(mon_fd)
 
     def preexec():
         # open fifo once (hack)
         # so there is *always* at least one writter
         # which closes with the executable
-        os.open(fifo, os.O_RDWR)
+        os.open(fifo, os.O_WRONLY)
 
         env = os.environ
         env["MONDOG_PIPE"] = fifo
@@ -277,9 +278,6 @@ def launch(args):
     s_json = JsonInput()
     report_sink = ElasticReport(pid=p.pid, cmdline=args.pargs, history=s_hist, json=s_json)
 
-    mon_fd = os.open(fifo, os.O_RDONLY | os.O_NONBLOCK)
-    mon_fd = os.fdopen(mon_fd)
-
     stdout_cap = DescriptorCapture(p.stdout, write_files=[sys.stdout, s_hist, report_sink, ], )
     stderr_cap = DescriptorCapture(p.stderr, write_files=[sys.stderr, s_hist, report_sink, ], )
     stdmon_cap = DescriptorCapture(mon_fd, write_files=[s_json, report_sink, ],)
@@ -288,15 +286,18 @@ def launch(args):
     DescriptorCapture.event_loop(fs, timeout=1000, timeout_call=report_sink.flush)
 
     # at this point the program is dead
-    report_sink.update_doc({"exit_code": p.wait()})
+    r =  p.wait()
+    report_sink.update_doc({ "exit_code": r })
     report_sink.make_report()
 
-parser = argparse.ArgumentParser(description="Kill/restart the child process if it doesn't out the required string.")
-parser.add_argument("-t", type=int, default="2", help="Timeout in seconds.")
-parser.add_argument("-s", type=int, default="2000", help="Signal to send.")
-parser.add_argument("-r", "--restart",  action="store_true", default=False, help="Restart the process after killing it.")
-parser.add_argument("pargs", nargs=argparse.REMAINDER)
+    return r
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Kill/restart the child process if it doesn't out the required string.")
+    parser.add_argument("-t", type=int, default="2", help="Timeout in seconds.")
+    parser.add_argument("-s", type=int, default="2000", help="Signal to send.")
+    parser.add_argument("-r", "--restart",  action="store_true", default=False, help="Restart the process after killing it.")
+    parser.add_argument("pargs", nargs=argparse.REMAINDER)
     args = parser.parse_args()
-    launch(args)
+
+    sys.exit(launch_monitoring(args))
