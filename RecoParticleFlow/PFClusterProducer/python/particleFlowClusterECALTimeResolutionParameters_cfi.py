@@ -20,3 +20,13 @@ _timeResolutionECALEndcap = cms.PSet(
     threshLowE = cms.double(1.),
     threshHighE = cms.double(10.)
   )
+
+_timeResolutionShashlikEndcap = cms.PSet(
+    noiseTerm = cms.double(36.1 * 0.027),
+    constantTerm = cms.double(0.),
+    noiseTermLowE = cms.double(42.96 * 0.027),
+    corrTermLowE = cms.double(0.),
+    constantTermLowE = cms.double(0.),
+    threshLowE = cms.double(1.),
+    threshHighE = cms.double(10.)
+  )

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 #### PF CLUSTER SHASHLIK ####
 
-from particleFlowClusterECALTimeResolutionParameters_cfi import _timeResolutionECALBarrel, _timeResolutionECALEndcap
+from particleFlowClusterECALTimeResolutionParameters_cfi import _timeResolutionECALBarrel, _timeResolutionShashlikEndcap
 
 #cleaning
 ## no cleaning for Shashlik yet
@@ -83,7 +83,7 @@ _pfClusterizer_EK = cms.PSet(
     ),
     #can use ECAL timing here since Shashlik is forced to be the same as EE
     timeResolutionCalcBarrel = _timeResolutionECALBarrel,
-    timeResolutionCalcEndcap = _timeResolutionECALEndcap
+    timeResolutionCalcEndcap = _timeResolutionShashlikEndcap
 )
 
 particleFlowClusterEKUncorrected = cms.EDProducer(
