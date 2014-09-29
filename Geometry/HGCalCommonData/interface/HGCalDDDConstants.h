@@ -77,7 +77,7 @@ public:
  
 private:
   void                initialize(const DDCompactView& cpv, std::string name);
-  void                loadGeometry(const DDFilteredView& fv, std::string& tag);
+  void                loadGeometry(const DDFilteredView& fv, const std::string& tag);
   void                loadSpecPars(const DDFilteredView& fv);
   std::vector<double> getDDDArray(const std::string &, 
                                   const DDsvalues_type &, int &) const;
