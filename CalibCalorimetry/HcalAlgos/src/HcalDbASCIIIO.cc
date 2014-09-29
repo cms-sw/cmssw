@@ -658,6 +658,44 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalTimingParams& f
   return true;
 }
 
+bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalLongRecoParams& fObject)
+{
+  char buffer [1024];
+  sprintf (buffer, "# %15s %15s %15s %15s %10s %10s %10s\n", "eta", "phi", "dep", "det", "signalTSs", "noiseTSs", "DetId");
+  fOutput << buffer;
+  std::vector<DetId> channels = fObject.getAllChannels ();
+  std::sort (channels.begin(), channels.end(), DetIdLess ());
+  for (std::vector<DetId>::iterator channel = channels.begin ();
+       channel !=  channels.end ();
+       channel++) {
+    HcalGenericDetId fId(*channel);
+    if (fId.isHcalZDCDetId())
+      {
+	std::vector<unsigned int> vSignalTS = fObject.getValues (*channel)->signalTS();
+	std::vector<unsigned int> vNoiseTS = fObject.getValues (*channel)->noiseTS();
+	HcalDbASCIIIO::dumpId (fOutput, *channel);
+	sprintf (buffer, "    ");
+	fOutput << buffer;
+	for (unsigned int i=0; i<vSignalTS.size(); i++)
+	  {
+	    if (i>0) {sprintf (buffer, ",");   fOutput << buffer;}
+	    sprintf (buffer, "%u", vSignalTS.at(i));
+	    fOutput << buffer;
+	  }
+	sprintf (buffer, "       ");
+	fOutput << buffer;
+	for (unsigned int i=0; i<vNoiseTS.size(); i++)
+	  {
+	    if (i>0) { sprintf (buffer, ",");   fOutput << buffer;}
+	    sprintf (buffer, "%u", vNoiseTS.at(i));
+	    fOutput << buffer;
+	  }
+	sprintf (buffer, "     %10X\n", channel->rawId ());
+	fOutput << buffer;
+      }
+  }
+  return true;
+}
 
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalMCParams* fObject)
 {
