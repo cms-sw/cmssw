@@ -133,7 +133,7 @@ class ShiftedJetProducerT : public edm::EDProducer
 	std::cout << "shift = " << shift << std::endl;
       }
 
-      if ( addResidualJES_ ) {
+      if ( evt.isRealData() && addResidualJES_ ) {
 	const static SmearedJetProducer_namespace::RawJetExtractorT<T> rawJetExtractor;
 	reco::Candidate::LorentzVector rawJetP4 = rawJetExtractor(*originalJet);
 	if ( rawJetP4.E() > 1.e-1 ) {
