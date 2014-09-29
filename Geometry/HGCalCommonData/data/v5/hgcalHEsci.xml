@@ -2,11 +2,11 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 
 <ConstantsSection label="hgcalHEsci.xml" eval="true">
-  <Constant name="ZminHEsci"  value="4175.0*mm"/>
+  <Constant name="ZminHEsci"  value="4174.85*mm"/>
   <Constant name="ZmaxHEsci"  value="[hgcal:zMaxHE]"/>
   <Constant name="rMinHEsci1" value="[etaMax:slope]*[ZminHEsci]"/>
   <Constant name="rMinHEsci2" value="[etaMax:slope]*[ZmaxHEsci]"/>
-  <Constant name="rMaxHEsci1" value="([hgcal:slope3]*([ZminHEsci]-[hgcal:z1Beam]))"/>
+  <Constant name="rMaxHEsci1" value="[(hgcal:rMaxHGCal2]+([hgcal:slope3]*([ZminHEsci]-[hgcal:zHGCal2])))"/>
   <Constant name="rMaxHEsci2" value="([hgcal:rMaxHGCal4])"/>
   <Constant name="rMapHEsci1" value="[rMaxHEsci1]*[hgcal:factor2]"/>
   <Constant name="rMapHEsci2" value="[rMaxHEsci2]*[hgcal:factor2]"/>
