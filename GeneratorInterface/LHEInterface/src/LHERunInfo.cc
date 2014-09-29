@@ -212,10 +212,8 @@ LHERunInfo::XSec LHERunInfo::xsec() const
 		  continue;
 
 		double sigma2Sum, sigma2Err;
-			sigma2Sum = proc->tried().sum2() * heprup.XSECUP[idx]
-			                             * heprup.XSECUP[idx];
-			sigma2Err = proc->tried().sum2() * heprup.XERRUP[idx]
-			                             * heprup.XERRUP[idx];
+		sigma2Sum = heprup.XSECUP[idx]* heprup.XSECUP[idx];
+		sigma2Err = heprup.XERRUP[idx]* heprup.XERRUP[idx];
 
 	        double sigmaAvg = heprup.XSECUP[idx];
 
@@ -240,10 +238,6 @@ LHERunInfo::XSec LHERunInfo::xsec() const
 
 		double relErr = 1.0;
 		if (proc->killed().n() > 1) {
-			double sigmaAvg2 = sigmaAvg * sigmaAvg;
-			double delta2Sig =
-			    fabs(sigma2Sum / proc->tried().n() - sigmaAvg2) /
-				(proc->tried().n() * sigmaAvg2);
 
 			double efferr2=0;
 			switch(idwtup) {
@@ -281,7 +275,7 @@ LHERunInfo::XSec LHERunInfo::xsec() const
 			  }
 			}
 			double delta2Veto = efferr2/fracAcc/fracAcc;
-			double delta2Sum = delta2Sig + delta2Veto
+			double delta2Sum = delta2Veto
 			                   + sigma2Err / sigma2Sum;
 			relErr = (delta2Sum > 0.0 ?
 					std::sqrt(delta2Sum) : 0.0);
@@ -311,6 +305,7 @@ void LHERunInfo::statistics() const
 	unsigned long nAccepted = 0;
 	unsigned long nTried = 0;
 	int idwtup = std::abs(heprup.IDWTUP);
+
 	std::cout << std::endl;
 	std::cout << "Process and cross-section statistics" << std::endl;
 	std::cout << "------------------------------------" << std::endl;
@@ -321,21 +316,18 @@ void LHERunInfo::statistics() const
 	    proc != processes.end(); ++proc) {
 	  unsigned int idx = proc->heprupIndex();
 
-		double sigmaSum, sigma2Sum, sigma2Err;
-			sigmaSum = proc->tried().sum() * heprup.XSECUP[idx];
-			sigma2Sum = proc->tried().sum2() * heprup.XSECUP[idx]
-			                             * heprup.XSECUP[idx];
-			sigma2Err = proc->tried().sum2() * heprup.XERRUP[idx]
-			                             * heprup.XERRUP[idx];
-		
-
 		if (!proc->selected().n()) {
 		  std::cout << proc->process() << "\t0\t0\tn/a\t\t\tn/a"
 			          << std::endl;
 			continue;
 		}
 
-		double sigmaAvg = sigmaSum / proc->tried().sum();
+		double sigma2Sum, sigma2Err;
+		sigma2Sum = heprup.XSECUP[idx]* heprup.XSECUP[idx];
+		sigma2Err = heprup.XERRUP[idx]* heprup.XERRUP[idx];
+
+	        double sigmaAvg = heprup.XSECUP[idx];
+
 		double fracAcc = 0;
 		double ntotal = proc->nTotalPos()-proc->nTotalNeg();
 		double npass  = proc->nPassPos() -proc->nPassNeg();
@@ -350,7 +342,6 @@ void LHERunInfo::statistics() const
 
 		if(fracAcc<1e-6)continue;
 
-
 		double fracBr = proc->accepted().sum() > 0.0 ?
 		                proc->acceptedBr().sum() / proc->accepted().sum() : 1;
 		double sigmaFin = sigmaAvg * fracAcc;
@@ -358,10 +349,6 @@ void LHERunInfo::statistics() const
 
 		double relErr = 1.0;
 		if (proc->killed().n() > 1) {
-			double sigmaAvg2 = sigmaAvg * sigmaAvg;
-			double delta2Sig =
-			    fabs(sigma2Sum / proc->tried().n() - sigmaAvg2) /
-				(proc->tried().n() * sigmaAvg2);
 			double efferr2=0;
 			switch(idwtup) {
 			case 3: case -3:
@@ -398,7 +385,7 @@ void LHERunInfo::statistics() const
 			  }
 			}
 			double delta2Veto = efferr2/fracAcc/fracAcc;
-			double delta2Sum = delta2Sig + delta2Veto
+			double delta2Sum = delta2Veto
 			                   + sigma2Err / sigma2Sum;
 			relErr = (delta2Sum > 0.0 ?
 					std::sqrt(delta2Sum) : 0.0);
