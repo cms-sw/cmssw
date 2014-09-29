@@ -101,7 +101,7 @@ void
 GenXSecAnalyzer::compute()
 {
   // for pure parton shower generator
-  
+
   if(hepidwtup_== -1)
     {
       double sigSum = 0.0;
@@ -137,13 +137,12 @@ GenXSecAnalyzer::compute()
 	double hepxsec_value = proc.lheXSec().value();
 	double hepxsec_error = proc.lheXSec().error();
 
-
 	if (!proc.killed().n())
 	  continue;
 
 	double sigma2Sum, sigma2Err;
-	sigma2Sum = proc.tried().sum2() * hepxsec_value * hepxsec_value;
-	sigma2Err = proc.tried().sum2() * hepxsec_error * hepxsec_error;
+	sigma2Sum = hepxsec_value * hepxsec_value;
+	sigma2Err = hepxsec_error * hepxsec_error;
 
 	double sigmaAvg = hepxsec_value;
 
@@ -168,11 +167,6 @@ GenXSecAnalyzer::compute()
 
 	double relErr = 1.0;
 	if (proc.killed().n() > 1) {
-	  double sigmaAvg2 = sigmaAvg * sigmaAvg;
-	  double delta2Sig =
-	    fabs(sigma2Sum / proc.tried().n() - sigmaAvg2) /
-	    (proc.tried().n() * sigmaAvg2);
-
 	  double efferr2=0;
 	  switch(hepidwtup_) {
 	  case 3: case -3:
@@ -209,7 +203,7 @@ GenXSecAnalyzer::compute()
 	    }
 	  }
 	  double delta2Veto = efferr2/fracAcc/fracAcc;
-	  double delta2Sum = delta2Sig + delta2Veto
+	  double delta2Sum = delta2Veto
 	    + sigma2Err / sigma2Sum;
 	  relErr = (delta2Sum > 0.0 ?
 		    std::sqrt(delta2Sum) : 0.0);
@@ -233,8 +227,8 @@ GenXSecAnalyzer::compute()
 
 
     } // end of loop over different samples
-    double final_value = sum_denominator > 1e-6? sum_numerator/sum_denominator : 0;
-    double final_error = sum_denominator > 1e-6? 1/sqrt(sum_denominator) : -1;
+    double final_value = sum_denominator > 0? sum_numerator/sum_denominator : 0;
+    double final_error = sum_denominator > 0? 1/sqrt(sum_denominator) : -1;
     xsec_ = GenLumiInfoProduct::XSec(final_value, final_error);
   }
   return;
@@ -247,10 +241,8 @@ GenXSecAnalyzer::endJob() {
   if(products_.size()>0)
     compute();
 
-  double total_eff = totalEffStat_.filterEfficiency(hepidwtup_);
-  double total_err = totalEffStat_.filterEfficiencyError(hepidwtup_);
-  std::cout << "total_eff = " << totalEffStat_.sumPassWeights() << "/" << totalEffStat_.sumWeights() 
-	    << " = " <<  total_eff << " +- " << total_err << std::endl;
+  double filterOnly_eff = totalEffStat_.filterEfficiency(hepidwtup_);
+  double filterOnly_err = totalEffStat_.filterEfficiencyError(hepidwtup_);
   
   double jetmatching_eff_total = jetMatchEffStat_.filterEfficiency(hepidwtup_);
   double jetmatching_err_total = jetMatchEffStat_.filterEfficiencyError(hepidwtup_);
@@ -259,9 +251,6 @@ GenXSecAnalyzer::endJob() {
     jetMatchEffStat_.sumPassWeights() << "/" << 
     jetMatchEffStat_.sumWeights() << " = " 
 	    << jetmatching_eff_total << " +- " << jetmatching_err_total << std::endl;
-  double filterOnly_eff = jetmatching_eff_total > 1e-6? total_eff/jetmatching_eff_total : total_eff;
-  double filterOnly_err = total_eff>1e-6 && jetmatching_eff_total > 1e-6? 
-    filterOnly_eff*sqrt(total_err*total_err/total_eff/total_eff-jetmatching_err_total*jetmatching_err_total/jetmatching_eff_total/jetmatching_eff_total): total_err;
 
   std::cout << "Before filter: cross section = " << std::setprecision(6)  << xsec_.value() << " +- " << std::setprecision(6) << xsec_.error() <<  " pb" << std::endl;
 
