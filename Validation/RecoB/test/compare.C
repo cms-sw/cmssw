@@ -70,7 +70,6 @@ TGraphErrors *  drawAll()
   algos.push_back("jetBProbabilityBJetTags");
   algos.push_back("simpleSecondaryVertexBJetTags");
   algos.push_back("combinedSecondaryVertexBJetTags");
-  algos.push_back("combinedSecondaryVertexMVABJetTags");
   algos.push_back("softMuonBJetTags");
   algos.push_back("softMuonByIP3dBJetTags");
   algos.push_back("softMuonByPtBJetTags");

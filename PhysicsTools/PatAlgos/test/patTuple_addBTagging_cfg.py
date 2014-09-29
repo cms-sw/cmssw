@@ -32,6 +32,7 @@ addJetCollection(
       ,'simpleSecondaryVertexHighPurBJetTags'
       ,'simpleSecondaryVertexNegativeHighEffBJetTags'
       ,'simpleSecondaryVertexNegativeHighPurBJetTags'
+      ,'pfCombinedSecondaryVertexBJetTags'
       ,'combinedSecondaryVertexBJetTags'
       ,'combinedSecondaryVertexPositiveBJetTags'
       ,'combinedInclusiveSecondaryVertexV2BJetTags'
@@ -68,7 +69,7 @@ addJetCollection(
       ,'doubleSecondaryVertexHighEffBJetTags'
       ,'combinedInclusiveSecondaryVertexBJetTags'
       ,'combinedInclusiveSecondaryVertexPositiveBJetTags'
-      #,'combinedMVABJetTags'
+      ,'combinedMVABJetTags'
       ,'positiveCombinedMVABJetTags'
       ,'negativeCombinedMVABJetTags'
     ],
