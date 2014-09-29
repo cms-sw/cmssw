@@ -238,7 +238,7 @@ namespace Phase2Tracker {
     // 2) determine if you need to read another
     int end_bit = pos_bit % 64 + size;
     if(end_bit > 64) {
-        data |=  *(uint64_t*)(buffer+((iword+1)*8)) << (end_bit - 64);
+        data |=  *(uint64_t*)(buffer+((iword+1)*8)) << (64 - (pos_bit%64));
     }
     
     // 3) mask according to expected size
@@ -274,7 +274,8 @@ namespace Phase2Tracker {
       mask = ~((1LL<<(end_bit-64))-1);
       uint64_t data_supp = *(uint64_t*)(buffer+((iword+1)*8));
       data_supp &= mask;
-      data_supp |= (data>>(end_bit-64));
+      // data_supp |= (data>>(end_bit-64));
+      data_supp |= (data>>(64-pos_bit));
       memcpy(buffer+((iword+1)*8),&data_supp, 8);
     }
   }
