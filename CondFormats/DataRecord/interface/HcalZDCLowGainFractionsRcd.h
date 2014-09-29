@@ -1,5 +1,5 @@
-#ifndef HcalZDCLowGainFractionsRcd_HcalZDCLowGainFractionsRcd_h
-#define HcalZDCLowGainFractionsRcd_HcalZDCLowGainFractionsRcd_h
+#ifndef HcalZDCLowGainFractionsRcd_H
+#define HcalZDCLowGainFractionsRcd_H
 // -*- C++ -*-
 //
 // Package:     CondFormats/DataRecord
@@ -18,8 +18,9 @@
 // Created:     Wed, 24 Sep 2014 11:27:57 GMT
 //
 
-#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
+#include "FWCore/Framework/interface/DependentRecordImplementation.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-class HcalZDCLowGainFractionsRcd : public edm::eventsetup::EventSetupRecordImplementation<HcalZDCLowGainFractionsRcd> {};
+class HcalZDCLowGainFractionsRcd : public edm::eventsetup::DependentRecordImplementation<HcalZDCLowGainFractionsRcd, boost::mpl::vector<IdealGeometryRecord> > {};
 
 #endif

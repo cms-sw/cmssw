@@ -376,6 +376,7 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalTimeCorrs& fObj
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalZSThresholds* fObject) {return getHcalSingleIntObject (fInput, fObject, new HcalZSThreshold); }
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalZSThresholds& fObject) {return dumpHcalSingleIntObject (fOutput, fObject); }
 
+bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalZDCLowGainFractions* fObject) {return getHcalSingleFloatObject (fInput, fObject, new HcalZDCLowGainFraction); }
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalZDCLowGainFractions& fObject) {return dumpHcalSingleFloatObject (fOutput, fObject); }
 
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalValidationCorrs* fObject) {return getHcalSingleFloatObject (fInput, fObject, new HcalValidationCorr); }
@@ -610,32 +611,6 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalLongRecoParams* fObject
   }
   return true;
 }
-
-bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalZDCLowGainFractions* fObject)
-{
-  if (!fObject) return false; // fObject = new HcalZDCLowGainFractions();
-  char buffer [1024];
-  while (fInput.getline(buffer, 1024)) {
-    if (buffer [0] == '#') continue; //ignore comment
-    std::vector <std::string> items = splitString (std::string (buffer));
-    if (items.size()==0) continue; // blank line
-    if (items.size() < 4) {
-      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 5 items: eta, phi, depth, subdet, lowGainFrac" << std::endl;
-      continue;
-    }
-    if (items.size() > 6) {
-      edm::LogWarning("Format Problem ?") << "Check line: " << buffer << "\n line must contain 5 items: eta, phi, depth, subdet, lowGainFrac" << std::endl;
-      continue;
-    }
-    DetId id = HcalDbASCIIIO::getId (items);
-
-    HcalZDCLowGainFraction* fCondObject = new HcalZDCLowGainFraction(id, atof (items[4].c_str()));
-    fObject->addValues(*fCondObject);
-    delete fCondObject;
-  }
-  return true;
-}
-
 
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalTimingParams* fObject)
 {
