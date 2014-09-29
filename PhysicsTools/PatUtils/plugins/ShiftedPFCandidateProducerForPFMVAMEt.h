@@ -8,7 +8,7 @@
  *
  * NOTE: Auxiliary class specific to estimating systematic uncertainty
  *       on PFMET reconstructed by MVA-based algorithm
- *      (implemented in RecoMET/METProducers/src/PFMETProducerMVA.cc)
+ *      (implemented in RecoMET/METPUSubtraction/src/PFMETProducerMVA.cc)
  *
  * \author Christian Veelken, LLR
  *

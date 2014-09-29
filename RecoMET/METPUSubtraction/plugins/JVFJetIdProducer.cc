@@ -54,23 +54,25 @@ namespace
 		    const PFCandToVertexAssMap& pfCandToVertexAssociations,
 		    const reco::VertexCollection& vertices, double dZ, double minTrackPt,
 		    int verbosity) {
-    
+
     LogDebug ("computeJVF")
       << "<computeJVF>:" << std::endl
       << " jet: Pt = " << jet.pt() << ", eta = " << jet.eta() << ", phi = " << jet.phi() << std::endl;
     
     double trackSum_isVtxAssociated    = 0.;
     double trackSum_isNotVtxAssociated = 0.;
-  
-    for ( std::vector<reco::PFCandidatePtr>::const_iterator jetConstituent = jet.getPFConstituents().begin();
-	  jetConstituent != jet.getPFConstituents().end(); ++jetConstituent ) {
+    
+    std::vector<reco::PFCandidatePtr> pfConsts = jet.getPFConstituents();
+    for ( std::vector<reco::PFCandidatePtr>::const_iterator jetConstituent = pfConsts.begin(); jetConstituent != pfConsts.end(); ++jetConstituent ) {
+      //      reco::PFCandidate pfc=(*jetConstituent); //using the pointer along the sequence makes the code segfaulting for no apparent reason...
       if ( (*jetConstituent)->charge() != 0 ) {
 	double trackPt = 0.;
 	if ( (*jetConstituent)->gsfTrackRef().isNonnull() && (*jetConstituent)->gsfTrackRef().isAvailable() ) trackPt = (*jetConstituent)->gsfTrackRef()->pt();
 	else if ( (*jetConstituent)->trackRef().isNonnull() && (*jetConstituent)->trackRef().isAvailable() ) trackPt = (*jetConstituent)->trackRef()->pt();
 	else trackPt = (*jetConstituent)->pt();
+	
 	if ( trackPt > minTrackPt ) {
-	  int jetConstituent_vtxAssociationType = isVertexAssociated(**jetConstituent, pfCandToVertexAssociations, vertices, dZ);
+	  int jetConstituent_vtxAssociationType = isVertexAssociated( (*jetConstituent), pfCandToVertexAssociations, vertices, dZ);
 	  bool jetConstituent_isVtxAssociated = (jetConstituent_vtxAssociationType == noPuUtils::kChHSAssoc ); 
 	  double jetConstituentPt = (*jetConstituent)->pt();
 	  if ( jetConstituent_isVtxAssociated ) {
@@ -89,18 +91,18 @@ namespace
 	}
       }
     }
-    
+
     double trackSum = trackSum_isVtxAssociated + trackSum_isNotVtxAssociated;
-    
+
     double jvf = -1.;
     if ( std::abs(jet.eta()) < 2.5 && trackSum > 5. ) {
       jvf = trackSum_isVtxAssociated/trackSum;
     }
-    
+
     LogDebug ("computeJVF")
       << "trackSum: associated = " << trackSum_isVtxAssociated << ", unassociated = " << trackSum_isNotVtxAssociated << std::endl
       << " --> JVF = " << jvf << std::endl;
-    
+
     return jvf;
   }
 }
@@ -110,39 +112,39 @@ void JVFJetIdProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 // get jets 
   edm::Handle<reco::PFJetCollection> jets;
   evt.getByToken(srcJets_, jets);
-
+  
   // get PFCandidates
   edm::Handle<reco::PFCandidateCollection> pfCandidates;
   evt.getByToken(srcPFCandidates_, pfCandidates);
-
+ 
   // get PFCandidate-to-vertex associations and "the" hard-scatter vertex
   edm::Handle<PFCandToVertexAssMap> pfCandToVertexAssociations;
   evt.getByToken(srcPFCandToVertexAssociations_, pfCandToVertexAssociations);
-
+ 
   edm::Handle<reco::VertexCollection> hardScatterVertex;
   evt.getByToken(srcHardScatterVertex_, hardScatterVertex);
-
+ 
   std::vector<double> jetIdDiscriminants;
   std::vector<int> jetIdFlags;
-
+ 
   size_t numJets = jets->size();
   for ( size_t iJet = 0; iJet < numJets; ++iJet ) {
     reco::PFJetRef jet(jets, iJet);
-
+ 
     double jetJVF = computeJVF(*jet, *pfCandToVertexAssociations, *hardScatterVertex, dZcut_, minTrackPt_, verbosity_ && jet->pt() > 20.);
     jetIdDiscriminants.push_back(jetJVF);
-
+ 
     int jetIdFlag = 0;
     if ( jetJVF > JVFcut_ ) jetIdFlag = 255;
     else if ( jetJVF < -0.5 && neutralJetOption_ == kNeutralJetNoPU ) jetIdFlag = 255;
     jetIdFlags.push_back(jetIdFlag);
   }
-
+ 
   std::auto_ptr<edm::ValueMap<double> > jetIdDiscriminants_ptr(new edm::ValueMap<double>());
   edm::ValueMap<double>::Filler jetIdDiscriminantFiller(*jetIdDiscriminants_ptr);
   jetIdDiscriminantFiller.insert(jets, jetIdDiscriminants.begin(), jetIdDiscriminants.end());
   jetIdDiscriminantFiller.fill();
-
+ 
   std::auto_ptr<edm::ValueMap<int> > jetIdFlags_ptr(new edm::ValueMap<int>());
   edm::ValueMap<int>::Filler jetIdFlagFiller(*jetIdFlags_ptr);
   jetIdFlagFiller.insert(jets, jetIdFlags.begin(), jetIdFlags.end());
