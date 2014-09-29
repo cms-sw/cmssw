@@ -254,11 +254,14 @@ bool PulseChiSqSNNLS::NNLS() {
       
       ampvecpermtest = _ampvec;
       
-      //solve for unconstrained parameters      
-      ampvecpermtest.head(_nP) = aTamat.topLeftCorner(_nP,_nP).ldlt().solve(aTbvec.head(_nP));     
+      //solve for unconstrained parameters 
+      //using block and de-inlining gives somewhat better performance 
+      auto aTbvechead = aTbvec.head(_nP);
+      auto aTamat_topleft = aTamat.block(0,0,_nP,_nP);
+      ampvecpermtest.head(_nP) = aTamat_topleft.ldlt().solve(aTbvechead);
       
       //check solution
-      if (ampvecpermtest.head(_nP).minCoeff()>0.) {
+      if ( ampvecpermtest.head(_nP).minCoeff()>0. ) {
         _ampvec.head(_nP) = ampvecpermtest.head(_nP);
         break;
       }      
@@ -266,7 +269,7 @@ bool PulseChiSqSNNLS::NNLS() {
       //update parameter vector
       Index minratioidx=0;
       
-      // no realizable optimization here
+      // no realizable optimization here (because it autovectorizes!)
       double minratio = std::numeric_limits<double>::max();
       for (unsigned int ipulse=0; ipulse<_nP; ++ipulse) {
         if (ampvecpermtest.coeff(ipulse)<=0.) {
@@ -291,8 +294,7 @@ bool PulseChiSqSNNLS::NNLS() {
       std::swap(aTbvec.coeffRef(_nP-1),aTbvec.coeffRef(minratioidx));
       std::swap(_ampvec.coeffRef(_nP-1),_ampvec.coeffRef(minratioidx));
       std::swap(_bxs.coeffRef(_nP-1),_bxs.coeffRef(minratioidx));
-      --_nP;
-      
+      --_nP;      
     }
     ++iter;
   }
