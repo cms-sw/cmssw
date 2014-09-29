@@ -45,8 +45,6 @@
 #include "Geometry/Records/interface/StackedTrackerGeometryRecord.h"
 
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
@@ -257,9 +255,8 @@ public:
   int matchedSimTrack(edm::Handle<edm::SimTrackContainer>& SimTk, unsigned int simTrkId);
   void initializeVariables();
   unsigned int getMaxPosition(std::vector<float>& charge_vec);
-  unsigned int getLayerNumber(const TrackerGeometry* tkgeom, unsigned int& detid);
+  unsigned int getLayerNumber(const TrackerGeometry* tkgeom, unsigned int& detid, const TrackerTopology* topo);
   unsigned int getLayerNumber(unsigned int& detid, const TrackerTopology* topo);
-  unsigned int getLayerNumber(unsigned int& detid);
   int isPrimary(const SimTrack& simTrk, edm::Handle<edm::PSimHitContainer>& simHits);
   int isPrimary(const SimTrack& simTrk, const PSimHit& simHit);
   void fillMatchedSimTrackHistos(DigiHistos& digiHistos, const SimTrack& simTk, int ptype, unsigned int layer);
@@ -325,9 +322,9 @@ void DigiValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   //  const StackedTrackerGeometry* theStackedGeometry = stackedGeometryHandle.product();
 
   // Tracker Topology 
-  //  edm::ESHandle<TrackerTopology> tTopoHandle;
-  //  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
-  //  const TrackerTopology* tTopo = tTopoHandle.product();
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* tTopo = tTopoHandle.product();
 
   // Get PSimHits
   edm::Handle<edm::PSimHitContainer> simHits;
@@ -399,7 +396,7 @@ void DigiValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   for(DSViter = pixelDigis->begin(); DSViter != pixelDigis->end(); DSViter++) {
     unsigned int rawid = DSViter->id; 
     DetId detId(rawid);
-    unsigned int layer = getLayerNumber(rawid);
+    unsigned int layer = getLayerNumber(rawid, tTopo);
     std::map<unsigned int, DigiHistos>::iterator iPos = layerHistoMap.find(layer);
     if (iPos == layerHistoMap.end()) {
       createLayerHistograms(layer);
@@ -915,7 +912,7 @@ void DigiValidation::initializeVariables() {
 //
 // -- Get Layer Number
 //
-unsigned int DigiValidation::getLayerNumber(const TrackerGeometry* tkgeom,unsigned int& detid) {
+unsigned int DigiValidation::getLayerNumber(const TrackerGeometry* tkgeom,unsigned int& detid, const TrackerTopology* topo) {
   unsigned int layer = 999;
   DetId theDetId(detid);
   if (theDetId.subdetId() != 1) 
@@ -933,11 +930,9 @@ unsigned int DigiValidation::getLayerNumber(const TrackerGeometry* tkgeom,unsign
 
   if (it && it->type().isTracker()) {
     if (it->type().isBarrel()) {
-      PXBDetId pb_detId = PXBDetId(detid);
-      layer = pb_detId.layer();
+      layer = topo->pxbLayer(detid);
     } else if (it->type().isEndcap()) {
-      PXFDetId pf_detId = PXFDetId(detid);
-      layer = 100*pf_detId.side() + pf_detId.disk();
+      layer = 100 * topo->pxfSide(detid)  + topo->pxfDisk(detid);
     }
   }
   return layer;
@@ -954,25 +949,6 @@ unsigned int DigiValidation::getLayerNumber(unsigned int& detid, const TrackerTo
       layer = topo->pxbLayer(detid);
     } else if (theDetId.subdetId() == PixelSubdetector::PixelEndcap) {
       layer = 100 * topo->pxfSide(detid)  + topo->pxfDisk(detid);
-    } else {
-      std::cout << ">>> Invalid subdetId() = " << theDetId.subdetId() << std::endl;
-    }
-  }
-  return layer;
-}
-//
-// -- Get Layer Number
-//
-unsigned int DigiValidation::getLayerNumber(unsigned int& detid) {
-  unsigned int layer = 999;
-  DetId theDetId(detid);
-  if (theDetId.det() == DetId::Tracker) {
-    if (theDetId.subdetId() == PixelSubdetector::PixelBarrel) {
-      PXBDetId pb_detId = PXBDetId(detid);
-      layer = pb_detId.layer();
-    } else if (theDetId.subdetId() == PixelSubdetector::PixelEndcap) {
-      PXFDetId pf_detId = PXFDetId(detid);
-      layer = 100*pf_detId.side() + pf_detId.disk();
     } else {
       std::cout << ">>> Invalid subdetId() = " << theDetId.subdetId() << std::endl;
     }

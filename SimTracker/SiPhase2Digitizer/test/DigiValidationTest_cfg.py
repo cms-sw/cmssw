@@ -37,7 +37,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 # Other statements
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'POSTLS161_V15::All', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 
 #-------------
 # Output ROOT file
