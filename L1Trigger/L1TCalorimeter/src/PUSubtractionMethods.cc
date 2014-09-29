@@ -106,6 +106,7 @@ namespace l1t {
       if (regionET > 0) {puMult++;}
     }
     int pumbin = (int) puMult/22;
+    if(pumbin == 18) pumbin = 17; // if puMult = 396 exactly there is an overflow
 
     for(std::vector<CaloRegion>::const_iterator notCorrectedRegion = regions.begin();
 	notCorrectedRegion != regions.end(); notCorrectedRegion++){
