@@ -14,6 +14,7 @@
 //#define DebugLog
 
 const double k_ScaleFromDDD = 0.1;
+const double k_horizontalShift = 1.0;
 
 HGCalDDDConstants::HGCalDDDConstants(const DDCompactView& cpv,
 				     std::string& nam) {
@@ -35,19 +36,28 @@ std::pair<int,int> HGCalDDDConstants::assignCell(float x, float y, int lay,
   int i = index.first;
   if (i < 0) return std::pair<int,int>(-1,-1);
   float alpha, h, bl, tl;
-  if (reco) {
-    h    =  moduler_[i].h;
-    bl   =  moduler_[i].bl;
-    tl   =  moduler_[i].tl;
-    alpha=  moduler_[i].alpha;
-    if ((subSec>0 && alpha<0) || (subSec<=0 && alpha>0)) alpha = -alpha;
-  } else {
-    h    =  modules_[i].h;
-    bl   =  modules_[i].bl;
-    tl   =  modules_[i].tl;
-    alpha=  modules_[i].alpha;
-  }
-  return assignCell(x, y, h, bl, tl, alpha, index.second);
+  
+  //set default values
+  std::pair<int,int> cellAssignment( (x>0)?1:0, -1 );
+  if (reco) 
+    {
+      h    =  moduler_[i].h;
+      bl   =  moduler_[i].bl;
+      tl   =  moduler_[i].tl;
+      alpha=  moduler_[i].alpha;
+      if ((subSec>0 && alpha<0) || (subSec<=0 && alpha>0)) alpha = -alpha;
+      cellAssignment=assignCell(x, y, h, bl, tl, alpha, index.second);
+    } 
+  else 
+    {
+      h    =  modules_[i].h;
+      bl   =  modules_[i].bl;
+      tl   =  modules_[i].tl;
+      alpha=  modules_[i].alpha;
+      cellAssignment=assignCell(x, y, h, bl, tl, alpha, index.second);
+    }
+  
+  return cellAssignment;
 }
   
 std::pair<int,int> HGCalDDDConstants::assignCell(float x, float y, float h, 
@@ -56,17 +66,40 @@ std::pair<int,int> HGCalDDDConstants::assignCell(float x, float y, float h,
 
   float a     = (alpha==0) ? (2*h/(tl-bl)) : (h/(tl-bl));
   float b     = 2*h*bl/(tl-bl);
+ 
   float x0(x);
   int phiSector = (x0 > 0) ? 1 : 0;
   if      (alpha < 0) {x0 -= 0.5*(tl+bl); phiSector = 0;}
   else if (alpha > 0) {x0 += 0.5*(tl+bl); phiSector = 1;}
 
-  int kx    = floor(fabs(x0)/cellSize);
+
+  //determine the i-y
   int ky    = floor((y+h)/cellSize);
-  int icell(kx);
+  if( ky*cellSize> y+h) ky--;
+  if(ky<0)              return std::pair<int,int>(-1,-1);
+  if( (ky+1)*cellSize < (y+h) ) ky++;
+  int max_ky_allowed=floor(2*h/cellSize);
+  if(ky>max_ky_allowed-1) return std::pair<int,int>(-1,-1);
+  
+  //determine the i-x
+  //notice we substitute y by the top of the candidate cell to reduce the dead zones
+  int kx    = floor(fabs(x0)/cellSize);
+  if( kx*cellSize > fabs(x0) ) kx--;
+  if(kx<0)                     return std::pair<int,int>(-1,-1);
+  if( (kx+1)*cellSize < fabs(x0) ) kx++;
+  int max_kx_allowed=floor( ((ky+1)*cellSize+b+k_horizontalShift*cellSize)/(a*cellSize) );
+  if(kx>max_kx_allowed-1) return std::pair<int,int>(-1,-1);
+  
+  //count cells summing in rows until required height
+  //notice the bottom of the cell must be used
+  int icell(0);
   for (int iky=0; iky<ky; ++iky) {
-    icell += floor((iky*cellSize+b)/(a*cellSize));
+    int cellsInRow( floor( ((iky+1)*cellSize+b+k_horizontalShift*cellSize)/(a*cellSize) ) );
+    icell += cellsInRow;
   }
+  icell += kx;
+
+  //return result
   return std::pair<int,int>(phiSector,icell);
 }
 
@@ -96,17 +129,26 @@ std::pair<int,int> HGCalDDDConstants::findCell(int cell, float h, float bl,
 					       float tl, float alpha, 
 					       float cellSize) const {
 
+  //check if cell number is meaningful
+  if(cell<0) return std::pair<int,int>(-1,-1);
+
+  //parameterization of the boundary of the trapezoid
   float a     = (alpha==0) ? (2*h/(tl-bl)) : (h/(tl-bl));
   float b     = 2*h*bl/(tl-bl);
-  int   kymax = floor((2*h)/cellSize);
-  int   ky(0), testCell(0);
+  int kx(cell), ky(0);
+  int kymax( floor((2*h)/cellSize) );
+  int testCell(0);
   for (int iky=0; iky<kymax; ++iky) {
-    int deltay(floor((iky*cellSize+b)/(a*cellSize)));
-    if (testCell+deltay >= cell) break;
-    testCell += deltay;
+
+    //check if adding all the cells in this row is above the required cell
+    //notice the top of the cell is used to maximize space
+    int cellsInRow( floor( ((iky+1)*cellSize+b+k_horizontalShift*cellSize)/(a*cellSize) ) );
+    if (testCell+cellsInRow > cell) break;
+    testCell += cellsInRow;
     ky++;
+    kx -= cellsInRow;
   }
-  int kx = (cell-testCell);
+
   return std::pair<int,int>(kx,ky);
 }
 
@@ -115,6 +157,7 @@ bool HGCalDDDConstants::isValid(int lay, int mod, int cell, bool reco) const {
   bool ok = ((lay > 0 && lay <= (int)(layers(reco))) && 
 	     (mod > 0 && mod <= sectors()) &&
 	     (cell >=0 && cell <= maxCells(lay,reco)));
+
 #ifdef DebugLog
   if (!ok) std::cout << "HGCalDDDConstants: Layer " << lay << ":" 
 		     << (lay > 0 && (lay <= (int)(layers(reco)))) << " Module "
@@ -189,11 +232,17 @@ int HGCalDDDConstants::maxCells(float h, float bl, float tl, float alpha,
 
   float a     = (alpha==0) ? (2*h/(tl-bl)) : (h/(tl-bl));
   float b     = 2*h*bl/(tl-bl);
-  int   ncell(0);
+  
+  int   ncells(0);
+  //always use the top of the cell to maximize space
   int   kymax = floor((2*h)/cellSize);
-  for (int iky=0; iky<=kymax; ++iky)
-    ncell += floor((iky*cellSize+b)/(a*cellSize));
-  return ncell;
+  for (int iky=0; iky<kymax; ++iky)
+    {
+      int cellsInRow=floor(((iky+1)*cellSize+b+k_horizontalShift*cellSize)/(a*cellSize));
+      ncells += cellsInRow;
+    }
+
+  return ncells;
 }
 
 int HGCalDDDConstants::maxRows(int lay, bool reco) const {
@@ -257,7 +306,7 @@ int HGCalDDDConstants::newCell(int kx, int ky, int lay, int subSec) const {
     (moduler_[i].tl-moduler_[i].bl);
   int icell(kx);
   for (int iky=0; iky<ky; ++iky)
-    icell += floor((iky*cellSize+b)/(a*cellSize));
+    icell += floor(((iky+1)*cellSize+b+k_horizontalShift*cellSize)/(a*cellSize));
   return icell;
 }
 
@@ -294,13 +343,13 @@ std::vector<int> HGCalDDDConstants::numberCells(float h, float bl,
   int   kymax = floor((2*h)/cellSize);
   std::vector<int> ncell;
   for (int iky=0; iky<kymax; ++iky)
-    ncell.push_back(floor((iky*cellSize+b)/(a*cellSize)));
+    ncell.push_back(floor(((iky+1)*cellSize+b+k_horizontalShift*cellSize)/(a*cellSize)));
   return ncell;
 }
 
 std::pair<int,int> HGCalDDDConstants::simToReco(int cell, int lay, 
 						bool half) const {
-
+  
   std::pair<int,float> index = getIndex(lay, false);
   int i = index.first;
   if (i < 0) return std::pair<int,int>(-1,-1);
@@ -308,28 +357,30 @@ std::pair<int,int> HGCalDDDConstants::simToReco(int cell, int lay,
   float bl = modules_[i].bl;
   float tl = modules_[i].tl;
   float cellSize = cellFactor_[i]*index.second;
-  std::pair<int,int> kxy = findCell(cell, h, bl, tl, modules_[i].alpha,
-				    index.second);
+  
+  std::pair<int,int> kxy = findCell(cell, h, bl, tl, modules_[i].alpha, index.second);
   int depth   = layerGroup_[i];
+  if(depth<0) return std::pair<int,int>(-1,-1);
   int kx      = kxy.first/cellFactor_[i];
   int ky      = kxy.second/cellFactor_[i];
+
   float a     = (half) ? (h/(tl-bl)) : (2*h/(tl-bl));
   float b     = 2*h*bl/(tl-bl);
   for (int iky=0; iky<ky; ++iky)
-    kx += floor((iky*cellSize+b)/(a*cellSize));
-
+    kx += floor(((iky+1)*cellSize+b+k_horizontalShift*cellSize)/(a*cellSize));
+  
 #ifdef DebugLog
   std::cout << "simToReco: input " << cell << ":" << lay << ":" << half
 	    << " kxy " << kxy.first << ":" << kxy.second << " output "
-	    << kx << ":" << depth << std::endl;
+    	    << kx << ":" << depth << " cell factor=" << cellFactor_[i] << std::endl;
 #endif
   return std::pair<int,int>(kx,depth);
 }
 
 void HGCalDDDConstants::initialize(const DDCompactView& cpv, std::string name){
-
+  
   nSectors = nCells = 0;
-
+  
   std::string attribute = "Volume"; 
   std::string value     = name;
   DDValue val(attribute, value, 0);
@@ -339,7 +390,7 @@ void HGCalDDDConstants::initialize(const DDCompactView& cpv, std::string name){
   DDFilteredView fv(cpv);
   fv.addFilter(filter);
   bool ok = fv.firstChild();
-
+  
   if (ok) {
     //Load the SpecPars
     loadSpecPars(fv);
@@ -349,7 +400,7 @@ void HGCalDDDConstants::initialize(const DDCompactView& cpv, std::string name){
 }
 
 void HGCalDDDConstants::loadGeometry(const DDFilteredView& _fv, 
-				     std::string & sdTag) {
+				     const std::string & sdTag) {
  
   DDFilteredView fv = _fv;
   bool dodet(true), first(true);

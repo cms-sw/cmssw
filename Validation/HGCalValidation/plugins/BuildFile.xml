@@ -1,6 +1,7 @@
 <use name="FWCore/Framework"/>
 <use name="SimDataFormats/Track"/>
 <use name="Geometry/HGCalCommonData"/>
+<use name="Geometry/FCalGeometry"/>
 <use name="SimDataFormats/CaloHit"/>
 
 <use name="FWCore/PluginManager"/>

@@ -27,7 +27,6 @@
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
-//#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 
 #include <iostream>
 #include <fstream>
@@ -38,22 +37,21 @@ class MonitorElement;
 
 class HGCalSimHitsClient : public edm::EDAnalyzer {
  
- private:
+private:
   DQMStore* dbe_; //dbe seems to be the standard name for this, I dont know why. We of course dont own it
   std::string outputFile_;
   edm::ParameterSet conf_;
 
-  bool verbose_;
-  bool debug_;
   //member data
   std::string dirName_;
   std::string nameDetector_;
+  int verbosity_;
   HGCalDDDConstants *hgcons_;
   bool geometrydefined_, symmDet_;
-  unsigned int layers_;
+  //  unsigned int layers_;
   std::map<uint32_t, HepGeom::Transform3D> transMap_;
 
- public:
+public:
   explicit HGCalSimHitsClient(const edm::ParameterSet& );
   virtual ~HGCalSimHitsClient();
   

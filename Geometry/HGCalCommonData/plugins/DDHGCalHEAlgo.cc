@@ -102,11 +102,17 @@ void DDHGCalHEAlgo::constructLayers(DDLogicalPart module, DDCompactView& cpv) {
     double zi      = zMinBlock[ii];
     zMinBlock[ii] += thickModule;
     if (heightType[i] == 0) zz = zi;
-    double zlayer  = zz + thickModule;
+
+    double zlayer  = zz + 2*thickModule;
+    if((i % 6)>2) zlayer  = zz + thickModule;
+
     double zo      = zi + thick[ii];
     double rinF    = zi * slopeB;
     double rinB    = zlayer * slopeB;
+
     double routF   = (heightType[i] == 0) ? rMax(zi) : rMax(zz);
+    if((i % 6)>2) routF   = (heightType[i] == 0) ? rMax(zi-thickModule) : rMax(zz-thickModule);
+    
     double routB   = rMax(zo);
     std::string name = "HGCal"+names[ii]+dbl_to_string(copy);
     edm::LogInfo("HGCalGeom") << "DDHGCalEEAlgo test: Layer " << i << ":" 
@@ -126,7 +132,7 @@ void DDHGCalHEAlgo::constructLayers(DDLogicalPart module, DDCompactView& cpv) {
                    DDSplit(materials[ii]).second);
     DDMaterial matter(matName);
     DDLogicalPart glog = DDLogicalPart(solid.ddname(), matter, solid);
-    edm::LogInfo("HGCalGeom") << "DDHGCalHEAlgo test: " 
+          edm::LogInfo("HGCalGeom") << "DDHGCalHEAlgo test: " 
 			      << solid.name() << " Trap made of " << matName
 			      << " of dimensions " << 0.5*thick[ii] << ", "
 			      << parm.theta/CLHEP::deg << ", " 
@@ -134,7 +140,7 @@ void DDHGCalHEAlgo::constructLayers(DDLogicalPart module, DDCompactView& cpv) {
 			      << ", " << parm.bl1 << ", " << parm.tl1 
 			      << ", " << parm.alp/CLHEP::deg << ", " 
 			      << parm.yh2 << ", " << parm.bl2 << ", " 
-			      << parm.tl2 << ", " << parm.alp/CLHEP::deg;
+      			      << parm.tl2 << ", " << parm.alp/CLHEP::deg;
     DDTranslation r1(parm.xpos, parm.ypos, parm.zpos);
     cpv.position(glog, module, copy, r1, rot);
     edm::LogInfo("HGCalGeom") << "DDHGCalHEAlgo test: " << glog.name()
