@@ -103,7 +103,6 @@ class ElasticReport(object):
         fn = os.path.join("/tmp/dqm_monitoring/", fn_id) 
         fn_tmp = os.path.join("/tmp/dqm_monitoring/", fn_id + ".tmp") 
 
-        import json
         with open(fn_tmp, "w") as f:
             json.dump(self.doc, f, indent=True)
 
