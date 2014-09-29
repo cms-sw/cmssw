@@ -72,7 +72,9 @@ DQMFileIterator::DQMFileIterator(edm::ParameterSet const& pset)
   reset();
 
   if (mon_.isAvailable()) {
-    mon_->update([=] (ptree& p) { p.put("run", runNumber_); });
+    ptree doc;
+    doc.put("run", runNumber_);
+    mon_->outputUpdate(doc);
     updateMonitoring();
   }
 }
@@ -132,7 +134,9 @@ void DQMFileIterator::advanceToLumi(unsigned int lumi) {
 
   if (mon_.isAvailable()) {
     // report the successful lumi file open
-    mon_->update([=] (ptree& p) { p.put("lumi", currentLumi); });
+    ptree doc;
+    doc.put("lumi", currentLumi);
+    mon_->outputUpdate(doc);
     updateMonitoring();
   }
 }
@@ -152,8 +156,9 @@ void DQMFileIterator::updateMonitoring() {
     children.add_child(std::to_string(iter->first), lumi);
   }
 
-  mon_->update([=] (ptree& p) { p.put_child("lumiSeen", children); });
-  mon_->makeReport();
+  ptree doc;
+  doc.add_child("lumiSeen", children);
+  mon_->outputUpdate(doc);
 }
 
 std::string DQMFileIterator::make_path_data(const LumiEntry& lumi) {
@@ -304,6 +309,7 @@ void DQMFileIterator::update_state() {
   if (state_ != old_state) {
     logFileAction("Streamer state changed: ",
                   std::to_string(old_state) + "->" + std::to_string(state_));
+
     updateMonitoring();
   }
 }
