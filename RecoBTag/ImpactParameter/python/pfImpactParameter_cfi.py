@@ -14,7 +14,7 @@ pfImpactParameterTagInfos = cms.EDProducer("CandIPProducer",
     useTrackQuality = cms.bool(False),
     maximumChiSquared = cms.double(5.0),
 #this is candidate specific
-    jets = cms.InputTag("ak4PFJets"),
+    jets = cms.InputTag("ak4PFJetsCHS"),
     candidates = cms.InputTag("particleFlow"),
     maxDeltaR= cms.double(0.4),
 
