@@ -32,18 +32,14 @@ DQMMonitoringService::DQMMonitoringService(const edm::ParameterSet &pset, edm::A
 DQMMonitoringService::~DQMMonitoringService() {
 }
 
-void DQMMonitoringService::update(std::function<void(ptree&)> f) {
-  f(doc_);
-}
-
 void DQMMonitoringService::evLumi(GlobalContext const& iContext) {
   unsigned int run = iContext.luminosityBlockID().run();
   unsigned int lumi = iContext.luminosityBlockID().luminosityBlock();
 
-  doc_.put("cmssw_run", run);
-  doc_.put("cmssw_lumi", lumi);
-
-  makeReport();
+  ptree doc;
+  doc.put("cmssw_run", run);
+  doc.put("cmssw_lumi", lumi);
+  outputUpdate(doc);
 }
 
 void DQMMonitoringService::evEvent(StreamID const& iContext) {
@@ -51,32 +47,46 @@ void DQMMonitoringService::evEvent(StreamID const& iContext) {
   keepAlive();
 }
 
-void DQMMonitoringService::makeReport() {
+void DQMMonitoringService::outputUpdate(ptree& doc) {
   if (!mstream_)
     return;
 
   try {
-    using std::chrono::duration_cast;
-    using std::chrono::milliseconds;
-    using std::chrono::seconds;
+    doc.put("update_timestamp", std::time(NULL));
 
-    auto now = std::chrono::high_resolution_clock::now();
-    float rate = (nevents_ - last_report_nevents_);
-    rate = rate / duration_cast<seconds>(now - last_report_time_).count();
-
-    doc_.put("events_total", nevents_);
-    doc_.put("events_rate", rate);
-    doc_.put("cmsRun_timestamp", std::time(NULL));
-
-    write_json(*mstream_, doc_, false);
+    write_json(*mstream_, doc, false);
     mstream_->flush();
-
-    last_report_time_ = now; 
-    last_report_nevents_ = nevents_;
   } catch (...) {
     // pass
   }
 }
+
+// void DQMMonitoringService::makeReport() {
+//   if (!mstream_)
+//     return;
+// 
+//   try {
+//     using std::chrono::duration_cast;
+//     using std::chrono::milliseconds;
+//     using std::chrono::seconds;
+// 
+//     auto now = std::chrono::high_resolution_clock::now();
+//     float rate = (nevents_ - last_report_nevents_);
+//     rate = rate / duration_cast<seconds>(now - last_report_time_).count();
+// 
+//     doc_.put("events_total", nevents_);
+//     doc_.put("events_rate", rate);
+//     doc_.put("cmsRun_timestamp", std::time(NULL));
+// 
+//     write_json(*mstream_, doc_, false);
+//     mstream_->flush();
+// 
+//     last_report_time_ = now; 
+//     last_report_nevents_ = nevents_;
+//   } catch (...) {
+//     // pass
+//   }
+// }
 
 void DQMMonitoringService::keepAlive() {
   if (!mstream_)

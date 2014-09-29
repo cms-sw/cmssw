@@ -44,12 +44,13 @@ class DQMMonitoringService {
     DQMMonitoringService(const edm::ParameterSet &, edm::ActivityRegistry&);
     ~DQMMonitoringService();
 
-    void update(std::function<void(ptree&)> f);
     void keepAlive();
-    void makeReport();
+    void outputUpdate(ptree& doc);
 
     void evLumi(GlobalContext const&);
     void evEvent(StreamID const&);
+    
+    //void makeReport();
 
   private:
     std::shared_ptr<std::ostream> mstream_;
