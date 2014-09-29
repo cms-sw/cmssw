@@ -166,7 +166,8 @@
    <version ClassVersion="11" checksum="1239840459"/>
   </class>
 
-  <class name="pat::PackedCandidate" ClassVersion="14">
+  <class name="pat::PackedCandidate" ClassVersion="15">
+    <version ClassVersion="15" checksum="2118306102"/>
     <version ClassVersion="14" checksum="1075333340"/>
     <version ClassVersion="13" checksum="981046949"/>
     <version ClassVersion="12" checksum="981046949"/>
@@ -188,6 +189,7 @@
     <field name="dphidphi_" transient="true" />
     <field name="detadeta_" transient="true" />
     <field name="dptdpt_" transient="true" />
+    <field name="track_" transient="true" />
   </class>
   <ioread sourceClass="pat::PackedCandidate"  version="[1-]" targetClass="pat::PackedCandidate" source="" target="unpacked_">
     <![CDATA[unpacked_ = false;
