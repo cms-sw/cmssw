@@ -262,7 +262,6 @@ CURRENT_PROC = []
 def launch_monitoring(args):
     fifo = create_fifo()
     mon_fd = os.open(fifo, os.O_RDONLY | os.O_NONBLOCK)
-    mon_file = os.fdopen(mon_fd)
 
     def preexec():
         # this should only be open on a parent
@@ -289,6 +288,7 @@ def launch_monitoring(args):
     p = subprocess.Popen(args.pargs, preexec_fn=preexec, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     CURRENT_PROC.append(p)
 
+    mon_file = os.fdopen(mon_fd)
     s_hist = History()
     s_json = JsonInput()
     report_sink = ElasticReport(pid=p.pid, cmdline=args.pargs, history=s_hist, json=s_json)
