@@ -5,7 +5,7 @@ pfNoPUMEtSequence = cms.Sequence()
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
 calibratedAK4PFJetsForPFNoPUMEt = cms.EDProducer('PFJetCorrectionProducer',
     src = cms.InputTag('ak4PFJets'),
-    correctors = cms.vstring('ak4PFL1FastL2L3Residual') # NOTE: use "ak4PFL1FastL2L3" for MC / "ak4PFL1FastL2L3Residual" for Data
+    correctors = cms.vstring('ak4PFL1FastL2L3') # NOTE: use "ak4PFL1FastL2L3" for MC / "ak4PFL1FastL2L3Residual" for Data
 )
 ak4PFJetSequenceForPFNoPUMEt = cms.Sequence(calibratedAK4PFJetsForPFNoPUMEt)
 pfNoPUMEtSequence += ak4PFJetSequenceForPFNoPUMEt

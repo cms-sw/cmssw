@@ -188,7 +188,7 @@ class JetMEtUncertaintyTools(ConfigToolBase):
         # produce collection of (high Pt) photon candidates shifted up/down in energy
         #--------------------------------------------------------------------------------------------  
         if not isValidInputTag(photonCollection) or photonCollection=="":
-            print "Warning, photon collection %s does not exists, no energy shifting will be performed in MET uncertainty tools" % photonCollection
+            print "INFO : photon collection %s does not exists, no energy shifting will be performed in MET uncertainty tools" % photonCollection
         else:
             shiftedPhotonsCollections, photonsCollectionsToKeep = addShiftedSingleParticleCollection(
                 process, "photon", photonCollection,
