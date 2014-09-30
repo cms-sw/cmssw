@@ -304,12 +304,16 @@ void LHERunInfo::statistics() const
 	double errBr2Sum = 0.0;
 	unsigned long nAccepted = 0;
 	unsigned long nTried = 0;
+	unsigned long nAccepted_pos = 0;
+	unsigned long nTried_pos = 0;
+	unsigned long nAccepted_neg = 0;
+	unsigned long nTried_neg = 0;
 	int idwtup = std::abs(heprup.IDWTUP);
 
 	std::cout << std::endl;
 	std::cout << "Process and cross-section statistics" << std::endl;
 	std::cout << "------------------------------------" << std::endl;
-	std::cout << "Process\tevents\ttried\txsec [pb]\t\taccepted [%]"
+	std::cout << "Process\tpassed\tnposw\tnnegw\ttried\tnposw\tnnegw \txsec [pb]\t\taccepted [%]"
 	          << std::endl;
 
 	for(std::vector<Process>::const_iterator proc = processes.begin();
@@ -395,7 +399,11 @@ void LHERunInfo::statistics() const
 
 		std::cout << proc->process() << "\t"
 		          << proc->accepted().n() << "\t"
+			  << proc->nPassPos() << "\t"
+			  << proc->nPassNeg() << "\t"
 		          << proc->tried().n() << "\t"
+			  << proc->nTotalPos() << "\t"
+			  << proc->nTotalNeg() << "\t"
 		          << std::scientific << std::setprecision(3)
 		          << sigmaFinBr << " +/- "
 		          << deltaFinBr << "\t"
@@ -404,6 +412,10 @@ void LHERunInfo::statistics() const
 
 		nAccepted += proc->accepted().n();
 		nTried += proc->tried().n();
+		nAccepted_pos += proc->nPassPos();
+		nTried_pos    += proc->nTotalPos();
+		nAccepted_neg += proc->nPassNeg();
+		nTried_neg    += proc->nTotalNeg();
 		sigSelSum += sigmaAvg;
 		sigSum += sigmaFin;
 		sigBrSum += sigmaFinBr;
@@ -413,7 +425,11 @@ void LHERunInfo::statistics() const
 
 	std::cout << "Total\t"
 	          << nAccepted << "\t"
+		  << nAccepted_pos << "\t"
+		  << nAccepted_neg << "\t"
 	          << nTried << "\t"
+		  << nTried_pos << "\t"
+		  << nTried_neg << "\t"
 	          << std::scientific << std::setprecision(3)
 	          << sigBrSum << " +/- "
 	          << std::sqrt(errBr2Sum) << "\t"
