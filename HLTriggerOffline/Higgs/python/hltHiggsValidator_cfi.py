@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
 		
     hltProcessName = cms.string("HLT"),
-    analysis       = cms.vstring("HWW", "HZZ", "Hgg", "Htaunu", "H2tau", "VBFHbb", "ZnnHbb"), 
+    analysis       = cms.vstring("HWW", "HZZ", "Hgg", "Htaunu", "H2tau", "ZnnHbb"), 
     
     # -- The instance name of the reco::GenParticles collection
     genParticleLabel = cms.string("genParticles"),
@@ -170,21 +170,21 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
 	    # -- Analysis specific cuts
 	    minCandidates = cms.uint32(2), 
 	    ),
-    VBFHbb  = cms.PSet( 
-	    hltPathsToCheck = cms.vstring(
-		    "HLT_QuadJet75_55_35_20_BTagIP_VBF_v",
-		    "HLT_QuadJet75_55_38_20_BTagIP_VBF_v"
-		    ),
-	    #recJetLabel  = cms.string("ak5PFJets"),
-	    recJetLabel  = cms.string("higgsDqmPFJetsFilter"),
-	    jetTagLabel  = cms.string("hltHiggsDqmPfCombinedSecondaryVertexBJetTags"),
-	    # -- Analysis specific cuts
-	    minCandidates = cms.uint32(4), 
-	    NminOneCuts = cms.untracked.vdouble(2.4, 300, 2, 0, 0, 0, 0, 85, 70, 60, 40), #dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
-	    ),
+    #VBFHbb  = cms.PSet( 
+	    #hltPathsToCheck = cms.vstring(
+		    #"HLT_QuadJet75_55_35_20_BTagIP_VBF_v",
+		    #"HLT_QuadJet75_55_38_20_BTagIP_VBF_v"
+		    #),
+	    ##recJetLabel  = cms.string("ak5PFJets"),
+	    #recJetLabel  = cms.string("higgsDqmPFJetsFilter"),
+	    #jetTagLabel  = cms.string("hltHiggsDqmPfCombinedSecondaryVertexBJetTags"),
+	    ## -- Analysis specific cuts
+	    #minCandidates = cms.uint32(4), 
+	    #NminOneCuts = cms.untracked.vdouble(2.4, 300, 2, 0, 0, 0, 0, 85, 70, 60, 40), #dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
+	    #),
     ZnnHbb = cms.PSet( 
         hltPathsToCheck = cms.vstring(
-            #"HLT_PFMHT100_SingleCentralJet60_BTagCSV0p6_v"
+            "HLT_PFMHT100_SingleCentralJet60_BTagCSV0p6_v"
             "HLT_DiCentralPFJet30_PFMET80_BTagCSV07_v"
             ),
         Jet_recCut   = cms.string("abs(eta) < 2.6"),
