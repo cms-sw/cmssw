@@ -2,7 +2,7 @@
 
 import argparse
 import subprocess
-import socket, fcntl, select, atexit
+import socket, fcntl, select, atexit, signal
 import sys, os, time, datetime
 import collections
 import json
@@ -258,6 +258,7 @@ def create_fifo():
     atexit.register(os.unlink, fn)
     return fn
 
+CURRENT_PROC = []
 def launch_monitoring(args):
     fifo = create_fifo()
     mon_fd = os.open(fifo, os.O_RDONLY | os.O_NONBLOCK)
@@ -269,10 +270,21 @@ def launch_monitoring(args):
         # which closes with the executable
         os.open(fifo, os.O_WRONLY)
 
+        try:
+            # ensure the child dies if we are SIGKILLED
+            import ctypes
+            libc = ctypes.CDLL("libc.so.6")
+            PR_SET_PDEATHSIG = 1
+            libc.prctl(PR_SET_PDEATHSIG, signal.SIGKILL)
+        except:
+            log("Failed to setup PR_SET_PDEATHSIG.")
+            pass
+
         env = os.environ
         env["DQMMON_UPDATE_PIPE"] = fifo
 
     p = subprocess.Popen(args.pargs, preexec_fn=preexec, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    CURRENT_PROC.append(p)
 
     s_hist = History()
     s_json = JsonInput()
@@ -283,14 +295,26 @@ def launch_monitoring(args):
     stdmon_cap = DescriptorCapture(mon_fd, write_files=[s_json, report_sink, ],)
 
     fs = [stdout_cap, stderr_cap, stdmon_cap]
-    DescriptorCapture.event_loop(fs, timeout=1000, timeout_call=report_sink.flush)
+    try:
+        DescriptorCapture.event_loop(fs, timeout=1000, timeout_call=report_sink.flush)
+    except select.error, e:
+        # we have this on ctrl+c
+        # just terminate the child
+        log("Select error (we will terminate): " + str(e))
+        p.terminate()
 
     # at this point the program is dead
     r =  p.wait()
+    CURRENT_PROC.remove(p)
+
     report_sink.update_doc({ "exit_code": r })
     report_sink.make_report()
 
     return r
+
+def handle_signal(signum, frame):
+    for proc in CURRENT_PROC:
+        proc.send_signal(signum)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Kill/restart the child process if it doesn't out the required string.")
@@ -299,5 +323,9 @@ if __name__ == "__main__":
     parser.add_argument("-r", "--restart",  action="store_true", default=False, help="Restart the process after killing it.")
     parser.add_argument("pargs", nargs=argparse.REMAINDER)
     args = parser.parse_args()
+
+    # do some signal magic
+    signal.signal(signal.SIGINT, handle_signal)
+    signal.signal(signal.SIGTERM, handle_signal)
 
     sys.exit(launch_monitoring(args))
