@@ -17,7 +17,7 @@ iterativeInitialSeeds.pTMin = [0.4] # it was 0.3
 iterativeInitialSeeds.maxD0 = [1.]
 iterativeInitialSeeds.maxZ0 = [30.]
 iterativeInitialSeeds.numberOfHits = [3]
-iterativeInitialSeeds.originRadius = [1.0] # note: standard tracking uses 0.03, but this value gives a much better agreement in rate and shape for iter0
+iterativeInitialSeeds.originRadius = [1.0] # note: standard tracking uses 0.03, but this value gives a much better agreement in rate and shape for initialStep
 iterativeInitialSeeds.originHalfLength = [999] # it was 15.9 
 iterativeInitialSeeds.originpTMin = [0.6] 
 iterativeInitialSeeds.zVertexConstraint = [-1.0]
@@ -52,7 +52,7 @@ iterativeInitialTracks.Propagator = 'PropagatorWithMaterial'
 initialStepTracks = cms.EDProducer("FastTrackMerger",
                                    TrackProducers = cms.VInputTag(cms.InputTag("iterativeInitialTrackCandidates"),
                                                                   cms.InputTag("iterativeInitialTracks")),
-                                   trackAlgo = cms.untracked.uint32(4) # iter0
+                                   trackAlgo = cms.untracked.uint32(4) # initialStep
                                    )
 
 # Final selection

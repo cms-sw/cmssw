@@ -59,7 +59,7 @@ detachedTripletStepTracks = cms.EDProducer("FastTrackMerger",
                                            RemoveTrackProducers =  cms.untracked.VInputTag(cms.InputTag("initialStepTracks"), 
                                                                                            cms.InputTag("lowPtTripletStepTracks"),
                                                                                            cms.InputTag("pixelPairStepTracks")),
-                                           trackAlgo = cms.untracked.uint32(7), # iter3 
+                                           trackAlgo = cms.untracked.uint32(7), # detachedTripletStep 
                                            MinNumberOfTrajHits = cms.untracked.uint32(3),
                                            MaxLostTrajHits = cms.untracked.uint32(1)
                                            )
