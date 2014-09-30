@@ -14,7 +14,7 @@
 
 <use   name="eigen"/>
 
-<Flags CXXFLAGS="-g -Ofast"/>
+<Flags CXXFLAGS="-Ofast"/>
 
 <export>
   <lib   name="1"/>
