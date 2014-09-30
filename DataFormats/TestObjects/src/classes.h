@@ -43,6 +43,9 @@ struct dictionary {
   edm::Wrapper<edmtest::ThingWithMerge> dummy104;
   edm::Wrapper<edmtest::ThingWithIsEqual> dummy103;
 
+  edmtest::AVSimpleProduct dummyAVSimpleProduct;
+  edmtest::AVSimpleProduct::value_type dummyAVSimpleProductValueType;
+  
   edmtest::ThingCollection dummy1;
   edmtest::OtherThingCollection dummy2;
   edm::Wrapper<edmtest::ThingCollection> dummy3;
