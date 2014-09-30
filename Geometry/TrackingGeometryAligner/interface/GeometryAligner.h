@@ -27,6 +27,50 @@
 //FIXME
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
+#include "DataFormats/GeometrySurface/interface/BoundDisk.h"
+#include "DataFormats/GeometrySurface/interface/Bounds.h"
+#include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
+#include "TrackingTools/DetLayers/interface/DetLayer.h"
+#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBuilder.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBreaker.h"
+#include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
+#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+#include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
+#include "DataFormats/MuonReco/interface/MuonShower.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include <iostream>
 #include <fstream>
@@ -86,9 +130,10 @@ void GeometryAligner::applyAlignments( C* geometry,
 
   //FIXME test setup to read APEs from ASCIII file, if need be
   std::ifstream apeReadFileTRK("/afs/cern.ch/user/a/asvyatko/public/APEList66_TRK.txt");
-  std::ifstream apeReadFileDT("/afs/cern.ch/user/a/asvyatko/public/muonAPEs_2014-06-05_DT_AllTypesOfApes.txt");
-  std::ifstream apeReadFileCSC("/afs/cern.ch/user/a/asvyatko/public/muonAPEs_2014-06-05_CSC_AllTypesOfApes.txt");
+  std::ifstream apeReadFileDT("/afs/cern.ch/user/a/asvyatko/public/squaredAPE/artifScenario_APE0.05_Sigma0.1DT.txt");
+  std::ifstream apeReadFileCSC("/afs/cern.ch/user/a/asvyatko/public/squaredAPE/artifScenario_APE0.05_Sigma0.1CSC.txt");
 
+  //FIXME read in the APEs from ASCII file
   std::map<int,GlobalErrorExtended> apeDict;
   while (!apeReadFileTRK.eof()) {
     int apeId=0; double xx,xy,xz,xphix,xphiy,xphiz,yy,yz,yphix,yphiy,yphiz,zz,zphix,zphiy,zphiz,phixphix,phixphiy,phixphiz,phiyphiy,phiyphiz,phizphiz;
@@ -154,21 +199,22 @@ void GeometryAligner::applyAlignments( C* geometry,
 					  rotationHep.yx(), rotationHep.yy(), rotationHep.yz(), 
 					  rotationHep.zx(), rotationHep.zy(), rotationHep.zz() );
 	  GeomDet* iGeomDet = const_cast<GeomDet*>((*iPair).second);
-
 	  this->setGeomDetPosition( *iGeomDet, position, rotation );
 
+	  // Alignment Position Error only if non-zero to save memory
+          //GlobalError errorDB( asSMatrix<3>((*iAlignError).matrix()) );
           int reference = (iGeomDet->geographicalId()).rawId();
+          //if (apeDict.find(reference) == apeDict.end()) std::cout << "APE not found?" << std::endl;
           GlobalErrorExtended error = apeDict[reference];
-          //alignment parameters for Jacobian
-          AlgebraicVector shifts(3,0);
-          AlgebraicVector angles(3,0);
-          LocalErrorExtended newError = ErrorFrameTransformer().transform46(error,shifts,angles);
+          //GlobalErrorExtended error(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
 
-	  AlignmentPositionError ape( newError );
+	  AlignmentPositionError ape( error );
 	  if (this->setAlignmentPositionError( *iGeomDet, ape ))
 	    ++nAPE;
 
 	}
+        //FIXME close file at the end
+        //apeReadFile.close();
 
         edm::LogInfo("Alignment") << "@SUB=GeometryAligner::applyAlignments" 
         			    << "Finished to apply " << theMap.size() << " alignments with "

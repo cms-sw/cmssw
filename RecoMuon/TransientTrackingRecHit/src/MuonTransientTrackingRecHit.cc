@@ -53,17 +53,32 @@ GlobalError MuonTransientTrackingRecHit::globalDirectionError() const
 
 
 AlgebraicSymMatrix MuonTransientTrackingRecHit::parametersError() const {
-  
+ 
+  //int reference = (det()->geographicalId()).rawId(); 
+
   AlgebraicSymMatrix err = GenericTransientTrackingRecHit::parametersError();
   //  FIXME : new MUON APE CODE GOES HERE 
   const AlignmentPositionError* APE = det()->alignmentPositionError();
-
   if (APE != NULL) {
-    LocalErrorExtended lape = APE->localError();
 
     if(err.num_row() == 1) {
-       err[0][0] += lape.cxx();
+     AlgebraicVector shifts(3,0);
+     AlgebraicVector angles(3,0);
+     LocalErrorExtended lape = ErrorFrameTransformer().transform46(APE->globalError(),shifts,angles);
+     err[0][0] += lape.cxx();
     } else if (err.num_row() == 2) {
+     //AlgebraicVector par = GenericTransientTrackingRecHit::parameters();
+
+     AlgebraicVector shifts(3,0);
+     AlgebraicVector angles(3,0);
+     shifts[0] = localPosition().x();
+     //shifts[1] = 0;
+     //shifts[2] = 0;
+     //angles[0] = 0;
+     //angles[1] = 0;
+     //angles[2] = 0;
+     LocalErrorExtended lape = ErrorFrameTransformer().transform46(APE->globalError(),shifts,angles);
+
      AlgebraicSymMatrix lapeMatrix(2,0);
      lapeMatrix[1][1] = lape.cxx();
      lapeMatrix[0][0] = lape.cphixphix();
@@ -76,8 +91,26 @@ AlgebraicSymMatrix MuonTransientTrackingRecHit::parametersError() const {
         << ", error matrix " << err.num_row()
         << std::endl;
 
+      //std::cout << "Dimensionality " << err.num_row() << std::endl;
+      //std::cout << "Projection matrix" << std::endl;
+      //std::cout << lapeMatrix << std::endl;
+      //std::cout << "Initial matrix" << std::endl;
+      //std::cout << lape.matrix() << std::endl;
+
      err += lapeMatrix;
-    } else if (err.num_row() == 4) {
+    } else if (err.num_row() == 4) { 
+     // && !(reference > 599999999)) {
+     //AlgebraicVector par = GenericTransientTrackingRecHit::parameters();
+
+     AlgebraicVector shifts(3,0);
+     AlgebraicVector angles(3,0);
+     shifts[0] = localPosition().x();
+     shifts[1] = localPosition().y();
+     angles[0] = localDirection().x();
+     angles[1] = localDirection().y();
+
+     LocalErrorExtended lape = ErrorFrameTransformer().transform46(APE->globalError(),shifts,angles);
+
      AlgebraicSymMatrix lapeMatrix(4,0);
      lapeMatrix[2][2] = lape.cxx();
      lapeMatrix[2][3] = lape.cyx();
@@ -98,10 +131,15 @@ AlgebraicSymMatrix MuonTransientTrackingRecHit::parametersError() const {
         << ", error matrix " << err.num_row()
         << std::endl;
 
+      //std::cout << "Dimensionality " << err.num_row() << std::endl;
+      //std::cout << "Projection matrix" << std::endl;
+      //std::cout << lapeMatrix << std::endl;
+      //std::cout << "Initial matrix" << std::endl;
+      //std::cout << lape.matrix() << std::endl;
+
      err += lapeMatrix;
     }
   }
-
   return err;
 }
 

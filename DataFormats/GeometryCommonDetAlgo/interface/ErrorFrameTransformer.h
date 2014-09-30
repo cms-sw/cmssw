@@ -63,6 +63,28 @@ struct   ErrorFrameTransformer {
     return newError;
   }
 
+  static LocalError transform(const GlobalError& ge, const Surface& surf) {
+    Scalar cxx = ge.cxx(); Scalar cyx = ge.cyx(); Scalar cyy = ge.cyy();
+    Scalar czx = ge.czx(); Scalar czy = ge.czy(); Scalar czz = ge.czz();
+    
+    Surface::RotationType r=surf.rotation();
+    
+    Scalar l11 
+      = r.xx()*(r.xx()*cxx + r.xy()*cyx + r.xz()*czx)
+      + r.xy()*(r.xx()*cyx + r.xy()*cyy + r.xz()*czy)
+      + r.xz()*(r.xx()*czx + r.xy()*czy + r.xz()*czz);
+    Scalar l12 
+      = r.yx()*(r.xx()*cxx + r.xy()*cyx + r.xz()*czx)
+      + r.yy()*(r.xx()*cyx + r.xy()*cyy + r.xz()*czy)
+      + r.yz()*(r.xx()*czx + r.xy()*czy + r.xz()*czz);
+    Scalar l22
+      = r.yx()*(r.yx()*cxx + r.yy()*cyx + r.yz()*czx)
+      + r.yy()*(r.yx()*cyx + r.yy()*cyy + r.yz()*czy)
+      + r.yz()*(r.yx()*czx + r.yy()*czy + r.yz()*czz);
+    
+    return LocalError( l11, l12, l22);
+  }
+
   //Jacobian used in the GeometryAligner
   static LocalErrorExtended transform46(const GlobalErrorExtended& ge, const AlgebraicVector& shifts, const AlgebraicVector& angles) {
 
@@ -71,37 +93,57 @@ struct   ErrorFrameTransformer {
     AlgebraicMatrix46 jacobian46;
     jacobian46[0][0] = 1.;
     jacobian46[0][1] = 0.;
-    jacobian46[0][2] = -angles(1);
-    jacobian46[0][3] = -shifts(1)*angles(1);
-    jacobian46[0][4] = shifts(0)*angles(1);
+    jacobian46[0][2] = -angles(0);
+    jacobian46[0][3] = -shifts(1)*angles(0);
+    jacobian46[0][4] = shifts(0)*angles(0);
     jacobian46[0][5] = -shifts(1);
 
     jacobian46[1][0] = 0.;
     jacobian46[1][1] = 1.;
-    jacobian46[1][2] = -angles(0);
-    jacobian46[1][3] = -shifts(1)*angles(0);
-    jacobian46[1][4] = shifts(0)*angles(0);
+    jacobian46[1][2] = -angles(1);
+    jacobian46[1][3] = -shifts(1)*angles(1);
+    jacobian46[1][4] = shifts(0)*angles(1);
     jacobian46[1][5] = shifts(0);
 
     jacobian46[2][0] = 0.;
     jacobian46[2][1] = 0.;
     jacobian46[2][2] = 0.;
     jacobian46[2][3] = -angles(1)*angles(0);
-    jacobian46[2][4] = 1+angles(1)*angles(1);
-    jacobian46[2][5] = -angles(0);
+    jacobian46[2][4] = 1.+angles(0)*angles(0);
+    jacobian46[2][5] = -angles(1);
 
     jacobian46[3][0] = 0.;
     jacobian46[3][1] = 0.;
     jacobian46[3][2] = 0.;
-    jacobian46[3][3] = -1-angles(0)*angles(0);
+    jacobian46[3][3] = -1.-angles(1)*angles(1);
     jacobian46[3][4] = angles(0)*angles(1);
-    jacobian46[3][5] = angles(1);
+    jacobian46[3][5] = angles(0);
 
-    //FIXME protect from numerical instability - multiplying small numbers...
+    //std::cout << "Jacobian transformation" << std::endl;
+    //for (int i = 0; i < 4; i++) {
+    //  for (int j = 0; j < 6; j++) {
+    //    if (jacobian46[i][j] > 2.) std::cout << "XXX " << i << " " << j << " " << jacobian46[i][j] << std::endl;
+    //  }
+    //}
+
+    //protect from umerical instability - multiplying small numbers...
     jacobian46 *= 100000000.;
     AlgebraicSymMatrix44 out = ROOT::Math::Similarity(jacobian46,as); 
     out /= 100000000.*100000000.;
 
+/*
+    AlgebraicSymMatrix44 out;
+    out[0][0] = (ge.matrix())[0][0];
+    out[0][1] = (ge.matrix())[0][1];
+    out[0][2] = (ge.matrix())[0][2];
+    out[0][3] = (ge.matrix())[0][3];
+    out[1][1] = (ge.matrix())[1][1];
+    out[1][2] = (ge.matrix())[1][2];
+    out[1][3] = (ge.matrix())[1][4];
+    out[2][2] = (ge.matrix())[3][3];
+    out[2][3] = (ge.matrix())[3][4];
+    out[3][3] = (ge.matrix())[4][4];
+*/
     LocalErrorExtended newError(out);
 
     return newError;
