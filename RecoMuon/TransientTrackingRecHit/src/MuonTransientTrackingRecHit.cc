@@ -54,10 +54,7 @@ GlobalError MuonTransientTrackingRecHit::globalDirectionError() const
 
 AlgebraicSymMatrix MuonTransientTrackingRecHit::parametersError() const {
  
-  //int reference = (det()->geographicalId()).rawId(); 
-
   AlgebraicSymMatrix err = GenericTransientTrackingRecHit::parametersError();
-  //  FIXME : new MUON APE CODE GOES HERE 
   const AlignmentPositionError* APE = det()->alignmentPositionError();
   if (APE != NULL) {
 
@@ -72,11 +69,8 @@ AlgebraicSymMatrix MuonTransientTrackingRecHit::parametersError() const {
      AlgebraicVector shifts(3,0);
      AlgebraicVector angles(3,0);
      shifts[0] = localPosition().x();
-     //shifts[1] = 0;
-     //shifts[2] = 0;
+     //FIXME 
      //angles[0] = 0;
-     //angles[1] = 0;
-     //angles[2] = 0;
      LocalErrorExtended lape = ErrorFrameTransformer().transform46(APE->globalError(),shifts,angles);
 
      AlgebraicSymMatrix lapeMatrix(2,0);
@@ -91,15 +85,8 @@ AlgebraicSymMatrix MuonTransientTrackingRecHit::parametersError() const {
         << ", error matrix " << err.num_row()
         << std::endl;
 
-      //std::cout << "Dimensionality " << err.num_row() << std::endl;
-      //std::cout << "Projection matrix" << std::endl;
-      //std::cout << lapeMatrix << std::endl;
-      //std::cout << "Initial matrix" << std::endl;
-      //std::cout << lape.matrix() << std::endl;
-
      err += lapeMatrix;
     } else if (err.num_row() == 4) { 
-     // && !(reference > 599999999)) {
      //AlgebraicVector par = GenericTransientTrackingRecHit::parameters();
 
      AlgebraicVector shifts(3,0);
@@ -130,12 +117,6 @@ AlgebraicSymMatrix MuonTransientTrackingRecHit::parametersError() const {
         << lapeMatrix.num_row()
         << ", error matrix " << err.num_row()
         << std::endl;
-
-      //std::cout << "Dimensionality " << err.num_row() << std::endl;
-      //std::cout << "Projection matrix" << std::endl;
-      //std::cout << lapeMatrix << std::endl;
-      //std::cout << "Initial matrix" << std::endl;
-      //std::cout << lape.matrix() << std::endl;
 
      err += lapeMatrix;
     }

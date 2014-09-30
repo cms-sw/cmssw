@@ -119,31 +119,11 @@ struct   ErrorFrameTransformer {
     jacobian46[3][4] = angles(0)*angles(1);
     jacobian46[3][5] = angles(0);
 
-    //std::cout << "Jacobian transformation" << std::endl;
-    //for (int i = 0; i < 4; i++) {
-    //  for (int j = 0; j < 6; j++) {
-    //    if (jacobian46[i][j] > 2.) std::cout << "XXX " << i << " " << j << " " << jacobian46[i][j] << std::endl;
-    //  }
-    //}
-
     //protect from umerical instability - multiplying small numbers...
     jacobian46 *= 100000000.;
     AlgebraicSymMatrix44 out = ROOT::Math::Similarity(jacobian46,as); 
     out /= 100000000.*100000000.;
 
-/*
-    AlgebraicSymMatrix44 out;
-    out[0][0] = (ge.matrix())[0][0];
-    out[0][1] = (ge.matrix())[0][1];
-    out[0][2] = (ge.matrix())[0][2];
-    out[0][3] = (ge.matrix())[0][3];
-    out[1][1] = (ge.matrix())[1][1];
-    out[1][2] = (ge.matrix())[1][2];
-    out[1][3] = (ge.matrix())[1][4];
-    out[2][2] = (ge.matrix())[3][3];
-    out[2][3] = (ge.matrix())[3][4];
-    out[3][3] = (ge.matrix())[4][4];
-*/
     LocalErrorExtended newError(out);
 
     return newError;

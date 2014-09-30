@@ -204,17 +204,13 @@ void GeometryAligner::applyAlignments( C* geometry,
 	  // Alignment Position Error only if non-zero to save memory
           //GlobalError errorDB( asSMatrix<3>((*iAlignError).matrix()) );
           int reference = (iGeomDet->geographicalId()).rawId();
-          //if (apeDict.find(reference) == apeDict.end()) std::cout << "APE not found?" << std::endl;
           GlobalErrorExtended error = apeDict[reference];
-          //GlobalErrorExtended error(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
 
 	  AlignmentPositionError ape( error );
 	  if (this->setAlignmentPositionError( *iGeomDet, ape ))
 	    ++nAPE;
 
 	}
-        //FIXME close file at the end
-        //apeReadFile.close();
 
         edm::LogInfo("Alignment") << "@SUB=GeometryAligner::applyAlignments" 
         			    << "Finished to apply " << theMap.size() << " alignments with "
