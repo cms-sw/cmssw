@@ -297,6 +297,7 @@ public:
     int stripTECLayersWithMeasurement() const;       // case 0: strip TEC
 
     int trackerLayersWithoutMeasurement(HitCategory category) const;     // case 1: tracker
+    int trackerLayersWithoutMeasurementOld(HitCategory category) const;     // case 1: tracker 
     int pixelLayersWithoutMeasurement(HitCategory category) const;       // case 1: pixel
     int stripLayersWithoutMeasurement(HitCategory category) const;       // case 1: strip
     int pixelBarrelLayersWithoutMeasurement(HitCategory category) const; // case 1: pixel PXB
@@ -920,7 +921,7 @@ inline int HitPattern::stripLayersWithMeasurement() const
            stripTOBLayersWithMeasurement() + stripTECLayersWithMeasurement();
 }
 
-inline int HitPattern::trackerLayersWithoutMeasurement(HitCategory category) const
+inline int HitPattern::trackerLayersWithoutMeasurementOld(HitCategory category) const
 {
     return pixelLayersWithoutMeasurement(category) +
            stripLayersWithoutMeasurement(category);

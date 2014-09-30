@@ -457,6 +457,29 @@ int HitPattern::trackerLayersWithMeasurement() const {
    return layerOk.count(); 
 }
 
+int HitPattern::trackerLayersWithoutMeasurement(HitCategory category) const {
+   std::bitset<256> layerOk;
+   std::bitset<256> layerMissed;
+   std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
+   for (int i = range.first; i < range.second; ++i) {
+     auto pattern = getHitPatternByAbsoluteIndex(i);
+     if unlikely(!trackerHitFilter(pattern)) continue;
+     uint16_t hitType = (pattern >> HitTypeOffset) & HitTypeMask;
+     pattern = (pattern-minTrackerWord) >> LayerOffset;
+     assert(pattern<256);
+     if (hitType == HIT_TYPE::VALID) layerOk.set(pattern);
+     if (hitType == HIT_TYPE::MISSING) layerMissed.set(pattern);
+   }
+   for (int i=0; i<256; ++i) if (layerOk.test(i)) layerMissed.set(i,0);
+
+   assert(trackerLayersWithoutMeasurementOld(category)==int(layerMissed.count()));
+
+   return layerMissed.count();
+ 
+
+}
+
+
 int HitPattern::pixelBarrelLayersWithMeasurement() const
 {
     int count = 0;

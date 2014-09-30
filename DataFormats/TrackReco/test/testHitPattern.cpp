@@ -25,7 +25,11 @@ int main()
 				     470045428}; //TEC r7
 
    HitPattern hp;
-   for (auto id : radial_detids) hp.appendHit(id,TrackingRecHit::valid);
+   auto i=0;
+   for (auto id : radial_detids) { hp.appendHit(id,(i++ == 1) ? TrackingRecHit::missing : TrackingRecHit::valid);}
+   hp.appendHit(radial_detids[2],TrackingRecHit::missing);
+   hp.appendHit(radial_detids[8],TrackingRecHit::missing);
+
 
    std::cout << hp.numberOfValidTrackerHits() << ' ' << hp.numberOfValidPixelHits() << ' ' <<	hp.numberOfValidStripHits() << std::endl;
    std::cout << hp.pixelLayersWithMeasurement() << ' ' << hp.stripLayersWithMeasurement() << std::endl;
