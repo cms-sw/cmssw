@@ -12,12 +12,13 @@
 namespace dqmservices {
 
 DQMMonitoringService::DQMMonitoringService(const edm::ParameterSet &pset, edm::ActivityRegistry& ar) {
-  const char* x = getenv("MONDOG_PIPE");
+  const char* x = getenv("DQMMON_UPDATE_PIPE");
+
   if (x) {
     std::cerr << "Monitoring pipe: " << x << std::endl;
     mstream_.reset(new std::ofstream(x));
   } else {
-    std::cerr << "Monitoring fd not found, disabling." << std::endl;
+    std::cerr << "Monitoring file not found, disabling." << std::endl;
   }
 
   nevents_ = 0;
