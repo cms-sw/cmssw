@@ -28,6 +28,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
@@ -84,7 +85,7 @@ namespace {
                 float seedCutMIPs, float seedCutSN, 
                 float subclusterCutMIPs, float subclusterCutSN) :
             mip_(mip),  detid_(detid), firstStrip_(firstStrip), noiseObj_(theNoise), noises_(theNoise->getRange(detid)),
-            subclusterCutMIPs_(subclusterCutMIPs), subclusterCutSN_(subclusterCutSN)
+            subclusterCutMIPs_(subclusterCutMIPs), sumCut_(subclusterCutMIPs_*mip_), subclusterCutSN2_(subclusterCutSN*subclusterCutSN)
         {
             cut_ = std::min<float>(seedCutMIPs*mip, seedCutSN*noiseObj_->getNoise(firstStrip+1, noises_));
         }
@@ -95,16 +96,15 @@ namespace {
         bool operator()(const uint8_t *left, const uint8_t *right, const uint8_t *begin, const uint8_t *end) const {
             int yleft  = (left  <  begin ? 0 : *left);
             int yright = (right >= end   ? 0 : *right);
-            unsigned int sum = 0, sumall = 0, strips = 0; int maxval = 0; float noise = 0;
+            float sum = 0.0; 
+            int maxval = 0; float noise = 0;
             for (const uint8_t *x = left+1; x < right; ++x) {
                 int baseline = (yleft * int(right-x) + yright * int(x-left)) / int(right-left);
-                sumall += int(*x);
                 sum += int(*x) - baseline;
                 noise += std::pow(noiseObj_->getNoise(firstStrip_ + int(x-begin), noises_), 2);
                 maxval = std::max(maxval, int(*x) - baseline);
-                strips++;
             }
-            if (sum/mip_ > subclusterCutMIPs_ && sum/std::sqrt(noise) > subclusterCutSN_) return true;
+            if (sum > sumCut_ && sum*sum > noise*subclusterCutSN2_) return true;
             return false; 
         }
 
@@ -114,7 +114,7 @@ namespace {
             const SiStripNoises *noiseObj_;
             SiStripNoises::Range noises_;
             uint8_t cut_;
-            float subclusterCutMIPs_, subclusterCutSN_;
+            float subclusterCutMIPs_, sumCut_, subclusterCutSN2_;
     };
 
 }
@@ -226,7 +226,8 @@ bool StripSubClusterShapeFilterBase::testLastHit
       }
 
 
-      // compute number of consecutive saturated strips
+      // compute number of consecutive saturated strips 
+      // (i.e. with adc count >= 254, see SiStripCluster class for documentation)
       unsigned int thisSat = (ampls[0] >= 254), maxSat = thisSat;
       for (unsigned int i = 1, n = ampls.size(); i < n; ++i) {
           if (ampls[i] >= 254) {
@@ -265,7 +266,7 @@ bool StripSubClusterShapeFilterBase::testLastHit
       const StripGeomDetUnit* stripDetUnit = dynamic_cast<const StripGeomDetUnit *>(det);
       if (det == 0) { edm::LogError("Strip not a StripGeomDetUnit?") << " on " << detId.rawId() << "\n"; return true; }
 
-      float MeVperADCStrip =  3.61e-06*265; 
+      float MeVperADCStrip = 9.5665E-4; // conversion constant from ADC counts to MeV for the SiStrip detector
       float mip = 3.9 / ( MeVperADCStrip/stripDetUnit->surface().bounds().thickness() ); // 3.9 MeV/cm = ionization in silicon 
       float mipnorm = mip/std::abs(ldir.z());
       ::SlidingPeakFinder pf(std::max<int>(2,std::ceil(std::abs(hitPredPos)+subclusterWindow_)));
@@ -305,17 +306,22 @@ bool StripSubClusterShapeTrajectoryFilter::toBeContinued
 }
 
 /*****************************************************************************/
+bool StripSubClusterShapeTrajectoryFilter::testLastHit(const TrajectoryMeasurement &last) const 
+{
+   const TrackingRecHit* hit = last.recHit()->hit();
+   if (!last.updatedState().isValid()) return true;
+   if (hit == 0 || !hit->isValid()) return true;
+   if (hit->geographicalId().subdetId() < SiStripDetId::TIB) return true; // we look only at strips for now
+   return testLastHit(hit, last.updatedState(), false);
+
+}
+
+/*****************************************************************************/
 bool StripSubClusterShapeTrajectoryFilter::toBeContinued
 (TempTrajectory& trajectory) const 
 {
    const TempTrajectory::DataContainer & tms = trajectory.measurements();
-
-   const TrajectoryMeasurement &last = *tms.rbegin();
-   const TrackingRecHit* hit = last.recHit()->hit();
-   if (!last.updatedState().isValid()) return true;
-   if (hit == 0 || !hit->isValid()) return true;
-   if (hit->geographicalId().subdetId() <= 2) return true; // we look only at strips for now
-   return testLastHit(hit, last.updatedState(), false);
+   return testLastHit(*tms.rbegin());
 }
 
 /*****************************************************************************/
@@ -323,14 +329,7 @@ bool StripSubClusterShapeTrajectoryFilter::qualityFilter
   (const Trajectory& trajectory) const
 {
    const Trajectory::DataContainer & tms = trajectory.measurements();
-
-   const TrajectoryMeasurement &last = *tms.rbegin();
-   const TrackingRecHit* hit = last.recHit()->hit();
-   if (!last.updatedState().isValid()) return true;
-   if (hit == 0 || !hit->isValid()) return true;
-   if (hit->geographicalId().subdetId() <= 2) return true; // we look only at strips for now
-   return testLastHit(hit, last.updatedState(), false);
-
+   return testLastHit(*tms.rbegin());
 }
 
 /*****************************************************************************/
@@ -338,13 +337,7 @@ bool StripSubClusterShapeTrajectoryFilter::qualityFilter
   (const TempTrajectory& trajectory) const
 {
    const TempTrajectory::DataContainer & tms = trajectory.measurements();
-   const TrajectoryMeasurement &last = *tms.rbegin();
-   const TrackingRecHit* hit = last.recHit()->hit();
-   if (!last.updatedState().isValid()) return true;
-   if (hit == 0 || !hit->isValid()) return true;
-   if (hit->geographicalId().subdetId() <= 2) return true; // we look only at strips for now
-   return testLastHit(hit, last.updatedState(), false);
-
+   return testLastHit(*tms.rbegin());
 }
 
 
@@ -366,7 +359,7 @@ bool StripSubClusterShapeSeedFilter::compatible
    if (filterAtHelixStage_) return true;
    const TrackingRecHit* hit = thit->hit();
    if (hit == 0 || !hit->isValid()) return true;
-   if (hit->geographicalId().subdetId() <= 2) return true; // we look only at strips for now
+   if (hit->geographicalId().subdetId() < SiStripDetId::TIB) return true; // we look only at strips for now
    return testLastHit(hit, tsos, false);
 }
 
@@ -384,7 +377,7 @@ bool StripSubClusterShapeSeedFilter::compatible
     float x0 = vertex.x(), y0 = vertex.y();
     for (unsigned int i = 0, n = hits.size(); i < n; ++i) {
         auto const  & hit = *hits[i];
-        if (hit.geographicalId().subdetId() <= 2) continue; 
+        if (hit.geographicalId().subdetId() < SiStripDetId::TIB) continue; 
 
         GlobalPoint pos = hit.globalPosition();
         float x1 = pos.x(), y1 = pos.y(), dx1 = x1 - xc, dy1 = y1 - yc;

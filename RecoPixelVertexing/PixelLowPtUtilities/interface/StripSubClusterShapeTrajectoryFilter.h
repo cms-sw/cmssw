@@ -84,6 +84,10 @@ class StripSubClusterShapeTrajectoryFilter: public StripSubClusterShapeFilterBas
         virtual void setEvent(const edm::Event & e, const edm::EventSetup & es) override {
             setEventBase(e,es);
         }
+
+    protected:
+        using StripSubClusterShapeFilterBase::testLastHit;
+        bool testLastHit(const TrajectoryMeasurement &last) const ;
 };
 
 class StripSubClusterShapeSeedFilter: public StripSubClusterShapeFilterBase, public SeedComparitor {
