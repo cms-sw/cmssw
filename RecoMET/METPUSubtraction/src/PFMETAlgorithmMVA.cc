@@ -21,7 +21,7 @@ namespace
 {
   const GBRForest* loadMVAfromFile(const edm::FileInPath& inputFileName, const std::string& mvaName)
   {
-    if ( inputFileName.location()!=edm::FileInPath::Local) throw cms::Exception("PFMETAlgorithmMVA::loadMVA") 
+    if ( inputFileName.location()==edm::FileInPath::Unknown ) throw cms::Exception("PFMETAlgorithmMVA::loadMVA") 
       << " Failed to find File = " << inputFileName << " !!\n";
     TFile* inputFile = new TFile(inputFileName.fullPath().data());
   
