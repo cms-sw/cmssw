@@ -46,7 +46,7 @@ from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi 
 hiRegitDetachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 1.2
 
 # building: feed the new-named seeds
-hiRegitDetachedTripletStepTrajectoryFilter = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepTrajectoryFilter.clone()
+hiRegitDetachedTripletStepTrajectoryFilter = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepTrajectoryFilterBase.clone()
 
 hiRegitDetachedTripletStepTrajectoryBuilder = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepTrajectoryBuilder.clone(
     trajectoryFilter     = cms.PSet(refToPSet_ = cms.string('hiRegitDetachedTripletStepTrajectoryFilter')),
