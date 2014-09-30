@@ -1353,11 +1353,11 @@ steps['ALCAHARVD']={'-s':'ALCAHARVEST:BeamSpotByRun+BeamSpotByLumi+SiStripQualit
 steps['RECOHISt4']=steps['RECOHI']
 
 steps['ALCANZS']=merge([{'-s':'ALCA:HcalCalMinBias','--mc':''},step4Defaults])
-steps['HARVGEN']={'-s':'HARVESTING:genHarvesting',
-                  '--harvesting':'AtJobEnd',
-                  '--conditions':'auto:run1_mc',
-                  '--mc':'',
-                  '--filein':'file:step1.root'
+steps['HARVESTGEN']={'-s':'HARVESTING:genHarvesting',
+                     '--harvesting':'AtJobEnd',
+                     '--conditions':'auto:run1_mc',
+                     '--mc':'',
+                     '--filein':'file:step1.root'
                   }
 
 #data

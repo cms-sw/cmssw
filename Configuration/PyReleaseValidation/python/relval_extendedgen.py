@@ -15,32 +15,32 @@ workflows = Matrix()
 # the two sets are exclusive
 
 # LO Generators
-workflows[507]=['',['SoftQCDDiffractive_13TeV_pythia8','HARVGEN']]
-workflows[508]=['',['SoftQCDnonDiffractive_13TeV_pythia8','HARVGEN']]
-workflows[509]=['',['SoftQCDelastic_13TeV_pythia8','HARVGEN']]
-workflows[510]=['',['SoftQCDinelastic_13TeV_pythia8','HARVGEN']]
+workflows[507]=['',['SoftQCDDiffractive_13TeV_pythia8','HARVESTGEN']]
+workflows[508]=['',['SoftQCDnonDiffractive_13TeV_pythia8','HARVESTGEN']]
+workflows[509]=['',['SoftQCDelastic_13TeV_pythia8','HARVESTGEN']]
+workflows[510]=['',['SoftQCDinelastic_13TeV_pythia8','HARVESTGEN']]
 
 # Matrix Element Generations (LHE Generation)
 
 # Hadronization (Hadronization of LHE)
-workflows[514]=['',['GGToH_13TeV_pythia8','HARVGEN']]
-workflows[515]=['',['ZJetsLLtaupinu_13TeV_madgraph-pythia8','HARVGEN']]
-workflows[516]=['',['WJetsLNutaupinu_13TeV_madgraph-pythia8','HARVGEN']]
-workflows[517]=['',['GGToHtaupinu_13TeV_pythia8','HARVGEN']]
-workflows[518]=['',['ZJetsLLtaurhonu_13TeV_madgraph-pythia8','HARVGEN']]
-workflows[519]=['',['WJetsLNutaurhonu_13TeV_madgraph-pythia8','HARVGEN']]
-workflows[520]=['',['GGToHtaurhonu_13TeV_pythia8','HARVGEN']]
+workflows[514]=['',['GGToH_13TeV_pythia8','HARVESTGEN']]
+workflows[515]=['',['ZJetsLLtaupinu_13TeV_madgraph-pythia8','HARVESTGEN']]
+workflows[516]=['',['WJetsLNutaupinu_13TeV_madgraph-pythia8','HARVESTGEN']]
+workflows[517]=['',['GGToHtaupinu_13TeV_pythia8','HARVESTGEN']]
+workflows[518]=['',['ZJetsLLtaurhonu_13TeV_madgraph-pythia8','HARVESTGEN']]
+workflows[519]=['',['WJetsLNutaurhonu_13TeV_madgraph-pythia8','HARVESTGEN']]
+workflows[520]=['',['GGToHtaurhonu_13TeV_pythia8','HARVESTGEN']]
 
 # External Decays
-workflows[524]=['',['GGToH_13TeV_pythia8-tauola','HARVGEN']]
-workflows[525]=['',['WToLNutaupinu_13TeV_pythia8-tauola','HARVGEN']]
-workflows[526]=['',['DYToLLtaupinu_M-50_13TeV_pythia8-tauola','HARVGEN']]
-workflows[527]=['',['GGToHtaupinu_13TeV_pythia8-tauola','HARVGEN']]
-workflows[528]=['',['WToLNutaurhonu_13TeV_pythia8-tauola','HARVGEN']]
-workflows[529]=['',['DYToLLtaurhonu_M-50_13TeV_pythia8-tauola','HARVGEN']]
-workflows[530]=['',['GGToHtaurhonu_13TeV_pythia8-tauola','HARVGEN']]
+workflows[524]=['',['GGToH_13TeV_pythia8-tauola','HARVESTGEN']]
+workflows[525]=['',['WToLNutaupinu_13TeV_pythia8-tauola','HARVESTGEN']]
+workflows[526]=['',['DYToLLtaupinu_M-50_13TeV_pythia8-tauola','HARVESTGEN']]
+workflows[527]=['',['GGToHtaupinu_13TeV_pythia8-tauola','HARVESTGEN']]
+workflows[528]=['',['WToLNutaurhonu_13TeV_pythia8-tauola','HARVESTGEN']]
+workflows[529]=['',['DYToLLtaurhonu_M-50_13TeV_pythia8-tauola','HARVESTGEN']]
+workflows[530]=['',['GGToHtaurhonu_13TeV_pythia8-tauola','HARVESTGEN']]
 
 # Heavy Ion
-#workflows[532]=['',['Hijing_PPb_MinimumBias','HARVGEN']]
+#workflows[532]=['',['Hijing_PPb_MinimumBias','HARVESTGEN']]
 
 # Miscellaneous
