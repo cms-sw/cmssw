@@ -44,8 +44,6 @@ void TrackingDQMClientHeavyIons::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore
   // It more robust to do the histogram manipulation in
   // this endRun function
   // needed to access the DQMStore::save method
-  theDQM = 0;
-  theDQM = Service<DQMStore>().operator->();
   
   ibooker.cd();
   ibooker.setCurrentFolder(TopFolder_);
@@ -77,9 +75,6 @@ void TrackingDQMClientHeavyIons::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore
   DCAStats->getTH2F()->SetBinContent(2,3,element1->getTH1F()->GetSkewness());//skewness
   DCAStats->getTH2F()->SetBinContent(2,4,element1->getTH1F()->GetKurtosis());//kurtosis
   
-
-  if ( ! outputFileName_.empty() ) theDQM->save(outputFileName_);
-
 }
 
 

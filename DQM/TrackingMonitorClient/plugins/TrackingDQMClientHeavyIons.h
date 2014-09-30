@@ -26,7 +26,6 @@ class TrackingDQMClientHeavyIons : public DQMEDHarvester
   bool isWildcardUsed_;
   bool resLimitedFit_;
 
-  DQMStore* theDQM;
   std::string histName;
   std::string TopFolder_;
   MonitorElement* DCAStats;
