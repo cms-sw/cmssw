@@ -270,7 +270,7 @@ def launch_monitoring(args):
         os.open(fifo, os.O_WRONLY)
 
         env = os.environ
-        env["MONDOG_PIPE"] = fifo
+        env["DQMMON_UPDATE_PIPE"] = fifo
 
     p = subprocess.Popen(args.pargs, preexec_fn=preexec, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
