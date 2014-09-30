@@ -36,42 +36,6 @@ aliases = {
     'BASEGT' : 'BASE1_V1|BASE2_V1'
 }
 
-# L1 configuration used during Run2012D
-conditions_L1_Run2012D = (
-    # L1 GT menu 2012 v3, used during Run2012D
-    'L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_CONDITIONS',
-    # L1 GCT configuration with 5 GeV jet seed threshold, used since Run2012C
-    'L1GctJetFinderParams_GCTPhysics_2012_04_27_JetSeedThresh5GeV_mc,L1GctJetFinderParamsRcd,frontier://FrontierProd/CMS_CONDITIONS',
-    'L1HfRingEtScale_GCTPhysics_2012_04_27_JetSeedThresh5GeV_mc,L1HfRingEtScaleRcd,frontier://FrontierProd/CMS_CONDITIONS',
-    'L1HtMissScale_GCTPhysics_2012_04_27_JetSeedThresh5GeV_mc,L1HtMissScaleRcd,frontier://FrontierProd/CMS_CONDITIONS',
-    'L1JetEtScale_GCTPhysics_2012_04_27_JetSeedThresh5GeV_mc,L1JetEtScaleRcd,frontier://FrontierProd/CMS_CONDITIONS',
-    # L1 CSCTF configuration used since Run2012B
-    'L1MuCSCPtLut_key-11_mc,L1MuCSCPtLutRcd,frontier://FrontierProd/CMS_CONDITIONS',
-    # L1 DTTF settings used since Run2012C
-    'L1MuDTTFParameters_dttf12_TSC_03_csc_col_mc,L1MuDTTFParametersRcd,frontier://FrontierProd/CMS_CONDITIONS',
-)
-
-autoCond['run1_mc']          = ( autoCond['run1_mc'], ) \
-                             + conditions_L1_Run2012D 
- 
-autoCond['run1_mc_hi']       = ( autoCond['run1_mc_hi'], ) \
-                             + conditions_L1_Run2012D 
- 
-autoCond['run1_mc_pa']       = ( autoCond['run1_mc_pa'], ) \
-                             + conditions_L1_Run2012D 
- 
-autoCond['run1_hlt']         = ( autoCond['run1_hlt'], ) \
-                             + conditions_L1_Run2012D 
- 
-autoCond['run1_data']        = ( autoCond['run1_data'], ) \
-                             + conditions_L1_Run2012D 
- 
-autoCond['run2_mc']          = ( autoCond['run2_mc'], ) \
-                             + conditions_L1_Run2012D 
- 
-autoCond['run2_mc_50ns']     = ( autoCond['run2_mc_50ns'], ) \
-                             + conditions_L1_Run2012D 
-
 # dedicated GlobalTags for MC production with the fixed HLT menus
 autoCond['run1_mc_2014']     = ( autoCond['run1_mc'] )
 autoCond['run1_mc_Fake']     = ( autoCond['run1_mc'] )
@@ -136,7 +100,7 @@ autoCond['upgrade2017']      = ( autoCond['phase1_2017_design'] )
 autoCond['upgrade2019']      = ( autoCond['phase1_2019_design'] )
 autoCond['upgradePLS3']      = ( autoCond['phase2_design'] )
 
-### OLD KEYS ### for HLT                                                                                                                                          
+### OLD KEYS ### for HLT
 
 autoCond['startup_2014']     = ( autoCond['run1_mc_2014'] )
 autoCond['startup_GRun']     = ( autoCond['run1_mc_GRun'] )
