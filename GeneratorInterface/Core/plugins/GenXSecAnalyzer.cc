@@ -10,6 +10,9 @@ GenXSecAnalyzer::GenXSecAnalyzer(const edm::ParameterSet& iConfig):
   totalEffStat_(0,0,0,0,0.,0.,0.,0.)
 {
   products_.clear();
+  
+  genFilterInfoToken_ = consumes<GenFilterInfo,edm::InLumi>(edm::InputTag("genFilterEfficiencyProducer",""));
+  genLumiInfoToken_ = consumes<GenLumiInfoProduct,edm::InLumi>(edm::InputTag("generator",""));
 }
 
 GenXSecAnalyzer::~GenXSecAnalyzer()
@@ -26,19 +29,23 @@ GenXSecAnalyzer::analyze(const edm::Event&, const edm::EventSetup&)
 {
 }
 
-// ------------ method called once each job just after ending the event loop  ------------
+
+void
+GenXSecAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::EventSetup const&) {
+}
 
 void
 GenXSecAnalyzer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::EventSetup const&) {
 
   edm::Handle<GenFilterInfo> genFilter;
-  if(iLumi.getByLabel("genFilterEfficiencyProducer", genFilter))
+  iLumi.getByToken(genFilterInfoToken_,genFilter);
+  if(genFilter.isValid())
     totalEffStat_.mergeProduct(*genFilter);
 
 
   edm::Handle<GenLumiInfoProduct> genLumiInfo;
-  bool foundLumiInfo = iLumi.getByLabel("generator",genLumiInfo);
-  if (!foundLumiInfo) return;
+  iLumi.getByToken(genLumiInfoToken_,genLumiInfo);
+  if (!genLumiInfo.isValid()) return;
   
   hepidwtup_ = genLumiInfo->getHEPIDWTUP();
 
