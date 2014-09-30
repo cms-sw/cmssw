@@ -149,6 +149,7 @@
 	<class name="GenLumiInfoProduct::XSec" ClassVersion="10">
 	  <version ClassVersion="10" checksum="1482608724"/> 
 	</class>
+        <class name="std::vector&lt;GenLumiInfoProduct::ProcessInfo&gt;"/>
 	<class name="GenLumiInfoProduct::ProcessInfo" ClassVersion="10">
 	  <version ClassVersion="10" checksum="621228037"/>
 	</class>
