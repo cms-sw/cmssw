@@ -37,8 +37,9 @@ GenXSecAnalyzer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::Even
 
 
   edm::Handle<GenLumiInfoProduct> genLumiInfo;
-  iLumi.getByLabel("generator",genLumiInfo);
-
+  bool foundLumiInfo = iLumi.getByLabel("generator",genLumiInfo);
+  if (!foundLumiInfo) return;
+  
   hepidwtup_ = genLumiInfo->getHEPIDWTUP();
 
   std::vector<GenLumiInfoProduct::ProcessInfo> theProcesses = genLumiInfo->getProcessInfos();
@@ -238,8 +239,20 @@ GenXSecAnalyzer::compute()
 void
 GenXSecAnalyzer::endJob() {
 
-  if(products_.size()>0)
-    compute();
+  std::cout << std::endl;
+  std::cout << "------------------------------------" << std::endl;
+  std::cout << "GenXsecAnalyzer:" << std::endl;
+  std::cout << "------------------------------------" << std::endl;  
+  
+  if(!products_.size()) {
+    std::cout << "------------------------------------" << std::endl;
+    std::cout << "Cross-section summary not available" << std::endl;
+    std::cout << "------------------------------------" << std::endl;
+    return;
+  }
+  
+  
+  compute();
 
   double filterOnly_eff = totalEffStat_.filterEfficiency(hepidwtup_);
   double filterOnly_err = totalEffStat_.filterEfficiencyError(hepidwtup_);
@@ -247,7 +260,6 @@ GenXSecAnalyzer::endJob() {
   double jetmatching_eff_total = jetMatchEffStat_.filterEfficiency(hepidwtup_);
   double jetmatching_err_total = jetMatchEffStat_.filterEfficiencyError(hepidwtup_);
 
-  std::cout << std::endl;
   std::cout << "------------------------------------" << std::endl;
   std::cout << "Overall cross-section summary:" << std::endl;
   std::cout << "------------------------------------" << std::endl;
