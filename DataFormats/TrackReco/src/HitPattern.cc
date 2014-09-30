@@ -450,10 +450,10 @@ int HitPattern::trackerLayersWithMeasurement() const {
      uint16_t hitType = (pattern >> HitTypeOffset) & HitTypeMask;
      if (hitType != HIT_TYPE::VALID) continue;
      pattern = (pattern-minTrackerWord) >> LayerOffset;
-     assert(pattern<256);
+     // assert(pattern<256);
      layerOk.set(pattern);
    }
-   assert(trackerLayersWithMeasurementOld()==int(layerOk.count()));
+   // assert(trackerLayersWithMeasurementOld()==int(layerOk.count()));
    return layerOk.count(); 
 }
 
@@ -466,13 +466,13 @@ int HitPattern::trackerLayersWithoutMeasurement(HitCategory category) const {
      if unlikely(!trackerHitFilter(pattern)) continue;
      uint16_t hitType = (pattern >> HitTypeOffset) & HitTypeMask;
      pattern = (pattern-minTrackerWord) >> LayerOffset;
-     assert(pattern<256);
+     // assert(pattern<256);
      if (hitType == HIT_TYPE::VALID) layerOk.set(pattern);
      if (hitType == HIT_TYPE::MISSING) layerMissed.set(pattern);
    }
    for (int i=0; i<256; ++i) if (layerOk.test(i)) layerMissed.set(i,0);
 
-   assert(trackerLayersWithoutMeasurementOld(category)==int(layerMissed.count()));
+   // assert(trackerLayersWithoutMeasurementOld(category)==int(layerMissed.count()));
 
    return layerMissed.count();
  
