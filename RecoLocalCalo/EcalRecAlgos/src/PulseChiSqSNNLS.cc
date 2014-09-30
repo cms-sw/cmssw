@@ -336,7 +336,8 @@ bool PulseChiSqSNNLS::updateCov(const SampleMatrix &samplecor, double pederr, co
     const double ampsq = ampveccoef*ampveccoef;
     
     const unsigned int nsamplepulse = nsample-firstsamplet;    
-    _invcov.block(firstsamplet,firstsamplet,nsamplepulse,nsamplepulse).triangularView<Eigen::Lower>() += ampsq*fullpulsecov.block(firstsamplet+offset,firstsamplet+offset,nsamplepulse,nsamplepulse); //   
+    _invcov.block(firstsamplet,firstsamplet,nsamplepulse,nsamplepulse) += 
+      ampsq*fullpulsecov.block(firstsamplet+offset,firstsamplet+offset,nsamplepulse,nsamplepulse);   
   }
   
   _covdecomp.compute(_invcov);
