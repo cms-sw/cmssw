@@ -10,6 +10,8 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
+#include<bitset>
+
 using namespace reco;
 
 HitPattern::HitPattern() :
@@ -435,6 +437,24 @@ uint16_t HitPattern::getTrackerMonoStereo(HitCategory category, uint16_t substr,
         }
     }
     return monoStereo;
+}
+
+
+int HitPattern::trackerLayersWithMeasurement() const {
+   auto category = TRACK_HITS;
+   std::bitset<256> layerOk;
+   std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
+   for (int i = range.first; i < range.second; ++i) {
+     auto pattern = getHitPatternByAbsoluteIndex(i);
+     if unlikely(!trackerHitFilter(pattern)) continue;
+     uint16_t hitType = (pattern >> HitTypeOffset) & HitTypeMask;
+     if (hitType != HIT_TYPE::VALID) continue;
+     pattern = (pattern-minTrackerWord) >> LayerOffset;
+     assert(pattern<256);
+     layerOk.set(pattern);
+   }
+   assert(trackerLayersWithMeasurementOld()==int(layerOk.count()));
+   return layerOk.count(); 
 }
 
 int HitPattern::pixelBarrelLayersWithMeasurement() const

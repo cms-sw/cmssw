@@ -285,6 +285,7 @@ public:
     uint32_t getTrackerLayerCase(HitCategory category, uint16_t substr, uint16_t layer) const;
     uint16_t getTrackerMonoStereo(HitCategory category, uint16_t substr, uint16_t layer) const;
 
+    int trackerLayersWithMeasurementOld() const;        // case 0: tracker
     int trackerLayersWithMeasurement() const;        // case 0: tracker
     int pixelLayersWithMeasurement() const;          // case 0: pixel
     int stripLayersWithMeasurement() const;          // case 0: strip
@@ -903,7 +904,7 @@ inline int HitPattern::numberOfInactiveTrackerHits() const
     return countTypedHits(TRACK_HITS, inactiveHitFilter, trackerHitFilter);
 }
 
-inline int HitPattern::trackerLayersWithMeasurement() const
+inline int HitPattern::trackerLayersWithMeasurementOld() const
 {
     return pixelLayersWithMeasurement() + stripLayersWithMeasurement();
 }
