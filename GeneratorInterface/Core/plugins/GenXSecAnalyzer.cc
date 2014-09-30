@@ -246,15 +246,15 @@ GenXSecAnalyzer::compute()
 void
 GenXSecAnalyzer::endJob() {
 
-  std::cout << std::endl;
-  std::cout << "------------------------------------" << std::endl;
-  std::cout << "GenXsecAnalyzer:" << std::endl;
-  std::cout << "------------------------------------" << std::endl;  
+  edm::LogPrint("GenXSecAnalyzer") << "\n"
+  << "------------------------------------" << "\n"
+  << "GenXsecAnalyzer:" << "\n"
+  << "------------------------------------";
   
   if(!products_.size()) {
-    std::cout << "------------------------------------" << std::endl;
-    std::cout << "Cross-section summary not available" << std::endl;
-    std::cout << "------------------------------------" << std::endl;
+    edm::LogPrint("GenXSecAnalyzer") << "------------------------------------" << "\n"
+    << "Cross-section summary not available" << "\n"
+    << "------------------------------------";
     return;
   }
   
@@ -267,31 +267,30 @@ GenXSecAnalyzer::endJob() {
   double jetmatching_eff_total = jetMatchEffStat_.filterEfficiency(hepidwtup_);
   double jetmatching_err_total = jetMatchEffStat_.filterEfficiencyError(hepidwtup_);
 
-  std::cout << "------------------------------------" << std::endl;
-  std::cout << "Overall cross-section summary:" << std::endl;
-  std::cout << "------------------------------------" << std::endl;
+  edm::LogPrint("GenXSecAnalyzer") << "------------------------------------" << "\n"
+  << "Overall cross-section summary:" << "\n"
+  << "------------------------------------";
   
-  std::cout << "jet matching efficiency = " << 
+  edm::LogPrint("GenXSecAnalyzer") << "jet matching efficiency = " << 
     jetMatchEffStat_.sumPassWeights() << "/" << 
     jetMatchEffStat_.sumWeights() << " = " 
-	   << std::setprecision(6) << jetmatching_eff_total << " +- " << jetmatching_err_total << std::endl;
+	   << std::setprecision(6) << jetmatching_eff_total << " +- " << jetmatching_err_total << "\n";
 
-  std::cout << "Before filter: cross section = " << std::setprecision(6)  << xsec_.value() << " +- " << std::setprecision(6) << xsec_.error() <<  " pb" << std::endl;
+  edm::LogPrint("GenXSecAnalyzer") << "Before filter: cross section = " << std::setprecision(6)  << xsec_.value() << " +- " << std::setprecision(6) << xsec_.error() <<  " pb";
 
-  std::cout << "Filter efficiency = " << std::setprecision(6)  
-	    << filterOnly_eff << " +- " << filterOnly_err << std::endl;
+  edm::LogPrint("GenXSecAnalyzer") << "Filter efficiency = " << std::setprecision(6)  
+	    << filterOnly_eff << " +- " << filterOnly_err;
 
 
   double xsec_after  = xsec_.value()*filterOnly_eff ;
   double error_after = xsec_after*sqrt(xsec_.error()*xsec_.error()/xsec_.value()/xsec_.value()+
 				  filterOnly_err*filterOnly_err/filterOnly_eff/filterOnly_eff);
 
-  std::cout << "After filter: cross section = " 
+  edm::LogPrint("GenXSecAnalyzer") << "After filter: cross section = " 
 	    << std::setprecision(6) << xsec_after
 	    << " +- " 
 	    << std::setprecision(6) << error_after
-	    << " pb"
-	    << std::endl;
+	    << " pb";
 
 }
 
