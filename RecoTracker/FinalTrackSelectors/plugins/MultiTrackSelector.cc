@@ -314,6 +314,23 @@ void MultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) const
   if(tk.found()>=min_hits_bypass_[tsNum]) return true;
   if ( tk.ndof() < 1E-5 ) return false;
 
+  //cuts on number of valid hits
+  uint32_t nhits = tk.numberOfValidHits();
+  if(nhits < min_nhits_[tsNum]) return false;
+
+
+  //////////////////////////////////////////////////
+  //Adding the MVA selection before any other cut//
+  ////////////////////////////////////////////////
+  if(useAnyMVA_ && useMVA_[tsNum]){
+    if(mvaVal < min_MVA_[tsNum])return false;
+  }
+  /////////////////////////////////
+  //End of MVA selection section//
+  ///////////////////////////////
+
+
+
   // Cuts on numbers of layers with hits/3D hits/lost hits.
   uint32_t nlayers     = tk.hitPattern().trackerLayersWithMeasurement();
   uint32_t nlayers3D   = tk.hitPattern().pixelLayersWithMeasurement() +
@@ -352,11 +369,9 @@ void MultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) const
   float eta = tk.eta();
   if (eta<min_eta_[tsNum] || eta>max_eta_[tsNum]) return false;
 
-  //cuts on relative error on pt and number of valid hits
+  //cuts on relative error on pt
   float relpterr = float(tk.ptError())/pt;
-  uint32_t nhits = tk.numberOfValidHits();
   if(relpterr > max_relpterr_[tsNum]) return false;
-  if(nhits < min_nhits_[tsNum]) return false;
 
   int lostIn = tk.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_INNER_HITS);
   int lostOut = tk.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_OUTER_HITS);
@@ -367,18 +382,6 @@ void MultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) const
 
 
 
-  ///////////////////////////////////////////////
-  //Adding the MVA selection before vertex cuts//
-  ///////////////////////////////////////////////
-
-  if(useAnyMVA_ && useMVA_[tsNum]){
-    if(mvaVal < min_MVA_[tsNum])return false;
-  }
-
-  ////////////////////////////////
-  //End of MVA selection section//
-  ////////////////////////////////
-
   //other track parameters
   float d0 = -tk.dxy(vertexBeamSpot.position()), d0E =  tk.d0Error(),
     dz = tk.dz(vertexBeamSpot.position()), dzE =  tk.dzError();
@@ -388,10 +391,10 @@ void MultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) const
   // parametrized z0 resolution for the track pt and eta
   float nomdzE = nomd0E*(std::cosh(eta));
 
-  float dzCut = min( pow(dz_par1_[tsNum][0]*nlayers,dz_par1_[tsNum][1])*nomdzE, 
-		      pow(dz_par2_[tsNum][0]*nlayers,dz_par2_[tsNum][1])*dzE );
-  float d0Cut = min( pow(d0_par1_[tsNum][0]*nlayers,d0_par1_[tsNum][1])*nomd0E, 
-		      pow(d0_par2_[tsNum][0]*nlayers,d0_par2_[tsNum][1])*d0E );
+  float dzCut = std::min( pow(dz_par1_[tsNum][0]*nlayers,dz_par1_[tsNum][1])*nomdzE, 
+		          pow(dz_par2_[tsNum][0]*nlayers,dz_par2_[tsNum][1])*dzE );
+  float d0Cut = std::min( pow(d0_par1_[tsNum][0]*nlayers,d0_par1_[tsNum][1])*nomd0E, 
+		          pow(d0_par2_[tsNum][0]*nlayers,d0_par2_[tsNum][1])*d0E );
 
 
   // ---- PrimaryVertex compatibility cut
