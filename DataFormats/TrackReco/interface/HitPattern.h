@@ -382,6 +382,11 @@ private:
     const static unsigned short SubDetectorOffset = 10;
     const static unsigned short SubDetectorMask = 0x1;
 
+    const static unsigned short minTrackerWord = 1<< SubDetectorOffset;
+    const static unsigned short minPixelWord = minTrackerWord |  (1<<SubstrOffset);
+    const static unsigned short minStripWord = minTrackerWord |  (3<<SubstrOffset);
+
+
     // detector side for tracker modules (mono/stereo)
     static uint16_t isStereo(DetId i);
     static bool stripSubdetectorHitFilter(uint16_t pattern, StripSubdetector::SubDetector substructure);
@@ -527,16 +532,9 @@ inline bool HitPattern::pixelEndcapHitFilter(uint16_t pattern)
 
 inline bool HitPattern::stripHitFilter(uint16_t pattern)
 {
-    if unlikely(!trackerHitFilter(pattern)) {
-        return false;
-    }
-
-    uint32_t substructure = getSubStructure(pattern);
-    return (substructure == StripSubdetector::TIB ||
-            substructure == StripSubdetector::TID ||
-            substructure == StripSubdetector::TOB ||
-            substructure == StripSubdetector::TEC);
+    return pattern > minStripWord;
 }
+
 
 inline bool HitPattern::stripSubdetectorHitFilter(uint16_t pattern, StripSubdetector::SubDetector substructure)
 {
@@ -599,11 +597,7 @@ inline bool HitPattern::muonRPCHitFilter(uint16_t pattern)
 
 inline bool HitPattern::trackerHitFilter(uint16_t pattern)
 {
-    if unlikely(pattern == HitPattern::EMPTY_PATTERN) {
-        return false;
-    }
-
-    return (((pattern >> SubDetectorOffset) & SubDetectorMask) == 1);
+  return pattern > minTrackerWord;
 }
 
 inline bool HitPattern::muonHitFilter(uint16_t pattern)
