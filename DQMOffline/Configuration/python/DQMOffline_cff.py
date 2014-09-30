@@ -19,7 +19,6 @@ from Validation.RecoTau.DQMSequences_cfi import *
 from DQMOffline.Hcal.HcalDQMOfflineSequence_cff import *
 from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
 
-from HLTriggerOffline.Higgs.hltHiggsBtagPFjet_cff import *
 
 
 DQMOfflinePreDPG = cms.Sequence( dqmDcsInfo *
@@ -57,7 +56,6 @@ DQMOfflinePrePOG = cms.Sequence( TrackingDQMSourceTier0 *
                                  bTagPlotsDATA *
                                  alcaBeamMonitor *
                                  dqmPhysics *
-				 prebTagSequence *
                                  produceDenoms *
                                  pfTauRunDQMValidation)
 
