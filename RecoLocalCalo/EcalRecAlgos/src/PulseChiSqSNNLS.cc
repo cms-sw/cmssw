@@ -3,6 +3,166 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
+void eigen_solve_submatrix(PulseMatrix& mat, PulseVector& invec, PulseVector& outvec, unsigned NP) {
+  using namespace Eigen;
+  switch( NP ) { // pulse matrix is always square.
+  case 10:
+    {
+      Matrix<double,10,10> temp = mat;
+      outvec.head<10>() = temp.ldlt().solve(invec.head<10>());
+    }
+    break;
+  case 9:
+    {
+      Matrix<double,9,9> temp = mat.topLeftCorner<9,9>();
+      outvec.head<9>() = temp.ldlt().solve(invec.head<9>());
+    }
+    break;
+  case 8:
+    {
+      Matrix<double,8,8> temp = mat.topLeftCorner<8,8>();
+      outvec.head<8>() = temp.ldlt().solve(invec.head<8>());
+    }
+    break;
+  case 7:
+    {
+      Matrix<double,7,7> temp = mat.topLeftCorner<7,7>();
+      outvec.head<7>() = temp.ldlt().solve(invec.head<7>());
+    }
+    break;
+  case 6:
+    {
+      Matrix<double,6,6> temp = mat.topLeftCorner<6,6>();
+      outvec.head<6>() = temp.ldlt().solve(invec.head<6>());
+    }
+    break;
+  case 5:
+    {
+      Matrix<double,5,5> temp = mat.topLeftCorner<5,5>();
+      outvec.head<5>() = temp.ldlt().solve(invec.head<5>());
+    }
+    break;
+  case 4:
+    {
+      Matrix<double,4,4> temp = mat.topLeftCorner<4,4>();
+      outvec.head<4>() = temp.ldlt().solve(invec.head<4>());
+    }
+    break;
+  case 3: 
+    {
+      Matrix<double,3,3> temp = mat.topLeftCorner<3,3>();
+      outvec.head<3>() = temp.ldlt().solve(invec.head<3>());
+    }
+    break;
+  case 2:
+    {
+      Matrix<double,2,2> temp = mat.topLeftCorner<2,2>();
+      outvec.head<2>() = temp.ldlt().solve(invec.head<2>());
+    }
+    break;
+  case 1:
+    {
+      Matrix<double,1,1> temp = mat.topLeftCorner<1,1>();
+      outvec.head<1>() = temp.ldlt().solve(invec.head<1>());
+    }
+    break;
+  default:
+    throw cms::Exception("MultFitWeirdState")
+      << "Weird number of pulses encountered in multifit!";
+  }
+}
+/*
+void eigen_partial_cholesky_solve(PulseMatrix& mat, PulseVector& invec, PulseVector& outvec) {
+  using namespace Eigen;
+  switch(mat.cols()) {
+  case 10:
+    {
+      Matrix<double,10,10> temp = mat.topLeftCorner<10,10>();
+      LLT<Matrix<double,10,10> > decomp;
+      decomp.compute(temp);
+      outvec.head<10>() = decomp.matrixL().solve(invec.head<10>());
+    }
+    break;
+  case 9:
+    {
+      Matrix<double,9,9> temp = mat.topLeftCorner<9,9>();
+      LLT<Matrix<double,9,9> > decomp;
+      decomp.compute(temp);
+      outvec.head<9>() = decomp.matrixL().solve(invec.head<9>());
+    }
+    break;
+  case 8:
+    {
+      Matrix<double,8,8> temp = mat.topLeftCorner<8,8>();
+      LLT<Matrix<double,8,8> > decomp;
+      decomp.compute(temp);
+      outvec.head<8>() = decomp.matrixL().solve(invec.head<8>());
+    }
+    break;
+  case 7:
+    {
+      Matrix<double,7,7> temp = mat.topLeftCorner<7,7>();
+      LLT<Matrix<double,7,7> > decomp;
+      decomp.compute(temp);
+      outvec.head<7>() = decomp.matrixL().solve(invec.head<7>());
+    }
+    break;
+  case 6:
+    {
+      Matrix<double,6,6> temp = mat.topLeftCorner<6,6>();
+      LLT<Matrix<double,6,6> > decomp;
+      decomp.compute(temp);
+      outvec.head<6>() = decomp.matrixL().solve(invec.head<6>());
+    }
+    break;
+  case 5:
+    {
+      Matrix<double,5,5> temp = mat.topLeftCorner<5,5>();
+      LLT<Matrix<double,5,5> > decomp;
+      decomp.compute(temp);
+      outvec.head<5>() = decomp.matrixL().solve(invec.head<5>());
+    }
+    break;
+  case 4:
+    {
+      Matrix<double,4,4> temp = mat.topLeftCorner<4,4>();
+      LLT<Matrix<double,4,4> > decomp;
+      decomp.compute(temp);
+      outvec.head<4>() = decomp.matrixL().solve(invec.head<4>());
+    }
+    break;
+  case 3:
+    {
+      Matrix<double,3,3> temp = mat.topLeftCorner<3,3>();
+      LLT<Matrix<double,3,3> > decomp;
+      decomp.compute(temp);
+      outvec.head<3>() = decomp.matrixL().solve(invec.head<3>());
+    }
+    break;
+  case 2: 
+    {
+      Matrix<double,2,2> temp = mat.topLeftCorner<2,2>();
+      LLT<Matrix<double,2,2> > decomp;
+      decomp.compute(temp);
+      outvec.head<2>() = decomp.matrixL().solve(invec.head<2>());
+    }
+    break;
+  case 1:
+    {
+      Matrix<double,1,1> temp = mat.topLeftCorner<1,1>();
+      LLT<Matrix<double,1,1> > decomp;
+      decomp.compute(temp);
+      outvec.head<1>() = decomp.matrixL().solve(invec.head<1>());
+    }
+    break;
+  default:
+    throw cms::Exception("MultFitWeirdState")
+      << "Weird number of pulses encountered in multifit!";
+  }
+}
+*/
+
+
 PulseChiSqSNNLS::PulseChiSqSNNLS() :
   _chisq(0.),
   _computeErrors(true)
@@ -19,23 +179,24 @@ PulseChiSqSNNLS::~PulseChiSqSNNLS() {
 bool PulseChiSqSNNLS::DoFit(const SampleVector &samples, const SampleMatrix &samplecor, double pederr, const BXVector &bxs, const FullSampleVector &fullpulse, const FullSampleMatrix &fullpulsecov) {
  
   //const unsigned int nsample = SampleVector::RowsAtCompileTime;
-  const unsigned int npulse = bxs.rows();
+  _npulsetot = bxs.rows();
+  //const unsigned int npulse = bxs.rows();
 
   _sampvec = samples;
   _bxs = bxs;
   
   //_pulsemat = SamplePulseMatrix::Zero(nsample,npulse);
-  _pulsemat.resize(Eigen::NoChange,npulse);
-  _ampvec = PulseVector::Zero(npulse);
-  _errvec = PulseVector::Zero(npulse);  
+  _pulsemat.resize(Eigen::NoChange,_npulsetot);
+  _ampvec = PulseVector::Zero(_npulsetot);
+  _errvec = PulseVector::Zero(_npulsetot);  
   _nP = 0;
   _chisq = 0.;
   
-  aTamat.resize(npulse,npulse);
-  wvec.resize(npulse);
+  aTamat.resize(_npulsetot,_npulsetot);
+  wvec.resize(_npulsetot);
 
   //initialize pulse template matrix
-  for (unsigned int ipulse=0; ipulse<npulse; ++ipulse) {
+  for (unsigned int ipulse=0; ipulse<_npulsetot; ++ipulse) {
     int bx = _bxs.coeff(ipulse);
     //int firstsamplet = std::max(0,bx + 3);
     int offset = 7-3-bx;
@@ -58,7 +219,7 @@ bool PulseChiSqSNNLS::DoFit(const SampleVector &samples, const SampleMatrix &sam
   //compute MINOS-like uncertainties for in-time amplitude
   bool foundintime = false;
   unsigned int ipulseintime = 0;
-  for (unsigned int ipulse=0; ipulse<npulse; ++ipulse) {
+  for (unsigned int ipulse=0; ipulse<_npulsetot; ++ipulse) {
     if (_bxs.coeff(ipulse)==0) {
       ipulseintime = ipulse;
       foundintime = true;
@@ -98,7 +259,7 @@ bool PulseChiSqSNNLS::DoFit(const SampleVector &samples, const SampleMatrix &sam
   
   //if amplitude is sufficiently far from the boundary, compute also the lower uncertainty and average them
   if ( (x0/sigmaplus) > 0.5 ) {
-    for (unsigned int ipulse=0; ipulse<npulse; ++ipulse) {
+    for (unsigned int ipulse=0; ipulse<_npulsetot; ++ipulse) {
       if (_bxs.coeff(ipulse)==0) {
         ipulseintime = ipulse;
         break;
@@ -161,9 +322,9 @@ bool PulseChiSqSNNLS::updateCov(const SampleMatrix &samplecor, double pederr, co
  
   const unsigned int nsample = SampleVector::RowsAtCompileTime;
   const unsigned int npulse = _bxs.rows();
-  
-  // don't remove this triangular view, greatly speeds up constant*matrix
-  _invcov.triangularView<Eigen::Lower>() = (pederr*pederr)*samplecor; //
+
+  const double pederr2 = pederr*pederr;
+  _invcov = pederr2*samplecor; //
   
   for (unsigned int ipulse=0; ipulse<npulse; ++ipulse) {
     if (_ampvec.coeff(ipulse)==0.) continue;
@@ -208,10 +369,10 @@ bool PulseChiSqSNNLS::NNLS() {
   //Fast NNLS (fnnls) algorithm as per http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.157.9203&rep=rep1&type=pdf
   
   const unsigned int npulse = _bxs.rows();
-  
+
   invcovp = _covdecomp.matrixL().solve(_pulsemat);
   aTamat = invcovp.transpose()*invcovp; //.triangularView<Eigen::Lower>()
-  //aTamat = aTamat.selfadjointView<Eigen::Lower>();
+  //aTamat = aTamat.selfadjointView<Eigen::Lower>();  
   aTbvec = invcovp.transpose()*_covdecomp.matrixL().solve(_sampvec);  
   
   int iter = 0;
@@ -225,7 +386,7 @@ bool PulseChiSqSNNLS::NNLS() {
       
       const unsigned int nActive = npulse - _nP;
       
-      updatework = aTbvec - (aTamat*_ampvec);      
+      updatework = aTbvec - aTamat*_ampvec;      
       wmax = updatework.tail(nActive).maxCoeff(&idxwmax);
       
       //convergence
@@ -255,14 +416,14 @@ bool PulseChiSqSNNLS::NNLS() {
       ampvecpermtest = _ampvec;
       
       //solve for unconstrained parameters 
-      //using block and de-inlining gives somewhat better performance 
-      auto aTbvechead = aTbvec.head(_nP);
-      auto aTamat_topleft = aTamat.block(0,0,_nP,_nP);
-      ampvecpermtest.head(_nP) = aTamat_topleft.ldlt().solve(aTbvechead);
+      //need to have specialized function to call optimized versions
+      // of matrix solver... this is truly amazing...
+      eigen_solve_submatrix(aTamat,aTbvec,ampvecpermtest,_nP);
       
       //check solution
-      if ( ampvecpermtest.head(_nP).minCoeff()>0. ) {
-        _ampvec.head(_nP) = ampvecpermtest.head(_nP);
+      auto ampvecpermhead = ampvecpermtest.head(_nP);
+      if ( ampvecpermhead.minCoeff()>0. ) {
+        _ampvec.head(_nP) = ampvecpermhead.head(_nP);
         break;
       }      
 
@@ -282,7 +443,7 @@ bool PulseChiSqSNNLS::NNLS() {
         }
       }
 
-      _ampvec.head(_nP) += minratio*(ampvecpermtest.head(_nP) - _ampvec.head(_nP));
+      _ampvec.head(_nP) += minratio*(ampvecpermhead - _ampvec.head(_nP));
       
       //avoid numerical problems with later ==0. check
       _ampvec.coeffRef(minratioidx) = 0.;

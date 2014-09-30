@@ -45,9 +45,13 @@ class PulseChiSqSNNLS {
     PulseVector _ampvecmin;
     
     SampleDecompLLT _covdecomp;
+    SampleMatrix _covdecompLinv;
+    PulseMatrix _topleft_work;
+    PulseDecompLDLT _pulsedecomp;
 
     BXVector _bxs;
     BXVector _bxsmin;
+    unsigned int _npulsetot;
     unsigned int _nP;
     
     SamplePulseMatrix invcovp;
