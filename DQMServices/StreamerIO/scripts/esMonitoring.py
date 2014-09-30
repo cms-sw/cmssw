@@ -262,9 +262,12 @@ CURRENT_PROC = []
 def launch_monitoring(args):
     fifo = create_fifo()
     mon_fd = os.open(fifo, os.O_RDONLY | os.O_NONBLOCK)
-    mon_fd = os.fdopen(mon_fd)
+    mon_file = os.fdopen(mon_fd)
 
     def preexec():
+        # this should only be open on a parent
+        os.close(mon_fd)
+
         # open fifo once (hack)
         # so there is *always* at least one writter
         # which closes with the executable
@@ -292,7 +295,7 @@ def launch_monitoring(args):
 
     stdout_cap = DescriptorCapture(p.stdout, write_files=[sys.stdout, s_hist, report_sink, ], )
     stderr_cap = DescriptorCapture(p.stderr, write_files=[sys.stderr, s_hist, report_sink, ], )
-    stdmon_cap = DescriptorCapture(mon_fd, write_files=[s_json, report_sink, ],)
+    stdmon_cap = DescriptorCapture(mon_file, write_files=[s_json, report_sink, ],)
 
     fs = [stdout_cap, stderr_cap, stdmon_cap]
     try:
