@@ -353,11 +353,11 @@ FastL1Region::FillTower_Scaled(const CaloTower& t, int& tid, bool doRCTTrunc,edm
   double hadScale = 1.0;
   //double outerScale = 1.0;
 
-  if (std::abs(t.eta()>1.3050) && std::abs(t.eta())<3.0) {
+  if ((std::abs(t.eta()) > 1.3050) && (std::abs(t.eta()) < 3.0)) {
     hadScale = Config.TowerHEScale;
     emScale = Config.TowerEEScale;
   }
-  if (std::abs(t.eta()<1.3050)) {
+  if (std::abs(t.eta()) < 1.3050) {
     hadScale = Config.TowerHBScale;
     emScale = Config.TowerEBScale;
   }
