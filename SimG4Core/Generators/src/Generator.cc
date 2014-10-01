@@ -374,6 +374,21 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt, G4Event * g4evt)
     G4PrimaryVertex* g4vtx = new G4PrimaryVertex(0.0, 0.0, 0.0, 0.0);
     if ( verbose > 1 ) g4vtx->Print();
     g4evt->AddPrimaryVertex(g4vtx);
+
+  } else {
+    // restore original particle status
+    // to avoid problem downstream
+    for(HepMC::GenEvent::vertex_const_iterator vitr= evt->vertices_begin();
+	vitr != evt->vertices_end(); ++vitr ) { 
+      HepMC::GenVertex::particle_iterator pitr;
+      for (pitr= (*vitr)->particles_begin(HepMC::children);
+         pitr != (*vitr)->particles_end(HepMC::children); ++pitr){
+	int status = (*pitr)->status();
+	if(status > 1000) {
+	  (*pitr)->set_status(status - 1000); 
+	} 
+      }
+    }
   }
 }
 
@@ -448,7 +463,8 @@ void Generator::particleAssignDaughters( G4PrimaryParticle* g4p,
         particleAssignDaughters(g4daught,*vpdec,dd);
       }
     // this line is the source of the "tau-bug" in 7_2_0_pre5
-    //(*vpdec)->set_status(1000+(*vpdec)->status()); 
+    // because the particle status was changed
+    (*vpdec)->set_status(1000+(*vpdec)->status()); 
     g4p->SetDaughter(g4daught);
 
     if ( verbose > 1 ) g4daught->Print();
