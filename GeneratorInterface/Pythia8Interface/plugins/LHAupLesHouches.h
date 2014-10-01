@@ -21,7 +21,7 @@
 
 class LHAupLesHouches : public Pythia8::LHAup {
   public:
-    LHAupLesHouches() {;}
+    LHAupLesHouches() : ignoreTauSpinUp_(false) {;}
 
     //void loadRunInfo(const boost::shared_ptr<lhef::LHERunInfo> &runInfo)
     void loadRunInfo(lhef::LHERunInfo* runInfo)
@@ -30,12 +30,16 @@ class LHAupLesHouches : public Pythia8::LHAup {
     //void loadEvent(const boost::shared_ptr<lhef::LHEEvent> &event)
     void loadEvent(lhef::LHEEvent* event)
       { this->event = event; }
+      
+    void setIgnoreTauSpinUp(bool b) { ignoreTauSpinUp_ = b; }
 
   private:
 
     bool setInit();
     bool setEvent(int idProcIn, double mRecalculate = -1.);
 
+    bool ignoreTauSpinUp_;
+    
     //boost::shared_ptr<lhef::LHERunInfo> runInfo;
     lhef::LHERunInfo* runInfo;
     //boost::shared_ptr<lhef::LHEEvent>	event;
