@@ -51,8 +51,8 @@ namespace Phase2Tracker {
               clusterdatasize_ = S_CLUSTER_SIZE_BITS;  
               clustersLeft_ = (channel.length()*8 - channel.bitoffset())/clusterdatasize_;
           }
-          inline uint8_t clusterIndex() { return (uint8_t)read_n_at_m(data_,8,5+currentOffset_);  }
-          inline uint8_t clusterSize()  { return (uint8_t)read_n_at_m(data_,3,13+currentOffset_); }
+          inline uint8_t clusterIndex() { return (uint8_t)read_n_at_m(data_,8,3+currentOffset_);  }
+          inline uint8_t clusterSize()  { return (uint8_t)read_n_at_m(data_,3,currentOffset_); }
   };
 
   class Phase2TrackerFEDZSPChannelUnpacker : public Phase2TrackerFEDZSChannelUnpacker
@@ -63,9 +63,9 @@ namespace Phase2Tracker {
               clusterdatasize_ = P_CLUSTER_SIZE_BITS;  
               clustersLeft_ = (channel.length()*8 - channel.bitoffset())/clusterdatasize_;
           }
-          inline uint8_t clusterIndex() { return (uint8_t)read_n_at_m(data_,7,5+currentOffset_);  }
-          inline uint8_t clusterZpos()  { return (uint8_t)read_n_at_m(data_,4,12+currentOffset_); }
-          inline uint8_t clusterSize()  { return (uint8_t)read_n_at_m(data_,3,16+currentOffset_); }
+          inline uint8_t clusterIndex() { return (uint8_t)read_n_at_m(data_,7,7+currentOffset_);  }
+          inline uint8_t clusterZpos()  { return (uint8_t)read_n_at_m(data_,4,3+currentOffset_); }
+          inline uint8_t clusterSize()  { return (uint8_t)read_n_at_m(data_,3,currentOffset_); }
   };
 
 } // end of Phase2Tracker namespace
