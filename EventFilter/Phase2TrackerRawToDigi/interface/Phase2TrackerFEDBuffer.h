@@ -27,7 +27,8 @@ namespace Phase2Tracker {
       size_t bufferSize() const { return bufferSize_; }
       Phase2TrackerFEDHeader trackerHeader() const { return trackerHeader_; }
       const Phase2TrackerFEDChannel& channel(const uint8_t internalPhase2TrackerFEDChannelNum) const { return channels_[internalPhase2TrackerFEDChannelNum]; }
-      std::map<uint32_t,uint32_t> conditionData() const;
+      std::map<uint32_t,uint32_t> conditionData();
+      int isValid() { return valid_; }
 
       //methods to get info from DAQ header from FEDDAQHeader class
       FEDDAQEventType daqEventType() const { return daqHeader_.eventType(); }
@@ -58,6 +59,7 @@ namespace Phase2Tracker {
       const uint8_t* condDataPointer_;
       const uint8_t* triggerPointer_;
       void findChannels();
+      int valid_;
 
     //////////////// Deprecated or dummy implemented methods ///////////////////
     public:

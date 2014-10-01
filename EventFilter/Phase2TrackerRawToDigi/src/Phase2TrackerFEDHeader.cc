@@ -7,7 +7,8 @@ namespace Phase2Tracker
 {
 
   Phase2TrackerFEDHeader::Phase2TrackerFEDHeader(const uint8_t* headerPointer) 
-    : trackerHeader_(headerPointer)
+    : trackerHeader_(headerPointer), 
+      valid_(1)
   {
     // make a local copy of header (first two words)
     memcpy(headercopy_,headerPointer,16);
@@ -45,16 +46,18 @@ namespace Phase2Tracker
         <<"  -- connected CBC       : " <<  std::dec << numberOfCBC_ << "\n";
   }
 
-  uint8_t Phase2TrackerFEDHeader::dataFormatVersion() const
+  uint8_t Phase2TrackerFEDHeader::dataFormatVersion()
   {
     uint8_t Version = static_cast<uint8_t>(read_n_at_m(headercopy_,VERSION_L,VERSION_S));
     if (Version != 2)
     {
       std::ostringstream ss;
       ss << "[Phase2Tracker::Phase2TrackerFEDHeader::"<<__func__<<"] ";
-      ss << "Invalid Data Format Version in Tracker Header : ";
+      ss << "WARNING: Skipping FED ";
+      ss << "Cause: Invalid Data Format Version in Tracker Header : ";
       printHex(&header_first_word_,1,ss);
-      throw cms::Exception("Phase2TrackerFEDBuffer") << ss.str();
+      // throw cms::Exception("Phase2TrackerFEDBuffer") << ss.str();
+      valid_ = 0;
     }
     return Version;
   }
@@ -69,7 +72,7 @@ namespace Phase2Tracker
     write_n_at_m(headercopy_,HEADER_FORMAT_L,HEADER_FORMAT_S,(uint64_t)mode);
   }  
 
-  READ_MODE Phase2TrackerFEDHeader::debugMode() const
+  READ_MODE Phase2TrackerFEDHeader::debugMode()
   {
     // Read debugMode in Tracker Header
     uint8_t mode = static_cast<uint8_t>(read_n_at_m(headercopy_,HEADER_FORMAT_L,HEADER_FORMAT_S));
@@ -85,9 +88,11 @@ namespace Phase2Tracker
       default: // else create Exception
         std::ostringstream ss;
         ss << "[Phase2Tracker::Phase2TrackerFEDHeader::"<<__func__<<"] ";
-        ss << "Invalid Header Format in Traker Header : ";
+        ss << "WARNING: Skipping FED ";
+        ss << "Cause: Invalid Header Format in Traker Header : ";
         printHex(&header_first_word_,1,ss);
-        throw cms::Exception("Phase2TrackerFEDBuffer") << ss.str();
+        // throw cms::Exception("Phase2TrackerFEDBuffer") << ss.str();
+        valid_ = 0;
     }
 
     return READ_MODE(READ_MODE_INVALID);
@@ -104,7 +109,7 @@ namespace Phase2Tracker
   }
 
   // decode eventType_. Read: readoutMode, conditionData and dataType
-  FEDReadoutMode Phase2TrackerFEDHeader::readoutMode() const
+  FEDReadoutMode Phase2TrackerFEDHeader::readoutMode()
   {
     // readout mode is first bit of event type
     uint8_t mode = static_cast<uint8_t> (eventType_ >> 2) & 0x3;
@@ -118,9 +123,12 @@ namespace Phase2Tracker
       default: // else create Exception
         std::ostringstream ss;
         ss << "[Phase2Tracker::Phase2TrackerFEDHeader::"<<__func__<<"] ";
-        ss << "Invalid Readout Mode in Traker Header : ";
+        ss << "WARNING: Skipping FED ";
+        ss << "Cause: Invalid Readout Mode in Tracker Header : ";
         printHex(&header_first_word_,1,ss);
-        throw cms::Exception("Phase2TrackerFEDBuffer") << ss.str();
+        // throw cms::Exception("Phase2TrackerFEDBuffer") << ss.str();
+        valid_ = 0;
+        return FEDReadoutMode(READOUT_MODE_INVALID);
     }
   }
 
@@ -212,6 +220,7 @@ namespace Phase2Tracker
     ss << "CBC status cannot be set : ";
     ss << "Custom header is currently limited to two 64bit words only ";
     throw cms::Exception("Phase2TrackerFEDBuffer") << ss.str();
+    
   }
   
   std::vector<uint16_t> Phase2TrackerFEDHeader::CBCStatus() const

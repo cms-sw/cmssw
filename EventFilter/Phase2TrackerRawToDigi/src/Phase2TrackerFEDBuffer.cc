@@ -10,7 +10,8 @@ namespace Phase2Tracker
   // implementation of Phase2TrackerFEDBuffer
   Phase2TrackerFEDBuffer::Phase2TrackerFEDBuffer(const uint8_t* fedBuffer, const size_t fedBufferSize) 
     : buffer_(fedBuffer),
-      bufferSize_(fedBufferSize)
+      bufferSize_(fedBufferSize),
+      valid_(1)
   {
       
       LogTrace("Phase2TrackerFEDBuffer") << "content of buffer with size: "<<int(fedBufferSize)<<std::endl;
@@ -30,6 +31,7 @@ namespace Phase2Tracker
       daqTrailer_    = FEDDAQTrailer(buffer_+bufferSize_-8);
       // tracker header follows daq header
       trackerHeader_ = Phase2TrackerFEDHeader(buffer_+8);
+      valid_ = trackerHeader_.isValid();
       // get pointer to payload
       payloadPointer_ = getPointerToPayload(); 
       // fill list of Phase2TrackerFEDChannels and get pointers to trigger and comissioning data
@@ -197,10 +199,12 @@ namespace Phase2Tracker
       {
         std::ostringstream ss;
         ss << "[Phase2Tracker::Phase2TrackerFEDBuffer::"<<__func__<<"] " << "\n";
-        ss << "FED Buffer Size does not match data => missing condition data? : " << "\n";
+        ss << "WARNING: Skipping FED buffer: " << "\n";
+        ss << "Cause: FED Buffer Size does not match data => missing condition data? : " << "\n";
         ss << "Expected Buffer Size " << bufferSize_ << " bytes" << "\n";
         ss << "Computed Buffer Size " << bufferSize_ + bufferDiff << " bytes" << "\n";
-        throw cms::Exception("Phase2TrackerFEDBuffer") << ss.str();
+        // throw cms::Exception("Phase2TrackerFEDBuffer") << ss.str();
+        valid_ = 0;
       }
     }
     else
@@ -212,16 +216,18 @@ namespace Phase2Tracker
       {
         std::ostringstream ss;
         ss << "[Phase2Tracker::Phase2TrackerFEDBuffer::"<<__func__<<"] " << "\n";
-        ss << "FED Buffer Size does not match data => corrupted buffer? : " << "\n";
+        ss << "WARNING: Skipping FED buffer: " << "\n";
+        ss << "Cause: FED Buffer Size does not match data => corrupted buffer? : " << "\n";
         ss << "Expected Buffer Size " << bufferSize_ << " bytes" << "\n";
         ss << "Computed Buffer Size " << bufferSize_ + bufferDiff << " bytes" << "\n";
-        throw cms::Exception("Phase2TrackerFEDBuffer") << ss.str();
+        // throw cms::Exception("Phase2TrackerFEDBuffer") << ss.str();
+        valid_ = 0;
       }
     } 
 
   }
   
-  std::map<uint32_t,uint32_t> Phase2TrackerFEDBuffer::conditionData() const
+  std::map<uint32_t,uint32_t> Phase2TrackerFEDBuffer::conditionData()
   {
       std::map<uint32_t,uint32_t> cdata;
       // check if there is condition data
@@ -257,10 +263,12 @@ namespace Phase2Tracker
         if(cdata.size()!=size) {
           std::ostringstream ss;
           ss << "[Phase2Tracker::Phase2TrackerFEDBuffer::"<<__func__<<"] " << "\n";
-          ss << "Number of condition data does not match the announced value!"<< "\n";
+          ss << "WARNING: Skipping FED buffer: " << "\n";
+          ss << "Cause: Number of condition data does not match the announced value!"<< "\n";
           ss << "Expected condition data Size " << size << " entries" << "\n";
           ss << "Computed condition data Size " << cdata.size() << " entries" << "\n";
-          throw cms::Exception("Phase2TrackerFEDBuffer") << ss.str();
+          // throw cms::Exception("Phase2TrackerFEDBuffer") << ss.str();
+          valid_ = 0;
         }
       }
       // REMOVE THIS : inject fake cond data for tests
