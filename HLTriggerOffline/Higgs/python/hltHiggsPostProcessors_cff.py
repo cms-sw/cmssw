@@ -205,7 +205,7 @@ hltHiggsPostProcessors = cms.Sequence(
 		hltHiggsPostHgg+
 		hltHiggsPostHtaunu+
 		hltHiggsPostH2tau+
-		hltHiggsPostVBFHbb+
+		#hltHiggsPostVBFHbb+
 		hltHiggsPostZnnHbb
 )
 
