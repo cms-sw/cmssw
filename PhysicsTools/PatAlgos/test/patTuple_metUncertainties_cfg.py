@@ -22,8 +22,6 @@ runType1PFMEtUncertainties(process,addToPatDefaultSequence=False,
                            muonCollection="selectedPatMuons",
                            tauCollection="selectedPatTaus")
 
-process.shiftedPatJetsEnUpForRawMEt.addResidualJES = False
-process.shiftedPatJetsEnDownForRawMEt.addResidualJES = False
 
 ## ------------------------------------------------------
 #  In addition you usually want to change the following

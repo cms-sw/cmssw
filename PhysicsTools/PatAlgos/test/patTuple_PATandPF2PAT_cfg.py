@@ -67,8 +67,8 @@ process.out.outputCommands = cms.untracked.vstring('drop *',
 						   'keep *_selectedPatTaus*_*_*',
                                                    )
 
-# Temporary fix to have AK5 payloads until the AK4 payloads are ready
-process.patJetCorrFactorsPFlow.payload = 'AK5PFchs' 
+# Temporary fix to have AK4 payloads until the AK4 payloads are ready
+process.patJetCorrFactorsPFlow.payload = 'AK4PFchs' 
 
 
 
