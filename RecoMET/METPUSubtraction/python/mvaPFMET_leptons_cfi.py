@@ -110,7 +110,7 @@ isotauseq      = cms.Sequence(
     )
 
 leptonSelection = cms.PSet(
-    SelectEvents = cms.untracked.PSet(
+    SelectEvents = cms.PSet(
     SelectEvents = cms.vstring(
     'isomuonseq',
     'isoelectronseq',
