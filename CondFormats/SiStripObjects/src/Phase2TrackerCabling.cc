@@ -156,6 +156,17 @@ Phase2TrackerCabling Phase2TrackerCabling::filterByPowerGroup(uint32_t powerGrou
   return result;
 }
 
+std::vector<int> Phase2TrackerCabling::listFeds() const {
+  std::vector<int> feds;
+  cabling tmp(fedCabling_);
+  cabling::iterator it = std::unique(tmp.begin(),tmp.end(),fedeq);
+  tmp.resize(std::distance(tmp.begin(),it));
+  for (it=tmp.begin(); it!=tmp.end(); it++) {
+    feds.push_back((*it)->getCh().first);
+  }
+  return feds;
+}
+
 std::string Phase2TrackerCabling::summaryDescription() const {
   std::string mystring("Summary of the cabling\n======================\n");
   std::stringstream ss;

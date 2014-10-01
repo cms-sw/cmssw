@@ -46,6 +46,9 @@ class Phase2TrackerCabling
     // return all the modules connected to a given HV group
     Phase2TrackerCabling filterByPowerGroup(uint32_t powerGroup) const;
 
+    // return all fedids
+    std::vector<int> listFeds() const;
+
     // print a summary of the content
     std::string summaryDescription() const;
 
