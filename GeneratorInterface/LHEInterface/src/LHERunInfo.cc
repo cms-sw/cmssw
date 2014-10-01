@@ -69,9 +69,9 @@ LHERunInfo::LHERunInfo(std::istream &in)
 	}
 
 	if (!in.eof())
-		edm::LogWarning("Generator|LHEInterface")
+		edm::LogInfo("Generator|LHEInterface")
 			<< "Les Houches file contained spurious"
-			   " content after the regular data." << std::endl;
+			   " content after the regular data (this is normal for LHEv3 files for now)." << std::endl;
 
 	init();
 }

@@ -1,4 +1,4 @@
-#MinBias generation
+#MinBias generation. Note: there is no SoftQCD:minBias starting from pythia8 180, SoftQCD:nonDiffractive used instead
 
 import FWCore.ParameterSet.Config as cms
 
@@ -23,21 +23,20 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     )
 )
 
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(
         default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+            limit = cms.untracked.int32(2)
         )
     ),
     destinations = cms.untracked.vstring('cout')
 )
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        generator = cms.untracked.uint32(123456),
-        g4SimHits = cms.untracked.uint32(123456788),
-        VtxSmeared = cms.untracked.uint32(123456789)
-    ),
+    generator = cms.PSet(
+        initialSeed = cms.untracked.uint32(123456789),
+    )
 )
 
 process.maxEvents = cms.untracked.PSet(
