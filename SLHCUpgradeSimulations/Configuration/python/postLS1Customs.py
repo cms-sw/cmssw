@@ -50,6 +50,8 @@ def digiEventContent(process):
 
 def customise_DQM(process):
     #process.dqmoffline_step.remove(process.jetMETAnalyzer)
+    # Turn off flag of gangedME11a
+    process.l1tCsctf.gangedME11a = cms.untracked.bool(False)
     return process
 
 
