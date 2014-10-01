@@ -133,13 +133,12 @@ FastL1Region::FillEMCrystals(const CaloTowerConstituentsMap* theTowerConstituent
   //la[1].second = "EcalRecHitsEE";
 
 
-  double ethres = Config.CrystalEBThreshold;
 
   // EB
   //e.getByLabel(la[0].first,la[0].second,ec);
   //e.getByLabel(Config.EmInputs.at(0),ec);
 
-  ethres = Config.CrystalEBThreshold;
+  double ethres = Config.CrystalEBThreshold;
   for(EcalRecHitCollection::const_iterator ecItr = ec0->begin();
       ecItr != ec0->end(); ++ecItr) {
     //CaloRecHit recHit = (CaloRecHit)(*ecItr);
@@ -365,15 +364,11 @@ FastL1Region::FillTower_Scaled(const CaloTower& t, int& tid, bool doRCTTrunc,edm
 
   double emet = emScale * t.emEt();
   double hadet = hadScale * t.hadEt();
-  double eme = emScale * t.emEnergy();
-  double hade = hadScale * t.hadEnergy();
 
   if (doRCTTrunc) {
     double upperThres = 1024.;
     emet = RCTEnergyTrunc(emet,Config.TowerEMLSB,upperThres);
     hadet = RCTEnergyTrunc(hadet,Config.TowerHadLSB,upperThres);
-    eme = RCTEnergyTrunc(eme,Config.TowerEMLSB,upperThres);
-    hade = RCTEnergyTrunc(hade,Config.TowerHadLSB,upperThres);
   }
   if ( emet<EThres) emet = 0.;
   if ( hadet<HThres) hadet = 0.;
@@ -428,11 +423,12 @@ FastL1Region::SetQuietBit()
 void 
 FastL1Region::SetMIPBit()
 {
-  if (quietBit)
-  for (int i=0; i<16; i++) {
-    if (hcfgBit) {
-      mipBit = true;
-      return;
+  if (quietBit) {
+    for (auto i = 0U; i < 16; i++) {
+      if (hcfgBit[i]) {
+        mipBit = true;
+        return;
+      }
     }
   }
 }
