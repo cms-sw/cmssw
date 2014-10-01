@@ -112,7 +112,6 @@ FastL1Region::SetTowerBits()
 {
   SetFGBit();
   SetHOEBit();
-  SetHCFGBit();
 }
 
 //
@@ -427,15 +426,6 @@ FastL1Region::SetQuietBit()
 }
 
 void 
-FastL1Region::SetHCFGBit()
-{
-  // temporary: check definition 
-  // if (Tower->hadEt>100GeV) hcfgBit = true; ????
-  //for (int i=0; i<16; i++) {
-  //}
-}
-
-void 
 FastL1Region::SetMIPBit()
 {
   if (quietBit)
@@ -452,11 +442,7 @@ FastL1Region::SetFGBit(int twrid,bool FGBIT)
 {
   fgBit[twrid] = FGBIT;
 }
-void 
-FastL1Region::SetHCFGBit(int twrid,bool FGBIT)
-{
-  ;
-}
+
 void 
 FastL1Region::SetHOEBit(int twrid,bool FGBIT)
 {
