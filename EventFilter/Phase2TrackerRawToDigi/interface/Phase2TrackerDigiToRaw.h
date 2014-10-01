@@ -18,10 +18,19 @@ namespace Phase2Tracker
       Phase2TrackerDigiToRaw() {}
       Phase2TrackerDigiToRaw(const Phase2TrackerCabling *, const TrackerTopology *, edm::Handle< edmNew::DetSetVector<SiPixelCluster> >, int);
       ~Phase2TrackerDigiToRaw() {}
+      // loop on FEDs to create buffers
       void buildFEDBuffers(std::auto_ptr<FEDRawDataCollection>&);
+      // builds a single FED buffer
       std::vector<uint64_t> makeBuffer(std::vector<edmNew::DetSet<SiPixelCluster>>);
+      // write FE Header to buffer
       void writeFeHeaderSparsified(std::vector<uint64_t>&,uint64_t&,int,int,int);
+      // determine if a P or S cluster should be written
+      void writeCluster(std::vector<uint64_t>&,uint64_t&,const SiPixelCluster*,int);
+      // write S cluster to buffer
       void writeSCluster(std::vector<uint64_t>&,uint64_t&,const SiPixelCluster*);
+      // write P cluster to buffer
+      void writePCluster(std::vector<uint64_t>&,uint64_t&,const SiPixelCluster*);
+      // compute chip id and strip number from digi
       std::pair<int,int> calcChipId(const SiPixelCluster*);
     private:
       // data you get from outside
@@ -29,7 +38,7 @@ namespace Phase2Tracker
       const TrackerTopology * topo_; 
       edm::Handle< edmNew::DetSetVector<SiPixelCluster> > digishandle_;
       int mode_;
-      // headers to be created at init 
+      // headers 
       FEDDAQHeader FedDaqHeader_;
       FEDDAQTrailer FedDaqTrailer_; 
       Phase2TrackerFEDHeader FedHeader_;
