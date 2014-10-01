@@ -8,16 +8,13 @@ echo "Existing cfg files:"
 ls -l On*.py
 
 echo
-echo "Creating ONLINE cfg files adding the HLTAnalyzerEndpath:"
+echo "Creating OnLine cfg files adding the HLTAnalyzerEndpath:"
 
-foreach gtag ( Data Line )
+foreach gtag ( Data Mc )
   set GTAG = ` echo $gtag | tr "[a-z]" "[A-Z]" `
-  if ( $GTAG == LINE ) then
-    set GTAG = STARTUP
-  endif
-  foreach table ( GRun PIon 2014 HIon FULL )
+  foreach table ( FULL Fake 2014 GRun HIon PIon )
     set oldfile = On${gtag}_HLT_${table}.py
-    set newfile = ONLINE_HLT_${table}_${GTAG}.py
+    set newfile = OnLine_HLT_${table}_${GTAG}.py
     rm -f $newfile
     cp $oldfile $newfile
     cat >> $newfile <<EOF
@@ -34,8 +31,8 @@ EOF
 end
 
 echo
-echo "Created ONLINE cfg files:"
-ls -l ON*.py
+echo "Created OnLine cfg files:"
+ls -l OnLine*.py
 
 echo
 echo "Creating offline cfg files with cmsDriver"
@@ -63,7 +60,7 @@ pwd
 
 rm -f                           ./runOne.log 
 time ./runOne.csh DATA    $1 >& ./runOne.log &
-time ./runOne.csh STARTUP $1
+time ./runOne.csh MC      $1
 
   set N = 0
   cp -f ./runOne.log ./runOne.tmp  
