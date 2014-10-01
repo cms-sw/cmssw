@@ -34,8 +34,281 @@ RPCRecHitValid::RPCRecHitValid(const edm::ParameterSet& pset)
   subDir_ = pset.getParameter<std::string>("subDir");
 }
 
-RPCRecHitValid::~RPCRecHitValid()
+void RPCRecHitValid::bookHistograms(DQMStore::IBooker& booker,
+                                    edm::Run const & run, edm::EventSetup const & eventSetup)
 {
+  // Book MonitorElements
+  h_.bookHistograms(booker, subDir_);
+
+  // SimHit plots, not compatible to RPCPoint-RPCRecHit comparison
+  booker.setCurrentFolder(subDir_+"/HitProperty");
+  h_simParticleType = booker.book1D("SimHitPType", "SimHit particle type", 11, 0, 11);
+  h_simParticleType->getTH1()->SetMinimum(0);
+  if ( TH1* h = h_simParticleType->getTH1() )
+  {
+    h->GetXaxis()->SetBinLabel(1 , "#mu^{-}");
+    h->GetXaxis()->SetBinLabel(2 , "#mu^{+}");
+    h->GetXaxis()->SetBinLabel(3 , "e^{-}"  );
+    h->GetXaxis()->SetBinLabel(4 , "e^{+}"  );
+    h->GetXaxis()->SetBinLabel(5 , "#pi^{+}");
+    h->GetXaxis()->SetBinLabel(6 , "#pi^{-}");
+    h->GetXaxis()->SetBinLabel(7 , "K^{+}"  );
+    h->GetXaxis()->SetBinLabel(8 , "K^{-}"  );
+    h->GetXaxis()->SetBinLabel(9 , "p^{+}"  );
+    h->GetXaxis()->SetBinLabel(10, "p^{-}"  );
+    h->GetXaxis()->SetBinLabel(11, "Other"  );
+  }
+
+  booker.setCurrentFolder(subDir_+"/Track");
+
+  h_nRPCHitPerSimMuon        = booker.book1D("NRPCHitPerSimMuon"       , "Number of RPC SimHit per SimMuon", 11, -0.5, 10.5);
+  h_nRPCHitPerSimMuonBarrel  = booker.book1D("NRPCHitPerSimMuonBarrel" , "Number of RPC SimHit per SimMuon", 11, -0.5, 10.5);
+  h_nRPCHitPerSimMuonOverlap = booker.book1D("NRPCHitPerSimMuonOverlap", "Number of RPC SimHit per SimMuon", 11, -0.5, 10.5);
+  h_nRPCHitPerSimMuonEndcap  = booker.book1D("NRPCHitPerSimMuonEndcap" , "Number of RPC SimHit per SimMuon", 11, -0.5, 10.5);
+
+  h_nRPCHitPerRecoMuon        = booker.book1D("NRPCHitPerRecoMuon"       , "Number of RPC RecHit per RecoMuon", 11, -0.5, 10.5);
+  h_nRPCHitPerRecoMuonBarrel  = booker.book1D("NRPCHitPerRecoMuonBarrel" , "Number of RPC RecHit per RecoMuon", 11, -0.5, 10.5);
+  h_nRPCHitPerRecoMuonOverlap = booker.book1D("NRPCHitPerRecoMuonOverlap", "Number of RPC RecHit per RecoMuon", 11, -0.5, 10.5);
+  h_nRPCHitPerRecoMuonEndcap  = booker.book1D("NRPCHitPerRecoMuonEndcap" , "Number of RPC RecHit per RecoMuon", 11, -0.5, 10.5);
+
+  h_nRPCHitPerSimMuon        ->getTH1()->SetMinimum(0);
+  h_nRPCHitPerSimMuonBarrel  ->getTH1()->SetMinimum(0);
+  h_nRPCHitPerSimMuonOverlap ->getTH1()->SetMinimum(0);
+  h_nRPCHitPerSimMuonEndcap  ->getTH1()->SetMinimum(0);
+
+  h_nRPCHitPerRecoMuon       ->getTH1()->SetMinimum(0);
+  h_nRPCHitPerRecoMuonBarrel ->getTH1()->SetMinimum(0);
+  h_nRPCHitPerRecoMuonOverlap->getTH1()->SetMinimum(0);
+  h_nRPCHitPerRecoMuonEndcap ->getTH1()->SetMinimum(0);
+
+  float ptBins[] = {0, 1, 2, 5, 10, 20, 30, 50, 100, 200, 300, 500};
+  const int nPtBins = sizeof(ptBins)/sizeof(float)-1;
+  h_simMuonBarrel_pt   = booker.book1D("SimMuonBarrel_pt"  , "SimMuon RPCHit in Barrel  p_{T};p_{T} [GeV/c^{2}]", nPtBins, ptBins);
+  h_simMuonOverlap_pt  = booker.book1D("SimMuonOverlap_pt" , "SimMuon RPCHit in Overlap p_{T};p_{T} [GeV/c^{2}]", nPtBins, ptBins);
+  h_simMuonEndcap_pt   = booker.book1D("SimMuonEndcap_pt"  , "SimMuon RPCHit in Endcap  p_{T};p_{T} [GeV/c^{2}]", nPtBins, ptBins);
+  h_simMuonNoRPC_pt    = booker.book1D("SimMuonNoRPC_pt" , "SimMuon without RPCHit p_{T};p_{T} [GeV/c^{2}]", nPtBins, ptBins);
+  h_simMuonBarrel_eta  = booker.book1D("SimMuonBarrel_eta" , "SimMuon RPCHit in Barrel  #eta;#eta", 50, -2.5, 2.5);
+  h_simMuonOverlap_eta = booker.book1D("SimMuonOverlap_eta", "SimMuon RPCHit in Overlap #eta;#eta", 50, -2.5, 2.5);
+  h_simMuonEndcap_eta  = booker.book1D("SimMuonEndcap_eta" , "SimMuon RPCHit in Endcap  #eta;#eta", 50, -2.5, 2.5);
+  h_simMuonNoRPC_eta   = booker.book1D("SimMuonNoRPC_eta", "SimMuon without RPCHit #eta;#eta", 50, -2.5, 2.5);
+  h_simMuonBarrel_phi  = booker.book1D("SimMuonBarrel_phi" , "SimMuon RPCHit in Barrel  #phi;#phi", 36, -TMath::Pi(), TMath::Pi());
+  h_simMuonOverlap_phi = booker.book1D("SimMuonOverlap_phi", "SimMuon RPCHit in Overlap #phi;#phi", 36, -TMath::Pi(), TMath::Pi());
+  h_simMuonEndcap_phi  = booker.book1D("SimMuonEndcap_phi" , "SimMuon RPCHit in Endcap  #phi;#phi", 36, -TMath::Pi(), TMath::Pi());
+  h_simMuonNoRPC_phi   = booker.book1D("SimMuonNoRPC_phi", "SimMuon without RPCHit #phi;#phi", 36, -TMath::Pi(), TMath::Pi());
+
+  h_recoMuonBarrel_pt   = booker.book1D("RecoMuonBarrel_pt"  , "RecoMuon RPCHit in Barrel  p_{T};p_{T} [GeV/c^{2}]", nPtBins, ptBins);
+  h_recoMuonOverlap_pt  = booker.book1D("RecoMuonOverlap_pt" , "RecoMuon RPCHit in Overlap p_{T};p_{T} [GeV/c^{2}]", nPtBins, ptBins);
+  h_recoMuonEndcap_pt   = booker.book1D("RecoMuonEndcap_pt"  , "RecoMuon RPCHit in Endcap  p_{T};p_{T} [GeV/c^{2}]", nPtBins, ptBins);
+  h_recoMuonNoRPC_pt    = booker.book1D("RecoMuonNoRPC_pt" , "RecoMuon without RPCHit p_{T};p_{T} [GeV/c^{2}]", nPtBins, ptBins);
+  h_recoMuonBarrel_eta  = booker.book1D("RecoMuonBarrel_eta" , "RecoMuon RPCHit in Barrel  #eta;#eta", 50, -2.5, 2.5);
+  h_recoMuonOverlap_eta = booker.book1D("RecoMuonOverlap_eta", "RecoMuon RPCHit in Overlap #eta;#eta", 50, -2.5, 2.5);
+  h_recoMuonEndcap_eta  = booker.book1D("RecoMuonEndcap_eta" , "RecoMuon RPCHit in Endcap  #eta;#eta", 50, -2.5, 2.5);
+  h_recoMuonNoRPC_eta   = booker.book1D("RecoMuonNoRPC_eta", "RecoMuon without RPCHit #eta;#eta", 50, -2.5, 2.5);
+  h_recoMuonBarrel_phi  = booker.book1D("RecoMuonBarrel_phi" , "RecoMuon RPCHit in Barrel  #phi;#phi", 36, -TMath::Pi(), TMath::Pi());
+  h_recoMuonOverlap_phi = booker.book1D("RecoMuonOverlap_phi", "RecoMuon RPCHit in Overlap #phi;#phi", 36, -TMath::Pi(), TMath::Pi());
+  h_recoMuonEndcap_phi  = booker.book1D("RecoMuonEndcap_phi" , "RecoMuon RPCHit in Endcap  #phi;#phi", 36, -TMath::Pi(), TMath::Pi());
+  h_recoMuonNoRPC_phi   = booker.book1D("RecoMuonNoRPC_phi", "RecoMuon without RPCHit #phi;#phi", 36, -TMath::Pi(), TMath::Pi());
+
+  h_simMuonBarrel_pt   ->getTH1()->SetMinimum(0);
+  h_simMuonOverlap_pt  ->getTH1()->SetMinimum(0);
+  h_simMuonEndcap_pt   ->getTH1()->SetMinimum(0);
+  h_simMuonNoRPC_pt    ->getTH1()->SetMinimum(0);
+  h_simMuonBarrel_eta  ->getTH1()->SetMinimum(0);
+  h_simMuonOverlap_eta ->getTH1()->SetMinimum(0);
+  h_simMuonEndcap_eta  ->getTH1()->SetMinimum(0);
+  h_simMuonNoRPC_eta   ->getTH1()->SetMinimum(0);
+  h_simMuonBarrel_phi  ->getTH1()->SetMinimum(0);
+  h_simMuonOverlap_phi ->getTH1()->SetMinimum(0);
+  h_simMuonEndcap_phi  ->getTH1()->SetMinimum(0);
+  h_simMuonNoRPC_phi   ->getTH1()->SetMinimum(0);
+
+  h_recoMuonBarrel_pt  ->getTH1()->SetMinimum(0);
+  h_recoMuonOverlap_pt ->getTH1()->SetMinimum(0);
+  h_recoMuonEndcap_pt  ->getTH1()->SetMinimum(0);
+  h_recoMuonNoRPC_pt   ->getTH1()->SetMinimum(0);
+  h_recoMuonBarrel_eta ->getTH1()->SetMinimum(0);
+  h_recoMuonOverlap_eta->getTH1()->SetMinimum(0);
+  h_recoMuonEndcap_eta ->getTH1()->SetMinimum(0);
+  h_recoMuonNoRPC_eta  ->getTH1()->SetMinimum(0);
+  h_recoMuonBarrel_phi ->getTH1()->SetMinimum(0);
+  h_recoMuonOverlap_phi->getTH1()->SetMinimum(0);
+  h_recoMuonEndcap_phi ->getTH1()->SetMinimum(0);
+  h_recoMuonNoRPC_phi  ->getTH1()->SetMinimum(0);
+
+  booker.setCurrentFolder(subDir_+"/Occupancy");
+
+  h_eventCount = booker.book1D("EventCount", "Event count", 3, 1, 4);
+  h_eventCount->getTH1()->SetMinimum(0);
+  if ( h_eventCount )
+  {
+    TH1* h = h_eventCount->getTH1();
+    h->GetXaxis()->SetBinLabel(1, "eventBegin");
+    h->GetXaxis()->SetBinLabel(2, "eventEnd");
+    h->GetXaxis()->SetBinLabel(3, "run");
+  }
+  h_eventCount->Fill(3);
+
+  h_refPunchOccupancyBarrel_wheel   = booker.book1D("RefPunchOccupancyBarrel_wheel"  , "RefPunchthrough occupancy", 5, -2.5, 2.5);
+  h_refPunchOccupancyEndcap_disk    = booker.book1D("RefPunchOccupancyEndcap_disk"   , "RefPunchthrough occupancy", 9, -4.5, 4.5);
+  h_refPunchOccupancyBarrel_station = booker.book1D("RefPunchOccupancyBarrel_station", "RefPunchthrough occupancy", 4,  0.5, 4.5);
+  h_recPunchOccupancyBarrel_wheel   = booker.book1D("RecPunchOccupancyBarrel_wheel"  , "Punchthrough recHit occupancy", 5, -2.5, 2.5);
+  h_recPunchOccupancyEndcap_disk    = booker.book1D("RecPunchOccupancyEndcap_disk"   , "Punchthrough recHit occupancy", 9, -4.5, 4.5);
+  h_recPunchOccupancyBarrel_station = booker.book1D("RecPunchOccupancyBarrel_station", "Punchthrough recHit occupancy", 4,  0.5, 4.5);
+
+  h_refPunchOccupancyBarrel_wheel   ->getTH1()->SetMinimum(0);
+  h_refPunchOccupancyEndcap_disk    ->getTH1()->SetMinimum(0);
+  h_refPunchOccupancyBarrel_station ->getTH1()->SetMinimum(0);
+  h_recPunchOccupancyBarrel_wheel   ->getTH1()->SetMinimum(0);
+  h_recPunchOccupancyEndcap_disk    ->getTH1()->SetMinimum(0);
+  h_recPunchOccupancyBarrel_station ->getTH1()->SetMinimum(0);
+
+  h_refPunchOccupancyBarrel_wheel_station = booker.book2D("RefPunchOccupancyBarrel_wheel_station", "RefPunchthrough occupancy", 5, -2.5, 2.5, 4, 0.5, 4.5);
+  h_refPunchOccupancyEndcap_disk_ring     = booker.book2D("RefPunchOccupancyEndcap_disk_ring"    , "RefPunchthrough occupancy", 9, -4.5, 4.5, 4, 0.5, 4.5);
+  h_recPunchOccupancyBarrel_wheel_station = booker.book2D("RecPunchOccupancyBarrel_wheel_station", "Punchthrough recHit occupancy", 5, -2.5, 2.5, 4, 0.5, 4.5);
+  h_recPunchOccupancyEndcap_disk_ring     = booker.book2D("RecPunchOccupancyEndcap_disk_ring"    , "Punchthrough recHit occupancy", 9, -4.5, 4.5, 4, 0.5, 4.5);
+
+  h_refPunchOccupancyBarrel_wheel_station->getTH2F()->SetOption("COLZ");
+  h_refPunchOccupancyEndcap_disk_ring    ->getTH2F()->SetOption("COLZ");
+  h_recPunchOccupancyBarrel_wheel_station->getTH2F()->SetOption("COLZ");
+  h_recPunchOccupancyEndcap_disk_ring    ->getTH2F()->SetOption("COLZ");
+
+  h_refPunchOccupancyBarrel_wheel_station->getTH2F()->SetContour(10);
+  h_refPunchOccupancyEndcap_disk_ring    ->getTH2F()->SetContour(10);
+  h_recPunchOccupancyBarrel_wheel_station->getTH2F()->SetContour(10);
+  h_recPunchOccupancyEndcap_disk_ring    ->getTH2F()->SetContour(10);
+
+  h_refPunchOccupancyBarrel_wheel_station->getTH2F()->SetStats(0);
+  h_refPunchOccupancyEndcap_disk_ring    ->getTH2F()->SetStats(0);
+  h_recPunchOccupancyBarrel_wheel_station->getTH2F()->SetStats(0);
+  h_recPunchOccupancyEndcap_disk_ring    ->getTH2F()->SetStats(0);
+
+  h_refPunchOccupancyBarrel_wheel_station->getTH2F()->SetMinimum(0);
+  h_refPunchOccupancyEndcap_disk_ring    ->getTH2F()->SetMinimum(0);
+  h_recPunchOccupancyBarrel_wheel_station->getTH2F()->SetMinimum(0);
+  h_recPunchOccupancyEndcap_disk_ring    ->getTH2F()->SetMinimum(0);
+
+  for ( int i=1; i<=5; ++i )
+  {
+    TString binLabel = Form("Wheel %d", i-3);
+    h_refPunchOccupancyBarrel_wheel->getTH1()->GetXaxis()->SetBinLabel(i, binLabel);
+    h_refPunchOccupancyBarrel_wheel_station->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
+    h_recPunchOccupancyBarrel_wheel->getTH1()->GetXaxis()->SetBinLabel(i, binLabel);
+    h_recPunchOccupancyBarrel_wheel_station->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
+  }
+
+  for ( int i=1; i<=9; ++i )
+  {
+    TString binLabel = Form("Disk %d", i-5);
+    h_refPunchOccupancyEndcap_disk  ->getTH1()->GetXaxis()->SetBinLabel(i, binLabel);
+    h_refPunchOccupancyEndcap_disk_ring  ->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
+    h_recPunchOccupancyEndcap_disk  ->getTH1()->GetXaxis()->SetBinLabel(i, binLabel);
+    h_recPunchOccupancyEndcap_disk_ring  ->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
+  }
+
+  for ( int i=1; i<=4; ++i )
+  {
+    TString binLabel = Form("Station %d", i);
+    h_refPunchOccupancyBarrel_station  ->getTH1()->GetXaxis()->SetBinLabel(i, binLabel);
+    h_refPunchOccupancyBarrel_wheel_station  ->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
+    h_recPunchOccupancyBarrel_station  ->getTH1()->GetXaxis()->SetBinLabel(i, binLabel);
+    h_recPunchOccupancyBarrel_wheel_station  ->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
+  }
+
+  for ( int i=1; i<=4; ++i )
+  {
+    TString binLabel = Form("Ring %d", i);
+    h_refPunchOccupancyEndcap_disk_ring  ->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
+    h_recPunchOccupancyEndcap_disk_ring  ->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
+  }
+
+  // Book roll-by-roll histograms
+  edm::ESHandle<RPCGeometry> rpcGeom;
+  eventSetup.get<MuonGeometryRecord>().get(rpcGeom);
+
+  int nRPCRollBarrel = 0, nRPCRollEndcap = 0;
+
+  TrackingGeometry::DetContainer rpcDets = rpcGeom->dets();
+  for ( auto det : rpcDets )
+  {
+    auto rpcCh = dynamic_cast<const RPCChamber*>(det);
+    if ( !rpcCh ) continue;
+
+    std::vector<const RPCRoll*> rolls = rpcCh->rolls();
+    for ( auto roll : rolls )
+    {
+      if ( !roll ) continue;
+
+      //RPCGeomServ rpcSrv(roll->id());
+      const int rawId = roll->geographicalId().rawId();
+      //if ( !roll->specs()->isRPC() ) { cout << "\nNoRPC : " << rpcSrv.name() << ' ' << rawId << endl; continue; }
+
+      if ( roll->isBarrel() )
+      {
+        detIdToIndexMapBarrel_[rawId] = nRPCRollBarrel;
+        //rollIdToNameMapBarrel_[rawId] = rpcSrv.name();
+        ++nRPCRollBarrel;
+      }
+      else
+      {
+        detIdToIndexMapEndcap_[rawId] = nRPCRollEndcap;
+        //rollIdToNameMapEndcap_[rawId] = rpcSrv.name();
+        ++nRPCRollEndcap;
+      }
+    }
+  }
+
+  booker.setCurrentFolder(subDir_+"/Occupancy");
+  h_matchOccupancyBarrel_detId = booker.book1D("MatchOccupancyBarrel_detId", "Matched hit occupancy;roll index (can be arbitrary)", nRPCRollBarrel, 0, nRPCRollBarrel);
+  h_matchOccupancyEndcap_detId = booker.book1D("MatchOccupancyEndcap_detId", "Matched hit occupancy;roll index (can be arbitrary)", nRPCRollEndcap, 0, nRPCRollEndcap);
+  h_refOccupancyBarrel_detId = booker.book1D("RefOccupancyBarrel_detId", "Reference hit occupancy;roll index (can be arbitrary)", nRPCRollBarrel, 0, nRPCRollBarrel);
+  h_refOccupancyEndcap_detId = booker.book1D("RefOccupancyEndcap_detId", "Reference hit occupancy;roll index (can be arbitrary)", nRPCRollEndcap, 0, nRPCRollEndcap);
+  h_noiseOccupancyBarrel_detId = booker.book1D("NoiseOccupancyBarrel_detId", "Noise occupancy;roll index (can be arbitrary)", nRPCRollBarrel, 0, nRPCRollBarrel);
+  h_noiseOccupancyEndcap_detId = booker.book1D("NoiseOccupancyEndcap_detId", "Noise occupancy;roll index (can be arbitrary)", nRPCRollEndcap, 0, nRPCRollEndcap);
+
+  h_matchOccupancyBarrel_detId->getTH1()->SetMinimum(0);
+  h_matchOccupancyEndcap_detId->getTH1()->SetMinimum(0);
+  h_refOccupancyBarrel_detId  ->getTH1()->SetMinimum(0);
+  h_refOccupancyEndcap_detId  ->getTH1()->SetMinimum(0);
+  h_noiseOccupancyBarrel_detId->getTH1()->SetMinimum(0);
+  h_noiseOccupancyEndcap_detId->getTH1()->SetMinimum(0);
+
+  h_rollAreaBarrel_detId = booker.bookProfile("RollAreaBarrel_detId", "Roll area;roll index;Area", nRPCRollBarrel, 0., 1.*nRPCRollBarrel, 0., 1e5);
+  h_rollAreaEndcap_detId = booker.bookProfile("RollAreaEndcap_detId", "Roll area;roll index;Area", nRPCRollEndcap, 0., 1.*nRPCRollEndcap, 0., 1e5);
+
+  for ( auto detIdToIndex : detIdToIndexMapBarrel_ )
+  {
+    const int rawId = detIdToIndex.first;
+    const int index = detIdToIndex.second;
+
+    const RPCDetId rpcDetId = static_cast<const RPCDetId>(rawId);
+    const RPCRoll* roll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(rpcDetId));
+
+    //RPCGeomServ rpcSrv(roll->id());
+    //if ( !roll->specs()->isRPC() ) { cout << "\nNoRPC : " << rpcSrv.name() << ' ' << rawId << endl; continue; }
+
+    const StripTopology& topol = roll->specificTopology();
+    const double area = topol.stripLength()*topol.nstrips()*topol.pitch();
+
+    h_rollAreaBarrel_detId->Fill(index, area);
+  }
+
+  for ( auto detIdToIndex : detIdToIndexMapEndcap_ )
+  {
+    const int rawId = detIdToIndex.first;
+    const int index = detIdToIndex.second;
+
+    const RPCDetId rpcDetId = static_cast<const RPCDetId>(rawId);
+    const RPCRoll* roll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(rpcDetId));
+
+    //RPCGeomServ rpcSrv(roll->id());
+    //if ( !roll->specs()->isRPC() ) { cout << "\nNoRPC : " << rpcSrv.name() << ' ' << rawId << endl; continue; }
+
+    const StripTopology& topol = roll->specificTopology();
+    const double area = topol.stripLength()*topol.nstrips()*topol.pitch();
+
+    h_rollAreaEndcap_detId->Fill(index, area);
+  }
+
 }
 
 void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eventSetup)
@@ -586,284 +859,6 @@ void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eve
   h_eventCount->Fill(2);
 
 }
-
-void RPCRecHitValid::bookHistograms(DQMStore::IBooker& booker,
-                                    edm::Run const & run, edm::EventSetup const & eventSetup)
-{
-  // Book MonitorElements
-  h_.bookHistograms(booker, subDir_);
-
-  // SimHit plots, not compatible to RPCPoint-RPCRecHit comparison
-  booker.setCurrentFolder(subDir_+"/HitProperty");
-  h_simParticleType = booker.book1D("SimHitPType", "SimHit particle type", 11, 0, 11);
-  h_simParticleType->getTH1()->SetMinimum(0);
-  if ( TH1* h = h_simParticleType->getTH1() )
-  {
-    h->GetXaxis()->SetBinLabel(1 , "#mu^{-}");
-    h->GetXaxis()->SetBinLabel(2 , "#mu^{+}");
-    h->GetXaxis()->SetBinLabel(3 , "e^{-}"  );
-    h->GetXaxis()->SetBinLabel(4 , "e^{+}"  );
-    h->GetXaxis()->SetBinLabel(5 , "#pi^{+}");
-    h->GetXaxis()->SetBinLabel(6 , "#pi^{-}");
-    h->GetXaxis()->SetBinLabel(7 , "K^{+}"  );
-    h->GetXaxis()->SetBinLabel(8 , "K^{-}"  );
-    h->GetXaxis()->SetBinLabel(9 , "p^{+}"  );
-    h->GetXaxis()->SetBinLabel(10, "p^{-}"  );
-    h->GetXaxis()->SetBinLabel(11, "Other"  );
-  }
-
-  booker.setCurrentFolder(subDir_+"/Track");
-
-  h_nRPCHitPerSimMuon        = booker.book1D("NRPCHitPerSimMuon"       , "Number of RPC SimHit per SimMuon", 11, -0.5, 10.5);
-  h_nRPCHitPerSimMuonBarrel  = booker.book1D("NRPCHitPerSimMuonBarrel" , "Number of RPC SimHit per SimMuon", 11, -0.5, 10.5);
-  h_nRPCHitPerSimMuonOverlap = booker.book1D("NRPCHitPerSimMuonOverlap", "Number of RPC SimHit per SimMuon", 11, -0.5, 10.5);
-  h_nRPCHitPerSimMuonEndcap  = booker.book1D("NRPCHitPerSimMuonEndcap" , "Number of RPC SimHit per SimMuon", 11, -0.5, 10.5);
-
-  h_nRPCHitPerRecoMuon        = booker.book1D("NRPCHitPerRecoMuon"       , "Number of RPC RecHit per RecoMuon", 11, -0.5, 10.5);
-  h_nRPCHitPerRecoMuonBarrel  = booker.book1D("NRPCHitPerRecoMuonBarrel" , "Number of RPC RecHit per RecoMuon", 11, -0.5, 10.5);
-  h_nRPCHitPerRecoMuonOverlap = booker.book1D("NRPCHitPerRecoMuonOverlap", "Number of RPC RecHit per RecoMuon", 11, -0.5, 10.5);
-  h_nRPCHitPerRecoMuonEndcap  = booker.book1D("NRPCHitPerRecoMuonEndcap" , "Number of RPC RecHit per RecoMuon", 11, -0.5, 10.5);
-
-  h_nRPCHitPerSimMuon        ->getTH1()->SetMinimum(0);
-  h_nRPCHitPerSimMuonBarrel  ->getTH1()->SetMinimum(0);
-  h_nRPCHitPerSimMuonOverlap ->getTH1()->SetMinimum(0);
-  h_nRPCHitPerSimMuonEndcap  ->getTH1()->SetMinimum(0);
-
-  h_nRPCHitPerRecoMuon       ->getTH1()->SetMinimum(0);
-  h_nRPCHitPerRecoMuonBarrel ->getTH1()->SetMinimum(0);
-  h_nRPCHitPerRecoMuonOverlap->getTH1()->SetMinimum(0);
-  h_nRPCHitPerRecoMuonEndcap ->getTH1()->SetMinimum(0);
-
-  float ptBins[] = {0, 1, 2, 5, 10, 20, 30, 50, 100, 200, 300, 500};
-  const int nPtBins = sizeof(ptBins)/sizeof(float)-1;
-  h_simMuonBarrel_pt   = booker.book1D("SimMuonBarrel_pt"  , "SimMuon RPCHit in Barrel  p_{T};p_{T} [GeV/c^{2}]", nPtBins, ptBins);
-  h_simMuonOverlap_pt  = booker.book1D("SimMuonOverlap_pt" , "SimMuon RPCHit in Overlap p_{T};p_{T} [GeV/c^{2}]", nPtBins, ptBins);
-  h_simMuonEndcap_pt   = booker.book1D("SimMuonEndcap_pt"  , "SimMuon RPCHit in Endcap  p_{T};p_{T} [GeV/c^{2}]", nPtBins, ptBins);
-  h_simMuonNoRPC_pt    = booker.book1D("SimMuonNoRPC_pt" , "SimMuon without RPCHit p_{T};p_{T} [GeV/c^{2}]", nPtBins, ptBins);
-  h_simMuonBarrel_eta  = booker.book1D("SimMuonBarrel_eta" , "SimMuon RPCHit in Barrel  #eta;#eta", 50, -2.5, 2.5);
-  h_simMuonOverlap_eta = booker.book1D("SimMuonOverlap_eta", "SimMuon RPCHit in Overlap #eta;#eta", 50, -2.5, 2.5);
-  h_simMuonEndcap_eta  = booker.book1D("SimMuonEndcap_eta" , "SimMuon RPCHit in Endcap  #eta;#eta", 50, -2.5, 2.5);
-  h_simMuonNoRPC_eta   = booker.book1D("SimMuonNoRPC_eta", "SimMuon without RPCHit #eta;#eta", 50, -2.5, 2.5);
-  h_simMuonBarrel_phi  = booker.book1D("SimMuonBarrel_phi" , "SimMuon RPCHit in Barrel  #phi;#phi", 36, -TMath::Pi(), TMath::Pi());
-  h_simMuonOverlap_phi = booker.book1D("SimMuonOverlap_phi", "SimMuon RPCHit in Overlap #phi;#phi", 36, -TMath::Pi(), TMath::Pi());
-  h_simMuonEndcap_phi  = booker.book1D("SimMuonEndcap_phi" , "SimMuon RPCHit in Endcap  #phi;#phi", 36, -TMath::Pi(), TMath::Pi());
-  h_simMuonNoRPC_phi   = booker.book1D("SimMuonNoRPC_phi", "SimMuon without RPCHit #phi;#phi", 36, -TMath::Pi(), TMath::Pi());
-
-  h_recoMuonBarrel_pt   = booker.book1D("RecoMuonBarrel_pt"  , "RecoMuon RPCHit in Barrel  p_{T};p_{T} [GeV/c^{2}]", nPtBins, ptBins);
-  h_recoMuonOverlap_pt  = booker.book1D("RecoMuonOverlap_pt" , "RecoMuon RPCHit in Overlap p_{T};p_{T} [GeV/c^{2}]", nPtBins, ptBins);
-  h_recoMuonEndcap_pt   = booker.book1D("RecoMuonEndcap_pt"  , "RecoMuon RPCHit in Endcap  p_{T};p_{T} [GeV/c^{2}]", nPtBins, ptBins);
-  h_recoMuonNoRPC_pt    = booker.book1D("RecoMuonNoRPC_pt" , "RecoMuon without RPCHit p_{T};p_{T} [GeV/c^{2}]", nPtBins, ptBins);
-  h_recoMuonBarrel_eta  = booker.book1D("RecoMuonBarrel_eta" , "RecoMuon RPCHit in Barrel  #eta;#eta", 50, -2.5, 2.5);
-  h_recoMuonOverlap_eta = booker.book1D("RecoMuonOverlap_eta", "RecoMuon RPCHit in Overlap #eta;#eta", 50, -2.5, 2.5);
-  h_recoMuonEndcap_eta  = booker.book1D("RecoMuonEndcap_eta" , "RecoMuon RPCHit in Endcap  #eta;#eta", 50, -2.5, 2.5);
-  h_recoMuonNoRPC_eta   = booker.book1D("RecoMuonNoRPC_eta", "RecoMuon without RPCHit #eta;#eta", 50, -2.5, 2.5);
-  h_recoMuonBarrel_phi  = booker.book1D("RecoMuonBarrel_phi" , "RecoMuon RPCHit in Barrel  #phi;#phi", 36, -TMath::Pi(), TMath::Pi());
-  h_recoMuonOverlap_phi = booker.book1D("RecoMuonOverlap_phi", "RecoMuon RPCHit in Overlap #phi;#phi", 36, -TMath::Pi(), TMath::Pi());
-  h_recoMuonEndcap_phi  = booker.book1D("RecoMuonEndcap_phi" , "RecoMuon RPCHit in Endcap  #phi;#phi", 36, -TMath::Pi(), TMath::Pi());
-  h_recoMuonNoRPC_phi   = booker.book1D("RecoMuonNoRPC_phi", "RecoMuon without RPCHit #phi;#phi", 36, -TMath::Pi(), TMath::Pi());
-
-  h_simMuonBarrel_pt   ->getTH1()->SetMinimum(0);
-  h_simMuonOverlap_pt  ->getTH1()->SetMinimum(0);
-  h_simMuonEndcap_pt   ->getTH1()->SetMinimum(0);
-  h_simMuonNoRPC_pt    ->getTH1()->SetMinimum(0);
-  h_simMuonBarrel_eta  ->getTH1()->SetMinimum(0);
-  h_simMuonOverlap_eta ->getTH1()->SetMinimum(0);
-  h_simMuonEndcap_eta  ->getTH1()->SetMinimum(0);
-  h_simMuonNoRPC_eta   ->getTH1()->SetMinimum(0);
-  h_simMuonBarrel_phi  ->getTH1()->SetMinimum(0);
-  h_simMuonOverlap_phi ->getTH1()->SetMinimum(0);
-  h_simMuonEndcap_phi  ->getTH1()->SetMinimum(0);
-  h_simMuonNoRPC_phi   ->getTH1()->SetMinimum(0);
-
-  h_recoMuonBarrel_pt  ->getTH1()->SetMinimum(0);
-  h_recoMuonOverlap_pt ->getTH1()->SetMinimum(0);
-  h_recoMuonEndcap_pt  ->getTH1()->SetMinimum(0);
-  h_recoMuonNoRPC_pt   ->getTH1()->SetMinimum(0);
-  h_recoMuonBarrel_eta ->getTH1()->SetMinimum(0);
-  h_recoMuonOverlap_eta->getTH1()->SetMinimum(0);
-  h_recoMuonEndcap_eta ->getTH1()->SetMinimum(0);
-  h_recoMuonNoRPC_eta  ->getTH1()->SetMinimum(0);
-  h_recoMuonBarrel_phi ->getTH1()->SetMinimum(0);
-  h_recoMuonOverlap_phi->getTH1()->SetMinimum(0);
-  h_recoMuonEndcap_phi ->getTH1()->SetMinimum(0);
-  h_recoMuonNoRPC_phi  ->getTH1()->SetMinimum(0);
-
-  booker.setCurrentFolder(subDir_+"/Occupancy");
-
-  h_eventCount = booker.book1D("EventCount", "Event count", 3, 1, 4);
-  h_eventCount->getTH1()->SetMinimum(0);
-  if ( h_eventCount )
-  {
-    TH1* h = h_eventCount->getTH1();
-    h->GetXaxis()->SetBinLabel(1, "eventBegin");
-    h->GetXaxis()->SetBinLabel(2, "eventEnd");
-    h->GetXaxis()->SetBinLabel(3, "run");
-  }
-  h_eventCount->Fill(3);
-
-  h_refPunchOccupancyBarrel_wheel   = booker.book1D("RefPunchOccupancyBarrel_wheel"  , "RefPunchthrough occupancy", 5, -2.5, 2.5);
-  h_refPunchOccupancyEndcap_disk    = booker.book1D("RefPunchOccupancyEndcap_disk"   , "RefPunchthrough occupancy", 9, -4.5, 4.5);
-  h_refPunchOccupancyBarrel_station = booker.book1D("RefPunchOccupancyBarrel_station", "RefPunchthrough occupancy", 4,  0.5, 4.5);
-  h_recPunchOccupancyBarrel_wheel   = booker.book1D("RecPunchOccupancyBarrel_wheel"  , "Punchthrough recHit occupancy", 5, -2.5, 2.5);
-  h_recPunchOccupancyEndcap_disk    = booker.book1D("RecPunchOccupancyEndcap_disk"   , "Punchthrough recHit occupancy", 9, -4.5, 4.5);
-  h_recPunchOccupancyBarrel_station = booker.book1D("RecPunchOccupancyBarrel_station", "Punchthrough recHit occupancy", 4,  0.5, 4.5);
-
-  h_refPunchOccupancyBarrel_wheel   ->getTH1()->SetMinimum(0);
-  h_refPunchOccupancyEndcap_disk    ->getTH1()->SetMinimum(0);
-  h_refPunchOccupancyBarrel_station ->getTH1()->SetMinimum(0);
-  h_recPunchOccupancyBarrel_wheel   ->getTH1()->SetMinimum(0);
-  h_recPunchOccupancyEndcap_disk    ->getTH1()->SetMinimum(0);
-  h_recPunchOccupancyBarrel_station ->getTH1()->SetMinimum(0);
-
-  h_refPunchOccupancyBarrel_wheel_station = booker.book2D("RefPunchOccupancyBarrel_wheel_station", "RefPunchthrough occupancy", 5, -2.5, 2.5, 4, 0.5, 4.5);
-  h_refPunchOccupancyEndcap_disk_ring     = booker.book2D("RefPunchOccupancyEndcap_disk_ring"    , "RefPunchthrough occupancy", 9, -4.5, 4.5, 4, 0.5, 4.5);
-  h_recPunchOccupancyBarrel_wheel_station = booker.book2D("RecPunchOccupancyBarrel_wheel_station", "Punchthrough recHit occupancy", 5, -2.5, 2.5, 4, 0.5, 4.5);
-  h_recPunchOccupancyEndcap_disk_ring     = booker.book2D("RecPunchOccupancyEndcap_disk_ring"    , "Punchthrough recHit occupancy", 9, -4.5, 4.5, 4, 0.5, 4.5);
-
-  h_refPunchOccupancyBarrel_wheel_station->getTH2F()->SetOption("COLZ");
-  h_refPunchOccupancyEndcap_disk_ring    ->getTH2F()->SetOption("COLZ");
-  h_recPunchOccupancyBarrel_wheel_station->getTH2F()->SetOption("COLZ");
-  h_recPunchOccupancyEndcap_disk_ring    ->getTH2F()->SetOption("COLZ");
-
-  h_refPunchOccupancyBarrel_wheel_station->getTH2F()->SetContour(10);
-  h_refPunchOccupancyEndcap_disk_ring    ->getTH2F()->SetContour(10);
-  h_recPunchOccupancyBarrel_wheel_station->getTH2F()->SetContour(10);
-  h_recPunchOccupancyEndcap_disk_ring    ->getTH2F()->SetContour(10);
-
-  h_refPunchOccupancyBarrel_wheel_station->getTH2F()->SetStats(0);
-  h_refPunchOccupancyEndcap_disk_ring    ->getTH2F()->SetStats(0);
-  h_recPunchOccupancyBarrel_wheel_station->getTH2F()->SetStats(0);
-  h_recPunchOccupancyEndcap_disk_ring    ->getTH2F()->SetStats(0);
-
-  h_refPunchOccupancyBarrel_wheel_station->getTH2F()->SetMinimum(0);
-  h_refPunchOccupancyEndcap_disk_ring    ->getTH2F()->SetMinimum(0);
-  h_recPunchOccupancyBarrel_wheel_station->getTH2F()->SetMinimum(0);
-  h_recPunchOccupancyEndcap_disk_ring    ->getTH2F()->SetMinimum(0);
-
-  for ( int i=1; i<=5; ++i )
-  {
-    TString binLabel = Form("Wheel %d", i-3);
-    h_refPunchOccupancyBarrel_wheel->getTH1()->GetXaxis()->SetBinLabel(i, binLabel);
-    h_refPunchOccupancyBarrel_wheel_station->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
-    h_recPunchOccupancyBarrel_wheel->getTH1()->GetXaxis()->SetBinLabel(i, binLabel);
-    h_recPunchOccupancyBarrel_wheel_station->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
-  }
-
-  for ( int i=1; i<=9; ++i )
-  {
-    TString binLabel = Form("Disk %d", i-5);
-    h_refPunchOccupancyEndcap_disk  ->getTH1()->GetXaxis()->SetBinLabel(i, binLabel);
-    h_refPunchOccupancyEndcap_disk_ring  ->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
-    h_recPunchOccupancyEndcap_disk  ->getTH1()->GetXaxis()->SetBinLabel(i, binLabel);
-    h_recPunchOccupancyEndcap_disk_ring  ->getTH2F()->GetXaxis()->SetBinLabel(i, binLabel);
-  }
-
-  for ( int i=1; i<=4; ++i )
-  {
-    TString binLabel = Form("Station %d", i);
-    h_refPunchOccupancyBarrel_station  ->getTH1()->GetXaxis()->SetBinLabel(i, binLabel);
-    h_refPunchOccupancyBarrel_wheel_station  ->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
-    h_recPunchOccupancyBarrel_station  ->getTH1()->GetXaxis()->SetBinLabel(i, binLabel);
-    h_recPunchOccupancyBarrel_wheel_station  ->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
-  }
-
-  for ( int i=1; i<=4; ++i )
-  {
-    TString binLabel = Form("Ring %d", i);
-    h_refPunchOccupancyEndcap_disk_ring  ->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
-    h_recPunchOccupancyEndcap_disk_ring  ->getTH2F()->GetYaxis()->SetBinLabel(i, binLabel);
-  }
-
-  // Book roll-by-roll histograms
-  edm::ESHandle<RPCGeometry> rpcGeom;
-  eventSetup.get<MuonGeometryRecord>().get(rpcGeom);
-
-  int nRPCRollBarrel = 0, nRPCRollEndcap = 0;
-
-  TrackingGeometry::DetContainer rpcDets = rpcGeom->dets();
-  for ( auto det : rpcDets )
-  {
-    auto rpcCh = dynamic_cast<const RPCChamber*>(det);
-    if ( !rpcCh ) continue;
-
-    std::vector<const RPCRoll*> rolls = rpcCh->rolls();
-    for ( auto roll : rolls )
-    {
-      if ( !roll ) continue;
-
-      //RPCGeomServ rpcSrv(roll->id());
-      const int rawId = roll->geographicalId().rawId();
-      //if ( !roll->specs()->isRPC() ) { cout << "\nNoRPC : " << rpcSrv.name() << ' ' << rawId << endl; continue; }
-
-      if ( roll->isBarrel() )
-      {
-        detIdToIndexMapBarrel_[rawId] = nRPCRollBarrel;
-        //rollIdToNameMapBarrel_[rawId] = rpcSrv.name();
-        ++nRPCRollBarrel;
-      }
-      else
-      {
-        detIdToIndexMapEndcap_[rawId] = nRPCRollEndcap;
-        //rollIdToNameMapEndcap_[rawId] = rpcSrv.name();
-        ++nRPCRollEndcap;
-      }
-    }
-  }
-
-  booker.setCurrentFolder(subDir_+"/Occupancy");
-  h_matchOccupancyBarrel_detId = booker.book1D("MatchOccupancyBarrel_detId", "Matched hit occupancy;roll index (can be arbitrary)", nRPCRollBarrel, 0, nRPCRollBarrel);
-  h_matchOccupancyEndcap_detId = booker.book1D("MatchOccupancyEndcap_detId", "Matched hit occupancy;roll index (can be arbitrary)", nRPCRollEndcap, 0, nRPCRollEndcap);
-  h_refOccupancyBarrel_detId = booker.book1D("RefOccupancyBarrel_detId", "Reference hit occupancy;roll index (can be arbitrary)", nRPCRollBarrel, 0, nRPCRollBarrel);
-  h_refOccupancyEndcap_detId = booker.book1D("RefOccupancyEndcap_detId", "Reference hit occupancy;roll index (can be arbitrary)", nRPCRollEndcap, 0, nRPCRollEndcap);
-  h_noiseOccupancyBarrel_detId = booker.book1D("NoiseOccupancyBarrel_detId", "Noise occupancy;roll index (can be arbitrary)", nRPCRollBarrel, 0, nRPCRollBarrel);
-  h_noiseOccupancyEndcap_detId = booker.book1D("NoiseOccupancyEndcap_detId", "Noise occupancy;roll index (can be arbitrary)", nRPCRollEndcap, 0, nRPCRollEndcap);
-
-  h_matchOccupancyBarrel_detId->getTH1()->SetMinimum(0);
-  h_matchOccupancyEndcap_detId->getTH1()->SetMinimum(0);
-  h_refOccupancyBarrel_detId  ->getTH1()->SetMinimum(0);
-  h_refOccupancyEndcap_detId  ->getTH1()->SetMinimum(0);
-  h_noiseOccupancyBarrel_detId->getTH1()->SetMinimum(0);
-  h_noiseOccupancyEndcap_detId->getTH1()->SetMinimum(0);
-
-  h_rollAreaBarrel_detId = booker.bookProfile("RollAreaBarrel_detId", "Roll area;roll index;Area", nRPCRollBarrel, 0., 1.*nRPCRollBarrel, 0., 1e5);
-  h_rollAreaEndcap_detId = booker.bookProfile("RollAreaEndcap_detId", "Roll area;roll index;Area", nRPCRollEndcap, 0., 1.*nRPCRollEndcap, 0., 1e5);
-
-  for ( auto detIdToIndex : detIdToIndexMapBarrel_ )
-  {
-    const int rawId = detIdToIndex.first;
-    const int index = detIdToIndex.second;
-
-    const RPCDetId rpcDetId = static_cast<const RPCDetId>(rawId);
-    const RPCRoll* roll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(rpcDetId));
-
-    //RPCGeomServ rpcSrv(roll->id());
-    //if ( !roll->specs()->isRPC() ) { cout << "\nNoRPC : " << rpcSrv.name() << ' ' << rawId << endl; continue; }
-
-    const StripTopology& topol = roll->specificTopology();
-    const double area = topol.stripLength()*topol.nstrips()*topol.pitch();
-
-    h_rollAreaBarrel_detId->Fill(index, area);
-  }
-
-  for ( auto detIdToIndex : detIdToIndexMapEndcap_ )
-  {
-    const int rawId = detIdToIndex.first;
-    const int index = detIdToIndex.second;
-
-    const RPCDetId rpcDetId = static_cast<const RPCDetId>(rawId);
-    const RPCRoll* roll = dynamic_cast<const RPCRoll*>(rpcGeom->roll(rpcDetId));
-
-    //RPCGeomServ rpcSrv(roll->id());
-    //if ( !roll->specs()->isRPC() ) { cout << "\nNoRPC : " << rpcSrv.name() << ' ' << rawId << endl; continue; }
-
-    const StripTopology& topol = roll->specificTopology();
-    const double area = topol.stripLength()*topol.nstrips()*topol.pitch();
-
-    h_rollAreaEndcap_detId->Fill(index, area);
-  }
-
-}
-
 
 DEFINE_FWK_MODULE(RPCRecHitValid);
 

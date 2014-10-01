@@ -20,10 +20,6 @@ RPCPointVsRecHit::RPCPointVsRecHit(const edm::ParameterSet& pset)
   subDir_ = pset.getParameter<std::string>("subDir");
 }
 
-RPCPointVsRecHit::~RPCPointVsRecHit()
-{
-}
-
 void RPCPointVsRecHit::analyze(const edm::Event& event, const edm::EventSetup& eventSetup)
 {
   // Get the RPC Geometry
