@@ -93,36 +93,33 @@ struct   ErrorFrameTransformer {
     AlgebraicMatrix46 jacobian46;
     jacobian46[0][0] = 1.;
     jacobian46[0][1] = 0.;
-    jacobian46[0][2] = -angles(0);
-    jacobian46[0][3] = -shifts(1)*angles(0);
-    jacobian46[0][4] = shifts(0)*angles(0);
-    jacobian46[0][5] = -shifts(1);
+    jacobian46[0][2] = -angles[0];
+    jacobian46[0][3] = -shifts[1]*angles[0];
+    jacobian46[0][4] = shifts[0]*angles[0];
+    jacobian46[0][5] = -shifts[1];
 
     jacobian46[1][0] = 0.;
     jacobian46[1][1] = 1.;
-    jacobian46[1][2] = -angles(1);
-    jacobian46[1][3] = -shifts(1)*angles(1);
-    jacobian46[1][4] = shifts(0)*angles(1);
-    jacobian46[1][5] = shifts(0);
+    jacobian46[1][2] = -angles[1];
+    jacobian46[1][3] = -shifts[1]*angles[1];
+    jacobian46[1][4] = shifts[0]*angles[1];
+    jacobian46[1][5] = shifts[0];
 
     jacobian46[2][0] = 0.;
     jacobian46[2][1] = 0.;
     jacobian46[2][2] = 0.;
-    jacobian46[2][3] = -angles(1)*angles(0);
-    jacobian46[2][4] = 1.+angles(0)*angles(0);
-    jacobian46[2][5] = -angles(1);
+    jacobian46[2][3] = -angles[1]*angles[0];
+    jacobian46[2][4] = 1.+angles[0]*angles[0];
+    jacobian46[2][5] = -angles[1];
 
     jacobian46[3][0] = 0.;
     jacobian46[3][1] = 0.;
     jacobian46[3][2] = 0.;
-    jacobian46[3][3] = -1.-angles(1)*angles(1);
-    jacobian46[3][4] = angles(0)*angles(1);
-    jacobian46[3][5] = angles(0);
+    jacobian46[3][3] = -1.-angles[1]*angles[1];
+    jacobian46[3][4] = angles[0]*angles[1];
+    jacobian46[3][5] = angles[0];
 
-    //protect from umerical instability - multiplying small numbers...
-    jacobian46 *= 100000000.;
     AlgebraicSymMatrix44 out = ROOT::Math::Similarity(jacobian46,as); 
-    out /= 100000000.*100000000.;
 
     LocalErrorExtended newError(out);
 
