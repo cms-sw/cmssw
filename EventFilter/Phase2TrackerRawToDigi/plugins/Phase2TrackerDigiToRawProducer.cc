@@ -18,6 +18,8 @@
 #include <iomanip>
 #include <ext/algorithm>
 
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
+
 using namespace std;
 
 namespace Phase2Tracker {
@@ -58,6 +60,14 @@ namespace Phase2Tracker {
     std::auto_ptr<FEDRawDataCollection> buffers( new FEDRawDataCollection );
     edm::Handle< edmNew::DetSetVector<SiPixelCluster> > digis_handle;
     event.getByLabel("siPixelClusters","", digis_handle);
+    // temp : get list of detids for modules in tracker
+    const edmNew::DetSetVector<SiPixelCluster>* digs = digis_handle.product();
+    for (edmNew::DetSetVector<SiPixelCluster>::const_iterator it = digs->begin(); it != digs->end(); it++)
+    {
+      SiStripDetId did(it->detId());
+      std::cout << it->detId() << " " << did.subDetector() << std::endl;
+    }
+    // end of temp
     Phase2TrackerDigiToRaw raw_producer(cabling_, topo_, digis_handle, 1);
     raw_producer.buildFEDBuffers(buffers);
     event.put(buffers);
