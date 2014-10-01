@@ -52,9 +52,6 @@ getattr(process,"pfNoMuonJME"+postfix).verbose = False
 # enable delta beta correction for muon selection in PF2PAT?
 getattr(process,"pfIsolatedMuons"+postfix).doDeltaBetaCorrection = cms.bool(False)
 
-# Temporary fix to have AK4 payloads until the AK4 payloads are ready
-process.patJetCorrFactorsPFlow.payload = 'AK4PFchs' 
-
 ## ------------------------------------------------------
 #  In addition you usually want to change the following
 #  parameters:
