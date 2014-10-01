@@ -38,12 +38,6 @@ RPCRecHitValid::~RPCRecHitValid()
 {
 }
 
-void RPCRecHitValid::dqmBeginRun(const edm::Run& run, const edm::EventSetup& eventSetup)
-{
-  h_eventCount->Fill(3);
-
-}
-
 void RPCRecHitValid::analyze(const edm::Event& event, const edm::EventSetup& eventSetup)
 {
   h_eventCount->Fill(1);
@@ -705,6 +699,7 @@ void RPCRecHitValid::bookHistograms(DQMStore::IBooker& booker,
     h->GetXaxis()->SetBinLabel(2, "eventEnd");
     h->GetXaxis()->SetBinLabel(3, "run");
   }
+  h_eventCount->Fill(3);
 
   h_refPunchOccupancyBarrel_wheel   = booker.book1D("RefPunchOccupancyBarrel_wheel"  , "RefPunchthrough occupancy", 5, -2.5, 2.5);
   h_refPunchOccupancyEndcap_disk    = booker.book1D("RefPunchOccupancyEndcap_disk"   , "RefPunchthrough occupancy", 9, -4.5, 4.5);

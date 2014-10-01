@@ -28,7 +28,6 @@ public:
   ~RPCRecHitValid();
 
   void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
-  void dqmBeginRun(const edm::Run& run, const edm::EventSetup& eventSetup);
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
