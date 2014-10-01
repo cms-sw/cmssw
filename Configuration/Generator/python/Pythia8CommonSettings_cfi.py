@@ -9,5 +9,6 @@ pythia8CommonSettingsBlock = cms.PSet(
       'ParticleDecays:limitTau0 = on',
       'ParticleDecays:tau0Max = 10',
       'ParticleDecays:allowPhotonRadiation = on',
+      'ParticleDecays:tauIgnoreSpinUpCMSSW = on',
     )
 )
