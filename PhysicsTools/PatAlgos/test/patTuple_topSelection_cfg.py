@@ -13,7 +13,7 @@ removeSpecificPATObjects(process,
 removeCleaning(process,
                outputModules=[])
 
-process.patJetCorrFactors.payload = 'AK4Calo'
+process.patJetCorrFactors.payload = 'AK5Calo'
 # For data:
 #process.patJetCorrFactors.levels = ['L2Relative', 'L3Absolute', 'L2L3Residual', 'L5Flavor', 'L7Parton']
 # For MC:
