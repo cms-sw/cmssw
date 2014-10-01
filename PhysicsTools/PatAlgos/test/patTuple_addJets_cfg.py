@@ -68,8 +68,8 @@ process.out.outputCommands.append( 'drop *_selectedPatJets%s_caloTowers_*'%( lab
 # uncomment the following lines to switch to ak4CaloJets in your PAT output
 switchJetCollection(
    process,
-   jetSource = cms.InputTag('ak4CaloJets'),
-   jetCorrections = ('AK4Calo', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1'), # FIXME: Use proper JECs, as soon as available
+   jetSource = cms.InputTag('ak5CaloJets'),
+   jetCorrections = ('AK5Calo', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1'), # FIXME: Use proper JECs, as soon as available
    btagDiscriminators = [
        'jetBProbabilityBJetTags'
      , 'jetProbabilityBJetTags'
