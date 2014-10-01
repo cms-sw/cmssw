@@ -202,7 +202,7 @@ void DQMFileIterator::collect(bool ignoreTimers) {
 
   directory_iterator dend;
   for (directory_iterator di(runPath_); di != dend; ++di) {
-    const boost::regex fn_re("run(\\d+)_ls(\\d+)_([a-zA-Z0-9]+)(_.*)\\.jsn");
+    const boost::regex fn_re("run(\\d+)_ls(\\d+)_([a-zA-Z0-9]+)(_.*)?\\.jsn");
 
     const std::string filename = di->path().filename().string();
     const std::string fn = di->path().string();
@@ -212,7 +212,6 @@ void DQMFileIterator::collect(bool ignoreTimers) {
       unsigned int run = std::stoi(result[1]);
       unsigned int lumi = std::stoi(result[2]);
       std::string label = result[3];
-      std::string leftover = result[4];
 
       if (run != runNumber_) continue;
 
