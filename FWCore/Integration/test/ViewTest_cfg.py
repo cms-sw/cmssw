@@ -64,12 +64,15 @@ process.vsimple = cms.EDProducer("VSimpleProducer",
     size = cms.int32(7)
 )
 
+process.avsimple = cms.EDProducer("AVSimpleProducer",
+                                  src = cms.InputTag("vsimple"))
+
 process.testview = cms.EDAnalyzer("ViewAnalyzer")
 
 process.p = cms.Path(process.simple +
                      process.vsimple +
                      process.ovsimple +
-                     # avsimple +
+                     process.avsimple +
                      process.dsvsimple +
                      process.intvec +
                      process.intlist +
