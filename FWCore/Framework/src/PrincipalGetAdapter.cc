@@ -221,10 +221,10 @@ namespace edm {
       throw edm::Exception(edm::errors::InsertFailure)
 	<< "Illegal attempt to 'put' an unregistered product.\n"
 	<< "No product is registered for\n"
-	<< "  process name:                '" << md_.processName() << "'\n"
-	<< "  module label:                '" << md_.moduleLabel() << "'\n"
 	<< "  product friendly class name: '" << type.friendlyClassName() << "'\n"
+  << "  module label:                '" << md_.moduleLabel() << "'\n"
 	<< "  product instance name:       '" << productInstanceName << "'\n"
+  << "  process name:                '" << md_.processName() << "'\n"
 
 	<< "The ProductRegistry contains:\n"
 	<< principal_.productRegistry()

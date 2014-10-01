@@ -226,7 +226,7 @@ namespace edm {
       for (StringSet::const_iterator it = missing.begin(), itEnd = missing.end();
          it != itEnd; ++it) {
         try {
-          gROOT->GetClass(it->c_str(), kTRUE);
+          TClass::GetClass(it->c_str(), kTRUE);
         }
         // We don't want to fail if we can't load a plug-in.
         catch(...) {}
