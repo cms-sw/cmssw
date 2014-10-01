@@ -6,7 +6,8 @@ process.CondDBCommon.connect = cms.string("sqlite_file:cabling.db")
 
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'MC_3XY_V15::All'
+#process.GlobalTag.globaltag = 'MC_3XY_V15::All'
+process.GlobalTag.globaltag = 'MC_72_V2::All'
 
 process.source = cms.Source("EmptyIOVSource",
     timetype = cms.string('runnumber'),
