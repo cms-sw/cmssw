@@ -166,7 +166,7 @@ FastL1Region::FillEMCrystals(const CaloTowerConstituentsMap* theTowerConstituent
       //int hiphi = m_RMap->convertFromECal_to_HCal_iphi(detId.tower_iphi());
       //int hiphi = m_RMap->convertFromHCal_to_ECal_iphi(detId.tower_iphi());
       int hiphi = detId.tower_iphi();
-      if ( !Towers[i].id().iphi()==hiphi ||  !Towers[i].id().ieta()==hieta ) continue;
+      if (!(Towers[i].id().iphi() == hiphi) || !(Towers[i].id().ieta() == hieta)) continue;
       EMCrystalEnergy[i][crIeta + 5*crIphi] = ecItr->energy();
     }  
   }
