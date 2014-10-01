@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 import re
 datacl = re.compile("^class ")
+bfunc = re.compile("^function ")
 mbcl = re.compile("(base|data) class")
 farg = re.compile("(.*)\(\w+\)")
 nsep = re.compile("\:\:")
@@ -65,6 +66,7 @@ f.close()
 f = open('db.txt')
 
 for line in f :
+	if not bfunc.search(line) : continue
 	fields = line.split("'")
 	if fields[2] == ' calls function ' :
 		G.add_edge(fields[1],fields[3],kind=' calls function ')
