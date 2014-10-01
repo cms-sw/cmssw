@@ -327,7 +327,8 @@ class AddJetCollection(ConfigToolBase):
             ## load sequences and setups needed fro btagging
             ## This loads all available btagger, but the ones we need are added to the process by hand later. Only needed to get the ESProducer. Needs improvement
             #loadWithPostFix(process,"RecoBTag.Configuration.RecoBTag_cff",postfix)
-            process.load("RecoBTag.Configuration.RecoBTag_cff")
+            if hasattr( process, 'secondaryVertexNegativeTagInfos' ) == False : 
+                process.load("RecoBTag.Configuration.RecoBTag_cff")
             #addESProducers(process,'RecoBTag.Configuration.RecoBTag_cff')
             import RecoBTag.Configuration.RecoBTag_cff as btag
             import RecoJets.JetProducers.caTopTaggers_cff as toptag
@@ -394,8 +395,8 @@ class AddJetCollection(ConfigToolBase):
                     process.load( 'RecoBTag.SecondaryVertex.bToCharmDecayVertexMerger_cfi' )
             if 'caTopTagInfos' in acceptedTagInfos :
                 _newPatJets.addTagInfos = True
-                if not hasattr( process, 'caTopTagInfos' ):
-                    process.load( 'RecoJets.JetProducers.CATopTagInfos_cff' )
+                if not hasattr( process, 'caTopTagInfos' ) and not hasattr( process, 'caTopTagInfosAK8' ):
+                    process.load( 'RecoJets.JetProducers.caTopTaggers_cff' )
         else:
             _newPatJets.addBTagInfo = False
             _newPatJets.addTagInfos = False

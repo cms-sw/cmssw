@@ -2,7 +2,7 @@
 #define IOPool_Common_CustomStreamer_h
 
 #include <string>
-#include "TROOT.h"
+#include "TClass.h"
 #include "TClassStreamer.h"
 #include "TClassRef.h"
 #include "FWCore/Utilities/interface/TypeID.h"
@@ -39,7 +39,7 @@ namespace edm {
   template <typename T>
   void
   SetCustomStreamer() {
-    TClass *cl = gROOT->GetClass(TypeID(typeid(T)).className().c_str());
+    TClass *cl = TClass::GetClass(TypeID(typeid(T)).className().c_str());
     if (cl->GetStreamer() == 0) {
       cl->AdoptStreamer(new CustomStreamer<T>());
     }
@@ -48,7 +48,7 @@ namespace edm {
   template <typename T>
   void
   SetCustomStreamer(T const&) {
-    TClass *cl = gROOT->GetClass(TypeID(typeid(T)).className().c_str());
+    TClass *cl = TClass::GetClass(TypeID(typeid(T)).className().c_str());
     if (cl->GetStreamer() == 0) {
       cl->AdoptStreamer(new CustomStreamer<T>());
     }
