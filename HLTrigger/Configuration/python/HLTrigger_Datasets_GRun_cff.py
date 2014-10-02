@@ -92,7 +92,8 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring('HLT_AK8PFJet3
     'HLT_Photon75_R9Id90_HE10_Iso40_EBOnly_VBF_v1', 
     'HLT_Photon90_R9Id90_HE10_Iso40_EBOnly_PFMET40_v1', 
     'HLT_Photon90_R9Id90_HE10_Iso40_EBOnly_VBF_v1', 
-    'HLT_Physics_v1')
+    'HLT_Physics_v1', 
+    'HLT_ZeroBias_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTemplates_selector
 streamA_datasetTemplates_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
