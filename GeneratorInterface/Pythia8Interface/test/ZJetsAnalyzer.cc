@@ -41,9 +41,9 @@ class ZJetsAnalyzer : public edm::EDAnalyzer
     virtual ~ZJetsAnalyzer(); // no need to delete ROOT stuff
                               // as it'll be deleted upon closing TFile
       
-    virtual void analyze( const edm::Event&, const edm::EventSetup& ) override;
-    virtual void beginJob() override;
-    virtual void endRun( const edm::Run&, const edm::EventSetup& ) override;
+    virtual void analyze( const edm::Event&, const edm::EventSetup& );
+    virtual void beginJob();
+    virtual void endRun( const edm::Run&, const edm::EventSetup& );
 
   private:
    
