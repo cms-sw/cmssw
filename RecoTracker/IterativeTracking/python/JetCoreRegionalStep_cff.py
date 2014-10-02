@@ -8,13 +8,10 @@ iter0TrackRefsForJets = trackRefsForJets.clone(src = cms.InputTag('initialStepTr
 from RecoJets.JetProducers.ak4CaloJets_cfi import ak4CaloJets
 from RecoLocalCalo.CaloTowersCreator.calotowermaker_cfi import calotowermaker
 caloTowerForTrk = calotowermaker.clone(hbheInput=cms.InputTag('hbheprereco'))
-ak4CaloJetsForTrk = ak4CaloJets.clone(srcPVs = cms.InputTag('pixelVertices'), src= cms.InputTag('caloTowerForTrk'))
+ak4CaloJetsForTrk = ak4CaloJets.clone(srcPVs = cms.InputTag('firstStepPrimaryVertices'), src= cms.InputTag('caloTowerForTrk'))
 jetsForCoreTracking = cms.EDFilter("CandPtrSelector", src = cms.InputTag("ak4CaloJetsForTrk"), cut = cms.string("pt > 100 && abs(eta) < 2.5"))
 
 # care only at tracks from main PV
-import RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi
-firstStepPrimaryVertices=RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi.offlinePrimaryVertices.clone()
-firstStepPrimaryVertices.TrackLabel = cms.InputTag("initialStepTracks")
 firstStepGoodPrimaryVertices = cms.EDFilter("PrimaryVertexObjectFilter",
      filterParams = cms.PSet(
      	     minNdof = cms.double(25.0),
@@ -153,7 +150,6 @@ jetCoreRegionalStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector
 
 # Final sequence
 JetCoreRegionalStep = cms.Sequence(iter0TrackRefsForJets*caloTowerForTrk*ak4CaloJetsForTrk*jetsForCoreTracking*
-                                   firstStepPrimaryVertices*
                                    firstStepGoodPrimaryVertices*
                                    #jetCoreRegionalStepClusters*
                                    jetCoreRegionalStepSeedLayers*
