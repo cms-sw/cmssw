@@ -160,7 +160,7 @@ void FunctionChecker::checkASTDecl(const FunctionDecl *FD, AnalysisManager& mgr,
         if (FD-> isInExternCContext()) {
                 std::string buf;
                 std::string dname = FD->getQualifiedNameAsString();
-                if ( dname.compare(dname.size()-1,1,"_") != 0 ) return;
+                if ( dname.compare(dname.size()-1,1,"_") == 0 ) {
                 llvm::raw_string_ostream os(buf);
                 os << "function '"<< dname << "' is in an extern \"C\" context and most likely accesses or modifies fortran variables in a 'COMMONBLOCK'.\n";
                 clang::ento::PathDiagnosticLocation::createBegin(FD, BR.getSourceManager());
@@ -168,6 +168,7 @@ void FunctionChecker::checkASTDecl(const FunctionDecl *FD, AnalysisManager& mgr,
                 std::string ostring =  "function '" + dname + "' static variable 'COMMONBLOCK'.\n";
 		std::string tname = "function-checker.txt.unsorted";
 		support::writeLog(ostring,tname);
+		}
         }
 
  	const char *sfile=BR.getSourceManager().getPresumedLoc(FD->getLocation ()).getFilename();

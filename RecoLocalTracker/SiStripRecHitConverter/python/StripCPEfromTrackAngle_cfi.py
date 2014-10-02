@@ -16,7 +16,5 @@ StripCPEfromTrackAngleESProducer.parameters    = cms.PSet(
    mTID_P1        = cms.double( .433),
    mTEC_P0        = cms.double(-1.885),
    mTEC_P1        = cms.double( .471),
-   useLegacyError = cms.bool(False),
+   useLegacyError = cms.bool(True),
 )
-
-
