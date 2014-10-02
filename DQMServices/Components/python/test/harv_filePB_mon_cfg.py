@@ -33,6 +33,9 @@ process.dqmSaver.saveByLumiSection = cms.untracked.int32(-1)
 process.dqmSaver.saveByRun = cms.untracked.int32(1)
 process.dqmSaver.convention = 'Online'
 
+process.DQMMonitoringService = cms.Service("DQMMonitoringService",
+    jsonPath = cms.untracked.string("/tmp/dqm_monitoring/"),
+)
 
 process.p = cms.Path(process.harvester + process.eff)
 process.o = cms.EndPath(process.dqmSaver)
