@@ -432,8 +432,19 @@ void DQMStore::mergeAndResetMEsLuminositySummaryCache(uint32_t run,
       assert(gme.second);
     }
     const_cast<MonitorElement*>(&*i)->Reset();
+    //why not const_cast<MonitorElement*>(&*previous_me)->deleteObjects(); ??
+
     // TODO(rovere): eventually reset the local object and mark it as reusable??
     ++i;
+
+    // check and remove the global lumi based histo belonging to the previous LS
+    // if properly flagged as DQMNet::DQM_PROP_MARKTODELETE
+    if(lumi == 0) continue;
+    global_me.setLumi(lumi-1);
+    std::set<MonitorElement>::const_iterator previous_me = data_.find(global_me);
+    if (previous_me != data_.end() && previous_me->markedToDelete()) {
+      data_.erase(previous_me);
+    }
   }
 }
 
