@@ -162,6 +162,7 @@ class HLTHiggsSubAnalysis
 		//N-1 cut values
 		std::vector<double> _NminOneCuts;
         bool _useNminOneCuts;
+        unsigned int NptPlots;
 		
 		// The plotters: managers of each hlt path where the plots are done
 		std::vector<HLTHiggsPlotter> _analyzers;
