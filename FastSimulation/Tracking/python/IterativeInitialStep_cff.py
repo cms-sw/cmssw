@@ -55,6 +55,21 @@ initialStepTracks = cms.EDProducer("FastTrackMerger",
                                    trackAlgo = cms.untracked.uint32(4) # iter0
                                    )
 
+#vertices
+import RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi
+firstStepPrimaryVertices=RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi.offlinePrimaryVertices.clone()
+firstStepPrimaryVertices.TrackLabel = cms.InputTag("initialStepTracks")
+firstStepPrimaryVertices.vertexCollections = cms.VPSet(
+     [cms.PSet(label=cms.string(""),
+               algorithm=cms.string("AdaptiveVertexFitter"),
+               minNdof=cms.double(0.0),
+               useBeamConstraint = cms.bool(False),
+               maxDistanceToBeam = cms.double(1.0)
+               )
+      ]
+    )
+
+
 # Final selection
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 initialStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
@@ -81,6 +96,7 @@ iterativeInitialStep = cms.Sequence(iterativeInitialSeeds
                                     +iterativeInitialTrackCandidates
                                     +iterativeInitialTracks
                                     +initialStepTracks
+                                    +firstStepPrimaryVertices
                                     +initialStepSelector)
 
 
