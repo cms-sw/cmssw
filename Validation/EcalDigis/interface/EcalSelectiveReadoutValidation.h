@@ -36,6 +36,7 @@
 #include <inttypes.h>
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 class DQMStore;
 class MonitorElement;
@@ -44,7 +45,7 @@ class EEDetId;
 class EcalTPParameters;
 class EcalElectronicsMapping;
 
-class EcalSelectiveReadoutValidation: public edm::EDAnalyzer{
+class EcalSelectiveReadoutValidation: public DQMEDAnalyzer{
 
   //typedef EcalUncalibratedRecHitCollection RecHitCollection;
   //typedef EcalUncalibratedRecHit RecHit;
@@ -58,19 +59,19 @@ public:
 
   /// Destructor
   ~EcalSelectiveReadoutValidation();
-
+ void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
+ void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override; 
+ 
 protected:
 
   /// Analyzes the event.
   void analyze(edm::Event const & e, edm::EventSetup const & c);
-
-  /// Calls at begin of run
-  void beginRun(const edm::Run& r, const edm::EventSetup& c); 
-  
-  /// Calls at end of run
+ 
   void endRun(const edm::Run& r, const edm::EventSetup& c); 
 
 private:
+  DQMStore::IBooker* ibook; 
+ 
   ///distinguishes barral and endcap of ECAL.
   enum subdet_t {EB, EE};
 
@@ -510,9 +511,6 @@ private:
   
   ///Verbosity switch
   bool verbose_;
-
-  ///Histogramming interface
-  DQMStore* dbe_;
 
   ///Output file for histograms
   std::string outputFile_;
@@ -954,6 +952,7 @@ private:
   int xtalGraphY(const EBDetId& id) const{
     return id.iphi();
   }
+
   ///@}
 
   //@{

@@ -205,17 +205,6 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
   // get hold of back-end interface
-  dbe_ = Service<DQMStore>().operator->();
-
-  if(verbose_){
-    dbe_->setVerbose(1);
-  } else{
-    dbe_->setVerbose(0);
-  }
-
-  if(verbose_) dbe_->showDirStructure();
-
-  dbe_->setCurrentFolder(histDir_);
 
   vector<string>
     hists(ps.getUntrackedParameter<vector<string> >("histograms",
@@ -225,15 +214,800 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
       it!=hists.end(); ++it) histList_.insert(*it);
   if(histList_.find("all") != histList_.end()) allHists_ = true;
 
-  //Data volume
-  meEbFixedPayload_ = bookFloat("ebFixedVol");
-  double ebFixed = getDccOverhead(EB)*nEbDccs;
-  double eeFixed =  getDccOverhead(EE)*nEeDccs;
-  meEbFixedPayload_->Fill(ebFixed);
-  meEeFixedPayload_ = bookFloat("eeFixedVol");
-  meEbFixedPayload_->Fill(eeFixed);
-  meFixedPayload_ = bookFloat("fixedVol");
-  meFixedPayload_->Fill(ebFixed+eeFixed);
+}
+
+
+void EcalSelectiveReadoutValidation::updateL1aRate(const edm::Event& event){
+  const int32_t bx = event.bunchCrossing();
+  if(bx<1 || bx > 3564) return;//throw cms::Exception("EcalSelectiveReadoutValidation")
+                       //  << "bx value, " << bx << " is out of range\n";
+  
+  int64_t t = event.bunchCrossing() + (event.orbitNumber()-1)*3564;
+  
+  if(t<tmin){
+    tmin = t;
+    l1aOfTmin = event.id().event();
+  }
+
+  if(t>tmax){
+    tmax = t;
+    l1aOfTmax = event.id().event();
+  }
+}
+
+double EcalSelectiveReadoutValidation::getL1aRate() const{
+  LogDebug("EcalSrValid") << __FILE__ << ":" << __LINE__ << ": "
+			  <<  "Tmax = " << tmax << " x 25ns; Tmin = " << tmin
+			  << " x 25ns; L1A(Tmax) = " << l1aOfTmax << "; L1A(Tmin) = "
+			  << l1aOfTmin << "\n";
+  return (double)(l1aOfTmax - l1aOfTmin) / ((tmax-tmin) * 25e-9);
+}
+
+void EcalSelectiveReadoutValidation::analyze(Event const & event,
+					     EventSetup const & es){
+
+  updateL1aRate(event);
+  
+  {
+   PgTiming t("collection readout");
+
+   //retrieves event products:
+   readAllCollections(event);
+
+  }
+
+  withEeSimHit_ = (eeSimHits_->size()!=0);
+  withEbSimHit_ = (ebSimHits_->size()!=0);
+
+  if(ievt_<10){
+    edm::LogInfo("EcalSrValid") << "Size of TP collection: " << tps_->size() << "\n"
+				<< "Size of EB SRF collection read from data: "
+				<< ebSrFlags_->size() << "\n"
+				<< "Size of EB SRF collection computed from data TTFs: "
+				<< ebComputedSrFlags_->size() << "\n"
+				<< "Size of EE SRF collection read from data: "
+				<< eeSrFlags_->size() << "\n"
+				<< "Size of EE SRF collection computed from data TTFs: "
+				<< eeComputedSrFlags_->size() << "\n";
+  }
+  
+  if(ievt_==0){
+    selectFedsForLog(); //note: must be called after readAllCollection
+  }
+
+  //computes Et sum trigger tower crystals:
+  setTtEtSums(es, *ebNoZsDigis_, *eeNoZsDigis_);
+
+  {
+    PgTiming t("data volume analysis");
+
+    //Data Volume
+    analyzeDataVolume(event, es);
+  }
+
+  {
+    PgTiming t("EB analysis");
+    //EB digis
+    //must be called after analyzeDataVolume because it uses
+    //isRuComplete_ array that this method fills
+    analyzeEB(event, es);
+  }
+
+  {
+    PgTiming t("EE analysis");
+    //EE digis
+    //must be called after analyzeDataVolume because it uses
+    //isRuComplete_ array that this method fills
+    analyzeEE(event, es);
+  }
+
+  fill(meFullRoCnt_, nEeFROCnt_+nEbFROCnt_);
+  fill(meEbFullRoCnt_, nEbFROCnt_);
+  fill(meEeFullRoCnt_, nEeFROCnt_);
+
+  fill(meEbZsErrCnt_, nEbZsErrors_);
+  fill(meEeZsErrCnt_, nEeZsErrors_);
+  fill(meZsErrCnt_, nEbZsErrors_ + nEeZsErrors_);
+
+  fill(meEbZsErrType1Cnt_, nEbZsErrorsType1_);
+  fill(meEeZsErrType1Cnt_, nEeZsErrorsType1_);
+  fill(meZsErrType1Cnt_, nEbZsErrorsType1_ + nEeZsErrorsType1_);
+
+  {
+    PgTiming t("TP analysis");
+    //TP
+    analyzeTP(event, es);
+  }
+
+  //SR Consistency and validation
+  //SRFlagValidation(event,es);
+  if(ebComputedSrFlags_->size()){
+    compareSrfColl(event, *ebSrFlags_, *ebComputedSrFlags_);
+  }
+  if(eeComputedSrFlags_->size()){
+    compareSrfColl(event, *eeSrFlags_, *eeComputedSrFlags_);
+  }
+  nDroppedFRO_ = 0;
+  nIncompleteFRO_ = 0;
+  nCompleteZS_ = 0;
+  checkSrApplication(event, *ebSrFlags_);
+  checkSrApplication(event, *eeSrFlags_);
+  fill(meDroppedFROCnt_, nDroppedFRO_);
+  fill(meIncompleteFROCnt_, nIncompleteFRO_);
+  fill(meCompleteZSCnt_, nCompleteZS_);
+  ++ievt_;
+}
+
+
+void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event,
+					       const edm::EventSetup& es){
+  bool eventError = false;
+  nEeZsErrors_ = 0;
+
+  {
+    PgTiming t("analyzeEE: init");
+    for(int iZ0=0; iZ0<nEndcaps; ++iZ0){
+      for(int iX0=0; iX0<nEeX; ++iX0){
+        for(int iY0=0; iY0<nEeY; ++iY0){
+          eeEnergies[iZ0][iX0][iY0].noZsRecE = -numeric_limits<double>::max();
+          eeEnergies[iZ0][iX0][iY0].recE = -numeric_limits<double>::max();
+          eeEnergies[iZ0][iX0][iY0].simE = 0; //must be set to zero.
+          eeEnergies[iZ0][iX0][iY0].simHit = 0;
+          eeEnergies[iZ0][iX0][iY0].gain12   = false;
+        }
+      }
+    }
+  }
+
+  // gets the endcap geometry:
+  edm::ESHandle<CaloGeometry> geoHandle;
+  es.get<MyCaloGeometryRecord>().get(geoHandle);
+  const CaloSubdetectorGeometry *geometry_p
+    = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+  CaloSubdetectorGeometry const& geometry = *geometry_p;
+
+  {
+    PgTiming t("analyzeEE: unsupressed digis");
+      //EE unsupressed digis:
+      for (unsigned int digis=0; digis<eeNoZsDigis_->size(); ++digis){
+
+        EEDataFrame frame = (*eeNoZsDigis_)[digis];
+        int iX0 = iXY2cIndex(frame.id().ix());
+        int iY0 = iXY2cIndex(frame.id().iy());
+        int iZ0 = frame.id().zside()>0?1:0;
+
+        if(iX0<0 || iX0>=nEeX){
+          edm::LogError("EcalSrValid") << "iX0 (= " << iX0 << ") is out of range ("
+				       << "[0," << nEeX -1 << "]\n";
+        }
+        if(iY0<0 || iY0>=nEeY){
+          edm::LogError("EcalSrValid") << "iY0 (= " << iY0 << ") is out of range ("
+				       << "[0," << nEeY -1 << "]\n";
+        }
+        //    cout << "EE no ZS energy computation..." ;
+        eeEnergies[iZ0][iX0][iY0].noZsRecE = frame2Energy(frame);
+
+        eeEnergies[iZ0][iX0][iY0].gain12 = true;
+        for(int i = 0; i< frame.size(); ++i){
+          const int gain12Code = 0x1;
+          if(frame[i].gainId()!=gain12Code) eeEnergies[iZ0][iX0][iY0].gain12 =  false;
+        }
+
+        const GlobalPoint xtalPos
+          = geometry.getGeometry(frame.id())->getPosition();
+
+        eeEnergies[iZ0][iX0][iY0].phi = rad2deg*((double)xtalPos.phi());
+        eeEnergies[iZ0][iX0][iY0].eta = xtalPos.eta();
+      }
+  }
+
+  {
+    PgTiming t("analyzeEE:rec hits");
+    //EE rec hits:
+    if(!localReco_){
+      for(RecHitCollection::const_iterator it
+            = eeRecHits_->begin();
+          it != eeRecHits_->end(); ++it){
+        const RecHit& hit = *it;
+        int iX0 = iXY2cIndex(static_cast<const EEDetId&>(hit.id()).ix());
+        int iY0 = iXY2cIndex(static_cast<const EEDetId&>(hit.id()).iy());
+        int iZ0 = static_cast<const EEDetId&>(hit.id()).zside()>0?1:0;
+
+        if(iX0<0 || iX0>=nEeX){
+          LogError("EcalSrValid") << "iX0 (= " << iX0 << ") is out of range ("
+				  << "[0," << nEeX -1 << "]\n";
+        }
+        if(iY0<0 || iY0>=nEeY){
+          LogError("EcalSrValid") << "iY0 (= " << iY0 << ") is out of range ("
+               << "[0," << nEeY -1 << "]\n";
+        }
+        //    cout << "EE no ZS energy computation..." ;
+        eeEnergies[iZ0][iX0][iY0].recE = hit.energy();
+      }
+    }
+  }
+
+  {
+    PgTiming t("analyzeEE:sim hits");
+    //EE sim hits:
+    for(vector<PCaloHit>::const_iterator it = eeSimHits_->begin();
+        it != eeSimHits_->end(); ++it){
+      const PCaloHit& simHit = *it;
+      EEDetId detId(simHit.id());
+      int iX = detId.ix();
+      int iX0 =iXY2cIndex(iX);
+      int iY = detId.iy();
+      int iY0 = iXY2cIndex(iY);
+      int iZ0 = detId.zside()>0?1:0;
+      eeEnergies[iZ0][iX0][iY0].simE += simHit.energy();
+      ++eeEnergies[iZ0][iX0][iY0].simHit;
+    }
+  }
+
+      bool EEcrystalShot[nEeX][nEeY][2];
+      pair<int,int> EExtalCoor[nEeX][nEeY][2];  
+  {
+    PgTiming t("analyzeEE: suppressed digi loop init");
+    for(int iEeZ=0; iEeZ<2; ++iEeZ){
+      for(int iEeX=0; iEeX<nEeX; ++iEeX){
+        for(int iEeY=0; iEeY<nEeY; ++iEeY){
+          EEcrystalShot[iEeX][iEeY][iEeZ] = false;
+          EExtalCoor[iEeX][iEeY][iEeZ] = make_pair(0,0); 
+        }
+      }
+    }
+  }
+
+  {
+    PgTiming t("analyzeEE: suppressed digis");
+
+    //EE suppressed digis
+    for(EEDigiCollection::const_iterator it = eeDigis_->begin();
+        it != eeDigis_->end(); ++it){
+      const EEDataFrame& frame = *it;
+      int iX0 = iXY2cIndex(static_cast<const EEDetId&>(frame.id()).ix());
+      int iY0 = iXY2cIndex(static_cast<const EEDetId&>(frame.id()).iy());
+      int iZ0 = static_cast<const EEDetId&>(frame.id()).zside()>0?1:0;
+      if(iX0<0 || iX0>=nEeX){
+        LogError("EcalSrValid") << "iX0 (= " << iX0 << ") is out of range ("
+				<< "[0," << nEeX -1 << "]\n";
+      }
+      if(iY0<0 || iY0>=nEeY){
+        LogError("EcalSrValid") << "iY0 (= " << iY0 << ") is out of range ("
+				<< "[0," << nEeY -1 << "]\n";
+      }
+
+      if(!EEcrystalShot[iX0][iY0][iZ0]){
+          EEcrystalShot[iX0][iY0][iZ0] = true;
+          EExtalCoor[iX0][iY0][iZ0] = make_pair(xtalGraphX(frame.id()), xtalGraphY(frame.id())); 
+      } else{
+        cout << "Error: several digi for same crystal!";
+        abort();
+      }
+
+      if(localReco_){
+        eeEnergies[iZ0][iX0][iY0].recE = frame2Energy(frame);
+      }
+
+      eeEnergies[iZ0][iX0][iY0].gain12 = true;
+      for(int i = 0; i< frame.size(); ++i){
+        const int gain12Code = 0x1;
+        if(frame[i].gainId()!=gain12Code){
+          eeEnergies[iZ0][iX0][iY0].gain12 =  false;
+        }
+      }
+
+      EESrFlagCollection::const_iterator srf
+        = eeSrFlags_->find(readOutUnitOf(frame.id()));
+
+      bool highInterest = false;
+
+
+      if(srf==eeSrFlags_->end()) continue;
+
+      if(srf!=eeSrFlags_->end()){
+        highInterest = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK)
+                        == EcalSrFlag::SRF_FULL);
+      }
+
+      if(highInterest){
+        fill(meEeHiZsFir_, dccZsFIR(frame, firWeights_, firstFIRSample_, 0));
+      } else{
+        int v = dccZsFIR(frame, firWeights_, firstFIRSample_, 0);
+        fill(meEeLiZsFir_, v);
+        if(v < eeZsThr_){
+          eventError = true;
+          ++nEeZsErrors_;
+          pair<int,int> ru = dccCh(frame.id());
+          if(isRuComplete_[ru.first][ru.second-1]) ++nEeZsErrorsType1_;
+          if(nEeZsErrors_ < 3){
+            srApplicationErrorLog_ << event.id() << ", "
+                                   << "RU " << frame.id() << ", "
+                                   << "DCC " << ru.first
+                                   << " Ch : " << ru.second << ": "
+                                   << "LI channel under ZS threshold.\n";
+          }
+          if(nEeZsErrors_==3){
+            srApplicationErrorLog_ << event.id() << ": "
+                                   << "more ZS errors for this event...\n";
+          }
+        }
+      }
+    } //next ZS digi.
+
+    for(int iEeZ=0; iEeZ<2; ++iEeZ){
+      for(int iEeX=0; iEeX<nEeX; ++iEeX){
+        for(int iEeY=0; iEeY<nEeY; ++iEeY){
+          if(EEcrystalShot[iEeX][iEeY][0]){
+            fill(meChOcc_, EExtalCoor[iEeX][iEeY][iEeZ].first, EExtalCoor[iEeX][iEeY][iEeZ].second,1);
+          } else {
+            fill(meChOcc_, EExtalCoor[iEeX][iEeY][iEeZ].first, EExtalCoor[iEeX][iEeY][iEeZ].second,0);
+          }
+        }
+      }
+    }
+
+  }
+
+  {
+    PgTiming t("analyzeEE: energies");
+
+    for(int iZ0=0; iZ0<nEndcaps; ++iZ0){
+      for(int iX0=0; iX0<nEeX; ++iX0){
+        for(int iY0=0; iY0<nEeY; ++iY0){
+          double recE = eeEnergies[iZ0][iX0][iY0].recE;
+          if(recE==-numeric_limits<double>::max()) continue; //not a crystal or ZS
+          fill(meEeRecE_, eeEnergies[iZ0][iX0][iY0].recE);
+
+          fill(meEeEMean_, ievt_+1,
+               eeEnergies[iZ0][iX0][iY0].recE);
+
+          if(withEeSimHit_){
+            if(!eeEnergies[iZ0][iX0][iY0].simHit){//noise only crystal channel
+              fill(meEeNoise_, eeEnergies[iZ0][iX0][iY0].noZsRecE);
+            } else{
+              fill(meEeSimE_, eeEnergies[iZ0][iX0][iY0].simE);
+              fill(meEeRecEHitXtal_, eeEnergies[iZ0][iX0][iY0].recE);
+            }
+            fill(meEeRecVsSimE_, eeEnergies[iZ0][iX0][iY0].simE,
+                 eeEnergies[iZ0][iX0][iY0].recE);
+            fill(meEeNoZsRecVsSimE_, eeEnergies[iZ0][iX0][iY0].simE,
+                 eeEnergies[iZ0][iX0][iY0].noZsRecE);
+          }
+        }
+      }
+    }
+  }
+
+  int EEZs1RuCount[2][20][72];
+  int EEFullRuCount[2][20][72];
+  int EEForcedRuCount[2][20][72];
+  for(int iZ(0); iZ < 2; iZ++){
+    for(int iX(0);iX < 20; iX++){
+      for(int iY(0);iY < 72; iY++){
+        EEZs1RuCount[iZ][iX][iY] = 0;
+        EEFullRuCount[iZ][iX][iY] = 0;
+        EEForcedRuCount[iZ][iX][iY] = 0;
+      }
+    }
+  }
+
+  {
+    PgTiming t("analyzeEE: RU");
+
+    nEeFROCnt_ = 0;
+    char eeSrfMark[2][100][100];
+    bzero(eeSrfMark, sizeof(eeSrfMark));
+    //Filling RU histo
+    for(EESrFlagCollection::const_iterator it = eeSrFlags_->begin();
+        it != eeSrFlags_->end(); ++it){
+      const EESrFlag& srf = *it;
+      int iX = srf.id().ix();
+      int iY = srf.id().iy();
+      int iZ = srf.id().zside(); //-1 for EE-, +1 for EE+
+      if(iX<1 || iY > 100) throw cms::Exception("EcalSelectiveReadoutValidation")
+	<< "Found an endcap SRF with an invalid det ID: " << srf.id() << ".\n";
+      ++eeSrfMark[iZ>0?1:0][iX-1][iY-1];
+      if(eeSrfMark[iZ>0?1:0][iX-1][iY-1] > 1) throw cms::Exception("EcalSelectiveReadoutValidation")
+	<< "Duplicate SRF for supercrystal " << srf.id() << ".\n";
+      int flag = srf.value() & ~EcalSrFlag::SRF_FORCED_MASK;
+      if(flag == EcalSrFlag::SRF_ZS1){
+        EEZs1RuCount[iZ>0?1:0][iX-1][iY-1] += 1;
+      }
+
+      if(flag == EcalSrFlag::SRF_FULL){
+        EEFullRuCount[iZ>0?1:0][iX-1][iY-1] += 1;
+	++nEeFROCnt_;
+      }
+      
+      if(srf.value() & EcalSrFlag::SRF_FORCED_MASK){
+        EEForcedRuCount[iZ>0?1:0][iX-1][iY-1] += 1;
+      }
+    }
+    for(int iZ(0); iZ < 2; iZ++){
+      for(int iX(0);iX < 20; iX++){
+        for(int iY(0);iY < 72; iY++){
+            int GraphX = (iX + 1)+ (iZ>0?20:-40);
+            int GraphY = (iY+1);
+            fill(meZs1Ru_, GraphX, GraphY, EEZs1RuCount[iZ][iX][iY]);
+            fill(meFullRoRu_, GraphX, GraphY, EEFullRuCount[iZ][iX][iY]);
+            fill(meForcedRu_, GraphX, GraphY, EEForcedRuCount[iZ][iX][iY]);
+          }
+        }
+      }
+  }
+  
+  {
+    PgTiming t("analyzeEE: SR appli error log");
+
+    if(eventError) srApplicationErrorLog_ << event.id()
+                                          << ": " << nEeZsErrors_
+                                          << " ZS-flagged EE channels under "
+                     "the ZS threshold, whose " << nEeZsErrorsType1_
+                                          << " in a complete RU.\n";
+  }
+} //end of analyzeEE
+
+void
+EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event,
+					  const edm::EventSetup& es){
+
+    bool eventError = false;
+    nEbZsErrors_ = 0;
+    vector<pair<int,int> > xtalEtaPhi;
+
+  {
+    PgTiming t("analyzeEB: init");
+
+    xtalEtaPhi.reserve(nEbPhi*nEbEta);
+    for(int iEta0=0; iEta0<nEbEta; ++iEta0){
+      for(int iPhi0=0; iPhi0<nEbPhi; ++iPhi0){
+        ebEnergies[iEta0][iPhi0].noZsRecE = -numeric_limits<double>::max();
+        ebEnergies[iEta0][iPhi0].recE = -numeric_limits<double>::max();
+        ebEnergies[iEta0][iPhi0].simE = 0; //must be zero.
+        ebEnergies[iEta0][iPhi0].simHit = 0;
+        ebEnergies[iEta0][iPhi0].gain12 = false;
+        xtalEtaPhi.push_back(pair<int,int>(iEta0, iPhi0));
+      }
+    }
+  }
+
+    // get the barrel geometry:
+  edm::ESHandle<CaloGeometry> geoHandle;
+
+  PgTiming t1("analyzeEB: geomRetrieval");
+  es.get<MyCaloGeometryRecord>().get(geoHandle);
+  const CaloSubdetectorGeometry *geometry_p
+    = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+  CaloSubdetectorGeometry const& geometry = *geometry_p;
+  t1.stop();
+
+
+  {
+    PgTiming t("analyzeEB: unsuppressed digi loop");
+    //EB unsuppressed digis:
+    for(EBDigiCollection::const_iterator it = ebNoZsDigis_->begin();
+        it != ebNoZsDigis_->end(); ++it){
+      const EBDataFrame& frame = *it;
+      int iEta0 = iEta2cIndex(static_cast<const EBDetId&>(frame.id()).ieta());
+      int iPhi0 = iPhi2cIndex(static_cast<const EBDetId&>(frame.id()).iphi());
+      if(iEta0<0 || iEta0>=nEbEta){
+        stringstream s;
+        s << "EcalSelectiveReadoutValidation: "
+          << "iEta0 (= " << iEta0 << ") is out of range ("
+          << "[0," << nEbEta -1 << "]\n";
+        throw cms::Exception(s.str());
+      }
+      if(iPhi0<0 || iPhi0>=nEbPhi){
+        stringstream s;
+        s << "EcalSelectiveReadoutValidation: "
+          << "iPhi0 (= " << iPhi0 << ") is out of range ("
+          << "[0," << nEbPhi -1 << "]\n";
+        throw cms::Exception(s.str());
+      }
+
+      ebEnergies[iEta0][iPhi0].noZsRecE = frame2Energy(frame);
+      ebEnergies[iEta0][iPhi0].gain12 = true;
+      for(int i = 0; i< frame.size(); ++i){
+        const int gain12Code = 0x1;
+        if(frame[i].gainId()!=gain12Code) ebEnergies[iEta0][iPhi0].gain12 =  false;
+      }
+
+      const GlobalPoint xtalPos
+        = geometry.getGeometry(frame.id())->getPosition();
+
+      ebEnergies[iEta0][iPhi0].phi = rad2deg*((double)xtalPos.phi());
+      ebEnergies[iEta0][iPhi0].eta = xtalPos.eta();
+    } //next non-zs digi
+  }
+
+
+  {
+    PgTiming t("analyzeEB: simHit loop");
+    //EB sim hits
+    for(vector<PCaloHit>::const_iterator it = ebSimHits_->begin();
+        it != ebSimHits_->end(); ++it){
+      const PCaloHit& simHit = *it;
+      EBDetId detId(simHit.id());
+      int iEta = detId.ieta();
+      int iEta0 =iEta2cIndex(iEta);
+      int iPhi = detId.iphi();
+      int iPhi0 = iPhi2cIndex(iPhi);
+      ebEnergies[iEta0][iPhi0].simE += simHit.energy();
+      ++ebEnergies[iEta0][iPhi0].simHit;
+    }
+  }
+
+    bool crystalShot[nEbEta][nEbPhi];
+    pair<int,int> EBxtalCoor[nEbEta][nEbPhi]; 
+  {
+    PgTiming t("analyzeEB: suppressed digi loop init");
+
+    for(int iEta0=0; iEta0<nEbEta; ++iEta0){
+      for(int iPhi0=0; iPhi0<nEbPhi; ++iPhi0){
+        crystalShot[iEta0][iPhi0] = false;
+        EBxtalCoor[iEta0][iPhi0] = make_pair(0,0);
+      }
+    }
+  }
+
+  int nEbDigi = 0;
+
+  {
+    PgTiming t("analyzeEB: suppressed digi loop");
+
+    for(EBDigiCollection::const_iterator it = ebDigis_->begin();
+        it != ebDigis_->end(); ++it){
+        ++nEbDigi;
+        const EBDataFrame& frame = *it;
+        int iEta = static_cast<const EBDetId&>(frame.id()).ieta();
+        int iPhi = static_cast<const EBDetId&>(frame.id()).iphi();
+        int iEta0 = iEta2cIndex(iEta);
+        int iPhi0 = iPhi2cIndex(iPhi);
+        if(iEta0<0 || iEta0>=nEbEta){
+          throw (cms::Exception("EcalSelectiveReadoutValidation")
+                 << "iEta0 (= " << iEta0 << ") is out of range ("
+                 << "[0," << nEbEta -1 << "]");
+        }
+        if(iPhi0<0 || iPhi0>=nEbPhi){
+          throw (cms::Exception("EcalSelectiveReadoutValidation")
+                 << "iPhi0 (= " << iPhi0 << ") is out of range ("
+                 << "[0," << nEbPhi -1 << "]");
+        }
+        assert(iEta0>=0 && iEta0<nEbEta);
+        assert(iPhi0>=0 && iPhi0<nEbPhi);
+        if(!crystalShot[iEta0][iPhi0]){
+          crystalShot[iEta0][iPhi0] = true;
+          EBxtalCoor[iEta0][iPhi0] = make_pair(xtalGraphX(frame.id()), xtalGraphY(frame.id()));
+        } else{
+          cout << "Error: several digi for same crystal!";
+          abort();
+        }
+        if(localReco_){
+          ebEnergies[iEta0][iPhi0].recE = frame2Energy(frame);
+        }
+
+        ebEnergies[iEta0][iPhi0].gain12 = true;
+        for(int i = 0; i< frame.size(); ++i){
+          const int gain12Code = 0x1;
+          if(frame[i].gainId()!=gain12Code){
+            ebEnergies[iEta0][iPhi0].gain12 =  false;
+          }
+        }
+
+        EBSrFlagCollection::const_iterator srf
+          = ebSrFlags_->find(readOutUnitOf(frame.id()));
+
+        bool highInterest = false;
+
+        // if(srf == ebSrFlags_->end()){
+        //       throw cms::Exception("EcalSelectiveReadoutValidation")
+        //	<< __FILE__ << ":" << __LINE__ << ": SR flag not found";
+        //}
+
+        if(srf != ebSrFlags_->end()){
+          highInterest = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK)
+                          == EcalSrFlag::SRF_FULL);
+        }
+
+
+        if(highInterest){
+          fill(meEbHiZsFir_, dccZsFIR(frame, firWeights_, firstFIRSample_, 0));
+        } else{
+          int v = dccZsFIR(frame, firWeights_, firstFIRSample_, 0);
+          fill(meEbLiZsFir_, v);
+          if(v < ebZsThr_){
+            eventError = true;
+            ++nEbZsErrors_;
+            pair<int,int> ru = dccCh(frame.id());
+            if(isRuComplete_[ru.first][ru.second-1]) ++nEbZsErrorsType1_;
+            if(nEbZsErrors_ < 3){
+              srApplicationErrorLog_ << event.id() << ", "
+                                     << "RU " << frame.id() << ", "
+                                     << "DCC " << ru.first
+                                     << " Ch : " << ru.second << ": "
+                                     << "LI channel under ZS threshold.\n";
+            }
+            if(nEbZsErrors_==3){
+              srApplicationErrorLog_ << event.id() << ": "
+                                     << "more ZS errors for this event...\n";
+            }
+          }
+        }
+      } //next EB digi
+
+      for(int iEta0=0; iEta0<nEbEta; ++iEta0){
+        for(int iPhi0=0; iPhi0<nEbPhi; ++iPhi0){ 
+          if(crystalShot[iEta0][iPhi0]){
+            fill(meChOcc_, EBxtalCoor[iEta0][iPhi0].first, EBxtalCoor[iEta0][iPhi0].second,1);
+          } else {
+            fill(meChOcc_, EBxtalCoor[iEta0][iPhi0].first, EBxtalCoor[iEta0][iPhi0].second,0);
+          }
+        }
+      }
+    }
+
+
+    {
+      PgTiming t("analyzeEB: rec hit loop");
+
+      if(!localReco_){
+        for(RecHitCollection::const_iterator it
+              = ebRecHits_->begin();
+            it != ebRecHits_->end(); ++it){
+          ++nEbDigi;
+          const RecHit& hit = *it;
+          int iEta = static_cast<const EBDetId&>(hit.id()).ieta();
+          int iPhi = static_cast<const EBDetId&>(hit.id()).iphi();
+          int iEta0 = iEta2cIndex(iEta);
+          int iPhi0 = iPhi2cIndex(iPhi);
+          if(iEta0<0 || iEta0>=nEbEta){
+            LogError("EcalSrValid") << "iEta0 (= " << iEta0 << ") is out of range ("
+				    << "[0," << nEbEta -1 << "]\n";
+          }
+          if(iPhi0<0 || iPhi0>=nEbPhi){
+            LogError("EcalSrValid") << "iPhi0 (= " << iPhi0 << ") is out of range ("
+				    << "[0," << nEbPhi -1 << "]\n";
+          }
+          ebEnergies[iEta0][iPhi0].recE = hit.energy();
+        }
+      }
+    }
+
+
+//     {
+//       PgTiming t("analyzeEB: crystal sorting");
+
+//       //sorts crystal in increasing sim hit energy. ebEnergies[][].simE
+//       //must be set beforehand:
+//       sort(xtalEtaPhi.begin(), xtalEtaPhi.end(), Sorter(this));
+//       cout << "\niEta\tiPhi\tsimE\tnoZsE\tzsE\n";
+//     }
+
+
+    {
+      PgTiming t("analyzeEB: loop on energies");
+
+        for(unsigned int i=0; i<xtalEtaPhi.size(); ++i){
+          int iEta0 = xtalEtaPhi[i].first;
+          int iPhi0=  xtalEtaPhi[i].second;
+          energiesEb_t& energies = ebEnergies[iEta0][iPhi0];
+
+          double recE = energies.recE;
+          if(recE!=-numeric_limits<double>::max()){//not zero suppressed
+            fill(meEbRecE_, ebEnergies[iEta0][iPhi0].recE);
+            fill(meEbEMean_, ievt_+1, recE);
+          } //not zero suppressed
+
+          if(withEbSimHit_){
+            if(!energies.simHit){//noise only crystal channel
+              fill(meEbNoise_, energies.noZsRecE);
+            } else{
+              fill(meEbSimE_, energies.simE);
+              fill(meEbRecEHitXtal_, energies.recE);
+            }
+            fill(meEbRecVsSimE_, energies.simE, energies.recE);
+            fill(meEbNoZsRecVsSimE_, energies.simE, energies.noZsRecE);
+          }
+        }
+    }
+
+    int EBZs1RuCount[2][17][72];
+    int EBFullRuCount[2][17][72];
+    int EBForcedRuCount[2][17][72];
+    for(int iZ(0); iZ < 2; iZ++){
+      for(int iEta(0);iEta < 17; iEta++){
+        for(int iPhi(0);iPhi < 72; iPhi++){
+          EBZs1RuCount[iZ][iEta][iPhi] = 0;
+          EBFullRuCount[iZ][iEta][iPhi] = 0;
+          EBForcedRuCount[iZ][iEta][iPhi] = 0;
+        }
+      }
+    }
+
+    {
+      PgTiming t("analyzeEB: SRF");
+      //SRF
+      nEbFROCnt_ = 0;
+      char ebSrfMark[2][17][72];
+      bzero(ebSrfMark, sizeof(ebSrfMark));
+      //      int idbg = 0;
+      for(EBSrFlagCollection::const_iterator it = ebSrFlags_->begin();
+          it != ebSrFlags_->end(); ++it){
+        const EBSrFlag& srf = *it;
+	int iEtaAbs = srf.id().ietaAbs();
+	int iPhi = srf.id().iphi();
+	int iZ = srf.id().zside();
+
+// 	cout << "--> " << ++idbg << iEtaAbs << " " << iPhi << " "  << iZ
+// 	     << " " << srf.id() << "\n";
+	
+	if(iEtaAbs < 1 || iEtaAbs > 17
+	   || iPhi < 1 || iPhi > 72) throw cms::Exception("EcalSelectiveReadoutValidation")
+	     << "Found a barrel SRF with an invalid det ID: " << srf.id() << ".\n";
+	++ebSrfMark[iZ>0?1:0][iEtaAbs-1][iPhi-1];
+	if(ebSrfMark[iZ>0?1:0][iEtaAbs-1][iPhi-1] > 1) throw cms::Exception("EcalSelectiveReadoutValidation")
+	  << "Duplicate SRF for RU " << srf.id() << ".\n";
+        int flag = srf.value() & ~EcalSrFlag::SRF_FORCED_MASK;
+	if(flag == EcalSrFlag::SRF_ZS1){
+          EBZs1RuCount[iZ>0?1:0][iEtaAbs-1][iPhi-1] +=1;
+	}
+        if(flag == EcalSrFlag::SRF_FULL){
+          EBFullRuCount[iZ>0?1:0][iEtaAbs-1][iPhi-1] +=1;
+          ++nEbFROCnt_;
+        }
+        if(srf.value() & EcalSrFlag::SRF_FORCED_MASK){
+          EBForcedRuCount[iZ>0?1:0][iEtaAbs-1][iPhi-1] +=1;
+        }
+      }
+      for(int iZ(0); iZ < 2; iZ++){
+        for(int iEta(0);iEta < 17; iEta++){
+          for(int iPhi(0);iPhi < 72; iPhi++){
+            int GraphX = (iEta+1)*(iZ>0?1:-1);
+            int GraphY = (iPhi + 1);
+            fill(meZs1Ru_, GraphX, GraphY, EBZs1RuCount[iZ][iEta][iPhi]);
+            fill(meFullRoRu_, GraphX, GraphY, EBFullRuCount[iZ][iEta][iPhi]);
+            fill(meForcedRu_, GraphX, GraphY, EBForcedRuCount[iZ][iEta][iPhi]);
+          }
+        }
+      }
+    }
+
+    {
+      PgTiming t("analyzeEB: logSRerror");
+
+      if(eventError) srApplicationErrorLog_ << event.id()
+                                            << ": " << nEbZsErrors_
+                                            << " ZS-flagged EB channels under "
+                       "the ZS threshold, whose " << nEbZsErrorsType1_
+                                            << " in a complete RU.\n";
+    }
+}
+
+EcalSelectiveReadoutValidation::~EcalSelectiveReadoutValidation(){
+}
+
+void EcalSelectiveReadoutValidation::dqmBeginRun(edm::Run const& r, edm::EventSetup const& es){
+  // endcap mapping
+  edm::ESHandle<EcalTrigTowerConstituentsMap> hTriggerTowerMap;
+  es.get<IdealGeometryRecord>().get(hTriggerTowerMap);
+  triggerTowerMap_ = hTriggerTowerMap.product();
+
+  //electronics map
+  ESHandle< EcalElectronicsMapping > ecalmapping;
+  es.get< EcalMappingRcd >().get(ecalmapping);
+  elecMap_ = ecalmapping.product();
+
+  initAsciiFile();
+}
+
+void EcalSelectiveReadoutValidation::endRun(const edm::Run& r, const edm::EventSetup& es){
+  meL1aRate_->Fill(getL1aRate());
+}
+
+void EcalSelectiveReadoutValidation::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&){
+
+  ibook= &ibooker;
 
   meL1aRate_ = bookFloat("l1aRate_"); 
 
@@ -295,11 +1069,11 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
 		  "ECAL data volume;Event size (kB);Nevts",
 		  100, 0., 200.);
 
-  meChOcc_ = book2D("h2ChOcc", //"EcalChannelOccupancy",
+  meChOcc_ = bookProfile2D("h2ChOcc", //"EcalChannelOccupancy",
 		    "ECAL crystal channel occupancy after zero suppression;"
 		    "iX -200 / iEta / iX + 100;"
 		    "iY / iPhi (starting from -10^{o}!);"
-		    "Event count",
+		    "Event count rate",
 		    401, -200.5, 200.5,
 		    360, .5, 360.5);
 
@@ -309,11 +1083,11 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
   string title;
   title = string("Trigger primitive TT E_{T};E_{T} ")
     + tpUnit + string(";Event Count");
-  meTp_ = book1D("hTp", //"EcalTriggerPrimitiveEt",
+  meTp_ = bookProfile("hTp", //"EcalTriggerPrimitiveEt",
 		 title.c_str(),
 		 (tpInGeV_?100:40), 0., (tpInGeV_?10.:40.));
 
-  meTtf_ = book1D("hTtf", //"EcalTriggerTowerFlag",
+  meTtf_ = bookProfile("hTtf", //"EcalTriggerTowerFlag",
 		  "Trigger primitive TT flag;Flag number;Event count",
 		  8, -.5, 7.5);
 
@@ -388,7 +1162,7 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
                        80, -39.5, 40.5,
 		       72, .5, 72.5);
 
-  meLiTtf_ = book2D("h2LiTtf", //"EcalLowInterestTriggerTowerFlagMap",
+  meLiTtf_ = bookProfile2D("h2LiTtf", //"EcalLowInterestTriggerTowerFlagMap",
 		    "Low interest trigger tower flags;"
 		    "iEta;"
 		    "iPhi;"
@@ -396,7 +1170,7 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
                     57, -28.5, 28.5,
 		    72, .5, 72.5);
 
-  meMiTtf_ = book2D("h2MiTtf", //"EcalMidInterestTriggerTowerFlagMap",
+  meMiTtf_ = bookProfile2D("h2MiTtf", //"EcalMidInterestTriggerTowerFlagMap",
 		    "Mid interest trigger tower flags;"
 		    "iEta;"
 		    "iPhi;"
@@ -404,7 +1178,7 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
 		    57, -28.5, 28.5,
                     72, .5, 72.5);
 
-  meHiTtf_ = book2D("h2HiTtf", //"EcalHighInterestTriggerTowerFlagMap",
+  meHiTtf_ = bookProfile2D("h2HiTtf", //"EcalHighInterestTriggerTowerFlagMap",
 		    "High interest trigger tower flags;"
 		    "iEta;"
 		    "iPhi;"
@@ -697,704 +1471,6 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
   }
 }
 
-
-void EcalSelectiveReadoutValidation::updateL1aRate(const edm::Event& event){
-  const int32_t bx = event.bunchCrossing();
-  if(bx<1 || bx > 3564) return;//throw cms::Exception("EcalSelectiveReadoutValidation")
-                       //  << "bx value, " << bx << " is out of range\n";
-  
-  int64_t t = event.bunchCrossing() + (event.orbitNumber()-1)*3564;
-  
-  if(t<tmin){
-    tmin = t;
-    l1aOfTmin = event.id().event();
-  }
-
-  if(t>tmax){
-    tmax = t;
-    l1aOfTmax = event.id().event();
-  }
-}
-
-double EcalSelectiveReadoutValidation::getL1aRate() const{
-  LogDebug("EcalSrValid") << __FILE__ << ":" << __LINE__ << ": "
-			  <<  "Tmax = " << tmax << " x 25ns; Tmin = " << tmin
-			  << " x 25ns; L1A(Tmax) = " << l1aOfTmax << "; L1A(Tmin) = "
-			  << l1aOfTmin << "\n";
-  return (double)(l1aOfTmax - l1aOfTmin) / ((tmax-tmin) * 25e-9);
-}
-
-void EcalSelectiveReadoutValidation::analyze(Event const & event,
-					     EventSetup const & es){
-
-  updateL1aRate(event);
-  
-  {
-   PgTiming t("collection readout");
-
-   //retrieves event products:
-   readAllCollections(event);
-
-  }
-
-  withEeSimHit_ = (eeSimHits_->size()!=0);
-  withEbSimHit_ = (ebSimHits_->size()!=0);
-
-  if(ievt_<10){
-    edm::LogInfo("EcalSrValid") << "Size of TP collection: " << tps_->size() << "\n"
-				<< "Size of EB SRF collection read from data: "
-				<< ebSrFlags_->size() << "\n"
-				<< "Size of EB SRF collection computed from data TTFs: "
-				<< ebComputedSrFlags_->size() << "\n"
-				<< "Size of EE SRF collection read from data: "
-				<< eeSrFlags_->size() << "\n"
-				<< "Size of EE SRF collection computed from data TTFs: "
-				<< eeComputedSrFlags_->size() << "\n";
-  }
-  
-  if(ievt_==0){
-    selectFedsForLog(); //note: must be called after readAllCollection
-  }
-
-  //computes Et sum trigger tower crystals:
-  setTtEtSums(es, *ebNoZsDigis_, *eeNoZsDigis_);
-
-  {
-    PgTiming t("data volume analysis");
-
-    //Data Volume
-    analyzeDataVolume(event, es);
-  }
-
-  {
-    PgTiming t("EB analysis");
-    //EB digis
-    //must be called after analyzeDataVolume because it uses
-    //isRuComplete_ array that this method fills
-    analyzeEB(event, es);
-  }
-
-  {
-    PgTiming t("EE analysis");
-    //EE digis
-    //must be called after analyzeDataVolume because it uses
-    //isRuComplete_ array that this method fills
-    analyzeEE(event, es);
-  }
-
-  fill(meFullRoCnt_, nEeFROCnt_+nEbFROCnt_);
-  fill(meEbFullRoCnt_, nEbFROCnt_);
-  fill(meEeFullRoCnt_, nEeFROCnt_);
-
-  fill(meEbZsErrCnt_, nEbZsErrors_);
-  fill(meEeZsErrCnt_, nEeZsErrors_);
-  fill(meZsErrCnt_, nEbZsErrors_ + nEeZsErrors_);
-
-  fill(meEbZsErrType1Cnt_, nEbZsErrorsType1_);
-  fill(meEeZsErrType1Cnt_, nEeZsErrorsType1_);
-  fill(meZsErrType1Cnt_, nEbZsErrorsType1_ + nEeZsErrorsType1_);
-
-  {
-    PgTiming t("TP analysis");
-    //TP
-    analyzeTP(event, es);
-  }
-
-  //SR Consistency and validation
-  //SRFlagValidation(event,es);
-  if(ebComputedSrFlags_->size()){
-    compareSrfColl(event, *ebSrFlags_, *ebComputedSrFlags_);
-  }
-  if(eeComputedSrFlags_->size()){
-    compareSrfColl(event, *eeSrFlags_, *eeComputedSrFlags_);
-  }
-  nDroppedFRO_ = 0;
-  nIncompleteFRO_ = 0;
-  nCompleteZS_ = 0;
-  checkSrApplication(event, *ebSrFlags_);
-  checkSrApplication(event, *eeSrFlags_);
-  fill(meDroppedFROCnt_, nDroppedFRO_);
-  fill(meIncompleteFROCnt_, nIncompleteFRO_);
-  fill(meCompleteZSCnt_, nCompleteZS_);
-  ++ievt_;
-}
-
-
-void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event,
-					       const edm::EventSetup& es){
-  bool eventError = false;
-  nEeZsErrors_ = 0;
-
-  {
-    PgTiming t("analyzeEE: init");
-    for(int iZ0=0; iZ0<nEndcaps; ++iZ0){
-      for(int iX0=0; iX0<nEeX; ++iX0){
-        for(int iY0=0; iY0<nEeY; ++iY0){
-          eeEnergies[iZ0][iX0][iY0].noZsRecE = -numeric_limits<double>::max();
-          eeEnergies[iZ0][iX0][iY0].recE = -numeric_limits<double>::max();
-          eeEnergies[iZ0][iX0][iY0].simE = 0; //must be set to zero.
-          eeEnergies[iZ0][iX0][iY0].simHit = 0;
-          eeEnergies[iZ0][iX0][iY0].gain12   = false;
-        }
-      }
-    }
-  }
-
-  // gets the endcap geometry:
-  edm::ESHandle<CaloGeometry> geoHandle;
-  es.get<MyCaloGeometryRecord>().get(geoHandle);
-  const CaloSubdetectorGeometry *geometry_p
-    = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-  CaloSubdetectorGeometry const& geometry = *geometry_p;
-
-  {
-    PgTiming t("analyzeEE: unsupressed digis");
-      //EE unsupressed digis:
-      for (unsigned int digis=0; digis<eeNoZsDigis_->size(); ++digis){
-
-        EEDataFrame frame = (*eeNoZsDigis_)[digis];
-        int iX0 = iXY2cIndex(frame.id().ix());
-        int iY0 = iXY2cIndex(frame.id().iy());
-        int iZ0 = frame.id().zside()>0?1:0;
-
-        if(iX0<0 || iX0>=nEeX){
-          edm::LogError("EcalSrValid") << "iX0 (= " << iX0 << ") is out of range ("
-				       << "[0," << nEeX -1 << "]\n";
-        }
-        if(iY0<0 || iY0>=nEeY){
-          edm::LogError("EcalSrValid") << "iY0 (= " << iY0 << ") is out of range ("
-				       << "[0," << nEeY -1 << "]\n";
-        }
-        //    cout << "EE no ZS energy computation..." ;
-        eeEnergies[iZ0][iX0][iY0].noZsRecE = frame2Energy(frame);
-
-        eeEnergies[iZ0][iX0][iY0].gain12 = true;
-        for(int i = 0; i< frame.size(); ++i){
-          const int gain12Code = 0x1;
-          if(frame[i].gainId()!=gain12Code) eeEnergies[iZ0][iX0][iY0].gain12 =  false;
-        }
-
-        const GlobalPoint xtalPos
-          = geometry.getGeometry(frame.id())->getPosition();
-
-        eeEnergies[iZ0][iX0][iY0].phi = rad2deg*((double)xtalPos.phi());
-        eeEnergies[iZ0][iX0][iY0].eta = xtalPos.eta();
-      }
-  }
-
-  {
-    PgTiming t("analyzeEE:rec hits");
-    //EE rec hits:
-    if(!localReco_){
-      for(RecHitCollection::const_iterator it
-            = eeRecHits_->begin();
-          it != eeRecHits_->end(); ++it){
-        const RecHit& hit = *it;
-        int iX0 = iXY2cIndex(static_cast<const EEDetId&>(hit.id()).ix());
-        int iY0 = iXY2cIndex(static_cast<const EEDetId&>(hit.id()).iy());
-        int iZ0 = static_cast<const EEDetId&>(hit.id()).zside()>0?1:0;
-
-        if(iX0<0 || iX0>=nEeX){
-          LogError("EcalSrValid") << "iX0 (= " << iX0 << ") is out of range ("
-				  << "[0," << nEeX -1 << "]\n";
-        }
-        if(iY0<0 || iY0>=nEeY){
-          LogError("EcalSrValid") << "iY0 (= " << iY0 << ") is out of range ("
-               << "[0," << nEeY -1 << "]\n";
-        }
-        //    cout << "EE no ZS energy computation..." ;
-        eeEnergies[iZ0][iX0][iY0].recE = hit.energy();
-      }
-    }
-  }
-
-  {
-    PgTiming t("analyzeEE:sim hits");
-    //EE sim hits:
-    for(vector<PCaloHit>::const_iterator it = eeSimHits_->begin();
-        it != eeSimHits_->end(); ++it){
-      const PCaloHit& simHit = *it;
-      EEDetId detId(simHit.id());
-      int iX = detId.ix();
-      int iX0 =iXY2cIndex(iX);
-      int iY = detId.iy();
-      int iY0 = iXY2cIndex(iY);
-      int iZ0 = detId.zside()>0?1:0;
-      eeEnergies[iZ0][iX0][iY0].simE += simHit.energy();
-      ++eeEnergies[iZ0][iX0][iY0].simHit;
-    }
-  }
-
-  {
-    PgTiming t("analyzeEE: suppressed digis");
-
-    //EE suppressed digis
-    for(EEDigiCollection::const_iterator it = eeDigis_->begin();
-        it != eeDigis_->end(); ++it){
-      const EEDataFrame& frame = *it;
-      int iX0 = iXY2cIndex(static_cast<const EEDetId&>(frame.id()).ix());
-      int iY0 = iXY2cIndex(static_cast<const EEDetId&>(frame.id()).iy());
-      int iZ0 = static_cast<const EEDetId&>(frame.id()).zside()>0?1:0;
-      if(iX0<0 || iX0>=nEeX){
-        LogError("EcalSrValid") << "iX0 (= " << iX0 << ") is out of range ("
-				<< "[0," << nEeX -1 << "]\n";
-      }
-      if(iY0<0 || iY0>=nEeY){
-        LogError("EcalSrValid") << "iY0 (= " << iY0 << ") is out of range ("
-				<< "[0," << nEeY -1 << "]\n";
-      }
-
-      if(localReco_){
-        eeEnergies[iZ0][iX0][iY0].recE = frame2Energy(frame);
-      }
-
-      eeEnergies[iZ0][iX0][iY0].gain12 = true;
-      for(int i = 0; i< frame.size(); ++i){
-        const int gain12Code = 0x1;
-        if(frame[i].gainId()!=gain12Code){
-          eeEnergies[iZ0][iX0][iY0].gain12 =  false;
-        }
-      }
-
-      fill(meChOcc_, xtalGraphX(frame.id()), xtalGraphY(frame.id()));
-
-      EESrFlagCollection::const_iterator srf
-        = eeSrFlags_->find(readOutUnitOf(frame.id()));
-
-      bool highInterest = false;
-
-
-      if(srf==eeSrFlags_->end()) continue;
-
-      if(srf!=eeSrFlags_->end()){
-        highInterest = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK)
-                        == EcalSrFlag::SRF_FULL);
-      }
-
-      if(highInterest){
-        fill(meEeHiZsFir_, dccZsFIR(frame, firWeights_, firstFIRSample_, 0));
-      } else{
-        int v = dccZsFIR(frame, firWeights_, firstFIRSample_, 0);
-        fill(meEeLiZsFir_, v);
-        if(v < eeZsThr_){
-          eventError = true;
-          ++nEeZsErrors_;
-          pair<int,int> ru = dccCh(frame.id());
-          if(isRuComplete_[ru.first][ru.second-1]) ++nEeZsErrorsType1_;
-          if(nEeZsErrors_ < 3){
-            srApplicationErrorLog_ << event.id() << ", "
-                                   << "RU " << frame.id() << ", "
-                                   << "DCC " << ru.first
-                                   << " Ch : " << ru.second << ": "
-                                   << "LI channel under ZS threshold.\n";
-          }
-          if(nEeZsErrors_==3){
-            srApplicationErrorLog_ << event.id() << ": "
-                                   << "more ZS errors for this event...\n";
-          }
-        }
-      }
-    } //next ZS digi.
-  }
-
-  {
-    PgTiming t("analyzeEE: energies");
-
-    for(int iZ0=0; iZ0<nEndcaps; ++iZ0){
-      for(int iX0=0; iX0<nEeX; ++iX0){
-        for(int iY0=0; iY0<nEeY; ++iY0){
-          double recE = eeEnergies[iZ0][iX0][iY0].recE;
-          if(recE==-numeric_limits<double>::max()) continue; //not a crystal or ZS
-          fill(meEeRecE_, eeEnergies[iZ0][iX0][iY0].recE);
-
-          fill(meEeEMean_, ievt_+1,
-               eeEnergies[iZ0][iX0][iY0].recE);
-
-          if(withEeSimHit_){
-            if(!eeEnergies[iZ0][iX0][iY0].simHit){//noise only crystal channel
-              fill(meEeNoise_, eeEnergies[iZ0][iX0][iY0].noZsRecE);
-            } else{
-              fill(meEeSimE_, eeEnergies[iZ0][iX0][iY0].simE);
-              fill(meEeRecEHitXtal_, eeEnergies[iZ0][iX0][iY0].recE);
-            }
-            fill(meEeRecVsSimE_, eeEnergies[iZ0][iX0][iY0].simE,
-                 eeEnergies[iZ0][iX0][iY0].recE);
-            fill(meEeNoZsRecVsSimE_, eeEnergies[iZ0][iX0][iY0].simE,
-                 eeEnergies[iZ0][iX0][iY0].noZsRecE);
-          }
-        }
-      }
-    }
-  }
-
-  {
-    PgTiming t("analyzeEE: RU");
-
-    nEeFROCnt_ = 0;
-    char eeSrfMark[2][100][100];
-    bzero(eeSrfMark, sizeof(eeSrfMark));
-    //Filling RU histo
-    for(EESrFlagCollection::const_iterator it = eeSrFlags_->begin();
-        it != eeSrFlags_->end(); ++it){
-      const EESrFlag& srf = *it;
-      int iX = srf.id().ix();
-      int iY = srf.id().iy();
-      int iZ = srf.id().zside(); //-1 for EE-, +1 for EE+
-      if(iX<1 || iY > 100) throw cms::Exception("EcalSelectiveReadoutValidation")
-	<< "Found an endcap SRF with an invalid det ID: " << srf.id() << ".\n";
-      ++eeSrfMark[iZ>0?1:0][iX-1][iY-1];
-      if(eeSrfMark[iZ>0?1:0][iX-1][iY-1] > 1) throw cms::Exception("EcalSelectiveReadoutValidation")
-	<< "Duplicate SRF for supercrystal " << srf.id() << ".\n";
-      int flag = srf.value() & ~EcalSrFlag::SRF_FORCED_MASK;
-      if(flag == EcalSrFlag::SRF_ZS1){
-        fill(meZs1Ru_, ruGraphX(srf.id()), ruGraphY(srf.id()));
-      }
-
-      if(flag == EcalSrFlag::SRF_FULL){
-	fill(meFullRoRu_, ruGraphX(srf.id()), ruGraphY(srf.id()));
-	++nEeFROCnt_;
-      }
-      
-      if(srf.value() & EcalSrFlag::SRF_FORCED_MASK){
-	fill(meForcedRu_, ruGraphX(srf.id()), ruGraphY(srf.id()));
-      }
-    }
-  }
-  
-  {
-    PgTiming t("analyzeEE: SR appli error log");
-
-    if(eventError) srApplicationErrorLog_ << event.id()
-                                          << ": " << nEeZsErrors_
-                                          << " ZS-flagged EE channels under "
-                     "the ZS threshold, whose " << nEeZsErrorsType1_
-                                          << " in a complete RU.\n";
-  }
-} //end of analyzeEE
-
-void
-EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event,
-					  const edm::EventSetup& es){
-
-    bool eventError = false;
-    nEbZsErrors_ = 0;
-    vector<pair<int,int> > xtalEtaPhi;
-
-  {
-    PgTiming t("analyzeEB: init");
-
-    xtalEtaPhi.reserve(nEbPhi*nEbEta);
-    for(int iEta0=0; iEta0<nEbEta; ++iEta0){
-      for(int iPhi0=0; iPhi0<nEbPhi; ++iPhi0){
-        ebEnergies[iEta0][iPhi0].noZsRecE = -numeric_limits<double>::max();
-        ebEnergies[iEta0][iPhi0].recE = -numeric_limits<double>::max();
-        ebEnergies[iEta0][iPhi0].simE = 0; //must be zero.
-        ebEnergies[iEta0][iPhi0].simHit = 0;
-        ebEnergies[iEta0][iPhi0].gain12 = false;
-        xtalEtaPhi.push_back(pair<int,int>(iEta0, iPhi0));
-      }
-    }
-  }
-
-    // get the barrel geometry:
-  edm::ESHandle<CaloGeometry> geoHandle;
-
-  PgTiming t1("analyzeEB: geomRetrieval");
-  es.get<MyCaloGeometryRecord>().get(geoHandle);
-  const CaloSubdetectorGeometry *geometry_p
-    = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-  CaloSubdetectorGeometry const& geometry = *geometry_p;
-  t1.stop();
-
-
-  {
-    PgTiming t("analyzeEB: unsuppressed digi loop");
-    //EB unsuppressed digis:
-    for(EBDigiCollection::const_iterator it = ebNoZsDigis_->begin();
-        it != ebNoZsDigis_->end(); ++it){
-      const EBDataFrame& frame = *it;
-      int iEta0 = iEta2cIndex(static_cast<const EBDetId&>(frame.id()).ieta());
-      int iPhi0 = iPhi2cIndex(static_cast<const EBDetId&>(frame.id()).iphi());
-      if(iEta0<0 || iEta0>=nEbEta){
-        stringstream s;
-        s << "EcalSelectiveReadoutValidation: "
-          << "iEta0 (= " << iEta0 << ") is out of range ("
-          << "[0," << nEbEta -1 << "]\n";
-        throw cms::Exception(s.str());
-      }
-      if(iPhi0<0 || iPhi0>=nEbPhi){
-        stringstream s;
-        s << "EcalSelectiveReadoutValidation: "
-          << "iPhi0 (= " << iPhi0 << ") is out of range ("
-          << "[0," << nEbPhi -1 << "]\n";
-        throw cms::Exception(s.str());
-      }
-
-      ebEnergies[iEta0][iPhi0].noZsRecE = frame2Energy(frame);
-      ebEnergies[iEta0][iPhi0].gain12 = true;
-      for(int i = 0; i< frame.size(); ++i){
-        const int gain12Code = 0x1;
-        if(frame[i].gainId()!=gain12Code) ebEnergies[iEta0][iPhi0].gain12 =  false;
-      }
-
-      const GlobalPoint xtalPos
-        = geometry.getGeometry(frame.id())->getPosition();
-
-      ebEnergies[iEta0][iPhi0].phi = rad2deg*((double)xtalPos.phi());
-      ebEnergies[iEta0][iPhi0].eta = xtalPos.eta();
-    } //next non-zs digi
-  }
-
-
-  {
-    PgTiming t("analyzeEB: simHit loop");
-    //EB sim hits
-    for(vector<PCaloHit>::const_iterator it = ebSimHits_->begin();
-        it != ebSimHits_->end(); ++it){
-      const PCaloHit& simHit = *it;
-      EBDetId detId(simHit.id());
-      int iEta = detId.ieta();
-      int iEta0 =iEta2cIndex(iEta);
-      int iPhi = detId.iphi();
-      int iPhi0 = iPhi2cIndex(iPhi);
-      ebEnergies[iEta0][iPhi0].simE += simHit.energy();
-      ++ebEnergies[iEta0][iPhi0].simHit;
-    }
-  }
-
-    bool crystalShot[nEbEta][nEbPhi];
-  {
-    PgTiming t("analyzeEB: suppressed digi loop init");
-
-    for(int iEta0=0; iEta0<nEbEta; ++iEta0){
-      for(int iPhi0=0; iPhi0<nEbPhi; ++iPhi0){
-        crystalShot[iEta0][iPhi0] = false;
-      }
-    }
-  }
-
-  int nEbDigi = 0;
-
-  {
-    PgTiming t("analyzeEB: suppressed digi loop");
-
-    for(EBDigiCollection::const_iterator it = ebDigis_->begin();
-        it != ebDigis_->end(); ++it){
-        ++nEbDigi;
-        const EBDataFrame& frame = *it;
-        int iEta = static_cast<const EBDetId&>(frame.id()).ieta();
-        int iPhi = static_cast<const EBDetId&>(frame.id()).iphi();
-        int iEta0 = iEta2cIndex(iEta);
-        int iPhi0 = iPhi2cIndex(iPhi);
-        if(iEta0<0 || iEta0>=nEbEta){
-          throw (cms::Exception("EcalSelectiveReadoutValidation")
-                 << "iEta0 (= " << iEta0 << ") is out of range ("
-                 << "[0," << nEbEta -1 << "]");
-        }
-        if(iPhi0<0 || iPhi0>=nEbPhi){
-          throw (cms::Exception("EcalSelectiveReadoutValidation")
-                 << "iPhi0 (= " << iPhi0 << ") is out of range ("
-                 << "[0," << nEbPhi -1 << "]");
-        }
-        assert(iEta0>=0 && iEta0<nEbEta);
-        assert(iPhi0>=0 && iPhi0<nEbPhi);
-        if(!crystalShot[iEta0][iPhi0]){
-          crystalShot[iEta0][iPhi0] = true;
-        } else{
-          cout << "Error: several digi for same crystal!";
-          abort();
-        }
-        if(localReco_){
-          ebEnergies[iEta0][iPhi0].recE = frame2Energy(frame);
-        }
-
-        ebEnergies[iEta0][iPhi0].gain12 = true;
-        for(int i = 0; i< frame.size(); ++i){
-          const int gain12Code = 0x1;
-          if(frame[i].gainId()!=gain12Code){
-            ebEnergies[iEta0][iPhi0].gain12 =  false;
-          }
-        }
-
-        fill(meChOcc_, xtalGraphX(frame.id()), xtalGraphY(frame.id()));
-        EBSrFlagCollection::const_iterator srf
-          = ebSrFlags_->find(readOutUnitOf(frame.id()));
-
-        bool highInterest = false;
-
-        // if(srf == ebSrFlags_->end()){
-        //       throw cms::Exception("EcalSelectiveReadoutValidation")
-        //	<< __FILE__ << ":" << __LINE__ << ": SR flag not found";
-        //}
-
-        if(srf != ebSrFlags_->end()){
-          highInterest = ((srf->value() & ~EcalSrFlag::SRF_FORCED_MASK)
-                          == EcalSrFlag::SRF_FULL);
-        }
-
-
-        if(highInterest){
-          fill(meEbHiZsFir_, dccZsFIR(frame, firWeights_, firstFIRSample_, 0));
-        } else{
-          int v = dccZsFIR(frame, firWeights_, firstFIRSample_, 0);
-          fill(meEbLiZsFir_, v);
-          if(v < ebZsThr_){
-            eventError = true;
-            ++nEbZsErrors_;
-            pair<int,int> ru = dccCh(frame.id());
-            if(isRuComplete_[ru.first][ru.second-1]) ++nEbZsErrorsType1_;
-            if(nEbZsErrors_ < 3){
-              srApplicationErrorLog_ << event.id() << ", "
-                                     << "RU " << frame.id() << ", "
-                                     << "DCC " << ru.first
-                                     << " Ch : " << ru.second << ": "
-                                     << "LI channel under ZS threshold.\n";
-            }
-            if(nEbZsErrors_==3){
-              srApplicationErrorLog_ << event.id() << ": "
-                                     << "more ZS errors for this event...\n";
-            }
-          }
-        }
-      } //next EB digi
-    }
-
-
-    {
-      PgTiming t("analyzeEB: rec hit loop");
-
-      if(!localReco_){
-        for(RecHitCollection::const_iterator it
-              = ebRecHits_->begin();
-            it != ebRecHits_->end(); ++it){
-          ++nEbDigi;
-          const RecHit& hit = *it;
-          int iEta = static_cast<const EBDetId&>(hit.id()).ieta();
-          int iPhi = static_cast<const EBDetId&>(hit.id()).iphi();
-          int iEta0 = iEta2cIndex(iEta);
-          int iPhi0 = iPhi2cIndex(iPhi);
-          if(iEta0<0 || iEta0>=nEbEta){
-            LogError("EcalSrValid") << "iEta0 (= " << iEta0 << ") is out of range ("
-				    << "[0," << nEbEta -1 << "]\n";
-          }
-          if(iPhi0<0 || iPhi0>=nEbPhi){
-            LogError("EcalSrValid") << "iPhi0 (= " << iPhi0 << ") is out of range ("
-				    << "[0," << nEbPhi -1 << "]\n";
-          }
-          ebEnergies[iEta0][iPhi0].recE = hit.energy();
-        }
-      }
-    }
-
-
-//     {
-//       PgTiming t("analyzeEB: crystal sorting");
-
-//       //sorts crystal in increasing sim hit energy. ebEnergies[][].simE
-//       //must be set beforehand:
-//       sort(xtalEtaPhi.begin(), xtalEtaPhi.end(), Sorter(this));
-//       cout << "\niEta\tiPhi\tsimE\tnoZsE\tzsE\n";
-//     }
-
-
-    {
-      PgTiming t("analyzeEB: loop on energies");
-
-        for(unsigned int i=0; i<xtalEtaPhi.size(); ++i){
-          int iEta0 = xtalEtaPhi[i].first;
-          int iPhi0=  xtalEtaPhi[i].second;
-          energiesEb_t& energies = ebEnergies[iEta0][iPhi0];
-
-          double recE = energies.recE;
-          if(recE!=-numeric_limits<double>::max()){//not zero suppressed
-            fill(meEbRecE_, ebEnergies[iEta0][iPhi0].recE);
-            fill(meEbEMean_, ievt_+1, recE);
-          } //not zero suppressed
-
-          if(withEbSimHit_){
-            if(!energies.simHit){//noise only crystal channel
-              fill(meEbNoise_, energies.noZsRecE);
-            } else{
-              fill(meEbSimE_, energies.simE);
-              fill(meEbRecEHitXtal_, energies.recE);
-            }
-            fill(meEbRecVsSimE_, energies.simE, energies.recE);
-            fill(meEbNoZsRecVsSimE_, energies.simE, energies.noZsRecE);
-          }
-        }
-    }
-
-    {
-      PgTiming t("analyzeEB: SRF");
-      //SRF
-      nEbFROCnt_ = 0;
-      char ebSrfMark[2][17][72];
-      bzero(ebSrfMark, sizeof(ebSrfMark));
-      //      int idbg = 0;
-      for(EBSrFlagCollection::const_iterator it = ebSrFlags_->begin();
-          it != ebSrFlags_->end(); ++it){
-        const EBSrFlag& srf = *it;
-	int iEtaAbs = srf.id().ietaAbs();
-	int iPhi = srf.id().iphi();
-	int iZ = srf.id().zside();
-
-// 	cout << "--> " << ++idbg << iEtaAbs << " " << iPhi << " "  << iZ
-// 	     << " " << srf.id() << "\n";
-	
-	if(iEtaAbs < 1 || iEtaAbs > 17
-	   || iPhi < 1 || iPhi > 72) throw cms::Exception("EcalSelectiveReadoutValidation")
-	     << "Found a barrel SRF with an invalid det ID: " << srf.id() << ".\n";
-	++ebSrfMark[iZ>0?1:0][iEtaAbs-1][iPhi-1];
-	if(ebSrfMark[iZ>0?1:0][iEtaAbs-1][iPhi-1] > 1) throw cms::Exception("EcalSelectiveReadoutValidation")
-	  << "Duplicate SRF for RU " << srf.id() << ".\n";
-        int flag = srf.value() & ~EcalSrFlag::SRF_FORCED_MASK;
-	if(flag == EcalSrFlag::SRF_ZS1){
-	  fill(meZs1Ru_, ruGraphX(srf.id()), ruGraphY(srf.id()));
-	}
-        if(flag == EcalSrFlag::SRF_FULL){
-	  fill(meFullRoRu_, ruGraphX(srf.id()), ruGraphY(srf.id()));
-          ++nEbFROCnt_;
-        }
-        if(srf.value() & EcalSrFlag::SRF_FORCED_MASK){
-	  fill(meForcedRu_, ruGraphX(srf.id()), ruGraphY(srf.id()));
-        }
-      }
-    }
-
-    {
-      PgTiming t("analyzeEB: logSRerror");
-
-      if(eventError) srApplicationErrorLog_ << event.id()
-                                            << ": " << nEbZsErrors_
-                                            << " ZS-flagged EB channels under "
-                       "the ZS threshold, whose " << nEbZsErrorsType1_
-                                            << " in a complete RU.\n";
-    }
-}
-
-EcalSelectiveReadoutValidation::~EcalSelectiveReadoutValidation(){
-}
-
-void EcalSelectiveReadoutValidation::beginRun(const edm::Run& r, const edm::EventSetup& es){
-  // endcap mapping
-  edm::ESHandle<EcalTrigTowerConstituentsMap> hTriggerTowerMap;
-  es.get<IdealGeometryRecord>().get(hTriggerTowerMap);
-  triggerTowerMap_ = hTriggerTowerMap.product();
-
-  //electronics map
-  ESHandle< EcalElectronicsMapping > ecalmapping;
-  es.get< EcalMappingRcd >().get(ecalmapping);
-  elecMap_ = ecalmapping.product();
-
-  initAsciiFile();
-}
-
-void EcalSelectiveReadoutValidation::endRun(const edm::Run& r, const edm::EventSetup& es){
-  meL1aRate_->Fill(getL1aRate());
-  if(useEventRate_) normalizeHists(ievt_);
-  if(outputFile_.size()!=0) dbe_->save(outputFile_);
-}
-
 void
 EcalSelectiveReadoutValidation::analyzeTP(edm::Event const & event,
 					  edm::EventSetup const & es){
@@ -1406,6 +1482,24 @@ EcalSelectiveReadoutValidation::analyzeTP(edm::Event const & event,
   //  std::cout << __FILE__ << __LINE__
   //	    << "n TP: " << tps_->size() <<std::endl;
 
+  int TTFlagCount[8];
+  int LiTTFlagCount[nTtEta][nTtPhi];
+  int MiTTFlagCount[nTtEta][nTtPhi];
+  int HiTTFlagCount[nTtEta][nTtPhi];
+  for(int iTTFlag(0);iTTFlag <8; iTTFlag++){
+    TTFlagCount[iTTFlag]=0;
+  }
+  for(int iTtEta(0); iTtEta < nTtEta; iTtEta++){
+    for(int iTtPhi(0); iTtPhi < nTtPhi; iTtPhi++){
+      LiTTFlagCount[iTtEta][iTtPhi] = 0;
+      MiTTFlagCount[iTtEta][iTtPhi] = 0;
+      HiTTFlagCount[iTtEta][iTtPhi] = 0;
+    }
+  }
+  int tpEtCount[100];
+  for(int iEt(0);iEt < 100; iEt++){
+     tpEtCount[iEt] = 0.;
+  }
   for(EcalTrigPrimDigiCollection::const_iterator it = tps_->begin();
       it != tps_->end(); ++it){
     //    for(int i = 0; i < it->size(); ++i){
@@ -1435,17 +1529,31 @@ EcalSelectiveReadoutValidation::analyzeTP(edm::Event const & event,
     int iPhi = it->id().iphi();
     int iPhi0 = iTtEta2cIndex(iPhi);
     double etSum = ttEtSums[iEta0][iPhi0];
-    fill(meTp_, tpEt);
+    if(tpInGeV_){
+      for(int iE(0);iE < 100;iE++){
+         if( iE*10./100.<= tpEt && tpEt<(iE+1)*10./100.){
+           tpEtCount[iE] += 1; 
+         }
+      }
+    } else {
+      for(int iE(0);iE<40;iE++){
+         if((double)iE <= tpEt && tpEt <(double)iE+1){
+           tpEtCount[iE] += 1;
+         }
+      }
+    }       
     fill(meTpVsEtSum_, etSum, tpEt);
-    fill(meTtf_, it->ttFlag());
+    for(int ittflag(0); ittflag<8; ittflag++){
+      if(it->ttFlag()==ittflag)TTFlagCount[ittflag] +=1;
+    } 
     if((it->ttFlag() & 0x3) == 0){
-      fill(meLiTtf_, iEta, iPhi);
+      LiTTFlagCount[iEta][iPhi] += 1;
     }
     if((it->ttFlag() & 0x3) == 1){
-      fill(meMiTtf_, iEta, iPhi);
+      MiTTFlagCount[iEta][iPhi] += 1;
     }
     if((it->ttFlag() & 0x3) == 3){
-      fill(meHiTtf_, iEta, iPhi);
+      HiTTFlagCount[iEta][iPhi] += 1;
     }
     if((it->ttFlag() & 0x4)){
       fill(meForcedTtf_, iEta, iPhi);
@@ -1455,6 +1563,25 @@ EcalSelectiveReadoutValidation::analyzeTP(edm::Event const & event,
     fill(meTtfVsEtSum_, etSum, it->ttFlag());
     fill(meTpMap_, iEta, iPhi, tpEt, 1.);
   }
+  for(int ittflag(0); ittflag < 8; ittflag++){
+    fill(meTtf_, ittflag, TTFlagCount[ittflag]);
+  }
+  for(int iTtEta(0); iTtEta < nTtEta; iTtEta++){
+    for(int iTtPhi(0); iTtPhi < nTtPhi; iTtPhi++){  
+      fill(meLiTtf_, iTtEta, iTtPhi, LiTTFlagCount[iTtEta][iTtPhi]);
+      fill(meMiTtf_, iTtEta, iTtPhi, MiTTFlagCount[iTtEta][iTtPhi]);
+      fill(meHiTtf_, iTtEta, iTtPhi, HiTTFlagCount[iTtEta][iTtPhi]);
+    }
+  }
+  if(tpInGeV_){
+    for(int iE(0);iE<100; iE++){
+      fill(meTp_, iE, tpEtCount[iE]);
+    }
+  } else{
+    for(int iE(0); iE<40; iE++){
+      fill(meTp_, iE, tpEtCount[iE]);
+    }
+  } 
 }
 
 void EcalSelectiveReadoutValidation::analyzeDataVolume(const Event& e,
@@ -1937,7 +2064,7 @@ double EcalSelectiveReadoutValidation::frame2EnergyForTp(const T& frame,
 
 MonitorElement* EcalSelectiveReadoutValidation::bookFloat(const std::string& name){
   if(!registerHist(name, "")) return 0; //this histo is disabled
-  MonitorElement* result = dbe_->bookFloat(name);
+  MonitorElement* result = ibook->bookFloat(name);
   if(result==0){
     throw cms::Exception("DQM")
       << "Failed to book integer DQM monitor element" << name;
@@ -1948,7 +2075,7 @@ MonitorElement* EcalSelectiveReadoutValidation::bookFloat(const std::string& nam
 
 MonitorElement* EcalSelectiveReadoutValidation::book1D(const std::string& name, const std::string& title, int nbins, double xmin, double xmax){
   if(!registerHist(name, title)) return 0; //this histo is disabled
-  MonitorElement* result = dbe_->book1D(name, title, nbins, xmin, xmax);
+  MonitorElement* result = ibook->book1D(name, title, nbins, xmin, xmax);
   if(result==0){
     throw cms::Exception("Histo")
       << "Failed to book histogram " << name;
@@ -1958,7 +2085,7 @@ MonitorElement* EcalSelectiveReadoutValidation::book1D(const std::string& name, 
 
 MonitorElement* EcalSelectiveReadoutValidation::book2D(const std::string& name, const std::string& title, int nxbins, double xmin, double xmax, int nybins, double ymin, double ymax){
   if(!registerHist(name, title)) return 0; //this histo is disabled
-  MonitorElement* result = dbe_->book2D(name, title, nxbins, xmin, xmax,
+  MonitorElement* result = ibook->book2D(name, title, nxbins, xmin, xmax,
 					nybins, ymin, ymax);
   if(result==0){
     throw cms::Exception("Histo")
@@ -1969,7 +2096,7 @@ MonitorElement* EcalSelectiveReadoutValidation::book2D(const std::string& name, 
 
 MonitorElement* EcalSelectiveReadoutValidation::bookProfile(const std::string& name, const std::string& title, int nbins, double xmin, double xmax){
   if(!registerHist(name, title)) return 0; //this histo is disabled
-  MonitorElement* result = dbe_->bookProfile(name, title, nbins, xmin, xmax,
+  MonitorElement* result = ibook->bookProfile(name, title, nbins, xmin, xmax,
 					     0, 0, 0);
   if(result==0){
     throw cms::Exception("Histo")
@@ -1981,7 +2108,7 @@ MonitorElement* EcalSelectiveReadoutValidation::bookProfile(const std::string& n
 MonitorElement* EcalSelectiveReadoutValidation::bookProfile2D(const std::string& name, const std::string& title, int nbinx, double xmin, double xmax, int nbiny, double ymin, double ymax, const char* option){
   if(!registerHist(name, title)) return 0; //this histo is disabled
   MonitorElement* result
-    = dbe_->bookProfile2D(name,
+    = ibook->bookProfile2D(name,
 			  title,
 			  nbinx, xmin, xmax,
 			  nbiny, ymin, ymax,
@@ -2050,32 +2177,6 @@ double EcalSelectiveReadoutValidation::getEeEventSize(double nReadXtals) const{
   }
   return getDccOverhead(EE)*nEeDccs + nReadXtals*getBytesPerCrystal()
     + ruHeaderPayload;
-}
-
-void EcalSelectiveReadoutValidation::normalizeHists(double eventCount){
-  MonitorElement* mes[] = { meChOcc_, meTtf_, meTp_, meFullRoRu_,
-			    meZs1Ru_, meForcedRu_, meLiTtf_, meMiTtf_, meHiTtf_,
-			    //meEbLiZsFir_, meEbHiZsFir_,
-			    //meEeLiZsFir_, meEeHiZsFir_,
-  };
-
-  double scale = 1./eventCount;
-  stringstream buf;
-  for(unsigned i = 0; i < sizeof(mes)/sizeof(mes[0]); ++i){
-    if(mes[i] == 0) continue;
-    TH1* h = mes[i]->getTH1();
-    if(dynamic_cast<TH2*>(h)){//TH2
-      h->GetZaxis()->SetTitle("Frequency");
-    } else{ //assuming TH1
-      h->GetYaxis()->SetTitle("<Count>");
-    }
-    buf << "Normalising " << h->GetName() << ". Factor: " << scale << "\n";
-    h->Scale(scale);
-    //Set average bit so histogram can be added correctly. Beware must be done
-    //after call the TH1::Scale (Scale has no effect if average bit is set)
-    h->SetBit(TH1::kIsAverage);
-  }
-  edm::LogInfo("EcalSrValid") << buf.str();
 }
 
 //This implementation  assumes that int is coded on at least 28-bits,
