@@ -118,6 +118,7 @@ HLTHiggsSubAnalysis::HLTHiggsSubAnalysis(const edm::ParameterSet & pset,
             }
         }
     }
+    NptPlots = ( _useNminOneCuts ? _minCandidates : 2 );
 }
 
 HLTHiggsSubAnalysis::~HLTHiggsSubAnalysis()
@@ -237,7 +238,7 @@ void HLTHiggsSubAnalysis::beginRun(const edm::Run & iRun, const edm::EventSetup 
 		
 		// the hlt path, the objects (elec,muons,photons,...)
 		// needed to evaluate the path are the argumens of the plotter
-		HLTHiggsPlotter analyzer(_pset, shortpath,objsNeedHLT, _minCandidates, _NminOneCuts);
+		HLTHiggsPlotter analyzer(_pset, shortpath,objsNeedHLT, NptPlots, _NminOneCuts);
 		_analyzers.push_back(analyzer);
     }
 }
@@ -276,7 +277,7 @@ void HLTHiggsSubAnalysis::bookHistograms(DQMStore::IBooker &ibooker)
             
 			bookHist(source, objStr, "Eta", ibooker);
 			bookHist(source, objStr, "Phi", ibooker);
-			for( unsigned int i=0; i < _minCandidates; i++ )
+			for( unsigned int i=0; i < NptPlots; i++ )
 			{
 				maxPt = "MaxPt";
 				maxPt += i+1;
@@ -435,7 +436,7 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
 		// Initialize and insert pfJets
 		this->initAndInsertJets(iEvent, cols, matches);
         // Make sure to skip events that don't have enough jets
-        if( matches->size() < _minCandidates ) {
+        if( matches->size() < NptPlots ) {
             delete matches;  
             return;
         }
@@ -515,12 +516,12 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
                 countobjects->insert(std::pair<unsigned int,int>(co->first,0));
 		}
 		int counttotal = 0;
-        const int totalobjectssize2 = _minCandidates*countobjects->size();
+        const int totalobjectssize2 = NptPlots*countobjects->size();
 		for(size_t j = 0; j < it->second.size(); ++j)
 		{	
    			const unsigned int objType = it->second[j].objType;
 			const std::string objTypeStr = EVTColContainer::getTypeString(objType);
-           
+                       
             float pt  = (it->second)[j].pt; 
 			float eta = (it->second)[j].eta;
 			float phi = (it->second)[j].phi;
@@ -531,7 +532,7 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
             }
             
             TString maxPt;          
-            if( (unsigned)(*countobjects)[objType] < _minCandidates )
+            if( (unsigned)(*countobjects)[objType] < NptPlots )
             {
                 maxPt = "MaxPt";
                 if( _useNminOneCuts && objType == EVTColContainer::PFJET ) {
@@ -549,7 +550,13 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
                 ++((*countobjects)[objType]);
                 ++counttotal;
             }
-            else continue; //   Otherwise too many entries in Eta and Phi distributions
+            else {
+                if( (unsigned)(*countobjects)[objType] < _minCandidates ) { // To get correct results for HZZ
+                    ++((*countobjects)[objType]);
+                    ++counttotal;
+                }
+                else continue; //   Otherwise too many entries in Eta and Phi distributions
+            }
 
             // Jet N-1 Cuts
 			if( _useNminOneCuts && objType == EVTColContainer::PFJET ) {
@@ -606,7 +613,7 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
                 an->analyze(ispassTrigger,source,it->second, nMinOne, dEtaqq, mqq, dPhibb, CSV1, passAllCuts);
 			}
 			else {
-			    an->analyze(ispassTrigger,source,it->second);
+			    an->analyze(ispassTrigger,source,it->second, _minCandidates);
 			}
 
 			int refOfThePath = -1;
@@ -1000,7 +1007,7 @@ void HLTHiggsSubAnalysis::passJetCuts(std::vector<MatchStruct> * matches, std::m
     // Perform pt cuts
     std::sort(matches->begin(), matches->end(), matchesByDescendingPt());
     TString maxPt;
-    for( unsigned int i=0; i < _minCandidates; i++ )
+    for( unsigned int i=0; i < NptPlots; i++ )
     {
         maxPt = "MaxPt";
         maxPt += i+1;
@@ -1009,7 +1016,7 @@ void HLTHiggsSubAnalysis::passJetCuts(std::vector<MatchStruct> * matches, std::m
     }  
     
     // Perform b-tag ordered cuts
-    std::sort(matches->begin(), matches->begin()+_minCandidates, matchesByDescendingBtag());
+    std::sort(matches->begin(), matches->begin()+NptPlots, matchesByDescendingBtag());
 
     if( _NminOneCuts[0] ) {
         dEtaqq =  fabs((*matches)[2].eta - (*matches)[3].eta);

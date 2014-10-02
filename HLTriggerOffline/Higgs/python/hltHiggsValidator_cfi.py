@@ -185,7 +185,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
     ZnnHbb = cms.PSet( 
         hltPathsToCheck = cms.vstring(
             "HLT_PFMHT100_SingleCentralJet60_BTagCSV0p6_v"
-            "HLT_DiCentralPFJet30_PFMET80_BTagCSV07_v"
+            #"HLT_DiCentralPFJet30_PFMET80_BTagCSV07_v"
             ),
         Jet_recCut   = cms.string("abs(eta) < 2.6"),
         recJetLabel  = cms.string("higgsDqmPFJetsFilter"),

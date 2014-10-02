@@ -57,8 +57,8 @@ class HLTHiggsPlotter
 	      	void beginRun(const edm::Run &, const edm::EventSetup &);
                 void bookHistograms(DQMStore::IBooker &, const bool &);
                 void analyze(const bool & isPassTrigger,const std::string & source,
-				const std::vector<MatchStruct> & matches);
-		void analyze(const bool & isPassTrigger, const std::string & source, const std::vector<MatchStruct> & matches,
+				const std::vector<MatchStruct> & matches, const unsigned int & minCandidates);
+		void analyze(const bool & isPassTrigger, const std::string & source, const std::vector<MatchStruct> & matches, 
 			       std::map<std::string,bool> & nMinOne, const float & dEtaqq, const float & mqq, const float & dPhibb, const float & CSV1, const bool & passAllCuts);
 		
 		inline const std::string gethltpath() const { return _hltPath; }
@@ -87,7 +87,7 @@ class HLTHiggsPlotter
 		std::map<unsigned int,std::vector<double> > _cutsDr;
 		
 		// The amount of Pt plots needed for the hlt path
-		unsigned int _minCandidates;
+		unsigned int _NptPlots;
 
         //N-1 cut values
         std::vector<double> _NminOneCuts;

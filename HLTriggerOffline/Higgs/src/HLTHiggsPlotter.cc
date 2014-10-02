@@ -25,7 +25,7 @@
 HLTHiggsPlotter::HLTHiggsPlotter(const edm::ParameterSet & pset,
                                  const std::string & hltPath,
                                  const std::vector<unsigned int> & objectsType, 
-                                 const unsigned int & minCandidates,
+                                 const unsigned int & NptPlots,
                                  const std::vector<double> & NminOneCuts) :
     _hltPath(hltPath),
     _hltProcessName(pset.getParameter<std::string>("hltProcessName")),
@@ -34,7 +34,7 @@ HLTHiggsPlotter::HLTHiggsPlotter(const edm::ParameterSet & pset,
     _parametersEta(pset.getParameter<std::vector<double> >("parametersEta")),
     _parametersPhi(pset.getParameter<std::vector<double> >("parametersPhi")),
     _parametersTurnOn(pset.getParameter<std::vector<double> >("parametersTurnOn")),
-    _minCandidates(minCandidates),
+    _NptPlots(NptPlots),
     _NminOneCuts(NminOneCuts)
 {
   for(std::set<unsigned int>::iterator it = _objectsType.begin();
@@ -96,7 +96,7 @@ void HLTHiggsPlotter::bookHistograms(DQMStore::IBooker &ibooker, const bool & us
              
             bookHist(source, objTypeStr, "Eta", ibooker);
             bookHist(source, objTypeStr, "Phi", ibooker);
-            for( unsigned int i=0; i < _minCandidates; i++ )
+            for( unsigned int i=0; i < _NptPlots; i++ )
             {
                 maxPt = "MaxPt";
                 maxPt += i+1;
@@ -108,7 +108,9 @@ void HLTHiggsPlotter::bookHistograms(DQMStore::IBooker &ibooker, const bool & us
 
 void HLTHiggsPlotter::analyze(const bool & isPassTrigger,
                               const std::string & source,
-                              const std::vector<MatchStruct> & matches)
+                              const std::vector<MatchStruct> & matches,
+                              const unsigned int & minCandidates
+                             )
 {
   if ( !isPassTrigger )
   {
@@ -123,7 +125,7 @@ void HLTHiggsPlotter::analyze(const bool & isPassTrigger,
   }
 	
   int counttotal = 0;
-  const int totalobjectssize2 = _minCandidates*countobjects.size();
+  const int totalobjectssize2 = _NptPlots*countobjects.size();
   // Fill the histos if pass the trigger (just the two with higher pt)
   for (size_t j = 0; j < matches.size(); ++j)
   {
@@ -139,23 +141,28 @@ void HLTHiggsPlotter::analyze(const bool & isPassTrigger,
     float pt  = matches[j].pt;
     float eta = matches[j].eta;
     float phi = matches[j].phi;
-    this->fillHist(isPassTrigger,source,objTypeStr,"Eta",eta);
-    this->fillHist(isPassTrigger,source,objTypeStr,"Phi",phi);
     
     TString maxPt;
-    for( unsigned int i=0; i < _minCandidates; i++ )
+    if( (unsigned)countobjects[objType] < _NptPlots )
     {
-      if( (unsigned)countobjects[objType] == i )
-      {
         maxPt = "MaxPt";
-        maxPt += i+1;
+        maxPt += (countobjects[objType]+1);
         this->fillHist(isPassTrigger,source,objTypeStr,maxPt.Data(),pt);
         // Filled the high pt ...
         ++(countobjects[objType]);
         ++counttotal;
-        break;
-      }
     }
+    else {
+        if( (unsigned)countobjects[objType] < minCandidates ) { // To get correct results for HZZ
+            ++(countobjects[objType]);
+            ++counttotal;
+        }
+        else continue; //   Otherwise too many entries in Eta and Phi distributions
+    }
+    
+    this->fillHist(isPassTrigger,source,objTypeStr,"Eta",eta);
+    this->fillHist(isPassTrigger,source,objTypeStr,"Phi",phi);
+
    if ( counttotal == totalobjectssize2 ) 
     {
       break;
@@ -180,7 +187,7 @@ void HLTHiggsPlotter::analyze(const bool & isPassTrigger, const std::string & so
   }
 	
   int counttotal = 0;
-  const int totalobjectssize2 = _minCandidates*countobjects.size();
+  const int totalobjectssize2 = _NptPlots*countobjects.size();
   // Fill the histos if pass the trigger (just the two with higher pt)
   for (size_t j = 0; j < matches.size(); ++j)
   { 
@@ -199,14 +206,9 @@ void HLTHiggsPlotter::analyze(const bool & isPassTrigger, const std::string & so
     
     // PFMET N-1 cut
     if( objType == EVTColContainer::PFMET && _NminOneCuts[6] && ! nMinOne["PFMET"] ) continue;
- 
-    if( ! objType == EVTColContainer::PFJET || passAllCuts ) {
-        this->fillHist(isPassTrigger,source,objTypeStr,"Eta",eta);
-        this->fillHist(isPassTrigger,source,objTypeStr,"Phi",phi);
-    }
     
     TString maxPt;
-    if( (unsigned)(countobjects)[objType] < _minCandidates )
+    if( (unsigned)(countobjects)[objType] < _NptPlots )
 	{
 		maxPt = "MaxPt";
 		maxPt += j+1;
@@ -215,11 +217,17 @@ void HLTHiggsPlotter::analyze(const bool & isPassTrigger, const std::string & so
 		}
         ++(countobjects[objType]);
         ++counttotal;
-	}
-	if ( counttotal == totalobjectssize2 ) 
-	{
-		break;
-	}				
+	}  // else not needed (minCandidates == _NptPlots if _useNminOneCuts 
+	
+	if( ! objType == EVTColContainer::PFJET || passAllCuts ) {
+        this->fillHist(isPassTrigger,source,objTypeStr,"Eta",eta);
+        this->fillHist(isPassTrigger,source,objTypeStr,"Phi",phi);
+    }
+    
+    if ( counttotal == totalobjectssize2 ) 
+    {
+        break;
+    }
   }
   if( source == "rec") {
     if( _NminOneCuts[0] && nMinOne["dEtaqq"] ) {
