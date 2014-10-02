@@ -53,10 +53,20 @@ pixelPairStepSeeds.SeedComparitorPSet = cms.PSet(
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
-pixelPairStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
+pixelPairStepTrajectoryFilterBase = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
     minimumNumberOfHits = 3,
     minPt = 0.1
     )
+import RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeTrajectoryFilter_cfi
+pixelPairStepTrajectoryFilterShape = RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeTrajectoryFilter_cfi.StripSubClusterShapeTrajectoryFilterTIX12.clone()
+pixelPairStepTrajectoryFilter = cms.PSet(
+    ComponentType = cms.string('CompositeTrajectoryFilter'),
+    filters = cms.VPSet(
+        cms.PSet( refToPSet_ = cms.string('pixelPairStepTrajectoryFilterBase')),
+        cms.PSet( refToPSet_ = cms.string('pixelPairStepTrajectoryFilterShape'))),
+)
+
+
 
 import TrackingTools.KalmanUpdators.Chi2ChargeMeasurementEstimatorESProducer_cfi
 pixelPairStepChi2Est = TrackingTools.KalmanUpdators.Chi2ChargeMeasurementEstimatorESProducer_cfi.Chi2ChargeMeasurementEstimator.clone(

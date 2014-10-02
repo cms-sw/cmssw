@@ -32,10 +32,18 @@ initialStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet = RecoP
 
 # building
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
-initialStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
+initialStepTrajectoryFilterBase = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
     minimumNumberOfHits = 3,
     minPt = 0.2
     )
+import RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeTrajectoryFilter_cfi
+initialStepTrajectoryFilterShape = RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeTrajectoryFilter_cfi.StripSubClusterShapeTrajectoryFilterTIX12.clone()
+initialStepTrajectoryFilter = cms.PSet(
+    ComponentType = cms.string('CompositeTrajectoryFilter'),
+    filters = cms.VPSet(
+        cms.PSet( refToPSet_ = cms.string('initialStepTrajectoryFilterBase')),
+        cms.PSet( refToPSet_ = cms.string('initialStepTrajectoryFilterShape'))),
+)
 
 import TrackingTools.KalmanUpdators.Chi2ChargeMeasurementEstimatorESProducer_cfi
 initialStepChi2Est = TrackingTools.KalmanUpdators.Chi2ChargeMeasurementEstimatorESProducer_cfi.Chi2ChargeMeasurementEstimator.clone(
