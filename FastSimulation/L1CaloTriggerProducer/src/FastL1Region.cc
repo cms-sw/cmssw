@@ -424,7 +424,7 @@ void
 FastL1Region::SetMIPBit()
 {
   if (quietBit) {
-    for (auto i = 0U; i < 16; i++) {
+    for (unsigned int i = 0U; i < 16; i++) {
       if (hcfgBit[i]) {
         mipBit = true;
         return;
