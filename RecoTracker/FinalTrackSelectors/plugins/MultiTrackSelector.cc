@@ -20,6 +20,7 @@ MultiTrackSelector::MultiTrackSelector()
 
 MultiTrackSelector::MultiTrackSelector( const edm::ParameterSet & cfg ) :
   src_( consumes<reco::TrackCollection>( cfg.getParameter<edm::InputTag>( "src" ) ) ),
+  hSrc_(consumes<TrackingRecHitCollection>( cfg.getParameter<edm::InputTag>( "src" ) ) ),
   beamspot_( consumes<reco::BeamSpot>( cfg.getParameter<edm::InputTag>( "beamspot" ) ) ),
   useVertices_( cfg.getParameter<bool>( "useVertices" ) ),
   useVtxError_( cfg.getParameter<bool>( "useVtxError" ) )
@@ -208,6 +209,12 @@ void MultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) const
   evt.getByToken( src_, hSrcTrack );
   const TrackCollection& srcTracks(*hSrcTrack);
 
+  // get hits in track..
+  Handle<TrackingRecHitCollection> hSrcHits;
+  evt.getByToken( hSrc_, hSrcHits );
+  const TrackingRecHitCollection & srcHits(*hSrcHits);
+
+
   // looking for the beam spot
   edm::Handle<reco::BeamSpot> hBsp;
   evt.getByToken(beamspot_, hBsp);
@@ -252,7 +259,7 @@ void MultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) const
       else {
 	float mvaVal = 0;
 	if(useAnyMVA_) mvaVal = mvaVals_[current];
-	ok = select(i,vertexBeamSpot, trk, points, vterr, vzerr,mvaVal);
+	ok = select(i,vertexBeamSpot, srcHits, trk, points, vterr, vzerr,mvaVal);
 	if (!ok) { 
 	  LogTrace("TrackSelection") << "track with pt="<< trk.pt() << " NOT selected";
 	  if (!keepAllTracks_[i]) { 
@@ -301,7 +308,8 @@ void MultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) const
 
 
  bool MultiTrackSelector::select(unsigned int tsNum, 
-				 const reco::BeamSpot &vertexBeamSpot, 
+				 const reco::BeamSpot &vertexBeamSpot,
+        	       	       	 const TrackingRecHitCollection & recHits,
 				 const reco::Track &tk, 
 				 const std::vector<Point> &points,
 				 std::vector<float> &vterr,
@@ -347,11 +355,12 @@ void MultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) const
   float chi2n_no1Dmod = chi2n;
 
   int count1dhits = 0;
-  for (trackingRecHit_iterator ith = tk.recHitsBegin(), edh = tk.recHitsEnd(); ith != edh; ++ith) {
-    const TrackingRecHit * hit = ith->get();
-    if (hit->isValid()) {
-      if (typeid(*hit) == typeid(SiStripRecHit1D)) ++count1dhits;
-    }
+  auto ith = tk.recHitsBegin().key();
+  auto  edh = (--tk.recHitsEnd()).key();
+  assert( tk.recHitsEnd()-tk.recHitsBegin() == edh-ith+1);
+  for (; ith<=edh; ++ith) {
+    const TrackingRecHit & hit = recHits[ith];
+    if (hit.dimension()==1) ++count1dhits;
   }
   if (count1dhits > 0) {
     float chi2 = tk.chi2();
@@ -491,6 +500,12 @@ void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es, 
   const TrackCollection& srcTracks(*hSrcTrack);
   assert(mvaVals_.size()==srcTracks.size());
 
+ // get hits in track..
+  Handle<TrackingRecHitCollection> hSrcHits;
+  evt.getByToken( hSrc_, hSrcHits );
+  const TrackingRecHitCollection & srcHits(*hSrcHits);
+
+
   auto_ptr<edm::ValueMap<float> >mvaValValueMap = auto_ptr<edm::ValueMap<float> >(new edm::ValueMap<float>);
   edm::ValueMap<float>::Filler mvaFiller(*mvaValValueMap);
 
@@ -516,9 +531,12 @@ void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es, 
     float chi2n_no1Dmod = chi2n;
     
     int count1dhits = 0;
-    for (trackingRecHit_iterator ith = trk.recHitsBegin(), edh = trk.recHitsEnd(); ith != edh; ++ith) {
-      const TrackingRecHit * hit = ith->get();
-	if ((*hit).dimension()==1) ++count1dhits;
+    auto ith = trk.recHitsBegin().key();
+    auto  edh = (--trk.recHitsEnd()).key();
+    assert( trk.recHitsEnd()-trk.recHitsBegin() == edh-ith+1);
+    for (; ith<=edh; ++ith) {
+      const TrackingRecHit & hit = srcHits[ith];
+      if (hit.dimension()==1) ++count1dhits;
     }
     if (count1dhits > 0) {
       float chi2 = trk.chi2();
