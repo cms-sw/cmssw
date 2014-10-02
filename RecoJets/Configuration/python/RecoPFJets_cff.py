@@ -7,6 +7,7 @@ from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
 from RecoJets.JetProducers.ak5PFJetsTrimmed_cfi import ak5PFJetsTrimmed
 from RecoJets.JetProducers.ak5PFJetsFiltered_cfi import ak5PFJetsFiltered, ak5PFJetsMassDropFiltered
 from RecoJets.JetProducers.ak5PFJetsPruned_cfi import ak5PFJetsPruned
+from RecoJets.JetProducers.ak8PFJetsCS_cfi import ak8PFJetsCSConstituents, ak8PFJetsCS, ak8PFJetsCSPruned, ak8PFJetsCSTrimmed, ak8PFJetsCSFiltered
 from CommonTools.ParticleFlow.pfNoPileUpJME_cff  import *
 from RecoJets.JetProducers.gk5PFJets_cfi import gk5PFJets
 from RecoJets.JetProducers.kt4PFJets_cfi import kt4PFJets
@@ -119,6 +120,7 @@ ak8PFJetsCHSTrimmed = ak5PFJetsCHSTrimmed.clone(
     jetPtMin = 15.0
     )
 
+
 ca8PFJetsCHS = ak8PFJetsCHS.clone(
     jetAlgorithm = cms.string("CambridgeAachen")
     )
@@ -215,5 +217,10 @@ recoAllPFJets=cms.Sequence(sisCone5PFJets+sisCone7PFJets+
                            cmsTopTagPFJetsCHS+
                            hepTopTagPFJetsCHS+
                            ca15PFJetsCHSMassDropFiltered+
-                           ca15PFJetsCHSFiltered
+                           ca15PFJetsCHSFiltered+
+                           ak8PFJetsCS+
+                           ak8PFJetsCSConstituents+
+                           ak8PFJetsCSPruned+
+                           ak8PFJetsCSTrimmed+
+                           ak8PFJetsCSFiltered
     )
