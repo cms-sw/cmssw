@@ -202,10 +202,11 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
       // 								  const uint32_t data);
       if (CaloSpare::CaloSpareType::V2 == itCaloSpare->getType())
       {
-	L1GctHFRingEtSums sum = L1GctHFRingEtSums::fromConcRingSums(0,
-								    0,
-								    itBX,
-								    itCaloSpare->hwPt() & 0xfff);
+	L1GctHFRingEtSums sum = L1GctHFRingEtSums::fromGctEmulator(itBX,
+								   itCaloSpare->hwPt() & 0x7,
+								   (itCaloSpare->hwPt() >> 3) & 0x7,
+								   (itCaloSpare->hwPt() >> 6) & 0x7,
+								   (itCaloSpare->hwPt() >> 9) & 0x7);
 	hfRingEtSumResult->push_back(sum);
       } else if (CaloSpare::CaloSpareType::Centrality == itCaloSpare->getType())
       {
@@ -222,10 +223,11 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 	hfBitCountResult->push_back(bitcount);
       } else if (CaloSpare::CaloSpareType::Tau == itCaloSpare->getType())
       {
-	L1GctHFRingEtSums sum = L1GctHFRingEtSums::fromConcRingSums(0,
-								    0,
-								    itBX,
-								    itCaloSpare->hwPt() & 0xfff);
+	L1GctHFRingEtSums sum = L1GctHFRingEtSums::fromGctEmulator(itBX,
+								   itCaloSpare->hwPt() & 0x7,
+								   (itCaloSpare->hwPt() >> 3) & 0x7,
+								   (itCaloSpare->hwPt() >> 6) & 0x7,
+								   (itCaloSpare->hwPt() >> 9) & 0x7);
 	hfRingEtSumResult->push_back(sum);
       }
     }
