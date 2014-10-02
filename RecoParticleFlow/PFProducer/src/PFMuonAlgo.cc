@@ -795,7 +795,7 @@ void PFMuonAlgo::estimateEventQuantities(const reco::PFCandidateCollection* pfc)
   METY_=0.;
   for (unsigned short i=1 ;i<vertices_->size();++i ) {
     if ( !vertices_->at(i).isValid() || vertices_->at(i).isFake() ) continue; 
-    vertices_->at(i);
+
     for ( reco::Vertex::trackRef_iterator itr = vertices_->at(i).tracks_begin();
 	  itr <  vertices_->at(i).tracks_end(); ++itr ) { 
       sumetPU_ += (*itr)->pt();
@@ -809,36 +809,40 @@ void PFMuonAlgo::estimateEventQuantities(const reco::PFCandidateCollection* pfc)
   double METXNeut=0.0;
   double METYNeut=0.0;
 
-
-  for(reco::PFCandidateCollection::const_iterator i = pfc->begin();i!=pfc->end();++i) {
-    sumet_+=i->pt();
-
     if (vertices_->size()>0 && vertices_->at(0).isValid()&& !vertices_->at(0).isFake()) {
-      //If charged and from PV or muon
-      if( (i->charge() !=0 && i->trackRef().isNonnull() && vertices_->size()>0&& i->trackRef()->dz(vertices_->at(0).position())<dzPV_)||(abs(i->pdgId())==13)) {
-	METXCh+=i->px();
-	METYCh+=i->py();
-      }
-      //If charged and not from PV(assume there is a neutral balancing it)
-      else if( i->charge() !=0 && i->trackRef().isNonnull() && i->trackRef()->dz(vertices_->at(0).position())>dzPV_) {
-	METXNeut-=i->px();
-	METYNeut-=i->py();
-      }
+
+      for(reco::PFCandidateCollection::const_iterator i = pfc->begin();i!=pfc->end();++i) {
+	sumet_+=i->pt();
+
+	//If charged and from PV or muon
+	if( (i->charge() !=0 && i->trackRef().isNonnull() && vertices_->size()>0&& i->trackRef()->dz(vertices_->at(0).position())<dzPV_)||(abs(i->pdgId())==13)) {
+	  METXCh+=i->px();
+	  METYCh+=i->py();
+	}
+	//If charged and not from PV(assume there is a neutral balancing it)
+	else if( i->charge() !=0 && i->trackRef().isNonnull() && i->trackRef()->dz(vertices_->at(0).position())>dzPV_) {
+	  METXNeut-=i->px();
+	  METYNeut-=i->py();
+	}
       //Neutral
-      else if( !(i->charge() !=0 && i->trackRef().isNonnull())) {
-	METXNeut+=i->px();
-	METYNeut+=i->py();
-      }
-    } //else if we dont have a vertex make standard PFMET
+	else if( !(i->charge() !=0 && i->trackRef().isNonnull())) {
+	  METXNeut+=i->px();
+	  METYNeut+=i->py();
+	}
+      } //else if we dont have a vertex make standard PFMET
+    }
     else {
+      for(reco::PFCandidateCollection::const_iterator i = pfc->begin();i!=pfc->end();++i) {
+	sumet_+=i->pt();
 	METXCh+=i->px();
 	METYCh+=i->py();
+      }
     }
+
     METX_ = (METXCh+METXNeut);
     METY_ = (METYCh+METYNeut);
-  }
-
 }
+
 
 
 
@@ -894,9 +898,9 @@ void PFMuonAlgo::postClean(reco::PFCandidateCollection*  cands) {
   for(unsigned int i=0;i<cands->size();++i) 
     if ( cands->at(i).particleId() == reco::PFCandidate::mu )
       muons.push_back(i);
-    else if ( cands->at(i).particleId() == reco::PFCandidate::h ) {
+    else if ( cands->at(i).particleId() == reco::PFCandidate::h && cands->at(i).muonRef().isNonnull()) {
     //clean this crazy shit with iter10
-      if (cands->at(i).pt()>100.0 &&  (!cands->at(i).trackRef()->quality(trackQuality_)) && cands->at(i).muonRef()->isGlobalMuon() && cands.at(i).rawHcalEnergy()/cands.at(i).p()<0.05) {
+      if (cands->at(i).pt()>100.0 &&  (!cands->at(i).trackRef()->quality(trackQuality_)) && cands->at(i).muonRef()->isGlobalMuon() && cands->at(i).rawHcalEnergy()/cands->at(i).p()<0.05) {
       maskedIndices_.push_back(i);
       pfPunchThroughMuonCleanedCandidates_->push_back(cands->at(i));
 
@@ -931,13 +935,13 @@ void PFMuonAlgo::postClean(reco::PFCandidateCollection*  cands) {
   double MET2Cosmics = METXCosmics*METXCosmics+METYCosmics*METYCosmics;
 
   if ( SUMETCosmics > (sumet_-sumetPU_)/eventFactorCosmics_ && MET2Cosmics < METX_*METX_+ METY_*METY_)
-    for(unsigned int i=0;i<cosmics.size();++i)
-      pfCosmicsMuonCleanedCandidates_->push_back(cands->at(muons[i]));
-
+    for(unsigned int i=0;i<cosmics.size();++i) {
+      maskedIndices_.push_back(cosmics[i]);
+      pfCosmicsMuonCleanedCandidates_->push_back(cands->at(cosmics[i]));
+    }
 
   //Loop on the muons candidates and clean
-  for(unsigned int i=0;i<muons.size();++i) {
-    
+  for(unsigned int i=0;i<muons.size();++i) {  
     if( cleanMismeasured(cands->at(muons[i]),muons[i]))
       continue;
     cleanPunchThroughAndFakes(cands->at(muons[i]),cands,muons[i]);
@@ -1212,10 +1216,8 @@ bool PFMuonAlgo::cleanPunchThroughAndFakes(reco::PFCandidate&pfc,reco::PFCandida
     if ( eleInBlocks.size() ) { 
       PFBlockRef blockRefMuon = eleInBlocks[0].first;
       unsigned indexMuon = eleInBlocks[0].second;
-      for ( unsigned iele = 1; iele < eleInBlocks.size(); ++iele ) { 
-	indexMuon = eleInBlocks[iele].second;
-	break;
-      }
+      if (eleInBlocks.size()>1)
+	indexMuon = eleInBlocks[1].second;
 	  
       // Check if the muon gave rise to a neutral hadron
       double iHad = 1E9;
