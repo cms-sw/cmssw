@@ -1303,7 +1303,8 @@ for k in upgradeKeys:
                                     '--mc':'',
                                     '--magField' : '38T_PostLS1',
                                     '--geometry' : upgradeGeoms[k],
-                                    '--scenario' : 'pp'
+                                    '--scenario' : 'pp',
+                                    '--filetype':'DQM'
                                     }
     if upgradeCustoms[k]!=None : upgradeStepDict['HARVESTFull'][k]['--customise']=upgradeCustoms[k]
 
