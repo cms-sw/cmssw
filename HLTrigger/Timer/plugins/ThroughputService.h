@@ -26,27 +26,6 @@
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "HLTrigger/Timer/interface/FastTimer.h"
 
-// based on clock_gettime(CLOCK_MONOTONIC, ...)
-struct clock_gettime_monotonic
-{
-  typedef std::chrono::nanoseconds                                      duration;
-  typedef duration::rep                                                 rep;
-  typedef duration::period                                              period;
-  typedef std::chrono::time_point<clock_gettime_monotonic, duration>    time_point;
-
-  static constexpr bool is_steady = true;
-  static const     bool is_available;
-
-  static time_point now() noexcept
-  {
-    timespec t;
-    clock_gettime(CLOCK_MONOTONIC, &t);
-
-    return time_point( std::chrono::seconds(t.tv_sec) + std::chrono::nanoseconds(t.tv_nsec) );
-  }
-
-};
-
 class ThroughputService {
 public:
   ThroughputService(const edm::ParameterSet &, edm::ActivityRegistry & );
@@ -78,7 +57,7 @@ private:
 
   std::vector<stream_histograms>        m_stream_histograms;
   
-  clock_gettime_monotonic::time_point   m_startup;
+  std::chrono::steady_clock::time_point m_startup;
 
   // histogram-related data members
   double                                m_time_range;
