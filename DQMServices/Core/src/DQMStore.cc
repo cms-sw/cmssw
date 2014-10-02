@@ -432,8 +432,19 @@ void DQMStore::mergeAndResetMEsLuminositySummaryCache(uint32_t run,
       assert(gme.second);
     }
     const_cast<MonitorElement*>(&*i)->Reset();
+    //why not const_cast<MonitorElement*>(&*previous_me)->deleteObjects(); ??
+
     // TODO(rovere): eventually reset the local object and mark it as reusable??
     ++i;
+
+    // check and remove the global lumi based histo belonging to the previous LS
+    // if properly flagged as DQMNet::DQM_PROP_MARKTODELETE
+    if(lumi == 0) continue;
+    global_me.setLumi(lumi-1);
+    std::set<MonitorElement>::const_iterator previous_me = data_.find(global_me);
+    if (previous_me != data_.end() && previous_me->markedToDelete()) {
+      data_.erase(previous_me);
+    }
   }
 }
 
@@ -2368,7 +2379,7 @@ void DQMStore::savePB(const std::string &filename,
                       const std::string &path /* = "" */,
 		      const uint32_t run /* = 0 */,
 		      const uint32_t lumi /* = 0 */,
-		      const bool resetMEsAfterWriting /* = false */)
+		      const bool removeMEsAfterWriting /* = false */)
 {
   using google::protobuf::io::FileOutputStream;
   using google::protobuf::io::GzipOutputStream;
@@ -2456,8 +2467,8 @@ void DQMStore::savePB(const std::string &filename,
       }
 
       //reset the ME just written to make it available for the next LS (online)
-      if (resetMEsAfterWriting)
-        const_cast<MonitorElement*>(&*mi)->Reset();
+      if (removeMEsAfterWriting)
+	const_cast<MonitorElement*>(&*mi)->markToDelete();
     }
   }
 
@@ -2496,7 +2507,7 @@ DQMStore::save(const std::string &filename,
                SaveReferenceTag ref /* = SaveWithReference */,
                int minStatus /* = dqm::qstatus::STATUS_OK */,
                const std::string &fileupdate /* = RECREATE */,
-	       const bool resetMEsAfterWriting /* = false */)
+	       const bool removeMEsAfterWriting /* = false */)
 {
   std::set<std::string>::iterator di, de;
   MEMap::iterator mi, me = data_.end();
@@ -2670,8 +2681,8 @@ DQMStore::save(const std::string &filename,
         TObjString(mi->tagLabelString().c_str()).Write();
 
       //reset the ME just written to make it available for the next LS (online)
-      if(resetMEsAfterWriting)
-	const_cast<MonitorElement*>(&*mi)->Reset();
+      if(removeMEsAfterWriting)
+	const_cast<MonitorElement*>(&*mi)->markToDelete();
     }
   }
 

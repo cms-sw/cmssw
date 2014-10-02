@@ -229,6 +229,18 @@ MonitorElement::~MonitorElement(void)
   delete refvalue_;
 }
 
+void
+MonitorElement::deleteObjects(void)
+{
+  delete object_;
+  delete reference_;
+  delete refvalue_;
+  
+  object_ = nullptr;
+  reference_ = nullptr;
+  refvalue_ = nullptr;
+}
+
 //utility function to check the consistency of the axis labels
 //taken from TH1::CheckBinLabels which is not public
 bool

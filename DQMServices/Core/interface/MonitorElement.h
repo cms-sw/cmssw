@@ -90,6 +90,8 @@ public:
   MonitorElement &operator=(const MonitorElement &);
   ~MonitorElement(void);
 
+  void deleteObjects(void);
+
   /// Compare monitor elements, for ordering in sets.
   bool operator<(const MonitorElement &x) const
     {
@@ -139,6 +141,14 @@ public:
   /// (typically called by Sources that control the original ME)
   void setResetMe(bool /* flag */)
     { data_.flags |= DQMNet::DQM_PROP_RESET; }
+
+  /// true if ME is marked for deletion
+  bool markedToDelete(void) const
+    { return data_.flags & DQMNet::DQM_PROP_MARKTODELETE; }
+
+  /// Mark the object for deletion.
+  void markToDelete(void)
+    { data_.flags |= DQMNet::DQM_PROP_MARKTODELETE; }
 
   /// true if ME is meant to be stored for each luminosity section
   bool getLumiFlag(void) const
