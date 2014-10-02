@@ -63,14 +63,22 @@ tobTecStepSeedsTripl.RegionFactoryPSet.RegionPSet.originRadius = 3.5
 tobTecStepSeedsTripl.SeedCreatorPSet.ComponentName = 'SeedFromConsecutiveHitsCreator' #empirically better than 'SeedFromConsecutiveHitsTripletOnlyCreator'
 tobTecStepSeedsTripl.SeedCreatorPSet.OriginTransverseErrorMultiplier = 1.0
 #SeedComparitor
+import RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeSeedFilter_cfi
 
 tobTecStepSeedsTripl.SeedComparitorPSet = cms.PSet(
+   ComponentName = cms.string('CombinedSeedComparitor'),
+   mode = cms.string("and"),
+   comparitors = cms.VPSet(
+     cms.PSet(
         ComponentName = cms.string('PixelClusterShapeSeedComparitor'),
         FilterAtHelixStage = cms.bool(True),
         FilterPixelHits = cms.bool(False),
         FilterStripHits = cms.bool(True),
         ClusterShapeHitFilterName = cms.string('tobTecStepClusterShapeHitFilter'),
         ClusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache") # not really needed here since FilterPixelHits=False
+    ),
+    RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeSeedFilter_cfi.StripSubClusterShapeSeedFilter.clone()
+  )
 )
 # PAIR SEEDING LAYERS
 tobTecStepSeedLayersPair = cms.EDProducer("SeedingLayersEDProducer",
@@ -117,12 +125,19 @@ tobTecStepSeedsPair.RegionFactoryPSet.RegionPSet.originRadius = 6.0
 tobTecStepSeedsPair.SeedCreatorPSet.OriginTransverseErrorMultiplier = 1.0
 #SeedComparitor
 tobTecStepSeedsPair.SeedComparitorPSet = cms.PSet(
+   ComponentName = cms.string('CombinedSeedComparitor'),
+   mode = cms.string("and"),
+   comparitors = cms.VPSet(
+     cms.PSet(
         ComponentName = cms.string('PixelClusterShapeSeedComparitor'),
         FilterAtHelixStage = cms.bool(True),
         FilterPixelHits = cms.bool(False),
         FilterStripHits = cms.bool(True),
         ClusterShapeHitFilterName = cms.string('tobTecStepClusterShapeHitFilter'),
         ClusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache") # not really needed here since FilterPixelHits=False
+    ),
+    RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeSeedFilter_cfi.StripSubClusterShapeSeedFilter.clone()
+  )
 )
 import RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi
 tobTecStepSeeds = RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi.globalCombinedSeeds.clone()

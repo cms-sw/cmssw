@@ -129,13 +129,13 @@ void QualityTester::performTests(void)
         if ((reportThreshold == "black")
 	    || (reportThreshold == "orange" && (alarmType == "orange" || alarmType == "red"))
 	    || (reportThreshold == "red" && alarmType == "red"))
-	{
-          std::cout << std::endl;
-          std::cout << "Error Type: " << alarmType << std::endl;
-          for (std::vector<std::string>::const_iterator msg = msgs.begin();
-	       msg != msgs.end(); ++msg)
-            std::cout << *msg << std::endl;
-        }
+	  {
+	    std::cout << std::endl;
+	    std::cout << "Error Type: " << alarmType << std::endl;
+	    for (std::vector<std::string>::const_iterator msg = msgs.begin();
+		 msg != msgs.end(); ++msg)
+	      std::cout << *msg << std::endl;
+	  }
       }
       std::cout << std::endl;
     }
