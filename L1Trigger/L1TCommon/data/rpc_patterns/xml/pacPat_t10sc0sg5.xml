@@ -1,0 +1,3046 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<?xml-stylesheet type="text/xsl"href="default.xsl"?>
+<pacdef>
+
+  <date>Sun Oct 13 02:04:58 2013
+</date>
+
+  <qualitTable>
+    <quality id="0" planes="000111" val="0"/>
+    <quality id="0" planes="111111" val="3"/>
+    <quality id="0" planes="000111" val="0"/>
+    <quality id="0" planes="001011" val="0"/>
+    <quality id="0" planes="001101" val="0"/>
+    <quality id="0" planes="001110" val="0"/>
+    <quality id="0" planes="001111" val="1"/>
+    <quality id="1" planes="000111" val="0"/>
+  </qualitTable>
+
+  <pac logSector="0" logSegment="5" tower="10">
+    <pat code="31" grp="0" lpSet="15" num="0" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="36"/>
+      <str Pl="1" f="4" t="4"/>
+      <str Pl="2" f="19" t="19"/>
+      <str Pl="3" f="11" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="31" grp="0" lpSet="15" num="1" qual="0" sign="0" type="E">
+      <str Pl="0" f="38" t="38"/>
+      <str Pl="1" f="7" t="7"/>
+      <str Pl="2" f="23" t="23"/>
+      <str Pl="3" f="15" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="31" grp="0" lpSet="15" num="2" qual="0" sign="1" type="E">
+      <str Pl="0" f="39" t="39"/>
+      <str Pl="1" f="6" t="6"/>
+      <str Pl="2" f="22" t="22"/>
+      <str Pl="3" f="14" t="14"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="31" grp="0" lpSet="15" num="3" qual="0" sign="0" type="E">
+      <str Pl="0" f="35" t="35"/>
+      <str Pl="1" f="4" t="4"/>
+      <str Pl="2" f="20" t="20"/>
+      <str Pl="3" f="12" t="12"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="31" grp="0" lpSet="15" num="4" qual="0" sign="0" type="E">
+      <str Pl="0" f="31" t="31"/>
+      <str Pl="1" f="0" t="0"/>
+      <str Pl="2" f="16" t="16"/>
+      <str Pl="3" f="8" t="8"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="31" grp="0" lpSet="15" num="5" qual="0" sign="0" type="E">
+      <str Pl="0" f="33" t="33"/>
+      <str Pl="1" f="2" t="2"/>
+      <str Pl="2" f="18" t="18"/>
+      <str Pl="3" f="10" t="10"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="31" grp="1" lpSet="13" num="6" qual="0" sign="1" type="E">
+      <str Pl="0" f="32" t="32"/>
+      <str Pl="1" f="99" t="99"/>
+      <str Pl="2" f="16" t="16"/>
+      <str Pl="3" f="8" t="8"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="31" grp="0" lpSet="15" num="7" qual="0" sign="1" type="E">
+      <str Pl="0" f="37" t="37"/>
+      <str Pl="1" f="5" t="5"/>
+      <str Pl="2" f="20" t="20"/>
+      <str Pl="3" f="12" t="12"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="31" grp="0" lpSet="15" num="8" qual="0" sign="1" type="E">
+      <str Pl="0" f="35" t="35"/>
+      <str Pl="1" f="3" t="3"/>
+      <str Pl="2" f="18" t="18"/>
+      <str Pl="3" f="10" t="10"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="31" grp="0" lpSet="15" num="9" qual="0" sign="0" type="E">
+      <str Pl="0" f="37" t="37"/>
+      <str Pl="1" f="6" t="6"/>
+      <str Pl="2" f="22" t="22"/>
+      <str Pl="3" f="14" t="14"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="31" grp="0" lpSet="15" num="10" qual="0" sign="1" type="E">
+      <str Pl="0" f="38" t="38"/>
+      <str Pl="1" f="6" t="6"/>
+      <str Pl="2" f="21" t="21"/>
+      <str Pl="3" f="13" t="13"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="31" grp="0" lpSet="15" num="11" qual="0" sign="0" type="E">
+      <str Pl="0" f="34" t="34"/>
+      <str Pl="1" f="3" t="3"/>
+      <str Pl="2" f="19" t="19"/>
+      <str Pl="3" f="11" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="31" grp="0" lpSet="15" num="12" qual="0" sign="0" type="E">
+      <str Pl="0" f="34" t="34"/>
+      <str Pl="1" f="2" t="2"/>
+      <str Pl="2" f="19" t="19"/>
+      <str Pl="3" f="11" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="31" grp="0" lpSet="15" num="13" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="32"/>
+      <str Pl="1" f="0" t="0"/>
+      <str Pl="2" f="17" t="17"/>
+      <str Pl="3" f="9" t="9"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="31" grp="0" lpSet="15" num="14" qual="0" sign="0" type="E">
+      <str Pl="0" f="38" t="38"/>
+      <str Pl="1" f="6" t="6"/>
+      <str Pl="2" f="23" t="23"/>
+      <str Pl="3" f="15" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="31" grp="0" lpSet="15" num="15" qual="0" sign="1" type="E">
+      <str Pl="0" f="33" t="33"/>
+      <str Pl="1" f="1" t="1"/>
+      <str Pl="2" f="16" t="16"/>
+      <str Pl="3" f="8" t="8"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="31" grp="0" lpSet="15" num="16" qual="0" sign="0" type="E">
+      <str Pl="0" f="35" t="35"/>
+      <str Pl="1" f="3" t="3"/>
+      <str Pl="2" f="20" t="20"/>
+      <str Pl="3" f="12" t="12"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="31" grp="0" lpSet="15" num="17" qual="0" sign="0" type="E">
+      <str Pl="0" f="35" t="35"/>
+      <str Pl="1" f="3" t="3"/>
+      <str Pl="2" f="19" t="19"/>
+      <str Pl="3" f="11" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="31" grp="0" lpSet="15" num="18" qual="0" sign="0" type="E">
+      <str Pl="0" f="34" t="34"/>
+      <str Pl="1" f="2" t="2"/>
+      <str Pl="2" f="18" t="18"/>
+      <str Pl="3" f="10" t="10"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="31" grp="0" lpSet="15" num="19" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="32"/>
+      <str Pl="1" f="0" t="0"/>
+      <str Pl="2" f="16" t="16"/>
+      <str Pl="3" f="8" t="8"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="31" grp="0" lpSet="15" num="20" qual="0" sign="0" type="E">
+      <str Pl="0" f="37" t="37"/>
+      <str Pl="1" f="5" t="5"/>
+      <str Pl="2" f="21" t="21"/>
+      <str Pl="3" f="13" t="13"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="31" grp="0" lpSet="15" num="21" qual="0" sign="0" type="E">
+      <str Pl="0" f="36" t="36"/>
+      <str Pl="1" f="4" t="4"/>
+      <str Pl="2" f="20" t="20"/>
+      <str Pl="3" f="12" t="12"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="31" grp="0" lpSet="15" num="22" qual="0" sign="0" type="E">
+      <str Pl="0" f="39" t="39"/>
+      <str Pl="1" f="7" t="7"/>
+      <str Pl="2" f="23" t="23"/>
+      <str Pl="3" f="15" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="31" grp="0" lpSet="15" num="23" qual="0" sign="1" type="E">
+      <str Pl="0" f="40" t="40"/>
+      <str Pl="1" f="7" t="7"/>
+      <str Pl="2" f="23" t="23"/>
+      <str Pl="3" f="15" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="31" grp="0" lpSet="15" num="24" qual="0" sign="0" type="E">
+      <str Pl="0" f="38" t="38"/>
+      <str Pl="1" f="6" t="6"/>
+      <str Pl="2" f="22" t="22"/>
+      <str Pl="3" f="14" t="14"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="31" grp="0" lpSet="15" num="25" qual="0" sign="0" type="E">
+      <str Pl="0" f="33" t="33"/>
+      <str Pl="1" f="1" t="1"/>
+      <str Pl="2" f="17" t="17"/>
+      <str Pl="3" f="9" t="9"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="31" grp="0" lpSet="15" num="26" qual="0" sign="1" type="E">
+      <str Pl="0" f="33" t="33"/>
+      <str Pl="1" f="0" t="0"/>
+      <str Pl="2" f="16" t="16"/>
+      <str Pl="3" f="8" t="8"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="31" grp="0" lpSet="15" num="27" qual="0" sign="1" type="E">
+      <str Pl="0" f="37" t="37"/>
+      <str Pl="1" f="4" t="4"/>
+      <str Pl="2" f="20" t="20"/>
+      <str Pl="3" f="12" t="12"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="31" grp="0" lpSet="15" num="28" qual="0" sign="1" type="E">
+      <str Pl="0" f="38" t="38"/>
+      <str Pl="1" f="5" t="5"/>
+      <str Pl="2" f="21" t="21"/>
+      <str Pl="3" f="13" t="13"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="31" grp="1" lpSet="13" num="29" qual="0" sign="1" type="E">
+      <str Pl="0" f="38" t="38"/>
+      <str Pl="1" f="99" t="99"/>
+      <str Pl="2" f="22" t="22"/>
+      <str Pl="3" f="14" t="14"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="31" grp="0" lpSet="15" num="30" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="32"/>
+      <str Pl="1" f="1" t="1"/>
+      <str Pl="2" f="17" t="17"/>
+      <str Pl="3" f="9" t="9"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="31" grp="0" lpSet="15" num="31" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="36"/>
+      <str Pl="1" f="3" t="3"/>
+      <str Pl="2" f="19" t="19"/>
+      <str Pl="3" f="11" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="31" grp="0" lpSet="15" num="32" qual="0" sign="0" type="E">
+      <str Pl="0" f="36" t="36"/>
+      <str Pl="1" f="5" t="5"/>
+      <str Pl="2" f="21" t="21"/>
+      <str Pl="3" f="13" t="13"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="31" grp="0" lpSet="15" num="33" qual="0" sign="1" type="E">
+      <str Pl="0" f="34" t="34"/>
+      <str Pl="1" f="1" t="1"/>
+      <str Pl="2" f="17" t="17"/>
+      <str Pl="3" f="9" t="9"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="31" grp="0" lpSet="15" num="34" qual="0" sign="1" type="E">
+      <str Pl="0" f="35" t="35"/>
+      <str Pl="1" f="2" t="2"/>
+      <str Pl="2" f="18" t="18"/>
+      <str Pl="3" f="10" t="10"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="30" grp="0" lpSet="15" num="35" qual="0" sign="0" type="E">
+      <str Pl="0" f="39" t="39"/>
+      <str Pl="1" f="7" t="7"/>
+      <str Pl="2" f="24" t="24"/>
+      <str Pl="3" f="16" t="16"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="29" grp="0" lpSet="15" num="36" qual="0" sign="0" type="E">
+      <str Pl="0" f="37" t="37"/>
+      <str Pl="1" f="5" t="5"/>
+      <str Pl="2" f="22" t="22"/>
+      <str Pl="3" f="14" t="14"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="29" grp="0" lpSet="15" num="37" qual="0" sign="1" type="E">
+      <str Pl="0" f="34" t="34"/>
+      <str Pl="1" f="2" t="2"/>
+      <str Pl="2" f="17" t="17"/>
+      <str Pl="3" f="9" t="9"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="28" grp="0" lpSet="15" num="38" qual="0" sign="1" type="E">
+      <str Pl="0" f="39" t="39"/>
+      <str Pl="1" f="7" t="7"/>
+      <str Pl="2" f="22" t="22"/>
+      <str Pl="3" f="14" t="14"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="27" grp="0" lpSet="15" num="39" qual="0" sign="1" type="E">
+      <str Pl="0" f="32" t="32"/>
+      <str Pl="1" f="0" t="0"/>
+      <str Pl="2" f="15" t="15"/>
+      <str Pl="3" f="7" t="7"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="27" grp="0" lpSet="15" num="40" qual="0" sign="0" type="E">
+      <str Pl="0" f="33" t="33"/>
+      <str Pl="1" f="1" t="1"/>
+      <str Pl="2" f="18" t="18"/>
+      <str Pl="3" f="10" t="10"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="25" grp="0" lpSet="15" num="41" qual="0" sign="0" type="E">
+      <str Pl="0" f="36" t="36"/>
+      <str Pl="1" f="4" t="4"/>
+      <str Pl="2" f="21" t="21"/>
+      <str Pl="3" f="13" t="13"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="24" grp="0" lpSet="15" num="42" qual="0" sign="0" type="E">
+      <str Pl="0" f="37" t="37"/>
+      <str Pl="1" f="5" t="5"/>
+      <str Pl="2" f="21" t="21"/>
+      <str Pl="3" f="14" t="14"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="24" grp="0" lpSet="15" num="43" qual="0" sign="1" type="E">
+      <str Pl="0" f="37" t="37"/>
+      <str Pl="1" f="5" t="5"/>
+      <str Pl="2" f="21" t="21"/>
+      <str Pl="3" f="12" t="12"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="23" grp="0" lpSet="15" num="44" qual="0" sign="0" type="E">
+      <str Pl="0" f="33" t="33"/>
+      <str Pl="1" f="1" t="1"/>
+      <str Pl="2" f="17" t="17"/>
+      <str Pl="3" f="10" t="10"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="23" grp="0" lpSet="15" num="45" qual="0" sign="0" type="E">
+      <str Pl="0" f="39" t="39"/>
+      <str Pl="1" f="7" t="7"/>
+      <str Pl="2" f="23" t="23"/>
+      <str Pl="3" f="16" t="16"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="23" grp="0" lpSet="15" num="46" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="36"/>
+      <str Pl="1" f="4" t="4"/>
+      <str Pl="2" f="20" t="20"/>
+      <str Pl="3" f="11" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="23" grp="0" lpSet="15" num="47" qual="0" sign="0" type="E">
+      <str Pl="0" f="35" t="35"/>
+      <str Pl="1" f="3" t="3"/>
+      <str Pl="2" f="19" t="19"/>
+      <str Pl="3" f="12" t="12"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="22" grp="0" lpSet="15" num="48" qual="0" sign="1" type="E">
+      <str Pl="0" f="35" t="35"/>
+      <str Pl="1" f="3" t="3"/>
+      <str Pl="2" f="19" t="19"/>
+      <str Pl="3" f="10" t="10"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="22" grp="0" lpSet="15" num="49" qual="0" sign="1" type="E">
+      <str Pl="0" f="32" t="32"/>
+      <str Pl="1" f="0" t="0"/>
+      <str Pl="2" f="16" t="16"/>
+      <str Pl="3" f="7" t="7"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="21" grp="0" lpSet="15" num="50" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="32"/>
+      <str Pl="1" f="0" t="0"/>
+      <str Pl="2" f="16" t="16"/>
+      <str Pl="3" f="9" t="9"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="21" grp="0" lpSet="15" num="51" qual="0" sign="1" type="E">
+      <str Pl="0" f="38" t="38"/>
+      <str Pl="1" f="6" t="6"/>
+      <str Pl="2" f="22" t="22"/>
+      <str Pl="3" f="13" t="13"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="21" grp="0" lpSet="15" num="52" qual="0" sign="0" type="E">
+      <str Pl="0" f="36" t="36"/>
+      <str Pl="1" f="4" t="4"/>
+      <str Pl="2" f="20" t="20"/>
+      <str Pl="3" f="13" t="13"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="21" grp="0" lpSet="15" num="53" qual="0" sign="1" type="E">
+      <str Pl="0" f="34" t="34"/>
+      <str Pl="1" f="2" t="2"/>
+      <str Pl="2" f="18" t="18"/>
+      <str Pl="3" f="9" t="9"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="21" grp="0" lpSet="15" num="54" qual="0" sign="0" type="E">
+      <str Pl="0" f="34" t="34"/>
+      <str Pl="1" f="2" t="2"/>
+      <str Pl="2" f="18" t="18"/>
+      <str Pl="3" f="11" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="21" grp="0" lpSet="15" num="55" qual="0" sign="1" type="E">
+      <str Pl="0" f="33" t="33"/>
+      <str Pl="1" f="1" t="1"/>
+      <str Pl="2" f="17" t="17"/>
+      <str Pl="3" f="8" t="8"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="21" grp="0" lpSet="15" num="56" qual="0" sign="1" type="E">
+      <str Pl="0" f="39" t="39"/>
+      <str Pl="1" f="7" t="7"/>
+      <str Pl="2" f="23" t="23"/>
+      <str Pl="3" f="14" t="14"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="21" grp="0" lpSet="15" num="57" qual="0" sign="0" type="E">
+      <str Pl="0" f="38" t="38"/>
+      <str Pl="1" f="6" t="6"/>
+      <str Pl="2" f="22" t="22"/>
+      <str Pl="3" f="15" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="20" grp="0" lpSet="15" num="58" qual="0" sign="0" type="E">
+      <str Pl="0" f="36" t="36"/>
+      <str Pl="1" f="5" t="5"/>
+      <str Pl="2" f="22" t="22"/>
+      <str Pl="3" f="14" t="14"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="20" grp="0" lpSet="15" num="59" qual="0" sign="1" type="E">
+      <str Pl="0" f="37" t="37"/>
+      <str Pl="1" f="4" t="4"/>
+      <str Pl="2" f="19" t="19"/>
+      <str Pl="3" f="11" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="20" grp="0" lpSet="15" num="60" qual="0" sign="0" type="E">
+      <str Pl="0" f="37" t="37"/>
+      <str Pl="1" f="6" t="6"/>
+      <str Pl="2" f="23" t="23"/>
+      <str Pl="3" f="15" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="20" grp="0" lpSet="15" num="61" qual="0" sign="1" type="E">
+      <str Pl="0" f="40" t="40"/>
+      <str Pl="1" f="7" t="7"/>
+      <str Pl="2" f="22" t="22"/>
+      <str Pl="3" f="14" t="14"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="20" grp="0" lpSet="15" num="62" qual="0" sign="1" type="E">
+      <str Pl="0" f="38" t="38"/>
+      <str Pl="1" f="5" t="5"/>
+      <str Pl="2" f="21" t="21"/>
+      <str Pl="3" f="12" t="12"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="20" grp="0" lpSet="15" num="63" qual="0" sign="1" type="E">
+      <str Pl="0" f="35" t="35"/>
+      <str Pl="1" f="2" t="2"/>
+      <str Pl="2" f="17" t="17"/>
+      <str Pl="3" f="9" t="9"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="20" grp="0" lpSet="15" num="64" qual="0" sign="1" type="E">
+      <str Pl="0" f="39" t="39"/>
+      <str Pl="1" f="6" t="6"/>
+      <str Pl="2" f="22" t="22"/>
+      <str Pl="3" f="13" t="13"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="20" grp="0" lpSet="15" num="65" qual="0" sign="1" type="E">
+      <str Pl="0" f="34" t="34"/>
+      <str Pl="1" f="1" t="1"/>
+      <str Pl="2" f="16" t="16"/>
+      <str Pl="3" f="8" t="8"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="20" grp="0" lpSet="15" num="66" qual="0" sign="0" type="E">
+      <str Pl="0" f="38" t="38"/>
+      <str Pl="1" f="7" t="7"/>
+      <str Pl="2" f="24" t="24"/>
+      <str Pl="3" f="16" t="16"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="20" grp="0" lpSet="15" num="67" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="32"/>
+      <str Pl="1" f="1" t="1"/>
+      <str Pl="2" f="17" t="17"/>
+      <str Pl="3" f="10" t="10"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="20" grp="0" lpSet="15" num="68" qual="0" sign="1" type="E">
+      <str Pl="0" f="33" t="33"/>
+      <str Pl="1" f="0" t="0"/>
+      <str Pl="2" f="15" t="15"/>
+      <str Pl="3" f="7" t="7"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="20" grp="0" lpSet="15" num="69" qual="0" sign="0" type="E">
+      <str Pl="0" f="38" t="38"/>
+      <str Pl="1" f="7" t="7"/>
+      <str Pl="2" f="23" t="23"/>
+      <str Pl="3" f="16" t="16"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="20" grp="0" lpSet="15" num="70" qual="0" sign="0" type="E">
+      <str Pl="0" f="34" t="34"/>
+      <str Pl="1" f="3" t="3"/>
+      <str Pl="2" f="19" t="19"/>
+      <str Pl="3" f="12" t="12"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="20" grp="0" lpSet="15" num="71" qual="0" sign="1" type="E">
+      <str Pl="0" f="39" t="39"/>
+      <str Pl="1" f="6" t="6"/>
+      <str Pl="2" f="21" t="21"/>
+      <str Pl="3" f="13" t="13"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="20" grp="0" lpSet="15" num="72" qual="0" sign="1" type="E">
+      <str Pl="0" f="35" t="35"/>
+      <str Pl="1" f="2" t="2"/>
+      <str Pl="2" f="18" t="18"/>
+      <str Pl="3" f="9" t="9"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="20" grp="0" lpSet="15" num="73" qual="0" sign="0" type="E">
+      <str Pl="0" f="33" t="33"/>
+      <str Pl="1" f="2" t="2"/>
+      <str Pl="2" f="18" t="18"/>
+      <str Pl="3" f="11" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="20" grp="0" lpSet="15" num="74" qual="0" sign="1" type="E">
+      <str Pl="0" f="37" t="37"/>
+      <str Pl="1" f="4" t="4"/>
+      <str Pl="2" f="20" t="20"/>
+      <str Pl="3" f="11" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="20" grp="0" lpSet="15" num="75" qual="0" sign="0" type="E">
+      <str Pl="0" f="31" t="31"/>
+      <str Pl="1" f="0" t="0"/>
+      <str Pl="2" f="17" t="17"/>
+      <str Pl="3" f="9" t="9"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="20" grp="0" lpSet="15" num="76" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="36"/>
+      <str Pl="1" f="3" t="3"/>
+      <str Pl="2" f="18" t="18"/>
+      <str Pl="3" f="10" t="10"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="20" grp="0" lpSet="15" num="77" qual="0" sign="0" type="E">
+      <str Pl="0" f="34" t="34"/>
+      <str Pl="1" f="3" t="3"/>
+      <str Pl="2" f="20" t="20"/>
+      <str Pl="3" f="12" t="12"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="19" grp="0" lpSet="15" num="78" qual="0" sign="0" type="E">
+      <str Pl="0" f="35" t="35"/>
+      <str Pl="1" f="4" t="4"/>
+      <str Pl="2" f="21" t="21"/>
+      <str Pl="3" f="13" t="13"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="19" grp="0" lpSet="15" num="79" qual="0" sign="1" type="E">
+      <str Pl="0" f="33" t="33"/>
+      <str Pl="1" f="1" t="1"/>
+      <str Pl="2" f="16" t="16"/>
+      <str Pl="3" f="9" t="9"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="19" grp="0" lpSet="15" num="80" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="36"/>
+      <str Pl="1" f="3" t="3"/>
+      <str Pl="2" f="19" t="19"/>
+      <str Pl="3" f="10" t="10"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="19" grp="0" lpSet="15" num="81" qual="0" sign="0" type="E">
+      <str Pl="0" f="35" t="35"/>
+      <str Pl="1" f="4" t="4"/>
+      <str Pl="2" f="20" t="20"/>
+      <str Pl="3" f="13" t="13"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="19" grp="0" lpSet="15" num="82" qual="0" sign="1" type="E">
+      <str Pl="0" f="40" t="40"/>
+      <str Pl="1" f="7" t="7"/>
+      <str Pl="2" f="23" t="23"/>
+      <str Pl="3" f="14" t="14"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="19" grp="0" lpSet="15" num="83" qual="0" sign="1" type="E">
+      <str Pl="0" f="33" t="33"/>
+      <str Pl="1" f="0" t="0"/>
+      <str Pl="2" f="16" t="16"/>
+      <str Pl="3" f="7" t="7"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="19" grp="0" lpSet="15" num="84" qual="0" sign="0" type="E">
+      <str Pl="0" f="36" t="36"/>
+      <str Pl="1" f="5" t="5"/>
+      <str Pl="2" f="21" t="21"/>
+      <str Pl="3" f="14" t="14"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="19" grp="0" lpSet="15" num="85" qual="0" sign="0" type="E">
+      <str Pl="0" f="37" t="37"/>
+      <str Pl="1" f="6" t="6"/>
+      <str Pl="2" f="22" t="22"/>
+      <str Pl="3" f="15" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="19" grp="0" lpSet="15" num="86" qual="0" sign="1" type="E">
+      <str Pl="0" f="34" t="34"/>
+      <str Pl="1" f="1" t="1"/>
+      <str Pl="2" f="17" t="17"/>
+      <str Pl="3" f="8" t="8"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="19" grp="0" lpSet="15" num="87" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="32"/>
+      <str Pl="1" f="1" t="1"/>
+      <str Pl="2" f="18" t="18"/>
+      <str Pl="3" f="10" t="10"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="19" grp="0" lpSet="15" num="88" qual="0" sign="1" type="E">
+      <str Pl="0" f="38" t="38"/>
+      <str Pl="1" f="5" t="5"/>
+      <str Pl="2" f="20" t="20"/>
+      <str Pl="3" f="12" t="12"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="19" grp="0" lpSet="15" num="89" qual="0" sign="0" type="E">
+      <str Pl="0" f="33" t="33"/>
+      <str Pl="1" f="2" t="2"/>
+      <str Pl="2" f="19" t="19"/>
+      <str Pl="3" f="11" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="18" grp="0" lpSet="15" num="90" qual="0" sign="1" type="E">
+      <str Pl="0" f="35" t="35"/>
+      <str Pl="1" f="3" t="3"/>
+      <str Pl="2" f="18" t="18"/>
+      <str Pl="3" f="11" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="18" grp="0" lpSet="15" num="91" qual="0" sign="0" type="E">
+      <str Pl="0" f="34" t="34"/>
+      <str Pl="1" f="3" t="3"/>
+      <str Pl="2" f="19" t="19"/>
+      <str Pl="3" f="10" t="10"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="18" grp="0" lpSet="15" num="92" qual="0" sign="1" type="E">
+      <str Pl="0" f="35" t="35"/>
+      <str Pl="1" f="2" t="2"/>
+      <str Pl="2" f="18" t="18"/>
+      <str Pl="3" f="11" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="18" grp="0" lpSet="15" num="93" qual="0" sign="0" type="E">
+      <str Pl="0" f="31" t="31"/>
+      <str Pl="1" f="0" t="0"/>
+      <str Pl="2" f="16" t="16"/>
+      <str Pl="3" f="7" t="7"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="18" grp="0" lpSet="15" num="94" qual="0" sign="0" type="E">
+      <str Pl="0" f="38" t="38"/>
+      <str Pl="1" f="7" t="7"/>
+      <str Pl="2" f="23" t="23"/>
+      <str Pl="3" f="14" t="14"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="18" grp="0" lpSet="15" num="95" qual="0" sign="1" type="E">
+      <str Pl="0" f="34" t="34"/>
+      <str Pl="1" f="1" t="1"/>
+      <str Pl="2" f="17" t="17"/>
+      <str Pl="3" f="10" t="10"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="18" grp="0" lpSet="15" num="96" qual="0" sign="0" type="E">
+      <str Pl="0" f="39" t="39"/>
+      <str Pl="1" f="7" t="7"/>
+      <str Pl="2" f="24" t="24"/>
+      <str Pl="3" f="15" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="18" grp="0" lpSet="15" num="97" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="32"/>
+      <str Pl="1" f="0" t="0"/>
+      <str Pl="2" f="17" t="17"/>
+      <str Pl="3" f="8" t="8"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="18" grp="0" lpSet="15" num="98" qual="0" sign="0" type="E">
+      <str Pl="0" f="36" t="36"/>
+      <str Pl="1" f="5" t="5"/>
+      <str Pl="2" f="21" t="21"/>
+      <str Pl="3" f="12" t="12"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="18" grp="0" lpSet="15" num="99" qual="0" sign="0" type="E">
+      <str Pl="0" f="38" t="38"/>
+      <str Pl="1" f="6" t="6"/>
+      <str Pl="2" f="23" t="23"/>
+      <str Pl="3" f="14" t="14"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="18" grp="0" lpSet="15" num="100" qual="0" sign="1" type="E">
+      <str Pl="0" f="40" t="40"/>
+      <str Pl="1" f="7" t="7"/>
+      <str Pl="2" f="23" t="23"/>
+      <str Pl="3" f="16" t="16"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="18" grp="0" lpSet="15" num="101" qual="0" sign="0" type="E">
+      <str Pl="0" f="37" t="37"/>
+      <str Pl="1" f="5" t="5"/>
+      <str Pl="2" f="22" t="22"/>
+      <str Pl="3" f="13" t="13"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="18" grp="0" lpSet="15" num="102" qual="0" sign="0" type="E">
+      <str Pl="0" f="31" t="31"/>
+      <str Pl="1" f="0" t="0"/>
+      <str Pl="2" f="16" t="16"/>
+      <str Pl="3" f="9" t="9"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="18" grp="0" lpSet="15" num="103" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="32"/>
+      <str Pl="1" f="1" t="1"/>
+      <str Pl="2" f="17" t="17"/>
+      <str Pl="3" f="8" t="8"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="18" grp="0" lpSet="15" num="104" qual="0" sign="1" type="E">
+      <str Pl="0" f="38" t="38"/>
+      <str Pl="1" f="5" t="5"/>
+      <str Pl="2" f="21" t="21"/>
+      <str Pl="3" f="14" t="14"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="18" grp="0" lpSet="15" num="105" qual="0" sign="0" type="E">
+      <str Pl="0" f="33" t="33"/>
+      <str Pl="1" f="2" t="2"/>
+      <str Pl="2" f="18" t="18"/>
+      <str Pl="3" f="9" t="9"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="18" grp="0" lpSet="15" num="106" qual="0" sign="1" type="E">
+      <str Pl="0" f="39" t="39"/>
+      <str Pl="1" f="6" t="6"/>
+      <str Pl="2" f="22" t="22"/>
+      <str Pl="3" f="15" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="18" grp="0" lpSet="15" num="107" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="36"/>
+      <str Pl="1" f="3" t="3"/>
+      <str Pl="2" f="19" t="19"/>
+      <str Pl="3" f="12" t="12"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="18" grp="0" lpSet="15" num="108" qual="0" sign="1" type="E">
+      <str Pl="0" f="33" t="33"/>
+      <str Pl="1" f="0" t="0"/>
+      <str Pl="2" f="16" t="16"/>
+      <str Pl="3" f="9" t="9"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="18" grp="0" lpSet="15" num="109" qual="0" sign="0" type="E">
+      <str Pl="0" f="35" t="35"/>
+      <str Pl="1" f="3" t="3"/>
+      <str Pl="2" f="20" t="20"/>
+      <str Pl="3" f="11" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="18" grp="0" lpSet="15" num="110" qual="0" sign="0" type="E">
+      <str Pl="0" f="36" t="36"/>
+      <str Pl="1" f="4" t="4"/>
+      <str Pl="2" f="21" t="21"/>
+      <str Pl="3" f="12" t="12"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="17" grp="0" lpSet="15" num="111" qual="0" sign="0" type="E">
+      <str Pl="0" f="34" t="34"/>
+      <str Pl="1" f="2" t="2"/>
+      <str Pl="2" f="19" t="19"/>
+      <str Pl="3" f="10" t="10"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="17" grp="0" lpSet="15" num="112" qual="0" sign="0" type="E">
+      <str Pl="0" f="36" t="36"/>
+      <str Pl="1" f="5" t="5"/>
+      <str Pl="2" f="20" t="20"/>
+      <str Pl="3" f="12" t="12"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="17" grp="0" lpSet="15" num="113" qual="0" sign="0" type="E">
+      <str Pl="0" f="33" t="33"/>
+      <str Pl="1" f="1" t="1"/>
+      <str Pl="2" f="18" t="18"/>
+      <str Pl="3" f="9" t="9"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="17" grp="0" lpSet="15" num="114" qual="0" sign="1" type="E">
+      <str Pl="0" f="39" t="39"/>
+      <str Pl="1" f="6" t="6"/>
+      <str Pl="2" f="23" t="23"/>
+      <str Pl="3" f="15" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="17" grp="0" lpSet="15" num="115" qual="0" sign="1" type="E">
+      <str Pl="0" f="38" t="38"/>
+      <str Pl="1" f="6" t="6"/>
+      <str Pl="2" f="21" t="21"/>
+      <str Pl="3" f="14" t="14"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="17" grp="0" lpSet="15" num="116" qual="0" sign="1" type="E">
+      <str Pl="0" f="34" t="34"/>
+      <str Pl="1" f="2" t="2"/>
+      <str Pl="2" f="17" t="17"/>
+      <str Pl="3" f="10" t="10"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="17" grp="0" lpSet="15" num="117" qual="0" sign="0" type="E">
+      <str Pl="0" f="34" t="34"/>
+      <str Pl="1" f="3" t="3"/>
+      <str Pl="2" f="18" t="18"/>
+      <str Pl="3" f="10" t="10"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="17" grp="0" lpSet="15" num="118" qual="0" sign="0" type="E">
+      <str Pl="0" f="33" t="33"/>
+      <str Pl="1" f="2" t="2"/>
+      <str Pl="2" f="17" t="17"/>
+      <str Pl="3" f="9" t="9"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="17" grp="0" lpSet="15" num="119" qual="0" sign="1" type="E">
+      <str Pl="0" f="37" t="37"/>
+      <str Pl="1" f="4" t="4"/>
+      <str Pl="2" f="21" t="21"/>
+      <str Pl="3" f="13" t="13"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="17" grp="0" lpSet="15" num="120" qual="0" sign="1" type="E">
+      <str Pl="0" f="33" t="33"/>
+      <str Pl="1" f="0" t="0"/>
+      <str Pl="2" f="17" t="17"/>
+      <str Pl="3" f="9" t="9"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="17" grp="0" lpSet="15" num="121" qual="0" sign="0" type="E">
+      <str Pl="0" f="34" t="34"/>
+      <str Pl="1" f="3" t="3"/>
+      <str Pl="2" f="20" t="20"/>
+      <str Pl="3" f="13" t="13"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="17" grp="0" lpSet="15" num="122" qual="0" sign="1" type="E">
+      <str Pl="0" f="34" t="34"/>
+      <str Pl="1" f="1" t="1"/>
+      <str Pl="2" f="16" t="16"/>
+      <str Pl="3" f="7" t="7"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="17" grp="0" lpSet="15" num="123" qual="0" sign="1" type="E">
+      <str Pl="0" f="32" t="32"/>
+      <str Pl="1" f="0" t="0"/>
+      <str Pl="2" f="15" t="15"/>
+      <str Pl="3" f="8" t="8"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="17" grp="0" lpSet="15" num="124" qual="0" sign="0" type="E">
+      <str Pl="0" f="31" t="31"/>
+      <str Pl="1" f="0" t="0"/>
+      <str Pl="2" f="17" t="17"/>
+      <str Pl="3" f="10" t="10"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="17" grp="0" lpSet="15" num="125" qual="0" sign="1" type="E">
+      <str Pl="0" f="40" t="40"/>
+      <str Pl="1" f="7" t="7"/>
+      <str Pl="2" f="24" t="24"/>
+      <str Pl="3" f="16" t="16"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="17" grp="0" lpSet="15" num="126" qual="0" sign="0" type="E">
+      <str Pl="0" f="37" t="37"/>
+      <str Pl="1" f="6" t="6"/>
+      <str Pl="2" f="21" t="21"/>
+      <str Pl="3" f="13" t="13"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="17" grp="0" lpSet="15" num="127" qual="0" sign="1" type="E">
+      <str Pl="0" f="34" t="34"/>
+      <str Pl="1" f="1" t="1"/>
+      <str Pl="2" f="18" t="18"/>
+      <str Pl="3" f="10" t="10"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="17" grp="0" lpSet="15" num="128" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="36"/>
+      <str Pl="1" f="3" t="3"/>
+      <str Pl="2" f="20" t="20"/>
+      <str Pl="3" f="12" t="12"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="17" grp="0" lpSet="15" num="129" qual="0" sign="0" type="E">
+      <str Pl="0" f="38" t="38"/>
+      <str Pl="1" f="7" t="7"/>
+      <str Pl="2" f="22" t="22"/>
+      <str Pl="3" f="14" t="14"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="17" grp="0" lpSet="15" num="130" qual="0" sign="1" type="E">
+      <str Pl="0" f="39" t="39"/>
+      <str Pl="1" f="7" t="7"/>
+      <str Pl="2" f="22" t="22"/>
+      <str Pl="3" f="15" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="17" grp="0" lpSet="15" num="131" qual="0" sign="0" type="E">
+      <str Pl="0" f="31" t="31"/>
+      <str Pl="1" f="0" t="0"/>
+      <str Pl="2" f="15" t="15"/>
+      <str Pl="3" f="7" t="7"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="17" grp="0" lpSet="15" num="132" qual="0" sign="0" type="E">
+      <str Pl="0" f="35" t="35"/>
+      <str Pl="1" f="4" t="4"/>
+      <str Pl="2" f="19" t="19"/>
+      <str Pl="3" f="11" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="17" grp="0" lpSet="15" num="133" qual="0" sign="0" type="E">
+      <str Pl="0" f="37" t="37"/>
+      <str Pl="1" f="6" t="6"/>
+      <str Pl="2" f="22" t="22"/>
+      <str Pl="3" f="13" t="13"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="17" grp="0" lpSet="15" num="134" qual="0" sign="1" type="E">
+      <str Pl="0" f="37" t="37"/>
+      <str Pl="1" f="5" t="5"/>
+      <str Pl="2" f="20" t="20"/>
+      <str Pl="3" f="13" t="13"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="17" grp="0" lpSet="15" num="135" qual="0" sign="1" type="E">
+      <str Pl="0" f="37" t="37"/>
+      <str Pl="1" f="4" t="4"/>
+      <str Pl="2" f="20" t="20"/>
+      <str Pl="3" f="13" t="13"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="17" grp="0" lpSet="15" num="136" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="32"/>
+      <str Pl="1" f="1" t="1"/>
+      <str Pl="2" f="16" t="16"/>
+      <str Pl="3" f="8" t="8"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="17" grp="0" lpSet="15" num="137" qual="0" sign="1" type="E">
+      <str Pl="0" f="35" t="35"/>
+      <str Pl="1" f="2" t="2"/>
+      <str Pl="2" f="19" t="19"/>
+      <str Pl="3" f="11" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="17" grp="0" lpSet="15" num="138" qual="0" sign="0" type="E">
+      <str Pl="0" f="35" t="35"/>
+      <str Pl="1" f="4" t="4"/>
+      <str Pl="2" f="20" t="20"/>
+      <str Pl="3" f="11" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="139" qual="0" sign="0" type="E">
+      <str Pl="0" f="36" t="36"/>
+      <str Pl="1" f="6" t="6"/>
+      <str Pl="2" f="22" t="22"/>
+      <str Pl="3" f="14" t="14"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="140" qual="0" sign="0" type="E">
+      <str Pl="0" f="34" t="34"/>
+      <str Pl="1" f="4" t="4"/>
+      <str Pl="2" f="21" t="21"/>
+      <str Pl="3" f="13" t="13"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="141" qual="0" sign="1" type="E">
+      <str Pl="0" f="39" t="39"/>
+      <str Pl="1" f="5" t="5"/>
+      <str Pl="2" f="20" t="20"/>
+      <str Pl="3" f="12" t="12"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="142" qual="0" sign="1" type="E">
+      <str Pl="0" f="38" t="38"/>
+      <str Pl="1" f="6" t="6"/>
+      <str Pl="2" f="21" t="21"/>
+      <str Pl="3" f="12" t="12"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="143" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="32"/>
+      <str Pl="1" f="0" t="0"/>
+      <str Pl="2" f="17" t="17"/>
+      <str Pl="3" f="10" t="10"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="144" qual="0" sign="1" type="E">
+      <str Pl="0" f="40" t="40"/>
+      <str Pl="1" f="7" t="7"/>
+      <str Pl="2" f="22" t="22"/>
+      <str Pl="3" f="15" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="145" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="32"/>
+      <str Pl="1" f="2" t="2"/>
+      <str Pl="2" f="19" t="19"/>
+      <str Pl="3" f="11" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="146" qual="0" sign="1" type="E">
+      <str Pl="0" f="34" t="34"/>
+      <str Pl="1" f="1" t="1"/>
+      <str Pl="2" f="16" t="16"/>
+      <str Pl="3" f="9" t="9"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="147" qual="0" sign="0" type="E">
+      <str Pl="0" f="34" t="34"/>
+      <str Pl="1" f="3" t="3"/>
+      <str Pl="2" f="20" t="20"/>
+      <str Pl="3" f="11" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="148" qual="0" sign="1" type="E">
+      <str Pl="0" f="39" t="39"/>
+      <str Pl="1" f="6" t="6"/>
+      <str Pl="2" f="21" t="21"/>
+      <str Pl="3" f="12" t="12"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="149" qual="0" sign="1" type="E">
+      <str Pl="0" f="35" t="35"/>
+      <str Pl="1" f="1" t="1"/>
+      <str Pl="2" f="17" t="17"/>
+      <str Pl="3" f="9" t="9"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="150" qual="0" sign="0" type="E">
+      <str Pl="0" f="34" t="34"/>
+      <str Pl="1" f="4" t="4"/>
+      <str Pl="2" f="20" t="20"/>
+      <str Pl="3" f="12" t="12"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="151" qual="0" sign="0" type="E">
+      <str Pl="0" f="30" t="30"/>
+      <str Pl="1" f="0" t="0"/>
+      <str Pl="2" f="16" t="16"/>
+      <str Pl="3" f="8" t="8"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="152" qual="0" sign="0" type="E">
+      <str Pl="0" f="31" t="31"/>
+      <str Pl="1" f="0" t="0"/>
+      <str Pl="2" f="17" t="17"/>
+      <str Pl="3" f="8" t="8"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="153" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="36"/>
+      <str Pl="1" f="3" t="3"/>
+      <str Pl="2" f="18" t="18"/>
+      <str Pl="3" f="11" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="154" qual="0" sign="1" type="E">
+      <str Pl="0" f="40" t="40"/>
+      <str Pl="1" f="6" t="6"/>
+      <str Pl="2" f="22" t="22"/>
+      <str Pl="3" f="14" t="14"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="155" qual="0" sign="0" type="E">
+      <str Pl="0" f="33" t="33"/>
+      <str Pl="1" f="1" t="1"/>
+      <str Pl="2" f="16" t="16"/>
+      <str Pl="3" f="7" t="7"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="156" qual="0" sign="0" type="E">
+      <str Pl="0" f="37" t="37"/>
+      <str Pl="1" f="6" t="6"/>
+      <str Pl="2" f="23" t="23"/>
+      <str Pl="3" f="14" t="14"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="157" qual="0" sign="1" type="E">
+      <str Pl="0" f="38" t="38"/>
+      <str Pl="1" f="5" t="5"/>
+      <str Pl="2" f="20" t="20"/>
+      <str Pl="3" f="13" t="13"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="158" qual="0" sign="0" type="E">
+      <str Pl="0" f="38" t="38"/>
+      <str Pl="1" f="7" t="7"/>
+      <str Pl="2" f="24" t="24"/>
+      <str Pl="3" f="17" t="17"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="159" qual="0" sign="1" type="E">
+      <str Pl="0" f="33" t="33"/>
+      <str Pl="1" f="0" t="0"/>
+      <str Pl="2" f="15" t="15"/>
+      <str Pl="3" f="6" t="6"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="160" qual="0" sign="1" type="E">
+      <str Pl="0" f="38" t="38"/>
+      <str Pl="1" f="5" t="5"/>
+      <str Pl="2" f="20" t="20"/>
+      <str Pl="3" f="11" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="161" qual="0" sign="1" type="E">
+      <str Pl="0" f="37" t="37"/>
+      <str Pl="1" f="4" t="4"/>
+      <str Pl="2" f="19" t="19"/>
+      <str Pl="3" f="10" t="10"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="162" qual="0" sign="1" type="E">
+      <str Pl="0" f="40" t="40"/>
+      <str Pl="1" f="6" t="6"/>
+      <str Pl="2" f="21" t="21"/>
+      <str Pl="3" f="13" t="13"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="163" qual="0" sign="0" type="E">
+      <str Pl="0" f="37" t="37"/>
+      <str Pl="1" f="6" t="6"/>
+      <str Pl="2" f="23" t="23"/>
+      <str Pl="3" f="16" t="16"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="164" qual="0" sign="1" type="E">
+      <str Pl="0" f="35" t="35"/>
+      <str Pl="1" f="2" t="2"/>
+      <str Pl="2" f="17" t="17"/>
+      <str Pl="3" f="8" t="8"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="165" qual="0" sign="0" type="E">
+      <str Pl="0" f="33" t="33"/>
+      <str Pl="1" f="2" t="2"/>
+      <str Pl="2" f="19" t="19"/>
+      <str Pl="3" f="12" t="12"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="166" qual="0" sign="0" type="E">
+      <str Pl="0" f="35" t="35"/>
+      <str Pl="1" f="4" t="4"/>
+      <str Pl="2" f="21" t="21"/>
+      <str Pl="3" f="14" t="14"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="167" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="32"/>
+      <str Pl="1" f="1" t="1"/>
+      <str Pl="2" f="18" t="18"/>
+      <str Pl="3" f="11" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="168" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="36"/>
+      <str Pl="1" f="3" t="3"/>
+      <str Pl="2" f="18" t="18"/>
+      <str Pl="3" f="9" t="9"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="169" qual="0" sign="0" type="E">
+      <str Pl="0" f="36" t="36"/>
+      <str Pl="1" f="5" t="5"/>
+      <str Pl="2" f="22" t="22"/>
+      <str Pl="3" f="15" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="170" qual="0" sign="1" type="E">
+      <str Pl="0" f="37" t="37"/>
+      <str Pl="1" f="3" t="3"/>
+      <str Pl="2" f="18" t="18"/>
+      <str Pl="3" f="10" t="10"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="171" qual="0" sign="1" type="E">
+      <str Pl="0" f="40" t="40"/>
+      <str Pl="1" f="7" t="7"/>
+      <str Pl="2" f="22" t="22"/>
+      <str Pl="3" f="13" t="13"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="172" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="36"/>
+      <str Pl="1" f="4" t="4"/>
+      <str Pl="2" f="19" t="19"/>
+      <str Pl="3" f="12" t="12"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="173" qual="0" sign="1" type="E">
+      <str Pl="0" f="34" t="34"/>
+      <str Pl="1" f="0" t="0"/>
+      <str Pl="2" f="16" t="16"/>
+      <str Pl="3" f="8" t="8"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="174" qual="0" sign="1" type="E">
+      <str Pl="0" f="37" t="37"/>
+      <str Pl="1" f="3" t="3"/>
+      <str Pl="2" f="19" t="19"/>
+      <str Pl="3" f="11" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="175" qual="0" sign="0" type="E">
+      <str Pl="0" f="30" t="30"/>
+      <str Pl="1" f="0" t="0"/>
+      <str Pl="2" f="17" t="17"/>
+      <str Pl="3" f="9" t="9"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="16" grp="0" lpSet="15" num="176" qual="0" sign="1" type="E">
+      <str Pl="0" f="33" t="33"/>
+      <str Pl="1" f="0" t="0"/>
+      <str Pl="2" f="15" t="15"/>
+      <str Pl="3" f="8" t="8"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="14" grp="0" lpSet="15" num="177" qual="0" sign="0" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="22" t="23"/>
+      <str Pl="3" f="12" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="14" grp="0" lpSet="15" num="178" qual="0" sign="0" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="24" t="25"/>
+      <str Pl="3" f="16" t="19"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="14" grp="0" lpSet="15" num="179" qual="0" sign="1" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="14" t="15"/>
+      <str Pl="3" f="4" t="7"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="14" grp="0" lpSet="15" num="180" qual="0" sign="0" type="E">
+      <str Pl="0" f="28" t="31"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="18" t="19"/>
+      <str Pl="3" f="8" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="14" grp="0" lpSet="15" num="181" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="20" t="21"/>
+      <str Pl="3" f="12" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="14" grp="0" lpSet="15" num="182" qual="0" sign="0" type="E">
+      <str Pl="0" f="28" t="31"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="16" t="17"/>
+      <str Pl="3" f="8" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="14" grp="0" lpSet="15" num="183" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="18" t="19"/>
+      <str Pl="3" f="8" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="14" grp="0" lpSet="15" num="184" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="18" t="19"/>
+      <str Pl="3" f="8" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="14" grp="0" lpSet="15" num="185" qual="0" sign="1" type="E">
+      <str Pl="0" f="40" t="43"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="22" t="23"/>
+      <str Pl="3" f="12" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="14" grp="0" lpSet="15" num="186" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="22" t="23"/>
+      <str Pl="3" f="12" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="13" grp="0" lpSet="15" num="187" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="18" t="19"/>
+      <str Pl="3" f="8" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="13" grp="0" lpSet="15" num="188" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="20" t="21"/>
+      <str Pl="3" f="12" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="13" grp="0" lpSet="15" num="189" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="20" t="21"/>
+      <str Pl="3" f="12" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="13" grp="0" lpSet="15" num="190" qual="0" sign="1" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="16" t="17"/>
+      <str Pl="3" f="8" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="13" grp="0" lpSet="15" num="191" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="16" t="17"/>
+      <str Pl="3" f="8" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="12" grp="0" lpSet="15" num="192" qual="0" sign="1" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="16" t="17"/>
+      <str Pl="3" f="8" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="12" grp="0" lpSet="15" num="193" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="18" t="19"/>
+      <str Pl="3" f="12" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="12" grp="0" lpSet="15" num="194" qual="0" sign="1" type="E">
+      <str Pl="0" f="40" t="43"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="24" t="25"/>
+      <str Pl="3" f="16" t="19"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="12" grp="0" lpSet="15" num="195" qual="0" sign="1" type="E">
+      <str Pl="0" f="40" t="43"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="20" t="21"/>
+      <str Pl="3" f="12" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="12" grp="0" lpSet="15" num="196" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="18" t="19"/>
+      <str Pl="3" f="12" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="12" grp="0" lpSet="15" num="197" qual="0" sign="1" type="E">
+      <str Pl="0" f="40" t="43"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="22" t="23"/>
+      <str Pl="3" f="16" t="19"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="12" grp="0" lpSet="15" num="198" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="18" t="19"/>
+      <str Pl="3" f="8" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="12" grp="0" lpSet="15" num="199" qual="0" sign="0" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="24" t="25"/>
+      <str Pl="3" f="12" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="12" grp="0" lpSet="15" num="200" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="20" t="21"/>
+      <str Pl="3" f="8" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="12" grp="0" lpSet="15" num="201" qual="0" sign="0" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="20" t="21"/>
+      <str Pl="3" f="12" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="12" grp="0" lpSet="15" num="202" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="16" t="17"/>
+      <str Pl="3" f="8" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="12" grp="0" lpSet="15" num="203" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="22" t="23"/>
+      <str Pl="3" f="12" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="12" grp="0" lpSet="15" num="204" qual="0" sign="1" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="18" t="19"/>
+      <str Pl="3" f="8" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="12" grp="0" lpSet="15" num="205" qual="0" sign="0" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="22" t="23"/>
+      <str Pl="3" f="12" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="11" grp="0" lpSet="15" num="206" qual="0" sign="0" type="E">
+      <str Pl="0" f="28" t="31"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="18" t="19"/>
+      <str Pl="3" f="8" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="11" grp="0" lpSet="15" num="207" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="22" t="23"/>
+      <str Pl="3" f="12" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="11" grp="0" lpSet="15" num="208" qual="0" sign="1" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="14" t="15"/>
+      <str Pl="3" f="8" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="11" grp="0" lpSet="15" num="209" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="16" t="17"/>
+      <str Pl="3" f="4" t="7"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="11" grp="0" lpSet="15" num="210" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="20" t="21"/>
+      <str Pl="3" f="8" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="11" grp="0" lpSet="15" num="211" qual="0" sign="1" type="E">
+      <str Pl="0" f="40" t="43"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="20" t="21"/>
+      <str Pl="3" f="12" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="11" grp="0" lpSet="15" num="212" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="20" t="21"/>
+      <str Pl="3" f="12" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="11" grp="0" lpSet="15" num="213" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="14" t="15"/>
+      <str Pl="3" f="4" t="7"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="11" grp="0" lpSet="15" num="214" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="16" t="17"/>
+      <str Pl="3" f="8" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="11" grp="0" lpSet="15" num="215" qual="0" sign="1" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="18" t="19"/>
+      <str Pl="3" f="12" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="11" grp="0" lpSet="15" num="216" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="18" t="19"/>
+      <str Pl="3" f="8" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="11" grp="0" lpSet="15" num="217" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="22" t="23"/>
+      <str Pl="3" f="16" t="19"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="11" grp="0" lpSet="15" num="218" qual="0" sign="0" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="20" t="21"/>
+      <str Pl="3" f="8" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="11" grp="0" lpSet="15" num="219" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="20" t="21"/>
+      <str Pl="3" f="12" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="11" grp="0" lpSet="15" num="220" qual="0" sign="0" type="E">
+      <str Pl="0" f="28" t="31"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="16" t="17"/>
+      <str Pl="3" f="4" t="7"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="11" grp="0" lpSet="15" num="221" qual="0" sign="0" type="E">
+      <str Pl="0" f="28" t="31"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="14" t="15"/>
+      <str Pl="3" f="4" t="7"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="10" grp="0" lpSet="15" num="222" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="22" t="23"/>
+      <str Pl="3" f="16" t="19"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="10" grp="0" lpSet="15" num="223" qual="0" sign="1" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="20" t="21"/>
+      <str Pl="3" f="12" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="10" grp="0" lpSet="15" num="224" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="14" t="15"/>
+      <str Pl="3" f="4" t="7"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="10" grp="0" lpSet="15" num="225" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="24" t="25"/>
+      <str Pl="3" f="16" t="19"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="10" grp="0" lpSet="15" num="226" qual="0" sign="0" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="20" t="21"/>
+      <str Pl="3" f="8" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="10" grp="0" lpSet="15" num="227" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="18" t="19"/>
+      <str Pl="3" f="8" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="10" grp="0" lpSet="15" num="228" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="24" t="25"/>
+      <str Pl="3" f="16" t="19"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="10" grp="0" lpSet="15" num="229" qual="0" sign="1" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="18" t="19"/>
+      <str Pl="3" f="12" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="10" grp="0" lpSet="15" num="230" qual="0" sign="0" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="18" t="19"/>
+      <str Pl="3" f="8" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="10" grp="0" lpSet="15" num="231" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="16" t="17"/>
+      <str Pl="3" f="4" t="7"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="10" grp="0" lpSet="15" num="232" qual="0" sign="0" type="E">
+      <str Pl="0" f="28" t="31"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="20" t="21"/>
+      <str Pl="3" f="12" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="10" grp="0" lpSet="15" num="233" qual="0" sign="1" type="E">
+      <str Pl="0" f="40" t="43"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="18" t="19"/>
+      <str Pl="3" f="8" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="234" qual="0" sign="1" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="16" t="17"/>
+      <str Pl="3" f="4" t="7"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="235" qual="0" sign="0" type="E">
+      <str Pl="0" f="28" t="31"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="14" t="15"/>
+      <str Pl="3" f="0" t="3"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="236" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="24" t="25"/>
+      <str Pl="3" f="20" t="23"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="237" qual="0" sign="1" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="20" t="21"/>
+      <str Pl="3" f="16" t="19"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="238" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="24" t="25"/>
+      <str Pl="3" f="20" t="23"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="239" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="20" t="21"/>
+      <str Pl="3" f="16" t="19"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="240" qual="0" sign="1" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="22" t="23"/>
+      <str Pl="3" f="16" t="19"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="241" qual="0" sign="1" type="E">
+      <str Pl="0" f="40" t="43"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="18" t="19"/>
+      <str Pl="3" f="12" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="242" qual="0" sign="1" type="E">
+      <str Pl="0" f="40" t="43"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="24" t="25"/>
+      <str Pl="3" f="20" t="23"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="243" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="22" t="23"/>
+      <str Pl="3" f="16" t="19"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="244" qual="0" sign="0" type="E">
+      <str Pl="0" f="28" t="31"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="20" t="21"/>
+      <str Pl="3" f="8" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="245" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="14" t="15"/>
+      <str Pl="3" f="8" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="246" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="12" t="13"/>
+      <str Pl="3" f="0" t="3"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="247" qual="0" sign="0" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="18" t="19"/>
+      <str Pl="3" f="4" t="7"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="248" qual="0" sign="0" type="E">
+      <str Pl="0" f="28" t="31"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="12" t="13"/>
+      <str Pl="3" f="4" t="7"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="249" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="18" t="19"/>
+      <str Pl="3" f="4" t="7"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="250" qual="0" sign="0" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="18" t="19"/>
+      <str Pl="3" f="4" t="7"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="251" qual="0" sign="1" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="20" t="21"/>
+      <str Pl="3" f="16" t="19"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="252" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="26" t="27"/>
+      <str Pl="3" f="20" t="23"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="253" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="22" t="23"/>
+      <str Pl="3" f="16" t="19"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="254" qual="0" sign="1" type="E">
+      <str Pl="0" f="40" t="43"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="22" t="23"/>
+      <str Pl="3" f="12" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="255" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="20" t="21"/>
+      <str Pl="3" f="12" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="256" qual="0" sign="0" type="E">
+      <str Pl="0" f="28" t="31"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="16" t="17"/>
+      <str Pl="3" f="8" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="257" qual="0" sign="1" type="E">
+      <str Pl="0" f="40" t="43"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="22" t="23"/>
+      <str Pl="3" f="16" t="19"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="258" qual="0" sign="0" type="E">
+      <str Pl="0" f="28" t="31"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="16" t="17"/>
+      <str Pl="3" f="4" t="7"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="259" qual="0" sign="1" type="E">
+      <str Pl="0" f="40" t="43"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="26" t="27"/>
+      <str Pl="3" f="20" t="23"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="260" qual="0" sign="0" type="E">
+      <str Pl="0" f="28" t="31"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="12" t="13"/>
+      <str Pl="3" f="0" t="3"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="261" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="20" t="21"/>
+      <str Pl="3" f="8" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="262" qual="0" sign="0" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="18" t="19"/>
+      <str Pl="3" f="8" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="263" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="18" t="19"/>
+      <str Pl="3" f="12" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="264" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="14" t="15"/>
+      <str Pl="3" f="4" t="7"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="265" qual="0" sign="1" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="20" t="21"/>
+      <str Pl="3" f="12" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="266" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="16" t="17"/>
+      <str Pl="3" f="4" t="7"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="267" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="24" t="25"/>
+      <str Pl="3" f="16" t="19"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="268" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="24" t="25"/>
+      <str Pl="3" f="12" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="269" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="14" t="15"/>
+      <str Pl="3" f="0" t="3"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="9" grp="0" lpSet="15" num="270" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="14" t="15"/>
+      <str Pl="3" f="0" t="3"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="8" grp="0" lpSet="15" num="271" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="12" t="15"/>
+      <str Pl="3" f="4" t="7"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="8" grp="0" lpSet="15" num="272" qual="0" sign="1" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="16" t="19"/>
+      <str Pl="3" f="12" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="8" grp="1" lpSet="7" num="273" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="8" t="11"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="8" grp="0" lpSet="15" num="274" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="24" t="27"/>
+      <str Pl="3" f="20" t="23"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="8" grp="0" lpSet="15" num="275" qual="0" sign="1" type="E">
+      <str Pl="0" f="40" t="43"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="24" t="27"/>
+      <str Pl="3" f="20" t="23"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="8" grp="0" lpSet="15" num="276" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="20" t="23"/>
+      <str Pl="3" f="16" t="19"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="8" grp="0" lpSet="15" num="277" qual="0" sign="1" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="20" t="23"/>
+      <str Pl="3" f="16" t="19"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="8" grp="0" lpSet="15" num="278" qual="0" sign="0" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="16" t="19"/>
+      <str Pl="3" f="4" t="7"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="8" grp="0" lpSet="15" num="279" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="20" t="23"/>
+      <str Pl="3" f="16" t="19"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="8" grp="0" lpSet="15" num="280" qual="0" sign="0" type="E">
+      <str Pl="0" f="28" t="31"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="12" t="15"/>
+      <str Pl="3" f="0" t="3"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="8" grp="0" lpSet="15" num="281" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="20" t="23"/>
+      <str Pl="3" f="12" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="8" grp="0" lpSet="15" num="282" qual="0" sign="0" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="20" t="23"/>
+      <str Pl="3" f="8" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="8" grp="0" lpSet="15" num="283" qual="0" sign="1" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="24" t="27"/>
+      <str Pl="3" f="20" t="23"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="8" grp="0" lpSet="15" num="284" qual="0" sign="1" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="24" t="27"/>
+      <str Pl="3" f="20" t="23"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="8" grp="0" lpSet="15" num="285" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="12" t="15"/>
+      <str Pl="3" f="4" t="7"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="8" grp="0" lpSet="15" num="286" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="16" t="19"/>
+      <str Pl="3" f="8" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="8" grp="0" lpSet="15" num="287" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="24" t="27"/>
+      <str Pl="3" f="20" t="23"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="8" grp="0" lpSet="15" num="288" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="16" t="19"/>
+      <str Pl="3" f="4" t="7"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="8" grp="0" lpSet="15" num="289" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="24" t="27"/>
+      <str Pl="3" f="16" t="19"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="8" grp="0" lpSet="15" num="290" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="12" t="15"/>
+      <str Pl="3" f="0" t="3"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="8" grp="0" lpSet="15" num="291" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="12" t="15"/>
+      <str Pl="3" f="0" t="3"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="8" grp="0" lpSet="15" num="292" qual="0" sign="0" type="E">
+      <str Pl="0" f="28" t="31"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="12" t="15"/>
+      <str Pl="3" f="4" t="7"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="8" grp="0" lpSet="15" num="293" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="20" t="23"/>
+      <str Pl="3" f="12" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="8" grp="0" lpSet="15" num="294" qual="0" sign="0" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="16" t="19"/>
+      <str Pl="3" f="4" t="7"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="8" grp="0" lpSet="15" num="295" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="16" t="19"/>
+      <str Pl="3" f="8" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="8" grp="1" lpSet="7" num="296" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="28" t="31"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="8" grp="1" lpSet="7" num="297" qual="0" sign="0" type="E">
+      <str Pl="0" f="28" t="31"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="8" t="11"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="8" grp="0" lpSet="15" num="298" qual="0" sign="1" type="E">
+      <str Pl="0" f="40" t="43"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="24" t="27"/>
+      <str Pl="3" f="16" t="19"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="8" grp="1" lpSet="7" num="299" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="8" t="11"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="8" grp="1" lpSet="7" num="300" qual="0" sign="1" type="E">
+      <str Pl="0" f="40" t="43"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="28" t="31"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="8" grp="1" lpSet="7" num="301" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="28" t="31"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="7" grp="0" lpSet="7" num="302" qual="0" sign="1" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="32" t="35"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="7" grp="1" lpSet="15" num="303" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="20" t="23"/>
+      <str Pl="3" f="20" t="23"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="7" grp="1" lpSet="15" num="304" qual="0" sign="1" type="E">
+      <str Pl="0" f="44" t="47"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="20" t="23"/>
+      <str Pl="3" f="16" t="19"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="7" grp="1" lpSet="15" num="305" qual="0" sign="1" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="20" t="23"/>
+      <str Pl="3" f="20" t="23"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="7" grp="0" lpSet="7" num="306" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="0" t="3"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="7" grp="0" lpSet="7" num="307" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="4" t="7"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="7" grp="1" lpSet="15" num="308" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="16" t="19"/>
+      <str Pl="3" f="4" t="7"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="7" grp="0" lpSet="7" num="309" qual="0" sign="1" type="E">
+      <str Pl="0" f="40" t="43"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="28" t="31"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="7" grp="1" lpSet="15" num="310" qual="0" sign="1" type="E">
+      <str Pl="0" f="40" t="43"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="20" t="23"/>
+      <str Pl="3" f="12" t="15"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="7" grp="1" lpSet="15" num="311" qual="0" sign="1" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="20" t="23"/>
+      <str Pl="3" f="20" t="23"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="7" grp="0" lpSet="7" num="312" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="24" t="27"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="7" grp="0" lpSet="7" num="313" qual="0" sign="1" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="32" t="35"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="7" grp="1" lpSet="15" num="314" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="16" t="19"/>
+      <str Pl="3" f="0" t="3"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="7" grp="0" lpSet="7" num="315" qual="0" sign="1" type="E">
+      <str Pl="0" f="28" t="31"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="24" t="27"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="7" grp="0" lpSet="7" num="316" qual="0" sign="1" type="E">
+      <str Pl="0" f="40" t="43"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="36" t="39"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="7" grp="0" lpSet="7" num="317" qual="0" sign="1" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="28" t="31"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="7" grp="0" lpSet="7" num="318" qual="0" sign="0" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="8" t="11"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="7" grp="1" lpSet="15" num="319" qual="0" sign="0" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="16" t="19"/>
+      <str Pl="3" f="0" t="3"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="7" grp="0" lpSet="7" num="320" qual="0" sign="0" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="8" t="11"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="7" grp="0" lpSet="7" num="321" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="32" t="35"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="7" grp="0" lpSet="7" num="322" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="32" t="35"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="7" grp="0" lpSet="7" num="323" qual="0" sign="1" type="E">
+      <str Pl="0" f="40" t="43"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="32" t="35"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="7" grp="0" lpSet="7" num="324" qual="0" sign="0" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="12" t="15"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="7" grp="0" lpSet="7" num="325" qual="0" sign="1" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="28" t="31"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="7" grp="0" lpSet="7" num="326" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="28" t="31"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="7" grp="0" lpSet="7" num="327" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="4" t="7"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="7" grp="0" lpSet="7" num="328" qual="0" sign="0" type="E">
+      <str Pl="0" f="28" t="31"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="8" t="11"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="7" grp="0" lpSet="7" num="329" qual="0" sign="0" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="12" t="15"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="7" grp="0" lpSet="7" num="330" qual="0" sign="0" type="E">
+      <str Pl="0" f="28" t="31"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="4" t="7"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="7" grp="0" lpSet="7" num="331" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="8" t="11"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="6" grp="0" lpSet="7" num="332" qual="0" sign="1" type="E">
+      <str Pl="0" f="40" t="43"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="32" t="35"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="6" grp="0" lpSet="7" num="333" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="28" t="31"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="6" grp="0" lpSet="7" num="334" qual="0" sign="0" type="E">
+      <str Pl="0" f="28" t="31"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="4" t="7"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="6" grp="0" lpSet="7" num="335" qual="0" sign="0" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="0" t="3"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="6" grp="0" lpSet="7" num="336" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="4" t="7"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="6" grp="0" lpSet="7" num="337" qual="0" sign="0" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="4" t="7"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="6" grp="0" lpSet="7" num="338" qual="0" sign="1" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="36" t="39"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="6" grp="0" lpSet="7" num="339" qual="0" sign="1" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="36" t="39"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="6" grp="0" lpSet="7" num="340" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="8" t="11"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="6" grp="0" lpSet="7" num="341" qual="0" sign="0" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="0" t="3"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="6" grp="0" lpSet="7" num="342" qual="0" sign="0" type="E">
+      <str Pl="0" f="40" t="43"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="8" t="11"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="6" grp="0" lpSet="7" num="343" qual="0" sign="0" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="4" t="7"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="6" grp="0" lpSet="7" num="344" qual="0" sign="0" type="E">
+      <str Pl="0" f="40" t="43"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="4" t="7"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="6" grp="0" lpSet="7" num="345" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="36" t="39"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="6" grp="0" lpSet="7" num="346" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="32" t="35"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="6" grp="0" lpSet="7" num="347" qual="0" sign="1" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="36" t="39"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="6" grp="0" lpSet="7" num="348" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="36" t="39"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="6" grp="0" lpSet="7" num="349" qual="0" sign="1" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="32" t="35"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="6" grp="0" lpSet="7" num="350" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="12" t="15"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="6" grp="0" lpSet="7" num="351" qual="0" sign="0" type="E">
+      <str Pl="0" f="28" t="31"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="0" t="3"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="6" grp="0" lpSet="7" num="352" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="0" t="3"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="5" grp="0" lpSet="7" num="353" qual="0" sign="0" type="E">
+      <str Pl="0" f="24" t="27"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="4" t="7"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="5" grp="0" lpSet="7" num="354" qual="0" sign="1" type="E">
+      <str Pl="0" f="44" t="47"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="28" t="31"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="5" grp="1" lpSet="15" num="355" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="20" t="23"/>
+      <str Pl="3" f="20" t="23"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="5" grp="0" lpSet="7" num="356" qual="0" sign="1" type="E">
+      <str Pl="0" f="44" t="47"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="32" t="35"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="5" grp="0" lpSet="7" num="357" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="36" t="39"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="5" grp="0" lpSet="7" num="358" qual="0" sign="1" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="32" t="35"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="5" grp="0" lpSet="7" num="359" qual="0" sign="0" type="E">
+      <str Pl="0" f="28" t="31"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="0" t="3"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="5" grp="0" lpSet="7" num="360" qual="0" sign="0" type="E">
+      <str Pl="0" f="36" t="39"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="0" t="3"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="5" grp="0" lpSet="7" num="361" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="4" t="7"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="5" grp="0" lpSet="7" num="362" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="0" t="3"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="4" grp="0" lpSet="7" num="363" qual="0" sign="0" type="E">
+      <str Pl="0" f="28" t="31"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="4" t="7"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="4" grp="0" lpSet="7" num="364" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="0" t="3"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="4" grp="0" lpSet="7" num="365" qual="0" sign="1" type="E">
+      <str Pl="0" f="40" t="43"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="24" t="27"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="4" grp="1" lpSet="15" num="366" qual="0" sign="1" type="E">
+      <str Pl="0" f="40" t="43"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="24" t="27"/>
+      <str Pl="3" f="20" t="23"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="4" grp="0" lpSet="7" num="367" qual="0" sign="0" type="E">
+      <str Pl="0" f="24" t="27"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="8" t="11"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="4" grp="0" lpSet="7" num="368" qual="0" sign="1" type="E">
+      <str Pl="0" f="28" t="31"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="24" t="27"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="4" grp="0" lpSet="7" num="369" qual="0" sign="0" type="E">
+      <str Pl="0" f="24" t="27"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="0" t="3"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="4" grp="0" lpSet="7" num="370" qual="0" sign="0" type="E">
+      <str Pl="0" f="16" t="19"/>
+      <str Pl="1" f="0" t="1"/>
+      <str Pl="2" f="24" t="27"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="4" grp="1" lpSet="15" num="371" qual="0" sign="0" type="E">
+      <str Pl="0" f="28" t="31"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="20" t="23"/>
+      <str Pl="3" f="0" t="3"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="4" grp="0" lpSet="7" num="372" qual="0" sign="1" type="E">
+      <str Pl="0" f="40" t="43"/>
+      <str Pl="1" f="2" t="3"/>
+      <str Pl="2" f="32" t="35"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="4" grp="1" lpSet="15" num="373" qual="0" sign="0" type="E">
+      <str Pl="0" f="32" t="35"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="20" t="23"/>
+      <str Pl="3" f="8" t="11"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="4" grp="1" lpSet="15" num="374" qual="0" sign="0" type="E">
+      <str Pl="0" f="24" t="27"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="16" t="19"/>
+      <str Pl="3" f="0" t="3"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="4" grp="1" lpSet="15" num="375" qual="0" sign="0" type="E">
+      <str Pl="0" f="28" t="31"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="12" t="15"/>
+      <str Pl="3" f="0" t="3"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="3" grp="0" lpSet="7" num="376" qual="0" sign="0" type="E">
+      <str Pl="0" f="28" t="31"/>
+      <str Pl="1" f="6" t="7"/>
+      <str Pl="2" f="12" t="15"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+    <pat code="3" grp="0" lpSet="7" num="377" qual="0" sign="0" type="E">
+      <str Pl="0" f="28" t="31"/>
+      <str Pl="1" f="4" t="5"/>
+      <str Pl="2" f="8" t="11"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+  </pac>
+
+</pacdef>
