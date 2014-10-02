@@ -219,7 +219,6 @@ namespace evf {
       uint32_t mergedAdler32=1;
       //get adler32 accumulated checksum for the merged file
       if (!stat(deschecksum.c_str(), &istat)) {
-          std::cout << "checksum size " << istat.st_size << std::endl;
           if (istat.st_size) {
             cf = fopen(deschecksum.c_str(),"r");
             if (!cf) throw cms::Exception("RecoEventOutputModuleForFU") << "Unable to open checksum file -: " << deschecksum.c_str();
