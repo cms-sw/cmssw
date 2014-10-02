@@ -90,6 +90,8 @@ public:
   MonitorElement &operator=(const MonitorElement &);
   ~MonitorElement(void);
 
+  void deleteObjects(void);
+
   /// Compare monitor elements, for ordering in sets.
   bool operator<(const MonitorElement &x) const
     {
