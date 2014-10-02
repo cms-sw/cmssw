@@ -400,10 +400,10 @@ void MultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) const
   // parametrized z0 resolution for the track pt and eta
   float nomdzE = nomd0E*(std::cosh(eta));
 
-  float dzCut = std::min( pow(dz_par1_[tsNum][0]*nlayers,dz_par1_[tsNum][1])*nomdzE, 
-		          pow(dz_par2_[tsNum][0]*nlayers,dz_par2_[tsNum][1])*dzE );
-  float d0Cut = std::min( pow(d0_par1_[tsNum][0]*nlayers,d0_par1_[tsNum][1])*nomd0E, 
-		          pow(d0_par2_[tsNum][0]*nlayers,d0_par2_[tsNum][1])*d0E );
+  float dzCut = std::min( std::pow(dz_par1_[tsNum][0]*nlayers,int(dz_par1_[tsNum][1]+0.5))*nomdzE, 
+		          std::pow(dz_par2_[tsNum][0]*nlayers,int(dz_par2_[tsNum][1]+0.5))*dzE );
+  float d0Cut = std::min( std::pow(d0_par1_[tsNum][0]*nlayers,int(d0_par1_[tsNum][1]+0.5))*nomd0E, 
+		          std::pow(d0_par2_[tsNum][0]*nlayers,int(d0_par2_[tsNum][1]+0.5))*d0E );
 
 
   // ---- PrimaryVertex compatibility cut
@@ -424,8 +424,8 @@ void MultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) const
     float dzPV = tk.dz(*point); //re-evaluate the dz with respect to the vertex position
     float d0PV = tk.dxy(*point); //re-evaluate the dxy with respect to the vertex position
     if(useVtxError_){
-       float dzErrPV = sqrt(dzE*dzE+vzerr[iv]*vzerr[iv]); // include vertex error in z
-       float d0ErrPV = sqrt(d0E*d0E+vterr[iv]*vterr[iv]); // include vertex error in xy
+       float dzErrPV = std::sqrt(dzE*dzE+vzerr[iv]*vzerr[iv]); // include vertex error in z
+       float d0ErrPV = std::sqrt(d0E*d0E+vterr[iv]*vterr[iv]); // include vertex error in xy
        iv++;
        if (abs(dzPV) < dz_par1_[tsNum][0]*pow(nlayers,dz_par1_[tsNum][1])*nomdzE &&
 	   abs(dzPV) < dz_par2_[tsNum][0]*pow(nlayers,dz_par2_[tsNum][1])*dzErrPV &&
