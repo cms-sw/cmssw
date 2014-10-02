@@ -66,3 +66,7 @@ DEFINE_FWK_EVENTSETUP_MODULE(ClusterShapeHitFilterESProducer);
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/LowPtClusterShapeSeedComparitor.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitorFactory.h"
 DEFINE_EDM_PLUGIN(SeedComparitorFactory, LowPtClusterShapeSeedComparitor, "LowPtClusterShapeSeedComparitor");
+
+#include "RecoPixelVertexing/PixelLowPtUtilities/interface/StripSubClusterShapeTrajectoryFilter.h"
+DEFINE_EDM_PLUGIN(TrajectoryFilterFactory, StripSubClusterShapeTrajectoryFilter, "StripSubClusterShapeTrajectoryFilter");
+DEFINE_EDM_PLUGIN(SeedComparitorFactory,   StripSubClusterShapeSeedFilter, "StripSubClusterShapeSeedFilter");

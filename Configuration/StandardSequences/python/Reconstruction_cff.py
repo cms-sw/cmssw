@@ -51,7 +51,6 @@ globalreco = cms.Sequence(offlineBeamSpot*
                           MeasurementTrackerEvent* # unclear where to put this
                           siPixelClusterShapeCache* # unclear where to put this
                           standalonemuontracking*
-                          recopixelvertexing*
                           trackingGlobalReco*
                           vertexreco*
                           hcalGlobalRecoSequence*

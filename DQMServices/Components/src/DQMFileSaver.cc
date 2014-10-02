@@ -669,7 +669,16 @@ DQMFileSaver::globalEndLuminosityBlock(const edm::LuminosityBlock & iLS, const e
           << "Internal error, can save files"
           << " only in ROOT or ProtocolBuffer format.";
     }
-    if (convention_ == FilterUnit) // store at every lumi section end
+
+    // Store at every lumi section end only if some events have been processed.
+    // Caveat: if faking FilterUnit, i.e. not accessing DAQ2 services,
+    // we cannot ask FastMonitoringService the processed events, so we are forced
+    // to save the file at every lumisection, even with no statistics.
+    // Here, we protect the call to get the processed events in a lumi section
+    // by testing the pointer to FastMonitoringService: if not null, i.e. in real FU mode,
+    // we check that the events are not 0; otherwise, we skip the test, so we store at every lumi transition. 
+    // TODO(diguida): allow fake FU mode to skip file creation at empty lumi sections.
+    if (convention_ == FilterUnit && (fms_ ? (fms_->getEventsProcessedForLumi(ilumi) > 0) : !fms_))
     {
       char rewrite[128];
       sprintf(rewrite, "\\1Run %d/\\2/By Lumi Section %d-%d", irun, ilumi, ilumi);

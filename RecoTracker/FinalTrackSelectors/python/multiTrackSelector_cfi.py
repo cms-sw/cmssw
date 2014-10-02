@@ -82,7 +82,7 @@ multiTrackSelector = cms.EDProducer("MultiTrackSelector",
    beamspot = cms.InputTag("offlineBeamSpot"),
    useVertices = cms.bool(True),
    useVtxError = cms.bool(False),
-   vertices    = cms.InputTag("pixelVertices"),
+   vertices    = cms.InputTag("firstStepPrimaryVertices"),
    trackSelectors = cms.VPSet( looseMTS,
                                tightMTS,
                                highpurityMTS)
