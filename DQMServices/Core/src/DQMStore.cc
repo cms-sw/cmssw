@@ -2368,7 +2368,7 @@ void DQMStore::savePB(const std::string &filename,
                       const std::string &path /* = "" */,
 		      const uint32_t run /* = 0 */,
 		      const uint32_t lumi /* = 0 */,
-		      const bool resetMEsAfterWriting /* = false */)
+		      const bool deleteMEsAfterWriting /* = false */)
 {
   using google::protobuf::io::FileOutputStream;
   using google::protobuf::io::GzipOutputStream;
@@ -2455,9 +2455,9 @@ void DQMStore::savePB(const std::string &filename,
         delete toWrite;
       }
 
-      //reset the ME just written to make it available for the next LS (online)
-      if (resetMEsAfterWriting)
-        const_cast<MonitorElement*>(&*mi)->Reset();
+      //delete the TH1 just written
+      if (deleteMEsAfterWriting && enableMultiThread_)
+	const_cast<MonitorElement*>(&*mi)->deleteObjects();
     }
   }
 
@@ -2496,7 +2496,7 @@ DQMStore::save(const std::string &filename,
                SaveReferenceTag ref /* = SaveWithReference */,
                int minStatus /* = dqm::qstatus::STATUS_OK */,
                const std::string &fileupdate /* = RECREATE */,
-	       const bool resetMEsAfterWriting /* = false */)
+	       const bool deleteMEsAfterWriting /* = false */)
 {
   std::set<std::string>::iterator di, de;
   MEMap::iterator mi, me = data_.end();
@@ -2669,9 +2669,9 @@ DQMStore::save(const std::string &filename,
       if (mi->data_.flags & DQMNet::DQM_PROP_TAGGED)
         TObjString(mi->tagLabelString().c_str()).Write();
 
-      //reset the ME just written to make it available for the next LS (online)
-      if(resetMEsAfterWriting)
-	const_cast<MonitorElement*>(&*mi)->Reset();
+      //delete the TH1 just written
+      if(deleteMEsAfterWriting && enableMultiThread_)
+	const_cast<MonitorElement*>(&*mi)->deleteObjects();
     }
   }
 
