@@ -33,6 +33,10 @@ class HLTDeDxFilter : public HLTFilter {
       double minPT_;
       double minNOM_;
       double maxETA_;
+      double minNumValidHits_;
+      double maxNHitMissIn_;
+      double maxNHitMissMid_;
+      double maxRelTrkIsoDeltaRp3_;
       edm::EDGetToken inputTracksToken_;
       edm::EDGetToken inputdedxToken_;
       edm::InputTag inputTracksTag_;
