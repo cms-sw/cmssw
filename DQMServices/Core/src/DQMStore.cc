@@ -2035,6 +2035,66 @@ DQMStore::forceReset(void)
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
+/** Mark a set of histograms for deletion based on run, lumi and path*/
+void
+DQMStore::markForDeletion(const std::string &path /*= ""*/,
+			  const uint32_t run      /*= 0*/,
+			  const uint32_t lumi     /*= 0*/)
+{
+  std::set<std::string>::iterator di, de;
+  MEMap::iterator mi, me = data_.end();
+  int nme = 0;
+  
+  // Loop over the directory structure.
+  for (di = dirs_.begin(), de = dirs_.end(); di != de; ++di)
+    {
+      // Check if we should process this directory.  We process the
+      // requested part of the object tree, including references.
+      if (! path.empty() &&
+	  ! isSubdirectory(path, *di))
+	continue;
+      
+      // Loop over monitor elements in this directory.
+      MonitorElement proto(&*di, std::string(), run, 0, 0);
+      if (enableMultiThread_)
+	proto.setLumi(lumi);
+      
+      mi = data_.lower_bound(proto);
+      for ( ; mi != me && isSubdirectory(*di, *mi->data_.dirname); ++mi)
+        {
+	  // Upper bound in the loop over the MEs
+	  if (enableMultiThread_ && ((*mi).lumi() != lumi))
+	    break;
+	  
+	  // Skip if it isn't a direct child.
+	  if (*di != *mi->data_.dirname)
+	    continue;
+	  
+	  // Keep backward compatibility with the old way of
+	  // booking/handlind MonitorElements into the DQMStore. If run is
+	  // 0 it means that a booking happened w/ the old non-threadsafe
+	  // style, and we have to ignore the streamId and moduleId as a
+	  // consequence.
+	  
+	  if (run != 0 && (mi->data_.streamId !=0 || mi->data_.moduleId !=0))
+	    continue;
+	  
+	  const_cast<MonitorElement*>(&*mi)->markToDelete();	  
+
+	  if (verbose_ > 1)
+	    std::cout << "DQMStore::markForDeletion: marked monitor element '"
+		      << *mi->data_.dirname << "/" << mi->data_.objname << "'"
+		      << "flags " << mi->data_.flags << "\n";
+
+
+	  nme++;
+	}
+    }
+}
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 /// extract object (TH1F, TH2F, ...) from <to>; return success flag
 /// flag fromRemoteNode indicating if ME arrived from different node
 bool
@@ -2380,7 +2440,7 @@ void DQMStore::savePB(const std::string &filename,
                       const std::string &path /* = "" */,
 		      const uint32_t run /* = 0 */,
 		      const uint32_t lumi /* = 0 */,
-		      const bool removeMEsAfterWriting /* = false */)
+		      const bool resetMEsAfterWriting /* = false */)
 {
   using google::protobuf::io::FileOutputStream;
   using google::protobuf::io::GzipOutputStream;
@@ -2468,8 +2528,8 @@ void DQMStore::savePB(const std::string &filename,
       }
 
       //reset the ME just written to make it available for the next LS (online)
-      if (removeMEsAfterWriting)
-	const_cast<MonitorElement*>(&*mi)->markToDelete();
+      if (resetMEsAfterWriting)
+	const_cast<MonitorElement*>(&*mi)->Reset();
     }
   }
 
@@ -2508,7 +2568,7 @@ DQMStore::save(const std::string &filename,
                SaveReferenceTag ref /* = SaveWithReference */,
                int minStatus /* = dqm::qstatus::STATUS_OK */,
                const std::string &fileupdate /* = RECREATE */,
-	       const bool removeMEsAfterWriting /* = false */)
+	       const bool resetMEsAfterWriting /* = false */)
 {
   std::set<std::string>::iterator di, de;
   MEMap::iterator mi, me = data_.end();
@@ -2682,8 +2742,8 @@ DQMStore::save(const std::string &filename,
         TObjString(mi->tagLabelString().c_str()).Write();
 
       //reset the ME just written to make it available for the next LS (online)
-      if(removeMEsAfterWriting)
-	const_cast<MonitorElement*>(&*mi)->markToDelete();
+      if (resetMEsAfterWriting)
+	const_cast<MonitorElement*>(&*mi)->Reset();
     }
   }
 
