@@ -38,7 +38,8 @@ void TrackInfoProducerAlgorithm::run(const edm::Ref<std::vector<Trajectory> > tr
       unsigned int detid=ttrh->hit()->geographicalId().rawId();
       
       trackingRecHit_iterator thehit;
-      TrackingRecHitRef thehitref;
+      TrackingRecHitRef thehitref; // needs to be keyed; as is is broken
+      TrackingRecHit const * thehitptr=nullptr;
       int i=0,j=0;
 
       for (thehit=track->recHitsBegin();thehit!=track->recHitsEnd();thehit++){
@@ -48,7 +49,7 @@ void TrackInfoProducerAlgorithm::run(const edm::Ref<std::vector<Trajectory> > tr
 	if((*thehit)->geographicalId().rawId()==detid&&
 	   (hitpos - pos).mag() < 1e-4)
 	  {
-	    thehitref=(*thehit);
+	    thehitptr=(*thehit);
 	    j++;
 	    break;
 	  }
@@ -60,8 +61,8 @@ void TrackInfoProducerAlgorithm::run(const edm::Ref<std::vector<Trajectory> > tr
       PTrajectoryStateOnDet const &  combinedptsod=trajectoryStateTransform::persistentState( combinedtsos,detid);
       
 
-      const ProjectedSiStripRecHit2D* phit=dynamic_cast<const ProjectedSiStripRecHit2D*>( &*(thehitref));
-      const SiStripMatchedRecHit2D* matchedhit=dynamic_cast<const SiStripMatchedRecHit2D*>( &*(thehitref));
+      const ProjectedSiStripRecHit2D* phit=dynamic_cast<const ProjectedSiStripRecHit2D*>( thehitptr);
+      const SiStripMatchedRecHit2D* matchedhit=dynamic_cast<const SiStripMatchedRecHit2D*>( thehitptr);
 
       RecHitType type=Single;
       LocalVector monofwd, stereofwd;

@@ -492,14 +492,14 @@ int DuplicateListMerger::matchCandidateToTrack(TrackCandidate candidate, edm::Ha
  
 
   for(int i = 0; i < (int)tracks->size() && track < 0;i++){
-    if((tracks->at(i)).seedRef() != candidate.seedRef())continue;
+    if( (*tracks)[i].seedRef() != candidate.seedRef())continue;
     int match = 0;
-    trackingRecHit_iterator trackRecBegin = tracks->at(i).recHitsBegin();
-    trackingRecHit_iterator trackRecEnd = tracks->at(i).recHitsEnd();
+    trackingRecHit_iterator trackRecBegin = (*tracks)[i].recHitsBegin();
+    trackingRecHit_iterator trackRecEnd = (*tracks)[i].recHitsEnd();
     for(;trackRecBegin != trackRecEnd; trackRecBegin++){
-      if(std::find(rawIds.begin(),rawIds.end(),(*(trackRecBegin)).get()->rawId()) != rawIds.end())match++;
+      if(std::find(rawIds.begin(),rawIds.end(),(*(trackRecBegin))->rawId()) != rawIds.end()) match++;
     }
-    if(match != (int)tracks->at(i).recHitsSize())continue;
+    if(match != (int)( (*tracks)[i].recHitsSize() ) ) continue;
     track = i;
   }
 

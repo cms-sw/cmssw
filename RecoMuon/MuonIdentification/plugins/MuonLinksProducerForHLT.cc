@@ -63,12 +63,12 @@ void MuonLinksProducerForHLT::produce(edm::Event& iEvent, const edm::EventSetup&
        //std::cout << "hits (muon/track) " << muonTrackHits  << " " << trackHits() << std::endl;
        unsigned int smallestNumberOfHits = trackHits < muonTrackHits ? trackHits : muonTrackHits;
        int numberOfCommonDetIds = 0;
-       for ( TrackingRecHitRefVector::const_iterator hit = track->extra()->recHitsBegin();
+       for ( auto hit = track->extra()->recHitsBegin();
 	     hit != track->extra()->recHitsEnd(); ++hit ) {
-	 for ( TrackingRecHitRefVector::const_iterator mit = link->trackerTrack()->extra()->recHitsBegin();
+	 for ( auto mit = link->trackerTrack()->extra()->recHitsBegin();
 	     mit != link->trackerTrack()->extra()->recHitsEnd(); ++mit ) {
-	   if ( hit->get()->geographicalId() == mit->get()->geographicalId() && 
-		hit->get()->sharesInput(mit->get(),TrackingRecHit::some) ) { 
+	   if ( (*hit)->geographicalId() == (*mit)->geographicalId() && 
+		(*hit)->sharesInput((*mit),TrackingRecHit::some) ) { 
 	     numberOfCommonDetIds++;
 	     break;
 	   }

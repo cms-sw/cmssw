@@ -32,12 +32,12 @@ public:
 
     /// first iterator over RecHits
     trackingRecHit_iterator recHitsBegin() const {
-        return recHits_.begin();
+        return recHitsProduct().data().begin()+recHits_.begin().key();
     }
 
     /// last iterator over RecHits
     trackingRecHit_iterator recHitsEnd() const {
-        return recHits_.end();
+        return recHitsBegin()+recHitsSize();
     }
 
     /// number of RecHits
@@ -50,8 +50,13 @@ public:
         return recHits_[i];
     }
 
-    TrackingRecHitRefVector recHits() const {
+    TrackingRecHitRefVector const & recHits() const {
         return recHits_;
+    }
+
+    TrackingRecHitCollection const & recHitsProduct() const {
+      return *recHits_.product();
+
     }
 
 private:

@@ -397,11 +397,11 @@ void MultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) const
   float chi2n_no1Dmod = chi2n;
 
   int count1dhits = 0;
-  auto ith = tk.recHitsBegin().key();
-  auto  edh = (--tk.recHitsEnd()).key();
-  assert( tk.recHitsEnd()-tk.recHitsBegin() == edh-ith+1);
-  for (; ith<=edh; ++ith) {
-    const TrackingRecHit & hit = recHits[ith];
+  auto ith = tk.recHitsBegin();
+  auto  edh = ith + tk.recHitsSize();
+  for (; ith<edh; ++ith) {
+//    const TrackingRecHit & hit = recHits[ith];
+    const TrackingRecHit & hit = **ith;
     if (hit.dimension()==1) ++count1dhits;
   }
   if (count1dhits > 0) {
@@ -545,7 +545,7 @@ void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es, 
  // get hits in track..
   Handle<TrackingRecHitCollection> hSrcHits;
   evt.getByToken( hSrc_, hSrcHits );
-  const TrackingRecHitCollection & srcHits(*hSrcHits);
+  // const TrackingRecHitCollection & srcHits(*hSrcHits);
 
 
   auto_ptr<edm::ValueMap<float> >mvaValValueMap = auto_ptr<edm::ValueMap<float> >(new edm::ValueMap<float>);
@@ -573,11 +573,11 @@ void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es, 
     float chi2n_no1Dmod = chi2n;
     
     int count1dhits = 0;
-    auto ith = trk.recHitsBegin().key();
-    auto  edh = (--trk.recHitsEnd()).key();
-    assert( trk.recHitsEnd()-trk.recHitsBegin() == edh-ith+1);
-    for (; ith<=edh; ++ith) {
-      const TrackingRecHit & hit = srcHits[ith];
+    auto ith = trk.recHitsBegin();
+    auto  edh = ith + trk.recHitsSize();
+    for (; ith<edh; ++ith) {
+//    const TrackingRecHit & hit = srcHits[ith];
+      const TrackingRecHit & hit = **ith;
       if (hit.dimension()==1) ++count1dhits;
     }
     if (count1dhits > 0) {

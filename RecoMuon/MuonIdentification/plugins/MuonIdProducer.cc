@@ -424,14 +424,14 @@ int MuonIdProducer::overlap(const reco::Muon& muon, const reco::Track& track)
 	if ( match->segmentMatches.empty() ) continue;
 	bool foundCommonDetId = false;
 
-	for ( TrackingRecHitRefVector::const_iterator hit = track.extra()->recHitsBegin();
+	for ( auto hit = track.extra()->recHitsBegin();
 	      hit != track.extra()->recHitsEnd(); ++hit )
 	  {
 	     // LogTrace("MuonIdentification") << "hit DetId: " << std::hex << hit->get()->geographicalId().rawId() <<
 	     //  "\t hit chamber DetId: " << getChamberId(hit->get()->geographicalId()) <<
 	     //  "\t segment DetId: " << match->id.rawId() << std::dec;
 
-	     if ( chamberId(hit->get()->geographicalId()) == match->id.rawId() ) {
+	     if ( chamberId((*hit)->geographicalId()) == match->id.rawId() ) {
 		foundCommonDetId = true;
 		break;
 	     }

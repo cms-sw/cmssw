@@ -550,8 +550,8 @@ ConvBremSeedProducer::makeTrajectoryState( const DetLayer* layer,
     (GlobalTrajectoryParameters( pos, mom, TrackCharge( pp.charge()), field), *plane);
 }
 bool ConvBremSeedProducer::isGsfTrack(const TrackingRecHitRefVector& tkv, const TrackingRecHit *h ){
-  trackingRecHit_iterator ib=tkv.begin();
-  trackingRecHit_iterator ie=tkv.end();
+  auto ib=tkv.begin();
+  auto ie=tkv.end();
   bool istaken=false;
   //  for (;ib!=ie-2;++ib){
     for (;ib!=ie;++ib){
