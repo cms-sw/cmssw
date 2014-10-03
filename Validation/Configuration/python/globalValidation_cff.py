@@ -48,7 +48,7 @@ globalPrevalidation = cms.Sequence(
   * photonPrevalidationSequence
   * produceDenoms
   * prebTagSequenceMC
-  * prebTagSequence
+  * bTagForHiggsDqm
 )
 
 # filter/producer "pre-" sequence for validation_preprod

@@ -92,4 +92,4 @@ pfbtagging = cms.Sequence(
 )
 
 #preSeq
-prebTagSequence = cms.Sequence(ak4PFJetsJEC*higgsDqmPFJetsFilter*higgsDqmPfAk4JetTracksAssociatorAtVertex*pfbtagging)
+bTagForHiggsDqm = cms.Sequence(ak4PFJetsJEC*higgsDqmPFJetsFilter*higgsDqmPfAk4JetTracksAssociatorAtVertex*pfbtagging)

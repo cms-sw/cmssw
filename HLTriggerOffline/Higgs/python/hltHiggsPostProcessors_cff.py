@@ -6,22 +6,22 @@ from HLTriggerOffline.Higgs.hltHiggsPostProcessor_cfi import *
 def efficiency_string(objtype,plot_type,triggerpath):
     # --- IMPORTANT: Add here a elif if you are introduce a new collection
     #                (see EVTColContainer::getTypeString) 
-    if objtype == "Mu" :
-    objtypeLatex="#mu"
+    if objtype == "Mu":
+        objtypeLatex="#mu"
     elif objtype == "Photon": 
-    objtypeLatex="#gamma"
+        objtypeLatex="#gamma"
     elif objtype == "Ele": 
-    objtypeLatex="e"
+        objtypeLatex="e"
     elif objtype == "MET" :
-    objtypeLatex="MET"
+        objtypeLatex="MET"
     elif objtype == "PFMET" :
         objtypeLatex="PFMET"
     elif objtype == "PFTau": 
-    objtypeLatex="#tau"
+        objtypeLatex="#tau"
     elif objtype == "Jet": 
-    objtypeLatex="jet"
+        objtypeLatex="jet"
     else:
-    objtypeLatex=objtype
+        objtypeLatex=objtype
 
     numer_description = "# gen %s passed the %s" % (objtypeLatex,triggerpath)
     denom_description = "# gen %s " % (objtypeLatex)

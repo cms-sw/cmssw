@@ -73,7 +73,7 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 
 process.analyzerpath = cms.Path(
-    process.prebTagSequence *
+    process.bTagForHiggsDqm *
     process.hltHiggsValidator *
     process.MEtoEDMConverter
 )
