@@ -789,58 +789,17 @@ PFMuonAlgo::getTrackWithSmallestError(const std::vector<reco::Muon::MuonTrackTyp
 
 void PFMuonAlgo::estimateEventQuantities(const reco::PFCandidateCollection* pfc)
 {
-  //SUM ET from PU
+  //SUM ET 
   sumetPU_ = 0.0;
   METX_=0.;
   METY_=0.;
-  for (unsigned short i=1 ;i<vertices_->size();++i ) {
-    if ( !vertices_->at(i).isValid() || vertices_->at(i).isFake() ) continue; 
-
-    for ( reco::Vertex::trackRef_iterator itr = vertices_->at(i).tracks_begin();
-	  itr <  vertices_->at(i).tracks_end(); ++itr ) { 
-      sumetPU_ += (*itr)->pt();
-    }
-  }
-  sumetPU_ /= 0.65;
-  //SUM ET and MET
   sumet_=0.0;
-  double METXCh=0.0;
-  double METYCh=0.0;
-  double METXNeut=0.0;
-  double METYNeut=0.0;
+  for(reco::PFCandidateCollection::const_iterator i = pfc->begin();i!=pfc->end();++i) {
+    sumet_+=i->pt();
+    METX_+=i->px();
+    METY_+=i->py();
+  }
 
-    if (vertices_->size()>0 && vertices_->at(0).isValid()&& !vertices_->at(0).isFake()) {
-
-      for(reco::PFCandidateCollection::const_iterator i = pfc->begin();i!=pfc->end();++i) {
-	sumet_+=i->pt();
-
-	//If charged and from PV or muon
-	if( (i->charge() !=0 && i->trackRef().isNonnull() && vertices_->size()>0&& i->trackRef()->dz(vertices_->at(0).position())<dzPV_)||(abs(i->pdgId())==13)) {
-	  METXCh+=i->px();
-	  METYCh+=i->py();
-	}
-	//If charged and not from PV(assume there is a neutral balancing it)
-	else if( i->charge() !=0 && i->trackRef().isNonnull() && i->trackRef()->dz(vertices_->at(0).position())>dzPV_) {
-	  METXNeut-=i->px();
-	  METYNeut-=i->py();
-	}
-      //Neutral
-	else if( !(i->charge() !=0 && i->trackRef().isNonnull())) {
-	  METXNeut+=i->px();
-	  METYNeut+=i->py();
-	}
-      } //else if we dont have a vertex make standard PFMET
-    }
-    else {
-      for(reco::PFCandidateCollection::const_iterator i = pfc->begin();i!=pfc->end();++i) {
-	sumet_+=i->pt();
-	METXCh+=i->px();
-	METYCh+=i->py();
-      }
-    }
-
-    METX_ = (METXCh+METXNeut);
-    METY_ = (METYCh+METYNeut);
 }
 
 
