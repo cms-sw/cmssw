@@ -142,6 +142,14 @@ public:
   void setResetMe(bool /* flag */)
     { data_.flags |= DQMNet::DQM_PROP_RESET; }
 
+  /// true if ME is marked for deletion
+  bool markedToDelete(void) const
+    { return data_.flags & DQMNet::DQM_PROP_MARKTODELETE; }
+
+  /// Mark the object for deletion.
+  void markToDelete(void)
+    { data_.flags |= DQMNet::DQM_PROP_MARKTODELETE; }
+
   /// true if ME is meant to be stored for each luminosity section
   bool getLumiFlag(void) const
     { return data_.flags & DQMNet::DQM_PROP_LUMI; }
