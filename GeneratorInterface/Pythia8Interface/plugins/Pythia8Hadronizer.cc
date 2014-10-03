@@ -395,7 +395,10 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
   } else {
 
     lhaUP.reset(new LHAupLesHouches());
+    lhaUP->setIgnoreTauSpinUp(fMasterGen->settings.flag("ParticleDecays:tauIgnoreSpinUpCMSSW"));
     lhaUP->loadRunInfo(lheRunInfo());
+
+    
     
     if ( fJetMatchingHook )
     {
