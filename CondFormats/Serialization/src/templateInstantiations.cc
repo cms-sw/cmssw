@@ -34,7 +34,7 @@ namespace boost { namespace archive {
 	template class detail::archive_pointer_iserializer<eos::portable_iarchive>;
 #else
 	template class detail::archive_serializer_map<eos::portable_iarchive>;
-	//template class detail::archive_serializer_map<eos::polymorphic_portable_iarchive>;
+	template class detail::archive_serializer_map<eos::polymorphic_portable_iarchive>;
 #endif
 
 } } // namespace boost::archive
@@ -74,7 +74,7 @@ namespace boost { namespace archive {
 	template class detail::archive_pointer_oserializer<eos::portable_oarchive>;
 #else
 	template class detail::archive_serializer_map<eos::portable_oarchive>;
-	//template class detail::archive_serializer_map<eos::polymorphic_portable_oarchive>;
+	template class detail::archive_serializer_map<eos::polymorphic_portable_oarchive>;
 #endif
 
 } } // namespace boost::archive
