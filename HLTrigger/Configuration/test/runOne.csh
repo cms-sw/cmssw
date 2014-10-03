@@ -7,6 +7,7 @@ set rawLHC = L1RePack
 set rawSIM = DigiL1Raw
 
 echo
+date +%F\ %a\ %T
 echo Starting $0 $1 $2
 
 if ( $2 == "" ) then
@@ -50,11 +51,12 @@ foreach gtag ( $1 )
       echo
       set name = ${task}_${table}_${gtag}
       rm -f $name.{log,root}
-      date
+      date +%T
       echo "cmsRun $name.py >& $name.log"
 #     ls -l        $name.py
       time  cmsRun $name.py >& $name.log
       echo "exit status: $?"
+      date +%T
 
       if ( ( $task == RelVal_${rawLHC} ) || ( $task == RelVal_${rawSIM} ) ) then
 #       link to input file for subsequent steps
@@ -76,11 +78,12 @@ if ( $1 == MC ) then
     echo
     set name = ${task}
     rm -f $name.{log,root}
-    date
+    date +%T
     echo "cmsRun $name.py >& $name.log"
 #   ls -l        $name.py
     time  cmsRun $name.py >& $name.log
     echo "exit status: $?"
+    date +%T
 
   end
 endif
@@ -102,11 +105,12 @@ foreach gtag ( $1 )
       echo
       set name = ${task}_${table}_${gtag}
       rm -f $name.{log,root}
-      date
+      date +%T
       echo "cmsRun $name.py >& $name.log"
 #     ls -l        $name.py
       time  cmsRun $name.py >& $name.log
       echo "exit status: $?"
+      date +%T
 
     end
 
@@ -122,4 +126,5 @@ endif
 
 echo
 echo Finished $0 $1 $2
+date +%F\ %a\ %T
 #

@@ -4,6 +4,7 @@ cmsenv
 rehash
 
 echo
+date +%F\ %a\ %T
 echo Start $0 $1 $2
 
 if ( $2 == "" ) then
@@ -52,11 +53,12 @@ foreach gtag ( $1 )
 
 #   -x "--l1-emulator" -x "--l1 L1GtTriggerMenu_L1Menu_Collisions2012_v1_mc" 
 
-    date
+    date +%T
     echo "hltIntegrationTests $config -d $name -i $infile -n 100 -j 4 $flags -x ${autogt} -x --type=$table >& $name.log"
     time  hltIntegrationTests $config -d $name -i $infile -n 100 -j 4 $flags -x ${autogt} -x --type=$table >& $name.log
     set STATUS = $?
     echo "exit status: $STATUS"
+    date +%T
     rm -f  ${name}/*.root
 
     if ($STATUS != 0) then
@@ -73,4 +75,5 @@ end
 
 echo
 echo Finish $0 $1 $2
+date +%F\ %a\ %T
 #

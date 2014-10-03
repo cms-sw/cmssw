@@ -11,9 +11,10 @@ rehash
 
 #
 # gen sim input files for Monte-Carlo tests
-set InputGenSimGRun = /store/relval/CMSSW_7_1_0_pre4_AK4/RelValProdTTbar/GEN-SIM/START71_V1-v2/00000/0ADB94C0-62B4-E311-8EC4-002618943985.root
+set InputGenSimGRun1 = /store/relval/CMSSW_7_1_0/RelValProdTTbar/GEN-SIM/START71_V7-v1/00000/8C172C6B-28FD-E311-8A62-0026189438F4.root
+set InputGenSimGRun2 = /store/relval/CMSSW_7_1_9/RelValProdTTbar_13/GEN-SIM/POSTLS171_V17-v1/00000/72B2C6B5-9740-E411-8FF7-002618FDA26D.root
 set InputGenSimHIon = /store/relval/CMSSW_5_3_16/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM/PU_STARTHI53_LV1_mar03-v2/00000/143C21CD-E8A2-E311-87BE-0025904C66E8.root
-set InputGenSimPIon = /store/relval/CMSSW_7_1_0_pre4_AK4/RelValProdTTbar/GEN-SIM/START71_V1-v2/00000/0ADB94C0-62B4-E311-8EC4-002618943985.root
+set InputGenSimPIon = /store/relval/CMSSW_7_1_9/RelValProdTTbar_13/GEN-SIM/POSTLS171_V17-v1/00000/72B2C6B5-9740-E411-8FF7-002618FDA26D.root
 #
 # lhc raw input files for Real-Data tests
 set InputLHCRawGRun = /store/data/Run2012A/MuEG/RAW/v1/000/191/718/14932935-E289-E111-830C-5404A6388697.root
@@ -93,7 +94,7 @@ foreach gtag ( MC DATA )
       set RTAG = ${BASE2RD}_FULL
       set NN   = $NNPP
       set SCEN = pp
-      set InputGenSim = $InputGenSimGRun
+      set InputGenSim = $InputGenSimGRun2
       set InputLHCRaw = $InputLHCRawGRun
       set Custom1 = $CustomRun2
       set Custom2 = " "
@@ -105,7 +106,7 @@ foreach gtag ( MC DATA )
       set RTAG = ${BASE1RD}_Fake
       set NN   = $NNPP
       set SCEN = pp
-      set InputGenSim = $InputGenSimGRun
+      set InputGenSim = $InputGenSimGRun1
       set InputLHCRaw = $InputLHCRawGRun
       set Custom1 = $CustomRun1
       set Custom2 = " "
@@ -117,7 +118,7 @@ foreach gtag ( MC DATA )
       set RTAG = ${BASE1RD}_2014
       set NN   = $NNPP
       set SCEN = pp
-      set InputGenSim = $InputGenSimGRun
+      set InputGenSim = $InputGenSimGRun1
       set InputLHCRaw = $InputLHCRawGRun
       set Custom1 = $CustomRun1
       set Custom2 = " "
@@ -129,7 +130,7 @@ foreach gtag ( MC DATA )
       set RTAG = ${BASE2RD}_GRun
       set NN   = $NNPP
       set SCEN = pp
-      set InputGenSim = $InputGenSimGRun
+      set InputGenSim = $InputGenSimGRun2
       set InputLHCRaw = $InputLHCRawGRun
       set Custom1 = $CustomRun2
       set Custom2 = " "
