@@ -905,8 +905,8 @@ steps['TTbarFS_ID']=identityFS(steps['TTbarFS'])
  
 step1GenDefaults=merge([{'-s':'GEN,VALIDATION:genvalid',
                          '--relval':'250000,20000',
-                         '--eventcontent':'RAWSIM',
-                         '--datatier':'GEN'},
+                         '--eventcontent':'RAWSIM,DQM',
+                         '--datatier':'GEN,DQMIO'},
                         step1Defaults])
 def genvalid(fragment,d,suffix='all',fi='',dataSet=''):
     import copy
@@ -1357,7 +1357,8 @@ steps['HARVESTGEN']={'-s':'HARVESTING:genHarvesting',
                      '--harvesting':'AtJobEnd',
                      '--conditions':'auto:run1_mc',
                      '--mc':'',
-                     '--filein':'file:step1.root'
+                     '--filetype':'DQM',
+                     '--filein':'file:step1_inDQM.root'
                   }
 
 #data
