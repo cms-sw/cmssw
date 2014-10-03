@@ -16,7 +16,7 @@ genParticlesForJets = cms.EDProducer("InputGenJetsParticleSelector",
          9900012, 9900014, 9900016,
          39),
     partonicFinalState = cms.bool(False),
-    excludeResonances = cms.bool(True),
+    excludeResonances = cms.bool(False),
     excludeFromResonancePids = cms.vuint32(12, 13, 14, 16),
     tausAsJets = cms.bool(False)
 )
