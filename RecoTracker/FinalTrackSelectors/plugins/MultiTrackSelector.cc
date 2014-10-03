@@ -361,12 +361,12 @@ void MultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) const
 
   using namespace std; 
   
-  if(tk.found()>=min_hits_bypass_[tsNum]) return true;
-  if ( tk.ndof() < 1E-5 ) return false;
-
   //cuts on number of valid hits
-  uint32_t nhits = tk.numberOfValidHits();
+  auto nhits = tk.numberOfValidHits();
+  if(nhits>=min_hits_bypass_[tsNum]) return true;
   if(nhits < min_nhits_[tsNum]) return false;
+
+  if ( tk.ndof() < 1E-5 ) return false;
 
 
   //////////////////////////////////////////////////
@@ -378,7 +378,6 @@ void MultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) const
   /////////////////////////////////
   //End of MVA selection section//
   ///////////////////////////////
-
 
 
   // Cuts on numbers of layers with hits/3D hits/lost hits.
