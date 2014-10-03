@@ -455,6 +455,25 @@ uint16_t HitPattern::getTrackerMonoStereo(HitCategory category, uint16_t substr,
 }
 
 
+int HitPattern::pixelLayersWithMeasurement() const {
+   auto category = TRACK_HITS;
+   std::bitset<128> layerOk;
+   std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
+   for (int i = range.first; i < range.second; ++i) {
+     auto pattern = getHitPatternByAbsoluteIndex(i);
+     if unlikely(!trackerHitFilter(pattern)) continue;
+     if (pattern>minStripWord) continue;
+     uint16_t hitType = (pattern >> HitTypeOffset) & HitTypeMask;
+     if (hitType != HIT_TYPE::VALID) continue;
+     pattern = (pattern-minTrackerWord) >> LayerOffset;
+     // assert(pattern<128);
+     layerOk.set(pattern);
+   }
+   // assert(pixelLayersWithMeasurementOld()==int(layerOk.count()));
+   return layerOk.count();
+}
+
+
 int HitPattern::trackerLayersWithMeasurement() const {
    auto category = TRACK_HITS;
    std::bitset<128> layerOk;

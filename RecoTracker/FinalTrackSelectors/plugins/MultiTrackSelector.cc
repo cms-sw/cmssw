@@ -37,14 +37,15 @@ namespace {
  T powN(T t, int n) {
   switch(n) {
   case 4: return PowN<4>::op(t); // the only one that matters
+  case 3: return PowN<3>::op(t); // and this
+  case 8: return PowN<8>::op(t); // used in conversion????
   case 2: return PowN<2>::op(t);
-  case 3: return PowN<3>::op(t);
   case 5: return PowN<5>::op(t);
   case 6: return PowN<6>::op(t);
   case 7: return PowN<7>::op(t);
   case 0: return PowN<0>::op(t);
   case 1: return PowN<1>::op(t);
-  default : return powN(t,T(n)); 
+  default : return std::pow(t,T(n)); 
   }
  }
 

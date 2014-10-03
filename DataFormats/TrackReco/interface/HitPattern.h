@@ -287,6 +287,7 @@ public:
 
     int trackerLayersWithMeasurementOld() const;        // case 0: tracker
     int trackerLayersWithMeasurement() const;        // case 0: tracker
+    int pixelLayersWithMeasurementOld() const;          // case 0: pixel  
     int pixelLayersWithMeasurement() const;          // case 0: pixel
     int stripLayersWithMeasurement() const;          // case 0: strip
     int pixelBarrelLayersWithMeasurement() const;    // case 0: pixel PXB
@@ -910,7 +911,7 @@ inline int HitPattern::trackerLayersWithMeasurementOld() const
     return pixelLayersWithMeasurement() + stripLayersWithMeasurement();
 }
 
-inline int HitPattern::pixelLayersWithMeasurement() const
+inline int HitPattern::pixelLayersWithMeasurementOld() const
 {
     return pixelBarrelLayersWithMeasurement() + pixelEndcapLayersWithMeasurement();
 }
