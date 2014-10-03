@@ -431,7 +431,7 @@ class SerializationCodeGenerator(object):
         log_flags('cxx_flags', cxx_flags)
         log_flags('std_flags', std_flags)
 
-        flags = cpp_flags + cxx_flags + std_flags
+        flags = ['-xc++'] + cpp_flags + cxx_flags + std_flags
 
         headers_h = self._join_package_path('src', 'headers.h')
         logging.debug('headers_h = %s', headers_h)
@@ -442,7 +442,7 @@ class SerializationCodeGenerator(object):
 
         logging.debug('Parsing C++ classes in file %s ...', headers_h)
         index = clang.cindex.Index.create()
-        translation_unit = index.parse(None, [headers_h] + flags)
+        translation_unit = index.parse(headers_h, flags)
         if not translation_unit:
             raise Exception('Unable to load input.')
 

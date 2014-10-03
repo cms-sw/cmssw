@@ -357,7 +357,7 @@ namespace edm {
               className.replace(idx + 6, 1, "");
             }
             classNameAttemptingToLoad_ = className.c_str();
-            returnValue = gROOT->GetClass(className.c_str(), kTRUE);
+            returnValue = TClass::GetClass(className.c_str(), kTRUE);
             classNameAttemptingToLoad_ = classname;
             return returnValue;
          }
@@ -383,7 +383,7 @@ namespace edm {
           // It will also attempt to load the dictionary for the class
           // if the second argument is kTRUE. This is the default, so it
           // need not be explicitly specified.
-          returnValue = gROOT->GetClass(classname, kTRUE);
+          returnValue = TClass::GetClass(classname, kTRUE);
           classNameAttemptingToLoad_ = nullptr;
         }
       }

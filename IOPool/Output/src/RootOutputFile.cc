@@ -33,7 +33,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "IOPool/Common/interface/getWrapperBasePtr.h"
 
-#include "TROOT.h"
 #include "TTree.h"
 #include "TFile.h"
 #include "TClass.h"
@@ -98,7 +97,7 @@ namespace edm {
       processHistoryRegistry_(),
       parentageIDs_(),
       branchesWithStoredHistory_(),
-      wrapperBaseTClass_(gROOT->GetClass("edm::WrapperBase")) {
+      wrapperBaseTClass_(TClass::GetClass("edm::WrapperBase")) {
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,30,0)
     if (om_->compressionAlgorithm() == std::string("ZLIB")) {
       filePtr_->SetCompressionAlgorithm(ROOT::kZLIB);
@@ -717,7 +716,7 @@ namespace edm {
         if(product == nullptr) {
           // No product with this ID is in the event.
           // Add a null product.
-          TClass* cp = gROOT->GetClass(item.branchDescription_->wrappedName().c_str());
+          TClass* cp = TClass::GetClass(item.branchDescription_->wrappedName().c_str());
           int offset = cp->GetBaseClassOffset(wrapperBaseTClass_);
           void* p = cp->New();
           std::unique_ptr<WrapperBase> dummy = getWrapperBasePtr(p, offset);

@@ -47,7 +47,6 @@
 #include "DataFormats/Provenance/interface/RunAux.h"
 #include "FWCore/ParameterSet/interface/ParameterSetConverter.h"
 
-#include "TROOT.h"
 #include "Rtypes.h"
 #include "TClass.h"
 #include "TString.h"
@@ -213,7 +212,7 @@ namespace edm {
       eventProductProvenanceRetrievers_(),
       parentageIDLookup_(),
       daqProvenanceHelper_(),
-      edProductClass_(gROOT->GetClass("edm::WrapperBase")) {
+      edProductClass_(TClass::GetClass("edm::WrapperBase")) {
 
     hasNewlyDroppedBranch_.fill(false);
 
@@ -1800,7 +1799,7 @@ namespace edm {
       for(ProductRegistry::ProductList::iterator it = prodList.begin(), itEnd = prodList.end(); it != itEnd;) {
         BranchDescription const& prod = it->second;
         if(prod.branchType() != InEvent) {
-          TClass* cp = gROOT->GetClass(prod.wrappedName().c_str());
+          TClass* cp = TClass::GetClass(prod.wrappedName().c_str());
           void* p = cp->New();
           int offset = cp->GetBaseClassOffset(edProductClass_);
           std::unique_ptr<WrapperBase> edp = getWrapperBasePtr(p, offset);
