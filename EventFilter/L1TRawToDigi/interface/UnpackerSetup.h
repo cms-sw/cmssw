@@ -1,5 +1,5 @@
-#ifndef UnpackerProvider_h
-#define UnpackerProvider_h
+#ifndef UnpackerSetup_h
+#define UnpackerSetup_h
 
 #include <map>
 #include <tuple>
@@ -18,28 +18,28 @@ namespace l1t {
    // Mapping of block id to unpacker.  Different for each set of (FED, AMC, Firmware) ids.
    typedef std::map<int, std::shared_ptr<Unpacker>> UnpackerMap;
 
-   class UnpackerProvider {
+   class UnpackerSetup {
       public:
-         UnpackerProvider(edm::one::EDProducerBase&) {};
+         UnpackerSetup(edm::one::EDProducerBase&) {};
 
          virtual UnpackerMap getUnpackers(int, int, int) = 0;
          virtual std::unique_ptr<UnpackerCollections> getCollections(edm::Event&) = 0;
    };
 
-   typedef UnpackerProvider*(prov_fct)(edm::one::EDProducerBase&);
-   typedef edmplugin::PluginFactory<prov_fct> UnpackerProviderFactoryT;
+   typedef UnpackerSetup*(prov_fct)(edm::one::EDProducerBase&);
+   typedef edmplugin::PluginFactory<prov_fct> UnpackerSetupFactoryT;
 
-   class UnpackerProviderFactory {
+   class UnpackerSetupFactory {
       public:
-         static const UnpackerProviderFactory* get() { return &instance_; };
-         std::auto_ptr<UnpackerProvider> make(const std::string&, edm::one::EDProducerBase&) const;
+         static const UnpackerSetupFactory* get() { return &instance_; };
+         std::auto_ptr<UnpackerSetup> make(const std::string&, edm::one::EDProducerBase&) const;
       private:
-         UnpackerProviderFactory() {};
-         static const UnpackerProviderFactory instance_;
+         UnpackerSetupFactory() {};
+         static const UnpackerSetupFactory instance_;
    };
 }
 
 #define DEFINE_L1T_UNPACKER_PROVIDER(type) \
-   DEFINE_EDM_PLUGIN(l1t::UnpackerProviderFactoryT,type,#type)
+   DEFINE_EDM_PLUGIN(l1t::UnpackerSetupFactoryT,type,#type)
 
 #endif

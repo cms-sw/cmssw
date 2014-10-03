@@ -1,14 +1,14 @@
 #include "FWCore/Framework/interface/one/EDProducerBase.h"
 
 #include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
-#include "EventFilter/L1TRawToDigi/interface/UnpackerProvider.h"
+#include "EventFilter/L1TRawToDigi/interface/UnpackerSetup.h"
 
 #include "CaloCollections.h"
 
 namespace l1t {
-   class CaloSetup : public UnpackerProvider {
+   class CaloSetup : public UnpackerSetup {
       public:
-         CaloSetup(edm::one::EDProducerBase& prod) : UnpackerProvider(prod) {
+         CaloSetup(edm::one::EDProducerBase& prod) : UnpackerSetup(prod) {
             prod.produces<CaloTowerBxCollection>();
             prod.produces<EGammaBxCollection>();
             prod.produces<EtSumBxCollection>();
