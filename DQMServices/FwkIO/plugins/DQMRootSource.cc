@@ -88,12 +88,17 @@ namespace {
           iOriginal->GetNbinsZ() == iToAdd->GetNbinsZ() &&
           iOriginal->GetZaxis()->GetXmin() == iToAdd->GetZaxis()->GetXmin() &&
           iOriginal->GetZaxis()->GetXmax() == iToAdd->GetZaxis()->GetXmax() &&
+	  // Also check that the min is less than the max. Root allows this to be booked but then
+	  // crashes when it adds them.
+          iOriginal->GetXaxis()->GetXmin() < iToAdd->GetXaxis()->GetXmax() &&
+          iOriginal->GetYaxis()->GetXmin() < iToAdd->GetYaxis()->GetXmax() &&
+          iOriginal->GetZaxis()->GetXmin() < iToAdd->GetZaxis()->GetXmax() &&
 	  MonitorElement::CheckBinLabels(iOriginal->GetXaxis(),iToAdd->GetXaxis()) &&
 	  MonitorElement::CheckBinLabels(iOriginal->GetYaxis(),iToAdd->GetYaxis()) &&
 	  MonitorElement::CheckBinLabels(iOriginal->GetZaxis(),iToAdd->GetZaxis())) {
 	iOriginal->Add(iToAdd);
       } else {
-        edm::LogError("MergeFailure")<<"Found histograms with different axis limits or different labels'"<<iOriginal->GetName()<<"' not merged.";
+        edm::LogError("MergeFailure")<<"Found histograms with different or invalid axis limits or different labels'"<<iOriginal->GetName()<<"' not merged.";
       }
     } 
   }
