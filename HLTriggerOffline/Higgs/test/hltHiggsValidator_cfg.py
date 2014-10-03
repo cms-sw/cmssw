@@ -19,9 +19,9 @@ hltProcessName = "HLT"
 process.hltHiggsValidator.hltProcessName = hltProcessName
 #process.hltHiggsValidator.HWW.hltPathsToCheck = cms.vstring(
 #		"HLT_Photon26",
-		#		"HLT_Mu30_eta2p1_v",
-		#		"HLT_IsoMu24_eta2p1_v",
-		#"HLT_Ele27_WP80_v",
+        #		"HLT_Mu30_eta2p1_v",
+        #		"HLT_IsoMu24_eta2p1_v",
+        #"HLT_Ele27_WP80_v",
 #		)
 
 process.load("Configuration.StandardSequences.Reconstruction_cff")
@@ -37,17 +37,18 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-            #'file:/afs/cern.ch/user/d/duarte/scratch0/step2_RAW2DIGI_RECO.root',
-            'file:/afs/cern.ch/work/j/jlauwers/hlt/CMSSW_7_2_0_pre1/src/RECO/0090828A-AC71-E311-A488-7845C4FC36D7.root'
-	    #'file:/afs/cern.ch/user/s/sdonato/AFSwork/public/forJasper/ZnnHbb_GEN_SIM_RECO_trigger.root'
+        #'file:/afs/cern.ch/user/d/duarte/scratch0/step2_RAW2DIGI_RECO.root',
+        'file:/afs/cern.ch/work/j/jlauwers/hlt/CMSSW_7_2_0_pre1/src/RECO/0090828A-AC71-E311-A488-7845C4FC36D7.root'
+        #'file:/afs/cern.ch/user/s/sdonato/AFSwork/public/forJasper/ZnnHbb_GEN_SIM_RECO_trigger.root'
     ),
     secondaryFileNames = cms.untracked.vstring(
-            #'file:/afs/cern.ch/user/d/duarte/scratch0/H130GGgluonfusion_cfi_py_GEN_SIM_DIGI_L1_DIGI2RAW_HLT.root',
-           'file:/afs/cern.ch/work/j/jlauwers/hlt/CMSSW_7_2_0_pre1/src/GEN-SIM-RAW/0090828A-AC71-E311-A488-7845C4FC36D7.root'
+        #'file:/afs/cern.ch/user/d/duarte/scratch0/H130GGgluonfusion_cfi_py_GEN_SIM_DIGI_L1_DIGI2RAW_HLT.root',
+        'file:/afs/cern.ch/work/j/jlauwers/hlt/CMSSW_7_2_0_pre1/src/GEN-SIM-RAW/0090828A-AC71-E311-A488-7845C4FC36D7.root'
     )
 )
 
-#process.ak4PFJetsJEC.src = cms.InputTag("ak5PFJets")#process.caloMet.alias = cms.string('met')
+#process.ak4PFJetsJEC.src = cms.InputTag("ak5PFJets")
+#process.caloMet.alias = cms.string('met')
 #process.hltHiggsValidator.Htaunu.recCaloMETLabel = cms.string('met')
 
 process.DQMStore = cms.Service("DQMStore")
@@ -61,7 +62,7 @@ process.MessageLogger.HiggsValidationMessages = cms.untracked.PSet(
     threshold       = cms.untracked.string('DEBUG'),
     default         = cms.untracked.PSet(limit = cms.untracked.int32(0)),
     HiggsValidation = cms.untracked.PSet(limit = cms.untracked.int32(1000))
-    )
+)
 
 process.out = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring(

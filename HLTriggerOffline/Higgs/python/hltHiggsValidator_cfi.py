@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
-		
+        
     hltProcessName = cms.string("HLT"),
     analysis       = cms.vstring("HWW", "HZZ", "Hgg", "Htaunu", "H2tau", "ZnnHbb"), 
     
@@ -17,12 +17,12 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
 
     # -- The binning of the Pt efficiency plots
     parametersTurnOn = cms.vdouble(0,
-                                   1, 8, 9, 10,
-                                   11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-                                   22, 24, 26, 28, 30, 32, 34, 36, 38, 40,
-                                   45, 50, 55, 60, 65, 70,
-                                   80, 100,
-                                   ),
+                                1, 8, 9, 10,
+                                11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+                                22, 24, 26, 28, 30, 32, 34, 36, 38, 40,
+                                45, 50, 55, 60, 65, 70,
+                                80, 100,
+                                ),
 
     # -- (NBins, minVal, maxValue) for the Eta,Phi and nInterations efficiency plots
     parametersEta      = cms.vdouble(48, -2.400, 2.400),
@@ -55,10 +55,10 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
     # --- Photons
     Photon_genCut     = cms.string("abs(pdgId) == 22 && status == 1"),
     Photon_recCut     = cms.string("pt > 20 && abs(eta) < 2.4 && hadronicOverEm < 0.1 && ( r9 < 0.85 || ("+\
-		    " ( abs(eta) < 1.479 && sigmaIetaIeta < 0.014  || "+\
-		    "   abs(eta) > 1.479 && sigmaIetaIeta < 0.0035 ) && "+\
-		    " ecalRecHitSumEtConeDR03 < (5.0+0.012*et) && hcalTowerSumEtConeDR03 < (5.0+0.0005*et )  && trkSumPtSolidConeDR03 < (5.0 + 0.0002*et)"+\
-		    " )"+")" ),
+            " ( abs(eta) < 1.479 && sigmaIetaIeta < 0.014  || "+\
+            "   abs(eta) > 1.479 && sigmaIetaIeta < 0.0035 ) && "+\
+            " ecalRecHitSumEtConeDR03 < (5.0+0.012*et) && hcalTowerSumEtConeDR03 < (5.0+0.0005*et )  && trkSumPtSolidConeDR03 < (5.0 + 0.0002*et)"+\
+            " )"+")" ),
     Photon_cutMinPt   = cms.double(20), # TO BE DEPRECATED
     Photon_cutMaxEta  = cms.double(2.4),# TO BE DEPRECATED
 
@@ -104,84 +104,84 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
     #    * Var_genCut, Var_recCut (cms.string): where Var=Mu, Ele, Photon, MET, PFTau (see above)
 
     HWW = cms.PSet( 
-	    hltPathsToCheck = cms.vstring(
-		    "HLT_Mu17_Mu8_v",
-		    "HLT_Mu17_TkMu8_v",
-		    "HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v",
-		    "HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v",
-		    "HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v",
-		    "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v",
+        hltPathsToCheck = cms.vstring(
+            "HLT_Mu17_Mu8_v",
+            "HLT_Mu17_TkMu8_v",
+            "HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v",
+            "HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v",
+            "HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v",
+            "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v",
                     "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v",
                     "HLT_Mu23_TrkIsoVVL_Ele12_Gsf_CaloId_TrackId_Iso_MediumWP_v",
                     "HLT_Mu8_TrkIsoVVL_Ele23_Gsf_CaloId_TrackId_Iso_MediumWP_v",
                     "HLT_Ele23_Ele12_CaloId_TrackId_Iso_v"
-		    ),
-	    recMuonLabel  = cms.string("muons"),
-	    recElecLabel  = cms.string("gedGsfElectrons"),
-	    # -- Analysis specific cuts
-	    minCandidates = cms.uint32(2),
-	    ),
+            ),
+        recMuonLabel  = cms.string("muons"),
+        recElecLabel  = cms.string("gedGsfElectrons"),
+        # -- Analysis specific cuts
+        minCandidates = cms.uint32(2),
+        ),
     HZZ = cms.PSet( 
-	    hltPathsToCheck = cms.vstring(
-		    "HLT_Mu17_TkMu8_v",
-		    "HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v",
+        hltPathsToCheck = cms.vstring(
+            "HLT_Mu17_TkMu8_v",
+            "HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v",
             "HLT_Ele17_Ele12_Ele10_CaloId_TrackId_v"
-		    ),
-	    recMuonLabel  = cms.string("muons"),
-	    recElecLabel  = cms.string("gedGsfElectrons"),
-	    #recTrackLabel = cms.string("globalMuons"),
-	    # -- Analysis specific cuts
-	    minCandidates = cms.uint32(4), 
-	    ),
+            ),
+        recMuonLabel  = cms.string("muons"),
+        recElecLabel  = cms.string("gedGsfElectrons"),
+        #recTrackLabel = cms.string("globalMuons"),
+        # -- Analysis specific cuts
+        minCandidates = cms.uint32(4), 
+        ),
     Hgg = cms.PSet( 
-	    hltPathsToCheck = cms.vstring(
-		    "HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v",
-		    "HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v",
-		    "HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon10_R9Id85_OR_CaloId10_Iso50_Mass80_v",
-  	 	    "HLT_Photon36_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon18_AND_HE10_R9Id65_Mass95_v",
-		    "HLT_Photon42_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon22_AND_HE10_R9Id65_v"
-		    ),
-	    recPhotonLabel  = cms.string("photons"),
-	    # -- Analysis specific cuts
-	    minCandidates = cms.uint32(2), 
-	    ),
+        hltPathsToCheck = cms.vstring(
+            "HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v",
+            "HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v",
+            "HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon10_R9Id85_OR_CaloId10_Iso50_Mass80_v",
+            "HLT_Photon36_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon18_AND_HE10_R9Id65_Mass95_v",
+            "HLT_Photon42_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon22_AND_HE10_R9Id65_v"
+            ),
+        recPhotonLabel  = cms.string("photons"),
+        # -- Analysis specific cuts
+        minCandidates = cms.uint32(2), 
+        ),
     Htaunu = cms.PSet( 
-	    hltPathsToCheck = cms.vstring(
-		    "HLT_LooseIsoPFTau35_Trk20_Prong1_MET70_v",
-		    "HLT_LooseIsoPFTau35_Trk20_Prong1_MET75_v",
+        hltPathsToCheck = cms.vstring(
+            "HLT_LooseIsoPFTau35_Trk20_Prong1_MET70_v",
+            "HLT_LooseIsoPFTau35_Trk20_Prong1_MET75_v",
                     "HLT_LooseIsoPFTau50_Trk30_eta2p1_MET120_v"
-		    ),
-	    recPFTauLabel   = cms.string("hpsPFTauProducer"),
-	    recCaloMETLabel = cms.string("caloMet"),
-	    # -- Analysis specific cuts
-	    minCandidates = cms.uint32(2), 
-	    ),
+            ),
+        recPFTauLabel   = cms.string("hpsPFTauProducer"),
+        recCaloMETLabel = cms.string("caloMet"),
+        # -- Analysis specific cuts
+        minCandidates = cms.uint32(2), 
+        ),
     H2tau  = cms.PSet( 
-	    hltPathsToCheck = cms.vstring(
-		    "HLT_Ele22_eta2p1_WP90Rho_LooseIsoPFTau20_v",#?
+        hltPathsToCheck = cms.vstring(
+            "HLT_Ele22_eta2p1_WP90Rho_LooseIsoPFTau20_v",#?
                     "HLT_Ele22_eta2p1_WP90Rho_Gsf_LooseIsoPFTau20_v",
-#		    "HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v",
-		    "HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v",
+            #"HLT_Ele20_CaloIdVT_CaloIsoRhoT_TrkIdT_TrkIsoT_LooseIsoPFTau20_v",
+            "HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v",
                     "HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v"
-		    ),
-	    recPFTauLabel  = cms.string("hpsPFTauProducer"),
-	    recMuonLabel   = cms.string("muons"),
-	    recElecLabel   = cms.string("gedGsfElectrons"),
-	    # -- Analysis specific cuts
-	    minCandidates = cms.uint32(2), 
-	    ),
+            ),
+        recPFTauLabel  = cms.string("hpsPFTauProducer"),
+        recMuonLabel   = cms.string("muons"),
+        recElecLabel   = cms.string("gedGsfElectrons"),
+        # -- Analysis specific cuts
+        minCandidates = cms.uint32(2), 
+        ),
     #VBFHbb  = cms.PSet( 
-	    #hltPathsToCheck = cms.vstring(
-		    #"HLT_QuadJet75_55_35_20_BTagIP_VBF_v",
-		    #"HLT_QuadJet75_55_38_20_BTagIP_VBF_v"
-		    #),
-	    ##recJetLabel  = cms.string("ak5PFJets"),
-	    #recJetLabel  = cms.string("higgsDqmPFJetsFilter"),
-	    #jetTagLabel  = cms.string("hltHiggsDqmPfCombinedSecondaryVertexBJetTags"),
-	    ## -- Analysis specific cuts
-	    #minCandidates = cms.uint32(4), 
-	    #NminOneCuts = cms.untracked.vdouble(2.4, 300, 2, 0, 0, 0, 0, 85, 70, 60, 40), #dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
-	    #),
+        #hltPathsToCheck = cms.vstring(
+            #"HLT_QuadJet75_55_35_20_BTagIP_VBF_v",
+            #"HLT_QuadJet75_55_38_20_BTagIP_VBF_v"
+            #),
+        ##recJetLabel  = cms.string("ak5PFJets"),
+        #recJetLabel  = cms.string("higgsDqmPFJetsFilter"),
+        #jetTagLabel  = cms.string("hltHiggsDqmPfCombinedSecondaryVertexBJetTags"),
+        ## -- Analysis specific cuts
+        #minCandidates = cms.uint32(4), 
+        #NminOneCuts = cms.untracked.vdouble(2.4, 300, 2, 0, 0, 0, 0, 85, 70, 60, 40), #dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
+        #),
     ZnnHbb = cms.PSet( 
         hltPathsToCheck = cms.vstring(
             "HLT_PFMHT100_SingleCentralJet60_BTagCSV0p6_v"
