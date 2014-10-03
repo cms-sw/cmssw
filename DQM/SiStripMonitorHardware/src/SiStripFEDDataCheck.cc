@@ -77,6 +77,8 @@ class SiStripFEDCheckPlugin : public DQMEDAnalyzer
   bool printDebug_;
   
   //Histograms
+  bool doPLOTfedsPresent_, doPLOTfedFatalErrors_, doPLOTfedNonFatalErrors_;
+  bool doPLOTnFEDinVsLS_, doPLOTnFEDinWdataVsLS_;
   MonitorElement* fedsPresent_;
   MonitorElement* fedFatalErrors_;
   MonitorElement* fedNonFatalErrors_;
@@ -114,6 +116,11 @@ SiStripFEDCheckPlugin::SiStripFEDCheckPlugin(const edm::ParameterSet& iConfig)
   : rawDataTag_  (iConfig.getParameter<edm::InputTag>("RawDataTag"))
   , dirName_     (iConfig.getUntrackedParameter<std::string>("DirName","SiStrip/FEDIntegrity/"))
   , printDebug_  (iConfig.getUntrackedParameter<bool>("PrintDebugMessages",false))
+  , doPLOTfedsPresent_       (iConfig.getParameter<bool>("doPLOTfedsPresent")      )
+  , doPLOTfedFatalErrors_    (iConfig.getParameter<bool>("doPLOTfedFatalErrors")   )
+  , doPLOTfedNonFatalErrors_ (iConfig.getParameter<bool>("doPLOTfedNonFatalErrors"))
+  , doPLOTnFEDinVsLS_        (iConfig.getParameter<bool>("doPLOTnFEDinVsLS")       )
+  , doPLOTnFEDinWdataVsLS_   (iConfig.getParameter<bool>("doPLOTnFEDinWdataVsLS")  )
   , fedsPresent_      (NULL)
   , fedFatalErrors_   (NULL)
   , fedNonFatalErrors_(NULL)
@@ -265,8 +272,8 @@ SiStripFEDCheckPlugin::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
   }//loop over FED IDs
   if (verbose_) std::cout << "nFEDin: " << nFEDin << " nFEDinWdata: " << nFEDinWdata << std::endl;
-  nFEDinVsLS_      -> Fill(static_cast<double>(iEvent.id().luminosityBlock()),nFEDin);
-  nFEDinWdataVsLS_ -> Fill(static_cast<double>(iEvent.id().luminosityBlock()),nFEDinWdata);
+  if (doPLOTnFEDinVsLS_)      nFEDinVsLS_      -> Fill(static_cast<double>(iEvent.id().luminosityBlock()),nFEDin);
+  if (doPLOTnFEDinWdataVsLS_) nFEDinWdataVsLS_ -> Fill(static_cast<double>(iEvent.id().luminosityBlock()),nFEDinWdata);
   
   //update histograms if needed
   doUpdateIfNeeded();
@@ -282,40 +289,48 @@ void SiStripFEDCheckPlugin::bookHistograms(DQMStore::IBooker & ibooker , const e
   //get DQM store
   ibooker.setCurrentFolder(dirName_);
   //book histograms
-  fedsPresent_ = ibooker.book1D("FEDEntries",
-				"Number of times FED buffer is present in data",
-				nFED, xFEDmin, xFEDmax);
-  fedsPresent_->setAxisTitle("FED-ID",1);
+  if (doPLOTfedsPresent_) {
+    fedsPresent_ = ibooker.book1D("FEDEntries",
+				  "Number of times FED buffer is present in data",
+				  nFED, xFEDmin, xFEDmax);
+    fedsPresent_->setAxisTitle("FED-ID",1);
+  }
 
-  fedFatalErrors_ = ibooker.book1D("FEDFatal",
-				   "Number of fatal errors in FED buffer",
-				   nFED, xFEDmin, xFEDmax);
-  fedFatalErrors_->setAxisTitle("FED-ID",1);
+  if (doPLOTfedFatalErrors_) {
+    fedFatalErrors_ = ibooker.book1D("FEDFatal",
+				     "Number of fatal errors in FED buffer",
+				     nFED, xFEDmin, xFEDmax);
+    fedFatalErrors_->setAxisTitle("FED-ID",1);
+  }
 
-  fedNonFatalErrors_ = ibooker.book1D("FEDNonFatal",
-				      "Number of non fatal errors in FED buffer",
-				      nFED, xFEDmin, xFEDmax);
-  fedNonFatalErrors_->setAxisTitle("FED-ID",1);
-
+  if (doPLOTfedNonFatalErrors_) {
+    fedNonFatalErrors_ = ibooker.book1D("FEDNonFatal",
+					"Number of non fatal errors in FED buffer",
+					nFED, xFEDmin, xFEDmax);
+    fedNonFatalErrors_->setAxisTitle("FED-ID",1);
+  }
 
   int    LSBin = conf_.getParameter<int>   ("LSBin");
   double LSMin = conf_.getParameter<double>("LSMin");
   double LSMax = conf_.getParameter<double>("LSMax");
   
-  nFEDinVsLS_ = ibooker.bookProfile("nFEDinVsLS",
-				    "number of FED in Vs LS",
-				    LSBin, LSMin,   LSMax,
-				    nFED,  xFEDmin, xFEDmax);
-  nFEDinVsLS_->setAxisTitle("LS",1);
-  nFEDinVsLS_->setAxisTitle("FED-ID",2);
+  if (doPLOTnFEDinVsLS_) {
+    nFEDinVsLS_ = ibooker.bookProfile("nFEDinVsLS",
+				      "number of FED in Vs LS",
+				      LSBin, LSMin,   LSMax,
+				      nFED,  xFEDmin, xFEDmax);
+    nFEDinVsLS_->setAxisTitle("LS",1);
+    nFEDinVsLS_->setAxisTitle("FED-ID",2);
+  }
 
-  nFEDinWdataVsLS_ = ibooker.bookProfile("nFEDinWdataVsLS",
-					 "number of FED in (with data) Vs LS",
-					 LSBin, LSMin,   LSMax,
-					 nFED,  xFEDmin, xFEDmax);
-  nFEDinWdataVsLS_->setAxisTitle("LS",1);
-  nFEDinWdataVsLS_->setAxisTitle("FED-ID",2);
-
+  if (doPLOTnFEDinWdataVsLS_) {
+    nFEDinWdataVsLS_ = ibooker.bookProfile("nFEDinWdataVsLS",
+					   "number of FED in (with data) Vs LS",
+					   LSBin, LSMin,   LSMax,
+					   nFED,  xFEDmin, xFEDmax);
+    nFEDinWdataVsLS_->setAxisTitle("LS",1);
+    nFEDinWdataVsLS_->setAxisTitle("FED-ID",2);
+  }
 }
 
 // ------------ method called once each run just after ending the event loop  ------------
@@ -340,7 +355,8 @@ void SiStripFEDCheckPlugin::fillPresent(unsigned int fedId, bool present)
 {
   if (present) {
     if (updateFrequency_) fedsPresentBinContents_[fedId]++;
-    else fedsPresent_->Fill(fedId);
+    else 
+      if (doPLOTfedsPresent_) fedsPresent_->Fill(fedId);
   }
 }
 
@@ -350,7 +366,8 @@ void SiStripFEDCheckPlugin::fillFatalError(unsigned int fedId, bool fatalError)
     if (fatalError) fedFatalErrorBinContents_[fedId]++;
   } else {
     //fedFatalErrors_->Fill( fatalError ? 1 : 0 );
-    if (fatalError) fedFatalErrors_->Fill(fedId);
+    if (fatalError) 
+      if (doPLOTfedFatalErrors_) fedFatalErrors_->Fill(fedId);
   }
 }
 
@@ -359,7 +376,8 @@ void SiStripFEDCheckPlugin::fillNonFatalError(unsigned int fedId, float nonFatal
   if (updateFrequency_) {
     if (nonFatalError>0) fedNonFatalErrorBinContents_[fedId]++;//nonFatalError;
   } else {
-    if (nonFatalError>0) fedNonFatalErrors_->Fill(fedId);
+    if (nonFatalError>0) 
+      if (doPLOTfedNonFatalErrors_) fedNonFatalErrors_->Fill(fedId);
   }
 }
 
@@ -380,18 +398,18 @@ void SiStripFEDCheckPlugin::updateHistograms()
   unsigned int entriesNonFatalErrors = 0;
   for (unsigned int fedId = siStripFedIdMin_, bin = 1; fedId < siStripFedIdMax_+1; fedId++, bin++) {
     unsigned int fedsPresentBin = fedsPresentBinContents_[fedId];
-    fedsPresent_->getTH1()->SetBinContent(bin,fedsPresentBin);
+    if (doPLOTfedsPresent_) fedsPresent_->getTH1()->SetBinContent(bin,fedsPresentBin);
     entriesFedsPresent += fedsPresentBin;
     unsigned int fedFatalErrorsBin = fedFatalErrorBinContents_[fedId];
-    fedFatalErrors_->getTH1()->SetBinContent(bin,fedFatalErrorsBin);
+    if (doPLOTfedFatalErrors_) fedFatalErrors_->getTH1()->SetBinContent(bin,fedFatalErrorsBin);
     entriesFatalErrors += fedFatalErrorsBin;
     unsigned int fedNonFatalErrorsBin = fedNonFatalErrorBinContents_[fedId];
-    fedNonFatalErrors_->getTH1()->SetBinContent(bin,fedNonFatalErrorsBin);
+    if (doPLOTfedNonFatalErrors_) fedNonFatalErrors_->getTH1()->SetBinContent(bin,fedNonFatalErrorsBin);
     entriesNonFatalErrors += fedNonFatalErrorsBin;
   }
-  fedsPresent_->getTH1()->SetEntries(entriesFedsPresent);
-  fedFatalErrors_->getTH1()->SetEntries(entriesFatalErrors);
-  fedNonFatalErrors_->getTH1()->SetEntries(entriesNonFatalErrors);
+  if (doPLOTfedsPresent_) fedsPresent_->getTH1()->SetEntries(entriesFedsPresent);
+  if (doPLOTfedFatalErrors_) fedFatalErrors_->getTH1()->SetEntries(entriesFatalErrors);
+  if (doPLOTfedNonFatalErrors_) fedNonFatalErrors_->getTH1()->SetEntries(entriesNonFatalErrors);
 }
 
 //
