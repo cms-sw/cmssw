@@ -21,6 +21,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/TrackReco/interface/DeDxData.h"
 //#include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -38,6 +39,10 @@ HLTDeDxFilter::HLTDeDxFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConf
   minPT_        = iConfig.getParameter<double> ("minPT");
   minNOM_       = iConfig.getParameter<double> ("minNOM");
   maxETA_       = iConfig.getParameter<double> ("maxETA");
+  minNumValidHits_  = iConfig.getParameter<double> ("minNumValidHits");
+  maxNHitMissIn_    = iConfig.getParameter<double> ("maxNHitMissIn");
+  maxNHitMissMid_   = iConfig.getParameter<double> ("maxNHitMissMid");
+  maxRelTrkIsoDeltaRp3_     = iConfig.getParameter<double> ("maxRelTrkIsoDeltaRp3");
   inputTracksTag_ = iConfig.getParameter< edm::InputTag > ("inputTracksTag");
   inputdedxTag_   = iConfig.getParameter< edm::InputTag > ("inputDeDxTag");
   inputTracksToken_ = consumes<reco::TrackCollection>(iConfig.getParameter< edm::InputTag > ("inputTracksTag"));
@@ -58,6 +63,10 @@ void HLTDeDxFilter::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<double>("minPT",0.0);
   desc.add<double>("minNOM",0.0);
   desc.add<double>("maxETA",5.5);
+  desc.add<double>("minNumValidHits",0);
+  desc.add<double>("maxNHitMissIn",99);
+  desc.add<double>("maxNHitMissMid",99);
+  desc.add<double>("maxRelTrkIsoDeltaRp3", -1);
   desc.add<edm::InputTag>("inputTracksTag",edm::InputTag("hltL3Mouns"));
   desc.add<edm::InputTag>("inputDeDxTag",edm::InputTag("HLTdedxHarm2"));
   descriptions.add("hltDeDxFilter",desc);
@@ -98,6 +107,9 @@ bool
      reco::TrackRef track  = reco::TrackRef( trackCollectionHandle, i );
     if(track->pt()>minPT_ && fabs(track->eta())<maxETA_ && dEdxTrack[track].numberOfMeasurements()>minNOM_ && dEdxTrack[track].dEdx()>minDEDx_){
        NTracks++;
+       if(track->numberOfValidHits() < minNumValidHits_) continue;
+       if(track->hitPattern().trackerLayersWithoutMeasurement( reco::HitPattern::MISSING_INNER_HITS) > maxNHitMissIn_) continue;
+       if(track->hitPattern().trackerLayersWithoutMeasurement( reco::HitPattern::TRACK_HITS) > maxNHitMissMid_) continue;
        if (saveTags()){
           Particle::Charge q = track->charge();
           //SAVE DEDX INFORMATION AS IF IT WAS THE MASS OF THE PARTICLE
@@ -109,11 +121,25 @@ bool
           cand.setTrack(track);
           chargedCandidates->push_back(cand);
        }
+     
+       //calculate relative trk isolation only if parameter maxRelTrkIsoDeltaRp3 is different from default value of 99
+       if(maxRelTrkIsoDeltaRp3_ >= 0){
+       double ptCone = track->pt();
+       for(unsigned int j=0; j<trackCollection.size(); j++){
+	 reco::TrackRef track2  = reco::TrackRef( trackCollectionHandle, j );
+         if (track->eta() == track2->eta() && track->phi() == track2->phi()) continue; // do not compare track to itself
+         double trkDeltaR = deltaR(track->eta(), track->phi(), track2->eta(), track2->phi());
+         if (trkDeltaR < 0.3){
+           ptCone+=track2->pt();
+         }
+       }
+       double relTrkIso = (ptCone - track->pt())/(track->pt());
+       if (relTrkIso > maxRelTrkIsoDeltaRp3_) continue;
+       }
        accept=true;
     }
   }
 
-  // this is a test
   // put filter object into the Event
    if(saveTags()){
      edm::OrphanHandle<RecoChargedCandidateCollection> chargedCandidatesHandle = iEvent.put(chargedCandidates);
