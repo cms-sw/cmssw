@@ -113,6 +113,7 @@ bool
     }
   }
 
+  // this is a test
   // put filter object into the Event
    if(saveTags()){
      edm::OrphanHandle<RecoChargedCandidateCollection> chargedCandidatesHandle = iEvent.put(chargedCandidates);
