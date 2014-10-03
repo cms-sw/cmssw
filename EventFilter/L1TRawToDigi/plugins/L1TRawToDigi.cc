@@ -184,7 +184,7 @@ namespace l1t {
 
          auto unpackers = prov_->getUnpackers(fedId_, board, fw);
 
-         auto& payload64 = amc.data();
+         auto payload64 = amc.data();
          const uint32_t * payload = (const uint32_t*) payload64.get();
          const uint32_t * end = payload + (amc.size() * 2);
 
