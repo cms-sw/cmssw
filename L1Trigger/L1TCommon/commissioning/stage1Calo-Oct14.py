@@ -91,7 +91,7 @@ process.stage1Raw.txBlockLength   = cms.untracked.vint32(
     0,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,0,
-    0,0)
+    6,6)
 
 # raw to digi
 #import EventFilter.L1TRawToDigi.l1tRawToDigi_cfi
@@ -145,7 +145,7 @@ process.path = cms.Path(
 
     # produce RAW
     process.stage1Raw
-#    +process.dumpRaw
+    +process.dumpRaw
 
 )
 
