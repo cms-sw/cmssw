@@ -534,7 +534,7 @@ steps['QCD_Pt_170_230']=genS('QCD_Pt_170_230_8TeV_cfi',Kby(25,100))
 
 
 ## upgrade dedicated wf
-## extendedPhase1
+## extendedPhase1 ## do we need these (unused)? ==>
 step1UpepiDefaults = {'-s' : 'GEN,SIM',
                              '-n' : 10,
                              '--conditions' : 'DESIGN61_V10::All', #should be updated with autocond
@@ -585,12 +585,12 @@ steps['ZMM_UPGPhase1_8']=genepi('ZMM_8TeV_cfi',Kby(18,300))
 steps['ADDMonoJet_d3MD3_UPGPhase1_8']=genepi('ADDMonoJet_8TeV_d3MD3_cfi',Kby(9,100))
 steps['ZpMM_UPGPhase1_8']=genepi('ZpMM_8TeV_cfi',Kby(9,200))
 steps['WpM_UPGPhase1_8']=genepi('WpM_8TeV_cfi',Kby(9,200))
+## <== do we need these (unused)?
 
 
 
 
-
-#14TeV
+#14TeV  ## do we need these (unused)? ==>
 #steps['TTbarLepton_UPGPhase1_14']=genepi('TTbarLepton_Tauola_14TeV_cfi',Kby(9,100))
 steps['Wjet_Pt_80_120_UPGPhase1_14']=genepi('Wjet_Pt_80_120_14TeV_cfi',Kby(9,100))
 steps['Wjet_Pt_3000_3500_UPGPhase1_14']=genepi('Wjet_Pt_3000_3500_14TeV_cfi',Kby(9,50))
@@ -681,7 +681,7 @@ steps['WM_UPG2015_14']=gen2015('WM_14TeV_cfi',Kby(9,200))
 steps['ZMM_UPG2015_14']=gen2015('ZMM_14TeV_cfi',Kby(18,300))
 
 
-
+## do we need these (unused)? ==>
 step1Up2017Defaults = {'-s' : 'GEN,SIM',
                              '-n' : 10,
                              '--conditions' : 'auto:run2_mc', 
@@ -758,7 +758,7 @@ steps['QQH1352T_Tauola_UPG2017_14']=gen2017('QQH1352T_Tauola_14TeV_cfi',Kby(9,10
 steps['MinBias_TuneZ2star_UPG2017_14']=gen2017('MinBias_TuneZ2star_14TeV_pythia6_cff',Kby(9,300))
 steps['WM_UPG2017_14']=gen2017('WM_14TeV_cfi',Kby(9,200))
 steps['ZMM_UPG2017_14']=gen2017('ZMM_14TeV_cfi',Kby(18,300))
-
+## <== do we need these (unused)?
 
 ## pPb tests
 step1PPbDefaults={'--beamspot':'Realistic8TeVCollisionPPbBoost'}
