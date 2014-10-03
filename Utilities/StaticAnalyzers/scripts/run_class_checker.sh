@@ -3,9 +3,6 @@ export LC_ALL=C
 if [ $# -eq 0 ] ;then J=$(getconf _NPROCESSORS_ONLN); else J=$1; fi
 
 eval `scram runtime -sh`
-ulimit -m 4000000
-ulimit -t 1200
-ulimit -f 40000000
 cd ${LOCALRT}/tmp/
 touch check-start
 #touch function-checker.txt.unsorted class-checker.txt.unsorted
