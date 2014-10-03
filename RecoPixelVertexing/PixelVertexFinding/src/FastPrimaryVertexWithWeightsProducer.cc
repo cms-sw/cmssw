@@ -119,9 +119,9 @@ class FastPrimaryVertexWithWeightsProducer : public edm::EDProducer {
   double m_weightCut_step3; 		// minimum z-projections weight required in step3
 
   // use the jetPt weighting
-  bool m_ptWeighting;
-  double m_ptWeighting_parameter;	// parameter used in the pt-reweighting: weight=weight*(pt-ptWeighting_parameter)/(40-ptWeighting_parameter);
-  
+  bool m_ptWeighting;				// use weight=weight*pt_weigth ?;
+  double m_ptWeighting_slope;		// pt_weigth= pt*ptWeighting_slope +m_ptWeighting_offset;
+  double m_ptWeighting_offset;		// 
 };
 
 FastPrimaryVertexWithWeightsProducer::FastPrimaryVertexWithWeightsProducer(const edm::ParameterSet& iConfig)
@@ -172,7 +172,8 @@ FastPrimaryVertexWithWeightsProducer::FastPrimaryVertexWithWeightsProducer(const
   m_weightCut_step3      	= iConfig.getParameter<double>("weightCut_step3");
 
   m_ptWeighting		      	= iConfig.getParameter<bool>("ptWeighting");
-  m_ptWeighting_parameter	= iConfig.getParameter<double>("ptWeighting_parameter");
+  m_ptWeighting_slope	= iConfig.getParameter<double>("ptWeighting_slope");
+  m_ptWeighting_offset		= iConfig.getParameter<double>("ptWeighting_offset");
 
   produces<reco::VertexCollection>();
   produces<float>();
@@ -218,7 +219,8 @@ FastPrimaryVertexWithWeightsProducer::fillDescriptions(edm::ConfigurationDescrip
   desc.add<double>("zClusterSearchArea_step3",0.55);
   desc.add<double>("weightCut_step3",0.1);
   desc.add<bool>("ptWeighting",false); // <---- newMethod 
-  desc.add<double>("ptWeighting_parameter",20);
+  desc.add<double>("ptWeighting_slope",1/20.);
+  desc.add<double>("ptWeighting_offset",-1);
   descriptions.add("fastPrimaryVertexWithWeightsProducer",desc);
 }
 
@@ -247,8 +249,8 @@ FastPrimaryVertexWithWeightsProducer::produce(edm::Event& iEvent, const edm::Eve
    for(edm::View<reco::Jet>::const_iterator it = jets.begin() ; it != jets.end() && countjet<m_njets ; it++)
    {
    if( //select jets used in barrel or endcap pixel cluster projections
-    ((it->pt() >= m_minJetPt) && fabs(it->eta()) <= m_maxJetEta) || //barrel 
-    ((it->pt() >= m_minJetPt) && fabs(it->eta()) <= m_maxJetEta_EC && fabs(it->eta()) >= m_minJetEta_EC) //endcap 
+    ((it->pt() >= m_minJetPt) && std::abs(it->eta()) <= m_maxJetEta) || //barrel 
+    ((it->pt() >= m_minJetPt) && std::abs(it->eta()) <= m_maxJetEta_EC && std::abs(it->eta()) >= m_minJetEta_EC) //endcap 
     )
     {
       selectedJets.push_back(&(*it));
@@ -283,58 +285,59 @@ FastPrimaryVertexWithWeightsProducer::produce(edm::Event& iEvent, const edm::Eve
      float pt=(*jit)->pt();
      float eta=(*jit)->eta();
      float jetZOverRho = (*jit)->momentum().Z()/(*jit)->momentum().Rho();
+     float pt_weigth= pt*m_ptWeighting_slope +m_ptWeighting_offset;
      for(SiPixelClusterCollectionNew::const_iterator it = pixelClusters.begin() ; it != pixelClusters.end() ; it++) //Loop on pixel modules with clusters
      {//loop on pixel modules
         DetId id = it->detId();
         const edmNew::DetSet<SiPixelCluster> & detset  = (*it);
         Point3DBase<float, GlobalTag> modulepos=trackerGeometry->idToDet(id)->position();
         float zmodule = modulepos.z() - ((modulepos.x()-beamSpot->x0())*px+(modulepos.y()-beamSpot->y0())*py)/pt * pz/pt; 
-        if ((fabs(deltaPhi((*jit)->momentum().Phi(),modulepos.phi()))< m_maxDeltaPhi*2)&&(fabs(zmodule)<(m_maxZ+barrel_lenght))){//if it is a compatible module
+        if ((std::abs(deltaPhi((*jit)->momentum().Phi(),modulepos.phi()))< m_maxDeltaPhi*2)&&(std::abs(zmodule)<(m_maxZ+barrel_lenght))){//if it is a compatible module
         for(size_t j = 0 ; j < detset.size() ; j ++) 
         {//loop on pixel clusters on this module
 	  const SiPixelCluster & aCluster =  detset[j];
           if(//it is a cluster to project
 		  (// barrel
 		  m_barrel &&
-		  fabs(modulepos.z())<barrel_lenght &&
+		  std::abs(modulepos.z())<barrel_lenght &&
 		  pt>=m_minJetPt &&
 		  jet_count<m_njets &&
-		  fabs(eta)<=m_maxJetEta &&
+		  std::abs(eta)<=m_maxJetEta &&
 		  aCluster.sizeX() <= m_maxSizeX &&
-		  aCluster.sizeY()  >= m_PixelCellHeightOverWidth*fabs(jetZOverRho)+m_minSizeY_q &&
-		  aCluster.sizeY() <= m_PixelCellHeightOverWidth*fabs(jetZOverRho)+m_maxSizeY_q
+		  aCluster.sizeY()  >= m_PixelCellHeightOverWidth*std::abs(jetZOverRho)+m_minSizeY_q &&
+		  aCluster.sizeY() <= m_PixelCellHeightOverWidth*std::abs(jetZOverRho)+m_maxSizeY_q
 		  )
 		  ||
 		  (// EC
 		  m_endCap &&
-		  fabs(modulepos.z())>barrel_lenght &&
+		  std::abs(modulepos.z())>barrel_lenght &&
 		  pt > m_minJetPt &&
 		  jet_count<m_njets &&
-		  fabs(eta) <= m_maxJetEta_EC &&
-		  fabs(eta) >= m_minJetEta_EC &&
+		  std::abs(eta) <= m_maxJetEta_EC &&
+		  std::abs(eta) >= m_minJetEta_EC &&
 		  aCluster.sizeX() <= m_maxSizeX 
 		  )	  
           ){
             Point3DBase<float, GlobalTag> v = trackerGeometry->idToDet(id)->surface().toGlobal(pp->localParametersV( aCluster,( *trackerGeometry->idToDetUnit(id)))[0].first) ;
             GlobalPoint v_bs(v.x()-beamSpot->x0(),v.y()-beamSpot->y0(),v.z());
             if(//it pass DeltaPhi(Jet,Cluster) requirements
-		  (m_barrel && fabs(modulepos.z())<barrel_lenght && fabs(deltaPhi((*jit)->momentum().Phi(),v_bs.phi())) <= m_maxDeltaPhi ) || //barrel
-		  (m_endCap && fabs(modulepos.z())>barrel_lenght && fabs(deltaPhi((*jit)->momentum().Phi(),v_bs.phi())) <= m_maxDeltaPhi_EC )  //EC
+		  (m_barrel && std::abs(modulepos.z())<barrel_lenght && std::abs(deltaPhi((*jit)->momentum().Phi(),v_bs.phi())) <= m_maxDeltaPhi ) || //barrel
+		  (m_endCap && std::abs(modulepos.z())>barrel_lenght && std::abs(deltaPhi((*jit)->momentum().Phi(),v_bs.phi())) <= m_maxDeltaPhi_EC )  //EC
             )
             {
               float z = v.z() - ((v.x()-beamSpot->x0())*px+(v.y()-beamSpot->y0())*py)/pt * pz/pt;   //calculate z-projection
-              if(fabs(z) < m_maxZ)
+              if(std::abs(z) < m_maxZ)
               {
 	        zProjections.push_back(z); //add z-projection in zProjections
 		float weight=0;
 		//calculate zWeight
-	        if(fabs(modulepos.z())<barrel_lenght)
+	        if(std::abs(modulepos.z())<barrel_lenght)
 	        { //barrel
 	        	//calculate weight_sizeY
 			float sizeY=aCluster.sizeY();
-			float sizeY_up =  m_PixelCellHeightOverWidth*fabs(jetZOverRho)+m_maxSizeY_q;
-			float sizeY_peak = m_PixelCellHeightOverWidth*fabs(jetZOverRho)+m_peakSizeY_q; 
-			float sizeY_down = m_PixelCellHeightOverWidth*fabs(jetZOverRho)+m_minSizeY_q;
+			float sizeY_up =  m_PixelCellHeightOverWidth*std::abs(jetZOverRho)+m_maxSizeY_q;
+			float sizeY_peak = m_PixelCellHeightOverWidth*std::abs(jetZOverRho)+m_peakSizeY_q; 
+			float sizeY_down = m_PixelCellHeightOverWidth*std::abs(jetZOverRho)+m_minSizeY_q;
 			float weight_sizeY_up = (sizeY_up-sizeY)/(sizeY_up-sizeY_peak);
 			float weight_sizeY_down = (sizeY-sizeY_down)/(sizeY_peak-sizeY_down);
 			weight_sizeY_down = weight_sizeY_down *(weight_sizeY_down>0)*(weight_sizeY_down<1);
@@ -346,7 +349,7 @@ FastPrimaryVertexWithWeightsProducer::produce(edm::Event& iEvent, const edm::Eve
 			float weight_rho = ((m_weight_rho_up - rho)/m_weight_rho_up);
 		    	
 	        	//calculate weight_dPhi
-		    	float weight_dPhi = exp(-  fabs(deltaPhi((*jit)->momentum().Phi(),v_bs.phi()))/m_weight_dPhi );
+		    	float weight_dPhi = exp(-  std::abs(deltaPhi((*jit)->momentum().Phi(),v_bs.phi()))/m_weight_dPhi );
 		    	
 	        	//calculate weight_sizeX1
 			float weight_sizeX1= (aCluster.sizeX()==2) + (aCluster.sizeX()==1)*m_weight_SizeX1;
@@ -362,14 +365,14 @@ FastPrimaryVertexWithWeightsProducer::produce(edm::Event& iEvent, const edm::Eve
 	        	//calculate the final weight
 			weight = weight_dPhi * weight_sizeY  * weight_rho * weight_sizeX1 * weight_charge ;
 	        }
-	        else if(fabs(modulepos.z())>barrel_lenght) // EC
+	        else if(std::abs(modulepos.z())>barrel_lenght) // EC
 	        {// EC
 	        	//calculate weight_dPhi
-		    	float weight_dPhi = exp(-  fabs(deltaPhi((*jit)->momentum().Phi(),v_bs.phi())) /m_weight_dPhi_EC );
+		    	float weight_dPhi = exp(-  std::abs(deltaPhi((*jit)->momentum().Phi(),v_bs.phi())) /m_weight_dPhi_EC );
 	        	//calculate the final weight
 			weight=	 m_EC_weight*(weight_dPhi) ;    	        
 	        }
-		if(m_ptWeighting)	weight=weight*(pt-m_ptWeighting_parameter)/(40-m_ptWeighting_parameter); // a jetPt=40 doesn't change weight
+		   if(m_ptWeighting)	weight=weight*pt_weigth; 
 	        zWeights.push_back(weight); //add the weight to zWeights
 	      }	
   	    }//if it pass DeltaPhi(Jet,Cluster) requirements

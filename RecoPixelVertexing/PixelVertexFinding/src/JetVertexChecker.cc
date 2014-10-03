@@ -60,6 +60,8 @@ class JetVertexChecker : public edm::EDFilter {
      bool m_doFilter;
      double m_cutMinPt;
      double m_cutMinPtRatio; 
+     double m_maxTrackPt;
+     double m_maxChi2;
      int32_t m_maxNjets;
      int32_t m_maxNjetsOutput;
      
@@ -90,6 +92,8 @@ JetVertexChecker::JetVertexChecker(const edm::ParameterSet& iConfig)
   m_maxNjets         	    = iConfig.getParameter<int32_t>("maxNJetsToCheck");
   m_maxNjetsOutput          = iConfig.getParameter<int32_t>("maxNjetsOutput");
   m_newMethod                = iConfig.getParameter<bool>("newMethod");
+  m_maxTrackPt           = iConfig.getParameter<double>("maxTrackPt");
+  m_maxChi2           = iConfig.getParameter<double>("maxChi2");
   produces<std::vector<reco::CaloJet> >(); 
   produces<reco::VertexCollection >(); 
   produces<float >(); 
@@ -107,7 +111,7 @@ JetVertexChecker::~JetVertexChecker()
 
 //
 // member functions
-//	
+//	m_maxChi2 m_maxTrackPt
 
 // ------------ method called on each new Event  ------------
 bool
@@ -132,10 +136,11 @@ JetVertexChecker::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       math::XYZVector trMomentum;
       for(reco::TrackRefVector::const_iterator itTrack = tracks.begin(); itTrack != tracks.end(); ++itTrack) 
       {
-	     if(m_newMethod && (*itTrack)->chi2()>20) continue;
-             trMomentum += (*itTrack)->momentum();
-	     if(m_newMethod) trkpt += std::min(20.,( (*itTrack)->momentum().rho()));
-	     else trkpt += (*itTrack)->momentum().rho();
+         const reco::Track& iTrack = **itTrack;
+	     if(m_newMethod && (iTrack).chi2()>m_maxChi2) continue;
+             trMomentum += (iTrack).momentum();
+	     if(m_newMethod) trkpt += std::min(m_maxTrackPt,( (iTrack).pt()));
+	     else trkpt += (iTrack).momentum().rho();
       }
       calopt += jetMomentum.rho();
       if(trMomentum.rho()/jetMomentum.rho() < m_cutMinPtRatio || trMomentum.rho() < m_cutMinPt) 
@@ -176,7 +181,7 @@ JetVertexChecker::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.put(pOut2);
 
    std::auto_ptr<float> pOut3(new float);
-   *pOut3=trkpt/calopt;
+   *pOut3=(calopt>0.0?trkpt/calopt:0);
 
    iEvent.put(pOut3);
 
@@ -199,6 +204,8 @@ JetVertexChecker::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
    desc.add<bool> ("doFilter",false);
    desc.add<int> ("maxNJetsToCheck",2);
    desc.add<int> ("maxNjetsOutput",2);
+   desc.add<double> ("maxChi2",20.0);
+   desc.add<double> ("maxTrackPt",20.0);
    desc.add<bool> ("newMethod",false);		// <---- newMethod 
    descriptions.addDefault(desc);
 }
