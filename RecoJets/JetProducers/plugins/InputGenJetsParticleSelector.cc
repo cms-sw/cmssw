@@ -249,7 +249,10 @@ void InputGenJetsParticleSelector::produce (edm::Event &evt, const edm::EventSet
     evt.getByToken(input_prunedgenpartcoll_token_, prunedGenParticles );
 
     for (edm::View<reco::Candidate>::const_iterator iter=prunedGenParticles->begin();iter!=prunedGenParticles->end();++iter)
-      particles.push_back(&*iter);
+    {
+      if(iter->status()!=1)
+        particles.push_back(&*iter);
+    }
   }
 
   edm::Handle<edm::View<reco::Candidate> > genParticles;
