@@ -6,7 +6,14 @@ GenFilterEfficiencyProducer::GenFilterEfficiencyProducer(const edm::ParameterSet
   filterPath(iConfig.getParameter<std::string>("filterPath")),
   tns_(),
   thisProcess(),pathIndex(100000),
-  numEventsTotal(0),numEventsPassed(0)
+  numEventsPassPos_(0),
+  numEventsPassNeg_(0),
+  numEventsTotalPos_(0),
+  numEventsTotalNeg_(0),
+  sumpass_w_(0.),
+  sumpass_w2_(0.),
+  sumtotal_w_(0.),
+  sumtotal_w2_(0.)
 {
    //now do what ever initialization is needed
   if (edm::Service<edm::service::TriggerNamesService>().isAvailable()) {
@@ -46,12 +53,44 @@ GenFilterEfficiencyProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   edm::InputTag theTrig("TriggerResults","",thisProcess);
   edm::Handle<edm::TriggerResults> trigR;
   iEvent.getByLabel(theTrig,trigR); 
- 
+  edm::Handle<GenEventInfoProduct>    genEventScale;
+  if (!iEvent.getByLabel("generator", genEventScale))return;
+  double weight = genEventScale->weight();
+  
   unsigned int nSize = (*trigR).size();
   // std::cout << "Number of paths in TriggerResults = " << nSize  << std::endl;
   if ( nSize >= pathIndex ) {
-    if ( trigR->wasrun(pathIndex) ) { numEventsTotal++; }
-    if ( trigR->accept(pathIndex) ) { numEventsPassed++; }
+
+    if (!trigR->wasrun(pathIndex))return;
+    if ( trigR->accept(pathIndex) ) { 
+      sumpass_w_ += weight;
+      sumpass_w2_+= weight*weight;
+      
+      sumtotal_w_ += weight;
+      sumtotal_w2_+= weight*weight;
+
+      if(weight > 0)
+        {
+          numEventsPassPos_++;
+          numEventsTotalPos_++;
+        }
+      else
+        {
+          numEventsPassNeg_++;
+          numEventsTotalNeg_++;
+        }
+
+    }
+    else // if fail the filter
+      {
+        sumtotal_w_ += weight;
+        sumtotal_w2_+= weight*weight;
+
+        if(weight > 0)
+          numEventsTotalPos_++;
+        else
+          numEventsTotalNeg_++;
+      }
     //    std::cout << "Total events = " << numEventsTotal << " passed = " << numEventsPassed << std::endl;
   }
 
@@ -61,15 +100,30 @@ GenFilterEfficiencyProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 void
 GenFilterEfficiencyProducer::beginLuminosityBlock(edm::LuminosityBlock & iLumi, const edm::EventSetup&) {
  
-  numEventsTotal = 0;
-  numEventsPassed = 0;
+  numEventsPassPos_=0;
+  numEventsPassNeg_=0;
+  numEventsTotalPos_=0;
+  numEventsTotalNeg_=0;
+  sumpass_w_=0;
+  sumpass_w2_=0;
+  sumtotal_w_=0;
+  sumtotal_w2_=0;
   
 }
 
 void
 GenFilterEfficiencyProducer::endLuminosityBlock(edm::LuminosityBlock & iLumi, const edm::EventSetup&) {
 
-  std::auto_ptr<GenFilterInfo> thisProduct(new GenFilterInfo(numEventsTotal,numEventsPassed));
+  std::auto_ptr<GenFilterInfo> thisProduct(new GenFilterInfo(
+                                                             numEventsPassPos_,
+                                                             numEventsPassNeg_,
+                                                             numEventsTotalPos_,
+                                                             numEventsTotalNeg_,
+                                                             sumpass_w_,
+                                                             sumpass_w2_,
+                                                             sumtotal_w_,
+                                                             sumtotal_w2_
+                                                             ));
   iLumi.put(thisProduct);
   
 }
