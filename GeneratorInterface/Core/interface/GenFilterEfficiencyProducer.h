@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Utilities/interface/BranchType.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
@@ -47,6 +48,9 @@ private:
   virtual void endLuminosityBlockProduce(edm::LuminosityBlock &, const edm::EventSetup &) override;
 
   // ----------member data ---------------------------
+
+  edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
+  edm::EDGetTokenT<GenEventInfoProduct> genEventInfoToken_;
   
   std::string filterPath;
 
