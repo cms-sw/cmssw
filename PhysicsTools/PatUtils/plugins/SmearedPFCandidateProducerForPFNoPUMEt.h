@@ -25,7 +25,7 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -42,7 +42,7 @@
 #include <vector>
 
 template <typename T, typename Textractor>
-class SmearedPFCandidateProducerForPFNoPUMEtT : public edm::EDProducer  
+  class SmearedPFCandidateProducerForPFNoPUMEtT : public edm::stream::EDProducer<>  
 {
   typedef std::vector<T> JetCollection;
 

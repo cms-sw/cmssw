@@ -108,7 +108,7 @@ void SmearedPFCandidateProducerForPFNoPUMEtT<T, Textractor>::produce(edm::Event&
 
     if ( jet_matched==nullptr ) continue;
 
-    static SmearedJetProducer_namespace::RawJetExtractorT<T> rawJetExtractor;
+    const static SmearedJetProducer_namespace::RawJetExtractorT<T> rawJetExtractor;
     reco::Candidate::LorentzVector rawJetP4 = rawJetExtractor(*jet_matched);
     // if ( verbosity_ ) {
     //   std::cout << "rawJet: Pt = " << rawJetP4.pt() << ", eta = " << rawJetP4.eta() << ", phi = " << rawJetP4.phi() << std::endl;

@@ -11,7 +11,7 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -36,7 +36,7 @@
 
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
-class NoPileUpPFMEtDataProducer : public edm::EDProducer
+class NoPileUpPFMEtDataProducer : public edm::stream::EDProducer<>
 {
  public:
   

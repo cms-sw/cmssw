@@ -129,8 +129,8 @@ void scaleAndAddPFMEtSignObjects(std::vector<metsig::SigInputObj>& metSignObject
 				 double sf, double sfMin, double sfMax)
 {
   double sf_value = sf;
-  if ( sf_value > sfMax ) sf = sfMax;
-  if ( sf_value < sfMin ) sf = sfMin;
+  if ( sf_value > sfMax ) sf_value = sfMax;
+  if ( sf_value < sfMin ) sf_value = sfMin;
   for ( std::vector<metsig::SigInputObj>::const_iterator metSignObject = metSignObjects.begin();
 	metSignObject != metSignObjects.end(); ++metSignObject ) {
     metsig::SigInputObj metSignObject_scaled;

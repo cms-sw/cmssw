@@ -16,7 +16,7 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -141,7 +141,7 @@ namespace SmearedJetProducer_namespace
 }
 
 template <typename T, typename Textractor>
-class SmearedJetProducerT : public edm::EDProducer
+  class SmearedJetProducerT : public edm::stream::EDProducer<>
 {
   typedef std::vector<T> JetCollection;
 

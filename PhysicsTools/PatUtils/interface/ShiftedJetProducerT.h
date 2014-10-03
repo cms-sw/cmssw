@@ -14,7 +14,7 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -33,7 +33,7 @@
 #include <string>
 
 template <typename T, typename Textractor>
-class ShiftedJetProducerT : public edm::EDProducer
+  class ShiftedJetProducerT : public edm::stream::EDProducer<>
 {
   typedef std::vector<T> JetCollection;
 

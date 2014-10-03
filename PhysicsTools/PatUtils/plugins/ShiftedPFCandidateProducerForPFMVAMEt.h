@@ -16,7 +16,7 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -30,7 +30,7 @@
 #include <string>
 #include <vector>
 
-class ShiftedPFCandidateProducerForPFMVAMEt : public edm::EDProducer
+class ShiftedPFCandidateProducerForPFMVAMEt : public edm::stream::EDProducer<>
 {
  public:
 
