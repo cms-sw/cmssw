@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi import *
 
+
+
 cosmicMuonsBarrelOnlyFilter = cms.EDFilter("HLTMuonPointingFilter",
     SALabel = cms.InputTag("cosmicMuons"),
     PropagatorName = cms.string("SteppingHelixPropagatorAny"),
