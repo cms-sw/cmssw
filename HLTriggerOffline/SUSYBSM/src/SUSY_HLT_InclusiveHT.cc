@@ -16,6 +16,7 @@ SUSY_HLT_InclusiveHT::SUSY_HLT_InclusiveHT(const edm::ParameterSet& ps)
   theCaloJetCollection_ = consumes<reco::CaloJetCollection>(ps.getParameter<edm::InputTag>("caloJetCollection"));
   triggerResults_ = consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>("TriggerResults"));
   triggerPath_ = ps.getParameter<std::string>("TriggerPath");
+  triggerPathAuxiliaryForHadronic_ = ps.getParameter<std::string>("TriggerPathAuxiliaryForHadronic");
   triggerFilter_ = ps.getParameter<edm::InputTag>("TriggerFilter");
   ptThrJet_ = ps.getUntrackedParameter<double>("PtThrJet");
   etaThrJet_ = ps.getUntrackedParameter<double>("EtaThrJet");
@@ -113,48 +114,51 @@ void SUSY_HLT_InclusiveHT::analyze(edm::Event const& e, edm::EventSetup const& e
       }
     }
 
-  bool hasFired = false;
+  bool hasFired = false, hasFiredAuxiliaryForHadronicLeg=false;
   const edm::TriggerNames& trigNames = e.triggerNames(*hltresults);
   unsigned int numTriggers = trigNames.size();
   for( unsigned int hltIndex=0; hltIndex<numTriggers; ++hltIndex ){
     if (trigNames.triggerName(hltIndex)==triggerPath_ && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) hasFired = true;
+    if (trigNames.triggerName(hltIndex)==triggerPathAuxiliaryForHadronic_ && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) hasFiredAuxiliaryForHadronicLeg = true;
   }
 
-  float caloHT = 0.0;
-  float pfHT = 0.0;
-  for (reco::PFJetCollection::const_iterator i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end(); ++i_pfjet){
-    if (i_pfjet->pt() < ptThrJet_) continue;
-    if (fabs(i_pfjet->eta()) > etaThrJet_) continue;
-    pfHT += i_pfjet->pt();
-  }
-
-  if(hasFired){
-    for (reco::CaloJetCollection::const_iterator i_calojet = caloJetCollection->begin(); i_calojet != caloJetCollection->end(); ++i_calojet){
-      if (i_calojet->pt() < ptThrJet_) continue;
-      if (fabs(i_calojet->eta()) > etaThrJet_) continue;
-      h_caloJetPt ->Fill(i_calojet->pt());
-      h_caloJetEta ->Fill(i_calojet->eta());
-      h_caloJetPhi ->Fill(i_calojet->phi());
-      caloHT += i_calojet->pt();
-    }
+  if(hasFiredAuxiliaryForHadronicLeg) {
+    float caloHT = 0.0;
+    float pfHT = 0.0;
     for (reco::PFJetCollection::const_iterator i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end(); ++i_pfjet){
       if (i_pfjet->pt() < ptThrJet_) continue;
       if (fabs(i_pfjet->eta()) > etaThrJet_) continue;
-      h_pfJetPt ->Fill(i_pfjet->pt());
-      h_pfJetEta ->Fill(i_pfjet->eta());
-      h_pfJetPhi ->Fill(i_pfjet->phi());
+      pfHT += i_pfjet->pt();
     }
-    h_pfMet -> Fill(pfMETCollection->begin()->et());
-    h_pfMetPhi -> Fill(pfMETCollection->begin()->phi());
-    h_pfHT -> Fill(pfHT);
-    h_caloHT -> Fill(caloHT);
 
-    h_pfMetTurnOn_num -> Fill(pfMETCollection->begin()->et());
-    h_pfHTTurnOn_num -> Fill(pfHT);
+    if(hasFired){
+      for (reco::CaloJetCollection::const_iterator i_calojet = caloJetCollection->begin(); i_calojet != caloJetCollection->end(); ++i_calojet){
+        if (i_calojet->pt() < ptThrJet_) continue;
+        if (fabs(i_calojet->eta()) > etaThrJet_) continue;
+        h_caloJetPt ->Fill(i_calojet->pt());
+        h_caloJetEta ->Fill(i_calojet->eta());
+        h_caloJetPhi ->Fill(i_calojet->phi());
+        caloHT += i_calojet->pt();
+      }
+      for (reco::PFJetCollection::const_iterator i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end(); ++i_pfjet){
+        if (i_pfjet->pt() < ptThrJet_) continue;
+        if (fabs(i_pfjet->eta()) > etaThrJet_) continue;
+        h_pfJetPt ->Fill(i_pfjet->pt());
+        h_pfJetEta ->Fill(i_pfjet->eta());
+        h_pfJetPhi ->Fill(i_pfjet->phi());
+      }
+      h_pfMet -> Fill(pfMETCollection->begin()->et());
+      h_pfMetPhi -> Fill(pfMETCollection->begin()->phi());
+      h_pfHT -> Fill(pfHT);
+      h_caloHT -> Fill(caloHT);
+
+      h_pfMetTurnOn_num -> Fill(pfMETCollection->begin()->et());
+      h_pfHTTurnOn_num -> Fill(pfHT);
+    }
+    //fill denominator histograms for all events, used for turn on curves
+    h_pfMetTurnOn_den -> Fill(pfMETCollection->begin()->et());
+    h_pfHTTurnOn_den -> Fill(pfHT);
   }
-  //fill denominator histograms for all events, used for turn on curves
-  h_pfMetTurnOn_den -> Fill(pfMETCollection->begin()->et());
-  h_pfHTTurnOn_den -> Fill(pfHT);
 }
 
 

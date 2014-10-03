@@ -1,16 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 
 SUSY_HLT_MET_MUON = cms.EDAnalyzer("SUSY_HLT_Muon_Hadronic",
-  trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLTX'), #to use with test sample
+  trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
   #trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   MuonCollection = cms.InputTag("muons"),
   pfMETCollection = cms.InputTag("pfMet"),
   caloMETCollection = cms.InputTag("met"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
   caloJetCollection = cms.InputTag("ak4CaloJets"),
-  TriggerResults = cms.InputTag('TriggerResults','','HLTX'), #to use with test sample
+  TriggerResults = cms.InputTag('TriggerResults','','HLT'), #to use with test sample
   #TriggerResults = cms.InputTag('TriggerResults','','HLT'),
-  HLTProcess = cms.string('HLTX'),
+  HLTProcess = cms.string('HLT'),
   TriggerPath = cms.string('HLT_PFMET120_NoiseCleaned_Mu5_v1'),
   TriggerPathAuxiliaryForMuon = cms.string('HLT_PFMET170_NoiseCleaned_v1'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoMu24_IterTrk02_v1'),
@@ -20,16 +20,16 @@ SUSY_HLT_MET_MUON = cms.EDAnalyzer("SUSY_HLT_Muon_Hadronic",
 
 
 SUSY_HLT_MET_MUON_FASTSIM = cms.EDAnalyzer("SUSY_HLT_Muon_Hadronic",
-  trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLTX'), #to use with test sample
+  trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
   #trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   MuonCollection = cms.InputTag("muons"),
   pfMETCollection = cms.InputTag("pfMet"),
   caloMETCollection = cms.InputTag("met"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
   caloJetCollection = cms.InputTag("ak4CaloJets"),
-  TriggerResults = cms.InputTag('TriggerResults','','HLTX'), #to use with test sample
+  TriggerResults = cms.InputTag('TriggerResults','','HLT'), #to use with test sample
   #TriggerResults = cms.InputTag('TriggerResults','','HLT'),
-  HLTProcess = cms.string('HLTX'),
+  HLTProcess = cms.string('HLT'),
   TriggerPath = cms.string('HLT_PFMET120_NoiseCleaned_Mu5_v1'),
   TriggerPathAuxiliaryForMuon = cms.string('HLT_PFMET170_NoiseCleaned_v1'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoMu24_IterTrk02_v1'),
