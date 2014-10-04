@@ -25,6 +25,11 @@ public:
     /// default constructor
     TrackExtraBase() : m_firstHit(-1), m_nHits(0) { }
 
+    void setHits(TrackingRecHitRefProd const & prod, unsigned firstH, unsigned int nH) {
+        m_hitCollection.pushBackItem(prod.refCore(),true);
+        m_firstHit =firstH;  m_nHits=nH;
+    }
+
     /// add a reference to a RecHit
     void add(const TrackingRecHitRef &ref) {
       m_hitCollection.pushBackItem(ref.refCore(), true);
@@ -76,9 +81,6 @@ private:
     edm::RefCore m_hitCollection;
     unsigned int m_firstHit;
     unsigned int m_nHits;
-
-    /// references to the hit assigned to the track.
-    // TrackingRecHitRefVector recHits_;
 
 };
 

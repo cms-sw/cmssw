@@ -437,10 +437,9 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 	
 	// fill TrackingRecHits
 	unsigned nh1=track.recHitsSize();
-	for ( unsigned ih=0; ih<nh1; ++ih ) { 
-	  //const TrackingRecHit*hit=&((*(track->recHit(ih))));
-	  outputTrkHits->push_back( track.recHit(ih)->clone() );
-	  tx.add( TrackingRecHitRef( refTrkHits, outputTrkHits->size() - 1) );
+       	tx.setHits(refTrkHits,outputTrkHits->size(),nh1);
+	for (auto hh = track.recHitsBegin(), eh=track.recHitsEnd(); hh!=eh; ++hh ) { 
+	  outputTrkHits->push_back( (*hh)->clone() );
 	}
 	
       }
