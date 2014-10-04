@@ -99,11 +99,11 @@ void SUSY_HLT_InclusiveHT::analyze(edm::Event const& e, edm::EventSetup const& e
       const trigger::Keys& keys = triggerSummary->filterKeys( filterIndex );
       for( size_t j = 0; j < keys.size(); ++j ){
         trigger::TriggerObject foundObject = triggerObjects[keys[j]];
-        if(foundObject.id() == 85 && foundObject.pt() > 40.0 && fabs(foundObject.eta()) < 3.0){
-          h_triggerJetPt->Fill(foundObject.pt());
-          h_triggerJetEta->Fill(foundObject.eta());
-          h_triggerJetPhi->Fill(foundObject.phi());
-        }
+        //if(foundObject.id() == 85 && foundObject.pt() > 40.0 && fabs(foundObject.eta()) < 3.0){
+        //  h_triggerJetPt->Fill(foundObject.pt());
+        //  h_triggerJetEta->Fill(foundObject.eta());
+        //  h_triggerJetPhi->Fill(foundObject.phi());
+        //}
         if(foundObject.id() == 87){
           h_triggerMetPt->Fill(foundObject.pt());
           h_triggerMetPhi->Fill(foundObject.phi());
@@ -191,9 +191,9 @@ void SUSY_HLT_InclusiveHT::bookHistos(DQMStore::IBooker & ibooker_)
   h_caloJetPhi = ibooker_.book1D("caloJetPhi", "CaloJet Phi", 20, -3.5, 3.5 );
 
   //online quantities 
-  h_triggerJetPt = ibooker_.book1D("triggerJetPt", "Trigger Jet Pt; GeV", 20, 0.0, 500.0);
-  h_triggerJetEta = ibooker_.book1D("triggerJetEta", "Trigger Jet Eta", 20, -3.0, 3.0);
-  h_triggerJetPhi = ibooker_.book1D("triggerJetPhi", "Trigger Jet Phi", 20, -3.5, 3.5);
+  //h_triggerJetPt = ibooker_.book1D("triggerJetPt", "Trigger Jet Pt; GeV", 20, 0.0, 500.0);
+  //h_triggerJetEta = ibooker_.book1D("triggerJetEta", "Trigger Jet Eta", 20, -3.0, 3.0);
+  //h_triggerJetPhi = ibooker_.book1D("triggerJetPhi", "Trigger Jet Phi", 20, -3.5, 3.5);
   h_triggerMetPt = ibooker_.book1D("triggerMetPt", "Trigger Met Pt; GeV", 20, 0.0, 500.0);
   h_triggerMetPhi = ibooker_.book1D("triggerMetPhi", "Trigger Met Phi", 20, -3.5, 3.5);
   h_triggerHT = ibooker_.book1D("triggerHT", "Trigger HT; GeV", 30, 0.0, 1500.0);

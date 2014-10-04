@@ -19,8 +19,8 @@ process.GlobalTag.globaltag = 'GR_R_52_V7::All'
 #process.GlobalTag.globaltag = 'GR10_P_V10::All'
 ## input file (adapt input file name correspondingly)
 process.source = cms.Source("PoolSource",
-#fileNames = cms.untracked.vstring("file:/tmp/pablom/Output.root"),
-fileNames = cms.untracked.vstring("file:/tmp/pablom/OutputJason.root"),
+fileNames = cms.untracked.vstring("file:/tmp/pablom/OutputOwen.root"),
+#fileNames = cms.untracked.vstring("file:/tmp/pablom/OutputJason.root"),
 processingMode = cms.untracked.string('RunsAndLumis')
 )
 
@@ -63,8 +63,8 @@ process.edmtome = cms.Path(
 process.EDMtoME
 )
 
-#process.SusyExoPostVal = cms.Sequence(process.SUSY_HLT_MET_MUON_POSTPROCESSING)
-process.SusyExoPostVal = cms.Sequence(process.SUSY_HLT_InclusiveHT_aux350_POSTPROCESSING + process.SUSY_HLT_InclusiveHT_aux600_POSTPROCESSING)
+process.SusyExoPostVal = cms.Sequence(process.SUSY_HLT_MET_MUON_POSTPROCESSING)
+#process.SusyExoPostVal = cms.Sequence(process.SUSY_HLT_InclusiveHT_aux350_POSTPROCESSING + process.SUSY_HLT_InclusiveHT_aux600_POSTPROCESSING)
 
 process.susypost = cms.Path(
 process.SusyExoPostVal

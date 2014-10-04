@@ -21,6 +21,7 @@ SUSY_HLT_Muon_Hadronic::SUSY_HLT_Muon_Hadronic(const edm::ParameterSet& ps)
   triggerPath_ = ps.getParameter<std::string>("TriggerPath");
   triggerPathAuxiliaryForMuon_ = ps.getParameter<std::string>("TriggerPathAuxiliaryForMuon");
   triggerPathAuxiliaryForHadronic_ = ps.getParameter<std::string>("TriggerPathAuxiliaryForHadronic");
+  triggerFilter_ = ps.getParameter<edm::InputTag>("TriggerFilter");
   ptThrJet_ = ps.getUntrackedParameter<double>("PtThrJet");
   etaThrJet_ = ps.getUntrackedParameter<double>("EtaThrJet");
 }
@@ -52,8 +53,9 @@ void SUSY_HLT_Muon_Hadronic::dqmBeginRun(edm::Run const &run, edm::EventSetup co
     edm::LogError ("SUSY_HLT_Muon_Hadronic") << "Path not found" << "\n";
     return;
   }
-  std::vector<std::string> filtertags = fHltConfig.moduleLabels( triggerPath_ );
-  triggerFilter_ = edm::InputTag(filtertags[filtertags.size()-1],"",fHltConfig.processName());  
+  //std::vector<std::string> filtertags = fHltConfig.moduleLabels( triggerPath_ );
+  //triggerFilter_ = edm::InputTag(filtertags[filtertags.size()-1],"",fHltConfig.processName());  
+  //triggerFilter_ = edm::InputTag("hltPFMET120Mu5L3PreFiltered", "", fHltConfig.processName());
 
   edm::LogInfo("SUSY_HLT_Muon_Hadronic") << "SUSY_HLT_Muon_Hadronic::beginRun" << std::endl;
 }
@@ -144,7 +146,7 @@ void SUSY_HLT_Muon_Hadronic::analyze(edm::Event const& e, edm::EventSetup const&
     const trigger::Keys& keys = triggerSummary->filterKeys( filterIndex );
     for( size_t j = 0; j < keys.size(); ++j ){
       trigger::TriggerObject foundObject = triggerObjects[keys[j]];
-      if(foundObject.id() == 83){ //It's a muon
+      if(fabs(foundObject.id()) == 13){ //It's a muon
         h_triggerMuPt->Fill(foundObject.pt());
         h_triggerMuEta->Fill(foundObject.eta());
         h_triggerMuPhi->Fill(foundObject.phi());
@@ -167,9 +169,10 @@ void SUSY_HLT_Muon_Hadronic::analyze(edm::Event const& e, edm::EventSetup const&
     if (trigNames.triggerName(hltIndex)==triggerPathAuxiliaryForHadronic_ && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) hasFiredAuxiliaryForHadronicLeg = true;
   }
 
-  
-  if(hasFiredAuxiliaryForMuonLeg || hasFiredAuxiliaryForHadronicLeg) {
 
+
+  if(hasFiredAuxiliaryForMuonLeg || hasFiredAuxiliaryForHadronicLeg) {
+  
     //Matching the muon
     int indexOfMatchedMuon = -1;
     int offlineCounter = 0;
@@ -182,7 +185,7 @@ void SUSY_HLT_Muon_Hadronic::analyze(edm::Event const& e, edm::EventSetup const&
       }
       offlineCounter++;
     }
-
+   
     float caloHT = 0.0;
     float pfHT = 0.0;
     for (reco::PFJetCollection::const_iterator i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end(); ++i_pfjet){
@@ -199,18 +202,16 @@ void SUSY_HLT_Muon_Hadronic::analyze(edm::Event const& e, edm::EventSetup const&
     if(hasFiredAuxiliaryForMuonLeg && MuonCollection->size()>0) {
       if(hasFired && indexOfMatchedMuon >= 0) {
         h_MuTurnOn_num-> Fill(MuonCollection->at(indexOfMatchedMuon).pt());
-      } else {
-        h_MuTurnOn_den-> Fill(MuonCollection->at(0).pt());
-      }
+      } 
+      h_MuTurnOn_den-> Fill(MuonCollection->at(0).pt());
     }
     if(hasFiredAuxiliaryForHadronicLeg) {
       if(hasFired) {
         h_pfMetTurnOn_num-> Fill(pfMETCollection->begin()->et());
         h_pfHTTurnOn_num-> Fill(pfHT);
-      } else {
-        h_pfMetTurnOn_den-> Fill(pfMETCollection->begin()->et());
-        h_pfHTTurnOn_den-> Fill(pfHT);
-      }
+      } 
+      h_pfMetTurnOn_den-> Fill(pfMETCollection->begin()->et());
+      h_pfHTTurnOn_den-> Fill(pfHT);
     }
   }
 }
