@@ -129,7 +129,7 @@ JetVertexChecker::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //limit to first two jets
    for(reco::JetTracksAssociationCollection::const_iterator it = jetTracksAssociation->begin();
        it != jetTracksAssociation->end() && i < m_maxNjets; it++, i++) {
-     if(fabs(it->first->eta()) < 2.4)
+     if(std::abs(it->first->eta()) < 2.4)
      {
       reco::TrackRefVector tracks = it->second;
       math::XYZVector jetMomentum = it->first->momentum();
@@ -137,10 +137,10 @@ JetVertexChecker::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       for(reco::TrackRefVector::const_iterator itTrack = tracks.begin(); itTrack != tracks.end(); ++itTrack) 
       {
          const reco::Track& iTrack = **itTrack;
-	     if(m_newMethod && (iTrack).chi2()>m_maxChi2) continue;
-             trMomentum += (iTrack).momentum();
-	     if(m_newMethod) trkpt += std::min(m_maxTrackPt,( (iTrack).pt()));
-	     else trkpt += (iTrack).momentum().rho();
+	     if(m_newMethod && iTrack.chi2()>m_maxChi2) continue;
+             trMomentum += iTrack.momentum();
+	     if(m_newMethod) trkpt += std::min(m_maxTrackPt,( iTrack.pt()));
+	     else trkpt += iTrack.pt();
       }
       calopt += jetMomentum.rho();
       if(trMomentum.rho()/jetMomentum.rho() < m_cutMinPtRatio || trMomentum.rho() < m_cutMinPt) 
@@ -157,7 +157,7 @@ JetVertexChecker::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   if(trkpt/calopt < m_cutMinPtRatio) result=false;   
 	   for(reco::JetTracksAssociationCollection::const_iterator it = jetTracksAssociation->begin(); it != jetTracksAssociation->end() && i < m_maxNjetsOutput; it++, i++)
 	   {
-	     if(!result && fabs(it->first->eta()) < 2.4)
+	     if(!result && std::abs(it->first->eta()) < 2.4)
 	     {
 		pOut->push_back(* dynamic_cast<const reco::CaloJet *>(&(*it->first)));
 	     }

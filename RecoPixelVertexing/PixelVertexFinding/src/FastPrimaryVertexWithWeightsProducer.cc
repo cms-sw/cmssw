@@ -285,7 +285,7 @@ FastPrimaryVertexWithWeightsProducer::produce(edm::Event& iEvent, const edm::Eve
      float pt=(*jit)->pt();
      float eta=(*jit)->eta();
      float jetZOverRho = (*jit)->momentum().Z()/(*jit)->momentum().Rho();
-     float pt_weigth= pt*m_ptWeighting_slope +m_ptWeighting_offset;
+     float pt_weight= pt*m_ptWeighting_slope +m_ptWeighting_offset;
      for(SiPixelClusterCollectionNew::const_iterator it = pixelClusters.begin() ; it != pixelClusters.end() ; it++) //Loop on pixel modules with clusters
      {//loop on pixel modules
         DetId id = it->detId();
@@ -372,7 +372,7 @@ FastPrimaryVertexWithWeightsProducer::produce(edm::Event& iEvent, const edm::Eve
 	        	//calculate the final weight
 			weight=	 m_EC_weight*(weight_dPhi) ;    	        
 	        }
-		   if(m_ptWeighting)	weight=weight*pt_weigth; 
+		   if(m_ptWeighting)	weight=weight*pt_weight; 
 	        zWeights.push_back(weight); //add the weight to zWeights
 	      }	
   	    }//if it pass DeltaPhi(Jet,Cluster) requirements
