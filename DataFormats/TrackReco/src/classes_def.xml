@@ -328,10 +328,21 @@
   <class name="reco::TrackResiduals" ClassVersion="10">
    <version ClassVersion="10" checksum="2022291691"/>
   </class>
+
   <class name="reco::TrackExtraBase" ClassVersion="11">
    <version ClassVersion="10" checksum="3548207838"/>
    <version ClassVersion="11" checksum="3450798337"/>
   </class>
+  <ioread sourceClass = "reco::TrackExtraBase" version="[-10]" targetClass="reco::TrackExtraBase" source ="TrackingRecHitRefVector recHits_" target="m_hitCollection">
+    <![CDATA[m_hitCollection=onfile.recHits_.refVector().refCore();]]>
+  </ioread>
+  <ioread sourceClass = "reco::TrackExtraBase" version="[-10]" targetClass="reco::TrackExtraBase" source ="TrackingRecHitRefVector recHits_" target="m_firstHit">
+    <![CDATA[m_firstHit = onfile.recHits_.refVector().keys()[0];]]>
+  </ioread>
+  <ioread sourceClass = "reco::TrackExtraBase" version="[-10]" targetClass="reco::TrackExtraBase" source ="TrackingRecHitRefVector recHits_" target="m_nHits">
+    <![CDATA[m_nHits=onfile.recHits_.size();]]>
+  </ioread>
+
 
   <class name="reco::TrackExtra" ClassVersion="10">
    <version ClassVersion="10" checksum="1613098482"/>
