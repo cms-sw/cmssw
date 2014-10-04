@@ -467,9 +467,9 @@ FastTrackMerger::findId(const reco::Track& aTrack) const {
   trackingRecHit_iterator aHit = aTrack.recHitsBegin();
   trackingRecHit_iterator lastHit = aTrack.recHitsEnd();
   for ( ; aHit!=lastHit; ++aHit ) {
-    if ( !aHit->get()->isValid() ) continue;
+    if ( !(*aHit)->isValid() ) continue;
     //    const SiTrackerGSRecHit2D * rechit = (const SiTrackerGSRecHit2D*) (aHit->get());
-    const SiTrackerGSMatchedRecHit2D * rechit = (const SiTrackerGSMatchedRecHit2D*) (aHit->get());
+    const SiTrackerGSMatchedRecHit2D * rechit = (const SiTrackerGSMatchedRecHit2D*) (*aHit);
     trackId = rechit->simtrackId();
     break;
   }

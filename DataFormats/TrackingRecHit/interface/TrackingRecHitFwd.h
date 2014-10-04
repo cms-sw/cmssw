@@ -16,6 +16,6 @@ typedef edm::RefProd<TrackingRecHitCollection> TrackingRecHitRefProd;
 /// vector of reference to TrackingRecHit in the same collection
 typedef edm::RefVector<TrackingRecHitCollection> TrackingRecHitRefVector;
 /// iterator over a vector of reference to TrackingRecHit in the same collection
-typedef TrackingRecHitRefVector::iterator trackingRecHit_iterator;
+typedef TrackingRecHitCollection::base::const_iterator trackingRecHit_iterator;
 
 #endif
