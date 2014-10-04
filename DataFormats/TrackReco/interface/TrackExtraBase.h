@@ -30,14 +30,9 @@ public:
         recHits_.push_back(r);
     }
 
-    /// first iterator over RecHits
-    trackingRecHit_iterator recHitsBegin() const {
-        return recHitsProduct().data().begin()+recHits_.begin().key();
-    }
 
-    /// last iterator over RecHits
-    trackingRecHit_iterator recHitsEnd() const {
-        return recHitsBegin()+recHitsSize();
+    unsigned int firstRecHit() const {
+      return recHits_.begin().key();
     }
 
     /// number of RecHits
@@ -45,14 +40,30 @@ public:
         return recHits_.size();
     }
 
+
+    /// first iterator over RecHits
+    trackingRecHit_iterator recHitsBegin() const {
+        return recHitsProduct().data().begin()+firstRecHit();
+    }
+
+    /// last iterator over RecHits
+    trackingRecHit_iterator recHitsEnd() const {
+        return recHitsBegin()+recHitsSize();
+    }
+
+    /// get a ref to i-th recHit
+    TrackingRecHitRef recHitRef(size_t i) const {                                                               
+        return recHits_[i];
+    }
+
     /// get i-th recHit
     TrackingRecHitRef recHit(size_t i) const {
         return recHits_[i];
     }
 
-    TrackingRecHitRefVector const & recHits() const {
-        return recHits_;
-    }
+//    TrackingRecHitRefVector const & recHits() const {
+//        return recHits_;
+//    }
 
     TrackingRecHitCollection const & recHitsProduct() const {
       return *recHits_.product();

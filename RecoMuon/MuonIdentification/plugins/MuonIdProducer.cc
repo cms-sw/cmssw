@@ -416,7 +416,7 @@ int MuonIdProducer::overlap(const reco::Muon& muon, const reco::Track& track)
    int numberOfCommonDetIds = 0;
    if ( ! muon.isMatchesValid() ||
 	track.extra().isNull() ||
-	track.extra()->recHits().isNull() ) return numberOfCommonDetIds;
+	track.extra()->recHitsSize()==0 ) return numberOfCommonDetIds;
    const std::vector<reco::MuonChamberMatch>& matches( muon.matches() );
    for ( std::vector<reco::MuonChamberMatch>::const_iterator match = matches.begin();
 	 match != matches.end(); ++match )

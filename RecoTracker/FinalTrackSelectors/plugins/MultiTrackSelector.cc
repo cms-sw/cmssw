@@ -249,12 +249,12 @@ void MultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) const
 
   // Get tracks 
   Handle<TrackCollection> hSrcTrack;
-  evt.getByToken( src_, hSrcTrack );
+  evt.getByToken(src_, hSrcTrack );
   const TrackCollection& srcTracks(*hSrcTrack);
 
   // get hits in track..
   Handle<TrackingRecHitCollection> hSrcHits;
-  evt.getByToken( hSrc_, hSrcHits );
+  evt.getByToken(hSrc_, hSrcHits );
   const TrackingRecHitCollection & srcHits(*hSrcHits);
 
 

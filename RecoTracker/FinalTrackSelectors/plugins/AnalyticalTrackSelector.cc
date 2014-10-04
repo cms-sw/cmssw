@@ -108,6 +108,7 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
     forest_ = nullptr;
 
     src_ = consumes<reco::TrackCollection>(cfg.getParameter<edm::InputTag>( "src" ));
+    hSrc_ = consumes<TrackingRecHitCollection>(cfg.getParameter<edm::InputTag>( "src" ));
     beamspot_ = consumes<reco::BeamSpot>(cfg.getParameter<edm::InputTag>( "beamspot" ));
     useVertices_ = cfg.getParameter<bool>( "useVertices" );
     useVtxError_ = cfg.getParameter<bool>( "useVtxError" );

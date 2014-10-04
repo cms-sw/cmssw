@@ -38,7 +38,7 @@ void TrackInfoProducerAlgorithm::run(const edm::Ref<std::vector<Trajectory> > tr
       unsigned int detid=ttrh->hit()->geographicalId().rawId();
       
       trackingRecHit_iterator thehit;
-      TrackingRecHitRef thehitref; // needs to be keyed; as is is broken
+      TrackingRecHitRef thehitref;
       TrackingRecHit const * thehitptr=nullptr;
       int i=0,j=0;
 
@@ -50,6 +50,7 @@ void TrackInfoProducerAlgorithm::run(const edm::Ref<std::vector<Trajectory> > tr
 	   (hitpos - pos).mag() < 1e-4)
 	  {
 	    thehitptr=(*thehit);
+            thehitref = track->extra()->recHitRef(i-1);
 	    j++;
 	    break;
 	  }
