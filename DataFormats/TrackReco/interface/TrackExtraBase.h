@@ -23,21 +23,26 @@ class TrackExtraBase
 
 public:
     /// default constructor
-    TrackExtraBase() { }
+    TrackExtraBase() : m_firstHit(-1), m_nHits(0) { }
 
     /// add a reference to a RecHit
-    void add(const TrackingRecHitRef &r) {
-        recHits_.push_back(r);
+    void add(const TrackingRecHitRef &ref) {
+      m_hitCollection.pushBackItem(ref.refCore(), true);
+      if (m_nHits==0) {
+        m_firstHit = ref.key();
+      }
+      assert(m_nHits== ref.key()-m_firstHit);
+      ++m_nHits;   
     }
 
 
     unsigned int firstRecHit() const {
-      return recHits_.begin().key();
+      return m_firstHit;
     }
 
     /// number of RecHits
-    size_t recHitsSize() const {
-        return recHits_.size();
+    unsigned int recHitsSize() const {
+        return m_nHits;
     }
 
 
@@ -52,27 +57,28 @@ public:
     }
 
     /// get a ref to i-th recHit
-    TrackingRecHitRef recHitRef(size_t i) const {                                                               
-        return recHits_[i];
+    TrackingRecHitRef recHitRef(unsigned int i) const {                                                               
+        return TrackingRecHitRef(m_hitCollection,m_firstHit+i);
     }
 
     /// get i-th recHit
-    TrackingRecHitRef recHit(size_t i) const {
-        return recHits_[i];
+    TrackingRecHitRef recHit(unsigned int i) const {
+        return recHitRef(i);
     }
 
-//    TrackingRecHitRefVector const & recHits() const {
-//        return recHits_;
-//    }
-
     TrackingRecHitCollection const & recHitsProduct() const {
-      return *recHits_.product();
+      return *edm::getProduct<TrackingRecHitCollection>(m_hitCollection);
 
     }
 
 private:
+
+    edm::RefCore m_hitCollection;
+    unsigned int m_firstHit;
+    unsigned int m_nHits;
+
     /// references to the hit assigned to the track.
-    TrackingRecHitRefVector recHits_;
+    // TrackingRecHitRefVector recHits_;
 
 };
 
