@@ -51,12 +51,10 @@ foreach gtag ( $1 )
       echo
       set name = ${task}_${table}_${gtag}
       rm -f $name.{log,root}
-      date +%T
-      echo "cmsRun $name.py >& $name.log"
+      echo "`date +%T` cmsRun $name.py >& $name.log"
 #     ls -l        $name.py
       time  cmsRun $name.py >& $name.log
-      echo "exit status: $?"
-      date +%T
+      echo "`date +%T` exit status: $?"
 
       if ( ( $task == RelVal_${rawLHC} ) || ( $task == RelVal_${rawSIM} ) ) then
 #       link to input file for subsequent steps
@@ -78,12 +76,10 @@ if ( $1 == MC ) then
     echo
     set name = ${task}
     rm -f $name.{log,root}
-    date +%T
-    echo "cmsRun $name.py >& $name.log"
+    echo "`date +%T` cmsRun $name.py >& $name.log"
 #   ls -l        $name.py
     time  cmsRun $name.py >& $name.log
-    echo "exit status: $?"
-    date +%T
+    echo "`date +%T` exit status: $?"
 
   end
 endif
@@ -105,12 +101,10 @@ foreach gtag ( $1 )
       echo
       set name = ${task}_${table}_${gtag}
       rm -f $name.{log,root}
-      date +%T
-      echo "cmsRun $name.py >& $name.log"
+      echo "`date +%T` cmsRun $name.py >& $name.log"
 #     ls -l        $name.py
       time  cmsRun $name.py >& $name.log
-      echo "exit status: $?"
-      date +%T
+      echo "`date +%T` exit status: $?"
 
     end
 
