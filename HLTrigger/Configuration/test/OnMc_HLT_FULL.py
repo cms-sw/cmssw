@@ -28762,7 +28762,7 @@ process.DQMOutput = cms.EndPath( process.dqmOutput )
 
 process.source = cms.Source( "PoolSource",
     fileNames = cms.untracked.vstring(
-        'file:RelVal_Raw_FULL_DATA.root',
+        'file:RelVal_Raw_FULL_MC.root',
     ),
     secondaryFileNames = cms.untracked.vstring(
     ),
@@ -28770,6 +28770,10 @@ process.source = cms.Source( "PoolSource",
         'keep *'
     )
 )
+
+# customise the HLT menu for running on MC
+from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC
+process = customizeHLTforMC(process)
 
 # CMSSW version specific customizations
 import os
@@ -28826,7 +28830,7 @@ process.options = cms.untracked.PSet(
 # override the GlobalTag, connection string and pfnPrefix
 if 'GlobalTag' in process.__dict__:
     from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag as customiseGlobalTag
-    process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = 'auto:run2_hlt_FULL')
+    process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = 'auto:run2_mc_FULL')
     process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_CONDITIONS'
     process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
     for pset in process.GlobalTag.toGet.value():

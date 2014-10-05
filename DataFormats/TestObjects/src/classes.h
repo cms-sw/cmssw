@@ -68,6 +68,7 @@ struct dictionary {
   edm::DetSet<edmtest::Unsortable> x2;
   std::vector<edmtest::Sortable> x3;
   std::vector<edmtest::Unsortable> x4;
+  edm::Wrapper<std::vector<edmtest::SimpleDerived> > dummy99;
 
   edm::Ref<std::vector<edmtest::Thing> > dummyRefThings;
   edm::reftobase::Holder<edmtest::Thing,edm::Ref<std::vector<edmtest::Thing> > > bhThing;

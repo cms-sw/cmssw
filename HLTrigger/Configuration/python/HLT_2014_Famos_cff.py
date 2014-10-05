@@ -42536,3 +42536,10 @@ cmsswVersion = os.environ['CMSSW_VERSION']
 
 # none for now
 
+# dummyfy hltGetConditions in cff's
+if 'hltGetConditions' in locals() and 'HLTriggerFirstPath' in locals() :
+    hltDummyConditions = cms.EDFilter( "HLTBool",
+        result = cms.bool( True )
+    )
+    HLTriggerFirstPath.replace(hltGetConditions,hltDummyConditions)
+

@@ -287,10 +287,11 @@ namespace edm {
         if(hasDict) {
           TypeWithDict type(TypeWithDict::byName(desc.className()));
           ProductHolderIndex index =
-            productLookup(desc.branchType())->insert(type,
+            productLookup(desc.branchType())->insert(typeID,
                                                      desc.moduleLabel().c_str(),
                                                      desc.productInstanceName().c_str(),
-                                                     desc.processName().c_str());
+                                                     desc.processName().c_str(),
+                                                     containedTypeID);
 
           transient_.branchIDToIndex_[desc.branchID()] = index;
         }

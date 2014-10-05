@@ -130,6 +130,8 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 	}
       }
     }
+    isoEmResult->resize(4);
+    nonIsoEmResult->resize(4);
 
     //looping over Tau elments with a specific BX
     int tauCount = 0; //max 4
@@ -147,6 +149,7 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 	tauCount++;
       }
     }
+    tauJetResult->resize(4);
 
     //looping over Jet elments with a specific BX
     int forCount = 0; //max 4
@@ -172,6 +175,8 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 	}
       }
     }
+    forJetResult->resize(4);
+    cenJetResult->resize(4);
 
     //looping over EtSum elments with a specific BX
     for (l1t::EtSumBxCollection::const_iterator itEtSum = EtSum->begin(itBX);
@@ -193,6 +198,10 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 	LogError("l1t|stage 1 Converter") <<" Unknown EtSumType --- EtSum collection will not be saved...\n ";
       }
     }
+    etMissResult->resize(1);
+    htMissResult->resize(1);
+    etTotResult->resize(1);
+    etHadResult->resize(1);
 
     for (l1t::CaloSpareBxCollection::const_iterator itCaloSpare = CaloSpare->begin(itBX);
 	 itCaloSpare != CaloSpare->end(itBX); ++itCaloSpare){
@@ -231,6 +240,8 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 	hfRingEtSumResult->push_back(sum);
       }
     }
+    hfRingEtSumResult->resize(1);
+    hfBitCountResult->resize(1);
   }
 
   e.put(isoEmResult,"isoEm");

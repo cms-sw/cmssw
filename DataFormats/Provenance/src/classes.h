@@ -32,6 +32,7 @@
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/Provenance/interface/ESRecordAuxiliary.h"
+#include "DataFormats/Provenance/interface/ViewTypeChecker.h"
 #include "FWCore/Utilities/interface/typedefs.h"
 #include <map>
 #include <set>
