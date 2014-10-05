@@ -1,10 +1,9 @@
 #! /bin/bash
 
 # ConfDB configurations to use
-TABLES="2014 2014"
-# HLT_8E33v2="/online/collisions/2012/8e33/v2.4/HLT"
-# HLT_2013="/online/collisions/2012/8e33/v3.2/HLT"
+TABLES="2014 Fake"
 HLT_2014="/dev/CMSSW_7_2_0/2014"
+HLT_Fake="/dev/CMSSW_7_2_0/Fake"
 
 # print extra messages ?
 VERBOSE=false
@@ -24,8 +23,8 @@ function getConfigForCVS() {
   local NAME="$2"
   log "  dumping HLT cffs for $NAME from $CONFIG"
   # do not use any conditions or L1 override
-  hltGetConfiguration --cff --offline --mc    $CONFIG --type "GRun" > HLT_${NAME}_cff.py
-  hltGetConfiguration --fastsim               $CONFIG --type "GRun" > HLT_${NAME}_Famos_cff.py
+  hltGetConfiguration --cff --offline --mc    $CONFIG --type $NAME  > HLT_${NAME}_cff.py
+  hltGetConfiguration --fastsim               $CONFIG --type $NAME  > HLT_${NAME}_Famos_cff.py
 }
 
 function getConfigForOnline() {
@@ -33,8 +32,8 @@ function getConfigForOnline() {
   local NAME="$2"
   log "  dumping full HLT for $NAME from $CONFIG"
   # override the conditions with a menu-dependent "virtual" global tag, which takes care of overriding the L1 menu
-  hltGetConfiguration --full --offline --data $CONFIG --type "GRun" --unprescale --process "HLT${NAME}" --globaltag "auto:hltonline_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root"    > OnData_HLT_${NAME}.py
-  hltGetConfiguration --full --offline --mc   $CONFIG --type "GRun" --unprescale --process "HLT${NAME}" --globaltag "auto:startup_${NAME}"   --input "file:RelVal_Raw_${NAME}_STARTUP.root" > OnLine_HLT_${NAME}.py
+  hltGetConfiguration --full --offline --data $CONFIG --type $NAME  --unprescale --process "HLT${NAME}" --globaltag "auto:run1_hlt_${NAME}" --input "file:RelVal_Raw_${NAME}_DATA.root"    > OnData_HLT_${NAME}.py
+  hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME  --unprescale --process "HLT${NAME}" --globaltag "auto:run1_mc_${NAME}"  --input "file:RelVal_Raw_${NAME}_MC.root" > OnMc_HLT_${NAME}.py
 }
 
 # make sure we're using *this* working area
@@ -56,7 +55,7 @@ log
 
 # full config dumps, in CVS under HLTrigger/Configuration/test
 log "Extracting full configuration dumps"
-FILES=$(eval echo On{Data,Line}_HLT_{$TABLES_}.py)
+FILES=$(eval echo On{Data,Mc}_HLT_{$TABLES_}.py)
 rm -f $FILES
 for TABLE in $TABLES; do
   CONFIG=$(eval echo \$$(echo HLT_$TABLE))

@@ -7,7 +7,7 @@
 #include <cassert>
 
 namespace edm {
-  WrapperBase::WrapperBase() {}
+  WrapperBase::WrapperBase() : ViewTypeChecker() {}
 
   WrapperBase::~WrapperBase() {}
 
