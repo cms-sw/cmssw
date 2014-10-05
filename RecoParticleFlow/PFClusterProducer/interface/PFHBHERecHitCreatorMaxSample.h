@@ -118,7 +118,7 @@ class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
 	for (int ii = 0; ii < 8; ii++) {
 	  double gain = calibrations.respcorrgain(capid[ii]) *
 	    (tool[ii] - calibrations.pedestal(capid[ii]));
-	  if (gain>0.6)
+	  if (gain>sampleCut_)
 	    samples[ii] = gain;
 	  else
 	    samples[ii] = 0.0;
@@ -130,13 +130,15 @@ class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
 	double energy=0.0;
 	double energy2=0.0;
 	double time=0.0;
-
+	double s2=0.0;
 	std::vector<double> hitEnergies;	  
 	std::vector<double> hitTimes;	  
+
 	for (int ii = 0; ii < 8; ii++) {
 	  energy=energy+samples[ii];
-	  time = time+(-100. + ii*25.0)*samples[ii]*samples[ii];
-	  energy2=energy2+samples[ii]*samples[ii];
+	  s2=samples[ii]*samples[ii];
+	  time = time+(-100. + ii*25.0)*s2;
+	  energy2=energy2+s2;
 
 	  if (ii>0 && ii<7) {
 	    if (samples[ii]<=samples[ii-1] && samples[ii]<samples[ii+1] && energy>0) {
@@ -248,7 +250,11 @@ class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
 
  protected:
     edm::EDGetTokenT<edm::SortedCollection<HBHERecHit> > recHitToken_;
+    const double sampleCut_ = 0.6; // minimalistic threshold just to reduce the iterations 
+
 };
+
+
 
 
 
