@@ -188,12 +188,6 @@ process.seqProducers = cms.Sequence(process.AlignmentTrackSelector + process.seq
 process.load("DPGAnalysis.SiStripTools.trackcount_cfi")
 process.trackcount.trackCollection = cms.InputTag("generalTracks")
 
-process.p0 = cms.Path(
-    process.seqHLTSelection +
-    process.seqProducers +
-    process.seqAnalyzers +
-    process.trackcount
-    )
 
 #----GlobalTag ------------------------
 
@@ -205,6 +199,7 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = options.globalTag
 
+from SLHCUpgradeSimulations.Configuration.phase2TkCustoms import *
 
 
 process.siStripQualityESProducer.ListOfRecordToMerge=cms.VPSet(
@@ -223,5 +218,15 @@ process.TFileService = cms.Service('TFileService',
                                    fileName = cms.string('OccupancyPlotsTest_pixelphase1.root')
                                    )
 
+process = customise_Reco(process,0)
+process = customise_condOverRides(process)
 
-#print process.dumpPython()
+process.p0 = cms.Path(
+    process.seqHLTSelection +
+    process.seqProducers +
+    process.seqAnalyzers +
+    process.trackcount
+    )
+
+
+print process.dumpPython()
