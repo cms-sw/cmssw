@@ -1,6 +1,7 @@
 <lcgdict>
- <class name="edm::WrapperBase" ClassVersion="2">
+ <class name="edm::WrapperBase" ClassVersion="3">
   <version ClassVersion="2" checksum="2150796830"/>
+  <version ClassVersion="3" checksum="1936948526"/>
  </class>
  <class name="edm::EDProductGetter" ClassVersion="10">
   <version ClassVersion="10" checksum="2702412727"/>
