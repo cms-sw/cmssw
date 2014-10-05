@@ -1,13 +1,58 @@
 
 #include "DataFormats/Provenance/interface/ProductHolderIndexHelper.h"
+#include "DataFormats/Provenance/interface/ViewTypeChecker.h"
 #include "FWCore/Utilities/interface/DictionaryTools.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Utilities/interface/WrappedClassName.h"
+#include "FWCore/Utilities/interface/getAnyPtr.h"
 
+#include <TClass.h>
+
+#include <cassert>
 #include <iostream>
 #include <limits>
 
 namespace edm {
+
+  namespace productholderindexhelper {
+    TypeID 
+    getContainedTypeFromWrapper(TypeID const& wrappedTypeID, std::string const& className) {
+      static int const vtcOffset = TClass::GetClass("edm::WrapperBase")->GetBaseClassOffset(TClass::GetClass("edm::ViewTypeChecker")); 
+      static TClass const* const wbClass = TClass::GetClass("edm::WrapperBase");
+      static std::string const refVector("edm::RefVector<");
+      static std::string const refToBaseVector("edm::RefToBaseVector<");
+      static std::string const ptrVector("edm::PtrVector<");
+      static size_t rvsize = refVector.size();
+      static size_t rtbvsize = refToBaseVector.size();
+      static size_t pvsize = ptrVector.size();
+      bool mayBeRefVector = (className.substr(0, rvsize) == refVector)
+                         || (className.substr(0, rtbvsize) == refToBaseVector)
+                         || (className.substr(0, pvsize) == ptrVector);
+      TClass* cl = TClass::GetClass(wrappedTypeID.className().c_str());
+      if(cl == nullptr) {
+        return TypeID(typeid(void));
+      }
+      void* p = cl->New();
+      int offset = cl->GetBaseClassOffset(wbClass) + vtcOffset;;
+      std::unique_ptr<ViewTypeChecker> checker = getAnyPtr<ViewTypeChecker>(p, offset);
+      if(mayBeRefVector) {
+        std::type_info const& ti = checker->memberTypeInfo(); 
+        if(ti != typeid(void)) {
+          return TypeID(ti);
+        }
+      }
+      return TypeID(checker->valueTypeInfo());
+    }
+  
+    TypeID 
+    getContainedType(TypeID const& typeID) {
+      std::string className = typeID.className();
+      TypeWithDict const wrappedType = TypeWithDict::byName(wrappedClassName(className));
+      TypeID const wrappedTypeID = TypeID(wrappedType.typeInfo());
+      return getContainedTypeFromWrapper(wrappedTypeID, className);
+    }
+  }
 
   ProductHolderIndexHelper::ProductHolderIndexHelper() :
     nextIndexValue_(0),
@@ -112,10 +157,11 @@ namespace edm {
   }
 
   ProductHolderIndex
-  ProductHolderIndexHelper::insert(TypeWithDict const& typeWithDict,
+  ProductHolderIndexHelper::insert(TypeID const& typeID,
                                    char const* moduleLabel,
                                    char const* instance,
-                                   char const* process) {
+                                   char const* process,
+                                   TypeID const& containedTypeID) {
     if (!items_) {
       throw Exception(errors::LogicError)
         << "ProductHolderIndexHelper::insert - Attempt to insert more elements after frozen.\n";
@@ -125,8 +171,6 @@ namespace edm {
       throw Exception(errors::LogicError)
         << "ProductHolderIndexHelper::insert - Empty process.\n";
     }
-
-    TypeID typeID(typeWithDict.typeInfo());
 
     // Throw if this has already been inserted
     Item item(PRODUCT_TYPE, typeID, moduleLabel, instance, process, 0);
@@ -154,14 +198,9 @@ namespace edm {
 
     // Now put in entries for a contained class if this is a
     // recognized container.
-    TypeWithDict containedType;
-    if((is_RefVector(typeWithDict, containedType) ||
-        is_PtrVector(typeWithDict, containedType) ||
-        is_RefToBaseVector(typeWithDict, containedType) ||
-        value_type_of(typeWithDict, containedType))
-        && bool(containedType)) {
+    if(containedTypeID != TypeID(typeid(void)) && containedTypeID != TypeID()) {
+      TypeWithDict containedType(containedTypeID.typeInfo());
 
-      TypeID containedTypeID(containedType.typeInfo());
       Item containedItem(ELEMENT_TYPE, containedTypeID, moduleLabel, instance, process, savedProductIndex);
       iter = items_->find(containedItem);
       if (iter != items_->end()) {

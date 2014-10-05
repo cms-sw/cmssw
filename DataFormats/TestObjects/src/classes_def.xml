@@ -42,6 +42,7 @@
  <class name="std::vector<edmtest::Simple>"/>
  <class name="edm::Wrapper<std::vector<edmtest::Simple> >"/>
  <class name="std::vector<edmtest::SimpleDerived>"/>
+ <class name="edm::Wrapper<std::vector<edmtest::SimpleDerived> >"/>
  <class name="edm::RefProd<std::vector<edmtest::Simple> >"/>
  <class name="edm::DetSet<edmtest::Sortable>"/>
  <class name="std::vector<edm::DetSet<edmtest::Sortable> >"/>
