@@ -32,6 +32,11 @@ namespace edmtest {
       produces<DeleteEarly>();
     }
     
+    virtual void beginJob() {
+      // Needed because DeleteEarly objects may be allocated and deleted in initialization
+      edmtest::DeleteEarly::resetDeleteCount();
+    }
+
     virtual void produce(edm::Event& e, edm::EventSetup const& ){
       std::unique_ptr<DeleteEarly> p(new DeleteEarly);
       e.put(std::move(p));
