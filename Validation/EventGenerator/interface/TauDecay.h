@@ -157,7 +157,7 @@ class TauDecay {
   unsigned int nProng(unsigned int &TauBitMask);
   unsigned int nPi0(unsigned int &TauBitMask);
   bool hasResonance(unsigned int &TauBitMask, int pdgid);
-  std::string DecayMode(unsigned int &MODE_ID);
+  static std::string DecayMode(unsigned int &MODE_ID);
  
  private:
   // Functions

@@ -102,7 +102,7 @@ void TauDecay::ClassifyDecayMode(unsigned int &MODE_ID,unsigned int &TauBitMask)
   if(n_e==0 && n_mu==0 && n_pi==1 && n_pi0==0 && n_K==0 && n_K0S+n_K0L==2 && n_nu==1){
     MODE_ID=MODE_K0BK0PI; return;
   }
-  if(n_e==0 && n_mu==0 && n_pi==1 && n_pi0==0 && n_K==0 && n_K0L+n_K0S==1 && n_nu==1){
+  if(n_e==0 && n_mu==0 && n_pi==1 && n_pi0==0 && n_K==0 && (n_K0L+n_K0S)==1 && n_nu==1){
     MODE_ID=MODE_K0PI; return;
   }
   if(n_e==0 && n_mu==0 && n_pi==0 && n_pi0==1 && n_K==1 && n_K0L==0 && n_K0S==0 && n_nu==1){
@@ -111,7 +111,7 @@ void TauDecay::ClassifyDecayMode(unsigned int &MODE_ID,unsigned int &TauBitMask)
   if(n_e==0 && n_mu==0 && n_pi==1 && n_pi0==1 && n_K==0 && n_K0L+n_K0S==1  && n_nu==1){
     MODE_ID=MODE_PIK0PI0; return;
   }
-  if(n_e==0 && n_mu==0 && n_pi==1 && n_pi0==0 && n_K==1 && n_K0L+n_K0S==1 && n_nu==1){
+  if(n_e==0 && n_mu==0 && n_pi==0 && n_pi0==0 && n_K==1 && (n_K0L+n_K0S)==1 && n_nu==1){
     MODE_ID=MODE_KK0B; return;
   }
   if(n_e==0 && n_mu==0 && n_pi==0 && n_pi0==1 && n_K==1 && n_K0L+n_K0S==1  && n_nu==1){
@@ -198,10 +198,10 @@ void TauDecay::ClassifyDecayMode(unsigned int &MODE_ID,unsigned int &TauBitMask)
   if(n_e==0 && n_mu==0 && n_pi==1 && n_pi0==2 && n_K==0 && (n_K0L+n_K0S)==0 && n_nu==1){
     MODE_ID=MODE_K0PI2PI0; return;
   }
-  if(n_e==0 && n_mu==0 && n_pi==3 && n_pi0==0 && n_K==0 && (n_K0L+n_K0S)==0 && n_nu==1){
+  if(n_e==0 && n_mu==0 && n_pi==3 && n_pi0==0 && n_K==0 && (n_K0L+n_K0S)==1 && n_nu==1){
     MODE_ID=MODE_K03PI; return;
   }
-  if(n_e==0 && n_mu==0 && n_pi==1 && n_pi0==1 && n_K==0 && (n_K0L+n_K0S)==0 && n_nu==1){
+  if(n_e==0 && n_mu==0 && n_pi==1 && n_pi0==1 && n_K==0 && (n_K0L+n_K0S)==2 && n_nu==1){
     MODE_ID=MODE_2K0PIPI0; return;
   }
   if(n_e==0 && n_mu==0 && n_pi==1 && n_pi0==1 && n_K==2 && n_K0L==0 && n_K0S==0 && n_nu==1){
@@ -256,42 +256,42 @@ void TauDecay::ClassifyDecayResonance(unsigned int &TauBitMask){
 }
 
 std::string TauDecay::DecayMode(unsigned int &MODE_ID){
-  if(MODE_ID==MODE_ELECTRON)         return "#tau^{#pm} #to e^{#pm}#nu#nu";
-  else if(MODE_ID==MODE_MUON)        return "#tau^{#pm} #to #mu^{#pm}#nu#nu";
-  else if(MODE_ID==MODE_PION)        return "#tau^{#pm} #to #pi^{#pm}#nu";
-  else if(MODE_ID==MODE_PIPI0)       return "#tau^{#pm} #to #pi^{#pm}#pi^{0}#nu";
-  else if(MODE_ID==MODE_3PI)         return "#tau^{#pm} #to #pi^{#pm}#pi^{#pm}#pi^{#mp}#nu";
-  else if(MODE_ID==MODE_PI2PI0)      return "#tau^{#pm} #to #pi^{#pm}#pi^{0}#pi^{0}#nu";
-  else if(MODE_ID==MODE_KAON)        return "#tau^{#pm} #to K^{#pm}#nu";
-  else if(MODE_ID==MODE_KPI0)        return "#tau^{#pm} #to K^{#pm}K^{0}#nu";
-  else if(MODE_ID==MODE_KPI0)        return "#tau^{#pm} #to K^{0}#pi^{#pm}#nu";
-  else if(MODE_ID==MODE_3PIPI0)      return "#tau^{#pm} #to #pi^{#pm}#pi^{#pm}#pi^{#mp}#pi^{0}#nu";
-  else if(MODE_ID==MODE_PI3PI0)      return "#tau^{#pm} #to #pi^{#pm}#pi^{0}#pi^{0}#pi^{0}#nu";
-  else if(MODE_ID==MODE_3PI2PI0)     return "#tau^{#pm} #to #pi^{#pm}#pi^{#pm}#pi^{#mp}#pi^{0}#pi^{0}#nu";
-  else if(MODE_ID==MODE_5PI)         return "#tau^{#pm} #to #pi^{#pm}#pi^{#pm}#pi^{#pm}#pi^{#mp}#pi^{#mp}#nu";
-  else if(MODE_ID==MODE_5PIPI0)      return "#tau^{#pm} #to #pi^{#pm}#pi^{#pm}#pi^{#pm}#pi^{#mp}#pi^{#mp}#pi^{0}#nu";
-  else if(MODE_ID==MODE_3PI3PI0)     return "#tau^{#pm} #to #pi^{#pm}#pi^{#pm}#pi^{#mp}#pi^{0}#pi^{0}#pi^{0}#nu";
-  else if(MODE_ID==MODE_KPIK)        return "#tau^{#pm} #to K^{#pm}#pi^{#pm}K^{#mp}#nu";
-  else if(MODE_ID==MODE_K0BK0PI)     return "#tau^{#pm} #to #bar{K}^{0}K^{0}#pi^{#pm}#nu";
-  else if(MODE_ID==MODE_KK0BPI0)     return "#tau^{#pm} #to #bar{K}^{0}K^{0}#pi^{#pm}#pi^{0}#nu";
-  else if(MODE_ID==MODE_K2PI0)       return "#tau^{#pm} #to K^{#pm}#pi^{0}#pi^{0}#nu";
-  else if(MODE_ID==MODE_KPIPI)       return "#tau^{#pm} #to K^{#pm}#pi^{#pm}#pi^{#mp}#nu";
-  else if(MODE_ID==MODE_PIK0PI0)     return "#tau^{#pm} #to K^{0}#pi^{#pm}#pi^{0}#nu";
-  else if(MODE_ID==MODE_ETAPIPI0)    return "#tau^{#pm} #to #pi^{#pm}#eta#pi^{0}#nu";
-  else if(MODE_ID==MODE_PIPI0GAM)    return "#tau^{#pm} #to #pi^{#pm}#pi^{0}#nu#gamma (obsolete)";
-  else if(MODE_ID==MODE_KK0B)        return "#tau^{#pm} #to K^{#pm}#bar{K}^{0}#nu";
-  else if(MODE_ID==MODE_PI4PI0)      return "#tau^{#pm} #to #pi^{#pm}#pi^{0}#pi^{0}#pi^{0}#pi^{0}#nu";
-  else if(MODE_ID==MODE_3PIETA)      return "#tau^{#pm} #to #pi^{#pm}#pi^{#pm}#pi^{#mp}#eta#nu";
-  else if(MODE_ID==MODE_PI2PI0ETA)   return "#tau^{#pm} #to #pi^{#pm}#pi^{0}#pi^{0}#eta#nu";
-  else if(MODE_ID==MODE_PI2PI0OMEGA) return "#tau^{#pm} #to #pi^{#pm}#pi^{0}#pi^{0}#omega#nu";
-  else if(MODE_ID==MODE_3PIOMEGA)    return "#tau^{#pm} #to #pi^{#pm}#pi^{#pm}#pi^{#mp}#omega#nu";
-  else if(MODE_ID==MODE_KOMEGA)      return "#tau^{#pm} #to K^{#pm}#omega#nu";
-  else if(MODE_ID==MODE_K3PI0)       return "#tau^{#pm} #to K#pi^{0}#pi^{0}#pi^{0}#nu";
-  else if(MODE_ID==MODE_K2PIPI0)     return "#tau^{#pm} #to K^{#pm}#pi^{#pm}#pi^{#mp}#pi^{0}#nu";
-  else if(MODE_ID==MODE_KETA)        return "#tau^{#pm} #to K^{#pm}#eta#nu";
-  else if(MODE_ID==MODE_K0PI2PI0)    return "#tau^{#pm} #to K^{0}#pi^{#pm}#pi^{0}#pi^{0}#nu";
-  else if(MODE_ID==MODE_K03PI)       return "#tau^{#pm} #to K^{0}#pi^{#pm}#pi^{#pm}#pi^{#mp}#nu";
-  else if(MODE_ID==MODE_2K0PIPI0)    return "#tau^{#pm} #to K^{0}#bar{K}^{0}#pi^{#pm}#pi^{-}#nu";
-  else if(MODE_ID==MODE_KPIKPI0)     return "#tau^{#pm} #to K^{#pm}#pi^{#pm}K^{#mp}#pi^{0}#nu";
+  if(MODE_ID==MODE_ELECTRON)         return "#tau^{#pm} #rightarrow e^{#pm}#nu#nu";
+  else if(MODE_ID==MODE_MUON)        return "#tau^{#pm} #rightarrow #mu^{#pm}#nu#nu";
+  else if(MODE_ID==MODE_PION)        return "#tau^{#pm} #rightarrow #pi^{#pm}#nu";
+  else if(MODE_ID==MODE_PIPI0)       return "#tau^{#pm} #rightarrow #pi^{#pm}#pi^{0}#nu";
+  else if(MODE_ID==MODE_3PI)         return "#tau^{#pm} #rightarrow #pi^{#pm}#pi^{#pm}#pi^{#mp}#nu";
+  else if(MODE_ID==MODE_PI2PI0)      return "#tau^{#pm} #rightarrow #pi^{#pm}#pi^{0}#pi^{0}#nu";
+  else if(MODE_ID==MODE_KAON)        return "#tau^{#pm} #rightarrow K^{#pm}#nu";
+  else if(MODE_ID==MODE_KPI0)        return "#tau^{#pm} #rightarrow K^{#pm}\pi^{0}#nu";
+  else if(MODE_ID==MODE_K0PI)        return "#tau^{#pm} #rightarrow K^{0}#pi^{#pm}#nu";
+  else if(MODE_ID==MODE_3PIPI0)      return "#tau^{#pm} #rightarrow #pi^{#pm}#pi^{#pm}#pi^{#mp}#pi^{0}#nu";
+  else if(MODE_ID==MODE_PI3PI0)      return "#tau^{#pm} #rightarrow #pi^{#pm}#pi^{0}#pi^{0}#pi^{0}#nu";
+  else if(MODE_ID==MODE_3PI2PI0)     return "#tau^{#pm} #rightarrow #pi^{#pm}#pi^{#pm}#pi^{#mp}#pi^{0}#pi^{0}#nu";
+  else if(MODE_ID==MODE_5PI)         return "#tau^{#pm} #rightarrow #pi^{#pm}#pi^{#pm}#pi^{#pm}#pi^{#mp}#pi^{#mp}#nu";
+  else if(MODE_ID==MODE_5PIPI0)      return "#tau^{#pm} #rightarrow #pi^{#pm}#pi^{#pm}#pi^{#pm}#pi^{#mp}#pi^{#mp}#pi^{0}#nu";
+  else if(MODE_ID==MODE_3PI3PI0)     return "#tau^{#pm} #rightarrow #pi^{#pm}#pi^{#pm}#pi^{#mp}#pi^{0}#pi^{0}#pi^{0}#nu";
+  else if(MODE_ID==MODE_KPIK)        return "#tau^{#pm} #rightarrow K^{#pm}#pi^{#pm}K^{#mp}#nu";
+  else if(MODE_ID==MODE_K0BK0PI)     return "#tau^{#pm} #rightarrow #bar{K}^{0}K^{0}#pi^{#pm}#nu";
+  else if(MODE_ID==MODE_KK0BPI0)     return "#tau^{#pm} #rightarrow #bar{K}^{0}K^{0}#pi^{#pm}#pi^{0}#nu";
+  else if(MODE_ID==MODE_K2PI0)       return "#tau^{#pm} #rightarrow K^{#pm}#pi^{0}#pi^{0}#nu";
+  else if(MODE_ID==MODE_KPIPI)       return "#tau^{#pm} #rightarrow K^{#pm}#pi^{#pm}#pi^{#mp}#nu";
+  else if(MODE_ID==MODE_PIK0PI0)     return "#tau^{#pm} #rightarrow K^{0}#pi^{#pm}#pi^{0}#nu";
+  else if(MODE_ID==MODE_ETAPIPI0)    return "#tau^{#pm} #rightarrow #pi^{#pm}#eta#pi^{0}#nu";
+  else if(MODE_ID==MODE_PIPI0GAM)    return "#tau^{#pm} #rightarrow #pi^{#pm}#pi^{0}#nu#gamma (obsolete)";
+  else if(MODE_ID==MODE_KK0B)        return "#tau^{#pm} #rightarrow K^{#pm}#bar{K}^{0}#nu";
+  else if(MODE_ID==MODE_PI4PI0)      return "#tau^{#pm} #rightarrow #pi^{#pm}#pi^{0}#pi^{0}#pi^{0}#pi^{0}#nu";
+  else if(MODE_ID==MODE_3PIETA)      return "#tau^{#pm} #rightarrow #pi^{#pm}#pi^{#pm}#pi^{#mp}#eta#nu";
+  else if(MODE_ID==MODE_PI2PI0ETA)   return "#tau^{#pm} #rightarrow #pi^{#pm}#pi^{0}#pi^{0}#eta#nu";
+  else if(MODE_ID==MODE_PI2PI0OMEGA) return "#tau^{#pm} #rightarrow #pi^{#pm}#pi^{0}#pi^{0}#omega#nu";
+  else if(MODE_ID==MODE_3PIOMEGA)    return "#tau^{#pm} #rightarrow #pi^{#pm}#pi^{#pm}#pi^{#mp}#omega#nu";
+  else if(MODE_ID==MODE_KOMEGA)      return "#tau^{#pm} #rightarrow K^{#pm}#omega#nu";
+  else if(MODE_ID==MODE_K3PI0)       return "#tau^{#pm} #rightarrow K#pi^{0}#pi^{0}#pi^{0}#nu";
+  else if(MODE_ID==MODE_K2PIPI0)     return "#tau^{#pm} #rightarrow K^{#pm}#pi^{#pm}#pi^{#mp}#pi^{0}#nu";
+  else if(MODE_ID==MODE_KETA)        return "#tau^{#pm} #rightarrow K^{#pm}#eta#nu";
+  else if(MODE_ID==MODE_K0PI2PI0)    return "#tau^{#pm} #rightarrow K^{0}#pi^{#pm}#pi^{0}#pi^{0}#nu";
+  else if(MODE_ID==MODE_K03PI)       return "#tau^{#pm} #rightarrow K^{0}#pi^{#pm}#pi^{#pm}#pi^{#mp}#nu";
+  else if(MODE_ID==MODE_2K0PIPI0)    return "#tau^{#pm} #rightarrow K^{0}#bar{K}^{0}#pi^{#pm}#pi^{-}#nu";
+  else if(MODE_ID==MODE_KPIKPI0)     return "#tau^{#pm} #rightarrow K^{#pm}#pi^{#pm}K^{#mp}#pi^{0}#nu";
   return "UnKnown";
 }

@@ -8,7 +8,6 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "Validation/EventGenerator/interface/TauDecay_GenParticle.h"
-#include "Validation/EventGenerator/interface/TauDecay_CMSSW.h"
 #include "Validation/EventGenerator/interface/PdtPdgMini.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
@@ -149,6 +148,7 @@ void TauValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::
       TString tmp="JAKID";
       tmp+=j;
       MODEInvMass.at(j).push_back(i.book1D("M"+tmp,"M_{"+tmp+"} (GeV)", 80 ,0,2.0));
+      MODEID->setBinLabel(1+j,TauDecay::DecayMode(j));
       if(j==TauDecay::MODE_3PI || j==TauDecay::MODE_PI2PI0 ||
 	 j==TauDecay::MODE_KPIK ||
 	 j==TauDecay::MODE_KPIPI ){

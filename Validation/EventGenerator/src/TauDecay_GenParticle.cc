@@ -82,7 +82,7 @@ bool TauDecay_GenParticle::AddRadInfo(const reco::GenParticle *Particle,unsigned
   int n=0;
   for (unsigned int i=0; i< Particle->numberOfDaughters(); i++){
     const reco::Candidate *dau=Particle->daughter(i);
-    if(Particle->pdgId()==dau->pdgId())same=true;
+    if(Particle->pdgId()==dau->pdgId()){ same=true;}
     if(dau->pdgId()==PdtPdgMini::gamma) photon=true;
     n++;
   }
