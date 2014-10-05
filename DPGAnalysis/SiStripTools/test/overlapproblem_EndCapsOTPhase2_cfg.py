@@ -19,9 +19,19 @@ options.parseArguments()
 process.load("DPGAnalysis.SiStripTools.processOptions_cff")
 process.load("DPGAnalysis.SiStripTools.MessageLogger_cff")
 
-process.MessageLogger.categories.extend(cms.vstring("NoCluster","ClusterFound"))
+process.MessageLogger.destinations.extend(cms.vstring("tkdetlayers"))
+process.MessageLogger.categories.extend(cms.vstring("NoCluster","ClusterFound","TkDetLayers","DiskNames",
+                                                    "BuildingPixelForwardLayer","BuildingPhase2OTECRingedLayer",
+                                                    "BuildingPixelBarrel","BuildingPixelBarrelLayer","BuildingPhase2OTBarrelLayer","Phase2OTBarrelRodRadii"))
 process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
-process.MessageLogger.cout.threshold = cms.untracked.string("INFO")
+#process.MessageLogger.cout.threshold = cms.untracked.string("INFO")
+process.MessageLogger.cout.threshold = cms.untracked.string("DEBUG")
+process.MessageLogger.debugModules = cms.untracked.vstring("*")
+process.MessageLogger.tkdetlayers = cms.untracked.PSet (
+    threshold = cms.untracked.string("INFO"),
+    default = cms.untracked.PSet(limit = cms.untracked.int32(0)),
+    TkDetLayers = cms.untracked.PSet(limit = cms.untracked.int32(100000))
+    )
 process.MessageLogger.cout.default = cms.untracked.PSet(
     limit = cms.untracked.int32(0)
     )
@@ -34,11 +44,30 @@ process.MessageLogger.cout.FwkReport = cms.untracked.PSet(
 process.MessageLogger.cout.NoCluster = cms.untracked.PSet(
     limit = cms.untracked.int32(100000)
     )
+process.MessageLogger.cout.DiskNames = cms.untracked.PSet(
+    limit = cms.untracked.int32(100000)
+    )
 process.MessageLogger.cout.ClusterFound = cms.untracked.PSet(
     limit = cms.untracked.int32(100000)
     )
-
-
+process.MessageLogger.cout.BuildingPixelForwardLayer = cms.untracked.PSet(
+    limit = cms.untracked.int32(100000)
+    )
+process.MessageLogger.cout.BuildingPhase2OTECRingedLayer = cms.untracked.PSet(
+    limit = cms.untracked.int32(100000)
+    )
+process.MessageLogger.cout.BuildingPhase2OTBarrelLayer = cms.untracked.PSet(
+    limit = cms.untracked.int32(100000)
+    )
+process.MessageLogger.cout.BuildingPixelBarrelLayer = cms.untracked.PSet(
+    limit = cms.untracked.int32(100000)
+    )
+process.MessageLogger.cout.BuildingPixelBarrel = cms.untracked.PSet(
+    limit = cms.untracked.int32(100000)
+    )
+process.MessageLogger.cout.Phase2OTBarrelRodRadii = cms.untracked.PSet(
+    limit = cms.untracked.int32(100000)
+    )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 
@@ -50,7 +79,7 @@ process.source = cms.Source("PoolSource",
 
 #process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
 #process.load("Configuration.StandardSequences.GeometryDB_cff")
-process.load('Configuration.Geometry.GeometryExtendedPhase2TkBE5DPixel10DReco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 #process.load("Configuration.Geometry.GeometryExtendedPhaseIPixelReco_cff")
 #process.load("Configuration.Geometry.GeometryExtendedPhaseIPixel_cff")
@@ -95,7 +124,8 @@ process.overlapproblemtsosanalyzer.tsosHMConf.wantedSubDets.extend(OccupancyPlot
 process.overlapproblemtsosanalyzer.tsosHMConf.wantedSubDets.extend(OccupancyPlotsFPIXmDetailedWantedSubDets)
 process.overlapproblemtsosanalyzer.tsosHMConf.wantedSubDets.extend(OccupancyPlotsFPIXpDetailedWantedSubDets)
 
-process.overlapproblemtsosall = process.overlapproblemtsosanalyzer.clone(onlyValidRecHit = cms.bool(False))
+process.overlapproblemtsosall = process.overlapproblemtsosanalyzer.clone()
+process.overlapproblemtsosall.tsosHMConf.wantedSubDets = OccupancyPlotsPixelWantedSubDets
 
 #process.overlapproblemtsosanalyzer.debugMode = cms.untracked.bool(True)
     
