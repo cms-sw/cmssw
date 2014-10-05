@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<?xml-stylesheet type="text/xsl"href="default.xsl"?>
+<pacdef>
+
+  <date>Fri Feb 18 10:20:22 2011
+</date>
+
+  <qualitTable>
+    <quality id="0" planes="000111" val="0"/>
+    <quality id="0" planes="111111" val="3"/>
+    <quality id="0" planes="000111" val="0"/>
+    <quality id="0" planes="001011" val="0"/>
+    <quality id="0" planes="001101" val="0"/>
+    <quality id="0" planes="001110" val="0"/>
+    <quality id="0" planes="001111" val="1"/>
+    <quality id="1" planes="000111" val="0"/>
+  </qualitTable>
+
+  <pac logSector="0" logSegment="7" tower="13">
+    <pat code="31" grp="0" lpSet="13" num="0" qual="0" sign="0" type="E">
+      <str Pl="0" f="99" t="99"/>
+      <str Pl="1" f="99" t="99"/>
+      <str Pl="2" f="99" t="99"/>
+      <str Pl="3" f="99" t="99"/>
+      <str Pl="4" f="99" t="99"/>
+      <str Pl="5" f="99" t="99"/>
+    </pat>
+  </pac>
+
+</pacdef>
