@@ -19,7 +19,7 @@ TauValidation::TauValidation(const edm::ParameterSet& iPSet):
   wmanager_(iPSet,consumesCollector())
   ,genparticleCollection_(iPSet.getParameter<edm::InputTag>("genparticleCollection"))
   ,hepmcCollection_(iPSet.getParameter<edm::InputTag>("hepmcCollection"))
-  ,NJAKID(22)
+  ,NMODEID(22)
   ,zsbins(20)
   ,zsmin(-0.5)
   ,zsmax(0.5)
@@ -143,18 +143,18 @@ void TauValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::
     TauBremPhotonsPtSum =i.book1D("TauBremPhotonsPtSum","Sum of Brem Pt ", 100 ,0,100);
     TauFSRPhotonsPtSum->setAxisTitle("Sum P_{t} of Brem. Photons radiating in tau decay");
     
-    JAKID =i.book1D("JAKID","JAK ID",NJAKID+1,-0.5,NJAKID+0.5);
-    for(unsigned int j=0; j<NJAKID+1;j++){
-      JAKInvMass.push_back(std::vector<MonitorElement *>());
+    MODEID =i.book1D("JAKID","JAK ID",NMODEID+1,-0.5,NMODEID+0.5);
+    for(unsigned int j=0; j<NMODEID+1;j++){
+      MODEInvMass.push_back(std::vector<MonitorElement *>());
       TString tmp="JAKID";
       tmp+=j;
-      JAKInvMass.at(j).push_back(i.book1D("M"+tmp,"M_{"+tmp+"} (GeV)", 80 ,0,2.0));
-      if(j==TauDecay::JAK_A1_3PI ||
-	 j==TauDecay::JAK_KPIK ||
-	 j==TauDecay::JAK_KPIPI ){
-	JAKInvMass.at(j).push_back(i.book1D("M13"+tmp,"M_{13,"+tmp+"} (GeV)", 80 ,0,2.0));
-	JAKInvMass.at(j).push_back(i.book1D("M23"+tmp,"M_{23,"+tmp+"} (GeV)", 80 ,0,2.0));
-	JAKInvMass.at(j).push_back(i.book1D("M12"+tmp,"M_{12,"+tmp+"} (GeV)", 80 ,0,2.0));
+      MODEInvMass.at(j).push_back(i.book1D("M"+tmp,"M_{"+tmp+"} (GeV)", 80 ,0,2.0));
+      if(j==TauDecay::MODE_3PI || j==TauDecay::MODE_PI2PI0 ||
+	 j==TauDecay::MODE_KPIK ||
+	 j==TauDecay::MODE_KPIPI ){
+	MODEInvMass.at(j).push_back(i.book1D("M13"+tmp,"M_{13,"+tmp+"} (GeV)", 80 ,0,2.0));
+	MODEInvMass.at(j).push_back(i.book1D("M23"+tmp,"M_{23,"+tmp+"} (GeV)", 80 ,0,2.0));
+	MODEInvMass.at(j).push_back(i.book1D("M12"+tmp,"M_{12,"+tmp+"} (GeV)", 80 ,0,2.0));
       }
     }
   return;
@@ -184,14 +184,14 @@ void TauValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
 	  TauPhi->Fill(iter->phi(),weight);
 	  photons(&(*iter),weight);
 	  ///////////////////////////////////////////////
-	  // Adding JAKID and Mass information
+	  // Adding MODEID and Mass information
 	  TauDecay_GenParticle TD;
 	  unsigned int jak_id, TauBitMask;
 	  if(TD.AnalyzeTau(&(*iter),jak_id,TauBitMask,false,false)){
-	    JAKID->Fill(jak_id,weight);
+	    MODEID->Fill(jak_id,weight);
 	    TauProngs->Fill(TD.nProng(TauBitMask),weight);
 	    tauDecayChannel(&(*iter),jak_id,TauBitMask,weight);
-	    if(jak_id<=NJAKID){
+	    if(jak_id<=NMODEID){
 	      int tcharge=iter->pdgId()/abs(iter->pdgId());
 	      std::vector<const reco::GenParticle*> part=TD.Get_TauDecayProducts();
 	      spinEffectsWHpm(&(*iter),mother,jak_id,part,weight);
@@ -217,17 +217,17 @@ void TauValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
 		   abs(part.at(i)->pdgId())!=PdtPdgMini::nu_mu && abs(part.at(i)->pdgId())!=PdtPdgMini::nu_tau ){
 		  TLorentzVector LV(part.at(i)->px(),part.at(i)->py(),part.at(i)->pz(),part.at(i)->energy());
 		  LVQ+=LV;
-		  if(jak_id==TauDecay::JAK_A1_3PI ||
-		     jak_id==TauDecay::JAK_KPIK ||
-		     jak_id==TauDecay::JAK_KPIPI
+		  if(jak_id==TauDecay::MODE_3PI || jak_id==TauDecay::MODE_PI2PI0 ||
+		     jak_id==TauDecay::MODE_KPIK ||
+		     jak_id==TauDecay::MODE_KPIPI
 		     ){
-		    if((tcharge==part.at(i)->pdgId()/abs(part.at(i)->pdgId()) && TD.nProng(TauBitMask)==3) || (jak_id==TauDecay::JAK_A1_3PI && TD.nProng(TauBitMask)==1 && abs(part.at(i)->pdgId())==PdtPdgMini::pi_plus) ){
+		    if((tcharge==part.at(i)->pdgId()/abs(part.at(i)->pdgId()) && TD.nProng(TauBitMask)==3) || ((jak_id==TauDecay::MODE_3PI || jak_id==TauDecay::MODE_PI2PI0) && TD.nProng(TauBitMask)==1 && abs(part.at(i)->pdgId())==PdtPdgMini::pi_plus) ){
 		      LVS13+=LV;
 		      LVS23+=LV;
 		    }
 		    else{
 		      LVS12+=LV;
-		      if(!haspart1 && ((jak_id==TauDecay::JAK_A1_3PI)  || (jak_id!=TauDecay::JAK_A1_3PI && abs(part.at(i)->pdgId())==PdtPdgMini::K_plus) )){
+		      if(!haspart1 && ((jak_id==TauDecay::MODE_3PI || jak_id==TauDecay::MODE_PI2PI0)  || ((jak_id!=TauDecay::MODE_3PI || jak_id==TauDecay::MODE_PI2PI0) && abs(part.at(i)->pdgId())==PdtPdgMini::K_plus) )){
 			LVS13+=LV;
 			haspart1=true;
 		      }
@@ -239,19 +239,19 @@ void TauValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
 		}
 	      }
 	      part.clear();
-	      JAKInvMass.at(jak_id).at(0)->Fill(LVQ.M(),weight);
-	      if(jak_id==TauDecay::JAK_A1_3PI ||
-		 jak_id==TauDecay::JAK_KPIK ||
-		 jak_id==TauDecay::JAK_KPIPI
+	      MODEInvMass.at(jak_id).at(0)->Fill(LVQ.M(),weight);
+	      if(jak_id==TauDecay::MODE_3PI || jak_id==TauDecay::MODE_PI2PI0 ||
+		 jak_id==TauDecay::MODE_KPIK ||
+		 jak_id==TauDecay::MODE_KPIPI
 		 ){
-		JAKInvMass.at(jak_id).at(1)->Fill(LVS13.M(),weight);
-		JAKInvMass.at(jak_id).at(2)->Fill(LVS23.M(),weight);
-		JAKInvMass.at(jak_id).at(3)->Fill(LVS12.M(),weight);
+		MODEInvMass.at(jak_id).at(1)->Fill(LVS13.M(),weight);
+		MODEInvMass.at(jak_id).at(2)->Fill(LVS23.M(),weight);
+		MODEInvMass.at(jak_id).at(3)->Fill(LVS12.M(),weight);
 	      }
 	    }
 	  }
 	  else{
-	    JAKID->Fill(jak_id,weight);  
+	    MODEID->Fill(jak_id,weight);  
 	  }
 	}
       }
@@ -413,25 +413,25 @@ void TauValidation::countParticles(const reco::GenParticle* p,int &allCount, int
 
 
 void TauValidation::spinEffectsWHpm(const reco::GenParticle* tau,int mother, int decay, std::vector<const reco::GenParticle*> &part,double weight){
-  if(decay == TauDecay::JAK_PION || decay == TauDecay::JAK_MUON || decay == TauDecay::JAK_ELECTRON){  // polarization only for 1-prong hadronic taus with no neutral pions
+  if(decay == TauDecay::MODE_PION || decay == TauDecay::MODE_MUON || decay == TauDecay::MODE_ELECTRON){  // polarization only for 1-prong hadronic taus with no neutral pions
     TLorentzVector momP4 = motherP4(tau);
     TLorentzVector pionP4 = leadingPionP4(tau);
     pionP4.Boost(-1*momP4.BoostVector());
     double energy = pionP4.E()/(momP4.M()/2);
-    if(decay == TauDecay::JAK_PION){
+    if(decay == TauDecay::MODE_PION){
       if(abs(mother) == 24) TauSpinEffectsW_X->Fill(energy,weight);	
       if(abs(mother) == 37) TauSpinEffectsHpm_X->Fill(energy,weight);
     }
-    if(decay == TauDecay::JAK_MUON){
+    if(decay == TauDecay::MODE_MUON){
       if(abs(mother) == 24) TauSpinEffectsW_muX->Fill(energy,weight);
       if(abs(mother) == 37) TauSpinEffectsHpm_muX->Fill(energy,weight);
     }
-    if(decay == TauDecay::JAK_ELECTRON){
+    if(decay == TauDecay::MODE_ELECTRON){
       if(abs(mother) == 24) TauSpinEffectsW_eX->Fill(energy,weight);
       if(abs(mother) == 37) TauSpinEffectsHpm_eX->Fill(energy,weight);
     }
   }
-  else if(decay==TauDecay::JAK_RHO_PIPI0){
+  else if(decay==TauDecay::MODE_PIPI0){
     TLorentzVector rho(0,0,0,0),pi(0,0,0,0);
     for(unsigned int i=0;i<part.size();i++){
       TLorentzVector LV(part.at(i)->px(),part.at(i)->py(),part.at(i)->pz(),part.at(i)->energy());
@@ -441,7 +441,7 @@ void TauValidation::spinEffectsWHpm(const reco::GenParticle* tau,int mother, int
     if(abs(mother) == 24) TauSpinEffectsW_UpsilonRho->Fill(2*pi.P()/rho.P()-1,weight);
     if(abs(mother) == 37) TauSpinEffectsHpm_UpsilonRho->Fill(2*pi.P()/rho.P()-1,weight);
   }
-  else if(decay==TauDecay::JAK_A1_3PI){ // only for pi2pi0 for now
+  else if(decay==TauDecay::MODE_3PI || decay==TauDecay::MODE_PI2PI0){ // only for pi2pi0 for now
     TLorentzVector a1(0,0,0,0),pi_p(0,0,0,0),pi_m(0,0,0,0); 
     int nplus(0),nminus(0);
     for(unsigned int i=0;i<part.size();i++){
@@ -486,10 +486,10 @@ void TauValidation::spinEffectsZH(const reco::GenParticle* boson, double weight)
 	unsigned int jak_id, TauBitMask;
 	if(TD.AnalyzeTau(dau,jak_id,TauBitMask,false,false)){
 	  std::vector<const reco::GenParticle*> part=TD.Get_TauDecayProducts();
-	  if(jak_id==TauDecay::JAK_PION || jak_id==TauDecay::JAK_MUON || jak_id==TauDecay::JAK_ELECTRON){
-	    if(jak_id==TauDecay::JAK_PION)     nSinglePionDecays++;
-	    if(jak_id==TauDecay::JAK_MUON)     nSingleMuonDecays++;
-	    if(jak_id==TauDecay::JAK_ELECTRON) nSingleElectronDecays++;
+	  if(jak_id==TauDecay::MODE_PION || jak_id==TauDecay::MODE_MUON || jak_id==TauDecay::MODE_ELECTRON){
+	    if(jak_id==TauDecay::MODE_PION)     nSinglePionDecays++;
+	    if(jak_id==TauDecay::MODE_MUON)     nSingleMuonDecays++;
+	    if(jak_id==TauDecay::MODE_ELECTRON) nSingleElectronDecays++;
 	    TLorentzVector LVtau(dau->px(),dau->py(),dau->pz(),dau->energy());
 	    tautau += LVtau;
 	    TLorentzVector LVpi=leadingPionP4(dau);
@@ -498,7 +498,7 @@ void TauValidation::spinEffectsZH(const reco::GenParticle* boson, double weight)
 	    int charge = (int) pd->charge();
 	    LVtau.Boost(-1*Zboson.BoostVector());
 	    LVpi.Boost(-1*Zboson.BoostVector());
-	    if(jak_id==TauDecay::JAK_PION){
+	    if(jak_id==TauDecay::MODE_PION){
 	      if(abs(boson->pdgId())==PdtPdgMini::Z0){
 		TauSpinEffectsZ_X->Fill(LVpi.P()/LVtau.E(),weight);
 		if(50.0<Zboson.M() && Zboson.M()<75.0) TauSpinEffectsZ_X50to75->Fill(LVpi.P()/LVtau.E(),weight);
@@ -515,7 +515,7 @@ void TauValidation::spinEffectsZH(const reco::GenParticle* boson, double weight)
 	  TLorentzVector LVtau(dau->px(),dau->py(),dau->pz(),dau->energy());
 	  if(pid == 15)taum=LVtau;
 	  if(pid ==-15)taup=LVtau;
-	  if(jak_id==TauDecay::JAK_RHO_PIPI0){
+	  if(jak_id==TauDecay::MODE_PIPI0){
 	    for(unsigned int i=0; i<part.size();i++){
 	      int pid_d = part.at(i)->pdgId();
 	      if(abs(pid_d)==211 || abs(pid_d)==111){
@@ -533,7 +533,7 @@ void TauValidation::spinEffectsZH(const reco::GenParticle* boson, double weight)
 	      }
 	    }
 	  }
-	  if(jak_id==TauDecay::JAK_PION){
+	  if(jak_id==TauDecay::MODE_PION){
 	    for(unsigned int i=0; i<part.size();i++){
 	      int pid_d = part.at(i)->pdgId();
 	      if(abs(pid_d)==211 ){

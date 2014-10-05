@@ -104,9 +104,9 @@ class TauValidation : public DQMEDAnalyzer
 	  *TauSpinEffectsH_pipiAcoplanarity,*TauSpinEffectsH_pipiAcollinearity,*TauSpinEffectsH_pipiAcollinearityzoom, *DecayLength,
 	  *LifeTime;
 
-	unsigned int NJAKID;
-	MonitorElement *JAKID;
-	std::vector<std::vector<MonitorElement *> > JAKInvMass;
+	unsigned int NMODEID;
+	MonitorElement *MODEID;
+	std::vector<std::vector<MonitorElement *> > MODEInvMass;
 
 	int zsbins;
 	double zsmin,zsmax;
