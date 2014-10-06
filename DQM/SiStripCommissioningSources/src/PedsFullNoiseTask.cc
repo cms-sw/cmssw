@@ -4,7 +4,7 @@
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
-#include "DQM/SiStripCommon/src/UpdateTProfile.cc"
+#include "DQM/SiStripCommon/interface/UpdateTProfile.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
