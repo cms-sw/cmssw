@@ -73,7 +73,9 @@ namespace l1t {
       rankPt = (uint16_t)itEtSum->hwPt();
       if (EtSum::EtSumType::kMissingHt == itEtSum->getType())
       {
-	if(rankPt > params->HtMissScale().linScaleMax()) rankPt = params->HtMissScale().linScaleMax();
+	// if(rankPt > params->HtMissScale().linScaleMax()) rankPt = params->HtMissScale().linScaleMax();
+	// params->HtMissScale().linScaleMax() always returns zero.  Hardcode 512 for now
+	if(rankPt > 512) rankPt = 512;
 	rankPt = params->HtMissScale().rank(rankPt*params->emScale().linearLsb());
       }
 
