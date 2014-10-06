@@ -38,7 +38,7 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 #from DQM.Integration.test.environment_cfi import HEAVYION
 
 #process.runType.setRunType('cosmic_run')
-process.runType.setRunType('pp_run')
+#process.runType.setRunType('pp_run')
 
 process.load("DQM.Integration.test.environment_cfi")
 process.DQM.filter = '^(SiStrip|Tracking)(/[^/]+){0,5}$'
