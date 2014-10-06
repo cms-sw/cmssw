@@ -116,10 +116,10 @@ class PFHBHERecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
 
 	//store the samples over thresholds
 	for (int ii = 0; ii < 8; ii++) {
-	  double gain = calibrations.respcorrgain(capid[ii]) *
+	  double sampleE = calibrations.respcorrgain(capid[ii]) *
 	    (tool[ii] - calibrations.pedestal(capid[ii]));
-	  if (gain>sampleCut_)
-	    samples[ii] = gain;
+	  if (sampleE>sampleCut_)
+	    samples[ii] = sampleE;
 	  else
 	    samples[ii] = 0.0;
 
