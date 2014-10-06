@@ -96,7 +96,6 @@ JetVertexChecker::JetVertexChecker(const edm::ParameterSet& iConfig)
   m_maxChi2           = iConfig.getParameter<double>("maxChi2");
   produces<std::vector<reco::CaloJet> >(); 
   produces<reco::VertexCollection >(); 
-  produces<float >(); 
 }
 
 
@@ -149,22 +148,6 @@ JetVertexChecker::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
      }
     }
-   if(m_newMethod)
-   {
-	   pOut->clear();
-	   result=true;
-	   i=0;
-	   if(trkpt/calopt < m_cutMinPtRatio) result=false;   
-	   for(reco::JetTracksAssociationCollection::const_iterator it = jetTracksAssociation->begin(); it != jetTracksAssociation->end() && i < m_maxNjetsOutput; it++, i++)
-	   {
-	     if(!result && std::abs(it->first->eta()) < 2.4)
-	     {
-		pOut->push_back(* dynamic_cast<const reco::CaloJet *>(&(*it->first)));
-	     }
-	    } 
-   }
-    
-  
    iEvent.put(pOut);
 
    edm::Handle<reco::BeamSpot> beamSpot;
@@ -180,12 +163,6 @@ JetVertexChecker::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    pOut2->push_back(thePV);
    iEvent.put(pOut2);
 
-   std::auto_ptr<float> pOut3(new float);
-   *pOut3=(calopt>0.0?trkpt/calopt:0);
-
-   iEvent.put(pOut3);
-
-//   std::cout << " filter " << result << std::endl;
    if(m_doFilter) return result;
    else 
    return true;
