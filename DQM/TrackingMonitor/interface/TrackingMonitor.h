@@ -37,7 +37,6 @@ Monitoring source for general quantities related to tracks.
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-class DQMStore;
 class TrackAnalyzer;
 class TrackBuildingAnalyzer;
 class VertexMonitor;
@@ -71,7 +70,7 @@ class TrackingMonitor : public DQMEDAnalyzer
 
         std::string histname;  //for naming the histograms according to algorithm used
 
-        DQMStore * dqmStore_;
+	//        DQMStore * dqmStore_;
 
         edm::ParameterSet conf_;
 
