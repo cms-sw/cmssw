@@ -16,6 +16,7 @@ SUSY_HLT_InclusiveHT::SUSY_HLT_InclusiveHT(const edm::ParameterSet& ps)
   theCaloJetCollection_ = consumes<reco::CaloJetCollection>(ps.getParameter<edm::InputTag>("caloJetCollection"));
   triggerResults_ = consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>("TriggerResults"));
   triggerPath_ = ps.getParameter<std::string>("TriggerPath");
+  triggerPathAuxiliaryForHadronic_ = ps.getParameter<std::string>("TriggerPathAuxiliaryForHadronic");
   triggerFilter_ = ps.getParameter<edm::InputTag>("TriggerFilter");
   ptThrJet_ = ps.getUntrackedParameter<double>("PtThrJet");
   etaThrJet_ = ps.getUntrackedParameter<double>("EtaThrJet");
@@ -98,11 +99,11 @@ void SUSY_HLT_InclusiveHT::analyze(edm::Event const& e, edm::EventSetup const& e
       const trigger::Keys& keys = triggerSummary->filterKeys( filterIndex );
       for( size_t j = 0; j < keys.size(); ++j ){
         trigger::TriggerObject foundObject = triggerObjects[keys[j]];
-        if(foundObject.id() == 85 && foundObject.pt() > 40.0 && fabs(foundObject.eta()) < 3.0){
-          h_triggerJetPt->Fill(foundObject.pt());
-          h_triggerJetEta->Fill(foundObject.eta());
-          h_triggerJetPhi->Fill(foundObject.phi());
-        }
+        //if(foundObject.id() == 85 && foundObject.pt() > 40.0 && fabs(foundObject.eta()) < 3.0){
+        //  h_triggerJetPt->Fill(foundObject.pt());
+        //  h_triggerJetEta->Fill(foundObject.eta());
+        //  h_triggerJetPhi->Fill(foundObject.phi());
+        //}
         if(foundObject.id() == 87){
           h_triggerMetPt->Fill(foundObject.pt());
           h_triggerMetPhi->Fill(foundObject.phi());
@@ -113,48 +114,51 @@ void SUSY_HLT_InclusiveHT::analyze(edm::Event const& e, edm::EventSetup const& e
       }
     }
 
-  bool hasFired = false;
+  bool hasFired = false, hasFiredAuxiliaryForHadronicLeg=false;
   const edm::TriggerNames& trigNames = e.triggerNames(*hltresults);
   unsigned int numTriggers = trigNames.size();
   for( unsigned int hltIndex=0; hltIndex<numTriggers; ++hltIndex ){
     if (trigNames.triggerName(hltIndex)==triggerPath_ && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) hasFired = true;
+    if (trigNames.triggerName(hltIndex)==triggerPathAuxiliaryForHadronic_ && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) hasFiredAuxiliaryForHadronicLeg = true;
   }
 
-  float caloHT = 0.0;
-  float pfHT = 0.0;
-  for (reco::PFJetCollection::const_iterator i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end(); ++i_pfjet){
-    if (i_pfjet->pt() < ptThrJet_) continue;
-    if (fabs(i_pfjet->eta()) > etaThrJet_) continue;
-    pfHT += i_pfjet->pt();
-  }
-
-  if(hasFired){
-    for (reco::CaloJetCollection::const_iterator i_calojet = caloJetCollection->begin(); i_calojet != caloJetCollection->end(); ++i_calojet){
-      if (i_calojet->pt() < ptThrJet_) continue;
-      if (fabs(i_calojet->eta()) > etaThrJet_) continue;
-      h_caloJetPt ->Fill(i_calojet->pt());
-      h_caloJetEta ->Fill(i_calojet->eta());
-      h_caloJetPhi ->Fill(i_calojet->phi());
-      caloHT += i_calojet->pt();
-    }
+  if(hasFiredAuxiliaryForHadronicLeg) {
+    float caloHT = 0.0;
+    float pfHT = 0.0;
     for (reco::PFJetCollection::const_iterator i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end(); ++i_pfjet){
       if (i_pfjet->pt() < ptThrJet_) continue;
       if (fabs(i_pfjet->eta()) > etaThrJet_) continue;
-      h_pfJetPt ->Fill(i_pfjet->pt());
-      h_pfJetEta ->Fill(i_pfjet->eta());
-      h_pfJetPhi ->Fill(i_pfjet->phi());
+      pfHT += i_pfjet->pt();
     }
-    h_pfMet -> Fill(pfMETCollection->begin()->et());
-    h_pfMetPhi -> Fill(pfMETCollection->begin()->phi());
-    h_pfHT -> Fill(pfHT);
-    h_caloHT -> Fill(caloHT);
 
-    h_pfMetTurnOn_num -> Fill(pfMETCollection->begin()->et());
-    h_pfHTTurnOn_num -> Fill(pfHT);
+    if(hasFired){
+      for (reco::CaloJetCollection::const_iterator i_calojet = caloJetCollection->begin(); i_calojet != caloJetCollection->end(); ++i_calojet){
+        if (i_calojet->pt() < ptThrJet_) continue;
+        if (fabs(i_calojet->eta()) > etaThrJet_) continue;
+        h_caloJetPt ->Fill(i_calojet->pt());
+        h_caloJetEta ->Fill(i_calojet->eta());
+        h_caloJetPhi ->Fill(i_calojet->phi());
+        caloHT += i_calojet->pt();
+      }
+      for (reco::PFJetCollection::const_iterator i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end(); ++i_pfjet){
+        if (i_pfjet->pt() < ptThrJet_) continue;
+        if (fabs(i_pfjet->eta()) > etaThrJet_) continue;
+        h_pfJetPt ->Fill(i_pfjet->pt());
+        h_pfJetEta ->Fill(i_pfjet->eta());
+        h_pfJetPhi ->Fill(i_pfjet->phi());
+      }
+      h_pfMet -> Fill(pfMETCollection->begin()->et());
+      h_pfMetPhi -> Fill(pfMETCollection->begin()->phi());
+      h_pfHT -> Fill(pfHT);
+      h_caloHT -> Fill(caloHT);
+
+      h_pfMetTurnOn_num -> Fill(pfMETCollection->begin()->et());
+      h_pfHTTurnOn_num -> Fill(pfHT);
+    }
+    //fill denominator histograms for all events, used for turn on curves
+    h_pfMetTurnOn_den -> Fill(pfMETCollection->begin()->et());
+    h_pfHTTurnOn_den -> Fill(pfHT);
   }
-  //fill denominator histograms for all events, used for turn on curves
-  h_pfMetTurnOn_den -> Fill(pfMETCollection->begin()->et());
-  h_pfHTTurnOn_den -> Fill(pfHT);
 }
 
 
@@ -187,9 +191,9 @@ void SUSY_HLT_InclusiveHT::bookHistos(DQMStore::IBooker & ibooker_)
   h_caloJetPhi = ibooker_.book1D("caloJetPhi", "CaloJet Phi", 20, -3.5, 3.5 );
 
   //online quantities 
-  h_triggerJetPt = ibooker_.book1D("triggerJetPt", "Trigger Jet Pt; GeV", 20, 0.0, 500.0);
-  h_triggerJetEta = ibooker_.book1D("triggerJetEta", "Trigger Jet Eta", 20, -3.0, 3.0);
-  h_triggerJetPhi = ibooker_.book1D("triggerJetPhi", "Trigger Jet Phi", 20, -3.5, 3.5);
+  //h_triggerJetPt = ibooker_.book1D("triggerJetPt", "Trigger Jet Pt; GeV", 20, 0.0, 500.0);
+  //h_triggerJetEta = ibooker_.book1D("triggerJetEta", "Trigger Jet Eta", 20, -3.0, 3.0);
+  //h_triggerJetPhi = ibooker_.book1D("triggerJetPhi", "Trigger Jet Phi", 20, -3.5, 3.5);
   h_triggerMetPt = ibooker_.book1D("triggerMetPt", "Trigger Met Pt; GeV", 20, 0.0, 500.0);
   h_triggerMetPhi = ibooker_.book1D("triggerMetPhi", "Trigger Met Phi", 20, -3.5, 3.5);
   h_triggerHT = ibooker_.book1D("triggerHT", "Trigger HT; GeV", 30, 0.0, 1500.0);
