@@ -767,7 +767,7 @@ void BranchBuilding(const float distSeedForMerge)
       kdtree.search(searchcube,found);
       for(unsigned j7 = 0; j7 < found.size(); j7++) {	
 	DisSeed = seedpos - cleanedHits[ found[j7].data ];
-	if( DisSeed.Mag2() < distSeedForMerge2 ) {
+	if( std::abs(DisSeed.Z()) > 1e-3 && DisSeed.Mag2() < distSeedForMerge2 ) {
 	  auto seed_branches = seedToBranchesMap.equal_range(found[j7].data);
 	  for( auto itr = seed_branches.first; itr != seed_branches.second; ++itr ){
 	    const auto foundSortedIdx = itr->second;
