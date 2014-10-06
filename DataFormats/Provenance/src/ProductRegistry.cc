@@ -267,7 +267,9 @@ namespace edm {
 
   void ProductRegistry::initializeLookupTables() {
 
+    std::map<TypeID, TypeID> containedTypeMap;
     TypeSet missingDicts;
+
     transient_.branchIDToIndex_.clear();
     constProductList().clear();
 
@@ -283,9 +285,21 @@ namespace edm {
 
       //only do the following if the data is supposed to be available in the event
       if(desc.present()) {
-        bool hasDict = checkTypeDictionary(TypeID(desc.unwrappedType().typeInfo())) && checkClassDictionary(TypeID(desc.wrappedType().typeInfo()));
-        if(hasDict) {
-          TypeWithDict type(TypeWithDict::byName(desc.className()));
+        if(!bool(desc.unwrappedType())) {
+          missingDicts.insert(TypeID(desc.unwrappedType().typeInfo()));
+        } else if(!bool(desc.wrappedType())) {
+          missingDicts.insert(TypeID(desc.wrappedType().typeInfo()));
+        } else {
+          TypeID wrappedTypeID(desc.wrappedType().typeInfo());
+          TypeID typeID(desc.unwrappedType().typeInfo());
+          TypeID containedTypeID;
+          auto const& iter = containedTypeMap.find(typeID);
+          if(iter != containedTypeMap.end()) {
+             containedTypeID = iter->second;
+          } else {
+             containedTypeID = productholderindexhelper::getContainedTypeFromWrapper(wrappedTypeID, typeID.className());
+             containedTypeMap.emplace(typeID, containedTypeID);
+          }
           ProductHolderIndex index =
             productLookup(desc.branchType())->insert(typeID,
                                                      desc.moduleLabel().c_str(),

@@ -28,62 +28,6 @@ namespace edm {
 
   static TypeSet missingTypes_;
 
-  bool
-  find_nested_type_named(std::string const& nested_type,
-                         TypeWithDict const& typeToSearch,
-                         TypeWithDict& found_type) {
-    // Look for a sub-type named 'nested_type'
-    TypeWithDict ty = typeToSearch.nestedType(nested_type);
-    if (!bool(ty)) {
-      found_type = TypeWithDict();
-      return false;
-    }
-    found_type = ty;
-    return true;
-  }
-
-  bool
-  is_RefVector(TypeWithDict const& possibleRefVector,
-               TypeWithDict& value_type) {
-    static std::string const template_name("edm::RefVector");
-    static std::string const member_type("member_type");
-    if (possibleRefVector.templateName() != template_name) {
-      value_type = TypeWithDict();
-      return false;
-    }
-    return find_nested_type_named(member_type, possibleRefVector, value_type);
-  }
-
-  bool
-  is_PtrVector(TypeWithDict const& possibleRefVector,
-               TypeWithDict& value_type) {
-    static std::string const template_name("edm::PtrVector");
-    static std::string const member_type("member_type");
-    static std::string const val_type("value_type");
-    if (possibleRefVector.templateName() != template_name) {
-      value_type = TypeWithDict();
-      return false;
-    }
-    TypeWithDict ptrType;
-    // FIXME: Is this right?
-    if (find_nested_type_named(val_type, possibleRefVector, ptrType)) {
-      return find_nested_type_named(val_type, ptrType, value_type);
-    }
-    return false;
-  }
-
-  bool
-  is_RefToBaseVector(TypeWithDict const& possibleRefVector,
-                     TypeWithDict& value_type) {
-    static std::string const template_name("edm::RefToBaseVector");
-    static std::string const member_type("member_type");
-    if (possibleRefVector.templateName() != template_name) {
-      value_type = TypeWithDict();
-      return false;
-    }
-    return find_nested_type_named(member_type, possibleRefVector, value_type);
-  }
-
   TypeSet&
   missingTypes() {
     return missingTypes_;
