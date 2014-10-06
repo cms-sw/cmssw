@@ -141,8 +141,8 @@ std::vector<CSCStripHit> CSCHitFromStripOnly::runStrip( const CSCDetId& id, cons
     
     //---- Check if a neighbouring strip is a dead strip
     //bool deadStrip = isNearDeadStrip(id, theMaxima.at(imax)); 
-    bool deadStripL = isDeadStrip(id, theMaxima.at(imax)-1);
-    bool deadStripR = isDeadStrip(id, theMaxima.at(imax)+1);
+    bool deadStripL = isDeadStrip(id, theMaxima.at(imax)-1, nstrips_);
+    bool deadStripR = isDeadStrip(id, theMaxima.at(imax)+1, nstrips_);
     short int aDeadStrip = 0;
     if(!deadStripL && !deadStripR){
       aDeadStrip = 0;
@@ -433,7 +433,7 @@ void CSCHitFromStripOnly::findMaxima(const CSCDetId& id) {
     
     bool maximumFound = false;
     // Left edge of chamber
-    if(!isDeadStrip(id, i+1)){ // is it i or i+1 
+    if( !isDeadStrip(id, i+1, nstrips_) ){ // Is it i or i+1 
       if ( i == 0 ) {
 	heightCluster = thePulseHeightMap[i].phmax()+thePulseHeightMap[i+1].phmax();
 	// Have found a strip Hit if...
@@ -557,16 +557,16 @@ float CSCHitFromStripOnly::findHitOnStripPosition( const std::vector<CSCStripHit
   return strippos;
 }
 
-bool CSCHitFromStripOnly::isNearDeadStrip(const CSCDetId& id, int centralStrip){
+bool CSCHitFromStripOnly::isNearDeadStrip(const CSCDetId& id, int centralStrip, int  nstrips){
 
   //@@ Tim says: not sure I understand this properly... but just moved code to CSCRecoConditions
   // where it can handle the conversion from strip to channel etc.
-  return recoConditions_->nearBadStrip( id, centralStrip );
+  return recoConditions_->nearBadStrip( id, centralStrip, nstrips );
 
 } 
 
-bool CSCHitFromStripOnly::isDeadStrip(const CSCDetId& id, int centralStrip){
-  return recoConditions_->badStrip( id, centralStrip );
+bool CSCHitFromStripOnly::isDeadStrip(const CSCDetId& id, int centralStrip, int  nstrips ){
+  return recoConditions_->badStrip( id, centralStrip, nstrips );
 
 } 
 
