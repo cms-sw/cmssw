@@ -15,9 +15,16 @@ class ESSummaryClient : public ESClient {
 
       /// Analyze
       void endLumiAnalyze(DQMStore::IGetter&) override;
+      void endJobAnalyze(DQMStore::IGetter&) override;
 
  private:
       void book(DQMStore::IBooker&) override;
+
+      void fillReportSummary(DQMStore::IGetter&);
+
+      MonitorElement* meReportSummary_;
+      MonitorElement* meReportSummaryContents_[2][2];
+      MonitorElement* meReportSummaryMap_;
 };
 
 #endif
