@@ -145,7 +145,7 @@ process.ecalCalibMonitorClient.verbosity = 0
 
 process.preScaler.prescaleFactor = 1
 
-process.source.streamLabel = "_streamCalibrationDQM_StorageManager"
+process.source.streamLabel = "_streamDQMCalibration_StorageManager"
 
 process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/ecalcalib_reference.root"
 
