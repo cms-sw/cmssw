@@ -36,7 +36,7 @@ process.famosSimHits.SimulateTracking = True
 
 # Get frontier conditions    - not applied in the HCAL, see below
 from HLTrigger.Configuration.AutoCondGlobalTag import AutoCondGlobalTag
-process.GlobalTag = AutoCondGlobalTag(process.GlobalTag,'auto:startup_GRun')
+process.GlobalTag = AutoCondGlobalTag(process.GlobalTag,'auto:run1_mc')
 # Allow reading of the tracker geometry from the DB
 process.load('CalibTracker/Configuration/Tracker_DependentRecords_forGlobalTag_nofakes_cff')
 
