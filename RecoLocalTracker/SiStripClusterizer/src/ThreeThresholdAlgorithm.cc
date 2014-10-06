@@ -84,6 +84,7 @@ endCandidate(T& out) {
     applyGains();
     appendBadNeighbors();
     out.push_back(SiStripCluster(firstStrip(), ADCs.begin(), ADCs.end()));
+    splitCluster(out);
   }
   clearCandidate();  
 }
@@ -148,3 +149,91 @@ void ThreeThresholdAlgorithm::
 stripByStripEnd(std::vector<SiStripCluster>& out) { 
   endCandidate(out);
 }
+
+#include<atomic>
+#include<cstdio>
+namespace {
+  struct Stat {
+    Stat() : tot(0),n4(0),lcharge(0),large(0),second(0),split(0){}
+    std::atomic<unsigned int> tot;
+    std::atomic<unsigned int> n4;
+    std::atomic<unsigned int> lcharge;
+    std::atomic<unsigned int> large;
+    std::atomic<unsigned int> second;
+    std::atomic<unsigned int> split;
+    ~Stat() { printf("StripClusters: %d/%d/%d/%d/%d/%d\n",tot.load(),n4.load(),lcharge.load(),large.load(),second.load(),split.load());} 
+
+  };
+
+  Stat stat;
+}
+
+
+template<class T> 
+void ThreeThresholdAlgorithm::splitCluster(T& out) const {
+  const auto & cluster = out.back();
+  const auto & strips = cluster.amplitudes();
+  
+  ++stat.tot;
+
+  if (strips.size()<5) return;  ++stat.n4;
+  int charge = std::accumulate(strips.begin(),strips.end(),0);
+ 
+  if (charge<120) return; ++stat.lcharge;
+
+  auto b = &strips.front(); auto e = b+strips.size();
+  auto mx = strips.front(); float mean=0; auto lmx=b; auto p = b+1;
+  for (;p!=e;++p) {
+    if ( (*p)>mx) { mx=(*p); lmx=p;}
+    mean+=(*p)*(p-b);
+  }
+  mean /=float(charge);
+
+  
+  if ( std::abs(float(lmx-b)-mean) <1. ) return; ++stat.large;
+
+  // std::cout << "max,mean,size " << lmx-b << ' ' << mean << ' ' << e-b <<  std::endl;
+
+  auto incr = 1; auto le = e;
+  if ( float(lmx-b)-mean > 0 ) { le = b-1; incr=-1;}
+  p=lmx+incr;
+  auto m = *p;  p+=incr; 
+  
+  auto d = incr>0 ? le-p : p-le; 
+  //std::cout << "start end" << p-b << ' ' << le-b << ' ' << d << std::endl;
+  if (d<=0) return;
+
+  for (; p!=le; p+=incr) {
+     if ( (*p)<m) { m=(*p); continue;}
+     break;
+  }
+
+  auto fs = cluster.firstStrip();
+  for (; p!=le; p+=incr) {
+    if ( (*p) > static_cast<uint8_t>( gain(fs+(p-b))*noise(fs+(p-b))*SeedThreshold) ) break;
+  }
+  if (p==le) return;
+  ++stat.second;
+  auto nmx = p;
+  
+  p=lmx+incr;
+  m = *p;  p+=incr; auto lm=p;
+  for (; p!=nmx; p+=incr)
+     if ( (*p)<m) { m=(*p); lm=p;}
+
+  float charge1 = std::accumulate(b,lm,0); charge1 += (*lm)*charge1/charge;
+  float charge2 = charge=charge1;
+  if (std::min(charge1,charge2)< 60) return;
+
+  ++stat.split;
+
+  auto newst = strips;
+  auto in = lm-b;
+  newst[in] = charge1;
+  out.back() =  SiStripCluster(fs,newst.begin(),newst.begin()+in+1);
+  newst[in] = charge2;
+  out.push_back(SiStripCluster(fs+in,newst.begin()+in, newst.end()));
+
+
+}
+
