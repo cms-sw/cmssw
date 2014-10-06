@@ -698,9 +698,10 @@ void TrackingMonitor::endRun(const edm::Run&, const edm::EventSetup&)
 {
 }
 
+/*
 void TrackingMonitor::endJob(void) 
 {
-  /*
+
     bool outputMEsInRootFile   = conf_.getParameter<bool>("OutputMEsInRootFile");
     std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
     if(outputMEsInRootFile)
@@ -708,8 +709,8 @@ void TrackingMonitor::endJob(void)
         dqmStore_->showDirStructure();
         dqmStore_->save(outputFileName);
     }
-  */
 }
+*/
 
 void TrackingMonitor::setMaxMinBin(std::vector<double> &arrayMin,  std::vector<double> &arrayMax, std::vector<int> &arrayBin, double smin, double smax, int sbin, double pmin, double pmax, int pbin) 
 {
