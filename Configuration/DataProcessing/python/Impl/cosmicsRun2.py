@@ -66,6 +66,8 @@ class cosmicsRun2(Reco):
         process = Reco.visualizationProcessing(self,globalTag, **args)
 
         customiseCosmicDataRun2(process)  
+        process.reconstructionCosmics.remove(process.lumiProducer)
+
         return process
 
     def alcaHarvesting(self, globalTag, datasetName, **args):
