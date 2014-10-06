@@ -286,7 +286,7 @@ void BuildInitLink()
 	  const auto& PosB = cleanedHits[found[j0].data];
 	  PosDiffAB = PosA - PosB;
 	  
-	  if( PosDiffAB.Mag2() < InitLinkThreshold2 ) // || ( PosDiffAB.Mag() < 1.6*InitLinkThreshold && PosDiffAB.Dot(PosB) < 0.9*PosDiffAB.Mag()*PosB.Mag() )  )	//Distance threshold to be optimized - should also depends on Geometry
+	  if( std::abs(PosDiffAB.Z()) > 1e-3 && PosDiffAB.Mag2() < InitLinkThreshold2 ) // || ( PosDiffAB.Mag() < 1.6*InitLinkThreshold && PosDiffAB.Dot(PosB) < 0.9*PosDiffAB.Mag()*PosB.Mag() )  )	//Distance threshold to be optimized - should also depends on Geometry
 	    {
 	      std::pair<int, int> a_Link;
 	      if( PosA.Mag2() > PosB.Mag2() )
@@ -461,7 +461,8 @@ void LinkIteration()	//Energy corrections, semi-local correction
       PosB = cleanedHits[found[j1].data];
       DiffPosAB = PosB - PosA; 
       
-      if( DiffPosAB.Mag2() < IterLinkThreshold2 && 
+      if( std::abs(DiffPosAB.Z()) > 1e-3 &&
+	  DiffPosAB.Mag2() < IterLinkThreshold2 && 
 	  DiffPosAB.Mag2() > InitLinkThreshold2 && 
 	  DiffPosAB.Angle(RefDir[i1]) < 0.8 ) {
 	
