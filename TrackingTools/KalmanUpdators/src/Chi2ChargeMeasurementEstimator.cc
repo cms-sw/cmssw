@@ -11,7 +11,7 @@
 
 bool Chi2ChargeMeasurementEstimator::checkClusterCharge(const OmniClusterRef::ClusterStripRef cluster, float chargeCut) const
 {
-  int clusCharge=accumulate( cluster->amplitudes().begin(), cluster->amplitudes().end(), uint16_t(0));
+  int clusCharge=std::accumulate( cluster->amplitudes().begin(), cluster->amplitudes().end(), uint16_t(0));
   return (clusCharge>chargeCut);
 }
 

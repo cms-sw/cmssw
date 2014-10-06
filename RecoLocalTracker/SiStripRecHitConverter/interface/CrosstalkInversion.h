@@ -6,6 +6,8 @@
 #include <stdint.h>
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/ErrorPropogationTypes.h"
 
+class SiStripCluster;
+
 namespace reco {
 
   class InverseCrosstalkMatrix {
@@ -19,7 +21,7 @@ namespace reco {
     const double sq, lambdaP, lambdaM, denominator;
     
   public:
-    static std::vector<stats_t<float> > unfold(const std::vector<uint8_t>& q, const float x);
+    static std::vector<stats_t<float> > unfold(const SiStripCluster& q, const float x);
     
   };
 }

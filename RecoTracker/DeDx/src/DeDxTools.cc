@@ -7,7 +7,7 @@ using namespace std;
 using namespace reco;
 
 
-bool shapeSelection(const std::vector<uint8_t> & ampls)
+bool shapeSelection(const SiStripCluster & ampls)
 {
   // ----------------  COMPTAGE DU NOMBRE DE MAXIMA   --------------------------
   //----------------------------------------------------------------------------
@@ -23,9 +23,9 @@ bool shapeSelection(const std::vector<uint8_t> & ampls)
 
 	// Maximum entouré
          if(ampls.size()>2){
-          for (unsigned int i =1; i < ampls.size()-1; i++) {
+          for (unsigned int i =1; i < ampls.size()-1U; i++) {
                 if( (ampls[i]>ampls[i-1] && ampls[i]>ampls[i+1]) 
-		    || (ampls.size()>3 && i>0 && i<ampls.size()-2 && ampls[i]==ampls[i+1] && ampls[i]>ampls[i-1] && ampls[i]>ampls[i+2] && ampls[i]!=254 && ampls[i]!=255) ){ 
+		    || (ampls.size()>3 && i>0 && i<ampls.size()-2U && ampls[i]==ampls[i+1] && ampls[i]>ampls[i-1] && ampls[i]>ampls[i+2] && ampls[i]!=254 && ampls[i]!=255) ){ 
 		 NofMax=NofMax+1; MaxInMiddle=true;  MaxPos=i; 
 		}
 		if(ampls[i]==255 && ampls[i]==ampls[i-1]) {
@@ -159,7 +159,7 @@ bool shapeSelection(const std::vector<uint8_t> & ampls)
 
 int getCharge(const SiStripCluster* cluster, int& nSatStrip, const GeomDetUnit& detUnit, const std::vector< std::vector< float > >& calibGains, const unsigned int& m_off )
 {
-   const vector<uint8_t>&  Ampls       = cluster->amplitudes();
+   const auto &  Ampls       = cluster->amplitudes();
 
    nSatStrip = 0;
    int charge = 0;

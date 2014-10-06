@@ -83,7 +83,8 @@ endCandidate(T& out) {
   if(candidateAccepted()) {
     applyGains();
     appendBadNeighbors();
-    out.push_back(SiStripCluster(firstStrip(), ADCs.begin(), ADCs.end()));
+    auto siz = std::min(ADCs.size(),(size_t)(SiStripCluster::MAX_SIZE));
+    out.push_back(SiStripCluster(firstStrip(), ADCs.begin(), ADCs.begin()+siz));
     splitCluster(out);
   }
   clearCandidate();  
@@ -161,7 +162,9 @@ namespace {
     std::atomic<unsigned int> large;
     std::atomic<unsigned int> second;
     std::atomic<unsigned int> split;
-    ~Stat() { printf("StripClusters: %d/%d/%d/%d/%d/%d\n",tot.load(),n4.load(),lcharge.load(),large.load(),second.load(),split.load());} 
+    ~Stat() { printf("StripClusters: %d/%d/%d/%d/%d/%d\n",tot.load(),n4.load(),lcharge.load(),large.load(),second.load(),split.load());
+              printf("StripClusters: %f/%f\n",double(n4.load())/double(tot.load()), double(lcharge.load())/double(tot.load()) );
+            } 
 
   };
 
@@ -176,10 +179,12 @@ void ThreeThresholdAlgorithm::splitCluster(T& out) const {
   
   ++stat.tot;
 
-  if (strips.size()<5) return;  ++stat.n4;
   int charge = std::accumulate(strips.begin(),strips.end(),0);
+  if (charge< 60)  ++stat.lcharge;
+
+  if (strips.size()<15) return;  ++stat.n4;
  
-  if (charge<120) return; ++stat.lcharge;
+  if (charge<120) return; // ++stat.lcharge;
 
   auto b = &strips.front(); auto e = b+strips.size();
   auto mx = strips.front(); float mean=0; auto lmx=b; auto p = b+1;

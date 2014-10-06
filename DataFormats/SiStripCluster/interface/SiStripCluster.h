@@ -4,6 +4,7 @@
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include <vector>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include<cassert>
 
 class SiStripCluster  {
 public:
@@ -22,13 +23,16 @@ public:
   template<typename Iter>
   SiStripCluster(const uint16_t& firstStrip, 
 		 Iter begin, Iter end ):
-	 amplitudes_(begin,end), firstStrip_(firstStrip), 
+	 size_(end-begin), firstStrip_(firstStrip),
   // ggiurgiu@fnal.gov, 01/05/12
   // Initialize the split cluster errors to un-physical values.
   // The CPE will check these errors and if they are not un-physical,
   // it will recognize the clusters as split and assign these (increased)
   // errors to the corresponding rechit.
-  error_x(-99999.9){}
+  error_x(-99999.9){
+    assert(size_<=MAX_SIZE);
+    std::copy(begin,end,amplitudes_);
+  }
 
   /** The number of the first strip in the cluster
    */
@@ -45,7 +49,7 @@ public:
    *  You can find the special meanings of values { 0, 254, 255} in section 3.4.1 of
    *  http://www.te.rl.ac.uk/esdg/cms-fed/firmware/Documents/FE_FPGA_Technical_Description.pdf
    */
-  const std::vector<uint8_t>&  amplitudes() const {return amplitudes_;}
+  const SiStripCluster &  amplitudes() const {return *this;}
 
   /** The barycenter of the cluster, not corrected for Lorentz shift;
    *  should not be used as position estimate for tracking.
@@ -55,11 +59,20 @@ public:
   float getSplitClusterError () const    {  return error_x;  }
   void  setSplitClusterError ( float errx ) { error_x = errx; }
 
+  enum { MAX_SIZE=16};
+
+  uint8_t const & front() const { return amplitudes_[0];}
+  uint8_t const * begin() const { return amplitudes_;}
+  uint8_t const * end() const	{ return amplitudes_+size_;}
+  uint16_t        size() const  { return size_;}
+  uint8_t operator[](unsigned int i) const { return amplitudes_[i];}
+  uint8_t & operator[](unsigned int i) { return amplitudes_[i];}
 
 private:
 
-  std::vector<uint8_t>   amplitudes_;
+  uint8_t   amplitudes_[MAX_SIZE];
 
+  uint16_t                size_;
   uint16_t                firstStrip_;
 
   // ggiurgiu@fnal.gov, 01/05/12
