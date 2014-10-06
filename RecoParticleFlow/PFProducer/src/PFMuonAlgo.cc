@@ -759,7 +759,7 @@ void  PFMuonAlgo::changeTrack(reco::PFCandidate& candidate,const MuonTrackTypePa
     double px = bestTrack->px();
     double py = bestTrack->py();
     double pz = bestTrack->pz();
-    double energy = sqrt(bestTrack->p()*bestTrack->p() + 0.13957*0.13957);
+    double energy = sqrt(bestTrack->p()*bestTrack->p() + 0.1057*0.1057);
 
     candidate.setCharge(bestTrack->charge()>0 ? 1 : -1);
     candidate.setP4(math::XYZTLorentzVector(px,py,pz,energy));
