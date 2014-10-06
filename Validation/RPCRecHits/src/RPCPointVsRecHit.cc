@@ -17,38 +17,11 @@ RPCPointVsRecHit::RPCPointVsRecHit(const edm::ParameterSet& pset)
   refHitToken_ = consumes<RPCRecHitCollection>(pset.getParameter<edm::InputTag>("refHit"));
   recHitToken_ = consumes<RPCRecHitCollection>(pset.getParameter<edm::InputTag>("recHit"));
 
-  dbe_ = edm::Service<DQMStore>().operator->();
-  if ( !dbe_ )
-  {
-    edm::LogError("RPCPointVsRecHit") << "No DQMStore instance\n";
-    return;
-  }
-
-  // Book MonitorElements
-  const std::string subDir = pset.getParameter<std::string>("subDir");
-  h_.bookHistograms(dbe_, subDir);
-}
-
-RPCPointVsRecHit::~RPCPointVsRecHit()
-{
-}
-
-void RPCPointVsRecHit::beginJob()
-{
-}
-
-void RPCPointVsRecHit::endJob()
-{
+  subDir_ = pset.getParameter<std::string>("subDir");
 }
 
 void RPCPointVsRecHit::analyze(const edm::Event& event, const edm::EventSetup& eventSetup)
 {
-  if ( !dbe_ )
-  {
-    edm::LogError("RPCPointVsRecHit") << "No DQMStore instance\n";
-    return;
-  }
-
   // Get the RPC Geometry
   edm::ESHandle<RPCGeometry> rpcGeom;
   eventSetup.get<MuonGeometryRecord>().get(rpcGeom);
@@ -342,6 +315,14 @@ void RPCPointVsRecHit::analyze(const edm::Event& event, const edm::EventSetup& e
     }
   }
 }
+
+void RPCPointVsRecHit::bookHistograms(DQMStore::IBooker& booker,
+                                      edm::Run const & run, edm::EventSetup const & eventSetup)
+{
+  // Book MonitorElements
+  h_.bookHistograms(booker, subDir_);
+}
+
 
 DEFINE_FWK_MODULE(RPCPointVsRecHit);
 

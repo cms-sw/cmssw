@@ -2,7 +2,7 @@
 #define Validaiton_RPCRecHits_RPCRecHitValidClient_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -15,16 +15,13 @@
 
 #include <string>
 
-class RPCRecHitValidClient : public edm::EDAnalyzer
+class RPCRecHitValidClient : public DQMEDHarvester
 {
 public:
   RPCRecHitValidClient(const edm::ParameterSet& pset);
   ~RPCRecHitValidClient() {};
 
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {};
-  void endRun(const edm::Run& run, const edm::EventSetup& eventSetup);
-  //void beginJob() {};
-  //void endJob() {};
+  void dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter);
 
 private:
   std::string subDir_;
