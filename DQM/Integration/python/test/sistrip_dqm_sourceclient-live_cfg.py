@@ -38,7 +38,7 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 #from DQM.Integration.test.environment_cfi import HEAVYION
 
 #process.runType.setRunType('cosmic_run')
-#process.runType.setRunType('pp_run')
+process.runType.setRunType('pp_run')
 
 process.load("DQM.Integration.test.environment_cfi")
 process.DQM.filter = '^(SiStrip|Tracking)(/[^/]+){0,5}$'
@@ -328,7 +328,8 @@ if (process.runType.getRunType() == process.runType.pp_run):
     process.TrackingAnalyser.ShiftReportFrequency = -1
     process.TrackingAnalyser.StaticUpdateFrequency = 5
     process.TrackingAnalyser.RawDataTag = cms.untracked.InputTag("rawDataCollector")
-    process.TrackingAnalyser.verbose = cms.untracked.bool(True)
+    if offlineTesting :
+        process.TrackingAnalyser.verbose = cms.untracked.bool(True)
     process.TrackingClient = cms.Sequence( process.TrackingAnalyser )
     
     process.trackingQTester.qtList                  = cms.untracked.FileInPath('DQM/TrackingMonitorClient/data/tracking_qualitytest_config.xml')
