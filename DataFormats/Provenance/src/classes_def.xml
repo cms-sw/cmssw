@@ -1,5 +1,8 @@
 <lcgdict>
  <enum name="edm::BranchType"/>
+ <class name="edm::ViewTypeChecker" ClassVersion="2">
+  <version ClassVersion="2" checksum="2398868528"/>
+ </class>
  <class name="edm::ProductID" ClassVersion="11">
   <version ClassVersion="11" checksum="3913437934"/>
   <version ClassVersion="10" checksum="1501211476"/>
