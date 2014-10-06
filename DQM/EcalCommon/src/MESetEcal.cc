@@ -145,21 +145,20 @@ namespace ecaldqm
         break;
 
       case MonitorElement::DQM_KIND_TH1F :
-        if(xaxis.edges){
-          float* edges(new float[xaxis.nbins + 1]);
-          for(int i(0); i < xaxis.nbins + 1; i++)
-            edges[i] = xaxis.edges[i];
-          me = _ibooker.book1D(name, name, xaxis.nbins, edges);
-          delete [] edges;
-        }
+        if(xaxis.edges)
+          me = _ibooker.book1D(name, name, xaxis.nbins, xaxis.edges);
         else
           me = _ibooker.book1D(name, name, xaxis.nbins, xaxis.low, xaxis.high);
 
         break;
 
       case MonitorElement::DQM_KIND_TPROFILE :
-        if(xaxis.edges) {
-          me = _ibooker.bookProfile(name, name, xaxis.nbins, xaxis.edges, yaxis.low, yaxis.high, "");
+        if(xaxis.edges){
+          // DQMStore bookProfile interface uses double* for bin edges
+          double* edges(new double[xaxis.nbins + 1]);
+          std::copy(xaxis.edges, xaxis.edges + xaxis.nbins + 1, edges);
+          me = _ibooker.bookProfile(name, name, xaxis.nbins, edges, yaxis.low, yaxis.high, "");
+          delete [] edges;
         }
         else
           me = _ibooker.bookProfile(name, name, xaxis.nbins, xaxis.low, xaxis.high, yaxis.low, yaxis.high, "");
@@ -169,22 +168,16 @@ namespace ecaldqm
       case MonitorElement::DQM_KIND_TH2F :
         if(xaxis.edges || yaxis.edges) {
           binning::AxisSpecs* specs[] = {&xaxis, &yaxis};
-          float* edges[] = {new float[xaxis.nbins + 1], new float[yaxis.nbins + 1]};
           for(int iSpec(0); iSpec < 2; iSpec++){
-            if(specs[iSpec]->edges){
-              for(int i(0); i < specs[iSpec]->nbins + 1; i++)
-                edges[iSpec][i] = specs[iSpec]->edges[i];
-            }
-            else{
+            if(!specs[iSpec]->edges){
+              specs[iSpec]->edges = new float[specs[iSpec]->nbins + 1];
               int nbins(specs[iSpec]->nbins);
               double low(specs[iSpec]->low), high(specs[iSpec]->high);
               for(int i(0); i < nbins + 1; i++)
-                edges[iSpec][i] = low + (high - low) / nbins * i;
+                specs[iSpec]->edges[i] = low + (high - low) / nbins * i;
             }
           }
-          me = _ibooker.book2D(name, name, xaxis.nbins, edges[0], yaxis.nbins, edges[1]);
-          for(int iSpec(0); iSpec < 2; iSpec++)
-            delete [] edges[iSpec];
+          me = _ibooker.book2D(name, name, xaxis.nbins, xaxis.edges, yaxis.nbins, yaxis.edges);
         }
         else
           me = _ibooker.book2D(name, name, xaxis.nbins, xaxis.low, xaxis.high, yaxis.nbins, yaxis.low, yaxis.high);

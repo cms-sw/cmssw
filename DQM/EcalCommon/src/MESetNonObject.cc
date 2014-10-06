@@ -80,15 +80,10 @@ namespace ecaldqm
         if(!xaxis_)
           throw_("No xaxis found for MESetNonObject");
 
-        if(!xaxis_->edges)
+        if(xaxis_->edges)
+          me = _ibooker.book1D(name, name, xaxis_->nbins, xaxis_->edges);
+        else
           me = _ibooker.book1D(name, name, xaxis_->nbins, xaxis_->low, xaxis_->high);
-        else{
-          float* edges(new float[xaxis_->nbins + 1]);
-          for(int i(0); i < xaxis_->nbins + 1; i++)
-            edges[i] = xaxis_->edges[i];
-          me = _ibooker.book1D(name, name, xaxis_->nbins, edges);
-          delete [] edges;
-        }
       }
       break;
 
@@ -106,11 +101,15 @@ namespace ecaldqm
           ylow = yaxis_->low;
           yhigh = yaxis_->high;
         }
-        if(xaxis_->edges)
-          me = _ibooker.bookProfile(name, name, xaxis_->nbins, xaxis_->edges, ylow, yhigh, "");
+        if(xaxis_->edges){
+          // DQMStore bookProfile interface uses double* for bin edges
+          double* edges(new double[xaxis_->nbins + 1]);
+          std::copy(xaxis_->edges, xaxis_->edges + xaxis_->nbins + 1, edges);
+          me = _ibooker.bookProfile(name, name, xaxis_->nbins, edges, ylow, yhigh, "");
+          delete edges;
+        }
         else
           me = _ibooker.bookProfile(name, name, xaxis_->nbins, xaxis_->low, xaxis_->high, ylow, yhigh, "");
-
       }
       break;
 
@@ -119,19 +118,10 @@ namespace ecaldqm
         if(!xaxis_ || !yaxis_)
           throw_("No x/yaxis found for MESetNonObject");
 
-        if(!xaxis_->edges || !yaxis_->edges)
+        if(!xaxis_->edges || !yaxis_->edges) // unlike MESetEcal, if either of X or Y is not set as variable, binning will be fixed
           me = _ibooker.book2D(name, name, xaxis_->nbins, xaxis_->low, xaxis_->high, yaxis_->nbins, yaxis_->low, yaxis_->high);
-        else{
-          float* xedges(new float[xaxis_->nbins + 1]);
-          for(int i(0); i < xaxis_->nbins + 1; i++)
-            xedges[i] = xaxis_->edges[i];
-          float* yedges(new float[yaxis_->nbins + 1]);
-          for(int i(0); i < yaxis_->nbins + 1; i++)
-            yedges[i] = yaxis_->edges[i];
-          me = _ibooker.book2D(name, name, xaxis_->nbins, xedges, yaxis_->nbins, yedges);
-          delete [] xedges;
-          delete [] yedges;
-        }
+        else
+          me = _ibooker.book2D(name, name, xaxis_->nbins, xaxis_->edges, yaxis_->nbins, yaxis_->edges);
       }
       break;
 
@@ -139,6 +129,9 @@ namespace ecaldqm
       {
         if(!xaxis_ || !yaxis_)
           throw_("No x/yaxis found for MESetNonObject");
+        if(xaxis_->edges || yaxis_->edges)
+          throw_("Variable bin size for 2D profile not implemented");
+
         double high(0.), low(0.);
         if(zaxis_){
           low = zaxis_->low;
