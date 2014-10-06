@@ -118,6 +118,14 @@ private:
  MonitorElement* genpart_GammaB_energydist;
 //////////////////////////////
 
+
+ //N counts plots                    
+ MonitorElement* genpart_Pi0F_counts;
+ MonitorElement* genpart_Pi0B_counts;
+ MonitorElement* genpart_NeutF_counts;
+ MonitorElement* genpart_NeutB_counts;
+ MonitorElement* genpart_GammaF_counts;
+ MonitorElement* genpart_GammaB_counts;
 };
 
 #endif

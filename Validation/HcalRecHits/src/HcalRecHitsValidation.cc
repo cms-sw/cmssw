@@ -536,7 +536,7 @@ void HcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
       sevLvl_HE = ib.book1D(histo, histo, 25, -0.5, 24.5); 
       
       sprintf (histo, "HcalRecHitTask_energy_of_rechits_HE" ) ;
-      meRecHitsEnergyHE = ib.book1D(histo, histo, 510, -10., 500.); 
+      meRecHitsEnergyHE = ib.book1D(histo, histo, 2010, -10., 2000.);
       
       sprintf (histo, "HcalRecHitTask_timing_HE" ) ;
       meTimeHE = ib.book1D(histo, histo, 70, -48., 92.); 
@@ -597,7 +597,7 @@ void HcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
       sevLvl_HO = ib.book1D(histo, histo, 25, -0.5, 24.5); 
 
       sprintf (histo, "HcalRecHitTask_energy_of_rechits_HO" ) ;
-      meRecHitsEnergyHO = ib.book1D(histo, histo, 510 , -10. , 500.); 
+      meRecHitsEnergyHO = ib.book1D(histo, histo, 2010 , -10. , 2000.);
       
       sprintf (histo, "HcalRecHitTask_timing_HO" ) ;
       meTimeHO = ib.book1D(histo, histo, 70, -48., 92.); 
@@ -654,7 +654,7 @@ void HcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
       sevLvl_HF = ib.book1D(histo, histo, 25, -0.5, 24.5); 
 
       sprintf (histo, "HcalRecHitTask_energy_of_rechits_HF" ) ;
-      meRecHitsEnergyHF = ib.book1D(histo, histo, 1010 , -10. , 1000.); 
+      meRecHitsEnergyHF = ib.book1D(histo, histo, 2010 , -10. , 2000.); 
 
       sprintf (histo, "HcalRecHitTask_timing_HF" ) ;
       meTimeHF = ib.book1D(histo, histo, 70, -48., 92.); 
