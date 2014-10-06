@@ -18,7 +18,7 @@ TauValidation::TauValidation(const edm::ParameterSet& iPSet):
   wmanager_(iPSet,consumesCollector())
   ,genparticleCollection_(iPSet.getParameter<edm::InputTag>("genparticleCollection"))
   ,hepmcCollection_(iPSet.getParameter<edm::InputTag>("hepmcCollection"))
-  ,NMODEID(22)
+  ,NMODEID(TauDecay::NMODEID-1)// fortran to C++ index
   ,zsbins(20)
   ,zsmin(-0.5)
   ,zsmax(0.5)
