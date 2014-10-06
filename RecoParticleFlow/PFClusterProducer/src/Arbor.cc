@@ -542,7 +542,8 @@ void LinkIteration()	//Energy corrections, semi-local correction
   
 }
 
-void BranchBuilding(const float distSeedForMerge)
+void BranchBuilding(const float distSeedForMerge,
+		    const bool allowSameLayerSeedMerge)
 {
   edm::LogInfo("ArborInfo") <<"Build Branch"<<endl;
   
@@ -767,7 +768,8 @@ void BranchBuilding(const float distSeedForMerge)
       kdtree.search(searchcube,found);
       for(unsigned j7 = 0; j7 < found.size(); j7++) {	
 	DisSeed = seedpos - cleanedHits[ found[j7].data ];
-	if( std::abs(DisSeed.Z()) > 1e-3 && DisSeed.Mag2() < distSeedForMerge2 ) {
+	if( ( allowSameLayerSeedMerge || std::abs(DisSeed.Z()) > 1e-3 ) &&
+	    DisSeed.Mag2() < distSeedForMerge2 ) {
 	  auto seed_branches = seedToBranchesMap.equal_range(found[j7].data);
 	  for( auto itr = seed_branches.first; itr != seed_branches.second; ++itr ){
 	    const auto foundSortedIdx = itr->second;
@@ -865,7 +867,8 @@ void MakingCMSCluster() // edm::Event& Event, const edm::EventSetup& Setup )
   std::vector< std::vector<int> > Arbor(std::vector<TVector3> inputHits, 
 					const float CellSize, 
 					const float LayerThickness, 
-					const float distSeedForMerge ) {
+					const float distSeedForMerge,
+					const bool allowSameLayerSeedMerge) {
 	init(CellSize, LayerThickness);
 
 	HitsCleaning( std::move(inputHits) );
@@ -882,7 +885,7 @@ void MakingCMSCluster() // edm::Event& Event, const edm::EventSetup& Setup )
 
 	//IterLinks = InitLinks; 
 
-	BranchBuilding(distSeedForMerge);	
+	BranchBuilding(distSeedForMerge,allowSameLayerSeedMerge);	
 	BushMerging();
 
 	return Trees;
