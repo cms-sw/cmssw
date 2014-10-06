@@ -440,11 +440,11 @@ void DQMStore::mergeAndResetMEsLuminositySummaryCache(uint32_t run,
     global_me.setLumi(1);
     std::set<MonitorElement>::const_iterator i_lumi = data_.lower_bound(global_me);
     while (i_lumi->data_.lumi != lumi) {
+      auto temp = i_lumi++;
       if (i_lumi->getFullname() == i->getFullname() &&  i_lumi->markedToDelete())
 	{
-	  data_.erase(i_lumi);
+	  data_.erase(temp);
 	}
-      ++i_lumi;
     }
   }
 }
