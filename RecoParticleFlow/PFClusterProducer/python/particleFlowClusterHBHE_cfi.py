@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from RecoParticleFlow.PFClusterProducer.particleFlowCaloResolution_cfi import _timeResolutionHCALMaxSample
+#from RecoParticleFlow.PFClusterProducer.particleFlowCaloResolution_cfi import _timeResolutionHCALMaxSample
 
 #### PF CLUSTER HCAL ####
 particleFlowClusterHBHE = cms.EDProducer(
@@ -36,7 +36,7 @@ particleFlowClusterHBHE = cms.EDProducer(
     ),
     
     pfClusterBuilder = cms.PSet(
-           algoName = cms.string("PFlow2DClusterizerWithTime"),
+           algoName = cms.string("Basic2DGenericPFlowClusterizer"),
            #pf clustering parameters
            minFractionToKeep = cms.double(1e-7),
            positionCalc = cms.PSet(
@@ -60,8 +60,8 @@ particleFlowClusterHBHE = cms.EDProducer(
            maxNSigmaTime = cms.double(10.),
            minChi2Prob = cms.double(0.),
            clusterTimeResFromSeed = cms.bool(False),
-           timeResolutionCalcBarrel = _timeResolutionHCALMaxSample,
-           timeResolutionCalcEndcap = _timeResolutionHCALMaxSample,
+           #timeResolutionCalcBarrel = _timeResolutionHCALMaxSample,
+           #timeResolutionCalcEndcap = _timeResolutionHCALMaxSample,
            showerSigma = cms.double(10.0),
            stoppingTolerance = cms.double(1e-8),
            maxIterations = cms.uint32(50),
