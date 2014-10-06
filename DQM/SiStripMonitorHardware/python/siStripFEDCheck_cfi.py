@@ -23,4 +23,7 @@ siStripFEDCheck = cms.EDAnalyzer("SiStripFEDCheckPlugin",
   CheckFELengths = cms.untracked.bool(True),
   #Use to disable check on channel status bits
   CheckChannelStatus = cms.untracked.bool(True),
+  LSBin = cms.int32(5000),
+  LSMin = cms.double(0.),
+  LSMax = cms.double(5000.),  
 )

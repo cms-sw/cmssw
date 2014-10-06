@@ -80,6 +80,9 @@ class SiStripFEDCheckPlugin : public DQMEDAnalyzer
   MonitorElement* fedsPresent_;
   MonitorElement* fedFatalErrors_;
   MonitorElement* fedNonFatalErrors_;
+
+  MonitorElement* nFEDinVsLS_;
+  MonitorElement* nFEDinWdataVsLS_;
   
   //For histogram cache
   unsigned int updateFrequency_;//Update histograms with cached values every n events. If zero then fill normally every event
@@ -90,11 +93,16 @@ class SiStripFEDCheckPlugin : public DQMEDAnalyzer
   unsigned int eventCount_;//incremented by doUpdateIfNeeded()
   
   //Fine grained control of tests
-  bool doPayloadChecks_, checkChannelLengths_, checkPacketCodes_, checkFELengths_, checkChannelStatusBits_;
+  bool doPayloadChecks_, checkChannelLengths_, checkPacketCodes_, checkFELengths_, checkChannelStatusBits_, verbose_;
   
   //Cabling
   uint32_t cablingCacheId_;
   const SiStripFedCabling* cabling_;
+
+  unsigned int siStripFedIdMin_;
+  unsigned int siStripFedIdMax_;
+
+  edm::ParameterSet conf_;
 };
 
 
@@ -103,20 +111,26 @@ class SiStripFEDCheckPlugin : public DQMEDAnalyzer
 //
 
 SiStripFEDCheckPlugin::SiStripFEDCheckPlugin(const edm::ParameterSet& iConfig)
-  : rawDataTag_(iConfig.getParameter<edm::InputTag>("RawDataTag")),
-    dirName_(iConfig.getUntrackedParameter<std::string>("DirName","SiStrip/FEDIntegrity/")),
-    printDebug_(iConfig.getUntrackedParameter<bool>("PrintDebugMessages",false)),
-    updateFrequency_(iConfig.getUntrackedParameter<unsigned int>("HistogramUpdateFrequency",0)),
-    fedsPresentBinContents_(FEDNumbering::MAXSiStripFEDID+1,0),
-    fedFatalErrorBinContents_(FEDNumbering::MAXSiStripFEDID+1,0),
-    fedNonFatalErrorBinContents_(FEDNumbering::MAXSiStripFEDID+1,0),
-    eventCount_(0),
-    doPayloadChecks_(iConfig.getUntrackedParameter<bool>("DoPayloadChecks",true)),
-    checkChannelLengths_(iConfig.getUntrackedParameter<bool>("CheckChannelLengths",true)),
-    checkPacketCodes_(iConfig.getUntrackedParameter<bool>("CheckChannelPacketCodes",true)),
-    checkFELengths_(iConfig.getUntrackedParameter<bool>("CheckFELengths",true)),
-    checkChannelStatusBits_(iConfig.getUntrackedParameter<bool>("CheckChannelStatus",true)),
-    cablingCacheId_(0)
+  : rawDataTag_  (iConfig.getParameter<edm::InputTag>("RawDataTag"))
+  , dirName_     (iConfig.getUntrackedParameter<std::string>("DirName","SiStrip/FEDIntegrity/"))
+  , printDebug_  (iConfig.getUntrackedParameter<bool>("PrintDebugMessages",false))
+  , fedsPresent_      (NULL)
+  , fedFatalErrors_   (NULL)
+  , fedNonFatalErrors_(NULL)
+  , nFEDinVsLS_       (NULL)
+  , nFEDinWdataVsLS_  (NULL)
+  , updateFrequency_(iConfig.getUntrackedParameter<unsigned int>("HistogramUpdateFrequency",0))
+  , fedsPresentBinContents_     (FEDNumbering::MAXSiStripFEDID+1,0)
+  , fedFatalErrorBinContents_   (FEDNumbering::MAXSiStripFEDID+1,0)
+  , fedNonFatalErrorBinContents_(FEDNumbering::MAXSiStripFEDID+1,0)
+  , eventCount_(0)
+  , doPayloadChecks_       (iConfig.getUntrackedParameter<bool>("DoPayloadChecks",        true))
+  , checkChannelLengths_   (iConfig.getUntrackedParameter<bool>("CheckChannelLengths",    true))
+  , checkPacketCodes_      (iConfig.getUntrackedParameter<bool>("CheckChannelPacketCodes",true))
+  , checkFELengths_        (iConfig.getUntrackedParameter<bool>("CheckFELengths",         true))
+  , checkChannelStatusBits_(iConfig.getUntrackedParameter<bool>("CheckChannelStatus",     true))
+  , verbose_               (iConfig.getUntrackedParameter<bool>("verbose",                false))
+  , cablingCacheId_(0)
 {
   rawDataToken_ = consumes<FEDRawDataCollection>(rawDataTag_);
   if (printDebug_ && !doPayloadChecks_ && (checkChannelLengths_ || checkPacketCodes_ || checkFELengths_)) {
@@ -128,6 +142,11 @@ SiStripFEDCheckPlugin::SiStripFEDCheckPlugin(const edm::ParameterSet& iConfig)
     if (checkFELengths_) ss << "FE Unit legnth check";
     edm::LogWarning("SiStripFEDCheck") << ss.str();
   }
+
+  siStripFedIdMin_ = FEDNumbering::MINSiStripFEDID;
+  siStripFedIdMax_ = FEDNumbering::MAXSiStripFEDID;
+  
+  conf_ = iConfig;
 }
 
 SiStripFEDCheckPlugin::~SiStripFEDCheckPlugin()
@@ -154,33 +173,37 @@ SiStripFEDCheckPlugin::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   //get raw data
   edm::Handle<FEDRawDataCollection> rawDataCollectionHandle;
   const bool gotData = iEvent.getByToken(rawDataToken_,rawDataCollectionHandle);
+  if (verbose_) std::cout << "[SiStripFEDCheckPlugin::analyze] gotData ? " << (gotData ? "YES" : "NOPE") << std::endl;
   if (!gotData) {
     //module is required to silently do nothing when data is not present
     return;
   }
   const FEDRawDataCollection& rawDataCollection = *rawDataCollectionHandle;
   
-  //get FED IDs
-  const unsigned int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
-  const unsigned int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID;
-  
   //FED errors
   FEDErrors lFedErrors;
 
   //loop over siStrip FED IDs
-  for (unsigned int fedId = siStripFedIdMin; fedId <= siStripFedIdMax; fedId++) {
+  size_t nFEDin = 0;
+  size_t nFEDinWdata = 0;
+  for (unsigned int fedId = siStripFedIdMin_; fedId <= siStripFedIdMax_; fedId++) {
     const FEDRawData& fedData = rawDataCollection.FEDData(fedId);
 
     //create an object to fill all errors
     //third param to false:save time by not initialising anything not used here
     lFedErrors.initialiseFED(fedId,cabling_,tTopo,false);
 
-
     //check data exists
     if (!fedData.size() || !fedData.data()) {
       fillPresent(fedId,0);
       continue;
     }
+    if (verbose_) std::cout << "FED " << fedId;
+    if (verbose_) std::cout << " fedData.size(): " << fedData.size();
+    if (verbose_) std::cout << " fedData.data(): " << fedData.data() << std::endl;
+    if (fedData.size()) nFEDin++;
+    if (fedData.size() && fedData.data()) nFEDinWdata++;
+
     //fill buffer present histogram
     fillPresent(fedId,1);
 
@@ -241,6 +264,9 @@ SiStripFEDCheckPlugin::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     }
   }//loop over FED IDs
+  if (verbose_) std::cout << "nFEDin: " << nFEDin << " nFEDinWdata: " << nFEDinWdata << std::endl;
+  nFEDinVsLS_      -> Fill(static_cast<double>(iEvent.id().luminosityBlock()),nFEDin);
+  nFEDinWdataVsLS_ -> Fill(static_cast<double>(iEvent.id().luminosityBlock()),nFEDinWdata);
   
   //update histograms if needed
   doUpdateIfNeeded();
@@ -249,27 +275,47 @@ SiStripFEDCheckPlugin::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 // ------------ method called once each job just before starting event loop  ------------
 void SiStripFEDCheckPlugin::bookHistograms(DQMStore::IBooker & ibooker , const edm::Run & run, const edm::EventSetup & eSetup)
 {
-  //get FED IDs
-  const unsigned int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
-  const unsigned int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID;
+  size_t nFED    = siStripFedIdMax_-siStripFedIdMin_+1;
+  double xFEDmin = siStripFedIdMin_-0.5;
+  double xFEDmax = siStripFedIdMax_+0.5;
+
   //get DQM store
   ibooker.setCurrentFolder(dirName_);
   //book histograms
   fedsPresent_ = ibooker.book1D("FEDEntries",
-                              "Number of times FED buffer is present in data",
-                              siStripFedIdMax-siStripFedIdMin+1,
-                              siStripFedIdMin-0.5,siStripFedIdMax+0.5);
+				"Number of times FED buffer is present in data",
+				nFED, xFEDmin, xFEDmax);
   fedsPresent_->setAxisTitle("FED-ID",1);
+
   fedFatalErrors_ = ibooker.book1D("FEDFatal",
-                              "Number of fatal errors in FED buffer",
-                              siStripFedIdMax-siStripFedIdMin+1,
-                              siStripFedIdMin-0.5,siStripFedIdMax+0.5);
+				   "Number of fatal errors in FED buffer",
+				   nFED, xFEDmin, xFEDmax);
   fedFatalErrors_->setAxisTitle("FED-ID",1);
+
   fedNonFatalErrors_ = ibooker.book1D("FEDNonFatal",
-                              "Number of non fatal errors in FED buffer",
-                              siStripFedIdMax-siStripFedIdMin+1,
-                              siStripFedIdMin-0.5,siStripFedIdMax+0.5);
+				      "Number of non fatal errors in FED buffer",
+				      nFED, xFEDmin, xFEDmax);
   fedNonFatalErrors_->setAxisTitle("FED-ID",1);
+
+
+  int    LSBin = conf_.getParameter<int>   ("LSBin");
+  double LSMin = conf_.getParameter<double>("LSMin");
+  double LSMax = conf_.getParameter<double>("LSMax");
+  
+  nFEDinVsLS_ = ibooker.bookProfile("nFEDinVsLS",
+				    "number of FED in Vs LS",
+				    LSBin, LSMin,   LSMax,
+				    nFED,  xFEDmin, xFEDmax);
+  nFEDinVsLS_->setAxisTitle("LS",1);
+  nFEDinVsLS_->setAxisTitle("FED-ID",2);
+
+  nFEDinWdataVsLS_ = ibooker.bookProfile("nFEDinWdataVsLS",
+					 "number of FED in (with data) Vs LS",
+					 LSBin, LSMin,   LSMax,
+					 nFED,  xFEDmin, xFEDmax);
+  nFEDinWdataVsLS_->setAxisTitle("LS",1);
+  nFEDinWdataVsLS_->setAxisTitle("FED-ID",2);
+
 }
 
 // ------------ method called once each run just after ending the event loop  ------------
@@ -329,12 +375,10 @@ void SiStripFEDCheckPlugin::updateHistograms()
 {
   //if the cache is not being used then do nothing
   if (!updateFrequency_) return;
-  const unsigned int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
-  const unsigned int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID;
   unsigned int entriesFedsPresent = 0;
   unsigned int entriesFatalErrors = 0;
   unsigned int entriesNonFatalErrors = 0;
-  for (unsigned int fedId = siStripFedIdMin, bin = 1; fedId < siStripFedIdMax+1; fedId++, bin++) {
+  for (unsigned int fedId = siStripFedIdMin_, bin = 1; fedId < siStripFedIdMax_+1; fedId++, bin++) {
     unsigned int fedsPresentBin = fedsPresentBinContents_[fedId];
     fedsPresent_->getTH1()->SetBinContent(bin,fedsPresentBin);
     entriesFedsPresent += fedsPresentBin;

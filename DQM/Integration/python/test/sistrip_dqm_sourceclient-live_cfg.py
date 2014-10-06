@@ -279,6 +279,24 @@ if (process.runType.getRunType() == process.runType.cosmic_run):
                          process.TrackingClient
                          )
 
+    if offlineTesting :
+        process.load("DQM.SiStripMonitorHardware.siStripFEDCheck_cfi")
+        process.siStripFEDCheck.RawDataTag = cms.InputTag("rawDataCollector")
+        process.siStripFEDCheck.DirName    = cms.untracked.string('SiStrip/FEDIntegrity_SM/')
+        process.p = cms.Path(process.scalersRawToDigi*
+                             process.APVPhases*
+                             process.consecutiveHEs*
+                             process.hltTriggerTypeFilter*
+                             process.siStripFEDCheck *
+                             process.RecoForDQM_LocalReco*
+                             process.DQMCommon*
+                             process.SiStripClients*
+                             process.SiStripSources_LocalReco*
+                             process.RecoForDQM_TrkReco_cosmic*
+                             process.SiStripSources_TrkReco_cosmic*
+                             process.TrackingClient
+                             )
+
 
 
 #else :
@@ -371,6 +389,25 @@ if (process.runType.getRunType() == process.runType.pp_run):
                          process.SiStripSources_TrkReco*
                          process.TrackingClient
                          )
+    if offlineTesting :
+        process.load("DQM.SiStripMonitorHardware.siStripFEDCheck_cfi")
+        process.siStripFEDCheck.RawDataTag = cms.InputTag("rawDataCollector")
+        process.siStripFEDCheck.DirName    = cms.untracked.string('SiStrip/FEDIntegrity_SM/')
+        process.p = cms.Path(process.scalersRawToDigi*
+                             process.APVPhases*
+                             process.consecutiveHEs*
+                             process.hltTriggerTypeFilter*
+                             process.siStripFEDCheck *
+                             process.RecoForDQM_LocalReco*
+                             process.DQMCommon*
+                             process.SiStripClients*
+                             process.SiStripSources_LocalReco*
+                             process.hltHighLevel*
+                             process.RecoForDQM_TrkReco*
+                             process.SiStripSources_TrkReco*
+                             process.TrackingClient
+                             )
+
 #--------------------------------------------------
 # For high PU run - no tracking in cmssw42x
 #--------------------------------------------------
@@ -464,6 +501,25 @@ if (process.runType.getRunType() == process.runType.hpu_run):
                          process.SiStripSources_TrkReco*
                          process.TrackingClient
                          )
+    if offlineTesting :
+        process.load("DQM.SiStripMonitorHardware.siStripFEDCheck_cfi")
+        process.siStripFEDCheck.RawDataTag = cms.InputTag("rawDataCollector")
+        process.siStripFEDCheck.DirName    = cms.untracked.string('SiStrip/FEDIntegrity_SM/')
+        process.p = cms.Path(process.scalersRawToDigi*
+                             process.APVPhases*
+                             process.consecutiveHEs*
+                             process.hltTriggerTypeFilter*
+                             process.siStripFEDCheck *
+                             process.RecoForDQM_LocalReco*
+                             process.DQMCommon*
+                             process.SiStripClients*
+                             process.SiStripSources_LocalReco*
+                             process.hltHighLevel*
+                             process.eventFilter*
+                             process.RecoForDQM_TrkReco*
+                             process.SiStripSources_TrkReco*
+                             process.TrackingClient
+                             )
 
 process.castorDigis.InputLabel = cms.InputTag("rawDataCollector")
 process.csctfDigis.producer = cms.InputTag("rawDataCollector")
@@ -577,4 +633,22 @@ if (process.runType.getRunType() == process.runType.hi_run):
                          process.SiStripBaselineValidator*
                          process.TrackingClients
                          )
-
+    if offlineTesting :
+        process.load("DQM.SiStripMonitorHardware.siStripFEDCheck_cfi")
+        process.siStripFEDCheck.RawDataTag = cms.InputTag("rawDataCollector")
+        process.siStripFEDCheck.DirName    = cms.untracked.string('SiStrip/FEDIntegrity_SM/')
+        process.p = cms.Path(process.scalersRawToDigi*
+                             process.APVPhases*
+                             process.consecutiveHEs*
+                             process.hltTriggerTypeFilter*
+                             process.siStripFEDCheck *
+                             process.RecoForDQM_LocalReco*
+                             process.DQMCommon*
+                             process.SiStripClients*
+                             process.SiStripSources_LocalReco*
+                             process.RecoForDQM_TrkReco*
+                             process.SiStripSources_TrkReco*
+                             process.multFilter*
+                             process.SiStripBaselineValidator*
+                             process.TrackingClients
+                             )
