@@ -40,8 +40,9 @@ TrackingCertificationInfo::TrackingCertificationInfo(edm::ParameterSet const& pS
   // Create MessageSender
   edm::LogInfo( "TrackingCertificationInfo") << "TrackingCertificationInfo::Deleting TrackingCertificationInfo ";
 
+  verbose_       = pSet_.getUntrackedParameter<bool>("verbose",false);
   TopFolderName_ = pSet_.getUntrackedParameter<std::string>("TopFolderName","Tracking");
-  //  std::cout << "[TrackingCertificationInfo::TrackingCertificationInfo] TopFolderName_: " << TopFolderName_ << std::endl;
+  if (verbose_) std::cout << "[TrackingCertificationInfo::TrackingCertificationInfo] TopFolderName_: " << TopFolderName_ << std::endl;
 
   TrackingMEs tracking_mes;
   // load variables for Global certification
@@ -59,7 +60,7 @@ TrackingCertificationInfo::TrackingCertificationInfo(edm::ParameterSet const& pS
     std::string QTname        = meQTset.getParameter<std::string>("QT");
     tracking_mes.TrackingFlag = 0;
 
-    //    std::cout << "[TrackingQualityChecker::TrackingCertificationInfo] inserting " << QTname << " in TrackingMEsMap" << std::endl;
+    if (verbose_) std::cout<< "[TrackingQualityChecker::TrackingCertificationInfo] inserting " << QTname << " in TrackingMEsMap" << std::endl;
     TrackingMEsMap.insert(std::pair<std::string, TrackingMEs>(QTname, tracking_mes));
   }
 
@@ -71,7 +72,7 @@ TrackingCertificationInfo::TrackingCertificationInfo(edm::ParameterSet const& pS
     std::string QTname        = meQTset.getParameter<std::string>("QT");
     tracking_ls_mes.TrackingFlag = 0;
 
-    //    std::cout << "[TrackingQualityChecker::TrackingCertificationInfo] inserting " << QTname << " in TrackingMEsMap" << std::endl;
+    if (verbose_) std::cout<< "[TrackingQualityChecker::TrackingCertificationInfo] inserting " << QTname << " in TrackingMEsMap" << std::endl;
     TrackingLSMEsMap.insert(std::pair<std::string, TrackingLSMEs>(QTname, tracking_ls_mes));
   }
 
@@ -97,7 +98,7 @@ void TrackingCertificationInfo::beginJob() {
 //
 void TrackingCertificationInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup) {
 
-  //  std::cout << "[TrackingCertificationInfo::beginRun] starting .." << std::endl;
+  if (verbose_) std::cout << "[TrackingCertificationInfo::beginRun] starting .." << std::endl;
 
   edm::LogInfo ("TrackingCertificationInfo") <<"TrackingCertificationInfo:: Begining of Run";
   unsigned long long cacheID = eSetup.get<SiStripDetCablingRcd>().cacheIdentifier();
@@ -144,7 +145,7 @@ void TrackingCertificationInfo::beginRun(edm::Run const& run, edm::EventSetup co
 //
 void TrackingCertificationInfo::bookTrackingCertificationMEs(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_) {
 
-  //  std::cout << "[TrackingCertificationInfo::bookTrackingCertificationMEs] starting .. trackingCertificationBooked_: " << trackingCertificationBooked_ << std::endl;
+  if (verbose_) std::cout << "[TrackingCertificationInfo::bookTrackingCertificationMEs] starting .. trackingCertificationBooked_: " << trackingCertificationBooked_ << std::endl;
 
   if ( !trackingCertificationBooked_ ) {
 
@@ -177,16 +178,16 @@ void TrackingCertificationInfo::bookTrackingCertificationMEs(DQMStore::IBooker &
     for (std::map<std::string, TrackingMEs>::iterator it = TrackingMEsMap.begin();
 	 it != TrackingMEsMap.end(); it++) {
       std::string meQTname = it->first;
-      //      std::cout << "[TrackingCertificationInfo::bookStatus] meQTname: " << meQTname << std::endl;
+      if (verbose_) std::cout << "[TrackingCertificationInfo::bookStatus] meQTname: " << meQTname << std::endl;
       it->second.TrackingFlag = ibooker_.bookFloat("Track"+meQTname);
-      //      std::cout << "[TrackingCertificationInfo::bookStatus] " << it->first << " exists ? " << it->second.TrackingFlag << std::endl;      
+      if (verbose_) std::cout << "[TrackingCertificationInfo::bookStatus] " << it->first << " exists ? " << it->second.TrackingFlag << std::endl;      
     }
 
     trackingCertificationBooked_ = true;
     ibooker_.cd();
   }
 
-  //  std::cout << "[TrackingCertificationInfo::bookStatus] trackingCertificationBooked_: " << trackingCertificationBooked_ << std::endl;
+  if (verbose_) std::cout << "[TrackingCertificationInfo::bookStatus] trackingCertificationBooked_: " << trackingCertificationBooked_ << std::endl;
 }
 
 //
@@ -194,7 +195,7 @@ void TrackingCertificationInfo::bookTrackingCertificationMEs(DQMStore::IBooker &
 //
 void TrackingCertificationInfo::bookTrackingCertificationMEsAtLumi(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_) {
 
-  //  std::cout << "[TrackingCertificationInfo::bookTrackingCertificationMEs] starting .. trackingCertificationBooked_: " << trackingCertificationBooked_ << std::endl;
+  if (verbose_) std::cout << "[TrackingCertificationInfo::bookTrackingCertificationMEs] starting .. trackingCertificationBooked_: " << trackingCertificationBooked_ << std::endl;
 
   if ( !trackingLSCertificationBooked_ ) {
 
@@ -213,16 +214,16 @@ void TrackingCertificationInfo::bookTrackingCertificationMEsAtLumi(DQMStore::IBo
     for (std::map<std::string, TrackingLSMEs>::iterator it = TrackingLSMEsMap.begin();
 	 it != TrackingLSMEsMap.end(); it++) {
       std::string meQTname = it->first;
-      //      std::cout << "[TrackingCertificationInfo::bookStatus] meQTname: " << meQTname << std::endl;
+      if (verbose_) std::cout << "[TrackingCertificationInfo::bookStatus] meQTname: " << meQTname << std::endl;
       it->second.TrackingFlag = ibooker_.bookFloat("Track"+meQTname);
-      //      std::cout << "[TrackingCertificationInfo::bookStatus] " << it->first << " exists ? " << it->second.TrackingFlag << std::endl;      
+      if (verbose_) std::cout << "[TrackingCertificationInfo::bookStatus] " << it->first << " exists ? " << it->second.TrackingFlag << std::endl;      
     }
 
     trackingLSCertificationBooked_ = true;
     ibooker_.cd();
   }
 
-  //  std::cout << "[TrackingCertificationInfo::bookStatus] trackingCertificationBooked_: " << trackingCertificationBooked_ << std::endl;
+  if (verbose_) std::cout << "[TrackingCertificationInfo::bookStatus] trackingCertificationBooked_: " << trackingCertificationBooked_ << std::endl;
 }
 //
 
@@ -244,7 +245,7 @@ void TrackingCertificationInfo::dqmEndLuminosityBlock(DQMStore::IBooker & ibooke
 //
 void TrackingCertificationInfo::dqmEndJob(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_) {
 
-  //  std::cout << "[TrackingCertificationInfo::dqmEndJob]" << std::endl;
+  if (verbose_) std::cout << "[TrackingCertificationInfo::dqmEndJob]" << std::endl;
 
   edm::LogInfo ("TrackingCertificationInfo") <<"TrackingCertificationInfo:: End Run";
   bookTrackingCertificationMEs(ibooker_,igetter_);
@@ -253,7 +254,7 @@ void TrackingCertificationInfo::dqmEndJob(DQMStore::IBooker & ibooker_, DQMStore
   if ( nFEDConnected_ > 0 ) fillTrackingCertificationMEs(ibooker_,igetter_);
   else fillDummyTrackingCertification(ibooker_,igetter_);
 
-  //  std::cout << "[TrackingCertificationInfo::endRun] DONE" << std::endl;
+  if (verbose_) std::cout << "[TrackingCertificationInfo::endRun] DONE" << std::endl;
 
 }
 //
@@ -268,11 +269,11 @@ void TrackingCertificationInfo::fillTrackingCertificationMEs(DQMStore::IBooker &
   ibooker_.cd();
   std::string tracking_dir = "";
   TrackingUtility::getTopFolderPath(ibooker_,igetter_, TopFolderName_, tracking_dir);
-  //  std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEs] tracking_dir: " << tracking_dir << std::endl;
+  if (verbose_) std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEs] tracking_dir: " << tracking_dir << std::endl;
   std::vector<MonitorElement*> all_mes = igetter_.getContents(tracking_dir+"/EventInfo/reportSummaryContents");
   float fval = 1.0;
 
-  //  std::cout << "all_mes: " << all_mes.size() << std::endl;
+  if (verbose_) std::cout << "all_mes: " << all_mes.size() << std::endl;
 
   if ( checkPixelFEDs_ ) {
     float val = 1.;
@@ -284,7 +285,7 @@ void TrackingCertificationInfo::fillTrackingCertificationMEs(DQMStore::IBooker &
       if ( type == "pixel" ) {
 	it->second.TrackingFlag->Fill(val);
 	TH2F*  th2d = TrackingCertificationSummaryMap->getTH2F();
-	std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEs] xbin: " << xbin << " val: " << val << std::endl;
+	if (verbose_) std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEs] xbin: " << xbin << " val: " << val << std::endl;
 	th2d->SetBinContent(xbin+1,1,val);
       }
       xbin++;
@@ -297,7 +298,7 @@ void TrackingCertificationInfo::fillTrackingCertificationMEs(DQMStore::IBooker &
       ime!= all_mes.end(); ime++) {
     MonitorElement * me = (*ime);
     if (!me) continue;
-    //    std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEs] me: " << me->getName() << std::endl;
+    if (verbose_) std::cout<< "[TrackingCertificationInfo::fillTrackingCertificationMEs] me: " << me->getName() << std::endl;
     if (me->kind() == MonitorElement::DQM_KIND_REAL) {
       std::string name = me->getName();
       float val   = me->getFloatValue();
@@ -305,25 +306,25 @@ void TrackingCertificationInfo::fillTrackingCertificationMEs(DQMStore::IBooker &
       for (std::map<std::string, TrackingMEs>::const_iterator it = TrackingMEsMap.begin();
 	   it != TrackingMEsMap.end(); it++) {
 	
-	//	std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEs] ME: " << it->first << " [" << it->second.TrackingFlag->getFullname() << "] flag: " << it->second.TrackingFlag->getFloatValue() << std::endl;
+	if (verbose_) std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEs] ME: " << it->first << " [" << it->second.TrackingFlag->getFullname() << "] flag: " << it->second.TrackingFlag->getFloatValue() << std::endl;
 	
 	std::string type = it->first;
 	if (name.find(type) != std::string::npos) {
-	  //	  std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEs] type: " << type << " <---> name: " << name << std::endl;
+	  if (verbose_) std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEs] type: " << type << " <---> name: " << name << std::endl;
 	  it->second.TrackingFlag->Fill(val);
-	  std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEs] xbin: " << xbin << " val: " << val << std::endl;
+	  if (verbose_) std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEs] xbin: " << xbin << " val: " << val << std::endl;
 	  TH2F*  th2d = TrackingCertificationSummaryMap->getTH2F();
 	  th2d->SetBinContent(xbin+1,1,val);
 	  xbin++;
 	  break;
         }
-	//	std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEs] ME: " << it->first << " [" << it->second.TrackingFlag->getFullname() << "] flag: " << it->second.TrackingFlag->getFloatValue() << std::endl;
+	if (verbose_) std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEs] ME: " << it->first << " [" << it->second.TrackingFlag->getFullname() << "] flag: " << it->second.TrackingFlag->getFloatValue() << std::endl;
 
       }
       fval = fminf(fval,val);
     }
   }  
-  //  std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEs] TrackingCertification: " << fval << std::endl;
+  if (verbose_) std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEs] TrackingCertification: " << fval << std::endl;
   TrackingCertification->Fill(fval);  
 }
 
@@ -390,7 +391,7 @@ void TrackingCertificationInfo::fillDummyTrackingCertificationAtLumi(DQMStore::I
 // --Fill Tracking Certification per LS
 //
 void TrackingCertificationInfo::fillTrackingCertificationMEsAtLumi(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_) {
-  //  std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEsAtLumi] starting .." << std::endl;
+  if (verbose_) std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEsAtLumi] starting .." << std::endl;
   if ( !trackingLSCertificationBooked_ ) {
     return;
   }
@@ -399,37 +400,37 @@ void TrackingCertificationInfo::fillTrackingCertificationMEsAtLumi(DQMStore::IBo
   ibooker_.cd();
   std::string tracking_dir = "";
   TrackingUtility::getTopFolderPath(ibooker_,igetter_, TopFolderName_, tracking_dir);
-  //  std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEsAtLumi] tracking_dir: " << tracking_dir << std::endl;
+  if (verbose_) std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEsAtLumi] tracking_dir: " << tracking_dir << std::endl;
 
 
-  //  std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEsAtLumi] tracking_dir: " << tracking_dir << std::endl;
+  if (verbose_) std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEsAtLumi] tracking_dir: " << tracking_dir << std::endl;
   std::vector<MonitorElement*> all_mes = igetter_.getContents(tracking_dir+"/EventInfo/reportSummaryContents");
 
-  //  std::cout << "all_mes: " << all_mes.size() << std::endl;
+  if (verbose_) std::cout << "all_mes: " << all_mes.size() << std::endl;
 
   for (std::vector<MonitorElement *>::const_iterator ime = all_mes.begin();
       ime!= all_mes.end(); ime++) {
     MonitorElement * me = (*ime);
     if (!me) continue;
-    //    std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEsAtLumi] me: " << me->getName() << std::endl;
+    if (verbose_) std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEsAtLumi] me: " << me->getName() << std::endl;
     if (me->kind() == MonitorElement::DQM_KIND_REAL) {
       std::string name = me->getName();
       float val   = me->getFloatValue();
-      //      std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEsAtLumi] val:  " << val << std::endl;
+      if (verbose_) std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEsAtLumi] val:  " << val << std::endl;
 
       for (std::map<std::string, TrackingLSMEs>::const_iterator it = TrackingLSMEsMap.begin();
 	   it != TrackingLSMEsMap.end(); it++) {
 	
-	//	std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEsAtLumi] ME: " << it->first << " [" << it->second.TrackingFlag->getFullname() << "] flag: " << it->second.TrackingFlag->getFloatValue() << std::endl;
+	if (verbose_) std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEsAtLumi] ME: " << it->first << " [" << it->second.TrackingFlag->getFullname() << "] flag: " << it->second.TrackingFlag->getFloatValue() << std::endl;
 	
 	std::string type = it->first;
-	//	std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEsAtLumi] type: " << type << std::endl;
+	if (verbose_) std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEsAtLumi] type: " << type << std::endl;
 	if (name.find(type) != std::string::npos) {
-	  //	  std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEsAtLumi] type: " << type << " <---> name: " << name << std::endl;
+	  if (verbose_) std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEsAtLumi] type: " << type << " <---> name: " << name << std::endl;
 	  it->second.TrackingFlag->Fill(val);
 	  break;
 	}
-	//	std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEsAtLumi] ME: " << it->first << " [" << it->second.TrackingFlag->getFullname() << "] flag: " << it->second.TrackingFlag->getFloatValue() << std::endl;
+	if (verbose_) std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEsAtLumi] ME: " << it->first << " [" << it->second.TrackingFlag->getFullname() << "] flag: " << it->second.TrackingFlag->getFloatValue() << std::endl;
       }
     }
   }
@@ -438,7 +439,7 @@ void TrackingCertificationInfo::fillTrackingCertificationMEsAtLumi(DQMStore::IBo
   std::string full_path = tracking_dir + "/EventInfo/reportSummary";
   MonitorElement* me_dqm = igetter_.get(full_path);
   if (me_dqm && me_dqm->kind() == MonitorElement::DQM_KIND_REAL) global_dqm_flag = me_dqm->getFloatValue();
-  //  std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEsAtLumi] global_dqm_flag: " << global_dqm_flag << std::endl; 
+  if (verbose_) std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEsAtLumi] global_dqm_flag: " << global_dqm_flag << std::endl; 
 
   TrackingLSCertification->Reset();
   TrackingLSCertification->Fill(global_dqm_flag);

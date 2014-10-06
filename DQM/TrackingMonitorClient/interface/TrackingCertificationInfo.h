@@ -97,6 +97,7 @@ private:
   bool trackingLSCertificationBooked_;
   int nFEDConnected_;
   bool allPixelFEDConnected_;
+  bool verbose_;
   std::string TopFolderName_;
 
   bool checkPixelFEDs_;
