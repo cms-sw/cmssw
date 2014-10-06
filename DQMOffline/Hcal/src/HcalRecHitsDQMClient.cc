@@ -39,7 +39,7 @@ void HcalRecHitsDQMClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
   std::vector<MonitorElement*> hcalMEs;
 
   // Since out folders are fixed to three, we can just go over these three folders
-  // i.e., CaloTowersV/CaloTowersTask, HcalRecHitsV/HcalRecHitTask, NoiseRatesV/NoiseRatesTask.
+  // i.e., CaloTowersD/CaloTowersTask, HcalRecHitsD/HcalRecHitTask, NoiseRatesV/NoiseRatesTask.
   std::vector<std::string> fullPathHLTFolders = igetter.getSubdirs();
   for(unsigned int i=0;i<fullPathHLTFolders.size();i++) {
 
@@ -51,7 +51,7 @@ void HcalRecHitsDQMClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
 
       if (verbose_) std::cout <<"fullSub: "<<fullSubPathHLTFolders[j] << std::endl;
 
-      if( strcmp(fullSubPathHLTFolders[j].c_str(), "HcalRecHitsV/HcalRecHitTask") ==0  ){
+      if( strcmp(fullSubPathHLTFolders[j].c_str(), "HcalRecHitsD/HcalRecHitTask") ==0  ){
          hcalMEs = igetter.getContents(fullSubPathHLTFolders[j]);
          if (verbose_) std::cout <<"hltMES size : "<<hcalMEs.size()<<std::endl;
          if( !HcalRecHitsEndjob(hcalMEs) ) std::cout<<"\nError in HcalRecHitsEndjob!"<<std::endl<<std::endl;
@@ -64,7 +64,7 @@ void HcalRecHitsDQMClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
 }
 
 
-// called after entering the HcalRecHitsV/HcalRecHitTask directory
+// called after entering the HcalRecHitsD/HcalRecHitTask directory
 // hcalMEs are within that directory
 int HcalRecHitsDQMClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hcalMEs){
 
