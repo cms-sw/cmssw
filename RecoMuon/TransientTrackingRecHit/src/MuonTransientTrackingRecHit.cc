@@ -90,8 +90,8 @@ AlgebraicSymMatrix MuonTransientTrackingRecHit::parametersError() const {
     } else if (err.num_row() == 4) { 
      shifts[0] = localPosition().x();
      shifts[1] = localPosition().y();
-     angles[0] = 0.;
-     angles[1] = 0.;
+     angles[0] = localDirection().x();
+     angles[1] = localDirection().y();
 
      LocalErrorExtended lape = ErrorFrameTransformer().transform46(APE->globalError(),shifts,angles);
 
