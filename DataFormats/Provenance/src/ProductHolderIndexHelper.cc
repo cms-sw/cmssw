@@ -23,9 +23,9 @@ namespace edm {
       static std::string const refVector("edm::RefVector<");
       static std::string const refToBaseVector("edm::RefToBaseVector<");
       static std::string const ptrVector("edm::PtrVector<");
-      static size_t rvsize = refVector.size();
-      static size_t rtbvsize = refToBaseVector.size();
-      static size_t pvsize = ptrVector.size();
+      static size_t const rvsize = refVector.size();
+      static size_t const rtbvsize = refToBaseVector.size();
+      static size_t const pvsize = ptrVector.size();
       bool mayBeRefVector = (className.substr(0, rvsize) == refVector)
                          || (className.substr(0, rtbvsize) == refToBaseVector)
                          || (className.substr(0, pvsize) == ptrVector);
