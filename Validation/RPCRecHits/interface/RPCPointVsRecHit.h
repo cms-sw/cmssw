@@ -2,7 +2,7 @@
 #define Validation_RPCRecHits_RPCPointVsRecHit_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -16,21 +16,19 @@
 
 #include <string>
 
-class RPCPointVsRecHit : public edm::EDAnalyzer
+class RPCPointVsRecHit : public DQMEDAnalyzer
 {
 public:
   RPCPointVsRecHit(const edm::ParameterSet& pset);
-  ~RPCPointVsRecHit();
+  ~RPCPointVsRecHit() {};
 
   void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
-  void beginJob();
-  void endJob();
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
   edm::EDGetTokenT<RPCRecHitCollection> refHitToken_, recHitToken_;
 
-  DQMStore* dbe_;
-
+  std::string subDir_;
   RPCValidHistograms h_;
 };
 
