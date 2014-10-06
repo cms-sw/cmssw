@@ -43,6 +43,7 @@ HLTDeDxFilter::HLTDeDxFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConf
   maxNHitMissIn_    = iConfig.getParameter<double> ("maxNHitMissIn");
   maxNHitMissMid_   = iConfig.getParameter<double> ("maxNHitMissMid");
   maxRelTrkIsoDeltaRp3_     = iConfig.getParameter<double> ("maxRelTrkIsoDeltaRp3");
+  relTrkIsoDeltaRSize_     = iConfig.getParameter<double> ("relTrkIsoDeltaRSize");
   inputTracksTag_ = iConfig.getParameter< edm::InputTag > ("inputTracksTag");
   inputdedxTag_   = iConfig.getParameter< edm::InputTag > ("inputDeDxTag");
   inputTracksToken_ = consumes<reco::TrackCollection>(iConfig.getParameter< edm::InputTag > ("inputTracksTag"));
@@ -67,6 +68,7 @@ void HLTDeDxFilter::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<double>("maxNHitMissIn",99);
   desc.add<double>("maxNHitMissMid",99);
   desc.add<double>("maxRelTrkIsoDeltaRp3", -1);
+  desc.add<double>("relTrkIsoDeltaRSize", 0.3);
   desc.add<edm::InputTag>("inputTracksTag",edm::InputTag("hltL3Mouns"));
   desc.add<edm::InputTag>("inputDeDxTag",edm::InputTag("HLTdedxHarm2"));
   descriptions.add("hltDeDxFilter",desc);
@@ -103,15 +105,22 @@ bool
 
   bool accept=false;
   int  NTracks = 0;
+  //fill local arrays for eta, phi, and pt
+  float eta[trackCollection.size()], phi[trackCollection.size()], pt[trackCollection.size()]; 
   for(unsigned int i=0; i<trackCollection.size(); i++){
-     reco::TrackRef track  = reco::TrackRef( trackCollectionHandle, i );
-    if(track->pt()>minPT_ && fabs(track->eta())<maxETA_ && dEdxTrack[track].numberOfMeasurements()>minNOM_ && dEdxTrack[track].dEdx()>minDEDx_){
-       NTracks++;
+    eta[i] = trackCollection[i].eta();
+    phi[i] = trackCollection[i].phi();
+    pt[i] = trackCollection[i].pt(); 
+  }   
+  for(unsigned int i=0; i<trackCollection.size(); i++){
+    reco::TrackRef track  = reco::TrackRef( trackCollectionHandle, i );
+     if(pt[i]>minPT_ && fabs(eta[i])<maxETA_ && dEdxTrack[track].numberOfMeasurements()>minNOM_ && dEdxTrack[track].dEdx()>minDEDx_){
+      NTracks++;
        if(track->numberOfValidHits() < minNumValidHits_) continue;
        if(track->hitPattern().trackerLayersWithoutMeasurement( reco::HitPattern::MISSING_INNER_HITS) > maxNHitMissIn_) continue;
        if(track->hitPattern().trackerLayersWithoutMeasurement( reco::HitPattern::TRACK_HITS) > maxNHitMissMid_) continue;
        if (saveTags()){
-          Particle::Charge q = track->charge();
+	 Particle::Charge q = track->charge();
           //SAVE DEDX INFORMATION AS IF IT WAS THE MASS OF THE PARTICLE
           Particle::LorentzVector p4(track->px(), track->py(), track->pz(), sqrt(pow(track->p(),2) + pow(dEdxTrack[track].dEdx(),2)));
           Particle::Point vtx(track->vx(),track->vy(), track->vz());
@@ -121,19 +130,19 @@ bool
           cand.setTrack(track);
           chargedCandidates->push_back(cand);
        }
-     
-       //calculate relative trk isolation only if parameter maxRelTrkIsoDeltaRp3 is different from default value of 99
+       
+       //calculate relative trk isolation only if parameter maxRelTrkIsoDeltaRp3 is less than 0
        if(maxRelTrkIsoDeltaRp3_ >= 0){
-       double ptCone = track->pt();
-       for(unsigned int j=0; j<trackCollection.size(); j++){
+	 auto ptCone = trackCollection[i].pt();
+	 for(unsigned int j=0; j<trackCollection.size(); j++){
 	 reco::TrackRef track2  = reco::TrackRef( trackCollectionHandle, j );
-         if (track->eta() == track2->eta() && track->phi() == track2->phi()) continue; // do not compare track to itself
-         double trkDeltaR = deltaR(track->eta(), track->phi(), track2->eta(), track2->phi());
-         if (trkDeltaR < 0.3){
-           ptCone+=track2->pt();
-         }
+	 if (i==j) continue; // do not compare track to itself
+         auto trkDeltaR2 = deltaR2(eta[i], phi[i], eta[j], phi[j]);
+         if (trkDeltaR2 < relTrkIsoDeltaRSize_ * relTrkIsoDeltaRSize_){
+           ptCone+=pt[j];
+	 }
        }
-       double relTrkIso = (ptCone - track->pt())/(track->pt());
+       double relTrkIso = (ptCone - pt[i])/(pt[i]);
        if (relTrkIso > maxRelTrkIsoDeltaRp3_) continue;
        }
        accept=true;
