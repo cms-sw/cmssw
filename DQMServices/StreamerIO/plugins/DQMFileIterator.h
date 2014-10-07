@@ -8,7 +8,7 @@
 #include "boost/filesystem.hpp"
 
 #include <map>
-#include <queue>
+#include <unordered_set>
 #include <chrono>
 
 #include "DQMMonitoringService.h"
@@ -78,12 +78,10 @@ class DQMFileIterator {
   void logLumiState(const LumiEntry& lumi, const std::string& msg);
 
   void delay();
-  void updateMonitoring();
 
   unsigned int runNumber();
-
   unsigned int lastLumiFound();
-  void advanceToLumi(unsigned int lumi);
+  void advanceToLumi(unsigned int lumi, std::string reason);
 
   static void fillDescription(edm::ParameterSetDescription& d);
 
@@ -104,6 +102,7 @@ class DQMFileIterator {
 
   unsigned int nextLumiNumber_;
   std::map<unsigned int, LumiEntry> lumiSeen_;
+  std::unordered_set<std::string> filesSeen_;
 
   /* this should be different,
    * since time between hosts might be not in sync */
@@ -114,6 +113,7 @@ class DQMFileIterator {
   std::chrono::high_resolution_clock::time_point lastLumiLoad_;
 
   void collect(bool ignoreTimers);
+  void monUpdateLumi(const LumiEntry& lumi); 
 
   /* this is for monitoring */
   edm::Service<DQMMonitoringService> mon_;
