@@ -9,6 +9,9 @@
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+
 #include<string>
 #include<vector>
 namespace trigger {
@@ -37,6 +40,7 @@ class HLTDoubletDZ : public HLTFilter {
       const edm::InputTag inputTag2_;   // input tag identifying filtered 2nd product
       const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> inputToken1_;
       const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> inputToken2_;
+      edm::EDGetTokenT<reco::ElectronCollection> electronTag_;
       const int triggerType1_;
       const int triggerType2_;
       const double minDR_;              // minimum dR between two objects to be considered a pair

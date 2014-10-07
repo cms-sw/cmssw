@@ -33,12 +33,13 @@ HLTDoubletDZ<T1,T2>::HLTDoubletDZ(const edm::ParameterSet& iConfig) : HLTFilter(
   checkSC_  (iConfig.template getParameter<bool>("checkSC")),
   same_     (inputTag1_.encode()==inputTag2_.encode())      // same collections to be compared?
 {
+  if (triggerType1_ == trigger::TriggerPhoton or triggerType2_ == trigger::TriggerPhoton)
+    electronTag_ = consumes<reco::ElectronCollection>(iConfig.template getParameter<edm::InputTag>("electronTag"));
 }
 
 template<typename T1, typename T2>
 HLTDoubletDZ<T1,T2>::~HLTDoubletDZ()
-{
-}
+{}
 
 template<typename T1, typename T2>
 void
@@ -51,6 +52,7 @@ HLTDoubletDZ<T1,T2>::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<std::vector<edm::InputTag> >("originTag2",originTag2);
   desc.add<edm::InputTag>("inputTag1",edm::InputTag("hltFiltered1"));
   desc.add<edm::InputTag>("inputTag2",edm::InputTag("hltFiltered2"));
+  desc.add<edm::InputTag>("electronTag",edm::InputTag("electronTag"));
   desc.add<int>("triggerType1",0);
   desc.add<int>("triggerType2",0);
   desc.add<double>("MinDR",-1.0);
@@ -131,6 +133,11 @@ HLTDoubletDZ<T1,T2>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup
      T1Ref r1;
      T2Ref r2;
      Particle::LorentzVector p1,p2,p;
+     edm::Handle<reco::ElectronCollection> electronHandle;
+     if (triggerType1_ == trigger::TriggerPhoton and triggerType2_ == trigger::TriggerPhoton) {
+       iEvent.getByToken(electronTag_,electronHandle);
+     }
+
      for (unsigned int i1=0; i1!=n1; i1++) {
        r1=coll1[i1];
        const reco::Candidate& candidate1(*r1);
@@ -145,7 +152,24 @@ HLTDoubletDZ<T1,T2>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup
 	 }
  	 const reco::Candidate& candidate2(*r2);
 	 if ( reco::deltaR(candidate1, candidate2) < minDR_ ) continue;
-	 if ( std::abs(candidate1.vz()-candidate2.vz()) > maxDZ_ ) continue;
+	 if (triggerType1_ == trigger::TriggerPhoton and triggerType2_ == trigger::TriggerPhoton) {
+	   reco::Electron e1, e2;
+	   if(electronHandle.isValid()) {
+	     for(reco::ElectronCollection::const_iterator eleIt = electronHandle->begin(); eleIt != electronHandle->end(); eleIt++) {
+	       if (eleIt->superCluster() == r1->superCluster())
+		 e1 = *(eleIt);
+	       if (eleIt->superCluster() == r2->superCluster())
+		 e2 = *(eleIt);
+	     }
+	   } else {
+	     edm::LogError ("Cannot read Electron Collection");
+	   }
+
+	   if ( std::abs(e1.vz()-e2.vz()) > maxDZ_ ) continue;
+	   
+	 } else {
+	   if ( std::abs(candidate1.vz()-candidate2.vz()) > maxDZ_ ) continue;
+	 }
 	 n++;
 	 filterproduct.addObject(triggerType1_,r1);
 	 filterproduct.addObject(triggerType2_,r2);
