@@ -2,6 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 #  TrackingMonitorAnalyser ####
 TrackingAnalyserCosmic = cms.EDAnalyzer("TrackingAnalyser",
+    nFEDinfoDir              = cms.string("SiStrip/FEDIntegrity_SM"),                                   
+    nFEDinVsLSname           = cms.string("nFEDinVsLS"),
+    nFEDinWdataVsLSname      = cms.string("nFEDinWdataVsLS"),
     StaticUpdateFrequency    = cms.untracked.int32(1),
     GlobalStatusFilling      = cms.untracked.int32(2),
     ShiftReportFrequency     = cms.untracked.int32(-1),

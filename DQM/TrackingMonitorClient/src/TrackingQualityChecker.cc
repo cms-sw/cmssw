@@ -1,6 +1,5 @@
 #include "DQM/TrackingMonitorClient/interface/TrackingQualityChecker.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/QReport.h"
 
@@ -79,19 +78,19 @@ TrackingQualityChecker::~TrackingQualityChecker() {
 //
 // -- create reportSummary MEs
 //
-void TrackingQualityChecker::bookGlobalStatus(DQMStore* dqm_store) {
+void TrackingQualityChecker::bookGlobalStatus(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
   
   if (verbose_) std::cout << "[TrackingQualityChecker::bookGlobalStatus] already booked ? " << (bookedTrackingGlobalStatus_ ? "yes" : "nope") << std::endl;
 
   if (!bookedTrackingGlobalStatus_) {
-    dqm_store->cd();     
+    ibooker.cd();     
     edm::LogInfo("TrackingQualityChecker") << " booking TrackingQualityStatus" << "\n";
 
     std::string tracking_dir = "";
-    TrackingUtility::getTopFolderPath(dqm_store, TopFolderName_, tracking_dir);
-    dqm_store->setCurrentFolder(TopFolderName_+"/EventInfo"); 
+    TrackingUtility::getTopFolderPath(ibooker,igetter, TopFolderName_, tracking_dir);
+    ibooker.setCurrentFolder(TopFolderName_+"/EventInfo"); 
     
-    TrackGlobalSummaryReportGlobal = dqm_store->bookFloat("reportSummary");
+    TrackGlobalSummaryReportGlobal = ibooker.bookFloat("reportSummary");
     
     std::string hname, htitle;
     hname  = "reportSummaryMap";
@@ -99,7 +98,7 @@ void TrackingQualityChecker::bookGlobalStatus(DQMStore* dqm_store) {
     
     size_t nQT = TrackingMEsMap.size();
     if (verbose_) std::cout << "[TrackingQualityChecker::bookGlobalStatus] nQT: " << nQT << std::endl;
-    TrackGlobalSummaryReportMap    = dqm_store->book2D(hname, htitle, nQT,0.5,float(nQT)+0.5,1,0.5,1.5);
+    TrackGlobalSummaryReportMap    = ibooker.book2D(hname, htitle, nQT,0.5,float(nQT)+0.5,1,0.5,1.5);
     TrackGlobalSummaryReportMap->setAxisTitle("Track Quality Type", 1);
     TrackGlobalSummaryReportMap->setAxisTitle("QTest Flag", 2);
     size_t ibin =0;
@@ -108,34 +107,34 @@ void TrackingQualityChecker::bookGlobalStatus(DQMStore* dqm_store) {
       ibin++;
     }
 
-    dqm_store->setCurrentFolder(TopFolderName_+"/EventInfo/reportSummaryContents");  
+    ibooker.setCurrentFolder(TopFolderName_+"/EventInfo/reportSummaryContents");  
 
     for (std::map<std::string, TrackingMEs>::iterator it = TrackingMEsMap.begin();
          it != TrackingMEsMap.end(); it++) {
       std::string meQTname = it->first;
-      it->second.TrackingFlag = dqm_store->bookFloat("Track"+meQTname);
+      it->second.TrackingFlag = ibooker.bookFloat("Track"+meQTname);
       if (verbose_) std::cout << "[TrackingQualityChecker::bookGlobalStatus] " << it->first << " exists ? " << it->second.TrackingFlag << std::endl;      
       if (verbose_) std::cout << "[TrackingQualityChecker::bookGlobalStatus] DONE w/ TrackingMEsMap" << std::endl;
     }
 
     bookedTrackingGlobalStatus_ = true;
-    dqm_store->cd();
+    ibooker.cd();
   }
 }
 
-void TrackingQualityChecker::bookLSStatus(DQMStore* dqm_store) {
+void TrackingQualityChecker::bookLSStatus(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
   
   if (verbose_) std::cout << "[TrackingQualityChecker::bookLSStatus] already booked ? " << (bookedTrackingLSStatus_ ? "yes" : "nope") << std::endl;
 
   if (!bookedTrackingLSStatus_) {
-    dqm_store->cd();     
+    ibooker.cd();     
     edm::LogInfo("TrackingQualityChecker") << " booking TrackingQualityStatus" << "\n";
 
     std::string tracking_dir = "";
-    TrackingUtility::getTopFolderPath(dqm_store, TopFolderName_, tracking_dir);
-    dqm_store->setCurrentFolder(TopFolderName_+"/EventInfo"); 
+    TrackingUtility::getTopFolderPath(ibooker,igetter, TopFolderName_, tracking_dir);
+    ibooker.setCurrentFolder(TopFolderName_+"/EventInfo"); 
     
-    TrackLSSummaryReportGlobal = dqm_store->bookFloat("reportSummary");
+    TrackLSSummaryReportGlobal = ibooker.bookFloat("reportSummary");
     
     std::string hname, htitle;
     hname  = "reportSummaryMap";
@@ -147,17 +146,17 @@ void TrackingQualityChecker::bookLSStatus(DQMStore* dqm_store) {
       std::cout << "[TrackingQualityChecker::bookLSStatus] nQT: " << nQT << std::endl;
     }
 
-    dqm_store->setCurrentFolder(TopFolderName_+"/EventInfo/reportSummaryContents");  
+    ibooker.setCurrentFolder(TopFolderName_+"/EventInfo/reportSummaryContents");  
     for (std::map<std::string, TrackingLSMEs>::iterator it = TrackingLSMEsMap.begin();
          it != TrackingLSMEsMap.end(); it++) {
       std::string meQTname = it->first;
-      it->second.TrackingFlag = dqm_store->bookFloat("Track"+meQTname);
+      it->second.TrackingFlag = ibooker.bookFloat("Track"+meQTname);
       if (verbose_) std::cout << "[TrackingQualityChecker::bookLSStatus] " << it->first << " exists ? " << it->second.TrackingFlag << std::endl;      
       if (verbose_) std::cout << "[TrackingQualityChecker::bookLSStatus] DONE w/ TrackingLSMEsMap" << std::endl;
     }
 
     bookedTrackingLSStatus_ = true;
-    dqm_store->cd();
+    ibooker.cd();
   }
 }
 
@@ -241,37 +240,37 @@ void TrackingQualityChecker::resetLSStatus() {
 //
 // -- Fill Status
 //
-void TrackingQualityChecker::fillGlobalStatus(DQMStore* dqm_store) {
+void TrackingQualityChecker::fillGlobalStatus(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
 
   if (verbose_) std::cout << "[TrackingQualityChecker::fillGlobalStatus] already booked ? " << (bookedTrackingGlobalStatus_ ? "yes" : "nope") << std::endl;
-  if (!bookedTrackingGlobalStatus_) bookGlobalStatus(dqm_store);
+  if (!bookedTrackingGlobalStatus_) bookGlobalStatus(ibooker,igetter);
 
   fillDummyGlobalStatus();
-  fillTrackingStatus(dqm_store);
+  fillTrackingStatus(ibooker,igetter);
   if (verbose_) std::cout << "[TrackingQualityChecker::fillGlobalStatus] DONE" << std::endl;
-  dqm_store->cd();
+  ibooker.cd();
 }
 
-void TrackingQualityChecker::fillLSStatus(DQMStore* dqm_store) {
+void TrackingQualityChecker::fillLSStatus(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
 
   if (verbose_) std::cout << "[TrackingQualityChecker::fillLSStatus] already booked ? " << (bookedTrackingLSStatus_ ? "yes" : "nope") << std::endl;
-  if (!bookedTrackingLSStatus_) bookLSStatus(dqm_store);
+  if (!bookedTrackingLSStatus_) bookLSStatus(ibooker,igetter);
 
   fillDummyLSStatus();
-  fillTrackingStatusAtLumi(dqm_store);
+  fillTrackingStatusAtLumi(ibooker,igetter);
   if (verbose_) std::cout << "[TrackingQualityChecker::fillLSStatus] DONE" << std::endl;
-  dqm_store->cd();
+  ibooker.cd();
 }
 
 //
 // -- Fill Tracking Status
 //
-void TrackingQualityChecker::fillTrackingStatus(DQMStore* dqm_store) {
+void TrackingQualityChecker::fillTrackingStatus(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
 
   float gstatus = 0.0;
 
-  dqm_store->cd();
-  if (!TrackingUtility::goToDir(dqm_store, TopFolderName_)) return;
+  ibooker.cd();
+  if (!TrackingUtility::goToDir(ibooker,igetter, TopFolderName_)) return;
   
     
   int ibin = 0;
@@ -285,7 +284,7 @@ void TrackingQualityChecker::fillTrackingStatus(DQMStore* dqm_store) {
     std::string localMEdirpath = it->second.HistoDir;
     std::string MEname         = it->second.HistoName;
 
-    std::vector<MonitorElement*> tmpMEvec = dqm_store->getContents(dqm_store->pwd()+"/"+localMEdirpath);
+    std::vector<MonitorElement*> tmpMEvec = igetter.getContents(ibooker.pwd()+"/"+localMEdirpath);
     if (verbose_) std::cout << "[TrackingQualityChecker::fillTrackingStatus] tmpMEvec: " << tmpMEvec.size() << std::endl;
     MonitorElement* me = NULL;
 
@@ -383,7 +382,7 @@ void TrackingQualityChecker::fillTrackingStatus(DQMStore* dqm_store) {
 
   if (verbose_) std::cout << "[TrackingQualityChecker::fillTrackingStatus] ===> gstatus: " << gstatus << std::endl;
   TrackGlobalSummaryReportGlobal->Fill(gstatus);
-  dqm_store->cd();
+  ibooker.cd();
 
   if (verbose_) std::cout << "[TrackingQualityChecker::fillTrackingStatus] DONE" << std::endl;
 
@@ -401,13 +400,13 @@ void TrackingQualityChecker::fillTrackingStatus(DQMStore* dqm_store) {
 
 // Fill Tracking Status MEs at the Lumi block
 // 
-void TrackingQualityChecker::fillTrackingStatusAtLumi(DQMStore* dqm_store){
+void TrackingQualityChecker::fillTrackingStatusAtLumi(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter){
 
   if (verbose_) std::cout << "[TrackingQualityChecker::fillTrackingStatusAtLumi] starting .. " << std::endl;
   float gstatus = 1.0;
 
-  dqm_store->cd();
-  if (!TrackingUtility::goToDir(dqm_store, TopFolderName_)) return;
+  ibooker.cd();
+  if (!TrackingUtility::goToDir(ibooker,igetter, TopFolderName_)) return;
 
 
   int ibin = 0;
@@ -425,7 +424,7 @@ void TrackingQualityChecker::fillTrackingStatusAtLumi(DQMStore* dqm_store){
 
     float status = 1.0; 
 
-    std::vector<MonitorElement*> tmpMEvec = dqm_store->getContents(dqm_store->pwd()+"/"+localMEdirpath);
+    std::vector<MonitorElement*> tmpMEvec = igetter.getContents(ibooker.pwd()+"/"+localMEdirpath);
     if (verbose_) std::cout << "[TrackingQualityChecker::fillTrackingStatusAtLumi] tmpMEvec: " << tmpMEvec.size() << std::endl;
 
     MonitorElement* me = NULL;
@@ -482,7 +481,7 @@ void TrackingQualityChecker::fillTrackingStatusAtLumi(DQMStore* dqm_store){
     if (verbose_) std::cout << "[TrackingQualityChecker::fillTrackingStatusAtLumi] ME: " << it->first << " [" << it->second.TrackingFlag->getFullname() << "] flag: " << it->second.TrackingFlag->getFloatValue() << std::endl;
   }
   TrackLSSummaryReportGlobal->Fill(gstatus);
-  dqm_store->cd();
+  ibooker.cd();
   
   if (verbose_) std::cout << "[TrackingQualityChecker::fillTrackingStatusAtLumi] DONE" << std::endl;
 }
