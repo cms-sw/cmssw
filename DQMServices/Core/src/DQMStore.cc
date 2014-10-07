@@ -431,9 +431,21 @@ void DQMStore::mergeAndResetMEsLuminositySummaryCache(uint32_t run,
       gme = data_.insert(global_me);
       assert(gme.second);
     }
+    // make the ME reusable for the next LS
     const_cast<MonitorElement*>(&*i)->Reset();
-    // TODO(rovere): eventually reset the local object and mark it as reusable??
     ++i;
+    
+    // check and remove the global lumi based histo belonging to the previous LSs
+    // if properly flagged as DQMNet::DQM_PROP_MARKTODELETE
+    global_me.setLumi(1);
+    std::set<MonitorElement>::const_iterator i_lumi = data_.lower_bound(global_me);
+    while (i_lumi->data_.lumi != lumi) {
+      auto temp = i_lumi++;
+      if (i_lumi->getFullname() == i->getFullname() &&  i_lumi->markedToDelete())
+	{
+	  data_.erase(temp);
+	}
+    }
   }
 }
 
@@ -2023,6 +2035,44 @@ DQMStore::forceReset(void)
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
+/** Mark a set of histograms for deletion based on run, lumi and path*/
+void
+DQMStore::markForDeletion(uint32_t run,
+			  uint32_t lumi)
+{
+
+  std::string null_str("");
+  MonitorElement proto(&null_str, null_str, run, 0, 0);
+  if (enableMultiThread_)
+    proto.setLumi(lumi);
+
+  std::set<MonitorElement>::const_iterator e = data_.end();
+  std::set<MonitorElement>::const_iterator i = data_.lower_bound(proto);
+  
+  while (i != e) {
+    if (i->data_.streamId != 0 ||
+	i->data_.moduleId != 0)
+      break;
+    if ((i->data_.lumi != lumi) && enableMultiThread_)
+      break;
+    if (i->data_.run != run)
+      break;
+    
+    const_cast<MonitorElement*>(&*i)->markToDelete();  
+    
+    if (verbose_ > 1)
+      std::cout << "DQMStore::markForDeletion: marked monitor element '"
+		<< *i->data_.dirname << "/" << i->data_.objname << "'"
+		<< "flags " << i->data_.flags << "\n";
+
+    ++i;
+  }
+}
+
+
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
 /// extract object (TH1F, TH2F, ...) from <to>; return success flag
 /// flag fromRemoteNode indicating if ME arrived from different node
 bool
@@ -2368,7 +2418,7 @@ void DQMStore::savePB(const std::string &filename,
                       const std::string &path /* = "" */,
 		      const uint32_t run /* = 0 */,
 		      const uint32_t lumi /* = 0 */,
-		      const bool deleteMEsAfterWriting /* = false */)
+		      const bool resetMEsAfterWriting /* = false */)
 {
   using google::protobuf::io::FileOutputStream;
   using google::protobuf::io::GzipOutputStream;
@@ -2455,9 +2505,9 @@ void DQMStore::savePB(const std::string &filename,
         delete toWrite;
       }
 
-      //delete the TH1 just written
-      if (deleteMEsAfterWriting && enableMultiThread_)
-	const_cast<MonitorElement*>(&*mi)->deleteObjects();
+      //reset the ME just written to make it available for the next LS (online)
+      if (resetMEsAfterWriting)
+	const_cast<MonitorElement*>(&*mi)->Reset();
     }
   }
 
@@ -2496,7 +2546,7 @@ DQMStore::save(const std::string &filename,
                SaveReferenceTag ref /* = SaveWithReference */,
                int minStatus /* = dqm::qstatus::STATUS_OK */,
                const std::string &fileupdate /* = RECREATE */,
-	       const bool deleteMEsAfterWriting /* = false */)
+	       const bool resetMEsAfterWriting /* = false */)
 {
   std::set<std::string>::iterator di, de;
   MEMap::iterator mi, me = data_.end();
@@ -2669,9 +2719,9 @@ DQMStore::save(const std::string &filename,
       if (mi->data_.flags & DQMNet::DQM_PROP_TAGGED)
         TObjString(mi->tagLabelString().c_str()).Write();
 
-      //delete the TH1 just written
-      if(deleteMEsAfterWriting && enableMultiThread_)
-	const_cast<MonitorElement*>(&*mi)->deleteObjects();
+      //reset the ME just written to make it available for the next LS (online)
+      if (resetMEsAfterWriting)
+	const_cast<MonitorElement*>(&*mi)->Reset();
     }
   }
 
