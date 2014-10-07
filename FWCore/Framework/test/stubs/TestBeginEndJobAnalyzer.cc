@@ -26,6 +26,12 @@ void hello(const char * hi) {
   //std::cout << "IN " << hi << std::endl;
 }
 
+TestBeginEndJobAnalyzer::Control & 
+TestBeginEndJobAnalyzer::control() {
+  static Control l;
+  return l;
+}
+
 TestBeginEndJobAnalyzer::TestBeginEndJobAnalyzer(const edm::ParameterSet& /* iConfig */) {
    hello("constr");
 }

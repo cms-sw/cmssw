@@ -2,7 +2,7 @@
 <library   file="DummyData.cc,DummyRecord.cc,DepRecord.cc,Dummy2Record.cc,DepOn2Record.cc" name="FWCoreFrameworkTestDummyForEventSetup">
   <use   name="FWCore/Framework"/>
 </library>
-<library   file="MockEventProcessor.cc" name="FWCoreFrameworkTest">
+<library   file="MockEventProcessor.cc,stubs/TestBeginEndJobAnalyzer.cc" name="FWCoreFrameworkTest">
   <use   name="FWCore/Framework"/>
 </library>
 <library   file="stubs/TestOutputModule.cc" name="TestOutputModule">
@@ -131,8 +131,9 @@
   <use   name="FWCore/Framework"/>
   <use   name="cppunit"/>
 </library>
-<library   file="stubs/TestBeginEndJobAnalyzer.cc,stubs/TestBeginEndJobAnalyzerModule.cc" name="FWCoreFrameworkTestBeginEndJobAnalyzer">
+<library   file="stubs/TestBeginEndJobAnalyzerModule.cc" name="FWCoreFrameworkTestBeginEndJobAnalyzer">
   <flags   EDM_PLUGIN="1"/>
+  <lib   name="FWCoreFrameworkTest"/>
   <use   name="FWCore/Framework"/>
 </library>
 <library   file="stubs/TestFailuresAnalyzer.cc" name="FWCoreFrameworkTestFailuresAnalyzer">
@@ -169,6 +170,7 @@
   <use   name="cppunit"/>
 </bin>
 <bin   name="TestFWCoreFrameworkeventprocessor" file="testRunner.cpp,eventprocessor2_t.cppunit.cc,eventprocessor_t.cppunit.cc">
+  <lib   name="FWCoreFrameworkTest"/>
   <use   name="DataFormats/Provenance"/>
   <use   name="DataFormats/WrappedStdDictionaries"/>
   <use   name="FWCore/Framework"/>
