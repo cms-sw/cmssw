@@ -1,4 +1,5 @@
 <use   name="CondFormats/External"/>
+<use   name="CondFormats/Serialization"/>
 
 <bin file="testSerializationExternal.cpp">
 </bin>
