@@ -888,20 +888,6 @@ steps['SingleMuPt10FS_ID']=identityFS(steps['SingleMuPt10FS'])
 steps['TTbarFS_ID']=identityFS(steps['TTbarFS'])
 
 #### generator test section ####
-#step1GenDefaults=merge([{'-s':'GEN,VALIDATION:genvalid',
-#                         '--relval':'1000000,20000',
-#                         '--eventcontent':'RAWSIM',
-#                         '--datatier':'GEN'},
-#                        step1Defaults])
-#def genvalid(fragment,d,suffix='all',fi=''):
-#    import copy
-#    c=copy.copy(d)
-#    if suffix:
-#        c['-s']=c['-s'].replace('genvalid','genvalid_'+suffix)
-#    if fi:
-#        c['--filein']='lhe:%d'%(fi,)
-#    c['cfg']=fragment
-#    return c
  
 step1GenDefaults=merge([{'-s':'GEN,VALIDATION:genvalid',
                          '--relval':'250000,20000',
