@@ -31,7 +31,7 @@ TrackingActionExecutor::TrackingActionExecutor(edm::ParameterSet const& ps):pSet
 TrackingActionExecutor::~TrackingActionExecutor() {
   //  std::cout << "[TrackingActionExecutor::~TrackingActionExecutor] .. starting" << std::endl;
   edm::LogInfo("TrackingActionExecutor") << " Deleting TrackingActionExecutor " << "\n" ;
-  //  if (qualityChecker_) delete qualityChecker_;
+  if (qualityChecker_) delete qualityChecker_;
 }
 
 //
