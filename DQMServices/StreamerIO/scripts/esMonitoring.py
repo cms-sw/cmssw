@@ -16,19 +16,20 @@ def dt2time(dt):
     return time.mktime(dt.timetuple())
 
 class ElasticReport(object):
-    def __init__(self, pid, cmdline, history, json):
+    def __init__(self, pid, history, json, args):
         self.s_history = history
         self.s_json = json
 
         self.last_make_report = None
         self.make_report_timer = 30
         self.seq = 0
+        self.args = args
         
         self.doc = {
             "pid": pid,
             "hostname": socket.gethostname(),
             "sequence": self.seq,
-            "cmdline": cmdline,
+            "cmdline": args.pargs,
         }
 
         self.defaults()
@@ -42,10 +43,15 @@ class ElasticReport(object):
         c = self.doc["cmdline"]
         for l in c:
             if l.endswith(".py"):
-                l = os.path.basename(l)
-                l = l.replace(".py", "")
-                l = l.replace("_cfg", "")
-                self.doc["tag"] = l
+                t = os.path.basename(l)
+                t = t.replace(".py", "")
+                t = t.replace("_cfg", "")
+                self.doc["tag"] = t
+
+            pr = l.split("=")
+            if len(pr) > 1 and pr[0] == "runNumber" and pr[1].isdigit():
+                run = long(pr[1])
+                self.doc["run"] = run
 
         self.make_id()
 
@@ -54,9 +60,18 @@ class ElasticReport(object):
         self.doc["_id"] = id
         return id
 
+    def update_doc_recursive(self, old_obj, new_obj):
+        for key, value in new_obj.items():
+            if (old_obj.has_key(key) and 
+                isinstance(value, dict) and 
+                isinstance(old_obj[key], dict)):
+
+                self.update_doc_recursive(old_obj[key], value)
+            else:
+                old_obj[key] = value
+
     def update_doc(self, keys):
-        for key, value in keys.items():
-            self.doc[key] = value
+        self.update_doc_recursive(self.doc, keys)
 
     def update_from_json(self):
         while self.s_json.have_docs():
@@ -67,7 +82,7 @@ class ElasticReport(object):
                 if doc.has_key(k):
                     doc[k] = int(doc[k])
 
-            self.update_doc(doc)
+            self.update_doc_recursive(self.doc, doc)
 
     def update_ps_status(self):
         try:
@@ -96,9 +111,13 @@ class ElasticReport(object):
         self.make_id()
         self.update_ps_status()
         self.update_stderr()
-        #print self.doc
 
         fn_id = self.doc["_id"] + ".jsn"
+
+        if args.debug:
+            tm = "%.06f+" % time.time()
+            fn_id = tm + fn_id
+
         fn = os.path.join("/tmp/dqm_monitoring/", fn_id) 
         fn_tmp = os.path.join("/tmp/dqm_monitoring/", fn_id + ".tmp") 
 
@@ -291,7 +310,7 @@ def launch_monitoring(args):
     mon_file = os.fdopen(mon_fd)
     s_hist = History()
     s_json = JsonInput()
-    report_sink = ElasticReport(pid=p.pid, cmdline=args.pargs, history=s_hist, json=s_json)
+    report_sink = ElasticReport(pid=p.pid, history=s_hist, json=s_json, args=args)
 
     stdout_cap = DescriptorCapture(p.stdout, write_files=[sys.stdout, s_hist, report_sink, ], )
     stderr_cap = DescriptorCapture(p.stderr, write_files=[sys.stderr, s_hist, report_sink, ], )
@@ -320,10 +339,9 @@ def handle_signal(signum, frame):
         proc.send_signal(signum)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Kill/restart the child process if it doesn't out the required string.")
+    parser = argparse.ArgumentParser(description="Monitor a child process - produces elastic search documents.")
     parser.add_argument("-t", type=int, default="2", help="Timeout in seconds.")
-    parser.add_argument("-s", type=int, default="2000", help="Signal to send.")
-    parser.add_argument("-r", "--restart",  action="store_true", default=False, help="Restart the process after killing it.")
+    parser.add_argument("--debug", "-d", action='store_true', default=False, help="Enables debugging mode: es documents will have timestamp in the name.")
     parser.add_argument("pargs", nargs=argparse.REMAINDER)
     args = parser.parse_args()
 

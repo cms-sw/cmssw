@@ -70,13 +70,6 @@ DQMFileIterator::DQMFileIterator(edm::ParameterSet const& pset)
 
   forceFileCheckTimeoutMillis_ = 5015;
   reset();
-
-  if (mon_.isAvailable()) {
-    ptree doc;
-    doc.put("run", runNumber_);
-    mon_->outputUpdate(doc);
-    updateMonitoring();
-  }
 }
 
 DQMFileIterator::~DQMFileIterator() {}
@@ -88,20 +81,28 @@ void DQMFileIterator::reset() {
   state_ = State::OPEN;
   nextLumiNumber_ = 1;
   lumiSeen_.clear();
+  filesSeen_.clear();
 
   lastLumiLoad_ = std::chrono::high_resolution_clock::now();
 
   collect(true);
   update_state();
+
+  if (mon_.isAvailable()) {
+    ptree doc;
+    doc.put("run", runNumber_);
+    doc.put("next_lumi", nextLumiNumber_);
+    doc.put("fi_state", std::to_string(state_));
+    mon_->outputUpdate(doc);
+  }
+
 }
 
 DQMFileIterator::State DQMFileIterator::state() { return state_; }
 
 const DQMFileIterator::LumiEntry DQMFileIterator::open() {
   LumiEntry& lumi = lumiSeen_[nextLumiNumber_];
-  advanceToLumi(nextLumiNumber_ + 1);
-
-  lumi.state = "open: file iterator";
+  advanceToLumi(nextLumiNumber_ + 1, "open: file iterator");
   return lumi;
 }
 
@@ -123,7 +124,7 @@ unsigned int DQMFileIterator::lastLumiFound() {
   return 1;
 }
 
-void DQMFileIterator::advanceToLumi(unsigned int lumi) {
+void DQMFileIterator::advanceToLumi(unsigned int lumi, std::string reason) {
   using boost::property_tree::ptree;
   using boost::str;
 
@@ -132,32 +133,34 @@ void DQMFileIterator::advanceToLumi(unsigned int lumi) {
   nextLumiNumber_ = lumi;
   lastLumiLoad_ = std::chrono::high_resolution_clock::now();
 
+  auto iter = lumiSeen_.lower_bound(currentLumi);
+
+  while ((iter != lumiSeen_.end()) && ((iter->first) < nextLumiNumber_)) {
+    iter->second.state = reason;
+    monUpdateLumi(iter->second);
+
+    ++iter;
+  }
+
   if (mon_.isAvailable()) {
     // report the successful lumi file open
     ptree doc;
-    doc.put("lumi", currentLumi);
+    doc.put("next_lumi", nextLumiNumber_);
     mon_->outputUpdate(doc);
-    updateMonitoring();
   }
 }
 
-void DQMFileIterator::updateMonitoring() {
+void DQMFileIterator::monUpdateLumi(const LumiEntry& lumi) {
   if (! mon_.isAvailable())
     return;
 
-  ptree children;
-  auto iter = lumiSeen_.begin();
-  for (; iter != lumiSeen_.end(); ++iter) {
-    ptree lumi;
-    lumi.put("filename", iter->second.filename);
-    lumi.put("file_ls", iter->second.file_ls);
-    lumi.put("state", iter->second.state);
-
-    children.add_child(std::to_string(iter->first), lumi);
-  }
+  ptree lumi_doc;
+  lumi_doc.put("filename", lumi.filename);
+  lumi_doc.put("file_ls", lumi.file_ls);
+  lumi_doc.put("state", lumi.state);
 
   ptree doc;
-  doc.add_child("lumiSeen", children);
+  doc.add_child(str(boost::format("lumiSeen.lumi%06d") % lumi.file_ls), lumi_doc);
   mon_->outputUpdate(doc);
 }
 
@@ -207,11 +210,17 @@ void DQMFileIterator::collect(bool ignoreTimers) {
     const std::string filename = di->path().filename().string();
     const std::string fn = di->path().string();
 
+    if (filesSeen_.find(filename) != filesSeen_.end()) {
+      continue;
+    }
+
     boost::smatch result;
     if (boost::regex_match(filename, result, fn_re)) {
       unsigned int run = std::stoi(result[1]);
       unsigned int lumi = std::stoi(result[2]);
       std::string label = result[3];
+
+      filesSeen_.insert(filename);
 
       if (run != runNumber_) continue;
 
@@ -240,8 +249,12 @@ void DQMFileIterator::collect(bool ignoreTimers) {
         LumiEntry lumi_jsn = LumiEntry::load_json(fn, lumi, datafnPosition_);
         lumiSeen_.emplace(lumi, lumi_jsn);
         logFileAction("Found and loaded json file: ", fn);
+
+        monUpdateLumi(lumi_jsn);
       } catch (const std::exception& e) {
         // don't reset the mtime, keep it waiting
+        filesSeen_.erase(filename);
+
         std::string msg("Found, tried to load the json, but failed (");
         msg += e.what();
         msg += "): ";
@@ -296,10 +309,9 @@ void DQMFileIterator::update_state() {
         msg += std::to_string(nextLumiNumber_) + " .. " +
                std::to_string(iter->first - 1);
         msg += ", nextLumiNumber_ is now " + std::to_string(iter->first);
-
         logFileAction(msg);
 
-        nextLumiNumber_ = iter->first;
+        advanceToLumi(iter->first, "skipped: timeout");
       }
     }
   }
@@ -320,7 +332,11 @@ void DQMFileIterator::update_state() {
     logFileAction("Streamer state changed: ",
                   std::to_string(old_state) + "->" + std::to_string(state_));
 
-    updateMonitoring();
+    if (mon_) {
+      ptree doc;
+      doc.put("fi_state", std::to_string(state_));
+      mon_->outputUpdate(doc);
+    }
   }
 }
 
@@ -334,21 +350,18 @@ void DQMFileIterator::logFileAction(const std::string& msg,
 void DQMFileIterator::logLumiState(const LumiEntry& lumi, const std::string& msg) {
   if (lumiSeen_.find(lumi.file_ls) != lumiSeen_.end()) {
     lumiSeen_[lumi.file_ls].state = msg;
+
+    monUpdateLumi(lumiSeen_[lumi.file_ls]);
   } else {
     logFileAction("Internal error: referenced lumi is not the map.");
   }
 }
 
 void DQMFileIterator::delay() {
-  //logFileAction("Streamer waiting for the next LS.");
-
   if (mon_.isAvailable())
     mon_->keepAlive();
 
   usleep(delayMillis_ * 1000);
-
-  if (mon_.isAvailable())
-    mon_->keepAlive();
 }
 
 void DQMFileIterator::fillDescription(edm::ParameterSetDescription& desc) {

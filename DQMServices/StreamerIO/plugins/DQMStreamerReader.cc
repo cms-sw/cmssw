@@ -65,7 +65,7 @@ void DQMStreamerReader::reset_() {
   if (flagSkipFirstLumis_) {
     unsigned int l = fiterator_.lastLumiFound();
     if (l > 1) {
-      fiterator_.advanceToLumi(l);
+      fiterator_.advanceToLumi(l, "skipped: fast-forward to the latest lumi");
     }
   }
 
