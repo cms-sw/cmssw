@@ -62,7 +62,6 @@ namespace edmtest {
     // and have no meaning other than that we will later check that we can
     // read out what we put in here.
     std::vector<unsigned int>::const_iterator key = keysToReference_.begin();
-    std::vector<unsigned int>::const_iterator keyEnd = keysToReference_.end();
     for(unsigned int i = 0; i < 5; ++i) {
 
 
