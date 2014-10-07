@@ -35,7 +35,7 @@ process.load('FastSimulation.Configuration.Geometries_cff')
 
 # Get frontier conditions (STARTUP conditions, not Fake or IDEAL anymore, otherwise we cannot set them for HLT!)
 from HLTrigger.Configuration.AutoCondGlobalTag import AutoCondGlobalTag
-process.GlobalTag = AutoCondGlobalTag(process.GlobalTag,'auto:startup_GRun')
+process.GlobalTag = AutoCondGlobalTag(process.GlobalTag,'auto:run2_mc_GRun')
 #from Configuration.AlCa.autoCond import autoCond
 #process.GlobalTag.globaltag = autoCond['mc']
 
@@ -144,3 +144,6 @@ process.MessageLogger.categories.append('HLTrigReport')
 # Make the job crash in case of missing product
 process.options = cms.untracked.PSet( Rethrow = cms.untracked.vstring('ProductNotFound') )
 
+# PostLS1
+from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1
+process = customisePostLS1(process)
