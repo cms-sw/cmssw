@@ -86,8 +86,8 @@ process.SiPixelHLTSource.DirName = cms.untracked.string('Pixel/FEDIntegrity_SM/'
 
 # SiStrip DQM sequences
 process.load("DQM.SiStripMonitorHardware.siStripFEDCheck_cfi")
-process.siStripFEDCheck.DirName = cms.untracked.string('SiStrip/FEDIntegrity_SM/')
-
+process.siStripFEDCheck.RawDataTag = cms.InputTag("rawDataCollector")
+process.siStripFEDCheck.DirName    = cms.untracked.string('SiStrip/FEDIntegrity_SM/')
 
 # Hcal DQM sequences
 process.load("EventFilter.HcalRawToDigi.HcalRawToDigi_cfi")

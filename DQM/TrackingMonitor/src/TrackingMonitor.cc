@@ -38,8 +38,7 @@
 // ----------------------------------------------------------------------------------//
 
 TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig) 
-    : dqmStore_( edm::Service<DQMStore>().operator->() )
-    , conf_ ( iConfig )
+    : conf_ ( iConfig )
     , theTrackBuildingAnalyzer( new TrackBuildingAnalyzer(conf_) )
     , NumberOfTracks(NULL)
     , NumberOfMeanRecHitsPerTrack(NULL)
@@ -481,6 +480,7 @@ void TrackingMonitor::beginLuminosityBlock(const edm::LuminosityBlock& lumi, con
 // ---------------------------------------------------------------------------------//
 void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 {
+  
     // Filter out events if Trigger Filtering is requested
     if (genTriggerEventFlag_->on()&& ! genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
 
@@ -696,17 +696,6 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 void TrackingMonitor::endRun(const edm::Run&, const edm::EventSetup&) 
 {
-}
-
-void TrackingMonitor::endJob(void) 
-{
-    bool outputMEsInRootFile   = conf_.getParameter<bool>("OutputMEsInRootFile");
-    std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
-    if(outputMEsInRootFile)
-    {
-        dqmStore_->showDirStructure();
-        dqmStore_->save(outputFileName);
-    }
 }
 
 void TrackingMonitor::setMaxMinBin(std::vector<double> &arrayMin,  std::vector<double> &arrayMax, std::vector<int> &arrayBin, double smin, double smax, int sbin, double pmin, double pmax, int pbin) 
