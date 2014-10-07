@@ -459,7 +459,7 @@ SiPixelDigitizerAlgorithm::PixelAging::PixelAging(const edm::ParameterSet& conf,
     thePixelPseudoRadDamage[i++] = conf.getParameter<double>("thePixelPseudoRadDamage_BPix2");
     thePixelPseudoRadDamage[i++] = conf.getParameter<double>("thePixelPseudoRadDamage_BPix3");
     thePixelPseudoRadDamage[i++] = conf.getParameter<double>("thePixelPseudoRadDamage_BPix4");
-
+    
     // to be removed when Gaelle will have the phase2 digitizer
     if (NumberOfBarrelLayers>=5){
       if (NumberOfTotLayers>20){throw cms::Exception("Configuration") <<"SiPixelDigitizer was given more layers than it can handle";}
@@ -474,7 +474,6 @@ SiPixelDigitizerAlgorithm::PixelAging::PixelAging(const edm::ParameterSet& conf,
     thePixelPseudoRadDamage[i++]   = conf.getParameter<double>("thePixelPseudoRadDamage_FPix2");
     thePixelPseudoRadDamage[i++]   = conf.getParameter<double>("thePixelPseudoRadDamage_FPix3");
     
-
     //To be removed when Phase2 digitizer will be available
     if (NumberOfEndcapDisks>=4){
       if (NumberOfTotLayers>20){throw cms::Exception("Configuration") <<"SiPixelDigitizer was given more layers than it can handle";}
@@ -486,7 +485,7 @@ SiPixelDigitizerAlgorithm::PixelAging::PixelAging(const edm::ParameterSet& conf,
   }
   // the first "NumberOfBarrelLayers" settings [0],[1], ... , [NumberOfBarrelLayers-1] are for the barrel pixels
   // the next  "NumberOfEndcapDisks"  settings [NumberOfBarrelLayers],[NumberOfBarrelLayers+1], ... [NumberOfEndcapDisks+NumberOfBarrelLayers-1]
-  if(!AddAging) {  // No inefficiency, all 100% efficientaging, no decrease of signal
+  else {  // No inefficiency, all 100% efficientaging, no decrease of signal
     for (int i=0; i<NumberOfTotLayers;i++) {
       thePixelPseudoRadDamage[i]     = 0.;  // pixels have 100% signals
     }
@@ -899,14 +898,14 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit,
 
     // Insert a charge loss due to Rad Damage here
     float energyOnCollector = ionization_points[i].energy(); // The energy that reaches the collector
-    
+    std::cout << "raddam. energyoncollector b4: " << energyOnCollector << std::endl; 
     // add pixel aging
-    float kValue = 0.;
     
-    if (AddPixelAging) kValue = float(pixel_aging(pixelAging_,pixdet,tTopo));
-    energyOnCollector *= exp( -1*kValue*DriftDistance/moduleThickness );
-
-    std::cout << "raddam. kValue from pixelaging: " << kValue << std::endl;    
+    if (AddPixelAging) {
+      float kValue = pixel_aging(pixelAging_,pixdet,tTopo);
+      energyOnCollector *= exp( -1*kValue*DriftDistance/moduleThickness );
+    }
+   
     std::cout << "raddam. energyoncollector: " << energyOnCollector << std::endl;
     
     std::cout << " Drift: moduleradius " << pixdet->surface().position().perp() << std::endl;
@@ -1515,42 +1514,41 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
 float SiPixelDigitizerAlgorithm::pixel_aging(const PixelAging& aging,
 					     const PixelGeomDetUnit *pixdet,
 					     const TrackerTopology *tTopo) const {
-
+  
   uint32_t detID= pixdet->geographicalId().rawId();
-
-
+  
+  
   // Predefined damage parameter (no aging)
   float pseudoRadDamage  = 0.0;
-
-
+  
   // setup the chip indices conversion
   unsigned int Subid=DetId(detID).subdetId();
   if    (Subid==  PixelSubdetector::PixelBarrel){// barrel layers
     int layerIndex=tTopo->pxbLayer(detID);
- 
+    
      pseudoRadDamage  = aging.thePixelPseudoRadDamage[layerIndex-1];
-
+     
      //  std::cout << "pixel_aging: " << std::endl;
-    // std::cout << "Subid " << Subid << " layerIndex " << layerIndex << " ladder " << tTopo->pxbLadder(detID)  << " module  " << tTopo->pxbModule(detID) << std::endl;
- 
+     // std::cout << "Subid " << Subid << " layerIndex " << layerIndex << " ladder " << tTopo->pxbLadder(detID)  << " module  " << tTopo->pxbModule(detID) << std::endl;
+     
   } else {                // forward disks
     unsigned int diskIndex=tTopo->pxfDisk(detID)+aging.FPixIndex; // Use diskIndex-1 later to stay consistent with BPix
-
+    
     pseudoRadDamage  = aging.thePixelPseudoRadDamage[diskIndex-1];
-
+    
     //    std::cout << "pixel_aging: " << std::endl;
     //    std::cout << "Subid " << Subid << " diskIndex " << diskIndex << std::endl;
-
+    
   } // if barrel/forward
-
+  
   //  std::cout << " pseudoRadDamage " << pseudoRadDamage << std::endl;
   //  std::cout << " end pixel_aging " << std::endl;
-
+  
   return pseudoRadDamage;
 #ifdef TP_DEBUG
   LogDebug ("Pixel Digitizer") << " enter pixel_aging " << pseudoRadDamage;
 #endif
-
+  
 }
 
 //***********************************************************************
