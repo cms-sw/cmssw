@@ -148,7 +148,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps) :
   bool doHBHEUpgrade = ps.getParameter<bool>("HBHEUpgradeQIE");
   bool doHFUpgrade   = ps.getParameter<bool>("HFUpgradeQIE");
   deliveredLumi      = ps.getParameter<double>("DelivLuminosity");
-  bool agingFlagHE   = ps.getParameter<bool>("HEDarkening");
+  unsigned int agingFlagHE   = ps.getParameter<unsigned>("HEDarkening");
   bool agingFlagHF   = ps.getParameter<bool>("HFDarkening");
 
   // need to make copies, because they might get different noise generators
@@ -327,7 +327,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps) :
 
   hitsProducer_ = ps.getParameter<std::string>("hitsProducer");
   
-  if(agingFlagHE) m_HEDarkening = new HEDarkening();
+  if(agingFlagHE) m_HEDarkening = new HEDarkening(agingFlagHE);
   if(agingFlagHF) m_HFRecalibration = new HFRecalibration();
 }
 
