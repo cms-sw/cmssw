@@ -939,6 +939,7 @@ class ConfigBuilder(object):
 		self.GENDefaultSeq='fixGenInfo'
 
         if self._options.scenario=='cosmics':
+	    self._options.pileup='Cosmics'	
             self.DIGIDefaultCFF="Configuration/StandardSequences/DigiCosmics_cff"
             self.RECODefaultCFF="Configuration/StandardSequences/ReconstructionCosmics_cff"
 	    self.SKIMDefaultCFF="Configuration/StandardSequences/SkimsCosmics_cff"
