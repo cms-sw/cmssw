@@ -11,13 +11,6 @@ namespace edm {
 namespace l1t {
    class L1TDigiToRaw;
 
-   struct Block {
-      uint32_t id;
-      std::vector<uint32_t> load;
-   };
-
-   typedef std::vector<Block> Blocks;
-
    class BasePacker {
       public:
          virtual Blocks pack(const edm::Event&) = 0;

@@ -140,7 +140,7 @@ namespace l1t {
       unsigned int words = 0;
       for (const auto& block: blocks)
          // add one for the block header
-         words += block.load.size() + 1;
+         words += block.getSize();
       size += words * 4;
       // add padding to get a full number of 64-bit words
       int padding = (size % 8 == 0) ? 8 : 8 - size % 8;
@@ -163,8 +163,8 @@ namespace l1t {
       payload = push(payload, (fwId_ << 24) | (words << 8)); // FW ID, payload size (words)
 
       for (const auto& block: blocks) {
-         payload = push(payload, (block.id << 24) | (block.load.size() << 16));
-         for (const auto& word: block.load)
+         payload = push(payload, block.header().raw());
+         for (const auto& word: block.payload())
             payload = push(payload, word);
       }
 

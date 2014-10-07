@@ -50,8 +50,8 @@ namespace l1t {
 
         for (int phi = 1; phi <=72; phi=phi+2) { // Two phi values per link
 
-          Block blk;
-          blk.id = 2*phi - 2; // Block IDs start at zero and span even numbers up to 142
+          unsigned int id = 2*phi - 2; // Block IDs start at zero and span even numbers up to 142
+          std::vector<uint32_t> load;
 
           for (int eta = 1; eta <=41; eta++) { // This is abs(eta) since +/- eta are interleaved in time
 
@@ -72,7 +72,7 @@ namespace l1t {
 	      (t2.hwEtRatio() & 0x7) << 25 |
 	      (t2.hwQual() & 0xF) << 28;
 
-            blk.load.push_back(word1);
+            load.push_back(word1);
 
             // Do it all again for -eta
 
@@ -86,11 +86,11 @@ namespace l1t {
               (t4.hwEtRatio() & 0x7) << 25 |
               (t4.hwQual() & 0xF) << 28;
 
-            blk.load.push_back(word2);
+            load.push_back(word2);
 
           }
 
-          res.push_back(blk);
+          res.push_back(Block(id, load));
 
         }
       }

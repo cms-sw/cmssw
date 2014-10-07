@@ -42,9 +42,7 @@ namespace l1t {
       edm::Handle<TauBxCollection> taus;
       event.getByToken(tauToken_, taus);
 
-      // Return one block only
-      Block res;
-      res.id = 7;
+      std::vector<uint32_t> load;
 
       for (int i = taus->getFirstBX(); i <= taus->getLastBX(); ++i) {
          int n = 0;
@@ -56,15 +54,15 @@ namespace l1t {
                             (j->hwPhi() & 0xFF) << 17 |
                             (j->hwIso() & 0x1) << 25 |
                             (j->hwQual() & 0x7) << 26;
-            res.load.push_back(word);
+            load.push_back(word);
          }
 
          // pad for empty taus
          for (; n < 8; ++n)
-            res.load.push_back(0);
+            load.push_back(0);
       }
 
-      return {res};
+      return {Block(7, load)};
    }
 
    TauPackerFactory::TauPackerFactory(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) : cfg_(cfg), cc_(cc)

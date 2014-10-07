@@ -42,9 +42,7 @@ namespace l1t {
       edm::Handle<JetBxCollection> jets;
       event.getByToken(jetToken_, jets);
 
-      // Return one block only
-      Block res;
-      res.id = 5;
+      std::vector<uint32_t> load;
 
       for (int i = jets->getFirstBX(); i <= jets->getLastBX(); ++i) {
          int n = 0;
@@ -55,14 +53,14 @@ namespace l1t {
                             ((j->hwEta() < 0) & 0x1) << 18 |
                             (j->hwPhi() & 0xFF) << 19 |
                             (j->hwQual() & 0x7) << 27;
-            res.load.push_back(word);
+            load.push_back(word);
          }
 
          for (; n < 12; ++n)
-            res.load.push_back(0);
+            load.push_back(0);
       }
 
-      return {res};
+      return {Block(5, load)};
    }
 
    JetPackerFactory::JetPackerFactory(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) : cfg_(cfg), cc_(cc)

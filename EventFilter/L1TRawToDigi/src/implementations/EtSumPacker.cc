@@ -42,20 +42,18 @@ namespace l1t {
       edm::Handle<EtSumBxCollection> etSums;
       event.getByToken(etSumToken_, etSums);
 
-      // Return one block only
-      Block res;
-      res.id = 3;
+      std::vector<uint32_t> load;
 
       for (int i = etSums->getFirstBX(); i <= etSums->getLastBX(); ++i) {
          for (auto j = etSums->begin(i); j != etSums->end(i); ++j) {
 	   uint32_t word = std::min(j->hwPt(), 0xFFF);
 	   if ((j->getType()==l1t::EtSum::kMissingEt) || (j->getType()==l1t::EtSum::kMissingHt))
 	     word = word | ((j->hwPhi() & 0xFF) << 12);
-	   res.load.push_back(word);
+	   load.push_back(word);
          }
       }
 
-      return {res};
+      return {Block(3, load)};
    }
 
    EtSumPackerFactory::EtSumPackerFactory(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) : cfg_(cfg), cc_(cc)
