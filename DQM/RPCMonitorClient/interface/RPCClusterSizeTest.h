@@ -26,7 +26,6 @@ class RPCClusterSizeTest:public RPCClient{
   int numberOfRings_;
   int prescaleFactor_;
   bool testMode_;
-  DQMStore* dbe_;
   bool useRollInfo_;
   std::vector<MonitorElement *>  myClusterMe_;
   std::vector<RPCDetId>   myDetIds_;

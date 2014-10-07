@@ -30,7 +30,6 @@ protected:
 
     std::string  globalFolder_;
   
-    DQMStore* dbe_;
  
   
 };

@@ -23,7 +23,7 @@ RPCRecHitProbabilityClient::RPCRecHitProbabilityClient(const edm::ParameterSet& 
 
 }
 
-RPCRecHitProbabilityClient::~RPCRecHitProbabilityClient(){dbe_ = 0;}
+RPCRecHitProbabilityClient::~RPCRecHitProbabilityClient(){}
 
 void RPCRecHitProbabilityClient::beginJob(){
 
