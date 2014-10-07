@@ -898,21 +898,20 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit,
 
     // Insert a charge loss due to Rad Damage here
     float energyOnCollector = ionization_points[i].energy(); // The energy that reaches the collector
-    std::cout << "raddam. energyoncollector b4: " << energyOnCollector << std::endl; 
-    // add pixel aging
-    
+   
+    // add pixel aging 
     if (AddPixelAging) {
       float kValue = pixel_aging(pixelAging_,pixdet,tTopo);
       energyOnCollector *= exp( -1*kValue*DriftDistance/moduleThickness );
     }
-   
+    
     std::cout << "raddam. energyoncollector: " << energyOnCollector << std::endl;
     
-    std::cout << " Drift: moduleradius " << pixdet->surface().position().perp() << std::endl;
-    std::cout << " Drift: moduleZ " << pixdet->surface().position().z() << std::endl;
-    std::cout << " Drift: end "  << std::endl;
-    std::cout << "************************************************* " << std::endl;
-
+    // std::cout << " Drift: moduleradius " << pixdet->surface().position().perp() << std::endl;
+    // std::cout << " Drift: moduleZ " << pixdet->surface().position().z() << std::endl;
+    // std::cout << " Drift: end "  << std::endl;
+    // std::cout << "************************************************* " << std::endl;
+    
 #ifdef TP_DEBUG
   LogDebug ("Pixel Digitizer")
                 <<" Dift DistanceZ= "<<DriftDistance<<" module thickness= "<<moduleThickness
