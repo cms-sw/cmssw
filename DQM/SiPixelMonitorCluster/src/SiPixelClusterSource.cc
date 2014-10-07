@@ -67,6 +67,7 @@ SiPixelClusterSource::SiPixelClusterSource(const edm::ParameterSet& iConfig) :
    //set Token(-s)
    srcToken_ = consumes<edmNew::DetSetVector<SiPixelCluster> >(conf_.getParameter<edm::InputTag>("src"));
    firstRun = true;
+   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
 }
 
 
@@ -109,7 +110,7 @@ void SiPixelClusterSource::dqmBeginRun(const edm::Run& r, const edm::EventSetup&
 void SiPixelClusterSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const &, edm::EventSetup const &){
   bookMEs(iBooker);
   // Book occupancy maps in global coordinates for all clusters:
-  iBooker.setCurrentFolder("Pixel/Clusters/OffTrack");
+  iBooker.setCurrentFolder(topFolderName_+"/Clusters/OffTrack");
   //bpix
   meClPosLayer1 = iBooker.book2D("position_siPixelClusters_Layer_1","Clusters Layer1;Global Z (cm);Global #phi",200,-30.,30.,128,-3.2,3.2);
   meClPosLayer2 = iBooker.book2D("position_siPixelClusters_Layer_2","Clusters Layer2;Global Z (cm);Global #phi",200,-30.,30.,128,-3.2,3.2);
@@ -288,7 +289,7 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup& iSetup){
 void SiPixelClusterSource::bookMEs(DQMStore::IBooker & iBooker){
   
   // Get DQM interface
-  iBooker.setCurrentFolder("Pixel");
+  iBooker.setCurrentFolder(topFolderName_);
   char title[256]; snprintf(title, 256, "Rate of events with >%i FPIX clusters;LumiSection;Rate of large FPIX events per LS [Hz]",bigEventSize);
   bigFpixClusterEventRate = iBooker.book1D("bigFpixClusterEventRate",title,5000,0.,5000.);
 
