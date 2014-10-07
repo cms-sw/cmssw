@@ -1,8 +1,15 @@
 #pragma once
 
+#if defined(__GCCXML__)
+
+#define COND_SERIALIZABLE
+#define COND_TRANSIENT
+
+#else
+
 // The archives must be listed before any boost/serialization header.
 // Otherwise, in some cases the export macros trigger compilation errors.
-#include "CondFormats/Serialization/interface/Archive.h"
+// #include "CondFormats/Serialization/interface/Archive.h"
 
 #include <boost/serialization/access.hpp>
 
@@ -52,3 +59,4 @@ namespace serialization {
 // like [[cond::serialization::transient]]
 #define COND_TRANSIENT
 
+#endif /* !defined(__GCCXML__) */
