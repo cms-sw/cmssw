@@ -42,15 +42,8 @@ def customiseL1EmulatorFromRaw(process):
     from L1Trigger.RPCTrigger.rpcTriggerDigis_cfi import rpcTriggerDigis
     process.rpcTriggerReEmulDigis = rpcTriggerDigis.clone()
 
-    ## remove for 720pre7 and beyond
-    patternDirectory = "L1Trigger/L1TCommon/data/rpc_patterns/xml/"
-
     process.load("L1TriggerConfig.RPCTriggerConfig.RPCConeDefinition_cff")
-    process.load("L1TriggerConfig.RPCTriggerConfig.L1RPCConfig_cff")
     process.load("L1Trigger.RPCTrigger.RPCConeConfig_cff")
-    process.rpcconf.filedir = cms.untracked.string(patternDirectory)
-    process.es_prefer_rpcPats = cms.ESPrefer("RPCTriggerConfig","rpcconf")
-    ### end
 
     from SLHCUpgradeSimulations.Configuration.muonCustoms import customise_csc_L1Emulator_sim
     from L1Trigger.CSCTrackFinder.csctfDigis_cfi import csctfDigis
@@ -72,12 +65,6 @@ def customiseL1EmulatorFromRaw(process):
         * process.csctfReEmulTrackDigis
         * process.csctfReEmulDigis
     )
-
-    process.load('L1TriggerConfig.GMTConfigProducers.L1MuGMTParameters_cfi')
-    process.L1MuGMTParameters.MergeMethodPtBrl=cms.string("byCombi")
-    process.L1MuGMTParameters.MergeMethodPtFwd=cms.string("byCombi")
-    process.L1MuGMTParameters.VersionSortRankEtaQLUT = cms.uint32(1043)
-    process.L1MuGMTParameters.VersionLUTs = cms.uint32(1)
 
     from L1Trigger.GlobalMuonTrigger.gmtDigis_cfi import gmtDigis
     process.gmtReEmulDigis  = gmtDigis.clone()
@@ -104,30 +91,30 @@ def customiseL1EmulatorFromRaw(process):
 
     ## remove for 720pre7 and beyond
     ## use new muon LUTs
-    dttfFile='sqlite:dttf_config.db'
-    process.GlobalTag.toGet.extend(
-        cms.VPSet(cms.PSet(record = cms.string("L1MuDTEtaPatternLutRcd"),
-                           tag = cms.string("L1MuDTEtaPatternLut_CRAFT09_hlt"),
-                           connect = cms.untracked.string(dttfFile)
-                       ),
-                  cms.PSet(record = cms.string("L1MuDTExtLutRcd"),
-                           tag = cms.string("L1MuDTExtLut_CRAFT09_hlt"),
-                           connect = cms.untracked.string(dttfFile)
-                       ),
-                  cms.PSet(record = cms.string("L1MuDTPhiLutRcd"),
-                           tag = cms.string("L1MuDTPhiLut_CRAFT09_hlt"),
-                           connect = cms.untracked.string(dttfFile)
-                       ),
-                  cms.PSet(record = cms.string("L1MuDTPtaLutRcd"),
-                           tag = cms.string("L1MuDTPtaLut_CRAFT09_hlt"),
-                           connect = cms.untracked.string(dttfFile)
-                       ),
-                  cms.PSet(record = cms.string("L1MuDTQualPatternLutRcd"),
-                           tag = cms.string("L1MuDTQualPatternLut_CRAFT09_hlt"),
-                           connect = cms.untracked.string(dttfFile)
-                       )
-             )
-    )
+    ## dttfFile='sqlite:dttf_config.db'
+    ## process.GlobalTag.toGet.extend(
+    ##     cms.VPSet(cms.PSet(record = cms.string("L1MuDTEtaPatternLutRcd"),
+    ##                        tag = cms.string("L1MuDTEtaPatternLut_CRAFT09_hlt"),
+    ##                        connect = cms.untracked.string(dttfFile)
+    ##                    ),
+    ##               cms.PSet(record = cms.string("L1MuDTExtLutRcd"),
+    ##                        tag = cms.string("L1MuDTExtLut_CRAFT09_hlt"),
+    ##                        connect = cms.untracked.string(dttfFile)
+    ##                    ),
+    ##               cms.PSet(record = cms.string("L1MuDTPhiLutRcd"),
+    ##                        tag = cms.string("L1MuDTPhiLut_CRAFT09_hlt"),
+    ##                        connect = cms.untracked.string(dttfFile)
+    ##                    ),
+    ##               cms.PSet(record = cms.string("L1MuDTPtaLutRcd"),
+    ##                        tag = cms.string("L1MuDTPtaLut_CRAFT09_hlt"),
+    ##                        connect = cms.untracked.string(dttfFile)
+    ##                    ),
+    ##               cms.PSet(record = cms.string("L1MuDTQualPatternLutRcd"),
+    ##                        tag = cms.string("L1MuDTQualPatternLut_CRAFT09_hlt"),
+    ##                        connect = cms.untracked.string(dttfFile)
+    ##                    )
+    ##          )
+    ## )
     ## end
 
     # GT
