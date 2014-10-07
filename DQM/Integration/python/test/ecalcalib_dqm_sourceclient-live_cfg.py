@@ -1,5 +1,4 @@
 ### AUTO-GENERATED CMSRUN CONFIGURATION FOR ECAL DQM ###
-
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("process")
@@ -35,6 +34,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         noTimeStamps = cms.untracked.bool(True),
         noLineBreaks = cms.untracked.bool(True)
     ),
+    categories = cms.untracked.vstring('EcalDQM'),
     destinations = cms.untracked.vstring('cerr')
 )
 
@@ -81,7 +81,7 @@ process.ecalDigis = cms.EDProducer("EcalRawToDigi",
     syncCheck = cms.bool(True),
     feIdCheck = cms.bool(True),
     silentMode = cms.untracked.bool(True),
-    InputLabel = cms.InputTag("rawDataCollector"),
+    InputLabel = cms.InputTag("hltEcalCalibrationRaw"),
     orderedFedList = cms.vint32(601, 602, 603, 604, 605, 
         606, 607, 608, 609, 610, 
         611, 612, 613, 614, 615, 
@@ -145,9 +145,13 @@ process.ecalCalibMonitorClient.verbosity = 0
 
 process.preScaler.prescaleFactor = 1
 
+process.source.streamLabel = "_streamDQMCalibration_StorageManager"
+
 process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/ecalcalib_reference.root"
 
 process.ecalPNDiodeMonitorTask.verbosity = 0
+
+process.dqmSaver.convention = cms.untracked.string('Online')
 
 process.GlobalTag.toGet = cms.VPSet(cms.PSet(
     record = cms.string('EcalDQMChannelStatusRcd'),
@@ -177,8 +181,8 @@ process.ecalPreRecoSequence = cms.Sequence(process.ecalDigis)
 
 process.ecalLaserLedPath = cms.Path(process.preScaler+process.ecalPreRecoSequence+process.ecalLaserLedFilter+process.ecalRecoSequence+process.ecalLaserLedUncalibRecHit+process.ecalLaserLedMonitorTask+process.ecalPNDiodeMonitorTask)
 process.ecalTestPulsePath = cms.Path(process.preScaler+process.ecalPreRecoSequence+process.ecalTestPulseFilter+process.ecalRecoSequence+process.ecalTestPulseUncalibRecHit+process.ecalTestPulseMonitorTask+process.ecalPNDiodeMonitorTask)
-process.ecalPedestalPath = cms.Path(process.preScaler+process.ecalPreRecoSequence+process.ecalPedestalFilter+process.ecalPedestalFilter+process.ecalRecoSequence+process.ecalPedestalMonitorTask+process.ecalPNDiodeMonitorTask)
-process.ecalClientPath = cms.Path(process.preScaler+process.ecalPreRecoSequence+process.ecalCalibrationFilter+process.ecalCalibrationFilter+process.ecalCalibMonitorClient)
+process.ecalPedestalPath = cms.Path(process.preScaler+process.ecalPreRecoSequence+process.ecalPedestalFilter+process.ecalRecoSequence+process.ecalPedestalMonitorTask+process.ecalPNDiodeMonitorTask)
+process.ecalClientPath = cms.Path(process.preScaler+process.ecalPreRecoSequence+process.ecalCalibrationFilter+process.ecalCalibMonitorClient)
 
 process.dqmEndPath = cms.EndPath(process.dqmEnv)
 process.dqmOutputPath = cms.EndPath(process.dqmSaver)
