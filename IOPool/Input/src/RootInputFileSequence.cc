@@ -225,7 +225,10 @@ namespace edm {
         usedFallback_ = true;
         std::unique_ptr<InputSource::FileOpenSentry>
           sentry(inputType_ == InputType::Primary ? new InputSource::FileOpenSentry(input_, lfn_, usedFallback_) : 0);
-        filePtr.reset(new InputFile(gSystem->ExpandPathName(fallbackName.c_str()), "  Fallback request to file ", inputType_));
+        std::string fallbackFullName = gSystem->ExpandPathName(fallbackName.c_str());
+        StorageFactory *factory = StorageFactory::get();
+        if (factory) {factory->activateTimeout(fallbackFullName);}
+        filePtr.reset(new InputFile(fallbackFullName.c_str(), "  Fallback request to file ", inputType_));
       }
       catch (cms::Exception const& e) {
         if(!skipBadFiles) {
