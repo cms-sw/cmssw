@@ -58,6 +58,7 @@ namespace amc {
 namespace amc13 {
    class Header {
       public:
+         Header() : data_(0) {};
          Header(const uint64_t *data) : data_(data[0]) {};
 
          bool valid();
@@ -82,7 +83,7 @@ namespace amc13 {
 
    class Packet {
       public:
-         Packet() : header_(0) {};
+         Packet() {};
 
          bool parse(const uint64_t*, unsigned int);
          inline std::vector<amc::Packet> payload() const { return payload_; };
