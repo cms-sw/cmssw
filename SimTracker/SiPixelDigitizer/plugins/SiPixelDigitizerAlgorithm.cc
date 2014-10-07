@@ -792,21 +792,21 @@ void SiPixelDigitizerAlgorithm::fluctuateEloss(int pid, float particleMomentum,
 }
 
 //*******************************************************************************
-// Drift the charge segments to the sensor surface (collection plane)
-// Include the effect of E-field and B-field
+  // Drift the charge segments to the sensor surface (collection plane)
+  // Include the effect of E-field and B-field
 void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit,
 			              const PixelGeomDetUnit* pixdet,
                                       const GlobalVector& bfield,
 				      const TrackerTopology *tTopo,
                                       const std::vector<EnergyDepositUnit>& ionization_points,
                                       std::vector<SignalPoint>& collection_points) const {
-
+  
 #ifdef TP_DEBUG
   LogDebug ("Pixel Digitizer") << " enter drift " ;
 #endif
-
+  
   collection_points.resize(ionization_points.size()); // set size
-
+  
   LocalVector driftDir=DriftDirection(pixdet, bfield, hit.detUnitId());  // get the charge drift direction
   if(driftDir.z() ==0.) {
     LogWarning("Magnetic field") << " pxlx: drift in z is zero ";
@@ -820,13 +820,13 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit,
   float TanLorenzAngleX, TanLorenzAngleY,dir_z, CosLorenzAngleX,
     CosLorenzAngleY;
   if( alpha2Order) {
-
+    
     TanLorenzAngleX = driftDir.x(); // tangen of Lorentz angle
     TanLorenzAngleY = driftDir.y();
     dir_z = driftDir.z(); // The z drift direction
     CosLorenzAngleX = 1./sqrt(1.+TanLorenzAngleX*TanLorenzAngleX); //cosine
     CosLorenzAngleY = 1./sqrt(1.+TanLorenzAngleY*TanLorenzAngleY); //cosine;
-
+    
   } else{
 
     TanLorenzAngleX = driftDir.x();
@@ -835,7 +835,7 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit,
     CosLorenzAngleX = 1./sqrt(1.+TanLorenzAngleX*TanLorenzAngleX); //cosine to estimate the path length
     CosLorenzAngleY = 1.;
   }
-
+  
   float moduleThickness = pixdet->specificSurface().bounds().thickness();
 #ifdef TP_DEBUG
   LogDebug ("Pixel Digitizer")
@@ -843,16 +843,16 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit,
     << CosLorenzAngleX << " " << CosLorenzAngleY << " "
     << moduleThickness*TanLorenzAngleX << " " << driftDir;
 #endif
-
+  
   float Sigma_x = 1.;  // Charge spread
   float Sigma_y = 1.;
   float DriftDistance; // Distance between charge generation and collection
   float DriftLength;   // Actual Drift Lentgh
   float Sigma;
-
-
+  
+  
   for (unsigned int i = 0; i != ionization_points.size(); i++) {
-
+    
     float SegX, SegY, SegZ; // position
     SegX = ionization_points[i].x();
     SegY = ionization_points[i].y();
@@ -862,7 +862,7 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit,
     //DriftDistance = (moduleThickness/2. + SegZ); // Drift to -z
     // Include explixitely the E drift direction (for CMS dir_z=-1)
     DriftDistance = moduleThickness/2. - (dir_z * SegZ); // Drift to -z
-
+    
     //if( DriftDistance <= 0.)
     //cout<<" <=0 "<<DriftDistance<<" "<<i<<" "<<SegZ<<" "<<dir_z<<" "
     //  <<SegX<<" "<<SegY<<" "<<(moduleThickness/2)<<" "
@@ -870,16 +870,16 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit,
     //  <<hit.particleType()<<" "<<hit.pabs()<<" "<<hit.energyLoss()<<" "
     //  <<hit.entryPoint()<<" "<<hit.exitPoint()
     //  <<std::endl;
-
+    
     if( DriftDistance < 0.) {
       DriftDistance = 0.;
     } else if( DriftDistance > moduleThickness )
       DriftDistance = moduleThickness;
-
+    
     // Assume full depletion now, partial depletion will come later.
     float XDriftDueToMagField = DriftDistance * TanLorenzAngleX;
     float YDriftDueToMagField = DriftDistance * TanLorenzAngleY;
-
+    
     // Shift cloud center
     float CloudCenterX = SegX + XDriftDueToMagField;
     float CloudCenterY = SegY + YDriftDueToMagField;
@@ -888,43 +888,36 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit,
     DriftLength = sqrt( DriftDistance*DriftDistance +
                         XDriftDueToMagField*XDriftDueToMagField +
                         YDriftDueToMagField*YDriftDueToMagField );
-
+    
     // What is the charge diffusion after this path
     Sigma = sqrt(DriftLength/Dist300) * Sigma0;
-
+    
     // Project the diffusion sigma on the collection plane
     Sigma_x = Sigma / CosLorenzAngleX ;
     Sigma_y = Sigma / CosLorenzAngleY ;
-
+    
     // Insert a charge loss due to Rad Damage here
     float energyOnCollector = ionization_points[i].energy(); // The energy that reaches the collector
-   
+    
     // add pixel aging 
     if (AddPixelAging) {
       float kValue = pixel_aging(pixelAging_,pixdet,tTopo);
       energyOnCollector *= exp( -1*kValue*DriftDistance/moduleThickness );
     }
     
-    std::cout << "raddam. energyoncollector: " << energyOnCollector << std::endl;
-    
-    // std::cout << " Drift: moduleradius " << pixdet->surface().position().perp() << std::endl;
-    // std::cout << " Drift: moduleZ " << pixdet->surface().position().z() << std::endl;
-    // std::cout << " Drift: end "  << std::endl;
-    // std::cout << "************************************************* " << std::endl;
-    
 #ifdef TP_DEBUG
-  LogDebug ("Pixel Digitizer")
-                <<" Dift DistanceZ= "<<DriftDistance<<" module thickness= "<<moduleThickness
-                <<" Start Energy= "<<ionization_points[i].energy()<<" Energy after loss= "<<energyOnCollector;
+    LogDebug ("Pixel Digitizer")
+      <<" Dift DistanceZ= "<<DriftDistance<<" module thickness= "<<moduleThickness
+      <<" Start Energy= "<<ionization_points[i].energy()<<" Energy after loss= "<<energyOnCollector;
 #endif
     SignalPoint sp( CloudCenterX, CloudCenterY,
-     Sigma_x, Sigma_y, hit.tof(), energyOnCollector );
-
+		    Sigma_x, Sigma_y, hit.tof(), energyOnCollector );
+    
     // Load the Charge distribution parameters
     collection_points[i] = (sp);
-
+    
   } // loop over ionization points, i.
-
+  
 } // end drift
 
 //*************************************************************************
