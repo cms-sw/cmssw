@@ -1,5 +1,6 @@
 <flags   GENREFLEX_ARGS="--"/>
 <use   name="CondFormats/Common"/>
+<use   name="CondFormats/Serialization"/>
 <use   name="DataFormats/MuonDetId"/>
 <use   name="FWCore/Utilities"/>
 <use   name="CondCore/DBCommon"/>

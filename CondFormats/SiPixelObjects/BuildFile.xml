@@ -5,6 +5,7 @@
 <use   name="FWCore/Utilities"/>
 <use   name="DataFormats/FEDRawData"/>
 <use   name="DataFormats/SiPixelDigi"/>
+<use   name="CondFormats/Serialization"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/SiStripObjects"/>
 <use   name="root"/>

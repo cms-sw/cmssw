@@ -5,6 +5,7 @@
 <use   name="Geometry/CaloTopology"/>
 <use   name="FWCore/Utilities"/>
 <use   name="FWCore/MessageLogger"/>
+<use   name="CondFormats/Serialization"/>
 <use   name="boost_serialization"/>
 
 <export>

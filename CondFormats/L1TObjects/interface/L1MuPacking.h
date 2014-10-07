@@ -25,6 +25,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <cstdlib>
+
 /**
  * \class L1MuPacking
  *
@@ -149,7 +151,7 @@ class L1MuPseudoSignedPacking : public L1MuPacking {
   };  
   /// get the packed notation of a value, check range
   virtual unsigned packedFromIdx(int idx) const {
-    unsigned packed = abs(idx);
+    unsigned packed = std::abs(idx);
     unsigned maxabs = (1 << (m_nbits-1)) -1;
     if (packed > maxabs) edm::LogWarning("ScaleRangeViolation") 
                               << "L1MuPseudoSignedPacking::packedFromIdx: warning value " << idx 
@@ -160,7 +162,7 @@ class L1MuPseudoSignedPacking : public L1MuPacking {
 
   /// get the packed notation of a value, check range; sets the sign separately, 1 is neg. sign(!)
   virtual unsigned packedFromIdx(int idx, int sig) const {
-    unsigned packed = abs(idx);
+    unsigned packed = std::abs(idx);
     unsigned maxabs = (1 << (m_nbits-1)) -1;
     if (packed > maxabs) edm::LogWarning("ScaleRangeViolation") 
                               << "L1MuPseudoSignedPacking::packedFromIdx: warning value " << idx 
