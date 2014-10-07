@@ -2,6 +2,7 @@
 
 #! /bin/env cmsRun
 
+#file used in the past to run on RECO files, now used for harvesting only on DQM files
 import FWCore.ParameterSet.Config as cms
 
 runOnMC = True
@@ -11,6 +12,7 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 
 #keep the logging output to a nice level
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 process.load("DQMServices.Core.DQM_cfg")
 
@@ -21,11 +23,11 @@ process.source = cms.Source("DQMRootSource",
     fileNames = cms.untracked.vstring()
 )
 
-process.load("Validation.RecoB.bTagAnalysis_harvesting_cfi")
+process.load("DQMOffline.RecoB.dqmCollector_cff")
 if runOnMC:
-    process.dqmSeq = cms.Sequence(process.bTagValidationHarvest * process.dqmSaver)
+    process.dqmSeq = cms.Sequence(process.bTagCollectorSequenceMC * process.dqmSaver)
 else:
-    process.dqmSeq = cms.Sequence(process.bTagValidationHarvestData * process.dqmSaver)
+    process.dqmSeq = cms.Sequence(process.bTagCollectorSequenceDATA * process.dqmSaver)
 
 process.plots = cms.Path(process.dqmSeq)
 

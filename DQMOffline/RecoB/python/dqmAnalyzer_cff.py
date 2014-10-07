@@ -61,5 +61,5 @@ prebTagSequenceMC = cms.Sequence(ak4GenJetsForPUid*newpatJetGenJetMatch*myParton
 bTagPlotsMC = cms.Sequence(bTagValidation)
 
 #to run on fullsim in the validation sequence, all histograms produced in the dqmoffline sequence
-bTagValidationNoall = bTagValidation.clone(flavPlots="noallbcl")
+bTagValidationNoall = bTagValidation.clone(flavPlots="bcl")
 bTagPlotsMCbcl = cms.Sequence(bTagValidationNoall)
