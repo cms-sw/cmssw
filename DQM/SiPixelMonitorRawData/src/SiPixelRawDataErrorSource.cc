@@ -64,6 +64,7 @@ SiPixelRawDataErrorSource::SiPixelRawDataErrorSource(const edm::ParameterSet& iC
 {
   firstRun = true;
   LogInfo ("PixelDQM") << "SiPixelRawDataErrorSource::SiPixelRawDataErrorSource: Got DQM BackEnd interface"<<endl;
+  topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
 }
 
 
@@ -251,7 +252,7 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup& iSetup){
 //------------------------------------------------------------------
 void SiPixelRawDataErrorSource::bookMEs(DQMStore::IBooker & iBooker){
   //cout<<"Entering SiPixelRawDataErrorSource::bookMEs now: "<<endl;
-  iBooker.setCurrentFolder("Pixel/AdditionalPixelErrors");
+  iBooker.setCurrentFolder(topFolderName_+"/AdditionalPixelErrors");
   char title[80]; sprintf(title, "By-LumiSection Error counters");
   byLumiErrors = iBooker.book1D("byLumiErrors",title,2,0.,2.);
   byLumiErrors->setLumiFlag();
@@ -305,7 +306,7 @@ void SiPixelRawDataErrorSource::bookMEs(DQMStore::IBooker & iBooker){
 
   for (uint32_t id = 0; id < 40; id++){
     char temp [50];
-    sprintf( temp, "Pixel/AdditionalPixelErrors/FED_%d",id);
+    sprintf( temp, (topFolderName_+"/AdditionalPixelErrors/FED_%d").c_str(),id);
     iBooker.cd(temp);
     // Types of errors
     hid = theHistogramId->setHistoId("errorType",id);
