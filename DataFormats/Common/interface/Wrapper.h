@@ -53,6 +53,8 @@ private:
     virtual std::type_info const& dynamicTypeInfo_() const GCC11_OVERRIDE {return typeid(T);}
     virtual std::type_info const& wrappedTypeInfo_() const GCC11_OVERRIDE {return typeid(Wrapper<T>);}
 
+    virtual std::type_info const& valueTypeInfo_() const GCC11_OVERRIDE;
+    virtual std::type_info const& memberTypeInfo_() const GCC11_OVERRIDE;
 #ifndef __GCCXML__
     virtual bool isMergeable_() const GCC11_OVERRIDE;
     virtual bool mergeProduct_(WrapperBase const* newProduct) GCC11_OVERRIDE;
@@ -254,6 +256,41 @@ namespace edm {
     };
 
 #ifndef __GCCXML__
+
+    template <typename T> static yes_tag& has_value_type(typename T::value_type*);
+    template <typename T> static no_tag& has_value_type(...);
+    template <typename T> struct has_typedef_value_type {
+      static const bool value = sizeof(has_value_type<T>(nullptr)) == sizeof(yes_tag);
+    };
+    template <typename T, bool = has_typedef_value_type<T>::value> struct getValueType;
+    template <typename T> struct getValueType<T, true> {
+      std::type_info const& operator()() {
+        return typeid(typename T::value_type);
+      }
+    };
+    template <typename T> struct getValueType<T, false> {
+      std::type_info const& operator()() {
+        return typeid(void);
+      }
+    };
+
+    template <typename T> static yes_tag& has_member_type(typename T::member_type*);
+    template <typename T> static no_tag& has_member_type(...);
+    template <typename T> struct has_typedef_member_type {
+      static const bool value = sizeof(has_member_type<T>(nullptr)) == sizeof(yes_tag);
+    };
+    template <typename T, bool = has_typedef_member_type<T>::value> struct getMemberType;
+    template <typename T> struct getMemberType<T, true> {
+      std::type_info const& operator()() {
+        return typeid(typename T::member_type);
+      }
+    };
+    template <typename T> struct getMemberType<T, false> {
+      std::type_info const& operator()() {
+        return typeid(void);
+      }
+    };
+
     template <typename T, bool (T::*)(T const&)>  struct mergeProduct_function;
     template <typename T> no_tag  has_mergeProduct_helper(...);
     template <typename T> yes_tag has_mergeProduct_helper(mergeProduct_function<T, &T::mergeProduct> * dummy);
@@ -307,6 +344,18 @@ namespace edm {
         swap_or_assign(obj, *ptr);
      }
 
+  }
+#endif
+
+#ifndef __GCCXML__
+  template <typename T>
+  std::type_info const& Wrapper<T>::valueTypeInfo_() const {
+    return detail::getValueType<T>()();
+  }
+
+  template <typename T>
+  std::type_info const& Wrapper<T>::memberTypeInfo_() const {
+    return detail::getMemberType<T>()();
   }
 #endif
 

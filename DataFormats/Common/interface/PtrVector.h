@@ -106,6 +106,7 @@ namespace edm {
     typedef PtrVectorItr<T> const_iterator;
     typedef PtrVectorItr<T> iterator; // make boost::sub_range happy (std allows this)
     typedef Ptr<T> value_type;
+    typedef T member_type;
     typedef void collection_type;
 
     friend class PtrVectorItr<T>;
