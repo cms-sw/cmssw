@@ -90,13 +90,20 @@ void PFClusterProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     cleaner->clean(rechits, mask);
   }
 
+
+
   std::vector<bool> seedable(rechits->size(),false);
   _seedFinder->findSeeds(rechits,mask,seedable);
+
+
 
   std::auto_ptr<reco::PFClusterCollection> initialClusters;
   initialClusters.reset(new reco::PFClusterCollection);
   _initialClustering->buildClusters(rechits, mask, seedable, *initialClusters);
   LOGVERB("PFClusterProducer::produce()") << *_initialClustering;
+
+
+
 
   std::auto_ptr<reco::PFClusterCollection> pfClusters;
   pfClusters.reset(new reco::PFClusterCollection);
@@ -107,6 +114,9 @@ void PFClusterProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     pfClusters->insert(pfClusters->end(),
 		       initialClusters->begin(),initialClusters->end());
   }
+
+
+
   
   if( _positionReCalc ) {
     _positionReCalc->calculateAndSetPositions(*pfClusters);
