@@ -97,12 +97,14 @@ namespace pat {
     virtual double p() const { if (!unpacked_) unpack(); return p4c_.P(); }
     /// energy                                                                            
     virtual double energy() const { if (!unpacked_) unpack(); return p4c_.E(); }
-    /// transverse energy                                                                 
-    virtual double et() const { if (!unpacked_) unpack(); return p4_.Et(); }
+   /// transverse energy   
+    double et() const { return (pt()<=0) ? 0 : p4c_.Et(); }
+    /// transverse energy squared (use this for cuts)!
+    double et2() const { return (pt()<=0) ? 0 : p4c_.Et2(); }
     /// mass                                                                              
-    virtual float mass() const { if (!unpacked_) unpack(); return p4_.M(); }
+    virtual double mass() const { if (!unpacked_) unpack(); return p4_.M(); }
     /// mass squared                                                                      
-    virtual float massSqr() const { if (!unpacked_) unpack(); return p4_.M()*p4_.M(); }
+    virtual double massSqr() const { if (!unpacked_) unpack(); return p4_.M()*p4_.M(); }
 
     /// transverse mass                                                                   
     virtual double mt() const { if (!unpacked_) unpack(); return p4_.Mt(); }
@@ -115,13 +117,13 @@ namespace pat {
     /// z coordinate of momentum vector                                                   
     virtual double pz() const { if (!unpacked_) unpack(); return p4c_.Pz(); }
     /// transverse momentum                                                               
-    virtual float pt() const { if (!unpacked_) unpack(); return p4_.Pt();}
+    virtual double pt() const { if (!unpacked_) unpack(); return p4_.Pt();}
     /// momentum azimuthal angle                                                          
-    virtual float phi() const { if (!unpacked_) unpack(); return p4_.Phi(); }
+    virtual double phi() const { if (!unpacked_) unpack(); return p4_.Phi(); }
     /// momentum polar angle                                                              
     virtual double theta() const { if (!unpacked_) unpack(); return p4_.Theta(); }
     /// momentum pseudorapidity                                                           
-    virtual float eta() const { if (!unpacked_) unpack(); return p4_.Eta(); }
+    virtual double eta() const { if (!unpacked_) unpack(); return p4_.Eta(); }
     /// rapidity                                                                          
     virtual double rapidity() const { if (!unpacked_) unpack(); return p4_.Rapidity(); }
     /// rapidity                                                                          

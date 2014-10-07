@@ -365,7 +365,7 @@ namespace reco {
     
     /// particle identification code
     /// \todo use Particle::pdgId_ and remove this data member
-    virtual  ParticleType particleId() const { return translatePdgIdToType(pdgId_);}
+    virtual  ParticleType particleId() const { return translatePdgIdToType(pdgId());}
 
     
     /// return indices of elements used in the block
@@ -398,10 +398,10 @@ namespace reco {
     //PFCandidate, use the setVertex method. If you find that you are using frequently two store a 
     // vertex that is the same as one of the refs in this class, you should just extend the enum
     // and modify the vertex() method accordingly.
-    void setVertexSource( PFVertexType vt) { vertexType_=vt; if (vertexType_!=kCandVertex) vertex_=Point(0.,0.,0.);}
+    void setVertexSource( PFVertexType vt) { vertexType_=vt; if (vertexType_!=kCandVertex) LeafCandidate::setVertex(Point(0.,0.,0.));}
 
     virtual void setVertex( const math::XYZPoint& p) {
-      vertex_=p; vertexType_ = kCandVertex;
+      LeafCandidate::setVertex(p); vertexType_ = kCandVertex;
     }
 
     virtual const Point & vertex() const;
