@@ -291,6 +291,7 @@ private:
     { return data_.flags & DQMNet::DQM_PROP_MARKTODELETE; }
 
   /// Mark the object for deletion.
+  /// NB: make sure that the following method is not called simultaneously for the same ME
   void markToDelete(void)
     { data_.flags |= DQMNet::DQM_PROP_MARKTODELETE; }
 
