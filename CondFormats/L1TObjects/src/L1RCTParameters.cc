@@ -202,8 +202,32 @@ float L1RCTParameters::JetMETTPGSum(const float& ecal, const float& hcal, const 
 {
   float ecal_c = ecal*jetMETECalScaleFactors_.at(iAbsEta-1);
   float hcal_c = hcal*jetMETHCalScaleFactors_.at(iAbsEta-1);
+
+  // scale factors will either be length 32 for legacy, or 32*(# et bins + 1) where the first set of 32 is an average over the et bins
+  // The first set of 32 provides a legacy fallthrough option
+  // Currently, # et bins is 9
+  if ( jetMETECalScaleFactors_.size() == 32*10 )
+  {
+    int et_bin = ((int) floor(ecal)/5);
+    // lowest bin (1) is 0-10GeV
+    if ( et_bin < 1 ) et_bin = 1;
+    // highest bin (9) is 45GeV and up
+    if ( et_bin > 9 ) et_bin = 9;
+    ecal_c = ecal*jetMETECalScaleFactors_.at(et_bin*32+iAbsEta-1);
+  }
+  if ( jetMETHCalScaleFactors_.size() == 32*10 )
+  {
+    int ht_bin = ((int) floor(hcal)/5);
+    // lowest bin (1) is 0-10GeV
+    if ( ht_bin < 1 ) ht_bin = 1;
+    // highest bin (9) is 45GeV and up
+    if ( ht_bin > 9 ) ht_bin = 9;
+    hcal_c = hcal*jetMETHCalScaleFactors_.at(ht_bin*32+iAbsEta-1);
+  }
+
   float result = ecal_c + hcal_c;
 
+  // defunct section (polynomial-parameterized corrections)
   if(useCorrections_)
     {
       if(jetMETHCalScaleFactors_.at(iAbsEta-1) != 0)
@@ -222,8 +246,32 @@ float L1RCTParameters::EGammaTPGSum(const float& ecal, const float& hcal, const 
 {
   float ecal_c = ecal*eGammaECalScaleFactors_.at(iAbsEta-1);
   float hcal_c = hcal*eGammaHCalScaleFactors_.at(iAbsEta-1);
+
+  // scale factors will either be length 32 for legacy, or 32*(# et bins + 1) where the first set of 32 is an average over the et bins
+  // The first set of 32 provides a legacy fallthrough option
+  // Currently, # et bins is 9
+  if ( eGammaECalScaleFactors_.size() == 32*10 )
+  {
+    int et_bin = ((int) floor(ecal)/5);
+    // lowest bin (1) is 0-10GeV
+    if ( et_bin < 1 ) et_bin = 1;
+    // highest bin (9) is 45GeV and up
+    if ( et_bin > 9 ) et_bin = 9;
+    ecal_c = ecal*eGammaECalScaleFactors_.at(et_bin*32+iAbsEta-1);
+  }
+  if ( eGammaHCalScaleFactors_.size() == 32*10 )
+  {
+    int ht_bin = ((int) floor(hcal)/5);
+    // lowest bin (1) is 0-10GeV
+    if ( ht_bin < 1 ) ht_bin = 1;
+    // highest bin (9) is 45GeV and up
+    if ( ht_bin > 9 ) ht_bin = 9;
+    hcal_c = hcal*eGammaHCalScaleFactors_.at(ht_bin*32+iAbsEta-1);
+  }
+
   float result = ecal_c + hcal_c;
 
+  // defunct
   if(useCorrections_)
     {
       if(eGammaHCalScaleFactors_.at(iAbsEta-1) != 0)
