@@ -465,6 +465,7 @@ void MultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) const
     float dzPV = tk.dz(*point); //re-evaluate the dz with respect to the vertex position
     float d0PV = tk.dxy(*point); //re-evaluate the dxy with respect to the vertex position
     if(useVtxError_){
+       edm::LogWarning("MultiTRackSelector") << "you are executing buggy code, if intentional please help to fix it";
        float dzErrPV = std::sqrt(dzE*dzE+vzerr[iv]*vzerr[iv]); // include vertex error in z
        float d0ErrPV = std::sqrt(d0E*d0E+vterr[iv]*vterr[iv]); // include vertex error in xy
        iv++;
