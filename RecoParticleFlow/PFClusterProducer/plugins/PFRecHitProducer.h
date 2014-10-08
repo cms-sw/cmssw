@@ -26,6 +26,7 @@ class PFRecHitProducer : public edm::EDProducer {
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
+      const bool _useHitMap;
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
       std::vector<std::unique_ptr<PFRecHitCreatorBase> > creators_;
       std::unique_ptr<PFRecHitNavigatorBase> navigator_;
