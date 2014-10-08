@@ -15,14 +15,23 @@ namespace l1t {
 
     for(std::vector<l1t::Jet>::const_iterator itJet = input->begin();
 	itJet != input->end(); ++itJet){
-      const unsigned newEta = gtEta(itJet->hwEta());
+      unsigned newPhi = itJet->hwPhi();
+      unsigned newEta = gtEta(itJet->hwEta());
       uint16_t linPt = (uint16_t)itJet->hwPt();
       if(linPt > params->jetScale().linScaleMax() ) linPt = params->jetScale().linScaleMax();
       const uint16_t rankPt = params->jetScale().rank(linPt);
 
+      // jets with hwQual & 4 ==4 are "padding" jets from a sort, set their eta and phi
+      // to the max value
+      if((itJet->hwQual() & 4) == 4)
+      {
+	newEta = 0xf;
+	newPhi = 0x1f;
+      }
+
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
 
-      l1t::Jet gtJet(*&ldummy, rankPt, newEta, itJet->hwPhi(), itJet->hwQual());
+      l1t::Jet gtJet(*&ldummy, rankPt, newEta, newPhi, itJet->hwQual());
       output->push_back(gtJet);
     }
   }

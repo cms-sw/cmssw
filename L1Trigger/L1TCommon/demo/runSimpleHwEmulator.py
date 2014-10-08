@@ -12,14 +12,17 @@ process.load('Configuration.Geometry.GeometryIdeal_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(3)
+    input = cms.untracked.int32(100)
     )
 
 # Input source
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
-    fileNames = cms.untracked.vstring("file:/export/d00/scratch/luck/L1EmulatorTestInput.root")
+    fileNames = cms.untracked.vstring(
+        #"file:/export/d00/scratch/luck/L1EmulatorTestInput.root"
+        "file:/afs/cern.ch/work/g/ginnocen/public/skim_10_1_wd2.root"
     )
+)
 
 process.output = cms.OutputModule(
     "PoolOutputModule",
