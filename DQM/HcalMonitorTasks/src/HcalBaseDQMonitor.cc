@@ -64,7 +64,6 @@ void HcalBaseDQMonitor::beginJob(void)
 {
 
   if (debug_>0) std::cout <<"HcalBaseDQMonitor::beginJob():  task =  '"<<subdir_<<"'"<<std::endl;
-  dbe_ = edm::Service<DQMStore>().operator->();
 
   ievt_=0;
   levt_=0;
@@ -84,17 +83,17 @@ void HcalBaseDQMonitor::endJob(void)
     cleanup();
 } // endJob()
 
-void HcalBaseDQMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
+void HcalBaseDQMonitor::bookHistograms(DQMStore::IBooker &ib, const edm::Run& run, const edm::EventSetup& c)
 {
-  if (debug_>0) std::cout <<"HcalBaseDQMonitor::beginRun():  task =  '"<<subdir_<<"'"<<std::endl;
+  if (debug_>0) std::cout <<"HcalBaseDQMonitor::bookHistograms():  task =  '"<<subdir_<<"'"<<std::endl;
   if (! mergeRuns_)
     {
-      this->setup();
+      this->setup(ib);
       this->reset();
     }
   else if (tevt_ == 0)
     {
-      this->setup();
+      this->setup(ib);
       this->reset();
     }
 } // beginRun(const edm::Run& run, const edm::EventSetup& c)
@@ -128,23 +127,23 @@ void HcalBaseDQMonitor::cleanup(void)
 
 } //cleanup()
 
-void HcalBaseDQMonitor::setup(void)
+void HcalBaseDQMonitor::setup(DQMStore::IBooker &ib)
 {
   if (setupDone_)
     return;
   setupDone_ = true;
   if (debug_>3) std::cout <<"<HcalBaseDQMonitor> setup in progress"<<std::endl;
-  dbe_->setCurrentFolder(subdir_);
-  meIevt_ = dbe_->bookInt("EventsProcessed");
+  ib.setCurrentFolder(subdir_);
+  meIevt_ = ib.bookInt("EventsProcessed");
   if (meIevt_) meIevt_->Fill(-1);
-  meLevt_ = dbe_->bookInt("EventsProcessed_currentLS");
+  meLevt_ = ib.bookInt("EventsProcessed_currentLS");
   if (meLevt_) meLevt_->Fill(-1);
-  meTevt_ = dbe_->bookInt("EventsProcessed_Total");
+  meTevt_ = ib.bookInt("EventsProcessed_Total");
   if (meTevt_) meTevt_->Fill(-1);
-  meTevtHist_=dbe_->book1D("Events_Processed_Task_Histogram","Counter of Events Processed By This Task",1,0.5,1.5);
+  meTevtHist_=ib.book1D("Events_Processed_Task_Histogram","Counter of Events Processed By This Task",1,0.5,1.5);
   if (meTevtHist_) meTevtHist_->Reset();
-  dbe_->setCurrentFolder(subdir_+"LSvalues");
-  ProblemsCurrentLB=dbe_->book2D("ProblemsThisLS","Problem Channels in current Lumi Section",
+  ib.setCurrentFolder(subdir_+"LSvalues");
+  ProblemsCurrentLB=ib.book2D("ProblemsThisLS","Problem Channels in current Lumi Section",
 				 7,0,7,1,0,1);
   if (ProblemsCurrentLB)
     {
@@ -191,7 +190,9 @@ bool HcalBaseDQMonitor::LumiInOrder(int lumisec)
 
 bool HcalBaseDQMonitor::IsAllowedCalibType()
 {
-  if (debug_>9) std::cout <<"<HcalBaseDQMonitor::IsAllowedCalibType>"<<std::endl;
+  //CATCH ME AND FIX ME
+  return true;
+  /*if (debug_>9) std::cout <<"<HcalBaseDQMonitor::IsAllowedCalibType>"<<std::endl;
   if (AllowedCalibTypes_.size()==0)
     {
       if (debug_>9) std::cout <<"\tNo calib types specified by user; All events allowed"<<std::endl;
@@ -215,6 +216,7 @@ bool HcalBaseDQMonitor::IsAllowedCalibType()
     }
   if (debug_>9) std::cout <<"\t Type not allowed!"<<std::endl;
   return false;
+*/
 } // bool HcalBaseDQMonitor::IsAllowedCalibType()
 
 void HcalBaseDQMonitor::getLogicalMap(const edm::EventSetup& c) {
@@ -254,7 +256,8 @@ void HcalBaseDQMonitor::analyze(const edm::Event& e, const edm::EventSetup& c)
   if (meLevt_) meLevt_->Fill(levt_);
 
 
-  MonitorElement* me;
+  // CATCH ME
+  /*MonitorElement* me;
   if (HBpresent_==false)
     {
       me = dbe_->get((prefixME_+"HcalInfo/HBpresent"));
@@ -274,7 +277,7 @@ void HcalBaseDQMonitor::analyze(const edm::Event& e, const edm::EventSetup& c)
     {
       me = dbe_->get((prefixME_+"HcalInfo/HOpresent"));
       if (me ==0 || me->getIntValue()>0) HFpresent_=true;
-    }
+    }*/
 
 
 } // void HcalBaseDQMonitor::analyze(const edm::Event& e, const edm::EventSetup& c)

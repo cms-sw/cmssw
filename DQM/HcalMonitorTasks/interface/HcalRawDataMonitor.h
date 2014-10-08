@@ -37,7 +37,7 @@ class HcalRawDataMonitor: public HcalBaseDQMonitor {
   ~HcalRawDataMonitor();
  protected:
   void analyze(const edm::Event& e, const edm::EventSetup& c);
-  void beginRun(const edm::Run& run, const edm::EventSetup& c);
+  void bookHistograms(DQMStore::IBooker &ib, const edm::Run& run, const edm::EventSetup& c);
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
                             const edm::EventSetup& c) ;
   // End LumiBlock 
@@ -51,7 +51,7 @@ class HcalRawDataMonitor: public HcalBaseDQMonitor {
   void unpack(const FEDRawData& raw);
   void endJob(void);
   void endRun(const edm::Run& run, const edm::EventSetup& c);
-  void setup(void);
+  void setup(DQMStore::IBooker &);
   void reset(void);
 
   edm::InputTag FEDRawDataCollection_;

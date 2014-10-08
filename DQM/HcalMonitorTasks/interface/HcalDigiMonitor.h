@@ -70,9 +70,8 @@ public:
   HcalDigiMonitor(const edm::ParameterSet& ps); 
   ~HcalDigiMonitor(); 
 
-  void setup();
-  void beginRun(const edm::Run& run, const edm::EventSetup& c);
-  void cleanup();
+  void setup(DQMStore::IBooker &);
+  void bookHistograms(DQMStore::IBooker &ib, const edm::Run& run, const edm::EventSetup& c);
 
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 
@@ -104,7 +103,7 @@ private:  ///Methods, variables accessible only within class code
  
   void fill_Nevents();
   void zeroCounters();
-  void setupSubdetHists(DigiHists& hist,  std::string subdet); // enable this feature at some point
+  void setupSubdetHists(DQMStore::IBooker &ib, DigiHists& hist,  std::string subdet); // enable this feature at some point
 
   template<class T> int process_Digi(T& digi, DigiHists& hist, int& firstcap);
   void UpdateHists(DigiHists& h);

@@ -103,12 +103,11 @@ public:
   double occSum;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////  
-  void setup();
-  void beginRun(const edm::Run& run, const edm::EventSetup& c);
+  void setup(DQMStore::IBooker &);
+  void bookHistograms(DQMStore::IBooker &ib, const edm::Run& run, const edm::EventSetup& c);
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void done();
   void reset();
-  void cleanup(); 
   
 private:
   edm::InputTag inputLabelDigi_;
