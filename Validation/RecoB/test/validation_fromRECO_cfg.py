@@ -75,11 +75,7 @@ else :
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
-#process.load("Configuration.StandardSequences.Geometry_cff") #old one, to use for old releases
 process.load("Configuration.Geometry.GeometryIdeal_cff")
-#process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')                                                                                                                                    
-#process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')                                                                                                                                    
-#process.load('Configuration.Geometry.GeometryExtended2019_cff')
 
 process.GlobalTag.globaltag = tag
 
