@@ -3,43 +3,29 @@
  *
  * \author C.Rovelli
  *
-*/
+ */
 
-#include <DataFormats/EcalDetId/interface/EEDetId.h>
-#include <DataFormats/EcalDetId/interface/ESDetId.h>
-#include "FWCore/Utilities/interface/Exception.h"
 #include "Validation/EcalHits/interface/EcalPreshowerSimHitsValidation.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 
-using namespace cms;
-using namespace edm;
-using namespace std;
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-EcalPreshowerSimHitsValidation::EcalPreshowerSimHitsValidation(const edm::ParameterSet& ps):
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/ESDetId.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 
-  HepMCLabel(ps.getParameter<std::string>("moduleLabelMC")),
-  g4InfoLabel(ps.getParameter<std::string>("moduleLabelG4")),
-  EEHitsCollection(ps.getParameter<std::string>("EEHitsCollection")),
-  ESHitsCollection(ps.getParameter<std::string>("ESHitsCollection")){
+#include "DQMServices/Core/interface/MonitorElement.h"
 
-  HepMCToken   = consumes <edm::HepMCProduct>      (HepMCLabel);
-  EEHitsToken  = consumes <edm::PCaloHitContainer> (edm::InputTag(std::string(g4InfoLabel),std::string(EEHitsCollection)));
-  ESHitsToken  = consumes <edm::PCaloHitContainer> (edm::InputTag(std::string(g4InfoLabel),std::string(ESHitsCollection)));
-  // verbosity switch
-  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
- 
-  // get hold of back-end interface
-  dbe_ = 0;
-  dbe_ = edm::Service<DQMStore>().operator->();
-  if ( dbe_ ) {
-    if ( verbose_ ) { dbe_->setVerbose(1); } 
-    else            { dbe_->setVerbose(0); }
-  }
+#include "FWCore/Framework/interface/MakerMacros.h"
 
-  if ( dbe_ ) {
-    if ( verbose_ ) dbe_->showDirStructure();
-  }
+EcalPreshowerSimHitsValidation::EcalPreshowerSimHitsValidation(const edm::ParameterSet& ps)
+{  
+  std::string g4InfoLabel(ps.getParameter<std::string>("moduleLabelG4"));
 
+  HepMCToken  = consumes<edm::HepMCProduct>(ps.getParameter<std::string>("moduleLabelMC"));
+  EEHitsToken = consumes<edm::PCaloHitContainer>(edm::InputTag(g4InfoLabel, ps.getParameter<std::string>("EEHitsCollection")));
+  ESHitsToken = consumes<edm::PCaloHitContainer>(edm::InputTag(g4InfoLabel, ps.getParameter<std::string>("ESHitsCollection")));
 
   menESHits1zp_ = 0;     
   menESHits2zp_ = 0;     
@@ -61,77 +47,71 @@ EcalPreshowerSimHitsValidation::EcalPreshowerSimHitsValidation(const edm::Parame
 
   me2eszpOver1eszp_ = 0;
   me2eszmOver1eszm_ = 0;
+}
 
+EcalPreshowerSimHitsValidation::~EcalPreshowerSimHitsValidation()
+{
+}
 
-  Char_t histo[200];
- 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalHitsV/EcalSimHitsValidation");
+void
+EcalPreshowerSimHitsValidation::bookHistograms(DQMStore::IBooker& _ibooker, edm::Run const&, edm::EventSetup const&)
+{
+  _ibooker.setCurrentFolder("EcalHitsV/EcalSimHitsValidation");
+
+  std::string name;
   
-    sprintf (histo, "ES hits layer 1 multiplicity z+" ) ;
-    menESHits1zp_ = dbe_->book1D(histo, histo, 50, 0., 50. ) ;
+  name = "ES hits layer 1 multiplicity z+";
+  menESHits1zp_ = _ibooker.book1D(name, name, 50, 0., 50. ) ;
 
-    sprintf (histo, "ES hits layer 2 multiplicity z+" ) ;
-    menESHits2zp_ = dbe_->book1D(histo, histo, 50, 0., 50. ) ;
+  name = "ES hits layer 2 multiplicity z+";
+  menESHits2zp_ = _ibooker.book1D(name, name, 50, 0., 50. ) ;
 
-    sprintf (histo, "ES hits layer 1 multiplicity z-" ) ;
-    menESHits1zm_ = dbe_->book1D(histo, histo, 50, 0., 50. ) ;
+  name = "ES hits layer 1 multiplicity z-";
+  menESHits1zm_ = _ibooker.book1D(name, name, 50, 0., 50. ) ;
 
-    sprintf (histo, "ES hits layer 2 multiplicity z-" ) ;
-    menESHits2zm_ = dbe_->book1D(histo, histo, 50, 0., 50. ) ;
+  name = "ES hits layer 2 multiplicity z-";
+  menESHits2zm_ = _ibooker.book1D(name, name, 50, 0., 50. ) ;
 
-    sprintf (histo, "ES hits energy layer 1 z+" ) ;
-    meESEnergyHits1zp_ = dbe_->book1D(histo, histo, 100, 0., 0.05 ) ;
+  name = "ES hits energy layer 1 z+";
+  meESEnergyHits1zp_ = _ibooker.book1D(name, name, 100, 0., 0.05 ) ;
 
-    sprintf (histo, "ES hits energy layer 2 z+" ) ;
-    meESEnergyHits2zp_ = dbe_->book1D(histo, histo, 100, 0., 0.05 ) ;
+  name = "ES hits energy layer 2 z+";
+  meESEnergyHits2zp_ = _ibooker.book1D(name, name, 100, 0., 0.05 ) ;
 
-    sprintf (histo, "ES hits energy layer 1 z-" ) ;
-    meESEnergyHits1zm_ = dbe_->book1D(histo, histo, 100, 0., 0.05 ) ;
+  name = "ES hits energy layer 1 z-";
+  meESEnergyHits1zm_ = _ibooker.book1D(name, name, 100, 0., 0.05 ) ;
 
-    sprintf (histo, "ES hits energy layer 2 z-" ) ;
-    meESEnergyHits2zm_ = dbe_->book1D(histo, histo, 100, 0., 0.05 ) ;
+  name = "ES hits energy layer 2 z-";
+  meESEnergyHits2zm_ = _ibooker.book1D(name, name, 100, 0., 0.05 ) ;
 
-    sprintf (histo, "ES hits log10energy spectrum" );
-    meEShitLog10Energy_ = dbe_->book1D(histo, histo, 140, -10., 4.);
+  name = "ES hits log10energy spectrum";
+  meEShitLog10Energy_ = _ibooker.book1D(name, name, 140, -10., 4.);
 
-    sprintf (histo, "ES hits log10energy spectrum vs normalized energy" );
-    meEShitLog10EnergyNorm_ = dbe_->bookProfile(histo, histo, 140, -10., 4., 100, 0., 1.);
+  name = "ES hits log10energy spectrum vs normalized energy";
+  meEShitLog10EnergyNorm_ = _ibooker.bookProfile(name, name, 140, -10., 4., 100, 0., 1.);
 
-    sprintf (histo, "ES E1+07E2 z+" ) ;
-    meE1alphaE2zp_ = dbe_->book1D(histo, histo, 100, 0., 0.05);
+  name = "ES E1+07E2 z+";
+  meE1alphaE2zp_ = _ibooker.book1D(name, name, 100, 0., 0.05);
 
-    sprintf (histo, "ES E1+07E2 z-" ) ;
-    meE1alphaE2zm_ = dbe_->book1D(histo, histo, 100, 0., 0.05);
+  name = "ES E1+07E2 z-";
+  meE1alphaE2zm_ = _ibooker.book1D(name, name, 100, 0., 0.05);
 
-    sprintf (histo, "EE vs ES z+" ) ;
-    meEEoverESzp_ = dbe_->bookProfile(histo, histo, 250, 0., 500., 200, 0., 200.);
+  name = "EE vs ES z+";
+  meEEoverESzp_ = _ibooker.bookProfile(name, name, 250, 0., 500., 200, 0., 200.);
 
-    sprintf (histo, "EE vs ES z-" ) ;
-    meEEoverESzm_ = dbe_->bookProfile(histo, histo, 250, 0., 500., 200, 0., 200.);
+  name = "EE vs ES z-";
+  meEEoverESzm_ = _ibooker.bookProfile(name, name, 250, 0., 500., 200, 0., 200.);
 
-    sprintf (histo, "ES ene2oEne1 z+" ) ;
-    me2eszpOver1eszp_ = dbe_->book1D(histo, histo, 50, 0., 10.);
+  name = "ES ene2oEne1 z+";
+  me2eszpOver1eszp_ = _ibooker.book1D(name, name, 50, 0., 10.);
 
-    sprintf (histo, "ES ene2oEne1 z-" ) ;
-    me2eszmOver1eszm_ = dbe_->book1D(histo, histo, 50, 0., 10.);
-  }
+  name = "ES ene2oEne1 z-";
+  me2eszmOver1eszm_ = _ibooker.book1D(name, name, 50, 0., 10.);
 }
 
-EcalPreshowerSimHitsValidation::~EcalPreshowerSimHitsValidation(){
-
-}
-
-void EcalPreshowerSimHitsValidation::beginJob(){
-
-}
-
-void EcalPreshowerSimHitsValidation::endJob(){
-
-}
-
-void EcalPreshowerSimHitsValidation::analyze(const edm::Event& e, const edm::EventSetup& c){
-
+void
+EcalPreshowerSimHitsValidation::analyze(const edm::Event& e, const edm::EventSetup&)
+{
   edm::LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();
   
   edm::Handle<edm::HepMCProduct> MCEvt;
@@ -154,7 +134,6 @@ void EcalPreshowerSimHitsValidation::analyze(const edm::Event& e, const edm::Eve
   }
 
   double ESEnergy_ = 0.;
-  //std::map<unsigned int, std::vector<PCaloHit>,std::less<unsigned int> > CaloHitMap;
 
   // endcap
   double EEetzp_ = 0.;
@@ -178,7 +157,6 @@ void EcalPreshowerSimHitsValidation::analyze(const edm::Event& e, const edm::Eve
   
   for (std::vector<PCaloHit>::iterator isim = theESCaloHits.begin();
        isim != theESCaloHits.end(); ++isim){
-    //CaloHitMap[(*isim).id()].push_back((*isim));
     
     ESDetId esid (isim->id()) ;
     
@@ -235,7 +213,6 @@ void EcalPreshowerSimHitsValidation::analyze(const edm::Event& e, const edm::Eve
     }
   }
 
-
   for ( HepMC::GenEvent::particle_const_iterator p = MCEvt->GetEvent()->particles_begin();
 	p != MCEvt->GetEvent()->particles_end(); ++p ) {
     
@@ -259,5 +236,4 @@ void EcalPreshowerSimHitsValidation::analyze(const edm::Event& e, const edm::Eve
   }
 }
 
-
-//  LocalWords:  EcalSimHitsValidation
+DEFINE_FWK_MODULE(EcalPreshowerSimHitsValidation);

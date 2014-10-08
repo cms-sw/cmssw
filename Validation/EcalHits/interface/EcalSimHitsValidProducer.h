@@ -4,12 +4,8 @@
 #include <vector>
 #include <map>
  
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimG4Core/Watcher/interface/SimProducer.h"
 #include "SimG4Core/Notification/interface/Observer.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDetId/interface/ESDetId.h"
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 
