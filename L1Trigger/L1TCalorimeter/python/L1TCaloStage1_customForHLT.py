@@ -14,25 +14,9 @@ def customiseL1EmulatorFromRaw(process):
     # (GMT digis produced by same module as the GT digis, as GT and GMT have common unpacker)
     ## process.simRpcTechTrigDigis.RPCDigiLabel = 'muonRPCDigis'
 
-    # RCT
-    # HCAL input would be from hcalDigis if hack not needed
-    from L1Trigger.Configuration.SimL1Emulator_cff import simRctDigis
-    simRctDigis.ecalDigis = cms.VInputTag( cms.InputTag( 'ecalDigis:EcalTriggerPrimitives' ) )
-    simRctDigis.hcalDigis = cms.VInputTag( cms.InputTag( 'simHcalTriggerPrimitiveDigis' ) )
+    ## 2015 L1 Calo Emulator
+    process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_PPFromRaw_cff')
 
-    # stage 1 itself
-    from L1Trigger.L1TCalorimeter.L1TCaloStage1_cff import rctUpgradeFormatDigis
-    ## process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_cff')
-    rctUpgradeFormatDigis.regionTag = cms.InputTag("simRctDigis")
-    rctUpgradeFormatDigis.emTag = cms.InputTag("simRctDigis")
-
-    process.reEmulCaloChain = cms.Sequence(
-        process.L1TRerunHCALTP_FromRAW +
-        process.ecalDigis +
-        process.simRctDigis +
-        process.L1TCaloStage1
-        )
-    
     ### 2015 L1 Muon Emulator
     from L1Trigger.DTTrackFinder.dttfDigis_cfi import dttfDigis
     process.dttfReEmulDigis       = dttfDigis.clone()
@@ -125,7 +109,8 @@ def customiseL1EmulatorFromRaw(process):
 
     # run Calo TPGs, L1 GCT, technical triggers, L1 GT
     SimL1Emulator = cms.Sequence(
-        process.reEmulCaloChain +
+        ## process.reEmulCaloChain +
+        process.L1TCaloStage1_PPFromRaw +
         process.reEmulMuonChain +
         process.simGtDigis )
 
