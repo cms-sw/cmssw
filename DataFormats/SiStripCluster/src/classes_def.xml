@@ -1,7 +1,6 @@
 <lcgdict>
 
- <class name="SiStripCluster" ClassVersion="12">
-  <version ClassVersion="12" checksum="4019960327"/>
+ <class name="SiStripCluster" ClassVersion="11">
   <version ClassVersion="11" checksum="3702468681"/>
   <version ClassVersion="10" checksum="3791198690"/>
   <field name="error_x" transient="true"/>

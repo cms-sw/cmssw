@@ -30,7 +30,7 @@ class SiStripClusterInfo {
   uint16_t maxStrip() const   {return firstStrip() + maxIndex();}
   float    variance() const;
 
-  const SiStripCluster&       stripCharges() const {return cluster()->amplitudes();}
+  auto                        stripCharges() const ->decltype(cluster()->amplitudes())  {return cluster()->amplitudes();}
   std::vector<float>          stripGains() const;
   std::vector<float>          stripNoises() const;
   std::vector<float>          stripNoisesRescaledByGain() const;

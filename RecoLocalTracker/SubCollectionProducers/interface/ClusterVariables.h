@@ -29,7 +29,7 @@ class ClusterVariables {
   const unsigned clusterSize() const {return cluster()->amplitudes().size();}  
 
 
-  const SiStripCluster & stripCharges() const {return cluster()->amplitudes();}
+  auto stripCharges() const -> decltype(cluster()->amplitudes()) {return cluster()->amplitudes();}
 
   /*
     Returns the total charge of all the strips in the Cluster 

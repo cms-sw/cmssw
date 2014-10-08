@@ -5,7 +5,8 @@
 namespace reco {
 
 std::vector<stats_t<float> > InverseCrosstalkMatrix::
-unfold(const SiStripCluster& q, const float x) {
+unfold(const SiStripCluster& clus, const float x) {
+  auto const & q = clus.amplitudes();
   const stats_t<float> suppressed(-5,100);
   const stats_t<float> saturated(254,400);
   #define STATS(value) ( (value<254) ? stats_t<float>(value) : saturated )

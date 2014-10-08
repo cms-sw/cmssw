@@ -7,11 +7,12 @@ using namespace std;
 using namespace reco;
 
 
-bool shapeSelection(const SiStripCluster & ampls)
+bool shapeSelection(const SiStripCluster & clus)
 {
   // ----------------  COMPTAGE DU NOMBRE DE MAXIMA   --------------------------
   //----------------------------------------------------------------------------
 //	printf("ShapeTest \n");
+         auto const & ampls = clus.amplitudes();
 	 Int_t NofMax=0; Int_t recur255=1; Int_t recur254=1;
 	 bool MaxOnStart=false;bool MaxInMiddle=false, MaxOnEnd =false;
 	 Int_t MaxPos=0;
