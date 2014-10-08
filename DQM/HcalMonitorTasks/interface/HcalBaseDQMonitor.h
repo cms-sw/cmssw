@@ -6,14 +6,13 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h" // needed to grab objects
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -21,7 +20,7 @@
 
 class HcalLogicalMap;
 
-class HcalBaseDQMonitor : public edm::EDAnalyzer
+class HcalBaseDQMonitor : public DQMEDAnalyzer
 {
 
 public:
@@ -34,6 +33,8 @@ public:
   // Destructor
   virtual ~HcalBaseDQMonitor();
 
+  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
+
 protected:
 
   // Analyze
@@ -45,7 +46,7 @@ protected:
   virtual void beginJob();
 
   // BeginRun
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
+  //virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
 
   // Begin LumiBlock
   virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
@@ -68,14 +69,14 @@ protected:
   virtual void cleanup(void);
 
   // setup
-  virtual void setup(void);
+  virtual void setup(DQMStore::IBooker &);
   
   // LumiOutOfOrder
   bool LumiInOrder(int lumisec);
 
-  void SetupEtaPhiHists(EtaPhiHists & hh, std::string Name, std::string Units)
+  void SetupEtaPhiHists(DQMStore::IBooker &ib, EtaPhiHists & hh, std::string Name, std::string Units)
   {
-    hh.setup(dbe_, Name, Units);
+    hh.setup(ib, Name, Units);
     return;
   }
 
@@ -92,7 +93,6 @@ protected:
   std::string subdir_;
 
   int currentLS;
-  DQMStore* dbe_;
   int ievt_;
   int levt_; // number of events in current lumi block
   int tevt_; // number of events overall
