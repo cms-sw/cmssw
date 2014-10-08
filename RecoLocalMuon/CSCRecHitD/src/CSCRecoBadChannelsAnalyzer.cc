@@ -1,14 +1,14 @@
 /// Stand-alone test of bad strip channels testing via CSCRecoConditions
-/// Tim Cox - 03-Oct-2014
+/// Tim Cox - 07-Oct-2014 - now using MessageLogger
 
 #include <string>
-#include <iostream>
 #include <vector>
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -29,6 +29,7 @@
 
   class CSCRecoBadChannelsAnalyzer : public edm::EDAnalyzer
   {
+
   public:
     explicit  CSCRecoBadChannelsAnalyzer(edm::ParameterSet const& ps ) 
       : dashedLineWidth_( 80 ), 
@@ -59,40 +60,40 @@
   {
     using namespace edm::eventsetup;
 
-    std::cout << myName() << "::analyze running..." << std::endl;
-    std::cout << "start " << dashedLine_ << std::endl;
+    edm::LogVerbatim("CSCBadChannels") << myName() << "::analyze running..." ;
+    edm::LogVerbatim("CSCBadChannels") << "start " << dashedLine_ ;
 
-    std::cout << "RUN# " << ev.id().run() << std::endl;
-    std::cout << "EVENT# " << ev.id().event() << std::endl;
+    edm::LogVerbatim("CSCBadChannels") << "RUN# " << ev.id().run() ;
+    edm::LogVerbatim("CSCBadChannels") << "EVENT# " << ev.id().event() ;
 
     edm::ESHandle<CSCIndexerBase> theIndexer;
     evsetup.get<CSCIndexerRecord>().get(theIndexer);
 
-    std::cout << myName() << "::analyze sees indexer " << theIndexer->name()  << " in Event Setup" << std::endl;
+    edm::LogVerbatim("CSCBadChannels") << myName() << "::analyze sees indexer " << theIndexer->name()  << " in Event Setup" ;
 
     edm::ESHandle<CSCChannelMapperBase> theMapper;
     evsetup.get<CSCChannelMapperRecord>().get(theMapper);
 
-    std::cout << myName() << "::analyze sees mapper " << theMapper->name()  << " in Event Setup" << std::endl;
+    edm::LogVerbatim("CSCBadChannels") << myName() << "::analyze sees mapper " << theMapper->name()  << " in Event Setup" ;
 
     edm::ESHandle<CSCGeometry> theGeometry;
     evsetup.get<MuonGeometryRecord>().get( theGeometry );     
 
-    std::cout << " Geometry node for CSCGeom is  " << &(*theGeometry) << std::endl;   
-    std::cout << " There are " << theGeometry->dets().size() << " dets" << std::endl;
-    std::cout << " There are " << theGeometry->detTypes().size() << " types" << "\n" << std::endl;
+    edm::LogVerbatim("CSCBadChannels") << " Geometry node for CSCGeom is  " << &(*theGeometry) ;   
+    edm::LogVerbatim("CSCBadChannels") << " There are " << theGeometry->dets().size() << " dets" ;
+    edm::LogVerbatim("CSCBadChannels") << " There are " << theGeometry->detTypes().size() << " types" << "\n" ;
 
     // INITIALIZE CSCConditions
     recoConditions_->initializeEvent(evsetup);
 
     // HERE NEED TO ITERATE OVER ALL CSCDetId
 
-    std::cout << myName() << ": Begin iteration over geometry..." << std::endl;
+    edm::LogVerbatim("CSCBadChannels") << myName() << ": Begin iteration over geometry..." ;
 
     const CSCGeometry::LayerContainer& vecOfLayers = theGeometry->layers();
-    std::cout << "There are " << vecOfLayers.size() << " layers" << std::endl;
+    edm::LogVerbatim("CSCBadChannels") << "There are " << vecOfLayers.size() << " layers" ;
 
-    std::cout << dashedLine_ << std::endl;
+    edm::LogVerbatim("CSCBadChannels") << dashedLine_ ;
 
     int ibadchannels = 0; // COUNT OF BAD STRIP CHANNELS
     int ibadlayers = 0 ; //COUNT OF LAYERS WITH BAD STRIP CHANNELS
@@ -104,7 +105,7 @@
       if( layer ){
         CSCDetId id = layer->id();
         int nstrips = layer->geometry()->numberOfStrips();
-        std::cout << "Layer " << id << " has " << nstrips << " strips" << std::endl;
+        edm::LogVerbatim("CSCBadChannels") << "Layer " << id << " has " << nstrips << " strips" ;
 
 	// GET BAD CHANNELS FOR THIS LAYER
 
@@ -117,13 +118,13 @@
 	  if ( recoConditions_->badStrip( id, is, nstrips ) ) {
               ++ibadchannels;
 	      layerhasbadchannels = true;
-	      std::cout << id << " strip " << is << " is bad" << std::endl;
+	      edm::LogVerbatim("CSCBadChannels") << id << " strip " << is << " is bad" ;
 	    }            
 	}
 
 	for ( short is = 1; is<=nstrips; ++is ) {
 	  if ( recoConditions_->nearBadStrip( id, is, nstrips ) ) {
-	    std::cout << id << " strip " << is << " is a neighbor of a bad strip" << std::endl;
+	    edm::LogVerbatim("CSCBadChannels") << id << " strip " << is << " is a neighbor of a bad strip" ;
 	    }            
 	}
 
@@ -131,14 +132,14 @@
 
       }
       else {
-	std::cout << "WEIRD ERROR: a null CSCLayer* was seen" << std::endl;
+	edm::LogVerbatim("CSCBadChannels") << "WEIRD ERROR: a null CSCLayer* was seen" ;
       }
     }
 
-    std::cout << "No. of layers with bad strip channels = " << ibadlayers << std::endl;
-    std::cout << "No. of bad strip channels seen = " << ibadchannels << std::endl;
+    edm::LogVerbatim("CSCBadChannels") << "No. of layers with bad strip channels = " << ibadlayers ;
+    edm::LogVerbatim("CSCBadChannels") << "No. of bad strip channels seen = " << ibadchannels ;
 
-    std::cout << dashedLine_ << " end" << std::endl;
+    edm::LogVerbatim("CSCBadChannels") << dashedLine_ << " end" ;
   }
 
   DEFINE_FWK_MODULE(CSCRecoBadChannelsAnalyzer);
