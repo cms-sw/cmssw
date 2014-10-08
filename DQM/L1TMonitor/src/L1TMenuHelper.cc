@@ -304,17 +304,25 @@ map<string,string> L1TMenuHelper::getLUSOTrigger(const map<string,bool>& iCatego
   if(m_vTrigHTT   .size() > 0){sort(m_vTrigHTT   .begin(),m_vTrigHTT   .end()); selTrigHTT    = m_vTrigHTT   [0].alias;}
   if(m_vTrigHTM   .size() > 0){sort(m_vTrigHTM   .begin(),m_vTrigHTM   .end()); selTrigHTM    = m_vTrigHTM   [0].alias;}
 
-  if(iCategories.at("Mu"))    {out["Mu"]     = selTrigMu;}
-  if(iCategories.at("EG"))    {out["EG"]     = selTrigEG;}
-  if(iCategories.at("IsoEG")) {out["IsoEG"]  = selTrigIsoEG;}
-  if(iCategories.at("Jet"))   {out["Jet"]    = selTrigJet;}
-  if(iCategories.at("CenJet")){out["CenJet"] = selTrigCenJet;}
-  if(iCategories.at("ForJet")){out["ForJet"] = selTrigForJet;}
-  if(iCategories.at("TauJet")){out["TauJet"] = selTrigTauJet;}
-  if(iCategories.at("ETT"))   {out["ETT"]    = selTrigETT;}
-  if(iCategories.at("ETM"))   {out["ETM"]    = selTrigETM;}
-  if(iCategories.at("HTT"))   {out["HTT"]    = selTrigHTT;}
-  if(iCategories.at("HTM"))   {out["HTM"]    = selTrigHTM;}
+  auto check = [](const map<string,bool>& cats, const char* key) -> bool {
+    auto it = cats.find(key);
+    if (it != cats.end())
+      return it->second;
+
+    return false;
+  };
+
+  if (check(iCategories, "Mu"    )) {out["Mu"]     = selTrigMu;}
+  if (check(iCategories, "EG"    )) {out["EG"]     = selTrigEG;}
+  if (check(iCategories, "IsoEG" )) {out["IsoEG"]  = selTrigIsoEG;}
+  if (check(iCategories, "Jet"   )) {out["Jet"]    = selTrigJet;}
+  if (check(iCategories, "CenJet")) {out["CenJet"] = selTrigCenJet;}
+  if (check(iCategories, "ForJet")) {out["ForJet"] = selTrigForJet;}
+  if (check(iCategories, "TauJet")) {out["TauJet"] = selTrigTauJet;}
+  if (check(iCategories, "ETT"   )) {out["ETT"]    = selTrigETT;}
+  if (check(iCategories, "ETM"   )) {out["ETM"]    = selTrigETM;}
+  if (check(iCategories, "HTT"   )) {out["HTT"]    = selTrigHTT;}
+  if (check(iCategories, "HTM"   )) {out["HTM"]    = selTrigHTM;}
 
   return out;
 
