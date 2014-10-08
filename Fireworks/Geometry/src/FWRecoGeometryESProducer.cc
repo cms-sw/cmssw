@@ -88,12 +88,12 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
   
   record.getRecord<CaloGeometryRecord>().get( m_caloGeom );
 
-  // m_hgcGeom.push_back(edm::ESHandle<HGCalGeometry>());
-  // record.getRecord<IdealGeometryRecord>().get( "HGCalEESensitive", m_hgcGeom.back() );
-  // m_hgcGeom.push_back(edm::ESHandle<HGCalGeometry>());
-  // record.getRecord<IdealGeometryRecord>().get( "HGCalHESiliconSensitive", m_hgcGeom.back() );
-  // m_hgcGeom.push_back(edm::ESHandle<HGCalGeometry>());
-  // record.getRecord<IdealGeometryRecord>().get( "HGCalHEScintillatorSensitive", m_hgcGeom.back() );
+  m_hgcGeom.push_back(edm::ESHandle<HGCalGeometry>());
+  record.getRecord<IdealGeometryRecord>().get( "HGCalEESensitive", m_hgcGeom.back() );
+  m_hgcGeom.push_back(edm::ESHandle<HGCalGeometry>());
+  record.getRecord<IdealGeometryRecord>().get( "HGCalHESiliconSensitive", m_hgcGeom.back() );
+  m_hgcGeom.push_back(edm::ESHandle<HGCalGeometry>());
+  record.getRecord<IdealGeometryRecord>().get( "HGCalHEScintillatorSensitive", m_hgcGeom.back() );
   
   m_hgcGeom.push_back(edm::ESHandle<HGCalGeometry>());
   record.getRecord<IdealGeometryRecord>().get( "HGCalEESensitive", m_hgcGeom.back() );
@@ -480,6 +480,10 @@ FWRecoGeometryESProducer::addCaloGeometry( void )
       for( const auto& hid : hids ) {
 	const HGCalGeometry::CornersVec cor( std::move( hgcGeom->getCorners( hid ) ) );
 	for( const auto& corner : cor ) {
+	  if( std::abs(corner.eta()) >3.0 ) { 
+	    std::cout << "THIS IS VERY BAD RECHIT CORNER IS PAST ETA 3.0 BOUNDARY FOR: " 
+		      << std::hex << hid.rawId() << std::dec << " : eta=" << corner.eta()  << std::endl;
+	  }
 	  minZ = std::min(std::abs(corner.z()),minZ);
 	  maxZ = std::max(std::abs(corner.z()),maxZ);
 	  minRho = std::min(std::hypot(corner.x(),corner.y()), minRho);
