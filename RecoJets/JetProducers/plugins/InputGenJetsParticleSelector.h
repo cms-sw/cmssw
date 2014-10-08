@@ -93,8 +93,8 @@ class InputGenJetsParticleSelector : public edm::EDProducer {
   bool			isMiniAOD;
   double		ptMin;
   
-  edm::EDGetTokenT<edm::View<reco::Candidate> > input_genpartcoll_token_;
-  edm::EDGetTokenT<edm::View<reco::Candidate> > input_prunedgenpartcoll_token_;
+  edm::EDGetTokenT<reco::CandidateView> input_genpartcoll_token_;
+  edm::EDGetTokenT<reco::CandidateView> input_prunedgenpartcoll_token_;
   
 };
 
