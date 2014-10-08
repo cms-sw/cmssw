@@ -7,48 +7,32 @@
  *
  */
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-#include "DataFormats/Common/interface/Handle.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 
-
-#include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
-
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-//#include "DataFormats/EcalDetId/interface/EEDetId.h"
-//#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include "Validation/EcalDigis/src/CollHandle.h"
 
 #include <string>
 #include <set>
-#include <utility>
 #include <fstream>
-#include <inttypes.h>
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-class DQMStore;
-class MonitorElement;
 class EBDetId;
 class EEDetId;
-class EcalTPParameters;
 class EcalElectronicsMapping;
+class EcalTrigTowerConstituentsMap;
 
 class EcalSelectiveReadoutValidation: public DQMEDAnalyzer{
 
-  //typedef EcalUncalibratedRecHitCollection RecHitCollection;
-  //typedef EcalUncalibratedRecHit RecHit;
   typedef EcalRecHitCollection RecHitCollection;
   typedef EcalRecHit RecHit;
   
@@ -65,13 +49,11 @@ public:
 protected:
 
   /// Analyzes the event.
-  void analyze(edm::Event const & e, edm::EventSetup const & c);
+  void analyze(edm::Event const & e, edm::EventSetup const & c) override;
  
-  void endRun(const edm::Run& r, const edm::EventSetup& c); 
+  void endRun(const edm::Run& r, const edm::EventSetup& c) override; 
 
 private:
-  DQMStore::IBooker* ibook; 
- 
   ///distinguishes barral and endcap of ECAL.
   enum subdet_t {EB, EE};
 
@@ -115,13 +97,6 @@ private:
   //    * @param es event setup
   //    */ 
   //   void SRFlagValidation(const edm::Event& event, const edm::EventSetup& es);
-
- /** Selective Readout decisions Validation
-   * @param event EDM event
-   * @param es event setup
-   */ 
-
-  void SRFlagValidation(const edm::Event& event, const edm::EventSetup& es);
 
   /** Energy reconstruction from ADC samples.
    * @param frame the ADC sample of an ECA channel
@@ -317,12 +292,6 @@ private:
     return i + 1;
   }
   
-  /** Retrieves the endcap supercrystal containing a given crysal
-   * @param xtalId identifier of the crystal
-   * @return the identifier of the supercrystal
-   */
-  EcalScDetId superCrystalOf(const EEDetId& xtalId) const;
-
   //@{
   /** Retrives the readout unit, a trigger tower in the barrel case,
    * and a supercrystal in the endcap case, a given crystal belongs to.
@@ -361,22 +330,22 @@ private:
   /** Wrappers to the book methods of the DQMStore DQM
    *  histogramming interface.
    */
-  MonitorElement* bookFloat(const std::string& name);
+  MonitorElement* bookFloat(DQMStore::IBooker&, const std::string& name);
   
-  MonitorElement* book1D(const std::string& name,
+  MonitorElement* book1D(DQMStore::IBooker&, const std::string& name,
 			 const std::string& title, int nbins,
 			 double xmin, double xmax);
  
-  MonitorElement* book2D(const std::string& name,
+  MonitorElement* book2D(DQMStore::IBooker&, const std::string& name,
 			 const std::string& title,
 			 int nxbins, double xmin, double xmax,
 			 int nybins, double ymin, double ymax);
 
-  MonitorElement* bookProfile(const std::string& name,
+  MonitorElement* bookProfile(DQMStore::IBooker&, const std::string& name,
 			      const std::string& title,
 			      int nbins, double xmin, double xmax);
   
-  MonitorElement* bookProfile2D(const std::string& name,
+  MonitorElement* bookProfile2D(DQMStore::IBooker&, const std::string& name,
 				const std::string& title,
 				int nbinx, double xmin, double xmax,
 				int nbiny, double ymin, double ymax,
@@ -699,11 +668,6 @@ private:
    */
   const EcalTrigTowerConstituentsMap * triggerTowerMap_;
 
-  /** Interface to access trigger primitive parameters,
-   * especially to convert Et in compressed formart into natural unit.
-   */
-  const EcalTPParameters* tpParam_;
-
   /** Ecal electronics/geometrical mapping.
    */
   const EcalElectronicsMapping* elecMap_;
@@ -875,11 +839,6 @@ private:
    */
   void printAvailableHists();
 
-  /** Scaled histograms expressed in rate by 1/eventCount
-   * @param eventCount event count to use for normalization factor
-   */
-  void normalizeHists(double eventCount);
-
   /** Configure DCC ZS FIR weights. Heuristic is used to determine
    * if input weights are normalized weights or integer weights in
    * the hardware representation.
@@ -977,21 +936,6 @@ private:
    */
   int getCrystalCount(int iDcc, int iDccCh);
 
-  
-private:
-  /** Used to sort crystal by decrasing simulated energy.
-   */
-  class Sorter{
-    EcalSelectiveReadoutValidation* validation;
-  public:
-    Sorter(EcalSelectiveReadoutValidation* v): validation(v){};
-    bool operator()(std::pair<int,int>a, std::pair<int,int>b){
-      return (validation->ebEnergies[a.first][a.second].simE
-	      > validation->ebEnergies[b.first][b.second].simE);
-    }
-  };
-
-  void myAna();
 };
 
 #endif //EcalSelectiveReadoutValidation_H not defined
