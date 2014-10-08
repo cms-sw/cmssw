@@ -21,6 +21,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -54,9 +56,12 @@ class SiStripFEDCheckPlugin : public DQMEDAnalyzer
  public:
   explicit SiStripFEDCheckPlugin(const edm::ParameterSet&);
   ~SiStripFEDCheckPlugin();
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
  private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endRun();
+  
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   bool hasFatalError(const FEDRawData& fedData, unsigned int fedId) const;
@@ -411,6 +416,47 @@ void SiStripFEDCheckPlugin::updateHistograms()
   if (doPLOTfedFatalErrors_) fedFatalErrors_->getTH1()->SetEntries(entriesFatalErrors);
   if (doPLOTfedNonFatalErrors_) fedNonFatalErrors_->getTH1()->SetEntries(entriesNonFatalErrors);
 }
+void
+SiStripFEDCheckPlugin::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;
+
+  // Directory to book histograms in
+  desc.add<std::string>("DirName","SiStrip/FEDIntegrity/");
+  // Raw data collection
+  desc.add<edm::InputTag>("RawDataTag",edm::InputTag("source"));
+  // Number of events to cache info before updating histograms
+  // (set to zero to disable cache)
+  // HistogramUpdateFrequency = cms.untracked.uint32(0),
+  desc.addUntracked<unsigned int>("HistogramUpdateFrequency",1000);
+  // Print info about errors buffer dumps to LogInfo(SiStripFEDCheck)
+  desc.addUntracked<bool>("PrintDebugMessages",false);
+  desc.add<bool>("doPLOTfedsPresent",      true);
+  desc.add<bool>("doPLOTfedFatalErrors",   true);
+  desc.add<bool>("doPLOTfedNonFatalErrors",true);
+  desc.add<bool>("doPLOTnFEDinVsLS",       false);
+  desc.add<bool>("doPLOTnFEDinWdataVsLS",  false);
+  // Write the DQM store to a file (DQMStore.root) at the end of the run
+  desc.addUntracked<bool>("WriteDQMStore",false);
+  // Use to disable all payload (non-fatal) checks
+  desc.addUntracked<bool>("DoPayloadChecks",true);
+  // Use to disable check on channel lengths
+  desc.addUntracked<bool>("CheckChannelLengths",true);
+  // Use to disable check on channel packet codes
+  desc.addUntracked<bool>("CheckChannelPacketCodes",true);
+  // Use to disable check on FE unit lengths in full debug header
+  desc.addUntracked<bool>("CheckFELengths",true);
+  // Use to disable check on channel status bits
+  desc.addUntracked<bool>("CheckChannelStatus",true);
+  desc.add<unsigned int>("LSBin",5000);
+  desc.add<double>      ("LSMin",   0.5);
+  desc.add<double>      ("LSMax",5000.5);  
+
+  descriptions.addDefault(desc);
+
+
+}
+
 
 //
 // Define as a plug-in
