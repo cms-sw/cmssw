@@ -596,15 +596,10 @@ process.load( 'Configuration.StandardSequences.SimL1Emulator_cff' )
 """ % emulator
       if (self.config.emulator).find("stage1")>-1: ## 2015 run2 emulator
         self.data += """
-process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_PPFromRaw_cff')
-process.load('L1Trigger/L1TCalorimeter/caloStage1RegionSF_cfi')
-import L1Trigger.L1TCalorimeter.L1TCaloStage1_customForHLT
 import L1Trigger.Configuration.L1Trigger_custom
-process = L1Trigger.L1TCalorimeter.L1TCaloStage1_customForHLT.%(CustomL1T)s( process )
 process = L1Trigger.Configuration.L1Trigger_custom.customiseResetPrescalesAndMasks( process )
-## ccla Add in additional stuff from postLS1Customs
-from SLHCUpgradeSimulations.Configuration.postLS1Customs import *
-process = customise_HLT( process )
+import L1Trigger.L1TCalorimeter.L1TCaloStage1_customForHLT
+process = L1Trigger.L1TCalorimeter.L1TCaloStage1_customForHLT.%(CustomL1T)s( process )
 """ % emulator
       else: ## Run1 Emulator
         self.data += """
