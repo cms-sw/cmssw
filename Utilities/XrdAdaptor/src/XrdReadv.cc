@@ -20,6 +20,7 @@
 #include "XrdClient/XrdClientProtocol.hh"
 #include "XrdClient/XrdClientConst.hh"
 #include "XrdClient/XrdClientSid.hh"
+#include "XrdClient/XrdClientEnv.hh"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Likely.h"
 
@@ -70,6 +71,9 @@ XrdFile::readv (IOPosBuffer *into, IOSize n)
     return read(into[0].data(), into[0].size(), into[0].offset());
   }
 
+  XrdClientConn *xrdc = m_client->GetClientConn();
+  if (xrdc) {xrdc->SetOpTimeLimit(EnvGetLong(NAME_TRANSACTIONTIMEOUT));}
+
   // The main challenge here is to turn the request into a form that can be
   // fed to the Xrootd connection.  In particular, Xrootd has a limit on the
   // maximum number of chunks and the maximum size of each chunk.  Hence, the
@@ -112,8 +116,16 @@ XrdFile::readv (IOPosBuffer *into, IOSize n)
         // readv_send will also parse the response and place the data into the result_list buffers.
         IOSize tmp_total_len = readv_send(result_list, *read_chunk_list, chunk_off, readv_total_len);
         total_len += tmp_total_len;
-        if (tmp_total_len != readv_total_len)
-          return total_len;
+        if (unlikely(tmp_total_len != readv_total_len))
+        {
+          edm::Exception ex(edm::errors::FileReadError);
+            ex << "XrdFile::readv(name='" << m_name << "')"
+               << ".size=" << n << " Chunk of " << readv_total_len << " requested but "
+               << tmp_total_len << " bytes returned by server.";
+          ex.addContext("Calling XrdFile::readv()");
+          addConnection(ex);
+          throw ex;
+        }
         readv_total_len = 0;
         chunk_off = 0;
       }
@@ -121,7 +133,18 @@ XrdFile::readv (IOPosBuffer *into, IOSize n)
   }
   // Do the actual readv for all remaining chunks.
   if (chunk_off) {
-    total_len += readv_send(result_list, *read_chunk_list, chunk_off, readv_total_len);
+    IOSize tmp_total_len = readv_send(result_list, *read_chunk_list, chunk_off, readv_total_len);
+    if (unlikely(tmp_total_len != readv_total_len))
+    {
+      edm::Exception ex(edm::errors::FileReadError);
+      ex << "XrdFile::readv(name='" << m_name << "')"
+         << ".size=" << n << " Chunk of " << readv_total_len << " requested but "
+         << tmp_total_len << " bytes returned by server.";
+      ex.addContext("Calling XrdFile::readv()");
+      addConnection(ex);
+      throw ex;
+    }
+    total_len += tmp_total_len;
   }
   return total_len;
 }

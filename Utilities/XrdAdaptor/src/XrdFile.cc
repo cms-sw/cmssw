@@ -411,6 +411,22 @@ XrdFile::addConnection (cms::Exception &ex)
     std::stringstream ss;
     ss << "Current server connection: " << conn->GetCurrentUrl().GetUrl().c_str();
     ex.addAdditionalInfo(ss.str());
+    if (conn->IsOpTimeLimitElapsed(time(NULL)))
+    {
+      ex.addAdditionalInfo("Operation timeout expired.  This is possibly a temporary issue which may go away on retry.");
+    }
+  }
+  struct ServerResponseBody_Error * lastError = m_client->LastServerError();
+  if (lastError && lastError->errnum != kXR_noErrorYet)
+  {
+    std::stringstream ss;
+    // Note: I see no guarantee that the errmsg from the server is null-terminated.
+    // Hence, I'm adding the extra guarantee below.
+    char errmsg[4097]; errmsg[4096] = '\0';
+    strncpy(errmsg, lastError->errmsg, 4096);
+    ss << "Last server error (code=" << lastError->errnum << ")";
+    if (strlen(errmsg)) {ss << ": " << errmsg;}
+    ex.addAdditionalInfo(ss.str());
   }
 }
 
