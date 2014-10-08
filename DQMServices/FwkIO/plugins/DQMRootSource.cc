@@ -87,10 +87,18 @@ namespace {
           iOriginal->GetYaxis()->GetXmax() == iToAdd->GetYaxis()->GetXmax() &&
           iOriginal->GetNbinsZ() == iToAdd->GetNbinsZ() &&
           iOriginal->GetZaxis()->GetXmin() == iToAdd->GetZaxis()->GetXmin() &&
-          iOriginal->GetZaxis()->GetXmax() == iToAdd->GetZaxis()->GetXmax()) {
-        iOriginal->Add(iToAdd);
+          iOriginal->GetZaxis()->GetXmax() == iToAdd->GetZaxis()->GetXmax() &&
+	  // Also check that the min is less than the max. Root allows this to be booked but then
+	  // crashes when it adds them.
+          iOriginal->GetXaxis()->GetXmin() < iToAdd->GetXaxis()->GetXmax() &&
+          iOriginal->GetYaxis()->GetXmin() < iToAdd->GetYaxis()->GetXmax() &&
+          iOriginal->GetZaxis()->GetXmin() < iToAdd->GetZaxis()->GetXmax() &&
+	  MonitorElement::CheckBinLabels(iOriginal->GetXaxis(),iToAdd->GetXaxis()) &&
+	  MonitorElement::CheckBinLabels(iOriginal->GetYaxis(),iToAdd->GetYaxis()) &&
+	  MonitorElement::CheckBinLabels(iOriginal->GetZaxis(),iToAdd->GetZaxis())) {
+	iOriginal->Add(iToAdd);
       } else {
-        edm::LogError("MergeFailure")<<"Found histograms with different axis limits '"<<iOriginal->GetName()<<"' not merged.";
+        edm::LogError("MergeFailure")<<"Found histograms with different or invalid axis limits or different labels'"<<iOriginal->GetName()<<"' not merged.";
       }
     } 
   }
@@ -158,13 +166,14 @@ namespace {
     const std::string& name = iElement->getFullname();
     if(name.find("EventInfo/processedEvents") != std::string::npos) {
       iElement->Fill(iValue+iElement->getIntValue());
-    } else {
-      if(name.find("EventInfo/iEvent") != std::string::npos ||
+    } else if(name.find("EventInfo/iEvent") != std::string::npos ||
          name.find("EventInfo/iLumiSection") != std::string::npos) {
         if(iValue > iElement->getIntValue()) {
           iElement->Fill(iValue);
         }
-      }
+    }
+    else {
+      iElement->Fill(iValue);
     }
   }
 
@@ -174,13 +183,15 @@ namespace {
     return e;
   }
   void mergeWithElement(MonitorElement* iElement, double& iValue) {
-    //no merging
+    //no merging, take the last one
+    iElement->Fill(iValue);
   }
   MonitorElement* createElement(DQMStore& iStore, const char* iName, std::string* iValue) {
     return iStore.bookString(iName,*iValue);
   }
-  void mergeWithElement(MonitorElement* , std::string* ) {
-    //no merging
+  void mergeWithElement(MonitorElement* iElement, std::string* iValue) {
+    //no merging, take the last one
+    iElement->Fill(*iValue);
   }
 
   void splitName(const std::string& iFullName, std::string& oPath,const char*& oName) {
@@ -257,7 +268,7 @@ namespace {
   template<class T>
     class TreeSimpleReader : public TreeReaderBase {
       public:
-        TreeSimpleReader():m_tree(0),m_fullName(0),m_buffer(),m_tag(0){
+        TreeSimpleReader():m_tree(0),m_fullName(0),m_buffer(0),m_tag(0){
         }
         virtual MonitorElement* doRead(ULong64_t iIndex, DQMStore& iStore,bool iIsLumi) {
           m_tree->GetEntry(iIndex);
@@ -393,6 +404,7 @@ class DQMRootSource : public edm::InputSource
       unsigned int m_filterOnRun;
       bool m_skipBadFiles;
       std::vector<edm::LuminosityBlockRange> m_lumisToProcess;
+      std::vector<edm::RunNumber_t> m_runsToProcess;
  
       bool m_justOpenedFileSoNeedToGenerateRunTransition;
       bool m_shouldReadMEs;
@@ -453,6 +465,9 @@ DQMRootSource::DQMRootSource(edm::ParameterSet const& iPSet, const edm::InputSou
   m_shouldReadMEs(true)
 {
   edm::sortAndRemoveOverlaps(m_lumisToProcess);
+  for(std::vector<edm::LuminosityBlockRange>::const_iterator itr = m_lumisToProcess.begin(); itr!=m_lumisToProcess.end(); ++itr)
+    m_runsToProcess.push_back(itr->startRun());
+  
   if(m_fileIndex ==m_catalog.fileNames().size()) {
     m_nextItemType=edm::InputSource::IsStop;
   } else{
@@ -651,6 +666,8 @@ DQMRootSource::readFile_() {
   }
 
   readNextItemType();
+  while (m_presentIndexItr != m_orderedIndices.end() && skipIt(m_runlumiToRange[*m_presentIndexItr].m_run,m_runlumiToRange[*m_presentIndexItr].m_lumi))
+    ++m_presentIndexItr;
 
   edm::Service<edm::JobReport> jr;
   m_jrToken = jr->inputFileOpened(m_catalog.fileNames()[m_fileIndex-1],
@@ -681,6 +698,9 @@ void DQMRootSource::readElements() {
   {
     shouldContinue = false;
     ++m_presentIndexItr;
+    while (m_presentIndexItr != m_orderedIndices.end() && skipIt(m_runlumiToRange[*m_presentIndexItr].m_run,m_runlumiToRange[*m_presentIndexItr].m_lumi))
+      ++m_presentIndexItr;
+    
     if(runLumiRange.m_type == kNoTypesStored) {continue;}
     boost::shared_ptr<TreeReaderBase> reader = m_treeReaders[runLumiRange.m_type];
     ULong64_t index = runLumiRange.m_firstIndex;
@@ -1028,6 +1048,9 @@ DQMRootSource::setupFile(unsigned int iIndex)
 
 bool
 DQMRootSource::skipIt(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi) const {
+  if(!m_runsToProcess.empty() && edm::search_all(m_runsToProcess, run) && lumi==0) {
+    return false;
+  }
   edm::LuminosityBlockID lumiID = edm::LuminosityBlockID(run, lumi);
   edm::LuminosityBlockRange lumiRange = edm::LuminosityBlockRange(lumiID, lumiID);
   bool(*lt)(edm::LuminosityBlockRange const&, edm::LuminosityBlockRange const&) = &edm::lessThan;

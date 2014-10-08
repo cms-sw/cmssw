@@ -99,6 +99,7 @@ KDTreeLinkerTrackHGC<the_layer,RHscaling>::insertFieldClusterElt(reco::PFBlockEl
   
   // We create a list of hgcCluster
   fieldClusterSet_.insert(hgcCluster);
+  /*
   DetId seedId( clusterref->seed() );
   unsigned seedLayer = 1000;  
   if( seedId.det() == DetId::Forward ) {
@@ -111,10 +112,12 @@ KDTreeLinkerTrackHGC<the_layer,RHscaling>::insertFieldClusterElt(reco::PFBlockEl
     throw cms::Exception("BadSeedRecHit") 
       << "HGC KDTree Linker only accepts HGC DetIds! got: " << seedId.det();
   }
+  */
   
   for(size_t rhit = 0; rhit < fraction.size(); ++rhit) {
     const reco::PFRecHitRef& rh = fraction[rhit].recHitRef();
     double fract = fraction[rhit].fraction();
+    /*
     DetId rhId( rh->detId() );
     unsigned rhLayer = 1000;
 
@@ -128,8 +131,8 @@ KDTreeLinkerTrackHGC<the_layer,RHscaling>::insertFieldClusterElt(reco::PFBlockEl
       throw cms::Exception("BadRecHit") 
 	<< "HGC KDTree Linker only accepts HGC DetIds! got: " << rhId.det();
     }
-
-    if ( (rh.isNull()) || (fract < 1E-4) ||  rhLayer != seedLayer )
+    */
+    if ( (rh.isNull()) || (fract < 1E-4) ) // ||  rhLayer != seedLayer )
       continue;
       
     const reco::PFRecHit& rechit = *rh;
@@ -233,7 +236,7 @@ void
     
     // Estimate the maximal envelope in phi/eta that will be used to find rechit candidates.
     // Same envelope for cap et barrel rechits.
-    double range = getCristalPhiEtaMaxSize() * (2.0 + 1.0 / std::min(1., trackPt / 2.)); 
+    double range = getCristalPhiEtaMaxSize() * (2.0 + 1.0 / std::min(1., 0.5*trackPt )); 
 
     // We search for all candidate recHits, ie all recHits contained in the maximal size envelope.
     std::vector<KDTreeNodeInfo> recHits;
