@@ -448,7 +448,7 @@ SiStripFEDCheckPlugin::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.addUntracked<bool>("CheckFELengths",true);
   // Use to disable check on channel status bits
   desc.addUntracked<bool>("CheckChannelStatus",true);
-  desc.add<unsigned int>("LSBin",5000);
+  desc.add<int>         ("LSBin",5000);
   desc.add<double>      ("LSMin",   0.5);
   desc.add<double>      ("LSMax",5000.5);  
 
