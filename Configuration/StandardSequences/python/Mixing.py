@@ -102,6 +102,7 @@ addMixingScenario("E8TeV_2012_run209148_BX_25ns",{'file': 'SimGeneral.MixingModu
 addMixingScenario("E8TeV_2012_ZmumugSkim",{'file': 'SimGeneral.MixingModule.mix_E8TeV_zmmg_skim_BX_50ns_cfi'})
 addMixingScenario("CSA14_50ns_PoissonOOT",{'file': 'SimGeneral.MixingModule.mix_CSA14_50ns_PoissonOOTPU_cfi'})
 addMixingScenario("CSA14_inTimeOnly",{'file': 'SimGeneral.MixingModule.mix_CSA14_inTimeOnly_cfi'})
+addMixingScenario("Phys14_50ns_PoissonOOT",{'file': 'SimGeneral.MixingModule.mix_Phys14_50ns_PoissonOOTPU_cfi'})
 addMixingScenario("ProdStep2",{'file': 'SimGeneral.MixingModule.mixProdStep2_cfi'})
 addMixingScenario("fromDB",{'file': 'SimGeneral.MixingModule.mix_fromDB_cfi'})
 ##fastsim section
@@ -124,6 +125,7 @@ addMixingScenario("FS_E8TeV_2012_run209148",{'file': 'FastSimulation.PileUpProdu
 addMixingScenario("FS_E8TeV_2012_ZmumugSkim",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_E8TeV_zmmg_skim_cff'})
 
 #scenarios for L1 tdr work
+addMixingScenario("AVE_4_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':50, 'B': (-12,3), 'N': 4})
 addMixingScenario("AVE_10_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-12,3), 'N': 10})
 addMixingScenario("AVE_10_BX_25ns_m8",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-8,3), 'N': 10})
 addMixingScenario("AVE_20_BX_50ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':50, 'B': (-12,3), 'N': 20})
