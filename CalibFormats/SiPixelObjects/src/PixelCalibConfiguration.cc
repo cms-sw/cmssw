@@ -1673,7 +1673,7 @@ bool PixelCalibConfiguration::containsScan(std::string name) const
 }
 
 //=============================================================================================
-void PixelCalibConfiguration::writeXMLHeader(pos::PixelConfigKey &key,
+void PixelCalibConfiguration::writeXMLHeader(pos::PixelConfigKey key,
                                     	     int version, 
                                     	     std::string path, 
                                     	     std::ofstream *outstream,
