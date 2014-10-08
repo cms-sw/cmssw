@@ -422,7 +422,7 @@ SiStripFEDCheckPlugin::fillDescriptions(edm::ConfigurationDescriptions& descript
   edm::ParameterSetDescription desc;
 
   // Directory to book histograms in
-  desc.add<std::string>("DirName","SiStrip/FEDIntegrity/");
+  desc.addUntracked<std::string>("DirName","SiStrip/FEDIntegrity/");
   // Raw data collection
   desc.add<edm::InputTag>("RawDataTag",edm::InputTag("source"));
   // Number of events to cache info before updating histograms
