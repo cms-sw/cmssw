@@ -1,5 +1,9 @@
-## Run standalone CSCRecoBadChannelsAnalyzer - test bad strip channels - Tim Cox - 02.10.2014
+## Run standalone CSCRecoBadChannelsAnalyzer - test bad strip channels - Tim Cox - 07.10.2014
 ## This version runs in 720pre6 on a real data RelVal RAW sample.
+
+## Output via MessageLogger - configured, after much flailing, so that
+## ONLY the LogVerbatim("CSCBadChannels") messages are sent to std:output.
+
 
 import FWCore.ParameterSet.Config as cms
 
@@ -11,6 +15,16 @@ process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
 process.load("Configuration/StandardSequences/RawToDigi_Data_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.EndOfProcess_cff")
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+
+process.MessageLogger.categories.append("CSCBadChannels")
+process.MessageLogger.destinations = cms.untracked.vstring("cout")
+process.MessageLogger.cout = cms.untracked.PSet(
+    threshold = cms.untracked.string("INFO"),
+    default   = cms.untracked.PSet( limit = cms.untracked.int32(0)  ),
+    FwkReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ),
+    CSCBadChannels = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
+)
 
 # --- MATCH GT TO RELEASE AND DATA SAMPLE
 
