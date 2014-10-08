@@ -67,9 +67,9 @@ InputGenJetsParticleSelector::InputGenJetsParticleSelector(const edm::ParameterS
 
   produces <reco::CandidatePtrVector> ();
 
-  input_genpartcoll_token_ = consumes<edm::View<reco::Candidate> >(inTag);
+  input_genpartcoll_token_ = consumes<reco::CandidateView>(inTag);
   if(isMiniAOD)
-    input_prunedgenpartcoll_token_ = consumes<edm::View<reco::Candidate> >(prunedInTag);
+    input_prunedgenpartcoll_token_ = consumes<reco::CandidateView>(prunedInTag);
       
 }
 
@@ -243,7 +243,7 @@ void InputGenJetsParticleSelector::produce (edm::Event &evt, const edm::EventSet
     
   ParticleVector particles;
   
-  edm::Handle<edm::View<reco::Candidate> > prunedGenParticles;
+  edm::Handle<reco::CandidateView> prunedGenParticles;
   if(isMiniAOD)
   {
     evt.getByToken(input_prunedgenpartcoll_token_, prunedGenParticles );
@@ -255,7 +255,7 @@ void InputGenJetsParticleSelector::produce (edm::Event &evt, const edm::EventSet
     }
   }
 
-  edm::Handle<edm::View<reco::Candidate> > genParticles;
+  edm::Handle<reco::CandidateView> genParticles;
   evt.getByToken(input_genpartcoll_token_, genParticles );
 
   std::map<const reco::Candidate*,size_t> particlePtrIdxMap;
