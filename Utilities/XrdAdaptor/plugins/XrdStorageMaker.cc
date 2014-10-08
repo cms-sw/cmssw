@@ -8,6 +8,9 @@
 
 class XrdStorageMaker : public StorageMaker
 {
+private:
+  unsigned int timeout_ = 0;
+
 public:
   /** Open a storage object for the given URL (protocol + path), using the
       @a mode bits.  No temporary files are downloaded.  */
@@ -20,6 +23,11 @@ public:
     // If we don't do this before creating the XrdFile object, caching will be
     // completely disabled, resulting in poor performance.
     EnvPutInt(NAME_READCACHESIZE, 20*1024*1024);
+
+    // XrdClient has various timeouts which vary from 3 minutes to 8 hours.
+    // This enforces an even default (10 minutes) more appropriate for the
+    // cmsRun case.
+    if (timeout_ <= 0) {setTimeout(600);}
 
     StorageFactory *f = StorageFactory::get();
     StorageFactory::ReadHint readHint = f->readHint();
@@ -75,6 +83,23 @@ public:
   virtual void setDebugLevel (unsigned int level) override
   {
     EnvPutInt("DebugLevel", level);
+  }
+
+  virtual void setTimeout(unsigned int timeout) override
+  {
+    timeout_ = timeout;
+    if (timeout == 0) {return;}
+    EnvPutInt("ConnectTimeout", timeout/3+1); // Default 120.  This should allow multiple connections to timeout before the open fails.
+    EnvPutInt("RequestTimeout", timeout/3+1); // Default 300.  This should allow almost three requests to be performed before the transaction times out.
+    EnvPutInt("TransactionTimeout", timeout); // Default 28800
+
+    // Safety mechanism - if client is redirected more than 255 times in 600
+    // seconds, then we abort the interaction.
+    EnvPutInt("RedirCntTimeout", 600); // Default 36000
+
+    // Enforce some CMS defaults.
+    EnvPutInt("MaxRedirectcount", 32); // Default 16
+    EnvPutInt("ReconnectWait", 5); // Default 5
   }
 };
 
