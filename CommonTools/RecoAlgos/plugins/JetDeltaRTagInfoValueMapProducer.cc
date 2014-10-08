@@ -102,7 +102,7 @@ private:
 
       I mappedTagInfo; 
 
-      if( matched_index>=0 && static_cast<unsigned>(matched_index) < h_tagInfos->size() )
+      if( matched_index>=0 && static_cast<size_t>(matched_index) < h_tagInfos->size() )
       {
         if ( matched_dR2 > distMax2 )
           LogDebug("MatchedJetsFarApart") << "Matched jets separated by dR greater than distMax=" << distMax_;
