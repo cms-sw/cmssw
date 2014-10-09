@@ -19,32 +19,53 @@ HLTEcalResonanceFilter::HLTEcalResonanceFilter(const edm::ParameterSet& iConfig)
   endcapClustersToken_ = consumes<reco::BasicClusterCollection>(endcapClusters_);
   
   doSelBarrel_ = iConfig.getParameter<bool>("doSelBarrel");  
+
   if(doSelBarrel_){
     edm::ParameterSet barrelSelection = iConfig.getParameter<edm::ParameterSet>( "barrelSelection" );
     
-    ///for barrel selection
-    selePtGamma_ = barrelSelection.getParameter<double> ("selePtGamma");  
-    selePtPair_ = barrelSelection.getParameter<double> ("selePtPair");   
-    seleS4S9Gamma_ = barrelSelection.getParameter<double> ("seleS4S9Gamma");  
+    ///---------------------------BARREL SELECTION-----------------------------------
+    // EB region 1
+    region1_Barrel_ = barrelSelection.getParameter<double> ("region1_Barrel"); //eta dividing between region 1 and region 2
+    selePtGammaBarrel_region1_ = barrelSelection.getParameter<double> ("selePtGammaBarrel_region1");  
+    selePtPairBarrel_region1_ = barrelSelection.getParameter<double> ("selePtPairBarrel_region1");   
+    seleS4S9GammaBarrel_region1_ = barrelSelection.getParameter<double> ("seleS4S9GammaBarrel_region1");  
+    seleIsoBarrel_region1_ = barrelSelection.getParameter<double> ("seleIsoBarrel_region1");  
+
+    // EB region 2
+    selePtGammaBarrel_region2_ = barrelSelection.getParameter<double> ("selePtGammaBarrel_region2");  
+    selePtPairBarrel_region2_ = barrelSelection.getParameter<double> ("selePtPairBarrel_region2");   
+    seleS4S9GammaBarrel_region2_ = barrelSelection.getParameter<double> ("seleS4S9GammaBarrel_region2");  
+    seleIsoBarrel_region2_ = barrelSelection.getParameter<double> ("seleIsoBarrel_region2");  
+
+    // other
     seleS9S25Gamma_ = barrelSelection.getParameter<double> ("seleS9S25Gamma");  
+
+    //mass window
     seleMinvMaxBarrel_ = barrelSelection.getParameter<double> ("seleMinvMaxBarrel");  
     seleMinvMinBarrel_ = barrelSelection.getParameter<double> ("seleMinvMinBarrel");  
-    ptMinForIsolation_ = barrelSelection.getParameter<double> ("ptMinForIsolation");
+
+    // remove pi0 candidates for eta dataset
     removePi0CandidatesForEta_ = barrelSelection.getParameter<bool>("removePi0CandidatesForEta");
     if(removePi0CandidatesForEta_){
       massLowPi0Cand_ = barrelSelection.getParameter<double>("massLowPi0Cand");
       massHighPi0Cand_ = barrelSelection.getParameter<double>("massHighPi0Cand");
     }
-    seleIso_ = barrelSelection.getParameter<double> ("seleIso");  
+
+    // EB Isolation configuration
     ptMinForIsolation_ = barrelSelection.getParameter<double> ("ptMinForIsolation");
     seleBeltDR_ = barrelSelection.getParameter<double> ("seleBeltDR");  
     seleBeltDeta_ = barrelSelection.getParameter<double> ("seleBeltDeta");  
-    
+
+    // EB storage and collection
     store5x5RecHitEB_ = barrelSelection.getParameter<bool> ("store5x5RecHitEB");
-    BarrelHits_ = barrelSelection.getParameter<string > ("barrelHitCollection");
+    BarrelHits_ = barrelSelection.getParameter<string> ("barrelHitCollection");
+
+    // selePtGamma_ = barrelSelection.getParameter<double> ("selePtGamma");  // old non-region filter
+    // selePtPair_ = barrelSelection.getParameter<double> ("selePtPair");   // old non-region filter
+    // seleS4S9Gamma_ = barrelSelection.getParameter<double> ("seleS4S9Gamma");  //old non-region filter
+    // seleIso_ = barrelSelection.getParameter<double> ("seleIso");   // old non-region filter
     
-    produces< EBRecHitCollection >(BarrelHits_);
-    
+    produces<EBRecHitCollection>(BarrelHits_);    
   }
   
   
@@ -52,37 +73,48 @@ HLTEcalResonanceFilter::HLTEcalResonanceFilter(const edm::ParameterSet& iConfig)
   if(doSelEndcap_){
     edm::ParameterSet endcapSelection = iConfig.getParameter<edm::ParameterSet>( "endcapSelection" );
     
-    ///for endcap selection
+    ///---------------------------ENDCAP SELECTION-----------------------------
     seleMinvMaxEndCap_ = endcapSelection.getParameter<double> ("seleMinvMaxEndCap");  
     seleMinvMinEndCap_ = endcapSelection.getParameter<double> ("seleMinvMinEndCap");
-    
-    region1_EndCap_ = endcapSelection.getParameter<double> ("region1_EndCap");
+
+    // EE region 1
+    region1_EndCap_ = endcapSelection.getParameter<double> ("region1_EndCap"); //eta dividing between region 1 and region 2
     selePtGammaEndCap_region1_ = endcapSelection.getParameter<double> ("selePtGammaEndCap_region1");  
     selePtPairEndCap_region1_ = endcapSelection.getParameter<double> ("selePtPairEndCap_region1");   
+    seleS4S9GammaEndCap_region1_ = endcapSelection.getParameter<double> ("seleS4S9GammaEndCap_region1");  
+    seleIsoEndCap_region1_ = endcapSelection.getParameter<double> ("seleIsoEndCap_region1");  
     
-    region2_EndCap_ = endcapSelection.getParameter<double> ("region2_EndCap");
+    // EE region 2
+    region2_EndCap_ = endcapSelection.getParameter<double> ("region2_EndCap"); //eta dividing between region 2 and region 3
     selePtGammaEndCap_region2_ = endcapSelection.getParameter<double> ("selePtGammaEndCap_region2");  
     selePtPairEndCap_region2_ = endcapSelection.getParameter<double> ("selePtPairEndCap_region2");   
-    
+    seleS4S9GammaEndCap_region2_ = endcapSelection.getParameter<double> ("seleS4S9GammaEndCap_region2");  
+    seleIsoEndCap_region2_ = endcapSelection.getParameter<double> ("seleIsoEndCap_region2");  
+
+    // EE region 3 (available but not yet used)
     selePtGammaEndCap_region3_ = endcapSelection.getParameter<double> ("selePtGammaEndCap_region3");  
     selePtPairEndCap_region3_ = endcapSelection.getParameter<double> ("selePtPairEndCap_region3");
     selePtPairMaxEndCap_region3_ = endcapSelection.getParameter<double> ("selePtPairMaxEndCap_region3");
-    
+    seleS4S9GammaEndCap_region3_ = endcapSelection.getParameter<double> ("seleS4S9GammaEndCap_region3");  
+    seleIsoEndCap_region3_ = endcapSelection.getParameter<double> ("seleIsoEndCap_region3");  
 
-    seleS4S9GammaEndCap_ = endcapSelection.getParameter<double> ("seleS4S9GammaEndCap");  
     seleS9S25GammaEndCap_ = endcapSelection.getParameter<double> ("seleS9S25GammaEndCap");  
+
+    // isolation belt and size configuration
     ptMinForIsolationEndCap_ = endcapSelection.getParameter<double> ("ptMinForIsolationEndCap");
     seleBeltDREndCap_ = endcapSelection.getParameter<double> ("seleBeltDREndCap");  
     seleBeltDetaEndCap_ = endcapSelection.getParameter<double> ("seleBeltDetaEndCap");  
-    seleIsoEndCap_ = endcapSelection.getParameter<double> ("seleIsoEndCap");  
     
+    // EE storage and collections
     store5x5RecHitEE_ = endcapSelection.getParameter<bool> ("store5x5RecHitEE");
     EndcapHits_ = endcapSelection.getParameter<string > ("endcapHitCollection");
-    produces< EERecHitCollection >(EndcapHits_);
+
+    //seleS4S9GammaEndCap_ = endcapSelection.getParameter<double> ("seleS4S9GammaEndCap");   // old non-region filter
+    //seleIsoEndCap_ = endcapSelection.getParameter<double> ("seleIsoEndCap");   // old non-region filter
+
+    produces< EERecHitCollection >(EndcapHits_);    
     
-    
-  }
-  
+  }  
   
   useRecoFlag_ = iConfig.getParameter<bool>("useRecoFlag");
   flagLevelRecHitsToUse_ = iConfig.getParameter<int>("flagLevelRecHitsToUse"); 
@@ -146,47 +178,92 @@ HLTEcalResonanceFilter::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<bool>("useDBStatus",true);
   desc.add<int>("statusLevelRecHitsToUse",1);
 
+  //----------------------BARREL CONFIGURATION-----------------
   desc.add<bool>("doSelBarrel",true);
   edm::ParameterSetDescription barrelSelection;
-  barrelSelection.add<double>("selePtGamma",1.);
-  barrelSelection.add<double>("selePtPair",2.);
-  barrelSelection.add<double>("seleMinvMaxBarrel",0.22);
-  barrelSelection.add<double>("seleMinvMinBarrel",0.06);
+
+  //EB region 1
+  barrelSelection.add<double>("region1_Barrel", 1.0); //separator between barrel region 1 and region 2
+  barrelSelection.add<double>("selePtGammaBarrel_region1", 1.0);
+  barrelSelection.add<double>("selePtPairBarrel_region1", 2.0);
+  barrelSelection.add<double>("seleIsoBarrel_region1", 0.5);  
+  barrelSelection.add<double>("seleS4S9GammaBarrel_region1", 0.83);
+  
+  //EB region 2
+  barrelSelection.add<double>("selePtGammaBarrel_region2", 1.0);
+  barrelSelection.add<double>("selePtPairBarrel_region2", 2.0);
+  barrelSelection.add<double>("seleIsoBarrel_region2", 0.5);  
+  barrelSelection.add<double>("seleS4S9GammaBarrel_region2", 0.83);
+
+  //EB Isolation configuration
+  barrelSelection.add<double>("ptMinForIsolation", 1.0);
+  barrelSelection.add<double>("seleBeltDR", 0.2);
+  barrelSelection.add<double>("seleBeltDeta", 0.05);
+
+  //other parameters
+  barrelSelection.add<double>("seleMinvMaxBarrel", 0.22);
+  barrelSelection.add<double>("seleMinvMinBarrel", 0.06);
   barrelSelection.add<bool>("removePi0CandidatesForEta",false);
-  barrelSelection.add<double>("massLowPi0Cand",0.104);
-  barrelSelection.add<double>("massHighPi0Cand",0.163);
-  barrelSelection.add<double>("seleS4S9Gamma",0.83);
-  barrelSelection.add<double>("seleS9S25Gamma",0.);
-  barrelSelection.add<double>("ptMinForIsolation",1.0);
-  barrelSelection.add<double>("seleIso",0.5);
-  barrelSelection.add<double>("seleBeltDR",0.2);
-  barrelSelection.add<double>("seleBeltDeta",0.05);
+  barrelSelection.add<double>("massLowPi0Cand", 0.104);
+  barrelSelection.add<double>("massHighPi0Cand", 0.163);
+  barrelSelection.add<double>("seleS9S25Gamma", 0.);
+
+  //collections and storage
   barrelSelection.add<bool>("store5x5RecHitEB",false);
   barrelSelection.add<std::string>("barrelHitCollection","pi0EcalRecHitsEB");
-  desc.add<edm::ParameterSetDescription>("barrelSelection",barrelSelection);
+  desc.add<edm::ParameterSetDescription>("barrelSelection", barrelSelection);
+
+  //barrelSelection.add<double>("selePtGamma",1.); //old non-region
+  //barrelSelection.add<double>("selePtPair",2.); //old non-regional
+  //barrelSelection.add<double>("seleIso",0.5); //old non-regional
+  //barrelSelection.add<double>("seleS4S9Gamma",0.83); //old non-regional
+  
+
+  //----------------------ENDCAP CONFIGURATION-----------------
 
   desc.add<bool>("doSelEndcap",true);
   edm::ParameterSetDescription endcapSelection;
-  endcapSelection.add<double>("seleMinvMaxEndCap",0.3);
-  endcapSelection.add<double>("seleMinvMinEndCap",0.05);
-  endcapSelection.add<double>("region1_EndCap",2.0);
-  endcapSelection.add<double>("selePtGammaEndCap_region1",0.8);
-  endcapSelection.add<double>("selePtPairEndCap_region1",3.0);
-  endcapSelection.add<double>("region2_EndCap",2.5);
-  endcapSelection.add<double>("selePtGammaEndCap_region2",0.5);
-  endcapSelection.add<double>("selePtPairEndCap_region2",2.0);
-  endcapSelection.add<double>("selePtGammaEndCap_region3",0.3);
-  endcapSelection.add<double>("selePtPairEndCap_region3",1.2);
-  endcapSelection.add<double>("selePtPairMaxEndCap_region3",2.5);
-  endcapSelection.add<double>("seleS4S9GammaEndCap",0.9);
-  endcapSelection.add<double>("seleS9S25GammaEndCap",0.);
-  endcapSelection.add<double>("ptMinForIsolationEndCap",0.5);
-  endcapSelection.add<double>("seleIsoEndCap",0.5);
-  endcapSelection.add<double>("seleBeltDREndCap",0.2);
-  endcapSelection.add<double>("seleBeltDetaEndCap",0.05);
-  endcapSelection.add<bool>("store5x5RecHitEE",false);
-  endcapSelection.add<std::string>("endcapHitCollection","pi0EcalRecHitsEE");
-  desc.add<edm::ParameterSetDescription>("endcapSelection",endcapSelection);
+  // Mass Cuts
+  endcapSelection.add<double>("seleMinvMaxEndCap", 0.3);
+  endcapSelection.add<double>("seleMinvMinEndCap", 0.05);
+
+  // EE region 1
+  endcapSelection.add<double>("region1_EndCap", 2.0); // eta division between endcap region 1 and 2
+  endcapSelection.add<double>("selePtGammaEndCap_region1", 0.8);
+  endcapSelection.add<double>("selePtPairEndCap_region1", 3.0);
+  endcapSelection.add<double>("seleS4S9GammaEndCap_region1", 0.9);
+  endcapSelection.add<double>("seleIsoEndCap_region1", 0.5);
+
+  // EE region 2
+  endcapSelection.add<double>("region2_EndCap", 2.5); // eta division between endcap region 2 and 3
+  endcapSelection.add<double>("selePtGammaEndCap_region2", 0.5);
+  endcapSelection.add<double>("selePtPairEndCap_region2", 2.0);
+  endcapSelection.add<double>("seleS4S9GammaEndCap_region2", 0.9);
+  endcapSelection.add<double>("seleIsoEndCap_region2", 0.5);
+
+  // EE region 3
+  endcapSelection.add<double>("selePtGammaEndCap_region3", 0.3);
+  endcapSelection.add<double>("selePtPairEndCap_region3", 1.2);
+  endcapSelection.add<double>("selePtPairMaxEndCap_region3", 2.5);
+  endcapSelection.add<double>("seleS4S9GammaEndCap_region3", 0.9);
+  endcapSelection.add<double>("seleIsoEndCap_region3", 0.5);
+
+  // other
+  endcapSelection.add<double>("seleS9S25GammaEndCap", 0.);
+
+  // isolation configuration for endcap
+  endcapSelection.add<double>("ptMinForIsolationEndCap", 0.5);
+  endcapSelection.add<double>("seleBeltDREndCap", 0.2);
+  endcapSelection.add<double>("seleBeltDetaEndCap", 0.05);
+
+  // collections and storage
+  endcapSelection.add<bool>("store5x5RecHitEE", false);
+  endcapSelection.add<std::string>("endcapHitCollection", "pi0EcalRecHitsEE");
+  desc.add<edm::ParameterSetDescription>("endcapSelection", endcapSelection);
+
+  //endcapSelection.add<double>("seleS4S9GammaEndCap",0.9); //old non-region filter
+
+  //-----------------------------------------------------------
 
   desc.add<bool>("storeRecHitES",true);
   edm::ParameterSetDescription preshowerSelection;
@@ -207,8 +284,7 @@ HLTEcalResonanceFilter::fillDescriptions(edm::ConfigurationDescriptions& descrip
 }
 
 // ------------ method called to produce the data  ------------
-bool
-HLTEcalResonanceFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool HLTEcalResonanceFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    
   //Create empty output collections
@@ -250,7 +326,7 @@ HLTEcalResonanceFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   
   iEvent.getByToken(barrelHitsToken_,barrelRecHitsHandle);
   if (!barrelRecHitsHandle.isValid()) {
-    LogDebug("") << "AlCaEcalResonanceProducer: Error! can't get product barrel hits!" << std::endl;
+    cout << "AlCaEcalResonanceProducer: Error! can't get product barrel hits!" << std::endl;
   }
   
   const EcalRecHitCollection *hitCollection_eb = barrelRecHitsHandle.product();
@@ -259,10 +335,10 @@ HLTEcalResonanceFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   Handle<reco::BasicClusterCollection> barrelClustersHandle;
   iEvent.getByToken(barrelClustersToken_,barrelClustersHandle);
   if (!barrelClustersHandle.isValid()) {
-    LogDebug("") << "AlCaEcalResonanceProducer: Error! can't get product barrel clusters!" << std::endl;
+    cout << "AlCaEcalResonanceProducer: Error! can't get product barrel clusters!" << std::endl;
   }
   const reco::BasicClusterCollection *clusterCollection_eb = barrelClustersHandle.product();
-  if(debug_>=1) LogDebug("")<<" barrel_input_size:  run "<<iEvent.id().run()<<" event "<<iEvent.id().event()<<" nhitEB:  "<<hitCollection_eb->size()<<" nCluster: "<< clusterCollection_eb->size() <<endl;
+  if(debug_>=1) cout<<" barrel_input_size:  run "<<iEvent.id().run()<<" event "<<iEvent.id().event()<<" nhitEB:  "<<hitCollection_eb->size()<<" nCluster: "<< clusterCollection_eb->size() <<endl;
   
   
   if(doSelBarrel_){
@@ -336,7 +412,7 @@ HLTEcalResonanceFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
     
   int eb_collsize = selEBRecHitCollection->size();
   
-  if(debug_>=1) LogDebug("")<<" barrel_output_size_run "<<iEvent.id().run()<<" event "<<iEvent.id().event()<<" nEBSaved "<<selEBRecHitCollection->size()<<std::endl;
+  if(debug_>=1) cout<<" barrel_output_size_run "<<iEvent.id().run()<<" event "<<iEvent.id().event()<<" nEBSaved "<<selEBRecHitCollection->size()<<std::endl;
   ///==============End of  barrel ==================///
   
   
@@ -346,7 +422,7 @@ HLTEcalResonanceFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   Handle<ESRecHitCollection> esRecHitsHandle;
   iEvent.getByToken(preshHitsToken_,esRecHitsHandle);
   if( !esRecHitsHandle.isValid()){
-    LogDebug("") << "AlCaEcalResonanceProducer: Error! can't get product esRecHit!" << std::endl;
+    cout << "AlCaEcalResonanceProducer: Error! can't get product esRecHit!" << std::endl;
   }
   const EcalRecHitCollection* hitCollection_es = esRecHitsHandle.product();
   // make a map of rechits:
@@ -363,16 +439,16 @@ HLTEcalResonanceFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   Handle<EERecHitCollection> endcapRecHitsHandle;
   iEvent.getByToken(endcapHitsToken_,endcapRecHitsHandle);
   if (!endcapRecHitsHandle.isValid()) {
-    LogDebug("") << "AlCaEcalResonanceProducer: Error! can't get product endcap hits!" << std::endl;
+    cout << "AlCaEcalResonanceProducer: Error! can't get product endcap hits!" << std::endl;
   }
   const EcalRecHitCollection *hitCollection_ee = endcapRecHitsHandle.product();
   Handle<reco::BasicClusterCollection> endcapClustersHandle;
   iEvent.getByToken(endcapClustersToken_,endcapClustersHandle);
   if (!endcapClustersHandle.isValid()) {
-    LogDebug("") << "AlCaEcalResonanceProducer: Error! can't get product endcap clusters!" << std::endl;
+    cout << "AlCaEcalResonanceProducer: Error! can't get product endcap clusters!" << std::endl;
   }
   const reco::BasicClusterCollection *clusterCollection_ee = endcapClustersHandle.product();
-  if(debug_>=1) LogDebug("")<<" endcap_input_size:  run "<<iEvent.id().run()<<" event "<<iEvent.id().event()<<" nhitEE:  "<<hitCollection_ee->size()<<" nhitES: "<<hitCollection_es->size()<<" nCluster: "<< clusterCollection_ee->size() <<endl;
+  if(debug_>=1) cout<<" endcap_input_size:  run "<<iEvent.id().run()<<" event "<<iEvent.id().event()<<" nhitEE:  "<<hitCollection_ee->size()<<" nhitES: "<<hitCollection_es->size()<<" nCluster: "<< clusterCollection_ee->size() <<endl;
   
   
   if(doSelEndcap_){
@@ -462,13 +538,14 @@ HLTEcalResonanceFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   
   ////==============End of endcap ===============///
   
-  if(debug_>=1) LogDebug("")<<" endcap_output_size run "<<iEvent.id().run()<<"_"<<iEvent.id().event()<<" nEESaved "<<selEERecHitCollection->size()<<" nESSaved: " << selESRecHitCollection->size() <<endl;
+  if(debug_>=1) cout<<" endcap_output_size run "<<iEvent.id().run()<<"_"<<iEvent.id().event()<<" nEESaved "<<selEERecHitCollection->size()<<" nESSaved: " << selESRecHitCollection->size() <<endl;
   
   
   //Put selected information in the event
   int ee_collsize = selEERecHitCollection->size();
   
-  if( eb_collsize < 2 && ee_collsize <2) return false; 
+  if( eb_collsize < 2 && ee_collsize <2)     
+    return false; 
   
   ////Now put into events selected rechits.
   if(doSelBarrel_){
@@ -516,41 +593,45 @@ void HLTEcalResonanceFilter::doSelection(int detector, const reco::BasicClusterC
     }//end of loop over finding pi0's clusters
   }
   
-  
-  
-  
-  
+  //mass cut
   double m_minCut = seleMinvMinBarrel_; 
   double m_maxCut = seleMinvMaxBarrel_; 
+
+  //isolation 
   double ptminforIso = ptMinForIsolation_; 
-  double isoCut = seleIso_; 
   double isoBeltdrCut = seleBeltDR_ ; 
   double isoBeltdetaCut =  seleBeltDeta_; 
-  double s4s9Cut = seleS4S9Gamma_; 
+
+  //other
   double s9s25Cut = seleS9S25Gamma_; 
   bool store5x5 = store5x5RecHitEB_; 
+
+  //double isoCut = seleIso_;  //old non-region filter
+  //double s4s9Cut = seleS4S9Gamma_;  // old non-region filter
   
-  if( detector ==EcalEndcap){
+  if( detector == EcalEndcap){
+    //mass cuts
     m_minCut = seleMinvMinEndCap_;
     m_maxCut = seleMinvMaxEndCap_; 
+
+    //isolation
     ptminforIso = ptMinForIsolationEndCap_; 
-    isoCut = seleIsoEndCap_; 
     isoBeltdrCut =  seleBeltDREndCap_; 
     isoBeltdetaCut =  seleBeltDetaEndCap_; 
-    s4s9Cut = seleS4S9GammaEndCap_; 
+    
+    //other
     s9s25Cut = seleS9S25GammaEndCap_ ; 
     store5x5 = store5x5RecHitEE_; 
-    
-  }
-  
-  
-  
+
+    //isoCut = seleIsoEndCap_;  // old non-region filter
+    //s4s9Cut = seleS4S9GammaEndCap_;  //old non-region filter    
+  }  
 
   map<int,bool> passShowerShape_clus;  //if this cluster passed showershape cut, so no need to compute the quantity again for each loop
   
   for( reco::BasicClusterCollection::const_iterator it_bc = clusterCollection->begin(); it_bc != clusterCollection->end();it_bc++){
     
-    if( detector ==EcalBarrel && removePi0CandidatesForEta_){
+    if( detector == EcalBarrel && removePi0CandidatesForEta_){
       std::vector<int>::iterator it = find(indClusPi0Candidates.begin(),indClusPi0Candidates.end(),int(it_bc - clusterCollection->begin()) );
       if( it != indClusPi0Candidates.end()) continue; 
     }
@@ -586,30 +667,42 @@ void HLTEcalResonanceFilter::doSelection(int detector, const reco::BasicClusterC
       
       float m_pair,pt_pair,eta_pair, phi_pair; 
       calcPaircluster(*it_bc,*it_bc2, m_pair, pt_pair,eta_pair,phi_pair);  
+
       /// pt & Pt pair Cut 
       float ptmin = pt1< pt2 ? pt1:pt2; 
-      if(  detector ==EcalBarrel ){
-	if( ptmin < selePtGamma_ ) continue; 
-	if (pt_pair < selePtPair_ )continue;
-      }else{
-	float etapair = fabs(eta_pair);
-	if(etapair <= region1_EndCap_){
-	  if(ptmin < selePtGammaEndCap_region1_ || pt_pair < selePtPairEndCap_region1_) continue; 
-	}else if( etapair <= region2_EndCap_){
-	  if(ptmin < selePtGammaEndCap_region2_ || pt_pair < selePtPairEndCap_region2_) continue;
-	}else{
-	  if(ptmin < selePtGammaEndCap_region3_ || pt_pair < selePtPairEndCap_region3_) continue;
-	  if(pt_pair > selePtPairMaxEndCap_region3_ ) continue; 
+      float etapair = fabs(eta_pair);
+
+      //-------------------------------------
+      // Region Based Kinematic Cuts: pt of the diphoton system and pt of each photon
+      //-------------------------------------
+      if(  detector ==EcalBarrel ){ // BARREL
+	//EB region 1
+	if(etapair <= region1_Barrel_){ //EB region 1
+	  if(ptmin < selePtGammaBarrel_region1_ || pt_pair < selePtPairBarrel_region1_) continue; 
+	}
+	//EB region 2
+	else{ 	  
+	  if(ptmin < selePtGammaBarrel_region2_ || pt_pair < selePtPairBarrel_region2_) continue;
 	}
       }
-      
-
-      
+      else{ // ENDCAP
+	//EE region 1
+	if(etapair <= region1_EndCap_){
+	  if(ptmin < selePtGammaEndCap_region1_ || pt_pair < selePtPairEndCap_region1_) continue; 
+	}
+	//EE region 2
+	else if( etapair <= region2_EndCap_){
+	  if(ptmin < selePtGammaEndCap_region2_ || pt_pair < selePtPairEndCap_region2_) continue;
+	}
+	//EE region 3
+	else{
+	  if(ptmin < selePtGammaEndCap_region3_ || pt_pair < selePtPairEndCap_region3_) continue;
+	  if(pt_pair > selePtPairMaxEndCap_region3_ ) continue;  // there is also a possible maximum pt for the very forward region
+	}
+      }
+            
       /// Mass window Cut 
-      if( m_pair < m_minCut || m_pair > m_maxCut) continue; 
-      
-      
-      
+      if( m_pair < m_minCut || m_pair > m_maxCut) continue;                   
       
       //// Loop on cluster to measure isolation:
       vector<int> IsoClus;
@@ -628,32 +721,104 @@ void HLTEcalResonanceFilter::doSelection(int detector, const reco::BasicClusterC
 	int ind3 = int(it_bc3 - clusterCollection->begin());  /// remember which Iso cluster used 
 	IsoClus.push_back( ind3);
       }
-      /// Isolation cut
-      if(Iso/pt_pair > isoCut) continue; 
-      
+
+      //-------------------------------------
+      // Region Based Isolation Cut: pt of the diphoton system and pt of each photon
+      //-------------------------------------
+      float iso_val = Iso/pt_pair;
+      // BARREL
+      if(  detector == EcalBarrel ){
+	//EB region 1
+	if(etapair <= region1_Barrel_){ //EB region 1
+	  if(iso_val > seleIsoBarrel_region1_ ) continue; 
+	}
+	//EB region 2
+	else{ 	  
+	  if(iso_val > seleIsoBarrel_region2_ ) continue; 
+	}
+      }
+      // ENDCAP
+      else{
+	//EE region 1
+	if(etapair <= region1_EndCap_){
+	  if(iso_val > seleIsoEndCap_region1_ ) continue; 
+	}
+	//EE region 2
+	else if( etapair <= region2_EndCap_){
+	  if(iso_val > seleIsoEndCap_region2_ ) continue; 
+	}
+	//EE region 3
+	else{
+	  if(iso_val > seleIsoEndCap_region3_ ) continue; 
+	}
+      }
+      //-------------------------------------
+      //if(Iso/pt_pair > isoCut) continue;  //old non-regional cut      
+
+
+      //-------------------------------------
+      // Region based ShowerShape Cut: S4S9 Cut with possible S9S25 configuration
+      //-------------------------------------
       
       bool failShowerShape = false;
       for(int n=0; n<2; n++){
 	int ind = IsoClus[n];
 	reco::BasicClusterCollection::const_iterator it_bc3 = clusterCollection->begin() + ind; 
 	std::map<int,bool>::iterator  itmap = passShowerShape_clus.find(ind);
-	if( itmap != passShowerShape_clus.end()){
+	
+	if( itmap != passShowerShape_clus.end()){ // if we havent reached the end
 	  if( itmap->second == false){
 	    failShowerShape = true; 
 	    n=2; //exit the loop 
 	  }
-	}else{
+	}
+	else{
 	  vector<EcalRecHit> RecHitsCluster_5x5;
 	  float res[3];
+
+	  //build the shower shape variables
 	  calcShowerShape(*it_bc3, channelStatus,hitCollection, topology_p,store5x5, RecHitsCluster_5x5, res);
 	  float s4s9 = res[1] >0 ? res[0]/ res[1] : -1; 
 	  float s9s25 = res[2] >0 ? res[1] / res[2] : -1; 
-	  bool passed = s4s9 > s4s9Cut && s9s25 > s9s25Cut; 
-	  passShowerShape_clus.insert(pair<int, bool>(ind,passed));
+
+	  bool passed = false;
+
+	  // BARREL
+	  if( detector == EcalBarrel ){
+	    //EB region 1
+	    if(etapair <= region1_Barrel_){ 
+	      passed = s4s9 > seleS4S9GammaBarrel_region1_;
+	    }
+	    //EB region 2
+	    else{ 	  
+	      passed = s4s9 > seleS4S9GammaBarrel_region2_;
+	    }
+	  }
+	  // ENDCAP
+	  else{
+	    //EE region 1
+	    if( etapair <= region1_EndCap_){
+	      passed = s4s9 > seleS4S9GammaEndCap_region1_;
+	    }
+	    //EE region 2
+	    else if( etapair <= region2_EndCap_){
+	      passed = s4s9 > seleS4S9GammaEndCap_region2_;
+	    }
+	    //EE region 3
+	    else{
+	      passed = s4s9 > seleS4S9GammaEndCap_region3_;
+	    }
+	  }
+	  
+	  //apply the S9S25 cut as well
+	  passed = passed && (s9s25 > s9s25Cut);	  
+	  passShowerShape_clus.insert(pair<int, bool>(ind, passed));
+
 	  if( !passed ){
 	    failShowerShape = true; 
 	    n=2; //exit the loop 
-	  }else{
+	  }
+	  else{
 	    RecHits5x5_clus.insert(pair<int, vector<EcalRecHit> >(ind,RecHitsCluster_5x5) );
 	  }
 	}
@@ -670,7 +835,8 @@ void HLTEcalResonanceFilter::doSelection(int detector, const reco::BasicClusterC
 	  std::vector<int>::iterator it = find(indCandClus.begin(),indCandClus.end(), ind);  ///good cluster 
 	  if( it == indCandClus.end()) indCandClus.push_back(ind);
 	  else continue; 
-	}else{
+	}
+	else{
 	  std::vector<int>::iterator it = find(indIsoClus.begin(),indIsoClus.end(), ind);  //iso cluster 
 	  if( it == indIsoClus.end()) indIsoClus.push_back(ind);
 	  else continue; 
@@ -679,14 +845,9 @@ void HLTEcalResonanceFilter::doSelection(int detector, const reco::BasicClusterC
 	std::vector<int>::iterator it = find(indClusSelected.begin(),indClusSelected.end(),ind); 
 	if( it != indClusSelected.end()) continue; 
 	indClusSelected.push_back(ind);
-      }
-      
+      }      
     }
-  }
-  
-  
-  
-  
+  }  
 }
 
 
