@@ -165,7 +165,7 @@ std::string TrackerTopology::print(DetId id) const {
 
 
 SiStripDetId::ModuleGeometry TrackerTopology::moduleGeometry(const DetId &id) const {
-  switch(subDetector()) {
+  switch(id.subdetId()) {
   case StripSubdetector::TIB: return tibLayer(id)<3? SiStripDetId::IB1 : SiStripDetId::IB2;
   case StripSubdetector::TOB: return tobLayer(id)<5? SiStripDetId::OB2 : SiStripDetId::OB1;
   case StripSubdetector::TID: switch (tidRing(id)) {
@@ -182,7 +182,6 @@ SiStripDetId::ModuleGeometry TrackerTopology::moduleGeometry(const DetId &id) co
     case 6: return SiStripDetId::W6;
     case 7: return SiStripDetId::W7;
     }
-  case UNKNOWN: default: return SiStripDetId::UNKNOWNGEOMETRY;
   }
   return SiStripDetId::UNKNOWNGEOMETRY;
 }
