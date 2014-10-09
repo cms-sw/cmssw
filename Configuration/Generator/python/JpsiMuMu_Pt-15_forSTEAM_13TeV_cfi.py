@@ -15,7 +15,7 @@ generator = cms.EDFilter("Pythia6GeneratorFilter",
         parameterSets = cms.vstring('EvtGen')
     ),
     pythiaPylistVerbosity = cms.untracked.int32(0),
-    filterEfficiency = cms.untracked.double(1.),
+    filterEfficiency = cms.untracked.double(0.53),
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     comEnergy = cms.double(13000.0),
     crossSection = cms.untracked.double(0),
