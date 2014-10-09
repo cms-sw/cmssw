@@ -82,50 +82,57 @@
 
 class DQMStore;
 
-class ExoticaDQM : public edm::EDAnalyzer {
+class ExoticaDQM: public edm::EDAnalyzer{
 
- public:
+public:
+
   ExoticaDQM(const edm::ParameterSet& ps);
   virtual ~ExoticaDQM();
 
- protected:
+protected:
+
   virtual void beginJob();
   virtual void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
   virtual void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-                                    edm::EventSetup const& context);
-  virtual void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-                                  edm::EventSetup const& c);
+  virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
+  virtual void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
   virtual void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
   virtual void endJob();
 
-  // Diagnostic
-  virtual void analyzeMultiJets(edm::Event const& e);
-  virtual void analyzeMultiJetsTrigger(edm::Event const& e);
+  //Resonances
+  virtual void analyzeDiJets(edm::Event const& e);
+  virtual void analyzeDiMuons(edm::Event const& e);
+  virtual void analyzeDiElectrons(edm::Event const& e);
 
+  //Mono Searches
+  virtual void analyzeMonoJets(edm::Event const& e);
+  virtual void analyzeMonoMuons(edm::Event const& e);
+  virtual void analyzeMonoElectrons(edm::Event const& e);
+
+  //Other... Phat stuff.
+  virtual void analyzeMultiJetsTrigger(edm::Event const& e);
   virtual void analyzeLongLived(edm::Event const& e);
   virtual void analyzeLongLivedTrigger(edm::Event const& e);
-
-  virtual void analyzeEventInterpretation(edm::Event const& e,
-                                          edm::EventSetup const& eSetup);
+  virtual void analyzeEventInterpretation(edm::Event const& e, edm::EventSetup const& eSetup);
 
   //
-  // virtual void analyzeTopLike(edm::Event const& e);
-  // virtual void analyzeTopLikeTrigger(edm::Event const& e);
+  //virtual void analyzeTopLike(edm::Event const& e);
+  //virtual void analyzeTopLikeTrigger(edm::Event const& e);
   //
-  // virtual void analyzeLeptonJet(edm::Event const& e);
-  // virtual void analyzeLeptonJetTrigger(edm::Event const& e);
+  //virtual void analyzeLeptonJet(edm::Event const& e);
+  //virtual void analyzeLeptonJetTrigger(edm::Event const& e);
   //
-  // virtual void analyzeNonHadronic(edm::Event const& e);
-  // virtual void analyzeNonHadronicTrigger(edm::Event const& e);
+  //virtual void analyzeNonHadronic(edm::Event const& e);
+  //virtual void analyzeNonHadronicTrigger(edm::Event const& e);
 
- private:
-  void bookHistos(DQMStore* bei);
+private:
+
+  void bookHistos(DQMStore * bei );
 
   unsigned long long m_cacheID_;
   int nLumiSecs_;
   int nEvents_, irun, ievt;
-  reco::CandidateCollection* leptonscands_;
+  reco::CandidateCollection *leptonscands_;
   int leptonflavor;
   float pi;
 
@@ -135,9 +142,10 @@ class ExoticaDQM : public edm::EDAnalyzer {
 
   // Variables from config file
   edm::InputTag theTriggerResultsCollection;
-  std::vector<std::string> theTriggerForMultiJetsList;
-  std::vector<std::string> theTriggerForLongLivedList;
+  std::vector<std::string>  theTriggerForMultiJetsList;
+  std::vector<std::string>  theTriggerForLongLivedList;
   edm::Handle<edm::TriggerResults> triggerResults_;
+
 
   // Electrons
   edm::EDGetTokenT<reco::GsfElectronCollection> ElectronToken_;
@@ -147,6 +155,7 @@ class ExoticaDQM : public edm::EDAnalyzer {
   edm::Handle<reco::PFCandidateCollection> pfElectronCollectionEI_;
   reco::PFCandidateCollection pfelectronsEI;
 
+
   // Muons
   edm::EDGetTokenT<reco::MuonCollection> MuonToken_;
   edm::Handle<reco::MuonCollection> MuonCollection_;
@@ -155,12 +164,14 @@ class ExoticaDQM : public edm::EDAnalyzer {
   edm::Handle<reco::PFCandidateCollection> pfMuonCollectionEI_;
   reco::PFCandidateCollection pfmuonsEI;
 
+
   // Taus
   edm::EDGetTokenT<reco::CaloTauCollection> TauToken_;
   edm::Handle<reco::CaloTauCollection> TauCollection_;
   //
   edm::InputTag PFTauLabelEI_;
   edm::Handle<reco::PFTauCollection> pfTauCollectionEI_;
+
 
   // Photons
   edm::EDGetTokenT<reco::PhotonCollection> PhotonToken_;
@@ -169,6 +180,7 @@ class ExoticaDQM : public edm::EDAnalyzer {
   edm::InputTag PFPhotonLabelEI_;
   edm::Handle<reco::PFCandidateCollection> pfPhotonCollectionEI_;
   reco::PFCandidateCollection pfphotons;
+
 
   // Jets
   edm::EDGetTokenT<reco::CaloJetCollection> CaloJetToken_;
@@ -183,6 +195,7 @@ class ExoticaDQM : public edm::EDAnalyzer {
   edm::Handle<reco::PFJetCollection> pfJetCollectionEI_;
   reco::PFJetCollection pfjetsEI;
 
+
   // MET
   edm::EDGetTokenT<reco::CaloMETCollection> CaloMETToken_;
   edm::Handle<reco::CaloMETCollection> caloMETCollection_;
@@ -194,10 +207,8 @@ class ExoticaDQM : public edm::EDAnalyzer {
   edm::Handle<reco::PFMETCollection> pfMETCollectionEI_;
 
   // ECAL RECHITS
-  edm::EDGetTokenT<EBRecHitCollection>
-      ecalBarrelRecHitToken_;  // reducedEcalRecHitsEB
-  edm::EDGetTokenT<EERecHitCollection>
-      ecalEndcapRecHitToken_;  // reducedEcalRecHitsEE
+  edm::EDGetTokenT<EBRecHitCollection> ecalBarrelRecHitToken_; // reducedEcalRecHitsEB
+  edm::EDGetTokenT<EERecHitCollection> ecalEndcapRecHitToken_; // reducedEcalRecHitsEE
 
   ///////////////////////////
   // Parameters
@@ -206,22 +217,10 @@ class ExoticaDQM : public edm::EDAnalyzer {
   // inputs
   std::string CaloJetCorService_;
   std::string PFJetCorService_;
-  reco::helper::JetIDHelper* jetID;
-  double mj_monojet_ptPFJet_;
-  double mj_monojet_ptPFMuon_;
-  double mj_monojet_ptPFElectron_;
-  //
-  int mj_monojet_countPFJet;
-  //
-  double CaloJetPx[2];
-  double CaloJetPy[2];
-  double CaloJetPt[2];
-  double CaloJetEta[2];
-  double CaloJetPhi[2];
-  double CaloJetEMF[2];
-  double CaloJetfHPD[2];
-  double CaloJetn90[2];
-  //
+  reco::helper::JetIDHelper *jetID;
+
+  //Varibles Used
+  // PFJets
   double PFJetPx[2];
   double PFJetPy[2];
   double PFJetPt[2];
@@ -232,7 +231,158 @@ class ExoticaDQM : public edm::EDAnalyzer {
   double PFJetNEMF[2];
   double PFJetCEMF[2];
 
+  // Muons
+  //
+  double MuonPx[2];
+  double MuonPy[2];
+  double MuonPt[2];
+  double MuonEta[2];
+  double MuonPhi[2];
+  double MuonCharge[2];
+
+  // Electrons
+  //
+  double ElectronPx[2];
+  double ElectronPy[2];
+  double ElectronPt[2];
+  double ElectronEta[2];
+  double ElectronPhi[2];
+  double ElectronCharge[2];
+
+  ///////////////////////////
+  // Histograms
+  ///////////////////////////
+  // Histograms - Dijet
+  //
+  MonitorElement* dijet_PFJet1_pt;
+  MonitorElement* dijet_PFJet1_eta;
+  MonitorElement* dijet_PFJet1_phi;
+  MonitorElement* dijet_PFJet2_pt;
+  MonitorElement* dijet_PFJet2_eta;
+  MonitorElement* dijet_PFJet2_phi;
+  MonitorElement* dijet_deltaPhiPFJet1PFJet2;
+  MonitorElement* dijet_deltaEtaPFJet1PFJet2;
+  MonitorElement* dijet_deltaRPFJet1PFJet2;
+  MonitorElement* dijet_invMassPFJet1PFJet2;
+  MonitorElement* dijet_PFchef;
+  MonitorElement* dijet_PFnhef;
+  MonitorElement* dijet_PFcemf;
+  MonitorElement* dijet_PFnemf;
+  MonitorElement* dijet_PFJetMulti;
+  //
+  double dijet_PFJet1_pt_cut_;
+  double dijet_PFJet2_pt_cut_;
+  int    dijet_countPFJet_;
+
+  ///////////////////////////
+  // Histograms - DiMuon
+  //
+  MonitorElement* dimuon_Muon1_pt;
+  MonitorElement* dimuon_Muon1_eta;
+  MonitorElement* dimuon_Muon1_phi;
+  MonitorElement* dimuon_Muon2_pt;
+  MonitorElement* dimuon_Muon2_eta;
+  MonitorElement* dimuon_Muon2_phi;
+  MonitorElement* dimuon_Charge;
+  MonitorElement* dimuon_deltaEtaMuon1Muon2;
+  MonitorElement* dimuon_deltaPhiMuon1Muon2;
+  MonitorElement* dimuon_deltaRMuon1Muon2; 
+  MonitorElement* dimuon_invMassMuon1Muon2;
+  MonitorElement* dimuon_MuonMulti;
+  //
+  double dimuon_Muon1_pt_cut_;
+  double dimuon_Muon2_pt_cut_;
+  int    dimuon_countMuon_;
+
+  ///////////////////////////
+  // Histograms - DiElectron
+  //
+  MonitorElement* dielectron_Electron1_pt;
+  MonitorElement* dielectron_Electron1_eta;
+  MonitorElement* dielectron_Electron1_phi;
+  MonitorElement* dielectron_Electron2_pt;
+  MonitorElement* dielectron_Electron2_eta;
+  MonitorElement* dielectron_Electron2_phi;
+  MonitorElement* dielectron_Charge;
+  MonitorElement* dielectron_deltaEtaElectron1Electron2;
+  MonitorElement* dielectron_deltaPhiElectron1Electron2;
+  MonitorElement* dielectron_deltaRElectron1Electron2; 
+  MonitorElement* dielectron_invMassElectron1Electron2;
+  MonitorElement* dielectron_ElectronMulti;
+  //
+  double dielectron_Electron1_pt_cut_;
+  double dielectron_Electron2_pt_cut_;
+  int    dielectron_countElectron_;
+
+  ///////////////////////////
+  // Histograms - MonoJet
+  //
+  MonitorElement* monojet_PFJet_pt;
+  MonitorElement* monojet_PFJet_eta;
+  MonitorElement* monojet_PFJet_phi;
+  MonitorElement* monojet_PFMet;
+  MonitorElement* monojet_PFMet_phi;
+  MonitorElement* monojet_PFJetPtOverPFMet;
+  MonitorElement* monojet_deltaPhiPFJetPFMet;
+  MonitorElement* monojet_PFchef;
+  MonitorElement* monojet_PFnhef;
+  MonitorElement* monojet_PFcemf;
+  MonitorElement* monojet_PFnemf;
+  MonitorElement* monojet_PFJetMulti;
+  //
+  double monojet_PFJet_pt_cut_;
+  double monojet_PFJet_met_cut_;
+  int    monojet_countPFJet_;
+
+  ///////////////////////////
+  // Histograms - MonoMuon
+  //
+  MonitorElement* monomuon_Muon_pt;
+  MonitorElement* monomuon_Muon_eta;
+  MonitorElement* monomuon_Muon_phi;
+  MonitorElement* monomuon_Charge;
+  MonitorElement* monomuon_PFMet;
+  MonitorElement* monomuon_PFMet_phi;
+  MonitorElement* monomuon_MuonPtOverPFMet;
+  MonitorElement* monomuon_deltaPhiMuonPFMet;
+  MonitorElement* monomuon_TransverseMass;
+  MonitorElement* monomuon_MuonMulti;
+  //
+  double monomuon_Muon_pt_cut_;
+  double monomuon_Muon_met_cut_;
+  int    monomuon_countMuon_;
+
+  /////////////////////////////
+  // Histograms - MonoElectron
+  //
+  MonitorElement* monoelectron_Electron_pt;
+  MonitorElement* monoelectron_Electron_eta;
+  MonitorElement* monoelectron_Electron_phi;
+  MonitorElement* monoelectron_Charge;
+  MonitorElement* monoelectron_PFMet;
+  MonitorElement* monoelectron_ElectronPtOverPFMet;
+  MonitorElement* monoelectron_PFMet_phi;
+  MonitorElement* monoelectron_deltaPhiElectronPFMet;
+  MonitorElement* monoelectron_TransverseMass;
+  MonitorElement* monoelectron_ElectronMulti;
+  //
+  double monoelectron_Electron_pt_cut_;
+  double monoelectron_Electron_met_cut_;
+  int    monoelectron_countElectron_;
+
+
+
+  /////////// Phat Stuff /////////
   // Cuts - Long Lived
+  //
+  double CaloJetPx[2];
+  double CaloJetPy[2];
+  double CaloJetPt[2];
+  double CaloJetEta[2];
+  double CaloJetPhi[2];
+  double CaloJetEMF[2];
+  double CaloJetfHPD[2];
+  double CaloJetn90[2];
   //
 
   // Cuts - EI
@@ -247,27 +397,6 @@ class ExoticaDQM : public edm::EDAnalyzer {
   double PFJetEINEMF;
   double PFJetEICEMF;
 
-  ///////////////////////////
-  // Histograms
-  ///////////////////////////
-  // Histograms - MultiJets
-  //
-  MonitorElement* mj_monojet_pfchef;
-  MonitorElement* mj_monojet_pfnhef;
-  MonitorElement* mj_monojet_pfcemf;
-  MonitorElement* mj_monojet_pfnemf;
-  MonitorElement* mj_monojet_pfJet1_pt;
-  MonitorElement* mj_monojet_pfJet2_pt;
-  MonitorElement* mj_monojet_pfJet1_eta;
-  MonitorElement* mj_monojet_pfJet2_eta;
-  MonitorElement* mj_monojet_pfJetMulti;
-  MonitorElement* mj_monojet_deltaPhiPFJet1PFJet2;
-  MonitorElement* mj_monojet_deltaRPFJet1PFJet2;
-  MonitorElement* mj_monojet_pfmetnomu;
-  MonitorElement* mj_caloMet_et;
-  MonitorElement* mj_caloMet_phi;
-  MonitorElement* mj_pfMet_et;
-  MonitorElement* mj_pfMet_phi;
   // Histograms - MultiJets Trigger
   //
   // Histograms - LongLived
@@ -281,7 +410,9 @@ class ExoticaDQM : public edm::EDAnalyzer {
   MonitorElement* ei_pfmet_pt;
   MonitorElement* ei_pfmuon_pt;
   MonitorElement* ei_pfelectron_pt;
+
 };
+
 
 #endif
 
