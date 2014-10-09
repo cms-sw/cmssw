@@ -38,6 +38,7 @@ HLTMuonTrkFilter::HLTMuonTrkFilter(const edm::ParameterSet& iConfig) : HLTFilter
   m_requiredTypeMask  = iConfig.getParameter<unsigned int>("requiredTypeMask");
   m_trkMuonId         = muon::SelectionType(iConfig.getParameter<unsigned int>("trkMuonId"));
   m_minPt             = iConfig.getParameter<double>("minPt");
+  m_maxAbsEta         = iConfig.getParameter<double>("maxAbsEta");
 }
 
 void
@@ -54,6 +55,7 @@ HLTMuonTrkFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   desc.add<unsigned int>("requiredTypeMask",0);
   desc.add<unsigned int>("trkMuonId",0);
   desc.add<double>("minPt",24);
+  desc.add<double>("maxAbsEta",2.4);
   descriptions.add("hltMuonTrkFilter",desc);
 }
 
@@ -82,6 +84,7 @@ HLTMuonTrkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
     }
     if ( muon.isTrackerMuon() && !muon::isGoodMuon(muon,m_trkMuonId) ) continue;
     if ( muon.pt() < m_minPt ) continue;
+      if ( fabs(muon.eta()) > m_maxAbsEta ) continue;
     filteredMuons.push_back(i);
   }
 
