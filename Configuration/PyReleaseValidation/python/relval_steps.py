@@ -888,25 +888,11 @@ steps['SingleMuPt10FS_ID']=identityFS(steps['SingleMuPt10FS'])
 steps['TTbarFS_ID']=identityFS(steps['TTbarFS'])
 
 #### generator test section ####
-#step1GenDefaults=merge([{'-s':'GEN,VALIDATION:genvalid',
-#                         '--relval':'1000000,20000',
-#                         '--eventcontent':'RAWSIM',
-#                         '--datatier':'GEN'},
-#                        step1Defaults])
-#def genvalid(fragment,d,suffix='all',fi=''):
-#    import copy
-#    c=copy.copy(d)
-#    if suffix:
-#        c['-s']=c['-s'].replace('genvalid','genvalid_'+suffix)
-#    if fi:
-#        c['--filein']='lhe:%d'%(fi,)
-#    c['cfg']=fragment
-#    return c
  
 step1GenDefaults=merge([{'-s':'GEN,VALIDATION:genvalid',
                          '--relval':'250000,20000',
-                         '--eventcontent':'RAWSIM',
-                         '--datatier':'GEN'},
+                         '--eventcontent':'RAWSIM,DQM',
+                         '--datatier':'GEN,DQMIO'},
                         step1Defaults])
 def genvalid(fragment,d,suffix='all',fi='',dataSet=''):
     import copy
@@ -1357,7 +1343,8 @@ steps['HARVESTGEN']={'-s':'HARVESTING:genHarvesting',
                      '--harvesting':'AtJobEnd',
                      '--conditions':'auto:run1_mc',
                      '--mc':'',
-                     '--filein':'file:step1.root'
+                     '--filetype':'DQM',
+                     '--filein':'file:step1_inDQM.root'
                   }
 
 #data
