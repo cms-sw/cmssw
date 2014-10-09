@@ -55,21 +55,36 @@ ExoticaDQM = cms.EDAnalyzer(
     photonCollection         = cms.InputTag("gedPhotons"),
     #pfphotonCollection       = cms.InputTag("pfIsolatedPhotons"),
 
-    caloJetCollection        = cms.InputTag("ak4CaloJets"),
-    pfJetCollection          = cms.InputTag("ak4PFJets"),
+    caloJetCollection        = cms.InputTag("ak4CaloJetsCHS"),
+    pfJetCollection          = cms.InputTag("ak4PFJetsCHS"),
     pfJetCollectionEI        = cms.InputTag("pfJets"),
 
     caloMETCollection        = cms.InputTag("caloMetM","","RECO"),
     pfMETCollection          = cms.InputTag("pfMet","","RECO"),
     pfMETCollectionEI        = cms.InputTag("pfMetEI","","RECO"),
 
-    #Cuts
-    #Multijets
-    mj_monojet_ptPFJet       = cms.double(30.0),
-    mj_monojet_ptPFMuon      = cms.double(10.0),
-    mj_monojet_ptPFElectron  = cms.double(10.0),
     CaloJetCorService        = cms.string("ak4CaloL1FastL2L3"),
     PFJetCorService          = cms.string("ak4PFL1FastL2L3"),
+
+    #Cuts
+    # DiJet
+    dijet_PFJet1_pt_cut       = cms.double(30.0),
+    dijet_PFJet2_pt_cut       = cms.double(30.0),
+    # DiMuon
+    dimuon_Muon1_pt_cut      = cms.double(50.0),
+    dimuon_Muon2_pt_cut      = cms.double(50.0),
+    # DiElectron
+    dielectron_Electron1_pt_cut = cms.double(50.0),
+    dielectron_Electron2_pt_cut = cms.double(50.0),
+    # Monojet
+    monojet_PFJet_pt_cut      = cms.double(80.0),
+    monojet_PFJet_met_cut     = cms.double(100.0),
+    # MonoMuon
+    monomuon_Muon_pt_cut      = cms.double(50.0),
+    monomuon_Muon_met_cut     = cms.double(100.0),
+    # MonoElectron
+    monoelectron_Electron_pt_cut  = cms.double(50.0),
+    monoelectron_Electron_met_cut = cms.double(80.0),
 
     #
     #LongLived
