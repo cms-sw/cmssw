@@ -3,7 +3,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 ShiftedMETcorrInputProducer::ShiftedMETcorrInputProducer(const edm::ParameterSet& cfg)
-  : moduleLabel_(cfg.getParameter<std::string>("@module_label"))
 {
   src_ = cfg.getParameter<vInputTag>("src");
 
