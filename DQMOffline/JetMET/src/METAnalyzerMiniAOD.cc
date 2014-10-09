@@ -13,7 +13,7 @@
  *          V. Sordini
  */
 
-#include "DQMOffline/JetMET/interface/METAnalyzer.h"
+#include "DQMOffline/JetMET/interface/METAnalyzerMiniAOD.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
@@ -31,8 +31,6 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "math.h"
-#include "TH2F.h"
-#include "TH2.h"
 
 #include <string>
 
@@ -41,7 +39,7 @@ using namespace reco;
 using namespace math;
 
 // ***********************************************************
-METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
+METAnalyzerMiniAOD::METAnalyzerMiniAOD(const edm::ParameterSet& pSet) {
   parameters = pSet;
 
   outputMEsInRootFile   = parameters.getParameter<bool>("OutputMEsInRootFile");
@@ -50,17 +48,10 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
   LSBegin_     = pSet.getParameter<int>("LSBegin");
   LSEnd_       = pSet.getParameter<int>("LSEnd");
 
- // Smallest track pt
-  ptMinCand_ = pSet.getParameter<double>("ptMinCand");
-
-  // Smallest raw HCAL energy linked to the track
-  hcalMin_ = pSet.getParameter<double>("hcalMin");
-
   MetType_ = parameters.getUntrackedParameter<std::string>("METType");
 
   triggerResultsLabel_        = parameters.getParameter<edm::InputTag>("TriggerResultsLabel");
   triggerResultsToken_= consumes<edm::TriggerResults>(edm::InputTag(triggerResultsLabel_));
-  jetCorrectionService_ = pSet.getParameter<std::string> ("JetCorrections");
 
   isCaloMet_ = (std::string("calo")==MetType_);
   //isTCMet_ = (std::string("tc") ==MetType_);
@@ -68,28 +59,17 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
 
   // MET information
   metCollectionLabel_       = parameters.getParameter<edm::InputTag>("METCollectionLabel");
+  patMETToken_= consumes<pat::METCollection>(edm::InputTag(metCollectionLabel_));
 
   if(/*isTCMet_ || */isCaloMet_){
-    inputJetIDValueMap      = pSet.getParameter<edm::InputTag>("InputJetIDValueMap");
-    jetID_ValueMapToken_= consumes< edm::ValueMap<reco::JetID> >(inputJetIDValueMap);
     jetIDFunctorLoose=JetIDSelectionFunctor(JetIDSelectionFunctor::PURE09, JetIDSelectionFunctor::LOOSE);
   }
   if(isPFMet_){
-    pflowToken_ = consumes<std::vector<reco::PFCandidate> >(pSet.getParameter<edm::InputTag>("srcPFlow"));
+    patCandToken_ = consumes<std::vector<pat::PackedCandidate> >(pSet.getParameter<edm::InputTag>("srcPFlow"));
     pfjetIDFunctorLoose=PFJetIDSelectionFunctor(PFJetIDSelectionFunctor::FIRSTDATA, PFJetIDSelectionFunctor::LOOSE);
   }
   ptThreshold_ = parameters.getParameter<double>("ptThreshold");
 
-
-  if(isPFMet_){
-    pfMetToken_= consumes<reco::PFMETCollection>(edm::InputTag(metCollectionLabel_));
-  }
-  if(isCaloMet_){
-    caloMetToken_= consumes<reco::CaloMETCollection>(edm::InputTag(metCollectionLabel_));
-  }
-  //if(isTCMet_){
-  // tcMetToken_= consumes<reco::METCollection>(edm::InputTag(metCollectionLabel_));
-  //}
   
   fill_met_high_level_histo = parameters.getParameter<bool>("fillMetHighLevel");
   
@@ -98,11 +78,11 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
   cleaningParameters_ = pSet.getParameter<ParameterSet>("CleaningParameters"); 
 
   diagnosticsParameters_ = pSet.getParameter<std::vector<edm::ParameterSet> >("METDiagonisticsParameters");
-
+  
   edm::ConsumesCollector iC  = consumesCollector();
   //DCS
   DCSFilter_ = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilter"), iC );
-
+  
   //Vertex requirements
   bypassAllPVChecks_    = cleaningParameters_.getParameter<bool>("bypassAllPVChecks");
   bypassAllDCSChecks_    = cleaningParameters_.getParameter<bool>("bypassAllDCSChecks");
@@ -114,25 +94,9 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
   gtTag_          = cleaningParameters_.getParameter<edm::InputTag>("gtLabel");
   gtToken_= consumes<L1GlobalTriggerReadoutRecord>(edm::InputTag(gtTag_));
 
-  //inputTrackLabel_         = parameters.getParameter<edm::InputTag>("InputTrackLabel");
-  //inputMuonLabel_          = parameters.getParameter<edm::InputTag>("InputMuonLabel");
-  //inputElectronLabel_      = parameters.getParameter<edm::InputTag>("InputElectronLabel");
-  //inputBeamSpotLabel_      = parameters.getParameter<edm::InputTag>("InputBeamSpotLabel");
-  //inputTCMETValueMap_      = parameters.getParameter<edm::InputTag>("InputTCMETValueMap");
-  //TrackToken_= consumes<edm::View <reco::Track> >(inputTrackLabel_);
-  //MuonToken_= consumes<reco::MuonCollection>(inputMuonLabel_);
-  //ElectronToken_= consumes<edm::View<reco::GsfElectron> >(inputElectronLabel_);
-  //BeamspotToken_= consumes<reco::BeamSpot>(inputBeamSpotLabel_);
-  //tcMETValueMapToken_= consumes< edm::ValueMap<reco::MuonMETCorrectionData> >(inputTCMETValueMap_);
-
   // Other data collections
   jetCollectionLabel_       = parameters.getParameter<edm::InputTag>("JetCollectionLabel");
-  if (isCaloMet_) caloJetsToken_ = consumes<reco::CaloJetCollection>(jetCollectionLabel_);
-  //if (isTCMet_)   jptJetsToken_ = consumes<reco::JPTJetCollection>(jetCollectionLabel_);
-  if (isPFMet_)   pfJetsToken_ = consumes<reco::PFJetCollection>(jetCollectionLabel_);
-
-  hcalNoiseRBXCollectionTag_   = parameters.getParameter<edm::InputTag>("HcalNoiseRBXCollection");
-  HcalNoiseRBXToken_ = consumes<reco::HcalNoiseRBXCollection>(hcalNoiseRBXCollectionTag_);
+  patJetsToken_ = consumes< edm::View<pat::Jet> >(jetCollectionLabel_);
 
   beamHaloSummaryTag_          = parameters.getParameter<edm::InputTag>("BeamHaloSummaryLabel");
   beamHaloSummaryToken_       = consumes<BeamHaloSummary>(beamHaloSummaryTag_); 
@@ -157,13 +121,10 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
 
  FolderName_              = parameters.getUntrackedParameter<std::string>("FolderName");
 
- nCh = std::vector<unsigned int>(10,static_cast<unsigned int>(0));
- nEv = std::vector<unsigned int>(2,static_cast<unsigned int>(0));
-
 }
 
 // ***********************************************************
-METAnalyzer::~METAnalyzer() {
+METAnalyzerMiniAOD::~METAnalyzerMiniAOD() {
   for (std::vector<GenericTriggerEventFlag *>::const_iterator it = triggerFolderEventFlag_.begin(); it!= triggerFolderEventFlag_.end(); it++) {
     delete *it;
   }
@@ -171,7 +132,7 @@ METAnalyzer::~METAnalyzer() {
 }
 
 
-void METAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
+void METAnalyzerMiniAOD::bookHistograms(DQMStore::IBooker & ibooker,
 				     edm::Run const & iRun,
 				 edm::EventSetup const &) {
   std::string DirName = FolderName_+metCollectionLabel_.label();
@@ -193,7 +154,7 @@ void METAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
 
 
 // ***********************************************************
-void METAnalyzer::bookMESet(std::string DirName, DQMStore::IBooker & ibooker, std::map<std::string,MonitorElement*>& map_of_MEs)
+void METAnalyzerMiniAOD::bookMESet(std::string DirName, DQMStore::IBooker & ibooker, std::map<std::string,MonitorElement*>& map_of_MEs)
 {
   bool bLumiSecPlot=fill_met_high_level_histo;
   //if (DirName.find("Uncleaned")!=std::string::npos)bLumiSecPlot=true;//now defined on configlevel
@@ -209,7 +170,7 @@ void METAnalyzer::bookMESet(std::string DirName, DQMStore::IBooker & ibooker, st
 }
 
 // ***********************************************************
-void METAnalyzer::bookMonitorElement(std::string DirName,DQMStore::IBooker & ibooker, std::map<std::string,MonitorElement*>& map_of_MEs, bool bLumiSecPlot=false)
+void METAnalyzerMiniAOD::bookMonitorElement(std::string DirName,DQMStore::IBooker & ibooker, std::map<std::string,MonitorElement*>& map_of_MEs, bool bLumiSecPlot=false)
 {
   if (verbose_) std::cout << "bookMonitorElement " << DirName << std::endl;
 
@@ -344,81 +305,46 @@ void METAnalyzer::bookMonitorElement(std::string DirName,DQMStore::IBooker & ibo
 
   if(isPFMet_){
     mePhotonEtFraction        = ibooker.book1D("PfPhotonEtFraction",        "pfmet.photonEtFraction()",         50, 0,    1);
-    mePhotonEt                = ibooker.book1D("PfPhotonEt",                "pfmet.photonEt()",                100, 0, 1000);
     meNeutralHadronEtFraction = ibooker.book1D("PfNeutralHadronEtFraction", "pfmet.neutralHadronEtFraction()",  50, 0,    1);
-    meNeutralHadronEt         = ibooker.book1D("PfNeutralHadronEt",         "pfmet.neutralHadronEt()",         100, 0, 1000);
     meElectronEtFraction      = ibooker.book1D("PfElectronEtFraction",      "pfmet.electronEtFraction()",       50, 0,    1);
-    meElectronEt              = ibooker.book1D("PfElectronEt",              "pfmet.electronEt()",              100, 0, 1000);
     meChargedHadronEtFraction = ibooker.book1D("PfChargedHadronEtFraction", "pfmet.chargedHadronEtFraction()",  50, 0,    1);
-    meChargedHadronEt         = ibooker.book1D("PfChargedHadronEt",         "pfmet.chargedHadronEt()",         100, 0, 1000);
     meMuonEtFraction          = ibooker.book1D("PfMuonEtFraction",          "pfmet.muonEtFraction()",           50, 0,    1);
-    meMuonEt                  = ibooker.book1D("PfMuonEt",                  "pfmet.muonEt()",                  100, 0, 1000);
     meHFHadronEtFraction      = ibooker.book1D("PfHFHadronEtFraction",      "pfmet.HFHadronEtFraction()",       50, 0,    1);
-    meHFHadronEt              = ibooker.book1D("PfHFHadronEt",              "pfmet.HFHadronEt()",              100, 0, 1000);
     meHFEMEtFraction          = ibooker.book1D("PfHFEMEtFraction",          "pfmet.HFEMEtFraction()",           50, 0,    1);
-    meHFEMEt                  = ibooker.book1D("PfHFEMEt",                  "pfmet.HFEMEt()",                  100, 0, 1000);
     
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfPhotonEtFraction"       ,mePhotonEtFraction));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfPhotonEt"               ,mePhotonEt));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfNeutralHadronEtFraction",meNeutralHadronEtFraction));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfNeutralHadronEt"        ,meNeutralHadronEt));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfElectronEtFraction"     ,meElectronEtFraction));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfElectronEt"             ,meElectronEt));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfChargedHadronEtFraction",meChargedHadronEtFraction));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfChargedHadronEt"        ,meChargedHadronEt));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfMuonEtFraction"         ,meMuonEtFraction));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfMuonEt"                 ,meMuonEt));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfHFHadronEtFraction"     ,meHFHadronEtFraction));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfHFHadronEt"             ,meHFHadronEt));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfHFEMEtFraction"         ,meHFEMEtFraction));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfHFEMEt"                 ,meHFEMEt));
-
-    mePhotonEtFraction_profile        = ibooker.bookProfile("PfPhotonEtFraction_profile",        "pfmet.photonEtFraction()",        nbinsPV_, nPVMin_, nPVMax_,  50, 0,    1);
-    mePhotonEt_profile                = ibooker.bookProfile("PfPhotonEt_profile",                "pfmet.photonEt()",                nbinsPV_, nPVMin_, nPVMax_, 100, 0, 1000);
-    meNeutralHadronEtFraction_profile = ibooker.bookProfile("PfNeutralHadronEtFraction_profile", "pfmet.neutralHadronEtFraction()", nbinsPV_, nPVMin_, nPVMax_,  50, 0,    1);
-    meNeutralHadronEt_profile         = ibooker.bookProfile("PfNeutralHadronEt_profile",         "pfmet.neutralHadronEt()",         nbinsPV_, nPVMin_, nPVMax_, 100, 0, 1000);
-    meElectronEtFraction_profile      = ibooker.bookProfile("PfElectronEtFraction_profile",      "pfmet.electronEtFraction()",      nbinsPV_, nPVMin_, nPVMax_,  50, 0,    1);
-    meElectronEt_profile              = ibooker.bookProfile("PfElectronEt_profile",              "pfmet.electronEt()",              nbinsPV_, nPVMin_, nPVMax_, 100, 0, 1000);
-    meChargedHadronEtFraction_profile = ibooker.bookProfile("PfChargedHadronEtFraction_profile", "pfmet.chargedHadronEtFraction()", nbinsPV_, nPVMin_, nPVMax_,  50, 0,    1);
-    meChargedHadronEt_profile         = ibooker.bookProfile("PfChargedHadronEt_profile",         "pfmet.chargedHadronEt()",         nbinsPV_, nPVMin_, nPVMax_, 100, 0, 1000);
-    meMuonEtFraction_profile          = ibooker.bookProfile("PfMuonEtFraction_profile",          "pfmet.muonEtFraction()",          nbinsPV_, nPVMin_, nPVMax_,  50, 0,    1);
-    meMuonEt_profile                  = ibooker.bookProfile("PfMuonEt_profile",                  "pfmet.muonEt()",                  nbinsPV_, nPVMin_, nPVMax_, 100, 0, 1000);
-    meHFHadronEtFraction_profile      = ibooker.bookProfile("PfHFHadronEtFraction_profile",      "pfmet.HFHadronEtFraction()",      nbinsPV_, nPVMin_, nPVMax_,  50, 0,    1);
-    meHFHadronEt_profile              = ibooker.bookProfile("PfHFHadronEt_profile",              "pfmet.HFHadronEt()",              nbinsPV_, nPVMin_, nPVMax_, 100, 0, 1000);
-    meHFEMEtFraction_profile          = ibooker.bookProfile("PfHFEMEtFraction_profile",          "pfmet.HFEMEtFraction()",          nbinsPV_, nPVMin_, nPVMax_,  50, 0,    1);
-    meHFEMEt_profile                  = ibooker.bookProfile("PfHFEMEt_profile",                  "pfmet.HFEMEt()",                  nbinsPV_, nPVMin_, nPVMax_, 100, 0, 1000);
     
+    mePhotonEtFraction_profile        = ibooker.bookProfile("PfPhotonEtFraction_profile",        "pfmet.photonEtFraction()",        nbinsPV_, nPVMin_, nPVMax_,  50, 0,    1);
+    meNeutralHadronEtFraction_profile = ibooker.bookProfile("PfNeutralHadronEtFraction_profile", "pfmet.neutralHadronEtFraction()", nbinsPV_, nPVMin_, nPVMax_,  50, 0,    1);
+    meElectronEtFraction_profile      = ibooker.bookProfile("PfElectronEtFraction_profile",      "pfmet.electronEtFraction()",      nbinsPV_, nPVMin_, nPVMax_,  50, 0,    1);
+    meChargedHadronEtFraction_profile = ibooker.bookProfile("PfChargedHadronEtFraction_profile", "pfmet.chargedHadronEtFraction()", nbinsPV_, nPVMin_, nPVMax_,  50, 0,    1);
+    meMuonEtFraction_profile          = ibooker.bookProfile("PfMuonEtFraction_profile",          "pfmet.muonEtFraction()",          nbinsPV_, nPVMin_, nPVMax_,  50, 0,    1);
+    meHFHadronEtFraction_profile      = ibooker.bookProfile("PfHFHadronEtFraction_profile",      "pfmet.HFHadronEtFraction()",      nbinsPV_, nPVMin_, nPVMax_,  50, 0,    1);
+    meHFEMEtFraction_profile          = ibooker.bookProfile("PfHFEMEtFraction_profile",          "pfmet.HFEMEtFraction()",          nbinsPV_, nPVMin_, nPVMax_,  50, 0,    1);
+        
     mePhotonEtFraction_profile       ->setAxisTitle("nvtx", 1);
-    mePhotonEt_profile               ->setAxisTitle("nvtx", 1);
     meNeutralHadronEtFraction_profile->setAxisTitle("nvtx", 1);
-    meNeutralHadronEt_profile        ->setAxisTitle("nvtx", 1);
     meElectronEtFraction_profile     ->setAxisTitle("nvtx", 1);
-    meElectronEt_profile             ->setAxisTitle("nvtx", 1);
     meChargedHadronEtFraction_profile->setAxisTitle("nvtx", 1);
-    meChargedHadronEt_profile        ->setAxisTitle("nvtx", 1);
     meMuonEtFraction_profile         ->setAxisTitle("nvtx", 1);
-    meMuonEt_profile                 ->setAxisTitle("nvtx", 1);
     meHFHadronEtFraction_profile     ->setAxisTitle("nvtx", 1);
-    meHFHadronEt_profile             ->setAxisTitle("nvtx", 1);
     meHFEMEtFraction_profile         ->setAxisTitle("nvtx", 1);
-    meHFEMEt_profile                 ->setAxisTitle("nvtx", 1);
 
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfPhotonEtFraction_profile"        ,mePhotonEtFraction_profile));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfPhotonEt_profile"                ,mePhotonEt_profile));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfNeutralHadronEtFraction_profile" ,meNeutralHadronEtFraction_profile));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfNeutralHadronEt_profile"          ,meNeutralHadronEt_profile));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfElectronEtFraction_profile"      ,meElectronEtFraction_profile));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfElectronEt_profile"              ,meElectronEt_profile));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfChargedHadronEtFraction_profile" ,meChargedHadronEtFraction_profile));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfChargedHadronEt_profile"         ,meChargedHadronEt_profile));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfMuonEtFraction_profile"          ,meMuonEtFraction_profile));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfMuonEt_profile"                  ,meMuonEt_profile));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfHFHadronEtFraction_profile"      ,meHFHadronEtFraction_profile));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfHFHadronEt_profile"              ,meHFHadronEt_profile));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfHFEMEtFraction_profile"          ,meHFEMEtFraction_profile));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PfHFEMEt_profile"                  ,meHFEMEt_profile));
 
-    if(!etaMinPFCand_.empty()){
+   if(!etaMinPFCand_.empty()){
       etaMinPFCand_.clear();
       etaMaxPFCand_.clear();
       typePFCand_.clear();
@@ -479,45 +405,8 @@ void METAnalyzer::bookMonitorElement(std::string DirName,DQMStore::IBooker & ibo
       multiplicityPFCand_name_.push_back(std::string(v->getParameter<std::string>("name")).append("_multiplicity_").c_str());
       map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+ multiplicityPFCand_name_[multiplicityPFCand_name_.size()-1], multiplicityPFCand_[multiplicityPFCand_.size()-1]));
     }
- 
-    mProfileIsoPFChHad_TrackOccupancy=ibooker.book2D("IsoPfChHad_Track_profile","Isolated PFChHadron Tracker_occupancy", 108, -2.7, 2.7, 160, -M_PI,M_PI);
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"IsoPfChHad_Track_profile"        ,mProfileIsoPFChHad_TrackOccupancy));
-    mProfileIsoPFChHad_TrackPt=ibooker.book2D("IsoPfChHad_TrackPt","Isolated PFChHadron TrackPt", 108, -2.7, 2.7, 160, -M_PI,M_PI);
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"IsoPfChHad_TrackPt"        ,mProfileIsoPFChHad_TrackPt));
-
-
-    mProfileIsoPFChHad_EcalOccupancyCentral  = ibooker.book2D("IsoPfChHad_ECAL_profile_central","IsolatedPFChHa ECAL occupancy (Barrel)", 180, -1.479, 1.479, 125, -M_PI,M_PI);
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"IsoPfChHad_ECAL_profile_central"        ,mProfileIsoPFChHad_EcalOccupancyCentral));
-    mProfileIsoPFChHad_EMPtCentral=ibooker.book2D("IsoPfChHad_EMPt_central","Isolated PFChHadron HadPt_central", 180, -1.479, 1.479, 360, -M_PI,M_PI);
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"IsoPfChHad_EMPt_central"        ,mProfileIsoPFChHad_EMPtCentral));
-
-    mProfileIsoPFChHad_EcalOccupancyEndcap  = ibooker.book2D("IsoPfChHad_ECAL_profile_endcap","IsolatedPFChHa ECAL occupancy (Endcap)", 110, -2.75, 2.75, 125, -M_PI,M_PI);
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"IsoPfChHad_ECAL_profile_endcap"        ,mProfileIsoPFChHad_EcalOccupancyEndcap));
-    mProfileIsoPFChHad_EMPtEndcap=ibooker.book2D("IsoPfChHad_EMPt_endcap","Isolated PFChHadron EMPt_endcap", 110, -2.75, 2.75, 125, -M_PI,M_PI);
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"IsoPfChHad_EMPt_endcap"        ,mProfileIsoPFChHad_EMPtEndcap));
-
-    const int nbins_eta=16;
-
-    double eta_limits[nbins_eta]={-2.650,-2.500,-2.322,-2.172,-2.043,-1.930,-1.830,-1.740,1.740,1.830,1.930,2.043,2.172,2.3122,2.500,2.650};
-
-    TH2F* hist_temp_HCAL =new TH2F("IsoPfChHad_HCAL_profile_endcap","IsolatedPFChHa HCAL occupancy (outer endcap)",nbins_eta-1,eta_limits, 36, -M_PI,M_PI);
-    TH2F* hist_tempPt_HCAL=(TH2F*)hist_temp_HCAL->Clone("Isolated PFCHHadron HadPt (outer endcap)");
-
-    mProfileIsoPFChHad_HcalOccupancyCentral  = ibooker.book2D("IsoPfChHad_HCAL_profile_central","IsolatedPFChHa HCAL occupancy (Central Part)", 40, -1.740, 1.740, 72, -M_PI,M_PI);
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"IsoPfChHad_HCAL_profile_central"        ,mProfileIsoPFChHad_HcalOccupancyCentral));
-    mProfileIsoPFChHad_HadPtCentral=ibooker.book2D("IsoPfChHad_HadPt_central","Isolated PFChHadron HadPt_central", 40, -1.740, 1.740, 72, -M_PI,M_PI);
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"IsoPfChHad_HadPt_central"        ,mProfileIsoPFChHad_HadPtCentral));
-
-    mProfileIsoPFChHad_HcalOccupancyEndcap  = ibooker.book2D("IsoPfChHad_HCAL_profile_endcap",hist_temp_HCAL);
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"IsoPfChHad_HCAL_profile_endcap"        ,mProfileIsoPFChHad_HcalOccupancyEndcap));
-    mProfileIsoPFChHad_HadPtEndcap=ibooker.book2D("IsoPfChHad_HadPt_endcap",hist_tempPt_HCAL);
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"IsoPfChHad_HadPt_endcap"        ,mProfileIsoPFChHad_HadPtEndcap));
-
 
   }
-
-
-
 
   if (isCaloMet_){
     if (fill_met_high_level_histo){//now configurable in python file
@@ -534,43 +423,6 @@ void METAnalyzer::bookMonitorElement(std::string DirName,DQMStore::IBooker & ibo
     }
   }
   
-  //if (isTCMet_) {
-  //htrkPt    = ibooker.book1D("trackPt", "trackPt", 50, 0, 500);
-  //htrkEta   = ibooker.book1D("trackEta", "trackEta", 60, -3.0, 3.0);
-  //htrkNhits = ibooker.book1D("trackNhits", "trackNhits", 50, 0, 50);
-  //htrkChi2  = ibooker.book1D("trackNormalizedChi2", "trackNormalizedChi2", 20, 0, 20);
-  //htrkD0    = ibooker.book1D("trackD0", "trackd0", 50, -1, 1);
-  //helePt    = ibooker.book1D("electronPt", "electronPt", 50, 0, 500);
-  //heleEta   = ibooker.book1D("electronEta", "electronEta", 60, -3.0, 3.0);
-  //heleHoE   = ibooker.book1D("electronHoverE", "electronHoverE", 25, 0, 0.5);
-  //hmuPt     = ibooker.book1D("muonPt", "muonPt", 50, 0, 500);
-  //hmuEta    = ibooker.book1D("muonEta", "muonEta", 60, -3.0, 3.0);
-  //hmuNhits  = ibooker.book1D("muonNhits", "muonNhits", 50, 0, 50);
-  //hmuChi2   = ibooker.book1D("muonNormalizedChi2", "muonNormalizedChi2", 20, 0, 20);
-  //hmuD0     = ibooker.book1D("muonD0", "muonD0", 50, -1, 1);
-
-  //hMExCorrection       = ibooker.book1D("MExCorrection", "MExCorrection", 100, -500.0,500.0);
-  //hMEyCorrection       = ibooker.book1D("MEyCorrection", "MEyCorrection", 100, -500.0,500.0);
-  //hMuonCorrectionFlag  = ibooker.book1D("CorrectionFlag","CorrectionFlag", 5, -0.5, 4.5);
-
-  //map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"trackPt"   ,htrkPt));
-  //map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"trackEta"  ,htrkEta));
-  //map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"trackNhits",htrkNhits));
-  //map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"trackNormalizedChi2" ,htrkChi2));
-  //map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"trackD0"   ,htrkD0));
-  //map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"electronPt"   ,helePt));
-  //map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"electronEta"  ,heleEta));
-  //map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"electronHoverE",heleHoE));
-  //map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"muonPt"   ,hmuPt));
-  //map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"muonEta"  ,hmuEta));
-  //map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"muonNhits",hmuNhits));
-  //map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"muonNormalizedChi2" ,hmuChi2));
-  //map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"muonD0"   ,hmuD0));
-  //map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MExCorrection"   ,hMExCorrection));
-  //map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MEyCorrection"   ,hMEyCorrection));
-  //map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CorrectionFlag"  ,hMuonCorrectionFlag));
-  //}
-  
   hMETRate      = ibooker.book1D("METRate",        "METRate",        200,    0, 1000);
   map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"METRate",hMETRate));
 
@@ -582,7 +434,7 @@ void METAnalyzer::bookMonitorElement(std::string DirName,DQMStore::IBooker & ibo
 }
 
 // ***********************************************************
-void METAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
+void METAnalyzerMiniAOD::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
 
 //  std::cout  << "Run " << iRun.run() << " hltconfig.init " 
@@ -605,7 +457,7 @@ void METAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
   }
 
   allTriggerNames_.clear();
-  for (unsigned int i = 0; i<hltConfig_.size();i++) {
+  for (unsigned i = 0; i<hltConfig_.size();i++) {
     allTriggerNames_.push_back(hltConfig_.triggerName(i));
   }
 //  std::cout<<"Length: "<<allTriggerNames_.size()<<std::endl;
@@ -626,7 +478,7 @@ void METAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
 }
 
 // ***********************************************************
-void METAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
+void METAnalyzerMiniAOD::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
   
   //
@@ -665,7 +517,7 @@ void METAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 
  
 
-  //below is the original METAnalyzer formulation
+  //below is the original METAnalyzerMiniAOD formulation
   
   for (std::vector<std::string>::const_iterator ic = folderNames_.begin(); ic != folderNames_.end(); ic++) {
     std::string DirName;
@@ -683,10 +535,9 @@ void METAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 
 
 // ***********************************************************
-void METAnalyzer::makeRatePlot(std::string DirName, double totltime)
+void METAnalyzerMiniAOD::makeRatePlot(std::string DirName, double totltime)
 {
   
-  //dbe_->setCurrentFolder(DirName);
   MonitorElement *meMET = map_dijet_MEs[DirName+"/"+"MET"];
   MonitorElement *mMETRate = map_dijet_MEs[DirName+"/"+"METRate"];
 
@@ -711,7 +562,7 @@ void METAnalyzer::makeRatePlot(std::string DirName, double totltime)
 }
   
 // ***********************************************************
-void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void METAnalyzerMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
 
   // *** Fill lumisection ME
@@ -724,7 +575,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   if (myLuminosityBlock<LSBegin_) return;
   if (myLuminosityBlock>LSEnd_ && LSEnd_>0) return;
 
-  if (verbose_) std::cout << "METAnalyzer analyze" << std::endl;
+  if (verbose_) std::cout << "METAnalyzerMiniAOD analyze" << std::endl;
 
   std::string DirName = FolderName_+metCollectionLabel_.label();
   
@@ -756,12 +607,12 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if (verbose_) std::cout << "ntrigs=" << ntrigs << std::endl;
     // If index=ntrigs, this HLT trigger doesn't exist in the HLT table for this data.
     for (std::vector<GenericTriggerEventFlag *>::const_iterator it =  triggerFolderEventFlag_.begin(); it!=triggerFolderEventFlag_.end();it++) {
-      unsigned int pos = it - triggerFolderEventFlag_.begin();
+      unsigned pos = it - triggerFolderEventFlag_.begin();
       bool fd = (*it)->accept(iEvent, iSetup);
       triggerFolderDecisions_[pos] = fd;
     }
     allTriggerDecisions_.clear();
-    for (unsigned int i=0;i<allTriggerNames_.size();++i)  {
+    for (unsigned i=0;i<allTriggerNames_.size();++i)  {
       allTriggerDecisions_.push_back((*triggerResults).accept(i)); 
 //      std::cout<<"TR "<<(*triggerResults).size()<<" "<<(*triggerResults).accept(i)<<" "<<allTriggerNames_[i]<<std::endl;
     }
@@ -770,76 +621,18 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   // ==========================================================
   // MET information
 
-  // **** Get the MET container
-  edm::Handle<reco::METCollection> tcmetcoll;
-  edm::Handle<reco::CaloMETCollection> calometcoll;
-  edm::Handle<reco::PFMETCollection> pfmetcoll;
-
-  //if(isTCMet_){
-  //iEvent.getByToken(tcMetToken_, tcmetcoll);
-  //if(!tcmetcoll.isValid()) return;
-  //}
-  if(isCaloMet_){
-    iEvent.getByToken(caloMetToken_, calometcoll);
-    if(!calometcoll.isValid()) return;
-  }
-  if(isPFMet_){
-    iEvent.getByToken(pfMetToken_, pfmetcoll);
-    if(!pfmetcoll.isValid()) return;
-  }
-
-  const MET *met=NULL;
-  const PFMET *pfmet=NULL;
-  const CaloMET *calomet=NULL;
-  //if(isTCMet_){
-  //met=&(tcmetcoll->front());
-  //}
-  if(isPFMet_){
-    met=&(pfmetcoll->front());
-    pfmet=&(pfmetcoll->front());
-  }
-  if(isCaloMet_){
-    met=&(calometcoll->front());
-    calomet=&(calometcoll->front());
-  }
   
-  LogTrace(metname)<<"[METAnalyzer] Call to the MET analyzer";
-
-  // ==========================================================
-  // TCMET
-
-  //if (/*isTCMet_ || */(isCaloMet_ && metCollectionLabel_.label() == "corMetGlobalMuons")) {
-
-    //iEvent.getByToken(MuonToken_, muonHandle_);
-    //iEvent.getByToken(TrackToken_, trackHandle_);
-    //iEvent.getByToken(ElectronToken_, electronHandle_);
-    //iEvent.getByToken(BeamspotToken_, beamSpotHandle_);
-    //iEvent.getByToken(tcMETValueMapToken_,tcMetValueMapHandle_);
-
-    //if(!muonHandle_.isValid())     edm::LogInfo("OutputInfo") << "falied to retrieve muon data require by MET Task";
-    //if(!trackHandle_.isValid())    edm::LogInfo("OutputInfo") << "falied to retrieve track data require by MET Task";
-    //if(!electronHandle_.isValid()) edm::LogInfo("OutputInfo") << "falied to retrieve electron data require by MET Task";
-    //if(!beamSpotHandle_.isValid()) edm::LogInfo("OutputInfo") << "falied to retrieve beam spot data require by MET Task";
-
-    //beamSpot_ = ( beamSpotHandle_.isValid() ) ? beamSpotHandle_->position() : math::XYZPoint(0, 0, 0);
-    //}
+  LogTrace(metname)<<"[METAnalyzerMiniAOD] Call to the MET analyzer";
 
   // ==========================================================
   //
-
-  edm::Handle<HcalNoiseRBXCollection> HRBXCollection;
-  iEvent.getByToken(HcalNoiseRBXToken_,HRBXCollection);
-  if (!HRBXCollection.isValid()) {
-    LogDebug("") << "METAnalyzer: Could not find HcalNoiseRBX Collection" << std::endl;
-    if (verbose_) std::cout << "METAnalyzer: Could not find HcalNoiseRBX Collection" << std::endl;
-  }
 
   edm::Handle<bool> HBHENoiseFilterResultHandle;
   iEvent.getByToken(hbheNoiseFilterResultToken_, HBHENoiseFilterResultHandle);
   bool HBHENoiseFilterResult = *HBHENoiseFilterResultHandle;
   if (!HBHENoiseFilterResultHandle.isValid()) {
-    LogDebug("") << "METAnalyzer: Could not find HBHENoiseFilterResult" << std::endl;
-    if (verbose_) std::cout << "METAnalyzer: Could not find HBHENoiseFilterResult" << std::endl;
+    LogDebug("") << "METAnalyzerMiniAOD: Could not find HBHENoiseFilterResult" << std::endl;
+    if (verbose_) std::cout << "METAnalyzerMiniAOD: Could not find HBHENoiseFilterResult" << std::endl;
   }
 
   // ==========================================================
@@ -848,44 +641,20 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   // Jet ID -------------------------------------------------------
   //
 
-  edm::Handle<CaloJetCollection> caloJets;
-  edm::Handle<JPTJetCollection> jptJets;
-  edm::Handle<PFJetCollection> pfJets;
 
-  int collsize=-1;
+  // **** Get the MET container
+  edm::Handle<pat::METCollection> metcoll;
+  iEvent.getByToken(patMETToken_, metcoll);
+  if(!metcoll.isValid()) return;
 
-  if (isCaloMet_){
-    iEvent.getByToken(caloJetsToken_, caloJets);
-    if (!caloJets.isValid()) {
-      LogDebug("") << "METAnalyzer: Could not find calojet product" << std::endl;
-      if (verbose_) std::cout << "METAnalyzer: Could not find calojet product" << std::endl;
-    }
-    collsize=caloJets->size();
-  }
-  ///*
-  //if (isTCMet_){
-  //iEvent.getByToken(jptJetsToken_, jptJets);
-  //if (!jptJets.isValid()) {
-  //  LogDebug("") << "METAnalyzer: Could not find jptjet product" << std::endl;
-  //  if (verbose_) std::cout << "METAnalyzer: Could not find jptjet product" << std::endl;
-  //}
-  //collsize=jptJets->size();
-  //}*/
+  const pat::MET *met=NULL;
+  met=&(metcoll->front());
 
-  edm::Handle< edm::ValueMap<reco::JetID> >jetID_ValueMap_Handle;
-  if(/*isTCMet_ || */isCaloMet_){
-    if(!runcosmics_){
-      iEvent.getByToken(jetID_ValueMapToken_,jetID_ValueMap_Handle);
-    }
-  }
 
-  if (isPFMet_){ iEvent.getByToken(pfJetsToken_, pfJets);
-    if (!pfJets.isValid()) {
-      LogDebug("") << "METAnalyzer: Could not find pfjet product" << std::endl;
-      if (verbose_) std::cout << "METAnalyzer: Could not find pfjet product" << std::endl;
-    }
-    collsize=pfJets->size();
-  }
+  edm::Handle<edm::View<pat::Jet> >jets;
+  iEvent.getByToken(patJetsToken_,jets);
+
+  edm::View<pat::Jet> patJets = *jets;
 
   unsigned int ind1=-1;
   double pt1=-1;
@@ -895,82 +664,49 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   bool pass_jetID2=false;
 
   //do loose jet ID-> check threshold on corrected jets
-  for (int ijet=0; ijet<collsize; ijet++) {
-    double pt_jet=-10;
-    double scale=1.;
-    bool iscleaned=false;
-    if (!jetCorrectionService_.empty()) {
-      const JetCorrector* corrector = JetCorrector::getJetCorrector(jetCorrectionService_, iSetup);	 
-      if(isCaloMet_){
-	scale = corrector->correction((*caloJets)[ijet], iEvent, iSetup);
-      }
-      //if(isTCMet_){
-      //scale = corrector->correction((*jptJets)[ijet], iEvent, iSetup);
-      //}
-      if(isPFMet_){
-	scale = corrector->correction((*pfJets)[ijet], iEvent, iSetup);
-      }
-    }
-    if(isCaloMet_){
-	pt_jet=scale*(*caloJets)[ijet].pt();
+  int index=0;
+  if(jets.isValid()){
+    for(edm::View<pat::Jet>::const_iterator i_jet = patJets.begin();i_jet != patJets.end(); ++i_jet) {
+      double pt_jet=-10;
+      bool iscleaned=false;
+      if(isCaloMet_&& i_jet->isCaloJet()){
+	pt_jet=i_jet->pt();
 	if(pt_jet> ptThreshold_){
-	  reco::CaloJetRef calojetref(caloJets, ijet);
-	  if(!runcosmics_){
-	    reco::JetID jetID = (*jetID_ValueMap_Handle)[calojetref];
-	    iscleaned = jetIDFunctorLoose((*caloJets)[ijet], jetID);
-	  }else{
-	    iscleaned=true;
-	  }
+	  iscleaned = jetIDFunctorLoose((*i_jet));
+	}else{
+	  iscleaned=true;
 	}
-    }
-    ///*
-    //if(isTCMet_){
-    //pt_jet=scale*(*jptJets)[ijet].pt();
-    //if(pt_jet> ptThreshold_){
-    //	const edm::RefToBase<reco::Jet>&  rawJet = (*jptJets)[ijet].getCaloJetRef();
-    //	const reco::CaloJet *rawCaloJet = dynamic_cast<const reco::CaloJet*>(&*rawJet);
-    //	reco::CaloJetRef const theCaloJetRef = (rawJet).castTo<reco::CaloJetRef>();
-    //	if(!runcosmics_){
-    //	  reco::JetID jetID = (*jetID_ValueMap_Handle)[theCaloJetRef];
-    //	  iscleaned = jetIDFunctorLoose(*rawCaloJet, jetID);
-    //	}else{
-    //	  iscleaned=true;
-    //	}
-    //}
-    //}*/
-    if(isPFMet_){
-      pt_jet=scale*(*pfJets)[ijet].pt();
-      if(pt_jet> ptThreshold_){
-	iscleaned = pfjetIDFunctorLoose((*pfJets)[ijet]);
       }
-    }
-    if(iscleaned){
-      bJetID=true;
-    }
-    if(pt_jet>pt1){
-      pt2=pt1;
-      ind2=ind1;
-      pass_jetID2=pass_jetID1;
-      pt1=pt_jet;
-      ind1=ijet;
-      pass_jetID1=iscleaned;
-    }else if (pt_jet>pt2){
-      pt2=pt_jet;
-      ind2=ijet;
-      pass_jetID2=iscleaned;
+      if(isPFMet_&& i_jet->isPFJet()){
+	pt_jet=i_jet->pt();
+	if(pt_jet> ptThreshold_){
+	  iscleaned = pfjetIDFunctorLoose((*i_jet));
+	}
+      }
+      if(iscleaned){
+	bJetID=true;
+      }
+      if(pt_jet>pt1){
+	pt2=pt1;
+	ind2=ind1;
+	pass_jetID2=pass_jetID1;
+	pt1=pt_jet;
+	ind1=index;
+	pass_jetID1=iscleaned;
+      }else if (pt_jet>pt2){
+	pt2=pt_jet;
+	ind2=index;
+	pass_jetID2=iscleaned;
+      }
+      index+=1;
     }
   }
   if(pass_jetID1 && pass_jetID2){
+    edm::View<pat::Jet>::const_iterator i_jet1 = patJets.begin()+ind1;
+    edm::View<pat::Jet>::const_iterator i_jet2 = patJets.begin()+ind2;
     double dphi=-1.0;
-    if(isCaloMet_){
-      dphi=fabs((*caloJets)[ind1].phi()-(*caloJets)[ind2].phi());
-    }
-    ///* if(isTCMet_){
-    //dphi=fabs((*jptJets)[ind1].phi()-(*jptJets)[ind2].phi());
-    //}*/
-    if(isPFMet_){
-      dphi=fabs((*pfJets)[ind1].phi()-(*pfJets)[ind2].phi());
-    }
+    dphi=fabs(i_jet1->phi()- i_jet2->phi());
+    
     if(dphi>acos(-1.)){
       dphi=2*acos(-1.)-dphi;
     }
@@ -984,26 +720,6 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   bool bHBHENoiseFilter = HBHENoiseFilterResult;
 
-  // ==========================================================
-  // Get BeamHaloSummary
-  edm::Handle<BeamHaloSummary> TheBeamHaloSummary ;
-  iEvent.getByToken(beamHaloSummaryToken_, TheBeamHaloSummary) ;
-
-  if (!TheBeamHaloSummary.isValid()) {
-    std::cout<<"beam halo not known"<<std::endl;
-    if (verbose_) std::cout << "BeamHaloSummary doesn't exist" << std::endl;
-  }
-
-  bool bBeamHaloID = true;
-
-  if(!TheBeamHaloSummary.isValid()) {
-
-  const BeamHaloSummary TheSummary = (*TheBeamHaloSummary.product() );
-
-  if( !TheSummary.EcalTightHaloId()  && !TheSummary.HcalTightHaloId() &&
-      !TheSummary.CSCTightHaloId()   && !TheSummary.GlobalTightHaloId() )
-    bBeamHaloID = false;
-  }
 
   // ==========================================================
   //Vertex information
@@ -1011,8 +727,8 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByToken(vertexToken_, vertexHandle);
 
   if (!vertexHandle.isValid()) {
-    LogDebug("") << "CaloMETAnalyzer: Could not find vertex collection" << std::endl;
-    if (verbose_) std::cout << "CaloMETAnalyzer: Could not find vertex collection" << std::endl;
+    LogDebug("") << "CaloMETAnalyzerMiniAOD: Could not find vertex collection" << std::endl;
+    if (verbose_) std::cout << "CaloMETAnalyzerMiniAOD: Could not find vertex collection" << std::endl;
   }
   numPV_ = 0;
   if ( vertexHandle.isValid() ){
@@ -1026,8 +742,8 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByToken( gtToken_, gtReadoutRecord);
 
   if (!gtReadoutRecord.isValid()) {
-    LogDebug("") << "CaloMETAnalyzer: Could not find GT readout record" << std::endl;
-    if (verbose_) std::cout << "CaloMETAnalyzer: Could not find GT readout record product" << std::endl;
+    LogDebug("") << "CaloMETAnalyzerMiniAOD: Could not find GT readout record" << std::endl;
+    if (verbose_) std::cout << "CaloMETAnalyzerMiniAOD: Could not find GT readout record product" << std::endl;
   }
   // DCS Filter
   bool bDCSFilter = (bypassAllDCSChecks_ || DCSFilter_->filter(iEvent, iSetup));
@@ -1036,33 +752,33 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   for (std::vector<std::string>::const_iterator ic = folderNames_.begin();
        ic != folderNames_.end(); ic++){
-    if ((*ic=="Uncleaned")  &&(isCaloMet_ || bPrimaryVertex))     fillMESet(iEvent, DirName+"/"+*ic, *met,*pfmet,*calomet,map_dijet_MEs);
+    if ((*ic=="Uncleaned")  &&(isCaloMet_ || bPrimaryVertex))     fillMESet(iEvent, DirName+"/"+*ic, *met,map_dijet_MEs);
     //take two lines out for first check
-    if ((*ic=="Cleaned")    &&bDCSFilter&&bHBHENoiseFilter&&bPrimaryVertex&&bBeamHaloID&&bJetID) fillMESet(iEvent, DirName+"/"+*ic, *met,*pfmet,*calomet,map_dijet_MEs);
-    if ((*ic=="DiJet" )     &&bDCSFilter&&bHBHENoiseFilter&&bPrimaryVertex&&bBeamHaloID&&bDiJetID) fillMESet(iEvent, DirName+"/"+*ic, *met,*pfmet,*calomet,map_dijet_MEs);
+    if ((*ic=="Cleaned")    &&bDCSFilter&&bHBHENoiseFilter&&bPrimaryVertex&&bJetID) fillMESet(iEvent, DirName+"/"+*ic, *met,map_dijet_MEs);
+    if ((*ic=="DiJet" )     &&bDCSFilter&&bHBHENoiseFilter&&bPrimaryVertex&&bDiJetID) fillMESet(iEvent, DirName+"/"+*ic, *met,map_dijet_MEs);
   }
 }
 
 
 // ***********************************************************
-void METAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
-			    const reco::MET& met, const reco::PFMET& pfmet, const reco::CaloMET& calomet,std::map<std::string,MonitorElement*>&  map_of_MEs)
+void METAnalyzerMiniAOD::fillMESet(const edm::Event& iEvent, std::string DirName,
+				   const pat::MET& met,std::map<std::string,MonitorElement*>&  map_of_MEs)
 {
 
   //dbe_->setCurrentFolder(DirName);
 
   bool bLumiSecPlot=fill_met_high_level_histo;
   //if (DirName.find("Uncleaned")) bLumiSecPlot=true; //now done on configlevel
-  fillMonitorElement(iEvent, DirName, std::string(""), met, pfmet, calomet, map_of_MEs,bLumiSecPlot);
+  fillMonitorElement(iEvent, DirName, std::string(""), met, map_of_MEs,bLumiSecPlot);
   if (DirName.find("Cleaned")) {
-    for (unsigned int i = 0; i<triggerFolderLabels_.size(); i++) {
-      if (triggerFolderDecisions_[i])  fillMonitorElement(iEvent, DirName, triggerFolderLabels_[i], met, pfmet, calomet, map_of_MEs, false);
+    for (unsigned i = 0; i<triggerFolderLabels_.size(); i++) {
+      if (triggerFolderDecisions_[i])  fillMonitorElement(iEvent, DirName, triggerFolderLabels_[i], met, map_of_MEs, false);
     }
   }
 
   if (DirName.find("DiJet")) {
-    for (unsigned int i = 0; i<triggerFolderLabels_.size(); i++) {
-      if (triggerFolderDecisions_[i])  fillMonitorElement(iEvent, DirName, triggerFolderLabels_[i], met, pfmet, calomet, map_of_MEs, false);
+    for (unsigned i = 0; i<triggerFolderLabels_.size(); i++) {
+      if (triggerFolderDecisions_[i])  fillMonitorElement(iEvent, DirName, triggerFolderLabels_[i], met, map_of_MEs, false);
     }
   }
   
@@ -1070,9 +786,9 @@ void METAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
 }
 
 // ***********************************************************
-void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirName,
+void METAnalyzerMiniAOD::fillMonitorElement(const edm::Event& iEvent, std::string DirName,
 					 std::string subFolderName,
-				     const reco::MET& met, const reco::PFMET & pfmet, const reco::CaloMET &calomet, std::map<std::string,MonitorElement*>&  map_of_MEs,bool bLumiSecPlot)
+					    const pat::MET& met, std::map<std::string,MonitorElement*>&  map_of_MEs,bool bLumiSecPlot)
 {
 // Reconstructed MET Information
   double SumET  = met.sumEt();
@@ -1132,24 +848,24 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
     if (meMET_profile   && meMET_profile  ->getRootObject()) meMET_profile  ->Fill(numPV_, MET);
     if (meSumET_profile && meSumET_profile->getRootObject()) meSumET_profile->Fill(numPV_, SumET);
 
-    if(isCaloMet_){
+    if(isCaloMet_ && met.isCaloMET() ){
       //const reco::CaloMETCollection *calometcol = calometcoll.product();
       //const reco::CaloMET *calomet;
       //calomet = &(calometcol->front());
       
-      double caloEtFractionHadronic = calomet.etFractionHadronic();
-      double caloEmEtFraction       = calomet.emEtFraction();
+      double caloEtFractionHadronic = met.etFractionHadronic();
+      double caloEmEtFraction       = met.emEtFraction();
 
-      double caloMaxEtInEMTowers    = calomet.maxEtInEmTowers();
-      double caloMaxEtInHadTowers   = calomet.maxEtInHadTowers();
+      double caloMaxEtInEMTowers    = met.maxEtInEmTowers();
+      double caloMaxEtInHadTowers   = met.maxEtInHadTowers();
       
-      double caloHadEtInHB = calomet.hadEtInHB();
-      double caloHadEtInHO = calomet.hadEtInHO();
-      double caloHadEtInHE = calomet.hadEtInHE();
-      double caloHadEtInHF = calomet.hadEtInHF();
-      double caloEmEtInEB  = calomet.emEtInEB();
-      double caloEmEtInEE  = calomet.emEtInEE();
-      double caloEmEtInHF  = calomet.emEtInHF();
+      double caloHadEtInHB = met.hadEtInHB();
+      double caloHadEtInHO = met.hadEtInHO();
+      double caloHadEtInHE = met.hadEtInHE();
+      double caloHadEtInHF = met.hadEtInHF();
+      double caloEmEtInEB  = met.emEtInEB();
+      double caloEmEtInEE  = met.emEtInEE();
+      double caloEmEtInHF  = met.emEtInHF();
 
       hCaloMaxEtInEmTowers  = map_of_MEs[DirName+"/"+"CaloMaxEtInEmTowers"];   if (hCaloMaxEtInEmTowers  && hCaloMaxEtInEmTowers->getRootObject())   hCaloMaxEtInEmTowers->Fill(caloMaxEtInEMTowers);
       hCaloMaxEtInHadTowers = map_of_MEs[DirName+"/"+"CaloMaxEtInHadTowers"];  if (hCaloMaxEtInHadTowers && hCaloMaxEtInHadTowers->getRootObject())  hCaloMaxEtInHadTowers->Fill(caloMaxEtInHadTowers);
@@ -1168,33 +884,12 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
       hCaloEtFractionHadronic = map_of_MEs[DirName+"/"+"CaloEtFractionHadronic"]; if (hCaloEtFractionHadronic && hCaloEtFractionHadronic->getRootObject())  hCaloEtFractionHadronic->Fill(caloEtFractionHadronic);
       hCaloEmEtFraction       = map_of_MEs[DirName+"/"+"CaloEmEtFraction"];       if (hCaloEmEtFraction       && hCaloEmEtFraction->getRootObject())        hCaloEmEtFraction->Fill(caloEmEtFraction);
       hCaloEmEtFraction020 = map_of_MEs[DirName+"/"+"CaloEmEtFraction020"];       if (MET> 20.  &&  hCaloEmEtFraction020    && hCaloEmEtFraction020->getRootObject()) hCaloEmEtFraction020->Fill(caloEmEtFraction);
-      //if (metCollectionLabel_.label() == "corMetGlobalMuons" ) {
-	
-      //for( reco::MuonCollection::const_iterator muonit = muonHandle_->begin(); muonit != muonHandle_->end(); muonit++ ) {
-      //  const reco::TrackRef siTrack = muonit->innerTrack();
-      //  hCalomuPt    = map_of_MEs[DirName+"/"+"CalomuonPt"];  
-      //  if (hCalomuPt    && hCalomuPt->getRootObject())   hCalomuPt->Fill( muonit->p4().pt() );
-      //  hCalomuEta   = map_of_MEs[DirName+"/"+"CalomuonEta"];    if (hCalomuEta   && hCalomuEta->getRootObject())    hCalomuEta->Fill( muonit->p4().eta() );
-      //  hCalomuNhits = map_of_MEs[DirName+"/"+"CalomuonNhits"];  if (hCalomuNhits && hCalomuNhits->getRootObject())  hCalomuNhits->Fill( siTrack.isNonnull() ? siTrack->numberOfValidHits() : -999 );
-      //  hCalomuChi2  = map_of_MEs[DirName+"/"+"CalomuonNormalizedChi2"];   if (hCalomuChi2  && hCalomuChi2->getRootObject())   hCalomuChi2->Fill( siTrack.isNonnull() ? siTrack->chi2()/siTrack->ndof() : -999 );
-      //  double d0 = siTrack.isNonnull() ? -1 * siTrack->dxy( beamSpot_) : -999;
-      //  hCalomuD0    = map_of_MEs[DirName+"/"+"CalomuonD0"];     if (hCalomuD0    && hCalomuD0->getRootObject())  hCalomuD0->Fill( d0 );
-      //}
-	
-      //const unsigned int nMuons = muonHandle_->size();
-      //for( unsigned int mus = 0; mus < nMuons; mus++ ) {
-      //  reco::MuonRef muref( muonHandle_, mus);
-      //  reco::MuonMETCorrectionData muCorrData = (*tcMetValueMapHandle_)[muref];
-      //  hCaloMExCorrection      = map_of_MEs[DirName+"/"+"CaloMExCorrection"];       if (hCaloMExCorrection      && hCaloMExCorrection->getRootObject())       hCaloMExCorrection-> Fill(muCorrData.corrY());
-      //  hCaloMEyCorrection      = map_of_MEs[DirName+"/"+"CaloMEyCorrection"];       if (hCaloMEyCorrection      && hCaloMEyCorrection->getRootObject())       hCaloMEyCorrection-> Fill(muCorrData.corrX());
-      //  hCaloMuonCorrectionFlag = map_of_MEs[DirName+"/"+"CaloMuonCorrectionFlag"];  if (hCaloMuonCorrectionFlag && hCaloMuonCorrectionFlag->getRootObject())  hCaloMuonCorrectionFlag-> Fill(muCorrData.type());
-      //}
-      //} 
     }
 
-    if(isPFMet_){
+    if(isPFMet_ && met.isPFMET()){
 
-      for (unsigned int i=0;i<countsPFCand_.size();i++) {
+
+      for (unsigned i=0;i<countsPFCand_.size();i++) {
 	countsPFCand_[i]=0;
 	MExPFCand_[i]=0.;
 	MEyPFCand_[i]=0.;
@@ -1203,12 +898,12 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
 
 
       // typedef std::vector<reco::PFCandidate> pfCand;
-      edm::Handle<std::vector<reco::PFCandidate> > particleFlow;
-      iEvent.getByToken(pflowToken_, particleFlow);
+      edm::Handle<std::vector<pat::PackedCandidate> > particleFlow;
+      iEvent.getByToken(patCandToken_, particleFlow);
       for (unsigned int i = 0; i < particleFlow->size(); ++i) {
-	const reco::PFCandidate& c = particleFlow->at(i);
+	const pat::PackedCandidate& c = particleFlow->at(i);
 	for (unsigned int j=0; j<typePFCand_.size(); j++) {
-	  if (c.particleId()==typePFCand_[j]) {
+	  if (abs(c.pdgId())==typePFCand_[j]) {
 	    if ((c.eta()>etaMinPFCand_[j]) and(c.eta()<etaMaxPFCand_[j])) {
 	      countsPFCand_[j]+=1;
 	      MExPFCand_[j]-=c.px();
@@ -1222,81 +917,6 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
 	    }
 	  }
 	}
-	//fill quantities for isolated charged hadron quantities
-	//only for charged hadrons
-	if ( c.particleId() == 1 &&  c.pt() > ptMinCand_ ){
-	  // At least 1 GeV in HCAL
-	  double ecalRaw = c.rawEcalEnergy();
-	  double hcalRaw = c.rawHcalEnergy();
-	  if ( (ecalRaw + hcalRaw) > hcalMin_ ){
-	    const PFCandidate::ElementsInBlocks& theElements = c.elementsInBlocks();
-	    if( theElements.empty() ) continue;
-	    unsigned int iTrack=-999;
-	    std::vector<unsigned int> iECAL;// =999;
-	    std::vector<unsigned int> iHCAL;// =999;
-	    const reco::PFBlockRef blockRef = theElements[0].first;
-	    const edm::OwnVector<reco::PFBlockElement>& elements = blockRef->elements();
-	    // Check that there is only one track in the block.
-	    unsigned int nTracks = 0;
-	    for(unsigned int iEle=0; iEle<elements.size(); iEle++) {	         
-	      // Find the tracks in the block
-	      PFBlockElement::Type type = elements[iEle].type();
-	      switch( type ) {
-	      case PFBlockElement::TRACK:
-		iTrack = iEle;
-		nTracks++;
-		break;
-	      case PFBlockElement::ECAL:
-		iECAL.push_back( iEle );
-		break;
-	      case PFBlockElement::HCAL:
-		iHCAL.push_back( iEle );
-		break;
-	      default:
-		continue;
-	      } 
-	    }
-	    if ( nTracks == 1 ){
-	      // Characteristics of the track
-	      const reco::PFBlockElementTrack& et = dynamic_cast<const reco::PFBlockElementTrack &>( elements[iTrack] );
-	      mProfileIsoPFChHad_TrackOccupancy=map_of_MEs[DirName+"/"+"IsoPfChHad_Track_profile"];
-	      if (mProfileIsoPFChHad_TrackOccupancy  && mProfileIsoPFChHad_TrackOccupancy->getRootObject()) mProfileIsoPFChHad_TrackOccupancy->Fill(et.trackRef()->eta(),et.trackRef()->phi());
-	      mProfileIsoPFChHad_TrackPt=map_of_MEs[DirName+"/"+"IsoPfChHad_TrackPt"];
-	      if (mProfileIsoPFChHad_TrackPt  && mProfileIsoPFChHad_TrackPt->getRootObject()) mProfileIsoPFChHad_TrackPt->Fill(et.trackRef()->eta(),et.trackRef()->phi(),et.trackRef()->pt());
-	      //ECAL element
-	      
-	      for(unsigned int ii=0;ii<iECAL.size();ii++) {
-		const reco::PFBlockElementCluster& eecal = dynamic_cast<const reco::PFBlockElementCluster &>( elements[ iECAL[ii] ] );
-		if(fabs(eecal.clusterRef()->eta())<1.479){
-		  mProfileIsoPFChHad_EcalOccupancyCentral=map_of_MEs[DirName+"/"+"IsoPfChHad_ECAL_profile_central"];
-		  if (mProfileIsoPFChHad_EcalOccupancyCentral  && mProfileIsoPFChHad_EcalOccupancyCentral->getRootObject()) mProfileIsoPFChHad_EcalOccupancyCentral->Fill(eecal.clusterRef()->eta(),eecal.clusterRef()->phi());
-		  mProfileIsoPFChHad_EMPtCentral=map_of_MEs[DirName+"/"+"IsoPfChHad_EMPt_central"];
-		  if (mProfileIsoPFChHad_EMPtCentral  && mProfileIsoPFChHad_EMPtCentral->getRootObject()) mProfileIsoPFChHad_EMPtCentral->Fill(eecal.clusterRef()->eta(),eecal.clusterRef()->phi(),eecal.clusterRef()->pt());
-		}else{
-		  mProfileIsoPFChHad_EcalOccupancyEndcap=map_of_MEs[DirName+"/"+"IsoPfChHad_ECAL_profile_endcap"];
-		  if (mProfileIsoPFChHad_EcalOccupancyEndcap  && mProfileIsoPFChHad_EcalOccupancyEndcap->getRootObject()) mProfileIsoPFChHad_EcalOccupancyEndcap->Fill(eecal.clusterRef()->eta(),eecal.clusterRef()->phi());
-		  mProfileIsoPFChHad_EMPtEndcap=map_of_MEs[DirName+"/"+"IsoPfChHad_EMPt_endcap"];
-		  if (mProfileIsoPFChHad_EMPtEndcap  && mProfileIsoPFChHad_EMPtEndcap->getRootObject()) mProfileIsoPFChHad_EMPtEndcap->Fill(eecal.clusterRef()->eta(),eecal.clusterRef()->phi(),eecal.clusterRef()->pt());
-		}
-	      }
-	      //HCAL element
-	      for(unsigned int ii=0;ii<iHCAL.size();ii++) {
-		const reco::PFBlockElementCluster& ehcal = dynamic_cast<const reco::PFBlockElementCluster &>( elements[ iHCAL[ii] ] );
-		if(fabs(ehcal.clusterRef()->eta())<1.740){
-		  mProfileIsoPFChHad_HcalOccupancyCentral=map_of_MEs[DirName+"/"+"IsoPfChHad_HCAL_profile_central"];
-		  if (mProfileIsoPFChHad_HcalOccupancyCentral  && mProfileIsoPFChHad_HcalOccupancyCentral->getRootObject()) mProfileIsoPFChHad_HcalOccupancyCentral->Fill(ehcal.clusterRef()->eta(),ehcal.clusterRef()->phi());
-		  mProfileIsoPFChHad_HadPtCentral=map_of_MEs[DirName+"/"+"IsoPfChHad_HadPt_central"];
-		  if (mProfileIsoPFChHad_HadPtCentral  && mProfileIsoPFChHad_HadPtCentral->getRootObject()) mProfileIsoPFChHad_HadPtCentral->Fill(ehcal.clusterRef()->eta(),ehcal.clusterRef()->phi(),ehcal.clusterRef()->pt());
-		}else{
-		  mProfileIsoPFChHad_HcalOccupancyEndcap=map_of_MEs[DirName+"/"+"IsoPfChHad_HCAL_profile_endcap"];
-		  if (mProfileIsoPFChHad_HcalOccupancyEndcap  && mProfileIsoPFChHad_HcalOccupancyEndcap->getRootObject()) mProfileIsoPFChHad_HcalOccupancyEndcap->Fill(ehcal.clusterRef()->eta(),ehcal.clusterRef()->phi());
-		  mProfileIsoPFChHad_HadPtEndcap=map_of_MEs[DirName+"/"+"IsoPfChHad_HadPt_endcap"];
-		  if (mProfileIsoPFChHad_HadPtEndcap  && mProfileIsoPFChHad_HadPtEndcap->getRootObject()) mProfileIsoPFChHad_HadPtEndcap->Fill(ehcal.clusterRef()->eta(),ehcal.clusterRef()->phi(),ehcal.clusterRef()->pt());
-		}	
-	      }      
-	    } 
-	  }
-	}
       }
       for (unsigned int j=0; j<countsPFCand_.size(); j++) {
 	profilePFCand_x_[j]   = map_of_MEs[DirName + "/"+profilePFCand_x_name_[j]];
@@ -1307,88 +927,51 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
 	if(multiplicityPFCand_[j] && multiplicityPFCand_[j]->getRootObject())	multiplicityPFCand_[j]->Fill(countsPFCand_[j]);
       }
 
-      //try{
+
       
-      //    }catch(...){
-      //    };
       // PFMET getters
       //----------------------------------------------------------------------------
-      double pfPhotonEtFraction        = pfmet.photonEtFraction();
-      double pfPhotonEt                = pfmet.photonEt();
-      double pfNeutralHadronEtFraction = pfmet.neutralHadronEtFraction();
-      double pfNeutralHadronEt         = pfmet.neutralHadronEt();
-      double pfElectronEtFraction      = pfmet.electronEtFraction();
-      double pfElectronEt              = pfmet.electronEt();
-      double pfChargedHadronEtFraction = pfmet.chargedHadronEtFraction();
-      double pfChargedHadronEt         = pfmet.chargedHadronEt();
-      double pfMuonEtFraction          = pfmet.muonEtFraction();
-      double pfMuonEt                  = pfmet.muonEt();
-      double pfHFHadronEtFraction      = pfmet.HFHadronEtFraction();
-      double pfHFHadronEt              = pfmet.HFHadronEt();
-      double pfHFEMEtFraction          = pfmet.HFEMEtFraction();
-      double pfHFEMEt                  = pfmet.HFEMEt();
+      double pfPhotonEtFraction        = met.NeutralEMFraction();
+      double pfNeutralHadronEtFraction = met.NeutralHadEtFraction();
+      double pfElectronEtFraction      = met.ChargedEMEtFraction();
+      double pfChargedHadronEtFraction = met.ChargedHadEtFraction();
+      double pfMuonEtFraction          = met.MuonEtFraction();
+      double pfHFHadronEtFraction      = met.Type6EtFraction();//HFHadrons
+      double pfHFEMEtFraction          = met.Type7EtFraction();//HFEMEt
       
       mePhotonEtFraction        = map_of_MEs[DirName + "/PfPhotonEtFraction"];
-      mePhotonEt                = map_of_MEs[DirName + "/PfPhotonEt"];
       meNeutralHadronEtFraction = map_of_MEs[DirName + "/PfNeutralHadronEtFraction"];
-      meNeutralHadronEt         = map_of_MEs[DirName + "/PfNeutralHadronEt"];
       meElectronEtFraction      = map_of_MEs[DirName + "/PfElectronEtFraction"];
-      meElectronEt              = map_of_MEs[DirName + "/PfElectronEt"];
       meChargedHadronEtFraction = map_of_MEs[DirName + "/PfChargedHadronEtFraction"];
-      meChargedHadronEt         = map_of_MEs[DirName + "/PfChargedHadronEt"];
       meMuonEtFraction          = map_of_MEs[DirName + "/PfMuonEtFraction"];
-      meMuonEt                  = map_of_MEs[DirName + "/PfMuonEt"];
       meHFHadronEtFraction      = map_of_MEs[DirName + "/PfHFHadronEtFraction"];
-      meHFHadronEt              = map_of_MEs[DirName + "/PfHFHadronEt"];
       meHFEMEtFraction          = map_of_MEs[DirName + "/PfHFEMEtFraction"];
-      meHFEMEt                  = map_of_MEs[DirName + "/PfHFEMEt"];
       
       if (mePhotonEtFraction        && mePhotonEtFraction       ->getRootObject()) mePhotonEtFraction       ->Fill(pfPhotonEtFraction);
-      if (mePhotonEt                && mePhotonEt               ->getRootObject()) mePhotonEt               ->Fill(pfPhotonEt);
       if (meNeutralHadronEtFraction && meNeutralHadronEtFraction->getRootObject()) meNeutralHadronEtFraction->Fill(pfNeutralHadronEtFraction);
-      if (meNeutralHadronEt         && meNeutralHadronEt        ->getRootObject()) meNeutralHadronEt        ->Fill(pfNeutralHadronEt);
       if (meElectronEtFraction      && meElectronEtFraction     ->getRootObject()) meElectronEtFraction     ->Fill(pfElectronEtFraction);
-      if (meElectronEt              && meElectronEt             ->getRootObject()) meElectronEt             ->Fill(pfElectronEt);
       if (meChargedHadronEtFraction && meChargedHadronEtFraction->getRootObject()) meChargedHadronEtFraction->Fill(pfChargedHadronEtFraction);
-      if (meChargedHadronEt         && meChargedHadronEt        ->getRootObject()) meChargedHadronEt        ->Fill(pfChargedHadronEt);
       if (meMuonEtFraction          && meMuonEtFraction         ->getRootObject()) meMuonEtFraction         ->Fill(pfMuonEtFraction);
-      if (meMuonEt                  && meMuonEt                 ->getRootObject()) meMuonEt                 ->Fill(pfMuonEt);
       if (meHFHadronEtFraction      && meHFHadronEtFraction     ->getRootObject()) meHFHadronEtFraction     ->Fill(pfHFHadronEtFraction);
-      if (meHFHadronEt              && meHFHadronEt             ->getRootObject()) meHFHadronEt             ->Fill(pfHFHadronEt);
       if (meHFEMEtFraction          && meHFEMEtFraction         ->getRootObject()) meHFEMEtFraction         ->Fill(pfHFEMEtFraction);
-      if (meHFEMEt                  && meHFEMEt                 ->getRootObject()) meHFEMEt                 ->Fill(pfHFEMEt);
 
       //NPV profiles     
       
       mePhotonEtFraction_profile        = map_of_MEs[DirName + "/PfPhotonEtFraction_profile"];
-      mePhotonEt_profile                = map_of_MEs[DirName + "/PfPhotonEt_profile"];
       meNeutralHadronEtFraction_profile = map_of_MEs[DirName + "/PfNeutralHadronEtFraction_profile"];
-      meNeutralHadronEt_profile         = map_of_MEs[DirName + "/PfNeutralHadronEt_profile"];
       meElectronEtFraction_profile      = map_of_MEs[DirName + "/PfElectronEtFraction_profile"];
-      meElectronEt_profile              = map_of_MEs[DirName + "/PfElectronEt_profile"];
       meChargedHadronEtFraction_profile = map_of_MEs[DirName + "/PfChargedHadronEtFraction_profile"];
-      meChargedHadronEt_profile         = map_of_MEs[DirName + "/PfChargedHadronEt_profile"];
       meMuonEtFraction_profile          = map_of_MEs[DirName + "/PfMuonEtFraction_profile"];
-      meMuonEt_profile                  = map_of_MEs[DirName + "/PfMuonEt_profile"];
       meHFHadronEtFraction_profile      = map_of_MEs[DirName + "/PfHFHadronEtFraction_profile"];
-      meHFHadronEt_profile              = map_of_MEs[DirName + "/PfHFHadronEt_profile"];
       meHFEMEtFraction_profile          = map_of_MEs[DirName + "/PfHFEMEtFraction_profile"];
-      meHFEMEt_profile                  = map_of_MEs[DirName + "/PfHFEMEt_profile"];
       
       if (mePhotonEtFraction_profile        && mePhotonEtFraction_profile       ->getRootObject()) mePhotonEtFraction_profile       ->Fill(numPV_, pfPhotonEtFraction);
-      if (mePhotonEt_profile                && mePhotonEt_profile               ->getRootObject()) mePhotonEt_profile               ->Fill(numPV_, pfPhotonEt);
       if (meNeutralHadronEtFraction_profile && meNeutralHadronEtFraction_profile->getRootObject()) meNeutralHadronEtFraction_profile->Fill(numPV_, pfNeutralHadronEtFraction);
-      if (meNeutralHadronEt_profile         && meNeutralHadronEt_profile        ->getRootObject()) meNeutralHadronEt_profile        ->Fill(numPV_, pfNeutralHadronEt);
       if (meElectronEtFraction_profile      && meElectronEtFraction_profile     ->getRootObject()) meElectronEtFraction_profile     ->Fill(numPV_, pfElectronEtFraction);
-      if (meElectronEt_profile              && meElectronEt_profile             ->getRootObject()) meElectronEt_profile             ->Fill(numPV_, pfElectronEt);
       if (meChargedHadronEtFraction_profile && meChargedHadronEtFraction_profile->getRootObject()) meChargedHadronEtFraction_profile->Fill(numPV_, pfChargedHadronEtFraction);
-      if (meChargedHadronEt_profile         && meChargedHadronEt_profile        ->getRootObject()) meChargedHadronEt_profile        ->Fill(numPV_, pfChargedHadronEt);
       if (meMuonEtFraction_profile          && meMuonEtFraction_profile         ->getRootObject()) meMuonEtFraction_profile         ->Fill(numPV_, pfMuonEtFraction);
-      if (meMuonEt_profile                  && meMuonEt_profile                 ->getRootObject()) meMuonEt_profile                 ->Fill(numPV_, pfMuonEt);
       if (meHFHadronEtFraction_profile      && meHFHadronEtFraction_profile     ->getRootObject()) meHFHadronEtFraction_profile     ->Fill(numPV_, pfHFHadronEtFraction);
-      if (meHFHadronEt_profile              && meHFHadronEt_profile             ->getRootObject()) meHFHadronEt_profile             ->Fill(numPV_, pfHFHadronEt);
       if (meHFEMEtFraction_profile          && meHFEMEtFraction_profile         ->getRootObject()) meHFEMEtFraction_profile         ->Fill(numPV_, pfHFEMEtFraction);
-      if (meHFEMEt_profile                  && meHFEMEt_profile                 ->getRootObject()) meHFEMEt_profile                 ->Fill(numPV_, pfHFEMEt);
     }
 
     if (isCaloMet_){
@@ -1399,51 +982,4 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
       }
     }
 
-    ////////////////////////////////////
-    ///* if (isTCMet_) {
-
-    //if(trackHandle_.isValid()) {
-    //	for( edm::View<reco::Track>::const_iterator trkit = trackHandle_->begin(); trkit != trackHandle_->end(); trkit++ ) {
-    //	  htrkPt    = map_of_MEs[DirName+"/"+"trackPt"];     if (htrkPt    && htrkPt->getRootObject())     htrkPt->Fill( trkit->pt() );
-    //	  htrkEta   = map_of_MEs[DirName+"/"+"trackEta"];    if (htrkEta   && htrkEta->getRootObject())    htrkEta->Fill( trkit->eta() );
-    //	  htrkNhits = map_of_MEs[DirName+"/"+"trackNhits"];  if (htrkNhits && htrkNhits->getRootObject())  htrkNhits->Fill( trkit->numberOfValidHits() );
-    //	  htrkChi2  = map_of_MEs[DirName+"/"+"trackNormalizedChi2"];  
-    //	  if (htrkChi2  && htrkChi2->getRootObject())   htrkChi2->Fill( trkit->chi2() / trkit->ndof() );
-    //	  double d0 = -1 * trkit->dxy( beamSpot_ );
-    //	  htrkD0    = map_of_MEs[DirName+"/"+"trackD0"];     if (htrkD0 && htrkD0->getRootObject())        htrkD0->Fill( d0 );
-    //	}
-    //}else{if (verbose_) std::cout<<"tracks not valid"<<std::endl;}
-
-    //if(electronHandle_.isValid()) {
-    //	for( edm::View<reco::GsfElectron>::const_iterator eleit = electronHandle_->begin(); eleit != electronHandle_->end(); eleit++ ) {
-    //	  helePt  = map_of_MEs[DirName+"/"+"electronPt"];   if (helePt  && helePt->getRootObject())   helePt->Fill( eleit->p4().pt() );
-    //	  heleEta = map_of_MEs[DirName+"/"+"electronEta"];  if (heleEta && heleEta->getRootObject())  heleEta->Fill( eleit->p4().eta() );
-    //	  heleHoE = map_of_MEs[DirName+"/"+"electronHoverE"];  if (heleHoE && heleHoE->getRootObject())  heleHoE->Fill( eleit->hadronicOverEm() );
-    //	}
-    //}else{
-    //	if (verbose_) std::cout<<"electrons not valid"<<std::endl;
-    //}
-
-    //if(muonHandle_.isValid()) {
-    //	for( reco::MuonCollection::const_iterator muonit = muonHandle_->begin(); muonit != muonHandle_->end(); muonit++ ) {
-    //	  const reco::TrackRef siTrack = muonit->innerTrack();
-    //	  hmuPt    = map_of_MEs[DirName+"/"+"muonPt"];     if (hmuPt    && hmuPt->getRootObject())  hmuPt   ->Fill( muonit->p4().pt() );
-    //	  hmuEta   = map_of_MEs[DirName+"/"+"muonEta"];    if (hmuEta   && hmuEta->getRootObject())  hmuEta  ->Fill( muonit->p4().eta() );
-    //	  hmuNhits = map_of_MEs[DirName+"/"+"muonNhits"];  if (hmuNhits && hmuNhits->getRootObject())  hmuNhits->Fill( siTrack.isNonnull() ? siTrack->numberOfValidHits() : -999 );
-    // hmuChi2  = map_of_MEs[DirName+"/"+"muonNormalizedChi2"];   if (hmuChi2  && hmuChi2->getRootObject())  hmuChi2 ->Fill( siTrack.isNonnull() ? siTrack->chi2()/siTrack->ndof() : -999 );
-    //	  double d0 = siTrack.isNonnull() ? -1 * siTrack->dxy( beamSpot_) : -999;
-    //	  hmuD0    = map_of_MEs[DirName+"/"+"muonD0"];     if (hmuD0    && hmuD0->getRootObject())  hmuD0->Fill( d0 );
-    //	}
-    //	const unsigned int nMuons = muonHandle_->size();
-    //	for( unsigned int mus = 0; mus < nMuons; mus++ ) {
-    //	  reco::MuonRef muref( muonHandle_, mus);
-    //	  reco::MuonMETCorrectionData muCorrData = (*tcMetValueMapHandle_)[muref];
-    //	  hMExCorrection      = map_of_MEs[DirName+"/"+"MExCorrection"];       if (hMExCorrection      && hMExCorrection->getRootObject())       hMExCorrection-> Fill(muCorrData.corrY());
-    //	  hMEyCorrection      = map_of_MEs[DirName+"/"+"MEyCorrection"];       if (hMEyCorrection      && hMEyCorrection->getRootObject())       hMEyCorrection-> Fill(muCorrData.corrX());
-    //hMuonCorrectionFlag = map_of_MEs[DirName+"/"+"CorrectionFlag"];  if (hMuonCorrectionFlag && hMuonCorrectionFlag->getRootObject())  hMuonCorrectionFlag-> Fill(muCorrData.type());
-    //	}
-    //  }else{
-    //if (verbose_)  std::cout<<"muons not valid"<<std::endl;
-    //      }
-    //  }*/
 }

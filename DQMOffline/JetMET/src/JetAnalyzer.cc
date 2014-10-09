@@ -22,6 +22,7 @@
 #include "DataFormats/JetReco/interface/JPTJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -51,6 +52,8 @@
 #include "CalibTracker/Records/interface/SiStripGainRcd.h"
 
 #include <string>
+
+#include <cmath>
 
 using namespace edm;
 using namespace reco;
@@ -118,6 +121,12 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   if (isCaloJet_)  caloJetsToken_ = consumes<reco::CaloJetCollection>(mInputCollection_);
   //if (isJPTJet_)   jptJetsToken_ = consumes<reco::JPTJetCollection>(mInputCollection_);
   if (isPFJet_)    pfJetsToken_ = consumes<reco::PFJetCollection>(mInputCollection_);
+
+  cutBasedPUDiscriminantToken_ = consumes< edm::ValueMap<float> >(pSet.getParameter<edm::InputTag>("InputCutPUIDDiscriminant"));
+  cutBasedPUIDToken_ = consumes< edm::ValueMap<int> >(pSet.getParameter<edm::InputTag>("InputCutPUIDValue"));
+  mvaPUIDToken_ = consumes< edm::ValueMap<int> >(pSet.getParameter<edm::InputTag>("InputMVAPUIDValue"));
+  mvaFullPUDiscriminantToken_ = consumes< edm::ValueMap<float> >(pSet.getParameter<edm::InputTag>("InputMVAPUIDDiscriminant"));
+
   
   JetIDQuality_  = pSet.getParameter<string>("JetIDQuality");
   JetIDVersion_  = pSet.getParameter<string>("JetIDVersion");
@@ -466,7 +475,7 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
   
   // Leading Jet Parameters
   mEtaFirst                = ibooker.book1D("EtaFirst", "EtaFirst", 100, -5, 5);
-  mPhiFirst                = ibooker.book1D("PhiFirst", "PhiFirst", 70, -3.5, 3.5);
+  mPhiFirst                = ibooker.book1D("PhiFirst", "PhiFirst", 70, phiMin_, phiMax_);
   mPtFirst                 = ibooker.book1D("PtFirst", "PtFirst", ptBin_, ptMin_, ptMax_);
 
   map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"EtaFirst" ,mEtaFirst));
@@ -727,6 +736,38 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"ElFracVSeta_highPt" ,mElFracVSeta_highPt));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MuFracVSeta_highPt" ,mMuFracVSeta_highPt)); 
 
+    mLooseMVAPUJIDPassFractionVSeta  = ibooker.bookProfile("LooseMVAPUIDPassFractionVSeta","LooseMVAPUIDPassFractionVSeta",etaBin_, etaMin_, etaMax_,0.,1.2);
+    mLooseMVAPUJIDPassFractionVSpt   = ibooker.bookProfile("LooseMVAPUIDPassFractionVSpt","LooseMVAPUIDPassFractionVSpt",ptBin_, ptMin_, ptMax_,0.,1.2);
+    mMediumMVAPUJIDPassFractionVSeta = ibooker.bookProfile("MediumMVAPUIDPassFractionVSeta","MediumMVAPUIDPassFractionVSeta",etaBin_, etaMin_, etaMax_,0.,1.2);
+    mMediumMVAPUJIDPassFractionVSpt  = ibooker.bookProfile("MediumMVAPUIDPassFractionVSpt","MediumMVAPUIDPassFractionVSpt",ptBin_, ptMin_, ptMax_,0.,1.2);
+    mTightMVAPUJIDPassFractionVSeta  = ibooker.bookProfile("TightMVAPUIDPassFractionVSeta","TightMVAPUIDPassFractionVSeta",etaBin_, etaMin_, etaMax_,0.,1.2);
+    mTightMVAPUJIDPassFractionVSpt   = ibooker.bookProfile("TightMVAPUIDPassFractionVSpt","TightMVAPUIDPassFractionVSpt",ptBin_, ptMin_, ptMax_,0.,1.2);
+    mMVAPUJIDDiscriminant   = ibooker.book1D("MVAPUJIDDiscriminant","MVAPUJIDDiscriminant",100, -1.00, 1.00);
+    
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"LooseMVAPUIDPassFractionVSeta",mLooseMVAPUJIDPassFractionVSeta));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"LooseMVAPUIDPassFractionVSpt",mLooseMVAPUJIDPassFractionVSpt));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MediumMVAPUIDPassFractionVSeta",mMediumMVAPUJIDPassFractionVSeta));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MediumMVAPUIDPassFractionVSpt",mMediumMVAPUJIDPassFractionVSpt));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"TightMVAPUIDPassFractionVSeta",mTightMVAPUJIDPassFractionVSeta)); 
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"TightMVAPUIDPassFractionVSpt",mTightMVAPUJIDPassFractionVSpt));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MVAPUJIDDiscriminant",mMVAPUJIDDiscriminant));
+    
+    mLooseCutPUJIDPassFractionVSeta  = ibooker.bookProfile("LooseCutPUIDPassFractionVSeta","LooseCutPUIDPassFractionVSeta",etaBin_, etaMin_, etaMax_,0.,1.2);
+    mLooseCutPUJIDPassFractionVSpt   = ibooker.bookProfile("LooseCutPUIDPassFractionVSpt","LooseCutPUIDPassFractionVSpt",ptBin_, ptMin_, ptMax_,0.,1.2);
+    mMediumCutPUJIDPassFractionVSeta = ibooker.bookProfile("MediumCutPUIDPassFractionVSeta","MediumCutPUIDPassFractionVSeta",etaBin_, etaMin_, etaMax_,0.,1.2);
+    mMediumCutPUJIDPassFractionVSpt  = ibooker.bookProfile("MediumCutPUIDPassFractionVSpt","MediumCutPUIDPassFractionVSpt",ptBin_, ptMin_, ptMax_,0.,1.2);
+    mTightCutPUJIDPassFractionVSeta  = ibooker.bookProfile("TightCutPUIDPassFractionVSeta","TightCutPUIDPassFractionVSeta",etaBin_, etaMin_, etaMax_,0.,1.2);
+    mTightCutPUJIDPassFractionVSpt   = ibooker.bookProfile("TightCutPUIDPassFractionVSpt","TightCutPUIDPassFractionVSpt",ptBin_, ptMin_, ptMax_,0.,1.2);
+    mCutPUJIDDiscriminant   = ibooker.book1D("CutPUJIDDiscriminant","CutPUJIDDiscriminant",100, -1.00, 1.00);
+
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"LooseCutPUIDPassFractionVSeta",mLooseCutPUJIDPassFractionVSeta));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"LooseCutPUIDPassFractionVSpt",mLooseCutPUJIDPassFractionVSpt));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MediumCutPUIDPassFractionVSeta",mMediumCutPUJIDPassFractionVSeta));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MediumCutPUIDPassFractionVSpt",mMediumCutPUJIDPassFractionVSpt));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"TightCutPUIDPassFractionVSeta",mTightCutPUJIDPassFractionVSeta)); 
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"TightCutPUIDPassFractionVSpt",mTightCutPUJIDPassFractionVSpt));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CutPUJIDDiscriminant",mCutPUJIDDiscriminant));
+    
     //barrel histograms for PFJets
     // energy fractions
     mCHFrac_lowPt_Barrel     = ibooker.book1D("CHFrac_lowPt_Barrel", "CHFrac_lowPt_Barrel", 120, -0.1, 1.1);
@@ -1256,6 +1297,18 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     DirName = "JetMET/Jet/Uncleaned"+mInputCollection_.label();
   }
  
+  Handle<ValueMap<float> > puJetIdMva;
+  iEvent.getByToken(mvaFullPUDiscriminantToken_ ,puJetIdMva);
+
+  Handle<ValueMap<int> > puJetIdFlagMva;
+  iEvent.getByToken(mvaPUIDToken_,puJetIdFlagMva);
+  
+  Handle<ValueMap<float> > puJetId;
+  iEvent.getByToken(cutBasedPUDiscriminantToken_,puJetId);
+
+  Handle<ValueMap<int> > puJetIdFlag;
+  iEvent.getByToken(cutBasedPUIDToken_,puJetIdFlag);
+
 
   // **** Get the TriggerResults container
   edm::Handle<edm::TriggerResults> triggerResults;
@@ -1435,12 +1488,14 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
  
     bool jetpassid=true;
     bool Thiscleaned=true;
+    bool JetIDWPU=true;
     //jet ID for calojets
     if (isCaloJet_) {
       reco::CaloJetRef calojetref(caloJets, ijet);
       if(!runcosmics_){
 	reco::JetID jetID = (*jetID_ValueMap_Handle)[calojetref];
 	jetpassid = jetIDFunctor((*caloJets)[ijet], jetID);
+	JetIDWPU=jetpassid;
 	if(jetCleaningFlag_){
 	  Thiscleaned=jetpassid;
 	}
@@ -1715,10 +1770,38 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     //}
     //}
     if(isPFJet_){
+
+      // reco::CaloJetRef calojetref(caloJets, ijet);
+      //if(!runcosmics_){
+      //reco::JetID jetID = (*jetID_ValueMap_Handle)[calojetref];
+
+      reco::PFJetRef pfjetref(pfJets, ijet);
+      float puidmva=-1;
+      float puidcut=-1;
+      int puidmvaflag=-10;
+      int puidcutflag=-10;
+
+      puidmva=(*puJetIdMva)[pfjetref];
+      puidcut=(*puJetId)[pfjetref];
+      puidmvaflag=(*puJetIdFlagMva)[pfjetref];
+      puidcutflag=(*puJetIdFlag)[pfjetref];
+
+      //std::cout<<"puidmva/flag/puidcut/flag "<<puidmva<<"/"<<puidmvaflag<<"/"<<puidcut<<"/"<<puidcutflag;
+      //if( PileupJetIdentifier::passJetId( puidmvaflag, PileupJetIdentifier::kLoose ) ){std::cout<<" mva l ";}
+      //if( PileupJetIdentifier::passJetId( puidmvaflag, PileupJetIdentifier::kMedium) ){std::cout<<" mva m ";}
+      //if( PileupJetIdentifier::passJetId( puidmvaflag, PileupJetIdentifier::kTight ) ){std::cout<<" mva t ";}
+      
+      //if( PileupJetIdentifier::passJetId( puidcutflag, PileupJetIdentifier::kLoose ) ){std::cout<<" cut l ";}
+      //if( PileupJetIdentifier::passJetId( puidcutflag, PileupJetIdentifier::kMedium) ){std::cout<<" cut m ";}
+      //if( PileupJetIdentifier::passJetId( puidcutflag, PileupJetIdentifier::kTight ) ){std::cout<<" cut t ";}
+      
+      //std::cout<<std::endl;
+      
       jetpassid = pfjetIDFunctor((*pfJets)[ijet]);
       if(jetCleaningFlag_){
 	Thiscleaned = jetpassid;
       }
+      JetIDWPU= (jetpassid && PileupJetIdentifier::passJetId( puidmvaflag, PileupJetIdentifier::kLoose ));
       if(Thiscleaned && pass_uncorrected){
 	mPt_uncor = map_of_MEs[DirName+"/"+"Pt_uncor"]; if (mPt_uncor && mPt_uncor->getRootObject()) if (mPt_uncor)   mPt_uncor->Fill ((*pfJets)[ijet].pt());
 	mEta_uncor = map_of_MEs[DirName+"/"+"Eta_uncor"]; if (mEta_uncor && mEta_uncor->getRootObject()) if (mEta_uncor)  mEta_uncor->Fill ((*pfJets)[ijet].eta());
@@ -1728,6 +1811,51 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	//}
       }
       if(Thiscleaned && pass_corrected){
+	mCutPUJIDDiscriminant=map_of_MEs[DirName+"/"+"CutPUJIDDiscriminant"]; if(mCutPUJIDDiscriminant && mCutPUJIDDiscriminant->getRootObject()) mCutPUJIDDiscriminant->Fill(puidcut); 
+	if(PileupJetIdentifier::passJetId( puidcutflag, PileupJetIdentifier::kLoose )) {
+	  mLooseCutPUJIDPassFractionVSeta  = map_of_MEs[DirName+"/"+"LooseCutPUIDPassFractionVSeta"];if(mLooseCutPUJIDPassFractionVSeta && mLooseCutPUJIDPassFractionVSeta->getRootObject()) mLooseCutPUJIDPassFractionVSeta->Fill(correctedJet.eta(),1.);
+	  mLooseCutPUJIDPassFractionVSpt  = map_of_MEs[DirName+"/"+"LooseCutPUIDPassFractionVSpt"];if(mLooseCutPUJIDPassFractionVSpt && mLooseCutPUJIDPassFractionVSpt->getRootObject()) mLooseCutPUJIDPassFractionVSpt->Fill(correctedJet.pt(),1.);
+	}else{
+	  mLooseCutPUJIDPassFractionVSeta  = map_of_MEs[DirName+"/"+"LooseCutPUIDPassFractionVSeta"];if(mLooseCutPUJIDPassFractionVSeta && mLooseCutPUJIDPassFractionVSeta->getRootObject()) mLooseCutPUJIDPassFractionVSeta->Fill(correctedJet.eta(),0.);
+	  mLooseCutPUJIDPassFractionVSpt  = map_of_MEs[DirName+"/"+"LooseCutPUIDPassFractionVSpt"];if(mLooseCutPUJIDPassFractionVSpt && mLooseCutPUJIDPassFractionVSpt->getRootObject()) mLooseCutPUJIDPassFractionVSpt->Fill(correctedJet.pt(),0.);
+	}
+	if(PileupJetIdentifier::passJetId( puidcutflag, PileupJetIdentifier::kMedium )) {
+	  mMediumCutPUJIDPassFractionVSeta  = map_of_MEs[DirName+"/"+"MediumCutPUIDPassFractionVSeta"];if(mMediumCutPUJIDPassFractionVSeta && mMediumCutPUJIDPassFractionVSeta->getRootObject()) mMediumCutPUJIDPassFractionVSeta->Fill(correctedJet.eta(),1.);
+	  mMediumCutPUJIDPassFractionVSpt  = map_of_MEs[DirName+"/"+"MediumCutPUIDPassFractionVSpt"];if(mMediumCutPUJIDPassFractionVSpt && mMediumCutPUJIDPassFractionVSpt->getRootObject()) mMediumCutPUJIDPassFractionVSpt->Fill(correctedJet.pt(),1.);
+	}else{
+	  mMediumCutPUJIDPassFractionVSeta  = map_of_MEs[DirName+"/"+"MediumCutPUIDPassFractionVSeta"];if(mMediumCutPUJIDPassFractionVSeta && mMediumCutPUJIDPassFractionVSeta->getRootObject()) mMediumCutPUJIDPassFractionVSeta->Fill(correctedJet.eta(),0.);
+	  mMediumCutPUJIDPassFractionVSpt  = map_of_MEs[DirName+"/"+"MediumCutPUIDPassFractionVSpt"];if(mMediumCutPUJIDPassFractionVSpt && mMediumCutPUJIDPassFractionVSpt->getRootObject()) mMediumCutPUJIDPassFractionVSpt->Fill(correctedJet.pt(),0.);
+	}
+	if(PileupJetIdentifier::passJetId( puidcutflag, PileupJetIdentifier::kTight )) {
+	  mTightCutPUJIDPassFractionVSeta  = map_of_MEs[DirName+"/"+"TightCutPUIDPassFractionVSeta"];if(mTightCutPUJIDPassFractionVSeta && mTightCutPUJIDPassFractionVSeta->getRootObject()) mTightCutPUJIDPassFractionVSeta->Fill(correctedJet.eta(),1.);
+	  mTightCutPUJIDPassFractionVSpt  = map_of_MEs[DirName+"/"+"TightCutPUIDPassFractionVSpt"];if(mTightCutPUJIDPassFractionVSpt && mTightCutPUJIDPassFractionVSpt->getRootObject()) mTightCutPUJIDPassFractionVSpt->Fill(correctedJet.pt(),1.);
+	}else{
+	  mTightCutPUJIDPassFractionVSeta  = map_of_MEs[DirName+"/"+"TightCutPUIDPassFractionVSeta"];if(mTightCutPUJIDPassFractionVSeta && mTightCutPUJIDPassFractionVSeta->getRootObject()) mTightCutPUJIDPassFractionVSeta->Fill(correctedJet.eta(),0.);
+	  mTightCutPUJIDPassFractionVSpt  = map_of_MEs[DirName+"/"+"TightCutPUIDPassFractionVSpt"];if(mTightCutPUJIDPassFractionVSpt && mTightCutPUJIDPassFractionVSpt->getRootObject()) mTightCutPUJIDPassFractionVSpt->Fill(correctedJet.pt(),0.);
+	}
+	mMVAPUJIDDiscriminant=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant"]; if(mMVAPUJIDDiscriminant && mMVAPUJIDDiscriminant->getRootObject()) mMVAPUJIDDiscriminant->Fill(puidmva); 
+	if(PileupJetIdentifier::passJetId( puidmvaflag, PileupJetIdentifier::kLoose )) {
+	  mLooseMVAPUJIDPassFractionVSeta  = map_of_MEs[DirName+"/"+"LooseMVAPUIDPassFractionVSeta"];if(mLooseMVAPUJIDPassFractionVSeta && mLooseMVAPUJIDPassFractionVSeta->getRootObject()) mLooseMVAPUJIDPassFractionVSeta->Fill(correctedJet.eta(),1.);
+	  mLooseMVAPUJIDPassFractionVSpt  = map_of_MEs[DirName+"/"+"LooseMVAPUIDPassFractionVSpt"];if(mLooseMVAPUJIDPassFractionVSpt && mLooseMVAPUJIDPassFractionVSpt->getRootObject()) mLooseMVAPUJIDPassFractionVSpt->Fill(correctedJet.pt(),1.);
+	}else{
+	  mLooseMVAPUJIDPassFractionVSeta  = map_of_MEs[DirName+"/"+"LooseMVAPUIDPassFractionVSeta"];if(mLooseMVAPUJIDPassFractionVSeta && mLooseMVAPUJIDPassFractionVSeta->getRootObject()) mLooseMVAPUJIDPassFractionVSeta->Fill(correctedJet.eta(),0.);
+	  mLooseMVAPUJIDPassFractionVSpt  = map_of_MEs[DirName+"/"+"LooseMVAPUIDPassFractionVSpt"];if(mLooseMVAPUJIDPassFractionVSpt && mLooseMVAPUJIDPassFractionVSpt->getRootObject()) mLooseMVAPUJIDPassFractionVSpt->Fill(correctedJet.pt(),0.);
+	}
+	if(PileupJetIdentifier::passJetId( puidmvaflag, PileupJetIdentifier::kMedium )) {
+	  mMediumMVAPUJIDPassFractionVSeta  = map_of_MEs[DirName+"/"+"MediumMVAPUIDPassFractionVSeta"];if(mMediumMVAPUJIDPassFractionVSeta && mMediumMVAPUJIDPassFractionVSeta->getRootObject()) mMediumMVAPUJIDPassFractionVSeta->Fill(correctedJet.eta(),1.);
+	  mMediumMVAPUJIDPassFractionVSpt  = map_of_MEs[DirName+"/"+"MediumMVAPUIDPassFractionVSpt"];if(mMediumMVAPUJIDPassFractionVSpt && mMediumMVAPUJIDPassFractionVSpt->getRootObject()) mMediumMVAPUJIDPassFractionVSpt->Fill(correctedJet.pt(),1.);
+	}else{
+	  mMediumMVAPUJIDPassFractionVSeta  = map_of_MEs[DirName+"/"+"MediumMVAPUIDPassFractionVSeta"];if(mMediumMVAPUJIDPassFractionVSeta && mMediumMVAPUJIDPassFractionVSeta->getRootObject()) mMediumMVAPUJIDPassFractionVSeta->Fill(correctedJet.eta(),0.);
+	  mMediumMVAPUJIDPassFractionVSpt  = map_of_MEs[DirName+"/"+"MediumMVAPUIDPassFractionVSpt"];if(mMediumMVAPUJIDPassFractionVSpt && mMediumMVAPUJIDPassFractionVSpt->getRootObject()) mMediumMVAPUJIDPassFractionVSpt->Fill(correctedJet.pt(),0.);
+	}
+	if(PileupJetIdentifier::passJetId( puidmvaflag, PileupJetIdentifier::kTight )) {
+	  mTightMVAPUJIDPassFractionVSeta  = map_of_MEs[DirName+"/"+"TightMVAPUIDPassFractionVSeta"];if(mTightMVAPUJIDPassFractionVSeta && mTightMVAPUJIDPassFractionVSeta->getRootObject()) mTightMVAPUJIDPassFractionVSeta->Fill(correctedJet.eta(),1.);
+	  mTightMVAPUJIDPassFractionVSpt  = map_of_MEs[DirName+"/"+"TightMVAPUIDPassFractionVSpt"];if(mTightMVAPUJIDPassFractionVSpt && mTightMVAPUJIDPassFractionVSpt->getRootObject()) mTightMVAPUJIDPassFractionVSpt->Fill(correctedJet.pt(),1.);
+	}else{
+	  mTightMVAPUJIDPassFractionVSeta  = map_of_MEs[DirName+"/"+"TightMVAPUIDPassFractionVSeta"];if(mTightMVAPUJIDPassFractionVSeta && mTightMVAPUJIDPassFractionVSeta->getRootObject()) mTightMVAPUJIDPassFractionVSeta->Fill(correctedJet.eta(),0.);
+	  mTightMVAPUJIDPassFractionVSpt  = map_of_MEs[DirName+"/"+"TightMVAPUIDPassFractionVSpt"];if(mTightMVAPUJIDPassFractionVSpt && mTightMVAPUJIDPassFractionVSpt->getRootObject()) mTightMVAPUJIDPassFractionVSpt->Fill(correctedJet.pt(),0.);
+	}
+
 	mHFrac = map_of_MEs[DirName+"/"+"HFrac"]; if (mHFrac && mHFrac->getRootObject()) mHFrac->Fill ((*pfJets)[ijet].chargedHadronEnergyFraction()+(*pfJets)[ijet].neutralHadronEnergyFraction()+(*pfJets)[ijet].HFHadronEnergyFraction ());
 	mEFrac = map_of_MEs[DirName+"/"+"EFrac"]; if (mEFrac && mHFrac->getRootObject()) mEFrac->Fill ((*pfJets)[ijet].chargedEmEnergyFraction() +(*pfJets)[ijet].neutralEmEnergyFraction()+(*pfJets)[ijet].HFEMEnergyFraction ());
 	if ((*pfJets)[ijet].pt()<= 50) {
@@ -1930,18 +2058,18 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       cleaned_second_jet=cleaned_first_jet;
       pt1=correctedJet.pt();
       ind1=ijet;
-      cleaned_first_jet=jetpassid;
+      cleaned_first_jet=JetIDWPU;
     } else if(correctedJet.pt()>pt2){
       pt3=pt2;
       ind3=ind2;
       cleaned_third_jet=cleaned_second_jet;
       pt2=correctedJet.pt();
       ind2=ijet;
-      cleaned_second_jet=jetpassid;
+      cleaned_second_jet=JetIDWPU;
     } else if(correctedJet.pt()>pt3){
       pt3=correctedJet.pt();
       ind3=ijet;
-      cleaned_third_jet=jetpassid;
+      cleaned_third_jet=JetIDWPU;
     }
     if(cleaned_third_jet){
     }

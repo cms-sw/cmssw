@@ -1,5 +1,5 @@
-#ifndef JetAnalyzer_H
-#define JetAnalyzer_H
+#ifndef JetAnalyzerMiniAOD_H
+#define JetAnalyzerMiniAOD_H
 
 
 /** \class JetMETAnalyzer
@@ -55,8 +55,6 @@
 #include "DataFormats/Scalers/interface/DcsStatus.h" 
 #include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
 #include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
-#include "DataFormats/JetReco/interface/PileupJetIdentifier.h"
-
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include <map>
 #include <string>
@@ -66,14 +64,14 @@
   //class StripSignalOverNoiseCalculator;
 //}
 
-class JetAnalyzer : public thread_unsafe::DQMEDAnalyzer {
+class JetAnalyzerMiniAOD : public thread_unsafe::DQMEDAnalyzer {
  public:
 
   /// Constructor
-  JetAnalyzer(const edm::ParameterSet&);
+  JetAnalyzerMiniAOD(const edm::ParameterSet&);
   
   /// Destructor
-  virtual ~JetAnalyzer();
+  virtual ~JetAnalyzerMiniAOD();
   
 /// Inizialize parameters for histo binning
 //  void beginJob(void);
@@ -109,23 +107,11 @@ class JetAnalyzer : public thread_unsafe::DQMEDAnalyzer {
   edm::InputTag theTriggerResultsLabel_;
 
   std::string  jetType_;
-  bool outputMEsInRootFile;
-  std::string  mOutputFile_;
 
   edm::EDGetTokenT<edm::TriggerResults>           triggerResultsToken_;
   edm::EDGetTokenT<std::vector<reco::Vertex>>     vertexToken_;
   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord>  gtToken_;
-  edm::EDGetTokenT<reco::CaloJetCollection>       caloJetsToken_;
-  edm::EDGetTokenT<reco::PFJetCollection>         pfJetsToken_;
-  edm::EDGetTokenT< edm::ValueMap<float> > mvaFullPUDiscriminantToken_;
-  edm::EDGetTokenT< edm::ValueMap<float> >cutBasedPUDiscriminantToken_ ;
-  edm::EDGetTokenT< edm::ValueMap<int> >cutBasedPUIDToken_;
-  edm::EDGetTokenT< edm::ValueMap<int> >mvaPUIDToken_;
-
-  //edm::EDGetTokenT<reco::JPTJetCollection>        jptJetsToken_;
-
-  edm::InputTag inputJetIDValueMap;
-  edm::EDGetTokenT<edm::ValueMap <reco::JetID> >jetID_ValueMapToken_;
+  edm::EDGetTokenT< edm::View<pat::Jet> >        patJetsToken_;
 
   //Cleaning parameters
   edm::ParameterSet cleaningParameters_;
@@ -270,24 +256,6 @@ class JetAnalyzer : public thread_unsafe::DQMEDAnalyzer {
   MonitorElement* mLooseJIDPassFractionVSpt;
   MonitorElement* mLooseJIDPassFractionVSptNoHF;
 
-
-  MonitorElement* mLooseMVAPUJIDPassFractionVSeta;
-  MonitorElement* mLooseMVAPUJIDPassFractionVSpt;
-  MonitorElement* mMediumMVAPUJIDPassFractionVSeta;
-  MonitorElement* mMediumMVAPUJIDPassFractionVSpt;
-  MonitorElement* mTightMVAPUJIDPassFractionVSeta;
-  MonitorElement* mTightMVAPUJIDPassFractionVSpt;
-  MonitorElement* mMVAPUJIDDiscriminant;
-
-  MonitorElement* mLooseCutPUJIDPassFractionVSeta;
-  MonitorElement* mLooseCutPUJIDPassFractionVSpt;
-  MonitorElement* mMediumCutPUJIDPassFractionVSeta;
-  MonitorElement* mMediumCutPUJIDPassFractionVSpt;
-  MonitorElement* mTightCutPUJIDPassFractionVSeta;
-  MonitorElement* mTightCutPUJIDPassFractionVSpt;
-  MonitorElement* mCutPUJIDDiscriminant;
-
-
   //dijet analysis quantities
   MonitorElement* mDijetBalance;
   MonitorElement* mDijetAsymmetry;
@@ -340,98 +308,6 @@ class JetAnalyzer : public thread_unsafe::DQMEDAnalyzer {
   MonitorElement* mfRBX;
   MonitorElement* mresEMF;
   MonitorElement* mEMF;
- 
-  // JPTJet specific -> comment out
-  // the jet analyzer
-  // --- Used for Data Certification --in for CaloJets and PFJets
-  //MonitorElement* mE;
-  //MonitorElement* mP;
-  //MonitorElement* mEt;
-  //MonitorElement* mPtSecond;
-  //MonitorElement* mPtThird;
-  //MonitorElement* mPx;
-  //MonitorElement* mPy;
-  //MonitorElement* mPz;
-  //MonitorElement* mnTracks;
-  //MonitorElement* mnTracksVSJetPt;
-  //MonitorElement* mnTracksVSJetEta;
-
-  //MonitorElement* mnallPionTracksPerJet;
-  //MonitorElement* mallPionTracksPt;
-  //MonitorElement* mallPionTracksPhi;
-  //MonitorElement* mallPionTracksEta;
-  //MonitorElement* mallPionTracksPtVSEta;
-
-  //MonitorElement* mnInVertexInCaloPionTracksPerJet;
-  //MonitorElement* mInVertexInCaloPionTracksPt;
-  //MonitorElement* mInVertexInCaloPionTracksPhi;
-  //MonitorElement* mInVertexInCaloPionTracksEta;
-  //MonitorElement* mInVertexInCaloPionTracksPtVSEta;
-
-  //MonitorElement* mnOutVertexInCaloPionTracksPerJet;
-  //MonitorElement* mOutVertexInCaloPionTracksPt;
-  //MonitorElement* mOutVertexInCaloPionTracksPhi;
-  //MonitorElement* mOutVertexInCaloPionTracksEta;
-  //MonitorElement* mOutVertexInCaloPionTracksPtVSEta;
-
-  //MonitorElement* mnInVertexOutCaloPionTracksPerJet;
-  //MonitorElement* mInVertexOutCaloPionTracksPt;
-  //MonitorElement* mInVertexOutCaloPionTracksPhi;
-  //MonitorElement* mInVertexOutCaloPionTracksEta;
-  //MonitorElement* mInVertexOutCaloPionTracksPtVSEta;
-
-  //MonitorElement* mnallMuonTracksPerJet;
-  //MonitorElement* mallMuonTracksPt;
-  //MonitorElement* mallMuonTracksPhi;
-  //MonitorElement* mallMuonTracksEta;
-  //MonitorElement* mallMuonTracksPtVSEta;
-
-  //MonitorElement* mnInVertexInCaloMuonTracksPerJet;
-  //MonitorElement* mInVertexInCaloMuonTracksPt;
-  //MonitorElement* mInVertexInCaloMuonTracksPhi;
-  //MonitorElement* mInVertexInCaloMuonTracksEta;
-  //MonitorElement* mInVertexInCaloMuonTracksPtVSEta;
-
-  //MonitorElement* mnOutVertexInCaloMuonTracksPerJet;
-  //MonitorElement* mOutVertexInCaloMuonTracksPt;
-  //MonitorElement* mOutVertexInCaloMuonTracksPhi;
-  //MonitorElement* mOutVertexInCaloMuonTracksEta;
-  //MonitorElement* mOutVertexInCaloMuonTracksPtVSEta;
-
-  //MonitorElement* mnInVertexOutCaloMuonTracksPerJet;
-  //MonitorElement* mInVertexOutCaloMuonTracksPt;
-  //MonitorElement* mInVertexOutCaloMuonTracksPhi;
-  //MonitorElement* mInVertexOutCaloMuonTracksEta;
-  //MonitorElement* mInVertexOutCaloMuonTracksPtVSEta;
-
-  //MonitorElement* mnallElectronTracksPerJet;
-  //MonitorElement* mallElectronTracksPt;
-  //MonitorElement* mallElectronTracksPhi;
-  //MonitorElement* mallElectronTracksEta;
-  //MonitorElement* mallElectronTracksPtVSEta;
-
-  //MonitorElement* mnInVertexInCaloElectronTracksPerJet;
-  //MonitorElement* mInVertexInCaloElectronTracksPt;
-  //MonitorElement* mInVertexInCaloElectronTracksPhi;
-  //MonitorElement* mInVertexInCaloElectronTracksEta;
-  //MonitorElement* mInVertexInCaloElectronTracksPtVSEta;
-
-  //MonitorElement* mnOutVertexInCaloElectronTracksPerJet;
-  //MonitorElement* mOutVertexInCaloElectronTracksPt;
-  //MonitorElement* mOutVertexInCaloElectronTracksPhi;
-  //MonitorElement* mOutVertexInCaloElectronTracksEta;
-  //MonitorElement* mOutVertexInCaloElectronTracksPtVSEta;
-
-  //MonitorElement* mnInVertexOutCaloElectronTracksPerJet;
-  //MonitorElement* mInVertexOutCaloElectronTracksPt;
-  //MonitorElement* mInVertexOutCaloElectronTracksPhi;
-  //MonitorElement* mInVertexOutCaloElectronTracksEta;
-  //MonitorElement* mInVertexOutCaloElectronTracksPtVSEta;
-
-  //MonitorElement* mInCaloTrackDirectionJetDRHisto_;
-  //MonitorElement* mOutCaloTrackDirectionJetDRHisto_;
-  //MonitorElement* mInVertexTrackImpactPointJetDRHisto_;
-  //MonitorElement* mOutVertexTrackImpactPointJetDRHisto_;
 
   //now define PFJet only flags
   double thisCHFMin_;

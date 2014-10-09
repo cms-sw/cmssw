@@ -16,12 +16,11 @@ newAk4PFL1FastL2L3 = ak4PFL1FastL2L3.clone()
 #from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak4JPTL1FastL2L3,ak4JPTL1Fastjet,ak4JPTL2Relative,ak4JPTL3Absolute
 #newAk4JPTL1FastL2L3 = ak4JPTL1FastL2L3.clone()
 
-jetDQMAnalyzerAk4CaloUncleaned = cms.EDAnalyzer("JetAnalyzer",
+jetDQMAnalyzerAk4CaloUncleaned = cms.EDAnalyzer("JetAnalyzerMiniAOD",
     OutputMEsInRootFile = cms.bool(False),
     OutputFile = cms.string('jetMETMonitoring.root'),
     JetType = cms.string('calo'),#pf, calo or jpt
-    JetCorrections = cms.string("newAk4CaloL2L3"),
-    jetsrc = cms.InputTag("ak4CaloJets"),
+    jetsrc = cms.InputTag("slimmedJets"),
     filljetHighLevel =cms.bool(True),
     #
     #
@@ -60,21 +59,12 @@ jetDQMAnalyzerAk4CaloUncleaned = cms.EDAnalyzer("JetAnalyzer",
     CleaningParameters = cleaningParameters.clone(
         bypassAllPVChecks = cms.bool(True),
         ),
-
-    #for JPT and CaloJetID  
-    InputJetIDValueMap         = cms.InputTag("ak4JetID"), 
     #options for Calo and JPT: LOOSE,LOOSE_AOD,TIGHT,MINIMAL
     #for PFJets: LOOSE,TIGHT
     JetIDQuality               = cms.string("LOOSE"),
     #options for Calo and JPT: PURE09,DQM09,CRAFT08
     #for PFJets: FIRSTDATA
     JetIDVersion               = cms.string("PURE09"),
-    #
-    #actually done only for PFJets at the moment
-    InputMVAPUIDDiscriminant = cms.InputTag("pileupJetIdProducer","fullDiscriminant"),
-    InputCutPUIDDiscriminant = cms.InputTag("pileupJetIdProducer","cutbasedDiscriminant"),
-    InputMVAPUIDValue = cms.InputTag("pileupJetIdProducer","fullId"),
-    InputCutPUIDValue = cms.InputTag("pileupJetIdProducer","cutbasedId"),
     #
     # For jetAnalysis
     #
@@ -103,20 +93,6 @@ jetDQMAnalyzerAk4CaloCleaned=jetDQMAnalyzerAk4CaloUncleaned.clone(
        )  
 )
 
-
-#jetDQMAnalyzerAk4JPTCleaned=jetDQMAnalyzerAk4CaloCleaned.clone(
-#    JetType = cms.string('jpt'),#pf, calo or jpt
-#    JetCorrections = cms.string("newAk4JPTL1FastL2L3"),
-#    jetsrc = cms.InputTag("JetPlusTrackZSPCorJetAntiKt5"),
-#    JetCleaningFlag   = cms.untracked.bool(True),
-#    filljetHighLevel  = cms.bool(False),
-#    DCSFilterForJetMonitoring = cms.PSet(
-#        DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
-#        #DebugOn = cms.untracked.bool(True),
-#        alwaysPass = cms.untracked.bool(False)
-#        )
-#)
-
 jetDQMAnalyzerAk4PFUncleaned=jetDQMAnalyzerAk4CaloUncleaned.clone(
     CleaningParameters = cleaningParameters.clone(
        bypassAllPVChecks  = cms.bool(False),
@@ -127,8 +103,7 @@ jetDQMAnalyzerAk4PFUncleaned=jetDQMAnalyzerAk4CaloUncleaned.clone(
     #for PFJets: FIRSTDATA
     JetIDVersion               = cms.string("FIRSTDATA"),
     JetType = cms.string('pf'),#pf, calo or jpt
-    JetCorrections = cms.string("newAk4PFL1FastL2L3"),
-    jetsrc = cms.InputTag("ak4PFJets"),
+    jetsrc = cms.InputTag("slimmedJets"),
     filljetHighLevel  = cms.bool(False),
     DCSFilterForJetMonitoring = cms.PSet(
       DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
