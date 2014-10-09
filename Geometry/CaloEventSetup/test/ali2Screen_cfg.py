@@ -15,7 +15,8 @@ process.CaloAlignmentRcdRead = cms.EDAnalyzer("CaloAlignmentRcdRead")
 
 ##
 ## Please, rebuild the test with debug enabled
-## scram b USER_CXXFLAGS="-g\ -D=EDM_ML_DEBUG"
+## USER_CXXFLAGS="-g -D=EDM_ML_DEBUG" scram b -v # for bash
+## env USER_CXXFLAGS="-g -D=EDM_ML_DEBUG" scram b -v # for tcsh
 ##
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = cms.untracked.string('DEBUG')
