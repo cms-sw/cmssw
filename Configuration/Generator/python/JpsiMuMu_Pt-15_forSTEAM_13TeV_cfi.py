@@ -63,7 +63,7 @@ oniafilter = cms.EDFilter("PythiaFilter",
     MaxEta = cms.untracked.double(1e+100),
     Status = cms.untracked.int32(2),
     MinEta = cms.untracked.double(-1e+100),
-    MinPt = cms.untracked.double(20.),
+    MinPt = cms.untracked.double(15.),
     ParticleID = cms.untracked.int32(443)
 )
 
