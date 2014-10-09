@@ -111,9 +111,11 @@ namespace ecaldqm
     MESet& meShape(MEs_.at("Shape"));
     MESet& meSignalRate(MEs_.at("SignalRate"));
 
+    bool inData[nDCC];
     int nReadouts[nDCC];
     int maxpos[nDCC][EcalDataFrame::MAXSAMPLES];
     for(unsigned iDCC(0); iDCC < nDCC; ++iDCC){
+      inData[iDCC] = false;
       nReadouts[iDCC] = 0;
       for(int i(0); i < EcalDataFrame::MAXSAMPLES; i++) maxpos[iDCC][i] = 0;
     }
@@ -122,6 +124,8 @@ namespace ecaldqm
       const DetId& id(digiItr->id());
 
       unsigned iDCC(dccId(id) - 1);
+
+      inData[iDCC] = true;
 
       if(!enable_[iDCC]) continue;
       if(rtHalf(id) != rtHalf_[iDCC]) continue;
@@ -154,6 +158,8 @@ namespace ecaldqm
     unsigned iME(-1);
 
     for(int iDCC(0); iDCC < nDCC; ++iDCC){
+      if(!inData[iDCC]) continue;
+
       if(nReadouts[iDCC] == 0){
         enable_[iDCC] = false;
         continue;

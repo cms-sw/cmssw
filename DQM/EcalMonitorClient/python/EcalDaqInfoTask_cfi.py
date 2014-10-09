@@ -2,10 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 from DQM.EcalCommon.CommonParams_cfi import ecalCommonParams
 
-from DQM.EcalMonitorTasks.TowerStatusTask_cfi import ecalTowerStatusTask
+from DQM.EcalMonitorClient.TowerStatusTask_cfi import ecalTowerStatusTask
 
-ecalDcsInfoTask = cms.EDAnalyzer("EcalDQMonitorTask",
-    moduleName = cms.untracked.string("Ecal DCS Monitor"),
+ecalDaqInfoTask = cms.EDAnalyzer("EcalDQMonitorClient",
+    moduleName = cms.untracked.string("Ecal DAQ Monitor"),
     # tasks to be turned on
     workers = cms.untracked.vstring(
         "TowerStatusTask"
@@ -14,8 +14,8 @@ ecalDcsInfoTask = cms.EDAnalyzer("EcalDQMonitorTask",
     workerParameters =  cms.untracked.PSet(
         TowerStatusTask = ecalTowerStatusTask.clone()
     ),
-    commonParameters = ecalCommonParams.clone(willConvertToEDM = cms.untracked.bool(False)),
+    commonParameters = ecalCommonParams,
     verbosity = cms.untracked.int32(0)
 )
 
-ecalDcsInfoTask.workerParameters.TowerStatusTask.params.doDAQInfo = False
+ecalDaqInfoTask.workerParameters.TowerStatusTask.params.doDCSInfo = False

@@ -4,6 +4,8 @@ cmsenv
 rehash
 
 echo
+date +%F\ %a\ %T
+echo
 echo "Existing cfg files:"
 ls -l On{Data,Mc}*.py
 
@@ -40,7 +42,7 @@ echo "./cmsDriver.csh"
 time  ./cmsDriver.csh
 
 echo
-echo "Creating special FastSim IntegrationTestWithHLT:"
+echo "Creating special FastSim IntegrationTestWithHLT"
 
 foreach task ( IntegrationTestWithHLT_cfg )
   echo
@@ -52,8 +54,11 @@ foreach task ( IntegrationTestWithHLT_cfg )
   else
     cp $CMSSW_RELEASE_BASE/src/FastSimulation/Configuration/test/$name.py $name.py
   endif
+  ls -l $name.py
 end
 
+echo
+date +%F\ %a\ %T
 echo
 echo "Running selected cfg files from:"
 pwd
@@ -84,3 +89,5 @@ wait
 echo
 echo "Resulting log files:"
 ls -l *.log
+echo
+date +%F\ %a\ %T
