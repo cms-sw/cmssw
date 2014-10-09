@@ -8,10 +8,10 @@ process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
 GEOMETRY_VERSION = 90322
 #GEOMETRY_VERSION = 120812
+#GEOMETRY_VERSION = 130503
 
-#FIXME: Version 90322 and 71212 are identical.
-#FIXME Materials is not needed?
-if (GEOMETRY_VERSION == 90322) : 
+
+if (GEOMETRY_VERSION == 90322) : # Note: Version 90322 and 71212 are identical.
   process.XMLIdealGeometryESSource  = cms.ESSource("XMLIdealGeometryESSource",
     geomXMLFiles = cms.vstring('Geometry/CMSCommonData/data/normal/cmsextent.xml',
         'Geometry/CMSCommonData/data/cms.xml',
@@ -21,13 +21,24 @@ if (GEOMETRY_VERSION == 90322) :
     rootNodeName = cms.string('cmsMagneticField:MAGF')
   )
 elif (GEOMETRY_VERSION == 120812) :
+  # Note: material description is for the large YE4 version
   process.XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
     geomXMLFiles = cms.vstring('Geometry/CMSCommonData/data/normal/cmsextent.xml', 
         'Geometry/CMSCommonData/data/cms.xml', 
         'Geometry/CMSCommonData/data/cmsMagneticField.xml', 
-        #FIXME: material description is for the LARGE version!!
         'MagneticField/GeomBuilder/data/MagneticFieldVolumes_1_v7_large.xml',
         'MagneticField/GeomBuilder/data/MagneticFieldVolumes_2_v7_large.xml',
+        'Geometry/CMSCommonData/data/materials.xml'),
+    rootNodeName = cms.string('cmsMagneticField:MAGF')
+  )
+elif (GEOMETRY_VERSION == 130503) :
+  # Note: material description is for the large YE4 version
+  process.XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
+    geomXMLFiles = cms.vstring('Geometry/CMSCommonData/data/normal/cmsextent.xml', 
+        'Geometry/CMSCommonData/data/cms.xml', 
+        'Geometry/CMSCommonData/data/cmsMagneticField.xml', 
+        'MagneticField/GeomBuilder/data/MagneticFieldVolumes_1_v9_large.xml',
+        'MagneticField/GeomBuilder/data/MagneticFieldVolumes_2_v9_large.xml',
         'Geometry/CMSCommonData/data/materials.xml'),
     rootNodeName = cms.string('cmsMagneticField:MAGF')
   )

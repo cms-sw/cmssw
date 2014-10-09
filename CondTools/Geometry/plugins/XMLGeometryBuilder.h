@@ -20,6 +20,7 @@ class XMLGeometryBuilder : public edm::EDAnalyzer {
  private:
   std::string fname;
   bool zip;
+  std::string record;
 };
 
 #endif

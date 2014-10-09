@@ -8,8 +8,9 @@ process.load("CondCore.DBCommon.CondDBCommon_cfi")
 # the reco part of the database need the DDCompactView.
 #process.load('Configuration.Geometry.MagneticFieldGeometry_cff')
 
-GEOMETRY_VERSION = 90322
+#GEOMETRY_VERSION = 90322
 #GEOMETRY_VERSION = 120812
+GEOMETRY_VERSION = 130503
 
 process.source = cms.Source("EmptyIOVSource",
                             lastValue = cms.uint64(1),
@@ -25,7 +26,8 @@ process.source = cms.Source("EmptyIOVSource",
 # DDCompactView from this.
 process.XMLGeometryWriter = cms.EDAnalyzer("XMLGeometryBuilder",
                                            XMLFileName = cms.untracked.string("./mfGeometry_"+str(GEOMETRY_VERSION)+".xml"),
-                                           ZIP = cms.untracked.bool(True)
+                                           ZIP = cms.untracked.bool(True),
+                                           record = cms.untracked.string('MFGeometryFileRcd')
                                            )
 
 process.CondDBCommon.BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService')
@@ -33,7 +35,7 @@ process.CondDBCommon.timetype = cms.untracked.string('runnumber')
 process.CondDBCommon.connect = cms.string('sqlite_file:mfGeometry_'+str(GEOMETRY_VERSION)+'.db')
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDBCommon,
-                                          toPut = cms.VPSet(cms.PSet(record = cms.string('GeometryFileRcd'),tag = cms.string('XMLFILE_MagneticFieldGeometry_TagXX')))
+                                          toPut = cms.VPSet(cms.PSet(record = cms.string('MFGeometryFileRcd'),tag = cms.string('MagneticFieldGeometry_'+str(GEOMETRY_VERSION))))
                                           )
 
 process.maxEvents = cms.untracked.PSet(

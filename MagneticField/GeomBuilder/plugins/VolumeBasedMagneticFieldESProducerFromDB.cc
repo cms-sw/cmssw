@@ -29,7 +29,7 @@
 #include "DetectorDescription/Core/interface/DDRoot.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "CondFormats/Common/interface/FileBlob.h"
-#include "Geometry/Records/interface/GeometryFileRcd.h"
+#include "CondFormats/DataRecord/interface/MFGeometryFileRcd.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "CondFormats/MFObjects/interface/MagFieldConfig.h"
 #include "CondFormats/DataRecord/interface/MagFieldConfigRcd.h"
@@ -124,7 +124,7 @@ std::auto_ptr<MagneticField> VolumeBasedMagneticFieldESProducerFromDB::produce(c
   // Build the geomeytry (DDDCompactView) from the DB blob
   // (code taken from GeometryReaders/XMLIdealGeometryESSource/src/XMLIdealMagneticFieldGeometryESProducer.cc) 
   edm::ESTransientHandle<FileBlob> gdd;
-  iRecord.getRecord<GeometryFileRcd>().get( boost::lexical_cast<string>(conf->geometryVersion), gdd );
+  iRecord.getRecord<MFGeometryFileRcd>().get( boost::lexical_cast<string>(conf->geometryVersion), gdd );
 
   DDName ddName("cmsMagneticField:MAGF");
   DDLogicalPart rootNode(ddName);
