@@ -31,6 +31,21 @@ bool LHAupLesHouches::setInit()
   //hadronisation->onInit().emit();
 
   //runInfo.reset();
+    
+  //fill SLHA header information if available
+  std::vector<std::string> slha = runInfo->findHeader("slha");
+  if (!slha.empty()) {
+    std::string slhaheader;
+    for(std::vector<std::string>::const_iterator iter = slha.begin(); iter != slha.end(); ++iter) {
+      slhaheader.append(*iter);
+    }
+    infoPtr->setHeader("slha",slhaheader);
+  }  
+  
+  //work around missing initialization inside pythia8
+  infoPtr->eventAttributes = new std::map<std::string, std::string >;
+  
+  
   return true;
 }
 
@@ -74,7 +89,26 @@ bool LHAupLesHouches::setEvent(int inProcId, double mRecalculate)
                 hepeup.PUP[i][4], hepeup.VTIMUP[i],
                 hepeup.SPINUP[i],scalein);
   }
+  
+  infoPtr->eventAttributes->clear();
+  
+  //fill parton multiplicities if available
+  int npLO = event->npLO();
+  int npNLO = event->npNLO();
 
+  //default value of -99 indicates tags were not present in the original LHE file
+  //don't pass to pythia in this case to emulate pythia internal lhe reader behaviour
+  if (npLO!=-99) {
+    char buffer [100];
+    snprintf( buffer, 100, "%i",npLO);    
+    (*infoPtr->eventAttributes)["npLO"] = buffer;
+  }
+  if (npNLO!=-99) {
+    char buffer [100];
+    snprintf( buffer, 100, "%i",npNLO);    
+    (*infoPtr->eventAttributes)["npNLO"] = buffer;
+  }
+  
   const lhef::LHEEvent::PDF *pdf = event->getPDF();
   if (pdf) {
     this->setPdf(pdf->id.first, pdf->id.second,
