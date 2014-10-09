@@ -7,7 +7,7 @@ maxEventsToPrint = cms.untracked.int32(3),
 pythiaPylistVerbosity = cms.untracked.int32(1),
 displayPythiaCards = cms.untracked.bool(False),
 comEnergy = cms.double(13000.0),
-filterEfficiency = cms.untracked.double(0.44),
+filterEfficiency = cms.untracked.double(0.56),
 PythiaParameters = cms.PSet(
 pythiaUESettingsBlock,
 pythiaEtab = cms.vstring(
@@ -16,10 +16,10 @@ pythiaEtab = cms.vstring(
 'MDME(1521,1)=0',
 'KFDP(1520,1)=443',
 'KFDP(1520,2)=443',
-#'443:ALLOFF',
-#'443:ONIFMATCH 13 13',
-#'333:ALLOFF',
-#'333:ONIFMATCH 321 321',
+'443:ALLOFF',
+'443:ONIFMATCH 13 13',
+'333:ALLOFF',
+'333:ONIFMATCH 321 321',
 'PMAS(C10551,1)=7.0'),
 # This is a vector of ParameterSet names to be read, in this order
 parameterSets = cms.vstring(
