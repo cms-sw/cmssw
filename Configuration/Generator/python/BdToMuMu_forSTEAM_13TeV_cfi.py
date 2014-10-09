@@ -5,7 +5,7 @@ generator = cms.EDFilter(
 "Pythia6GeneratorFilter",
 comEnergy = cms.double(13000.0),
 crossSection = cms.untracked.double(54000000000),
-filterEfficiency = cms.untracked.double(0.0013),
+filterEfficiency = cms.untracked.double(0.0011),
 pythiaHepMCVerbosity = cms.untracked.bool(False),
 maxEventsToPrint = cms.untracked.int32(0),
 pythiaPylistVerbosity = cms.untracked.int32(0),
