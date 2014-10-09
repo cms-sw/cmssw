@@ -16,10 +16,10 @@ pythiaEtab = cms.vstring(
 'MDME(1521,1)=0',
 'KFDP(1520,1)=553',
 'KFDP(1520,2)=553',
-#553:ALLOFF',
-#'553:ONIFMATCH 13 13',
-#'333:ALLOFF',
-#'333:ONIFMATCH 321 321',
+'553:ALLOFF',
+'553:ONIFMATCH 13 13',
+'333:ALLOFF',
+'333:ONIFMATCH 321 321',
 'PMAS(C10551,1)=20.0'),
 # This is a vector of ParameterSet names to be read, in this order
 parameterSets = cms.vstring(
