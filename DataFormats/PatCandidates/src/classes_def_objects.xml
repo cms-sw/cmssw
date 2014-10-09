@@ -113,9 +113,9 @@
     <version ClassVersion="10" checksum="1628501942" />
   </class>
   <class name="std::vector<pat::tau::TauPFEssential>" />
-  <class name="pat::Photon"  ClassVersion="13">
-   <version ClassVersion="14" checksum="1272212778"/>
+  <class name="pat::Photon"  ClassVersion="16">
    <field name="superClusterRelinked_" transient="true"/>
+   <version ClassVersion="16" checksum="1272212778"/>
    <version ClassVersion="15" checksum="3096238365"/>
    <version ClassVersion="14" checksum="2817723713"/>
    <version ClassVersion="13" checksum="3948496360"/>
@@ -179,6 +179,7 @@
   </class>
 
   <class name="pat::PackedCandidate" ClassVersion="15">
+    <version ClassVersion="15" checksum="3261782486"/>
     <version ClassVersion="14" checksum="1075333340"/>
     <version ClassVersion="13" checksum="981046949"/>
     <version ClassVersion="12" checksum="981046949"/>
