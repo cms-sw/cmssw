@@ -84,7 +84,7 @@ HLTMuonTrkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
     }
     if ( muon.isTrackerMuon() && !muon::isGoodMuon(muon,m_trkMuonId) ) continue;
     if ( muon.pt() < m_minPt ) continue;
-      if ( fabs(muon.eta()) > m_maxAbsEta ) continue;
+    if ( fabs(muon.eta()) > m_maxAbsEta ) continue;
     filteredMuons.push_back(i);
   }
 
