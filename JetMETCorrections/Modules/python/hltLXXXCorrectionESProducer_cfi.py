@@ -6,5 +6,5 @@ import FWCore.ParameterSet.Config as cms
 hltLXXXCorrectionESProducer = cms.ESProducer( 'LXXXCorrectionESProducer',
     appendToDataLabel = cms.string( '' ),
     level     = cms.string( '' ),           # "L2Relative" or "L3Absolute"
-    algorithm = cms.string( 'AK5Calo' )
+    algorithm = cms.string( 'AK4Calo' )
 )

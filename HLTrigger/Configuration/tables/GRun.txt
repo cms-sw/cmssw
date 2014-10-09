@@ -14,7 +14,6 @@ HLT_IsoMu24_IterTrk02_v*				# JIRA: CMSHLT-64, updated by CMSHLT-86
 HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v*			# JIRA: CMSHLT-64, updated by CMSHLT-86
 HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v*			# JIRA: CMSHLT-64, updated by CMSHLT-86
 #HLT_Mu17_NoFilters_v*					# JIRA: CMSHLT-64, updated by CMSHLT-86 -> TEMPLATE PATH, not for GRun
-#HLT_DoubleMu4_Jpsi_Displaced_v*			# JIRA: CMSHLT-86 -> TEMPLATE PATH, not for GRun
 
 HLT_IsoTkMu24_IterTrk02_v*				# JIRA: CMSHLT-72
 
@@ -125,6 +124,8 @@ HLT_PFHT900_v*                          			# JIRA: CMSHLT-105
 HLT_PFHT350_PFMET120_NoiseCleaned_v*                          	# JIRA: CMSHLT-105
 HLT_PFMET170_NoiseCleaned_v*                          		# JIRA: CMSHLT-105
 HLT_PFMET120_NoiseCleaned_BTagCSV07_v*				# JIRA: CMSHLT-105
+
+HLT_ZeroBias_v*							# JIRA: CMSHLT-117
 
 HLT_Physics_v*							# skim
 
