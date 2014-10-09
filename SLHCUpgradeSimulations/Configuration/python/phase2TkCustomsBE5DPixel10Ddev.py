@@ -31,23 +31,10 @@ def customise(process):
     return process
 
 def customise_Digi(process):
-    process.mix.digitizers.pixel.MissCalibrate = False
-    process.mix.digitizers.pixel.LorentzAngle_DB = False
-    process.mix.digitizers.pixel.killModules = False
-    process.mix.digitizers.pixel.useDB = False
-    process.mix.digitizers.pixel.DeadModules_DB = False
-    process.mix.digitizers.pixel.NumPixelBarrel = cms.int32(10)
-    process.mix.digitizers.pixel.NumPixelEndcap = cms.int32(14)
-    process.mix.digitizers.pixel.ThresholdInElectrons_FPix = cms.double(2000.0)
-    process.mix.digitizers.pixel.ThresholdInElectrons_BPix = cms.double(2000.0)
-    process.mix.digitizers.pixel.ThresholdInElectrons_BPix_L1 = cms.double(2000.0)
-    process.mix.digitizers.pixel.thePixelColEfficiency_BPix4 = cms.double(0.999)
-    process.mix.digitizers.pixel.thePixelEfficiency_BPix4 = cms.double(0.999)
-    process.mix.digitizers.pixel.thePixelChipEfficiency_BPix4 = cms.double(0.999)
-    process.mix.digitizers.pixel.thePixelColEfficiency_FPix3 = cms.double(0.999)
-    process.mix.digitizers.pixel.thePixelEfficiency_FPix3 = cms.double(0.999)
-    process.mix.digitizers.pixel.thePixelChipEfficiency_FPix3 = cms.double(0.999)
-    process.mix.digitizers.pixel.AddPixelInefficiencyFromPython = cms.bool(False)
+    process.digitisation_step.remove(process.mix.digitizers.pixel)
+    process.load('Geometry.TrackerGeometryBuilder.StackedTrackerGeometry_cfi')    
+    process.load('SimTracker.SiPhase2Digitizer.phase2TrackerDigitizer_cfi')
+    process.mix.digitizers.pixel=process.phase2TrackerDigitizer
     process.mix.digitizers.strip.ROUList = cms.vstring("g4SimHitsTrackerHitsPixelBarrelLowTof",
                          'g4SimHitsTrackerHitsPixelEndcapLowTof')
     # Check if mergedtruth is in the sequence first, could be taken out depending on cmsDriver options
