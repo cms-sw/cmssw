@@ -21,7 +21,7 @@ namespace {
     void sortTracksByPt(std::vector<reco::TransientTrack> & cont) {
       auto s = cont.size();
       float pt2[s]; int ind[s]; int i=0; 
-      for (auto const & tk : cont) { ind[i]=i; pt2[++i] = tk.impactPointState().globalMomentum().perp2();}
+      for (auto const & tk : cont) { ind[i]=i; pt2[i++] = tk.impactPointState().globalMomentum().perp2();}
       std::sort(ind,ind+s, [&](int i, int j){return pt2[i]>pt2[j];} ); 
       std::vector<reco::TransientTrack> tmp; tmp.reserve(s);
       for (auto i=0U; i<s; ++i) tmp.emplace_back(std::move( cont[ind[i]] ) );
@@ -62,7 +62,7 @@ namespace {
   sortByDistanceToRefPoint (std::vector<RefCountedVertexTrack> & cont, const GlobalPoint  ref ) {
       auto s = cont.size();
       float d2[s]; int ind[s]; int i=0;
-      for (auto const & tk : cont) { ind[i]=i; d2[++i] = (tk->linearizedTrack()->track().initialFreeState().position() - ref ).mag2();}
+      for (auto const & tk : cont) { ind[i]=i; d2[i++] = (tk->linearizedTrack()->track().initialFreeState().position() - ref ).mag2();}
       std::sort(ind,ind+s, [&](int i, int j){return d2[i]<d2[j];} );
       std::vector<RefCountedVertexTrack> tmp; tmp.reserve(s);
       for (auto i=0U; i<s; ++i) tmp.emplace_back(std::move( cont[ind[i]] ) );
