@@ -250,7 +250,7 @@ void InputGenJetsParticleSelector::produce (edm::Event &evt, const edm::EventSet
 
     for (edm::View<reco::Candidate>::const_iterator iter=prunedGenParticles->begin();iter!=prunedGenParticles->end();++iter)
     {
-      if(iter->status()!=1)
+      if(iter->status()!=1) // to avoid double-counting, skipping stable particles already contained in the collection of PackedGenParticles
         particles.push_back(&*iter);
     }
   }
@@ -275,7 +275,7 @@ void InputGenJetsParticleSelector::produce (edm::Event &evt, const edm::EventSet
     const reco::Candidate *particle = particles[i];
     if (invalid[i])
       continue;
-    if (particle->status() == 1)
+    if (particle->status() == 1) // selecting stable particles
       selected[i] = true;
     if (partonicFinalState && isParton(particle->pdgId())) {
 	  
