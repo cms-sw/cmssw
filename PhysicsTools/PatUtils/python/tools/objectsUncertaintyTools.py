@@ -226,7 +226,7 @@ def addSmearedJets(process, jetCollection, smearedJetCollectionName_parts,
 
     smearedJets = cms.EDProducer("SmearedPATJetProducer",
             src = cms.InputTag(jetCollection),
-            dRmaxGenJetMatch = cms.string('TMath::Min(0.5, 0.1 + 0.3*TMath::Exp(-0.05*(genJetPt - 10.)))'),
+            dRmaxGenJetMatch = cms.string('min(0.5, 0.1 + 0.3*exp(-0.05*(genJetPt - 10.)))'),
             sigmaMaxGenJetMatch = cms.double(3.),                               
             inputFileName = cms.FileInPath(jetSmearFileName),
             lutName = cms.string(jetSmearHistogram),

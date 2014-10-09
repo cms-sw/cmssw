@@ -1,14 +1,14 @@
-#ifndef PhysicsTools_PatUtils_ShiftedPFCandidateProducerForPFMEtMVA_h
-#define PhysicsTools_PatUtils_ShiftedPFCandidateProducerForPFMEtMVA_h
+#ifndef PhysicsTools_PatUtils_ShiftedPFCandidateProducerForPFMVAMEt_h
+#define PhysicsTools_PatUtils_ShiftedPFCandidateProducerForPFMVAMEt_h
 
-/** \class ShiftedPFCandidateProducerForPFMEtMVA
+/** \class ShiftedPFCandidateProducerForPFMVAMEt
  *
  * Vary energy of PFCandidates coinciding in eta-phi with selected electrons/muons/tau-jets/jets
  * by electron/muon/tau-jet/jet energy uncertainty.
  *
  * NOTE: Auxiliary class specific to estimating systematic uncertainty
  *       on PFMET reconstructed by MVA-based algorithm
- *      (implemented in RecoMET/METProducers/src/PFMETProducerMVA.cc)
+ *      (implemented in RecoMET/METPUSubtraction/src/PFMETProducerMVA.cc)
  *
  * \author Christian Veelken, LLR
  *
@@ -16,7 +16,7 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -30,12 +30,12 @@
 #include <string>
 #include <vector>
 
-class ShiftedPFCandidateProducerForPFMEtMVA : public edm::EDProducer
+class ShiftedPFCandidateProducerForPFMVAMEt : public edm::stream::EDProducer<>
 {
  public:
 
-  explicit ShiftedPFCandidateProducerForPFMEtMVA(const edm::ParameterSet&);
-  ~ShiftedPFCandidateProducerForPFMEtMVA();
+  explicit ShiftedPFCandidateProducerForPFMVAMEt(const edm::ParameterSet&);
+  ~ShiftedPFCandidateProducerForPFMVAMEt();
 
  private:
   typedef edm::View<reco::Candidate> CandidateView;
@@ -50,6 +50,10 @@ class ShiftedPFCandidateProducerForPFMEtMVA : public edm::EDProducer
 
   double dRmatch_PFCandidate_;
   double dRmatch_Object_;
+
+  double dR2match_PFCandidate_;
+  double dR2match_Object_;
+
 
   struct objectEntryType
   {

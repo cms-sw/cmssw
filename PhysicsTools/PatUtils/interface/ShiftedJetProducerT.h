@@ -14,7 +14,7 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -30,12 +30,10 @@
 
 #include "PhysicsTools/PatUtils/interface/SmearedJetProducerT.h"
 
-#include <TMath.h>
-
 #include <string>
 
 template <typename T, typename Textractor>
-class ShiftedJetProducerT : public edm::EDProducer
+  class ShiftedJetProducerT : public edm::stream::EDProducer<>
 {
   typedef std::vector<T> JetCollection;
 
@@ -143,7 +141,7 @@ class ShiftedJetProducerT : public edm::EDProducer
 	    jetCorrExtractor_(*originalJet, jetCorrLabelUpToL3Res_, &evt, &es, jetCorrEtaMax_, &rawJetP4);
 	  if ( corrJetP4upToL3.E() > 1.e-1 && corrJetP4upToL3Res.E() > 1.e-1 ) {
 	    double residualJES = (corrJetP4upToL3Res.E()/corrJetP4upToL3.E()) - 1.;
-	    shift = TMath::Sqrt(shift*shift + residualJES*residualJES);
+	    shift = sqrt(shift*shift + residualJES*residualJES);
 	  }
 	}
       }
