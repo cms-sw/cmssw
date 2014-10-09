@@ -2,7 +2,6 @@
 
 // Code moved from TrackingTools/AnalyticalJacobians
 
-namespace jacobians {
 
 AlgebraicMatrix65 jacobianCurvilinearToCartesian(const GlobalVector & momentum, int q) {
   AlgebraicMatrix65 theJacobian;
@@ -92,5 +91,4 @@ AlgebraicMatrix56 jacobianCartesianToCurvilinear(const GlobalVector & momentum,i
   theJacobian = theJacobian * R;
   //dbg::dbg_trace(1,"Ca2Cu", globalParameters.vector(),theJacobian);
   return theJacobian;
-}
 }

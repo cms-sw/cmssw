@@ -4,6 +4,6 @@
 
 JacobianCurvilinearToCartesian::
 JacobianCurvilinearToCartesian(const GlobalTrajectoryParameters& globalParameters) :
-theJacobian(jacobians::jacobianCurvilinearToCartesian(globalParameters.momentum(),globalParameters.charge())) {}
+theJacobian(jacobianCurvilinearToCartesian(globalParameters.momentum(),globalParameters.charge())) {}
 
 
