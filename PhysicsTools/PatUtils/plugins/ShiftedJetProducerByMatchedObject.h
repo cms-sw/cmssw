@@ -1,10 +1,10 @@
-#ifndef PhysicsTools_PatUtils_ShiftedPFCandidateProducerByMatchedObject_h
-#define PhysicsTools_PatUtils_ShiftedPFCandidateProducerByMatchedObject_h
+#ifndef PhysicsTools_PatUtils_ShiftedJetProducerByMatchedObject_h
+#define PhysicsTools_PatUtils_ShiftedJetProducerByMatchedObject_h
 
-/** \class ShiftedPFCandidateProducerByMatchedObject
+/** \class ShiftedJetProducerByMatchedObject
  *
- * Vary energy of PFCandidates coinciding in eta-phi with selected electrons/muons/tau-jets/jets
- * by electron/muon/tau-jet/jet energy uncertainty.
+ * Vary energy of jets coinciding in eta-phi with selected electrons/muons/tau-jets
+ * by electron/muon/tau-jet energy uncertainty.
  *
  * \author Christian Veelken, LLR
  *
@@ -17,35 +17,35 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
-
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/View.h"
-#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 #include <string>
 #include <vector>
 
-class ShiftedPFCandidateProducerByMatchedObject : public edm::stream::EDProducer<>  
+template <typename T>
+class ShiftedJetProducerByMatchedObjectT : public edm::stream::EDProducer<>  
 {
+  typedef std::vector<T> JetCollection;
+
  public:
 
-  explicit ShiftedPFCandidateProducerByMatchedObject(const edm::ParameterSet&);
-  ~ShiftedPFCandidateProducerByMatchedObject();
+  explicit ShiftedJetProducerByMatchedObjectT(const edm::ParameterSet&);
+  ~ShiftedJetProducerByMatchedObjectT();
     
  private:
 
   void produce(edm::Event&, const edm::EventSetup&);
 
-  edm::EDGetTokenT<reco::PFCandidateCollection > srcPFCandidates_; 
+  std::string moduleLabel_;
+
+  edm::EDGetTokenT<JetCollection> srcJets_; 
   edm::EDGetTokenT<edm::View<reco::Candidate> > srcUnshiftedObjects_; 
   edm::EDGetTokenT<edm::View<reco::Candidate> > srcShiftedObjects_; 
 
-  double dRmatch_PFCandidate_;
-  double dR2match_PFCandidate_;
+  double dRmatch_Jet_;
   double dRmatch_Object_;
+
+  double dR2match_Jet_;
   double dR2match_Object_;
 
   struct objectEntryType
@@ -65,8 +65,8 @@ class ShiftedPFCandidateProducerByMatchedObject : public edm::stream::EDProducer
     ~objectEntryType() {}
     reco::Candidate::LorentzVector shiftedObjectP4_;
     reco::Candidate::LorentzVector unshiftedObjectP4_;
-    double dRmatch_;
     double shift_;
+    double dRmatch_;
     bool isValidMatch_;
   };
 
