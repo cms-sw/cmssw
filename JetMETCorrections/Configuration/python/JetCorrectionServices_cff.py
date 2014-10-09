@@ -27,8 +27,8 @@ ak4CaloL1Offset = cms.ESProducer(
     minVtxNdof = cms.int32(4)
     )
 
-ak4PFL1Offset = ak4CaloL1Offset.clone(algorithm = 'AK5PF')
-ak4PFCHSL1Offset = ak4CaloL1Offset.clone(algorithm = 'AK5PFCHS')
+ak4PFL1Offset = ak4CaloL1Offset.clone(algorithm = 'AK4PF')
+ak4PFCHSL1Offset = ak4CaloL1Offset.clone(algorithm = 'AK4PFchs')
 ak4JPTL1Offset = ak4CaloL1Offset.clone(algorithm = 'AK5JPT')
 
 # L1 (JPT Offset) Correction Service
@@ -49,13 +49,13 @@ ak4CaloL1Fastjet = cms.ESProducer(
 ak4PFL1Fastjet = cms.ESProducer(
     'L1FastjetCorrectionESProducer',
     level       = cms.string('L1FastJet'),
-    algorithm   = cms.string('AK5PF'),
+    algorithm   = cms.string('AK4PF'),
     srcRho      = cms.InputTag( 'fixedGridRhoFastjetAll' )
     )
 ak4PFCHSL1Fastjet = cms.ESProducer(
     'L1FastjetCorrectionESProducer',
     level       = cms.string('L1FastJet'),
-    algorithm   = cms.string('AK5PFCHS'),
+    algorithm   = cms.string('AK4PFchs'),
     srcRho      = cms.InputTag( 'fixedGridRhoFastjetAll' )
     )
 ak4JPTL1Fastjet = ak4CaloL1Fastjet.clone()
@@ -66,8 +66,8 @@ ak4CaloL2Relative = cms.ESProducer(
     level     = cms.string('L2Relative'),
     algorithm = cms.string('AK5Calo')
     )
-ak4PFL2Relative = ak4CaloL2Relative.clone( algorithm = 'AK5PF' )
-ak4PFCHSL2Relative = ak4CaloL2Relative.clone( algorithm = 'AK5PFCHS' )
+ak4PFL2Relative = ak4CaloL2Relative.clone( algorithm = 'AK4PF' )
+ak4PFCHSL2Relative = ak4CaloL2Relative.clone( algorithm = 'AK4PFchs' )
 ak4JPTL2Relative = ak4CaloL2Relative.clone( algorithm = 'AK5JPT' )
 ak4TrackL2Relative = ak4CaloL2Relative.clone( algorithm = 'AK5TRK' )
 
@@ -77,8 +77,8 @@ ak4CaloL3Absolute = cms.ESProducer(
     level     = cms.string('L3Absolute'),
     algorithm = cms.string('AK5Calo')
     )
-ak4PFL3Absolute     = ak4CaloL3Absolute.clone( algorithm = 'AK5PF' )
-ak4PFCHSL3Absolute     = ak4CaloL3Absolute.clone( algorithm = 'AK5PFCHS' )
+ak4PFL3Absolute     = ak4CaloL3Absolute.clone( algorithm = 'AK4PF' )
+ak4PFCHSL3Absolute     = ak4CaloL3Absolute.clone( algorithm = 'AK4PFchs' )
 ak4JPTL3Absolute    = ak4CaloL3Absolute.clone( algorithm = 'AK5JPT' )
 ak4TrackL3Absolute  = ak4CaloL3Absolute.clone( algorithm = 'AK5TRK' )
 
@@ -88,8 +88,8 @@ ak4CaloResidual = cms.ESProducer(
     level     = cms.string('L2L3Residual'),
     algorithm = cms.string('AK5Calo')
     )
-ak4PFResidual  = ak4CaloResidual.clone( algorithm = 'AK5PF' )
-ak4PFCHSResidual  = ak4CaloResidual.clone( algorithm = 'AK5PFCHS' )
+ak4PFResidual  = ak4CaloResidual.clone( algorithm = 'AK4PF' )
+ak4PFCHSResidual  = ak4CaloResidual.clone( algorithm = 'AK4PFchs' )
 ak4JPTResidual = ak4CaloResidual.clone( algorithm = 'AK5JPT' )
 
 # L6 (semileptonically decaying b-jet) Correction Services
