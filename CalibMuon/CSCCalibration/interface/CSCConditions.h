@@ -85,9 +85,20 @@ public:
   /// anode bx offset in bx given detId of chamber
   float anodeBXoffset( const CSCDetId & detId) const;
 
-  /// bad channel words per CSCLayer - 1 bit per channel
-  const std::bitset<80>& badStripWord( const CSCDetId& id ) const;
-  const std::bitset<112>& badWireWord( const CSCDetId& id ) const;
+  /// bad strip channel word for a CSCLayer - 1 bit per channel
+  const std::bitset<112>& badStripWord() const {
+    return badStripWord_; 
+  }
+
+  /// bad wiregroup channel word for a CSCLayer - 1 bit per channel
+  const std::bitset<112>& badWireWord() const {
+    return badWireWord_;
+  }
+
+  /// the offline CSCDetId of current bad channel words
+  const CSCDetId& idOfBadChannelWords() const{
+    return idOfBadChannelWords_;
+  }
 
   void print() const;
 
@@ -103,9 +114,8 @@ public:
   /// did we request reading timing correction info from db?
   bool useTimingCorrections() const { return useTimingCorrections_; }
 
-  /// fill bad channel words
-  void fillBadStripWords();
-  void fillBadWireWords();
+  /// Fill bad channel words - one for strips, one for wires, for an offline CSCDetId
+  void fillBadChannelWords( const CSCDetId& id );
 
   /// average gain over entire CSC system (logically const although must be cached here).
   float averageGain() const;
@@ -121,6 +131,14 @@ public:
   int rawStripChannel( const CSCDetId& id, int geomChannel) const;
 
 private:
+
+  /// fill bad channel words for offline id
+  void fillBadStripWord( const CSCDetId& id );
+  void fillBadWireWord( const CSCDetId& id );
+  /// Set id for current content of bad channel words - this is offline id i.e. separate for ME11A & ME11B
+  void setIdOfBadChannelWords ( const CSCDetId& id ){
+    idOfBadChannelWords_ = id;
+  }
 
 // handles to conditions data
 
@@ -147,9 +165,10 @@ private:
   bool useTimingCorrections_; // flag whether or not to even attempt reading timing correction info from db
   bool useGasGainCorrections_; // flag whether or not to even attempt reading gas-gain correction info from db
 
-  // cache bad channel words once created
-  std::vector< std::bitset<80> > badStripWords;
-  std::vector< std::bitset<112> > badWireWords;
+  // Cache bad channel content for current CSC layer
+  CSCDetId idOfBadChannelWords_;
+  std::bitset<112> badStripWord_;
+  std::bitset<112> badWireWord_;
 
   mutable float theAverageGain; // average over entire system, subject to some constraints!
 
