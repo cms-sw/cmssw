@@ -854,19 +854,19 @@ void PFMuonAlgo::postClean(reco::PFCandidateCollection*  cands) {
   std::vector<int> muons;
   std::vector<int> cosmics;
   //get the muons
-  for(unsigned int i=0;i<cands->size();++i) 
-    if ( cands->at(i).particleId() == reco::PFCandidate::mu )
+  for(unsigned int i=0;i<cands->size();++i)  {
+    const reco::PFCandidate& cand = (*cands)[i];
+    if ( cand.particleId() == reco::PFCandidate::mu )
       muons.push_back(i);
-    else if ( cands->at(i).particleId() == reco::PFCandidate::h && cands->at(i).muonRef().isNonnull()) {
-    //clean this crazy shit with iter10
-      if (cands->at(i).pt()>100.0 &&  (!cands->at(i).trackRef()->quality(trackQuality_)) && cands->at(i).muonRef()->isGlobalMuon() && cands->at(i).rawHcalEnergy()/cands->at(i).p()<0.05) {
+    else if ( cand.particleId() == reco::PFCandidate::h && cand.muonRef().isNonnull()) {
+    //MET cleaning for muons that are not high purity and became charged hadrons 
+      if (cand.pt()>100.0 &&  (!cand.trackRef()->quality(trackQuality_)) && cand.muonRef()->isGlobalMuon() && cand.rawHcalEnergy()<0.05*cand.p()) {
       maskedIndices_.push_back(i);
-      pfPunchThroughMuonCleanedCandidates_->push_back(cands->at(i));
-
+      pfPunchThroughMuonCleanedCandidates_->push_back(cand);
+      }
     }
-  }
       
-
+  }
   //Then sort the muon indicess by decsending pt
 
   IndexPtComparator comparator(cands);
