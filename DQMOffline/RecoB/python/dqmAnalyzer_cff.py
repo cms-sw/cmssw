@@ -5,19 +5,6 @@ from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak4PFL2L3,
 
 #JEC for CHS
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak4PFCHSL1Fastjet, ak4PFCHSL2Relative, ak4PFCHSL3Absolute, ak4PFCHSResidual, ak4PFCHSL1FastL2L3, ak4PFCHSL1FastL2L3Residual
-newak4PFCHSL1Fastjet = ak4PFCHSL1Fastjet.clone(algorithm = 'AK5PFchs')
-newak4PFCHSL2Relative = ak4PFCHSL2Relative.clone(algorithm = 'AK5PFchs')
-newak4PFCHSL3Absolute = ak4PFCHSL3Absolute.clone(algorithm = 'AK5PFchs')
-newak4PFCHSResidual = ak4PFCHSResidual.clone(algorithm = 'AK5PFchs')
-
-newak4PFCHSL1FastL2L3 = ak4PFCHSL1FastL2L3.clone(correctors = cms.vstring('newak4PFCHSL1Fastjet','newak4PFCHSL2Relative','newak4PFCHSL3Absolute'))
-newak4PFCHSL1FastL2L3Residual = ak4PFCHSL1FastL2L3Residual.clone(correctors = cms.vstring('newak4PFCHSL1Fastjet','newak4PFCHSL2Relative','newak4PFCHSL3Absolute','newak4PFCHSResidual'))
-
-#Needed only for fastsim, why?
-ak4PFCHSL1Fastjet.algorithm = 'AK5PFchs'
-ak4PFCHSL2Relative.algorithm = 'AK5PFchs'
-ak4PFCHSL3Absolute.algorithm = 'AK5PFchs'
-ak4PFCHSResidual.algorithm = 'AK5PFchs'
 
 ######### DATA ############
 from DQMOffline.RecoB.bTagAnalysisData_cfi import *
@@ -25,7 +12,7 @@ bTagAnalysis.ptRanges = cms.vdouble(0.0)
 bTagAnalysis.doJetID = True
 bTagAnalysis.doJEC = True
 #Residual correction will be added inside the c++ code only for data (checking the presence of genParticles collection), not explicit here as this sequence also ran on MC FullSim
-bTagAnalysis.JECsource = cms.string("newak4PFCHSL1FastL2L3") 
+bTagAnalysis.JECsource = cms.string("ak4PFCHSL1FastL2L3") 
 bTagPlotsDATA = cms.Sequence(bTagAnalysis)
 
 ########## MC ############
@@ -54,7 +41,7 @@ bTagValidation.ptRanges = cms.vdouble(0.0)
 bTagValidation.etaRanges = cms.vdouble(0.0)
 bTagValidation.doJetID = True
 bTagValidation.doJEC = True
-bTagValidation.JECsource = cms.string("newak4PFCHSL1FastL2L3")
+bTagValidation.JECsource = cms.string("ak4PFCHSL1FastL2L3")
 bTagValidation.genJetsMatched = cms.InputTag("newpatJetGenJetMatch")
 #to run on fastsim
 prebTagSequenceMC = cms.Sequence(ak4GenJetsForPUid*newpatJetGenJetMatch*myPartons*AK4Flavour)

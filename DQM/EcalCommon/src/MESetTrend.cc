@@ -53,15 +53,41 @@ namespace ecaldqm {
   }
 
   void
-  MESetTrend::book(DQMStore& _dqmStore)
-  {
-    doBook_(_dqmStore);
-  }
-
-  void
   MESetTrend::book(DQMStore::IBooker& _ibooker)
   {
-    doBook_(_ibooker);
+    binning::AxisSpecs xaxis;
+    if(xaxis_) xaxis = *xaxis_;
+    else{
+      xaxis.nbins = 200;
+      xaxis.low = 0.;
+      xaxis.high = 2000.;
+    }
+
+    if(minutely_){
+      time_t localTime(time(0));
+      struct tm timeBuffer;
+      gmtime_r(&localTime, &timeBuffer); // gmtime() is not thread safe
+      unsigned utcTime(mktime(&timeBuffer));
+
+      xaxis.low = utcTime;
+      if(xaxis_) xaxis.high = utcTime + xaxis_->high - xaxis_->low;
+      else xaxis.high = xaxis.low + 200 * 60.;
+    }
+
+    binning::AxisSpecs const* xaxisTemp(xaxis_);
+    xaxis_ = &xaxis;
+
+    MESetEcal::book(_ibooker);
+
+    xaxis_ = xaxisTemp;
+
+    if(minutely_){
+      for(unsigned iME(0); iME < mes_.size(); ++iME)
+        mes_[iME]->getTH1()->GetXaxis()->SetTimeDisplay(1);
+      setAxisTitle("UTC");
+    }
+    else
+      setAxisTitle("LumiSections");
   }
 
   void
@@ -160,45 +186,6 @@ namespace ecaldqm {
     if(kind_ == MonitorElement::DQM_KIND_TPROFILE || kind_ == MonitorElement::DQM_KIND_TPROFILE2D)
       throw_("Cumulative flag set for a profile plot");
     currentBin_ = 1;
-  }
-
-  template<class Bookable>
-  void
-  MESetTrend::doBook_(Bookable& _booker)
-  {
-    binning::AxisSpecs xaxis;
-    if(xaxis_) xaxis = *xaxis_;
-    else{
-      xaxis.nbins = 200;
-      xaxis.low = 0.;
-      xaxis.high = 2000.;
-    }
-
-    if(minutely_){
-      time_t localTime(time(0));
-      struct tm timeBuffer;
-      gmtime_r(&localTime, &timeBuffer); // gmtime() is not thread safe
-      unsigned utcTime(mktime(&timeBuffer));
-
-      xaxis.low = utcTime;
-      if(xaxis_) xaxis.high = utcTime + xaxis_->high - xaxis_->low;
-      else xaxis.high = xaxis.low + 200 * 60.;
-    }
-
-    binning::AxisSpecs const* xaxisTemp(xaxis_);
-    xaxis_ = &xaxis;
-
-    MESetEcal::book(_booker);
-
-    xaxis_ = xaxisTemp;
-
-    if(minutely_){
-      for(unsigned iME(0); iME < mes_.size(); ++iME)
-        mes_[iME]->getTH1()->GetXaxis()->SetTimeDisplay(1);
-      setAxisTitle("UTC");
-    }
-    else
-      setAxisTitle("LumiSections");
   }
 
   bool
