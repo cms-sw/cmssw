@@ -1,22 +1,18 @@
 #ifndef EcalCondDBReader_H
 #define EcalCondDBReader_H
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 #include "DQM/EcalCommon/interface/MESet.h"
 #include "DBReaderWorkers.h"
 
-#include "TFormula.h"
-
-class EcalCondDBReader : public edm::EDAnalyzer {
+class EcalCondDBReader : public DQMEDHarvester {
  public:
   EcalCondDBReader(edm::ParameterSet const&);
   ~EcalCondDBReader();
 
  private:
-  void analyze(edm::Event const&, edm::EventSetup const&);
+  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
 
   // DON'T CHANGE - ORDER MATTERS IN DB
   enum Tasks {

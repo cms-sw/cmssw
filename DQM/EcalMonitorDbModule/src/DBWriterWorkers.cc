@@ -90,34 +90,17 @@ namespace ecaldqm {
     }
   }
 
-  /*static*/
   void
-  DBWriterWorker::fillDescriptions(edm::ParameterSetDescription& _desc)
+  DBWriterWorker::retrieveSource(DQMStore::IGetter& _igetter)
   {
-    _desc.addUntracked<std::vector<std::string> >("runTypes", std::vector<std::string>());
-
-    edm::ParameterSetDescription sourceParameters;
-    edm::ParameterSetDescription sourceNodeParameters;
-    fillMESetDescriptions(sourceNodeParameters);
-    sourceParameters.addNode(edm::ParameterWildcard<edm::ParameterSetDescription>("*", edm::RequireZeroOrMore, false, sourceNodeParameters));
-    _desc.addUntracked("source", sourceParameters);
-  }
-
-  void
-  DBWriterWorker::retrieveSource()
-  {
-    DQMStore& store(*edm::Service<DQMStore>());
-
-    store.meGetter([this](DQMStore::IGetter& _igetter){
-        std::string failedPath;
-        for(MESetCollection::iterator sItr(this->source_.begin()); sItr != this->source_.end(); ++sItr){
-          if(!sItr->second->retrieve(_igetter, &failedPath)){
-            edm::LogError("EcalDQM") << name_ << ": MESet " << sItr->first << "@" << failedPath << " not found";
-            this->active_ = false;
-            return;
-          }
-        }
-      });
+    std::string failedPath;
+    for(MESetCollection::iterator sItr(this->source_.begin()); sItr != this->source_.end(); ++sItr){
+      if(!sItr->second->retrieve(_igetter, &failedPath)){
+        edm::LogError("EcalDQM") << name_ << ": MESet " << sItr->first << "@" << failedPath << " not found";
+        this->active_ = false;
+        return;
+      }
+    }
   }
  
   bool
