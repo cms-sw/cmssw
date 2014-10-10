@@ -68,9 +68,13 @@ MagFieldConfig::MagFieldConfig(const edm::ParameterSet& pset, bool debug) {
   values = pset.getParameter<vector<double> >("scalingFactors");
 
 
-  // Slave field label (???)
+  // Slave field label. Either a label of an existing map (legacy support), or the 
+  // type of parametrization to be constructed with the "paramData" parameters.
   slaveFieldVersion = pset.getParameter<string>("paramLabel");
-  //FIXME  slaveFieldParameters = pset.getParameter<vector<double> >("paramData");
+  // Check for compatibility with older configurations
+  if (pset.existsAs<vector<double> >("paramData")) {
+    slaveFieldParameters = pset.getParameter<vector<double> >("paramData");
+  }
 
 }
 
