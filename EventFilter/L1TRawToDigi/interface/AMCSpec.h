@@ -6,9 +6,16 @@
 #include <stdint.h>
 
 namespace amc {
+   static const unsigned int split_block_size = 0x1000;
+
    class Header {
       public:
          Header(const uint64_t *data) : data_(data[0]) {};
+         // size is the total size of the AMC payload, not just of the
+         // block
+         Header(unsigned int amc_no, unsigned int board_id, unsigned int size, unsigned int block=0);
+
+         operator uint64_t() const { return data_; };
 
          unsigned int getBlocks() const;
          unsigned int getBlockSize() const;
@@ -43,10 +50,15 @@ namespace amc {
    class Packet {
       public:
          Packet(const uint64_t* d) : header_(d) {};
+         Packet(unsigned int amc, unsigned int board, const std::vector<uint64_t>& load);
 
          void addPayload(const uint64_t*, unsigned int);
-         inline Header header() const { return header_; };
+
+         std::vector<uint64_t> block(unsigned int id) const;
          std::unique_ptr<uint64_t[]> data();
+         Header header(unsigned int block=0) const { return header_; };
+
+         inline unsigned int blocks() const { return header_.getBlocks(); };
          inline unsigned int size() const { return header_.getSize(); };
 
       private:
@@ -60,12 +72,15 @@ namespace amc13 {
       public:
          Header() : data_(0) {};
          Header(const uint64_t *data) : data_(data[0]) {};
+         Header(unsigned int namc, unsigned int orbit);
 
          bool valid();
 
-         inline unsigned int getFormatVersion() { return (data_ << uFOV_shift) & uFOV_mask; };
-         inline unsigned int getNumberOfAMCs() { return (data_ << nAMC_shift) & nAMC_mask; };
-         inline unsigned int getOrbitNumber() { return (data_ << OrN_shift) & OrN_mask; };
+         inline uint64_t raw() const { return data_; };
+
+         inline unsigned int getFormatVersion() const { return (data_ >> uFOV_shift) & uFOV_mask; };
+         inline unsigned int getNumberOfAMCs() const { return (data_ >> nAMC_shift) & nAMC_mask; };
+         inline unsigned int getOrbitNumber() const { return (data_ >> OrN_shift) & OrN_mask; };
 
       private:
          static const unsigned int uFOV_shift = 60;
@@ -85,7 +100,13 @@ namespace amc13 {
       public:
          Packet() {};
 
+         unsigned int blocks() const;
+         unsigned int size() const;
+
+         void add(unsigned int board, const std::vector<uint64_t>& load);
          bool parse(const uint64_t*, unsigned int);
+         bool write(unsigned char * ptr, unsigned int size) const;
+
          inline std::vector<amc::Packet> payload() const { return payload_; };
 
       private:

@@ -20,6 +20,8 @@
 #include <iomanip>
 #include <memory>
 
+#define EDM_ML_DEBUG 1
+
 // user include files
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -37,7 +39,8 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "EventFilter/L1TRawToDigi/interface/PackerFactory.h"
+#include "EventFilter/L1TRawToDigi/interface/AMCSpec.h"
+#include "EventFilter/L1TRawToDigi/interface/PackingSetup.h"
 
 namespace l1t {
    class L1TDigiToRaw : public edm::one::EDProducer<edm::one::SharedResources, edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
@@ -60,27 +63,21 @@ namespace l1t {
          virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {};
 
          // ----------member data ---------------------------
-         // FIXME is actually fixed by the firmware version
-         static const unsigned MAX_BLOCKS = 256;
-
-         edm::InputTag inputLabel_;
          int evtType_;
          int fedId_;
          unsigned fwId_;
 
-         PackerList packers_;
-
          // header and trailer sizes in chars
          int slinkHeaderSize_;
          int slinkTrailerSize_;
-         int amcHeaderSize_;
-         int amcTrailerSize_;
+
+         std::auto_ptr<PackingSetup> setup_;
+         std::unique_ptr<PackerTokens> tokens_;
    };
 }
 
 namespace l1t {
    L1TDigiToRaw::L1TDigiToRaw(const edm::ParameterSet& config) :
-      inputLabel_(config.getParameter<edm::InputTag>("InputLabel")),
       fedId_(config.getParameter<int>("FedId"))
    {
       // Register products
@@ -91,18 +88,11 @@ namespace l1t {
 
       auto cc = edm::ConsumesCollector(consumesCollector());
 
-      auto packer_names = config.getParameter<std::vector<std::string>>("Packers");
-
-      for (const auto& name: packer_names) {
-         auto factory = std::auto_ptr<BasePackerFactory>(PackerFactory::get()->makePackerFactory(name, config, cc));
-         auto packer_list = factory->create(fwId_, fedId_);
-         packers_.insert(packers_.end(), packer_list.begin(), packer_list.end());
-      }
+      setup_ = PackingSetupFactory::get()->make("l1t::CaloSetup");
+      tokens_ = setup_->registerConsumes(config, cc);
 
       slinkHeaderSize_ = config.getUntrackedParameter<int>("lenSlinkHeader", 16);
       slinkTrailerSize_ = config.getUntrackedParameter<int>("lenSlinkTrailer", 16);
-      amcHeaderSize_ = config.getUntrackedParameter<int>("lenAMCHeader", 12);
-      amcTrailerSize_ = config.getUntrackedParameter<int>("lenAMCTrailer", 8);
    }
 
 
@@ -126,28 +116,48 @@ namespace l1t {
    {
       using namespace edm;
 
-      Blocks blocks;
+      LogWarning("L1T") << "Packing data with FED ID " << fedId_;
 
-      for (auto& packer: packers_) {
-         auto pblocks = packer->pack(event);
-         blocks.insert(blocks.end(), pblocks.begin(), pblocks.end());
+      amc13::Packet amc13;
+
+      // Create all the AMC payloads to pack into the AMC13
+      for (const auto& item: setup_->getPackers(fedId_, fwId_)) {
+         auto board = item.first;
+         auto packers = item.second;
+
+         Blocks block_load;
+         for (const auto& packer: packers) {
+            auto blocks = packer->pack(event, tokens_.get());
+            block_load.insert(block_load.end(), blocks.begin(), blocks.end());
+         }
+
+         std::sort(block_load.begin(), block_load.end());
+
+         std::vector<uint32_t> load32;
+         for (const auto& block: block_load) {
+            auto load = block.payload();
+            load32.push_back(block.header().raw());
+            load32.insert(load32.end(), load.begin(), load.end());
+         }
+
+         std::vector<uint64_t> load64;
+         for (unsigned int i = 0; i < load32.size(); i += 2) {
+            uint64_t word = load32[i];
+            if (i + 1 < load32.size())
+               word |= static_cast<uint64_t>(load32[i + 1]) << 32;
+            load64.push_back(word);
+         }
+
+         amc13.add(board, load64);
       }
 
       std::auto_ptr<FEDRawDataCollection> raw_coll(new FEDRawDataCollection());
       FEDRawData& fed_data = raw_coll->FEDData(fedId_);
 
-      unsigned int size = slinkHeaderSize_ + slinkTrailerSize_ + amcHeaderSize_ + amcTrailerSize_;
-      unsigned int words = 0;
-      for (const auto& block: blocks)
-         // add one for the block header
-         words += block.getSize();
-      size += words * 4;
-      // add padding to get a full number of 64-bit words
-      int padding = (size % 8 == 0) ? 8 : 8 - size % 8;
-      size += padding;
+      unsigned int size = slinkHeaderSize_ + slinkTrailerSize_ + amc13.size() * 8;
       fed_data.resize(size);
       unsigned char * payload = fed_data.data();
-      auto payload_start = payload;
+      unsigned char * payload_start = payload;
 
       auto bxId = event.bunchCrossing();
       auto evtId = event.id().event();
@@ -157,19 +167,9 @@ namespace l1t {
 
       payload += slinkHeaderSize_;
 
-      // create the header
-      payload = push(payload, 0);
-      payload = push(payload, 0);
-      payload = push(payload, (fwId_ << 24) | (words << 8)); // FW ID, payload size (words)
+      amc13.write(payload, size - slinkHeaderSize_ - slinkTrailerSize_);
 
-      for (const auto& block: blocks) {
-         payload = push(payload, block.header().raw());
-         for (const auto& word: block.payload())
-            payload = push(payload, word);
-      }
-
-      payload += amcTrailerSize_;
-      payload += padding;
+      payload += amc13.size() * 8;
 
       FEDTrailer trailer(payload);
       trailer.set(payload, size / 8, evf::compute_crc(payload_start, size), 0, 0);

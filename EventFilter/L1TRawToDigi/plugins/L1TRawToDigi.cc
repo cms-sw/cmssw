@@ -35,25 +35,10 @@
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 
 #include "EventFilter/L1TRawToDigi/interface/AMCSpec.h"
-#include "EventFilter/L1TRawToDigi/interface/UnpackerSetup.h"
+#include "EventFilter/L1TRawToDigi/interface/Block.h"
+#include "EventFilter/L1TRawToDigi/interface/PackingSetup.h"
 
 namespace l1t {
-   class BlockHeader {
-      public:
-         BlockHeader(const uint32_t *data) : data_(data[0]) {};
-
-         inline unsigned int getID() const { return (data_ >> ID_shift) & ID_mask; };
-         inline unsigned int getSize() const { return (data_ >> size_shift) & size_mask; };
-
-      private:
-         static const unsigned int ID_shift = 24;
-         static const unsigned int ID_mask = 0xff;
-         static const unsigned int size_shift = 16;
-         static const unsigned int size_mask = 0xff;
-
-         uint32_t data_;
-   };
-
    class L1TRawToDigi : public edm::one::EDProducer<edm::one::SharedResources, edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
       public:
          explicit L1TRawToDigi(const edm::ParameterSet&);
@@ -73,7 +58,7 @@ namespace l1t {
          edm::EDGetTokenT<FEDRawDataCollection> fedData_;
          int fedId_;
 
-         std::auto_ptr<UnpackerSetup> prov_;
+         std::auto_ptr<PackingSetup> prov_;
 
          // header and trailer sizes in chars
          int slinkHeaderSize_;
@@ -96,7 +81,8 @@ namespace l1t {
    {
       fedData_ = consumes<FEDRawDataCollection>(config.getParameter<edm::InputTag>("InputLabel"));
 
-      prov_ = UnpackerSetupFactory::get()->make("l1t::CaloSetup", *this);
+      prov_ = PackingSetupFactory::get()->make("l1t::CaloSetup");
+      prov_->registerProducts(*this);
 
       slinkHeaderSize_ = config.getUntrackedParameter<int>("lenSlinkHeader", 16);
       slinkTrailerSize_ = config.getUntrackedParameter<int>("lenSlinkTrailer", 16);
@@ -138,7 +124,7 @@ namespace l1t {
 
       if ((int) l1tRcd.size() < slinkHeaderSize_ + slinkTrailerSize_ + amc13HeaderSize_ + amc13TrailerSize_ + amcHeaderSize_ + amcTrailerSize_) {
          LogError("L1T") << "Cannot unpack: empty/invalid L1T raw data (size = "
-            << l1tRcd.size() << "). Returning empty collections!";
+            << l1tRcd.size() << ") for ID " << fedId_ << ". Returning empty collections!";
          return;
       }
 
@@ -156,6 +142,8 @@ namespace l1t {
          LogWarning("L1T") << "Did not find a SLink header!";
       }
 
+      std::cout << "getting trailer" << std::endl;
+
       FEDTrailer trailer(data + (l1tRcd.size() - slinkTrailerSize_));
 
       if (trailer.check()) {
@@ -171,8 +159,8 @@ namespace l1t {
       amc13::Packet packet;
       if (!packet.parse(
                (const uint64_t*) (data + slinkHeaderSize_),
-               l1tRcd.size() - slinkHeaderSize_ - slinkTrailerSize_)) {
-         LogDebug("L1T")
+               (l1tRcd.size() - slinkHeaderSize_ - slinkTrailerSize_) / 8)) {
+         LogError("L1T")
             << "Could not extract AMC13 Packet.";
          return;
       }
@@ -192,6 +180,7 @@ namespace l1t {
             BlockHeader block_hdr(payload++);
 
             /* LogDebug("L1T") << "Found " << block_hdr; */
+            LogWarning("L1T") << "Found block " << block_hdr.getID() << " with size " << block_hdr.getSize();
 
             if (end - payload < block_hdr.getSize()) {
                LogError("L1T")
@@ -212,6 +201,8 @@ namespace l1t {
                   << fw << "!";
                // TODO Handle error
             }
+
+            payload += block_hdr.getSize();
          }
       }
    }
