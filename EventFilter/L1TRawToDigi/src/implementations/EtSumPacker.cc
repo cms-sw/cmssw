@@ -1,46 +1,24 @@
-#include "DataFormats/L1Trigger/interface/EtSum.h"
-
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 
-#include "EventFilter/L1TRawToDigi/interface/PackerFactory.h"
+#include "EventFilter/L1TRawToDigi/interface/Packer.h"
+
+#include "CaloTokens.h"
 
 namespace l1t {
-   class EtSumPacker : public BasePacker {
+   class EtSumPacker : public Packer {
       public:
-         EtSumPacker(const edm::ParameterSet&, edm::ConsumesCollector&);
-         virtual Blocks pack(const edm::Event&) override;
-      private:
-         edm::EDGetToken etSumToken_;
-   };
-
-   class EtSumPackerFactory : public BasePackerFactory {
-      public:
-         EtSumPackerFactory(const edm::ParameterSet&, edm::ConsumesCollector&);
-         virtual PackerList create(const unsigned& fw, const int fedid) override;
-
-      private:
-         const edm::ParameterSet& cfg_;
-         edm::ConsumesCollector& cc_;
+         virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
    };
 }
 
 // Implementation
 
 namespace l1t {
-   EtSumPacker::EtSumPacker(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc)
-   {
-      etSumToken_ = cc.consumes<EtSumBxCollection>(cfg.getParameter<edm::InputTag>("InputLabel"));
-   }
-
    Blocks
-   EtSumPacker::pack(const edm::Event& event)
+   EtSumPacker::pack(const edm::Event& event, const PackerTokens* toks)
    {
       edm::Handle<EtSumBxCollection> etSums;
-      event.getByToken(etSumToken_, etSums);
+      event.getByToken(static_cast<const CaloTokens*>(toks)->getEtSumToken(), etSums);
 
       std::vector<uint32_t> load;
 
@@ -55,16 +33,6 @@ namespace l1t {
 
       return {Block(3, load)};
    }
-
-   EtSumPackerFactory::EtSumPackerFactory(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) : cfg_(cfg), cc_(cc)
-   {
-   }
-
-   PackerList
-   EtSumPackerFactory::create(const unsigned& fw, const int fedid)
-   {
-      return {std::shared_ptr<BasePacker>(new EtSumPacker(cfg_, cc_))};
-   }
 }
 
-DEFINE_L1TPACKER(l1t::EtSumPackerFactory);
+DEFINE_L1T_PACKER(l1t::EtSumPacker);

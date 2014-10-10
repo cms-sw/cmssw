@@ -1,14 +1,38 @@
 #include "FWCore/Framework/interface/one/EDProducerBase.h"
 
+#include "EventFilter/L1TRawToDigi/interface/Packer.h"
 #include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
-#include "EventFilter/L1TRawToDigi/interface/UnpackerSetup.h"
+
+#include "EventFilter/L1TRawToDigi/interface/PackingSetup.h"
 
 #include "CaloCollections.h"
+#include "CaloTokens.h"
 
 namespace l1t {
-   class CaloSetup : public UnpackerSetup {
+   class CaloSetup : public PackingSetup {
       public:
-         CaloSetup(edm::one::EDProducerBase& prod) : UnpackerSetup(prod) {
+         virtual std::unique_ptr<PackerTokens> registerConsumes(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) override {
+            return std::unique_ptr<PackerTokens>(new CaloTokens(cfg, cc));
+         };
+
+         virtual PackerMap getPackers(int fed, int fw) override {
+            PackerMap res;
+
+            if (fed == 1) {
+               // Use amc id 1 for packing
+               res[1] = {
+                  /* PackerFactory::get()->make("CaloTowerPacker"), */
+                  PackerFactory::get()->make("EGammaPacker"),
+                  PackerFactory::get()->make("EtSumPacker"),
+                  PackerFactory::get()->make("JetPacker"),
+                  PackerFactory::get()->make("TauPacker")
+               };
+            }
+
+            return res;
+         };
+
+         virtual void registerProducts(edm::one::EDProducerBase& prod) override {
             prod.produces<CaloTowerBxCollection>();
             prod.produces<EGammaBxCollection>();
             prod.produces<EtSumBxCollection>();
@@ -55,4 +79,4 @@ namespace l1t {
    };
 }
 
-DEFINE_L1T_UNPACKER_PROVIDER(l1t::CaloSetup);
+DEFINE_L1T_PACKING_SETUP(l1t::CaloSetup);

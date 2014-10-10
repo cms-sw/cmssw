@@ -9,6 +9,8 @@ namespace l1t {
          BlockHeader(unsigned int id, unsigned int size) : data_(((id & ID_mask) << ID_shift) | ((size & size_mask) << size_shift)) {};
          BlockHeader(const uint32_t *data) : data_(data[0]) {};
 
+         bool operator<(const BlockHeader& o) const { return getID() < o.getID(); };
+
          inline unsigned int getID() const { return (data_ >> ID_shift) & ID_mask; };
          inline unsigned int getSize() const { return (data_ >> size_shift) & size_mask; };
 
@@ -27,6 +29,8 @@ namespace l1t {
       public:
          Block(const uint32_t *data) : header_(0) {};
          Block(unsigned int id, const std::vector<uint32_t>& payload) : header_(id, payload.size()), payload_(payload) {};
+
+         bool operator<(const Block& o) const { return header() < o.header(); };
 
          inline unsigned int getSize() const { return payload_.size() + 1; };
 

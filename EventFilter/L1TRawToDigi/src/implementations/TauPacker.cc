@@ -1,46 +1,24 @@
-#include "DataFormats/L1Trigger/interface/Tau.h"
-
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 
-#include "EventFilter/L1TRawToDigi/interface/PackerFactory.h"
+#include "EventFilter/L1TRawToDigi/interface/Packer.h"
+
+#include "CaloTokens.h"
 
 namespace l1t {
-   class TauPacker : public BasePacker {
+   class TauPacker : public Packer {
       public:
-         TauPacker(const edm::ParameterSet&, edm::ConsumesCollector&);
-         virtual Blocks pack(const edm::Event&) override;
-      private:
-         edm::EDGetTokenT<TauBxCollection> tauToken_;
-   };
-
-   class TauPackerFactory : public BasePackerFactory {
-      public:
-         TauPackerFactory(const edm::ParameterSet&, edm::ConsumesCollector&);
-         virtual PackerList create(const unsigned& fw, const int fedid) override;
-
-      private:
-         const edm::ParameterSet& cfg_;
-         edm::ConsumesCollector& cc_;
+         virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
    };
 }
 
 // Implementation
 
 namespace l1t {
-   TauPacker::TauPacker(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc)
-   {
-      tauToken_ = cc.consumes<TauBxCollection>(cfg.getParameter<edm::InputTag>("InputLabel"));
-   }
-
    Blocks
-   TauPacker::pack(const edm::Event& event)
+   TauPacker::pack(const edm::Event& event, const PackerTokens* toks)
    {
       edm::Handle<TauBxCollection> taus;
-      event.getByToken(tauToken_, taus);
+      event.getByToken(static_cast<const CaloTokens*>(toks)->getTauToken(), taus);
 
       std::vector<uint32_t> load;
 
@@ -64,16 +42,6 @@ namespace l1t {
 
       return {Block(7, load)};
    }
-
-   TauPackerFactory::TauPackerFactory(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) : cfg_(cfg), cc_(cc)
-   {
-   }
-
-   PackerList
-   TauPackerFactory::create(const unsigned& fw, const int fedid)
-   {
-      return {std::shared_ptr<BasePacker>(new TauPacker(cfg_, cc_))};
-   }
 }
 
-DEFINE_L1TPACKER(l1t::TauPackerFactory);
+DEFINE_L1T_PACKER(l1t::TauPacker);

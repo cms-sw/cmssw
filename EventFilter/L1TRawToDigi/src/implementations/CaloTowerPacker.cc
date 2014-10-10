@@ -1,48 +1,26 @@
-#include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
+#include "FWCore/Framework/interface/Event.h"
+
+#include "EventFilter/L1TRawToDigi/interface/Packer.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-
-#include "EventFilter/L1TRawToDigi/interface/PackerFactory.h"
+#include "CaloTokens.h"
 
 namespace l1t {
-   class CaloTowerPacker : public BasePacker {
+   class CaloTowerPacker : public Packer {
       public:
-         CaloTowerPacker(const edm::ParameterSet&, edm::ConsumesCollector&);
-         virtual Blocks pack(const edm::Event&) override;
-      private:
-         edm::EDGetTokenT<CaloTowerBxCollection> towerToken_;
-   };
-
-   class CaloTowerPackerFactory : public BasePackerFactory {
-      public:
-         CaloTowerPackerFactory(const edm::ParameterSet&, edm::ConsumesCollector&);
-         virtual PackerList create(const unsigned& fw, const int fedid) override;
-
-      private:
-         const edm::ParameterSet& cfg_;
-         edm::ConsumesCollector& cc_;
+         virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
    };
 }
 
 // Implementation
 
 namespace l1t {
-   CaloTowerPacker::CaloTowerPacker(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc)
-   {
-      towerToken_ = cc.consumes<CaloTowerBxCollection>(cfg.getParameter<edm::InputTag>("InputLabel"));
-   }
-
    Blocks
-   CaloTowerPacker::pack(const edm::Event& event)
+   CaloTowerPacker::pack(const edm::Event& event, const PackerTokens* toks)
    {
 
       edm::Handle<CaloTowerBxCollection> towers;
-      event.getByToken(towerToken_, towers);
+      event.getByToken(static_cast<const CaloTokens*>(toks)->getCaloTowerToken(), towers);
 
       Blocks res;
 
@@ -96,16 +74,6 @@ namespace l1t {
       }
       return res;
    }
-
-   CaloTowerPackerFactory::CaloTowerPackerFactory(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) : cfg_(cfg), cc_(cc)
-   {
-   }
-
-   PackerList
-   CaloTowerPackerFactory::create(const unsigned& fw, const int fedid)
-   {
-      return {std::shared_ptr<BasePacker>(new CaloTowerPacker(cfg_, cc_))};
-   }
 }
 
-DEFINE_L1TPACKER(l1t::CaloTowerPackerFactory);
+DEFINE_L1T_PACKER(l1t::CaloTowerPacker);

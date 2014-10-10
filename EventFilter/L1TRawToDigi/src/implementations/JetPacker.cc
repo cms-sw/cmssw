@@ -1,46 +1,24 @@
-#include "DataFormats/L1Trigger/interface/Jet.h"
-
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 
-#include "EventFilter/L1TRawToDigi/interface/PackerFactory.h"
+#include "EventFilter/L1TRawToDigi/interface/Packer.h"
+
+#include "CaloTokens.h"
 
 namespace l1t {
-   class JetPacker : public BasePacker {
+   class JetPacker : public Packer {
       public:
-         JetPacker(const edm::ParameterSet&, edm::ConsumesCollector&);
-         virtual Blocks pack(const edm::Event&) override;
-      private:
-         edm::EDGetTokenT<JetBxCollection> jetToken_;
-   };
-
-   class JetPackerFactory : public BasePackerFactory {
-      public:
-         JetPackerFactory(const edm::ParameterSet&, edm::ConsumesCollector&);
-         virtual PackerList create(const unsigned& fw, const int fedid) override;
-
-      private:
-         const edm::ParameterSet& cfg_;
-         edm::ConsumesCollector& cc_;
+         virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
    };
 }
 
 // Implementation
 
 namespace l1t {
-   JetPacker::JetPacker(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc)
-   {
-      jetToken_ = cc.consumes<JetBxCollection>(cfg.getParameter<edm::InputTag>("InputLabel"));
-   }
-
    Blocks
-   JetPacker::pack(const edm::Event& event)
+   JetPacker::pack(const edm::Event& event, const PackerTokens* toks)
    {
       edm::Handle<JetBxCollection> jets;
-      event.getByToken(jetToken_, jets);
+      event.getByToken(static_cast<const CaloTokens*>(toks)->getJetToken(), jets);
 
       std::vector<uint32_t> load;
 
@@ -62,16 +40,6 @@ namespace l1t {
 
       return {Block(5, load)};
    }
-
-   JetPackerFactory::JetPackerFactory(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) : cfg_(cfg), cc_(cc)
-   {
-   }
-
-   PackerList
-   JetPackerFactory::create(const unsigned& fw, const int fedid)
-   {
-      return {std::shared_ptr<BasePacker>(new JetPacker(cfg_, cc_))};
-   }
 }
 
-DEFINE_L1TPACKER(l1t::JetPackerFactory);
+DEFINE_L1T_PACKER(l1t::JetPacker);
