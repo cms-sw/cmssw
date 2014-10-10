@@ -43,7 +43,7 @@ EcalDQMonitorTask::runOnCollection(edm::Event const& _evt, ecaldqm::Collections 
                       }
                     }, "analyze");
 
-  edm::LogInfo("EcalDQM") << moduleName_ << "::runOn" << ecaldqm::collectionName[_col] << " returning";
+  if(verbosity_ > 1) edm::LogInfo("EcalDQM") << moduleName_ << "::runOn" << ecaldqm::collectionName[_col] << " returning";
 }
 
 void
