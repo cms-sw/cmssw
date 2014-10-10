@@ -37,7 +37,7 @@ generalV0Candidates = cms.EDProducer("V0Producer",
     # We calculate the PCA of the tracks quickly in RPhi, extrapolating
     # the z position as well, before vertexing.  Used in the following 2 cuts:
     #   m_pipi calculated at PCA of tracks <
-    mPiPiCut = cms.double(0.6),
+    #mPiPiCut = cms.double(0.6),
     #   PCA distance between tracks <
     tkDCACut = cms.double(1.),
 

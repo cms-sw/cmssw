@@ -92,7 +92,7 @@ class dso_hidden V0Fitter {
   double kShortMassCut;
   double lambdaMassCut;
   double impactParameterSigCut;
-  double mPiPiCut;
+  //double mPiPiCut;
   double tkDCACut;
   double innerHitPosCut;
 

@@ -75,7 +75,7 @@ V0Fitter::V0Fitter(const edm::ParameterSet& theParameters,
   kShortMassCut = theParameters.getParameter<double>(string("kShortMassCut"));
   lambdaMassCut = theParameters.getParameter<double>(string("lambdaMassCut"));
   impactParameterSigCut = theParameters.getParameter<double>(string("impactParameterSigCut"));
-  mPiPiCut = theParameters.getParameter<double>(string("mPiPiCut"));
+  //mPiPiCut = theParameters.getParameter<double>(string("mPiPiCut"));
   tkDCACut = theParameters.getParameter<double>(string("tkDCACut"));
   vtxFitter = theParameters.getParameter<edm::InputTag>("vertexFitter");
   innerHitPosCut = theParameters.getParameter<double>(string("innerHitPosCut"));
@@ -229,7 +229,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
       if (dca < 0. || dca > tkDCACut) continue;
       if (sqrt( cxPt.x()*cxPt.x() + cxPt.y()*cxPt.y() ) > 120. 
           || std::abs(cxPt.z()) > 300.) continue;
-
+/*
       // Get trajectory states for the tracks at POCA for later cuts
       TrajectoryStateClosestToPoint const & posTSCP = 
 	posTransTkPtr->trajectoryStateClosestToPoint( cxPt );
@@ -239,11 +239,11 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
       if( !posTSCP.isValid() || !negTSCP.isValid() ) continue;
 
 
-      /*double posESq = posTSCP.momentum().mag2() + piMassSquared;
+      double posESq = posTSCP.momentum().mag2() + piMassSquared;
       double negESq = negTSCP.momentum().mag2() + piMassSquared;
       double posE = sqrt(posESq);
       double negE = sqrt(negESq);
-      double totalE = posE + negE;*/
+      double totalE = posE + negE;
       double totalE = sqrt( posTSCP.momentum().mag2() + piMassSquared ) +
 	              sqrt( negTSCP.momentum().mag2() + piMassSquared );
       double totalESq = totalE*totalE;
@@ -254,7 +254,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
       //mPiPiMassOut << mass << std::endl;
 
       if( mass > mPiPiCut ) continue;
-
+*/
       // Create the vertex fitter object and vertex the tracks
       TransientVertex theRecoVertex;
       if(vtxFitter == std::string("KalmanVertexFitter")) {
