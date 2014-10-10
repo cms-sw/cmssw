@@ -30,11 +30,14 @@ process.MessageLogger = cms.Service("MessageLogger",
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         ),
-        threshold = cms.untracked.string('WARNING'),
+        EcalLaserDbService = cms.untracked.PSet(
+            limit = cms.untracked.int32(10)
+        ),
         noTimeStamps = cms.untracked.bool(True),
+        threshold = cms.untracked.string('WARNING'),
         noLineBreaks = cms.untracked.bool(True)
     ),
-    categories = cms.untracked.vstring('EcalDQM'),
+    categories = cms.untracked.vstring('EcalLaserDbService'),
     destinations = cms.untracked.vstring('cerr')
 )
 
@@ -142,14 +145,16 @@ process.ecalTestPulseUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
 )
 
 process.ecalCalibMonitorClient.verbosity = 0
+process.ecalCalibMonitorClient.commonParameters.onlineMode = True
 
 process.preScaler.prescaleFactor = 1
 
-process.source.streamLabel = "_streamDQMCalibration_StorageManager"
+process.source.streamLabel = "streamCalibration"
 
 process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/ecalcalib_reference.root"
 
 process.ecalPNDiodeMonitorTask.verbosity = 0
+process.ecalPNDiodeMonitorTask.commonParameters.onlineMode = True
 
 process.dqmSaver.convention = cms.untracked.string('Online')
 
@@ -165,10 +170,13 @@ process.GlobalTag.toGet = cms.VPSet(cms.PSet(
     ))
 
 process.ecalLaserLedMonitorTask.verbosity = 0
+process.ecalLaserLedMonitorTask.commonParameters.onlineMode = True
 
 process.ecalPedestalMonitorTask.verbosity = 0
+process.ecalPedestalMonitorTask.commonParameters.onlineMode = True
 
 process.ecalTestPulseMonitorTask.verbosity = 0
+process.ecalTestPulseMonitorTask.commonParameters.onlineMode = True
 
 process.dqmEnv.subSystemFolder = cms.untracked.string('EcalCalibration')
 
