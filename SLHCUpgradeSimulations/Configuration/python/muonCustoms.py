@@ -307,5 +307,9 @@ def customise_csc_hlt(process):
     
     process.hltCsc2DRecHits.wireDigiTag  = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi")
     process.hltCsc2DRecHits.stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi")
-    
+
+    process.hltL2OfflineMuonSeeds.EnableGEMMeasurement = cms.bool( True )
+    process.hltL2Muons.L2TrajBuilderParameters.EnableGEMMeasurement = cms.bool( True )
+    process.hltL2Muons.BWFilterParameters.EnableGEMMeasurement = cms.bool( True )
+
     return process
