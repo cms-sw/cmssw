@@ -25,12 +25,12 @@ pixelPairStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
                             'FPix1_pos+FPix2_pos', 'FPix1_neg+FPix2_neg',
                             'FPix2_pos+FPix3_pos', 'FPix2_neg+FPix3_neg'),
     BPix = cms.PSet(
-        TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
+        TTRHBuilder = cms.string('WithTrackAngle'),
         HitProducer = cms.string('siPixelRecHits'),
         skipClusters = cms.InputTag('pixelPairStepClusters')
     ),
     FPix = cms.PSet(
-        TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
+        TTRHBuilder = cms.string('WithTrackAngle'),
         HitProducer = cms.string('siPixelRecHits'),
         skipClusters = cms.InputTag('pixelPairStepClusters')
     )
@@ -107,7 +107,7 @@ pixelPairStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.
     AlgorithmName = cms.string('iter5'),
     src = 'pixelPairStepTrackCandidates',
     Fitter = cms.string('FlexibleKFFittingSmoother'),
-    TTRHBuilder=cms.string('WithTrackAngle')
+    TTRHBuilder=cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069)
     )
 
 # Final selection

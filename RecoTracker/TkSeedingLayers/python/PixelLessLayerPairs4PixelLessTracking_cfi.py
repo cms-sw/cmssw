@@ -31,6 +31,7 @@ pixelLessLayerPairs4PixelLessTracking.TID1 = cms.PSet(
     useRingSlector = cms.bool(True),
     TTRHBuilder = cms.string('WithTrackAngle'),
     maxRing = cms.int32(3)
+   ,minGoodCharge = cms.double(2069)
 )
 pixelLessLayerPairs4PixelLessTracking.TID2 = cms.PSet(
     useSimpleRphiHitsCleaner = cms.bool(False),
@@ -41,6 +42,7 @@ pixelLessLayerPairs4PixelLessTracking.TID2 = cms.PSet(
     useRingSlector = cms.bool(True),
     TTRHBuilder = cms.string('WithTrackAngle'),
     maxRing = cms.int32(3)
+   ,minGoodCharge = cms.double(2069)
 )
 pixelLessLayerPairs4PixelLessTracking.TID3 = cms.PSet(
     useSimpleRphiHitsCleaner = cms.bool(False),        
@@ -51,6 +53,7 @@ pixelLessLayerPairs4PixelLessTracking.TID3 = cms.PSet(
     useRingSlector = cms.bool(True),
     TTRHBuilder = cms.string('WithTrackAngle'),
     maxRing = cms.int32(2)
+   ,minGoodCharge = cms.double(2069)
 )
 
 pixelLessLayerPairs4PixelLessTracking.TEC = cms.PSet(
@@ -62,6 +65,7 @@ pixelLessLayerPairs4PixelLessTracking.TEC = cms.PSet(
     TTRHBuilder = cms.string('WithTrackAngle'),
     minRing = cms.int32(1),
     maxRing = cms.int32(2)
+   ,minGoodCharge = cms.double(2069)
 )
 pixelLessLayerPairs4PixelLessTracking.TIB1 = cms.PSet(
     TTRHBuilder = cms.string('WithTrackAngle'),
@@ -69,6 +73,7 @@ pixelLessLayerPairs4PixelLessTracking.TIB1 = cms.PSet(
     rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHitUnmatched"),
     stereoRecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHitUnmatched"),
     useSimpleRphiHitsCleaner = cms.bool(False)
+   ,minGoodCharge = cms.double(2069)
 )
 pixelLessLayerPairs4PixelLessTracking.TIB2 = cms.PSet(
     TTRHBuilder = cms.string('WithTrackAngle'),
@@ -76,12 +81,14 @@ pixelLessLayerPairs4PixelLessTracking.TIB2 = cms.PSet(
     rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHitUnmatched"),
     stereoRecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHitUnmatched"),
     useSimpleRphiHitsCleaner = cms.bool(False)
+   ,minGoodCharge = cms.double(2069)
 )
 pixelLessLayerPairs4PixelLessTracking.TIB3 = cms.PSet(
     TTRHBuilder = cms.string('WithTrackAngle'),
     rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHitUnmatched"),
     stereoRecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHitUnmatched"),
     useSimpleRphiHitsCleaner = cms.bool(False)
+   ,minGoodCharge = cms.double(2069)
 )
 
 

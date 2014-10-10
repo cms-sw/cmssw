@@ -112,7 +112,7 @@ lowPtQuadStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.
     src = 'lowPtQuadStepTrackCandidates',
     AlgorithmName = cms.string('iter2'),
     Fitter = cms.string('FlexibleKFFittingSmoother'),
-    TTRHBuilder=cms.string('WithTrackAngle')
+    TTRHBuilder=cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069)
     )
 
 from TrackingTools.TrajectoryCleaning.TrajectoryCleanerBySharedHits_cfi import trajectoryCleanerBySharedHits

@@ -24,12 +24,12 @@ pixelPairStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
         'BPix1+FPix2_pos', 'BPix1+FPix2_neg', 
         'FPix1_pos+FPix2_pos', 'FPix1_neg+FPix2_neg'),
     BPix = cms.PSet(
-        TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
+        TTRHBuilder = cms.string('WithTrackAngle'),
         HitProducer = cms.string('siPixelRecHits'),
         skipClusters = cms.InputTag('pixelPairStepClusters')
     ),
     FPix = cms.PSet(
-        TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
+        TTRHBuilder = cms.string('WithTrackAngle'),
         HitProducer = cms.string('siPixelRecHits'),
         skipClusters = cms.InputTag('pixelPairStepClusters')
     )

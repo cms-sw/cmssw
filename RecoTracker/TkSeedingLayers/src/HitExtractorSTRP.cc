@@ -317,14 +317,9 @@ HitExtractor::Hits HitExtractorSTRP::hits(const TkTransientTrackingRecHitBuilder
 	  if (skipClusters) cleanedOfClusters(ttrhBuilder, ev,result,false,cleanFrom);
       }
   }
-  /*  done in each skipCluster...
-  // std::cout << "HitExtractorSTRP before cleanup "<<" giving: "<<result.size()<< std::endl;
-  //  remove empty elements...
-  auto last = std::remove_if(result.begin(),result.end(),[]( HitPointer const & p) {return p.empty();});
-  result.resize(last-result.begin());
-  */
+
   LogDebug("HitExtractorSTRP")<<" giving: "<<result.size()<<" out";
-  // std::cout << "HitExtractorSTRP "<<" giving: "<<result.size()<< std::endl;
+  // std::cout << "HitExtractorSTRP "<<" giving: "<<result.size() << " for charge cut " << minGoodCharge << std::endl;
   return result;
 }
 

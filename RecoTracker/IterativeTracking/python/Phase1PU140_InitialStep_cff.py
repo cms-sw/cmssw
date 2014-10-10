@@ -74,7 +74,7 @@ initialStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.cl
     src = 'initialStepTrackCandidates',
     AlgorithmName = cms.string('iter0'),
     Fitter = cms.string('FlexibleKFFittingSmoother'),
-    TTRHBuilder=cms.string('WithTrackAngle')
+    TTRHBuilder=cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069)
 )
 
 # Final selection

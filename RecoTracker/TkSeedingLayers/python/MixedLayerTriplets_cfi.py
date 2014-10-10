@@ -26,22 +26,25 @@ MixedLayerTriplets.layerList = cms.vstring('BPix1+BPix2+BPix3',
 MixedLayerTriplets.TEC = cms.PSet(
     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
     TTRHBuilder = cms.string('WithTrackAngle')
+    ,minGoodCharge = cms.double(2069)
 )
 MixedLayerTriplets.FPix = cms.PSet(
-    TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedTriplets'),
+    TTRHBuilder = cms.string('WithTrackAngle'),
     HitProducer = cms.string('siPixelRecHits'),
 )
 MixedLayerTriplets.TID = cms.PSet(
     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
     TTRHBuilder = cms.string('WithTrackAngle')
+    ,minGoodCharge = cms.double(2069)
 )
 MixedLayerTriplets.BPix = cms.PSet(
-    TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedTriplets'),
+    TTRHBuilder = cms.string('WithTrackAngle'),
     HitProducer = cms.string('siPixelRecHits'),
 )
 MixedLayerTriplets.TIB = cms.PSet(
     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
     TTRHBuilder = cms.string('WithTrackAngle')
+    ,minGoodCharge = cms.double(2069)
 )
 
 

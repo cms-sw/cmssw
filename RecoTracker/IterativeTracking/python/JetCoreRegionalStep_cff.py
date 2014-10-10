@@ -31,13 +31,13 @@ jetCoreRegionalStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
                             'BPix3+TIB1','BPix3+TIB2'),
     TIB = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        TTRHBuilder = cms.string('WithTrackAngle')
+        TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069)
     ),
     BPix = cms.PSet(
         useErrorsFromParam = cms.bool(True),
         hitErrorRPhi = cms.double(0.0027),
         hitErrorRZ = cms.double(0.006),
-        TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedPairs'),
+        TTRHBuilder = cms.string('WithTrackAngle'),
         HitProducer = cms.string('siPixelRecHits'),
         #skipClusters = cms.InputTag('jetCoreRegionalStepClusters')
     ),
@@ -45,7 +45,7 @@ jetCoreRegionalStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
         useErrorsFromParam = cms.bool(True),
         hitErrorRPhi = cms.double(0.0051),
         hitErrorRZ = cms.double(0.0036),
-        TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4MixedPairs'),
+        TTRHBuilder = cms.string('WithTrackAngle'),
         HitProducer = cms.string('siPixelRecHits'),
         #skipClusters = cms.InputTag('jetCoreRegionalStepClusters')
     )

@@ -27,12 +27,12 @@ tobTecStepSeedLayersTripl = cms.EDProducer("SeedingLayersEDProducer",
     'TOB1+TOB2+MTEC1_pos','TOB1+TOB2+MTEC1_neg',
     ),
     TOB = cms.PSet(
-         TTRHBuilder    = cms.string('WithTrackAngle'),
+         TTRHBuilder    = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069),
          matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
          skipClusters   = cms.InputTag('tobTecStepClusters')
     ),
     MTOB = cms.PSet(
-         TTRHBuilder    = cms.string('WithTrackAngle'),
+         TTRHBuilder    = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069),
          skipClusters   = cms.InputTag('tobTecStepClusters'),
          rphiRecHits    = cms.InputTag("siStripMatchedRecHits","rphiRecHit")
     ),
@@ -40,7 +40,7 @@ tobTecStepSeedLayersTripl = cms.EDProducer("SeedingLayersEDProducer",
         rphiRecHits    = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
         skipClusters = cms.InputTag('tobTecStepClusters'),
         useRingSlector = cms.bool(True),
-        TTRHBuilder = cms.string('WithTrackAngle'),
+        TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069),
         minRing = cms.int32(6),
         maxRing = cms.int32(7)
     )
@@ -90,7 +90,7 @@ tobTecStepSeedLayersPair = cms.EDProducer("SeedingLayersEDProducer",
                             'TEC5_pos+TEC6_pos','TEC5_neg+TEC6_neg', 
                             'TEC6_pos+TEC7_pos','TEC6_neg+TEC7_neg'),
     TOB = cms.PSet(
-         TTRHBuilder    = cms.string('WithTrackAngle'),
+         TTRHBuilder    = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069),
          matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
          skipClusters   = cms.InputTag('tobTecStepClusters')
     ),
@@ -98,7 +98,7 @@ tobTecStepSeedLayersPair = cms.EDProducer("SeedingLayersEDProducer",
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         skipClusters = cms.InputTag('tobTecStepClusters'),
         useRingSlector = cms.bool(True),
-        TTRHBuilder = cms.string('WithTrackAngle'),
+        TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069),
         minRing = cms.int32(5),
         maxRing = cms.int32(5)
     )

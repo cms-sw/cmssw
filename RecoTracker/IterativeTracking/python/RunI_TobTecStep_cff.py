@@ -32,7 +32,7 @@ tobTecStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     TOB = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         skipClusters = cms.InputTag('tobTecStepClusters'),
-        TTRHBuilder = cms.string('WithTrackAngle')
+        TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069)
     ),
 
     TEC = cms.PSet(
@@ -40,7 +40,7 @@ tobTecStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
         skipClusters = cms.InputTag('tobTecStepClusters'),
         #    untracked bool useSimpleRphiHitsCleaner = false
         useRingSlector = cms.bool(True),
-        TTRHBuilder = cms.string('WithTrackAngle'),
+        TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069),
         minRing = cms.int32(5),
         maxRing = cms.int32(5)
     )

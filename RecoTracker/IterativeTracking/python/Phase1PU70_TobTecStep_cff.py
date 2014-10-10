@@ -48,14 +48,14 @@ tobTecStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     TOB = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         skipClusters = cms.InputTag('tobTecStepSeedClusters'),
-        TTRHBuilder = cms.string('WithTrackAngle')
+        TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069)
     ),
     TEC = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         skipClusters = cms.InputTag('tobTecStepSeedClusters'),
         #    untracked bool useSimpleRphiHitsCleaner = false
         useRingSlector = cms.bool(True),
-        TTRHBuilder = cms.string('WithTrackAngle'),
+        TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069),
         minRing = cms.int32(5),
         maxRing = cms.int32(5)
     )
@@ -192,7 +192,7 @@ tobTecStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clo
     AlgorithmName = cms.string('iter7'),
     #Fitter = 'tobTecStepFitterSmoother',
     Fitter = cms.string('tobTecFlexibleKFFittingSmoother'),
-    TTRHBuilder=cms.string('WithTrackAngle')
+    TTRHBuilder=cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069)
     )
 
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi

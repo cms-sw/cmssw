@@ -47,12 +47,12 @@ pixelLessStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     'TEC4_pos+TEC5_pos+TEC6_pos', 'TEC4_neg+TEC5_neg+TEC6_neg'    
     ),
     TIB = cms.PSet(
-         TTRHBuilder    = cms.string('WithTrackAngle'),
+         TTRHBuilder    = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069),
          matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
          skipClusters   = cms.InputTag('pixelLessStepClusters')
     ),
     MTIB = cms.PSet(
-         TTRHBuilder    = cms.string('WithTrackAngle'),
+         TTRHBuilder    = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069),
          skipClusters   = cms.InputTag('pixelLessStepClusters'),
          rphiRecHits    = cms.InputTag("siStripMatchedRecHits","rphiRecHit")
     ),
@@ -60,7 +60,7 @@ pixelLessStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         skipClusters = cms.InputTag('pixelLessStepClusters'),
         useRingSlector = cms.bool(True),
-        TTRHBuilder = cms.string('WithTrackAngle'),
+        TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069),
         minRing = cms.int32(1),
         maxRing = cms.int32(2)
     ),
@@ -68,7 +68,7 @@ pixelLessStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
         rphiRecHits    = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
         skipClusters = cms.InputTag('pixelLessStepClusters'),
         useRingSlector = cms.bool(True),
-        TTRHBuilder = cms.string('WithTrackAngle'),
+        TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069),
         minRing = cms.int32(3),
         maxRing = cms.int32(3)
     ),
@@ -76,7 +76,7 @@ pixelLessStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         skipClusters = cms.InputTag('pixelLessStepClusters'),
         useRingSlector = cms.bool(True),
-        TTRHBuilder = cms.string('WithTrackAngle'),
+        TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069),
         minRing = cms.int32(1),
         maxRing = cms.int32(2)
     ),
@@ -84,7 +84,7 @@ pixelLessStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
         rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
         skipClusters = cms.InputTag('pixelLessStepClusters'),
         useRingSlector = cms.bool(True),
-        TTRHBuilder = cms.string('WithTrackAngle'),
+        TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069),
         minRing = cms.int32(3),
         maxRing = cms.int32(3)
     )

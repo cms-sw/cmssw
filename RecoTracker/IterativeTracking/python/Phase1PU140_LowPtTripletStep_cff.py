@@ -102,7 +102,7 @@ lowPtTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProduc
     src = 'lowPtTripletStepTrackCandidates',
     AlgorithmName = cms.string('iter3'),
     Fitter = cms.string('FlexibleKFFittingSmoother'),
-    TTRHBuilder=cms.string('WithTrackAngle')
+    TTRHBuilder=cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069)
     )
 
 from TrackingTools.TrajectoryCleaning.TrajectoryCleanerBySharedHits_cfi import trajectoryCleanerBySharedHits

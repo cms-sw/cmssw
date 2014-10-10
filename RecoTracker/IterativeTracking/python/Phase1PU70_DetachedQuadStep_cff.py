@@ -133,7 +133,7 @@ detachedQuadStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProduc
     AlgorithmName = cms.string('iter4'),
     src = 'detachedQuadStepTrackCandidates',
     Fitter = cms.string('FlexibleKFFittingSmoother'),
-    TTRHBuilder=cms.string('WithTrackAngle')
+    TTRHBuilder=cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069)
     )
 
 # TRACK SELECTION AND QUALITY FLAG SETTING.

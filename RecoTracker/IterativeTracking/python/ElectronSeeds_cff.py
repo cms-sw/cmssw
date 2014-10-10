@@ -61,12 +61,12 @@ pixelPairElectronSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
                             'BPix2+FPix1_pos', 'BPix2+FPix1_neg', 
                             'FPix1_pos+FPix2_pos', 'FPix1_neg+FPix2_neg'),
     BPix = cms.PSet(
-    TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
+    TTRHBuilder = cms.string('WithTrackAngle'),
     HitProducer = cms.string('siPixelRecHits'),
     skipClusters = cms.InputTag('tripletElectronClusterMask')
     ),
     FPix = cms.PSet(
-    TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
+    TTRHBuilder = cms.string('WithTrackAngle'),
     HitProducer = cms.string('siPixelRecHits'),
     skipClusters = cms.InputTag('tripletElectronClusterMask')
     )
@@ -84,7 +84,7 @@ stripPairElectronSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
                             'TEC1_pos+TEC2_pos','TEC2_pos+TEC3_pos','TEC3_pos+TEC4_pos','TEC3_pos+TEC5_pos',
                             'TEC1_neg+TEC2_neg','TEC2_neg+TEC3_neg','TEC3_neg+TEC4_neg','TEC3_neg+TEC5_neg'),
     TIB = cms.PSet(
-    TTRHBuilder = cms.string('WithTrackAngle'),
+    TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069),
     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
     skipClusters = cms.InputTag('tripletElectronClusterMask')
     ),
@@ -92,7 +92,7 @@ stripPairElectronSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
     skipClusters = cms.InputTag('tripletElectronClusterMask'),
     useRingSlector = cms.bool(True),
-    TTRHBuilder = cms.string('WithTrackAngle'),
+    TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069),
     minRing = cms.int32(1),
     maxRing = cms.int32(2)
     ),
@@ -100,7 +100,7 @@ stripPairElectronSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
     skipClusters = cms.InputTag('tripletElectronClusterMask'),
     useRingSlector = cms.bool(True),
-    TTRHBuilder = cms.string('WithTrackAngle'),
+    TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069),
     minRing = cms.int32(1),
     maxRing = cms.int32(2)
     )
