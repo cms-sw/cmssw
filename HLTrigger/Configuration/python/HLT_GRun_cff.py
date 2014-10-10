@@ -8399,7 +8399,7 @@ hltMuons = cms.EDProducer( "MuonIdProducer",
 ## updated from 7_2_X
 hltParticleFlowRecHitECAL = cms.EDProducer( "PFRecHitProducer",
     producers = cms.VPSet( 
-      cms.PSet(  src = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEB' ),
+      cms.PSet(  src = cms.InputTag( 'hltEcalRecHitAll','EcalRecHitsEB' ),
         qualityTests = cms.VPSet( 
           cms.PSet(  threshold = cms.double( 0.08 ),
             name = cms.string( "PFRecHitQTestThreshold" )
@@ -8413,7 +8413,7 @@ hltParticleFlowRecHitECAL = cms.EDProducer( "PFRecHitProducer",
         ),
         name = cms.string( "PFEBRecHitCreator" )
       ),
-      cms.PSet(  src = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEE' ),
+      cms.PSet(  src = cms.InputTag( 'hltEcalRecHitAll','EcalRecHitsEE' ),
         qualityTests = cms.VPSet( 
           cms.PSet(  threshold = cms.double( 0.3 ),
             name = cms.string( "PFRecHitQTestThreshold" )
@@ -8475,7 +8475,7 @@ hltParticleFlowRecHitHCAL = cms.EDProducer( "PFCTRecHitProducer",
 
 hltParticleFlowRecHitPS = cms.EDProducer( "PFRecHitProducer",
     producers = cms.VPSet( 
-      cms.PSet(  src = cms.InputTag( 'hltEcalPreshowerRecHit','EcalRecHitsES' ),
+      cms.PSet(  src = cms.InputTag( 'hltESRecHitAll','EcalRecHitsES' ),
         qualityTests = cms.VPSet( 
           cms.PSet(  threshold = cms.double( 7.0E-6 ),
             name = cms.string( "PFRecHitQTestThreshold" )
@@ -8598,7 +8598,7 @@ hltParticleFlowClusterECAL = cms.EDProducer( "PFClusterProducer",
       ),
       algoName = cms.string( "LocalMaximumSeedFinder" )
     ),
-    recHitsSource = cms.InputTag( "hltParticleFlowRecHitECALUnseeded" )
+    recHitsSource = cms.InputTag( "hltParticleFlowRecHitECAL" )
 )
 ## hltParticleFlowClusterECAL = cms.EDProducer( "PFClusterProducer",
 ##     posCalcNCrystal = cms.int32( 9 ),
@@ -9015,7 +9015,7 @@ hltParticleFlowClusterPS = cms.EDProducer( "PFClusterProducer",
       ),
       algoName = cms.string( "LocalMaximumSeedFinder" )
     ),
-    recHitsSource = cms.InputTag( "hltParticleFlowRecHitPSUnseeded" )
+    recHitsSource = cms.InputTag( "hltParticleFlowRecHitPS" )
 )
 
 hltLightPFTracks = cms.EDProducer( "LightPFTrackProducer",
