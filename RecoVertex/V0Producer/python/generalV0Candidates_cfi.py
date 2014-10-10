@@ -44,28 +44,14 @@ generalV0Candidates = cms.EDProducer("V0Producer",
     # --V0 Vertex cuts--
     #   Vertex chi2 < 
     vtxChi2Cut = cms.double(7.0),
-    #   Lambda collinearity cut
-    #   (UNUSED)
-    collinearityCut = cms.double(0.02),
     #   Vertex radius cut >
-    #   (UNUSED)
     rVtxCut = cms.double(0.0),
-    #   V0 decay length from primary cut >
-    #   (UNUSED)
-    lVtxCut = cms.double(0.0),
     #   Radial vertex significance >
     vtxSignificance2DCut = cms.double(15.0),
-    #   3D vertex significance using primary vertex
-    #   (UNUSED)
-    vtxSignificance3DCut = cms.double(0.0),
     #   V0 mass window, Candidate mass must be within these values of
     #     the PDG mass to be stored in the collection
     kShortMassCut = cms.double(0.07),
     lambdaMassCut = cms.double(0.05),
-    #   Mass window cut using normalized mass (mass / massError)
-    #   (UNUSED)
-    kShortNormalizedMassCut = cms.double(0.0),
-    lambdaNormalizedMassCut = cms.double(0.0),
     # We check if either track has a hit inside (radially) the vertex position
     #  minus this number times the sigma of the vertex fit
     #  NOTE: Set this to -1 to disable this cut, which MUST be done

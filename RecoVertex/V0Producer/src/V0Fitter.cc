@@ -71,7 +71,6 @@ V0Fitter::V0Fitter(const edm::ParameterSet& theParameters,
   tkNhitsCut = theParameters.getParameter<int>(string("tkNhitsCut"));
   rVtxCut = theParameters.getParameter<double>(string("rVtxCut"));
   vtxSigCut = theParameters.getParameter<double>(string("vtxSignificance2DCut"));
-  collinCut = theParameters.getParameter<double>(string("collinearityCut"));
   kShortMassCut = theParameters.getParameter<double>(string("kShortMassCut"));
   lambdaMassCut = theParameters.getParameter<double>(string("lambdaMassCut"));
   impactParameterSigCut = theParameters.getParameter<double>(string("impactParameterSigCut"));

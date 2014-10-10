@@ -87,8 +87,6 @@ class dso_hidden V0Fitter {
   int tkNhitsCut;
   double rVtxCut;
   double vtxSigCut;
-  //  double vtxSigCut3D;
-  double collinCut;
   double kShortMassCut;
   double lambdaMassCut;
   double impactParameterSigCut;
