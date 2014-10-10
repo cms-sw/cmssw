@@ -1,13 +1,32 @@
 #ifndef RPCEfficiencyPerRingLayer_H
 #define RPCEfficiencyPerRingLayer_H
 
+
+/** \class RPCEfficiencyPerRingLayer
+ * *
+ *  RPCEfficiencyPerRingLayer
+ *
+ *  \author Cesare Calabria
+ *   
+ */
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/ESHandle.h>
+#include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/DQMEDHarvester.h"
+
+
+#include <memory>
 #include <string>
 
-class RPCEfficiencyPerRingLayer:public DQMEDHarvester{
+#include "DQMServices/Core/interface/DQMStore.h"
+//class DQMStore;
+//class RPCDetId;
+
+
+class RPCEfficiencyPerRingLayer:public edm::EDAnalyzer {
 public:
 
   /// Constructor
@@ -16,21 +35,31 @@ public:
   /// Destructor
   virtual ~RPCEfficiencyPerRingLayer();
 
-  
- protected:
+  /// BeginJob
   void beginJob();
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&); //performed in the endLumi
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
 
-
+  //Begin Run
+   void beginRun(const edm::Run& r, const edm::EventSetup& c);
   
- private:
+   //End Run
+   void endRun(const edm::Run& r, const edm::EventSetup& c);
+
+  /// Analyze  
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
   MonitorElement * EfficiencyPerRing;
-  MonitorElement * EfficiencyPerLayer;  
+  MonitorElement * EfficiencyPerLayer;
+  
+ private:
+  
 
   int  numberOfDisks_;
   int innermostRings_ ;
+  bool SaveFile;
+
+  std::string NameFile;
+
+  DQMStore* dbe_;
 
   std::string globalFolder_;
 
