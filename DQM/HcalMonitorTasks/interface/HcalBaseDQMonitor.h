@@ -18,7 +18,10 @@
 
 #include "DQM/HcalMonitorTasks/interface/HcalEtaPhiHists.h"
 
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+
 class HcalLogicalMap;
+class HcalElectronicsMap;
 
 class HcalBaseDQMonitor : public DQMEDAnalyzer
 {
@@ -46,7 +49,7 @@ protected:
   virtual void beginJob();
 
   // BeginRun
-  //virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
+  virtual void dqmBeginRun(const edm::Run& run, const edm::EventSetup& c);
 
   // Begin LumiBlock
   virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
@@ -126,6 +129,16 @@ protected:
   int badChannelStatusMask_;
   private:
   bool setupDone_;
+
+  // methods to check for sub-detector status
+  void CheckSubdetectorStatus(const edm::Handle<FEDRawDataCollection>&, HcalSubdetector, const HcalElectronicsMap &);
+  void CheckCalibType(const edm::Handle<FEDRawDataCollection>&); 
+
+  edm::InputTag FEDRawDataCollection_;
+  edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
+
+  const HcalElectronicsMap * eMap_;
+  
 };// class HcalBaseDQMonitor : public edm::EDAnalyzer
 
 
