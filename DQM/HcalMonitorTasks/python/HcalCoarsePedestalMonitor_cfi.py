@@ -19,4 +19,5 @@ hcalCoarsePedestalMonitor=cms.EDAnalyzer("HcalCoarsePedestalMonitor",
                                          minEvents              = cms.untracked.int32(25),
                                          # Turn off calculation of Ring2 pedestals
                                          excludeHORing2         = cms.untracked.bool(True),
+                             	 	 FEDRawDataCollection=cms.untracked.InputTag("rawDataCollector")
                                          )

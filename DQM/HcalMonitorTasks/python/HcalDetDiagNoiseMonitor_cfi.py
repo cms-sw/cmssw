@@ -47,4 +47,5 @@ hcalDetDiagNoiseMonitor=cms.EDAnalyzer("HcalDetDiagNoiseMonitor",
                                        MinJetChargeFraction                = cms.untracked.double(0.05),
                                        MaxJetHadronicEnergyFraction        = cms.untracked.double(0.98),
                                        caloTowerCollName                   = cms.InputTag("towerMaker"),
+                             	       FEDRawDataCollection=cms.untracked.InputTag("rawDataCollector")
                                    )
