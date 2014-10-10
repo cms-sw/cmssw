@@ -581,6 +581,9 @@ if 'GlobalTag' in %(dict)s:
       elif self.config.emulator in ('gmt,gct,gt', 'gct,gmt,gt', 'all'):
         emulator['CustomL1T'] = 'customiseL1EmulatorFromRaw'
         emulator['CustomHLT'] = 'switchToSimGmtGctGtDigis'
+      elif self.config.emulator in ('stage1,gt'):
+        emulator['CustomL1T'] = 'customiseL1EmulatorFromRaw'
+        emulator['CustomHLT'] = 'switchToSimStage1Digis'
       else:
         # unsupported argument, default to running the whole emulator
         emulator['CustomL1T'] = 'customiseL1EmulatorFromRaw'
@@ -591,9 +594,24 @@ if 'GlobalTag' in %(dict)s:
 process.load( 'Configuration.StandardSequences.%(RawToDigi)s' )
 process.load( 'Configuration.StandardSequences.SimL1Emulator_cff' )
 import L1Trigger.Configuration.L1Trigger_custom
-process = L1Trigger.Configuration.L1Trigger_custom.%(CustomL1T)s( process )
-process = L1Trigger.Configuration.L1Trigger_custom.customiseResetPrescalesAndMasks( process )
+#
+""" % emulator
 
+      if (self.config.emulator).find("stage1")>-1:
+        self.data += """
+# 2015 Run2 emulator
+import L1Trigger.L1TCalorimeter.L1TCaloStage1_customForHLT
+process = L1Trigger.L1TCalorimeter.L1TCaloStage1_customForHLT.%(CustomL1T)s( process )
+""" % emulator
+      else:
+        self.data += """
+# Run1 Emulator
+process = L1Trigger.Configuration.L1Trigger_custom.%(CustomL1T)s( process )
+""" % emulator
+
+      self.data += """
+#
+process = L1Trigger.Configuration.L1Trigger_custom.customiseResetPrescalesAndMasks( process )
 # customize the HLT to use the emulated results
 import HLTrigger.Configuration.customizeHLTforL1Emulator
 process = HLTrigger.Configuration.customizeHLTforL1Emulator.switchToL1Emulator( process )
