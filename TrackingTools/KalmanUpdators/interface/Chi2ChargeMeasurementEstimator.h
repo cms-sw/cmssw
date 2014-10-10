@@ -15,8 +15,11 @@
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
+#include<limits>
+
 class SiStripCluster;
 class TrackingRecHit;
+
 class Chi2ChargeMeasurementEstimator GCC11_FINAL : public Chi2MeasurementEstimator {
 public:
 
@@ -31,31 +34,30 @@ public:
     Chi2MeasurementEstimator( maxChi2, nSigma), cutOnPixelCharge_(cutOnPixelCharge),
     cutOnStripCharge_(cutOnStripCharge), minGoodPixelCharge_(minGoodPixelCharge),
     minGoodStripCharge_(minGoodStripCharge) {
-      if (pTChargeCutThreshold>=0.) pTChargeCutThreshold_=pTChargeCutThreshold;
-      else pTChargeCutThreshold_=100000;
+      if (pTChargeCutThreshold>=0.) pTChargeCutThreshold2_=pTChargeCutThreshold*pTChargeCutThreshold;
+      else pTChargeCutThreshold2_=std::numeric_limits<float>::max();
     }
 
-  using Chi2MeasurementEstimator::estimate;
-  virtual std::pair<bool,double> estimate(const TrajectoryStateOnSurface&,
-				     const TrackingRecHit&) const;
+
+  bool preFilter(const TrajectoryStateOnSurface& ts,
+                 const TrackingRecHit& hit) const override;
+
 
 
   virtual Chi2ChargeMeasurementEstimator* clone() const {
     return new Chi2ChargeMeasurementEstimator(*this);
   }
 private:
+
   bool cutOnPixelCharge_;
   bool cutOnStripCharge_;
-  double minGoodPixelCharge_; 
-  double minGoodStripCharge_;
-  float pTChargeCutThreshold_;
-  inline double minGoodCharge(int subdet) const {return (subdet>2?minGoodStripCharge_:minGoodPixelCharge_);}
+  float minGoodPixelCharge_; 
+  float minGoodStripCharge_;
+  float pTChargeCutThreshold2_;
 
-  bool thickSensors (const SiStripDetId& detid) const;
-  
-  float sensorThickness (const DetId& detid) const;
-  bool checkClusterCharge(const OmniClusterRef::ClusterStripRef cluster, float chargeCut) const;
-  bool checkCharge(const TrackingRecHit& aRecHit, int subdet, float chargeCut) const;
+  bool checkClusterCharge(DetId detid, SiStripCluster const & cluster, const TrajectoryStateOnSurface& ts) const;
+
+  bool checkCharge(const TrackingRecHit& aRecHit, const TrajectoryStateOnSurface& ts) const;
 
 };
 

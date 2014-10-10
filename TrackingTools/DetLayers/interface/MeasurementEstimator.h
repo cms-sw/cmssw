@@ -36,15 +36,21 @@ public:
   virtual HitReturnType estimate( const TrajectoryStateOnSurface& ts, 
 				  const TrackingRecHit& hit) const = 0;
 
+  /* verify the compatibility of the Hit with the Trajectory based
+   * on hit properties other than those used in estimate 
+   * (that usually computes the compatibility of the Trajectory with the Hit)
+   * 
+   */
+  virtual bool preFilter(const TrajectoryStateOnSurface& ts,
+                                  const TrackingRecHit& hit) const { return true;}
+
+
   /** Returns true if the TrajectoryStateOnSurface is compatible with the
    *  Plane, false otherwise.
    *  The TrajectoryStateOnSurface must be on the plane.
    */
   virtual SurfaceReturnType estimate( const TrajectoryStateOnSurface& ts, 
 				      const Plane& plane) const = 0;
-
-/*   virtual SurfaceReturnType estimate( const TrajectoryStateOnSurface& ts,  */
-/* 				      const Surface& plane) const; */
 
   virtual MeasurementEstimator* clone() const = 0;
 
