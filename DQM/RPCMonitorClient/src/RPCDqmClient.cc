@@ -17,18 +17,17 @@
 //Framework
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <FWCore/Framework/interface/ESHandle.h>
 
-RPCDqmClient::RPCDqmClient(const edm::ParameterSet& parameters_){
+RPCDqmClient::RPCDqmClient(const edm::ParameterSet& iConfig){
 
   edm::LogVerbatim ("rpcdqmclient") << "[RPCDqmClient]: Constructor";
 
-  //  parameters_ = iConfig;
+  parameters_ = iConfig;
 
   offlineDQM_ = parameters_.getUntrackedParameter<bool> ("OfflineDQM",true); 
   useRollInfo_=  parameters_.getUntrackedParameter<bool>("UseRollInfo", false);
   //check enabling
-  enableDQMClients_ = parameters_.getUntrackedParameter<bool> ("EnableRPCDqmClient",true); 
+  enableDQMClients_ =parameters_.getUntrackedParameter<bool> ("EnableRPCDqmClient",true); 
   minimumEvents_= parameters_.getUntrackedParameter<int>("MinimumRPCEvents", 10000);
 
   std::string subsystemFolder = parameters_.getUntrackedParameter<std::string>("RPCFolder", "RPC");
@@ -41,6 +40,7 @@ RPCDqmClient::RPCDqmClient(const edm::ParameterSet& parameters_){
   //get prescale factor
   prescaleGlobalFactor_ = parameters_.getUntrackedParameter<int>("DiagnosticGlobalPrescale", 5);
 
+ 
 
   //make default client list  
   clientList_.push_back("RPCMultiplicityTest");
@@ -50,87 +50,64 @@ RPCDqmClient::RPCDqmClient(const edm::ParameterSet& parameters_){
 
 
   //get all the possible RPC DQM clients 
-  this->makeClientMap(parameters_);
-
-  lumiCounter_ = prescaleGlobalFactor_;
-  init_ = false;
-
+  this->makeClientMap();
 }
 
-RPCDqmClient::~RPCDqmClient(){}
+RPCDqmClient::~RPCDqmClient(){dbe_ = 0;}
 
 void RPCDqmClient::beginJob(){
 
-  if (!enableDQMClients_) {return;}                 ;
   edm::LogVerbatim ("rpcdqmclient") << "[RPCDqmClient]: Begin Job";
+  if (!enableDQMClients_) return;                 ;
 
-    //Do whatever the begin jobs of all client modules do
-  for(std::vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ ){
-    (*it)->beginJob( globalFolder_ );
+  dbe_ = edm::Service<DQMStore>().operator->();
+  dbe_->setVerbose(0);
+  
+
+  //Do whatever the begin jobs of all client modules do
+  for(std::vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ )
+    (*it)->beginJob(dbe_, globalFolder_);
+  
+}
+
+
+void  RPCDqmClient::beginRun(const edm::Run& r, const edm::EventSetup& c){
+
+  if (!enableDQMClients_) return;
+
+  
+  for ( std::vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ ){
+    (*it)->beginRun(r,c);
   }
+
+  if(!offlineDQM_) this->getMonitorElements(r, c);
+  
+  lumiCounter_ = prescaleGlobalFactor_;
+  init_ = false;
 }
 
 
 
-void RPCDqmClient::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, edm::LuminosityBlock const  & lumiSeg, edm::EventSetup const& c){
- 
-  if (!enableDQMClients_ ) {return;}
-  edm::LogVerbatim ("rpcdqmclient") << "[RPCDqmClient]: End DQM LB";
-  
-  
-  if(!init_) {  //At the end of the first LumiBlock...
-    // ...get chamber based histograms 
-    this->getMonitorElements(igetter, c);
+void  RPCDqmClient::endRun(const edm::Run& r, const edm::EventSetup& c){
+  edm::LogVerbatim ("rpcdqmclient") << "[RPCDqmClient]: End Run";
 
-    //...book summary histograms
-    for (std::vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ ){
-      (*it)->myBooker( ibooker);
-    }
+  if (!enableDQMClients_) return;
 
-    lumiCounter_ = prescaleGlobalFactor_  - 1;
-    init_= true;
-  }
+  if(offlineDQM_) this->getMonitorElements(r, c);
 
-  lumiCounter_++;
-  
-  if (offlineDQM_) {return;} // If in offlineDQM mode, do nothing. Client operation will be done only at endJob
-  
-  //Check if there's enough statistics
   float   rpcevents = minimumEvents_;
-  if(RPCEvents_) {rpcevents = RPCEvents_->getBinContent(1);}
-  if( rpcevents < minimumEvents_) {return;}
-  //Do not perform client oparations every lumi block  
-  if (lumiCounter_%prescaleGlobalFactor_ != 0) {return;}
-
-  edm::LogVerbatim ("rpcdqmclient") <<"[RPCDqmClient]: Client operations";
+  if(RPCEvents_) rpcevents = RPCEvents_ ->getBinContent(1);
+  
+  if(rpcevents < minimumEvents_) return;
+  
   for (std::vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ ){
-    (*it)->clientOperation();
+    (*it)->clientOperation(c);
+    (*it)->endRun(r,c);
   }
-
 }
 
 
-
-void  RPCDqmClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter){
-
-  if (!enableDQMClients_ || !init_) {return;}
-
-  edm::LogVerbatim ("rpcdqmclient") << "[RPCDqmClient]: End DQM Job";
-  
-  float   rpcevents = minimumEvents_;
-  if(RPCEvents_) {rpcevents = RPCEvents_ ->getBinContent(1);}
-  if(rpcevents < minimumEvents_) {return;}
-
-  edm::LogVerbatim ("rpcdqmclient") <<"[RPCDqmClient]: Client operations";
-  for (std::vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ ){
-    (*it)->clientOperation();
-  }
-  
-}
-
-
-
-void  RPCDqmClient::getMonitorElements(DQMStore::IGetter & igetter, const edm::EventSetup& c){
+void  RPCDqmClient::getMonitorElements(const edm::Run& r, const edm::EventSetup& c){
  
   std::vector<MonitorElement *>  myMeVect;
   std::vector<RPCDetId>   myDetIds;
@@ -142,6 +119,7 @@ void  RPCDqmClient::getMonitorElements(DQMStore::IGetter & igetter, const edm::E
   RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
   MonitorElement * myMe = NULL;
   std::string rollName= "";
+  //  std::set<int> disk_set, ring_set;
 
   //loop on all geometry and get all histos
   for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
@@ -168,57 +146,119 @@ void  RPCDqmClient::getMonitorElements(DQMStore::IGetter & igetter, const edm::E
 	 for( unsigned int cl = 0; cl<clientModules_.size(); cl++ ){
 	   
 	   myMe = NULL;
-	   myMe = igetter.get(prefixDir_ +"/"+ folderStr->folderStructure(detId)+"/"+clientHisto_[cl]+ "_"+rollName); 
+	   myMe = dbe_->get(prefixDir_ +"/"+ folderStr->folderStructure(detId)+"/"+clientHisto_[cl]+ "_"+rollName); 
 	   
 	   if (!myMe)continue;
-	   //	   dbe_->tag(myMe, clientTag_[cl]);
+	   
+	   dbe_->tag(myMe, clientTag_[cl]);
 	   myMeVect.push_back(myMe);
 	   myDetIds.push_back(detId);
 	   
 	 }//end loop on clients
+	 
        }//end loop on roll in given chamber
     }
   }//end loop on all geometry and get all histos  
   
   
-  RPCEvents_ = igetter.get(prefixDir_ +"/RPCEvents");  
-  unsigned int cl = 0;
+  RPCEvents_ = dbe_->get(prefixDir_ +"/RPCEvents");  
+
   for (std::vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ ){
-    (*it)->getMonitorElements(myMeVect, myDetIds, clientHisto_[cl]);
-    cl++;
+    (*it)->getMonitorElements(myMeVect, myDetIds);
   }
 
   delete folderStr;
+ 
 }
  
 
 
+void RPCDqmClient::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) {
+  if (!enableDQMClients_) return;
+
+  for ( std::vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ )
+    (*it)->beginLuminosityBlock(lumiSeg,context);
+}
+
+void RPCDqmClient::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
+
+ if (!enableDQMClients_) return;
+
+ for ( std::vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ )
+    (*it)->analyze( iEvent,iSetup);
+}
 
 
-void RPCDqmClient::makeClientMap(const edm::ParameterSet& parameters_) {
+void RPCDqmClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c){
+ 
+  if (!enableDQMClients_ ) return;
+
+  if(offlineDQM_) return;
+
+  edm::LogVerbatim ("rpcdqmclient") <<"[RPCDqmClient]: End of LS ";
+
+  for (std::vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ )
+    (*it)->endLuminosityBlock( lumiSeg, c);
+  
+  float   rpcevents = minimumEvents_;
+  if(RPCEvents_) rpcevents = RPCEvents_ ->getBinContent(1);
+  
+  if( rpcevents < minimumEvents_) return;
+
+  if( !init_ ){
+
+    for (std::vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ ){
+      (*it)->clientOperation(c);
+    }
+    init_ = true;
+    return;
+  }
+
+  lumiCounter_++;
+
+  if (lumiCounter_%prescaleGlobalFactor_ != 0) return;
+
+
+  for (std::vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ ){
+    (*it)->clientOperation(c);
+  }
+
+}
+
+
+
+void RPCDqmClient::endJob() {
+  if (!enableDQMClients_) return;
+  
+  for ( std::vector<RPCClient*>::iterator it= clientModules_.begin(); it!=clientModules_.end(); it++ )
+    (*it)->endJob();
+}
+
+
+void RPCDqmClient::makeClientMap() {
 
   for(unsigned int i = 0; i<clientList_.size(); i++){
     
     if( clientList_[i] == "RPCMultiplicityTest" ) {
       clientHisto_.push_back("Multiplicity");
-      // clientTag_.push_back(rpcdqm::MULTIPLICITY);
+      clientTag_.push_back(rpcdqm::MULTIPLICITY);
       clientModules_.push_back( new RPCMultiplicityTest(parameters_));
     } else if ( clientList_[i] == "RPCDeadChannelTest" ){
       clientHisto_.push_back("Occupancy");
       clientModules_.push_back( new RPCDeadChannelTest(parameters_));
-      // clientTag_.push_back(rpcdqm::OCCUPANCY);
+      clientTag_.push_back(rpcdqm::OCCUPANCY);
     } else if ( clientList_[i] == "RPCClusterSizeTest" ){
       clientHisto_.push_back("ClusterSize");
       clientModules_.push_back( new RPCClusterSizeTest(parameters_));
-      // clientTag_.push_back(rpcdqm::CLUSTERSIZE);
+      clientTag_.push_back(rpcdqm::CLUSTERSIZE);
     } else if ( clientList_[i] == "RPCOccupancyTest" ){
       clientHisto_.push_back("Occupancy");
       clientModules_.push_back( new RPCOccupancyTest(parameters_));
-      // clientTag_.push_back(rpcdqm::OCCUPANCY);
+      clientTag_.push_back(rpcdqm::OCCUPANCY);
     } else if ( clientList_[i] == "RPCNoisyStripTest" ){
       clientHisto_.push_back("Occupancy");
       clientModules_.push_back( new RPCNoisyStripTest(parameters_));
-      //clientTag_.push_back(rpcdqm::OCCUPANCY);
+      clientTag_.push_back(rpcdqm::OCCUPANCY);
     }
   }
 
