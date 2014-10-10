@@ -104,7 +104,7 @@ pixelPairStepTrackCandidates.TrajectoryCleaner = 'pixelPairStepTrajectoryCleaner
 # TRACK FITTING
 import RecoTracker.TrackProducer.TrackProducer_cfi
 pixelPairStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
-    AlgorithmName = cms.string('iter5'),
+    AlgorithmName = cms.string('pixelPairStep'),
     src = 'pixelPairStepTrackCandidates',
     Fitter = cms.string('FlexibleKFFittingSmoother'),
     TTRHBuilder=cms.string('WithTrackAngle')
