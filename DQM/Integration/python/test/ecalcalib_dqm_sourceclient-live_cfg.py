@@ -149,7 +149,7 @@ process.ecalCalibMonitorClient.commonParameters.onlineMode = True
 
 process.preScaler.prescaleFactor = 1
 
-process.source.streamLabel = "streamCalibration"
+process.source.streamLabel = "streamDQMCalibration"
 
 process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/ecalcalib_reference.root"
 
