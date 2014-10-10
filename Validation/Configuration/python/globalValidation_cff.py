@@ -39,8 +39,6 @@ from Validation.RecoTau.DQMMCValidation_cfi import *
 from Validation.L1T.L1Validator_cfi import *
 from DQMOffline.RecoB.dqmAnalyzer_cff import *
 
-from HLTriggerOffline.Higgs.hltHiggsBtagPFjet_cff import *
-
 # filter/producer "pre-" sequence for globalValidation
 globalPrevalidation = cms.Sequence( 
     simHitTPAssocProducer
@@ -48,7 +46,6 @@ globalPrevalidation = cms.Sequence(
   * photonPrevalidationSequence
   * produceDenoms
   * prebTagSequenceMC
-  * bTagForHiggsDqm
 )
 
 # filter/producer "pre-" sequence for validation_preprod

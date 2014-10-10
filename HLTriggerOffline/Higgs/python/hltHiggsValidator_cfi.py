@@ -188,8 +188,8 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
             #"HLT_DiCentralPFJet30_PFMET80_BTagCSV07_v"
             ),
         Jet_recCut   = cms.string("abs(eta) < 2.6"),
-        recJetLabel  = cms.string("higgsDqmPFJetsFilter"),
-        jetTagLabel  = cms.string("hltHiggsDqmPfCombinedSecondaryVertexBJetTags"),
+        recJetLabel  = cms.string("ak4PFJetsCHS"),
+        jetTagLabel  = cms.string("pfCombinedSecondaryVertexBJetTags"),
         recPFMETLabel = cms.string("pfMet"),  
         # -- Analysis specific cuts
         minCandidates = cms.uint32(1), 
