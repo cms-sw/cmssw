@@ -1,5 +1,4 @@
 ### AUTO-GENERATED CMSRUN CONFIGURATION FOR ECAL DQM ###
-
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("process")
@@ -12,7 +11,7 @@ process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 process.load("Geometry.EcalMapping.EcalMapping_cfi")
 process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
-process.load("RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cfi")
+process.load("RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi")
 process.load("RecoLocalCalo.EcalRecProducers.ecalDetIdToBeRecovered_cfi")
 process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi")
 process.load("RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi")
@@ -90,10 +89,14 @@ process.MessageLogger = cms.Service("MessageLogger",
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         ),
-        threshold = cms.untracked.string('WARNING'),
+        EcalLaserDbService = cms.untracked.PSet(
+            limit = cms.untracked.int32(10)
+        ),
         noTimeStamps = cms.untracked.bool(True),
+        threshold = cms.untracked.string('WARNING'),
         noLineBreaks = cms.untracked.bool(True)
     ),
+    categories = cms.untracked.vstring('EcalLaserDbService'),
     destinations = cms.untracked.vstring('cerr')
 )
 
@@ -122,6 +125,8 @@ process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/ecal_reference.root
 
 process.dqmEnv.subSystemFolder = cms.untracked.string('Ecal')
 
+process.dqmSaver.convention = cms.untracked.string('Online')
+
 process.ecalMonitorClient.verbosity = 0
 process.ecalMonitorClient.workers = ['IntegrityClient', 'OccupancyClient', 'PresampleClient', 'RawDataClient', 'TimingClient', 'SelectiveReadoutClient', 'TrigPrimClient', 'SummaryClient']
 process.ecalMonitorClient.workerParameters.SummaryClient.params.activeSources = ['Integrity', 'RawData', 'Presample', 'TriggerPrimitives', 'Timing', 'HotCell']
@@ -129,12 +134,14 @@ process.ecalMonitorClient.commonParameters.onlineMode = True
 
 process.ecalMonitorTask.workers = ['ClusterTask', 'EnergyTask', 'IntegrityTask', 'OccupancyTask', 'RawDataTask', 'TimingTask', 'TrigPrimTask', 'PresampleTask', 'SelectiveReadoutTask']
 process.ecalMonitorTask.verbosity = 0
+process.ecalMonitorTask.collectionTags.EEUncalibRecHit = "ecalGlobalUncalibRecHit:EcalUncalibRecHitsEE"
 process.ecalMonitorTask.collectionTags.EESuperCluster = "multi5x5SuperClusters:multi5x5EndcapSuperClusters"
 process.ecalMonitorTask.collectionTags.EBBasicCluster = "hybridSuperClusters:hybridBarrelBasicClusters"
 process.ecalMonitorTask.collectionTags.EEBasicCluster = "multi5x5SuperClusters:multi5x5EndcapBasicClusters"
 process.ecalMonitorTask.collectionTags.Source = "rawDataCollector"
 process.ecalMonitorTask.collectionTags.EBSuperCluster = "correctedHybridSuperClusters"
 process.ecalMonitorTask.collectionTags.TrigPrimEmulDigi = "simEcalTriggerPrimitiveDigis"
+process.ecalMonitorTask.collectionTags.EBUncalibRecHit = "ecalGlobalUncalibRecHit:EcalUncalibRecHitsEB"
 process.ecalMonitorTask.workerParameters.TrigPrimTask.params.runOnEmul = True
 process.ecalMonitorTask.commonParameters.willConvertToEDM = False
 process.ecalMonitorTask.commonParameters.onlineMode = True
@@ -142,7 +149,7 @@ process.ecalMonitorTask.commonParameters.onlineMode = True
 ### Sequences ###
 
 process.ecalPreRecoSequence = cms.Sequence(process.ecalDigis)
-process.ecalRecoSequence = cms.Sequence((process.ecalMultiFitUncalibRecHit+process.ecalDetIdToBeRecovered+process.ecalRecHit)+(process.simEcalTriggerPrimitiveDigis+process.gtDigis)+(process.hybridClusteringSequence+process.multi5x5ClusteringSequence))
+process.ecalRecoSequence = cms.Sequence((process.ecalGlobalUncalibRecHit+process.ecalDetIdToBeRecovered+process.ecalRecHit)+(process.simEcalTriggerPrimitiveDigis+process.gtDigis)+(process.hybridClusteringSequence+process.multi5x5ClusteringSequence))
 process.multi5x5ClusteringSequence = cms.Sequence(process.multi5x5BasicClustersCleaned+process.multi5x5SuperClustersCleaned+process.multi5x5BasicClustersUncleaned+process.multi5x5SuperClustersUncleaned+process.multi5x5SuperClusters)
 process.hybridClusteringSequence = cms.Sequence(process.cleanedHybridSuperClusters+process.uncleanedHybridSuperClusters+process.hybridSuperClusters+process.correctedHybridSuperClusters+process.uncleanedOnlyCorrectedHybridSuperClusters)
 
