@@ -102,7 +102,10 @@ void
 EcalDQMonitorTask::bookHistograms(DQMStore::IBooker& _ibooker, edm::Run const&, edm::EventSetup const& _es)
 {
   ecaldqmGetSetupObjects(_es);
-  ecaldqmBookHistograms(_ibooker);
+
+  executeOnWorkers_([&_ibooker](ecaldqm::DQWorker* worker){
+      worker->bookMEs(_ibooker);
+    }, "bookMEs", "Booking MEs");
 }
 
 void
@@ -125,7 +128,9 @@ EcalDQMonitorTask::endRun(edm::Run const& _run, edm::EventSetup const& _es)
 
   ecaldqmEndRun(_run, _es);
 
-  ecaldqmReleaseHistograms();
+  executeOnWorkers_([](ecaldqm::DQWorker* worker){
+      worker->releaseMEs();
+    }, "releaseMEs", "releasing histograms");
 }
 
 void

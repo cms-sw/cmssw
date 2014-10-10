@@ -28,7 +28,6 @@ EcalDQMonitorClient::EcalDQMonitorClient(edm::ParameterSet const& _ps) :
   DQMEDHarvester(),
   ecaldqm::EcalDQMonitor(_ps),
   iEvt_(0),
-  booked_(false),
   statusManager_()
 {
   executeOnWorkers_([this](ecaldqm::DQWorker* worker){
@@ -94,10 +93,11 @@ EcalDQMonitorClient::endRun(edm::Run const& _run, edm::EventSetup const& _es)
 void
 EcalDQMonitorClient::dqmEndLuminosityBlock(DQMStore::IBooker& _ibooker, DQMStore::IGetter& _igetter, edm::LuminosityBlock const& _lumi, edm::EventSetup const& _es)
 {
-  if(!booked_){
-    ecaldqmBookHistograms(_ibooker);
-    booked_ = true;
-  }
+  executeOnWorkers_([&_ibooker](ecaldqm::DQWorker* worker){
+      ecaldqm::DQWorkerClient* client(static_cast<ecaldqm::DQWorkerClient*>(worker));
+      if(!client->runsOn(ecaldqm::DQWorkerClient::kLumi)) return;
+      client->bookMEs(_ibooker);
+    }, "bookMEs", "Booking MEs");
 
   ecaldqmEndLuminosityBlock(_lumi, _es);
 
@@ -107,14 +107,15 @@ EcalDQMonitorClient::dqmEndLuminosityBlock(DQMStore::IBooker& _ibooker, DQMStore
 void
 EcalDQMonitorClient::dqmEndJob(DQMStore::IBooker& _ibooker, DQMStore::IGetter& _igetter)
 {
-  if(!booked_){
-    ecaldqmBookHistograms(_ibooker);
-    booked_ = true;
-  }
+  executeOnWorkers_([&_ibooker](ecaldqm::DQWorker* worker){
+      worker->bookMEs(_ibooker); // worker returns if already booked
+    }, "bookMEs", "Booking MEs");
 
   runWorkers(_igetter, ecaldqm::DQWorkerClient::kJob);
-  
-  ecaldqmReleaseHistograms();
+
+  executeOnWorkers_([](ecaldqm::DQWorker* worker){
+      worker->releaseMEs();
+    }, "releaseMEs", "releasing histograms");
 }
 
 void
@@ -124,6 +125,7 @@ EcalDQMonitorClient::runWorkers(DQMStore::IGetter& _igetter, ecaldqm::DQWorkerCl
 
   executeOnWorkers_([&_igetter, &_type](ecaldqm::DQWorker* worker){
       ecaldqm::DQWorkerClient* client(static_cast<ecaldqm::DQWorkerClient*>(worker));
+      if(!client->runsOn(_type)) return;
       client->releaseSource();
       client->resetMEs();
       if(!client->retrieveSource(_igetter, _type)) return;
