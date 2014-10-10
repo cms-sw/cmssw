@@ -41,7 +41,7 @@ SUSY_HLT_MET_MUON_FASTSIM = cms.EDAnalyzer("SUSY_HLT_Muon_Hadronic",
 
 
 SUSY_HLT_MET_MUON_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLTriggerOffline/SUSYBSM/HLT_PFMET120_NoiseCleaned_Mu5_v1"),
+    subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET120_NoiseCleaned_Mu5_v1"),
     verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),
     efficiency     = cms.vstring(
@@ -53,7 +53,7 @@ SUSY_HLT_MET_MUON_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
 
 
 SUSY_HLT_MET_MUON_FASTSIM_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLTriggerOffline/SUSYBSM/HLT_PFMET120_NoiseCleaned_Mu5_v1"),
+    subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET120_NoiseCleaned_Mu5_v1"),
     verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),
     efficiency     = cms.vstring(
