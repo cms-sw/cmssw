@@ -40,22 +40,22 @@ std::auto_ptr<MagneticField> VolumeBasedMagneticFieldESProducer::produce(const I
     cout << "VolumeBasedMagneticFieldESProducer::produce() " << pset.getParameter<std::string>("version") << endl;
   }
 
-  MagFieldConfig* conf = new MagFieldConfig(pset, debug);
+  MagFieldConfig conf(pset, debug);
 
   edm::ESTransientHandle<DDCompactView> cpv;
   iRecord.get("magfield",cpv );
-  MagGeoBuilderFromDDD builder(conf->version,
-			       conf->geometryVersion,
+  MagGeoBuilderFromDDD builder(conf.version,
+			       conf.geometryVersion,
 			       debug);
 
   // Set scaling factors
-  if (conf->keys.size() != 0) {
-    builder.setScaling(conf->keys, conf->values);
+  if (conf.keys.size() != 0) {
+    builder.setScaling(conf.keys, conf.values);
   }
   
   // Set specification for the grid tables to be used.
-  if (conf->gridFiles.size()!=0) {
-    builder.setGridFiles(conf->gridFiles);
+  if (conf.gridFiles.size()!=0) {
+    builder.setGridFiles(conf.gridFiles);
   }
   
   builder.build(*cpv);
@@ -65,7 +65,8 @@ std::auto_ptr<MagneticField> VolumeBasedMagneticFieldESProducer::produce(const I
   if (pset.getParameter<bool>("useParametrizedTrackerField")) {;
     iRecord.get(pset.getParameter<string>("paramLabel"),paramField);
   }
-  std::auto_ptr<MagneticField> s(new VolumeBasedMagneticField(conf->geometryVersion,builder.barrelLayers(), builder.endcapSectors(), builder.barrelVolumes(), builder.endcapVolumes(), builder.maxR(), builder.maxZ(), paramField.product(), false));
+  std::auto_ptr<MagneticField> s(new VolumeBasedMagneticField(conf.geometryVersion,builder.barrelLayers(), builder.endcapSectors(), builder.barrelVolumes(), builder.endcapVolumes(), builder.maxR(), builder.maxZ(), paramField.product(), false));
+  
   return s;
 }
 
