@@ -224,6 +224,8 @@ namespace reco {
     virtual bool isConvertedPhoton() const GCC11_FINAL  { return false; }
     virtual bool isJet() const GCC11_FINAL  { return false; }
 
+    CMS_CLASS_VERSION(11)
+
   protected:
     /// T internally.
     /// NOTE! T must satisfy ref_->pt(), ref_->phi(), etc, like a TrackRef
@@ -261,8 +263,6 @@ namespace reco {
     friend class ::OverlapChecker;
     friend class ShallowCloneCandidate;
     friend class ShallowClonePtrCandidate;
-
-    CMS_CLASS_VERSION(11)
 
   private:
     // const iterator implementation
