@@ -312,4 +312,6 @@ def customise_csc_hlt(process):
     process.hltL2Muons.L2TrajBuilderParameters.EnableGEMMeasurement = cms.bool( True )
     process.hltL2Muons.BWFilterParameters.EnableGEMMeasurement = cms.bool( True )
 
+    ## remove hltGetConditions for mc
+    process.HLTriggerFirstPath.remove(process.hltGetConditions)
     return process
