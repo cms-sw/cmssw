@@ -64,6 +64,7 @@ SiPixelRecHitSource::SiPixelRecHitSource(const edm::ParameterSet& iConfig) :
   diskOn( conf_.getUntrackedParameter<bool>("diskOn",false) ), 
   isUpgrade( conf_.getUntrackedParameter<bool>("isUpgrade",false) )
 {
+  topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
   firstRun = true;
   LogInfo ("PixelDQM") << "SiPixelRecHitSource::SiPixelRecHitSource: Got DQM BackEnd interface"<<endl;
 }
