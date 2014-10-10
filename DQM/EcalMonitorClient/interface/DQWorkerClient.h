@@ -32,6 +32,7 @@ namespace ecaldqm
     void releaseSource();
     bool retrieveSource(DQMStore::IGetter&, ProcessType);
 
+    bool runsOn(ProcessType _type) const { return _type == kJob || hasLumiPlots_; }
     void resetMEs();
     virtual void producePlots(ProcessType) = 0;
 
@@ -62,6 +63,8 @@ namespace ecaldqm
 
     MESetCollection sources_;
     std::set<std::string> qualitySummaries_;
+
+    bool hasLumiPlots_;
 
     StatusManager const* statusManager_;
   };

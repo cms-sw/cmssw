@@ -19,8 +19,15 @@ namespace ecaldqm
     DQWorker(),
     sources_(),
     qualitySummaries_(),
+    hasLumiPlots_(false),
     statusManager_(0)
   {
+    for(MESetCollection::iterator mItr(MEs_.begin()); mItr != MEs_.end(); ++mItr){
+      if(mItr->second->getLumiFlag()){
+        hasLumiPlots_ = true;
+        break;
+      }
+    }
   }
 
   /*static*/
