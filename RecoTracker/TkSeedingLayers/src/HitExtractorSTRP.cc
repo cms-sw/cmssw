@@ -17,6 +17,7 @@
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TrackingRecHitProjector.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/ProjectedRecHit2D.h"
+#include "DataFormats/SiStripCluster/interface/SiStripClusterTools.h"
 
 #include<tuple>
 
@@ -26,12 +27,12 @@ using namespace ctfseeding;
 using namespace std;
 using namespace edm;
 
-HitExtractorSTRP::HitExtractorSTRP(GeomDetEnumerators::SubDetector subdet, SeedingLayer::Side & side, int idLayer):
+HitExtractorSTRP::HitExtractorSTRP(GeomDetEnumerators::SubDetector subdet, SeedingLayer::Side & side, int idLayer, float iminGoodCharge):
   theLayerSubDet(subdet), theSide(side), theIdLayer(idLayer),
   minAbsZ(0), theMinRing(1), theMaxRing(0),
   hasMatchedHits(false), hasRPhiHits(false), hasStereoHits(false),
   hasRingSelector(false), hasSimpleRphiHitsCleaner(true)
-{}
+{ minGoodCharge=iminGoodCharge; if (minGoodCharge>0) skipClusters=true; }
 
 void HitExtractorSTRP::useSkipClusters_(const edm::InputTag & m, edm::ConsumesCollector& iC) {
   theSkipClusters = iC.consumes<SkipClustersCollection>(m);
@@ -50,9 +51,12 @@ bool HitExtractorSTRP::ringRange(int ring) const
   return (ring >= theMinRing) & (ring <= theMaxRing); 
 }
 
-bool HitExtractorSTRP::skipThis(OmniClusterRef const& clus,
+bool HitExtractorSTRP::skipThis(DetId id, OmniClusterRef const& clus,
 				edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > & stripClusterMask) const {
-  return stripClusterMask->mask(clus.key());
+  if (maskCluster && (!stripClusterMask->mask(clus.key())) ) return false;
+  if unlikely(minGoodCharge<=0) return true;
+  auto const & ampl = clus.cluster_strip()->amplitudes();
+  return siStripClusterTools::chargePerCM(id,ampl.begin(),ampl.end()) > minGoodCharge;
 }
 
 
@@ -64,10 +68,11 @@ HitExtractorSTRP::skipThis(const TkTransientTrackingRecHitBuilder& ttrhBuilder,
   const SiStripMatchedRecHit2D & hit = (SiStripMatchedRecHit2D const&)(matched);
  
   assert(dynamic_cast<SiStripMatchedRecHit2D const*>(&matched));
-  
+
+  auto id = hit.geographicalId();  
   ProjectedSiStripRecHit2D * replaceMe = nullptr;
-  bool rejectSt   = skipThis(hit.stereoClusterRef(), stripClusterMask);
-  bool rejectMono = skipThis(hit.monoClusterRef(),  stripClusterMask);
+  bool rejectSt   = skipThis(id,hit.stereoClusterRef(), stripClusterMask);
+  bool rejectMono = skipThis(id, hit.monoClusterRef(),  stripClusterMask);
 
   if ((!rejectSt)&(!rejectMono)){
     // keepit
@@ -98,11 +103,12 @@ void HitExtractorSTRP::cleanedOfClusters( const TkTransientTrackingRecHitBuilder
 					  unsigned int cleanFrom) const{
   LogDebug("HitExtractorPIX")<<"getting: "<<hits.size()<<" in input.";
   edm::Handle<SkipClustersCollection> stripClusterMask;
-  ev.getByToken(theSkipClusters,stripClusterMask);
+  if (maskCluster) ev.getByToken(theSkipClusters,stripClusterMask);
   unsigned int skipped=0;
   unsigned int projected=0;
   for (unsigned int iH=cleanFrom;iH<hits.size();++iH){
      assert(hits[iH]->isValid());
+    auto id = hits[iH]->geographicalId();
     if (matched) {
       bool replace; ProjectedSiStripRecHit2D * replaceMe; std::tie(replace,replaceMe) = skipThis(ttrhBuilder, *hits[iH],stripClusterMask);
       if (replace) {
@@ -115,7 +121,7 @@ void HitExtractorSTRP::cleanedOfClusters( const TkTransientTrackingRecHitBuilder
 	else assert(hits[iH].isOwn());
       }
     }
-    else if (skipThis(hits[iH]->firstClusterRef(),stripClusterMask)){
+    else if (skipThis(id, hits[iH]->firstClusterRef(),stripClusterMask)){
       LogDebug("HitExtractorSTRP")<<"skipping a hit on :"<<hits[iH]->geographicalId().rawId()<<" key: ";
       skipped++;
       hits[iH].reset();
