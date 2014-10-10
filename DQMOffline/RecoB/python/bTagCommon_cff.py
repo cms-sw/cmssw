@@ -90,6 +90,11 @@ bTagCommonBlock = cms.PSet(
         ),
         cms.PSet(
             bTagGenericAnalysisBlock,
+            label = cms.InputTag("combinedInclusiveSecondaryVertexV2BJetTags"),
+            folder = cms.string("CSVv2")
+        ),
+        cms.PSet(
+            bTagGenericAnalysisBlock,
             label = cms.InputTag("ghostTrackBJetTags"),
             folder = cms.string("GhTrk")
         ),

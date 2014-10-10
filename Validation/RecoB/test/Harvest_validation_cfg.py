@@ -16,12 +16,10 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 process.load("DQMServices.Core.DQM_cfg")
 
-process.load("RecoBTag.Configuration.RecoBTag_cff")
-
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
-process.source = cms.Source("PoolSource",
+process.source = cms.Source("DQMRootSource",
     fileNames = cms.untracked.vstring()
 )
 
@@ -31,8 +29,7 @@ if runOnMC:
 else:
     process.dqmSeq = cms.Sequence(process.bTagCollectorSequenceDATA * process.dqmSaver)
 
-process.load("DQMServices.Components.EDMtoMEConverter_cfi")
-process.plots = cms.Path(process.EDMtoMEConverter * process.dqmSeq)
+process.plots = cms.Path(process.dqmSeq)
 
 process.dqmEnv.subSystemFolder = 'BTAG'
 process.dqmSaver.producer = 'DQM'
@@ -42,7 +39,7 @@ process.dqmSaver.saveByRun = cms.untracked.int32(-1)
 process.dqmSaver.saveAtJobEnd =cms.untracked.bool(True) 
 process.dqmSaver.forceRunNumber = cms.untracked.int32(1)
 
-process.PoolSource.fileNames = [
+process.DQMRootSource.fileNames = [
 
 ]
 
