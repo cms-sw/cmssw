@@ -45,9 +45,6 @@ class EcalDQMonitorTask : public DQMEDAnalyzer, public ecaldqm::EcalDQMonitor {
   bool allowMissingCollections_; // when true, skip missing collections silently
   int processedEvents_;
 
-  /* TASK TIME PROFILING */
-  bool evaluateTime_;
-  std::map<ecaldqm::DQWorker*, double> taskTimes_;
   time_t lastResetTime_;
   float resetInterval_;
 };
