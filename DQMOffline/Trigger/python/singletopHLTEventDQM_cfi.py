@@ -74,7 +74,7 @@ SingleTopSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM"
     ## will be empty
     triggerExtras = cms.PSet(
       src   = cms.InputTag("TriggerResults","","HLT"),
-      paths = cms.vstring(['HLT_IsoMu20_eta2p1_IterTrk02_CentralPFJet30_BTagCSV_v', 'HLT_IsoMu20_eta2p1_IterTrk02_TriCentralPFJet40_v', 'HLT_IsoMu20_eta2p1_IterTrk02_TriCentralPFJet60_50_35_v', 'HLT_IsoMu20_eta2p1_IterTrk02_v', 'HLT_IsoTkMu20_eta2p1_IterTrk02_v', 'HLT_IsoMu24_eta2p1_IterTrk02_CentralPFJet30_BTagCSV_v', 'HLT_IsoMu24_eta2p1_IterTrk02_TriCentralPFJet40_v', 'HLT_IsoMu24_eta2p1_IterTrk02_TriCentralPFJet60_50_35_v', 'HLT_IsoMu24_eta2p1_IterTrk02_v', 'HLT_IsoTkMu24_eta2p1_IterTrk02_v'])
+      paths = cms.vstring(['HLT_IsoMu24_IterTrk02_v', 'HLT_IsoMu24_IterTrk02_TriCentralPFJet60_50_35_v', 'HLT_IsoMu24_IterTrk02_TriCentralPFJet40_v', 'HLT_IsoMu24_IterTrk02_CentralPFJet30_BTagCSV_v', 'HLT_IsoMu20_eta2p1_IterTrk02_CentralPFJet30_BTagCSV_v', 'HLT_IsoMu20_eta2p1_IterTrk02_TriCentralPFJet40_v', 'HLT_IsoMu20_eta2p1_IterTrk02_TriCentralPFJet60_50_35_v', 'HLT_IsoMu20_eta2p1_IterTrk02_v', 'HLT_IsoTkMu20_eta2p1_IterTrk02_v', 'HLT_IsoMu24_eta2p1_IterTrk02_CentralPFJet30_BTagCSV_v', 'HLT_IsoMu24_eta2p1_IterTrk02_TriCentralPFJet40_v', 'HLT_IsoMu24_eta2p1_IterTrk02_TriCentralPFJet60_50_35_v', 'HLT_IsoMu24_eta2p1_IterTrk02_v', 'HLT_IsoTkMu24_eta2p1_IterTrk02_v'])
     )
   ),
   ## ------------------------------------------------------
@@ -87,7 +87,7 @@ SingleTopSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM"
   preselection = cms.PSet(
     trigger = cms.PSet(
       src    = cms.InputTag("TriggerResults","","HLT"),
-      select = cms.vstring(['HLT_IsoMu20_eta2p1_IterTrk02_CentralPFJet30_BTagCSV_v', 'HLT_IsoMu20_eta2p1_IterTrk02_TriCentralPFJet40_v', 'HLT_IsoMu20_eta2p1_IterTrk02_TriCentralPFJet60_50_35_v', 'HLT_IsoMu20_eta2p1_IterTrk02_v', 'HLT_IsoTkMu20_eta2p1_IterTrk02_v', 'HLT_IsoMu24_eta2p1_IterTrk02_CentralPFJet30_BTagCSV_v', 'HLT_IsoMu24_eta2p1_IterTrk02_TriCentralPFJet40_v', 'HLT_IsoMu24_eta2p1_IterTrk02_TriCentralPFJet60_50_35_v', 'HLT_IsoMu24_eta2p1_IterTrk02_v', 'HLT_IsoTkMu24_eta2p1_IterTrk02_v'])
+      select = cms.vstring(['HLT_IsoMu24_IterTrk02_v', 'HLT_IsoMu24_IterTrk02_TriCentralPFJet60_50_35_v', 'HLT_IsoMu24_IterTrk02_TriCentralPFJet40_v', 'HLT_IsoMu24_IterTrk02_CentralPFJet30_BTagCSV_v', 'HLT_IsoMu20_eta2p1_IterTrk02_CentralPFJet30_BTagCSV_v', 'HLT_IsoMu20_eta2p1_IterTrk02_TriCentralPFJet40_v', 'HLT_IsoMu20_eta2p1_IterTrk02_TriCentralPFJet60_50_35_v', 'HLT_IsoMu20_eta2p1_IterTrk02_v', 'HLT_IsoTkMu20_eta2p1_IterTrk02_v', 'HLT_IsoMu24_eta2p1_IterTrk02_CentralPFJet30_BTagCSV_v', 'HLT_IsoMu24_eta2p1_IterTrk02_TriCentralPFJet40_v', 'HLT_IsoMu24_eta2p1_IterTrk02_TriCentralPFJet60_50_35_v', 'HLT_IsoMu24_eta2p1_IterTrk02_v', 'HLT_IsoTkMu24_eta2p1_IterTrk02_v'])
     ),
     ## [optional] : when omitted no preselection is applied
     vertex = cms.PSet(
