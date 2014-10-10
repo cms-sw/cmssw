@@ -53,7 +53,7 @@ if read_from_file=="True":
     f.close()
 else:
   inputfiles = os.environ.get('INPUTFILES',
-'/store/relval/CMSSW_7_2_0_pre6/JetHT/RECO/PRE_R_72_V6A_RelVal_jet2012D-v1/00000/00BAABF3-8A3F-E411-A8A9-0025905A609E.root'
+  '/store/relval/CMSSW_7_2_0_pre7/JetHT/RECO/PRE_R_72_V6A_RelVal_jet2012C-v1/00000/06015A26-884B-E411-BFEF-002618943898.root'
 )
 print 'List of input files'
 print inputfiles
@@ -81,20 +81,10 @@ from Configuration.Geometry.GeometryIdeal_cff import *
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration/StandardSequences/MagneticField_cff")
 process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
-#process.load("RecoMET/Configuration/RecoMET_BeamHaloId_cff")
-#process.GlobalTag.globaltag ='GR_R_38X_V13A::All'
 
-#process.GlobalTag.globaltag ='GR_P_V14::All'
-#process.GlobalTag.globaltag ='GR_R_52_V3::All'
-process.GlobalTag.globaltag ='START72_V3::All'
+#for data in 720pre7
+process.GlobalTag.globaltag ='PRE_R_72_V6A::All'
 
-##process.GlobalTag.toGet = cms.VPSet(
-##    cms.PSet(record = cms.string("AlCaRecoTriggerBitsRcd"),
-##        tag = cms.string("AlcaRecoTriggerBits_JetMET_DQM_v0_hlt"),
-##        connect = cms.untracked.string( 'frontier://FrontierProd/CMS_COND_42X_DQM' )
-##        #connect = cms.untracked.string("sqlite_file:/tmp/sturdy/CMSSW_4_2_X_2011-09-30-1000/src/GenericTriggerEventFlag_JetMET_DQM_HLT_v0.db")
-##    )
-##)
 # the task - JetMET objects
 if iscosmics =="True":
   process.load("DQMOffline.JetMET.jetMETDQMOfflineSourceCosmic_cff")
@@ -202,9 +192,6 @@ process.options = cms.untracked.PSet(
 
 )
 
-process.load("DQMOffline.JetMET.PileupJetIDDQM_cff")
-
-
 process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 
 if iscosmics=="True":
@@ -216,7 +203,6 @@ if iscosmics=="True":
 else:
   process.p = cms.Path(
                      #process.dump*
-                     process.pileupJetIdProducer*
                      process.jetMETDQMOfflineSource*
                      process.dqmStoreStats* process.dqmSaver
 #                       * process.MEtoEDMConverter

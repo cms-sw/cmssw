@@ -4,13 +4,10 @@ from DQMOffline.JetMET.jetMETDQMCleanup_cff import *
 from DQMOffline.JetMET.metDiagnosticParameterSet_cfi import *
 
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak4CaloL2L3,ak4CaloL2Relative,ak4CaloL3Absolute
-newAk4CaloL2L3 = ak4CaloL2L3.clone()
 
 from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import ak7CaloL2L3,ak7CaloL2Relative,ak7CaloL3Absolute
-newAk7CaloL2L3 = ak7CaloL2L3.clone()
 
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak4PFL1FastL2L3,ak4PFL1Fastjet,ak4PFL2Relative,ak4PFL3Absolute
-newAk4PFL1FastL2L3 = ak4PFL1FastL2L3.clone()
 
 #from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak4JPTL1FastL2L3,ak4JPTL1Fastjet,ak4JPTL2Relative,ak4JPTL3Absolute
 #newAk4JPTL1FastL2L3 = ak4JPTL1FastL2L3.clone()
@@ -24,7 +21,7 @@ caloMetDQMAnalyzer = cms.EDAnalyzer("METAnalyzer",
     srcPFlow = cms.InputTag('particleFlow', ''),
     METCollectionLabel     = cms.InputTag("caloMet"),
     JetCollectionLabel  = cms.InputTag("ak4CaloJets"),
-    JetCorrections = cms.string("newAk4CaloL2L3"),
+    JetCorrections = cms.string("ak4CaloL2L3"),
 
     ptMinCand      = cms.double(1.),
     hcalMin      =cms.double(1.),
@@ -155,7 +152,7 @@ pfMetDQMAnalyzer = caloMetDQMAnalyzer.clone(
     METCollectionLabel     = cms.InputTag("pfMet"),
     srcPFlow = cms.InputTag('particleFlow', ''),
     JetCollectionLabel  = cms.InputTag("ak4PFJets"),
-    JetCorrections = cms.string("newAk4PFL1FastL2L3"),
+    JetCorrections = cms.string("ak4PFL1FastL2L3"),
     fillMetHighLevel = cms.bool(False),
     DCSFilter = cms.PSet(
         DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
