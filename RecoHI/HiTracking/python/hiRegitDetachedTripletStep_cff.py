@@ -62,8 +62,8 @@ hiRegitDetachedTripletStepTrackCandidates        =  RecoTracker.IterativeTrackin
 # fitting: feed new-names
 hiRegitDetachedTripletStepTracks                 = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepTracks.clone(
     src                 = 'hiRegitDetachedTripletStepTrackCandidates',
-    #AlgorithmName = cms.string('iter7'),
-    AlgorithmName = cms.string('iter3'),
+    #AlgorithmName = cms.string('jetCoreRegionalStep'),
+    AlgorithmName = cms.string('detachedTripletStep'),
     )
 
 

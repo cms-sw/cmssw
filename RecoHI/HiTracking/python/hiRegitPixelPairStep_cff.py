@@ -62,8 +62,8 @@ hiRegitPixelPairStepTrackCandidates        =  RecoTracker.IterativeTracking.Pixe
 # fitting: feed new-names
 hiRegitPixelPairStepTracks                 = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTracks.clone(
     src                 = 'hiRegitPixelPairStepTrackCandidates',
-    #AlgorithmName = cms.string('iter6'),
-    AlgorithmName = cms.string('iter2'),
+    #AlgorithmName = cms.string('tobTecStep'),
+    AlgorithmName = cms.string('pixelPairStep'),
     )
 
 

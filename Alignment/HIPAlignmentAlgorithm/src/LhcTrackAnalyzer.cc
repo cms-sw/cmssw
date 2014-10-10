@@ -162,14 +162,14 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  int myalgo=-88;
 	  if(track->algo()==reco::TrackBase::undefAlgorithm)myalgo=0;
 	  if(track->algo()==reco::TrackBase::ctf)myalgo=1;
-	  if(track->algo()==reco::TrackBase::iter0)myalgo=4;
-	  if(track->algo()==reco::TrackBase::iter1)myalgo=5;
-	  if(track->algo()==reco::TrackBase::iter2)myalgo=6;
-	  if(track->algo()==reco::TrackBase::iter3)myalgo=7;
-	  if(track->algo()==reco::TrackBase::iter4)myalgo=8;
-	  if(track->algo()==reco::TrackBase::iter5)myalgo=9;
-	  if(track->algo()==reco::TrackBase::iter6)myalgo=10;
-	  if(track->algo()==reco::TrackBase::iter7)myalgo=11;
+	  if(track->algo()==reco::TrackBase::initialStep)myalgo=4;
+	  if(track->algo()==reco::TrackBase::lowPtTripletStep)myalgo=5;
+	  if(track->algo()==reco::TrackBase::pixelPairStep)myalgo=6;
+	  if(track->algo()==reco::TrackBase::detachedTripletStep)myalgo=7;
+	  if(track->algo()==reco::TrackBase::mixedTripletStep)myalgo=8;
+	  if(track->algo()==reco::TrackBase::pixelLessStep)myalgo=9;
+	  if(track->algo()==reco::TrackBase::tobTecStep)myalgo=10;
+	  if(track->algo()==reco::TrackBase::jetCoreRegionalStep)myalgo=11;
 	  trkAlgo_[nTracks_]  = myalgo;
 
 	  int myquality=-99;

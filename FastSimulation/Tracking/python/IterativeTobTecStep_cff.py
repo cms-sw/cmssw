@@ -71,7 +71,7 @@ tobTecStepTracks = cms.EDProducer("FastTrackMerger",
                                                                                   cms.InputTag("detachedTripletStepTracks"),    
                                                                                   cms.InputTag("mixedTripletStepTracks"),     
                                                                                   cms.InputTag("pixelLessStepTracks")),   
-                                  trackAlgo = cms.untracked.uint32(10), # iter6
+                                  trackAlgo = cms.untracked.uint32(10), # tobTecStep
                                   MinNumberOfTrajHits = cms.untracked.uint32(6), # was 4
                                   MaxLostTrajHits = cms.untracked.uint32(0)
                                   )
