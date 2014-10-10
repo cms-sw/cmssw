@@ -1,6 +1,6 @@
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianCurvilinearToCartesian.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
-#include "DataFormats/GeometryVector/interface/jacobians.h"
+#include "DataFormats/GeometryVector/interface/TrackingJacobians.h"
 
 JacobianCurvilinearToCartesian::
 JacobianCurvilinearToCartesian(const GlobalTrajectoryParameters& globalParameters) :
