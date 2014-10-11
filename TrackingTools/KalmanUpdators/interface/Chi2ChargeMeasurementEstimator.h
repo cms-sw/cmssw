@@ -29,7 +29,7 @@ public:
    *  to define acceptance of Plane and maximalLocalDisplacement.
    */
   explicit Chi2ChargeMeasurementEstimator(double maxChi2, double nSigma,
-	bool cutOnPixelCharge, bool cutOnStripCharge, double minGoodPixelCharge, double minGoodStripCharge,
+	bool cutOnPixelCharge, bool cutOnStripCharge, float minGoodPixelCharge, float minGoodStripCharge,
 	float pTChargeCutThreshold = 100000.) : 
     Chi2MeasurementEstimator( maxChi2, nSigma), cutOnPixelCharge_(cutOnPixelCharge),
     cutOnStripCharge_(cutOnStripCharge), minGoodPixelCharge_(minGoodPixelCharge),

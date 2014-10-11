@@ -37,7 +37,7 @@ bool Chi2ChargeMeasurementEstimator::preFilter(const TrajectoryStateOnSurface& t
                                                const TrackingRecHit& hit) const {
   auto detid = hit.geographicalId();
 
-  if (ts.globalMomentum ().perp2()>pTChargeCutThreshold2_) return true;
+  if (ts.globalMomentum().perp2()>pTChargeCutThreshold2_) return true;
  
   uint32_t subdet = detid.subdetId();
 

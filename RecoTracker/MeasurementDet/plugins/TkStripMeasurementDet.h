@@ -179,7 +179,7 @@ public:
     bool isCompatible(false);
     for(auto vl : vlv) {
       SiStripRecHit2D recHit(vl.first, vl.second, fastGeomDet(), cluster);
-      if (!est.preFilter(ltp, recHit)) return true;  // we know is on the cluster... 
+      if (!est.preFilter(ltp, recHit)) continue; // return true;  // we know is on the cluster... 
       std::pair<bool,double> diffEst = est.estimate(ltp, recHit);
       LogDebug("TkStripMeasurementDet")<<" chi2=" << diffEst.second;
       if ( diffEst.first ) {
@@ -202,7 +202,7 @@ public:
     bool isCompatible(false);
     for(auto vl : vlv) {
       auto && recHit  = SiStripRecHit2D( vl.first, vl.second, gdu, cluster);
-      if (!est.preFilter(ltp, recHit)) return true;  //	we know	is on the cluster...
+      if (!est.preFilter(ltp, recHit)) continue; // return true;  //	we know	is on the cluster...
       std::pair<bool,double> diffEst = est.estimate(ltp, recHit);
       LogDebug("TkStripMeasurementDet")<<" chi2=" << diffEst.second;
       if ( diffEst.first ) {
