@@ -130,8 +130,9 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
    }
 
    inputCollectionLabels_ = iConfig.getParameter<std::vector<edm::InputTag> >("inputCollectionLabels");
-   inputCollectionTypes_  = iConfig.getParameter<std::vector<std::string> >("inputCollectionTypes");
-   if (inputCollectionLabels_.size() != inputCollectionTypes_.size())
+   auto inputCollectionTypes  = iConfig.getParameter<std::vector<std::string> >("inputCollectionTypes");
+   inputCollectionTypes_.resize(inputCollectionTypes.size());
+   if (inputCollectionLabels_.size() != inputCollectionTypes.size())
      throw cms::Exception("ConfigurationError") << "Number of input collection labels is different from number of types. " <<
      "For each collection label there should be exactly one collection type specified.";
    if (inputCollectionLabels_.size()>7 ||inputCollectionLabels_.empty())
@@ -161,37 +162,44 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
 
    //Consumes... UGH
    for ( unsigned int i = 0; i < inputCollectionLabels_.size(); ++i ) {
-      if ( inputCollectionTypes_[i] == "inner tracks" ) {
-	innerTrackCollectionToken_ = consumes<reco::TrackCollection>(inputCollectionLabels_.at(i));
-	 continue;
+      if ( inputCollectionTypes[i] == "inner tracks" ) {
+         innerTrackCollectionToken_ = consumes<reco::TrackCollection>(inputCollectionLabels_.at(i));
+         inputCollectionTypes_[i] = InputTypes::inner_tracks;
+         continue;
       }
-      if ( inputCollectionTypes_[i] == "outer tracks" ) {
-	outerTrackCollectionToken_ = consumes<reco::TrackCollection>(inputCollectionLabels_.at(i));
-	 continue;
+      if ( inputCollectionTypes[i] == "outer tracks" ) {
+         outerTrackCollectionToken_ = consumes<reco::TrackCollection>(inputCollectionLabels_.at(i));
+         inputCollectionTypes_[i] = InputTypes::outer_tracks;
+         continue;
       }
-      if ( inputCollectionTypes_[i] == "links" ) {
-	linkCollectionToken_ = consumes<reco::MuonTrackLinksCollection>(inputCollectionLabels_.at(i));
-	 continue;
+      if ( inputCollectionTypes[i] == "links" ) {
+         linkCollectionToken_ = consumes<reco::MuonTrackLinksCollection>(inputCollectionLabels_.at(i));
+         inputCollectionTypes_[i] = InputTypes::links;
+         continue;
       }
-      if ( inputCollectionTypes_[i] == "muons" ) {
-	muonCollectionToken_ = consumes<reco::MuonCollection>(inputCollectionLabels_.at(i));
-	 continue;
+      if ( inputCollectionTypes[i] == "muons" ) {
+         muonCollectionToken_ = consumes<reco::MuonCollection>(inputCollectionLabels_.at(i));
+         inputCollectionTypes_[i] = InputTypes::muons;
+         continue;
       }
-      if ( fillGlobalTrackRefits_  && inputCollectionTypes_[i] == "tev firstHit" ) {
-	tpfmsCollectionToken_ = consumes<reco::TrackToTrackMap>(inputCollectionLabels_.at(i));
-	 continue;
+      if ( fillGlobalTrackRefits_  && inputCollectionTypes[i] == "tev firstHit" ) {
+         tpfmsCollectionToken_ = consumes<reco::TrackToTrackMap>(inputCollectionLabels_.at(i));
+         inputCollectionTypes_[i] = InputTypes::tev_firstHit;
+         continue;
       }
 
-      if ( fillGlobalTrackRefits_  && inputCollectionTypes_[i] == "tev picky" ) {
-	pickyCollectionToken_ = consumes<reco::TrackToTrackMap>(inputCollectionLabels_.at(i));
-	 continue;
+      if ( fillGlobalTrackRefits_  && inputCollectionTypes[i] == "tev picky" ) {
+         pickyCollectionToken_ = consumes<reco::TrackToTrackMap>(inputCollectionLabels_.at(i));
+         inputCollectionTypes_[i] = InputTypes::tev_picky;
+         continue;
       }
 
-      if ( fillGlobalTrackRefits_  && inputCollectionTypes_[i] == "tev dyt" ) {
-	dytCollectionToken_ = consumes<reco::TrackToTrackMap>(inputCollectionLabels_.at(i));
-	 continue;
+      if ( fillGlobalTrackRefits_  && inputCollectionTypes[i] == "tev dyt" ) {
+         dytCollectionToken_ = consumes<reco::TrackToTrackMap>(inputCollectionLabels_.at(i));
+         inputCollectionTypes_[i] = InputTypes::tev_dyt;
+         continue;
       }
-      throw cms::Exception("FatalError") << "Unknown input collection type: " << inputCollectionTypes_[i];
+      throw cms::Exception("FatalError") << "Unknown input collection type: " << inputCollectionTypes[i];
    }
 
 
@@ -228,35 +236,35 @@ void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if (fillTrackerKink_) trackerKinkFinder_->init(iSetup);
 
    for ( unsigned int i = 0; i < inputCollectionLabels_.size(); ++i ) {
-      if ( inputCollectionTypes_[i] == "inner tracks" ) {
+      if ( inputCollectionTypes_[i] == InputTypes::inner_tracks ) {
 	 iEvent.getByToken(innerTrackCollectionToken_, innerTrackCollectionHandle_);
 	 if (! innerTrackCollectionHandle_.isValid()) 
 	   throw cms::Exception("FatalError") << "Failed to get input track collection with label: " << inputCollectionLabels_[i];
 	 LogTrace("MuonIdentification") << "Number of input inner tracks: " << innerTrackCollectionHandle_->size();
 	 continue;
       }
-      if ( inputCollectionTypes_[i] == "outer tracks" ) {
+      if ( inputCollectionTypes_[i] == InputTypes::outer_tracks ) {
 	 iEvent.getByToken(outerTrackCollectionToken_, outerTrackCollectionHandle_);
 	 if (! outerTrackCollectionHandle_.isValid()) 
 	   throw cms::Exception("FatalError") << "Failed to get input track collection with label: " << inputCollectionLabels_[i];
 	 LogTrace("MuonIdentification") << "Number of input outer tracks: " << outerTrackCollectionHandle_->size();
 	 continue;
       }
-      if ( inputCollectionTypes_[i] == "links" ) {
+      if ( inputCollectionTypes_[i] == InputTypes::links ) {
 	 iEvent.getByToken(linkCollectionToken_, linkCollectionHandle_);
 	 if (! linkCollectionHandle_.isValid()) 
 	   throw cms::Exception("FatalError") << "Failed to get input link collection with label: " << inputCollectionLabels_[i];
 	 LogTrace("MuonIdentification") << "Number of input links: " << linkCollectionHandle_->size();
 	 continue;
       }
-      if ( inputCollectionTypes_[i] == "muons" ) {
+      if ( inputCollectionTypes_[i] == InputTypes::muons ) {
 	 iEvent.getByToken(muonCollectionToken_, muonCollectionHandle_);
 	 if (! muonCollectionHandle_.isValid()) 
 	   throw cms::Exception("FatalError") << "Failed to get input muon collection with label: " << inputCollectionLabels_[i];
 	 LogTrace("MuonIdentification") << "Number of input muons: " << muonCollectionHandle_->size();
 	 continue;
       }
-      if ( fillGlobalTrackRefits_  && inputCollectionTypes_[i] == "tev firstHit" ) {
+      if ( fillGlobalTrackRefits_  && inputCollectionTypes_[i] == InputTypes::tev_firstHit ) {
 	 iEvent.getByToken(tpfmsCollectionToken_, tpfmsCollectionHandle_);
 	 if (! tpfmsCollectionHandle_.isValid()) 
 	   throw cms::Exception("FatalError") << "Failed to get input muon collection with label: " << inputCollectionLabels_[i];
@@ -264,7 +272,7 @@ void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 continue;
       }
 
-      if ( fillGlobalTrackRefits_  && inputCollectionTypes_[i] == "tev picky" ) {
+      if ( fillGlobalTrackRefits_  && inputCollectionTypes_[i] == InputTypes::tev_picky ) {
 	 iEvent.getByToken(pickyCollectionToken_, pickyCollectionHandle_);
 	 if (! pickyCollectionHandle_.isValid()) 
 	   throw cms::Exception("FatalError") << "Failed to get input muon collection with label: " << inputCollectionLabels_[i];
@@ -272,7 +280,7 @@ void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 continue;
       }
 
-      if ( fillGlobalTrackRefits_  && inputCollectionTypes_[i] == "tev dyt" ) {
+      if ( fillGlobalTrackRefits_  && inputCollectionTypes_[i] == InputTypes::tev_dyt ) {
 	 iEvent.getByToken(dytCollectionToken_, dytCollectionHandle_);
 	 if (! dytCollectionHandle_.isValid()) 
 	   throw cms::Exception("FatalError") << "Failed to get input muon collection with label: " << inputCollectionLabels_[i];
@@ -568,6 +576,13 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // tracker and calo muons are next
    if ( innerTrackCollectionHandle_.isValid() ) {
       LogTrace("MuonIdentification") << "Creating tracker muons";
+
+      std::vector<TrackDetectorAssociator::Direction> directionsForSplit(2);
+      std::vector<TrackDetectorAssociator::Direction> directionsForNonSplit(1);
+      directionsForSplit[0] = TrackDetectorAssociator::InsideOut;
+      directionsForSplit[1] = TrackDetectorAssociator::OutsideIn;
+      directionsForNonSplit[0] = TrackDetectorAssociator::Any;
+
       for ( unsigned int i = 0; i < innerTrackCollectionHandle_->size(); ++i )
 	{
 	   const reco::Track& track = innerTrackCollectionHandle_->at(i);
@@ -576,18 +591,11 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   if ( track.extra().isAvailable() &&
 		TrackDetectorAssociator::crossedIP( track ) ) splitTrack = true;
 	   std::vector<TrackDetectorAssociator::Direction> directions;
-	   if ( splitTrack ) {
-	      directions.push_back(TrackDetectorAssociator::InsideOut);
-	      directions.push_back(TrackDetectorAssociator::OutsideIn);
-	   } else {
-	      directions.push_back(TrackDetectorAssociator::Any);
-	   }
-	   for ( std::vector<TrackDetectorAssociator::Direction>::const_iterator direction = directions.begin();
-		 direction != directions.end(); ++direction )
+     for ( auto direction : (splitTrack ? directionsForSplit : directionsForNonSplit ) )
 	     {
 		// make muon
 	       reco::Muon trackerMuon( makeMuon(iEvent, iSetup, reco::TrackRef( innerTrackCollectionHandle_, i ), reco::Muon::InnerTrack ) );
-		fillMuonId(iEvent, iSetup, trackerMuon, *direction);
+		fillMuonId(iEvent, iSetup, trackerMuon, direction);
 
 		if ( debugWithTruthMatching_ ) {
 		   // add MC hits to a list of matched segments.

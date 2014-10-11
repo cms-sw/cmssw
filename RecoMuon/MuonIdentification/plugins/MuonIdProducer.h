@@ -118,8 +118,15 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
    TrackDetectorAssociator trackAssociator_;
    TrackAssociatorParameters parameters_;
    
+   struct InputTypes {
+      enum Types {
+         inner_tracks, outer_tracks, links, muons,
+         tev_firstHit, tev_picky, tev_dyt,
+         SIZE
+      };
+   };
    std::vector<edm::InputTag> inputCollectionLabels_;
-   std::vector<std::string>   inputCollectionTypes_;
+   std::vector<InputTypes::Types> inputCollectionTypes_;
 
    MuonTimingFiller* theTimingFiller_;
 
