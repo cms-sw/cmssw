@@ -30,7 +30,7 @@ public:
    */
   explicit Chi2ChargeMeasurementEstimator(double maxChi2, double nSigma,
 	bool cutOnPixelCharge, bool cutOnStripCharge, float minGoodPixelCharge, float minGoodStripCharge,
-	float pTChargeCutThreshold = 100000.) : 
+	float pTChargeCutThreshold) : 
     Chi2MeasurementEstimator( maxChi2, nSigma), cutOnPixelCharge_(cutOnPixelCharge),
     cutOnStripCharge_(cutOnStripCharge), minGoodPixelCharge_(minGoodPixelCharge),
     minGoodStripCharge_(minGoodStripCharge) {

@@ -13,7 +13,7 @@
 
 bool Chi2ChargeMeasurementEstimator::checkClusterCharge(DetId id, const SiStripCluster  & cluster, const TrajectoryStateOnSurface& ts) const
 {
-    return siStripClusterTools::chargePerCM(id, cluster.amplitudes().begin(), cluster.amplitudes().end(), ts.localParameters() ) >  minGoodPixelCharge_;
+    return siStripClusterTools::chargePerCM(id, cluster.amplitudes().begin(), cluster.amplitudes().end(), ts.localParameters() ) >  minGoodStripCharge_;
 }
 
 bool Chi2ChargeMeasurementEstimator::checkCharge(const TrackingRecHit& aRecHit, const TrajectoryStateOnSurface& ts) const
@@ -23,8 +23,7 @@ bool Chi2ChargeMeasurementEstimator::checkCharge(const TrackingRecHit& aRecHit, 
 
   if (aRecHit.getRTTI() == 4) {
     const SiStripMatchedRecHit2D & matchHit = static_cast<const SiStripMatchedRecHit2D &>(hit);
-    return checkClusterCharge(id, matchHit.monoCluster(),ts )
-         &&checkClusterCharge(id, matchHit.stereoCluster(),ts);
+    return checkClusterCharge(id, matchHit.monoCluster(),ts ) && checkClusterCharge(id, matchHit.stereoCluster(),ts);
   } else {
     auto const & thit = static_cast<const BaseTrackerRecHit &>(hit);
     auto const & clus = thit.firstClusterRef();
@@ -52,5 +51,3 @@ bool Chi2ChargeMeasurementEstimator::preFilter(const TrajectoryStateOnSurface& t
 
   return true;
 }
-
-
