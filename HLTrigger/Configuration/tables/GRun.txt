@@ -10,12 +10,12 @@ HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v*			# JIRA: CMSHLT-63, updated by CMSHLT-71
 HLT_Mu40_v*						# JIRA: CMSHLT-64, updated by CMSHLT-86
 HLT_Mu17_Mu8_v*						# JIRA: CMSHLT-64, updated by CMSHLT-86
 HLT_Mu17_TkMu8_v*					# JIRA: CMSHLT-64, updated by CMSHLT-86
-HLT_IsoMu24_IterTrk02_v*				# JIRA: CMSHLT-64, updated by CMSHLT-86
+#HLT_IsoMu24_IterTrk02_v*				# JIRA: CMSHLT-64, updated by CMSHLT-86, dropped from GRun in CMSHLT-125
 HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v*			# JIRA: CMSHLT-64, updated by CMSHLT-86
 HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v*			# JIRA: CMSHLT-64, updated by CMSHLT-86
 #HLT_Mu17_NoFilters_v*					# JIRA: CMSHLT-64, updated by CMSHLT-86 -> TEMPLATE PATH, not for GRun
 
-HLT_IsoTkMu24_IterTrk02_v*				# JIRA: CMSHLT-72
+#HLT_IsoTkMu24_IterTrk02_v*				# JIRA: CMSHLT-72, dropped from GRun in CMSHLT-125
 
 #HLT_BTagCSV07_v*					# JIRA: CMSHLT-66 -> TEMPLATE PATH, not for GRun
 
@@ -34,11 +34,11 @@ HLT_PFJet260_v*						# JIRA: CMSHLT-67 -> TEMPLATE PATH, allowed in GRun by CMSH
 #HLT_IterativeTracking_v*				# JIRA: CMSHLT-68 -> TEMPLATE PATH, not for GRun
 HLT_ReducedIterativeTracking_v*				# JIRA: CMSHLT-68, updated by CMSHLT-107 -> TEMPLATE PATH, in GRun but prescaled to 0
 
-HLT_IsoMu24_IterTrk02_TriCentralPFJet60_50_35_v*	# JIRA: CMSHLT-77, updated by CMSHLT-111
-HLT_IsoMu24_IterTrk02_TriCentralPFJet40_v*		# JIRA: CMSHLT-77, updated by CMSHLT-111
+#HLT_IsoMu24_IterTrk02_TriCentralPFJet60_50_35_v*	# JIRA: CMSHLT-77, updated by CMSHLT-111, dropped from master in CMSHLT-125
+#HLT_IsoMu24_IterTrk02_TriCentralPFJet40_v*		# JIRA: CMSHLT-77, updated by CMSHLT-111, dropped from master in CMSHLT-125
 HLT_Ele27_eta2p1_WP85_Gsf_TriCentralPFJet40_v*		# JIRA: CMSHLT-77, updated by CMSHLT-91 and by CMSHLT-111, renamed by CMSHLT-115
 HLT_Ele27_eta2p1_WP85_Gsf_TriCentralPFJet60_50_35_v*	# JIRA: CMSHLT-77, updated by CMSHLT-91 and by CMSHLT-111, renamed by CMSHLT-115
-HLT_IsoMu24_IterTrk02_CentralPFJet30_BTagCSV_v*		# JIRA: CMSHLT-77, updated by CMSHLT-111
+#HLT_IsoMu24_IterTrk02_CentralPFJet30_BTagCSV_v*		# JIRA: CMSHLT-77, updated by CMSHLT-111, dropped from master in CMSHLT-125 
 HLT_Ele27_eta2p1_WP85_Gsf_CentralPFJet30_BTagCSV_v*	# JIRA: CMSHLT-77, updated by CMSHLT-91 and by CMSHLT-111, renamed by CMSHLT-115
 
 HLT_Ele23_Ele12_CaloId_TrackId_Iso_v*			  	# JIRA: CMSHLT-78
