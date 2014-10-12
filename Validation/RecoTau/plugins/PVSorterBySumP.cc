@@ -33,7 +33,7 @@ public:
 
 private:  
   // member data
-  edm::InputTag              src_;  
+  edm::EDGetTokenT<std::vector<T1> >               src_;  
 };
 
 
@@ -45,7 +45,7 @@ private:
 //______________________________________________________________________________
 template<typename T1>
 bestPVselector<T1>::bestPVselector(const edm::ParameterSet& iConfig)
-  : src_(iConfig.getParameter<edm::InputTag>("src"))
+  : src_(consumes<std::vector<T1> >(iConfig.getParameter<edm::InputTag>("src")))
 {
   produces<std::vector<T1> >();
 }
@@ -66,7 +66,7 @@ void bestPVselector<T1>::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
   std::auto_ptr<std::vector<T1> > theBestPV(new std::vector<T1 >);
   
   edm::Handle< std::vector<T1> > VertexHandle;
-  iEvent.getByLabel(src_,VertexHandle);
+  iEvent.getByToken(src_,VertexHandle);
   
   if( VertexHandle->size() == 0 ) 
   {
