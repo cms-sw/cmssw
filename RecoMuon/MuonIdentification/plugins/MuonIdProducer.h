@@ -198,5 +198,9 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
    bool arbClean_;
    MuonMesh* meshAlgo_;
 
+private:
+   //Caching Handles for speed up
+   edm::Handle<RPCRecHitCollection> rpcRecHitHandle_;
+
 };
 #endif

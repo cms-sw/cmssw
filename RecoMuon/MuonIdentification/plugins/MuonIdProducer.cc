@@ -583,6 +583,8 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       directionsForSplit[1] = TrackDetectorAssociator::OutsideIn;
       directionsForNonSplit[0] = TrackDetectorAssociator::Any;
 
+      iEvent.getByToken(rpcHitToken_, rpcRecHitHandle_);
+
       for ( unsigned int i=0, n=innerTrackCollectionHandle_->size(); i<n; ++i )
       {
          reco::TrackRef track(innerTrackCollectionHandle_, i);
@@ -863,16 +865,13 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
    }
    if ( ! fillMatching_ && ! aMuon.isTrackerMuon() && ! aMuon.isRPCMuon() ) return;
 
-  edm::Handle<RPCRecHitCollection> rpcRecHits;
-  iEvent.getByToken(rpcHitToken_, rpcRecHits);
-
    // fill muon match info
    std::vector<reco::MuonChamberMatch> muonChamberMatches;
    unsigned int nubmerOfMatchesAccordingToTrackAssociator = 0;
    for( std::vector<TAMuonChamberMatch>::const_iterator chamber=info.chambers.begin();
 	chamber!=info.chambers.end(); chamber++ )
      {
-       if  (chamber->id.subdetId() == 3 && rpcRecHits.isValid()  ) continue; // Skip RPC chambers, they are taken care of below)
+       if  (chamber->id.subdetId() == 3 && rpcRecHitHandle_.isValid()  ) continue; // Skip RPC chambers, they are taken care of below)
 	reco::MuonChamberMatch matchedChamber;
 
 	LocalError localError = chamber->tState.localError().positionError();
@@ -939,7 +938,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
      }
 
   // Fill RPC info
-  if ( rpcRecHits.isValid() )
+  if ( rpcRecHitHandle_.isValid() )
   {
 
    for( std::vector<TAMuonChamberMatch>::const_iterator chamber=info.chambers.begin();
@@ -968,8 +967,8 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
 
       matchedChamber.id = chamber->id;
 
-      for ( RPCRecHitCollection::const_iterator rpcRecHit = rpcRecHits->begin();
-            rpcRecHit != rpcRecHits->end(); ++rpcRecHit )
+      for ( RPCRecHitCollection::const_iterator rpcRecHit = rpcRecHitHandle_->begin();
+            rpcRecHit != rpcRecHitHandle_->end(); ++rpcRecHit )
       {
         reco::MuonRPCHitMatch rpcHitMatch;
 
