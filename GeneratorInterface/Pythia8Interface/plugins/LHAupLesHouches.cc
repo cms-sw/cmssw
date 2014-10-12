@@ -67,9 +67,6 @@ bool LHAupLesHouches::setEvent(int inProcId, double mRecalculate)
   
   unsigned int iscale = 0;
   for(int i = 0; i < hepeup.NUP; i++) {
-    //override spinup flag if so configured
-    double spinup = (std::abs(hepeup.IDUP[i])==15 && ignoreTauSpinUp_) ? 9. : hepeup.SPINUP[i];
-        
     //retrieve scale corresponding to each particle
     double scalein = -1.;
     
@@ -90,7 +87,7 @@ bool LHAupLesHouches::setEvent(int inProcId, double mRecalculate)
                 hepeup.PUP[i][0], hepeup.PUP[i][1],
                 hepeup.PUP[i][2], hepeup.PUP[i][3],
                 hepeup.PUP[i][4], hepeup.VTIMUP[i],
-                spinup, scalein);
+                hepeup.SPINUP[i],scalein);
   }
   
   infoPtr->eventAttributes->clear();

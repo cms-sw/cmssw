@@ -12,8 +12,6 @@ Py8InterfaceBase::Py8InterfaceBase( edm::ParameterSet const& ps )
   fMasterGen.reset(new Pythia);
   fDecayer.reset(new Pythia);
 
-  fMasterGen->settings.addFlag("ParticleDecays:tauIgnoreSpinUpCMSSW",false);
-  
   fMasterGen->readString("Next:numberShowEvent = 0");
   fDecayer->readString("Next:numberShowEvent = 0");
 
