@@ -583,63 +583,63 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       directionsForSplit[1] = TrackDetectorAssociator::OutsideIn;
       directionsForNonSplit[0] = TrackDetectorAssociator::Any;
 
-      for ( unsigned int i = 0; i < innerTrackCollectionHandle_->size(); ++i )
-	{
-	   const reco::Track& track = innerTrackCollectionHandle_->at(i);
-	   if ( ! isGoodTrack( track ) ) continue;
-	   bool splitTrack = false;
-	   if ( track.extra().isAvailable() &&
-		TrackDetectorAssociator::crossedIP( track ) ) splitTrack = true;
-	   std::vector<TrackDetectorAssociator::Direction> directions;
-     for ( auto direction : (splitTrack ? directionsForSplit : directionsForNonSplit ) )
-	     {
-		// make muon
-	       reco::Muon trackerMuon( makeMuon(iEvent, iSetup, reco::TrackRef( innerTrackCollectionHandle_, i ), reco::Muon::InnerTrack ) );
-		fillMuonId(iEvent, iSetup, trackerMuon, direction);
+      for ( unsigned int i=0, n=innerTrackCollectionHandle_->size(); i<n; ++i )
+      {
+         reco::TrackRef track(innerTrackCollectionHandle_, i);
+         if ( ! isGoodTrack( *track ) ) continue;
+         bool splitTrack = false;
+         if ( track->extra().isAvailable() &&
+              TrackDetectorAssociator::crossedIP( *track ) ) splitTrack = true;
+         std::vector<TrackDetectorAssociator::Direction> directions;
+         for ( auto direction : (splitTrack ? directionsForSplit : directionsForNonSplit ) )
+         {
+            // make muon
+            reco::Muon trackerMuon( makeMuon(iEvent, iSetup, track, reco::Muon::InnerTrack ) );
+            fillMuonId(iEvent, iSetup, trackerMuon, direction);
 
-		if ( debugWithTruthMatching_ ) {
-		   // add MC hits to a list of matched segments.
-		   // Since it's debugging mode - code is slow
-		   MuonIdTruthInfo::truthMatchMuon(iEvent, iSetup, trackerMuon);
-		}
+            if ( debugWithTruthMatching_ ) {
+               // add MC hits to a list of matched segments.
+               // Since it's debugging mode - code is slow
+               MuonIdTruthInfo::truthMatchMuon(iEvent, iSetup, trackerMuon);
+            }
 
-		// check if this muon is already in the list
-		// have to check where muon hits are really located
-		// to match properly
-		bool newMuon = true;
-		bool goodTrackerMuon = isGoodTrackerMuon( trackerMuon );
-		bool goodRPCMuon = isGoodRPCMuon( trackerMuon );
-		if ( goodTrackerMuon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::TrackerMuon );
-		if ( goodRPCMuon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::RPCMuon );
-		for ( reco::MuonCollection::iterator muon = outputMuons->begin();
-		      muon !=  outputMuons->end(); ++muon )
-		  {
-		     if ( muon->innerTrack().get() == trackerMuon.innerTrack().get() &&
-			  cos(phiOfMuonIneteractionRegion(*muon) -
-			      phiOfMuonIneteractionRegion(trackerMuon)) > 0 )
-		       {
-			  newMuon = false;
-			  muon->setMatches( trackerMuon.matches() );
-			  if (trackerMuon.isTimeValid()) muon->setTime( trackerMuon.time() );
-			  if (trackerMuon.isEnergyValid()) muon->setCalEnergy( trackerMuon.calEnergy() );
-			  if (goodTrackerMuon) muon->setType( muon->type() | reco::Muon::TrackerMuon );
-			  if (goodRPCMuon) muon->setType( muon->type() | reco::Muon::RPCMuon );
-			  LogTrace("MuonIdentification") << "Found a corresponding global muon. Set energy, matches and move on";
-			  break;
-		       }
-		  }
-		if ( newMuon ) {
-		   if ( goodTrackerMuon || goodRPCMuon ){
-		      outputMuons->push_back( trackerMuon );
-		   } else {
-		      LogTrace("MuonIdentification") << "track failed minimal number of muon matches requirement";
-		      const reco::CaloMuon& caloMuon = makeCaloMuon(trackerMuon);
-		      if ( ! caloMuon.isCaloCompatibilityValid() || caloMuon.caloCompatibility() < caloCut_ || caloMuon.p() < minPCaloMuon_) continue;
-		      caloMuons->push_back( caloMuon );
-		   }
-		}
-	     }
-	}
+            // check if this muon is already in the list
+            // have to check where muon hits are really located
+            // to match properly
+            bool newMuon = true;
+            bool goodTrackerMuon = isGoodTrackerMuon( trackerMuon );
+            bool goodRPCMuon = isGoodRPCMuon( trackerMuon );
+            if ( goodTrackerMuon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::TrackerMuon );
+            if ( goodRPCMuon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::RPCMuon );
+            for ( reco::MuonCollection::iterator muon = outputMuons->begin();
+                  muon !=  outputMuons->end(); ++muon )
+            {
+               if ( muon->innerTrack().get() == trackerMuon.innerTrack().get() &&
+                    cos(phiOfMuonIneteractionRegion(*muon) -
+                    phiOfMuonIneteractionRegion(trackerMuon)) > 0 )
+               {
+                  newMuon = false;
+                  muon->setMatches( trackerMuon.matches() );
+                  if (trackerMuon.isTimeValid()) muon->setTime( trackerMuon.time() );
+                  if (trackerMuon.isEnergyValid()) muon->setCalEnergy( trackerMuon.calEnergy() );
+                  if (goodTrackerMuon) muon->setType( muon->type() | reco::Muon::TrackerMuon );
+                  if (goodRPCMuon) muon->setType( muon->type() | reco::Muon::RPCMuon );
+                  LogTrace("MuonIdentification") << "Found a corresponding global muon. Set energy, matches and move on";
+                  break;
+               }
+            }
+            if ( newMuon ) {
+               if ( goodTrackerMuon || goodRPCMuon ){
+                  outputMuons->push_back( trackerMuon );
+               } else {
+                  LogTrace("MuonIdentification") << "track failed minimal number of muon matches requirement";
+                  const reco::CaloMuon& caloMuon = makeCaloMuon(trackerMuon);
+                  if ( ! caloMuon.isCaloCompatibilityValid() || caloMuon.caloCompatibility() < caloCut_ || caloMuon.p() < minPCaloMuon_) continue;
+                  caloMuons->push_back( caloMuon );
+               }
+            }
+         }
+      }
    }
 
    // and at last the stand alone muons
