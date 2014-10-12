@@ -26,10 +26,14 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.Timing = cms.Service("Timing")
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+#old style, to be removed soon
+#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.globaltag = "GR_R_70_V1::All"
 #process.GlobalTag.globaltag = 'FT_R_53_V21::All'
-process.GlobalTag.globaltag = 'PRE_DES72_V6::All'
+
+#use GTs without ::All with the next line
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+process.GlobalTag.globaltag = 'PRE_DES72_V6'
 
 process.load("Configuration.StandardSequences.GeometryIdeal_cff")
 

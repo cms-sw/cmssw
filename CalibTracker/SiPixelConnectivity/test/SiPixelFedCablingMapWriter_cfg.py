@@ -5,10 +5,16 @@ process.load("CondCore.DBCommon.CondDBCommon_cfi")
 process.CondDBCommon.connect = cms.string("sqlite_file:cabling.db")
 
 process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+
+#old style, to be removed soon
+#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+#process.GlobalTag.globaltag = 'MC_72_V2::All'
+
+#use GTs without ::All with the next line
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['run2_design']
-#process.GlobalTag.globaltag = 'MC_72_V2::All'
+process.GlobalTag.globaltag = 'PRE_DES72_V6'
 
 process.source = cms.Source("EmptyIOVSource",
     timetype = cms.string('runnumber'),
