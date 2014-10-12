@@ -447,8 +447,9 @@ TkGluedMeasurementDet::HitCollectorForRecHits::addProjected(const TrackingRecHit
 void
 TkGluedMeasurementDet::HitCollectorForSimpleHits::add(SiStripMatchedRecHit2D const & hit2d) 
 {
-  hasNewHits_ = true; //FIXME: see also what happens moving this within testAndPush
+  // hasNewHits_ = true; //FIXME: see also what happens moving this within testAndPush
   if ( !est_.preFilter(stateOnThisDet_, hit2d) ) return; 
+  hasNewHits_ = true; //FIXME: see also what happens moving this within testAndPush
 
   std::pair<bool,double> diffEst = est_.estimate( stateOnThisDet_, hit2d);
   if (!diffEst.first) return;
@@ -490,9 +491,10 @@ TkGluedMeasurementDet::HitCollectorForFastMeasurements::HitCollectorForFastMeasu
 void
 TkGluedMeasurementDet::HitCollectorForFastMeasurements::add(SiStripMatchedRecHit2D const& hit2d) 
 {
-  hasNewHits_ = true; //FIXME: see also what happens moving this within testAndPush
+  // hasNewHits_ = true; //FIXME: see also what happens moving this within testAndPush
   if ( !est_.preFilter(stateOnThisDet_, hit2d) ) return;
 
+  hasNewHits_ = true; //FIXME: see also what happens moving this within testAndPush
   std::pair<bool,double> diffEst = est_.estimate( stateOnThisDet_, hit2d);
   if (diffEst.first)
     target_.add(std::move(hit2d.cloneSH()),diffEst.second);
