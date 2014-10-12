@@ -1,4 +1,35 @@
-#include "TrackingTools/KalmanUpdators/interface/Chi2ChargeMeasurementEstimatorESProducer.h"
+/** \class Chi2ChargeMeasurementEstimatorESProducer
+ *  ESProducer for Chi2ChargeMeasurementEstimator.
+ *
+ *  \author speer
+ */
+
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/KalmanUpdators/interface/Chi2ChargeMeasurementEstimator.h"
+#include <boost/shared_ptr.hpp>
+
+class  Chi2ChargeMeasurementEstimatorESProducer: public edm::ESProducer{
+ public:
+  Chi2ChargeMeasurementEstimatorESProducer(const edm::ParameterSet & p);
+  virtual ~Chi2ChargeMeasurementEstimatorESProducer(); 
+  boost::shared_ptr<Chi2MeasurementEstimatorBase> produce(const TrackingComponentsRecord &);
+ private:
+  boost::shared_ptr<Chi2MeasurementEstimatorBase> _estimator;
+  edm::ParameterSet pset_;
+
+  double maxChi2_;
+  double nSigma_;
+  bool cutOnPixelCharge_;
+  bool cutOnStripCharge_;
+  double minGoodPixelCharge_; 
+  double minGoodStripCharge_;
+  float pTChargeCutThreshold_;
+
+};
+
+
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
@@ -40,4 +71,6 @@ Chi2ChargeMeasurementEstimatorESProducer::produce(const TrackingComponentsRecord
   return _estimator;
 }
 
+#include "FWCore/Framework/interface/ModuleFactory.h"
+DEFINE_FWK_EVENTSETUP_MODULE(Chi2ChargeMeasurementEstimatorESProducer);
 

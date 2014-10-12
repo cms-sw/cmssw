@@ -20,6 +20,8 @@ class TrackingRecHit;
 class MeasurementEstimator {
 public:
 
+  struct OpaquePayload { virtual ~OpaquePayload(){} };
+
   typedef Vector2DBase< float, LocalTag>    Local2DVector;
 
   virtual ~MeasurementEstimator() {}
@@ -41,8 +43,7 @@ public:
    * (that usually computes the compatibility of the Trajectory with the Hit)
    * 
    */
-  virtual bool preFilter(const TrajectoryStateOnSurface& ts,
-                                  const TrackingRecHit& hit) const { return true;}
+  virtual bool preFilter(const TrajectoryStateOnSurface&, OpaquePayload const &) const { return true;}
 
 
   /** Returns true if the TrajectoryStateOnSurface is compatible with the
