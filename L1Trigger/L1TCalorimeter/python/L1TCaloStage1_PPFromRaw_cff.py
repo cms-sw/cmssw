@@ -39,6 +39,10 @@ l1ExtraLayer2.htMissSource  = cms.InputTag("caloStage1LegacyFormatDigis")
 l1ExtraLayer2.hfRingEtSumsSource    = cms.InputTag("caloStage1LegacyFormatDigis")
 l1ExtraLayer2.hfRingBitCountsSource = cms.InputTag("caloStage1LegacyFormatDigis")
 
+## update l1ExtraLayer2 muon tag
+l1ExtraLayer2.muonSource = cms.InputTag("simGmtDigis")
+
+
 # the sequence
 L1TCaloStage1_PPFromRaw = cms.Sequence(
     L1TRerunHCALTP_FromRAW

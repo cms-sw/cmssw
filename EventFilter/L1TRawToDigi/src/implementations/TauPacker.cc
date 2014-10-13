@@ -33,7 +33,7 @@ namespace l1t {
 namespace l1t {
    TauPacker::TauPacker(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc)
    {
-      tauToken_ = cc.consumes<TauBxCollection>(cfg.getParameter<edm::InputTag>("Taus"));
+      tauToken_ = cc.consumes<TauBxCollection>(cfg.getParameter<edm::InputTag>("InputLabel"));
    }
 
    Blocks

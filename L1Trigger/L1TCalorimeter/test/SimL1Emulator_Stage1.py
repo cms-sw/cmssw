@@ -52,12 +52,17 @@ process.simGtDigis = simGtDigis.clone()
 process.simGtDigis.GmtInputTag = 'simGmtDigis'
 process.simGtDigis.GctInputTag = 'caloStage1LegacyFormatDigis'
 process.simGtDigis.TechnicalTriggersInputTags = cms.VInputTag( )
+##
 
+process.load('EventFilter/L1TRawToDigi/l1tDigiToRaw_cfi')
+process.load('EventFilter/L1TRawToDigi/l1tRawToDigi_cfi')
 
 process.p1 = cms.Path(
     process.L1TCaloStage1_PPFromRaw
     +process.simGtDigis
     +process.l1ExtraLayer2
+    +process.l1tDigiToRaw
+    +process.l1tRawToDigi
     )
 
 process.output_step = cms.EndPath(process.output)

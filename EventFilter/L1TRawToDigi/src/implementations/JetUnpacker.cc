@@ -1,49 +1,21 @@
-#include "DataFormats/L1Trigger/interface/Jet.h"
-
-#include "FWCore/Framework/interface/one/EDProducerBase.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "EventFilter/L1TRawToDigi/interface/UnpackerFactory.h"
+#include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
+
+#include "CaloCollections.h"
 
 namespace l1t {
-   class JetUnpacker : public BaseUnpacker {
+   class JetUnpacker : public Unpacker {
       public:
-         JetUnpacker(const edm::ParameterSet&, edm::Event&);
-         ~JetUnpacker();
-         virtual bool unpack(const unsigned char *data, const unsigned block_id, const unsigned size) override;
-      private:
-         edm::Event& ev_;
-         std::auto_ptr<JetBxCollection> res_;
-   };
-
-   class JetUnpackerFactory : public BaseUnpackerFactory {
-      public:
-         JetUnpackerFactory(const edm::ParameterSet&, edm::one::EDProducerBase&);
-         virtual std::vector<UnpackerItem> create(edm::Event&, const unsigned& fw, const int fedid);
-
-      private:
-         const edm::ParameterSet& cfg_;
-         edm::one::EDProducerBase& prod_;
+         virtual bool unpack(const unsigned block_id, const unsigned size, const unsigned char *data, UnpackerCollections *coll) override;
    };
 }
 
 // Implementation
 
 namespace l1t {
-   JetUnpacker::JetUnpacker(const edm::ParameterSet& cfg, edm::Event& ev) :
-      ev_(ev),
-      res_(new JetBxCollection())
-   {
-   };
-
-   JetUnpacker::~JetUnpacker()
-   {
-      ev_.put(res_);
-   };
-
    bool
-   JetUnpacker::unpack(const unsigned char *data, const unsigned block_id, const unsigned size)
+   JetUnpacker::unpack(const unsigned block_id, const unsigned size, const unsigned char *data, UnpackerCollections *coll)
    {
 
      LogDebug("L1T") << "Block ID  = " << block_id << " size = " << size;
@@ -59,6 +31,7 @@ namespace l1t {
        lastBX = ceil((double)nBX/2.);
      }
 
+     auto res_ = static_cast<CaloCollections*>(coll)->getJets();
      res_->setBXRange(firstBX, lastBX);
 
      LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
@@ -96,27 +69,6 @@ namespace l1t {
 
      return true;
    }
-
-   JetUnpackerFactory::JetUnpackerFactory(const edm::ParameterSet& cfg, edm::one::EDProducerBase& prod) : cfg_(cfg), prod_(prod)
-   {
-      prod_.produces<JetBxCollection>();
-   }
-
-   std::vector<UnpackerItem>
-   JetUnpackerFactory::create(edm::Event& ev, const unsigned& fw, const int fedid) {
-
-     // This unpacker is only appropriate for the Demux card output (FED ID=1). Anything else should not be unpacked.                                                     
-     if (fedid==1){
-
-       return {std::make_pair(5, std::shared_ptr<BaseUnpacker>(new JetUnpacker(cfg_, ev)))};
-
-     } else {
-
-       return {};
-
-     }
-
-   };
 }
 
-DEFINE_L1TUNPACKER(l1t::JetUnpackerFactory);
+DEFINE_L1T_UNPACKER(l1t::JetUnpacker);

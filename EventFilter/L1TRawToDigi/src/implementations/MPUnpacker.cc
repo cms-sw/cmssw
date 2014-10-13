@@ -1,58 +1,27 @@
-#include "DataFormats/L1Trigger/interface/Jet.h"
-#include "DataFormats/L1Trigger/interface/EtSum.h"
-
-#include "FWCore/Framework/interface/one/EDProducerBase.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "EventFilter/L1TRawToDigi/interface/UnpackerFactory.h"
+#include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
+
+#include "CaloCollections.h"
 
 namespace l1t {
-   class MPUnpacker : public BaseUnpacker {
+   class MPUnpacker : public Unpacker {
       public:
-         MPUnpacker(const edm::ParameterSet&, edm::Event&);
-         ~MPUnpacker();
-         virtual bool unpack(const unsigned char *data, const unsigned block_id, const unsigned size) override;
-      private:
-         edm::Event& ev_;
-         std::auto_ptr<JetBxCollection> res1_;
-         std::auto_ptr<EtSumBxCollection> res2_;
-
-   };
-
-   class MPUnpackerFactory : public BaseUnpackerFactory {
-      public:
-         MPUnpackerFactory(const edm::ParameterSet&, edm::one::EDProducerBase&);
-         virtual std::vector<UnpackerItem> create(edm::Event&, const unsigned& fw, const int fedid);
-
-      private:
-         const edm::ParameterSet& cfg_;
-         edm::one::EDProducerBase& prod_;
+         virtual bool unpack(const unsigned block_id, const unsigned size, const unsigned char *data, UnpackerCollections *coll) override;
    };
 }
 
 // Implementation
 
 namespace l1t {
-   MPUnpacker::MPUnpacker(const edm::ParameterSet& cfg, edm::Event& ev) :
-      ev_(ev),
-      res1_(new JetBxCollection()),
-      res2_(new EtSumBxCollection())
-   {
-   };
-
-   MPUnpacker::~MPUnpacker()
-   {
-      ev_.put(res1_);
-      ev_.put(res2_);
-   };
-
    bool
-   MPUnpacker::unpack(const unsigned char *data, const unsigned block_id, const unsigned size)
+   MPUnpacker::unpack(const unsigned block_id, const unsigned size, const unsigned char *data, UnpackerCollections *coll)
    {
 
      LogDebug("L1T") << "Block ID  = " << block_id << " size = " << size;
 
+     auto res1_ = static_cast<CaloCollections*>(coll)->getMPJets();
+     auto res2_ = static_cast<CaloCollections*>(coll)->getMPEtSums();
      res1_->setBXRange(0,1);
      res2_->setBXRange(0,1);
 
@@ -120,42 +89,6 @@ namespace l1t {
 
      return true;
    }
-
-   MPUnpackerFactory::MPUnpackerFactory(const edm::ParameterSet& cfg, edm::one::EDProducerBase& prod) : cfg_(cfg), prod_(prod)
-   {
-      prod_.produces<JetBxCollection>("MP");
-      prod_.produces<EtSumBxCollection>("MP");
-   }
-
-   std::vector<UnpackerItem>
-   MPUnpackerFactory::create(edm::Event& ev, const unsigned& fw, const int fedid) {
-
-     // This unpacker is only appropriate for the Main Processor output (FED ID=2). Anything else should not be unpacked.
-     
-     if (fedid==2){
-
-       std::vector<UnpackerItem> linkMap;
-    
-       auto unpacker = std::shared_ptr<BaseUnpacker>(new MPUnpacker(cfg_, ev));
-
-       // Six links are used to output the data
-       
-       linkMap.push_back(std::make_pair(1, unpacker));
-       linkMap.push_back(std::make_pair(3, unpacker));
-       linkMap.push_back(std::make_pair(5, unpacker));
-       linkMap.push_back(std::make_pair(7, unpacker));
-       linkMap.push_back(std::make_pair(9, unpacker));
-       linkMap.push_back(std::make_pair(11, unpacker));
-
-       return linkMap;
-
-     } else {
-
-       return {};
-
-     }
-
-   };
 }
 
-DEFINE_L1TUNPACKER(l1t::MPUnpackerFactory);
+DEFINE_L1T_UNPACKER(l1t::MPUnpacker);
