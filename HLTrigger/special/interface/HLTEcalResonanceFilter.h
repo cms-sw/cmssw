@@ -8,7 +8,7 @@ Description: Producer for EcalRecHits to be used for pi0/eta ECAL calibration.
 */
 //
 // Original Authors:  Vladimir Litvine , Yong Yang
-// Modified by: Joshua Hardenbrook 10-8-2014
+
 
 // system include files
 #include <memory>
@@ -125,81 +125,50 @@ class HLTEcalResonanceFilter : public edm::EDFilter {
       std::string ESHits_;
       
       
-      /// ---------BARREL CONFIGURATION 
+      ///for pi0/eta ->gg barrel
       bool doSelBarrel_; 
-  
-      // EB region 1 
-      double region1_Barrel_;
-      double selePtGammaBarrel_region1_; 
-      double selePtPairBarrel_region1_;
-      double seleS4S9GammaBarrel_region1_;
-      double seleIsoBarrel_region1_;
-
-      // EB region 2
-      double selePtGammaBarrel_region2_; 
-      double selePtPairBarrel_region2_;
-      double seleS4S9GammaBarrel_region2_;
-      double seleIsoBarrel_region2_;
-
+      double selePtGamma_;
+      double selePtPair_;
       double seleMinvMaxBarrel_;
       double seleMinvMinBarrel_;
-
-      //      double selePtGamma_;
-      //      double selePtPair_;
-      //      double seleS4S9Gamma_;
-      //      double seleIso_;
+      double seleS4S9Gamma_;
       double seleS9S25Gamma_;
-
-      // EB Isolation Configuraiton
       double seleBeltDR_;
       double seleBeltDeta_;
+      double seleIso_;
       double ptMinForIsolation_; 
-
       bool removePi0CandidatesForEta_; 
       double massLowPi0Cand_; 
       double massHighPi0Cand_; 
-      bool store5x5RecHitEB_;      
-
+      bool store5x5RecHitEB_;
+      
+      //for pi0/eta ->gg endcap
       bool doSelEndcap_; 
-
-      // EE region 1 
       double region1_EndCap_;
       double selePtGammaEndCap_region1_; 
       double selePtPairEndCap_region1_;
-      double seleS4S9GammaEndCap_region1_;
-      double seleIsoEndCap_region1_;
-
-      // EE region 2
       double region2_EndCap_;
       double selePtGammaEndCap_region2_; 
       double selePtPairEndCap_region2_;
-      double seleS4S9GammaEndCap_region2_;
-      double seleIsoEndCap_region2_;
-
-      // EE region 3
       double selePtGammaEndCap_region3_; 
       double selePtPairEndCap_region3_;
       double selePtPairMaxEndCap_region3_;
-      double seleS4S9GammaEndCap_region3_;
-      double seleIsoEndCap_region3_;
-
       double seleMinvMaxEndCap_;
       double seleMinvMinEndCap_;
-      // double seleS4S9GammaEndCap_; //old non-regional filter
-      // double seleIsoEndCap_; //old non-regional filter
-
+      double seleS4S9GammaEndCap_;
       double seleS9S25GammaEndCap_;
-
-      // EE isolation configuration
+      double seleIsoEndCap_;
       double seleBeltDREndCap_;
       double seleBeltDetaEndCap_;
       double ptMinForIsolationEndCap_; 
       bool store5x5RecHitEE_;
-            
+      
+      
       bool useRecoFlag_; 
       bool useDBStatus_; 
       int flagLevelRecHitsToUse_; 
-      int statusLevelRecHitsToUse_;      
+      int statusLevelRecHitsToUse_;
+      
         
       bool storeRecHitES_; 
       edm::InputTag preshHitProducer_;         // name of module/plugin/producer producing hits
@@ -211,10 +180,13 @@ class HLTEcalResonanceFilter : public edm::EDFilter {
       double mip_;
       double gamma_;
       
-      PreshowerClusterAlgo * presh_algo_; // algorithm doing the real work            
+      PreshowerClusterAlgo * presh_algo_; // algorithm doing the real work
+      
+      
       
       std::map<DetId, EcalRecHit> m_esrechit_map;
-      std::set<DetId> m_used_strips;      
+      std::set<DetId> m_used_strips;
+      
       
       int debug_; 
 };
