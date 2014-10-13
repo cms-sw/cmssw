@@ -12,11 +12,10 @@
 #include "CondFormats/DataRecord/interface/EcalSampleMaskRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTimeCalibConstantsRcd.h"
 #include "CondFormats/DataRecord/interface/EcalTimeOffsetConstantRcd.h"
-#include "CondFormats/DataRecord/interface/EcalTimeBiasCorrectionsRcd.h"
 
 
-EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::ParameterSet&ps,edm::ConsumesCollector& c) :
-  EcalUncalibRecHitWorkerBaseClass(ps,c),
+EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::ParameterSet&ps) :
+  EcalUncalibRecHitWorkerBaseClass(ps),
   noisecorEBg12(10), noisecorEEg12(10),
   noisecorEBg6(10), noisecorEEg6(10),
   noisecorEBg1(10), noisecorEEg1(10),
@@ -119,8 +118,6 @@ EcalUncalibRecHitWorkerMultiFit::set(const edm::EventSetup& es)
         es.get<EcalTimeCalibConstantsRcd>().get(itime);
         es.get<EcalTimeOffsetConstantRcd>().get(offtime);
 
-        // for the time correction methods
-        es.get<EcalTimeBiasCorrectionsRcd>().get(timeCorrBias_);
 }
 
 /**
@@ -295,8 +292,7 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
                     ratioMethod_endcap_.computeTime( EEtimeFitParameters_, EEtimeFitLimits_, EEamplitudeFitParameters_ );
                     ratioMethod_endcap_.computeAmplitude( EEamplitudeFitParameters_);
                     EcalUncalibRecHitRatioMethodAlgo<EEDataFrame>::CalculatedRecHit crh = ratioMethod_endcap_.getCalculatedRecHit();
-                    double theTimeCorrectionEE = timeCorrection(uncalibRecHit.amplitude(),
-                                                                timeCorrBias_->EETimeCorrAmplitudeBins, timeCorrBias_->EETimeCorrShiftBins);
+                    double theTimeCorrectionEE = 0.;
                     
                     uncalibRecHit.setJitter( crh.timeMax - 5 + theTimeCorrectionEE);
                     uncalibRecHit.setJitterError( std::sqrt(pow(crh.timeError,2) + std::pow(EEtimeConstantTerm_,2)/std::pow(clockToNsConstant,2)) );
@@ -308,8 +304,7 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
                     ratioMethod_barrel_.computeAmplitude( EBamplitudeFitParameters_);
                     EcalUncalibRecHitRatioMethodAlgo<EBDataFrame>::CalculatedRecHit crh = ratioMethod_barrel_.getCalculatedRecHit();
                     
-                    double theTimeCorrectionEB = timeCorrection(uncalibRecHit.amplitude(),
-                                                                timeCorrBias_->EBTimeCorrAmplitudeBins, timeCorrBias_->EBTimeCorrShiftBins);
+                    double theTimeCorrectionEB = 0.;
                     
                     uncalibRecHit.setJitter( crh.timeMax - 5 + theTimeCorrectionEB);
                     

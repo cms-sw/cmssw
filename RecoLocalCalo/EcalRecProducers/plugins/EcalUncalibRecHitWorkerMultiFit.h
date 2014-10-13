@@ -24,7 +24,6 @@
 #include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
 #include "CondFormats/EcalObjects/interface/EcalTBWeights.h"
 #include "CondFormats/EcalObjects/interface/EcalSampleMask.h"
-#include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
 
 
 namespace edm {
@@ -36,7 +35,7 @@ namespace edm {
 class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass {
 
         public:
-                EcalUncalibRecHitWorkerMultiFit(const edm::ParameterSet&, edm::ConsumesCollector& c);
+                EcalUncalibRecHitWorkerMultiFit(const edm::ParameterSet&);
 				//EcalUncalibRecHitWorkerMultiFit(const edm::ParameterSet&);
                 virtual ~EcalUncalibRecHitWorkerMultiFit() {};
 
@@ -101,8 +100,6 @@ class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass 
 
                 double EBtimeConstantTerm_;
                 double EEtimeConstantTerm_;
-
-                edm::ESHandle<EcalTimeBiasCorrections> timeCorrBias_;
 
                 // leading edge method
                 edm::ESHandle<EcalTimeCalibConstants> itime;
