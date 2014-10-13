@@ -37,6 +37,7 @@ class HLTDoubletDZ : public HLTFilter {
   ~HLTDoubletDZ();
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override; 
+  bool getCollections(edm::Event& iEvent, std::vector<T1Ref>& coll1, std::vector<T2Ref>& coll2, trigger::TriggerFilterObjectWithRefs & filterproduct) const;
   
  private:
   // configuration
