@@ -180,7 +180,8 @@ void HcalPacker::pack(int fedid, int dccnumber,
 					pipeline,
 					samples,
 					presamples,
-					firmwareRev);
+					firmwareRev,
+					1);  // need non-zero falvor
       if (haveUnsuppressed) {
 	spigots[spigot].packUnsuppressed(channelIsMP);
       }
