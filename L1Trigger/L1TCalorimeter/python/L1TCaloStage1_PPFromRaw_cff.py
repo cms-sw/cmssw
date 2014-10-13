@@ -23,7 +23,7 @@ rctUpgradeFormatDigis.emTag = cms.InputTag("simRctDigis")
 
 # GT
 from L1Trigger.Configuration.SimL1Emulator_cff import simGtDigis
-simGtDigis.GmtInputTag = 'gtDigis'
+simGtDigis.GmtInputTag = 'simGmtDigis'
 simGtDigis.GctInputTag = 'caloStage1LegacyFormatDigis'
 simGtDigis.TechnicalTriggersInputTags = cms.VInputTag( )
 
