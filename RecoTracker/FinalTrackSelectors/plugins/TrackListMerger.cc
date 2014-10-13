@@ -434,9 +434,8 @@ namespace {
 
       rh1[i].reserve(validHits) ;
       auto compById = [](IHit const &  h1, IHit const & h2) {return h1.first < h2.first;};
-      // fh1[i] = &(**track->recHitsBegin());
       for (trackingRecHit_iterator it = track->recHitsBegin();  it != track->recHitsEnd(); ++it) {
-	const TrackingRecHit* hit = &(**it);
+	const TrackingRecHit* hit = (*it);
 	unsigned int id = hit->rawId() ;
 	if(hit->geographicalId().subdetId()>2)  id &= (~3); // mask mono/stereo in strips...
 	if likely(hit->isValid()) { rh1[i].emplace_back(id,hit); std::push_heap(rh1[i].begin(),rh1[i].end(),compById); }
@@ -763,11 +762,10 @@ namespace {
 
 	// fill TrackingRecHits
 	unsigned nh1=track->recHitsSize();
-	for ( unsigned ih=0; ih<nh1; ++ih ) {
-	  //const TrackingRecHit*hit=&((*(track->recHit(ih))));
-	  outputTrkHits->push_back( track->recHit(ih)->clone() );
-	  tx.add( TrackingRecHitRef( refTrkHits, outputTrkHits->size() - 1) );
-	}
+        tx.setHits(refTrkHits,outputTrkHits->size(),nh1);
+        for (auto hh = track->recHitsBegin(), eh=track->recHitsEnd(); hh!=eh; ++hh ) {
+          outputTrkHits->push_back( (*hh)->clone() );
+        }
       }
       trackRefs[i] = reco::TrackRef(refTrks, outputTrks->size() - 1);
 

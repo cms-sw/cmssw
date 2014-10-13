@@ -108,6 +108,7 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
     forest_ = nullptr;
 
     src_ = consumes<reco::TrackCollection>(cfg.getParameter<edm::InputTag>( "src" ));
+    hSrc_ = consumes<TrackingRecHitCollection>(cfg.getParameter<edm::InputTag>( "src" ));
     beamspot_ = consumes<reco::BeamSpot>(cfg.getParameter<edm::InputTag>( "beamspot" ));
     useVertices_ = cfg.getParameter<bool>( "useVertices" );
     useVtxError_ = cfg.getParameter<bool>( "useVtxError" );
@@ -251,6 +252,12 @@ void AnalyticalTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) 
 
   // Get tracks 
   evt.getByToken( src_, hSrcTrack );
+  // get hits in track..
+  Handle<TrackingRecHitCollection> hSrcHits;
+  evt.getByToken( hSrc_, hSrcHits );
+  const TrackingRecHitCollection & srcHits(*hSrcHits);
+
+
 
   selTracks_ = auto_ptr<TrackCollection>(new TrackCollection());
   rTracks_ = evt.getRefBeforePut<TrackCollection>();      
@@ -276,7 +283,7 @@ void AnalyticalTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) 
 
     float mvaVal = 0;
     if(useAnyMVA_)mvaVal = mvaVals_[current];
-    bool ok = select(0,vertexBeamSpot, trk, points, vterr, vzerr,mvaVal);
+    bool ok = select(0,vertexBeamSpot, srcHits, trk, points, vterr, vzerr,mvaVal);
     if (!ok) {
 
       LogTrace("TrackSelection") << "track with pt="<< trk.pt() << " NOT selected";
