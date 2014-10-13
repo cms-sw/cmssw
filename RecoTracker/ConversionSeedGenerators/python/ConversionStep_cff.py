@@ -217,12 +217,23 @@ convCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
         minPt = 0.1
     )
 
+
+import RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimatorESProducer_cfi
+convStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimatorESProducer_cfi.Chi2ChargeMeasurementEstimator.clone(
+    ComponentName = cms.string('convStepChi2Est'),
+    nSigma = cms.double(3.0),
+    MaxChi2 = cms.double(30.0),
+    minGoodStripCharge = cms.double(2069)
+)
+
+
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 convCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     trajectoryFilter = cms.PSet(refToPSet_ = cms.string('convCkfTrajectoryFilter')),
     minNrOfHitsForRebuild = 3,
-    maxCand = 1
+    maxCand = 1,
+    estimator = cms.string('convStepChi2Est')
     )
 
 # MAKING OF TRACK CANDIDATES
