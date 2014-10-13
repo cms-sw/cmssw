@@ -14,25 +14,9 @@ def customiseL1EmulatorFromRaw(process):
     # (GMT digis produced by same module as the GT digis, as GT and GMT have common unpacker)
     ## process.simRpcTechTrigDigis.RPCDigiLabel = 'muonRPCDigis'
 
-    # RCT
-    # HCAL input would be from hcalDigis if hack not needed
-    from L1Trigger.Configuration.SimL1Emulator_cff import simRctDigis
-    simRctDigis.ecalDigis = cms.VInputTag( cms.InputTag( 'ecalDigis:EcalTriggerPrimitives' ) )
-    simRctDigis.hcalDigis = cms.VInputTag( cms.InputTag( 'simHcalTriggerPrimitiveDigis' ) )
+    ## 2015 L1 Calo Emulator
+    process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_PPFromRaw_cff')
 
-    # stage 1 itself
-    from L1Trigger.L1TCalorimeter.L1TCaloStage1_cff import rctUpgradeFormatDigis
-    ## process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_cff')
-    rctUpgradeFormatDigis.regionTag = cms.InputTag("simRctDigis")
-    rctUpgradeFormatDigis.emTag = cms.InputTag("simRctDigis")
-
-    process.reEmulCaloChain = cms.Sequence(
-        process.L1TRerunHCALTP_FromRAW +
-        process.ecalDigis +
-        process.simRctDigis +
-        process.L1TCaloStage1
-        )
-    
     ### 2015 L1 Muon Emulator
     from L1Trigger.DTTrackFinder.dttfDigis_cfi import dttfDigis
     process.dttfReEmulDigis       = dttfDigis.clone()
@@ -42,15 +26,8 @@ def customiseL1EmulatorFromRaw(process):
     from L1Trigger.RPCTrigger.rpcTriggerDigis_cfi import rpcTriggerDigis
     process.rpcTriggerReEmulDigis = rpcTriggerDigis.clone()
 
-    ## remove for 720pre7 and beyond
-    patternDirectory = "L1Trigger/L1TCommon/data/rpc_patterns/xml/"
-
     process.load("L1TriggerConfig.RPCTriggerConfig.RPCConeDefinition_cff")
-    process.load("L1TriggerConfig.RPCTriggerConfig.L1RPCConfig_cff")
     process.load("L1Trigger.RPCTrigger.RPCConeConfig_cff")
-    process.rpcconf.filedir = cms.untracked.string(patternDirectory)
-    process.es_prefer_rpcPats = cms.ESPrefer("RPCTriggerConfig","rpcconf")
-    ### end
 
     from SLHCUpgradeSimulations.Configuration.muonCustoms import customise_csc_L1Emulator_sim
     from L1Trigger.CSCTrackFinder.csctfDigis_cfi import csctfDigis
@@ -72,12 +49,6 @@ def customiseL1EmulatorFromRaw(process):
         * process.csctfReEmulTrackDigis
         * process.csctfReEmulDigis
     )
-
-    process.load('L1TriggerConfig.GMTConfigProducers.L1MuGMTParameters_cfi')
-    process.L1MuGMTParameters.MergeMethodPtBrl=cms.string("byCombi")
-    process.L1MuGMTParameters.MergeMethodPtFwd=cms.string("byCombi")
-    process.L1MuGMTParameters.VersionSortRankEtaQLUT = cms.uint32(1043)
-    process.L1MuGMTParameters.VersionLUTs = cms.uint32(1)
 
     from L1Trigger.GlobalMuonTrigger.gmtDigis_cfi import gmtDigis
     process.gmtReEmulDigis  = gmtDigis.clone()
@@ -104,30 +75,30 @@ def customiseL1EmulatorFromRaw(process):
 
     ## remove for 720pre7 and beyond
     ## use new muon LUTs
-    dttfFile='sqlite:dttf_config.db'
-    process.GlobalTag.toGet.extend(
-        cms.VPSet(cms.PSet(record = cms.string("L1MuDTEtaPatternLutRcd"),
-                           tag = cms.string("L1MuDTEtaPatternLut_CRAFT09_hlt"),
-                           connect = cms.untracked.string(dttfFile)
-                       ),
-                  cms.PSet(record = cms.string("L1MuDTExtLutRcd"),
-                           tag = cms.string("L1MuDTExtLut_CRAFT09_hlt"),
-                           connect = cms.untracked.string(dttfFile)
-                       ),
-                  cms.PSet(record = cms.string("L1MuDTPhiLutRcd"),
-                           tag = cms.string("L1MuDTPhiLut_CRAFT09_hlt"),
-                           connect = cms.untracked.string(dttfFile)
-                       ),
-                  cms.PSet(record = cms.string("L1MuDTPtaLutRcd"),
-                           tag = cms.string("L1MuDTPtaLut_CRAFT09_hlt"),
-                           connect = cms.untracked.string(dttfFile)
-                       ),
-                  cms.PSet(record = cms.string("L1MuDTQualPatternLutRcd"),
-                           tag = cms.string("L1MuDTQualPatternLut_CRAFT09_hlt"),
-                           connect = cms.untracked.string(dttfFile)
-                       )
-             )
-    )
+    ## dttfFile='sqlite:dttf_config.db'
+    ## process.GlobalTag.toGet.extend(
+    ##     cms.VPSet(cms.PSet(record = cms.string("L1MuDTEtaPatternLutRcd"),
+    ##                        tag = cms.string("L1MuDTEtaPatternLut_CRAFT09_hlt"),
+    ##                        connect = cms.untracked.string(dttfFile)
+    ##                    ),
+    ##               cms.PSet(record = cms.string("L1MuDTExtLutRcd"),
+    ##                        tag = cms.string("L1MuDTExtLut_CRAFT09_hlt"),
+    ##                        connect = cms.untracked.string(dttfFile)
+    ##                    ),
+    ##               cms.PSet(record = cms.string("L1MuDTPhiLutRcd"),
+    ##                        tag = cms.string("L1MuDTPhiLut_CRAFT09_hlt"),
+    ##                        connect = cms.untracked.string(dttfFile)
+    ##                    ),
+    ##               cms.PSet(record = cms.string("L1MuDTPtaLutRcd"),
+    ##                        tag = cms.string("L1MuDTPtaLut_CRAFT09_hlt"),
+    ##                        connect = cms.untracked.string(dttfFile)
+    ##                    ),
+    ##               cms.PSet(record = cms.string("L1MuDTQualPatternLutRcd"),
+    ##                        tag = cms.string("L1MuDTQualPatternLut_CRAFT09_hlt"),
+    ##                        connect = cms.untracked.string(dttfFile)
+    ##                    )
+    ##          )
+    ## )
     ## end
 
     # GT
@@ -138,7 +109,8 @@ def customiseL1EmulatorFromRaw(process):
 
     # run Calo TPGs, L1 GCT, technical triggers, L1 GT
     SimL1Emulator = cms.Sequence(
-        process.reEmulCaloChain +
+        ## process.reEmulCaloChain +
+        process.L1TCaloStage1_PPFromRaw +
         process.reEmulMuonChain +
         process.simGtDigis )
 

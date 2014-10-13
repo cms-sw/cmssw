@@ -97,6 +97,15 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
 
   EGammaToGtScales(params_, preGtEGammas, egammas);
 
+  const bool verbose = false;
+  if(verbose)
+  {
+    std::cout << "pt" << " " << "eta" << " " << "phi" << std::endl;
+    for(std::vector<l1t::EGamma>::const_iterator eg = egammas->begin(); eg != egammas->end(); ++eg)
+    {
+      std::cout << eg->hwPt() << " " << eg->hwEta() << " " << eg->hwPhi() << std::endl;
+    }
+  }
 
   //the EG candidates should be sorted, highest pT first.
   // do not truncate the EG list, GT converter handles that

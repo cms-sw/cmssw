@@ -51,6 +51,7 @@ std::vector<std::vector<l1t::Jet> > presort(std::vector<std::vector<l1t::Jet> > 
   dummyJet.setHwPt(0);
   dummyJet.setHwPhi(99);
   dummyJet.setHwEta(99);
+  dummyJet.setHwQual(4);
   std::vector<std::vector<l1t::Jet> > sorted_energies (rows, std::vector<l1t::Jet>(cols, dummyJet));
   if(verbose) print2DVector( sorted_energies );
 
@@ -89,7 +90,7 @@ std::vector<std::vector<l1t::Jet> > extract_sub_jet_energy_position_matrix(std::
   dummyJet.setHwPt(0);
   dummyJet.setHwPhi(99);
   dummyJet.setHwEta(99);
-
+  dummyJet.setHwQual(4);
   for(unsigned int i=0; i<row_f-row_i+1; i++){
     for(unsigned int j=0; j<col_f-col_i+1; j++){
       if(row_i+i > input_matrix.size()-1) output_matrix[i][j] = dummyJet;
@@ -115,7 +116,10 @@ std::vector<std::vector<l1t::Jet> > sort_matrix_rows(std::vector<std::vector<l1t
 
 std::vector<std::vector<l1t::Jet> > sort_by_row_in_groups(std::vector<std::vector<l1t::Jet> > input_matrix, int group_size){
   int n_groups = input_matrix.size()/group_size + (1 - input_matrix.size()/group_size*group_size/input_matrix.size()); //constants must make this an integer
-  std::vector<std::vector<l1t::Jet> > output_matrix(input_matrix.size()+(input_matrix.size() % group_size), std::vector<l1t::Jet> (input_matrix[0].size()));
+  //std::vector<std::vector<l1t::Jet> > output_matrix(input_matrix.size()+(input_matrix.size() % group_size), std::vector<l1t::Jet> (input_matrix[0].size()));
+  std::vector<std::vector<l1t::Jet> > output_matrix(input_matrix.size()
+                                     +(group_size*(1 - ((input_matrix.size()/group_size)*group_size)/input_matrix.size()))
+                                     -(input_matrix.size() % group_size), std::vector<l1t::Jet> (input_matrix[0].size()));
 
   for(int g=0; g<n_groups; g++){
     std::vector<std::vector<l1t::Jet> > small_output_matrix = extract_sub_jet_energy_position_matrix(input_matrix, g*group_size, (g+1)*group_size-1, 0, input_matrix[0].size()-1 );
@@ -153,6 +157,7 @@ std::vector<l1t::Jet> array_from_row_sorted_matrix(std::vector<std::vector<l1t::
   dummyJet.setHwPt(0);
   dummyJet.setHwPhi(99);
   dummyJet.setHwEta(99);
+  dummyJet.setHwQual(4);
   for(unsigned int k=array_position; k<output_array.size(); k++){
     output_array[k]=dummyJet;
   }
@@ -315,6 +320,7 @@ namespace l1t{
     for(unsigned int i = 0; i < 4; ++i)
     {
       l1t::Jet intjet = hf_sorted_final_merged_plus_minus_forward_energies_matrix_sig[0][i];
+      intjet.setHwQual(intjet.hwQual() | 2);
       output->push_back(intjet);
     }
   }
