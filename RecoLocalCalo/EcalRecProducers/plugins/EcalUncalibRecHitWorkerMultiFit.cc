@@ -15,7 +15,7 @@
 
 
 EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::ParameterSet&ps) :
-  EcalUncalibRecHitWorkerBaseClass(ps,c),
+  EcalUncalibRecHitWorkerBaseClass(ps),
   noisecorEBg12(SampleMatrix::Zero()), noisecorEEg12(SampleMatrix::Zero()),
   noisecorEBg6(SampleMatrix::Zero()), noisecorEEg6(SampleMatrix::Zero()),
   noisecorEBg1(SampleMatrix::Zero()), noisecorEEg1(SampleMatrix::Zero()),
