@@ -35,9 +35,8 @@ void HLTElectronPFMTFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& 
   desc.add<double>("minMht",0.0);
   desc.add<double>("lowerMTCut",0.0);
   desc.add<double>("upperMTCut",9999.0);
-  descriptions.add("hltElectronPFMTFilter",desc);
+  descriptions.add(std::string("hlt")+std::string(typeid(HLTElectronPFMTFilter<T>).name()),desc);
 }
-
 
 template <typename T> 
 bool  HLTElectronPFMTFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const

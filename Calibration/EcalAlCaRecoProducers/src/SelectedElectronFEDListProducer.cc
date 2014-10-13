@@ -1,36 +1,36 @@
 #include "Calibration/EcalAlCaRecoProducers/interface/SelectedElectronFEDListProducer.h"
 
-SelectedElectronFEDListProducerv2::SelectedElectronFEDListProducerv2(const edm::ParameterSet & iConfig){
+SelectedElectronFEDListProducer::SelectedElectronFEDListProducer(const edm::ParameterSet & iConfig){
  
  // input electron collection
  if(iConfig.existsAs<std::vector<edm::InputTag> >("electronCollections")){
    electronCollections_ = iConfig.getParameter<std::vector<edm::InputTag>>("electronCollections");
    if(electronCollections_.empty()){
-      throw cms::Exception("Configuration")<<"[SelectedElectronFEDListProducer] empty electron collection is given --> at least one \n"; 
+      throw cms::Exception("Configuration")<<"empty electron collection is given --> at least one \n"; 
    }
  }
- else{ throw cms::Exception("Configuration")<<"[SelectedElectronFEDListProducer] no electron collection are given --> need at least one \n";  }
+ else{ throw cms::Exception("Configuration")<<"no electron collection are given --> need at least one \n";  }
 
  // input RecoEcalCandidate collection
  if(iConfig.existsAs<std::vector<edm::InputTag> >("recoEcalCandidateCollections")){
    recoEcalCandidateCollections_ = iConfig.getParameter<std::vector<edm::InputTag>>("recoEcalCandidateCollections");
    if(recoEcalCandidateCollections_.empty()){
-      throw cms::Exception("Configuration")<<"[SelectedElectronFEDListProducer] empty ecal candidate collections collection is given --> at least one \n"; 
+      throw cms::Exception("Configuration")<<"empty ecal candidate collections collection is given --> at least one \n"; 
    }
  }
- else{ throw cms::Exception("Configuration")<<"[SelectedElectronFEDListProducer] no electron reco ecal candidate collection are given --> need at least one \n";  }
+ else{ throw cms::Exception("Configuration")<<"no electron reco ecal candidate collection are given --> need at least one \n";  }
 
  // list of gsf collections
  if(iConfig.existsAs<std::vector<int>>("isGsfElectronCollection")){
     isGsfElectronCollection_ = iConfig.getParameter<std::vector<int>>("isGsfElectronCollection");
     if(isGsfElectronCollection_.empty()){
-      throw cms::Exception("Configuration")<<"[SelectedElectronFEDListProducer] empty electron flag collection --> at least one \n"; 
+      throw cms::Exception("Configuration")<<"empty electron flag collection --> at least one \n"; 
    }
  }
- else{ throw cms::Exception("Configuration")<<"[SelectedElectronFEDListProducer] no electron flag are given --> need at least one \n";  }
+ else{ throw cms::Exception("Configuration")<<"no electron flag are given --> need at least one \n";  }
 
  if(isGsfElectronCollection_.size() < electronCollections_.size()) 
-    throw cms::Exception("Configuration")<<"[SelectedElectronFEDListProducer] electron flag < electron collection  --> need at equal number to understand which are Gsf and which not \n";
+    throw cms::Exception("Configuration")<<"electron flag < electron collection  --> need at equal number to understand which are Gsf and which not \n";
 
  // add a set of selected feds
  if(iConfig.existsAs<std::vector<int>>("addThisSelectedFEDs")){
@@ -149,38 +149,38 @@ SelectedElectronFEDListProducerv2::SelectedElectronFEDListProducerv2(const edm::
 
  // only in debugging mode
  if(debug_){
-
-  std::cout<<"############################################################## "<<std::endl;
-
-  std::cout<<"[SelectedElectronFEDListProducer] output Label "<<outputLabelModule_<<std::endl; 
-
-  std::cout<<"[SelectedElectronFEDListProducer] beam spot Tag "<<beamSpotTag_<<std::endl;
-
-  std::cout<<"[SelectedElectronFEDListProducer] dumpEcalFedList set to "<<dumpSelectedEcalFed_<<" dumpSelectedSiStripFed "<<dumpSelectedSiStripFed_<<" dumpSelectedSiPixelFed "<<dumpSelectedSiPixelFed_<<std::endl;
-
-  std::cout<<"[SelectedElectronFEDListProducer] dumpAllEcalFed "<<dumpAllEcalFed_<<" dumpAllTrackerFed "<<dumpAllTrackerFed_<<" dump all HCAL fed "<<dumpAllHCALFed_<<std::endl;
-
-  std::cout<<"[SelectedElectronFEDListProducer] dRStripRegion "<<dRStripRegion_<<std::endl;
-
-  std::cout<<"[SelectedElectronFEDListProducer] dPhiPixelRegion "<<dPhiPixelRegion_<<" dEtaPixelRegion "<<dEtaPixelRegion_<<" maxZPixelRegion "<<maxZPixelRegion_<<std::endl;
-
-  std::cout<<"[SelectedElectronFEDListProducer] Electron Collections"<<std::endl;
-
+ 
+  LogDebug("SelectedElectronFEDListProducer")<<"############################################################## ";
+ 
+  LogDebug("SelectedElectronFEDListProducer")<<"output Label "<<outputLabelModule_; 
+ 
+  LogDebug("SelectedElectronFEDListProducer")<<"beam spot Tag "<<beamSpotTag_;
+ 
+  LogDebug("SelectedElectronFEDListProducer")<<"dumpEcalFedList set to "<<dumpSelectedEcalFed_<<" dumpSelectedSiStripFed "<<dumpSelectedSiStripFed_<<" dumpSelectedSiPixelFed "<<dumpSelectedSiPixelFed_;
+ 
+  LogDebug("SelectedElectronFEDListProducer")<<"dumpAllEcalFed "<<dumpAllEcalFed_<<" dumpAllTrackerFed "<<dumpAllTrackerFed_<<" dump all HCAL fed "<<dumpAllHCALFed_;
+ 
+  LogDebug("SelectedElectronFEDListProducer")<<"dRStripRegion "<<dRStripRegion_;
+ 
+  LogDebug("SelectedElectronFEDListProducer")<<"dPhiPixelRegion "<<dPhiPixelRegion_<<" dEtaPixelRegion "<<dEtaPixelRegion_<<" maxZPixelRegion "<<maxZPixelRegion_;
+ 
+  LogDebug("SelectedElectronFEDListProducer")<<"Electron Collections";
+ 
   std::vector<edm::InputTag>::const_iterator Tag = electronCollections_.begin();
   std::vector<int>::const_iterator Flag = isGsfElectronCollection_.begin();
   for( ; Tag !=electronCollections_.end() && Flag!=isGsfElectronCollection_.end() ; ++Tag , ++Flag)
-     std::cout<<"[SelectedElectronFEDListProducer] ele collection: "<<*(Tag)<<" isGsf "<<*(Flag)<<std::endl;
-
+     LogDebug("SelectedElectronFEDListProducer")<<"ele collection: "<<*(Tag)<<" isGsf "<<*(Flag);
+ 
   std::vector<edm::InputTag>::const_iterator Tag2 = recoEcalCandidateCollections_.begin();
   for( ; Tag2 !=recoEcalCandidateCollections_.end() ; ++Tag2)
-     std::cout<<"[SelectedElectronFEDListProducer] reco ecal candidate collection: "<<*(Tag2)<<std::endl;
-
+     LogDebug("SelectedElectronFEDListProducer")<<"reco ecal candidate collection: "<<*(Tag2);
+ 
   std::vector<int>::const_iterator AddFed = addThisSelectedFEDs_.begin();
   for( ; AddFed !=addThisSelectedFEDs_.end() ; ++AddFed)
-     std::cout<<"[SelectedElectronFEDListProducer] additional FED: "<<*(AddFed)<<std::endl;
+     LogDebug("SelectedElectronFEDListProducer")<<"additional FED: "<<*(AddFed);
      
-  std::cout<<"[SelectedElectronFEDListProducer] rawDataInput "<<rawDataLabel_<<std::endl; 
-
+  LogDebug("SelectedElectronFEDListProducer")<<"rawDataInput "<<rawDataLabel_; 
+ 
  }
  
  // initialize pre-shower fed id --> look up table
@@ -194,7 +194,7 @@ SelectedElectronFEDListProducerv2::SelectedElectronFEDListProducerv2(const edm::
  int nLines, iz, ip, ix, iy, fed, kchip, pace, bundle, fiber, optorx;
  std::ifstream ES_file;
  ES_file.open(ESLookupTable_.c_str());
- if(debug_) std::cout<<"[SelectedElectronFEDListProducer] Look Up table for ES "<<ESLookupTable_.c_str()<<std::endl;
+ if(debug_) LogDebug("SelectedElectronFEDListProducer")<<"Look Up table for ES "<<ESLookupTable_.c_str();
  if( ES_file.is_open() ) {
      ES_file >> nLines;
      for (int i=0; i<nLines; ++i) {
@@ -202,7 +202,7 @@ SelectedElectronFEDListProducerv2::SelectedElectronFEDListProducerv2(const edm::
        ES_fedId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = fed;
      }
  } 
- else std::cout<<"[SelectedElectronFEDListProducer] Look up table file can not be found in "<<ESLookupTable_.c_str() <<std::endl;
+ else LogDebug("SelectedElectronFEDListProducer")<<"Look up table file can not be found in "<<ESLookupTable_.c_str();
  
  ES_file.close();
  
@@ -212,7 +212,7 @@ SelectedElectronFEDListProducerv2::SelectedElectronFEDListProducerv2(const edm::
  std::ifstream HCAL_file;
  
  HCAL_file.open(HCALLookupTable_.c_str(),std::ios::in);
- if(debug_) std::cout<<"[SelectedElectronFEDListProducer] Look Up table for HCAL "<<HCALLookupTable_.c_str()<<std::endl;
+ if(debug_) LogDebug("SelectedElectronFEDListProducer")<<"Look Up table for HCAL "<<HCALLookupTable_.c_str();
  if( HCAL_file.is_open() ) {
    while(!HCAL_file.eof()) {
        getline(HCAL_file,buffer);     
@@ -230,17 +230,17 @@ SelectedElectronFEDListProducerv2::SelectedElectronFEDListProducerv2(const edm::
        HCAL_fedId_.push_back(fedId);
      }
  } 
- else std::cout<<"[SelectedElectronFEDListProducer] Look up table file can not be found in"<<HCALLookupTable_.c_str() <<std::endl;
+ else LogDebug("SelectedElectronFEDListProducer")<<"Look up table file can not be found in"<<HCALLookupTable_.c_str();
  HCAL_file.close();
  std::sort(HCAL_fedId_.begin(),HCAL_fedId_.end());
 
- if(debug_)  std::cout<<"############################################################## "<<std::endl;
+ if(debug_)  LogDebug("SelectedElectronFEDListProducer")<<"############################################################## ";
 
  produces<FEDRawDataCollection>(outputLabelModule_);
 
 }
 
-SelectedElectronFEDListProducerv2::~SelectedElectronFEDListProducerv2(){
+SelectedElectronFEDListProducer::~SelectedElectronFEDListProducer(){
 
  if(!electronCollections_.empty()) electronCollections_.clear() ;
  if(!recoEcalCandidateCollections_.empty()) recoEcalCandidateCollections_.clear() ;
@@ -249,18 +249,18 @@ SelectedElectronFEDListProducerv2::~SelectedElectronFEDListProducerv2(){
 
 }
 
-void SelectedElectronFEDListProducerv2::beginJob(){ 
+void SelectedElectronFEDListProducer::beginJob(){ 
  
-  if(debug_){ std::cout<<"############################################################## "<<std::endl;
-              std::cout<<"[SelectedElectronFEDListProducer] Begin of the Job ----> "<<std::endl;
-              std::cout<<"[SelectedElectronFEDListProducer] event counter set to "<<eventCounter_<<std::endl;
-	      std::cout<<"############################################################## "<<std::endl;
+  if(debug_){ LogDebug("SelectedElectronFEDListProducer")<<"############################################################## ";
+    LogDebug("SelectedElectronFEDListProducer")<<"Begin of the Job ----> ";
+    LogDebug("SelectedElectronFEDListProducer")<<"event counter set to "<<eventCounter_;
+    LogDebug("SelectedElectronFEDListProducer")<<"############################################################## ";
   }
   eventCounter_ = 0 ;
  
 } 
 
-void SelectedElectronFEDListProducerv2::produce(edm::Event & iEvent, const edm::EventSetup & iSetup){
+void SelectedElectronFEDListProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup){
   
   if(!fedList_.empty()) fedList_.clear(); 
   if(!RawDataCollection_) delete RawDataCollection_ ;
@@ -336,7 +336,7 @@ void SelectedElectronFEDListProducerv2::produce(edm::Event & iEvent, const edm::
   // take the beam spot position
   edm::Handle<reco::BeamSpot> beamSpot;
   iEvent.getByLabel(beamSpotTag_, beamSpot);
-  if(beamSpot.failedToGet()) throw cms::Exception("Configuration")<<"[SelectedElectronFEDListProducer] beam Spot not found in the event content -> exit \n";
+  if(beamSpot.failedToGet()) throw cms::Exception("Configuration")<<"beam Spot not found in the event content -> exit \n";
   beamSpotPosition_ = beamSpot->position();
 
 
@@ -348,7 +348,7 @@ void SelectedElectronFEDListProducerv2::produce(edm::Event & iEvent, const edm::
   // take the calo tower collection
   edm::Handle<HBHERecHitCollection>  hbheRecHitHandle;
   iEvent.getByLabel(HBHERecHitCollection_, hbheRecHitHandle);
-  if(hbheRecHitHandle.failedToGet()) throw cms::Exception("Configuration")<<"[SelectedElectronFEDListProducer] hbheRecHitHandle not found -> exit \n";
+  if(hbheRecHitHandle.failedToGet()) throw cms::Exception("Configuration")<<"hbheRecHitHandle not found -> exit \n";
   hcalRecHitCollection_ = hbheRecHitHandle.product();   
 
 
@@ -419,7 +419,7 @@ void SelectedElectronFEDListProducerv2::produce(edm::Event & iEvent, const edm::
             int hitFED = FEDNumbering::MINECALFEDID + TheMapping_->GetFED(double(point.eta()),double(point.phi())*radTodeg);
             if(hitFED < FEDNumbering::MINECALFEDID || hitFED > FEDNumbering::MAXECALFEDID) continue;
 
-            if(debug_) std::cout<<"[selectedElectronFEDListProducer] electron hit detID Barrel "<<(*itSChits).first.rawId()<<" eta "<<double(point.eta())<<" phi "<< double(point.phi())*radTodeg <<" FED "<<hitFED<<std::endl;
+            if(debug_) LogDebug("SelectedElectronFEDListProducer")<<"electron hit detID Barrel "<<(*itSChits).first.rawId()<<" eta "<<double(point.eta())<<" phi "<< double(point.phi())*radTodeg <<" FED "<<hitFED;
           
             if(dumpSelectedEcalFed_){
              if(!fedList_.empty()){ 
@@ -434,7 +434,7 @@ void SelectedElectronFEDListProducerv2::produce(edm::Event & iEvent, const edm::
              int hitFED = FEDNumbering::MINECALFEDID + TheMapping_->GetFED(double(point.eta()),double(point.phi())*radTodeg);
              if(hitFED < FEDNumbering::MINECALFEDID || hitFED > FEDNumbering::MAXECALFEDID) continue;
 
-             if(debug_) std::cout<<"[SelectedElectronFEDListProducer] electron hit detID Endcap "<<(*itSChits).first.rawId()<<" eta "<<double(point.eta())<<" phi "<<double(point.phi())*radTodeg <<" FED "<<hitFED<<std::endl;
+             if(debug_) LogDebug("SelectedElectronFEDListProducer")<<"electron hit detID Endcap "<<(*itSChits).first.rawId()<<" eta "<<double(point.eta())<<" phi "<<double(point.phi())*radTodeg <<" FED "<<hitFED;
              if(dumpSelectedEcalFed_){
               if(!fedList_.empty()){ 
                if(std::find(fedList_.begin(),fedList_.end(),hitFED)==fedList_.end()) fedList_.push_back(hitFED);
@@ -445,7 +445,7 @@ void SelectedElectronFEDListProducerv2::produce(edm::Event & iEvent, const edm::
               DetId tmpX = (dynamic_cast<const EcalPreshowerGeometry*>(geometry__ES_))->getClosestCellInPlane(point,1);
               ESDetId stripX = (tmpX == DetId(0)) ? ESDetId(0) : ESDetId(tmpX);          
               int hitFED = ES_fedId_[(3-stripX.zside())/2-1][stripX.plane()-1][stripX.six()-1][stripX.siy()-1];
-              if(debug_) std::cout<<"[SelectedElectronFEDListProducer] ES hit plane X (deiID) "<<stripX.rawId()<<" six "<<stripX.six()<<" siy "<<stripX.siy()<<" plane "<<stripX.plane()<<" FED ID "<<hitFED<<std::endl;
+              if(debug_) LogDebug("SelectedElectronFEDListProducer")<<"ES hit plane X (deiID) "<<stripX.rawId()<<" six "<<stripX.six()<<" siy "<<stripX.siy()<<" plane "<<stripX.plane()<<" FED ID "<<hitFED;
               if(hitFED < FEDNumbering::MINPreShowerFEDID || hitFED > FEDNumbering::MAXPreShowerFEDID) continue;
               if(hitFED < 0) continue;
               if(!fedList_.empty()){ 
@@ -457,7 +457,7 @@ void SelectedElectronFEDListProducerv2::produce(edm::Event & iEvent, const edm::
               ESDetId stripY = (tmpY == DetId(0)) ? ESDetId(0) : ESDetId(tmpY);          
               hitFED = ES_fedId_[(3-stripY.zside())/2-1][stripY.plane()-1][stripY.six()-1][stripY.siy()-1];
               if(hitFED < FEDNumbering::MINPreShowerFEDID || hitFED > FEDNumbering::MAXPreShowerFEDID) continue;
-              if(debug_) std::cout<<"[selectedElectronFEDListProducer] ES hit plane Y (deiID) "<<stripY.rawId()<<" six "<<stripY.six()<<" siy "<<stripY.siy()<<" plane "<<stripY.plane()<<" FED ID "<<hitFED<<std::endl;
+              if(debug_) LogDebug("SelectedElectronFEDListProducer")<<"ES hit plane Y (deiID) "<<stripY.rawId()<<" six "<<stripY.six()<<" siy "<<stripY.siy()<<" plane "<<stripY.plane()<<" FED ID "<<hitFED;
               if(hitFED < 0) continue;
               if(!fedList_.empty()){ 
                if(std::find(fedList_.begin(),fedList_.end(),hitFED)==fedList_.end()) fedList_.push_back(hitFED);
@@ -496,7 +496,7 @@ void SelectedElectronFEDListProducerv2::produce(edm::Event & iEvent, const edm::
 	      }
  	      int hitFED = (*itHcalFed).fed_;
               if(hitFED < FEDNumbering::MINHCALFEDID || hitFED > FEDNumbering::MAXHCALFEDID) continue; //first eighteen feds are for HBHE
-              if(debug_) std::cout<<"[SelectedElectronFEDListProducer] Hcal FED ID "<<hitFED<<std::endl;
+              if(debug_) LogDebug("SelectedElectronFEDListProducer")<<"Hcal FED ID "<<hitFED;
               if(hitFED < 0) continue;
               if(!fedList_.empty()){ 
 	      if(std::find(fedList_.begin(),fedList_.end(),hitFED)==fedList_.end()) fedList_.push_back(hitFED);
@@ -542,7 +542,7 @@ void SelectedElectronFEDListProducerv2::produce(edm::Event & iEvent, const edm::
 		   for (uint32_t op=0; op<(itFedMap->second).size(); op++){
 		     int hitFED = (itFedMap->second)[op].fedId(); 
                      if(hitFED < FEDNumbering::MINSiStripFEDID || hitFED > FEDNumbering::MAXSiStripFEDID) continue;
-                     if(debug_) std::cout<<"[SelectedElectronFEDListProducer] SiStrip (FedID) "<<hitFED<<std::endl;
+                     if(debug_) LogDebug("SelectedElectronFEDListProducer")<<"SiStrip (FedID) "<<hitFED;
                      if(!fedList_.empty()){ 
                        if(std::find(fedList_.begin(),fedList_.end(),hitFED)==fedList_.end()) fedList_.push_back(hitFED);
                      }
@@ -598,11 +598,10 @@ void SelectedElectronFEDListProducerv2::produce(edm::Event & iEvent, const edm::
 
   if(debug_){
    if(!fedList_.empty()){ 
-    std::cout<<"[selectedElectronFEDListProducer] fed point ";
-    for( unsigned int i =0; i< fedList_.size(); i++) 
-      std::cout<<fedList_.at(i)<<"  ";
+     LogDebug("SelectedElectronFEDListProducer")<<"fed point ";
+     for( unsigned int i =0; i< fedList_.size(); i++) 
+       LogDebug("SelectedElectronFEDListProducer")<<fedList_.at(i)<<"  ";
    }
-   std::cout<<"  "<<std::endl;
   }
 
   // make the final raw data collection
@@ -625,15 +624,14 @@ void SelectedElectronFEDListProducerv2::produce(edm::Event & iEvent, const edm::
 
 }
 
-void SelectedElectronFEDListProducerv2::endJob(){
+void SelectedElectronFEDListProducer::endJob(){
 
- if(debug_){ std::cout<<"[SelectedElectronFEDListProducer] Counted Events "<<eventCounter_<<std::endl;
-             std::cout<<"[SelectedElectronFEDListProducer] End of the Job ----> "<<std::endl;
- }
-
+  if(debug_){ LogDebug("SelectedElectronFEDListProducer")<<"Counted Events "<<eventCounter_;
+             LogDebug("SelectedElectronFEDListProducer")<<"End of the Job ----> ";
+  }
 }
 
-void SelectedElectronFEDListProducerv2::pixelFedDump( std::vector<PixelModule>::const_iterator & itDn,  
+void SelectedElectronFEDListProducer::pixelFedDump( std::vector<PixelModule>::const_iterator & itDn,  
                                                       std::vector<PixelModule>::const_iterator & itUp,
                                                       const PixelRegion & region){
 
@@ -642,7 +640,7 @@ void SelectedElectronFEDListProducerv2::pixelFedDump( std::vector<PixelModule>::
     if ( std::abs(zmodule) > region.maxZ ) continue; 
     int hitFED = itDn->Fed;
     if(hitFED < FEDNumbering::MINSiPixelFEDID || hitFED > FEDNumbering::MAXSiPixelFEDID) continue;
-    if(debug_) std::cout<<"[SelectedElectronFEDListProducer] electron pixel hit "<<itDn->DetId<<" hitFED "<<hitFED<<std::endl;
+    if(debug_) LogDebug("SelectedElectronFEDListProducer")<<"electron pixel hit "<<itDn->DetId<<" hitFED "<<hitFED;
     if(!fedList_.empty()){ 
      if(std::find(fedList_.begin(),fedList_.end(),hitFED)==fedList_.end()) fedList_.push_back(hitFED);
     }
@@ -654,4 +652,4 @@ void SelectedElectronFEDListProducerv2::pixelFedDump( std::vector<PixelModule>::
 }
 
 
-DEFINE_FWK_MODULE(SelectedElectronFEDListProducerv2);
+DEFINE_FWK_MODULE(SelectedElectronFEDListProducer);

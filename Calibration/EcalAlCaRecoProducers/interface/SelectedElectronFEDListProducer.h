@@ -105,12 +105,12 @@
 
 using namespace std;
 
-class SelectedElectronFEDListProducerv2 : public edm::EDProducer {
+class SelectedElectronFEDListProducer : public edm::EDProducer {
 
  public:
 
-   explicit SelectedElectronFEDListProducerv2( const edm::ParameterSet &);
-   virtual ~SelectedElectronFEDListProducerv2();
+   explicit SelectedElectronFEDListProducer( const edm::ParameterSet &);
+   virtual ~SelectedElectronFEDListProducer();
 
    class PixelRegion {
   
