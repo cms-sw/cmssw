@@ -67,6 +67,7 @@ private:
   MonitorElement * m_bxDistDiffDt[8];
   MonitorElement * m_dataVsemulator[8];  
 
+  DQMStore * dbe;
   std::string  ttuFolder   ;
   std::string outputFile  ;
     

@@ -881,7 +881,7 @@ def identityFS(wf):
 
 steps['SingleMuPt10FS_ID']=identityFS(steps['SingleMuPt10FS'])
 steps['TTbarFS_ID']=identityFS(steps['TTbarFS'])
- 
+
 step1GenDefaults=merge([{'-s':'GEN,VALIDATION:genvalid',
                          '--relval':'250000,20000',
                          '--eventcontent':'RAWSIM,DQM',
