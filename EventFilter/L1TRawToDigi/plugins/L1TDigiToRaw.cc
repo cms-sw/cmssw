@@ -116,7 +116,7 @@ namespace l1t {
    {
       using namespace edm;
 
-      LogWarning("L1T") << "Packing data with FED ID " << fedId_;
+      LogDebug("L1T") << "Packing data with FED ID " << fedId_;
 
       amc13::Packet amc13;
 
@@ -127,18 +127,33 @@ namespace l1t {
 
          Blocks block_load;
          for (const auto& packer: packers) {
+            LogDebug("L1T") << "Adding packed blocks";
             auto blocks = packer->pack(event, tokens_.get());
             block_load.insert(block_load.end(), blocks.begin(), blocks.end());
          }
 
          std::sort(block_load.begin(), block_load.end());
 
+         LogDebug("L1T") << "Concatenating blocks";
+
          std::vector<uint32_t> load32;
          for (const auto& block: block_load) {
+            LogDebug("L1T") << "Adding block " << block.header().getID() << " with size " << block.payload().size();
             auto load = block.payload();
+
+#ifdef EDM_ML_DEBUG
+            std::stringstream s("");
+            s << "Block content:" << std::endl << std::hex << std::setfill('0');
+            for (const auto& word: load)
+               s << std::setw(8) << word << std::endl;
+            LogDebug("L1T") << s.str();
+#endif
+
             load32.push_back(block.header().raw());
             load32.insert(load32.end(), load.begin(), load.end());
          }
+
+         LogDebug("L1T") << "Converting payload";
 
          std::vector<uint64_t> load64;
          for (unsigned int i = 0; i < load32.size(); i += 2) {
@@ -147,6 +162,8 @@ namespace l1t {
                word |= static_cast<uint64_t>(load32[i + 1]) << 32;
             load64.push_back(word);
          }
+
+         LogDebug("L1T") << "Creating AMC packet";
 
          amc13.add(board, load64);
       }

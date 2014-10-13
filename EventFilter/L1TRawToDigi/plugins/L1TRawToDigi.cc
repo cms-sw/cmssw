@@ -142,8 +142,6 @@ namespace l1t {
          LogWarning("L1T") << "Did not find a SLink header!";
       }
 
-      std::cout << "getting trailer" << std::endl;
-
       FEDTrailer trailer(data + (l1tRcd.size() - slinkTrailerSize_));
 
       if (trailer.check()) {
