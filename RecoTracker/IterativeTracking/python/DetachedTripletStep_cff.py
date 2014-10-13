@@ -49,12 +49,21 @@ detachedTripletStepSeeds.SeedComparitorPSet = cms.PSet(
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
-detachedTripletStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
+detachedTripletStepTrajectoryFilterBase = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
     maxLostHitsFraction = cms.double(1./10.),
     constantValueForLostHitsFractionFilter = cms.double(0.701),
     minimumNumberOfHits = 3,
     minPt = 0.075
     )
+import RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeTrajectoryFilter_cfi
+detachedTripletStepTrajectoryFilterShape = RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeTrajectoryFilter_cfi.StripSubClusterShapeTrajectoryFilterTIX12.clone()
+detachedTripletStepTrajectoryFilter = cms.PSet(
+    ComponentType = cms.string('CompositeTrajectoryFilter'),
+    filters = cms.VPSet(
+        cms.PSet( refToPSet_ = cms.string('detachedTripletStepTrajectoryFilterBase')),
+        cms.PSet( refToPSet_ = cms.string('detachedTripletStepTrajectoryFilterShape'))),
+)
+
 
 import TrackingTools.KalmanUpdators.Chi2ChargeMeasurementEstimatorESProducer_cfi
 detachedTripletStepChi2Est = TrackingTools.KalmanUpdators.Chi2ChargeMeasurementEstimatorESProducer_cfi.Chi2ChargeMeasurementEstimator.clone(

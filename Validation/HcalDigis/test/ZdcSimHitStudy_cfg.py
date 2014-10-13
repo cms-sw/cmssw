@@ -42,7 +42,7 @@ print process.ZDCDigiStudy.Verbose
 process.p1 = cms.Path(
                      process.ZDCDigiStudy
                      *process.zdcSimHitStudy)
-process.DQM.collectorHost = ''
+#process.DQM.collectorHost = ''
 process.zdcSimHitStudy.outputFile = 'zdcStudy.root'
 process.ZDCDigiStudy.outputFile='zdcStudy.root'
 

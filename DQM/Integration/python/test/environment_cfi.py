@@ -7,17 +7,23 @@ DQM = cms.Service("DQM",
                   debug = cms.untracked.bool(False),
                   publishFrequency = cms.untracked.double(5.0),
                   collectorPort = cms.untracked.int32(9090),
-                  collectorHost = cms.untracked.string('dqm-prod-local.cms'),
+#                  collectorHost = cms.untracked.string('dqm-prod-local.cms'),
+                  collectorHost = cms.untracked.string('dqm-c2d07-29.cms'),
                   filter = cms.untracked.string('')
-                  )      
+                  )
+
+DQMMonitoringService = cms.Service("DQMMonitoringService",
+    jsonPath = cms.untracked.string("/tmp/dqm_monitoring/"),
+)
 
 from DQMServices.Components.DQMEnvironment_cfi import *
 
 dqmSaver.convention = 'Online'
 dqmSaver.referenceHandling = 'all'
-dqmSaver.dirName = '/home/dqmprolocal/output'
+#dqmSaver.dirName = '/home/dqmprolocal/output'
+dqmSaver.dirName = '.'
 dqmSaver.producer = 'DQM'
-dqmSaver.saveByLumiSection = -1
+dqmSaver.saveByLumiSection = 10
 dqmSaver.saveByRun = 1
 dqmSaver.saveAtJobEnd = False
 

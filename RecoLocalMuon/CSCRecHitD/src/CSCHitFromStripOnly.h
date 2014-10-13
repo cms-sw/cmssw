@@ -68,10 +68,10 @@ class CSCHitFromStripOnly
   CSCStripHitData makeStripData( int centerStrip, int offset );
 
   /// Is either neighbour 'bad'?
-  bool isNearDeadStrip(const CSCDetId& id, int centralStrip); 
+  bool isNearDeadStrip(const CSCDetId& id, int centralStrip, int nstrips); 
 
   /// Is the strip 'bad'?
-  bool isDeadStrip(const CSCDetId& id, int centralStrip); 
+  bool isDeadStrip(const CSCDetId& id, int centralStrip, int nstrips); 
 
   /// Find position of hit in strip cluster in terms of strip #
   float findHitOnStripPosition( const std::vector<CSCStripHitData>& data, const int& centerStrip );

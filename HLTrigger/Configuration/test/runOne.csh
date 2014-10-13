@@ -7,16 +7,19 @@ set rawLHC = L1RePack
 set rawSIM = DigiL1Raw
 
 echo
+date +%F\ %a\ %T
 echo Starting $0 $1 $2
 
 if ( $2 == "" ) then
   set tables = ( GRun )
 else if ( ($2 == all) || ($2 == ALL) ) then
-  set tables = ( GRun PIon 2014 HIon FULL )
+  set tables = ( FULL Fake 2014 GRun HIon PIon )
 else if ( ($2 == dev) || ($2 == DEV) ) then
-  set tables = ( GRun PIon HIon )
+  set tables = ( GRun HIon PIon )
 else if ( ($2 == full) || ($2 == FULL) ) then
   set tables = ( FULL )
+else if ( ($2 == fake) || ($2 == FAKE) ) then
+  set tables = ( Fake )
 else if ( ($2 == frozen) || ($2 == FROZEN) ) then
   set tables = ( 2014 )
 else
@@ -35,9 +38,9 @@ foreach gtag ( $1 )
 
 #   run workflows
 
-    set base = ( $base ONLINE_HLT RelVal_HLT RelVal_HLT2 )
+    set base = ( $base OnLine_HLT RelVal_HLT RelVal_HLT2 )
 
-    if ( $gtag == STARTUP ) then
+    if ( $gtag == MC ) then
       if ( ( $table != HIon ) && ( $table != PIon) ) then
         set base = ( $base FastSim_GenToHLT )
       endif
@@ -48,11 +51,10 @@ foreach gtag ( $1 )
       echo
       set name = ${task}_${table}_${gtag}
       rm -f $name.{log,root}
-      date
-      echo "cmsRun $name.py >& $name.log"
+      echo "`date +%T` cmsRun $name.py >& $name.log"
 #     ls -l        $name.py
       time  cmsRun $name.py >& $name.log
-      echo "exit status: $?"
+      echo "`date +%T` exit status: $?"
 
       if ( ( $task == RelVal_${rawLHC} ) || ( $task == RelVal_${rawSIM} ) ) then
 #       link to input file for subsequent steps
@@ -68,17 +70,16 @@ end
 
 # special fastsim integration test
 
-if ( $1 == STARTUP ) then
+if ( $1 == MC ) then
   foreach task ( IntegrationTestWithHLT_cfg )
 
     echo
     set name = ${task}
     rm -f $name.{log,root}
-    date
-    echo "cmsRun $name.py >& $name.log"
+    echo "`date +%T` cmsRun $name.py >& $name.log"
 #   ls -l        $name.py
     time  cmsRun $name.py >& $name.log
-    echo "exit status: $?"
+    echo "`date +%T` exit status: $?"
 
   end
 endif
@@ -100,11 +101,10 @@ foreach gtag ( $1 )
       echo
       set name = ${task}_${table}_${gtag}
       rm -f $name.{log,root}
-      date
-      echo "cmsRun $name.py >& $name.log"
+      echo "`date +%T` cmsRun $name.py >& $name.log"
 #     ls -l        $name.py
       time  cmsRun $name.py >& $name.log
-      echo "exit status: $?"
+      echo "`date +%T` exit status: $?"
 
     end
 
@@ -120,4 +120,5 @@ endif
 
 echo
 echo Finished $0 $1 $2
+date +%F\ %a\ %T
 #

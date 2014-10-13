@@ -221,11 +221,6 @@ steps['ZMuSkim2012C']={'INPUT':InputInfo(dataSet='/SingleMu/Run2012C-ZMu-PromptS
 steps['WElSkim2012C']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2012C-WElectron-PromptSkim-v3/USER',label='wEl2012C',location='STD',run=Run2012Csk)}
 steps['ZElSkim2012C']={'INPUT':InputInfo(dataSet='/DoubleElectron/Run2012C-ZElectron-PromptSkim-v3/RAW-RECO',label='zEl2012C',location='STD',run=Run2012Csk)}
 
-# needed but can't be tested because of DBS => das hanging forever 
-#RunHighPU2012C=[198588]
-#steps['RunZBias2012C']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2012C-v1/RAW',label='zb2012C',location='STD',run=RunHighPU2012C,events=100000)}
-
-
 Run2012D=[208307]
 Run2012Dsk=Run2012D+[207454]
 steps['RunMinBias2012D']={'INPUT':InputInfo(dataSet='/MinimumBias/Run2012D-v1/RAW',label='mb2012D',run=Run2012D, events=100000,location='STD')}
@@ -258,7 +253,6 @@ steps['ProdMinBias_13']=gen2015('MinBias_13TeV_cfi',Kby(9,100))
 steps['ProdTTbar_13']=gen2015('TTbar_Tauola_13TeV_cfi',Kby(9,100))
 steps['ProdZEE_13']=gen2015('ZEE_13TeV_cfi',Kby(9,100))
 steps['ProdQCD_Pt_3000_3500_13']=gen2015('QCD_Pt_3000_3500_13TeV_cfi',Kby(9,100))
-# GF include branched wf comparing relVal and prod
 
 steps['MinBias']=gen('MinBias_8TeV_cfi',Kby(9,300))
 steps['QCD_Pt_3000_3500']=gen('QCD_Pt_3000_3500_8TeV_cfi',Kby(9,25))
@@ -299,9 +293,9 @@ steps['Wjet_Pt_3000_3500']=gen('Wjet_Pt_3000_3500_8TeV_cfi',Kby(9,50))
 steps['LM1_sfts']=gen('LM1_sfts_8TeV_cfi',Kby(9,100))
 steps['QCD_FlatPt_15_3000']=gen('QCDForPF_8TeV_cfi',Kby(5,100))
 steps['QCD_FlatPt_15_3000HS']=gen('QCDForPF_8TeV_cfi',Kby(50,100))
-steps['TTbar_13']=gen2015('TTbar_Tauola_13TeV_cfi',Kby(9,50))
+steps['TTbar_13']=gen2015('TTbar_Tauola_13TeV_cfi',Kby(9,100))
 steps['TTbarLepton_13']=gen2015('TTbarLepton_Tauola_13TeV_cfi',Kby(9,100))
-steps['ZEE_13']=gen2015('ZEE_13TeV_cfi',Kby(9,50))
+steps['ZEE_13']=gen2015('ZEE_13TeV_cfi',Kby(9,100))
 steps['Wjet_Pt_80_120_13']=gen2015('Wjet_Pt_80_120_13TeV_cfi',Kby(9,100))
 steps['Wjet_Pt_3000_3500_13']=gen2015('Wjet_Pt_3000_3500_13TeV_cfi',Kby(9,50))
 steps['LM1_sfts_13']=gen2015('LM1_sfts_13TeV_cfi',Kby(9,100))
@@ -323,7 +317,7 @@ steps['TTbar_ID']=identitySim(steps['TTbar'])
 
 baseDataSetRelease=[
     'CMSSW_7_1_0_pre7-PRE_STA71_V3-v1',        # run1 samples; keep GEN-SIM fixed to 710_pre7, for samples not routinely produced
-    'CMSSW_7_2_0_pre6-PRE_SHI72_V7-v1',            # Run1 HI GEN-SIM (only MB = wf 140)
+    'CMSSW_7_1_0-STARTHI71_V13-v1',            # Run1 HI GEN-SIM (only MB = wf 140)
     'CMSSW_6_2_0_pre8-PRE_ST62_V8_FastSim-v1', # for fastsim id test
     # 'CMSSW_6_2_0_pre8-PRE_SH62_V15-v2',      # Run1 HI GEN-SIM (only HydjetQ_B3_2760)   -- unused in 72_pre4
     # 'CMSSW_6_1_0_pre6-STARTHI61_V6-v1',      # Run1 HI GEN-SIM (only HydjetQ_B0_2760)   -- unused in 72_pre4
@@ -333,7 +327,7 @@ baseDataSetRelease=[
     #'CMSSW_7_1_0_pre5-START71_V1-v1',         # 8 TeV , for the one sample which is part of the routine relval production (MinBias)   -- unused in 72_pre4
     'CMSSW_7_1_0_pre5-START71_V1-v2',          # 8 TeV , for the one sample which is part of the routine relval production (RelValZmumuJets_Pt_20_300, because of -v2)
                                                # this an previous should be unified, when -v2 will be gone
-    'CMSSW_7_2_0_pre6-PRE_LS172_V11-v1',       # 13 TeV samples with GEN-SIM from 720_p4;
+    'CMSSW_7_2_0_pre4-POSTLS172_V3-v2',        # 13 TeV samples with GEN-SIM from 720_p4;
     ]
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available 
@@ -364,9 +358,6 @@ steps['LM1_sftsINPUT']={'INPUT':InputInfo(dataSet='/RelValLM1_sfts/%s/GEN-SIM'%(
 steps['QCD_FlatPt_15_3000INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_FlatPt_15_3000/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 
 steps['QCD_FlatPt_15_3000HSINPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_FlatPt_15_3000HS/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
-# the following dataset used to be in input but is currently not valid dbs datasets
-# candidate for removal..
-# steps['QCD_FlatPt_15_3000HS__DIGIPU1INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_FlatPt_15_3000/CMSSW_5_2_2-PU_START52_V4_special_120326-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',location='STD')}
 steps['TTbar__DIGIPU1INPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar/CMSSW_5_2_2-PU_START52_V4_special_120326-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',location='STD')}
 
 # 13 TeV recycle GEN-SIM input
@@ -387,7 +378,15 @@ steps['ZpEE_2250_13TeV_TauolaINPUT']={'INPUT':InputInfo(dataSet='/RelValZpEE_225
 steps['ZpTT_1500_13TeV_TauolaINPUT']={'INPUT':InputInfo(dataSet='/RelValZpTT_1500_13TeV_Tauola/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
 steps['MinBiasHS_13INPUT']={'INPUT':InputInfo(dataSet='/RelValMinBiasHS_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
 steps['Higgs200ChargedTaus_13INPUT']={'INPUT':InputInfo(dataSet='/RelValHiggs200ChargedTaus_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
-steps['JpsiMM_13INPUT']={'INPUT':InputInfo(dataSet='/RelValJpsiMM_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
+
+# remove JpsiMM_13 at the next round
+# steps['JpsiMM_13INPUT']={'INPUT':InputInfo(dataSet='/RelValJpsiMM_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
+
+# activate GEN-SIM recycling once we'll have the first set of gen-sim
+# steps['Upsilon1SToMuMu_13INPUT']={'INPUT':InputInfo(dataSet='/Upsilon1SToMuMu_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
+# steps['BsToMuMu_13INPUT']={'INPUT':InputInfo(dataSet='/BsToMuMu_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
+# steps['BuToKstarMuMu_13INPUT']={'INPUT':InputInfo(dataSet='/BuToKstarMuMu_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
+
 steps['WE_13INPUT']={'INPUT':InputInfo(dataSet='/RelValWE_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
 steps['WM_13INPUT']={'INPUT':InputInfo(dataSet='/RelValWM_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
 steps['WpM_13INPUT']={'INPUT':InputInfo(dataSet='/RelValWpM_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
@@ -455,27 +454,31 @@ steps['WpM']=genS('WpM_8TeV_cfi',Kby(9,200))
 steps['ZMM']=genS('ZMM_8TeV_cfi',Kby(18,300))
 steps['ZpMM']=genS('ZpMM_8TeV_cfi',Kby(9,200))
 steps['Higgs200ChargedTaus_13']=gen2015('H200ChargedTaus_Tauola_13TeV_cfi',Kby(9,100))
-steps['JpsiMM_13']=gen2015('JpsiMM_13TeV_cfi',Kby(66,1000))
+# remove JpsiMM_13 at the next round
+# steps['JpsiMM_13']=gen2015('JpsiMM_13TeV_cfi',Kby(66,1000))
+steps['Upsilon1SToMuMu_13']=gen2015('Upsilon1SToMuMu_forSTEAM_13TeV_cfi',Kby(64,709))
+steps['BsToMuMu_13']=gen2015('BsToMuMu_forSTEAM_13TeV_cfi',Kby(30000,333333))
+steps['BuToKstarMuMu_13']=gen2015('BuToKstarMuMu_forSTEAM_13TeV_cfi',Kby(2250,25000))
 steps['WE_13']=gen2015('WE_13TeV_cfi',Kby(9,100))
 steps['WM_13']=gen2015('WM_13TeV_cfi',Kby(9,200))
 steps['WpM_13']=gen2015('WpM_13TeV_cfi',Kby(9,200))
-steps['ZMM_13']=gen2015('ZMM_13TeV_cfi',Kby(18,150))
+steps['ZMM_13']=gen2015('ZMM_13TeV_cfi',Kby(18,300))
 steps['ZpMM_13']=gen2015('ZpMM_13TeV_cfi',Kby(9,200))
 
 steps['ZTT']=genS('ZTT_Tauola_All_hadronic_8TeV_cfi',Kby(9,150))
 steps['H130GGgluonfusion']=genS('H130GGgluonfusion_8TeV_cfi',Kby(9,100))
 steps['PhotonJets_Pt_10']=genS('PhotonJet_Pt_10_8TeV_cfi',Kby(9,150))
 steps['QQH1352T_Tauola']=genS('QQH1352T_Tauola_8TeV_cfi',Kby(9,100))
-steps['ZTT_13']=gen2015('ZTT_Tauola_All_hadronic_13TeV_cfi',Kby(9,60))
-steps['H130GGgluonfusion_13']=gen2015('H130GGgluonfusion_13TeV_cfi',Kby(9,50))
+steps['ZTT_13']=gen2015('ZTT_Tauola_All_hadronic_13TeV_cfi',Kby(9,150))
+steps['H130GGgluonfusion_13']=gen2015('H130GGgluonfusion_13TeV_cfi',Kby(9,100))
 steps['PhotonJets_Pt_10_13']=gen2015('PhotonJet_Pt_10_13TeV_cfi',Kby(9,150))
-steps['QQH1352T_Tauola_13']=gen2015('QQH1352T_Tauola_13TeV_cfi',Kby(9,50))
+steps['QQH1352T_Tauola_13']=gen2015('QQH1352T_Tauola_13TeV_cfi',Kby(9,100))
 steps['ZmumuJets_Pt_20_300']=gen('ZmumuJets_Pt_20_300_GEN_8TeV_cfg',Kby(25,100))
-steps['ZmumuJets_Pt_20_300_13']=gen2015('ZmumuJets_Pt_20_300_GEN_13TeV_cfg',Kby(25,50))
+steps['ZmumuJets_Pt_20_300_13']=gen2015('ZmumuJets_Pt_20_300_GEN_13TeV_cfg',Kby(25,100))
 steps['ADDMonoJet_d3MD3']=genS('ADDMonoJet_8TeV_d3MD3_cfi',Kby(9,100))
 steps['ADDMonoJet_d3MD3_13']=gen2015('ADDMonoJet_13TeV_d3MD3_cfi',Kby(9,100))
-steps['RSKKGluon_m3000GeV_13']=gen2015('RSKKGluon_m3000GeV_13TeV_cff',Kby(9,100))                  # re-named to remove RelvalRelval in the dataset name 
-steps['Pythia6_BuJpsiK_TuneZ2star_13']=gen2015('Pythia6_BuJpsiK_TuneZ2star_13TeV_cfi',Kby(36000,400000))  # check recycling a the next GEN-SIM refresh
+steps['RSKKGluon_m3000GeV_13']=gen2015('RSKKGluon_m3000GeV_13TeV_cff',Kby(9,100))
+steps['Pythia6_BuJpsiK_TuneZ2star_13']=gen2015('Pythia6_BuJpsiK_TuneZ2star_13TeV_cfi',Kby(36000,400000))
 
 steps['MinBias2INPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['Higgs200ChargedTausINPUT']={'INPUT':InputInfo(dataSet='/RelValHiggs200ChargedTaus/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
@@ -531,7 +534,7 @@ steps['QCD_Pt_170_230']=genS('QCD_Pt_170_230_8TeV_cfi',Kby(25,100))
 
 
 ## upgrade dedicated wf
-## extendedPhase1
+## extendedPhase1 ## do we need these (unused)? ==>
 step1UpepiDefaults = {'-s' : 'GEN,SIM',
                              '-n' : 10,
                              '--conditions' : 'DESIGN61_V10::All', #should be updated with autocond
@@ -582,12 +585,12 @@ steps['ZMM_UPGPhase1_8']=genepi('ZMM_8TeV_cfi',Kby(18,300))
 steps['ADDMonoJet_d3MD3_UPGPhase1_8']=genepi('ADDMonoJet_8TeV_d3MD3_cfi',Kby(9,100))
 steps['ZpMM_UPGPhase1_8']=genepi('ZpMM_8TeV_cfi',Kby(9,200))
 steps['WpM_UPGPhase1_8']=genepi('WpM_8TeV_cfi',Kby(9,200))
+## <== do we need these (unused)?
 
 
 
 
-
-#14TeV
+#14TeV  ## do we need these (unused)? ==>
 #steps['TTbarLepton_UPGPhase1_14']=genepi('TTbarLepton_Tauola_14TeV_cfi',Kby(9,100))
 steps['Wjet_Pt_80_120_UPGPhase1_14']=genepi('Wjet_Pt_80_120_14TeV_cfi',Kby(9,100))
 steps['Wjet_Pt_3000_3500_UPGPhase1_14']=genepi('Wjet_Pt_3000_3500_14TeV_cfi',Kby(9,50))
@@ -610,10 +613,6 @@ steps['QQH1352T_Tauola_UPGPhase1_14']=genepi('QQH1352T_Tauola_14TeV_cfi',Kby(9,1
 steps['MinBias_TuneZ2star_UPGPhase1_14']=genepi('MinBias_TuneZ2star_14TeV_pythia6_cff',Kby(9,300))
 steps['WM_UPGPhase1_14']=genepi('WM_14TeV_cfi',Kby(9,200))
 steps['ZMM_UPGPhase1_14']=genepi('ZMM_14TeV_cfi',Kby(18,300))
-
-#steps['ADDMonoJet_d3MD3_UPGPhase1_14']=genepi('ADDMonoJet_14TeV_d3MD3_cfi',Kby(9,100))
-#steps['ZpMM_UPGPhase1_14']=genepi('ZpMM_14TeV_cfi',Kby(9,200))
-#steps['WpM_UPGPhase1_14']=genepi('WpM_14TeV_cfi',Kby(9,200))
 
 
 ## 2015
@@ -681,12 +680,8 @@ steps['MinBias_TuneZ2star_UPG2015_14']=gen2015('MinBias_TuneZ2star_14TeV_pythia6
 steps['WM_UPG2015_14']=gen2015('WM_14TeV_cfi',Kby(9,200))
 steps['ZMM_UPG2015_14']=gen2015('ZMM_14TeV_cfi',Kby(18,300))
 
-#steps['ADDMonoJet_d3MD3_UPG2015_14']=gen2015('ADDMonoJet_14TeV_d3MD3_cfi',Kby(9,100))
-#steps['ZpMM_UPG2015_14']=gen2015('ZpMM_14TeV_cfi',Kby(9,200))
-#steps['WpM_UPG2015_14']=gen2015('WpM_14TeV_cfi',Kby(9,200))
 
-
-
+## do we need these (unused)? ==>
 step1Up2017Defaults = {'-s' : 'GEN,SIM',
                              '-n' : 10,
                              '--conditions' : 'auto:run2_mc', 
@@ -763,7 +758,7 @@ steps['QQH1352T_Tauola_UPG2017_14']=gen2017('QQH1352T_Tauola_14TeV_cfi',Kby(9,10
 steps['MinBias_TuneZ2star_UPG2017_14']=gen2017('MinBias_TuneZ2star_14TeV_pythia6_cff',Kby(9,300))
 steps['WM_UPG2017_14']=gen2017('WM_14TeV_cfi',Kby(9,200))
 steps['ZMM_UPG2017_14']=gen2017('ZMM_14TeV_cfi',Kby(18,300))
-
+## <== do we need these (unused)?
 
 ## pPb tests
 step1PPbDefaults={'--beamspot':'Realistic8TeVCollisionPPbBoost'}
@@ -775,7 +770,7 @@ steps['AMPT_PPb_5020GeV_MinimumBias']=merge([{'-n':10},step1PPbDefaults,genS('AM
 U2000by1={'--relval': '2000,1'}
 U80by1={'--relval': '80,1'}
 
-hiDefaults={'--conditions':'auto:starthi_HIon',
+hiDefaults={'--conditions':'auto:run1_mc_HIon',
            '--scenario':'HeavyIons'}
 
 steps['HydjetQ_MinBias_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_MinBias_2760GeV_cfi',U2000by1)])
@@ -813,7 +808,7 @@ def addForAll(steps,d):
 
 #### fastsim section ####
 ##no forseen to do things in two steps GEN-SIM then FASTIM->end: maybe later
-step1FastDefaults =merge([{'-s':'GEN,SIM,RECO,EI,HLT:@relval,VALIDATION',
+step1FastDefaults =merge([{'-s':'GEN,SIM,RECO,EI,HLT:@fake,VALIDATION',
                            '--fast':'',
                            '--eventcontent':'FEVTDEBUGHLT,DQM',
                            '--datatier':'GEN-SIM-DIGI-RECO,DQMIO',
@@ -877,7 +872,7 @@ steps['TTbarSFS']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi'},
                         step1Defaults])
 
 steps['TTbarSFSA']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi',
-                           '-s':'GEN,SIM,RECO,EI,HLT,VALIDATION',
+                           '-s':'GEN,SIM,RECO,EI,HLT:@fake,VALIDATION',
                            '--fast':''},
                           step1FastDefaults])
 
@@ -886,27 +881,11 @@ def identityFS(wf):
 
 steps['SingleMuPt10FS_ID']=identityFS(steps['SingleMuPt10FS'])
 steps['TTbarFS_ID']=identityFS(steps['TTbarFS'])
-
-#### generator test section ####
-#step1GenDefaults=merge([{'-s':'GEN,VALIDATION:genvalid',
-#                         '--relval':'1000000,20000',
-#                         '--eventcontent':'RAWSIM',
-#                         '--datatier':'GEN'},
-#                        step1Defaults])
-#def genvalid(fragment,d,suffix='all',fi=''):
-#    import copy
-#    c=copy.copy(d)
-#    if suffix:
-#        c['-s']=c['-s'].replace('genvalid','genvalid_'+suffix)
-#    if fi:
-#        c['--filein']='lhe:%d'%(fi,)
-#    c['cfg']=fragment
-#    return c
  
 step1GenDefaults=merge([{'-s':'GEN,VALIDATION:genvalid',
                          '--relval':'250000,20000',
-                         '--eventcontent':'RAWSIM',
-                         '--datatier':'GEN'},
+                         '--eventcontent':'RAWSIM,DQM',
+                         '--datatier':'GEN,DQMIO'},
                         step1Defaults])
 def genvalid(fragment,d,suffix='all',fi='',dataSet=''):
     import copy
@@ -974,8 +953,8 @@ steps['ReggeGribovPartonMC_EposLHC_5TeV_pPb']=genvalid('GeneratorInterface/Regge
 PU={'-n':10,'--pileup':'default','--pileup_input':'das:/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],)}
 # pu2 can be removed
 PU2={'-n':10,'--pileup':'default','--pileup_input':'das:/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],)}
-PU25={'-n':10,'--pileup':'AVE_10_BX_25ns_m8','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(baseDataSetRelease[4],)}
-PU50={'-n':10,'--pileup':'AVE_20_BX_50ns_m8','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(baseDataSetRelease[4],)}
+PU25={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(baseDataSetRelease[4],)}
+PU50={'-n':10,'--pileup':'AVE_35_BX_50ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(baseDataSetRelease[4],)}
 
 #PU for FastSim
 PUFS={'--pileup':'default'}
@@ -993,7 +972,7 @@ steps['TTbarFSPU13AVE20']=merge([PUFSAVE20,Kby(100,500),steps['TTbarFS_13']] )
 
 
 # step2 
-step2Defaults = { '-s'            : 'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco',
+step2Defaults = { '-s'            : 'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@fake,RAW2DIGI,L1Reco',
                   '--datatier'    : 'GEN-SIM-DIGI-RAW-HLTDEBUG',
                   '--eventcontent': 'FEVTDEBUGHLT',
                   '--conditions'  : 'auto:run1_mc',
@@ -1014,7 +993,7 @@ steps['DIGIUP15PROD1']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Rec
 steps['DIGIUP15_PU25']=merge([PU25,step2Upg2015Defaults])
 steps['DIGIUP15_PU50']=merge([PU50,step2Upg2015Defaults50ns])
 
-steps['DIGIPROD1']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco','--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'},step2Defaults])
+steps['DIGIPROD1']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@fake,RAW2DIGI,L1Reco','--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'},step2Defaults])
 steps['DIGI']=merge([step2Defaults])
 #steps['DIGI2']=merge([stCond,step2Defaults])
 steps['DIGICOS']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW'},stCond,step2Defaults])
@@ -1022,17 +1001,16 @@ steps['DIGIHAL']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--
 
 steps['DIGIPU1']=merge([PU,step2Defaults])
 steps['DIGIPU2']=merge([PU2,step2Defaults])
-steps['REDIGIPU']=merge([{'-s':'reGEN,reDIGI,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco'},steps['DIGIPU1']])
+steps['REDIGIPU']=merge([{'-s':'reGEN,reDIGI,L1,DIGI2RAW,HLT:@fake,RAW2DIGI,L1Reco'},steps['DIGIPU1']])
 
 steps['DIGI_ID']=merge([{'--restoreRND':'HLT','--process':'HLT2'},steps['DIGI']])
 
 steps['RESIM']=merge([{'-s':'reGEN,reSIM','-n':10},steps['DIGI']])
-steps['RESIMDIGI']=merge([{'-s':'reGEN,reSIM,DIGI,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco','-n':10,'--restoreRNDSeeds':'','--process':'HLT'},steps['DIGI']])
+steps['RESIMDIGI']=merge([{'-s':'reGEN,reSIM,DIGI,L1,DIGI2RAW,HLT:@fake,RAW2DIGI,L1Reco','-n':10,'--restoreRNDSeeds':'','--process':'HLT'},steps['DIGI']])
 
     
-steps['DIGIHI']=merge([{'--conditions':'auto:starthi_HIon', '-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:HIon,RAW2DIGI,L1Reco', '--inputCommands':'"keep *","drop *_simEcalPreshowerDigis_*_*"', '-n':10}, hiDefaults, step2Defaults])
+steps['DIGIHI']=merge([{'--conditions':'auto:run1_mc_HIon', '-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@fake,RAW2DIGI,L1Reco', '--inputCommands':'"keep *","drop *_simEcalPreshowerDigis_*_*"', '-n':10}, hiDefaults, step2Defaults])
 
-#wmsplit['DIGIHI']=5
 
 #for pix phase1
 step2Upgpixphase1Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
@@ -1055,8 +1033,6 @@ step2Upg2017Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '--geometry' : 'Extended2017' #check geo
                   }
 steps['DIGIUP17']=merge([step2Upg2017Defaults])
-#add this line when testing from an input file that is not strictly GEN-SIM
-#addForAll(step2,{'--process':'DIGI'})
 
 
 # PRE-MIXING : https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideSimulation#Pre_Mixing_Instructions
@@ -1108,16 +1084,15 @@ dataReco={'--conditions':'auto:run1_data',
           '--scenario':'pp',
           }
 
-hltKey='relval'
+hltKey='fake'
 from Configuration.HLT.autoHLT import autoHLT
 menu = autoHLT[hltKey]
 steps['HLTD']=merge([{'--process':'reHLT',
                       '-s':'L1REPACK,HLT:@%s'%hltKey,
-                      '--conditions':'auto:hltonline_%s'%menu,
+                      '--conditions':'auto:run1_hlt_%s'%menu,
                       '--data':'',
                       '--output':'\'[{"e":"RAW","t":"RAW","o":["drop FEDRawDataCollection_rawDataCollector__LHC"]}]\'',
                       },])
-#wmsplit['HLTD']=5
 
 steps['RECOD']=merge([{'--scenario':'pp',},dataReco])
 steps['RECODSplit']=steps['RECOD'] # finer job splitting  
@@ -1206,8 +1181,7 @@ step3DefaultsUnsch = merge([{'--runUnscheduled':''},step3Defaults])
 steps['RECOUP15']=merge([step3Up2015Defaults]) # todo: remove UP from label
 steps['RECOUP15PROD1']=merge([{ '-s' : 'RAW2DIGI,L1Reco,RECO,EI', '--datatier' : 'GEN-SIM-RECO,AODSIM', '--eventcontent' : 'RECOSIM,AODSIM'},step3Up2015Defaults])
 
-steps['RECODreHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:com10_%s'%menu},steps['RECOD']])
-#wmsplit['RECODreHLT']=2
+steps['RECODreHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run1_data_%s'%menu},steps['RECOD']])
 
 steps['RECO']=merge([step3Defaults])
 steps['RECODBG']=merge([{'--eventcontent':'RECODEBUG,DQM'},steps['RECO']])
@@ -1255,14 +1229,14 @@ steps['RECOPRMXUP15PROD_PU50']=merge([
         {'--conditions':'auto:upgradePLS150ns'},
         recoPremixUp15prod])
 
-#wmsplit['RECOPU1']=1
+
 steps['RECOPUDBG']=merge([{'--eventcontent':'RECODEBUG,DQM'},steps['RECOPU1']])
 steps['RERECOPU1']=merge([{'--hltProcess':'REDIGI'},steps['RECOPU1']])
 
 steps['RECO_ID']=merge([{'--hltProcess':'HLT2'},steps['RECO']])
 
 steps['RECOHI']=merge([hiDefaults,{'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM'},step3Defaults])
-#wmsplit['RECOHI']=5
+
 
 steps['DIGIHISt3']=steps['DIGIHI']
 
@@ -1273,7 +1247,7 @@ steps['RECOHIR10D11']=merge([{'--filein':'file:step2_inREPACKRAW.root',
                               '--filtername':'reRECO'},
                              steps['RECOHID11St3']])
 steps['RECOFS']=merge([{'--fast':'',
-                        '-s':'RECO,EI,HLT:@relval,VALIDATION'},
+                        '-s':'RECO,EI,HLT:@fake,VALIDATION'},
                        steps['RECO']])
 #for phase1
 step3Upgpixphase1Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
@@ -1357,7 +1331,8 @@ steps['HARVESTGEN']={'-s':'HARVESTING:genHarvesting',
                      '--harvesting':'AtJobEnd',
                      '--conditions':'auto:run1_mc',
                      '--mc':'',
-                     '--filein':'file:step1.root'
+                     '--filetype':'DQM',
+                     '--filein':'file:step1_inDQM.root'
                   }
 
 #data
@@ -1367,7 +1342,7 @@ steps['HARVESTD']={'-s':'HARVESTING:dqmHarvesting',
                    '--filetype':'DQM',
                    '--scenario':'pp'}
 
-steps['HARVESTDreHLT'] = merge([ {'--conditions':'auto:com10_%s'%menu}, steps['HARVESTD'] ])
+steps['HARVESTDreHLT'] = merge([ {'--conditions':'auto:run1_data_%s'%menu}, steps['HARVESTD'] ])
 
 steps['HARVESTDDQM']=merge([{'-s':'HARVESTING:@common+@muon+@hcal+@jetmet+@ecal'},steps['HARVESTD']])
 
@@ -1413,7 +1388,7 @@ steps['HARVESTFS']={'-s':'HARVESTING:validationHarvestingFS',
                     '--filetype':'DQM',
                    '--scenario':'pp'}
 steps['HARVESTHI']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
-                    '--conditions':'auto:starthi_HIon',
+                    '--conditions':'auto:run1_mc_HIon',
                     '--mc':'',
                     '--filetype':'DQM',
                     '--scenario':'HeavyIons'}
@@ -1462,7 +1437,7 @@ steps['SKIMD']={'-s':'SKIM:all',
                 '--filein':'file:step2.root',
                 '--secondfilein':'filelist:step1_dasquery.log'}
 
-steps['SKIMDreHLT'] = merge([ {'--conditions':'auto:com10_%s'%menu,'--filein':'file:step3.root'}, steps['SKIMD'] ])
+steps['SKIMDreHLT'] = merge([ {'--conditions':'auto:run1_data_%s'%menu,'--filein':'file:step3.root'}, steps['SKIMD'] ])
 
 steps['SKIMCOSD']={'-s':'SKIM:all',
                    '--conditions':'auto:run1_data',

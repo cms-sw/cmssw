@@ -45,7 +45,7 @@ hiRegitPixelPairStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 1.2
 
 
 # building: feed the new-named seeds
-hiRegitPixelPairStepTrajectoryFilter = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTrajectoryFilter.clone()
+hiRegitPixelPairStepTrajectoryFilter = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTrajectoryFilterBase.clone()
 
 hiRegitPixelPairStepTrajectoryBuilder = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTrajectoryBuilder.clone(
     trajectoryFilter     = cms.PSet(refToPSet_ = cms.string('hiRegitPixelPairStepTrajectoryFilter')),

@@ -37,7 +37,6 @@ Monitoring source for general quantities related to tracks.
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-class DQMStore;
 class TrackAnalyzer;
 class TrackBuildingAnalyzer;
 class VertexMonitor;
@@ -51,7 +50,6 @@ class TrackingMonitor : public DQMEDAnalyzer
         explicit TrackingMonitor(const edm::ParameterSet&);
         ~TrackingMonitor();
         virtual void beginJob(void);
-        virtual void endJob(void);
 
 	virtual void setMaxMinBin(std::vector<double> & ,std::vector<double> &  ,std::vector<int> &  ,double, double, int, double, double, int);
 	virtual void setNclus(const edm::Event&, std::vector<int> & );
@@ -71,7 +69,7 @@ class TrackingMonitor : public DQMEDAnalyzer
 
         std::string histname;  //for naming the histograms according to algorithm used
 
-        DQMStore * dqmStore_;
+	//        DQMStore * dqmStore_;
 
         edm::ParameterSet conf_;
 

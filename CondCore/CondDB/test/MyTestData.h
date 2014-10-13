@@ -73,6 +73,9 @@ private:
   COND_SERIALIZABLE;
 };
 
+
+#if !defined(__GCCXML__)
+
 #include <boost/serialization/nvp.hpp>
 
 template <class Archive>
@@ -82,5 +85,7 @@ void MyTestData::serialize(Archive & ar, const unsigned int)
     ar & BOOST_SERIALIZATION_NVP(b);
     ar & BOOST_SERIALIZATION_NVP(s);
 }
+
+#endif /* !defined(__GCCXML__) */
 
 #endif

@@ -28,10 +28,12 @@ namespace CorrectedMETProducer_namespace
 
     reco::PFMET operator()(const reco::PFMET& rawMEt, const CorrMETData& correction) const
     {
-      return reco::PFMET(rawMEt.getSpecific(), 
+      reco::PFMET ret(rawMEt.getSpecific(), 
 			 correctedSumEt(rawMEt, correction), 
 			 correctedP4(rawMEt, correction), 
 			 rawMEt.vertex());
+      ret.setSignificanceMatrix(rawMEt.getSignificanceMatrix()); 
+      return ret;
     }
   };
 }

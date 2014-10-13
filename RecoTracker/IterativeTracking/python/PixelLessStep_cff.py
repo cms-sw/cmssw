@@ -109,16 +109,24 @@ import RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cf
 pixelLessStepClusterShapeHitFilter  = RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi.ClusterShapeHitFilterESProducer.clone(
 	ComponentName = cms.string('pixelLessStepClusterShapeHitFilter'),
         PixelShapeFile= cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape.par'),
+        doStripShapeCut = cms.bool(False),
 	minGoodStripCharge = cms.double(2069)
 	)
-
+import RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeSeedFilter_cfi
 pixelLessStepSeeds.SeedComparitorPSet = cms.PSet(
-        ComponentName = cms.string('PixelClusterShapeSeedComparitor'),
-        FilterAtHelixStage = cms.bool(True),
-        FilterPixelHits = cms.bool(False),
-        FilterStripHits = cms.bool(True),
-        ClusterShapeHitFilterName = cms.string('pixelLessStepClusterShapeHitFilter'),
-        ClusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache") # not really needed here since FilterPixelHits=False
+    ComponentName = cms.string('CombinedSeedComparitor'),
+        mode = cms.string("and"),
+        comparitors = cms.VPSet(
+            cms.PSet(
+                ComponentName = cms.string('PixelClusterShapeSeedComparitor'),
+                FilterAtHelixStage = cms.bool(True),
+                FilterPixelHits = cms.bool(False),
+                FilterStripHits = cms.bool(True),
+                ClusterShapeHitFilterName = cms.string('pixelLessStepClusterShapeHitFilter'),
+                ClusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache") # not really needed here since FilterPixelHits=False
+            ), 
+            RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeSeedFilter_cfi.StripSubClusterShapeSeedFilter.clone()
+        )
     )
 
 # QUALITY CUTS DURING TRACK BUILDING

@@ -27,59 +27,6 @@ namespace edm {
   static StringSet foundTypes_;
   static StringSet missingTypes_;
 
-  bool
-  find_nested_type_named(std::string const& nested_type,
-                         TypeWithDict const& typeToSearch,
-                         TypeWithDict& found_type) {
-    // Look for a sub-type named 'nested_type'
-    TypeWithDict foundType = typeToSearch.nestedType(nested_type);
-    if(bool(foundType)) {
-      found_type = foundType;
-      return true;
-    }
-    return false;
-  }
-
-  bool
-  is_RefVector(TypeWithDict const& possibleRefVector,
-               TypeWithDict& value_type) {
-
-    static std::string const template_name("edm::RefVector");
-    static std::string const member_type("member_type");
-    if(template_name == possibleRefVector.templateName()) {
-      return find_nested_type_named(member_type, possibleRefVector, value_type);
-    }
-    return false;
-  }
-
-  bool
-  is_PtrVector(TypeWithDict const& possibleRefVector,
-               TypeWithDict& value_type) {
-
-    static std::string const template_name("edm::PtrVector");
-    static std::string const member_type("member_type");
-    static std::string const val_type("value_type");
-    if(template_name == possibleRefVector.templateName()) {
-      TypeWithDict ptrType;
-      if(find_nested_type_named(val_type, possibleRefVector, ptrType)) {
-        return find_nested_type_named(val_type, ptrType, value_type);
-      }
-    }
-    return false;
-  }
-
-  bool
-  is_RefToBaseVector(TypeWithDict const& possibleRefVector,
-                     TypeWithDict& value_type) {
-
-    static std::string const template_name("edm::RefToBaseVector");
-    static std::string const member_type("member_type");
-    if(template_name == possibleRefVector.templateName()) {
-      return find_nested_type_named(member_type, possibleRefVector, value_type);
-    }
-    return false;
-  }
-
   namespace {
 
     int const oneParamArraySize = 6;
@@ -226,7 +173,7 @@ namespace edm {
       for (StringSet::const_iterator it = missing.begin(), itEnd = missing.end();
          it != itEnd; ++it) {
         try {
-          gROOT->GetClass(it->c_str(), kTRUE);
+          TClass::GetClass(it->c_str(), kTRUE);
         }
         // We don't want to fail if we can't load a plug-in.
         catch(...) {}

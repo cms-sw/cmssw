@@ -752,9 +752,8 @@ namespace ecaldqm
       if(_axisParams.existsAs<std::vector<double> >("edges", false)){
         std::vector<double> const& vEdges(_axisParams.getUntrackedParameter<std::vector<double> >("edges"));
         axis.nbins = vEdges.size() - 1;
-        axis.edges = new double[vEdges.size()];
-        for(unsigned iE(0); iE < vEdges.size(); iE++)
-          axis.edges[iE] = vEdges[iE];
+        axis.edges = new float[vEdges.size()];
+        std::copy(vEdges.begin(), vEdges.end(), axis.edges);
       }
       else{
         axis.nbins = _axisParams.getUntrackedParameter<int>("nbins");

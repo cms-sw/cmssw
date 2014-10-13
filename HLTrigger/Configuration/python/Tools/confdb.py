@@ -206,6 +206,11 @@ cmsswVersion = os.environ['CMSSW_VERSION']
       self.build_source()
 
     # manual override some parameters
+    if self.config.type in ('HIon', ):
+      if self.config.data:
+        if not self.config.fragment:
+          self._fix_parameter( type = 'InputTag', value = 'rawDataCollector',  replace = 'rawDataRepacker')
+
 #    if self.config.type in ('HIon', ):
 #      self.data += """
 ## Disable HF Noise filters in HIon menu
@@ -250,19 +255,26 @@ cmsswVersion = os.environ['CMSSW_VERSION']
 
     if self.config.fragment:
       
-#      self.data += """
-## dummyfy hltGetConditions in cff's
-#if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
-#    %(process)shltDummyConditions = cms.EDFilter( "HLTBool",
-#        result = cms.bool( True )
-#    )
-#    %(process)sHLTriggerFirstPath.replace(%(process)shltGetConditions,%(process)shltDummyConditions)
-#"""
+      self.data += """
+# dummyfy hltGetConditions in cff's
+if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
+    %(process)shltDummyConditions = cms.EDFilter( "HLTBool",
+        result = cms.bool( True )
+    )
+    %(process)sHLTriggerFirstPath.replace(%(process)shltGetConditions,%(process)shltDummyConditions)
+"""
 
       # if requested, adapt the configuration for FastSim
       self.fixForFastSim()
 
     else:
+
+      if self.config.type not in ('2014','Fake',) :
+        self.data += """
+# load PostLS1 customisation
+from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1
+process = customisePostLS1(process)
+"""
 
       # override the process name and adapt the relevant filters
       self.overrideProcessName()
@@ -1193,7 +1205,7 @@ if 'GlobalTag' in %%(dict)s:
       self.source = [ "file:RelVal_Raw_%s_DATA.root" % self.config.type ]
     else:
       # ...or on mc
-      self.source = [ "file:RelVal_Raw_%s_STARTUP.root" % self.config.type ]
+      self.source = [ "file:RelVal_Raw_%s_MC.root" % self.config.type ]
 
     self.data += """
 %(process)ssource = cms.Source( "PoolSource",

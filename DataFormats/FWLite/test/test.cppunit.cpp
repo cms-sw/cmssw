@@ -446,29 +446,29 @@ void testRefInROOT::testThinning() {
 
     CPPUNIT_ASSERT(trackD.refVector1[0]->a == 10 + offset);
     CPPUNIT_ASSERT(trackD.refVector1[4]->a == 14 + offset);
-    CPPUNIT_ASSERT_THROW(trackD.refVector1[8]->a, cms::Exception);
+    CPPUNIT_ASSERT_THROW(trackD.refVector1[8].operator->(), cms::Exception);
     CPPUNIT_ASSERT(!trackD.refVector1.isAvailable());
     CPPUNIT_ASSERT(trackD.refVector1[0]->a == 10 + offset);
     CPPUNIT_ASSERT(trackD.refVector1[4]->a == 14 + offset);
-    CPPUNIT_ASSERT_THROW(trackD.refVector1[8]->a, cms::Exception);
+    CPPUNIT_ASSERT_THROW(trackD.refVector1[8].operator->(), cms::Exception);
 
     CPPUNIT_ASSERT(trackD.ptrVector1[0]->a == 10 + offset);
     CPPUNIT_ASSERT(trackD.ptrVector1[4]->a == 14 + offset);
-    CPPUNIT_ASSERT_THROW(trackD.ptrVector1[8]->a, cms::Exception);
+    CPPUNIT_ASSERT_THROW(trackD.ptrVector1[8].operator->(), cms::Exception);
     CPPUNIT_ASSERT(trackD.ptrVector1[9]->a == 21 + offset);
     CPPUNIT_ASSERT(!trackD.ptrVector1.isAvailable());
     CPPUNIT_ASSERT(trackD.ptrVector1[0]->a == 10 + offset);
     CPPUNIT_ASSERT(trackD.ptrVector1[4]->a == 14 + offset);
-    CPPUNIT_ASSERT_THROW(trackD.ptrVector1[8]->a, cms::Exception);
+    CPPUNIT_ASSERT_THROW(trackD.ptrVector1[8].operator->(), cms::Exception);
     CPPUNIT_ASSERT(trackD.ptrVector1[9]->a == 21 + offset);
 
     CPPUNIT_ASSERT(trackD.refToBaseVector1[0]->a == 10 + offset);
     CPPUNIT_ASSERT(trackD.refToBaseVector1[4]->a == 14 + offset);
-    CPPUNIT_ASSERT_THROW(trackD.refToBaseVector1[8]->a, cms::Exception);
+    CPPUNIT_ASSERT_THROW(trackD.refToBaseVector1[8].operator->(), cms::Exception);
     CPPUNIT_ASSERT(!trackD.refToBaseVector1.isAvailable());
     CPPUNIT_ASSERT(trackD.refToBaseVector1[0]->a == 10 + offset);
     CPPUNIT_ASSERT(trackD.refToBaseVector1[4]->a == 14 + offset);
-    CPPUNIT_ASSERT_THROW(trackD.refToBaseVector1[8]->a, cms::Exception);
+    CPPUNIT_ASSERT_THROW(trackD.refToBaseVector1[8].operator->(), cms::Exception);
 
     // In the G branch this tests accessing a value in
     // thinned collection made from a master collection.
@@ -511,11 +511,11 @@ void testRefInROOT::testThinning() {
     // of thinning or some just one level of thinning.
     edmtest::TrackOfThings const& trackM0 = pTrackOfThingsM->at(0);
     CPPUNIT_ASSERT(!trackM0.ref1.isAvailable());
-    CPPUNIT_ASSERT_THROW(trackM0.ref1->a, cms::Exception);
+    CPPUNIT_ASSERT_THROW(trackM0.ref1.operator->(), cms::Exception);
     CPPUNIT_ASSERT(!trackM0.ptr1.isAvailable());
-    CPPUNIT_ASSERT_THROW(trackM0.ptr1->a, cms::Exception);
+    CPPUNIT_ASSERT_THROW(trackM0.ptr1.operator->(), cms::Exception);
     CPPUNIT_ASSERT(!trackM0.refToBase1.isAvailable());
-    CPPUNIT_ASSERT_THROW(trackM0.refToBase1->a, cms::Exception);
+    CPPUNIT_ASSERT_THROW(trackM0.refToBase1.operator->(), cms::Exception);
 
     edmtest::TrackOfThings const& trackM1 = pTrackOfThingsM->at(1);
     CPPUNIT_ASSERT(trackM1.ref1.isAvailable());
@@ -526,29 +526,29 @@ void testRefInROOT::testThinning() {
     CPPUNIT_ASSERT(trackM1.refToBase1->a == 44 + offset);
 
     edmtest::TrackOfThings const& trackM = pTrackOfThingsM->at(0);
-    CPPUNIT_ASSERT_THROW(trackM.refVector1[0]->a, cms::Exception);
+    CPPUNIT_ASSERT_THROW(trackM.refVector1[0].operator->(), cms::Exception);
     CPPUNIT_ASSERT(trackM.refVector1[4]->a == 44 + offset);
-    CPPUNIT_ASSERT_THROW(trackM.refVector1[8]->a, cms::Exception);
+    CPPUNIT_ASSERT_THROW(trackM.refVector1[8].operator->(), cms::Exception);
     CPPUNIT_ASSERT(!trackM.refVector1.isAvailable());
-    CPPUNIT_ASSERT_THROW(trackM.refVector1[0]->a, cms::Exception);
+    CPPUNIT_ASSERT_THROW(trackM.refVector1[0].operator->(), cms::Exception);
     CPPUNIT_ASSERT(trackM.refVector1[4]->a == 44 + offset);
-    CPPUNIT_ASSERT_THROW(trackM.refVector1[8]->a, cms::Exception);
+    CPPUNIT_ASSERT_THROW(trackM.refVector1[8].operator->(), cms::Exception);
 
-    CPPUNIT_ASSERT_THROW(trackM.ptrVector1[0]->a, cms::Exception);
+    CPPUNIT_ASSERT_THROW(trackM.ptrVector1[0].operator->(), cms::Exception);
     CPPUNIT_ASSERT(trackM.ptrVector1[4]->a == 44 + offset);
-    CPPUNIT_ASSERT_THROW(trackM.ptrVector1[8]->a, cms::Exception);
+    CPPUNIT_ASSERT_THROW(trackM.ptrVector1[8].operator->(), cms::Exception);
     CPPUNIT_ASSERT(!trackM.ptrVector1.isAvailable());
-    CPPUNIT_ASSERT_THROW(trackM.ptrVector1[0]->a, cms::Exception);
+    CPPUNIT_ASSERT_THROW(trackM.ptrVector1[0].operator->(), cms::Exception);
     CPPUNIT_ASSERT(trackM.ptrVector1[4]->a == 44 + offset);
-    CPPUNIT_ASSERT_THROW(trackM.ptrVector1[8]->a, cms::Exception);
+    CPPUNIT_ASSERT_THROW(trackM.ptrVector1[8].operator->(), cms::Exception);
 
-    CPPUNIT_ASSERT_THROW(trackM.refToBaseVector1[0]->a, cms::Exception);
+    CPPUNIT_ASSERT_THROW(trackM.refToBaseVector1[0].operator->(), cms::Exception);
     CPPUNIT_ASSERT(trackM.refToBaseVector1[4]->a == 44 + offset);
-    CPPUNIT_ASSERT_THROW(trackM.refToBaseVector1[8]->a, cms::Exception);
+    CPPUNIT_ASSERT_THROW(trackM.refToBaseVector1[8].operator->(), cms::Exception);
     CPPUNIT_ASSERT(!trackM.refToBaseVector1.isAvailable());
-    CPPUNIT_ASSERT_THROW(trackM.refToBaseVector1[0]->a, cms::Exception);
+    CPPUNIT_ASSERT_THROW(trackM.refToBaseVector1[0].operator->(), cms::Exception);
     CPPUNIT_ASSERT(trackM.refToBaseVector1[4]->a == 44 + offset);
-    CPPUNIT_ASSERT_THROW(trackM.refToBaseVector1[8]->a, cms::Exception);
+    CPPUNIT_ASSERT_THROW(trackM.refToBaseVector1[8].operator->(), cms::Exception);
   }
 
   std::vector<std::string> files1 { "refTestCopyDrop.root" };
@@ -582,12 +582,12 @@ void testRefInROOT::testThinning() {
 
     CPPUNIT_ASSERT(trackD.ptrVector1[0]->a == 10 + offset);
     CPPUNIT_ASSERT(trackD.ptrVector1[4]->a == 14 + offset);
-    CPPUNIT_ASSERT_THROW(trackD.ptrVector1[8]->a, cms::Exception);
+    CPPUNIT_ASSERT_THROW(trackD.ptrVector1[8].operator->(), cms::Exception);
     CPPUNIT_ASSERT(trackD.ptrVector1[9]->a == 21 + offset);
     CPPUNIT_ASSERT(!trackD.ptrVector1.isAvailable());
     CPPUNIT_ASSERT(trackD.ptrVector1[0]->a == 10 + offset);
     CPPUNIT_ASSERT(trackD.ptrVector1[4]->a == 14 + offset);
-    CPPUNIT_ASSERT_THROW(trackD.ptrVector1[8]->a, cms::Exception);
+    CPPUNIT_ASSERT_THROW(trackD.ptrVector1[8].operator->(), cms::Exception);
     CPPUNIT_ASSERT(trackD.ptrVector1[9]->a == 21 + offset);
 
     // In the G branch this tests accessing a value in

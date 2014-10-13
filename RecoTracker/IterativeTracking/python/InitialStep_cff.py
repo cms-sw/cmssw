@@ -32,10 +32,18 @@ initialStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet = RecoP
 
 # building
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
-initialStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
+initialStepTrajectoryFilterBase = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
     minimumNumberOfHits = 3,
     minPt = 0.2
     )
+import RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeTrajectoryFilter_cfi
+initialStepTrajectoryFilterShape = RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeTrajectoryFilter_cfi.StripSubClusterShapeTrajectoryFilterTIX12.clone()
+initialStepTrajectoryFilter = cms.PSet(
+    ComponentType = cms.string('CompositeTrajectoryFilter'),
+    filters = cms.VPSet(
+        cms.PSet( refToPSet_ = cms.string('initialStepTrajectoryFilterBase')),
+        cms.PSet( refToPSet_ = cms.string('initialStepTrajectoryFilterShape'))),
+)
 
 import TrackingTools.KalmanUpdators.Chi2ChargeMeasurementEstimatorESProducer_cfi
 initialStepChi2Est = TrackingTools.KalmanUpdators.Chi2ChargeMeasurementEstimatorESProducer_cfi.Chi2ChargeMeasurementEstimator.clone(
@@ -74,6 +82,22 @@ initialStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.cl
     AlgorithmName = cms.string('initialStep'),
     Fitter = cms.string('FlexibleKFFittingSmoother')
     )
+
+
+#vertices
+import RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi
+firstStepPrimaryVertices=RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi.offlinePrimaryVertices.clone()
+firstStepPrimaryVertices.TrackLabel = cms.InputTag("initialStepTracks")
+firstStepPrimaryVertices.vertexCollections = cms.VPSet(
+     [cms.PSet(label=cms.string(""),
+               algorithm=cms.string("AdaptiveVertexFitter"),
+               minNdof=cms.double(0.0),
+               useBeamConstraint = cms.bool(False),
+               maxDistanceToBeam = cms.double(1.0)
+               )
+      ]
+    )
+ 
 
 # Final selection
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
@@ -126,5 +150,6 @@ InitialStep = cms.Sequence(initialStepSeedLayers*
                            initialStepSeeds*
                            initialStepTrackCandidates*
                            initialStepTracks*
+                           firstStepPrimaryVertices*
                            initialStepSelector*
                            initialStep)

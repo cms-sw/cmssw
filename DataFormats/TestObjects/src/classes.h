@@ -43,6 +43,9 @@ struct dictionary {
   edm::Wrapper<edmtest::ThingWithMerge> dummy104;
   edm::Wrapper<edmtest::ThingWithIsEqual> dummy103;
 
+  edmtest::AVSimpleProduct dummyAVSimpleProduct;
+  edmtest::AVSimpleProduct::value_type dummyAVSimpleProductValueType;
+  
   edmtest::ThingCollection dummy1;
   edmtest::OtherThingCollection dummy2;
   edm::Wrapper<edmtest::ThingCollection> dummy3;
@@ -65,6 +68,7 @@ struct dictionary {
   edm::DetSet<edmtest::Unsortable> x2;
   std::vector<edmtest::Sortable> x3;
   std::vector<edmtest::Unsortable> x4;
+  edm::Wrapper<std::vector<edmtest::SimpleDerived> > dummy99;
 
   edm::Ref<std::vector<edmtest::Thing> > dummyRefThings;
   edm::reftobase::Holder<edmtest::Thing,edm::Ref<std::vector<edmtest::Thing> > > bhThing;

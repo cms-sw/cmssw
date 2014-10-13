@@ -40,7 +40,7 @@ hiRegitInitialStepSeeds.skipClusters = cms.InputTag('hiRegitInitialStepClusters'
 hiRegitInitialStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 1.2
 
 # building: feed the new-named seeds
-hiRegitInitialStepTrajectoryFilter = RecoTracker.IterativeTracking.InitialStep_cff.initialStepTrajectoryFilter.clone()
+hiRegitInitialStepTrajectoryFilter = RecoTracker.IterativeTracking.InitialStep_cff.initialStepTrajectoryFilterBase.clone()
 
 
 hiRegitInitialStepTrajectoryBuilder = RecoTracker.IterativeTracking.InitialStep_cff.initialStepTrajectoryBuilder.clone(
