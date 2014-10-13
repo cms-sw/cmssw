@@ -631,7 +631,7 @@ void SiStripMonitorTrack::trackStudyFromTrack(edm::Handle<reco::TrackCollection 
       if (!(*hit)->isValid()) continue;
       DetId detID = (*hit)->geographicalId();
       if (detID.det() != DetId::Tracker) continue;
-      const TrackingRecHit* theHit = (*hit).get();
+      const TrackingRecHit* theHit = (*hit);
       const ProjectedSiStripRecHit2D* projhit    = dynamic_cast<const ProjectedSiStripRecHit2D*>( (theHit) );
       const SiStripMatchedRecHit2D*   matchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>  ( (theHit) );
       const SiStripRecHit2D*          hit2D      = dynamic_cast<const SiStripRecHit2D*>         ( (theHit) );

@@ -379,7 +379,7 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
                                           << "DetId.det() != DetId::Tracker (=" << DetId::Tracker
                                           << "), but " << detId.det() << ".";
       }
-      const TrackingRecHit* therechit = (*iHit).get();
+      const TrackingRecHit* therechit = (*iHit);
       if (chargeCheck_ && !(this->isOkCharge(therechit))) return false;
       if (applyIsolation_ && (!this->isIsolated(therechit, evt))) return false;
       if      (SiStripDetId::TIB == subdetId) ++nhitinTIB;
@@ -695,7 +695,7 @@ AlignmentTrackSelector::checkPrescaledHits(const Tracks& tracks, const edm::Even
     //    float pt=trackp->pt();
 
     for (trackingRecHit_iterator ith = trackp->recHitsBegin(), edh = trackp->recHitsEnd(); ith != edh; ++ith) {
-      const TrackingRecHit *hit = ith->get(); // ith is an iterator on edm::Ref to rechit
+      const TrackingRecHit *hit = (*ith); // ith is an iterator on edm::Ref to rechit
       if(! hit->isValid())continue;
       DetId detid = hit->geographicalId();
       int subDet = detid.subdetId();

@@ -834,7 +834,7 @@ void TestWithTracks::analyze(const edm::Event& e,
       //std::vector<SiStripRecHit2D*> output = getRecHitComponents((*recHit).get()); 
       //std::vector<SiPixelRecHit*> TrkComparison::getRecHitComponents(const TrackingRecHit* rechit){
 
-      const SiPixelRecHit* hit = dynamic_cast<const SiPixelRecHit*>((*recHit).get());
+      const SiPixelRecHit* hit = dynamic_cast<const SiPixelRecHit*>((*recHit));
       //edm::Ref<edmNew::DetSetVector<SiStripCluster> ,SiStripCluster> cluster = hit->cluster();
       // get the edm::Ref to the cluster
 
