@@ -71,7 +71,8 @@ namespace cms {
     void accumulatePixelHits(edm::Handle<std::vector<PSimHit> >,
 			     size_t globalSimHitIndex,
 			     const unsigned int tofBin,
-			     CLHEP::HepRandomEngine*);
+			     CLHEP::HepRandomEngine*,
+			     edm::EventSetup const& c);
     CLHEP::HepRandomEngine* randomEngine(edm::StreamID const& streamID);
 
     bool first;
