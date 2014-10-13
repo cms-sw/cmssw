@@ -2,6 +2,8 @@
 #define DataFormatsSiStripClusterSiStripClusterTools_H
 
 #include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
+
 #include<numeric>
 
 namespace siStripClusterTools {

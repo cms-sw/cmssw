@@ -20,7 +20,7 @@ class TrackingRecHit;
 class MeasurementEstimator {
 public:
 
-  struct OpaquePayload { virtual ~OpaquePayload(){} };
+  struct OpaquePayload { virtual ~OpaquePayload(){} int tag=0;};
 
   typedef Vector2DBase< float, LocalTag>    Local2DVector;
 

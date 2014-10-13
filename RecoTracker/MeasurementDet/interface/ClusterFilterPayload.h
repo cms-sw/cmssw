@@ -3,14 +3,15 @@
 
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 
-class SiSitripCluster;
+class SiStripCluster;
 struct ClusterFilterPayload final : public MeasurementEstimator::OpaquePayload {
   ~ClusterFilterPayload(){}
 
-  ClusterFilterPayload(unsigned int id, SiSitripCluster const	* mono, SiSitripCluster const	* stereo=nullptr) : detId(id), cluster{mono,stereo}{}
+  ClusterFilterPayload(unsigned int id, SiStripCluster const	* mono, SiStripCluster const	* stereo=nullptr) : detId(id), cluster{mono,stereo}{ tag=myTag;}
   unsigned int detId=0;
-  SiSitripCluster const * cluster[2] = {nullptr,nullptr};
+  SiStripCluster const * cluster[2] = {nullptr,nullptr};
 
+  static constexpr int myTag = 123;
 };
 
 
