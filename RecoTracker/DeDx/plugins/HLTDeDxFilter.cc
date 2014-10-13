@@ -90,19 +90,19 @@ bool
   ModuleDescription moduleDesc_;
 
   if (saveTags()){
-    filterproduct.addCollectionTag(thisModuleTag_);
-    filterproduct.addCollectionTag(inputTracksTag_);
-    filterproduct.addCollectionTag(inputdedxTag_);
+     filterproduct.addCollectionTag(thisModuleTag_);
+     filterproduct.addCollectionTag(inputTracksTag_);
+     filterproduct.addCollectionTag(inputdedxTag_);
   }
-  
+
   edm::Handle<reco::TrackCollection> trackCollectionHandle;
   iEvent.getByToken(inputTracksToken_,trackCollectionHandle);
   reco::TrackCollection trackCollection = *trackCollectionHandle.product();
-  
+
   edm::Handle<edm::ValueMap<reco::DeDxData> > dEdxTrackHandle;
   iEvent.getByToken(inputdedxToken_, dEdxTrackHandle);
   const edm::ValueMap<reco::DeDxData> dEdxTrack = *dEdxTrackHandle.product();
-  
+
   bool accept=false;
   int  NTracks = 0;
   //fill local arrays for eta, phi, and pt
@@ -114,48 +114,48 @@ bool
   }   
   for(unsigned int i=0; i<trackCollection.size(); i++){
     reco::TrackRef track  = reco::TrackRef( trackCollectionHandle, i );
-    if(pt[i]>minPT_ && fabs(eta[i])<maxETA_ && dEdxTrack[track].numberOfMeasurements()>minNOM_ && dEdxTrack[track].dEdx()>minDEDx_){
+     if(pt[i]>minPT_ && fabs(eta[i])<maxETA_ && dEdxTrack[track].numberOfMeasurements()>minNOM_ && dEdxTrack[track].dEdx()>minDEDx_){
       NTracks++;
-      if(track->numberOfValidHits() < minNumValidHits_) continue;
-      if(track->hitPattern().trackerLayersWithoutMeasurement( reco::HitPattern::MISSING_INNER_HITS) > maxNHitMissIn_) continue;
-      if(track->hitPattern().trackerLayersWithoutMeasurement( reco::HitPattern::TRACK_HITS) > maxNHitMissMid_) continue;
-      if (saveTags()){
-	Particle::Charge q = track->charge();
-	//SAVE DEDX INFORMATION AS IF IT WAS THE MASS OF THE PARTICLE
-	Particle::LorentzVector p4(track->px(), track->py(), track->pz(), sqrt(pow(track->p(),2) + pow(dEdxTrack[track].dEdx(),2)));
-	Particle::Point vtx(track->vx(),track->vy(), track->vz());
-	//SAVE NOH, NOM, NOS INFORMATION AS IF IT WAS THE PDGID OF THE PARTICLE
-	int Hits  = ((dEdxTrack[track].numberOfSaturatedMeasurements()&0xFF)<<16) | ((dEdxTrack[track].numberOfMeasurements()&0xFF)<<8) | (track->found()&0xFF);
-	RecoChargedCandidate cand(q, p4, vtx, Hits, 0);
-	cand.setTrack(track);
-	chargedCandidates->push_back(cand);
-      }
-      
-      //calculate relative trk isolation only if parameter maxRelTrkIsoDeltaRp3 is greater than 0
-      if(maxRelTrkIsoDeltaRp3_ >= 0){
-	auto ptCone = trackCollection[i].pt();
-	for(unsigned int j=0; j<trackCollection.size(); j++){
-	  if (i==j) continue; // do not compare track to itself
-	  auto trkDeltaR2 = deltaR2(eta[i], phi[i], eta[j], phi[j]);
-	  if (trkDeltaR2 < relTrkIsoDeltaRSize_ * relTrkIsoDeltaRSize_){
-	    ptCone+=pt[j];
-	  }
-	}
-	double relTrkIso = (ptCone - pt[i])/(pt[i]);
-	if (relTrkIso > maxRelTrkIsoDeltaRp3_) continue;
-      }
-      accept=true;
+       if(track->numberOfValidHits() < minNumValidHits_) continue;
+       if(track->hitPattern().trackerLayersWithoutMeasurement( reco::HitPattern::MISSING_INNER_HITS) > maxNHitMissIn_) continue;
+       if(track->hitPattern().trackerLayersWithoutMeasurement( reco::HitPattern::TRACK_HITS) > maxNHitMissMid_) continue;
+       if (saveTags()){
+	 Particle::Charge q = track->charge();
+          //SAVE DEDX INFORMATION AS IF IT WAS THE MASS OF THE PARTICLE
+          Particle::LorentzVector p4(track->px(), track->py(), track->pz(), sqrt(pow(track->p(),2) + pow(dEdxTrack[track].dEdx(),2)));
+          Particle::Point vtx(track->vx(),track->vy(), track->vz());
+          //SAVE NOH, NOM, NOS INFORMATION AS IF IT WAS THE PDGID OF THE PARTICLE
+          int Hits  = ((dEdxTrack[track].numberOfSaturatedMeasurements()&0xFF)<<16) | ((dEdxTrack[track].numberOfMeasurements()&0xFF)<<8) | (track->found()&0xFF);
+          RecoChargedCandidate cand(q, p4, vtx, Hits, 0);
+          cand.setTrack(track);
+          chargedCandidates->push_back(cand);
+       }
+       
+       //calculate relative trk isolation only if parameter maxRelTrkIsoDeltaRp3 is greater than 0
+       if(maxRelTrkIsoDeltaRp3_ >= 0){
+	 auto ptCone = trackCollection[i].pt();
+	 for(unsigned int j=0; j<trackCollection.size(); j++){
+	 if (i==j) continue; // do not compare track to itself
+         auto trkDeltaR2 = deltaR2(eta[i], phi[i], eta[j], phi[j]);
+         if (trkDeltaR2 < relTrkIsoDeltaRSize_ * relTrkIsoDeltaRSize_){
+           ptCone+=pt[j];
+	 }
+       }
+       double relTrkIso = (ptCone - pt[i])/(pt[i]);
+       if (relTrkIso > maxRelTrkIsoDeltaRp3_) continue;
+       }
+       accept=true;
     }
   }
-  
+
   // put filter object into the Event
-  if(saveTags()){
-    edm::OrphanHandle<RecoChargedCandidateCollection> chargedCandidatesHandle = iEvent.put(chargedCandidates);
-    for(int i=0; i<NTracks; i++){
-      filterproduct.addObject(TriggerMuon,RecoChargedCandidateRef(chargedCandidatesHandle,i));
-    }
-  }
-  
+   if(saveTags()){
+     edm::OrphanHandle<RecoChargedCandidateCollection> chargedCandidatesHandle = iEvent.put(chargedCandidates);
+     for(int i=0; i<NTracks; i++){
+          filterproduct.addObject(TriggerMuon,RecoChargedCandidateRef(chargedCandidatesHandle,i));
+     }
+   }
+
   return accept;
 }
 
