@@ -26,29 +26,21 @@
 //
 template<typename T1, typename T2>
 HLTDoubletDZ<T1,T2>::HLTDoubletDZ(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
-  originTag1_(iConfig.template getParameter<std::vector<edm::InputTag> >("originTag1")),
-  originTag2_(iConfig.template getParameter<std::vector<edm::InputTag> >("originTag2")),
-  inputTag1_(iConfig.template getParameter<edm::InputTag>("inputTag1")),
-  inputTag2_(iConfig.template getParameter<edm::InputTag>("inputTag2")),
-  inputToken1_(consumes<trigger::TriggerFilterObjectWithRefs>(inputTag1_)),
-  inputToken2_(consumes<trigger::TriggerFilterObjectWithRefs>(inputTag2_)),
-  triggerType1_(iConfig.template getParameter<int>("triggerType1")),
-  triggerType2_(iConfig.template getParameter<int>("triggerType2")),
-  minDR_ (iConfig.template getParameter<double>("MinDR")),
-  maxDZ_ (iConfig.template getParameter<double>("MaxDZ")),
-  min_N_    (iConfig.template getParameter<int>("MinN")),
-  checkSC_  (iConfig.template getParameter<bool>("checkSC")),
-  same_     (inputTag1_.encode()==inputTag2_.encode())      // same collections to be compared?
-{
-  
-  if (iConfig.exists("electronTag")) {
-    electronToken_ = consumes<reco::ElectronCollection>(iConfig.template getParameter<edm::InputTag>("electronTag"));
-    useElectronCollection_ = true;
-  } else {
-    useElectronCollection_ = false;
-  }
-  
-}
+								      originTag1_(iConfig.template getParameter<std::vector<edm::InputTag> >("originTag1")),
+								      originTag2_(iConfig.template getParameter<std::vector<edm::InputTag> >("originTag2")),
+								      inputTag1_(iConfig.template getParameter<edm::InputTag>("inputTag1")),
+								      inputTag2_(iConfig.template getParameter<edm::InputTag>("inputTag2")),
+								      inputToken1_(consumes<trigger::TriggerFilterObjectWithRefs>(inputTag1_)),
+								      inputToken2_(consumes<trigger::TriggerFilterObjectWithRefs>(inputTag2_)), 
+								      electronToken_ (consumes<reco::ElectronCollection>(iConfig.template getParameter<edm::InputTag>("electronTag"))),
+								      triggerType1_(iConfig.template getParameter<int>("triggerType1")),
+								      triggerType2_(iConfig.template getParameter<int>("triggerType2")),
+								      minDR_ (iConfig.template getParameter<double>("MinDR")),
+								      maxDZ_ (iConfig.template getParameter<double>("MaxDZ")),
+								      min_N_    (iConfig.template getParameter<int>("MinN")),
+								      checkSC_  (iConfig.template getParameter<bool>("checkSC")),
+								      same_     (inputTag1_.encode()==inputTag2_.encode())      // same collections to be compared?
+{}
 
 template<typename T1, typename T2>
 HLTDoubletDZ<T1,T2>::~HLTDoubletDZ()
@@ -181,12 +173,10 @@ HLTDoubletDZ<reco::RecoEcalCandidate, reco::RecoEcalCandidate>::hltFilter(edm::E
 {
  
   edm::Handle<reco::ElectronCollection> electronHandle_;
-  if (useElectronCollection_) {
-    iEvent.getByToken(electronToken_, electronHandle_);
-    if (!electronHandle_.isValid()) 
-      edm::LogError("HLTDoubletDZ") << "HLTDoubletDZ: Electron Handle not valid.";
-  }
-   
+  iEvent.getByToken(electronToken_, electronHandle_);
+  if (!electronHandle_.isValid()) 
+    edm::LogError("HLTDoubletDZ") << "HLTDoubletDZ: Electron Handle not valid.";
+     
   bool accept(false);
   
   edm::LogVerbatim("HLTDoubletDZ") << " XXX " << moduleLabel() << " 0 " << std::endl;

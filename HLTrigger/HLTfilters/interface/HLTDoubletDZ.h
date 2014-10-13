@@ -46,7 +46,6 @@ class HLTDoubletDZ : public HLTFilter {
   const edm::InputTag inputTag2_;   // input tag identifying filtered 2nd product
   const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> inputToken1_;
   const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> inputToken2_;
-  bool useElectronCollection_;
   edm::EDGetTokenT<reco::ElectronCollection> electronToken_;
   const int triggerType1_;
   const int triggerType2_;
