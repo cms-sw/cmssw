@@ -9,7 +9,7 @@ ecalRecHit = cms.EDProducer("EcalRecHitProducer",
     EBuncalibRecHitCollection = cms.InputTag("ecalMultiFitUncalibRecHit","EcalUncalibRecHitsEB"),
     EBrechitCollection = cms.string('EcalRecHitsEB'),
     EKrechitCollection = cms.string('EcalRecHitsEK'),
-    EKuncalibRecHitCollection = cms.InputTag("ecalGlobalUncalibRecHit","EcalUncalibRecHitsEK"),
+    EKuncalibRecHitCollection = cms.InputTag("ecalMultiFitUncalibRecHit","EcalUncalibRecHitsEK"),
 
     # channel flags to be exluded from reconstruction, e.g { 1, 2 }
     ChannelStatusToBeExcluded = cms.vint32(),

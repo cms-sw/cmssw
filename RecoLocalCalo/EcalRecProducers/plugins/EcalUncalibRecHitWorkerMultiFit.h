@@ -54,22 +54,28 @@ class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass 
                 edm::ESHandle<EcalPedestals> peds;
                 edm::ESHandle<EcalGainRatios>  gains;
 
-                double timeCorrection(float ampli,
-                    const std::vector<float>& amplitudeBins, const std::vector<float>& shiftBins);
+                double timeCorrectionEB(float ampliEB);
+                double timeCorrectionEE(float ampliEE);
+                double timeCorrectionEK(float ampliEE);
 
                 const SampleMatrix &noisecor(bool barrel, int gain) const;                
                 
                 // multifit method
                 SampleMatrix noisecorEBg12;
                 SampleMatrix noisecorEEg12;
+                SampleMatrix noisecorEKg12;
                 SampleMatrix noisecorEBg6;
                 SampleMatrix noisecorEEg6;
+                SampleMatrix noisecorEKg6;
                 SampleMatrix noisecorEBg1;
                 SampleMatrix noisecorEEg1;
+                SampleMatrix noisecorEKg1;
                 FullSampleVector fullpulseEB;
                 FullSampleVector fullpulseEE;
+                FullSampleVector fullpulseEK;
                 FullSampleMatrix fullpulsecovEB;
                 FullSampleMatrix fullpulsecovEE;
+                FullSampleMatrix fullpulsecovEK;
                 BXVector activeBX;
                 bool ampErrorCalculation_;
                 EcalUncalibRecHitMultiFitAlgo multiFitMethod_;
@@ -87,35 +93,53 @@ class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass 
                 const EcalWeightSet::EcalWeightMatrix* weights[2];
                 EcalUncalibRecHitTimeWeightsAlgo<EBDataFrame> weightsMethod_barrel_;
                 EcalUncalibRecHitTimeWeightsAlgo<EEDataFrame> weightsMethod_endcap_;
+                EcalUncalibRecHitTimeWeightsAlgo<EKDataFrame> weightsMethod_shashlik_;
 
                 // ratio method
                 std::vector<double> EBtimeFitParameters_; 
                 std::vector<double> EEtimeFitParameters_; 
+                std::vector<double> EKtimeFitParameters_; 
                 std::vector<double> EBamplitudeFitParameters_; 
                 std::vector<double> EEamplitudeFitParameters_; 
+                std::vector<double> EKamplitudeFitParameters_; 
                 std::pair<double,double> EBtimeFitLimits_;  
                 std::pair<double,double> EEtimeFitLimits_;  
-
+                std::pair<double,double> EKtimeFitLimits_;  
+                bool                doEBtimeCorrection_;
+                bool                doEEtimeCorrection_;
+                bool                doEKtimeCorrection_;
+                std::vector<double> EBtimeCorrAmplitudeBins_; 
+                std::vector<double> EBtimeCorrShiftBins_; 
+                std::vector<double> EEtimeCorrAmplitudeBins_; 
+                std::vector<double> EEtimeCorrShiftBins_; 
+                std::vector<double> EKtimeCorrAmplitudeBins_; 
+                std::vector<double> EKtimeCorrShiftBins_; 
                 EcalUncalibRecHitRatioMethodAlgo<EBDataFrame> ratioMethod_barrel_;
                 EcalUncalibRecHitRatioMethodAlgo<EEDataFrame> ratioMethod_endcap_;
+                EcalUncalibRecHitRatioMethodAlgo<EKDataFrame> ratioMethod_shashlik_;
 
                 double EBtimeConstantTerm_;
                 double EEtimeConstantTerm_;
+                double EKtimeConstantTerm_;
 
                 // leading edge method
                 edm::ESHandle<EcalTimeCalibConstants> itime;
-		edm::ESHandle<EcalTimeOffsetConstant> offtime;
+                edm::ESHandle<EcalTimeOffsetConstant> offtime;
                 std::vector<double> ebPulseShape_;
                 std::vector<double> eePulseShape_;
+                std::vector<double> ekPulseShape_;
                 EcalUncalibRecHitLeadingEdgeAlgo<EBDataFrame> leadingEdgeMethod_barrel_;
                 EcalUncalibRecHitLeadingEdgeAlgo<EEDataFrame> leadingEdgeMethod_endcap_;
+                EcalUncalibRecHitLeadingEdgeAlgo<EKDataFrame> leadingEdgeMethod_shashlik_;
 
 
                 // chi2 thresholds for flags settings
                 bool kPoorRecoFlagEB_;
                 bool kPoorRecoFlagEE_;
+                bool kPoorRecoFlagEK_;
                 double chi2ThreshEB_;
                 double chi2ThreshEE_;
+                double chi2ThreshEK_;
 
 
  private:
