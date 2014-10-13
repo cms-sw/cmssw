@@ -110,11 +110,16 @@ typedef HLTDoublet<RecoChargedCandidate,CaloMET> HLT2MuonCaloMET;
 typedef HLTDoublet<Electron            ,    MET> HLT2ElectronMET;
 typedef HLTDoublet<RecoChargedCandidate,    MET> HLT2MuonMET;
 
-#include "HLTrigger/HLTfilters/interface/HLTDoubletDZ.h"
-#include "HLTrigger/HLTfilters/src/HLTDoubletDZ.cc"
-typedef HLTDoubletDZ<Electron            ,Electron>             HLT2ElectronElectronDZ;
-typedef HLTDoubletDZ<RecoChargedCandidate,RecoChargedCandidate> HLT2MuonMuonDZ;
-typedef HLTDoubletDZ<Electron            ,RecoChargedCandidate> HLT2ElectronMuonDZ;
+//#include "HLTrigger/HLTfilters/interface/HLTDoubletDZ.h"
+//#include "HLTrigger/HLTfilters/src/HLTDoubletDZ.cc"
+//typedef HLTDoubletDZ<Electron            ,Electron>             HLT2ElectronElectronDZ;
+//typedef HLTDoubletDZ<RecoChargedCandidate,RecoChargedCandidate> HLT2MuonMuonDZ;
+//typedef HLTDoubletDZ<Electron            ,RecoChargedCandidate> HLT2ElectronMuonDZ;
+//typedef HLTDoubletDZ<RecoEcalCandidate   ,RecoEcalCandidate>    HLT2PhotonPhotonDZ;
+//DEFINE_FWK_MODULE(HLT2ElectronElectronDZ);
+//DEFINE_FWK_MODULE(HLT2MuonMuonDZ);
+//DEFINE_FWK_MODULE(HLT2ElectronMuonDZ);
+//DEFINE_FWK_MODULE(HLT2PhotonPhotonDZ);
 
 DEFINE_FWK_MODULE(HLTBool);
 DEFINE_FWK_MODULE(HLTFiltCand);
@@ -178,6 +183,3 @@ DEFINE_FWK_MODULE(HLT1SmartPFJet);
 DEFINE_FWK_MODULE(HLTGlobalSumsCaloMET);
 DEFINE_FWK_MODULE(HLTGlobalSumsMET);
 
-DEFINE_FWK_MODULE(HLT2ElectronElectronDZ);
-DEFINE_FWK_MODULE(HLT2MuonMuonDZ);
-DEFINE_FWK_MODULE(HLT2ElectronMuonDZ);

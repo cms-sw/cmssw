@@ -6,9 +6,16 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
-#include "DataFormats/Candidate/interface/Particle.h"
-
+//#include "DataFormats/Candidate/interface/Particle.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
 
@@ -33,8 +40,14 @@ HLTDoubletDZ<T1,T2>::HLTDoubletDZ(const edm::ParameterSet& iConfig) : HLTFilter(
   checkSC_  (iConfig.template getParameter<bool>("checkSC")),
   same_     (inputTag1_.encode()==inputTag2_.encode())      // same collections to be compared?
 {
-  if (triggerType1_ == trigger::TriggerPhoton or triggerType2_ == trigger::TriggerPhoton)
-    electronTag_ = consumes<reco::ElectronCollection>(iConfig.template getParameter<edm::InputTag>("electronTag"));
+  
+  if (iConfig.exists("electronTag")) {
+    electronToken_ = consumes<reco::ElectronCollection>(iConfig.template getParameter<edm::InputTag>("electronTag"));
+    useElectronCollection_ = true;
+  } else {
+    useElectronCollection_ = false;
+  }
+  
 }
 
 template<typename T1, typename T2>
@@ -67,117 +80,211 @@ template<typename T1, typename T2>
 bool
 HLTDoubletDZ<T1,T2>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
-   using namespace std;
-   using namespace edm;
-   using namespace reco;
-   using namespace trigger;
+  using namespace std;
+  using namespace edm;
+  using namespace reco;
+  using namespace trigger;
 
-   // All HLT filters must create and fill an HLT filter object,
-   // recording any reconstructed physics objects satisfying (or not)
-   // this HLT filter, and place it in the Event.
+  // All HLT filters must create and fill an HLT filter object,
+  // recording any reconstructed physics objects satisfying (or not)
+  // this HLT filter, and place it in the Event.
+  bool accept(false);
+  
+  edm::LogVerbatim("HLTDoubletDZ") << " XXX " << moduleLabel() << " 0 " << std::endl;
+  
+  std::vector<T1Ref> coll1;
+  std::vector<T2Ref> coll2;
+  
+  // get hold of pre-filtered object collections
+  edm::Handle<trigger::TriggerFilterObjectWithRefs> handle1,handle2;
+  if (iEvent.getByToken(inputToken1_, handle1) and iEvent.getByToken(inputToken2_, handle2)) {
+    handle1->getObjects(triggerType1_, coll1);
+    handle2->getObjects(triggerType2_, coll2);
+    const trigger::size_type n1(coll1.size());
+    const trigger::size_type n2(coll2.size());
+    
+    if (saveTags()) {
+      edm::InputTag tagOld;
+      for (unsigned int i=0; i<originTag1_.size(); ++i) {
+	filterproduct.addCollectionTag(originTag1_[i]);
+	edm::LogVerbatim("HLTDoubletDZ") << " XXX " << moduleLabel() << " 1a/" << i << " " << originTag1_[i].encode() << std::endl;
+      }
+      tagOld=edm::InputTag();
+      for (trigger::size_type i1=0; i1!=n1; ++i1) {
+	const edm::ProductID pid(coll1[i1].id());
+	const std::string&    label(iEvent.getProvenance(pid).moduleLabel());
+	const std::string& instance(iEvent.getProvenance(pid).productInstanceName());
+	const std::string&  process(iEvent.getProvenance(pid).processName());
+	edm::InputTag tagNew(edm::InputTag(label,instance,process));
+	if (tagOld.encode()!=tagNew.encode()) {
+	  filterproduct.addCollectionTag(tagNew);
+	  tagOld=tagNew;
+	  edm::LogVerbatim("HLTDoubletDZ") << " XXX " << moduleLabel() << " 1b " << tagNew.encode() << std::endl;
+	}
+      }
+      for (unsigned int i=0; i<originTag2_.size(); ++i) {
+	filterproduct.addCollectionTag(originTag2_[i]);
+	edm::LogVerbatim("HLTDoubletDZ") << " XXX " << moduleLabel() << " 2a/" << originTag2_[i].encode() << std::endl;
+      }
+      tagOld=edm::InputTag();
+      for (trigger::size_type i2=0; i2!=n2; ++i2) {
+	const edm::ProductID pid(coll2[i2].id());
+	const std::string&    label(iEvent.getProvenance(pid).moduleLabel());
+	const std::string& instance(iEvent.getProvenance(pid).productInstanceName());
+	const std::string&  process(iEvent.getProvenance(pid).processName());
+	edm::InputTag tagNew(edm::InputTag(label,instance,process));
+	if (tagOld.encode()!=tagNew.encode()) {
+	  filterproduct.addCollectionTag(tagNew);
+	  tagOld=tagNew;
+	  edm::LogVerbatim("HLTDoubletDZ") << " XXX " << moduleLabel() << " 2b " << tagNew.encode() << std::endl;
+	}
+      }
+    }
+ 
+    int n(0);
+    T1Ref r1;
+    T2Ref r2;
+    
+    for (unsigned int i1=0; i1!=coll1.size(); i1++) {
+      r1=coll1[i1];
+      const reco::Candidate& candidate1(*r1);
+      unsigned int I(0);
+      if (same_) {I=i1+1;}
+      for (unsigned int i2=I; i2!=coll2.size(); i2++) {
+	r2=coll2[i2];
+	if (checkSC_) {
+	  if (r1->superCluster().isNonnull() && r2->superCluster().isNonnull()) {
+	    if (r1->superCluster() == r2->superCluster()) continue;
+	  }
+	}
+	
+	const reco::Candidate& candidate2(*r2);
+	if ( reco::deltaR(candidate1, candidate2) < minDR_ ) continue;
+	if ( std::abs(candidate1.vz()-candidate2.vz()) > maxDZ_ ) continue;
+	
+	n++;
+	filterproduct.addObject(triggerType1_,r1);
+	filterproduct.addObject(triggerType2_,r2);
+      }
+    } 
 
-   bool accept(false);
-
-   LogVerbatim("HLTDoubletDZ") << " XXX " << moduleLabel() << " 0 " << std::endl;
-
-   std::vector<T1Ref> coll1;
-   std::vector<T2Ref> coll2;
-
-   // get hold of pre-filtered object collections
-   Handle<TriggerFilterObjectWithRefs> handle1,handle2;
-   if (iEvent.getByToken(inputToken1_, handle1) and iEvent.getByToken(inputToken2_, handle2)) {
-     handle1->getObjects(triggerType1_, coll1);
-     handle2->getObjects(triggerType2_, coll2);
-     const size_type n1(coll1.size());
-     const size_type n2(coll2.size());
-
-     if (saveTags()) {
-       InputTag tagOld;
-       for (unsigned int i=0; i<originTag1_.size(); ++i) {
-	 filterproduct.addCollectionTag(originTag1_[i]);
-	 LogVerbatim("HLTDoubletDZ") << " XXX " << moduleLabel() << " 1a/" << i << " " << originTag1_[i].encode() << std::endl;
-       }
-       tagOld=InputTag();
-       for (size_type i1=0; i1!=n1; ++i1) {
-	 const ProductID pid(coll1[i1].id());
-	 const string&    label(iEvent.getProvenance(pid).moduleLabel());
-	 const string& instance(iEvent.getProvenance(pid).productInstanceName());
-	 const string&  process(iEvent.getProvenance(pid).processName());
-	 InputTag tagNew(InputTag(label,instance,process));
-	 if (tagOld.encode()!=tagNew.encode()) {
-	   filterproduct.addCollectionTag(tagNew);
-	   tagOld=tagNew;
-           LogVerbatim("HLTDoubletDZ") << " XXX " << moduleLabel() << " 1b " << tagNew.encode() << std::endl;
-	 }
-       }
-       for (unsigned int i=0; i<originTag2_.size(); ++i) {
-	 filterproduct.addCollectionTag(originTag2_[i]);
-	 LogVerbatim("HLTDoubletDZ") << " XXX " << moduleLabel() << " 2a/" << originTag2_[i].encode() << std::endl;
-       }
-       tagOld=InputTag();
-       for (size_type i2=0; i2!=n2; ++i2) {
-	 const ProductID pid(coll2[i2].id());
-	 const string&    label(iEvent.getProvenance(pid).moduleLabel());
-	 const string& instance(iEvent.getProvenance(pid).productInstanceName());
-	 const string&  process(iEvent.getProvenance(pid).processName());
-	 InputTag tagNew(InputTag(label,instance,process));
-	 if (tagOld.encode()!=tagNew.encode()) {
-	   filterproduct.addCollectionTag(tagNew);
-	   tagOld=tagNew;
-           LogVerbatim("HLTDoubletDZ") << " XXX " << moduleLabel() << " 2b " << tagNew.encode() << std::endl;
-	 }
-       }
-     }
-
-     int n(0);
-     T1Ref r1;
-     T2Ref r2;
-     Particle::LorentzVector p1,p2,p;
-     edm::Handle<reco::ElectronCollection> electronHandle;
-     if (triggerType1_ == trigger::TriggerPhoton and triggerType2_ == trigger::TriggerPhoton) {
-       iEvent.getByToken(electronTag_,electronHandle);
-     }
-
-     for (unsigned int i1=0; i1!=n1; i1++) {
-       r1=coll1[i1];
-       const reco::Candidate& candidate1(*r1);
-       unsigned int I(0);
-       if (same_) {I=i1+1;}
-       for (unsigned int i2=I; i2!=n2; i2++) {
-	 r2=coll2[i2];
-	 if (checkSC_) {
-	   if (r1->superCluster().isNonnull() && r2->superCluster().isNonnull()) {
-	     if (r1->superCluster() == r2->superCluster()) continue;
-	   }
-	 }
- 	 const reco::Candidate& candidate2(*r2);
-	 if ( reco::deltaR(candidate1, candidate2) < minDR_ ) continue;
-	 if (triggerType1_ == trigger::TriggerPhoton and triggerType2_ == trigger::TriggerPhoton) {
-	   reco::Electron e1, e2;
-	   if(electronHandle.isValid()) {
-	     for(reco::ElectronCollection::const_iterator eleIt = electronHandle->begin(); eleIt != electronHandle->end(); eleIt++) {
-	       if (eleIt->superCluster() == r1->superCluster())
-		 e1 = *(eleIt);
-	       if (eleIt->superCluster() == r2->superCluster())
-		 e2 = *(eleIt);
-	     }
-	   } else {
-	     edm::LogError ("Cannot read Electron Collection");
-	   }
-
-	   if ( std::abs(e1.vz()-e2.vz()) > maxDZ_ ) continue;
-	   
-	 } else {
-	   if ( std::abs(candidate1.vz()-candidate2.vz()) > maxDZ_ ) continue;
-	 }
-	 n++;
-	 filterproduct.addObject(triggerType1_,r1);
-	 filterproduct.addObject(triggerType2_,r2);
-       }
-     }
-     // filter decision
-     accept = accept || (n>=min_N_);
-   }
-
-   return accept;
+    accept = accept || (n>=min_N_);
+  }
+  
+  return accept;
 }
+
+
+template<>
+bool
+HLTDoubletDZ<reco::RecoEcalCandidate, reco::RecoEcalCandidate>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
+{
+ 
+  edm::Handle<reco::ElectronCollection> electronHandle_;
+  if (useElectronCollection_) {
+    iEvent.getByToken(electronToken_, electronHandle_);
+    if (!electronHandle_.isValid()) 
+      edm::LogError("HLTDoubletDZ") << "HLTDoubletDZ: Electron Handle not valid.";
+  }
+   
+  bool accept(false);
+  
+  edm::LogVerbatim("HLTDoubletDZ") << " XXX " << moduleLabel() << " 0 " << std::endl;
+  
+  std::vector<T1Ref> coll1;
+  std::vector<T2Ref> coll2;
+  
+  // get hold of pre-filtered object collections
+  edm::Handle<trigger::TriggerFilterObjectWithRefs> handle1,handle2;
+  if (iEvent.getByToken(inputToken1_, handle1) and iEvent.getByToken(inputToken2_, handle2)) {
+    handle1->getObjects(triggerType1_, coll1);
+    handle2->getObjects(triggerType2_, coll2);
+    const trigger::size_type n1(coll1.size());
+    const trigger::size_type n2(coll2.size());
+    
+    if (saveTags()) {
+      edm::InputTag tagOld;
+      for (unsigned int i=0; i<originTag1_.size(); ++i) {
+	filterproduct.addCollectionTag(originTag1_[i]);
+	edm::LogVerbatim("HLTDoubletDZ") << " XXX " << moduleLabel() << " 1a/" << i << " " << originTag1_[i].encode() << std::endl;
+      }
+      tagOld=edm::InputTag();
+      for (trigger::size_type i1=0; i1!=n1; ++i1) {
+	const edm::ProductID pid(coll1[i1].id());
+	const std::string&    label(iEvent.getProvenance(pid).moduleLabel());
+	const std::string& instance(iEvent.getProvenance(pid).productInstanceName());
+	const std::string&  process(iEvent.getProvenance(pid).processName());
+	edm::InputTag tagNew(edm::InputTag(label,instance,process));
+	if (tagOld.encode()!=tagNew.encode()) {
+	  filterproduct.addCollectionTag(tagNew);
+	  tagOld=tagNew;
+	  edm::LogVerbatim("HLTDoubletDZ") << " XXX " << moduleLabel() << " 1b " << tagNew.encode() << std::endl;
+	}
+      }
+      for (unsigned int i=0; i<originTag2_.size(); ++i) {
+	filterproduct.addCollectionTag(originTag2_[i]);
+	edm::LogVerbatim("HLTDoubletDZ") << " XXX " << moduleLabel() << " 2a/" << originTag2_[i].encode() << std::endl;
+      }
+      tagOld=edm::InputTag();
+      for (trigger::size_type i2=0; i2!=n2; ++i2) {
+	const edm::ProductID pid(coll2[i2].id());
+	const std::string&    label(iEvent.getProvenance(pid).moduleLabel());
+	const std::string& instance(iEvent.getProvenance(pid).productInstanceName());
+	const std::string&  process(iEvent.getProvenance(pid).processName());
+	edm::InputTag tagNew(edm::InputTag(label,instance,process));
+	if (tagOld.encode()!=tagNew.encode()) {
+	  filterproduct.addCollectionTag(tagNew);
+	  tagOld=tagNew;
+	  edm::LogVerbatim("HLTDoubletDZ") << " XXX " << moduleLabel() << " 2b " << tagNew.encode() << std::endl;
+	}
+      }
+    }
+
+    int n(0);
+    reco::RecoEcalCandidateRef r1;
+    reco::RecoEcalCandidateRef r2;
+    
+    for (unsigned int i1=0; i1!=coll1.size(); i1++) {
+      r1 = coll1[i1];
+      unsigned int I(0);
+      if (same_) {I=i1+1;}
+      for (unsigned int i2=I; i2!=coll2.size(); i2++) {
+	r2=coll2[i2];
+	if (checkSC_) {
+	  if (r1->superCluster().isNonnull() && r2->superCluster().isNonnull()) {
+	    if (r1->superCluster() == r2->superCluster()) continue;
+	  }
+	}
+	
+	if ( reco::deltaR(*r1, *r2) < minDR_ ) continue;
+	reco::Electron e1, e2;
+	for(reco::ElectronCollection::const_iterator eleIt = electronHandle_->begin(); eleIt != electronHandle_->end(); eleIt++) {
+	  if (eleIt->superCluster() == r1->superCluster())
+	    e1 = *(eleIt);
+	  if (eleIt->superCluster() == r2->superCluster())
+	    e2 = *(eleIt);
+	}
+	
+	if ( std::abs(e1.vz()-e2.vz()) > maxDZ_ ) continue;
+	
+	n++;
+	filterproduct.addObject(triggerType1_,r1);
+	filterproduct.addObject(triggerType2_,r2);
+      }
+    }
+  
+    accept = accept || (n>=min_N_);
+  }
+  
+  return accept;
+}
+
+typedef HLTDoubletDZ<reco::Electron            , reco::Electron>             HLT2ElectronElectronDZ;
+typedef HLTDoubletDZ<reco::RecoChargedCandidate, reco::RecoChargedCandidate> HLT2MuonMuonDZ;
+typedef HLTDoubletDZ<reco::Electron            , reco::RecoChargedCandidate> HLT2ElectronMuonDZ;
+typedef HLTDoubletDZ<reco::RecoEcalCandidate   , reco::RecoEcalCandidate>    HLT2PhotonPhotonDZ;
+
+DEFINE_FWK_MODULE(HLT2ElectronElectronDZ);
+DEFINE_FWK_MODULE(HLT2MuonMuonDZ);
+DEFINE_FWK_MODULE(HLT2ElectronMuonDZ);
+DEFINE_FWK_MODULE(HLT2PhotonPhotonDZ);
