@@ -447,7 +447,7 @@ TkGluedMeasurementDet::HitCollectorForRecHits::addProjected(const TrackingRecHit
 void
 TkGluedMeasurementDet::HitCollectorForSimpleHits::add(SiStripMatchedRecHit2D const & hit2d) 
 {
-  // hasNewHits_ = true; //FIXME: see also what happens moving this within testAndPush
+  hasNewHits_ = true; //FIXME: see also what happens moving this within testAndPush
   if ( !est_.preFilter(stateOnThisDet_, ClusterFilterPayload(hit2d.geographicalId(), &hit2d.monoCluster(), &hit2d.stereoCluster()) ) ) return; 
   hasNewHits_ = true; //FIXME: see also what happens moving this within testAndPush
 
@@ -493,7 +493,7 @@ TkGluedMeasurementDet::HitCollectorForFastMeasurements::HitCollectorForFastMeasu
 void
 TkGluedMeasurementDet::HitCollectorForFastMeasurements::add(SiStripMatchedRecHit2D const& hit2d) 
 {
-  // hasNewHits_ = true; //FIXME: see also what happens moving this within testAndPush
+  hasNewHits_ = true; //FIXME: see also what happens moving this within testAndPush
 
   if ( !est_.preFilter(stateOnThisDet_, ClusterFilterPayload(hit2d.geographicalId(), &hit2d.monoCluster(), &hit2d.stereoCluster()) ) ) return;
 
