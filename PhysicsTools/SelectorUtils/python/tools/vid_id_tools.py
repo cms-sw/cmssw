@@ -4,6 +4,7 @@ from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
 
 #keep python2.6 compatibility for computing
 #import importlib
+import sys
 
 #general simple tools for various object types
 def setupVIDSelection(vidproducer,cutflow):
@@ -16,7 +17,7 @@ def setupVIDSelection(vidproducer,cutflow):
         cms.PSet( idDefinition = cutflow,
                   idMD5 = cms.string(cutflow_md5) )
     )
-    print 'Added ID \'%s\' to %s'%(cutflow.idName.value(),vidproducer.label())
+    print >> sys.stderr, 'Added ID \'%s\' to %s'%(cutflow.idName.value(),vidproducer.label())
 
 def addVIDSelectionToPATProducer(patProducer,idProducer,idName):
     patProducerIDs = None
@@ -26,7 +27,7 @@ def addVIDSelectionToPATProducer(patProducer,idProducer,idName):
     if patProducerIDs is None:
         raise Exception('StrangePatModule','%s does not have ID sources!'%patProducer.label())
     setattr(patProducerIDs,idName,cms.InputTag('%s:%s'%(idProducer,idName)))
-    print '\t--- %s:%s added to %s'%(idProducer,idName,patProducer.label())
+    print >> sys.stderr, '\t--- %s:%s added to %s'%(idProducer,idName,patProducer.label())
 
 def setupAllVIDIdsInModule(process,id_module_name,setupFunction,patProducer=None):
 #    idmod = importlib.import_module(id_module_name)
@@ -44,7 +45,7 @@ def setupAllVIDIdsInModule(process,id_module_name,setupFunction,patProducer=None
 # for PAT and/or MINIAOD
 def switchOnVIDElectronIdProducer(process):
     process.load('RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cff')
-    print 'Added \'egmGsfElectronIDs\' to process definition!'
+    print >> sys.stderr,'Added \'egmGsfElectronIDs\' to process definition!'
 
 def setupVIDElectronSelection(process,cutflow,patProducer=None):
     if not hasattr(process,'egmGsfElectronIDs'):
