@@ -229,10 +229,9 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   theGainSmearing(conf.getParameter<double>("GainSmearing")), // sigma of the gain smearing
   theOffsetSmearing(conf.getParameter<double>("OffsetSmearing")), //sigma of the offset smearing
 
-  // Add some pseudo-red damage
-  pseudoRadDamage(conf.exists("PseudoRadDamage")?conf.getParameter<double>("PseudoRadDamage"):double(0.0)),
-  pseudoRadDamageRadius(conf.exists("PseudoRadDamageRadius")?conf.getParameter<double>("PseudoRadDamageRadius"):double(0.0)),
-
+  // Add pixel radiation damage for upgrade studies
+  AddPixelAging(conf.getParameter<bool>("DoPixelAging")),
+  
   // delta cutoff in MeV, has to be same as in OSCAR(0.030/cmsim=1.0 MeV
   //tMax(0.030), // In MeV.
   //tMax(conf.getUntrackedParameter<double>("DeltaProductionCut",0.030)),
@@ -242,7 +241,8 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   theNoiser(addNoise ? new GaussianTailNoiseGenerator() : 0),
   calmap(doMissCalibrate ? initCal() : std::map<int,CalParameters,std::less<int> >()),
   theSiPixelGainCalibrationService_(use_ineff_from_db_ ? new SiPixelGainCalibrationOfflineSimService(conf) : 0),
-  pixelEfficiencies_(conf, AddPixelInefficiency,NumberOfBarrelLayers,NumberOfEndcapDisks)
+  pixelEfficiencies_(conf, AddPixelInefficiency,NumberOfBarrelLayers,NumberOfEndcapDisks),
+  pixelAging_(conf,AddPixelAging,NumberOfBarrelLayers,NumberOfEndcapDisks)
 {
   LogInfo ("PixelDigitizer ") <<"SiPixelDigitizerAlgorithm constructed"
 			      <<"Configuration parameters:"
@@ -448,6 +448,50 @@ SiPixelDigitizerAlgorithm::PixelEfficiencies::PixelEfficiencies(const edm::Param
   }
 }
 
+SiPixelDigitizerAlgorithm::PixelAging::PixelAging(const edm::ParameterSet& conf, bool AddAging, int NumberOfBarrelLayers, int NumberOfEndcapDisks) {
+  // pixel aging
+  // Don't use Hard coded values, read aging in from python or don't use any
+  int NumberOfTotLayers = NumberOfBarrelLayers + NumberOfEndcapDisks;
+  FPixIndex=NumberOfBarrelLayers;
+  if(AddAging) {
+    int i=0;
+    thePixelPseudoRadDamage[i++] = conf.getParameter<double>("thePixelPseudoRadDamage_BPix1");
+    thePixelPseudoRadDamage[i++] = conf.getParameter<double>("thePixelPseudoRadDamage_BPix2");
+    thePixelPseudoRadDamage[i++] = conf.getParameter<double>("thePixelPseudoRadDamage_BPix3");
+    thePixelPseudoRadDamage[i++] = conf.getParameter<double>("thePixelPseudoRadDamage_BPix4");
+    
+    // to be removed when Gaelle will have the phase2 digitizer
+    if (NumberOfBarrelLayers>=5){
+      if (NumberOfTotLayers>20){throw cms::Exception("Configuration") <<"SiPixelDigitizer was given more layers than it can handle";}
+      // For Phase2 tracker layers just set the outermost BPix aging 0.
+      for (int j=5 ; j<=NumberOfBarrelLayers ; j++){
+	thePixelPseudoRadDamage[j-1]=0.;
+      }
+    }
+    //
+    i=FPixIndex;
+    thePixelPseudoRadDamage[i++]   = conf.getParameter<double>("thePixelPseudoRadDamage_FPix1");
+    thePixelPseudoRadDamage[i++]   = conf.getParameter<double>("thePixelPseudoRadDamage_FPix2");
+    thePixelPseudoRadDamage[i++]   = conf.getParameter<double>("thePixelPseudoRadDamage_FPix3");
+    
+    //To be removed when Phase2 digitizer will be available
+    if (NumberOfEndcapDisks>=4){
+      if (NumberOfTotLayers>20){throw cms::Exception("Configuration") <<"SiPixelDigitizer was given more layers than it can handle";}
+      // For Phase2 tracker layers just set the extra FPix disk aging to 0.
+      for (int j=4+FPixIndex ; j<=NumberOfEndcapDisks+NumberOfBarrelLayers ; j++){
+	thePixelPseudoRadDamage[j-1]=0.;
+      }
+    }
+  }
+  // the first "NumberOfBarrelLayers" settings [0],[1], ... , [NumberOfBarrelLayers-1] are for the barrel pixels
+  // the next  "NumberOfEndcapDisks"  settings [NumberOfBarrelLayers],[NumberOfBarrelLayers+1], ... [NumberOfEndcapDisks+NumberOfBarrelLayers-1]
+  else {  // No inefficiency, all 100% efficientaging, no decrease of signal
+    for (int i=0; i<NumberOfTotLayers;i++) {
+      thePixelPseudoRadDamage[i]     = 0.;  // pixels have 100% signals
+    }
+  }
+}
+
 //=========================================================================
 void SiPixelDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterator inputBegin,
                                                   std::vector<PSimHit>::const_iterator inputEnd,
@@ -455,6 +499,7 @@ void SiPixelDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_it
 						  const unsigned int tofBin,
                                                   const PixelGeomDetUnit* pixdet,
                                                   const GlobalVector& bfield,
+						  const TrackerTopology *tTopo,
                                                   CLHEP::HepRandomEngine* engine) {
     // produce SignalPoint's for all SimHit's in detector
     // Loop over hits
@@ -485,7 +530,7 @@ void SiPixelDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_it
       if (  ((*ssbegin).tof() - pixdet->surface().toGlobal((*ssbegin).localPosition()).mag()/30.)>= theTofLowerCut &&
 	    ((*ssbegin).tof()- pixdet->surface().toGlobal((*ssbegin).localPosition()).mag()/30.) <= theTofUpperCut ) {
 	primary_ionization(*ssbegin, ionization_points, engine); // fills _ionization_points
-	drift(*ssbegin, pixdet, bfield, ionization_points, collection_points);  // transforms _ionization_points to collection_points
+	drift(*ssbegin, pixdet, bfield, tTopo, ionization_points, collection_points);  // transforms _ionization_points to collection_points
 	// compute induced signal on readout elements and add to _signal
 	induce_signal(*ssbegin, simHitGlobalIndex, tofBin, pixdet, collection_points); // 1st 3 args needed only for SimHit<-->Digi link
       } //  end if
@@ -747,20 +792,21 @@ void SiPixelDigitizerAlgorithm::fluctuateEloss(int pid, float particleMomentum,
 }
 
 //*******************************************************************************
-// Drift the charge segments to the sensor surface (collection plane)
-// Include the effect of E-field and B-field
+  // Drift the charge segments to the sensor surface (collection plane)
+  // Include the effect of E-field and B-field
 void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit,
 			              const PixelGeomDetUnit* pixdet,
                                       const GlobalVector& bfield,
+				      const TrackerTopology *tTopo,
                                       const std::vector<EnergyDepositUnit>& ionization_points,
                                       std::vector<SignalPoint>& collection_points) const {
-
+  
 #ifdef TP_DEBUG
   LogDebug ("Pixel Digitizer") << " enter drift " ;
 #endif
-
+  
   collection_points.resize(ionization_points.size()); // set size
-
+  
   LocalVector driftDir=DriftDirection(pixdet, bfield, hit.detUnitId());  // get the charge drift direction
   if(driftDir.z() ==0.) {
     LogWarning("Magnetic field") << " pxlx: drift in z is zero ";
@@ -774,13 +820,13 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit,
   float TanLorenzAngleX, TanLorenzAngleY,dir_z, CosLorenzAngleX,
     CosLorenzAngleY;
   if( alpha2Order) {
-
+    
     TanLorenzAngleX = driftDir.x(); // tangen of Lorentz angle
     TanLorenzAngleY = driftDir.y();
     dir_z = driftDir.z(); // The z drift direction
     CosLorenzAngleX = 1./sqrt(1.+TanLorenzAngleX*TanLorenzAngleX); //cosine
     CosLorenzAngleY = 1./sqrt(1.+TanLorenzAngleY*TanLorenzAngleY); //cosine;
-
+    
   } else{
 
     TanLorenzAngleX = driftDir.x();
@@ -789,7 +835,7 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit,
     CosLorenzAngleX = 1./sqrt(1.+TanLorenzAngleX*TanLorenzAngleX); //cosine to estimate the path length
     CosLorenzAngleY = 1.;
   }
-
+  
   float moduleThickness = pixdet->specificSurface().bounds().thickness();
 #ifdef TP_DEBUG
   LogDebug ("Pixel Digitizer")
@@ -797,16 +843,16 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit,
     << CosLorenzAngleX << " " << CosLorenzAngleY << " "
     << moduleThickness*TanLorenzAngleX << " " << driftDir;
 #endif
-
+  
   float Sigma_x = 1.;  // Charge spread
   float Sigma_y = 1.;
   float DriftDistance; // Distance between charge generation and collection
   float DriftLength;   // Actual Drift Lentgh
   float Sigma;
-
-
+  
+  
   for (unsigned int i = 0; i != ionization_points.size(); i++) {
-
+    
     float SegX, SegY, SegZ; // position
     SegX = ionization_points[i].x();
     SegY = ionization_points[i].y();
@@ -816,7 +862,7 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit,
     //DriftDistance = (moduleThickness/2. + SegZ); // Drift to -z
     // Include explixitely the E drift direction (for CMS dir_z=-1)
     DriftDistance = moduleThickness/2. - (dir_z * SegZ); // Drift to -z
-
+    
     //if( DriftDistance <= 0.)
     //cout<<" <=0 "<<DriftDistance<<" "<<i<<" "<<SegZ<<" "<<dir_z<<" "
     //  <<SegX<<" "<<SegY<<" "<<(moduleThickness/2)<<" "
@@ -824,16 +870,16 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit,
     //  <<hit.particleType()<<" "<<hit.pabs()<<" "<<hit.energyLoss()<<" "
     //  <<hit.entryPoint()<<" "<<hit.exitPoint()
     //  <<std::endl;
-
+    
     if( DriftDistance < 0.) {
       DriftDistance = 0.;
     } else if( DriftDistance > moduleThickness )
       DriftDistance = moduleThickness;
-
+    
     // Assume full depletion now, partial depletion will come later.
     float XDriftDueToMagField = DriftDistance * TanLorenzAngleX;
     float YDriftDueToMagField = DriftDistance * TanLorenzAngleY;
-
+    
     // Shift cloud center
     float CloudCenterX = SegX + XDriftDueToMagField;
     float CloudCenterY = SegY + YDriftDueToMagField;
@@ -842,39 +888,36 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit,
     DriftLength = sqrt( DriftDistance*DriftDistance +
                         XDriftDueToMagField*XDriftDueToMagField +
                         YDriftDueToMagField*YDriftDueToMagField );
-
+    
     // What is the charge diffusion after this path
     Sigma = sqrt(DriftLength/Dist300) * Sigma0;
-
+    
     // Project the diffusion sigma on the collection plane
     Sigma_x = Sigma / CosLorenzAngleX ;
     Sigma_y = Sigma / CosLorenzAngleY ;
-
+    
     // Insert a charge loss due to Rad Damage here
     float energyOnCollector = ionization_points[i].energy(); // The energy that reaches the collector
-    // pseudoRadDamage
-    if (pseudoRadDamage>=0.001){
-        float moduleRadius = pixdet->surface().position().perp();
-        if (moduleRadius<=pseudoRadDamageRadius){
-          float kValue = pseudoRadDamage /(moduleRadius*moduleRadius);
-          //std::cout <<"\nmoduleRadius= "<<moduleRadius<<" WITH K="<<kValue <<" wich scales the energy by "<<
-          //            exp( -1*kValue*DriftDistance/moduleThickness )<<"\n" ;
-          energyOnCollector = energyOnCollector * exp( -1*kValue*DriftDistance/moduleThickness );
-          }
-        }
+    
+    // add pixel aging 
+    if (AddPixelAging) {
+      float kValue = pixel_aging(pixelAging_,pixdet,tTopo);
+      energyOnCollector *= exp( -1*kValue*DriftDistance/moduleThickness );
+    }
+    
 #ifdef TP_DEBUG
-  LogDebug ("Pixel Digitizer")
-                <<" Dift DistanceZ= "<<DriftDistance<<" module thickness= "<<moduleThickness
-                <<" Start Energy= "<<ionization_points[i].energy()<<" Energy after loss= "<<energyOnCollector;
+    LogDebug ("Pixel Digitizer")
+      <<" Dift DistanceZ= "<<DriftDistance<<" module thickness= "<<moduleThickness
+      <<" Start Energy= "<<ionization_points[i].energy()<<" Energy after loss= "<<energyOnCollector;
 #endif
     SignalPoint sp( CloudCenterX, CloudCenterY,
-     Sigma_x, Sigma_y, hit.tof(), energyOnCollector );
-
+		    Sigma_x, Sigma_y, hit.tof(), energyOnCollector );
+    
     // Load the Charge distribution parameters
     collection_points[i] = (sp);
-
+    
   } // loop over ionization points, i.
-
+  
 } // end drift
 
 //*************************************************************************
@@ -1455,6 +1498,50 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
 
   } // end pixel loop
 } // end pixel_indefficiency
+
+//***************************************************************************************
+// Simulate pixel aging with an exponential function
+//**************************************************************************************
+
+float SiPixelDigitizerAlgorithm::pixel_aging(const PixelAging& aging,
+					     const PixelGeomDetUnit *pixdet,
+					     const TrackerTopology *tTopo) const {
+  
+  uint32_t detID= pixdet->geographicalId().rawId();
+  
+  
+  // Predefined damage parameter (no aging)
+  float pseudoRadDamage  = 0.0;
+  
+  // setup the chip indices conversion
+  unsigned int Subid=DetId(detID).subdetId();
+  if    (Subid==  PixelSubdetector::PixelBarrel){// barrel layers
+    int layerIndex=tTopo->pxbLayer(detID);
+    
+     pseudoRadDamage  = aging.thePixelPseudoRadDamage[layerIndex-1];
+     
+     //  std::cout << "pixel_aging: " << std::endl;
+     // std::cout << "Subid " << Subid << " layerIndex " << layerIndex << " ladder " << tTopo->pxbLadder(detID)  << " module  " << tTopo->pxbModule(detID) << std::endl;
+     
+  } else {                // forward disks
+    unsigned int diskIndex=tTopo->pxfDisk(detID)+aging.FPixIndex; // Use diskIndex-1 later to stay consistent with BPix
+    
+    pseudoRadDamage  = aging.thePixelPseudoRadDamage[diskIndex-1];
+    
+    //    std::cout << "pixel_aging: " << std::endl;
+    //    std::cout << "Subid " << Subid << " diskIndex " << diskIndex << std::endl;
+    
+  } // if barrel/forward
+  
+  //  std::cout << " pseudoRadDamage " << pseudoRadDamage << std::endl;
+  //  std::cout << " end pixel_aging " << std::endl;
+  
+  return pseudoRadDamage;
+#ifdef TP_DEBUG
+  LogDebug ("Pixel Digitizer") << " enter pixel_aging " << pseudoRadDamage;
+#endif
+  
+}
 
 //***********************************************************************
 
