@@ -46,6 +46,10 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+
 #include "RecoMuon/MuonIdentification/interface/MuonMesh.h"
 
 
@@ -154,6 +158,9 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
    //create mesh holder
    meshAlgo_ = new MuonMesh(iConfig.getParameter<edm::ParameterSet>("arbitrationCleanerOptions"));
 
+   edm::ParameterSet trackAssocPSets = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
+   dtSegmentToken_ = consumes<DTRecSegment4DCollection>(trackAssocPSets.getParameter<edm::InputTag>("DTRecSegment4DCollectionLabel"));
+   cscSegmentToken_ = consumes<CSCSegmentCollection>(trackAssocPSets.getParameter<edm::InputTag>("CSCSegmentCollectionLabel"));
 
    edm::InputTag rpcHitTag("rpcRecHits");
    rpcHitToken_ = consumes<RPCRecHitCollection>(rpcHitTag);
@@ -374,6 +381,73 @@ reco::Muon MuonIdProducer::makeMuon( const reco::MuonTrackLinks& links )
    return aMuon;
 }
 
+void MuonIdProducer::calculateMuonHitEtaRanges(const edm::EventSetup& eventSetup)
+{
+   muonEtaRanges_[0].clear();
+   muonEtaRanges_[1].clear();
+
+   std::vector<double> etaValues;
+   if ( dtSegmentHandle_.isValid() )
+   {
+      edm::ESHandle<DTGeometry> geom;
+      eventSetup.get<MuonGeometryRecord>().get(geom);
+      for ( auto& dtSegment : *dtSegmentHandle_ )
+      {
+         const auto& detId = dtSegment.chamberId();
+         const auto ch = geom->chamber(detId);
+         const double eta = ch->toGlobal(dtSegment.localPosition()).eta();
+         etaValues.push_back(eta);
+      }
+   }
+
+   if ( cscSegmentHandle_.isValid() )
+   {
+      edm::ESHandle<CSCGeometry> geom;
+      eventSetup.get<MuonGeometryRecord>().get(geom);
+      for ( auto& cscSegment : *cscSegmentHandle_ )
+      {
+         const CSCDetId& detId = cscSegment.cscDetId();
+         const auto ch = geom->chamber(detId);
+         const double eta = ch->toGlobal(cscSegment.localPosition()).eta();
+         etaValues.push_back(eta);
+      }
+   }
+
+   if ( rpcRecHitHandle_.isValid() )
+   {
+      edm::ESHandle<RPCGeometry> geom;
+      eventSetup.get<MuonGeometryRecord>().get(geom);
+      for ( auto& rpcRecHit : *rpcRecHitHandle_ )
+      {
+         const RPCDetId& detId = rpcRecHit.rpcId();
+         const auto ch = geom->roll(detId);
+         const double eta = ch->toGlobal(rpcRecHit.localPosition()).eta();
+         etaValues.push_back(eta);
+      }
+   }
+
+   if ( !etaValues.empty() )
+   {
+      std::sort(etaValues.begin(), etaValues.end());
+      
+      muonEtaRanges_[0].push_back(etaValues[0]-0.2);
+      muonEtaRanges_[1].push_back(etaValues[0]+0.2);
+      for ( auto eta : etaValues )
+      {
+         const double eta1 = eta-0.2;
+         const double eta2 = eta+0.2;
+         if ( eta1 > muonEtaRanges_[1].back() )
+         {
+            muonEtaRanges_[0].push_back(eta1);
+            muonEtaRanges_[1].push_back(eta2);
+         }
+         else
+         {
+            muonEtaRanges_[1].back() = eta2;
+         }
+      }
+   }
+}
 
 bool MuonIdProducer::isGoodTrack( const reco::Track& track )
 {
@@ -389,6 +463,15 @@ bool MuonIdProducer::isGoodTrack( const reco::Track& track )
       LogTrace("MuonIdentification") << "Skipped track with large pseudo rapidity (Eta: " << track.eta() << " )";
       return false;
    }
+
+   // Additional Eta requirements
+   if ( !muonEtaRanges_[0].empty() ) {
+      auto lb = std::lower_bound(muonEtaRanges_[0].begin(), muonEtaRanges_[0].end(), track.eta());
+      auto ub = std::upper_bound(muonEtaRanges_[1].begin(), muonEtaRanges_[1].end(), track.eta());
+
+      if ( lb == muonEtaRanges_[0].end() or ub == muonEtaRanges_[1].end() ) return false;
+   }
+
    return true;
 }
 
@@ -583,7 +666,10 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       directionsForSplit[1] = TrackDetectorAssociator::OutsideIn;
       directionsForNonSplit[0] = TrackDetectorAssociator::Any;
 
+      iEvent.getByToken(dtSegmentToken_, dtSegmentHandle_);
+      iEvent.getByToken(cscSegmentToken_, cscSegmentHandle_);
       iEvent.getByToken(rpcHitToken_, rpcRecHitHandle_);
+      calculateMuonHitEtaRanges(iSetup);
 
       for ( unsigned int i=0, n=innerTrackCollectionHandle_->size(); i<n; ++i )
       {

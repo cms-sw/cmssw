@@ -200,7 +200,15 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
 
 private:
    //Caching Handles for speed up
+   edm::Handle<DTRecSegment4DCollection> dtSegmentHandle_;
+   edm::Handle<CSCSegmentCollection> cscSegmentHandle_;
    edm::Handle<RPCRecHitCollection> rpcRecHitHandle_;
 
+private:
+   // Experimental
+   edm::EDGetTokenT<DTRecSegment4DCollection> dtSegmentToken_;
+   edm::EDGetTokenT<CSCSegmentCollection> cscSegmentToken_;
+   void calculateMuonHitEtaRanges(const edm::EventSetup& eventSetup);
+   std::vector<double> muonEtaRanges_[2];
 };
 #endif
