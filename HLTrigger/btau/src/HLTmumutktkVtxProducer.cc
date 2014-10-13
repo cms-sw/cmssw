@@ -182,10 +182,10 @@ void HLTmumutktkVtxProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
         if (fabs(trk3->eta()) > maxEta_)    continue;
         if (trk3->pt()        < minPt_ )    continue;
 
-        FreeTrajectoryState InitialFTS_Trk1 = initialFreeState(*trk3, magField);
-        TrajectoryStateClosestToBeamLine tscb_Trk1( blsBuilder(InitialFTS_Trk1, *recoBeamSpotHandle) );
-        double d0sigTrk1 = tscb_Trk1.transverseImpactParameter().significance();
-        if (d0sigTrk1 < minD0Significance_) continue;
+        FreeTrajectoryState InitialFTS_Trk3 = initialFreeState(*trk3, magField);
+        TrajectoryStateClosestToBeamLine tscb_Trk3( blsBuilder(InitialFTS_Trk3, *recoBeamSpotHandle) );
+        double d0sigTrk3 = tscb_Trk3.transverseImpactParameter().significance();
+        if (d0sigTrk3 < minD0Significance_) continue;
       
         //loop on track collection - trk2 
         unsigned int itrk2cand = 0;
@@ -211,10 +211,10 @@ void HLTmumutktkVtxProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
           if (fabs(trk4->eta()) > maxEta_)    continue;
           if (trk4->pt()        < minPt_ )    continue;
 
-          FreeTrajectoryState InitialFTS_Trk2 = initialFreeState(*trk4, magField);
-          TrajectoryStateClosestToBeamLine tscb_Trk2( blsBuilder(InitialFTS_Trk2, *recoBeamSpotHandle) );
-          double d0sigTrk2 = tscb_Trk2.transverseImpactParameter().significance();
-          if (d0sigTrk2 < minD0Significance_) continue;
+          FreeTrajectoryState InitialFTS_Trk4 = initialFreeState(*trk4, magField);
+          TrajectoryStateClosestToBeamLine tscb_Trk4( blsBuilder(InitialFTS_Trk4, *recoBeamSpotHandle) );
+          double d0sigTrk4 = tscb_Trk4.transverseImpactParameter().significance();
+          if (d0sigTrk4 < minD0Significance_) continue;
 
           // Combined system
           e1 = sqrt(trk1->momentum().Mag2() + MuMass2             );
