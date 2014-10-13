@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 pixelDigitizer = cms.PSet(
+    DoPixelAging = cms.bool(False),
     accumulatorType = cms.string("SiPixelDigitizer"),
     hitsProducer = cms.string('g4SimHits'),
     makeDigiSimLinks = cms.untracked.bool(True),
