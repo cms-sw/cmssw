@@ -20,9 +20,9 @@ autoCond = {
     # GlobalTag for Run2 data reprocessing
     'run2_data'         :   'PRE_R_72_V11A::All',
     # GlobalTag for Run1 HLT: it points to the online GT and overrides the connection string and pfnPrefix for use offline
-    'run1_hlt'          :   'GR_H_V41A::All,frontier://FrontierProd/CMS_COND_31X_GLOBALTAG,frontier://FrontierProd/',
+    'run1_hlt'          :   'GR_H_V43A::All,frontier://FrontierProd/CMS_COND_31X_GLOBALTAG,frontier://FrontierProd/',
     # GlobalTag for Run2 HLT: it points to the online GT and overrides the connection string and pfnPrefix for use offline
-    'run2_hlt'          :   'GR_H_V42A::All,frontier://FrontierProd/CMS_COND_31X_GLOBALTAG,frontier://FrontierProd/',
+    'run2_hlt'          :   'GR_H_V44A::All,frontier://FrontierProd/CMS_COND_31X_GLOBALTAG,frontier://FrontierProd/',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017
     'phase1_2017_design' :  'DES17_70_V2::All', # placeholder (GT not meant for standard RelVal)
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2019
