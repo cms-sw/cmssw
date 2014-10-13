@@ -77,6 +77,7 @@ private:
 
   // input file parameters
   int nTextHeaderLines_;
+  bool packetisedData_;
   int nFramesPerEvent_;
   int txLatency_;
   int nRxLinks_;
@@ -126,6 +127,7 @@ MP7BufferDumpToRaw::MP7BufferDumpToRaw(const edm::ParameterSet& iConfig)
   txLine_ = 0;
 
   nTextHeaderLines_ = iConfig.getUntrackedParameter<int>("nTextHeaderLines", 3);
+  packetisedData_ = iConfig.getUntrackedParameter<bool>("packetisedData", true);
   nFramesPerEvent_ = iConfig.getUntrackedParameter<int>("nFramesPerEvent", 41);
   txLatency_= iConfig.getUntrackedParameter<int>("txLatency", 61);
 
@@ -554,6 +556,8 @@ MP7BufferDumpToRaw::findNextEvent() {
 
   // find the first event
   edm::LogInfo("mp7") << "Search for Rx event" << std::endl;
+
+  if (!packetisedData_) return;
 
   int lastFlag=1;
   bool dataValid = false;
