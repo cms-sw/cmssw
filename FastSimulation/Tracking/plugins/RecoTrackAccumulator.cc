@@ -98,7 +98,7 @@ template<class T> void RecoTrackAccumulator::accumulateEvent(const T& e, edm::Ev
       // rechits:
       auto & newExtra = NewTrackExtraList_->back();
       for( trackingRecHit_iterator hit = extra.recHitsBegin(); hit != extra.recHitsEnd(); ++ hit ) {
-	NewHitList_->push_back( (*hits)[hit->key()] );
+	NewHitList_->push_back( **hit );
 	newExtra.add( TrackingRecHitRef( rHits, NewHitList_->size() - 1) );
       }
     }

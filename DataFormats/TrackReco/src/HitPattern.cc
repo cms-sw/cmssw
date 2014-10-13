@@ -10,6 +10,8 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
+#include<bitset>
+
 using namespace reco;
 
 HitPattern::HitPattern() :
@@ -344,7 +346,22 @@ int HitPattern::numberOfValidStripLayersWithMonoAndStereo(uint16_t stripdet, uin
 
 int HitPattern::numberOfValidStripLayersWithMonoAndStereo() const
 {
-    return numberOfValidStripLayersWithMonoAndStereo(0, 0);
+   auto category = TRACK_HITS;
+   std::bitset<128> side[2];
+   std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
+   for (int i = range.first; i < range.second; ++i) {
+     auto pattern = getHitPatternByAbsoluteIndex(i);
+     if (pattern<minStripWord) continue;
+     uint16_t hitType = (pattern >> HitTypeOffset) & HitTypeMask;
+     if (hitType != HIT_TYPE::VALID) continue;
+     auto apattern = (pattern-minTrackerWord) >> LayerOffset;
+     // assert(apattern<128);
+     side[getSide(pattern)].set(apattern);
+   }
+   // assert(numberOfValidStripLayersWithMonoAndStereo(0, 0)==int((side[0]&side[1]).count()));
+   return (side[0]&side[1]).count();
+
+
 }
 
 int HitPattern::numberOfValidTOBLayersWithMonoAndStereo(uint32_t layer) const
@@ -436,6 +453,66 @@ uint16_t HitPattern::getTrackerMonoStereo(HitCategory category, uint16_t substr,
     }
     return monoStereo;
 }
+
+
+int HitPattern::pixelLayersWithMeasurement() const {
+   auto category = TRACK_HITS;
+   std::bitset<128> layerOk;
+   std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
+   for (int i = range.first; i < range.second; ++i) {
+     auto pattern = getHitPatternByAbsoluteIndex(i);
+     if unlikely(!trackerHitFilter(pattern)) continue;
+     if (pattern>minStripWord) continue;
+     uint16_t hitType = (pattern >> HitTypeOffset) & HitTypeMask;
+     if (hitType != HIT_TYPE::VALID) continue;
+     pattern = (pattern-minTrackerWord) >> LayerOffset;
+     // assert(pattern<128);
+     layerOk.set(pattern);
+   }
+   // assert(pixelLayersWithMeasurementOld()==int(layerOk.count()));
+   return layerOk.count();
+}
+
+
+int HitPattern::trackerLayersWithMeasurement() const {
+   auto category = TRACK_HITS;
+   std::bitset<128> layerOk;
+   std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
+   for (int i = range.first; i < range.second; ++i) {
+     auto pattern = getHitPatternByAbsoluteIndex(i);
+     if unlikely(!trackerHitFilter(pattern)) continue;
+     uint16_t hitType = (pattern >> HitTypeOffset) & HitTypeMask;
+     if (hitType != HIT_TYPE::VALID) continue;
+     pattern = (pattern-minTrackerWord) >> LayerOffset;
+     // assert(pattern<128);
+     layerOk.set(pattern);
+   }
+   // assert(trackerLayersWithMeasurementOld()==int(layerOk.count()));
+   return layerOk.count(); 
+}
+
+int HitPattern::trackerLayersWithoutMeasurement(HitCategory category) const {
+   std::bitset<128> layerOk;
+   std::bitset<128> layerMissed;
+   std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
+   for (int i = range.first; i < range.second; ++i) {
+     auto pattern = getHitPatternByAbsoluteIndex(i);
+     if unlikely(!trackerHitFilter(pattern)) continue;
+     uint16_t hitType = (pattern >> HitTypeOffset) & HitTypeMask;
+     pattern = (pattern-minTrackerWord) >> LayerOffset;
+     // assert(pattern<128);
+     if (hitType == HIT_TYPE::VALID) layerOk.set(pattern);
+     if (hitType == HIT_TYPE::MISSING) layerMissed.set(pattern);
+   }
+   layerMissed &= ~layerOk;
+
+   // assert(trackerLayersWithoutMeasurementOld(category)==int(layerMissed.count()));
+
+   return layerMissed.count();
+ 
+
+}
+
 
 int HitPattern::pixelBarrelLayersWithMeasurement() const
 {

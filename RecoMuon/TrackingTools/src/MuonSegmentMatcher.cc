@@ -70,7 +70,7 @@ vector<const DTRecSegment4D*> MuonSegmentMatcher::matchDT(const reco::Track &muo
   
   vector<const DTRecSegment4D*> pointerTo4DSegments;
 
-  TrackingRecHitRefVector dtHits;
+  std::vector<TrackingRecHit const *> dtHits;
 
   bool segments = false;
 
@@ -97,7 +97,7 @@ vector<const DTRecSegment4D*> MuonSegmentMatcher::matchDT(const reco::Track &muo
 
     if (segments) {
       // Loop over muon recHits
-      for(trackingRecHit_iterator hit = dtHits.begin(); hit != dtHits.end(); ++hit) {
+      for(auto hit = dtHits.begin(); hit != dtHits.end(); ++hit) {
 					
 	// Pick the one in the same DT Chamber as the muon
 	DetId idT = (*hit)->geographicalId();
@@ -127,7 +127,7 @@ vector<const DTRecSegment4D*> MuonSegmentMatcher::matchDT(const reco::Track &muo
       DTChamberId chamberSegIdT((segmZ->geographicalId()).rawId());
 		
       // Loop over muon recHits
-      for(trackingRecHit_iterator hit = dtHits.begin(); hit != dtHits.end(); ++hit) {
+      for(auto hit = dtHits.begin(); hit != dtHits.end(); ++hit) {
 
 	if ( !(*hit)->isValid()) continue; 
 	
@@ -174,7 +174,7 @@ vector<const DTRecSegment4D*> MuonSegmentMatcher::matchDT(const reco::Track &muo
       DTChamberId chamberSegIdT((segmPhi->geographicalId()).rawId());
 		
       // Loop over muon recHits
-      for(trackingRecHit_iterator hit = dtHits.begin(); hit != dtHits.end(); ++hit) {
+      for(auto hit = dtHits.begin(); hit != dtHits.end(); ++hit) {
 
 	if ( !(*hit)->isValid()) continue; 
 
