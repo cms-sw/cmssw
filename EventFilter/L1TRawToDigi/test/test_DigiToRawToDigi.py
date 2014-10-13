@@ -72,22 +72,23 @@ import L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi
 process.packPlots = L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi.l1tStage2CaloAnalyzer.clone()
 process.packPlots.towerToken = cms.InputTag("l1tRawToDigi")
 process.packPlots.clusterToken = cms.InputTag("None")
-process.packPlots.egToken = cms.InputTag("l1tRawToDigi")
-process.packPlots.tauToken = cms.InputTag("l1tRawToDigi")
+process.packPlots.egToken = cms.InputTag("None")
+process.packPlots.tauToken = cms.InputTag("None")
 process.packPlots.jetToken = cms.InputTag("l1tRawToDigi")
 process.packPlots.etSumToken = cms.InputTag("l1tRawToDigi")
 
 # plots from emulator
 process.simPlots = L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi.l1tStage2CaloAnalyzer.clone()
-process.simPlots.towerToken = cms.InputTag("caloStage2Digis")
+process.simPlots.towerToken = cms.InputTag("l1tDigis")
 process.simPlots.clusterToken = cms.InputTag("None")
-process.simPlots.egToken = cms.InputTag("caloStage2Digis")
-process.simPlots.tauToken = cms.InputTag("caloStage2Digis")
-process.simPlots.jetToken = cms.InputTag("caloStage2Digis")
-process.simPlots.etSumToken = cms.InputTag("caloStage2Digis")
+process.simPlots.egToken = cms.InputTag("None")
+process.simPlots.tauToken = cms.InputTag("None")
+process.simPlots.jetToken = cms.InputTag("l1tDigis")
+process.simPlots.etSumToken = cms.InputTag("l1tDigis")
 
 # user stuff
 process.load("EventFilter.L1TRawToDigi.l1tDigiToRaw_cfi")
+process.l1tDigiToRaw.InputLabel = cms.InputTag("l1tDigis")
 process.load("EventFilter.L1TRawToDigi.l1tRawToDigi_cfi")
 
 # Path and EndPath definitions
