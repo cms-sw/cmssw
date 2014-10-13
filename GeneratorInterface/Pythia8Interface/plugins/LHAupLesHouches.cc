@@ -65,11 +65,10 @@ bool LHAupLesHouches::setEvent(int inProcId, double mRecalculate)
 
   const std::vector<float> &scales = event->scales();
   
+  bool doRecalculate = (mRecalculate > 0.);
+  
   unsigned int iscale = 0;
   for(int i = 0; i < hepeup.NUP; i++) {
-    //override spinup flag if so configured
-    double spinup = (std::abs(hepeup.IDUP[i])==15 && ignoreTauSpinUp_) ? 9. : hepeup.SPINUP[i];
-        
     //retrieve scale corresponding to each particle
     double scalein = -1.;
     
@@ -84,13 +83,26 @@ bool LHAupLesHouches::setEvent(int inProcId, double mRecalculate)
       scalein = scales[iscale];
       ++iscale;
     }
+    
+    double energy = hepeup.PUP[i][3];
+    double mass = hepeup.PUP[i][4];
+    
+    // Optionally recalculate mass from four-momentum.
+    if (doRecalculate && mass > mRecalculate) {
+      mass = sqrtpos( energy*energy - hepeup.PUP[i][0]*hepeup.PUP[i][0] - hepeup.PUP[i][1]*hepeup.PUP[i][1] - hepeup.PUP[i][2]*hepeup.PUP[i][2]);
+    }
+    // If not, recalculate energy from three-momentum and mass.
+    else {
+      energy = sqrt( hepeup.PUP[i][0]*hepeup.PUP[i][0] + hepeup.PUP[i][1]*hepeup.PUP[i][1] + hepeup.PUP[i][2]*hepeup.PUP[i][2] + mass*mass);
+    }
+    
     addParticle(hepeup.IDUP[i], hepeup.ISTUP[i],
                 hepeup.MOTHUP[i].first, hepeup.MOTHUP[i].second,
                 hepeup.ICOLUP[i].first, hepeup.ICOLUP[i].second,
                 hepeup.PUP[i][0], hepeup.PUP[i][1],
-                hepeup.PUP[i][2], hepeup.PUP[i][3],
-                hepeup.PUP[i][4], hepeup.VTIMUP[i],
-                spinup, scalein);
+                hepeup.PUP[i][2], energy,
+                mass, hepeup.VTIMUP[i],
+                hepeup.SPINUP[i],scalein);
   }
   
   infoPtr->eventAttributes->clear();
