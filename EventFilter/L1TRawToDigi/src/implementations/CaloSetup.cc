@@ -21,7 +21,7 @@ namespace l1t {
             if (fed == 1) {
                // Use amc id 1 for packing
                res[1] = {
-                  /* PackerFactory::get()->make("CaloTowerPacker"), */
+                  PackerFactory::get()->make("CaloTowerPacker"),
                   PackerFactory::get()->make("EGammaPacker"),
                   PackerFactory::get()->make("EtSumPacker"),
                   PackerFactory::get()->make("JetPacker"),
