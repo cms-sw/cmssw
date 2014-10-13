@@ -235,7 +235,7 @@ void HcalHTRData::pack(unsigned char* daq_lengths, unsigned short* daq_samples,
   unsigned short* ptr=m_ownData+headerLen;
   if (tp_samples!=0 && tp_lengths!=0) {
     for (ichan=0; ichan<24; ichan++) {
-      unsigned short chanid=((ichan%3)+((ichan/3)<<2))<<11;
+      unsigned short chanid=((ichan%4)+(((ichan/4)+1)<<2))<<11;
       for (isample=0; isample<tp_lengths[ichan] && isample<MAXIMUM_SAMPLES_PER_CHANNEL; isample++) {
 	ptr[tp_words_total]=chanid|(tp_samples[ichan*MAXIMUM_SAMPLES_PER_CHANNEL+isample]&0x3FF);
 	tp_words_total++;
@@ -280,7 +280,7 @@ void HcalHTRData::pack(unsigned char* daq_lengths, unsigned short* daq_samples,
 
 }
 
-void HcalHTRData::packHeaderTrailer(int L1Anumber, int bcn, int submodule, int orbitn, int pipeline, int ndd, int nps, int firmwareRev) {
+void HcalHTRData::packHeaderTrailer(int L1Anumber, int bcn, int submodule, int orbitn, int pipeline, int ndd, int nps, int firmwareRev, int firmwareFlav) {
   m_ownData[0]=L1Anumber&0xFF;
   m_ownData[1]=(L1Anumber&0xFFFF00)>>8;
   if (m_formatVersion==-1) {
@@ -297,7 +297,7 @@ void HcalHTRData::packHeaderTrailer(int L1Anumber, int bcn, int submodule, int o
     m_ownData[4]=((m_formatVersion&0xF)<<12)|(bcn&0xFFF);
     m_ownData[5]|=((nps&0x1F)<<3)|0x1;
     m_ownData[6]=((firmwareRev&0x70000)>>3)|(firmwareRev&0x1FFF);
-    m_ownData[7]=pipeline&0xFF;
+    m_ownData[7]=(pipeline&0xFF)|((firmwareFlav&0x3F)<<8);
     m_ownData[m_rawLength-4]&=0x7FF;
     m_ownData[m_rawLength-4]|=(ndd&0x1F)<<11;
   }
