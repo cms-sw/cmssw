@@ -211,7 +211,7 @@ void HLTHiggsPlotter::analyze(const bool & isPassTrigger, const std::string & so
         if( (unsigned)(countobjects)[objType] < _NptPlots )
         {
             maxPt = "MaxPt";
-            maxPt += j+1;
+            maxPt += (countobjects[objType]+1);
             if( ! objType == EVTColContainer::PFJET || nMinOne[maxPt.Data()] ) {
                 this->fillHist(isPassTrigger,source,objTypeStr,maxPt.Data(),pt);
             }

@@ -535,15 +535,14 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
             if( (unsigned)(*countobjects)[objType] < NptPlots )
             {
                 maxPt = "MaxPt";
+                maxPt += (*countobjects)[objType]+1;
                 if( _useNminOneCuts && objType == EVTColContainer::PFJET ) {
-                    maxPt += j+1;
                     if( nMinOne[maxPt.Data()] ) 
                     {
                         this->fillHist(u2str[it->first],objTypeStr,maxPt.Data(),pt);
                     }
                 }
                 else {
-                    maxPt += (*countobjects)[objType]+1;
                     this->fillHist(u2str[it->first],objTypeStr,maxPt.Data(),pt);
                 }
                 // Filled the high pt ...
@@ -1015,8 +1014,10 @@ void HLTHiggsSubAnalysis::passJetCuts(std::vector<MatchStruct> * matches, std::m
         else jetCutResult[maxPt.Data()] = false;
     }  
     
+    unsigned int NbTag = ( (_NminOneCuts[0] || _NminOneCuts[1]) ? 4 : 8 );
+    if( matches->size() < NbTag ) NbTag = matches->size();
     // Perform b-tag ordered cuts
-    std::sort(matches->begin(), matches->begin()+NptPlots, matchesByDescendingBtag());
+    std::sort(matches->begin(), matches->begin()+NbTag, matchesByDescendingBtag());
 
     if( _NminOneCuts[0] ) {
         dEtaqq =  fabs((*matches)[2].eta - (*matches)[3].eta);
@@ -1057,11 +1058,11 @@ void HLTHiggsSubAnalysis::passJetCuts(std::vector<MatchStruct> * matches, std::m
 
 void HLTHiggsSubAnalysis::passOtherCuts(const std::vector<MatchStruct> & matches, std::map<std::string,bool> & jetCutResult){
     if( _NminOneCuts[6] ) {
+        jetCutResult["PFMET"] = false;
         for(std::vector<MatchStruct>::const_iterator it = matches.begin(); it != matches.end(); ++it)
         {
             if( it->objType == EVTColContainer::PFMET ) {
                 if( it->pt > _NminOneCuts[6] ) jetCutResult["PFMET"] = true;
-                else jetCutResult["PFMET"] = false;
                 break;
             }
         }
