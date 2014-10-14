@@ -54,7 +54,7 @@ process.MessageLogger.cerr.FwkReport = cms.untracked.PSet(
 
 #------------------------------------------------------------------
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 
 process.source = cms.Source("PoolSource",
                     fileNames = cms.untracked.vstring(options.inputFiles),
@@ -229,4 +229,4 @@ process.p0 = cms.Path(
     )
 
 
-print process.dumpPython()
+#print process.dumpPython()
