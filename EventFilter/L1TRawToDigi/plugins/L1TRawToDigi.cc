@@ -106,9 +106,9 @@ namespace l1t {
          return;
       }
 
-      LogInfo("L1T") << "Found FEDRawDataCollection";
-
       const FEDRawData& l1tRcd = feds->FEDData(fedId_);
+
+      LogInfo("L1T") << "Found FEDRawDataCollection with ID " << fedId_ << " and size " << l1tRcd.size();
 
       if ((int) l1tRcd.size() < slinkHeaderSize_ + slinkTrailerSize_ + amcHeaderSize_ + amcTrailerSize_) {
          LogError("L1T") << "Cannot unpack: empty/invalid L1T raw data (size = "
