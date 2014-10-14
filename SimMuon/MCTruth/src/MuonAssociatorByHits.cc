@@ -74,6 +74,8 @@ MuonAssociatorByHits::MuonAssociatorByHits (const edm::ParameterSet& conf, edm::
   TrackerMuonHitExtractor hitExtractor(conf_,std::move(iC)); 
   DTHitAssociator dttruth(conf_,std::move(iC));
   MuonTruth muonTruth(conf_,std::move(iC));
+  TrackerHitAssociator trackertruth(conf_,std::move(iC));
+
 }
 
 //compatibility constructor - argh

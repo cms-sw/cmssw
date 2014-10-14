@@ -51,6 +51,17 @@ TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e)  :
   if(doPixel_) e.getByLabel("simSiPixelDigis", pixeldigisimlink);
 }
 
+TrackerHitAssociator::TrackerHitAssociator(const edm::ParameterSet& conf, edm::ConsumesCollector && iC) :
+  doPixel_( conf.getParameter<bool>("associatePixel") ),
+  doStrip_( conf.getParameter<bool>("associateStrip") ),
+  doTrackAssoc_( conf.getParameter<bool>("associateRecoTracks") ) {
+
+  assocHitbySimTrack_ = conf.existsAs<bool>("associateHitbySimTrack") ? conf.getParameter<bool>("associateHitbySimTrack") : false;
+
+  if(doStrip_) iC.consumes<edm::DetSetVector<StripDigiSimLink> >(edm::InputTag("simSiStripDigis"));
+  if(doPixel_) iC.consumes<edm::DetSetVector<PixelDigiSimLink> >(edm::InputTag("simSiPixelDigis"));
+ }
+
 //
 // Constructor with configurables
 //

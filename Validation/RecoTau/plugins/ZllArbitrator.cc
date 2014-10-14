@@ -42,7 +42,7 @@ public:
 
 private:  
   // member data
-  edm::InputTag              srcZCand_;  
+  edm::EDGetTokenT<std::vector<T1> >   srcZCand_;  
 };
 
 
@@ -54,7 +54,7 @@ private:
 //______________________________________________________________________________
 template<typename T1>
 ZllArbitrator<T1>::ZllArbitrator(const edm::ParameterSet& iConfig)
-  : srcZCand_(iConfig.getParameter<edm::InputTag>("ZCandidateCollection"))
+  : srcZCand_(consumes<std::vector<T1> >(iConfig.getParameter<edm::InputTag>("ZCandidateCollection")))
 {
   produces<std::vector<T1> >();
 }
@@ -77,7 +77,7 @@ void ZllArbitrator<T1>::produce(edm::Event& iEvent,const edm::EventSetup& iSetup
   std::auto_ptr<std::vector<T1> > TheBestZ(new std::vector<T1 >);
   
   edm::Handle< std::vector<T1> > ZCandidatesHandle;
-  iEvent.getByLabel(srcZCand_,ZCandidatesHandle);
+  iEvent.getByToken(srcZCand_,ZCandidatesHandle);
   
   if( ZCandidatesHandle->size() == 0 ) 
   {
