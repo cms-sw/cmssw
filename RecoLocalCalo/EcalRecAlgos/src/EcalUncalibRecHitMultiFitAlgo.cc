@@ -10,7 +10,7 @@ EcalUncalibRecHitMultiFitAlgo::EcalUncalibRecHitMultiFitAlgo() :
 }
 
 /// compute rechits
-EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataFrame& dataFrame, const EcalPedestals::Item * aped, const EcalMGPAGainRatio * aGain, const SampleMatrix &noisecor, const FullSampleVector &fullpulse, const FullSampleMatrix &fullpulsecov, const BXVector &activeBX) {
+EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataFrame& dataFrame, const EcalPedestals::Item * aped, const EcalMGPAGainRatio * aGain, const SampleMatrix &noisecor, const FullSampleVector &fullpulse, const FullSampleMatrix &fullpulsecov, const BXVector &activeBX, bool noiseMatrixAsCovariance) {
 
   uint32_t flags = 0;
   
@@ -48,6 +48,11 @@ EcalUncalibratedRecHit EcalUncalibRecHitMultiFitAlgo::makeRecHit(const EcalDataF
       pederr = aped->rms_x6;
       gainratio = aGain->gain12Over6();
     }
+    
+    //treat provided noise matrix directly as covariance (set multiplicative rms to 1.0 adc count)
+    if (noiseMatrixAsCovariance) {
+      pederr = 1.0;
+    }    
 
     amplitude = ((double)(sample.adc()) - pedestal) * gainratio;
     

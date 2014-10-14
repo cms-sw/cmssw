@@ -32,6 +32,10 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
   for (unsigned int ibx=0; ibx<activeBXs.size(); ++ibx) {
     activeBX.coeffRef(ibx) = activeBXs[ibx];
   }
+  
+  noiseMatrixAsCovarianceEB_ = ps.getParameter<bool>("noiseMatrixAsCovarianceEB");
+  noiseMatrixAsCovarianceEE_ = ps.getParameter<bool>("noiseMatrixAsCovarianceEE");
+  noiseMatrixAsCovarianceEK_ = ps.getParameter<bool>("noiseMatrixAsCovarianceEK");
 
   // uncertainty calculation (CPU intensive)
   ampErrorCalculation_ = ps.getParameter<bool>("ampErrorCalculation");
@@ -283,22 +287,26 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
         const EcalPedestals::Item * aped = 0;
         const EcalMGPAGainRatio * aGain = 0;
         const EcalXtalGroupId * gid = 0;
-
+        bool noiseMatrixAsCovariance = false;
+        
         if (detid.subdetId()==EcalEndcap) {
           unsigned int hashedIndex = EEDetId(detid).hashedIndex();
           aped  = &peds->endcap(hashedIndex);
           aGain = &gains->endcap(hashedIndex);
           gid   = &grps->endcap(hashedIndex);
+          noiseMatrixAsCovariance = noiseMatrixAsCovarianceEE_;
         } else if (detid.subdetId()==EcalShashlik){
           unsigned int hashedIndex = 10;
           aped  = &peds->shashlik(hashedIndex);
           aGain = &gains->shashlik(hashedIndex);
           gid   = &grps->shashlik(hashedIndex);
+          noiseMatrixAsCovariance = noiseMatrixAsCovarianceEK_;
         } else {
           unsigned int hashedIndex = EBDetId(detid).hashedIndex();
           aped  = &peds->barrel(hashedIndex);
           aGain = &gains->barrel(hashedIndex);
           gid   = &grps->barrel(hashedIndex);
+          noiseMatrixAsCovariance = noiseMatrixAsCovarianceEB_;
         }
 
         pedVec[0] = aped->mean_x12;
@@ -387,7 +395,7 @@ EcalUncalibRecHitWorkerMultiFit::run( const edm::Event & evt,
                 const FullSampleVector &fullpulse = barrel ? fullpulseEB : fullpulseEE;
                 const FullSampleMatrix &fullpulsecov = barrel ? fullpulsecovEB : fullpulsecovEE;
                                 
-                uncalibRecHit = multiFitMethod_.makeRecHit(*itdg, aped, aGain, noisecormat,fullpulse,fullpulsecov,activeBX);
+                uncalibRecHit = multiFitMethod_.makeRecHit(*itdg, aped, aGain, noisecormat,fullpulse,fullpulsecov,activeBX,noiseMatrixAsCovariance);
                 
                 // === time computation ===
                 if(timealgo_.compare("RatioMethod")==0) {

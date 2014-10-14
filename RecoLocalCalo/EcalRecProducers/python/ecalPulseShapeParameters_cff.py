@@ -61,10 +61,52 @@ ecal_pulse_shape_covariances = cms.PSet(
     )    
 )
 
-from SimCalorimetry.EcalSimProducers.ecalDigiParameters_cff import *
+ecal_noise_correlation = cms.PSet(
+    #these are correlation matrix elements
+    EBCorrNoiseMatrixG12 = cms.vdouble (
+    1.00000, 0.71073, 0.55721, 0.46089, 0.40449,
+    0.35931, 0.33924, 0.32439, 0.31581, 0.30481 ) ,
+
+    EECorrNoiseMatrixG12 = cms.vdouble (
+    1.00000, 0.71373, 0.44825, 0.30152, 0.21609,
+    0.14786, 0.11772, 0.10165, 0.09465, 0.08098 ) ,
+
+    EBCorrNoiseMatrixG06 = cms.vdouble (
+    1.00000, 0.70946, 0.58021, 0.49846, 0.45006,
+    0.41366, 0.39699, 0.38478, 0.37847, 0.37055 ) ,
+
+    EECorrNoiseMatrixG06 = cms.vdouble (
+    1.00000, 0.71217, 0.47464, 0.34056, 0.26282,
+    0.20287, 0.17734, 0.16256, 0.15618, 0.14443 ),
+
+    EBCorrNoiseMatrixG01 = cms.vdouble (
+    1.00000, 0.73354, 0.64442, 0.58851, 0.55425,
+    0.53082, 0.51916, 0.51097, 0.50732, 0.50409 ) ,
+
+    EECorrNoiseMatrixG01 = cms.vdouble (
+    1.00000, 0.72698, 0.62048, 0.55691, 0.51848,
+    0.49147, 0.47813, 0.47007, 0.46621, 0.46265 ),
+
+    #these are covariance matrix elements
+    #covariance = 0.03^2*cor_digi + (1/12)
+    #treating quantization as fully correlated noise term
+    #on top of 0.03 adc counts "magic number" for Shashlik
+    #Yes this is almost just a matrix filled with 1/12,
+    #but that could cause undesirable numerical problems
+    #downstream if taken too literally
+    EKCorrNoiseMatrixG12 = cms.vdouble (
+    0.084233, 0.083976, 0.083737, 0.083605, 0.083528,
+    0.083466, 0.083439, 0.083425, 0.083419, 0.083406 ) ,
+    EKCorrNoiseMatrixG06 = cms.vdouble (
+    0.084233, 0.083974, 0.083761, 0.083640, 0.083570,
+    0.083516, 0.083493, 0.083480, 0.083474, 0.083463 ),
+    EKCorrNoiseMatrixG01 = cms.vdouble (
+    0.084233, 0.083988, 0.083892, 0.083835, 0.083800,
+    0.083776, 0.083764, 0.083756, 0.083753, 0.083750 )  
+)
 
 ecal_pulse_shape_parameters = cms.PSet(
     ecal_pulse_shape_templates,
-    ecal_digi_parameters,
+    ecal_noise_correlation,
     ecal_pulse_shape_covariances
 )

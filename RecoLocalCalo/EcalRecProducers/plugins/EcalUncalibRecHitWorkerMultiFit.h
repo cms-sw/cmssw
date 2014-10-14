@@ -80,7 +80,10 @@ class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass 
                 bool ampErrorCalculation_;
                 EcalUncalibRecHitMultiFitAlgo multiFitMethod_;
                 
-
+                bool noiseMatrixAsCovarianceEB_;
+                bool noiseMatrixAsCovarianceEE_;
+                bool noiseMatrixAsCovarianceEK_;
+                
                 // determine which of the samples must actually be used by ECAL local reco
                 edm::ESHandle<EcalSampleMask> sampleMaskHand_;                
                 

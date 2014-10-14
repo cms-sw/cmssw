@@ -13,7 +13,12 @@ ecalMultiFitUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
     # for multifit method
     EcalPulseShapeParameters = cms.PSet( ecal_pulse_shape_parameters ),
     activeBXs = cms.vint32(-5,-4,-3,-2,-1,0,1,2,3,4),
+    noiseMatrixAsCovarianceEB = cms.bool(False),
+    noiseMatrixAsCovarianceEE = cms.bool(False),
+    noiseMatrixAsCovarianceEK = cms.bool(True),
     ampErrorCalculation = cms.bool(True),
+
+
 
     # decide which algorithm to be use to calculate the jitter
     timealgo = cms.string("RatioMethod"),
