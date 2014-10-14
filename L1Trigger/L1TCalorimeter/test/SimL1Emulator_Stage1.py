@@ -46,8 +46,17 @@ process.GlobalTag.globaltag = cms.string('POSTLS162_V2::All')
 
 process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_PPFromRaw_cff')
 
+# GT
+from L1Trigger.Configuration.SimL1Emulator_cff import simGtDigis
+process.simGtDigis = simGtDigis.clone()
+process.simGtDigis.GmtInputTag = 'simGmtDigis'
+process.simGtDigis.GctInputTag = 'caloStage1LegacyFormatDigis'
+process.simGtDigis.TechnicalTriggersInputTags = cms.VInputTag( )
+
+
 process.p1 = cms.Path(
     process.L1TCaloStage1_PPFromRaw
+    +process.simGtDigis
     +process.l1ExtraLayer2
     )
 
