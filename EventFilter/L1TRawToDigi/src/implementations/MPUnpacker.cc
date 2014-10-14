@@ -1,3 +1,5 @@
+#define EDM_ML_DEBUG 1
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "EventFilter/L1TRawToDigi/interface/Unpacker.h"

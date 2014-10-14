@@ -186,6 +186,19 @@ namespace l1t {
          uint32_t block_size = (block_hdr >> 16) & 0xFF;
 
          LogDebug("L1T") << "Found MP7 header: block ID " << block_id << " block size " << block_size;
+#ifdef EDM_ML_DEBUG
+         std::stringstream s("");
+         s << "Block content:" << std::endl;
+         s << std::hex << std::setfill('0');
+         for (unsigned int w = 0; w < block_size; ++w) {
+            s << std::hex << std::setw(2) << (unsigned int) data[idx + w * 4 + 3];
+            s << std::hex << std::setw(2) << (unsigned int) data[idx + w * 4 + 2];
+            s << std::hex << std::setw(2) << (unsigned int) data[idx + w * 4 + 1];
+            s << std::hex << std::setw(2) << (unsigned int) data[idx + w * 4];
+            s << std::endl;
+         }
+         LogDebug("L1T") << s.str();
+#endif
 
          // set AMC id to 1 for now
          auto unpacker = unpackers.find(block_id);
