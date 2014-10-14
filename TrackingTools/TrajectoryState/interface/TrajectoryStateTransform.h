@@ -22,21 +22,21 @@ namespace trajectoryStateTransform {
   /// Construct a FreeTrajectoryState from the reco::Track innermost or outermost state, 
   /// does not require access to tracking geometry
   FreeTrajectoryState initialFreeState( const reco::Track& tk,
-					const MagneticField* field);
+					const MagneticField* field, bool withErr=true);
 
   FreeTrajectoryState innerFreeState( const reco::Track& tk,
-				      const MagneticField* field);
+				      const MagneticField* field, bool withErr=true);
   FreeTrajectoryState outerFreeState( const reco::Track& tk,
-				      const MagneticField* field);
+				      const MagneticField* field, bool withErr=true);
 
   /// Construct a TrajectoryStateOnSurface from the reco::Track innermost or outermost state, 
   /// requires access to tracking geometry
   TrajectoryStateOnSurface innerStateOnSurface( const reco::Track& tk, 
 						const TrackingGeometry& geom,
-						const MagneticField* field);
+						const MagneticField* field, bool withErr=true);
   TrajectoryStateOnSurface outerStateOnSurface( const reco::Track& tk, 
 						const TrackingGeometry& geom,
-						const MagneticField* field);
+						const MagneticField* field, bool withErr=true);
 
 }
 

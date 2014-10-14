@@ -231,7 +231,7 @@ void SUSY_HLT_Muon_Hadronic::endRun(edm::Run const& run, edm::EventSetup const& 
 void SUSY_HLT_Muon_Hadronic::bookHistos(DQMStore::IBooker & ibooker_)
 {
   ibooker_.cd();
-  ibooker_.setCurrentFolder("HLTriggerOffline/SUSYBSM/" + triggerPath_);
+  ibooker_.setCurrentFolder("HLT/SUSYBSM/" + triggerPath_);
 
   //offline quantities
 

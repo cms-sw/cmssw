@@ -176,7 +176,7 @@ void SUSY_HLT_InclusiveHT::endRun(edm::Run const& run, edm::EventSetup const& eS
 void SUSY_HLT_InclusiveHT::bookHistos(DQMStore::IBooker & ibooker_)
 {
   ibooker_.cd();
-  ibooker_.setCurrentFolder("HLTriggerOffline/SUSYBSM/" + triggerPath_);
+  ibooker_.setCurrentFolder("HLT/SUSYBSM/" + triggerPath_);
 
   //offline quantities
   h_pfMet = ibooker_.book1D("pfMet", "PF Missing E_{T}; GeV", 20, 0.0, 500.0 );

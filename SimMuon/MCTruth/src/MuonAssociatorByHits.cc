@@ -74,6 +74,8 @@ MuonAssociatorByHits::MuonAssociatorByHits (const edm::ParameterSet& conf, edm::
   TrackerMuonHitExtractor hitExtractor(conf_,std::move(iC)); 
   DTHitAssociator dttruth(conf_,std::move(iC));
   MuonTruth muonTruth(conf_,std::move(iC));
+  TrackerHitAssociator trackertruth(conf_,std::move(iC));
+
 }
 
 //compatibility constructor - argh
@@ -1396,7 +1398,6 @@ void MuonAssociatorByHits::associateMuons(MuonToSimCollection & recToSim, SimToM
     /// PART 1: Fill MuonAssociatorByHits::TrackHitsCollection
     MuonAssociatorByHits::TrackHitsCollection muonHitRefs;
     edm::OwnVector<TrackingRecHit> allTMRecHits;  // this I will fill in only for tracker muon hits from segments
-    TrackingRecHitRefVector hitRefVector;              // same as above, plus used to get null iterators for muons without a track
     switch (trackType) {
         case InnerTk: 
             for (edm::RefToBaseVector<reco::Muon>::const_iterator it = muons.begin(), ed = muons.end(); it != ed; ++it) {
@@ -1404,7 +1405,7 @@ void MuonAssociatorByHits::associateMuons(MuonToSimCollection & recToSim, SimToM
                 if (mur->track().isNonnull()) { 
                     muonHitRefs.push_back(std::make_pair(mur->track()->recHitsBegin(), mur->track()->recHitsEnd()));
                 } else {
-                    muonHitRefs.push_back(std::make_pair(hitRefVector.begin(), hitRefVector.end()));
+                    muonHitRefs.push_back(std::make_pair(allTMRecHits.data().end(), allTMRecHits.data().end()));
                 }
             }
             break;
@@ -1414,7 +1415,7 @@ void MuonAssociatorByHits::associateMuons(MuonToSimCollection & recToSim, SimToM
                 if (mur->outerTrack().isNonnull()) { 
                     muonHitRefs.push_back(std::make_pair(mur->outerTrack()->recHitsBegin(), mur->outerTrack()->recHitsEnd()));
                 } else {
-                    muonHitRefs.push_back(std::make_pair(hitRefVector.begin(), hitRefVector.end()));
+                    muonHitRefs.push_back(std::make_pair(allTMRecHits.data().end(), allTMRecHits.data().end()));
                 }
             }
             break;
@@ -1424,8 +1425,8 @@ void MuonAssociatorByHits::associateMuons(MuonToSimCollection & recToSim, SimToM
                 if (mur->globalTrack().isNonnull()) { 
                     muonHitRefs.push_back(std::make_pair(mur->globalTrack()->recHitsBegin(), mur->globalTrack()->recHitsEnd()));
                 } else {
-                    muonHitRefs.push_back(std::make_pair(hitRefVector.begin(), hitRefVector.end()));
-                }
+                    muonHitRefs.push_back(std::make_pair(allTMRecHits.data().end(), allTMRecHits.data().end()));
+               }
             }
             break;
         case Segments: {
@@ -1445,13 +1446,9 @@ void MuonAssociatorByHits::associateMuons(MuonToSimCollection & recToSim, SimToM
                     }
                     muonHitIndices.push_back(indices);  
                 }
-                // puts hits in the ref-vector
-                for (size_t i = 0, n = allTMRecHits.size(); i < n; ++i) {
-                    hitRefVector.push_back(TrackingRecHitRef(& allTMRecHits, i)); 
-                }
                 // convert indices into pairs of iterators to references
                 typedef std::pair<size_t, size_t> index_pair;
-                trackingRecHit_iterator hitRefBegin = hitRefVector.begin();
+                trackingRecHit_iterator hitRefBegin = allTMRecHits.data().begin();
                 for (std::vector<std::pair<size_t, size_t> >::const_iterator idxs = muonHitIndices.begin(), idxend = muonHitIndices.end(); idxs != idxend; ++idxs) {
                     muonHitRefs.push_back(std::make_pair(hitRefBegin+idxs->first, 
                                                          hitRefBegin+idxs->second));

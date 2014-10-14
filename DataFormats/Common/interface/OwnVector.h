@@ -23,7 +23,7 @@ namespace edm {
   class ProductID;
   template <typename T, typename P = ClonePolicy<T> >
   class OwnVector {
-  private:
+  public:
 #if defined(CMS_USE_DEBUGGING_ALLOCATOR)
     typedef std::vector<T*, debugging_allocator<T> > base;
 #else

@@ -11,6 +11,35 @@ using namespace reco;
 
 int main()
 {
+
+{
+  const uint32_t radial_detids[] = { 402666125,//TID r1
+				     402668833,//TID r2
+				     402673476,//TID r3
+				     470066725,//TEC r1
+				     470390853,//TEC r2
+				     470114664,//TEC r3
+				     470131344,//TEC r4
+				     470079661,//TEC r5
+				     470049476,//TEC r6
+				     470045428}; //TEC r7
+
+   HitPattern hp;
+   auto i=0;
+   for (auto id : radial_detids) { hp.appendHit(id,(i++ == 1) ? TrackingRecHit::missing : TrackingRecHit::valid);}
+   hp.appendHit(radial_detids[2],TrackingRecHit::missing);
+   hp.appendHit(radial_detids[8],TrackingRecHit::missing);
+
+
+   std::cout << hp.numberOfValidTrackerHits() << ' ' << hp.numberOfValidPixelHits() << ' ' <<	hp.numberOfValidStripHits() << std::endl;
+   std::cout << hp.pixelLayersWithMeasurement() << ' ' << hp.stripLayersWithMeasurement() << std::endl;
+   std::cout << hp.numberOfValidStripLayersWithMonoAndStereo() << std::endl;
+   std::cout <<	hp.pixelLayersWithoutMeasurement(HitPattern::TRACK_HITS) << ' ' << hp.stripLayersWithoutMeasurement(HitPattern::TRACK_HITS) << std::endl;
+
+}
+
+
+
     HitPattern hp1;
     HitPattern hp2;
     std::mt19937 eng;

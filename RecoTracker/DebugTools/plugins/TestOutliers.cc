@@ -1,4 +1,4 @@
- // -*- C++ -*-
+// -*- C++ -*-
 //
 // Package:    TestOutliers
 // Class:      TestOutliers
@@ -373,8 +373,8 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       
       //if ( trackOut->numberOfValidHits() < trackOld->numberOfValidHits() ) {
       if ( trackOut->numberOfValidHits() != trackOld->numberOfValidHits() || 
-	   !trackOut->recHitsBegin()->get()->sharesInput(trackOld->recHitsBegin()->get(),TrackingRecHit::some) ||
-	   !(trackOut->recHitsEnd()-1)->get()->sharesInput((trackOld->recHitsEnd()-1)->get(),TrackingRecHit::some)  ) 
+	   !(*trackOut->recHitsBegin())->sharesInput((*trackOld->recHitsBegin()),TrackingRecHit::some) ||
+	   !(*(trackOut->recHitsEnd()-1))->sharesInput((*(trackOld->recHitsEnd()-1)),TrackingRecHit::some)  ) 
 	{ //there are outliers if the number of valid hits is != or if the first and last hit does not match
 	LogTrace("TestOutliers") << "outliers for track with #hits=" << trackOut->numberOfValidHits();
 	tracks->Fill(1);
