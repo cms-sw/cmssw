@@ -220,8 +220,8 @@ float JetCorrectionUncertainty::getPtRel()
     float pLrel2 = lepXlj*lepXlj/lj2;
     // lep2 = pTrel2 + pLrel2
     pTrel2 = lep2-pLrel2;
-  }
-  edm::LogError("JetCorrectionUncertainty")<<" not positive lepton-jet momentum: "<<lj2;
+  } else
+    edm::LogError("JetCorrectionUncertainty")<<" not positive lepton-jet momentum: "<<lj2;
   return (pTrel2 > 0) ? std::sqrt(pTrel2) : 0.0;
 }
 //------------------------------------------------------------------------ 
