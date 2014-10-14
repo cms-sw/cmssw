@@ -15,6 +15,7 @@ from SLHCUpgradeSimulations.Configuration.combinedCustoms_TTI import l1EventCont
 from SLHCUpgradeSimulations.Configuration.combinedCustoms_TTI import l1EventContent_TTI_forHLT
 
 from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_NoCrossing
+from SLHCUpgradeSimulations.Configuration.phase1TkCustoms import customise as customisePhase1Tk
 from SLHCUpgradeSimulations.Configuration.phase1TkCustomsdev import customise as customisePhase1Tkdev
 from SLHCUpgradeSimulations.Configuration.HCalCustoms import customise_HcalPhase1, customise_HcalPhase0, customise_HcalPhase2
 from SLHCUpgradeSimulations.Configuration.gemCustoms import customise2019 as customise_gem2019
