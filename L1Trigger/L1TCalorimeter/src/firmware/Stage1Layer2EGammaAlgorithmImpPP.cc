@@ -32,8 +32,10 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
   double jetLsb=params_->jetLsb();
   int egSeedThreshold= floor( params_->egSeedThreshold()/egLsb + 0.5);
   int jetSeedThreshold= floor( params_->jetSeedThreshold()/jetLsb + 0.5);
-  double egRelativeJetIsolationBarrelCut = params_->egRelativeJetIsolationBarrelCut();
-  double egRelativeJetIsolationEndcapCut = params_->egRelativeJetIsolationEndcapCut();
+  // double egRelativeJetIsolationBarrelCut = params_->egRelativeJetIsolationBarrelCut();
+  // double egRelativeJetIsolationEndcapCut = params_->egRelativeJetIsolationEndcapCut();
+  unsigned int egRelativeJetIsolationBarrelCut = floor( params_->egRelativeJetIsolationBarrelCut()*100 +0.5);
+  unsigned int egRelativeJetIsolationEndcapCut = floor( params_->egRelativeJetIsolationEndcapCut()*100 +0.5);
 
   std::string regionPUSType = params_->regionPUSType();
   std::vector<double> regionPUSParams = params_->regionPUSParams();
@@ -58,7 +60,9 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
     int eg_et = egCand->hwPt();
     int eg_eta = egCand->hwEta();
     int eg_phi = egCand->hwPhi();
-    //std::cout << "eg_et: " << eg_et << " thresh: " << egSeedThreshold << std::endl;
+
+    //std::cout << "JetRankMax: " << params_->jetScale().rankScaleMax()<< " EmRankMax: " << params_->emScale().rankScaleMax()<< std::endl;
+    //std::cout << "JetLinMax: " << params_->jetScale().linScaleMax()<< " EmLinMax: " << params_->emScale().linScaleMax()<< std::endl;
     if(eg_et <= egSeedThreshold) continue;
 
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > egLorentz(0,0,0,0);
@@ -66,21 +70,28 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
     int quality = 1;
     int isoFlag = 0;
 
-
-    // ------- isolation and H/E ---------------
-    // double isolation = Isolation(eg_eta, eg_phi, *subRegions);
-    //if( eg_et > 0 && (isolation / eg_et ) > relativeIsolationCut) isoFlag  = 0;
-
-    double jet_pt=AssociatedJetPt(eg_eta,eg_phi,unCorrJets);
-    jet_pt=jet_pt*jetLsb;
+    int ijet_pt=AssociatedJetPt(eg_eta,eg_phi,unCorrJets);
+    // double jet_pt=ijet_pt*jetLsb;
     bool isinBarrel = (eg_eta>=7 && eg_eta<=14);
-    if (jet_pt>0){
-      double jetIsolationEG = jet_pt - eg_et;        // Jet isolation
-      double relativeJetIsolationEG = jetIsolationEG / eg_et;
+    if (ijet_pt>0){
 
-      if(eg_et >0 && eg_et<63 && isinBarrel && relativeJetIsolationEG < egRelativeJetIsolationBarrelCut) isoFlag=1;
-      if(eg_et >0 && eg_et<63 && !isinBarrel && relativeJetIsolationEG < egRelativeJetIsolationEndcapCut) isoFlag=1;
-      if( eg_et >= 63) isoFlag=1;
+      // double jetIsolationEG = jet_pt - eg_et;        // Jet isolation
+      // double relativeJetIsolationEG = jetIsolationEG / eg_et;
+
+      // if (relativeJetIsolationEG*100<100) 
+      // 	std::cout << "eg/jet/isol/relisol: " << eg_et << " / " << jet_pt << " /\t " << isol << " / " << int(relativeJetIsolationEG*100+0.5) << "\t address: " << lutAddress << std::endl;
+      // 
+      // if(eg_et >0 && eg_et<63 && isinBarrel && relativeJetIsolationEG < egRelativeJetIsolationBarrelCut) isoFlag=1;
+      // if(eg_et >0 && eg_et<63 && !isinBarrel && relativeJetIsolationEG < egRelativeJetIsolationEndcapCut) isoFlag=1;
+      // if( eg_et >= 63) isoFlag=1;
+
+      unsigned int lutAddress = isoLutIndex(eg_et,ijet_pt);
+      if (lutAddress > params_->egIsolationLUT()->maxSize()) lutAddress = params_->egIsolationLUT()->maxSize();
+
+      unsigned int isol= params_->egIsolationLUT()->data(lutAddress);
+      if(eg_et >0 && isinBarrel  && isol < egRelativeJetIsolationBarrelCut) isoFlag=1;
+      if(eg_et >0 && !isinBarrel && isol < egRelativeJetIsolationEndcapCut) isoFlag=1;
+
     }else{ // no associated jet; assume it's an isolated eg
       isoFlag=1;
     }
@@ -149,16 +160,35 @@ double l1t::Stage1Layer2EGammaAlgorithmImpPP::Isolation(int ieta, int iphi,
   return isolation;
 }
 
+//ieta =-28, nrTowers 0 is 0, increases to ieta28, nrTowers=kNrTowersInSum
+unsigned l1t::Stage1Layer2EGammaAlgorithmImpPP::isoLutIndex(unsigned int egPt,unsigned int jetPt) const
+{
+  // const unsigned int kNrTowersInSum=72*params_->egIsoMaxEtaAbsForTowerSum()*2;
+  // const unsigned int kTowerGranularity=params_->egIsoPUEstTowerGranularity();
+  // const unsigned int kMaxAddress = kNrTowersInSum%kTowerGranularity==0 ? (kNrTowersInSum/kTowerGranularity+1)*28*2 : 
+  //                                                                       (kNrTowersInSum/kTowerGranularity)*28*2;
+  
+  // unsigned int nrTowersNormed = nrTowers/kTowerGranularity;
+  
+  
+  // if(std::abs(iEta)>28 || iEta==0 || nrTowers>kNrTowersInSum) return kMaxAddress;
+  // else return iEtaNormed*(kNrTowersInSum/kTowerGranularity+1)+nrTowersNormed;
+
+  if (jetPt>511) jetPt=511;
+  if (egPt>63) egPt=63;
+
+  return 511*(egPt-1)+(jetPt-1);
+}
 
 
 
-double l1t::Stage1Layer2EGammaAlgorithmImpPP::AssociatedJetPt(int ieta, int iphi,
+int l1t::Stage1Layer2EGammaAlgorithmImpPP::AssociatedJetPt(int ieta, int iphi,
 							      const std::vector<l1t::Jet> * jets)  const {
 
   bool Debug=false;
 
   if (Debug) cout << "Number of jets: " << jets->size() << endl;
-  double pt = -1;
+  int pt = -1;
 
 
   for(JetBxCollection::const_iterator itJet = jets->begin();
