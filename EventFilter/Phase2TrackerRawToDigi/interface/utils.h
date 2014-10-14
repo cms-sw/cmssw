@@ -21,7 +21,7 @@ namespace Phase2Tracker {
 
   // Assumptions for phase 2
 
-  static const int MAX_FE_PER_FED = 16;
+  static const int MAX_FE_PER_FED = 72;
   static const int MAX_CBC_PER_FE = 16;
   static const int STRIPS_PER_CBC = 254;
   static const int STRIPS_PADDING = 2;
@@ -312,6 +312,14 @@ namespace Phase2Tracker {
     }
   }
 
+  struct second_sort
+  {
+    template <typename t1, typename t2>
+    bool operator() (std::pair<t1, t2> const & a, std::pair<t1, t2> const & b) const 
+    {
+      return a.second < b.second;
+    }
+  };
 } // end of Phase2Tracker namespace
 
 #endif // } end def utils
