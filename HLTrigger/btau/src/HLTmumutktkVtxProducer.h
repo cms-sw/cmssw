@@ -5,11 +5,6 @@
 // Class:      HLTmumutktkVtxProducer
 //
 /**\class HLTmumutktkVtxProducer
-
- HLT Filter for b to (mumu) + X
-
- Implementation:
-     <Notes on implementation>
 */
 
 // system include files

@@ -143,7 +143,6 @@ void HLTmumutktkVtxProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 
     //first check if this muon passed the previous filter
     if( ! checkPreviousCand( trk1, vPrevCands) ) continue;
-
     // eta and pt cut
     if (fabs(trk1->eta()) > maxEta_)    continue;
     if (trk1->pt()        < minPt_ )    continue;
@@ -164,12 +163,8 @@ void HLTmumutktkVtxProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
       if (trk2->pt()        < minPt_ )             continue;
 
       //loop on track collection - trk1
-      unsigned int itrk1cand = 0;
       for ( trkcand1 = trkcands->begin(); trkcand1 !=trkcands->end(); ++trkcand1) {
         TrackRef trk3 = trkcand1->get<TrackRef>();
-        //for internal test     
-        reco::RecoChargedCandidateRef cand1Ref(trkcands, itrk1cand);
-        itrk1cand ++;
 
         if( overlap( trk1, trk3) ) continue;
         if( overlap( trk2, trk3) ) continue;
@@ -188,13 +183,9 @@ void HLTmumutktkVtxProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
         if (d0sigTrk3 < minD0Significance_) continue;
       
         //loop on track collection - trk2 
-        unsigned int itrk2cand = 0;
         for ( trkcand2 = trkcands->begin(); trkcand2 !=trkcands->end(); ++trkcand2) {
           TrackRef trk4 = trkcand2->get<TrackRef>();
 
-          reco::RecoChargedCandidateRef cand2Ref(trkcands, itrk2cand);
-          itrk2cand ++;
-          
           if (oppositeSign_) {
             if (trk3->charge()*trk4->charge() != -1)    continue;
           }

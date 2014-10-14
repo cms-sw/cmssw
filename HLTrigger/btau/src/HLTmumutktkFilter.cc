@@ -118,15 +118,12 @@ bool HLTmumutktkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
       vtxProb = TMath::Prob(displacedVertex.chi2(), displacedVertex.ndof() );
     if (vtxProb < minVtxProbability_) continue;
 
-    // get the three tracks from the vertex
+    // get the four tracks from the vertex
+    std::vector <reco::TrackRef> vertexTrksRefVec;
     reco::Vertex::trackRef_iterator trackIt =  displacedVertex.tracks_begin();
-    reco::TrackRef vertextkRef1 =  (*trackIt).castTo<reco::TrackRef>() ;
-    trackIt++;
-    reco::TrackRef vertextkRef2 =  (*trackIt).castTo<reco::TrackRef>();
-    trackIt++;
-    reco::TrackRef vertextkRef3 =  (*trackIt).castTo<reco::TrackRef>();
-    trackIt++;
-    reco::TrackRef vertextkRef4 =  (*trackIt).castTo<reco::TrackRef>();
+    for (trackIt = displacedVertex.tracks_begin(); trackIt != displacedVertex.tracks_end(); trackIt++){
+        vertexTrksRefVec.push_back((*trackIt).castTo<reco::TrackRef>());
+    }
 
     // first find the two muon tracks in the muon collection
     reco::RecoChargedCandidateCollection::const_iterator mucand1;
@@ -135,50 +132,32 @@ bool HLTmumutktkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
     reco::RecoChargedCandidateCollection::const_iterator tkcand2;    
 
     int iFoundRefs = 0;
-    bool threeMuons = false;
     for (reco::RecoChargedCandidateCollection::const_iterator cand=mucands->begin(); cand!=mucands->end(); cand++) {
       reco::TrackRef tkRef = cand->get<reco::TrackRef>();
-      if     (tkRef == vertextkRef1 && iFoundRefs==0) {mucand1 = cand; iFoundRefs++;}
-      else if(tkRef == vertextkRef1 && iFoundRefs==1) {mucand2 = cand; iFoundRefs++;}
-      else if(tkRef == vertextkRef1 && iFoundRefs==2) {threeMuons = true;}
-      if     (tkRef == vertextkRef2 && iFoundRefs==0) {mucand1 = cand; iFoundRefs++;}
-      else if(tkRef == vertextkRef2 && iFoundRefs==1) {mucand2 = cand; iFoundRefs++;}
-      else if(tkRef == vertextkRef2 && iFoundRefs==2) {threeMuons = true;}
-      if     (tkRef == vertextkRef3 && iFoundRefs==0) {mucand1 = cand; iFoundRefs++;}
-      else if(tkRef == vertextkRef3 && iFoundRefs==1) {mucand2 = cand; iFoundRefs++;}
-      else if(tkRef == vertextkRef3 && iFoundRefs==2) {threeMuons = true;}
-      if     (tkRef == vertextkRef4 && iFoundRefs==0) {mucand1 = cand; iFoundRefs++;}
-      else if(tkRef == vertextkRef4 && iFoundRefs==1) {mucand2 = cand; iFoundRefs++;}
-      else if(tkRef == vertextkRef4 && iFoundRefs==2) {threeMuons = true;}
+      for (unsigned int iVec=0; iVec < vertexTrksRefVec.size();iVec++){
+        if      (tkRef == vertexTrksRefVec.at(iVec) && iFoundRefs==0) {mucand1 = cand; iFoundRefs++;}
+        else if (tkRef == vertexTrksRefVec.at(iVec) && iFoundRefs==1) {mucand2 = cand; iFoundRefs++;}
+      }
     }
-    if(threeMuons) throw cms::Exception("BadLogic") << "HLTmumutktkFilterr: ERROR: the vertex must have "
-                                                    << " exactly two muons by definition."  << std::endl;
+    if(iFoundRefs!= 2) throw cms::Exception("BadLogic") << "HLTmumutktkFilterr: ERROR: the vertex must have "
+                                                        << " exactly two muons by definition."  << std::endl;
 
-    bool threeTrks = false;
     int iTrkFoundRefs = 0;
     for (reco::RecoChargedCandidateCollection::const_iterator cand=trkcands->begin(); cand!=trkcands->end(); cand++) {
       reco::TrackRef tkRef = cand->get<reco::TrackRef>();
-      if     (tkRef == vertextkRef1 && iTrkFoundRefs==0) {tkcand1 = cand; iTrkFoundRefs++;}
-      if     (tkRef == vertextkRef1 && iTrkFoundRefs==1) {tkcand2 = cand; iTrkFoundRefs++;}
-      else if(tkRef == vertextkRef1 && iTrkFoundRefs==2) {threeTrks = true;}
-      if     (tkRef == vertextkRef2 && iTrkFoundRefs==0) {tkcand1 = cand; iTrkFoundRefs++;}
-      else if(tkRef == vertextkRef2 && iTrkFoundRefs==1) {tkcand2 = cand; iTrkFoundRefs++;}
-      else if(tkRef == vertextkRef2 && iTrkFoundRefs==2) {threeTrks = true;}
-      if     (tkRef == vertextkRef3 && iTrkFoundRefs==0) {tkcand1 = cand; iTrkFoundRefs++;}
-      else if(tkRef == vertextkRef3 && iTrkFoundRefs==1) {tkcand2 = cand; iTrkFoundRefs++;}
-      else if(tkRef == vertextkRef3 && iTrkFoundRefs==2) {threeTrks = true;}
-      if     (tkRef == vertextkRef4 && iTrkFoundRefs==0) {tkcand1 = cand; iTrkFoundRefs++;}
-      else if(tkRef == vertextkRef4 && iTrkFoundRefs==1) {tkcand2 = cand; iTrkFoundRefs++;}
-      else if(tkRef == vertextkRef4 && iTrkFoundRefs==2) {threeTrks = true;}
+      for (unsigned int iVec=0; iVec < vertexTrksRefVec.size();iVec++){
+        if      (tkRef == vertexTrksRefVec.at(iVec) && iTrkFoundRefs==0) {tkcand1 = cand; iTrkFoundRefs++;}
+        else if (tkRef == vertexTrksRefVec.at(iVec) && iTrkFoundRefs==1) {tkcand2 = cand; iTrkFoundRefs++;}
+      }
     }
-    if(threeTrks) throw cms::Exception("BadLogic") << "HLTmumutktkFilterr: ERROR: the vertex must have "
+    if(iTrkFoundRefs!= 2 ) throw cms::Exception("BadLogic") << "HLTmumutktkFilterr: ERROR: the vertex must have "
                                                   << " exactly two tracks by definition."  << std::endl;
 
-    // calculate three-track transverse momentum
+    // calculate four-track transverse momentum
     math::XYZVector pperp(mucand1->px() + mucand2->px() + tkcand1->px() + tkcand2->px(),
                           mucand1->py() + mucand2->py() + tkcand1->py() + tkcand2->py(),
                           0.);
-            
+                          
     // get vertex position and error to calculate the decay length significance
     reco::Vertex::Point vpoint=displacedVertex.position();
     reco::Vertex::Error verr = displacedVertex.error();
@@ -188,16 +167,18 @@ bool HLTmumutktkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
     GlobalPoint displacementFromBeamspot( -1*((vertexBeamSpot.x0() - secondaryVertex.x()) + (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dxdz()), 
                                           -1*((vertexBeamSpot.y0() - secondaryVertex.y()) + (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dydz()), 
                                            0 );
-    float lxy = displacementFromBeamspot.perp();
-    float lxyerr = sqrt(err.rerr(displacementFromBeamspot));
+    float lxy     = displacementFromBeamspot.perp();
+    float lxyerr  = sqrt(err.rerr(displacementFromBeamspot));
+    float lxysign = 0;
+    if (lxyerr != 0)  lxysign = lxy/lxyerr;
 
-    //calculate the angle between the decay length and the mumu momentum
+    //calculate the angle between the decay length and the four-track momentum
     Vertex::Point vperp(displacementFromBeamspot.x(),displacementFromBeamspot.y(),0.);
-    float cosAlpha = vperp.Dot(pperp)/(vperp.R()*pperp.R());
+    float cosAlpha = vperp.Dot(pperp)/(vperp.Rho()*pperp.Rho());
 
-    if (pperp.R()  < minPt_                 ) continue;
-    if (lxy/lxyerr < minLxySignificance_    ) continue;
-    if (cosAlpha   < minCosinePointingAngle_) continue;
+    if (pperp.Rho() < minPt_                 ) continue;
+    if (lxysign     < minLxySignificance_    ) continue;
+    if (cosAlpha    < minCosinePointingAngle_) continue;
     triggered = true;
           
     refMu1=RecoChargedCandidateRef( Ref<RecoChargedCandidateCollection> (mucands,distance(mucands->begin(), mucand1)));

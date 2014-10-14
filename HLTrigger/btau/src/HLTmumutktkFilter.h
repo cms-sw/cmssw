@@ -2,10 +2,11 @@
 #define HLTmumutktkFilter_h
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+
 namespace edm {
   class ConfigurationDescriptions;
 }
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
 // ----------------------------------------------------------------------
 
