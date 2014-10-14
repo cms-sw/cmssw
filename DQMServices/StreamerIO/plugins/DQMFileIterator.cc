@@ -29,7 +29,7 @@ DQMFileIterator::LumiEntry DQMFileIterator::LumiEntry::load_json(
                       ->second.get_value<std::size_t>();
 
   lumi.file_ls = lumiNumber;
-  lumi.datafilename = std::next(pt.get_child("data").begin(), datafn_position)
+  lumi.datafn = std::next(pt.get_child("data").begin(), datafn_position)
     ->second.get_value<std::string>();
 
   return lumi;
@@ -50,8 +50,6 @@ DQMFileIterator::EorEntry DQMFileIterator::EorEntry::load_json(
                      ->second.get_value<std::size_t>();
   eor.n_lumi = std::next(pt.get_child("data").begin(), 2)
                    ->second.get_value<std::size_t>();
-  eor.datafilename = std::next(pt.get_child("data").begin(), 2)
-                         ->second.get_value<std::string>();
 
   eor.loaded = true;
   return eor;
@@ -100,7 +98,7 @@ void DQMFileIterator::reset() {
 
 DQMFileIterator::State DQMFileIterator::state() { return state_; }
 
-const DQMFileIterator::LumiEntry DQMFileIterator::open() {
+DQMFileIterator::LumiEntry DQMFileIterator::open() {
   LumiEntry& lumi = lumiSeen_[nextLumiNumber_];
   advanceToLumi(nextLumiNumber_ + 1, "open: file iterator");
   return lumi;
@@ -160,15 +158,15 @@ void DQMFileIterator::monUpdateLumi(const LumiEntry& lumi) {
   lumi_doc.put("state", lumi.state);
 
   ptree doc;
-  doc.add_child(str(boost::format("lumiSeen.lumi%06d") % lumi.file_ls), lumi_doc);
+  doc.add_child(str(boost::format("extra.lumi_seen.lumi%06d") % lumi.file_ls), lumi_doc);
   mon_->outputUpdate(doc);
 }
 
-std::string DQMFileIterator::make_path_data(const LumiEntry& lumi) {
-  if (boost::starts_with(lumi.datafilename, "/")) return lumi.datafilename;
+std::string DQMFileIterator::make_path(const std::string& fn) {
+  if (boost::starts_with(fn, "/")) return fn;
 
   boost::filesystem::path p(runPath_);
-  p /= lumi.datafilename;
+  p /= fn;
   return p.string();
 }
 
