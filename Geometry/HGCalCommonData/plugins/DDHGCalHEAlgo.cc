@@ -159,7 +159,7 @@ DDHGCalHEAlgo::parameterLayer(double rinF, double routF, double rinB,
   //Given rin, rout compute parameters of the trapezoid and 
   //position of the trapezoid for a standrd layer
   double alpha = CLHEP::pi/sectors;
-  double rout  = ((routF > routB) ? routB : routF);
+  double rout  = routF;
   edm::LogInfo("HGCalGeom") << "Input: Front " << rinF << " " << routF << " "
 			    << zi << " Back " << rinB << " " << routB << " "
 			    << zo << " Alpha " << alpha/CLHEP::deg << " Rout "
@@ -189,7 +189,7 @@ DDHGCalHEAlgo::parameterLayer(int type, double rinF, double routF, double rinB,
   //Given rin, rout compute parameters of the trapezoid and 
   //position of the trapezoid for a standrd layer
   double alpha = CLHEP::pi/sectors;
-  double rout  = ((routF > routB) ? routB : routF);
+  double rout  = routF;
   edm::LogInfo("HGCalGeom") << "Input " << type << " Front " << rinF << " " 
 			    << routF << " " << zi << " Back " << rinB << " " 
 			    << routB << " " << zo <<" Alpha " 
