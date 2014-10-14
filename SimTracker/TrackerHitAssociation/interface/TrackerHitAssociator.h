@@ -22,6 +22,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 //--- for SimHit
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
@@ -54,7 +55,11 @@ typedef std::pair<uint32_t, EncodedEventId> SimHitIdpr;
 class TrackerHitAssociator {
   
  public:
-  
+
+  // Constructor for consumes.. it can be better..eg, this should replace the other constructors 
+  // but there are too many consts 
+  // in all the wrong places
+  TrackerHitAssociator(const edm::ParameterSet& conf, edm::ConsumesCollector && iC);
   // Simple constructor
   TrackerHitAssociator(const edm::Event& e);
   // Constructor with configurables
