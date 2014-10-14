@@ -4,7 +4,6 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/src/fed_header.h"
 #include "DataFormats/FEDRawData/src/fed_trailer.h"
-#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDHeader.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerDigiToRaw.h"
@@ -18,7 +17,12 @@
 #include <iomanip>
 #include <ext/algorithm>
 
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
+
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 
 using namespace std;
 
@@ -60,13 +64,32 @@ namespace Phase2Tracker {
     std::auto_ptr<FEDRawDataCollection> buffers( new FEDRawDataCollection );
     edm::Handle< edmNew::DetSetVector<SiPixelCluster> > digis_handle;
     event.getByLabel("siPixelClusters","", digis_handle);
+    // edm::Handle< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > > > digis_handle;
+    // event.getByLabel("TTStubsFromPixelDigis", "ClusterAccepted", digis_handle );
     // temp : get list of detids for modules in tracker
+    // const edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >* digs = digis_handle.product();
+    // edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >::const_iterator it;
+    /*    
     const edmNew::DetSetVector<SiPixelCluster>* digs = digis_handle.product();
-    for (edmNew::DetSetVector<SiPixelCluster>::const_iterator it = digs->begin(); it != digs->end(); it++)
+    edmNew::DetSetVector<SiPixelCluster>::const_iterator it;
+    for (it = digs->begin(); it != digs->end(); it++)
     {
-      SiStripDetId did(it->detId());
-      std::cout << it->detId() << " " << did.subDetector() << std::endl;
-    }
+      DetId did(it->detId());
+      if (did.det() == DetId::Tracker) 
+      {
+        if (did.subdetId() == PixelSubdetector::PixelBarrel) 
+        {
+          PXBDetId pdid(did);
+          std::cout << it->detId() << " " << pdid.layer() << std::endl;
+        }  
+        else if (did.subdetId() == PixelSubdetector::PixelEndcap) 
+        {
+          // std::cout << it->detId() << " " << did.layer() << std::endl;
+        }
+      }
+      // std::cout << it->detId() << " " << did.subdetId() << std::endl;
+    } 
+    */   
     // end of temp
     Phase2TrackerDigiToRaw raw_producer(cabling_, topo_, digis_handle, 1);
     raw_producer.buildFEDBuffers(buffers);

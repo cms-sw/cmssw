@@ -83,14 +83,58 @@ namespace Phase2Tracker
     std::vector<edmNew::DetSet<SiPixelCluster>>::const_iterator idigi;
     for (idigi = digis.begin(); idigi != digis.end(); idigi++ )
     {
-      // detremine module type
+      // determine module type
       moduletype = cabling_->findDetid(idigi->detId()).getModuleType();
-      // loop on digis for this detid
-      writeFeHeaderSparsified(fedbuffer,bitindex,moduletype,0,idigi->size());
-      edmNew::DetSet<SiPixelCluster>::const_iterator it;
-      for (it = idigi->begin(); it != idigi->end(); it++)
+      int ns = 0; 
+      int np = 0;
+      int layer = 0;
+      // detids should always come by two, odd then even (top/bottom or S/P)
+      if (idigi->detId()%2)
       {
-        writeCluster(fedbuffer, bitindex, it, moduletype);
+        if((idigi+1)->detId() - idigi->detId() != 1)
+        {
+          // the next module does not have a detid following this one : this should never happen
+          std::cout << "the next module does not have a detid following this one : this should never happen : Skipping " << std::endl;
+          continue;
+        }
+        if (moduletype == 0)
+        {
+          std::vector<std::pair<const SiPixelCluster*, int>> digs_mod;
+          edmNew::DetSet<SiPixelCluster>::const_iterator it;
+          for (it = idigi->begin(); it != idigi->end(); it++)
+          {
+            digs_mod.push_back(std::pair<const SiPixelCluster*, int>(&*it,it->x()*2+1));
+          }
+          idigi++;
+          for (it = idigi->begin(); it != idigi->end(); it++)
+          {
+            digs_mod.push_back(std::pair<const SiPixelCluster*, int>(&*it,it->x()*2));
+          }
+          writeFeHeaderSparsified(fedbuffer,bitindex,moduletype,0,np+ns);
+          // sort digis of both channels according to strip
+          std::sort(digs_mod.begin(),digs_mod.end(),second_sort());
+          std::vector<std::pair<const SiPixelCluster*, int>>::iterator its;
+          for(its = digs_mod.begin(); its != digs_mod.end(); its++)
+          {
+            layer = (its->second % 2 == 1) ? 0 : 1;
+            writeCluster(fedbuffer, bitindex, its->first, moduletype, layer);
+          }
+        }
+        else
+        {
+          ns = idigi->size();
+          np = (idigi+1)->size();
+          writeFeHeaderSparsified(fedbuffer,bitindex,moduletype,np,ns);
+          edmNew::DetSet<SiPixelCluster>::const_iterator it;
+          for (it = (idigi+1)->begin(); it != (idigi+1)->end(); it++)
+          {
+            writeCluster(fedbuffer, bitindex, it, moduletype, 1); 
+          }
+          for (it = idigi->begin(); it != idigi->end(); it++)
+          {
+            writeCluster(fedbuffer, bitindex, it, moduletype, 0); 
+          }
+        }
       }
     }
     // add daq trailer 
@@ -116,25 +160,30 @@ namespace Phase2Tracker
     bitpointer += length;
   }
 
-  void Phase2TrackerDigiToRaw::writeCluster(std::vector<uint64_t> & buffer, uint64_t & bitpointer, const SiPixelCluster * digi, int moduletype)
+  void Phase2TrackerDigiToRaw::writeCluster(std::vector<uint64_t> & buffer, uint64_t & bitpointer, const SiPixelCluster * digi, int moduletype, int layer)
   {
     if(moduletype == 0)
     {
-      writeSCluster(buffer,bitpointer,digi);
+      writeSCluster(buffer,bitpointer,digi,layer);
     } 
     else
     {
-      std::ostringstream ss;
-      ss << "[Phase2Tracker::Phase2TrackerDigiToRaw::"<<__func__<<"] " << "\n";
-      ss << "Phase2TrackerDigiToRaw::writeCluster has not been implemented for PS modules" << "\n";
-      throw cms::Exception("Phase2TrackerDigiToRaw") << ss.str();
+      if(layer == 0)
+      {
+        // layer set to -1 tells there's only one S layer (SonPS) 
+        writeSCluster(buffer,bitpointer,digi,-1);   
+      }
+      else
+      {
+        writePCluster(buffer,bitpointer,digi);
+      }
     }
   }
 
 
-  void Phase2TrackerDigiToRaw::writeSCluster(std::vector<uint64_t> & buffer, uint64_t & bitpointer, const SiPixelCluster * digi)
+  void Phase2TrackerDigiToRaw::writeSCluster(std::vector<uint64_t> & buffer, uint64_t & bitpointer, const SiPixelCluster * digi, int layer)
   {
-    std::pair<int,int> chipstrip = calcChipId(digi);
+    std::pair<int,int> chipstrip = calcChipId(digi, layer);
     uint16_t scluster = (chipstrip.first & 0x0F) << 11;
     scluster |= (chipstrip.second & 0xFF) << 3;
     scluster |= (digi->sizeX() & 0x07);
@@ -144,7 +193,7 @@ namespace Phase2Tracker
 
   void Phase2TrackerDigiToRaw::writePCluster(std::vector<uint64_t> & buffer, uint64_t & bitpointer, const SiPixelCluster * digi)
   {
-    std::pair<int,int> chipstrip = calcChipId(digi);
+    std::pair<int,int> chipstrip = calcChipId(digi,-1);
     uint16_t pcluster = (chipstrip.first & 0x0F) << 14;
     pcluster |= (chipstrip.second & 0x7F) << 7;
     pcluster |= ((int)digi->y() & 0x0F) << 3;
@@ -153,10 +202,13 @@ namespace Phase2Tracker
     bitpointer += 18;
   }
 
-  std::pair<int,int> Phase2TrackerDigiToRaw::calcChipId(const SiPixelCluster * digi)
+  std::pair<int,int> Phase2TrackerDigiToRaw::calcChipId(const SiPixelCluster * digi, int layer)
   {
-    int chipid = digi->x()/127;
-    int strip  = int(digi->x())%127;
+    int x = (int)digi->x();
+    if(layer >= 0) { x *= 2; }
+    if(layer == 0) { x += 1; }
+    int chipid = x/254;
+    int strip  = x%254;
     std::pair<int,int> id (chipid,strip);
     return id;
   }

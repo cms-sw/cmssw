@@ -25,13 +25,13 @@ namespace Phase2Tracker
       // write FE Header to buffer
       void writeFeHeaderSparsified(std::vector<uint64_t>&,uint64_t&,int,int,int);
       // determine if a P or S cluster should be written
-      void writeCluster(std::vector<uint64_t>&,uint64_t&,const SiPixelCluster*,int);
+      void writeCluster(std::vector<uint64_t>&,uint64_t&,const SiPixelCluster*,int,int);
       // write S cluster to buffer
-      void writeSCluster(std::vector<uint64_t>&,uint64_t&,const SiPixelCluster*);
+      void writeSCluster(std::vector<uint64_t>&,uint64_t&,const SiPixelCluster*,int);
       // write P cluster to buffer
       void writePCluster(std::vector<uint64_t>&,uint64_t&,const SiPixelCluster*);
       // compute chip id and strip number from digi
-      std::pair<int,int> calcChipId(const SiPixelCluster*);
+      std::pair<int,int> calcChipId(const SiPixelCluster*,int);
     private:
       // data you get from outside
       const Phase2TrackerCabling * cabling_; 
