@@ -6,21 +6,22 @@
 using namespace std;
 
 namespace {
-  const bool phase1 = false;
+  //const bool phase1 = false;
 }
 
-PixelEndcapName::PixelEndcapName(const DetId & id, const TrackerTopology* tt)
-  : PixelModuleName(false)
+PixelEndcapName::PixelEndcapName(const DetId & id, const TrackerTopology* tt, bool phase)
+  : PixelModuleName(false), phase1(phase)
 {
 
   //PXFDetId cmssw_numbering(id);
   int side     = tt->pxfSide(id);
   int tmpBlade = tt->pxfBlade(id);
   theDisk      = tt->pxfDisk(id);
-  thePannel    = tt->pxfPanel(id);
+  thePlaquette = tt->pxfModule(id);
 
   bool outer = false;
   if(phase1) {  // phase 1
+
     // this still has to be modified so blades start from 1 on the top
     if (tmpBlade>=7 && tmpBlade<=17) {
       outer = true;
@@ -36,9 +37,11 @@ PixelEndcapName::PixelEndcapName(const DetId & id, const TrackerTopology* tt)
       theBlade = 77-tmpBlade;                     //49...56-->28...21
     } //  iasonas2-end
 
-    theRing = tt->pxfModule(id);
+    thePannel = tt->pxfPanel(id); // this is the ring
+    //thePannel = tt->pxfRing(id); // this is the ring
 
   } else { // phase0
+
     if (tmpBlade >= 7 && tmpBlade <= 18) {
       outer = true;
       theBlade = tmpBlade-6;
@@ -47,10 +50,10 @@ PixelEndcapName::PixelEndcapName(const DetId & id, const TrackerTopology* tt)
     } else if( tmpBlade >= 19) { 
       theBlade = 31-tmpBlade; 
     } 
-    
-    thePlaquette = tt->pxfModule(id);
-  } // end phase1
 
+    thePannel    = tt->pxfPanel(id);
+    
+  } // end phase1
 
        if( side == 1 &&  outer ) thePart = mO;
   else if( side == 1 && !outer ) thePart = mI;
@@ -59,18 +62,14 @@ PixelEndcapName::PixelEndcapName(const DetId & id, const TrackerTopology* tt)
 
 }
 
-PixelEndcapName::PixelEndcapName(const DetId & id)
-  : PixelModuleName(false)
+PixelEndcapName::PixelEndcapName(const DetId & id, bool phase)
+  : PixelModuleName(false), phase1(phase)
 {
   PXFDetId cmssw_numbering(id);
   int side = cmssw_numbering.side();
 
   int tmpBlade = cmssw_numbering.blade();
   bool outer = false;
-
-  if(phase1) { // phase1
-  } else { // phase 0
-  } // end phase1
 
   if(phase1) { // phase1
     // this still has to be modified so blades start from 1 on the top
@@ -88,9 +87,10 @@ PixelEndcapName::PixelEndcapName(const DetId & id)
       theBlade = 77-tmpBlade;                     //49...56-->28...21
     } //  iasonas2-end
     
-    //thePlaquette = cmssw_numbering.module();
+    thePannel = cmssw_numbering.panel();  // this is really the ring
 
   } else { // phase 0
+
     if (tmpBlade >= 7 && tmpBlade <= 18) {
       outer = true;
       theBlade = tmpBlade-6;
@@ -99,25 +99,24 @@ PixelEndcapName::PixelEndcapName(const DetId & id)
     } else if( tmpBlade >= 19) { 
       theBlade = 31-tmpBlade; 
     }
-    thePlaquette = cmssw_numbering.module();
+
+    thePannel = cmssw_numbering.panel();
  
   } // end phase1
 
-
-       if( side == 1 &&  outer ) thePart = mO;
+  if( side == 1 &&  outer ) thePart = mO;
   else if( side == 1 && !outer ) thePart = mI;
   else if( side == 2 &&  outer ) thePart = pO;
   else if( side == 2 && !outer ) thePart = pI;
  
-
+  thePlaquette = cmssw_numbering.module();
   theDisk = cmssw_numbering.disk();
-  thePannel = cmssw_numbering.panel();
 }
 
 // constructor from name string
 PixelEndcapName::PixelEndcapName(std::string name)
   : PixelModuleName(false), thePart(mO), theDisk(0), 
-    theBlade(0), thePannel(0), thePlaquette(0), theRing(0) {
+    theBlade(0), thePannel(0), thePlaquette(0) {
 
   // parse the name string
   // first, check to make sure this is an FPix name, should start with "FPix_"
@@ -188,20 +187,11 @@ PixelEndcapName::PixelEndcapName(std::string name)
       << name;
   }
 
-  // find the panel
-  string panelString = name.substr(name.find("_PNL")+4, name.find("_PLQ")-name.find("_PNL")-4);
-  if (panelString == "1") thePannel = 1;
-  else if (panelString == "2") thePannel = 2;
-  else {
-    edm::LogError ("BadNameString|SiPixel") 
-      << "Unable to determine panel number in PixelEndcapName::PixelEndcapName(std::string): "
-      << name;
-  }
 
   if(phase1) { // phase1
     string ringString = name.substr(name.find("_RNG")+4, name.size()-name.find("_RNG")-4);
-    if (ringString == "1")      theRing = 1;
-    else if (ringString == "2") theRing = 2;
+    if (ringString == "1")      thePannel = 1; // code ring in the pannel
+    else if (ringString == "2") thePannel = 2;
     else {
       edm::LogError ("BadNameString|SiPixel") 
 	<< "Unable to determine ring number in PixelEndcapName::PixelEndcapName(std::string): "
@@ -210,18 +200,28 @@ PixelEndcapName::PixelEndcapName(std::string name)
 
   } else { // phase 0
 
-    // find the plaquette
-    string plaquetteString = name.substr(name.find("_PLQ")+4, name.size()-name.find("_PLQ")-4);
-    if (plaquetteString == "1") thePlaquette = 1;
-    else if (plaquetteString == "2") thePlaquette = 2;
-    else if (plaquetteString == "3") thePlaquette = 3;
-    else if (plaquetteString == "4") thePlaquette = 4;
+    // find the panel
+    string panelString = name.substr(name.find("_PNL")+4, name.find("_PLQ")-name.find("_PNL")-4);
+    if (panelString == "1") thePannel = 1;
+    else if (panelString == "2") thePannel = 2;
     else {
       edm::LogError ("BadNameString|SiPixel") 
-	<< "Unable to determine plaquette number in PixelEndcapName::PixelEndcapName(std::string): "
+	<< "Unable to determine panel number in PixelEndcapName::PixelEndcapName(std::string): "
 	<< name;
     }
   } // end phase1
+
+  // find the plaquette
+  string plaquetteString = name.substr(name.find("_PLQ")+4, name.size()-name.find("_PLQ")-4);
+  if (plaquetteString == "1") thePlaquette = 1;
+  else if (plaquetteString == "2") thePlaquette = 2;
+  else if (plaquetteString == "3") thePlaquette = 3;
+  else if (plaquetteString == "4") thePlaquette = 4;
+  else {
+    edm::LogError ("BadNameString|SiPixel") 
+      << "Unable to determine plaquette number in PixelEndcapName::PixelEndcapName(std::string): "
+      << name;
+  }
 
 
 } // PixelEndcapName::PixelEndcapName(std::string name)
@@ -261,7 +261,6 @@ bool PixelEndcapName::operator== (const PixelModuleName & o) const
              && theDisk      == other->theDisk
              && theBlade     == other->theBlade
              && thePannel    == other->thePannel
-             && theRing      == other->theRing
              && thePlaquette == other->thePlaquette ); 
   } else return false;
 }

@@ -16,13 +16,12 @@ namespace {
   const int lL[2][12] ={{5,15,26, 8,24,41,11,33,56, 0, 0, 0},
 			{3, 9,16, 7,21,36,11,33,56,16,48,81}};
   // for phase 1
-  //const int lL[12] ={ 3, 9,16, 7,21,36,11,33,56,16,48,81};
-  
-  const bool phase1 = false; // this has to come from the trackerTopology class 
+  //const int lL[12] ={ 3, 9,16, 7,21,36,11,33,56,16,48,81};  
+  //const bool phase1 = false; // this has to come from the trackerTopology class 
 }
 
-PixelBarrelName::PixelBarrelName(const DetId & id, const TrackerTopology* tt) 
-  : PixelModuleName(true)
+PixelBarrelName::PixelBarrelName(const DetId & id, const TrackerTopology* tt, bool phase) 
+  : PixelModuleName(true), phase1(phase)
 {
 
   theLayer = tt->pxbLayer(id);
@@ -54,8 +53,8 @@ PixelBarrelName::PixelBarrelName(const DetId & id, const TrackerTopology* tt)
 
 }
 
-PixelBarrelName::PixelBarrelName(const DetId & id) 
-  : PixelModuleName(true)
+PixelBarrelName::PixelBarrelName(const DetId & id, bool phase) 
+  : PixelModuleName(true), phase1(phase)
 {
  
 //  uint32_t rawId = id.rawId(); 

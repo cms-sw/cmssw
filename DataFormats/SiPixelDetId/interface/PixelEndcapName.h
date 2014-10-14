@@ -19,13 +19,15 @@ public:
   enum HalfCylinder { mO = 1, mI = 2 , pO =3 , pI =4 };
 
   /// ctor from DetId
-  PixelEndcapName(const DetId &);
-  PixelEndcapName(const DetId &, const TrackerTopology* tt);
+  PixelEndcapName(const DetId &, bool phase=false);
+  PixelEndcapName(const DetId &, const TrackerTopology* tt, bool phase=false);
   
   /// ctor for defined name
-  PixelEndcapName( HalfCylinder part = mO, int disk =0, int blade =0, int pannel=0, int plaq=0) 
+  PixelEndcapName( HalfCylinder part = mO, int disk =0, int blade =0, int pannel=0, 
+		   int plaq=0, bool phase=false) 
     : PixelModuleName(false), 
-      thePart(part), theDisk(disk), theBlade(blade), thePannel(pannel), thePlaquette(plaq)
+      thePart(part), theDisk(disk), theBlade(blade), thePannel(pannel), 
+    thePlaquette(plaq), phase1(phase)
   { }
 
   /// ctor from name string
@@ -51,7 +53,7 @@ public:
   int plaquetteName() const { return thePlaquette; }
 
   /// ring Id
-  int ringName() const { return theRing; }
+  int ringName() const { return thePannel; }
 
   /// module Type
    virtual PixelModuleName::ModuleType  moduleType() const;
@@ -66,7 +68,8 @@ public:
 
 private:
   HalfCylinder thePart;
-  int theDisk, theBlade, thePannel, thePlaquette, theRing;
+  int theDisk, theBlade, thePannel, thePlaquette;
+  bool phase1;
 };
 
 std::ostream & operator<<( std::ostream& out, const PixelEndcapName::HalfCylinder & t);
