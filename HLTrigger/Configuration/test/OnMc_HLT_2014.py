@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_2_0/2014/V6 (CMSSW_7_2_0_pre7)
+# /dev/CMSSW_7_2_0/2014/V8 (CMSSW_7_2_0_pre8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT2014" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_2_0/2014/V6')
+  tableName = cms.string('/dev/CMSSW_7_2_0/2014/V8')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -12079,7 +12079,7 @@ process.hltOnlinePrimaryVertices = cms.EDProducer( "PrimaryVertexProducer",
         use_vdt = cms.untracked.bool( True ),
         vertexSize = cms.double( 0.01 )
       ),
-      algorithm = cms.string( "DA" )
+      algorithm = cms.string( "DA_vect" )
     )
 )
 process.hltGoodOnlinePVs = cms.EDFilter( "PrimaryVertexObjectFilter",
