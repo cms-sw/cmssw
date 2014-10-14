@@ -26,7 +26,7 @@ process.maxEvents = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_7_1_0_pre8/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_PRE_LS171_V9-v1/00000/104FC845-61E7-E311-BBEA-0025905A60B2.root')
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_7_2_0_pre5/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/POSTLS172_V3-v1/00000/323F8170-4A30-E411-82CB-0025905A610A.root')
 )
 
 process.options = cms.untracked.PSet(
@@ -80,7 +80,7 @@ process.load('Configuration.StandardSequences.RawToDigi_cff')
 
 # upgrade calo stage 2
 process.load('L1Trigger.L1TCalorimeter.L1TCaloStage2_PPFromRaw_cff')
-process.load('L1Trigger.L1TCalorimeter.l1tCaloAnalyzer_cfi')
+process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')
 
 # TTree output file
 process.load("CommonTools.UtilAlgos.TFileService_cfi")
