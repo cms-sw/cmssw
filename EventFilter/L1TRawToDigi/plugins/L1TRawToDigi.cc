@@ -75,7 +75,7 @@ namespace l1t {
       prov_ = UnpackerProviderFactory::get()->make("l1t::CaloSetup", *this);
 
       slinkHeaderSize_ = config.getUntrackedParameter<int>("lenSlinkHeader", 16);
-      slinkTrailerSize_ = config.getUntrackedParameter<int>("lenSlinkTrailer", 16);
+      slinkTrailerSize_ = config.getUntrackedParameter<int>("lenSlinkTrailer", 8);
       amcHeaderSize_ = config.getUntrackedParameter<int>("lenAMCHeader", 12);
       amcTrailerSize_ = config.getUntrackedParameter<int>("lenAMCTrailer", 8);
    }
