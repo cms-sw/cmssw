@@ -32,7 +32,7 @@ namespace l1t {
      }
 
      auto res_ = static_cast<CaloCollections*>(coll)->getTowers();
-     res_->setBXRange(firstBX, lastBX);
+     res_->setBXRange(std::min(firstBX, res_->getFirstBX()), std::max(lastBX, res_->getLastBX()));
 
      LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
 
