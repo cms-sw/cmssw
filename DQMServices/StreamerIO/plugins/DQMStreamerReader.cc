@@ -28,8 +28,7 @@ namespace dqmservices {
 DQMStreamerReader::DQMStreamerReader(edm::ParameterSet const& pset,
                                      edm::InputSourceDescription const& desc)
     : StreamerInputSource(pset, desc),
-      fiterator_(pset),
-      streamReader_() {
+      fiterator_(pset) {
 
   runNumber_ = pset.getUntrackedParameter<unsigned int>("runNumber");
   runInputDir_ = pset.getUntrackedParameter<std::string>("runInputDir");
@@ -46,7 +45,7 @@ DQMStreamerReader::DQMStreamerReader(edm::ParameterSet const& pset,
   reset_();
 }
 
-DQMStreamerReader::~DQMStreamerReader() { closeFile_(); }
+DQMStreamerReader::~DQMStreamerReader() { closeFile_("destructor"); }
 
 void DQMStreamerReader::reset_() {
   // We have to load at least a single header,
@@ -80,7 +79,7 @@ void DQMStreamerReader::reset_() {
     }
 
     // check if we have a file openned
-    if (streamReader_.get() != nullptr) {
+    if (file_.open()) {
       // we are now initialised
       break;
     }
@@ -92,12 +91,14 @@ void DQMStreamerReader::reset_() {
   fiterator_.logFileAction("DQMStreamerReader initialised.");
 }
 
-void DQMStreamerReader::openFile_(std::string newStreamerFile_) {
+void DQMStreamerReader::openFile_(const DQMFileIterator::LumiEntry& entry) {
   processedEventPerLs_ = 0;
   edm::ParameterSet pset;
 
-  streamReader_ = std::unique_ptr<edm::StreamerInputFile>(
-      new edm::StreamerInputFile(newStreamerFile_));
+  std::string path = fiterator_.make_path(entry.datafn);
+
+  file_.lumi_ = entry;
+  file_.streamFile_.reset(new edm::StreamerInputFile(path));
 
   InitMsgView const* header = getHeaderMsg();
   deserializeAndMergeWithRegistry(*header, false);
@@ -123,37 +124,39 @@ void DQMStreamerReader::openFile_(std::string newStreamerFile_) {
 
   if (flagDeleteDatFiles_) {
     // unlink the file
-    unlink(newStreamerFile_.c_str());
+    unlink(path.c_str());
   }
 }
 
-void DQMStreamerReader::closeFile_() {
-  if (streamReader_.get() != nullptr) {
-    streamReader_->closeStreamerFile();
-    streamReader_ = nullptr;
+void DQMStreamerReader::closeFile_(const std::string& reason) {
+  if (file_.open()) {
+    file_.streamFile_->closeStreamerFile();
+    file_.streamFile_ = nullptr;
+
+    fiterator_.logLumiState(file_.lumi_, "close: " + reason);
   }
 }
 
 bool DQMStreamerReader::openNextFile_() {
-  closeFile_();
+  closeFile_("skipping to another file");
 
-  currentLumi_  = fiterator_.open();
-  std::string p = fiterator_.make_path_data(currentLumi_);
+  DQMFileIterator::LumiEntry currentLumi  = fiterator_.open();
+  std::string p = fiterator_.make_path(currentLumi.datafn);
 
   if (boost::filesystem::exists(p)) {
-    openFile_(p);
+    openFile_(currentLumi);
     return true;
   } else {
     /* dat file missing */
     fiterator_.logFileAction("Data file (specified in json) is missing:", p);
-    fiterator_.logLumiState(currentLumi_, "error: data file missing");
+    fiterator_.logLumiState(currentLumi, "error: data file missing");
 
     return false;
   }
 }
 
 InitMsgView const* DQMStreamerReader::getHeaderMsg() {
-  InitMsgView const* header = streamReader_->startMessage();
+  InitMsgView const* header = file_.streamFile_->startMessage();
 
   if (header->code() != Header::INIT) {  // INIT Msg
     throw edm::Exception(edm::errors::FileReadError, "DQMStreamerReader::readHeader")
@@ -165,11 +168,11 @@ InitMsgView const* DQMStreamerReader::getHeaderMsg() {
 }
 
 EventMsgView const* DQMStreamerReader::getEventMsg() {
-  if (!streamReader_->next()) {
+  if (!file_.streamFile_->next()) {
     return nullptr;
   }
 
-  EventMsgView const* msg = streamReader_->currentRecord();
+  EventMsgView const* msg = file_.streamFile_->currentRecord();
 
   //  if (msg != nullptr) dumpEventView(msg);
   return msg;
@@ -193,16 +196,15 @@ bool DQMStreamerReader::prepareNextFile() {
 
     // check for end of run file and force quit
     if (flagEndOfRunKills_ && (fiterator_.state() != State::OPEN)) {
-      closeFile_();
+      closeFile_("forced end-of-run");
       return false;
     }
 
     // check for end of run and quit if everything has been processed.
     // this clean exit
-    if ((streamReader_.get() == nullptr) && (!fiterator_.lumiReady()) &&
+    if ((!file_.open()) && (!fiterator_.lumiReady()) &&
         (fiterator_.state() == State::EOR)) {
 
-      closeFile_();
       return false;
     }
 
@@ -211,12 +213,12 @@ bool DQMStreamerReader::prepareNextFile() {
     if ((processedEventPerLs_ >= minEventsPerLs_) &&
         (!fiterator_.lumiReady()) && (fiterator_.state() == State::EOR)) {
 
-      closeFile_();
+      closeFile_("graceful end-of-run");
       return false;
     }
 
     // skip to the next file if we have no files openned yet
-    if (streamReader_.get() == nullptr) {
+    if (!file_.open()) {
       if (fiterator_.lumiReady()) {
         openNextFile_();
         // we might need to open once more (if .dat is missing)
@@ -251,7 +253,7 @@ EventMsgView const* DQMStreamerReader::prepareNextEvent() {
     if (!next) return nullptr;
 
     // sleep
-    if (streamReader_.get() == nullptr) {
+    if (!file_.open()) {
       // the reader does not exist
       fiterator_.delay();
     } else {
@@ -261,7 +263,7 @@ EventMsgView const* DQMStreamerReader::prepareNextEvent() {
       if (eview == nullptr) {
         // read unsuccessful
         // this means end of file, so close the file
-        closeFile_();
+        closeFile_("eof");
       } else {
         if (!acceptEvent(eview)) {
           continue;
@@ -285,7 +287,7 @@ bool DQMStreamerReader::checkNextEvent() {
 
   // this is reachable only if eview is set
   // and the file is openned
-  if (streamReader_->newHeader()) {
+  if (file_.streamFile_->newHeader()) {
     // A new file has been opened and we must compare Headers here !!
     // Get header/init from reader
     InitMsgView const* header = getHeaderMsg();

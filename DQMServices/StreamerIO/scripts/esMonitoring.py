@@ -95,13 +95,14 @@ class ElasticReport(object):
                 d[k.strip()] = v.strip()
             f.close()
 
-            self.doc["ps_info"] = d
+            self.update_doc({ 'extra': { 'ps_info': d } })
         except:
             pass
 
     def update_stderr(self):
         if self.s_history:
-            self.doc["stderr"] = self.s_history.read()
+            txt = self.s_history.read()
+            self.update_doc({ 'extra': { 'stdlog': txt } })
 
     def make_report(self):
         self.last_make_report = time.time()

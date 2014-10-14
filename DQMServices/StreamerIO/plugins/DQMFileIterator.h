@@ -22,7 +22,7 @@ class DQMFileIterator {
 
     unsigned int file_ls;
     std::size_t n_events;
-    std::string datafilename;
+    std::string datafn;
 
     static LumiEntry load_json(const std::string& filename, int lumiNumber,
                                unsigned int datafn_position);
@@ -36,7 +36,6 @@ class DQMFileIterator {
 
     std::size_t n_events;
     std::size_t n_lumi;
-    std::string datafilename;
 
     static EorEntry load_json(const std::string& filename);
   };
@@ -63,10 +62,10 @@ class DQMFileIterator {
    * pop() advances to the next lumi
    */
   bool lumiReady();
-  const LumiEntry open();
+  LumiEntry open();
 
   void pop();
-  std::string make_path_data(const LumiEntry& lumi);
+  std::string make_path(const std::string& fn);
 
   /* control */
   void reset();

@@ -42,9 +42,10 @@ class DQMStreamerReader : public edm::StreamerInputSource {
   // which will break things if called
   void reset_();
 
-  void openFile_(std::string filename);
+  void openFile_(const DQMFileIterator::LumiEntry& entry);
+  void closeFile_(const std::string& reason);
+
   bool openNextFile_();
-  void closeFile_();
 
   InitMsgView const* getHeaderMsg();
   EventMsgView const* getEventMsg();
@@ -58,7 +59,6 @@ class DQMStreamerReader : public edm::StreamerInputSource {
   bool acceptAllEvt_;
   bool matchTriggerSel_;
 
-  DQMFileIterator::LumiEntry currentLumi_;
   unsigned int runNumber_;
   std::string runInputDir_;
   std::string streamLabel_;
@@ -73,7 +73,16 @@ class DQMStreamerReader : public edm::StreamerInputSource {
 
   DQMFileIterator fiterator_;
 
-  std::unique_ptr<edm::StreamerInputFile> streamReader_;
+  struct OpenFile {
+    std::unique_ptr<edm::StreamerInputFile> streamFile_;
+    DQMFileIterator::LumiEntry lumi_;
+
+    bool open() {
+      return (streamFile_.get() != nullptr);
+    }
+
+  } file_;
+
   boost::shared_ptr<edm::EventSkipperByID> eventSkipperByID_;
   std::shared_ptr<TriggerSelector> eventSelector_;
 
