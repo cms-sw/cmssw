@@ -81,6 +81,10 @@ ElectronMcSignalValidator::ElectronMcSignalValidator( const edm::ParameterSet & 
   deltaR_ = conf.getParameter<double>("DeltaR");
   matchingIDs_ = conf.getParameter<std::vector<int> >("MatchingID");
   matchingMotherIDs_ = conf.getParameter<std::vector<int> >("MatchingMotherID");
+  inputFile_ = conf.getParameter<std::string>("InputFile") ;
+  outputFile_ = conf.getParameter<std::string>("OutputFile") ;
+  inputInternalPath_ = conf.getParameter<std::string>("InputFolderName") ;
+  outputInternalPath_ = conf.getParameter<std::string>("OutputFolderName") ;
 
   // histos bining and limits
 
@@ -570,7 +574,16 @@ ElectronMcSignalValidator::ElectronMcSignalValidator( const edm::ParameterSet & 
 
 void ElectronMcSignalValidator::bookHistograms( DQMStore::IBooker & iBooker, edm::Run const &, edm::EventSetup const & )
  {
-//  prepareStore() ;
+//  store_ = edm::Service<DQMStore>().operator->() ;
+//  if (!store_)
+//   { edm::LogError("ElectronDqmAnalyzerBase::prepareStore")<<"No DQMStore found !" ; }
+//  store_->setVerbose(verbosity_) ;
+  std::cout << "ElectronMcSignalValidator::bookHistograms inputFile_ : " << inputFile_ << std::endl;
+/*  if (inputFile_!="")
+   { store_->open(inputFile_) ; }*/
+  iBooker.setCurrentFolder(outputInternalPath_) ;
+
+  //  prepareStore() ;
 //  setStoreFolder("EgammaV/ElectronMcSignalValidator") ;
   setBookIndex(-1) ;
   setBookPrefix("h") ;
@@ -1124,25 +1137,6 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
   h1_recSeedNum->Fill((*gsfElectronSeeds).size());
 
 
-  // seeds electrons A.C. // over/underflows in Mean calculation
-/*  h1_ele_seed_subdet2->getTH1()->StatOverflows(kTRUE); // A.C.
-  h1_ele_seed_mask->getTH1()->StatOverflows(kTRUE); // A.C.
-  h1_ele_seed_mask_bpix->getTH1()->StatOverflows(kTRUE); // A.C.
-  h1_ele_seed_mask_fpix->getTH1()->StatOverflows(kTRUE); // A.C.
-  h1_ele_seed_mask_tec->getTH1()->StatOverflows(kTRUE); // A.C.
-  h1_ele_seed_dphi2->getTH1()->StatOverflows(kTRUE); // A.C.
-  h2_ele_seed_dphi2VsEta->getTH1()->StatOverflows(kTRUE); // A.C.
-  h2_ele_seed_dphi2VsPt->getTH1()->StatOverflows(kTRUE); // A.C.
-  h1_ele_seed_dphi2pos->getTH1()->StatOverflows(kTRUE); // A.C.
-  h2_ele_seed_dphi2posVsEta->getTH1()->StatOverflows(kTRUE); // A.C.
-  h2_ele_seed_dphi2posVsPt->getTH1()->StatOverflows(kTRUE); // A.C.
-  h1_ele_seed_drz2->getTH1()->StatOverflows(kTRUE); // A.C.
-  h2_ele_seed_drz2VsEta->getTH1()->StatOverflows(kTRUE); // A.C.
-  h2_ele_seed_drz2VsPt->getTH1()->StatOverflows(kTRUE); // A.C.
-  h1_ele_seed_drz2pos->getTH1()->StatOverflows(kTRUE); // A.C.
-  h2_ele_seed_drz2posVsEta->getTH1()->StatOverflows(kTRUE); // A.C.
-  h2_ele_seed_drz2posVsPt->getTH1()->StatOverflows(kTRUE); // A.C.
-*/
   //===============================================
   // all rec electrons
   //===============================================
