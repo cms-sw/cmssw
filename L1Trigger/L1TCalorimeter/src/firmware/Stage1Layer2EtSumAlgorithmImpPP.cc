@@ -37,10 +37,10 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
 							const std::vector<l1t::CaloEmCand> & EMCands,
 							      std::vector<l1t::EtSum> * etsums) {
 
-  double sumET = 0;
+  unsigned int sumET = 0;
   double sumEx = 0;
   double sumEy = 0;
-  double sumHT = 0;
+  unsigned int sumHT = 0;
   double sumHx = 0;
   double sumHy = 0;
 
@@ -53,11 +53,13 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
 
   int etSumEtaMinEt = params_->etSumEtaMin(0);
   int etSumEtaMaxEt = params_->etSumEtaMax(0);
-  double etSumEtThresholdEt = params_->etSumEtThreshold(0);
+  //double etSumEtThresholdEt = params_->etSumEtThreshold(0);
+  int etSumEtThresholdEt = (int) (params_->etSumEtThreshold(0) / jetLsb);
 
   int etSumEtaMinHt = params_->etSumEtaMin(1);
   int etSumEtaMaxHt = params_->etSumEtaMax(1);
-  double etSumEtThresholdHt = params_->etSumEtThreshold(1);
+  //double etSumEtThresholdHt = params_->etSumEtThreshold(1);
+  int etSumEtThresholdHt = (int) (params_->etSumEtThreshold(1) / jetLsb);
 
   std::string regionPUSType = params_->regionPUSType();
   std::vector<double> regionPUSParams = params_->regionPUSParams();
@@ -68,12 +70,13 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
       continue;
     }
 
-    double regionET= regionPhysicalEt(*region);
+    //double regionET= regionPhysicalEt(*region);
+    int regionET = region->hwPt();
 
     if(regionET >= etSumEtThresholdEt){
-      sumET += (int) regionET;
-      sumEx += (int) (((double) regionET) * cosPhi[region->hwPhi()]);
-      sumEy += (int) (((double) regionET) * sinPhi[region->hwPhi()]);
+      sumET += regionET;
+      sumEx += (((double) regionET) * cosPhi[region->hwPhi()]);
+      sumEy += (((double) regionET) * sinPhi[region->hwPhi()]);
     }
   }
 
@@ -82,17 +85,18 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
       continue;
     }
 
-    double regionET= regionPhysicalEt(*region);
+    //double regionET= regionPhysicalEt(*region);
+    int regionET = region->hwPt();
 
     if(regionET >= etSumEtThresholdHt) {
-      sumHT += (int) regionET;
-      sumHx += (int) (((double) regionET) * cosPhi[region->hwPhi()]);
-      sumHy += (int) (((double) regionET) * sinPhi[region->hwPhi()]);
+      sumHT += regionET;
+      sumHx += (((double) regionET) * cosPhi[region->hwPhi()]);
+      sumHy += (((double) regionET) * sinPhi[region->hwPhi()]);
     }
   }
 
-  double MET = ((unsigned int) sqrt(sumEx * sumEx + sumEy * sumEy));
-  double MHT = ((unsigned int) sqrt(sumHx * sumHx + sumHy * sumHy));
+  unsigned int MET = ((unsigned int) sqrt(sumEx * sumEx + sumEy * sumEy));
+  unsigned int MHT = ((unsigned int) sqrt(sumHx * sumHx + sumHy * sumHy));
 
   double physicalPhi = atan2(sumEy, sumEx) + 3.1415927;
   unsigned int iPhiET = L1CaloRegionDetId::N_PHI * physicalPhi / (2 * 3.1415927);
@@ -106,10 +110,10 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
   const ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > etLorentz(0,0,0,0);
 
   // convert back to hardware ET
-  l1t::EtSum etMiss(*&etLorentz,EtSum::EtSumType::kMissingEt,MET/jetLsb ,0,iPhiET,0);
-  l1t::EtSum htMiss(*&etLorentz,EtSum::EtSumType::kMissingHt,MHT/jetLsb ,0,iPhiHT,0);
-  l1t::EtSum etTot (*&etLorentz,EtSum::EtSumType::kTotalEt,sumET/jetLsb,0,0,0);
-  l1t::EtSum htTot (*&etLorentz,EtSum::EtSumType::kTotalHt,sumHT/jetLsb ,0,0,0);
+  l1t::EtSum etMiss(*&etLorentz,EtSum::EtSumType::kMissingEt,MET,0,iPhiET,0);
+  l1t::EtSum htMiss(*&etLorentz,EtSum::EtSumType::kMissingHt,MHT,0,iPhiHT,0);
+  l1t::EtSum etTot (*&etLorentz,EtSum::EtSumType::kTotalEt,sumET,0,0,0);
+  l1t::EtSum htTot (*&etLorentz,EtSum::EtSumType::kTotalHt,sumHT,0,0,0);
 
   std::vector<l1t::EtSum> *preGtEtSums = new std::vector<l1t::EtSum>();
 
