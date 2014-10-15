@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_2_0/Fake/V4 (CMSSW_7_2_0_pre8)
+# /dev/CMSSW_7_2_1/Fake/V1 (CMSSW_7_2_0_pre8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFake" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_2_0/Fake/V4')
+  tableName = cms.string('/dev/CMSSW_7_2_1/Fake/V1')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
