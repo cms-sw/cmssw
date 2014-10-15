@@ -87,8 +87,6 @@
 #include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
 #include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
 
 // Geometry
@@ -439,7 +437,7 @@ SiPixelDigitizerAlgorithm::PixelEfficiencies::PixelEfficiencies(const edm::Param
   }
   // the first "NumberOfBarrelLayers" settings [0],[1], ... , [NumberOfBarrelLayers-1] are for the barrel pixels
   // the next  "NumberOfEndcapDisks"  settings [NumberOfBarrelLayers],[NumberOfBarrelLayers+1], ... [NumberOfEndcapDisks+NumberOfBarrelLayers-1]
-  if(!AddPixelInefficiency) {  // No inefficiency, all 100% efficient
+  else {  // No inefficiency, all 100% efficient
     for (int i=0; i<NumberOfTotLayers;i++) {
       thePixelEfficiency[i]     = 1.;  // pixels = 100%
       thePixelColEfficiency[i]  = 1.;  // columns = 100%
@@ -1430,7 +1428,7 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
   LogDebug ("Pixel Digitizer") << " enter pixel_inefficiency " << pixelEfficiency << " "
 			       << columnEfficiency << " " << chipEfficiency;
 #endif
-
+ 
   // Initilize the index converter
   //PixelIndices indexConverter(numColumns,numRows);
   std::auto_ptr<PixelIndices> pIndexConverter(new PixelIndices(numColumns,numRows));
@@ -1675,16 +1673,15 @@ LocalVector SiPixelDigitizerAlgorithm::DriftDirection(const PixelGeomDetUnit* pi
       dir_x = -( tanLorentzAnglePerTesla_BPix * Bfield.y() + alpha2_BPix* Bfield.z()* Bfield.x() );
       dir_y = +( tanLorentzAnglePerTesla_BPix * Bfield.x() - alpha2_BPix* Bfield.z()* Bfield.y() );
       dir_z = -(1 + alpha2_BPix* Bfield.z()*Bfield.z() );
-      scale = (1 + alpha2_BPix* Bfield.z()*Bfield.z() );
-
+      scale = -dir_z;
     } else {// forward disks
       dir_x = -( tanLorentzAnglePerTesla_FPix * Bfield.y() + alpha2_FPix* Bfield.z()* Bfield.x() );
       dir_y = +( tanLorentzAnglePerTesla_FPix * Bfield.x() - alpha2_FPix* Bfield.z()* Bfield.y() );
       dir_z = -(1 + alpha2_FPix* Bfield.z()*Bfield.z() );
-      scale = (1 + alpha2_FPix* Bfield.z()*Bfield.z() );
+      scale = -dir_z;
     }
   } // end: Read LA from cfg file.
-
+  
   //Read Lorentz angle from DB:********************************************************************
   if(use_LorentzAngle_DB_){
     float lorentzAngle = SiPixelLorentzAngle_->getLorentzAngle(detId);
@@ -1693,7 +1690,7 @@ LocalVector SiPixelDigitizerAlgorithm::DriftDirection(const PixelGeomDetUnit* pi
     dir_x = -( lorentzAngle * Bfield.y() + alpha2 * Bfield.z()* Bfield.x() );
     dir_y = +( lorentzAngle * Bfield.x() - alpha2 * Bfield.z()* Bfield.y() );
     dir_z = -(1 + alpha2 * Bfield.z()*Bfield.z() );
-    scale = (1 + alpha2 * Bfield.z()*Bfield.z() );
+    scale = -dir_z;
   }// end: Read LA from DataBase.
   
   LocalVector theDriftDirection = LocalVector(dir_x/scale, dir_y/scale, dir_z/scale );
@@ -1709,9 +1706,7 @@ LocalVector SiPixelDigitizerAlgorithm::DriftDirection(const PixelGeomDetUnit* pi
 //****************************************************************************************************
 
 void SiPixelDigitizerAlgorithm::pixel_inefficiency_db(uint32_t detID) {
-  if(!use_ineff_from_db_)
-    return;
-  
+ 
   signal_map_type& theSignal = _signal[detID];
 
   // Loop over hit pixels, amplitude in electrons, channel = coded row,col
@@ -1734,8 +1729,6 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency_db(uint32_t detID) {
 //****************************************************************************************************
 
 void SiPixelDigitizerAlgorithm::module_killing_conf(uint32_t detID) {
-  if(!use_module_killing_)
-    return;
   
   bool isbad=false;
   
@@ -1778,8 +1771,6 @@ void SiPixelDigitizerAlgorithm::module_killing_conf(uint32_t detID) {
 //****************************************************************************************************
 void SiPixelDigitizerAlgorithm::module_killing_DB(uint32_t detID) {
 // Not SLHC safe for now
-  if(!use_module_killing_)
-    return;
   
   bool isbad=false;
   
