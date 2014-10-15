@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # ConfDB configurations to use
-TABLES="Fake"
+TABLES="Fake Fake"
 HLT_Fake="/dev/CMSSW_7_2_1/Fake"
 
 # print extra messages ?
