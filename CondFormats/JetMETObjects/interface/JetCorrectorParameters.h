@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <iostream>
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class JetCorrectorParameters 
 {
