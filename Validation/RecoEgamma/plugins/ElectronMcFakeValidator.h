@@ -69,6 +69,11 @@ class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
     double maxAbsEta_;
     double deltaR_;
 
+    std::string inputFile_ ;
+    std::string outputFile_ ;
+    std::string inputInternalPath_ ;
+    std::string outputInternalPath_ ;
+
     // histos limits and binning
 
     int xyz_nbin ;
