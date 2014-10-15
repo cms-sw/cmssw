@@ -344,7 +344,8 @@
   </ioread>
 
 
-  <class name="reco::TrackExtra" ClassVersion="11">
+  <class name="reco::TrackExtra" ClassVersion="12">
+   <version ClassVersion="12" checksum="106004853"/>
    <version ClassVersion="11" checksum="2586227274"/>
    <version ClassVersion="10" checksum="1613098482"/>
     <field name="outerPosition_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
