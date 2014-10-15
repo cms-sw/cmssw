@@ -27,12 +27,6 @@ l1t::Stage1Layer2EtSumAlgorithmImpPP::~Stage1Layer2EtSumAlgorithmImpPP() {
 
 }
 
-double l1t::Stage1Layer2EtSumAlgorithmImpPP::regionPhysicalEt(const l1t::CaloRegion& cand) const {
-
-  return jetLsb*cand.hwPt();
-}
-
-
 void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::CaloRegion> & regions,
 							const std::vector<l1t::CaloEmCand> & EMCands,
 							      std::vector<l1t::EtSum> * etsums) {
@@ -49,7 +43,7 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
 
   //Region Correction will return uncorrected subregions if
   //regionPUSType is set to None in the config
-  jetLsb=params_->jetLsb();
+  double jetLsb=params_->jetLsb();
 
   int etSumEtaMinEt = params_->etSumEtaMin(0);
   int etSumEtaMaxEt = params_->etSumEtaMax(0);
