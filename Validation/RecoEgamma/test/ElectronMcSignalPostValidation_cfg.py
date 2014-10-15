@@ -10,22 +10,42 @@ process.load("DQMServices.Components.DQMStoreStats_cfi")
 from DQMServices.Components.DQMStoreStats_cfi import *
 dqmStoreStats.runOnEndJob = cms.untracked.bool(True)
 
+t1 = os.environ['TEST_HISTOS_FILE'].split('.')
+localFileInput = 'DQM_V0001_R000000001__electronHistos__' + t1[1] + '__RECO.root'
+localFileInput2 = 'DQM_V0001_R000000001__electronHistos__' + t1[1] + '__RECO2.root' # temp
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
+
 process.source = cms.Source("EmptySource")
+#process.source = cms.Source("DQMRootSource", fileNames = cms.untracked.vstring("file:" + localFileInput))
 
 process.load("Validation.RecoEgamma.ElectronMcSignalPostValidator_cfi")
+# load DQM
+process.load("DQMServices.Core.DQM_cfg")
+process.load("DQMServices.Components.DQMEnvironment_cfi")
+process.load("Configuration.StandardSequences.EDMtoMEAtJobEnd_cff")
 
-process.electronMcSignalPostValidator.InputFile = cms.string(os.environ['TEST_HISTOS_FILE'])
-process.electronMcSignalPostValidator.OutputFile = cms.string(os.environ['TEST_HISTOS_FILE'])
-#process.electronMcSignalPostValidator.InputFolderName = cms.string("Run 1/EgammaV/Run summary/ElectronMcSignalValidator")
-#process.electronMcSignalPostValidator.OutputFolderName = cms.string("Run 1/EgammaV/Run summary/ElectronMcSignalValidator")
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(1)
+)
 
-#process.load("Configuration.StandardSequences.EDMtoMEAtJobEnd_cff")
-#process.dqmSaver.workflow = os.environ['DQM_WORKFLOW']
-#process.dqmsave_step = cms.Path(process.DQMSaver)
+process.electronMcSignalPostValidator.InputFile = localFileInput
+process.electronMcSignalPostValidator.OutputFile = localFileInput2 # temporaire
+#process.electronMcSignalPostValidator.InputFile = cms.string(os.environ['TEST_HISTOS_FILE'])
+#process.electronMcSignalPostValidator.OutputFile = cms.string(os.environ['TEST_HISTOS_FILE'])
+
+process.dqmSaver.workflow = '/electronHistos/' + t1[1] + '/RECO3'
 #
+process.dqmsave_step = cms.Path(process.DQMSaver)
 #process.p = cms.Path(process.electronMcSignalPostValidator*process.dqmStoreStats*process.DQMSaver)
+#process.p = cms.Path(process.electronMcSignalPostValidator*process.dqmStoreStats)
+process.p = cms.Path(process.electronMcSignalPostValidator)
 
-process.p = cms.Path(process.electronMcSignalPostValidator*process.dqmStoreStats)
+process.electronMcSignalPostValidator.InputFolderName = cms.string("Run 1/EgammaV/Run summary/ElectronMcSignalValidator")
+process.electronMcSignalPostValidator.OutputFolderName = cms.string("Run 1/EgammaV/Run summary/ElectronMcSignalValidator")
+
+# Schedule
+process.schedule = cms.Schedule(process.p,
+                                process.dqmsave_step,
+)
 
 
