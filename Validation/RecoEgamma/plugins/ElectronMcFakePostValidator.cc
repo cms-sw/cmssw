@@ -21,7 +21,7 @@ void ElectronMcFakePostValidator::book()
  { setBookIndex(-1) ; }
 /**/
 
-void ElectronMcFakePostValidator::finalize(DQMStore::IBooker & iBooker)
+void ElectronMcFakePostValidator::finalize( DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter )
  {
   setBookPrefix("h_ele") ;
 //  std::cout << "appel setBookEfficiencyFlag : " << set_EfficiencyFlag << std::endl;
@@ -30,11 +30,11 @@ void ElectronMcFakePostValidator::finalize(DQMStore::IBooker & iBooker)
   setBookStatOverflowFlag( set_StatOverflowFlag ) ;
 
   edm::LogInfo("ElectronMcFakePostValidator::finalize") << "efficiency calculation " ;
-  bookH1andDivide(iBooker, "etaEff","matchingObjectEta_matched","matchingObject_eta","#eta","Efficiency","");
+/*  bookH1andDivide(iBooker, "etaEff","matchingObjectEta_matched","matchingObject_eta","#eta","Efficiency","");
   bookH1andDivide(iBooker, "zEff","matchingObjectZ_matched","matchingObject_z","z (cm)","Efficiency","");
   bookH1andDivide(iBooker, "absetaEff","matchingObjectAbsEta_matched","matchingObject_abseta","|#eta|","Efficiency","");
   bookH1andDivide(iBooker, "ptEff","matchingObjectPt_matched","matchingObject_Pt","p_{T} (GeV/c)","Efficiency","");
-  bookH1andDivide(iBooker, "phiEff","matchingObjectPhi_matched","matchingObject_phi","#phi (rad)","Efficiency","");
+  bookH1andDivide(iBooker, "phiEff","matchingObjectPhi_matched","matchingObject_phi","#phi (rad)","Efficiency","");*/
 //    bookH2andDivide(iBooker, "ptEtaEff","matchingObjectPtEta_matched","matchingObjectPtEta","#eta","p_{T} (GeV/c)","");
 //
 //    bookH1andDivide(iBooker, "etaQmisid","matchingObjectEta_matched_qmisid","h_simEta","#eta","q misId","");
@@ -42,7 +42,7 @@ void ElectronMcFakePostValidator::finalize(DQMStore::IBooker & iBooker)
 //    bookH1andDivide(iBooker, "absetaQmisid","matchingObjectAbsEta_matched_qmisid","h_simAbsEta","|#eta|","q misId","");
 //    bookH1andDivide(iBooker, "ptQmisid","matchingObjectPt_matched_qmisid","h_simPt","p_{T} (GeV/c)","q misId","");
 
-  edm::LogInfo("ElectronMcFakePostValidator::finalize") << "all reco electrons " ;
+/*  edm::LogInfo("ElectronMcFakePostValidator::finalize") << "all reco electrons " ;
   bookH1andDivide(iBooker, "etaEff_all","vertexEta_all","matchingObject_eta","#eta","N_{rec}/N_{gen}","");
   bookH1andDivide(iBooker, "ptEff_all", "vertexPt_all","matchingObject_Pt","p_{T} (GeV/c)","N_{rec}/N_{gen}","");
 
@@ -51,9 +51,9 @@ void ElectronMcFakePostValidator::finalize(DQMStore::IBooker & iBooker)
   bookH1andDivide(iBooker, "eta_bbremFrac" ,"eta_bbrem", "h_ele_eta","|#eta|","Fraction of electrons","fraction of big brem electrons vs eta");
 //  bookH1andDivide(iBooker, "eta_narrowFrac","eta_narrow","h_ele_eta","|#eta|","Fraction of electrons","fraction of narrow electrons vs eta");
   bookH1andDivide(iBooker, "eta_showerFrac","eta_shower","h_ele_eta","|#eta|","Fraction of electrons","fraction of showering electrons vs eta");
-
+*/
   // fbrem
-  MonitorElement * p1_ele_fbremVsEta_mean = get("fbremvsEtamean") ;
+/*  MonitorElement * p1_ele_fbremVsEta_mean = get("fbremvsEtamean") ;
   TAxis * etaAxis = p1_ele_fbremVsEta_mean->getTProfile()->GetXaxis() ;
   MonitorElement * h1_ele_xOverX0VsEta = bookH1withSumw2(iBooker, "xOverx0VsEta","mean X/X_0 vs eta",etaAxis->GetNbins(),etaAxis->GetXmin(),etaAxis->GetXmax());
   for (int ibin=1;ibin<etaAxis->GetNbins()+1;ibin++) {
@@ -62,9 +62,9 @@ void ElectronMcFakePostValidator::finalize(DQMStore::IBooker & iBooker)
      { xOverX0 = -log(p1_ele_fbremVsEta_mean->getBinContent(ibin)) ; }
     h1_ele_xOverX0VsEta->setBinContent(ibin,xOverX0) ;
   }
-
+*/
   // profiles from 2D histos
-  profileX(iBooker, "PoPmatchingObjectVsEta","","#eta","<P/P_{gen}>");
+/*  profileX(iBooker, "PoPmatchingObjectVsEta","","#eta","<P/P_{gen}>");
   profileX(iBooker, "PoPmatchingObjectVsPhi","","#phi (rad)","<P/P_{gen}>");
   profileX(iBooker, "EtaMnEtamatchingObjectVsEta","","#eta","<#eta_{rec} - #eta_{gen}>");
   profileX(iBooker, "EtaMnEtamatchingObjectVsPhi","","#phi (rad)","<#eta_{rec} - #eta_{gen}>");
@@ -97,7 +97,7 @@ void ElectronMcFakePostValidator::finalize(DQMStore::IBooker & iBooker)
   profileX(iBooker, "seedDphi2Pos_VsPt","mean ele seed dphi 2nd layer positron vs pt","p_{T} (GeV/c)","<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)",-0.004,0.004);
   profileX(iBooker, "seedDrz2Pos_VsEta","mean ele seed dr(dz) 2nd layer positron vs eta","#eta","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
   profileX(iBooker, "seedDrz2Pos_VsPt","mean ele seed dr(dz) 2nd layer positron vs pt","p_{T} (GeV/c)","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
-
+*/
   }
 
 
