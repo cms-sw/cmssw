@@ -21,9 +21,10 @@ ElectronMcSignalPostValidator::~ElectronMcSignalPostValidator()
 void ElectronMcSignalPostValidator::book()
  { setBookIndex(-1) ; }/**/
 
-void ElectronMcSignalPostValidator::finalize(DQMStore::IBooker & iBooker)
+void ElectronMcSignalPostValidator::finalize( DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter )
  {
 
+  setBookIndex(-1) ;
   setBookPrefix("h_ele") ;
 //  std::cout << "appel setBookEfficiencyFlag : " << set_EfficiencyFlag << std::endl;
   setBookEfficiencyFlag(set_EfficiencyFlag);
@@ -31,13 +32,13 @@ void ElectronMcSignalPostValidator::finalize(DQMStore::IBooker & iBooker)
   setBookStatOverflowFlag( set_StatOverflowFlag ) ;
   
   edm::LogInfo("ElectronMcSignalPostValidator::finalize") << "efficiency calculation" ;
-  bookH1andDivide(iBooker, "etaEff","mc_Eta_matched","mc_Eta","#eta","Efficiency",""); 
-  bookH1andDivide(iBooker, "zEff","mc_Z_matched","mc_Z","z (cm)","Efficiency","");
-  bookH1andDivide(iBooker, "absetaEff","mc_AbsEta_matched","mc_AbsEta","|#eta|","Efficiency","");
-  bookH1andDivide(iBooker, "ptEff","mc_Pt_matched","mc_Pt","p_{T} (GeV/c)","Efficiency","");
-  bookH1andDivide(iBooker, "phiEff","mc_Phi_matched","mc_Phi","#phi (rad)","Efficiency","");
-  bookH2andDivide(iBooker, "ptEtaEff","mc_PtEta_matched","mc_PtEta","#eta","p_{T} (GeV/c)","");
-
+  bookH1andDivide(iBooker,iGetter, "etaEff","mc_Eta_matched","mc_Eta","#eta","Efficiency",""); 
+  bookH1andDivide(iBooker,iGetter, "zEff","mc_Z_matched","mc_Z","z (cm)","Efficiency","");
+  bookH1andDivide(iBooker,iGetter, "absetaEff","mc_AbsEta_matched","mc_AbsEta","|#eta|","Efficiency","");
+  bookH1andDivide(iBooker,iGetter, "ptEff","mc_Pt_matched","mc_Pt","p_{T} (GeV/c)","Efficiency","");
+  bookH1andDivide(iBooker,iGetter, "phiEff","mc_Phi_matched","mc_Phi","#phi (rad)","Efficiency","");
+  bookH2andDivide(iBooker,iGetter, "ptEtaEff","mc_PtEta_matched","mc_PtEta","#eta","p_{T} (GeV/c)","");
+/*
   edm::LogInfo("ElectronMcSignalPostValidator::finalize") << "q-misid calculation" ;
   bookH1andDivide(iBooker, "etaQmisid","mc_Eta_matched_qmisid","mc_Eta","#eta","q misId","");
   bookH1andDivide(iBooker, "zQmisid","mc_Z_matched_qmisid","mc_Z","z (cm)","q misId","");
@@ -52,9 +53,9 @@ void ElectronMcSignalPostValidator::finalize(DQMStore::IBooker & iBooker)
   bookH1andDivide(iBooker, "eta_goldenFrac","eta_golden","h_ele_eta","|#eta|","Fraction of electrons","fraction of golden electrons vs eta");
   bookH1andDivide(iBooker, "eta_bbremFrac" ,"eta_bbrem","h_ele_eta","|#eta|","Fraction of electrons","fraction of big brem electrons vs eta");
   bookH1andDivide(iBooker, "eta_showerFrac","eta_shower","h_ele_eta","|#eta|","Fraction of electrons","fraction of showering electrons vs eta");
-
+*/
   // fbrem
-  MonitorElement * p1_ele_fbremVsEta_mean = get("fbremvsEtamean") ;
+/*  MonitorElement * p1_ele_fbremVsEta_mean = get("fbremvsEtamean") ;
   TAxis * etaAxis = p1_ele_fbremVsEta_mean->getTProfile()->GetXaxis() ;
   MonitorElement * h1_ele_xOverX0VsEta = bookH1withSumw2(iBooker, "xOverx0VsEta","mean X/X_0 vs eta",etaAxis->GetNbins(),etaAxis->GetXmin(),etaAxis->GetXmax());
   for (int ibin=1;ibin<etaAxis->GetNbins()+1;ibin++) {
@@ -62,10 +63,10 @@ void ElectronMcSignalPostValidator::finalize(DQMStore::IBooker & iBooker)
     if (p1_ele_fbremVsEta_mean->getBinContent(ibin)>0.)
      { xOverX0 = -log(p1_ele_fbremVsEta_mean->getBinContent(ibin)) ; }
     h1_ele_xOverX0VsEta->setBinContent(ibin,xOverX0) ;
-  }/**/
+  }*/
 
   // profiles from 2D histos
-  profileX(iBooker, "PoPtrueVsEta","mean ele momentum / gen momentum vs eta","#eta","<P/P_{gen}>");
+/*  profileX(iBooker, iGetter, "PoPtrueVsEta","mean ele momentum / gen momentum vs eta","#eta","<P/P_{gen}>");
   profileX(iBooker, "PoPtrueVsPhi","mean ele momentum / gen momentum vs phi","#phi (rad)","<P/P_{gen}>");
   profileX(iBooker, "EoEtruePfVsEg","mean pflow sc energy / true energy vs e/g sc energy","E/E_{gen} (e/g)","<E/E_{gen}> (pflow)") ;
   profileY(iBooker, "EoEtruePfVsEg","mean e/g sc energy / true energy vs pflow sc energy","E/E_{gen} (pflow)","<E/E_{gen}> (eg)") ;
@@ -101,7 +102,7 @@ void ElectronMcSignalPostValidator::finalize(DQMStore::IBooker & iBooker)
   profileX(iBooker, "seedDphi2Pos_VsPt","mean ele seed dphi 2nd layer positron vs pt","p_{T} (GeV/c)","<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)",-0.004,0.004);
   profileX(iBooker, "seedDrz2Pos_VsEta","mean ele seed dr(dz) 2nd layer positron vs eta","#eta","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
   profileX(iBooker, "seedDrz2Pos_VsPt","mean ele seed dr(dz) 2nd layer positron vs pt","p_{T} (GeV/c)","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
-
+*/
 //  // investigation
 //  TH2F * h2 = get("PoPtrueVsEta")->getTH2F() ;
 //  std::cout<<"H2   entries : "<<h2->GetEntries()<<std::endl ;
