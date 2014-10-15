@@ -171,8 +171,6 @@ JetVertexChecker::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 JetVertexChecker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-//The following says we do not know what parameters are allowed so do no validation
-// Please change this to state exactly what you do use, even if it is no parameters
    edm::ParameterSetDescription desc;
    desc.add<edm::InputTag> ("beamSpot",edm::InputTag("hltOnlineBeamSpot"));
    desc.add<edm::InputTag> ("jetTracks",edm::InputTag("hltFastPVJetTracksAssociator"));
