@@ -202,6 +202,9 @@ class DQMStore
       return owner_->removeElement(std::forward<Args>(args)...);
     }
 
+    std::vector<MonitorElement*>  getAllContents(const std::string &path,
+						 uint32_t runNumber = 0,
+						 uint32_t lumi = 0);
     MonitorElement * get(const std::string &path);
     std::vector<std::string> getSubdirs(void);
     std::vector<std::string> getMEs(void);
