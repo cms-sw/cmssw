@@ -125,37 +125,30 @@ bool HLTmumutktkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
         vertexTrksRefVec.push_back((*trackIt).castTo<reco::TrackRef>());
     }
 
-    // first find the two muon tracks in the muon collection
-    reco::RecoChargedCandidateCollection::const_iterator mucand1;
-    reco::RecoChargedCandidateCollection::const_iterator mucand2;    
-    reco::RecoChargedCandidateCollection::const_iterator tkcand1;    
-    reco::RecoChargedCandidateCollection::const_iterator tkcand2;    
-
-    int iFoundRefs = 0;
+    // first find the tracks in the input muon/track collection
+    std::vector<reco::RecoChargedCandidateCollection::const_iterator> mucandVec;
+    std::vector<reco::RecoChargedCandidateCollection::const_iterator> trkcandVec;
     for (reco::RecoChargedCandidateCollection::const_iterator cand=mucands->begin(); cand!=mucands->end(); cand++) {
       reco::TrackRef tkRef = cand->get<reco::TrackRef>();
       for (unsigned int iVec=0; iVec < vertexTrksRefVec.size();iVec++){
-        if      (tkRef == vertexTrksRefVec.at(iVec) && iFoundRefs==0) {mucand1 = cand; iFoundRefs++;}
-        else if (tkRef == vertexTrksRefVec.at(iVec) && iFoundRefs==1) {mucand2 = cand; iFoundRefs++;}
+        if (tkRef == vertexTrksRefVec.at(iVec)) {mucandVec.push_back(cand); break;}
       }
     }
-    if(iFoundRefs!= 2) throw cms::Exception("BadLogic") << "HLTmumutktkFilterr: ERROR: the vertex must have "
-                                                        << " exactly two muons by definition."  << std::endl;
+    if(mucandVec.size()!= 2) throw cms::Exception("BadLogic") << "HLTmumutktkFilterr: ERROR: the vertex must have "
+                                                              << " exactly two muons by definition."  << std::endl;
 
-    int iTrkFoundRefs = 0;
     for (reco::RecoChargedCandidateCollection::const_iterator cand=trkcands->begin(); cand!=trkcands->end(); cand++) {
       reco::TrackRef tkRef = cand->get<reco::TrackRef>();
-      for (unsigned int iVec=0; iVec < vertexTrksRefVec.size();iVec++){
-        if      (tkRef == vertexTrksRefVec.at(iVec) && iTrkFoundRefs==0) {tkcand1 = cand; iTrkFoundRefs++;}
-        else if (tkRef == vertexTrksRefVec.at(iVec) && iTrkFoundRefs==1) {tkcand2 = cand; iTrkFoundRefs++;}
+      for (unsigned int iVec = 0; iVec < vertexTrksRefVec.size();iVec++){
+        if (tkRef == vertexTrksRefVec.at(iVec)) {trkcandVec.push_back(cand); break;}
       }
     }
-    if(iTrkFoundRefs!= 2 ) throw cms::Exception("BadLogic") << "HLTmumutktkFilterr: ERROR: the vertex must have "
-                                                  << " exactly two tracks by definition."  << std::endl;
+    if(trkcandVec.size()!= 2 ) throw cms::Exception("BadLogic") << "HLTmumutktkFilterr: ERROR: the vertex must have "
+                                                                << " exactly two tracks by definition."  << std::endl;
 
     // calculate four-track transverse momentum
-    math::XYZVector pperp(mucand1->px() + mucand2->px() + tkcand1->px() + tkcand2->px(),
-                          mucand1->py() + mucand2->py() + tkcand1->py() + tkcand2->py(),
+    math::XYZVector pperp(mucandVec.at(0)->px() + mucandVec.at(1)->px() + trkcandVec.at(0)->px() + trkcandVec.at(1)->px(),
+                          mucandVec.at(0)->py() + mucandVec.at(1)->py() + trkcandVec.at(0)->px() + trkcandVec.at(1)->py(),
                           0.);
                           
     // get vertex position and error to calculate the decay length significance
@@ -181,13 +174,13 @@ bool HLTmumutktkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
     if (cosAlpha    < minCosinePointingAngle_) continue;
     triggered = true;
           
-    refMu1=RecoChargedCandidateRef( Ref<RecoChargedCandidateCollection> (mucands,distance(mucands->begin(), mucand1)));
+    refMu1=RecoChargedCandidateRef( Ref<RecoChargedCandidateCollection> (mucands,distance(mucands->begin(), mucandVec.at(0))));
     filterproduct.addObject(TriggerMuon,refMu1);
-    refMu2=RecoChargedCandidateRef( Ref<RecoChargedCandidateCollection> (mucands,distance(mucands->begin(), mucand2)));
+    refMu2=RecoChargedCandidateRef( Ref<RecoChargedCandidateCollection> (mucands,distance(mucands->begin(), mucandVec.at(1))));
     filterproduct.addObject(TriggerMuon,refMu2);
-    refTrk1=RecoChargedCandidateRef( Ref<RecoChargedCandidateCollection> (trkcands,distance(trkcands->begin(),tkcand1)));
+    refTrk1=RecoChargedCandidateRef( Ref<RecoChargedCandidateCollection> (trkcands,distance(trkcands->begin(),trkcandVec.at(0))));
     filterproduct.addObject(TriggerTrack,refTrk1);
-    refTrk2=RecoChargedCandidateRef( Ref<RecoChargedCandidateCollection> (trkcands,distance(trkcands->begin(),tkcand2)));
+    refTrk2=RecoChargedCandidateRef( Ref<RecoChargedCandidateCollection> (trkcands,distance(trkcands->begin(),trkcandVec.at(1))));
     filterproduct.addObject(TriggerTrack,refTrk2);
           
   }//end loop vertices
