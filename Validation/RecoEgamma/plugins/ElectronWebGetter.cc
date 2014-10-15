@@ -5,15 +5,15 @@
 #include <iostream>
 
 ElectronWebGetter::ElectronWebGetter( const edm::ParameterSet & conf )
- : ElectronDqmAnalyzerBase(conf)
+ : ElectronDqmHarvesterBase(conf)
  {}
 
 ElectronWebGetter::~ElectronWebGetter()
  {}
 
-void ElectronWebGetter::finalize()
+void ElectronWebGetter::finalize(DQMStore::IGetter & iGetter )
  {
-  remove_other_dirs() ;
+  remove_other_dirs(iGetter ) ;
  }
 
 
