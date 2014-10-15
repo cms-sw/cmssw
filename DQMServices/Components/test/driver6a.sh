@@ -6,7 +6,7 @@ tnum=6
 numev=10
 step=a
 
-cmsDriver.py MinBias.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT:GRun -n ${numev} --eventcontent FEVTDEBUGHLT,DQM --datatier FEVTDEBUGHLT,DQMIO --conditions auto:startup_GRun --customise=SimCalorimetry/HcalZeroSuppressionProducers/NoHcalZeroSuppression_cff.py --no_exec --python_filename=test_${tnum}_${step}_1.py
+cmsDriver.py MinBias.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT:@fake -n ${numev} --eventcontent FEVTDEBUGHLT,DQM --datatier FEVTDEBUGHLT,DQMIO --conditions auto:startup_GRun --customise=SimCalorimetry/HcalZeroSuppressionProducers/NoHcalZeroSuppression_cff.py --no_exec --python_filename=test_${tnum}_${step}_1.py
 
 cmsRun -e test_${tnum}_${step}_1.py >& p6.0.log
 
