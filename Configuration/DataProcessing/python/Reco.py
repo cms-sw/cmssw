@@ -147,12 +147,11 @@ class Reco(Scenario):
 
         step = ""
         pclWflws = [x for x in skims if "PromptCalibProd" in x]
+        skims = filter(lambda x: x not in pclWflws, skims)
+
         if len(pclWflws):
-            step = 'ALCA:'
-        for wfl in pclWflws:
-            step += wfl
-            skims.remove(wfl)
-        
+            step += 'ALCA:'+('+'.join(pclWflws))
+
         if len( skims ) > 0:
             if step != "":
                 step += ","
