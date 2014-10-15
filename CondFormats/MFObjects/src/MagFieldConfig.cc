@@ -55,8 +55,7 @@ MagFieldConfig::MagFieldConfig(const edm::ParameterSet& pset, bool debug) {
 	  if (gridFiles.find(vpacked)==gridFiles.end()) {
 	    gridFiles[vpacked] = make_pair(path, master);
 	  } else {
-	    edm::LogError("BADconfiguration") << "ERROR: VolumeBasedMagneticFieldESProducer: malformed gridFiles config parameter";
-	    abort();
+	    throw cms::Exception("ConfigurationError") << "VolumeBasedMagneticFieldESProducer: malformed gridFiles config parameter" << endl;
 	  }
 	}
       }
@@ -89,8 +88,7 @@ vector<unsigned> MagFieldConfig::expandList(const string& list) {
     unsigned start = boost::lexical_cast<unsigned>(v2.front());
     unsigned end   = boost::lexical_cast<unsigned>(v2.back());
     if ((v2.size()>2) || (start>end)) {
-      edm::LogError("BADconfiguration") << "VolumeBasedMagneticFieldESProducerFromDB: malformed configuration" << list << endl;
-      abort();
+      throw cms::Exception("ConfigurationError") << "VolumeBasedMagneticFieldESProducerFromDB: malformed configuration" << list << endl;
     }
     for (unsigned k = start; k<=end; ++k){
       values.push_back(k);
