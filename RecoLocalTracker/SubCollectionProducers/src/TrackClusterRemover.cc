@@ -163,7 +163,7 @@ namespace {
 	if (cluster.isStrip()) collectedStrips[cluster.key()]=true;
 	else                  collectedPixels[cluster.key()]=true;
 	if (trackerHitRTTI::isMatched(thit))
-	  collectedPixels[reinterpret_cast<SiStripMatchedRecHit2D const&>(hit).stereoClusterRef().key()]=true;
+	  collectedStrips[reinterpret_cast<SiStripMatchedRecHit2D const&>(hit).stereoClusterRef().key()]=true;
       }
     }
 
