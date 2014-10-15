@@ -33,10 +33,18 @@ HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v*		# JIRA: CMSHLT-73
 HLT_LooseIsoPFTau50_Trk30_eta2p1_MET120_v*		# JIRA: CMSHLT-99
 
 #HLT_PFJet40_v*						# JIRA: CMSHLT-67 -> TEMPLATE PATH, not for GRun
-HLT_PFJet260_v*						# JIRA: CMSHLT-67 -> TEMPLATE PATH, allowed in GRun by CMSHLT-109
+HLT_PFJet260_v*						# JIRA: CMSHLT-67 -> TEMPLATE PATH, allowed in GRun by CMSHLT-109, updated by CMSHLT-123
 #HLT_CaloJet260_v*					# JIRA: CMSHLT-67 -> TEMPLATE PATH, not for GRun
 #HLT_HT650_v*						# JIRA: CMSHLT-67 -> TEMPLATE PATH, not for GRun
 #HLT_PFHT650_v*						# JIRA: CMSHLT-67 -> TEMPLATE PATH, not for GRun
+
+#HLT_PFJet80_v*						# JIRA: CMSHLT-123
+#HLT_PFJet140_v*					# JIRA: CMSHLT-123
+#HLT_PFJet200_v*					# JIRA: CMSHLT-123
+#HLT_PFJet320_v*					# JIRA: CMSHLT-123
+#HLT_PFJet400_v*					# JIRA: CMSHLT-123
+#HLT_PFJet450_v*					# JIRA: CMSHLT-123
+#HLT_PFJet500_v*					# JIRA: CMSHLT-123
 
 #HLT_IterativeTracking_v*				# JIRA: CMSHLT-68 -> TEMPLATE PATH, not for GRun
 HLT_ReducedIterativeTracking_v*				# JIRA: CMSHLT-68, updated by CMSHLT-107 -> TEMPLATE PATH, in GRun but prescaled to 0
