@@ -59,6 +59,10 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     double deltaR_;
     std::vector<int> matchingIDs_;
     std::vector<int> matchingMotherIDs_;
+    std::string inputFile_ ;
+    std::string outputFile_ ;
+    std::string inputInternalPath_ ;
+    std::string outputInternalPath_ ;
 
     // histos limits and binning
 
