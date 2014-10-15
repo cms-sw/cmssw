@@ -12,8 +12,11 @@
 #include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 #include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"
+#include "L1Trigger/L1TCalorimeter/interface/HardwareSortingMethods.h"
 #include "L1Trigger/L1TCalorimeter/interface/JetFinderMethods.h"
 #include "L1Trigger/L1TCalorimeter/interface/legacyGtHelper.h"
+
+#include <bitset>
 
 using namespace std;
 using namespace l1t;
@@ -41,6 +44,7 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
   std::vector<double> regionPUSParams = params_->regionPUSParams();
 
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
+  std::vector<l1t::EGamma> *preSortEGammas = new std::vector<l1t::EGamma>();
   std::vector<l1t::EGamma> *preGtEGammas = new std::vector<l1t::EGamma>();
 
 
@@ -60,6 +64,7 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
     int eg_et = egCand->hwPt();
     int eg_eta = egCand->hwEta();
     int eg_phi = egCand->hwPhi();
+    int index = egCand->hwQual();
 
     //std::cout << "JetRankMax: " << params_->jetScale().rankScaleMax()<< " EmRankMax: " << params_->emScale().rankScaleMax()<< std::endl;
     //std::cout << "JetLinMax: " << params_->jetScale().linScaleMax()<< " EmLinMax: " << params_->emScale().linScaleMax()<< std::endl;
@@ -67,7 +72,7 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
 
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > egLorentz(0,0,0,0);
 
-    int quality = 1;
+    //int quality = 1;
     int isoFlag = 0;
 
     int ijet_pt=AssociatedJetPt(eg_eta,eg_phi,unCorrJets);
@@ -78,9 +83,9 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
       // double jetIsolationEG = jet_pt - eg_et;        // Jet isolation
       // double relativeJetIsolationEG = jetIsolationEG / eg_et;
 
-      // if (relativeJetIsolationEG*100<100) 
+      // if (relativeJetIsolationEG*100<100)
       // 	std::cout << "eg/jet/isol/relisol: " << eg_et << " / " << jet_pt << " /\t " << isol << " / " << int(relativeJetIsolationEG*100+0.5) << "\t address: " << lutAddress << std::endl;
-      // 
+      //
       // if(eg_et >0 && eg_et<63 && isinBarrel && relativeJetIsolationEG < egRelativeJetIsolationBarrelCut) isoFlag=1;
       // if(eg_et >0 && eg_et<63 && !isinBarrel && relativeJetIsolationEG < egRelativeJetIsolationEndcapCut) isoFlag=1;
       // if( eg_et >= 63) isoFlag=1;
@@ -101,35 +106,47 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
 
 
     // ------- fill the EG candidate vector ---------
-    l1t::EGamma theEG(*&egLorentz, eg_et, eg_eta, eg_phi, quality, isoFlag);
+    l1t::EGamma theEG(*&egLorentz, eg_et, eg_eta, eg_phi, index, isoFlag);
     //?? if( hoe < HoverECut) egammas->push_back(theEG);
-    preGtEGammas->push_back(theEG);
+    preSortEGammas->push_back(theEG);
   }
+
+  SortEGammas(preSortEGammas, preGtEGammas);
 
   EGammaToGtScales(params_, preGtEGammas, egammas);
 
   const bool verbose = false;
   if(verbose)
   {
-    std::cout << "pt" << " " << "eta" << " " << "phi" << std::endl;
-    for(std::vector<l1t::EGamma>::const_iterator eg = egammas->begin(); eg != egammas->end(); ++eg)
-    {
-      std::cout << eg->hwPt() << " " << eg->hwEta() << " " << eg->hwPhi() << std::endl;
+    int cEGammas = 0;
+    int fEGammas = 0;
+    printf("Isolated\n");
+    for(std::vector<l1t::EGamma>::const_iterator itEGamma = egammas->begin();
+	itEGamma != egammas->end(); ++itEGamma){
+      if(itEGamma->hwIso() != 1) continue;
+      cEGammas++;
+      unsigned int packed = pack15bits(itEGamma->hwPt(), itEGamma->hwEta(), itEGamma->hwPhi());
+      cout << bitset<15>(packed).to_string() << endl;
+      if(cEGammas == 4) break;
+    }
+
+    printf("Non-isolated\n");
+    //printf("pt\teta\tphi\n");
+    for(std::vector<l1t::EGamma>::const_iterator itEGamma = egammas->begin();
+	itEGamma != egammas->end(); ++itEGamma){
+      if(itEGamma->hwIso() != 0) continue;
+      fEGammas++;
+      unsigned int packed = pack15bits(itEGamma->hwPt(), itEGamma->hwEta(), itEGamma->hwPhi());
+      cout << bitset<15>(packed).to_string() << endl;
+      if(fEGammas == 4) break;
     }
   }
 
-  //the EG candidates should be sorted, highest pT first.
-  // do not truncate the EG list, GT converter handles that
-  auto comp = [&](l1t::EGamma i, l1t::EGamma j)-> bool {
-    return (i.hwPt() < j.hwPt() );
-  };
-
   delete subRegions;
   delete unCorrJets;
+  delete preSortEGammas;
   delete preGtEGammas;
 
-  std::sort(egammas->begin(), egammas->end(), comp);
-  std::reverse(egammas->begin(), egammas->end());
 }
 
 
@@ -165,12 +182,12 @@ unsigned l1t::Stage1Layer2EGammaAlgorithmImpPP::isoLutIndex(unsigned int egPt,un
 {
   // const unsigned int kNrTowersInSum=72*params_->egIsoMaxEtaAbsForTowerSum()*2;
   // const unsigned int kTowerGranularity=params_->egIsoPUEstTowerGranularity();
-  // const unsigned int kMaxAddress = kNrTowersInSum%kTowerGranularity==0 ? (kNrTowersInSum/kTowerGranularity+1)*28*2 : 
+  // const unsigned int kMaxAddress = kNrTowersInSum%kTowerGranularity==0 ? (kNrTowersInSum/kTowerGranularity+1)*28*2 :
   //                                                                       (kNrTowersInSum/kTowerGranularity)*28*2;
-  
+
   // unsigned int nrTowersNormed = nrTowers/kTowerGranularity;
-  
-  
+
+
   // if(std::abs(iEta)>28 || iEta==0 || nrTowers>kNrTowersInSum) return kMaxAddress;
   // else return iEtaNormed*(kNrTowersInSum/kTowerGranularity+1)+nrTowersNormed;
 

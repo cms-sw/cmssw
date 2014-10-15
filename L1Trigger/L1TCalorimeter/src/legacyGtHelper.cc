@@ -42,12 +42,20 @@ namespace l1t {
 
     for(std::vector<l1t::EGamma>::const_iterator itEGamma = input->begin();
 	itEGamma != input->end(); ++itEGamma){
-      const unsigned newEta = gtEta(itEGamma->hwEta());
+      unsigned newEta = gtEta(itEGamma->hwEta());
+      unsigned newPhi = itEGamma->hwPhi();
       const uint16_t rankPt = (uint16_t)itEGamma->hwPt(); //max value?
+
+      //hwQual &4 == 4 means that the object came from a sort and is padding
+      if((itEGamma->hwQual() & 4) == 4)
+      {
+	newEta = 0;
+	newPhi = 0;
+      }
 
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
 
-      l1t::EGamma gtEGamma(*&ldummy, rankPt, newEta, itEGamma->hwPhi(),
+      l1t::EGamma gtEGamma(*&ldummy, rankPt, newEta, newPhi,
 			   itEGamma->hwQual(), itEGamma->hwIso());
       output->push_back(gtEGamma);
     }
