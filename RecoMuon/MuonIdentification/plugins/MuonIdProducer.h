@@ -131,6 +131,7 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
    MuonTimingFiller* theTimingFiller_;
 
    // selections
+   double muonTrackDeltaEta_;
    double minPt_;
    double minP_;
    double minPCaloMuon_;
@@ -209,6 +210,6 @@ private:
    edm::EDGetTokenT<DTRecSegment4DCollection> dtSegmentToken_;
    edm::EDGetTokenT<CSCSegmentCollection> cscSegmentToken_;
    void calculateMuonHitEtaRanges(const edm::EventSetup& eventSetup);
-   std::vector<double> muonEtaRanges_[2];
+   std::vector<std::pair<double, double> > muonEtaRanges_;
 };
 #endif

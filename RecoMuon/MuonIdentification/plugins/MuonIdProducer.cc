@@ -64,6 +64,8 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
    produces<reco::MuonTimeExtraMap>("dt");
    produces<reco::MuonTimeExtraMap>("csc");
 
+   muonTrackDeltaEta_         = iConfig.getParameter<double>("muonTrackDeltaEta");
+
    minPt_                   = iConfig.getParameter<double>("minPt");
    minP_                    = iConfig.getParameter<double>("minP");
    minPCaloMuon_            = iConfig.getParameter<double>("minPCaloMuon");
@@ -383,9 +385,9 @@ reco::Muon MuonIdProducer::makeMuon( const reco::MuonTrackLinks& links )
 
 void MuonIdProducer::calculateMuonHitEtaRanges(const edm::EventSetup& eventSetup)
 {
-   muonEtaRanges_[0].clear();
-   muonEtaRanges_[1].clear();
+   muonEtaRanges_.clear();
 
+   // Collect eta values from DT, CSC, segments and RPC hits
    std::vector<double> etaValues;
    if ( dtSegmentHandle_.isValid() )
    {
@@ -426,24 +428,23 @@ void MuonIdProducer::calculateMuonHitEtaRanges(const edm::EventSetup& eventSetup
       }
    }
 
+   // Calculate eta ranges with given tolerance
    if ( !etaValues.empty() )
    {
       std::sort(etaValues.begin(), etaValues.end());
       
-      muonEtaRanges_[0].push_back(etaValues[0]-0.2);
-      muonEtaRanges_[1].push_back(etaValues[0]+0.2);
+      muonEtaRanges_.push_back(std::make_pair(etaValues[0]-muonTrackDeltaEta_, etaValues[0]+muonTrackDeltaEta_));
       for ( auto eta : etaValues )
       {
-         const double eta1 = eta-0.2;
-         const double eta2 = eta+0.2;
-         if ( eta1 > muonEtaRanges_[1].back() )
+         const double eta1 = eta-muonTrackDeltaEta_;
+         const double eta2 = eta+muonTrackDeltaEta_;
+         if ( eta1 <= muonEtaRanges_.back().second )
          {
-            muonEtaRanges_[0].push_back(eta1);
-            muonEtaRanges_[1].push_back(eta2);
+            muonEtaRanges_.back().second = eta2;
          }
          else
          {
-            muonEtaRanges_[1].back() = eta2;
+            muonEtaRanges_.push_back(std::make_pair(eta1, eta2));
          }
       }
    }
@@ -459,18 +460,29 @@ bool MuonIdProducer::isGoodTrack( const reco::Track& track )
    }
 
    // Eta requirement
-   if ( fabs(track.eta()) > maxAbsEta_ ){
+   const double trackEta = track.eta();
+   if ( trackEta > maxAbsEta_ ){
       LogTrace("MuonIdentification") << "Skipped track with large pseudo rapidity (Eta: " << track.eta() << " )";
       return false;
    }
 
    // Additional Eta requirements
-   if ( !muonEtaRanges_[0].empty() ) {
-      auto lb = std::lower_bound(muonEtaRanges_[0].begin(), muonEtaRanges_[0].end(), track.eta());
-      auto ub = std::upper_bound(muonEtaRanges_[1].begin(), muonEtaRanges_[1].end(), track.eta());
-
-      if ( lb == muonEtaRanges_[0].end() or ub == muonEtaRanges_[1].end() ) return false;
+   if ( !muonEtaRanges_.empty() )
+   {
+      bool isInRange = false;
+      for ( auto x : muonEtaRanges_ )
+      {
+         const double minEta = x.first;
+         const double maxEta = x.second;
+         if ( minEta <= trackEta and trackEta < maxEta )
+         {
+            isInRange = true;
+            break;
+         }
+      }
+      if ( !isInRange ) return false;
    }
+   else if ( muonTrackDeltaEta_ > 0 ) return false; // track selection by muon hit eta is enabled but no muon segments in the event
 
    return true;
 }
