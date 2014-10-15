@@ -184,7 +184,7 @@ JetVertexChecker::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
    desc.add<double> ("maxChi2",20.0);
    desc.add<double> ("maxTrackPt",20.0);
    desc.add<bool> ("newMethod",false);		// <---- newMethod 
-   descriptions.addDefault(desc);
+   descriptions.add("jetVertexChecker",desc);
 }
 //define this as a plug-in
 DEFINE_FWK_MODULE(JetVertexChecker);
