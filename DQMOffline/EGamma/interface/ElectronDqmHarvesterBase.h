@@ -14,7 +14,6 @@ class MonitorElement ;
 //DQM
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
-//#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 class ElectronDqmHarvesterBase : public DQMEDHarvester
@@ -27,21 +26,19 @@ class ElectronDqmHarvesterBase : public DQMEDHarvester
 
     // specific implementation of EDAnalyzer
     void beginJob() ; // prepare DQM, open input field if declared, and call book() below
-    virtual void beginRun( edm::Run const &, edm::EventSetup const & ) ; // 
-    virtual void endRun( edm::Run const &, edm::EventSetup const & ) ; // call finalize() if finalStep==AtRunEnd
     void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&); //performed in the endLumi
     void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
 
     // interface to implement in derived classes
     virtual void book() {} ;
-    virtual void finalize( DQMStore::IBooker & iBooker ) {} ; //, DQMStore::IGetter & iGetter override ;, const edm::Event& e, const edm::EventSetup & c
+    virtual void finalize( DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter ) {} ; //  override ;, const edm::Event& e, const edm::EventSetup & c
 
     // utility methods
     bool finalStepDone() { return finalDone_ ; }
     int verbosity() { return verbosity_ ; }
-    MonitorElement * get( const std::string & name ) ;
-    void remove( const std::string & name ) ;
-    void remove_other_dirs() ;
+    MonitorElement * get( DQMStore::IGetter & iGetter, const std::string & name ) ;
+    void remove( DQMStore::IGetter & iGetter, const std::string & name ) ;
+    void remove_other_dirs(DQMStore::IGetter & iGetter) ;
 
     void setBookPrefix( const std::string & ) ;
     void setBookIndex( short ) ;
@@ -82,50 +79,56 @@ class ElectronDqmHarvesterBase : public DQMEDHarvester
        Option_t * option = "E1 P"  ) ;
 
     MonitorElement * bookH1andDivide
-     ( DQMStore::IBooker & iBooker, const std::string & name, MonitorElement * num, MonitorElement * denom,
+     ( DQMStore::IBooker & iBooker, DQMStore::IGetter &,
+       const std::string & name, MonitorElement * num, MonitorElement * denom,
        const std::string & titleX, const std::string & titleY,
        const std::string & title ="" ) ;
 
     MonitorElement * bookH2andDivide
-     ( DQMStore::IBooker & iBooker, const std::string & name, MonitorElement * num, MonitorElement * denom,
+     ( DQMStore::IBooker & iBooker, DQMStore::IGetter &,
+       const std::string & name, MonitorElement * num, MonitorElement * denom,
        const std::string & titleX, const std::string & titleY,
        const std::string & title ="" ) ;
 
     MonitorElement * cloneH1
-    ( DQMStore::IBooker & iBooker, const std::string & name, MonitorElement * original,
+    ( DQMStore::IBooker & iBooker, DQMStore::IGetter &,
+      const std::string & name, MonitorElement * original,
       const std::string & title ="" ) ;
 
     MonitorElement * profileX
-     ( DQMStore::IBooker & iBooker, MonitorElement * me2d,
+     ( DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, MonitorElement * me2d,
        const std::string & title ="", const std::string & titleX ="", const std::string & titleY ="",
        Double_t minimum = -1111, Double_t maximum = -1111 ) ;
 
     MonitorElement * profileY
-     ( DQMStore::IBooker & iBooker, MonitorElement * me2d,
+     ( DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, MonitorElement * me2d,
        const std::string & title ="", const std::string & titleX ="", const std::string & titleY ="",
        Double_t minimum = -1111, Double_t maximum = -1111 ) ;
 
     MonitorElement * bookH1andDivide
-     ( DQMStore::IBooker & iBooker, const std::string & name, const std::string & num, const std::string & denom,
+     ( DQMStore::IBooker & iBooker,  DQMStore::IGetter & iGetter,
+       const std::string & name, const std::string & num, const std::string & denom,
        const std::string & titleX, const std::string & titleY,
        const std::string & title ="" ) ;
 
     MonitorElement * bookH2andDivide
-     ( DQMStore::IBooker & iBooker, const std::string & name, const std::string & num, const std::string & denom,
+     ( DQMStore::IBooker & iBooker, DQMStore::IGetter &,
+       const std::string & name, const std::string & num, const std::string & denom,
        const std::string & titleX, const std::string & titleY,
        const std::string & title ="" ) ;
 
     MonitorElement * cloneH1
-     ( DQMStore::IBooker & iBooker, const std::string & name, const std::string & original,
+     ( DQMStore::IBooker & iBooker,  DQMStore::IGetter &,
+       const std::string & name, const std::string & original,
        const std::string & title ="" ) ;
 
     MonitorElement * profileX
-     ( DQMStore::IBooker & iBooker, const std::string & me2d,
+     ( DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, const std::string & me2d,
        const std::string & title ="", const std::string & titleX ="", const std::string & titleY ="",
        Double_t minimum = -1111, Double_t maximum = -1111 ) ;
 
     MonitorElement * profileY
-     ( DQMStore::IBooker & iBooker, const std::string & me2d,
+     ( DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, const std::string & me2d,
        const std::string & title ="", const std::string & titleX ="", const std::string & titleY ="",
        Double_t minimum = -1111, Double_t maximum = -1111 ) ;
 
@@ -144,11 +147,13 @@ class ElectronDqmHarvesterBase : public DQMEDHarvester
     std::string inputInternalPath_ ;
     std::string outputInternalPath_ ;
     DQMStore * store_ ; // pour l'instant on ne peut pas l'enlever
+    DQMStore::IBooker * iBooker ;
+    DQMStore::IGetter * iGetter ;
     bool finalDone_ ;
 
     // utility methods
     std::string newName( const std::string & name ) ;
-    const std::string * find( const std::string & name ) ;
+    const std::string * find( DQMStore::IGetter & iGetter, const std::string & name ) ;
  } ;
 
 #endif
