@@ -65,6 +65,10 @@ ElectronMcFakeValidator::ElectronMcFakeValidator( const edm::ParameterSet & conf
   maxPt_ = conf.getParameter<double>("MaxPt");
   maxAbsEta_ = conf.getParameter<double>("MaxAbsEta");
   deltaR_ = conf.getParameter<double>("DeltaR");
+  inputFile_ = conf.getParameter<std::string>("InputFile") ;
+  outputFile_ = conf.getParameter<std::string>("OutputFile") ;
+  inputInternalPath_ = conf.getParameter<std::string>("InputFolderName") ;
+  outputInternalPath_ = conf.getParameter<std::string>("OutputFolderName") ;
 
   // histos bining and limits
 
@@ -466,6 +470,15 @@ ElectronMcFakeValidator::ElectronMcFakeValidator( const edm::ParameterSet & conf
 
 void ElectronMcFakeValidator::bookHistograms( DQMStore::IBooker & iBooker, edm::Run const &, edm::EventSetup const & )
  {
+//  store_ = edm::Service<DQMStore>().operator->() ;
+//  if (!store_)
+//   { edm::LogError("ElectronDqmAnalyzerBase::prepareStore")<<"No DQMStore found !" ; }
+//  store_->setVerbose(verbosity_) ;
+  std::cout << "ElectronMcFakeValidator::bookHistograms inputFile_ : " << inputFile_ << std::endl;
+/*  if (inputFile_!="")
+   { store_->open(inputFile_) ; }*/
+  iBooker.setCurrentFolder(outputInternalPath_) ;
+
   setBookIndex(-1) ;
   setBookPrefix("h") ;
 //  std::cout << "appel setBookStatOverflowFlag : " << set_StatOverflowFlag << std::endl;
@@ -937,25 +950,6 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
   h1_recTrackNum_->Fill((*gsfElectronTracks).size());
   h1_recSeedNum_->Fill((*gsfElectronSeeds).size());
 
-  // seeds electrons A.C. // over/underflows in Mean calculation
-/*  h1_ele_seed_subdet2_->getTH1()->StatOverflows(kTRUE); // A.C.
-  h1_ele_seed_mask_->getTH1()->StatOverflows(kTRUE); // A.C.
-  h1_ele_seed_mask_bpix_->getTH1()->StatOverflows(kTRUE); // A.C.
-  h1_ele_seed_mask_fpix_->getTH1()->StatOverflows(kTRUE); // A.C.
-  h1_ele_seed_mask_tec_->getTH1()->StatOverflows(kTRUE); // A.C.
-  h1_ele_seed_dphi2_->getTH1()->StatOverflows(kTRUE); // A.C.
-  h2_ele_seed_dphi2VsEta_->getTH1()->StatOverflows(kTRUE); // A.C.
-  h2_ele_seed_dphi2VsPt_->getTH1()->StatOverflows(kTRUE); // A.C.
-  h1_ele_seed_dphi2pos_->getTH1()->StatOverflows(kTRUE); // A.C.
-  h2_ele_seed_dphi2posVsEta_->getTH1()->StatOverflows(kTRUE); // A.C.
-  h2_ele_seed_dphi2posVsPt_->getTH1()->StatOverflows(kTRUE); // A.C.
-  h1_ele_seed_drz2_->getTH1()->StatOverflows(kTRUE); // A.C.
-  h2_ele_seed_drz2VsEta_->getTH1()->StatOverflows(kTRUE); // A.C.
-  h2_ele_seed_drz2VsPt_->getTH1()->StatOverflows(kTRUE); // A.C.
-  h1_ele_seed_drz2pos_->getTH1()->StatOverflows(kTRUE); // A.C.
-  h2_ele_seed_drz2posVsEta_->getTH1()->StatOverflows(kTRUE); // A.C.
-  h2_ele_seed_drz2posVsPt_->getTH1()->StatOverflows(kTRUE); // A.C.
-*/
 
   // all rec electrons
   reco::GsfElectronCollection::const_iterator gsfIter ;
