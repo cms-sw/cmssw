@@ -473,7 +473,7 @@ namespace edm
     for (int bunchCrossing=minBunch_;bunchCrossing<=maxBunch_;++bunchCrossing) {
       for (unsigned int isource=0;isource<maxNbSources_;++isource) {
         boost::shared_ptr<PileUp> source = inputSources_[isource];
-        if (not source or not source->doPileUp()) 
+        if (!source || !(source->doPileUp(bunchCrossing))) 
           continue;
 
 	if (isource==0) 
