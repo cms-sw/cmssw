@@ -32,14 +32,13 @@ class HcalDataIntegrityTask: public HcalBaseDQMonitor
   HcalDataIntegrityTask(const edm::ParameterSet& ps);
   ~HcalDataIntegrityTask();
   
-  void setup();
+  void setup(DQMStore::IBooker &);
   void processEvent(const FEDRawDataCollection& rawraw, const
 		    HcalUnpackerReport& report, const HcalElectronicsMap& emap);
   void unpack(const FEDRawData& raw, const HcalElectronicsMap& emap);
-  void cleanup();
   void reset();
 
-  void beginRun(const edm::Run& run, const edm::EventSetup& c);
+  void bookHistograms(DQMStore::IBooker &ib, const edm::Run& run, const edm::EventSetup& c);
   void analyze(const edm::Event&, const edm::EventSetup&);
 
  public: //Electronics map -> geographic channel map

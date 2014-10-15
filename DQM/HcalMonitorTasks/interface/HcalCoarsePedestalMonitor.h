@@ -18,9 +18,8 @@ public:
   HcalCoarsePedestalMonitor(const edm::ParameterSet& ps); 
   ~HcalCoarsePedestalMonitor(); 
 
-  void setup();
-  void beginRun(const edm::Run& run, const edm::EventSetup& c);
-  void cleanup();
+  void setup(DQMStore::IBooker &);
+  void bookHistograms(DQMStore::IBooker &ib, const edm::Run& run, const edm::EventSetup& c);
 
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 

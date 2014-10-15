@@ -22,5 +22,6 @@ hcalDetDiagLEDMonitor=cms.EDAnalyzer("HcalDetDiagLEDMonitor",
                                      digiLabel              = cms.untracked.InputTag("hcalDigis"),
                                      calibDigiLabel         = cms.untracked.InputTag("hcalDigis"),
                                      triggerLabel           = cms.untracked.InputTag("l1GtUnpack"),
-                                     hcalTBTriggerDataTag   = cms.InputTag("tbunpack")
+                                     hcalTBTriggerDataTag   = cms.InputTag("tbunpack"),
+                             	     FEDRawDataCollection=cms.untracked.InputTag("rawDataCollector")
                                    )

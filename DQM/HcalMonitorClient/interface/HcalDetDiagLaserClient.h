@@ -14,13 +14,12 @@ class HcalDetDiagLaserClient : public HcalBaseDQClient {
   HcalDetDiagLaserClient(std::string myname);//{ name_=myname;};
   HcalDetDiagLaserClient(std::string myname, const edm::ParameterSet& ps);
 
-  void analyze(void);
-  void calculateProblems(void); // calculates problem histogram contents
+  void analyze(DQMStore::IBooker &, DQMStore::IGetter &);
+  void calculateProblems(DQMStore::IBooker &, DQMStore::IGetter &); // calculates problem histogram contents
   void updateChannelStatus(std::map<HcalDetId, unsigned int>& myqual);
-  void beginJob(void);
   void endJob(void);
   void beginRun(void);
-  void endRun(void); 
+  //void endRun(void); 
   void setup(void);  
   void cleanup(void);
   bool hasErrors_Temp(void);  
@@ -28,14 +27,20 @@ class HcalDetDiagLaserClient : public HcalBaseDQClient {
   bool hasOther_Temp(void);
   bool test_enabled(void);
   
-  void htmlOutput(std::string);
-  bool validHtmlOutput();
+  void htmlOutput(DQMStore::IBooker &, DQMStore::IGetter &, std::string);
+  bool validHtmlOutput(DQMStore::IBooker &, DQMStore::IGetter &);
   /// Destructor
   ~HcalDetDiagLaserClient();
 
  private:
   int nevts_;
   int status;
+
+  // -- problem cell setup flag
+  bool doProblemCellSetup_; // defaults to true in constructor
+  // setup the problem cell monitors and set the doProblemCellSetup_
+  // flag to false
+  void setupProblemCells(DQMStore::IBooker &, DQMStore::IGetter &);
 };
 
 #endif
