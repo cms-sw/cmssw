@@ -102,18 +102,20 @@ if options.triggerPath=="*":
 #from DPGAnalysis.SiStripTools.occupancyplotsselections_pixelphase1_cff import *
 from DPGAnalysis.SiStripTools.occupancyplotsselections_pixelphase1_detailed_cff import *
 
-#process.ssclusmultprod = cms.EDProducer("SiStripClusterMultiplicityProducer",
-#                                        clusterdigiCollection = cms.InputTag("siStripClusters"),
-#                                        wantedSubDets = cms.VPSet()
-#                                        )
-#process.ssclusmultprod.wantedSubDets.extend(OccupancyPlotsStripWantedSubDets)
+process.ssclusmultprod = cms.EDProducer("SiStripClusterMultiplicityProducer",
+                                        clusterdigiCollection = cms.InputTag("siStripClusters"),
+                                        wantedSubDets = cms.VPSet()
+                                        )
+process.ssclusmultprod.wantedSubDets.extend(OccupancyPlotsStripWantedSubDets)
+process.ssclusmultprodontrack=process.ssclusmultprod.clone(clusterdigiCollection = cms.InputTag("AlignmentTrackSelector"))
 
-#process.ssclusoccuprod = cms.EDProducer("SiStripClusterMultiplicityProducer",
-#                                        clusterdigiCollection = cms.InputTag("siStripClusters"),
-#                                        withClusterSize = cms.untracked.bool(True),
-#                                        wantedSubDets = cms.VPSet()
-#                                        )
-#process.ssclusoccuprod.wantedSubDets.extend(OccupancyPlotsStripWantedSubDets)
+process.ssclusoccuprod = cms.EDProducer("SiStripClusterMultiplicityProducer",
+                                        clusterdigiCollection = cms.InputTag("siStripClusters"),
+                                        withClusterSize = cms.untracked.bool(True),
+                                        wantedSubDets = cms.VPSet()
+                                        )
+process.ssclusoccuprod.wantedSubDets.extend(OccupancyPlotsStripWantedSubDets)
+process.ssclusoccuprodontrack=process.ssclusoccuprod.clone(clusterdigiCollection = cms.InputTag("AlignmentTrackSelector"))
 
 process.spclusmultprod = cms.EDProducer("SiPixelClusterMultiplicityProducer",
                                         clusterdigiCollection = cms.InputTag("siPixelClusters"),
@@ -140,16 +142,22 @@ process.spclusoccuprodxy.wantedSubDets = OccupancyPlotsFPIXmDetailedWantedSubDet
 process.spclusoccuprodxy.wantedSubDets.extend(OccupancyPlotsFPIXpDetailedWantedSubDets)
 process.spclusoccuprodxyontrack=process.spclusoccuprodxy.clone(clusterdigiCollection = cms.InputTag("AlignmentTrackSelector"))
 
-process.seqMultProd = cms.Sequence(#process.ssclusmultprod + process.ssclusoccuprod +
+process.seqMultProd = cms.Sequence(process.ssclusmultprod + process.ssclusoccuprod +
                                    process.spclusmultprod + process.spclusoccuprod +
+                                   process.ssclusmultprodontrack + process.ssclusoccuprodontrack +
                                    process.spclusmultprodontrack + process.spclusoccuprodontrack +
                                    process.spclusmultprodxy + process.spclusoccuprodxy +
                                    process.spclusmultprodxyontrack + process.spclusoccuprodxyontrack 
                                    )
 
 process.load("DPGAnalysis.SiStripTools.occupancyplots_cfi")
-#process.occupancyplots.wantedSubDets = OccupancyPlotsStripWantedSubDets
+process.occupancyplots.wantedSubDets = process.ssclusmultprod.wantedSubDets
 process.occupancyplots.file = cms.untracked.FileInPath("SLHCUpgradeSimulations/Geometry/data/PhaseI/PixelSkimmedGeometry_phase1.txt")
+
+process.occupancyplotsontrack = process.occupancyplots.clone()
+process.occupancyplotsontrack.wantedSubDets = process.ssclusmultprodontrack.wantedSubDets
+process.occupancyplotsontrack.multiplicityMaps = cms.VInputTag(cms.InputTag("ssclusmultprodontrack"))
+process.occupancyplotsontrack.occupancyMaps = cms.VInputTag(cms.InputTag("ssclusoccuprodontrack"))
 
 process.pixeloccupancyplots = process.occupancyplots.clone()
 process.pixeloccupancyplots.wantedSubDets = process.spclusmultprod.wantedSubDets
@@ -171,12 +179,19 @@ process.pixeloccupancyxyplotsontrack.wantedSubDets = process.spclusmultprodxyont
 process.pixeloccupancyxyplotsontrack.multiplicityMaps = cms.VInputTag(cms.InputTag("spclusmultprodxyontrack"))
 process.pixeloccupancyxyplotsontrack.occupancyMaps = cms.VInputTag(cms.InputTag("spclusoccuprodxyontrack"))
 
-#process.alloccupancyplots = process.occupancyplots.clone()
-#process.alloccupancyplots.wantedSubDets = cms.VPSet()
-#process.alloccupancyplots.wantedSubDets.extend(OccupancyPlotsPixelWantedSubDets)
-#process.alloccupancyplots.wantedSubDets.extend(OccupancyPlotsStripWantedSubDets)
-#process.alloccupancyplots.multiplicityMaps = cms.VInputTag(cms.InputTag("spclusmultprod"),cms.InputTag("ssclusmultprod"))
-#process.alloccupancyplots.occupancyMaps = cms.VInputTag(cms.InputTag("spclusoccuprod"),cms.InputTag("ssclusoccuprod"))
+process.alloccupancyplots = process.occupancyplots.clone()
+process.alloccupancyplots.wantedSubDets = cms.VPSet()
+process.alloccupancyplots.wantedSubDets.extend(OccupancyPlotsPixelWantedSubDets)
+process.alloccupancyplots.wantedSubDets.extend(OccupancyPlotsStripWantedSubDets)
+process.alloccupancyplots.multiplicityMaps = cms.VInputTag(cms.InputTag("spclusmultprod"),cms.InputTag("ssclusmultprod"))
+process.alloccupancyplots.occupancyMaps = cms.VInputTag(cms.InputTag("spclusoccuprod"),cms.InputTag("ssclusoccuprod"))
+
+process.alloccupancyplotsontrack = process.occupancyplots.clone()
+process.alloccupancyplotsontrack.wantedSubDets = cms.VPSet()
+process.alloccupancyplotsontrack.wantedSubDets.extend(OccupancyPlotsPixelWantedSubDets)
+process.alloccupancyplotsontrack.wantedSubDets.extend(OccupancyPlotsStripWantedSubDets)
+process.alloccupancyplotsontrack.multiplicityMaps = cms.VInputTag(cms.InputTag("spclusmultprodontrack"),cms.InputTag("ssclusmultprodontrack"))
+process.alloccupancyplotsontrack.occupancyMaps = cms.VInputTag(cms.InputTag("spclusoccuprodontrack"),cms.InputTag("ssclusoccuprodontrack"))
 
 
 #process.load("TrackingPFG.Utilities.bxlumianalyzer_cfi")
@@ -196,9 +211,9 @@ process.goodVertices = cms.EDFilter("VertexSelector",
 process.seqAnalyzers = cms.Sequence(
     #process.bxlumianalyzer +
 #    process.goodVertices + process.primaryvertexanalyzer +
-#    process.occupancyplots + 
+    process.occupancyplots +     process.occupancyplotsontrack + 
     process.pixeloccupancyplots + process.pixeloccupancyplotsontrack + 
-#    process.alloccupancyplots +
+    process.alloccupancyplots +    process.alloccupancyplotsontrack +
     process.pixeloccupancyxyplots + process.pixeloccupancyxyplotsontrack)
 
 #-------------------------------------------------------------------------------------------
@@ -217,6 +232,7 @@ process.load("DPGAnalysis.SiStripTools.duplicaterechits_cfi")
 #process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.Geometry.GeometryExtendedPhaseIPixelReco_cff")
 process.load("Configuration.Geometry.GeometryExtendedPhaseIPixel_cff")
+process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -244,6 +260,10 @@ process.TFileService = cms.Service('TFileService',
 
 process = customise_Reco(process,0)
 process = customise_condOverRides(process)
+
+process.myrereco = cms.Sequence(
+    process.siPixelRecHits + process.siStripMatchedRecHits +
+    process.trackingGlobalReco)
 
 process.p0 = cms.Path(
     process.myrereco +
