@@ -48,8 +48,9 @@ fi
 case $CHOIX_CALCUL in
 Full) echo "Full"
 	echo "--"
-	for i in Pt10Startup_UP15 Pt1000Startup_UP15 Pt35Startup_UP15 TTbarStartup_13 ZEEStartup_13 QcdPt80Pt120Startup_13
-#	for i in Pt1000Startup_UP15 TTbarStartup_13 ZEEStartup_13 QcdPt80Pt120Startup_13
+#	for i in Pt10Startup_UP15 Pt1000Startup_UP15 Pt35Startup_UP15 TTbarStartup_13 ZEEStartup_13 QcdPt80Pt120Startup_13
+#	for i in Pt1000Startup_UP15 Pt35Startup_UP15 TTbarStartup_13 QcdPt80Pt120Startup_13
+	for i in TTbarStartup_13
 		do 
 			echo " -- ${CHOIX_INTERACTION}${CHOIX_CALCUL}${i}_gedGsfE"
 			${CHOIX_INTERACTION}${CHOIX_CALCUL}${i}_gedGsfE
