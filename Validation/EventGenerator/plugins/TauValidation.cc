@@ -77,14 +77,14 @@ void TauValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::
     DecayLength = i.book1D("DecayLength","#tau Decay Length", 100 ,-20,20);  DecayLength->setAxisTitle("L_{#tau} (cm)");
     LifeTime =  i.book1D("LifeTime","#tau LifeTime ", 500 ,0,10000E-15);     LifeTime->setAxisTitle("#tau_{#tau} (s)");
     
-    TauSpinEffectsW_X   = i.book1D("TauSpinEffectsWX","Pion energy in W rest frame", 50 ,0,1);     TauSpinEffectsW_X->setAxisTitle("X");
-    TauSpinEffectsHpm_X = i.book1D("TauSpinEffectsHpmX","Pion energy in Hpm rest frame", 50 ,0,1); TauSpinEffectsHpm_X->setAxisTitle("X");
+    TauSpinEffectsW_X   = i.book1D("TauSpinEffectsWX","X for pion", 50 ,0,1);     TauSpinEffectsW_X->setAxisTitle("X");
+    TauSpinEffectsHpm_X = i.book1D("TauSpinEffectsHpmX","X for pion", 50 ,0,1); TauSpinEffectsHpm_X->setAxisTitle("X");
     
-    TauSpinEffectsW_eX   = i.book1D("TauSpinEffectsWeX","e energy in W rest frame", 50 ,0,1);     TauSpinEffectsW_eX->setAxisTitle("X");
-    TauSpinEffectsHpm_eX = i.book1D("TauSpinEffectsHpmeX","e energy in Hpm rest frame", 50 ,0,1); TauSpinEffectsHpm_eX->setAxisTitle("X");
+    TauSpinEffectsW_eX   = i.book1D("TauSpinEffectsWeX","X for e", 50 ,0,1);     TauSpinEffectsW_eX->setAxisTitle("X");
+    TauSpinEffectsHpm_eX = i.book1D("TauSpinEffectsHpmeX","X for e", 50 ,0,1); TauSpinEffectsHpm_eX->setAxisTitle("X");
 
-    TauSpinEffectsW_muX   = i.book1D("TauSpinEffectsWmuX","mu energy in W rest frame", 50 ,0,1);     TauSpinEffectsW_muX->setAxisTitle("X");
-    TauSpinEffectsHpm_muX = i.book1D("TauSpinEffectsHpmmuX","mu energy in Hpm rest frame", 50 ,0,1); TauSpinEffectsHpm_muX->setAxisTitle("X");
+    TauSpinEffectsW_muX   = i.book1D("TauSpinEffectsWmuX","X for mu", 50 ,0,1);     TauSpinEffectsW_muX->setAxisTitle("X");
+    TauSpinEffectsHpm_muX = i.book1D("TauSpinEffectsHpmmuX","X for mue", 50 ,0,1); TauSpinEffectsHpm_muX->setAxisTitle("X");
 
     TauSpinEffectsW_UpsilonRho   = i.book1D("TauSpinEffectsWUpsilonRho","#Upsilon for #rho", 50 ,-1,1);     TauSpinEffectsW_UpsilonRho->setAxisTitle("#Upsilon");
     TauSpinEffectsHpm_UpsilonRho = i.book1D("TauSpinEffectsHpmUpsilonRho","#Upsilon for #rho", 50 ,-1,1);   TauSpinEffectsHpm_UpsilonRho->setAxisTitle("#Upsilon");
@@ -103,27 +103,27 @@ void TauValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::
     TauSpinEffectsZ_Zs   = i.book1D("TauSpinEffectsZZs","Z_{s}", zsbins ,zsmin,zsmax);        TauSpinEffectsZ_Zs->setAxisTitle("Z_{s}");
     TauSpinEffectsH_Zs   = i.book1D("TauSpinEffectsHZs","Z_{s}", zsbins ,zsmin,zsmax);        TauSpinEffectsZ_Zs->setAxisTitle("Z_{s}");
     
-    TauSpinEffectsZ_X= i.book1D("TauSpinEffectsZX","X of #tau^{-}", 25 ,0,1.0);           TauSpinEffectsZ_X->setAxisTitle("X");
-    TauSpinEffectsZ_X50to75= i.book1D("TauSpinEffectsZX50to75","X of #tau^{-} (50GeV-75GeV)", 10 ,0,1.0);           TauSpinEffectsZ_X->setAxisTitle("X");
-    TauSpinEffectsZ_X75to88= i.book1D("TauSpinEffectsZX75to88","X of #tau^{-} (75GeV-88GeV)", 10 ,0,1.0);           TauSpinEffectsZ_X->setAxisTitle("X");
-    TauSpinEffectsZ_X88to100= i.book1D("TauSpinEffectsZX88to100","X of #tau^{-} (88GeV-100GeV)", 10 ,0,1.0);           TauSpinEffectsZ_X->setAxisTitle("X");
-    TauSpinEffectsZ_X100to120= i.book1D("TauSpinEffectsZX100to120","X of #tau^{-} (100GeV-120GeV)", 10 ,0,1.0);           TauSpinEffectsZ_X->setAxisTitle("X");
-    TauSpinEffectsZ_X120UP= i.book1D("TauSpinEffectsZX120UP","X of #tau^{-} (>120GeV)", 10 ,0,1.0);           TauSpinEffectsZ_X->setAxisTitle("X");
+    TauSpinEffectsZ_X= i.book1D("TauSpinEffectsZX","X for pion of #tau^{-}", 25 ,0,1.0);           TauSpinEffectsZ_X->setAxisTitle("X");
+    TauSpinEffectsZ_X50to75= i.book1D("TauSpinEffectsZX50to75","X for pion of #tau^{-} (50GeV-75GeV)", 10 ,0,1.0);           TauSpinEffectsZ_X->setAxisTitle("X");
+    TauSpinEffectsZ_X75to88= i.book1D("TauSpinEffectsZX75to88","X for pion of #tau^{-} (75GeV-88GeV)", 10 ,0,1.0);           TauSpinEffectsZ_X->setAxisTitle("X");
+    TauSpinEffectsZ_X88to100= i.book1D("TauSpinEffectsZX88to100","X for pion of #tau^{-} (88GeV-100GeV)", 10 ,0,1.0);           TauSpinEffectsZ_X->setAxisTitle("X");
+    TauSpinEffectsZ_X100to120= i.book1D("TauSpinEffectsZX100to120","X for pion of #tau^{-} (100GeV-120GeV)", 10 ,0,1.0);           TauSpinEffectsZ_X->setAxisTitle("X");
+    TauSpinEffectsZ_X120UP= i.book1D("TauSpinEffectsZX120UP","X for pion of #tau^{-} (>120GeV)", 10 ,0,1.0);           TauSpinEffectsZ_X->setAxisTitle("X");
 
 
-    TauSpinEffectsH_X= i.book1D("TauSpinEffectsH_X","X of #tau^{-}", 25 ,0,1.0);           TauSpinEffectsH_X->setAxisTitle("X");
+    TauSpinEffectsH_X= i.book1D("TauSpinEffectsH_X","X for pion of #tau^{-}", 25 ,0,1.0);           TauSpinEffectsH_X->setAxisTitle("X");
     
-    TauSpinEffectsZ_Xf   = i.book1D("TauSpinEffectsZXf","X of forward emitted #tau^{-}", 25 ,0,1.0);           TauSpinEffectsZ_Xf->setAxisTitle("X_{f}");
-    TauSpinEffectsH_Xf   = i.book1D("TauSpinEffectsHXf","X of forward emitted #tau^{-}", 25 ,0,1.0);           TauSpinEffectsZ_Xf->setAxisTitle("X_{f}");
+    TauSpinEffectsZ_Xf   = i.book1D("TauSpinEffectsZXf","X for pion of forward emitted #tau^{-}", 25 ,0,1.0);           TauSpinEffectsZ_Xf->setAxisTitle("X_{f}");
+    TauSpinEffectsH_Xf   = i.book1D("TauSpinEffectsHXf","X for pion of forward emitted #tau^{-}", 25 ,0,1.0);           TauSpinEffectsZ_Xf->setAxisTitle("X_{f}");
     
-    TauSpinEffectsZ_Xb   = i.book1D("TauSpinEffectsZXb","X of backward emitted #tau^{-}", 25 ,0,1.0);           TauSpinEffectsZ_Xb->setAxisTitle("X_{b}");
-    TauSpinEffectsH_Xb   = i.book1D("TauSpinEffectsHXb","X of backward emitted #tau^{-}", 25 ,0,1.0);           TauSpinEffectsZ_Xb->setAxisTitle("X_{b}");
+    TauSpinEffectsZ_Xb   = i.book1D("TauSpinEffectsZXb","X for pion of backward emitted #tau^{-}", 25 ,0,1.0);           TauSpinEffectsZ_Xb->setAxisTitle("X_{b}");
+    TauSpinEffectsH_Xb   = i.book1D("TauSpinEffectsHXb","X for pion of backward emitted #tau^{-}", 25 ,0,1.0);           TauSpinEffectsZ_Xb->setAxisTitle("X_{b}");
 
-    TauSpinEffectsZ_eX   = i.book1D("TauSpinEffectsZeX","e energy in Z rest frame", 50 ,0,1);     TauSpinEffectsZ_eX->setAxisTitle("X");
-    TauSpinEffectsH_eX = i.book1D("TauSpinEffectsHeX","e energy in H rest frame", 50 ,0,1); TauSpinEffectsH_eX->setAxisTitle("X");
+    TauSpinEffectsZ_eX   = i.book1D("TauSpinEffectsZeX","X for e", 50 ,0,1);     TauSpinEffectsZ_eX->setAxisTitle("X");
+    TauSpinEffectsH_eX = i.book1D("TauSpinEffectsHeX","X for e", 50 ,0,1); TauSpinEffectsH_eX->setAxisTitle("X");
 
-    TauSpinEffectsZ_muX   = i.book1D("TauSpinEffectsZmuX","mu energy in z rest frame", 50 ,0,1);     TauSpinEffectsZ_muX->setAxisTitle("X");
-    TauSpinEffectsH_muX = i.book1D("TauSpinEffectsHmuX","mu energy in H rest frame", 50 ,0,1); TauSpinEffectsH_muX->setAxisTitle("X");
+    TauSpinEffectsZ_muX   = i.book1D("TauSpinEffectsZmuX","X for mu", 50 ,0,1);     TauSpinEffectsZ_muX->setAxisTitle("X");
+    TauSpinEffectsH_muX = i.book1D("TauSpinEffectsHmuX","X for mu", 50 ,0,1); TauSpinEffectsH_muX->setAxisTitle("X");
     
     TauSpinEffectsH_rhorhoAcoplanarityminus = i.book1D("TauSpinEffectsH_rhorhoAcoplanarityminus","#phi^{*-} (acoplanarity) for Higgs #rightarrow #rho-#rho (y_{1}*y_{2}<0)", 32 ,0,2*TMath::Pi());     TauSpinEffectsH_rhorhoAcoplanarityminus->setAxisTitle("#phi^{*-} (Acoplanarity)");
     TauSpinEffectsH_rhorhoAcoplanarityplus = i.book1D("TauSpinEffectsH_rhorhoAcoplanarityplus","#phi^{*+} (acoplanarity) for Higgs #rightarrow #rho-#rho (y_{1}*y_{2}>0)", 32 ,0,2*TMath::Pi());     TauSpinEffectsH_rhorhoAcoplanarityplus->setAxisTitle("#phi^{*+} (Acoplanarity)");
@@ -204,6 +204,7 @@ void TauValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
 	      bool hasDL(false);
 	      for(unsigned int i=0;i<part.size();i++){
 		if(abs(part.at(i)->pdgId())!=PdtPdgMini::nu_tau && TD.isTauFinalStateParticle(part.at(i)->pdgId()) && !hasDL){
+		  hasDL=true;
 		  TLorentzVector tlv(iter->px(),iter->py(),iter->pz(),iter->energy());
 		  PV=TVector3(iter->vx(),iter->vy(),iter->vz());
 		  SV=TVector3(part.at(i)->vx(),part.at(i)->vy(),part.at(i)->vz());
@@ -498,6 +499,20 @@ void TauValidation::spinEffectsZH(const reco::GenParticle* boson, double weight)
 	    int charge = (int) pd->charge();
 	    LVtau.Boost(-1*Zboson.BoostVector());
 	    LVpi.Boost(-1*Zboson.BoostVector());
+	 
+
+
+	    if(jak_id==TauDecay::MODE_MUON){
+	      if(abs(boson->pdgId())==PdtPdgMini::Z0)     TauSpinEffectsZ_muX->Fill(LVpi.P()/LVtau.E(),weight);
+	      if(abs(boson->pdgId())==PdtPdgMini::Higgs0) TauSpinEffectsH_muX->Fill(LVpi.P()/LVtau.E(),weight);
+
+	    }
+	    if(jak_id==TauDecay::MODE_ELECTRON){
+	      if(abs(boson->pdgId())==PdtPdgMini::Z0)     TauSpinEffectsZ_eX->Fill(LVpi.P()/LVtau.E(),weight);
+	      if(abs(boson->pdgId())==PdtPdgMini::Higgs0) TauSpinEffectsH_eX->Fill(LVpi.P()/LVtau.E(),weight);
+	    }
+
+
 	    if(jak_id==TauDecay::MODE_PION){
 	      if(abs(boson->pdgId())==PdtPdgMini::Z0){
 		TauSpinEffectsZ_X->Fill(LVpi.P()/LVtau.E(),weight);
@@ -620,15 +635,6 @@ void TauValidation::spinEffectsZH(const reco::GenParticle* boson, double weight)
       if(abs(boson->pdgId())==PdtPdgMini::Higgs0) TauSpinEffectsH_pipiAcoplanarity->Fill(Acoplanarity,weight);
       taup=tauporig;
       taum=taumorig;
-    }
-    
-    if(nSingleMuonDecays==2){
-      if(abs(boson->pdgId())==PdtPdgMini::Z0)     TauSpinEffectsZ_muX->Fill(x1,weight);
-      if(abs(boson->pdgId())==PdtPdgMini::Higgs0) TauSpinEffectsH_muX->Fill(x1,weight);
-    }
-    if(nSingleElectronDecays==2){
-      if(abs(boson->pdgId())==PdtPdgMini::Z0)     TauSpinEffectsZ_eX->Fill(x1,weight);
-      if(abs(boson->pdgId())==PdtPdgMini::Higgs0) TauSpinEffectsH_eX->Fill(x1,weight);
     }
     if(nSinglePionDecays == 2 && tautau.M()!= 0) {
       for(int i=0;i<zsbins;i++){

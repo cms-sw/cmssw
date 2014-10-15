@@ -263,7 +263,7 @@ std::string TauDecay::DecayMode(unsigned int &MODE_ID){
   else if(MODE_ID==MODE_3PI)         return "#tau^{#pm} #rightarrow #pi^{#pm}#pi^{#pm}#pi^{#mp}#nu";
   else if(MODE_ID==MODE_PI2PI0)      return "#tau^{#pm} #rightarrow #pi^{#pm}#pi^{0}#pi^{0}#nu";
   else if(MODE_ID==MODE_KAON)        return "#tau^{#pm} #rightarrow K^{#pm}#nu";
-  else if(MODE_ID==MODE_KPI0)        return "#tau^{#pm} #rightarrow K^{#pm}\pi^{0}#nu";
+  else if(MODE_ID==MODE_KPI0)        return "#tau^{#pm} #rightarrow K^{#pm}#pi^{0}#nu";
   else if(MODE_ID==MODE_K0PI)        return "#tau^{#pm} #rightarrow K^{0}#pi^{#pm}#nu";
   else if(MODE_ID==MODE_3PIPI0)      return "#tau^{#pm} #rightarrow #pi^{#pm}#pi^{#pm}#pi^{#mp}#pi^{0}#nu";
   else if(MODE_ID==MODE_PI3PI0)      return "#tau^{#pm} #rightarrow #pi^{#pm}#pi^{0}#pi^{0}#pi^{0}#nu";
