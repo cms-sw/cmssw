@@ -157,14 +157,11 @@ HiMixValidation::HiMixValidation(const edm::ParameterSet& iConfig)
 
    rMatch = iConfig.getUntrackedParameter<double>("rMatch",0.3);
    rMatch2 = rMatch*rMatch;
-}
-
+};
 
 HiMixValidation::~HiMixValidation()
 {
- 
-
-}
+ }
 
 void
 HiMixValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
