@@ -1,9 +1,8 @@
 #! /bin/bash
 
 # ConfDB configurations to use
-TABLES="2014 Fake"
-HLT_2014="/dev/CMSSW_7_2_0/2014"
-HLT_Fake="/dev/CMSSW_7_2_0/Fake"
+TABLES="Fake"
+HLT_Fake="/dev/CMSSW_7_2_1/Fake"
 
 # print extra messages ?
 VERBOSE=false
