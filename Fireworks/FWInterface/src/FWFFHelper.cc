@@ -76,5 +76,5 @@ FWFFHelper::FWFFHelper(const edm::ParameterSet &ps, const edm::ActivityRegistry 
    }
 #endif
 
-    TEveManager::Create(kFALSE, "FIV");
+    TEveManager::Create(kFALSE, "FI");
 }
