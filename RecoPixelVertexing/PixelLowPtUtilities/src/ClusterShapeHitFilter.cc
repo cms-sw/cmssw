@@ -421,22 +421,17 @@ bool ClusterShapeHitFilter::isCompatible
 }
 
 
+#include "DataFormats/SiStripCluster/interface/SiStripClusterTools.h"
+
 bool ClusterShapeHitFilter::checkClusterCharge(DetId detId, const SiStripCluster& cluster, const LocalVector & ldir) const
 {
-  int clusCharge=accumulate( cluster.amplitudes().begin(), cluster.amplitudes().end(), uint16_t(0));
-
-  float chargeCut = minGoodStripCharge_*
-    theTracker->idToDet(detId)->surface().bounds().thickness()/abs(ldir.z()/ldir.mag());
-
-  return (clusCharge>chargeCut);
+  return siStripClusterTools::chargePerCM(detId, cluster, ldir) >  minGoodStripCharge_;
 }
+
 
 bool ClusterShapeHitFilter::checkClusterCharge(DetId detId, const SiPixelCluster& cluster, const LocalVector & ldir) const
 {
-  float chargeCut = minGoodPixelCharge_*
-    theTracker->idToDet(detId)->surface().bounds().thickness()/abs(ldir.z()/ldir.mag());
-
-  return (cluster.charge()>chargeCut);
+  return siStripClusterTools::chargePerCM(detId, cluster, ldir) >  minGoodPixelCharge_;
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

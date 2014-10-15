@@ -57,8 +57,7 @@ bool HitExtractorSTRP::skipThis(DetId id, OmniClusterRef const& clus,
   if (maskCluster && (stripClusterMask->mask(clus.key())) ) return true;
 
   if unlikely(minGoodCharge<=0) return false;
-  auto const & ampl = clus.cluster_strip()->amplitudes();
-  return siStripClusterTools::chargePerCM(id,ampl.begin(),ampl.end()) <= minGoodCharge;
+  return siStripClusterTools::chargePerCM(id,*clus.cluster_strip()) <= minGoodCharge;
 }
 
 
