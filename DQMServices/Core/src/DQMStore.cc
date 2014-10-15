@@ -288,6 +288,13 @@ void DQMStore::IBooker::tag(MonitorElement *me, unsigned int tag) {
 }
 
 //IGetter methods
+std::vector<MonitorElement*>
+DQMStore::IGetter::getAllContents(const std::string &path,
+				  uint32_t runNumber /* = 0 */,
+				  uint32_t lumi      /* = 0 */) {
+  return owner_->getAllContents(path, runNumber, lumi);
+}
+
 MonitorElement * DQMStore::IGetter::get(const std::string &path) {
   return owner_->get(path);
 }

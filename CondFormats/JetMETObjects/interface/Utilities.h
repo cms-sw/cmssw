@@ -4,7 +4,7 @@
 #ifdef STANDALONE
 #include <stdexcept>
 #else
-#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #endif
 
 #include <cstdlib>
@@ -22,7 +22,7 @@ namespace
     sserr<<fClass<<" ERROR: "<<fMessage;
     throw std::runtime_error(sserr.str());
 #else
-    throw cms::Exception(fClass)<<fMessage;
+    edm::LogError(fClass) << fMessage;
 #endif
   }
   //----------------------------------------------------------------------
