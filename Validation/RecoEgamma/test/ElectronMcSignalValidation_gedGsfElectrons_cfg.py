@@ -11,9 +11,14 @@ process.load("DQMServices.Components.DQMStoreStats_cfi")
 from DQMServices.Components.DQMStoreStats_cfi import *
 dqmStoreStats.runOnEndJob = cms.untracked.bool(True)
 
+t1 = os.environ['TEST_HISTOS_FILE'].split('.')
+localFileInput = 'DQM_V0001_R000000001__electronHistos__' + t1[1] + '__RECO.root'
+
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
-process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring(),secondaryFileNames = cms.untracked.vstring())
+#process.source = cms.Source ("PoolSource",fileNames = cms.untracked.vstring(),secondaryFileNames = cms.untracked.vstring())
+process.source = cms.Source("DQMRootSource",fileNames = cms.untracked.vstring())
 process.source.fileNames.extend(dd.search())
+process.DQMoutput = cms.OutputModule("DQMRootOutputModule",fileName = cms.untracked.string("OUT_step1.root"))
 
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
@@ -44,23 +49,23 @@ process.load("Validation.RecoEgamma.electronIsoFromDeps_cff")
 process.load("Validation.RecoEgamma.ElectronMcSignalValidator_gedGsfElectrons_cfi")
 
 # DQM
-process.dqmSaver.saveAtJobEnd = True
-process.dqmsave_step = cms.Path(process.DQMSaver)
+#process.dqmSaver.saveAtJobEnd = True
+#process.dqmsave_step = cms.Path(process.DQMSaver)
+process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 
-t1 = os.environ['TEST_HISTOS_FILE'].split('.')
-process.dqmSaver.workflow = '/electronHistos/' + t1[1] + '/RECO'
+#process.dqmSaver.workflow = localFileInput
 
 #process.electronMcSignalValidator.OutputFile = cms.string(os.environ['TEST_HISTOS_FILE']) # ne sert plus
 #process.electronMcSignalValidator.OutputFolderName = cms.string("Run 1/EgammaV/Run summary/ElectronMcSignalValidator")
 process.electronMcSignalValidator.InputFolderName = cms.string("EgammaV/ElectronMcSignalValidator")
 process.electronMcSignalValidator.OutputFolderName = cms.string("EgammaV/ElectronMcSignalValidator")
-print "outputFile : ", os.environ['TEST_HISTOS_FILE'] # sort electronHistos.ValFullTTbarStartup_13_gedGsfE.root
 
-process.p = cms.Path(process.electronMcSignalValidator*process.dqmStoreStats)
+#process.p = cms.Path(process.electronMcSignalValidator*process.dqmStoreStats)
 #process.p = cms.Path(process.electronIsoFromDeps*process.electronMcSignalValidator*process.dqmStoreStats)
-
+process.p = cms.Path(process.electronMcSignalValidator)
 # Schedule
 process.schedule = cms.Schedule(process.p,
-                                process.dqmsave_step,
-)
+#                                process.dqmsave_step,
+                                process.DQMoutput_step,
+)                               
 
