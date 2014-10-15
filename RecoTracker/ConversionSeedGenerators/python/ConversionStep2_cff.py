@@ -3,14 +3,13 @@ import FWCore.ParameterSet.Config as cms
 from RecoTracker.ConversionSeedGenerators.PhotonConversionTrajectorySeedProducerFromQuadruplets_cfi import *
 
 conv2Clusters = cms.EDProducer("TrackClusterRemover",
-                              clusterLessSolution = cms.bool(True),
                               oldClusterRemovalInfo = cms.InputTag("convClusters"),
                               trajectories = cms.InputTag("convStepTracks"),
                               overrideTrkQuals = cms.InputTag('convStepSelector','convStep'),
                               TrackQuality = cms.string('highPurity'),
                               pixelClusters = cms.InputTag("siPixelClusters"),
                               stripClusters = cms.InputTag("siStripClusters"),
-                              Common = cms.PSet(maxChi2 = cms.double(30.0))
+                              maxChi2 = cms.double(30.0)
                               )
 
 conv2LayerPairs = cms.EDProducer("SeedingLayersEDProducer",

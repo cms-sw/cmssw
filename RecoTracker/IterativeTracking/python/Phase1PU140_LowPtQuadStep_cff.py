@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 # NEW CLUSTERS (remove previously used clusters)
 lowPtQuadStepClusters = cms.EDProducer("TrackClusterRemover",
-    clusterLessSolution= cms.bool(True),
     trajectories = cms.InputTag("highPtTripletStepTracks"),
     overrideTrkQuals = cms.InputTag('highPtTripletStepSelector','highPtTripletStep'),
     TrackQuality = cms.string('highPurity'),

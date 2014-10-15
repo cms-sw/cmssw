@@ -5,7 +5,6 @@ import FWCore.ParameterSet.Config as cms
 ###############################################################
 
 mixedTripletStepClusters = cms.EDProducer("TrackClusterRemover",
-    clusterLessSolution = cms.bool(True),
     oldClusterRemovalInfo = cms.InputTag("pixelPairStepClusters"),
     trajectories = cms.InputTag("pixelPairStepTracks"),
     overrideTrkQuals = cms.InputTag('pixelPairStepSelector','pixelPairStep'),
@@ -13,12 +12,10 @@ mixedTripletStepClusters = cms.EDProducer("TrackClusterRemover",
     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
     pixelClusters = cms.InputTag("siPixelClusters"),
     stripClusters = cms.InputTag("siStripClusters"),
-    doStripChargeCheck = cms.bool(True),
-    stripRecHits = cms.string('siStripMatchedRecHits'),
-    Common = cms.PSet(
-        maxChi2 = cms.double(9.0),
-        minGoodStripCharge = cms.double(2069)
-    )
+#    doStripChargeCheck = cms.bool(True),
+#    stripRecHits = cms.string('siStripMatchedRecHits'),
+    maxChi2 = cms.double(9.0)
+#        minGoodStripCharge = cms.double(2069)
 )
 
 # SEEDING LAYERS

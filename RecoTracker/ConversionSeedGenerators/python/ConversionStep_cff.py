@@ -4,14 +4,13 @@ from RecoTracker.ConversionSeedGenerators.PhotonConversionTrajectorySeedProducer
 from RecoTracker.ConversionSeedGenerators.ConversionStep2_cff import *
 
 convClusters = cms.EDProducer("TrackClusterRemover",
-                              clusterLessSolution = cms.bool(True),
                               oldClusterRemovalInfo = cms.InputTag("tobTecStepClusters"),
                               trajectories = cms.InputTag("tobTecStepTracks"),
                               overrideTrkQuals = cms.InputTag('tobTecStepSelector','tobTecStep'),
                               TrackQuality = cms.string('highPurity'),
                               pixelClusters = cms.InputTag("siPixelClusters"),
                               stripClusters = cms.InputTag("siStripClusters"),
-                              Common = cms.PSet(maxChi2 = cms.double(30.0))
+                              maxChi2 = cms.double(30.0)
                               )
 
 convLayerPairs = cms.EDProducer("SeedingLayersEDProducer",

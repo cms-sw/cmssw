@@ -64,6 +64,9 @@ namespace {
     mergeOld_(iConfig.exists("oldClusterRemovalInfo")),
     maxChi2_(iConfig.getParameter<double>("maxChi2"))
   {
+    produces<edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > >();
+    produces<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > >();
+
 
     if (iConfig.exists("overrideTrkQuals"))
     overrideTrkQuals_.push_back(consumes<edm::ValueMap<int> >(iConfig.getParameter<edm::InputTag>("overrideTrkQuals")));
