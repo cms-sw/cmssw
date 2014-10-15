@@ -17,7 +17,7 @@ ElectronOfflineClient::ElectronOfflineClient( const edm::ParameterSet & conf )
 ElectronOfflineClient::~ElectronOfflineClient()
  {}
 
-void ElectronOfflineClient::finalize( DQMStore::IBooker & iBooker )
+void ElectronOfflineClient::finalize( DQMStore::IBooker & iBooker,DQMStore::IGetter & iGetter )
  {
 //  MonitorElement * h1_matchedEle_eta = get("matchedEle_eta");
 //  MonitorElement * h1_matchedEle_eta_golden = get("matchedEle_eta_golden");
@@ -48,7 +48,7 @@ void ElectronOfflineClient::finalize( DQMStore::IBooker & iBooker )
 //  //remove("matchedEle_eta_bbrem") ;
 //  //remove("matchedEle_eta_narrow") ;
 
-  setBookIndex(100) ;
+/*  setBookIndex(100) ; // A.C.
   if (effHistoTitle_=="")
    {
     bookH1andDivide(iBooker, "ptEff","matchedObject_Pt","matchingObject_Pt","p_{T} (GeV/c)","Efficiency","efficiency vs p_{T}") ;
@@ -76,6 +76,6 @@ void ElectronOfflineClient::finalize( DQMStore::IBooker & iBooker )
   remove("matchingObject_Eta") ;
 //  remove("matchingObject_AbsEta") ;
   remove("matchingObject_Phi") ;
-//  remove("matchingObject_Z") ;
+//  remove("matchingObject_Z") ;*/ //A.C.
  }
 
