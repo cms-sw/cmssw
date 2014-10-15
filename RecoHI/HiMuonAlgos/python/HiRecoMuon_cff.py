@@ -23,8 +23,13 @@ muIsoDepositCalByAssociatorTowers.inputTags = cms.VInputTag(cms.InputTag("muons:
 muonShowerInformation.muonCollection = "muons"
 
 #don't modify somebody else's sequence, create a new one if needed
-muonreco_plus_isolation_PbPb = muonreco_plus_isolation.expandAndClone()
-muonreco_plus_isolation_PbPb.replace(muons1stStep, muons)
+muonIdProducerSequence_PbPb = cms.Sequence(glbTrackQual*muons*calomuons*muonEcalDetIds*muonShowerInformation)
+muontracking_PbPb                   = cms.Sequence(globalMuons) # tracking is already done before
+muontracking_with_TeVRefinement_PbPb  = cms.Sequence(muontracking_PbPb * tevMuons)
+
+muonreco_PbPb                       = cms.Sequence(muontracking_PbPb * muonIdProducerSequence_PbPb)
+muonrecowith_TeVRefinemen_PbPb      = cms.Sequence(muontracking_with_TeVRefinement_PbPb * muonIdProducerSequence_PbPb)
+muonreco_plus_isolation_PbPb        = cms.Sequence(muonrecowith_TeVRefinemen_PbPb * muIsolation)
 
 globalMuons.TrackerCollectionLabel = hiTracks
 
