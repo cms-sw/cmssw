@@ -1957,6 +1957,12 @@ class ConfigBuilder(object):
 
         # decide which AlcaHARVESTING paths to use
         harvestingList = sequence.split("+")
+
+
+
+ 	from Configuration.AlCa.autoPCL import autoPCL
+ 	self.expandMapping(harvestingList,autoPCL)
+	
         for name in harvestingConfig.__dict__:
             harvestingstream = getattr(harvestingConfig,name)
             if name in harvestingList and isinstance(harvestingstream,cms.Path):

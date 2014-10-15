@@ -213,10 +213,19 @@ class Reco(Scenario):
         Proton collisions data taking AlCa Harvesting
 
         """
-        if not 'skims' in args: return None
+        skims = []
+        if 'skims' in args:
+            print 'here'
+            skims = args['skims']
+
+
+        if 'alcapromptdataset' in args:
+            skims.append('@'+args['alcapromptdataset'])
+
+        if len(skims) == 0: return None
         options = defaultOptions
         options.scenario = self.cbSc if hasattr(self,'cbSc') else self.__class__.__name__ 
-        options.step = "ALCAHARVEST:"+('+'.join(args['skims']))
+        options.step = "ALCAHARVEST:"+('+'.join(skims))
         options.name = "ALCAHARVEST"
         options.conditions = globalTag
  
