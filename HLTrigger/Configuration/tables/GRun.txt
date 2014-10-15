@@ -144,6 +144,8 @@ HLT_PFHT350_PFMET120_NoiseCleaned_v*                          	# JIRA: CMSHLT-10
 HLT_PFMET170_NoiseCleaned_v*                          		# JIRA: CMSHLT-105
 HLT_PFMET120_NoiseCleaned_BTagCSV07_v*				# JIRA: CMSHLT-105
 
+#HLT_AK8PFHT850_TrimR0p1PT0p03Mass50_v*				# JIRA: CMSHLT-121
+
 HLT_ZeroBias_v*							# JIRA: CMSHLT-117
 
 HLT_Physics_v*							# skim
