@@ -11,6 +11,7 @@ CmsTrackerStringToEnum::Impl::Impl(){
   _map.insert(std::pair<std::string, GeometricDet::GeometricEnumType>("PixelBarrelDet",GeometricDet::DetUnit));
 
   _map.insert(std::pair<std::string, GeometricDet::GeometricEnumType>("PixelEndcapSubDet",GeometricDet::PixelEndCap));
+  _map.insert(std::pair<std::string, GeometricDet::GeometricEnumType>("PixelPhase1EndcapSubDet",GeometricDet::PixelPhase1EndCap));
   _map.insert(std::pair<std::string, GeometricDet::GeometricEnumType>("PixelEndcapDisk",GeometricDet::disk));  
   _map.insert(std::pair<std::string, GeometricDet::GeometricEnumType>("PixelEndcapPanel",GeometricDet::panel));  
   _map.insert(std::pair<std::string, GeometricDet::GeometricEnumType>("PixelEndcapDet",GeometricDet::DetUnit)); 

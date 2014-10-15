@@ -12,7 +12,7 @@ DDDCmsTrackerContruction::DDDCmsTrackerContruction( void )
 {}
 
 const GeometricDet*
-DDDCmsTrackerContruction::construct( const DDCompactView* cpv, unsigned int layerNumberPXB, unsigned int totalBlade )
+DDDCmsTrackerContruction::construct( const DDCompactView* cpv, unsigned int layerNumberPXB)
 {
   attribute = "TkDDDStructure"; // could come from .orcarc
   std::string value = "any";
@@ -33,7 +33,7 @@ DDDCmsTrackerContruction::construct( const DDCompactView* cpv, unsigned int laye
   }
   
   GeometricDet* tracker = new GeometricDet( &fv, GeometricDet::Tracker );
-  CmsTrackerBuilder theCmsTrackerBuilder( totalBlade );
+  CmsTrackerBuilder theCmsTrackerBuilder;
   theCmsTrackerBuilder.build( fv, tracker, attribute );
   
   CmsTrackerDetIdBuilder theCmsTrackerDetIdBuilder( layerNumberPXB );

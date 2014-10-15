@@ -20,7 +20,7 @@ public:
   
   struct subDetByType{
     bool operator()(const GeometricDet* a, const GeometricDet* b) const {
-      return a->type() < b->type();
+      return a->type()%100 < b->type()%100; // it relies on the fact that the GeometricDet::GDEnumType enumerators used to identify the subdetectors in the upgrade geometries are equal to the ones of the present detector + n*100
     }
   };
   

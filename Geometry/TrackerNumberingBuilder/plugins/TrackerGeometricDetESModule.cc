@@ -24,8 +24,7 @@ using namespace edm;
 
 TrackerGeometricDetESModule::TrackerGeometricDetESModule( const edm::ParameterSet & p ) 
   : fromDDD_( p.getParameter<bool>( "fromDDD" )),
-    layerNumberPXB_( p.exists( "layerNumberPXB" ) ? p.getParameter<unsigned int>( "layerNumberPXB" ) : 16U ),// 16 for current, 18 for SLHC 
-    totalBlade_( p.exists( "totalBlade" ) ? p.getParameter<unsigned int>( "totalBlade" ) : 24U )             // 24 for current, 56 for SLHC 
+    layerNumberPXB_( p.exists( "layerNumberPXB" ) ? p.getParameter<unsigned int>( "layerNumberPXB" ) : 16U )// 16 for current, 18 for SLHC 
 {
   setWhatProduced( this );
 }
@@ -38,25 +37,21 @@ TrackerGeometricDetESModule::fillDescriptions( edm::ConfigurationDescriptions & 
   edm::ParameterSetDescription descDB;
   descDB.add<bool>( "fromDDD", false );
   descDB.addOptional<unsigned int>( "layerNumberPXB", 16U );
-  descDB.addOptional<unsigned int>( "totalBlade", 24U );
   descriptions.add( "trackerNumberingGeometryDB", descDB );
 
   edm::ParameterSetDescription descSLHCDB;
   descSLHCDB.add<bool>( "fromDDD", false );
   descSLHCDB.addOptional<unsigned int>( "layerNumberPXB", 18U );
-  descSLHCDB.addOptional<unsigned int>( "totalBlade", 56U );
   descriptions.add( "trackerNumberingSLHCGeometryDB", descSLHCDB );
 
   edm::ParameterSetDescription desc;
   desc.add<bool>( "fromDDD", true );
   desc.addOptional<unsigned int>( "layerNumberPXB", 16U );
-  desc.addOptional<unsigned int>( "totalBlade", 24U );
   descriptions.add( "trackerNumberingGeometry", desc );
 
   edm::ParameterSetDescription descSLHC;
   descSLHC.add<bool>( "fromDDD", true );
   descSLHC.addOptional<unsigned int>( "layerNumberPXB", 18U );
-  descSLHC.addOptional<unsigned int>( "totalBlade", 56U );
   descriptions.add( "trackerNumberingSLHCGeometry", descSLHC );
 }
 
@@ -69,7 +64,7 @@ TrackerGeometricDetESModule::produce( const IdealGeometryRecord & iRecord )
     iRecord.get( cpv );
     
     DDDCmsTrackerContruction theDDDCmsTrackerContruction;
-    return std::auto_ptr<GeometricDet> (const_cast<GeometricDet*>( theDDDCmsTrackerContruction.construct(&(*cpv), layerNumberPXB_, totalBlade_ )));
+    return std::auto_ptr<GeometricDet> (const_cast<GeometricDet*>( theDDDCmsTrackerContruction.construct(&(*cpv), layerNumberPXB_)));
   }
   else
   {

@@ -141,7 +141,7 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
     }
 
 
-    if( (*it)->type() == GeometricDet::PixelEndCap || (*it)->type() == GeometricDet::PixelEndCapPhase1 ){
+    if( (*it)->type() == GeometricDet::PixelEndCap || (*it)->type() == GeometricDet::PixelPhase1EndCap ){
       vector<const GeometricDet*> thePxlFwdGeometricDetLayers = (*it)->components();
       for(vector<const GeometricDet*>::const_iterator it2=thePxlFwdGeometricDetLayers.begin();
 	  it2!=thePxlFwdGeometricDetLayers.end(); it2++){

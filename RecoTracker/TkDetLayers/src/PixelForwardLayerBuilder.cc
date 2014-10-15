@@ -37,7 +37,7 @@ ForwardDetLayer* PixelForwardLayerBuilder::build(const GeometricDet* aPixelForwa
 					       theGeomDetGeometry ) );
   }
 
-  if ( aPixelForwardLayer->type()==GeometricDet::PixelEndCapPhase1 )
-    return new PixelForwardLayerPhase1(theBlades);
+  //  if ( aPixelForwardLayer->type()==GeometricDet::PixelEndCapPhase1 )
+  //    return new PixelForwardLayerPhase1(theBlades);
   return new PixelForwardLayer(theBlades);
 }

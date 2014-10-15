@@ -17,7 +17,7 @@ class DDDCmsTrackerContruction
 {
 public:
   DDDCmsTrackerContruction( void );
-  const GeometricDet* construct( const DDCompactView* cpv, unsigned int layerNumberPXB, unsigned int totalBlade );
+  const GeometricDet* construct( const DDCompactView* cpv, unsigned int layerNumberPXB);
   
 protected:
 
