@@ -222,7 +222,7 @@ convStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimatorESPro
     ComponentName = cms.string('convStepChi2Est'),
     nSigma = cms.double(3.0),
     MaxChi2 = cms.double(30.0),
-    minGoodStripCharge = cms.double(2069)
+    minGoodStripCharge = cms.double(-2069.)
 )
 
 
