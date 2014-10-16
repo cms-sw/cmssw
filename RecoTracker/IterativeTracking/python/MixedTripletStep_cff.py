@@ -4,18 +4,24 @@ import FWCore.ParameterSet.Config as cms
 # Large impact parameter Tracking using mixed-triplet seeding #
 ###############################################################
 
-mixedTripletStepClusters = cms.EDProducer("TrackClusterRemover",
+#here just for backward compatibility
+chargeCut2069Clusters =  cms.EDProducer("ClusterChargeMasker",
     oldClusterRemovalInfo = cms.InputTag("pixelPairStepClusters"),
+    pixelClusters = cms.InputTag("siPixelClusters"),
+    stripClusters = cms.InputTag("siStripClusters"),
+     minGoodStripCharge = cms.double(2069)
+)
+
+mixedTripletStepClusters = cms.EDProducer("TrackClusterRemover",
+#    oldClusterRemovalInfo = cms.InputTag("pixelPairStepClusters"),
+    oldClusterRemovalInfo = cms.InputTag("chargeCut2069Clusters"),
     trajectories = cms.InputTag("pixelPairStepTracks"),
     overrideTrkQuals = cms.InputTag('pixelPairStepSelector','pixelPairStep'),
     TrackQuality = cms.string('highPurity'),
     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
     pixelClusters = cms.InputTag("siPixelClusters"),
     stripClusters = cms.InputTag("siStripClusters"),
-#    doStripChargeCheck = cms.bool(True),
-#    stripRecHits = cms.string('siStripMatchedRecHits'),
     maxChi2 = cms.double(9.0)
-#        minGoodStripCharge = cms.double(2069)
 )
 
 # SEEDING LAYERS
@@ -314,7 +320,7 @@ mixedTripletStep = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackList
 )                        
 
 
-MixedTripletStep = cms.Sequence(mixedTripletStepClusters*
+MixedTripletStep = cms.Sequence(chargeCut2069Clusters*mixedTripletStepClusters*
                                 mixedTripletStepSeedLayersA*
                                 mixedTripletStepSeedsA*
                                 mixedTripletStepSeedLayersB*
