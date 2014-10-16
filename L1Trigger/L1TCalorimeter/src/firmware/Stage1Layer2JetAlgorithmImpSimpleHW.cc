@@ -50,7 +50,7 @@ void Stage1Layer2JetAlgorithmImpSimpleHW::processEvent(const std::vector<l1t::Ca
   {
     int cJets = 0;
     int fJets = 0;
-    printf("Central\n");
+    printf("Jets Central\n");
     //printf("pt\teta\tphi\n");
     for(std::vector<l1t::Jet>::const_iterator itJet = jets->begin();
 	itJet != jets->end(); ++itJet){
@@ -61,7 +61,7 @@ void Stage1Layer2JetAlgorithmImpSimpleHW::processEvent(const std::vector<l1t::Ca
       if(cJets == 4) break;
     }
 
-    printf("Forward\n");
+    printf("Jets Forward\n");
     //printf("pt\teta\tphi\n");
     for(std::vector<l1t::Jet>::const_iterator itJet = jets->begin();
 	itJet != jets->end(); ++itJet){

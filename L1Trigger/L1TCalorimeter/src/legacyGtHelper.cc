@@ -21,9 +21,9 @@ namespace l1t {
       if(linPt > params->jetScale().linScaleMax() ) linPt = params->jetScale().linScaleMax();
       const uint16_t rankPt = params->jetScale().rank(linPt);
 
-      // jets with hwQual & 4 ==4 are "padding" jets from a sort, set their eta and phi
+      // jets with hwQual & 10 ==10 are "padding" jets from a sort, set their eta and phi
       // to the max value
-      if((itJet->hwQual() & 4) == 4)
+      if((itJet->hwQual() & 10) == 10)
       {
 	newEta = 0xf;
 	newPhi = 0x1f;
@@ -46,8 +46,8 @@ namespace l1t {
       unsigned newPhi = itEGamma->hwPhi();
       const uint16_t rankPt = (uint16_t)itEGamma->hwPt(); //max value?
 
-      //hwQual &4 == 4 means that the object came from a sort and is padding
-      if((itEGamma->hwQual() & 4) == 4)
+      //hwQual &10 == 10 means that the object came from a sort and is padding
+      if((itEGamma->hwQual() & 10) == 10)
       {
 	newEta = 0;
 	newPhi = 0;

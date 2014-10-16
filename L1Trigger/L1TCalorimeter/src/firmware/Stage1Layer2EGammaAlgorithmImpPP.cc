@@ -64,7 +64,7 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
     int eg_et = egCand->hwPt();
     int eg_eta = egCand->hwEta();
     int eg_phi = egCand->hwPhi();
-    int index = egCand->hwQual();
+    int index = (egCand->hwIso()*4 + egCand->hwQual()) ;
 
     //std::cout << "JetRankMax: " << params_->jetScale().rankScaleMax()<< " EmRankMax: " << params_->emScale().rankScaleMax()<< std::endl;
     //std::cout << "JetLinMax: " << params_->jetScale().linScaleMax()<< " EmLinMax: " << params_->emScale().linScaleMax()<< std::endl;
@@ -111,16 +111,28 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
     preSortEGammas->push_back(theEG);
   }
 
+  // printf("Pre-Sort\n");
+  // for(std::vector<l1t::EGamma>::const_iterator itEGamma = preSortEGammas->begin();
+  //     itEGamma != preSortEGammas->end(); ++itEGamma){
+  //   std::cout << itEGamma->hwPt() << " " << itEGamma->hwEta() << " " << itEGamma->hwPhi() << std::endl;
+  // }
+
   SortEGammas(preSortEGammas, preGtEGammas);
 
   EGammaToGtScales(params_, preGtEGammas, egammas);
+
+  // printf("Post-Sort\n");
+  // for(std::vector<l1t::EGamma>::const_iterator itEGamma = egammas->begin();
+  //     itEGamma != egammas->end(); ++itEGamma){
+  //   std::cout << itEGamma->hwPt() << " " << itEGamma->hwEta() << " " << itEGamma->hwPhi() << std::endl;
+  // }
 
   const bool verbose = false;
   if(verbose)
   {
     int cEGammas = 0;
     int fEGammas = 0;
-    printf("Isolated\n");
+    printf("EGammas Isolated\n");
     for(std::vector<l1t::EGamma>::const_iterator itEGamma = egammas->begin();
 	itEGamma != egammas->end(); ++itEGamma){
       if(itEGamma->hwIso() != 1) continue;
@@ -130,7 +142,7 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
       if(cEGammas == 4) break;
     }
 
-    printf("Non-isolated\n");
+    printf("EGammas Non-isolated\n");
     //printf("pt\teta\tphi\n");
     for(std::vector<l1t::EGamma>::const_iterator itEGamma = egammas->begin();
 	itEGamma != egammas->end(); ++itEGamma){

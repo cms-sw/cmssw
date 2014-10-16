@@ -73,6 +73,7 @@ l1t::L1TCaloRCTToUpgradeConverter::produce(edm::Event& iEvent, const edm::EventS
 			   (int) em->regionId().ieta(),
 			   (int) em->regionId().iphi(),
 			   (int) em->index());
+    EmCand.setHwIso((int) em->isolated());
 
     // create new format
     emcands->push_back( em->bx(), EmCand );
