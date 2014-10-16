@@ -70,8 +70,7 @@ Chi2ChargeMeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
     float theDydz = tsos.localParameters().dydz();
     float chargeCut = (float) minGoodCharge(subdet) * sensorThickness(detid)*(sqrt(1. + theDxdz*theDxdz + theDydz*theDydz));
 
-    if (!checkCharge(aRecHit, subdet, chargeCut)) return HitReturnType(false,0.);
-    else return estimateResult;
+    if (!checkCharge(aRecHit, subdet, chargeCut)) estimateResult.first = false;
   }
 
   return estimateResult;
