@@ -70,7 +70,7 @@ HLTJetSortedVBFFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descr
   descriptions.add(string("hlt")+string(typeid(HLTJetSortedVBFFilter<T>).name()),desc);
 }
 
-template<typename T> float HLTJetSortedVBFFilter<T>::findCSV(const typename  vector<T>::const_iterator & jet, const reco::JetTagCollection  & jetTags){
+template<typename T> float HLTJetSortedVBFFilter<T>::findCSV(const typename std::vector<T>::const_iterator & jet, const reco::JetTagCollection  & jetTags){
         float minDr = 0.1;
         float tmpCSV = -20 ;
         for (reco::JetTagCollection::const_iterator jetb = jetTags.begin(); (jetb!=jetTags.end()); ++jetb) {
