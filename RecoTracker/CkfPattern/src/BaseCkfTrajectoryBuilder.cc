@@ -160,7 +160,7 @@ BaseCkfTrajectoryBuilder::addToResult (boost::shared_ptr<const TrajectorySeed> c
   traj.setSharedSeed(seed);
   // discard latest dummy measurements
   while (!traj.empty() && !traj.lastMeasurement().recHit()->isValid()) traj.pop();
-  LogDebug("CkfPattern")<<inOut<<"=inOut option. pushing a Trajectory with: "<<traj.foundHits()<<" found hits. "<<traj.lostHits()
+  edm::LogWarning("CkfPattern")<<inOut<<"=inOut option. pushing a Trajectory with: "<<traj.foundHits()<<" found hits. "<<traj.lostHits()
 			<<" lost hits. Popped :"<<(tmptraj.measurements().size())-(traj.measurements().size())<<" hits.";
   result.push_back(std::move(traj));
 }
