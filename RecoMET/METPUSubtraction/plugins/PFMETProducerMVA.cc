@@ -54,25 +54,6 @@ namespace
     return os.str();
   }
 
-  std::string format_vInputTag(const std::vector<edm::InputTag>& vit)
-  {
-    std::vector<std::string> vit_string;
-    for ( std::vector<edm::InputTag>::const_iterator vit_i = vit.begin();
-	  vit_i != vit.end(); ++vit_i ) {
-      vit_string.push_back(vit_i->label());
-    }
-    return format_vT(vit_string);
-  }
-
-  void printJets(std::ostream& stream, const reco::PFJetCollection& jets)
-  {
-    unsigned numJets = jets.size();
-    for ( unsigned iJet = 0; iJet < numJets; ++iJet ) {
-      const reco::Candidate::LorentzVector& jetP4 = jets.at(iJet).p4();
-      stream << " #" << iJet << ": Pt = " << jetP4.pt() << "," 
-	     << " eta = " << jetP4.eta() << ", phi = " << jetP4.phi() << std::endl;
-    }
-  }
 }
 
 PFMETProducerMVA::PFMETProducerMVA(const edm::ParameterSet& cfg) 
