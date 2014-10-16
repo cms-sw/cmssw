@@ -33,7 +33,7 @@ public:
   ~TauDecay_CMSSW();
 
   //Function to analyze the tau
-  bool AnalyzeTau(HepMC::GenParticle *Tau,unsigned int &JAK_ID,unsigned int &TauBitMask,bool dores=true, bool dopi0=true);
+  bool AnalyzeTau(HepMC::GenParticle *Tau,unsigned int &MODE_ID,unsigned int &TauBitMask,bool dores=true, bool dopi0=true);
   // Functions to get results
   std::vector<HepMC::GenParticle*> Get_TauDecayProducts(){return TauDecayProducts;}
   std::vector<unsigned int> Get_MotherIdx(){return MotherIdx;}
@@ -45,7 +45,7 @@ private:
   //varibles
   std::vector<HepMC::GenParticle*> TauDecayProducts;
   std::vector<unsigned int> MotherIdx;
-  unsigned int JAK_ID, TauBitMask;
+  unsigned int MODE_ID, TauBitMask;
 
 };
 #endif

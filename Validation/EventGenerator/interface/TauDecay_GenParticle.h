@@ -26,10 +26,11 @@ class TauDecay_GenParticle : public TauDecay {
   ~TauDecay_GenParticle();
 
   //Function to analyze the tau
-  bool AnalyzeTau(const reco::GenParticle *Tau,unsigned int &JAK_ID,unsigned int &TauBitMask,bool dores, bool dopi0);
+  bool AnalyzeTau(const reco::GenParticle *Tau,unsigned int &MODE_ID,unsigned int &TauBitMask,bool dores, bool dopi0);
   // Functions to get results
   std::vector<const reco::GenParticle* > Get_TauDecayProducts(){return TauDecayProducts;}
   std::vector<unsigned int> Get_MotherIdx(){return MotherIdx;}
+  bool AddRadInfo(const reco::GenParticle *Particle,unsigned int midx);
 
  private:
   // recursive function to loop through tau decay products
@@ -38,7 +39,7 @@ class TauDecay_GenParticle : public TauDecay {
   //varibles
   std::vector<const reco::GenParticle*> TauDecayProducts;
   std::vector<unsigned int> MotherIdx;
-  unsigned int JAK_ID, TauBitMask;
+  unsigned int MODE_ID, TauBitMask;
 
  };
 #endif

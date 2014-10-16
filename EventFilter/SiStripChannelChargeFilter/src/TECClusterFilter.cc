@@ -56,8 +56,7 @@ namespace cms
 	      { // calculate sum of amplitudes
 		unsigned int amplclus=0;
 		// int amplclus=0;
-		for(vector<uint8_t>::const_iterator ia=vit->amplitudes().begin(); ia!=vit->amplitudes().end(); ia++) 
-		// for(vector<short>::const_iterator ia=vit->amplitudes().begin(); ia!=vit->amplitudes().end(); ia++) 
+		for(auto ia=vit->amplitudes().begin(); ia!=vit->amplitudes().end(); ia++) 
 		  { if ((*ia)>0) amplclus+=(*ia); } // why should this be negative?
 		if(amplclus>ChargeThresholdTEC) nr_clusters_above_threshold++;
 	      }
