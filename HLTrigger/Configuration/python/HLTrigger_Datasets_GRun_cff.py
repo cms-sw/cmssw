@@ -76,6 +76,7 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring('HLT_AK8PFJet3
     'HLT_Mu8_TrkIsoVVL_Ele23_Gsf_CaloId_TrackId_Iso_MediumWP_v1', 
     'HLT_PFHT350_PFMET120_NoiseCleaned_v1', 
     'HLT_PFHT900_v1', 
+    'HLT_PFJet260_v1', 
     'HLT_PFMET120_NoiseCleaned_BTagCSV07_v1', 
     'HLT_PFMET170_NoiseCleaned_v1', 
     'HLT_Photon135_PFMET40_v1', 
@@ -110,6 +111,5 @@ streamA_datasetTemplates_selector.l1tResults = cms.InputTag('')
 streamA_datasetTemplates_selector.throw      = cms.bool(False)
 streamA_datasetTemplates_selector.triggerConditions = cms.vstring('HLT_IsoMu24_IterTrk02_v1', 
     'HLT_IsoTkMu24_IterTrk02_v1', 
-    'HLT_PFJet260_v1', 
     'HLT_ReducedIterativeTracking_v1')
 
