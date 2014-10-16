@@ -176,11 +176,11 @@ public:
     if (isMasked(*cluster)) return true;
     const GeomDetUnit& gdu( specificGeomDet());
     if (!accept(cluster, skipClusters)) return true;
-    if (!est.preFilter(ltp, ClusterFilterPayload(rawId(),&*cluster) )) return true;  // we know is on the cluster...
+    if (!est.preFilter(ltp, ClusterFilterPayload(rawId(),&*cluster) )) return true;  // avoids shadow; consistent with previous statement...
     VLocalValues const & vlv = cpe()->localParametersV( *cluster, gdu, ltp);
     bool isCompatible(false);
     for(auto vl : vlv) {
-      SiStripRecHit2D recHit(vl.first, vl.second, fastGeomDet(), cluster);
+      SiStripRecHit2D recHit(vl.first, vl.second, fastGeomDet(), cluster); // FIXME add cluster count in OmniRef
       std::pair<bool,double> diffEst = est.estimate(ltp, recHit);
       LogDebug("TkStripMeasurementDet")<<" chi2=" << diffEst.second;
       if ( diffEst.first ) {
@@ -199,11 +199,11 @@ public:
     if (isMasked(*cluster)) return true;
     const GeomDetUnit& gdu( specificGeomDet());
     if (!accept(cluster, skipClusters)) return true;
-    if (!est.preFilter(ltp, ClusterFilterPayload(rawId(),&*cluster) )) return true;
+    if (!est.preFilter(ltp, ClusterFilterPayload(rawId(),&*cluster) )) return true;   // avoids shadow; consistent with previous statement...
     VLocalValues const & vlv = cpe()->localParametersV( *cluster, gdu, ltp);
     bool isCompatible(false);
     for(auto vl : vlv) {
-      auto && recHit  = SiStripRecHit2D( vl.first, vl.second, gdu, cluster);
+      auto && recHit  = SiStripRecHit2D( vl.first, vl.second, gdu, cluster);   // FIXME add cluster count in OmniRef
       std::pair<bool,double> diffEst = est.estimate(ltp, recHit);
       LogDebug("TkStripMeasurementDet")<<" chi2=" << diffEst.second;
       if ( diffEst.first ) {
