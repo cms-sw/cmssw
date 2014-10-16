@@ -65,6 +65,7 @@
   </class>
 
   <class name="reco::Muon::MuonTrackRefMap"/>
+  <class name="std::pair<MuonTrackType, reco::TrackRef> >" />
 
   <class name="reco::CaloMuon" ClassVersion="10">
    <version ClassVersion="10" checksum="3458815810"/>
