@@ -774,6 +774,9 @@ hiDefaults={'--conditions':'auto:run2_mc_HIon',
            '--scenario':'HeavyIons'}
 
 steps['HydjetQ_MinBias_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_MinBias_2760GeV_cfi',U2000by1)])
+steps['QCD_Pt_80_120_8TeV']=merge([{'-n':1},hiDefaults,genS('QCD_Pt_80_120_8TeV_cfi',U2000by1)])
+steps['PhotonJet_Pt_10_8TeV']=merge([{'-n':1},hiDefaults,genS('PhotonJet_Pt_10_8TeV_cfi',U2000by1)])
+steps['ZMM_8TeV']=merge([{'-n':1},hiDefaults,genS('ZMM_8TeV_cfi',U2000by1)])
 steps['HydjetQ_MinBias_2760GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_MinBias_2760GeV/%s/GEN-SIM'%(baseDataSetRelease[1],),location='STD',split=5)}
 steps['HydjetQ_MinBias_2760GeV_UP15']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_MinBias_2760GeV_cfi',U2000by1)])
 steps['HydjetQ_MinBias_2760GeV_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_MinBias_2760GeV/%s/GEN-SIM'%(baseDataSetRelease[1],),location='STD',split=5)}
