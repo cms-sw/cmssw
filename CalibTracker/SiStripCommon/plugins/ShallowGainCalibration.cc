@@ -93,7 +93,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
             LocalVector             trackDirection = trajState.localDirection();
             double                  cosine         = trackDirection.z()/trackDirection.mag();
-            const vector<uint8_t>&  Ampls          = Cluster->amplitudes();
+            const auto           &  Ampls          = Cluster->amplitudes();
 	    int                     FirstStrip     = Cluster->firstStrip();
             int                     APVId          = FirstStrip/128;
             bool                    Saturation     = false;

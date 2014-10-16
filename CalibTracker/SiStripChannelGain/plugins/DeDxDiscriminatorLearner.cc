@@ -162,7 +162,7 @@ void DeDxDiscriminatorLearner::processHit(const TrackingRecHit* recHit, float tr
           float pathLen     = 10.0*detUnit.surface().bounds().thickness()/fabs(cosine);
           float chargeAbs   = DeDxTools::getCharge(&cluster,NSaturating, detUnit, calibGains, m_off);
           float charge      = chargeAbs/pathLen;
-          if(!shapetest || (shapetest && DeDxTools::shapeSelection(cluster.amplitudes()))){
+          if(!shapetest || (shapetest && DeDxTools::shapeSelection(cluster))){
              Charge_Vs_Path->Fill(trackMomentum, pathLen, charge);
           }
        }else if(clus.isStrip() && thit.isMatched()){
@@ -178,7 +178,7 @@ void DeDxDiscriminatorLearner::processHit(const TrackingRecHit* recHit, float tr
           float pathLen     = 10.0*detUnitM.surface().bounds().thickness()/fabs(cosine);
           float chargeAbs   = DeDxTools::getCharge(&clusterM,NSaturating, detUnitM, calibGains, m_off);
           float charge      = chargeAbs/pathLen;
-          if(!shapetest || (shapetest && DeDxTools::shapeSelection(clusterM.amplitudes()))){
+          if(!shapetest || (shapetest && DeDxTools::shapeSelection(clusterM))){
              Charge_Vs_Path->Fill(trackMomentum, pathLen, charge);
           }
 
@@ -190,7 +190,7 @@ void DeDxDiscriminatorLearner::processHit(const TrackingRecHit* recHit, float tr
           pathLen     = 10.0*detUnitS.surface().bounds().thickness()/fabs(cosine);
           chargeAbs   = DeDxTools::getCharge(&clusterS,NSaturating, detUnitS, calibGains, m_off);
           charge      = chargeAbs/pathLen;
-          if(!shapetest || (shapetest && DeDxTools::shapeSelection(clusterS.amplitudes()))){
+          if(!shapetest || (shapetest && DeDxTools::shapeSelection(clusterS))){
              Charge_Vs_Path->Fill(trackMomentum, pathLen, charge);
           }      
        }

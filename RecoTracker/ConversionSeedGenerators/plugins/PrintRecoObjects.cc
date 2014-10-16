@@ -12,7 +12,7 @@ print(std::stringstream& ss, const SiStripCluster& clus){
      << " size " <<  clus.amplitudes().size();
   float charge=0;
   size_t idx=0;
-  BOOST_FOREACH(const uint8_t& adc,clus.amplitudes()){
+  for (auto  adc : clus.amplitudes()){
     charge+=adc;
     ss << "\n\t\t strip " << ++idx << " adc " << (size_t) adc;
   }
