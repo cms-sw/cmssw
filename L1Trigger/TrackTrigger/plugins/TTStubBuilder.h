@@ -172,15 +172,18 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
     if ( innerClusters.size() == 0 || outerClusters.size() == 0 )
       continue;
 
+/* IR 2014 04 20
+ * from pointer to object to deallocate memory in the correct way
+*/
     /// Create the vectors of objects to be passed to the FastFillers
-    std::vector< TTCluster< T > > *tempInner = new std::vector< TTCluster< T > >();
-    std::vector< TTCluster< T > > *tempOuter = new std::vector< TTCluster< T > >();
-    std::vector< TTStub< T > > *tempOutput = new std::vector< TTStub< T > >();
-    std::vector< TTStub< T > > *tempRejected = new std::vector< TTStub< T > >();
-    tempInner->clear();
-    tempOuter->clear();
-    tempOutput->clear();
-    tempRejected->clear();
+    std::vector< TTCluster< T > > tempInner; // = new std::vector< TTCluster< T > >();
+    std::vector< TTCluster< T > > tempOuter; // = new std::vector< TTCluster< T > >();
+    std::vector< TTStub< T > >   tempOutput; // = new std::vector< TTStub< T > >();
+    //std::vector< TTStub< T > > tempRejected; // = new std::vector< TTStub< T > >();
+    tempInner.clear();
+    tempOuter.clear();
+    tempOutput.clear();
+    //tempRejected.clear();
 
     /// Get chip size information
     const GeomDetUnit* det0 = theStackedTracker->idToDetUnit( Id, 0 );
@@ -220,9 +223,9 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
           if ( maxStubs == 0 )
           {
             /// This means that ALL stubs go into the output
-            tempInner->push_back( *innerClusterIter );
-            tempOuter->push_back( *outerClusterIter );
-            tempOutput->push_back( tempTTStub );
+            tempInner.push_back( *innerClusterIter );
+            tempOuter.push_back( *outerClusterIter );
+            tempOutput.push_back( tempTTStub );
           }
           else
           {
@@ -245,11 +248,11 @@ void TTStubBuilder< T >::produce( edm::Event& iEvent, const edm::EventSetup& iSe
           }
         } /// Stub accepted
 /* NP 2014 02 25
-* this is commented to avoid memory exhaustion in hi PU events
-else
-{
-tempRejected->push_back( tempTTStub );
-} /// Stub rejected
+ * this is commented to avoid memory exhaustion in hi PU events
+        else
+        {
+          tempRejected->push_back( tempTTStub );
+        } /// Stub rejected
 */
       } /// End of nested loop
     } /// End of loop over pairs of Clusters
@@ -267,9 +270,9 @@ tempRejected->push_back( tempTTStub );
         {
           for ( auto const & ts: is.second )
           {
-            tempInner->push_back( *(ts.getClusterRef(0)) );
-            tempOuter->push_back( *(ts.getClusterRef(1)) );
-            tempOutput->push_back( ts );
+            tempInner.push_back( *(ts.getClusterRef(0)) );
+            tempOuter.push_back( *(ts.getClusterRef(1)) );
+            tempOutput.push_back( ts );
           }
         }
         else
@@ -285,68 +288,68 @@ tempRejected->push_back( tempTTStub );
           for ( unsigned int i = 0; i < maxStubs; ++i )
           {
             /// Put the highest momenta (lowest bend) stubs into the event
-            tempInner->push_back( *(is.second[bendMap[i].first].getClusterRef(0)) );
-            tempOuter->push_back( *(is.second[bendMap[i].first].getClusterRef(1)) );
-            tempOutput->push_back( is.second[bendMap[i].first] );
+            tempInner.push_back( *(is.second[bendMap[i].first].getClusterRef(0)) );
+            tempOuter.push_back( *(is.second[bendMap[i].first].getClusterRef(1)) );
+            tempOutput.push_back( is.second[bendMap[i].first] );
           }
 /* NP 2014 02 25
-* this is commented to avoid memory exhaustion in hi PU events
-for ( unsigned int i = maxStubs; i < is.second.size(); ++i )
-{
-/// Reject the rest
-tempRejected->push_back( is.second[bendMap[i].first] );
-}
+ * this is commented to avoid memory exhaustion in hi PU events
+          for ( unsigned int i = maxStubs; i < is.second.size(); ++i )
+          {
+            /// Reject the rest
+            tempRejected->push_back( is.second[bendMap[i].first] );
+          }
 */
         }
       } /// End of loop over temp output
     } /// End store only the selected stubs if max no. stub/ROC is set
 
     /// Create the FastFillers
-    if ( tempInner->size() > 0 )
+    if ( tempInner.size() > 0 )
     {
       typename edmNew::DetSetVector< TTCluster< T > >::FastFiller innerOutputFiller( *TTClusterDSVForOutput, id0 );
-      for ( unsigned int m = 0; m < tempInner->size(); m++ )
+      for ( unsigned int m = 0; m < tempInner.size(); m++ )
       {
-        innerOutputFiller.push_back( tempInner->at(m) );
+        innerOutputFiller.push_back( tempInner.at(m) );
       }
       if ( innerOutputFiller.empty() )
         innerOutputFiller.abort();
     }
 
-    if ( tempOuter->size() > 0 )
+    if ( tempOuter.size() > 0 )
     {
       typename edmNew::DetSetVector< TTCluster< T > >::FastFiller outerOutputFiller( *TTClusterDSVForOutput, id1 );
-      for ( unsigned int m = 0; m < tempOuter->size(); m++ )
+      for ( unsigned int m = 0; m < tempOuter.size(); m++ )
       {
-        outerOutputFiller.push_back( tempOuter->at(m) );
+        outerOutputFiller.push_back( tempOuter.at(m) );
       }
       if ( outerOutputFiller.empty() )
         outerOutputFiller.abort();
     }
 
-    if ( tempOutput->size() > 0 )
+    if ( tempOutput.size() > 0 )
     {
       typename edmNew::DetSetVector< TTStub< T > >::FastFiller tempOutputFiller( *TTStubDSVForOutputTemp, DetId(Id.rawId()) );
-      for ( unsigned int m = 0; m < tempOutput->size(); m++ )
+      for ( unsigned int m = 0; m < tempOutput.size(); m++ )
       {
-        tempOutputFiller.push_back( tempOutput->at(m) );
+        tempOutputFiller.push_back( tempOutput.at(m) );
       }
       if ( tempOutputFiller.empty() )
         tempOutputFiller.abort();
     }
 
 /* NP 2014 02 25
-* this is commented to avoid memory exhaustion in hi PU events
-if ( tempRejected->size() > 0 )
-{
-typename edmNew::DetSetVector< TTStub< T > >::FastFiller rejectedOutputFiller( *TTStubDSVForOutputRejected, DetId(Id.rawId()) );
-for ( unsigned int m = 0; m < tempRejected->size(); m++ )
-{
-rejectedOutputFiller.push_back( tempRejected->at(m) );
-}
-if ( rejectedOutputFiller.empty() )
-rejectedOutputFiller.abort();
-}
+ * this is commented to avoid memory exhaustion in hi PU events
+    if ( tempRejected->size() > 0 )
+    {
+      typename edmNew::DetSetVector< TTStub< T > >::FastFiller rejectedOutputFiller( *TTStubDSVForOutputRejected, DetId(Id.rawId()) );
+      for ( unsigned int m = 0; m < tempRejected->size(); m++ )
+      {
+        rejectedOutputFiller.push_back( tempRejected->at(m) );
+      }
+      if ( rejectedOutputFiller.empty() )
+      rejectedOutputFiller.abort();
+    }
 */
 
   } /// End of loop over detector elements
@@ -445,8 +448,8 @@ rejectedOutputFiller.abort();
       if ( !innerOK || !outerOK )
         continue;
 
-      tempTTStub.setTriggerDisplacement( stubIter->getTriggerDisplacement() );
-      tempTTStub.setTriggerOffset( stubIter->getTriggerOffset() );
+      tempTTStub.setTriggerDisplacement( 2.*stubIter->getTriggerDisplacement() ); /// getter is in FULL-strip units, setter is in HALF-strip units
+      tempTTStub.setTriggerOffset( 2.*stubIter->getTriggerOffset() );             /// getter is in FULL-strip units, setter is in HALF-strip units
 
       acceptedOutputFiller.push_back( tempTTStub );
 

@@ -181,6 +181,9 @@ namespace {
 
 #include "SimDataFormats/SLHC/interface/EtaPhiContainer.h"
 
+#include "SimDataFormats/SLHC/interface/L1EGCrystalCluster.h"
+
+
 namespace {
   namespace {
 
@@ -221,6 +224,12 @@ namespace {
     std::vector<l1slhc::L1TowerJet>                l1towerjetvec;
     l1slhc::L1TowerJetCollection                   l1towerjetcoll;
     edm::Wrapper< l1slhc::L1TowerJetCollection >   wl1towerjetcol;
+
+
+    l1slhc::L1EGCrystalCluster                       egcrystalcluster;
+    std::vector<l1slhc::L1EGCrystalCluster>         l1egcrystalclustervec;
+    l1slhc::L1EGCrystalClusterCollection            l1egcrystalclustercoll;
+    edm::Wrapper<l1slhc::L1EGCrystalClusterCollection>   wl1egcrystalclustercoll;
 
   }
 }

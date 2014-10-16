@@ -235,6 +235,9 @@ DTTrig::updateES(const edm::EventSetup& iSetup){
   edm::ESHandle<DTConfigManager> confHandle;
   edm::ESHandle<DTGeometry> geomHandle;
 
+//std:cerr << " >>>>>>>>>>> "<<iSetup.get<DTConfigManagerRcd>().cacheIdentifier()<< "   "<<_configid <<std::endl;
+
+
   if (iSetup.get<DTConfigManagerRcd>().cacheIdentifier()!=_configid) {
     
     if (_debug)

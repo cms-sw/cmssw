@@ -28,15 +28,14 @@ public:
     for (int i=0;i<1;i++){
 
       if (i>0) {
-	rinv_=rinvfit_;
-	phi0_=phi0fit_;
-	z0_=z0fit_;
-	t_=tfit_;
+	rinv_=rinvfit4par_;
+	phi0_=phi0fit4par_;
+	z0_=z0fit4par_;
+	t_=tfit4par_;
       }
 
-      calculateDerivatives();
-      
-      linearTrackFit();
+      calculateDerivatives(false);
+      linearTrackFit(false);
      
 
     }
@@ -48,25 +47,28 @@ public:
 
     //cout << "Chisq largestresid: "<<chisq()<<" "<<largestresid<<endl;
 
-    if (stubs_.size()>3&&chisq()>100.0&&largestresid>5.0) {
+    if (stubs_.size()>3&&chisq4par()>100.0&&largestresid>5.0) {
       //cout << "Refitting track"<<endl;
       stubs_.erase(stubs_.begin()+ilargestresid);
-      rinv_=rinvfit_;
-      phi0_=phi0fit_;
-      z0_=z0fit_;
-      t_=tfit_;
-      calculateDerivatives();
-      linearTrackFit();
+      rinv_=rinvfit4par_;
+      phi0_=phi0fit4par_;
+      z0_=z0fit4par_;
+      t_=tfit4par_;
+      calculateDerivatives(false);
+      linearTrackFit(false);
       residuals(largestresid,ilargestresid);
     }
+
+    calculateDerivatives(true);
+    linearTrackFit(true);
 
 
   }
 
 
-  void invert(double M[4][8],unsigned int n){
+  void invert(double M[5][10],unsigned int n){
 
-    assert(n<=4);
+    assert(n<=5);
 
     unsigned int i,j,k;
     double ratio,a;
@@ -101,7 +103,7 @@ public:
 
 
 
-  void calculateDerivatives(){
+  void calculateDerivatives(bool withd0=true){
 
     unsigned int n=stubs_.size();
 
@@ -129,12 +131,14 @@ public:
 	D_[1][j]=ri/sigmax;
 	D_[2][j]=0.0;
 	D_[3][j]=0.0;
+	D_[4][j]=1.0/sigmax;
 	j++;
 	//second the z position
 	D_[0][j]=0.0;
 	D_[1][j]=0.0;
 	D_[2][j]=(2/rinv_)*asin(0.5*ri*rinv_)/sigmaz;
 	D_[3][j]=1.0/sigmaz;
+	D_[4][j]=0.0;
 	j++;
       }
       else {
@@ -177,12 +181,14 @@ public:
 	D_[1][j]=drdphi0/sigmaz;
 	D_[2][j]=drdt/sigmaz;
 	D_[3][j]=drdz0/sigmaz;
+	D_[4][j]=0;
 	j++;
 	//second the rphi position
 	D_[0][j]=(phimultiplier*dphidrinv+rmultiplier*drdrinv)/sigmax;
 	D_[1][j]=(phimultiplier*dphidphi0+rmultiplier*drdphi0)/sigmax;
 	D_[2][j]=(phimultiplier*dphidt+rmultiplier*drdt)/sigmax;
 	D_[3][j]=(phimultiplier*dphidz0+rmultiplier*drdz0)/sigmax;
+	D_[4][j]=1.0/sigmax;
         //old calculation
 	//D_[0][j]=-0.5*(zi-z0_)/(t_*(sigmax/ri));
 	//D_[1][j]=1.0/(sigmax/ri);
@@ -206,10 +212,11 @@ public:
 
      
 
+    unsigned int npar=4;
+    if (withd0) npar++;
 
-
-    for(unsigned int i1=0;i1<4;i1++){
-      for(unsigned int i2=0;i2<4;i2++){
+    for(unsigned int i1=0;i1<npar;i1++){
+      for(unsigned int i2=0;i2<npar;i2++){
 	M_[i1][i2]=0.0;
 	for(unsigned int j=0;j<2*n;j++){
 	  M_[i1][i2]+=D_[i1][j]*D_[i2][j];	  
@@ -217,13 +224,13 @@ public:
       }
     }
 
-    invert(M_,4);
+    invert(M_,npar);
 
     for(unsigned int j=0;j<2*n;j++) {
-      for(unsigned int i1=0;i1<4;i1++) {
+      for(unsigned int i1=0;i1<npar;i1++) {
 	MinvDt_[i1][j]=0.0;
-	for(unsigned int i2=0;i2<4;i2++) {
-	  MinvDt_[i1][j]+=M_[i1][i2+4]*D_[i2][j];
+	for(unsigned int i2=0;i2<npar;i2++) {
+	  MinvDt_[i1][j]+=M_[i1][i2+npar]*D_[i2][j];
 	}
       }
     }
@@ -244,7 +251,7 @@ public:
 
     bool print=false;
 
-    if (print) cout << "Residuals ("<<chisq1_<<") ["<<0.003*3.8/rinvfit_<<"]: ";
+    if (print) cout << "Residuals ("<<chisq4par_<<") ["<<0.003*3.8/rinvfit4par_<<"]: ";
 
     largestresid=-1.0;
     ilargestresid=-1;
@@ -261,20 +268,22 @@ public:
       if (layer<1000) {
         //we are dealing with a barrel stub
 
-	double deltaphi=phi0fit_-asin(0.5*ri*rinvfit_)-phii;
+
+	double deltaphi=phi0fit4par_-asin(0.5*ri*rinvfit4par_)-phii;
 	if (deltaphi>0.5*two_pi) deltaphi-=two_pi;
 	if (deltaphi<-0.5*two_pi) deltaphi+=two_pi;
+	//cout << "4par : "<<phi0fit4par_<<" "<<rinvfit4par_<<" "<<deltaphi<<endl;
 	assert(fabs(deltaphi)<0.1*two_pi);
 
 	delta[j++]=ri*deltaphi/sigmax;
-	delta[j++]=(z0fit_+(2.0/rinvfit_)*tfit_*asin(0.5*ri*rinvfit_)-zi)/sigmaz;
+	delta[j++]=(z0fit4par_+(2.0/rinvfit4par_)*tfit4par_*asin(0.5*ri*rinvfit4par_)-zi)/sigmaz;
 	
       }
       else {
 	//we are dealing with a disk hit
 
-	double r_track=2.0*sin(0.5*rinvfit_*(zi-z0fit_)/tfit_)/rinvfit_;
-	double phi_track=phi0fit_-0.5*rinvfit_*(zi-z0fit_)/tfit_;
+	double r_track=2.0*sin(0.5*rinvfit4par_*(zi-z0fit4par_)/tfit4par_)/rinvfit4par_;
+	double phi_track=phi0fit4par_-0.5*rinvfit4par_*(zi-z0fit4par_)/tfit4par_;
 
 	int iphi=stubs_[i].iphi();
 
@@ -317,7 +326,7 @@ public:
   }
   
 
-  void linearTrackFit() {
+  void linearTrackFit(bool withd0=true) {
 
     unsigned int n=stubs_.size();
 
@@ -484,11 +493,13 @@ public:
 
     double drinv=0.0;
     double dphi0=0.0;
+    double dd0=0.0;
     double dt=0.0;
     double dz0=0.0;
 
     double drinv_cov=0.0;
     double dphi0_cov=0.0;
+    double dd0_cov=0.0;
     double dt_cov=0.0;
     double dz0_cov=0.0;
 
@@ -500,26 +511,41 @@ public:
       dphi0-=MinvDt_[1][j]*delta[j];
       dt-=MinvDt_[2][j]*delta[j];
       dz0-=MinvDt_[3][j]*delta[j];
+      if (withd0) dd0-=MinvDt_[4][j]*delta[j];
 
       drinv_cov+=D_[0][j]*delta[j];
       dphi0_cov+=D_[1][j]*delta[j];
       dt_cov+=D_[2][j]*delta[j];
       dz0_cov+=D_[3][j]*delta[j];
+      if (withd0) dd0_cov+=D_[4][j]*delta[j];
     }
     
 
     double deltaChisq=drinv*drinv_cov+dphi0*dphi0_cov+dt*dt_cov+dz0*dz0_cov;
+    if (withd0) deltaChisq+=dd0*dd0_cov;
 
     //drinv=0.0; dphi0=0.0; dt=0.0; dz0=0.0;
 
-    rinvfit_=rinv_+drinv;
-    phi0fit_=phi0_+dphi0;
+    if (withd0) {
+      rinvfit_=rinv_+drinv;
+      phi0fit_=phi0_+dphi0;
+      
+      tfit_=t_+dt;
+      z0fit_=z0_+dz0;
+      
+      d0fit_=dd0;
 
-    tfit_=t_+dt;
-    z0fit_=z0_+dz0;
+      chisq_=(chisq+deltaChisq);
 
-    chisq1_=(chisq+deltaChisq);
-    chisq2_=0.0;
+    } else {
+      rinvfit4par_=rinv_+drinv;
+      phi0fit4par_=phi0_+dphi0;
+      
+      tfit4par_=t_+dt;
+      z0fit4par_=z0_+dz0;
+      
+      chisq4par_=(chisq+deltaChisq);
+    }
 
     //cout << "Trackfit:"<<endl;
     //cout << "rinv_ drinv: "<<rinv_<<" "<<drinv<<endl;
@@ -589,7 +615,7 @@ public:
   L1TTracklet getSeed() const { return seed_; }
   vector<L1TStub> getStubs() const { return stubs_; }
   unsigned int nstub() const { return stubs_.size(); }
-  double rinv() const { return rinv_; }
+  double getRinv() const { return rinv_; }
   double getPhi0() const { return phi0_; }
   double getZ0() const { return z0_; }
   double getT() const { return t_; }
@@ -597,32 +623,38 @@ public:
   double getSimTrackID() const { return SimTrackID_; }
 
   double pt(double bfield) const { return 0.00299792*bfield/rinvfit_; }
+  double pt4par(double bfield) const { return 0.00299792*bfield/rinvfit4par_; }
   //double ipt(double bfield) const { return 0.00299792*bfield/irinvfit(); }
   double ptseed(double bfield) const { return 0.00299792*bfield/rinv_; }
 
+  double rinv() const { return rinvfit_; }
+  double rinv4par() const { return rinvfit4par_; }
+  double phi04par() const { return phi0fit4par_;}
   double phi0() const { return phi0fit_;}
+  double d0() const { return d0fit_;}
   //double iphi0() const { return iphi0fit();}
   double phi0seed() const { return phi0_;}
 
   double eta() const { static double two_pi=8*atan(1.0);
     return -log(tan(0.5*(0.25*two_pi-atan(tfit_)))); }
+  double eta4par() const { static double two_pi=8*atan(1.0);
+    return -log(tan(0.5*(0.25*two_pi-atan(tfit4par_)))); }
   //double ieta() const { static double two_pi=8*atan(1.0);
   //  return -log(tan(0.5*(0.25*two_pi-atan(itfit())))); }
   double etaseed() const { static double two_pi=8*atan(1.0);
     return -log(tan(0.5*(0.25*two_pi-atan(t_)))); }
 
   double z0() const { return z0fit_; }
+  double z04par() const { return z0fit4par_; }
   //double iz0() const { return iz0fit(); }
   double z0seed() const { return z0_; }
 
-  double chisq1() const {return chisq1_;}
-  double chisq2() const {return chisq2_;}
+  double chisq() const {return chisq_;}
+  double chisq4par() const {return chisq4par_;}
 
-  double chisq1dof() const {return chisq1_/(stubs_.size()-2);}
-  double chisq2dof() const {return chisq2_/(stubs_.size()-2);}
+  double chisqdof() const {return chisq_/(2*stubs_.size()-5);}
+  double chisqdof4par() const {return chisq4par_/(2*stubs_.size()-4);}
   
-  double chisq() const {return chisq1_+chisq2_; }
-  double chisqdof() const {return (chisq1_+chisq2_)/(2*stubs_.size()-4); }
 
 
 private:
@@ -637,25 +669,26 @@ private:
   int SimTrackID_;
   double rinvfit_;
   double phi0fit_;
+  double d0fit_;
   double z0fit_;
   double tfit_;
 
-  int irinvfit_;
-  int iphi0fit_;
-  int iz0fit_;
-  int itfit_;
+  double rinvfit4par_;
+  double phi0fit4par_;
+  double z0fit4par_;
+  double tfit4par_;
 
-  double chisq1_;
-  double chisq2_;
+  double chisq_;
+  double chisq4par_;
 
   int ichisq1_;
   int ichisq2_;
 
-  double D_[4][40];
+  double D_[5][40];
   
-  double M_[4][8];
+  double M_[5][10];
   
-  double MinvDt_[4][40];
+  double MinvDt_[5][40];
 
 
 };

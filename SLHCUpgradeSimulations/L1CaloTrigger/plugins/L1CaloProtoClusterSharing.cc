@@ -20,6 +20,7 @@ class L1CaloProtoClusterSharing:public L1CaloAlgoBase < l1slhc::L1CaloClusterWit
         void algorithm( const int &, const int & );
 
     private:
+        int mHoECutMode;
         int mHoECutEB, mHoECutEE;
 
 
@@ -28,6 +29,7 @@ class L1CaloProtoClusterSharing:public L1CaloAlgoBase < l1slhc::L1CaloClusterWit
 L1CaloProtoClusterSharing::L1CaloProtoClusterSharing( const edm::ParameterSet & aConfig ):
 L1CaloAlgoBase < l1slhc::L1CaloClusterWithSeedCollection , l1slhc::L1CaloClusterWithSeedCollection > ( aConfig )
 {
+  mHoECutMode = aConfig.getParameter<int>("hoeCutMode");
 }
 
 L1CaloProtoClusterSharing::~L1CaloProtoClusterSharing(  )
@@ -175,8 +177,16 @@ void L1CaloProtoClusterSharing::algorithm( const int &aEta, const int &aPhi )
 
 
         // Calculate Electron Cut and Save it in the Cluster
-        //int lElectronValue = ( int )( 1000. * ( ( double )lSharedCluster.HadEt() ) / ( ( double )lSharedCluster.EmEt() ) );
-        int lElectronValue = ( int )( 1000. * ( ( double )lSharedCluster.seedHadEt() ) / ( ( double )lSharedCluster.seedEmEt() ) );
+        int lElectronValue = 0;
+        if(mHoECutMode==0) // default, seed value
+        {
+            lElectronValue = ( int )( 1000. * ( ( double )lSharedCluster.seedHadEt() ) / ( ( double )lSharedCluster.seedEmEt() ) );
+        }
+        else if(mHoECutMode==1) // 3x3 value
+        {
+            lElectronValue = ( int )( 1000. * ( ( double )lSharedCluster.HadEt() ) / ( ( double )lSharedCluster.EmEt() ) );
+        }
+
         lSharedCluster.setEGammaValue( lElectronValue );
 
 
