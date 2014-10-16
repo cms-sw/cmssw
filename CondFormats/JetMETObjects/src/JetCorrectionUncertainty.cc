@@ -1,7 +1,7 @@
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 #include "CondFormats/JetMETObjects/interface/SimpleJetCorrectionUncertainty.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
-#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Math/PtEtaPhiE4D.h"
 #include "Math/Vector3D.h"
 #include "Math/LorentzVector.h"
@@ -114,54 +114,81 @@ std::vector<float> JetCorrectionUncertainty::fillVector(const std::vector<std::s
     {
       if (fNames[i] == "JetEta")
         {
-          if (!mIsJetEtaset)
-            throw cms::Exception("JetCorrectionUncertainty::")<<" jet eta is not set";
-          result.push_back(mJetEta);
+          if (!mIsJetEtaset) {
+	    edm::LogError("JetCorrectionUncertainty::")<<" jet eta is not set";
+	    result.push_back(-999.0);
+	  } else {
+	    result.push_back(mJetEta);
+	  }
         }
       else if (fNames[i] == "JetPt")
         {
-          if (!mIsJetPtset)
-            throw cms::Exception("JetCorrectionUncertainty::")<<" jet pt is not set";  
-          result.push_back(mJetPt);
+          if (!mIsJetPtset){
+	    edm::LogError("JetCorrectionUncertainty::")<<" jet pt is not set";  
+	    result.push_back(-999.0);
+	  } else {
+	    result.push_back(mJetPt);
+	  }
         }
       else if (fNames[i] == "JetPhi")
         {
-          if (!mIsJetPhiset)
-            throw cms::Exception("JetCorrectionUncertainty::")<<" jet phi is not set";  
-          result.push_back(mJetPt);
+          if (!mIsJetPhiset) {
+	    edm::LogError("JetCorrectionUncertainty::")<<" jet phi is not set";  
+	    result.push_back(-999.0);
+	  } else {
+	    result.push_back(mJetPt);
+	  }
         }
       else if (fNames[i] == "JetE")
         {
-          if (!mIsJetEset)
-            throw cms::Exception("JetCorrectionUncertainty::")<<" jet energy is not set";
-          result.push_back(mJetE);
+          if (!mIsJetEset) {
+	    edm::LogError("JetCorrectionUncertainty::")<<" jet energy is not set";
+	    result.push_back(-999.0);
+	  } else {
+	    result.push_back(mJetE);
+	  }
         }
       else if (fNames[i] == "JetEMF")
         {
-          if (!mIsJetEMFset)
-            throw cms::Exception("JetCorrectionUncertainty::")<<" jet emf is not set";
-          result.push_back(mJetEMF);
+          if (!mIsJetEMFset) {
+	    edm::LogError("JetCorrectionUncertainty::")<<" jet emf is not set";
+	    result.push_back(-999.0);
+	  } else {
+	    result.push_back(mJetEMF);
+	  }
         } 
       else if (fNames[i] == "LepPx")
         {
-          if (!mIsLepPxset)
-            throw cms::Exception("JetCorrectionUncertainty::")<<" lepton px is not set";  
-          result.push_back(mLepPx);
+          if (!mIsLepPxset){
+	    edm::LogError("JetCorrectionUncertainty::")<<" lepton px is not set";
+	    result.push_back(-999.0);
+	  } else {
+	    result.push_back(mLepPx);
+	  }
         }
       else if (fNames[i] == "LepPy")
         {
-          if (!mIsLepPyset)
-            throw cms::Exception("JetCorrectionUncertainty::")<<" lepton py is not set";  
-          result.push_back(mLepPy);
+          if (!mIsLepPyset){
+	    edm::LogError("JetCorrectionUncertainty::")<<" lepton py is not set";
+	    result.push_back(-999.0);
+	  } else {
+	    result.push_back(mLepPy);
+	  }
         }
       else if (fNames[i] == "LepPz")
         {
-          if (!mIsLepPzset)
-            throw cms::Exception("JetCorrectionUncertainty::")<<" lepton pz is not set";  
-          result.push_back(mLepPz);
+          if (!mIsLepPzset){
+	    edm::LogError("JetCorrectionUncertainty::")<<" lepton pz is not set";
+	    result.push_back(-999.0);
+	  } else {
+	    result.push_back(mLepPz);
+	  }
         }
-      else
-        throw cms::Exception("JetCorrectionUncertainty::")<<" unknown parameter "<<fNames[i];
+     
+      else {
+	edm::LogError("JetCorrectionUncertainty::")<<" unknown parameter "<<fNames[i];
+	result.push_back(-999.0);
+      }
     }     
   return result;      
 }
@@ -184,15 +211,17 @@ float JetCorrectionUncertainty::getPtRel()
   float lj_z = (mAddLepToJet) ? lep.Z()+jet.Pz() : jet.Pz();
   // absolute values squared
   float lj2  = lj_x*lj_x+lj_y*lj_y+lj_z*lj_z;
-  if (!(lj2 > 0))
-    throw cms::Exception("JetCorrectionUncertainty")<<" not positive lepton-jet momentum: "<<lj2;
-  float lep2 = lep.X()*lep.X()+lep.Y()*lep.Y()+lep.Z()*lep.Z();
-  // projection vec(mu) to lepjet axis
-  float lepXlj = lep.X()*lj_x+lep.Y()*lj_y+lep.Z()*lj_z;
-  // absolute value squared and normalized
-  float pLrel2 = lepXlj*lepXlj/lj2;
-  // lep2 = pTrel2 + pLrel2
-  float pTrel2 = lep2-pLrel2;
+  float pTrel2 = -999.0;
+  if (lj2 > 0) {
+    float lep2 = lep.X()*lep.X()+lep.Y()*lep.Y()+lep.Z()*lep.Z();
+    // projection vec(mu) to lepjet axis
+    float lepXlj = lep.X()*lj_x+lep.Y()*lj_y+lep.Z()*lj_z;
+    // absolute value squared and normalized
+    float pLrel2 = lepXlj*lepXlj/lj2;
+    // lep2 = pTrel2 + pLrel2
+    pTrel2 = lep2-pLrel2;
+  } else
+    edm::LogError("JetCorrectionUncertainty")<<" not positive lepton-jet momentum: "<<lj2;
   return (pTrel2 > 0) ? std::sqrt(pTrel2) : 0.0;
 }
 //------------------------------------------------------------------------ 
