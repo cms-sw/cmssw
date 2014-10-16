@@ -35,7 +35,7 @@ class FEDNumbering {
      NOT_A_FEDID = -1,
      MAXFEDID = 1350, // must be larger than largest used FED id
      MINSiPixelFEDID = 0,
-     MAXSiPixelFEDID = 39,
+     MAXSiPixelFEDID = 40,  // increase from 39 for the pilot blade fed
      MINSiStripFEDID = 50,
      MAXSiStripFEDID = 489,
      MINPreShowerFEDID = 520,

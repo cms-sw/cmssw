@@ -14,7 +14,7 @@ TauDecay_GenParticle::~TauDecay_GenParticle(){
 
 }
                             
-bool TauDecay_GenParticle::AnalyzeTau(const reco::GenParticle *Tau,unsigned int &JAK_ID,unsigned int &TauBitMask,bool dores, bool dopi0){
+bool TauDecay_GenParticle::AnalyzeTau(const reco::GenParticle *Tau,unsigned int &MODE_ID,unsigned int &TauBitMask,bool dores, bool dopi0){
   Reset();
   MotherIdx.clear();
   TauDecayProducts.clear();
@@ -26,7 +26,7 @@ bool TauDecay_GenParticle::AnalyzeTau(const reco::GenParticle *Tau,unsigned int 
       const reco::Candidate *dau=Tau->daughter(i);
       Analyze(static_cast<const reco::GenParticle*>(dau),Tauidx,dores,dopi0);
     }
-    ClassifyDecayMode(JAK_ID,TauBitMask);
+    ClassifyDecayMode(MODE_ID,TauBitMask);
     return true;
   }
   return false;
@@ -39,8 +39,11 @@ void TauDecay_GenParticle::Analyze(const reco::GenParticle *Particle,unsigned in
   unsigned int pdgid=abs(Particle->pdgId());
   if(isTauFinalStateParticle(pdgid)){
     if(!isTauParticleCounter(pdgid)) std::cout << "TauDecay_GenParticle::Analyze WARNING: Unknow Final State Particle in Tau Decay... " << std::endl;
-    TauDecayProducts.push_back(Particle);
-    MotherIdx.push_back(midx);
+
+    if(!AddRadInfo(static_cast<const reco::GenParticle*>(Particle),midx)){
+      TauDecayProducts.push_back(Particle);
+      MotherIdx.push_back(midx);
+    }
     if(pdgid==PdtPdgMini::pi0 && dopi0){// store information on pi0 decay products even though a pi0 is a finsal state particle (for 3PiPi0 studies)
       midx=MotherIdx.size()-1;
       for (unsigned int i=0; i< Particle->numberOfDaughters(); i++){
@@ -74,3 +77,30 @@ void TauDecay_GenParticle::AddPi0Info(const reco::GenParticle *Particle,unsigned
   }
 }
 
+bool TauDecay_GenParticle::AddRadInfo(const reco::GenParticle *Particle,unsigned int midx){
+  bool same(false), photon(false);
+  int n=0;
+  for (unsigned int i=0; i< Particle->numberOfDaughters(); i++){
+    const reco::Candidate *dau=Particle->daughter(i);
+    if(Particle->pdgId()==dau->pdgId()){ same=true;}
+    if(dau->pdgId()==PdtPdgMini::gamma) photon=true;
+    n++;
+  }
+  if(same && photon && n==2){
+    for (unsigned int i=0; i< Particle->numberOfDaughters(); i++){
+      const reco::Candidate *dau=Particle->daughter(i);
+      if(Particle->pdgId()==dau->pdgId()){
+	if(!AddRadInfo(static_cast<const reco::GenParticle*>(dau),midx)){
+	  TauDecayProducts.push_back(static_cast<const reco::GenParticle*>(dau));
+	  MotherIdx.push_back(midx);
+	}
+      }
+      if(dau->pdgId()==PdtPdgMini::gamma){
+	TauDecayProducts.push_back(static_cast<const reco::GenParticle*>(dau));
+	MotherIdx.push_back(midx);
+      }
+    }
+    return true;
+  }
+  return false;
+}

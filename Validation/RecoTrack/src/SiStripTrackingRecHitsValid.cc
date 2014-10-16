@@ -1080,7 +1080,7 @@ void SiStripTrackingRecHitsValid::rechitanalysis_matched(TrajectoryStateOnSurfac
   int clusiz=0;
   int totcharge=0;
   clusiz = clust->amplitudes().size();
-  const std::vector<uint8_t> amplitudes=clust->amplitudes();
+  const auto & amplitudes=clust->amplitudes();
   for(size_t ia=0; ia<amplitudes.size();ia++){
     totcharge+=amplitudes[ia];
   }
@@ -1203,14 +1203,14 @@ void SiStripTrackingRecHitsValid::rechitanalysis(TrajectoryStateOnSurface tsos, 
   if(!simplehit1or2D){
     clust2d = hit2d->cluster();
     clusiz = clust2d->amplitudes().size();
-    const std::vector<uint8_t> amplitudes2d = clust2d->amplitudes();
+    const auto & amplitudes2d = clust2d->amplitudes();
     for(size_t ia=0; ia<amplitudes2d.size();ia++){
       totcharge+=amplitudes2d[ia];
     }
   } else {
     clust1d = hit1d->cluster();
     clusiz = clust1d->amplitudes().size();
-    const std::vector<uint8_t> amplitudes1d = clust1d->amplitudes();
+    const auto &  amplitudes1d = clust1d->amplitudes();
     for(size_t ia=0; ia<amplitudes1d.size();ia++){
       totcharge+=amplitudes1d[ia];
     }
