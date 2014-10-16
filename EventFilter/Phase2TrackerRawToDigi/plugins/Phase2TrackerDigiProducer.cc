@@ -198,10 +198,10 @@ namespace Phase2Tracker {
 
                 // store beginning and end of this digis for this detid and add this registry to the list
                 // and store data
-                Registry regItemTop(detid+1, STRIPS_PER_CBC*icbc/2, proc_work_digis_.size(), stripsTop.size());
+                Registry regItemTop(detid, STRIPS_PER_CBC*icbc/2, proc_work_digis_.size(), stripsTop.size());
                 proc_work_registry_.push_back(regItemTop);
                 proc_work_digis_.insert(proc_work_digis_.end(),stripsTop.begin(),stripsTop.end());
-                Registry regItemBottom(detid+2, STRIPS_PER_CBC*icbc/2, proc_work_digis_.size(), stripsBottom.size());
+                Registry regItemBottom(detid+4, STRIPS_PER_CBC*icbc/2, proc_work_digis_.size(), stripsBottom.size());
                 proc_work_registry_.push_back(regItemBottom);
                 proc_work_digis_.insert(proc_work_digis_.end(),stripsBottom.begin(),stripsBottom.end());
 	      }
@@ -306,7 +306,7 @@ namespace Phase2Tracker {
                     ss << dec << "PonPS cluster at position: " << unpacker.clusterIndex() <<" , "<<  unpacker.clusterZpos() << " with size: " << unpacker.clusterSize() << endl;
                     #endif
                     // clustersBottom.push_back(DummyClusterDigi((int)(STRIPS_PER_CBC*icbc + unpacker.clusterIndex())/2,unpacker.clusterSize(),unpacker.clusterZpos()));
-                    clustersBottom.push_back(DummyClusterDigi((int)(STRIPS_PER_CBC*icbc + unpacker.clusterIndex())/2,unpacker.clusterSize()));
+                    clustersBottom.push_back(DummyClusterDigi((int)(STRIPS_PER_CBC*icbc + unpacker.clusterIndex()),unpacker.clusterSize()));
                     unpacker++;
                   }
                 }
@@ -315,11 +315,11 @@ namespace Phase2Tracker {
                   // TODO: throw appropriate exception for nonexistant module type
                 }
                 // store and index (top plane)
-                Registry regItemTop(detid+1, STRIPS_PER_CBC*icbc/2, zs_work_digis_.size(), clustersTop.size());
+                Registry regItemTop(detid, STRIPS_PER_CBC*icbc/2, zs_work_digis_.size(), clustersTop.size());
                 zs_work_registry_.push_back(regItemTop);
                 zs_work_digis_.insert(zs_work_digis_.end(),clustersTop.begin(),clustersTop.end());
                 // store and index (bottom plane)
-                Registry regItemBottom(detid+2, STRIPS_PER_CBC*icbc/2, zs_work_digis_.size(), clustersBottom.size());
+                Registry regItemBottom(detid+4, STRIPS_PER_CBC*icbc/2, zs_work_digis_.size(), clustersBottom.size());
                 zs_work_registry_.push_back(regItemBottom);
                 zs_work_digis_.insert(zs_work_digis_.end(),clustersBottom.begin(),clustersBottom.end());                
               } // end reading CBC's channel
