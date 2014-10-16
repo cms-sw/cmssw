@@ -20,7 +20,6 @@
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include<string>
 #include<vector>
-using namespace std;
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/Handle.h"
 namespace edm {
@@ -30,12 +29,11 @@ namespace edm {
 //
 // class declaration
 //
-
 template<typename T>
 class HLTJetSortedVBFFilter : public HLTFilter {
 
  public:
-
+  namespace std; 	
   typedef std::pair<double,unsigned int> Jpair;
   static bool comparator ( const Jpair& l, const Jpair& r) {
     return l.first < r.first;
