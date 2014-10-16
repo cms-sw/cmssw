@@ -19,8 +19,6 @@
 using namespace std;
 using namespace l1t;
 
-unsigned int pack15bits(int pt, int eta, int phi);
-
 Stage1Layer2JetAlgorithmImpSimpleHW::Stage1Layer2JetAlgorithmImpSimpleHW(CaloParamsStage1* params) : params_(params)
 {
 }
@@ -35,76 +33,47 @@ void Stage1Layer2JetAlgorithmImpSimpleHW::processEvent(const std::vector<l1t::Ca
   std::vector<l1t::Jet> *preGtJets = new std::vector<l1t::Jet>();
   std::vector<l1t::Jet> *sortedJets = new std::vector<l1t::Jet>();
 
-  simpleHWSubtraction(regions, subRegions);
-  //passThroughJets(subRegions, preGtJets);
+  //simpleHWSubtraction(regions, subRegions);
+
+  std::string regionPUSType = "PUM0"; //params_->regionPUSType();
+  std::vector<double> regionPUSParams = params_->regionPUSParams();
+  RegionCorrection(regions, subRegions, regionPUSParams, regionPUSType);
+
   slidingWindowJetFinder(0, subRegions, preGtJets);
-
-  //passThroughJets(&regions,preGtJets);
-  //slidingWindowJetFinder(0, &regions, preGtJets);
-
-  //the jets should be sorted, highest pT first.
-  // do not truncate the tau list, GT converter handles that
-  // auto comp = [&](l1t::Jet i, l1t::Jet j)-> bool {
-  //   return (i.hwPt() < j.hwPt() );
-  // };
-
-  // std::sort(preGtJets->begin(), preGtJets->end(), comp);
-  // std::reverse(preGtJets->begin(), preGtJets->end());
-  // sortedJets = preGtJets;
-
-  // for(unsigned i = 0; i < preGtJets->size(); ++i)
-  //   cout << preGtJets->at(i).hwPt() << "\t" << preGtJets->at(i).hwEta() << "\t" << preGtJets->at(i).hwPhi() << endl;
 
   SortJets(preGtJets, sortedJets);
 
-  // for(unsigned i = 0; i < sortedJets->size(); ++i)
-  //   cout << sortedJets->at(i).hwPt() << "\t" << sortedJets->at(i).hwEta() << "\t" << sortedJets->at(i).hwPhi() << endl;
-
-  // drop the 4 LSB before passing to GT
-  // for(std::vector<l1t::Jet>::const_iterator itJet = sortedJets->begin();
-  //     itJet != sortedJets->end(); ++itJet){
-  //   const unsigned newEta = gtEta(itJet->hwEta());
-  //   //const unsigned newEta = itJet->hwEta();
-  //   //std::cout << "pre drop: " << itJet->hwPt();
-  //   const uint16_t rankPt = (itJet->hwPt() >> 8);
-  //   //std::cout << " post drop: " << rankPt << std::endl;
-  //   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
-  //   l1t::Jet gtJet(*&ldummy, rankPt, newEta, itJet->hwPhi(), itJet->hwQual());
-  //   jets->push_back(gtJet);
-  // }
   JetToGtScales(params_, sortedJets, jets);
 
+  const bool verbose = false;
+  if(verbose)
+  {
+    int cJets = 0;
+    int fJets = 0;
+    printf("Central\n");
+    //printf("pt\teta\tphi\n");
+    for(std::vector<l1t::Jet>::const_iterator itJet = jets->begin();
+	itJet != jets->end(); ++itJet){
+      if((itJet->hwQual() & 2) == 2) continue;
+      cJets++;
+      unsigned int packed = pack15bits(itJet->hwPt(), itJet->hwEta(), itJet->hwPhi());
+      cout << bitset<15>(packed).to_string() << endl;
+      if(cJets == 4) break;
+    }
 
-  int cJets = 0;
-  int fJets = 0;
-  printf("Central\n");
-  //printf("pt\teta\tphi\n");
-  for(std::vector<l1t::Jet>::const_iterator itJet = jets->begin();
-      itJet != jets->end(); ++itJet){
-    if(itJet->hwQual() == 2) continue;
-    cJets++;
-    unsigned int packed = pack15bits(itJet->hwPt(), itJet->hwEta(), itJet->hwPhi());
-    cout << bitset<15>(packed).to_string() << endl;
-    if(cJets == 4) break;
-  }
-
-  printf("Forward\n");
-  //printf("pt\teta\tphi\n");
-  for(std::vector<l1t::Jet>::const_iterator itJet = jets->begin();
-      itJet != jets->end(); ++itJet){
-    if(itJet->hwQual() != 2) continue;
-    fJets++;
-    unsigned int packed = pack15bits(itJet->hwPt(), itJet->hwEta(), itJet->hwPhi());
-    cout << bitset<15>(packed).to_string() << endl;
-    if(fJets == 4) break;
+    printf("Forward\n");
+    //printf("pt\teta\tphi\n");
+    for(std::vector<l1t::Jet>::const_iterator itJet = jets->begin();
+	itJet != jets->end(); ++itJet){
+      if((itJet->hwQual() & 2) != 2) continue;
+      fJets++;
+      unsigned int packed = pack15bits(itJet->hwPt(), itJet->hwEta(), itJet->hwPhi());
+      cout << bitset<15>(packed).to_string() << endl;
+      if(fJets == 4) break;
+    }
   }
 
   delete subRegions;
   delete preGtJets;
   delete sortedJets;
-}
-
-unsigned int pack15bits(int pt, int eta, int phi)
-{
-  return( ((pt & 0x3f)) + ((eta & 0xf) << 6) + ((phi & 0x1f) << 10));
 }
