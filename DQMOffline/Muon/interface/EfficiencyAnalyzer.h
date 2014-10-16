@@ -33,7 +33,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-class EfficiencyAnalyzer : public DQMEDAnalyzer {
+class EfficiencyAnalyzer : public thread_unsafe::DQMEDAnalyzer {
   
  public:
   /* Constructor */ 
