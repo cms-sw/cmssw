@@ -44,7 +44,7 @@ class HLTJetSortedVBFFilter : public HLTFilter {
   explicit HLTJetSortedVBFFilter(const edm::ParameterSet&);
   ~HLTJetSortedVBFFilter();
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  static float findCSV(  typename vector<T>::const_iterator  jet, reco::JetTagCollection  jetTags);	
+  static float findCSV(const  typename vector<T>::const_iterator & jet, const reco::JetTagCollection & jetTags);	
   virtual bool hltFilter(edm::Event&, const edm::EventSetup&,trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
  private:
