@@ -24,11 +24,8 @@ public:
     // get Trigger decisions | vector needs same SIZE and ORDER as in 'ttpBits_'
     void getTriggerDecisions(std::vector<bool>& decision, double energy[16][14]) const;
 
-    // get Trigger decisions for every sector | vector needs same SIZE and ORDER as in 'ttpBits_' | array for 16 sectors
-    void getTriggerDecisionsPerSector(std::vector<bool> tdps[16], double energy[16][14]) const;
-
-    // get Trigger decisions for every octant | vector has size of 6
-    // void getTriggerDecisionsPerOctant(std::vector<bool> tdps[16], double energy[16][14]) const;
+    // get Trigger decisions for every octant | vector has size of 6 -> 6 HTR card bits
+    void getTriggerDecisionsPerOctant(std::vector<bool> tdps[16], double energy[16][14]) const;
 
 private:
     

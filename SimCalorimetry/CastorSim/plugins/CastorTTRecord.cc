@@ -103,7 +103,7 @@ void CastorTTRecord::getTriggerDecisions(std::vector<bool>& decision, double ene
     if( decision.size() < 4 ) return;
 
     std::vector<bool> tdpo[8]; // TriggerDecisionsPerOctant
-    getTriggerDecisionsPerSector(tdpo,energy);
+    getTriggerDecisionsPerOctant(tdpo,energy);
 
 
     // preset trigger decisions
@@ -154,7 +154,7 @@ void CastorTTRecord::getTriggerDecisions(std::vector<bool>& decision, double ene
     decision.at(2) = EM_decision && !HAD_decision;
 }
 
-void CastorTTRecord::getTriggerDecisionsPerSector(std::vector<bool> tdpo[8], double energy[16][14]) const
+void CastorTTRecord::getTriggerDecisionsPerOctant(std::vector<bool> tdpo[8], double energy[16][14]) const
 {
     // loop over octatants
     for(int ioct=0; ioct<8; ioct++)
