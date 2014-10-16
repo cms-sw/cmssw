@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_2_0/HLT/V48 (CMSSW_7_2_0_pre8)
+# /dev/CMSSW_7_2_0/HLT/V49 (CMSSW_7_2_0_pre8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFULL" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_2_0/HLT/V48')
+  tableName = cms.string('/dev/CMSSW_7_2_0/HLT/V49')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
