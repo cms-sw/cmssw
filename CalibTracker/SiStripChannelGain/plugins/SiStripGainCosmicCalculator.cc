@@ -180,8 +180,7 @@ void SiStripGainCosmicCalculator::algoAnalyze(const edm::Event & iEvent, const e
       if(sistripsimplehit){
         ((TH1F*) HlistOtherHistos->FindObject("SiStripRecHitType"))->Fill(1.);
         const SiStripRecHit2D::ClusterRef & cluster=sistripsimplehit->cluster();
-        const std::vector<uint8_t>& ampls = cluster->amplitudes();
-//        const std::vector<uint16_t>& ampls = cluster->amplitudes();
+        const auto & ampls = cluster->amplitudes();
         uint32_t thedetid  = 0; // is zero since long time cluster->geographicalId();
         double module_width = moduleWidth(thedetid, &iSetup);
         ((TH1F*) HlistOtherHistos->FindObject("LocalPosition_cm"))->Fill(local_position.x());

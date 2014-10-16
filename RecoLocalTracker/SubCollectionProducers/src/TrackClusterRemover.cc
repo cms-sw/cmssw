@@ -287,7 +287,7 @@ void TrackClusterRemover::process(OmniClusterRef const & ocluster, SiStripDetId 
   if (pblocks_[subdet-1].usesSize_ && (cluster->amplitudes().size() > pblocks_[subdet-1].maxSize_)) return;
   if (!fromTrack) {
     int clusCharge=0;
-    for( std::vector<uint8_t>::const_iterator iAmp = cluster->amplitudes().begin(); iAmp != cluster->amplitudes().end(); ++iAmp){
+    for( auto iAmp = cluster->amplitudes().begin(); iAmp != cluster->amplitudes().end(); ++iAmp){
       clusCharge += *iAmp;
     }
     if (pblocks_[subdet-1].cutOnStripCharge_ && (clusCharge > (pblocks_[subdet-1].minGoodStripCharge_*sensorThickness(detid)))) return;
