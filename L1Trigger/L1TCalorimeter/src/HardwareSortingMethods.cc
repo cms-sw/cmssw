@@ -420,7 +420,7 @@ namespace l1t{
       bool minus = (ineg->hwEta() < 11);
 
       // while waiting for firmware LUT, set all iso to true
-      iso = true;
+      //iso = true;
 
       if(iso && minus)
 	iso_egamma_array_m[8*fiberNum+index] = *ineg;
