@@ -23,22 +23,6 @@ EcalBarrelRecHitsValidation::EcalBarrelRecHitsValidation(const ParameterSet& ps)
   // verbosity switch 
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
     
-  // ----------------------                 
-  // get hold of back-end interface 
-  dbe_ = 0;
-  dbe_ = Service<DQMStore>().operator->();                   
-  if ( dbe_ ) {
-    if ( verbose_ ) {
-      dbe_->setVerbose(1);
-    } else {
-      dbe_->setVerbose(0);
-    }
-  }                                                                  
-  if ( dbe_ ) {
-    if ( verbose_ ) dbe_->showDirStructure();
-  }
-
-
   // ----------------------   
   meEBUncalibRecHitsOccupancy_             = 0;
   meEBUncalibRecHitsAmplitude_             = 0;
@@ -59,77 +43,67 @@ EcalBarrelRecHitsValidation::EcalBarrelRecHitsValidation(const ParameterSet& ps)
       meEBUncalibRecHitAmplMap_[i] = 0;
       meEBUncalibRecHitPedMap_[i]  = 0;
     }
-
-  // ---------------------- 
-  Char_t histo[200];
-   
-  if ( dbe_ ) 
-    {
-      dbe_->setCurrentFolder("EcalRecHitsV/EcalBarrelRecHitsTask");
-      
-      sprintf (histo, "EB Occupancy" );  
-      meEBUncalibRecHitsOccupancy_ = dbe_->book2D(histo, histo, 170, -85., 85., 360, 0., 360.);
-      
-      sprintf (histo, "EB Amplitude" );
-      meEBUncalibRecHitsAmplitude_ = dbe_->book1D(histo, histo, 201, -20., 4000.);
-      
-      sprintf (histo, "EB Pedestal" );
-      meEBUncalibRecHitsPedestal_ = dbe_->book1D(histo, histo, 50, 190., 210.);
-      
-      sprintf (histo, "EB Jitter" );
-      meEBUncalibRecHitsJitter_ = dbe_->book1D(histo, histo, 100, 0., 100.);
-      
-      sprintf (histo, "EB Chi2" );
-      meEBUncalibRecHitsChi2_ = dbe_->book1D(histo, histo, 100, 18000., 22000.);
-
-      sprintf (histo, "EB RecHit Max Sample Ratio"); 
-      meEBUncalibRecHitMaxSampleRatio_ = dbe_->book1D(histo, histo, 120, 0.90, 1.05);
-
-      sprintf (histo, "EB Occupancy gt 100 adc counts" );
-      meEBUncalibRecHitsOccupancyGt100adc_ = dbe_->book2D(histo, histo, 170, -85., 85., 360, 0., 360.);
-      
-      sprintf (histo, "EB Amplitude gt 100 adc counts" );
-      meEBUncalibRecHitsAmplitudeGt100adc_ = dbe_->book1D(histo, histo, 200, 0., 4000.);
-
-      sprintf (histo, "EB Pedestal gt 100 adc counts" );
-      meEBUncalibRecHitsPedestalGt100adc_ = dbe_->book1D(histo, histo, 50, 190., 210.);
-
-      sprintf (histo, "EB Jitter gt 100 adc counts" );
-      meEBUncalibRecHitsJitterGt100adc_ = dbe_->book1D(histo, histo, 100, 0., 100.);
-
-      sprintf (histo, "EB Chi2 gt 100 adc counts" );
-      meEBUncalibRecHitsChi2Gt100adc_ = dbe_->book1D(histo, histo, 100, 18000., 22000.);
-    
-      sprintf (histo, "EB RecHit Max Sample Ratio gt 100 adc counts"); 
-      meEBUncalibRecHitMaxSampleRatioGt100adc_ = dbe_->book1D(histo, histo, 120, 0.90, 1.05);
-      
-      sprintf (histo, "EB Amplitude Full Map");
-      meEBUncalibRecHitsAmpFullMap_ = dbe_->bookProfile2D(histo, histo, 170, -85., 85., 360, 0., 360., 200, 0., 4000.);
-
-      sprintf (histo, "EB Pedestal Full Map");
-      meEBUncalibRecHitsPedFullMap_ = dbe_->bookProfile2D(histo, histo, 170, -85., 85., 360, 0., 360., 50, 194., 201.);
-
-      for (int i=0; i<36 ; i++) 
-	{
-	  sprintf(histo, "EB Amp SM%02d", i+1);
-	  meEBUncalibRecHitAmplMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 200, 0., 4000.);
-	  
-	  sprintf(histo, "EB Ped SM%02d", i+1);
-	  meEBUncalibRecHitPedMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 50, 194., 201.);
-	}
-    }
 }
 
 EcalBarrelRecHitsValidation::~EcalBarrelRecHitsValidation(){   
 
 }
 
-void EcalBarrelRecHitsValidation::beginJob(){  
+void EcalBarrelRecHitsValidation::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&){ 
+  Char_t histo[200];
+   
+  ibooker.setCurrentFolder("EcalRecHitsV/EcalBarrelRecHitsTask");
+   
+  sprintf (histo, "EB Occupancy" );  
+  meEBUncalibRecHitsOccupancy_ = ibooker.book2D(histo, histo, 170, -85., 85., 360, 0., 360.);
+  
+  sprintf (histo, "EB Amplitude" );
+  meEBUncalibRecHitsAmplitude_ = ibooker.book1D(histo, histo, 201, -20., 4000.);
+  
+  sprintf (histo, "EB Pedestal" );
+  meEBUncalibRecHitsPedestal_ = ibooker.book1D(histo, histo, 50, 190., 210.);
+  
+  sprintf (histo, "EB Jitter" );
+  meEBUncalibRecHitsJitter_ = ibooker.book1D(histo, histo, 100, 0., 100.);
+      
+  sprintf (histo, "EB Chi2" );
+  meEBUncalibRecHitsChi2_ = ibooker.book1D(histo, histo, 100, 18000., 22000.);
 
-}
+  sprintf (histo, "EB RecHit Max Sample Ratio"); 
+  meEBUncalibRecHitMaxSampleRatio_ = ibooker.book1D(histo, histo, 120, 0.90, 1.05);
 
-void EcalBarrelRecHitsValidation::endJob(){
+  sprintf (histo, "EB Occupancy gt 100 adc counts" );
+  meEBUncalibRecHitsOccupancyGt100adc_ = ibooker.book2D(histo, histo, 170, -85., 85., 360, 0., 360.);
+  
+  sprintf (histo, "EB Amplitude gt 100 adc counts" );
+  meEBUncalibRecHitsAmplitudeGt100adc_ = ibooker.book1D(histo, histo, 200, 0., 4000.);
 
+  sprintf (histo, "EB Pedestal gt 100 adc counts" );
+  meEBUncalibRecHitsPedestalGt100adc_ = ibooker.book1D(histo, histo, 50, 190., 210.);
+
+  sprintf (histo, "EB Jitter gt 100 adc counts" );
+  meEBUncalibRecHitsJitterGt100adc_ = ibooker.book1D(histo, histo, 100, 0., 100.);
+
+  sprintf (histo, "EB Chi2 gt 100 adc counts" );
+  meEBUncalibRecHitsChi2Gt100adc_ = ibooker.book1D(histo, histo, 100, 18000., 22000.);
+
+  sprintf (histo, "EB RecHit Max Sample Ratio gt 100 adc counts"); 
+  meEBUncalibRecHitMaxSampleRatioGt100adc_ = ibooker.book1D(histo, histo, 120, 0.90, 1.05);
+  
+  sprintf (histo, "EB Amplitude Full Map");
+  meEBUncalibRecHitsAmpFullMap_ = ibooker.bookProfile2D(histo, histo, 170, -85., 85., 360, 0., 360., 200, 0., 4000.);
+
+  sprintf (histo, "EB Pedestal Full Map");
+  meEBUncalibRecHitsPedFullMap_ = ibooker.bookProfile2D(histo, histo, 170, -85., 85., 360, 0., 360., 50, 194., 201.);
+
+  for (int i=0; i<36 ; i++) 
+    {
+      sprintf(histo, "EB Amp SM%02d", i+1);
+      meEBUncalibRecHitAmplMap_[i] = ibooker.bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 200, 0., 4000.);
+      
+      sprintf(histo, "EB Ped SM%02d", i+1);
+      meEBUncalibRecHitPedMap_[i] = ibooker.bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 50, 194., 201.);
+    }
 }
 
 void EcalBarrelRecHitsValidation::analyze(const Event& e, const EventSetup& c){
