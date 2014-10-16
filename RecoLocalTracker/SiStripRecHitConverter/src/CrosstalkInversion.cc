@@ -1,10 +1,12 @@
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/CrosstalkInversion.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
 namespace reco {
 
 std::vector<stats_t<float> > InverseCrosstalkMatrix::
-unfold(const std::vector<uint8_t>& q, const float x) {
+unfold(const SiStripCluster& clus, const float x) {
+  auto const & q = clus.amplitudes();
   const stats_t<float> suppressed(-5,100);
   const stats_t<float> saturated(254,400);
   #define STATS(value) ( (value<254) ? stats_t<float>(value) : saturated )

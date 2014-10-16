@@ -199,7 +199,7 @@ void DeDxEstimatorProducer::processHit(const TrackingRecHit* recHit, float track
           float pathLen     = detUnit.surface().bounds().thickness()/fabs(cosine);
           float chargeAbs   = DeDxTools::getCharge(&(clus.stripCluster()),NSaturating, detUnit, calibGains, m_off);
           float charge      = meVperADCStrip*chargeAbs/pathLen;
-          if(!shapetest || (shapetest && DeDxTools::shapeSelection(clus.stripCluster().amplitudes()))){
+          if(!shapetest || (shapetest && DeDxTools::shapeSelection(clus.stripCluster()))){
              dedxHits.push_back( DeDxHit( charge, trackMomentum, pathLen, thit.geographicalId()) );
              if(NSaturating>0)NClusterSaturating++;
           }
@@ -214,7 +214,7 @@ void DeDxEstimatorProducer::processHit(const TrackingRecHit* recHit, float track
           float pathLen     = detUnitM.surface().bounds().thickness()/fabs(cosine);
           float chargeAbs   = DeDxTools::getCharge(&(matchedHit->monoCluster()),NSaturating, detUnitM, calibGains, m_off);
           float charge      = meVperADCStrip*chargeAbs/pathLen;
-          if(!shapetest || (shapetest && DeDxTools::shapeSelection(matchedHit->monoCluster().amplitudes()))){
+          if(!shapetest || (shapetest && DeDxTools::shapeSelection(matchedHit->monoCluster()))){
              dedxHits.push_back( DeDxHit( charge, trackMomentum, pathLen, matchedHit->monoId()) );
              if(NSaturating>0)NClusterSaturating++;
           }
@@ -224,7 +224,7 @@ void DeDxEstimatorProducer::processHit(const TrackingRecHit* recHit, float track
           pathLen     = detUnitS.surface().bounds().thickness()/fabs(cosine);
           chargeAbs   = DeDxTools::getCharge(&(matchedHit->stereoCluster()),NSaturating, detUnitS, calibGains, m_off);
           charge      = meVperADCStrip*chargeAbs/pathLen;
-          if(!shapetest || (shapetest && DeDxTools::shapeSelection(matchedHit->stereoCluster().amplitudes()))){
+          if(!shapetest || (shapetest && DeDxTools::shapeSelection(matchedHit->stereoCluster()))){
              dedxHits.push_back( DeDxHit( charge, trackMomentum, pathLen, matchedHit->stereoId()) );
              if(NSaturating>0)NClusterSaturating++;
           }      
