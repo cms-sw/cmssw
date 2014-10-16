@@ -19,7 +19,10 @@
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include<string>
-
+#include<vector>
+using namespace std;
+#include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/Common/interface/Handle.h"
 namespace edm {
   class ConfigurationDescriptions;
 }
@@ -41,6 +44,7 @@ class HLTJetSortedVBFFilter : public HLTFilter {
   explicit HLTJetSortedVBFFilter(const edm::ParameterSet&);
   ~HLTJetSortedVBFFilter();
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static float findCSV(const  typename vector<T>::const_iterator & jet, const reco::JetTagCollection & jetTags);	
   virtual bool hltFilter(edm::Event&, const edm::EventSetup&,trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
  private:
@@ -51,6 +55,7 @@ class HLTJetSortedVBFFilter : public HLTFilter {
   double mqq_;
   double detaqq_;
   double detabb_;
+  double dphibb_;
   double ptsqq_;
   double ptsbb_;
   double seta_;
