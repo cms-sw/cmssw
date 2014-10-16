@@ -71,7 +71,7 @@ HLTJetSortedVBFFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descr
 }
 
 template<typename T> float HLTJetSortedVBFFilter<T>::findCSV(const typename  vector<T>::const_iterator & jet, const reco::JetTagCollection  & jetTags){
-        float minDr = 999.;
+        float minDr = 0.1;
         float tmpCSV = -20 ;
         for (reco::JetTagCollection::const_iterator jetb = jetTags.begin(); (jetb!=jetTags.end()); ++jetb) {
         float tmpDr = reco::deltaR(*jet,*(jetb->first));
@@ -82,7 +82,6 @@ template<typename T> float HLTJetSortedVBFFilter<T>::findCSV(const typename  vec
                 }
 
         }
-        if( minDr > 0.1) tmpCSV = -20;
         return tmpCSV;
 
 }
