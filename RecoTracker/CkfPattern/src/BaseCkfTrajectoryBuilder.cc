@@ -160,7 +160,7 @@ BaseCkfTrajectoryBuilder::addToResult (boost::shared_ptr<const TrajectorySeed> c
   traj.setSharedSeed(seed);
   // discard latest dummy measurements
   while (!traj.empty() && !traj.lastMeasurement().recHit()->isValid()) traj.pop();
-  edm::LogWarning("CkfPattern")<<inOut<<"=inOut option. pushing a Trajectory with: "<<traj.foundHits()<<" found hits. "<<traj.lostHits()
+  LogDebug("CkfPattern")<<inOut<<"=inOut option. pushing a Trajectory with: "<<traj.foundHits()<<" found hits. "<<traj.lostHits()
 			<<" lost hits. Popped :"<<(tmptraj.measurements().size())-(traj.measurements().size())<<" hits.";
   result.push_back(std::move(traj));
 }
@@ -224,7 +224,7 @@ BaseCkfTrajectoryBuilder::StateAndLayers
 BaseCkfTrajectoryBuilder::findStateAndLayers(const TempTrajectory& traj) const{
   //assert(!traj.empty());
   if ( traj.empty() ) {
-    LogDebug("CkfPattern")<< "empty traj. Skipping.";
+    edm::LogWarning("CkfPattern")<< "empty traj. Skipping.";
     return StateAndLayers();
   }
 
