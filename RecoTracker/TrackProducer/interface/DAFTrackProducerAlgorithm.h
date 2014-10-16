@@ -13,6 +13,7 @@
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 
 class MagneticField;
 class TrackingGeometry;
@@ -23,7 +24,6 @@ class TrajectoryStateOnSurface;
 class TransientTrackingRecHitBuilder;
 class MultiRecHitCollector;
 class SiTrackerMultiRecHitUpdator;
-class MeasurementTrackerEvent;
 namespace reco{
 	class Track;
 }
@@ -80,6 +80,7 @@ class DAFTrackProducerAlgorithm {
   std::pair<TransientTrackingRecHit::RecHitContainer, TrajectoryStateOnSurface> updateHits(
 	      const Trajectory vtraj,
               const SiTrackerMultiRecHitUpdator* updator,
+	      const MeasurementTrackerEvent* theMTE,
               double annealing) const; 
 
   //removes from the trajectory isolated hits with very low weight
@@ -88,7 +89,11 @@ class DAFTrackProducerAlgorithm {
 	      int minhits, std::vector<Trajectory>& output,
 	      const TransientTrackingRecHitBuilder* builder) const;
 
+  int countingGoodHits(const Trajectory traj) const;
+
   int checkHits( Trajectory iInitTraj, const Trajectory iFinalTraj) const; 
+
+  void PrintHit(const TrackingRecHit* const& hit, TrajectoryStateOnSurface& tsos) const;
 
   edm::ParameterSet conf_;
   int minHits_;  

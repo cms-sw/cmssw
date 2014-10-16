@@ -9,22 +9,22 @@ TrajAnnealing::TrajAnnealing( const Trajectory& traj, float ann ){
 
   const Trajectory::DataContainer& measurements = traj_.measurements();
   if( measurements.size() > 2 ){
-
     Trajectory::DataContainer::const_iterator ibegin,iend;
     int increment(0);
     if( traj.direction() == alongMomentum ){
-      ibegin = measurements.begin();
-      iend = measurements.end();
+      ibegin = measurements.begin() + 1;
+      iend = measurements.end() - 1;
       increment = 1;
     } else {
-      ibegin = measurements.end();
+      ibegin = measurements.end() - 2;
       iend = measurements.begin();
       increment = -1;
     }
     
     for( Trajectory::DataContainer::const_iterator imeas = ibegin; imeas != iend; imeas += increment ){
+
       theHits_.push_back(imeas->recHit());
-     if (imeas->recHit()->isValid()){
+      if (imeas->recHit()->isValid()){
         SiTrackerMultiRecHit const & mHit = dynamic_cast<SiTrackerMultiRecHit const &>(*imeas->recHit());
         std::vector<const TrackingRecHit*> components = mHit.recHits();
         int iComp = 0;

@@ -22,6 +22,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
 #include "DataFormats/TrackerRecHit2D/interface/TkCloner.h"
 #include "TrackingTools/PatternTools/interface/TrajAnnealing.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 
 
 DAFTrackProducerAlgorithm::DAFTrackProducerAlgorithm(const edm::ParameterSet& conf):
@@ -57,7 +58,7 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
     //no need to have std::vector<Trajectory> vtraj !
     if ( (*ivtraj).isValid() ){
 
-      LogDebug("DAFTrackProducerAlgorithm") << "The trajectory is valid. \n";
+      LogDebug("DAFTrackProducerAlgorithm") << "The trajectory #" << cont+1 << " is valid. \n";
 
       //getting the MultiRecHit collection and the trajectory with a first fit-smooth round
       std::pair<TransientTrackingRecHit::RecHitContainer, TrajectoryStateOnSurface> hits = 
@@ -76,7 +77,13 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
 
           //updating MultiRecHits and fit-smooth again 
 	  std::pair<TransientTrackingRecHit::RecHitContainer, TrajectoryStateOnSurface> curiterationhits = 
-									updateHits(currentTraj,updator,*ian);
+									updateHits(currentTraj, updator, &*measTk, *ian);
+          if( curiterationhits.first.size() < 3 ){
+            LogDebug("DAFTrackProducerAlgorithm") << "Rejecting trajectory with "
+                                                  << curiterationhits.first.size() <<" hits";
+            currentTraj = Trajectory();
+            break;
+          }
 	  currentTraj = fit(curiterationhits, theFitter, currentTraj);
 
  	  //saving trajectory for each annealing cycle ...
@@ -101,12 +108,12 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
       //checking if the trajectory has the minimum number of valid hits ( weight (>1e-6) )
       //in order to remove tracks with too many outliers.
 
-      //std::vector<Trajectory> filtered;
-      //filter(theFitter, vtraj, minHits_, filtered, builder);				
+      int goodHits = countingGoodHits(currentTraj);
 
-      if(currentTraj.foundHits() >= minHits_) {
-      
+      if( goodHits >= minHits_) {
+
         bool ok = buildTrack(currentTraj, algoResults, ndof, bs) ;
+	// or filtered?
         if(ok) cont++;
 
       }
@@ -159,6 +166,7 @@ DAFTrackProducerAlgorithm::collectHits(const Trajectory vtraj,
   // I do not have to rescale the error because it is already rescaled in the fit code 
   TrajectoryStateOnSurface initialStateFromTrack = collectedmeas.front().predictedState();
 
+  LogDebug("DAFTrackProducerAlgorithm") << "Pair (hits, TSOS)  with TSOS predicted(collectedmeas.front().predictedState())";
   return std::make_pair(hits, initialStateFromTrack);
 
 }
@@ -166,24 +174,43 @@ DAFTrackProducerAlgorithm::collectHits(const Trajectory vtraj,
 std::pair<TransientTrackingRecHit::RecHitContainer, TrajectoryStateOnSurface>
 DAFTrackProducerAlgorithm::updateHits(const Trajectory vtraj,
 				      const SiTrackerMultiRecHitUpdator* updator,
+				      const MeasurementTrackerEvent* theMTE,
 				      double annealing) const 
 {
-	TransientTrackingRecHit::RecHitContainer hits;
-	std::vector<TrajectoryMeasurement> vmeas = vtraj.measurements();
-        std::vector<TrajectoryMeasurement>::reverse_iterator imeas;
+  LogDebug("DAFTrackProducerAlgorithm") << "Calling DAFTrackProducerAlgorithm::updateHits";
+  TransientTrackingRecHit::RecHitContainer hits;
+  std::vector<TrajectoryMeasurement> vmeas = vtraj.measurements();
+  std::vector<TrajectoryMeasurement>::reverse_iterator imeas;
+  unsigned int hitcounter = 1;
 
-	//I run inversely on the trajectory obtained and update the state
-        for (imeas = vmeas.rbegin(); imeas != vmeas.rend(); imeas++){
-              TransientTrackingRecHit::RecHitPointer updated = updator->update(imeas->recHit(), 
-							imeas->updatedState(), annealing);
-             hits.push_back(updated);
-        }
+  //I run inversely on the trajectory obtained and update the state
+  for (imeas = vmeas.rbegin(); imeas != vmeas.rend(); imeas++, hitcounter++){
 
-	TrajectoryStateOnSurface updatedStateFromTrack = vmeas.back().predictedState();
-	//updatedStateFromTrack.rescaleError(10);
+    DetId id = imeas->recHit()->geographicalId();
+    MeasurementDetWithData measDet = theMTE->idToDet(id);
 
-        //return std::make_pair(hits,TrajectoryStateWithArbitraryError()(vmeas.back().updatedState()));
-        return std::make_pair(hits,updatedStateFromTrack);
+    TrajectoryStateCombiner combiner;
+    TrajectoryStateOnSurface combtsos;
+    if (hitcounter == vmeas.size()) combtsos = imeas->predictedState();   //fwd
+    else if (hitcounter == 1) combtsos = imeas->backwardPredictedState(); //bwd
+    else combtsos = combiner(imeas->backwardPredictedState(), imeas->predictedState());
+
+    PrintHit(&*imeas->recHit(), combtsos);
+    if(imeas->recHit()->isValid()){
+    TransientTrackingRecHit::RecHitPointer updated = updator->update(imeas->recHit(), 
+						combtsos, measDet, annealing);
+    hits.push_back(updated);
+    } else {
+      hits.push_back(imeas->recHit());
+    }
+  }
+
+  TrajectoryStateOnSurface updatedStateFromTrack = vmeas.back().predictedState();
+
+  //return std::make_pair(hits,TrajectoryStateWithArbitraryError()(vmeas.back().updatedState()));
+  LogDebug("DAFTrackProducerAlgorithm") << "Pair (hits, TSOS)  with TSOS predicted (vmeas.back().predictedState())";
+
+  return std::make_pair(hits,updatedStateFromTrack);
 }
 /*------------------------------------------------------------------------------------------------------*/
 Trajectory DAFTrackProducerAlgorithm::fit(const std::pair<TransientTrackingRecHit::RecHitContainer,
@@ -250,10 +277,44 @@ bool DAFTrackProducerAlgorithm::buildTrack (const Trajectory vtraj,
 
     return true;
   } 
-  else  
+  else {
+    LogDebug("DAFTrackProducerAlgorithm") <<" BUILDER NOT POSSIBLE: traj is not valid" << std::endl;;
     return false;
+  }
 }
 /*------------------------------------------------------------------------------------------------------*/
+int DAFTrackProducerAlgorithm::countingGoodHits(const Trajectory traj) const{
+
+  int ngoodhits = 0;
+  Trajectory myTraj = traj;
+  std::vector<TrajectoryMeasurement> vtm = traj.measurements();
+
+  for (std::vector<TrajectoryMeasurement>::const_iterator tm = vtm.begin(); tm != vtm.end(); tm++){
+    //if the rechit is valid
+    if (tm->recHit()->isValid()) {
+      SiTrackerMultiRecHit const & mHit = dynamic_cast<SiTrackerMultiRecHit const &>(*tm->recHit());
+      std::vector<const TrackingRecHit*> components = mHit.recHits();
+
+      int iComp = 0;
+
+      for(std::vector<const TrackingRecHit*>::const_iterator iter = components.begin(); iter != components.end(); iter++, iComp++){ 
+        //if there is at least one component with weight higher than 1e-6 then the hit is not an outlier
+        if (mHit.weight(iComp)>1e-6) {
+	  ngoodhits++; 
+	  iComp++; 
+	  break;
+	}
+      }
+
+    }   
+  }
+  
+  LogDebug("DAFTrackProducerAlgorithm") << "Original number of valid hits " << traj.foundHits() << " -> hit with good weight (>1e-6) are " << ngoodhits;
+  return ngoodhits;
+
+}
+/*------------------------------------------------------------------------------------------------------*/
+
 void  DAFTrackProducerAlgorithm::filter(const TrajectoryFitter* fitter, std::vector<Trajectory>& input, 
 					int minhits, std::vector<Trajectory>& output,
 					const TransientTrackingRecHitBuilder* builder) const 
@@ -402,3 +463,23 @@ int DAFTrackProducerAlgorithm::checkHits( Trajectory iInitTraj, const Trajectory
 
   return nSame;
 }
+
+
+
+void DAFTrackProducerAlgorithm::PrintHit(const TrackingRecHit* const& hit, TrajectoryStateOnSurface& tsos) const
+{
+    if (hit->isValid()){
+
+      LogTrace("DAFTrackProducerAlgorithm") << "  Valid Hit with DetId " << hit->geographicalId().rawId() << " and dim:" << hit->dimension()
+                      //<< " type " << typeid(hit).name()
+                        << " local position " << hit->localPosition()
+                        << " global position " << hit->globalPosition()
+                        << " and r " << hit->globalPosition().perp() ;
+      LogTrace("DAFTrackProducerAlgorithm") << "  TSOS combtsos " << tsos.localPosition() ;
+
+    } else {
+      LogTrace("DAFTrackProducerAlgorithm") << "  Invalid Hit with DetId " << hit->geographicalId().rawId();
+    }
+
+}
+

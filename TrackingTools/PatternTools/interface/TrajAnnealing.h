@@ -1,5 +1,5 @@
-#ifndef DataFormats_TrajAnnealing_h
-#define DataFormats_TrajAnnealing_h
+#ifndef TrackingTools_PatternTools_TrajAnnealing_h
+#define TrackingTools_PatternTools_TrajAnnealing_h
 
 #include <vector>
 
