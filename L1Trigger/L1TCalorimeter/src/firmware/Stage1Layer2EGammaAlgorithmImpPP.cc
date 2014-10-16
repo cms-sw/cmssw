@@ -39,6 +39,10 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
   // double egRelativeJetIsolationEndcapCut = params_->egRelativeJetIsolationEndcapCut();
   unsigned int egRelativeJetIsolationBarrelCut = floor( params_->egRelativeJetIsolationBarrelCut()*100 +0.5);
   unsigned int egRelativeJetIsolationEndcapCut = floor( params_->egRelativeJetIsolationEndcapCut()*100 +0.5);
+  int egMinPtRelativeJetIsolation = params_->egMinPtRelativeJetIsolation();
+  int egMaxPtRelativeJetIsolation = params_->egMaxPtRelativeJetIsolation();
+  int egMinPt3x3HoE = params_->egMinPt3x3HoE();
+  int egMaxPt3x3HoE = params_->egMaxPt3x3HoE();
 
   std::string regionPUSType = params_->regionPUSType();
   std::vector<double> regionPUSParams = params_->regionPUSParams();
@@ -74,11 +78,18 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
 
     //int quality = 1;
     int isoFlag = 0;
+    int isoFlagRct = 0;
+
+    // 3x3 HoE, computed in 3x3
+    if(eg_et>=egMinPt3x3HoE && eg_et < egMaxPt3x3HoE ) {
+                 if(egCand->hwIso()) isoFlagRct =1;
+    }
+    else {isoFlagRct =1;}   
 
     int ijet_pt=AssociatedJetPt(eg_eta,eg_phi,unCorrJets);
     // double jet_pt=ijet_pt*jetLsb;
     bool isinBarrel = (eg_eta>=7 && eg_eta<=14);
-    if (ijet_pt>0){
+    if (ijet_pt>0 && eg_et>=egMinPtRelativeJetIsolation && eg_et<egMaxPtRelativeJetIsolation){
 
       // double jetIsolationEG = jet_pt - eg_et;        // Jet isolation
       // double relativeJetIsolationEG = jetIsolationEG / eg_et;
@@ -101,12 +112,14 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
       isoFlag=1;
     }
 
+    int fullIsoFlag=isoFlag*isoFlagRct;
 
     // double hoe = HoverE(eg_et, eg_eta, eg_phi, *subRegions);
-
+    //if(eg_et>20)
+    //std::cout << "eg/jet/isol/relisol: " << eg_et << " / " << ijet_pt << " /\t " << isoFlag <<  "    "<< isoFlagRct << "    "<<fullIsoFlag<<"   "<<egCand->hwIso()<<std::endl;
 
     // ------- fill the EG candidate vector ---------
-    l1t::EGamma theEG(*&egLorentz, eg_et, eg_eta, eg_phi, index, isoFlag);
+    l1t::EGamma theEG(*&egLorentz, eg_et, eg_eta, eg_phi, index, fullIsoFlag);
     //?? if( hoe < HoverECut) egammas->push_back(theEG);
     preSortEGammas->push_back(theEG);
   }
