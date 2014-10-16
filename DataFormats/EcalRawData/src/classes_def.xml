@@ -7,6 +7,7 @@
    </class>
    <class name="std::vector<EcalDCCHeaderBlock>"/>
    <class name="edm::SortedCollection<EcalDCCHeaderBlock,edm::StrictWeakOrdering<EcalDCCHeaderBlock> >"/>
+   <class name="edm::StrictWeakOrdering<EcalDCCHeaderBlock>" /> <!-- Root6 -->
    <class name="edm::Wrapper<edm::SortedCollection<EcalDCCHeaderBlock,edm::StrictWeakOrdering<EcalDCCHeaderBlock> > >" id="679B9EAA-1B71-051A-FFD7-79D324E1AAC3"/>
    <class name="EcalListOfFEDS" ClassVersion="10">
     <version ClassVersion="10" checksum="1070537451"/>
@@ -25,12 +26,14 @@
    </class>
    <class name="std::vector<ESDCCHeaderBlock>"/>
    <class name="edm::SortedCollection<ESDCCHeaderBlock,edm::StrictWeakOrdering<ESDCCHeaderBlock> >"/>
+   <class name="edm::StrictWeakOrdering<ESDCCHeaderBlock>" /> <!-- Root6 -->
    <class name="edm::Wrapper<edm::SortedCollection<ESDCCHeaderBlock,edm::StrictWeakOrdering<ESDCCHeaderBlock> > >" />
    <class name="ESKCHIPBlock" ClassVersion="10">
     <version ClassVersion="10" checksum="3879602689"/>
    </class>
    <class name="std::vector<ESKCHIPBlock>"/>
    <class name="edm::SortedCollection<ESKCHIPBlock,edm::StrictWeakOrdering<ESKCHIPBlock> >"/>
+   <class name="edm::StrictWeakOrdering<ESKCHIPBlock>" /> <!-- Root6 -->
    <class name="edm::Wrapper<edm::SortedCollection<ESKCHIPBlock,edm::StrictWeakOrdering<ESKCHIPBlock> > >" />
 
 </lcgdict>

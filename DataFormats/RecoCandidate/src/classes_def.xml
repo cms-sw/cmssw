@@ -126,6 +126,7 @@
    <version ClassVersion="10" checksum="4098085496"/>
   </class>
   <class name="std::multimap<reco::isodeposit::Direction::Distance,float>"/>
+  <class name="std::pair<reco::isodeposit::Direction::Distance,float>"/>
 
   <class name="reco::IsoDepositMap"/>
   <class name="edm::ValueMap<reco::IsoDeposit>::const_iterator">
