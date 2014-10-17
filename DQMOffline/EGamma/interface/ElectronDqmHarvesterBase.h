@@ -37,8 +37,8 @@ class ElectronDqmHarvesterBase : public DQMEDHarvester
     bool finalStepDone() { return finalDone_ ; }
     int verbosity() { return verbosity_ ; }
     MonitorElement * get( DQMStore::IGetter & iGetter, const std::string & name ) ;
-    void remove( DQMStore::IGetter & iGetter, const std::string & name ) ;
-    void remove_other_dirs(DQMStore::IGetter & iGetter) ;
+    void remove( DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, const std::string & name ) ;
+    void remove_other_dirs(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter) ;
 
     void setBookPrefix( const std::string & ) ;
     void setBookIndex( short ) ;
@@ -146,7 +146,7 @@ class ElectronDqmHarvesterBase : public DQMEDHarvester
     std::string outputFile_ ;
     std::string inputInternalPath_ ;
     std::string outputInternalPath_ ;
-    DQMStore * store_ ; // pour l'instant on ne peut pas l'enlever
+//    DQMStore * store_ ; 
     DQMStore::IBooker * iBooker ;
     DQMStore::IGetter * iGetter ;
     bool finalDone_ ;
