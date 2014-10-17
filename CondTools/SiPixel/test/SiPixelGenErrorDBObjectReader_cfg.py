@@ -16,12 +16,24 @@ process.maxEvents = cms.untracked.PSet(
 
 testGlobalTag = False
 if testGlobalTag :
-    process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-    process.GlobalTag.globaltag = "GR_R_72_V5::All"
+#old DB, to be removed soon
+#    process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+#    process.GlobalTag.globaltag = "GR_R_72_V5::All"
 #    process.GlobalTag.globaltag = "POSTLS172_V9::All"
 #    process.GlobalTag.globaltag = "DESIGN72_V5::All"
 #    process.GlobalTag.globaltag = "MC_72_V3::All"
 #    process.GlobalTag.globaltag = "START72_V3::All"
+
+#use GTs without ::All with the next line
+    process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+    from Configuration.AlCa.autoCond import autoCond
+    #use autocond, see:
+    #https://github.com/cms-sw/cmssw/blob/CMSSW_7_3_X/Configuration/AlCa/python/autoCond.py
+    #process.GlobalTag.globaltag = autoCond['run2_data']
+    process.GlobalTag.globaltag = autoCond['run2_mc']
+    #or set GT by hand
+    process.GlobalTag.globaltag = "GR_R_72_V5"
+
     
 # for local sqlite files
 else:
