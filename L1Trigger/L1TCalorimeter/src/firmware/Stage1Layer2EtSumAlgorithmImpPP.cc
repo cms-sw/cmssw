@@ -121,4 +121,31 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
   delete subRegions;
   delete preGtEtSums;
 
+  const bool verbose = false;
+  if(verbose)
+  {
+    for(std::vector<l1t::EtSum>::const_iterator itetsum = etsums->begin();
+	itetsum != etsums->end(); ++itetsum){
+      // if(EtSum::EtSumType::kMissingEt == itetsum->getType())
+      // {
+      // 	cout << "Missing Et" << endl;
+      // 	cout << bitset<12>(itetsum->hwPt()).to_string() << endl;
+      // }
+      // if(EtSum::EtSumType::kMissingHt == itetsum->getType())
+      // {
+      // 	cout << "Missing Ht" << endl;
+      // 	cout << bitset<12>(itetsum->hwPt()).to_string() << endl;
+      // }
+      if(EtSum::EtSumType::kTotalEt == itetsum->getType())
+      {
+	cout << "Total Et" << endl;
+	cout << bitset<12>(itetsum->hwPt()).to_string() << endl;
+      }
+      if(EtSum::EtSumType::kTotalEt == itetsum->getType())
+      {
+	cout << "Total Ht" << endl;
+	cout << bitset<12>(itetsum->hwPt()).to_string() << endl;
+      }
+    }
+  }
 }

@@ -73,9 +73,10 @@ l1t::L1TCaloRCTToUpgradeConverter::produce(edm::Event& iEvent, const edm::EventS
 			   (int) em->regionId().ieta(),
 			   (int) em->regionId().iphi(),
 			   (int) em->index());
-    EmCand.setHwIso(em->isolated());
-    //std::cout<<"ISO:    "<<EmCand.hwIso()<<"    "<<em->isolated()<<std::endl;
 
+    EmCand.setHwIso((int) em->isolated());
+    //std::cout<<"ISO:    "<<EmCand.hwIso()<<"    "<<em->isolated()<<std::endl;
+    
     // create new format
     emcands->push_back( em->bx(), EmCand );
 

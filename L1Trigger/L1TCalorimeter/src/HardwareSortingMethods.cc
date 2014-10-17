@@ -10,7 +10,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/HardwareSortingMethods.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-const bool verbose = false;
+bool verbose = false;
 
 int fw_to_gt_phi_map[] = {4, 3, 2, 1, 0, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5};
 int gt_to_fw_phi_map[] = {4, 3, 2, 1, 0, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5};
@@ -58,7 +58,7 @@ std::vector<std::vector<l1t::L1Candidate> > presort(std::vector<std::vector<l1t:
   dummyJet.setHwPt(0);
   dummyJet.setHwPhi(99);
   dummyJet.setHwEta(99);
-  dummyJet.setHwQual(4);
+  dummyJet.setHwQual(10);
   std::vector<std::vector<l1t::L1Candidate> > sorted_energies (rows, std::vector<l1t::L1Candidate>(cols, dummyJet));
   if(verbose) print2DVector( sorted_energies );
 
@@ -97,7 +97,7 @@ std::vector<std::vector<l1t::L1Candidate> > extract_sub_jet_energy_position_matr
   dummyJet.setHwPt(0);
   dummyJet.setHwPhi(99);
   dummyJet.setHwEta(99);
-  dummyJet.setHwQual(4);
+  dummyJet.setHwQual(10);
   for(unsigned int i=0; i<row_f-row_i+1; i++){
     for(unsigned int j=0; j<col_f-col_i+1; j++){
       if(row_i+i > input_matrix.size()-1) output_matrix[i][j] = dummyJet;
@@ -164,7 +164,7 @@ std::vector<l1t::L1Candidate> array_from_row_sorted_matrix(std::vector<std::vect
   dummyJet.setHwPt(0);
   dummyJet.setHwPhi(99);
   dummyJet.setHwEta(99);
-  dummyJet.setHwQual(4);
+  dummyJet.setHwQual(10);
   for(unsigned int k=array_position; k<output_array.size(); k++){
     output_array[k]=dummyJet;
   }
@@ -209,7 +209,7 @@ std::vector<std::vector<l1t::L1Candidate> > presort_egamma(std::vector<l1t::L1Ca
   dummyJet.setHwPt(0);
   dummyJet.setHwPhi(99);
   dummyJet.setHwEta(99);
-  dummyJet.setHwQual(4);
+  dummyJet.setHwQual(10);
   std::vector<std::vector<l1t::L1Candidate> > sorted_energies (rows, std::vector<l1t::L1Candidate>(cols, dummyJet));
   if(verbose) print2DVector( sorted_energies );
 
@@ -401,7 +401,7 @@ namespace l1t{
       dummyJet.setHwPt(0);
       dummyJet.setHwEta(0);
       dummyJet.setHwPhi(0);
-      dummyJet.setHwQual(4);
+      dummyJet.setHwQual(10);
       if(k<N_INPUT_EGAMMAS*FIBER_PAIRS){
 	iso_egamma_array_p.push_back(dummyJet);
 	noniso_egamma_array_p.push_back(dummyJet);
@@ -423,17 +423,17 @@ namespace l1t{
       //iso = true;
 
       if(iso && minus)
-	iso_egamma_array_m[9*fiberNum+index] = *ineg;
+	iso_egamma_array_m[8*fiberNum+index] = *ineg;
       else if (iso && !minus)
-	iso_egamma_array_p[9*fiberNum+index] = *ineg;
+	iso_egamma_array_p[8*fiberNum+index] = *ineg;
       else if (!iso && minus)
-	noniso_egamma_array_m[9*fiberNum+index] = *ineg;
+	noniso_egamma_array_m[8*fiberNum+index] = *ineg;
       else if (!iso && !minus)
-	noniso_egamma_array_p[9*fiberNum+index] = *ineg;
+	noniso_egamma_array_p[8*fiberNum+index] = *ineg;
 
     }
 
-
+    //verbose = true;
     //1
     std::vector<std::vector<l1t::L1Candidate> > presorted_iso_matrix_sig_p = presort_egamma(iso_egamma_array_p, N_PRESORTED_ROWS_EGAMMA/2, PRESORT_DEPTH);
     std::vector<std::vector<l1t::L1Candidate> > presorted_iso_matrix_sig_m = presort_egamma(iso_egamma_array_m, N_PRESORTED_ROWS_EGAMMA/2, PRESORT_DEPTH);
@@ -472,6 +472,8 @@ namespace l1t{
     //Prepare output
     std::vector<l1t::L1Candidate> sorted_iso_egammas = iso_stage2_super_sorted_matrix_sig[0];
     std::vector<l1t::L1Candidate> sorted_noniso_egammas = non_iso_stage2_super_sorted_matrix_sig[0];
+
+    //verbose = false;
 
     for(unsigned int i = 0; i < 4; ++i)
     {
