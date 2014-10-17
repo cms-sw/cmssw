@@ -70,7 +70,7 @@ void ElectronDqmAnalyzerBase::endRun( edm::Run const &, edm::EventSetup const & 
     // --- transfert from endJob()
     if (outputFile_!="")
      { 
-//     std::cout << "ElectronDqmAnalyzerBase::endRun outputFile_ : " << outputFile_ << std::endl;
+//     edm::LogWarning("ElectronDqmAnalyzerBase::endRun")<<"finalize() already called" ;
 	 } /**/
    }
  }
