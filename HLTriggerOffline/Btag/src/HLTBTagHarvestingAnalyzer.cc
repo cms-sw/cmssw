@@ -176,6 +176,7 @@ TH1F  HLTBTagHarvestingAnalyzer::calculateEfficiency1D(DQMStore::IBooker& ibooke
 		eff.SetBinError( i, err );
 	}
 	ibooker.book1D(effName,&eff);
+	
 	return eff;
 }
 
