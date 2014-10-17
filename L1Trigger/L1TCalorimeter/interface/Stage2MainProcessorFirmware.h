@@ -21,6 +21,10 @@
 #include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2JetAlgorithm.h"
 #include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2EtSumAlgorithm.h"
 #include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2JetSumAlgorithm.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2DemuxEGAlgoFirmware.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2DemuxTauAlgoFirmware.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2DemuxJetAlgoFirmware.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2DemuxSumsAlgoFirmware.h"
 
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
 
@@ -37,6 +41,10 @@ namespace l1t {
     virtual void processEvent(const std::vector<l1t::CaloTower> & inTowers,
 			      std::vector<l1t::CaloTower> & outTowers,
 			      std::vector<l1t::CaloCluster> & clusters,
+			      std::vector<l1t::EGamma> & mpEGammas,
+			      std::vector<l1t::Tau> & mpTaus,
+			      std::vector<l1t::Jet> & mpJets,
+			      std::vector<l1t::EtSum> & mpSums,
 			      std::vector<l1t::EGamma> & egammas,
 			      std::vector<l1t::Tau> & taus,
 			      std::vector<l1t::Jet> & jets,
@@ -58,6 +66,11 @@ namespace l1t {
     Stage2Layer2JetAlgorithm* m_jetAlgo;
     Stage2Layer2EtSumAlgorithm* m_sumAlgo;
     Stage2Layer2JetSumAlgorithm* m_jetSumAlgo;
+
+    Stage2Layer2DemuxEGAlgo* m_demuxEGAlgo;
+    Stage2Layer2DemuxTauAlgo* m_demuxTauAlgo;
+    Stage2Layer2DemuxJetAlgo* m_demuxJetAlgo;
+    Stage2Layer2DemuxSumsAlgo* m_demuxSumsAlgo;
     
   };
   
