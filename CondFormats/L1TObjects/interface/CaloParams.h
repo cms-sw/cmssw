@@ -187,6 +187,14 @@ namespace l1t {
     void setEtSumEtaMax(unsigned isum, int eta);
     void setEtSumEtThreshold(unsigned isum, double thresh);
 
+    // HI centrality
+    l1t::LUT* centralityLUT() { return centralityLUT_.get(); }
+    void setCentralityLUT(std::shared_ptr<LUT> lut) { centralityLUT_ = lut; }
+
+    // HI Q2
+    l1t::LUT* q2LUT() { return q2LUT_.get(); }
+    void setQ2LUT(std::shared_ptr<LUT> lut) { q2LUT_ = lut; }
+
     // print parameters to stream:
     void print(std::ostream&) const;
     friend std::ostream& operator<<(std::ostream& o, const CaloParams & p) { p.print(o); return o; }
@@ -406,6 +414,13 @@ namespace l1t {
     std::vector<double> etSumEtThreshold_;
 
 
+    /* HI */
+
+    // centrality LUT
+    std::shared_ptr<l1t::LUT> centralityLUT_;
+
+    // Q2 LUT
+    std::shared_ptr<l1t::LUT> q2LUT_;
 
   };
 
