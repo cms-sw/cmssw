@@ -2,7 +2,7 @@
 #include "DQM/HcalMonitorTasks/interface/HcalHotCellMonitor.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
-HcalHotCellMonitor::HcalHotCellMonitor(const edm::ParameterSet& ps)
+HcalHotCellMonitor::HcalHotCellMonitor(const edm::ParameterSet& ps):HcalBaseDQMonitor(ps)
 {
   // Standard information, inherited from base class
   Online_                = ps.getUntrackedParameter<bool>("online",false);

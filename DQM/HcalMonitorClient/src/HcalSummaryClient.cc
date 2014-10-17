@@ -81,6 +81,11 @@ HcalSummaryClient::HcalSummaryClient(std::string myname, const edm::ParameterSet
 						ps.getUntrackedParameter<int>("minevents",0));
   Online_                = ps.getUntrackedParameter<bool>("online",false);
 
+  // Specify the directories where the tasks to be check reside
+  TaskList_              = ps.getUntrackedParameter<std::vector<std::string> >("TaskDirectories");
+  // Minimum number of events per lumi section that must be present for checks to be made.  *ALL* tasks must contain at least this many events
+  minEvents_             = ps.getUntrackedParameter<int>("minEvents",500);
+
   SummaryMapByDepth=0;
   ProblemCells=0;
   ProblemCellsByDepth=0;
@@ -649,73 +654,99 @@ void HcalSummaryClient::fillReportSummaryLSbyLS(DQMStore::IBooker &ib, DQMStore:
 
   MonitorElement* me;
   ig.setCurrentFolder(prefixME_+"LSbyLS_Hcal/LSvalues");
+
+  bool enoughEvents=true;
+  int Nevents=0;
+  int TotalEvents=0;
   
-  float status_HB=-1;
-  float status_HE=-1;
-  float status_HO=-1;
-  float status_HF=-1;
-  float status_HO0=-1;
-  float status_HO12=-1;
-  float status_HFlumi=-1;
+  float status_HB=0;
+  float status_HE=0;
+  float status_HO=0;
+  float status_HF=0;
+  float status_HO0=0;
+  float status_HO12=0;
+  float status_HFlumi=0;
   float status_global=-1;
 
-  me=ig.get(prefixME_+"LSbyLS_Hcal/LSvalues/ProblemsThisLS");
-  if (me!=0)
+  for (unsigned int i=0;i<TaskList_.size();++i)
     {
-      //check to see if enough events were processed to make tests
-      int events=(int)me->getBinContent(-1);
-      if (events>0)
+      std::string name=prefixME_+TaskList_[i]+"LSvalues/";
+      ig.setCurrentFolder(name.c_str());
+      // Do we need the 'name' prefix here?
+      me=ig.get(name+"ProblemsThisLS");
+      if (me==0)
+	{
+	  if (debug_>0) std::cout <<"<HcalLSbyLSMonitor>  Error!  Could not get histogram "<<name.c_str()<<std::endl;
+	  enoughEvents=false;
+	  break;
+	}
+
+      Nevents=(int)me->getBinContent(-1);
+      if (Nevents<minEvents_)
+	{
+	  if (debug_>0) 
+	    std::cout <<"<HcalLSbyLSMonitor>  Error!  Number of events "<<Nevents<<" for histogram "<<name.c_str()<<" is less than the required minimum of "<<minEvents_<<std::endl;
+	  enoughEvents=false;
+	  break;
+	}
+      // Total events is the number of events processed in this LS
+      TotalEvents=std::max(TotalEvents,Nevents);
+      // errors are sum over all tests.  This WILL lead to double counting in some subdetectors!
+      if ( enoughEvents==true ) {
+        status_HB+=(int)me->getBinContent(1,1);
+        status_HE+=(int)me->getBinContent(2,1);
+        status_HO+=(int)me->getBinContent(3,1);
+        status_HF+=(int)me->getBinContent(4,1);
+        status_HO0+=(int)me->getBinContent(5,1);
+        status_HO12+=(int)me->getBinContent(6,1);
+        status_HFlumi+=(int)me->getBinContent(7,1);
+      }
+    }
+
+      if (TotalEvents>0)
 	{
 	  std::map<std::string, int>::const_iterator it;
 	  int totalcells=0;
 
-	  status_HB=me->getBinContent(1,1);
-	  status_HE=me->getBinContent(2,1);
-	  status_HO=me->getBinContent(3,1);
-	  status_HF=me->getBinContent(4,1);
-	  status_HO0=me->getBinContent(5,1);
-	  status_HO12=me->getBinContent(6,1);
-	  status_HFlumi=me->getBinContent(7,1);
-
 	  status_global=status_HB+status_HE+status_HO+status_HF;
-	  if (debug_>1) std::cout <<"<HcalSummaryClient::fillReportsummaryLSbyLS>   BAD CHANNELS*EVENTS = HB: "<<status_HB<<" HE: "<<status_HE<<" HO: "<<status_HO<<" HO0: "<<status_HO0<<" HO12: "<<status_HO12<<" HF:"<<status_HF<<" HFlumi: "<<status_HFlumi<<"  TOTAL BAD CHANNELS*EVENTS = "<<status_global<<"  TOTAL EVENTS = "<<events<<std::endl;
+	  if (debug_>1) std::cout <<"<HcalSummaryClient::fillReportsummaryLSbyLS>   BAD CHANNELS*EVENTS = HB: "<<status_HB<<" HE: "<<status_HE<<" HO: "<<status_HO<<" HO0: "<<status_HO0<<" HO12: "<<status_HO12<<" HF:"<<status_HF<<" HFlumi: "<<status_HFlumi<<"  TOTAL BAD CHANNELS*EVENTS = "<<status_global<<"  TOTAL EVENTS = "<<TotalEvents<<std::endl;
 
 	  it=subdetCells_.find("HB");
 	  totalcells+=it->second;
 	  if (it->second>0)
-	    status_HB=1-(status_HB)/events/it->second;
+	    status_HB=1-(status_HB)/TotalEvents/it->second;
 
 	  it=subdetCells_.find("HE");
 	  totalcells+=it->second;
 	  if (it->second>0)
-	    status_HE=1-(status_HE)/events/it->second;
+	    status_HE=1-(status_HE)/TotalEvents/it->second;
 
 	  it=subdetCells_.find("HO");
 	  totalcells+=it->second;
 	  if (it->second>0)
-	    status_HO=1-(status_HO)/events/it->second;
+	    status_HO=1-(status_HO)/TotalEvents/it->second;
 
 	  it=subdetCells_.find("HF");
 	  totalcells+=it->second;
 	  if (it->second>0)
-	    status_HF=1-(status_HF)/events/it->second;
+	    status_HF=1-(status_HF)/TotalEvents/it->second;
 
 	  it=subdetCells_.find("HO0");
 	  if (it->second>0)
-	    status_HO0=1-(status_HO0)/events/it->second;
+	    status_HO0=1-(status_HO0)/TotalEvents/it->second;
 
 	  it=subdetCells_.find("HO12");
 	  if (it->second>0)
-	    status_HO12=1-(status_HO12)/events/it->second;
+	    status_HO12=1-(status_HO12)/TotalEvents/it->second;
 
 	  it=subdetCells_.find("HFlumi");
 	  if (it->second>0)
-	    status_HFlumi=1-(status_HFlumi)/events/it->second;
+	    status_HFlumi=1-(status_HFlumi)/TotalEvents/it->second;
 	  if (totalcells>0)
-	    status_global=1-status_global/events/totalcells;
-	  if (debug_>1) std::cout <<"<HcalSummaryClient::fillReportsummaryLSbyLS>   STATUS= HB: "<<status_HB<<" HE: "<<status_HE<<" HO: "<<status_HO<<" HO0: "<<status_HO0<<" HO12: "<<status_HO12<<" HF:"<<status_HF<<" HFlumi: "<<status_HFlumi<<"  GLOBAL STATUS = "<<status_global<<"  TOTAL EVENTS = "<<events<<std::endl;
-	} // if (events(>0)
-    } // if (me!=0)
+	    status_global=1-status_global/TotalEvents/totalcells;
+	  if (debug_>1) std::cout <<"<HcalSummaryClient::fillReportsummaryLSbyLS>   STATUS= HB: "<<status_HB<<" HE: "<<status_HE<<" HO: "<<status_HO<<" HO0: "<<status_HO0<<" HO12: "<<status_HO12<<" HF:"<<status_HF<<" HFlumi: "<<status_HFlumi<<"  GLOBAL STATUS = "<<status_global<<"  TOTAL EVENTS = "<<TotalEvents<<std::endl;
+	} // if (TotalEvents(>0)
+
 
   ig.setCurrentFolder(subdir_);
   if (reportMap_)

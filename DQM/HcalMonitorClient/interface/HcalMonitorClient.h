@@ -46,8 +46,6 @@ public:
   void endRun(DQMStore::IBooker &, DQMStore::IGetter &);
   void endRun(const edm::Run & r, const edm::EventSetup & c);
   
-  /// BeginLumiBlock
-  // CATCH void beginLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
   
   /// EndLumiBlock
   void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, const edm::LuminosityBlock & l, const edm::EventSetup & c);

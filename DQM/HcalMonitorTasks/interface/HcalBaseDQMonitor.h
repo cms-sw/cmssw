@@ -127,6 +127,8 @@ protected:
   bool needLogicalMap_;
 
   int badChannelStatusMask_;
+
+
   private:
   bool setupDone_;
 
@@ -135,7 +137,7 @@ protected:
   void CheckCalibType(const edm::Handle<FEDRawDataCollection>&); 
 
   edm::InputTag FEDRawDataCollection_;
-  edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
+  edm::EDGetTokenT<FEDRawDataCollection> tok_braw_;
 
   const HcalElectronicsMap * eMap_;
   

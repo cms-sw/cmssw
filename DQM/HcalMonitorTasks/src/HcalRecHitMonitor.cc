@@ -13,7 +13,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <cmath>
 
-HcalRecHitMonitor::HcalRecHitMonitor(const edm::ParameterSet& ps)
+HcalRecHitMonitor::HcalRecHitMonitor(const edm::ParameterSet& ps):HcalBaseDQMonitor(ps)
 {
   // Common Base Class parameters
   Online_                = ps.getUntrackedParameter<bool>("online",false);

@@ -26,7 +26,6 @@ class HcalRawDataClient : public HcalBaseDQClient {
   //void endRun(void); 
   void setup(void);  
   void cleanup(void);
-  //void endLuminosityBlock(void);  // CATCH - I don't think this is called
   bool hasErrors_Temp(void);  
   bool hasWarnings_Temp(void);
   bool hasOther_Temp(void);

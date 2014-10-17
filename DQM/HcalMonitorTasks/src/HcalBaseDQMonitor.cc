@@ -45,7 +45,7 @@ HcalBaseDQMonitor::HcalBaseDQMonitor(const edm::ParameterSet& ps)
 
 
   FEDRawDataCollection_  = ps.getUntrackedParameter<edm::InputTag>("FEDRawDataCollection");
-  tok_raw_ = consumes<FEDRawDataCollection>(FEDRawDataCollection_);
+  tok_braw_ = consumes<FEDRawDataCollection>(FEDRawDataCollection_);
   
   setupDone_ = false;
   logicalMap_= 0;
@@ -85,7 +85,7 @@ void HcalBaseDQMonitor::dqmBeginRun(const edm::Run &run, const edm::EventSetup &
       eMap_=pSetup->getHcalMapping(); 
     }
   if (mergeRuns_) return;
-  this->reset();
+  if( setupDone_ ) this->reset();
 
 }
 
@@ -259,7 +259,7 @@ void HcalBaseDQMonitor::analyze(const edm::Event& e, const edm::EventSetup& c)
 
   // Try to get raw data
   edm::Handle<FEDRawDataCollection> rawraw;  
-  if (!(e.getByToken(tok_raw_,rawraw)))
+  if (!(e.getByToken(tok_braw_,rawraw)))
     {
       edm::LogWarning("HcalMonitorModule")<<" raw data with label "<<FEDRawDataCollection_ <<" not available";
       return;

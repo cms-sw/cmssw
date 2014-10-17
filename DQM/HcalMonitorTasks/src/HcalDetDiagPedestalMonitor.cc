@@ -242,7 +242,7 @@ class HcalDetDiagPedestalMonitor : public HcalBaseDQMonitor {
 
 };
 
-HcalDetDiagPedestalMonitor::HcalDetDiagPedestalMonitor(const edm::ParameterSet& iConfig) {
+HcalDetDiagPedestalMonitor::HcalDetDiagPedestalMonitor(const edm::ParameterSet& iConfig): HcalBaseDQMonitor(iConfig) {
 
   ievt_=-1;
   emap=0;

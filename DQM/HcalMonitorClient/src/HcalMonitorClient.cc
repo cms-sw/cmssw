@@ -145,13 +145,6 @@ HcalMonitorClient::HcalMonitorClient(const edm::ParameterSet& ps)
   last_time_html_ = 0; 
   last_time_db_ = 0;   
 
-  // get hold of back-end interface
-  // CATCH -- removed beginJob methods from clients
-  /*for ( unsigned int i=0; i<clients_.size();++i ) 
-    clients_[i]->beginJob();
-
-  if ( summaryClient_ ) summaryClient_->beginJob();*/
-  
   
 } // HcalMonitorClient constructor
 
@@ -216,7 +209,7 @@ void HcalMonitorClient::beginRun(const edm::Run& r, const edm::EventSetup& c)
 	logstatus=-1*(log2(-1.*status)+1);
       else
 	logstatus=log2(1.*status)+1;
-      if (ChannelStatus->depth[depth-1]) ChannelStatus->depth[depth-1]->Fill(ieta,iphi,logstatus);
+      if (ChannelStatus && ChannelStatus->depth[depth-1]) ChannelStatus->depth[depth-1]->Fill(ieta,iphi,logstatus);
     }
     
   for (unsigned int i=0;i<clients_.size();++i)
@@ -234,61 +227,13 @@ void HcalMonitorClient::beginRun(const edm::Run& r, const edm::EventSetup& c)
 
 } // void HcalMonitorClient::beginRun(const Run& r, const EventSetup& c)
 
-// CATCH  I don't think this is called
-/*void HcalMonitorClient::beginRun()
-{
-  // What is the difference between this and beginRun above?
-  // When would this be called?
-  begin_run_ = true;
-  end_run_   = false;
-  jevt_ = 0;
-  htmlcounter_=0;
-
-  if (dqmStore_==0 || ChannelStatus!=0) return;
-  dqmStore_->setCurrentFolder(prefixME_+"HcalInfo");
-  ChannelStatus=new EtaPhiHists;
-  ChannelStatus->setup(dqmStore_,"ChannelStatus");
-  std::stringstream x;
-  for (unsigned int d=0;d<ChannelStatus->depth.size();++d)
-    {
-      x<<"1+log2(status) for HCAL depth "<<d+1;
-      if (ChannelStatus->depth[d]) ChannelStatus->depth[d]->setTitle(x.str().c_str());
-      x.str("");
-    }
-} */ // void HcalMonitorClient::beginRun()
 
 void HcalMonitorClient::setup(void)
 {
   // no setup required
 }
 
-// CATCH this can be removed
-/*void HcalMonitorClient::beginLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &c) 
-{
-  if (debug_>0) std::cout <<"<HcalMonitorClient::beginLuminosityBlock>"<<std::endl;
-}*/ // void HcalMonitorClient::beginLuminosityBlock
 
-// CATCH
-// I think this function can be removed since the prescaleFactor is set to -1 by default configuration.
-// ievt and jevt are diisplayed by the monitor, but this should be found by some other means.
-/*void HcalMonitorClient::analyze(const edm::Event & e, const edm::EventSetup & c)
-{
-  if (debug_>4) 
-    std::cout <<"HcalMonitorClient::analyze(const edm::Event&, const edm::EventSetup&) ievt_ = "<<ievt_<<std::endl;
-  ievt_++;
-  jevt_++;
-
-  run_=e.id().run();
-  evt_=e.id().event();
-  if (prescaleFactor_>0 && jevt_%prescaleFactor_==0) {
-
-    for (unsigned int i=0;i<clients_.size();++i)
-      clients_[i]->getLogicalMap(c); // actually runs just once internally
-
-    this->analyze(e.luminosityBlock());
-  }
-
-} */ // void HcalMonitorClient::analyze(const edm::Event & e, const edm::EventSetup & c)
 
 void HcalMonitorClient::analyze(DQMStore::IBooker &ib, DQMStore::IGetter &ig, int LS)
 {
@@ -389,10 +334,6 @@ void HcalMonitorClient::endRun(const edm::Run& r, const edm::EventSetup& c)
     PlotPedestalValues(*conditions);
   }
 
-  // CATCH -- hopefully this does not break functionality
-  // The clients will need access to IBooker and IGetter in the analyze methods.
-  /*this->analyze();
-  this->endRun();*/
 }
 
 void HcalMonitorClient::dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig)

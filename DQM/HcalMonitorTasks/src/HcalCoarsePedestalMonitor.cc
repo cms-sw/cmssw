@@ -11,7 +11,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
 // constructor
-HcalCoarsePedestalMonitor::HcalCoarsePedestalMonitor(const edm::ParameterSet& ps) 
+HcalCoarsePedestalMonitor::HcalCoarsePedestalMonitor(const edm::ParameterSet& ps) : HcalBaseDQMonitor(ps)
 {
   Online_                = ps.getUntrackedParameter<bool>("online",false);
   mergeRuns_             = ps.getUntrackedParameter<bool>("mergeRuns",false);

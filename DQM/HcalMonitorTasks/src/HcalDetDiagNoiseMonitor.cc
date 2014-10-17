@@ -152,7 +152,9 @@ public:
   HcalDetDiagNoiseRMData rm[HcalFrontEndId::maxRmIndex];
 };
 
-HcalDetDiagNoiseMonitor::HcalDetDiagNoiseMonitor(const edm::ParameterSet& ps) {
+HcalDetDiagNoiseMonitor::HcalDetDiagNoiseMonitor(const edm::ParameterSet& ps):
+  HcalBaseDQMonitor(ps)
+ {
 
   tok_tb_ = consumes<HcalTBTriggerData>(ps.getParameter<edm::InputTag>("hcalTBTriggerDataTag"));
 

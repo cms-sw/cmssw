@@ -8,7 +8,7 @@
 #include "FWCore/Common/interface/TriggerNames.h"
 #include <math.h>
 
-HcalNZSMonitor::HcalNZSMonitor(const edm::ParameterSet& ps) 
+HcalNZSMonitor::HcalNZSMonitor(const edm::ParameterSet& ps) :HcalBaseDQMonitor(ps)
 {
   Online_                = ps.getUntrackedParameter<bool>("online",false);
   mergeRuns_             = ps.getUntrackedParameter<bool>("mergeRuns",false);

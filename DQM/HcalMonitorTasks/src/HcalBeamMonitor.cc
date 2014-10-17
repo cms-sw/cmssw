@@ -27,6 +27,7 @@
 
 // constructor
 HcalBeamMonitor::HcalBeamMonitor(const edm::ParameterSet& ps):
+  HcalBaseDQMonitor(ps),
   ETA_OFFSET_HB(16),
   ETA_OFFSET_HE(29),
   ETA_BOUND_HE(17),

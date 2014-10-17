@@ -50,6 +50,13 @@ class HcalSummaryClient : public HcalBaseDQClient {
   MonitorElement* reportMap_;
   MonitorElement* certificationMap_;
 
+  // minEvents and TaskLists_ were added as private members during the
+  // MT migration.
+  // Originally this functionality was performed by the HcalLSbyLSMonitor
+  // under DQM/HcalMonitorTasks
+  int minEvents_;
+  std::vector<std::string> TaskList_;
+
   double status_global_, status_HB_, status_HE_, status_HO_, status_HF_;
   double status_HO0_, status_HO12_, status_HFlumi_;
   int NLumiBlocks_;

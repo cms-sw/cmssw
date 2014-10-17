@@ -5,7 +5,7 @@
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include <iostream>
 
-HcalDataIntegrityTask::HcalDataIntegrityTask(const edm::ParameterSet& ps) 
+HcalDataIntegrityTask::HcalDataIntegrityTask(const edm::ParameterSet& ps) :HcalBaseDQMonitor(ps)
 {
 
   Online_                = ps.getUntrackedParameter<bool>("online",false);

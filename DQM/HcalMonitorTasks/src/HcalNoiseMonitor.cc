@@ -22,7 +22,7 @@
 
 #include "FWCore/Common/interface/TriggerNames.h"
 
-HcalNoiseMonitor::HcalNoiseMonitor(const edm::ParameterSet& ps)
+HcalNoiseMonitor::HcalNoiseMonitor(const edm::ParameterSet& ps):HcalBaseDQMonitor(ps)
 {
    Online_                = ps.getUntrackedParameter<bool>("online",false);
    mergeRuns_             = ps.getUntrackedParameter<bool>("mergeRuns",false);
