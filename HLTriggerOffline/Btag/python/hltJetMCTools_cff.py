@@ -1,5 +1,3 @@
-# taken from http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/HLTriggerOffline/BJet/python/hltJetMCTools_cff.py?revision=1.4&view=markup
-
 #define hltJetMCTools for jet/parton matching
 
 import FWCore.ParameterSet.Config as cms
