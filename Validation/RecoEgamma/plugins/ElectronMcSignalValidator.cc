@@ -574,13 +574,6 @@ ElectronMcSignalValidator::ElectronMcSignalValidator( const edm::ParameterSet & 
 
 void ElectronMcSignalValidator::bookHistograms( DQMStore::IBooker & iBooker, edm::Run const &, edm::EventSetup const & )
  {
-//  store_ = edm::Service<DQMStore>().operator->() ;
-//  if (!store_)
-//   { edm::LogError("ElectronDqmAnalyzerBase::prepareStore")<<"No DQMStore found !" ; }
-//  store_->setVerbose(verbosity_) ;
-  std::cout << "ElectronMcSignalValidator::bookHistograms inputFile_ : " << inputFile_ << std::endl;
-/*  if (inputFile_!="")
-   { store_->open(inputFile_) ; }*/
   iBooker.setCurrentFolder(outputInternalPath_) ;
 
   //  prepareStore() ;
