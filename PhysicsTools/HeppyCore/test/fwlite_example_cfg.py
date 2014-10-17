@@ -6,8 +6,8 @@ import PhysicsTools.HeppyCore.framework.config as cfg
 # and added to the list of selected components
 ttbar = cfg.Component(
     'TTBar',
-    # files = ['root://eoscms//eos/cms/store/relval/CMSSW_7_2_0_pre5/RelValTTbarLepton_13/GEN-SIM-RECO/POSTLS172_V3-v1/00000/8289BD3A-1731-E411-8D63-002618FDA265.root'],
-    files = ['relval_ttbar_gensimreco.root']
+    files = ['root://eoscms//eos/cms/store/relval/CMSSW_7_2_0_pre5/RelValTTbarLepton_13/GEN-SIM-RECO/POSTLS172_V3-v1/00000/8289BD3A-1731-E411-8D63-002618FDA265.root'],
+    # files = ['relval_ttbar_gensimreco.root']
     )
 
 selectedComponents  = [ttbar]
