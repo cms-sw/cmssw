@@ -289,15 +289,15 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
   hltRates[DataPoint::SOURCE] = sourceHost;
   hltRates[DataPoint::DEFINITION] = iSummary->jsonRateDefFile;
 
-  hltRates[DataPoint::DATA].append(iSummary->processed->toString());
-  hltRates[DataPoint::DATA].append(iSummary->hltWasRun->toString());
-  hltRates[DataPoint::DATA].append(iSummary->hltL1s   ->toString());
-  hltRates[DataPoint::DATA].append(iSummary->hltPre   ->toString());
-  hltRates[DataPoint::DATA].append(iSummary->hltAccept->toString());
-  hltRates[DataPoint::DATA].append(iSummary->hltReject->toString());
-  hltRates[DataPoint::DATA].append(iSummary->hltErrors->toString());
+  hltRates[DataPoint::DATA].append(iSummary->processed->toJsonValue());
+  hltRates[DataPoint::DATA].append(iSummary->hltWasRun->toJsonValue());
+  hltRates[DataPoint::DATA].append(iSummary->hltL1s   ->toJsonValue());
+  hltRates[DataPoint::DATA].append(iSummary->hltPre   ->toJsonValue());
+  hltRates[DataPoint::DATA].append(iSummary->hltAccept->toJsonValue());
+  hltRates[DataPoint::DATA].append(iSummary->hltReject->toJsonValue());
+  hltRates[DataPoint::DATA].append(iSummary->hltErrors->toJsonValue());
 
-  hltRates[DataPoint::DATA].append(iSummary->hltDatasets->toString());
+  hltRates[DataPoint::DATA].append(iSummary->hltDatasets->toJsonValue());
 
   std::string && result = writer.write(hltRates);
 
