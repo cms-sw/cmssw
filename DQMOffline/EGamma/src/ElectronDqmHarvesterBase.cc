@@ -59,10 +59,7 @@ const std::string * ElectronDqmHarvesterBase::find( DQMStore::IGetter & iGetter,
  {
   typedef std::vector<std::string> HistoNames ;
   typedef HistoNames::iterator HistoNamesItr ;
-//  std::cout << "find input internal path = " << inputInternalPath_ << std::endl;
-//  std::cout << "find output internal path = " << outputInternalPath_ << std::endl;
   if (!histoNamesReady)
-//   { histoNamesReady = true ; histoNames_ = store_->getMEs() ; }
    { histoNamesReady = true ; histoNames_ = iGetter.getMEs() ; }
   HistoNamesItr histoName ;
   std::vector<HistoNamesItr> res ;
@@ -104,16 +101,6 @@ const std::string * ElectronDqmHarvesterBase::find( DQMStore::IGetter & iGetter,
 
 void ElectronDqmHarvesterBase::beginJob()
  {
-  store_ = edm::Service<DQMStore>().operator->() ;
-  if (!store_)
-   { edm::LogError("ElectronDqmHarvesterBase::prepareStore")<<"No DQMStore found !" ; }
-//  store_->setVerbose(verbosity_) ;
-  std::cout << "ElectronDqmHarvesterBase::beginJob inputFile_ : " << inputFile_ << std::endl;  
-/*  if (inputFile_!="")
-   { store_->open(inputFile_) ; }*/ //needed for Harvesting
-//  store_->setCurrentFolder(outputInternalPath_) ;
-//  std::cout << "begin job input internal path = " << inputInternalPath_ << std::endl;
-//  std::cout << "begin job output internal path = " << outputInternalPath_ << std::endl; // give Run 1/EgammaV/Run summary/ElectronMcSignalValidator
   book() ;
  }
 
@@ -125,13 +112,12 @@ void ElectronDqmHarvesterBase::dqmEndLuminosityBlock( DQMStore::IBooker & iBooke
      { 
          edm::LogWarning("ElectronDqmHarvesterBase::endLuminosityBlock")<<"finalize() already called" ; 
      }
-//    store_->setCurrentFolder(outputInternalPath_) ;
     iBooker.setCurrentFolder(outputInternalPath_) ;
     finalDone_ = true ;
    }
    else 
    {
-//    passe par ici mais pas au dessus
+//    go here but not over
    }
 
  }
@@ -139,24 +125,17 @@ void ElectronDqmHarvesterBase::dqmEndLuminosityBlock( DQMStore::IBooker & iBooke
 void ElectronDqmHarvesterBase::dqmEndJob(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter)
  {
 
-//  store_ = edm::Service<DQMStore>().operator->() ;
   if (finalStep_=="AtJobEnd")
    {
     if (finalDone_)
      { edm::LogWarning("ElectronDqmHarvesterBase::dqmEndJob")<<"finalize() already called" ; }
-    std::cout << "end job input internal path = " << inputInternalPath_ << std::endl;
-    std::cout << "end job output internal path = " << outputInternalPath_ << std::endl;
     iBooker.setCurrentFolder(outputInternalPath_) ;
     finalDone_ = true ;
    }
   if (outputFile_!="")
    {
-   std::cout << "ElectronDqmHarvesterBase::dqmEndJob outputFile_ : " << outputFile_ << std::endl;
    iBooker.setCurrentFolder(outputInternalPath_) ;
-   std::cout << "end job input internal path = " << inputInternalPath_ << std::endl;
-   std::cout << "end job output internal path = " << outputInternalPath_ << std::endl;
-   finalize( iBooker, iGetter ) ; // , const edm::Event& e, const edm::EventSetup & c
-//   store_->save(outputFile_) ; 
+   finalize( iBooker, iGetter ) ; 
    }
  }
 
@@ -165,26 +144,25 @@ MonitorElement * ElectronDqmHarvesterBase::get( DQMStore::IGetter & iGetter, con
   const std::string * fullName = find(iGetter, name) ;
    std::cout << "name = " << name << std::endl;
   if (fullName)
-//   { return store_->get(inputInternalPath_+"/"+*fullName) ; }
    { return iGetter.get(inputInternalPath_+"/"+*fullName) ; }
   else
   { return 0 ; }
  }
 
-void ElectronDqmHarvesterBase::remove( DQMStore::IGetter & iGetter, const std::string & name )
+void ElectronDqmHarvesterBase::remove( DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, const std::string & name )
  {
   const std::string * fullName = find(iGetter, name) ;
   if (fullName)
    {
-    store_->setCurrentFolder(inputInternalPath_) ;
-    store_->removeElement(*fullName) ;
+    iBooker.setCurrentFolder(inputInternalPath_) ;
+    iGetter.removeElement(*fullName) ;
    }
  }
 
-void ElectronDqmHarvesterBase::remove_other_dirs(DQMStore::IGetter & iGetter)
+void ElectronDqmHarvesterBase::remove_other_dirs(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter)
  {
-  std::string currentPath = store_->pwd() ;
-  store_->cd() ;
+  std::string currentPath = iBooker.pwd() ;
+  iGetter.cd() ;
 
   std::string currentFolder ;
   std::vector<std::string> subDirs ;
@@ -205,13 +183,17 @@ void ElectronDqmHarvesterBase::remove_other_dirs(DQMStore::IGetter & iGetter)
     lastPos = currentPath.find_first_not_of(delimiter, pos);
     pos = currentPath.find_first_of(delimiter, lastPos);
 
-    subDirs = store_->getSubdirs() ;
+    subDirs = iGetter.getSubdirs() ;
     for ( subDir = subDirs.begin() ; subDir != subDirs.end() ; subDir++ )
      {
       if (currentFolder!=(*subDir))
-       { store_->rmdir(*subDir) ; }
+       { 
+       //store_->rmdir(*subDir) ; 
+//       iBooker.rmdir(*subDir); 
+//       iGetter.rmdir(*subDir); 
+       }
      }
-    store_->cd(currentFolder) ;
+    iGetter.cd(currentFolder) ;
    }
  }
 
