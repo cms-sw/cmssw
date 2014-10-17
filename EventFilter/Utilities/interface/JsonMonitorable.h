@@ -222,7 +222,7 @@ public:
 		ss << "]";
 		return ss.str();
 	}
-	virtual Json::Value && toJsonValue() const {
+	virtual Json::Value toJsonValue() const { //TODO
                 Json::Value jsonValue(Json::arrayValue);
 		for (unsigned int i = 0; i < histo_.size(); i++) {
                   jsonValue.append(histo_[i]);
