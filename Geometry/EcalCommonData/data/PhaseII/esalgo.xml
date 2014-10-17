@@ -6,21 +6,11 @@
     <ZSection z="[escon:ESFrontZ]" rMin="[escon:R_MIN]" rMax="[escon:Front_window_Al]"/>
     <ZSection z="[escon:ESRearZ]"  rMin="[escon:R_MIN]" rMax="[escon:R_MAX]"/>
   </Polycone>
-  <Tubs name="SFNM1" rMin="[escon:InnerNM1_RMin]" rMax="[escon:InnerNM1_RMax]" dz="[escon:InnerNM1_Dz]" startPhi="0*deg" deltaPhi="360*deg"/>
-  <Tubs name="SFNM2" rMin="[escon:InnerNM2_RMin]" rMax="[escon:InnerNM2_RMax]" dz="[escon:InnerNM2_Dz]" startPhi="0*deg" deltaPhi="360*deg"/>
 </SolidSection>
 
 <LogicalPartSection label="esalgo.xml">
   <LogicalPart name="SF" category="unspecified">
     <rSolid name="SF"/>
-    <rMaterial name="materials:E_Polythene"/>
-  </LogicalPart>
-  <LogicalPart name="SFNM1" category="unspecified">
-    <rSolid name="SFNM1"/>
-    <rMaterial name="materials:E_Polythene"/>
-  </LogicalPart>
-  <LogicalPart name="SFNM2" category="unspecified">
-    <rSolid name="SFNM2"/>
     <rMaterial name="materials:E_Polythene"/>
   </LogicalPart>
 </LogicalPartSection>
@@ -29,16 +19,6 @@
   <PosPart copyNumber="1">
     <rParent name="eregalgo:EREG"/>
     <rChild name="esalgo:SF"/>
-  </PosPart>
-  <PosPart copyNumber="1">
-    <rParent name="eregalgo:EREG"/>
-    <rChild name="esalgo:SFNM1"/>
-    <Translation x="0*fm" y="0*fm" z="[escon:InnerNM1_Z]"/>
-  </PosPart>
-  <PosPart copyNumber="1">
-    <rParent name="eregalgo:EREG"/>
-    <rChild name="esalgo:SFNM2"/>
-    <Translation x="0*fm" y="0*fm" z="[escon:InnerNM2_Z]"/>
   </PosPart>
 </PosPartSection>
 
