@@ -44,7 +44,6 @@ ElectronGeneralAnalyzer::ElectronGeneralAnalyzer( const edm::ParameterSet & conf
 ElectronGeneralAnalyzer::~ElectronGeneralAnalyzer()
  {}
 
-//void ElectronGeneralAnalyzer::book()
 void ElectronGeneralAnalyzer::bookHistograms( DQMStore::IBooker & iBooker, edm::Run const &, edm::EventSetup const & )
  {
   h2_ele_beamSpotXvsY = bookH2(iBooker, "beamSpotXvsY","beam spot x vs y",100,-0.2,0.2,100,-0.2,0.2,"x (cm)","y (cm)") ;
