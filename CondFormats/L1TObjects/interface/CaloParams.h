@@ -74,6 +74,11 @@ namespace l1t {
     l1t::LUT* egShapeIdLUT() { return egShapeIdLUT_.get(); }
     double egRelativeJetIsolationBarrelCut() const { return egRelativeJetIsolationBarrelCut_; }
     double egRelativeJetIsolationEndcapCut() const { return egRelativeJetIsolationEndcapCut_; }
+    int egMinPtRelativeJetIsolation() const { return egMinPtRelativeJetIsolation_; }
+    int egMaxPtRelativeJetIsolation() const { return egMaxPtRelativeJetIsolation_; }
+    int egMinPt3x3HoE() const { return egMinPt3x3HoE_; }
+    int egMaxPt3x3HoE() const { return egMaxPt3x3HoE_; }
+
     unsigned egIsoAreaNrTowersEta()const{return egIsoAreaNrTowersEta_;}
     unsigned egIsoAreaNrTowersPhi()const{return egIsoAreaNrTowersPhi_;}
     unsigned egIsoVetoNrTowersPhi()const{return egIsoVetoNrTowersPhi_;}
@@ -96,6 +101,10 @@ namespace l1t {
     void setEgShapeIdLUT(std::shared_ptr<LUT> lut) { egShapeIdLUT_ = lut; }
     void setEgRelativeJetIsolationBarrelCut(double cutValue) { egRelativeJetIsolationBarrelCut_ = cutValue; }
     void setEgRelativeJetIsolationEndcapCut(double cutValue) { egRelativeJetIsolationEndcapCut_ = cutValue; }
+    void setEgMinPtRelativeJetIsolation(int cutValue) { egMinPtRelativeJetIsolation_ = cutValue; }
+    void setEgMaxPtRelativeJetIsolation(int cutValue) { egMaxPtRelativeJetIsolation_ = cutValue; }
+    void setEgMinPt3x3HoE(int cutValue) { egMinPt3x3HoE_ = cutValue; }
+    void setEgMaxPt3x3HoE(int cutValue) { egMaxPt3x3HoE_ = cutValue; }
 
     void setEgIsoAreaNrTowersEta(unsigned iEgIsoAreaNrTowersEta){egIsoAreaNrTowersEta_=iEgIsoAreaNrTowersEta;}
     void setEgIsoAreaNrTowersPhi(unsigned iEgIsoAreaNrTowersPhi){egIsoAreaNrTowersPhi_=iEgIsoAreaNrTowersPhi;}
@@ -269,6 +278,14 @@ namespace l1t {
 
     // Relative jet isolation cut for EG in the endcap (Stage1Layer2)
     double egRelativeJetIsolationEndcapCut_;
+
+    // Range of jet isolation for EG (in rank!) (Stage1Layer2)
+    int egMinPtRelativeJetIsolation_;
+    int egMaxPtRelativeJetIsolation_;
+
+    // Range of 3x3 HoE isolation for EG (in rank!) (Stage1Layer2)
+    int egMinPt3x3HoE_;
+    int egMaxPt3x3HoE_;
 
     // isolation area in eta is seed tower +/- <=egIsoAreaNrTowersPhi
     unsigned egIsoAreaNrTowersEta_;
