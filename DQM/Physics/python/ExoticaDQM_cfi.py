@@ -43,42 +43,50 @@ ExoticaDQM = cms.EDAnalyzer(
     ),
 
     #Physics objects
+    vertexCollection         = cms.InputTag('offlinePrimaryVertices'),
+
     electronCollection       = cms.InputTag("gedGsfElectrons"),
-    pfelectronCollectionEI   = cms.InputTag("pfIsolatedElectronsEI"),
 
     muonCollection           = cms.InputTag("muons"),
-    pfmuonCollectionEI       = cms.InputTag("pfIsolatedMuonsEI"),
-
-    tauCollection            = cms.InputTag("caloRecoTauProducer"),
-    #pftauCollection          = cms.InputTag("pfTaus"),
 
     photonCollection         = cms.InputTag("gedPhotons"),
-    #pfphotonCollection       = cms.InputTag("pfIsolatedPhotons"),
 
-    caloJetCollection        = cms.InputTag("ak4CaloJets"),
-    pfJetCollection          = cms.InputTag("ak4PFJets"),
-    pfJetCollectionEI        = cms.InputTag("pfJets"),
+    pfJetCollection          = cms.InputTag('ak4PFJetsCHS'),
+    PFJetCorService          = cms.string("ak4PFL1FastL2L3"),
+
+    DiJetPFJetCollection     = cms.VInputTag('ak4PFJetsCHS','ak8PFJetsCHS','ca8PFJetsCHS'),
 
     caloMETCollection        = cms.InputTag("caloMetM","","RECO"),
     pfMETCollection          = cms.InputTag("pfMet","","RECO"),
-    pfMETCollectionEI        = cms.InputTag("pfMetEI","","RECO"),
+
 
     #Cuts
-    #Multijets
-    mj_monojet_ptPFJet       = cms.double(30.0),
-    mj_monojet_ptPFMuon      = cms.double(10.0),
-    mj_monojet_ptPFElectron  = cms.double(10.0),
-    CaloJetCorService        = cms.string("ak4CaloL1FastL2L3"),
-    PFJetCorService          = cms.string("ak4PFL1FastL2L3"),
+    # DiJet
+    dijet_PFJet1_pt_cut       = cms.double(30.0),
+    dijet_PFJet2_pt_cut       = cms.double(30.0),
+    # DiMuon
+    dimuon_Muon1_pt_cut      = cms.double(50.0),
+    dimuon_Muon2_pt_cut      = cms.double(50.0),
+    # DiElectron
+    dielectron_Electron1_pt_cut = cms.double(50.0),
+    dielectron_Electron2_pt_cut = cms.double(50.0),
+    # DiPhoton
+    diphoton_Photon1_pt_cut   = cms.double(20.0),
+    diphoton_Photon2_pt_cut   = cms.double(20.0),
+    # MonoMuon
+    monomuon_Muon_pt_cut      = cms.double(80.0),
+    monomuon_Muon_met_cut     = cms.double(100.0),
+    # MonoElectron
+    monoelectron_Electron_pt_cut  = cms.double(80.0),
+    monoelectron_Electron_met_cut = cms.double(100.0),
+    # Monojet
+    monojet_PFJet_pt_cut      = cms.double(80.0),
+    monojet_PFJet_met_cut     = cms.double(100.0),
+    # MonoPhoton
+    monophoton_Photon_pt_cut  = cms.double(80.0),
+    monophoton_Photon_met_cut = cms.double(100.0),
 
-    #
-    #LongLived
-
-    #genParticleCollection    = cms.InputTag("genParticles"),
-
-    #PtThrMu1 = cms.untracked.double(3.0),
-    #PtThrMu2 = cms.untracked.double(3.0)
-
+    
     JetIDParams  = cms.PSet(
         useRecHits      = cms.bool(True),
         hbheRecHitsColl = cms.InputTag("hbhereco"),
