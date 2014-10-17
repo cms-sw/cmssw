@@ -15,4 +15,10 @@
 
 <flags ADD_SUBDIR="1"/>
 <flags CXXFLAGS="-O1"/>
+# For clang we need to overwrite a few options because memory usage otherwise
+# diverges due to a bug in the compiler itself. Notice this has to come
+# *after* the above -O1 flag.
+<compiler name="llvm">
+  <flags CXXFLAGS="-O0 -Wno-constant-logical-operand -Wno-parentheses-equality"/>
+</compiler>
 <flags REM_CXXFLAGS="-flto"/>
