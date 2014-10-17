@@ -62,10 +62,8 @@ void HLTBTagPerformanceAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::Ev
 	for ( size_t trgs=0; trgs<hltPathNames_.size(); trgs++) {
 		unsigned int found = 1;
 		int it_mem = -1;
-		std::cout<<"The available path : ";
 		for (size_t it=0 ; it < allHltPathNames.size() ; ++it )
 		{
-			std::cout<<" "<< allHltPathNames.at(it)<<std::endl;
 			found = allHltPathNames.at(it).find(hltPathNames_[trgs]);
 			if ( found == 0 )
 			{
@@ -78,7 +76,6 @@ void HLTBTagPerformanceAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::Ev
 	//fill _isfoundHLTs for each hltPathNames_
 	for ( size_t trgs=0; trgs<hltPathNames_.size(); trgs++) {
 		if ( hltPathIndexs_[trgs] < 0 ) {
-			std::cout << "Path " << hltPathNames_[trgs] << " does not exist" << std::endl;
 			_isfoundHLTs.push_back(false);
 		} 
 		else {
@@ -107,7 +104,7 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 	try {
 		iEvent.getByToken(hlTriggerResults_, TriggerResulsHandler);
 		if (TriggerResulsHandler.isValid())   trigRes=true;
-	}  catch (...) { std::cout<<"Exception caught in TriggerResulsHandler"<<std::endl;}
+	}  catch (...) {	}
 	if ( !trigRes ) {    excp << "TriggerResults ==> not readable";            excp.raise(); }
 	const TriggerResults & triggerResults = *(TriggerResulsHandler.product());
 
@@ -116,14 +113,7 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 		iEvent.getByToken(m_mcPartons, h_mcPartons);
 		try {
 			if (h_mcPartons.isValid()) MCOK=true;
-			else {
-				std::cout<<"Something wrong with partons "<<std::endl;
-				std::cout<<"Partons:" << m_mcPartons_Label  <<std::endl;
-				std::cout<<"Partons valid:" << h_mcPartons.isValid()  <<std::endl;
-				std::cout<<"mcMatching:" << m_mcMatching <<std::endl;
-			}
-		} catch(...) { std::cout<<"Partons collection is not valid "<<std::endl; }
-	if(h_mcPartons->size()==0) std::cout<<"Partons collection is empty "<<std::endl;
+		} catch(...) { }
 	}
 
 	//fill the 1D and 2D DQM plot
@@ -140,7 +130,7 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 			try {
 				iEvent.getByToken(JetTagCollection_[ind], JetTagHandler);
 				if (JetTagHandler.isValid())   BtagOK=true;						
-			}  catch (...) { std::cout<<"Exception caught in JetTagHandler"<<std::endl;}			
+			}  catch (...) { }			
 		}
 		
 		//fill JetTag map
@@ -149,7 +139,6 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 			JetTag.insert(JetTagMap::value_type(iter->first, iter->second));
 		}
 		else {
-			std::cout << "JetTagCollection=" << JetTagCollection_Label[ind] << std::endl;
 			excp << "Collections ==> not found";            
 			excp.raise(); 
 		}
@@ -202,7 +191,6 @@ void HLTBTagPerformanceAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, edm
 			H1_.back()[JetTagCollection_Label[ind]]       = ibooker.book1D(JetTagCollection_Label[ind] + "_all",      (JetTagCollection_Label[ind]+ "_all").c_str(),  btagBins, btagL, btagU );
 			H1_.back()[JetTagCollection_Label[ind]]      -> setAxisTitle(JetTagCollection_Label[ind] +"discriminant",1);
 		} 
-		std::cout<<"Booking of flavour-independent plots's been finished."<<std::endl;
 		int nBinsPt=60;
 		double pTmin=30;
 		double pTMax=330;
@@ -228,7 +216,6 @@ void HLTBTagPerformanceAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, edm
 			}
 		} /// for mc.size()
 	} /// for hltPathNames_.size()
-	std::cout<<"Booking of flavour-dependent plots's been finished."<<std::endl;   
 }
 
 //define this as a plug-in

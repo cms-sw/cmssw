@@ -1,6 +1,9 @@
 #define VertexValidationVertices for the vertex DQM validation
 process.VertexValidationVertices= cms.EDAnalyzer("HLTVertexPerformanceAnalyzer",
-TriggerResults = cms.InputTag('TriggerResults','',fileini.processname),
-HLTPathNames = cms.vstring(fileini.vertex_pathes),
-Vertex = fileini.vertex_modules,
+	TriggerResults = cms.InputTag('TriggerResults',),
+	HLTPathNames = cms.vstring('HLT_PFMHT100_SingleCentralJet60_BTagCSV0p6_v1'),
+	Vertex = cms.VInputTag(cms.InputTag("hltFastPrimaryVertex"), cms.InputTag("hltFastPVPixelVertices"), cms.InputTag("hltVerticesL3"))
 )
+
+
+

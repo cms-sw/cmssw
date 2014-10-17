@@ -33,10 +33,8 @@ void HLTVertexPerformanceAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::
 	for ( size_t trgs=0; trgs<hltPathNames_.size(); trgs++) {
 		unsigned int found = 1;
 		int it_mem = -1;
-		std::cout<<"The available path : ";
 		for (size_t it=0 ; it < allHltPathNames.size() ; ++it )
 		{
-			std::cout<<" "<< allHltPathNames.at(it)<<std::endl;
 			found = allHltPathNames.at(it).find(hltPathNames_[trgs]);
 			if ( found == 0 )
 			{
@@ -49,7 +47,6 @@ void HLTVertexPerformanceAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::
 	//fill _isfoundHLTs for each hltPathNames_
 	for ( size_t trgs=0; trgs<hltPathNames_.size(); trgs++) {
 		if ( hltPathIndexs_[trgs] < 0 ) {
-			std::cout << "Path " << hltPathNames_[trgs] << " does not exist" << std::endl;
 			_isfoundHLTs.push_back(false);
 		} 
 		else {
@@ -74,7 +71,7 @@ void HLTVertexPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::
 	try {
 		iEvent.getByToken(hlTriggerResults_, TriggerResulsHandler);
 		if (TriggerResulsHandler.isValid())   trigRes=true;
-	}  catch (...) { std::cout<<"Exception caught in TriggerResulsHandler"<<std::endl;}
+	}  catch (...) { }
 	if ( !trigRes ) {    excp << "TriggerResults ==> not readable";            excp.raise(); }
 	const TriggerResults & triggerResults = *(TriggerResulsHandler.product());
 
@@ -88,7 +85,7 @@ void HLTVertexPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::
 		const SimVertex simPVh = *(simVertexCollection->begin());
 		simPV=simPVh.position().z();
 	}
-	catch (...) { std::cout<<"Exception caught in simVertexCollection"<<std::endl;}
+	catch (...) {}
 	
 	//fill the DQM plot
 	Handle<VertexCollection> VertexHandler;
@@ -104,8 +101,7 @@ void HLTVertexPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::
 				try {
 					iEvent.getByToken(VertexCollection_.at(coll), VertexHandler);
 					if (VertexHandler.isValid())   VertexOK=true;						
-					else std::cout<<"Check:"<< VertexHandler <<std::endl;
-				}  catch (...) { std::cout<<"Exception caught in VertexHandler"<<std::endl;}			
+				}  catch (...) { }			
 			}
 			
 			//calculate the variable (RecoVertex - SimVertex)

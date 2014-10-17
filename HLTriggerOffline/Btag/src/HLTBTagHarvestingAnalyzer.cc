@@ -1,5 +1,4 @@
 #include "HLTriggerOffline/Btag/interface/HLTBTagHarvestingAnalyzer.h"
-#include <algorithm> 
 
 HLTBTagHarvestingAnalyzer::HLTBTagHarvestingAnalyzer(const edm::ParameterSet& iConfig)
 {
@@ -20,7 +19,6 @@ HLTBTagHarvestingAnalyzer::~HLTBTagHarvestingAnalyzer()
 HLTBTagHarvestingAnalyzer::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter)
 {
 	using namespace edm;
-	std::cout<<"HLTBTagHarvestingAnalyzer::endJob"<<std::endl;
 	Exception excp(errors::LogicError);
 	std::string dqmFolder_hist;
 
@@ -76,15 +74,8 @@ bool HLTBTagHarvestingAnalyzer::GetNumDenumerators(DQMStore::IBooker& ibooker, D
 	MonitorElement *numME = NULL;
 	denME = igetter.get(den);
 	numME = igetter.get(num);
-	if(denME==0 || numME==0){
-		cout << "Could not find MEs: "<<den<<endl;
-		return false;
-	} else {
-		cout << "found MEs: "<<den<<endl;
-	}
 
 	if (type==0) //efficiency_vs_discr: fill "ptrnum" with the cumulative function of the DQM plots contained in "num" and "ptrden" with a flat function
-
 	{
 		TH1* numH1 = numME->getTH1();
 		TH1* denH1 = denME->getTH1();
@@ -129,7 +120,7 @@ bool HLTBTagHarvestingAnalyzer::GetNumDenumerators(DQMStore::IBooker& ibooker, D
 void HLTBTagHarvestingAnalyzer::mistagrate(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, TH1F* num, TH1F* den, string effName ){
 	//do the efficiency_vs_mistag_rate plot
 	TH1F* eff;
-	eff = new TH1F(effName.c_str(),effName.c_str(),1000,0,1);
+	eff = new TH1F(effName.c_str(),effName.c_str(),100,0,1);
 	eff->SetTitle(effName.c_str());
 	eff->SetXTitle("b-effficiency");
 	eff->SetYTitle("mistag rate");
@@ -161,7 +152,6 @@ void HLTBTagHarvestingAnalyzer::mistagrate(DQMStore::IBooker& ibooker, DQMStore:
 TH1F*  HLTBTagHarvestingAnalyzer::calculateEfficiency1D(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, TH1* num, TH1* den, string effName ){
 	//calculate the efficiency as num/den ratio
 	TH1F* eff;
-	std::cout<<"Efficiency name: "<<effName<<std::endl;
 	if(num->GetXaxis()->GetXbins()->GetSize()==0){
 		eff = new TH1F(effName.c_str(),effName.c_str(),num->GetXaxis()->GetNbins(),num->GetXaxis()->GetXmin(),num->GetXaxis()->GetXmax());
 	}else{
