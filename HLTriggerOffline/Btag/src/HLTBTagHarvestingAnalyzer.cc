@@ -30,7 +30,7 @@ HLTBTagHarvestingAnalyzer::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
 		ibooker.setCurrentFolder(effDir);
 		TH1 *den =NULL;
 		TH1 *num =NULL; 
-		map<TString,TH1F*> effics;
+		map<TString,TH1F> effics;
 		map<TString,bool> efficsOK;
 		for (unsigned int i = 0; i < m_mcLabels.size(); ++i)
 		{
@@ -42,7 +42,7 @@ HLTBTagHarvestingAnalyzer::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
 			if (isOK){
 			
 				//do the 'b-tag efficiency vs discr' plot
-				effics[flavour]=calculateEfficiency1D(ibooker,igetter,num,den,(label+"_efficiency_vs_disc").Data());
+				effics[flavour]=calculateEfficiency1D(ibooker,igetter,*num,*den,(label+"_efficiency_vs_disc").Data());
 				efficsOK[flavour]=isOK;
 			}
 			label= m_histoName.at(ind)+string("___");
@@ -51,15 +51,14 @@ HLTBTagHarvestingAnalyzer::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
 			if (isOK) {
 			
 				//do the 'b-tag efficiency vs pT' plot
-				TH1F * eff=calculateEfficiency1D(ibooker,igetter,num,den,(label+"_efficiency_vs_pT").Data());
-				delete eff;
+				TH1F eff=calculateEfficiency1D(ibooker,igetter,*num,*den,(label+"_efficiency_vs_pT").Data());
 			}
 		} /// for mc labels
 		
 		///save mistagrate vs b-eff plots
-		if (efficsOK["b"] && efficsOK["c"])      mistagrate(ibooker,igetter,effics["b"], effics["c"], m_histoName.at(ind)+"_b_c_mistagrate" );
-		if (efficsOK["b"] && efficsOK["light"])  mistagrate(ibooker,igetter,effics["b"], effics["light"], m_histoName.at(ind)+"_b_light_mistagrate" );
-		if (efficsOK["b"] && efficsOK["g"])      mistagrate(ibooker,igetter,effics["b"], effics["g"], m_histoName.at(ind)+"_b_g_mistagrate" );
+		if (efficsOK["b"] && efficsOK["c"])      mistagrate(ibooker,igetter,&effics["b"], &effics["c"], m_histoName.at(ind)+"_b_c_mistagrate" );
+		if (efficsOK["b"] && efficsOK["light"])  mistagrate(ibooker,igetter,&effics["b"], &effics["light"], m_histoName.at(ind)+"_b_light_mistagrate" );
+		if (efficsOK["b"] && efficsOK["g"])      mistagrate(ibooker,igetter,&effics["b"], &effics["g"], m_histoName.at(ind)+"_b_g_mistagrate" );
 	} /// for triggers
 }
 
@@ -144,40 +143,39 @@ void HLTBTagHarvestingAnalyzer::mistagrate(DQMStore::IBooker& ibooker, DQMStore:
 		eff->SetBinError(binX,miseffErr);
 	}
 	ibooker.book1D(effName.c_str(),eff);
-	delete eff;
 
 	return;
 }
 
-TH1F*  HLTBTagHarvestingAnalyzer::calculateEfficiency1D(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, TH1* num, TH1* den, string effName ){
+TH1F  HLTBTagHarvestingAnalyzer::calculateEfficiency1D(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, TH1 & num , TH1 & den, string effName ){
 	//calculate the efficiency as num/den ratio
-	TH1F* eff;
-	if(num->GetXaxis()->GetXbins()->GetSize()==0){
-		eff = new TH1F(effName.c_str(),effName.c_str(),num->GetXaxis()->GetNbins(),num->GetXaxis()->GetXmin(),num->GetXaxis()->GetXmax());
+	TH1F eff;
+	if(num.GetXaxis()->GetXbins()->GetSize()==0){
+		 eff = TH1F(effName.c_str(),effName.c_str(),num.GetXaxis()->GetNbins(),num.GetXaxis()->GetXmin(),num.GetXaxis()->GetXmax());
 	}else{
-		eff = new TH1F(effName.c_str(),effName.c_str(),num->GetXaxis()->GetNbins(),num->GetXaxis()->GetXbins()->GetArray());
+		eff = TH1F(effName.c_str(),effName.c_str(),num.GetXaxis()->GetNbins(),num.GetXaxis()->GetXbins()->GetArray());
 	} 
-	eff->SetTitle(effName.c_str());
-	eff->SetXTitle( num->GetXaxis()->GetTitle() );
-	eff->SetYTitle("Efficiency");
-	eff->SetOption("PE");
-	eff->SetLineColor(2);
-	eff->SetLineWidth(2);
-	eff->SetMarkerStyle(20);
-	eff->SetMarkerSize(0.8);
-	eff->GetYaxis()->SetRangeUser(-0.001,1.001);
-	for(int i=1;i<=num->GetNbinsX();i++){
+	eff.SetTitle(effName.c_str());
+	eff.SetXTitle( num.GetXaxis()->GetTitle() );
+	eff.SetYTitle("Efficiency");
+	eff.SetOption("PE");
+	eff.SetLineColor(2);
+	eff.SetLineWidth(2);
+	eff.SetMarkerStyle(20);
+	eff.SetMarkerSize(0.8);
+	eff.GetYaxis()->SetRangeUser(-0.001,1.001);
+	for(int i=1;i<=num.GetNbinsX();i++){
 		double d, n;
-		d= den->GetBinContent(i);
-		n= num->GetBinContent(i);
+		d= den.GetBinContent(i);
+		n= num.GetBinContent(i);
 		double e;
 		if(d!=0)	e=n/d;
 		else		e=0;
 		double err = sqrt(e*(1-e)/d); //from binomial standard deviation
-		eff->SetBinContent( i, e );
-		eff->SetBinError( i, err );
+		eff.SetBinContent( i, e );
+		eff.SetBinError( i, err );
 	}
-	ibooker.book1D(effName,eff);
+	ibooker.book1D(effName,&eff);
 	return eff;
 }
 

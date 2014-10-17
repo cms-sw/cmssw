@@ -33,7 +33,7 @@ class HLTBTagHarvestingAnalyzer : public DQMEDHarvester {
 			~HLTBTagHarvestingAnalyzer();
 
 			virtual void dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter);
-			TH1F * calculateEfficiency1D( DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, TH1* num, TH1* den, string name );
+			TH1F  calculateEfficiency1D( DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, TH1 & num, TH1 & den, string name );
 			bool GetNumDenumerators(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, string num,string den,TH1 * & ptrnum,TH1* & ptrden,int type);
 			void mistagrate( DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, TH1F* num, TH1F* den, string effName );
 
