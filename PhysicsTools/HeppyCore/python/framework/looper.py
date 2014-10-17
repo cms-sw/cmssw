@@ -7,10 +7,10 @@ import imp
 import logging
 import pprint
 from chain import Chain as Events
-if os.environ.get('HEPPY_FCC', None) is not None:
+if 'HEPPY_FCC' in os.environ:
     from eventsalbers import Events
-elif os.environ.get('HEPPY_CMS', None) is not None:
-    assert(False)
+elif 'CMSSW_BASE' in os.environ:
+    from eventsfwlite import Events
 from event import Event
 
 class Looper(object):
