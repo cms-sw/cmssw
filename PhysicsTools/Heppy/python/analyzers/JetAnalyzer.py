@@ -4,7 +4,7 @@ from PhysicsTools.Heppy.analyzers.autohandle import AutoHandle
 from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import Jet, GenJet
 from PhysicsTools.HeppyCore.utils.deltar import cleanObjectCollection, matchObjectCollection
 from PhysicsTools.HeppyCore.statistics.counter import Counter, Counters
-# from PhysicsTools.Heppy.physicsobjects.BTagSF import BTagSF
+from PhysicsTools.Heppy.physicsobjects.btagsf import BTagSF
 from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import GenParticle
 from PhysicsTools.HeppyCore.utils.deltar import deltaR2
 from PhysicsTools.Heppy.utils.cmsswRelease import isNewerThan
@@ -37,7 +37,7 @@ class JetAnalyzer( Analyzer ):
 
     def __init__(self, cfg_ana, cfg_comp, looperName):
         super(JetAnalyzer,self).__init__(cfg_ana, cfg_comp, looperName)
-        # self.btagSF = BTagSF (cfg_ana.btagSFseed)
+        self.btagSF = BTagSF (cfg_ana.btagSFseed)
         self.is2012 = isNewerThan('CMSSW_5_2_0')
 
     def declareHandles(self):
@@ -59,6 +59,8 @@ class JetAnalyzer( Analyzer ):
         count.register('all events')
         count.register('at least 2 good jets')
         count.register('at least 2 clean jets')
+        count.register('at least 1 b jet')
+        count.register('at least 2 b jets')
         
     def process(self, event):
         
@@ -158,9 +160,11 @@ class JetAnalyzer( Analyzer ):
                
         if len( event.cleanJets30 )>=2:
             self.counters.counter('jets').inc('at least 2 clean jets')
-
-        if len(event.cleanJets)<2:
-            return True
+        
+        if len(event.cleanBJets)>0:
+            self.counters.counter('jets').inc('at least 1 b jet')          
+            if len(event.cleanBJets)>1:
+                self.counters.counter('jets').inc('at least 2 b jets')          
 
         return True
 
@@ -207,7 +211,7 @@ class JetAnalyzer( Analyzer ):
     def testJetID(self, jet):
         jet.puJetIdPassed = jet.puJetId()
         jet.pfJetIdPassed = jet.jetID("POG_PFID_Loose")
-
+        
         if self.cfg_ana.relaxJetId:
             return True
         else:
@@ -226,13 +230,15 @@ class JetAnalyzer( Analyzer ):
         # medium csv working point
         # https://twiki.cern.ch/twiki/bin/viewauth/CMS/BTagPerformanceOP#B_tagging_Operating_Points_for_3
         jet.btagMVA = jet.btag("combinedSecondaryVertexBJetTags")
-#        jet.btagFlag = self.btagSF.BTagSFcalc.isbtagged(jet.pt(), 
-#                          jet.eta(),
-#                          jet.btag("combinedSecondaryVertexBJetTags"),
-#                          abs(jet.partonFlavour()),
-#                          not self.cfg_comp.isMC,
-#                          0,0,
-#                          self.is2012 )
+        jet.btagFlag = self.btagSF.BTagSFcalc.isbtagged(
+            jet.pt(), 
+            jet.eta(),
+            jet.btag("combinedSecondaryVertexBJetTags"),
+            abs(jet.partonFlavour()),
+            not self.cfg_comp.isMC,
+            0,0,
+            self.is2012 
+            )
         return jet.pt()>20 and \
                abs( jet.eta() ) < 2.4 and \
                self.testJetID(jet)
