@@ -108,7 +108,7 @@ class Component( CFG ):
                                           triggers = triggers, **kwargs)
         self.dataset_entries = 0
         self.isData = False
-        
+        self.isMC = False
 
 class DataComponent( Component ):
 
@@ -138,7 +138,7 @@ class MCComponent( Component ):
         self.xSection = xSection
         self.nGenEvents = nGenEvents
         self.effCorrFactor = effCorrFactor
-        self.isData = False
+        self.isMC = True
         self.intLumi = 1.
         self.addWeight = 1.
 
