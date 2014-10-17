@@ -33,32 +33,44 @@ combiner = cms.EDAnalyzer('PlotCombiner',
   Plots = cms.untracked.VPSet(
     cms.untracked.PSet(
       InputMEnames = cms.untracked.vstring(
-        'HLT_DoubleMu4_3_Bs_v/effPathDiglobAND_recoRapPtY',
-        'HLT_DoubleMu4_3_Jpsi_Displaced_v/effPathDiglobAND_recoRapPtY',
-        'HLT_Dimuon20_Jpsi_v/effPathDiglobAND_recoRapPtY',
-        'HLT_Dimuon13_PsiPrime_v/effPathDiglobAND_recoRapPtY',
-        'HLT_Dimuon13_Upsilon_v/effPathDiglobAND_recoRapPtY',
-        'HLT_Mu25_TkMu0_dEta18_Onia_v/effPathDiglobAND_recoRapPtY',
-        'HLT_DoubleMu4_JpsiTrk_Displaced_v/effPathDiglobAND_recoRapPtY',
-        'HLT_DoubleMu4_PsiPrimeTrk_Displaced_v/effPathDiglobAND_recoRapPtY',
-        'HLT_DoubleMu4_LowMassNonResonantTrk_Displaced_v/effPathDiglobAND_recoRapPtY',
+        'HLT_DoubleMu4_3_Bs_v/effPathDiglobAND_recoEtaPtY',
+        'HLT_DoubleMu4_3_Jpsi_Displaced_v/effPathDiglobAND_recoEtaPtY',
+        'HLT_DoubleMu4_JpsiTrk_Displaced_v/effPathDiglobAND_recoEtaPtY',
+        'HLT_DoubleMu4_PsiPrimeTrk_Displaced_v/effPathDiglobAND_recoEtaPtY',
+        'HLT_DoubleMu4_LowMassNonResonantTrk_Displaced_v/effPathDiglobAND_recoEtaPtY',
       ),
       InputLabels = cms.untracked.vstring(
         'HLT_DoubleMu4_3_Bs_v',
         'HLT_DoubleMu4_3_Jpsi_Displaced_v',
-        'HLT_Dimuon20_Jpsi_v',
-        'HLT_Dimuon13_PsiPrime_v',
-        'HLT_Dimuon13_Upsilon_v',
-        'HLT_Mu25_TkMu0_dEta18_Onia_v',
         'HLT_DoubleMu4_JpsiTrk_Displaced_v',
         'HLT_DoubleMu4_PsiPrimeTrk_Displaced_v',
         'HLT_DoubleMu4_LowMassNonResonantTrk_Displaced_v',
       ),
-      OutputMEname = cms.untracked.string('effPathGlob_recoPt')
+      OutputMEname = cms.untracked.string('effPathGlob_recoLowPt')
+    )
+  )
+)
+
+combiner2 = combiner.clone(
+  Plots = cms.untracked.VPSet(
+    cms.untracked.PSet(
+      InputMEnames = cms.untracked.vstring(
+        'HLT_Dimuon20_Jpsi_v/effPathDiglobAND_recoEtaPtY',
+        'HLT_Dimuon13_PsiPrime_v/effPathDiglobAND_recoEtaPtY',
+        'HLT_Dimuon13_Upsilon_v/effPathDiglobAND_recoEtaPtY',
+        'HLT_Mu25_TkMu0_dEta18_Onia_v/effPathDiglobAND_recoEtaPtY',
+      ),
+      InputLabels = cms.untracked.vstring(
+        'HLT_Dimuon20_Jpsi_v',
+        'HLT_Dimuon13_PsiPrime_v',
+        'HLT_Dimuon13_Upsilon_v',
+        'HLT_Mu25_TkMu0_dEta18_Onia_v',
+      ),
+      OutputMEname = cms.untracked.string('effPathGlob_recoHighPt')
     )
   )
 )
 
 heavyFlavorValidationHarvestingSequence = cms.Sequence(hfv1+hfv2+hfv3+hfv4+hfv5+hfv6+hfv7+hfv8+hfv9
-													  +combiner)
+													  +combiner+combiner2)
 
