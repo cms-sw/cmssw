@@ -224,7 +224,7 @@ double SiTrackerMultiRecHitUpdator::ComputeWeight(const TrajectoryStateOnSurface
   holder.template setup<N>(&r, &R,  &pf, &rMeas, &RMeas, x, C);
   aRecHit.getKfComponents(holder);
 
-  VecN diff = r - rMeas;
+  typename AlgebraicROOTObject<N>::Vector diff = r - rMeas;
 
   if(!CutWeight){
     LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t r:" << r ;
@@ -320,17 +320,17 @@ SiTrackerMultiRecHitUpdator::LocalParameters SiTrackerMultiRecHitUpdator::calcPa
   for( std::vector<std::pair<const TrackingRecHit*, float> >::const_iterator ihit = aHitMap.begin(); 
 	ihit != aHitMap.end(); ihit++ ){
 
-  // define variables that will be used to setup the KfComponentsHolder
-  ProjectMatrix<double,5,N>  pf;
-  typename AlgebraicROOTObject<N>::Vector r, rMeas;
-  typename AlgebraicROOTObject<N,N>::SymMatrix V, VMeas, Wtemp;
-  AlgebraicVector5 x = tsos.localParameters().vector();
-  const AlgebraicSymMatrix55 &C = (tsos.localError().matrix());
+    // define variables that will be used to setup the KfComponentsHolder
+    ProjectMatrix<double,5,N>  pf;
+    typename AlgebraicROOTObject<N>::Vector r, rMeas;
+    typename AlgebraicROOTObject<N,N>::SymMatrix V, VMeas, Wtemp;
+    AlgebraicVector5 x = tsos.localParameters().vector();
+    const AlgebraicSymMatrix55 &C = (tsos.localError().matrix());
 
-  // setup the holder with the correct dimensions and get the values
-  KfComponentsHolder holder;
-  holder.template setup<N>(&r, &V, &pf, &rMeas, &VMeas, x, C);
-  aRecHit.getKfComponents(holder);
+    // setup the holder with the correct dimensions and get the values
+    KfComponentsHolder holder;
+    holder.template setup<N>(&r, &V, &pf, &rMeas, &VMeas, x, C);
+    (ihit->first)->getKfComponents(holder);
 
     LogTrace("SiTrackerMultiRecHitUpdator") << "\t position: " << r;  
     LogTrace("SiTrackerMultiRecHitUpdator") << "\t error: " << V;  
@@ -360,7 +360,7 @@ SiTrackerMultiRecHitUpdator::LocalParameters SiTrackerMultiRecHitUpdator::calcPa
   }
  
   LogTrace("SiTrackerMultiRecHitUpdator") << "\t inverse total error: " << W_sum; 
-  VecN parameters = W_sum*m_sum;
+  typename AlgebraicROOTObject<N>::Vector parameters = W_sum*m_sum;
   if( N == 1 ){
     position = LocalPoint(parameters(0),0.f);
     error = LocalError(W_sum(0,0),0.f,std::numeric_limits<float>::max());
