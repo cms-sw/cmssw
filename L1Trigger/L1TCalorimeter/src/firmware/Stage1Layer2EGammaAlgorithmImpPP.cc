@@ -37,8 +37,8 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
   int jetSeedThreshold= floor( params_->jetSeedThreshold()/jetLsb + 0.5);
   // double egRelativeJetIsolationBarrelCut = params_->egRelativeJetIsolationBarrelCut();
   // double egRelativeJetIsolationEndcapCut = params_->egRelativeJetIsolationEndcapCut();
-  unsigned int egRelativeJetIsolationBarrelCut = floor( params_->egRelativeJetIsolationBarrelCut()*100 +0.5);
-  unsigned int egRelativeJetIsolationEndcapCut = floor( params_->egRelativeJetIsolationEndcapCut()*100 +0.5);
+  // unsigned int egRelativeJetIsolationBarrelCut = floor( params_->egRelativeJetIsolationBarrelCut()*100 +0.5);
+  // unsigned int egRelativeJetIsolationEndcapCut = floor( params_->egRelativeJetIsolationEndcapCut()*100 +0.5);
   int egMinPtRelativeJetIsolation = params_->egMinPtRelativeJetIsolation();
   int egMaxPtRelativeJetIsolation = params_->egMaxPtRelativeJetIsolation();
   int egMinPt3x3HoE = params_->egMinPt3x3HoE();
@@ -102,11 +102,23 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
       // if( eg_et >= 63) isoFlag=1;
 
       unsigned int lutAddress = isoLutIndex(eg_et,ijet_pt);
-      if (lutAddress > params_->egIsolationLUT()->maxSize()) lutAddress = params_->egIsolationLUT()->maxSize();
+      // if (lutAddress > params_->egIsolationLUT()->maxSize()) lutAddress = params_->egIsolationLUT()->maxSize();
 
-      unsigned int isol= params_->egIsolationLUT()->data(lutAddress);
-      if(eg_et >0 && isinBarrel  && isol < egRelativeJetIsolationBarrelCut) isoFlag=1;
-      if(eg_et >0 && !isinBarrel && isol < egRelativeJetIsolationEndcapCut) isoFlag=1;
+      // unsigned int isol= params_->egIsolationLUT()->data(lutAddress);
+      // if(eg_et >0 && isinBarrel  && isol < egRelativeJetIsolationBarrelCut) isoFlag=1;
+      // if(eg_et >0 && !isinBarrel && isol < egRelativeJetIsolationEndcapCut) isoFlag=1;
+
+      if (eg_et >0){
+	if (isinBarrel){
+	  if (lutAddress > params_->egIsolationLUTBarrel()->maxSize()) lutAddress = params_->egIsolationLUTBarrel()->maxSize();
+	  isoFlag= params_->egIsolationLUTBarrel()->data(lutAddress);
+	} else{
+	  if (lutAddress > params_->egIsolationLUTEndcaps()->maxSize()) lutAddress = params_->egIsolationLUTEndcaps()->maxSize();
+	  isoFlag= params_->egIsolationLUTEndcaps()->data(lutAddress);
+	}
+	// if (eg_et>20) std::cout << "EG pt: " << eg_et << " Jet pt: " << ijet_pt << ",r: " << ijet_pt*jetLsb << " Address: " << lutAddress << " max: " << params_->egIsolationLUTBarrel()->maxSize() << " isol: " << isoFlag << std::endl;
+      }
+
 
     }else{ // no associated jet; assume it's an isolated eg
       isoFlag=1;
@@ -205,21 +217,12 @@ double l1t::Stage1Layer2EGammaAlgorithmImpPP::Isolation(int ieta, int iphi,
 //ieta =-28, nrTowers 0 is 0, increases to ieta28, nrTowers=kNrTowersInSum
 unsigned l1t::Stage1Layer2EGammaAlgorithmImpPP::isoLutIndex(unsigned int egPt,unsigned int jetPt) const
 {
-  // const unsigned int kNrTowersInSum=72*params_->egIsoMaxEtaAbsForTowerSum()*2;
-  // const unsigned int kTowerGranularity=params_->egIsoPUEstTowerGranularity();
-  // const unsigned int kMaxAddress = kNrTowersInSum%kTowerGranularity==0 ? (kNrTowersInSum/kTowerGranularity+1)*28*2 :
-  //                                                                       (kNrTowersInSum/kTowerGranularity)*28*2;
+  const unsigned int nbitsEG=6;  // number of bits used for EG bins in LUT file (needed for left shift operation)
+  //  const unsigned int nbitsJet=9; // not used but here for info  number of bits used for Jet bins in LUT file
 
-  // unsigned int nrTowersNormed = nrTowers/kTowerGranularity;
-
-
-  // if(std::abs(iEta)>28 || iEta==0 || nrTowers>kNrTowersInSum) return kMaxAddress;
-  // else return iEtaNormed*(kNrTowersInSum/kTowerGranularity+1)+nrTowersNormed;
-
-  if (jetPt>511) jetPt=511;
-  if (egPt>63) egPt=63;
-
-  return 511*(egPt-1)+(jetPt-1);
+  unsigned int address= (jetPt << nbitsEG) + egPt;
+  // std::cout << address << "\t## " << egPt << " " << jetPt << std::endl;
+  return address;
 }
 
 

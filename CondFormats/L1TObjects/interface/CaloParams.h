@@ -87,6 +87,8 @@ namespace l1t {
     unsigned egIsoMaxEtaAbsForIsoSum()const{return egIsoMaxEtaAbsForIsoSum_;}
     std::string egIsoPUSType() const { return egIsoPUSType_; }
     l1t::LUT* egIsolationLUT() { return egIsolationLUT_.get(); }
+    l1t::LUT* egIsolationLUTBarrel() { return egIsolationLUTBarrel_.get(); }
+    l1t::LUT* egIsolationLUTEndcaps() { return egIsolationLUTEndcaps_.get(); }
     std::string egCalibrationType() const { return egCalibrationType_; }
     std::vector<double> egCalibrationParams() { return egCalibrationParams_; }
     l1t::LUT* egCalibrationLUT() { return egCalibrationLUT_.get(); }
@@ -114,6 +116,8 @@ namespace l1t {
     void setEgIsoMaxEtaAbsForIsoSum(unsigned iEgIsoMaxEtaAbsForIsoSum){egIsoMaxEtaAbsForIsoSum_=iEgIsoMaxEtaAbsForIsoSum;}
     void setEgIsoPUSType(std::string type) { egIsoPUSType_ = type; }
     void setEgIsolationLUT(std::shared_ptr<LUT> lut) { egIsolationLUT_ = lut; }
+    void setEgIsolationLUTBarrel(std::shared_ptr<LUT> lut) { egIsolationLUTBarrel_ = lut; }
+    void setEgIsolationLUTEndcaps(std::shared_ptr<LUT> lut) { egIsolationLUTEndcaps_ = lut; }
     void setEgCalibrationType(std::string type) { egCalibrationType_ = type; }
     void setEgCalibrationParams(std::vector<double> params) { egCalibrationParams_ = params; }
     void setEgCalibrationLUT(std::shared_ptr<LUT> lut) { egCalibrationLUT_ = lut; }
@@ -317,6 +321,8 @@ namespace l1t {
 
     // EG isolation LUT (indexed by eta, Et ?)
     std::shared_ptr<l1t::LUT> egIsolationLUT_;
+    std::shared_ptr<l1t::LUT> egIsolationLUTBarrel_;
+    std::shared_ptr<l1t::LUT> egIsolationLUTEndcaps_;
 
 
 
