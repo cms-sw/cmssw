@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_2_1/HLT/V25 (CMSSW_7_2_0_pre8)
+# /dev/CMSSW_7_2_1/HLT/V26 (CMSSW_7_2_0_pre8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFULL" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_2_1/HLT/V25')
+  tableName = cms.string('/dev/CMSSW_7_2_1/HLT/V26')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -534,6 +534,7 @@ process.datasets = cms.PSet(
     'HLT_PFJet60_v1',
     'HLT_PFJet80_v1',
     'HLT_PFMET120_NoiseCleaned_BTagCSV07_v1',
+    'HLT_PFMET120_NoiseCleaned_Mu5_v1',
     'HLT_PFMET170_NoiseCleaned_v1',
     'HLT_PFMHT100_SingleCentralJet60_BTagCSV0p6_v1',
     'HLT_Photon135_PFMET40_v1',
@@ -26580,6 +26581,73 @@ process.hltBLifetimeL3FilterCSVsusy = cms.EDFilter( "HLTCaloJetTag",
     MinTag = cms.double( 0.7 ),
     MaxTag = cms.double( 99999.0 )
 )
+process.hltPrePFMET120NoiseCleanedMu5 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    offset = cms.uint32( 0 )
+)
+process.hltL1sL1SingleMuOpenCandidate = cms.EDFilter( "HLTLevel1GTSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleMuOpen" ),
+    saveTags = cms.bool( True ),
+    L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
+    L1UseL1TriggerObjectMaps = cms.bool( False ),
+    L1UseAliasesForSeeding = cms.bool( True ),
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
+    L1NrBxInEvent = cms.int32( 1 ),
+    L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
+    L1TechTriggerSeeding = cms.bool( False )
+)
+process.hltPFMET120Mu5L1MuFiltered = cms.EDFilter( "HLTMuonL1Filter",
+    saveTags = cms.bool( False ),
+    CSCTFtag = cms.InputTag( "unused" ),
+    PreviousCandTag = cms.InputTag( "hltL1sL1SingleMuOpenCandidate" ),
+    MinPt = cms.double( 0.0 ),
+    MinN = cms.int32( 1 ),
+    MaxEta = cms.double( 2.5 ),
+    SelectQualities = cms.vint32(  ),
+    CandTag = cms.InputTag( "hltL1extraParticles" ),
+    ExcludeSingleSegmentCSC = cms.bool( False )
+)
+process.hltPFMET120Mu5L2PreFiltered = cms.EDFilter( "HLTMuonL2PreFilter",
+    saveTags = cms.bool( True ),
+    MaxDr = cms.double( 9999.0 ),
+    CutOnChambers = cms.bool( False ),
+    PreviousCandTag = cms.InputTag( "hltPFMET120Mu5L1MuFiltered" ),
+    MinPt = cms.double( 3.5 ),
+    MinN = cms.int32( 1 ),
+    SeedMapTag = cms.InputTag( "hltL2Muons" ),
+    MaxEta = cms.double( 2.5 ),
+    MinNhits = cms.vint32( 0, 1, 0, 1 ),
+    MinDxySig = cms.double( -1.0 ),
+    MinNchambers = cms.vint32( 0 ),
+    AbsEtaBins = cms.vdouble( 0.9, 1.5, 2.1, 5.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    CandTag = cms.InputTag( "hltL2MuonCandidates" ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinDr = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MinNstations = cms.vint32( 0, 2, 0, 2 )
+)
+process.hltPFMET120Mu5L3PreFiltered = cms.EDFilter( "HLTMuonL3PreFilter",
+    MaxNormalizedChi2 = cms.double( 20.0 ),
+    saveTags = cms.bool( True ),
+    PreviousCandTag = cms.InputTag( "hltPFMET120Mu5L2PreFiltered" ),
+    MinNmuonHits = cms.int32( 0 ),
+    MinN = cms.int32( 1 ),
+    MinTrackPt = cms.double( 0.0 ),
+    MaxEta = cms.double( 2.5 ),
+    MaxDXYBeamSpot = cms.double( 0.1 ),
+    MinNhits = cms.int32( 0 ),
+    MinDxySig = cms.double( -1.0 ),
+    NSigmaPt = cms.double( 0.0 ),
+    MaxDz = cms.double( 9999.0 ),
+    MaxPtDifference = cms.double( 9999.0 ),
+    MaxDr = cms.double( 2.0 ),
+    CandTag = cms.InputTag( "hltL3MuonCandidates" ),
+    MinDr = cms.double( -1.0 ),
+    BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
+    MinPt = cms.double( 5.0 )
+)
 process.hltPrePFMET170NoiseCleaned = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
@@ -29376,6 +29444,7 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_PFJet60_v1',
   'HLT_PFJet80_v1',
   'HLT_PFMET120_NoiseCleaned_BTagCSV07_v1',
+  'HLT_PFMET120_NoiseCleaned_Mu5_v1',
   'HLT_PFMET170_NoiseCleaned_v1',
   'HLT_PFMHT100_SingleCentralJet60_BTagCSV0p6_v1',
   'HLT_PFchMET90_NoiseCleaned_v1',
@@ -29711,6 +29780,7 @@ process.HLT_PFJet400_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1S
 process.HLT_PFJet450_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet200 + process.hltPrePFJet450 + process.HLTAK4CaloJetsSequence + process.hltSingleCaloJet400 + process.HLTAK4PFJetsSequence + process.hltPFJetsCorrectedMatchedToCaloJets400 + process.hltSinglePFJet450 + process.HLTEndSequence )
 process.HLT_PFJet500_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet200 + process.hltPrePFJet500 + process.HLTAK4CaloJetsSequence + process.hltSingleCaloJet450 + process.HLTAK4PFJetsSequence + process.hltPFJetsCorrectedMatchedToCaloJets450 + process.hltSinglePFJet500 + process.HLTEndSequence )
 process.HLT_PFMET120_NoiseCleaned_BTagCSV07_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ETM60ORETM70 + process.hltPrePFMET120NoiseCleanedBTagCSV07 + process.HLTRecoMETSequence + process.hltMET70 + process.HLTHBHENoiseCleanerSequence + process.hltMetClean + process.hltMETClean70 + process.HLTAK4CaloJetsSequence + process.hltMetCleanUsingJetID + process.hltMETCleanUsingJetID70 + process.hltSusyPreBtagJetFilter + process.HLTFastPrimaryVertexSequence + process.hltFastPVPixelVertexSelector + process.HLTBtagCSVSequenceL3 + process.hltBLifetimeL3FilterCSVsusy + process.HLTAK4PFJetsSequence + process.hltPFMETProducer + process.hltPFMET120Filter + process.HLTEndSequence )
+process.HLT_PFMET120_NoiseCleaned_Mu5_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ETM60ORETM70 + process.hltPrePFMET120NoiseCleanedMu5 + cms.ignore(process.hltL1sL1SingleMuOpenCandidate) + process.HLTRecoMETSequence + process.hltMET70 + process.HLTHBHENoiseCleanerSequence + process.hltMetClean + process.hltMETClean70 + process.HLTAK4CaloJetsSequence + process.hltMetCleanUsingJetID + process.hltMETCleanUsingJetID70 + process.hltPFMET120Mu5L1MuFiltered + process.HLTL2muonrecoSequence + process.hltPFMET120Mu5L2PreFiltered + process.HLTL3muonrecoSequence + process.hltPFMET120Mu5L3PreFiltered + process.HLTAK4PFJetsSequence + process.hltPFMETProducer + process.hltPFMET120Filter + process.HLTEndSequence )
 process.HLT_PFMET170_NoiseCleaned_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ETM60ORETM70 + process.hltPrePFMET170NoiseCleaned + process.HLTRecoMETSequence + process.hltMET90 + process.HLTHBHENoiseCleanerSequence + process.hltMetClean + process.hltMETClean80 + process.HLTAK4CaloJetsSequence + process.hltMetCleanUsingJetID + process.hltMETCleanUsingJetID80 + process.HLTAK4PFJetsSequence + process.hltPFMETProducer + process.hltPFMET170Filter + process.HLTEndSequence )
 process.HLT_PFMHT100_SingleCentralJet60_BTagCSV0p6_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ETM60ORETM70ORETM60NotJet52WdPhi2ORDoubleJetC56ETM60 + process.hltPrePFMHT100SingleCentralJet60BTagCSV0p6 + process.HLTRecoMETSequence + process.hltMET80 + process.HLTAK4CaloJetsSequence + process.hltSingleCentralJet60L1FastJetCorrected + process.hltDiCentralJet20L1FastJetCorrected + process.hltSelectorJets20L1FastJetForNoPU + process.HLTFastPrimaryVertexSequence + process.hltFastPVPixelVertexSelector + process.HLTNoPUSequence + process.hltMhtProducerNoPU20 + process.hltMhtNoPU80Filter + process.HLTBtagCSVSequenceL3 + process.hltBLifetimeL3FilterCSV0p6 + process.HLTAK4PFJetsSequence + process.HLTPFJetIDProducerLoose + process.hltPFMhtIDLoose + process.hltPFMHTIDLoose100Filter + process.hltPFMETProducer + process.hltPFMET100Filter + process.HLTEndSequence )
 process.HLT_PFchMET90_NoiseCleaned_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ETM70 + process.hltPrePFchMET90NoiseCleaned + process.HLTRecoMETSequence + process.hltMET90 + process.HLTHBHENoiseCleanerSequence + process.hltMetClean + process.hltMETClean80 + process.HLTAK4CaloJetsSequence + process.hltMetCleanUsingJetID + process.hltMETCleanUsingJetID80 + process.HLTAK4PFJetsSequence + process.hltPFchMETProducer + process.hltPFchMET90Filter + process.HLTEndSequence )
