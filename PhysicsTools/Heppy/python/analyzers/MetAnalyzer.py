@@ -9,7 +9,10 @@ def pv(vc):
                                                               z=vc.Z())
 
 class MetAnalyzer( Analyzer ):
-    '''Analyze vertices, add weight to MC events'''
+    '''Analyze MET in Z+jet events.
+    Need a to provide a module creating event.diLepton
+    earlier in the sequence.
+    '''
 
     def declareHandles(self):
         super(MetAnalyzer, self).declareHandles()

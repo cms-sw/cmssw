@@ -23,7 +23,6 @@ class JetAnalyzer( Analyzer ):
     jetAna = cfg.Analyzer(
       'JetAnalyzer',
       # cmg jet input collection
-      jetCol = 'cmgPFJetSel',
       # pt threshold
       jetPt = 30,
       # eta range definition
