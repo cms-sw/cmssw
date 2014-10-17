@@ -2,19 +2,29 @@ import FWCore.ParameterSet.Config as cms
 
 import Geometry.HcalEventSetup.hcalTopologyIdeal_cfi
 
+
 from RecoLocalCalo.CaloTowersCreator.calotowermaker_cfi import *
 from RecoJets.Configuration.CaloTowersRec_cff import *
+#from RecoParticleFlow.PFClusterProducer.towerMakerPF_cfi import *
+#from RecoParticleFlow.PFClusterProducer.particleFlowCaloResolution_cfi import _timeResolutionHCALMaxSample
+
 from RecoParticleFlow.PFClusterProducer.particleFlowRecHitECAL_cfi import *
-from RecoParticleFlow.PFClusterProducer.particleFlowRecHitHCAL_cfi import *
+from RecoParticleFlow.PFClusterProducer.particleFlowRecHitHBHE_cfi import *
+from RecoParticleFlow.PFClusterProducer.particleFlowRecHitHF_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowRecHitHO_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowRecHitPS_cfi import *
 
-from RecoParticleFlow.PFClusterProducer.particleFlowClusterECAL_cff import *
+from RecoParticleFlow.PFClusterProducer.particleFlowClusterECALUncorrected_cfi import *
+from RecoParticleFlow.PFClusterProducer.particleFlowClusterECAL_cfi import *
+
+
+from RecoParticleFlow.PFClusterProducer.particleFlowClusterHBHE_cfi import *
+#from RecoParticleFlow.PFClusterProducer.particleFlowClusterHBHEMaxSampleTimeSelected_cfi import *
+from RecoParticleFlow.PFClusterProducer.particleFlowClusterHF_cfi import *
+
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHCAL_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHO_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterPS_cfi import *
-from RecoParticleFlow.PFClusterProducer.particleFlowClusterHFEM_cfi import *
-from RecoParticleFlow.PFClusterProducer.particleFlowClusterHFHAD_cfi import *
 
 #multi-depth 
 from RecoParticleFlow.PFClusterProducer.particleFlowRecHitHBHEHO_cfi import *
@@ -59,13 +69,13 @@ pfClusteringHCAL = cms.Sequence()
 #else:
 
 towerMakerPF = calotowermaker.clone()
-pfClusteringHCAL = cms.Sequence( towerMakerPF             +
-                                 particleFlowRecHitHCAL   +
-                                 particleFlowRecHitHO     +
-                                 particleFlowClusterHCAL  +
-                                 particleFlowClusterHFHAD +
-                                 particleFlowClusterHFEM  +
-                                 particleFlowClusterHO      )
+#pfClusteringHCAL = cms.Sequence( towerMakerPF             +
+#                                 particleFlowRecHitHCAL   +
+#                                 particleFlowRecHitHO     +
+#                                 particleFlowClusterHCAL  +
+#                                 particleFlowClusterHFHAD +
+#                                 particleFlowClusterHFEM  +
+#                                 particleFlowClusterHO      )
 
 #pfClusteringHCAL = cms.Sequence(particleFlowRecHitHCAL*particleFlowClusterHCAL)
 #pfClusteringHCALall = cms.Sequence(particleFlowClusterHCAL+particleFlowClusterHFHAD+particleFlowClusterHFEM)
@@ -76,6 +86,10 @@ pfClusteringHCAL = cms.Sequence( towerMakerPF             +
 #pfClusteringHCAL = cms.Sequence(particleFlowRecHitHCAL*particleFlowClusterHCAL*particleFlowClusterHFHAD*particleFlowClusterHFEM)
 pfClusteringPS = cms.Sequence(particleFlowRecHitPS*particleFlowClusterPS)
 
+
+#pfClusteringHBHEHF = cms.Sequence(towerMakerPF*particleFlowRecHitHCAL*particleFlowClusterHCAL+particleFlowClusterHFHAD+particleFlowClusterHFEM)
+pfClusteringHBHEHF = cms.Sequence(particleFlowRecHitHBHE*particleFlowRecHitHF*particleFlowClusterHBHE*particleFlowClusterHF*particleFlowClusterHCAL)
+pfClusteringHO = cms.Sequence(particleFlowRecHitHO*particleFlowClusterHO)
 
 
 # Changed values
@@ -133,7 +147,7 @@ particleFlowClusterWithoutHO = cms.Sequence(
     #towerMakerPF*
     pfClusteringPS*
     pfClusteringECAL*
-    pfClusteringHCAL
+    pfClusteringHBHEHF
 )
 
 particleFlowCluster = cms.Sequence(
@@ -141,8 +155,8 @@ particleFlowCluster = cms.Sequence(
     #towerMakerPF*
     pfClusteringPS*
     pfClusteringECAL*
-    pfClusteringHCAL
-    #pfClusteringHO 
+    pfClusteringHBHEHF*
+    pfClusteringHO 
 )
 
 

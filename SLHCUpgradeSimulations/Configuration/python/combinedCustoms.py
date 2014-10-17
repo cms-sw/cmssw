@@ -151,16 +151,22 @@ def cust_2023SHCal(process):
         del process.particleFlowRecHitECALWithTime.producers[1]
         del process.particleFlowRecHitECAL.producers[1]
         process.particleFlowClusterEBEKMerger = cms.EDProducer('PFClusterCollectionMerger',
-                                                               inputs = cms.VInputTag(cms.InputTag('particleFlowClusterECALWithTimeSelected'),
+                                                               inputs = cms.VInputTag(cms.InputTag('particleFlowClusterECALWithTimeUncorrected'),
                                                                                       cms.InputTag('particleFlowClusterEKUncorrected')
                                                                                       )
                                                                )   
         process.pfClusteringECAL.remove(process.particleFlowClusterECAL)
-        process.pfClusteringEK += process.particleFlowClusterEBEKMerger
-        process.pfClusteringEK += process.particleFlowClusterECAL
-        process.particleFlowClusterECAL.inputECAL = cms.InputTag('particleFlowClusterEBEKMerger')
-        process.particleFlowCluster += process.pfClusteringEK
+        process.pfClusteringECAL.remove(process.particleFlowClusterECALWithTimeSelected)
+        process.pfClusteringECAL += process.pfClusteringEK 
+        process.pfClusteringECAL += process.particleFlowClusterEBEKMerger
+        process.pfClusteringECAL += process.particleFlowClusterECALWithTimeSelected        
+        process.particleFlowClusterECALWithTimeSelected.src = cms.InputTag('particleFlowClusterEBEKMerger')
+        process.pfClusteringECAL += process.particleFlowClusterECAL
+        #process.particleFlowCluster += process.pfClusteringEK
         
+        process.tcMetWithPFclusters.PFClustersHFEM = cms.InputTag('particleFlowClusterHF')
+        process.tcMetWithPFclusters.PFClustersHFHAD = cms.InputTag('particleFlowClusterHF')
+
         #clone photons to mustache photons so we can compare back to old reco
         process.mustachePhotonCore = process.photonCore.clone(scHybridBarrelProducer = cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALBarrel"),scIslandEndcapProducer = cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALEndcapWithPreshower"))
         process.mustachePhotons = process.photons.clone(photonCoreProducer = cms.InputTag('mustachePhotonCore'), endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEK"))        
