@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
 HcalTrigPrimMonitor::HcalTrigPrimMonitor (const edm::ParameterSet& ps) :
+   HcalBaseDQMonitor(ps),
    dataLabel_(ps.getParameter<edm::InputTag>("dataLabel")),
    emulLabel_(ps.getParameter<edm::InputTag>("emulLabel")),
    ZSBadTPThreshold_(ps.getParameter< std::vector<int> >("ZSBadTPThreshold")),

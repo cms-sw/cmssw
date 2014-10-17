@@ -35,7 +35,7 @@ static const int TRIG_GCT=4;
 static const int TRIG_CSC=8;
 static const int TRIG_RPCF=16;
 
-HcalDetDiagTimingMonitor::HcalDetDiagTimingMonitor(const edm::ParameterSet& ps) 
+HcalDetDiagTimingMonitor::HcalDetDiagTimingMonitor(const edm::ParameterSet& ps) :HcalBaseDQMonitor(ps)
 {
   Online_                = ps.getUntrackedParameter<bool>("online",false);
   mergeRuns_             = ps.getUntrackedParameter<bool>("mergeRuns",false);

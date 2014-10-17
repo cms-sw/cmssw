@@ -378,7 +378,9 @@ class HcalDetDiagLaserMonitor : public HcalBaseDQMonitor {
       std::map<unsigned int, int> KnownBadCells_;
 };
 
-HcalDetDiagLaserMonitor::HcalDetDiagLaserMonitor(const edm::ParameterSet& iConfig) {
+HcalDetDiagLaserMonitor::HcalDetDiagLaserMonitor(const edm::ParameterSet& iConfig):
+ HcalBaseDQMonitor(iConfig)
+ {
  
 
   ievt_=-1;

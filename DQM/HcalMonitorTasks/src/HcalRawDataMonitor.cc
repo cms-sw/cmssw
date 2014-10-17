@@ -6,9 +6,9 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
 
-HcalRawDataMonitor::HcalRawDataMonitor(const edm::ParameterSet& ps) {
-  Online_                = ps.getParameter<bool>("online");
-  mergeRuns_             = ps.getParameter<bool>("mergeRuns");
+HcalRawDataMonitor::HcalRawDataMonitor(const edm::ParameterSet& ps):HcalBaseDQMonitor(ps) {
+  Online_                = ps.getUntrackedParameter<bool>("online");
+  mergeRuns_             = ps.getUntrackedParameter<bool>("mergeRuns");
   enableCleanup_         = ps.getUntrackedParameter<bool>("enableCleanup");
   debug_                 = ps.getUntrackedParameter<int>("debug",0);
   prefixME_              = ps.getUntrackedParameter<std::string>("subSystemFolder", "Hcal/"); // Hcal

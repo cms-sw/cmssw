@@ -142,9 +142,7 @@ void HcalBaseDQClient::htmlOutput(DQMStore::IBooker &ib, DQMStore::IGetter &ig, 
   htmlFile << "cellpadding=\"10\"> " << std::endl;
   
 
-  // CATCH - how do I replace this functionality
-  //std::vector<MonitorElement*> hists = dqmStore_->getAllContents(subdir_);
-  std::vector<MonitorElement*> hists;
+  std::vector<MonitorElement*> hists = ig.getAllContents(subdir_);
   gStyle->SetPalette(1);
   
   int counter=0;

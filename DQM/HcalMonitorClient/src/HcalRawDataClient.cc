@@ -57,16 +57,6 @@ HcalRawDataClient::HcalRawDataClient(std::string myname, const edm::ParameterSet
   doProblemCellSetup_ = true;
 }
 
-// CATCH
-/*void HcalRawDataClient::endLuminosityBlock() {
-//  if (LBprocessed_==true) return;  // LB already processed
-//  UpdateMEs();
-//  LBprocessed_=true; 
-  if (debug_>2) std::cout <<"\tHcalRawDataClient::endLuminosityBlock()"<<std::endl;
-  calculateProblems();
-  return;
-}*/
-
 
 void HcalRawDataClient::analyze(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 {
