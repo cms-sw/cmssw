@@ -1,5 +1,5 @@
 import json
-from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
+from PhysicsTools.Heppy.analyzers.Analyzer import Analyzer
 
 from FWCore.PythonUtilities.LumiList import LumiList
 from PhysicsTools.Heppy.utils.rltinfo import RLTInfo
@@ -46,7 +46,7 @@ class JSONAnalyzer( Analyzer ):
         self.count.register('Passed Lumis')
 
     def process(self, event):
-        # self.readCollections( event.input )
+        self.readCollections( event.input )
         evid = event.input.eventAuxiliary().id()
         run = evid.run()
         lumi = evid.luminosityBlock()
