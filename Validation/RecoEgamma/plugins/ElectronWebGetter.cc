@@ -11,9 +11,9 @@ ElectronWebGetter::ElectronWebGetter( const edm::ParameterSet & conf )
 ElectronWebGetter::~ElectronWebGetter()
  {}
 
-void ElectronWebGetter::finalize(DQMStore::IGetter & iGetter )
+void ElectronWebGetter::finalize(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter )
  {
-  remove_other_dirs(iGetter ) ;
+  remove_other_dirs(iBooker, iGetter ) ;
  }
 
 
