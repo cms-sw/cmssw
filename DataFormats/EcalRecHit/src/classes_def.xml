@@ -1,5 +1,6 @@
 <lcgdict>
-  <class name="EcalUncalibratedRecHit" ClassVersion="11">
+  <class name="EcalUncalibratedRecHit" ClassVersion="12">
+   <version ClassVersion="12" checksum="343844348"/>
    <version ClassVersion="11" checksum="4183938955"/>
    <version ClassVersion="10" checksum="2325626302"/>
   </class>
