@@ -33,7 +33,7 @@
 			<ZSection z="[CastorL2]" rMin="[cms:ForwdBeamR4]" rMax="[cms:ForwdDetsR1]"/>
 			<ZSection z="[CastorL1]" rMin="[cms:ForwdDetsR1]" rMax="[cms:ForwdDetsR1]"/>
 		</Polycone>
-		<Tubs name="PLT" rMin="[cms:TrackBeamR1]" rMax="[cms:TrackLumiR1]" dz="[PLTdZ]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="PLT" rMin="[cms:TrackLumiR2Min]" rMax="[cms:TrackLumiR1]" dz="[PLTdZ]" startPhi="0*deg" deltaPhi="360*deg"/>
 	</SolidSection>
 	<LogicalPartSection label="forward.xml">
 		<LogicalPart name="TotemT1" category="unspecified">
