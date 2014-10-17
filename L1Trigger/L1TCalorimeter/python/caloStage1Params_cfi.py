@@ -16,10 +16,10 @@ caloStage1Params.egLsb                = cms.double(1.)
 caloStage1Params.egSeedThreshold      = cms.double(1.)
 caloStage1Params.egRelativeJetIsolationBarrelCut = cms.double(0.3)  # 0.3 for loose, 0.2 for tight
 caloStage1Params.egRelativeJetIsolationEndcapCut = cms.double(0.5)  # 0.5 for loose, 0.4 for tight
-caloStage1Params.egMinPtRelativeJetIsolation = cms.int32(20)  
+caloStage1Params.egMinPtRelativeJetIsolation = cms.int32(25)  
 caloStage1Params.egMaxPtRelativeJetIsolation = cms.int32(63)  
 caloStage1Params.egMinPt3x3HoE = cms.int32(1)  
-caloStage1Params.egMaxPt3x3HoE = cms.int32(1)  
+caloStage1Params.egMaxPt3x3HoE = cms.int32(40)  
 
 ## EG Isolation LUT
 caloStage1Params.egIsoLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egIsoLUT_stage1.txt")
