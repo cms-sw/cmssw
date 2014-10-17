@@ -1,14 +1,13 @@
 import random
-from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
-from PhysicsTools.HeppyCore.framework.AutoHandle import AutoHandle
+from PhysicsTools.Heppy.analyzers.Analyzer import Analyzer
+from PhysicsTools.Heppy.analyzers.autohandle import AutoHandle
 from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import Jet, GenJet
-from PhysicsTools.HeppyCore.utils.DeltaR import cleanObjectCollection, matchObjectCollection
-# from PhysicsTools.Heppy.physicsobjects.VBF import VBF
-from PhysicsTools.HeppyCore.statistics.Counter import Counter, Counters
-from PhysicsTools.Heppy.physicsobjects.BTagSF import BTagSF
+from PhysicsTools.HeppyCore.utils.deltar import cleanObjectCollection, matchObjectCollection
+from PhysicsTools.HeppyCore.statistics.counter import Counter, Counters
+# from PhysicsTools.Heppy.physicsobjects.BTagSF import BTagSF
 from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import GenParticle
-from PhysicsTools.HeppyCore.utils.DeltaR import deltaR2
-from PhysicsTools.HeppyCore.utils.cmsswRelease import isNewerThan
+from PhysicsTools.HeppyCore.utils.deltar import deltaR2
+from PhysicsTools.Heppy.utils.cmsswRelease import isNewerThan
 
 class JetAnalyzer( Analyzer ):
     """Analyze jets ;-)
@@ -30,7 +29,7 @@ class JetAnalyzer( Analyzer ):
       # eta range definition
       jetEta = 5.0,
       # seed for the btag scale factor
-      btagSFseed = 123456,
+      # btagSFseed = 123456,
       # if True, the PF and PU jet ID are not applied, and the jets get flagged
       relaxJetId = False,
     )
@@ -38,7 +37,7 @@ class JetAnalyzer( Analyzer ):
 
     def __init__(self, cfg_ana, cfg_comp, looperName):
         super(JetAnalyzer,self).__init__(cfg_ana, cfg_comp, looperName)
-        self.btagSF = BTagSF (cfg_ana.btagSFseed)
+        # self.btagSF = BTagSF (cfg_ana.btagSFseed)
         self.is2012 = isNewerThan('CMSSW_5_2_0')
 
     def declareHandles(self):
@@ -61,9 +60,9 @@ class JetAnalyzer( Analyzer ):
         count.register('at least 2 good jets')
         count.register('at least 2 clean jets')
         
-    def process(self, iEvent, event):
+    def process(self, event):
         
-        self.readCollections( iEvent )
+        self.readCollections( event.input )
         cmgJets = self.handles['jets'].product()
 
         allJets = []
@@ -227,14 +226,13 @@ class JetAnalyzer( Analyzer ):
         # medium csv working point
         # https://twiki.cern.ch/twiki/bin/viewauth/CMS/BTagPerformanceOP#B_tagging_Operating_Points_for_3
         jet.btagMVA = jet.btag("combinedSecondaryVertexBJetTags")
-        jet.btagFlag = self.btagSF.BTagSFcalc.isbtagged(jet.pt(), 
-                          jet.eta(),
-                          jet.btag("combinedSecondaryVertexBJetTags"),
-                          abs(jet.partonFlavour()),
-                          not self.cfg_comp.isMC,
-                          0,0,
-                          self.is2012 )
+#        jet.btagFlag = self.btagSF.BTagSFcalc.isbtagged(jet.pt(), 
+#                          jet.eta(),
+#                          jet.btag("combinedSecondaryVertexBJetTags"),
+#                          abs(jet.partonFlavour()),
+#                          not self.cfg_comp.isMC,
+#                          0,0,
+#                          self.is2012 )
         return jet.pt()>20 and \
                abs( jet.eta() ) < 2.4 and \
-               jet.btagFlag and \
                self.testJetID(jet)

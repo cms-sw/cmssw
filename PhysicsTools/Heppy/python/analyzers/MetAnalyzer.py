@@ -1,6 +1,6 @@
 import copy
 from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
-from PhysicsTools.HeppyCore.framework.AutoHandle import AutoHandle
+from PhysicsTools.Heppy.analyzers.autohandle import AutoHandle
 import random
 
 def pv(vc):

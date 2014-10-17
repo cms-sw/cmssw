@@ -1,7 +1,7 @@
 import os 
 from PhysicsTools.Heppy.analyzers.VertexHistograms import VertexHistograms
 from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
-from PhysicsTools.HeppyCore.framework.AutoHandle import AutoHandle
+from PhysicsTools.Heppy.analyzers.autohandle import AutoHandle
 from PhysicsTools.HeppyCore.statistics.Average import Average
 from PhysicsTools.Heppy.physicsobjects.PileUpSummaryInfo import PileUpSummaryInfo
 from ROOT import TFile, TH1F
