@@ -11,8 +11,10 @@ electronMcSignalPostValidator = cms.EDAnalyzer("ElectronMcSignalPostValidator",
   FinalStep = cms.string("AtRunEnd"),
   InputFile = cms.string(""),
   OutputFile = cms.string(""),
-  InputFolderName = cms.string("EgammaV/ElectronMcSignalValidator"),
-  OutputFolderName = cms.string("EgammaV/ElectronMcSignalValidator"),
+#  InputFolderName = cms.string("EgammaV/ElectronMcSignalValidator"),
+#  OutputFolderName = cms.string("EgammaV/ElectronMcSignalValidator"),
+  InputFolderName = cms.string("Run 1/EgammaV/Run summary/ElectronMcSignalValidator"),
+  OutputFolderName = cms.string("Run 1/EgammaV/Run summary/ElectronMcSignalValidator"),
     
   histosCfg = cms.PSet(electronMcSignalHistosCfg)
 )
