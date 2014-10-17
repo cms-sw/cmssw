@@ -17,8 +17,8 @@ then
 	CHOIX_INTERACTION='./electronBsub 1nh /afs/cern.ch/cms/utils/oval run store.Val'
 else
 	echo "interaction"
-	CHOIX_INTERACTION='/afs/cern.ch/cms/utils/oval run store.Val'
-#	CHOIX_INTERACTION='/afs/cern.ch/cms/utils/oval run force.Val'
+#	CHOIX_INTERACTION='/afs/cern.ch/cms/utils/oval run store.Val'
+	CHOIX_INTERACTION='/afs/cern.ch/cms/utils/oval run force.Val'
 fi
 
 #echo $1 $CHOIX_INTERACTION
@@ -50,8 +50,9 @@ echo $2 $CHOIX_CALCUL
 case $CHOIX_CALCUL in
 Full) echo "Full"
 	echo "--"
-	for i in Pt10Startup_UP15 Pt1000Startup_UP15 Pt35Startup_UP15 TTbarStartup_13 ZEEStartup_13 QcdPt80Pt120Startup_13
-#	for i in Pt1000Startup_UP15 TTbarStartup_13 ZEEStartup_13 QcdPt80Pt120Startup_13
+#	for i in Pt10Startup_UP15 Pt1000Startup_UP15 Pt35Startup_UP15 TTbarStartup_13 ZEEStartup_13 QcdPt80Pt120Startup_13
+#	for i in Pt1000Startup_UP15 Pt35Startup_UP15 TTbarStartup_13 QcdPt80Pt120Startup_13
+	for i in TTbarStartup_13
 		do 
 			echo " == ${CHOIX_INTERACTION}${CHOIX_CALCUL}${i}_gedGsfE"
 			${CHOIX_INTERACTION}${CHOIX_CALCUL}${i}_gedGsfE
@@ -67,7 +68,7 @@ PileUp) echo "PileUp"
 	;;
 Fast) echo "Fast"
 	echo "**"
-	for i in TTbarStartup ZEEStartup
+	for i in TTbarStartup #ZEEStartup
 #        for i in ZEEStartup
 		do 
 			echo " == ${CHOIX_INTERACTION}${CHOIX_CALCUL}${i}_gedGsfE"
