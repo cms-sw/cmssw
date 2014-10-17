@@ -108,6 +108,7 @@
   <class name="edm::Wrapper<edm::RangeMap<DetId, edm::OwnVector<SiStripMatchedRecHit2D, edm::ClonePolicy<SiStripMatchedRecHit2D> >, edm::ClonePolicy<SiStripMatchedRecHit2D> > >"/>
 
   <class name="std::vector<SiPixelRecHit*>"/>
+  <class name="std::vector<SiPixelRecHit>"/>
   <class name="edm::OwnVector<SiPixelRecHit,edm::ClonePolicy<SiPixelRecHit> >"/>
   <class name="edm::OwnVector<SiPixelRecHit,edm::ClonePolicy<SiPixelRecHit> >::const_iterator"/>
   <class name="edm::RangeMap<DetId, edm::OwnVector<SiPixelRecHit, edm::ClonePolicy<SiPixelRecHit> >, edm::ClonePolicy<SiPixelRecHit> >"/>
@@ -122,6 +123,7 @@
  <class name="std::vector<SiStripRecHit2D>"/>
  <class name="std::vector<SiStripRecHit1D>"/>
 
+ <class name="edmNew::DetSet<SiPixelRecHit>"/>
  <class name="edmNew::DetSetVector<SiStripRecHit2D>"/>
  <class name="edmNew::DetSetVector<SiStripRecHit1D>"/>
 
