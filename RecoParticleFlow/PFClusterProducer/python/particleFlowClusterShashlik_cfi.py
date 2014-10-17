@@ -58,7 +58,7 @@ _positionCalcEK_all_withdepth = cms.PSet(
 
 # pf clustering
 _pfClusterizer_EK = cms.PSet(
-    algoName = cms.string("PFlow2DClusterizerWithTime"),
+    algoName = cms.string("Basic2DGenericPFlowClusterizer"),
     #pf clustering parameters
     minFractionToKeep = cms.double(1e-7),
     positionCalc = _positionCalcECAL_3x3_nodepth,

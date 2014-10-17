@@ -8,14 +8,7 @@ from particleFlowClusterECALTimeResolutionParameters_cfi import  _timeResolution
 
 particleFlowRecHitEK = cms.EDProducer("PFRecHitProducer",
     navigator = cms.PSet(
-        name = cms.string("PFRecHitShashlikNavigatorWithTime"),
-        noiseLevel = cms.double(0.027),   
-        noiseTerm  = cms.double(36.1),
-        constantTerm = cms.double(10),
-        sigmaCut = cms.double(5.0),
-        timeResolutionCalc = _timeResolutionShashlikEndcap,
-        barrel = cms.PSet( ),
-        endcap = cms.PSet( )
+        name = cms.string("PFRecHitShashlikNavigator"),
     ),
     producers = cms.VPSet(
            cms.PSet(
@@ -25,12 +18,12 @@ particleFlowRecHitEK = cms.EDProducer("PFRecHitProducer",
                 cms.PSet(
                   name = cms.string("PFRecHitQTestThreshold"),
                   threshold = cms.double(0.08)
-                  ),
-                cms.PSet(
-                  name = cms.string("PFRecHitQTestShashlikTiming"),
-                  UseSafetyCuts = cms.bool(True),
-                  BadTimingEThreshold = cms.double(0.250)
                   )
+#               cms.PSet(
+#                 name = cms.string("PFRecHitQTestShashlikTiming"),
+#                 UseSafetyCuts = cms.bool(True),
+#                 BadTimingEThreshold = cms.double(0.250)
+#                 )
                 )             
            )          
     )          

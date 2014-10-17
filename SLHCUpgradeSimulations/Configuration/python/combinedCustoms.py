@@ -148,19 +148,18 @@ def cust_2023SHCal(process):
     if hasattr(process,'reconstruction_step'):
     	process.ecalRecHit.EEuncalibRecHitCollection = cms.InputTag("","")
         #remove the old EE pfrechit producer
-        del process.particleFlowRecHitECALWithTime.producers[1]
         del process.particleFlowRecHitECAL.producers[1]
         process.particleFlowClusterEBEKMerger = cms.EDProducer('PFClusterCollectionMerger',
-                                                               inputs = cms.VInputTag(cms.InputTag('particleFlowClusterECALWithTimeUncorrected'),
+                                                               inputs = cms.VInputTag(cms.InputTag('particleFlowClusterECALUncorrected'),
                                                                                       cms.InputTag('particleFlowClusterEKUncorrected')
                                                                                       )
                                                                )   
         process.pfClusteringECAL.remove(process.particleFlowClusterECAL)
-        process.pfClusteringECAL.remove(process.particleFlowClusterECALWithTimeSelected)
+#        process.pfClusteringECAL.remove(process.particleFlowClusterECALWithTimeSelected)
         process.pfClusteringECAL += process.pfClusteringEK 
         process.pfClusteringECAL += process.particleFlowClusterEBEKMerger
-        process.pfClusteringECAL += process.particleFlowClusterECALWithTimeSelected        
-        process.particleFlowClusterECALWithTimeSelected.src = cms.InputTag('particleFlowClusterEBEKMerger')
+        process.pfClusteringECAL += process.particleFlowClusterECAL        
+        process.particleFlowClusterECAL.inputECAL = cms.InputTag('particleFlowClusterEBEKMerger')
         process.pfClusteringECAL += process.particleFlowClusterECAL
         #process.particleFlowCluster += process.pfClusteringEK
         

@@ -46,14 +46,7 @@ from RecoParticleFlow.PFClusterProducer.particleFlowClusterShashlik_cfi import *
 
 pfClusteringECAL = cms.Sequence()
 
-withTime = True
-if withTime:
-    pfClusteringECAL = cms.Sequence(particleFlowRecHitECALWithTime*
-                                     particleFlowClusterECALWithTimeSequence)
-    particleFlowClusterECAL.inputECAL = cms.InputTag('particleFlowClusterECALWithTimeSelected')
-else:
-    pfClusteringECAL = cms.Sequence(particleFlowRecHitECAL*
-                                    particleFlowClusterECALSequence)
+pfClusteringECAL = cms.Sequence(particleFlowRecHitECAL*particleFlowClusterECALUncorrected*particleFlowClusterECAL)
 
 pfClusteringEK = cms.Sequence( particleFlowRecHitEK +
                                particleFlowClusterEKUncorrected )
