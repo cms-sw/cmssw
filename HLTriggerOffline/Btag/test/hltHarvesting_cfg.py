@@ -26,6 +26,17 @@ print "btag_pathes ",fileini.btag_pathes
 print "vertex_modules ",fileini.vertex_modules
 print "vertex_pathes ",fileini.vertex_pathes
 print
+#denominator trigger
+process.triggerSelection = cms.EDFilter( "TriggerResultsFilter",
+    triggerConditions = cms.vstring(
+      fileini.denominatorTriggerPath),
+    hltResults = cms.InputTag( "TriggerResults", "", fileini.processname ),
+#    l1tResults = cms.InputTag( "gtDigis" ),
+#    l1tIgnoreMask = cms.bool( False ),
+#    l1techIgnorePrescales = cms.bool( False ),
+#    daqPartitions = cms.uint32( 1 ),
+    throw = cms.bool( True )
+)
 #correct the jet used for the matching
 process.hltJetsbyRef.jets = cms.InputTag(fileini.jets)
 #define VertexValidationVertices for the vertex DQM validation
@@ -69,7 +80,8 @@ fileNames = cms.untracked.vstring(fileini.files)
 )
 #put all in a path
 process.DQM_BTag = cms.Path(
-process.hltJetMCTools
+process.triggerSelection
++	process.hltJetMCTools
 +	process.VertexValidationVertices
 +	process.bTagValidation
 +	process.bTagPostValidation

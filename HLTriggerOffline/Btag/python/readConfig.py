@@ -15,6 +15,7 @@ class fileINI:
 		 self.jets=ConfigSectionMap("config")["hltjets"]
 		 files=ConfigSectionMap("config")["files"]
 		 self.maxEvents=ConfigSectionMap("config")["maxevents"]
+		 self.denominatorTriggerPath=ConfigSectionMap("config")["denominatorTriggerPath"]
 
 		 files=files.splitlines()
 		 self.files=filter(lambda x: len(x)>0,files)
@@ -47,6 +48,7 @@ def printMe(self):
 	print
 	print  "Reading ", self.fileName
 	print
+	print  "denominatorTriggerPath		=	",self.denominatorTriggerPath
 	print  "maxEvents		=	",self.maxEvents
 	print  "CMSSWVER		=	",self.CMSSWVER
 	print  "processname		=	",self.processname
