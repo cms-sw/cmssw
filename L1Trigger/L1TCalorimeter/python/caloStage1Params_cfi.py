@@ -16,6 +16,8 @@ caloStage1Params.egLsb                = cms.double(1.)
 caloStage1Params.egSeedThreshold      = cms.double(1.)
 caloStage1Params.egRelativeJetIsolationBarrelCut = cms.double(0.3)  # 0.3 for loose, 0.2 for tight
 caloStage1Params.egRelativeJetIsolationEndcapCut = cms.double(0.5)  # 0.5 for loose, 0.4 for tight
+## EG Isolation LUT
+caloStage1Params.egIsoLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egIsoLUT_stage1.txt")
 
 # Tau
 caloStage1Params.tauSeedThreshold = cms.double(7.)
@@ -25,6 +27,7 @@ caloStage1Params.switchOffTauVeto = cms.double(64.)
 caloStage1Params.switchOffTauIso = cms.double(192.)
 caloStage1Params.tauRelativeJetIsolationLimit  = cms.double(100.)
 caloStage1Params.tauRelativeJetIsolationCut = cms.double(0.1)
+caloStage1Params.tauIsoLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauIsoLUT.txt")
 
 # jets
 caloStage1Params.jetLsb                = cms.double(0.5)
