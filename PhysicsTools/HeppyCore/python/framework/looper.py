@@ -6,12 +6,14 @@ import sys
 import imp
 import logging
 import pprint
-from chain import Chain as Events
-if 'HEPPY_FCC' in os.environ:
-    from eventsalbers import Events
-elif 'CMSSW_BASE' in os.environ:
-    from eventsfwlite import Events
+# from chain import Chain as Events
+# if 'HEPPY_FCC' in os.environ:
+#    from eventsalbers import Events
+#elif 'CMSSW_BASE' in os.environ:
+#    from eventsfwlite import Events
+from platform import platform 
 from event import Event
+
 
 class Looper(object):
     """Creates a set of analyzers, and schedules the event processing."""
@@ -48,6 +50,18 @@ class Looper(object):
         tree_name = None
         if( hasattr(self.cfg_comp, 'tree_name') ):
             tree_name = self.cfg_comp.tree_name
+        if len(self.cfg_comp.files)==0:
+            errmsg = 'please provide at least an input file in the files attribute of this component\n' + str(self.cfg_comp)
+            raise ValueError( errmsg )
+        theplatform = platform(self.cfg_comp.files[0])
+        if theplatform is 'FCC':
+            from eventsalbers import Events
+        elif theplatform is 'CMSSW':
+            from eventsfwlite import Events
+        elif theplatform is 'BARE': 
+            from chain import Chain as Events
+        else:
+            raise ValueError('Unrecognized platform')
         self.events = Events(self.cfg_comp.files, tree_name)
         # self.event is set in self.process
         self.event = None
