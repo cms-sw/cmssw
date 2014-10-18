@@ -110,7 +110,10 @@ lowPtQuadStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckf
 import RecoTracker.TrackProducer.TrackProducer_cfi
 lowPtQuadStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'lowPtQuadStepTrackCandidates',
-    AlgorithmName = cms.string('lowPtQuadStep'),
+    # Algorithm name changed from lowPtQuadStep (was iter2) to pixelPairStep in order
+    # to keep backward compatibility as detachedQuadStep would be unknown.
+    # In the future, a new enum or alias may be added to support iteration name aliases.
+    AlgorithmName = cms.string('pixelPairStep'),
     Fitter = cms.string('FlexibleKFFittingSmoother'),
     TTRHBuilder=cms.string('WithTrackAngle')
     )

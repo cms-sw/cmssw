@@ -11,7 +11,7 @@ std::string const TrackBase::algoNames[] = {
     "ctf",
     "rs",
     "cosmics",
-    "inialStep",
+    "initialStep",
     "lowPtTripletStep",
     "pixelPairStep",
     "detachedTripletStep",
