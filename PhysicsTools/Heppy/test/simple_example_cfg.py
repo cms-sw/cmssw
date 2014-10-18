@@ -20,10 +20,26 @@ json = cfg.Analyzer(
     "JSONAnalyzer"
     )
 
+jets = cfg.Analyzer(
+    'JetAnalyzer',
+    jetCol = 'slimmedJets',
+    # cmg jet input collection
+    # pt threshold
+    jetPt = 30,
+    # eta range definition
+    jetEta = 5.0,
+    # seed for the btag scale factor
+    # btagSFseed = 123456,
+    # if True, the PF and PU jet ID are not applied, and the jets get flagged
+    relaxJetId = False,
+    btagSFseed = 0xdeadbeef
+    )
+
 # definition of a sequence of analyzers,
 # the analyzers will process each event in this order
 sequence = cfg.Sequence( [
-    json
+    json,
+    jets
     ] )
 
 # finalization of the configuration object. 
