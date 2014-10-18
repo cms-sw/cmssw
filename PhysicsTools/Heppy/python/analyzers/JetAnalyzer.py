@@ -4,7 +4,7 @@ from PhysicsTools.Heppy.analyzers.autohandle import AutoHandle
 from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import Jet, GenJet
 from PhysicsTools.HeppyCore.utils.deltar import cleanObjectCollection, matchObjectCollection
 from PhysicsTools.HeppyCore.statistics.counter import Counter, Counters
-from PhysicsTools.Heppy.physicsobjects.btagsf import BTagSF
+from PhysicsTools.Heppy.physicsutils.btagsf import BTagSF
 from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import GenParticle
 from PhysicsTools.HeppyCore.utils.deltar import deltaR2
 from PhysicsTools.Heppy.utils.cmsswRelease import isNewerThan
@@ -22,6 +22,7 @@ class JetAnalyzer( Analyzer ):
 
     jetAna = cfg.Analyzer(
       'JetAnalyzer',
+      jetCol = 'slimmedJets'
       # cmg jet input collection
       # pt threshold
       jetPt = 30,
