@@ -1,5 +1,5 @@
 from PhysicsTools.Heppy.physicsobjects.Lepton import Lepton
-from PhysicsTools.Heppy.physicsobjects.ElectronMVAID import ElectronMVAID_Trig, ElectronMVAID_NonTrig, ElectronMVAID_TrigNoIP
+from PhysicsTools.Heppy.physicsutils.ElectronMVAID import ElectronMVAID_Trig, ElectronMVAID_NonTrig, ElectronMVAID_TrigNoIP
 
 
 class Electron( Lepton ):

@@ -1,7 +1,7 @@
 import math
 import fnmatch
 
-from PhysicsTools.Heppy.physicsobjects.TauDecayModes import tauDecayModes
+from PhysicsTools.Heppy.physicsutils.TauDecayModes import tauDecayModes
 
 def printOut(objects):
     if len(objects)==0:
