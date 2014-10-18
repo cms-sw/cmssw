@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_2_0/Fake/V3 (CMSSW_7_2_0_pre7)
+# /dev/CMSSW_7_2_1/Fake/V1 (CMSSW_7_2_0_pre8)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_2_0/Fake/V3')
+  tableName = cms.string('/dev/CMSSW_7_2_1/Fake/V1')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -22415,15 +22415,18 @@ hltFastPrimaryVertex = cms.EDProducer( "FastPrimaryVertexWithWeightsProducer",
     zClusterWidth_step1 = cms.double( 2.0 ),
     zClusterWidth_step2 = cms.double( 0.65 ),
     zClusterWidth_step3 = cms.double( 0.3 ),
+    weight_dPhi = cms.double( 0.13888888 ),
     minJetEta_EC = cms.double( 1.3 ),
+    ptWeighting = cms.bool( False ),
     maxZ = cms.double( 19.0 ),
     njets = cms.int32( 999 ),
     maxSizeX = cms.double( 2.1 ),
+    ptWeighting_slope = cms.double( 0.05 ),
     weight_SizeX1 = cms.double( 0.88 ),
     clusters = cms.InputTag( "hltSiPixelClustersRegForBTag" ),
     weightCut_step2 = cms.double( 0.05 ),
     weightCut_step3 = cms.double( 0.1 ),
-    weight_charge_down = cms.double( 11000.0 ),
+    maxSizeY_q = cms.double( 2.0 ),
     endCap = cms.bool( True ),
     weight_rho_up = cms.double( 22.0 ),
     jets = cms.InputTag( "hltSelector4CentralJetsL1FastJet" ),
@@ -22432,9 +22435,9 @@ hltFastPrimaryVertex = cms.EDProducer( "FastPrimaryVertexWithWeightsProducer",
     weight_charge_up = cms.double( 190000.0 ),
     maxDeltaPhi = cms.double( 0.21 ),
     beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
-    weight_dPhi = cms.double( 0.13888888 ),
+    weight_charge_down = cms.double( 11000.0 ),
+    ptWeighting_offset = cms.double( -1.0 ),
     weight_charge_peak = cms.double( 22000.0 ),
-    maxSizeY_q = cms.double( 2.0 ),
     minJetPt = cms.double( 0.0 ),
     maxDeltaPhi_EC = cms.double( 0.14 ),
     zClusterSearchArea_step3 = cms.double( 0.55 ),
@@ -24055,7 +24058,7 @@ hltOnlinePrimaryVertices = cms.EDProducer( "PrimaryVertexProducer",
         use_vdt = cms.untracked.bool( True ),
         vertexSize = cms.double( 0.01 )
       ),
-      algorithm = cms.string( "DA" )
+      algorithm = cms.string( "DA_vect" )
     )
 )
 hltGoodOnlinePVs = cms.EDFilter( "PrimaryVertexObjectFilter",

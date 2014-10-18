@@ -131,11 +131,10 @@ bool
           chargedCandidates->push_back(cand);
        }
        
-       //calculate relative trk isolation only if parameter maxRelTrkIsoDeltaRp3 is less than 0
+       //calculate relative trk isolation only if parameter maxRelTrkIsoDeltaRp3 is greater than 0
        if(maxRelTrkIsoDeltaRp3_ >= 0){
 	 auto ptCone = trackCollection[i].pt();
 	 for(unsigned int j=0; j<trackCollection.size(); j++){
-	 reco::TrackRef track2  = reco::TrackRef( trackCollectionHandle, j );
 	 if (i==j) continue; // do not compare track to itself
          auto trkDeltaR2 = deltaR2(eta[i], phi[i], eta[j], phi[j]);
          if (trkDeltaR2 < relTrkIsoDeltaRSize_ * relTrkIsoDeltaRSize_){

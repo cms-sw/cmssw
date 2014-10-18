@@ -342,7 +342,7 @@ namespace edm {
 
     boost::shared_ptr<PileUp> source0 = inputSources_[0];
 
-    if((source0 && source0->doPileUp() ) && !playback_) {
+    if((source0 && source0->doPileUp(0) ) && !playback_) {
       //    if((!inputSources_[0] || !inputSources_[0]->doPileUp()) && !playback_ ) 
 
       // Pre-calculate all pileup distributions before we go fishing for events
@@ -374,7 +374,7 @@ namespace edm {
           workers_[setSrcIdx]->setSourceOffset(readSrcIdx);
         }
 
-        if (!source || !source->doPileUp()) continue;
+        if (!source || !source->doPileUp(bunchIdx)) continue;
 
         int NumPU_Events = 0;
 
@@ -425,7 +425,7 @@ namespace edm {
     //Makin' a list: Basically, we don't care about the "other" sources at this point.
     for (int bunchCrossing=minBunch_;bunchCrossing<=maxBunch_;++bunchCrossing) {
       bunchCrossingList.push_back(bunchCrossing);
-      if(!inputSources_[0] || !inputSources_[0]->doPileUp()) {
+      if(!inputSources_[0] || !inputSources_[0]->doPileUp(0)) {
         numInteractionList.push_back(0);
         TrueInteractionList.push_back(0);
       }
