@@ -106,6 +106,11 @@ namespace edm {
       }
     }
 
+    TEnum* theEnum = TEnum::GetEnum(name.c_str(), TEnum::kAutoload);
+    if(theEnum) {
+      return TypeWithDict(theEnum, name, property);
+    } 
+
     TType* type = gInterpreter->Type_Factory(name);
     if (!gInterpreter->Type_IsValid(type)) {
       typeMap.insert(std::make_pair(name, TypeWithDict()));
@@ -172,7 +177,20 @@ namespace edm {
     dataType_(TDataType::GetDataType(TDataType::GetType(ti))),
     property_(property) {
 
-    if(class_ != nullptr || dataType_ != nullptr) {
+    if(class_ != nullptr) {
+      property_ |= (long)kIsClass;
+      return;
+    }
+
+    if(dataType_ != nullptr) {
+      property_ |= (long)kIsFundamental;
+      return;
+    }
+
+    enum_ = TEnum::GetEnum(ti, TEnum::kAutoload);
+    if(enum_ != nullptr) {
+      enumName_ = TypeID(ti).className();
+      property_ |= (long)kIsEnum;
       return;
     }
 
@@ -180,20 +198,25 @@ namespace edm {
     if (!gInterpreter->Type_IsValid(type_)) {
       throwTypeException("TypeWithDict(TType*, property): ", name());
     }
-    if (gInterpreter->Type_IsEnum(type_)) {
-      processEnumeration();
-    }
   }
 
   TypeWithDict::TypeWithDict(TClass* cl, long property /*= 0L*/) :
-    ti_(&typeid(void)),
+    ti_(cl->GetTypeInfo()),
     type_(nullptr),
     class_(cl),
     enum_(nullptr),
     dataType_(nullptr),
     property_((long) kIsClass | property) {
+  }
 
-    ti_ = cl->GetTypeInfo();
+  TypeWithDict::TypeWithDict(TEnum* enm, std::string const& name, long property /*= 0L*/) :
+    ti_(&typeid(int)),
+    type_(nullptr),
+    class_(nullptr),
+    enum_(enm),
+    dataType_(nullptr),
+    enumName_(name),
+    property_((long) kIsEnum | property) {
   }
 
   TypeWithDict::TypeWithDict(TMethodArg* arg, long property /*= 0L*/) :
@@ -231,9 +254,6 @@ namespace edm {
         !gInterpreter->Type_IsEnum(ttype)) {
       // Must be a class, struct, or union.
       class_ = TClass::GetClass(*ti_);
-    }
-    if (gInterpreter->Type_IsEnum(type_)) {
-      processEnumeration();
     }
   }
 
@@ -393,6 +413,9 @@ namespace edm {
 
   std::string
   TypeWithDict::name() const {
+    if(enum_ != nullptr) {
+      return enumName_;
+    }
     return TypeID(*ti_).className();
   }
 
@@ -407,13 +430,15 @@ namespace edm {
   std::string
   TypeWithDict::userClassName() const {
     //FIXME: What about const and reference?
+    if(enum_ != nullptr) {
+      return enumName_;
+    }
     return TypeID(*ti_).userClassName();
   }
 
   std::string
   TypeWithDict::friendlyClassName() const {
-    //FIXME: What about const and reference?
-    return TypeID(*ti_).friendlyClassName();
+    return friendlyname::friendlyName(name()); 
   }
 
   size_t
@@ -423,6 +448,9 @@ namespace edm {
     }
     if(dataType_ != nullptr) {
       return dataType_->Size();
+    }
+    if(enum_ != nullptr) {
+      return sizeof(int);
     }
     assert(type_ != nullptr);
     return gInterpreter->Type_Size(type_);
@@ -534,6 +562,9 @@ namespace edm {
     if (*ti_ == typeid(void)) {
       return TypeWithDict();
     }
+    if(enum_ != nullptr) {
+      return *this;
+    } 
     return TypeWithDict(*ti_);
   }
 
@@ -731,65 +762,6 @@ namespace edm {
       delete[] reinterpret_cast<char*>(address);
     }
   }
-
-  void
-  TypeWithDict::processEnumeration() {
-    TType* TTy = gInterpreter->Type_GetParent(type_);
-    if (TTy != nullptr) {
-      // The enum is a class member.
-      TypeWithDict Tycl(*gInterpreter->Type_TypeInfo(TTy));
-      if (Tycl.class_ == nullptr) {
-        throw Exception(errors::LogicError)
-          << "Function TypeWithDict::processEnumeration(), enum parent\n"
-          << name() 
-          << "\nis not a class\n";
-      }
-      TObject* tobj =
-        Tycl.class_->GetListOfEnums()->FindObject(unscopedName().c_str());
-      if (tobj == nullptr) {
-        throw Exception(errors::LogicError)
-          << "Function TypeWithDict::processEnumeration(), enum\n"
-          << name()
-          << "\nnot found in containing class\n"
-          << unscopedName() << "\n";
-      }
-      enum_ = reinterpret_cast<TEnum*>(tobj);
-    } else if (name().size() != unscopedName().size()) {
-      // Must be a namespace member.
-      assert(name().size() >= unscopedName().size() + 2);
-      std::string theNamespace(name().substr(0, name().size() - unscopedName().size() - 2));
-      TClass* cl = TClass::GetClass(theNamespace.c_str());
-      assert(cl != nullptr);
-      TObject* tobj = cl->GetListOfEnums()->FindObject(unscopedName().c_str());
-      if (tobj == nullptr) {
-        throw Exception(errors::LogicError)
-          << "Function TypeWithDict::processEnumeration(), enum\n"
-          << name()
-          << "\nnot found in named namespace\n"
-          << unscopedName() << "\n";
-      }
-      enum_ = reinterpret_cast<TEnum*>(tobj);
-    } else {
-      // Must be a global namespace member.
-      //gROOT->GetListOfEnums()->Dump();
-      TObject* tobj = gROOT->GetListOfEnums()->FindObject(name().c_str());
-      if (tobj == nullptr) {
-        throw Exception(errors::LogicError)
-          << "Function TypeWithDict::processEnumeration(), enum\n"
-          << name()
-          << "\nnot found in global namespace\n";
-      }
-      enum_ = reinterpret_cast<TEnum*>(tobj);
-    }
-    if (enum_ == nullptr) {
-      throw Exception(errors::LogicError)
-        << "Function TypeWithDict::processEnumeration(), enum not set for enum type\n"
-        << name() << "\n";
-    }
-  }
-  //-------------------------------------------------------------
-  //
-  //
 
   // A related free function
   bool
