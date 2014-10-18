@@ -1139,7 +1139,7 @@ steps['HARVESTUP15FS']={'-s':'HARVESTING:validationHarvestingFS',
                         '--filetype':'DQM',
                         '--scenario':'pp'}
 
-                   }
+                   
 steps['ALCASPLIT']={'-s':'ALCAOUTPUT:@allForPrompt',
                     '--conditions':'auto:run1_data',
                     '--scenario':'pp',
