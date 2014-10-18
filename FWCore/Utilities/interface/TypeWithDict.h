@@ -46,9 +46,8 @@ private:
   TClass* class_;
   TEnum* enum_;
   TDataType* dataType_;
+  std::string enumName_; 
   long property_;
-private:
-  void processEnumeration();
 public:
   static TypeWithDict byName(std::string const& name, long property = 0L);
 public:
@@ -59,6 +58,7 @@ public:
   explicit TypeWithDict(TypeWithDict const&, long property);
   explicit TypeWithDict(std::type_info const&, long property = 0L);
   explicit TypeWithDict(TClass* type, long property = 0L);
+  explicit TypeWithDict(TEnum* type, std::string const& name, long property = 0L);
   explicit TypeWithDict(TMethodArg* arg, long property = 0L);
   explicit TypeWithDict(TType* type, long property = 0L);
   //template<typename T> TypeWithDict() : TypeWithDict(typeid(T)) {}
