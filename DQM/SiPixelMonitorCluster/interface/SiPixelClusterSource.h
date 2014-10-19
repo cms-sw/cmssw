@@ -95,16 +95,12 @@
        int bigEventSize;
        bool isUpgrade;
 
-  MonitorElement* meClPosLayer1;
-  MonitorElement* meClPosLayer2;
-  MonitorElement* meClPosLayer3;
-  MonitorElement* meClPosLayer4;
-  MonitorElement* meClPosDisk1pz;
-  MonitorElement* meClPosDisk2pz;
-  MonitorElement* meClPosDisk3pz;
-  MonitorElement* meClPosDisk1mz;
-  MonitorElement* meClPosDisk2mz;
-  MonitorElement* meClPosDisk3mz;
+       std::vector<MonitorElement*> meClPosLayer;
+       std::vector<MonitorElement*> meClPosDiskpz;
+       std::vector<MonitorElement*> meClPosDiskmz;
+  
+       int noOfLayers;
+       int noOfDisks;
 
   //define Token(-s)
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > srcToken_;
