@@ -234,7 +234,7 @@ process = customise_Reco(process,0)
 process = customise_condOverRides(process)
 
 process.p0 = cms.Path(
-#    process.myrereco +
+    process.myrereco +
     process.seqHLTSelection +
     process.seqProducers +
     process.seqAnalyzers +
