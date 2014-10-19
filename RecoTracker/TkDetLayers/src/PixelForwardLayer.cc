@@ -203,7 +203,7 @@ PixelForwardLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
   if(!closestResult_outer.empty()){
     DetGroupElement closestGel( closestResult_outer.front().front());
     float window = computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est);
-    searchNeighbors( tsos, prop, est, crossings_inner, window, result_outer, false);
+    searchNeighbors( tsos, prop, est, crossings_outer, window, result_outer, false);
   }
 
   if(result_inner.empty() && result_outer.empty() ) return;
