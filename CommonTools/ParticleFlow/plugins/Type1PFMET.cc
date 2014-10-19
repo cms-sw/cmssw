@@ -13,9 +13,9 @@ using namespace reco;
 // PRODUCER CONSTRUCTORS ------------------------------------------
 Type1PFMET::Type1PFMET( const edm::ParameterSet& iConfig )
 {
-  tokenUncorMet  = consumes<METCollection>(edm::InputTag(iConfig.getParameter<std::string>("tokenUncorMet")));
-  tokenUncorJets = consumes<PFJetCollection>(iConfig.getParameter<edm::InputTag>("tokenUncorJets"));
-  correctorLabel   = iConfig.getParameter<std::string>("corrector");
+  tokenUncorMet  = consumes<METCollection>(iConfig.getParameter<edm::InputTag>("inputUncorMetLabel"));
+  tokenUncorJets = consumes<PFJetCollection>(iConfig.getParameter<edm::InputTag>("inputUncorJetsTag"));
+  correctorToken = consumes<JetCorrector>(iConfig.getParameter<edm::InputTag>("corrector"));
   jetPTthreshold      = iConfig.getParameter<double>("jetPTthreshold");
   jetEMfracLimit      = iConfig.getParameter<double>("jetEMfracLimit");
   jetMufracLimit      = iConfig.getParameter<double>("jetMufracLimit");
@@ -32,18 +32,19 @@ Type1PFMET::~Type1PFMET() {}
   using namespace edm;
   Handle<PFJetCollection> inputUncorJets;
   iEvent.getByToken( tokenUncorJets, inputUncorJets );
-  const JetCorrector* corrector = JetCorrector::getJetCorrector (correctorLabel, iSetup);
+  Handle<JetCorrector> corrector;
+  iEvent.getByToken( correctorToken, corrector );
   Handle<METCollection> inputUncorMet;                     //Define Inputs
   iEvent.getByToken( tokenUncorMet,  inputUncorMet );     //Get Inputs
   std::auto_ptr<METCollection> output( new METCollection() );  //Create empty output
-  run( *(inputUncorMet.product()), *corrector, *(inputUncorJets.product()),
+  run( *(inputUncorMet.product()), *(corrector.product()), *(inputUncorJets.product()),
        jetPTthreshold, jetEMfracLimit, jetMufracLimit,
        &*output );                                         //Invoke the algorithm
   iEvent.put( output );                                        //Put output into Event
 }
 
 void Type1PFMET::run(const METCollection& uncorMET,
-		     const JetCorrector& corrector,
+		     const reco::JetCorrector& corrector,
 		     const PFJetCollection& uncorJet,
 		     double jetPTthreshold,
 		     double jetEMfracLimit,
