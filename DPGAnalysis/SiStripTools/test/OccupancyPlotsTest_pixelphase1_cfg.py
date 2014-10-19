@@ -34,7 +34,7 @@ process.options = cms.untracked.PSet(
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.MessageLogger.categories.extend(cms.vstring("GeometricDetBuilding"))
+process.MessageLogger.categories.extend(cms.vstring("GeometricDetBuilding","DuplicateHitFinder"))
 process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
 process.MessageLogger.cout.threshold = cms.untracked.string("DEBUG")
 #process.MessageLogger.cout.threshold = cms.untracked.string("WARNING")
@@ -42,7 +42,10 @@ process.MessageLogger.debugModules = cms.untracked.vstring("*")
 process.MessageLogger.cout.default = cms.untracked.PSet(
     limit = cms.untracked.int32(0)
     )
-process.MessageLogger.cout.GeometricDetBuilding = cms.untracked.PSet(
+#process.MessageLogger.cout.GeometricDetBuilding = cms.untracked.PSet(
+#    limit = cms.untracked.int32(100000000)
+#    )
+process.MessageLogger.cout.DuplicateHitFinder = cms.untracked.PSet(
     limit = cms.untracked.int32(100000000)
     )
 process.MessageLogger.cout.FwkSummary = cms.untracked.PSet(
@@ -212,6 +215,7 @@ process.seqProducers = cms.Sequence(process.AlignmentTrackSelector + process.seq
 process.load("DPGAnalysis.SiStripTools.trackcount_cfi")
 process.trackcount.trackCollection = cms.InputTag("generalTracks")
 
+process.load("DPGAnalysis.SiStripTools.duplicaterechits_cfi")
 
 #----GlobalTag ------------------------
 
@@ -241,7 +245,7 @@ process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 process.TFileService = cms.Service('TFileService',
 #                                   fileName = cms.string('OccupancyPlotsTest_newschema.root')
 #                                   fileName = cms.string('OccupancyPlotsTest_pixelphase1.root')
-                                   fileName = cms.string(options.outputFile)
+                                   fileName = cms.string('OccupancyPlotsTest_pixelphase1_'+options.tag+'.root')
                                    )
 
 process = customise_Reco(process,0)
@@ -252,11 +256,12 @@ process.myrereco = cms.Sequence(
     process.trackingGlobalReco)
 
 process.p0 = cms.Path(
-    process.myrereco +
+#    process.myrereco +
     process.seqHLTSelection +
     process.seqProducers +
     process.seqAnalyzers +
-    process.trackcount
+    process.trackcount +
+    process.duplicaterechits 
     )
 
 
