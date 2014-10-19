@@ -256,7 +256,7 @@ process.myrereco = cms.Sequence(
     process.trackingGlobalReco)
 
 process.p0 = cms.Path(
-#    process.myrereco +
+    process.myrereco +
     process.seqHLTSelection +
     process.seqProducers +
     process.seqAnalyzers +
