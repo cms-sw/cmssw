@@ -50,6 +50,7 @@
 <use   name="DataFormats/TrackerCommon"/>
 <use   name="SimDataFormats/TrackingAnalysis"/>
 <use   name="SimDataFormats/TrackingHit"/>
+<use   name="DataFormats/TrackingRecHit"/>
 <use   name="SimTracker/TrackAssociation"/>
 <use   name="SimTracker/Records"/>
 
