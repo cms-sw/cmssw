@@ -15,6 +15,7 @@ class TrackCountingComputer : public JetTagComputer
  public:
   TrackCountingComputer(const edm::ParameterSet  & parameters )
   {
+
     m_nthTrack         = parameters.getParameter<int>("nthTrack");
     m_ipType           = parameters.getParameter<int>("impactParameterType");
     m_deltaR           = parameters.getParameter<double>("deltaR");
