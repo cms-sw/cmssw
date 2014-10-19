@@ -38,7 +38,6 @@ namespace cms
     std::vector <edm::EDGetTokenT<reco::JetCorrector> > mCorrectorTokens;
     // cache
     std::vector <const reco::JetCorrector*> mCorrectors;
-    unsigned long long mCacheId;
     bool mVerbose;
   };
 }
@@ -52,7 +51,6 @@ namespace cms {
     : mInput(consumes<JetCollection>(fConfig.getParameter <edm::InputTag> ("src")))
     , mCorrectorTokens(edm::vector_transform(fConfig.getParameter<std::vector<edm::InputTag> >("correctors"), [this](edm::InputTag const & tag){return consumes<reco::JetCorrector>(tag);}))
     , mCorrectors(mCorrectorTokens.size(), 0)
-    , mCacheId (0)
     , mVerbose (fConfig.getUntrackedParameter <bool> ("verbose", false))
   {
     std::string alias = fConfig.getUntrackedParameter <std::string> ("alias", "");
