@@ -1,8 +1,9 @@
 from PhysicsTools.Heppy.analyzers.core.TreeAnalyzerNumpy import TreeAnalyzerNumpy
-from PhysicsTools.Heppy.analyzers.core.AutoFillNTupleObjects import *
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 #from ROOT import TriggerBitChecker
-from PhysicsTools.Heppy.analyzers.objects.ntupleTypes  import *
+from PhysicsTools.Heppy.analyzers.core.autofillobjects import *
+from PhysicsTools.Heppy.analyzers.objects.autofilltypes  import *
+
 
 class AutoFillTreeProducer( TreeAnalyzerNumpy ):
 

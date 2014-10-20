@@ -10,9 +10,9 @@ from PhysicsTools.HeppyCore.framework.Event import Event
 from PhysicsTools.HeppyCore.statistics.counter import Counter, Counters
 from PhysicsTools.Heppy.analyzers.AutoHandle import AutoHandle
         
-class triggerBitFilter( Analyzer ):
+class TriggerBitFilter( Analyzer ):
     def __init__(self, cfg_ana, cfg_comp, looperName ):
-        super(triggerBitFilter,self).__init__(cfg_ana,cfg_comp,looperName)
+        super(TriggerBitFilter,self).__init__(cfg_ana,cfg_comp,looperName)
         triggers = cfg_comp.triggers
         self.autoAccept = True if len(triggers) == 0 else False
         vetoTriggers = cfg_comp.vetoTriggers if hasattr(cfg_comp, 'vetoTriggers') else []
@@ -28,11 +28,11 @@ class triggerBitFilter( Analyzer ):
             self.vetoFilter = None 
         
     def declareHandles(self):
-        super(triggerBitFilter, self).declareHandles()
+        super(TriggerBitFilter, self).declareHandles()
         self.handles['TriggerResults'] = AutoHandle( ('TriggerResults','','HLT'), 'edm::TriggerResults' )
 
     def beginLoop(self):
-        super(triggerBitFilter,self).beginLoop()
+        super(TriggerBitFilter,self).beginLoop()
 
     def process(self, iEvent, event):
         if self.autoAccept: return True
