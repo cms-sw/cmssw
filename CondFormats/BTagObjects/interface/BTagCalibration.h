@@ -6,7 +6,7 @@
  *
  * The 'hierarchy' of stored information is this:
  * - by tagger (BTagCalibration)
- *   - by operation point or reshape bin
+ *   - by operating point or reshape bin
  *     - by jet parton flavor
  *       - by type of measurement
  *         - by systematic
@@ -37,6 +37,6 @@ protected:
   std::map<std::string, std::vector<BTagEntry> > data_;
 
   COND_SERIALIZABLE;
-}
+};
 
 #endif  // BTagCalibration_H

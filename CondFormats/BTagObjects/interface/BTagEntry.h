@@ -16,8 +16,8 @@
  ************************************************************/
 
 #include <string>
-#include <TF1>
-#include <TH1>
+#include <TF1.h>
+#include <TH1.h>
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
@@ -29,15 +29,15 @@ public:
     OP_MEDIUM=1,
     OP_LOOSE=2,
     OP_RESHAPING=3,
-  }
+  };
   enum JetFlavor {
     FLAV_B=0,
     FLAV_C=1,
     FLAV_UDSG=2,
-  }
+  };
   struct Parameters {
     // these go into the identifier token
-    OperatingPoint operationPoint;
+    OperatingPoint operatingPoint;
     JetFlavor jetFlavor;
     std::string measurementType;
     std::string sysType;
@@ -58,15 +58,15 @@ public:
     std::string token();
 
     COND_SERIALIZABLE;
-  }
+  };
 
   BTagEntry() {}
   BTagEntry(const std::string &func,
-            Parameters p
+            Parameters p,
             float pt_min=0.,
             float pt_max=99999.);
   BTagEntry(const TF1* func, Parameters p);
-  // BTagEntry(const TH1* histo, Parameters p); TODO: make stepfunction
+  BTagEntry(const TH1* histo, Parameters p);
   ~BTagEntry() {}
 
   // public, no getters needed

@@ -12,7 +12,7 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <TF1>
+#include <TF1.h>
 
 #include "CondFormats/BTagObjects/interface/BTagEntry.h"
 #include "CondFormats/BTagObjects/interface/BTagCalibration.h"
@@ -36,13 +36,13 @@ protected:
     float etaMin;
     float etaMax;
     TF1 func;
-  }
+  };
   void setupTmpData(BTagCalibration& c);
 
   BTagEntry::Parameters params;
   std::map<int, std::vector<TmpEntry> > tmpData_;  // by reshapingBin, by eta
 
   COND_SERIALIZABLE;
-}
+};
 
 #endif  // BTagCalibrationReader_H

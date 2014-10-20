@@ -2,7 +2,7 @@
 
 void BTagCalibration::addEntry(BTagEntry entry)
 {
-  data_[entry.params.token()].push_back(entry)
+  data_[entry.params.token()].push_back(entry);
 }
 
 const std::vector<BTagEntry>& BTagCalibration::getEntries(
