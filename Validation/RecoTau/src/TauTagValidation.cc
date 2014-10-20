@@ -111,195 +111,184 @@ TauTagValidation::~TauTagValidation() {
   if (genericTriggerEventFlag_) delete genericTriggerEventFlag_;
 }
 
-void TauTagValidation::beginJob() {
-  dbeTau_ = &*edm::Service<DQMStore>();
+void TauTagValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun, edm::EventSetup const & /* iSetup */)
+{
+  MonitorElement * ptTemp,* etaTemp,* phiTemp, *pileupTemp, *tmpME;
 
-  if(dbeTau_) {
+  ibooker.setCurrentFolder("RecoTauV/" + TauProducer_ + extensionName_ + "_ReferenceCollection" );
 
-    MonitorElement * ptTemp,* etaTemp,* phiTemp, *pileupTemp, *tmpME;
+  //Histograms settings
+  hinfo ptHinfo = (histoSettings_.exists("pt")) ? hinfo(histoSettings_.getParameter<edm::ParameterSet>("pt")) : hinfo(500, 0., 1000.);
+  hinfo etaHinfo = (histoSettings_.exists("eta")) ? hinfo(histoSettings_.getParameter<edm::ParameterSet>("eta")) : hinfo(60, -3.0, 3.0);
+  hinfo phiHinfo = (histoSettings_.exists("phi")) ? hinfo(histoSettings_.getParameter<edm::ParameterSet>("phi")) : hinfo(40, -200., 200.);
+  hinfo pileupHinfo = (histoSettings_.exists("pileup")) ? hinfo(histoSettings_.getParameter<edm::ParameterSet>("pileup")) : hinfo(100, 0., 100.);
+  //hinfo dRHinfo = (histoSettings_.exists("deltaR")) ? hinfo(histoSettings_.getParameter<edm::ParameterSet>("deltaR")) : hinfo(10, 0., 0.5);
 
-    dbeTau_->setCurrentFolder("RecoTauV/" + TauProducer_ + extensionName_ + "_ReferenceCollection" );
+  // What kind of Taus do we originally have!
 
-    //Histograms settings
-    hinfo ptHinfo = (histoSettings_.exists("pt")) ? hinfo(histoSettings_.getParameter<edm::ParameterSet>("pt")) : hinfo(500, 0., 1000.);
-    hinfo etaHinfo = (histoSettings_.exists("eta")) ? hinfo(histoSettings_.getParameter<edm::ParameterSet>("eta")) : hinfo(60, -3.0, 3.0);
-    hinfo phiHinfo = (histoSettings_.exists("phi")) ? hinfo(histoSettings_.getParameter<edm::ParameterSet>("phi")) : hinfo(40, -200., 200.);
-    hinfo pileupHinfo = (histoSettings_.exists("pileup")) ? hinfo(histoSettings_.getParameter<edm::ParameterSet>("pileup")) : hinfo(100, 0., 100.);
-    //hinfo dRHinfo = (histoSettings_.exists("deltaR")) ? hinfo(histoSettings_.getParameter<edm::ParameterSet>("deltaR")) : hinfo(10, 0., 0.5);
+  ptTemp    =  ibooker.book1D("nRef_Taus_vs_ptTauVisible", "nRef_Taus_vs_ptTauVisible", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
+  etaTemp   =  ibooker.book1D("nRef_Taus_vs_etaTauVisible", "nRef_Taus_vs_etaTauVisible", etaHinfo.nbins, etaHinfo.min, etaHinfo.max );
+  phiTemp   =  ibooker.book1D("nRef_Taus_vs_phiTauVisible", "nRef_Taus_vs_phiTauVisible", phiHinfo.nbins, phiHinfo.min, phiHinfo.max);
+  pileupTemp =  ibooker.book1D("nRef_Taus_vs_pileupTauVisible", "nRef_Taus_vs_pileupTauVisible", pileupHinfo.nbins, pileupHinfo.min, pileupHinfo.max);
 
-    // What kind of Taus do we originally have!
+  ptTauVisibleMap.insert( std::make_pair( refCollection_,ptTemp));
+  etaTauVisibleMap.insert( std::make_pair(refCollection_,etaTemp));
+  phiTauVisibleMap.insert( std::make_pair(refCollection_,phiTemp));
+  pileupTauVisibleMap.insert( std::make_pair(refCollection_,pileupTemp));
 
-    ptTemp    =  dbeTau_->book1D("nRef_Taus_vs_ptTauVisible", "nRef_Taus_vs_ptTauVisible", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
-    etaTemp   =  dbeTau_->book1D("nRef_Taus_vs_etaTauVisible", "nRef_Taus_vs_etaTauVisible", etaHinfo.nbins, etaHinfo.min, etaHinfo.max );
-    phiTemp   =  dbeTau_->book1D("nRef_Taus_vs_phiTauVisible", "nRef_Taus_vs_phiTauVisible", phiHinfo.nbins, phiHinfo.min, phiHinfo.max);
-    pileupTemp =  dbeTau_->book1D("nRef_Taus_vs_pileupTauVisible", "nRef_Taus_vs_pileupTauVisible", pileupHinfo.nbins, pileupHinfo.min, pileupHinfo.max);
+  // Number of Tau Candidates matched to MC Taus
 
-    ptTauVisibleMap.insert( std::make_pair( refCollection_,ptTemp));
-    etaTauVisibleMap.insert( std::make_pair(refCollection_,etaTemp));
-    phiTauVisibleMap.insert( std::make_pair(refCollection_,phiTemp));
-    pileupTauVisibleMap.insert( std::make_pair(refCollection_,pileupTemp));
+  ibooker.setCurrentFolder("RecoTauV/"+ TauProducer_ + extensionName_ + "_Matched");
 
-    // Number of Tau Candidates matched to MC Taus
+  ptTemp    =  ibooker.book1D(TauProducer_ +"Matched_vs_ptTauVisible", TauProducer_ +"Matched_vs_ptTauVisible", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
+  etaTemp   =  ibooker.book1D(TauProducer_ +"Matched_vs_etaTauVisible", TauProducer_ +"Matched_vs_etaTauVisible", etaHinfo.nbins, etaHinfo.min, etaHinfo.max );
+  phiTemp   =  ibooker.book1D(TauProducer_ +"Matched_vs_phiTauVisible", TauProducer_ +"Matched_vs_phiTauVisible", phiHinfo.nbins, phiHinfo.min, phiHinfo.max );
+  pileupTemp =  ibooker.book1D(TauProducer_ +"Matched_vs_pileupTauVisible", TauProducer_ +"Matched_vs_pileupTauVisible", pileupHinfo.nbins, pileupHinfo.min, pileupHinfo.max);
 
-    dbeTau_->setCurrentFolder("RecoTauV/"+ TauProducer_ + extensionName_ + "_Matched");
+  ptTauVisibleMap.insert( std::make_pair( TauProducer_+"Matched" ,ptTemp));
+  etaTauVisibleMap.insert( std::make_pair(TauProducer_+"Matched" ,etaTemp));
+  phiTauVisibleMap.insert( std::make_pair(TauProducer_+"Matched" ,phiTemp));
+  pileupTauVisibleMap.insert( std::make_pair(TauProducer_+"Matched" ,pileupTemp));
 
-    ptTemp    =  dbeTau_->book1D(TauProducer_ +"Matched_vs_ptTauVisible", TauProducer_ +"Matched_vs_ptTauVisible", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
-    etaTemp   =  dbeTau_->book1D(TauProducer_ +"Matched_vs_etaTauVisible", TauProducer_ +"Matched_vs_etaTauVisible", etaHinfo.nbins, etaHinfo.min, etaHinfo.max );
-    phiTemp   =  dbeTau_->book1D(TauProducer_ +"Matched_vs_phiTauVisible", TauProducer_ +"Matched_vs_phiTauVisible", phiHinfo.nbins, phiHinfo.min, phiHinfo.max );
-    pileupTemp =  dbeTau_->book1D(TauProducer_ +"Matched_vs_pileupTauVisible", TauProducer_ +"Matched_vs_pileupTauVisible", pileupHinfo.nbins, pileupHinfo.min, pileupHinfo.max);
+  for ( std::vector< edm::ParameterSet >::iterator it = discriminators_.begin(); it!= discriminators_.end();  it++)
+  {
+    string DiscriminatorLabel = it->getParameter<string>("discriminator");
+    std::string histogramName;
+    stripDiscriminatorLabel(DiscriminatorLabel, histogramName);
 
-    ptTauVisibleMap.insert( std::make_pair( TauProducer_+"Matched" ,ptTemp));
-    etaTauVisibleMap.insert( std::make_pair(TauProducer_+"Matched" ,etaTemp));
-    phiTauVisibleMap.insert( std::make_pair(TauProducer_+"Matched" ,phiTemp));
-    pileupTauVisibleMap.insert( std::make_pair(TauProducer_+"Matched" ,pileupTemp));
+    ibooker.setCurrentFolder("RecoTauV/" +  TauProducer_ + extensionName_ + "_" +  DiscriminatorLabel );
 
-    for ( std::vector< edm::ParameterSet >::iterator it = discriminators_.begin(); it!= discriminators_.end();  it++)
-    {
-      string DiscriminatorLabel = it->getParameter<string>("discriminator");
-      std::string histogramName;
-      stripDiscriminatorLabel(DiscriminatorLabel, histogramName);
+    ptTemp    =  ibooker.book1D(DiscriminatorLabel + "_vs_ptTauVisible", histogramName +"_vs_ptTauVisible", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
+    etaTemp   =  ibooker.book1D(DiscriminatorLabel + "_vs_etaTauVisible", histogramName + "_vs_etaTauVisible", etaHinfo.nbins, etaHinfo.min, etaHinfo.max );
+    phiTemp   =  ibooker.book1D(DiscriminatorLabel + "_vs_phiTauVisible", histogramName + "_vs_phiTauVisible", phiHinfo.nbins, phiHinfo.min, phiHinfo.max);
+    pileupTemp =  ibooker.book1D(DiscriminatorLabel + "_vs_pileupTauVisible", histogramName + "_vs_pileupTauVisible", pileupHinfo.nbins, pileupHinfo.min, pileupHinfo.max);
 
-      dbeTau_->setCurrentFolder("RecoTauV/" +  TauProducer_ + extensionName_ + "_" +  DiscriminatorLabel );
+    ptTauVisibleMap.insert( std::make_pair(DiscriminatorLabel,ptTemp));
+    etaTauVisibleMap.insert( std::make_pair(DiscriminatorLabel,etaTemp));
+    phiTauVisibleMap.insert( std::make_pair(DiscriminatorLabel,phiTemp));
+    pileupTauVisibleMap.insert( std::make_pair(DiscriminatorLabel,pileupTemp));
 
-      ptTemp    =  dbeTau_->book1D(DiscriminatorLabel + "_vs_ptTauVisible", histogramName +"_vs_ptTauVisible", ptHinfo.nbins, ptHinfo.min, ptHinfo.max);
-      etaTemp   =  dbeTau_->book1D(DiscriminatorLabel + "_vs_etaTauVisible", histogramName + "_vs_etaTauVisible", etaHinfo.nbins, etaHinfo.min, etaHinfo.max );
-      phiTemp   =  dbeTau_->book1D(DiscriminatorLabel + "_vs_phiTauVisible", histogramName + "_vs_phiTauVisible", phiHinfo.nbins, phiHinfo.min, phiHinfo.max);
-      pileupTemp =  dbeTau_->book1D(DiscriminatorLabel + "_vs_pileupTauVisible", histogramName + "_vs_pileupTauVisible", pileupHinfo.nbins, pileupHinfo.min, pileupHinfo.max);
+    // momentum resolution for several decay modes
 
-      ptTauVisibleMap.insert( std::make_pair(DiscriminatorLabel,ptTemp));
-      etaTauVisibleMap.insert( std::make_pair(DiscriminatorLabel,etaTemp));
-      phiTauVisibleMap.insert( std::make_pair(DiscriminatorLabel,phiTemp));
-      pileupTauVisibleMap.insert( std::make_pair(DiscriminatorLabel,pileupTemp));
+    std::string plotType = "_pTRatio_";//use underscores (this allows to parse plot type in later stages)
+    std::string xaxisLabel = ";p_{T}^{reco}/p_{T}^{gen}";
+    std::string yaxislabel = ";Frequency";
+    std::string plotName = plotType + "allHadronic";
+    int bins = 40;
+    tmpME = ibooker.book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 2.);
+    plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+    plotName = plotType + "oneProng0Pi0";
+    tmpME = ibooker.book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 2.);
+    plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+    plotName = plotType + "oneProng1Pi0";
+    tmpME = ibooker.book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 2.);
+    plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+    plotName = plotType + "oneProng2Pi0";
+    tmpME = ibooker.book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 2.);
+    plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+    plotName = plotType + "threeProng0Pi0";
+    tmpME = ibooker.book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 2.);
+    plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+    plotName = plotType + "threeProng1Pi0";
+    tmpME = ibooker.book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 2.);
+    plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
 
-      // momentum resolution for several decay modes
+    //size and sumPt within tau isolation
 
-      std::string plotType = "_pTRatio_";//use underscores (this allows to parse plot type in later stages)
-      std::string xaxisLabel = ";p_{T}^{reco}/p_{T}^{gen}";
-      std::string yaxislabel = ";Frequency";
-      std::string plotName = plotType + "allHadronic";
-      int bins = 40;
-      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 2.);
-      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
-      plotName = plotType + "oneProng0Pi0";
-      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 2.);
-      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
-      plotName = plotType + "oneProng1Pi0";
-      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 2.);
-      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
-      plotName = plotType + "oneProng2Pi0";
-      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 2.);
-      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
-      plotName = plotType + "threeProng0Pi0";
-      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 2.);
-      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
-      plotName = plotType + "threeProng1Pi0";
-      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 2.);
-      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+    plotType = "_Size_";
+    xaxisLabel = ";size";
+    yaxislabel = ";Frequency";
+    bins = 20;
+    plotName = plotType + "signalPFCands";
+    tmpME = ibooker.book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, -0.5, bins-0.5);
+    plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+    plotName = plotType + "signalPFChargedHadrCands";
+    tmpME = ibooker.book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, -0.5, bins-0.5);
+    plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+    plotName = plotType + "signalPFNeutrHadrCands";
+    tmpME = ibooker.book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, -0.5, bins-0.5);
+    plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
 
-      //size and sumPt within tau isolation
+    plotName = plotType + "isolationPFCands";
+    tmpME = ibooker.book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, -0.5, bins-0.5);
+    plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+    plotName = plotType + "isolationPFChargedHadrCands";
+    bins = 10;
+    tmpME = ibooker.book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, -0.5, bins-0.5);
+    plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+    plotName = plotType + "isolationPFNeutrHadrCands";
+    tmpME = ibooker.book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, -0.5, bins-0.5);
+    plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+    plotName = plotType + "isolationPFGammaCands";
+    tmpME = ibooker.book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, -0.5, bins-0.5);
+    plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
 
-      plotType = "_Size_";
-      xaxisLabel = ";size";
-      yaxislabel = ";Frequency";
-      bins = 20;
-      plotName = plotType + "signalPFCands";
-      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, -0.5, bins-0.5);
-      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
-      plotName = plotType + "signalPFChargedHadrCands";
-      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, -0.5, bins-0.5);
-      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
-      plotName = plotType + "signalPFNeutrHadrCands";
-      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, -0.5, bins-0.5);
-      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+    plotType = "_SumPt_";
+    xaxisLabel = ";p_{T}^{sum}/ GeV";
+    yaxislabel = ";Frequency";
+    bins = 20;
+    plotName = plotType + "signalPFCands";
+    tmpME = ibooker.book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 50.);
+    plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+    plotName = plotType + "signalPFChargedHadrCands";
+    tmpME = ibooker.book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 50.);
+    plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+    plotName = plotType + "signalPFNeutrHadrCands";
+    tmpME = ibooker.book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 50.);
+    plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+    plotName = plotType + "isolationPFCands";
+    tmpME = ibooker.book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 50.);
+    plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+    plotName = plotType + "isolationPFChargedHadrCands";
+    tmpME = ibooker.book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 10.);
+    plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+    plotName = plotType + "isolationPFNeutrHadrCands";
+    tmpME = ibooker.book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 30.);
+    plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+    plotName = plotType + "isolationPFGammaCands";
+    tmpME = ibooker.book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 20.);
+    plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
 
-      plotName = plotType + "isolationPFCands";
-      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, -0.5, bins-0.5);
-      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
-      plotName = plotType + "isolationPFChargedHadrCands";
-      bins = 10;
-      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, -0.5, bins-0.5);
-      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
-      plotName = plotType + "isolationPFNeutrHadrCands";
-      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, -0.5, bins-0.5);
-      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
-      plotName = plotType + "isolationPFGammaCands";
-      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, -0.5, bins-0.5);
-      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
+    //deprecated!
 
-      plotType = "_SumPt_";
-      xaxisLabel = ";p_{T}^{sum}/ GeV";
-      yaxislabel = ";Frequency";
-      bins = 20;
-      plotName = plotType + "signalPFCands";
-      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 50.);
-      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
-      plotName = plotType + "signalPFChargedHadrCands";
-      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 50.);
-      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
-      plotName = plotType + "signalPFNeutrHadrCands";
-      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 50.);
-      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
-      plotName = plotType + "isolationPFCands";
-      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 50.);
-      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
-      plotName = plotType + "isolationPFChargedHadrCands";
-      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 10.);
-      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
-      plotName = plotType + "isolationPFNeutrHadrCands";
-      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 30.);
-      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
-      plotName = plotType + "isolationPFGammaCands";
-      tmpME = dbeTau_->book1D(DiscriminatorLabel + plotName, histogramName + plotName + xaxisLabel + yaxislabel, bins, 0., 20.);
-      plotMap_.insert( std::make_pair( DiscriminatorLabel + plotName, tmpME ) );
-
-      //deprecated!
-
-      if ( DiscriminatorLabel.find("LeadingTrackPtCut") != string::npos){
-        if ( TauProducer_.find("PFTau") != string::npos)
-        {
-          nPFJet_LeadingChargedHadron_ChargedHadronsSignal_	        =dbeTau_->book1D(DiscriminatorLabel + "_ChargedHadronsSignal",DiscriminatorLabel + "_ChargedHadronsSignal", 21, -0.5, 20.5);
-          nPFJet_LeadingChargedHadron_ChargedHadronsIsolAnnulus_    =dbeTau_->book1D(DiscriminatorLabel + "_ChargedHadronsIsolAnnulus",DiscriminatorLabel + "_ChargedHadronsIsolAnnulus", 21, -0.5, 20.5);
-          nPFJet_LeadingChargedHadron_GammasSignal_		        =dbeTau_->book1D(DiscriminatorLabel + "_GammasSignal",DiscriminatorLabel + "_GammasSignal",21, -0.5, 20.5);
-          nPFJet_LeadingChargedHadron_GammasIsolAnnulus_ 	        =dbeTau_->book1D(DiscriminatorLabel + "_GammasIsolAnnulus",DiscriminatorLabel + "_GammasIsolAnnulus",21, -0.5, 20.5);
-          nPFJet_LeadingChargedHadron_NeutralHadronsSignal_	        =dbeTau_->book1D(DiscriminatorLabel + "_NeutralHadronsSignal",DiscriminatorLabel + "_NeutralHadronsSignal",21, -0.5, 20.5);
-          nPFJet_LeadingChargedHadron_NeutralHadronsIsolAnnulus_	=dbeTau_->book1D(DiscriminatorLabel + "_NeutralHadronsIsolAnnulus",DiscriminatorLabel + "_NeutralHadronsIsolAnnulus",21, -0.5, 20.5);
-        }
+    if ( DiscriminatorLabel.find("LeadingTrackPtCut") != string::npos){
+      if ( TauProducer_.find("PFTau") != string::npos)
+      {
+        nPFJet_LeadingChargedHadron_ChargedHadronsSignal_	        =ibooker.book1D(DiscriminatorLabel + "_ChargedHadronsSignal",DiscriminatorLabel + "_ChargedHadronsSignal", 21, -0.5, 20.5);
+        nPFJet_LeadingChargedHadron_ChargedHadronsIsolAnnulus_    =ibooker.book1D(DiscriminatorLabel + "_ChargedHadronsIsolAnnulus",DiscriminatorLabel + "_ChargedHadronsIsolAnnulus", 21, -0.5, 20.5);
+        nPFJet_LeadingChargedHadron_GammasSignal_		        =ibooker.book1D(DiscriminatorLabel + "_GammasSignal",DiscriminatorLabel + "_GammasSignal",21, -0.5, 20.5);
+        nPFJet_LeadingChargedHadron_GammasIsolAnnulus_ 	        =ibooker.book1D(DiscriminatorLabel + "_GammasIsolAnnulus",DiscriminatorLabel + "_GammasIsolAnnulus",21, -0.5, 20.5);
+        nPFJet_LeadingChargedHadron_NeutralHadronsSignal_	        =ibooker.book1D(DiscriminatorLabel + "_NeutralHadronsSignal",DiscriminatorLabel + "_NeutralHadronsSignal",21, -0.5, 20.5);
+        nPFJet_LeadingChargedHadron_NeutralHadronsIsolAnnulus_	=ibooker.book1D(DiscriminatorLabel + "_NeutralHadronsIsolAnnulus",DiscriminatorLabel + "_NeutralHadronsIsolAnnulus",21, -0.5, 20.5);
       }
+    }
 
-      if ( DiscriminatorLabel.find("ByIsolationLater") != string::npos ){
-        if ( TauProducer_.find("PFTau") != string::npos)
-        {
-          nIsolated_NoChargedHadrons_ChargedHadronsSignal_	      =dbeTau_->book1D(DiscriminatorLabel + "_ChargedHadronsSignal",DiscriminatorLabel + "_ChargedHadronsSignal", 21, -0.5, 20.5);
-          nIsolated_NoChargedHadrons_GammasSignal_		      =dbeTau_->book1D(DiscriminatorLabel + "_GammasSignal",DiscriminatorLabel + "_GammasSignal",21, -0.5, 20.5);
-          nIsolated_NoChargedHadrons_GammasIsolAnnulus_           =dbeTau_->book1D(DiscriminatorLabel + "_GammasIsolAnnulus",DiscriminatorLabel + "_GammasIsolAnnulus",21, -0.5, 20.5);
-          nIsolated_NoChargedHadrons_NeutralHadronsSignal_	      =dbeTau_->book1D(DiscriminatorLabel + "_NeutralHadronsSignal",DiscriminatorLabel + "_NeutralHadronsSignal",21, -0.5, 20.5);
-          nIsolated_NoChargedHadrons_NeutralHadronsIsolAnnulus_   =dbeTau_->book1D(DiscriminatorLabel + "_NeutralHadronsIsolAnnulus",DiscriminatorLabel + "_NeutralHadronsIsolAnnulus",21, -0.5, 20.5);
-        }
+    if ( DiscriminatorLabel.find("ByIsolationLater") != string::npos ){
+      if ( TauProducer_.find("PFTau") != string::npos)
+      {
+        nIsolated_NoChargedHadrons_ChargedHadronsSignal_	      =ibooker.book1D(DiscriminatorLabel + "_ChargedHadronsSignal",DiscriminatorLabel + "_ChargedHadronsSignal", 21, -0.5, 20.5);
+        nIsolated_NoChargedHadrons_GammasSignal_		      =ibooker.book1D(DiscriminatorLabel + "_GammasSignal",DiscriminatorLabel + "_GammasSignal",21, -0.5, 20.5);
+        nIsolated_NoChargedHadrons_GammasIsolAnnulus_           =ibooker.book1D(DiscriminatorLabel + "_GammasIsolAnnulus",DiscriminatorLabel + "_GammasIsolAnnulus",21, -0.5, 20.5);
+        nIsolated_NoChargedHadrons_NeutralHadronsSignal_	      =ibooker.book1D(DiscriminatorLabel + "_NeutralHadronsSignal",DiscriminatorLabel + "_NeutralHadronsSignal",21, -0.5, 20.5);
+        nIsolated_NoChargedHadrons_NeutralHadronsIsolAnnulus_   =ibooker.book1D(DiscriminatorLabel + "_NeutralHadronsIsolAnnulus",DiscriminatorLabel + "_NeutralHadronsIsolAnnulus",21, -0.5, 20.5);
       }
+    }
 
-      if ( DiscriminatorLabel.find("ByIsolation") != string::npos ){
-        if ( TauProducer_.find("PFTau") != string::npos)
-        {
-          nIsolated_NoChargedNoGammas_ChargedHadronsSignal_        =dbeTau_->book1D(DiscriminatorLabel + "_ChargedHadronsSignal",DiscriminatorLabel + "_ChargedHadronsSignal", 21, -0.5, 20.5);
-          nIsolated_NoChargedNoGammas_GammasSignal_                =dbeTau_->book1D(DiscriminatorLabel + "_GammasSignal",DiscriminatorLabel + "_GammasSignal",21, -0.5, 20.5);
-          nIsolated_NoChargedNoGammas_NeutralHadronsSignal_	       =dbeTau_->book1D(DiscriminatorLabel + "_NeutralHadronsSignal",DiscriminatorLabel + "_NeutralHadronsSignal",21, -0.5, 20.5);
-          nIsolated_NoChargedNoGammas_NeutralHadronsIsolAnnulus_   =dbeTau_->book1D(DiscriminatorLabel + "_NeutralHadronsIsolAnnulus",DiscriminatorLabel + "_NeutralHadronsIsolAnnulus",21, -0.5, 20.5);
-        }
+    if ( DiscriminatorLabel.find("ByIsolation") != string::npos ){
+      if ( TauProducer_.find("PFTau") != string::npos)
+      {
+        nIsolated_NoChargedNoGammas_ChargedHadronsSignal_        =ibooker.book1D(DiscriminatorLabel + "_ChargedHadronsSignal",DiscriminatorLabel + "_ChargedHadronsSignal", 21, -0.5, 20.5);
+        nIsolated_NoChargedNoGammas_GammasSignal_                =ibooker.book1D(DiscriminatorLabel + "_GammasSignal",DiscriminatorLabel + "_GammasSignal",21, -0.5, 20.5);
+        nIsolated_NoChargedNoGammas_NeutralHadronsSignal_	       =ibooker.book1D(DiscriminatorLabel + "_NeutralHadronsSignal",DiscriminatorLabel + "_NeutralHadronsSignal",21, -0.5, 20.5);
+        nIsolated_NoChargedNoGammas_NeutralHadronsIsolAnnulus_   =ibooker.book1D(DiscriminatorLabel + "_NeutralHadronsIsolAnnulus",DiscriminatorLabel + "_NeutralHadronsIsolAnnulus",21, -0.5, 20.5);
       }
     }
   }
 }
 
-void TauTagValidation::endJob() {
-  //store the output
-  if (!outPutFile_.empty() && &*edm::Service<DQMStore>() && saveoutputhistograms_) dbeTau_->save (outPutFile_);
-}
-
-void TauTagValidation::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
-  //cout << moduleLabel_<<"::beginRun" << endl;
+void TauTagValidation::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   if (genericTriggerEventFlag_) {
-    if (genericTriggerEventFlag_->on()){
-      //cout << "initializing trigger" << endl;
+    if (genericTriggerEventFlag_->on()) {
       genericTriggerEventFlag_->initRun(iRun, iSetup);
     }
   }
