@@ -1,5 +1,5 @@
 from PhysicsTools.Heppy.analyzers.DiLeptonAnalyzer import DiLeptonAnalyzer
-from PhysicsTools.Heppy.analyzers.autohandle import AutoHandle
+from PhysicsTools.Heppy.analyzers.AutoHandle import AutoHandle
 from PhysicsTools.Heppy.physicsobjects.DiObject import DiElectron
 from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import Electron
 

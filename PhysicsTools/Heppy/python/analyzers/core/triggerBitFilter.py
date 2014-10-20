@@ -8,7 +8,7 @@ from ROOT import TriggerBitChecker
 from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
 from PhysicsTools.HeppyCore.framework.Event import Event
 from PhysicsTools.HeppyCore.statistics.counter import Counter, Counters
-from PhysicsTools.Heppy.analyzers.autohandle import AutoHandle
+from PhysicsTools.Heppy.analyzers.AutoHandle import AutoHandle
         
 class triggerBitFilter( Analyzer ):
     def __init__(self, cfg_ana, cfg_comp, looperName ):

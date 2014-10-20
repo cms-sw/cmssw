@@ -1,6 +1,6 @@
 import random
 from PhysicsTools.Heppy.analyzers.Analyzer import Analyzer
-from PhysicsTools.Heppy.analyzers.autohandle import AutoHandle
+from PhysicsTools.Heppy.analyzers.AutoHandle import AutoHandle
 from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import Jet, GenJet
 from PhysicsTools.HeppyCore.utils.deltar import cleanObjectCollection, matchObjectCollection
 from PhysicsTools.HeppyCore.statistics.counter import Counter, Counters

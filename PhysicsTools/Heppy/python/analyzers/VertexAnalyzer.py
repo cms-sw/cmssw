@@ -2,7 +2,7 @@ import itertools
 
 from PhysicsTools.Heppy.analyzers.VertexHistograms import VertexHistograms
 from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
-from PhysicsTools.Heppy.analyzers.autohandle import AutoHandle
+from PhysicsTools.Heppy.analyzers.AutoHandle import AutoHandle
 from PhysicsTools.HeppyCore.statistics.Average import Average
 from PhysicsTools.Heppy.physicsobjects.PileUpSummaryInfo import PileUpSummaryInfo
 
