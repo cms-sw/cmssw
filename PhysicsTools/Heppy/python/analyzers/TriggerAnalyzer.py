@@ -1,5 +1,5 @@
 from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
-from PhysicsTools.Heppy.analyzers.autohandle import AutoHandle
+from PhysicsTools.Heppy.analyzers.AutoHandle import AutoHandle
 from PhysicsTools.HeppyCore.statistics.counter import Counter
 from PhysicsTools.HeppyCore.utils.TriggerList import TriggerList
 from PhysicsTools.HeppyCore.utils.TriggerMatching import selTriggerObjects

@@ -1,7 +1,7 @@
 import operator 
 from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
 from PhysicsTools.HeppyCore.statistics.counter import Counter, Counters
-from PhysicsTools.Heppy.analyzers.autohandle import AutoHandle
+from PhysicsTools.Heppy.analyzers.AutoHandle import AutoHandle
 from PhysicsTools.Heppy.physicsobjects.DiObject import DiObject
 from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import Lepton
 from PhysicsTools.HeppyCore.utils.TriggerMatching import triggerMatched
