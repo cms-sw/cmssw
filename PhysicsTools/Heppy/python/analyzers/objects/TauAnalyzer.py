@@ -15,22 +15,22 @@ from PhysicsTools.Heppy.physicsobjects.Tau import Tau
 
 from PhysicsTools.HeppyCore.utils.deltar import deltaR, deltaPhi, bestMatch
  
-class ttHTauAnalyzer( Analyzer ):
+class TauAnalyzer( Analyzer ):
 
     
     def __init__(self, cfg_ana, cfg_comp, looperName ):
-        super(ttHTauAnalyzer,self).__init__(cfg_ana,cfg_comp,looperName)
+        super(TauAnalyzer,self).__init__(cfg_ana,cfg_comp,looperName)
 
     #----------------------------------------
     # DECLARATION OF HANDLES OF LEPTONS STUFF   
     #----------------------------------------
     def declareHandles(self):
-        super(ttHTauAnalyzer, self).declareHandles()
+        super(TauAnalyzer, self).declareHandles()
         self.handles['taus'] = AutoHandle( ('slimmedTaus',''),'std::vector<pat::Tau>')
 
 
     def beginLoop(self):
-        super(ttHTauAnalyzer,self).beginLoop()
+        super(TauAnalyzer,self).beginLoop()
         self.counters.addCounter('events')
         count = self.counters.counter('events')
         count.register('all events')
@@ -90,7 +90,7 @@ class ttHTauAnalyzer( Analyzer ):
         if len(event.selectedTaus): self.counters.counter('events').inc('has >=1 selected taus')
         if len(event.looseTaus): self.counters.counter('events').inc('has >=1 loose taus')
         if len(event.inclusiveTaus): self.counters.counter('events').inc('has >=1 inclusive taus')
-    def process(self, iEvent, event):
-        self.readCollections( iEvent )
+    def process(self, event):
+        self.readCollections( event.input )
         self.makeTaus(event)
         return True
