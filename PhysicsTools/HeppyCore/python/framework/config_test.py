@@ -14,6 +14,8 @@ class ConfigTestCase(unittest.TestCase):
             toto = '1',
             tata = 'a'
             )
+        # checking that the analyzer name does not contain a slash, 
+        # to make sure the output directory name does not contain a subdirectory
         self.assertTrue( '/' not in ana1.name )
 
     def test_MCComponent(self):
