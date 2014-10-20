@@ -1,8 +1,6 @@
 /*
   JetMETHLTOffline DQM code
-  Responsible: Sunil Bansal, Shabnam Jabeen, Michael Luk, Phat Srimanobhas
-  Contact: Phat Srimanobhas (srimanob@mail.cern.ch)
-  Last modified: 31 July 2012
+  Migrated to use DQMEDAnalyzer by: Jyothsna Rani Komaragiri, Oct 2014
 */
 
 #ifndef JetMETHLTOfflineSource_H
@@ -15,6 +13,8 @@
 // user include files
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -62,24 +62,17 @@ class PtSorter {
    }
  };
 
-class JetMETHLTOfflineSource : public edm::EDAnalyzer {
+class JetMETHLTOfflineSource : public DQMEDAnalyzer {
  public:
   explicit JetMETHLTOfflineSource(const edm::ParameterSet&);
   ~JetMETHLTOfflineSource();
   
  private:
-  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
-  void beginRun(const edm::Run& run, const edm::EventSetup& c);
-  void histobooking( const edm::EventSetup& c);
-  void endRun(const edm::Run& run, const edm::EventSetup& c);
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-			    const edm::EventSetup& c);
-  /// DQM Client Diagnostic
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-			  const edm::EventSetup& c);
-  
+  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const & run, edm::EventSetup const & c) override;
+  virtual void dqmBeginRun(edm::Run const& run, edm::EventSetup const& c) override;
+
+  //helper functions
   virtual bool   isBarrel(double eta);
   virtual bool   isEndCap(double eta); 
   virtual bool   isForward(double eta);
@@ -87,38 +80,29 @@ class JetMETHLTOfflineSource : public edm::EDAnalyzer {
   virtual bool   isHLTPathAccepted(std::string pathName);
   virtual bool   isTriggerObjectFound(std::string objectName);
   virtual double TriggerPosition(std::string trigName);
+
   virtual void   fillMEforMonTriggerSummary(const edm::Event & iEvent, const edm::EventSetup&);
   virtual void   fillMEforMonAllTrigger(const edm::Event & iEvent, const edm::EventSetup&);
-  virtual void   fillMEforMonAllTriggerwrtMuonTrigger(const edm::Event & iEvent, const edm::EventSetup&);
   virtual void   fillMEforEffAllTrigger(const edm::Event & iEvent, const edm::EventSetup&);
-  virtual void   fillMEforEffWrtMuTrigger(const edm::Event & iEvent, const edm::EventSetup&);
-  virtual void   fillMEforEffWrtMBTrigger(const edm::Event & iEvent, const edm::EventSetup&);
   virtual void   fillMEforTriggerNTfired();
     
   const std::string getL1ConditionModuleName(const std::string& pathname); //ml added
   
   // ----------member data --------------------------- 
-  int nev_;
-  DQMStore * dbe;
-  
-  MonitorElement* total_;
-  
   std::vector<std::string>  MuonTrigPaths_;
   std::vector<std::string>  MBTrigPaths_;
   std::vector<int>  prescUsed_;
   
   std::string dirname_;
   std::string processname_;
+
   // JetID helper
   reco::helper::JetIDHelper *jetID;
   
   bool verbose_;
   bool runStandalone_;
   bool plotAll_;
-  bool plotAllwrtMu_;
   bool plotEff_ ;
-  bool plotEffwrtMu_;
-  bool plotEffwrtMB_;
   
   bool isSetup_;
   bool nameForEff_;  
@@ -189,12 +173,9 @@ class JetMETHLTOfflineSource : public edm::EDAnalyzer {
 
   double pfMHTx_All;
   double pfMHTy_All;
-  
-  
-  // data across paths
-  MonitorElement* scalersSelect;
+
+  // ----------------- //
   // helper class to store the data path
-  
   class PathInfo {
     PathInfo():
       pathIndex_(-1), 
@@ -258,9 +239,6 @@ class JetMETHLTOfflineSource : public edm::EDAnalyzer {
 		   MonitorElement* const L1AveragePt,
 		   MonitorElement* const L1AverageEta,
 		   MonitorElement* const L1PhiDifference
-		   //
-		   //MonitorElement* const PVZ,
-		   //MonitorElement* const NVertices
 		   )    
       
     {
@@ -992,10 +970,7 @@ class JetMETHLTOfflineSource : public edm::EDAnalyzer {
   };
   PathInfoCollection hltPathsAllTriggerSummary_;
   PathInfoCollection hltPathsAll_;
-  PathInfoCollection hltPathsAllWrtMu_;
   PathInfoCollection hltPathsEff_;
-  PathInfoCollection hltPathsEffWrtMu_;
-  PathInfoCollection hltPathsEffWrtMB_;
   
   MonitorElement* rate_All;
   MonitorElement* rate_AllWrtMu;

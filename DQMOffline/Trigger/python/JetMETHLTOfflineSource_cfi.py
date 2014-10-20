@@ -4,24 +4,18 @@ jetMETHLTOfflineSource = cms.EDAnalyzer(
     "JetMETHLTOfflineSource",
     dirname = cms.untracked.string("HLT/JetMET"),
     #
-    DQMStore = cms.untracked.bool(True),
-    #
     processname = cms.string("HLT"),
     triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
     triggerResultsLabel = cms.InputTag("TriggerResults","","HLT"),
-    pathnameMuon = cms.untracked.vstring("HLT_IsoMu24_eta2p1_v"),
+    pathnameMuon = cms.untracked.vstring("HLT_IsoMu24_IterTrk02_v"),
     pathnameMB = cms.untracked.vstring("HLT_Physics_v"),
     #
     verbose = cms.untracked.bool(False),
     runStandalone = cms.untracked.bool(False),
     #
     plotAll      = cms.untracked.bool(True),
-    plotAllwrtMu = cms.untracked.bool(False),
     plotEff      = cms.untracked.bool(True),
-    plotEffwrtMu = cms.untracked.bool(False),
-    plotEffwrtMB = cms.untracked.bool(False),
     nameForEff   = cms.untracked.bool(True),
-    nameForMon   = cms.untracked.bool(True),
     #
     CaloMETCollectionLabel = cms.InputTag("caloMet"),
     PFMETCollectionLabel   = cms.InputTag("pfMet"),
@@ -57,14 +51,42 @@ jetMETHLTOfflineSource = cms.EDAnalyzer(
     #
     pathPairs = cms.VPSet(
         cms.PSet(
-            pathname = cms.string("HLT_PFJet260_v"),
+            pathname = cms.string("HLT_PFJet60_v"),
             denompathname = cms.string("HLT_PFJet40_v"),
-            ),
-        cms.PSet(        
-            pathname = cms.string("HLT_PFNoPUJet260_v"),
-            denompathname = cms.string("HLT_PFJet40_v"),
-            )
         ),
+        cms.PSet(
+            pathname = cms.string("HLT_PFJet80_v"),
+            denompathname = cms.string("HLT_PFJet60_v"),
+        ),
+        cms.PSet(
+            pathname = cms.string("HLT_PFJet140_v"),
+            denompathname = cms.string("HLT_PFJet80_v"),
+        ),
+        cms.PSet(
+            pathname = cms.string("HLT_PFJet200_v"),
+            denompathname = cms.string("HLT_PFJet140_v"),
+        ),
+        cms.PSet(
+            pathname = cms.string("HLT_PFJet260_v"),
+            denompathname = cms.string("HLT_PFJet200_v"),
+        ),
+        cms.PSet(
+            pathname = cms.string("HLT_PFJet320_v"),
+            denompathname = cms.string("HLT_PFJet260_v"),
+        ),
+        cms.PSet(
+            pathname = cms.string("HLT_PFJet400_v"),
+            denompathname = cms.string("HLT_PFJet320_v"),
+        ),
+        cms.PSet(
+            pathname = cms.string("HLT_PFJet450_v"),
+            denompathname = cms.string("HLT_PFJet400_v"),
+        ),
+        cms.PSet(
+            pathname = cms.string("HLT_PFJet500_v"),
+            denompathname = cms.string("HLT_PFJet450_v"),
+        )
+    ),
     #
     JetIDParams  = cms.PSet(
         useRecHits      = cms.bool(True),
