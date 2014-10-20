@@ -327,7 +327,7 @@ class AddJetCollection(ConfigToolBase):
             ## load sequences and setups needed fro btagging
             ## This loads all available btagger, but the ones we need are added to the process by hand later. Only needed to get the ESProducer. Needs improvement
             #loadWithPostFix(process,"RecoBTag.Configuration.RecoBTag_cff",postfix)
-            if hasattr( process, 'secondaryVertexNegativeTagInfos' ) == False : 
+            if hasattr( process, 'secondaryVertexNegativeTagInfos' ) == False :
                 process.load("RecoBTag.Configuration.RecoBTag_cff")
             #addESProducers(process,'RecoBTag.Configuration.RecoBTag_cff')
             import RecoBTag.Configuration.RecoBTag_cff as btag
@@ -364,7 +364,7 @@ class AddJetCollection(ConfigToolBase):
                     if btagInfo == 'softPFMuonsTagInfos':
                         setattr(process, btagInfo+_labelName+postfix, btag.softPFMuonsTagInfos.clone(jets = jetSource))
                     if btagInfo == 'softPFElectronsTagInfos':
-                        setattr(process, btagInfo+_labelName+postfix, btag.softPFElectronsTagInfos.clone(jets = jetSource))                        
+                        setattr(process, btagInfo+_labelName+postfix, btag.softPFElectronsTagInfos.clone(jets = jetSource))
                     acceptedTagInfos.append(btagInfo)
                 elif hasattr(toptag, btagInfo) :
                     acceptedTagInfos.append(btagInfo)
@@ -475,26 +475,31 @@ class AddJetCollection(ConfigToolBase):
                     raise ValueError, "In addJecCollection: MET(type1) corrections are not supported for JPTJets. Please set the MET-LABEL to \"None\" (as string in quatiation \
                     marks) and use raw tcMET together with JPTJets."
                 ## set up jet correctors for MET corrections
-                from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import ak4PFL1Fastjet
-                from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import ak4PFL1Offset
-                from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import ak4PFL2Relative
-                from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import ak4PFL3Absolute
-                from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import ak4PFResidual
+                process.load( "JetMETCorrections.Configuration.JetCorrectorsAllAlgos_cff") # FIXME: This adds a lot of garbage
 
+                _payloadType = jetCorrections[0].split(_type)[0].lower()+_type
                 if "PF" in _type :
-                    setattr(process, jetCorrections[0]+'L1FastJet', ak4PFL1Fastjet.clone(algorithm=jetCorrections[0], srcRho=cms.InputTag('fixedGridRhoFastjetAll')))
+                    setattr(process, jetCorrections[0]+'L1FastJet', getattr(process, _payloadType+'L1FastjetCorrector').clone(srcRho=cms.InputTag('fixedGridRhoFastjetAll')))
                 else :
-                    setattr(process, jetCorrections[0]+'L1FastJet', ak4PFL1Fastjet.clone(algorithm=jetCorrections[0], srcRho=cms.InputTag('fixedGridRhoFastjetAllCalo')))
-                setattr(process, jetCorrections[0]+'L1Offset', ak4PFL1Offset.clone(algorithm=jetCorrections[0]))
-                setattr(process, jetCorrections[0]+'L2Relative', ak4PFL2Relative.clone(algorithm=jetCorrections[0]))
-                setattr(process, jetCorrections[0]+'L3Absolute', ak4PFL3Absolute.clone(algorithm=jetCorrections[0]))
-                setattr(process, jetCorrections[0]+'L2L3Residual', ak4PFResidual.clone(algorithm=jetCorrections[0]))
-                setattr(process, jetCorrections[0]+'CombinedCorrector', cms.ESProducer( 'JetCorrectionESChain', correctors = cms.vstring()))
+                    setattr(process, jetCorrections[0]+'L1FastJet', getattr(process, _payloadType+'L1FastjetCorrector').clone(srcRho=cms.InputTag('fixedGridRhoFastjetAllCalo')))
+                setattr(process, jetCorrections[0]+'L1Offset', getattr(process, _payloadType+'L1OffsetCorrector').clone())
+                setattr(process, jetCorrections[0]+'L2Relative', getattr(process, _payloadType+'L2RelativeCorrector').clone())
+                setattr(process, jetCorrections[0]+'L3Absolute', getattr(process, _payloadType+'L3AbsoluteCorrector').clone())
+                setattr(process, jetCorrections[0]+'L2L3Residual', getattr(process, _payloadType+'ResidualCorrector').clone())
+                setattr(process, jetCorrections[0]+'CombinedCorrector', cms.EDProducer( 'ChainedJetCorrectorProducer', correctors = cms.VInputTag()))
                 for x in jetCorrections[1]:
                     if x != 'L1FastJet' and x != 'L1Offset' and x != 'L2Relative' and x != 'L3Absolute' and x != 'L2L3Residual':
                         raise ValueError, 'In addJetCollection: Unsupported JEC for MET(Type1). Currently supported jet correction levels are L1FastJet, L1Offset, L2Relative, L3Asolute, L2L3Residual. Requested was: %s'%(x)
                     else:
-                        getattr(process, jetCorrections[0]+'CombinedCorrector').correctors.append(jetCorrections[0]+x)
+                        _corrector = _payloadType
+                        if x == 'L1FastJet':
+                          _corrector += 'L1Fastjet'
+                        elif x  == 'L2L3Residual':
+                          _corrector += 'Residual'
+                        else:
+                          _corrector += x
+                        _corrector += 'Corrector'
+                        getattr(process, jetCorrections[0]+'CombinedCorrector').correctors.append(cms.InputTag(_corrector))
 
                 ## set up MET(Type1) correction modules
                 _labelCorrName = _labelName
@@ -505,7 +510,7 @@ class AddJetCollection(ConfigToolBase):
                     from JetMETCorrections.Type1MET.correctionTermsCaloMet_cff import corrCaloMetType2
                     from JetMETCorrections.Type1MET.correctedMet_cff import caloMetT1
                     from JetMETCorrections.Type1MET.correctedMet_cff import caloMetT1T2
-                    setattr(process,jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, corrCaloMetType1.clone(src=jetSource,srcMET = "caloMetM",jetCorrections = cms.string(jetCorrections[0]+'CombinedCorrector')))
+                    setattr(process,jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, corrCaloMetType1.clone(src=jetSource,srcMET = "caloMetM",jetCorrLabel = cms.InputTag(jetCorrections[0]+'CombinedCorrector')))
                     setattr(process,jetCorrections[0]+_labelCorrName+'JetMETcorr2'+postfix, corrCaloMetType2.clone(srcUnclEnergySums = cms.VInputTag(cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'type2'),cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'offset'),cms.InputTag('muCaloMetCorr'))))
                     setattr(process,jetCorrections[0]+_labelCorrName+'Type1CorMet'+postfix, caloMetT1.clone(src = "caloMetM", srcCorrections = cms.VInputTag(cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'type1'))))
                     setattr(process,jetCorrections[0]+_labelCorrName+'Type1p2CorMet'+postfix, caloMetT1T2.clone(src = "caloMetM", srcCorrections = cms.VInputTag(cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'type1'), cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr2'+postfix))))
@@ -523,19 +528,19 @@ class AddJetCollection(ConfigToolBase):
                     setattr(process,jetCorrections[0]+_labelCorrName+'pfCandsNotInJetsPtrForMetCorr'+postfix,pfCandsNotInJetsPtrForMetCorr.clone(topCollection = jetCorrections[0]+_labelCorrName+'pfJetsPtrForMetCorr'+postfix))
                     setattr(process,jetCorrections[0]+_labelCorrName+'pfCandsNotInJetsForMetCorr'+postfix,pfCandsNotInJetsForMetCorr.clone(src = jetCorrections[0]+_labelCorrName+'pfCandsNotInJetsPtrForMetCorr'+postfix))
                     setattr(process,jetCorrections[0]+_labelCorrName+'CandMETcorr'+postfix, pfCandMETcorr.clone(src = cms.InputTag(jetCorrections[0]+_labelCorrName+'pfCandsNotInJetsForMetCorr'+postfix)))
-                    setattr(process,jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, corrPfMetType1.clone(src = jetSource))
+                    setattr(process,jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, corrPfMetType1.clone(src = jetSource, jetCorrLabel = cms.InputTag(jetCorrections[0]+'CombinedCorrector'))) # FIXME: Originally w/o jet corrections?
                     setattr(process,jetCorrections[0]+_labelCorrName+'corrPfMetType2'+postfix, corrPfMetType2.clone(srcUnclEnergySums = cms.VInputTag(cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'type2'),cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'offset'),cms.InputTag(jetCorrections[0]+_labelCorrName+'CandMETcorr'+postfix))))
                     setattr(process,jetCorrections[0]+_labelCorrName+'Type1CorMet'+postfix, pfMetT1.clone(srcCorrections = cms.VInputTag(cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'type1'))))
                     setattr(process,jetCorrections[0]+_labelCorrName+'Type1p2CorMet'+postfix, pfMetT1T2.clone(srcCorrections = cms.VInputTag(cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'type1'), jetCorrections[0]+_labelCorrName+'corrPfMetType2'+postfix)))
 
                 ## common configuration for Calo and PF
                 if ('L1FastJet' in jetCorrections[1] or 'L1Fastjet' in jetCorrections[1]):
-                    getattr(process,jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix).offsetCorrLabel = cms.string(jetCorrections[0]+'L1FastJet')
+                    getattr(process,jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix).offsetCorrLabel = cms.InputTag(jetCorrections[0]+'L1FastJet')
                 #FIXME: What is wrong here?
                 #elif ('L1Offset' in jetCorrections[1]):
-                    #getattr(process,jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix).offsetCorrLabel = cms.string(jetCorrections[0]+'L1Offset')
+                    #getattr(process,jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix).offsetCorrLabel = cms.InputTag(jetCorrections[0]+'L1Offset')
                 else:
-                    getattr(process,jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix).offsetCorrLabel = cms.string('')
+                    getattr(process,jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix).offsetCorrLabel = cms.InputTag('')
 
                 from PhysicsTools.PatAlgos.producersLayer1.metProducer_cfi import patMETs
                 if jetCorrections[2].lower() == 'type-1':
