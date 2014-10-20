@@ -1,6 +1,6 @@
 from PhysicsTools.Heppy.physicsobjects.Lepton import Lepton
 from PhysicsTools.Heppy.physicsutils.ElectronMVAID import ElectronMVAID_Trig, ElectronMVAID_NonTrig, ElectronMVAID_TrigNoIP
-
+import ROOT
 
 class Electron( Lepton ):
 
@@ -181,4 +181,9 @@ class Electron( Lepton ):
             vertex = self.associatedVertex
         return self.gsfTrack().dz( vertex.position() )
 
+    def lostInner(self) :
+        if hasattr(self.gsfTrack(),"trackerExpectedHitsInner") :
+		return self.gsfTrack().trackerExpectedHitsInner().numberOfLostHits()
+	else :	
+		return self.gsfTrack().hitPattern().numberOfHits(ROOT.reco.HitPattern.MISSING_INNER_HITS)	
 

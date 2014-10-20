@@ -1,9 +1,9 @@
 import os 
-from PhysicsTools.Heppy.analyzers.VertexHistograms import VertexHistograms
-from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
-from PhysicsTools.Heppy.analyzers.AutoHandle import AutoHandle
-from PhysicsTools.HeppyCore.statistics.Average import Average
-from PhysicsTools.Heppy.physicsobjects.PileUpSummaryInfo import PileUpSummaryInfo
+from PhysicsTools.Heppy.analyzers.core.VertexHistograms import VertexHistograms
+from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
+from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
+from PhysicsTools.HeppyCore.statistics.average import Average
+from PhysicsTools.Heppy.physicsutils.PileUpSummaryInfo import PileUpSummaryInfo
 from ROOT import TFile, TH1F
 
 class PileUpAnalyzer( Analyzer ):

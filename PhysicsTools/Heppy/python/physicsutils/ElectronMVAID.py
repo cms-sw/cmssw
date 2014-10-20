@@ -13,6 +13,8 @@ class ElectronMVAID:
         if self.etype == -1: raise RuntimeError, "Unknown type %s" % type
         self._init = False
     def __call__(self,ele,vtx,rho,full5x5=False,debug=False):
+#FIXME:
+	return -99
         if not self._init:
             self.estimator.initialize(self.name,self.etype,True,self.sxmls)
             self._init = True

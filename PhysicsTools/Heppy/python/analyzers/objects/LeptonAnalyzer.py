@@ -2,13 +2,13 @@ from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 from PhysicsTools.Heppy.physicsobjects.Electron import Electron
 from PhysicsTools.Heppy.physicsobjects.Muon import Muon
-from CMGTools.TTHAnalysis.tools.EfficiencyCorrector import EfficiencyCorrector
+#from CMGTools.TTHAnalysis.tools.EfficiencyCorrector import EfficiencyCorrector
 
 from PhysicsTools.HeppyCore.utils.deltar import bestMatch
 from PhysicsTools.Heppy.physicsutils.RochesterCorrections import rochcor
 from PhysicsTools.Heppy.physicsutils.MuScleFitCorrector   import MuScleFitCorr
 from PhysicsTools.Heppy.physicsutils.ElectronCalibrator import EmbeddedElectronCalibrator
-from CMGTools.TTHAnalysis.electronCalibrator import ElectronCalibrator
+#from CMGTools.TTHAnalysis.electronCalibrator import ElectronCalibrator
 
 from ROOT import CMGMuonCleanerBySegmentsAlgo
 cmgMuonCleanerBySegments = CMGMuonCleanerBySegmentsAlgo()
@@ -28,12 +28,10 @@ class LeptonAnalyzer( Analyzer ):
                 raise RuntimeError, "You can't run both Rochester and MuScleFit corrections!"
         else:
             self.cfg_ana.doMuScleFitCorrections = False
-        if self.cfg_ana.doElectronScaleCorrections == "embedded":
-            self.electronEnergyCalibrator = EmbeddedElectronCalibrator()
-        else:
-            self.electronEnergyCalibrator = ElectronCalibrator(cfg_comp.isMC)
-        if hasattr(cfg_comp,'efficiency'):
-            self.efficiency= EfficiencyCorrector(cfg_comp.efficiency)
+	#FIXME: only Embedded works
+        self.electronEnergyCalibrator = EmbeddedElectronCalibrator()
+#        if hasattr(cfg_comp,'efficiency'):
+#            self.efficiency= EfficiencyCorrector(cfg_comp.efficiency)
     #----------------------------------------
     # DECLARATION OF HANDLES OF LEPTONS STUFF   
     #----------------------------------------
@@ -104,7 +102,7 @@ class LeptonAnalyzer( Analyzer ):
             if ( ele.electronID(self.cfg_ana.inclusive_electron_id) and
                     ele.pt()>self.cfg_ana.inclusive_electron_pt and abs(ele.eta())<self.cfg_ana.inclusive_electron_eta and 
                     abs(ele.dxy())<self.cfg_ana.inclusive_electron_dxy and abs(ele.dz())<self.cfg_ana.inclusive_electron_dz and 
-                    ele.gsfTrack().trackerExpectedHitsInner().numberOfLostHits()<=self.cfg_ana.inclusive_electron_lostHits ):
+                    ele.lostInner()<=self.cfg_ana.inclusive_electron_lostHits ):
                 event.inclusiveLeptons.append(ele)
                 # basic selection
                 if (ele.electronID(self.cfg_ana.loose_electron_id) and
@@ -112,7 +110,7 @@ class LeptonAnalyzer( Analyzer ):
                          abs(ele.dxy()) < self.cfg_ana.loose_electron_dxy and abs(ele.dz())<self.cfg_ana.loose_electron_dz and 
                          ele.relIso03 <= self.cfg_ana.loose_electron_relIso and
                          ele.absIso03 < (self.cfg_ana.loose_electron_absIso if hasattr(self.cfg_ana,'loose_electron_absIso') else 9e99) and
-                         ele.gsfTrack().trackerExpectedHitsInner().numberOfLostHits() <= self.cfg_ana.loose_electron_lostHits and
+                         ele.lostInner() <= self.cfg_ana.loose_electron_lostHits and
                          ( True if (hasattr(self.cfg_ana,'notCleaningElectrons') and self.cfg_ana.notCleaningElectrons) else (bestMatch(ele, looseMuons)[1] > self.cfg_ana.min_dr_electron_muon) )):
                     event.selectedLeptons.append(ele)
                     event.selectedElectrons.append(ele)
