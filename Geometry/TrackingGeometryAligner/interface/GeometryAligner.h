@@ -13,7 +13,7 @@
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
 #include "CondFormats/Alignment/interface/AlignTransform.h"
-#include "CondFormats/Alignment/interface/AlignTransformError.h"
+#include "CondFormats/Alignment/interface/AlignTransformErrorExtended.h"
 #include "CondFormats/Alignment/interface/AlignmentSurfaceDeformations.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -169,7 +169,7 @@ void GeometryAligner::applyAlignments( C* geometry,
 
   // Parallel loop on alignments, alignment errors and geomdets
   std::vector<AlignTransform>::const_iterator iAlign = alignments->m_align.begin();
-  std::vector<AlignTransformError>::const_iterator 
+  std::vector<AlignTransformErrorExtended>::const_iterator 
 	iAlignError = alignmentErrors->m_alignError.begin();
   //copy  geometry->theMap to a real map to order it....
   std::map<unsigned int, GeomDet const *> theMap;
@@ -297,7 +297,7 @@ void GeometryAligner::removeGlobalTransform( const Alignments* alignments,
   AlignTransform::Rotation newRotation;
   
   std::vector<AlignTransform>::const_iterator iAlign = alignments->m_align.begin();
-  std::vector<AlignTransformError>::const_iterator iAlignError = alignmentErrors->m_alignError.begin();
+  std::vector<AlignTransformErrorExtended>::const_iterator iAlignError = alignmentErrors->m_alignError.begin();
   unsigned int nAPE = 0;
   for ( iAlign = alignments->m_align.begin();
         iAlign != alignments->m_align.end();
@@ -315,7 +315,7 @@ void GeometryAligner::removeGlobalTransform( const Alignments* alignments,
     // as it wasn't applied. Just fill vector with original
     // values
     GlobalError error( asSMatrix<3>((*iAlignError).matrix()) );
-    newAlignmentErrors->m_alignError.push_back( AlignTransformError( (*iAlignError).matrix(),
+    newAlignmentErrors->m_alignError.push_back( AlignTransformErrorExtended( (*iAlignError).matrix(),
 								     (*iAlignError).rawId() ) );
     if ( error.cxx() || error.cyy() || error.czz() ||
 	 error.cyx() || error.czx() || error.czy() ) {
@@ -337,7 +337,7 @@ void GeometryAligner::removeGlobalTransform( const Alignments* alignments,
     //as = as.similarityT( am );
     
     //GlobalError newError( as );
-    //newAlignmentErrors->m_alignError.push_back( AlignTransformError( newError.matrix(),
+    //newAlignmentErrors->m_alignError.push_back( AlignTransformErrorExtended( newError.matrix(),
     //                                                                 (*iAlignError).rawId() ) );
     //++nAPE;
   }
