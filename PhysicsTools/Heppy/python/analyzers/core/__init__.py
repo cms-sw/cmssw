@@ -9,4 +9,4 @@ from PhysicsTools.Heppy.analyzers.core.VertexHistograms import *
 from PhysicsTools.Heppy.analyzers.core.SkimAnalyzerCount import *
 from PhysicsTools.Heppy.analyzers.core.TriggerBitFilter import *
 
-from PhysicsTools.Heppy.analyzers.core.autofillobjects import *
+from PhysicsTools.Heppy.analyzers.core.autovars import *
