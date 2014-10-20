@@ -1,7 +1,7 @@
 import copy
 
 from ROOT import RochCor, RochCor2012, TLorentzVector
-from CMGTools.RootTools.utils.cmsswRelease import isNewerThan
+from PhysicsTools.Heppy.utils.cmsswRelease import isNewerThan
 
 is2012 = isNewerThan('CMSSW_5_2_X')
 
