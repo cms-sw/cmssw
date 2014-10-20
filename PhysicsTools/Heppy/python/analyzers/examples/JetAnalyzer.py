@@ -1,12 +1,15 @@
 import random
+
 from PhysicsTools.Heppy.analyzers.Analyzer import Analyzer
 from PhysicsTools.Heppy.analyzers.AutoHandle import AutoHandle
 from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import Jet, GenJet
+
 from PhysicsTools.HeppyCore.utils.deltar import cleanObjectCollection, matchObjectCollection
 from PhysicsTools.HeppyCore.statistics.counter import Counter, Counters
+from PhysicsTools.HeppyCore.utils.deltar import deltaR2
+
 from PhysicsTools.Heppy.physicsutils.btagsf import BTagSF
 from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import GenParticle
-from PhysicsTools.HeppyCore.utils.deltar import deltaR2
 from PhysicsTools.Heppy.utils.cmsswRelease import isNewerThan
 
 class JetAnalyzer( Analyzer ):
@@ -15,8 +18,8 @@ class JetAnalyzer( Analyzer ):
     This analyzer filters the jets that do not correspond to the leptons
     stored in event.selectedLeptons, and puts in the event:
     - jets: all jets passing the pt and eta cuts
-    - cleanJets: the collection of clean jets
-    - bJets: the bjets passing testBJet (see this method)
+    - cleanJets: the collection of jets away from the leptons
+    - cleanBJets: the jets passing testBJet, and away from the leptons
 
     Example configuration:
 
@@ -29,7 +32,7 @@ class JetAnalyzer( Analyzer ):
       # eta range definition
       jetEta = 5.0,
       # seed for the btag scale factor
-      # btagSFseed = 123456,
+      btagSFseed = 0xdeadbeef,
       # if True, the PF and PU jet ID are not applied, and the jets get flagged
       relaxJetId = False,
     )
@@ -65,7 +68,7 @@ class JetAnalyzer( Analyzer ):
     def process(self, event):
         
         self.readCollections( event.input )
-        cmgJets = self.handles['jets'].product()
+        miniaodjets = self.handles['jets'].product()
 
         allJets = []
         event.jets = []
@@ -81,8 +84,8 @@ class JetAnalyzer( Analyzer ):
         if self.cfg_comp.isMC:
             genJets = map( GenJet, self.mchandles['genJets'].product() ) 
             
-        for cmgJet in cmgJets:
-            jet = Jet( cmgJet )
+        for maodjet in miniaodjets:
+            jet = Jet( maodjet )
             allJets.append( jet )
             if self.cfg_comp.isMC and hasattr( self.cfg_comp, 'jetScale'):
                 scale = random.gauss( self.cfg_comp.jetScale,
@@ -152,8 +155,7 @@ class JetAnalyzer( Analyzer ):
         if len(event.cleanBJets)>0:
             self.counters.counter('jets').inc('at least 1 b jet')          
             if len(event.cleanBJets)>1:
-                self.counters.counter('jets').inc('at least 2 b jets')          
-
+                self.counters.counter('jets').inc('at least 2 b jets')
         return True
 
     def jerCorrection(self, jet):
@@ -201,12 +203,9 @@ class JetAnalyzer( Analyzer ):
         
         
     def testJet( self, jet ):
-        # 2 is loose pile-up jet id
         return jet.pt() > self.cfg_ana.jetPt and \
                abs( jet.eta() ) < self.cfg_ana.jetEta and \
                self.testJetID(jet)
-               # jet.passPuJetId('full', 2)
-
 
     def testBJet(self, jet):
         # medium csv working point
