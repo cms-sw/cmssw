@@ -4,19 +4,19 @@ import copy
 
 from ROOT import TLorentzVector
 
-from CMGTools.RootTools.fwlite.Analyzer import Analyzer
-from CMGTools.RootTools.fwlite.Event import Event
-from CMGTools.RootTools.statistics.Counter import Counter, Counters
-from CMGTools.RootTools.fwlite.AutoHandle import AutoHandle
-from CMGTools.RootTools.physicsobjects.Lepton import Lepton
-from CMGTools.RootTools.physicsobjects.Photon import Photon
-from CMGTools.RootTools.physicsobjects.Electron import Electron
-from CMGTools.RootTools.physicsobjects.Muon import Muon
-from CMGTools.RootTools.physicsobjects.Jet import Jet
-from CMGTools.RootTools.physicsobjects.PhysicsObjects import GenParticle
+from PhysicsTools.Heppy.analyzer.core.Analyzer import Analyzer
+from HeppyCore.framework.event import Event
+from PhysicsTools.HeppyCore.statistics.Counter import Counter, Counters
+from PhysicsTools.Heppy.analyzer.core.AutoHandle import AutoHandle
+from PhysicsTools.Heppy.physicsobjects.Lepton import Lepton
+from PhysicsTools.Heppy.physicsobjects.Photon import Photon
+from PhysicsTools.Heppy.physicsobjects.Electron import Electron
+from PhysicsTools.Heppy.physicsobjects.Muon import Muon
+from PhysicsTools.Heppy.physicsobjects.Jet import Jet
+from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import GenParticle
 
-from CMGTools.RootTools.utils.DeltaR import deltaR,deltaPhi
-from CMGTools.RootTools.physicsobjects.genutils import *
+from PhysicsTools.HeppyCore.utils.deltar import deltaR,deltaPhi
+from PhysicsTools.Heppy.physicsutils.genutils import *
         
 class ttHGenLevelAnalyzer( Analyzer ):
     """Do generator-level analysis of a ttH->leptons decay:

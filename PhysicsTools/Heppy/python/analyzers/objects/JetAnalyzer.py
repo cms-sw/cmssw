@@ -1,10 +1,10 @@
 import random
-from CMGTools.RootTools.fwlite.Analyzer import Analyzer
-from CMGTools.RootTools.fwlite.AutoHandle import AutoHandle
-from CMGTools.RootTools.physicsobjects.PhysicsObjects import Jet
-from CMGTools.RootTools.utils.DeltaR import * 
-from CMGTools.RootTools.statistics.Counter import Counter, Counters
-from CMGTools.RootTools.physicsobjects.JetReCalibrator import JetReCalibrator
+from PhysicsTools.Heppy.analyzer.core.Analyzer import Analyzer
+from PhysicsTools.Heppy.analyzer.core.AutoHandle import AutoHandle
+from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import Jet
+from PhysicsTools.HeppyCore.utils.deltar import * 
+from PhysicsTools.HeppyCore.statistics.Counter import Counter, Counters
+from PhysicsTools.Heppy.physicsutils.JetReCalibrator import JetReCalibrator
 
 def cleanNearestJetOnly(jets,leptons,deltaR):
     dr2 = deltaR**2
