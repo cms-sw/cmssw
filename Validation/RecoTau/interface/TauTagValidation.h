@@ -74,13 +74,10 @@ public:
   explicit TauTagValidation(const edm::ParameterSet&);
   ~TauTagValidation();
 
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   virtual void beginJob();
   virtual void endJob();
   virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endRun(edm::Run const&, edm::EventSetup const&);
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
 private:
   /// label of the current module
