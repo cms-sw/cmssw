@@ -1,6 +1,7 @@
 import os
 import PhysicsTools.HeppyCore.framework.config as cfg
 
+
 # input component 
 # several input components can be declared,
 # and added to the list of selected components
@@ -16,12 +17,14 @@ inputSample = cfg.MCComponent(
 
 selectedComponents  = [inputSample]
 
+from PhysicsTools.Heppy.analyzers.JSONAnalyzer import JSONAnalyzer
 json = cfg.Analyzer(
-    "JSONAnalyzer"
+    JSONAnalyzer
     )
 
+from PhysicsTools.Heppy.analyzers.JetAnalyzer import JetAnalyzer
 jets = cfg.Analyzer(
-    'JetAnalyzer',
+    JetAnalyzer,
     jetCol = 'slimmedJets',
     # cmg jet input collection
     # pt threshold
@@ -43,7 +46,9 @@ sequence = cfg.Sequence( [
     ] )
 
 # finalization of the configuration object. 
+from PhysicsTools.HeppyCore.framework.eventsfwlite import Events
 config = cfg.Config( components = selectedComponents,
-                     sequence = sequence )
+                     sequence = sequence, 
+                     events_class = Events)
 
 print config 
