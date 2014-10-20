@@ -21,12 +21,6 @@ from L1Trigger.L1TCalorimeter.L1TCaloStage1_cff import *
 rctUpgradeFormatDigis.regionTag = cms.InputTag("simRctDigis")
 rctUpgradeFormatDigis.emTag = cms.InputTag("simRctDigis")
 
-# GT
-from L1Trigger.Configuration.SimL1Emulator_cff import simGtDigis
-simGtDigis.GmtInputTag = 'gtDigis'
-simGtDigis.GctInputTag = 'caloStage1LegacyFormatDigis'
-simGtDigis.TechnicalTriggersInputTags = cms.VInputTag( )
-
 # L1Extra
 import L1Trigger.Configuration.L1Extra_cff
 l1ExtraLayer2 = L1Trigger.Configuration.L1Extra_cff.l1extraParticles.clone()
@@ -45,11 +39,14 @@ l1ExtraLayer2.htMissSource  = cms.InputTag("caloStage1LegacyFormatDigis")
 l1ExtraLayer2.hfRingEtSumsSource    = cms.InputTag("caloStage1LegacyFormatDigis")
 l1ExtraLayer2.hfRingBitCountsSource = cms.InputTag("caloStage1LegacyFormatDigis")
 
+## update l1ExtraLayer2 muon tag
+l1ExtraLayer2.muonSource = cms.InputTag("simGmtDigis")
+
+
 # the sequence
 L1TCaloStage1_PPFromRaw = cms.Sequence(
     L1TRerunHCALTP_FromRAW
     +ecalDigis
     +simRctDigis
     +L1TCaloStage1
-    +simGtDigis
 )

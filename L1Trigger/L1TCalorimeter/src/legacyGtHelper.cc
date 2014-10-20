@@ -15,14 +15,23 @@ namespace l1t {
 
     for(std::vector<l1t::Jet>::const_iterator itJet = input->begin();
 	itJet != input->end(); ++itJet){
-      const unsigned newEta = gtEta(itJet->hwEta());
+      unsigned newPhi = itJet->hwPhi();
+      unsigned newEta = gtEta(itJet->hwEta());
       uint16_t linPt = (uint16_t)itJet->hwPt();
       if(linPt > params->jetScale().linScaleMax() ) linPt = params->jetScale().linScaleMax();
       const uint16_t rankPt = params->jetScale().rank(linPt);
 
+      // jets with hwQual & 10 ==10 are "padding" jets from a sort, set their eta and phi
+      // to the max value
+      if((itJet->hwQual() & 10) == 10)
+      {
+	newEta = 0xf;
+	newPhi = 0x1f;
+      }
+
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
 
-      l1t::Jet gtJet(*&ldummy, rankPt, newEta, itJet->hwPhi(), itJet->hwQual());
+      l1t::Jet gtJet(*&ldummy, rankPt, newEta, newPhi, itJet->hwQual());
       output->push_back(gtJet);
     }
   }
@@ -33,12 +42,20 @@ namespace l1t {
 
     for(std::vector<l1t::EGamma>::const_iterator itEGamma = input->begin();
 	itEGamma != input->end(); ++itEGamma){
-      const unsigned newEta = gtEta(itEGamma->hwEta());
+      unsigned newEta = gtEta(itEGamma->hwEta());
+      unsigned newPhi = itEGamma->hwPhi();
       const uint16_t rankPt = (uint16_t)itEGamma->hwPt(); //max value?
+
+      //hwQual &10 == 10 means that the object came from a sort and is padding
+      if((itEGamma->hwQual() & 10) == 10)
+      {
+	newEta = 0;
+	newPhi = 0;
+      }
 
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
 
-      l1t::EGamma gtEGamma(*&ldummy, rankPt, newEta, itEGamma->hwPhi(),
+      l1t::EGamma gtEGamma(*&ldummy, rankPt, newEta, newPhi,
 			   itEGamma->hwQual(), itEGamma->hwIso());
       output->push_back(gtEGamma);
     }
