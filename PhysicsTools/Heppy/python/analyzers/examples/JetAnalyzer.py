@@ -77,7 +77,6 @@ class JetAnalyzer( Analyzer ):
         if hasattr(event, 'selectedLeptons'):
             leptons = event.selectedLeptons
 
-
         genJets = None
         if self.cfg_comp.isMC:
             genJets = map( GenJet, self.mchandles['genJets'].product() ) 
@@ -96,11 +95,9 @@ class JetAnalyzer( Analyzer ):
                     pass
                 else:
                     jet.matchedGenJet = pairs[jet] 
-
             #Add JER correction for MC jets. Requires gen-jet matching. 
             if self.cfg_comp.isMC and hasattr(self.cfg_ana, 'jerCorr') and self.cfg_ana.jerCorr:
                 self.jerCorrection(jet)
-
             #Add JES correction for MC jets.
             if self.cfg_comp.isMC and hasattr(self.cfg_ana, 'jesCorr'):
                 self.jesCorrection(jet, self.cfg_ana.jesCorr)
@@ -108,23 +105,17 @@ class JetAnalyzer( Analyzer ):
                 event.jets.append(jet)
             if self.testBJet(jet):
                 event.bJets.append(jet)
-
-
                 
         self.counters.counter('jets').inc('all events')
 
         event.cleanJets, dummy = cleanObjectCollection( event.jets,
                                                         masks = leptons,
                                                         deltaRMin = 0.5 )
-        
-
         event.cleanBJets, dummy = cleanObjectCollection( event.bJets,
                                                          masks = leptons,
-                                                         deltaRMin = 0.5 )        
+                                                         deltaRMin = 0.5 )  
 
         pairs = matchObjectCollection( leptons, allJets, 0.5*0.5)
-
-
         # associating a jet to each lepton
         for lepton in leptons:
             jet = pairs[lepton]
@@ -154,13 +145,10 @@ class JetAnalyzer( Analyzer ):
 
         event.jets30 = [jet for jet in event.jets if jet.pt()>30]
         event.cleanJets30 = [jet for jet in event.cleanJets if jet.pt()>30]
-        
         if len( event.jets30 )>=2:
             self.counters.counter('jets').inc('at least 2 good jets')
-               
         if len( event.cleanJets30 )>=2:
             self.counters.counter('jets').inc('at least 2 clean jets')
-        
         if len(event.cleanBJets)>0:
             self.counters.counter('jets').inc('at least 1 b jet')          
             if len(event.cleanBJets)>1:
@@ -176,12 +164,10 @@ class JetAnalyzer( Analyzer ):
         '''
         if not hasattr(jet, 'matchedGenJet'):
             return
-
         #import pdb; pdb.set_trace()
         corrections = [0.052, 0.057, 0.096, 0.134, 0.288]
         maxEtas = [0.5, 1.1, 1.7, 2.3, 5.0]
         eta = abs(jet.eta())
-
         for i, maxEta in enumerate(maxEtas):
             if eta < maxEta:
                 pt = jet.pt()
@@ -199,19 +185,15 @@ class JetAnalyzer( Analyzer ):
         # Do nothing if nothing to change
         if scale == 0.:
             return
-
         unc = jet.uncOnFourVectorScale()
-
         totalScale = 1. + scale * unc
-
         if totalScale < 0.:
             totalScale = 0.
         jet.scaleEnergy(totalScale)
 
     def testJetID(self, jet):
         jet.puJetIdPassed = jet.puJetId()
-        jet.pfJetIdPassed = jet.jetID("POG_PFID_Loose")
-        
+        jet.pfJetIdPassed = jet.jetID("POG_PFID_Loose")        
         if self.cfg_ana.relaxJetId:
             return True
         else:
