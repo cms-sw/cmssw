@@ -1,5 +1,8 @@
 import os
 import PhysicsTools.HeppyCore.framework.config as cfg
+from PhysicsTools.HeppyCore.framework.chain import Chain as Events
+from PhysicsTools.HeppyCore.analyzers.Printer import Printer
+from PhysicsTools.HeppyCore.analyzers.SimpleTreeProducer import SimpleTreeProducer
 
 # input component 
 # several input components can be declared,
@@ -13,11 +16,11 @@ inputSample = cfg.Component(
 selectedComponents  = [inputSample]
 
 printer = cfg.Analyzer(
-    "Printer"
+    Printer
     )
 
 tree = cfg.Analyzer(
-    "SimpleTreeProducer",
+    SimpleTreeProducer,
     tree_name = 'tree',
     tree_title = 'A test tree'
     )
@@ -31,6 +34,7 @@ sequence = cfg.Sequence( [
 
 # finalization of the configuration object. 
 config = cfg.Config( components = selectedComponents,
-                     sequence = sequence )
+                     sequence = sequence, 
+                     events_class = Events )
 
 print config 

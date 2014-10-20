@@ -48,7 +48,8 @@ class CFG(object):
 
 class Analyzer( CFG ):
     '''Base analyzer configuration, see constructor'''
-    def __init__(self, name, verbose=False, **kwargs):
+    def __init__(self, class_object, instance_label='1', 
+                 verbose=False, **kwargs):
         '''
         One could for example define the analyzer configuration for a
         di-muon framework.Analyzer.Analyzer in the following way:
@@ -72,11 +73,18 @@ class Analyzer( CFG ):
         accordingly in your script.
         '''
 
-        self.name = name
+        self.class_object = class_object
+        self.instance_label = instance_label
+        self.name = self.build_name()
         self.verbose = verbose
         # self.cfg = CFG(**kwargs)
         super(Analyzer, self).__init__(**kwargs)
 
+    def build_name(self):
+        class_name = '.'.join([self.class_object.__module__, 
+                               self.class_object.__name__])
+        name = '_'.join([class_name, self.instance_label])
+        return name 
 
 class Sequence( list ):
     '''A list with print functionalities.
@@ -156,9 +164,10 @@ class MCComponent( Component ):
 class Config( object ):
     '''Main configuration object, holds a sequence of analyzers, and
     a list of components.'''
-    def __init__(self, components, sequence):
+    def __init__(self, components, sequence, events_class):
         self.components = components
         self.sequence = sequence
+        self.events_class = events_class
 
     def __str__(self):
         comp = '\n'.join( map(str, self.components))
@@ -168,23 +177,33 @@ class Config( object ):
 
 if __name__ == '__main__':
 
-    ana1 = Analyzer('ana1',
-                    toto = '1',
-                    tata = 'a')
+    from PhysicsTools.HeppyCore.framework.chain import Chain as Events
+    from PhysicsTools.HeppyCore.analyzers.Printer import Printer
 
-    ana2 = Analyzer('ana2',
-                    toto = '2',
-                    bulu = 'b',
-                    protch = ['blah'])
+    class Ana1(object):
+        pass
+
+    ana1 = Analyzer(
+        Ana1,
+        toto = '1',
+        tata = 'a'
+        )
+    
+    ana2 = Analyzer(
+        Printer,
+        'instance1'
+        )
 
     sequence = Sequence( [ana1, ana2] )
     print sequence
 
-    comp1 = Component( 'DYJets',
-                       files='*.root',
-                       triggers='HLT_stuff')
+    comp1 = Component( 
+        'comp1',
+        files='*.root',
+        triggers='HLT_stuff'
+        )
     print
-    print ecomp
+    print comp1
 
 
     DYJets = MCComponent(
@@ -198,3 +217,10 @@ if __name__ == '__main__':
 
     print
     print DYJets
+    
+    selectedComponents = [DYJets, comp1]
+    sequence = [ana1, ana2]
+    
+    config = Config( components = selectedComponents,
+                     sequence = sequence, 
+                     events_class = Events )
