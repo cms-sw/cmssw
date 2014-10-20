@@ -4,10 +4,10 @@ import copy
 
 from ROOT import TLorentzVector
 
-from PhysicsTools.Heppy.analyzer.core.Analyzer import Analyzer
+from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from HeppyCore.framework.event import Event
 from PhysicsTools.HeppyCore.statistics.Counter import Counter, Counters
-from PhysicsTools.Heppy.analyzer.core.AutoHandle import AutoHandle
+from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 from PhysicsTools.Heppy.physicsobjects.Lepton import Lepton
 from PhysicsTools.Heppy.physicsobjects.Photon import Photon
 from PhysicsTools.Heppy.physicsobjects.Electron import Electron

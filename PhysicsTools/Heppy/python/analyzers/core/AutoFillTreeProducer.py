@@ -1,6 +1,6 @@
-from PhysicsTools.Heppy.analyzer.core.TreeAnalyzerNumpy import TreeAnalyzerNumpy
-from PhysicsTools.Heppy.analyzer.core.ntupleObjects import *
-from PhysicsTools.Heppy.analyzer.core.AutoHandle import AutoHandle
+from PhysicsTools.Heppy.analyzers.core.TreeAnalyzerNumpy import TreeAnalyzerNumpy
+from PhysicsTools.Heppy.analyzers.core.ntupleObjects import *
+from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 #from ROOT import TriggerBitChecker
 #from PhysicsTools.FWLite.utils.ntupleTypes   import *
 
