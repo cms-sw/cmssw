@@ -1,0 +1,5 @@
+<use name="CondFormats/PhysicsToolsObjects"/>
+
+<bin file="testSerializationBTagObjects.cpp">
+    <use name="CondFormats/BTagObjects"/>
+</bin>

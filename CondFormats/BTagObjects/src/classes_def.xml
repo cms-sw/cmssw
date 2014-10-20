@@ -1,0 +1,13 @@
+<lcgdict>
+
+	<class name="BTagEntry"/>
+	<class name="BTagEntry::Parameters"/>
+	<class name="std::vector<BTagEntry>"/>
+	<class name="std::map<std::string, std::vector<BTagEntry> >"/>
+    <class name="BTagCalibration" class_version="0">
+    <!-- TODO: How does this stuff exactly work? -->
+           <field name="tagger_" mapping="string"/>
+           <field name="data_" mapping="blob"/>
+    </class>
+
+</lcgdict>
