@@ -2,7 +2,7 @@
 from math import *
 import ROOT
 #from CMGTools.TTHAnalysis.signedSip import *
-from PhysicsTools.Heppy.analyzer.core.ntupleObjects import *
+from PhysicsTools.Heppy.analyzers.core.ntupleObjects import *
 from PhysicsTools.HeppyCore.utils.deltar import deltaR
 
 twoVectorType = NTupleObjectType("twoVector", variables = [
