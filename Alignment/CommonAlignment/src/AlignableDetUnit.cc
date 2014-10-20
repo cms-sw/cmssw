@@ -106,11 +106,7 @@ void AlignableDetUnit::addAlignmentPositionErrorFromRotation(const RotationType&
   LocalVector::BasicVectorType lpvgf = localPositionVector.basicVector();
   GlobalVector gv( rot.multiplyInverse(lpvgf) - lpvgf );
 
-  //FIMXE
-  LocalErrorExtended ge(0.,0.,0.,0.,0.,0.,0.,0.,0.,0.);
-  AlignmentPositionError ape( ge );
-
-  //AlignmentPositionError  ape( gv.x(),gv.y(),gv.z() );
+  AlignmentPositionError  ape( gv.x(),gv.y(),gv.z() );
   this->addAlignmentPositionError( ape, propagateDown ); // 2nd argument w/o effect
 
 }
@@ -201,11 +197,10 @@ AlignmentErrors* AlignableDetUnit::alignmentErrors() const
   uint32_t detId = this->geomDetId().rawId();
  
   CLHEP::HepSymMatrix clhepSymMatrix(3,0);
-  //FIMXE
-  //if ( theAlignmentPositionError ) // Might not be set
-  //  clhepSymMatrix = asHepMatrix(theAlignmentPositionError->globalError().matrix());
+  if ( theAlignmentPositionError ) // Might not be set
+    clhepSymMatrix = asHepMatrix(theAlignmentPositionError->globalError().matrix());
   
-  AlignTransformError transformError( clhepSymMatrix, detId );
+  AlignTransformErrorExtended transformError( clhepSymMatrix, detId );
   
   m_alignmentErrors->m_alignError.push_back( transformError );
   

@@ -93,12 +93,12 @@ AlignableMuon *MuonAlignmentInputDB::newAlignableMuon(const edm::EventSetup& iSe
 
       for (std::vector<AlignTransform>::const_iterator i = dtAlignments->m_align.begin();  i != dtAlignments->m_align.end();  ++i) {
 	 CLHEP::HepSymMatrix empty_matrix(3, 0);
-	 AlignTransformError empty_error(empty_matrix, i->rawId());
+	 AlignTransformErrorExtended empty_error(empty_matrix, i->rawId());
 	 dtAlignmentErrors2.m_alignError.push_back(empty_error);
       }
       for (std::vector<AlignTransform>::const_iterator i = cscAlignments->m_align.begin();  i != cscAlignments->m_align.end();  ++i) {
 	 CLHEP::HepSymMatrix empty_matrix(3, 0);
-	 AlignTransformError empty_error(empty_matrix, i->rawId());
+	 AlignTransformErrorExtended empty_error(empty_matrix, i->rawId());
 	 cscAlignmentErrors2.m_alignError.push_back(empty_error);
       }
 

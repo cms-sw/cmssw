@@ -26,7 +26,7 @@
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
-#include "CondFormats/Alignment/interface/AlignTransformError.h"
+#include "CondFormats/Alignment/interface/AlignTransformErrorExtended.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorRcd.h"
 
@@ -166,7 +166,7 @@ TestMuonReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
 	}
   std::cout << std::endl << "----------------------" << std::endl;
 
-  for ( std::vector<AlignTransformError>::const_iterator it = dtAlignmentErrors->m_alignError.begin();
+  for ( std::vector<AlignTransformErrorExtended>::const_iterator it = dtAlignmentErrors->m_alignError.begin();
 		it != dtAlignmentErrors->m_alignError.end(); it++ )
 	{
 	  CLHEP::HepSymMatrix error = (*it).matrix();
@@ -250,7 +250,7 @@ TestMuonReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
 /*
   std::cout << std::endl << "----------------------" << std::endl;
 
-  for ( std::vector<AlignTransformError>::const_iterator it = cscAlignmentErrors->m_alignError.begin();
+  for ( std::vector<AlignTransformErrorExtended>::const_iterator it = cscAlignmentErrors->m_alignError.begin();
 		it != cscAlignmentErrors->m_alignError.end(); it++ )
 	{
 	  CLHEP::HepSymMatrix error = (*it).matrix();

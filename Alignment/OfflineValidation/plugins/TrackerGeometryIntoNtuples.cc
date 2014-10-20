@@ -227,8 +227,8 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
 	
 	delete theAlignments;
 
-	std::vector<AlignTransformError> alignErrors = alignmentErrors->m_alignError;
-	for (std::vector<AlignTransformError>::const_iterator i = alignErrors.begin(); i != alignErrors.end(); ++i){
+	std::vector<AlignTransformErrorExtended> alignErrors = alignmentErrors->m_alignError;
+	for (std::vector<AlignTransformErrorExtended>::const_iterator i = alignErrors.begin(); i != alignErrors.end(); ++i){
 
 		m_rawid = i->rawId();
 		CLHEP::HepSymMatrix errMatrix = i->matrix();

@@ -111,10 +111,10 @@ void MuonAlignmentOutputXML::write(AlignableMuon *alignableMuon, const edm::Even
    std::map<align::ID, CLHEP::HepSymMatrix> errors;
    AlignmentErrors *dtErrors = alignableMuon->dtAlignmentErrors();
    AlignmentErrors *cscErrors = alignableMuon->cscAlignmentErrors();
-   for (std::vector<AlignTransformError>::const_iterator dtError = dtErrors->m_alignError.begin();  dtError != dtErrors->m_alignError.end();  ++dtError) {
+   for (std::vector<AlignTransformErrorExtended>::const_iterator dtError = dtErrors->m_alignError.begin();  dtError != dtErrors->m_alignError.end();  ++dtError) {
       errors[dtError->rawId()] = dtError->matrix();
    }
-   for (std::vector<AlignTransformError>::const_iterator cscError = cscErrors->m_alignError.begin();  cscError != cscErrors->m_alignError.end();  ++cscError) {
+   for (std::vector<AlignTransformErrorExtended>::const_iterator cscError = cscErrors->m_alignError.begin();  cscError != cscErrors->m_alignError.end();  ++cscError) {
       errors[cscError->rawId()] = cscError->matrix();
    }
 

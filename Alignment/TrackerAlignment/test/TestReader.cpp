@@ -80,8 +80,8 @@ TestTrackerReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
   edm::LogVerbatim("DumpAlignments")  << "\n----------------------\n";
   edm::LogVerbatim("DumpAlignmentErrors")  << "\n----------------------\n";
 
-  std::vector<AlignTransformError> alignErrors = alignmentErrors->m_alignError;
-  for ( std::vector<AlignTransformError>::const_iterator it = alignErrors.begin();
+  std::vector<AlignTransformErrorExtended> alignErrors = alignmentErrors->m_alignError;
+  for ( std::vector<AlignTransformErrorExtended>::const_iterator it = alignErrors.begin();
 		it != alignErrors.end(); it++ )
 	{
 	  edm::LogVerbatim("DumpAlignments") << (*it).rawId() << (*it).matrix();

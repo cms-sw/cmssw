@@ -80,7 +80,7 @@ AlignmentErrors* AlignableExtras::alignmentErrors( void ) const
     }
   
   std::sort( m_alignmentErrors->m_alignError.begin(), m_alignmentErrors->m_alignError.end(), 
-	     lessAlignmentDetId<AlignTransformError>() );
+	     lessAlignmentDetId<AlignTransformErrorExtended>() );
 
   return m_alignmentErrors;
 }

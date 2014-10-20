@@ -1,7 +1,7 @@
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
 #include "CondFormats/Alignment/interface/AlignTransform.h"
-#include "CondFormats/Alignment/interface/AlignTransformError.h"
+#include "CondFormats/Alignment/interface/AlignTransformErrorExtended.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBCommon/interface/Exception.h"
@@ -302,7 +302,7 @@ std::pair< Alignments*,AlignmentErrors*> CocoaDBMgr::BuildAlignments(bool bDT)
       std::cout << " cal fill alignments " << std::endl;
       alignments->m_align.push_back( *(GetAlignInfoFromOptO( *ite )));
       std::cout << " fill alignments " << std::endl;
-      //      AlignTransformError* err = 
+      //      AlignTransformErrorExtended* err = 
       //GetAlignInfoErrorFromOptO( *ite );
       alignmentErrors->m_alignError.push_back(*(GetAlignInfoErrorFromOptO( *ite )));
       std::cout << "CocoaDBMgr::BuildAlignments add alignmentError " <<  alignmentErrors->m_alignError.size() << std::endl;
@@ -333,7 +333,7 @@ AlignTransform* CocoaDBMgr::GetAlignInfoFromOptO( OpticalObject* opto )
 }
 
 //-----------------------------------------------------------------------
-AlignTransformError* CocoaDBMgr::GetAlignInfoErrorFromOptO( OpticalObject* opto )
+AlignTransformErrorExtended* CocoaDBMgr::GetAlignInfoErrorFromOptO( OpticalObject* opto )
 {
   if(ALIUtils::debug >= 3) std::cout << "@@@ CocoaDBMgr::GetAlignInfoErrorFromOptO " << opto->name() << std::endl;
 
@@ -347,7 +347,7 @@ AlignTransformError* CocoaDBMgr::GetAlignInfoErrorFromOptO( OpticalObject* opto 
 		  1.);
  //double(dx*dx),  0., double(dy*dy),     0., 0., double(dz*dz) ) ;
   CLHEP::HepSymMatrix errms = asHepMatrix(gerr.matrix());
-  AlignTransformError* alignError = new AlignTransformError( errms, cmsswID );
+  AlignTransformErrorExtended* alignError = new AlignTransformErrorExtended( errms, cmsswID );
   return alignError;
 
   CLHEP::HepMatrix errm(3,3);
@@ -368,12 +368,12 @@ std::cout << "@@@ CocoaDBMgr::GetAlignInfoFromOptO errm filled" << opto->name() 
 //  errms.assign(errm); 
   
 std::cout << "@@@ CocoaDBMgr::GetAlignInfoFromOptO errms filled " << opto->name() << std::endl;
-//  AlignTransformError* alignError = new AlignTransformError( errms, cmsswID );
-//  AlignTransformError* alignError = 0;
+//  AlignTransformErrorExtended* alignError = new AlignTransformErrorExtended( errms, cmsswID );
+//  AlignTransformErrorExtended* alignError = 0;
   
   std::cout << alignError << "@@@ CocoaDBMgr::GetAlignInfoFromOptO error built " << opto->name() << std::endl;
   //t  return alignError;
-  return (AlignTransformError*)(0);
+  return (AlignTransformErrorExtended*)(0);
 }
 
 

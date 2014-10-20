@@ -147,7 +147,7 @@ AlignmentErrors* AlignableBeamSpot::alignmentErrors( void ) const
   //FIMXE to be fixed
   //if ( theAlignmentPositionError ) // Might not be set
   //  clhepSymMatrix = asHepMatrix(theAlignmentPositionError->globalError().matrix());
-  AlignTransformError transformError( clhepSymMatrix, detId );
+  AlignTransformErrorExtended transformError( clhepSymMatrix, detId );
   m_alignmentErrors->m_alignError.push_back( transformError );
   
   return m_alignmentErrors;

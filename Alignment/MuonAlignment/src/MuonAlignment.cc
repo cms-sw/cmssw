@@ -144,11 +144,11 @@ void MuonAlignment::copyAlignmentToSurvey(double shiftErr, double angleErr) {
    // Set the survey error to the alignable error, expanding the matrix as needed
    AlignmentErrors* dtAlignmentErrors = theAlignableMuon->dtAlignmentErrors();
    AlignmentErrors* cscAlignmentErrors = theAlignableMuon->cscAlignmentErrors();
-   std::vector<AlignTransformError> alignmentErrors;
+   std::vector<AlignTransformErrorExtended> alignmentErrors;
    std::copy(dtAlignmentErrors->m_alignError.begin(), dtAlignmentErrors->m_alignError.end(), std::back_inserter(alignmentErrors));
    std::copy(cscAlignmentErrors->m_alignError.begin(), cscAlignmentErrors->m_alignError.end(), std::back_inserter(alignmentErrors));
 
-   for (std::vector<AlignTransformError>::const_iterator alignmentError = alignmentErrors.begin();
+   for (std::vector<AlignTransformErrorExtended>::const_iterator alignmentError = alignmentErrors.begin();
 	alignmentError != alignmentErrors.end();
 	++alignmentError) {
       align::ErrorMatrix matrix6x6 = ROOT::Math::SMatrixIdentity();
@@ -220,7 +220,7 @@ void MuonAlignment::recursiveCopySurveyToAlignment(Alignable *alignable) {
       }
 
       // this sets APEs at this level and (since 2nd argument is true) all lower levels
-      alignable->setAlignmentPositionError(AlignmentPositionError(GlobalError(matrix3x3)), true);
+      alignable->setAlignmentPositionError(AlignmentPositionError(), true);
    }
 
    // do lower levels afterward to thwart the cumulative setting of APEs

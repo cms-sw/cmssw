@@ -306,13 +306,13 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 			
 			//dummy errors
 			CLHEP::HepSymMatrix clhepSymMatrix(3,0);
-			AlignTransformError transformError(clhepSymMatrix, detid1);
+			AlignTransformErrorExtended transformError(clhepSymMatrix, detid1);
 			alignmentErrors1->m_alignError.push_back(transformError);
 		}		
 		
 		// to get the right order
 		std::sort( alignments1->m_align.begin(), alignments1->m_align.end(), lessAlignmentDetId<AlignTransform>() );
-		std::sort( alignmentErrors1->m_alignError.begin(), alignmentErrors1->m_alignError.end(), lessAlignmentDetId<AlignTransformError>() );
+		std::sort( alignmentErrors1->m_alignError.begin(), alignmentErrors1->m_alignError.end(), lessAlignmentDetId<AlignTransformErrorExtended>() );
 	}
 	//------------------
 	Alignments* alignments2 = new Alignments();
@@ -341,13 +341,13 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 			
 			//dummy errors
 			CLHEP::HepSymMatrix clhepSymMatrix(3,0);
-			AlignTransformError transformError(clhepSymMatrix, detid2);
+			AlignTransformErrorExtended transformError(clhepSymMatrix, detid2);
 			alignmentErrors2->m_alignError.push_back(transformError); 
 		}			
 		
 		//to get the right order
 		std::sort( alignments2->m_align.begin(), alignments2->m_align.end(), lessAlignmentDetId<AlignTransform>() );
-		std::sort( alignmentErrors2->m_alignError.begin(), alignmentErrors2->m_alignError.end(), lessAlignmentDetId<AlignTransformError>() );
+		std::sort( alignmentErrors2->m_alignError.begin(), alignmentErrors2->m_alignError.end(), lessAlignmentDetId<AlignTransformErrorExtended>() );
 	}
 	
 	//accessing the initial geometry
@@ -876,14 +876,14 @@ void TrackerGeometryCompare::surveyToTracker(AlignableTracker* ali, Alignments* 
 		CLHEP::Hep3Vector clhepVector(pos.x(),pos.y(),pos.z());
 		CLHEP::HepRotation clhepRotation( CLHEP::HepRep3x3(rot.xx(),rot.xy(),rot.xz(),rot.yx(),rot.yy(),rot.yz(),rot.zx(),rot.zy(),rot.zz()));
 		AlignTransform transform(clhepVector, clhepRotation, (*k)->id());
-		AlignTransformError transformError(CLHEP::HepSymMatrix(3,1), (*k)->id());
+		AlignTransformErrorExtended transformError(CLHEP::HepSymMatrix(3,1), (*k)->id());
 		alignVals->m_align.push_back(transform);
 		alignErrors->m_alignError.push_back(transformError);
 	}
 	
 	//to get the right order
 	std::sort( alignVals->m_align.begin(), alignVals->m_align.end(), lessAlignmentDetId<AlignTransform>() );
-	std::sort( alignErrors->m_alignError.begin(), alignErrors->m_alignError.end(), lessAlignmentDetId<AlignTransformError>() );
+	std::sort( alignErrors->m_alignError.begin(), alignErrors->m_alignError.end(), lessAlignmentDetId<AlignTransformErrorExtended>() );
 	
 }
 
