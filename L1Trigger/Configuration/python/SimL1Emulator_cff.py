@@ -105,8 +105,8 @@ import SimCalorimetry.HcalTrigPrimProducers.hcalTTPRecord_cfi
 simHcalTechTrigDigis = SimCalorimetry.HcalTrigPrimProducers.hcalTTPRecord_cfi.simHcalTTPRecord.clone()
 
 # CASTOR Techical Trigger
-import SimCalorimetry.CastorSim.castorTTRecord_cfi
-simCastorTechTrigDigis = SimCalorimetry.CastorSim.castorTTRecord_cfi.simCastorTTRecord.clone()
+import SimCalorimetry.CastorTechTrigProducer.castorTTRecord_cfi
+simCastorTechTrigDigis = SimCalorimetry.CastorTechTrigProducer.castorTTRecord_cfi.simCastorTTRecord.clone()
 
 # Global Trigger emulator
 import L1Trigger.GlobalTrigger.gtDigis_cfi

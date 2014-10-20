@@ -7,6 +7,5 @@
 <use   name="CalibFormats/CastorObjects"/>
 <use   name="CalibCalorimetry/HcalAlgos"/>
 <use   name="DataFormats/HcalDigi"/>
-<use   name="DataFormats/L1GlobalTrigger"/>
 <use   name="Geometry/HcalTowerAlgo"/>
 <use   name="clhep"/>

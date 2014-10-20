@@ -1,5 +1,5 @@
-#ifndef CastorSim_CastorTTRecord_h
-#define CastorSim_CastorTTRecord_h
+#ifndef CastorTechTrigProducer_CastorTTRecord_h
+#define CastorTechTrigProducer_CastorTTRecord_h
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

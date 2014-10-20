@@ -1,4 +1,4 @@
-#include "SimCalorimetry/CastorSim/plugins/CastorTTRecord.h"
+#include "SimCalorimetry/CastorTechTrigProducer/src/CastorTTRecord.h"
 
 #include "DataFormats/HcalDigi/interface/HcalTTPDigi.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
