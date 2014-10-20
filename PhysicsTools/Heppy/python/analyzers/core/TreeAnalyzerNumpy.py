@@ -1,4 +1,4 @@
-from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
+from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.HeppyCore.statistics.tree import Tree as Tree
 from ROOT import TFile
 
