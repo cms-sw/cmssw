@@ -1,8 +1,8 @@
 import itertools
 
-from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
-from PhysicsTools.Heppy.analyzers.AutoHandle import AutoHandle
-from PhysicsTools.HeppyCore.framework.Event import Event
+from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
+from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
+from PhysicsTools.HeppyCore.framework.event import Event
 from PhysicsTools.HeppyCore.statistics.counter import Counter, Counters
 
 from DataFormats.FWLite import Events, Handle,Lumis

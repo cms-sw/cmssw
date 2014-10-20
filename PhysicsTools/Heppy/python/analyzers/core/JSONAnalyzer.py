@@ -1,5 +1,5 @@
 import json
-from PhysicsTools.Heppy.analyzers.Analyzer import Analyzer
+from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 
 from FWCore.PythonUtilities.LumiList import LumiList
 from PhysicsTools.Heppy.utils.rltinfo import RLTInfo

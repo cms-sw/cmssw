@@ -1,5 +1,5 @@
 from PhysicsTools.Heppy.physicsobjects.PhysicsObject import *
-
+import ROOT
 class Lepton( PhysicsObject):
     def sip3D(self):
         '''3D impact parameter, for H to ZZ to 4l analysis.'''
@@ -68,4 +68,9 @@ class Lepton( PhysicsObject):
         '''MIKE, missing doc'''
         return self.absEffAreaIso(rho)/self.pt()
 
+    def lostInner(self):
+        if hasattr(self.innerTrack(),"trackerExpectedHitsInner") :
+		return self.innerTrack().trackerExpectedHitsInner().numberOfLostHits()
+	else :	
+		return self.innerTrack().hitPattern().numberOfHits(ROOT.reco.HitPattern.MISSING_INNER_HITS)	
 

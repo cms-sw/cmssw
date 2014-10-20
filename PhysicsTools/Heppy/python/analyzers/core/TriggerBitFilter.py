@@ -5,10 +5,10 @@ from math import *
 
 from ROOT import TriggerBitChecker
 
-from PhysicsTools.HeppyCore.framework.analyzer import Analyzer
-from PhysicsTools.HeppyCore.framework.Event import Event
+from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
+from PhysicsTools.HeppyCore.framework.event import Event
 from PhysicsTools.HeppyCore.statistics.counter import Counter, Counters
-from PhysicsTools.Heppy.analyzers.AutoHandle import AutoHandle
+from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
         
 class TriggerBitFilter( Analyzer ):
     def __init__(self, cfg_ana, cfg_comp, looperName ):

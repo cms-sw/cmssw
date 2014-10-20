@@ -7,8 +7,8 @@ import types
 from ROOT import TLorentzVector
 
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
-from HeppyCore.framework.event import Event
-from PhysicsTools.HeppyCore.statistics.Counter import Counter, Counters
+from PhysicsTools.HeppyCore.framework.event import Event
+from PhysicsTools.HeppyCore.statistics.counter import Counter, Counters
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 from PhysicsTools.Heppy.physicsobjects.Lepton import Lepton
 from PhysicsTools.Heppy.physicsobjects.Tau import Tau

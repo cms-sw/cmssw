@@ -6,12 +6,12 @@ import types
 from ROOT import TLorentzVector
 
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
-from HeppyCore.framework.event import Event
-from PhysicsTools.HeppyCore.statistics.Counter import Counter, Counters
+from PhysicsTools.HeppyCore.framework.event import Event
+from PhysicsTools.HeppyCore.statistics.counter import Counter, Counters
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 from PhysicsTools.Heppy.physicsobjects.Photon import Photon
 
-from CMGTools.TTHAnalysis.analyzers.ttHLepMCMatchAnalyzer import matchObjectCollection3
+#from CMGTools.TTHAnalysis.analyzers.ttHLepMCMatchAnalyzer import matchObjectCollection3
 from PhysicsTools.HeppyCore.utils.deltar import deltaR, deltaPhi, bestMatch
 
 class PhotonAnalyzer( Analyzer ):
@@ -84,10 +84,11 @@ class PhotonAnalyzer( Analyzer ):
        
     def matchPhotons(self, event):
         event.genPhotons = [ x for x in event.genParticles if x.status() == 3 and abs(x.pdgId()) == 22 ]
-        match = matchObjectCollection3(event.allphotons, event.genPhotons, deltaRMax = 0.5)
-        for gamma in event.allphotons:
-            gen = match[gamma]
-            gamma.mcMatchId = 1 if gen else 0
+#FIXME
+#        match = matchObjectCollection3(event.allphotons, event.genPhotons, deltaRMax = 0.5)
+#        for gamma in event.allphotons:
+#            gen = match[gamma]
+#            gamma.mcMatchId = 1 if gen else 0
 
     def printInfo(self, event):
         print '----------------'

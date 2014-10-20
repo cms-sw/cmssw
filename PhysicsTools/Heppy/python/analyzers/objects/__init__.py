@@ -1,8 +1,8 @@
-from PhysicsTools.Heppy.analyzers.core.GeneratorAnalyzer import *
-from PhysicsTools.Heppy.analyzers.core.JetAnalyzer import *
-from PhysicsTools.Heppy.analyzers.core.LeptonAnalyzer import *
-from PhysicsTools.Heppy.analyzers.core.PhotonAnalyzer import *
-from PhysicsTools.Heppy.analyzers.core.TauAnalyzer import *
-from PhysicsTools.Heppy.analyzers.core.VertexAnalyzer import *
+from PhysicsTools.Heppy.analyzers.objects.GeneratorAnalyzer import *
+from PhysicsTools.Heppy.analyzers.objects.JetAnalyzer import *
+from PhysicsTools.Heppy.analyzers.objects.LeptonAnalyzer import *
+from PhysicsTools.Heppy.analyzers.objects.PhotonAnalyzer import *
+from PhysicsTools.Heppy.analyzers.objects.TauAnalyzer import *
+from PhysicsTools.Heppy.analyzers.objects.VertexAnalyzer import *
 
-from PhysicsTools.Heppy.analyzers.core.autofilltypes import *
+from PhysicsTools.Heppy.analyzers.objects.autofilltypes import *

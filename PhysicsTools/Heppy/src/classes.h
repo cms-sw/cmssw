@@ -11,6 +11,9 @@
 #include "PhysicsTools/Heppy/interface/Hemisphere.h"
 #include "PhysicsTools/Heppy/interface/AlphaT.h"
 #include "PhysicsTools/Heppy/interface/HemisphereViaKt.h"
+#include "EgammaAnalysis/ElectronTools/interface/SimpleElectron.h"
+#include "EgammaAnalysis/ElectronTools/interface/ElectronEPcombinator.h"
+//#include "EgammaAnalysis/ElectronTools/interface/ElectronEnergyCalibrator.h"
 
 namespace {
   namespace {
@@ -26,5 +29,9 @@ namespace {
     Davismt2 mt2;
     mt2w_bisect::mt2w mt2wlept;
     AlphaT alphaT;
+    SimpleElectron fuffaElectron;
+  //  ElectronEnergyCalibrator fuffaElectronCalibrator;
+    ElectronEPcombinator fuffaElectronCombinator;
+
   }
 }
