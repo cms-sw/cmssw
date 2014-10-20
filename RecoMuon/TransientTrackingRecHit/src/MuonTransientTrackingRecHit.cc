@@ -55,6 +55,8 @@ GlobalError MuonTransientTrackingRecHit::globalDirectionError() const
 AlgebraicSymMatrix MuonTransientTrackingRecHit::parametersError() const {
  
   AlgebraicSymMatrix err = GenericTransientTrackingRecHit::parametersError();
+  AlgebraicVector par = GenericTransientTrackingRecHit::parameters();
+
   const AlignmentPositionError* APE = det()->alignmentPositionError();
   if (APE != NULL) {
     AlgebraicVector shifts(2,0);
@@ -88,10 +90,10 @@ AlgebraicSymMatrix MuonTransientTrackingRecHit::parametersError() const {
 
      err += lapeMatrix;
     } else if (err.num_row() == 4) { 
-     shifts[0] = localPosition().x();
-     shifts[1] = localPosition().y();
-     angles[0] = localDirection().x();
-     angles[1] = localDirection().y();
+     shifts[0] = par[2];
+     shifts[1] = par[3];
+     angles[0] = par[0];
+     angles[1] = par[1];
 
      LocalErrorExtended lape = ErrorFrameTransformer().transform46(APE->globalError(),shifts,angles);
 
