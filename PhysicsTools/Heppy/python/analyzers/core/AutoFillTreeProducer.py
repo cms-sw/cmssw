@@ -1,8 +1,8 @@
-from PhysicsTools.FWLite.core.TreeAnalyzerNumpy import TreeAnalyzerNumpy
-from PhysicsTools.FWLite.core.ntupleObjects import *
-from PhysicsTools.FWLite.utils.ntupleTypes   import *
-from PhysicsTools.FWLite.core.AutoHandle import AutoHandle
+from PhysicsTools.Heppy.analyzer.core.TreeAnalyzerNumpy import TreeAnalyzerNumpy
+from PhysicsTools.Heppy.analyzer.core.ntupleObjects import *
+from PhysicsTools.Heppy.analyzer.core.AutoHandle import AutoHandle
 #from ROOT import TriggerBitChecker
+#from PhysicsTools.FWLite.utils.ntupleTypes   import *
 
 class AutoFillTreeProducer( TreeAnalyzerNumpy ):
 
@@ -94,67 +94,67 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
             else:
                 c.makeBranchesVector(tree, isMC)
             
-    def fillCoreVariables(self, tr, iEvent, isMC):
+    def fillCoreVariables(self, tr, event, isMC):
         """Here we fill the variables that we always want and that are hard-coded"""
-        tr.fill('run', iEvent.eventAuxiliary().id().run())
-        tr.fill('lumi',iEvent.eventAuxiliary().id().luminosityBlock())
-        tr.fill('evt', iEvent.eventAuxiliary().id().event())    
+        tr.fill('run', event.input.eventAuxiliary().id().run())
+        tr.fill('lumi',event.input.eventAuxiliary().id().luminosityBlock())
+        tr.fill('evt', event.input.eventAuxiliary().id().event())    
         tr.fill('isData', 0 if isMC else 1)
 
 #       triggerResults = self.handles['TriggerResults'].product()
 #       for T,TC in self.triggerBitCheckers:
-#           tr.fill("HLT_"+T, TC.check(iEvent.object(), triggerResults))
+#           tr.fill("HLT_"+T, TC.check(event.object(), triggerResults))
 
         if isMC:
             ## PU weights, check if a PU analyzer actually filled it
-	    if iEvent.hasattr("nPU"):
-	            tr.fill("nTrueInt", iEvent.nPU)
-	            tr.fill("puWeight", iEvent.eventWeight)
+	    if event.hasattr("nPU"):
+	            tr.fill("nTrueInt", event.nPU)
+	            tr.fill("puWeight", event.eventWeight)
 	    else :
                     tr.fill("nTrueInt", -1)
 	            tr.fill("puWeight", 1.0)
 		
             tr.fill("genWeight", self.mchandles['GenInfo'].product().weight())
             ## PDF weights
-            if iEvent.hasattr("pdfWeights") :
+            if event.hasattr("pdfWeights") :
               for (pdf,nvals) in self.pdfWeights:
-		if len(iEvent.pdfWeights[pdf]) != nvals:
-                    raise RuntimeError, "PDF lenght mismatch for %s, declared %d but the event has %d" % (pdf,nvals,iEvent.pdfWeights[pdf])
+		if len(event.pdfWeights[pdf]) != nvals:
+                    raise RuntimeError, "PDF lenght mismatch for %s, declared %d but the event has %d" % (pdf,nvals,event.pdfWeights[pdf])
                 if self.scalar:
                     for i,w in enumerate(event.pdfWeights[pdf]):
                         tr.fill('pdfWeight_%s_%d' % (pdf,i), w)
                 else:
                     tr.vfill('pdfWeight_%s' % pdf, event.pdfWeights[pdf])
 
-    def process(self, iEvent):
-        self.readCollections( iEvent )
-        self.fillTree(iEvent)
+    def process(self, event):
+        self.readCollections( event.input)
+        self.fillTree(event)
          
-    def fillTree(self, iEvent, resetFirst=True):
+    def fillTree(self, event, resetFirst=True):
         isMC = self.cfg_comp.isMC 
         if resetFirst: self.tree.reset()
 
-        self.fillCoreVariables(self.tree, iEvent, isMC)
+        self.fillCoreVariables(self.tree, event, isMC)
 
         for v in self.globalVariables:
             if not isMC and v.mcOnly: continue
-            v.fillBranch(self.tree, iEvent.event, isMC)
+            v.fillBranch(self.tree, event, isMC)
 
         for on, o in self.globalObjects.iteritems(): 
             if not isMC and o.mcOnly: continue
-            o.fillBranches(self.tree, getattr(iEvent.event, on), isMC)
+            o.fillBranches(self.tree, getattr(event, on), isMC)
 
         for cn, c in self.collections.iteritems():
             if type(c) == tuple and isinstance(c[0], AutoHandle):
                 if not isMC and c[-1].mcOnly: continue
                 objects = self.handles[cn].product()
-                setattr(iEvent.event, cn, [objects[i] for i in xrange(objects.size())])
+                setattr(event, cn, [objects[i] for i in xrange(objects.size())])
                 c = c[-1]
             if not isMC and c.mcOnly: continue
             if self.scalar:
-                c.fillBranchesScalar(self.tree, getattr(iEvent.event, cn), isMC)
+                c.fillBranchesScalar(self.tree, getattr(event, cn), isMC)
             else:
-                c.fillBranchesVector(self.tree, getattr(iEvent.event, cn), isMC)
+                c.fillBranchesVector(self.tree, getattr(event, cn), isMC)
 
         self.tree.tree.Fill()      
 
