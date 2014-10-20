@@ -6,14 +6,14 @@ import types
 
 from ROOT import TLorentzVector
 
-from CMGTools.RootTools.fwlite.Analyzer import Analyzer
-from CMGTools.RootTools.fwlite.Event import Event
-from CMGTools.RootTools.statistics.Counter import Counter, Counters
-from CMGTools.RootTools.fwlite.AutoHandle import AutoHandle
-from CMGTools.RootTools.physicsobjects.Lepton import Lepton
-from CMGTools.RootTools.physicsobjects.Tau import Tau
+from PhysicsTools.Heppy.analyzer.core.Analyzer import Analyzer
+from HeppyCore.framework.event import Event
+from PhysicsTools.HeppyCore.statistics.Counter import Counter, Counters
+from PhysicsTools.Heppy.analyzer.core.AutoHandle import AutoHandle
+from PhysicsTools.Heppy.physicsobjects.Lepton import Lepton
+from PhysicsTools.Heppy.physicsobjects.Tau import Tau
 
-from CMGTools.RootTools.utils.DeltaR import deltaR, deltaPhi, bestMatch
+from PhysicsTools.HeppyCore.utils.deltar import deltaR, deltaPhi, bestMatch
  
 class ttHTauAnalyzer( Analyzer ):
 

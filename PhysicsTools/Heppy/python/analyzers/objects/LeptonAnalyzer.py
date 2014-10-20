@@ -1,13 +1,13 @@
-from CMGTools.RootTools.fwlite.Analyzer import Analyzer
-from CMGTools.RootTools.fwlite.AutoHandle import AutoHandle
-from CMGTools.RootTools.physicsobjects.Electron import Electron
-from CMGTools.RootTools.physicsobjects.Muon import Muon
+from PhysicsTools.Heppy.analyzer.core.Analyzer import Analyzer
+from PhysicsTools.Heppy.analyzer.core.AutoHandle import AutoHandle
+from PhysicsTools.Heppy.physicsobjects.Electron import Electron
+from PhysicsTools.Heppy.physicsobjects.Muon import Muon
 from CMGTools.TTHAnalysis.tools.EfficiencyCorrector import EfficiencyCorrector
 
-from CMGTools.RootTools.utils.DeltaR import bestMatch
-from CMGTools.RootTools.physicsobjects.RochesterCorrections import rochcor
-from CMGTools.RootTools.physicsobjects.MuScleFitCorrector   import MuScleFitCorr
-from CMGTools.RootTools.physicsobjects.ElectronCalibrator import EmbeddedElectronCalibrator
+from PhysicsTools.HeppyCore.utils.deltar import bestMatch
+from PhysicsTools.Heppy.physicsutils.RochesterCorrections import rochcor
+from PhysicsTools.Heppy.physicsutils.MuScleFitCorrector   import MuScleFitCorr
+from PhysicsTools.Heppy.physicsutils.ElectronCalibrator import EmbeddedElectronCalibrator
 from CMGTools.TTHAnalysis.electronCalibrator import ElectronCalibrator
 
 from ROOT import CMGMuonCleanerBySegmentsAlgo
