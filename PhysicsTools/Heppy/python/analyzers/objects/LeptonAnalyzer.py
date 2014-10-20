@@ -13,11 +13,11 @@ from CMGTools.TTHAnalysis.electronCalibrator import ElectronCalibrator
 from ROOT import CMGMuonCleanerBySegmentsAlgo
 cmgMuonCleanerBySegments = CMGMuonCleanerBySegmentsAlgo()
 
-class ttHLepAnalyzerSusy( Analyzer ):
+class LeptonAnalyzer( Analyzer ):
 
     
     def __init__(self, cfg_ana, cfg_comp, looperName ):
-        super(ttHLepAnalyzerSusy,self).__init__(cfg_ana,cfg_comp,looperName)
+        super(LeptonAnalyzer,self).__init__(cfg_ana,cfg_comp,looperName)
         if self.cfg_ana.doMuScleFitCorrections and self.cfg_ana.doMuScleFitCorrections != "none":
             if self.cfg_ana.doMuScleFitCorrections not in [ "none", "prompt", "prompt-sync", "rereco", "rereco-sync" ]:
                 raise RuntimeError, 'doMuScleFitCorrections must be one of "none", "prompt", "prompt-sync", "rereco", "rereco-sync"'
@@ -40,7 +40,7 @@ class ttHLepAnalyzerSusy( Analyzer ):
         
 
     def declareHandles(self):
-        super(ttHLepAnalyzerSusy, self).declareHandles()
+        super(LeptonAnalyzer, self).declareHandles()
 
         #leptons
         self.handles['muons'] = AutoHandle(self.cfg_ana.muons,"std::vector<pat::Muon>")            
@@ -52,7 +52,7 @@ class ttHLepAnalyzerSusy( Analyzer ):
         self.handles['rhoEle'] = AutoHandle( self.cfg_ana.rhoElectron, 'double')
 
     def beginLoop(self):
-        super(ttHLepAnalyzerSusy,self).beginLoop()
+        super(LeptonAnalyzer,self).beginLoop()
         self.counters.addCounter('events')
         count = self.counters.counter('events')
         count.register('all events')
@@ -231,8 +231,8 @@ class ttHLepAnalyzerSusy( Analyzer ):
         
         return allelectrons 
 
-    def process(self, iEvent, event):
-        self.readCollections( iEvent )
+    def process(self, event):
+        self.readCollections( event.input )
         self.counters.counter('events').inc('all events')
 
         #call the leptons functions

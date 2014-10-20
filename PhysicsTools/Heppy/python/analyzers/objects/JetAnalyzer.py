@@ -19,10 +19,10 @@ def cleanNearestJetOnly(jets,leptons,deltaR):
     return [ j for (i,j) in enumerate(jets) if good[i] == True ] 
 
 
-class ttHJetAnalyzer( Analyzer ):
+class JetAnalyzer( Analyzer ):
     """Taken from RootTools.JetAnalyzer, simplified, modified, added corrections    """
     def __init__(self, cfg_ana, cfg_comp, looperName):
-        super(ttHJetAnalyzer,self).__init__(cfg_ana, cfg_comp, looperName)
+        super(JetAnalyzer,self).__init__(cfg_ana, cfg_comp, looperName)
         mcGT   = cfg_ana.mcGT   if hasattr(cfg_ana,'mcGT') else "START53_V27"
         dataGT = cfg_ana.dataGT if hasattr(cfg_ana,'dataGT') else "FT_53_V21_AN5"
         if self.cfg_comp.isMC:
@@ -41,16 +41,16 @@ class ttHJetAnalyzer( Analyzer ):
         self.gammaEtaCentral = self.cfg_ana.gammaEtaCentral  if hasattr(self.cfg_ana, 'gammaEtaCentral') else 0
 
     def declareHandles(self):
-        super(ttHJetAnalyzer, self).declareHandles()
+        super(JetAnalyzer, self).declareHandles()
         self.handles['jets']     = AutoHandle( self.cfg_ana.jetCol, 'std::vector<pat::Jet>' )
         self.handles['jets4MVA'] = AutoHandle( self.cfg_ana.jetCol4MVA, 'std::vector<pat::Jet>' )
         self.handles['rho'] = AutoHandle( ('fixedGridRhoFastjetAll','',''), 'double' )
     
     def beginLoop(self):
-        super(ttHJetAnalyzer,self).beginLoop()
+        super(JetAnalyzer,self).beginLoop()
         
-    def process(self, iEvent, event):
-        self.readCollections( iEvent )
+    def process(self, event):
+        self.readCollections( event.input )
         rho  = float(self.handles['rho'].product()[0])
         event.rho=rho
 

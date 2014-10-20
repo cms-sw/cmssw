@@ -18,7 +18,7 @@ from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import GenParticle
 from PhysicsTools.HeppyCore.utils.deltar import deltaR,deltaPhi
 from PhysicsTools.Heppy.physicsutils.genutils import *
         
-class ttHGenLevelAnalyzer( Analyzer ):
+class GeneratorAnalyzer( Analyzer ):
     """Do generator-level analysis of a ttH->leptons decay:
 
        Creates in the event:
@@ -42,7 +42,7 @@ class ttHGenLevelAnalyzer( Analyzer ):
       
     """
     def __init__(self, cfg_ana, cfg_comp, looperName ):
-        super(ttHGenLevelAnalyzer,self).__init__(cfg_ana,cfg_comp,looperName)
+        super(GeneratorAnalyzer,self).__init__(cfg_ana,cfg_comp,looperName)
         self.doPDFWeights = hasattr(self.cfg_ana, "PDFWeights") and len(self.cfg_ana.PDFWeights) > 0
         if self.doPDFWeights:
             self.pdfWeightInit = False
@@ -52,7 +52,7 @@ class ttHGenLevelAnalyzer( Analyzer ):
         
 
     def declareHandles(self):
-        super(ttHGenLevelAnalyzer, self).declareHandles()
+        super(GeneratorAnalyzer, self).declareHandles()
 
         #mc information
         self.mchandles['genParticles'] = AutoHandle( 'prunedGenParticles',
@@ -61,7 +61,7 @@ class ttHGenLevelAnalyzer( Analyzer ):
             self.mchandles['pdfstuff'] = AutoHandle( 'generator', 'GenEventInfoProduct' )
 
     def beginLoop(self):
-        super(ttHGenLevelAnalyzer,self).beginLoop()
+        super(GeneratorAnalyzer,self).beginLoop()
 
     def fillGenLeptons(self, event, particle, isTau=False, sourceId=25):
         """Get the gen level light leptons (prompt and/or from tau decays)"""

@@ -14,15 +14,15 @@ from PhysicsTools.Heppy.physicsobjects.Photon import Photon
 from CMGTools.TTHAnalysis.analyzers.ttHLepMCMatchAnalyzer import matchObjectCollection3
 from PhysicsTools.HeppyCore.utils.deltar import deltaR, deltaPhi, bestMatch
 
-class ttHPhotonAnalyzerSusy( Analyzer ):
+class PhotonAnalyzer( Analyzer ):
 
     
     def __init__(self, cfg_ana, cfg_comp, looperName ):
-        super(ttHPhotonAnalyzerSusy,self).__init__(cfg_ana,cfg_comp,looperName)
+        super(PhotonAnalyzer,self).__init__(cfg_ana,cfg_comp,looperName)
         self.etaCentral = self.cfg_ana.etaCentral  if hasattr(self.cfg_ana, 'etaCentral') else 9999
 
     def declareHandles(self):
-        super(ttHPhotonAnalyzerSusy, self).declareHandles()
+        super(PhotonAnalyzer, self).declareHandles()
 
     #----------------------------------------                                                                                                                                   
     # DECLARATION OF HANDLES OF PHOTONS STUFF                                                                                                                                   
@@ -32,7 +32,7 @@ class ttHPhotonAnalyzerSusy( Analyzer ):
         self.handles['photons'] = AutoHandle( self.cfg_ana.photons,'std::vector<pat::Photon>')
 
     def beginLoop(self):
-        super(ttHPhotonAnalyzerSusy,self).beginLoop()
+        super(PhotonAnalyzer,self).beginLoop()
         self.counters.addCounter('events')
         count = self.counters.counter('events')
         count.register('all events')
@@ -106,8 +106,8 @@ class ttHPhotonAnalyzerSusy( Analyzer ):
             print 'gamma idCutBased',event.selectedPhotons[0].idCutBased
 
 
-    def process(self, iEvent, event):
-        self.readCollections( iEvent )
+    def process(self, event):
+        self.readCollections( event.input )
         #call the photons functions
         self.makePhotons(event)
         
