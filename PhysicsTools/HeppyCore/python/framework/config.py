@@ -182,29 +182,16 @@ if __name__ == '__main__':
 
     class Ana1(object):
         pass
-
     ana1 = Analyzer(
         Ana1,
         toto = '1',
         tata = 'a'
         )
-    
     ana2 = Analyzer(
         Printer,
         'instance1'
         )
-
     sequence = Sequence( [ana1, ana2] )
-    print sequence
-
-    comp1 = Component( 
-        'comp1',
-        files='*.root',
-        triggers='HLT_stuff'
-        )
-    print
-    print comp1
-
 
     DYJets = MCComponent(
         name = 'DYJets',
@@ -214,13 +201,9 @@ if __name__ == '__main__':
         triggers = ['HLT_MC'],
         vertexWeight = 1.,
         effCorrFactor = 1 )
-
-    print
-    print DYJets
-    
-    selectedComponents = [DYJets, comp1]
+    selectedComponents = [DYJets]
     sequence = [ana1, ana2]
-    
     config = Config( components = selectedComponents,
                      sequence = sequence, 
                      events_class = Events )
+    print config
