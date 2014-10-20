@@ -80,8 +80,12 @@ class Looper(object):
         return tmpname
 
     def _buildAnalyzer(self, cfg_ana):
-        obj = None
-        className = cfg_ana.name.split('_')[0]
+      obj = None
+      className = cfg_ana.name.split('_')[0]
+      if "type" in cfg_ana :
+   	theClass = cfg_ana["type"]
+        return theClass( cfg_ana, self.cfg_comp, self.outDir )
+      else:
         theClass = None
         try:
             # obviously, can't load a module twice
