@@ -241,11 +241,8 @@ namespace amc13 {
    }
 
    bool
-   Packet::write(unsigned char * ptr, unsigned int size) const
+   Packet::write(unsigned int orbit, unsigned char * ptr, unsigned int size) const
    {
-      // FIXME
-      unsigned int orbit = 1;
-
       if (size < this->size() * 8)
          return false;
 

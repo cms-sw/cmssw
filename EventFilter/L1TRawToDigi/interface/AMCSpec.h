@@ -105,7 +105,7 @@ namespace amc13 {
 
          void add(unsigned int board, const std::vector<uint64_t>& load);
          bool parse(const uint64_t*, unsigned int);
-         bool write(unsigned char * ptr, unsigned int size) const;
+         bool write(unsigned int orbit, unsigned char * ptr, unsigned int size) const;
 
          inline std::vector<amc::Packet> payload() const { return payload_; };
 
