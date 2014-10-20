@@ -23,7 +23,6 @@ DEFINE_FWK_MODULE(ElectronMcSignalValidator);
 DEFINE_FWK_MODULE(ElectronMcSignalPostValidator);
 DEFINE_FWK_MODULE(ElectronMcFakeValidator);
 DEFINE_FWK_MODULE(ElectronMcFakePostValidator);
-DEFINE_FWK_MODULE(ElectronWebGetter);
 DEFINE_FWK_MODULE(ElectronConversionRejectionValidator);
 
 
