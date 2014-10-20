@@ -125,7 +125,7 @@ void HLTVertexPerformanceAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, e
 	using namespace std;
 	std::string dqmFolder;
 	for (unsigned int ind=0; ind<hltPathNames_.size();ind++) {
-		dqmFolder = Form("HLT/Vertex/%s",hltPathNames_[ind].c_str());
+		dqmFolder = Form("HLT/BTag/Vertex/%s",hltPathNames_[ind].c_str());
 		H1_.push_back(std::map<std::string, MonitorElement *>());
 		ibooker.setCurrentFolder(dqmFolder);
 		for (unsigned int coll=0; coll<VertexCollection_.size();coll++) {

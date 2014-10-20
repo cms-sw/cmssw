@@ -25,8 +25,8 @@ HLTBTagHarvestingAnalyzer::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
 	//for each hltPath and for each flavour, do the "b-tag efficiency vs jet pt" and "b-tag efficiency vs mistag rate" plots
 	for (unsigned int ind=0; ind<hltPathNames_.size();ind++) 
 	{
-		dqmFolder_hist = Form("HLT/BTag/%s",hltPathNames_[ind].c_str());
-		std::string effDir = Form("HLT/BTag/%s/efficiency",hltPathNames_[ind].c_str());
+		dqmFolder_hist = Form("HLT/BTag/Discrimanator/%s",hltPathNames_[ind].c_str());
+		std::string effDir = Form("HLT/BTag/Discrimanator/%s/efficiency",hltPathNames_[ind].c_str());
 		ibooker.setCurrentFolder(effDir);
 		TH1 *den =NULL;
 		TH1 *num =NULL; 
@@ -73,7 +73,16 @@ bool HLTBTagHarvestingAnalyzer::GetNumDenumerators(DQMStore::IBooker& ibooker, D
 	MonitorElement *numME = NULL;
 	denME = igetter.get(den);
 	numME = igetter.get(num);
-
+	Exception excp(errors::LogicError);
+	
+	if ( denME == NULL || numME == NULL ) 
+	{
+		excp << "Plots not found:\n";
+		if(denME == NULL) excp << den << "\n";
+		if(numME == NULL) excp << num << "\n";
+		excp.raise();
+	}
+	
 	if (type==0) //efficiency_vs_discr: fill "ptrnum" with the cumulative function of the DQM plots contained in "num" and "ptrden" with a flat function
 	{
 		TH1* numH1 = numME->getTH1();

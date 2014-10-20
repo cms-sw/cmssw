@@ -181,7 +181,7 @@ void HLTBTagPerformanceAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, edm
 		float btagL = 0.;
 		float btagU = 1.;
 		int   btagBins = 100;
-		dqmFolder = Form("HLT/BTag/%s",hltPathNames_[ind].c_str());
+		dqmFolder = Form("HLT/BTag/Discrimanator/%s",hltPathNames_[ind].c_str());
 		H1_.push_back(std::map<std::string, MonitorElement *>());
 		H2_.push_back(std::map<std::string, MonitorElement *>());
 		ibooker.setCurrentFolder(dqmFolder);
