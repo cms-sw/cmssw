@@ -13,7 +13,7 @@
  * The jet energy resolutions have been measured in QCD di-jet and gamma + jets events selected in 2010 data,
  * as documented in the PAS JME-10-014.
  *
- * NOTE: Auxiliary class specific to estimating systematic uncertainty 
+ * NOTE: Auxiliary class specific to estimating systematic uncertainty
  *       on PFMET reconstructed by no-PU MET reconstruction algorithm
  *      (implemented in JetMETCorrections/Type1MET/src/PFNoPUMETProducer.cc)
  *
@@ -42,7 +42,7 @@
 #include <vector>
 
 template <typename T, typename Textractor>
-  class SmearedPFCandidateProducerForPFNoPUMEtT : public edm::stream::EDProducer<>  
+  class SmearedPFCandidateProducerForPFNoPUMEtT : public edm::stream::EDProducer<>
 {
   typedef std::vector<T> JetCollection;
 
@@ -50,7 +50,7 @@ template <typename T, typename Textractor>
 
   explicit SmearedPFCandidateProducerForPFNoPUMEtT(const edm::ParameterSet&);
   ~SmearedPFCandidateProducerForPFNoPUMEtT();
-    
+
  private:
 
   void produce(edm::Event&, const edm::EventSetup&);
@@ -58,9 +58,9 @@ template <typename T, typename Textractor>
   SmearedJetProducer_namespace::GenJetMatcherT<T> genJetMatcher_;
 
 //--- configuration parameters
- 
+
   // collection of pat::Jets (with L2L3/L2L3Residual corrections applied)
-  edm::EDGetTokenT<reco::PFCandidateCollection> srcPFCandidates_; 
+  edm::EDGetTokenT<reco::PFCandidateCollection> srcPFCandidates_;
   edm::EDGetTokenT<JetCollection> srcJets_;
 
   TFile* inputFile_;
@@ -69,7 +69,8 @@ template <typename T, typename Textractor>
   SmearedJetProducer_namespace::JetResolutionExtractorT<T> jetResolutionExtractor_;
   TRandom3 rnd_;
 
-  std::string jetCorrLabel_; // e.g. 'ak5PFJetL1FastL2L3' (reco::PFJets) / '' (pat::Jets)
+  edm::InputTag jetCorrLabel_;
+  edm::EDGetTokenT<reco::JetCorrector> jetCorrToken_;    // e.g. 'ak5CaloJetL1FastL2L3' (MC) / 'ak5CaloJetL1FastL2L3Residual' (Data)
   double jetCorrEtaMax_; // do not use JEC factors for |eta| above this threshold (recommended default = 4.7),
                          // in order to work around problem with CMSSW_4_2_x JEC factors at high eta,
                          // reported in
@@ -83,11 +84,11 @@ template <typename T, typename Textractor>
 
   double smearBy_; // option to "smear" jet energy by N standard-deviations, useful for template morphing
 
-  double shiftBy_; // option to increase/decrease within uncertainties the jet energy resolution used for smearing 
+  double shiftBy_; // option to increase/decrease within uncertainties the jet energy resolution used for smearing
 
-  StringCutObjectSelector<T>* skipJetSelection_; // jets passing this cut are **not** smeared 
-  double skipRawJetPtThreshold_;  // jets with transverse momenta below this value (either on "raw" or "corrected" level) 
-  double skipCorrJetPtThreshold_; // are **not** smeared 
+  StringCutObjectSelector<T>* skipJetSelection_; // jets passing this cut are **not** smeared
+  double skipRawJetPtThreshold_;  // jets with transverse momenta below this value (either on "raw" or "corrected" level)
+  double skipCorrJetPtThreshold_; // are **not** smeared
 
   int verbosity_; // flag to enabled/disable debug output
 
@@ -98,5 +99,5 @@ template <typename T, typename Textractor>
 #endif
 
 
- 
+
 

@@ -1,6 +1,5 @@
 #include "PhysicsTools/PatUtils/plugins/ShiftedPFCandidateProducerForPFNoPUMEt.h"
 
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -20,13 +19,13 @@ ShiftedPFCandidateProducerForPFNoPUMEt::ShiftedPFCandidateProducerForPFNoPUMEt(c
     jetCorrInputFileName_ = cfg.getParameter<edm::FileInPath>("jetCorrInputFileName");
     if ( jetCorrInputFileName_.location() == edm::FileInPath::Unknown) throw cms::Exception("ShiftedJetProducerT")
       << " Failed to find JEC parameter file = " << jetCorrInputFileName_ << " !!\n";
-    edm::LogWarning("ShiftedPFCandidateProducerForPFNoPUMEt") 
+    edm::LogWarning("ShiftedPFCandidateProducerForPFNoPUMEt")
       << "Reading JEC parameters = " << jetCorrUncertaintyTag_
       << " from file = " << jetCorrInputFileName_.fullPath() << "." << std::endl;
     jetCorrParameters_ = new JetCorrectorParameters(jetCorrInputFileName_.fullPath().data(), jetCorrUncertaintyTag_);
     jecUncertainty_ = new JetCorrectionUncertainty(*jetCorrParameters_);
   } else {
-    edm::LogWarning("ShiftedPFCandidateProducerForPFNoPUMEt") 
+    edm::LogWarning("ShiftedPFCandidateProducerForPFNoPUMEt")
       << "Reading JEC parameters = " << jetCorrUncertaintyTag_
       << " from DB/SQLlite file." << std::endl;
     jetCorrPayloadName_ = cfg.getParameter<std::string>("jetCorrPayloadName");
