@@ -16,7 +16,7 @@ class TrackCountingComputer : public JetTagComputer
   TrackCountingComputer(const edm::ParameterSet  & parameters )
   {
     m_minIP            = parameters.existsAs<double>("minimumImpactParameter") ? parameters.getParameter<double>("minimumImpactParameter") : -1;
-    m_useSignedIPSig   = parameters.existsAs<double>("useSignedImpactParameterSig") ? parameters.getParameter<double>("useSignedImpactParameterSig") : true;
+    m_useSignedIPSig   = parameters.existsAs<bool>("useSignedImpactParameterSig") ? parameters.getParameter<bool>("useSignedImpactParameterSig") : true;
     m_nthTrack         = parameters.getParameter<int>("nthTrack");
     m_ipType           = parameters.getParameter<int>("impactParameterType");
     m_deltaR           = parameters.getParameter<double>("deltaR");
