@@ -55,7 +55,6 @@ TrackParameterAnalyzer::TrackParameterAnalyzer(const edm::ParameterSet& iConfig)
 
 TrackParameterAnalyzer::~TrackParameterAnalyzer()
 {
- 
    // do anything here that needs to be done at destruction time
    // (e.g. close files, deallocate resources etc.)
   delete rootFile_;
@@ -130,9 +129,6 @@ TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 {
    using CLHEP::HepLorentzVector;
 
-   //edm::ESHandle<TransientTrackBuilder> theB;
-   //iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
-   //double fBfield=((*theB).field()->inTesla(GlobalPoint(0.,0.,0.))).z();
    const double fBfield=3.8;
   
    edm::Handle<edm::SimVertexContainer> simVtcs;
@@ -175,7 +171,7 @@ TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	 // such entries cause crashes, no idea what they are
 	 std::cout << "funny particle skipped  , code="  << pdgCode << std::endl;
        }else{
-	 double Q=0; //double Q=HepPDT::theTable().getParticleData(pdgCode)->charge();
+	 double Q=0;
 	 if ((pdgCode==11)||(pdgCode==13)||(pdgCode==15)||(pdgCode==-211)||(pdgCode==-2212)||(pdgCode==321)){Q=-1;}
 	 else if((pdgCode==-11)||(pdgCode==-13)||(pdgCode==-15)||(pdgCode==211)||(pdgCode==2212)||(pdgCode==321)){Q=1;}
 	 else {
@@ -234,12 +230,10 @@ TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
      reco::TrackBase::CovarianceMatrix c = t->covariance();
      if(verbose_){
        std::cout << "reco pars= " << p << std::endl;
-       //std::cout << "z0=" << p(4) << std::endl;
      }
      for(std::vector<ParameterVector>::const_iterator s=tsim.begin();
 	 s!=tsim.end(); ++s){
        if (match(*s,p)){
-	 //if(verbose_){ std::cout << "match found" << std::endl;}
 	 h1_pull0_->Fill((p(0)-(*s)(0))/sqrt(c(0,0)));
 	 h1_pull1_->Fill((p(1)-(*s)(1))/sqrt(c(1,1)));
 	 h1_pull2_->Fill((p(2)-(*s)(2))/sqrt(c(2,2)));
@@ -263,8 +257,4 @@ TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
      }
    }
 
-
-
-
 }
-
