@@ -20,6 +20,10 @@
 #include <vector>
 #include <math.h>
 
+std::string quoted( const std::string& s ){
+  return "\""+s+"\"";
+}
+
 RunInfoRead::RunInfoRead(const std::string& connectionString,
 			 const std::string& user,
 			 const std::string& pass):
@@ -69,7 +73,7 @@ RunInfoRead::readData(const std::string & table,
     coral::AttributeList conditionData;
     conditionData.extend<int>( "n_run" );
     conditionData[0].data<int>() = r_number;
-    std::string condition1 = m_tableToRead + ".runnumber=:n_run AND " +  m_tableToRead +  ".name='CMS.LVL0:START_TIME_T'";
+    std::string condition1 = m_tableToRead + ".RUNNUMBER=:n_run AND " +  m_tableToRead +  ".NAME='CMS.LVL0:START_TIME_T'";
     queryI->setCondition(condition1, conditionData);
     coral::ICursor& cursorI = queryI->execute();
     if( cursorI.next() ) {
@@ -94,7 +98,7 @@ RunInfoRead::readData(const std::string & table,
     coral::AttributeList conditionData2;
     conditionData2.extend<long long>( "n_id" );
     conditionData2[0].data<long long>() = id_start;
-    std::string condition2 = m_tableToRead_date + ".runsession_parameter_id=:n_id";
+    std::string condition2 = m_tableToRead_date + ".RUNSESSION_PARAMETER_ID=:n_id";
     queryII->setCondition(condition2, conditionData2);
     coral::ICursor& cursorII = queryII->execute();
     coral::TimeStamp start; //now all times are UTC!
@@ -132,7 +136,7 @@ RunInfoRead::readData(const std::string & table,
     //implementing the query here....... 
     queryIII->addToOutputList(m_tableToRead + "." + m_columnToRead_id, m_columnToRead_id);
     //condition 
-    std::string condition3 = m_tableToRead + ".runnumber=:n_run AND " + m_tableToRead + ".name='CMS.LVL0:STOP_TIME_T'";
+    std::string condition3 = m_tableToRead + ".RUNNUMBER=:n_run AND " + m_tableToRead + ".NAME='CMS.LVL0:STOP_TIME_T'";
     queryIII->setCondition(condition3, conditionData);
     coral::ICursor& cursorIII = queryIII->execute();
     long long id_stop = 0;
@@ -155,7 +159,7 @@ RunInfoRead::readData(const std::string & table,
     coral::AttributeList conditionData4;
     conditionData4.extend<long long>( "n_id" );
     conditionData4[0].data<long long>() = id_stop;
-    std::string condition4 = m_tableToRead_date + ".runsession_parameter_id=:n_id";
+    std::string condition4 = m_tableToRead_date + ".RUNSESSION_PARAMETER_ID=:n_id";
     queryIV->setCondition(condition4, conditionData4);
     coral::ICursor& cursorIV = queryIV->execute();
     coral::TimeStamp stop;
@@ -240,7 +244,7 @@ RunInfoRead::readData(const std::string & table,
     std::string m_columnToRead_cur= "CURRENT";
     std::string m_columnToRead_date= "CHANGE_DATE";
     coral::IQuery* queryVI = schema2.tableHandle(m_tableToRead_cur).newQuery();
-    queryVI->addToOutputList(m_tableToRead_cur +  "." + m_columnToRead_cur, m_columnToRead_cur);
+    queryVI->addToOutputList(m_tableToRead_cur +  "." + quoted(m_columnToRead_cur), m_columnToRead_cur);
     queryVI->addToOutputList(m_tableToRead_cur +  "." + m_columnToRead_date, m_columnToRead_date);
     //condition 
     coral::AttributeList conditionData6;
@@ -250,7 +254,7 @@ RunInfoRead::readData(const std::string & table,
       conditionData6.extend<coral::TimeStamp>( "runstop_time" );
       conditionData6["runstart_time"].data<coral::TimeStamp>() = start; //start_time ;
       conditionData6["runstop_time"].data<coral::TimeStamp>() = stop; //stop_time ;
-      std::string conditionVI = " NOT " + m_tableToRead_cur + "." + m_columnToRead_cur + " IS NULL AND " 
+      std::string conditionVI = " NOT " + m_tableToRead_cur + "." + quoted(m_columnToRead_cur) + " IS NULL AND " 
 	+ m_tableToRead_cur +  "." + m_columnToRead_date + ">:runstart_time AND " 
 	+ m_tableToRead_cur +  "." + m_columnToRead_date + "<:runstop_time"  /*" ORDER BY " + m_columnToRead_date + " DESC"*/;
       queryVI->setCondition(conditionVI, conditionData6);
@@ -259,7 +263,7 @@ RunInfoRead::readData(const std::string & table,
       std::cout << "run stop null" << std::endl;
       conditionData6.extend<coral::TimeStamp>( "runstart_time" );
       conditionData6["runstart_time"].data<coral::TimeStamp>() = start; //start_time ;
-      std::string conditionVI = " NOT " + m_tableToRead_cur + "." + m_columnToRead_cur + " IS NULL AND " 
+      std::string conditionVI = " NOT " + m_tableToRead_cur + "." + quoted(m_columnToRead_cur) + " IS NULL AND " 
 	+ m_tableToRead_cur +  "." + m_columnToRead_date + "<:runstart_time" /*" ORDER BY " + m_columnToRead_date + " DESC"*/;
       queryVI->setCondition(conditionVI, conditionData6);
       queryVI->addToOrderList(m_tableToRead_cur +  "." + m_columnToRead_date + " DESC");
@@ -275,10 +279,10 @@ RunInfoRead::readData(const std::string & table,
       coral::AttributeList conditionData6bis;
       conditionData6bis.extend<coral::TimeStamp>( "runstop_time" );
       conditionData6bis["runstop_time"].data<coral::TimeStamp>() = stop; //stop_time ;
-      std::string conditionVIbis = " NOT " + m_tableToRead_cur + "." + m_columnToRead_cur + " IS NULL AND " 
+      std::string conditionVIbis = " NOT " + m_tableToRead_cur + "." + quoted(m_columnToRead_cur) + " IS NULL AND " 
 	+ m_tableToRead_cur +  "." + m_columnToRead_date + " <:runstop_time" /*" ORDER BY " + m_columnToRead_date + " DESC"*/;
       coral::IQuery* queryVIbis = schema2.tableHandle(m_tableToRead_cur).newQuery();
-      queryVIbis->addToOutputList(m_tableToRead_cur + "." +  m_columnToRead_cur, m_columnToRead_cur);
+      queryVIbis->addToOutputList(m_tableToRead_cur + "." +  quoted(m_columnToRead_cur), m_columnToRead_cur);
       queryVIbis->setCondition(conditionVIbis, conditionData6bis);
       queryVIbis->addToOrderList(m_tableToRead_cur +  "." + m_columnToRead_date + " DESC");
       coral::ICursor& cursorVIbis= queryVIbis->execute();
