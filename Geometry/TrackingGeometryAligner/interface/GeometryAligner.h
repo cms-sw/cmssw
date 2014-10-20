@@ -24,6 +24,60 @@
 #include "Geometry/CommonTopologies/interface/SurfaceDeformationFactory.h"
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 
+//FIXME
+#include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
+#include "DataFormats/GeometrySurface/interface/BoundDisk.h"
+#include "DataFormats/GeometrySurface/interface/Bounds.h"
+#include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
+#include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
+#include "TrackingTools/DetLayers/interface/DetLayer.h"
+#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBuilder.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBreaker.h"
+#include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
+#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+#include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
+#include "DataFormats/MuonReco/interface/MuonShower.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+
+#include <iostream>
+#include <fstream>
+#include <string>
+#include "TRandom.h"
+
+
 class Alignments;
 class AlignmentSurfaceDeformations;
 
@@ -74,6 +128,45 @@ void GeometryAligner::applyAlignments( C* geometry,
   const AlignTransform::Rotation globalRotation = globalCoordinates.rotation(); // by value!
   const AlignTransform::Rotation inverseGlobalRotation = globalRotation.inverse();
 
+  //FIXME test setup to read APEs from ASCIII file, if need be
+  std::ifstream apeReadFileTRK("/afs/cern.ch/user/a/asvyatko/public/APEList66_TRK.txt");
+  std::ifstream apeReadFileDT("/afs/cern.ch/user/a/asvyatko/public/squaredAPE/artifScenario_APE0.05_Sigma0.1DT.txt");
+  std::ifstream apeReadFileCSC("/afs/cern.ch/user/a/asvyatko/public/squaredAPE/artifScenario_APE0.05_Sigma0.1CSC.txt");
+
+  //FIXME read in the APEs from ASCII file
+  std::map<int,GlobalErrorExtended> apeDict;
+  while (!apeReadFileTRK.eof()) {
+    int apeId=0; double xx,xy,xz,xphix,xphiy,xphiz,yy,yz,yphix,yphiy,yphiz,zz,zphix,zphiy,zphiz,phixphix,phixphiy,phixphiz,phiyphiy,phiyphiz,phizphiz;
+    apeReadFileTRK>>apeId>>xx>>xy>>xz>>xphix>>xphiy>>xphiz>>yy>>yz>>yphix>>yphiy>>yphiz>>zz>>zphix>>zphiy>>zphiz>>phixphix>>phixphiy>>phixphiz>>phiyphiy>>phiyphiz>>phizphiz>>std::ws;
+    GlobalErrorExtended error_tmp(xx,xy,xz,xphix,xphiy,xphiz,yy,yz,yphix,yphiy,yphiz,zz,zphix,zphiy,zphiz,phixphix,phixphiy,phixphiz,phiyphiy,phiyphiz,phizphiz);
+    apeDict[apeId] = error_tmp;
+  }
+  apeReadFileTRK.close();
+//wheel station sector xx xy xz yy yz zz xphix xphiy xphiz yphix yphiy yphiz zphix zphiy zphiz phixphix phixphiy phixphiz phiyphiy phiyphiz phizphiz
+  while (!apeReadFileDT.eof()) {
+    double xx,xy,xz,xphix,xphiy,xphiz,yy,yz,yphix,yphiy,yphiz,zz,zphix,zphiy,zphiz,phixphix,phixphiy,phixphiz,phiyphiy,phiyphiz,phizphiz;
+    int wheel, station, sector;
+    apeReadFileDT >> wheel >> station  >>sector >> xx >> xy >> xz >> yy >> yz >> zz >> xphix >> xphiy >> xphiz >> yphix >> yphiy >> yphiz  >>zphix >> zphiy  >>zphiz >> phixphix >> phixphiy  >>phixphiz  >>phiyphiy  >>phiyphiz >> phizphiz >> std::ws;
+    DTChamberId did(wheel,station,sector);
+    int apeId = 0;
+    apeId = did.rawId();
+    GlobalErrorExtended error_tmp(xx,xy,xz,xphix,xphiy,xphiz,yy,yz,yphix,yphiy,yphiz,zz,zphix,zphiy,zphiz,phixphix,phixphiy,phixphiz,phiyphiy,phiyphiz,phizphiz);
+    apeDict[apeId] = error_tmp;
+  }
+  apeReadFileDT.close();
+//endcap station ring chamber xx xy xz yy yz zz xphix xphiy xphiz yphix yphiy yphiz zphix zphiy zphiz phixphix phixphiy phixphiz phiyphiy phiyphiz phizphiz
+  while (!apeReadFileCSC.eof()) {
+    double xx,xy,xz,xphix,xphiy,xphiz,yy,yz,yphix,yphiy,yphiz,zz,zphix,zphiy,zphiz,phixphix,phixphiy,phixphiz,phiyphiy,phiyphiz,phizphiz;
+    int endcap, ring, station, chamber;
+    apeReadFileCSC >> endcap >> station  >>ring >> chamber >> xx  >>xy  >>xz  >>yy  >>yz  >>zz  >>xphix >> xphiy  >>xphiz  >>yphix >> yphiy >> yphiz >> zphix >> zphiy  >>zphiz >> phixphix >> phixphiy >> phixphiz >> phiyphiy >> phiyphiz >> phizphiz >> std::ws;
+    CSCDetId csc(endcap, station, ring, chamber);
+    int apeId = 0;
+    apeId = csc.rawId();
+    GlobalErrorExtended error_tmp(xx,xy,xz,xphix,xphiy,xphiz,yy,yz,yphix,yphiy,yphiz,zz,zphix,zphiy,zphiz,phixphix,phixphiy,phixphiz,phiyphiy,phiyphiz,phizphiz);
+    apeDict[apeId] = error_tmp;
+  }
+  apeReadFileCSC.close();
+
   // Parallel loop on alignments, alignment errors and geomdets
   std::vector<AlignTransform>::const_iterator iAlign = alignments->m_align.begin();
   std::vector<AlignTransformError>::const_iterator 
@@ -109,17 +202,19 @@ void GeometryAligner::applyAlignments( C* geometry,
 	  this->setGeomDetPosition( *iGeomDet, position, rotation );
 
 	  // Alignment Position Error only if non-zero to save memory
-	  GlobalError error( asSMatrix<3>((*iAlignError).matrix()) );
+          //GlobalError errorDB( asSMatrix<3>((*iAlignError).matrix()) );
+          int reference = (iGeomDet->geographicalId()).rawId();
+          GlobalErrorExtended error = apeDict[reference];
 
 	  AlignmentPositionError ape( error );
 	  if (this->setAlignmentPositionError( *iGeomDet, ape ))
 	    ++nAPE;
-	  
+
 	}
 
-  edm::LogInfo("Alignment") << "@SUB=GeometryAligner::applyAlignments" 
-			    << "Finished to apply " << theMap.size() << " alignments with "
-			    << nAPE << " non-zero APE.";
+        edm::LogInfo("Alignment") << "@SUB=GeometryAligner::applyAlignments" 
+        			    << "Finished to apply " << theMap.size() << " alignments with "
+        		    << nAPE << " non-zero APE.";
 }
 
 
