@@ -33,7 +33,6 @@ l1t::Stage2MainProcessorFirmwareImp1::Stage2MainProcessorFirmwareImp1(unsigned f
   m_egAlgo = new Stage2Layer2EGammaAlgorithmFirmwareImp1(m_params);
   m_tauClusterAlgo = new Stage2Layer2ClusterAlgorithmFirmwareImp1(m_params, 
 								Stage2Layer2ClusterAlgorithmFirmwareImp1::ClusterInput::EH);
-  dynamic_cast<Stage2Layer2ClusterAlgorithmFirmwareImp1*>(m_tauClusterAlgo)->trimCorners(false); // maybe have to think to a better solution without need to dynamic cast
   m_tauAlgo = new Stage2Layer2TauAlgorithmFirmwareImp1(m_params);
   m_jetAlgo = new Stage2Layer2JetAlgorithmFirmwareImp1(m_params);
   m_sumAlgo = new Stage2Layer2EtSumAlgorithmFirmwareImp1(m_params);
