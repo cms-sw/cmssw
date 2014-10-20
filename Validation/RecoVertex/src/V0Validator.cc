@@ -46,188 +46,192 @@ V0Validator::V0Validator(const edm::ParameterSet& iConfig)
   , vec_recoVertex_Token_( consumes< std::vector<reco::Vertex> >( edm::InputTag( std::string( "offlinePrimaryVertices" ) ) ) )
   , recoVertexCompositeCandidateCollection_k0s_Token_( consumes<reco::VertexCompositeCandidateCollection>( iConfig.getParameter<edm::InputTag>( "kShortCollection" ) ) )
   , recoVertexCompositeCandidateCollection_lambda_Token_( consumes<reco::VertexCompositeCandidateCollection>( iConfig.getParameter<edm::InputTag>( "lambdaCollection" ) ) ) {
-  genLam = genK0s = realLamFoundEff = realK0sFoundEff = lamCandFound = 
-    k0sCandFound = noTPforK0sCand = noTPforLamCand = realK0sFound = realLamFound = 0;
-  theDQMstore = edm::Service<DQMStore>().operator->();
+
+  genLam = genK0s = realLamFoundEff = realK0sFoundEff = lamCandFound = k0sCandFound = noTPforK0sCand = noTPforLamCand = realK0sFound = realLamFound = 0;
+  
+  // this is what is done for EventInfo
+  //std::string folder = parameters_.getUntrackedParameter<std::string>("eventInfoFolder", "EventInfo") ;
+  //subsystemname_ = parameters_.getUntrackedParameter<std::string>("subSystemFolder", "YourSubsystem") ;
+  //eventInfoFolder_ = subsystemname_ + "/" + folder ;
 }
 
 V0Validator::~V0Validator() {
 
 }
 
-void V0Validator::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  theDQMstore->cd();
-  std::string subDirName = dirName + "/EffFakes";
-  theDQMstore->setCurrentFolder(subDirName.c_str());
+void V0Validator::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const &, edm::EventSetup const &) {
+  ibooker.cd();
+  std::string subDirName = V0Validator::dirName + "/EffFakes";
+  ibooker.setCurrentFolder(subDirName.c_str());
 
-  ksEffVsR = theDQMstore->book1D("K0sEffVsR", 
+  ksEffVsR = ibooker.book1D("K0sEffVsR", 
 			  "K^{0}_{S} Efficiency vs #rho", 40, 0., 40.);
-  ksEffVsEta = theDQMstore->book1D("K0sEffVsEta",
+  ksEffVsEta = ibooker.book1D("K0sEffVsEta",
 			    "K^{0}_{S} Efficiency vs #eta", 40, -2.5, 2.5);
-  ksEffVsPt = theDQMstore->book1D("K0sEffVsPt",
+  ksEffVsPt = ibooker.book1D("K0sEffVsPt",
 			   "K^{0}_{S} Efficiency vs p_{T}", 70, 0., 20.);;
 
-  ksTkEffVsR = theDQMstore->book1D("K0sTkEffVsR", 
+  ksTkEffVsR = ibooker.book1D("K0sTkEffVsR", 
 			  "K^{0}_{S} Tracking Efficiency vs #rho", 40, 0., 40.);
-  ksTkEffVsEta = theDQMstore->book1D("K0sTkEffVsEta",
+  ksTkEffVsEta = ibooker.book1D("K0sTkEffVsEta",
 			    "K^{0}_{S} Tracking Efficiency vs #eta", 40, -2.5, 2.5);
-  ksTkEffVsPt = theDQMstore->book1D("K0sTkEffVsPt",
+  ksTkEffVsPt = ibooker.book1D("K0sTkEffVsPt",
 			   "K^{0}_{S} Tracking Efficiency vs p_{T}", 70, 0., 20.);
 
-  ksEffVsR_num = theDQMstore->book1D("K0sEffVsR_num", 
+  ksEffVsR_num = ibooker.book1D("K0sEffVsR_num", 
 			  "K^{0}_{S} Efficiency vs #rho", 40, 0., 40.);
-  ksEffVsEta_num = theDQMstore->book1D("K0sEffVsEta_num",
+  ksEffVsEta_num = ibooker.book1D("K0sEffVsEta_num",
 			    "K^{0}_{S} Efficiency vs #eta", 40, -2.5, 2.5);
-  ksEffVsPt_num = theDQMstore->book1D("K0sEffVsPt_num",
+  ksEffVsPt_num = ibooker.book1D("K0sEffVsPt_num",
 			   "K^{0}_{S} Efficiency vs p_{T}", 70, 0., 20.);;
 
-  ksTkEffVsR_num = theDQMstore->book1D("K0sTkEffVsR_num", 
+  ksTkEffVsR_num = ibooker.book1D("K0sTkEffVsR_num", 
 			  "K^{0}_{S} Tracking Efficiency vs #rho", 40, 0., 40.);
-  ksTkEffVsEta_num = theDQMstore->book1D("K0sTkEffVsEta_num",
+  ksTkEffVsEta_num = ibooker.book1D("K0sTkEffVsEta_num",
 			    "K^{0}_{S} Tracking Efficiency vs #eta", 40, -2.5, 2.5);
-  ksTkEffVsPt_num = theDQMstore->book1D("K0sTkEffVsPt_num",
+  ksTkEffVsPt_num = ibooker.book1D("K0sTkEffVsPt_num",
 			   "K^{0}_{S} Tracking Efficiency vs p_{T}", 70, 0., 20.);;
 
-  ksEffVsR_denom = theDQMstore->book1D("K0sEffVsR_denom", 
+  ksEffVsR_denom = ibooker.book1D("K0sEffVsR_denom", 
 			  "K^{0}_{S} Efficiency vs #rho", 40, 0., 40.);
-  ksEffVsEta_denom = theDQMstore->book1D("K0sEffVsEta_denom",
+  ksEffVsEta_denom = ibooker.book1D("K0sEffVsEta_denom",
 			    "K^{0}_{S} Efficiency vs #eta", 40, -2.5, 2.5);
-  ksEffVsPt_denom = theDQMstore->book1D("K0sEffVsPt_denom",
+  ksEffVsPt_denom = ibooker.book1D("K0sEffVsPt_denom",
 			   "K^{0}_{S} Efficiency vs p_{T}", 70, 0., 20.);;
 
-  lamEffVsR = theDQMstore->book1D("LamEffVsR",
+  lamEffVsR = ibooker.book1D("LamEffVsR",
 			   "#Lambda^{0} Efficiency vs #rho", 40, 0., 40.);
-  lamEffVsEta = theDQMstore->book1D("LamEffVsEta",
+  lamEffVsEta = ibooker.book1D("LamEffVsEta",
 			     "#Lambda^{0} Efficiency vs #eta", 40, -2.5, 2.5);
-  lamEffVsPt = theDQMstore->book1D("LamEffVsPt",
+  lamEffVsPt = ibooker.book1D("LamEffVsPt",
 			    "#Lambda^{0} Efficiency vs p_{T}", 70, 0., 20.);
 
-  lamTkEffVsR = theDQMstore->book1D("LamTkEffVsR",
+  lamTkEffVsR = ibooker.book1D("LamTkEffVsR",
 			   "#Lambda^{0} TrackingEfficiency vs #rho", 40, 0., 40.);
-  lamTkEffVsEta = theDQMstore->book1D("LamTkEffVsEta",
+  lamTkEffVsEta = ibooker.book1D("LamTkEffVsEta",
 			     "#Lambda^{0} Tracking Efficiency vs #eta", 40, -2.5, 2.5);
-  lamTkEffVsPt = theDQMstore->book1D("LamTkEffVsPt",
+  lamTkEffVsPt = ibooker.book1D("LamTkEffVsPt",
 			    "#Lambda^{0} Tracking Efficiency vs p_{T}", 70, 0., 20.);
 
-  lamEffVsR_num = theDQMstore->book1D("LamEffVsR_num",
+  lamEffVsR_num = ibooker.book1D("LamEffVsR_num",
 			   "#Lambda^{0} Efficiency vs #rho", 40, 0., 40.);
-  lamEffVsEta_num = theDQMstore->book1D("LamEffVsEta_num",
+  lamEffVsEta_num = ibooker.book1D("LamEffVsEta_num",
 			     "#Lambda^{0} Efficiency vs #eta", 40, -2.5, 2.5);
-  lamEffVsPt_num = theDQMstore->book1D("LamEffVsPt_num",
+  lamEffVsPt_num = ibooker.book1D("LamEffVsPt_num",
 			    "#Lambda^{0} Efficiency vs p_{T}", 70, 0., 20.);
 
-  lamTkEffVsR_num = theDQMstore->book1D("LamTkEffVsR_num",
+  lamTkEffVsR_num = ibooker.book1D("LamTkEffVsR_num",
 			   "#Lambda^{0} TrackingEfficiency vs #rho", 40, 0., 40.);
-  lamTkEffVsEta_num = theDQMstore->book1D("LamTkEffVsEta_num",
+  lamTkEffVsEta_num = ibooker.book1D("LamTkEffVsEta_num",
 			     "#Lambda^{0} Tracking Efficiency vs #eta", 40, -2.5, 2.5);
-  lamTkEffVsPt_num = theDQMstore->book1D("LamTkEffVsPt_num",
+  lamTkEffVsPt_num = ibooker.book1D("LamTkEffVsPt_num",
 			    "#Lambda^{0} Tracking Efficiency vs p_{T}", 70, 0., 20.);
 
-  lamEffVsR_denom = theDQMstore->book1D("LamEffVsR_denom",
+  lamEffVsR_denom = ibooker.book1D("LamEffVsR_denom",
 			   "#Lambda^{0} Efficiency vs #rho", 40, 0., 40.);
-  lamEffVsEta_denom = theDQMstore->book1D("LamEffVsEta_denom",
+  lamEffVsEta_denom = ibooker.book1D("LamEffVsEta_denom",
 			     "#Lambda^{0} Efficiency vs #eta", 40, -2.5, 2.5);
-  lamEffVsPt_denom = theDQMstore->book1D("LamEffVsPt_denom",
+  lamEffVsPt_denom = ibooker.book1D("LamEffVsPt_denom",
 			    "#Lambda^{0} Efficiency vs p_{T}", 70, 0., 20.);
 
-  ksFakeVsR = theDQMstore->book1D("K0sFakeVsR",
+  ksFakeVsR = ibooker.book1D("K0sFakeVsR",
 			   "K^{0}_{S} Fake Rate vs #rho", 40, 0., 40.);
-  ksFakeVsEta = theDQMstore->book1D("K0sFakeVsEta",
+  ksFakeVsEta = ibooker.book1D("K0sFakeVsEta",
 			     "K^{0}_{S} Fake Rate vs #eta", 40, -2.5, 2.5);
-  ksFakeVsPt = theDQMstore->book1D("K0sFakeVsPt",
+  ksFakeVsPt = ibooker.book1D("K0sFakeVsPt",
 			    "K^{0}_{S} Fake Rate vs p_{T}", 70, 0., 20.);
-  ksTkFakeVsR = theDQMstore->book1D("K0sTkFakeVsR",
+  ksTkFakeVsR = ibooker.book1D("K0sTkFakeVsR",
 			   "K^{0}_{S} Tracking Fake Rate vs #rho", 40, 0., 40.);
-  ksTkFakeVsEta = theDQMstore->book1D("K0sTkFakeVsEta",
+  ksTkFakeVsEta = ibooker.book1D("K0sTkFakeVsEta",
 			     "K^{0}_{S} Tracking Fake Rate vs #eta", 40, -2.5, 2.5);
-  ksTkFakeVsPt = theDQMstore->book1D("K0sTkFakeVsPt",
+  ksTkFakeVsPt = ibooker.book1D("K0sTkFakeVsPt",
 			    "K^{0}_{S} Tracking Fake Rate vs p_{T}", 70, 0., 20.);
 
-  ksFakeVsR_num = theDQMstore->book1D("K0sFakeVsR_num",
+  ksFakeVsR_num = ibooker.book1D("K0sFakeVsR_num",
 			   "K^{0}_{S} Fake Rate vs #rho", 40, 0., 40.);
-  ksFakeVsEta_num = theDQMstore->book1D("K0sFakeVsEta_num",
+  ksFakeVsEta_num = ibooker.book1D("K0sFakeVsEta_num",
 			     "K^{0}_{S} Fake Rate vs #eta", 40, -2.5, 2.5);
-  ksFakeVsPt_num = theDQMstore->book1D("K0sFakeVsPt_num",
+  ksFakeVsPt_num = ibooker.book1D("K0sFakeVsPt_num",
 			    "K^{0}_{S} Fake Rate vs p_{T}", 70, 0., 20.);
-  ksTkFakeVsR_num = theDQMstore->book1D("K0sTkFakeVsR_num",
+  ksTkFakeVsR_num = ibooker.book1D("K0sTkFakeVsR_num",
 			   "K^{0}_{S} Tracking Fake Rate vs #rho", 40, 0., 40.);
-  ksTkFakeVsEta_num = theDQMstore->book1D("K0sTkFakeVsEta_num",
+  ksTkFakeVsEta_num = ibooker.book1D("K0sTkFakeVsEta_num",
 			     "K^{0}_{S} Tracking Fake Rate vs #eta", 40, -2.5, 2.5);
-  ksTkFakeVsPt_num = theDQMstore->book1D("K0sTkFakeVsPt_num",
+  ksTkFakeVsPt_num = ibooker.book1D("K0sTkFakeVsPt_num",
 			    "K^{0}_{S} Tracking Fake Rate vs p_{T}", 70, 0., 20.);
 
-  ksFakeVsR_denom = theDQMstore->book1D("K0sFakeVsR_denom",
+  ksFakeVsR_denom = ibooker.book1D("K0sFakeVsR_denom",
 			   "K^{0}_{S} Fake Rate vs #rho", 40, 0., 40.);
-  ksFakeVsEta_denom = theDQMstore->book1D("K0sFakeVsEta_denom",
+  ksFakeVsEta_denom = ibooker.book1D("K0sFakeVsEta_denom",
 			     "K^{0}_{S} Fake Rate vs #eta", 40, -2.5, 2.5);
-  ksFakeVsPt_denom = theDQMstore->book1D("K0sFakeVsPt_denom",
+  ksFakeVsPt_denom = ibooker.book1D("K0sFakeVsPt_denom",
 			    "K^{0}_{S} Fake Rate vs p_{T}", 70, 0., 20.);
 
-  lamFakeVsR = theDQMstore->book1D("LamFakeVsR",
+  lamFakeVsR = ibooker.book1D("LamFakeVsR",
 			    "#Lambda^{0} Fake Rate vs #rho", 40, 0., 40.);
-  lamFakeVsEta = theDQMstore->book1D("LamFakeVsEta",
+  lamFakeVsEta = ibooker.book1D("LamFakeVsEta",
 			      "#Lambda^{0} Fake Rate vs #eta", 40, -2.5, 2.5);
-  lamFakeVsPt = theDQMstore->book1D("LamFakeVsPt",
+  lamFakeVsPt = ibooker.book1D("LamFakeVsPt",
 			     "#Lambda^{0} Fake Rate vs p_{T}", 70, 0., 20.);
-  lamTkFakeVsR = theDQMstore->book1D("LamTkFakeVsR",
+  lamTkFakeVsR = ibooker.book1D("LamTkFakeVsR",
 			    "#Lambda^{0} Tracking Fake Rate vs #rho", 40, 0., 40.);
-  lamTkFakeVsEta = theDQMstore->book1D("LamTkFakeVsEta",
+  lamTkFakeVsEta = ibooker.book1D("LamTkFakeVsEta",
 			      "#Lambda^{0} Tracking Fake Rate vs #eta", 40, -2.5, 2.5);
-  lamTkFakeVsPt = theDQMstore->book1D("LamTkFakeVsPt",
+  lamTkFakeVsPt = ibooker.book1D("LamTkFakeVsPt",
 			     "#Lambda^{0} Tracking Fake Rate vs p_{T}", 70, 0., 20.);
 
-  lamFakeVsR_num = theDQMstore->book1D("LamFakeVsR_num",
+  lamFakeVsR_num = ibooker.book1D("LamFakeVsR_num",
 			    "#Lambda^{0} Fake Rate vs #rho", 40, 0., 40.);
-  lamFakeVsEta_num = theDQMstore->book1D("LamFakeVsEta_num",
+  lamFakeVsEta_num = ibooker.book1D("LamFakeVsEta_num",
 			      "#Lambda^{0} Fake Rate vs #eta", 40, -2.5, 2.5);
-  lamFakeVsPt_num = theDQMstore->book1D("LamFakeVsPt_num",
+  lamFakeVsPt_num = ibooker.book1D("LamFakeVsPt_num",
 			     "#Lambda^{0} Fake Rate vs p_{T}", 70, 0., 20.);
-  lamTkFakeVsR_num = theDQMstore->book1D("LamTkFakeVsR_num",
+  lamTkFakeVsR_num = ibooker.book1D("LamTkFakeVsR_num",
 			    "#Lambda^{0} Tracking Fake Rate vs #rho", 40, 0., 40.);
-  lamTkFakeVsEta_num = theDQMstore->book1D("LamTkFakeVsEta_num",
+  lamTkFakeVsEta_num = ibooker.book1D("LamTkFakeVsEta_num",
 			      "#Lambda^{0} Tracking Fake Rate vs #eta", 40, -2.5, 2.5);
-  lamTkFakeVsPt_num = theDQMstore->book1D("LamTkFakeVsPt_num",
+  lamTkFakeVsPt_num = ibooker.book1D("LamTkFakeVsPt_num",
 			     "#Lambda^{0} Tracking Fake Rate vs p_{T}", 70, 0., 20.);
 
-  lamFakeVsR_denom = theDQMstore->book1D("LamFakeVsR_denom",
+  lamFakeVsR_denom = ibooker.book1D("LamFakeVsR_denom",
 			    "#Lambda^{0} Fake Rate vs #rho", 40, 0., 40.);
-  lamFakeVsEta_denom = theDQMstore->book1D("LamFakeVsEta_denom",
+  lamFakeVsEta_denom = ibooker.book1D("LamFakeVsEta_denom",
 			      "#Lambda^{0} Fake Rate vs #eta", 40, -2.5, 2.5);
-  lamFakeVsPt_denom = theDQMstore->book1D("LamFakeVsPt_denom",
+  lamFakeVsPt_denom = ibooker.book1D("LamFakeVsPt_denom",
 			     "#Lambda^{0} Fake Rate vs p_{T}", 70, 0., 20.);
 
-  theDQMstore->cd();
+  ibooker.cd();
   subDirName = dirName + "/Other";
-  theDQMstore->setCurrentFolder(subDirName.c_str());
+  ibooker.setCurrentFolder(subDirName.c_str());
 
-  nKs = theDQMstore->book1D("nK0s",
+  nKs = ibooker.book1D("nK0s",
 		     "Number of K^{0}_{S} found per event", 60, 0., 60.);
-  nLam = theDQMstore->book1D("nLam",
+  nLam = ibooker.book1D("nLam",
 		      "Number of #Lambda^{0} found per event", 60, 0., 60.);
 
-  ksXResolution = theDQMstore->book1D("ksXResolution",
+  ksXResolution = ibooker.book1D("ksXResolution",
 			       "Resolution of V0 decay vertex X coordinate", 50, 0., 50.);
-  ksYResolution = theDQMstore->book1D("ksYResolution",
+  ksYResolution = ibooker.book1D("ksYResolution",
 			       "Resolution of V0 decay vertex Y coordinate", 50, 0., 50.);
-  ksZResolution = theDQMstore->book1D("ksZResolution",
+  ksZResolution = ibooker.book1D("ksZResolution",
 			       "Resolution of V0 decay vertex Z coordinate", 50, 0., 50.);
-  lamXResolution = theDQMstore->book1D("lamXResolution",
+  lamXResolution = ibooker.book1D("lamXResolution",
 				"Resolution of V0 decay vertex X coordinate", 50, 0., 50.);
-  lamYResolution = theDQMstore->book1D("lamYResolution",
+  lamYResolution = ibooker.book1D("lamYResolution",
 				"Resolution of V0 decay vertex Y coordinate", 50, 0., 50.);
-  lamZResolution = theDQMstore->book1D("lamZResolution",
+  lamZResolution = ibooker.book1D("lamZResolution",
 				"Resolution of V0 decay vertex Z coordinate", 50, 0., 50.);
-  ksAbsoluteDistResolution = theDQMstore->book1D("ksRResolution",
+  ksAbsoluteDistResolution = ibooker.book1D("ksRResolution",
 					  "Resolution of absolute distance from primary vertex to V0 vertex",
 					  100, 0., 50.);
-  lamAbsoluteDistResolution = theDQMstore->book1D("lamRResolution",
+  lamAbsoluteDistResolution = ibooker.book1D("lamRResolution",
 					   "Resolution of absolute distance from primary vertex to V0 vertex",
 					   100, 0., 50.);
 
-  ksCandStatus = theDQMstore->book1D("ksCandStatus",
+  ksCandStatus = ibooker.book1D("ksCandStatus",
 			  "Fake type by cand status",
 			  10, 0., 10.);
-  lamCandStatus = theDQMstore->book1D("ksCandStatus",
+  lamCandStatus = ibooker.book1D("ksCandStatus",
 			  "Fake type by cand status",
 			  10, 0., 10.);
 
@@ -242,30 +246,30 @@ void V0Validator::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) 
   double lamMassXmin = minLamMass;
   double lamMassXmax = maxLamMass;
 
-  fakeKsMass = theDQMstore->book1D("ksMassFake",
+  fakeKsMass = ibooker.book1D("ksMassFake",
 			     "Mass of fake K0S",
 			     ksMassNbins, minKsMass, maxKsMass);
-  goodKsMass = theDQMstore->book1D("ksMassGood",
+  goodKsMass = ibooker.book1D("ksMassGood",
 			     "Mass of good reco K0S",
 			     ksMassNbins, minKsMass, maxKsMass);
-  fakeLamMass = theDQMstore->book1D("lamMassFake",
+  fakeLamMass = ibooker.book1D("lamMassFake",
 			      "Mass of fake Lambda",
 			      lamMassNbins, minLamMass, maxLamMass);
-  goodLamMass = theDQMstore->book1D("lamMassGood",
+  goodLamMass = ibooker.book1D("lamMassGood",
 			      "Mass of good Lambda",
 			      lamMassNbins, minLamMass, maxLamMass);
 
-  ksMassAll = theDQMstore->book1D("ksMassAll",
+  ksMassAll = ibooker.book1D("ksMassAll",
 				  "Invariant mass of all K0S",
 				  ksMassNbins, ksMassXmin, ksMassXmax);
-  lamMassAll = theDQMstore->book1D("lamMassAll",
+  lamMassAll = ibooker.book1D("lamMassAll",
 				   "Invariant mass of all #Lambda^{0}",
 				   lamMassNbins, lamMassXmin, lamMassXmax);
 
-  ksFakeDauRadDist = theDQMstore->book1D("radDistFakeKs",
+  ksFakeDauRadDist = ibooker.book1D("radDistFakeKs",
 				   "Production radius of daughter particle of Ks fake",
 				   100, 0., 15.);
-  lamFakeDauRadDist = theDQMstore->book1D("radDistFakeLam",
+  lamFakeDauRadDist = ibooker.book1D("radDistFakeLam",
 				    "Production radius of daughter particle of Lam fake",
 				    100, 0., 15.);
 }
@@ -891,13 +895,6 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   }
 
   delete thePrimary;
-}
-
-void V0Validator::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  //theDQMstore->showDirStructure();
-  if(theDQMRootFileName.size() && theDQMstore) {
-    theDQMstore->save(theDQMRootFileName);
-  }
 }
 
 //define this as a plug-in
