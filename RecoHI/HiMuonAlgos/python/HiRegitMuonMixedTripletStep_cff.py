@@ -68,20 +68,20 @@ hiRegitMuMixedTripletStepSeeds = RecoTracker.IterativeTracking.MixedTripletStep_
 hiRegitMuMixedTripletStepTrajectoryFilter = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepTrajectoryFilter.clone()
 hiRegitMuMixedTripletStepTrajectoryFilter.minPt = 1.
 hiRegitMuMixedTripletStepTrajectoryFilter.minimumNumberOfHits = 6
-hiRegitMuMixedTripletStepTrajectoryFilter.minHitsMinPt        = 4
+hiRegitMuMixedTripletStepTrajectoryFilter.minHitsMinPt = 4
 
 
  # after each new hit, apply pT cut for traj w/ at least minHitsMinPt = cms.int32(3),
 
 hiRegitMuMixedTripletStepTrajectoryBuilder = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepTrajectoryBuilder.clone(
-    trajectoryFilter     = cms.PSet(refToPSet_ = cms.string('hiRegitMuMixedTripletStepTrajectoryFilter')),
+    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('hiRegitMuMixedTripletStepTrajectoryFilter')),
     clustersToSkip       = cms.InputTag('hiRegitMuMixedTripletStepClusters'),
     minNrOfHitsForRebuild = 6 #change from default 4
 )
 
 hiRegitMuMixedTripletStepTrackCandidates        =  RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepTrackCandidates.clone(
     src               = cms.InputTag('hiRegitMuMixedTripletStepSeeds'),
-    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiRegitMuMixedTripletStepTrajectoryBuilder')),
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiMixedTripletTrajectoryBuilder')),
     maxNSeeds         = cms.uint32(1000000)
     )
 
@@ -112,11 +112,11 @@ hiRegitMuMixedTripletStepSelector =  RecoHI.HiTracking.hiRegitMixedTripletStep_c
     ) #end of clone
 
 hiRegitMuonMixedTripletStep = cms.Sequence(hiRegitMuMixedTripletStepClusters*
-                                         hiRegitMuMixedTripletStepSeedLayersA*
-                                         hiRegitMuMixedTripletStepSeedsA*
-                                         hiRegitMuMixedTripletStepSeedLayersB*
-                                         hiRegitMuMixedTripletStepSeedsB*
-                                         hiRegitMuMixedTripletStepSeeds*
-                                         hiRegitMuMixedTripletStepTrackCandidates*
-                                         hiRegitMuMixedTripletStepTracks*
-                                         hiRegitMuMixedTripletStepSelector)
+                                           hiRegitMixedTripletStepSeedLayersA*
+                                           hiRegitMuMixedTripletStepSeedsA*
+                                           hiRegitMixedTripletStepSeedLayersB*
+                                           hiRegitMuMixedTripletStepSeedsB*
+                                           hiRegitMuMixedTripletStepSeeds*
+                                           hiRegitMuMixedTripletStepTrackCandidates*
+                                           hiRegitMuMixedTripletStepTracks*
+                                           hiRegitMuMixedTripletStepSelector)
