@@ -5,4 +5,4 @@ from PhysicsTools.Heppy.analyzers.objects.PhotonAnalyzer import *
 from PhysicsTools.Heppy.analyzers.objects.TauAnalyzer import *
 from PhysicsTools.Heppy.analyzers.objects.VertexAnalyzer import *
 
-from PhysicsTools.Heppy.analyzers.objects.autofilltypes import *
+from PhysicsTools.Heppy.analyzers.objects.autophobj import *
