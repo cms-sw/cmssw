@@ -46,7 +46,6 @@ private:
   TClass* class_;
   TEnum* enum_;
   TDataType* dataType_;
-  std::string enumName_; 
   long property_;
 public:
   static TypeWithDict byName(std::string const& name, long property = 0L);
@@ -123,7 +122,7 @@ public:
 bool hasDictionary(std::type_info const&);
 
 inline bool operator<(TypeWithDict const& a, TypeWithDict const& b) {
-  return a.typeInfo().before(b.typeInfo());
+  return a.name() < b.name();
 }
 
 bool operator==(TypeWithDict const& a, TypeWithDict const& b);
