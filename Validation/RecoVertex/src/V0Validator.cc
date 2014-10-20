@@ -49,10 +49,6 @@ V0Validator::V0Validator(const edm::ParameterSet& iConfig)
 
   genLam = genK0s = realLamFoundEff = realK0sFoundEff = lamCandFound = k0sCandFound = noTPforK0sCand = noTPforLamCand = realK0sFound = realLamFound = 0;
   
-  // this is what is done for EventInfo
-  //std::string folder = parameters_.getUntrackedParameter<std::string>("eventInfoFolder", "EventInfo") ;
-  //subsystemname_ = parameters_.getUntrackedParameter<std::string>("subSystemFolder", "YourSubsystem") ;
-  //eventInfoFolder_ = subsystemname_ + "/" + folder ;
 }
 
 V0Validator::~V0Validator() {
