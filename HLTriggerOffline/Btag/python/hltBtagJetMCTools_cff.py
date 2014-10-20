@@ -1,4 +1,4 @@
-#define hltJetMCTools for jet/parton matching
+#define hltBtagJetMCTools for jet/parton matching
 
 import FWCore.ParameterSet.Config as cms
 
@@ -8,13 +8,13 @@ hltBtagPartons = cms.EDProducer("PartonSelector",
 )
 
 hltBtagJetsbyRef = cms.EDProducer("JetPartonMatcher",
-    jets = cms.InputTag("hltCaloJetL1FastJetCorrected","","HLT"),
+    jets = cms.InputTag("hltBtagCaloJetL1FastJetCorrected","","HLT"),
     coneSizeToAssociate = cms.double(0.3),
-    partons = cms.InputTag("hltPartons")
+    partons = cms.InputTag("hltBtagPartons")
 )
 
 hltBtagJetsbyValAlgo = cms.EDProducer("JetFlavourIdentifier",
-    srcByReference = cms.InputTag("hltJetsbyRef"),
+    srcByReference = cms.InputTag("hltBtagJetsbyRef"),
     physicsDefinition = cms.bool(False)
 )
 
