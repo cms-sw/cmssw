@@ -189,7 +189,6 @@ namespace edm {
 
     enum_ = TEnum::GetEnum(ti, TEnum::kAutoload);
     if(enum_ != nullptr) {
-      enumName_ = TypeID(ti).className();
       property_ |= (long)kIsEnum;
       return;
     }
@@ -215,7 +214,6 @@ namespace edm {
     class_(nullptr),
     enum_(enm),
     dataType_(nullptr),
-    enumName_(name),
     property_((long) kIsEnum | property) {
   }
 
@@ -414,7 +412,7 @@ namespace edm {
   std::string
   TypeWithDict::name() const {
     if(enum_ != nullptr) {
-      return enumName_;
+      return std::string(enum_->GetClass()->GetName()) + "::" + enum_->GetName();
     }
     return TypeID(*ti_).className();
   }
@@ -431,7 +429,7 @@ namespace edm {
   TypeWithDict::userClassName() const {
     //FIXME: What about const and reference?
     if(enum_ != nullptr) {
-      return enumName_;
+      return name();
     }
     return TypeID(*ti_).userClassName();
   }
@@ -775,7 +773,7 @@ namespace edm {
 
   bool
   operator==(TypeWithDict const& a, TypeWithDict const& b) {
-    return a.typeInfo() == b.typeInfo();
+    return a.name() == b.name();
   }
 
   std::ostream&
