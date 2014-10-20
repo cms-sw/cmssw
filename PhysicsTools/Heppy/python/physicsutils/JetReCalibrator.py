@@ -1,7 +1,7 @@
 import ROOT
 import os
 from math import *
-from CMGTools.RootTools.utils.DeltaR import *
+from PhysicsTools.HeppyCore.utils.deltar import *
 
 class JetReCalibrator:
     def __init__(self,globalTag,jetFlavour,doResidualJECs,upToLevel=3):
