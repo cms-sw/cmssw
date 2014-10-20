@@ -165,7 +165,13 @@ void SiPixelClusterSource::analyze(const edm::Event& iEvent, const edm::EventSet
   std::map<uint32_t,SiPixelClusterModule*>::iterator struct_iter;
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
     
-    int numberOfFpixClusters = (*struct_iter).second->fill(*input, tracker, meClPosLayer, meClPosDiskpz, meClPosDiskmz, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn, twoDimOn, reducedSet, smileyOn, isUpgrade);
+    int numberOfFpixClusters = (*struct_iter).second->fill(*input, tracker,  
+							   meClPosLayer,
+							   meClPosDiskpz,
+							   meClPosDiskmz,
+							   modOn, ladOn, layOn, phiOn, 
+                                                           bladeOn, diskOn, ringOn, 
+							   twoDimOn, reducedSet, smileyOn, isUpgrade);
     nEventFpixClusters = nEventFpixClusters + numberOfFpixClusters;    
     
   }
