@@ -18,7 +18,7 @@ from event import Event
 class Looper(object):
     """Creates a set of analyzers, and schedules the event processing."""
 
-    def __init__( self, name, cfg_comp, sequence, nEvents=None,
+    def __init__( self, name, cfg_comp, sequence, events_class, nEvents=None,
                   firstEvent=0, nPrint=0):
         """Handles the processing of an event sample.
         An Analyzer is built for each Config.Analyzer present
@@ -53,16 +53,7 @@ class Looper(object):
         if len(self.cfg_comp.files)==0:
             errmsg = 'please provide at least an input file in the files attribute of this component\n' + str(self.cfg_comp)
             raise ValueError( errmsg )
-        theplatform = platform(self.cfg_comp.files[0])
-        if theplatform is 'FCC':
-            from eventsalbers import Events
-        elif theplatform is 'CMSSW':
-            from eventsfwlite import Events
-        elif theplatform is 'BARE': 
-            from chain import Chain as Events
-        else:
-            raise ValueError('Unrecognized platform')
-        self.events = Events(self.cfg_comp.files, tree_name)
+        self.events = events_class(self.cfg_comp.files, tree_name)
         # self.event is set in self.process
         self.event = None
 
@@ -80,49 +71,15 @@ class Looper(object):
         return tmpname
 
     def _buildAnalyzer(self, cfg_ana):
-      obj = None
-      className = cfg_ana.name.split('_')[0]
-      if "type" in cfg_ana :
-   	theClass = cfg_ana["type"]
-        return theClass( cfg_ana, self.cfg_comp, self.outDir )
-      else:
-        theClass = None
-        try:
-            # obviously, can't load a module twice
-            # so keep track of the needed classes,
-            # instead several instances are built
-            theClass = self.classes[className]
-            print 'found class', theClass
-            obj = theClass( cfg_ana, self.cfg_comp, self.outDir )
-        except KeyError:
-            file = None
-            try:
-                file, path, desc = imp.find_module( className )
-                mod  = imp.load_module( className ,
-                                        file, path, desc )
-                # getting the analyzer class object
-                theClass = mod.__dict__[ className ]
-                self.classes[className] = theClass
-                # creating an analyzer
-                #if hasattr( cfg_ana, 'instanceName'):
-                #    cfg_ana.name = cfg_ana.instanceName
-                print 'loading class', theClass
-                print '  from', file
-                obj = theClass( cfg_ana, self.cfg_comp, self.outDir )
-            finally:
-                try:
-                    file.close()
-                except AttributeError:
-                    print 'problem loading module', cfg_ana.name
-                    print 'please make sure that the module name is correct.'
-                    print 'if it is, is this module in your path, as defined below?'
-                    pprint.pprint( sorted( sys.path ))
+        theClass = cfg_ana.class_object
+        obj = theClass( cfg_ana, self.cfg_comp, self.outDir )
         return obj
 
     def loop(self):
         """Loop on a given number of events.
 
-        At the beginning of the loop, Analyzer.beginLoop is called for each Analyzer.
+        At the beginning of the loop, 
+        Analyzer.beginLoop is called for each Analyzer.
         At each event, self.process is called.
         At the end of the loop, Analyzer.endLoop is called.
         """
@@ -134,13 +91,13 @@ class Looper(object):
         else:
             nEvents = int(nEvents)
         eventSize = nEvents
-        self.logger.warning('starting loop at event {firstEvent} '\
-                            'to process {eventSize} events.'.format(firstEvent=firstEvent,
-                                                                    eventSize=eventSize))
+        self.logger.warning(
+            'starting loop at event {firstEvent} '\
+                'to process {eventSize} events.'.format(firstEvent=firstEvent,
+                                                        eventSize=eventSize))
         self.logger.warning( str( self.cfg_comp ) )
         for analyzer in self.analyzers:
             analyzer.beginLoop()
-
         try:
             for iEv in range(firstEvent, firstEvent+eventSize):
                 # if iEv == nEvents:
@@ -196,7 +153,10 @@ if __name__ == '__main__':
     pckfile = open( cfgFileName, 'r' )
     config = pickle.load( pckfile )
     comp = config.components[0]
+    events_class = config.events_class
     looper = Looper( 'Loop', comp,
-                     config.sequence, nPrint = 5)
+                     config.sequence, 
+                     events_class, 
+                     nPrint = 5)
     looper.loop()
     looper.write()

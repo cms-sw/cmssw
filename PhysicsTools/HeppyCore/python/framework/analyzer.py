@@ -24,6 +24,8 @@ class Analyzer(object):
         Attributes:
         dirName : analyzer directory, where you can write anything you want
         """
+        self.class_object = cfg_ana.class_object
+        self.instance_label = cfg_ana.instance_label
         self.name = cfg_ana.name
         self.verbose = cfg_ana.verbose
         self.cfg_ana = cfg_ana
