@@ -2,6 +2,8 @@
 # https://github.com/cbernet/heppy/blob/master/LICENSE
 
 import glob
+import os
+import pprint
 from ROOT import TChain, TFile, TTree, gSystem
 
 class Chain( object ):
@@ -30,10 +32,15 @@ class Chain( object ):
                       this TTree is used.
         """
         self.files = input
-        if isinstance(input, basestring):
+        if isinstance(input, basestring): # input is a pattern
             self.files = glob.glob(input)
-        if len(self.files)==0:
-            raise ValueError('no matching file name: '+input)
+            if len(self.files)==0:
+                raise ValueError('no matching file name: '+input)
+        else: # case of a list of files
+            if False in [ os.path.isfile(fnam) for fnam in self.files ]:
+                err = 'at least one input file does not exist\n'
+                err += pprint.pformat(self.files)
+                raise ValueError(err)
         if tree_name is None:
             tree_name = self._guessTreeName(input)
         self.chain = TChain(tree_name)
