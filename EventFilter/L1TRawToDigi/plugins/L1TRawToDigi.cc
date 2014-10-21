@@ -81,7 +81,7 @@ namespace l1t {
    {
       fedData_ = consumes<FEDRawDataCollection>(config.getParameter<edm::InputTag>("InputLabel"));
 
-      prov_ = PackingSetupFactory::get()->make("l1t::CaloSetup");
+      prov_ = PackingSetupFactory::get()->make(config.getParameter<std::string>("Setup"));
       prov_->registerProducts(*this);
 
       slinkHeaderSize_ = config.getUntrackedParameter<int>("lenSlinkHeader", 16);

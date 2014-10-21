@@ -88,7 +88,7 @@ namespace l1t {
 
       auto cc = edm::ConsumesCollector(consumesCollector());
 
-      setup_ = PackingSetupFactory::get()->make("l1t::CaloSetup");
+      setup_ = PackingSetupFactory::get()->make(config.getParameter<std::string>("Setup"));
       tokens_ = setup_->registerConsumes(config, cc);
 
       slinkHeaderSize_ = config.getUntrackedParameter<int>("lenSlinkHeader", 16);

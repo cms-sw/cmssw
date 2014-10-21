@@ -11,7 +11,7 @@ namespace l1t {
    std::auto_ptr<PackingSetup>
    PackingSetupFactory::make(const std::string& type) const
    {
-      auto helper = std::auto_ptr<PackingSetup>(PackingSetupFactoryT::get()->create(type));
+      auto helper = std::auto_ptr<PackingSetup>(PackingSetupFactoryT::get()->create("l1t::" + type));
 
       if (helper.get() == 0)
          throw edm::Exception(edm::errors::Configuration, "NoSourceModule") << "cannot find packing setup " << type;
