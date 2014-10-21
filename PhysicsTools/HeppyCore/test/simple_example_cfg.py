@@ -9,7 +9,7 @@ from PhysicsTools.HeppyCore.analyzers.SimpleTreeProducer import SimpleTreeProduc
 # and added to the list of selected components
 inputSample = cfg.Component(
     'test_component',
-    files = ['test_tree.root'],
+    files = [os.path.abspath('test_tree.root')],
     # tree_name = 'test_tree'
     )
 

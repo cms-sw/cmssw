@@ -7,15 +7,16 @@ import PhysicsTools.HeppyCore.framework.config as cfg
 # and added to the list of selected components
 inputSample = cfg.MCComponent(
     'test_component',
-    files = ['tt.root'],
+    files = ['tt.root', 'tt_2.root'],
     # tree_name = 'test_tree
     triggers = [], 
     xSection = 259, 
     nGenEvents = 1, 
-    effCorrFactor = 1
+    effCorrFactor = 1,
     )
 
 selectedComponents  = [inputSample]
+inputSample.splitFactor = 2 
 
 from PhysicsTools.Heppy.analyzers.core.JSONAnalyzer import JSONAnalyzer
 json = cfg.Analyzer(
