@@ -29,18 +29,22 @@ public:
                         std::string sysType="central");
   ~BTagCalibrationReader() {}
 
-  double eval(float eta, float pt, int reshapingBin=-1) const;
+  double eval(float eta, float pt, float discr=0.) const;
 
 protected:
   struct TmpEntry {
     float etaMin;
     float etaMax;
+    float ptMin;
+    float ptMax;
+    float discrMin;
+    float discrMax;
     TF1 func;
   };
   void setupTmpData(BTagCalibration& c);
 
   BTagEntry::Parameters params;
-  std::map<int, std::vector<TmpEntry> > tmpData_;  // by reshapingBin, by eta
+  std::vector<TmpEntry> tmpData_;
 
   COND_SERIALIZABLE;
 };

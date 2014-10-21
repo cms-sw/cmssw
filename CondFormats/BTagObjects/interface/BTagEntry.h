@@ -45,13 +45,18 @@ public:
     // these do _not_ go into the identifier token
     float etaMin;
     float etaMax;
-    int reshapingBin;
+    float ptMin;
+    float ptMax;
+    float discrMin;
+    float discrMax;
 
     // default constructor
     Parameters(
       OperatingPoint op=OP_TIGHT, JetFlavor jf=FLAV_B,
       std::string measurement_type="comb", std::string sys_type="central",
-      float etaMin=-99999., float etaMax=99999., int reshaping_bin=-1
+      float eta_min=-99999., float eta_max=99999.,
+      float pt_min=0., float pt_max=99999.,
+      float discr_min=0., float discr_max=99999.
     );
 
     // identifier token function
@@ -61,16 +66,12 @@ public:
   };
 
   BTagEntry() {}
-  BTagEntry(const std::string &func,
-            Parameters p,
-            float pt_min=0.,
-            float pt_max=99999.);
+  BTagEntry(const std::string &func, Parameters p);
   BTagEntry(const TF1* func, Parameters p);
   BTagEntry(const TH1* histo, Parameters p);
   ~BTagEntry() {}
 
   // public, no getters needed
-  float ptMin, ptMax;
   std::string formula;
   Parameters params;
 

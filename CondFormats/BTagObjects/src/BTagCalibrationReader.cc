@@ -19,20 +19,25 @@ BTagCalibrationReader::BTagCalibrationReader(BTagCalibration& c,
 
 double BTagCalibrationReader::eval(float eta,
                                    float pt,
-                                   int reshapingBin) const
+                                   float discr) const
 {
-  // do not let the user confuse reshapingBin, in case an OP is chosen
-  if (params.operatingPoint != BTagEntry::OP_RESHAPING) {
-    reshapingBin = -1;
-  }
+  bool use_discr = (params.operatingPoint == BTagEntry::OP_RESHAPING);
 
-  // search through eta ranges and eval
-  const std::vector<BTagCalibrationReader::TmpEntry> &entries =
-    tmpData_.at(reshapingBin);
-  for (unsigned i=0; i<entries.size(); ++i) {
-    const BTagCalibrationReader::TmpEntry &e = entries.at(i);
-    if (e.etaMin <= eta && eta < e.etaMax){
-      return e.func.Eval(pt);
+  // search linearly through eta, pt and discr ranges and eval
+  // future: find some clever data structure based on intervals
+  for (unsigned i=0; i<tmpData_.size(); ++i) {
+    const BTagCalibrationReader::TmpEntry &e = tmpData_.at(i);
+    if (
+      e.etaMin <= eta && eta < e.etaMax                   // find eta
+      && e.ptMin <= pt && pt < e.ptMax                    // check pt
+    ){
+      if (use_discr) {                                    // discr. reshaping?
+        if (e.discrMin <= discr && discr < e.discrMax) {  // check discr
+          return e.func.Eval(discr);
+        }
+      } else {
+        return e.func.Eval(pt);
+      }
     }
   }
 
@@ -47,7 +52,19 @@ void BTagCalibrationReader::setupTmpData(BTagCalibration& c)
     BTagCalibrationReader::TmpEntry te;
     te.etaMin = be.params.etaMin;
     te.etaMax = be.params.etaMax;
-    te.func = TF1("", be.formula.c_str(), be.ptMin, be.ptMax);
-    tmpData_[be.params.reshapingBin].push_back(te);
+    te.ptMin = be.params.ptMin;
+    te.ptMax = be.params.ptMax;
+    te.discrMin = be.params.discrMin;
+    te.discrMax = be.params.discrMax;
+
+    if (params.operatingPoint == BTagEntry::OP_RESHAPING) {
+      te.func = TF1("", be.formula.c_str(),
+                    be.params.discrMin, be.params.discrMax);
+    } else {
+      te.func = TF1("", be.formula.c_str(),
+                    be.params.ptMin, be.params.ptMax);
+    }
+
+    tmpData_.push_back(te);
   }
 }
