@@ -100,16 +100,6 @@ namespace l1t {
    {
    }
 
-   inline unsigned char *
-   push(unsigned char * ptr, uint32_t word)
-   {
-      ptr[0] = word & 0xFF;
-      ptr[1] = (word >> 8) & 0xFF;
-      ptr[2] = (word >> 16) & 0xFF;
-      ptr[3] = (word >> 24) & 0xFF;
-      return ptr + 4;
-   }
-
    // ------------ method called to produce the data  ------------
    void
    L1TDigiToRaw::produce(edm::Event& event, const edm::EventSetup& setup)
