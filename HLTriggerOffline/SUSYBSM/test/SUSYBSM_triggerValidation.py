@@ -47,7 +47,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
 #"file:/build/nuno/test31/CMSSW_3_1_0_pre5/src/TTbar_Tauola_cfi_py_GEN_FASTSIM_VALIDATION.root"
-'/store/relval/CMSSW_3_1_0_pre5/RelValQCD_Pt_80_120/GEN-SIM-RECO/IDEAL_31X_v1/0000/E63C1A00-0C2C-DE11-BFC1-000423D98800.root'
+        '/afs/cern.ch/work/a/aelwood/alphat/trigger/T2cc_GEN-SIM-RAW.root',
         )
 )
 
@@ -74,7 +74,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.p = cms.Path(process.genCandidatesForMET*process.genParticlesForMETAllVisible*process.genMetTrue*process.HLTSusyExoVal)
 process.pEnd = cms.Path(process.dqmSaver)
 process.DQMStore.verbose = 0
-process.DQM.collectorHost = ''
+#process.DQM.collectorHost = ''
 process.dqmSaver.convention = 'Online'
 process.dqmSaver.saveByRun = 1
 process.dqmSaver.saveAtJobEnd = True

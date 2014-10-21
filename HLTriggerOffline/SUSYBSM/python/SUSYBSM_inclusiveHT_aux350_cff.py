@@ -1,33 +1,34 @@
 import FWCore.ParameterSet.Config as cms
 
-SUSY_HLT_InclusiveMET = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
+SUSY_HLT_InclusiveHT_aux350 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
   caloJetCollection = cms.InputTag("ak4CaloJets"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
-  TriggerPath = cms.string('HLT_PFMET170_NoiseCleaned_v1'),
+  TriggerPath = cms.string('HLT_PFHT350_v1'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoMu24_IterTrk02_v1'),
-  TriggerFilter = cms.InputTag('hltPFMET170Filter', '', 'HLT'), #the last filter in the path
+  TriggerFilter = cms.InputTag('hltPFHT350', '', 'HLT'), #the last filter in the path
   PtThrJet = cms.untracked.double(40.0),
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSY_HLT_InclusiveMET_FASTSIM = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
+
+SUSY_HLT_InclusiveHT_aux350_FASTSIM = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
   caloJetCollection = cms.InputTag("ak4CaloJets"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
-  TriggerPath = cms.string('HLT_PFMET170_NoiseCleaned_v1'),
+  TriggerPath = cms.string('HLT_PFHT350_v1'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoMu24_IterTrk02_v1'),
-  TriggerFilter = cms.InputTag('hltPFMET170Filter', '', 'HLT'), #the last filter in the path
+  TriggerFilter = cms.InputTag('hltPFHT350', '', 'HLT'), #the last filter in the path
   PtThrJet = cms.untracked.double(40.0),
   EtaThrJet = cms.untracked.double(3.0)
 )
 
-SUSY_HLT_InclusiveMET_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
-  subDirs = cms.untracked.vstring("HLTriggerOffline/SUSYBSM/HLT_PFMET170_NoiseCleaned_v1"),
+SUSY_HLT_InclusiveHT_aux350_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+  subDirs = cms.untracked.vstring("HLTriggerOffline/SUSYBSM/HLT_PFHT350_v1"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
     "pfHTTurnOn_eff 'Efficiency vs PFHT' pfHTTurnOn_num pfHTTurnOn_den"
@@ -35,13 +36,14 @@ SUSY_HLT_InclusiveMET_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
   resolution = cms.vstring("")
 )
 
-SUSY_HLT_InclusiveMET_FASTSIM_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
-  subDirs = cms.untracked.vstring("HLTriggerOffline/SUSYBSM/HLT_PFMET170_NoiseCleaned_v1"),
+SUSY_HLT_InclusiveHT_aux_350_FASTSIM_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+  subDirs = cms.untracked.vstring("HLTriggerOffline/SUSYBSM/HLT_PFHT350_v1"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
     "pfHTTurnOn_eff 'Efficiency vs PFHT' pfHTTurnOn_num pfHTTurnOn_den"
     ),
   resolution = cms.vstring("")
 )
+
 
 
