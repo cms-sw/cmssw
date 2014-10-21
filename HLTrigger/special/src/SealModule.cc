@@ -25,6 +25,7 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "HLTrigger/special/interface/HLTEcalResonanceFilter.h"
+#include "HLTrigger/special/interface/HLTRegionalEcalResonanceFilter.h"
 
 #include "HLTrigger/special/interface/HLTPixelAsymmetryFilter.h"
 #include "HLTrigger/special/interface/HLTHFAsymmetryFilter.h"
@@ -59,6 +60,7 @@ DEFINE_FWK_MODULE(HLTTriggerTypeFilter);
 
 DEFINE_FWK_MODULE(HLTDTROMonitorFilter);
 DEFINE_FWK_MODULE(HLTEcalResonanceFilter);
+DEFINE_FWK_MODULE(HLTRegionalEcalResonanceFilter);
 
 DEFINE_FWK_MODULE(HLTPixelAsymmetryFilter);
 DEFINE_FWK_MODULE(HLTHFAsymmetryFilter);

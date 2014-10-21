@@ -70,8 +70,6 @@ typedef HLTSmartSinglet<CaloJet             > HLT1SmartCaloJet  ;
 typedef HLTSmartSinglet<CompositeCandidate  > HLT1SmartComposite;
 typedef HLTSmartSinglet<CaloMET             > HLT1SmartCaloMET  ;
 typedef HLTSmartSinglet<MET                 > HLT1SmartMET      ;
-//typedef HLTSmartSinglet<RecoChargedCandidate> HLT1SmartTrack    ;
-//typedef HLTSmartSinglet<RecoEcalCandidate   > HLT1SmartCluster  ;
 typedef HLTSmartSinglet<PFTau               > HLT1SmartPFTau    ;
 typedef HLTSmartSinglet<PFJet               > HLT1SmartPFJet    ;
 
@@ -110,12 +108,6 @@ typedef HLTDoublet<RecoChargedCandidate,CaloMET> HLT2MuonCaloMET;
 typedef HLTDoublet<Electron            ,    MET> HLT2ElectronMET;
 typedef HLTDoublet<RecoChargedCandidate,    MET> HLT2MuonMET;
 
-#include "HLTrigger/HLTfilters/interface/HLTDoubletDZ.h"
-#include "HLTrigger/HLTfilters/src/HLTDoubletDZ.cc"
-typedef HLTDoubletDZ<Electron            ,Electron>             HLT2ElectronElectronDZ;
-typedef HLTDoubletDZ<RecoChargedCandidate,RecoChargedCandidate> HLT2MuonMuonDZ;
-typedef HLTDoubletDZ<Electron            ,RecoChargedCandidate> HLT2ElectronMuonDZ;
-
 DEFINE_FWK_MODULE(HLTBool);
 DEFINE_FWK_MODULE(HLTFiltCand);
 DEFINE_FWK_MODULE(HLTHighLevel);
@@ -129,10 +121,6 @@ DEFINE_FWK_MODULE(HLT2PFJetMET);
 DEFINE_FWK_MODULE(HLT2ElectronTau);
 DEFINE_FWK_MODULE(HLT2PhotonTau);
 DEFINE_FWK_MODULE(HLT2MuonTau);
-//DEFINE_FWK_MODULE(HLT2ElectronCaloTau);
-//DEFINE_FWK_MODULE(HLT2MuonCaloTau);
-//DEFINE_FWK_MODULE(HLT2ElectronHLTTau);
-//DEFINE_FWK_MODULE(HLT2MuonHLTTau);
 DEFINE_FWK_MODULE(HLT2ElectronPFTau);
 DEFINE_FWK_MODULE(HLT2PhotonPFTau);
 DEFINE_FWK_MODULE(HLT2MuonPFTau);
@@ -151,8 +139,6 @@ DEFINE_FWK_MODULE(HLT1CaloJet);
 DEFINE_FWK_MODULE(HLT1Composite);
 DEFINE_FWK_MODULE(HLT1CaloMET);
 DEFINE_FWK_MODULE(HLT1MET);
-//DEFINE_FWK_MODULE(HLT1Track);
-//DEFINE_FWK_MODULE(HLT1Cluster);
 DEFINE_FWK_MODULE(HLT1PFTau);
 DEFINE_FWK_MODULE(HLT1PFJet);
 
@@ -161,23 +147,6 @@ DEFINE_FWK_MODULE(HLTLevel1MET);
 DEFINE_FWK_MODULE(HLTLevel1Jet);
 DEFINE_FWK_MODULE(HLTLevel1Muon);
 
-/*
-DEFINE_FWK_MODULE(HLT1SmartElectron);
-DEFINE_FWK_MODULE(HLT1SmartPhoton);
-DEFINE_FWK_MODULE(HLT1SmartMuon);
-DEFINE_FWK_MODULE(HLT1SmartCaloJet);
-DEFINE_FWK_MODULE(HLT1SmartComposite);
-DEFINE_FWK_MODULE(HLT1SmartCaloMET);
-DEFINE_FWK_MODULE(HLT1SmartMET);
-//DEFINE_FWK_MODULE(HLT1SmartTrack);
-//DEFINE_FWK_MODULE(HLT1SmartCluster);
-DEFINE_FWK_MODULE(HLT1SmartPFTau);
-DEFINE_FWK_MODULE(HLT1SmartPFJet);
-*/
-
 DEFINE_FWK_MODULE(HLTGlobalSumsCaloMET);
 DEFINE_FWK_MODULE(HLTGlobalSumsMET);
 
-DEFINE_FWK_MODULE(HLT2ElectronElectronDZ);
-DEFINE_FWK_MODULE(HLT2MuonMuonDZ);
-DEFINE_FWK_MODULE(HLT2ElectronMuonDZ);
