@@ -32,7 +32,7 @@ HltVertexValidationVertices= cms.EDAnalyzer("HLTVertexPerformanceAnalyzer",
 #define bTagValidation for the b-tag DQM validation (distribution plot)
 hltbTagValidation = cms.EDAnalyzer("HLTBTagPerformanceAnalyzer",
 	TriggerResults = cms.InputTag('TriggerResults','','HLT'),
-	HLTPathNames = cms.vstring('HLT_BTagCSV07_v1'),
+	HLTPathNames = cms.vstring('HLT_PFMET120_NoiseCleaned_BTagCSV07_v1'),
 	JetTag = cms.VInputTag(cms.InputTag("hltL3CombinedSecondaryVertexBJetTags")),
 	MinJetPT = cms.double(20),
 	mcFlavours = cms.PSet(
