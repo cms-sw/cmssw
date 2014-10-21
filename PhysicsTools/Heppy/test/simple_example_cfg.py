@@ -17,12 +17,12 @@ inputSample = cfg.MCComponent(
 
 selectedComponents  = [inputSample]
 
-from PhysicsTools.Heppy.analyzers.JSONAnalyzer import JSONAnalyzer
+from PhysicsTools.Heppy.analyzers.core.JSONAnalyzer import JSONAnalyzer
 json = cfg.Analyzer(
     JSONAnalyzer
     )
 
-from PhysicsTools.Heppy.analyzers.JetAnalyzer import JetAnalyzer
+from PhysicsTools.Heppy.analyzers.examples.JetAnalyzer import JetAnalyzer
 jets = cfg.Analyzer(
     JetAnalyzer,
     jetCol = 'slimmedJets',
