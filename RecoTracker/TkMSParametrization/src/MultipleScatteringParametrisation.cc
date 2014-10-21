@@ -38,12 +38,16 @@ namespace {
     Keepers() : keepers{&x0DetLayer,&x0AtEta,&x0Averaged}, isInitialised(false) {}
   };
 
-  const Keepers keepers;
+  thread_local Keepers keepers;
+  //NOTE: This is being used to globally cache information from the EventSetup
+  // this should not be done so we need this code changed.
+  //NOTE; the thread_local only works in this case because MultipleScateringParametrisation
+  // instances are only ever created on the stack and not the heap.
 
 }
 
 void MultipleScatteringParametrisation::initKeepers(const edm::EventSetup &iSetup){
-  const_cast<Keepers&>(keepers).init(iSetup);
+  keepers.init(iSetup);
 }
 
 //using namespace PixelRecoUtilities;

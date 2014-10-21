@@ -13,7 +13,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include <DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h>
+#include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 
 class CSCSegmentBuilder; 
 
@@ -24,7 +24,7 @@ public:
     /// Destructor
     ~CSCSegmentProducer();
     /// Produce the CSCSegment collection
-    virtual void produce(edm::Event&, const edm::EventSetup&);
+    virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
     int iev; // events through

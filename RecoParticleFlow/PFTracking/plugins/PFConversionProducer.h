@@ -1,7 +1,7 @@
 #ifndef PFConversionProducer_H
 #define PFConversionProducer_H
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -11,7 +11,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFConversionFwd.h"
 
 class PFTrackTransformer;
-class PFConversionProducer : public edm::EDProducer {
+class PFConversionProducer : public edm::stream::EDProducer<> {
 public:
   
   ///Constructor

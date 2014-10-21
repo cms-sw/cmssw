@@ -23,7 +23,7 @@
 
 #include<tuple>
 
-class TransientTrackingRecHit;
+class TrackingRecHit;
 
 
 class TkStripMeasurementDet;
@@ -133,8 +133,14 @@ public:
   void simpleRecHits( const TrajectoryStateOnSurface& ts, const MeasurementTrackerEvent & data, std::vector<SiStripRecHit2D> &result) const ;
   bool simpleRecHits( const TrajectoryStateOnSurface& ts, const MeasurementEstimator& est, const MeasurementTrackerEvent & data, std::vector<SiStripRecHit2D> &result) const ;
   
+  // simple hits
+  virtual bool recHits(SimpleHitContainer & result,  
+		       const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator&, const MeasurementTrackerEvent & data) const;
+
+  // TTRH
   virtual bool recHits( const TrajectoryStateOnSurface& stateOnThisDet, const MeasurementEstimator& est, const MeasurementTrackerEvent & data,
 			RecHitContainer & result, std::vector<float> & diffs) const;
+  
   
   virtual bool measurements( const TrajectoryStateOnSurface& stateOnThisDet,
 			     const MeasurementEstimator& est, const MeasurementTrackerEvent & data,
@@ -144,11 +150,11 @@ public:
   
 
   template<class ClusterRefT>
-  TransientTrackingRecHit::RecHitPointer
+  TrackingRecHit::RecHitPointer
   buildRecHit( const ClusterRefT &cluster, const TrajectoryStateOnSurface& ltp) const {
     const GeomDetUnit& gdu( specificGeomDet());
     LocalValues lv = cpe()->localParameters( *cluster, gdu, ltp);
-    return TSiStripRecHit2DLocalPos::build( lv.first, lv.second, &fastGeomDet(), cluster, cpe());
+    return std::make_shared<SiStripRecHit2D>( lv.first, lv.second, fastGeomDet(), cluster);
   }
   
   
@@ -159,7 +165,7 @@ public:
     const GeomDetUnit& gdu( specificGeomDet());
     VLocalValues vlv = cpe()->localParametersV( *cluster, gdu, ltp);
     for(VLocalValues::const_iterator it=vlv.begin();it!=vlv.end();++it)
-      res.push_back(TSiStripRecHit2DLocalPos::build( it->first, it->second, &fastGeomDet(), cluster, cpe()));
+      res.push_back(std::make_shared<SiStripRecHit2D>( it->first, it->second, fastGeomDet(), cluster));
   }
   
 
@@ -172,11 +178,11 @@ public:
     VLocalValues const & vlv = cpe()->localParametersV( *cluster, gdu, ltp);
     bool isCompatible(false);
     for(auto vl : vlv) {
-      auto && recHit  = TSiStripRecHit2DLocalPos::build( vl.first, vl.second, &fastGeomDet(), cluster, cpe()); 
-      std::pair<bool,double> diffEst = est.estimate(ltp, *recHit);
+      SiStripRecHit2D recHit(vl.first, vl.second, fastGeomDet(), cluster); 
+      std::pair<bool,double> diffEst = est.estimate(ltp, recHit);
       LogDebug("TkStripMeasurementDet")<<" chi2=" << diffEst.second;
       if ( diffEst.first ) {
-	result.push_back(std::move(recHit));
+	result.push_back(std::move(std::make_shared<SiStripRecHit2D>(recHit)));
 	diffs.push_back(diffEst.second);
 	isCompatible = true;
       }

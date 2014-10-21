@@ -83,9 +83,9 @@ void TestMS::beginRun(edm::Run & run, const edm::EventSetup& es)
   edm::ESHandle<GeometricSearchTracker> tracker;
   es.get<TrackerRecoGeometryRecord>().get( tracker );
 
-  vector<BarrelDetLayer*> barrel=tracker->barrelLayers();
+  vector<BarrelDetLayer const*> barrel=tracker->barrelLayers();
 //  vector<ForwardDetLayer*> endcap=tracker->posForwardLayers();
-  vector<ForwardDetLayer*> endcap=tracker->negForwardLayers();
+  vector<ForwardDetLayer const*> endcap=tracker->negForwardLayers();
 
 
   MultipleScatteringParametrisation sb1(barrel[0],es);

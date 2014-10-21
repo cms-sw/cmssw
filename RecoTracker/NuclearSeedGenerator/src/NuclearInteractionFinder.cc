@@ -159,7 +159,7 @@ NuclearInteractionFinder::findMeasurementsFromTSOS(const TSOS& currentState, Det
   vector<const DetLayer*> nl;
 
   if(lastLayer) {
-          nl = lastLayer->nextLayers( *currentState.freeState(), alongMomentum);
+          nl = theNavigationSchool->nextLayers(*lastLayer,*currentState.freeState(), alongMomentum);
   }
   else {
       edm::LogError("NuclearInteractionFinder") << "In findCompatibleMeasurements : lastLayer not accessible";

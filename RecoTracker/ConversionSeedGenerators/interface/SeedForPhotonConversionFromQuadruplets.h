@@ -14,30 +14,28 @@
 
 
 class FreeTrajectoryState;
+class SeedComparitor;
+namespace edm {class ConsumesCollector;}
 
 class SeedForPhotonConversionFromQuadruplets {
 public:
   static const int cotTheta_Max=99999;
   
-  SeedForPhotonConversionFromQuadruplets( const edm::ParameterSet & cfg):
-    thePropagatorLabel(cfg.getParameter<std::string>("propagator")),
-    theBOFFMomentum(cfg.existsAs<double>("SeedMomentumForBOFF") ? cfg.getParameter<double>("SeedMomentumForBOFF") : 5.0)
-      {}
+  SeedForPhotonConversionFromQuadruplets( const edm::ParameterSet & cfg, edm::ConsumesCollector& iC, const edm::ParameterSet& SeedComparitorPSet);
 
-  SeedForPhotonConversionFromQuadruplets( 
-      const std::string & propagator = "PropagatorWithMaterial", double seedMomentumForBOFF = -5.0) 
-   : thePropagatorLabel(propagator), theBOFFMomentum(seedMomentumForBOFF) { }
+  SeedForPhotonConversionFromQuadruplets(edm::ConsumesCollector& iC, const edm::ParameterSet& SeedComparitorPSet,
+      const std::string & propagator = "PropagatorWithMaterial", double seedMomentumForBOFF = -5.0);
 
   //dtor
-  ~SeedForPhotonConversionFromQuadruplets(){}
+  ~SeedForPhotonConversionFromQuadruplets();
 
   const TrajectorySeed * trajectorySeed( TrajectorySeedCollection & seedCollection,
 						 const SeedingHitSet & phits,
 						 const SeedingHitSet & mhits,
 						 const TrackingRegion & region,
+                                                 const edm::Event& ev,
 						 const edm::EventSetup& es,
 						 std::stringstream& ss, std::vector<Quad> & quadV,
-						 edm::ParameterSet& SeedComparitorPSet,
 						 edm::ParameterSet& QuadCutPSet);
 
   
@@ -113,5 +111,6 @@ protected:
 
   std::stringstream * pss;
   PrintRecoObjects po;
+  std::unique_ptr<SeedComparitor> theComparitor;
 };
 #endif 

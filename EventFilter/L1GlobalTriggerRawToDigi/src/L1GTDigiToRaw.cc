@@ -61,6 +61,8 @@ L1GTDigiToRaw::L1GTDigiToRaw(const edm::ParameterSet& pSet) :
 
     m_daqGtFedId(pSet.getUntrackedParameter<int> (
             "DaqGtFedId", FEDNumbering::MAXTriggerGTPFEDID)),
+    m_daqGtInputToken(consumes<L1GlobalTriggerReadoutRecord>(pSet.getParameter<edm::InputTag> ("DaqGtInputTag"))),
+    m_muGmtInputToken(consumes<L1MuGMTReadoutCollection>(pSet.getParameter<edm::InputTag> ("MuGmtInputTag"))),
     m_daqGtInputTag(pSet.getParameter<edm::InputTag> ("DaqGtInputTag")),
     m_muGmtInputTag(pSet.getParameter<edm::InputTag> ("MuGmtInputTag")),
     m_activeBoardsMaskGt(pSet.getParameter<unsigned int> ("ActiveBoardsMask")),
@@ -149,7 +151,7 @@ void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
 
     // get L1GlobalTriggerReadoutRecord
     edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord;
-    iEvent.getByLabel(m_daqGtInputTag, gtReadoutRecord);
+    iEvent.getByToken(m_daqGtInputToken, gtReadoutRecord);
 
     if (!gtReadoutRecord.isValid()) {
         if (m_verbosity) {
@@ -464,7 +466,7 @@ void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
 
                     // get GMT record TODO separate GMT record or via RefProd from GT record
                     edm::Handle<L1MuGMTReadoutCollection> gmtrc_handle;
-                    iEvent.getByLabel(m_muGmtInputTag, gmtrc_handle);
+                    iEvent.getByToken(m_muGmtInputToken, gmtrc_handle);
                     if (!gmtrc_handle.isValid()) {
                         if (m_verbosity) {
                             edm::LogWarning("L1GTDigiToRaw")

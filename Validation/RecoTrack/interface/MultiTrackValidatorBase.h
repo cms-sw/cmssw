@@ -51,7 +51,7 @@ class MultiTrackValidatorBase {
 
  protected:
 
-  DQMStore* dbe_;
+  //DQMStore* dbe_;
 
   // MTV-specific data members
   std::vector<std::string> associators;

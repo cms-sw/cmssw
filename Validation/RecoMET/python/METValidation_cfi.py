@@ -61,34 +61,33 @@ pfMetAnalyzer = cms.EDAnalyzer(
     METType = cms.untracked.string("pf")
    ) 
 
-tcMetAnalyzer = cms.EDAnalyzer(
-    "METTester",
-    OutputFile = cms.untracked.string(''),
-    InputMETLabel = cms.InputTag("tcMet"),
-    InputCaloMETLabel = cms.InputTag("met"),
-    InputTrackLabel = cms.InputTag("generalTracks"),
-    InputMuonLabel = cms.InputTag("muons"),
-    InputElectronLabel = cms.InputTag("gedGsfElectrons"),
-    InputBeamSpotLabel = cms.InputTag("offlineBeamSpot"),
-    sample = cms.untracked.string('NULL'),
-    minhits = cms.int32(6),
-    maxd0 = cms.double(0.1),
-    maxchi2 = cms.double(5),
-    maxeta = cms.double(2.65),
-    maxpt = cms.double(100.),
-    maxPtErr = cms.double(0.2),
-    trkQuality = cms.vint32(2),
-    trkAlgos = cms.vint32(),
-    METType = cms.untracked.string("tc")
-    ) 
+#tcMetAnalyzer = cms.EDAnalyzer(
+#    "METTester",
+#    OutputFile = cms.untracked.string(''),
+#    InputMETLabel = cms.InputTag("tcMet"),
+#    InputCaloMETLabel = cms.InputTag("met"),
+#    InputTrackLabel = cms.InputTag("generalTracks"),
+#    InputMuonLabel = cms.InputTag("muons"),
+#    InputElectronLabel = cms.InputTag("gedGsfElectrons"),
+#    InputBeamSpotLabel = cms.InputTag("offlineBeamSpot"),
+#    sample = cms.untracked.string('NULL'),
+#    minhits = cms.int32(6),
+#    maxd0 = cms.double(0.1),
+#    maxchi2 = cms.double(5),
+#    maxeta = cms.double(2.65),
+#    maxpt = cms.double(100.),
+#    maxPtErr = cms.double(0.2),
+#    trkQuality = cms.vint32(2),
+#    trkAlgos = cms.vint32(),
+#    METType = cms.untracked.string("tc")
+#    ) 
 
-corMetGlobalMuonsAnalyzer = cms.EDAnalyzer(
-    "METTester",
-     OutputFile = cms.untracked.string(''),
-    InputMETLabel = cms.InputTag("corMetGlobalMuons"),
-    METType = cms.untracked.string("cor")
-
-    ) 
+#corMetGlobalMuonsAnalyzer = cms.EDAnalyzer(
+#    "METTester",
+#     OutputFile = cms.untracked.string(''),
+#    InputMETLabel = cms.InputTag("corMetGlobalMuons"),
+#    METType = cms.untracked.string("cor")
+#    ) 
 
 
 #genMptTrueAnalyzer = cms.EDAnalyzer(

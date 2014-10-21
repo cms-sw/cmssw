@@ -10,6 +10,7 @@
 
 class TrajectorySeed;
 class TrajectoryStateOnSurface;
+class TkCloner;
 
 /** Interface class for trajectory fitters, i.e. computing
  *  Trajectories out of a seed and/or collection of RecHits.
@@ -26,6 +27,9 @@ public:
 
   virtual ~TrajectoryFitter() {}
   virtual std::unique_ptr<TrajectoryFitter> clone() const = 0;
+
+  // FIXME a prototype: final inplementaiton may differ 
+  virtual void setHitCloner(TkCloner const *)=0;
 
   // new interface return one trajectory: if fit fails trajectory is invalid...
   virtual Trajectory fitOne(const Trajectory& traj, fitType type=standard) const=0;

@@ -30,7 +30,6 @@ class HLTHFRecoEcalCandidateProducer : public edm::EDProducer {
   int HFDBversion_;
   std::vector<double> HFDBvector_;
   bool doPU_; 
-  std::vector<double> defaultDB_; 
   double Cut2D_;
   double defaultSlope2D_;
   reco::HFValueStruct hfvars_;

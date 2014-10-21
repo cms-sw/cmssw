@@ -29,8 +29,7 @@ class TrajectoryCleanerBySharedHits;
 class InOutConversionTrackFinder : public ConversionTrackFinder {
  public :
    
-  InOutConversionTrackFinder(  const edm::EventSetup& es,
-                               const edm::ParameterSet& config );
+  InOutConversionTrackFinder( const edm::ParameterSet& config, const BaseCkfTrajectoryBuilder *trajectoryBuilder );
 
  
  virtual ~InOutConversionTrackFinder();

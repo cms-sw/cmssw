@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
+#include "FWCore/Framework/src/EventSignalsSentry.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -48,16 +49,30 @@ namespace edm {
     
     bool
     EDProducerBase::doEvent(EventPrincipal& ep, EventSetup const& c,
+                            ActivityRegistry* act,
                             ModuleCallingContext const* mcc) {
       Event e(ep, moduleDescription_, mcc);
       e.setConsumer(this);
-      this->produce(e, c);
-      commit_(e,&previousParentage_, &previousParentageId_);
+      {
+        std::lock_guard<std::mutex> guard(mutex_);
+        {
+          std::lock_guard<SharedResourcesAcquirer> guard(resourcesAcquirer_);
+          EventSignalsSentry sentry(act,mcc);
+          this->produce(e, c);
+        }
+        commit_(e,&previousParentage_, &previousParentageId_);
+      }
       return true;
     }
     
+    SharedResourcesAcquirer EDProducerBase::createAcquirer() {
+      return SharedResourcesAcquirer{};
+    }
+
     void
     EDProducerBase::doBeginJob() {
+      resourcesAcquirer_ = createAcquirer();
+      
       this->beginJob();
     }
     

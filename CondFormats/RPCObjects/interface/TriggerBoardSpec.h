@@ -1,6 +1,8 @@
 #ifndef CondFormatsRPCObjectsTriggerBoardSpec_H
 #define CondFormatsRPCObjectsTriggerBoardSpec_H
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <boost/cstdint.hpp>
 #include "CondFormats/RPCObjects/interface/LinkConnSpec.h"
 #include <string>
@@ -39,5 +41,7 @@ private:
   int theNum;
   uint32_t theMaskedLinks;
   std::vector<LinkConnSpec> theLinks;
+
+  COND_SERIALIZABLE;
 };
 #endif

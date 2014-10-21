@@ -437,7 +437,6 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
   edm::ProductRegistry::ProductList& prodList2 = m_->reg_->productListUpdator();
   std::vector<edm::EventEntryDescription> temp(prodList2.size(), edm::EventEntryDescription());
   m_->prov_.swap(temp);
-  std::vector<edm::EventEntryDescription>::iterator itB = m_->prov_.begin();
   m_->pointerToBranchBuffer_.reserve(prodList2.size());
 
   for(auto& item : prodList2) {

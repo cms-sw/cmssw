@@ -121,7 +121,7 @@ class TriggerValidator : public edm::EDAnalyzer {
       edm::InputTag muonTag_;
       edm::InputTag triggerTag_;
       std::string processName_;
-      std::string triggerName_;
+      std::vector<std::string> hltPathsToCheck_;
       edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> gtDigis_token_;
 
       // name of each L1 algorithm

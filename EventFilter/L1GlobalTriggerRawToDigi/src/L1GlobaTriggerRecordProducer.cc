@@ -69,11 +69,6 @@ L1GlobalTriggerRecordProducer::~L1GlobalTriggerRecordProducer()
 
 // member functions
 
-void L1GlobalTriggerRecordProducer::beginJob()
-{
-    // empty
-}
-
 // method called to produce the data
 void L1GlobalTriggerRecordProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
 {
@@ -229,14 +224,6 @@ void L1GlobalTriggerRecordProducer::produce(edm::Event& iEvent, const edm::Event
     iEvent.put( gtRecord );
 
 }
-
-//
-void L1GlobalTriggerRecordProducer::endJob()
-{
-
-    // empty now
-}
-
 
 // static class members
 

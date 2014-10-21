@@ -9,13 +9,12 @@ namespace {
   {
     edm::LogError ( "ConfigurableVertexReconstructor") << "got no reconstructor for \""
          << finder << "\"";
-    map < string, AbstractConfReconstructor * > valid = 
-      VertexRecoManager::Instance().get();
+    vector <string> valid = 
+      VertexRecoManager::Instance().getNames();
     cout << "  Valid reconstructors are:";
-    for ( map < string, AbstractConfReconstructor * >::const_iterator i=valid.begin(); 
-          i!=valid.end() ; ++i )
+    for (const auto& i : valid)
     {
-      if ( i->second ) cout << "  " << i->first;
+      cout <<" "<<i;
     }
     cout << endl;
     throw std::string ( finder + " not available!" );
@@ -26,7 +25,7 @@ ConfigurableVertexReconstructor::ConfigurableVertexReconstructor (
     const edm::ParameterSet & p ) : theRector ( 0 )
 {
   string finder=p.getParameter<string>("finder");
-  theRector = VertexRecoManager::Instance().get ( finder );
+  theRector = VertexRecoManager::Instance().get ( finder ).release();
   if (!theRector)
   {
     errorNoReconstructor ( finder );
@@ -38,7 +37,7 @@ ConfigurableVertexReconstructor::ConfigurableVertexReconstructor (
 
 ConfigurableVertexReconstructor::~ConfigurableVertexReconstructor()
 {
-//  delete theRector;
+  delete theRector;
 }
 
 ConfigurableVertexReconstructor::ConfigurableVertexReconstructor 

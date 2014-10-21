@@ -3,7 +3,7 @@
 #include <iostream>
 
 
-G4Allocator<HFShowerG4Hit> HFShowerG4HitAllocator;
+G4ThreadLocal G4Allocator<HFShowerG4Hit> *fHFShowerG4HitAllocator = 0;
 
 HFShowerG4Hit::HFShowerG4Hit() : theHitId(0), theTrackId(0), theEdep(0),
 				 theTime(0) {}

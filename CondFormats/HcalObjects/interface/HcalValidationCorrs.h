@@ -7,6 +7,8 @@
 POOL object to store HCAL validation corrections
 */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 #include "CondFormats/HcalObjects/interface/HcalValidationCorr.h"
 
@@ -23,6 +25,8 @@ class HcalValidationCorrs: public HcalCondObjectContainer<HcalValidationCorr>
   std::string myname() const {return (std::string)"HcalValidationCorrs";}
 
  private:
+
+ COND_SERIALIZABLE;
 };
 
 #endif

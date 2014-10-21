@@ -43,7 +43,7 @@ class DTTrigGeom {
   public:
 
     /// Constructor
-    DTTrigGeom(DTChamber* stat, bool debug);
+    DTTrigGeom(const DTChamber* stat, bool debug);
   
     /// Destructor 
     ~DTTrigGeom();

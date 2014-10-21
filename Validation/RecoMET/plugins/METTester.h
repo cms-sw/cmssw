@@ -44,21 +44,19 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 #include "TMath.h"
 
 
-class METTester: public edm::EDAnalyzer {
+//class METTester: public edm::EDAnalyzer {
+class METTester: public DQMEDAnalyzer {
 public:
 
   explicit METTester(const edm::ParameterSet&);
 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  //virtual void beginJob() ;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) ;
-  //virtual void beginJob() ;
-  virtual void endJob() ;
-//  virtual void endRun(const edm::Run&, const edm::EventSetup&);
-	void FillMETRes();
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void FillMETRes();
 
 
  private:
@@ -215,7 +213,7 @@ public:
 
   bool isCaloMET;
 //  bool isCorMET;
-  bool isTcMET;
+//  bool isTcMET;
   bool isPFMET;
   bool isGenMET;
 

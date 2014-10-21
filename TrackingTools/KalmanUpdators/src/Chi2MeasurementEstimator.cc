@@ -1,6 +1,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackingTools/PatternTools/interface/MeasurementExtractor.h"
+#include "DataFormats/TrackingRecHit/interface/KfComponentsHolder.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/Math/interface/invertPosDefMatrix.h"
 
@@ -27,9 +28,11 @@ Chi2MeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
 
   VecD r, rMeas; SMatDD R, RMeas; 
   MatD5 dummyProjMatrix;
-
+  ProjectMatrix<double,5,D> dummyProjFunc;
+  auto && v = tsos.localParameters().vector();
+  auto && m = tsos.localError().matrix();
   KfComponentsHolder holder;
-  holder.template setup<D>(&r, &R, &dummyProjMatrix, &rMeas, &RMeas, tsos.localParameters().vector(), tsos.localError().matrix());
+  holder.template setup<D>(&r, &R, &dummyProjMatrix, &dummyProjFunc, &rMeas, &RMeas, v, m);
   aRecHit.getKfComponents(holder);
  
   R += RMeas;

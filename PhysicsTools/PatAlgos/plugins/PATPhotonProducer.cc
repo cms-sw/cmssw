@@ -7,8 +7,21 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
+#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
+
+#include "TVector2.h"
+#include "DataFormats/Math/interface/deltaR.h"
+
 
 #include <memory>
 
@@ -20,7 +33,18 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet & iConfig) :
 {
   // initialize the configurables
   photonToken_ = consumes<edm::View<reco::Photon> >(iConfig.getParameter<edm::InputTag>("photonSource"));
+  electronToken_ = consumes<reco::GsfElectronCollection>(edm::InputTag("gedGsfElectrons"));
+  hConversionsToken_ = consumes<reco::ConversionCollection>(edm::InputTag("allConversions"));
+  beamLineToken_ = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamLineSrc"));
   embedSuperCluster_ = iConfig.getParameter<bool>("embedSuperCluster");
+  embedSeedCluster_ = iConfig.getParameter<bool>( "embedSeedCluster" );
+  embedBasicClusters_ = iConfig.getParameter<bool>( "embedBasicClusters" );
+  embedPreshowerClusters_ = iConfig.getParameter<bool>( "embedPreshowerClusters" );
+  embedRecHits_ = iConfig.getParameter<bool>( "embedRecHits" );  
+  reducedBarrelRecHitCollection_ = iConfig.getParameter<edm::InputTag>("reducedBarrelRecHitCollection");
+  reducedBarrelRecHitCollectionToken_ = mayConsume<EcalRecHitCollection>(reducedBarrelRecHitCollection_);
+  reducedEndcapRecHitCollection_ = iConfig.getParameter<edm::InputTag>("reducedEndcapRecHitCollection");
+  reducedEndcapRecHitCollectionToken_ = mayConsume<EcalRecHitCollection>(reducedEndcapRecHitCollection_);  
   // MC matching configurables
   addGenMatch_ = iConfig.getParameter<bool>( "addGenMatch" );
   if (addGenMatch_) {
@@ -95,10 +119,32 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
     addGenMatch_   = false;
     embedGenMatch_ = false;
   }
+  
+  edm::ESHandle<CaloTopology> theCaloTopology;
+  iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
+  ecalTopology_ = & (*theCaloTopology);  
+
+  edm::ESHandle<CaloGeometry> theCaloGeometry;
+  iSetup.get<CaloGeometryRecord>().get(theCaloGeometry);
+  ecalGeometry_ = & (*theCaloGeometry);
 
   // Get the vector of Photon's from the event
   edm::Handle<edm::View<reco::Photon> > photons;
   iEvent.getByToken(photonToken_, photons);
+
+  // for conversion veto selection
+  edm::Handle<reco::ConversionCollection> hConversions;
+  iEvent.getByToken(hConversionsToken_, hConversions);
+
+  // Get the collection of electrons from the event
+  edm::Handle<reco::GsfElectronCollection> hElectrons;
+  iEvent.getByToken(electronToken_, hElectrons);
+
+  // Get the beamspot
+  edm::Handle<reco::BeamSpot> beamSpotHandle;
+  iEvent.getByToken(beamLineToken_, beamSpotHandle);
+
+  EcalClusterLazyTools lazyTools(iEvent, iSetup, reducedBarrelRecHitCollectionToken_, reducedEndcapRecHitCollectionToken_);  
 
   // prepare the MC matching
   std::vector<edm::Handle<edm::Association<reco::GenParticleCollection> > >genMatches(genMatchTokens_.size());
@@ -145,7 +191,70 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
     edm::Ptr<reco::Photon> photonPtr = photons->ptrAt(idx);
     Photon aPhoton(photonRef);
     if (embedSuperCluster_) aPhoton.embedSuperCluster();
+    if (embedSeedCluster_) aPhoton.embedSeedCluster();
+    if (embedBasicClusters_) aPhoton.embedBasicClusters();
+    if (embedPreshowerClusters_) aPhoton.embedPreshowerClusters();
+  
+    std::vector<DetId> selectedCells;
+    bool barrel = itPhoton->isEB();
+    //loop over sub clusters
+    if (embedBasicClusters_) {
+      for (reco::CaloCluster_iterator clusIt = itPhoton->superCluster()->clustersBegin(); clusIt!=itPhoton->superCluster()->clustersEnd(); ++clusIt) {
+        //get seed (max energy xtal)
+        DetId seed = lazyTools.getMaximum(**clusIt).first;
+        //get all xtals in 5x5 window around the seed
+        std::vector<DetId> dets5x5 = (barrel) ? ecalTopology_->getSubdetectorTopology(DetId::Ecal,EcalBarrel)->getWindow(seed,5,5):
+      ecalTopology_->getSubdetectorTopology(DetId::Ecal,EcalEndcap)->getWindow(seed,5,5);
+        selectedCells.insert(selectedCells.end(), dets5x5.begin(), dets5x5.end());
+        
+        //get all xtals belonging to cluster
+        for (const std::pair<DetId, float> &hit : (*clusIt)->hitsAndFractions()) {
+          selectedCells.push_back(hit.first);
+        }
+      }
+    }
+    
+    //remove duplicates
+    std::sort(selectedCells.begin(),selectedCells.end());
+    std::unique(selectedCells.begin(),selectedCells.end());
+    
+    // Retrieve the corresponding RecHits
 
+    edm::Handle< EcalRecHitCollection > rechitsH ;
+    float cryPhi, cryEta, thetatilt, phitilt;
+    int ieta, iphi;
+
+    //what is the difference from itPhoton->isEB()? (TJ) 
+    switch( photonRef->superCluster()->seed()->hitsAndFractions().at(0).first.subdetId() ) {
+    case EcalBarrel:
+      {
+        iEvent.getByToken(reducedBarrelRecHitCollectionToken_,rechitsH);
+        ecl_.localCoordsEB( *photonRef->superCluster()->seed(), *ecalGeometry_, cryEta, cryPhi, ieta, iphi, thetatilt, phitilt);
+      }
+      break;
+    case EcalEndcap:
+      {
+        iEvent.getByToken(reducedEndcapRecHitCollectionToken_,rechitsH);
+      }
+      break;
+    default:
+     edm::LogError("PFECALSuperClusterProducer::calculateRegressedEnergy") << "Supercluster seed is either EB nor EE!" << std::endl;
+    }
+
+
+    EcalRecHitCollection selectedRecHits;
+    const EcalRecHitCollection *recHits = rechitsH.product();
+
+    unsigned nSelectedCells = selectedCells.size();
+    for (unsigned icell = 0 ; icell < nSelectedCells ; ++icell) {
+      EcalRecHitCollection::const_iterator  it = recHits->find( selectedCells[icell] );
+      if ( it != recHits->end() ) {
+        selectedRecHits.push_back(*it);
+      }
+    }
+    selectedRecHits.sort();
+    if (embedRecHits_) aPhoton.embedRecHits(& selectedRecHits);    
+    
     // store the match to the generated final state muons
     if (addGenMatch_) {
       for(size_t i = 0, n = genMatches.size(); i < n; ++i) {
@@ -194,6 +303,90 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
     }
 
 
+    // set conversion veto selection
+    bool passelectronveto = false;
+    if( hConversions.isValid()){
+    // this is recommended method
+      passelectronveto = !ConversionTools::hasMatchedPromptElectron(photonRef->superCluster(), hElectrons, hConversions, beamSpotHandle->position());
+    }
+    aPhoton.setPassElectronVeto( passelectronveto );
+
+
+    // set electron veto using pixel seed (not recommended but many analysis groups are still using since it is powerful method to remove electrons)
+    aPhoton.setHasPixelSeed( photonRef->hasPixelSeed() );    
+
+    // set seed energy
+    aPhoton.setSeedEnergy( photonRef->superCluster()->seed()->energy() );
+
+    // prepare input variables for regression energy correction
+    float maxDR=999., maxDRDPhi=999., maxDRDEta=999., maxDRRawEnergy=0.;
+    float subClusRawE[3], subClusDPhi[3], subClusDEta[3];
+    memset(subClusRawE,0,3*sizeof(float));
+    memset(subClusDPhi,0,3*sizeof(float));
+    memset(subClusDEta,0,3*sizeof(float));
+    size_t iclus=0;
+    for( auto clus = photonRef->superCluster()->clustersBegin()+1; clus != photonRef->superCluster()->clustersEnd(); ++clus ) {
+      const float this_deta = (*clus)->eta() - photonRef->superCluster()->seed()->eta();
+      const float this_dphi = TVector2::Phi_mpi_pi((*clus)->phi() - photonRef->superCluster()->seed()->phi());
+      const float this_dr = std::hypot(this_deta,this_dphi);
+      if(this_dr > maxDR || maxDR == 999.0f) {
+        maxDR = this_dr;
+        maxDRDEta = this_deta;
+        maxDRDPhi = this_dphi;
+        maxDRRawEnergy = (*clus)->energy();
+      }
+      if( iclus++ < 3 ) {
+        subClusRawE[iclus] = (*clus)->energy();
+        subClusDEta[iclus] = this_deta;
+        subClusDPhi[iclus] = this_dphi;
+      }
+    }
+
+
+    const float eMax = EcalClusterTools::eMax( *photonRef->superCluster()->seed(), &*rechitsH );
+    const float e2nd = EcalClusterTools::e2nd( *photonRef->superCluster()->seed(), &*rechitsH );
+    const float e3x3 = EcalClusterTools::e3x3( *photonRef->superCluster()->seed(), &*rechitsH, ecalTopology_ );
+    const float eTop = EcalClusterTools::eTop( *photonRef->superCluster()->seed(), &*rechitsH, ecalTopology_ );
+    const float eBottom = EcalClusterTools::eBottom( *photonRef->superCluster()->seed(), &*rechitsH, ecalTopology_ );
+    const float eLeft = EcalClusterTools::eLeft( *photonRef->superCluster()->seed(), &*rechitsH, ecalTopology_ );
+    const float eRight = EcalClusterTools::eRight( *photonRef->superCluster()->seed(), &*rechitsH, ecalTopology_ );
+    std::vector<float> vCov = EcalClusterTools::localCovariances( *photonRef->superCluster()->seed(), &*rechitsH, ecalTopology_ );
+    const float see = (isnan(vCov[0]) ? 0. : sqrt(vCov[0]));
+    const float spp = (isnan(vCov[2]) ? 0. : sqrt(vCov[2]));
+    float sep = vCov[1];
+
+    // set input variables for regression energy correction
+    aPhoton.setEMax( eMax );
+    aPhoton.setE2nd( e2nd );
+    aPhoton.setE3x3( e3x3 );
+    aPhoton.setETop( eTop );
+    aPhoton.setEBottom( eBottom );
+    aPhoton.setELeft( eLeft );
+    aPhoton.setERight( eRight );
+    aPhoton.setSee( see );
+    aPhoton.setSpp( spp );
+    aPhoton.setSep( sep );
+   
+    aPhoton.setMaxDR( maxDR );
+    aPhoton.setMaxDRDPhi( maxDRDPhi );
+    aPhoton.setMaxDRDEta( maxDRDEta );
+    aPhoton.setMaxDRRawEnergy( maxDRRawEnergy );
+    aPhoton.setSubClusRawE1( subClusRawE[0] );
+    aPhoton.setSubClusRawE2( subClusRawE[1] );
+    aPhoton.setSubClusRawE3( subClusRawE[2] );
+    aPhoton.setSubClusDPhi1( subClusDPhi[0] );
+    aPhoton.setSubClusDPhi2( subClusDPhi[1] );
+    aPhoton.setSubClusDPhi3( subClusDPhi[2] );
+    aPhoton.setSubClusDEta1( subClusDEta[0] );
+    aPhoton.setSubClusDEta2( subClusDEta[1] );
+    aPhoton.setSubClusDEta3( subClusDEta[2] );
+
+    aPhoton.setCryPhi( cryPhi );
+    aPhoton.setCryEta( cryEta );
+    aPhoton.setIEta( ieta );
+    aPhoton.setIPhi( iphi );
+
+
     // add the Photon to the vector of Photons
     PATPhotons->push_back(aPhoton);
   }
@@ -216,9 +409,17 @@ void PATPhotonProducer::fillDescriptions(edm::ConfigurationDescriptions & descri
 
   // input source
   iDesc.add<edm::InputTag>("photonSource", edm::InputTag("no default"))->setComment("input collection");
+  iDesc.add<edm::InputTag>("electronSource", edm::InputTag("no default"))->setComment("input collection");
 
+  iDesc.add<edm::InputTag>("reducedBarrelRecHitCollection", edm::InputTag("reducedEcalRecHitsEB"));
+  iDesc.add<edm::InputTag>("reducedEndcapRecHitCollection", edm::InputTag("reducedEcalRecHitsEE"));  
+  
   iDesc.add<bool>("embedSuperCluster", true)->setComment("embed external super cluster");
-
+  iDesc.add<bool>("embedSeedCluster", true)->setComment("embed external seed cluster");
+  iDesc.add<bool>("embedBasicClusters", true)->setComment("embed external basic clusters");
+  iDesc.add<bool>("embedPreshowerClusters", true)->setComment("embed external preshower clusters");
+  iDesc.add<bool>("embedRecHits", true)->setComment("embed external RecHits");
+  
   // MC matching configurables
   iDesc.add<bool>("addGenMatch", true)->setComment("add MC matching");
   iDesc.add<bool>("embedGenMatch", false)->setComment("embed MC matched MC information");
@@ -279,6 +480,9 @@ void PATPhotonProducer::fillDescriptions(edm::ConfigurationDescriptions & descri
   edm::ParameterSetDescription isolationPSet;
   isolationPSet.setAllowAnything(); // TODO: the pat helper needs to implement a description.
   iDesc.add("userIsolation", isolationPSet);
+
+  iDesc.addNode( edm::ParameterDescription<edm::InputTag>("beamLineSrc", edm::InputTag(), true)
+                 )->setComment("input with high level selection");
 
   descriptions.add("PATPhotonProducer", iDesc);
 

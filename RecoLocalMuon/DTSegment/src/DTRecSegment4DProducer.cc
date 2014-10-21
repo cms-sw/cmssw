@@ -10,13 +10,12 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "RecoLocalMuon/DTSegment/src/DTSegmentUpdator.h"
 #include "RecoLocalMuon/DTSegment/src/DTRecSegment4DAlgoFactory.h"
 
 #include "DataFormats/Common/interface/OwnVector.h"
-#include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -34,10 +33,10 @@ DTRecSegment4DProducer::DTRecSegment4DProducer(const ParameterSet& pset){
     cout << "[DTRecSegment4DProducer] Constructor called" << endl;
   
   // the name of the 1D rec hits collection
-  theRecHits1DLabel = pset.getParameter<InputTag>("recHits1DLabel");
+  recHits1DToken_ = consumes<DTRecHitCollection>(pset.getParameter<InputTag>("recHits1DLabel"));
   
   // the name of the 2D rec hits collection
-  theRecHits2DLabel = pset.getParameter<InputTag>("recHits2DLabel");
+  recHits2DToken_ = consumes<DTRecSegment2DCollection>(pset.getParameter<InputTag>("recHits2DLabel"));
   
   // Get the concrete 4D-segments reconstruction algo from the factory
   string theReco4DAlgoName = pset.getParameter<string>("Reco4DAlgoName");
@@ -57,12 +56,12 @@ void DTRecSegment4DProducer::produce(Event& event, const EventSetup& setup){
 
   // Get the 1D rechits from the event
   Handle<DTRecHitCollection> all1DHits; 
-  event.getByLabel(theRecHits1DLabel,all1DHits);
+  event.getByToken(recHits1DToken_, all1DHits);
   
   // Get the 2D rechits from the event
   Handle<DTRecSegment2DCollection> all2DSegments;
   if(the4DAlgo->wants2DSegments())
-    event.getByLabel(theRecHits2DLabel, all2DSegments);
+    event.getByToken(recHits2DToken_, all2DSegments);
 
   // Create the pointer to the collection which will store the rechits
   auto_ptr<DTRecSegment4DCollection> segments4DCollection(new DTRecSegment4DCollection());

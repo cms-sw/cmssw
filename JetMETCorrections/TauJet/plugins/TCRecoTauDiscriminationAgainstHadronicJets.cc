@@ -13,7 +13,7 @@ using namespace reco;
 class TCRecoTauDiscriminationAgainstHadronicJets : public CaloTauDiscriminationProducerBase {
     public:
       	explicit TCRecoTauDiscriminationAgainstHadronicJets(const edm::ParameterSet& iConfig):CaloTauDiscriminationProducerBase(iConfig){   
-		tcTauAlgorithm = new TCTauAlgorithm(iConfig);
+	  tcTauAlgorithm = new TCTauAlgorithm(iConfig, consumesCollector());
       	}
       	~TCRecoTauDiscriminationAgainstHadronicJets(){} 
       	double discriminate(const CaloTauRef& theCaloTauRef) override;

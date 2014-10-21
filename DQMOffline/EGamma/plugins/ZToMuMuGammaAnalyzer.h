@@ -131,8 +131,8 @@ class ZToMuMuGammaAnalyzer  : public edm::EDAnalyzer
   edm::EDGetTokenT<reco::BeamSpot> beamSpot_token_;
   edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidates_;
   edm::EDGetTokenT<reco::VertexCollection> offline_pvToken_;
-  std::string   valueMapPhoPFCandIso_ ;
-  
+  edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef> > > photonIsoValmap_token_;
+    
 
   std::string fName_;
   int verbosity_;

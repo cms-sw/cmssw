@@ -106,8 +106,11 @@ void DTChamberEfficiencyClient::endRun(Run const& run, EventSetup const& context
     MonitorElement* MEExtrap = dbe->get("DT/05-ChamberEff/Task/hExtrapSectVsChamb_W" + wheel_str.str());	
 
     //get the TH2F
-    if(!MECountAll) cout<<"fucking ME is null"<<endl;
-    if(!(MECountAll->getTH2F())) cout<<"fucking puntator is null!"<<endl;
+    if(!MECountAll || !(MECountAll->getTH2F())) {
+      edm::LogWarning("DTChamberEfficiencyClient") << "ME not available" << std::endl;
+      return;
+    }
+      
     TH2F* hCountAll = MECountAll->getTH2F();
     TH2F* hCountQual = MECountQual->getTH2F();
     TH2F* hExtrap = MEExtrap->getTH2F();

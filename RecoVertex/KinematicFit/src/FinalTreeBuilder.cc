@@ -105,7 +105,7 @@ RefCountedKinematicTree FinalTreeBuilder::buildTree(const CachingVertex<6>& vtx,
 
  std::vector<RefCountedKinematicParticle>::const_iterator j;
  std::vector<RefCountedVertexTrack>::const_iterator i;
- for(j=input.begin(), i=refTracks.begin(); j !=input.end(), i !=refTracks.end();++j, ++i)
+ for(j=input.begin(), i=refTracks.begin(); j !=input.end() && i !=refTracks.end();++j, ++i)
  {
   RefCountedLinearizedTrackState lT = (*i)->linearizedTrack();
   KinematicRefittedTrackState * rS= dynamic_cast<KinematicRefittedTrackState *>(&(*((*i)->refittedState())));

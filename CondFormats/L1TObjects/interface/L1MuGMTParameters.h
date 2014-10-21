@@ -18,6 +18,8 @@
 #ifndef CondFormatsL1TObjects_L1MuGMTParameters_h
 #define CondFormatsL1TObjects_L1MuGMTParameters_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 
 class L1MuGMTParameters {
@@ -196,6 +198,8 @@ private:
   unsigned m_VersionSortRankEtaQLUT;
   unsigned m_VersionLUTs;
 
+
+  COND_SERIALIZABLE;
 };
 
 

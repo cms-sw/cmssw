@@ -20,7 +20,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -32,7 +32,7 @@
 class L1GtTriggerMask;
 
 // class declaration
-class L1GlobalTriggerRecordProducer : public edm::EDProducer
+class L1GlobalTriggerRecordProducer : public edm::stream::EDProducer<>
 {
 
 public:
@@ -45,12 +45,7 @@ public:
 
 private:
 
-    virtual void beginJob();
-
-    virtual void produce(edm::Event&, const edm::EventSetup&);
-
-    ///
-    virtual void endJob();
+    virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
     

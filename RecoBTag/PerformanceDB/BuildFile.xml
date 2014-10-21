@@ -2,6 +2,7 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Utilities"/>
 <use   name="FWCore/MessageLogger"/>
+<use   name="boost_serialization"/>
 <export>
   <lib   name="1"/>
 </export>

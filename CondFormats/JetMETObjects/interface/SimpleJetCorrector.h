@@ -1,6 +1,8 @@
 #ifndef SimpleJetCorrector_h
 #define SimpleJetCorrector_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 #include <vector>
 

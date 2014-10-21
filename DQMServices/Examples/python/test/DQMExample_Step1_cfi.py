@@ -19,6 +19,6 @@ DQMExample_Step1 = cms.EDAnalyzer("DQMExample_Step1",
     PtThrL2 = cms.untracked.double(10.0),
     PtThrJet = cms.untracked.double(20.0),
     PtThrMet = cms.untracked.double(20.0),
-    
+
 )
 

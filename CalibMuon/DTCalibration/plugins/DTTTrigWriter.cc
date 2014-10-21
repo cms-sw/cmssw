@@ -83,10 +83,10 @@ void DTTTrigWriter::analyze(const Event & event, const EventSetup& eventSetup) {
   eventSetup.get<MuonGeometryRecord>().get(dtGeom);
 
   // Get all the sls from the setup
-  const vector<DTSuperLayer*> superLayers = dtGeom->superLayers(); 
+  const vector<const DTSuperLayer*> superLayers = dtGeom->superLayers(); 
     
   // Loop over all SLs
-  for(vector<DTSuperLayer*>::const_iterator  sl = superLayers.begin();
+  for(auto  sl = superLayers.begin();
       sl != superLayers.end(); sl++) {
       
     // Get the histo from file

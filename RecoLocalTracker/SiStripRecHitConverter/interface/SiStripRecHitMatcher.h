@@ -19,7 +19,7 @@
 class GluedGeomDet;
 
 #include <cfloat>
-
+#include <memory>
 
 #include <boost/function.hpp>
 
@@ -62,7 +62,7 @@ public:
   
   
  //match a single hit
-  SiStripMatchedRecHit2D * match(const SiStripRecHit2D *monoRH, 
+  std::unique_ptr<SiStripMatchedRecHit2D> match(const SiStripRecHit2D *monoRH,
 				 const SiStripRecHit2D *stereoRH,
 				 const GluedGeomDet* gluedDet,
 				 LocalVector trackdirection, bool force=false) const;

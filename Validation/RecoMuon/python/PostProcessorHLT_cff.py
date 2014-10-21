@@ -52,12 +52,12 @@ postProcessorMuonMultiTrackHLTComp = cms.EDAnalyzer(
     "DQMGenericClient",
     subDirs = cms.untracked.vstring("HLT/Muon/MultiTrack/"), 
     efficiency = cms.vstring(
-    "Eff_L3Tk_Eta_mabh 'Eff_{L3,TK} vs #eta' hltL3Muons_tpToL3MuonAssociation/effic hltL3TkFromL2_tpToL3TkMuonAssociation/effic",
-    "Eff_L3Tk_Pt_mabh 'Eff_{L3,TK} vs p_{T}' hltL3Muons_tpToL3MuonAssociation/efficPt hltL3TkFromL2_tpToL3TkMuonAssociation/efficPt",
-    "Eff_L3Tk_Hit_mabh 'Eff_{L3,TK} vs n Hits' hltL3Muons_tpToL3MuonAssociation/effic_vs_hit hltL3TkFromL2_tpToL3TkMuonAssociation/effic_vs_hit",
-    "Eff_L3L2_Eta_mabh 'Eff_{L3,L2} vs #eta' hltL3Muons_tpToL3MuonAssociation/effic hltL2Muons_UpdatedAtVtx_tpToL2UpdMuonAssociation/effic",
-    "Eff_L3L2_Pt_mabh 'Eff_{L3,L2} vs p_{T}' hltL3Muons_tpToL3MuonAssociation/efficPt hltL2Muons_UpdatedAtVtx_tpToL2UpdMuonAssociation/efficPt",
-    "Eff_L3L2_Hit_mabh 'Eff_{L3,L2} vs n Hits' hltL3Muons_tpToL3MuonAssociation/effic_vs_hit hltL2Muons_UpdatedAtVtx_tpToL2UpdMuonAssociation/effic_vs_hit",
+    "Eff_L3Tk_Eta_mabh 'Eff_{L3,TK} vs #eta' hltL3Muons/effic hltL3TkFromL2/effic",
+    "Eff_L3Tk_Pt_mabh 'Eff_{L3,TK} vs p_{T}' hltL3Muons/efficPt hltL3TkFromL2/efficPt",
+    "Eff_L3Tk_Hit_mabh 'Eff_{L3,TK} vs n Hits' hltL3Muons/effic_vs_hit hltL3TkFromL2/effic_vs_hit",
+    "Eff_L3L2_Eta_mabh 'Eff_{L3,L2} vs #eta' hltL3Muons/effic hltL2Muons_UpdAtVtx/effic",
+    "Eff_L3L2_Pt_mabh 'Eff_{L3,L2} vs p_{T}' hltL3Muons/efficPt hltL2Muons_UpdAtVtx/efficPt",
+    "Eff_L3L2_Hit_mabh 'Eff_{L3,L2} vs n Hits' hltL3Muons/effic_vs_hit hltL2Muons_UpdAtVtx/effic_vs_hit",
     ),
     resolution = cms.vstring(""),
     outputFileName = cms.untracked.string("")

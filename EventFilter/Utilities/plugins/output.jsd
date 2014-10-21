@@ -26,9 +26,19 @@
          "type" : "string"
       },
       {
+         "name" : "Filesize",
+         "operation" : "sum",
+         "type" : "integer"
+      },
+      {
          "name" : "InputFiles",
          "operation" : "cat",
          "type" : "string"
+      },
+      {
+         "name" : "FileAdler32",
+         "operation" : "sum",
+         "type" : "integer"
       }
    ]
 }

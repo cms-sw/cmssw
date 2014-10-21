@@ -25,6 +25,7 @@
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 
+#include "TNamed.h"
 # define ADD_PIXEL_TOPOLOGY( rawid, detUnit )			\
   const PixelGeomDetUnit* det = dynamic_cast<const PixelGeomDetUnit*>( detUnit ); \
   if( det )							\
@@ -94,7 +95,18 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
   addDTGeometry();
   addCSCGeometry();
   addRPCGeometry();
-  addGEMGeometry();
+
+  try 
+  {
+    addGEMGeometry();
+  }
+  catch( cms::Exception& exception )
+  {
+   edm::LogWarning("FWRecoGeometryProducerException")
+     << "Exception caught while building GEM geometry: " << exception.what()
+     << std::endl; 
+  }
+  
   addCaloGeometry();
 
   m_fwGeometry->idToName.resize( m_current + 1 );
@@ -109,8 +121,8 @@ FWRecoGeometryESProducer::addCSCGeometry( void )
 {
   DetId detId( DetId::Muon, 2 ); 
   const CSCGeometry* cscGeometry = (const CSCGeometry*) m_geomRecord->slaveGeometry( detId );
-  for( std::vector<CSCChamber*>::const_iterator it = cscGeometry->chambers().begin(),
-					       end = cscGeometry->chambers().end(); 
+  for( auto it = cscGeometry->chambers().begin(),
+	   end = cscGeometry->chambers().end(); 
        it != end; ++it )
   {
     const CSCChamber *chamber = *it;
@@ -161,8 +173,8 @@ FWRecoGeometryESProducer::addDTGeometry( void )
   //
   // DT chambers geometry
   //
-  for( std::vector<DTChamber *>::const_iterator it = dtGeometry->chambers().begin(),
-					       end = dtGeometry->chambers().end(); 
+  for( auto it = dtGeometry->chambers().begin(),
+	   end = dtGeometry->chambers().end(); 
        it != end; ++it )
   {
     const DTChamber *chamber = *it;
@@ -176,8 +188,8 @@ FWRecoGeometryESProducer::addDTGeometry( void )
   }
 
   // Fill in DT layer parameters
-  for( std::vector<DTLayer*>::const_iterator it = dtGeometry->layers().begin(),
-					    end = dtGeometry->layers().end(); 
+  for( auto it = dtGeometry->layers().begin(),
+	   end = dtGeometry->layers().end(); 
        it != end; ++it )
   {
     const DTLayer* layer = *it;
@@ -214,11 +226,11 @@ FWRecoGeometryESProducer::addRPCGeometry( void )
   //
   DetId detId( DetId::Muon, 3 );
   const RPCGeometry* rpcGeom = (const RPCGeometry*) m_geomRecord->slaveGeometry( detId );
-  for( std::vector<RPCRoll *>::const_iterator it = rpcGeom->rolls().begin(),
-					     end = rpcGeom->rolls().end(); 
+  for( auto it = rpcGeom->rolls().begin(),
+	   end = rpcGeom->rolls().end(); 
        it != end; ++it )
   {
-    RPCRoll* roll = (*it);
+    const RPCRoll* roll = (*it);
     if( roll )
     {
       unsigned int rawid = roll->geographicalId().rawId();
@@ -231,6 +243,14 @@ FWRecoGeometryESProducer::addRPCGeometry( void )
       m_fwGeometry->idToName[current].topology[2] = topo.pitch();
     }
   }
+
+
+  try {
+     RPCDetId id(1, 1, 4, 1, 1, 1, 1 );
+     m_geomRecord->slaveGeometry( detId );
+     m_fwGeometry->extraDet.Add(new TNamed("RE4", "RPC endcap station 4"));
+  }
+  catch (...) {}
 }
 
 void
@@ -241,11 +261,11 @@ FWRecoGeometryESProducer::addGEMGeometry( void )
   //
   DetId detId( DetId::Muon, 4 );
   const GEMGeometry* gemGeom = (const GEMGeometry*) m_geomRecord->slaveGeometry( detId );
-  for( std::vector<GEMEtaPartition *>::const_iterator it = gemGeom->etaPartitions().begin(),
-						     end = gemGeom->etaPartitions().end(); 
+  for( auto it = gemGeom->etaPartitions().begin(),
+	   end = gemGeom->etaPartitions().end(); 
        it != end; ++it )
   {
-    GEMEtaPartition* roll = (*it);
+    const GEMEtaPartition* roll = (*it);
     if( roll )
     {
       unsigned int rawid = (*it)->geographicalId().rawId();
@@ -258,6 +278,8 @@ FWRecoGeometryESProducer::addGEMGeometry( void )
       m_fwGeometry->idToName[current].topology[2] = topo.pitch();
     }
   }
+
+  m_fwGeometry->extraDet.Add(new TNamed("GEM", "GEM muon detector"));
 }
 
 

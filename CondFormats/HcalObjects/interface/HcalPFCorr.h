@@ -1,6 +1,8 @@
 #ifndef HcalPFCorr_h
 #define HcalPFCorr_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 /*
 \class HcalPFCorr
 \author Radek Ofierzynski
@@ -20,6 +22,8 @@ class HcalPFCorr
  private:
   uint32_t mId;
   float mValue;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

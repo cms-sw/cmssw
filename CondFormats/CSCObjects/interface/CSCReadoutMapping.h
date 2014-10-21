@@ -13,6 +13,8 @@
 
 //@@ FIXME This whole design would better suit a Factory/Builder pattern
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <vector>
 #include <map>
@@ -53,7 +55,9 @@ class CSCReadoutMapping {
     int cscid_;
     int ddu_;
     int dcc_;
-  };
+  
+  COND_SERIALIZABLE;
+};
 
    /**
     * Return CSCDetId for layer corresponding to readout ids vme, tmb, and dmb for given endcap
@@ -125,12 +129,14 @@ class CSCReadoutMapping {
      */
     int swId( int endcap, int station, int ring, int chamber) const;
 
-    std::string myName_;
-    bool debugV_;
+    std::string myName_ COND_TRANSIENT;
+    bool debugV_ COND_TRANSIENT;
     std::vector< CSCLabel > mapping_;
-    std::map< int, int > hw2sw_;
+    std::map< int, int > hw2sw_ COND_TRANSIENT;
     std::map< int, CSCLabel > sw2hw_;
 
+
+ COND_SERIALIZABLE;
 };
 
 #endif

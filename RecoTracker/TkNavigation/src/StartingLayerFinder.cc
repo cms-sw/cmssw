@@ -50,34 +50,30 @@ StartingLayerFinder::startingLayers(const FTS& aFts, float dr, float dz) const {
 
   //negative fwd pixel
 
-  const vector<ForwardDetLayer*> nfwd = firstPosPixelFwdLayer();
-  for(vector<ForwardDetLayer*>::const_iterator infwd = nfwd.begin();
-      infwd != nfwd.end(); infwd++) {
-    pTsos = propagator()->propagate(fastFts, (*infwd)->surface());  
+  for(auto infwd : firstPosPixelFwdLayer() ) {
+    pTsos = propagator()->propagate(fastFts, infwd->surface());  
     if(pTsos.isValid()) {
-      Range nfwdRRange((*infwd)->specificSurface().innerRadius(),
-		       (*infwd)->specificSurface().outerRadius());
+      Range nfwdRRange(infwd->specificSurface().innerRadius(),
+		       infwd->specificSurface().outerRadius());
       Range trajRRange(pTsos.globalPosition().perp() - dr,
 		       pTsos.globalPosition().perp() + dr);
       if(rangesIntersect(trajRRange, nfwdRRange)) {
-	mylayers.push_back(*infwd);
+	mylayers.push_back(infwd);
 
       }
     }
   }
 
   //positive fwd pixel
-  const vector<ForwardDetLayer*> pfwd = firstPosPixelFwdLayer();
-  for(vector<ForwardDetLayer*>::const_iterator ipfwd = pfwd.begin();
-      ipfwd != pfwd.end(); ipfwd++) {
-    pTsos = propagator()->propagate(fastFts, (*ipfwd)->surface());
+  for(auto ipfwd: firstPosPixelFwdLayer()) {
+    pTsos = propagator()->propagate(fastFts, ipfwd->surface());
     if(pTsos.isValid()) {
-      Range pfwdRRange((*ipfwd)->specificSurface().innerRadius(),
-		       (*ipfwd)->specificSurface().outerRadius());
+      Range pfwdRRange(ipfwd->specificSurface().innerRadius(),
+		       ipfwd->specificSurface().outerRadius());
       Range trajRRange(pTsos.globalPosition().perp() - dr,
 		       pTsos.globalPosition().perp() + dr);
       if(rangesIntersect(trajRRange, pfwdRRange)) {
-	mylayers.push_back(*ipfwd);
+	mylayers.push_back(ipfwd);
 
       }
     }
@@ -146,12 +142,12 @@ const BarrelDetLayer* StartingLayerFinder::firstPixelBarrelLayer() const {
   return theFirstPixelBarrelLayer;  
 }
 
-const vector<ForwardDetLayer*> StartingLayerFinder::firstNegPixelFwdLayer() const {
+const vector<const ForwardDetLayer*> StartingLayerFinder::firstNegPixelFwdLayer() const {
   checkPixelLayers();
   return theFirstNegPixelFwdLayer;
 }
 
-const vector<ForwardDetLayer*>  StartingLayerFinder::firstPosPixelFwdLayer() const {
+const vector<const ForwardDetLayer*>  StartingLayerFinder::firstPosPixelFwdLayer() const {
   checkPixelLayers();
   return theFirstPosPixelFwdLayer;
 }

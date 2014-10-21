@@ -20,15 +20,15 @@ class SimpleNavigableLayer : public NavigableLayer {
 public:
 
   typedef std::vector<const DetLayer*>              DLC;
-  typedef std::vector<BarrelDetLayer*>              BDLC;
-  typedef std::vector<ForwardDetLayer*>             FDLC;
+  typedef std::vector<const BarrelDetLayer*>        BDLC;
+  typedef std::vector<const ForwardDetLayer*>       FDLC;
 
   SimpleNavigableLayer( const MagneticField* field,float eps,bool checkCrossingSide=true) :
-    thePropagator(field), theEpsilon(eps),theCheckCrossingSide(checkCrossingSide),theSelfSearch(false) {}
+    theField(field), theEpsilon(eps),theCheckCrossingSide(checkCrossingSide),theSelfSearch(false) {}
 
   virtual void setInwardLinks(const BDLC&, const FDLC&, TkLayerLess sorter = TkLayerLess(outsideIn)) = 0;
   
-  virtual void setAdditionalLink(DetLayer*, NavigationDirection direction=insideOut) = 0;
+  virtual void setAdditionalLink(const DetLayer*, NavigationDirection direction=insideOut) = 0;
 
   void setCheckCrossingSide(bool docheck) {theCheckCrossingSide = docheck;}
 
@@ -39,7 +39,7 @@ public:
   
 protected:
   
-  mutable AnalyticalPropagator     thePropagator;
+  const MagneticField * theField;
   float                     theEpsilon;
   bool theCheckCrossingSide;
 public:
@@ -68,9 +68,10 @@ protected:
   bool wellInside( const FreeTrajectoryState& fts, PropagationDirection dir,
 		   ConstFDLI begin, ConstFDLI end, DLC& result) const dso_internal;
 
-  Propagator& propagator( PropagationDirection dir) const{
-    thePropagator.setPropagationDirection(dir);
-    return thePropagator;
+  AnalyticalPropagator propagator( PropagationDirection dir) const{
+    AnalyticalPropagator aPropagator(theField);
+    aPropagator.setPropagationDirection(dir);
+    return aPropagator;
   }
 
   TSOS crossingState(const FreeTrajectoryState& fts,PropagationDirection dir) const dso_internal;

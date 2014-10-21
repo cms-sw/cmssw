@@ -13,7 +13,7 @@ namespace edm {
   class ExceptionToActionTable;
   class ActivityRegistry;
   class BranchIDListHelper;
-  class CommonParams;
+  struct CommonParams;
   class SubProcess;
   class ParameterSet;
   class ProcessConfiguration;
@@ -27,7 +27,7 @@ namespace edm {
   struct ScheduleItems {
     ScheduleItems();
 
-    ScheduleItems(ProductRegistry const& preg, BranchIDListHelper const& branchIDListHelper, SubProcess const& om);
+    ScheduleItems(ProductRegistry const& preg, SubProcess const& om);
 
     ScheduleItems(ScheduleItems const&) = delete; // Disallow copying and moving
     ScheduleItems& operator=(ScheduleItems const&) = delete; // Disallow copying and moving

@@ -6,6 +6,7 @@
 #include "TClass.h"
 #include "TMath.h"
 #include "TList.h"
+#include "THashList.h"
 #include <iostream>
 #include <cassert>
 #include <cfloat>
@@ -226,6 +227,46 @@ MonitorElement::~MonitorElement(void)
 {
   delete object_;
   delete refvalue_;
+}
+
+void
+MonitorElement::deleteObjects(void)
+{
+  delete object_;
+  delete reference_;
+  delete refvalue_;
+
+  object_ = nullptr;
+  reference_ = nullptr;
+  refvalue_ = nullptr;
+}
+
+//utility function to check the consistency of the axis labels
+//taken from TH1::CheckBinLabels which is not public
+bool
+MonitorElement::CheckBinLabels(const TAxis* a1, const TAxis * a2)
+{
+  // check that axis have same labels
+  THashList *l1 = (const_cast<TAxis*>(a1))->GetLabels();
+  THashList *l2 = (const_cast<TAxis*>(a2))->GetLabels();
+  
+  if (!l1 && !l2 )
+    return true;
+  if (!l1 ||  !l2 ) {
+    return false;
+  }
+  // check now labels sizes  are the same
+  if (l1->GetSize() != l2->GetSize() ) {
+    return false;
+  }
+  for (int i = 1; i <= a1->GetNbins(); ++i) {
+    TString label1 = a1->GetBinLabel(i);
+    TString label2 = a2->GetBinLabel(i);
+    if (label1 != label2) {
+      return false;
+    }
+  }
+  return true;
 }
 
 /// "Fill" ME methods for string

@@ -14,7 +14,7 @@ namespace edm { class Event; class EventSetup; }
 class PixelTripletNoTipGenerator : public HitTripletGeneratorFromPairAndLayers {
 typedef CombinedHitTripletGenerator::LayerCacheType       LayerCacheType;
 public:
-  PixelTripletNoTipGenerator(const edm::ParameterSet& cfg);
+  PixelTripletNoTipGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
   virtual ~PixelTripletNoTipGenerator() { delete thePairGenerator; }
 

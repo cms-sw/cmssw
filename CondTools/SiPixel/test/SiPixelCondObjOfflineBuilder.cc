@@ -73,7 +73,7 @@ SiPixelCondObjOfflineBuilder::analyze(const edm::Event& iEvent, const edm::Event
    edm::LogInfo("SiPixelCondObjOfflineBuilder") <<" There are "<<pDD->dets().size() <<" detectors"<<std::endl;
    
    for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
-     if( dynamic_cast<PixelGeomDetUnit*>((*it))!=0){
+     if( dynamic_cast<PixelGeomDetUnit const*>((*it))!=0){
        uint32_t detid=((*it)->geographicalId()).rawId();
        
        // Stop if module limit reached
@@ -222,7 +222,7 @@ SiPixelCondObjOfflineBuilder::analyze(const edm::Event& iEvent, const edm::Event
  //   // Try to read object
 //    int mynmodules =0;
 //    for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
-//      if( dynamic_cast<PixelGeomDetUnit*>((*it))!=0){
+//      if( dynamic_cast<PixelGeomDetUnit const*>((*it))!=0){
 //        uint32_t mydetid=((*it)->geographicalId()).rawId();
 //        mynmodules++;
 //        if( mynmodules > numberOfModules_) break;

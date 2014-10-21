@@ -13,6 +13,7 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
 
+namespace edm { class ConsumesCollector; }
 
 class HitTripletGeneratorFromPairAndLayers : public HitTripletGenerator {
 

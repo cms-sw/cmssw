@@ -21,29 +21,29 @@
 #include <vector>
 #include <math.h>
 
+
 class HTrackVariables{
 public:
   
-  HTrackVariables(std::string dirName_, std::string name,std::string whereIs =""):theName(name.c_str()),where(whereIs.c_str()){
-    dbe_ = edm::Service<DQMStore>().operator->();
-    dbe_->cd();
+  HTrackVariables(DQMStore::IBooker &ibooker,std::string dirName_, std::string name,std::string whereIs =""):theName(name.c_str()),where(whereIs.c_str()){
+    ibooker.cd();
     std::string dirName=dirName_;
     //dirName+="/";
     //dirName+=name.c_str();
     
-    dbe_->setCurrentFolder(dirName.c_str());
+    ibooker.setCurrentFolder(dirName.c_str());
     
-    hEta = dbe_->book1D(theName+"_Eta_"+where,"#eta at "+where,120,-3.,3.);
-    hPhi = dbe_->book1D(theName+"_Phi_"+where,"#phi at "+where,100,-Geom::pi(),Geom::pi());
-    hP   = dbe_->book1D(theName+"_P_"+where,"p_{t} at "+where,1000,0,2000);
-    hPt  = dbe_->book1D(theName+"_Pt_"+where,"p_{t} at "+where,1000,0,2000);
-    hCharge = dbe_->book1D(theName+"_charge_"+where,"Charge at "+where,4,-2.,2.);
+    hEta = ibooker.book1D(theName+"_Eta_"+where,"#eta at "+where,120,-3.,3.);
+    hPhi = ibooker.book1D(theName+"_Phi_"+where,"#phi at "+where,100,-Geom::pi(),Geom::pi());
+    hP   = ibooker.book1D(theName+"_P_"+where,"p_{t} at "+where,1000,0,2000);
+    hPt  = ibooker.book1D(theName+"_Pt_"+where,"p_{t} at "+where,1000,0,2000);
+    hCharge = ibooker.book1D(theName+"_charge_"+where,"Charge at "+where,4,-2.,2.);
 
-    hEtaVsGen = dbe_->book1D(theName+"_EtaVsGen_"+where,"#eta at "+where,120,-3.,3.);
-    hPhiVsGen = dbe_->book1D(theName+"_PhiVsGen_"+where,"#phi at "+where,100,-Geom::pi(),Geom::pi());
-    hPtVsGen  = dbe_->book1D(theName+"_PtVsGen_"+where,"p_{t} at "+where,1000,0,2000);
+    hEtaVsGen = ibooker.book1D(theName+"_EtaVsGen_"+where,"#eta at "+where,120,-3.,3.);
+    hPhiVsGen = ibooker.book1D(theName+"_PhiVsGen_"+where,"#phi at "+where,100,-Geom::pi(),Geom::pi());
+    hPtVsGen  = ibooker.book1D(theName+"_PtVsGen_"+where,"p_{t} at "+where,1000,0,2000);
 
-    hDeltaR = dbe_->book1D(theName+"_DeltaR_"+where,"Delta R w.r.t. sim track for "+where,1000,0,20);
+    hDeltaR = ibooker.book1D(theName+"_DeltaR_"+where,"Delta R w.r.t. sim track for "+where,1000,0,20);
 
     theEntries = 0;
   }
@@ -87,19 +87,17 @@ public:
     hDeltaR->Fill(deltaR);
   }
   
-  double computeEfficiency(HTrackVariables *sim){
+  double computeEfficiency(HTrackVariables *sim,DQMStore::IBooker& ibooker){
     
-    efficiencyHistos.push_back(computeEfficiency(hEtaVsGen,sim->eta()));
-    efficiencyHistos.push_back(computeEfficiency(hPhiVsGen,sim->phi()));
-    //    efficiencyHistos.push_back(computeEfficiency(p(),sim->p()));
-    efficiencyHistos.push_back(computeEfficiency(hPtVsGen,sim->pt()));
-    //    efficiencyHistos.push_back(computeEfficiency(charge(),sim->charge()));
+    efficiencyHistos.push_back(computeEfficiency(hEtaVsGen,sim->eta(),ibooker));
+    efficiencyHistos.push_back(computeEfficiency(hPhiVsGen,sim->phi(),ibooker));
+    efficiencyHistos.push_back(computeEfficiency(hPtVsGen,sim->pt(),ibooker));
 
     double efficiency = 100*entries()/sim->entries();
     return efficiency;
   }
 
-  MonitorElement* computeEfficiency(MonitorElement *reco, MonitorElement *sim){
+  MonitorElement* computeEfficiency(MonitorElement *reco, MonitorElement *sim, DQMStore::IBooker& ibooker){
     
     TH1F* hReco = reco->getTH1F();
     TH1F* hSim  = sim->getTH1F();
@@ -107,7 +105,7 @@ public:
     std::string name = hReco->GetName();
     std::string title = hReco->GetTitle();
     
-    MonitorElement * me = dbe_->book1D(
+    MonitorElement * me = ibooker.book1D(
 				       "Eff_"+name,
 				       "Efficiecny as a function of "+title,
 				       hSim->GetNbinsX(),
@@ -134,7 +132,6 @@ public:
   
   
  private:
-  DQMStore* dbe_;
 
   std::string theName;
   std::string where;
@@ -162,46 +159,45 @@ public:
 class HResolution {
 public:
   
-  HResolution(std::string dirName_,std::string name,std::string whereIs):theName(name.c_str()),where(whereIs.c_str()){
+  HResolution(DQMStore::IBooker &ibooker, std::string dirName_,std::string name,std::string whereIs):theName(name.c_str()),where(whereIs.c_str()){
     
-    dbe_ = edm::Service<DQMStore>().operator->();
-    dbe_->cd();
+    ibooker.cd();
     std::string dirName=dirName_;
     //dirName+="/";
     //dirName+=name.c_str();
     
-    dbe_->setCurrentFolder(dirName.c_str());
+    ibooker.setCurrentFolder(dirName.c_str());
     
     double eta = 15.; int neta = 800;
     double phi = 12.; int nphi = 400;
     double pt = 60.; int npt = 2000;
 
-    hEta = dbe_->book1D(theName+"_Eta_"+where,"#eta "+theName,neta,-eta,eta); // 400
-    hPhi = dbe_->book1D(theName+"_Phi_"+where,"#phi "+theName,nphi,-phi,phi); // 100
+    hEta = ibooker.book1D(theName+"_Eta_"+where,"#eta "+theName,neta,-eta,eta); // 400
+    hPhi = ibooker.book1D(theName+"_Phi_"+where,"#phi "+theName,nphi,-phi,phi); // 100
 
-    hP = dbe_->book1D(theName+"_P_"+where,"P "+theName,400,-4,4);  // 200
-    hPt = dbe_->book1D(theName+"_Pt_"+where,"P_{t} "+theName,npt,-pt,pt); // 200
+    hP = ibooker.book1D(theName+"_P_"+where,"P "+theName,400,-4,4);  // 200
+    hPt = ibooker.book1D(theName+"_Pt_"+where,"P_{t} "+theName,npt,-pt,pt); // 200
 
-    hCharge = dbe_->book1D(theName+"_charge_"+where,"Charge "+theName,4,-2.,2.);
+    hCharge = ibooker.book1D(theName+"_charge_"+where,"Charge "+theName,4,-2.,2.);
 
 
-    h2Eta = dbe_->book2D(theName+"_Eta_vs_Eta"+where,"#eta "+theName+" as a function of #eta",200,-2.5,2.5,neta,-eta,eta);
-    h2Phi = dbe_->book2D(theName+"_Phi_vs_Phi"+where,"#phi "+theName+" as a function of #phi",100,-Geom::pi(),Geom::pi(),nphi,-phi,phi);
+    h2Eta = ibooker.book2D(theName+"_Eta_vs_Eta"+where,"#eta "+theName+" as a function of #eta",200,-2.5,2.5,neta,-eta,eta);
+    h2Phi = ibooker.book2D(theName+"_Phi_vs_Phi"+where,"#phi "+theName+" as a function of #phi",100,-Geom::pi(),Geom::pi(),nphi,-phi,phi);
     
-    h2P = dbe_->book2D(theName+"_P_vs_P"+where,"P "+theName+" as a function of P",1000,0,2000,400,-4,4);
-    h2Pt = dbe_->book2D(theName+"_Pt_vs_Pt"+where,"P_{t} "+theName+" as a function of P_{t}",1000,0,2000,npt,-pt,pt);
+    h2P = ibooker.book2D(theName+"_P_vs_P"+where,"P "+theName+" as a function of P",1000,0,2000,400,-4,4);
+    h2Pt = ibooker.book2D(theName+"_Pt_vs_Pt"+where,"P_{t} "+theName+" as a function of P_{t}",1000,0,2000,npt,-pt,pt);
     
-    h2PtVsEta = dbe_->book2D(theName+"_Pt_vs_Eta"+where,"P_{t} "+theName+" as a function of #eta",200,-2.5,2.5,npt,-pt,pt);
-    h2PtVsPhi = dbe_->book2D(theName+"_Pt_vs_Phi"+where,"P_{t} "+theName+" as a function of #phi",100,-Geom::pi(),Geom::pi(),npt,-pt,pt);
+    h2PtVsEta = ibooker.book2D(theName+"_Pt_vs_Eta"+where,"P_{t} "+theName+" as a function of #eta",200,-2.5,2.5,npt,-pt,pt);
+    h2PtVsPhi = ibooker.book2D(theName+"_Pt_vs_Phi"+where,"P_{t} "+theName+" as a function of #phi",100,-Geom::pi(),Geom::pi(),npt,-pt,pt);
 
-    h2EtaVsPt = dbe_->book2D(theName+"_Eta_vs_Pt"+where,"#eta "+theName+" as a function of P_{t}",1000,0,2000,neta,-eta,eta);
-    h2EtaVsPhi = dbe_->book2D(theName+"_Eta_vs_Phi"+where,"#eta "+theName+" as a function of #phi",100,-Geom::pi(),Geom::pi(),neta,-eta,eta);
+    h2EtaVsPt = ibooker.book2D(theName+"_Eta_vs_Pt"+where,"#eta "+theName+" as a function of P_{t}",1000,0,2000,neta,-eta,eta);
+    h2EtaVsPhi = ibooker.book2D(theName+"_Eta_vs_Phi"+where,"#eta "+theName+" as a function of #phi",100,-Geom::pi(),Geom::pi(),neta,-eta,eta);
     
-    h2PhiVsPt = dbe_->book2D(theName+"_Phi_vs_Pt"+where,"#phi "+theName+" as a function of P_{t}",1000,0,2000,nphi,-phi,phi);
-    h2PhiVsEta = dbe_->book2D(theName+"_Phi_vs_Eta"+where,"#phi "+theName+" as a function of #eta",200,-2.5,2.5,nphi,-phi,phi);
+    h2PhiVsPt = ibooker.book2D(theName+"_Phi_vs_Pt"+where,"#phi "+theName+" as a function of P_{t}",1000,0,2000,nphi,-phi,phi);
+    h2PhiVsEta = ibooker.book2D(theName+"_Phi_vs_Eta"+where,"#phi "+theName+" as a function of #eta",200,-2.5,2.5,nphi,-phi,phi);
   }
   
-  HResolution(std::string name, TFile* file):theName(name.c_str()){ 
+    HResolution(DQMStore::IBooker &ibooker, std::string name, TFile* file):theName(name.c_str()){ 
     //    dynamic_cast<TH1F*>( file->Get(theName+"") );
   }
   
@@ -261,7 +257,6 @@ public:
 
 
 private:
-  DQMStore* dbe_;
 
   std::string theName;
   std::string where;
@@ -294,44 +289,44 @@ private:
 
 class HResolution1DRecHit{
  public:
-  HResolution1DRecHit(std::string name):theName(name.c_str()){
+  HResolution1DRecHit(DQMStore::IBooker &ibooker, std::string name):theName(name.c_str()){
 
     // Position, sigma, residual, pull
-    hResX        = dbe_->book1D (theName+"_X_Res", "X residual", 5000, -0.5,0.5);
-    hResY        = dbe_->book1D (theName+"_Y_Res", "Y residual", 5000, -1.,1.);
-    hResZ        = dbe_->book1D (theName+"_Z_Res", "Z residual", 5000, -1.5,1.5);
+    hResX        = ibooker.book1D (theName+"_X_Res", "X residual", 5000, -0.5,0.5);
+    hResY        = ibooker.book1D (theName+"_Y_Res", "Y residual", 5000, -1.,1.);
+    hResZ        = ibooker.book1D (theName+"_Z_Res", "Z residual", 5000, -1.5,1.5);
 
-    hResXVsEta   = dbe_->book2D(theName+"_XResVsEta", "X residual vs eta",
+    hResXVsEta   = ibooker.book2D(theName+"_XResVsEta", "X residual vs eta",
 			    200, -2.5,2.5, 5000, -1.5,1.5);
-    hResYVsEta   = dbe_->book2D(theName+"_YResVsEta", "Y residual vs eta",
+    hResYVsEta   = ibooker.book2D(theName+"_YResVsEta", "Y residual vs eta",
 			    200, -2.5,2.5, 5000, -1.,1.);
-    hResZVsEta   = dbe_->book2D(theName+"_ZResVsEta", "Z residual vs eta",
+    hResZVsEta   = ibooker.book2D(theName+"_ZResVsEta", "Z residual vs eta",
 			    200, -2.5,2.5, 5000, -1.5,1.5);
     
-    hXResVsPhi   = dbe_->book2D(theName+"_XResVsPhi", "X residual vs phi",
+    hXResVsPhi   = ibooker.book2D(theName+"_XResVsPhi", "X residual vs phi",
 			    100,-Geom::pi(),Geom::pi(), 5000, -0.5,0.5);
-    hYResVsPhi   = dbe_->book2D(theName+"_YResVsPhi", "Y residual vs phi",
+    hYResVsPhi   = ibooker.book2D(theName+"_YResVsPhi", "Y residual vs phi",
 			    100,-Geom::pi(),Geom::pi(), 5000, -1.,1.);
-    hZResVsPhi   = dbe_->book2D(theName+"_ZResVsPhi", "Z residual vs phi",
+    hZResVsPhi   = ibooker.book2D(theName+"_ZResVsPhi", "Z residual vs phi",
 			    100,-Geom::pi(),Geom::pi(), 5000, -1.5,1.5);
     
-    hXResVsPos   = dbe_->book2D(theName+"_XResVsPos", "X residual vs position",
+    hXResVsPos   = ibooker.book2D(theName+"_XResVsPos", "X residual vs position",
 			    10000, -750,750, 5000, -0.5,0.5);    
-    hYResVsPos   = dbe_->book2D(theName+"_YResVsPos", "Y residual vs position",
+    hYResVsPos   = ibooker.book2D(theName+"_YResVsPos", "Y residual vs position",
 			    10000, -740,740, 5000, -1.,1.);    
-    hZResVsPos   = dbe_->book2D(theName+"_ZResVsPos", "Z residual vs position",
+    hZResVsPos   = ibooker.book2D(theName+"_ZResVsPos", "Z residual vs position",
 			    10000, -1100,1100, 5000, -1.5,1.5);   
     
-    hXPull       = dbe_->book1D (theName+"_XPull", "X pull", 600, -2,2);
-    hYPull       = dbe_->book1D (theName+"_YPull", "Y pull", 600, -2,2);
-    hZPull       = dbe_->book1D (theName+"_ZPull", "Z pull", 600, -2,2);
+    hXPull       = ibooker.book1D (theName+"_XPull", "X pull", 600, -2,2);
+    hYPull       = ibooker.book1D (theName+"_YPull", "Y pull", 600, -2,2);
+    hZPull       = ibooker.book1D (theName+"_ZPull", "Z pull", 600, -2,2);
 
-    hXPullVsPos  = dbe_->book2D (theName+"_XPullVsPos", "X pull vs position",10000, -750,750, 600, -2,2);
-    hYPullVsPos  = dbe_->book2D (theName+"_YPullVsPos", "Y pull vs position",10000, -740,740, 600, -2,2);
-    hZPullVsPos  = dbe_->book2D (theName+"_ZPullVsPos", "Z pull vs position",10000, -1100,1100, 600, -2,2);
+    hXPullVsPos  = ibooker.book2D (theName+"_XPullVsPos", "X pull vs position",10000, -750,750, 600, -2,2);
+    hYPullVsPos  = ibooker.book2D (theName+"_YPullVsPos", "Y pull vs position",10000, -740,740, 600, -2,2);
+    hZPullVsPos  = ibooker.book2D (theName+"_ZPullVsPos", "Z pull vs position",10000, -1100,1100, 600, -2,2);
   }
   
-  HResolution1DRecHit(const TString& name_, TFile* file){}
+    HResolution1DRecHit(DQMStore::IBooker &ibooker, const TString& name_, TFile* file){}
 
   ~HResolution1DRecHit(){}
 
@@ -408,8 +403,6 @@ class HResolution1DRecHit{
   MonitorElement *hYPullVsPos;
   MonitorElement *hZPullVsPos;
 
- private:
-  DQMStore* dbe_;
 };
 #endif
 

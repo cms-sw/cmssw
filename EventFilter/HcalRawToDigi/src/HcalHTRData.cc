@@ -248,7 +248,7 @@ void HcalHTRData::pack(unsigned char* daq_lengths, unsigned short* daq_samples,
   for (ichan=0; ichan<24; ichan++) {
     unsigned short chanid=((ichan%3)+((ichan/3)<<2))<<11;
     for (isample=0; isample<daq_lengths[ichan] && isample<MAXIMUM_SAMPLES_PER_CHANNEL; isample++) {
-      unsigned short basedata=daq_samples[ichan*MAXIMUM_SAMPLES_PER_CHANNEL+isample]&0x3FF;
+      unsigned short basedata=daq_samples[ichan*MAXIMUM_SAMPLES_PER_CHANNEL+isample]&0x7FF;
       if (do_capid) basedata=(basedata&0x7F)|(0x200)|((isample%4)<<7);
       ptr[daq_words_total]=chanid|basedata;
       daq_words_total++;

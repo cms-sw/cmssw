@@ -50,6 +50,7 @@ class MonitorElement;
 class FreeTrajectoryState;
 class DetLayer;
 class DetId;
+class NavigationSchool;
 
 class DTChamberEfficiency : public edm::EDAnalyzer
 {
@@ -70,7 +71,7 @@ class DTChamberEfficiency : public edm::EDAnalyzer
  private:
 
   //functions
-  std::vector<const DetLayer*> compatibleLayers(const DetLayer *initialLayer,
+  std::vector<const DetLayer*> compatibleLayers(const NavigationSchool& navigationSchool, const DetLayer *initialLayer,
 						const FreeTrajectoryState& fts, PropagationDirection propDir);
 
 

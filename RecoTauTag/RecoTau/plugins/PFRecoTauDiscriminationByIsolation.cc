@@ -45,6 +45,8 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
       "applyRelativeSumPtCut");
     maximumRelativeSumPt_ = pset.getParameter<double>(
       "relativeSumPtCut");
+    offsetRelativeSumPt_ = pset.exists("relativeSumPtOffset") ?
+      pset.getParameter<double>("relativeSumPtOffset") : 0.0;
 
     storeRawOccupancy_ = pset.exists("storeRawOccupancy") ?
       pset.getParameter<bool>("storeRawOccupancy") : false;
@@ -168,6 +170,7 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
   double maximumSumPt_;
   bool applyRelativeSumPtCut_;
   double maximumRelativeSumPt_;
+  double offsetRelativeSumPt_;
   double customIsoCone_;
   
   // Options to store the raw value in the discriminator instead of boolean pass/fail flag
@@ -424,7 +427,7 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau)
     failsSumPtCut = (totalPt > maximumSumPt_);
 
 //--- Relative Sum PT requirement
-    failsRelativeSumPtCut = (totalPt > (pfTau->pt()*maximumRelativeSumPt_));
+    failsRelativeSumPtCut = (totalPt > ((pfTau->pt() - offsetRelativeSumPt_)*maximumRelativeSumPt_));
   }
 
   bool fails = (applyOccupancyCut_ && failsOccupancyCut) ||

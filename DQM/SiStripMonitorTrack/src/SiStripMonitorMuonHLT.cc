@@ -23,6 +23,8 @@
 //
 SiStripMonitorMuonHLT::SiStripMonitorMuonHLT (const edm::ParameterSet & iConfig)
 {
+  cached_detid=0;
+  cached_layer=0;
   //now do what ever initialization is needed
   parameters_ = iConfig;
   verbose_ = parameters_.getUntrackedParameter<bool>("verbose",false);
@@ -49,16 +51,6 @@ SiStripMonitorMuonHLT::SiStripMonitorMuonHLT (const edm::ParameterSet & iConfig)
   HistoNumber = 35;
 
   //services
-  dbe_ = 0;
-  if (!edm::Service < DQMStore > ().isAvailable ())
-    {
-      edm::LogError ("TkHistoMap") <<
-	"\n------------------------------------------"
-	"\nUnAvailable Service DQMStore: please insert in the configuration file an instance like" "\n\tprocess.load(\"DQMServices.Core.DQMStore_cfg\")" "\n------------------------------------------";
-    }
-  dbe_ = edm::Service < DQMStore > ().operator-> ();
-  dbe_->setVerbose (0);
-
   tkdetmap_ = 0;
   if (!edm::Service < TkDetMap > ().isAvailable ())
     {
@@ -75,7 +67,6 @@ SiStripMonitorMuonHLT::SiStripMonitorMuonHLT (const edm::ParameterSet & iConfig)
 
   bool disable = parameters_.getUntrackedParameter < bool > ("disableROOToutput",false);
   if (disable) outputFile_ = "";
-  if (dbe_ != NULL) dbe_->setCurrentFolder (monitorName_);
 
 }
 
@@ -119,8 +110,6 @@ float SiStripMonitorMuonHLT::GetPhiWeight(std::string label, GlobalPoint clustgp
 void
 SiStripMonitorMuonHLT::analyze (const edm::Event & iEvent, const edm::EventSetup & iSetup)
 {
-  if (!dbe_)
-    return;
   counterEvt_++;
   if (prescaleEvt_ > 0 && counterEvt_ % prescaleEvt_ != 0)
     return;
@@ -162,7 +151,7 @@ SiStripMonitorMuonHLT::analyze (const edm::Event & iEvent, const edm::EventSetup
 	  
 	  uint detID = 0; // zero since long time clust->geographicalId ();
 	  std::stringstream ss;
-	  int layer = tkdetmap_->FindLayer (detID);
+	  int layer = tkdetmap_->FindLayer (detID , cached_detid , cached_layer , cached_XYbin);
 	  std::string label = tkdetmap_->getLayerName (layer);
 	  const StripGeomDetUnit *theGeomDet = dynamic_cast < const StripGeomDetUnit * >(theTracker.idToDet (detID));
 	  const StripTopology *topol = dynamic_cast < const StripTopology * >(&(theGeomDet->specificTopology ()));
@@ -222,7 +211,7 @@ void SiStripMonitorMuonHLT::analyzeOnTrackClusters( const reco::Track* l3tk, con
 		  // if SiStripRecHit1D
 		  if (hit1D != 0)
 		    {
-		      int layer = tkdetmap_->FindLayer (detID);
+		      int layer = tkdetmap_->FindLayer (detID , cached_detid , cached_layer , cached_XYbin);
 		      std::string label = tkdetmap_->getLayerName (layer);
 		      const StripGeomDetUnit *theGeomDet = dynamic_cast < const StripGeomDetUnit * >(theTracker.idToDet (detID));
 		      if (theGeomDet != 0)
@@ -258,7 +247,7 @@ void SiStripMonitorMuonHLT::analyzeOnTrackClusters( const reco::Track* l3tk, con
 		  // if SiStripRecHit2D
 		  if (hit2D != 0)
 		    {
-		      int layer = tkdetmap_->FindLayer (detID);
+		      int layer = tkdetmap_->FindLayer (detID , cached_detid , cached_layer , cached_XYbin);
 		      std::string label = tkdetmap_->getLayerName (layer);
 		      const StripGeomDetUnit *theGeomDet = dynamic_cast < const StripGeomDetUnit * >(theTracker.idToDet (detID));
 		      if (theGeomDet != 0)
@@ -297,7 +286,7 @@ void SiStripMonitorMuonHLT::analyzeOnTrackClusters( const reco::Track* l3tk, con
 		    {
 		      //hit mono
 	              detID = hitMatched2D->monoId();
-		      int layer = tkdetmap_->FindLayer (detID);
+		      int layer = tkdetmap_->FindLayer (detID , cached_detid , cached_layer , cached_XYbin);
 		      std::string label = tkdetmap_->getLayerName (layer);
 		      const StripGeomDetUnit *theGeomDet = dynamic_cast < const StripGeomDetUnit * >(theTracker.idToDet (detID));
 		      if (theGeomDet != 0)
@@ -332,7 +321,7 @@ void SiStripMonitorMuonHLT::analyzeOnTrackClusters( const reco::Track* l3tk, con
 
 		      //hit stereo
 	              detID = hitMatched2D->stereoId ();
-		      layer = tkdetmap_->FindLayer (detID);
+		      layer = tkdetmap_->FindLayer (detID , cached_detid , cached_layer , cached_XYbin);
 		      label = tkdetmap_->getLayerName (layer);
 		      const StripGeomDetUnit *theGeomDet2 = dynamic_cast < const StripGeomDetUnit * >(theTracker.idToDet (detID));
 		      if (theGeomDet2 != 0)
@@ -371,7 +360,7 @@ void SiStripMonitorMuonHLT::analyzeOnTrackClusters( const reco::Track* l3tk, con
 		  if (hitProj2D != 0)
 		    {
 	              detID = hitProj2D->geographicalId ();
-		      int layer = tkdetmap_->FindLayer (detID);
+		      int layer = tkdetmap_->FindLayer (detID , cached_detid , cached_layer , cached_XYbin);
 		      std::string label = tkdetmap_->getLayerName (layer);
 		      const StripGeomDetUnit *theGeomDet = dynamic_cast < const StripGeomDetUnit * >(theTracker.idToDet (detID));
 		      if (theGeomDet != 0)
@@ -410,7 +399,7 @@ void SiStripMonitorMuonHLT::analyzeOnTrackClusters( const reco::Track* l3tk, con
 }
 
 void
-SiStripMonitorMuonHLT::createMEs (const edm::EventSetup & es)
+SiStripMonitorMuonHLT::createMEs (DQMStore::IBooker & ibooker , const edm::EventSetup & es)
 {
 
   // vector used 
@@ -466,7 +455,7 @@ SiStripMonitorMuonHLT::createMEs (const edm::EventSetup & es)
       tkdetmap_->getSubDetLayerSide (layer, subDet, subdetlayer, side);
       folderOrg.getSubDetLayerFolderName (ss, subDet, subdetlayer, side);
       folder = ss.str ();
-      dbe_->setCurrentFolder (monitorName_ + folder);
+      ibooker.setCurrentFolder (monitorName_ + folder);
 
       LayerMEs layerMEs;
       layerMEs.EtaPhiAllClustersMap           = 0;
@@ -548,37 +537,37 @@ SiStripMonitorMuonHLT::createMEs (const edm::EventSetup & es)
       if(runOnClusters_){
       	histoname = "EtaAllClustersDistrib_" + labelHisto;
       	title = "#eta(All Clusters) in " + labelHisto;
-      	layerMEs.EtaDistribAllClustersMap = dbe_->book1D (histoname, title, sizeEta - 1, xbinsEta);
+      	layerMEs.EtaDistribAllClustersMap = ibooker.book1D (histoname, title, sizeEta - 1, xbinsEta);
       	histoname = "PhiAllClustersDistrib_" + labelHisto;
       	title = "#phi(All Clusters) in " + labelHisto;
-      	layerMEs.PhiDistribAllClustersMap = dbe_->book1D (histoname, title, sizePhi - 1, xbinsPhi);
+      	layerMEs.PhiDistribAllClustersMap = ibooker.book1D (histoname, title, sizePhi - 1, xbinsPhi);
       	histoname = "EtaPhiAllClustersMap_" + labelHisto;
       	title = "#eta-#phi All Clusters map in " + labelHisto;
-      	layerMEs.EtaPhiAllClustersMap = dbe_->book2D (histoname, title, sizeEta - 1, xbinsEta, sizePhi - 1, xbinsPhi);
+      	layerMEs.EtaPhiAllClustersMap = ibooker.book2D (histoname, title, sizeEta - 1, xbinsEta, sizePhi - 1, xbinsPhi);
       }
       // on track clusters
       if(runOnTracks_){
       	histoname = "EtaOnTrackClustersDistrib_" + labelHisto;
       	title = "#eta(OnTrack Clusters) in " + labelHisto;
-      	layerMEs.EtaDistribOnTrackClustersMap = dbe_->book1D (histoname, title, sizeEta - 1, xbinsEta);
+      	layerMEs.EtaDistribOnTrackClustersMap = ibooker.book1D (histoname, title, sizeEta - 1, xbinsEta);
       	histoname = "PhiOnTrackClustersDistrib_" + labelHisto;
       	title = "#phi(OnTrack Clusters) in " + labelHisto;
-      	layerMEs.PhiDistribOnTrackClustersMap = dbe_->book1D (histoname, title, sizePhi - 1, xbinsPhi);
+      	layerMEs.PhiDistribOnTrackClustersMap = ibooker.book1D (histoname, title, sizePhi - 1, xbinsPhi);
       	histoname = "EtaPhiOnTrackClustersMap_" + labelHisto;
       	title = "#eta-#phi OnTrack Clusters map in " + labelHisto;
-      	layerMEs.EtaPhiOnTrackClustersMap = dbe_->book2D (histoname, title, sizeEta - 1, xbinsEta, sizePhi - 1, xbinsPhi);
+      	layerMEs.EtaPhiOnTrackClustersMap = ibooker.book2D (histoname, title, sizeEta - 1, xbinsEta, sizePhi - 1, xbinsPhi);
       }
       if(runOnMuonCandidates_){
       	// L3 muon track clusters
       	histoname = "EtaL3MuTrackClustersDistrib_" + labelHisto;
       	title = "#eta(L3MuTrack Clusters) in " + labelHisto;
-      	layerMEs.EtaDistribL3MuTrackClustersMap = dbe_->book1D (histoname, title, sizeEta - 1, xbinsEta);
+      	layerMEs.EtaDistribL3MuTrackClustersMap = ibooker.book1D (histoname, title, sizeEta - 1, xbinsEta);
       	histoname = "PhiL3MuTrackClustersDistrib_" + labelHisto;
       	title = "#phi(L3MuTrack Clusters) in " + labelHisto;
-      	layerMEs.PhiDistribL3MuTrackClustersMap = dbe_->book1D (histoname, title, sizePhi - 1, xbinsPhi);
+      	layerMEs.PhiDistribL3MuTrackClustersMap = ibooker.book1D (histoname, title, sizePhi - 1, xbinsPhi);
       	histoname = "EtaPhiL3MuTrackClustersMap_" + labelHisto;
       	title = "#eta-#phi L3MuTrack Clusters map in " + labelHisto;
-      	layerMEs.EtaPhiL3MuTrackClustersMap = dbe_->book2D (histoname, title, sizeEta - 1, xbinsEta, sizePhi - 1, xbinsPhi);
+      	layerMEs.EtaPhiL3MuTrackClustersMap = ibooker.book2D (histoname, title, sizeEta - 1, xbinsEta, sizePhi - 1, xbinsPhi);
       }
       LayerMEMap[labelHisto] = layerMEs;
 
@@ -650,7 +639,7 @@ SiStripMonitorMuonHLT::GeometryFromTrackGeom (const std::vector<DetId>& Dets,con
       GlobalPoint clustgp = theGeomDet->surface ().toGlobal (clustlp);
 
       // Get the eta, phi of modules
-      mylayer = tkdetmap_->FindLayer (detid);
+      mylayer = tkdetmap_->FindLayer (detid , cached_detid , cached_layer , cached_XYbin);
       mylabelHisto = tkdetmap_->getLayerName (mylayer);
 
       //      SiStripDetId stripdet = SiStripDetId(detid);
@@ -831,7 +820,7 @@ SiStripMonitorMuonHLT::Normalizer (const std::vector<DetId>& Dets,const TrackerG
       //      const StripTopology *topol = dynamic_cast < const StripTopology * >(&(theGeomDet->specificTopology ()));
 
       // Get the eta, phi of modules
-      mylayer = tkdetmap_->FindLayer (detid);
+      mylayer = tkdetmap_->FindLayer (detid , cached_detid , cached_layer , cached_XYbin);
       mylabelHisto = tkdetmap_->getLayerName (mylayer);
 
       //      SiStripDetId stripdet = SiStripDetId(detid);
@@ -1254,24 +1243,20 @@ SiStripMonitorMuonHLT::PrintNormalization (const std::vector<std::string>& v_Lab
 } 
 
 
-// ------------ method called once each job just before starting event loop  ------------
-void
-SiStripMonitorMuonHLT::beginRun (const edm::Run& run, const edm::EventSetup & es)
+void SiStripMonitorMuonHLT::bookHistograms(DQMStore::IBooker & ibooker , const edm::Run & run, const edm::EventSetup & es)
 {
-  if (dbe_)
-    {
-      if (monitorName_ != "")
-	monitorName_ = monitorName_ + "/";
-      edm::LogInfo ("HLTMuonDQMSource") << "===>DQM event prescale = " << prescaleEvt_ << " events " << std::endl;
-      createMEs (es);
-      //create TKHistoMap
-      if(runOnClusters_)
-      	tkmapAllClusters = new TkHistoMap("HLT/HLTMonMuon/SiStrip" ,"TkHMap_AllClusters",0.0,0);
-      if(runOnTracks_)
-      	tkmapOnTrackClusters = new TkHistoMap("HLT/HLTMonMuon/SiStrip" ,"TkHMap_OnTrackClusters",0.0,0);
-      if(runOnMuonCandidates_)
-      	tkmapL3MuTrackClusters = new TkHistoMap("HLT/HLTMonMuon/SiStrip" ,"TkHMap_L3MuTrackClusters",0.0,0);
-    }
+  if (monitorName_ != "")
+    monitorName_ = monitorName_ + "/";
+  ibooker.setCurrentFolder (monitorName_);
+  edm::LogInfo ("HLTMuonDQMSource") << "===>DQM event prescale = " << prescaleEvt_ << " events " << std::endl;
+  createMEs (ibooker , es);
+  //create TKHistoMap
+  if(runOnClusters_)
+    tkmapAllClusters = new TkHistoMap(ibooker , "HLT/HLTMonMuon/SiStrip" ,"TkHMap_AllClusters",0.0,0);
+  if(runOnTracks_)
+    tkmapOnTrackClusters = new TkHistoMap(ibooker , "HLT/HLTMonMuon/SiStrip" ,"TkHMap_OnTrackClusters",0.0,0);
+  if(runOnMuonCandidates_)
+    tkmapL3MuTrackClusters = new TkHistoMap(ibooker , "HLT/HLTMonMuon/SiStrip" ,"TkHMap_L3MuTrackClusters",0.0,0);
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

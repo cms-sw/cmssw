@@ -1,6 +1,8 @@
 #ifndef SiStripLorentzAngle_h
 #define SiStripLorentzAngle_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <map>
 #include <iostream>
@@ -40,6 +42,8 @@ public:
 
 private:
   std::map<unsigned int,float> m_LA; 
+
+  COND_SERIALIZABLE;
 };
 
 #endif

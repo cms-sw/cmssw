@@ -21,14 +21,16 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 
 
-template <typename DET,typename TOPO>
+template <typename DET,typename TOPO,bool ownsTopo=true>
 class PFRecHitCaloNavigator : public PFRecHitNavigatorBase {
  public:
+
+ virtual ~PFRecHitCaloNavigator() { if(!ownsTopo) { topology_.release(); } }
 
   void associateNeighbours(reco::PFRecHit& hit,std::auto_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd) {
       DetId detid( hit.detId() );
       
-      CaloNavigator<DET> navigator(detid, topology_);
+      CaloNavigator<DET> navigator(detid, topology_.get());
       
       DetId N(0);
       DetId E(0);
@@ -99,7 +101,7 @@ class PFRecHitCaloNavigator : public PFRecHitNavigatorBase {
 
 
  protected:
-  const TOPO *topology_;
+  std::unique_ptr<const TOPO> topology_;
 
 
 };

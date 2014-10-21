@@ -18,7 +18,7 @@ class SurfaceDeformation;
 class PixelGeomDetUnit : public GeomDetUnit {
 public:
 
-  PixelGeomDetUnit(BoundPlane* sp, PixelGeomDetType* type, const GeometricDet* gd);
+  PixelGeomDetUnit(BoundPlane* sp, PixelGeomDetType const * type, GeometricDet const * gd);
 
   // DetUnit interface
 
@@ -39,7 +39,7 @@ public:
   /// the proxy topology (through topology() and specificTopology()) which includes
   /// corrections for the surface deformations, and once via the GeomDetType
   /// (through type().topology() and the like).
-  virtual PixelGeomDetType& specificType() const;
+  virtual const PixelGeomDetType& specificType() const;
 
   /// Returns a reference to the pixel proxy topology
   virtual const PixelTopology& specificTopology() const;

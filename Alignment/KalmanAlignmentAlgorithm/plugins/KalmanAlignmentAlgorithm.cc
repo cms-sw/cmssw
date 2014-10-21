@@ -559,12 +559,12 @@ void KalmanAlignmentAlgorithm::initializeAlignmentSetups( const edm::EventSetup&
       if ( aKFSmoother )
       {
 
-	PropagatorWithMaterial propagator( smootherDir, 0.106, aKFSmoother->propagator()->magneticField() );
+	PropagatorWithMaterial propagator( smootherDir, 0.106, aKFSmoother->alongPropagator()->magneticField() );
 	Chi2MeasurementEstimator estimator( 30. );
 	smoother = new KFTrajectorySmoother( &propagator, updator, &estimator );
 // 	smoother = new KFTrajectorySmoother( &propagator, aKFFitter->updator(), &estimator );
 
-	AnalyticalPropagator externalPropagator( aKFSmoother->propagator()->magneticField(), externalSmootherDir );
+	AnalyticalPropagator externalPropagator( aKFSmoother->alongPropagator()->magneticField(), externalSmootherDir );
 	Chi2MeasurementEstimator externalEstimator( 1000. );
 	externalSmoother = new KFTrajectorySmoother( &externalPropagator, aKFSmoother->updator(), &externalEstimator );
       }

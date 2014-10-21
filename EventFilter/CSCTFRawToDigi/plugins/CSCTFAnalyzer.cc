@@ -2,17 +2,12 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
 #include <strings.h>
 #include <errno.h>
 #include <iostream>
 #include <iomanip>
 
-#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
-#include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
-#include "DataFormats/L1CSCTrackFinder/interface/L1CSCStatusDigiCollection.h"
-#include "DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h"
-#include "DataFormats/L1CSCTrackFinder/interface/TrackStub.h"
+
 
 CSCTFAnalyzer::CSCTFAnalyzer(const edm::ParameterSet &conf):edm::EDAnalyzer(){
 	mbProducer    = conf.getUntrackedParameter<edm::InputTag>("mbProducer",edm::InputTag("csctfunpacker"));
@@ -45,11 +40,18 @@ CSCTFAnalyzer::CSCTFAnalyzer(const edm::ParameterSet &conf):edm::EDAnalyzer(){
 	tree->Branch("dtPhi_10_minus",&dtPhi[9][1],"dtPhi_10_minus/I");
 	tree->Branch("dtPhi_11_minus",&dtPhi[10][1],"dtPhi_11_minus/I");
 	tree->Branch("dtPhi_12_minus",&dtPhi[11][1],"dtPhi_12_minus/I");
+
+	
+	L1CSCS_Tok = consumes<L1CSCStatusDigiCollection>( edm::InputTag(statusProducer.label(),statusProducer.instance() ) ); 
+	CSCTC_Tok = consumes<CSCTriggerContainer<csctf::TrackStub> >( edm::InputTag(mbProducer.label(),mbProducer.instance()) ); 
+	CSCCDC_Tok = consumes<CSCCorrelatedLCTDigiCollection>( edm::InputTag(lctProducer.label(),lctProducer.instance()) );  
+	L1CST_Tok = consumes<L1CSCTrackCollection>( edm::InputTag(trackProducer.label(),trackProducer.instance()) );  
+
 }
 
 void CSCTFAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c){
 /*	edm::Handle<FEDRawDataCollection> rawdata;
-	e.getByLabel("source","",rawdata);
+	e.getByToken("source","",rawdata);
 
 	const FEDRawData& fedData = rawdata->FEDData(750);
 	if( fedData.size()==0 ) return;
@@ -63,7 +65,7 @@ void CSCTFAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c){
 */
 	if( statusProducer.label() != "null" ){
 		edm::Handle<L1CSCStatusDigiCollection> status;
-		e.getByLabel(statusProducer.label(),statusProducer.instance(),status);
+		e.getByToken(L1CSCS_Tok ,status);
 		if( status.isValid() ){
 			edm::LogInfo("CSCTFAnalyzer") << "  Unpacking Errors: "<<status->first;
 			for(std::vector<L1CSCSPStatusDigi>::const_iterator stat=status->second.begin();
@@ -76,7 +78,7 @@ void CSCTFAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c){
 	if( mbProducer.label() != "null" ){
 		bzero(dtPhi,sizeof(dtPhi));
 		edm::Handle<CSCTriggerContainer<csctf::TrackStub> > dtStubs;
-		e.getByLabel(mbProducer.label(),mbProducer.instance(),dtStubs);
+		e.getByToken(CSCTC_Tok ,dtStubs);
 		if( dtStubs.isValid() ){
 			std::vector<csctf::TrackStub> vstubs = dtStubs->get();
 			std::cout<<"DT size="<<vstubs.end()-vstubs.begin()<<std::endl;
@@ -97,7 +99,7 @@ void CSCTFAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c){
 
 	if( lctProducer.label() != "null" ){
 		edm::Handle<CSCCorrelatedLCTDigiCollection> corrlcts;
-		e.getByLabel(lctProducer.label(),lctProducer.instance(),corrlcts);
+		e.getByToken(CSCCDC_Tok ,corrlcts);
 		if( corrlcts.isValid() ){
 			for(CSCCorrelatedLCTDigiCollection::DigiRangeIterator csc=corrlcts.product()->begin(); csc!=corrlcts.product()->end(); csc++){
 				int lctId=0;
@@ -123,7 +125,7 @@ void CSCTFAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c){
 
 	if( trackProducer.label() != "null" ){
 		edm::Handle<L1CSCTrackCollection> tracks;
-		e.getByLabel(trackProducer.label(),trackProducer.instance(),tracks);
+		e.getByToken(L1CST_Tok ,tracks);
 		if( tracks.isValid() ){
 			int nTrk=0;
 			for(L1CSCTrackCollection::const_iterator trk=tracks->begin(); trk<tracks->end(); trk++,nTrk++){

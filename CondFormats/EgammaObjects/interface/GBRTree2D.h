@@ -23,6 +23,8 @@
 // terminal nodes, which are stored simply as a vector of regression responses
 
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <map>
 
@@ -64,7 +66,9 @@
 	std::vector<float> fResponsesX;  
         std::vector<float> fResponsesY;
         
-  };
+  
+  COND_SERIALIZABLE;
+};
 
 //_______________________________________________________________________
 inline void GBRTree2D::GetResponse(const float* vector, double &x, double &y) const {

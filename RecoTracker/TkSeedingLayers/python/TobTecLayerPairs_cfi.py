@@ -1,9 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-TobTecLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
+from RecoTracker.TkSeedingLayers.seedingLayersEDProducer_cfi import *
+
+TobTecLayerPairs = seedingLayersEDProducer.clone()
+
 # Don't bother with TEC8 and 9, as tracking requires 2 hits outside
 # the seeding pairs.
-    layerList = cms.vstring('TOB1+TOB2', 
+TobTecLayerPairs.layerList = cms.vstring('TOB1+TOB2', 
         'TOB1+TEC1_pos', 
 #        'TOB1+TEC2_pos', 
         'TOB1+TEC1_neg', 
@@ -29,20 +32,19 @@ TobTecLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
 #        'TEC4_neg+TEC6_neg', 
         'TEC5_neg+TEC6_neg', 
 #        'TEC5_neg+TEC7_neg', 
-        'TEC6_neg+TEC7_neg'),
-
-    TOB = cms.PSet(
-        matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        TTRHBuilder = cms.string('WithTrackAngle')
-    ),
-
-    TEC = cms.PSet(
-        matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        useRingSlector = cms.bool(True),
-        TTRHBuilder = cms.string('WithTrackAngle'),
-        minRing = cms.int32(5),
-        maxRing = cms.int32(5)
-    )
+        'TEC6_neg+TEC7_neg'
 )
+TobTecLayerPairs.TOB = cms.PSet(
+    matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+    TTRHBuilder = cms.string('WithTrackAngle')
+)
+TobTecLayerPairs.TEC = cms.PSet(
+    matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
+    useRingSlector = cms.bool(True),
+    TTRHBuilder = cms.string('WithTrackAngle'),
+    minRing = cms.int32(5),
+    maxRing = cms.int32(5)
+)
+
 
 

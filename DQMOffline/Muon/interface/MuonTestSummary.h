@@ -23,13 +23,15 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
+
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Run.h"
 
 #include <memory>
 #include <string>
 
-class MuonTestSummary: public edm::EDAnalyzer{
+class MuonTestSummary: public DQMEDHarvester{
 
 public:
 
@@ -41,27 +43,16 @@ public:
 
 protected:
 
-  /// BeginJob
-  void beginJob(void);
-
-  /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c){}
-
-  /// Histograms initialisation
-  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
-
-  /// Diagnostic
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
-
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
+  
   /// test operations
-  void doKinematicsTests(std::string muonType, int bin);
-  void doResidualsTests(std::string type, std::string parameter, int bin);
-  void doMuonIDTests();
-  void doEnergyTests(std::string nameHisto, std::string muonType, int bin);
-  void doMultiplicityTests();
-  void ResidualCheck(std::string muType, const std::vector<std::string>& resHistos, int &numPlot, double &Mean, double &Mean_err, double &Sigma, double &Sigma_err);
+  void doKinematicsTests(DQMStore::IGetter &, std::string, int);
+  void doResidualsTests(DQMStore::IGetter &, std::string, std::string, int);
+
+  void doMuonIDTests(DQMStore::IGetter &);
+  void doEnergyTests(DQMStore::IGetter &, std::string nameHisto, std::string muonType, int bin);
+  void doMultiplicityTests(DQMStore::IGetter &);
+  void ResidualCheck(DQMStore::IGetter &, std::string muType, const std::vector<std::string>& resHistos, int &numPlot, double &Mean, double &Mean_err, double &Sigma, double &Sigma_err);
   void GaussFit(std::string type, std::string parameter, MonitorElement *  Histo, float &mean, float &mean_err, float &sigma, float &sigma_err);
 
 

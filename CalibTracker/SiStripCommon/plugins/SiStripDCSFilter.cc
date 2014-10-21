@@ -22,7 +22,7 @@ class SiStripDCSFilter : public edm::EDFilter {
 // -- Constructor
 //
 SiStripDCSFilter::SiStripDCSFilter( const edm::ParameterSet & pset ) {
-  dcsStatus_ = new SiStripDCSStatus(); 
+  dcsStatus_ = new SiStripDCSStatus(consumesCollector()); 
 }
 //
 // -- Destructor

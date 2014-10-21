@@ -20,7 +20,8 @@ using namespace RecoBTag;
 EffPurFromHistos::EffPurFromHistos ( const std::string & ext, TH1F * h_d, TH1F * h_u,
 				     TH1F * h_s, TH1F * h_c, TH1F * h_b, TH1F * h_g,	TH1F * h_ni,
 				     TH1F * h_dus, TH1F * h_dusg, TH1F * h_pu, 
-				     const std::string& label, const unsigned int& mc, int nBin, double startO, double endO) :
+				     const std::string& label, const unsigned int& mc, 
+				     int nBin, double startO, double endO) :
 	//BTagPlotPrintC(),
         fromDiscriminatorDistr(false),
 	histoExtension(ext), effVersusDiscr_d(h_d), effVersusDiscr_u(h_u),
@@ -34,9 +35,9 @@ EffPurFromHistos::EffPurFromHistos ( const std::string & ext, TH1F * h_d, TH1F *
   check();
 }
 
-EffPurFromHistos::EffPurFromHistos 
-	(const FlavourHistograms<double> * dDiscriminatorFC, const std::string& label, const unsigned int& mc, int nBin,
-	double startO, double endO) :
+EffPurFromHistos::EffPurFromHistos (const FlavourHistograms<double> * dDiscriminatorFC, const std::string& label, 
+				    const unsigned int& mc, DQMStore::IBooker & ibook, int nBin,
+				    double startO, double endO) :
 	  fromDiscriminatorDistr(true), nBinOutput(nBin), startOutput(startO), endOutput(endO),  mcPlots_(mc), label_(label){
   histoExtension = "_"+dDiscriminatorFC->baseNameTitle();
 
@@ -44,14 +45,14 @@ EffPurFromHistos::EffPurFromHistos
   discrNoCutEffic = new FlavourHistograms<double> (
 	"totalEntries" + histoExtension, "Total Entries: " + dDiscriminatorFC->baseNameDescription(),
 	dDiscriminatorFC->nBins(), dDiscriminatorFC->lowerBound(),
-	dDiscriminatorFC->upperBound(), false, true, false, "b", false, label, mcPlots_ );
+	dDiscriminatorFC->upperBound(), false, true, false, "b", false, label, mcPlots_, ibook );
 
   // conditional discriminator cut for efficiency histos
 
   discrCutEfficScan = new FlavourHistograms<double> (
 	"effVsDiscrCut" + histoExtension, "Eff. vs Disc. Cut: " + dDiscriminatorFC->baseNameDescription(),
 	dDiscriminatorFC->nBins(), dDiscriminatorFC->lowerBound(),
-	dDiscriminatorFC->upperBound(), false, true, false, "b", false, label , mcPlots_ );
+	dDiscriminatorFC->upperBound(), false, true, false, "b", false, label , mcPlots_, ibook );
   discrCutEfficScan->SetMinimum(1E-4);
   if (mcPlots_){ 
 
@@ -451,7 +452,7 @@ void EffPurFromHistos::check () {
 }
 
 
-void EffPurFromHistos::compute ()
+void EffPurFromHistos::compute (DQMStore::IBooker & ibook)
 {
   if (!mcPlots_) {
 
@@ -478,7 +479,7 @@ void EffPurFromHistos::compute ()
 
   // create histograms from base name and extension as given from user
   // BINNING MUST BE IDENTICAL FOR ALL OF THEM!!
-  HistoProviderDQM prov("Btag",label_);
+  HistoProviderDQM prov("Btag",label_,ibook);
   if(mcPlots_>2){
     EffFlavVsBEff_d    = (prov.book1D ( hB + "D"    + hE , hB + "D"    + hE , nBinOutput , startOutput , endOutput ));
     EffFlavVsBEff_u    = (prov.book1D ( hB + "U"    + hE , hB + "U"    + hE , nBinOutput , startOutput , endOutput )) ;

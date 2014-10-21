@@ -49,7 +49,7 @@
 //----------------
 // Constructors --
 //----------------
-L1MuGMTPSB::L1MuGMTPSB(const L1MuGlobalMuonTrigger& gmt) : 
+L1MuGMTPSB::L1MuGMTPSB(const L1MuGlobalMuonTrigger& gmt,edm::ConsumesCollector && iC) : 
                m_gmt(gmt), 
 	       m_RpcMuons(L1MuGMTConfig::MAXRPC),
                m_DtbxMuons(L1MuGMTConfig::MAXDTBX), 
@@ -61,7 +61,11 @@ L1MuGMTPSB::L1MuGMTPSB(const L1MuGlobalMuonTrigger& gmt) :
   m_CscMuons.reserve(L1MuGMTConfig::MAXCSC);
   m_Isol.init(false);
   m_Mip.init(false);
-
+  iC.consumes<std::vector<L1MuRegionalCand> >(L1MuGMTConfig::getDTInputTag());
+  iC.consumes<std::vector<L1MuRegionalCand> >(L1MuGMTConfig::getCSCInputTag());
+  iC.consumes<std::vector<L1MuRegionalCand> >(L1MuGMTConfig::getRPCbInputTag());
+  iC.consumes<std::vector<L1MuRegionalCand> >(L1MuGMTConfig::getRPCfInputTag());
+  iC.consumes<L1CaloRegionCollection>(L1MuGMTConfig::getMipIsoInputTag());
 }
 
 //--------------

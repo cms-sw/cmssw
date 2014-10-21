@@ -8,6 +8,7 @@
 #include <CLHEP/Geometry/Transform3D.h>
 #include <vector>
 #include <string>
+#include <cassert>
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
@@ -70,7 +71,7 @@ public:
   virtual ~CaloCellGeometry() ;
       
   /// Returns the corner points of this cell's volume.
-  virtual const CornersVec& getCorners() const = 0 ;
+  const CornersVec& getCorners() const { assert(not m_corners.uninitialized()); return m_corners; }
 
   /// Returns the position of reference for this cell 
   const GlobalPoint& getPosition() const {return m_refPoint;}
@@ -109,27 +110,27 @@ public:
 protected:
 
   CaloCellGeometry( CornersVec::const_reference gp ,
-		    const CornersMgr*           mgr,
+		    CornersMgr*                 mgr,
 		    const CCGFloat*             par ) ;
 
   CaloCellGeometry( const CornersVec& cv,
 		    const CCGFloat*   par ) ;
 
-  CornersVec& setCorners() const ;
-
   CaloCellGeometry( void );
 
   // MUST be called by children constructors
-  void initSpan() const {
+  void initSpan() {
+     initCorners(m_corners);
      m_dEta = std::abs(getCorners()[0].eta()-
                       getCorners()[2].eta());
      m_dPhi = std::abs(getCorners()[0].phi() -
                       getCorners()[2].phi());
      initBack();
-
   }
 
- void initBack() const {
+  virtual void initCorners(CornersVec&) = 0;
+private:
+ void initBack() {
     // from CaloTower code
     CornersVec const & cv = getCorners();
     m_backPoint = GlobalPoint(0.25 * (cv[4].x() + cv[5].x() + cv[6].x() + cv[7].x()),
@@ -137,14 +138,14 @@ protected:
                               0.25 * (cv[4].z() + cv[5].z() + cv[6].z() + cv[7].z()));   
   }
 
-private:
+
   GlobalPoint         m_refPoint ;
-  mutable GlobalPoint         m_backPoint ;
-  mutable CornersVec  m_corners  ;
+  GlobalPoint         m_backPoint ;
+  CornersVec  m_corners  ;
   const CCGFloat*     m_parms    ;
   float m_eta, m_phi;
-  mutable float m_dEta;
-  mutable float m_dPhi;
+  float m_dEta;
+  float m_dPhi;
 
 };
 

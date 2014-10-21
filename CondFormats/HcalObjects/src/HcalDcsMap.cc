@@ -22,10 +22,8 @@ HcalDcsMap::HcalDcsMap()
 }
 
 HcalDcsMap::~HcalDcsMap(){
-    delete mItemsById;
-    mItemsById = nullptr;
-    delete mItemsByDcsId;
-    mItemsByDcsId = nullptr;
+    delete mItemsById.load();
+    delete mItemsByDcsId.load();
 }
 // copy-ctor
 HcalDcsMap::HcalDcsMap(const HcalDcsMap& src)
@@ -255,9 +253,9 @@ bool HcalDcsMap::mapGeomId2DcsId (HcalDetId fId, HcalDcsDetId fDcsId) {
   }
   Item _item(fId, fDcsId_notype);
   mItems.push_back(_item);
-  delete mItemsById;
+  delete mItemsById.load();
   mItemsById = nullptr;
-  delete mItemsByDcsId;
+  delete mItemsByDcsId.load();
   mItemsByDcsId = nullptr;
   return true;
 }

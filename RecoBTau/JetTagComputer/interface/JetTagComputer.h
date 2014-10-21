@@ -9,6 +9,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
 
+class JetTagComputerRecord;
+
 class JetTagComputer {
     public:
 	class TagInfoHelper {
@@ -61,14 +63,16 @@ class JetTagComputer {
 	explicit JetTagComputer(const edm::ParameterSet& configuration) :
 		m_setupDone(false) {}
 
-	virtual void setEventSetup(const edm::EventSetup&) const {}
+	virtual void initialize(const JetTagComputerRecord &) {}
 
 	float operator () (const reco::BaseTagInfo& info) const;
 	inline float operator () (const TagInfoHelper &helper) const
 	{ return discriminator(helper); }
 
 	inline const std::vector<std::string> &getInputLabels() const
-	{ m_setupDone = true; return m_inputLabels; }
+	{ return m_inputLabels; }
+
+        void setupDone() { m_setupDone = true; }
 
     protected:
 	void uses(unsigned int id, const std::string &label);
@@ -79,7 +83,7 @@ class JetTagComputer {
 
     private:
 	std::vector<std::string>	m_inputLabels;
-	mutable bool			m_setupDone;
+	bool m_setupDone;
 };
 
 #endif // RecoBTau_JetTagComputer_h

@@ -53,10 +53,24 @@ namespace edm
     T &operator*(void) { return * operator->(); }
   };
 
+  struct SystemBounds {
+    unsigned int maxNumberOfStreams() const { return 0; }
+  };
+
+  struct PreallocationSignal {
+    template <typename T>
+    void connect( T&& ) {};
+  };
+
   struct ActivityRegistry
   {
     template <typename T>
     void watchPostSourceRun(void*, T) {}
+
+    template <typename T>
+    void watchPostSourceLumi(void*, T) {}
+
+    PreallocationSignal preallocateSignal_;
   };
   
   

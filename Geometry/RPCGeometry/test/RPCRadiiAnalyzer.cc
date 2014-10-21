@@ -90,8 +90,8 @@ RPCRadiiAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& 
 
 //      //----------------------- RPCCHAMBER TEST -------------------------------------------------------
 
-    if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
-      RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
+    if( dynamic_cast< const RPCChamber* >( *it ) != 0 ){
+      const RPCChamber* ch = dynamic_cast< const RPCChamber* >( *it ); 
       
       
       //RPCDetId detId=ch->id();

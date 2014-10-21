@@ -29,15 +29,15 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
   TIDLayerBuilder aTIDLayerBuilder;
   TECLayerBuilder aTECLayerBuilder;
 
-  vector<BarrelDetLayer*>  thePxlBarLayers;
-  vector<BarrelDetLayer*>  theTIBLayers;
-  vector<BarrelDetLayer*>  theTOBLayers;
-  vector<ForwardDetLayer*> theNegPxlFwdLayers;
-  vector<ForwardDetLayer*> thePosPxlFwdLayers;
-  vector<ForwardDetLayer*> theNegTIDLayers;
-  vector<ForwardDetLayer*> thePosTIDLayers;
-  vector<ForwardDetLayer*> theNegTECLayers;
-  vector<ForwardDetLayer*> thePosTECLayers;
+  vector<BarrelDetLayer const*>  thePxlBarLayers;
+  vector<BarrelDetLayer const*>  theTIBLayers;
+  vector<BarrelDetLayer const*>  theTOBLayers;
+  vector<ForwardDetLayer const*> theNegPxlFwdLayers;
+  vector<ForwardDetLayer const*> thePosPxlFwdLayers;
+  vector<ForwardDetLayer const*> theNegTIDLayers;
+  vector<ForwardDetLayer const*> thePosTIDLayers;
+  vector<ForwardDetLayer const*> theNegTECLayers;
+  vector<ForwardDetLayer const*> thePosTECLayers;
   
   using namespace trackerTrie;
 

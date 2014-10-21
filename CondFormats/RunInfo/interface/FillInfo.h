@@ -1,3 +1,5 @@
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/Common/interface/Time.h"
 #include <bitset>
 #include <iostream>
@@ -149,6 +151,8 @@ class FillInfo {
   //the size of the bitset must be incremented by one,
   //in order to avoid off-by-one
   std::bitset<bunchSlots+1> m_bunchConfiguration1, m_bunchConfiguration2;
+
+ COND_SERIALIZABLE;
 };
 
 std::ostream & operator<<( std::ostream &, FillInfo fillInfo );

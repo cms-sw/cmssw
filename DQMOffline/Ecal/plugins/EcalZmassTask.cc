@@ -23,9 +23,6 @@ Implementation:
 // user include files
 
 #include "DQM/Physics/src/EwkDQM.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
@@ -35,9 +32,6 @@ Implementation:
 #include "TMath.h"
 #include <string>
 #include <cmath>
-#include "TH1.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -45,26 +39,18 @@ Implementation:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 
-class DQMStore;
-class MonitorElement;
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
-class EcalZmassTask: public edm::EDAnalyzer {
+class EcalZmassTask: public DQMEDAnalyzer {
 
 public:
   explicit EcalZmassTask (const edm::ParameterSet &);
-  ~EcalZmassTask ();
-
-  static void fillDescriptions (edm::ConfigurationDescriptions & descriptions);
+  ~EcalZmassTask () {}
 
 private:
-  virtual void beginJob () override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   virtual void analyze (const edm::Event &, const edm::EventSetup &) override;
-  virtual void endJob () override;
-
-  virtual void beginRun (edm::Run const &, edm::EventSetup const &) override;
-  virtual void endRun (edm::Run const &, edm::EventSetup const &) override;
-  virtual void beginLuminosityBlock (edm::LuminosityBlock const &, edm::EventSetup const &) override;
-  virtual void endLuminosityBlock (edm::LuminosityBlock const &, edm::EventSetup const &) override;
 
   const edm::EDGetTokenT<reco::GsfElectronCollection> electronCollectionToken_;
   const edm::EDGetTokenT<reco::GsfTrackCollection> trackCollectionToken_;
@@ -91,10 +77,6 @@ EcalZmassTask::EcalZmassTask (const edm::ParameterSet & parameters) :
   electronCollectionToken_(consumes<reco::GsfElectronCollection>(parameters.getParameter < edm::InputTag > ("electronCollection"))),
   trackCollectionToken_(consumes<reco::GsfTrackCollection>(parameters.getParameter<edm::InputTag>("trackCollection"))),
   prefixME_(parameters.getUntrackedParameter < std::string > ("prefixME", ""))
-{
-}
-
-EcalZmassTask::~EcalZmassTask ()
 {
 }
 
@@ -257,12 +239,9 @@ EcalZmassTask::analyze (const edm::Event & iEvent,
   }
 }
 
-// ------------ method called once each job just before starting event loop  ------------
 void
-EcalZmassTask::beginJob ()
+EcalZmassTask::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&, edm::EventSetup const&)
 {
-
-  DQMStore *theDbe;
   std::string logTraceName("EcalZmassTask");
 
   h_ee_invMass_EB = 0;
@@ -270,68 +249,18 @@ EcalZmassTask::beginJob ()
   h_ee_invMass_BB = 0;
 
   LogTrace (logTraceName) << "Parameters initialization";
-  theDbe = edm::Service < DQMStore > ().operator-> ();
 
-  if (theDbe != 0)
-    {
-      theDbe->setCurrentFolder (prefixME_ + "/Zmass");	// Use folder with name of PAG
+  iBooker.setCurrentFolder (prefixME_ + "/Zmass");	// Use folder with name of PAG
 
-
-      h_ee_invMass_EB =
-	theDbe->book1D ("Z peak - WP80 EB-EE",
-			"Z peak - WP80 EB-EE;InvMass (GeV)", 60, 60.0, 120.0);
-      h_ee_invMass_EE =
-	theDbe->book1D ("Z peak - WP80 EE-EE",
-			"Z peak - WP80 EE-EE;InvMass (Gev)", 60, 60.0, 120.0);
-      h_ee_invMass_BB =
-	theDbe->book1D ("Z peak - WP80 EB-EB",
-			"Z peak - WP80 EB-EB;InvMass (Gev)", 60, 60.0, 120.0);
-    }
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void
-EcalZmassTask::endJob ()
-{
-}
-
-// ------------ method called when starting to processes a run  ------------
-void
-EcalZmassTask::beginRun (edm::Run const &, edm::EventSetup const &)
-{
-
-}
-
-// ------------ method called when ending the processing of a run  ------------
-void
-EcalZmassTask::endRun (edm::Run const &, edm::EventSetup const &)
-{
-}
-
-// ------------ method called when starting to processes a luminosity block  ------------
-void
-EcalZmassTask::beginLuminosityBlock (edm::LuminosityBlock const &,
-				     edm::EventSetup const &)
-{
-}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-void
-EcalZmassTask::endLuminosityBlock (edm::LuminosityBlock const &,
-				   edm::EventSetup const &)
-{
-}
-
-// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-EcalZmassTask::fillDescriptions (edm::
-				 ConfigurationDescriptions & descriptions)
-{
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
-  edm::ParameterSetDescription desc;
-  desc.setUnknown ();
-  descriptions.addDefault (desc);
+  h_ee_invMass_EB =
+	iBooker.book1D ("Z peak - WP80 EB-EE",
+                    "Z peak - WP80 EB-EE;InvMass (GeV)", 60, 60.0, 120.0);
+  h_ee_invMass_EE =
+	iBooker.book1D ("Z peak - WP80 EE-EE",
+                    "Z peak - WP80 EE-EE;InvMass (Gev)", 60, 60.0, 120.0);
+  h_ee_invMass_BB =
+	iBooker.book1D ("Z peak - WP80 EB-EB",
+                    "Z peak - WP80 EB-EB;InvMass (Gev)", 60, 60.0, 120.0);
 }
 
 //define this as a plug-in

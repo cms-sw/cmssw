@@ -35,10 +35,10 @@ class ClusterCollectionFP420 {
   void clear();
   
  private:
-  mutable std::vector<ClusterFP420> container_;
-  mutable Registry map_;
+  std::vector<ClusterFP420> container_;
+  Registry map_;
 
-  mutable ClusterFP420Container clusterMap_; 
+  ClusterFP420Container clusterMap_; 
 };
 
 #endif // 

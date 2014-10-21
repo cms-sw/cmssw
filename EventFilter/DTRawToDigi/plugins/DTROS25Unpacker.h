@@ -13,7 +13,6 @@
 
 #include <EventFilter/DTRawToDigi/plugins/DTUnpacker.h>
 
-class DTDataMonitorInterface;
 class DTROS25Data;
 
 class DTROS25Unpacker : public DTUnpacker {
@@ -60,8 +59,6 @@ private:
   bool performDataIntegrityMonitor;
 
   bool debug;
-
-  DTDataMonitorInterface * dataMonitor;
 
   std::vector<DTROS25Data> controlDataFromAllROS; 
 

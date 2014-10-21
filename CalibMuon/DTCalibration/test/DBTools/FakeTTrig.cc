@@ -85,11 +85,11 @@ void FakeTTrig::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::Even
     CLHEP::HepRandomEngine* engine = &rng->getEngine(lumi.index());
 
     // Get the superlayers and layers list
-    vector<DTSuperLayer*> dtSupLylist = muonGeom->superLayers();
+    vector<const DTSuperLayer*> dtSupLylist = muonGeom->superLayers();
     // Create the object to be written to DB
     DTTtrig* tTrigMap = new DTTtrig();
 
-    for (vector<DTSuperLayer*>::const_iterator sl = dtSupLylist.begin();
+    for (auto sl = dtSupLylist.begin();
          sl != dtSupLylist.end(); sl++) {
 
       // get the time of fly

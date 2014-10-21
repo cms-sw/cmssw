@@ -16,6 +16,8 @@
  *  \author Chung Khim Lae
  */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/Alignment/interface/Definitions.h"
 
 class SurveyError
@@ -46,6 +48,8 @@ private:
   align::ID m_rawId;
 
   Scalar m_errors[size_];
+
+  COND_SERIALIZABLE;
 };
 
 SurveyError::SurveyError(uint8_t structureType,

@@ -21,7 +21,6 @@
 #include <iostream>
 
 //defaults for cfgEntryProcess
-const double defaultScaleFactor = 1.;
 const std::string type_smMC = "smMC";
 const std::string type_bsmMC = "bsmMC";
 const std::string type_smSumMC = "smSumMC";
@@ -84,9 +83,6 @@ const std::string defaultDrawOption = "";
 const std::string defaultDrawOptionLegend = "lpf";
 
 const std::string drawOption_eBand = "eBand";
-
-// defaults for cfgEntryDrawJob
-const bool defaultDoOverlayPlots = false;
 
 // global defaults
 const int defaultCanvasSizeX = 800;

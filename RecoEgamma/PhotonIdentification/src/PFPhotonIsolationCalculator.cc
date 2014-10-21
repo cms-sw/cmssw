@@ -684,39 +684,27 @@ if(fabs(dxy) > 0.2)
 //--------------------------------------------------------------------------------------------------
 reco::VertexRef PFPhotonIsolationCalculator::chargedHadronVertex( edm::Handle< reco::VertexCollection > verticesColl, const reco::PFCandidate& pfcand ){
 
-  //code copied from Florian's PFNoPU class
+  //code copied from Florian's PFNoPU class (corrected removing the double loop....)
     
-  reco::TrackBaseRef trackBaseRef( pfcand.trackRef() );
+  auto const & track = pfcand.trackRef();
 
   size_t iVertex = 0;
-  unsigned index=0;
-  unsigned nFoundVertex = 0;
+  unsigned int index=0;
+  unsigned int nFoundVertex = 0;
 
   float bestweight=0;
   
   const reco::VertexCollection& vertices = *(verticesColl.product());
 
-  for( reco::VertexCollection::const_iterator iv=vertices.begin(); iv!=vertices.end(); ++iv, ++index) {
-    
-    const reco::Vertex& vtx = *iv;
-    
-    // loop on tracks in vertices
-    for(reco::Vertex::trackRef_iterator iTrack=vtx.tracks_begin();iTrack!=vtx.tracks_end(); ++iTrack) {
-      const reco::TrackBaseRef& baseRef = *iTrack;
-
-      // one of the tracks in the vertex is the same as
-      // the track considered in the function
-      if(baseRef == trackBaseRef ) {
-	float w = vtx.trackWeight(baseRef);
-	//select the vertex for which the track has the highest weight
-	if (w > bestweight){
-	  bestweight=w;
-	  iVertex=index;
-	  nFoundVertex++;
-	}
-      }
+  for( auto const & vtx :  vertices) {
+    float w = vtx.trackWeight(track); // 0 if does not belong here
+    //select the vertex for which the track has the highest weight
+    if (w > bestweight){ // should we break here?
+        bestweight=w;
+	iVertex=index;
+	nFoundVertex++;
     }
- 
+    ++index; 
   }
  
  

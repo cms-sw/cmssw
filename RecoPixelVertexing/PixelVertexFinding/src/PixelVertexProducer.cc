@@ -31,10 +31,28 @@ PixelVertexProducer::PixelVertexProducer(const edm::ParameterSet& conf)
   token_BeamSpot = consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpot"));
   method2 = conf.getParameter<bool>("Method2");
 
+  double track_pt_min   = ptMin_;
+  double track_pt_max   = 10.;
+  double track_chi2_max = 9999999.;
+  double track_prob_min = -1.;
+
+  if ( conf.exists("PVcomparer") ) {
+    edm::ParameterSet PVcomparerPSet = conf.getParameter<edm::ParameterSet>("PVcomparer");
+    track_pt_min   = PVcomparerPSet.getParameter<double>("track_pt_min");    
+    if (track_pt_min != ptMin_) {
+      if (track_pt_min < ptMin_)
+	edm::LogWarning("PixelVertexProducer") << "minimum track pT setting differs between PixelVertexProducer (" << ptMin_ << ") and PVcomparer (" << track_pt_min << ") [PVcomparer considers tracks w/ lower threshold than PixelVertexProducer does] !!!";
+      else
+	edm::LogInfo("PixelVertexProducer") << "minimum track pT setting differs between PixelVertexProducer (" << ptMin_ << ") and PVcomparer (" << track_pt_min << ") !!!";
+    }
+    track_pt_max   = PVcomparerPSet.getParameter<double>("track_pt_max");
+    track_chi2_max = PVcomparerPSet.getParameter<double>("track_chi2_max");
+    track_prob_min = PVcomparerPSet.getParameter<double>("track_prob_min");
+  }
 
   if (finder == "DivisiveVertexFinder") {
     if (verbose_ > 0) edm::LogInfo("PixelVertexProducer") << ": Using the DivisiveVertexFinder\n";
-    dvf_ = new DivisiveVertexFinder(zOffset, ntrkMin, useError, zSeparation, wtAverage, verbose_);
+    dvf_ = new DivisiveVertexFinder(track_pt_min,track_pt_max,track_chi2_max,track_prob_min,zOffset, ntrkMin, useError, zSeparation, wtAverage, verbose_);
   }
   else { // Finder not supported, or you made a mistake in your request
     // throw an exception once I figure out how CMSSW does this

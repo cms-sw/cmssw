@@ -173,7 +173,7 @@ void DTResolutionAnalysisTest::endRun(Run const& run, EventSetup const& context)
   // reset the ME with fixed scale
   resetMEs();
 
-  for (vector<DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
+  for (vector<const DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
       ch_it != muonGeom->chambers().end(); ++ch_it) {  // loop over the chambers
 
     DTChamberId chID = (*ch_it)->id();

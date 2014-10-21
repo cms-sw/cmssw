@@ -177,9 +177,8 @@ void CRackTrajectoryBuilder::run(const TrajectorySeedCollection &collseed,
 	  
 	  if(debug_info){
 	    cout << "Debugging show fitted hits" << endl;	    
-	        std::vector< ConstReferenceCountingPointer< TransientTrackingRecHit> > hitsFit= trajTmp.recHits();
-	        std::vector< ConstReferenceCountingPointer< TransientTrackingRecHit> >::const_iterator hit;
-	        for(hit=hitsFit.begin();hit!=hitsFit.end();hit++){
+	        auto hitsFit= trajTmp.recHits();
+	        for(auto hit=hitsFit.begin();hit!=hitsFit.end();hit++){
 		  
 	          cout << RHBuilder->build( &(*(*hit)->hit()) )->globalPosition() << endl;
 	        }
@@ -210,11 +209,10 @@ void CRackTrajectoryBuilder::run(const TrajectorySeedCollection &collseed,
     
     if(debug_info){
       cout << "Debugging show All fitted hits" << endl;	    
-      std::vector< ConstReferenceCountingPointer< TransientTrackingRecHit> > hits= traj.recHits();
-	    std::vector< ConstReferenceCountingPointer< TransientTrackingRecHit> >::const_iterator hit;
-	    for(hit=hits.begin();hit!=hits.end();hit++){
+      auto hits= traj.recHits();
+	    for(auto hit=hits.begin();hit!=hits.end();hit++){
 	      
-	      cout << RHBuilder->build( &(*(*hit)->hit()) )->globalPosition() << endl;
+	      cout << (*hit)->globalPosition() << endl;
 	    }
 
 	    cout << qualityFilter( traj) << " <- quality filter good?" << endl;
@@ -679,7 +677,7 @@ void CRackTrajectoryBuilder::AddHit(Trajectory &traj,
                if (debug_info) cout << "chi2 fine : " << chi2min << endl;
                TSOS UpdatedState= theUpdator->update( prSt, *bestHit );
                if (UpdatedState.isValid()){
- 		hits.push_back(&(*bestHit));
+ 		hits.push_back(bestHit);
                  traj.push( TM(prSt,UpdatedState, bestHit, chi2min) );
  		if (debug_info) edm::LogInfo("CosmicTrackFinder") <<
                    "STATE UPDATED WITH HIT AT POSITION "
@@ -849,7 +847,7 @@ void CRackTrajectoryBuilder::AddHit(Trajectory &traj,
  		TSOS UpdatedState= theUpdator->update( currPrSt, *bestHit );
  		if (UpdatedState.isValid()){
  
- 		  hits.push_back(&(*bestHit));
+ 		  hits.push_back(bestHit);
  		  traj.push( TM(currPrSt,UpdatedState, bestHit, chi2min) );
  		  if (debug_info) edm::LogInfo("CosmicTrackFinder") <<
  		    "STATE UPDATED WITH HIT AT POSITION "
@@ -902,9 +900,8 @@ bool
 CRackTrajectoryBuilder::qualityFilter(const Trajectory& traj){
   int ngoodhits=0;
   if(geometry=="MTCC"){
-    std::vector< ConstReferenceCountingPointer< TransientTrackingRecHit> > hits= traj.recHits();
-    std::vector< ConstReferenceCountingPointer< TransientTrackingRecHit> >::const_iterator hit;
-    for(hit=hits.begin();hit!=hits.end();hit++){
+    auto hits= traj.recHits();
+    for(auto hit=hits.begin();hit!=hits.end();hit++){
       unsigned int iid=(*hit)->hit()->geographicalId().rawId();
       //CHECK FOR 3 hits r-phi
       if(((iid>>0)&0x3)!=1) ngoodhits++;

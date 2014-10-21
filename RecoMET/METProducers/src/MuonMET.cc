@@ -1,105 +1,75 @@
 // -*- C++ -*-
 //
-// Package:    MuonMET
+// Package:    METProducers
 // Class:      MuonMET
 // 
-/**\class MuonMET MuonMET.cc JetMETCorrections/MuonMET/src/MuonMET.cc
 
-Description: <one line class summary>
-
-Implementation:
-<Notes on implementation>
-*/
-//
-// Created:  Wed Aug 29 2007
-//
-//
-
-
-// system include files
-#include <memory>
-
-#include <string.h>
-
-// user include files
+//____________________________________________________________________________||
 #include "RecoMET/METProducers/interface/MuonMET.h"
 
-#include "DataFormats/Common/interface/View.h"
 #include "DataFormats/METReco/interface/METCollection.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
-#include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
 
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-//using namespace std;
-
+//____________________________________________________________________________||
 namespace cms 
 {
-  // PRODUCER CONSTRUCTORS ------------------------------------------
-  MuonMET::MuonMET( const edm::ParameterSet& iConfig ) : alg_() 
+
+//____________________________________________________________________________||
+  MuonMET::MuonMET( const edm::ParameterSet& iConfig )
+    : alg_()
+    , metTypeInputTag_(iConfig.getParameter<edm::InputTag>("metTypeInputTag"))
   {
-    metTypeInputTag_             = iConfig.getParameter<edm::InputTag>("metTypeInputTag");
-    uncorMETInputTag_            = iConfig.getParameter<edm::InputTag>("uncorMETInputTag");
-    muonsInputTag_               = iConfig.getParameter<edm::InputTag>("muonsInputTag");
-    muonDepValueMap_             = iConfig.getParameter<edm::InputTag>("muonMETDepositValueMapInputTag");
 
+    edm::InputTag muonsInputTag = iConfig.getParameter<edm::InputTag>("muonsInputTag");
+    inputMuonToken_ = consumes<edm::View<reco::Muon> >(muonsInputTag);
 
-    inputMuonToken_ = consumes<edm::View<reco::Muon> >(muonsInputTag_);
-    inputValueMapMuonMetCorrToken_ = consumes<edm::ValueMap<reco::MuonMETCorrectionData> >(muonDepValueMap_);
+    edm::InputTag muonDepValueMap  = iConfig.getParameter<edm::InputTag>("muonMETDepositValueMapInputTag");
+    inputValueMapMuonMetCorrToken_ = consumes<edm::ValueMap<reco::MuonMETCorrectionData> >(muonDepValueMap);
 
-    if( metTypeInputTag_.label() == "CaloMET" ) {
-      inputCaloMETToken_ = consumes<edm::View<reco::CaloMET> >(uncorMETInputTag_);
-      produces<reco::CaloMETCollection>();
-    } else 
-      inputMETToken_ = consumes<edm::View<reco::MET> >(uncorMETInputTag_);
-      produces<reco::METCollection>();
-    
+    edm::InputTag uncorMETInputTag = iConfig.getParameter<edm::InputTag>("uncorMETInputTag");
+    if( metTypeInputTag_.label() == "CaloMET" )
+      {
+	inputCaloMETToken_ = consumes<edm::View<reco::CaloMET> >(uncorMETInputTag);
+	produces<reco::CaloMETCollection>();
+      }
+    else
+      {
+	inputMETToken_ = consumes<edm::View<reco::MET> >(uncorMETInputTag);
+	produces<reco::METCollection>();
+      }
   }
-  MuonMET::MuonMET() : alg_() {}
-  // PRODUCER DESTRUCTORS -------------------------------------------
-  MuonMET::~MuonMET() {}
 
-  // PRODUCER METHODS -----------------------------------------------
+  MuonMET::MuonMET() : alg_() {}
+
   void MuonMET::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
   {
-    using namespace edm;
-    
-    //get the muons
-    Handle<View<reco::Muon> > inputMuons;
-    iEvent.getByToken(inputMuonToken_, inputMuons );
+    edm::Handle<edm::View<reco::Muon> > inputMuons;
+    iEvent.getByToken(inputMuonToken_, inputMuons);
 
-    Handle<ValueMap<reco::MuonMETCorrectionData> > vm_muCorrData_h;
+    edm::Handle<edm::ValueMap<reco::MuonMETCorrectionData> > vm_muCorrData_h;
     
     iEvent.getByToken(inputValueMapMuonMetCorrToken_, vm_muCorrData_h);
     
     if( metTypeInputTag_.label() == "CaloMET")
       {
-	Handle<View<reco::CaloMET> > inputUncorMet;
-	iEvent.getByToken(inputCaloMETToken_, inputUncorMet);     //Get Inputs
-	std::auto_ptr<reco::CaloMETCollection> output( new reco::CaloMETCollection() );  //Create empty output
-	
-	alg_.run(*(inputMuons.product()), *(vm_muCorrData_h.product()),
-		 *(inputUncorMet.product()), &*output);
-	
-	iEvent.put(output);                                        //Put output into Event
+	edm::Handle<edm::View<reco::CaloMET> > inputUncorMet;
+	iEvent.getByToken(inputCaloMETToken_, inputUncorMet);
+	std::auto_ptr<reco::CaloMETCollection> output( new reco::CaloMETCollection() );
+	alg_.run(*(inputMuons.product()), *(vm_muCorrData_h.product()), *(inputUncorMet.product()), &*output);
+	iEvent.put(output);
       }
     else
       {
-	Handle<View<reco::MET> > inputUncorMet;                     //Define Inputs
-	iEvent.getByToken(inputMETToken_, inputUncorMet);     //Get Inputs
-	std::auto_ptr<reco::METCollection> output( new reco::METCollection() );  //Create empty output
-	
-
+	edm::Handle<edm::View<reco::MET> > inputUncorMet;
+	iEvent.getByToken(inputMETToken_, inputUncorMet);
+	std::auto_ptr<reco::METCollection> output( new reco::METCollection() );
 	alg_.run(*(inputMuons.product()), *(vm_muCorrData_h.product()),*(inputUncorMet.product()), &*output);
-	iEvent.put(output);                                        //Put output into Event
+	iEvent.put(output);
       }
   }
-}//end namespace cms
+//____________________________________________________________________________||
+  DEFINE_FWK_MODULE(MuonMET);
 
+}
 
-
+//____________________________________________________________________________||

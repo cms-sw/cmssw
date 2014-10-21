@@ -12,6 +12,8 @@
  *
  ************************************************************/
  
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <string>
 
@@ -31,7 +33,9 @@ namespace lumi{
     int inputcount;
     int acceptcount;
     int prescale;
-  };
+  
+  COND_SERIALIZABLE;
+};
 
   struct TriggerInfo{
     TriggerInfo():name(""),triggercount(-99),deadtimecount(-99),prescale(-99){}
@@ -40,7 +44,9 @@ namespace lumi{
     int triggercount;
     int deadtimecount;//max 2**20*3564=3737124864, so wrong type
     int prescale; 
-  };
+  
+  COND_SERIALIZABLE;
+};
 
   struct BunchCrossingInfo {
     BunchCrossingInfo(){}
@@ -50,7 +56,9 @@ namespace lumi{
     float lumivalue; 
     float lumierr;
     int lumiquality;
-  };
+  
+  COND_SERIALIZABLE;
+};
 
   static const BunchCrossingInfo BXNULL=BunchCrossingInfo(-99,-99.0,-99.0,-99);
   typedef std::vector<BunchCrossingInfo>::const_iterator BunchCrossingIterator;
@@ -122,6 +130,8 @@ namespace lumi{
     unsigned long long m_startorbit; //first orbit number of this LS    
     std::vector< HLTInfo > m_hlt; //hlt scaler information sorted by hltpath independent of lumiversion
     std::vector< TriggerInfo > m_trigger; //trigger scaler sorted by bit number 128algo+64tech independent of lumiversion
-  }; 
+  
+  COND_SERIALIZABLE;
+}; 
 }//ns lumi
 #endif 

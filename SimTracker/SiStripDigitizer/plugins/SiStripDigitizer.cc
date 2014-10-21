@@ -110,7 +110,7 @@ void SiStripDigitizer::accumulateStripHits(edm::Handle<std::vector<PSimHit> > hS
         // The insert succeeded, so this detector element has not yet been processed.
 	unsigned int isub = DetId(detId).subdetId();
         if((isub == StripSubdetector::TIB) || (isub == StripSubdetector::TID) || (isub == StripSubdetector::TOB) || (isub == StripSubdetector::TEC)) {
-	  StripGeomDetUnit* stripdet = detectorUnits[detId];
+	  auto stripdet = detectorUnits[detId];
 	  //access to magnetic field in global coordinates
 	  GlobalVector bfield = pSetup->inTesla(stripdet->surface().position());
 	  LogDebug ("Digitizer ") << "B-field(T) at " << stripdet->surface().position() << "(cm): "
@@ -201,7 +201,7 @@ void SiStripDigitizer::initializeEvent(edm::Event const& iEvent, edm::EventSetup
        (isub == StripSubdetector::TID) ||
        (isub == StripSubdetector::TOB) ||
        (isub == StripSubdetector::TEC)) {
-      StripGeomDetUnit* stripdet = dynamic_cast<StripGeomDetUnit*>((*iu));
+      auto stripdet = dynamic_cast<StripGeomDetUnit const*>((*iu));
       assert(stripdet != 0);
       if(changes) { // Replace with ESWatcher
         detectorUnits.insert(std::make_pair(detId, stripdet));
@@ -235,7 +235,7 @@ void SiStripDigitizer::finalizeEvent(edm::Event& iEvent, edm::EventSetup const& 
       if(theDetIdList.find((*iu)->geographicalId().rawId())==theDetIdList.end())
         continue;
     }
-    StripGeomDetUnit* sgd = dynamic_cast<StripGeomDetUnit*>((*iu));
+    auto sgd = dynamic_cast<StripGeomDetUnit const*>((*iu));
     if (sgd != 0){
       edm::DetSet<SiStripDigi> collectorZS((*iu)->geographicalId().rawId());
       edm::DetSet<SiStripRawDigi> collectorRaw((*iu)->geographicalId().rawId());

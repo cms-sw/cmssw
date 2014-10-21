@@ -19,62 +19,32 @@ HLTTauDQMOfflineSource::HLTTauDQMOfflineSource( const edm::ParameterSet& ps ):
   triggerResultsToken_(consumes<edm::TriggerResults>(triggerResultsSrc_)),
   triggerEventSrc_(ps.getUntrackedParameter<edm::InputTag>("TriggerEventSrc")),
   triggerEventToken_(consumes<trigger::TriggerEvent>(triggerEventSrc_)),
+  pathRegex_(ps.getUntrackedParameter<std::string>("Paths")),
+  nPtBins_(ps.getUntrackedParameter<int>("PtHistoBins", 20)),
+  nEtaBins_(ps.getUntrackedParameter<int>("EtaHistoBins",12)),
+  nPhiBins_(ps.getUntrackedParameter<int>("PhiHistoBins",18)),
+  ptMax_(ps.getUntrackedParameter<double>("PtHistoMax",200)),
+  highPtMax_(ps.getUntrackedParameter<double>("HighPtHistoMax",1000)),
+  l1MatchDr_(ps.getUntrackedParameter<double>("L1MatchDeltaR", 0.5)),
+  hltMatchDr_(ps.getUntrackedParameter<double>("HLTMatchDeltaR", 0.2)),
+  dqmBaseFolder_(ps.getUntrackedParameter<std::string>("DQMBaseFolder")),
   counterEvt_(0),
   prescaleEvt_(ps.getUntrackedParameter<int>("prescaleEvt", -1))
 {
-  int nPtBins  = ps.getUntrackedParameter<int>("PtHistoBins", 20);
-  int nEtaBins = ps.getUntrackedParameter<int>("EtaHistoBins",12);
-  int nPhiBins = ps.getUntrackedParameter<int>("PhiHistoBins",18);
-  double ptMax = ps.getUntrackedParameter<double>("PtHistoMax",200);
-  double highPtMax = ps.getUntrackedParameter<double>("HighPtHistoMax",1000);
-  double l1MatchDr = ps.getUntrackedParameter<double>("L1MatchDeltaR", 0.5);
-  double hltMatchDr = ps.getUntrackedParameter<double>("HLTMatchDeltaR", 0.2);
-  std::string dqmBaseFolder = ps.getUntrackedParameter<std::string>("DQMBaseFolder");
-
   edm::ParameterSet matching = ps.getParameter<edm::ParameterSet>("Matching");
   doRefAnalysis_ = matching.getUntrackedParameter<bool>("doMatching");
 
-  using VPSet = std::vector<edm::ParameterSet>;
-  VPSet monitorSetup = ps.getParameter<VPSet>("MonitorSetup");
-
-  /*
-  l1Plotters_.reserve(monitorSetup.size());
-  pathPlotters_.reserve(monitorSetup.size());
-  pathSummaryPlotters_.reserve(monitorSetup.size());
-  */
-  for(const edm::ParameterSet& pset: monitorSetup) {
-    std::string configtype;
-    try {
-      configtype = pset.getUntrackedParameter<std::string>("ConfigType");
-    } catch(cms::Exception& e) {
-      edm::LogWarning("HLTTauDQMOffline") << e.what() << std::endl;
-      continue;
-    }
-    if(configtype == "L1") {
-      try {
-        l1Plotters_.emplace_back(pset, consumesCollector(), nPhiBins, ptMax, highPtMax, doRefAnalysis_, l1MatchDr, dqmBaseFolder);
-      } catch(cms::Exception& e) {
-        edm::LogWarning("HLTTauDQMOffline") << e.what() << std::endl;
-        continue;
-      }
-    } else if (configtype == "Path") {
-      try {
-        pathPlotters2_.emplace_back(pset, doRefAnalysis_, dqmBaseFolder, hltProcessName_, nPtBins, nEtaBins, nPhiBins, ptMax, highPtMax, l1MatchDr, hltMatchDr);
-      } catch ( cms::Exception &e ) {
-        edm::LogWarning("HLTTauDQMOffline") << e.what() << std::endl;
-        continue;
-      }
-    } else if (configtype == "PathSummary") {
-      try {
-        pathSummaryPlotters_.emplace_back(pset, doRefAnalysis_, dqmBaseFolder, hltMatchDr);
-      } catch ( cms::Exception &e ) {
-        edm::LogWarning("HLTTauDQMOffline") << e.what() << std::endl;
-        continue;
-      }
-    }
+  if(ps.exists("L1Plotter")) {
+    l1Plotter_.reset(new HLTTauDQML1Plotter(ps.getUntrackedParameter<edm::ParameterSet>("L1Plotter"), consumesCollector(),
+                                            nPhiBins_, ptMax_, highPtMax_, doRefAnalysis_, l1MatchDr_, dqmBaseFolder_));
+  }
+  if(ps.exists("PathSummaryPlotter")) {
+    pathSummaryPlotter_.reset(new HLTTauDQMPathSummaryPlotter(ps.getUntrackedParameter<edm::ParameterSet>("PathSummaryPlotter"),
+                                                              doRefAnalysis_, dqmBaseFolder_, hltMatchDr_));
   }
 
   if(doRefAnalysis_) {
+    using VPSet = std::vector<edm::ParameterSet>;
     VPSet matchObjects = matching.getUntrackedParameter<VPSet>("matchFilters");
     for(const edm::ParameterSet& pset: matchObjects) {
       refObjects_.push_back(RefObject{pset.getUntrackedParameter<int>("matchObjectID"),
@@ -91,16 +61,34 @@ void HLTTauDQMOfflineSource::dqmBeginRun(const edm::Run& iRun, const edm::EventS
   //Evaluate configuration for every new trigger menu
   bool hltMenuChanged = false;
   if(HLTCP_.init(iRun, iSetup, hltProcessName_, hltMenuChanged)) {
+    LogDebug("HLTTauDQMOffline") << "dqmBeginRun(), hltMenuChanged " << hltMenuChanged;
     if(hltMenuChanged) {
-      std::vector<const HLTTauDQMPath *> pathObjects;
-      pathObjects.reserve(pathPlotters2_.size());
-      for(auto& pathPlotter: pathPlotters2_) {
-        pathPlotter.updateHLTMenu(HLTCP_);
-        if(pathPlotter.isValid())
-          pathObjects.push_back(pathPlotter.getPathObject());
+      // Find all paths to monitor
+      std::vector<std::string> foundPaths;
+      boost::smatch what;
+      LogDebug("HLTTauDQMOffline") << "Looking for paths with regex " << pathRegex_;
+      for(const std::string& pathName: HLTCP_.triggerNames()) {
+        if(boost::regex_search(pathName, what, pathRegex_)) {
+          LogDebug("HLTTauDQMOffline") << "Found path " << pathName;
+          foundPaths.emplace_back(pathName);
+        }
       }
-      for(auto& pathSummaryPlotter: pathSummaryPlotters_) {
-        pathSummaryPlotter.setPathObjects(pathObjects);
+      std::sort(foundPaths.begin(), foundPaths.end());
+
+      // Construct path plotters
+      std::vector<const HLTTauDQMPath *> pathObjects;
+      pathPlotters_.reserve(foundPaths.size());
+      pathObjects.reserve(foundPaths.size());
+      for(const std::string& pathName: foundPaths) {
+        pathPlotters_.emplace_back(pathName, HLTCP_, doRefAnalysis_, dqmBaseFolder_, hltProcessName_, nPtBins_, nEtaBins_, nPhiBins_, ptMax_, highPtMax_, l1MatchDr_, hltMatchDr_);
+        if(pathPlotters_.back().isValid()) {
+          pathObjects.push_back(pathPlotters_.back().getPathObject());
+        }
+      }
+
+      // Update paths to the summary plotter
+      if(pathSummaryPlotter_) {
+        pathSummaryPlotter_->setPathObjects(pathObjects);
       }
     }
   } else {
@@ -110,14 +98,14 @@ void HLTTauDQMOfflineSource::dqmBeginRun(const edm::Run& iRun, const edm::EventS
 
 //--------------------------------------------------------
 void HLTTauDQMOfflineSource::bookHistograms(DQMStore::IBooker &iBooker, const edm::Run& iRun, const EventSetup& iSetup ) {
-  for(auto& l1Plotter: l1Plotters_) {
-    l1Plotter.bookHistograms(iBooker);
+  if(l1Plotter_) {
+    l1Plotter_->bookHistograms(iBooker);
   }
-  for(auto& pathPlotter: pathPlotters2_) {
+  for(auto& pathPlotter: pathPlotters_) {
     pathPlotter.bookHistograms(iBooker);
   }
-  for(auto& pathSummaryPlotter: pathSummaryPlotters_) {
-    pathSummaryPlotter.bookHistograms(iBooker);
+  if(pathSummaryPlotter_) {
+    pathSummaryPlotter_->bookHistograms(iBooker);
   }
 }
 
@@ -164,20 +152,18 @@ void HLTTauDQMOfflineSource::analyze(const Event& iEvent, const EventSetup& iSet
         }
         
         //Path Plotters
-        for(auto& pathPlotter: pathPlotters2_) {
+        for(auto& pathPlotter: pathPlotters_) {
           if(pathPlotter.isValid())
             pathPlotter.analyze(*triggerResultsHandle, *triggerEventHandle, refC);
         }
         
-        for(auto& pathSummaryPlotter: pathSummaryPlotters_) {
-          if(pathSummaryPlotter.isValid())
-            pathSummaryPlotter.analyze(*triggerResultsHandle, *triggerEventHandle, refC);
+        if(pathSummaryPlotter_ && pathSummaryPlotter_->isValid()) {
+          pathSummaryPlotter_->analyze(*triggerResultsHandle, *triggerEventHandle, refC);
         }
         
-        //L1 Plotters
-        for(auto& l1Plotter: l1Plotters_) {
-          if(l1Plotter.isValid())
-            l1Plotter.analyze(iEvent, iSetup, refC);
+        //L1 Plotter
+        if(l1Plotter_ && l1Plotter_->isValid()) {
+          l1Plotter_->analyze(iEvent, iSetup, refC);
         }
     } else {
         counterEvt_++;

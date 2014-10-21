@@ -50,6 +50,10 @@ static bool parse_peak_member_function(const char* fname,
         *f = &fftjet::Peak::magSpeed;
     else if (strcmp(fname, "lifetime") == 0)
         *f = &fftjet::Peak::lifetime;
+    else if (strcmp(fname, "mergeTime") == 0)
+        *f = &fftjet::Peak::mergeTime;
+    else if (strcmp(fname, "splitTime") == 0)
+        *f = &fftjet::Peak::splitTime;
     else if (strcmp(fname, "scale") == 0)
         *f = &fftjet::Peak::scale;
     else if (strcmp(fname, "nearestNeighborDistance") == 0)
@@ -92,6 +96,10 @@ static bool parse_jet_member_function(const char* fname,
         *f = &RecoFFTJet::magSpeed;
     else if (strcmp(fname, "lifetime") == 0)
         *f = &RecoFFTJet::lifetime;
+    else if (strcmp(fname, "mergeTime") == 0)
+        *f = &RecoFFTJet::mergeTime;
+    else if (strcmp(fname, "splitTime") == 0)
+        *f = &RecoFFTJet::splitTime;
     else if (strcmp(fname, "scale") == 0)
         *f = &RecoFFTJet::scale;
     else if (strcmp(fname, "nearestNeighborDistance") == 0)
@@ -236,9 +244,12 @@ fftjet_PeakSelector_parser(const edm::ParameterSet& ps)
         const double lifeTimeCut = ps.getParameter<double>("lifeTimeCut");
         const double NNDCut = ps.getParameter<double>("NNDCut");
         const double etaCut = ps.getParameter<double>("etaCut");
+        const double splitTimeCut = ps.getParameter<double>("splitTimeCut");
+        const double mergeTimeCut = ps.getParameter<double>("mergeTimeCut");
 
         return return_type(new fftjet::SimplePeakSelector(
-            magCut, driftSpeedCut ,magSpeedCut, lifeTimeCut, NNDCut, etaCut));
+            magCut, driftSpeedCut, magSpeedCut, lifeTimeCut, NNDCut,
+            etaCut, splitTimeCut, mergeTimeCut));
     }
 
     if (!peakselector_type.compare("ScalePowerPeakSelector"))

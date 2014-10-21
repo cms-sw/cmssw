@@ -35,14 +35,14 @@ namespace edm {
     template <typename T>
     class GlobalScheduleSignalSentry {
     public:
-      GlobalScheduleSignalSentry(ActivityRegistry* a, typename T::MyPrincipal* principal, EventSetup const* es, typename T::Context const* context) :
-        a_(a), principal_(principal), es_(es), context_(context),
+      GlobalScheduleSignalSentry(ActivityRegistry* a, typename T::Context const* context) :
+        a_(a), context_(context),
         allowThrow_(false) {
-        if (a_) T::preScheduleSignal(a_, principal_, context_);
+        if (a_) T::preScheduleSignal(a_, context_);
       }
       ~GlobalScheduleSignalSentry() noexcept(false) {
         try {
-          if (a_) if (principal_) T::postScheduleSignal(a_, principal_, es_, context_);
+          if (a_) T::postScheduleSignal(a_, context_);
         } catch(...) {
           if(allowThrow_) {throw;}
         }
@@ -55,8 +55,6 @@ namespace edm {
     private:
       // We own none of these resources.
       ActivityRegistry* a_;
-      typename T::MyPrincipal* principal_;
-      EventSetup const* es_;
       typename T::Context const* context_;
       bool allowThrow_;
     };
@@ -149,7 +147,7 @@ namespace edm {
                                  bool cleaningUpAfterException) {
     GlobalContext globalContext = T::makeGlobalContext(ep, processContext_);
 
-    GlobalScheduleSignalSentry<T> sentry(actReg_.get(), &ep, &es, &globalContext);
+    GlobalScheduleSignalSentry<T> sentry(actReg_.get(), &globalContext);
 
     // This call takes care of the unscheduled processing.
     workerManager_.processOneOccurrence<T>(ep, es, StreamID::invalidStreamID(), &globalContext, &globalContext, cleaningUpAfterException);

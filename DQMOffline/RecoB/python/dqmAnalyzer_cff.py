@@ -1,269 +1,70 @@
 import FWCore.ParameterSet.Config as cms
 
+#not useful anymore for b-tagging but used in some other sequences
+from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak4PFL2L3,ak4PFL2Relative,ak4PFL3Absolute
+
+#JEC for CHS
+from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak4PFCHSL1Fastjet, ak4PFCHSL2Relative, ak4PFCHSL3Absolute, ak4PFCHSResidual, ak4PFCHSL1FastL2L3, ak4PFCHSL1FastL2L3Residual
+newak4PFCHSL1Fastjet = ak4PFCHSL1Fastjet.clone(algorithm = 'AK5PFchs')
+newak4PFCHSL2Relative = ak4PFCHSL2Relative.clone(algorithm = 'AK5PFchs')
+newak4PFCHSL3Absolute = ak4PFCHSL3Absolute.clone(algorithm = 'AK5PFchs')
+newak4PFCHSResidual = ak4PFCHSResidual.clone(algorithm = 'AK5PFchs')
+
+newak4PFCHSL1FastL2L3 = ak4PFCHSL1FastL2L3.clone(correctors = cms.vstring('newak4PFCHSL1Fastjet','newak4PFCHSL2Relative','newak4PFCHSL3Absolute'))
+newak4PFCHSL1FastL2L3Residual = ak4PFCHSL1FastL2L3Residual.clone(correctors = cms.vstring('newak4PFCHSL1Fastjet','newak4PFCHSL2Relative','newak4PFCHSL3Absolute','newak4PFCHSResidual'))
+
+#Needed only for fastsim, why?
+ak4PFCHSL1Fastjet.algorithm = 'AK5PFchs'
+ak4PFCHSL2Relative.algorithm = 'AK5PFchs'
+ak4PFCHSL3Absolute.algorithm = 'AK5PFchs'
+ak4PFCHSResidual.algorithm = 'AK5PFchs'
+
+######### DATA ############
 from DQMOffline.RecoB.bTagAnalysisData_cfi import *
-calobTagAnalysis = bTagAnalysis.clone()
-bTagPlots = cms.Sequence(calobTagAnalysis)
-calobTagAnalysis.finalizePlots = False
-calobTagAnalysis.finalizeOnly = False
-
-
-#Jet collection
-JetCut=cms.string("neutralHadronEnergyFraction < 0.99 && neutralEmEnergyFraction < 0.99 && nConstituents > 1 && chargedHadronEnergyFraction > 0.0 && chargedMultiplicity > 0.0 && chargedEmEnergyFraction < 0.99")
-
-from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak5PFL2L3,ak5PFL2Relative,ak5PFL3Absolute
-newAk5PFL2L3 = ak5PFL2L3.clone()
-
-from JetMETCorrections.Configuration.DefaultJEC_cff import ak5PFJetsL2L3
-ak5PFJetsJEC = ak5PFJetsL2L3.clone(
-    correctors = ['newAk5PFL2L3']
-    )
-
-PFJetsFilter = cms.EDFilter("PFJetSelector",
-                            src = cms.InputTag("ak5PFJetsJEC"),
-                            cut = JetCut,
-                            filter = cms.bool(False)
-                            )
-
-jetID = cms.InputTag("PFJetsFilter")
-
-#JTA
-from RecoJets.JetAssociationProducers.ak5JTA_cff import *
-pfAk5JetTracksAssociatorAtVertex = ak5JetTracksAssociatorAtVertex.clone(jets = jetID)
-
-#btag sequence
-from RecoBTag.Configuration.RecoBTag_cff import *
-
-pfImpactParameterTagInfos = impactParameterTagInfos.clone(jetTracks = cms.InputTag("pfAk5JetTracksAssociatorAtVertex"))
-pfSecondaryVertexTagInfos = secondaryVertexTagInfos.clone(trackIPTagInfos = "pfImpactParameterTagInfos")
-
-pfTrackCountingHighEffBJetTags = trackCountingHighEffBJetTags.clone(tagInfos = cms.VInputTag(cms.InputTag("pfImpactParameterTagInfos")))
-pfTrackCountingHighPurBJetTags = trackCountingHighPurBJetTags.clone(tagInfos = cms.VInputTag(cms.InputTag("pfImpactParameterTagInfos")))
-
-pfJetProbabilityBJetTags = jetProbabilityBJetTags.clone(tagInfos = cms.VInputTag(cms.InputTag("pfImpactParameterTagInfos")))
-pfJetBProbabilityBJetTags = jetBProbabilityBJetTags.clone(tagInfos = cms.VInputTag(cms.InputTag("pfImpactParameterTagInfos")))
-
-pfSimpleSecondaryVertexHighEffBJetTags = simpleSecondaryVertexHighEffBJetTags.clone(tagInfos = cms.VInputTag(cms.InputTag("pfSecondaryVertexTagInfos")))
-pfSimpleSecondaryVertexHighPurBJetTags = simpleSecondaryVertexHighPurBJetTags.clone(tagInfos = cms.VInputTag(cms.InputTag("pfSecondaryVertexTagInfos")))
-
-pfGhostTrackVertexTagInfos = pfSecondaryVertexTagInfos.clone()
-pfGhostTrackVertexTagInfos.vertexReco = ghostTrackVertexRecoBlock.vertexReco
-pfGhostTrackVertexTagInfos.vertexCuts.multiplicityMin = 1
-pfGhostTrackBJetTags = ghostTrackBJetTags.clone(
-    tagInfos = cms.VInputTag(cms.InputTag("pfImpactParameterTagInfos"),
-                             cms.InputTag("pfGhostTrackVertexTagInfos"))
-    )
-
-pfCombinedSecondaryVertexBJetTags = combinedSecondaryVertexBJetTags.clone(
-    tagInfos = cms.VInputTag(cms.InputTag("pfImpactParameterTagInfos"),
-                             cms.InputTag("pfSecondaryVertexTagInfos"))
-    )
-pfCombinedSecondaryVertexMVABJetTags = combinedSecondaryVertexMVABJetTags.clone(
-    tagInfos = cms.VInputTag(cms.InputTag("pfImpactParameterTagInfos"),
-                             cms.InputTag("pfSecondaryVertexTagInfos"))
-    )
-
-pfSoftPFMuonsTagInfos = softPFMuonsTagInfos.clone(jets = jetID)
-pfSoftPFElectronsTagInfos = softPFElectronsTagInfos.clone(jets = jetID)
-pfSoftPFMuonBJetTags = softPFMuonBJetTags.clone(tagInfos = cms.VInputTag(cms.InputTag("pfSoftPFMuonsTagInfos")))
-pfSoftPFElectronBJetTags = softPFElectronBJetTags.clone(tagInfos = cms.VInputTag(cms.InputTag("pfSoftPFElectronsTagInfos")))
-
-pfbtagging = cms.Sequence(
-    pfImpactParameterTagInfos *
-    ( pfTrackCountingHighEffBJetTags +
-      pfTrackCountingHighPurBJetTags +
-      pfJetProbabilityBJetTags +
-      pfJetBProbabilityBJetTags +
-      
-      pfSecondaryVertexTagInfos *
-      ( pfSimpleSecondaryVertexHighEffBJetTags +
-        pfSimpleSecondaryVertexHighPurBJetTags +
-        pfCombinedSecondaryVertexBJetTags +
-        pfCombinedSecondaryVertexMVABJetTags
-        ) +
-      pfGhostTrackVertexTagInfos *
-      pfGhostTrackBJetTags
-      ) +
-    
-    #softPFLeptonsTagInfos*
-    pfSoftPFMuonsTagInfos*
-    pfSoftPFElectronsTagInfos*
-    pfSoftPFElectronBJetTags*
-    pfSoftPFMuonBJetTags 
-)
-
-
-#preSeq
-prebTagSequence = cms.Sequence(ak5PFJetsJEC*PFJetsFilter*pfAk5JetTracksAssociatorAtVertex*pfbtagging)
-
-# Module execution for data
-#from DQMOffline.RecoB.bTagAnalysisData_cfi import *
-pfbTagAnalysis = bTagAnalysis.clone(
-    tagConfig = cms.VPSet(
-       cms.PSet(
-           bTagTrackIPAnalysisBlock,
-           type = cms.string('TrackIP'),
-           label = cms.InputTag("pfImpactParameterTagInfos"),
-           folder = cms.string("IPTag")
-           ),
-       cms.PSet(
-           bTagCombinedSVAnalysisBlock,
-           ipTagInfos = cms.InputTag("pfImpactParameterTagInfos"),
-           type = cms.string('GenericMVA'),
-           svTagInfos = cms.InputTag("pfSecondaryVertexTagInfos"),
-           label = cms.InputTag("combinedSecondaryVertex"),
-           folder = cms.string("CSVTag")
-           ),
-       cms.PSet(
-           bTagTrackCountingAnalysisBlock,
-           label = cms.InputTag("pfTrackCountingHighEffBJetTags"),
-           folder = cms.string("TCHE")
-           ),
-       cms.PSet(
-           bTagTrackCountingAnalysisBlock,
-           label = cms.InputTag("pfTrackCountingHighPurBJetTags"),
-           folder = cms.string("TCHP")
-           ),
-       cms.PSet(
-           bTagProbabilityAnalysisBlock,
-           label = cms.InputTag("pfJetProbabilityBJetTags"),
-           folder = cms.string("JP")
-           ),
-       cms.PSet(
-           bTagBProbabilityAnalysisBlock,
-           label = cms.InputTag("pfJetBProbabilityBJetTags"),
-           folder = cms.string("JBP")
-           ),
-       cms.PSet(
-           bTagSimpleSVAnalysisBlock,
-           label = cms.InputTag("pfSimpleSecondaryVertexHighEffBJetTags"),
-           folder = cms.string("SSVHE")
-           ),
-       cms.PSet(
-           bTagSimpleSVAnalysisBlock,
-           label = cms.InputTag("pfSimpleSecondaryVertexHighPurBJetTags"),
-           folder = cms.string("SSVHP")
-           ),
-       cms.PSet(
-           bTagGenericAnalysisBlock,
-           label = cms.InputTag("pfCombinedSecondaryVertexBJetTags"),
-           folder = cms.string("CSV")
-           ),
-       cms.PSet(
-           bTagGenericAnalysisBlock,
-           label = cms.InputTag("pfCombinedSecondaryVertexMVABJetTags"),
-           folder = cms.string("CSVMVA")
-           ),
-       cms.PSet(
-           bTagGenericAnalysisBlock,
-           label = cms.InputTag("pfGhostTrackBJetTags"),
-           folder = cms.string("GhTrk")
-           ),
-       cms.PSet(
-           bTagSoftLeptonAnalysisBlock,
-           label = cms.InputTag("pfSoftPFMuonBJetTags"),
-           folder = cms.string("SMT")
-           ),
-       cms.PSet(
-           bTagSoftLeptonAnalysisBlock,
-           label = cms.InputTag("pfSoftPFElectronBJetTags"),
-           folder = cms.string("SET")
-           ),
-       ),
-    )
-pfbTagAnalysis.finalizePlots = False
-pfbTagAnalysis.finalizeOnly = False
-pfbTagAnalysis.ptRanges = cms.vdouble(0.0)
-bTagPlotsDATA = cms.Sequence(pfbTagAnalysis)
-
+bTagAnalysis.finalizePlots = False
+bTagAnalysis.finalizeOnly = False
+bTagAnalysis.ptRanges = cms.vdouble(0.0)
+#Residual correction will be added inside the c++ code only for data (checking the presence of genParticles collection), not explicit here as this sequence also ran on MC FullSim
+bTagAnalysis.doJetID = True
+bTagAnalysis.doJEC = True
+bTagAnalysis.JECsource = cms.string("newak4PFCHSL1FastL2L3") 
+bTagPlotsDATA = cms.Sequence(bTagAnalysis)
 
 ########## MC ############
 #Matching
 from PhysicsTools.JetMCAlgos.CaloJetsMCFlavour_cfi import *
-AK5byRef.jets = jetID
+AK4byRef.jets = cms.InputTag("ak4PFJetsCHS")
+#Get gen jet collection for real jets
+ak4GenJetsForPUid = cms.EDFilter("GenJetSelector",
+                                 src = cms.InputTag("ak4GenJets"),
+                                 cut = cms.string('pt > 8.'),
+                                 filter = cms.bool(False)
+                                 )
+#do reco gen - reco matching
+from PhysicsTools.PatAlgos.mcMatchLayer0.jetMatch_cfi import patJetGenJetMatch
+newpatJetGenJetMatch = patJetGenJetMatch.clone(
+    src = cms.InputTag("ak4PFJetsCHS"),
+    matched = cms.InputTag("ak4GenJetsForPUid"),
+    maxDeltaR = cms.double(0.25),
+    resolveAmbiguities = cms.bool(True)
+)
 
 # Module execution for MC
 from Validation.RecoB.bTagAnalysis_cfi import *
-pfbTagValidation = bTagValidation.clone(
-    tagConfig = cms.VPSet(
-       cms.PSet(
-           bTagTrackIPAnalysisBlock,
-           type = cms.string('TrackIP'),
-           label = cms.InputTag("pfImpactParameterTagInfos"),
-           folder = cms.string("IPTag")
-           ),
-       cms.PSet(
-           bTagCombinedSVAnalysisBlock,
-           ipTagInfos = cms.InputTag("pfImpactParameterTagInfos"),
-           type = cms.string('GenericMVA'),
-           svTagInfos = cms.InputTag("pfSecondaryVertexTagInfos"),
-           label = cms.InputTag("combinedSecondaryVertex"),
-           folder = cms.string("CSVTag")
-           ),
-       cms.PSet(
-           bTagTrackCountingAnalysisBlock,
-           label = cms.InputTag("pfTrackCountingHighEffBJetTags"),
-           folder = cms.string("TCHE")
-           ),
-       cms.PSet(
-           bTagTrackCountingAnalysisBlock,
-           label = cms.InputTag("pfTrackCountingHighPurBJetTags"),
-           folder = cms.string("TCHP")
-           ),
-       cms.PSet(
-           bTagProbabilityAnalysisBlock,
-           label = cms.InputTag("pfJetProbabilityBJetTags"),
-           folder = cms.string("JP")
-           ),
-       cms.PSet(
-           bTagBProbabilityAnalysisBlock,
-           label = cms.InputTag("pfJetBProbabilityBJetTags"),
-           folder = cms.string("JBP")
-           ),
-       cms.PSet(
-           bTagSimpleSVAnalysisBlock,
-           label = cms.InputTag("pfSimpleSecondaryVertexHighEffBJetTags"),
-           folder = cms.string("SSVHE")
-           ),
-       cms.PSet(
-           bTagSimpleSVAnalysisBlock,
-           label = cms.InputTag("pfSimpleSecondaryVertexHighPurBJetTags"),
-           folder = cms.string("SSVHP")
-           ),
-       cms.PSet(
-           bTagGenericAnalysisBlock,
-           label = cms.InputTag("pfCombinedSecondaryVertexBJetTags"),
-           folder = cms.string("CSV")
-           ),
-       cms.PSet(
-           bTagGenericAnalysisBlock,
-           label = cms.InputTag("pfCombinedSecondaryVertexMVABJetTags"),
-           folder = cms.string("CSVMVA")
-           ),
-       cms.PSet(
-           bTagGenericAnalysisBlock,
-           label = cms.InputTag("pfGhostTrackBJetTags"),
-           folder = cms.string("GhTrk")
-           ),
-       cms.PSet(
-           bTagSoftLeptonAnalysisBlock,
-           label = cms.InputTag("pfSoftPFMuonBJetTags"),
-           folder = cms.string("SMT")
-           ),
-       cms.PSet(
-           bTagSoftLeptonAnalysisBlock,
-           label = cms.InputTag("pfSoftPFElectronBJetTags"),
-           folder = cms.string("SET")
-           ),
-       ),
-    )
-pfbTagValidation.finalizePlots = False
-pfbTagValidation.finalizeOnly = False
-pfbTagValidation.jetMCSrc = 'AK5byValAlgo'
-pfbTagValidation.ptRanges = cms.vdouble(0.0)
-pfbTagValidation.etaRanges = cms.vdouble(0.0)
+bTagValidation.finalizePlots = False
+bTagValidation.finalizeOnly = False
+bTagValidation.jetMCSrc = 'AK4byValAlgo'
+bTagValidation.ptRanges = cms.vdouble(0.0)
+bTagValidation.etaRanges = cms.vdouble(0.0)
+bTagValidation.doJetID = True
+bTagValidation.doJEC = True
+bTagValidation.JECsource = cms.string("newak4PFCHSL1FastL2L3")
+bTagValidation.doPUid = cms.bool(True)
+bTagValidation.genJetsMatched = cms.InputTag("newpatJetGenJetMatch")
 #to run on fastsim
-bTagPlotsMC = cms.Sequence(myPartons*AK5Flavour*pfbTagValidation)
+prebTagSequenceMC = cms.Sequence(ak4GenJetsForPUid*newpatJetGenJetMatch*myPartons*AK4Flavour)
+bTagPlotsMC = cms.Sequence(bTagValidation)
 
 #to run on fullsim in the validation sequence, all histograms produced in the dqmoffline sequence
-pfbTagValidationNoall = pfbTagValidation.clone(flavPlots="noall")
-bTagPlotsMCbcl = cms.Sequence(myPartons*AK5Flavour*pfbTagValidationNoall)
+bTagValidationNoall = bTagValidation.clone(flavPlots="noall")
+bTagPlotsMCbcl = cms.Sequence(myPartons*AK4Flavour*bTagValidationNoall)

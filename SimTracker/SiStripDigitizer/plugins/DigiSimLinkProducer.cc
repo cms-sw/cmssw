@@ -170,7 +170,7 @@ void DigiSimLinkProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
         continue;
     }
     GlobalVector bfield=pSetup->inTesla((*iu)->surface().position());
-    StripGeomDetUnit* sgd = dynamic_cast<StripGeomDetUnit*>((*iu));
+    auto sgd = dynamic_cast<StripGeomDetUnit const*>((*iu));
     if (sgd != 0){
       edm::DetSet<SiStripDigi> collectorZS((*iu)->geographicalId().rawId());
       edm::DetSet<SiStripRawDigi> collectorRaw((*iu)->geographicalId().rawId());

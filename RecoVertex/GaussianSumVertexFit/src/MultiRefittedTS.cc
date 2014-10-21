@@ -148,12 +148,7 @@ TrajectoryStateOnSurface MultiRefittedTS::trajectoryStateOnSurface(
 	it != theComponents.end(); it++) {
     tsosComponents.push_back((**it).trajectoryStateOnSurface(surface));
   }
-// #ifndef CMS_NO_COMPLEX_RETURNS
-  return TrajectoryStateOnSurface(new BasicMultiTrajectoryState(tsosComponents));
-// #else
-//   TrajectoryStateOnSurface result(new BasicMultiTrajectoryState(tsosComponents));
-//   return result;
-// #endif
+  return TrajectoryStateOnSurface((BasicTrajectoryState*)new BasicMultiTrajectoryState(tsosComponents));
 }
 
 TrajectoryStateOnSurface MultiRefittedTS::trajectoryStateOnSurface(
@@ -165,12 +160,7 @@ TrajectoryStateOnSurface MultiRefittedTS::trajectoryStateOnSurface(
 	it != theComponents.end(); it++) {
     tsosComponents.push_back((**it).trajectoryStateOnSurface(surface, propagator));
   }
-// #ifndef CMS_NO_COMPLEX_RETURNS
-  return TrajectoryStateOnSurface(new BasicMultiTrajectoryState(tsosComponents));
-// #else
-//   TrajectoryStateOnSurface result(new BasicMultiTrajectoryState(tsosComponents));
-//   return result;
-// #endif
+  return TrajectoryStateOnSurface((BasicTrajectoryState*)new BasicMultiTrajectoryState(tsosComponents));
 }
 
 reco::TransientTrack MultiRefittedTS::transientTrack() const

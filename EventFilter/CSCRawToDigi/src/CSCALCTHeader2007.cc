@@ -41,8 +41,7 @@ CSCALCTHeader2007::CSCALCTHeader2007(int chamberType)  {
 
 void CSCALCTHeader2007::setEventInformation(const CSCDMBHeader & dmb)
 {
- bxnL1A = dmb.l1a();
- //cscID = dmb.dmbID();
- bxnCount = dmb.bxn();
+ l1aCounter = dmb.l1a24() & 0xFFF;
+ bxnCount = dmb.bxn12();
 }
 

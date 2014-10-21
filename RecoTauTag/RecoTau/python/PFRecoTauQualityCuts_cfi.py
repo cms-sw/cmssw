@@ -44,11 +44,13 @@ PFTauQualityCuts = cms.PSet(
             ),
     # The central definition of primary vertex source.
     primaryVertexSrc = cms.InputTag("offlinePrimaryVertices"),
-    # Possible algorithms are: highestPtInEvent, closestInDeltaZ, combined
-    pvFindingAlgo = cms.string("highestWeightForLeadTrack"),
+    # Possible algorithms are: 'highestPtInEvent', 'closestInDeltaZ', 'highestWeightForLeadTrack' and 'combined'
+    pvFindingAlgo = cms.string("closestInDeltaZ"),
     vertexTrackFiltering = cms.bool(False),
     recoverLeadingTrk = cms.bool(False),
     # produce histograms when running in debug mode
     # makeHisto = cms.bool(False)
-
+    leadingTrkOrPFCandOption = cms.string("leadPFCand")
+    ##leadingTrkOrPFCandOption = cms.string("leadTrack")
+    ##leadingTrkOrPFCandOption = cms.string("firstTrack") #default behaviour until 710 (first track in the collection)
 )

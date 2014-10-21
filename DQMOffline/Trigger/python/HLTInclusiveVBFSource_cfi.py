@@ -9,9 +9,9 @@ hltInclusiveVBFSource = cms.EDAnalyzer(
     #
     debug = cms.untracked.bool(False),
     #
-    CaloJetCollectionLabel = cms.InputTag("ak5CaloJets"),
+    CaloJetCollectionLabel = cms.InputTag("ak4CaloJets"),
     CaloMETCollectionLabel = cms.InputTag("met"),
-    PFJetCollectionLabel = cms.InputTag("ak5PFJets"),
+    PFJetCollectionLabel = cms.InputTag("ak4PFJets"),
     PFMETCollectionLabel = cms.InputTag("pfMet"),
     #
     minPtHigh    = cms.untracked.double(40.),

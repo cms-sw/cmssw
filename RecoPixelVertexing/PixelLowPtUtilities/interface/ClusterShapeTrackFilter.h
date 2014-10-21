@@ -12,14 +12,17 @@ typedef Vector2DBase<float,GlobalTag> Global2DVector;
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
+#include "FWCore/Utilities/interface/EDGetToken.h"
+
 #include <vector>
 
-namespace edm { class ParameterSet; class EventSetup; }
+namespace edm { class ParameterSet; class EventSetup; class Event;}
 
 class TrackerGeometry;
 class TrackingRecHit;
 class ClusterShapeHitFilter;
 class TrackerTopology;
+class SiPixelClusterShapeCache;
 
 class ClusterShapeTrackFilter : public PixelTrackFilter 
 {
@@ -39,9 +42,12 @@ class ClusterShapeTrackFilter : public PixelTrackFilter
     getGlobalDirs(const std::vector<GlobalPoint> & globalPoss) const;
   std::vector<GlobalPoint>
     getGlobalPoss(const std::vector<const TrackingRecHit *>& recHits) const;
+
+  edm::EDGetTokenT<SiPixelClusterShapeCache> theClusterShapeCacheToken;
  
   const TrackerGeometry * theTracker;
   const ClusterShapeHitFilter * theFilter;
+  const SiPixelClusterShapeCache *theClusterShapeCache;
 
   double ptMin;
   double ptMax;

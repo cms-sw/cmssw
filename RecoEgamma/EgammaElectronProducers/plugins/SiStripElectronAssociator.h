@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -39,7 +39,7 @@
 // class decleration
 //
 
-class SiStripElectronAssociator : public edm::EDProducer {
+class SiStripElectronAssociator : public edm::stream::EDProducer<> {
  public:
   explicit SiStripElectronAssociator(const edm::ParameterSet&);
   ~SiStripElectronAssociator();

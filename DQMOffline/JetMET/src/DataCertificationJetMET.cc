@@ -44,7 +44,6 @@ DataCertificationJetMET::DataCertificationJetMET(const edm::ParameterSet& iConfi
   metTests[1][1] = conf_.getUntrackedParameter<bool>("pfMETKSTest",false);
   metTests[2][0] = conf_.getUntrackedParameter<bool>("tcMETMeanTest",true);
   metTests[2][1] = conf_.getUntrackedParameter<bool>("tcMETKSTest",false);
-  dbe_ = edm::Service<DQMStore>().operator->();
  
   if (verbose_) std::cout << ">>> Constructor (DataCertificationJetMET) <<<" << std::endl;
 
@@ -58,158 +57,35 @@ DataCertificationJetMET::~DataCertificationJetMET()
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
   if (verbose_) std::cout << ">>> Deconstructor (DataCertificationJetMET) <<<" << std::endl;
-
-  bool outputFile            = conf_.getUntrackedParameter<bool>("OutputFile");
-  std::string outputFileName = conf_.getUntrackedParameter<std::string>("OutputFileName");
-  if (verbose_) std::cout << ">>> deconstructor" << outputFile << std:: endl;
-
-  if(outputFile){
-    dbe_->showDirStructure();
-    dbe_->save(outputFileName,
-	       "", "","",
-	       (DQMStore::SaveReferenceTag) DQMStore::SaveWithReference);
-  }
 }
 
-
-//
-// member functions
-//
-
-// ------------ method called to for each event  ------------
-void
-DataCertificationJetMET::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-  using namespace edm;
-  isData = iEvent.isRealData();
-   
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-DataCertificationJetMET::beginJob(void)
-{
-
-}
-
-// ------------ method called once each job after finishing event loop  ------------
-void 
-DataCertificationJetMET::endJob()
-{
-}
- 
-// ------------ method called just before starting a new lumi section  ------------
-void 
-DataCertificationJetMET::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const edm::EventSetup& c)
-{
-
-  if (verbose_) std::cout << ">>> BeginLuminosityBlock (DataCertificationJetMET) <<<" << std::endl;
-  if (verbose_) std::cout << ">>> lumiBlock = " << lumiBlock.id()                   << std::endl;
-  if (verbose_) std::cout << ">>> run       = " << lumiBlock.id().run()             << std::endl;
-  if (verbose_) std::cout << ">>> lumiBlock = " << lumiBlock.id().luminosityBlock() << std::endl;
-
-}
-
-// ------------ method called just after a lumi section ends  ------------
-void 
-DataCertificationJetMET::endLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const edm::EventSetup& c)
-{
-
-  if (verbose_) std::cout << ">>> EndLuminosityBlock (DataCertificationJetMET) <<<" << std::endl;
-  if (verbose_) std::cout << ">>> lumiBlock = " << lumiBlock.id()                   << std::endl;
-  if (verbose_) std::cout << ">>> run       = " << lumiBlock.id().run()             << std::endl;
-  if (verbose_) std::cout << ">>> lumiBlock = " << lumiBlock.id().luminosityBlock() << std::endl;
-
-  if (verbose_) dbe_->showDirStructure();  
-
-}
 
 // ------------ method called right after a run ends ------------
 void 
-DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
+DataCertificationJetMET::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& iget_)
 {
   if (verbose_) std::cout << ">>> EndRun (DataCertificationJetMET) <<<" << std::endl;
-  //if (verbose_) std::cout << ">>> run = " << run.id() << std::endl;
 
-  // -----------------------------------------
-
-  std::vector<MonitorElement*> mes;
   std::vector<std::string> subDirVec;
   std::string RunDir;
   std::string RunNum;
-  int         RunNumber=0;
 
   std::string RefRunDir;
 
   if (verbose_) std::cout << "InMemory_           = " << InMemory_    << std::endl;
 
-
-  if (InMemory_) {
-    //----------------------------------------------------------------
-    // Histograms are in memory (for standard full-chain mode)
-    //----------------------------------------------------------------
-    mes = dbe_->getAllContents("");
-    if (verbose_) std::cout << "1 >>> found " <<  mes.size() << " monitoring elements!" << std::endl;
-
-    dbe_->setCurrentFolder("JetMET");
-    subDirVec = dbe_->getSubdirs();
-    for (std::vector<std::string>::const_iterator ic = subDirVec.begin();
-	 ic != subDirVec.end(); ic++) {    
-      if (verbose_) std::cout << "-AAA- Dir = >>" << ic->c_str() << "<<" << std::endl;
-    }
-
-    RunDir    = "";
-    RunNumber = run.id().run();
-
-  } else {
-    //----------------------------------------------------------------
-    // Open input files (for standalone mode)
-    //----------------------------------------------------------------
-    mes = dbe_->getAllContents("");
-    if (verbose_) std::cout << "found " << mes.size() << " monitoring elements!" << std::endl;
-    dbe_->setCurrentFolder("/");
-    std::string currDir = dbe_->pwd();
-    if (verbose_) std::cout << "--- Current Directory " << currDir << std::endl;
-    subDirVec = dbe_->getSubdirs();
-    // *** If the same file is read in then we have only one subdirectory
-    int ind = 0;
-    for (std::vector<std::string>::const_iterator ic = subDirVec.begin();
-	 ic != subDirVec.end(); ic++) {
-      RunDir = *ic;
-      RunNum = *ic;
-      if (verbose_) std::cout << "-XXX- Dir = >>" << ic->c_str() << "<<" << std::endl;
-      ind++;
-    }
-    //
-    // Current
-    //
-    if (RunDir == "JetMET") {
-      RunDir = "";
-      if (verbose_) std::cout << "-XXX- RunDir = >>" << RunDir.c_str() << "<<" << std::endl;
-    }
-    RunNum.erase(0,4);
-    if (RunNum!="")
-    RunNumber = atoi(RunNum.c_str());
-    if (verbose_) std::cout << "--- >>" << RunNumber << "<<" << std::endl;
-  }
-
-  if (verbose_) dbe_->showDirStructure();
-
-  //----------
-
-
-  dbe_->setCurrentFolder(folderName);  
-  reportSummary = dbe_->bookFloat("reportSummary");
-  CertificationSummary = dbe_->bookFloat("CertificationSummary");
+  ibook_.setCurrentFolder(folderName);  
+  reportSummary = ibook_.bookFloat("reportSummary");
+  CertificationSummary = ibook_.bookFloat("CertificationSummary");
   
-  reportSummaryMap = dbe_->book2D("reportSummaryMap","reportSummaryMap",3,0,3,5,0,5);
-  CertificationSummaryMap = dbe_->book2D("CertificationSummaryMap","CertificationSummaryMap",3,0,3,5,0,5);
+  reportSummaryMap = ibook_.book2D("reportSummaryMap","reportSummaryMap",3,0,3,5,0,5);
+  CertificationSummaryMap = ibook_.book2D("CertificationSummaryMap","CertificationSummaryMap",3,0,3,5,0,5);
 
 
-  reportSummary = dbe_->get(folderName+"/"+"reportSummary");
-  CertificationSummary = dbe_->get(folderName+"/"+"CertificationSummary");
-  reportSummaryMap = dbe_->get(folderName+"/"+"reportSummaryMap");
-  CertificationSummaryMap = dbe_->get(folderName+"/"+"CertificationSummaryMap");
+  reportSummary = iget_.get(folderName+"/"+"reportSummary");
+  CertificationSummary = iget_.get(folderName+"/"+"CertificationSummary");
+  reportSummaryMap = iget_.get(folderName+"/"+"reportSummaryMap");
+  CertificationSummaryMap = iget_.get(folderName+"/"+"CertificationSummaryMap");
 
 
   
@@ -233,7 +109,7 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
 
   if (RunDir=="Reference") RunDir="";
   if (verbose_) std::cout << RunDir << std::endl;
-  dbe_->setCurrentFolder("JetMET/EventInfo/CertificationSummaryContents/");    
+  ibook_.setCurrentFolder("JetMET/EventInfo/CertificationSummaryContents/");    
 
 
   std::string refHistoName;
@@ -258,40 +134,37 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
     cleaningdir = "Uncleaned";
   }
   //Jet Phi histos
-  meJetPhi[0] = dbe_->get(newHistoName+cleaningdir+jetAlgo+"PFJets/Phi_Barrel");
-  meJetPhi[1] = dbe_->get(newHistoName+cleaningdir+jetAlgo+"PFJets/Phi_EndCap");
-  meJetPhi[2] = dbe_->get(newHistoName+cleaningdir+jetAlgo+"PFJets/Phi_Forward");
-  meJetPhi[3] = dbe_->get(newHistoName+cleaningdir+jetAlgo+"CaloJets/Phi");
-  //meJetPhi[4] = dbe_->get(newHistoName+cleaningdir+"JetPlusTrackZSPCorJetAntiKt5/Phi");
+  meJetPhi[0] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Phi_Barrel");
+  meJetPhi[1] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Phi_EndCap");
+  meJetPhi[2] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Phi_Forward");
+  meJetPhi[3] = iget_.get(newHistoName+cleaningdir+jetAlgo+"CaloJets/Phi");
+  //meJetPhi[4] = iget_.get(newHistoName+cleaningdir+"JetPlusTrackZSPCorJetAntiKt5/Phi");
 
   //Jet Eta histos
-  meJetEta[0] = dbe_->get(newHistoName+cleaningdir+jetAlgo+"PFJets/Eta");
-  meJetEta[1] = dbe_->get(newHistoName+cleaningdir+jetAlgo+"PFJets/Eta");
-  meJetEta[2] = dbe_->get(newHistoName+cleaningdir+jetAlgo+"PFJets/EtaFirst");
-  meJetEta[3] = dbe_->get(newHistoName+cleaningdir+jetAlgo+"CaloJets/Eta");
-  //meJetEta[4] = dbe_->get(newHistoName+cleaningdir+"JetPlusTrackZSPCorJetAntiKt5/Eta");
+  meJetEta[0] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Eta");
+  meJetEta[1] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Eta");
+  meJetEta[2] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/EtaFirst");
+  meJetEta[3] = iget_.get(newHistoName+cleaningdir+jetAlgo+"CaloJets/Eta");
+  //meJetEta[4] = iget_.get(newHistoName+cleaningdir+"JetPlusTrackZSPCorJetAntiKt5/Eta");
 
   //Jet Pt histos
-  meJetPt[0]  = dbe_->get(newHistoName+cleaningdir+jetAlgo+"PFJets/Pt_Barrel");
-  meJetPt[1]  = dbe_->get(newHistoName+cleaningdir+jetAlgo+"PFJets/Pt_EndCap");
-  meJetPt[2]  = dbe_->get(newHistoName+cleaningdir+jetAlgo+"PFJets/Pt_Forward");
-  meJetPt[3]  = dbe_->get(newHistoName+cleaningdir+jetAlgo+"CaloJets/Pt_2");
-  //meJetPt[4]  = dbe_->get(newHistoName+cleaningdir+"JetPlusTrackZSPCorJetAntiKt5/Pt_2");
+  meJetPt[0]  = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Pt_Barrel");
+  meJetPt[1]  = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Pt_EndCap");
+  meJetPt[2]  = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Pt_Forward");
+  meJetPt[3]  = iget_.get(newHistoName+cleaningdir+jetAlgo+"CaloJets/Pt_2");
 
   ////Jet Constituents histos
-  meJetConstituents[0] = dbe_->get(newHistoName+cleaningdir+jetAlgo+"PFJets/Constituents_Barrel");
-  meJetConstituents[1] = dbe_->get(newHistoName+cleaningdir+jetAlgo+"PFJets/Constituents_EndCap");
-  meJetConstituents[2] = dbe_->get(newHistoName+cleaningdir+jetAlgo+"PFJets/Constituents_Forward");
-  meJetConstituents[3] = dbe_->get(newHistoName+cleaningdir+jetAlgo+"CaloJets/Constituents");
+  meJetConstituents[0] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Constituents_Barrel");
+  meJetConstituents[1] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Constituents_EndCap");
+  meJetConstituents[2] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/Constituents_Forward");
+  meJetConstituents[3] = iget_.get(newHistoName+cleaningdir+jetAlgo+"CaloJets/Constituents");
   //
   ////Jet EMFrac histos
-  meJetEMFrac[0] = dbe_->get(newHistoName+cleaningdir+jetAlgo+"PFJets/EFrac_Barrel");
-  meJetEMFrac[1] = dbe_->get(newHistoName+cleaningdir+jetAlgo+"PFJets/EFrac_EndCap");
-  meJetEMFrac[2] = dbe_->get(newHistoName+cleaningdir+jetAlgo+"PFJets/EFrac_Forward");
-  meJetEMFrac[3] = dbe_->get(newHistoName+cleaningdir+jetAlgo+"CaloJets/EFrac");
+  meJetEMFrac[0] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/EFrac_Barrel");
+  meJetEMFrac[1] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/EFrac_EndCap");
+  meJetEMFrac[2] = iget_.get(newHistoName+cleaningdir+jetAlgo+"PFJets/EFrac_Forward");
+  meJetEMFrac[3] = iget_.get(newHistoName+cleaningdir+jetAlgo+"CaloJets/EFrac");
 
-  //JPT specific histos
-  //meJetNTracks = dbe_->get(newHistoName+cleaningdir+"JetPlusTrackZSPCorJetAntiKt5/nTracks");
 				   
   //------------------------------------------------------------------------------
   //--- Extract quality test results and fill data certification results for Jets
@@ -532,9 +405,6 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   MonitorElement *meMEt[2];
   MonitorElement *meSumEt[2];
   MonitorElement *meMETPhi[2];
-  //MonitorElement *meMETEMFrac[5];
-  //MonitorElement *meMETEmEt[3][2];
-  //MonitorElement *meMETHadEt[3][2];
  
   RunDir = "";
   if (RunDir == "") newHistoName = "JetMET/MET/";
@@ -546,25 +416,20 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
     metFolder   = "Uncleaned";
   }
   //MEx/MEy monitor elements
-  meMExy[0][0] = dbe_->get(newHistoName+"met/"+metFolder+"/MEx");
-  meMExy[0][1] = dbe_->get(newHistoName+"met/"+metFolder+"/MEy");
-  meMExy[1][0] = dbe_->get(newHistoName+"pfMet/"+metFolder+"/MEx");
-  meMExy[1][1] = dbe_->get(newHistoName+"pfMet/"+metFolder+"/MEy");
-  //meMExy[2][0] = dbe_->get(newHistoName+"tcMet/"+metFolder+"/MEx");
-  //meMExy[2][1] = dbe_->get(newHistoName+"tcMet/"+metFolder+"/MEy");
+  meMExy[0][0] = iget_.get(newHistoName+"met/"+metFolder+"/MEx");
+  meMExy[0][1] = iget_.get(newHistoName+"met/"+metFolder+"/MEy");
+  meMExy[1][0] = iget_.get(newHistoName+"pfMet/"+metFolder+"/MEx");
+  meMExy[1][1] = iget_.get(newHistoName+"pfMet/"+metFolder+"/MEy");
  
   //MET Phi monitor elements
-  meMETPhi[0]  = dbe_->get(newHistoName+"met/"+metFolder+"/METPhi");
-  meMETPhi[1]  = dbe_->get(newHistoName+"pfMet/"+metFolder+"/METPhi");
-  //meMETPhi[2]  = dbe_->get(newHistoName+"tcMet/"+metFolder+"/METPhi");
+  meMETPhi[0]  = iget_.get(newHistoName+"met/"+metFolder+"/METPhi");
+  meMETPhi[1]  = iget_.get(newHistoName+"pfMet/"+metFolder+"/METPhi");
   //MET monitor elements
-  meMEt[0]  = dbe_->get(newHistoName+"met/"+metFolder+"/MET");
-  meMEt[1]  = dbe_->get(newHistoName+"pfMet/"+metFolder+"/MET");
-  //meMEt[2]  = dbe_->get(newHistoName+"tcMet/"+metFolder+"/MET");
+  meMEt[0]  = iget_.get(newHistoName+"met/"+metFolder+"/MET");
+  meMEt[1]  = iget_.get(newHistoName+"pfMet/"+metFolder+"/MET");
   //SumET monitor elements
-  meSumEt[0]  = dbe_->get(newHistoName+"met/"+metFolder+"/SumET");
-  meSumEt[1]  = dbe_->get(newHistoName+"pfMet/"+metFolder+"/SumET");
-  //meSumEt[2]  = dbe_->get(newHistoName+"tcMet/"+metFolder+"/SumET");
+  meSumEt[0]  = iget_.get(newHistoName+"met/"+metFolder+"/SumET");
+  meSumEt[1]  = iget_.get(newHistoName+"pfMet/"+metFolder+"/SumET");
 				   
   //----------------------------------------------------------------------------
   //--- Extract quality test results and fill data certification results for MET
@@ -590,13 +455,7 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
   // J.Piedra, 27/02/212
   // removed MuCorrMET & TcMET --> loop up to 2 instead of 4, remove already from definition
   for (int mtyp = 0; mtyp < 2; ++mtyp){
-    //std::cout<<"METType "<<mtyp<<std::endl;
     //Mean test results
-    //std::cout<<"meMEx = :"<<meMExy[mtyp][0]<<std::endl;
-    //std::cout<<"meMEy = :"<<meMExy[mtyp][1]<<std::endl;
-    //std::cout<<"meMET = :"<<meMEt[mtyp]<<std::endl;
-    //std::cout<<"meMETPhi = :"<<meMExy[mtyp]<<std::endl;
-    //std::cout<<"meSumEt = :"<<meMExy[mtyp]<<std::endl;
     if (meMExy[mtyp][0] && meMExy[mtyp][0]->getRootObject()) {
       QReport_MExy[mtyp][0][0] = meMExy[mtyp][0]->getQReport("meanMExyTest");
       QReport_MExy[mtyp][1][0] = meMExy[mtyp][0]->getQReport("KolmogorovTest");
@@ -759,40 +618,15 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
     reportSummaryMap->Fill(1, 4-mtyp, dc_MET[mtyp]);
   }
 
-
-  //-----------------------------
-  // CaloTowers DQM Data Certification
-  //-----------------------------
-
-  //
-  // Prepare test histograms
-  //
-  //MonitorElement *meCTOcc[3];
-  //MonitorElement *meCTEn[3];
-  //MonitorElement *meCT[3];
-  //MonitorElement *meCT[3];
- 
-  //RunDir = "";
-  //if (RunDir == "") newHistoName = "JetMET/MET/";
-  //else              newHistoName = RunDir+"/JetMET/Run summary/MET/";
-
-  //meMExy[0][0] = dbe_->get(newHistoName+"CaloMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMEx");
-  //meMExy[0][1] = dbe_->get(newHistoName+"CaloMET/"+cleaningdir+"/"+metFolder+"/METTask_CaloMEy");
-  //meMExy[1][0] = dbe_->get(newHistoName+"CaloMETNoHF/"+cleaningdir+"/"+metFolder+"/METTask_CaloMEx");
 				   
   //----------------------------------------------------------------------------
   //--- Extract quality test results and fill data certification results for MET
   //----------------------------------------------------------------------------
   // Commenting out unused but initialized variables. [Suchandra Dutta]
-  //  float qr_CT_Occ[3] = {-2.};
   float dc_CT[3]     = {-2.};
   dc_CT[0]  = -2.;
   dc_CT[1]  = -2.;
   dc_CT[2]  = -2.;
-
-  //  qr_CT_Occ[0]  = dc_CT[0];
-  //  qr_CT_Occ[1]  = dc_CT[1];
-  //  qr_CT_Occ[2]  = dc_CT[2];
 
   for (int cttyp = 0; cttyp < 3; ++cttyp) {
     
@@ -800,7 +634,7 @@ DataCertificationJetMET::endRun(const edm::Run& run, const edm::EventSetup& c)
     CertificationSummaryMap->Fill(0, 4-cttyp, dc_CT[cttyp]);
     reportSummaryMap->Fill(0, 4-cttyp, dc_CT[cttyp]);
   }
-  dbe_->setCurrentFolder("");  
+  ibook_.setCurrentFolder("");  
 }
 
 //define this as a plug-in

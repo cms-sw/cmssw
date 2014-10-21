@@ -15,7 +15,7 @@
 #include <memory>
 #include <algorithm>
 #include <map>
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -34,7 +34,7 @@
 
 namespace reco { namespace modules {
 
-    class MultiTrackSelector : public edm::EDProducer {
+    class MultiTrackSelector : public edm::stream::EDProducer<> {
         private:
         public:
             /// constructor 

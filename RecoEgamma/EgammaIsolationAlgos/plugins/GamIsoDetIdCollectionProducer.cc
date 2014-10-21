@@ -29,8 +29,11 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
 GamIsoDetIdCollectionProducer::GamIsoDetIdCollectionProducer(const edm::ParameterSet& iConfig) :
+            recHitsToken_(consumes<EcalRecHitCollection>(iConfig.getParameter< edm::InputTag > ("recHitsLabel"))),
+	    emObjectToken_(consumes<reco::PhotonCollection>(iConfig.getParameter< edm::InputTag > ("emObjectLabel"))),
+	    //the labels are still used to decide if its endcap or barrel...
             recHitsLabel_(iConfig.getParameter< edm::InputTag > ("recHitsLabel")),
-            emObjectLabel_(iConfig.getParameter< edm::InputTag > ("emObjectLabel")),
+	    emObjectLabel_(iConfig.getParameter< edm::InputTag > ("emObjectLabel")),
             energyCut_(iConfig.getParameter<double>("energyCut")),
             etCut_(iConfig.getParameter<double>("etCut")),
             etCandCut_(iConfig.getParameter<double> ("etCandCut")),
@@ -83,11 +86,11 @@ GamIsoDetIdCollectionProducer::produce (edm::Event& iEvent,
 
     //Get EM Object
     Handle<reco::PhotonCollection> emObjectH;
-    iEvent.getByLabel(emObjectLabel_,emObjectH);
+    iEvent.getByToken(emObjectToken_,emObjectH);
 
     // take EcalRecHits
     Handle<EcalRecHitCollection> recHitsH;
-    iEvent.getByLabel(recHitsLabel_,recHitsH);
+    iEvent.getByToken(recHitsToken_,recHitsH);
 
     edm::ESHandle<CaloGeometry> pG;
     iSetup.get<CaloGeometryRecord>().get(pG);    

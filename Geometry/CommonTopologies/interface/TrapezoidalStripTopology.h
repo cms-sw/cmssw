@@ -33,10 +33,12 @@ public:
 
   TrapezoidalStripTopology(int nstrip, float pitch, float detheight,float r0, int yAx);
 
+  using StripTopology::localPosition;
   virtual LocalPoint localPosition(float strip) const;
 
   virtual LocalPoint localPosition(const MeasurementPoint&) const;
   
+  using StripTopology::localError;
   virtual LocalError 
   localError(float strip, float stripErr2) const;
   

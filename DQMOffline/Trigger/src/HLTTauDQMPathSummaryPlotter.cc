@@ -11,7 +11,7 @@ HLTTauDQMPathSummaryPlotter::~HLTTauDQMPathSummaryPlotter() {
 }
 
 void HLTTauDQMPathSummaryPlotter::bookHistograms(DQMStore::IBooker &iBooker) {
-  if(!isValid())
+  if(!isValid() || pathObjects_.empty())
     return;
 
   //Create the histograms

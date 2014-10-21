@@ -10,7 +10,6 @@
   <use   name="DataFormats/HepMCCandidate"/>
   <use   name="DataFormats/HcalRecHit"/>
   <use   name="DataFormats/METReco"/>
-  <use   name="DataFormats/METObjects"/>
   <use   name="DataFormats/MuonDetId"/>
   <use   name="DataFormats/MuonReco"/>
   <use   name="DataFormats/ParticleFlowCandidate"/>

@@ -4,6 +4,8 @@
 #include <iostream>
 #include <string>
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 class MyTestData {
 public:
 
@@ -65,7 +67,20 @@ private:
   int a;
   float b;
   std::string s;
-  double d[2][2];
-  int f[2][2];
+  int   d[2][2];
+  float f[2][2];
+
+  COND_SERIALIZABLE;
 };
+
+#include <boost/serialization/nvp.hpp>
+
+template <class Archive>
+void MyTestData::serialize(Archive & ar, const unsigned int)
+{
+    ar & BOOST_SERIALIZATION_NVP(a);
+    ar & BOOST_SERIALIZATION_NVP(b);
+    ar & BOOST_SERIALIZATION_NVP(s);
+}
+
 #endif

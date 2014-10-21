@@ -1,6 +1,8 @@
 #ifndef __CentralityTable_h__
 #define __CentralityTable_h__
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 class CentralityTable {
   
@@ -9,7 +11,9 @@ class CentralityTable {
   struct BinValues{
     float mean;
     float var;
-  };
+  
+  COND_SERIALIZABLE;
+};
 
   struct CBin {
     float bin_edge;
@@ -29,10 +33,14 @@ class CentralityTable {
     BinValues var0;
     BinValues var1;
     BinValues var2;
-  };
+  
+  COND_SERIALIZABLE;
+};
     
   CentralityTable(){}
   std::vector<CBin> m_table;
+
+  COND_SERIALIZABLE;
 };
 
 #endif

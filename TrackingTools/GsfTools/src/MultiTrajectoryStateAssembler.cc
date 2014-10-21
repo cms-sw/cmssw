@@ -106,7 +106,7 @@ TrajectoryStateOnSurface MultiTrajectoryStateAssembler::combinedState () {
   //
   // Return new multi state without reweighting
   //
-  return TSOS(new BasicMultiTrajectoryState(theStates));
+  return TSOS((BasicTrajectoryState *)(new BasicMultiTrajectoryState(theStates)));
 }
 
 TrajectoryStateOnSurface MultiTrajectoryStateAssembler::combinedState (const float newWeight) {
@@ -174,14 +174,15 @@ MultiTrajectoryStateAssembler::reweightedCombinedState (const double newWeight) 
   for ( MultiTSOS::const_iterator i=theStates.begin();
 	i!=theStates.end(); i++ ) {
     double oldWeight = i->weight();
-    reweightedStates.push_back(TrajectoryStateOnSurface(i->localParameters(),
+    reweightedStates.push_back(TrajectoryStateOnSurface(factor*oldWeight,
+                                                        i->localParameters(),
 							i->localError(),
 							i->surface(),
 							&(i->globalParameters().magneticField()),
-							i->surfaceSide(),
-							factor*oldWeight));
+							i->surfaceSide()
+						       ));
   }
-  return TSOS(new BasicMultiTrajectoryState(reweightedStates));
+  return TSOS((BasicTrajectoryState *)(new BasicMultiTrajectoryState(reweightedStates)));
 }
 
 void

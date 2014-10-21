@@ -73,10 +73,10 @@ public:
   inline const BoundSurface& surface() const { return *theSurface; }
 
   /// Returns the cylinder
-  inline BoundCylinder* cylinder() const { return theCylinder; }
+  inline BoundCylinder const* cylinder() const { return theCylinder; }
 
   /// Returns the surface
-  inline BoundDisk* disk() const { return theDisk; }
+  inline BoundDisk const* disk() const { return theDisk; }
 
   /// Returns the layer number  
   inline unsigned int layerNumber() const { return theLayerNumber; }

@@ -720,7 +720,7 @@ getMeanPartialSolution( IDdet id ) const
     {
       int i = cell->second;
       int   n      = sumPartSolu0[ i ];
-      float meanX  = sumPartSolu1[ i ] / n;
+      meanX  = sumPartSolu1[ i ] / n;
     }
   return meanX;
 

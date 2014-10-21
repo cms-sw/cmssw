@@ -2,12 +2,16 @@
 #define CutBasedElectronID_H
 
 #include "RecoEgamma/ElectronIdentification/interface/ElectronIDAlgo.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 class CutBasedElectronID : public ElectronIDAlgo {
 
 public:
-
-  CutBasedElectronID(){};
+  
+  CutBasedElectronID(const edm::ParameterSet& conf,edm::ConsumesCollector & iC);
 
   virtual ~CutBasedElectronID() {};
 
@@ -24,7 +28,7 @@ public:
   std::string type_;
   std::string quality_;
   std::string version_;
-  edm::InputTag verticesCollection_;
+  edm::EDGetTokenT<std::vector<reco::Vertex> > verticesCollection_;
   edm::ParameterSet cuts_;
 
 };

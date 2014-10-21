@@ -176,7 +176,7 @@ pixelDigitizer = cms.PSet(
         1.00361,
         0.999371,
         0.961242,
-        0.766481
+        0.952364
         ),
     theModuleEfficiency_BPix2 = cms.vdouble(
         1.00069,

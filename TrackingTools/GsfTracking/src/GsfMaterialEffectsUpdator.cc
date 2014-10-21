@@ -57,12 +57,13 @@ GsfMaterialEffectsUpdator::updateState (const TrajectoryStateOnSurface& TSoS,
     if ( TSoS.hasError() ) {
       AlgebraicSymMatrix55 eloc = TSoS.localError().matrix();
       effect.deltaCov.add(eloc);
-      result.addState(TrajectoryStateOnSurface(lp,
+      result.addState(TrajectoryStateOnSurface(weight*effect.weight,
+                                               lp,
 					       LocalTrajectoryError(eloc),
 					       surface,
 					       &(TSoS.globalParameters().magneticField()),
-					       side,
-					       weight*effect.weight));
+					       side));
+
       //       edm::LogDebug("GsfMaterialEffectsUpdator") 
       // 	<< "adding state with weight " << weight*Ws[ic];
     }

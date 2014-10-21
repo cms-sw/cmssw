@@ -1,7 +1,7 @@
 #include <memory>
 #include <set>
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -14,7 +14,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
 
-class VertexMerger : public edm::EDProducer {
+class VertexMerger : public edm::stream::EDProducer<> {
     public:
 	VertexMerger(const edm::ParameterSet &params);
 

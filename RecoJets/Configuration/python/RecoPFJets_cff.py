@@ -14,6 +14,8 @@ from RecoJets.JetProducers.ca4PFJets_cfi import ca4PFJets
 from RecoJets.JetProducers.fixedGridRhoProducer_cfi import fixedGridRhoAll
 from RecoJets.JetProducers.fixedGridRhoProducerFastjet_cfi import fixedGridRhoFastjetAll
 from RecoJets.JetProducers.caTopTaggers_cff import *
+from RecoJets.JetProducers.ak8PFJetsCHS_groomingValueMaps_cfi import ak8PFJetsCHSPrunedLinks, ak8PFJetsCHSFilteredLinks, ak8PFJetsCHSTrimmedLinks
+from RecoJets.JetProducers.ca8PFJetsCHS_groomingValueMaps_cfi import ca8PFJetsCHSPrunedLinks, ca8PFJetsCHSFilteredLinks, ca8PFJetsCHSTrimmedLinks
 
 sisCone7PFJets = sisCone5PFJets.clone( rParam = 0.7 )
 ak7PFJets = ak5PFJets.clone( rParam = 0.7 )
@@ -27,10 +29,11 @@ kt6PFJets.doRhoFastjet = True
 kt6PFJets.doAreaFastjet = True
 #use active areas and not Voronoi tessellation for the moment
 kt6PFJets.voronoiRfact = 0.9
+ak4PFJets.doAreaFastjet = True
 ak5PFJets.doAreaFastjet = True
 ak5PFJetsTrimmed.doAreaFastjet = True
 ak7PFJets.doAreaFastjet = True
-
+ak8PFJets.doAreaFastjet = True
 
 
 kt6PFJetsCentralChargedPileUp = kt6PFJets.clone(
@@ -151,6 +154,8 @@ ca15PFJetsCHSFiltered = ak5PFJetsFiltered.clone(
 cmsTopTagPFJetsCHS.src = cms.InputTag("ak8PFJetsCHSConstituents", "constituents")
 hepTopTagPFJetsCHS.src = cms.InputTag("ak8PFJetsCHSConstituents", "constituents")
 
+
+
 recoPFJets   =cms.Sequence(#kt4PFJets+kt6PFJets+
                            iterativeCone5PFJets+
                            #kt6PFJetsCentralChargedPileUp+
@@ -160,7 +165,7 @@ recoPFJets   =cms.Sequence(#kt4PFJets+kt6PFJets+
                            fixedGridRhoFastjetAll+
                            fixedGridRhoFastjetCentralChargedPileUp+
                            fixedGridRhoFastjetCentralNeutral+
-                           ak5PFJets+ak8PFJets+
+                           ak4PFJets+ak5PFJets+ak8PFJets+
                            pfNoPileUpJMESequence+
                            ak5PFJetsCHS+
                            ak4PFJetsCHS+                           
@@ -168,6 +173,7 @@ recoPFJets   =cms.Sequence(#kt4PFJets+kt6PFJets+
                            ca8PFJetsCHS+
                            ak8PFJetsCHSConstituents+
                            ca8PFJetsCHSPruned+
+                           ca8PFJetsCHSPrunedLinks+
                            cmsTopTagPFJetsCHS+
                            hepTopTagPFJetsCHS+
                            ca15PFJetsCHSMassDropFiltered+
@@ -203,6 +209,9 @@ recoAllPFJets=cms.Sequence(sisCone5PFJets+sisCone7PFJets+
                            ca8PFJetsCHSPruned+
                            ca8PFJetsCHSFiltered+
                            ca8PFJetsCHSTrimmed+
+                           ca8PFJetsCHSPrunedLinks+
+                           ca8PFJetsCHSTrimmedLinks+
+                           ca8PFJetsCHSFilteredLinks+
                            cmsTopTagPFJetsCHS+
                            hepTopTagPFJetsCHS+
                            ca15PFJetsCHSMassDropFiltered+

@@ -55,6 +55,9 @@ class ESDigitizer : public EcalTDigitizer< ESDigitizerTraits >
 	    uint32_t third  ;
       };
 
+
+
+
       std::vector<Triplet> m_trip ;
 };
 

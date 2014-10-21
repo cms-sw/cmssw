@@ -869,9 +869,3 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 }
 
-
-void HCALRecHitAnalyzer::endJob()
-{
-
-
-} 

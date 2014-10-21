@@ -75,9 +75,9 @@ namespace edm
     } else if (SiStripRawDigiSource_=="PILEUP") {
       e.getByToken(SiStripInputTok_,hSSD);
       digicollection_ =  hSSD.product();
-    } else {
-      std::cout << "you shouldn't be here" << std::endl;
-    }
+    } //else {
+      //std::cout << "you shouldn't be here" << std::endl;
+      //}
     
 
   } // end of addSiStripSignals

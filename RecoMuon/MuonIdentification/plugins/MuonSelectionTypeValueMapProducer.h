@@ -8,14 +8,14 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class MuonSelectionTypeValueMapProducer : public edm::EDProducer {
+class MuonSelectionTypeValueMapProducer : public edm::stream::EDProducer<> {
     public:
         explicit MuonSelectionTypeValueMapProducer(const edm::ParameterSet& iConfig) :
             inputMuonCollection_(iConfig.getParameter<edm::InputTag>("inputMuonCollection")),

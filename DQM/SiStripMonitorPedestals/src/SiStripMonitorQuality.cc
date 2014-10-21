@@ -63,9 +63,68 @@ SiStripMonitorQuality::~SiStripMonitorQuality()
 void SiStripMonitorQuality::beginJob() {
 }
 //
-// -- BeginRun
-//
-void SiStripMonitorQuality::beginRun(edm::Run const& run, edm::EventSetup const& eSetup){
+void SiStripMonitorQuality::bookHistograms(DQMStore::IBooker & ibooker , const edm::Run & run, const edm::EventSetup & eSetup){
+
+  unsigned long long cacheID = eSetup.get<SiStripQualityRcd>().cacheIdentifier();  
+  if (m_cacheID_ == cacheID) return;
+  
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+
+  m_cacheID_ = cacheID;       
+
+  std::string quality_label = conf_.getParameter<std::string>("StripQualityLabel");
+  eSetup.get<SiStripQualityRcd>().get(quality_label,stripQuality_);
+  eSetup.get<SiStripDetCablingRcd>().get( detCabling_ );
+  
+  edm::LogInfo("SiStripMonitorQuality") << "SiStripMonitorQuality::analyze: "<<
+    " Reading SiStripQuality "<< std::endl;
+
+  SiStripBadStrip::RegistryIterator rbegin = stripQuality_->getRegistryVectorBegin();
+  SiStripBadStrip::RegistryIterator rend   = stripQuality_->getRegistryVectorEnd();
+  uint32_t detid;
+    
+  if (rbegin==rend) return;
+
+  for (SiStripBadStrip::RegistryIterator rp=rbegin; rp != rend; ++rp) {
+
+    detid = rp->detid;
+    // Check consistency in DetId
+    if (detid == 0 || detid == 0xFFFFFFFF){
+      edm::LogError("SiStripMonitorQuality") <<"SiStripMonitorQuality::bookHistograms : " 
+					     << "Wrong DetId !!!!!! " <<  detid << " Neglecting !!!!!! ";
+      continue;
+    }
+    // check if the detid is connected in cabling
+    if (!detCabling_->IsConnected(detid)) {
+      edm::LogError("SiStripMonitorQuality") <<"SiStripMonitorQuality::bookHistograms : " 
+					     << " DetId " <<  detid << " not connected,  Neglecting !!!!!! ";
+      continue;
+    }
+
+    MonitorElement* det_me;
+    
+    int nStrip =  detCabling_->nApvPairs(detid) * 256;
+    
+    // use SistripHistoId for producing histogram id (and title)
+    SiStripHistoId hidmanager;
+    // create SiStripFolderOrganizer
+    SiStripFolderOrganizer folder_organizer;
+    // set appropriate folder using SiStripFolderOrganizer
+    folder_organizer.setDetectorFolder(detid, tTopo); // pass the detid to this method
+    
+    std::string hid;
+    hid = hidmanager.createHistoId("StripQualityFromCondDB","det", detid);
+    
+    det_me = ibooker.book1D(hid, hid, nStrip,0.5,nStrip+0.5);
+    ibooker.tag(det_me, detid);
+    det_me->setAxisTitle("Strip Number",1);
+    det_me->setAxisTitle("Quality Flag from CondDB ",2);
+    QualityMEs.insert( std::make_pair(detid, det_me));
+  }
+  
 }
 
 
@@ -131,7 +190,7 @@ void SiStripMonitorQuality::endRun(edm::Run const& run, edm::EventSetup const& e
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
   if (outputMEsInRootFile) {    
-    dqmStore_->showDirStructure();
+    //dqmStore_->showDirStructure();
     dqmStore_->save(outputFileName);
   }
 }
@@ -148,28 +207,14 @@ void SiStripMonitorQuality::endJob(void){
 MonitorElement* SiStripMonitorQuality::getQualityME(uint32_t idet, const TrackerTopology* tTopo){
 
   std::map<uint32_t, MonitorElement* >::iterator pos = QualityMEs.find(idet);
-  MonitorElement* det_me;
+  MonitorElement* det_me = NULL;
   if (pos != QualityMEs.end()) {
     det_me = pos->second;
     det_me->Reset();
   } else {
-    int nStrip =  detCabling_->nApvPairs(idet) * 256;
-
-    // use SistripHistoId for producing histogram id (and title)
-    SiStripHistoId hidmanager;
-    // create SiStripFolderOrganizer
-    SiStripFolderOrganizer folder_organizer;
-    // set appropriate folder using SiStripFolderOrganizer
-    folder_organizer.setDetectorFolder(idet, tTopo); // pass the detid to this method
-
-    std::string hid;
-    hid = hidmanager.createHistoId("StripQualityFromCondDB","det", idet);
-    
-    det_me = dqmStore_->book1D(hid, hid, nStrip,0.5,nStrip+0.5);
-    dqmStore_->tag(det_me, idet);
-    det_me->setAxisTitle("Strip Number",1);
-    det_me->setAxisTitle("Quality Flag from CondDB ",2);
-    QualityMEs.insert( std::make_pair(idet, det_me));
+    //this should never happen because of bookHistograms()
+    edm::LogError("SiStripMonitorQuality") <<"SiStripMonitorQuality::getQualityME : " 
+					   << "Wrong DetId !!!!!! " <<  idet << " No ME found!";
   }
   return det_me;
 }

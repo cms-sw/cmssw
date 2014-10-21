@@ -83,32 +83,6 @@ private:
   std::string prefixME_;
 
   MonitorElement *
-    h_ee_invMass_EB;
-  MonitorElement *
-    h_ee_invMass_EE;
-  MonitorElement *
-    h_ee_invMass_BB;
-  MonitorElement *
-    h_95_ee_invMass_EB;
-  MonitorElement *
-    h_95_ee_invMass_EE;
-  MonitorElement *
-    h_95_ee_invMass_BB;
-  MonitorElement *
-    h_ee_invMass;
-  MonitorElement *
-    h_e1_et;
-  MonitorElement *
-    h_e2_et;
-  MonitorElement *
-    h_e1_eta;
-  MonitorElement *
-    h_e2_eta;
-  MonitorElement *
-    h_e1_phi;
-  MonitorElement *
-    h_e2_phi;
-  MonitorElement *
     h_fitres1;
   MonitorElement *
     h_fitres1bis;

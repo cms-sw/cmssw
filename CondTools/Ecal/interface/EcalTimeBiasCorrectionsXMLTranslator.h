@@ -11,10 +11,6 @@
 #include <string>
 
 
-static const char CVSId__EcalTimeBiasCorrectionsXMLTranslator[] = 
-"$Id: EcalTimeBiasCorrections.h,v 1.1 2013/11/3 fay Exp $";
-
-
 class EcalTimeBiasCorrections;
 
 class EcalTimeBiasCorrectionsXMLTranslator {

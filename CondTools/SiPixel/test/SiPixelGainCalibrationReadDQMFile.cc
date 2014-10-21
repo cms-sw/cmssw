@@ -147,7 +147,7 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup& iSet
   int NDetid = 0;
   for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
     detid=0;
-    if( dynamic_cast<PixelGeomDetUnit*>((*it))!=0)
+    if( dynamic_cast<PixelGeomDetUnit const*>((*it))!=0)
       detid=((*it)->geographicalId()).rawId();
     if(detid==0)
       continue;

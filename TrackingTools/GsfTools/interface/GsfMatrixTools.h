@@ -1,6 +1,8 @@
 #ifndef GsfMatrixTools_h_
 #define GsfMatrixTools_h_
 
+#define SMATRIX_USE_CONSTEXPR
+
 #include "Math/SVector.h"
 #include "Math/SMatrix.h"
 

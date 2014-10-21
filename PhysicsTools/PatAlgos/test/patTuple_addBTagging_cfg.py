@@ -11,12 +11,12 @@ process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 ## to the event content
 from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
 
-# uncomment the following lines to add ak5PFJets with new b-tags to your PAT output
+# uncomment the following lines to add ak4PFJets with new b-tags to your PAT output
 addJetCollection(
    process,
-   labelName = 'AK5PF',
-   jetSource = cms.InputTag('ak5PFJets'),
-   jetCorrections = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
+   labelName = 'AK4PF',
+   jetSource = cms.InputTag('ak4PFJets'),
+   jetCorrections = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'), # FIXME: Use proper JECs, as soon as available
    btagDiscriminators = [
        'jetBProbabilityBJetTags'
       ,'jetProbabilityBJetTags'
@@ -76,10 +76,12 @@ addJetCollection(
       #,'negativeCombinedSecondaryVertexSoftPFLeptonV1BJetTags'
     ],
   )
-process.patJetsAK5PF.addTagInfos = True
-process.patJetsAK5PF.addJetID    = True
-process.patJetsAK5PF.jetIDMap    = "ak5JetID"
-process.out.outputCommands.append( 'drop *_selectedPatJetsAK5PF_caloTowers_*' )
+process.patJetsAK4PF.addTagInfos = True
+## JetID works only with RECO input for the CaloTowers (s. below for 'process.source.fileNames')
+#process.patJets.addJetID=True
+#process.load("RecoJets.JetProducers.ak4JetID_cfi")
+#process.patJets.jetIDMap="ak4JetID"
+process.out.outputCommands.append( 'drop *_selectedPatJetsAK4PF_caloTowers_*' )
 
 ## let it run
 process.p = cms.Path(
@@ -96,6 +98,8 @@ process.p = cms.Path(
 ## switch to RECO input
 from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarAODSIM
 process.source.fileNames = filesRelValProdTTbarAODSIM
+#from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarGENSIMRECO
+#process.source.fileNames = filesRelValProdTTbarGENSIMRECO
 #                                         ##
 process.maxEvents.input = 10
 #                                         ##

@@ -25,10 +25,6 @@ typedef edm::Ref<TrackingVertexCollection> TrackingVertexRef;
 typedef edm::RefVector<edm::HepMCProduct, HepMC::GenVertex > GenVertexRefVector;
 typedef edm::RefVector<edm::HepMCProduct, HepMC::GenParticle > GenParticleRefVector;
 
-const double piMass = 0.13957018;
-const double piMassSquared = piMass*piMass;
-const double protonMass = 0.93827203;
-const double protonMassSquared = protonMass*protonMass;
 
 
 

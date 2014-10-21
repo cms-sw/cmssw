@@ -54,6 +54,7 @@ private:
    FWMETProxyBuilder( const FWMETProxyBuilder& );    // stop default
    const FWMETProxyBuilder& operator=( const FWMETProxyBuilder& );    // stop default
 
+   using FWSimpleProxyBuilderTemplate<reco::MET>::buildViewType;
    virtual void buildViewType(const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*);
    
    std::vector<fireworks::scaleMarker> m_lines;

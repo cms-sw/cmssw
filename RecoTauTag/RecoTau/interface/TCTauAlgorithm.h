@@ -53,13 +53,13 @@ class TCTauAlgorithm {
 
     public:
         TCTauAlgorithm();
-	TCTauAlgorithm(const edm::ParameterSet&);
+	TCTauAlgorithm(const edm::ParameterSet&, edm::ConsumesCollector&&);
         ~TCTauAlgorithm();
 
 	math::XYZTLorentzVector recalculateEnergy(const reco::CaloTau&);
 	math::XYZTLorentzVector recalculateEnergy(const reco::CaloJet&,const reco::TrackRef&,const reco::TrackRefVector&);
 
-	void inputConfig(const edm::ParameterSet& iConfig);
+	void inputConfig(const edm::ParameterSet& iConfig, edm::ConsumesCollector &iC);
 	void eventSetup(const edm::Event&,const edm::EventSetup&);
 
 	double efficiency();

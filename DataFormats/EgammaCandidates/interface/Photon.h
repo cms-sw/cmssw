@@ -47,6 +47,8 @@ namespace reco {
 
     /// returns a reference to the core photon object
     reco::PhotonCoreRef photonCore() const { return photonCore_;}
+    void setPhotonCore(const reco::PhotonCoreRef &photonCore) { photonCore_ = photonCore; }
+    
     //
     /// Retrieve photonCore attributes
     //

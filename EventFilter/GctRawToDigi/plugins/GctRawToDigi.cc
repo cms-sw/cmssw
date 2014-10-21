@@ -106,7 +106,7 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   
   // Error collection
   produces<L1TriggerErrorCollection>();
-  usesResource("GctRawToDigi");
+  consumes<FEDRawDataCollection>(inputLabel_);
 }
 
 
@@ -121,12 +121,6 @@ GctRawToDigi::~GctRawToDigi()
 //
 // member functions
 //
-
-// ------------ method called once each job just before starting event loop  ------------
-void GctRawToDigi::beginJob()
-{
-}
-
 
 // ------------ method called to produce the data  ------------
 void GctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)

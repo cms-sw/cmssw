@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoTauTag.RecoTau.TauDiscriminatorTools import noPrediscriminants
+from RecoTauTag.RecoTau.PFRecoTauPFJetInputs_cfi import PFRecoTauPFJetInputs
 
 decayMode_1Prong0Pi0 = cms.PSet(
     nCharged = cms.uint32(1),
@@ -63,7 +64,7 @@ hpsSelectionDiscriminator = cms.EDProducer(
     "PFRecoTauDiscriminationByHPSSelection",
     PFTauProducer = cms.InputTag('combinatoricRecoTaus'),
     Prediscriminants = noPrediscriminants,
-    matchingCone = cms.double(0.5),
+    matchingCone = PFRecoTauPFJetInputs.jetConeSize,
     minTauPt = cms.double(0.0),
     coneSizeFormula = cms.string("max(min(0.1, 3.0/pt()), 0.05)"),
     decayModes = cms.VPSet(

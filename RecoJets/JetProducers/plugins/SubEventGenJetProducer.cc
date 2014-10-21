@@ -12,11 +12,6 @@ using namespace edm;
 using namespace cms;
 
 namespace {
-  const bool debug = false;
-
-}
-
-namespace {
    bool checkHydro(const reco::GenParticle * p){
       const Candidate* m1 = p->mother();
       while(m1){

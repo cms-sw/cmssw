@@ -106,7 +106,8 @@ EopTreeWriter::EopTreeWriter(const edm::ParameterSet& iConfig) :
 
    // TrackAssociator parameters
    edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
-   parameters_.loadParameters( parameters );
+   edm::ConsumesCollector iC = consumesCollector();
+   parameters_.loadParameters( parameters, iC );
 
    tree_ = fs_->make<TTree>("EopTree","EopTree");
    treeMemPtr_ = new EopVariables;

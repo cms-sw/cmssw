@@ -41,5 +41,4 @@
 <use   name="RecoMuon/TrackingTools"/>
 <use   name="CommonTools/RecoAlgos"/> 
 <use   name="JetMETCorrections/Objects"/>
-#<flags   CXXFLAGS="-O0 -g3 -fno-inline"/>
 <flags   EDM_PLUGIN="1"/>

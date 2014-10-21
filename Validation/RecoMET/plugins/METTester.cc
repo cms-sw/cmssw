@@ -39,42 +39,13 @@ METTester::METTester(const edm::ParameterSet& iConfig)
   std::string inputMETCollectionLabel(inputMETLabel_.label());
 
   isCaloMET = (std::string("calo")==METType_);
-//  isCorMET  = (std::string("cor") ==METType_);
-  isTcMET   = (std::string("tc")  ==METType_);
   isPFMET   = (std::string("pf")  ==METType_);
   isGenMET  = (std::string("gen") ==METType_);
 
-  if(isTcMET) {
-    inputCaloMETLabel_       =iConfig.getParameter<edm::InputTag>("InputCaloMETLabel");     
-    inputTrackLabel_         =iConfig.getParameter<edm::InputTag>("InputTrackLabel");    
-    inputMuonLabel_          =iConfig.getParameter<edm::InputTag>("InputMuonLabel");
-    inputElectronLabel_      =iConfig.getParameter<edm::InputTag>("InputElectronLabel");
-    inputBeamSpotLabel_      =iConfig.getParameter<edm::InputTag>("InputBeamSpotLabel");
-    minhits_                 =iConfig.getParameter<int>("minhits");
-    maxd0_                   =iConfig.getParameter<double>("maxd0");
-    maxchi2_                 =iConfig.getParameter<double>("maxchi2");
-    maxeta_                  =iConfig.getParameter<double>("maxeta");
-    maxpt_                   =iConfig.getParameter<double>("maxpt");
-    maxPtErr_                =iConfig.getParameter<double>("maxPtErr");
-    trkQuality_              =iConfig.getParameter<std::vector<int> >("trkQuality");
-    trkAlgos_                =iConfig.getParameter<std::vector<int> >("trkAlgos");
-    sample_                  =iConfig.getUntrackedParameter<std::string>("sample");
-  }
-
   pvToken_ = consumes<std::vector<reco::Vertex> >(edm::InputTag("offlinePrimaryVertices"));
   if (isCaloMET)  caloMETsToken_ = consumes<reco::CaloMETCollection> (inputMETLabel_);
-  if (isTcMET)    tcMETsToken_ = consumes<reco::METCollection> (inputMETLabel_);  
   if (isPFMET)    pfMETsToken_ = consumes<reco::PFMETCollection> (inputMETLabel_); 
   if (isGenMET)   genMETsToken_ = consumes<reco::GenMETCollection> (inputMETLabel_); 
-  if (isTcMET) {
-    caloMETsToken_ = consumes<reco::CaloMETCollection> (inputCaloMETLabel_);  
-    muonToken_  = consumes<reco::MuonCollection>(inputMuonLabel_); 
-    trackToken_ = consumes<reco::TrackCollection>(inputTrackLabel_); 
-    electronToken_ = consumes<edm::View<reco::GsfElectron > >(inputElectronLabel_); 
-    beamSpotToken_ = consumes<reco::BeamSpot>(inputBeamSpotLabel_);
-    tcMet_ValueMap_Token_ = consumes<edm::ValueMap<reco::MuonMETCorrectionData> >(edm::InputTag("muonTCMETValueMapProducer" , "muCorrData")); 
-    met_ValueMap_Token_ = consumes<edm::ValueMap<reco::MuonMETCorrectionData> >(edm::InputTag("muonMETValueMapProducer" , "muCorrData")); 
-  }
   genMETsTrueToken_ = consumes<reco::GenMETCollection> (edm::InputTag("genMetTrue"));
   genMETsCaloToken_ = consumes<reco::GenMETCollection> (edm::InputTag("genMetCalo"));
   //Events variables
@@ -164,160 +135,87 @@ METTester::METTester(const edm::ParameterSet& iConfig)
   mdMEy=0;
   mdMUx=0;
   mdMUy=0;
-  
-  // get ahold of back-end interface
-  DQMStore* dbe_ = &*edm::Service<DQMStore>();
-
-  if (dbe_) {
  
-    dbe_->setCurrentFolder("JetMET/METValidation/"+inputMETLabel_.label());
+} 
+void METTester::bookHistograms(DQMStore::IBooker & ibooker,
+			       edm::Run const & iRun,
+			       edm::EventSetup const & /* iSetup */)
+{
+    ibooker.setCurrentFolder("JetMET/METValidation/"+inputMETLabel_.label()) ;
 
-    mNvertex                     = dbe_->book1D("Nvertex","Nvertex",80,0,80);
-    mMEx                         = dbe_->book1D("MEx","MEx",160,-800,800); 
-    mMEy                         = dbe_->book1D("MEy","MEy",160,-800,800);
-    mMETSig                      = dbe_->book1D("METSig","METSig",25,0,24.5);
-    mMET                         = dbe_->book1D("MET", "MET (20 GeV binning)"           , 100,0,2000);
-    mMETFine                     = dbe_->book1D("METFine", "MET (2 GeV binning)"        , 1000,0,2000);
-    mMET_Nvtx                    = dbe_->bookProfile("MET_Nvtx", "MET vs. nvtx",    60, 0., 60., 0., 2000., " ");
-    mMETPhi                      = dbe_->book1D("METPhi","METPhi",80,-4,4);
-    mSumET                       = dbe_->book1D("SumET"            , "SumET"            , 200,0,4000);   //10GeV
-    mMETDifference_GenMETTrue    = dbe_->book1D("METDifference_GenMETTrue","METDifference_GenMETTrue", 500,-500,500); 
-    mMETDeltaPhi_GenMETTrue      = dbe_->book1D("METDeltaPhi_GenMETTrue","METDeltaPhi_GenMETTrue", 80,0,4); 
-    mMETDifference_GenMETCalo    = dbe_->book1D("METDifference_GenMETCalo","METDifference_GenMETCalo", 500,-500,500); 
-    mMETDeltaPhi_GenMETCalo      = dbe_->book1D("METDeltaPhi_GenMETCalo","METDeltaPhi_GenMETCalo", 80,0,4); 
+    mNvertex                     = ibooker.book1D("Nvertex","Nvertex",80,0,80);
+    mMEx                         = ibooker.book1D("MEx","MEx",160,-800,800); 
+    mMEy                         = ibooker.book1D("MEy","MEy",160,-800,800);
+    mMETSig                      = ibooker.book1D("METSig","METSig",25,0,24.5);
+    mMET                         = ibooker.book1D("MET", "MET (20 GeV binning)"           , 100,0,2000);
+    mMETFine                     = ibooker.book1D("METFine", "MET (2 GeV binning)"        , 1000,0,2000);
+    mMET_Nvtx                    = ibooker.bookProfile("MET_Nvtx", "MET vs. nvtx",    60, 0., 60., 0., 2000., " ");
+    mMETPhi                      = ibooker.book1D("METPhi","METPhi",80,-4,4);
+    mSumET                       = ibooker.book1D("SumET"            , "SumET"            , 200,0,4000);   //10GeV
+    mMETDifference_GenMETTrue    = ibooker.book1D("METDifference_GenMETTrue","METDifference_GenMETTrue", 500,-500,500); 
+    mMETDeltaPhi_GenMETTrue      = ibooker.book1D("METDeltaPhi_GenMETTrue","METDeltaPhi_GenMETTrue", 80,0,4); 
+    mMETDifference_GenMETCalo    = ibooker.book1D("METDifference_GenMETCalo","METDifference_GenMETCalo", 500,-500,500); 
+    mMETDeltaPhi_GenMETCalo      = ibooker.book1D("METDeltaPhi_GenMETCalo","METDeltaPhi_GenMETCalo", 80,0,4); 
 
-    mMETDifference_GenMETTrue_MET0to20    = dbe_->book1D("METResolution_GenMETTrue_MET0to20"   , "METResolution_GenMETTrue_MET0to20"   , 500,-500,500); 
-    mMETDifference_GenMETTrue_MET20to40   = dbe_->book1D("METResolution_GenMETTrue_MET20to40"  , "METResolution_GenMETTrue_MET20to40"  , 500,-500,500); 
-    mMETDifference_GenMETTrue_MET40to60   = dbe_->book1D("METResolution_GenMETTrue_MET40to60"  , "METResolution_GenMETTrue_MET40to60"  , 500,-500,500); 
-    mMETDifference_GenMETTrue_MET60to80   = dbe_->book1D("METResolution_GenMETTrue_MET60to80"  , "METResolution_GenMETTrue_MET60to80"  , 500,-500,500); 
-    mMETDifference_GenMETTrue_MET80to100  = dbe_->book1D("METResolution_GenMETTrue_MET80to100" , "METResolution_GenMETTrue_MET80to100" , 500,-500,500); 
-    mMETDifference_GenMETTrue_MET100to150 = dbe_->book1D("METResolution_GenMETTrue_MET100to150", "METResolution_GenMETTrue_MET100to150", 500,-500,500); 
-    mMETDifference_GenMETTrue_MET150to200 = dbe_->book1D("METResolution_GenMETTrue_MET150to200", "METResolution_GenMETTrue_MET150to200", 500,-500,500); 
-    mMETDifference_GenMETTrue_MET200to300 = dbe_->book1D("METResolution_GenMETTrue_MET200to300", "METResolution_GenMETTrue_MET200to300", 500,-500,500); 
-    mMETDifference_GenMETTrue_MET300to400 = dbe_->book1D("METResolution_GenMETTrue_MET300to400", "METResolution_GenMETTrue_MET300to400", 500,-500,500); 
-    mMETDifference_GenMETTrue_MET400to500 = dbe_->book1D("METResolution_GenMETTrue_MET400to500", "METResolution_GenMETTrue_MET400to500", 500,-500,500); 
+    mMETDifference_GenMETTrue_MET0to20    = ibooker.book1D("METResolution_GenMETTrue_MET0to20"   , "METResolution_GenMETTrue_MET0to20"   , 500,-500,500); 
+    mMETDifference_GenMETTrue_MET20to40   = ibooker.book1D("METResolution_GenMETTrue_MET20to40"  , "METResolution_GenMETTrue_MET20to40"  , 500,-500,500); 
+    mMETDifference_GenMETTrue_MET40to60   = ibooker.book1D("METResolution_GenMETTrue_MET40to60"  , "METResolution_GenMETTrue_MET40to60"  , 500,-500,500); 
+    mMETDifference_GenMETTrue_MET60to80   = ibooker.book1D("METResolution_GenMETTrue_MET60to80"  , "METResolution_GenMETTrue_MET60to80"  , 500,-500,500); 
+    mMETDifference_GenMETTrue_MET80to100  = ibooker.book1D("METResolution_GenMETTrue_MET80to100" , "METResolution_GenMETTrue_MET80to100" , 500,-500,500); 
+    mMETDifference_GenMETTrue_MET100to150 = ibooker.book1D("METResolution_GenMETTrue_MET100to150", "METResolution_GenMETTrue_MET100to150", 500,-500,500); 
+    mMETDifference_GenMETTrue_MET150to200 = ibooker.book1D("METResolution_GenMETTrue_MET150to200", "METResolution_GenMETTrue_MET150to200", 500,-500,500); 
+    mMETDifference_GenMETTrue_MET200to300 = ibooker.book1D("METResolution_GenMETTrue_MET200to300", "METResolution_GenMETTrue_MET200to300", 500,-500,500); 
+    mMETDifference_GenMETTrue_MET300to400 = ibooker.book1D("METResolution_GenMETTrue_MET300to400", "METResolution_GenMETTrue_MET300to400", 500,-500,500); 
+    mMETDifference_GenMETTrue_MET400to500 = ibooker.book1D("METResolution_GenMETTrue_MET400to500", "METResolution_GenMETTrue_MET400to500", 500,-500,500); 
     //this will be filled at the end of the job using info from above hists
     int nBins = 10;
     float bins[] = {0.,20.,40.,60.,80.,100.,150.,200.,300.,400.,500.};
-    mMETDifference_GenMETTrue_METResolution     = dbe_->book1D("METResolution_GenMETTrue_InMETBins","METResolution_GenMETTrue_InMETBins",nBins, bins); 
+    mMETDifference_GenMETTrue_METResolution     = ibooker.book1D("METResolution_GenMETTrue_InMETBins","METResolution_GenMETTrue_InMETBins",nBins, bins); 
 
     if ( isCaloMET) { 
-      mCaloMaxEtInEmTowers             = dbe_->book1D("CaloMaxEtInEmTowers","CaloMaxEtInEmTowers",300,0,1500);   //5GeV
-      mCaloMaxEtInHadTowers            = dbe_->book1D("CaloMaxEtInHadTowers","CaloMaxEtInHadTowers",300,0,1500);  //5GeV
-      mCaloEtFractionHadronic          = dbe_->book1D("CaloEtFractionHadronic","CaloEtFractionHadronic",100,0,1);
-      mCaloEmEtFraction                = dbe_->book1D("CaloEmEtFraction","CaloEmEtFraction",100,0,1);
-      mCaloHadEtInHB                   = dbe_->book1D("CaloHadEtInHB","CaloHadEtInHB", 200, 0, 2000);  //5GeV  
-      mCaloHadEtInHE                   = dbe_->book1D("CaloHadEtInHE","CaloHadEtInHE", 100, 0, 500);  //5GeV
-      mCaloHadEtInHO                   = dbe_->book1D("CaloHadEtInHO","CaloHadEtInHO", 100, 0, 200);  //5GeV
-      mCaloHadEtInHF                   = dbe_->book1D("CaloHadEtInHF","CaloHadEtInHF", 100, 0, 200);  //5GeV
-      mCaloSETInpHF                    = dbe_->book1D("CaloSETInpHF","CaloSETInpHF",100, 0, 500);
-      mCaloSETInmHF                    = dbe_->book1D("CaloSETInmHF","CaloSETInmHF",100, 0, 500);
-      mCaloEmEtInEE                    = dbe_->book1D("CaloEmEtInEE","CaloEmEtInEE",100, 0, 500);    //5GeV
-      mCaloEmEtInEB                    = dbe_->book1D("CaloEmEtInEB","CaloEmEtInEB",100, 0, 500);   //5GeV
-      mCaloEmEtInHF                    = dbe_->book1D("CaloEmEtInHF","CaloEmEtInHF",100, 0, 500);   //5GeV
+      mCaloMaxEtInEmTowers             = ibooker.book1D("CaloMaxEtInEmTowers","CaloMaxEtInEmTowers",300,0,1500);   //5GeV
+      mCaloMaxEtInHadTowers            = ibooker.book1D("CaloMaxEtInHadTowers","CaloMaxEtInHadTowers",300,0,1500);  //5GeV
+      mCaloEtFractionHadronic          = ibooker.book1D("CaloEtFractionHadronic","CaloEtFractionHadronic",100,0,1);
+      mCaloEmEtFraction                = ibooker.book1D("CaloEmEtFraction","CaloEmEtFraction",100,0,1);
+      mCaloHadEtInHB                   = ibooker.book1D("CaloHadEtInHB","CaloHadEtInHB", 200, 0, 2000);  //5GeV  
+      mCaloHadEtInHE                   = ibooker.book1D("CaloHadEtInHE","CaloHadEtInHE", 100, 0, 500);  //5GeV
+      mCaloHadEtInHO                   = ibooker.book1D("CaloHadEtInHO","CaloHadEtInHO", 100, 0, 200);  //5GeV
+      mCaloHadEtInHF                   = ibooker.book1D("CaloHadEtInHF","CaloHadEtInHF", 100, 0, 200);  //5GeV
+      mCaloSETInpHF                    = ibooker.book1D("CaloSETInpHF","CaloSETInpHF",100, 0, 500);
+      mCaloSETInmHF                    = ibooker.book1D("CaloSETInmHF","CaloSETInmHF",100, 0, 500);
+      mCaloEmEtInEE                    = ibooker.book1D("CaloEmEtInEE","CaloEmEtInEE",100, 0, 500);    //5GeV
+      mCaloEmEtInEB                    = ibooker.book1D("CaloEmEtInEB","CaloEmEtInEB",100, 0, 500);   //5GeV
+      mCaloEmEtInHF                    = ibooker.book1D("CaloEmEtInHF","CaloEmEtInHF",100, 0, 500);   //5GeV
     } 
 
     if(isGenMET){        
-      mNeutralEMEtFraction    = dbe_->book1D("GenNeutralEMEtFraction", "GenNeutralEMEtFraction", 120, 0.0, 1.2 );
-      mNeutralHadEtFraction   = dbe_->book1D("GenNeutralHadEtFraction", "GenNeutralHadEtFraction", 120, 0.0, 1.2 );
-      mChargedEMEtFraction    = dbe_->book1D("GenChargedEMEtFraction", "GenChargedEMEtFraction", 120, 0.0, 1.2);
-      mChargedHadEtFraction   = dbe_->book1D("GenChargedHadEtFraction", "GenChargedHadEtFraction", 120, 0.0,1.2);
-      mMuonEtFraction         = dbe_->book1D("GenMuonEtFraction", "GenMuonEtFraction", 120, 0.0, 1.2 );
-      mInvisibleEtFraction    = dbe_->book1D("GenInvisibleEtFraction", "GenInvisibleEtFraction", 120, 0.0, 1.2 );
+      mNeutralEMEtFraction    = ibooker.book1D("GenNeutralEMEtFraction", "GenNeutralEMEtFraction", 120, 0.0, 1.2 );
+      mNeutralHadEtFraction   = ibooker.book1D("GenNeutralHadEtFraction", "GenNeutralHadEtFraction", 120, 0.0, 1.2 );
+      mChargedEMEtFraction    = ibooker.book1D("GenChargedEMEtFraction", "GenChargedEMEtFraction", 120, 0.0, 1.2);
+      mChargedHadEtFraction   = ibooker.book1D("GenChargedHadEtFraction", "GenChargedHadEtFraction", 120, 0.0,1.2);
+      mMuonEtFraction         = ibooker.book1D("GenMuonEtFraction", "GenMuonEtFraction", 120, 0.0, 1.2 );
+      mInvisibleEtFraction    = ibooker.book1D("GenInvisibleEtFraction", "GenInvisibleEtFraction", 120, 0.0, 1.2 );
     }
 
     if (isPFMET){
-      mPFphotonEtFraction = dbe_->book1D("photonEtFraction", "photonEtFraction", 100, 0, 1);
-      mPFphotonEt = dbe_->book1D("photonEt", "photonEt", 100, 0, 1000);
-      mPFneutralHadronEtFraction = dbe_->book1D("neutralHadronEtFraction", "neutralHadronEtFraction", 100, 0, 1);
-      mPFneutralHadronEt = dbe_->book1D("neutralHadronEt", "neutralHadronEt", 100, 0, 1000);
-      mPFelectronEtFraction = dbe_->book1D("electronEtFraction", "electronEtFraction", 100, 0, 1);
-      mPFelectronEt = dbe_->book1D("electronEt", "electronEt", 100, 0, 1000);
-      mPFchargedHadronEtFraction = dbe_->book1D("chargedHadronEtFraction", "chargedHadronEtFraction", 100, 0, 1);
-      mPFchargedHadronEt = dbe_->book1D("chargedHadronEt", "chargedHadronEt", 100, 0, 1000);
-      mPFmuonEtFraction = dbe_->book1D("muonEtFraction", "muonEtFraction", 100, 0, 1);
-      mPFmuonEt = dbe_->book1D("muonEt", "muonEt", 100, 0, 1000);
-      mPFHFHadronEtFraction = dbe_->book1D("HFHadronEtFraction", "HFHadronEtFraction", 100, 0, 1);
-      mPFHFHadronEt = dbe_->book1D("HFHadronEt", "HFHadronEt", 100, 0, 500);
-      mPFHFEMEtFraction = dbe_->book1D("HFEMEtFraction", "HFEMEtFraction", 100, 0, 1);
-      mPFHFEMEt = dbe_->book1D("HFEMEt", "HFEMEt", 100, 0, 300);
+      mPFphotonEtFraction = ibooker.book1D("photonEtFraction", "photonEtFraction", 100, 0, 1);
+      mPFphotonEt = ibooker.book1D("photonEt", "photonEt", 100, 0, 1000);
+      mPFneutralHadronEtFraction = ibooker.book1D("neutralHadronEtFraction", "neutralHadronEtFraction", 100, 0, 1);
+      mPFneutralHadronEt = ibooker.book1D("neutralHadronEt", "neutralHadronEt", 100, 0, 1000);
+      mPFelectronEtFraction = ibooker.book1D("electronEtFraction", "electronEtFraction", 100, 0, 1);
+      mPFelectronEt = ibooker.book1D("electronEt", "electronEt", 100, 0, 1000);
+      mPFchargedHadronEtFraction = ibooker.book1D("chargedHadronEtFraction", "chargedHadronEtFraction", 100, 0, 1);
+      mPFchargedHadronEt = ibooker.book1D("chargedHadronEt", "chargedHadronEt", 100, 0, 1000);
+      mPFmuonEtFraction = ibooker.book1D("muonEtFraction", "muonEtFraction", 100, 0, 1);
+      mPFmuonEt = ibooker.book1D("muonEt", "muonEt", 100, 0, 1000);
+      mPFHFHadronEtFraction = ibooker.book1D("HFHadronEtFraction", "HFHadronEtFraction", 100, 0, 1);
+      mPFHFHadronEt = ibooker.book1D("HFHadronEt", "HFHadronEt", 100, 0, 500);
+      mPFHFEMEtFraction = ibooker.book1D("HFEMEtFraction", "HFEMEtFraction", 100, 0, 1);
+      mPFHFEMEt = ibooker.book1D("HFEMEt", "HFEMEt", 100, 0, 300);
 
-    }
-
-    if ( isTcMET){
-      //TCMET or MuonCorrectedCaloMET Histograms                                                                                                                  
-
-      mMExCorrection       = dbe_->book1D("MExCorrection","MExCorrection", 1000, -500.0,500.0);
-      mMEyCorrection       = dbe_->book1D("MEyCorrection","MEyCorrection", 1000, -500.0,500.0);
-      mMuonCorrectionFlag      = dbe_->book1D("CorrectionFlag", "CorrectionFlag", 6, -0.5, 5.5);
-
-      if(isTcMET) {//TCMET only histograms
-        mtrkPt = dbe_->book1D("trackPt", "trackPt", 50, 0, 500);
-        mtrkEta = dbe_->book1D("trackEta", "trackEta", 50, -2.5, 2.5);
-        mtrkNhits = dbe_->book1D("trackNhits", "trackNhits", 50, 0, 50);
-        mtrkChi2 = dbe_->book1D("trackNormalizedChi2", "trackNormalizedChi2", 20, 0, 20);
-        mtrkD0 = dbe_->book1D("trackD0", "trackd0", 50, -1, 1);
-        mtrkQuality = dbe_->book1D("trackQuality", "trackQuality", 30, -0.5, 29.5);
-        mtrkAlgo = dbe_->book1D("trackAlgo", "trackAlgo", 6, 3.5, 9.5);
-        mtrkPtErr = dbe_->book1D("trackPtErr", "trackPtErr", 200, 0, 2);
-        melePt = dbe_->book1D("electronPt", "electronPt", 50, 0, 500);
-        meleEta = dbe_->book1D("electronEta", "electronEta", 50, -2.5, 2.5);
-        meleHoE = dbe_->book1D("electronHoverE", "electronHoverE", 25, 0, 0.5);
-        mmuPt = dbe_->book1D("muonPt", "muonPt", 50, 0, 500);
-        mmuEta = dbe_->book1D("muonEta", "muonEta", 50, -2.5, 2.5);
-        mmuNhits = dbe_->book1D("muonNhits", "muonNhits", 50, 0, 50);
-        mmuChi2 = dbe_->book1D("muonNormalizedChi2", "muonNormalizedChi2", 20, 0, 20);
-        mmuD0 = dbe_->book1D("muonD0", "muonD0", 50, -1, 1);
-        mnMus = dbe_->book1D("nMus", "nMus", 5, -0.5, 4.5);
-        mnMusPis = dbe_->book1D("nMusAsPis", "nMusAsPis", 5, -0.5, 4.5);
-        mnEls = dbe_->book1D("nEls", "nEls", 5, -0.5, 4.5);
-        mfracTrks = dbe_->book1D("fracTracks", "fracTracks", 100, 0, 1);
-        mdMETx = dbe_->book1D("dMETx", "difference to caloMETx", 500, -250, 250);
-        mdMETy = dbe_->book1D("dMETy", "difference to caloMETy", 500, -250, 250);
-        mdMET = dbe_->book1D("dMET", "difference to caloMET", 500, -250, 250);
-        mdMUx = dbe_->book1D("dMUx", "dMUx", 500, -250, 250);
-        mdMUy = dbe_->book1D("dMUy", "dMUy", 500, -250, 250);
-        mMuonCorrectionFlag->setBinLabel(1,"Not Corrected");
-        mMuonCorrectionFlag->setBinLabel(2,"Global Fit");
-        mMuonCorrectionFlag->setBinLabel(3,"Tracker Fit");
-        mMuonCorrectionFlag->setBinLabel(4,"SA Fit");
-        mMuonCorrectionFlag->setBinLabel(5,"Treated as Pion");
-        mMuonCorrectionFlag->setBinLabel(6,"Default fit");
-      }
-//      if(isCorMET) {
-//        mmuPt = dbe_->book1D("muonPt", "muonPt", 50, 0, 500);
-//        mmuEta = dbe_->book1D("muonEta", "muonEta", 50, -2.5, 2.5);
-//        mmuNhits = dbe_->book1D("muonNhits", "muonNhits", 50, 0, 50);
-//        mmuChi2 = dbe_->book1D("muonNormalizedChi2", "muonNormalizedChi2", 20, 0, 20);
-//        mmuD0 = dbe_->book1D("muonD0", "muonD0", 50, -1, 1);
-//        mMuonCorrectionFlag->setBinLabel(1,"Not Corrected");
-//        mMuonCorrectionFlag->setBinLabel(2,"Global Fit");
-//        mMuonCorrectionFlag->setBinLabel(3,"Tracker Fit");
-//        mMuonCorrectionFlag->setBinLabel(4,"SA Fit");
-//        mMuonCorrectionFlag->setBinLabel(5,"Treated as Pion");
-//        mMuonCorrectionFlag->setBinLabel(6,"Default fit");
-//      }
-    }
-
-    else {
-      edm::LogInfo("OutputInfo") << " METType not correctly specified!'";// << outputFile_.c_str();
     }
   }
-  if (mOutputFile.empty ())
-    {
-      LogInfo("OutputInfo") << " Histograms will NOT be saved";
-    }
-  else
-    {
-      LogInfo("OutputInfo") << " Histograms will be saved to file:" << mOutputFile;
-    }
-}
 
-
-void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
-{
-
-}
 
 void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 { //int counter(0);
@@ -333,25 +231,18 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //Collections for all MET collections
 
   edm::Handle<CaloMETCollection> caloMETs;
-  edm::Handle<METCollection> tcMETs;
-//  edm::Handle<CaloMETCollection> corMETs;
   edm::Handle<PFMETCollection> pfMETs;
   edm::Handle<GenMETCollection> genMETs;
 
-  if (isCaloMET or isTcMET) iEvent.getByToken(caloMETsToken_, caloMETs);
-  if (isTcMET)   iEvent.getByToken(tcMETsToken_,   tcMETs);
+  if (isCaloMET) iEvent.getByToken(caloMETsToken_, caloMETs);
   if (isPFMET)   iEvent.getByToken(pfMETsToken_,   pfMETs);
   if (isGenMET)  iEvent.getByToken(genMETsToken_,  genMETs);
-  if ((isCaloMET or isTcMET) and !caloMETs.isValid()) return;
-  if ((isTcMET)   and !tcMETs.isValid())   return;
-//  if ((isCorMET)  and !caloMETs.isValid()) return;
+  if ((isCaloMET) and !caloMETs.isValid()) return; 
   if ((isPFMET)   and !pfMETs.isValid())   return;
   if ((isGenMET)  and !genMETs.isValid())  return;
 
   reco::MET met;
   if (isCaloMET) { met = caloMETs->front();}
-  if (isTcMET)   { met = tcMETs->front()  ;}
-//  if (isCorMET)  { met = caloMETs->front();}
   if (isPFMET)   { met = pfMETs->front()  ;}
   if (isGenMET)  { met = genMETs->front() ;}
 
@@ -369,7 +260,7 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   mMETPhi->Fill(METPhi);
   mSumET->Fill(SumET);
   mMETSig->Fill(METSig);
-//  cout<<"isCaloMET "<<boolalpha<<isCaloMET<<" isGenMET "<<isPFMET<<" isTcMET "<<isTcMET<<" isPFMET "<<isPFMET<<" met:"<<MET<<endl;
+
   // Get Generated MET for Resolution plots
   edm::Handle<GenMETCollection> genTrue;
   iEvent.getByToken(genMETsTrueToken_, genTrue);
@@ -483,279 +374,9 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     // Reconstructed MET Information                                                                                                     
 
   } 
-  if(isTcMET) 
-  {
-
-    const CaloMET *caloMet;
-    edm::Handle<CaloMETCollection> hcaloMetcol;
-    iEvent.getByToken(caloMETsToken_, hcaloMetcol);
-
-    edm::Handle< reco::MuonCollection > muon_h;
-    iEvent.getByToken(muonToken_, muon_h);
-
-    //      edm::Handle< edm::View<reco::Track> > track_h;
-    edm::Handle<reco::TrackCollection> track_h;
-    iEvent.getByToken(trackToken_, track_h);
-
-    edm::Handle< edm::View<reco::GsfElectron > > electron_h;
-    iEvent.getByToken(electronToken_, electron_h);
-
-    edm::Handle< reco::BeamSpot > beamSpot_h;
-    iEvent.getByToken(beamSpotToken_, beamSpot_h);
-
-    const reco::MET * tcMet = &(tcMETs->front());
-
-    if(!hcaloMetcol.isValid()){
-      edm::LogInfo("OutputInfo") << "falied to retrieve data require by MET Task";
-      edm::LogInfo("OutputInfo") << "MET Taks cannot continue...!";
-      return;
-    }
-    else
-    {
-      const CaloMETCollection *caloMetcol = hcaloMetcol.product();
-      caloMet = &(caloMetcol->front());
-    }
-
-    if(!muon_h.isValid()){
-      edm::LogInfo("OutputInfo") << "falied to retrieve muon data require by MET Task";
-      edm::LogInfo("OutputInfo") << "MET Taks cannot continue...!";
-      return;
-    }
-
-    if(!electron_h.isValid()){
-      edm::LogInfo("OutputInfo") << "falied to retrieve electron data require by MET Task";
-      edm::LogInfo("OutputInfo") << "MET Taks cannot continue...!";
-      return;
-    }
-
-    if(!beamSpot_h.isValid()){
-      edm::LogInfo("OutputInfo") << "falied to retrieve beam spot data require by MET Task";
-      edm::LogInfo("OutputInfo") << "MET Taks cannot continue...!";
-      return;
-    }
-
-    math::XYZPoint bspot = ( beamSpot_h.isValid() ) ? beamSpot_h->position() : math::XYZPoint(0, 0, 0);
-
-    //Event selection-----------------------------------------------------------------------
-
-    edm::Handle< edm::ValueMap<reco::MuonMETCorrectionData> > tcMet_ValueMap_Handle;
-    iEvent.getByToken(tcMet_ValueMap_Token_, tcMet_ValueMap_Handle);
-
-    //count muons
-    int nM = 0;
-
-    for( unsigned int mus = 0; mus < muon_h->size() ; mus++ ) {
-
-      reco::MuonRef muref( muon_h, mus);
-      if( muref->pt() < 20 ) continue;
-
-      reco::MuonMETCorrectionData muCorrData = (*tcMet_ValueMap_Handle)[muref];
-      int type = muCorrData.type();
-
-      if( type == 1 || type == 2 || type == 5 )  ++nM;
-    }
-
-    //count electrons
-    int nE = 0;
-
-    for( edm::View<reco::GsfElectron>::const_iterator eleit = electron_h->begin(); eleit != electron_h->end(); eleit++ ) {
-      if( eleit->p4().pt() < 20 ) continue;  
-      ++nE;
-    }
-
-    if( strcmp( sample_.c_str() , "zmm" ) == 0 && nM != 2 ) return;
-
-    if( strcmp( sample_.c_str() , "zee" ) == 0 && nE != 2 ) return;
-
-    if( strcmp( sample_.c_str() , "ttbar" ) == 0 && ( nE + nM ) == 0 ) return;
-
-    const double caloMET = caloMet->pt();
-    const double caloMEx = caloMet->px();
-    const double caloMEy = caloMet->py();
-
-    mdMETx->Fill(caloMEx-tcMet->px());
-    mdMETy->Fill(caloMEy-tcMet->py());
-    mdMET->Fill(caloMET-tcMet->pt());
-    
-    const unsigned int nTracks = track_h->size();
-    unsigned int nCorrTracks = 0;
-    unsigned int trackCount = 0;
-    for( reco::TrackCollection::const_iterator trkit = track_h->begin(); trkit != track_h->end(); trkit++ ) {
-      mtrkPt->Fill( trkit->pt() );
-      mtrkEta->Fill( trkit->eta() );
-      mtrkNhits->Fill( trkit->numberOfValidHits() );
-      mtrkChi2->Fill( trkit->chi2() / trkit->ndof() );
-      
-      double d0 = -1 * trkit->dxy( bspot );
-      
-      mtrkD0->Fill( d0 );
-      
-      mtrkQuality->Fill( trkit->qualityMask() );
-      mtrkAlgo->Fill( trkit->algo() );
-      mtrkPtErr->Fill( trkit->ptError() / trkit->pt() );
-      
-      reco::TrackRef trkref( track_h, trackCount );
-      
-      if( isGoodTrack( trkref, d0) ) ++nCorrTracks;
-      ++trackCount;
-    }
-    
-    const float frac = (float)nCorrTracks / (float)nTracks;
-    mfracTrks->Fill(frac);
-
-    int nEls = 0;
-    
-    for( edm::View<reco::GsfElectron>::const_iterator eleit = electron_h->begin(); eleit != electron_h->end(); eleit++ ) {
-      melePt->Fill( eleit->p4().pt() );  
-      meleEta->Fill( eleit->p4().eta() );
-      meleHoE->Fill( eleit->hadronicOverEm() );
-
-      reco::TrackRef el_track = eleit->closestCtfTrackRef();
-
-      unsigned int ele_idx = el_track.isNonnull() ? el_track.key() : 99999;
-
-      if( eleit->hadronicOverEm() < 0.1 && ele_idx < nTracks )
-        ++nEls;
-    }
-    
-    mnEls->Fill(nEls);
-    
-    for( reco::MuonCollection::const_iterator muonit = muon_h->begin(); muonit != muon_h->end(); muonit++ ) {
-
-      const reco::TrackRef siTrack = muonit->innerTrack();
-
-      mmuPt->Fill( muonit->p4().pt() );
-      mmuEta->Fill( muonit->p4().eta() );
-      mmuNhits->Fill( siTrack.isNonnull() ? siTrack->numberOfValidHits() : -999 );
-      mmuChi2->Fill( siTrack.isNonnull() ? siTrack->chi2()/siTrack->ndof() : -999 );
-
-      double d0 = siTrack.isNonnull() ? -1 * siTrack->dxy( bspot) : -999;
-
-      mmuD0->Fill( d0 );
-    }
-    
-    //edm::Handle< edm::ValueMap<reco::MuonMETCorrectionData> > tcMet_ValueMap_Handle;
-    //iEvent.getByToken("muonTCMETValueMapProducer" , "muCorrData", tcMet_ValueMap_Handle);
-
-    edm::Handle< edm::ValueMap<reco::MuonMETCorrectionData> > muon_ValueMap_Handle;
-    iEvent.getByToken(met_ValueMap_Token_, muon_ValueMap_Handle);
-
-    const unsigned int nMuons = muon_h->size();      
-
-    int nMus = 0;
-    int nMusPis = 0;
-    double muDx = 0;
-    double muDy = 0;
-    for( unsigned int mus = 0; mus < nMuons; mus++ ) 
-    {
-      reco::MuonRef muref( muon_h, mus);
-      reco::MuonMETCorrectionData muCorrData = (*tcMet_ValueMap_Handle)[muref];
-      reco::MuonMETCorrectionData muonCorrData = (*muon_ValueMap_Handle)[muref];
-
-      mMExCorrection -> Fill(muCorrData.corrX());
-      mMEyCorrection -> Fill(muCorrData.corrY());
-
-      int type = muCorrData.type();
-      mMuonCorrectionFlag-> Fill(type);
-
-      if( type == 1 || type == 2 || type == 5 ) {
-        ++nMus;
-
-        if( type == 1 ) {
-          muDx += muonCorrData.corrX() - muref->globalTrack()->px();
-          muDy += muonCorrData.corrY() - muref->globalTrack()->py();
-        }
-        else if( type == 2 ) {
-          muDx += muonCorrData.corrX() - muref->innerTrack()->px();
-          muDy += muonCorrData.corrY() - muref->innerTrack()->py();
-        }
-        else if( type == 5 ) {
-          muDx += muonCorrData.corrX() - muref->px();
-          muDy += muonCorrData.corrY() - muref->py();
-        }
-      }
-      else if( type == 4 )
-        ++nMusPis;
-    }
-
-    mnMus->Fill(nMus);
-    mnMusPis->Fill(nMusPis);
-    mdMUx->Fill(muDx);
-    mdMUy->Fill(muDy);
-  }
   
-//  if(isCorMET )
-//  {
-//////    const CaloMET *corMetGlobalMuons = 0;
-////    edm::Handle<CaloMETCollection> hcorMetGlobalMuonscol;
-////    iEvent.getByToken(inputMETLabel_, hcorMetGlobalMuonscol );
-////    if(! hcorMetGlobalMuonscol.isValid()){
-////      edm::LogInfo("OutputInfo") << "hcorMetGlobalMuonscol is NOT Valid";
-////      edm::LogInfo("OutputInfo") << "MET Taks continues anyway...!";
-////    }
-////    else
-////    {   
-//////      const CaloMETCollection *corMetGlobalMuonscol = hcorMetGlobalMuonscol.product();
-//////      corMetGlobalMuons = &(corMetGlobalMuonscol->front());
-////    }
-//
-//    edm::Handle< edm::ValueMap<reco::MuonMETCorrectionData> > corMetGlobalMuons_ValueMap_Handle;
-//    iEvent.getByToken("muonMETValueMapProducer" , "muCorrData", corMetGlobalMuons_ValueMap_Handle);
-//
-//    edm::Handle< reco::MuonCollection > muon_Handle;
-//    iEvent.getByToken("muons", muon_Handle);
-//
-//    edm::Handle< reco::BeamSpot > beamSpot_h;
-//    iEvent.getByToken(inputBeamSpotLabel_, beamSpot_h);
-//
-//    if(!beamSpot_h.isValid()){
-//      edm::LogInfo("OutputInfo") << "beamSpot is NOT Valid";
-//      edm::LogInfo("OutputInfo") << "MET Taks continues anyway...!";
-//    }
-//
-//    math::XYZPoint bspot = ( beamSpot_h.isValid() ) ? beamSpot_h->position() : math::XYZPoint(0, 0, 0);
-//
-//    for( reco::MuonCollection::const_iterator muonit = muon_Handle->begin(); muonit != muon_Handle->end(); muonit++ ) {
-//
-//      const reco::TrackRef siTrack = muonit->innerTrack();
-//      const reco::TrackRef globalTrack = muonit->globalTrack();
-//      
-//      mmuPt->Fill( muonit->p4().pt() );
-//      mmuEta->Fill( muonit->p4().eta() );
-//      mmuNhits->Fill( siTrack.isNonnull() ? siTrack->numberOfValidHits() : -999 );
-//      mmuChi2->Fill( siTrack.isNonnull() ? siTrack->chi2()/siTrack->ndof() : -999 );
-//      
-//      double d0 = siTrack.isNonnull() ? -1 * siTrack->dxy( bspot) : -999;
-//      
-//      mmuD0->Fill( d0 );
-//      
-//      int nHits = globalTrack.isNonnull() ? globalTrack->hitPattern().numberOfValidMuonHits() : -999;
-//      mmuSAhits->Fill( nHits );
-//    }
-//
-//    const unsigned int nMuons = muon_Handle->size();      
-//    for( unsigned int mus = 0; mus < nMuons; mus++ ) 
-//    {
-//      reco::MuonRef muref( muon_Handle, mus);
-//      reco::MuonMETCorrectionData muCorrData = (*corMetGlobalMuons_ValueMap_Handle)[muref];
-//
-//      mMExCorrection -> Fill(muCorrData.corrY());
-//      mMEyCorrection -> Fill(muCorrData.corrX());
-//      mMuonCorrectionFlag-> Fill(muCorrData.type());
-//    }
-//  }
-
   //This is so dirty I could cry. It should be called only ONCE in endJob. But the MonitorElements don't exist then any more.
   FillMETRes();
-}
-
-void METTester::endJob() 
-{ 
-  if (!mOutputFile.empty() && &*edm::Service<DQMStore>())
-  {
-    edm::Service<DQMStore>()->save(mOutputFile);
-  }
-  
 }
 
 //void METTester::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
@@ -771,6 +392,8 @@ void METTester::FillMETRes()
   mMETDifference_GenMETTrue_METResolution->setBinContent(8, mMETDifference_GenMETTrue_MET200to300->getMean());
   mMETDifference_GenMETTrue_METResolution->setBinContent(9, mMETDifference_GenMETTrue_MET300to400->getMean());
   mMETDifference_GenMETTrue_METResolution->setBinContent(10, mMETDifference_GenMETTrue_MET400to500->getMean());
+
+  //the error computation should be done in a postProcessor in the harvesting step otherwise the histograms will be just summed
   mMETDifference_GenMETTrue_METResolution->setBinError(1, mMETDifference_GenMETTrue_MET0to20->getRMS());
   mMETDifference_GenMETTrue_METResolution->setBinError(2, mMETDifference_GenMETTrue_MET20to40->getRMS());
   mMETDifference_GenMETTrue_METResolution->setBinError(3, mMETDifference_GenMETTrue_MET40to60->getRMS());

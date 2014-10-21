@@ -58,6 +58,10 @@ float PerformancePayloadFromBinnedTFormula::getResult(PerformanceResult::ResultT
   }
   //
   // i need a non const version 
+  // Note, in current implementation of TFormula EvalPar should be
+  // thread safe as it does nothing more than call a function
+  // through a function pointer which is stateless. In spite of the
+  // fact that it is not const.
   return formula->EvalPar(values);
 }
 

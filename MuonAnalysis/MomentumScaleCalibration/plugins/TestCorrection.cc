@@ -263,8 +263,10 @@ void TestCorrection::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
     // Use the correction function to correct the pt scale of the muons. Note that this takes into
     // account the corrections from all iterations.
-    lorentzVector recMu1 = correctMuon(recMu1);
-    lorentzVector recMu2 = correctMuon(recMu2);
+    lorentzVector recMu1;
+    recMu1 = correctMuon(recMu1);
+    lorentzVector recMu2;
+    recMu2 = correctMuon(recMu2);
 
     reco::Particle::LorentzVector bestRecRes (recMu1+recMu2);
 

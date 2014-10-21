@@ -296,12 +296,12 @@ void TrackDetectorAssociator::fillEcal( const edm::Event& iEvent,
    // Find ECAL crystals
    // timers.push("TrackDetectorAssociator::fillEcal::access::EcalBarrel");
    edm::Handle<EBRecHitCollection> EBRecHits;
-   iEvent.getByLabel( parameters.theEBRecHitCollectionLabel, EBRecHits );
+   iEvent.getByToken(parameters.EBRecHitsToken, EBRecHits);
    if (!EBRecHits.isValid()) throw cms::Exception("FatalError") << "Unable to find EBRecHitCollection in the event!\n";
 
    // timers.pop_and_push("TrackDetectorAssociator::fillEcal::access::EcalEndcaps");
    edm::Handle<EERecHitCollection> EERecHits;
-   iEvent.getByLabel( parameters.theEERecHitCollectionLabel, EERecHits );
+   iEvent.getByToken(parameters.EERecHitsToken, EERecHits);
    if (!EERecHits.isValid()) throw cms::Exception("FatalError") << "Unable to find EERecHitCollection in event!\n";
 
    // timers.pop_and_push("TrackDetectorAssociator::fillEcal::matching");
@@ -377,8 +377,7 @@ void TrackDetectorAssociator::fillCaloTowers( const edm::Event& iEvent,
    // find crossed CaloTowers
    // timers.push("TrackDetectorAssociator::fillCaloTowers::access::CaloTowers");
    edm::Handle<CaloTowerCollection> caloTowers;
-
-   iEvent.getByLabel( parameters.theCaloTowerCollectionLabel, caloTowers );
+   iEvent.getByToken(parameters.caloTowersToken, caloTowers);
    if (!caloTowers.isValid())  throw cms::Exception("FatalError") << "Unable to find CaloTowers in event!\n";
    
    // timers.pop_and_push("TrackDetectorAssociator::fillCaloTowers::matching");
@@ -469,8 +468,7 @@ void TrackDetectorAssociator::fillHcal( const edm::Event& iEvent,
    // find crossed Hcals
    // timers.push("TrackDetectorAssociator::fillHcal::access::Hcal");
    edm::Handle<HBHERecHitCollection> collection;
-
-   iEvent.getByLabel( parameters.theHBHERecHitCollectionLabel, collection );
+   iEvent.getByToken(parameters.HBHEcollToken, collection);
    if ( ! collection.isValid() ) throw cms::Exception("FatalError") << "Unable to find HBHERecHits in event!\n";
    
    // timers.pop_and_push("TrackDetectorAssociator::fillHcal::matching");
@@ -535,8 +533,7 @@ void TrackDetectorAssociator::fillHO( const edm::Event& iEvent,
    // find crossed HOs
    // timers.pop_and_push("TrackDetectorAssociator::fillHO::access::HO");
    edm::Handle<HORecHitCollection> collection;
-
-   iEvent.getByLabel( parameters.theHORecHitCollectionLabel, collection );
+   iEvent.getByToken(parameters.HOcollToken, collection);
    if ( ! collection.isValid() ) throw cms::Exception("FatalError") << "Unable to find HORecHits in event!\n";
    
    // timers.pop_and_push("TrackDetectorAssociator::fillHO::matching");
@@ -782,12 +779,12 @@ void TrackDetectorAssociator::fillMuon( const edm::Event& iEvent,
    // Get the segments from the event
    // timers.push("TrackDetectorAssociator::fillMuon::access");
    edm::Handle<DTRecSegment4DCollection> dtSegments;
-   iEvent.getByLabel( parameters.theDTRecSegment4DCollectionLabel, dtSegments );
+   iEvent.getByToken(parameters.dtSegmentsToken, dtSegments);
    if (! dtSegments.isValid()) 
      throw cms::Exception("FatalError") << "Unable to find DTRecSegment4DCollection in event!\n";
    
    edm::Handle<CSCSegmentCollection> cscSegments;
-   iEvent.getByLabel( parameters.theCSCSegmentCollectionLabel, cscSegments );
+   iEvent.getByToken(parameters.cscSegmentsToken, cscSegments);
    if (! cscSegments.isValid()) 
      throw cms::Exception("FatalError") << "Unable to find CSCSegmentCollection in event!\n";
 
@@ -946,24 +943,24 @@ void TrackDetectorAssociator::fillCaloTruth( const edm::Event& iEvent,
    // get list of simulated tracks and their vertices
    using namespace edm;
    Handle<SimTrackContainer> simTracks;
-   iEvent.getByLabel<SimTrackContainer>("g4SimHits", simTracks);
+   iEvent.getByToken(parameters.simTracksToken, simTracks);
    if (! simTracks.isValid() ) throw cms::Exception("FatalError") << "No simulated tracks found\n";
    
    Handle<SimVertexContainer> simVertices;
-   iEvent.getByLabel<SimVertexContainer>("g4SimHits", simVertices);
+   iEvent.getByToken(parameters.simVerticesToken, simVertices);
    if (! simVertices.isValid() ) throw cms::Exception("FatalError") << "No simulated vertices found\n";
    
    // get sim calo hits
    Handle<PCaloHitContainer> simEcalHitsEB;
-   iEvent.getByLabel("g4SimHits","EcalHitsEB",simEcalHitsEB);
+   iEvent.getByToken(parameters.simEcalHitsEBToken, simEcalHitsEB);
    if (! simEcalHitsEB.isValid() ) throw cms::Exception("FatalError") << "No simulated ECAL EB hits found\n";
 
    Handle<PCaloHitContainer> simEcalHitsEE;
-   iEvent.getByLabel("g4SimHits","EcalHitsEE",simEcalHitsEE);
+   iEvent.getByToken(parameters.simEcalHitsEEToken, simEcalHitsEE);
    if (! simEcalHitsEE.isValid() ) throw cms::Exception("FatalError") << "No simulated ECAL EE hits found\n";
 
    Handle<PCaloHitContainer> simHcalHits;
-   iEvent.getByLabel("g4SimHits","HcalHits",simHcalHits);
+   iEvent.getByToken(parameters.simHcalHitsToken, simHcalHits);
    if (! simHcalHits.isValid() ) throw cms::Exception("FatalError") << "No simulated HCAL hits found\n";
 
    // find truth partner

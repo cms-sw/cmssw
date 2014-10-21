@@ -35,10 +35,11 @@ process.generator = cms.EDFilter("Pythia8HadronizerFilter",
 
 #if emissionVeto1 && MPIvetoMode > 0 add 'MultipartonInteractions:pTmaxMatch = 2'
 
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(
         default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+            limit = cms.untracked.int32(2)
         )
     ),
     destinations = cms.untracked.vstring('cout')

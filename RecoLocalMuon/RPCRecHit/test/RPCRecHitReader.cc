@@ -126,7 +126,7 @@ void RPCRecHitReader::beginRun(const edm::Run&, const edm::EventSetup& iSetup)
     GlobalPoint cntr10, cntr11;
     for (RPCGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();
 	 it<rpcGeo->dets().end();it++){
-      RPCRoll* ir = dynamic_cast<RPCRoll*>(*it);
+      RPCRoll const* ir = dynamic_cast<const RPCRoll*>(*it);
       RPCDetId id = ir->id();
       
       const Surface& bSurface = ir->surface();

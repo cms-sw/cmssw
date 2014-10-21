@@ -66,6 +66,7 @@ private:
   // Disable default assignment operator
   const FWDTDigiProxyBuilder& operator=( const FWDTDigiProxyBuilder& );
 	
+  using FWProxyBuilderBase::buildViewType;
   virtual void buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType, const FWViewContext* ) override;
 };
 

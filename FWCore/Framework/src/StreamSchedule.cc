@@ -81,10 +81,6 @@ namespace edm {
       return ptr;
     }
 
-    inline bool binary_search_string(std::vector<std::string> const& v, std::string const& s) {
-      return std::binary_search(v.begin(), v.end(), s);
-    }
-    
     void
     initializeBranchToReadingWorker(ParameterSet const& opts,
                                     ProductRegistry const& preg,
@@ -594,10 +590,10 @@ namespace edm {
   fillModuleInPathSummary(Path const& path,
                           size_t which,
                           ModuleInPathSummary& sum) {
-    sum.timesVisited = +path.timesVisited(which);
-    sum.timesPassed  = +path.timesPassed(which);
-    sum.timesFailed  = +path.timesFailed(which);
-    sum.timesExcept  = +path.timesExcept(which);
+    sum.timesVisited += path.timesVisited(which);
+    sum.timesPassed  += path.timesPassed(which);
+    sum.timesFailed  += path.timesFailed(which);
+    sum.timesExcept  += path.timesExcept(which);
     sum.moduleLabel  = path.getWorker(which)->description().moduleLabel();
   }
 

@@ -15,16 +15,16 @@ class ForwardDetLayer;
 
 class SymmetricLayerFinder {
 
-  typedef std::vector<ForwardDetLayer*>                   FDLC;
+  typedef std::vector<const ForwardDetLayer*>             FDLC;
   typedef FDLC::iterator                                  FDLI;
   typedef FDLC::const_iterator                            ConstFDLI;
-  typedef std::pair< ForwardDetLayer*, ForwardDetLayer*>  PairType;
+  typedef std::pair< const ForwardDetLayer*, const ForwardDetLayer*>  PairType;
 
 public:
 
   SymmetricLayerFinder( const FDLC&);
 
-  ForwardDetLayer* mirror( const ForwardDetLayer* layer) {
+  const ForwardDetLayer* mirror( const ForwardDetLayer* layer) {
     return theForwardMap[layer];
   }
 
@@ -33,12 +33,12 @@ public:
 private:
 
   //  typedef map< const ForwardDetLayer*, const ForwardDetLayer*, less<const ForwardDetLayer*> >
-  typedef std::map< const ForwardDetLayer*, ForwardDetLayer*, std::less<const ForwardDetLayer*> >
+  typedef std::map< const ForwardDetLayer*, const ForwardDetLayer*, std::less<const ForwardDetLayer*> >
     ForwardMapType;
 
   ForwardMapType theForwardMap;
 
-  ForwardDetLayer* mirrorPartner( const ForwardDetLayer* layer,
+  const ForwardDetLayer* mirrorPartner( const ForwardDetLayer* layer,
 				  const FDLC& rightLayers);
   
 

@@ -6,6 +6,8 @@
  * $Id: $
  **/
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <iostream>
 
 class EcalTimeOffsetConstant {
@@ -24,6 +26,8 @@ class EcalTimeOffsetConstant {
   private:
     float EBvalue_;
     float EEvalue_;
+
+  COND_SERIALIZABLE;
 };
 
 /**

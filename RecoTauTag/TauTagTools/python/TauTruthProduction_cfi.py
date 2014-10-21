@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.JetMCAlgos.TauGenJets_cfi import tauGenJets
 from PhysicsTools.HepMCCandAlgos.genParticles_cfi import genParticles
-from RecoJets.JetProducers.ak5GenJets_cfi import ak5GenJets
+from RecoJets.JetProducers.ak4GenJets_cfi import ak4GenJets
 from RecoJets.Configuration.GenJetParticles_cff import genParticlesForJets
 
 trueHadronicTaus = cms.EDFilter(
@@ -14,8 +14,7 @@ trueHadronicTaus = cms.EDFilter(
     filter = cms.bool(False)
 )
 
-trueCommonHadronicTaus = cms.EDFilter(
-    "TauGenJetDecayModeSelector",
+trueCommonHadronicTaus = trueHadronicTaus.clone(
     src = cms.InputTag("tauGenJets"),
     select = cms.vstring(
         'oneProng0Pi0', 'oneProng1Pi0', 'oneProng2Pi0',
@@ -23,15 +22,13 @@ trueCommonHadronicTaus = cms.EDFilter(
     filter = cms.bool(False)
 )
 
-trueMuonicTaus = cms.EDFilter(
-    "TauGenJetDecayModeSelector",
+trueMuonicTaus = trueHadronicTaus.clone(
     src = cms.InputTag("tauGenJets"),
     select = cms.vstring('muon'),
     filter = cms.bool(False)
 )
 
-trueElecronicTaus = cms.EDFilter(
-    "TauGenJetDecayModeSelector",
+trueElecronicTaus = trueHadronicTaus.clone(
     src = cms.InputTag("tauGenJets"),
     select = cms.vstring('electron'),
     filter = cms.bool(False)
@@ -40,7 +37,7 @@ trueElecronicTaus = cms.EDFilter(
 tauTruthSequence = cms.Sequence(
     genParticles *
     genParticlesForJets *
-    ak5GenJets *
+    ak4GenJets *
     tauGenJets *
     trueHadronicTaus *
     trueMuonicTaus *

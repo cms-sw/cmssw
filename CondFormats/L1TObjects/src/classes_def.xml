@@ -117,6 +117,9 @@
   <class name="L1GtStableParameters">
     <field name="m_orderConditionChip" mapping="blob" />
   </class>
+  <class name="GlobalStableParameters">
+    <field name="m_orderConditionChip" mapping="blob" />
+  </class>
   <class name="L1GtParameters">
     <field name="m_daqNrBxBoard" mapping="blob" />
     <field name="m_evmNrBxBoard" mapping="blob" />

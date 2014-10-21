@@ -13,6 +13,11 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 
 class EncodedEventId;
 
@@ -41,5 +46,12 @@ private:
   edm::InputTag _pixelClusterSrc;
   edm::InputTag _stripClusterSrc;
   edm::InputTag _trackingParticleSrc;
+
+  edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > sipixelSimLinksToken_;
+  edm::EDGetTokenT<edm::DetSetVector<StripDigiSimLink> > sistripSimLinksToken_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClustersToken_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > stripClustersToken_;
+  edm::EDGetTokenT<TrackingParticleCollection> trackingParticleToken_;
+
 };
 #endif

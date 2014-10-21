@@ -1,0 +1,216 @@
+<?xml version="1.0" ?>
+<l1t:l1TriggerMenu version="0.4" 
+   xmlns:l1t="http://www.cern.ch/l1t" 
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+   xsi:schemaLocation="http://www.cern.ch/l1t L1TriggerMenu.xsd">
+   <l1t:meta>
+      <l1t:name>L1Menu_Example_20131024</l1t:name>
+      <l1t:scalesKey>L1T_Scales_20130712</l1t:scalesKey>
+      <l1t:firmwareVersion>2147483647</l1t:firmwareVersion>
+      <l1t:description>This is a descriptive text.</l1t:description>
+      <l1t:history>
+	<l1t:revision hostname="gtslc6.local" username="john">
+	  <l1t:author>John Doe</l1t:author>
+	  <l1t:datetime>2013-07-06T15:33:24</l1t:datetime>
+	</l1t:revision>
+	<l1t:revision hostname="gtslc6.local" username="john">
+	  <l1t:author>John Doe</l1t:author>
+	  <l1t:datetime>2013-07-17T15:12:08</l1t:datetime>
+	</l1t:revision>
+      </l1t:history>
+   </l1t:meta>
+   <l1t:conditions>
+    <l1t:condMuon>
+      <l1t:name>SingleMuon_0xf</l1t:name>
+      <l1t:description>An example single muon condition.</l1t:description>
+      <l1t:locked>0</l1t:locked>
+    </l1t:condMuon>
+     <l1t:condCalorimeter>
+       <l1t:name>SingleJet_0x0_fullrange</l1t:name>
+       <l1t:description>An example single jet condition with full range phi and eta (no windows).</l1t:description>
+       <l1t:locked>false</l1t:locked>
+       <l1t:type>single</l1t:type>
+       <l1t:etComparison>ge</l1t:etComparison>
+       <l1t:objectType>jet</l1t:objectType>
+       <l1t:objectParameters>
+	 <l1t:objectParameter>
+	   <l1t:etThreshold>0</l1t:etThreshold>
+	 </l1t:objectParameter>
+       </l1t:objectParameters>
+       <l1t:relativeBx>0</l1t:relativeBx>
+     </l1t:condCalorimeter>
+     <l1t:condCalorimeter>
+       <l1t:name>SingleJet_0x04_fullrange</l1t:name>
+       <l1t:description>An example single jet condition with full range phi and eta (no windows) and a threshold of 16 GeV.</l1t:description>
+       <l1t:locked>false</l1t:locked>
+       <l1t:type>single</l1t:type>
+       <l1t:etComparison>ge</l1t:etComparison>
+       <l1t:objectType>jet</l1t:objectType>
+       <l1t:objectParameters>
+	 <l1t:objectParameter>
+	   <l1t:etThreshold>4</l1t:etThreshold>
+	 </l1t:objectParameter>
+       </l1t:objectParameters>
+       <l1t:relativeBx>0</l1t:relativeBx>
+     </l1t:condCalorimeter>
+     <l1t:condCalorimeter>
+       <l1t:name>SingleJet_0x09_fullrange</l1t:name>
+       <l1t:description>An example single jet condition with full range phi and eta (no windows) and a threshold of 36 GeV.</l1t:description>
+       <l1t:locked>false</l1t:locked>
+       <l1t:type>single</l1t:type>
+       <l1t:etComparison>ge</l1t:etComparison>
+       <l1t:objectType>jet</l1t:objectType>
+       <l1t:objectParameters>
+	 <l1t:objectParameter>
+	   <l1t:etThreshold>9</l1t:etThreshold>
+	 </l1t:objectParameter>
+       </l1t:objectParameters>
+       <l1t:relativeBx>0</l1t:relativeBx>
+     </l1t:condCalorimeter>
+     <l1t:condCalorimeter>
+       <l1t:name>SingleJet_0x11_fullrange</l1t:name>
+       <l1t:description>An example single jet condition with full range phi and eta (no windows) and a threshold of 68 GeV.</l1t:description>
+       <l1t:locked>false</l1t:locked>
+       <l1t:type>single</l1t:type>
+       <l1t:etComparison>ge</l1t:etComparison>
+       <l1t:objectType>jet</l1t:objectType>
+       <l1t:objectParameters>
+	 <l1t:objectParameter>
+	   <l1t:etThreshold>11</l1t:etThreshold>
+	 </l1t:objectParameter>
+       </l1t:objectParameters>
+       <l1t:relativeBx>0</l1t:relativeBx>
+     </l1t:condCalorimeter>
+     <l1t:condCalorimeter>
+       <l1t:name>SingleJet_0x0</l1t:name>
+       <l1t:description>An example single jet condition.</l1t:description>
+       <l1t:locked>false</l1t:locked>
+       <l1t:type>single</l1t:type>
+       <l1t:etComparison>ge</l1t:etComparison>
+       <l1t:objectType>jet</l1t:objectType>
+       <l1t:objectParameters>
+	 <l1t:objectParameter>
+	   <l1t:etThreshold>0</l1t:etThreshold>
+	   <l1t:phiRange>
+	     <l1t:begin>0</l1t:begin>
+	     <l1t:end>1</l1t:end>
+	   </l1t:phiRange>
+	   <l1t:phiRange>
+	     <l1t:begin>6</l1t:begin>
+	     <l1t:end>7</l1t:end>
+	   </l1t:phiRange>
+	   <l1t:etaRange>
+	     <l1t:begin>2</l1t:begin>
+	     <l1t:end>3</l1t:end>
+	   </l1t:etaRange>
+	   <l1t:etaRange>
+	     <l1t:begin>8</l1t:begin>
+	     <l1t:end>9</l1t:end>
+	   </l1t:etaRange>
+	 </l1t:objectParameter>
+       </l1t:objectParameters>
+       <l1t:relativeBx>0</l1t:relativeBx>
+     </l1t:condCalorimeter>
+     <l1t:condCalorimeter>
+       <l1t:name>DoubleEgWsc_0xa_0xb</l1t:name>
+       <l1t:description>An example double energy condition.</l1t:description>
+       <l1t:locked>false</l1t:locked>
+       <l1t:type>double_wsc</l1t:type>
+       <l1t:etComparison>ge</l1t:etComparison>
+       <l1t:objectType>eg</l1t:objectType>
+       <l1t:objectParameters>
+	 <l1t:objectParameter>
+	   <l1t:etThreshold>0</l1t:etThreshold>
+	   <l1t:phiRange>
+	     <l1t:begin>0</l1t:begin>
+	     <l1t:end>1</l1t:end>
+	   </l1t:phiRange>
+	   <l1t:etaRange>
+	     <l1t:begin>2</l1t:begin>
+	     <l1t:end>3</l1t:end>
+	   </l1t:etaRange>
+	 </l1t:objectParameter>
+	 <l1t:objectParameter>
+	   <l1t:etThreshold>4</l1t:etThreshold>
+	   <l1t:phiRange>
+	     <l1t:begin>5</l1t:begin>
+	     <l1t:end>6</l1t:end>
+	   </l1t:phiRange>
+	   <l1t:etaRange>
+	     <l1t:begin>7</l1t:begin>
+	     <l1t:end>8</l1t:end>
+	   </l1t:etaRange>
+	 </l1t:objectParameter>
+       </l1t:objectParameters>
+       <l1t:deltaRanges>
+	 <l1t:deltaEtaRange>
+	   <l1t:begin>0</l1t:begin>
+	   <l1t:end>4</l1t:end>
+	 </l1t:deltaEtaRange>
+	 <l1t:deltaPhiRange>
+	   <l1t:begin>2</l1t:begin>
+	   <l1t:end>6</l1t:end>
+	 </l1t:deltaPhiRange>
+       </l1t:deltaRanges>
+       <l1t:relativeBx>0</l1t:relativeBx>
+     </l1t:condCalorimeter>
+   </l1t:conditions>
+   <l1t:algorithms>
+     <l1t:algorithm>
+       <l1t:name>L1_AlwaysTrue</l1t:name>
+       <l1t:index>1</l1t:index>
+       <l1t:equation>SingleJet_0x0_fullrange OR (NOT SingleJet_0x0_fullrange) </l1t:equation>
+       <l1t:description>An example algorithm that is always true.</l1t:description>
+       <l1t:locked>false</l1t:locked>
+     </l1t:algorithm>
+     <l1t:algorithm>
+       <l1t:name>L1_SingleEgJet</l1t:name>
+       <l1t:index>2</l1t:index>
+       <l1t:equation>SingleJet_0x0 AND DoubleEgWsc_0xa_0xb</l1t:equation>
+       <l1t:description>An example algorithm for double eg and single jet conditions.</l1t:description>
+       <l1t:locked>false</l1t:locked>
+     </l1t:algorithm>
+     <l1t:algorithm>
+       <l1t:name>L1_SingleJet16</l1t:name>
+       <l1t:index>3</l1t:index>
+       <l1t:equation>SingleJet_0x04_fullrange</l1t:equation>
+       <l1t:description>An example algorithm for a single jet condition with a threshold of 16 GeV.</l1t:description>
+       <l1t:locked>false</l1t:locked>
+     </l1t:algorithm>
+     <l1t:algorithm>
+       <l1t:name>L1_SingleJet36</l1t:name>
+       <l1t:index>4</l1t:index>
+       <l1t:equation>SingleJet_0x09_fullrange</l1t:equation>
+       <l1t:description>An example algorithm for a single jet condition with a threshold of 36 GeV.</l1t:description>
+       <l1t:locked>false</l1t:locked>
+     </l1t:algorithm>
+     <l1t:algorithm>
+       <l1t:name>L1_SingleJet68</l1t:name>
+       <l1t:index>5</l1t:index>
+       <l1t:equation>SingleJet_0x11_fullrange</l1t:equation>
+       <l1t:description>An example algorithm for a single jet condition with a threshold of 68 GeV.</l1t:description>
+       <l1t:locked>false</l1t:locked>
+     </l1t:algorithm>
+     <l1t:algorithm>
+       <l1t:name>L1_SingleJetOpen</l1t:name>
+       <l1t:index>6</l1t:index>
+       <l1t:equation>SingleJet_0x0_fullrange</l1t:equation>
+       <l1t:description>An example algorithm for a single jet condition.</l1t:description>
+       <l1t:locked>false</l1t:locked>
+     </l1t:algorithm>
+     <l1t:algorithm>
+       <l1t:name>L1_SingleCenJet</l1t:name>
+       <l1t:index>7</l1t:index>
+       <l1t:equation>SingleJet_0x0</l1t:equation>
+       <l1t:description>An example algorithm for a single central jet condition.</l1t:description>
+       <l1t:locked>false</l1t:locked>
+     </l1t:algorithm>
+     <l1t:algorithm>
+       <l1t:name>L1_SingleMu</l1t:name>
+       <l1t:index>8</l1t:index>
+       <l1t:equation>SingleMuon_0xf</l1t:equation>
+       <l1t:description>An example algorithm for a single muon condition.</l1t:description>
+       <l1t:locked>false</l1t:locked>
+     </l1t:algorithm>
+   </l1t:algorithms>
+ </l1t:l1TriggerMenu>

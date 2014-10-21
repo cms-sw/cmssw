@@ -8,7 +8,9 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 ##____________________________________________________________________________||
 process.load("RecoMET.Configuration.CaloTowersOptForMET_cff")
-process.load("RecoMET.Configuration.RecoMET_cff")
+process.load("RecoMET.METProducers.CaloMET_cfi")
+process.load("RecoMET.METProducers.METSigParams_cfi")
+process.load("RecoMET.METProducers.MetMuonCorrections_cff")
 process.load("RecoJets.Configuration.CaloTowersRec_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -43,6 +45,12 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 50
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 
 ##____________________________________________________________________________||
+process.metWithSignificance = process.met.clone(
+    process.METSignificance_params,
+    calculateSignificance = cms.bool(True)
+    )
+
+##____________________________________________________________________________||
 process.p = cms.Path(
     process.calotoweroptmaker *
     process.calotoweroptmakerWithHO *
@@ -55,7 +63,8 @@ process.p = cms.Path(
     process.metOptNoHF *
     process.metOptHO *
     process.metOptNoHFHO *
-    process.corMetGlobalMuons
+    process.corMetGlobalMuons *
+    process.metWithSignificance
     )
 
 process.e1 = cms.EndPath(

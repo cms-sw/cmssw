@@ -53,7 +53,7 @@ parser.add_option("--filetype",
                   help="The type of the infile (EDM, LHE or MCDB).",
                   default=defaultOptions.filetype,
                   dest="filetype",
-                  choices=['EDM','DAT','LHE','MDCB','DQM']
+                  choices=['EDM','DAT','LHE','MDCB','DQM','DQMDAQ']
                   )
 
 parser.add_option("-n", "--number",
@@ -97,6 +97,12 @@ parser.add_option("--runsScenarioForMC",
                   help="Load a scenario to set run numbers in MC.)",
                   default=None,
                   dest="runsScenarioForMC")
+
+parser.add_option("--runUnscheduled",
+                  help="Enable unscheduled mode",
+                  action="store_true",
+                  default=False,
+                  dest="runUnscheduled")
 
 # expert settings
 expertSettings.add_option("--beamspot",
@@ -354,4 +360,10 @@ expertSettings.add_option("--lumiToProcess",
                           help="specify a certification json file in input to run on certified data",
                           default=None,
                           dest='lumiToProcess'
+                          )
+
+expertSettings.add_option("--timeoutOutput",
+                          help="use a TimeoutPoolOutputModule instead of a PoolOutputModule (needed for evt. display)",
+                          default=False,
+                          dest='timeoutOutput'
                           )

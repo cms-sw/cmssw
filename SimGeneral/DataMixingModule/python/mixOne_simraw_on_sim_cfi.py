@@ -1,6 +1,21 @@
+# This is the PreMixing config for the DataMixer.  Not only does it do a RawToDigi conversion
+# to the secondary input source, it also holds its own instances of an EcalDigiProducer and
+# an HcalDigitizer.  It also replicates the noise adding functions in the SiStripDigitizer.
+#
+
+
 import FWCore.ParameterSet.Config as cms
 from SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi import hcalSimBlock
 from SimGeneral.MixingModule.SiStripSimParameters_cfi import SiStripSimBlock
+from SimCalorimetry.EcalSimProducers.ecalDigiParameters_cff import *
+from SimCalorimetry.EcalSimProducers.apdSimParameters_cff import *
+from SimCalorimetry.EcalSimProducers.ecalSimParameterMap_cff import *
+from SimCalorimetry.EcalSimProducers.ecalElectronicsSim_cff import *
+from SimCalorimetry.EcalSimProducers.esElectronicsSim_cff import *
+from SimCalorimetry.EcalSimProducers.ecalNotContainmentSim_cff import *
+from SimCalorimetry.EcalSimProducers.ecalCosmicsSim_cff import *
+
+
 import EventFilter.EcalRawToDigi.EcalUnpackerData_cfi
 import EventFilter.ESRawToDigi.esRawToDigi_cfi
 import EventFilter.HcalRawToDigi.HcalRawToDigi_cfi
@@ -18,11 +33,11 @@ ecalPreshowerDigis = EventFilter.ESRawToDigi.esRawToDigi_cfi.esRawToDigi.clone()
 
 hcalDigis = EventFilter.HcalRawToDigi.HcalRawToDigi_cfi.hcalDigis.clone()
 
-muonCSCDigis = EventFilter.CSCRawToDigi.cscUnpacker_cfi.muonCSCDigis.clone()
+#muonCSCDigis = EventFilter.CSCRawToDigi.cscUnpacker_cfi.muonCSCDigis.clone()
 
 muonDTDigis = EventFilter.DTRawToDigi.dtunpacker_cfi.muonDTDigis.clone()
 
-muonRPCDigis = EventFilter.RPCRawToDigi.rpcUnpacker_cfi.rpcunpacker.clone()
+#muonRPCDigis = EventFilter.RPCRawToDigi.rpcUnpacker_cfi.rpcunpacker.clone()
 
 #castorDigis = EventFilter.CastorRawToDigi.CastorRawToDigi_cfi.castorDigis.clone( FEDs = cms.untracked.vint32(690,691,692) )
 
@@ -34,23 +49,32 @@ siPixelDigis.InputLabel = 'rawDataCollector'
 ecalDigis.InputLabel = 'rawDataCollector'
 ecalPreshowerDigis.sourceTag = 'rawDataCollector'
 hcalDigis.InputLabel = 'rawDataCollector'
-muonCSCDigis.InputObjects = 'rawDataCollector'
+#muonCSCDigis.InputObjects = 'rawDataCollector'
 muonDTDigis.inputLabel = 'rawDataCollector'
-muonRPCDigis.InputLabel = 'rawDataCollector'
+#muonRPCDigis.InputLabel = 'rawDataCollector'
 #castorDigis.InputLabel = 'rawDataCollector'
 
+hcalDigis.FilterDataQuality = cms.bool(False)
+hcalSimBlock.HcalPreMixStage2 = cms.bool(True)
 
 mixData = cms.EDProducer("DataMixingModule",
           hcalSimBlock,
           SiStripSimBlock,
+          ecal_digi_parameters,
+          apd_sim_parameters,
+          ecal_electronics_sim,
+          ecal_cosmics_sim,
+          ecal_sim_parameter_map,
+          ecal_notCont_sim,
+          es_electronics_sim,
     input = cms.SecSource("PoolSource",
         producers = cms.VPSet(cms.convertToVPSet(
                                              ecalDigis = ecalDigis,
                                              ecalPreshowerDigis = ecalPreshowerDigis,
                                              hcalDigis = hcalDigis,
                                              muonDTDigis = muonDTDigis,
-                                             muonRPCDigis = muonRPCDigis,
-                                             muonCSCDigis = muonCSCDigis,
+                                             #muonRPCDigis = muonRPCDigis,
+                                             #muonCSCDigis = muonCSCDigis,
                                              siStripDigis = siStripDigis,
                                              siPixelDigis = siPixelDigis,
                              )),
@@ -78,7 +102,7 @@ mixData = cms.EDProducer("DataMixingModule",
     # Use digis?               
     EcalMergeType = cms.string('Digis'),  # set to "Digis" to merge digis
     HcalMergeType = cms.string('Digis'),
-    HcalDigiMerge = cms.string('Prod'), #use sim hits for signal
+    HcalDigiMerge = cms.string('FullProd'), #use sim hits for signal
     addMCDigiNoise = cms.untracked.bool(True),
     #
     # Input Specifications:
@@ -130,9 +154,9 @@ mixData = cms.EDProducer("DataMixingModule",
     ZDCdigiCollectionSig   = cms.InputTag("simHcalUnsuppressedDigis"),
 
     #
-    EBPileInputTag = cms.InputTag("ecalEBunpacker","ebDigis","@MIXING"),
-    EEPileInputTag = cms.InputTag("ecalEBunpacker","eeDigis","@MIXING"),
-    ESPileInputTag = cms.InputTag("esRawToDigi","","@MIXING"),
+    EBPileInputTag = cms.InputTag("ecalDigis","ebDigis","@MIXING"),
+    EEPileInputTag = cms.InputTag("ecalDigis","eeDigis","@MIXING"),
+    ESPileInputTag = cms.InputTag("ecalPreshowerDigis","","@MIXING"),
     HBHEPileInputTag = cms.InputTag("hcalDigis","","@MIXING"),
     HOPileInputTag   = cms.InputTag("hcalDigis","","@MIXING"),
     HFPileInputTag   = cms.InputTag("hcalDigis","","@MIXING"),
@@ -150,10 +174,15 @@ mixData = cms.EDProducer("DataMixingModule",
     #  Pileup
                    #                   
     DTPileInputTag        = cms.InputTag("muonDTDigis","","@MIXING"),
-    RPCPileInputTag       = cms.InputTag("rpcunpacker","","@MIXING"),
-    CSCWirePileInputTag   = cms.InputTag("muonCSCDigis","MuonCSCWireDigi","@MIXING"),
-    CSCStripPileInputTag  = cms.InputTag("muonCSCDigis","MuonCSCStripDigi","@MIXING"),
-    CSCCompPileInputTag   = cms.InputTag("muonCSCDigis","MuonCSCComparatorDigi","@MIXING"),
+    RPCPileInputTag       = cms.InputTag("simMuonRPCDigis",""),
+#    RPCPileInputTag       = cms.InputTag("muonRPCDigis","","@MIXING"),  # use MC digis...
+    CSCWirePileInputTag   = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi"),
+    CSCStripPileInputTag  = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi"),
+    CSCCompPileInputTag   = cms.InputTag("simMuonCSCDigis","MuonCSCComparatorDigi"), 
+#    CSCWirePileInputTag   = cms.InputTag("muonCSCDigis","MuonCSCWireDigi","@MIXING"),
+#    CSCStripPileInputTag  = cms.InputTag("muonCSCDigis","MuonCSCStripDigi","@MIXING"),
+#    CSCCompPileInputTag   = cms.InputTag("muonCSCDigis","MuonCSCComparatorDigi","@MIXING"),
+
                    #
     #
     #  Outputs
@@ -175,8 +204,8 @@ mixData = cms.EDProducer("DataMixingModule",
     #
     #  Calorimeter Digis
     #               
-    EBDigiCollectionDM   = cms.string('EBDigiCollectionDM'),
-    EEDigiCollectionDM   = cms.string('EEDigiCollectionDM'),
+    EBDigiCollectionDM   = cms.string(''),
+    EEDigiCollectionDM   = cms.string(''),
     ESDigiCollectionDM   = cms.string(''),
     HBHEDigiCollectionDM = cms.string(''),
     HODigiCollectionDM   = cms.string(''),

@@ -67,7 +67,7 @@ class HLTMuonMatchAndPlot
                       const std::vector<std::string>&);
 
   // Analyzer Methods
-  void beginRun(const edm::Run &, const edm::EventSetup &);
+  void beginRun(DQMStore::IBooker &, const edm::Run &, const edm::EventSetup &);
   void analyze(edm::Handle<reco::MuonCollection> &, edm::Handle<reco::BeamSpot> &, 
 	       edm::Handle<reco::VertexCollection> &, edm::Handle<trigger::TriggerEvent> &, 
 	       edm::Handle<edm::TriggerResults> &);
@@ -84,8 +84,8 @@ class HLTMuonMatchAndPlot
  private:
 
   // Internal Methods
-  void book1D(std::string, std::string, std::string);
-  void book2D(std::string, std::string, std::string, std::string);
+  void book1D(DQMStore::IBooker &, std::string, std::string, std::string);
+  void book2D(DQMStore::IBooker &, std::string, std::string, std::string, std::string);
   reco::MuonCollection selectedMuons(
     const reco::MuonCollection &,
     const reco::BeamSpot &,
@@ -111,7 +111,6 @@ class HLTMuonMatchAndPlot
   unsigned int cutMinPt_;
   std::string hltPath_;
   std::vector<std::string> moduleLabels_;
-  DQMStore * dbe_;
   std::map<std::string, MonitorElement *> hists_;
   
   // Selectors

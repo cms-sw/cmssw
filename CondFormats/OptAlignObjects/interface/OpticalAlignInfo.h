@@ -1,6 +1,8 @@
 #ifndef OpticalAlignInfo_H
 #define OpticalAlignInfo_H
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 #include <vector>
 #include <iostream>
@@ -54,6 +56,8 @@ class OpticalAlignParam {
     quality_ = int( oa_unknown );
     name_.clear();
   }
+
+ COND_SERIALIZABLE;
 };
 
 // a Class holding data for an Optical Alignment transformation
@@ -100,6 +104,8 @@ class  OpticalAlignInfo {
     type_.clear();
     ID_ = 0;
   }
+
+ COND_SERIALIZABLE;
 };
 
 

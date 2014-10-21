@@ -51,7 +51,7 @@ using namespace edm;
 //! digits of filenum.                                           
 //! \param filenum - an integer NNNN used in the filename template_summary_zpNNNN
 //**************************************************************** 
-bool SiStripTemplate::pushfile(int filenum)
+bool SiStripTemplate::pushfile(int filenum, std::vector< SiStripTemplateStore > & theStripTemp_)
 {
     // Add template stored in external file numbered filenum to theTemplateStore
     
@@ -355,7 +355,7 @@ bool SiStripTemplate::pushfile(int filenum)
 //! external file template_summary_zpNNNN where NNNN are four digits 
 //! \param dbobject - db storing multiple template calibrations
 //**************************************************************** 
-bool SiStripTemplate::pushfile(const SiPixelTemplateDBObject& dbobject)
+bool SiStripTemplate::pushfile(const SiPixelTemplateDBObject& dbobject, std::vector< SiStripTemplateStore > & theStripTemp_)
 {
 	// Add template stored in external dbobject to theTemplateStore
     

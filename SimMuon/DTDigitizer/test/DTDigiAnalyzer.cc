@@ -18,15 +18,12 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
-#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 
@@ -58,6 +55,10 @@ DTDigiAnalyzer:: DTDigiAnalyzer(const ParameterSet& pset){
   DigiTimeBox = new TH1F("DigiTimeBox","Digi Time Box",2048,0,1600);
   if(file->IsOpen()) cout<<"file open!"<<endl;
   else cout<<"*** Error in opening file ***"<<endl;
+
+  psim_token = consumes<PSimHitContainer>( edm::InputTag("g4SimHits","MuonDTHits") );
+  DTd_token = consumes<DTDigiCollection>( edm::InputTag(label) );
+
 }
 
 DTDigiAnalyzer::~DTDigiAnalyzer(){
@@ -83,10 +84,10 @@ void  DTDigiAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
        << " Event: " << event.id().event() << endl;
   
   Handle<DTDigiCollection> dtDigis;
-  event.getByLabel(label, dtDigis);
+  event.getByToken(DTd_token, dtDigis);
   
   Handle<PSimHitContainer> simHits; 
-  event.getByLabel("g4SimHits","MuonDTHits",simHits);    
+  event.getByToken(psim_token,simHits);    
 
   ESHandle<DTGeometry> muonGeom;
   eventSetup.get<MuonGeometryRecord>().get(muonGeom);

@@ -12,7 +12,7 @@
 //
 //
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -40,7 +40,7 @@ namespace reco {
 #include "RecoTracker/ConversionSeedGenerators/interface/IdealHelixParameters.h"
 //--------------------------------------------------
 
-  class ConversionTrackProducer : public edm::EDProducer
+  class ConversionTrackProducer : public edm::stream::EDProducer<>
   {
 
     typedef edm::AssociationMap<edm::OneToOne<std::vector<Trajectory>,

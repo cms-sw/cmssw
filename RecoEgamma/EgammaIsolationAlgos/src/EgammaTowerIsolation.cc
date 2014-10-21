@@ -11,6 +11,7 @@
 #include<cassert>
 
 
+#ifdef ETISTATDEBUG
 // #include<iostream>
 namespace etiStat {
   Count::~Count() { 
@@ -20,12 +21,12 @@ namespace etiStat {
 
   Count Count::count;
 }
+#endif
 
 
-
-EgammaTowerIsolationNew<1> *EgammaTowerIsolation::newAlgo=nullptr;
-const CaloTowerCollection* EgammaTowerIsolation::oldTowers=nullptr;
-uint32_t EgammaTowerIsolation::id15=0;
+thread_local EgammaTowerIsolationNew<1> *EgammaTowerIsolation::newAlgo=nullptr;
+thread_local const CaloTowerCollection* EgammaTowerIsolation::oldTowers=nullptr;
+thread_local uint32_t EgammaTowerIsolation::id15=0;
 
 EgammaTowerIsolation::EgammaTowerIsolation (float extRadiusI,
 					    float intRadiusI,
@@ -38,12 +39,12 @@ EgammaTowerIsolation::EgammaTowerIsolation (float extRadiusI,
 {
   assert(0==etLow);
 
-  // cheating  (test of performance)
+  // extremely poor in quality  (test of performance)
   if (newAlgo==nullptr ||  towers!=oldTowers || towers->size()!=newAlgo->nt || (towers->size()>15 && (*towers)[15].id()!=id15)) {
     delete newAlgo;
     newAlgo = new EgammaTowerIsolationNew<1>(&extRadius,&intRadius,*towers);
     oldTowers=towers;
-    id15 = (*towers)[15].id();
+    id15 = towers->size()>15 ? (*towers)[15].id() : 0;
   }
 }
 

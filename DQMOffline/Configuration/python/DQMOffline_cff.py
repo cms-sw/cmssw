@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Components.DQMMessageLogger_cfi import *
 from DQMServices.Components.DQMDcsInfo_cfi import *
 from DQMServices.Components.DQMFastTimerService_cff import *
+from DQMServices.Components.DQMFastTimerServiceLuminosity_cfi import *
 
 from DQMOffline.Ecal.ecal_dqm_source_offline_cff import *
 from DQM.HcalMonitorModule.hcal_dqm_source_fileT0_cff import *
@@ -50,7 +51,6 @@ DQMOfflinePrePOG = cms.Sequence( TrackingDQMSourceTier0 *
                                  egammaDQMOffline *
                                  triggerOfflineDQMSource *
                                  pvMonitor *
-                                 prebTagSequence *
                                  bTagPlotsDATA *
                                  alcaBeamMonitor *
                                  dqmPhysics *
@@ -62,10 +62,10 @@ DQMOfflinePOG = cms.Sequence( DQMOfflinePrePOG *
 
 DQMOffline = cms.Sequence( DQMOfflinePreDPG *
                            DQMOfflinePrePOG *
+                           dqmFastTimerServiceLuminosity *
                            DQMMessageLogger )
 
 DQMOfflinePrePOGMC = cms.Sequence( pvMonitor *
-                                   prebTagSequence *
                                    bTagPlotsDATA *
                                    dqmPhysics )
 
@@ -117,7 +117,6 @@ DQMOfflineJetMET = cms.Sequence( jetMETDQMOfflineSource )
 
 DQMOfflineEGamma = cms.Sequence( egammaDQMOffline )
 
-DQMOfflineBTag = cms.Sequence( prebTagSequence *
-                               bTagPlotsDATA )
+DQMOfflineBTag = cms.Sequence( bTagPlotsDATA )
                                                                  
 

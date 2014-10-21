@@ -57,7 +57,7 @@ class HLTMuonMatchAndPlotContainer
 		  const std::vector<std::string>&);
 
   // Analyzer Methods
-  void beginRun(const edm::Run &, const edm::EventSetup &);
+  void beginRun(DQMStore::IBooker &, const edm::Run &, const edm::EventSetup &);
   void analyze(const edm::Event &, const edm::EventSetup &);
   void endRun(const edm::Run &, const edm::EventSetup &);
 

@@ -54,7 +54,6 @@
 #include <cmath>
 #include <memory>
 #include <TLorentzVector.h>
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "CommonTools/RecoAlgos/interface/HBHENoiseFilter.h"
 
 using namespace reco;
@@ -84,21 +83,6 @@ CaloTowerAnalyzer::CaloTowerAnalyzer(const edm::ParameterSet & iConfig)
 void CaloTowerAnalyzer::dqmbeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
   Nevents = 0;
-  // get ahold of back-end interface
-  dbe_ = edm::Service<DQMStore>().operator->();
-  if (dbe_) {
- 
-    dbe_->setCurrentFolder(FolderName_); 
-
-    //Store number of events which pass each HLT bit 
-    for(unsigned int i = 0 ; i < HLTBitLabel_.size() ; i++ )
-      {
-	if( HLTBitLabel_[i].label().size() )
-	  {
-	    hCT_NEvents_HLT.push_back( dbe_->book1D("METTask_CT_"+HLTBitLabel_[i].label(),HLTBitLabel_[i].label(),2,-0.5,1.5) );
-	  }
-      }
-  }
 }
     
 void CaloTowerAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
@@ -106,6 +90,16 @@ void CaloTowerAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
 					edm::EventSetup const & )
   {
     ibooker.setCurrentFolder(FolderName_); 
+
+    //Store number of events which pass each HLT bit 
+    for(unsigned int i = 0 ; i < HLTBitLabel_.size() ; i++ )
+      {
+	if( HLTBitLabel_[i].label().size() )
+	  {
+	    hCT_NEvents_HLT.push_back( ibooker.book1D("METTask_CT_"+HLTBitLabel_[i].label(),HLTBitLabel_[i].label(),2,-0.5,1.5) );
+	  }
+      } 
+    
     //--Store number of events used
     hCT_Nevents          = ibooker.book1D("METTask_CT_Nevents","",1,0,1);  
     //--Data integrated over all events and stored by CaloTower(ieta,iphi) 
@@ -396,6 +390,3 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   
 }
 
-void CaloTowerAnalyzer::endJob()
-{
-} 

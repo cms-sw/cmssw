@@ -18,6 +18,8 @@
  */
 
 // system include files
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 #include <vector>
 #include <map>
@@ -205,6 +207,8 @@ private:
     /// int: channel number
     std::map<int, std::vector<L1GtObject> > m_gtInputPsbChannels;
 
+
+    COND_SERIALIZABLE;
 };
 
 #endif /*CondFormats_L1TObjects_L1GtBoard_h*/

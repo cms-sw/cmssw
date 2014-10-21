@@ -46,13 +46,16 @@ DTRecHitQuality::DTRecHitQuality(const ParameterSet& pset){
   debug = pset.getUntrackedParameter<bool>("debug");
   // the name of the simhit collection
   simHitLabel = pset.getUntrackedParameter<InputTag>("simHitLabel");
+  simHitToken_ = consumes<PSimHitContainer>(pset.getUntrackedParameter<InputTag>("simHitLabel"));
   // the name of the 1D rec hit collection
   recHitLabel = pset.getUntrackedParameter<InputTag>("recHitLabel");
+  recHitToken_ = consumes<DTRecHitCollection>(pset.getUntrackedParameter<InputTag>("recHitLabel"));
   // the name of the 2D rec hit collection
   segment2DLabel = pset.getUntrackedParameter<InputTag>("segment2DLabel");
+  segment2DToken_ = consumes<DTRecSegment2DCollection>(pset.getUntrackedParameter<InputTag>("segment2DLabel"));
   // the name of the 4D rec hit collection
   segment4DLabel = pset.getUntrackedParameter<InputTag>("segment4DLabel");
-
+  segment4DToken_ = consumes<DTRecSegment4DCollection>(pset.getUntrackedParameter<InputTag>("segment4DLabel"));
   // Switches for analysis at various steps
   doStep1 = pset.getUntrackedParameter<bool>("doStep1", false);
   doStep2 = pset.getUntrackedParameter<bool>("doStep2", false);
@@ -197,7 +200,7 @@ void DTRecHitQuality::endJob() {
 
     // Get the SimHit collection from the event
     Handle<PSimHitContainer> simHits;
-    event.getByLabel(simHitLabel, simHits);
+    event.getByToken(simHitToken_, simHits);
 
     // Map simhits per wire
     map<DTWireId, PSimHitContainer > simHitsPerWire =
@@ -212,7 +215,7 @@ void DTRecHitQuality::endJob() {
         cout << "  -- DTRecHit S1: begin analysis:" << endl;
       // Get the rechit collection from the event
       Handle<DTRecHitCollection> dtRecHits;
-      event.getByLabel(recHitLabel, dtRecHits);
+      event.getByToken(recHitToken_, dtRecHits);
 
       if(!dtRecHits.isValid()) {
 	if(debug) cout << "[DTRecHitQuality]**Warning: no 1DRechits with label: " << recHitLabel << " in this event, skipping!" << endl;
@@ -235,7 +238,7 @@ void DTRecHitQuality::endJob() {
 
       // Get the 2D rechits from the event
       Handle<DTRecSegment2DCollection> segment2Ds;
-      event.getByLabel(segment2DLabel, segment2Ds);
+      event.getByToken(segment2DToken_, segment2Ds);
 
       if(!segment2Ds.isValid()) {
        if(debug) cout << "[DTRecHitQuality]**Warning: no 2DSegments with label: " << segment2DLabel
@@ -259,7 +262,7 @@ void DTRecHitQuality::endJob() {
 
       // Get the 4D rechits from the event
       Handle<DTRecSegment4DCollection> segment4Ds;
-      event.getByLabel(segment4DLabel, segment4Ds);
+      event.getByToken(segment4DToken_, segment4Ds);
 
       if(!segment4Ds.isValid()) {
         if(debug) cout << "[DTRecHitQuality]**Warning: no 4D Segments with label: " << segment4DLabel

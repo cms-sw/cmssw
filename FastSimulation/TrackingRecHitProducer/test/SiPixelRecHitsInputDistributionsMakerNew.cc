@@ -37,8 +37,6 @@
 using namespace std;
 using namespace edm;
 
-const double PI = 3.14159265358979323;
-
 SiPixelRecHitsInputDistributionsMakerNew::SiPixelRecHitsInputDistributionsMakerNew(const ParameterSet& ps): 
   dbe_(0), 
   conf_(ps),

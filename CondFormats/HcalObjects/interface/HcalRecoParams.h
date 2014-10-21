@@ -2,6 +2,8 @@
 #define HcalRecoParams_h
 
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/HcalObjects/interface/HcalRecoParam.h"
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 
@@ -18,5 +20,7 @@ class HcalRecoParams: public HcalCondObjectContainer<HcalRecoParam>
 
  private:
 
+
+ COND_SERIALIZABLE;
 };
 #endif

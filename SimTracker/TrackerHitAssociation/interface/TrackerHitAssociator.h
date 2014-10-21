@@ -62,23 +62,23 @@ class TrackerHitAssociator {
   // Destructor
   virtual ~TrackerHitAssociator(){}
   
-  std::vector<PSimHit> associateHit(const TrackingRecHit & thit);
+  std::vector<PSimHit> associateHit(const TrackingRecHit & thit) const;
   //for PU events
-  std::vector<SimHitIdpr> associateHitId(const TrackingRecHit & thit);
-  void associateHitId(const TrackingRecHit & thit,std::vector<SimHitIdpr> &simhitid);
+  std::vector<SimHitIdpr> associateHitId(const TrackingRecHit & thit) const;
+  void associateHitId(const TrackingRecHit & thit,std::vector<SimHitIdpr> &simhitid) const;
   template<typename T>
-    void associateSiStripRecHit(const T *simplerechit, std::vector<SimHitIdpr>& simtrackid);
+    void associateSiStripRecHit(const T *simplerechit, std::vector<SimHitIdpr>& simtrackid) const;
   void associateSimpleRecHitCluster(const SiStripCluster* clust,
 				    const uint32_t& detID,
-				    std::vector<SimHitIdpr>& simtrackid);
+				    std::vector<SimHitIdpr>& simtrackid) const;
 
-  std::vector<SimHitIdpr> associateMatchedRecHit(const SiStripMatchedRecHit2D * matchedrechit);
-  std::vector<SimHitIdpr> associateProjectedRecHit(const ProjectedSiStripRecHit2D * projectedrechit);
-  void associatePixelRecHit(const SiPixelRecHit * pixelrechit, std::vector<SimHitIdpr> & simhitid);
-  std::vector<SimHitIdpr> associateGSRecHit(const SiTrackerGSRecHit2D * gsrechit);
-  std::vector<SimHitIdpr> associateMultiRecHitId(const SiTrackerMultiRecHit * multirechit);
-  std::vector<PSimHit>    associateMultiRecHit(const SiTrackerMultiRecHit * multirechit);
-  std::vector<SimHitIdpr> associateGSMatchedRecHit(const SiTrackerGSMatchedRecHit2D * gsmrechit);
+  std::vector<SimHitIdpr> associateMatchedRecHit(const SiStripMatchedRecHit2D * matchedrechit) const;
+  std::vector<SimHitIdpr> associateProjectedRecHit(const ProjectedSiStripRecHit2D * projectedrechit) const;
+  void associatePixelRecHit(const SiPixelRecHit * pixelrechit, std::vector<SimHitIdpr> & simhitid) const;
+  std::vector<SimHitIdpr> associateGSRecHit(const SiTrackerGSRecHit2D * gsrechit) const;
+  std::vector<SimHitIdpr> associateMultiRecHitId(const SiTrackerMultiRecHit * multirechit) const;
+  std::vector<PSimHit>    associateMultiRecHit(const SiTrackerMultiRecHit * multirechit) const;
+  std::vector<SimHitIdpr> associateGSMatchedRecHit(const SiTrackerGSMatchedRecHit2D * gsmrechit) const;
   
   typedef std::map<unsigned int, std::vector<PSimHit> > simhit_map;
   simhit_map SimHitMap;
@@ -88,13 +88,8 @@ class TrackerHitAssociator {
   typedef std::vector<std::string> vstring;
   vstring trackerContainers;
 
-  edm::Handle<CrossingFrame<PSimHit> > cf_simhit;
-  std::vector<const CrossingFrame<PSimHit> *> cf_simhitvec;
-
   edm::Handle< edm::DetSetVector<StripDigiSimLink> >  stripdigisimlink;
   edm::Handle< edm::DetSetVector<PixelDigiSimLink> >  pixeldigisimlink;
-  //vector with the trackIds
-  std::vector<SimHitIdpr> simtrackid; 
   
   bool doPixel_, doStrip_, doTrackAssoc_;
   

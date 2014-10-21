@@ -1,5 +1,7 @@
 #ifndef CondFormats_ESObjects_ESADCToGeVConstant_H
 #define CondFormats_ESObjects_ESADCToGeVConstant_H
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <iostream>
 
 class ESADCToGeVConstant {
@@ -17,6 +19,8 @@ class ESADCToGeVConstant {
   private:
     float ESvaluelow_;
     float ESvaluehigh_;
+
+  COND_SERIALIZABLE;
 };
 
 

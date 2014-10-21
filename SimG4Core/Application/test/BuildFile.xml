@@ -2,6 +2,7 @@
   <use   name="FWCore/ServiceRegistry"/>
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/MessageLogger"/>
+  <use   name="boost_serialization"/>
   <library   file="SimHitCaloHitDumper.cc" name="SimHitCaloHitDumper">
     <use   name="SimDataFormats/TrackingHit"/>
     <use   name="SimDataFormats/CaloHit"/>

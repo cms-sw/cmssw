@@ -18,6 +18,8 @@
  */
 
 // system include files
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 #include <iosfwd>
 
@@ -60,7 +62,9 @@ public:
         unsigned int etThreshold;
         unsigned int etaRange;
         unsigned int phiRange;
-    };
+    
+    COND_SERIALIZABLE;
+};
 
     /// typedef for correlation parameters
     struct CorrelationParameter
@@ -69,7 +73,9 @@ public:
 
         unsigned long long deltaPhiRange;
         unsigned int deltaPhiMaxbits;
-    };
+    
+    COND_SERIALIZABLE;
+};
 
 
 public:
@@ -108,6 +114,8 @@ protected:
     std::vector<ObjectParameter> m_objectParameter;
     CorrelationParameter m_correlationParameter;
 
+
+    COND_SERIALIZABLE;
 };
 
 #endif

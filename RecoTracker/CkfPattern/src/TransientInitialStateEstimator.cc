@@ -18,22 +18,24 @@
 
 using namespace std;
 
-TransientInitialStateEstimator::TransientInitialStateEstimator( const edm::EventSetup& es,
-								const edm::ParameterSet& conf)
-{
-  thePropagatorAlongName    = conf.getParameter<std::string>("propagatorAlongTISE");   
-  thePropagatorOppositeName = conf.getParameter<std::string>("propagatorOppositeTISE");   
-  theNumberMeasurementsForFit = conf.getParameter<int32_t>("numberMeasurementsForFit");   
+TransientInitialStateEstimator::TransientInitialStateEstimator(const edm::ParameterSet& conf):
+  thePropagatorAlongName(conf.getParameter<std::string>("propagatorAlongTISE")),
+  thePropagatorOppositeName(conf.getParameter<std::string>("propagatorOppositeTISE")),
+  thePropagatorAlong(nullptr),
+  thePropagatorOpposite(nullptr),
+  theNumberMeasurementsForFit(conf.getParameter<int>("numberMeasurementsForFit"))
+{}
 
+void TransientInitialStateEstimator::setEventSetup( const edm::EventSetup& es, const TkClonerImpl& hc ) {
+  theHitCloner = hc;
 
-  // let's avoid breaking compatibility now
-  es.get<TrackingComponentsRecord>().get(thePropagatorAlongName,thePropagatorAlong);
-  es.get<TrackingComponentsRecord>().get(thePropagatorOppositeName,thePropagatorOpposite);
-}
+  edm::ESHandle<Propagator> halong;
+  edm::ESHandle<Propagator> hopposite;
 
-void TransientInitialStateEstimator::setEventSetup( const edm::EventSetup& es ) {
-  es.get<TrackingComponentsRecord>().get(thePropagatorAlongName,thePropagatorAlong);
-  es.get<TrackingComponentsRecord>().get(thePropagatorOppositeName,thePropagatorOpposite);
+  es.get<TrackingComponentsRecord>().get(thePropagatorAlongName, halong);
+  es.get<TrackingComponentsRecord>().get(thePropagatorOppositeName, hopposite);
+  thePropagatorAlong = halong.product();
+  thePropagatorOpposite = hopposite.product();
 }
 
 std::pair<TrajectoryStateOnSurface, const GeomDet*> 
@@ -77,10 +79,10 @@ TransientInitialStateEstimator::innerState( const Trajectory& traj, bool doBackF
   // avoid cloning...
   KFUpdator const aKFUpdator;
   Chi2MeasurementEstimator const aChi2MeasurementEstimator( 100., 3);
-  KFTrajectoryFitter backFitter( thePropagatorAlong.product(),
+  KFTrajectoryFitter backFitter( thePropagatorAlong,
 				 &aKFUpdator,
 				 &aChi2MeasurementEstimator,
-				 firstHits.size());
+				 firstHits.size(),nullptr,&theHitCloner);
 
   PropagationDirection backFitDirection = traj.direction() == alongMomentum ? oppositeToMomentum: alongMomentum;
 

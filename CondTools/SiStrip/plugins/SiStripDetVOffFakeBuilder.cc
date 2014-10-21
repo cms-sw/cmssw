@@ -34,9 +34,9 @@ void SiStripDetVOffFakeBuilder::initialize( const edm::EventSetup& iSetup ) {
   
   for(TrackerGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); it++){
   
-    if( dynamic_cast<StripGeomDetUnit*>((*it))!=0){
+    if( dynamic_cast<StripGeomDetUnit const*>((*it))!=0){
       uint32_t detid=((*it)->geographicalId()).rawId();            
-      const StripTopology& p = dynamic_cast<StripGeomDetUnit*>((*it))->specificTopology();
+      const StripTopology& p = dynamic_cast<StripGeomDetUnit const*>((*it))->specificTopology();
       unsigned short Nstrips = p.nstrips();
       if(Nstrips<1 || Nstrips>768 ) {
 	edm::LogError("SiStripDetVOffFakeBuilder")<<" Problem with Number of strips in detector.. "<< p.nstrips() <<" Exiting program"<<endl;

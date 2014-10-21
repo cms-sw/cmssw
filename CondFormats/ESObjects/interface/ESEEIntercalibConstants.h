@@ -1,5 +1,7 @@
 #ifndef CondFormats_ESObjects_ESEEIntercalibConstants_H
 #define CondFormats_ESObjects_ESEEIntercalibConstants_H
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <iostream>
 
 class ESEEIntercalibConstants {
@@ -83,6 +85,8 @@ class ESEEIntercalibConstants {
     float alphaLow3_;
     float gammaHigh3_;
     float alphaHigh3_;
+
+  COND_SERIALIZABLE;
 };
 
 #endif

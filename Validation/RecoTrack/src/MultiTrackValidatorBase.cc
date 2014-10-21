@@ -1,7 +1,7 @@
 #include "Validation/RecoTrack/interface/MultiTrackValidatorBase.h"
 
 MultiTrackValidatorBase::MultiTrackValidatorBase(const edm::ParameterSet& pset, edm::ConsumesCollector && iC, bool isSeed){
-  dbe_ = edm::Service<DQMStore>().operator->();
+  //dbe_ = edm::Service<DQMStore>().operator->();
 
   associators = pset.getParameter< std::vector<std::string> >("associators");
   label_tp_effic = iC.consumes<TrackingParticleCollection>(pset.getParameter< edm::InputTag >("label_tp_effic"));

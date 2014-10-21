@@ -4,6 +4,7 @@ process = cms.Process("PROD")
 
 process.load("Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff")
 
+
 #process.source = cms.Source("EmptySource")
 process.source = cms.Source("LHESource",
     fileNames = cms.untracked.vstring('file:ttbar.lhe')
@@ -22,10 +23,11 @@ process.generator = cms.EDFilter("Pythia8HadronizerFilter",
     )
 )
 
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(
         default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
+            limit = cms.untracked.int32(2)
         )
     ),
     destinations = cms.untracked.vstring('cout')

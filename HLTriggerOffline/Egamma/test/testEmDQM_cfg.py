@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("emdqm")
 
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'START70_V1::All'
+process.GlobalTag.globaltag = 'PRE_LS171_V7::All'
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 # suppress printout of error messages on every event when a collection is missing in the event
@@ -15,10 +15,10 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        '/store/relval/CMSSW_7_0_0_pre8/RelValZEE/GEN-SIM-DIGI-RAW-HLTDEBUG/PU_START70_V1-v1/00000/1C634144-E94A-E311-964E-002618943866.root',
-#        '/store/relval/CMSSW_7_0_0_pre8/RelValH130GGgluonfusion/GEN-SIM-DIGI-RAW-HLTDEBUG/PU_START70_V1-v1/00000/269313CD-E54A-E311-9EB4-002618943894.root',
-#        '/store/relval/CMSSW_7_0_0_pre8/RelValWE/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2_RR-v7/00000/96E6CAB6-3B59-E311-9593-002618943925.root',
-#        '/store/relval/CMSSW_7_0_0_pre8/RelValPhotonJets_Pt_10/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2_RR-v7/00000/B6FDCDBB-3D59-E311-AB2B-002618943857.root',
+        '/store/relval/CMSSW_7_1_0_pre7/RelValZEE_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_LS171_V7-v1/00000/06D540C7-B1D0-E311-A86E-02163E00E81C.root',
+#        '/store/relval/CMSSW_7_1_0_pre7/RelValH130GGgluonfusion_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_LS171_V7-v1/00000/C87CDC3A-B1D0-E311-8890-02163E00E6DE.root',
+#        '/store/relval/CMSSW_7_1_0_pre7/RelValWE_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_LS171_V7-v1/00000/665BE840-B4D0-E311-BBA6-02163E00E694.root',
+#        '/store/relval/CMSSW_7_1_0_pre7/RelValPhotonJets_Pt_10_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_LS171_V7-v1/00000/C0AB31B9-A2D0-E311-A15D-02163E00E725.root',
     )
 )
 
@@ -44,6 +44,7 @@ process.post=cms.EDAnalyzer("EmDQMPostProcessor",
                             subDir = cms.untracked.string("HLT/HLTEgammaValidation"),
                             dataSet = cms.untracked.string("unknown"),
                             noPhiPlots = cms.untracked.bool(False),
+                            ignoreEmpty = cms.untracked.bool(False),
                            )
 
 #process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
@@ -53,11 +54,10 @@ process.post=cms.EDAnalyzer("EmDQMPostProcessor",
 #----------------------------------------
 process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
-process.DQMStore.verbose = 0
-process.DQM.collectorHost = ''
-process.dqmSaver.convention = 'Online'
-process.dqmSaver.saveByRun = 1
-process.dqmSaver.saveAtJobEnd = True
+process.dqmSaver.convention = 'Offline'
+process.dqmSaver.workflow = '/RelVal/HLTriggerOffline/Egamma'
+process.dqmSaver.saveByRun = cms.untracked.int32(-1)
+process.dqmSaver.saveAtJobEnd = cms.untracked.bool(True)
 
 process.ppost = cms.EndPath(process.post+process.dqmSaver)
 

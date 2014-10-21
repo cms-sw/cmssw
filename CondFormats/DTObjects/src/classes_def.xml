@@ -1,6 +1,5 @@
 <lcgdict>
   <class name="DTReadOutMapping" id="6E1247AF-2A00-DA11-96EE-000E0C4DE431">
-    <field name="cache_" transient="true"/>
     <field name="atomicCache_" transient="true"/>
     <field name="rgBuf" transient="true"/>
     <field name="grBuf" transient="true"/>

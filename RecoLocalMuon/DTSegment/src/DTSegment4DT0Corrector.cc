@@ -10,9 +10,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/Common/interface/OwnVector.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
@@ -29,10 +29,10 @@ DTSegment4DT0Corrector::DTSegment4DT0Corrector(const ParameterSet& pset){
     cout << "[DTSegment4DT0Corrector] Constructor called" << endl;
   
   // the name of the 4D rec hits collection
-  theRecHits4DLabel = pset.getParameter<InputTag>("recHits4DLabel");
+  recHits4DToken_ = consumes<DTRecSegment4DCollection>(pset.getParameter<InputTag>("recHits4DLabel"));
 
-    // the updator
-    theUpdator = new DTSegmentUpdator(pset);
+  // the updator
+  theUpdator = new DTSegmentUpdator(pset);
 }
 
 /// Destructor
@@ -46,7 +46,7 @@ void DTSegment4DT0Corrector::produce(Event& event, const EventSetup& setup){
 
   // Get the 4D Segment from the event
   Handle<DTRecSegment4DCollection> all4DSegments;
-  event.getByLabel(theRecHits4DLabel, all4DSegments);
+  event.getByToken(recHits4DToken_, all4DSegments);
 
   // get the geometry
   ESHandle<DTGeometry> theGeom;
@@ -82,7 +82,7 @@ void DTSegment4DT0Corrector::produce(Event& event, const EventSetup& setup){
 
       if(newSeg == 0) continue;
 
-      theUpdator->update(newSeg,true);
+      theUpdator->update(newSeg,true,0);
       result.push_back(*newSeg);
 
     }

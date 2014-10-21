@@ -39,9 +39,6 @@ class PhotonConversionTrajectorySeedProducerFromSingleLegAlgo{
 	edm::ConsumesCollector && iC);
   ~PhotonConversionTrajectorySeedProducerFromSingleLegAlgo();
 
-  void init();
-  void clear();
-
   void analyze(const edm::Event & event, const edm::EventSetup & setup);
   IdealHelixParameters* getIdealHelixParameters(){return &_IdealHelixParameters;}
   TrajectorySeedCollection* getTrajectorySeedCollection(){return seedCollection;}
@@ -63,11 +60,9 @@ class PhotonConversionTrajectorySeedProducerFromSingleLegAlgo{
   TrajectorySeedCollection *seedCollection;
   TrajectorySeedCollection *seedCollectionOfSourceTracks;
   std::unique_ptr<CombinedHitPairGeneratorForPhotonConversion> theHitsGenerator;
-  SeedForPhotonConversion1Leg *theSeedCreator;
+  std::unique_ptr<SeedForPhotonConversion1Leg> theSeedCreator;
   std::unique_ptr<GlobalTrackingRegionProducerFromBeamSpot> theRegionProducer;
 
-
-  edm::ParameterSet creatorPSet;
 
   ClusterChecker theClusterCheck;
   bool theSilentOnClusterCheck;

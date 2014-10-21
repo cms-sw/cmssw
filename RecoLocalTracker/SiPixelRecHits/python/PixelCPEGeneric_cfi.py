@@ -55,6 +55,8 @@ PixelCPEGenericESProducer = cms.ESProducer("PixelCPEGenericESProducer",
     # Use the LA-Offsets from Alignment instead of our calibration
     useLAAlignmentOffsets = cms.bool(False),                             
                                            
+    #MagneticFieldRecord: e.g. "" or "ParabolicMF"
+    MagneticFieldRecord = cms.ESInputTag(""),
 )
 
 

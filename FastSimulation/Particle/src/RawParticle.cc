@@ -15,45 +15,47 @@
 
 //using namespace HepPDT;
 
-RawParticle::RawParticle() {
+RawParticle::RawParticle():
+  tab( ParticleTable::instance() ) {
   init();
 }
 
 RawParticle::RawParticle(const XYZTLorentzVector& p) 
-  : XYZTLorentzVector(p) {
+  : XYZTLorentzVector(p), tab( ParticleTable::instance() )  {
   init();
 }
 
 RawParticle::RawParticle(const int id, 
 			 const XYZTLorentzVector& p) 
-  : XYZTLorentzVector(p) {
+  : XYZTLorentzVector(p), tab( ParticleTable::instance() ) {
   this->init();
   this->setID(id);
 }
 
 RawParticle::RawParticle(const std::string name, 
 			 const XYZTLorentzVector& p) 
-  : XYZTLorentzVector(p) {
+  : XYZTLorentzVector(p), tab( ParticleTable::instance() ) {
   this->init();
   this->setID(name);
 }
 
 RawParticle::RawParticle(const XYZTLorentzVector& p, 
 			 const XYZTLorentzVector& xStart)  : 
-  XYZTLorentzVector(p)
+  XYZTLorentzVector(p), tab( ParticleTable::instance() )
 {
   init();
   myVertex = xStart;
 }
 
 RawParticle::RawParticle(double px, double py, double pz, double e) : 
-  XYZTLorentzVector(px,py,pz,e)
+  XYZTLorentzVector(px,py,pz,e), tab( ParticleTable::instance() )
 {
   init();
 }
 
 RawParticle::RawParticle(const RawParticle &right) : 
-  XYZTLorentzVector(right.Px(),right.Py(),right.Pz(),right.E()) 
+  XYZTLorentzVector(right.Px(),right.Py(),right.Pz(),right.E()),
+  tab( ParticleTable::instance() )
 {
   myId     = right.myId; 
   myStatus = right.myStatus;
@@ -61,7 +63,6 @@ RawParticle::RawParticle(const RawParticle &right) :
   myCharge = right.myCharge;
   myMass   = right.myMass;
   myVertex = (right.myVertex);
-  tab = (right.tab);
   myInfo = (right.myInfo);
 }
 
@@ -80,7 +81,7 @@ RawParticle::operator = (const RawParticle & right ) {
     myCharge = right.myCharge;
     myMass   = right.myMass;
     myVertex = right.myVertex;
-    tab      = right.tab;
+    tab      = ParticleTable::instance();
     myInfo   = right.myInfo;
   }
   return *this;
@@ -93,7 +94,7 @@ RawParticle::init() {
   myUsed=0;
   myCharge=0.;
   myMass=0.;
-  tab = ParticleTable::instance();
+  //tab = ParticleTable::instance();
   myInfo=0;
 }
 

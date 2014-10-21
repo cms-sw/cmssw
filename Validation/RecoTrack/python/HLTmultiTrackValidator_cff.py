@@ -7,24 +7,25 @@ hltLhcParametersDefinerForTP.beamSpot      = cms.untracked.InputTag('hltOnlineBe
 
 from Validation.RecoTrack.MultiTrackValidator_cfi import *
 hltMultiTrackValidator = multiTrackValidator.clone()
+hltMultiTrackValidator.ignoremissingtkcollection = cms.bool(True)
 hltMultiTrackValidator.dirName = cms.string('HLT/Tracking/ValidationWRTtp/')
 hltMultiTrackValidator.label   = cms.VInputTag(
     cms.InputTag("hltPixelTracks"),
 #    cms.InputTag("hltPFJetCtfWithMaterialTracks"),
-    cms.InputTag("hltPFlowTrackSelectionHighPurity"),
+#    cms.InputTag("hltPFlowTrackSelectionHighPurity"), # it is not yet available :(
 #    cms.InputTag("hltIter1PFJetCtfWithMaterialTracks"),
 #    cms.InputTag("hltIter1PFlowTrackSelectionHighPurityLoose"),
 #    cms.InputTag("hltIter1PFlowTrackSelectionHighPurityTight"),
-    cms.InputTag("hltIter1PFlowTrackSelectionHighPurity"),
-#    cms.InputTag("hltIter1Merged"),
+#    cms.InputTag("hltIter1PFlowTrackSelectionHighPurity"),
+    cms.InputTag("hltIter1Merged"),
 #    cms.InputTag("hltIter2PFJetCtfWithMaterialTracks"),
-    cms.InputTag("hltIter2PFlowTrackSelectionHighPurity"),
-#    cms.InputTag("hltIter2Merged"),
+#    cms.InputTag("hltIter2PFlowTrackSelectionHighPurity"),
+    cms.InputTag("hltIter2Merged"),
 #    cms.InputTag("hltIter3PFJetCtfWithMaterialTracks"),
 #    cms.InputTag("hltIter3PFlowTrackSelectionHighPurityLoose"),
 #    cms.InputTag("hltIter3PFlowTrackSelectionHighPurityTight"),
-    cms.InputTag("hltIter3PFlowTrackSelectionHighPurity"),
-#    cms.InputTag("hltIter3Merged"),
+#    cms.InputTag("hltIter3PFlowTrackSelectionHighPurity"),
+    cms.InputTag("hltIter3Merged"),
 #    cms.InputTag("hltIter4PFJetCtfWithMaterialTracks"),
 #    cms.InputTag("hltIter4PFlowTrackSelectionHighPurity"),
     cms.InputTag("hltIter4Merged"),
@@ -79,11 +80,11 @@ hltTrackingParticleRecoTrackAsssociation = cms.EDProducer("TrackAssociatorEDProd
     label_tr = cms.InputTag("hltIter4Merged"),
     associator = cms.string('hltQuickTrackAssociatorByHits'),
     label_tp = cms.InputTag("mix","MergedTrackTruth"),
-    ignoremissingtrackcollection = cms.untracked.bool(False)
+    ignoremissingtrackcollection = cms.untracked.bool(True)
 )
 
 hltMultiTrackValidator.associatormap = cms.InputTag("hltTrackingParticleRecoTrackAsssociation")
-
+hltMultiTrackValidator.ignoremissingtrackcollection = cms.untracked.bool(True)
 
 hltTPClusterProducer = cms.EDProducer("ClusterTPAssociationProducer",
     stripSimLinkSrc = cms.InputTag("simSiStripDigis"),
@@ -123,6 +124,6 @@ hltMultiTrackValidation = cms.Sequence(
     + hltTrackingParticleRecoTrackAsssociation
     + cutsTPEffic
     + cutsTPFake
-    + hltMultiTrackValidator
+# too noisy    + hltMultiTrackValidator
 )    
 

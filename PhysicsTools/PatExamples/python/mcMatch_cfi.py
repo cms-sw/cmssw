@@ -12,8 +12,8 @@ myMuonMatch = cms.EDProducer("MCMatcher",     # cut on deltaR, deltaPt/Pt; pick 
     resolveByMatchQuality = cms.bool(False) # False = just match input in order; True = pick lowest deltaR pair first
 )
 myJetGenJetMatch = cms.EDProducer("GenJetMatcher", # cut on deltaR, deltaPt/Pt; pick best by deltaR
-    src      = cms.InputTag("ak5CaloJets"), # RECO jets (any View<Jet> is ok)
-    matched  = cms.InputTag("ak5GenJets"),  # GEN jets  (must be GenJetCollection)
+    src      = cms.InputTag("ak4CaloJets"), # RECO jets (any View<Jet> is ok)
+    matched  = cms.InputTag("ak4GenJets"),  # GEN jets  (must be GenJetCollection)
     mcPdgId  = cms.vint32(),                # n/a
     mcStatus = cms.vint32(),                # n/a
     checkCharge = cms.bool(False),          # n/a
@@ -22,4 +22,4 @@ myJetGenJetMatch = cms.EDProducer("GenJetMatcher", # cut on deltaR, deltaPt/Pt; 
     resolveAmbiguities = cms.bool(True),    # Forbid two RECO objects to match to the same GEN object
     resolveByMatchQuality = cms.bool(False) # False = just match input in order; True = pick lowest deltaR pair first
 )
-  
+

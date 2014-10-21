@@ -46,7 +46,7 @@
 #include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1HFRings.h"
 #include "DataFormats/L1Trigger/interface/L1HFRingsFwd.h"
-
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 
 // forward declarations
@@ -58,7 +58,7 @@ class L1RetrieveL1Extra {
 public:
 
     // constructor(s)
-    explicit L1RetrieveL1Extra(const edm::ParameterSet&);
+  explicit L1RetrieveL1Extra(const edm::ParameterSet&, edm::ConsumesCollector &&iC);
 
     // destructor
     virtual ~L1RetrieveL1Extra();
@@ -256,6 +256,15 @@ private:
     const l1extra::L1HFRingsCollection* m_l1ExtraHfBitCounts;
     const l1extra::L1HFRingsCollection* m_l1ExtraHfRingEtSums;
 
+    edm::EDGetTokenT<l1extra::L1MuonParticleCollection> m_tagL1ExtraMuonTok;
+    edm::EDGetTokenT<l1extra::L1EmParticleCollection>m_tagL1ExtraIsoEGTok;
+    edm::EDGetTokenT<l1extra::L1EmParticleCollection> m_tagL1ExtraNoIsoEGTok;
+    edm::EDGetTokenT<l1extra::L1JetParticleCollection> m_tagL1ExtraCenJetTok;
+    edm::EDGetTokenT<l1extra::L1JetParticleCollection> m_tagL1ExtraForJetTok;
+    edm::EDGetTokenT<l1extra::L1JetParticleCollection> m_tagL1ExtraTauJetTok;
+    edm::EDGetTokenT<l1extra::L1EtMissParticleCollection> m_tagL1ExtraEtMissMETTok;
+    edm::EDGetTokenT<l1extra::L1EtMissParticleCollection> m_tagL1ExtraEtMissHTMTok;
+    edm::EDGetTokenT<l1extra::L1HFRingsCollection> m_tagL1ExtraHFRingsTok;
 };
 
 #endif

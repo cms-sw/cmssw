@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQM.EcalBarrelMonitorTasks.EcalMonitorTask_cfi import *
-from DQM.EcalBarrelMonitorTasks.EcalFEDMonitor_cfi import *
+from DQM.EcalMonitorTasks.EcalMonitorTask_cfi import *
+from DQM.EcalMonitorTasks.EcalFEDMonitor_cfi import *
 from DQMOffline.Ecal.ESRecoSummary_cfi import *
 from DQMOffline.Ecal.EcalZmassTask_cfi import *
 from DQMOffline.Ecal.EcalPileUpDepMonitor_cfi import *

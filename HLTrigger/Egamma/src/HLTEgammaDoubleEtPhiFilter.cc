@@ -69,7 +69,7 @@ HLTEgammaDoubleEtPhiFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup&
 
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> >  mysortedrecoecalcands;
   PrevFilterOutput->getObjects(TriggerCluster,  mysortedrecoecalcands);
-  if(mysortedrecoecalcands.empty()) PrevFilterOutput->getObjects(TriggerCluster,mysortedrecoecalcands);  //we dont know if its type trigger cluster or trigger photon
+  if(mysortedrecoecalcands.empty()) PrevFilterOutput->getObjects(TriggerPhoton,mysortedrecoecalcands);  //we dont know if its type trigger cluster or trigger photon
   // Sort the list
   std::sort(mysortedrecoecalcands.begin(), mysortedrecoecalcands.end(), EgammaHLTEtSortCriterium());
   edm::Ref<reco::RecoEcalCandidateCollection> ref1, ref2;

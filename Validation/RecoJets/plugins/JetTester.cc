@@ -23,19 +23,13 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
 {
   std::string inputCollectionLabel(mInputCollection.label());
 
-//  std::size_t foundCaloCollection = inputCollectionLabel.find("Calo");
-//  std::size_t foundJPTCollection  = inputCollectionLabel.find("JetPlusTrack");
-//  std::size_t foundPFCollection   = inputCollectionLabel.find("PF");
-
   isCaloJet = (std::string("calo")==JetType);
-  isJPTJet  = (std::string("jpt") ==JetType);
   isPFJet   = (std::string("pf")  ==JetType);
 
   //consumes
    pvToken_ = consumes<std::vector<reco::Vertex> >(edm::InputTag("offlinePrimaryVertices"));
    caloTowersToken_ = consumes<CaloTowerCollection>(edm::InputTag("towerMaker"));
    if (isCaloJet) caloJetsToken_  = consumes<reco::CaloJetCollection>(mInputCollection);
-   if (isJPTJet)  jptJetsToken_   = consumes<reco::JPTJetCollection>(mInputCollection);
    if (isPFJet)   pfJetsToken_    = consumes<reco::PFJetCollection>(mInputCollection);
    genJetsToken_ = consumes<reco::GenJetCollection>(edm::InputTag(mInputGenCollection));
    evtToken_ = consumes<edm::HepMCProduct>(edm::InputTag("generator"));
@@ -174,7 +168,7 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
 
   // ---- JPT Jet specific information ----
   /// chargedMultiplicity
-  elecMultiplicity = 0;
+//  elecMultiplicity = 0;
 
   // ---- JPT or PF Jet specific information ----
   /// muonMultiplicity
@@ -238,11 +232,13 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
   /// neutralMultiplicity
   neutralMultiplicity = 0;
 
+}
 
-  DQMStore* dbe = &*edm::Service<DQMStore>();
-    
-  if (dbe) {
-    dbe->setCurrentFolder("JetMET/JetValidation/"+mInputCollection.label());
+void JetTester::bookHistograms(DQMStore::IBooker & ibooker,
+                                  edm::Run const & iRun,
+                                  edm::EventSetup const & ) { 
+
+  ibooker.setCurrentFolder("JetMET/JetValidation/"+mInputCollection.label());  
 
     double log10PtMin  = 0.50;
     double log10PtMax  = 3.75;
@@ -260,172 +256,152 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
 		     5.0, 5.2, 5.4, 5.6, 5.8, 6.0};
 
     // Event variables
-    mNvtx           = dbe->book1D("Nvtx",           "number of vertices", 60, 0, 60);
+    mNvtx           = ibooker.book1D("Nvtx",           "number of vertices", 60, 0, 60);
 
     // Jet parameters
-    mEta          = dbe->book1D("Eta",          "Eta",          120,   -6,    6); 
-    mPhi          = dbe->book1D("Phi",          "Phi",           70, -3.5,  3.5); 
-    mPt           = dbe->book1D("Pt",           "Pt",           100,    0,  1000); 
-    mP            = dbe->book1D("P",            "P",            100,    0,  1000); 
-    mEnergy       = dbe->book1D("Energy",       "Energy",       100,    0,  1000); 
-    mMass         = dbe->book1D("Mass",         "Mass",         100,    0,  200); 
-    mConstituents = dbe->book1D("Constituents", "Constituents", 100,    0,  100); 
-    mHadTiming    = dbe->book1D("HadTiming",    "HadTiming",     75,  -50,  100);
-    mEmTiming     = dbe->book1D("EmTiming",     "EmTiming",      75,  -50,  100);
-    mJetArea      = dbe->book1D("JetArea",      "JetArea",       100,   0, 4);
-//    mRho          = dbe->book1D("Rho",          "Rho",           100,    0,   5);
+    mEta          = ibooker.book1D("Eta",          "Eta",          120,   -6,    6); 
+    mPhi          = ibooker.book1D("Phi",          "Phi",           70, -3.5,  3.5); 
+    mPt           = ibooker.book1D("Pt",           "Pt",           100,    0,  1000); 
+    mP            = ibooker.book1D("P",            "P",            100,    0,  1000); 
+    mEnergy       = ibooker.book1D("Energy",       "Energy",       100,    0,  1000); 
+    mMass         = ibooker.book1D("Mass",         "Mass",         100,    0,  200); 
+    mConstituents = ibooker.book1D("Constituents", "Constituents", 100,    0,  100); 
+    mHadTiming    = ibooker.book1D("HadTiming",    "HadTiming",     75,  -50,  100);
+    mEmTiming     = ibooker.book1D("EmTiming",     "EmTiming",      75,  -50,  100);
+    mJetArea      = ibooker.book1D("JetArea",      "JetArea",       100,   0, 4);
 
     // Corrected jets
     if (!JetCorrectionService.empty())	{
-      mCorrJetPt  = dbe->book1D("CorrJetPt",  "CorrJetPt",  150,    0, 1500);
-      mCorrJetEta = dbe->book1D("CorrJetEta", "CorrJetEta Pt>20", 60,   -6,   6);
-      mCorrJetPhi = dbe->book1D("CorrJetPhi", "CorrJetPhi Pt>20",  70, -3.5, 3.5);
-      mCorrJetEta_Pt40 = dbe->book1D("CorrJetEta_Pt40", "CorrJetEta Pt>40", 60,   -6,   6);
-      mCorrJetPhi_Pt40 = dbe->book1D("CorrJetPhi_Pt40", "CorrJetPhi Pt>40",  70, -3.5, 3.5);
+      mCorrJetPt  = ibooker.book1D("CorrJetPt",  "CorrJetPt",  150,    0, 1500);
+      mCorrJetEta = ibooker.book1D("CorrJetEta", "CorrJetEta Pt>20", 60,   -6,   6);
+      mCorrJetPhi = ibooker.book1D("CorrJetPhi", "CorrJetPhi Pt>20",  70, -3.5, 3.5);
+      mCorrJetEta_Pt40 = ibooker.book1D("CorrJetEta_Pt40", "CorrJetEta Pt>40", 60,   -6,   6);
+      mCorrJetPhi_Pt40 = ibooker.book1D("CorrJetPhi_Pt40", "CorrJetPhi Pt>40",  70, -3.5, 3.5);
 
       // Corrected jets profiles
-      mPtCorrOverReco_Pt_B = dbe->bookProfile("PtCorrOverReco_Pt_B", "0<|eta|<1.5", log10PtBins, log10PtMin, log10PtMax, 0, 5, " ");
-      mPtCorrOverReco_Pt_E = dbe->bookProfile("PtCorrOverReco_Pt_E", "1.5<|eta|<3", log10PtBins, log10PtMin, log10PtMax, 0, 5, " ");
-      mPtCorrOverReco_Pt_F = dbe->bookProfile("PtCorrOverReco_Pt_F", "3<|eta|<6",   log10PtBins, log10PtMin, log10PtMax, 0, 5, " ");
+      mPtCorrOverReco_Pt_B = ibooker.bookProfile("PtCorrOverReco_Pt_B", "0<|eta|<1.5", log10PtBins, log10PtMin, log10PtMax, 0, 5, " ");
+      mPtCorrOverReco_Pt_E = ibooker.bookProfile("PtCorrOverReco_Pt_E", "1.5<|eta|<3", log10PtBins, log10PtMin, log10PtMax, 0, 5, " ");
+      mPtCorrOverReco_Pt_F = ibooker.bookProfile("PtCorrOverReco_Pt_F", "3<|eta|<6",   log10PtBins, log10PtMin, log10PtMax, 0, 5, " ");
 
-      mPtCorrOverReco_Eta_20_40    = dbe->bookProfile("PtCorrOverReco_Eta_20_40",    "20<genPt<40",    90, etaRange, 0, 5, " ");
-      mPtCorrOverReco_Eta_40_200    = dbe->bookProfile("PtCorrOverReco_Eta_40_200",    "40<genPt<200",    90, etaRange, 0, 5, " ");
-      mPtCorrOverReco_Eta_200_600   = dbe->bookProfile("PtCorrOverReco_Eta_200_600",   "200<genPt<600",   90, etaRange, 0, 5, " ");
-      mPtCorrOverReco_Eta_600_1500  = dbe->bookProfile("PtCorrOverReco_Eta_600_1500",  "600<genPt<1500",  90, etaRange, 0, 5, " ");
-      mPtCorrOverReco_Eta_1500_3500 = dbe->bookProfile("PtCorrOverReco_Eta_1500_3500", "1500<genPt<3500", 90, etaRange, 0, 5, " ");
+      mPtCorrOverReco_Eta_20_40    = ibooker.bookProfile("PtCorrOverReco_Eta_20_40",    "20<genPt<40",    90, etaRange, 0, 5, " ");
+      mPtCorrOverReco_Eta_40_200    = ibooker.bookProfile("PtCorrOverReco_Eta_40_200",    "40<genPt<200",    90, etaRange, 0, 5, " ");
+      mPtCorrOverReco_Eta_200_600   = ibooker.bookProfile("PtCorrOverReco_Eta_200_600",   "200<genPt<600",   90, etaRange, 0, 5, " ");
+      mPtCorrOverReco_Eta_600_1500  = ibooker.bookProfile("PtCorrOverReco_Eta_600_1500",  "600<genPt<1500",  90, etaRange, 0, 5, " ");
+      mPtCorrOverReco_Eta_1500_3500 = ibooker.bookProfile("PtCorrOverReco_Eta_1500_3500", "1500<genPt<3500", 90, etaRange, 0, 5, " ");
 
-      mPtCorrOverGen_GenPt_B = dbe->bookProfile("PtCorrOverGen_GenPt_B", "0<|eta|<1.5", log10PtBins, log10PtMin, log10PtMax, 0.8, 1.2, " ");
-      mPtCorrOverGen_GenPt_E = dbe->bookProfile("PtCorrOverGen_GenPt_E", "1.5<|eta|<3", log10PtBins, log10PtMin, log10PtMax, 0.8, 1.2, " ");
-      mPtCorrOverGen_GenPt_F = dbe->bookProfile("PtCorrOverGen_GenPt_F", "3<|eta|<6",   log10PtBins, log10PtMin, log10PtMax, 0.8, 1.2, " ");
+      mPtCorrOverGen_GenPt_B = ibooker.bookProfile("PtCorrOverGen_GenPt_B", "0<|eta|<1.5", log10PtBins, log10PtMin, log10PtMax, 0.8, 1.2, " ");
+      mPtCorrOverGen_GenPt_E = ibooker.bookProfile("PtCorrOverGen_GenPt_E", "1.5<|eta|<3", log10PtBins, log10PtMin, log10PtMax, 0.8, 1.2, " ");
+      mPtCorrOverGen_GenPt_F = ibooker.bookProfile("PtCorrOverGen_GenPt_F", "3<|eta|<6",   log10PtBins, log10PtMin, log10PtMax, 0.8, 1.2, " ");
 
-      mPtCorrOverGen_GenEta_20_40    = dbe->bookProfile("PtCorrOverGen_GenEta_20_40",      "20<genPt<40;#eta",    90, etaRange, 0.8, 1.2, " ");
-      mPtCorrOverGen_GenEta_40_200    = dbe->bookProfile("PtCorrOverGen_GenEta_40_200",    "40<genPt<200;#eta",    90, etaRange, 0.8, 1.2, " ");
-      mPtCorrOverGen_GenEta_200_600   = dbe->bookProfile("PtCorrOverGen_GenEta_200_600",   "200<genPt<600;#eta",   90, etaRange, 0.8, 1.2, " ");
-      mPtCorrOverGen_GenEta_600_1500  = dbe->bookProfile("PtCorrOverGen_GenEta_600_1500",  "600<genPt<1500;#eta",  90, etaRange, 0.8, 1.2, " ");
-      mPtCorrOverGen_GenEta_1500_3500 = dbe->bookProfile("PtCorrOverGen_GenEta_1500_3500", "1500<genPt<3500;#eta", 90, etaRange, 0.8, 1.2, " ");
+      mPtCorrOverGen_GenEta_20_40    = ibooker.bookProfile("PtCorrOverGen_GenEta_20_40",      "20<genPt<40;#eta",    90, etaRange, 0.8, 1.2, " ");
+      mPtCorrOverGen_GenEta_40_200    = ibooker.bookProfile("PtCorrOverGen_GenEta_40_200",    "40<genPt<200;#eta",    90, etaRange, 0.8, 1.2, " ");
+      mPtCorrOverGen_GenEta_200_600   = ibooker.bookProfile("PtCorrOverGen_GenEta_200_600",   "200<genPt<600;#eta",   90, etaRange, 0.8, 1.2, " ");
+      mPtCorrOverGen_GenEta_600_1500  = ibooker.bookProfile("PtCorrOverGen_GenEta_600_1500",  "600<genPt<1500;#eta",  90, etaRange, 0.8, 1.2, " ");
+      mPtCorrOverGen_GenEta_1500_3500 = ibooker.bookProfile("PtCorrOverGen_GenEta_1500_3500", "1500<genPt<3500;#eta", 90, etaRange, 0.8, 1.2, " ");
     }
 
-    mGenEta      = dbe->book1D("GenEta",      "GenEta",      120,   -6,    6);
-    mGenPhi      = dbe->book1D("GenPhi",      "GenPhi",       70, -3.5,  3.5);
-    mGenPt       = dbe->book1D("GenPt",       "GenPt",       100,    0,  1000);
-    mGenEtaFirst = dbe->book1D("GenEtaFirst", "GenEtaFirst", 120,   -6,    6);
-    mGenPhiFirst = dbe->book1D("GenPhiFirst", "GenPhiFirst",  70, -3.5,  3.5);
-    mPtHat       = dbe->book1D("PtHat",       "PtHat",       100,    0, 1000); 
-    mDeltaEta    = dbe->book1D("DeltaEta",    "DeltaEta",    100, -0.5,  0.5);
-    mDeltaPhi    = dbe->book1D("DeltaPhi",    "DeltaPhi",    100, -0.5,  0.5);
-    mDeltaPt     = dbe->book1D("DeltaPt",     "DeltaPt",     100, -1.0,  1.0);
+    mGenEta      = ibooker.book1D("GenEta",      "GenEta",      120,   -6,    6);
+    mGenPhi      = ibooker.book1D("GenPhi",      "GenPhi",       70, -3.5,  3.5);
+    mGenPt       = ibooker.book1D("GenPt",       "GenPt",       100,    0,  1000);
+    mGenEtaFirst = ibooker.book1D("GenEtaFirst", "GenEtaFirst", 120,   -6,    6);
+    mGenPhiFirst = ibooker.book1D("GenPhiFirst", "GenPhiFirst",  70, -3.5,  3.5);
+    mPtHat       = ibooker.book1D("PtHat",       "PtHat",       100,    0, 1000); 
+    mDeltaEta    = ibooker.book1D("DeltaEta",    "DeltaEta",    100, -0.5,  0.5);
+    mDeltaPhi    = ibooker.book1D("DeltaPhi",    "DeltaPhi",    100, -0.5,  0.5);
+    mDeltaPt     = ibooker.book1D("DeltaPt",     "DeltaPt",     100, -1.0,  1.0);
     
-    mPtRecoOverGen_B_20_40    = dbe->book1D("PtRecoOverGen_B_20_40",    "20<genpt<40",    50, 0, 2);
-    mPtRecoOverGen_E_20_40    = dbe->book1D("PtRecoOverGen_E_20_40",    "20<genpt<40",    50, 0, 2);
-    mPtRecoOverGen_F_20_40    = dbe->book1D("PtRecoOverGen_F_20_40",    "20<genpt<40",    50, 0, 2);
-    mPtRecoOverGen_B_40_200    = dbe->book1D("PtRecoOverGen_B_40_200",    "40<genpt<200",    50, 0, 2);
-    mPtRecoOverGen_E_40_200    = dbe->book1D("PtRecoOverGen_E_40_200",    "40<genpt<200",    50, 0, 2);
-    mPtRecoOverGen_F_40_200    = dbe->book1D("PtRecoOverGen_F_40_200",    "40<genpt<200",    50, 0, 2);
-    mPtRecoOverGen_B_200_600   = dbe->book1D("PtRecoOverGen_B_200_600",   "200<genpt<600",   50, 0, 2);
-    mPtRecoOverGen_E_200_600   = dbe->book1D("PtRecoOverGen_E_200_600",   "200<genpt<600",   50, 0, 2);
-    mPtRecoOverGen_F_200_600   = dbe->book1D("PtRecoOverGen_F_200_600",   "200<genpt<600",   50, 0, 2);
-    mPtRecoOverGen_B_600_1500  = dbe->book1D("PtRecoOverGen_B_600_1500",  "600<genpt<1500",  50, 0, 2);
-    mPtRecoOverGen_E_600_1500  = dbe->book1D("PtRecoOverGen_E_600_1500",  "600<genpt<1500",  50, 0, 2);
-    mPtRecoOverGen_F_600_1500  = dbe->book1D("PtRecoOverGen_F_600_1500",  "600<genpt<1500",  50, 0, 2);
-    mPtRecoOverGen_B_1500_3500 = dbe->book1D("PtRecoOverGen_B_1500_3500", "1500<genpt<3500", 50, 0, 2);
-    mPtRecoOverGen_E_1500_3500 = dbe->book1D("PtRecoOverGen_E_1500_3500", "1500<genpt<3500", 50, 0, 2);
-    mPtRecoOverGen_F_1500_3500 = dbe->book1D("PtRecoOverGen_F_1500_3500", "1500<genpt<3500", 50, 0, 2);
+    mPtRecoOverGen_B_20_40    = ibooker.book1D("PtRecoOverGen_B_20_40",    "20<genpt<40",    50, 0, 2);
+    mPtRecoOverGen_E_20_40    = ibooker.book1D("PtRecoOverGen_E_20_40",    "20<genpt<40",    50, 0, 2);
+    mPtRecoOverGen_F_20_40    = ibooker.book1D("PtRecoOverGen_F_20_40",    "20<genpt<40",    50, 0, 2);
+    mPtRecoOverGen_B_40_200    = ibooker.book1D("PtRecoOverGen_B_40_200",    "40<genpt<200",    50, 0, 2);
+    mPtRecoOverGen_E_40_200    = ibooker.book1D("PtRecoOverGen_E_40_200",    "40<genpt<200",    50, 0, 2);
+    mPtRecoOverGen_F_40_200    = ibooker.book1D("PtRecoOverGen_F_40_200",    "40<genpt<200",    50, 0, 2);
+    mPtRecoOverGen_B_200_600   = ibooker.book1D("PtRecoOverGen_B_200_600",   "200<genpt<600",   50, 0, 2);
+    mPtRecoOverGen_E_200_600   = ibooker.book1D("PtRecoOverGen_E_200_600",   "200<genpt<600",   50, 0, 2);
+    mPtRecoOverGen_F_200_600   = ibooker.book1D("PtRecoOverGen_F_200_600",   "200<genpt<600",   50, 0, 2);
+    mPtRecoOverGen_B_600_1500  = ibooker.book1D("PtRecoOverGen_B_600_1500",  "600<genpt<1500",  50, 0, 2);
+    mPtRecoOverGen_E_600_1500  = ibooker.book1D("PtRecoOverGen_E_600_1500",  "600<genpt<1500",  50, 0, 2);
+    mPtRecoOverGen_F_600_1500  = ibooker.book1D("PtRecoOverGen_F_600_1500",  "600<genpt<1500",  50, 0, 2);
+    mPtRecoOverGen_B_1500_3500 = ibooker.book1D("PtRecoOverGen_B_1500_3500", "1500<genpt<3500", 50, 0, 2);
+    mPtRecoOverGen_E_1500_3500 = ibooker.book1D("PtRecoOverGen_E_1500_3500", "1500<genpt<3500", 50, 0, 2);
+    mPtRecoOverGen_F_1500_3500 = ibooker.book1D("PtRecoOverGen_F_1500_3500", "1500<genpt<3500", 50, 0, 2);
 
     // Generation profiles
-    mPtRecoOverGen_GenPt_B          = dbe->bookProfile("PtRecoOverGen_GenPt_B",          "0<|eta|<1.5",     log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
-    mPtRecoOverGen_GenPt_E          = dbe->bookProfile("PtRecoOverGen_GenPt_E",          "1.5<|eta|<3",     log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
-    mPtRecoOverGen_GenPt_F          = dbe->bookProfile("PtRecoOverGen_GenPt_F",          "3<|eta|<6",       log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
-    mPtRecoOverGen_GenPhi_B         = dbe->bookProfile("PtRecoOverGen_GenPhi_B",         "0<|eta|<1.5",     70, -3.5, 3.5, 0, 2, " ");
-    mPtRecoOverGen_GenPhi_E         = dbe->bookProfile("PtRecoOverGen_GenPhi_E",         "1.5<|eta|<3",     70, -3.5, 3.5, 0, 2, " ");
-    mPtRecoOverGen_GenPhi_F         = dbe->bookProfile("PtRecoOverGen_GenPhi_F",         "3<|eta|<6",       70, -3.5, 3.5, 0, 2, " ");
-    mPtRecoOverGen_GenEta_20_40    = dbe->bookProfile("PtRecoOverGen_GenEta_20_40",    "20<genpt<40",    50, etaRange, 0, 2, " ");
-    mPtRecoOverGen_GenEta_40_200    = dbe->bookProfile("PtRecoOverGen_GenEta_40_200",    "40<genpt<200",    50, etaRange, 0, 2, " ");
-    mPtRecoOverGen_GenEta_200_600   = dbe->bookProfile("PtRecoOverGen_GenEta_200_600",   "200<genpt<600",   50, etaRange, 0, 2, " ");
-    mPtRecoOverGen_GenEta_600_1500  = dbe->bookProfile("PtRecoOverGen_GenEta_600_1500",  "600<genpt<1500",  50, etaRange, 0, 2, " ");
-    mPtRecoOverGen_GenEta_1500_3500 = dbe->bookProfile("PtRecoOverGen_GenEta_1500_3500", "1500<genpt<3500", 50, etaRange, 0, 2, " ");
+    mPtRecoOverGen_GenPt_B          = ibooker.bookProfile("PtRecoOverGen_GenPt_B",          "0<|eta|<1.5",     log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
+    mPtRecoOverGen_GenPt_E          = ibooker.bookProfile("PtRecoOverGen_GenPt_E",          "1.5<|eta|<3",     log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
+    mPtRecoOverGen_GenPt_F          = ibooker.bookProfile("PtRecoOverGen_GenPt_F",          "3<|eta|<6",       log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
+    mPtRecoOverGen_GenPhi_B         = ibooker.bookProfile("PtRecoOverGen_GenPhi_B",         "0<|eta|<1.5",     70, -3.5, 3.5, 0, 2, " ");
+    mPtRecoOverGen_GenPhi_E         = ibooker.bookProfile("PtRecoOverGen_GenPhi_E",         "1.5<|eta|<3",     70, -3.5, 3.5, 0, 2, " ");
+    mPtRecoOverGen_GenPhi_F         = ibooker.bookProfile("PtRecoOverGen_GenPhi_F",         "3<|eta|<6",       70, -3.5, 3.5, 0, 2, " ");
+    mPtRecoOverGen_GenEta_20_40    = ibooker.bookProfile("PtRecoOverGen_GenEta_20_40",    "20<genpt<40",    50, etaRange, 0, 2, " ");
+    mPtRecoOverGen_GenEta_40_200    = ibooker.bookProfile("PtRecoOverGen_GenEta_40_200",    "40<genpt<200",    50, etaRange, 0, 2, " ");
+    mPtRecoOverGen_GenEta_200_600   = ibooker.bookProfile("PtRecoOverGen_GenEta_200_600",   "200<genpt<600",   50, etaRange, 0, 2, " ");
+    mPtRecoOverGen_GenEta_600_1500  = ibooker.bookProfile("PtRecoOverGen_GenEta_600_1500",  "600<genpt<1500",  50, etaRange, 0, 2, " ");
+    mPtRecoOverGen_GenEta_1500_3500 = ibooker.bookProfile("PtRecoOverGen_GenEta_1500_3500", "1500<genpt<3500", 50, etaRange, 0, 2, " ");
     
     // Some jet algebra
     //------------------------------------------------------------------------
-    mEtaFirst   = dbe->book1D("EtaFirst",   "EtaFirst",   120,   -6,    6); 
-    mPhiFirst   = dbe->book1D("PhiFirst",   "PhiFirst",    70, -3.5,  3.5);      
-    mPtFirst    = dbe->book1D("PtFirst",    "PtFirst",    50,    0,  1000); 
-    mMjj        = dbe->book1D("Mjj",        "Mjj",        100,    0, 2000); 
-    mNJetsEta_B_20_40 = dbe->book1D("NJetsEta_B_20_40", "NJetsEta_B 20<Pt<40",  15,    0,   15);
-    mNJetsEta_E_20_40 = dbe->book1D("NJetsEta_E_20_40", "NJetsEta_E 20<Pt<40",  15,    0,   15);
-    mNJetsEta_B_40 = dbe->book1D("NJetsEta_B", "NJetsEta_B 40<Pt",  15,    0,   15);
-    mNJetsEta_E_40 = dbe->book1D("NJetsEta_E", "NJetsEta_E 40<Pt",  15,    0,   15);
-    mNJets_40 = dbe->book1D("NJets", "NJets 40>Pt",  15,    0,   15);
-    mNJets1 = dbe->bookProfile("NJets1", "Number of jets above Pt threshold", 100, 0,  200, 100, 0, 50, "s");
-    mNJets2 = dbe->bookProfile("NJets2", "Number of jets above Pt threshold", 100, 0, 4000, 100, 0, 50, "s");
+    mEtaFirst   = ibooker.book1D("EtaFirst",   "EtaFirst",   120,   -6,    6); 
+    mPhiFirst   = ibooker.book1D("PhiFirst",   "PhiFirst",    70, -3.5,  3.5);      
+    mPtFirst    = ibooker.book1D("PtFirst",    "PtFirst",    50,    0,  1000); 
+    mMjj        = ibooker.book1D("Mjj",        "Mjj",        100,    0, 2000); 
+    mNJetsEta_B_20_40 = ibooker.book1D("NJetsEta_B_20_40", "NJetsEta_B 20<Pt<40",  15,    0,   15);
+    mNJetsEta_E_20_40 = ibooker.book1D("NJetsEta_E_20_40", "NJetsEta_E 20<Pt<40",  15,    0,   15);
+    mNJetsEta_B_40 = ibooker.book1D("NJetsEta_B", "NJetsEta_B 40<Pt",  15,    0,   15);
+    mNJetsEta_E_40 = ibooker.book1D("NJetsEta_E", "NJetsEta_E 40<Pt",  15,    0,   15);
+    mNJets_40 = ibooker.book1D("NJets", "NJets 40>Pt",  15,    0,   15);
+    mNJets1 = ibooker.bookProfile("NJets1", "Number of jets above Pt threshold", 100, 0,  200, 100, 0, 50, "s");
+    mNJets2 = ibooker.bookProfile("NJets2", "Number of jets above Pt threshold", 100, 0, 4000, 100, 0, 50, "s");
 
 
-    // PFJet specific
-    //------------------------------------------------------------------------
-//    if (isPFJet) {
-//      mChargedEmEnergy     = dbe->book1D("ChargedEmEnergy",     "ChargedEmEnergy",     100,   0,  500);
-//      mChargedHadronEnergy = dbe->book1D("ChargedHadronEnergy", "ChargedHadronEnergy", 100,   0,  500);
-//      mNeutralEmEnergy     = dbe->book1D("NeutralEmEnergy",     "NeutralEmEnergy",     100,   0,  500);
-//      mNeutralHadronEnergy = dbe->book1D("NeutralHadronEnergy", "NeutralHadronEnergy", 100,   0,  500);
-//      mHadEnergyInHF       = dbe->book1D("HadEnergyInHF",       "HadEnergyInHF",       100,   0, 2500); 
-//      mEmEnergyInHF        = dbe->book1D("EmEnergyInHF",        "EmEnergyInHF",        100, -20,  450); 
-//    }
-    // ---- Calo Jet specific information ----
     if (isCaloJet) {
-      maxEInEmTowers              = dbe->book1D("maxEInEmTowers", "maxEInEmTowers", 50,0,500);
-      maxEInHadTowers             = dbe->book1D("maxEInHadTowers", "maxEInHadTowers", 50,0,500);
-      energyFractionHadronic      = dbe->book1D("energyFractionHadronic", "energyFractionHadronic", 50,0,1);
-      emEnergyFraction            = dbe->book1D("emEnergyFraction", "emEnergyFraction", 50,0,1);
-      hadEnergyInHB               = dbe->book1D("hadEnergyInHB", "hadEnergyInHB", 50,0,500);
-      hadEnergyInHO               = dbe->book1D("hadEnergyInHO", "hadEnergyInHO", 50,0,500);
-      hadEnergyInHE               = dbe->book1D("hadEnergyInHE", "hadEnergyInHE", 50,0,500);
-      hadEnergyInHF               = dbe->book1D("hadEnergyInHF", "hadEnergyInHF", 50,0,500);
-      emEnergyInEB                = dbe->book1D("emEnergyInEB", "emEnergyInEB", 50,0,500);
-      emEnergyInEE                = dbe->book1D("emEnergyInEE", "emEnergyInEE", 50,0,500);
-      emEnergyInHF                = dbe->book1D("emEnergyInHF", "emEnergyInHF", 50,0,500);
-      towersArea                  = dbe->book1D("towersArea", "towersArea", 50,0,1);
-      n90                         = dbe->book1D("n90", "n90", 30,0,30);
-      n60                         = dbe->book1D("n60", "n60", 30,0,30);
+      maxEInEmTowers              = ibooker.book1D("maxEInEmTowers", "maxEInEmTowers", 50,0,500);
+      maxEInHadTowers             = ibooker.book1D("maxEInHadTowers", "maxEInHadTowers", 50,0,500);
+      energyFractionHadronic      = ibooker.book1D("energyFractionHadronic", "energyFractionHadronic", 50,0,1);
+      emEnergyFraction            = ibooker.book1D("emEnergyFraction", "emEnergyFraction", 50,0,1);
+      hadEnergyInHB               = ibooker.book1D("hadEnergyInHB", "hadEnergyInHB", 50,0,500);
+      hadEnergyInHO               = ibooker.book1D("hadEnergyInHO", "hadEnergyInHO", 50,0,500);
+      hadEnergyInHE               = ibooker.book1D("hadEnergyInHE", "hadEnergyInHE", 50,0,500);
+      hadEnergyInHF               = ibooker.book1D("hadEnergyInHF", "hadEnergyInHF", 50,0,500);
+      emEnergyInEB                = ibooker.book1D("emEnergyInEB", "emEnergyInEB", 50,0,500);
+      emEnergyInEE                = ibooker.book1D("emEnergyInEE", "emEnergyInEE", 50,0,500);
+      emEnergyInHF                = ibooker.book1D("emEnergyInHF", "emEnergyInHF", 50,0,500);
+      towersArea                  = ibooker.book1D("towersArea", "towersArea", 50,0,1);
+      n90                         = ibooker.book1D("n90", "n90", 30,0,30);
+      n60                         = ibooker.book1D("n60", "n60", 30,0,30);
     }
-    // ---- JPT Jet specific information ----
-    if (isJPTJet) {
-      elecMultiplicity = dbe->book1D("elecMultiplicity", "elecMultiplicity", 10,0,10);
-    }
-    // ---- JPT or PF Jet specific information ----
-    if (isPFJet or isJPTJet) {
-      muonMultiplicity = dbe->book1D("muonMultiplicity", "muonMultiplicity", 10,0,10);
-      chargedMultiplicity = dbe->book1D("chargedMultiplicity", "chargedMultiplicity", 100,0,100);
-      chargedEmEnergy = dbe->book1D("chargedEmEnergy", "chargedEmEnergy", 100,0,500);
-      neutralEmEnergy = dbe->book1D("neutralEmEnergy", "neutralEmEnergy", 100,0,500);
-      chargedHadronEnergy = dbe->book1D("chargedHadronEnergy", "chargedHadronEnergy", 100,0,500);
-      neutralHadronEnergy = dbe->book1D("neutralHadronEnergy", "neutralHadronEnergy", 100,0,500);
-      chargedHadronEnergyFraction = dbe->book1D("chargedHadronEnergyFraction", "chargedHadronEnergyFraction", 50,0,1);
-      neutralHadronEnergyFraction = dbe->book1D("neutralHadronEnergyFraction", "neutralHadronEnergyFraction", 50,0,1);
-      chargedEmEnergyFraction = dbe->book1D("chargedEmEnergyFraction", "chargedEmEnergyFraction", 50,0,1);
-      neutralEmEnergyFraction = dbe->book1D("neutralEmEnergyFraction", "neutralEmEnergyFraction", 50,0,1);
-    }
-    // ---- PF Jet specific information ----
+
     if (isPFJet) {
-      photonEnergy = dbe->book1D("photonEnergy", "photonEnergy", 50,0,500);
-      photonEnergyFraction = dbe->book1D("photonEnergyFraction", "photonEnergyFraction", 50,0,1);
-      electronEnergy = dbe->book1D("electronEnergy", "electronEnergy", 50,0,500);
-      electronEnergyFraction = dbe->book1D("electronEnergyFraction", "electronEnergyFraction", 50,0,1);
-      muonEnergy = dbe->book1D("muonEnergy", "muonEnergy", 50,0,500);
-      muonEnergyFraction = dbe->book1D("muonEnergyFraction", "muonEnergyFraction", 50,0,1);
-      HFHadronEnergy = dbe->book1D("HFHadronEnergy", "HFHadronEnergy", 50,0,500);
-      HFHadronEnergyFraction = dbe->book1D("HFHadronEnergyFraction", "HFHadronEnergyFraction", 50,0,1);
-      HFEMEnergy = dbe->book1D("HFEMEnergy", "HFEMEnergy", 50,0,500);
-      HFEMEnergyFraction = dbe->book1D("HFEMEnergyFraction", "HFEMEnergyFraction", 50,0,1);
-      chargedHadronMultiplicity = dbe->book1D("chargedHadronMultiplicity", "chargedHadronMultiplicity", 50,0,50);
-      neutralHadronMultiplicity = dbe->book1D("neutralHadronMultiplicity", "neutralHadronMultiplicity", 50,0,50);
-      photonMultiplicity = dbe->book1D("photonMultiplicity", "photonMultiplicity", 10,0,10);
-      electronMultiplicity = dbe->book1D("electronMultiplicity", "electronMultiplicity", 10,0,10);
-      HFHadronMultiplicity = dbe->book1D("HFHadronMultiplicity", "HFHadronMultiplicity", 50,0,50);
-      HFEMMultiplicity = dbe->book1D("HFEMMultiplicity", "HFEMMultiplicity", 50,0,50);
-      chargedMuEnergy = dbe->book1D("chargedMuEnergy", "chargedMuEnergy", 50,0,500);
-      chargedMuEnergyFraction = dbe->book1D("chargedMuEnergyFraction", "chargedMuEnergyFraction", 50,0,1);
-      neutralMultiplicity = dbe->book1D("neutralMultiplicity", "neutralMultiplicity", 50,0,50);
+      muonMultiplicity = ibooker.book1D("muonMultiplicity", "muonMultiplicity", 10,0,10);
+      chargedMultiplicity = ibooker.book1D("chargedMultiplicity", "chargedMultiplicity", 100,0,100);
+      chargedEmEnergy = ibooker.book1D("chargedEmEnergy", "chargedEmEnergy", 100,0,500);
+      neutralEmEnergy = ibooker.book1D("neutralEmEnergy", "neutralEmEnergy", 100,0,500);
+      chargedHadronEnergy = ibooker.book1D("chargedHadronEnergy", "chargedHadronEnergy", 100,0,500);
+      neutralHadronEnergy = ibooker.book1D("neutralHadronEnergy", "neutralHadronEnergy", 100,0,500);
+      chargedHadronEnergyFraction = ibooker.book1D("chargedHadronEnergyFraction", "chargedHadronEnergyFraction", 50,0,1);
+      neutralHadronEnergyFraction = ibooker.book1D("neutralHadronEnergyFraction", "neutralHadronEnergyFraction", 50,0,1);
+      chargedEmEnergyFraction = ibooker.book1D("chargedEmEnergyFraction", "chargedEmEnergyFraction", 50,0,1);
+      neutralEmEnergyFraction = ibooker.book1D("neutralEmEnergyFraction", "neutralEmEnergyFraction", 50,0,1);
+      photonEnergy = ibooker.book1D("photonEnergy", "photonEnergy", 50,0,500);
+      photonEnergyFraction = ibooker.book1D("photonEnergyFraction", "photonEnergyFraction", 50,0,1);
+      electronEnergy = ibooker.book1D("electronEnergy", "electronEnergy", 50,0,500);
+      electronEnergyFraction = ibooker.book1D("electronEnergyFraction", "electronEnergyFraction", 50,0,1);
+      muonEnergy = ibooker.book1D("muonEnergy", "muonEnergy", 50,0,500);
+      muonEnergyFraction = ibooker.book1D("muonEnergyFraction", "muonEnergyFraction", 50,0,1);
+      HFHadronEnergy = ibooker.book1D("HFHadronEnergy", "HFHadronEnergy", 50,0,500);
+      HFHadronEnergyFraction = ibooker.book1D("HFHadronEnergyFraction", "HFHadronEnergyFraction", 50,0,1);
+      HFEMEnergy = ibooker.book1D("HFEMEnergy", "HFEMEnergy", 50,0,500);
+      HFEMEnergyFraction = ibooker.book1D("HFEMEnergyFraction", "HFEMEnergyFraction", 50,0,1);
+      chargedHadronMultiplicity = ibooker.book1D("chargedHadronMultiplicity", "chargedHadronMultiplicity", 50,0,50);
+      neutralHadronMultiplicity = ibooker.book1D("neutralHadronMultiplicity", "neutralHadronMultiplicity", 50,0,50);
+      photonMultiplicity = ibooker.book1D("photonMultiplicity", "photonMultiplicity", 10,0,10);
+      electronMultiplicity = ibooker.book1D("electronMultiplicity", "electronMultiplicity", 10,0,10);
+      HFHadronMultiplicity = ibooker.book1D("HFHadronMultiplicity", "HFHadronMultiplicity", 50,0,50);
+      HFEMMultiplicity = ibooker.book1D("HFEMMultiplicity", "HFEMMultiplicity", 50,0,50);
+      chargedMuEnergy = ibooker.book1D("chargedMuEnergy", "chargedMuEnergy", 50,0,500);
+      chargedMuEnergyFraction = ibooker.book1D("chargedMuEnergyFraction", "chargedMuEnergyFraction", 50,0,1);
+      neutralMultiplicity = ibooker.book1D("neutralMultiplicity", "neutralMultiplicity", 50,0,50);
     }
-  }
 
   if (mOutputFile.empty ())
     {
@@ -442,24 +418,6 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
 // ~JetTester
 //------------------------------------------------------------------------------
 JetTester::~JetTester() {}
-
-
-//------------------------------------------------------------------------------
-// beginJob
-//------------------------------------------------------------------------------
-void JetTester::beginJob() {}
-
-
-//------------------------------------------------------------------------------
-// endJob
-//------------------------------------------------------------------------------
-void JetTester::endJob()
-{
-  if (!mOutputFile.empty() && &*edm::Service<DQMStore>())
-    {
-      edm::Service<DQMStore>()->save(mOutputFile);
-    }
-}
 
 
 //------------------------------------------------------------------------------
@@ -525,16 +483,17 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
   recoJets.clear();
 
   edm::Handle<CaloJetCollection> caloJets;
-  edm::Handle<JPTJetCollection>  jptJets;
   edm::Handle<PFJetCollection>   pfJets;
+//  edm::Handle<JPTJetCollection>  jptJets;
 
   if (isCaloJet) mEvent.getByToken(caloJetsToken_, caloJets);
-  if (isJPTJet)  mEvent.getByToken(jptJetsToken_, jptJets);
   if (isPFJet)   mEvent.getByToken(pfJetsToken_, pfJets);
+//  if (isJPTJet)  mEvent.getByToken(jptJetsToken_, jptJets);
 
   if (isCaloJet && !caloJets.isValid()) return;
-  if (isJPTJet  && !jptJets.isValid())  return;
   if (isPFJet   && !pfJets.isValid())   return;
+//  if (isJPTJet  && !jptJets.isValid())  return;
+
 
   if (isCaloJet)
     {
@@ -542,11 +501,11 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
 	recoJets.push_back((*caloJets)[ijet]);
     }
 
-  if (isJPTJet)
+/*  if (isJPTJet)
     {
       for (unsigned ijet=0; ijet<jptJets->size(); ijet++)
 	recoJets.push_back((*jptJets)[ijet]);
-    }
+    }*/
 
   if (isPFJet) {
     for (unsigned ijet=0; ijet<pfJets->size(); ijet++)
@@ -621,11 +580,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
         n90                         ->Fill((*caloJets)[ijet].n90());
         n60                         ->Fill((*caloJets)[ijet].n60());
       }
-      // ---- JPT Jet specific information ----
-      if (isJPTJet) {
-        elecMultiplicity ->Fill((*jptJets)[ijet].elecMultiplicity());
-      }
-      // ---- JPT or PF Jet specific information ----
+      // ---- PF Jet specific information ----
       if (isPFJet) {
         muonMultiplicity ->Fill((*pfJets)[ijet].muonMultiplicity());
         chargedMultiplicity ->Fill((*pfJets)[ijet].chargedMultiplicity());
@@ -637,21 +592,6 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
         neutralHadronEnergyFraction ->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
         chargedEmEnergyFraction ->Fill((*pfJets)[ijet].chargedEmEnergyFraction());
         neutralEmEnergyFraction ->Fill((*pfJets)[ijet].neutralEmEnergyFraction());
-      }
-      if (isJPTJet) {
-        muonMultiplicity ->Fill((*jptJets)[ijet].muonMultiplicity());
-        chargedMultiplicity ->Fill((*jptJets)[ijet].chargedMultiplicity());
-        chargedEmEnergy ->Fill((*jptJets)[ijet].chargedEmEnergy());
-        neutralEmEnergy ->Fill((*jptJets)[ijet].neutralEmEnergy());
-        chargedHadronEnergy ->Fill((*jptJets)[ijet].chargedHadronEnergy());
-        neutralHadronEnergy ->Fill((*jptJets)[ijet].neutralHadronEnergy());
-        chargedHadronEnergyFraction ->Fill((*jptJets)[ijet].chargedHadronEnergyFraction());
-        neutralHadronEnergyFraction ->Fill((*jptJets)[ijet].neutralHadronEnergyFraction());
-        chargedEmEnergyFraction ->Fill((*jptJets)[ijet].chargedEmEnergyFraction());
-        neutralEmEnergyFraction ->Fill((*jptJets)[ijet].neutralEmEnergyFraction());
-      }
-      // ---- PF Jet specific information ----
-      if (isPFJet) {
         photonEnergy ->Fill((*pfJets)[ijet].photonEnergy());
         photonEnergyFraction ->Fill((*pfJets)[ijet].photonEnergyFraction());
         electronEnergy ->Fill((*pfJets)[ijet].electronEnergy());
@@ -670,8 +610,22 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
         HFEMMultiplicity ->Fill((*pfJets)[ijet].HFEMMultiplicity());
         chargedMuEnergy ->Fill((*pfJets)[ijet].chargedMuEnergy());
         chargedMuEnergyFraction ->Fill((*pfJets)[ijet].chargedMuEnergyFraction());
-        neutralMultiplicity ->Fill((*pfJets)[ijet].neutralMultiplicity());
-      }
+        neutralMultiplicity ->Fill((*pfJets)[ijet].neutralMultiplicity()); 
+     }
+      // ---- JPT Jet specific information ----
+     /* if (isJPTJet) {
+        elecMultiplicity ->Fill((*jptJets)[ijet].elecMultiplicity());
+        muonMultiplicity ->Fill((*jptJets)[ijet].muonMultiplicity());
+        chargedMultiplicity ->Fill((*jptJets)[ijet].chargedMultiplicity());
+        chargedEmEnergy ->Fill((*jptJets)[ijet].chargedEmEnergy());
+        neutralEmEnergy ->Fill((*jptJets)[ijet].neutralEmEnergy());
+        chargedHadronEnergy ->Fill((*jptJets)[ijet].chargedHadronEnergy());
+        neutralHadronEnergy ->Fill((*jptJets)[ijet].neutralHadronEnergy());
+        chargedHadronEnergyFraction ->Fill((*jptJets)[ijet].chargedHadronEnergyFraction());
+        neutralHadronEnergyFraction ->Fill((*jptJets)[ijet].neutralHadronEnergyFraction());
+        chargedEmEnergyFraction ->Fill((*jptJets)[ijet].chargedEmEnergyFraction());
+        neutralEmEnergyFraction ->Fill((*jptJets)[ijet].neutralEmEnergyFraction());
+      }*/
     }
   }
 
@@ -716,8 +670,8 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
         Jet correctedJet = recoJets[ijet];
 
         if (isCaloJet) scale = corrector->correction((*caloJets)[ijet], mEvent, mSetup); 
-        if (isJPTJet)  scale = corrector->correction((*jptJets)[ijet],  mEvent, mSetup); 
         if (isPFJet)   scale = corrector->correction((*pfJets)[ijet],   mEvent, mSetup); 
+        //if (isJPTJet)  scale = corrector->correction((*jptJets)[ijet],  mEvent, mSetup);
 
         correctedJet.scaleEnergy(scale); 
         

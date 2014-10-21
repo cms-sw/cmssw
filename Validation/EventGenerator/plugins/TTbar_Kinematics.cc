@@ -9,6 +9,7 @@ TTbar_Kinematics::TTbar_Kinematics(const edm::ParameterSet& iConfig) :
   hepmcCollection_(iConfig.getParameter<edm::InputTag>("hepmcCollection"))
   ,genEventInfoProductTag_(iConfig.getParameter<edm::InputTag>("genEventInfoProductTag"))
 {
+
   hepmcCollectionToken_=consumes<HepMCProduct>(hepmcCollection_);
   genEventInfoProductTagToken_=consumes<GenEventInfoProduct>(genEventInfoProductTag_);
 }
@@ -38,7 +39,7 @@ void TTbar_Kinematics::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   iEvent.getByToken(hepmcCollectionToken_, evt);
 
   //Get EVENT
-  HepMC::GenEvent *myGenEvent = new HepMC::GenEvent(*(evt->GetEvent()));
+  const HepMC::GenEvent *myGenEvent = evt->GetEvent();
 
   TLorentzVector tlv_Top, tlv_TopBar, tlv_Bottom, tlv_BottomBar ,tlv_Wplus ,tlv_Wmin , tlv_TTbar;
   bool top(false), antitop(false), antibottom(false), bottom(false), Wplus(false), Wmin(false);

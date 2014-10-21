@@ -30,6 +30,7 @@ public:
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
+  using FWProxyBuilderBase::build;
   virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
   FWRPCDigiProxyBuilder(const FWRPCDigiProxyBuilder&);    
   const FWRPCDigiProxyBuilder& operator=(const FWRPCDigiProxyBuilder&);

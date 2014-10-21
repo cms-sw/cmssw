@@ -21,7 +21,7 @@ BetaCalculatorECAL::BetaCalculatorECAL(const edm::ParameterSet& iConfig, edm::Co
   EERecHitCollectionToken_(iC.consumes<EERecHitCollection>(iConfig.getParameter<edm::InputTag>("EERecHitCollection")))
 {
    edm::ParameterSet trkParameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
-   parameters_.loadParameters( trkParameters );
+   parameters_.loadParameters( trkParameters, iC );
    trackAssociator_.useDefaultPropagator();
 
 }

@@ -13,7 +13,7 @@ public:
   enum logic { OR, AND };
   explicit CompositeLogicalTrajectoryFilter() {filters.clear();}
 
-  explicit CompositeLogicalTrajectoryFilter( const edm::ParameterSet & pset)
+  explicit CompositeLogicalTrajectoryFilter( const edm::ParameterSet & pset, edm::ConsumesCollector& iC)
   {
   //look for VPSet of filters
   std::vector<edm::ParameterSet> vpset=pset.getParameter<std::vector<edm::ParameterSet> >("filters");
@@ -27,16 +27,18 @@ public:
 	edm::LogError("CompositeLogicalTrajectoryFilter")<<"I don't understand the logic: "<<ls
 	  ;
       }
-      filters.push_back(std::make_pair(l,TrajectoryFilterFactory::get()->create(vpset[i].getParameter<std::string>("ComponentName"), vpset[i])));
+      filters.emplace_back(l, std::unique_ptr<TrajectoryFilter>(TrajectoryFilterFactory::get()->create(vpset[i].getParameter<std::string>("ComponentName"), vpset[i], iC)));
     
     }
   }
   
-  ~CompositeLogicalTrajectoryFilter(){
-    for (unsigned int i=0;i!= filters.size();i++) { delete filters[i].second;} filters.clear();
-  }
+  ~CompositeLogicalTrajectoryFilter() {}
 
-    
+  void setEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup) override {
+    for(auto& item: filters) {
+      item.second->setEvent(iEvent, iSetup);
+    }
+  }
 
   virtual bool qualityFilter( const Trajectory& traj) const { return QF<Trajectory>(traj);}
   virtual bool qualityFilter( const TempTrajectory& traj) const { return QF<TempTrajectory>(traj);}
@@ -73,7 +75,7 @@ protected:
   }
 
  protected:
-  std::vector< std::pair< logic, const TrajectoryFilter *> > filters;
+  std::vector< std::pair< logic, std::unique_ptr<TrajectoryFilter> > > filters;
 };
 
 #endif

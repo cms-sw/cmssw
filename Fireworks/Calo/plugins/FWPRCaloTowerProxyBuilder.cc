@@ -16,6 +16,7 @@ private:
    FWPRCaloTowerProxyBuilder( const FWPRCaloTowerProxyBuilder& ); 			// stop default
    const FWPRCaloTowerProxyBuilder& operator=( const FWPRCaloTowerProxyBuilder& ); 	// stop default
 
+   using FWDigitSetProxyBuilder::build;
    virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* );	
 };
 

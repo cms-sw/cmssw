@@ -19,6 +19,10 @@
 #include <fstream>
 #include <set>
 
+// TEMPORARY
+#include "TInterpreter.h"
+#include "TVirtualMutex.h"
+
 // user include files
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/PluginFactoryBase.h"
@@ -241,7 +245,13 @@ PluginManager::load(const std::string& iCategory,
       goingToLoad_(p);
       Sentry s(loadingLibraryNamed_(), p.string());
       //boost::filesystem::path native(p.string());
-      boost::shared_ptr<SharedLibrary> ptr( new SharedLibrary(p) );
+      boost::shared_ptr<SharedLibrary> ptr;
+      {
+	//TEMPORARY: to avoid possible deadlocks from ROOT, we must
+	// take the lock ourselves
+	R__LOCKGUARD2(gCINTMutex);
+	ptr.reset( new SharedLibrary(p) );
+      }
       loadables_[p]=ptr;
       justLoaded_(*ptr);
       return *ptr;
@@ -275,7 +285,13 @@ PluginManager::tryToLoad(const std::string& iCategory,
       goingToLoad_(p);
       Sentry s(loadingLibraryNamed_(), p.string());
       //boost::filesystem::path native(p.string());
-      boost::shared_ptr<SharedLibrary> ptr( new SharedLibrary(p) );
+      boost::shared_ptr<SharedLibrary> ptr;
+      {
+	//TEMPORARY: to avoid possible deadlocks from ROOT, we must
+	// take the lock ourselves
+	R__LOCKGUARD(gCINTMutex);
+	ptr.reset( new SharedLibrary(p) );
+      }
       loadables_[p]=ptr;
       justLoaded_(*ptr);
       return ptr.get();

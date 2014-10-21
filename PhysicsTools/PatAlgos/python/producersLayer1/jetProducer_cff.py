@@ -11,10 +11,8 @@ from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi import *
 makePatJets = cms.Sequence(
     patJetCorrections *
     patJetCharge *
-   #secondaryVertexNegativeTagInfos *
-   #simpleSecondaryVertexNegativeBJetTags *
     patJetPartonMatch *
     patJetGenJetMatch *
-    patJetFlavourId *
+    (patJetFlavourIdLegacy + patJetFlavourId) *
     patJets
     )

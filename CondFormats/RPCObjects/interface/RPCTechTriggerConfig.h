@@ -3,6 +3,8 @@
 #define RPCTECHTRIGGERCONFIG_H 1
 
 // Include files
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <iostream>
 
 /** @class RPCTechTriggerConfig RPCTechTriggerConfig.h
@@ -40,5 +42,7 @@ protected:
 
 private:
 
+
+  COND_SERIALIZABLE;
 };
 #endif // RPCTECHTRIGGERCONFIG_H

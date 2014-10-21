@@ -7,39 +7,30 @@
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
-class MonitorElement;
-class DQMStore;
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-class ESPedestalTask : public edm::EDAnalyzer {
+class MonitorElement;
+
+class ESPedestalTask : public DQMEDAnalyzer {
 
    public:
 
       ESPedestalTask(const edm::ParameterSet& ps);
-      virtual ~ESPedestalTask();
+      virtual ~ESPedestalTask() {}
 
    private:
 
-      void beginJob(void);
-      void analyze(const edm::Event&, const edm::EventSetup&);
+      void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
       void endJob(void);
-      void setup(void);
-      void reset(void);
-      void cleanup(void);
-      void beginRun(const edm::Run & r, const edm::EventSetup & c);
-      void endRun(const edm::Run& r, const edm::EventSetup& c);
 
       edm::EDGetTokenT<ESDigiCollection> digitoken_;
       edm::FileInPath lookup_;
       std::string outputFile_;
       std::string prefixME_;
 
-      bool enableCleanup_;
-      bool mergeRuns_;
-
-      DQMStore* dqmStore_;
       MonitorElement* meADC_[4288][32];
 
-      bool init_;
       int nLines_, runNum_, ievt_, senCount_[2][2][40][40]; 
       int runtype_, seqtype_, dac_, gain_, precision_;
       int firstDAC_, nDAC_, isPed_, vDAC_[5];

@@ -1,6 +1,8 @@
 #ifndef RPCDeadStrips_h
 #define RPCDeadStrips_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include<vector>
 #include<iostream>
 #include<boost/cstdint.hpp>
@@ -13,7 +15,9 @@ class RPCDeadStrips {
   struct DeadItem {
     int rawId;
     int strip;
-  };
+  
+  COND_SERIALIZABLE;
+};
   
   RPCDeadStrips(){}
 
@@ -23,6 +27,8 @@ class RPCDeadStrips {
 
   std::vector<DeadItem> DeadVec;
 
+
+ COND_SERIALIZABLE;
 };
 
 #endif

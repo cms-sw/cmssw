@@ -1,0 +1,55 @@
+(run){
+  % general settings
+  EVENTS 100; ERROR=0.1;
+  EVENT_MODE = HepMC;
+  % tags and settings for scale definitions
+  SP_NLOCT=1; FSF:=1.0; RSF:=1.0; QSF:=1.0;
+  SCALES METS{FSF*MU_F2}{RSF*MU_R2}{QSF*MU_Q2};
+
+  % tags for process setup
+  LJET:=2,3; NJET:=4; QCUT:=20;
+  EXCLUSIVE_CLUSTER_MODE 1;
+
+  % tags and settings for ME generators
+  LOOPGEN0:=Internal;
+  LOOPGEN1:=BlackHat;
+  LOOPGEN2:=BlackHat;
+  ME_SIGNAL_GENERATOR Comix Amegic LOOPGEN0 LOOPGEN1 LOOPGEN2;
+  EVENT_GENERATION_MODE Unweighted;
+
+  % model parameters
+  MODEL SM;
+  MASSIVE[15] 1;
+
+  % collider setup
+  BEAM_1 2212; BEAM_ENERGY_1 4000;
+  BEAM_2 2212; BEAM_ENERGY_2 4000;
+}(run);
+
+(processes){
+  Process 93 93 -> 11 -11 93{NJET};
+  Order_EW 2; CKKW sqr(QCUT/E_CMS);
+  NLO_QCD_Mode MC@NLO {LJET};
+  Loop_Generator LOOPGEN0 {2};
+  Loop_Generator LOOPGEN1 {3};
+  Loop_Generator LOOPGEN2 {4};
+  ME_Generator Amegic {LJET};
+  Enhance_Factor 16 {3}; 
+  Enhance_Factor 64 {4};
+  Enhance_Factor 128 {5,6};
+  RS_Enhance_Factor 10 {3};
+  RS_Enhance_Factor 20 {4};
+  End process;
+}(processes);
+
+(isr){
+  PDF_LIBRARY     = LHAPDFSherpa
+  PDF_SET         = CT10.LHgrid
+  PDF_SET_VERSION = 0
+  PDF_GRID_PATH   = PDFsets
+}(isr)
+
+
+(selector){
+  Mass 11 -11 66 116
+}(selector);

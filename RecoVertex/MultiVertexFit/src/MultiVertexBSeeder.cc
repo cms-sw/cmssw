@@ -31,16 +31,13 @@ namespace {
     return ret;
   }
 
-  inline int verbose()
-  {
-    return 0;
-  }
-
+#ifndef __clang__
   inline GlobalPoint & operator += ( GlobalPoint & a, const GlobalPoint & b )
   {
     a = GlobalPoint ( a.x() + b.x(), a.y() + b.y(), a.z() + b.z() );
     return a;
   }
+#endif
 
   inline GlobalPoint & operator /= ( GlobalPoint & a, float b )
   {
@@ -48,6 +45,7 @@ namespace {
     return a;
   }
 
+#ifndef __clang__
   inline bool element ( const reco::TransientTrack & rt, const TransientVertex & rv )
   {
     const vector < reco::TransientTrack > trks = rv.originalTracks();
@@ -57,6 +55,7 @@ namespace {
     };
     return false;
   }
+#endif
 
   GlobalPoint toPoint ( const GlobalVector & v )
   {
@@ -151,6 +150,7 @@ namespace {
     return pts;
   }
 
+#ifndef __clang__
   inline GlobalPoint computePos ( const GlobalTrajectoryParameters & jet,
       double s )
   {
@@ -158,6 +158,7 @@ namespace {
     ret += s * jet.momentum();
     return ret;
   }
+#endif
 
   TransientVertex pseudoVertexFit ( const Cluster1D < reco::TransientTrack > & src,
       bool ascending=false, bool kalmanfit=false )

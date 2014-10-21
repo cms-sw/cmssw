@@ -73,12 +73,12 @@ BasicMultiTrajectoryState::combine()  {
   }
   
   if unlikely(tsos.size() == 1) {
-    BasicTrajectoryState::update(tsos.front().localParameters(), 
+    BasicTrajectoryState::update(tsos.front().weight(),
+                                 tsos.front().localParameters(), 
 				 tsos.front().localError(), 
 				 tsos.front().surface(), 
 				 tsos.front().magneticField(),
-				 tsos.front().surfaceSide(), 
-				 tsos.front().weight()
+				 tsos.front().surfaceSide()
 				 );
     return;
   }
@@ -104,12 +104,13 @@ BasicMultiTrajectoryState::combine()  {
   covarPart1 *= sumwI; covarPart2 *= (sumwI*sumwI);
   AlgebraicSymMatrix55 covar = covarPart1 + covarPart2;
 
-  BasicTrajectoryState::update(LocalTrajectoryParameters(mean, pzSign), 
+  BasicTrajectoryState::update(sumw,
+                               LocalTrajectoryParameters(mean, pzSign), 
 			       LocalTrajectoryError(covar), 
 			       tsos.front().surface(), 
 			       tsos.front().magneticField(),
-			       tsos.front().surfaceSide(), 
-			       sumw);
+			       tsos.front().surfaceSide()
+                              );
 }
 
 void
@@ -125,12 +126,12 @@ update( const LocalTrajectoryParameters& p,
 
 void
 BasicMultiTrajectoryState::
-update( const LocalTrajectoryParameters& p,
+update( double weight,
+        const LocalTrajectoryParameters& p,
         const LocalTrajectoryError& err,
         const Surface& aSurface,
         const MagneticField* field,
-        const SurfaceSide side,
-        double weight) 
+        const SurfaceSide side)
 {
   throw cms::Exception("LogicError", 
                        "BasicMultiTrajectoryState::update(LocalTrajectoryParameters, LocalTrajectoryError, ...) called even if canUpdateLocalParameters() is false");

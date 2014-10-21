@@ -118,7 +118,7 @@ JetFlavourIdentifier::JetFlavourIdentifier( const edm::ParameterSet& iConfig )
     produces<JetFlavourMatchingCollection>();
     sourceByReferToken_ = consumes<JetMatchedPartonsCollection>(iConfig.getParameter<InputTag>("srcByReference"));
     physDefinition = iConfig.getParameter<bool>("physicsDefinition");
-    leptonInfo_ = iConfig.exists("leptonInfo") ? iConfig.getParameter<bool>("leptonInfo") : true;
+    leptonInfo_ = iConfig.exists("leptonInfo") ? iConfig.getParameter<bool>("leptonInfo") : false;
     // If we have a definition of which parton to identify, use it,
     // otherwise we default to the "old" behavior of either "physics" or "algorithmic".
     // Furthermore, if the specified definition is not sensible for the given jet,
@@ -306,6 +306,7 @@ JetFlavour::Leptons JetFlavourIdentifier::findLeptons(const GenParticleRef &part
 std::vector<const reco::Candidate*> JetFlavourIdentifier::findCandidates(const reco::Candidate *cand, int partonFlavour)
 {
   std::vector<const reco::Candidate*> cands;
+  if(!cand) return cands;
 
   for(unsigned int i = 0; i < cand->numberOfDaughters(); i++) {
 /*
@@ -315,7 +316,6 @@ std::vector<const reco::Candidate*> JetFlavourIdentifier::findCandidates(const r
     if (DeltaR(thePartonLV, cand->daughter(i)->p4()) > 0.7) std::cout << ")";
     std::cout << std::endl;
 */
-
     if (DeltaR(thePartonLV, cand->daughter(i)->p4()) < 0.7) {
       int pdgId = std::abs(cand->daughter(i)->pdgId());
       int flavour = heaviestFlavour(pdgId);

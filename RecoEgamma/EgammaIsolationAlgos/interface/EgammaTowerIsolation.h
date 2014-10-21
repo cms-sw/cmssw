@@ -25,6 +25,7 @@
 #include <cmath>
 #include <algorithm>
 #include <cstdint>
+#include <atomic>
 
 #include "DataFormats/Math/interface/deltaR.h"
 
@@ -99,18 +100,20 @@ public:
   
 };
 
+/*#define ETISTATDEBUG*/
+#ifdef ETISTATDEBUG
 namespace etiStat {
 
   struct Count {
-    uint32_t create=0;
-    uint32_t comp=0;
-    uint32_t span=0;
+    std::atomic<uint32_t> create=0;
+    std::atomic<uint32_t> comp=0;
+    std::atomic<uint32_t> span=0;
     static Count count;
     ~Count();
   };
 
 }
-
+#endif
 
 template<unsigned int NC>
 inline
@@ -122,8 +125,9 @@ EgammaTowerIsolationNew<NC>::EgammaTowerIsolationNew(float extRadius[NC],
   if (nt==0) return;
   initSoa();
 
+#ifdef ETISTATDEBUG
   etiStat::Count::count.create++;
-
+#endif
   
   for (std::size_t i=0; i!=NCuts; ++i) {
     extRadius2_[i]=extRadius[i]*extRadius[i];
@@ -159,7 +163,9 @@ void
 EgammaTowerIsolationNew<NC>::compute(bool et, Sum &sum, reco::SuperCluster const & sc,  CaloTowerDetId const * first,  CaloTowerDetId const * last) const {
   if (nt==0) return;
 
+#ifdef ETISTATDEBUG
   etiStat::Count::count.comp++;
+#endif
 
   float candEta = sc.eta();
   float candPhi = sc.phi();
@@ -170,7 +176,9 @@ EgammaTowerIsolationNew<NC>::compute(bool et, Sum &sum, reco::SuperCluster const
   uint32_t il = lb-eta;
   uint32_t iu = std::min(nt,uint32_t(ub-eta+1));
   
+#ifdef ETISTATDEBUG
   etiStat::Count::count.span += (iu-il);
+#endif
 
   bool ok[iu-il];
   for (std::size_t i=il;i!=iu; ++i)
@@ -228,9 +236,9 @@ public:
 
   
 private:
-  static EgammaTowerIsolationNew<1> * newAlgo;
-  static const CaloTowerCollection* oldTowers;
-  static uint32_t id15;
+  thread_local static EgammaTowerIsolationNew<1> * newAlgo;
+  thread_local static const CaloTowerCollection* oldTowers;
+  thread_local static uint32_t id15;
   signed int depth_;
   float extRadius;
   float intRadius;

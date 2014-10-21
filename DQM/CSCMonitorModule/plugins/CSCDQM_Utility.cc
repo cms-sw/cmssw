@@ -357,4 +357,28 @@ namespace cscdqm {
     return sqrt(2.0 * (no * (log(no / ne) - 1) + ne));
   }
 
+  /**
+   * @brief Get RUI Number from DDU source ID for post LS1 configuration
+   * @param ddu_id DDI Source ID
+   */
+  int Utility::getRUIfromDDUId(unsigned ddu_id) {
+    int rui = -1;
+    const unsigned postLS1_map [] = { 841, 842, 843, 844, 845, 846, 847, 848, 849,
+                                     831, 832, 833, 834, 835, 836, 837, 838, 839,
+                                     861, 862, 863, 864, 865, 866, 867, 868, 869,
+                                     851, 852, 853, 854, 855, 856, 857, 858, 859 };
+    if ( (ddu_id >= FEDNumbering::MINCSCDDUFEDID) && (ddu_id <= FEDNumbering::MAXCSCDDUFEDID) )
+      {
+        for ( int i = 0; i < 36; i++)
+        {
+          if (ddu_id == postLS1_map[i]) { rui = i+1; return rui;}
+        }
+      } else {
+        rui = ddu_id & 0xFF;
+      }
+    return rui;
+  }
+
+ 
+
 }

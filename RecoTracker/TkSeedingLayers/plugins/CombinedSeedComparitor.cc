@@ -7,9 +7,9 @@
 
 class CombinedSeedComparitor : public SeedComparitor {
     public:
-        CombinedSeedComparitor(const edm::ParameterSet &cfg) ;
+        CombinedSeedComparitor(const edm::ParameterSet &cfg, edm::ConsumesCollector& iC) ;
         virtual ~CombinedSeedComparitor() ; 
-        virtual void init(const edm::EventSetup& es) override ;
+        virtual void init(const edm::Event& ev, const edm::EventSetup& es) override ;
         virtual bool compatible(const SeedingHitSet  &hits, const TrackingRegion & region) const override ;
         virtual bool compatible(const TrajectorySeed &seed) const override ;
         virtual bool compatible(const TrajectoryStateOnSurface &,  
@@ -28,7 +28,7 @@ class CombinedSeedComparitor : public SeedComparitor {
 };
 
 
-CombinedSeedComparitor::CombinedSeedComparitor(const edm::ParameterSet &cfg) 
+CombinedSeedComparitor::CombinedSeedComparitor(const edm::ParameterSet &cfg, edm::ConsumesCollector& iC)
 {
     std::string mode = cfg.getParameter<std::string>("mode");
     if (mode == "and") isAnd_ = true;
@@ -39,7 +39,7 @@ CombinedSeedComparitor::CombinedSeedComparitor(const edm::ParameterSet &cfg)
     VPSet psets = cfg.getParameter<VPSet>("comparitors");
     for (VPSet::const_iterator it = psets.begin(), ed = psets.end(); it != ed; ++it) {
         std::string name = it->getParameter<std::string>("ComponentName");
-        comparitors_.push_back(SeedComparitorFactory::get()->create(name, *it));
+        comparitors_.push_back(SeedComparitorFactory::get()->create(name, *it, iC));
     }
 }
 
@@ -48,10 +48,10 @@ CombinedSeedComparitor::~CombinedSeedComparitor()
 }
 
 void
-CombinedSeedComparitor::init(const edm::EventSetup& es) {
+CombinedSeedComparitor::init(const edm::Event& ev, const edm::EventSetup& es) {
     typedef boost::ptr_vector<SeedComparitor>::iterator ITC;
     for (ITC it = comparitors_.begin(), ed = comparitors_.end(); it != ed; ++it) {
-        it->init(es);
+        it->init(ev, es);
     }
 }
 

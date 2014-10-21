@@ -16,6 +16,10 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD")
 
+process.options = cms.untracked.PSet(
+    numberOfStreams = cms.untracked.uint32(1)
+)
+
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
 
     # Tell the service to save the state of all engines
@@ -57,7 +61,8 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
         initialSeed = cms.untracked.uint32(191),
         engineName = cms.untracked.string('TRandom3')
     ),
-    enableChecking = cms.untracked.bool(True)
+    enableChecking = cms.untracked.bool(True),
+    verbose = cms.untracked.bool(True)
 )
 
 process.maxEvents = cms.untracked.PSet(
@@ -74,11 +79,40 @@ process.source = cms.Source("EmptySource",
     numberEventsInLuminosityBlock = cms.untracked.uint32(3)
 )
 
-process.t1 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer",
-                            dump = cms.untracked.bool(True))
-process.t2 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer")
-process.t3 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer")
-process.t4 = cms.EDAnalyzer("TestRandomNumberServiceAnalyzer")
+process.t1 = cms.EDAnalyzer("TestRandomNumberServiceGlobal",
+                            # information enough that the test module can calculate
+                            # the random numbers it should be getting from the service
+                            engineName = cms.untracked.string('HepJamesRandom'),
+                            seeds = cms.untracked.vuint32(81),
+                            offset = cms.untracked.uint32(0),
+                            maxEvents = cms.untracked.uint32(5),
+                            nStreams = cms.untracked.uint32(1)
+)
+process.t2 = cms.EDAnalyzer("TestRandomNumberServiceGlobal",
+                            engineName = cms.untracked.string('RanecuEngine'),
+                            seeds = cms.untracked.vuint32(1, 2),
+                            offset = cms.untracked.uint32(0),
+                            maxEvents = cms.untracked.uint32(5),
+                            nStreams = cms.untracked.uint32(1)
+)
+process.t3 = cms.EDAnalyzer("TestRandomNumberServiceGlobal",
+                            engineName = cms.untracked.string('TRandom3'),
+                            seeds = cms.untracked.vuint32(83),
+                            offset = cms.untracked.uint32(0),
+                            maxEvents = cms.untracked.uint32(5),
+                            nStreams = cms.untracked.uint32(1),
+                            # only turn on dump for one module otherwise the
+                            # time order of module execution may affect the diffs
+                            # For a similar reason only use in processes with 1 stream.
+                            dump = cms.untracked.bool(True)
+)
+process.t4 = cms.EDAnalyzer("TestRandomNumberServiceGlobal",
+                            engineName = cms.untracked.string('HepJamesRandom'),
+                            seeds = cms.untracked.vuint32(84),
+                            offset = cms.untracked.uint32(0),
+                            maxEvents = cms.untracked.uint32(5),
+                            nStreams = cms.untracked.uint32(1)
+)
 
 # If you do not want to save the state of the random engines
 # leave this line out.

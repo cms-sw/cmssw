@@ -165,7 +165,9 @@ fftjetJetMaker = cms.EDProducer(
         magSpeedCut = cms.double(-1.0e100),
         lifeTimeCut = cms.double(-1.0e100),
         NNDCut = cms.double(-1.0e100),
-        etaCut = cms.double(1.0e100)
+        etaCut = cms.double(1.0e100),
+        splitTimeCut = cms.double(-1.0e100),
+        mergeTimeCut = cms.double(-1.0e100)
     ),
     #
     # The jet membership function

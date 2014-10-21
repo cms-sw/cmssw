@@ -27,6 +27,7 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
@@ -129,8 +130,9 @@ class CosmicTrajectoryBuilder
    KFUpdator *theUpdator;
    Chi2MeasurementEstimator *theEstimator;
    const TransientTrackingRecHitBuilder *RHBuilder;
-   const KFTrajectorySmoother * theSmoother;
-   const KFTrajectoryFitter * theFitter;
+   TkClonerImpl hitCloner;
+   KFTrajectorySmoother * theSmoother;
+   KFTrajectoryFitter * theFitter;
  
  
 

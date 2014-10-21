@@ -22,7 +22,8 @@ public:
   /// Generation process (to be implemented)
   virtual void generate(RandomEngineAndDistribution const*) = 0;
 
-  TMatrixD* boost() const;
+  TMatrixD* boost();
+  const TMatrixD* boost() const;
 
   /// Return x0, y0, z0
   inline const math::XYZPoint& beamSpot() const { return beamSpot_; }

@@ -45,7 +45,9 @@ JetExtractor::JetExtractor(const ParameterSet& par, edm::ConsumesCollector && iC
   ParameterSet serviceParameters = par.getParameter<ParameterSet>("ServiceParameters");
   theService = new MuonServiceProxy(serviceParameters);
 
-  theAssociatorParameters = new TrackAssociatorParameters(par.getParameter<edm::ParameterSet>("TrackAssociatorParameters"));
+  //  theAssociatorParameters = new TrackAssociatorParameters(par.getParameter<edm::ParameterSet>("TrackAssociatorParameters"), iC_);
+  theAssociatorParameters = new TrackAssociatorParameters();
+  theAssociatorParameters->loadParameters(par.getParameter<edm::ParameterSet>("TrackAssociatorParameters"), iC);
   theAssociator = new TrackDetectorAssociator();
 }
 

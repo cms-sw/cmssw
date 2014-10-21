@@ -4,6 +4,7 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
+class TkCloner;
 
 /** Interface class for trajectory smoothers, 
  *  i.e. objects improving a Trajectory built elsewhere. 
@@ -24,6 +25,10 @@ public:
   virtual Trajectory trajectory(const Trajectory&) const =0;
 
   virtual TrajectorySmoother* clone() const = 0;
+  // FIXME a prototype: final inplementaiton may differ
+  virtual void setHitCloner(TkCloner const *)=0;
+
+
 };
 
 #endif

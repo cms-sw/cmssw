@@ -262,7 +262,9 @@ std::pair<double,double> GlobalTrackQualityProducer::newChi2(Trajectory& muon) c
   for ( TMI m = meas.begin(); m != meas.end(); m++ ) {
     TransientTrackingRecHit::ConstRecHitPointer hit = m->recHit();
     const TrajectoryStateOnSurface& uptsos = (*m).updatedState();
-    TransientTrackingRecHit::RecHitPointer preciseHit = hit->clone(uptsos);
+    // FIXME FIXME CLONE!!!
+    // TrackingRecHit::RecHitPointer preciseHit = hit->clone(uptsos);
+    auto preciseHit = hit;
     double estimate = 0.0;
     if (preciseHit->isValid() && uptsos.isValid()) {
       estimate = theEstimator->estimate(uptsos, *preciseHit ).second;

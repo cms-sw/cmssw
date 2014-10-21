@@ -2,26 +2,37 @@
 export LC_ALL=C
 eval `scram runtime -sh`
 cd ${LOCALRT}/tmp
-if [ ! -f ./classes.txt ] 
-        then 
-        cp  -p ${CMSSW_BASE}/src/Utilities/StaticAnalyzers/scripts/*.txt* .
+
+if [ ! -f ./function-calls-db.txt ]
+	then
+	echo "run ${CMSSW_BASE}/src/Utilities/StaticAnalyzers/scripts/run_class_checker.sh first"
+	exit 1
 fi
 
-if [ ! -f ./db.txt ]
-	then
-	echo "run ${CMSSW_BASE}/src/Utilities/StaticAnalyzers/scripts/create_calls_db.sh first"
+
+if [ ! -f ./classes.txt.dumperft ]
+        then
+	echo "run ${CMSSW_BASE}/src/Utilities/StaticAnalyzers/scripts/run_class_dumper.sh first"
 	exit 2
 fi
-sort -u < class-checker.txt.unsorted | grep -e"^data class">class-checker.txt
 
+cat function-calls-db.txt function-statics-db.txt >db.txt 
+
+if [ ! -f ./data-class-funcs.py ]
+	then 
+	cp -pv ${CMSSW_BASE}/src/Utilities/StaticAnalyzers/scripts/data-class-funcs.py .
+fi
  
+./data-class-funcs.py 2>&1 > data-class-funcs-report.txt
+grep -v -e "^In call stack " data-class-funcs-report.txt | grep -v -e"Flagged event setup data class"  >override-flagged-classes.txt
+grep -e "^Flagged event setup data class" data-class-funcs-report.txt | sort -u | awk '{print $0"\n\n"}' >esd2tlf.txt
+grep -e "^In call stack" data-class-funcs-report.txt | sort -u | awk '{print $0"\n\n"}' >tlf2esd.txt
 
-${CMSSW_BASE}/src/Utilities/StaticAnalyzers/scripts/statics.py 2>&1 > statics-report.txt.unsorted
+if [ ! -f ./statics.py ]
+	then
+	cp -pv ${CMSSW_BASE}/src/Utilities/StaticAnalyzers/scripts/statics.py .
+fi 
+./statics.py 2>&1 > statics-report.txt.unsorted
 sort -u < statics-report.txt.unsorted > statics-report.txt
-awk -F\' 'NR==FNR{a[" "$0"::"]=1;next} {n=0;for(i in a){if(index($2,i) && $1 == "In call stack "){n=1}}} n' plugins.txt statics-report.txt | sort -u  | awk '{print $0"\n"}' > module2statics.txt
-awk -F\' 'NR==FNR{a[" "$0"::"]=1;next} {n=0;for(i in a){if(index($4,i) && $1 == "Non-const static variable "){n=1}}} n' plugins.txt statics-report.txt | sort -u  | awk '{print $0"\n"}' > static2modules.txt
-sort -u < class-checker.txt.unsorted | grep -e"^data class">class-checker.txt
-${CMSSW_BASE}/src/Utilities/StaticAnalyzers/scripts/data-class-funcs.py 2>&1 > data-class-funcs-report.txt
-cat data-class-funcs-report.txt | grep -v -e "^In call stack " | grep -v -e"Flagged event setup data class" | sort -u  >override-flagged-classes.txt
-cat data-class-funcs-report.txt | grep -e "^Flagged event setup data class" | sort -u | awk '{print $0"\n\n"}' >esd2tlf.txt
-cat data-class-funcs-report.txt | grep -e "^In call stack" | sort -u | awk '{print $0"\n\n"}' >tlf2esd.txt
+grep -e "^In call stack " statics-report.txt | awk '{print $0"\n"}' > modules2statics.txt
+grep -e "^Non-const static variable " statics-report.txt | awk '{print $0"\n"}' > statics2modules.txt

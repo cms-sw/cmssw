@@ -233,7 +233,8 @@ ValidIsoTrkCalib::ValidIsoTrkCalib(const edm::ParameterSet& iConfig)
   maxPNear = iConfig.getParameter<double>("maxPNear");
 
   edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
-  parameters_.loadParameters( parameters );
+  edm::ConsumesCollector iC = consumesCollector();
+  parameters_.loadParameters( parameters, iC );
   trackAssociator_.useDefaultPropagator();
 
   // taECALCone_=iConfig.getUntrackedParameter<double>("TrackAssociatorECALCone",0.5);

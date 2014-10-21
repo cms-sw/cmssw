@@ -1,5 +1,6 @@
 <use   name="CondCore/CondDB"/>
 <use   name="CondFormats/Common"/>
+<use   name="CondFormats/DQMObjects"/>
 <use   name="CoralBase"/>
 <use   name="DataFormats/Provenance"/>
 <use   name="FWCore/Framework"/>

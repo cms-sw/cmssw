@@ -1,17 +1,26 @@
 #ifndef CSCDMBTrailer_h
 #define CSCDMBTrailer_h
 
+#include <cassert>
+#include <iosfwd>
+#include <string.h> // bzero
+#include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/CSCDigi/interface/CSCDMBStatusDigi.h"
-class CSCDMBHeader;
+#include "EventFilter/CSCRawToDigi/interface/CSCVDMBTrailerFormat.h"
+#include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
+#include <boost/shared_ptr.hpp>
+
+
+// class CSCDMBHeader;
+class CSCDMBTrailer2005;
+class CSCDMBTrailer2013;
 
 class CSCDMBTrailer {
 public:
-  CSCDMBTrailer()
-    {
-      bzero(this, sizeInWords()*2);
-      ddu_code_1 = ddu_code_2 = ddu_code_3 = ddu_code_4 = 0xF;
-      ddu_code_5 = ddu_code_6 = ddu_code_7 = ddu_code_8 = 0xE;
-    }
+
+  CSCDMBTrailer(uint16_t firmware_version = 2005);
+
+  CSCDMBTrailer(unsigned short * buf, uint16_t firmware_version = 2005);
   
   CSCDMBTrailer(const CSCDMBStatusDigi & digi) 
     {
@@ -20,59 +29,58 @@ public:
 
 
   ///@@ NEEDS TO BE DONE
-  void setEventInformation(const CSCDMBHeader &) {};
+  void setEventInformation(const CSCDMBHeader & header) { return theTrailerFormat->setEventInformation(header); };
 
-  unsigned short * data() {return (unsigned short *) this;}
-  unsigned short * data() const {return (unsigned short *) this;}
+  unsigned crateID() const { return theTrailerFormat->crateID(); };
+  unsigned dmbID() const { return theTrailerFormat->dmbID(); };
 
-  unsigned L1a_counter   : 8;
-  unsigned dmb_bxn       : 4;  
-  unsigned ddu_code_1    : 4;
+  unsigned dmb_l1a() const { return theTrailerFormat->dmb_l1a(); };
+  unsigned dmb_bxn() const { return theTrailerFormat->dmb_bxn(); };
 
-  unsigned cfeb_half     : 5;
-  unsigned tmb_half      : 1;
-  unsigned alct_half     : 1;
-  unsigned cfeb_movlp    : 5;
-  unsigned ddu_code_2    : 4;
+  unsigned alct_endtimeout() const { return theTrailerFormat->alct_endtimeout(); };
+  unsigned tmb_endtimeout() const { return theTrailerFormat->tmb_endtimeout(); };
+  unsigned cfeb_endtimeout() const { return theTrailerFormat->cfeb_endtimeout(); };
 
-  unsigned tmb_timeout   : 1;
-  unsigned alct_timeout  : 1;
-  unsigned tmb_empty     : 1;
-  unsigned alct_empty    : 1;
-  unsigned dmb_l1pipe    : 8;
-  unsigned ddu_code_3    : 4;
+  unsigned alct_starttimeout() const { return theTrailerFormat->alct_starttimeout(); };
+  unsigned tmb_starttimeout() const { return theTrailerFormat->tmb_starttimeout(); };
+  unsigned cfeb_starttimeout() const { return theTrailerFormat->cfeb_starttimeout(); };
 
-  unsigned cfeb_starttimeout : 5;
-  unsigned tmb_endtimeout    : 1;
-  unsigned alct_endtimeout   : 1; 
-  unsigned cfeb_endtimeout   : 5;
-  unsigned ddu_code_4        : 4;
+  unsigned cfeb_movlp() const { return theTrailerFormat->cfeb_movlp(); };
+  unsigned dmb_l1pipe() const { return theTrailerFormat->dmb_l1pipe(); };
+
+  unsigned alct_empty() const { return theTrailerFormat->alct_empty(); };
+  unsigned tmb_empty() const { return theTrailerFormat->tmb_empty(); };
+  unsigned cfeb_empty() const { return theTrailerFormat->cfeb_empty(); };
+
+  unsigned alct_half() const { return theTrailerFormat->alct_half(); };
+  unsigned tmb_half() const { return theTrailerFormat->tmb_half(); };
+  unsigned cfeb_half() const { return theTrailerFormat->cfeb_half(); };
+
+  unsigned alct_full() const { return theTrailerFormat->alct_full(); };
+  unsigned tmb_full() const {return theTrailerFormat->tmb_full(); };
+  unsigned cfeb_full() const { return theTrailerFormat->cfeb_full(); };
+  
+  unsigned crc22() const { return theTrailerFormat->crc22(); };
+  unsigned crc_lo_parity() const { return theTrailerFormat->crc_lo_parity(); };
+  unsigned crc_hi_parity() const { return theTrailerFormat->crc_hi_parity(); };
+ 
+  unsigned short * data() { return theTrailerFormat->data(); };
+  unsigned short * data() const { return theTrailerFormat->data(); };
+
+  unsigned sizeInWords() const { return theTrailerFormat->sizeInWords(); };
+
+  bool check() const { return theTrailerFormat->check(); };
+
+  /// will throw if the cast fails
+  CSCDMBTrailer2005 dmbTrailer2005() const;
+  CSCDMBTrailer2013 dmbTrailer2013() const;  
 
 
-  unsigned cfeb_empty    : 5;
-  unsigned cfeb_full     : 5;
-  unsigned tmb_full      : 1;
-  unsigned alct_full     : 1;
-  unsigned ddu_code_5    : 4;
+ private:
+  
+  boost::shared_ptr<CSCVDMBTrailerFormat> theTrailerFormat;
+  int theFirmwareVersion;
 
-  unsigned dmb_id        : 4; 
-  unsigned crate_id      : 8;
-  unsigned ddu_code_6    : 4;
-
-  unsigned dmb_crc_1     : 11;
-  unsigned dmb_parity_1  : 1;
-  unsigned ddu_code_7    : 4;
-
-  unsigned dmb_crc_2     : 11;
-  unsigned dmb_parity_2  : 1;
-  unsigned ddu_code_8    : 4;
-
-  bool check() const {return ddu_code_1 == 0xF && ddu_code_2 == 0xF
-                          && ddu_code_3 == 0xF && ddu_code_4 == 0xF
-                          && ddu_code_5 == 0xE && ddu_code_6 == 0xE
-                          && ddu_code_7 == 0xE && ddu_code_8 == 0xE;}
-
-  static unsigned sizeInWords() {return 8;}
 };
 
 #endif

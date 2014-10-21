@@ -14,6 +14,7 @@ CSCTFCandidateProducer::CSCTFCandidateProducer(const edm::ParameterSet& pset)
   my_builder = new CSCTFCandidateBuilder(mu_sorter_pset);
   input_module = pset.getUntrackedParameter<edm::InputTag>("CSCTrackProducer");
   produces<std::vector<L1MuRegionalCand> >("CSC");
+  consumes<L1CSCTrackCollection>(input_module);
 }
 
 CSCTFCandidateProducer::~CSCTFCandidateProducer()

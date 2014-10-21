@@ -22,6 +22,7 @@
 
 #include "RecoParticleFlow/PFProducer/interface/PFBlockAlgo.h"
 
+#include "FastSimulation/Particle/interface/ParticleTable.h"
 
 /**\class PFSimParticleProducer 
 \brief Producer for PFRecTracks and PFSimParticles

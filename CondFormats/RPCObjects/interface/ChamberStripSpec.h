@@ -4,6 +4,8 @@
 /** \class ChamberStripSpec
  * RPC strip specification for readout decoding
  */
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 
 struct ChamberStripSpec {
@@ -13,6 +15,8 @@ struct ChamberStripSpec {
   
   /// debug printout
   std::string print( int depth = 0) const;
+
+  COND_SERIALIZABLE;
 };
 
 #endif

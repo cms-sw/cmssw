@@ -113,7 +113,11 @@ int main() {
 #endif
 
 
+#ifdef __clang__
+  std::cout << "biggest alignment " << sizeof(double) << std::endl;
+#else
   std::cout << "biggest alignment " << __BIGGEST_ALIGNMENT__ << std::endl;
+#endif
 
 
 

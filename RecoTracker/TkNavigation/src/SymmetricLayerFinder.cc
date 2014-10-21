@@ -40,7 +40,7 @@ SymmetricLayerFinder::SymmetricLayerFinder( const FDLC& flc)
   vector<PairType> foundPairs;
 
   for ( FDLI i = leftLayers.begin(); i != leftLayers.end(); i++) {
-    ForwardDetLayer* partner = mirrorPartner( *i, rightLayers);
+   const  ForwardDetLayer* partner = mirrorPartner( *i, rightLayers);
     //if ( partner == 0) throw DetLogicError("Assymmetric forward layers in Tracker");
     if ( partner == 0) throw cms::Exception("SymmetricLayerFinder", "Assymmetric forward layers in Tracker");
 
@@ -55,7 +55,7 @@ SymmetricLayerFinder::SymmetricLayerFinder( const FDLC& flc)
   }
 }
 
-ForwardDetLayer* SymmetricLayerFinder::mirrorPartner( const ForwardDetLayer* layer,
+const ForwardDetLayer* SymmetricLayerFinder::mirrorPartner( const ForwardDetLayer* layer,
 						      const FDLC& rightLayers)
 {
   ConstFDLI result =

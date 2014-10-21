@@ -1,5 +1,6 @@
 <use   name="Alignment/CommonAlignment"/>
 <use   name="CondCore/DBOutputService"/>
+<use   name="CondFormats/Alignment"/>
 <use   name="DataFormats/GeometrySurface"/>
 <use   name="DataFormats/SiPixelDetId"/>
 <use   name="DataFormats/SiStripDetId"/>

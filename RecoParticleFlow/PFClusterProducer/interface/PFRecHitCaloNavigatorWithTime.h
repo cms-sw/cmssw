@@ -22,7 +22,7 @@
 
 #include "RecoParticleFlow/PFClusterProducer/interface/ECALRecHitResolutionProvider.h"
 
-template <typename D,typename T>
+template <typename D,typename T,bool ownsTopo=true>
 class PFRecHitCaloNavigatorWithTime : public PFRecHitNavigatorBase {
  public:
   PFRecHitCaloNavigatorWithTime(const edm::ParameterSet& iConfig) {
@@ -39,10 +39,13 @@ class PFRecHitCaloNavigatorWithTime : public PFRecHitNavigatorBase {
     }
   }
 
+ virtual ~PFRecHitCaloNavigatorWithTime() { if(!ownsTopo) { topology_.release(); } }
+
+
   void associateNeighbours(reco::PFRecHit& hit,std::auto_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd) {
       DetId detid( hit.detId() );
       
-      CaloNavigator<D> navigator(detid, topology_);
+      CaloNavigator<D> navigator(detid, topology_.get());
       
       DetId N(0);
       DetId E(0);
@@ -143,7 +146,7 @@ class PFRecHitCaloNavigatorWithTime : public PFRecHitNavigatorBase {
     }
   }
 
-  const T *topology_;
+  std::unique_ptr<const T> topology_;
   double noiseLevel2_;
   double noiseTerm2_;
   double constantTerm2_;

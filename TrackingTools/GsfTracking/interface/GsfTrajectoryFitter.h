@@ -61,11 +61,17 @@ public:
                                 theGeometry));
   }
 
+  virtual void setHitCloner(TkCloner const * hc) {
+     theHitCloner = hc;
+  }
+
+
 private:
   const Propagator* thePropagator;
   const TrajectoryStateUpdator* theUpdator;
   const MeasurementEstimator* theEstimator;
   const MultiTrajectoryStateMerger* theMerger;
+  TkCloner const * theHitCloner=nullptr;
   const DetLayerGeometry dummyGeometry;
   const DetLayerGeometry* theGeometry;
 

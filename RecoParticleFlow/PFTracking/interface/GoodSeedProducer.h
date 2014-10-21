@@ -1,5 +1,5 @@
-#ifndef GoodSeedProducer_H
-#define GoodSeedProducer_H
+#ifndef RecoParticleFlow_PFTracking_GoodSeedProducer_H
+#define RecoParticleFlow_PFTracking_GoodSeedProducer_H
 // system include files
 #include <memory>
 
@@ -21,6 +21,10 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "RecoParticleFlow/PFTracking/interface/PFGeometry.h"
+
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+
 /// \brief Abstract
 /*!
 \author Michele Pioppi
@@ -58,13 +62,6 @@ class GoodSeedProducer : public edm::EDProducer {
  
       ///Find the bin in pt and eta
       int getBin(float,float);
-      int getBin(float);
-      void PSforTMVA(const math::XYZTLorentzVector& mom,
-		     const math::XYZTLorentzVector& pos);
-      bool IsIsolated(float  charge,float P,
-	              math::XYZPointF, 
-                      const reco::PFClusterCollection &ecalColl,
-                      const reco::PFClusterCollection &hcalColl);
 
       void fillPreIdRefValueMap( edm::Handle<reco::TrackCollection> tkhandle,
 				 const edm::OrphanHandle<reco::PreIdCollection>&,
@@ -72,8 +69,8 @@ class GoodSeedProducer : public edm::EDProducer {
       // ----------member data ---------------------------
 
       ///Vector of clusters of the PreShower
-      std::vector<reco::PFCluster> ps1Clus;
-      std::vector<reco::PFCluster> ps2Clus;
+      std::vector<reco::PFCluster const *> ps1Clus;
+      std::vector<reco::PFCluster const *> ps2Clus;
 
       ///Name of the Seed(Ckf) Collection
       std::string preidckf_;
@@ -85,10 +82,13 @@ class GoodSeedProducer : public edm::EDProducer {
       std::string preidname_;
 
       ///Fitter
-      edm::ESHandle<TrajectoryFitter> fitter_;
+      std::unique_ptr<TrajectoryFitter> fitter_;
 
       ///Smoother
-      edm::ESHandle<TrajectorySmoother> smoother_;
+      std::unique_ptr<TrajectorySmoother> smoother_;
+
+      // needed by the above
+      TkClonerImpl hitCloner;
 
       ///PFTrackTransformer
       PFTrackTransformer *pfTransformer_;
@@ -101,8 +101,6 @@ class GoodSeedProducer : public edm::EDProducer {
       double maxPt_;
       double maxEta_;
       
-      ///ISOLATION REQUEST AS DONE IN THE TAU GROUP
-      bool applyIsolation_;
       double HcalIsolWindow_;
       double EcalStripSumE_minClusEnergy_;
       double EcalStripSumE_deltaEta_;
@@ -110,7 +108,6 @@ class GoodSeedProducer : public edm::EDProducer {
       double EcalStripSumE_deltaPhiOverQ_maxValue_;
       double minEoverP_;
       double maxHoverP_;
-      ///
 
       ///Cut on the energy of the clusters
       double clusThreshold_;
@@ -133,7 +130,6 @@ class GoodSeedProducer : public edm::EDProducer {
 
       ///vector of thresholds for different bins of eta and pt
       float thr[150];
-      float thrPS[20];
 
       // ----------access to event data
       edm::ParameterSet conf_;
@@ -143,7 +139,6 @@ class GoodSeedProducer : public edm::EDProducer {
       std::vector<edm::EDGetTokenT<std::vector<Trajectory> > > trajContainers_;
       std::vector<edm::EDGetTokenT<reco::TrackCollection > > tracksContainers_;
       
-
       std::string fitterName_;
       std::string smootherName_;
       std::string propagatorName_;
@@ -156,11 +151,13 @@ class GoodSeedProducer : public edm::EDProducer {
       reco::TrackBase::TrackQuality trackQuality_;
 	
       ///READER FOR TMVA
-      TMVA::Reader *reader;
+      TMVA::Reader *reader[9];
 
       ///VARIABLES NEEDED FOR TMVA
-      float eP,chi,eta,pt,nhit,dpt,chired,chiRatio;
-      float ps1En,ps2En,ps1chi,ps2chi;
+      float eP,eta,pt,nhit,dpt,chired,chiRatio;
+      float chikfred,trk_ecalDeta,trk_ecalDphi;                      
+      double Min_dr_;
+
       ///USE OF TMVA 
       bool useTmva_;
 
@@ -170,11 +167,9 @@ class GoodSeedProducer : public edm::EDProducer {
       ///B field
       math::XYZVector B_;
 
-      ///Use of Preshower clusters
-      bool usePreshower_;
-
       /// Map used to create the TrackRef, PreIdRef value map
       std::map<reco::TrackRef,unsigned> refMap_;
-     
+
+      PFGeometry pfGeometry_;
 };
 #endif

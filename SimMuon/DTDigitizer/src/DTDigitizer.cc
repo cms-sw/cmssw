@@ -36,12 +36,6 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-// SimHits
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
-#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-
 // Digis
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
@@ -121,9 +115,11 @@ DTDigitizer::DTDigitizer(const ParameterSet& conf_) {
   //Name of Collection used for create the XF 
   mix_ = conf_.getParameter<std::string>("mixLabel");
   collection_for_XF = conf_.getParameter<std::string>("InputCollection");
+  cf_token = consumes<CrossingFrame<PSimHit> >( edm::InputTag(mix_, collection_for_XF) );
 
   //String to choice between ideal (the deafult) and (mis)aligned geometry for the digitization step 
   geometryType = conf_.getParameter<std::string>("GeometryType");
+
 }
 
 // Destructor
@@ -147,7 +143,7 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
     
   // use MixCollection instead of the previous
   Handle<CrossingFrame<PSimHit> > xFrame;
-  iEvent.getByLabel(mix_,collection_for_XF,xFrame);
+  iEvent.getByToken(cf_token, xFrame);
   
   auto_ptr<MixCollection<PSimHit> > 
     simHits( new MixCollection<PSimHit>(xFrame.product()) );

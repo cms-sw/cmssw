@@ -2025,8 +2025,8 @@
                 <SetOptStat>em</SetOptStat>
                 <Title>Average (CLCT%d BXN - L1A BXN) vs Key Half Strip</Title>
                 <Type>hp</Type>
-                <XBins>160</XBins>
-                <XMax>160</XMax>
+                <XBins>224</XBins>
+                <XMax>224</XMax>
                 <XMin>0</XMin>
                 <XTitle>Key Half Strip</XTitle>
 		<YBins>30</YBins>
@@ -2051,7 +2051,7 @@
                 <XMin>-32</XMin>
                 <XTitle>CFEB%d L1A - DMB L1A</XTitle>
                 <YTitle>Number of events</YTitle>
-                <Name from="1" to="5">CFEB%d_DMB_L1A_diff</Name>
+                <Name from="1" to="7">CFEB%d_DMB_L1A_diff</Name>
         </Histogram>
 	<Histogram>
 		<Folder>CFEB</Folder>
@@ -2065,7 +2065,7 @@
 		<XMin>-1</XMin>
 		<XTitle>Free SCA Cells</XTitle>
 		<YTitle>Number of events</YTitle>
-		<Name from="1" to="5">CFEB%d_Free_SCA_Cells</Name>
+		<Name from="1" to="7">CFEB%d_Free_SCA_Cells</Name>
 	</Histogram>
 	<Histogram>
 		<Folder>CFEB</Folder>
@@ -2080,7 +2080,7 @@
 		<XMin>0</XMin>
 		<XTitle>CFEB%d L1A Sync BXN</XTitle>
 		<YTitle>Number of events</YTitle>
-		<Name from="1" to="5">CFEB%d_L1A_Sync_Time</Name>
+		<Name from="1" to="7">CFEB%d_L1A_Sync_Time</Name>
 	</Histogram>
 	<Histogram>
 		<Folder>CFEB</Folder>
@@ -2094,7 +2094,7 @@
 		<XMin>-8</XMin>
 		<XTitle>CFEB%d - DMB L1A_Sync_BXN</XTitle>
 		<YTitle>Number of events</YTitle>
-		<Name from="1" to="5">CFEB%d_L1A_Sync_Time_DMB_diff</Name>
+		<Name from="1" to="7">CFEB%d_L1A_Sync_Time_DMB_diff</Name>
 	</Histogram>
 	<Histogram>
 		<Folder>CFEB</Folder>
@@ -2111,7 +2111,7 @@
 		<YMax>16</YMax>
 		<YMin>0</YMin>
 		<YTitle>CFEB%d L1A Sync BXN</YTitle>
-		<Name from="1" to="5">CFEB%d_L1A_Sync_Time_vs_DMB</Name>
+		<Name from="1" to="7">CFEB%d_L1A_Sync_Time_vs_DMB</Name>
 	</Histogram>
 	<Histogram>
 		<Folder>CFEB</Folder>
@@ -2130,7 +2130,7 @@
 		<YMax>2</YMax>
 		<YMin>0</YMin>
 		<YTitle>L1A Phase</YTitle>
-		<Name from="1" to="5">CFEB%d_LCT_PHASE_vs_L1A_PHASE</Name>
+		<Name from="1" to="7">CFEB%d_LCT_PHASE_vs_L1A_PHASE</Name>
 	</Histogram>
 	<Histogram>
 		<Folder>CFEB</Folder>
@@ -2143,7 +2143,7 @@
 		<XMin>0</XMin>
 		<XTitle>SCA Block</XTitle>
 		<YTitle>Number of events</YTitle>
-		<Name from="1" to="5">CFEB%d_SCA_Block_Occupancy</Name>
+		<Name from="1" to="7">CFEB%d_SCA_Block_Occupancy</Name>
 	</Histogram>
 	<Histogram>
 		<Folder>CFEB</Folder>
@@ -2157,7 +2157,7 @@
 		<XMin>-1</XMin>
 		<XTitle>SCA Blocks Locked by LCTs</XTitle>
 		<YTitle>Number of events</YTitle>
-		<Name from="1" to="5">CFEB%d_SCA_Blocks_Locked_by_LCTs</Name>
+		<Name from="1" to="7">CFEB%d_SCA_Blocks_Locked_by_LCTs</Name>
 	</Histogram>
 	<Histogram>
 		<Folder>CFEB</Folder>
@@ -2171,7 +2171,7 @@
 		<XMin>-1</XMin>
 		<XTitle>SCA Blocks Locked by LCTxL1</XTitle>
 		<YTitle>Number of events</YTitle>
-		<Name from="1" to="5">CFEB%d_SCA_Blocks_Locked_by_LCTxL1</Name>
+		<Name from="1" to="7">CFEB%d_SCA_Blocks_Locked_by_LCTxL1</Name>
 	</Histogram>
 	<Histogram>
 		<Folder>CFEB</Folder>
@@ -2180,8 +2180,8 @@
 		<SetOptStat>em</SetOptStat>
 		<Title>Layer %d</Title>
 		<Type>h1</Type>
-		<XBins>80</XBins>
-		<XMax>81</XMax>
+		<XBins>112</XBins>
+		<XMax>113</XMax>
 		<XMin>1</XMin>
 		<XTitle>Strip number</XTitle>
 		<YTitle>Number of events</YTitle>
@@ -2195,8 +2195,8 @@
 		<SetOptStat>em</SetOptStat>
 		<Title>Layer %d</Title>
 		<Type>h2</Type>
-		<XBins>80</XBins>
-		<XMax>81</XMax>
+		<XBins>112</XBins>
+		<XMax>113</XMax>
 		<XMin>1</XMin>
 		<XTitle>Strip number</XTitle>
 		<YBins>16</YBins>
@@ -2213,8 +2213,8 @@
 		<SetOptStat>e</SetOptStat>
 		<Title>Layer %d</Title>
 		<Type>hp</Type>
-		<XBins>80</XBins>
-		<XMax>81</XMax>
+		<XBins>112</XBins>
+		<XMax>113</XMax>
 		<XMin>1</XMin>
 		<XTitle>Strip number</XTitle>
 		<YBins>1</YBins>
@@ -2268,8 +2268,8 @@
 		<SetOptStat>em</SetOptStat>
 		<Title>Layer %d</Title>
 		<Type>h1</Type>
-		<XBins>80</XBins>
-		<XMax>81</XMax>
+		<XBins>112</XBins>
+		<XMax>113</XMax>
 		<XMin>1</XMin>
 		<XTitle>Strip Number</XTitle>
 		<YTitle>Number of Events</YTitle>
@@ -2283,8 +2283,8 @@
 		<SetOptStat>e</SetOptStat>
 		<Title>Layer %d</Title>
 		<Type>hp</Type>
-		<XBins>80</XBins>
-		<XMax>81</XMax>
+		<XBins>112</XBins>
+		<XMax>113</XMax>
 		<XMin>1</XMin>
 		<XTitle>Strip number</XTitle>
 		<YBins>1</YBins>
@@ -2301,8 +2301,8 @@
 		<SetOptStat>e</SetOptStat>
 		<Title>Layer %d</Title>
 		<Type>hp</Type>
-		<XBins>80</XBins>
-		<XMax>81</XMax>
+		<XBins>112</XBins>
+		<XMax>113</XMax>
 		<XMin>1</XMin>
 		<XTitle>Strip number</XTitle>
 		<YBins>1</YBins>
@@ -2318,8 +2318,8 @@
 		<SetOptStat>e</SetOptStat>
 		<Title>Layer %d</Title>
 		<Type>h1</Type>
-		<XBins>80</XBins>
-		<XMax>81</XMax>
+		<XBins>112</XBins>
+		<XMax>113</XMax>
 		<XMin>1</XMin>
 		<XTitle>Strip number</XTitle>
 		<YTitle>Pedestal RMS Value (in ADC Chanels)</YTitle>
@@ -2332,8 +2332,8 @@
 		<SetOptStat>e</SetOptStat>
 		<Title>Layer %d</Title>
 		<Type>h2</Type>
-		<XBins>80</XBins>
-		<XMax>81</XMax>
+		<XBins>112</XBins>
+		<XMax>113</XMax>
 		<XMin>1</XMin>
 		<XTitle>Strip number</XTitle>
 		<YBins>16</YBins>
@@ -2348,8 +2348,8 @@
 		<SetOptStat>em</SetOptStat>
 		<Title>Layer %d</Title>
 		<Type>h1</Type>
-		<XBins>80</XBins>
-		<XMax>80</XMax>
+		<XBins>112</XBins>
+		<XMax>112</XMax>
 		<XMin>0</XMin>
 		<XTitle>Width of Clusters</XTitle>
 		<YTitle>Number of Events</YTitle>
@@ -2453,8 +2453,8 @@
 		<SetYLabels>1='P=0'|2='P=2'|3='P=4'|4='P=6'|5='P=7'|6='P=5'|7='P=3'|8='P=1'|</SetYLabels>
 		<Title>CLCT%d Patterns vs Key DiStrip</Title>
 		<Type>h2</Type>
-		<XBins>40</XBins>
-		<XMax>160</XMax>
+		<XBins>56</XBins>
+		<XMax>224</XMax>
 		<XMin>0</XMin>
 		<XTitle>Key DiStrip</XTitle>
 		<YBins>8</YBins>
@@ -2470,8 +2470,8 @@
 		<SetYLabels>1='Q=0'|2='Q=1'|3='Q=2'|4='Q=3'|5='Q=4'|6='Q=5'|7='Q=6'|</SetYLabels>
 		<Title>CLCT%d Quality vs Key DiStrip</Title>
 		<Type>h2</Type>
-		<XBins>40</XBins>
-		<XMax>160</XMax>
+		<XBins>56</XBins>
+		<XMax>224</XMax>
 		<XMin>0</XMin>
 		<XTitle>Key DiStrip</XTitle>
 		<YBins>7</YBins>
@@ -2486,8 +2486,8 @@
 		<SetOptStat>e</SetOptStat>
 		<Title>CLCT%d Average Quality</Title>
 		<Type>hp</Type>
-		<XBins>40</XBins>
-		<XMax>160</XMax>
+		<XBins>56</XBins>
+		<XMax>224</XMax>
 		<XMin>0</XMin>
 		<XTitle>Key DiStrip</XTitle>
 		<YBins>7</YBins>
@@ -2504,8 +2504,8 @@
 		<SetYLabels>1='P=0'|2='P=1'|3='P=2'|4='P=4'|5='P=6'|6='P=8'|7='P=10'|8='P=9'|9='P=7'|10='P=5'|11='P=3'|</SetYLabels>
 		<Title>CLCT%d Patterns vs Key Half Strip</Title>
 		<Type>h2</Type>
-		<XBins>160</XBins>
-		<XMax>160</XMax>
+		<XBins>224</XBins>
+		<XMax>224</XMax>
 		<XMin>0</XMin>
 		<XTitle>Key Half Strip</XTitle>
 		<YBins>11</YBins>
@@ -2521,8 +2521,8 @@
 		<SetYLabels>1='Q=0'|2='Q=1'|3='Q=2'|4='Q=3'|5='Q=4'|6='Q=5'|7='Q=6'|</SetYLabels>
 		<Title>CLCT%d Quality vs Key Half Strip</Title>
 		<Type>h2</Type>
-		<XBins>160</XBins>
-		<XMax>160</XMax>
+		<XBins>224</XBins>
+		<XMax>224</XMax>
 		<XMin>0</XMin>
 		<XTitle>Key Half Strip</XTitle>
 		<YBins>7</YBins>
@@ -2537,8 +2537,8 @@
 		<SetOptStat>e</SetOptStat>
 		<Title>CLCT%d Average Quality</Title>
 		<Type>hp</Type>
-		<XBins>160</XBins>
-		<XMax>160</XMax>
+		<XBins>224</XBins>
+		<XMax>224</XMax>
 		<XMin>0</XMin>
 		<XTitle>Key Half Strip</XTitle>
 		<YBins>7</YBins>
@@ -2554,8 +2554,8 @@
 		<SetOptStat>em</SetOptStat>
 		<Title>CLCT%d Key DiStrip</Title>
 		<Type>h1</Type>
-		<XBins>40</XBins>
-		<XMax>160</XMax>
+		<XBins>56</XBins>
+		<XMax>224</XMax>
 		<XMin>0</XMin>
 		<XTitle>Key DiStrip</XTitle>
 		<YTitle>Number of events</YTitle>
@@ -2568,8 +2568,8 @@
 		<SetOptStat>em</SetOptStat>
 		<Title>CLCT%d Key Half Strip</Title>
 		<Type>h1</Type>
-		<XBins>160</XBins>
-		<XMax>160</XMax>
+		<XBins>224</XBins>
+		<XMax>224</XMax>
 		<XMin>0</XMin>
 		<XTitle>Key Half Strip</XTitle>
 		<YTitle>Number of events</YTitle>
@@ -2597,8 +2597,8 @@
 		<SetOptStat>e</SetOptStat>
 		<Title>(CLCT%d BXN - TMB_L1A BXN) vs Key DiStrip</Title>
 		<Type>h2</Type>
-		<XBins>40</XBins>
-		<XMax>160</XMax>
+		<XBins>56</XBins>
+		<XMax>224</XMax>
 		<XMin>0</XMin>
 		<XTitle>Key DiStrip</XTitle>
 		<YBins>30</YBins>
@@ -2614,8 +2614,8 @@
 		<SetOptStat>e</SetOptStat>
 		<Title>(CLCT%d BXN - TMB_L1A BXN) vs Key Half Strip</Title>
 		<Type>h2</Type>
-		<XBins>160</XBins>
-		<XMax>160</XMax>
+		<XBins>224</XBins>
+		<XMax>224</XMax>
 		<XMin>0</XMin>
 		<XTitle>Key Half Strip</XTitle>
 		<YBins>30</YBins>
@@ -2648,12 +2648,12 @@
 		<SetOptStat>e</SetOptStat>
 		<Title>CLCT1 &amp; CLCT0 Correlation</Title>
 		<Type>h2</Type>
-		<XBins>160</XBins>
-		<XMax>160</XMax>
+		<XBins>224</XBins>
+		<XMax>224</XMax>
 		<XMin>0</XMin>
 		<XTitle>CLCT0 Key Strip</XTitle>
-		<YBins>160</YBins>
-		<YMax>160</YMax>
+		<YBins>224</YBins>
+		<YMax>224</YMax>
 		<YMin>0</YMin>
 		<YTitle>CLCT1 Key Strip</YTitle>
 		<Name>CLCT1_vs_CLCT0_Key_Strip</Name>
@@ -2665,8 +2665,8 @@
 		<SetOptStat>e</SetOptStat>
 		<Title>Layer = %d</Title>
 		<Type>h2</Type>
-		<XBins>160</XBins>
-		<XMax>160</XMax>
+		<XBins>224</XBins>
+		<XMax>224</XMax>
 		<XMin>0</XMin>
 		<XTitle>Cathode HalfStrip</XTitle>
 		<YBins>32</YBins>
@@ -2682,8 +2682,8 @@
 		<SetOptStat>e</SetOptStat>
 		<Title>Layer = %d</Title>
 		<Type>hp</Type>
-		<XBins>160</XBins>
-		<XMax>160</XMax>
+		<XBins>224</XBins>
+		<XMax>224</XMax>
 		<XMin>0</XMin>
 		<XTitle>Cathode HalfStrip</XTitle>
 		<YBins>32</YBins>
@@ -2772,8 +2772,8 @@
 		<SetOptStat>eou</SetOptStat>
 		<Title>Layer = %d</Title>
 		<Type>h1</Type>
-		<XBins>160</XBins>
-		<XMax>160</XMax>
+		<XBins>224</XBins>
+		<XMax>224</XMax>
 		<XMin>0</XMin>
 		<XTitle>Cathode HalfStrip</XTitle>
 		<YTitle>Efficiency (% of total DMB events)</YTitle>
@@ -2786,8 +2786,8 @@
 		<SetOptStat>e</SetOptStat>
 		<Title>Layer = %d</Title>
 		<Type>h1</Type>
-		<XBins>160</XBins>
-		<XMax>160</XMax>
+		<XBins>224</XBins>
+		<XMax>224</XMax>
 		<XMin>0</XMin>
 		<XTitle>Cathode HalfStrip</XTitle>
 		<YTitle>Number of events</YTitle>
@@ -2876,12 +2876,12 @@
 		<SetMinimum>0</SetMinimum>
                 <SetOption>textcolz</SetOption>
                 <SetOptStat>e</SetOptStat>
-		<SetXLabels>1='CFEB1'|2='CFEB2'|3='CFEB3'|4='CFEB4'|5='CFEB5'|</SetXLabels>
+		<SetXLabels>1='CFEB1'|2='CFEB2'|3='CFEB3'|4='CFEB4'|5='CFEB5'|6='CFEB6'|7='CFEB7'|</SetXLabels>
                 <SetYLabels>1=' '|</SetYLabels>
                 <Title>Unpacking Inefficiency per CFEB</Title>
                 <Type>h2</Type>
-                <XBins>5</XBins>
-                <XMax>5</XMax>
+                <XBins>7</XBins>
+                <XMax>7</XMax>
                 <XMin>0</XMin>
                 <YBins>1</YBins>
                 <YMax>1</YMax>
@@ -2914,11 +2914,11 @@
                 <SetMinimum>0</SetMinimum>
                 <SetOption>histtext</SetOption>
                 <SetOptStat>e</SetOptStat>
-                <SetXLabels>1='CFEB1'|2='CFEB2'|3='CFEB3'|4='CFEB4'|5='CFEB5'|</SetXLabels>
+                <SetXLabels>1='CFEB1'|2='CFEB2'|3='CFEB3'|4='CFEB4'|5='CFEB5'|6='CFEB6'|7='CFEB7'|</SetXLabels>
                 <Title>CFEB DAV Bit Frequency</Title>
                 <Type>h1</Type>
-                <XBins>5</XBins>
-                <XMax>5</XMax>
+                <XBins>7</XBins>
+                <XMax>7</XMax>
                 <XMin>0</XMin>
                 <YTitle>Frequency (% of DMB records)</YTitle>
                 <Name>Actual_DMB_CFEB_DAV_Frequency</Name>
@@ -2929,11 +2929,11 @@
                 <Prefix>CSC</Prefix>
                 <SetOption>hist</SetOption>
                 <SetOptStat>e</SetOptStat>
-                <SetXLabels>1='CFEB1'|2='CFEB2'|3='CFEB3'|4='CFEB4'|5='CFEB5'|</SetXLabels>
+                <SetXLabels>1='CFEB1'|2='CFEB2'|3='CFEB3'|4='CFEB4'|5='CFEB5'|6='CFEB6'|7='CFEB7'|</SetXLabels>
                 <Title>CFEB DAV bits</Title>
                 <Type>h1</Type>
-                <XBins>5</XBins>
-                <XMax>5</XMax>
+                <XBins>7</XBins>
+                <XMax>7</XMax>
                 <XMin>0</XMin>
                 <XTitle>Number of CFEBs Reporting DAV</XTitle>
                 <YTitle>Number of Events</YTitle>
@@ -2947,12 +2947,12 @@
                 <SetMinimum>0</SetMinimum>
                 <SetOption>textcolz</SetOption>
                 <SetOptStat>e</SetOptStat>
-		<SetXLabels>1='0'|2='1'|3='2'|4='3'|5='4'|6='5'|</SetXLabels>
+		<SetXLabels>1='0'|2='1'|3='2'|4='3'|5='4'|6='5'|7='6'|8='7'|</SetXLabels>
                 <SetYLabels>1=' '|</SetYLabels>
                 <Title>Unpacking Inefficiency per event with N CFEBs</Title>
                 <Type>h2</Type>
-                <XBins>6</XBins>
-                <XMax>6</XMax>
+                <XBins>8</XBins>
+                <XMax>8</XMax>
                 <XMin>0</XMin>
                 <XTitle>Number of CFEBs Reporting DAV</XTitle>
                 <YBins>1</YBins>
@@ -2988,11 +2988,11 @@
 		<SetMinimum>0</SetMinimum>
                 <SetOption>histtext</SetOption>
                 <SetOptStat>e</SetOptStat>
-                <SetXLabels>1='0'|2='1'|3='2'|4='3'|5='4'|6='5'|</SetXLabels>
+                <SetXLabels>1='0'|2='1'|3='2'|4='3'|5='4'|6='5'|7='6'|8='7'|</SetXLabels>
                 <Title>Number of CFEBs reporting DAV</Title>
                 <Type>h1</Type>
-                <XBins>6</XBins>
-                <XMax>6</XMax>
+                <XBins>8</XBins>
+                <XMax>8</XMax>
                 <XMin>0</XMin>
                 <XTitle>Number of CFEBs Reporting DAV</XTitle>
                 <YTitle>Frequency (% of DMB records)</YTitle>
@@ -3057,11 +3057,11 @@
                 <Prefix>CSC</Prefix>
                 <SetOption>hist</SetOption>
                 <SetOptStat>e</SetOptStat>
-                <SetXLabels>1='0'|2='1'|3='2'|4='3'|5='4'|6='5'|</SetXLabels>
+                <SetXLabels>1='0'|2='1'|3='2'|4='3'|5='4'|6='5'|7='6'|8='7'|</SetXLabels>
                 <Title>Number of CFEBs reporting DAV</Title>
                 <Type>h1</Type>
-                <XBins>6</XBins>
-                <XMax>6</XMax>
+                <XBins>8</XBins>
+                <XMax>8</XMax>
                 <XMin>0</XMin>
                 <XTitle>Number of CFEBs Reporting DAV</XTitle>
                 <YTitle>Number of Events</YTitle>
@@ -3198,11 +3198,11 @@
                 <Prefix>CSC</Prefix>
                 <SetOption>hist</SetOption>
                 <SetOptStat>e</SetOptStat>
-                <SetXLabels>1='CFEB1'|2='CFEB2'|3='CFEB3'|4='CFEB4'|5='CFEB5'|</SetXLabels>
+                <SetXLabels>1='CFEB1'|2='CFEB2'|3='CFEB3'|4='CFEB4'|5='CFEB5'|6='CFEB6'|7='CFEB7'|</SetXLabels>
                 <Title>Number of CFEBs reporting DAV</Title>
                 <Type>h1</Type>
-                <XBins>5</XBins>
-                <XMax>5</XMax>
+                <XBins>7</XBins>
+                <XMax>7</XMax>
                 <XMin>0</XMin>
                 <XTitle>Number of CFEBs Reporting DAV</XTitle>
                 <YTitle>Number of Events</YTitle>
@@ -3214,11 +3214,11 @@
 		<Prefix>CSC</Prefix>
 		<SetOption>hist</SetOption>
 		<SetOptStat>e</SetOptStat>
-		<SetXLabels>1='0'|2='1'|3='2'|4='3'|5='4'|6='5'|</SetXLabels>
+		<SetXLabels>1='0'|2='1'|3='2'|4='3'|5='4'|6='5'|7='6'|8='7'|</SetXLabels>
 		<Title>Number of CFEBs reporting DAV per event</Title>
 		<Type>h1</Type>
-		<XBins>6</XBins>
-		<XMax>6</XMax>
+		<XBins>8</XBins>
+		<XMax>8</XMax>
 		<XMin>0</XMin>
 		<XTitle>Number of CFEBs Reporting DAV</XTitle>
 		<YTitle>Number of Events</YTitle>
@@ -3396,12 +3396,12 @@
 		<Prefix>CSC</Prefix>
 		<SetOption>textcolz</SetOption>
 		<SetOptStat>e</SetOptStat>
-		<SetXLabels>1='ALCT'|2='TMB'|3='CFEB1'|4='CFEB2'|5='CFEB3'|6='CFEB4'|7='CFEB5'|</SetXLabels>
+		<SetXLabels>1='ALCT'|2='TMB'|3='CFEB1'|4='CFEB2'|5='CFEB3'|6='CFEB4'|7='CFEB5'|8='CFEB6'|9='CFEB7'|</SetXLabels>
 		<SetYLabels>1='EMPTY'|2='HALF'|3='FULL'|</SetYLabels>
 		<Title>FEDs FIFO Status</Title>
 		<Type>h2</Type>
-		<XBins>7</XBins>
-		<XMax>7</XMax>
+		<XBins>9</XBins>
+		<XMax>9</XMax>
 		<XMin>0</XMin>
 		<XTitle>FEDs</XTitle>
 		<YBins>3</YBins>
@@ -3575,15 +3575,15 @@
                 <SetOption>textcolz</SetOption>
                 <SetOptStat>e</SetOptStat>
                 <SetRightMargin>0.1</SetRightMargin>
-		<SetYLabels>1='ALCT_FIFO_FULL'|2='TMB_FIFO_FULL'|3='CFEB1_FIFO_FULL'|4='CFEB2_FIFO_FULL'|5='CFEB3_FIFO_FULL'|6='CFEB4_FIFO_FULL'|7='CFEB5_FIFO_FULL'|8='ALCT_START_TIMEOUT'|9='TMB_START_TIMEOUT|10='CFEB1_START_TIMEOUT'|11='CFEB2_START_TIMEOUT'|12='CFEB3_START_TIMEOUT'|13='CFEB4_START_TIMEOUT'|14='CFEB5_START_TIMEOUT'|15='ALCT_END_TIMEOUT'|16='TMB_END_TIMEOUT'|17='CFEB1_END_TIMEOUT'|18='CFEB2_END_TIMEOUT'|19='CFEB3_END_TIMEOUT'|20='CFEB4_END_TIMEOUT'|21='CFEB5_END_TIMEOUT'|22='CFEB Active-DAV mismatch'|23='B-words found'|</SetYLabels>
+		<SetYLabels>1='ALCT_FIFO_FULL'|2='TMB_FIFO_FULL'|3='CFEB1_FIFO_FULL'|4='CFEB2_FIFO_FULL'|5='CFEB3_FIFO_FULL'|6='CFEB4_FIFO_FULL'|7='CFEB5_FIFO_FULL'|8='ALCT_START_TIMEOUT'|9='TMB_START_TIMEOUT|10='CFEB1_START_TIMEOUT'|11='CFEB2_START_TIMEOUT'|12='CFEB3_START_TIMEOUT'|13='CFEB4_START_TIMEOUT'|14='CFEB5_START_TIMEOUT'|15='ALCT_END_TIMEOUT'|16='TMB_END_TIMEOUT'|17='CFEB1_END_TIMEOUT'|18='CFEB2_END_TIMEOUT'|19='CFEB3_END_TIMEOUT'|20='CFEB4_END_TIMEOUT'|21='CFEB5_END_TIMEOUT'|22='CFEB Active-DAV mismatch'|23='B-words found'|24='CFEB6_FIFO_FULL'|25='CFEB7_FIFO_FULL'|26='CFEB6_START_TIMEOUT'|27='CFEB7_START_TIMEOUT'|28='CFEB6_END_TIMEOUT'|29='CFEB6_END_TIMEOUT'|</SetYLabels>
                 <Title>Data Flow Problems Table</Title>
                 <Type>h2</Type>
                 <XBins>1</XBins>
                 <XMax>1</XMax>
                 <XMin>0</XMin>
                 <XTitle>Number of events</XTitle>
-                <YBins>23</YBins>
-                <YMax>23</YMax>
+                <YBins>29</YBins>
+                <YMax>29</YMax>
                 <YMin>0</YMin>
                 <Name>BinCheck_DataFlow_Problems_Table</Name>
         </Histogram>
@@ -3622,15 +3622,15 @@
                 <SetOptStat>e</SetOptStat>
 		<SetRightMargin>0.1</SetRightMargin>
                 <SetXLabels>1=' '|</SetXLabels>
-                <SetYLabels>1='ALCT_FIFO_FULL'|2='TMB_FIFO_FULL'|3='CFEB1_FIFO_FULL'|4='CFEB2_FIFO_FULL'|5='CFEB3_FIFO_FULL'|6='CFEB4_FIFO_FULL'|7='CFEB5_FIFO_FULL'|8='ALCT_START_TIMEOUT'|9='TMB_START_TIMEOUT|10='CFEB1_START_TIMEOUT'|11='CFEB2_START_TIMEOUT'|12='CFEB3_START_TIMEOUT'|13='CFEB4_START_TIMEOUT'|14='CFEB5_START_TIMEOUT'|15='ALCT_END_TIMEOUT'|16='TMB_END_TIMEOUT'|17='CFEB1_END_TIMEOUT'|18='CFEB2_END_TIMEOUT'|19='CFEB3_END_TIMEOUT'|20='CFEB4_END_TIMEOUT'|21='CFEB5_END_TIMEOUT'|22='CFEB Active-DAV mismatch'|23='B-words found'|</SetYLabels>
+                <SetYLabels>1='ALCT_FIFO_FULL'|2='TMB_FIFO_FULL'|3='CFEB1_FIFO_FULL'|4='CFEB2_FIFO_FULL'|5='CFEB3_FIFO_FULL'|6='CFEB4_FIFO_FULL'|7='CFEB5_FIFO_FULL'|8='ALCT_START_TIMEOUT'|9='TMB_START_TIMEOUT|10='CFEB1_START_TIMEOUT'|11='CFEB2_START_TIMEOUT'|12='CFEB3_START_TIMEOUT'|13='CFEB4_START_TIMEOUT'|14='CFEB5_START_TIMEOUT'|15='ALCT_END_TIMEOUT'|16='TMB_END_TIMEOUT'|17='CFEB1_END_TIMEOUT'|18='CFEB2_END_TIMEOUT'|19='CFEB3_END_TIMEOUT'|20='CFEB4_END_TIMEOUT'|21='CFEB5_END_TIMEOUT'|22='CFEB Active-DAV mismatch'|23='B-words found'|24='CFEB6_FIFO_FULL'|25='CFEB7_FIFO_FULL'|26='CFEB6_START_TIMEOUT'|27='CFEB7_START_TIMEOUT'|28='CFEB6_END_TIMEOUT'|29='CFEB6_END_TIMEOUT'|</SetYLabels>
                 <Title>Data Flow Problems</Title>
                 <Type>h2</Type>
                 <XBins>1</XBins>
                 <XMax>1</XMax>
                 <XMin>0</XMin>
                 <XTitle>Number of events</XTitle>
-                <YBins>23</YBins>
-                <YMax>23</YMax>
+                <YBins>29</YBins>
+                <YMax>29</YMax>
                 <YMin>0</YMin>
                 <Name>BinCheck_DataFlow_Problems_Frequency</Name>
         </Histogram>
@@ -3645,8 +3645,8 @@
 		<XBins>23</XBins>
 		<XMax>23</XMax>
 		<XMin>1</XMin>
-		<YBins>160</YBins>
-		<YMax>160</YMax>
+		<YBins>224</YBins>
+		<YMax>224</YMax>
 		<YMin>1</YMin>
                 <Name from="1" to="5">Chamber_Event_Display_No%d</Name>
 	</Histogram>

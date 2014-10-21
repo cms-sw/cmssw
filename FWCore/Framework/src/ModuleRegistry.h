@@ -29,7 +29,7 @@
 // forward declarations
 namespace edm {
   class ParameterSet;
-  class MakeModuleParams;
+  struct MakeModuleParams;
   class ModuleDescription;
   class PreallocationConfiguration;
   namespace maker {

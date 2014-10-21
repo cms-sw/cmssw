@@ -7,6 +7,8 @@
  * \author Boris Mangano (UCSD)  5/7/2009
  */
 
+#include <memory>
+
 #include <SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h>
 #include "SimGeneral/TrackingAnalysis/interface/SimHitTPAssociationProducer.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -47,7 +49,9 @@ class ParametersDefinerForTP {
     return vertex(iEvent, iSetup, tp.charge(),tp.vertex(),tp.p4());
   }
 
-  virtual void initEvent(edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssocToSet) const { }
+  virtual void initEvent(edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssocToSet) { }
+
+  virtual std::unique_ptr<ParametersDefinerForTP> clone() const { return std::unique_ptr<ParametersDefinerForTP>(new ParametersDefinerForTP(*this)); }
 
   edm::InputTag beamSpotInputTag_;
 

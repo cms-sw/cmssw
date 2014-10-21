@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 ecal_digi_parameters = cms.PSet(
-    hitsProducer     = cms.string('g4SimHits'),
     EEdigiCollection = cms.string(''),
     EBdigiCollection = cms.string(''),
     ESdigiCollection = cms.string(''),
@@ -29,6 +28,10 @@ ecal_digi_parameters = cms.PSet(
 
     EECorrNoiseMatrixG01 = cms.vdouble (
     1.00000, 0.72698, 0.62048, 0.55691, 0.51848,
-    0.49147, 0.47813, 0.47007, 0.46621, 0.46265 )
+    0.49147, 0.47813, 0.47007, 0.46621, 0.46265 ) ,
+
+    EcalPreMixStage1 = cms.bool(False),
+    EcalPreMixStage2 = cms.bool(False)
+    
 )
 

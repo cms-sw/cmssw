@@ -75,7 +75,6 @@ class CastorClusterProducer : public edm::EDProducer {
 // constants, enums and typedefs
 //
 
-const double MYR2D = 180/M_PI;
 
 //
 // static data member definitions

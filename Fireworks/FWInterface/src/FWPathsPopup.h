@@ -10,6 +10,8 @@ namespace edm
    class ModuleDescription;
    class Event;
    class EventSetup;
+   class StreamContext;
+   class ModuleCallingContext;
 }
 
 class FWFFLooper;
@@ -28,9 +30,9 @@ class FWPathsPopup : public TGMainFrame
 public:
    FWPathsPopup(FWFFLooper *, FWGUIManager *);
 
-   void postProcessEvent(edm::Event const&, edm::EventSetup const&);
-   void postModule(edm::ModuleDescription const&);
-   void preModule(edm::ModuleDescription const &);
+   void postEvent(edm::Event const &event);
+   void postModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const&);
+   void preModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const&);
    void scheduleReloadEvent();
    bool &hasChanges() { return m_hasChanges; }
    void setup(const edm::ScheduleInfo *info);
@@ -57,6 +59,7 @@ private:
    FWTableWidget            *m_tableWidget;
    TGTextEntry              *m_search;
    FWGUIManager             *m_guiManager;
+   
 
    ClassDef(FWPathsPopup, 0);
 };

@@ -350,7 +350,7 @@ namespace gs {
             typename Arg1,
             typename Arg2
         >
-        class GENERS_GENERATED_IO_PROCESSOR <Visitor,T,Arg1,Arg2,IOTraits<int>::ISSTDCONTAINER>
+        struct GENERS_GENERATED_IO_PROCESSOR <Visitor,T,Arg1,Arg2,IOTraits<int>::ISSTDCONTAINER>
         {
         private:
             // The following function will be fired on containers which
@@ -701,7 +701,7 @@ namespace gs {
             typename Arg1,
             typename Arg2
         >
-        class GENERS_GENERATED_IO_PROCESSOR <Visitor,T,Arg1,Arg2,IOTraits<int>::ISSTDCONTAINER>
+        struct GENERS_GENERATED_IO_PROCESSOR <Visitor,T,Arg1,Arg2,IOTraits<int>::ISSTDCONTAINER>
         {
         private:
             // The following function will be fired on containers which

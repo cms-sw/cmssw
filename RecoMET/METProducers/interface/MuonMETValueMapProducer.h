@@ -20,7 +20,7 @@
 
 //____________________________________________________________________________||
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -36,7 +36,7 @@
 namespace cms
 {
 
-class MuonMETValueMapProducer : public edm::EDProducer
+class MuonMETValueMapProducer : public edm::stream::EDProducer<>
 {
 public:
   explicit MuonMETValueMapProducer(const edm::ParameterSet&);

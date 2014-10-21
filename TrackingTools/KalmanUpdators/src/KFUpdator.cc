@@ -35,8 +35,8 @@ TrajectoryStateOnSurface KFUpdator::update(const TrajectoryStateOnSurface& tsos,
 
   //MeasurementExtractor me(tsos);
 
-  AlgebraicVector5 x = tsos.localParameters().vector();
-  const AlgebraicSymMatrix55 &C = (tsos.localError().matrix());
+  auto && x = tsos.localParameters().vector();
+  auto && C = tsos.localError().matrix();
   // Measurement matrix
   ProjectMatrix<double,5,D>  pf;
   MatD5 H; 

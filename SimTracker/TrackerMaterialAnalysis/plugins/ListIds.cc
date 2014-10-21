@@ -126,7 +126,7 @@ ListIds::analyze(const edm::Event& evt, const edm::EventSetup& setup){
   setup.get<TrackerDigiGeometryRecord>().get( hGeo );
 
   std::cout << std::fixed << std::setprecision(3);
-  const std::vector<GeomDet*> & dets = hGeo->dets();
+  auto const & dets = hGeo->dets();
   for (unsigned int i = 0; i < dets.size(); ++i) {
     const GeomDet & det = *dets[i];
 

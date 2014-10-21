@@ -25,6 +25,10 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "FWCore/Utilities/interface/EDGetToken.h"
+
+
+
 //
 // class decleration
 //
@@ -45,6 +49,10 @@ private:
   edm::InputTag label_tp;
   std::string associator;
   bool  theIgnoremissingtrackcollection;
+
+  edm::EDGetTokenT<TrackingParticleCollection> TPCollectionToken_;
+  edm::EDGetTokenT<edm::View<reco::Track> > trackCollectionToken_;
+
 };
 
 TrackAssociatorEDProducer::TrackAssociatorEDProducer(const edm::ParameterSet& pset):
@@ -56,6 +64,10 @@ TrackAssociatorEDProducer::TrackAssociatorEDProducer(const edm::ParameterSet& ps
 {
   produces<reco::SimToRecoCollection>();
   produces<reco::RecoToSimCollection>();
+
+  TPCollectionToken_    = consumes<TrackingParticleCollection>(pset.getParameter< edm::InputTag >("label_tp"));
+  trackCollectionToken_ = consumes<edm::View<reco::Track> >(pset.getParameter< edm::InputTag >("label_tr")); 
+
 }
 
 
@@ -77,10 +89,12 @@ TrackAssociatorEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
      first = false;
    }
    Handle<TrackingParticleCollection>  TPCollection ;
-   iEvent.getByLabel(label_tp, TPCollection);
-     
+   //   iEvent.getByLabel(label_tp, TPCollection);
+   iEvent.getByToken(TPCollectionToken_,TPCollection);
+
    Handle<edm::View<reco::Track> > trackCollection;
-   bool trackAvailable = iEvent.getByLabel (label_tr, trackCollection );
+   //   bool trackAvailable = iEvent.getByLabel (label_tr, trackCollection );
+   bool trackAvailable = iEvent.getByToken(trackCollectionToken_, trackCollection );
 
    std::auto_ptr<reco::RecoToSimCollection> rts;
    std::auto_ptr<reco::SimToRecoCollection> str;
@@ -88,7 +102,7 @@ TrackAssociatorEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
    if (theIgnoremissingtrackcollection && !trackAvailable){
      //the track collection is not in the event and we're being told to ignore this.
      //do not output anything to the event, other wise this would be considered as inefficiency.
-   }else{
+   } else {
      //associate tracks
      LogTrace("TrackValidator") << "Calling associateRecoToSim method" << "\n";
      reco::RecoToSimCollection recSimColl=theAssociator->associateRecoToSim(trackCollection,

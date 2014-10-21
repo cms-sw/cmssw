@@ -31,6 +31,7 @@ L1GtCondition::L1GtCondition()
     m_condCategory = CondNull;
     m_condType = TypeNull;
     m_condChipNr = -1;
+    m_condGEq = false;
 
     // the rest of private members are C++ initialized
 }

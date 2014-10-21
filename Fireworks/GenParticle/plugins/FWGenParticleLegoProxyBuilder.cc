@@ -32,6 +32,7 @@ private:
 
    const FWGenParticleLegoProxyBuilder& operator=(const FWGenParticleLegoProxyBuilder&); // stop default
    
+   using FWSimpleProxyBuilderTemplate<reco::GenParticle>::build;
    void build(const reco::GenParticle& iData, unsigned int iIndex,TEveElement& oItemHolder, const FWViewContext*) override;
 };
 

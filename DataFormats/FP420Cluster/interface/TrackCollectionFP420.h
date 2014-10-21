@@ -35,10 +35,10 @@ class TrackCollectionFP420 {
     void clear();
     
  private:
-    mutable std::vector<TrackFP420> container_;
-    mutable Registry map_;
+    std::vector<TrackFP420> container_;
+    Registry map_;
     
-    mutable TrackFP420Container trackMap_; 
+    TrackFP420Container trackMap_; 
 };
 
 #endif // 

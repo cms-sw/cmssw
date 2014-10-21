@@ -1,6 +1,8 @@
 #ifndef CSCMapItem_h
 #define CSCMapItem_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 
 class CSCMapItem{
@@ -36,7 +38,11 @@ class CSCMapItem{
     int fiber_crate;
     int fiber_pos;
     std::string fiber_socket;
-  };
+  
+  COND_SERIALIZABLE;
+};
+
+ COND_SERIALIZABLE;
 };
 
 #endif

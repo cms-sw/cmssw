@@ -17,16 +17,7 @@ class CombinedMVAJetTagComputer : public GenericMVAJetTagComputer {
 	CombinedMVAJetTagComputer(const edm::ParameterSet &parameters);
 	virtual ~CombinedMVAJetTagComputer();
 
-	virtual void setEventSetup(const edm::EventSetup &es) const
-	{
-		setEventSetup(es, false);
-		GenericMVAJetTagComputer::setEventSetup(es);
-	}
-
-	virtual void passEventSetup(const edm::EventSetup &es) const
-	{
-		setEventSetup(es, true);
-	}
+	virtual void initialize(const JetTagComputerRecord & record);
 
 	virtual reco::TaggingVariableList
 	taggingVariables(const TagInfoHelper &info) const;
@@ -41,9 +32,7 @@ class CombinedMVAJetTagComputer : public GenericMVAJetTagComputer {
 		std::vector<int>	indices;
 	};
 
-	void setEventSetup(const edm::EventSetup &es, bool pass) const;
-
-	mutable std::vector<Computer>	computers;
+	std::vector<Computer> computers;
 };
 
 #endif // RecoBTau_JetTagComputer_CombinedMVAJetTagComputer_h

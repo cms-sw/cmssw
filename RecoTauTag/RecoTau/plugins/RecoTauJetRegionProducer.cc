@@ -19,7 +19,7 @@
 #include "RecoTauTag/RecoTau/interface/ConeTools.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -29,7 +29,7 @@
 #include <string>
 #include <iostream>
 
-class RecoTauJetRegionProducer : public edm::EDProducer 
+class RecoTauJetRegionProducer : public edm::stream::EDProducer<> 
 {
  public:
   typedef edm::Association<reco::PFJetCollection> PFJetMatchMap;

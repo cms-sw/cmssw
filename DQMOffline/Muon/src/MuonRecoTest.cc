@@ -36,91 +36,38 @@ MuonRecoTest::MuonRecoTest(const edm::ParameterSet& ps){
 
   parameters = ps;
 
-  theDbe = edm::Service<DQMStore>().operator->();
-
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
 
-}
-
-
-MuonRecoTest::~MuonRecoTest(){
-
-  LogTrace(metname) << "MuonRecoTest: analyzed " << nevents << " events";
-
-}
-
-
-void MuonRecoTest::beginJob(void){
-
-  metname = "muonRecoTest";
-  theDbe->setCurrentFolder("Muons/Tests/muonRecoTest");
-
-  LogTrace(metname)<<"[MuonRecoTest] beginJob: Parameters initialization";
- 
-  // efficiency plot
-
+  // Parameters
   etaBin = parameters.getParameter<int>("etaBin");
   etaMin = parameters.getParameter<double>("etaMin");
   etaMax = parameters.getParameter<double>("etaMax");
-  etaEfficiency = theDbe->book1D("etaEfficiency_staMuon", "#eta_{STA} efficiency", etaBin, etaMin, etaMax);
 
   phiBin = parameters.getParameter<int>("phiBin");
   phiMin = parameters.getParameter<double>("phiMin");
   phiMax = parameters.getParameter<double>("phiMax");
-  phiEfficiency = theDbe->book1D("phiEfficiency_staMuon", "#phi_{STA} efficiency", phiBin, phiMin, phiMax);
+
+  EfficiencyCriterionName = parameters.getUntrackedParameter<string>("efficiencyTestName","EfficiencyInRange"); 
+}
+void MuonRecoTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
+  
+  /// BOOKING NEW HISTOGRAMS
+  ibooker.setCurrentFolder("Muons/Tests/muonRecoTest");
+  // efficiency plot
+  etaEfficiency = ibooker.book1D("etaEfficiency_staMuon", "#eta_{STA} efficiency", etaBin, etaMin, etaMax);
+  phiEfficiency = ibooker.book1D("phiEfficiency_staMuon", "#phi_{STA} efficiency", phiBin, phiMin, phiMax);
 
   // alignment plots
-  globalRotation.push_back(theDbe->book1D("muVStkSytemRotation_posMu_profile", "pT_{TK} / pT_{GLB} vs pT_{GLB} profile for #mu^{+}",50,0,200));
-  globalRotation.push_back(theDbe->book1D("muVStkSytemRotation_negMu_profile", "pT_{TK} / pT_{GLB} vs pT_{GLB} profile for #mu^{-}",50,0,200));
-  globalRotation.push_back(theDbe->book1D("muVStkSytemRotation_profile", "pT_{TK} / pT_{GLB} vs pT_{GLB} profile for #mu^{+}-#mu^{-}",50,0,200));
-
-}
-
-void MuonRecoTest::beginRun(Run const& run, EventSetup const& eSetup) {
-
-  LogTrace(metname)<<"[MuonRecoTest]: beginRun";
-
-}
-
-void MuonRecoTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
-
-  //  LogTrace(metname)<<"[MuonRecoTest]: beginLuminosityBlock";
-
-  // Get the run number
-  run = lumiSeg.run();
-
-}
+  globalRotation.push_back(ibooker.book1D("muVStkSytemRotation_posMu_profile", "pT_{TK} / pT_{GLB} vs pT_{GLB} profile for #mu^{+}",50,0,200));
+  globalRotation.push_back(ibooker.book1D("muVStkSytemRotation_negMu_profile", "pT_{TK} / pT_{GLB} vs pT_{GLB} profile for #mu^{-}",50,0,200));
+  globalRotation.push_back(ibooker.book1D("muVStkSytemRotation_profile", "pT_{TK} / pT_{GLB} vs pT_{GLB} profile for #mu^{+}-#mu^{-}",50,0,200));
 
 
-void MuonRecoTest::analyze(const edm::Event& e, const edm::EventSetup& context){
-
-  nevents++;
-  LogTrace(metname)<< "[MuonRecoTest]: "<<nevents<<" events";
-
-}
-
-
-
-void MuonRecoTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
-
-  //  LogTrace(metname)<<"[MuonRecoTest]: endLuminosityBlock, performing the DQM LS client operation";
-  
-  // counts number of lumiSegs 
-  nLumiSegs = lumiSeg.id().luminosityBlock();
-  
-  // prescale factor
-  if ( nLumiSegs%prescaleFactor != 0 ) return;
-
-}
-
-void MuonRecoTest::endRun(Run const& run, EventSetup const& eSetup) {
-
-  LogTrace(metname)<<"[MuonRecoTest]: endRun, performing the DQM end of run client operation";
-
+  /// GETTING PREVIOUS HISTOS AND DO SOME OPERATIONS
   string path = "Muons/MuonRecoAnalyzer/StaEta_ifCombinedAlso";
-  MonitorElement * staEtaIfComb_histo = theDbe->get(path);
+  MonitorElement * staEtaIfComb_histo = igetter.get(path);
   path = "Muons/MuonRecoAnalyzer/StaEta";
-  MonitorElement * staEta_histo = theDbe->get(path);
+  MonitorElement * staEta_histo = igetter.get(path);
 
   if(staEtaIfComb_histo && staEta_histo){
     TH1F * staEtaIfComb_root = staEtaIfComb_histo->getTH1F();
@@ -142,9 +89,9 @@ void MuonRecoTest::endRun(Run const& run, EventSetup const& eSetup) {
   }
 
   path = "Muons/MuonRecoAnalyzer/StaPhi_ifCombinedAlso";
-  MonitorElement * staPhiIfComb_histo = theDbe->get(path);
+  MonitorElement * staPhiIfComb_histo = igetter.get(path);
   path = "Muons/MuonRecoAnalyzer/StaPhi";
-  MonitorElement * staPhi_histo = theDbe->get(path);
+  MonitorElement * staPhi_histo = igetter.get(path);
 
   if(staPhiIfComb_histo && staPhi_histo){
  
@@ -168,7 +115,7 @@ void MuonRecoTest::endRun(Run const& run, EventSetup const& eSetup) {
 
 
   // efficiency test 
-  string EfficiencyCriterionName = parameters.getUntrackedParameter<string>("efficiencyTestName","EfficiencyInRange"); 
+  
 
   // eta efficiency
   const QReport * theEtaQReport = etaEfficiency->getQReport(EfficiencyCriterionName);
@@ -193,9 +140,9 @@ void MuonRecoTest::endRun(Run const& run, EventSetup const& eSetup) {
 
   //alignment plot
   string pathPos = "Muons/MuonRecoAnalyzer/muVStkSytemRotation_posMu";
-  MonitorElement * muVStkSytemRotation_posMu_histo = theDbe->get(pathPos);
+  MonitorElement * muVStkSytemRotation_posMu_histo = igetter.get(pathPos);
   string pathNeg = "Muons/MuonRecoAnalyzer/muVStkSytemRotation_negMu";
-  MonitorElement * muVStkSytemRotation_negMu_histo = theDbe->get(pathNeg);
+  MonitorElement * muVStkSytemRotation_negMu_histo = igetter.get(pathNeg);
   if(muVStkSytemRotation_posMu_histo && muVStkSytemRotation_negMu_histo){
 
     TH2F * muVStkSytemRotation_posMu_root = muVStkSytemRotation_posMu_histo->getTH2F();
@@ -214,12 +161,5 @@ void MuonRecoTest::endRun(Run const& run, EventSetup const& eSetup) {
     }
   }
 
-}
-
-void MuonRecoTest::endJob(){
-  
-  LogTrace(metname)<< "[MuonRecoTest] endJob called!";
-  theDbe->rmdir("Muons/Tests/muonRecoTest");
-  
 }
   

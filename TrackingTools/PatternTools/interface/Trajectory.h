@@ -5,7 +5,7 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <vector>
@@ -40,9 +40,13 @@ class Trajectory
 public:
 
   typedef std::vector<TrajectoryMeasurement>                   DataContainer;
-  typedef TransientTrackingRecHit::ConstRecHitContainer        ConstRecHitContainer;
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+  using ConstRecHitContainer = TrackingRecHit::ConstRecHitContainer;
+  using RecHitContainer = ConstRecHitContainer;
+#else
+  typedef TrackingRecHit::ConstRecHitContainer        ConstRecHitContainer;
   typedef ConstRecHitContainer                                 RecHitContainer;
-
+#endif
 
   /** Default constructor of an empty trajectory with undefined seed and 
    * undefined direction. This constructor is necessary in order to transiently
@@ -204,6 +208,7 @@ public:
 
   /** Return all RecHits in a container.
    */
+#if defined( __GXX_EXPERIMENTAL_CXX0X__)
   ConstRecHitContainer recHits() const {
     ConstRecHitContainer hits;
     hits.reserve(theData.size());
@@ -218,6 +223,7 @@ public:
    *
    */
   void validRecHits(ConstRecHitContainer & cont) const;
+#endif
 
   /** Number of valid RecHits used to determine the trajectory.
    *  Can be less than the number of measurements in data() since
@@ -277,12 +283,12 @@ public:
   /** Definition of what it means for a hit to be "lost".
    *  This definition is also used by the TrajectoryBuilder.
    */
-  static bool lost( const TransientTrackingRecHit& hit);
+  static bool lost( const TrackingRecHit& hit);
 
   /** Returns true if the hit type is TrackingRecHit::bad
    *  Used in stand-alone trajectory construction
    */
-  static bool isBad( const TransientTrackingRecHit& hit);
+  static bool isBad( const TrackingRecHit& hit);
 
   /// Redundant method, returns the layer of lastMeasurement() .
   const DetLayer* lastLayer() const {

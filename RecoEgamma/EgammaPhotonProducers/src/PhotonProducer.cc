@@ -133,7 +133,15 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   //
 
   thePhotonEnergyCorrector_ = new PhotonEnergyCorrector(conf_, consumesCollector());
+  thePhotonIsolationCalculator_ = new PhotonIsolationCalculator();
+  edm::ParameterSet isolationSumsCalculatorSet = conf_.getParameter<edm::ParameterSet>("isolationSumsCalculatorSet"); 
+  thePhotonIsolationCalculator_->setup(isolationSumsCalculatorSet, flagsexclEB_, flagsexclEE_, severitiesexclEB_, severitiesexclEE_,consumesCollector());
 
+
+  thePhotonMIPHaloTagger_ = new PhotonMIPHaloTagger();
+  edm::ParameterSet mipVariableSet = conf_.getParameter<edm::ParameterSet>("mipVariableSet"); 
+  thePhotonMIPHaloTagger_->setup(mipVariableSet,consumesCollector());
+  
   // Register the product
   produces< reco::PhotonCollection >(PhotonCollection_);
 
@@ -142,6 +150,8 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
 PhotonProducer::~PhotonProducer() 
 {
   delete thePhotonEnergyCorrector_;
+  delete thePhotonIsolationCalculator_;
+  delete thePhotonMIPHaloTagger_;
   //delete energyCorrectionF;
 }
 
@@ -149,19 +159,12 @@ PhotonProducer::~PhotonProducer()
 
 void  PhotonProducer::beginRun (edm::Run const& r, edm::EventSetup const & theEventSetup) {
 
-    thePhotonIsolationCalculator_ = new PhotonIsolationCalculator();
-    edm::ParameterSet isolationSumsCalculatorSet = conf_.getParameter<edm::ParameterSet>("isolationSumsCalculatorSet"); 
-    thePhotonIsolationCalculator_->setup(isolationSumsCalculatorSet, flagsexclEB_, flagsexclEE_, severitiesexclEB_, severitiesexclEE_);
-    thePhotonMIPHaloTagger_ = new PhotonMIPHaloTagger();
-    edm::ParameterSet mipVariableSet = conf_.getParameter<edm::ParameterSet>("mipVariableSet"); 
-    thePhotonMIPHaloTagger_->setup(mipVariableSet);
+   
+
     thePhotonEnergyCorrector_ -> init(theEventSetup); 
 }
 
 void  PhotonProducer::endRun (edm::Run const& r, edm::EventSetup const & theEventSetup) {
-
-  delete thePhotonIsolationCalculator_;
-  delete thePhotonMIPHaloTagger_;
 }
 
 

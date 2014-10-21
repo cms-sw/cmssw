@@ -1,5 +1,7 @@
 #ifndef ElectronLikelihoodCategoryData_h
 #define ElectronLikelihoodCategoryData_h
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 
 struct ElectronLikelihoodCategoryData {
@@ -16,6 +18,8 @@ struct ElectronLikelihoodCategoryData {
   //! summary label: <variablename>_<species>_<ecalsubdet>_<ptbin>_<iclass>
   std::string label;
 
+
+  COND_SERIALIZABLE;
 };
 
 #endif // ElectronLikelihoodCategoryData_h

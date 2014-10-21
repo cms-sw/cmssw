@@ -27,6 +27,7 @@ private:
   const FWBeamSpotProxyBuilder& operator=( const FWBeamSpotProxyBuilder& );
   virtual void localModelChanges(const FWModelId& iId, TEveElement* parent, FWViewType::EType viewType, const FWViewContext* vc) override;
 
+  using FWSimpleProxyBuilderTemplate<reco::BeamSpot>::build;
   virtual void build( const reco::BeamSpot& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
 };
 

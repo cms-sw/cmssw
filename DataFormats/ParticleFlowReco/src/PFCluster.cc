@@ -71,20 +71,7 @@ double PFCluster::getDepthCorrection(double energy, bool isBelowPS,
     corrA = depthCorAp_;
     corrB = depthCorBp_;
   }
-  double depth = 0;
-  switch(isHadron) {
-  case 0: // e/gamma
-    depth = corrA*(corrB + log(energy)); 
-    break;
-  case 1: // hadrons
-    depth = corrA;
-    break;
-  default:
-    assert(0);
-    //     edm::LogError("PFCluster") << "unknown function for depth correction!"
-    //                         << std::endl;
-  }
-  return depth;
+  return isHadron ? corrA : corrA*(corrB + log(energy));
 }
 
 void PFCluster::setLayer( PFLayer::Layer layer) {

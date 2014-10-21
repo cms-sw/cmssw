@@ -37,8 +37,9 @@ HLTHiggsSubAnalysis::HLTHiggsSubAnalysis(const edm::ParameterSet & pset,
 	_minCandidates(0),
 	_hltProcessName(pset.getParameter<std::string>("hltProcessName")),
 	_genParticleLabel(iC.consumes<reco::GenParticleCollection>(pset.getParameter<std::string>("genParticleLabel"))),
-      	_parametersEta(pset.getParameter<std::vector<double> >("parametersEta")),
+    _parametersEta(pset.getParameter<std::vector<double> >("parametersEta")),
   	_parametersPhi(pset.getParameter<std::vector<double> >("parametersPhi")),
+  	_parametersPu(pset.getParameter<std::vector<double> >("parametersPu")),
   	_parametersTurnOn(pset.getParameter<std::vector<double> >("parametersTurnOn")),
 	_trigResultsTag(iC.consumes<edm::TriggerResults>(edm::InputTag("TriggerResults","",_hltProcessName))),
 	_recMuonSelector(0),
@@ -46,8 +47,7 @@ HLTHiggsSubAnalysis::HLTHiggsSubAnalysis(const edm::ParameterSet & pset,
 	_recCaloMETSelector(0),
 	_recPFTauSelector(0),
 	_recPhotonSelector(0),
-	_recTrackSelector(0),
-	_dbe(0)
+	_recTrackSelector(0)
 {
 	// Specific parameters for this analysis
 	edm::ParameterSet anpset = pset.getParameter<edm::ParameterSet>(analysisname);
@@ -92,9 +92,12 @@ HLTHiggsSubAnalysis::HLTHiggsSubAnalysis(const edm::ParameterSet & pset,
 	
 	_hltPathsToCheck = anpset.getParameter<std::vector<std::string> >("hltPathsToCheck");
 	_minCandidates = anpset.getParameter<unsigned int>("minCandidates");
+    
+    if( pset.exists("pileUpInfoLabel") )
+	{
+        _puSummaryInfo = iC.consumes<std::vector< PileupSummaryInfo > >(pset.getParameter<std::string>("pileUpInfoLabel"));
+	}
 
-	_dbe = edm::Service<DQMStore>().operator->();
-      	_dbe->setVerbose(0);
 }
 
 HLTHiggsSubAnalysis::~HLTHiggsSubAnalysis()
@@ -123,13 +126,12 @@ HLTHiggsSubAnalysis::~HLTHiggsSubAnalysis()
 void HLTHiggsSubAnalysis::beginJob() 
 {
 }
-
+ 
 
 
 void HLTHiggsSubAnalysis::beginRun(const edm::Run & iRun, const edm::EventSetup & iSetup)
 {
-	std::string baseDir = "HLT/Higgs/"+_analysisname+"/";
-      	_dbe->setCurrentFolder(baseDir);
+
 
 	// Initialize the confighlt
 	bool changedConfig;
@@ -211,35 +213,76 @@ void HLTHiggsSubAnalysis::beginRun(const edm::Run & iRun, const edm::EventSetup 
 		
 		// the hlt path, the objects (elec,muons,photons,...)
 		// needed to evaluate the path are the argumens of the plotter
-		HLTHiggsPlotter analyzer(_pset, shortpath,objsNeedHLT, _dbe);
+		HLTHiggsPlotter analyzer(_pset, shortpath,objsNeedHLT);
 		_analyzers.push_back(analyzer);
     	}
 
-      	// Call the beginRun (which books all the path dependent histograms)
-      	for(std::vector<HLTHiggsPlotter>::iterator it = _analyzers.begin(); 
-			it != _analyzers.end(); ++it) 
-	{
-	    	it->beginRun(iRun, iSetup);
-	}
+}
 
+void HLTHiggsSubAnalysis::bookHistograms(DQMStore::IBooker &ibooker)
+{
+    std::string baseDir = "HLT/Higgs/"+_analysisname+"/";
+    ibooker.setCurrentFolder(baseDir);
 	// Book the gen/reco analysis-dependent histograms (denominators)
+    std::vector<std::string> sources(2);
+    sources[0] = "gen";
+    sources[1] = "rec";
+    
 	for(std::map<unsigned int,std::string>::const_iterator it = _recLabels.begin();
 			it != _recLabels.end(); ++it)
 	{
 		const std::string objStr = EVTColContainer::getTypeString(it->first);
-		std::vector<std::string> sources(2);
-		sources[0] = "gen";
-		sources[1] = "rec";
-	  
+
 		for(size_t i = 0; i < sources.size(); i++) 
 		{
 			std::string source = sources[i];
-			bookHist(source, objStr, "Eta");
-			bookHist(source, objStr, "Phi");
-			bookHist(source, objStr, "MaxPt1");
-			bookHist(source, objStr, "MaxPt2");
+			bookHist(source, objStr, "Eta", ibooker);
+			bookHist(source, objStr, "Phi", ibooker);
+			bookHist(source, objStr, "MaxPt1", ibooker);
+			bookHist(source, objStr, "MaxPt2", ibooker);
 		}
 	}
+    
+    // Call the bookHistograms (which books all the path dependent histograms)
+    for(std::vector<HLTHiggsPlotter>::iterator it = _analyzers.begin();
+        it != _analyzers.end(); ++it)
+	{
+        it->bookHistograms(ibooker);
+	}
+    //booking the histograms for overall trigger efficiencies
+    for(size_t i = 0; i < sources.size(); i++)
+    {
+        std::string nameGlobalEfficiency = "SummaryPaths_"+_analysisname+"_"+sources[i];
+        
+        _elements[nameGlobalEfficiency] = ibooker.book1D(nameGlobalEfficiency.c_str(),nameGlobalEfficiency.c_str(),_hltPathsToCheck.size(), 0, _hltPathsToCheck.size());
+        
+        std::string nameGlobalEfficiencyPassing= nameGlobalEfficiency+"_passingHLT";
+        _elements[nameGlobalEfficiencyPassing] = ibooker.book1D(nameGlobalEfficiencyPassing.c_str(),nameGlobalEfficiencyPassing.c_str(),_hltPathsToCheck.size(), 0, _hltPathsToCheck.size());
+        
+        std::string title = "nb of interations in the event";
+        std::string nameVtxPlot = "trueVtxDist_"+_analysisname+"_"+sources[i];
+        std::vector<double> params = _parametersPu;
+        int    nBins = (int)params[0];
+        double min   = params[1];
+        double max   = params[2];
+
+        _elements[nameVtxPlot] = ibooker.book1D(nameVtxPlot.c_str(), title.c_str(), nBins, min, max);
+        for (size_t j = 0 ; j < _hltPathsToCheck.size() ; j++){
+                //declare the efficiency vs interaction plots
+                std::string path = _hltPathsToCheck[j];
+                std::string shortpath = path;
+                if(path.rfind("_v") < path.length())
+                {
+                        shortpath = path.substr(0, path.rfind("_v"));
+                }
+            std::string titlePassing = "nb of interations in the event passing path " + shortpath;
+        	_elements[nameVtxPlot+"_"+shortpath] = ibooker.book1D(nameVtxPlot+"_"+shortpath, titlePassing.c_str(), nBins, min, max);
+            
+               //fill the bin labels of the summary plot
+            _elements[nameGlobalEfficiency]->setBinLabel(j+1,shortpath);
+            _elements[nameGlobalEfficiencyPassing]->setBinLabel(j+1,shortpath);
+        }
+    }
 }
 
 
@@ -253,6 +296,19 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
 	std::map<unsigned int,std::string> u2str;
 	u2str[GEN]="gen";
 	u2str[RECO]="rec";
+    
+    edm::Handle<std::vector< PileupSummaryInfo > > puInfo;
+    iEvent.getByToken(_puSummaryInfo,puInfo);
+    int nbMCvtx = -1;
+    if (puInfo.isValid()) {
+        std::vector<PileupSummaryInfo>::const_iterator PVI;
+        for(PVI = puInfo->begin(); PVI != puInfo->end(); ++PVI) {
+            if(PVI->getBunchCrossing()==0){
+                nbMCvtx = PVI->getPU_NumInteractions();
+                break;
+            }
+        }
+    }
 
 	// Extract the match structure containing the gen/reco candidates (electron, muons,...)
 	// common to all the SubAnalysis
@@ -374,20 +430,40 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
 			}				
 		}
 		delete countobjects;
+        
+        //fill the efficiency vs nb of interactions
+        std::string nameVtxPlot = "trueVtxDist_"+_analysisname+"_"+u2str[it->first];
+        _elements[nameVtxPlot]->Fill(nbMCvtx);
 	
 		// Calling to the plotters analysis (where the evaluation of the different trigger paths are done)
+        std::string SummaryName = "SummaryPaths_"+_analysisname+"_"+u2str[it->first];
 		const std::string source = u2str[it->first];
 		for(std::vector<HLTHiggsPlotter>::iterator an = _analyzers.begin();
 				an != _analyzers.end(); ++an)
 		{
 			const std::string hltPath = _shortpath2long[an->gethltpath()];
+            const std::string fillShortPath = an->gethltpath();
 			const bool ispassTrigger =  cols->triggerResults->accept(trigNames.triggerIndex(hltPath));
 			an->analyze(ispassTrigger,source,it->second);
+            int refOfThePath = -1;
+            for (size_t itePath = 0 ; itePath< _hltPathsToCheck.size() ; itePath++){
+                refOfThePath++;
+                if (TString(hltPath).Contains(_hltPathsToCheck[itePath])) break;
+            }
+            _elements[SummaryName]->Fill(refOfThePath);
+            if (ispassTrigger) {
+                _elements[SummaryName+"_passingHLT"]->Fill(refOfThePath,1);
+				_elements[nameVtxPlot+"_"+fillShortPath.c_str()]->Fill(nbMCvtx);
+			}
+            else {
+                _elements[SummaryName+"_passingHLT"]->Fill(refOfThePath,0);
+
+			}
 		}
 	}
 }
 
-// Return the objects (muons,electrons,photons,...) needed by a hlt path. 
+// Return the objects (muons,electrons,photons,...) needed by a hlt path.
 const std::vector<unsigned int> HLTHiggsSubAnalysis::getObjectsType(const std::string & hltPath) const
 {
 	static const unsigned int objSize = 5; //6;
@@ -456,6 +532,7 @@ void HLTHiggsSubAnalysis::bookobjects( const edm::ParameterSet & anpset, edm::Co
 		_genSelectorMap[EVTColContainer::TRACK] = 0 ;
 	}*/
 
+    
 	if( _recLabels.size() < 1 )
 	{
 		edm::LogError("HiggsValidation") << "HLTHiggsSubAnalysis::bookobjects, " 
@@ -534,15 +611,14 @@ void HLTHiggsSubAnalysis::initobjects(const edm::Event & iEvent, EVTColContainer
 }
 
 void HLTHiggsSubAnalysis::bookHist(const std::string & source, 
-		const std::string & objType, const std::string & variable)
+		const std::string & objType, const std::string & variable, DQMStore::IBooker &ibooker)
 {
 	std::string sourceUpper = source; 
-      	sourceUpper[0] = std::toupper(sourceUpper[0]);
+    sourceUpper[0] = std::toupper(sourceUpper[0]);
 	std::string name = source + objType + variable ;
-      	TH1F * h = 0;
+    TH1F * h = 0;
 
-      	if(variable.find("MaxPt") != std::string::npos) 
-	{
+    if(variable.find("MaxPt") != std::string::npos){
 		std::string desc = (variable == "MaxPt1") ? "Leading" : "Next-to-Leading";
 		std::string title = "pT of " + desc + " " + sourceUpper + " " + objType;
 	    	const size_t nBins = _parametersTurnOn.size() - 1;
@@ -566,7 +642,7 @@ void HLTHiggsSubAnalysis::bookHist(const std::string & source,
 	    	h = new TH1F(name.c_str(), title.c_str(), nBins, min, max);
       	}
       	h->Sumw2();
-      	_elements[name] = _dbe->book1D(name, h);
+      	_elements[name] = ibooker.book1D(name, h);
       	delete h;
 }
 

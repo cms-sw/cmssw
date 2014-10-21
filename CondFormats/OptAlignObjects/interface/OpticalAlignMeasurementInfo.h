@@ -1,6 +1,8 @@
 #ifndef OpticalAlignMeasurementInfo_H
 #define OpticalAlignMeasurementInfo_H
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 #include <vector>
 #include <iostream>
@@ -40,6 +42,8 @@ class  OpticalAlignMeasurementInfo {
     values_.clear();
     isSimulatedValue_.clear();
   }
+
+ COND_SERIALIZABLE;
 };
 
 #endif //OpticalAlignMeasureInfo_H

@@ -19,8 +19,8 @@ public:
  protected:
   //addon to SimpleNavigationSchool
   void linkOtherEndLayers( SymmetricLayerFinder& symFinder);
-  void addInward(DetLayer * det, const FDLC& news);
-  void addInward(DetLayer * det, ForwardDetLayer * newF);
+  void addInward(const DetLayer * det, const FDLC& news);
+  void addInward(const DetLayer * det, const ForwardDetLayer * newF);
   void establishInverseRelations();
   FDLC reachableFromHorizontal();
 };

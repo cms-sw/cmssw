@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Test suite for various ConfigDP scenarios
-# run using: scram build runtest 
+# run using: scram build runtests
 # feel free to contribute with your favourite configuration
 
 
@@ -15,6 +15,8 @@ INPUT=${LOCAL_TEST_DIR}/RunExpressProcessing.py
 
 runTest "${INPUT} --scenario cosmics --global-tag GLOBALTAG::ALL --lfn /store/whatever --fevt --alca --dqm"
 runTest "${INPUT} --scenario pp --global-tag GLOBALTAG::ALL --lfn /store/whatever --fevt --alca --dqm"
+runTest "${INPUT} --scenario cosmicsRun2 --global-tag GLOBALTAG::ALL --lfn /store/whatever --fevt --alca --dqm"
+runTest "${INPUT} --scenario ppRun2 --global-tag GLOBALTAG::ALL --lfn /store/whatever --fevt --alca --dqm"
 runTest "${INPUT} --scenario HeavyIons --global-tag GLOBALTAG::ALL --lfn /store/whatever --fevt --alca --dqm"
 
 
@@ -27,6 +29,8 @@ INPUT=${LOCAL_TEST_DIR}/RunPromptReco.py
 
 runTest "${INPUT} --scenario=cosmics --reco --aod --alcareco --dqm --global-tag GLOBALTAG::ALL --lfn=/store/whatever"
 runTest "${INPUT} --scenario=pp --reco --aod --alcareco --dqm --global-tag GLOBALTAG::ALL --lfn=/store/whatever"
+runTest "${INPUT} --scenario=cosmicsRun2 --reco --aod --alcareco --dqm --global-tag GLOBALTAG::ALL --lfn=/store/whatever"
+runTest "${INPUT} --scenario=ppRun2 --reco --aod --alcareco --dqm --global-tag GLOBALTAG::ALL --lfn=/store/whatever"
 runTest "${INPUT} --scenario=HeavyIons --reco --aod --alcareco --dqm --global-tag GLOBALTAG::ALL --lfn=/store/whatever"
 runTest "${INPUT} --scenario=AlCaLumiPixels --reco --aod --alcareco --dqm --global-tag GLOBALTAG::ALL --lfn=/store/whatever"
 #runTest "${INPUT} --scenario=AlCaP0 --reco --aod --alcareco --dqm --global-tag GLOBALTAG::ALL --lfn=/store/whatever"
@@ -38,6 +42,8 @@ INPUT=${LOCAL_TEST_DIR}/RunAlcaSkimming.py
 
 runTest "${INPUT} --scenario pp --lfn=/store/whatever --global-tag GLOBALTAG::ALL --skims SiStripCalZeroBias,SiStripCalMinBias,TkAlMinBias,PromptCalibProd"
 runTest "${INPUT} --scenario cosmics --lfn /store/whatever --global-tag GLOBALTAG::ALL --skims SiStripCalZeroBias,SiStripPCLHistos"
+runTest "${INPUT} --scenario ppRun2 --lfn=/store/whatever --global-tag GLOBALTAG::ALL --skims SiStripCalZeroBias,SiStripCalMinBias,TkAlMinBias,PromptCalibProd"
+runTest "${INPUT} --scenario cosmicsRun2 --lfn /store/whatever --global-tag GLOBALTAG::ALL --skims SiStripCalZeroBias,SiStripPCLHistos"
 runTest "${INPUT} --scenario HeavyIons --lfn=/store/whatever --global-tag GLOBALTAG::ALL --skims SiStripCalZeroBias,SiStripCalMinBias,TkAlMinBiasHI,PromptCalibProd"
 runTest "${INPUT} --scenario AlCaLumiPixels --lfn /store/whatever --global-tag GLOBALTAG::ALL --skims LumiPixels"
 #runTest "${INPUT} --scenario AlCaP0 --lfn /store/whatever --global-tag GLOBALTAG::ALL --skims EcalCalPi0Calib"
@@ -48,12 +54,24 @@ INPUT=${LOCAL_TEST_DIR}/RunAlcaHarvesting.py
 
 runTest "${INPUT} --scenario pp --lfn /store/whatever --dataset /A/B/C --global-tag GLOBALTAG::ALL --workflows=BeamSpotByRun,BeamSpotByLumi,SiStripQuality"
 runTest "${INPUT} --scenario cosmics --lfn /store/whatever --dataset /A/B/C --global-tag GLOBALTAG::ALL --workflows=SiStripQuality"
+runTest "${INPUT} --scenario ppRun2 --lfn /store/whatever --dataset /A/B/C --global-tag GLOBALTAG::ALL --workflows=BeamSpotByRun,BeamSpotByLumi,SiStripQuality"
+runTest "${INPUT} --scenario cosmicsRun2 --lfn /store/whatever --dataset /A/B/C --global-tag GLOBALTAG::ALL --workflows=SiStripQuality"
 runTest "${INPUT} --scenario HeavyIons --lfn /store/whatever --dataset /A/B/C --global-tag GLOBALTAG::ALL --workflows=BeamSpotByRun,BeamSpotByLumi,SiStripQuality"
 
 INPUT=${LOCAL_TEST_DIR}/RunDQMHarvesting.py
 
 runTest "${INPUT} --scenario pp --lfn /store/whatever --run 12345 --dataset /A/B/C --global-tag GLOBALTAG::ALL"
 runTest "${INPUT} --scenario cosmics --lfn /store/whatever --run 12345 --dataset /A/B/C --global-tag GLOBALTAG::ALL"
+runTest "${INPUT} --scenario ppRun2 --lfn /store/whatever --run 12345 --dataset /A/B/C --global-tag GLOBALTAG::ALL"
+runTest "${INPUT} --scenario cosmicsRun2 --lfn /store/whatever --run 12345 --dataset /A/B/C --global-tag GLOBALTAG::ALL"
 runTest "${INPUT} --scenario AlCaLumiPixels --lfn /store/whatever --run 12345 --dataset /A/B/C --global-tag GLOBALTAG::ALL"
 #runTest "${INPUT} --scenario AlCaP0 --lfn /store/whatever --run 12345 --dataset /A/B/C --global-tag GLOBALTAG::ALL"
 #runTest "${INPUT} --scenario AlCaPhiSymEcal --lfn /store/whatever --run 12345 --dataset /A/B/C --global-tag GLOBALTAG::ALL"
+
+INPUT=${LOCAL_TEST_DIR}/RunVisualizationProcessing.py
+
+runTest "${INPUT} --scenario pp --lfn /store/whatever --global-tag GLOBALTAG::ALL --fevt"
+runTest "${INPUT} --scenario cosmics --lfn /store/whatever --global-tag GLOBALTAG::ALL --fevt"
+runTest "${INPUT} --scenario ppRun2 --lfn /store/whatever --global-tag GLOBALTAG::ALL --fevt"
+runTest "${INPUT} --scenario cosmicsRun2 --lfn /store/whatever --global-tag GLOBALTAG::ALL --fevt"
+runTest "${INPUT} --scenario HeavyIons --lfn /store/whatever --global-tag GLOBALTAG::ALL --fevt"

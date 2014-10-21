@@ -61,7 +61,7 @@ void
 
    std::cout << myName() << ": Begin iteration over geometry..." << std::endl;
 
-   std::vector<CSCLayer*> vl = pgeom->layers();
+   const CSCGeometry::LayerContainer& vl = pgeom->layers();
    std::cout << "No. of layers stored = " << vl.size() << std::endl;
 
    std::cout << "\n  #     id(dec)      id(oct)                   "
@@ -72,7 +72,7 @@ void
 
    int icount = 0;
 
-   for( std::vector<CSCLayer*>::const_iterator it = vl.begin(); it != vl.end(); ++it ){
+   for( auto it = vl.begin(); it != vl.end(); ++it ){
 
       const CSCLayer* layer = *it;
      

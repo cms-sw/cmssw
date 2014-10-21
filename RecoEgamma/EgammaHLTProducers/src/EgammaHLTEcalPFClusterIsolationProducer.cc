@@ -20,6 +20,10 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+
+#include "DataFormats/Common/interface/RefToPtr.h"
+
 #include <DataFormats/Math/interface/deltaR.h>
 
 EgammaHLTEcalPFClusterIsolationProducer::EgammaHLTEcalPFClusterIsolationProducer(const edm::ParameterSet& config) {
@@ -63,8 +67,8 @@ void EgammaHLTEcalPFClusterIsolationProducer::fillDescriptions(edm::Configuratio
   desc.add<double>("effectiveAreaEndcap", 0.046);
   desc.add<double>("drMax", 0.3);
   desc.add<double>("drVetoBarrel", 0.0);
-  desc.add<double>("drVetoEndcap", 0.070);
-  desc.add<double>("etaStripBarrel", 0.015);
+  desc.add<double>("drVetoEndcap", 0.0);
+  desc.add<double>("etaStripBarrel", 0.0);
   desc.add<double>("etaStripEndcap", 0.0);
   desc.add<double>("energyBarrel", 0.0);
   desc.add<double>("energyEndcap", 0.0);
@@ -90,7 +94,6 @@ void EgammaHLTEcalPFClusterIsolationProducer::produce(edm::Event& iEvent, const 
 
   iEvent.getByToken(recoEcalCandidateProducer_,recoecalcandHandle);
   iEvent.getByToken(pfClusterProducer_, clusterHandle);
-  const reco::PFClusterCollection* forIsolation = clusterHandle.product();
 
   reco::RecoEcalCandidateIsolationMap recoEcalCandMap;
   
@@ -109,26 +112,34 @@ void EgammaHLTEcalPFClusterIsolationProducer::produce(edm::Event& iEvent, const 
     }
     
     float sum = 0;
-    
-    // Loop over the PFClusters
-    for(unsigned i=0; i<forIsolation->size(); i++) {
-      const reco::PFCluster& pfclu = (*forIsolation)[i];
-      
+    for (size_t i=0; i<clusterHandle->size(); i++) {
+      reco::PFClusterRef pfclu(clusterHandle, i);
+
       if (fabs(candRef->eta()) < 1.479) {
-	if (fabs(pfclu.pt()) < energyBarrel_)
+	if (fabs(pfclu->pt()) < energyBarrel_)
 	  continue;
       } else {
-	if (fabs(pfclu.energy()) < energyEndcap_)
+	if (fabs(pfclu->energy()) < energyEndcap_)
 	  continue;
       }
 
-      float dEta = fabs(candRef->eta() - pfclu.eta());
+      float dEta = fabs(candRef->eta() - pfclu->eta());
       if(dEta < etaStrip) continue;
       
-      float dR = deltaR(candRef->eta(), candRef->phi(), pfclu.eta(), pfclu.phi());
+      float dR = deltaR(candRef->eta(), candRef->phi(), pfclu->eta(), pfclu->phi());
       if(dR > drMax_ || dR < dRVeto) continue;
       
-      sum += pfclu.pt();
+      // Exclude clusters that are part of the candidate
+      bool isCandCluster = false;
+      for (reco::CaloCluster_iterator it = candRef->superCluster()->clustersBegin(); it != candRef->superCluster()->clustersEnd(); ++it) {
+	if ((*it)->seed() == pfclu->seed()) {
+	  isCandCluster = true;
+	  break;
+      	}
+      }
+      if(isCandCluster)	continue;
+      
+      sum += pfclu->pt();
     }
      
     if (doRhoCorrection_) {

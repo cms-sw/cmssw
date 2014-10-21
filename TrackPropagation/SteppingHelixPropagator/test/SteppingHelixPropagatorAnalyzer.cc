@@ -416,7 +416,7 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 	if (radX0CorrectionMode_ ){
 	  const SteppingHelixPropagator* shPropCPtr = 
 	    dynamic_cast<const SteppingHelixPropagator*>(&*shProp);
-	  siDest = shPropCPtr->propagate(siStart, *igHit->surf);
+	  shPropCPtr->propagate(siStart, *igHit->surf,siDest);
 	  if (siDest.isValid()){
 	    siStart = siDest;
 	    siStart.getFreeState(ftsStart);

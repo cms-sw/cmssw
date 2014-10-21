@@ -21,9 +21,9 @@ public:
    FWCaloTowerDetailView();
    virtual ~FWCaloTowerDetailView(); 
 
-
-private:
+   using FWDetailViewGL<CaloTower>::build;
    virtual void build (const FWModelId &id, const CaloTower*);
+private:
    virtual void setTextInfo(const FWModelId&, const CaloTower*);
    TEveCaloData* m_data;
    FWECALDetailViewBuilder* m_builder;

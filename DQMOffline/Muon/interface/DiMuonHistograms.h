@@ -13,13 +13,14 @@
 #include <fstream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -29,7 +30,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 
-class DiMuonHistograms : public edm::EDAnalyzer {
+class DiMuonHistograms : public DQMEDAnalyzer {
  public:
   /* Constructor */ 
   DiMuonHistograms(const edm::ParameterSet& pset);
@@ -38,13 +39,11 @@ class DiMuonHistograms : public edm::EDAnalyzer {
   virtual ~DiMuonHistograms() ;
   
   /* Operations */ 
-  void beginJob();
-  void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
-  void analyze (const edm::Event &, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   
  private:
   MuonServiceProxy* theService;
-  DQMStore* theDbe;
   edm::ParameterSet parameters;
   
   // Switch for verbosity

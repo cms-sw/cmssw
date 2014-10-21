@@ -27,9 +27,6 @@ const float R6MAX = 63.5;
 const unsigned int R10BINS = 1024;
 const float R10MIN = -0.5;
 const float R10MAX = 1023.5;
-const unsigned int R12BINS = 4096;
-const float R12MIN = -0.5;
-const float R12MAX = 4095.5;
 
 const unsigned int ETABINS = 22;
 const float ETAMIN = -0.5;

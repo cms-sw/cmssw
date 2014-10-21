@@ -129,7 +129,7 @@ class V0Analyzer : public edm::EDAnalyzer {
   TH1D* rVtxHisto1;
   TH1D* vtxSigHisto1;
   TH1D* rVtxHisto2;
-  TH1D* simRHisto;
+  //  TH1D* simRHisto;
   TH1D* vtxSigHisto2;
 
   TH1D* rErrorHisto;

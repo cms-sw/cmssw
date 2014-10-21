@@ -31,7 +31,7 @@ class TCRecoTauProducer : public edm::EDProducer {
 
 TCRecoTauProducer::TCRecoTauProducer(const edm::ParameterSet& iConfig){
   	caloRecoTauProducer = iConfig.getParameter<edm::InputTag>("CaloRecoTauProducer");
-	tcTauAlgorithm = new TCTauAlgorithm(iConfig);
+	tcTauAlgorithm = new TCTauAlgorithm(iConfig, consumesCollector());
 
   	produces<CaloTauCollection>();
 }

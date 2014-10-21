@@ -52,8 +52,11 @@ DTSegment4DQuality::DTSegment4DQuality(const ParameterSet& pset)  {
   rootFileName = pset.getUntrackedParameter<string>("rootFileName");
   // the name of the simhit collection
   simHitLabel = pset.getUntrackedParameter<InputTag>("simHitLabel");
-  // the name of the 4D rec hit collection
+  simHitToken_ = consumes<PSimHitContainer>(pset.getUntrackedParameter<InputTag>("simHitLabel"));
+  // the name of the 2D rec hit collection
   segment4DLabel = pset.getUntrackedParameter<InputTag>("segment4DLabel");
+  segment4DToken_ = consumes<DTRecSegment4DCollection>(pset.getUntrackedParameter<InputTag>("segment4DLabel"));
+
 
   //sigma resolution on position
   sigmaResX = pset.getParameter<double>("sigmaResX");
@@ -152,7 +155,7 @@ void DTSegment4DQuality::endJob() {
 
     // Get the SimHit collection from the event
     edm::Handle<PSimHitContainer> simHits;
-    event.getByLabel(simHitLabel, simHits); //FIXME: second string to be removed
+    event.getByToken(simHitToken_, simHits); //FIXME: second string to be removed
 
     //Map simHits by chamber
     map<DTChamberId, PSimHitContainer > simHitsPerCh;
@@ -170,7 +173,7 @@ void DTSegment4DQuality::endJob() {
 
     // Get the 4D rechits from the event
     Handle<DTRecSegment4DCollection> segment4Ds;
-    event.getByLabel(segment4DLabel, segment4Ds);
+    event.getByToken(segment4DToken_, segment4Ds);
 
     if(!segment4Ds.isValid()) {
       if(debug) cout << "[DTSegment4DQuality]**Warning: no 4D Segments with label: " <<segment4DLabel

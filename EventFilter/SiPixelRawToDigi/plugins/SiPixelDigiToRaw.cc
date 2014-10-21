@@ -24,8 +24,7 @@
 using namespace std;
 
 SiPixelDigiToRaw::SiPixelDigiToRaw( const edm::ParameterSet& pset ) :
-  cablingTree_(0),
-  frameReverter_(0),
+  frameReverter_(nullptr),
   config_(pset),
   hCPU(0), hDigi(0), theTimer(0)
 {
@@ -50,7 +49,6 @@ SiPixelDigiToRaw::SiPixelDigiToRaw( const edm::ParameterSet& pset ) :
 
 // -----------------------------------------------------------------------------
 SiPixelDigiToRaw::~SiPixelDigiToRaw() {
-  delete cablingTree_;
   delete frameReverter_;
 
   if (theTimer) {
@@ -91,14 +89,14 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
     edm::ESHandle<SiPixelFedCablingMap> cablingMap;
     es.get<SiPixelFedCablingMapRcd>().get( cablingMap );
     fedIds = cablingMap->fedIds();
-    if (cablingTree_) delete cablingTree_; cablingTree_= cablingMap->cablingTree();
+    cablingTree_= cablingMap->cablingTree();
     if (frameReverter_) delete frameReverter_; frameReverter_ = new SiPixelFrameReverter( es, cablingMap.product() );
   }
 
   debug = edm::MessageDrop::instance()->debugEnabled;
   if (debug) LogDebug("SiPixelDigiToRaw") << cablingTree_->version();
 
-  PixelDataFormatter formatter(cablingTree_);
+  PixelDataFormatter formatter(cablingTree_.get());
   formatter.passFrameReverter(frameReverter_);
   if (theTimer) theTimer->start();
 

@@ -61,7 +61,7 @@ void SiPixelLorentzAngleDB::analyze(const edm::Event& e, const edm::EventSetup& 
 	
 	for(TrackerGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); it++){
     
-	   if( dynamic_cast<PixelGeomDetUnit*>((*it))!=0){
+	   if( dynamic_cast<PixelGeomDetUnit const*>((*it))!=0){
 		DetId detid=(*it)->geographicalId();
 			
 		// fill bpix values for LA 

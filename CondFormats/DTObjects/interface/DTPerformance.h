@@ -17,6 +17,8 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/DTObjects/interface/DTTimeUnits.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 #include "FWCore/Utilities/interface/ConstRespectingPtr.h"
@@ -46,6 +48,8 @@ class DTPerformanceId {
   int  sectorId;
   int      slId;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -64,6 +68,8 @@ class DTPerformanceData {
   float meanResolution;
   float meanEfficiency;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -210,10 +216,12 @@ class DTPerformance {
 
   std::vector< std::pair<DTPerformanceId,DTPerformanceData> > dataList;
 
-  edm::ConstRespectingPtr<DTBufferTree<int,int> > dBuf;
+  DTBufferTree<int,int>* dBuf COND_TRANSIENT;
 
   /// read and store full content
   std::string mapName() const;
 
+
+ COND_SERIALIZABLE;
 };
 #endif // DTPerformance_H

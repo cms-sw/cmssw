@@ -1,6 +1,7 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
 #include "CondFormats/DataRecord/interface/SiPixelQualityFromDbRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
+#include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondTools/SiPixel/test/SiPixelBadModuleReader.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -111,7 +112,7 @@ void SiPixelBadModuleReader::analyze( const edm::Event& e, const edm::EventSetup
   int nbadmodules = 0;
   int npartialbad = 0;
   for(TrackerGeometry::DetContainer::const_iterator it = geom->dets().begin(); it != geom->dets().end(); it++){
-      if(dynamic_cast<PixelGeomDetUnit*>((*it))!=0){
+      if(dynamic_cast<PixelGeomDetUnit const*>((*it))!=0){
            DetId detId = (*it)->geographicalId();
            uint32_t id = detId();
 	   nmodules++;

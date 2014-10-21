@@ -6,17 +6,22 @@
 <use name="Geometry/EcalCommonData"/>
 <use name="Geometry/CSCGeometryBuilder"/>
 <use name="DetectorDescription/Core"/>
-        <use name="Geometry/CaloGeometry"/>
-        <use name="Geometry/DTGeometry"/>
-        <use name="Geometry/CSCGeometry"/>
-        <use name="Geometry/RPCGeometry"/>
-        <use name="Geometry/GEMGeometry"/>
-	<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="Geometry/CaloGeometry"/>
+<use name="Geometry/DTGeometry"/>
+<use name="Geometry/CSCGeometry"/>
+<use name="Geometry/RPCGeometry"/>
+<use name="Geometry/GEMGeometry"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
 <use name="Geometry/Records"/>
 <use name="DataFormats/GeometrySurface"/>
+<use name="DataFormats/MuonDetId"/>
+<use name="DataFormats/SiStripDetId"/>
+<use name="DataFormats/SiPixelDetId"/>
 <use name="Fireworks/Core"/>
 <use name="rootcore"/>
 <lib name="Geom"/>
+<lib name="Eve"/>
+<lib name="Physics"/>
 <export>
 <lib name="1"/>
 </export>

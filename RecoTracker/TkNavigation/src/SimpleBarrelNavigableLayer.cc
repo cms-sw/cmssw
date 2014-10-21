@@ -20,7 +20,7 @@ using namespace std;
 
 
 SimpleBarrelNavigableLayer::
-SimpleBarrelNavigableLayer( BarrelDetLayer* detLayer,
+SimpleBarrelNavigableLayer( const BarrelDetLayer* detLayer,
 			    const BDLC& outerBLC, 
 			    const FDLC& outerLeftFL, 
 			    const FDLC& outerRightFL,
@@ -189,7 +189,7 @@ SimpleBarrelNavigableLayer::compatibleLayers( NavigationDirection dir) const {
 
 
 
-void   SimpleBarrelNavigableLayer::setDetLayer( DetLayer* dl) {
+void   SimpleBarrelNavigableLayer::setDetLayer( const DetLayer* dl) {
   cerr << "Warniong: SimpleBarrelNavigableLayer::setDetLayer called."
        << endl << "This should never happen!" << endl;
 }
@@ -236,9 +236,9 @@ void SimpleBarrelNavigableLayer::setInwardLinks(const BDLC& theBarrelv,
 
 }
 
-void SimpleBarrelNavigableLayer::setAdditionalLink(DetLayer* additional, NavigationDirection direction){
-  ForwardDetLayer* fadditional = dynamic_cast<ForwardDetLayer*>(additional);
-  BarrelDetLayer*  badditional = dynamic_cast<BarrelDetLayer*>(additional);
+void SimpleBarrelNavigableLayer::setAdditionalLink(const DetLayer* additional, NavigationDirection direction){
+  const ForwardDetLayer* fadditional = dynamic_cast<const ForwardDetLayer*>(additional);
+  const BarrelDetLayer*  badditional = dynamic_cast<const BarrelDetLayer*>(additional);
   if (badditional){	
   	if (direction==insideOut){
 		theOuterBarrelLayers.push_back(badditional);

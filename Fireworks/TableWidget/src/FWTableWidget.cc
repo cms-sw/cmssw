@@ -24,8 +24,6 @@
 #include "Fireworks/TableWidget/src/FWAdapterHeaderTableManager.h"
 #include "Fireworks/TableWidget/src/FWAdapterRowHeaderTableManager.h"
 
-static const unsigned long kWidgetColor = 0x2f2f2f;
-
 //
 // constants, enums and typedefs
 //

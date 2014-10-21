@@ -1,5 +1,7 @@
 #ifndef BLOBNOISES_H
 #define BLOBNOISES_H
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include<vector>
 //#include<boost/cstdint.hpp>
 #include <stdint.h>
@@ -22,7 +24,9 @@ public:
     bool operator!=(const DetRegistry& rhs) const {
       return !operator==(rhs);
     }
-  };
+  
+  COND_SERIALIZABLE;
+};
   bool operator==(const BlobNoises& rhs) const {
     if(v_noises!=rhs.v_noises){
       return false;
@@ -39,5 +43,7 @@ public:
   //std::vector<int16_t>  v_noises; //dictionary problem with this
   std::vector<short> v_noises;
   std::vector<DetRegistry> indexes;
+
+  COND_SERIALIZABLE;
 };
 #endif

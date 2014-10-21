@@ -20,7 +20,7 @@
 
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
+
 
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
@@ -42,7 +42,7 @@ FixTrackHitPattern::Result FixTrackHitPattern::analyze(const edm::EventSetup& iS
   // This is also needed to extrapolate amongst the tracker layers.
   edm::ESHandle<NavigationSchool> theSchool;
   iSetup.get<NavigationSchoolRecord>().get("SimpleNavigationSchool",theSchool);
-  NavigationSetter junk(*theSchool);
+  // NavigationSetter junk(*theSchool);  FIXME FIXME (or not...)
 
   // This is needed to determine which sensors are functioning.
   edm::ESHandle<MeasurementTracker> measTk;

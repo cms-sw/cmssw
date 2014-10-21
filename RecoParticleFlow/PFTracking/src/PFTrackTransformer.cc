@@ -34,7 +34,6 @@ using namespace edm;
 PFTrackTransformer::PFTrackTransformer(const math::XYZVector& B):B_(B){
   LogInfo("PFTrackTransformer")<<"PFTrackTransformer built";
 
-  PFGeometry pfGeometry;
   onlyprop_=false;
 }
 
@@ -95,8 +94,8 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
   
   
   //BEAMPIPE
-  theParticle.setPropagationConditions(PFGeometry::outerRadius(PFGeometry::BeamPipe), 
-				       PFGeometry::outerZ(PFGeometry::BeamPipe), false);
+  theParticle.setPropagationConditions(pfGeometry_.outerRadius(PFGeometry::BeamPipe), 
+				       pfGeometry_.outerZ(PFGeometry::BeamPipe), false);
   theParticle.propagate();
   if(theParticle.getSuccess()!=0)
     pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::BeamPipeOrEndVertex,
@@ -287,8 +286,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
       theInnerParticle.setCharge(track.charge());  
 
       //BEAMPIPE
-      theInnerParticle.setPropagationConditions(PFGeometry::outerRadius(PFGeometry::BeamPipe), 
-					   PFGeometry::outerZ(PFGeometry::BeamPipe), false);
+      theInnerParticle.setPropagationConditions(pfGeometry_.outerRadius(PFGeometry::BeamPipe), 
+					   pfGeometry_.outerZ(PFGeometry::BeamPipe), false);
       theInnerParticle.propagate();
       if(theInnerParticle.getSuccess()!=0)
 	pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::BeamPipeOrEndVertex,
@@ -628,8 +627,8 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 			    0.,0.,B_.z());
   theInnerParticle.setCharge(track.charge());   // Use the chargeMode ??   
   //BEAMPIPE
-  theInnerParticle.setPropagationConditions(PFGeometry::outerRadius(PFGeometry::BeamPipe), 
-					    PFGeometry::outerZ(PFGeometry::BeamPipe), false);
+  theInnerParticle.setPropagationConditions(pfGeometry_.outerRadius(PFGeometry::BeamPipe), 
+					    pfGeometry_.outerZ(PFGeometry::BeamPipe), false);
   theInnerParticle.propagate();
   if(theInnerParticle.getSuccess()!=0)
     pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::BeamPipeOrEndVertex,

@@ -11,11 +11,11 @@ echo Starting $0 $1 $2
 
 if ( $2 == "" ) then
   set tables = ( GRun )
-else if ( $2 == ALL ) then
+else if ( ($2 == all) || ($2 == ALL) ) then
   set tables = ( GRun PIon 2013 HIon )
-else if ( $2 == DEV ) then
+else if ( ($2 == dev) || ($2 == DEV) ) then
   set tables = ( GRun PIon HIon )
-else if ( $2 == FROZEN ) then
+else if ( ($2 == frozen) || ($2 == FROZEN) ) then
   set tables = ( 2013 )
 else
   set tables = ( $2 )
@@ -46,6 +46,7 @@ foreach gtag ( $1 )
       echo
       set name = ${task}_${table}_${gtag}
       rm -f $name.{log,root}
+      date
       echo "cmsRun $name.py >& $name.log"
 #     ls -l        $name.py
       time  cmsRun $name.py >& $name.log
@@ -71,6 +72,7 @@ if ( $1 == STARTUP ) then
     echo
     set name = ${task}
     rm -f $name.{log,root}
+    date
     echo "cmsRun $name.py >& $name.log"
 #   ls -l        $name.py
     time  cmsRun $name.py >& $name.log
@@ -96,6 +98,7 @@ foreach gtag ( $1 )
       echo
       set name = ${task}_${table}_${gtag}
       rm -f $name.{log,root}
+      date
       echo "cmsRun $name.py >& $name.log"
 #     ls -l        $name.py
       time  cmsRun $name.py >& $name.log
@@ -106,6 +109,12 @@ foreach gtag ( $1 )
   end
 
 end
+
+# running each HLT trigger path individually one by one
+
+if ( ($2 != all) && ($2 != dev) && ($2 != frozen) ) then
+  ./runIntegration.csh $1 $2
+endif
 
 echo
 echo Finished $0 $1 $2

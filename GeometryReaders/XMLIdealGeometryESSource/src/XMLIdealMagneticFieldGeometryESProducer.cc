@@ -23,6 +23,8 @@
 #include "DetectorDescription/Core/src/LogicalPart.h"
 #include "DetectorDescription/Core/src/Specific.h"
 
+#include <memory>
+
 class XMLIdealMagneticFieldGeometryESProducer : public edm::ESProducer
 {
 public:
@@ -70,13 +72,11 @@ XMLIdealMagneticFieldGeometryESProducer::produce( const IdealMagneticFieldRecord
   DDLParser parser(*returnValue);
   parser.getDDLSAX2FileHandler()->setUserNS(true);
   parser.clearFiles();
-   
-  std::vector<unsigned char>* tb = (*gdd).getUncompressedBlob();
-   
-  parser.parse(*tb, tb->size()); 
-   
-  delete tb;
-   
+
+  std::unique_ptr<std::vector<unsigned char> > tb = (*gdd).getUncompressedBlob();
+
+  parser.parse(*tb, tb->size());
+
   returnValue->lockdown();
 
   return returnValue ;

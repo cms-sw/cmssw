@@ -23,7 +23,7 @@ IdealZPrism::operator=( const IdealZPrism& idzp )
 }
 
 IdealZPrism::IdealZPrism( const GlobalPoint& faceCenter , 
-			  const CornersMgr*  mgr        ,
+			  CornersMgr*  mgr              ,
 			  const CCGFloat*    parm         )
   : CaloCellGeometry ( faceCenter, mgr, parm )   
 {initSpan();}
@@ -105,11 +105,6 @@ IdealZPrism::localCorners( Pt3DVec&        lc  ,
 			   Pt3D&           ref   )
 {
    assert( 8 == lc.size() ) ;
-   if( false )
-   {
-      GlobalPoint g1 ( etaPhiR(0,0,0) ) ;
-      GlobalPoint g2 ( etaPhiPerp(0,0,0) ) ;
-   }
    assert( 0 != pv ) ;
    
    const CCGFloat dEta ( pv[0] ) ;
@@ -141,13 +136,12 @@ IdealZPrism::localCorners( Pt3DVec&        lc  ,
    ref   = 0.25*( lc[0] + lc[1] + lc[2] + lc[3] ) ;
 }
 
-const CaloCellGeometry::CornersVec& 
-IdealZPrism::getCorners() const 
+void
+IdealZPrism::initCorners(CaloCellGeometry::CornersVec& co)
 {
-   const CornersVec& co ( CaloCellGeometry::getCorners() ) ;
    if( co.uninitialized() ) 
    {
-      CornersVec& corners ( setCorners() ) ;
+      CornersVec& corners ( co ) ;
       
       const GlobalPoint p      ( getPosition() ) ;
       const CCGFloat    z_near ( p.z() ) ;
@@ -164,7 +158,6 @@ IdealZPrism::getCorners() const
       corners[ 6 ] = GlobalPoint( corners[2].x(), corners[2].y(), z_far ); // (-,-,far)
       corners[ 7 ] = GlobalPoint( corners[3].x(), corners[3].y(), z_far ); // (-,+,far)	
    }
-   return co ;
 }
 
 std::ostream& operator<<( std::ostream& s, const IdealZPrism& cell ) 

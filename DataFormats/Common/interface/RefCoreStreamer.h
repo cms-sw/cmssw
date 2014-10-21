@@ -15,6 +15,8 @@ namespace edm {
 
     void operator() (TBuffer &R__b, void *objp);
 
+    TClassStreamer* Generate() const;
+    
   private:
     TClassRef cl_;
   };
@@ -24,7 +26,8 @@ namespace edm {
     explicit RefCoreWithIndexStreamer() : cl_("edm::RefCoreWithIndex"){}
     
     void operator() (TBuffer &R__b, void *objp);
-    
+
+    TClassStreamer* Generate() const;
   private:
     TClassRef cl_;
   };

@@ -9,7 +9,7 @@ ewkDQM = cms.EDAnalyzer("EwkDQM",
 
             muonCollection           = cms.InputTag("muons"),
             electronCollection       = cms.InputTag("gedGsfElectrons"),
-            PFJetCollection          = cms.InputTag("ak5PFJets"),
+            PFJetCollection          = cms.InputTag("ak4PFJets"),
             caloMETCollection        = cms.InputTag("corMetGlobalMuons"),
             vertexCollection         = cms.InputTag("offlinePrimaryVertices"),
             #genParticleCollection    = cms.InputTag("genParticles")

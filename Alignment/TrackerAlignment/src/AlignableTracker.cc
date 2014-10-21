@@ -85,10 +85,10 @@ void AlignableTracker::detsToAlignables( const TrackingGeometry::DetContainer& d
       const SiStripDetId detId(dets[i]->geographicalId());
       if (!detId.glued()) { // 2D- or 'pure' 1D-module
         if (dets[i]->components().size()) { // 2D-module
-	  const GluedGeomDet *gluedDet = dynamic_cast<GluedGeomDet*>(dets[i]);
+	  const GluedGeomDet *gluedDet = dynamic_cast<const GluedGeomDet*>(dets[i]);
 	  if (!gluedDet) {
 	    throw cms::Exception("LogicError") 
-	      << "[AlignableTracker]" << "dynamic_cast<GluedGeomDet*> failed.\n";
+	      << "[AlignableTracker]" << "dynamic_cast<const GluedGeomDet*> failed.\n";
 	  }
           alis.push_back(new AlignableSiStripDet(gluedDet)); // components constructed within
           const align::Alignables detUnits(alis.back()->components());

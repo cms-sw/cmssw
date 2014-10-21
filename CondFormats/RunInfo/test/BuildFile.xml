@@ -1,0 +1,3 @@
+<bin file="testSerializationRunInfo.cpp">
+    <use   name="CondFormats/RunInfo"/>
+</bin>

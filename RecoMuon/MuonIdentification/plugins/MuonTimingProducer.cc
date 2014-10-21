@@ -64,17 +64,6 @@ MuonTimingProducer::~MuonTimingProducer()
 // member functions
 //
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-MuonTimingProducer::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-MuonTimingProducer::endJob() {
-}
-
 // ------------ method called to produce the data  ------------
 void
 MuonTimingProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {

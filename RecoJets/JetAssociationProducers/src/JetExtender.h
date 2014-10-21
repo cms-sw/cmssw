@@ -8,7 +8,7 @@
 #ifndef JetExtender_h
 #define JetExtender_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -16,7 +16,7 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 
-class JetExtender : public edm::EDProducer {
+class JetExtender : public edm::stream::EDProducer<> {
    public:
       JetExtender(const edm::ParameterSet&);
       virtual ~JetExtender();

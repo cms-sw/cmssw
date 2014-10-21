@@ -222,7 +222,8 @@ PixelHitMatcher::compatibleHits
  ( const GlobalPoint & xmeas,
    const GlobalPoint & vprim,
    float energy, float fcharge,
-   const TrackerTopology *tTopo)
+   const TrackerTopology *tTopo,
+   const NavigationSchool& navigationSchool)
  {
   float SCl_phi = xmeas.phi();
 
@@ -239,7 +240,7 @@ PixelHitMatcher::compatibleHits
   pred1Meas.clear();
   pred2Meas.clear();
 
-  typedef vector<BarrelDetLayer*>::const_iterator BarrelLayerIterator;
+  typedef vector<const BarrelDetLayer*>::const_iterator BarrelLayerIterator;
   BarrelLayerIterator firstLayer = startLayers.firstBLayer();
 
   FreeTrajectoryState fts = FTSFromVertexToPointFactory::get(*theMagField,xmeas, vprim, energy, charge);
@@ -308,7 +309,7 @@ PixelHitMatcher::compatibleHits
 
 
   // check if there are compatible 1st hits the forward disks
-  typedef vector<ForwardDetLayer*>::const_iterator ForwardLayerIterator;
+  typedef vector<const ForwardDetLayer*>::const_iterator ForwardLayerIterator;
   ForwardLayerIterator flayer;
 
   TrajectoryStateOnSurface tsosfwd(fts, *bpb(fts.position(), fts.momentum()));
@@ -400,7 +401,7 @@ PixelHitMatcher::compatibleHits
 
     PixelMatchNextLayers secondHit(&theLayerMeasurements, newLayer, secondFTS,
 				   prop2ndLayer, &meas2ndBLayer,&meas2ndFLayer,
-				   tTopo,searchInTIDTEC_);
+				   tTopo,navigationSchool,searchInTIDTEC_);
     vector<CLHEP::Hep3Vector> predictions = secondHit.predictionInNextLayers();
 
     for (unsigned it = 0; it < predictions.size(); it++) pred2Meas.push_back(predictions[it]);

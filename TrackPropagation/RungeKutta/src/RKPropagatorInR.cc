@@ -12,7 +12,7 @@
 #include "MagneticField/VolumeGeometry/interface/MagVolume.h"
 
 TrajectoryStateOnSurface 
-RKPropagatorInR::propagate (const FreeTrajectoryState& ts, const Cylinder& cyl) const
+RKPropagatorInR::myPropagate (const FreeTrajectoryState& ts, const Cylinder& cyl) const
 {
   //typedef RK4PreciseSolver<double,5>           Solver;
     typedef RKAdaptiveSolver<double,RKOne4OrderStep, 5>     Solver;
@@ -53,7 +53,7 @@ RKPropagatorInR::propagate (const FreeTrajectoryState& ts, const Cylinder& cyl) 
 }
 
 TrajectoryStateOnSurface 
-RKPropagatorInR::propagate (const FreeTrajectoryState&, const Plane&) const
+RKPropagatorInR::myPropagate (const FreeTrajectoryState&, const Plane&) const
 {
     return TrajectoryStateOnSurface();
 }

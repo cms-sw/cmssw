@@ -1,0 +1,8 @@
+<use   name="CondFormats/RecoMuonObjects"/>
+<use   name="DataFormats/MuonReco"/>
+<use   name="CommonTools/UtilAlgos"/>
+<use   name="CondCore/DBOutputService"/>
+<use   name="root"/>
+<library   file="DYTTuner.cc" name="DYTTuner">
+  <flags   EDM_PLUGIN="1"/>
+</library>

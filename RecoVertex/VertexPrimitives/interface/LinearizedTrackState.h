@@ -9,6 +9,8 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/TrajectoryState/interface/TrackCharge.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+
+#define SMATRIX_USE_CONSTEXPR
 #include "Math/SMatrix.h"
 
 #include "RecoVertex/VertexPrimitives/interface/RefittedTrackState.h"

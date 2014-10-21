@@ -42,10 +42,12 @@ ZToMuMuGammaAnalyzer::ZToMuMuGammaAnalyzer( const edm::ParameterSet& pset )
   
   photon_token_           = consumes<vector<reco::Photon> >(pset.getParameter<edm::InputTag>("phoProducer"));
   muon_token_             = consumes<vector<reco::Muon> >(pset.getParameter<edm::InputTag>("muonProducer"));
-  pfCandidates_  = consumes<reco::PFCandidateCollection>(pset.getParameter<edm::InputTag>("pfCandidates"));
-  valueMapPhoPFCandIso_ = pset.getParameter<std::string>("valueMapPhoToParticleBasedIso");
+  pfCandidates_           = consumes<reco::PFCandidateCollection>(pset.getParameter<edm::InputTag>("pfCandidates"));
 
-  
+ 
+  photonIsoValmap_token_    =  consumes<edm::ValueMap<std::vector<reco::PFCandidateRef> > >(pset.getParameter<edm::InputTag>("particleBasedIso"));
+
+
   barrelRecHit_token_     = consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(pset.getParameter<edm::InputTag>("barrelRecHitProducer"));
   
   endcapRecHit_token_     = consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(pset.getParameter<edm::InputTag>("endcapRecHitProducer"));
@@ -563,7 +565,8 @@ void ZToMuMuGammaAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
   edm::Handle<edm::ValueMap<std::vector<reco::PFCandidateRef> > > phoToParticleBasedIsoMapHandle;
   edm::ValueMap<std::vector<reco::PFCandidateRef> > phoToParticleBasedIsoMap;
   if ( fName_ == "zmumugammaGedValidation") {
-    e.getByLabel("particleBasedIsolation",valueMapPhoPFCandIso_,phoToParticleBasedIsoMapHandle);
+   e.getByToken(photonIsoValmap_token_,phoToParticleBasedIsoMapHandle);
+    //   e.getByLabel("particleBasedIsolation",valueMapPhoPFCandIso_,phoToParticleBasedIsoMapHandle);
     if ( ! phoToParticleBasedIsoMapHandle.isValid()) {
       edm::LogInfo("PhotonValidator") << "Error! Can't get the product: valueMap photons to particle based iso " << std::endl;
       

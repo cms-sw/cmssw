@@ -27,25 +27,29 @@ MonitorLTC::MonitorLTC(const edm::ParameterSet& iConfig) // :
   ltcDigiCollectionTagToken_ = consumes<LTCDigiCollection>(conf_.getParameter<edm::InputTag>("ltcDigiCollectionTag") );
 }
 
-
-void MonitorLTC::beginJob(){
-  dqmStore_->setCurrentFolder(HLTDirectory);
+void MonitorLTC::bookHistograms(DQMStore::IBooker & ibooker, const edm::Run & run, const edm::EventSetup & es)
+{
+  ibooker.setCurrentFolder(HLTDirectory);
   // 0 DT
   // 1 CSC
   // 2 RBC1 (RPC techn. cosmic trigger for wheel +1, sector 10)
   // 3 RBC2 (RPC techn. cosmic trigger for wheel +2, sector 10)
   // 4 RPCTB (RPC Trigger Board trigger, covering both sectors 10 of both wheels, but with different geometrical acceptance ("pointing"))
   // 5 unused 
-//  edm::CurrentProcessingContext const* current_processing_context = currentContext();
-//  std::string const* the_label = moduleLabel();
+  // edm::CurrentProcessingContext const* current_processing_context = currentContext();
+  // std::string const* the_label = moduleLabel();
   std::string the_label = conf_.getParameter<std::string>("@module_label");
   std::string ltctitle = the_label + "_LTCTriggerDecision";
-  LTCTriggerDecision_all = dqmStore_->book1D(ltctitle, ltctitle, 8, -0.5, 7.5);
+  LTCTriggerDecision_all = ibooker.book1D(ltctitle, ltctitle, 8, -0.5, 7.5);
   LTCTriggerDecision_all->setBinLabel(1, "DT");
   LTCTriggerDecision_all->setBinLabel(2, "CSC");
   LTCTriggerDecision_all->setBinLabel(3, "RBC1");
   LTCTriggerDecision_all->setBinLabel(4, "RBC2");
-  LTCTriggerDecision_all->setBinLabel(5, "RPCTB");
+  LTCTriggerDecision_all->setBinLabel(5, "RPCTB");  
+}
+
+void MonitorLTC::beginJob(){
+
 }
 
 void MonitorLTC::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)

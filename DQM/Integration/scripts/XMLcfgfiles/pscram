@@ -1,0 +1,208 @@
+#!/usr/bin/env python
+import os,subprocess,sys,re,pprint,glob,getopt
+
+from psClasses import *
+### Global Lists and Directories
+SRCDIR ="%s/src/" % os.getenv("CMSSW_BASE")
+ServerDict = {}
+BuilFilesList = []
+ModuleTable = {}
+ModuleList = []
+buildTree = BuildTreeNodeList()
+serverQueues = queueList()
+
+
+### Functions
+
+def getBuildFiles():
+  for cDir,subDirs,files in os.walk(SRCDIR):
+    for f in files:
+      if re.match(r"BuildFile.xml",f):
+        BuilFilesList.append("%s/%s" %(cDir,f) )    
+        break
+      if re.match(r"BuildFile",f):
+        BuilFilesList.append("%s/%s" %(cDir,f) )    
+        break
+
+def fillModuleRecord(bFile):
+  bNameRegEx=r"file=[\"']*(?P<binNames>[a-zA-Z0-9\._\-\*,;\s]+)[\"']*"
+  dirInfo=os.path.dirname(bFile).replace(SRCDIR,"")
+  module=dirInfo.split("/")[0]
+  subModule="%s/%s" % (module,dirInfo.split("/")[1])
+  stdLibName=dirInfo.replace("/","").replace("plugin","Plugin")
+  f=open(bFile,"r")
+  deps=[]
+  line=f.readline()
+  libNames=[]
+  binNames=[]
+  buildFiles=[]
+  while line:
+    if re.search(r"<use.*",line):
+      depName=re.search(r"name=[\"']*(?P<depName>([a-zA-Z0-9]+/[a-zA-Z0-9]+|[a-zA-z0-9._\-]+))[\"']*",line).group("depName")
+      os.path.exists("%s/%s" % (SRCDIR,depName)) and deps.append(depName)
+    elif re.search(r"\s+<lib ",line):
+      libName=re.search(r"name=[\"']*(?P<libName>[a-zA-Z0-9]*)[\"']*",line).group("libName")
+      libNames.append(libName == "1" and stdLibName or libName)
+    elif re.search(r"<library",line):   
+      try:
+        libName=re.search(r"name=[\"']*(?P<libName>[a-zA-Z0-9]*)[\"']*",line).group("libName")
+      except:
+        libName=re.search(r"file=[\"']*(?P<libName>[a-zA-Z0-9_]*).*",line).group("libName")
+      libNames.append(libName)
+      buildFiles.append(re.search(bNameRegEx,line).group("binNames"))
+    elif re.search(r"<bin",line):
+      try:
+        binNames.append(re.search(r"name=[\"']*(?P<binName>[a-zA-Z0-9_\-]+)[\"']*",line).group("binName"))
+      except:
+        binNames.append(re.search(r"file=[\"']*(?P<binName>[a-zA-Z0-9_\-]+).*[\"']*",line).group("binName"))
+      buildFiles.append(re.search(bNameRegEx,line).group("binNames"))
+    line=f.readline()
+  f.close()
+  dirInfoBFiles= len(dirInfo.split("/"))==2 and "%s/src" % dirInfo or dirInfo
+  ## Separating lilst of files to have a complete list of individual source files
+  for sep in " \t,;":
+    bf2=[]
+    for bF1 in [bF.split(sep) for bF in buildFiles]:
+      bf2+=bF1
+    buildFiles=bf2
+  ## Expanding * to file names
+  bf2=[]
+  for bF1 in [glob.glob("%s/%s" % (dirInfoBFiles,bF)) for bF in buildFiles if os.path.exists("%s/%s" % (dirInfoBFiles,bF)) or "*" in bF ]:
+    bf2+=bF1
+  bf2=dict.fromkeys(bf2)
+  buildFiles=bf2.keys() 
+  libNames+=binNames
+  return [module,subModule,deps,libNames,buildFiles,len(deps),len(buildFiles)/len(libNames)]
+
+def fillModuleTable():
+  for f in BuilFilesList:
+    record=fillModuleRecord(f)
+    ModuleTable.setdefault(record[0],{}).setdefault(record[1],[]).append(record[2:]+[0])
+    ModuleList.append(record)
+
+
+def fillBuildTree():    
+  global serverQueues
+  finished=False
+  Count=0
+  while not finished and Count < 7:
+    finished=True
+    for item in  ModuleList:
+      if len(item[2]) == 0:
+        for lib in item[3]:
+          if not buildTree.findLib(lib):
+            buildTree.append(BuildTreeNode(libname=lib,module=item[0],submodule=item[1],weight=item[6],srvqueue=serverQueues))
+      else:      
+        deps=item[2]
+        libs=item[3]
+        for lib in libs:
+          pNode=buildTree.findLib(lib)
+          if not pNode:
+            node=BuildTreeNode(libname=lib,module=item[0],submodule=item[1],weight=item[6],srvqueue=serverQueues)
+          else:
+            continue
+          for dep in deps:
+            dpNode=buildTree.findDep(dep)
+            if dpNode is not None:
+              if dpNode not in node.DependsOn:
+                node.DependsOn.append(dpNode)
+              if node not in dpNode.AreDependent:
+                dpNode.AreDependent.append(node)
+            elif len(glob.glob("%s%s/BuildFile*" %(SRCDIR,dep))) == 0 :
+              continue
+            else:
+              finished=False
+              if Count==6:
+                print "WARNING: Traversed The tree %d times and still there are some missing dependencies and no buildFile found for them: %s" % (Count,dep)
+    Count += 1
+    
+def checkBuildOrder():
+  concatenatedLog=[]
+  for srv in serverQueues.keys():
+    for i in serverQueues[srv].ThreadLog:
+      concatenatedLog.append(i[:2])
+  concatenatedLog.sort(cmp = lambda x,y: cmp(x[0],y[0]))
+  seenLibs=[]
+  Result=True
+  for lib in concatenatedLog:
+    node=buildTree.findLib(lib[1])
+    seenLibs.append(lib[1])
+    failedDeps=[]
+    for depNode in node.DependsOn:
+      if depNode.LibName not in seenLibs:
+        failedDeps.append(lib)
+        Result=False
+  return (Result,failedDeps)
+  
+####
+# Main Program
+####
+  
+if not os.getenv("CMSSW_BASE"):
+  print "No CMSSW Environment detected"
+  sys.exit(os.EX_CONFIG)
+ 
+if __name__ == "__main__":
+
+  """
+hosts
+  """
+  try:
+    opts, args = getopt.getopt(sys.argv[1:], "j:n:")
+  except getopt.GetoptError, err:
+    # print help information and exit:
+    print str(err) # will print something like "option -a not recognized"
+    sys.exit(2)
+  cores = -1
+  jay =-1  
+  hosts=[arg.replace(","," ") for arg in args]
+  for o, a in opts:
+    if o == "-j":
+        jay = int(a)
+    elif o == "-n":
+        cores = int(a)
+    else:
+        assert False, "unhandled option"
+
+  if cores == -1:
+    print "Assuming 4 cores servers"
+    cores = 4  
+  
+  if jay == -1:
+    print "Assuming 2 threads per job"
+    jay = 2
+  
+  if len(hosts) == 0:
+    print "No servers listed"
+    sys.exit(1)
+  
+  for srv in hosts:
+    retcode=call(["ping","-c 1",srv],stdout=open("/dev/null"),stderr=open("/dev/null"))
+    if retcode is not 0:
+      print "Server %s is unreachable" % srv
+      sys.exit(retcode)
+    
+  
+  serverQueues = queueList(hosts,cores,jay)
+  getBuildFiles()
+  fillModuleTable()
+  fillBuildTree()
+  #print buildTree[1]
+  #buildTree.BThread.start()
+  #print enumerate()
+  print "Setting up caches"
+  nullFile=open("/dev/null")
+  call(['scram','build','-r','-n'],stdout=nullFile,stderr=nullFile,cwd=os.path.realpath(os.path.curdir))
+  nullFile.close()
+  print "Starting threads"
+  buildTree.startThreads()
+  a=len(enumerate())
+  while a > 1:
+    #print "Running Threads = %d" % a
+    a=len(enumerate())
+    time.sleep(1)
+  for srv in serverQueues.keys():
+    for i in serverQueues[srv].ThreadLog:
+      print i[2]    
+  r,failedLibs = checkBuildOrder()
+  print "DepBuild Check %s, failed libs: \n...%s" % (r and "Succeded" or "Failed","\n...".join(failedLibs))

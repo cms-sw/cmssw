@@ -97,6 +97,7 @@ L1GlobalTriggerRawToDigi::L1GlobalTriggerRawToDigi(const edm::ParameterSet& pSet
     produces<std::vector<L1MuRegionalCand> > ("RPCb");
     produces<std::vector<L1MuRegionalCand> > ("RPCf");
     produces<std::vector<L1MuGMTCand> > ();
+    consumes<FEDRawDataCollection>(m_daqGtInputTag);
 
     // create GTFE, FDL, PSB cards once per producer
     // content will be reset whenever needed

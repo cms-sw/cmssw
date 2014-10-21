@@ -1,5 +1,7 @@
 #ifndef PXSENSORS_H
 #define PXSENSORS_H
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include<vector>
 #include<string>
 class PXsensors {
@@ -20,9 +22,13 @@ public:
     float Norm_Intercept;
     float Norm_Intercept_Error;
     float Shifts_due_to_shims_etc;
-  };
+  
+  COND_SERIALIZABLE;
+};
   PXsensors();
   virtual ~PXsensors();
   std::vector<Item>  m_PXsensors;
+
+  COND_SERIALIZABLE;
 };
 #endif

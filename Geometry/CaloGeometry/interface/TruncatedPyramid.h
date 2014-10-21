@@ -30,7 +30,7 @@ public:
   
   TruncatedPyramid& operator=( const TruncatedPyramid& tr ) ;
   
-  TruncatedPyramid( const CornersMgr*  cMgr ,
+  TruncatedPyramid(       CornersMgr*  cMgr ,
 		    const GlobalPoint& fCtr ,
 		    const GlobalPoint& bCtr ,
 		    const GlobalPoint& cor1 ,
@@ -42,8 +42,6 @@ public:
   virtual ~TruncatedPyramid() ;
   
   const GlobalPoint getPosition( CCGFloat depth ) const ;
-  
-  virtual const CornersVec& getCorners() const ;
   
   // Return thetaAxis polar angle of axis of the crystal
   CCGFloat getThetaAxis() const ;
@@ -77,6 +75,8 @@ public:
   virtual void getTransform( Tr3D& tr, Pt3DVec* lptr ) const ;
   
 private:
+  virtual void initCorners(CornersVec&) override;
+  
   GlobalVector makeAxis( void );
   
   const GlobalPoint backCtr( void ) const;    

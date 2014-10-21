@@ -46,14 +46,15 @@ GaussEvtVtxGenerator::~GaussEvtVtxGenerator()
 
 //Hep3Vector* GaussEvtVtxGenerator::newVertex() {
 HepMC::FourVector* GaussEvtVtxGenerator::newVertex(CLHEP::HepRandomEngine* engine) {
-  double X,Y,Z;
+  double X,Y,Z,T;
   X = CLHEP::RandGaussQ::shoot(engine, fMeanX, fSigmaX);
   Y = CLHEP::RandGaussQ::shoot(engine, fMeanY, fSigmaY);
   Z = CLHEP::RandGaussQ::shoot(engine, fMeanZ, fSigmaZ);
+  T = CLHEP::RandGaussQ::shoot(engine, fTimeOffset, fSigmaZ);
 
   //if (fVertex == 0) fVertex = new CLHEP::Hep3Vector;
   if ( fVertex == 0 ) fVertex = new HepMC::FourVector() ;
-  fVertex->set( X, Y, Z, fTimeOffset ) ;
+  fVertex->set( X, Y, Z, T);
 
   return fVertex;
 }

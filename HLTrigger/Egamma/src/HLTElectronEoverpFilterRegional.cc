@@ -68,7 +68,7 @@ HLTElectronEoverpFilterRegional::hltFilter(edm::Event& iEvent, const edm::EventS
 
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > recoecalcands;
   PrevFilterOutput->getObjects(TriggerCluster, recoecalcands);
-
+  if(recoecalcands.empty()) PrevFilterOutput->getObjects(TriggerPhoton, recoecalcands);
    // Get the HLT electrons from EgammaHLTPixelMatchElectronProducers
   edm::Handle<reco::ElectronCollection> electronIsolatedHandle;
   iEvent.getByToken(electronIsolatedToken_,electronIsolatedHandle);

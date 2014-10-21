@@ -1,6 +1,8 @@
 #ifndef CondFormats_SiStripObjects_FedChannelConnection_H
 #define CondFormats_SiStripObjects_FedChannelConnection_H
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include <boost/cstdint.hpp>
 #include <ostream>
@@ -189,6 +191,8 @@ class FedChannelConnection {
   bool pll0x44_; 
   bool lld0x60_; 
 
+
+ COND_SERIALIZABLE;
 };
 
 // ---------- inline methods ----------

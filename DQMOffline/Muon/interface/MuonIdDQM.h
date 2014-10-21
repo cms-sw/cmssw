@@ -33,8 +33,8 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -47,19 +47,17 @@
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 
-class MuonIdDQM : public edm::EDAnalyzer {
+class MuonIdDQM : public thread_unsafe::DQMEDAnalyzer {
    public:
       explicit MuonIdDQM(const edm::ParameterSet&);
       ~MuonIdDQM();
 
-   private:
-      virtual void beginJob();
-      virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob();
-      virtual void Fill(MonitorElement*, float);
+      /* Operations */
+      void analyze(const edm::Event&, const edm::EventSetup&);
+      void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
-      DQMStore* dbe_;
+   private:
+      virtual void Fill(MonitorElement*, float);
 
       // ----------member data ---------------------------
       edm::EDGetTokenT<reco::MuonCollection> inputMuonCollection_;

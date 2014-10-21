@@ -16,6 +16,7 @@ ecalDigitizer = cms.PSet(
     ecal_sim_parameter_map,
     ecal_notCont_sim,
     es_electronics_sim,
+    hitsProducer = cms.string('g4SimHits'),
     accumulatorType = cms.string("EcalDigiProducer"),
     makeDigiSimLinks = cms.untracked.bool(False)
 )

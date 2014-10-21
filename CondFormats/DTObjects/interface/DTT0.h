@@ -18,6 +18,8 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/DTObjects/interface/DTTimeUnits.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 
@@ -43,6 +45,8 @@ class DTT0Data {
   float t0mean;
   float t0rms;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -144,6 +148,8 @@ class DTT0 {
 
   std::vector< DTT0Data > dataList;
 
+
+ COND_SERIALIZABLE;
 };
 
 

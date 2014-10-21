@@ -6,7 +6,7 @@ tnum=6
 numev=10
 step=a
 
-cmsDriver.py MinBias.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT:GRun -n ${numev} --eventcontent FEVTDEBUGHLT,DQM --datatier FEVTDEBUGHLT,DQMROOT --conditions auto:startup_GRun --customise=SimCalorimetry/HcalZeroSuppressionProducers/NoHcalZeroSuppression_cff.py --no_exec --python_filename=test_${tnum}_${step}_1.py
+cmsDriver.py MinBias.cfi -s GEN,SIM,DIGI,L1,DIGI2RAW,HLT:GRun -n ${numev} --eventcontent FEVTDEBUGHLT,DQM --datatier FEVTDEBUGHLT,DQMIO --conditions auto:startup_GRun --customise=SimCalorimetry/HcalZeroSuppressionProducers/NoHcalZeroSuppression_cff.py --no_exec --python_filename=test_${tnum}_${step}_1.py
 
 cmsRun -e test_${tnum}_${step}_1.py >& p6.0.log
 
@@ -16,7 +16,7 @@ fi
 
 mv FrameworkJobReport{,_${tnum}_${step}_1}.xml
 
-cmsDriver.py test_${tnum}_${step}_2 -s ALCA:HcalCalMinBias -n ${numev} --eventcontent ALCARECO,DQM --datatier FEVTDEBUGHLT,DQMROOT --conditions auto:mc --filein file:MinBias_cfi_GEN_SIM_DIGI_L1_DIGI2RAW_HLT.root --mc --customise DQMServices/Components/test/customHarvesting.py --no_exec --python_filename=test_${tnum}_${step}_2.py
+cmsDriver.py test_${tnum}_${step}_2 -s ALCA:HcalCalMinBias -n ${numev} --eventcontent ALCARECO,DQM --datatier FEVTDEBUGHLT,DQMIO --conditions auto:mc --filein file:MinBias_cfi_GEN_SIM_DIGI_L1_DIGI2RAW_HLT.root --mc --customise DQMServices/Components/test/customHarvesting.py --no_exec --python_filename=test_${tnum}_${step}_2.py
 
 cmsRun -e test_${tnum}_${step}_2.py >& p6.1.log 
 

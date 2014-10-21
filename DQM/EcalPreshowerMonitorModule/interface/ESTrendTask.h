@@ -8,12 +8,13 @@
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+
 #include "TProfile.h"
 
 class MonitorElement;
-class DQMStore;
 
-class ESTrendTask: public edm::EDAnalyzer{
+class ESTrendTask: public DQMEDAnalyzer{
 
  public:
 
@@ -21,33 +22,20 @@ class ESTrendTask: public edm::EDAnalyzer{
   ESTrendTask(const edm::ParameterSet& ps);
 
   // Destructor
-  virtual ~ESTrendTask();
+  virtual ~ESTrendTask() {}
 
  protected:
 
-  // Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
-  // BeginJob
-  void beginJob(void);
+  // Analyze
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   // EndJob
   void endJob(void);
 
   // BeginRun
-  void beginRun(const edm::Run & r, const edm::EventSetup & c);
-
-  // EndRun
-  void endRun(const edm::Run & r, const edm::EventSetup & c);
-
-  // Reset
-  void reset(void);
-
-  // Setup
-  void setup(void);
-
-  // Cleanup
-  void cleanup(void);
+  void dqmBeginRun(const edm::Run & r, const edm::EventSetup & c) override;
 
   // Update time check
   void updateTime(const edm::Event&);
@@ -62,13 +50,7 @@ class ESTrendTask: public edm::EDAnalyzer{
 
   int ievt_;
 
-  DQMStore* dqmStore_;
-
   std::string prefixME_;
-
-  bool enableCleanup_;
-
-  bool mergeRuns_;
 
   edm::EDGetTokenT<ESRecHitCollection> rechittoken_;
   edm::EDGetTokenT<ESRawDataCollection> dccCollections_;
@@ -80,8 +62,6 @@ class ESTrendTask: public edm::EDAnalyzer{
   MonitorElement* hESRecHitTrendHr_[2][2];
   MonitorElement* hESSLinkErrTrendHr_;
   MonitorElement* hESFiberErrTrendHr_;
-
-  bool init_;
 
   long int start_time_;
   long int current_time_;

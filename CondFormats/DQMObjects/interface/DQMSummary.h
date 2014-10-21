@@ -1,6 +1,8 @@
 #ifndef CondFormats_DQMObjects_DQMSummary_h
 #define CondFormats_DQMObjects_DQMSummary_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -24,9 +26,13 @@ class DQMSummary {
       std::string m_reportcontent;
       std::string m_type;
       double m_status;
-    };
+    
+    COND_SERIALIZABLE;
+};
     std::vector<LumiItem> m_lumisummary;
-  };
+  
+  COND_SERIALIZABLE;
+};
   DQMSummary(){}
   virtual ~DQMSummary(){}
   std::vector<RunItem> m_summary;
@@ -45,6 +51,8 @@ class DQMSummary {
       }
     }
   }
+
+ COND_SERIALIZABLE;
 };
 
 #endif

@@ -16,7 +16,7 @@
 #include <bitset>
 #include <map>
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
@@ -38,7 +38,7 @@ namespace edm {
 
 class RPCRecHitBaseAlgo;
 
-class RPCRecHitProducer : public edm::EDProducer {
+class RPCRecHitProducer : public edm::stream::EDProducer<> {
 
 public:
   /// Constructor

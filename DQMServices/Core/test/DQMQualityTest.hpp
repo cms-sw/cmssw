@@ -26,7 +26,7 @@ class DQMQualityTest
     edm::ServiceRegistry::Operate operate(services);
 
     //dbe_ = edm::Service<DQMStore>().operator->();
-    DQMStore* dbe_ = new DQMStore(emptyps);	
+    dbe_ = new DQMStore(emptyps);	
 
     xmin_ = XMIN; xmax_ = XMAX;
     // distribution: gaussian w/ parameters: mean, sigma

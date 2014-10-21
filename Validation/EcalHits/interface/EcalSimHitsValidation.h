@@ -64,11 +64,11 @@ void endJob(void);
 
 private:
 
- std::string HepMCLabel;
  std::string g4InfoLabel;
- std::string EBHitsCollection;
- std::string EEHitsCollection;
- std::string ESHitsCollection;
+ edm::EDGetTokenT<edm::HepMCProduct> HepMCToken;
+ edm::EDGetTokenT<edm::PCaloHitContainer> EBHitsCollectionToken;
+ edm::EDGetTokenT<edm::PCaloHitContainer> EEHitsCollectionToken;
+ edm::EDGetTokenT<edm::PCaloHitContainer> ESHitsCollectionToken;
 
  bool verbose_;
  

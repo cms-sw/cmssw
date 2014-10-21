@@ -1,9 +1,12 @@
 #ifndef CondFormats_PhysicsToolsObjects_Histogram2D_h
 #define CondFormats_PhysicsToolsObjects_Histogram2D_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include <atomic>
 #endif
+
 #include <utility>
 #include <vector>
 #include <cmath>
@@ -135,15 +138,16 @@ class Histogram2D {
 	RangeY				limitsY;
 
 	// transient cache variables
-	mutable Value_t total; //CMS-THREADING protected by totalValid
+	mutable Value_t total COND_TRANSIENT; //CMS-THREADING protected by totalValid
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
-	mutable std::atomic<bool> totalValid;
+	mutable std::atomic<bool> totalValid COND_TRANSIENT;
 #else
-	mutable bool totalValid;
+	mutable bool totalValid COND_TRANSIENT;
 #endif
+	mutable std::vector<Value_t>	rowTotal COND_TRANSIENT;
+	mutable std::vector<Value_t>	columnTotal COND_TRANSIENT;
 
-	mutable std::vector<Value_t>	rowTotal;
-	mutable std::vector<Value_t>	columnTotal;
+	COND_SERIALIZABLE;
 };
 
 typedef Histogram2D<float>  HistogramF2D;
@@ -154,6 +158,8 @@ typedef Histogram2D<double> HistogramD2D;
 struct VHistogramD2D {
   std::vector<PhysicsTools::Calibration::HistogramD2D>	vHist;
   std::vector<double> vValues;
+
+  COND_SERIALIZABLE;
 };
 
 } // namespace Calibration

@@ -1,5 +1,6 @@
 #ifndef Cond_IOVElement_h
 #define Cond_IOVElement_h
+
 #include "CondFormats/Common/interface/Time.h"
 #include "CondCore/ORA/interface/OId.h"
 #include <string>
@@ -57,8 +58,7 @@ namespace cond {
     cond::Time_t m_sinceTime;
     std::string m_wrapper;
     ora::OId m_oid;
-    
-  };
+};
   
   
 } // ns cond

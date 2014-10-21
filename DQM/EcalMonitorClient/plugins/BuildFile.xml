@@ -1,0 +1,5 @@
+<use name="DQM/EcalCommon"/>
+<use name="DQM/EcalMonitorClient"/>
+<library file="*.cc" name="DQMEcalMonitorClientPlugins">
+   <flags EDM_PLUGIN="1"/>
+</library>

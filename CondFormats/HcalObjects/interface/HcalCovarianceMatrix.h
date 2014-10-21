@@ -1,6 +1,8 @@
 #ifndef HcalCovarianceMatrix_h
 #define HcalCovarianceMatrix_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <boost/cstdint.hpp>
 #include "CondFormats/HcalObjects/interface/HcalPedestal.h"
 #include <math.h>
@@ -17,5 +19,7 @@ class HcalCovarianceMatrix {
    private:
    uint32_t mId;
    float covariancematrix[4][10][10];
+
+ COND_SERIALIZABLE;
 };
 #endif

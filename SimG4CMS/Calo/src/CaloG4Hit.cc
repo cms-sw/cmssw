@@ -7,7 +7,7 @@
 
 #include "G4SystemOfUnits.hh"
 
-G4Allocator<CaloG4Hit> CaloG4HitAllocator;
+G4ThreadLocal G4Allocator<CaloG4Hit> *fpCaloG4HitAllocator = 0;
 
 CaloG4Hit::CaloG4Hit(){
 

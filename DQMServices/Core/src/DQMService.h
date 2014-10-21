@@ -17,7 +17,7 @@ public:
   ~DQMService(void);
    
 public:
-  void flush(const edm::Event &, const edm::EventSetup &);
+  void flush(edm::StreamContext const & sc);
 private:
   void shutdown(void);
 

@@ -366,6 +366,7 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
        if(iter != muToPFMap.end()){
 	 outMuon.setPFP4(pfCandidates->at(iter->second).p4());
 	 outMuon.setP4(pfCandidates->at(iter->second).p4());//PF is the default
+	 outMuon.setCharge(pfCandidates->at(iter->second).charge());//PF is the default
 	 outMuon.setBestTrack(pfCandidates->at(iter->second).bestMuonTrackType());
 	 muToPFMap.erase(iter);
 	 dout << "MuonRef: " << muRef.id() << " " << muRef.key() 

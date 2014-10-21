@@ -95,33 +95,6 @@ void SmartPropagator::initTkVolume(float epsilon) {
 }
 
 
-TrajectoryStateOnSurface SmartPropagator::propagate(const FreeTrajectoryState& fts, 
-                                                    const Surface& surface) const {
-  return Propagator::propagate( fts, surface);
-}
-
-
-TrajectoryStateOnSurface SmartPropagator::propagate(const FreeTrajectoryState& fts, 
-                                                    const Plane& plane) const {
-
-  if (insideTkVol(fts) && insideTkVol(plane)) {
-    return getTkPropagator()->propagate(fts, plane);
-  } else {
-    return getGenPropagator()->propagate(fts, plane);
-  }
-
-}
-
-
-TrajectoryStateOnSurface SmartPropagator::propagate(const FreeTrajectoryState& fts, 
-                                                    const Cylinder& cylinder) const {
-  if (insideTkVol(fts) && insideTkVol(cylinder)) {
-    return getTkPropagator()->propagate(fts, cylinder);
-  } else {
-    return getGenPropagator()->propagate(fts, cylinder);
-  }
-
-}
 
 std::pair<TrajectoryStateOnSurface,double> 
 SmartPropagator::propagateWithPath(const FreeTrajectoryState& fts, 
@@ -139,6 +112,29 @@ SmartPropagator::propagateWithPath(const FreeTrajectoryState& fts,
                                    const Cylinder& cylinder) const
 {
   if (insideTkVol(fts) && insideTkVol(cylinder)) {
+    return getTkPropagator()->propagateWithPath(fts, cylinder);
+  } else {
+    return getGenPropagator()->propagateWithPath(fts, cylinder);
+  }
+}
+
+
+std::pair<TrajectoryStateOnSurface,double> 
+SmartPropagator::propagateWithPath(const TrajectoryStateOnSurface& fts, 
+                                   const Plane& plane) const 
+{
+  if (insideTkVol(*fts.freeState()) && insideTkVol(plane)) {
+    return getTkPropagator()->propagateWithPath(fts, plane);
+  } else {
+    return getGenPropagator()->propagateWithPath(fts, plane);
+  }
+}
+
+std::pair<TrajectoryStateOnSurface,double> 
+SmartPropagator::propagateWithPath(const TrajectoryStateOnSurface& fts, 
+                                   const Cylinder& cylinder) const
+{
+  if (insideTkVol(*fts.freeState()) && insideTkVol(cylinder)) {
     return getTkPropagator()->propagateWithPath(fts, cylinder);
   } else {
     return getGenPropagator()->propagateWithPath(fts, cylinder);

@@ -67,10 +67,6 @@ const unsigned int ELBINS = 64;
 const float ELMIN = -.5;
 const float ELMAX = 63.5;
 
-const unsigned int HCALBINS = 1024;
-const float HCALMIN = -.5;
-const float HCALMAX = 1023.5;
-
 const unsigned int PhiEtaMax = 396;
 const unsigned int CHNLBINS = 396;
 const float CHNLMIN = -0.5;

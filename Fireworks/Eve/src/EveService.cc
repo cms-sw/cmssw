@@ -19,6 +19,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
+#define private public
+#include "TROOT.h"
+#include "TSystem.h"
+#include "TColor.h"
+#include "TStyle.h"
+#include "TEnv.h"
+
 // To extract coil current from ConditionsDB
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -139,6 +146,16 @@ EveService::EveService(const edm::ParameterSet&, edm::ActivityRegistry& ar) :
    std::cout<<"calling NeedGraphicsLibs()"<<std::endl;
    TApplication::NeedGraphicsLibs();
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,34,18)
+   // AMT workaround for an agressive clenup in 5.43.18
+   if (!gStyle) {
+      TColor::fgInitDone=false;
+      TColor::InitializeColors();
+      TStyle::BuildStyles();
+      gROOT->SetStyle(gEnv->GetValue("Canvas.Style", "Modern"));
+      gStyle = gROOT->GetStyle("Classic");
+   }
+#endif
    m_EveManager = TEveManager::Create();
 
    m_EveManager->AddEvent(new TEveEventManager("Event", "Event Data"));
@@ -152,9 +169,9 @@ EveService::EveService(const edm::ParameterSet&, edm::ActivityRegistry& ar) :
    ar.watchPostBeginJob(this, &EveService::postBeginJob);
    ar.watchPostEndJob  (this, &EveService::postEndJob);
 
-   ar.watchPostBeginRun(this, &EveService::postBeginRun);
+   ar.watchPostGlobalBeginRun(this, &EveService::postGlobalBeginRun);
 
-   ar.watchPostProcessEvent(this, &EveService::postProcessEvent);
+   ar.watchPostEvent(this, &EveService::postEvent);
 }
 
 EveService::~EveService()
@@ -186,10 +203,10 @@ void EveService::postEndJob()
 
 //------------------------------------------------------------------------------
 
-void EveService::postBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
+void EveService::postGlobalBeginRun(edm::GlobalContext const&)
 {
    float current = 18160.0f;
-
+   /*
    try 
    {
       edm::Handle<edm::ConditionsInRunBlock> runCond;
@@ -212,14 +229,15 @@ void EveService::postBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
    }
    catch (...) 
    {
-      printf("RunInfo not available \n");
    }
+   */
+   printf("RunInfo not available \n");
    static_cast<CmsEveMagField*>(m_MagField)->SetFieldByCurrent(current);
 }
 
 //------------------------------------------------------------------------------
 
-void EveService::postProcessEvent(const edm::Event&, const edm::EventSetup&)
+void EveService::postEvent(edm::StreamContext const&)
 {
    printf("EveService::postProcessEvent: Starting GUI loop.\n");
 

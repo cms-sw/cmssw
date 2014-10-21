@@ -7,6 +7,10 @@
 #include <sstream>
 #include <set>
 
+namespace edm {
+  class ServiceToken;
+}
+
 namespace cond {
   class DbConnection;
 
@@ -65,6 +69,9 @@ namespace cond {
     std::string getValueIfExists(const std::string& fullName);
     void sendException( const std::string& message );
     void sendError( const std::string& message );
+
+    protected:
+    edm::ServiceToken* m_currentToken = nullptr;
     
     private:
 
@@ -74,7 +81,6 @@ namespace cond {
     boost::program_options::positional_options_description m_positionalOptions;
     boost::program_options::variables_map m_values;
     cond::DbConnection* m_dbConnection;
-    bool m_pluginMgrInitialized;
     std::set<std::string> m_dbSessions;
   };
   

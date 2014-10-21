@@ -7,6 +7,8 @@
 // Created:     Thu, 14 Nov 2013 17:12:16 GMT
 //
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "DataFormats/Math/interface/Matrix.h"
 #include <iostream>
 #include <vector>
@@ -25,6 +27,8 @@ class EcalTimeBiasCorrections {
   std::vector<float> EETimeCorrShiftBins;
 
   void print(std::ostream& o) const;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

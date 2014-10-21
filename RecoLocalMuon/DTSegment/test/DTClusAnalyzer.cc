@@ -154,8 +154,8 @@ void DTClusAnalyzer::analyze(const Event & event,
   histo2d("hnClusVsHits")->Fill(nHit,nClus);
 
   // loop over SL and get hits, clus and segs2d for each
-  const std::vector<DTSuperLayer*> & sls = dtGeom->superLayers();
-  for (std::vector<DTSuperLayer*>::const_iterator sl = sls.begin();
+  const std::vector<const DTSuperLayer*> & sls = dtGeom->superLayers();
+  for (auto sl = sls.begin();
        sl!=sls.end() ; ++sl) {
     DTSuperLayerId slid((*sl)->id());
 

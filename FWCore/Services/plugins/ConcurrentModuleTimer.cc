@@ -20,6 +20,7 @@
 #include "FWCore/Utilities/interface/CPUTimer.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "FWCore/ServiceRegistry/interface/SystemBounds.h"
+#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 
 
 namespace edm {
@@ -72,11 +73,15 @@ m_startedTiming(false)
     stop();
   });
   
-  iReg.watchPreModuleEventDelayedGet([this](StreamContext const&, ModuleCallingContext const&){
-    stop();
+  iReg.watchPreModuleEventDelayedGet([this](StreamContext const&, ModuleCallingContext const& iContext){
+      if(iContext.state() == ModuleCallingContext::State::kRunning) {
+	stop();
+      }
   });
-  iReg.watchPostModuleEventDelayedGet([this](StreamContext const&, ModuleCallingContext const&){
-    start();
+  iReg.watchPostModuleEventDelayedGet([this](StreamContext const&, ModuleCallingContext const& iContext){
+      if(iContext.state() == ModuleCallingContext::State::kRunning) {
+	start();
+      }
   });
   
   iReg.watchPreallocate([this](edm::service::SystemBounds const& iBounds){

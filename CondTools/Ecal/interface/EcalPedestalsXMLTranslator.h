@@ -15,10 +15,6 @@
 #include <string>
 #include <xercesc/dom/DOMNode.hpp>
 
-static const char CVSId__EcalPedestalsXMLTranslator[] = 
-"$Id: EcalPedestalsXMLTranslator.h,v 1.2 2009/06/30 14:40:11 argiro Exp $";
-
-
 //class EcalPedestals;
 
 class EcalPedestalsXMLTranslator {

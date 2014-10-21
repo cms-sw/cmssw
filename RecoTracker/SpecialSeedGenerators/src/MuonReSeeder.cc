@@ -10,7 +10,7 @@
 */
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -28,7 +28,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 
-class MuonReSeeder : public edm::EDProducer {
+class MuonReSeeder : public edm::stream::EDProducer<> {
     public:
       explicit MuonReSeeder(const edm::ParameterSet & iConfig);
       virtual ~MuonReSeeder() { }

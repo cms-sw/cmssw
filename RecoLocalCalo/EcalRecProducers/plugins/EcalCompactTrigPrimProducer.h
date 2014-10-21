@@ -7,14 +7,14 @@
  *
  **/
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
-class EcalCompactTrigPrimProducer: public edm::EDProducer {
+class EcalCompactTrigPrimProducer: public edm::stream::EDProducer<> {
 
 public:
   EcalCompactTrigPrimProducer(const edm::ParameterSet& ps);

@@ -5,10 +5,6 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/HitInfo.h"
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShape.h"
-#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterData.h"
-
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
@@ -58,6 +54,8 @@ ClusterShapeHitFilter::ClusterShapeHitFilter
 
   // Load strip limits
   loadStripLimits();
+  cutOnPixelCharge_ = cutOnStripCharge_ = false;
+  cutOnPixelShape_ = cutOnStripShape_ = true;
 }
 
 /*****************************************************************************/
@@ -253,17 +251,16 @@ bool ClusterShapeHitFilter::isNormalOriented
 
 bool ClusterShapeHitFilter::getSizes
   (const SiPixelRecHit & recHit, const LocalVector & ldir,
-   int & part, vector<pair<int,int> > & meas, pair<float,float> & pred,
+   const SiPixelClusterShapeCache& clusterShapeCache,
+   int & part, ClusterData::ArrayType& meas, pair<float,float> & pred,
    PixelData const * ipd) const
 {
   // Get detector
   const PixelData & pd = getpd(recHit,ipd);
 
   // Get shape information
-  ClusterData data;
-  ClusterShape theClusterShape;
-  theClusterShape.determineShape(*pd.det, recHit, data);
-  bool usable = (data.isStraight && data.isComplete);
+  const SiPixelClusterShapeData& data = clusterShapeCache.get(recHit.cluster(), pd.det);
+  bool usable = (data.isStraight() && data.isComplete());
  
   // Usable?
   //if(usable)
@@ -274,18 +271,19 @@ bool ClusterShapeHitFilter::getSizes
     pred.first  = ldir.x() / ldir.z();
     pred.second = ldir.y() / ldir.z();
 
-    if(data.size.front().second < 0)
+    SiPixelClusterShapeData::Range sizeRange = data.size();
+    if(sizeRange.first->second < 0)
       pred.second = - pred.second;
 
-    meas.reserve(data.size.size());
-    for(vector<pair<int,int> >::const_iterator s = data.size.begin();
-	s!= data.size.end(); s++)
-      {
-	meas.push_back(*s);
-	
-	if(data.size.front().second < 0)
-	  meas.back().second = - meas.back().second;
-      }
+    meas.clear();
+    assert(meas.capacity() >= std::distance(sizeRange.first, sizeRange.second));
+    for(auto s=sizeRange.first; s != sizeRange.second; ++s) {
+      meas.push_back_unchecked(*s);
+    }
+    if(sizeRange.first->second < 0) {
+      for(auto& s: meas)
+        s.second = -s.second;
+    }
 
     // Take out drift 
     std::pair<float,float> const & drift = pd.drift;
@@ -304,21 +302,24 @@ bool ClusterShapeHitFilter::getSizes
 
 bool ClusterShapeHitFilter::isCompatible
   (const SiPixelRecHit & recHit, const LocalVector & ldir,
+   const SiPixelClusterShapeCache& clusterShapeCache,
 		    PixelData const * ipd) const
 {
  // Get detector
+  if (cutOnPixelCharge_ && (!checkClusterCharge(recHit.geographicalId(), *(recHit.cluster()), ldir))) return false;
+  if (!cutOnPixelShape_) return true;
+
   const PixelData & pd = getpd(recHit,ipd);
 
   int part;
-  vector<pair<int,int> > meas;
+  ClusterData::ArrayType meas;
   pair<float,float> pred;
 
-  if(getSizes(recHit, ldir, part,meas, pred,&pd))
+  if(getSizes(recHit, ldir, clusterShapeCache, part,meas, pred,&pd))
   {
-    for(vector<pair<int,int> >::const_iterator m = meas.begin();
-                                               m!= meas.end(); m++)
+    for(const auto& m: meas)
     {
-      PixelKeys key(part, (*m).first, (*m).second);
+      PixelKeys key(part, m.first, m.second);
       if (!key.isValid()) return true; // FIXME original logic
       if (pixelLimits[key].isInside(pred)) return true;
     }
@@ -331,6 +332,7 @@ bool ClusterShapeHitFilter::isCompatible
 
 bool ClusterShapeHitFilter::isCompatible
   (const SiPixelRecHit & recHit, const GlobalVector & gdir,
+   const SiPixelClusterShapeCache& clusterShapeCache,
 		    PixelData const * ipd) const
 {
  // Get detector
@@ -338,7 +340,7 @@ bool ClusterShapeHitFilter::isCompatible
 
   LocalVector ldir =pd.det->toLocal(gdir);
 
-  return isCompatible(recHit, ldir,&pd);
+  return isCompatible(recHit, ldir, clusterShapeCache, &pd);
 }
 
 
@@ -386,6 +388,9 @@ bool ClusterShapeHitFilter::isCompatible
   int meas;
   float pred;
 
+  if (cutOnStripCharge_ && (!checkClusterCharge(detId, cluster, ldir))) return false;
+  if (!cutOnStripShape_) return true;
+
   if(getSizes(detId, cluster, ldir, meas, pred))
   {
     StripKeys key(meas);
@@ -406,6 +411,24 @@ bool ClusterShapeHitFilter::isCompatible
   return isCompatible(detId, cluster, ldir);
 }
 
+
+bool ClusterShapeHitFilter::checkClusterCharge(DetId detId, const SiStripCluster& cluster, const LocalVector & ldir) const
+{
+  int clusCharge=accumulate( cluster.amplitudes().begin(), cluster.amplitudes().end(), uint16_t(0));
+
+  float chargeCut = minGoodStripCharge_*
+    theTracker->idToDet(detId)->surface().bounds().thickness()/abs(ldir.z()/ldir.mag());
+
+  return (clusCharge>chargeCut);
+}
+
+bool ClusterShapeHitFilter::checkClusterCharge(DetId detId, const SiPixelCluster& cluster, const LocalVector & ldir) const
+{
+  float chargeCut = minGoodPixelCharge_*
+    theTracker->idToDet(detId)->surface().bounds().thickness()/abs(ldir.z()/ldir.mag());
+
+  return (cluster.charge()>chargeCut);
+}
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

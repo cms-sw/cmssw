@@ -20,7 +20,7 @@ class ESRecHitProducer : public edm::EDProducer {
 
   explicit ESRecHitProducer(const edm::ParameterSet& ps);
   virtual ~ESRecHitProducer();
-  virtual void produce(edm::Event& e, const edm::EventSetup& es);
+  virtual void produce(edm::Event& e, const edm::EventSetup& es) override;
 
  private:
 

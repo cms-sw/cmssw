@@ -15,6 +15,7 @@ class TkHistoMap{
   typedef std::vector<MonitorElement*> tkHistoMapVect;
 
  public:
+  TkHistoMap(DQMStore::IBooker & ibooker , std::string path, std::string MapName, float baseline=0, bool mechanicalView=false);
   TkHistoMap(std::string path, std::string MapName, float baseline=0, bool mechanicalView=false);
   TkHistoMap();
   ~TkHistoMap(){};
@@ -45,11 +46,17 @@ class TkHistoMap{
 
  private:
 
+  //fixme: keep single method
   void createTkHistoMap(std::string& path, std::string& MapName, float& baseline, bool mechanicalView);
+  void createTkHistoMap(DQMStore::IBooker & ibooker , std::string& path, std::string& MapName, float& baseline, bool mechanicalView);
+
   std::string folderDefinition(std::string& path, std::string& MapName, int layer , bool mechanicalView, std::string& fullName);
 
   DQMStore* dqmStore_;
   TkDetMap* tkdetmap_;
+  uint32_t cached_detid;
+  int16_t cached_layer;
+  TkLayerMap::XYbin cached_XYbin;
   std::vector<MonitorElement*> tkHistoMap_;
   int HistoNumber;
   std::string MapName_;

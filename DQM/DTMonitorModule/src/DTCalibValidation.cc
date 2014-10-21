@@ -82,8 +82,8 @@ void DTCalibValidation::beginRun(const Run& run, const EventSetup& setup) {
   setup.get<MuonGeometryRecord>().get(dtGeom);
 
   // Loop over all the chambers
-  vector<DTChamber*>::const_iterator ch_it = dtGeom->chambers().begin();
-  vector<DTChamber*>::const_iterator ch_end = dtGeom->chambers().end();
+  vector<const DTChamber*>::const_iterator ch_it = dtGeom->chambers().begin();
+  vector<const DTChamber*>::const_iterator ch_end = dtGeom->chambers().end();
   for (; ch_it != ch_end; ++ch_it) {
     vector<const DTSuperLayer*>::const_iterator sl_it = (*ch_it)->superLayers().begin();
     vector<const DTSuperLayer*>::const_iterator sl_end = (*ch_it)->superLayers().end();

@@ -14,7 +14,8 @@ class TrackIPHistograms : public FlavourHistograms<T>
   TrackIPHistograms(const std::string& baseNameTitle_ , const std::string& baseNameDescription_,
                     const int& nBins_, const double& lowerBound_, const double& upperBound_,
                     const bool& statistics, const bool& plotLog_, const bool& plotNormalized_,
-                    const std::string& plotFirst_, const bool& update, const std::string& folder, const unsigned int& mc, const bool& quality);
+                    const std::string& plotFirst_, const bool& update, const std::string& folder, 
+		    const unsigned int& mc, const bool& quality, DQMStore::IBooker & ibook);
 
   virtual ~TrackIPHistograms(){};
 
@@ -46,13 +47,14 @@ template <class T>
 TrackIPHistograms<T>::TrackIPHistograms (const std::string& baseNameTitle_, const std::string& baseNameDescription_,
                                          const int& nBins_, const double& lowerBound_, const double& upperBound_,
                                          const bool& statistics_, const bool& plotLog_, const bool& plotNormalized_,
-                                         const std::string& plotFirst_, const bool& update, const std::string& folder, const unsigned int& mc, const bool& quality) :
+                                         const std::string& plotFirst_, const bool& update, const std::string& folder, 
+					 const unsigned int& mc, const bool& quality, DQMStore::IBooker & ibook) :
   FlavourHistograms<T>(baseNameTitle_, baseNameDescription_, nBins_, lowerBound_, upperBound_, statistics_, plotLog_, plotNormalized_,
-                       plotFirst_, update, folder, mc), quality_(quality)
+                       plotFirst_, update, folder, mc, ibook), quality_(quality)
 {
   if(quality_) {
     if(!update) {
-      HistoProviderDQM prov("Btag",folder);
+      HistoProviderDQM prov("Btag",folder,ibook);
       theQual_undefined = prov.book1D( baseNameTitle_ + "QualUnDef" , baseNameDescription_ + " Undefined Quality", nBins_, lowerBound_, upperBound_);
       theQual_loose = prov.book1D( baseNameTitle_ + "QualLoose" , baseNameDescription_ + " Loose Quality", nBins_, lowerBound_, upperBound_);
       theQual_tight = prov.book1D( baseNameTitle_ + "QualTight" , baseNameDescription_ + " Tight Quality", nBins_, lowerBound_, upperBound_);
@@ -65,7 +67,8 @@ TrackIPHistograms<T>::TrackIPHistograms (const std::string& baseNameTitle_, cons
         theQual_highpur->getTH1F()->Sumw2();
       }
     } else {
-      HistoProviderDQM prov("Btag",folder);
+      //is it useful? anyway access function is deprecated...
+      HistoProviderDQM prov("Btag",folder,ibook);
       theQual_undefined = prov.access(baseNameTitle_ + "QualUnDef");
       theQual_loose = prov.access(baseNameTitle_ + "QualLoose");
       theQual_tight = prov.access(baseNameTitle_ + "QualTight");

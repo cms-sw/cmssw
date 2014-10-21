@@ -44,15 +44,15 @@ namespace reco {
       trackDecayLenSig,                         // track decay length significance
       trackJetDistVal,                          // minimum track approach distance to jet axis
       trackJetDistSig,                          // minimum track approach distance to jet axis significance
-      trackGhostTrackDistVal,			// minimum approach distance to ghost track
-      trackGhostTrackDistSig,			// minimum approach distance to ghost track significance
-      trackGhostTrackWeight,			// weight of track participation in ghost track fit
+      trackGhostTrackDistVal,                   // minimum approach distance to ghost track
+      trackGhostTrackDistSig,                   // minimum approach distance to ghost track significance
+      trackGhostTrackWeight,                    // weight of track participation in ghost track fit
 
       trackSumJetEtRatio,                       // ratio of track sum transverse energy over jet energy
       trackSumJetDeltaR,                        // pseudoangular distance between jet axis and track fourvector sum
 
       vertexCategory,                           // category of secondary vertex (Reco, Pseudo, No)
-  		vertexLeptonCategory,											// category of secondary vertex & soft lepton (RecoNo, PseudoNo, NoNo, RecoMu, PseudoMu, NoMu, RecoEl, PseudoEl, NoEl)
+      vertexLeptonCategory,                     // category of secondary vertex & soft lepton (RecoNo, PseudoNo, NoNo, RecoMu, PseudoMu, NoMu, RecoEl, PseudoEl, NoEl)
 
       jetNSecondaryVertices,                    // number of reconstructed possible secondary vertices in jet
       jetNSingleTrackVertices,                  // number of single-track ghost-track vertices
@@ -83,31 +83,31 @@ namespace reco {
       trackNTotalHits,                          // number of valid total hits
       trackNPixelHits,                          // number of valid pixel hits
 
-			chargedHadronEnergyFraction,							// fraction of the jet energy coming from charged hadrons
-			neutralHadronEnergyFraction,							// fraction of the jet energy coming from neutral hadrons
-			photonEnergyFraction,											// fraction of the jet energy coming from photons
-			electronEnergyFraction,										// fraction of the jet energy coming from electrons
-			muonEnergyFraction,												// fraction of the jet energy coming from muons
-			chargedHadronMultiplicity,								// number of charged hadrons in the jet  			
-			neutralHadronMultiplicity,								// number of neutral hadrons in the jet   			
-			photonMultiplicity,  											// number of photons in the jet  		
-			electronMultiplicity,  										// number of electrons in the jet 			
-			muonMultiplicity,  		 										// number of muons in the jet	
-			hadronMultiplicity,  		 									// sum of number of charged and neutral hadrons in the jet	
-			hadronPhotonMultiplicity,  		 						// sum of number of charged and neutral hadrons and photons in the jet	
-			totalMultiplicity,   		 									// sum of number of charged and neutral hadrons, photons, electrons and muons in the jet
-						
-			massVertexEnergyFraction,									// vertexmass times fraction of the vertex energy w.r.t. the jet energy
-			vertexBoostOverSqrtJetPt,									// variable related to the boost of the vertex system in flight direction
+      chargedHadronEnergyFraction,              // fraction of the jet energy coming from charged hadrons
+      neutralHadronEnergyFraction,              // fraction of the jet energy coming from neutral hadrons
+      photonEnergyFraction,                     // fraction of the jet energy coming from photons
+      electronEnergyFraction,                   // fraction of the jet energy coming from electrons
+      muonEnergyFraction,                       // fraction of the jet energy coming from muons
+      chargedHadronMultiplicity,                // number of charged hadrons in the jet
+      neutralHadronMultiplicity,                // number of neutral hadrons in the jet
+      photonMultiplicity,                       // number of photons in the jet
+      electronMultiplicity,                     // number of electrons in the jet
+      muonMultiplicity,                         // number of muons in the jet
+      hadronMultiplicity,                       // sum of number of charged and neutral hadrons in the jet
+      hadronPhotonMultiplicity,                 // sum of number of charged and neutral hadrons and photons in the jet
+      totalMultiplicity,                        // sum of number of charged and neutral hadrons, photons, electrons and muons in the jet
 
-		  leptonSip2d,                            	// 2D signed impact parameter of the soft lepton
-		  leptonSip3d,                          	 	// 3D signed impact parameter of the soft lepton
-		  leptonPtRel,                          	 	// transverse momentum of the soft lepton wrt. the jet axis
-		  leptonP0Par,                          	 	// momentum of the soft lepton along the jet direction, in the jet rest frame
-		  leptonEtaRel,                         	 	// pseudo)rapidity of the soft lepton along jet axis
-		  leptonDeltaR,                         		// pseudo)angular distance of the soft lepton to jet axis
-		  leptonRatio,                          		// momentum of the soft lepton over jet energy
-		  leptonRatioRel,                       		// momentum of the soft lepton parallel to jet axis over jet energy
+      massVertexEnergyFraction,                 // vertexmass times fraction of the vertex energy w.r.t. the jet energy
+      vertexBoostOverSqrtJetPt,                 // variable related to the boost of the vertex system in flight direction
+
+      leptonSip2d,                              // 2D signed impact parameter of the soft lepton
+      leptonSip3d,                              // 3D signed impact parameter of the soft lepton
+      leptonPtRel,                              // transverse momentum of the soft lepton wrt. the jet axis
+      leptonP0Par,                              // momentum of the soft lepton along the jet direction, in the jet rest frame
+      leptonEtaRel,                             // pseudo)rapidity of the soft lepton along jet axis
+      leptonDeltaR,                             // pseudo)angular distance of the soft lepton to jet axis
+      leptonRatio,                              // momentum of the soft lepton over jet energy
+      leptonRatioRel,                           // momentum of the soft lepton parallel to jet axis over jet energy
 
       algoDiscriminator,                        // discriminator output of an algorithm
 

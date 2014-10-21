@@ -10,7 +10,6 @@
 #include "HLTrigger/Egamma/interface/HLTEgammaEtFilter.h"
 #include "HLTrigger/Egamma/interface/HLTEgammaDoubleEtFilter.h"
 #include "HLTrigger/Egamma/interface/HLTElectronPixelMatchFilter.h"
-#include "HLTrigger/Egamma/interface/HLTElectronPixelMatchSFilter.h"
 #include "HLTrigger/Egamma/interface/HLTElectronPFMTFilter.h"
 #include "HLTrigger/Egamma/interface/HLTPMMassFilter.h"
 #include "HLTrigger/Egamma/interface/HLTElectronMuonInvMassFilter.h"

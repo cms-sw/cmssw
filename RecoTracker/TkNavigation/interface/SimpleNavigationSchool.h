@@ -26,13 +26,13 @@ public:
   ~SimpleNavigationSchool(){cleanMemory();}
 
   // from base class
-  virtual StateType navigableLayers() const;
+  virtual StateType navigableLayers() override;
 
 protected:
 
   typedef std::vector<const DetLayer*>              DLC;
-  typedef std::vector<BarrelDetLayer*>              BDLC;
-  typedef std::vector<ForwardDetLayer*>             FDLC;
+  typedef std::vector<const BarrelDetLayer*>        BDLC;
+  typedef std::vector<const ForwardDetLayer*>       FDLC;
   typedef DLC::iterator                        DLI;
   typedef BDLC::iterator                       BDLI;
   typedef FDLC::iterator                       FDLI;
@@ -53,13 +53,13 @@ protected:
   virtual void linkBarrelLayers( SymmetricLayerFinder& symFinder);
   virtual void linkForwardLayers( SymmetricLayerFinder& symFinder);
 
-  virtual void linkNextForwardLayer( BarrelDetLayer*, FDLC&);
+  virtual void linkNextForwardLayer( BarrelDetLayer const*, FDLC&);
 
   virtual void linkNextLargerLayer( BDLI, BDLI, BDLC&);
 
-  virtual void linkNextBarrelLayer( ForwardDetLayer* fl, BDLC&);
+  virtual void linkNextBarrelLayer( ForwardDetLayer const* fl, BDLC&);
 
-  virtual void linkOuterGroup( ForwardDetLayer* fl,
+  virtual void linkOuterGroup( ForwardDetLayer const* fl,
 		       const FDLC& group,
 		       FDLC& reachableFL);
 

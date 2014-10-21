@@ -11,6 +11,8 @@
  *
  */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "TGraph.h"
 
 #include <vector>
@@ -37,6 +39,8 @@ class PhysicsTGraphPayload
   int numPoints_;
   std::vector<float> x_;
   std::vector<float> y_;
+
+  COND_SERIALIZABLE;
 };
 
 #endif

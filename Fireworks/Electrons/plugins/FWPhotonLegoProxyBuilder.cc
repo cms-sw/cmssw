@@ -23,6 +23,7 @@ private:
    FWPhotonLegoProxyBuilder(const FWPhotonLegoProxyBuilder&);
    const FWPhotonLegoProxyBuilder& operator=(const FWPhotonLegoProxyBuilder&);
 
+   using FWSimpleProxyBuilderTemplate<reco::Photon>  ::build;
    virtual void build(const reco::Photon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) override;
 };
 

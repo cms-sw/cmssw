@@ -23,6 +23,7 @@ private:
    FWL1EtMissParticleLegoProxyBuilder( const FWL1EtMissParticleLegoProxyBuilder& );    // stop default
    const FWL1EtMissParticleLegoProxyBuilder& operator=( const FWL1EtMissParticleLegoProxyBuilder& );    // stop default
    
+   using FWSimpleProxyBuilderTemplate<l1extra::L1EtMissParticle>::build;
    virtual void build( const l1extra::L1EtMissParticle& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext* );
 };
 

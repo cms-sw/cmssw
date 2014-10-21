@@ -2433,7 +2433,6 @@ EcalTrivialConditionRetriever::getIntercalibConstantsFromConfiguration
 	      double eta= -log(tan(0.5*atan(sqrt((iX-50.0)*(iX-50.0)+(iY-50.0)*(iY-50.0))*2.98/328.)));
 	      eta = fabs(eta);
 	      double constantTerm=ageing.calcresolutitonConstantTerm(eta);
-	      EcalIntercalibConstants::const_iterator idref=mymap.find(eedetidneg);
 	      EcalIntercalibConstant icalconstant=1;
 
 

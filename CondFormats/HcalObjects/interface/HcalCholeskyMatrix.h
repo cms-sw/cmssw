@@ -1,6 +1,8 @@
 #ifndef HcalCholeskyMatrix_h
 #define HcalCholeskyMatrix_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <boost/cstdint.hpp>
 #include "CondFormats/HcalObjects/interface/HcalPedestal.h"
 #include <math.h>
@@ -18,5 +20,7 @@ class HcalCholeskyMatrix {
    signed short int cmatrix[4][55];
    uint32_t mId;
 //   float cmatrix[4][10][10];
+
+ COND_SERIALIZABLE;
 };
 #endif

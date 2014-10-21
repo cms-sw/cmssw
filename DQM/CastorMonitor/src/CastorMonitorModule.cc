@@ -20,7 +20,7 @@
 //==================================================================//
 CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps)
   {
-  if(fVerbosity>0) std::cout << "CastorMonitorModule Constructor (start)" << std::endl;
+
 
    ////---- get steerable variables
   inputLabelRaw_ 			= ps.getParameter<edm::InputTag>("rawLabel");
@@ -31,6 +31,8 @@ CastorMonitorModule::CastorMonitorModule(const edm::ParameterSet& ps)
   fVerbosity 				= ps.getUntrackedParameter<int>("debug", 0);                        //-- show debug 
   showTiming_ 				= ps.getUntrackedParameter<bool>("showTiming", false);         //-- show CPU time 
   dump2database_   			= ps.getUntrackedParameter<bool>("dump2database",false);  //-- dumps output to database file
+
+  if(fVerbosity>0) std::cout << "CastorMonitorModule Constructor (start)" << std::endl;
 
   ////---- initialize Run, LS, Event number and other parameters
   irun_=0; 

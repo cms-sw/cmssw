@@ -97,17 +97,21 @@ bool support::isSafeClassName(const std::string &name) {
   std::string cmutex = "class std::mutex";
   std::string crmutex = "class std::recursive_mutex";
   std::string cbtsp = "class boost::thread_specific_ptr";
+  std::string tbb = "tbb::";
   std::string ctbb = "class tbb::";
   std::string eap = "edm::AtomicPtrCache";
   std::string ceap = "class edm::AtomicPtrCache";
+  std::string once = "std::once_flag";
+  std::string conce = "struct std::once_flag";
   
   if ( name.substr(0,atomic.length()) == atomic || name.substr(0,catomic.length()) == catomic
 	|| name.substr(0,uatomic.length()) == uatomic  || name.substr(0,cuatomic.length()) == cuatomic
 	|| name.substr(0,mutex.length()) == mutex || name.substr(0,cmutex.length()) == cmutex 
 	|| name.substr(0,rmutex.length()) == rmutex || name.substr(0,crmutex.length()) == rmutex 
 	|| name.substr(0,btsp.length()) == btsp || name.substr(0,cbtsp.length()) == cbtsp 
-	|| name.substr(0,ctbb.length()) == ctbb 
+	|| name.substr(0,ctbb.length()) == ctbb ||  name.substr(0,tbb.length()) == tbb
 	|| name.substr(0,eap.length()) == eap || name.substr(0,ceap.length()) == ceap
+	|| name.substr(0,once.length()) == once || name.substr(0,conce.length()) == conce
 	) 
 	return true;	
   return false;
@@ -129,21 +133,19 @@ bool support::isDataClass(const std::string & name) {
 	}
 		
 	std::string tname("/tmp/classes.txt");
-	std::string sname("/src/Utilities/StaticAnalyzers/scripts/classes.txt");
 	std::string fname1 = lname + tname;
-	std::string fname2 = rname + sname;
-	if (!FM.getFile(fname1) && !FM.getFile(fname2) ) {
+	if (!FM.getFile(fname1)) {
 		llvm::errs()<<"\n\nChecker cannot find classes.txt. Run \"USER_LLVM_CHECKERS='-enable-checker optional.ClassDumperCT -enable-checker optional.ClassDumperFT scram b checker to create $LOCALRT/tmp/classes.txt.\n\n\n";
 		exit(1);
 		}
 	if ( FM.getFile(fname1) ) 
 		iname = fname1;
-	else 
-		iname = fname2;	
-	os <<"class '"<< name <<"'\n";
+	os <<"class '"<< name <<"'";
 	std::ifstream ifile;
 	ifile.open(iname.c_str(),std::ifstream::in);
-	std::string ifilecontents((std::istreambuf_iterator<char>(ifile)),std::istreambuf_iterator<char>() );
-	if (ifilecontents.find(os.str()) != std::string::npos ) return true;
+	std::string line;
+	while (std::getline(ifile,line)) {
+		if ( line == os.str() ) return true;
+	}
 	return false;
 }

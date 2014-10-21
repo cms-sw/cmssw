@@ -56,7 +56,7 @@ class SimTrack;
 
 
 
-class PhotonValidator : public DQMEDAnalyzer
+class PhotonValidator : public thread_unsafe::DQMEDAnalyzer
 {
 
  public:
@@ -250,7 +250,6 @@ class PhotonValidator : public DQMEDAnalyzer
 
   MonitorElement* h_EtR9Less093_[3][3];
   MonitorElement* h_r9_[3][3];
-  MonitorElement* h2_r9VsEta_[3];
   MonitorElement* p_r9VsEta_[3];
   MonitorElement* h2_r9VsEt_[3];
   MonitorElement* p_r9VsEt_[3];

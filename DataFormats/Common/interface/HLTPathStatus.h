@@ -50,6 +50,8 @@ namespace edm
     /// get state of path
     hlt::HLTState state() const {return (static_cast<hlt::HLTState>(status_ % 4));}
     /// get index of module giving the status of this path
+    /// Nota Bene: if a Path or EndPath is empty (that is, it does not contain any ED module),
+    /// index will be 0, even if there is no "0th module" responsible for the status of the path 
     unsigned int  index() const {return (static_cast<unsigned int >(status_ / 4));}
     /// reset this path
     void reset() {status_=0;}

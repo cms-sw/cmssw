@@ -36,7 +36,6 @@
 #include "RecoTracker/NuclearSeedGenerator/interface/SeedFromNuclearInteraction.h"
 #include "RecoTracker/NuclearSeedGenerator/interface/TangentHelix.h"
 
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 

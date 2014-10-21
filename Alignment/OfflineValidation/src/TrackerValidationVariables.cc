@@ -92,10 +92,10 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
     hitStruct.localAlpha = atan2(lVTrk.x(), lVTrk.z()); // wrt. normal tg(alpha)=x/z
     hitStruct.localBeta  = atan2(lVTrk.y(), lVTrk.z()); // wrt. normal tg(beta)= y/z
 
-    //LocalError errHit = hit->localPositionError();
-    // adding APE to hitError
-    AlgebraicROOTObject<2>::SymMatrix mat = asSMatrix<2>(hit->parametersError());
-    LocalError errHit = LocalError( mat(0,0),mat(0,1),mat(1,1) );
+    LocalError errHit = hit->localPositionError();
+    // no need to add  APE to hitError anymore
+    // AlgebraicROOTObject<2>::SymMatrix mat = asSMatrix<2>(hit->parametersError());
+    // LocalError errHit = LocalError( mat(0,0),mat(0,1),mat(1,1) );
     LocalError errTrk = tsos.localError().positionError();
     
     //check for negative error values: track error can have negative value, if matrix inversion fails (very rare case)

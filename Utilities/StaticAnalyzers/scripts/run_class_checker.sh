@@ -1,25 +1,28 @@
 #!/usr/bin/env bash
 export LC_ALL=C 
-if [ $# -eq 0 ] 
- 	then
-	echo "Passing -j1 to make."
-	echo "Supply a number argument to override."
-	J=1
-else
-	J=$1
-fi
+if [ $# -eq 0 ] ;then J=$(getconf _NPROCESSORS_ONLN); else J=$1; fi
 
-export SCRAM_ARCH=slc5_amd64_gcc481
 eval `scram runtime -sh`
 ulimit -m 2000000
 ulimit -v 2000000
 ulimit -t 1200
-export USER_LLVM_CHECKERS="-disable-checker cplusplus -disable-checker unix -disable-checker threadsafety -disable-checker core -disable-checker security -disable-checker deadcode -disable-checker cms -enable-checker optional.ClassChecker"
-if [ ! -f ${CMSSW_BASE}/tmp/classes.txt ] 
+ulimit -f 40000000
+if [ ! -f ${LOCALRT}/tmp/classes.txt ] 
 	then 
-	cp  -p ${CMSSW_BASE}/src/Utilities/StaticAnalyzers/scripts/classes.txt ${CMSSW_BASE}/tmp/classes.txt
+	echo "run ${CMSSW_BASE}/src/Utilities/StaticAnalyzers/scripts/run_class_dumper.sh first"
+	exit 1
 fi
-mv ${CMSSW_BASE}/tmp/class-checker.txt.sorted ${CMSSW_BASE}/tmp/class-checker.txt.sorted.old
-rm ${CMSSW_BASE}/tmp/class-checker.txt.unsorted
-scram b -k -j $J checker 2>&1 | tee ${CMSSW_BASE}/tmp/classchecker.log
-sort -u < ${CMSSW_BASE}/tmp/class-checker.txt.unsorted | grep -e"^data class">${CMSSW_BASE}/tmp/class-checker.txt.sorted 
+cd ${LOCALRT}/tmp/
+touch check-start
+touch function-checker.txt.unsorted class-checker.txt.unsorted
+cd ${LOCALRT}/src/Utilities/StaticAnalyzers
+scram b -j $J
+cd ${LOCALRT}/
+export USER_CXXFLAGS="-DEDM_ML_DEBUG -w"
+export USER_LLVM_CHECKERS="-disable-checker cplusplus -disable-checker unix -enable-checker threadsafety -disable-checker core -disable-checker security -disable-checker deadcode -disable-checker cms -enable-checker optional.ClassChecker -enable-checker cms.FunctionChecker"
+scram b -k -j $J checker  SCRAM_IGNORE_PACKAGES=Fireworks/% SCRAM_IGNORE_SUBDIRS=test 2>&1 > ${LOCALRT}/tmp/class+function-checker.log
+cd ${LOCALRT}/tmp/
+touch check-end
+sort -u < class-checker.txt.unsorted | grep -e"^data class">class-checker.txt
+sort -u < function-checker.txt.unsorted >function-statics-db.txt
+rm *.txt.unsorted

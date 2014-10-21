@@ -7,7 +7,7 @@
 #include <memory>
 
 CaloTowerConstituentsMap::~CaloTowerConstituentsMap() {
-  delete m_reverseItems;
+  delete m_reverseItems.load();
   m_reverseItems = nullptr;
 }
 CaloTowerConstituentsMap::CaloTowerConstituentsMap(const HcalTopology * topology) :

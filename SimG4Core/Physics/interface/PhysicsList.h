@@ -21,7 +21,7 @@ public:
   virtual void SetCuts();
 
 private:
-  edm::ParameterSet    m_pPhysics;
+  const edm::ParameterSet m_pPhysics;
   DDG4ProductionCuts * prodCuts;
   int                  m_Verbosity;
 };

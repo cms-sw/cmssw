@@ -42,37 +42,20 @@ void PFPileUpAlgo::process(const PFCollection & pfCandidates,
 int 
 PFPileUpAlgo::chargedHadronVertex( const reco::VertexCollection& vertices, const reco::PFCandidate& pfcand ) const {
 
-  
-  reco::TrackBaseRef trackBaseRef( pfcand.trackRef() );
-  
+  auto const & track = pfcand.trackRef();  
   size_t  iVertex = 0;
-  unsigned index=0;
-  unsigned nFoundVertex = 0;
-  typedef reco::VertexCollection::const_iterator IV;
-  typedef reco::Vertex::trackRef_iterator IT;
+  unsigned int index=0;
+  unsigned int nFoundVertex = 0;
   float bestweight=0;
-  for(IV iv=vertices.begin(); iv!=vertices.end(); ++iv, ++index) {
-
-    const reco::Vertex& vtx = *iv;
-    
-    // loop on tracks in vertices
-    for(IT iTrack=vtx.tracks_begin(); 
-	iTrack!=vtx.tracks_end(); ++iTrack) {
-	 
-      const reco::TrackBaseRef& baseRef = *iTrack;
-
-      // one of the tracks in the vertex is the same as 
-      // the track considered in the function
-      if(baseRef == trackBaseRef ) {
-	float w = vtx.trackWeight(baseRef);
-	//select the vertex for which the track has the highest weight
-	if (w > bestweight){
+  for( auto const & vtx : vertices) {
+      float w = vtx.trackWeight(track);
+     //select the vertex for which the track has the highest weight
+ 	if (w > bestweight){
 	  bestweight=w;
 	  iVertex=index;
 	  nFoundVertex++;
-	}	 	
-      }
-    }
+	}
+     ++index;
   }
 
   if (nFoundVertex>0){
@@ -89,7 +72,7 @@ PFPileUpAlgo::chargedHadronVertex( const reco::VertexCollection& vertices, const
     double ztrack = pfcand.vertex().z();
     bool foundVertex = false;
     index = 0;
-    for(IV iv=vertices.begin(); iv!=vertices.end(); ++iv, ++index) {
+    for(auto iv=vertices.begin(); iv!=vertices.end(); ++iv, ++index) {
 
       double dz = fabs(ztrack - iv->z());
       if(dz<dzmin) {

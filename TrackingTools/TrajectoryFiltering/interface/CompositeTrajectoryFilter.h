@@ -16,17 +16,22 @@ class CompositeTrajectoryFilter : public TrajectoryFilter {
 public:
 
   explicit CompositeTrajectoryFilter(){filters.clear();}
-  explicit CompositeTrajectoryFilter(std::vector< const TrajectoryFilter *> & f){filters=f;}
-  explicit CompositeTrajectoryFilter( const edm::ParameterSet & pset)
+  explicit CompositeTrajectoryFilter( const edm::ParameterSet & pset, edm::ConsumesCollector& iC)
   {
     //look for VPSet of filters
     std::vector<edm::ParameterSet> vpset=pset.getParameter<std::vector<edm::ParameterSet> >("filters");
     for (unsigned int i=0;i!= vpset.size();i++)
-      {filters.push_back(TrajectoryFilterFactory::get()->create(vpset[i].getParameter<std::string>("ComponentType"),
-								vpset[i]));}
+      {filters.emplace_back(TrajectoryFilterFactory::get()->create(vpset[i].getParameter<std::string>("ComponentType"),
+                                                                   vpset[i], iC));}
   }
   
   ~CompositeTrajectoryFilter() {}
+
+  void setEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup) override {
+    for(auto& f: filters) {
+      f->setEvent(iEvent, iSetup);
+    }
+  }
 
   virtual bool qualityFilter( const Trajectory& traj) const { return QF<Trajectory>(traj);}
   virtual bool qualityFilter( const TempTrajectory& traj) const { return QF<TempTrajectory>(traj);}
@@ -54,7 +59,7 @@ protected:
     for (;i<n;i++){ if (!filters[i]->qualityFilter(traj)) return false; }
     return true;}
  protected:
-  std::vector< const TrajectoryFilter *> filters;
+  std::vector<std::unique_ptr<TrajectoryFilter> > filters;
   
 };
 

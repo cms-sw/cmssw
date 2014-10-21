@@ -27,7 +27,6 @@
 static char const* const kClassNameOpt = "className";
 static char const* const kHelpOpt = "help";
 static char const* const kHelpCommandOpt="help,h";
-static char const* const kProgramName = "edmClassStorageSize";
 
 
 int main(int argc, char* argv[]) try

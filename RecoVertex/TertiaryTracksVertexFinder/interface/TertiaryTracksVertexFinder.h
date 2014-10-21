@@ -12,6 +12,7 @@ class TertiaryTracksVertexFinder : public VertexReconstructor {
 
   virtual ~TertiaryTracksVertexFinder();
 
+  using VertexReconstructor::vertices;
   virtual std::vector<TransientVertex> 
     vertices(const std::vector<reco::TransientTrack> & tracks) const {
     return theFinder->vertices(tracks); 

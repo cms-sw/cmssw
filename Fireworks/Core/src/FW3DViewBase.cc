@@ -56,7 +56,10 @@ private:
 public:
    Clipsi(TGLRnrCtx* ctx):TGLClip(* new TGLClipsiLogical, TGLMatrix(), fgColor), m_rnrCtx(ctx){}
    virtual ~Clipsi() {}
+   using TGLClip::Setup;
    virtual void Setup(const TGLBoundingBox & bbox) override {}
+
+   using TGLClip::PlaneSet;
    virtual void PlaneSet(TGLPlaneSet_t & planeSet) const override
    {
       TGLCamera& cam = m_rnrCtx->RefCamera();

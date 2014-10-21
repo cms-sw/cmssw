@@ -172,8 +172,8 @@ void STAnalyzer::beginRun(const edm::Run& run, const EventSetup& setup) {
   static bool FirstPass = true;
 
   if(FirstPass){
-  const std::vector<DTChamber*> & chs = dtGeom->chambers();
-  for (std::vector<DTChamber*>::const_iterator ch = chs.begin();
+  const std::vector<const DTChamber*> & chs = dtGeom->chambers();
+  for (auto ch = chs.begin();
        ch!=chs.end() ; ++ch) 
     hitsPerChamber[(*ch)->id()]=0;
   }

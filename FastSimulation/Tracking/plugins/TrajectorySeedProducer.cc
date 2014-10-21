@@ -634,26 +634,6 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 #ifdef FAMOS_DEBUG
 	  std::cout << "Algo" << seedingAlgo[0] << "\t Are the two hits compatible with the PV? " << compatible << std::endl;
 #endif
-
-	  if (!selectMuons) {
-	    // Check if the pair is on the requested dets
-	    if ( numberOfHits[ialgo] == 2 ) {
-	      
-	      if ( seedingAlgo[0] ==  "ThirdMixedPairs" ){
-		compatible = compatible && theSeedHits[0].makesAPairWith3rd(theSeedHits[1]);
-	      } else {
-		compatible = compatible && theSeedHits[0].makesAPairWith(theSeedHits[1]);
-		//check
-		/*
-		  if((seedingAlgo[0] == "PixelLess" ||  seedingAlgo[0] ==  "TobTecLayerPairs") && !compatible) 
-		  std::cout << "NOT Compatible " <<  seedingAlgo[0] 
-		  <<  "Hit 1 Det/layer/ring = " << theSeedHits0.subDetId() << "/" <<  theSeedHits0.layerNumber() << "/" << theSeedHits0.ringNumber() 
-		  <<  "\tHit 2 Det/layer/ring = " << theSeedHits1.subDetId() << "/" <<  theSeedHits1.layerNumber() << "/" << theSeedHits1.ringNumber() <<  std::endl;
-		*/
-	      }
-	    }	
-	  }    
-	  
 	  // Reject non suited pairs
 	  if ( !compatible ) continue;
 
@@ -694,9 +674,6 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
 	    // Check if on the same layer as previous hit
 	    compatible = !(theSeedHits2.isOnTheSameLayer(theSeedHits1));
-
-	    // Check if the triplet is on the requested det combination
-	    if (!selectMuons) compatible = compatible && theSeedHits[0].makesATripletWith(theSeedHits[1],theSeedHits[2]); //J- maybe it's not necessary, as newSyntax layerlist is already checking?
 
 #ifdef FAMOS_DEBUG
 	    if ( compatible ) 

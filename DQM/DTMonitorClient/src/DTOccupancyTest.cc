@@ -148,9 +148,9 @@ void DTOccupancyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
   glbSummaryHisto->Reset();
 
   // Get all the DT chambers
-  vector<DTChamber*> chambers = muonGeom->chambers();
+  vector<const DTChamber*> chambers = muonGeom->chambers();
 
-  for(vector<DTChamber*>::const_iterator chamber = chambers.begin();
+  for(vector<const DTChamber*>::const_iterator chamber = chambers.begin();
       chamber != chambers.end(); ++chamber) {  // Loop over all chambers
     DTChamberId chId = (*chamber)->id();
 

@@ -183,7 +183,7 @@ void  DeDxDiscriminatorProducer::beginRun(edm::Run const& run, const edm::EventS
       iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
       m_tracker = tkGeom.product();
 
-      vector<GeomDet*> Det = tkGeom->dets();
+      auto const & Det = tkGeom->dets();
       for(unsigned int i=0;i<Det.size();i++){
          DetId  Detid  = Det[i]->geographicalId();
          int    SubDet = Detid.subdetId();
@@ -191,7 +191,7 @@ void  DeDxDiscriminatorProducer::beginRun(edm::Run const& run, const edm::EventS
          if( SubDet == StripSubdetector::TIB ||  SubDet == StripSubdetector::TID ||
              SubDet == StripSubdetector::TOB ||  SubDet == StripSubdetector::TEC  ){
 
-             StripGeomDetUnit* DetUnit     = dynamic_cast<StripGeomDetUnit*> (Det[i]);
+             auto DetUnit     = dynamic_cast<StripGeomDetUnit const*> (Det[i]);
              if(!DetUnit)continue;
 
              const StripTopology& Topo     = DetUnit->specificTopology();
@@ -217,7 +217,7 @@ void  DeDxDiscriminatorProducer::beginRun(edm::Run const& run, const edm::EventS
 
 }
 
-void  DeDxDiscriminatorProducer::endJob()
+void  DeDxDiscriminatorProducer::endStream()
 {
    MODsColl.clear();
 }

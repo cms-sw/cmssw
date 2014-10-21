@@ -75,7 +75,6 @@
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DLocalPos.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 
 using namespace std;
@@ -440,7 +439,7 @@ GlobalTrajectoryBuilderBase::selectTrackerHits(const ConstRecHitContainer& all) 
          (*i)->det()->geographicalId().subdetId() == StripSubdetector::TEC) {
       nTEC++;
     } else {
-      hits.push_back((*i).get());
+      hits.push_back(*i);
     }
     if ( nTEC > 1 ) return all;
   }
@@ -486,27 +485,26 @@ void GlobalTrajectoryBuilderBase::fixTEC(ConstRecHitContainer& all,
     
     // rescale the TEC rechit error matrix in its rotated frame
     const SiStripRecHit2D* strip = dynamic_cast<const SiStripRecHit2D*>((*lone_tec)->hit());
-    const TSiStripRecHit2DLocalPos* Tstrip = dynamic_cast<const TSiStripRecHit2DLocalPos*>((*lone_tec).get());
-    if (strip && Tstrip->det() && Tstrip) {
-      LocalPoint pos = Tstrip->localPosition();
+    if (strip && strip->det() ) {
+      LocalPoint pos = strip->localPosition();
       if ((*lone_tec)->detUnit()) {
         const StripTopology* topology = dynamic_cast<const StripTopology*>(&(*lone_tec)->detUnit()->topology());
         if (topology) {
           // rescale the local error along/perp the strip by a factor
           float angle = topology->stripAngle(topology->strip((*lone_tec)->hit()->localPosition()));
-          LocalError error = Tstrip->localPositionError();
+          LocalError error = strip->localPositionError();
           LocalError rotError = error.rotate(angle);
           LocalError scaledError(rotError.xx() * scl_x * scl_x, 0, rotError.yy() * scl_y * scl_y);
           error = scaledError.rotate(-angle);
-          MuonTransientTrackingRecHit* mtt_rechit;
-          
+             /// freeze this hit, make sure it will not be recomputed during fitting
             //// the implemetantion below works with cloning
             //// to get a RecHitPointer to SiStripRecHit2D, the only  method that works is
             //// RecHitPointer MuonTransientTrackingRecHit::build(const GeomDet*,const TrackingRecHit*)
             SiStripRecHit2D* st = new SiStripRecHit2D(pos,error,
-                                                      *Tstrip->detUnit(),
+                                                      *strip->det(),
                                                       strip->cluster());
-            *lone_tec = mtt_rechit->build((*lone_tec)->det(),st);
+            *lone_tec = MuonTransientTrackingRecHit::build((*lone_tec)->det(),st);
+ 
         }
       }
     }
@@ -515,6 +513,7 @@ void GlobalTrajectoryBuilderBase::fixTEC(ConstRecHitContainer& all,
 }
 
 
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 //
 // get transient RecHits
 //
@@ -527,12 +526,12 @@ GlobalTrajectoryBuilderBase::getTransientRecHits(const reco::Track& track) const
 
   TrajectoryStateOnSurface currTsos = trajectoryStateTransform::innerStateOnSurface(track, *theService->trackingGeometry(), &*theService->magneticField());
 
+  auto hitCloner = static_cast<TkTransientTrackingRecHitBuilder const *>(theTrackerRecHitBuilder.product())->cloner(); 
   for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
     if((*hit)->isValid()) {
       DetId recoid = (*hit)->geographicalId();
       if ( recoid.det() == DetId::Tracker ) {
-	TransientTrackingRecHit::RecHitPointer ttrhit = theTrackerRecHitBuilder->build(&**hit);
-	if (!ttrhit->hit()->hasPositionAndError()){
+	if (!(*hit)->hasPositionAndError()){
 	  TrajectoryStateOnSurface predTsos =  theService->propagator(theTrackerPropagatorName)->propagate(currTsos, theService->trackingGeometry()->idToDet(recoid)->surface());
 	  
 	  if ( !predTsos.isValid() ) {
@@ -541,10 +540,9 @@ GlobalTrajectoryBuilderBase::getTransientRecHits(const reco::Track& track) const
 	    continue; 
 	  }
 	  currTsos = predTsos;
-	  TransientTrackingRecHit::RecHitPointer preciseHit = ttrhit->clone(predTsos);
-	  result.push_back(preciseHit);
+	  result.emplace_back(hitCloner(**hit,predTsos));
 	}else{
-	  result.push_back(ttrhit);
+	  result.push_back((*hit)->cloneSH());
 	}
       } else if ( recoid.det() == DetId::Muon ) {
 	if ( (*hit)->geographicalId().subdetId() == 3 && !theRPCInTheFit) {

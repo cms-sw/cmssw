@@ -48,15 +48,15 @@ ExoticaDQM = cms.EDAnalyzer(
 
     muonCollection           = cms.InputTag("muons"),
     pfmuonCollectionEI       = cms.InputTag("pfIsolatedMuonsEI"),
-   
+
     tauCollection            = cms.InputTag("caloRecoTauProducer"),
     #pftauCollection          = cms.InputTag("pfTaus"),
 
     photonCollection         = cms.InputTag("gedPhotons"),
     #pfphotonCollection       = cms.InputTag("pfIsolatedPhotons"),
 
-    caloJetCollection        = cms.InputTag("ak5CaloJets"),
-    pfJetCollection          = cms.InputTag("ak5PFJets"),
+    caloJetCollection        = cms.InputTag("ak4CaloJets"),
+    pfJetCollection          = cms.InputTag("ak4PFJets"),
     pfJetCollectionEI        = cms.InputTag("pfJets"),
 
     caloMETCollection        = cms.InputTag("corMetGlobalMuons","","RECO"),
@@ -68,12 +68,12 @@ ExoticaDQM = cms.EDAnalyzer(
     mj_monojet_ptPFJet       = cms.double(30.0),
     mj_monojet_ptPFMuon      = cms.double(10.0),
     mj_monojet_ptPFElectron  = cms.double(10.0),
-    CaloJetCorService        = cms.string("ak5CaloL1FastL2L3"),
-    PFJetCorService          = cms.string("ak5PFL1FastL2L3"),
+    CaloJetCorService        = cms.string("ak4CaloL1FastL2L3"),
+    PFJetCorService          = cms.string("ak4PFL1FastL2L3"),
 
     #
     #LongLived
-    
+
     #genParticleCollection    = cms.InputTag("genParticles"),
 
     #PtThrMu1 = cms.untracked.double(3.0),

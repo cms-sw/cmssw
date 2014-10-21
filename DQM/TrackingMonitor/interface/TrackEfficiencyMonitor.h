@@ -36,6 +36,7 @@ Monitoring source to measure the track efficiency
  
 
 namespace reco{class TransientTrack;}
+class NavigationSchool;
 
 class DQMStore;
 
@@ -54,10 +55,10 @@ class TrackEfficiencyMonitor : public DQMEDAnalyzer {
       enum SemiCylinder{Up,Down};
       std::pair<TrajectoryStateOnSurface, const DetLayer*>  findNextLayer( TrajectoryStateOnSurface startTSOS, const std::vector< const DetLayer*>& trackCompatibleLayers , bool isUpMuon   );
       SemiCylinder checkSemiCylinder(const Track&);
-      void testTrackerTracks(edm::Handle<TrackCollection> tkTracks, edm::Handle<TrackCollection> staTracks);
+      void testTrackerTracks(edm::Handle<TrackCollection> tkTracks, edm::Handle<TrackCollection> staTracks, const NavigationSchool& navigationSchool);
       void testSTATracks(edm::Handle<TrackCollection> tkTracks, edm::Handle<TrackCollection> staTracks);
       bool trackerAcceptance( TrajectoryStateOnSurface theTSOS, double theRadius, double theMaxZ );
-      int  compatibleLayers( TrajectoryStateOnSurface theTSOS );
+      int  compatibleLayers(const NavigationSchool& navigationSchool, TrajectoryStateOnSurface theTSOS );
   
   
 

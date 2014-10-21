@@ -1,5 +1,6 @@
 #include "RecoTracker/TkNavigation/interface/LayerCollector.h"
 #include "RecoTracker/TkNavigation/interface/StartingLayerFinder.h" 
+#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 
 using namespace std;
 
@@ -64,7 +65,7 @@ vector<const DetLayer*> LayerCollector::allLayers(const FTS& aFts) const {
 	myFts = FTS(pTsos.globalParameters());
  
 	
-	nextLayers = (**ilay).nextLayers(*pTsos.freeState(), 
+	nextLayers = theSchool->nextLayers(**ilay, *pTsos.freeState(), 
 					 propagator()->propagationDirection());
 
 

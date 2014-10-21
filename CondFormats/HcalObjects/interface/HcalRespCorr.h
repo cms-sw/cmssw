@@ -1,6 +1,8 @@
 #ifndef HcalRespCorr_h
 #define HcalRespCorr_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 /*
 \class HcalRespCorr
 \author Radek Ofierzynski
@@ -20,6 +22,8 @@ class HcalRespCorr
  private:
   uint32_t mId;
   float mValue;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

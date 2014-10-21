@@ -19,10 +19,12 @@
 //
 
 // system include files
+#include <mutex>
 
 // user include files
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
@@ -31,6 +33,7 @@ namespace edm {
 
   class ModuleCallingContext;
   class PreallocationConfiguration;
+  class ActivityRegistry;
 
   namespace maker {
     template<typename T> class ModuleHolderT;
@@ -64,6 +67,7 @@ namespace edm {
 
     private:
       bool doEvent(EventPrincipal& ep, EventSetup const& c,
+                   ActivityRegistry*,
                    ModuleCallingContext const*);
       void doPreallocate(PreallocationConfiguration const&) {}
       void doBeginJob();
@@ -97,11 +101,16 @@ namespace edm {
       virtual void doBeginLuminosityBlock_(LuminosityBlock const& lbp, EventSetup const& c);
       virtual void doEndLuminosityBlock_(LuminosityBlock const& lbp, EventSetup const& c);
 
+      virtual SharedResourcesAcquirer createAcquirer();
+
       void setModuleDescription(ModuleDescription const& md) {
         moduleDescription_ = md;
       }
       ModuleDescription moduleDescription_;
       std::function<void(BranchDescription const&)> callWhenNewProductsRegistered_;
+      
+      SharedResourcesAcquirer resourcesAcquirer_;
+      std::mutex mutex_;
     };
   }
 }

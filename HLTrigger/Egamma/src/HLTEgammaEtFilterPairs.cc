@@ -65,6 +65,7 @@ HLTEgammaEtFilterPairs::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
 
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > recoecalcands;                // vref with your specific C++ collection type
   PrevFilterOutput->getObjects(TriggerCluster, recoecalcands);
+  if(recoecalcands.empty()) PrevFilterOutput->getObjects(TriggerPhoton, recoecalcands);
   // they list should be interpreted as pairs:
   // <recoecalcands[0],recoecalcands[1]>
   // <recoecalcands[2],recoecalcands[3]>

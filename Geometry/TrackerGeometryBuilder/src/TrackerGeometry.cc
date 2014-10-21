@@ -16,8 +16,8 @@
 TrackerGeometry::TrackerGeometry(GeometricDet const* gd) :  theTrackerDet(gd){}
 
 TrackerGeometry::~TrackerGeometry() {
-    for (DetContainer::iterator     it = theDets.begin(),     ed = theDets.end();     it != ed; ++it) delete *it;
-    for (DetTypeContainer::iterator it = theDetTypes.begin(), ed = theDetTypes.end(); it != ed; ++it) delete *it;
+    for (DetContainer::iterator     it = theDets.begin(),     ed = theDets.end();     it != ed; ++it) delete const_cast<GeomDet*>(*it);
+    for (DetTypeContainer::iterator it = theDetTypes.begin(), ed = theDetTypes.end(); it != ed; ++it) delete const_cast<GeomDetType*>(*it);
 }
 
 GeometricDet const * TrackerGeometry::trackerDet() const {
@@ -25,13 +25,13 @@ GeometricDet const * TrackerGeometry::trackerDet() const {
 }
 
 
-void TrackerGeometry::addType(GeomDetType* p) {
+void TrackerGeometry::addType(GeomDetType const * p) {
   theDetTypes.push_back(p);  // add to vector
 }
 
-void TrackerGeometry::addDetUnit(GeomDetUnit* p) {
+void TrackerGeometry::addDetUnit(GeomDetUnit const * p) {
   // set index
-  p->setIndex(theDetUnits.size());
+  const_cast<GeomDetUnit *>(p)->setIndex(theDetUnits.size());
   theDetUnits.push_back(p);  // add to vector
   theMapUnit.insert(std::make_pair(p->geographicalId().rawId(),p));
 }
@@ -40,7 +40,7 @@ void TrackerGeometry::addDetUnitId(DetId p){
   theDetUnitIds.push_back(p);
 }
 
-void TrackerGeometry::addDet(GeomDet* p) {
+void TrackerGeometry::addDet(GeomDet const * p) {
   theDets.push_back(p);  // add to vector
   theMap.insert(std::make_pair(p->geographicalId().rawId(),p));
   DetId id(p->geographicalId());

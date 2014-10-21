@@ -20,7 +20,6 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TString.h"
-#include "THashList.h"
 #include "TH1.h"
 #include "TH2.h"
 #include "TProfile.h"
@@ -66,33 +65,6 @@
 #include "format.h"
 
 namespace {
-  //utility function to check the consistency of the axis labels
-  //taken from TH1::CheckBinLabels
-  bool CheckBinLabels(const TAxis* a1, const TAxis * a2)
-  {
-    // check that axis have same labels
-    THashList *l1 = (const_cast<TAxis*>(a1))->GetLabels();
-    THashList *l2 = (const_cast<TAxis*>(a2))->GetLabels();
-    
-    if (!l1 && !l2 )
-      return true;
-    if (!l1 ||  !l2 ) {
-      return false;
-    }
-    // check now labels sizes  are the same
-    if (l1->GetSize() != l2->GetSize() ) {
-      return false;
-    }
-    for (int i = 1; i <= a1->GetNbins(); ++i) {
-      TString label1 = a1->GetBinLabel(i);
-      TString label2 = a2->GetBinLabel(i);
-      if (label1 != label2) {
-	return false;
-      }
-    }
-    return true;
-  }
-      
   //adapter functions
   MonitorElement* createElement(DQMStore& iStore, const char* iName, TH1F* iHist) {
     //std::cout <<"create: hist size "<<iName <<" "<<iHist->GetEffectiveEntries()<<std::endl;
@@ -116,9 +88,9 @@ namespace {
           iOriginal->GetNbinsZ() == iToAdd->GetNbinsZ() &&
           iOriginal->GetZaxis()->GetXmin() == iToAdd->GetZaxis()->GetXmin() &&
           iOriginal->GetZaxis()->GetXmax() == iToAdd->GetZaxis()->GetXmax() &&
-	  CheckBinLabels(iOriginal->GetXaxis(),iToAdd->GetXaxis()) &&
-	  CheckBinLabels(iOriginal->GetYaxis(),iToAdd->GetYaxis()) &&
-	  CheckBinLabels(iOriginal->GetZaxis(),iToAdd->GetZaxis())) {
+	  MonitorElement::CheckBinLabels(iOriginal->GetXaxis(),iToAdd->GetXaxis()) &&
+	  MonitorElement::CheckBinLabels(iOriginal->GetYaxis(),iToAdd->GetYaxis()) &&
+	  MonitorElement::CheckBinLabels(iOriginal->GetZaxis(),iToAdd->GetZaxis())) {
 	iOriginal->Add(iToAdd);
       } else {
 	edm::LogError("MergeFailure")<<"Found histograms with different axis limits or different labels'"<<iOriginal->GetName()<<"' not merged.";
@@ -190,13 +162,14 @@ namespace {
     const std::string& name = iElement->getFullname();
     if(name.find("EventInfo/processedEvents") != std::string::npos) {
       iElement->Fill(iValue+iElement->getIntValue());
-    } else {
-      if(name.find("EventInfo/iEvent") != std::string::npos ||
+    } else if(name.find("EventInfo/iEvent") != std::string::npos ||
          name.find("EventInfo/iLumiSection") != std::string::npos) {
         if(iValue > iElement->getIntValue()) {
           iElement->Fill(iValue);
         }
-      }
+    }
+    else {
+      iElement->Fill(iValue);
     }
   }
 
@@ -206,13 +179,15 @@ namespace {
     return e;
   }
   void mergeWithElement(MonitorElement* iElement, double& iValue) {
-    //no merging
+    //no merging, take the last one
+    iElement->Fill(iValue);
   }
   MonitorElement* createElement(DQMStore& iStore, const char* iName, std::string* iValue) {
     return iStore.bookString(iName,*iValue);
   }
-  void mergeWithElement(MonitorElement* , std::string* ) {
-    //no merging
+  void mergeWithElement(MonitorElement* iElement, std::string* iValue) {
+    //no merging, take the last one
+    iElement->Fill(*iValue);
   }
 
   void splitName(const std::string& iFullName, std::string& oPath,const char*& oName) {
@@ -289,7 +264,7 @@ namespace {
   template<class T>
     class TreeSimpleReader : public TreeReaderBase {
       public:
-        TreeSimpleReader():m_tree(0),m_fullName(0),m_buffer(),m_tag(0){
+        TreeSimpleReader():m_tree(0),m_fullName(0),m_buffer(0),m_tag(0){
         }
         virtual MonitorElement* doRead(ULong64_t iIndex, DQMStore& iStore,bool iIsLumi) override {
           m_tree->GetEntry(iIndex);
@@ -425,6 +400,7 @@ class DQMRootSource : public edm::InputSource
       unsigned int m_filterOnRun;
       bool m_skipBadFiles;
       std::vector<edm::LuminosityBlockRange> m_lumisToProcess;
+      std::vector<edm::RunNumber_t> m_runsToProcess;
  
       bool m_justOpenedFileSoNeedToGenerateRunTransition;
       bool m_shouldReadMEs;
@@ -485,6 +461,9 @@ DQMRootSource::DQMRootSource(edm::ParameterSet const& iPSet, const edm::InputSou
   m_shouldReadMEs(true)
 {
   edm::sortAndRemoveOverlaps(m_lumisToProcess);
+  for(std::vector<edm::LuminosityBlockRange>::const_iterator itr = m_lumisToProcess.begin(); itr!=m_lumisToProcess.end(); ++itr)
+    m_runsToProcess.push_back(itr->startRun());
+
   if(m_fileIndex ==m_catalog.fileNames().size()) {
     m_nextItemType=edm::InputSource::IsStop;
   } else{
@@ -623,6 +602,7 @@ DQMRootSource::readRun_(edm::RunPrincipal& rpCache)
     readElements();
   }
 
+
   edm::Service<edm::JobReport> jr;
   jr->reportInputRunNumber(rpCache.id().run());
 
@@ -669,9 +649,6 @@ DQMRootSource::readLuminosityBlock_( edm::LuminosityBlockPrincipal& lbCache)
 
 std::unique_ptr<edm::FileBlock>
 DQMRootSource::readFile_() {
-  //std::cout <<"readFile_"<<std::endl;
-
-
   auto const numFiles = m_catalog.fileNames().size();
   while(m_fileIndex < numFiles && not setupFile(m_fileIndex++)) {}
 
@@ -682,6 +659,8 @@ DQMRootSource::readFile_() {
   }
 
   readNextItemType();
+  while (m_presentIndexItr != m_orderedIndices.end() && skipIt(m_runlumiToRange[*m_presentIndexItr].m_run,m_runlumiToRange[*m_presentIndexItr].m_lumi))
+    ++m_presentIndexItr;
 
   edm::Service<edm::JobReport> jr;
   m_jrToken = jr->inputFileOpened(m_catalog.fileNames()[m_fileIndex-1],
@@ -712,6 +691,9 @@ void DQMRootSource::readElements() {
   {
     shouldContinue = false;
     ++m_presentIndexItr;
+    while (m_presentIndexItr != m_orderedIndices.end() && skipIt(m_runlumiToRange[*m_presentIndexItr].m_run,m_runlumiToRange[*m_presentIndexItr].m_lumi))
+      ++m_presentIndexItr;
+
     if(runLumiRange.m_type == kNoTypesStored) {continue;}
     boost::shared_ptr<TreeReaderBase> reader = m_treeReaders[runLumiRange.m_type];
     ULong64_t index = runLumiRange.m_firstIndex;
@@ -721,16 +703,8 @@ void DQMRootSource::readElements() {
       bool isLumi = runLumiRange.m_lumi !=0;
       if (m_shouldReadMEs)
         reader->read(index,*store,isLumi);
-//       if (isLumi)
-//       {
-//         std::cout << runLumiRange.m_run << " " << runLumiRange.m_lumi << "  lumi element "<< element->getFullname()<<" "<<index<< " " << runLumiRange.m_type << std::endl;
-//         m_lumiElements.insert(element);
-//       }
-//       else
-//       {
-//         std::cout << runLumiRange.m_run << " " << runLumiRange.m_lumi << "  run element "<< element->getFullname()<<" "<<index<< " " << runLumiRange.m_type << std::endl;
-//         m_runElements.insert(element);
-//       }
+
+      //std::cout << runLumiRange.m_run << " " << runLumiRange.m_lumi <<" "<<index<< " " << runLumiRange.m_type << std::endl;
     }
     if (m_presentIndexItr != m_orderedIndices.end())
     {
@@ -774,9 +748,7 @@ void DQMRootSource::readNextItemType()
   {
     shouldContinue = false;
     while (m_nextIndexItr != m_orderedIndices.end() && skipIt(m_runlumiToRange[*m_nextIndexItr].m_run,m_runlumiToRange[*m_nextIndexItr].m_lumi))
-      {	
-	++m_nextIndexItr;
-      }
+      ++m_nextIndexItr;
 
     if (m_nextIndexItr == m_orderedIndices.end())
     {
@@ -1053,6 +1025,10 @@ DQMRootSource::setupFile(unsigned int iIndex)
 
 bool
 DQMRootSource::skipIt(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi) const {
+  if(!m_runsToProcess.empty() && edm::search_all(m_runsToProcess, run) && lumi==0) {
+    return false;
+  }
+
   edm::LuminosityBlockID lumiID = edm::LuminosityBlockID(run, lumi);
   edm::LuminosityBlockRange lumiRange = edm::LuminosityBlockRange(lumiID, lumiID);
   bool(*lt)(edm::LuminosityBlockRange const&, edm::LuminosityBlockRange const&) = &edm::lessThan;

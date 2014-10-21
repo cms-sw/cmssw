@@ -123,8 +123,8 @@ void DTTriggerLutTest::runClientDiagnostic() {
     trigSource = (*iTr);
     for (vector<string>::const_iterator iHw = hwSources.begin(); iHw != hwSources.end(); ++iHw){
       hwSource = (*iHw);
-      vector<DTChamber*>::const_iterator chIt  = muonGeom->chambers().begin();
-      vector<DTChamber*>::const_iterator chEnd = muonGeom->chambers().end();
+      vector<const DTChamber*>::const_iterator chIt  = muonGeom->chambers().begin();
+      vector<const DTChamber*>::const_iterator chEnd = muonGeom->chambers().end();
       for (; chIt != chEnd; ++chIt) {
 
 	DTChamberId chId((*chIt)->id());

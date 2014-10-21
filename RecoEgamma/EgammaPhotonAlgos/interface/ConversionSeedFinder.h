@@ -39,11 +39,14 @@
 
 
 //
-
+namespace edm {
+  class ConsumesCollector;
+}
 
 class DetLayer;
 class FreeTrajectoryState;
 class TrajectoryStateOnSurface;
+class NavigationSchool;
 
 
 class ConversionSeedFinder {
@@ -52,7 +55,7 @@ class ConversionSeedFinder {
   
 
   ConversionSeedFinder();
-  ConversionSeedFinder( const edm::ParameterSet& config );
+  ConversionSeedFinder( const edm::ParameterSet& config,edm::ConsumesCollector & iC );
   
   virtual ~ConversionSeedFinder(){}
 
@@ -71,6 +74,7 @@ class ConversionSeedFinder {
 
   /// Initialize EventSetup objects at each event
   void setEventSetup( const edm::EventSetup& es ) ; 
+  void setNavigationSchool(const NavigationSchool *navigation) { theNavigationSchool_ = navigation; }
   void setEvent( const edm::Event& e ) ; 
 
   void clear() {
@@ -80,7 +84,7 @@ class ConversionSeedFinder {
  protected:
 
 
-  edm::ParameterSet conf_;
+  //edm::ParameterSet conf_; found this to be completely unused
   void findLayers() const ;
   void findLayers(const FreeTrajectoryState & fts) const  ; 
 
@@ -100,10 +104,14 @@ class ConversionSeedFinder {
   std::string theMeasurementTrackerName_;
   const MeasurementTracker*     theMeasurementTracker_;
   const TrackingGeometry* theTrackerGeom_;
+  const NavigationSchool *theNavigationSchool_ = nullptr;
 
  
   edm::ESHandle<MagneticField> theMF_;
   edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker_;
+
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
+  edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrkToken_;
 
 
   KFUpdator                  theUpdator_;

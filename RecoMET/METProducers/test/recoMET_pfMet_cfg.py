@@ -7,7 +7,8 @@ process = cms.Process("TEST")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 ##____________________________________________________________________________||
-process.load("RecoMET.Configuration.RecoPFMET_cff")
+process.load("RecoMET/METProducers.PFMET_cfi")
+process.load("RecoMET/METProducers.METSigParams_cfi")
 
 ##____________________________________________________________________________||
 from RecoMET.METProducers.testInputFiles_cff import recoMETtestInputFiles
@@ -33,7 +34,15 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 50
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 
 ##____________________________________________________________________________||
+process.pfMetWithSignificance = process.pfMet.clone(
+    process.METSignificance_params,
+    calculateSignificance = cms.bool(True),
+    jets = cms.InputTag("ak5PFJets")
+    )
+
+##____________________________________________________________________________||
 process.p = cms.Path(
+    process.pfMetWithSignificance *
     process.pfMet
     )
 

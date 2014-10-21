@@ -53,7 +53,7 @@ NuclearSeedsEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
    edm::Handle<MeasurementTrackerEvent> data;
    iEvent.getByLabel(edm::InputTag("MeasurementTrackerEvent"), data);
 
-   NavigationSetter setter( *(theNuclearInteractionFinder->nav()) );
+//   NavigationSetter setter( *(theNuclearInteractionFinder->nav()) );   why???
 
    std::vector<std::pair<int, int> > assocPair;
    int i=0;

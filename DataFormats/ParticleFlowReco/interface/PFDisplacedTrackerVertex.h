@@ -19,7 +19,7 @@ class PFDisplacedTrackerVertex {
    PFDisplacedTrackerVertex() {}
    PFDisplacedTrackerVertex( const PFDisplacedVertexRef& nuclref, const PFRecTrackRefVector& pfRecTracks) : displacedVertexRef_(nuclref), pfRecTracks_(pfRecTracks) {}
 
-     const PFRecTrackRefVector pfRecTracks() const {return pfRecTracks_;}
+     const PFRecTrackRefVector& pfRecTracks() const {return pfRecTracks_;}
 
      const bool isIncomingTrack(const reco::PFRecTrackRef originalTrack) const {
        reco::TrackBaseRef trackBaseRef(originalTrack->trackRef());
@@ -31,7 +31,7 @@ class PFDisplacedTrackerVertex {
        return displacedVertexRef_->isOutgoingTrack(trackBaseRef);
      }
 
-     const PFDisplacedVertexRef displacedVertexRef() const {return displacedVertexRef_;}
+     const PFDisplacedVertexRef& displacedVertexRef() const {return displacedVertexRef_;}
 
   private :
     // Reference to the initial DisplacedTrackerVertex

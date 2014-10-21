@@ -76,6 +76,8 @@ public:
 
   const Specific& getSpecific () const {return m_specific;}
 
+  /// set the specific (note: responsibility of keeping it consistent with the jet daughers belongs to the caller)
+  void setSpecific (const Specific &spec ) {m_specific = spec;}
   
   /// Polymorphic clone
   virtual GenJet* clone () const;

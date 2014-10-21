@@ -30,9 +30,13 @@ class FWPFClusterRPZProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::PFC
       virtual ~FWPFClusterRPZProxyBuilder();
 
    // --------------------- Member Functions --------------------------
+      using FWSimpleProxyBuilderTemplate<reco::PFCluster>::build;
       virtual void build( const reco::PFCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc );
+      using FWSimpleProxyBuilderTemplate<reco::PFCluster>::scaleProduct;
       virtual void scaleProduct( TEveElementList *parent, FWViewType::EType, const FWViewContext *vc );
+      using FWSimpleProxyBuilderTemplate<reco::PFCluster>::havePerViewProduct;
       virtual bool havePerViewProduct( FWViewType::EType ) const { return true; }
+      using FWSimpleProxyBuilderTemplate<reco::PFCluster>::cleanLocal;
       virtual void cleanLocal() { m_clusters.clear(); }
 
       REGISTER_PROXYBUILDER_METHODS();
@@ -65,6 +69,7 @@ class FWPFEcalClusterRPZProxyBuilder : public FWPFClusterRPZProxyBuilder
       virtual ~FWPFEcalClusterRPZProxyBuilder(){}
 
    // --------------------- Member Functions --------------------------
+      using FWSimpleProxyBuilderTemplate<reco::PFCluster>::build;
       virtual void build( const reco::PFCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc );
 
       REGISTER_PROXYBUILDER_METHODS();
@@ -88,6 +93,7 @@ class FWPFHcalClusterRPZProxyBuilder : public FWPFClusterRPZProxyBuilder
       virtual ~FWPFHcalClusterRPZProxyBuilder(){}
 
    // --------------------- Member Functions --------------------------
+      using FWSimpleProxyBuilderTemplate<reco::PFCluster>::build;
       virtual void build( const reco::PFCluster &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc );
 
       REGISTER_PROXYBUILDER_METHODS();

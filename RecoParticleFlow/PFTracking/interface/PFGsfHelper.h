@@ -1,7 +1,6 @@
 #ifndef PFGsfHelper_H
 #define PFGsfHelper_H
 
-#include "RecoParticleFlow/PFTracking/interface/PFGeometry.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EventSetup.h"

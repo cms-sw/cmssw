@@ -18,6 +18,8 @@
  */
 
 // system include files
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <ostream>
 
@@ -60,6 +62,8 @@ private:
     /// prescale factors
     std::vector<std::vector<int> > m_prescaleFactors;
 
+
+    COND_SERIALIZABLE;
 };
 
 #endif /*CondFormats_L1TObjects_L1GtPrescaleFactors_h*/

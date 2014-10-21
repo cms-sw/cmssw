@@ -129,13 +129,11 @@ XMLIdealGeometryESProducer::produce(const IdealGeometryRecord& iRecord)
    DDLParser parser(*returnValue);
    parser.getDDLSAX2FileHandler()->setUserNS(true);
    parser.clearFiles();
-   
-   std::vector<unsigned char>* tb = (*gdd).getUncompressedBlob();
-   
-   parser.parse(*tb, tb->size()); 
-   
-   delete tb;
-   
+
+   std::unique_ptr<std::vector<unsigned char> > tb = (*gdd).getUncompressedBlob();
+
+   parser.parse(*tb, tb->size());
+
    //std::cout << "In XMLIdealGeometryESProducer::produce" << std::endl;
    returnValue->lockdown();
 

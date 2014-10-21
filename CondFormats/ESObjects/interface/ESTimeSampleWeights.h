@@ -1,5 +1,7 @@
 #ifndef CondFormats_ESObjects_ESTimeSampleWeights_H
 #define CondFormats_ESObjects_ESTimeSampleWeights_H
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <iostream>
 
 class ESTimeSampleWeights {
@@ -26,6 +28,8 @@ class ESTimeSampleWeights {
     float w0_; 
     float w1_;
     float w2_;
+
+  COND_SERIALIZABLE;
 };
 
 

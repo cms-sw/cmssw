@@ -35,14 +35,16 @@ allPixelTracks = cms.EDProducer("PixelTrackProducer",
             nSigMultipleScattering  = cms.double(5.0),
             maxAngleRatio = cms.double(10.0),
             rzTolerance   = cms.double(0.2),
-            TTRHBuilder   = cms.string('TTRHBuilderWithoutAngle4PixelTriplets')
+            TTRHBuilder   = cms.string('TTRHBuilderWithoutAngle4PixelTriplets'),
+            clusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache")
         )
     ),
 
     # Filter
     useFilterWithES = cms.bool(True),
     FilterPSet = cms.PSet(
-        ComponentName = cms.string('ClusterShapeTrackFilter')
+        ComponentName = cms.string('ClusterShapeTrackFilter'),
+        clusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache")
 #       ptMin  = cms.double()
 #       ptMax  = cms.double()
     ),

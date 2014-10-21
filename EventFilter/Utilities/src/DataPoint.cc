@@ -18,8 +18,10 @@
 
 using namespace jsoncollector;
 
-template class HistoJ<unsigned int>;
-template class HistoJ<double>;
+namespace jsoncollector {
+  template class HistoJ<unsigned int>;
+  template class HistoJ<double>;
+}
 
 const std::string DataPoint::SOURCE = "source";
 const std::string DataPoint::DEFINITION = "definition";
@@ -201,7 +203,7 @@ void DataPoint::snapGlobal(unsigned int lumi)
   }
 }
 
-void DataPoint::snapStreamAtomic(unsigned int streamID, unsigned int lumi)
+void DataPoint::snapStreamAtomic(unsigned int lumi, unsigned int streamID)
 {
   if (!isStream_ || !isAtomic_) return;
   isCached_=false;

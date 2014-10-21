@@ -45,7 +45,6 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):MultiTra
   ParameterSet psetForHistoProducerAlgo = pset.getParameter<ParameterSet>("histoProducerAlgoBlock");
   string histoProducerAlgoName = psetForHistoProducerAlgo.getParameter<string>("ComponentName");
   histoProducerAlgo_ = MTVHistoProducerAlgoFactory::get()->create(histoProducerAlgoName ,psetForHistoProducerAlgo, consumesCollector());
-  histoProducerAlgo_->setDQMStore(dbe_);
 
   dirName_ = pset.getParameter<std::string>("dirName");
   assMapInput = pset.getParameter< edm::InputTag >("associatormap");
@@ -91,60 +90,60 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):MultiTra
 
 MultiTrackValidator::~MultiTrackValidator(){delete histoProducerAlgo_;}
 
-void MultiTrackValidator::beginRun(Run const&, EventSetup const& setup) {
-  //  dbe_->showDirStructure();
+
+void MultiTrackValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run const&, edm::EventSetup const& setup) {
 
   //int j=0;  //is This Necessary ???
   for (unsigned int ww=0;ww<associators.size();ww++){
     for (unsigned int www=0;www<label.size();www++){
-      dbe_->cd();
+      ibook.cd();
       InputTag algo = label[www];
       string dirName=dirName_;
       if (algo.process()!="")
-	dirName+=algo.process()+"_";
+    dirName+=algo.process()+"_";
       if(algo.label()!="")
-	dirName+=algo.label()+"_";
+    dirName+=algo.label()+"_";
       if(algo.instance()!="")
-	dirName+=algo.instance()+"_";
+    dirName+=algo.instance()+"_";
       if (dirName.find("Tracks")<dirName.length()){
-	dirName.replace(dirName.find("Tracks"),6,"");
+    dirName.replace(dirName.find("Tracks"),6,"");
       }
       string assoc= associators[ww];
       if (assoc.find("Track")<assoc.length()){
-	assoc.replace(assoc.find("Track"),5,"");
+    assoc.replace(assoc.find("Track"),5,"");
       }
       dirName+=assoc;
       std::replace(dirName.begin(), dirName.end(), ':', '_');
 
-      dbe_->setCurrentFolder(dirName.c_str());
+      ibook.setCurrentFolder(dirName.c_str());
 
       // vector of vector initialization
       histoProducerAlgo_->initialize(); //TO BE FIXED. I'D LIKE TO AVOID THIS CALL
 
-      dbe_->goUp(); //Is this really necessary ???
       string subDirName = dirName + "/simulation";
-      dbe_->setCurrentFolder(subDirName.c_str());
+      ibook.setCurrentFolder(subDirName.c_str());
 
       //Booking histograms concerning with simulated tracks
-      histoProducerAlgo_->bookSimHistos();
+      histoProducerAlgo_->bookSimHistos(ibook);
 
-      dbe_->cd();
-      dbe_->setCurrentFolder(dirName.c_str());
+      ibook.cd();
+      ibook.setCurrentFolder(dirName.c_str());
 
       //Booking histograms concerning with reconstructed tracks
-      histoProducerAlgo_->bookRecoHistos();
-      if (runStandalone) histoProducerAlgo_->bookRecoHistosForStandaloneRunning();
+      histoProducerAlgo_->bookRecoHistos(ibook);
+      if (runStandalone) histoProducerAlgo_->bookRecoHistosForStandaloneRunning(ibook);
 
       if (UseAssociators) {
-	edm::ESHandle<TrackAssociatorBase> theAssociator;
-	for (unsigned int w=0;w<associators.size();w++) {
-	  setup.get<TrackAssociatorRecord>().get(associators[w],theAssociator);
-	  associator.push_back( theAssociator.product() );
-	}//end loop w
+    edm::ESHandle<TrackAssociatorBase> theAssociator;
+    for (unsigned int w=0;w<associators.size();w++) {
+      setup.get<TrackAssociatorRecord>().get(associators[w],theAssociator);
+      associator.push_back( theAssociator.product() );
+    }//end loop w
       }
     }//end loop www
   }// end loop ww
 }
+
 
 void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup& setup){
   using namespace reco;
@@ -152,8 +151,10 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
   edm::LogInfo("TrackValidator") << "\n====================================================" << "\n"
 				 << "Analyzing new event" << "\n"
 				 << "====================================================\n" << "\n";
-  edm::ESHandle<ParametersDefinerForTP> parametersDefinerTP;
-  setup.get<TrackAssociatorRecord>().get(parametersDefiner,parametersDefinerTP);
+  edm::ESHandle<ParametersDefinerForTP> parametersDefinerTPHandle;
+  setup.get<TrackAssociatorRecord>().get(parametersDefiner,parametersDefinerTPHandle);
+  //Since we modify the object, we must clone it
+  auto parametersDefinerTP = parametersDefinerTPHandle->clone();
 
   edm::Handle<TrackingParticleCollection>  TPCollectionHeff ;
   event.getByToken(label_tp_effic,TPCollectionHeff);
@@ -508,7 +509,7 @@ void MultiTrackValidator::endRun(Run const&, EventSetup const&) {
       w++;
     }
   }
-  if ( out.size() != 0 && dbe_ ) dbe_->save(out);
+  //if ( out.size() != 0 && dbe_ ) dbe_->save(out);
 }
 
 

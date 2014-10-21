@@ -22,6 +22,8 @@
 // temporarely
 #include <boost/shared_ptr.hpp>
 
+#include "CondFormats/Serialization/interface/Archive.h"
+
 class RootStreamBuffer;
 
 namespace cond {
@@ -82,8 +84,8 @@ namespace cond {
     return *this;
   }
 
-  typedef RootInputArchive CondInputArchive;
-  typedef RootOutputArchive CondOutputArchive;
+  typedef cond::serialization::InputArchive  CondInputArchive;
+  typedef cond::serialization::OutputArchive CondOutputArchive;
 
   // call for the serialization. Setting packingOnly = TRUE the data will stay in the original memory layout 
   // ( no serialization in this case ). This option is used by the ORA backend - will be dropped after the changeover
@@ -93,7 +95,7 @@ namespace cond {
       // save data to buffers
       std::ostringstream dataBuffer;
       std::ostringstream streamerInfoBuffer;
-      CondOutputArchive oa( dataBuffer, streamerInfoBuffer );
+      CondOutputArchive oa( dataBuffer );
       oa << payload;
       //TODO: avoid (2!!) copies
       ret.first.copy( dataBuffer.str() );
@@ -121,7 +123,7 @@ namespace cond {
 
       std::istream dataBuffer( &sdataBuf );
       std::istream streamerInfoBuffer( &sstreamerInfoBuf );
-      CondInputArchive ia( dataBuffer, streamerInfoBuffer );
+      CondInputArchive ia( dataBuffer );
       payload.reset( createPayload<T>(payloadType) );
       ia >> (*payload);
     } else {

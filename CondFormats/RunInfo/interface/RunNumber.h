@@ -1,6 +1,8 @@
 #ifndef RunNumber_h
 #define RunNumber_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <iostream>
 #include<vector>
 
@@ -32,7 +34,9 @@ public:
     std::vector<std::string> m_subdt_joined;
     std::vector<int> m_subdt_in;
     enum subdet { PIXEL, TRACKER, ECAL, HCAL, DT, CSC,RPC };  
-  };
+  
+  COND_SERIALIZABLE;
+};
 
  
  
@@ -40,6 +44,8 @@ public:
   virtual ~RunNumber(){}
   typedef std::vector<Item>::const_iterator ItemIterator;
   std::vector<Item>  m_runnumber;
+
+ COND_SERIALIZABLE;
 };
 
 }

@@ -22,9 +22,6 @@
 #include <xercesc/sax/SAXException.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
 
-static const char CVSId__EcalLinearCorrectionsXMLTranslator[] = 
-"$Id: EcalLinearCorrectionsXMLTranslator.h,v 1.2 2012/05/12 15:33:28 fra Exp $";
-
 class EcalLinearCorrectionsXMLTranslator {
 
 public:

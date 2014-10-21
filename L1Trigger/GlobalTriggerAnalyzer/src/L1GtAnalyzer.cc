@@ -53,7 +53,7 @@
 L1GtAnalyzer::L1GtAnalyzer(const edm::ParameterSet& parSet) :
 
             m_retrieveL1Extra(
-                    parSet.getParameter<edm::ParameterSet> ("L1ExtraInputTags")),
+			      parSet.getParameter<edm::ParameterSet> ("L1ExtraInputTags"),consumesCollector()),
 
             m_printOutput(parSet.getUntrackedParameter<int>("PrintOutput", 3)),
 

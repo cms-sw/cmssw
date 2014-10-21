@@ -1,7 +1,6 @@
 #include "DataFormats/TauReco/interface/PFTauTransverseImpactParameter.h"
 #include "TMatrixT.h"
 #include "TMatrixTSym.h"
-#include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
 #include "TVectorT.h"
 using namespace reco;
 

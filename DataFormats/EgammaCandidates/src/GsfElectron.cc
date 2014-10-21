@@ -45,6 +45,30 @@ GsfElectron::GsfElectron
   assert(ctfInfo.ctfTrack==(GsfElectron::core()->ctfTrack())) ;
   assert(ctfInfo.shFracInnerHits==(GsfElectron::core()->ctfGsfOverlap())) ;
  }
+GsfElectron::GsfElectron
+ ( int charge, const ChargeInfo & chargeInfo,
+   const GsfElectronCoreRef & core,
+   const TrackClusterMatching & tcm, const TrackExtrapolations & te,
+   const ClosestCtfTrack & ctfInfo,
+   const FiducialFlags & ff, const ShowerShape & ss,
+   const ShowerShape& full5x5_ss,
+   const ConversionRejection & crv
+ )
+ : chargeInfo_(chargeInfo),
+   core_(core),
+   trackClusterMatching_(tcm), trackExtrapolations_(te),
+   //closestCtfTrack_(ctfInfo),
+   fiducialFlags_(ff), showerShape_(ss), full5x5_showerShape_(full5x5_ss),
+   conversionRejection_(crv)
+ {
+  init() ;
+  setCharge(charge) ;
+  setVertex(math::XYZPoint(te.positionAtVtx.x(),te.positionAtVtx.y(),te.positionAtVtx.z())) ;
+  setPdgId(-11*charge) ;
+  /*if (ecalDrivenSeed())*/ corrections_.correctedEcalEnergy = superCluster()->energy() ;
+  assert(ctfInfo.ctfTrack==(GsfElectron::core()->ctfTrack())) ;
+  assert(ctfInfo.shFracInnerHits==(GsfElectron::core()->ctfGsfOverlap())) ;
+ }
 
 GsfElectron::GsfElectron
  ( const GsfElectron & electron,
@@ -91,6 +115,7 @@ GsfElectron::GsfElectron
    //closestCtfTrack_(electron.closestCtfTrack_),
    fiducialFlags_(electron.fiducialFlags_),
    showerShape_(electron.showerShape_),
+   full5x5_showerShape_(electron.full5x5_showerShape_),
    dr03_(electron.dr03_), dr04_(electron.dr04_),
    conversionRejection_(electron.conversionRejection_),
    pfShowerShape_(electron.pfShowerShape_),

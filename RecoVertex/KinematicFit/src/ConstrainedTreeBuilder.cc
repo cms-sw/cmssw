@@ -60,7 +60,7 @@ RefCountedKinematicTree ConstrainedTreeBuilder::buildTree(const std::vector<RefC
   std::vector<KinematicState>::const_iterator iStates = finalStates.begin();
   std::vector<RefCountedKinematicParticle> rParticles;
   int n=0;
-  for( ; i != initialParticles.end(), iStates != finalStates.end(); ++i,++iStates)
+  for( ; i != initialParticles.end() && iStates != finalStates.end(); ++i,++iStates)
   {
     AlgebraicVector7 p = iStates->kinematicParameters().vector();
     double a = - iStates->particleCharge() *

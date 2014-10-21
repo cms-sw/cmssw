@@ -7,8 +7,6 @@
 // date: 02.28.2007
 // note: code rewrite
 
-#include "DQMServices/Core/interface/DQMStore.h"
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -32,13 +30,8 @@ public:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void dqmbeginRun(const edm::Run& ,const edm::EventSetup&);
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  //virtual void beginJob();
-  virtual void endJob();
 
 private:
-
-  // DAQ Tools
-  DQMStore* dbe_;
 
   // Inputs from Configuration
   edm::EDGetTokenT<edm::View<reco::Candidate> > caloTowersLabel_;

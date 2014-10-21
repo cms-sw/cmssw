@@ -37,10 +37,9 @@ void SiPixelFedCablingMapAnalyzer::analyze( const edm::Event& iEvent, const edm:
    iSetup.get<SiPixelFedCablingMapRcd>().get(map);
 
    LogInfo(" got map, version: ") << map->version();
-   SiPixelFedCablingTree * tree = map->cablingTree();
+   auto tree = map->cablingTree();
    LogInfo("PRINT MAP:")<<tree->print(100);
    LogInfo("PRINT MAP, end:");
-   delete tree;
 
 }
 

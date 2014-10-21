@@ -16,6 +16,8 @@ public:
 
   // basic bounds function
 
+  using Bounds::inside;
+
   virtual bool inside( const Local3DPoint& p ) const { return true;}
 
   virtual bool inside( const Local3DPoint& p, 

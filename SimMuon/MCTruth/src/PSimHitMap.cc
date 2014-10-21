@@ -1,46 +1,36 @@
 #include "SimMuon/MCTruth/interface/PSimHitMap.h"
-#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-
-PSimHitMap::PSimHitMap(const edm::InputTag & collectionTag)
-:  theMap(),
-   theEmptyContainer(),  
-   simHitsTag(collectionTag)
-{
-}
-
 
 void PSimHitMap::fill(const edm::Event & e)
 {
   theMap.clear();
   edm::Handle<CrossingFrame<PSimHit> > cf;
-  LogTrace("PSimHitMap") <<"getting CrossingFrame<PSimHit> collection - "<<simHitsTag;
-  e.getByLabel(simHitsTag, cf);
+  LogTrace("MuonCSCDigis") << "getting CrossingFrame<PSimHit> collection ";
+  e.getByToken(sh_token, cf);
 
   MixCollection<PSimHit> simHits(cf.product());
-  LogTrace("PSimHitMap") <<"... size = "<<simHits.size();
+  LogTrace("MuonCSCDigis") <<"... size = "<<simHits.size();
 
-  // arrange the hits by detUnit
+  // arrange the hits by detUnit                                                                          
   for(MixCollection<PSimHit>::MixItr hitItr = simHits.begin();
       hitItr != simHits.end(); ++hitItr)
-  {
-    theMap[hitItr->detUnitId()].push_back(*hitItr);
-  }
+    {
+      theMap[hitItr->detUnitId()].push_back(*hitItr);
+    }
 }
-
 
 const edm::PSimHitContainer & PSimHitMap::hits(int detId) const
 {
   std::map<int, edm::PSimHitContainer>::const_iterator mapItr
     = theMap.find(detId);
   if(mapItr != theMap.end())
-  {
-    return mapItr->second;
-  }
+    {
+      return mapItr->second;
+    }
   else
-  {
-    return theEmptyContainer;
-  }
+    {
+      return theEmptyContainer;
+    }
 }
 
 
@@ -49,13 +39,11 @@ std::vector<int> PSimHitMap::detsWithHits() const
   std::vector<int> result;
   result.reserve(theMap.size());
   for(std::map<int, edm::PSimHitContainer>::const_iterator mapItr = theMap.begin(),
-      mapEnd = theMap.end();
+	mapEnd = theMap.end();
       mapItr != mapEnd;
       ++mapItr)
-  {
-    result.push_back(mapItr->first);
-  }
+    {
+      result.push_back(mapItr->first);
+    }
   return result;
 } 
-     
-

@@ -25,6 +25,7 @@ private:
    // Disable default assignment operator
    const FWSimVertexProxyBuilder& operator=( const FWSimVertexProxyBuilder& );
 
+   using FWSimpleProxyBuilderTemplate<SimVertex>::build;
    void build( const SimVertex& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
 };
 

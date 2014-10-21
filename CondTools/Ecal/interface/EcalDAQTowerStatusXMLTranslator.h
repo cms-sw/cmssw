@@ -15,9 +15,6 @@
 #include <string>
 #include <xercesc/dom/DOMNode.hpp>
 
-static const char CVSId__EcalDAQTowerStatusXMLTranslator[] = 
-"$Id: EcalDAQTowerStatusXMLTranslator.h,v 0 2010/05/31 fay Exp $";
-
 
 //class EcalDAQTowerStatus;
 

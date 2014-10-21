@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-SiStripCalib = cms.EDFilter("SiStripGainFromCalibTree",
+SiStripCalib = cms.EDAnalyzer("SiStripGainFromCalibTree",
     OutputGains         = cms.string('Gains_ASCII.txt'),
 
     minTrackMomentum    = cms.untracked.double(2),
@@ -31,6 +31,10 @@ SiStripCalib = cms.EDFilter("SiStripGainFromCalibTree",
 
     UseCalibration     = cms.untracked.bool(False),
     calibrationPath    = cms.untracked.string(""),
+
+    GoodFracForTagProd  = cms.untracked.double(0.95),
+    NClustersForTagProd = cms.untracked.double(2E8),
+    
 
     SinceAppendMode     = cms.bool(True),
     IOVMode             = cms.string('Job'),

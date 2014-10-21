@@ -38,8 +38,10 @@ private:
    FWTrackHitsDetailView(const FWTrackHitsDetailView&); // stop default
    const FWTrackHitsDetailView& operator=(const FWTrackHitsDetailView&); // stop default
 
+   using FWDetailView<reco::Track>::build;
    void build (const FWModelId &id, const reco::Track*);
-   void setTextInfo (const FWModelId &id, const reco::Track*);
+   using FWDetailView<reco::Track>::setTextInfo;
+   void setTextInfo (const FWModelId &id, const reco::Track*); 
    void makeLegend( void );
 
    void

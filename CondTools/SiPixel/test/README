@@ -1,0 +1,11 @@
+
+ Some data files are found in the external area, see CMSSW_SEARCH_PATH for its location.
+ The files are visible in the search path (CMSSW_SEARCH_PATH) assuming
+ all the files are accessed with FileInPath, instead of direct filesystem calls.
+
+ These files can be found under the same path, as they would be under the usual software area.
+
+ Examples:
+
+   CalibTracker/SiPixelESProducers/data     is the location of template and generror data
+

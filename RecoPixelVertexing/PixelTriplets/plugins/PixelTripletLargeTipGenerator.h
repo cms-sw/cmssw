@@ -23,7 +23,7 @@ class PixelTripletLargeTipGenerator : public HitTripletGeneratorFromPairAndLayer
 typedef CombinedHitTripletGenerator::LayerCacheType       LayerCacheType;
 
 public:
-  PixelTripletLargeTipGenerator( const edm::ParameterSet& cfg);
+  PixelTripletLargeTipGenerator( const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
   virtual ~PixelTripletLargeTipGenerator() { delete thePairGenerator; }
 

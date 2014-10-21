@@ -1,4 +1,3 @@
-
 #include <boost/cstdint.hpp>
 
 #include "CondFormats/EcalObjects/interface/EcalCondObjectContainer.h"
@@ -15,6 +14,7 @@
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibErrors.h"
+#include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeCalibErrors.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"
@@ -59,9 +59,6 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGStripStatus.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGSpike.h"
 #include "CondFormats/EcalObjects/interface/EcalSRSettings.h"
-#include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
-
-
 
 namespace CondFormats_EcalObjects {
   struct dictionary {

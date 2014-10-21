@@ -32,7 +32,7 @@ VertexFromTrackProducer::VertexFromTrackProducer(const edm::ParameterSet& conf)
   fVerbose = conf.getUntrackedParameter<bool>("verbose", false);
   trackLabel = conf.getParameter<edm::InputTag>("trackLabel");
   trackToken = consumes<edm::View<reco::Track> >(trackLabel);
-  candidateToken = consumes<reco::RecoCandidate>(trackLabel);
+  candidateToken = consumes<edm::View<reco::RecoCandidate> >(trackLabel);
   fIsRecoCandidate = conf.getParameter<bool>("isRecoCandidate");
   fUseBeamSpot = conf.getParameter<bool>("useBeamSpot");
   fUseVertex = conf.getParameter<bool>("useVertex");

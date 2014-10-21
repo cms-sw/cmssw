@@ -74,8 +74,8 @@ void TauValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::
 	TauMothers->setBinLabel(1+A0,"A^{0}");
 	TauMothers->setBinLabel(1+Hpm,"H^{#pm}");
 
-	DecayLength = i.book1D("DecayLength","#tau Decay Length", 100 ,0,20);  DecayLength->setAxisTitle("L_{#tau} (mm)");
-	LifeTime =  i.book1D("LifeTime","#tau LifeTime ", 100 ,0,1000E-15);     LifeTime->setAxisTitle("#tau_{#tau}s)");
+	DecayLength = i.book1D("DecayLength","#tau Decay Length", 100 ,-20,20);  DecayLength->setAxisTitle("L_{#tau} (mm)");
+	LifeTime =  i.book1D("LifeTime","#tau LifeTime ", 500 ,0,1000E-14);     LifeTime->setAxisTitle("#tau_{#tau} (s)");
 
     TauRtauW          = i.book1D("TauRtauW","W->Tau p(leading track)/E(visible tau)", 50 ,0,1);     TauRtauW->setAxisTitle("rtau");
     TauRtauHpm        = i.book1D("TauRtauHpm","Hpm->Tau p(leading track)/E(visible tau)", 50 ,0,1); TauRtauHpm->setAxisTitle("rtau");
@@ -191,6 +191,7 @@ void TauValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
 	///////////////////////////////////////////////
 	//Adding JAKID and Mass information
 	//
+	TLorentzVector Tau((*iter)->momentum().px(),(*iter)->momentum().py(),(*iter)->momentum().pz(),(*iter)->momentum().e()); 
         TauDecay_CMSSW TD;
         unsigned int jak_id, TauBitMask;
         if(TD.AnalyzeTau((*iter),jak_id,TauBitMask,false,false)){
@@ -211,7 +212,7 @@ void TauValidation::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
 		 PV=TVector3((*iter)->production_vertex()->point3d().x(),(*iter)->production_vertex()->point3d().y(),(*iter)->production_vertex()->point3d().z());
 		 SV=TVector3(part.at(i)->production_vertex()->point3d().x(),part.at(i)->production_vertex()->point3d().y(),part.at(i)->production_vertex()->point3d().z());
 		 TVector3 DL=SV-PV;
-		 DecayLength->Fill(DL.Mag(),weight);
+		 DecayLength->Fill(DL.Dot(Tau.Vect())/Tau.P(),weight);
 		 double c(2.99792458E8),Ltau(DL.Mag()/1000),beta((*iter)->momentum().rho()/(*iter)->momentum().m());
 		 LifeTime->Fill( Ltau/(c*beta),weight);
 	       }

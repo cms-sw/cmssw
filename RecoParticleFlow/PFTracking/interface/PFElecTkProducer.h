@@ -131,7 +131,6 @@ class PFElecTkProducer : public edm::EDProducer {
       bool modemomentum_;
       bool applySel_;
       bool applyGsfClean_;
-      bool useFifthStep_;
       bool useFifthStepForEcalDriven_;
       bool useFifthStepForTrackDriven_;
       //   bool useFifthStepSec_;

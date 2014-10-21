@@ -56,7 +56,8 @@ else:
 #'/store/relval/CMSSW_7_0_0_pre8/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/PU_START70_V2_eg-v1/00000/FEFD7ED7-D952-E311-962B-0025905A605E.root'
 ###'/store/relval/CMSSW_5_3_6-GR_R_53_V15_RelVal_jet2012B/JetHT/RECO/v2/00000/FEC61CBE-062A-E211-AA5D-0026189438E4.root').split(",")
 #'/store/relval/CMSSW_7_0_0_pre11/RelValQCD_FlatPt_15_3000HS_13/GEN-SIM-RECO/POSTLS162_V4-v1/00000/F0127B3E-8A6A-E311-9A07-002590593902.root'
-'/store/relval/CMSSW_7_1_0_pre2/RelValTTbar_13/GEN-SIM-RECO/PU50ns_POSTLS170_V4-v1/00000/FAA1E1EE-BE8F-E311-B633-0026189438BC.root'
+#'/store/relval/CMSSW_7_1_0_pre4_AK4/RelValTTbar_13/GEN-SIM-RECO/POSTLS171_V1-v2/00000/7E11BD2A-5CB5-E311-B931-0025905A60A0.root'
+'/store/relval/CMSSW_7_1_0_pre7/RelValTTbar_13/GEN-SIM-RECO/PRE_LS171_V7-v1/00000/BAD462A0-0CD1-E311-B8EA-02163E00E8E4.root'
 )
 print 'List of input files'
 print inputfiles
@@ -72,7 +73,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 #
 # DQM
 #
-process.load("DQMServices.Core.DQM_cfg")
+#process.load("DQMServices.Core.DQM_cfg")
 
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 
@@ -105,10 +106,10 @@ else:
   process.load("DQMOffline.JetMET.jetMETDQMOfflineSource_cff")
 
 #change values for first jet and met analyzer parameterset -> all other parametersets are cloned from these
-process.jetDQMAnalyzerAk5CaloUncleaned.OutputMEsInRootFile = cms.bool(True)
-process.jetDQMAnalyzerAk5CaloUncleaned.OutputFileName = cms.string("jetMETMonitoring_%s.root" % jobname)
-process.jetDQMAnalyzerAk5CaloUncleaned.TriggerResultsLabel = cms.InputTag("TriggerResults","",trigger_set)
-process.jetDQMAnalyzerAk5CaloUncleaned.processname = cms.string(trigger_set)
+process.jetDQMAnalyzerAk4CaloUncleaned.OutputMEsInRootFile = cms.bool(True)
+process.jetDQMAnalyzerAk4CaloUncleaned.OutputFileName = cms.string("jetMETMonitoring_%s.root" % jobname)
+process.jetDQMAnalyzerAk4CaloUncleaned.TriggerResultsLabel = cms.InputTag("TriggerResults","",trigger_set)
+process.jetDQMAnalyzerAk4CaloUncleaned.processname = cms.string(trigger_set)
 #process.tcMetDQMAnalyzer.OutputMEsInRootFile = cms.bool(True)
 #process.tcMetDQMAnalyzer.OutputFileName = cms.string("jetMETMonitoring_%s.root" % jobname)
 #process.tcMetDQMAnalyzer.TriggerResultsLabel = cms.InputTag("TriggerResults","",trigger_set)
@@ -170,7 +171,7 @@ process.Timing = cms.Service("Timing")
 
 ## # Comment this out or reconfigure to see error messages 
 process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('tcMetDQMAnalyzer'),
+    debugModules = cms.untracked.vstring('caloMetDQMAnalyzer'),
     cout = cms.untracked.PSet(
         default = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
@@ -188,6 +189,13 @@ process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout')
 )
 
+
+process.load('Configuration/StandardSequences/EDMtoMEAtRunEnd_cff')
+process.dqmSaver.referenceHandling = cms.untracked.string('all')
+#
+cmssw_version = os.environ.get('CMSSW_VERSION','CMSSW_X_Y_Z')
+Workflow = '/JetMET/'+str(cmssw_version)+'/Harvesting'
+process.dqmSaver.workflow = Workflow
 
 #process.load('RecoJets.JetProducers.fixedGridRhoProducerFastjet_cfi')
 
@@ -219,9 +227,8 @@ else:
   process.p = cms.Path(#process.BeamHaloId
 #                       process.fixedGridRhoFastjetAllCalo
                        process.jetMETDQMOfflineSource
-                     * process.dqmStoreStats
+                     * process.dqmStoreStats* process.dqmSaver
 ###                       * process.MEtoEDMConverter
                      )
 
 process.outpath = cms.EndPath(process.FEVT)
-process.DQM.collectorHost = ''

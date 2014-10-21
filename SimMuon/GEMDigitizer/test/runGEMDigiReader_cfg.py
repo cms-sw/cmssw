@@ -23,12 +23,15 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        #'file:out_digi.root'
-        'file:output_SingleMuPt40_GEMDigiProducer.root'
+        'file:out_digi.root'
     )
 )
 
-process.dumper = cms.EDAnalyzer("GEMDigiReader")
+process.dumper = cms.EDAnalyzer("GEMDigiReader"
+    simhitToken = cms.InputTag("g4SimHits","MuonGEMHits"), 
+    gemDigiToken = cms.InputTag("simMuonGEMDigis"), 
+    gemDigiSimLinkToken = cms.InputTag("simMuonGEMDigis","GEM") 
+)
 
 process.p    = cms.Path(process.dumper)
 

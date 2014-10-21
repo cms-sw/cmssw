@@ -132,7 +132,7 @@ void ProcTMVA::configure(DOMElement *elem)
 				ss << name << "_" << i;
 				if (std::find(names.begin(), names.end(),
 				              ss.str()) == names.end()) {
-					name == ss.str();
+					name = ss.str();
 					break;
 				}
 			}

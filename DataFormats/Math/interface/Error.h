@@ -4,6 +4,16 @@
 // Symmetric matrix
 //
 #include "Rtypes.h"
+
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+
+#ifdef CMS_NOCXX11
+#define SMATRIX_USE_COMPUTATION
+#else
+#define SMATRIX_USE_CONSTEXPR
+#endif
+
+
 #include "Math/SMatrix.h"
 #include "Math/BinaryOperators.h"
 

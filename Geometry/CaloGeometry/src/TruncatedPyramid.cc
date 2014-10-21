@@ -41,7 +41,7 @@ TruncatedPyramid::operator=( const TruncatedPyramid& tr )
    return *this ; 
 }
 
-TruncatedPyramid::TruncatedPyramid( const CornersMgr*  cMgr ,
+TruncatedPyramid::TruncatedPyramid(       CornersMgr*  cMgr ,
 				    const GlobalPoint& fCtr ,
 				    const GlobalPoint& bCtr ,
 				    const GlobalPoint& cor1 ,
@@ -182,14 +182,11 @@ TruncatedPyramid::getTransform( Tr3D& tr, Pt3DVec* lptr ) const
    if( 0 != lptr ) (*lptr) = lc ;
 }
 
-const CaloCellGeometry::CornersVec& 
-TruncatedPyramid::getCorners() const 
+void
+TruncatedPyramid::initCorners(CaloCellGeometry::CornersVec& corners) 
 {
-   const CornersVec& co ( CaloCellGeometry::getCorners() ) ;
-   if( co.uninitialized() ) 
+   if( corners.uninitialized() ) 
    {
-      CornersVec& corners ( setCorners() ) ;
-
       Pt3DVec lc ;
 
       Tr3D tr ;
@@ -201,7 +198,6 @@ TruncatedPyramid::getCorners() const
 	 corners[i] = GlobalPoint( corn.x(), corn.y(), corn.z() ) ;
       }
    }
-   return co ;
 }
 
 namespace truncPyr

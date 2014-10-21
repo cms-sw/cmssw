@@ -87,7 +87,8 @@ EcalCosmicsHists::EcalCosmicsHists(const edm::ParameterSet& iConfig) :
 
   // TrackAssociator parameters
   edm::ParameterSet trkParameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
-  trackParameters_.loadParameters( trkParameters );
+  edm::ConsumesCollector iC = consumesCollector();
+  trackParameters_.loadParameters( trkParameters, iC );
   trackAssociator_.useDefaultPropagator();
   
   string title1 = "Seed Energy for All Feds; Seed Energy (GeV)";

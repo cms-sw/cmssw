@@ -17,7 +17,7 @@
 #include <algorithm>
 #include <functional>
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -37,7 +37,7 @@
 #include "CommonTools/CandUtils/interface/AddFourMomenta.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-class RecoTauPiZeroProducer : public edm::EDProducer {
+class RecoTauPiZeroProducer : public edm::stream::EDProducer<> {
   public:
     typedef reco::tau::RecoTauPiZeroBuilderPlugin Builder;
     typedef reco::tau::RecoTauPiZeroQualityPlugin Ranker;

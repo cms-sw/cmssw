@@ -22,8 +22,8 @@ CaloSubdetectorGeometry::~CaloSubdetectorGeometry()
 { 
    delete m_cmgr ;
    delete m_parMgr ; 
-   if (m_deltaPhi) delete m_deltaPhi ;
-   if (m_deltaEta) delete m_deltaEta ;
+   if (m_deltaPhi) delete m_deltaPhi.load() ;
+   if (m_deltaEta) delete m_deltaEta.load() ;
 }
 
 void

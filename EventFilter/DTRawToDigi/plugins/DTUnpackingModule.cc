@@ -13,6 +13,8 @@
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 #include <EventFilter/DTRawToDigi/plugins/DTUnpackingModule.h>
+#include <DataFormats/DTDigi/interface/DTControlData.h>
+
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
 #include <DataFormats/FEDRawData/interface/FEDNumbering.h>
 #include <DataFormats/DTDigi/interface/DTDigiCollection.h>
@@ -33,13 +35,12 @@ using namespace std;
 #define SLINK_WORD_SIZE 8 
 
 
-DTUnpackingModule::DTUnpackingModule(const edm::ParameterSet& ps) : unpacker(0) {
+DTUnpackingModule::DTUnpackingModule(const edm::ParameterSet& ps) : unpacker(0),dataType("") {
 
-  const string & dataType = ps.getParameter<string>("dataType");
+  dataType = ps.getParameter<string>("dataType");
 
   ParameterSet unpackerParameters = ps.getParameter<ParameterSet>("readOutParameters");
   
-
   if (dataType == "DDU") {
     unpacker = new DTDDUUnpacker(unpackerParameters);
   } 
@@ -59,10 +60,15 @@ DTUnpackingModule::DTUnpackingModule(const edm::ParameterSet& ps) : unpacker(0) 
   minFEDid_ = ps.getUntrackedParameter<int>("minFEDid",770); // default: 770
   maxFEDid_ = ps.getUntrackedParameter<int>("maxFEDid",779); // default 779
   dqmOnly = ps.getParameter<bool>("dqmOnly"); // default: false
-
+  performDataIntegrityMonitor = unpackerParameters.getUntrackedParameter<bool>("performDataIntegrityMonitor",false); // default: false
+  
   if(!dqmOnly) {
     produces<DTDigiCollection>();
     produces<DTLocalTriggerCollection>();
+  }
+  if(performDataIntegrityMonitor) {
+    produces<std::vector<DTDDUData> >();
+    produces<std::vector<std::vector<DTROS25Data> > >();
   }
 }
 
@@ -89,7 +95,9 @@ void DTUnpackingModule::produce(Event & e, const EventSetup& context){
   auto_ptr<DTDigiCollection> detectorProduct(new DTDigiCollection);
   auto_ptr<DTLocalTriggerCollection> triggerProduct(new DTLocalTriggerCollection);
 
-
+  auto_ptr<std::vector<DTDDUData> > dduProduct(new std::vector<DTDDUData>);
+  auto_ptr<DTROS25Collection> ros25Product(new DTROS25Collection);
+  
   // Loop over the DT FEDs
   int FEDIDmin = 0, FEDIDMax = 0;
   if (useStandardFEDid_){
@@ -102,14 +110,21 @@ void DTUnpackingModule::produce(Event & e, const EventSetup& context){
   }
   
   for (int id=FEDIDmin; id<=FEDIDMax; ++id){ 
-    
     const FEDRawData& feddata = rawdata->FEDData(id);
     
     if (feddata.size()){
-      
       // Unpack the data
       unpacker->interpretRawData(reinterpret_cast<const unsigned int*>(feddata.data()), 
  				 feddata.size(), id, mapping, detectorProduct, triggerProduct);
+      if(performDataIntegrityMonitor) {
+        if(dataType == "DDU") {
+          dduProduct->push_back(dynamic_cast<DTDDUUnpacker*>(unpacker)->getDDUControlData());
+          ros25Product->push_back(dynamic_cast<DTDDUUnpacker*>(unpacker)->getROSsControlData());
+        }
+        else if(dataType == "ROS25") {
+          ros25Product->push_back(dynamic_cast<DTROS25Unpacker*>(unpacker)->getROSsControlData());
+        }
+      }
     }
   }
 
@@ -117,6 +132,10 @@ void DTUnpackingModule::produce(Event & e, const EventSetup& context){
   if(!dqmOnly) {
     e.put(detectorProduct);
     e.put(triggerProduct);
+  }
+  if(performDataIntegrityMonitor) {
+    e.put(dduProduct);
+    e.put(ros25Product);
   }
 }
 

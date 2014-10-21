@@ -77,9 +77,9 @@ void CosmicLayerTriplets::init(const SiStripRecHit2DCollection &collstereo,
   allLayersWithHits.clear();
   LogDebug("CosmicSeedFinder") <<"Reconstruction for geometry  "<<_geometry;
   if (_geometry=="STANDARD"  || _geometry=="TECPAIRS_TOBTRIPLETS"){
-    const DetLayer*  bl1=dynamic_cast<DetLayer*>(bl[10]);
-    const DetLayer*  bl2=dynamic_cast<DetLayer*>(bl[11]);
-    const DetLayer*  bl3=dynamic_cast<DetLayer*>(bl[12]);
+    const DetLayer*  bl1=dynamic_cast<DetLayer const*>(bl[10]);
+    const DetLayer*  bl2=dynamic_cast<DetLayer const*>(bl[11]);
+    const DetLayer*  bl3=dynamic_cast<DetLayer const*>(bl[12]);
     //   //LayersWithHits
     lh1=new  LayerWithHits(bl1,collrphi,acc.stripTOBLayer(4));   allLayersWithHits.push_back(lh1);
     lh2=new  LayerWithHits(bl2,collrphi,acc.stripTOBLayer(5));   allLayersWithHits.push_back(lh2);
@@ -87,10 +87,10 @@ void CosmicLayerTriplets::init(const SiStripRecHit2DCollection &collstereo,
   }
   if(_geometry=="MTCC"){ 
 
-    const DetLayer*  bl1=dynamic_cast<DetLayer*>(bl[0]);
-    const DetLayer*  bl2=dynamic_cast<DetLayer*>(bl[1]);
-    const DetLayer*  bl3=dynamic_cast<DetLayer*>(bl[2]);
-    const DetLayer*  bl4=dynamic_cast<DetLayer*>(bl[3]);
+    const DetLayer*  bl1=dynamic_cast<DetLayer const*>(bl[0]);
+    const DetLayer*  bl2=dynamic_cast<DetLayer const*>(bl[1]);
+    const DetLayer*  bl3=dynamic_cast<DetLayer const*>(bl[2]);
+    const DetLayer*  bl4=dynamic_cast<DetLayer const*>(bl[3]);
 
     lh1=new  LayerWithHits(bl1,collrphi,acc.stripTIBLayer(1)); allLayersWithHits.push_back(lh1);
     lh2=new  LayerWithHits(bl2,collrphi,acc.stripTIBLayer(2)); allLayersWithHits.push_back(lh2);

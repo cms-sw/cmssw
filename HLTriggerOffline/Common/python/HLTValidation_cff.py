@@ -1,3 +1,4 @@
+from Validation.RecoTrack.HLTmultiTrackValidator_cff import *
 from HLTriggerOffline.Muon.HLTMuonVal_cff import *
 from HLTriggerOffline.Tau.Validation.HLTTauValidation_cff import *
 from HLTriggerOffline.Egamma.EgammaValidationAutoConf_cff import *
@@ -26,7 +27,8 @@ hltassociation = cms.Sequence( egammaSelectors
 
 
 hltvalidation = cms.Sequence(
-    HLTMuonVal
+    hltMultiTrackValidation
+    +HLTMuonVal
     +HLTTauVal
     +egammaValidationSequence
     +topHLTriggerOfflineDQM

@@ -7,27 +7,26 @@
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
-class MonitorElement;
-class DQMStore;
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-class ESOccupancyTask : public edm::EDAnalyzer {
+class MonitorElement;
+
+class ESOccupancyTask : public DQMEDAnalyzer {
 
  public:
   
   ESOccupancyTask(const edm::ParameterSet& ps);
-  virtual ~ESOccupancyTask();
+  virtual ~ESOccupancyTask() {}
   
  private:
-  
-  virtual void beginJob(void);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob(void) ;
+
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   
   // ----------member data ---------------------------
   edm::EDGetTokenT<ESRecHitCollection> rechittoken_;
   std::string prefixME_;
   
-  DQMStore* dqmStore_;
   MonitorElement* hRecOCC_[2][2];
   MonitorElement* hSelOCC_[2][2];
   MonitorElement* hRecNHit_[2][2];

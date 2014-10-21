@@ -49,5 +49,6 @@ fftjetPfPileupCleaner = cms.EDProducer(
     #
     # Vertex quality cuts
     vertexNdofCut = cms.double(4.0),
-    vertexZmaxCut = cms.double(24.0)
+    vertexZmaxCut = cms.double(24.0),
+    vertexRhoCut = cms.double(1.0e20)
 )

@@ -10,7 +10,7 @@
 
 #include <iostream>
 
-G4Allocator<TrackWithHistory> TrackWithHistoryAllocator;
+G4ThreadLocal G4Allocator<TrackWithHistory> *fpTrackWithHistoryAllocator = 0;
 
 //#define DEBUG
 

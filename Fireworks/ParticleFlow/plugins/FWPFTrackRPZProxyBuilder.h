@@ -28,7 +28,8 @@ class FWPFTrackRPZProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Track
    // ---------------- Constructor(s)/Destructor ----------------------
       FWPFTrackRPZProxyBuilder(){}
       virtual ~FWPFTrackRPZProxyBuilder(){}
-
+      using FWSimpleProxyBuilderTemplate<reco::Track>::build;
+      virtual void build( const reco::Track &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc );
       REGISTER_PROXYBUILDER_METHODS();
 
    private:
@@ -36,7 +37,6 @@ class FWPFTrackRPZProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Track
       const FWPFTrackRPZProxyBuilder& operator=( const FWPFTrackRPZProxyBuilder& );
 
    // --------------------- Member Functions --------------------------
-      virtual void build( const reco::Track &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc );
 };
 #endif
 //=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_

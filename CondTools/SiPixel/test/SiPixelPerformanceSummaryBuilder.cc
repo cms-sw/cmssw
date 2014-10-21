@@ -33,7 +33,7 @@ void SiPixelPerformanceSummaryBuilder::analyze(const edm::Event& iEvent, const e
 
   for (TrackerGeometry::DetUnitContainer::const_iterator it=pDD->detUnits().begin(); 
        it!=pDD->detUnits().end(); it++) {
-    if (dynamic_cast<PixelGeomDetUnit*>((*it))!=0) {
+    if (dynamic_cast<PixelGeomDetUnit const*>((*it))!=0) {
       detectorModules_.push_back((*it)->geographicalId().rawId());
     }
   }

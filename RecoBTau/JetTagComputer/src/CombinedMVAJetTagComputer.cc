@@ -47,61 +47,58 @@ CombinedMVAJetTagComputer::~CombinedMVAJetTagComputer()
 {
 }
 
-void CombinedMVAJetTagComputer::setEventSetup(const edm::EventSetup &es,
-                                              bool pass) const
-{
-	std::map<std::string, int> indexMap;
-	int index = 0;
-	int nonameIndex = 0;
+void CombinedMVAJetTagComputer::initialize(const JetTagComputerRecord & record) {
 
-	for(std::vector<Computer>::iterator iter = computers.begin();
-	    iter != computers.end(); ++iter) {
-		if (!iter->computer) {
-			edm::ESHandle<JetTagComputer> computer;
-			es.get<JetTagComputerRecord>().get(
-							iter->name, computer);
-			iter->computer = computer.product();
+  std::map<std::string, int> indexMap;
+  int index = 0;
+  int nonameIndex = 0;
 
-			// finalize the JetTagComputer glue setup
-			std::vector<std::string> inputLabels(
-					iter->computer->getInputLabels());
+  for(std::vector<Computer>::iterator iter = computers.begin();
+      iter != computers.end(); ++iter) {
 
-			// backward compatible case, use default tagInfo
-			if (inputLabels.empty()) {
-				std::ostringstream ss;
-				ss << "tagInfo" << ++nonameIndex;
-				inputLabels.push_back(ss.str());
-			}
+    edm::ESHandle<JetTagComputer> computerHandle;
+    record.get(iter->name, computerHandle);
+    if (!iter->computer) {
+      iter->computer = computerHandle.product();
 
-			for(std::vector<std::string>::const_iterator label =
-							inputLabels.begin();
-			    label != inputLabels.end(); ++label) {
-				if (indexMap.find(*label) == indexMap.end()) {
-					const_cast<CombinedMVAJetTagComputer*>(
-						this)->uses(index, *label);
-					indexMap[*label] = index;
-					iter->indices.push_back(index++);
-				} else
-					iter->indices.push_back(
-							indexMap[*label]);
-			}
-		}
+      // finalize the JetTagComputer glue setup
+      std::vector<std::string> inputLabels(iter->computer->getInputLabels());
 
-		const GenericMVAJetTagComputer *mvaComputer =
-			dynamic_cast<const GenericMVAJetTagComputer*>(
-							iter->computer);
-		if (iter->variables && !mvaComputer)
-			throw cms::Exception("LogicError")
-				<< "JetTagComputer \"" << iter->name
-				<< "\" is not an MVAJetTagCompputer, "
-				   "but tagging variables have been "
-				   "requested." << std::endl;
+      // backward compatible case, use default tagInfo
+      if (inputLabels.empty()) {
+        std::ostringstream ss;
+        ss << "tagInfo" << ++nonameIndex;
+        inputLabels.push_back(ss.str());
+      }
+      for(std::vector<std::string>::const_iterator label =
+            inputLabels.begin();
+          label != inputLabels.end(); ++label) {
+        if (indexMap.find(*label) == indexMap.end()) {
+          uses(index, *label);
+          indexMap[*label] = index;
+          iter->indices.push_back(index++);
+        } else {
+          iter->indices.push_back(indexMap[*label]);
+        }
+      }
+    } else {
+      // A sanity check. This should never fail.
+      if(iter->computer != computerHandle.product()) {
+        throw cms::Exception("LogicError") << "CombinedMVAJetTagComputer::initialize. Pointer to JetTagComputer changed!\n";
+      }
+    }
 
-		if (!pass || iter->discriminator)
-			iter->computer->setEventSetup(es);
-		else if (mvaComputer)
-			mvaComputer->passEventSetup(es);
-	}
+    const GenericMVAJetTagComputer *mvaComputer =
+      dynamic_cast<const GenericMVAJetTagComputer*>(iter->computer);
+    if (iter->variables && !mvaComputer) {
+      throw cms::Exception("LogicError")
+        << "JetTagComputer \"" << iter->name
+        << "\" is not an MVAJetTagCompputer, "
+        "but tagging variables have been "
+        "requested." << std::endl;
+    }
+  }
+  GenericMVAJetTagComputer::initialize(record);
 }
 
 TaggingVariableList
@@ -110,7 +107,7 @@ CombinedMVAJetTagComputer::taggingVariables(const TagInfoHelper &info) const
 	TaggingVariableList vars;
 	std::vector<const BaseTagInfo*> tagInfos;
 
-	for(std::vector<Computer>::iterator iter = computers.begin();
+	for(std::vector<Computer>::const_iterator iter = computers.begin();
 	    iter != computers.end(); ++iter) {
 		if (!iter->computer)
 			throw cms::Exception("LogicError")

@@ -28,6 +28,7 @@
 // there is an existing sorter somewhere in the CMSSW code (I think) - delete that
 struct sorter {
   //bigger first!
+  sorter() {}
   bool operator() (TransientTrackingRecHit::ConstRecHitPointer hit_1,
                    TransientTrackingRecHit::ConstRecHitPointer hit_2) const {
     if(hit_1->det()->subDetector() != GeomDetEnumerators::CSC ||
@@ -341,7 +342,7 @@ double SETFilter::findChi2(double pX, double pY, double pZ,
       */
       trajectoryMeasurementsInTheSet.push_back( TrajectoryMeasurement
 						( lastUpdatedTSOS,
-						  muonRecHit.get(),
+						  muonRecHit,
 						  chi2_intermed,
 						  layer ) );
     }

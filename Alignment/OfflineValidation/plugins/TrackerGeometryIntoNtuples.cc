@@ -244,10 +244,10 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
 	}
 
 	// Get GeomDetUnits for the current tracker 
-	std::vector<GeomDetUnit*>detUnits =  theCurTracker->detUnits() ; 
+	auto const & detUnits =  theCurTracker->detUnits() ; 
 	int detUnit(0) ;
 	//\\for (unsigned int iDet = 0; iDet < detUnits.size(); ++iDet) {
-	for (std::vector<GeomDetUnit*>::const_iterator iunit = detUnits.begin(); iunit != detUnits.end(); ++iunit) { 
+	for (auto iunit = detUnits.begin(); iunit != detUnits.end(); ++iunit) { 
 
 	  DetId detid = (*iunit)->geographicalId(); 
 	  m_rawid = detid.rawId() ; 
@@ -255,7 +255,7 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
 
           ++detUnit ; 		 
           //\\GeomDetUnit* geomDetUnit = detUnits.at(iDet) ; 
-          GeomDetUnit* geomDetUnit = *iunit ; 
+          auto geomDetUnit = *iunit ; 
 
 	  // Get SurfaceDeformation for this GeomDetUnit 
 	  if ( geomDetUnit->surfaceDeformation() ) {

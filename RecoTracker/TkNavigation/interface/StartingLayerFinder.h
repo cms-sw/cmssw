@@ -53,8 +53,8 @@ public:
   std::vector<const DetLayer*> startingLayers(const TrajectorySeed& aSeed) const;
 
   const BarrelDetLayer* firstPixelBarrelLayer() const;
-  const std::vector<ForwardDetLayer*> firstNegPixelFwdLayer() const;
-  const std::vector<ForwardDetLayer*> firstPosPixelFwdLayer() const;
+  const std::vector<const ForwardDetLayer*> firstNegPixelFwdLayer() const;
+  const std::vector<const ForwardDetLayer*> firstPosPixelFwdLayer() const;
 
   const Propagator* propagator() const {return thePropagator;}
 
@@ -65,9 +65,9 @@ private:
   const Propagator* thePropagator;
   const MeasurementTracker*     theMeasurementTracker;
   mutable bool thePixelLayersValid;
-  mutable BarrelDetLayer* theFirstPixelBarrelLayer;
-  mutable std::vector<ForwardDetLayer*> theFirstNegPixelFwdLayer;
-  mutable std::vector<ForwardDetLayer*> theFirstPosPixelFwdLayer;
+  mutable const BarrelDetLayer* theFirstPixelBarrelLayer;
+  mutable std::vector<const ForwardDetLayer*> theFirstNegPixelFwdLayer;
+  mutable std::vector<const ForwardDetLayer*> theFirstPosPixelFwdLayer;
 
 
   void checkPixelLayers() const;

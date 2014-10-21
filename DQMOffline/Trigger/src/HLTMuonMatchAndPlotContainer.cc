@@ -50,7 +50,8 @@ void HLTMuonMatchAndPlotContainer::addPlotter(const edm::ParameterSet &pset , st
 }
 
 
-void HLTMuonMatchAndPlotContainer::beginRun(const edm::Run & iRun, 
+void HLTMuonMatchAndPlotContainer::beginRun(DQMStore::IBooker & iBooker,
+					    const edm::Run & iRun, 
 					    const edm::EventSetup & iSetup)
 {
 
@@ -59,7 +60,7 @@ void HLTMuonMatchAndPlotContainer::beginRun(const edm::Run & iRun,
 
   for (; iter != end; ++iter) 
     {
-      iter->beginRun(iRun, iSetup);
+      iter->beginRun(iBooker, iRun, iSetup);
     }
 
 }

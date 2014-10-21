@@ -1,6 +1,8 @@
 #ifndef MixingModuleConfig_H
 #define MixingModuleConfig_H
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <string>
 #include <iostream>
@@ -53,6 +55,8 @@ class MixingInputConfig {
   int moot_;
   int ioot_;
   
+
+ COND_SERIALIZABLE;
 };
 
 class MixingModuleConfig {
@@ -74,6 +78,8 @@ class MixingModuleConfig {
   int minb_;
   int maxb_;
   int bs_;
+
+ COND_SERIALIZABLE;
 };
 
 

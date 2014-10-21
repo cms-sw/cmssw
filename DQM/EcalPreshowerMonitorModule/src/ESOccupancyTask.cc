@@ -27,7 +27,6 @@ ESOccupancyTask::ESOccupancyTask(const edm::ParameterSet& ps) {
   rechittoken_ = consumes<ESRecHitCollection>(ps.getParameter<InputTag>("RecHitLabel"));
   prefixME_	= ps.getUntrackedParameter<string>("prefixME", "EcalPreshower"); 
   
-  dqmStore_	= Service<DQMStore>().operator->();
   eCount_ = 0;
   
   //Histogram init  
@@ -47,8 +46,12 @@ ESOccupancyTask::ESOccupancyTask(const edm::ParameterSet& ps) {
   
   for (int i = 0; i<2; ++i) 
     hE1E2_[i]=0;
-  
-  dqmStore_->setCurrentFolder(prefixME_ + "/ESOccupancyTask");
+}
+
+void
+ESOccupancyTask::bookHistograms(DQMStore::IBooker& iBooker, Run const&, EventSetup const&)
+{
+  iBooker.setCurrentFolder(prefixME_ + "/ESOccupancyTask");
   
   //Booking Histograms
   //Notice: Change ESRenderPlugin under DQM/RenderPlugins/src if you change this histogram name.
@@ -57,65 +60,55 @@ ESOccupancyTask::ESOccupancyTask(const edm::ParameterSet& ps) {
     for (int j=0 ; j<2; ++j) {
       int iz = (i==0)? 1:-1;
       sprintf(histo, "ES RecHit 2D Occupancy Z %d P %d", iz, j+1);
-      hRecOCC_[i][j] = dqmStore_->book2D(histo, histo, 40, 0.5, 40.5, 40, 0.5, 40.5);
+      hRecOCC_[i][j] = iBooker.book2D(histo, histo, 40, 0.5, 40.5, 40, 0.5, 40.5);
       hRecOCC_[i][j]->setAxisTitle("Si X", 1);
       hRecOCC_[i][j]->setAxisTitle("Si Y", 2);
       
       //Bin 40,40 is used to save eumber of event for scaling.
       sprintf(histo, "ES Energy Density Z %d P %d", iz, j+1);
-      hEnDensity_[i][j] = dqmStore_->book2D(histo, histo, 40, 0.5, 40.5, 40, 0.5, 40.5);
+      hEnDensity_[i][j] = iBooker.book2D(histo, histo, 40, 0.5, 40.5, 40, 0.5, 40.5);
       hEnDensity_[i][j]->setAxisTitle("Si X", 1);
       hEnDensity_[i][j]->setAxisTitle("Si Y", 2);
       
       sprintf(histo, "ES Num of RecHits Z %d P %d", iz, j+1);
-      hRecNHit_[i][j] = dqmStore_->book1DD(histo, histo, 60, 0, 1920);
+      hRecNHit_[i][j] = iBooker.book1DD(histo, histo, 60, 0, 1920);
       hRecNHit_[i][j]->setAxisTitle("# of RecHits", 1);
       hRecNHit_[i][j]->setAxisTitle("Num of Events", 2);
       
       sprintf(histo, "ES Num of Good RecHits Z %d P %d", iz, j+1);
-      hDigiNHit_[i][j] = dqmStore_->book1DD(histo, histo, 60, 0, 1920);
+      hDigiNHit_[i][j] = iBooker.book1DD(histo, histo, 60, 0, 1920);
       hDigiNHit_[i][j]->setAxisTitle("# of good RecHits", 1);
       hDigiNHit_[i][j]->setAxisTitle("Num of Events", 2);
       
       sprintf(histo, "ES RecHit Energy Z %d P %d", iz, j+1);
-      hEng_[i][j] = dqmStore_->book1DD(histo, histo, 50, 0, 0.001);
+      hEng_[i][j] = iBooker.book1DD(histo, histo, 50, 0, 0.001);
       hEng_[i][j]->setAxisTitle("RecHit Energy", 1);
       hEng_[i][j]->setAxisTitle("Num of ReHits", 2);
       
       sprintf(histo, "ES Event Energy Z %d P %d", iz, j+1);
-      hEvEng_[i][j] = dqmStore_->book1DD(histo, histo, 50, 0, 0.1);
+      hEvEng_[i][j] = iBooker.book1DD(histo, histo, 50, 0, 0.1);
       hEvEng_[i][j]->setAxisTitle("Event Energy", 1);
       hEvEng_[i][j]->setAxisTitle("Num of Events", 2);
 
       // histograms with selected hits
       sprintf(histo, "ES RecHit Energy with selected hits Z %d P %d", iz, j+1);
-      hSelEng_[i][j] = dqmStore_->book1DD(histo, histo, 50, 0, 0.001);
+      hSelEng_[i][j] = iBooker.book1DD(histo, histo, 50, 0, 0.001);
       hSelEng_[i][j]->setAxisTitle("RecHit Energy", 1);
       hSelEng_[i][j]->setAxisTitle("Num of ReHits", 2);
 
       sprintf(histo, "ES Occupancy with selected hits Z %d P %d", iz, j+1);
-      hSelOCC_[i][j] = dqmStore_->book2D(histo, histo, 40, 0.5, 40.5, 40, 0.5, 40.5);
+      hSelOCC_[i][j] = iBooker.book2D(histo, histo, 40, 0.5, 40.5, 40, 0.5, 40.5);
       hSelOCC_[i][j]->setAxisTitle("Si X", 1);
       hSelOCC_[i][j]->setAxisTitle("Si Y", 2);
 
       sprintf(histo, "ES Energy Density with selected hits Z %d P %d", iz, j+1);
-      hSelEnDensity_[i][j] = dqmStore_->book2D(histo, histo, 40, 0.5, 40.5, 40, 0.5, 40.5);
+      hSelEnDensity_[i][j] = iBooker.book2D(histo, histo, 40, 0.5, 40.5, 40, 0.5, 40.5);
       hSelEnDensity_[i][j]->setAxisTitle("Si X", 1);
       hSelEnDensity_[i][j]->setAxisTitle("Si Y", 2);
     }
 
-   hE1E2_[0] = dqmStore_->book2D("ES+ EP1 vs EP2", "ES+ EP1 vs EP2", 50, 0, 0.1, 50, 0, 0.1);
-   hE1E2_[1] = dqmStore_->book2D("ES- EP1 vs EP2", "ES- EP1 vs EP2", 50, 0, 0.1, 50, 0, 0.1);
-
-}
-
-ESOccupancyTask::~ESOccupancyTask() {
-}
-
-void ESOccupancyTask::beginJob(void) {
-}
-
-void ESOccupancyTask::endJob() {
+   hE1E2_[0] = iBooker.book2D("ES+ EP1 vs EP2", "ES+ EP1 vs EP2", 50, 0, 0.1, 50, 0, 0.1);
+   hE1E2_[1] = iBooker.book2D("ES- EP1 vs EP2", "ES- EP1 vs EP2", 50, 0, 0.1, 50, 0, 0.1);
 }
 
 void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {

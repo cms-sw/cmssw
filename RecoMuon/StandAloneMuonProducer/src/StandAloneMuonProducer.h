@@ -13,7 +13,7 @@
  *   \author  R.Bellan - INFN TO
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
@@ -22,7 +22,7 @@ namespace edm {class ParameterSet; class Event; class EventSetup;}
 class MuonTrackFinder;
 class MuonServiceProxy;
 
-class StandAloneMuonProducer : public edm::EDProducer {
+class StandAloneMuonProducer : public edm::stream::EDProducer<> {
 
  public:
 
@@ -33,7 +33,7 @@ class StandAloneMuonProducer : public edm::EDProducer {
   virtual ~StandAloneMuonProducer(); 
   
   /// reconstruct muons
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
     
  private:
   

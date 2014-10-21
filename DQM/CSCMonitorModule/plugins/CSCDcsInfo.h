@@ -36,26 +36,22 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // DQM
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include <DQMServices/Core/interface/DQMStore.h>
+#include <DQMServices/Core/interface/MonitorElement.h>
+#include <DQMServices/Core/interface/DQMEDHarvester.h>
 
-class CSCDcsInfo : public edm::EDAnalyzer {
+class CSCDcsInfo : public DQMEDHarvester {
 
   public:
 
     explicit CSCDcsInfo(const edm::ParameterSet&);
     ~CSCDcsInfo() { }
 
+  protected:
+    void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
+
   private:
 
-    virtual void beginJob() ;
-
-    virtual void beginLuminosityBlock(const edm::LuminosityBlock& , const  edm::EventSetup&) { }
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) { }
-    virtual void endLuminosityBlock(const edm::LuminosityBlock& , const  edm::EventSetup&) { }
-    virtual void endJob() { }
-                    
-    DQMStore *dbe;  
     std::map<std::string, MonitorElement*> mos;
 
 };

@@ -5,7 +5,6 @@
  *  \author C. Battilana - CIEMAT
  */
 //Base class
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DQMOffline/Muon/interface/MuonPFAnalyzer.h"
 
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
@@ -64,41 +63,28 @@ MuonPFAnalyzer::MuonPFAnalyzer(const ParameterSet& pSet){
 }
 
 
-MuonPFAnalyzer::~MuonPFAnalyzer() 
-{
-
-  LogTrace("MuonPFAnalyzer") << 
-    "[MuonPFAnalyzer] Destructor called.\n";
-  
+MuonPFAnalyzer::~MuonPFAnalyzer() {
+  LogTrace("MuonPFAnalyzer") << "[MuonPFAnalyzer] Destructor called.\n";
 }
 
-
-
 // ------------ method called when starting to processes a run  ------------
-
-void MuonPFAnalyzer::beginRun(edm::Run const &, edm::EventSetup const &) {
-
-  LogTrace("MuonPFAnalyzer") << 
-    "[MuonPFAnalyzer] Booking histograms.\n";
-
-  //Set up DAQ
-  theDbe = 0;
-  theDbe = edm::Service<DQMStore>().operator->();
-  theDbe->cd();
-
+void MuonPFAnalyzer::bookHistograms(DQMStore::IBooker &ibooker,
+				    edm::Run const &, 
+				    edm::EventSetup const &) {
+  
   if(theRunOnMC)
     {
-      bookHistos("PF");
-      bookHistos("PFTight");
-      bookHistos("PFTightIso");
-      bookHistos("TUNEP");
-      bookHistos("TUNEPTight");
-      bookHistos("TUNEPTightIso");
+      bookHistos(ibooker, "PF");
+      bookHistos(ibooker, "PFTight");
+      bookHistos(ibooker, "PFTightIso");
+      bookHistos(ibooker, "TUNEP");
+      bookHistos(ibooker, "TUNEPTight");
+      bookHistos(ibooker, "TUNEPTightIso");
     }
  
-    bookHistos("PFvsTUNEP");
-    bookHistos("PFvsTUNEPTight");
-    bookHistos("PFvsTUNEPTightIso");
+    bookHistos(ibooker,"PFvsTUNEP");
+    bookHistos(ibooker,"PFvsTUNEPTight");
+    bookHistos(ibooker,"PFvsTUNEPTightIso");
   
 
 }
@@ -288,14 +274,15 @@ void MuonPFAnalyzer::analyze(const Event& event,
 
 
 
-void MuonPFAnalyzer::bookHistos(const string & group) { 
+void MuonPFAnalyzer::bookHistos(DQMStore::IBooker & ibooker,
+				const string & group) { 
 
   
 
   LogTrace("MuonPFAnalyzer") << "[MuonPFAnalyzer] Booking histos for group :"
 			     << group << "\n";
 
-  theDbe->setCurrentFolder(string(theFolder) + group);
+  ibooker.setCurrentFolder(string(theFolder) + group);
  
 
     bool isPFvsTUNEP = group.find("PFvsTUNEP") != string::npos;
@@ -304,19 +291,19 @@ void MuonPFAnalyzer::bookHistos(const string & group) {
     
       
     hName  = "deltaPtOverPt" + group;
-    thePlots[group]["deltaPtOverPt"] = theDbe->book1D(hName.c_str(),hName.c_str(),101,-1.01,1.01);
+    thePlots[group]["deltaPtOverPt"] = ibooker.book1D(hName.c_str(),hName.c_str(),101,-1.01,1.01);
     
     hName = "deltaPtOverPtHighPt" + group;
-    thePlots[group]["deltaPtOverPtHighPt"] = theDbe->book1D(hName.c_str(),hName.c_str(),101,-1.01,1.01);
+    thePlots[group]["deltaPtOverPtHighPt"] = ibooker.book1D(hName.c_str(),hName.c_str(),101,-1.01,1.01);
     
     hName = "deltaPt" + group;
-    thePlots[group]["deltaPt"] = theDbe->book1D(hName.c_str(),hName.c_str(),201.,-10.25,10.25);
+    thePlots[group]["deltaPt"] = ibooker.book1D(hName.c_str(),hName.c_str(),201.,-10.25,10.25);
     
     hName = "deltaPhi"+group;
-    thePlots[group]["deltaPhi"] = theDbe->book1D(hName.c_str(),hName.c_str(),51.,0,.0102);
+    thePlots[group]["deltaPhi"] = ibooker.book1D(hName.c_str(),hName.c_str(),51.,0,.0102);
     
     hName = "deltaEta"+group;
-    thePlots[group]["deltaEta"] = theDbe->book1D(hName.c_str(),hName.c_str(),101.,-.00505,.00505);
+    thePlots[group]["deltaEta"] = ibooker.book1D(hName.c_str(),hName.c_str(),101.,-.00505,.00505);
     
 
 
@@ -324,13 +311,13 @@ void MuonPFAnalyzer::bookHistos(const string & group) {
 
      
       hName = "code"+group;
-      MonitorElement * plot = theDbe->book2D(hName.c_str(),hName.c_str(),7,-.5,6.5,7,-.5,6.5);
+      MonitorElement * plot = ibooker.book2D(hName.c_str(),hName.c_str(),7,-.5,6.5,7,-.5,6.5);
       thePlots[group]["code"] = plot;
       setCodeLabels(plot,1);
       setCodeLabels(plot,2);
       
       hName = "codeHighPt"+group;
-      plot = theDbe->book2D(hName.c_str(),hName.c_str(),7,-.5,6.5,7,-.5,6.5);
+      plot = ibooker.book2D(hName.c_str(),hName.c_str(),7,-.5,6.5,7,-.5,6.5);
       thePlots[group]["codeHighPt"] = plot; 
       setCodeLabels(plot,1);
       setCodeLabels(plot,2);
@@ -340,22 +327,22 @@ void MuonPFAnalyzer::bookHistos(const string & group) {
 	{	
 	  hName = "deltaPtOverPtPFvsTUNEP" + group;
 	  thePlots[group]["deltaPtOverPtPFvsTUNEP"] =  
-	    theDbe->book2D(hName.c_str(),hName.c_str(),
+	    ibooker.book2D(hName.c_str(),hName.c_str(),
 			   101,-1.01,1.01,101,-1.01,1.01);
 
 	  hName = "deltaPtOverPtHighPtPFvsTUNEP" + group;
 	  thePlots[group]["deltaPtOverPtHighPtPFvsTUNEP"] =  
-	    theDbe->book2D(hName.c_str(),hName.c_str(),
+	    ibooker.book2D(hName.c_str(),hName.c_str(),
 			   101,-1.01,1.01,101,-1.01,1.01);
 	}
     } else {
       hName = "code"+group;
-      MonitorElement * plot = theDbe->book1D(hName.c_str(),hName.c_str(),7,-.5,6.5);
+      MonitorElement * plot = ibooker.book1D(hName.c_str(),hName.c_str(),7,-.5,6.5);
       thePlots[group]["code"] = plot;
       setCodeLabels(plot,1);
 
       hName = "codeHighPt"+group;
-      plot = theDbe->book1D(hName.c_str(),hName.c_str(),7,-.5,6.5);
+      plot = ibooker.book1D(hName.c_str(),hName.c_str(),7,-.5,6.5);
       thePlots[group]["codeHighPt"] = plot;  
       setCodeLabels(plot,1);
     }

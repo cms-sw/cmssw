@@ -203,5 +203,14 @@ const MVAComputer &MVAComputerContainer::find(const std::string &label) const
 	return pos->second;
 }
 
+bool MVAComputerContainer::contains(const std::string &label) const
+{
+	std::vector<Entry>::const_iterator pos =
+				std::find_if(entries.begin(), entries.end(),
+				             Comparator(label));
+	if (pos == entries.end()) return false;
+	return true;
+}
+
 } // namespace Calibration
 } // namespace PhysicsTools

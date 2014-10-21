@@ -8,13 +8,14 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelClusterShapeCache.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
+#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterData.h"
 
 #include <utility>
 #include <unordered_map>
-#include <vector>
 #include <cstring>
 
 
@@ -163,16 +164,27 @@ class ClusterShapeHitFilter
  
   ~ClusterShapeHitFilter();
 
+  void setShapeCuts(bool cutOnPixelShape, bool cutOnStripShape) {
+    cutOnPixelShape_ = cutOnPixelShape; cutOnStripShape_ = cutOnStripShape;}
+
+  void setChargeCuts(bool cutOnPixelCharge, float minGoodPixelCharge,
+	bool cutOnStripCharge, float minGoodStripCharge) {
+    cutOnPixelCharge_ = cutOnPixelCharge; minGoodPixelCharge_= minGoodPixelCharge;
+    cutOnStripCharge_ = cutOnStripCharge; minGoodStripCharge_= minGoodStripCharge; } 
+
   bool getSizes
   (const SiPixelRecHit & recHit, const LocalVector & ldir,
-   int & part, std::vector<std::pair<int,int> > & meas,
+   const SiPixelClusterShapeCache& clusterShapeCache,
+   int & part, ClusterData::ArrayType& meas,
    std::pair<float,float> & predr,
    PixelData const * pd=nullptr) const;
   bool isCompatible(const SiPixelRecHit   & recHit,
                     const LocalVector & ldir,
+                    const SiPixelClusterShapeCache& clusterShapeCache,
 		    PixelData const * pd=nullptr) const;
   bool isCompatible(const SiPixelRecHit   & recHit,
                     const GlobalVector & gdir,
+                    const SiPixelClusterShapeCache& clusterShapeCache,
 		    PixelData const * pd=nullptr ) const;
 
 
@@ -237,6 +249,11 @@ class ClusterShapeHitFilter
   StripLimits stripLimits[StripKeys::N+1]; // [2][2]
 
   float theAngle[6];
+  bool cutOnPixelCharge_, cutOnStripCharge_;
+  float minGoodPixelCharge_, minGoodStripCharge_;
+  bool cutOnPixelShape_, cutOnStripShape_;
+  bool checkClusterCharge(DetId detId, const SiStripCluster& cluster, const LocalVector & ldir) const;
+  bool checkClusterCharge(DetId detId, const SiPixelCluster& cluster, const LocalVector & ldir) const;
 };
 
 #endif

@@ -32,12 +32,12 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 */
 
-
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 //using namespace reco;
 
 class DQMStore;
-class SiStripBaselineValidator : public edm::EDAnalyzer
+class SiStripBaselineValidator : public DQMEDAnalyzer
 {
  public:
   explicit SiStripBaselineValidator(const edm::ParameterSet&);
@@ -46,6 +46,7 @@ class SiStripBaselineValidator : public edm::EDAnalyzer
   virtual void beginJob();
   virtual void endJob();  
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   private:
 

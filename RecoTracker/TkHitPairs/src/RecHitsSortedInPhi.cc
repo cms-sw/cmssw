@@ -1,5 +1,5 @@
 #include "RecoTracker/TkHitPairs/interface/RecHitsSortedInPhi.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TValidTrackingRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 
 #include <algorithm>
 #include<cassert>
@@ -25,7 +25,7 @@ RecHitsSortedInPhi::RecHitsSortedInPhi(const std::vector<Hit>& hits, GlobalPoint
 
   for (unsigned int i=0; i!=theHits.size(); ++i) {
     auto const & h = *theHits[i].hit();
-    auto const & gs = reinterpret_cast<TValidTrackingRecHit const &>(h).globalState();
+    auto const & gs = static_cast<BaseTrackerRecHit const &>(h).globalState();
     auto loc = gs.position-origin.basicVector();
     float lr = loc.perp();
     // float lr = gs.position.perp();

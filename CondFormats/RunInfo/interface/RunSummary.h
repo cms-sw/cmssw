@@ -1,6 +1,8 @@
 #ifndef RunSummary_h
 #define RunSummary_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <iostream>
 #include<vector>
 
@@ -37,6 +39,8 @@ public:
   void printAllValues() const;
   std::vector<std::string> getSubdtIn() const;
   
+
+  COND_SERIALIZABLE;
 };
 
 

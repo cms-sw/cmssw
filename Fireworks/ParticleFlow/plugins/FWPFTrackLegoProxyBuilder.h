@@ -39,6 +39,7 @@ class FWPFTrackLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Trac
       const FWPFTrackLegoProxyBuilder& operator=( const FWPFTrackLegoProxyBuilder& );
 
    // --------------------- Member Functions --------------------------
+      using FWSimpleProxyBuilderTemplate<reco::Track>::build;
       virtual void build( const reco::Track &iData, unsigned int iIndex, TEveElement &oItemHolder, const FWViewContext *vc );
 };
 #endif

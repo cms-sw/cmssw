@@ -81,6 +81,7 @@ void FamosProducer::endJob()
  
 void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
 {
+  ParticleTable::Sentry ptable(famosManager_->simEvent()->theTable());
    using namespace edm;
 
    RandomEngineAndDistribution random(iEvent.streamID());

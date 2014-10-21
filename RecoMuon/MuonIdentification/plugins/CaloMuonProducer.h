@@ -14,13 +14,13 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/CaloMuon.h"
 
 
-class CaloMuonProducer : public edm::EDProducer {
+class CaloMuonProducer : public edm::stream::EDProducer<> {
  public:
    explicit CaloMuonProducer(const edm::ParameterSet&);
    ~CaloMuonProducer();

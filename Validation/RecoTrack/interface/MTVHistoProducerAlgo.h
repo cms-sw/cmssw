@@ -15,8 +15,8 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/TrackReco/interface/DeDxData.h"
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -33,11 +33,9 @@ class MTVHistoProducerAlgo{
   // to be implemented in the concrete classes
   virtual void initialize()=0;
 
-  void setDQMStore(DQMStore* dbe) {dbe_ = dbe;}
-
-  virtual void bookSimHistos()=0;
-  virtual void bookRecoHistos()=0;
-  virtual void bookRecoHistosForStandaloneRunning()=0;
+  virtual void bookSimHistos(DQMStore::IBooker& ibook)=0;
+  virtual void bookRecoHistos(DQMStore::IBooker& ibook)=0;
+  virtual void bookRecoHistosForStandaloneRunning(DQMStore::IBooker& ibook)=0;
 
   virtual void fill_generic_simTrack_histos(int counter,const TrackingParticle::Vector&,const TrackingParticle::Point& vertex, int bx)=0;
 
@@ -114,7 +112,6 @@ class MTVHistoProducerAlgo{
 
   void BinLogX(TH1*h);
 
-  DQMStore* dbe_;
  private:
   //private data members
   const edm::ParameterSet& pset_;

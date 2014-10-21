@@ -123,6 +123,16 @@ namespace cond {
       editor.load( tag );
       return editor;
     }
+
+    void Session::clearIov( const std::string& tag ){
+      m_session->openIovDb();
+      m_session->iovSchema().iovTable().erase( tag );      
+    }
+
+    bool Session::existsGlobalTag( const std::string& name ){
+      m_session->openGTDb();
+      return m_session->gtSchema().gtTable().select( name );    
+    }
     
     GTEditor Session::createGlobalTag( const std::string& name ){
       m_session->openGTDb();
@@ -173,16 +183,33 @@ namespace cond {
       return m_session->isOra();
     }
     
-    bool Session::checkMigrationLog( const std::string& sourceAccount, const std::string& sourceTag, std::string& destTag ){
+    bool Session::checkMigrationLog( const std::string& sourceAccount, 
+				     const std::string& sourceTag, 
+				     std::string& destTag, 
+				     cond::MigrationStatus& status ){
+      m_session->openIovDb();
       if(! m_session->iovSchema().tagMigrationTable().exists() ) m_session->iovSchema().tagMigrationTable().create();
       //throwException( "Migration Log Table does not exist in this schema.","Session::checkMigrationLog");
-      return m_session->iovSchema().tagMigrationTable().select( sourceAccount, sourceTag, destTag );
+      return m_session->iovSchema().tagMigrationTable().select( sourceAccount, sourceTag, destTag, (int&)status );
     }
     
-    void Session::addToMigrationLog( const std::string& sourceAccount, const std::string& sourceTag, const std::string& destTag ){
+    void Session::addToMigrationLog( const std::string& sourceAccount, 
+				     const std::string& sourceTag, 
+				     const std::string& destTag,
+				     cond::MigrationStatus status){
+      m_session->openIovDb();
       if(! m_session->iovSchema().tagMigrationTable().exists() ) m_session->iovSchema().tagMigrationTable().create();
-      m_session->iovSchema().tagMigrationTable().insert( sourceAccount, sourceTag, destTag, 
-							 boost::posix_time::microsec_clock::universal_time() );
+      m_session->iovSchema().tagMigrationTable().insert( sourceAccount, sourceTag, destTag,  (int)status,
+					 boost::posix_time::microsec_clock::universal_time() );
+    }
+
+    void Session::updateMigrationLog( const std::string& sourceAccount, 
+				      const std::string& sourceTag, 
+				      cond::MigrationStatus status){
+      m_session->openIovDb();
+      if(! m_session->iovSchema().tagMigrationTable().exists() )
+	throwException( "Migration Log Table does not exist in this schema.","Session::updateMigrationLog");
+      m_session->iovSchema().tagMigrationTable().updateValidationCode( sourceAccount, sourceTag, (int)status );
     }
 
     std::string Session::connectionString(){

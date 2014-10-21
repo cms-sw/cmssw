@@ -35,6 +35,7 @@ private:
 
    const FWTrackProxyBuilder& operator=(const FWTrackProxyBuilder&); // stop default
 
+   using FWSimpleProxyBuilderTemplate<reco::Track>::build;
    void build(const reco::Track& iData, unsigned int iIndex,TEveElement& oItemHolder, const FWViewContext*) override;
 };
 

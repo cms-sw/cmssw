@@ -1,3 +1,4 @@
+#define SMATRIX_USE_CONSTEXPR
 #include "Math/SMatrix.h"
 #include <cmath>
 #include <cstddef>
@@ -65,7 +66,7 @@ namespace ROOT {
 							 const SMatrix<T,D2,D2,MatRepStd<T,D2> >& rhs) {
       SMatrix<T,D1,D2, MatRepStd<T,D1,D2> > tmp = lhs * rhs;
       typedef  SMatrix<T,D1,D1,MatRepSym<T,D1> > SMatrixSym; 
-      SMatrixSym mret; 
+      SMatrixSym mret{SMatrixNoInit{}}; 
       AssignSym::Evaluate(mret,  tmp * Transpose(lhs)  ); 
       return mret; 
     }
@@ -75,7 +76,7 @@ namespace ROOT {
 							 const SMatrix<T,D2,D2,MatRepStd<T,D2> > & rhs) {
       SMatrix<T,D1,D2, MatRepStd<T,D1,D2> > tmp = lhs * rhs;
       typedef  SMatrix<T,D1,D1,MatRepStd<T,D1> > SMatrixSym; 
-      SMatrixSym mret; 
+      SMatrixSym mret = SMatrixNoInit(); 
       AssignAsSym::Evaluate(mret,  tmp * Transpose(lhs)  ); 
       return mret; 
     }

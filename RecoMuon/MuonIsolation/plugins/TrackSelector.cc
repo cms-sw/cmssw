@@ -7,7 +7,7 @@ using namespace reco;
 
 TrackSelector::result_type TrackSelector::operator()(const TrackSelector::input_type & tracks) const
 {
-  static std::string metname = "MuonIsolation|TrackSelector";
+  static const std::string metname = "MuonIsolation|TrackSelector";
   result_type result;
   for (input_type::const_iterator it = tracks.begin(); it != tracks.end(); it++) {
 

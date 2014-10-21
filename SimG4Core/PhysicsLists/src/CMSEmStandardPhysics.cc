@@ -129,6 +129,10 @@ void CMSEmStandardPhysics::ConstructProcess() {
     G4cout << "### " << GetPhysicsName() << " Construct Processes " << G4endl;
   }
 
+  // This EM builder takes default models of Geant4 10 EMV.
+  // Multiple scattering by Urban for all particles
+  // except e+e- below 100 MeV for which the Urban93 model is used
+
   G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
 
   // muon & hadron bremsstrahlung and pair production

@@ -38,23 +38,11 @@ public:
   typedef std::vector<Trajectory>         TrajectoryContainer;
   typedef std::vector<TempTrajectory>     TempTrajectoryContainer;
 
-  CkfTrajectoryBuilder(const edm::ParameterSet&              conf,
-		       const TrajectoryStateUpdator*         updator,
-		       const Propagator*                     propagatorAlong,
-		       const Propagator*                     propagatorOpposite,
-		       const Chi2MeasurementEstimatorBase*   estimator,
-		       const TransientTrackingRecHitBuilder* recHitBuilder,
-		       const TrajectoryFilter*               filter);
+  CkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector& iC);
+  CkfTrajectoryBuilder(const edm::ParameterSet& conf, TrajectoryFilter *filter);
 
   ~CkfTrajectoryBuilder() {}
 
-  // Return a clone of this, with the data pointer set
-  virtual CkfTrajectoryBuilder * clone(const MeasurementTrackerEvent *data) const {
-    CkfTrajectoryBuilder *ret = new CkfTrajectoryBuilder(*this);
-    ret->setData(data);
-    return ret;
-  }
-  
   /// trajectories building starting from a seed
   virtual TrajectoryContainer trajectories(const TrajectorySeed& seed) const;
   /// trajectories building starting from a seed
@@ -84,12 +72,14 @@ public:
 
 
  protected:
+  void setEvent_(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+
   virtual void findCompatibleMeasurements(const TrajectorySeed&seed, const TempTrajectory& traj, std::vector<TrajectoryMeasurement> & result) const;
 
   void limitedCandidates(const TrajectorySeed&seed, TempTrajectory& startingTraj, TrajectoryContainer& result) const;
   void limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, TempTrajectoryContainer &candidates, TrajectoryContainer& result) const;
   
-  void updateTrajectory( TempTrajectory& traj, const TM& tm) const;
+  void updateTrajectory( TempTrajectory& traj, TM && tm) const;
 
   /*  
       //not mature for integration.  

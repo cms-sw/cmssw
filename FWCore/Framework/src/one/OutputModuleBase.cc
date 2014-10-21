@@ -25,6 +25,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/OutputModuleDescription.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
+#include "FWCore/Framework/src/EventSignalsSentry.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -165,7 +166,12 @@ namespace edm {
     
     OutputModuleBase::~OutputModuleBase() { }
     
+    SharedResourcesAcquirer OutputModuleBase::createAcquirer() {
+      return SharedResourcesAcquirer{};
+    }
+    
     void OutputModuleBase::doBeginJob() {
+      resourcesAcquirer_ = createAcquirer();
       this->beginJob();
     }
     
@@ -181,16 +187,24 @@ namespace edm {
     bool
     OutputModuleBase::doEvent(EventPrincipal const& ep,
                               EventSetup const&,
+                              ActivityRegistry* act,
                               ModuleCallingContext const* mcc) {
-      detail::TRBESSentry products_sentry(selectors_);
       
-      if(!wantAllEvents_) {
-        if(!selectors_.wantEvent(ep, mcc)) {
-          return true;
+      {
+        std::lock_guard<std::mutex> guard(mutex_);
+        detail::TRBESSentry products_sentry(selectors_);
+        if(!wantAllEvents_) {
+          if(!selectors_.wantEvent(ep, mcc)) {
+            return true;
+          }
         }
+        {
+          std::lock_guard<SharedResourcesAcquirer> guard(resourcesAcquirer_);
+          EventSignalsSentry sentry(act,mcc);
+          write(ep, mcc);
+        }
+        updateBranchParents(ep);
       }
-      write(ep, mcc);
-      updateBranchParents(ep);
       if(remainingEvents_ > 0) {
         --remainingEvents_;
       }

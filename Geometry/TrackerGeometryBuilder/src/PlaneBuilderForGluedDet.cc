@@ -67,7 +67,7 @@ PlaneBuilderForGluedDet::computeRectBounds( const std::vector<const GeomDetUnit*
 }
 
 Surface::RotationType
-PlaneBuilderForGluedDet::computeRotation( const std::vector<GeomDetUnit*>& dets, const Surface::PositionType& meanPos) const
+PlaneBuilderForGluedDet::computeRotation( const std::vector<GeomDetUnit const*>& dets, const Surface::PositionType& meanPos) const
 {
   // choose first mono out-pointing rotation
   // the rotations of GluedDets coincide with the mono part

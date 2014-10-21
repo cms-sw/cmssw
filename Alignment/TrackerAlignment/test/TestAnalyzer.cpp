@@ -104,7 +104,7 @@ TestAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   iSetup.get<TrackerDigiGeometryRecord>().get( trackerGeometry );
 
   // Now loop on detector units, and store position and orientation
-  for ( std::vector<GeomDet*>::const_iterator iGeomDet = trackerGeometry->dets().begin();
+  for ( auto iGeomDet = trackerGeometry->dets().begin();
 		iGeomDet != trackerGeometry->dets().end(); iGeomDet++ )
 	{
 	  

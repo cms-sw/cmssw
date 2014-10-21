@@ -10,15 +10,16 @@
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+
 #include "TF1.h"
 #include "TH1F.h"
 
 class MonitorElement;
-class DQMStore;
 
 double fitf(double *x, double *par);
 
-class ESTimingTask : public edm::EDAnalyzer {
+class ESTimingTask : public DQMEDAnalyzer {
 
  public:
   
@@ -26,17 +27,15 @@ class ESTimingTask : public edm::EDAnalyzer {
   virtual ~ESTimingTask();
   
  private:
-  
-  virtual void beginJob(void);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob(void) ;
+
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   void set(const edm::EventSetup& es);
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<ESDigiCollection> digilabel_;
   std::string prefixME_;
   
-  DQMStore* dqmStore_;
   MonitorElement* hTiming_[2][2];
   MonitorElement* h2DTiming_;
 

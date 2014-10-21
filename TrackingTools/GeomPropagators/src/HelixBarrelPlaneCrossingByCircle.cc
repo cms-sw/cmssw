@@ -107,10 +107,9 @@ HelixBarrelPlaneCrossingByCircle::pathLength( const Plane& plane)
   bool solved = chooseSolution( Vector2D(dx1, dy1), Vector2D(dx2, dy2));
   if (solved) {
     theDmag = theD.mag();
-    // protect asin (taking some safety margin)
+    // protect asin 
     double sinAlpha = 0.5*theDmag*theRho;
-    if ( sinAlpha>(1.-10*DBL_EPSILON) )  sinAlpha = 1.-10*DBL_EPSILON;
-    else if ( sinAlpha<-(1.-10*DBL_EPSILON) )  sinAlpha = -(1.-10*DBL_EPSILON);
+    if ( std::abs(sinAlpha)>1.)  sinAlpha = std::copysign(1.,sinAlpha);
     theS = theActualDir*2./(theRho*theSinTheta) * asin( sinAlpha);
     return ResultType( true, theS);
   }

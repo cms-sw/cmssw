@@ -82,7 +82,7 @@ private:
  
   TSiTrackerMultiRecHit(const GeomDet * geom, const SiTrackerMultiRecHit* rh,  
 			const ConstRecHitContainer& components, float annealing):
-    TValidTrackingRecHit(geom), theHitData(*rh), theComponents(components), annealing_(annealing){}
+    TValidTrackingRecHit(*geom), theHitData(*rh), theComponents(components), annealing_(annealing){}
   
   virtual TSiTrackerMultiRecHit* clone() const {
     return new TSiTrackerMultiRecHit(*this);

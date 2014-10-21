@@ -7,6 +7,7 @@
 #include <map>
 #include <unordered_map>
 #include <chrono>
+#include <mutex>
 #include <unistd.h>
 
 // CMSSW headers
@@ -233,7 +234,7 @@ private:
     double                      summary_postmodules;
     double                      summary_overhead;
     double                      summary_total;
-    uint32_t                    last_run;           // index of the last module run in this path
+    uint32_t                    last_run;           // index of the last module run in this path, plus one
     uint32_t                    index;              // index of the Path or EndPath in the "schedule"
     bool                        accept;             // flag indicating if the path acepted the event
     TH1F *                      dqm_active;         // see time_active
@@ -361,19 +362,14 @@ private:
   const double                                  m_dqm_moduletime_resolution;
   std::string                                   m_dqm_path;
 
-  // job configuration and caching
-  bool                                          m_is_first_event;
-
-
   struct ProcessDescription {
     std::string         name;
-    std::string         first_path;           // the framework does not provide a pre/postPaths or pre/postEndPaths signal,
-    std::string         last_path;            // so we emulate them keeping track of the first and last Path and EndPath
+    std::string         first_path;             // the framework does not provide a pre/postPaths or pre/postEndPaths signal,
+    std::string         last_path;              // so we emulate them keeping track of the first and last Path and EndPath
     std::string         first_endpath;
     std::string         last_endpath;
     edm::ParameterSetID pset;
   };
-
 
   struct Timing {
     double              presource;              // time spent between the end of the previous Event, LumiSection or Run, and the beginning of the Source
@@ -752,6 +748,7 @@ private:
   Timing                                        m_job_summary;                  // whole event time accounting per-run
   std::vector<std::vector<TimingPerProcess>>    m_run_summary_perprocess;       // per-process time accounting per-job
   std::vector<TimingPerProcess>                 m_job_summary_perprocess;       // per-process time accounting per-job
+  std::mutex                                    m_summary_mutex;                // synchronise access to the summary objects across different threads
 
   static
   double delta(FastTimer::Clock::time_point const & first, FastTimer::Clock::time_point const & second)

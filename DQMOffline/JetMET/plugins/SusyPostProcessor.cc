@@ -11,8 +11,6 @@ const char* SusyPostProcessor::messageLoggerCatregory = "SusyDQMPostProcessor";
 
 SusyPostProcessor::SusyPostProcessor(const edm::ParameterSet& pSet)
 {
-  
-  dqm = edm::Service<DQMStore>().operator->();
   iConfig = pSet;
 
   SUSYFolder = iConfig.getParameter<string>("folderName");
@@ -23,16 +21,9 @@ SusyPostProcessor::SusyPostProcessor(const edm::ParameterSet& pSet)
 SusyPostProcessor::~SusyPostProcessor(){
 }
 
-void SusyPostProcessor::beginJob(void){
-}
 
-void SusyPostProcessor::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
-}
 
-void SusyPostProcessor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
-}
-
-void  SusyPostProcessor::QuantilePlots(MonitorElement* ME, double q_value)
+void  SusyPostProcessor::QuantilePlots(MonitorElement* & ME, double q_value,DQMStore::IBooker& ibooker_)
 {
   if(ME->getTH1()->GetEntries()>0.)
     {
@@ -52,10 +43,10 @@ void  SusyPostProcessor::QuantilePlots(MonitorElement* ME, double q_value)
 	  NBin=(xUp-xLow)/DBin;
 	}
 
-      dqm->setCurrentFolder(ME->getPathname());
+      ibooker_.setCurrentFolder(ME->getPathname());
       TString name=ME->getTH1()->GetName();
       name+="_quant";
-      ME=dqm->book1D(name,"",NBin, xLow, xUp);
+      ME=ibooker_.book1D(name,"",NBin, xLow, xUp);
       ME->Fill(mean-RMS);
       ME->Fill(mean+RMS);
     }
@@ -63,36 +54,33 @@ void  SusyPostProcessor::QuantilePlots(MonitorElement* ME, double q_value)
 
 
 
-void SusyPostProcessor::endRun(const edm::Run&, const edm::EventSetup&)
+void SusyPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& iget_)
 {
   // MET
   //----------------------------------------------------------------------------
-  dqm->setCurrentFolder("JetMET/MET");
+  iget_.setCurrentFolder("JetMET/MET");
 
-  Dirs = dqm->getSubdirs();
+  Dirs = iget_.getSubdirs();
 
   std::vector<std::string> metFolders;
 
-  metFolders.push_back("All/");
-  metFolders.push_back("BasicCleanup/");
-  metFolders.push_back("ExtraCleanup/");
+  metFolders.push_back("Uncleaned/");
+  metFolders.push_back("Cleaned/");
 
   for (int i=0; i<int(Dirs.size()); i++) {
 
     std::string prefix = "dummy";
 
-    if (size_t(Dirs[i].find("Calo")) != string::npos) prefix = "Calo";
-    if (size_t(Dirs[i].find("Pf"))   != string::npos) prefix = "Pf";
-    //TCMet related plots are removed
-    //if (size_t(Dirs[i].find("Tc"))   != string::npos) prefix = "";
+    if (size_t(Dirs[i].find("met")) != string::npos) prefix = "met";
+    if (size_t(Dirs[i].find("pfMet"))   != string::npos) prefix = "pfMET";
 
     for (std::vector<std::string>::const_iterator ic=metFolders.begin();
 	 ic!=metFolders.end(); ic++) {
 
-      std::string dirName = Dirs[i] + "/" + *ic;
+      std::string dirName = Dirs[i] +"/" + *ic;
 
-      MEx = dqm->get(dirName + "METTask_" + prefix + "MEx");
-      MEy = dqm->get(dirName + "METTask_" + prefix + "MEx");
+      MEx = iget_.get(dirName + "/"+"MEx");
+      MEy = iget_.get(dirName + "/"+"MEy");
 
       if (MEx && MEx->kind() == MonitorElement::DQM_KIND_TH1F) {
 	if (MEx->getTH1F()->GetEntries() > 50) MEx->getTH1F()->Fit("gaus", "q");
@@ -107,22 +95,19 @@ void SusyPostProcessor::endRun(const edm::Run&, const edm::EventSetup&)
 
   // SUSY
   //----------------------------------------------------------------------------
-  dqm->setCurrentFolder(SUSYFolder);
-  Dirs = dqm->getSubdirs();
+  iget_.setCurrentFolder(SUSYFolder);
+  Dirs = iget_.getSubdirs();
   for (int i=0; i<int(Dirs.size()); i++)
     {
       size_t found = Dirs[i].find("Alpha");
       if (found!=string::npos) continue;
-      if(!dqm->dirExists(Dirs[i])){
+      if(!iget_.dirExists(Dirs[i])){
 	edm::LogError(messageLoggerCatregory)<< "Directory "<<Dirs[i]<<" doesn't exist!!";
 	continue;
       }      
-      vector<MonitorElement*> histoVector = dqm->getContents(Dirs[i]);
+      vector<MonitorElement*> histoVector = iget_.getContents(Dirs[i]);
       for (int i=0; i<int(histoVector.size()); i++) {
-	QuantilePlots(histoVector[i],_quantile);
+	QuantilePlots(histoVector[i],_quantile,ibook_);
       } 
     }
 }
-
-
-void SusyPostProcessor::endJob(){}

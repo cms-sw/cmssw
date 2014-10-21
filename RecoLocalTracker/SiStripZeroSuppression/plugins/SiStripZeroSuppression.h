@@ -1,6 +1,6 @@
 #ifndef SiStripZeroSuppression_h
 #define SiStripZeroSuppression_h
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -13,7 +13,7 @@
 class SiStripDigi;
 class SiStripRawDigi;
 
-class SiStripZeroSuppression : public edm::EDProducer
+class SiStripZeroSuppression : public edm::stream::EDProducer<>
 {
   
  public:

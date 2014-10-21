@@ -52,7 +52,9 @@ private:
    FWTrackResidualDetailView(const FWTrackResidualDetailView&); // stop default
    const FWTrackResidualDetailView& operator=(const FWTrackResidualDetailView&); // stop default
 
+   using FWDetailViewCanvas<reco::Track>::build;
    virtual void build (const FWModelId &id, const reco::Track*);
+   using FWDetailViewCanvas<reco::Track>::setTextInfo;
    virtual void setTextInfo(const FWModelId &id, const reco::Track*);
 
    double getSignedResidual (const FWGeometry *geom, unsigned int id, double resX);

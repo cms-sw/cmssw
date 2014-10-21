@@ -1,7 +1,14 @@
 http://cmsdoc.cern.ch/cms/data/CMSSW/RecoParticleFlow/PFTracking/data/BDT_weights_21.txt
-http://cmsdoc.cern.ch/cms/data/CMSSW/RecoParticleFlow/PFTracking/data/MVAnalysis_BDT.weights_convBremFinder_19Apr.txt
-http://cmsdoc.cern.ch/cms/data/CMSSW/RecoParticleFlow/PFTracking/data/MVAnalysis_BDT.weights_convBremFinder_19Apr_IntToFloat.txt
 http://cmsdoc.cern.ch/cms/data/CMSSW/RecoParticleFlow/PFTracking/data/TMVAClassification_ConvBremFinder_Testetgt20absetagt1_479_BDT.weights.xml
 http://cmsdoc.cern.ch/cms/data/CMSSW/RecoParticleFlow/PFTracking/data/TMVAClassification_ConvBremFinder_Testetgt20absetalt1_479_BDT.weights.xml
 http://cmsdoc.cern.ch/cms/data/CMSSW/RecoParticleFlow/PFTracking/data/TMVAClassification_ConvBremFinder_Testetlt20absetagt1_479_BDT.weights.xml
 http://cmsdoc.cern.ch/cms/data/CMSSW/RecoParticleFlow/PFTracking/data/TMVAClassification_ConvBremFinder_Testetlt20absetalt1_479_BDT.weights.xml
+http://cmsdoc.cern.ch/cms/data/CMSSW/RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat1.xml
+http://cmsdoc.cern.ch/cms/data/CMSSW/RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat2.xml
+http://cmsdoc.cern.ch/cms/data/CMSSW/RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat3.xml
+http://cmsdoc.cern.ch/cms/data/CMSSW/RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat4.xml
+http://cmsdoc.cern.ch/cms/data/CMSSW/RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat5.xml
+http://cmsdoc.cern.ch/cms/data/CMSSW/RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat6.xml
+http://cmsdoc.cern.ch/cms/data/CMSSW/RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat7.xml
+http://cmsdoc.cern.ch/cms/data/CMSSW/RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat8.xml
+http://cmsdoc.cern.ch/cms/data/CMSSW/RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat9.xml

@@ -11,6 +11,8 @@ POOL object to store calibration mode QIE parameters
 $Id
 */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <algorithm>
 
@@ -33,6 +35,8 @@ class CastorCalibrationQIEData: public CastorCondObjectContainer<CastorCalibrati
    // sort values by channelId  
   void sort () {}
 
+
+ COND_SERIALIZABLE;
 };
 
 #endif

@@ -14,7 +14,7 @@
 using namespace std;
 
 SimpleForwardNavigableLayer::
-SimpleForwardNavigableLayer( ForwardDetLayer* detLayer,
+SimpleForwardNavigableLayer( const ForwardDetLayer* detLayer,
 			     const BDLC& outerBL, 
 			     const FDLC& outerFL, 
 			     const MagneticField* field,
@@ -121,7 +121,7 @@ SimpleForwardNavigableLayer::compatibleLayers( NavigationDirection dir) const {
 }
 
 
-void SimpleForwardNavigableLayer::setDetLayer( DetLayer* dl) {
+void SimpleForwardNavigableLayer::setDetLayer( const DetLayer* dl) {
   cerr << "Warning: SimpleForwardNavigableLayer::setDetLayer called."
        << endl << "This should never happen!" << endl;
 }
@@ -147,9 +147,9 @@ void SimpleForwardNavigableLayer::setInwardLinks(const BDLC& innerBL,
 
 }
 
-void SimpleForwardNavigableLayer::setAdditionalLink(DetLayer* additional, NavigationDirection direction){
-  ForwardDetLayer* fadditional = dynamic_cast<ForwardDetLayer*>(additional);
-  BarrelDetLayer*  badditional = dynamic_cast<BarrelDetLayer*>(additional);
+void SimpleForwardNavigableLayer::setAdditionalLink(const DetLayer* additional, NavigationDirection direction){
+  const ForwardDetLayer* fadditional = dynamic_cast<const ForwardDetLayer*>(additional);
+  const BarrelDetLayer*  badditional = dynamic_cast<const BarrelDetLayer*>(additional);
   if (badditional){
         if (direction==insideOut){
 	  theOuterBarrelLayers.push_back(badditional);

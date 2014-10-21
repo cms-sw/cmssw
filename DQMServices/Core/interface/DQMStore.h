@@ -22,10 +22,12 @@
 
 namespace edm { class DQMHttpSource; class ParameterSet; class ActivityRegistry;}
 namespace lat { class Regexp; }
+namespace dqmstorepb {class ROOTFilePB; class ROOTFilePB_Histo;}
 
 class MonitorElement;
 class QCriterion;
 class TFile;
+class TBufferFile;
 class TObject;
 class TH1;
 class TObjString;
@@ -38,6 +40,7 @@ class TH2D;
 class TH3F;
 class TProfile;
 class TProfile2D;
+class TNamed;
 
 /** Implements RegEx patterns which occur often in a high-performant
     mattern. For all other expressions, the full RegEx engine is used.
@@ -162,6 +165,8 @@ class DQMStore
     void cd(void);
     void cd(const std::string &dir);
     void setCurrentFolder(const std::string &fullpath);
+    void goUp(void);
+    const std::string & pwd(void);
     void tag(MonitorElement *, unsigned int);
 
    private:
@@ -179,6 +184,41 @@ class DQMStore
     DQMStore * owner_;
   };  // IBooker
 
+  class IGetter
+  {
+   public:
+    friend class DQMStore;
+
+    // for the supported syntaxes, see the declarations of DQMStore::getContents
+    template <typename... Args>
+    std::vector<MonitorElement *> getContents(Args && ... args) {
+      return owner_->getContents(std::forward<Args>(args)...);
+    }
+
+    MonitorElement * get(const std::string &path);
+    std::vector<std::string> getSubdirs(void);
+    std::vector<std::string> getMEs(void);
+    bool containsAnyMonitorable(const std::string &path);
+    bool dirExists(const std::string &path);
+    void cd(void);
+    void cd(const std::string &dir);
+    void setCurrentFolder(const std::string &fullpath);
+
+   private:
+    explicit IGetter(DQMStore * store):owner_(0) {
+      assert(store);
+      owner_ = store;
+    }
+
+    IGetter();
+    IGetter(const IGetter&);
+
+    // Embedded classes do not natively own a pointer to the embedding
+    // class. We therefore need to store a pointer to the main
+    // DQMStore instance (owner_).
+    DQMStore * owner_;
+  }; //IGetter
+
   // Template function to be used inside each DQM Modules' lambda
   // functions to book MonitorElements into the DQMStore. The function
   // calls whatever user-supplied code via the function f. The latter
@@ -194,14 +234,42 @@ class DQMStore
     std::lock_guard<std::mutex> guard(book_mutex_);
     /* If enableMultiThread is not enabled we do not set run_,
        streamId_ and moduleId_ to 0, since we rely on their default
-       initialization in DQMSTore constructor. */
+       initialization in DQMStore constructor. */
     if (enableMultiThread_) {
       run_ = run;
       streamId_ = streamId;
       moduleId_ = moduleId;
     }
     f(*ibooker_);
+
+    /* Initialize to 0 the run_, streamId_ and moduleId_ variables
+       in case we run in mixed conditions with DQMEDAnalyzers and
+       legacy modules */
+    if (enableMultiThread_) {
+      run_ = 0;
+      streamId_ = 0;
+      moduleId_ = 0;
+    }
   }
+  // Signature needed in the harvesting where the booking is done
+  // in the endJob. No handles to the run there. Two arguments ensure
+  // the capability of booking and getting. The method relies on the
+  // initialization of run, stream and module ID to 0. The mutex
+  // is not needed.
+  template <typename iFunc>
+  void meBookerGetter(iFunc f) {
+    f(*ibooker_, *igetter_);
+  }
+  // Signature needed in the harvesting where it might be needed to get
+  // the LS based histograms. Handle to the Lumi and to the iSetup are available.
+  // No need to book anything there. The method relies on the
+  // initialization of run, stream and module ID to 0. The mutex
+  // is not needed.
+  template <typename iFunc>
+  void meGetter(iFunc f) {
+    f(*igetter_);
+  }
+
   //-------------------------------------------------------------------------
   // ---------------------- Constructors ------------------------------------
   DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry&);
@@ -451,14 +519,21 @@ class DQMStore
 
   //-------------------------------------------------------------------------
   // ---------------------- public I/O --------------------------------------
+  void                          savePB(const std::string &filename,
+                                       const std::string &path = "",
+				       const uint32_t run = 0,
+				       const uint32_t lumi = 0,
+				       const bool resetMEsAfterWriting = false);
   void                          save(const std::string &filename,
                                      const std::string &path = "",
                                      const std::string &pattern = "",
                                      const std::string &rewrite = "",
                                      const uint32_t run = 0,
+                                     const uint32_t lumi = 0,
                                      SaveReferenceTag ref = SaveWithReference,
                                      int minStatus = dqm::qstatus::STATUS_OK,
-                                     const std::string &fileupdate = "RECREATE");
+                                     const std::string &fileupdate = "RECREATE",
+				     const bool resetMEsAfterWriting = false);
   bool                          open(const std::string &filename,
                                      bool overwrite = false,
                                      const std::string &path ="",
@@ -484,7 +559,7 @@ class DQMStore
   int                           useQTestByMatch(const std::string &pattern, const std::string &qtname);
   void                          runQTests(void);
   int                           getStatus(const std::string &path = "") const;
-  void        scaleElements(void);
+  void                          scaleElements(void);
 
  private:
   // ---------------- Navigation -----------------------
@@ -494,6 +569,12 @@ class DQMStore
   bool                          isCollateME(MonitorElement *me) const;
 
   // ------------------- Private "getters" ------------------------------
+  bool                          readFilePB(const std::string &filename,
+                                           bool overwrite = false,
+                                           const std::string &path ="",
+                                           const std::string &prepend = "",
+                                           OpenRunDirs stripdirs = StripRunDirs,
+                                           bool fileMustExist = true);
   bool                          readFile(const std::string &filename,
                                          bool overwrite = false,
                                          const std::string &path ="",
@@ -515,6 +596,11 @@ class DQMStore
                                            const uint32_t streamId = 0,
                                            const uint32_t moduleId = 0) const;
 
+  void                          get_info(const  dqmstorepb::ROOTFilePB_Histo &,
+                                         std::string & dirname,
+                                         std::string & objname,
+                                         TObject ** obj);
+
  public:
   void                          getAllTags(std::vector<std::string> &into) const;
   std::vector<MonitorElement*>  getAllContents(const std::string &path,
@@ -534,10 +620,13 @@ class DQMStore
 
   // ---------------- Miscellaneous -----------------------------
   void        initializeFrom(const edm::ParameterSet&);
-  void                          reset(void);
+  void        reset(void);
   void        forceReset(void);
-
-  bool                          extract(TObject *obj, const std::string &dir, bool overwrite);
+  void        markForDeletion(uint32_t run,
+			      uint32_t lumi);
+  
+  bool        extract(TObject *obj, const std::string &dir, bool overwrite, bool collateHistograms);
+  TObject *   extractNextObject(TBufferFile&) const;
 
   // ---------------------- Booking ------------------------------------
   MonitorElement *              initialise(MonitorElement *me, const std::string &path);
@@ -597,6 +686,8 @@ class DQMStore
   double                        scaleFlag_;
   bool                          collateHistograms_;
   bool                          enableMultiThread_;
+  bool                          LSbasedMode_;
+  bool                          forceResetOnBeginLumi_;
   std::string                   readSelectedDirectory_;
   uint32_t                      run_;
   uint32_t                      streamId_;
@@ -612,17 +703,16 @@ class DQMStore
 
   std::mutex book_mutex_;
   IBooker * ibooker_;
+  IGetter * igetter_;
 
   friend class edm::DQMHttpSource;
   friend class DQMService;
   friend class DQMNet;
   friend class DQMArchiver;
   friend class DQMStoreExample; // for get{All,Matching}Contents -- sole user of this method!
+  friend class DQMRootOutputModule;
+  friend class DQMFileSaver;
+  friend class MEtoEDMConverter;
 };
 
 #endif // DQMSERVICES_CORE_DQM_STORE_H
-
-/* Local Variables: */
-/* show-trailing-whitespace: t */
-/* truncate-lines: t */
-/* End: */

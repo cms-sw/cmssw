@@ -39,9 +39,9 @@ void SiPixelFrameReverter::buildStructure(const edm::EventSetup& iSetup)
   edm::ESHandle<TrackerGeometry> pDD;
   iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
 
-  for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
+  for(auto it = pDD->dets().begin(); it != pDD->dets().end(); it++){
     
-    if(dynamic_cast<PixelGeomDetUnit*>((*it))!=0){
+    if(dynamic_cast<PixelGeomDetUnit const *>((*it))!=0){
 
       DetId detId = (*it)->geographicalId();
       uint32_t id = detId();

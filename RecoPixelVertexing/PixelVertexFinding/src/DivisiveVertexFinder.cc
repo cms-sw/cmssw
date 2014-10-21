@@ -3,7 +3,6 @@
 #include "RecoPixelVertexing/PixelVertexFinding/interface/PVCluster.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "RecoPixelVertexing/PixelVertexFinding/interface/PVClusterComparer.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 #include <utility>
 #include <vector>
@@ -11,7 +10,8 @@
 #include <algorithm>
 #include <cmath>
 
-DivisiveVertexFinder::DivisiveVertexFinder(double zOffset, int ntrkMin, 
+DivisiveVertexFinder::DivisiveVertexFinder(double track_pt_min, double track_pt_max, double track_chi2_max, double track_prob_min,
+					   double zOffset, int ntrkMin, 
 					   bool useError, double zSeparation, bool wtAverage,
 					   int verbosity)
   : zOffset_(zOffset), zSeparation_(zSeparation), ntrkMin_(ntrkMin), useError_(useError),
@@ -19,6 +19,8 @@ DivisiveVertexFinder::DivisiveVertexFinder(double zOffset, int ntrkMin,
     divmeth_(zOffset, ntrkMin, useError, zSeparation, wtAverage),
     verbose_(verbosity)
 {
+
+  pvComparer_ = new PVClusterComparer(track_pt_min, track_pt_max, track_chi2_max, track_prob_min);
 
 }
 
@@ -105,7 +107,8 @@ bool DivisiveVertexFinder::findVertexesAlt(const reco::TrackRefVector &trks,  //
   }
 
   // Finally, sort the vertexes in decreasing sumPtSquared
-  std::sort(vertexes.begin(), vertexes.end(), PVClusterComparer());
+  //  std::sort(vertexes.begin(), vertexes.end(), PVClusterComparer());
+  std::sort(vertexes.begin(), vertexes.end(), *pvComparer_);
 
   return true;
 }

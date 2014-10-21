@@ -275,17 +275,17 @@ void SeedingLayerSetsBuilder::updateEventSetup(const edm::EventSetup& es) {
   es.get<TrackerRecoGeometryRecord>().get( htracker );
   const GeometricSearchTracker& tracker = *htracker;
 
-  const std::vector<BarrelDetLayer*>&  bpx  = tracker.barrelLayers();
-  const std::vector<BarrelDetLayer*>&  tib  = tracker.tibLayers();
-  const std::vector<BarrelDetLayer*>&  tob  = tracker.tobLayers();
+  const std::vector<BarrelDetLayer const*>&  bpx  = tracker.barrelLayers();
+  const std::vector<BarrelDetLayer const*>&  tib  = tracker.tibLayers();
+  const std::vector<BarrelDetLayer const*>&  tob  = tracker.tobLayers();
 
-  const std::vector<ForwardDetLayer*>& fpx_pos = tracker.posForwardLayers();
-  const std::vector<ForwardDetLayer*>& tid_pos = tracker.posTidLayers();
-  const std::vector<ForwardDetLayer*>& tec_pos = tracker.posTecLayers();
+  const std::vector<ForwardDetLayer const*>& fpx_pos = tracker.posForwardLayers();
+  const std::vector<ForwardDetLayer const*>& tid_pos = tracker.posTidLayers();
+  const std::vector<ForwardDetLayer const*>& tec_pos = tracker.posTecLayers();
 
-  const std::vector<ForwardDetLayer*>& fpx_neg = tracker.negForwardLayers();
-  const std::vector<ForwardDetLayer*>& tid_neg = tracker.negTidLayers();
-  const std::vector<ForwardDetLayer*>& tec_neg = tracker.negTecLayers();
+  const std::vector<ForwardDetLayer const*>& fpx_neg = tracker.negForwardLayers();
+  const std::vector<ForwardDetLayer const*>& tid_neg = tracker.negTidLayers();
+  const std::vector<ForwardDetLayer const*>& tec_neg = tracker.negTecLayers();
 
   for(size_t i=0, n=theLayers.size(); i<n; ++i) {
     const LayerSpec& layer = theLayers[i];

@@ -55,7 +55,7 @@ void* cond::Binary::data(){
 }
 
 size_t cond::Binary::size() const {
-  if(!m_data.get()) throwException( "Binary size can't be provided.","Binary::size");
+  if(!m_data.get()) throwException( "Binary data can't be accessed.","Binary::size");
   return m_data->size();
 }
     

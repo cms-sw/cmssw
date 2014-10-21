@@ -12,7 +12,7 @@ AnalyzeBeamHalo.StandardDQM = cms.bool(True)
 
 towerSchemeBAnalyzer.AllHist = cms.untracked.bool(False)
 
-jetDQMAnalyzerAk5CaloUncleaned.runcosmics = cms.untracked.bool(True)
+jetDQMAnalyzerAk4CaloUncleaned.runcosmics = cms.untracked.bool(True)
  
 caloMetDQMAnalyzer.runcosmics = cms.untracked.bool(True)
 

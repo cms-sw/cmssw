@@ -55,10 +55,6 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot(const ParameterSet & pset,
   fillMapFromPSet(binParams_, pset, "binParams");
   fillMapFromPSet(plotCuts_, pset, "plotCuts");
 
-  // Prepare the DQMStore object.
-  dbe_ = edm::Service<DQMStore>().operator->();
-  dbe_->setVerbose(0);
-
   // Get the trigger level.
   triggerLevel_ = "L3";
   TPRegexp levelRegexp("L[1-3]");
@@ -82,7 +78,8 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot(const ParameterSet & pset,
 
 }
 
-void HLTMuonMatchAndPlot::beginRun(const edm::Run& iRun, 
+void HLTMuonMatchAndPlot::beginRun(DQMStore::IBooker & iBooker,
+				   const edm::Run& iRun, 
                                    const edm::EventSetup& iSetup)
 {
 
@@ -93,45 +90,45 @@ void HLTMuonMatchAndPlot::beginRun(const edm::Run& iRun,
   string pathSansSuffix = hltPath_;
   if (hltPath_.rfind("_v") < hltPath_.length())
     pathSansSuffix = hltPath_.substr(0, hltPath_.rfind("_v"));
-  dbe_->setCurrentFolder(baseDir + pathSansSuffix);
+  iBooker.setCurrentFolder(baseDir + pathSansSuffix);
 
   // Form is book1D(name, binningType, title) where 'binningType' is used 
   // to fetch the bin settings from binParams_.
-  book1D("deltaR", "deltaR", ";#Deltar(reco, HLT);");
-  book1D("hltPt", "pt", ";p_{T} of HLT object");
-  book1D("hltEta", "eta", ";#eta of HLT object");
-  book1D("hltPhi", "phi", ";#phi of HLT object");
-  book1D("resolutionEta", "resolutionEta", ";#eta^{reco}-#eta^{HLT};");
-  book1D("resolutionPhi", "resolutionPhi", ";#phi^{reco}-#phi^{HLT};");
-  book1D("resolutionPt", "resolutionRel", 
+  book1D(iBooker, "deltaR", "deltaR", ";#Deltar(reco, HLT);");
+  book1D(iBooker, "hltPt", "pt", ";p_{T} of HLT object");
+  book1D(iBooker, "hltEta", "eta", ";#eta of HLT object");
+  book1D(iBooker, "hltPhi", "phi", ";#phi of HLT object");
+  book1D(iBooker, "resolutionEta", "resolutionEta", ";#eta^{reco}-#eta^{HLT};");
+  book1D(iBooker, "resolutionPhi", "resolutionPhi", ";#phi^{reco}-#phi^{HLT};");
+  book1D(iBooker, "resolutionPt", "resolutionRel", 
          ";(p_{T}^{reco}-p_{T}^{HLT})/|p_{T}^{reco}|;");
 
   for (size_t i = 0; i < 2; i++) {
 
     string suffix = EFFICIENCY_SUFFIXES[i];
 
-    book1D("efficiencyEta_" + suffix, "eta", ";#eta;");
-    book1D("efficiencyPhi_" + suffix, "phi", ";#phi;");
-    book1D("efficiencyTurnOn_" + suffix, "pt", ";p_{T};");
-    book1D("efficiencyD0_" + suffix, "d0", ";d0;");
-    book1D("efficiencyZ0_" + suffix, "z0", ";z0;");
-    book1D("efficiencyCharge_" + suffix, "charge", ";charge;");
-    book1D("efficiencyVertex_" + suffix, "NVertex", ";NVertex;");
+    book1D(iBooker, "efficiencyEta_" + suffix, "eta", ";#eta;");
+    book1D(iBooker, "efficiencyPhi_" + suffix, "phi", ";#phi;");
+    book1D(iBooker, "efficiencyTurnOn_" + suffix, "pt", ";p_{T};");
+    book1D(iBooker, "efficiencyD0_" + suffix, "d0", ";d0;");
+    book1D(iBooker, "efficiencyZ0_" + suffix, "z0", ";z0;");
+    book1D(iBooker, "efficiencyCharge_" + suffix, "charge", ";charge;");
+    book1D(iBooker, "efficiencyVertex_" + suffix, "NVertex", ";NVertex;");
 
-    book2D("efficiencyPhiVsEta_" + suffix, "etaCoarse", "phiCoarse", 
-           ";#eta;#phi");
+    book2D(iBooker, "efficiencyPhiVsEta_" + suffix, "etaCoarse", 
+	   "phiCoarse", ";#eta;#phi");
 
-    book1D("fakerateEta_" + suffix, "eta", ";#eta;");
-    book1D("fakerateVertex_" + suffix, "NVertex", ";NVertex;");
-    book1D("fakeratePhi_" + suffix, "phi", ";#phi;");
-    book1D("fakerateTurnOn_" + suffix, "pt", ";p_{T};");
+    book1D(iBooker, "fakerateEta_" + suffix, "eta", ";#eta;");
+    book1D(iBooker, "fakerateVertex_" + suffix, "NVertex", ";NVertex;");
+    book1D(iBooker, "fakeratePhi_" + suffix, "phi", ";#phi;");
+    book1D(iBooker, "fakerateTurnOn_" + suffix, "pt", ";p_{T};");
 
-    book1D("massVsEtaZ_" + suffix, "etaCoarse", ";#eta");
-    book1D("massVsEtaJpsi_" + suffix, "etaCoarse", ";#eta");
-    book1D("massVsPtZ_" + suffix, "ptCoarse", ";p_{T}");
-    book1D("massVsPtJpsi_" + suffix, "ptCoarse", ";p_{T}");
-    book1D("massVsVertexZ_" + suffix, "NVertex", ";NVertex");
-    book1D("massVsVertexJpsi_" + suffix, "NVertex", ";NVertex");
+    book1D(iBooker, "massVsEtaZ_" + suffix, "etaCoarse", ";#eta");
+    book1D(iBooker, "massVsEtaJpsi_" + suffix, "etaCoarse", ";#eta");
+    book1D(iBooker, "massVsPtZ_" + suffix, "ptCoarse", ";p_{T}");
+    book1D(iBooker, "massVsPtJpsi_" + suffix, "ptCoarse", ";p_{T}");
+    book1D(iBooker, "massVsVertexZ_" + suffix, "NVertex", ";NVertex");
+    book1D(iBooker, "massVsVertexJpsi_" + suffix, "NVertex", ";NVertex");
 
   }
   
@@ -509,7 +506,8 @@ HLTMuonMatchAndPlot::selectedTriggerObjects(
 
 
 
-void HLTMuonMatchAndPlot::book1D(string name, string binningType, string title)
+void HLTMuonMatchAndPlot::book1D(DQMStore::IBooker & iBooker, string name, 
+				 string binningType, string title)
 {
 
   /* Properly delete the array of floats that has been allocated on
@@ -522,7 +520,7 @@ void HLTMuonMatchAndPlot::book1D(string name, string binningType, string title)
   float * edges = 0; 
   fillEdges(nBins, edges, binParams_[binningType]);
 
-  hists_[name] = dbe_->book1D(name, title, nBins, edges);
+  hists_[name] = iBooker.book1D(name, title, nBins, edges);
   if (hists_[name])
     if (hists_[name]->getTH1F()->GetSumw2N())
       hists_[name]->getTH1F()->Sumw2();
@@ -535,8 +533,9 @@ void HLTMuonMatchAndPlot::book1D(string name, string binningType, string title)
 
 
 void
-HLTMuonMatchAndPlot::book2D(string name, string binningTypeX, 
-                            string binningTypeY, string title) 
+HLTMuonMatchAndPlot::book2D(DQMStore::IBooker & iBooker, string name, 
+			    string binningTypeX, string binningTypeY, 
+			    string title) 
 {
   
   /* Properly delete the arrays of floats that have been allocated on
@@ -553,8 +552,8 @@ HLTMuonMatchAndPlot::book2D(string name, string binningTypeX,
   float * edgesY = 0;
   fillEdges(nBinsY, edgesY, binParams_[binningTypeY]);
 
-  hists_[name] = dbe_->book2D(name.c_str(), title.c_str(),
-			      nBinsX, edgesX, nBinsY, edgesY);
+  hists_[name] = iBooker.book2D(name.c_str(), title.c_str(),
+				nBinsX, edgesX, nBinsY, edgesY);
   if (hists_[name])
     if (hists_[name]->getTH2F()->GetSumw2N())
       hists_[name]->getTH2F()->Sumw2();

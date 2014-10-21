@@ -11,7 +11,7 @@ workflows = Matrix()
 
 # 50 ns at 8 TeV
 workflows[200]=['',['ZEE','DIGIPU1','RECOPU1','HARVEST']]
-workflows[201]=['',['ZmumuJets_Pt_20_300','DIGIPU1','RECOPU1','HARVEST']]
+workflows[201]=['',['ZmumuJets_Pt_20_300','DIGIPU2','RECOPU2','HARVEST']]
 workflows[202]=['',['TTbar','DIGIPU1','RECOPU1','HARVEST']]
 workflows[203]=['',['H130GGgluonfusion','DIGIPU1','RECOPU1','HARVEST']]
 workflows[204]=['',['QQH1352T_Tauola','DIGIPU1','RECOPU1','HARVEST']]
@@ -28,20 +28,24 @@ workflows[401]=['TTbarNewMix',['TTbarFSPU2','HARVESTFS']]
 
 
 # 50 ns at 13 TeV and POSTLS1
-workflows[50200]=['',['ZEE_13','DIGIUP15_PU50','RECOUP15_PU50','HARVEST']]
-workflows[50201]=['',['ZmumuJets_Pt_20_300_13','DIGIUP15_PU50','RECOUP15_PU50','HARVEST']]  # verify GEN-SIM when card is available
-workflows[50202]=['',['TTbar_13','DIGIUP15_PU50','RECOUP15_PU50','HARVEST']]
-workflows[50203]=['',['H130GGgluonfusion_13','DIGIUP15_PU50','RECOUP15_PU50','HARVEST']]
-workflows[50204]=['',['QQH1352T_Tauola_13','DIGIUP15_PU50','RECOUP15_PU50','HARVEST']]
-workflows[50205]=['',['ZTT_13','DIGIUP15_PU50','RECOUP15_PU50','HARVEST']]
+workflows[50200]=['',['ZEE_13','DIGIUP15_PU50','RECOUP15_PU50','HARVEST','MINIAODMC50']]
+workflows[50201]=['',['ZmumuJets_Pt_20_300_13','DIGIUP15_PU50','RECOUP15_PU50','HARVEST','MINIAODMC50']]
+workflows[50202]=['',['TTbar_13','DIGIUP15_PU50','RECOUP15_PU50','HARVEST','MINIAODMC50']]
+workflows[50203]=['',['H130GGgluonfusion_13','DIGIUP15_PU50','RECOUP15_PU50','HARVEST','MINIAODMC50']]
+workflows[50204]=['',['QQH1352T_Tauola_13','DIGIUP15_PU50','RECOUP15_PU50','HARVEST','MINIAODMC50']]
+workflows[50205]=['',['ZTT_13','DIGIUP15_PU50','RECOUP15_PU50','HARVEST','MINIAODMC50']]
 
 
 # 25 ns at 13 TeV and POSTLS1
-workflows[25200]=['',['ZEE_13','DIGIUP15_PU25','RECOUP15_PU25','HARVEST']]
+workflows[25200]=['',['ZEE_13','DIGIUP15_PU25','RECOUP15_PU25','HARVEST','MINIAODMC']]
 #
-workflows[25201]=['',['ZmumuJets_Pt_20_300_13','DIGIUP15_PU25','RECOUP15_PU25','HARVEST']]
+workflows[25201]=['',['ZmumuJets_Pt_20_300_13','DIGIUP15_PU25','RECOUP15_PU25','HARVEST','MINIAODMC']]
 # cannot be recycled => GEN SIM NEEDED!
-workflows[25202]=['',['TTbar_13','DIGIUP15_PU25','RECOUP15_PU25','HARVEST']]
-workflows[25203]=['',['H130GGgluonfusion_13','DIGIUP15_PU25','RECOUP15_PU25','HARVEST']]
-workflows[25204]=['',['QQH1352T_Tauola_13','DIGIUP15_PU25','RECOUP15_PU25','HARVEST']]
-workflows[25205]=['',['ZTT_13','DIGIUP15_PU25','RECOUP15_PU25','HARVEST']]
+workflows[25202]=['',['TTbar_13','DIGIUP15_PU25','RECOUP15_PU25','HARVEST','MINIAODMC']]
+workflows[25203]=['',['H130GGgluonfusion_13','DIGIUP15_PU25','RECOUP15_PU25','HARVEST','MINIAODMC']]
+workflows[25204]=['',['QQH1352T_Tauola_13','DIGIUP15_PU25','RECOUP15_PU25','HARVEST','MINIAODMC']]
+workflows[25205]=['',['ZTT_13','DIGIUP15_PU25','RECOUP15_PU25','HARVEST','MINIAODMC']]
+
+#fastsim
+workflows[25400]=['TTbar_13_AVE10',['TTbarFSPU13AVE10','HARVESTFS','MINIAODMCFS']]
+workflows[25401]=['TTbar_13_AVE20',['TTbarFSPU13AVE20','HARVESTFS','MINIAODMCFS']]

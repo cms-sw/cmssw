@@ -40,26 +40,24 @@ public:
 
   virtual ~GsfTrajectorySmoother();
 
-  virtual Trajectory trajectory(const Trajectory& aTraj) const;
+  virtual Trajectory trajectory(const Trajectory& aTraj) const override;
 
-  /** propagator used (full propagator, if material effects are
-   * applied before the update, otherwise purely geometrical part)
-   */
-  const Propagator* propagator() const {
-    if ( thePropagator) return thePropagator;
-    else  return theGeomPropagator;
-  }
   const TrajectoryStateUpdator* updator() const {return theUpdator;}
   const MeasurementEstimator* estimator() const {return theEstimator;}
 
-  virtual GsfTrajectorySmoother* clone() const
+  virtual GsfTrajectorySmoother* clone() const override
   {
-    return new GsfTrajectorySmoother(*thePropagator,*theUpdator,*theEstimator,
+    return new GsfTrajectorySmoother(*theAlongPropagator,*theUpdator,*theEstimator,
 				     *theMerger,theErrorRescaling,theMatBeforeUpdate,theGeometry);
   }
 
+  virtual void setHitCloner(TkCloner const * hc) {
+  }
+
+
 private:
-  GsfPropagatorWithMaterial* thePropagator;
+  const GsfPropagatorWithMaterial* theAlongPropagator;
+  const GsfPropagatorWithMaterial* theOppositePropagator;
   const GsfPropagatorAdapter* theGeomPropagator;
   const FullConvolutionWithMaterial* theConvolutor;
   const TrajectoryStateUpdator* theUpdator;

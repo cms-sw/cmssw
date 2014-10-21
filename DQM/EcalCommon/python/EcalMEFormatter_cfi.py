@@ -1,24 +1,24 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQM.EcalBarrelMonitorTasks.ClusterTask_cfi import ecalClusterTask
-from DQM.EcalBarrelMonitorTasks.EnergyTask_cfi import ecalEnergyTask
-from DQM.EcalBarrelMonitorTasks.IntegrityTask_cfi import ecalIntegrityTask
-from DQM.EcalBarrelMonitorTasks.OccupancyTask_cfi import ecalOccupancyTask
-from DQM.EcalBarrelMonitorTasks.PresampleTask_cfi import ecalPresampleTask
-from DQM.EcalBarrelMonitorTasks.RawDataTask_cfi import ecalRawDataTask
-from DQM.EcalBarrelMonitorTasks.RecoSummaryTask_cfi import ecalRecoSummaryTask
-from DQM.EcalBarrelMonitorTasks.SelectiveReadoutTask_cfi import ecalSelectiveReadoutTask
-from DQM.EcalBarrelMonitorTasks.TimingTask_cfi import ecalTimingTask
-from DQM.EcalBarrelMonitorTasks.TrigPrimTask_cfi import ecalTrigPrimTask
+from DQM.EcalMonitorTasks.ClusterTask_cfi import ecalClusterTask
+from DQM.EcalMonitorTasks.EnergyTask_cfi import ecalEnergyTask
+from DQM.EcalMonitorTasks.IntegrityTask_cfi import ecalIntegrityTask
+from DQM.EcalMonitorTasks.OccupancyTask_cfi import ecalOccupancyTask
+from DQM.EcalMonitorTasks.PresampleTask_cfi import ecalPresampleTask
+from DQM.EcalMonitorTasks.RawDataTask_cfi import ecalRawDataTask
+from DQM.EcalMonitorTasks.RecoSummaryTask_cfi import ecalRecoSummaryTask
+from DQM.EcalMonitorTasks.SelectiveReadoutTask_cfi import ecalSelectiveReadoutTask
+from DQM.EcalMonitorTasks.TimingTask_cfi import ecalTimingTask
+from DQM.EcalMonitorTasks.TrigPrimTask_cfi import ecalTrigPrimTask
 
-from DQM.EcalBarrelMonitorClient.IntegrityClient_cfi import ecalIntegrityClient
-from DQM.EcalBarrelMonitorClient.OccupancyClient_cfi import ecalOccupancyClient
-from DQM.EcalBarrelMonitorClient.PresampleClient_cfi import ecalPresampleClient
-from DQM.EcalBarrelMonitorClient.RawDataClient_cfi import ecalRawDataClient
-from DQM.EcalBarrelMonitorClient.SelectiveReadoutClient_cfi import ecalSelectiveReadoutClient
-from DQM.EcalBarrelMonitorClient.TimingClient_cfi import ecalTimingClient
-from DQM.EcalBarrelMonitorClient.TrigPrimClient_cfi import ecalTrigPrimClient
-from DQM.EcalBarrelMonitorClient.SummaryClient_cfi import ecalSummaryClient
+from DQM.EcalMonitorClient.IntegrityClient_cfi import ecalIntegrityClient
+from DQM.EcalMonitorClient.OccupancyClient_cfi import ecalOccupancyClient
+from DQM.EcalMonitorClient.PresampleClient_cfi import ecalPresampleClient
+from DQM.EcalMonitorClient.RawDataClient_cfi import ecalRawDataClient
+from DQM.EcalMonitorClient.SelectiveReadoutClient_cfi import ecalSelectiveReadoutClient
+from DQM.EcalMonitorClient.TimingClient_cfi import ecalTimingClient
+from DQM.EcalMonitorClient.TrigPrimClient_cfi import ecalTrigPrimClient
+from DQM.EcalMonitorClient.SummaryClient_cfi import ecalSummaryClient
 
 ecalMEFormatter = cms.EDAnalyzer("EcalMEFormatter",
     MEs = cms.untracked.PSet(),

@@ -2,6 +2,8 @@
 #ifndef HcalDcsValues_h
 #define HcalDcsValues_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <iostream>
 //#include <set>
 #include <vector>
@@ -65,6 +67,8 @@ private:
   mutable bool mHO12sorted;
   DcsSet mHFValues;
   mutable bool mHFsorted;
+
+  COND_SERIALIZABLE;
 };
 
 #endif

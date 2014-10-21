@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -37,7 +37,7 @@
 // class declaration
 //
 #include "RecoBTag/SecondaryVertex/interface/VertexFilter.h"
-class BVertexFilter : public edm::EDFilter {
+class BVertexFilter : public edm::stream::EDFilter<> {
    public:
       explicit BVertexFilter(const edm::ParameterSet&);
       ~BVertexFilter();

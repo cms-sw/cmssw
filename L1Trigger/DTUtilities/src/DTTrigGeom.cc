@@ -49,7 +49,7 @@ using namespace std;
 // Constructors --
 //----------------
 
-DTTrigGeom::DTTrigGeom(DTChamber* stat, bool debug) : _stat(stat) , _debug(debug) {
+DTTrigGeom::DTTrigGeom(const DTChamber* stat, bool debug) : _stat(stat) , _debug(debug) {
 
   getGeom();
 

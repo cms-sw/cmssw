@@ -17,12 +17,24 @@
 //
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
+
 
 class TrackAssociatorParameters {
  public:
    TrackAssociatorParameters(){}
-   TrackAssociatorParameters( const edm::ParameterSet& );
-   void loadParameters( const edm::ParameterSet& );
+   TrackAssociatorParameters( const edm::ParameterSet&, edm::ConsumesCollector&& );
+   void loadParameters( const edm::ParameterSet&, edm::ConsumesCollector& );
    
    double dREcal;
    double dRHcal;
@@ -77,5 +89,18 @@ class TrackAssociatorParameters {
    // to account for. Negative numbers are ignored
    // and trajectory is assumed to be known perfectly
    double trajectoryUncertaintyTolerance;
+
+   edm::EDGetTokenT<EBRecHitCollection> EBRecHitsToken;
+   edm::EDGetTokenT<EERecHitCollection> EERecHitsToken;
+   edm::EDGetTokenT<CaloTowerCollection> caloTowersToken;
+   edm::EDGetTokenT<HBHERecHitCollection> HBHEcollToken;
+   edm::EDGetTokenT<HORecHitCollection> HOcollToken;
+   edm::EDGetTokenT<DTRecSegment4DCollection> dtSegmentsToken;
+   edm::EDGetTokenT<CSCSegmentCollection> cscSegmentsToken;
+   edm::EDGetTokenT<edm::SimTrackContainer> simTracksToken;
+   edm::EDGetTokenT<edm::SimVertexContainer> simVerticesToken;
+   edm::EDGetTokenT<edm::PCaloHitContainer> simEcalHitsEBToken;
+   edm::EDGetTokenT<edm::PCaloHitContainer> simEcalHitsEEToken;
+   edm::EDGetTokenT<edm::PCaloHitContainer> simHcalHitsToken;
 };
 #endif

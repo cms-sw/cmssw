@@ -27,7 +27,7 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     l1extramu                       = cms.string('hltL1extraParticles'),
     hltresults                      = cms.InputTag("TriggerResults::HLT"),
     HLTProcessName                  = cms.string("HLT"),
-    
+
     ### reconstructed objects
     genjets                         = cms.InputTag("iterativeCone5GenJets"),
     genmet                          = cms.InputTag("genMet"),
@@ -35,12 +35,12 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     hltcorjets                      = cms.InputTag("hltCaloJetCorrected"),
     hltcorL1L2L3jets                = cms.InputTag("hltCaloJetL1FastJetCorrected"),
     rho                             = cms.InputTag("hltKT6CaloJets"),
-    recjets                         = cms.InputTag("ak5CaloJets"),
-    reccorjets                      = cms.InputTag("ak5CaloCorJets"),
+    recjets                         = cms.InputTag("ak4CaloJets"),
+    reccorjets                      = cms.InputTag("ak4CaloCorJets"),
     recmet                          = cms.InputTag("hltMet"),
     pfmet                           = cms.InputTag("pfMet"),
     ht                              = cms.InputTag("hltJet40Ht"),
-    recoPFJets                      = cms.InputTag("ak5PFJets"),
+    recoPFJets                      = cms.InputTag("ak4PFJets"),
     calotowers                      = cms.InputTag("hltTowerMakerForAll"),
     calotowersUpperR45              = cms.InputTag("hltHcalTowerNoiseCleanerUpper"),
     calotowersLowerR45              = cms.InputTag("hltHcalTowerNoiseCleanerLower"),
@@ -49,8 +49,8 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     pfmuon                          = cms.InputTag("pfAllMuons"),
     Electron                        = cms.InputTag("gsfElectrons"),
     Photon                          = cms.InputTag("photons"),
-    
-    ### muon OpenHLT objects                             
+
+    ### muon OpenHLT objects
     MuCandTag2                      = cms.InputTag("hltL2MuonCandidates"),
     MuCandTag3                      = cms.InputTag("hltL3MuonCandidates"),
     MuIsolTag3                      = cms.InputTag("hltL3MuonCombRelIsolations"),
@@ -62,7 +62,7 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     TrackerMuonTag                  = cms.InputTag("hltGlbTrkMuons"),
     DiMuVtx                         = cms.InputTag("hltDisplacedmumuVtxProducerLowMass"),
 
-    ### egamma OpenHLT objects                             
+    ### egamma OpenHLT objects
     CandIso                         = cms.InputTag("hltL1SeededRecoEcalCandidate"),
     CandNonIso                      = cms.InputTag("hltL1NonIsoRecoEcalCandidate"),
     EcalIso                         = cms.InputTag("hltL1SeededPhotonEcalIsol"),
@@ -74,7 +74,7 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     HcalIsoEle                      = cms.InputTag("hltL1SeededPhotonHcalIsol"),
     HcalNonIsoEle                   = cms.InputTag("hltL1NonIsolatedPhotonHcalIsol"),
     SpikeCleaningIsol               = cms.InputTag("hltL1SeededR9shape"),
-    SpikeCleaningNonIsol            = cms.InputTag("hltL1NonIsoR9shape"),            
+    SpikeCleaningNonIsol            = cms.InputTag("hltL1NonIsoR9shape"),
     HcalForHoverEIsol               = cms.InputTag("hltL1SeededPhotonHcalForHE"),
     HcalForHoverENonIsol            = cms.InputTag("hltL1NonIsolatedPhotonHcalForHE"),
     R9IDIsol                        = cms.InputTag("hltL1SeededR9ID"),
@@ -88,15 +88,15 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     ActivityR9                      = cms.InputTag("hltUnseededR9shape"), # spike cleaning
     ActivityR9ID                    = cms.InputTag("hltActivityR9ID"),
     ActivityHcalForHoverE           = cms.InputTag("hltActivityPhotonHcalForHE"),
-                             
-    ### egamma - standard or startup windows                         
+
+    ### egamma - standard or startup windows
     IsoElectrons                    = cms.InputTag("hltPixelMatchElectronsL1Seeded"),
     NonIsoElectrons                 = cms.InputTag("hltPixelMatchElectronsL1NonIso"),
     PixelSeedL1Iso                  = cms.InputTag("hltL1SeededStartUpElectronPixelSeeds"),
     PixelSeedL1NonIso               = cms.InputTag("hltL1NonIsoStartUpElectronPixelSeeds"),
     IsoEleTrackIsol                 = cms.InputTag("hltL1SeededElectronTrackIsol"),
     NonIsoEleTrackIsol              = cms.InputTag("hltL1NonIsoElectronTrackIsol"),
-                             
+
     ### tau OpenHLT related objects
     L2Tau                           = cms.InputTag("openhltL2TauJets"),
     HLTTau                          = cms.InputTag("TauOpenHLT"),
@@ -117,7 +117,7 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     RecoPFTauDiscrByTanCHalfPercent = cms.InputTag("shrinkingConePFTauDiscriminationByTaNCfrHalfPercent"),
     RecoPFTauDiscrByTanCQuarterPercent = cms.InputTag("shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent"),
     RecoPFTauDiscrByTanCTenthPercent = cms.InputTag("shrinkingConePFTauDiscriminationByTaNCfrTenthPercent"),
-                             
+
     ### b-jet OpenHLT related objects
     CommonBJetsL2                   = cms.InputTag("hltAntiKT5CaloJets"),
     CorrectedBJetsL2                = cms.InputTag("hltCaloJetCorrected"),
@@ -145,15 +145,15 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     HBHERecHits                 = cms.InputTag("hltHbhereco"),
     HORecHits                   = cms.InputTag("hltHoreco"),
     HFRecHits                   = cms.InputTag("hltHfreco"),
-    IsoPixelTracksL3            = cms.InputTag("hltHITIPTCorrector1E31"),                         
+    IsoPixelTracksL3            = cms.InputTag("hltHITIPTCorrector1E31"),
     IsoPixelTracksL2            = cms.InputTag("hltIsolPixelTrackProd1E31"),
-    IsoPixelTrackVertices       = cms.InputTag("hltPixelVertices"),    
+    IsoPixelTrackVertices       = cms.InputTag("hltPixelVertices"),
 
     ### Track settings
-    PixelTracksL3               = cms.InputTag("hltPixelCandsForMinBias"),                         
+    PixelTracksL3               = cms.InputTag("hltPixelCandsForMinBias"),
     PixelFEDSize                = cms.InputTag("rawDataCollector"),
     PixelClusters               = cms.InputTag("hltSiPixelClusters"),
-                             
+
     ### Calo tower settings
     caloTowerThreshold          = cms.double( 5.0 ),
 
@@ -202,5 +202,5 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
          #eeRecHitsColl   = cms.InputTag("EcalRecHitsEE")
          ebRecHitsColl   = cms.InputTag("hltEcalRecHitAll", "EcalRecHitsEB"),
          eeRecHitsColl   = cms.InputTag("hltEcalRecHitAll", "EcalRecHitsEE")
-     )                            
+     )
 )

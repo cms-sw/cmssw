@@ -432,7 +432,7 @@ StandAloneMuonTrajectoryBuilder::propagateTheSeedTSOS(TrajectoryStateOnSurface& 
   vector<const DetLayer*> detLayers;
 
   if(theNavigationType == "Standard")
-    detLayers = initialLayer->compatibleLayers( *initialState.freeState(),detLayerOrder); 
+    detLayers = theService->muonNavigationSchool()->compatibleLayers(*initialLayer, *initialState.freeState(),detLayerOrder);
   else if (theNavigationType == "Direct"){
     DirectMuonNavigation navigation( &*theService->detLayerGeometry() );
     detLayers = navigation.compatibleLayers( *initialState.freeState(),detLayerOrder);

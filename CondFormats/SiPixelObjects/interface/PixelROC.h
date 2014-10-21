@@ -2,6 +2,8 @@
 #define SiPixelObjects_PixelROC_H
 
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/SiPixelObjects/interface/FrameConversion.h"
 #include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
 #include "CondFormats/SiPixelObjects/interface/GlobalPixel.h"
@@ -68,8 +70,10 @@ public:
 private:
   uint32_t theDetUnit;
   unsigned int theIdDU, theIdLk;
-  FrameConversion theFrameConverter;
+  FrameConversion theFrameConverter COND_TRANSIENT;
 
+
+  COND_SERIALIZABLE;
 };
 
 }

@@ -25,6 +25,7 @@ public:
    virtual void clean() override;
 
 protected:
+   using FWProxyBuilderBase::build;
    virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
    virtual void localModelChanges( const FWModelId& iId, TEveElement* iCompound,
 				   FWViewType::EType viewType, const FWViewContext* vc ) override;

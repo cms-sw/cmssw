@@ -21,6 +21,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/Framework/src/EventSignalsSentry.h"
 #include "FWCore/Framework/src/stream/ProducingModuleAdaptorBase.cc"
 
 
@@ -46,11 +47,13 @@ namespace edm {
     
     bool
     EDProducerAdaptorBase::doEvent(EventPrincipal& ep, EventSetup const& c,
+                                   ActivityRegistry* act,
                                    ModuleCallingContext const* mcc) {
       assert(ep.streamID()<m_streamModules.size());
       auto mod = m_streamModules[ep.streamID()];
       Event e(ep, moduleDescription(), mcc);
       e.setConsumer(mod);
+      EventSignalsSentry sentry(act,mcc);
       mod->produce(e, c);
       commit(e,&mod->previousParentage_, &mod->previousParentageId_);
       return true;

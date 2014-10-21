@@ -48,8 +48,10 @@ private:
 		FEDRawDataCollection& data,
 		float meansize,
 		float width);
+  void fillGTPFED(edm::EventID& eID,
+		   FEDRawDataCollection& data,timeval * now);
   void fillFED1023(edm::EventID& eID,
-		   FEDRawDataCollection& data);
+		   FEDRawDataCollection& data,timeval * now);
   virtual void beginLuminosityBlock(edm::LuminosityBlock const& iL, edm::EventSetup const& iE);
  private:
   //
@@ -62,6 +64,7 @@ private:
   unsigned int        width;
   unsigned int        injected_errors_per_million_events;
   unsigned int        modulo_error_events;
+  unsigned int        fakeLs_=0;
   evf::EvffedFillerRB frb;
 };
 

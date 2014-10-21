@@ -4,10 +4,10 @@ datacl = re.compile("^class ")
 mbcl = re.compile("(base|data) class")
 farg = re.compile("(.*)\(\w+\)")
 nsep = re.compile("\:\:")
-topfunc = re.compile("::produce\(|::analyze\(|::filter\(::beginLuminosityBlock\(|::beginRun\(")
-onefunc = re.compile("edm::one::ED(Producer|Filter|Analyzer)Base::(produce|filter|analyze|beginLuminosityBlock|beginRun)")
+topfunc = re.compile("::(produce|analyze|filter|beginLuminosityBlock|beginRun)\(")
+baseclass = re.compile("edm::(one::|stream::|global::)?ED(Producer|Filter|Analyzer)(Base)?")
 getfunc = re.compile("edm::eventsetup::EventSetupRecord::get\((.*)&\) const")
-handle = re.compile("(.*)class edm::ES(.*)Handle<(.*)>")
+handle = re.compile("(.*),?class edm::ES(.*)Handle<(.*)>")
 statics = set()
 toplevelfuncs = set()
 onefuncs = set()
@@ -17,13 +17,11 @@ virtclasses = set()
 badfuncs = set()
 badclasses = set()
 esdclasses = set()
+dataclasses = set()
 flaggedclasses = set()
-virtdict = dict()
-
 import networkx as nx
 G=nx.DiGraph()
 H=nx.DiGraph()
-
 
 f = open('classes.txt.dumperft')
 for line in f:
@@ -33,13 +31,11 @@ for line in f:
 f.close()
 
 f = open('classes.txt.inherits')
-
 for line in f:
        if datacl.search(line) :
                classname = line.split("'")[1]
                esdclasses.add(classname)
 f.close()
-
 
 
 f = open('class-checker.txt')
@@ -48,10 +44,10 @@ for line in f:
 		fields = line.split("'")
 		classname = fields[1]
 		funcname = fields[3]
-		if classname in esdclasses :
-			badclasses.add(classname)
-			badfuncs.add(funcname)	
+		badclasses.add(classname)
+		badfuncs.add(funcname)
 f.close()
+
 
 f = open('classes.txt.dumperall')
 for line in f :
@@ -65,46 +61,81 @@ for line in f :
 			H.add_edge(fields[1],fields[3],kind=fields[2])
 f.close()
 
+
 f = open('db.txt')
 
 for line in f :
 	fields = line.split("'")
 	if fields[2] == ' calls function ' :
-		G.add_edge(fields[1],fields[3],kind=fields[2])
+		G.add_edge(fields[1],fields[3],kind=' calls function ')
 		if getfunc.search(fields[3]) :
 			dataclassfuncs.add(fields[3])
-		if topfunc.search(fields[1]):
-			toplevelfuncs.add(fields[1])
+			m = getfunc.match(fields[3])
+			n = handle.match(m.group(1))
+			if n : o = n.group(3)
+			else : o = m.group(1)
+			p = re.sub("class ","",o)
+			dataclass = re.sub("struct ","",p)
+			dataclasses.add(dataclass)
 	if fields[2] == ' overrides function ' :
-		G.add_edge(fields[1],fields[3],kind=fields[2])
+		if baseclass.search(fields[3]) :
+			G.add_edge(fields[1],fields[3],kind=' overrides function ')
+			if topfunc.search(fields[3]) : toplevelfuncs.add(fields[1])
+		else : G.add_edge(fields[3],fields[1], kind=' calls override function ')
 	if fields[2] == ' static variable ' :
-		G.add_edge(fields[1],fields[3],kind=fields[2])
+		G.add_edge(fields[1],fields[3],kind=' static variable ')
 		statics.add(fields[3])
 f.close()
 
 
-
 for n,nbrdict in G.adjacency_iter():
-	if n in badfuncs :
-		for nbr,eattr in nbrdict.items():
+	for nbr,eattr in nbrdict.items():
+		if n in badfuncs or nbr in badfuncs :
 			if 'kind' in eattr and eattr['kind'] == ' overrides function '  :
 				print "'"+n+"'"+eattr['kind']+"'"+nbr+"'"
 				virtfuncs.add(nbr)
-				virtdict[n]=nbr
 print
 
 for n,nbrdict in H.adjacency_iter():
 	for nbr,eattr in nbrdict.items():
 		if n in badclasses and 'kind' in eattr and eattr['kind'] == ' base class '  :
 			virtclasses.add(nbr)
+
+
+for n,nbrdict in H.adjacency_iter():
+	for nbr,eattr in nbrdict.items():
+		if nbr in dataclasses and 'kind' in eattr and eattr['kind'] == ' base class '  :
+			dataclasses.add(n)
+
+print "flagged functions found by checker"
+for dfunc in sorted(badfuncs) : 
+	print dfunc
 print
 
+print "flagged classes found by checker "
+for dclass in sorted(badclasses) :
+	print dclass
+print
 
-for tfunc in toplevelfuncs:
-	for key in G[tfunc].keys():
-		if onefunc.search(key):
-			onefuncs.add(tfunc)
-			break
+print "flagged classes found by checker union get" 
+for dclass in sorted(dataclasses.intersection(badclasses)) :
+	print dclass
+print
+
+print "flagged classes found by checker union dumper" 
+for dclass in sorted(esdclasses.intersection(badclasses)) :
+	print dclass
+print
+
+print "classes inheriting from flagged classes"
+for dclass in sorted(virtclasses):
+	print dclass
+print
+
+print "functions overridden by flagged functions"
+for dfunc in sorted(virtfuncs):
+	print dfunc
+print
 
 
 for badclass in sorted(badclasses):
@@ -117,18 +148,15 @@ for virtclass in sorted(virtclasses):
 	flaggedclasses.add(virtclass)
 print
 
-objtree = nx.shortest_path(H)	
-
 for badclass in sorted(badclasses):
-	for esdclass in sorted(esdclasses):
-		if H.has_node(badclass) and H.has_node(esdclass):
-			if nx.has_path(H,esdclass, badclass) :
-				print "Event setup data class '"+esdclass+"' contains or inherits from flagged class '"+badclass+"'."
-				flaggedclasses.add(esdclass)
+	for dataclass in sorted(dataclasses):
+		if H.has_node(badclass) and H.has_node(dataclass):
+			if nx.has_path(H,dataclass, badclass) :
+				print "Event setup data class '"+dataclass+"' contains or inherits from flagged class '"+badclass+"'."
+				flaggedclasses.add(dataclass)
 			
 print
 
-paths = nx.shortest_path(G)
 
 for dataclassfunc in sorted(dataclassfuncs):
 	for tfunc in sorted(toplevelfuncs):
@@ -142,20 +170,21 @@ for dataclassfunc in sorted(dataclassfuncs):
 			for flaggedclass in sorted(flaggedclasses):
 				if re.search(flaggedclass,dataclass) :
 					print "Flagged event setup data class '"+dataclass+"' is accessed in call stack '",
-					for path in paths[tfunc][dataclassfunc]:
-						print path+"; ",
+					path = nx.shortest_path(G,tfunc,dataclassfunc)
+					for p in path:
+						print p+"; ",
 					print "' ",
 					for key in  G[tfunc].keys() :
 						if 'kind' in G[tfunc][key] and G[tfunc][key]['kind'] == ' overrides function '  :
 							print "'"+tfunc+"'"+G[tfunc][key]['kind']+"'"+key+"'",
 					print ""
-					print ""
 					print "In call stack '",
-					for path in paths[tfunc][dataclassfunc]:
-						print path+"; ",
+					path = nx.shortest_path(G,tfunc,dataclassfunc)
+					for p in path:
+						print p+"; ",
 					print "' flagged event setup data class '"+dataclass+"' is accessed. ",
 					for key in  G[tfunc].keys() :
 						if 'kind' in G[tfunc][key] and G[tfunc][key]['kind'] == ' overrides function '  :
 							print "'"+tfunc+"'"+G[tfunc][key]['kind']+"'"+key+"'",
 					print ""
-					print ""
+

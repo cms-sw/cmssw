@@ -54,7 +54,6 @@ static char const* const kSizeOfStackForThreadOpt = "sizeOfStackForThreadsInKB";
 static char const* const kHelpOpt = "help";
 static char const* const kHelpCommandOpt = "help,h";
 static char const* const kStrictOpt = "strict";
-static char const* const kProgramName = "cmsRun";
 
 // -----------------------------------------------
 namespace {

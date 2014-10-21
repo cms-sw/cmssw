@@ -25,6 +25,8 @@
 #include "G4EmProcessOptions.hh"
 #include "G4PhysicsListHelper.hh"
 #include "G4SystemOfUnits.hh"
+#include "G4UAtomicDeexcitation.hh"
+#include "G4LossTableManager.hh"
 
 ParametrisedEMPhysics::ParametrisedEMPhysics(std::string name, const edm::ParameterSet & p) 
   : G4VPhysicsConstructor(name), theParSet(p) 
@@ -79,7 +81,8 @@ void ParametrisedEMPhysics::ConstructProcess() {
     }
 
     if(gem) {
-      G4Region* aRegion = G4RegionStore::GetInstance()->GetRegion("EcalRegion");
+      G4Region* aRegion = 
+	G4RegionStore::GetInstance()->GetRegion("EcalRegion");
 
       if(!aRegion){
 	edm::LogInfo("SimG4CoreApplication") 
@@ -95,7 +98,8 @@ void ParametrisedEMPhysics::ConstructProcess() {
       }    
     }
     if(ghad) {
-      G4Region* aRegion = G4RegionStore::GetInstance()->GetRegion("HcalRegion");
+      G4Region* aRegion = 
+	G4RegionStore::GetInstance()->GetRegion("HcalRegion");
       if(!aRegion) {
 	edm::LogInfo("SimG4CoreApplication") 
 	  << "ParametrisedEMPhysics::ConstructProcess: " 
@@ -119,7 +123,8 @@ void ParametrisedEMPhysics::ConstructProcess() {
   G4double rrfact[NREG] = { 1.0 };
 
   // Russian roulette for e-
-  double energyLim = theParSet.getParameter<double>("RusRoElectronEnergyLimit")*MeV;
+  double energyLim = 
+    theParSet.getParameter<double>("RusRoElectronEnergyLimit")*MeV;
   if(energyLim > 0.0) {
     rrfact[0] = theParSet.getParameter<double>("RusRoEcalElectron");
     rrfact[1] = theParSet.getParameter<double>("RusRoHcalElectron");
@@ -165,5 +170,12 @@ void ParametrisedEMPhysics::ConstructProcess() {
       thePositronLimiter->SetFieldCheckFlag(pLimiter);
       ph->RegisterProcess(theElectronLimiter, G4Positron::Positron());
     }
+  }
+  // enable fluorescence
+  bool fluo = theParSet.getParameter<bool>("FlagFluo");
+  if(fluo) {
+    G4VAtomDeexcitation* de = new G4UAtomicDeexcitation();
+    G4LossTableManager::Instance()->SetAtomDeexcitation(de);
+    de->SetFluo(true);
   }
 }

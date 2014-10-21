@@ -435,9 +435,6 @@ void L1TEventInfoClient::bookHistograms() {
     // initialize also m_summaryContent to dqm::qstatus::DISABLED
 
     m_dbe->setCurrentFolder(dirEventInfo + "/reportSummaryContents");
-
-    char histoQT[100];
-
     // general counters:
     //   iAllQTest: all quality tests for all systems and objects
     //   iAllMon:   all monitored systems and objects
@@ -456,10 +453,7 @@ void L1TEventInfoClient::bookHistograms() {
 
             const std::string hStr = m_monitorDir + "_L1Sys_" +m_systemLabel[iMon] + "_" + (*itQtName);
 
-            const char* cStr = hStr.c_str();
-            sprintf(histoQT, cStr);
-
-            m_meReportSummaryContent.push_back(m_dbe->bookFloat(histoQT));
+            m_meReportSummaryContent.push_back(m_dbe->bookFloat(hStr));
             m_meReportSummaryContent[iAllQTest]->Fill(0.);
 
             iAllQTest++;
@@ -482,10 +476,7 @@ void L1TEventInfoClient::bookHistograms() {
             const std::string hStr = m_monitorDir + "_L1Obj_" + m_objectLabel[iMon] + "_"
                     + (*itQtName);
 
-            const char* cStr = hStr.c_str();
-            sprintf(histoQT, cStr);
-
-            m_meReportSummaryContent.push_back(m_dbe->bookFloat(histoQT));
+            m_meReportSummaryContent.push_back(m_dbe->bookFloat(hStr));
             m_meReportSummaryContent[iAllQTest]->Fill(0.);
 
             iAllQTest++;

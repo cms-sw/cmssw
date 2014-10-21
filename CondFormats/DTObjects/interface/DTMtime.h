@@ -18,6 +18,8 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/DTObjects/interface/DTTimeUnits.h"
 #include "CondFormats/DTObjects/interface/DTVelocityUnits.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
@@ -51,6 +53,8 @@ class DTMtimeId {
   int   layerId;
   int    cellId;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -64,6 +68,8 @@ class DTMtimeData {
   float mTime;
   float mTrms;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -270,10 +276,12 @@ class DTMtime {
 
   std::vector< std::pair<DTMtimeId,DTMtimeData> > dataList;
 
-  edm::ConstRespectingPtr<DTBufferTree<int,int> > dBuf;
+  edm::ConstRespectingPtr<DTBufferTree<int,int> > dBuf COND_TRANSIENT;
 
   /// read and store full content
   std::string mapName() const;
 
+
+ COND_SERIALIZABLE;
 };
 #endif // DTMtime_H

@@ -28,6 +28,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/typedefs.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 
 // forward declarations
 class FEDRawDataCollection;
@@ -88,6 +89,7 @@ private:
     int m_evmGtFedId;
 
     /// input tag for GT EVM record
+    edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> m_evmGtInputToken;
     edm::InputTag m_evmGtInputTag;
 
     /// mask for active boards

@@ -265,7 +265,7 @@ SiStripRecHitMatcher::project(const GeomDetUnit *det,const GluedGeomDet* gluedde
 
 
 //match a single hit
-SiStripMatchedRecHit2D * 
+std::unique_ptr<SiStripMatchedRecHit2D>
 SiStripRecHitMatcher::match(const SiStripRecHit2D *monoRH, 
 			    const SiStripRecHit2D *stereoRH,
 			    const GluedGeomDet* gluedDet,
@@ -347,8 +347,7 @@ SiStripRecHitMatcher::match(const SiStripRecHit2D *monoRH,
   Local2DPoint position(solution(0),solution(1));
   
 
-  if ((!force) &&  (!((gluedDet->surface()).bounds().inside(position,10.f*scale_))) ) return nullptr;                                                       
-  
+  if ((!force) &&  (!((gluedDet->surface()).bounds().inside(position,10.f*scale_))) ) return std::unique_ptr<SiStripMatchedRecHit2D>(nullptr);
 
   double c2 = -m10;
   double s2 = -m11;
@@ -370,7 +369,7 @@ SiStripRecHitMatcher::match(const SiStripRecHit2D *monoRH,
   //if it is inside the gluedet bonds
   //Change NSigmaInside in the configuration file to accept more hits
   if(force || (gluedDet->surface()).bounds().inside(position,error,scale_)) 
-    return new SiStripMatchedRecHit2D(LocalPoint(position), error, *gluedDet, monoRH,stereoRH);
-  return nullptr;
+    return std::unique_ptr<SiStripMatchedRecHit2D> (new SiStripMatchedRecHit2D(LocalPoint(position), error, *gluedDet, monoRH,stereoRH));
+  return std::unique_ptr<SiStripMatchedRecHit2D>(nullptr);
 }
 

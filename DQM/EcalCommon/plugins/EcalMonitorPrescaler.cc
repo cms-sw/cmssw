@@ -90,16 +90,12 @@ EcalMonitorPrescaler::filter(edm::Event& _event, edm::EventSetup const&)
   for(EcalRawDataCollection::const_iterator dcchItr(dcchs->begin()); dcchItr != dcchs->end(); ++dcchItr)
     eventBits |= (1 << dcchItr->getRunType());
 
-  std::cout << std::hex << eventBits << std::endl;
-
-  bool result(false);
-
   for(unsigned iP(0); iP != nPrescalers; ++iP){
     if((eventBits & filterBits_[iP]) != 0 && ++prescalers_[iP].first % prescalers_[iP].second == 0)
-      result = true;
+      return true;
   }
 
-  return result;
+  return false;
 }
 
 DEFINE_FWK_MODULE(EcalMonitorPrescaler);

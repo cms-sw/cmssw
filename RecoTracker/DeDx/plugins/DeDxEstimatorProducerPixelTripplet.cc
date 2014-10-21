@@ -91,12 +91,12 @@ void  DeDxEstimatorProducerPixelTripplet::beginRun(edm::Run const& run, const ed
    edm::ESHandle<TrackerGeometry> tkGeom;
    iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
 
-   vector<GeomDet*> Det = tkGeom->dets();
+   auto const & Det = tkGeom->dets();
    for(unsigned int i=0;i<Det.size();i++){
       DetId  Detid  = Det[i]->geographicalId();
 
-       StripGeomDetUnit* StripDetUnit = dynamic_cast<StripGeomDetUnit*> (Det[i]);
-       PixelGeomDetUnit* PixelDetUnit = dynamic_cast<PixelGeomDetUnit*> (Det[i]);
+       auto StripDetUnit = dynamic_cast<StripGeomDetUnit const*> (Det[i]);
+       auto PixelDetUnit = dynamic_cast<PixelGeomDetUnit const*> (Det[i]);
 
        stModInfo* MOD       = new stModInfo;
        double Thick=-1, Dist=-1, Norma=-1;

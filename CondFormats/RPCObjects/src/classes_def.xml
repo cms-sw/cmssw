@@ -8,6 +8,10 @@
   </class>
   <class name="std::vector<ChamberStripSpec>"/>
 
+  <class name="RPCDeadStrips"/>
+  <class name="RPCDeadStrips::DeadItem"/>
+  <class name="RPCMaskedStrips"/>
+  <class name="RPCMaskedStrips::MaskItem"/>
 
   <class name="LinkBoardSpec"/>
   <class name="std::vector<FebConnectorSpec>"/>

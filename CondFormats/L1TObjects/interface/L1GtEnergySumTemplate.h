@@ -18,6 +18,8 @@
  */
 
 // system include files
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 #include <iosfwd>
 
@@ -66,7 +68,9 @@ public:
         // one word used for HTM
         unsigned long long phiRange0Word;
         unsigned long long phiRange1Word;
-    };
+    
+    COND_SERIALIZABLE;
+};
 
 public:
 
@@ -93,6 +97,8 @@ private:
     /// variables containing the parameters
     std::vector<ObjectParameter> m_objectParameter;
 
+
+    COND_SERIALIZABLE;
 };
 
 #endif

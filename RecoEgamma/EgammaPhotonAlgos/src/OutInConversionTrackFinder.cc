@@ -21,15 +21,14 @@
 
 
 
-OutInConversionTrackFinder::OutInConversionTrackFinder(const edm::EventSetup& es, 
-						       const edm::ParameterSet& conf ) :  ConversionTrackFinder( es, conf )
+OutInConversionTrackFinder::OutInConversionTrackFinder(const edm::ParameterSet& conf, const BaseCkfTrajectoryBuilder* trajectoryBuilder ) :  ConversionTrackFinder( conf, trajectoryBuilder )
 {
 
 
   theTrajectoryCleaner_ = new TrajectoryCleanerBySharedHits(conf);
 
   // get the seed cleaner
-  std::string cleaner = conf_.getParameter<std::string>("OutInRedundantSeedCleaner");
+  std::string cleaner = conf.getParameter<std::string>("OutInRedundantSeedCleaner");
   if (cleaner == "SeedCleanerByHitPosition") {
     theSeedCleaner_ = new SeedCleanerByHitPosition();
   } else if (cleaner == "CachingSeedCleanerByHitPosition") {
@@ -218,8 +217,6 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
     edm::OwnVector<TrackingRecHit> recHits;
     if(it->direction() == alongMomentum) LogDebug("OutInConversionTrackFinder") << "OutInConv along momentum... " << std::endl;
     t2t(*it,recHits,useSplitHits_);
-
-    assert(recHits.size()==(*it).measurements().size());
 
     std::pair<TrajectoryStateOnSurface, const GeomDet*> initState =  theInitialState_->innerState( *it);
 

@@ -520,22 +520,28 @@ PFEnergyCalibration::minimum(double a,double b){
   return a;
 }
 
+namespace {
+  constexpr double pi= M_PI;// 3.14159265358979323846;
+
+
+  std::vector<double> fillcPhi() {
+    std::vector<double> retValue;
+    retValue.resize(18,0);
+    retValue[0]=2.97025;
+    for(unsigned i=1;i<=17;++i) retValue[i]=retValue[0]-2*i*pi/18;
+    
+    return retValue;
+  }
+  
+  //Location of the 18 phi-cracks
+  const std::vector<double> cPhi = fillcPhi();
+}
 
 //compute the unsigned distance to the closest phi-crack in the barrel
 double
 PFEnergyCalibration::dCrackPhi(double phi, double eta){
 
-  constexpr double pi= M_PI;// 3.14159265358979323846;
   
-  //Location of the 18 phi-cracks
-  static std::vector<double> cPhi;
-  if(cPhi.size()==0)
-    {
-      cPhi.resize(18,0);
-      cPhi[0]=2.97025;
-      for(unsigned i=1;i<=17;++i) cPhi[i]=cPhi[0]-2*i*pi/18;
-    }
-
   //Shift of this location if eta<0
   constexpr double delta_cPhi=0.00638;
 

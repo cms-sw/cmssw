@@ -13,6 +13,7 @@
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
 #include "RecoBTau/JetTagComputer/interface/GenericMVAComputer.h"
 #include "RecoBTau/JetTagComputer/interface/GenericMVAJetTagComputer.h"
+#include "RecoBTau/JetTagComputer/interface/JetTagComputerRecord.h"
 
 using namespace reco;
 using namespace PhysicsTools;
@@ -46,11 +47,13 @@ GenericMVAJetTagComputer::~GenericMVAJetTagComputer()
 {
 }
 
-void GenericMVAJetTagComputer::setEventSetup(const edm::EventSetup &es) const
-{
+void GenericMVAJetTagComputer::initialize(const JetTagComputerRecord & record) {
+
+        const BTauGenericMVAJetTagComputerRcd& dependentRecord = record.getRecord<BTauGenericMVAJetTagComputerRcd>();
+
 	// retrieve MVAComputer calibration container
 	edm::ESHandle<Calibration::MVAComputerContainer> calibHandle;
-	es.get<BTauGenericMVAJetTagComputerRcd>().get(calibHandle);
+	dependentRecord.get(calibHandle);
 	const Calibration::MVAComputerContainer *calib = calibHandle.product();
 
 	// check for updates
@@ -69,7 +72,7 @@ float GenericMVAJetTagComputer::discriminator(const TagInfoHelper &info) const
 			return -10.0;
 	}
 
-	GenericMVAComputer *computer = computerCache.getComputer(index);
+	GenericMVAComputer const* computer = computerCache.getComputer(index);
 
 	if (!computer)
 		return -10.0;

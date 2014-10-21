@@ -22,6 +22,9 @@
 #include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+
+
 namespace edm {class Event; class EventSetup; class ParameterSet;}
 
 class Trajectory;
@@ -84,7 +87,9 @@ class MuonTrackLoader {
 
     bool theSmoothingStep;
     std::string theSmootherName;
-    edm::ESHandle<TrajectorySmoother> theSmoother;
+    std::unique_ptr<TrajectorySmoother> theSmoother;
+    TkClonerImpl hitCloner;
+
 
     edm::InputTag theBeamSpotInputTag; 
     edm::EDGetTokenT<reco::BeamSpot> theBeamSpotToken;

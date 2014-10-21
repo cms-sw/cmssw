@@ -1,0 +1,3 @@
+<bin file="testSerializationOptAlignObjects.cpp">
+    <use   name="CondFormats/OptAlignObjects"/>
+</bin>

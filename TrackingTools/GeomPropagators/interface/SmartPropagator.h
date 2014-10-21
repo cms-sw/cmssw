@@ -65,62 +65,28 @@ class SmartPropagator GCC11_FINAL : public Propagator {
     }
 
 
-    /* Operations as propagator*/
-    TrajectoryStateOnSurface propagate(const FreeTrajectoryState& fts,
-                                       const Surface& surface) const;
+    using Propagator::propagate;
+    using Propagator::propagateWithPath;
 
-    TrajectoryStateOnSurface propagate(const TrajectoryStateOnSurface& tsos,
-                                       const Surface& surface) const {
-      return Propagator::propagate(tsos,surface);
-    }
 
-    TrajectoryStateOnSurface propagate(const FreeTrajectoryState& fts,
-                                       const Plane& plane) const;
 
-    TrajectoryStateOnSurface propagate(const TrajectoryStateOnSurface& tsos,
-                                       const Plane& plane) const {
-      return Propagator::propagate(tsos, plane);
-    }
-
-    TrajectoryStateOnSurface propagate(const FreeTrajectoryState& fts,
-                                       const Cylinder& cylinder) const;
-
-    TrajectoryStateOnSurface propagate(const TrajectoryStateOnSurface& tsos,
-                                       const Cylinder& cylinder) const {
-      return Propagator::propagate(tsos, cylinder);
-    }
-
+ private:
     std::pair<TrajectoryStateOnSurface,double>
       propagateWithPath(const FreeTrajectoryState& fts,
-                        const Surface& surface) const {
-        return Propagator::propagateWithPath(fts,surface);
-      }
-
-    std::pair<TrajectoryStateOnSurface,double>
-      propagateWithPath(const TrajectoryStateOnSurface& tsos,
-                        const Surface& surface) const {
-        return Propagator::propagateWithPath(tsos,surface);
-      }
-
+                        const Plane& plane) const override;
+    
+    
     std::pair<TrajectoryStateOnSurface,double>
       propagateWithPath(const FreeTrajectoryState& fts,
-                        const Plane& plane) const;
+                        const Cylinder& cylinder) const override;
+    
+    virtual std::pair< TrajectoryStateOnSurface, double>
+      propagateWithPath (const TrajectoryStateOnSurface& tsos, const Plane& sur) const override;
+    
+    virtual std::pair< TrajectoryStateOnSurface, double>
+      propagateWithPath (const TrajectoryStateOnSurface& tsos, const Cylinder& sur) const override;
 
-    std::pair<TrajectoryStateOnSurface,double>
-      propagateWithPath(const TrajectoryStateOnSurface& tsos,
-                        const Plane& plane) const {
-        return Propagator::propagateWithPath(tsos, plane);
-      }
-
-    std::pair<TrajectoryStateOnSurface,double>
-      propagateWithPath(const FreeTrajectoryState& fts,
-                        const Cylinder& cylinder) const;
-
-    std::pair<TrajectoryStateOnSurface,double>
-      propagateWithPath(const TrajectoryStateOnSurface& tsos,
-                        const Cylinder& cylinder) const {
-        return Propagator::propagateWithPath(tsos, cylinder);
-      }
+ public:
 
     ///true if a fts is inside tracker volume
     bool insideTkVol(const FreeTrajectoryState& fts) const ;

@@ -35,9 +35,9 @@ namespace edmtest {
     edm::ESHandle<DTGeometry> muonGeom;
     context.get<MuonGeometryRecord>().get(muonGeom);
 
-    const std::vector<DTChamber*>& ch_cont = muonGeom->chambers();
-    std::vector<DTChamber*>::const_iterator ch_iter = ch_cont.begin();
-    std::vector<DTChamber*>::const_iterator ch_iend = ch_cont.end();
+    const std::vector<const DTChamber*>& ch_cont = muonGeom->chambers();
+    std::vector<const DTChamber*>::const_iterator ch_iter = ch_cont.begin();
+    std::vector<const DTChamber*>::const_iterator ch_iend = ch_cont.end();
     std::vector<DTChamberId> ch_id_cont;
     while ( ch_iter != ch_iend ) {
       const DTChamber* ch_ptr = *ch_iter++;

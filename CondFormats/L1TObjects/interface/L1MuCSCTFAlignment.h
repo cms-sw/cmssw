@@ -1,6 +1,8 @@
 #ifndef L1TObjects_L1MuCSCTFAlignment_h
 #define L1TObjects_L1MuCSCTFAlignment_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 
 class L1MuCSCTFAlignment {
@@ -21,6 +23,8 @@ public:
 		coefficients = conf.coefficients;
 	}
 	~L1MuCSCTFAlignment(void){}
+
+  COND_SERIALIZABLE;
 };
 
 #endif

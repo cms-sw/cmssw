@@ -1,7 +1,7 @@
 #ifndef MuonIsolationProducers_MuIsoDepositCopyProducer_H
 #define MuonIsolationProducers_MuIsoDepositCopyProducer_H
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
@@ -13,7 +13,7 @@
 namespace edm { class Event; }
 namespace edm { class EventSetup; }
 
-class MuIsoDepositCopyProducer : public edm::EDProducer {
+class MuIsoDepositCopyProducer : public edm::stream::EDProducer<> {
 
 public:
 

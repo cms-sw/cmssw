@@ -112,7 +112,7 @@ void MuonMillepedeTrackRefitter::produce( edm::Event & event, const edm::EventSe
   
       TrackingRecHit *myClone = (*theHit)->clone(); 
       const GeomDet* myDet = theTrackingGeometry->idToDet( (*theHit)->geographicalId() );
-      TrajectoryMeasurement myMeas(innerTSOS, &* MuonTransientTrackingRecHit::specificBuild(myDet, (TrackingRecHit *) &*myClone));
+      TrajectoryMeasurement myMeas(innerTSOS, MuonTransientTrackingRecHit::specificBuild(myDet, (TrackingRecHit *) &*myClone));
       myTraj.push(myMeas);
 
     }

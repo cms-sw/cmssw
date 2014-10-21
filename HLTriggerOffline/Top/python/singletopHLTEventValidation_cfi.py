@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # single top muonique
 SingleTopSingleMuonHLTValidation = cms.EDAnalyzer('TopSingleLeptonHLTValidation',
         # Directory
-        sDir         = cms.untracked.string('HLTValidation/SingleTop/SingleMuon/'),
+        sDir         = cms.untracked.string('HLT/TopHLTValidation/SingleTop/SingleMuon/'),
         # Electrons
         sElectrons   = cms.untracked.string('gedGsfElectrons'),
         ptElectrons  = cms.untracked.double(30.),
@@ -17,7 +17,7 @@ SingleTopSingleMuonHLTValidation = cms.EDAnalyzer('TopSingleLeptonHLTValidation'
         isoMuons     = cms.untracked.double(0.12),
         minMuons     = cms.untracked.uint32(1),
         # Jets
-        sJets        = cms.untracked.string('ak5PFJets'),
+        sJets        = cms.untracked.string('ak4PFJetsCHS'),
         ptJets       = cms.untracked.double(40.),
         etaJets      = cms.untracked.double(5.),
         minJets      = cms.untracked.uint32(2),
@@ -29,7 +29,7 @@ SingleTopSingleMuonHLTValidation = cms.EDAnalyzer('TopSingleLeptonHLTValidation'
 # single top electronique
 SingleTopSingleElectronHLTValidation = cms.EDAnalyzer('TopSingleLeptonHLTValidation',
         # Directory
-        sDir         = cms.untracked.string('HLTValidation/SingleTop/SingleElectron/'),
+        sDir         = cms.untracked.string('HLT/TopHLTValidation/SingleTop/SingleElectron/'),
         # Electrons
         sElectrons   = cms.untracked.string('gedGsfElectrons'),
         ptElectrons  = cms.untracked.double(30.),
@@ -43,7 +43,7 @@ SingleTopSingleElectronHLTValidation = cms.EDAnalyzer('TopSingleLeptonHLTValidat
         isoMuons     = cms.untracked.double(0.12),
         minMuons     = cms.untracked.uint32(0),
         # Jets
-        sJets        = cms.untracked.string('ak5PFJets'),
+        sJets        = cms.untracked.string('ak4PFJetsCHS'),
         ptJets       = cms.untracked.double(40.),
         etaJets      = cms.untracked.double(5.),
         minJets      = cms.untracked.uint32(2),

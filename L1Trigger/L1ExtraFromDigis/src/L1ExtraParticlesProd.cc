@@ -110,6 +110,18 @@ L1ExtraParticlesProd::L1ExtraParticlesProd(const edm::ParameterSet& iConfig)
    produces< L1HFRingsCollection >() ;
 
    //now do what ever other initialization is needed
+   consumes<L1MuGMTReadoutCollection>(muonSource_);
+   consumes<L1GctEmCandCollection>(isoEmSource_);
+   consumes<L1GctEmCandCollection>(nonIsoEmSource_);
+   consumes<L1GctJetCandCollection>(cenJetSource_);
+   consumes<L1GctJetCandCollection>(forJetSource_);
+   consumes<L1GctJetCandCollection>(tauJetSource_);
+   consumes<L1GctEtTotalCollection>(etTotSource_);
+   consumes<L1GctEtMissCollection>(etMissSource_);
+   consumes<L1GctEtHadCollection>(etHadSource_);
+   consumes<L1GctHtMissCollection>(htMissSource_);
+   consumes<L1GctHFRingEtSumsCollection>(hfRingEtSumsSource_);
+   consumes<L1GctHFBitCountsCollection>(hfRingBitCountsSource_);
 }
 
 

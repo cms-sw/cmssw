@@ -1,18 +1,20 @@
 import FWCore.ParameterSet.Config as cms
 
 #define you jet ID
-jetID = cms.InputTag("ak5PFJetsCHS")
-corr = 'ak5PFCHSL1FastL2L3'
+jetID = cms.InputTag("ak4PFJetsCHS")
+corr = 'ak4PFCHSL1FastL2L3'
+
+
 #JTA for your jets
 from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import *
-myak5JetTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
+myak4JetTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
                                                   j2tParametersVX,
                                                   jets = jetID
                                                   )
 
 #new input for impactParameterTagInfos, softleptons
 from RecoBTag.Configuration.RecoBTag_cff import *
-impactParameterTagInfos.jetTracks = cms.InputTag("myak5JetTracksAssociatorAtVertex")
+impactParameterTagInfos.jetTracks = cms.InputTag("myak4JetTracksAssociatorAtVertex")
 softPFMuonsTagInfos.jets = jetID
 softPFElectronsTagInfos.jets = jetID
 
@@ -28,9 +30,9 @@ flavourSeq = cms.Sequence(
 
 #run the btagging sequence for your jets
 btagSequence = cms.Sequence(
-    myak5JetTracksAssociatorAtVertex *
+    myak4JetTracksAssociatorAtVertex *
     btagging
-    )   
+    )
 
 #select good primary vertex
 from CommonTools.ParticleFlow.goodOfflinePrimaryVertices_cfi import goodOfflinePrimaryVertices
@@ -40,22 +42,23 @@ from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 bTagHLT  = hltHighLevel.clone(TriggerResultsTag = "TriggerResults::HLT", HLTPaths = ["HLT_PFJet40_v*"])
 
 #for the  use of JEC, could change with time : be careful if recommandations change for the correctors
-#define you sequence like  process.JECAlgo = cms.Sequence(process.ak5PFJetsJEC * process.PFJetsFilter)
+#define you sequence like  process.JECAlgo = cms.Sequence(process.ak4PFJetsJEC * process.PFJetsFilter)
 JetCut=cms.string("neutralHadronEnergyFraction < 0.99 && neutralEmEnergyFraction < 0.99 && nConstituents > 1 && chargedHadronEnergyFraction > 0.0 && chargedMultiplicity > 0.0 && chargedEmEnergyFraction < 0.99")
+#JetCut=cms.string("chargedEmEnergyFraction < 99999")
 
 from JetMETCorrections.Configuration.DefaultJEC_cff import *
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
-ak5PFCHSL1Fastjet.algorithm = 'AK5PFchs'
-ak5PFCHSL2Relative.algorithm = 'AK5PFchs'
-ak5PFCHSL3Absolute.algorithm = 'AK5PFchs'
-ak5PFCHSResidual.algorithm = 'AK5PFchs'
+ak4PFCHSL1Fastjet.algorithm = 'AK4PFchs'
+ak4PFCHSL2Relative.algorithm = 'AK4PFchs'
+ak4PFCHSL3Absolute.algorithm = 'AK4PFchs'
+ak4PFCHSResidual.algorithm = 'AK4PFchs'
 
-ak5JetsJEC = ak5PFJetsL2L3.clone(
+ak4JetsJEC = ak4PFJetsL2L3.clone(
         src = jetID,
         correctors = [corr]        )
 
 PFJetsFilter = cms.EDFilter("PFJetSelector",
-                            src = cms.InputTag("ak5JetsJEC"),
+                            src = cms.InputTag("ak4JetsJEC"),
                             cut = JetCut,
                             filter = cms.bool(True)
                             )

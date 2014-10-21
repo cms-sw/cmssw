@@ -127,11 +127,7 @@ private:
   double a_coneR, a_charIsoR, a_neutIsoR, a_mipR;
 
   bool   debugL1Info_;
-  int    verbosity, debugTrks_;
-  bool   printTrkHitPattern_;
-  int    myverbose_;
-  bool   useJetTrigger_;
-  double drLeadJetVeto_, ptMinLeadJet_;
+  int    verbosity;
   edm::InputTag L1extraTauJetSource_, L1extraCenJetSource_, L1extraFwdJetSource_;
   edm::InputTag L1extraMuonSource_,   L1extraIsoEmSource_,  L1extraNonIsoEmSource_;
   edm::InputTag L1GTReadoutRcdSource_, L1GTObjectMapRcdSource_;

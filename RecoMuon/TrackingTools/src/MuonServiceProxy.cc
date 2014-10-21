@@ -23,7 +23,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 
 // C++ Headers
 #include <map>

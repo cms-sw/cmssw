@@ -14,6 +14,8 @@
 //----------------------
 // Base Class Headers --
 //----------------------
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/Common/interface/BaseKeyed.h"
 
 //------------------------------------
@@ -66,6 +68,8 @@ class DTKeyedConfig: public cond::BaseKeyed {
   std::vector<std::string> dataList; 
   std::vector<int>         linkList; 
 
+
+ COND_SERIALIZABLE;
 };
 
 

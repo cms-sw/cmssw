@@ -137,6 +137,7 @@ HLTPMMassFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, tr
 
     vector< Ref< RecoEcalCandidateCollection > > scs;
     PrevFilterOutput->getObjects(TriggerCluster, scs);
+    if(scs.empty()) PrevFilterOutput->getObjects(TriggerPhoton, scs);  //we dont know if its type trigger cluster or trigger photon
 
     for (unsigned int i=0; i<scs.size(); i++) {
 

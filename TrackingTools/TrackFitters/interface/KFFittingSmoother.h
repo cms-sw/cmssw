@@ -38,7 +38,7 @@ KFFittingSmoother(const TrajectoryFitter& aFitter,
       breakTrajWith2ConsecutiveMissing(BreakTrajWith2ConsecutiveMissing),
       noInvalidHitsBeginEnd(NoInvalidHitsBeginEnd) {}
 
-  virtual ~KFFittingSmoother() {};
+  virtual ~KFFittingSmoother() {}
 
   Trajectory fitOne(const Trajectory& t, fitType type) const;
   Trajectory fitOne(const TrajectorySeed& aSeed,
@@ -58,6 +58,13 @@ KFFittingSmoother(const TrajectoryFitter& aFitter,
                               theMinNumberOfHits,rejectTracksFlag,
                               breakTrajWith2ConsecutiveMissing,noInvalidHitsBeginEnd));
   }
+
+
+  virtual void setHitCloner(TkCloner const * hc) {
+        theFitter->setHitCloner(hc);
+        theSmoother->setHitCloner(hc);
+  }
+
 
 private:
 

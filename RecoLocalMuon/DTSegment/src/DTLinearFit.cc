@@ -292,7 +292,7 @@ void DTLinearFit::fit4Var( const vector<float>& xfit,
 
   if (nptfit >= 3) {
 
-    fitNpar(3,xfit,yfit,lfit,tfit,sigy,aminf,bminf,cminf,vminf,chi2fit,debug);
+    fitNpar(3,xfit,yfit,lfit,tfit,sigy,bminf,aminf,cminf,vminf,chi2fit,debug);
     chi2fit3 = chi2fit;
   
     if (cminf!=-999.) {
@@ -320,14 +320,14 @@ void DTLinearFit::fit4Var( const vector<float>& xfit,
 
 
     if (nptfit>=5) {
-      fitNpar(4,xfit,yfit,lfit,tfit,sigy,aminf,bminf,cminf,vminf,chi2fit,debug);
-       
+      fitNpar(4,xfit,yfit,lfit,tfit,sigy,bminf,aminf,cminf,vminf,chi2fit,debug);
+
       if (vminf!=0) { 
         nppar = 4;
         if (nptfit<=nppar){ 
           chi2fitN4=-1;
         } else{
-          chi2fitN4= chi2fit / (nptfit-nppar); 
+          chi2fitN4= chi2fit / (nptfit-nppar);
         }
       } else {
         if (nptfit <= nppar) chi2fitN4=-1;

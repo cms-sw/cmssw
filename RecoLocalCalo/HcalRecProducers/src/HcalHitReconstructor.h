@@ -43,10 +43,14 @@ class HcalTopology;
     public:
       explicit HcalHitReconstructor(const edm::ParameterSet& ps);
       virtual ~HcalHitReconstructor();
+
       virtual void beginRun(edm::Run const&r, edm::EventSetup const & es) override final;
       virtual void endRun(edm::Run const&r, edm::EventSetup const & es) override final;
       virtual void produce(edm::Event& e, const edm::EventSetup& c);
+
     private:      
+      typedef void (HcalSimpleRecAlgo::*SetCorrectionFcn)(boost::shared_ptr<AbsOOTPileupCorrection>);
+
       HcalSimpleRecAlgo reco_;
       HcalADCSaturationFlag* saturationFlagSetter_;
       HFTimingTrustFlag* HFTimingTrustFlagSetter_;
@@ -88,7 +92,14 @@ class HcalTopology;
 
       // switch on/off leakage (to pre-sample) correction
       bool useLeakCorrection_;
-      
+
+      // Labels related to OOT pileup corrections                                   
+      std::string dataOOTCorrectionName_;
+      std::string dataOOTCorrectionCategory_;
+      std::string mcOOTCorrectionName_;
+      std::string mcOOTCorrectionCategory_;
+      SetCorrectionFcn setPileupCorrection_;
+
       HcalRecoParams* paramTS;  // firstSample & sampleToAdd from DB  
       const HcalFlagHFDigiTimeParams* HFDigiTimeParams; // HF DigiTime parameters
 

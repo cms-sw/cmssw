@@ -111,7 +111,9 @@ namespace fftjetcms {
                                      peak.scale(),
                                      peak.nearestNeighborDistance(),
                                      peak.clusterRadius(),
-                                     peak.clusterSeparation()),
+                                     peak.clusterSeparation(),
+                                     peak.splitTime(),
+                                     peak.mergeTime()),
                           node.originalLevel(),
                           node.mask(),
                           node.parent());
@@ -166,15 +168,16 @@ namespace fftjetcms {
             const StoredNode& snode(nodes[i]);
             const StoredPeak& p(snode.getCluster());
             p.hessian(hessian);
-            const SparseTree::Node node(
-                fftjet::Peak(p.eta(), p.phi(), p.magnitude(),
-                             hessian, p.driftSpeed(),
-                             p.magSpeed(), p.lifetime(),
-                             p.scale(), p.nearestNeighborDistance(),
-                             1.0, 0.0, 0.0,
-                             p.clusterRadius(), p.clusterSeparation()),
-                snode.originalLevel(),
-                snode.mask());
+            fftjet::Peak peak(p.eta(), p.phi(), p.magnitude(),
+                              hessian, p.driftSpeed(),
+                              p.magSpeed(), p.lifetime(),
+                              p.scale(), p.nearestNeighborDistance(),
+                              1.0, 0.0, 0.0,
+			      p.clusterRadius(), p.clusterSeparation());
+            peak.setSplitTime(p.splitTime());
+            peak.setMergeTime(p.mergeTime());
+            const SparseTree::Node node(peak, snode.originalLevel(),
+                                        snode.mask());
             out->addNode(node, snode.parent());
         }
 
@@ -226,29 +229,22 @@ namespace fftjetcms {
         typedef reco::PattRecoNode<StoredPeak> StoredNode;
         typedef reco::PattRecoTree<Real,StoredPeak> StoredTree;
         
-        
         assert(out);
         out->clear();
         out->setSparse(false);
         
-        
         const unsigned nLevels = in.nLevels();
         double hessian[3] = {0., 0., 0.};
 
-        
         // Do not write out the meaningless top node
         out->reserveNodes(in.nClusters() - 1);
         
-        
         for (unsigned i=1; i<nLevels; ++i)
         {
-            
             const unsigned int nclus = in.nClusters(i);
             DenseTree::NodeId id(i,0);
-            for (;id.second<nclus; ++id.second) 
+            for (; id.second<nclus; ++id.second) 
             {
-           
-           
                 const fftjet::Peak& peak(in.getCluster(id));
                 peak.hessian(hessian);
                 StoredNode sn(StoredPeak(peak.eta(),
@@ -261,18 +257,16 @@ namespace fftjetcms {
                                          peak.scale(),
                                          peak.nearestNeighborDistance(),
                                          peak.clusterRadius(),
-                                         peak.clusterSeparation()),
+                                         peak.clusterSeparation(),
+                                         peak.splitTime(),
+                                         peak.mergeTime()),
                               i,
                               0,
                               0);
-                
                 out->addNode(sn);
-                
             }
-            
         }
-        
-    
+
         // Do we want to write out the scales? We will use the following
         // convention: if the tree is using an adaptive algorithm, the scales
         // will be written out. If not, they are not going to change from
@@ -282,12 +276,9 @@ namespace fftjetcms {
         {
             // Do not write out the meaningless top-level scale
             const unsigned nScales = in.nLevels();
-            
             out->reserveScales(nScales - 1);
-            
             for (unsigned i=1; i<nScales; ++i)
                 out->addScale(in.getScale(i));
-            
         }
     }
 
@@ -361,8 +352,10 @@ namespace fftjetcms {
                                p.scale(), p.nearestNeighborDistance(),
                                1.0, 0.0, 0.0,
                                p.clusterRadius(), p.clusterSeparation());
+            apeak.setSplitTime(p.splitTime());
+            apeak.setMergeTime(p.mergeTime());
             clusters.push_back(apeak);
-               
+
             if (i==(n-1) && levelNumber!=scsize) 
                 throw cms::Exception("FFTJetBadConfig")
                     << "bad scales, please check the scales"

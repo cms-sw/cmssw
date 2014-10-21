@@ -85,7 +85,8 @@ process.out = cms.OutputModule("RawStreamFileWriterForBU",
     eventBufferSize = cms.untracked.uint32(100),
     numEventsPerFile= cms.untracked.uint32(20),
     jsonDefLocation = cms.untracked.string(cmsswbase+"/src/EventFilter/Utilities/plugins/budef.jsd"),
-    #lumiSubdirectoriesMode=cms.untracked.bool(False),
+    jsonEoLDefLocation = cms.untracked.string(cmsswbase+"/src/EventFilter/Utilities/plugins/eols.jsd"),
+    frdVersion=cms.untracked.uint32(3),
     debug = cms.untracked.bool(True))
 
 process.p = cms.Path(process.s+process.a)

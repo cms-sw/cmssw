@@ -13,9 +13,10 @@ GsfTrajectorySmoother::GsfTrajectorySmoother(const GsfPropagatorWithMaterial& aP
 					     float errorRescaling,
 					     const bool materialBeforeUpdate,
 					     const DetLayerGeometry* detLayerGeometry) :
-  thePropagator(aPropagator.clone()),
-  theGeomPropagator(0),
-  theConvolutor(0),
+  theAlongPropagator(nullptr),
+  theOppositePropagator(nullptr),
+  theGeomPropagator(nullptr),
+  theConvolutor(nullptr),
   theUpdator(aUpdator.clone()),
   theEstimator(aEstimator.clone()),
   theMerger(aMerger.clone()),
@@ -23,9 +24,15 @@ GsfTrajectorySmoother::GsfTrajectorySmoother(const GsfPropagatorWithMaterial& aP
   theErrorRescaling(errorRescaling),
   theGeometry(detLayerGeometry)
 {
+  auto p = aPropagator.clone();
+  p->setPropagationDirection(alongMomentum);
+  theAlongPropagator = p;
+  p = aPropagator.clone();
+  p->setPropagationDirection(oppositeToMomentum);
+  theOppositePropagator = p;
   if ( !theMatBeforeUpdate ) {
-    theGeomPropagator = new GsfPropagatorAdapter(thePropagator->geometricalPropagator());
-    theConvolutor = thePropagator->convolutionWithMaterial().clone();
+    theGeomPropagator = new GsfPropagatorAdapter(aPropagator.geometricalPropagator());
+    theConvolutor = aPropagator.convolutionWithMaterial().clone();
   }
 
   if(!theGeometry) theGeometry = &dummyGeometry;
@@ -35,7 +42,8 @@ GsfTrajectorySmoother::GsfTrajectorySmoother(const GsfPropagatorWithMaterial& aP
 }
 
 GsfTrajectorySmoother::~GsfTrajectorySmoother() {
-  delete thePropagator;
+  delete theAlongPropagator;
+  delete theOppositePropagator;
   delete theGeomPropagator;
   delete theConvolutor;
   delete theUpdator;
@@ -57,14 +65,15 @@ GsfTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
   
   if(aTraj.empty()) return Trajectory();
   
+  const Propagator* usePropagator = theAlongPropagator;
   if (  aTraj.direction() == alongMomentum) {
-    thePropagator->setPropagationDirection(oppositeToMomentum);
+    usePropagator = theOppositePropagator;
   }
-  else {
-    thePropagator->setPropagationDirection(alongMomentum);
+  if( not usePropagator) {
+    usePropagator = theGeomPropagator;
   }
 
-  Trajectory myTraj(aTraj.seed(), propagator()->propagationDirection());
+  Trajectory myTraj(aTraj.seed(), usePropagator->propagationDirection());
   
   std::vector<TM> const & avtm = aTraj.measurements();
   
@@ -139,12 +148,12 @@ GsfTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
       // 	  continue;
       // 	}
       //     }
-      predTsos = propagator()->propagate(currTsos,
+      predTsos = usePropagator->propagate(currTsos,
 					 *(*itm).recHit()->surface());
     }
     if ( predTsos.isValid() && theConvolutor && theMatBeforeUpdate )
       predTsos = (*theConvolutor)(predTsos,
-				  propagator()->propagationDirection());
+				  usePropagator->propagationDirection());
     if(!predTsos.isValid()) {
       edm::LogInfo("GsfTrajectorySmoother") << "GsfTrajectorySmoother: predicted tsos not valid!";
       return Trajectory();
@@ -159,7 +168,7 @@ GsfTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
       }
       if ( currTsos.isValid() && theConvolutor && !theMatBeforeUpdate )
 	currTsos = (*theConvolutor)(currTsos,
-				    propagator()->propagationDirection());
+				    usePropagator->propagationDirection());
       if(!currTsos.isValid()) {
 	edm::LogInfo("GsfTrajectorySmoother") 
 	  << "GsfTrajectorySmoother: tsos not valid after update / material effects!";
@@ -229,12 +238,12 @@ GsfTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
   //last smoothed tm is last filtered
   {
     //     TimeMe t(*propTimer,false);
-    predTsos = propagator()->propagate(currTsos,
+    predTsos = usePropagator->propagate(currTsos,
 				       *avtm.front().recHit()->surface());
   }
   if ( predTsos.isValid() && theConvolutor && theMatBeforeUpdate )
     predTsos = (*theConvolutor)(predTsos,
-				propagator()->propagationDirection());
+				usePropagator->propagationDirection());
   if(!predTsos.isValid()) {
     edm::LogInfo("GsfTrajectorySmoother") << "GsfTrajectorySmoother: predicted tsos not valid!";
     return Trajectory();
@@ -249,7 +258,7 @@ GsfTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
     }
     if ( currTsos.isValid() && theConvolutor && !theMatBeforeUpdate )
       currTsos = (*theConvolutor)(currTsos,
-				  propagator()->propagationDirection());
+				  usePropagator->propagationDirection());
     if(!currTsos.isValid()) {
       edm::LogInfo("GsfTrajectorySmoother") 
 	<< "GsfTrajectorySmoother: tsos not valid after update / material effects!";

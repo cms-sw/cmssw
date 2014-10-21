@@ -27,13 +27,10 @@
 
 // framework include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/View.h"
-#include "DataFormats/Common/interface/Handle.h"
-// #include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
 #include "DataFormats/JetReco/interface/DiscretizedEnergyFlow.h"
 
 #include "RecoJets/FFTJetAlgorithms/interface/gridConverters.h"
@@ -53,7 +50,7 @@ using namespace fftjetcms;
 //
 // class declaration
 //
-class FFTJetPileupProcessor : public edm::EDProducer, public FFTJetInterface
+class FFTJetPileupProcessor : public FFTJetInterface
 {
 public:
     explicit FFTJetPileupProcessor(const edm::ParameterSet&);

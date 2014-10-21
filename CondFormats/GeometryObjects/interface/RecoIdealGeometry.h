@@ -1,6 +1,8 @@
 #ifndef GUARD_RecoIdealGeometry_H
 #define GUARD_RecoIdealGeometry_H
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <algorithm>
 #include <cassert>
@@ -122,6 +124,8 @@ class RecoIdealGeometry {
   std::vector<std::string> strPars;
   std::vector<int> sParsIndex;
   std::vector<int> sNumsParms;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

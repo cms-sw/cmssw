@@ -58,29 +58,29 @@ void printJetFlavourInfo::analyze(const edm::Event& iEvent, const edm::EventSetu
 
     for(size_t gj=0; gj<groomedJets->size(); ++gj)
     {
-      double matchedDR = 1e9;
+      double matchedDR2 = 1e9;
       int matchedIdx = -1;
 
-      for(reco::JetFlavourInfoMatchingCollection::const_iterator j  = theJetFlavourInfos->begin();
-                                     j != theJetFlavourInfos->end();
-                                     ++j)
+      if( groomedJets->at(gj).pt()>0. ) // skips pathological cases of groomed jets with Pt=0
       {
-        if( jetLocks.at(j - theJetFlavourInfos->begin()) ) continue; // skip jets that have already been matched
-
-        double tempDR = reco::deltaR( j->first->rapidity(), j->first->phi(), groomedJets->at(gj).rapidity(), groomedJets->at(gj).phi() );
-        if( tempDR < matchedDR )
+        for(reco::JetFlavourInfoMatchingCollection::const_iterator j  = theJetFlavourInfos->begin();
+                                       j != theJetFlavourInfos->end();
+                                       ++j)
         {
-          matchedDR = tempDR;
-          matchedIdx = (j - theJetFlavourInfos->begin());
+          if( jetLocks.at(j - theJetFlavourInfos->begin()) ) continue; // skip jets that have already been matched
+
+          double tempDR2 = reco::deltaR2( j->first->rapidity(), j->first->phi(), groomedJets->at(gj).rapidity(), groomedJets->at(gj).phi() );
+          if( tempDR2 < matchedDR2 )
+          {
+            matchedDR2 = tempDR2;
+            matchedIdx = (j - theJetFlavourInfos->begin());
+          }
         }
       }
 
       if( matchedIdx>=0 ) jetLocks.at(matchedIdx) = true;
       jetIndices.push_back(matchedIdx);
     }
-
-    if( std::find( jetIndices.begin(), jetIndices.end(), -1 ) != jetIndices.end() )
-      throw cms::Exception("Jet matching failed") << "Matching groomed to original jets failed. Please check that the jet algorithm, jet size, and Pt threshold match for the two jet collections.";
 
     for(size_t j=0; j<theJetFlavourInfos->size(); ++j)
     {
@@ -101,7 +101,7 @@ void printJetFlavourInfo::analyze(const edm::Event& iEvent, const edm::EventSetu
               << "[printJetFlavourInfo] Jet " << (j - theJetFlavourInfos->begin()) << " pt, eta, rapidity, phi = " << aJet->pt() << ", "
                                                                                    << aJet->eta() << ", "
                                                                                    << aJet->rapidity() << ", "
-                                                                                   << aJet->phi() << ", "
+                                                                                   << aJet->phi()
                                                                                    << std::endl;
     // ----------------------- Hadrons -------------------------------
     std::cout << "                      Hadron-based flavour: " << aInfo.getHadronFlavour() << std::endl;
@@ -205,7 +205,7 @@ void printJetFlavourInfo::analyze(const edm::Event& iEvent, const edm::EventSetu
                                                                  << aSubjet->rapidity() << ", "
                                                                  << aSubjet->phi() << ", "
                                                                  << reco::deltaR( aSubjet->eta(), aSubjet->phi(), aJet->eta(), aJet->phi() ) << ", "
-                                                                 << reco::deltaR( aSubjet->rapidity(), aSubjet->phi(), aJet->rapidity(), aJet->phi() ) << ", "
+                                                                 << reco::deltaR( aSubjet->rapidity(), aSubjet->phi(), aJet->rapidity(), aJet->phi() )
                                                                  << std::endl;
           // ----------------------- Hadrons -------------------------------
           std::cout << "                           Hadron-based flavour: " << aInfo.getHadronFlavour() << std::endl;

@@ -94,6 +94,9 @@ class EcalContainer {
                         return m_items.size();
                 }
 
+                void setItems(const std::vector<Item> & items) {
+                    m_items = items;
+                }
         private:
 
 		//Cint can't parse the new C++11 initialization syntax

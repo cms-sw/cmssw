@@ -8,8 +8,16 @@ ecalRecHit = cms.EDProducer("EcalRecHitProducer",
     EEuncalibRecHitCollection = cms.InputTag("ecalGlobalUncalibRecHit","EcalUncalibRecHitsEE"),
     EBuncalibRecHitCollection = cms.InputTag("ecalGlobalUncalibRecHit","EcalUncalibRecHitsEB"),
     EBrechitCollection = cms.string('EcalRecHitsEB'),
-    # channel flags to be exluded from reconstruction, e.g { 1, 2 }
-    ChannelStatusToBeExcluded = cms.vint32(),
+    # db statuses to be exluded from reconstruction (some will be recovered)
+    ChannelStatusToBeExcluded = cms.vstring(   'kNoisy',
+                                               'kNNoisy',
+                                               'kFixedG6',
+                                               'kFixedG1',
+                                               'kFixedG0',
+                                               'kNonRespondingIsolated',
+                                               'kDeadVFE',
+                                               'kDeadFE',
+                                               'kNoDataNoTP',),
     # avoid propagation of dead channels other than after recovery
     killDeadChannels = cms.bool(True),
     algo = cms.string("EcalRecHitWorkerSimple"),
@@ -24,18 +32,17 @@ ecalRecHit = cms.EDProducer("EcalRecHitProducer",
 
     # apply laser corrections
     laserCorrection = cms.bool(True),
+                            
     # reco flags association to DB flag
-    # the vector index corresponds to the DB flag
-    # the value correspond to the reco flag
-    flagsMapDBReco = cms.vint32(
-             0,   0,   0,  0, # standard reco
-             4,               # faulty hardware (noisy)
-            -1,  -1,  -1,     # not yet assigned
-             4,   4,          # faulty hardware (fixed gain)
-             7,   7,   7,     # dead channel with trigger
-             8,               # dead FE
-             9                # dead or recovery failed
-            ),                        
+    flagsMapDBReco = cms.PSet(
+        kGood  = cms.vstring('kOk','kDAC','kNoLaser','kNoisy'),
+        kNoisy = cms.vstring('kNNoisy','kFixedG6','kFixedG1'),
+        kNeighboursRecovered = cms.vstring('kFixedG0',
+										   'kNonRespondingIsolated',
+										   'kDeadVFE'),
+        kTowerRecovered = cms.vstring('kDeadFE'),
+        kDead           = cms.vstring('kNoDataNoTP')
+        ),                        
                             
     # for channel recovery
     algoRecover = cms.string("EcalRecHitWorkerRecover"),

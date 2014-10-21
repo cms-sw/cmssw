@@ -30,12 +30,10 @@
 
 // framework include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/View.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
 
 // parameter parser header
@@ -49,7 +47,7 @@ using namespace fftjetcms;
 //
 // class declaration
 //
-class FFTJetEFlowSmoother : public edm::EDProducer, public FFTJetInterface
+class FFTJetEFlowSmoother : public FFTJetInterface
 {
 public:
     explicit FFTJetEFlowSmoother(const edm::ParameterSet&);

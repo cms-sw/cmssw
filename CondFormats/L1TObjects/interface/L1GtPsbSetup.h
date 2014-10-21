@@ -18,6 +18,8 @@
  */
 
 // system include files
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <iosfwd>
 
@@ -58,6 +60,8 @@ private:
     /// L1 GT PSB boards and their setup
     std::vector<L1GtPsbConfig> m_gtPsbSetup;
 
+
+    COND_SERIALIZABLE;
 };
 
 #endif /*CondFormats_L1TObjects_L1GtPsbSetup_h*/

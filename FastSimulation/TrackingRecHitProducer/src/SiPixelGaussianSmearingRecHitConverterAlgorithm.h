@@ -64,7 +64,7 @@ private:
   // Switch between old (ORCA) and new (CMSSW) pixel parameterization
   bool useCMSSWPixelParameterization;
   // template object
-  SiPixelTemplate templ;
+  std::vector< SiPixelTemplateStore > thePixelTemp_;
   int tempId;
   //
   bool isFlipped(const PixelGeomDetUnit* theDet) const;

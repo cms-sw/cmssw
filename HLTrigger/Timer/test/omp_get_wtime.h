@@ -1,6 +1,7 @@
 #ifndef omp_get_wtime_h
 #define omp_get_wtime_h
 
+#ifndef __clang__
 // C++ standard headers
 #include <chrono>
 
@@ -24,5 +25,6 @@ struct clock_omp_get_wtime
     return time_point(duration( seconds ));
   }
 };
+#endif
 
 #endif // omp_get_wtime_h

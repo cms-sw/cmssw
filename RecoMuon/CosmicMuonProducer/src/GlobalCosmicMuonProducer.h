@@ -9,7 +9,7 @@
  *  \author Chang Liu  -  Purdue University <Chang.Liu@cern.ch>
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -17,13 +17,13 @@
 class MuonTrackFinder;
 class MuonServiceProxy;
 
-class GlobalCosmicMuonProducer : public edm::EDProducer {
+class GlobalCosmicMuonProducer : public edm::stream::EDProducer<> {
 public:
   explicit GlobalCosmicMuonProducer(const edm::ParameterSet&);
 
    ~GlobalCosmicMuonProducer();
   
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
   edm::EDGetTokenT<reco::TrackCollection> theTrackCollectionToken;

@@ -70,7 +70,7 @@ void
    for( CSCGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); ++it ){
      // Do we really have a CSC layer?
 
-     CSCLayer* layer = dynamic_cast<CSCLayer*>( *it );
+     auto layer = dynamic_cast<CSCLayer const*>( *it );
      
       if( layer ) {
         ++icount;

@@ -18,15 +18,6 @@ pixelLessStepClusters = cms.EDProducer("TrackClusterRemover",
     )
 )
 
-pixelLessStepSeedClusters = pixelLessStepClusters.clone(
-    doStripChargeCheck = cms.bool(True),
-    stripRecHits = cms.string('siStripMatchedRecHits'),
-    Common = cms.PSet(
-        maxChi2 = cms.double(9.0),
-        minGoodStripCharge = cms.double(70.0)
-    )
-)
-
 # SEEDING LAYERS
 pixelLessStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     layerList = cms.vstring(
@@ -58,16 +49,16 @@ pixelLessStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     TIB = cms.PSet(
          TTRHBuilder    = cms.string('WithTrackAngle'),
          matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-         skipClusters   = cms.InputTag('pixelLessStepSeedClusters')
+         skipClusters   = cms.InputTag('pixelLessStepClusters')
     ),
     MTIB = cms.PSet(
          TTRHBuilder    = cms.string('WithTrackAngle'),
-         skipClusters   = cms.InputTag('pixelLessStepSeedClusters'),
+         skipClusters   = cms.InputTag('pixelLessStepClusters'),
          rphiRecHits    = cms.InputTag("siStripMatchedRecHits","rphiRecHit")
     ),
     TID = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        skipClusters = cms.InputTag('pixelLessStepSeedClusters'),
+        skipClusters = cms.InputTag('pixelLessStepClusters'),
         useRingSlector = cms.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
         minRing = cms.int32(1),
@@ -75,7 +66,7 @@ pixelLessStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     ),
     MTID = cms.PSet(
         rphiRecHits    = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
-        skipClusters = cms.InputTag('pixelLessStepSeedClusters'),
+        skipClusters = cms.InputTag('pixelLessStepClusters'),
         useRingSlector = cms.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
         minRing = cms.int32(3),
@@ -83,7 +74,7 @@ pixelLessStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     ),
     TEC = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        skipClusters = cms.InputTag('pixelLessStepSeedClusters'),
+        skipClusters = cms.InputTag('pixelLessStepClusters'),
         useRingSlector = cms.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
         minRing = cms.int32(1),
@@ -91,7 +82,7 @@ pixelLessStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     ),
     MTEC = cms.PSet(
         rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
-        skipClusters = cms.InputTag('pixelLessStepSeedClusters'),
+        skipClusters = cms.InputTag('pixelLessStepClusters'),
         useRingSlector = cms.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
         minRing = cms.int32(3),
@@ -114,38 +105,43 @@ pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.4
 pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 12.0
 pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 1.0
 #SeedComparitor
+import RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi
+pixelLessStepClusterShapeHitFilter  = RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi.ClusterShapeHitFilterESProducer.clone(
+	ComponentName = cms.string('pixelLessStepClusterShapeHitFilter'),
+        PixelShapeFile= cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape.par'),
+	minGoodStripCharge = cms.double(2069)
+	)
+
 pixelLessStepSeeds.SeedComparitorPSet = cms.PSet(
         ComponentName = cms.string('PixelClusterShapeSeedComparitor'),
         FilterAtHelixStage = cms.bool(True),
         FilterPixelHits = cms.bool(False),
-        FilterStripHits = cms.bool(False),
-        ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter')
-)
+        FilterStripHits = cms.bool(True),
+        ClusterShapeHitFilterName = cms.string('pixelLessStepClusterShapeHitFilter'),
+        ClusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache") # not really needed here since FilterPixelHits=False
+    )
 
 # QUALITY CUTS DURING TRACK BUILDING
-import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
-pixelLessStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone(
-    ComponentName = 'pixelLessStepTrajectoryFilter',
-    filterPset = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.filterPset.clone(
+import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
+pixelLessStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
     maxLostHits = 0,
     minimumNumberOfHits = 4,
     minPt = 0.1
     )
-    )
 
-import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
-pixelLessStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
+import TrackingTools.KalmanUpdators.Chi2ChargeMeasurementEstimatorESProducer_cfi
+pixelLessStepChi2Est = TrackingTools.KalmanUpdators.Chi2ChargeMeasurementEstimatorESProducer_cfi.Chi2ChargeMeasurementEstimator.clone(
     ComponentName = cms.string('pixelLessStepChi2Est'),
     nSigma = cms.double(3.0),
-    MaxChi2 = cms.double(9.0)
+    MaxChi2 = cms.double(9.0),
+    minGoodStripCharge = cms.double(2069)
 )
 
 # TRACK BUILDING
-import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
-pixelLessStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
-    ComponentName = 'pixelLessStepTrajectoryBuilder',
+import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
+pixelLessStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     MeasurementTrackerName = '',
-    trajectoryFilterName = 'pixelLessStepTrajectoryFilter',
+    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('pixelLessStepTrajectoryFilter')),
     minNrOfHitsForRebuild = 4,
     maxCand = 2,
     alwaysUseInvalidHits = False,
@@ -162,7 +158,7 @@ pixelLessStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckf
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     numHitsForSeedCleaner = cms.int32(50),
     #onlyPixelHitsForSeedCleaner = cms.bool(True),
-    TrajectoryBuilder = 'pixelLessStepTrajectoryBuilder'
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('pixelLessStepTrajectoryBuilder'))
 )
 
 from TrackingTools.TrajectoryCleaning.TrajectoryCleanerBySharedHits_cfi import trajectoryCleanerBySharedHits
@@ -187,15 +183,18 @@ from RecoTracker.IterativeTracking.MixedTripletStep_cff import mixedTripletStepS
 pixelLessStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src='pixelLessStepTracks',
     useAnyMVA = cms.bool(True),
-    GBRForestLabel = cms.string('MVASelectorIter5'),
+    GBRForestLabel = cms.string('MVASelectorIter5_13TeV_v0'),
     trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'pixelLessStepLoose',
-            chi2n_par = 0.4,
-            res_par = ( 0.003, 0.001 ),
-            minNumberLayers = 4,
-            maxNumberLostLayers = 1,
-            minNumber3DLayers = 3,
+            chi2n_par = 9999,
+            useMVA = cms.bool(True),
+            minMVA = cms.double(0.4),
+            #chi2n_par = 0.4,
+            #res_par = ( 0.003, 0.001 ),
+            #minNumberLayers = 4,
+            #maxNumberLostLayers = 1,
+            #minNumber3DLayers = 3,
             d0_par1 = ( 1.2, 4.0 ),
             dz_par1 = ( 1.2, 4.0 ),
             d0_par2 = ( 1.2, 4.0 ),
@@ -214,16 +213,21 @@ pixelLessStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.m
             d0_par2 = ( 0.9, 4.0 ),
             dz_par2 = ( 0.9, 4.0 )
             ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'pixelLessStep',
-            preFilterName = 'pixelLessStepTight',
-            chi2n_par = 0.2,
-            res_par = ( 0.003, 0.001 ),
-            minNumberLayers = 4,
-            maxNumberLostLayers = 0,
-            minNumber3DLayers = 3,
-            max_minMissHitOutOrIn = 2,
-            max_lostHitFraction = 1.0,
+            preFilterName = 'pixelLessStepLoose',
+            chi2n_par = cms.double(9999),
+            useMVA = cms.bool(True),
+            minMVA = cms.double(0.4),
+            qualityBit = cms.string('highPurity'),
+            keepAllTracks = cms.bool(True),
+            #chi2n_par = 0.2,
+            #res_par = ( 0.003, 0.001 ),
+            #minNumberLayers = 4,
+            #maxNumberLostLayers = 0,
+            #minNumber3DLayers = 3,
+            #max_minMissHitOutOrIn = 2,
+            #max_lostHitFraction = 1.0,
             d0_par1 = ( 0.7, 4.0 ),
             dz_par1 = ( 0.7, 4.0 ),
             d0_par2 = ( 0.7, 4.0 ),
@@ -259,7 +263,6 @@ pixelLessStep = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMer
 )                        
 
 PixelLessStep = cms.Sequence(pixelLessStepClusters*
-                             pixelLessStepSeedClusters*
                              pixelLessStepSeedLayers*
                              pixelLessStepSeeds*
                              pixelLessStepTrackCandidates*

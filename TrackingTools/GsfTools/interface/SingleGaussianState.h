@@ -1,6 +1,8 @@
 #ifndef SingleGaussianState_H
 #define SingleGaussianState_H
 
+#define SMATRIX_USE_CONSTEXPR
+
 #include "Math/SVector.h"
 #include "Math/SMatrix.h"
 
@@ -26,8 +28,8 @@ public:
 //   }
   
   SingleGaussianState(const Vector& aMean,
-			 const Matrix& aCovariance, 
-			 double aWeight = 1.) : 
+		      const Matrix& aCovariance, 
+		      double aWeight = 1.) : 
     theCovariance(aCovariance), theMean(aMean), theWeight(aWeight), 
     theHasWeightMatrix(false) {
 //     ++instances_;++maxInstances_;
@@ -65,7 +67,7 @@ private:
   Vector theMean;
   double theWeight;
 
-  mutable Matrix theWeightMatrix;
+  mutable Matrix theWeightMatrix = ROOT::Math::SMatrixNoInit();
   mutable bool theHasWeightMatrix;
 
 // public:

@@ -6,3 +6,4 @@
 <use   name="root"/>
 <use   name="rootgraphics"/>
 <flags   EDM_PLUGIN="1"/>
+<flags CXXFLAGS="-ftemplate-depth=600"/>

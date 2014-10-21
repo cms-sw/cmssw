@@ -3,6 +3,7 @@
 #include "RecoPixelVertexing/PixelTriplets/plugins/KDTreeLinkerTools.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
+#include "RecoTracker/TkSeedGenerator/interface/SeedCreatorFactory.h"
 
 #include "DataFormats/GeometryVector/interface/Pi.h"
 
@@ -63,8 +64,19 @@ namespace {
 ///
 ///
 ///
+namespace {
+  SeedCreator *createSeedCreator(const edm::ParameterSet& cfg) {
+    edm::ParameterSet creatorPSet = cfg.getParameter<edm::ParameterSet>("SeedCreatorPSet");
+    return SeedCreatorFactory::get()->create(creatorPSet.getParameter<std::string>("ComponentName") , creatorPSet);
+  }
+}
 QuadrupletSeedMerger::QuadrupletSeedMerger(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC):
-  theLayerBuilder_(iConfig, iC)
+  QuadrupletSeedMerger(iConfig, nullptr, iC) {}
+QuadrupletSeedMerger::QuadrupletSeedMerger(const edm::ParameterSet& iConfig, const edm::ParameterSet& seedCreatorConfig, edm::ConsumesCollector& iC):
+  QuadrupletSeedMerger(iConfig, createSeedCreator(seedCreatorConfig), iC) {}
+QuadrupletSeedMerger::QuadrupletSeedMerger(const edm::ParameterSet& iConfig, SeedCreator *seedCreator, edm::ConsumesCollector& iC):
+  theLayerBuilder_(iConfig, iC),
+  theSeedCreator_(seedCreator)
  {
 
   // by default, do not..
@@ -392,8 +404,7 @@ const OrderedSeedingHits& QuadrupletSeedMerger::mergeTriplets( const OrderedSeed
 ///
 const TrajectorySeedCollection QuadrupletSeedMerger::mergeTriplets( const TrajectorySeedCollection& seedCollection,
 								    const TrackingRegion& region,
-								    const edm::EventSetup& es,
-                                                                    const edm::ParameterSet& cfg ) {
+								    const edm::EventSetup& es) {
 
   // ttrh builder for HitSet -> TrajectorySeed conversion;
   // require this to be correctly configured, otherwise -> exception
@@ -458,14 +469,10 @@ const TrajectorySeedCollection QuadrupletSeedMerger::mergeTriplets( const Trajec
   // the idea here is to fetch the same SeedCreator and PSet
   // as those used by the plugin which is calling the merger
   // (at the moment that's SeedGeneratorFromRegionHitsEDProducer)
-  edm::ParameterSet creatorPSet = cfg.getParameter<edm::ParameterSet>("SeedCreatorPSet");
-  std::string const& creatorName = creatorPSet.getParameter<std::string>( "ComponentName" );
-  // leak????
-  SeedCreator* seedCreator = SeedCreatorFactory::get()->create( creatorName, creatorPSet );
-  seedCreator->init(region, es, 0);
+  theSeedCreator_->init(region, es, 0);
   for ( unsigned int i=0; i< quadrupletHitSets.size(); i++) {
     // add trajectory seed to result collection
-    seedCreator->makeSeed( theResult, quadrupletHitSets[i]);
+    theSeedCreator_->makeSeed( theResult, quadrupletHitSets[i]);
   }
 
   return theResult;

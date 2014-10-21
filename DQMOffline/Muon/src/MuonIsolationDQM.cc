@@ -73,19 +73,13 @@ MuonIsolationDQM::MuonIsolationDQM(const edm::ParameterSet& iConfig){
   
   InitStatics();
   
-  //Set up DAQ
-  dbe = 0;
-  dbe = edm::Service<DQMStore>().operator->();
-  dbe->setCurrentFolder(dirName.c_str());
-  dbe->cd();
   
   //------"allocate" space for the data vectors-------
-  
+ 
   h_1D.resize(NUM_VARS);
   h_2D.resize(NUM_VARS_2D);
   h_1D_NVTX.resize(NUM_VARS_NVTX);
 
-  dbe->cd();
 }
 
 //
@@ -562,7 +556,6 @@ void MuonIsolationDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   // Get Muon Collection 
 
   //Fill historgams concerning muon isolation 
-  dbe->setCurrentFolder(dirName.c_str());
   for (reco::MuonCollection::const_iterator muon = muons->begin(); muon!=muons->end(); ++muon){
     if (requireSTAMuon && muon->isStandAloneMuon()) {
       ++nSTAMuons;
@@ -581,7 +574,6 @@ void MuonIsolationDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       FillNVtxHistos(_numPV);
     }
   }
-  dbe->cd();
   
 }
 
@@ -681,81 +673,41 @@ void MuonIsolationDQM::RecordData(const reco::Muon&  muon){
   theDataNVtx[4] = theDataNVtx[3];
   theDataNVtx[5] = theDataNVtx[3];
 }
+void MuonIsolationDQM::bookHistograms(DQMStore::IBooker & ibooker,
+				      edm::Run const & /*iRun*/,
+				      edm::EventSetup const & /* iSetup */){
 
-// ------------ method called once each job just before starting event loop  ------------
-void MuonIsolationDQM::beginJob(void) {
-  edm::LogInfo("Tutorial") << "\n#########################################\n\n"
-			   << "Lets get started! " 
-			   << "\n\n#########################################\n";
-#ifdef DEBUG
-  cout << "[MuonIsolationDQM]: beginJob" << endl;
-#endif
-  dbe->setCurrentFolder(dirName.c_str());
-  InitHistos();
-  dbe->cd();
-}
-
-// ------------ method called once each run just before starting the event loop ----------
-void MuonIsolationDQM::beginRun(void) {
-#ifdef DEBUG
-  cout << "[MuonIsolationDQM]: beginRun" << endl;
-#endif
-  //  InitHistos();
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void MuonIsolationDQM::endJob() {
-  // check if ME still there (and not killed by MEtoEDM for memory saving)
-  if( dbe )    {
-    // check existence of first histo in the list
-    if (! dbe->get(dirName+"/nMuons")) return;
-  }
-  else
-    return;
-  
-  edm::LogInfo("Tutorial") << "\n#########################################\n\n"
-			   << "Total Number of Events: " << nEvents
-			   << "\n\n#########################################\n"
-			   << "\nInitializing Histograms...\n";
-  
-  edm::LogInfo("Tutorial") << "\nIntializing Finished.  Filling...\n";
-  //NormalizeHistos();
-  edm::LogInfo("Tutorial") << "\nFilled.  Saving...\n";
-  //  dbe->save(rootfilename); // comment out for incorporation
-  edm::LogInfo("Tutorial") << "\nSaved.  Peace, homie, I'm out.\n";
-}
-void MuonIsolationDQM::InitHistos(){
   //---initialize number of muons histogram---
-  h_nMuons = dbe->book1D("nMuons", title_sam + "Number of Muons", 20, 0., 20.);
+  h_nMuons = ibooker.book1D("nMuons", title_sam + "Number of Muons", 20, 0., 20.);
   h_nMuons->setAxisTitle("Number of Muons",XAXIS);
   h_nMuons->setAxisTitle("Fraction of Events",YAXIS);
   
   //---Initialize 1D Histograms---
   for(int var = 0; var < NUM_VARS; var++){
-    h_1D[var] = dbe->book1D(names[var], 
+    h_1D[var] = ibooker.book1D(names[var], 
 			    title_sam + main_titles[var] + title_cone, 
 			    (int)param[var][0], 
 			    param[var][1], 
 			    param[var][2]
 			    );
     h_1D[var]->setAxisTitle(axis_titles[var],XAXIS);
-    GetTH1FromMonitorElement(h_1D[var])->Sumw2();
+    //    GetTH1FromMonitorElement(h_1D[var])->Sumw2();
   }//Finish 1D
   
   //----Initialize 2D Histograms
   for (int var = 0; var<NUM_VARS_2D; var++){
-    h_2D[var] = dbe->bookProfile(names_2D[var] + "_VsPV", titles_2D[var] + " Vs PV", 50, 0.5, 50.5, 20, 0.0, 20.0);
+    h_2D[var] = ibooker.bookProfile(names_2D[var] + "_VsPV", titles_2D[var] + " Vs PV", 50, 0.5, 50.5, 20, 0.0, 20.0);
     
     h_2D[var]->setAxisTitle("Number of PV",            XAXIS);
     h_2D[var]->setAxisTitle(titles_2D[var] + " (GeV)" ,YAXIS);
-    h_2D[var]->getTH1()->Sumw2();
+    //    h_2D[var]->getTH1()->Sumw2();
   }
   
   //-----Initialise PU-Binned histograms
   for (int var=0; var<NUM_VARS_NVTX; var++){
-    h_1D_NVTX[var] = dbe->book1D(names_NVtxs[var], main_titles_NVtxs[var], 50, 0.0, 10.0);
+    h_1D_NVTX[var] = ibooker.book1D(names_NVtxs[var], main_titles_NVtxs[var], 50, 0.0, 10.0);
     h_1D_NVTX[var]->setAxisTitle(axis_titles_NVtxs[var],XAXIS);
-    GetTH1FromMonitorElement(h_1D_NVTX[var])->Sumw2();
+    ///    GetTH1FromMonitorElement(h_1D_NVTX[var])->Sumw2();
   }
 }
 

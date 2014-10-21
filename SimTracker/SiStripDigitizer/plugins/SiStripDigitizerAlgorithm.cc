@@ -68,7 +68,7 @@ SiStripDigitizerAlgorithm::~SiStripDigitizerAlgorithm(){
 }
 
 void
-SiStripDigitizerAlgorithm::initializeDetUnit(StripGeomDetUnit* det, const edm::EventSetup& iSetup) {
+SiStripDigitizerAlgorithm::initializeDetUnit(StripGeomDetUnit const * det, const edm::EventSetup& iSetup) {
   edm::ESHandle<SiStripBadStrip> deadChannelHandle;
   iSetup.get<SiStripBadChannelRcd>().get(deadChannelHandle);
 

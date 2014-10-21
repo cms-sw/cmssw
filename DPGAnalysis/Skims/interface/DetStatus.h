@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Scalers/interface/DcsStatus.h"
  
 class DetStatus : public edm::EDFilter {
  public:
@@ -16,7 +17,7 @@ class DetStatus : public edm::EDFilter {
   bool AndOr_;
   std::vector<std::string>  DetNames_;
   unsigned int DetMap_;
-
+  edm::EDGetTokenT<DcsStatusCollection> scalersToken_;
 };
 
 #endif

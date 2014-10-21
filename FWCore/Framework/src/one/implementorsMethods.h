@@ -22,12 +22,32 @@
 
 // user include files
 #include "FWCore/Framework/interface/one/implementors.h"
+#include "FWCore/Framework/src/SharedResourcesRegistry.h"
+#include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 
 // forward declarations
 
 namespace edm {
   namespace one {
     namespace impl {
+      template<typename T>
+      void SharedResourcesUser<T>::usesResource(std::string const& iName) {
+        resourceNames_.insert(iName);
+        SharedResourcesRegistry::instance()->registerSharedResource(iName);
+      }
+      template<typename T>
+      void SharedResourcesUser<T>::usesResource() {
+        this->usesResource(SharedResourcesRegistry::kLegacyModuleResourceName);
+
+      }
+      
+      template<typename T>
+      SharedResourcesAcquirer SharedResourcesUser<T>::createAcquirer() {
+        std::vector<std::string> v(resourceNames_.begin(),resourceNames_.end());
+        return SharedResourcesRegistry::instance()->createAcquirer(v);
+      }
+      
+      
       template< typename T>
       void RunWatcher<T>::doBeginRun_(Run const& rp, EventSetup const& c) {
         this->beginRun(rp,c);

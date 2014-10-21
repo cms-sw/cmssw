@@ -21,6 +21,8 @@
 #ifndef CondFormatsL1TObjects_L1MuTriggerScales_h
 #define CondFormatsL1TObjects_L1MuTriggerScales_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <cmath>
 #include <iostream>
 #include <vector>
@@ -211,6 +213,8 @@ class L1MuTriggerScales {
   L1MuSymmetricBinnedScale m_GMTEtaScale;
   L1MuBinnedScale m_PhiScale;
   //  L1MuBinnedScale m_PtScale;
+
+ COND_SERIALIZABLE;
 };
 
 

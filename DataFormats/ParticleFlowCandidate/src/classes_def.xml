@@ -108,6 +108,9 @@
   <class name="reco::PFCandidateEGammaExtraRefProd"/>
   <class name="reco::PFCandidateEGammaExtraRefVector"/>  
   
+  <class name="edm::Association<reco::PFCandidateCollection>" />
+  <class name="edm::Wrapper<edm::Association<reco::PFCandidateCollection> >" />
+
   
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Vertex> >,edm::RefProd<std::vector<reco::PFCandidate> > >" />  
   <class name="edm::helpers::KeyVal<edm::Ref<std::vector<reco::Vertex>,reco::Vertex,edm::refhelper::FindUsingAdvance<std::vector<reco::Vertex>,reco::Vertex> >,std::vector<std::pair<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> >,float> > >" />

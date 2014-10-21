@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
  <MaterialSection label="hcalforwardmaterial.xml">
-  <CompositeMaterial name="Quartz" density="2.20*g/cm3" symbol=" " method="mixture by weight">
+  <CompositeMaterial name="QuartzF" density="2.20*g/cm3" symbol=" " method="mixture by weight">
    <MaterialFraction fraction="0.46748103">
     <rMaterial name="materials:Silicon"/>
    </MaterialFraction>
@@ -25,7 +25,7 @@
     <rMaterial name="materials:Air"/>
    </MaterialFraction>
    <MaterialFraction fraction="0.001993">
-    <rMaterial name="hcalforwardmaterial:Quartz"/>
+    <rMaterial name="hcalforwardmaterial:QuartzF"/>
    </MaterialFraction>
    <MaterialFraction fraction="0.001189">
     <rMaterial name="hcalforwardmaterial:Plastic"/>

@@ -65,7 +65,7 @@ DTCombinatorialPatternReco::reconstruct(const DTSuperLayer* sl,
     
     DTSLRecSegment2D *segment = (**cand);
 
-    theUpdator->update(segment);
+    theUpdator->update(segment,0);
 
     result.push_back(segment);
 
@@ -427,7 +427,7 @@ DTCombinatorialPatternReco::buildPointsCollection(vector<DTSegmentCand::AssPoint
     }
 
     DTSegmentCand* newCand = new DTSegmentCand(pointsSet,sl);
-    if (theUpdator->fit(newCand)) candidates.push_back(newCand);
+    if (theUpdator->fit(newCand,0,0)) candidates.push_back(newCand);
     else delete newCand; // bad seg, too few hits
   }
 }

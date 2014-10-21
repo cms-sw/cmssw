@@ -1,16 +1,14 @@
 #include "Validation/RecoMuon/src/RecoMuonValidator.h"
 
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
-
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
-
 #include "SimMuon/MCTruth/interface/MuonAssociatorByHits.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DQMServices/Core/interface/DQMStore.h"
+//#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
@@ -28,48 +26,6 @@ using namespace reco;
 typedef TrajectoryStateOnSurface TSOS;
 typedef FreeTrajectoryState FTS;
 
-//
-//struct for histogram dimensions
-//
-struct HistoDimensions {
-  //p
-  unsigned int nBinP;
-  double minP, maxP;
-  //pt
-  unsigned int nBinPt;
-  double minPt, maxPt;
-  //if abs eta
-  bool doAbsEta;
-  //eta
-  unsigned int nBinEta;
-  double minEta, maxEta;
-  //phi
-  unsigned int nBinPhi;
-  double minPhi, maxPhi;
-  //dxy
-  unsigned int nBinDxy;
-  double minDxy, maxDxy;
-  //dz
-  unsigned int nBinDz; 
-  double minDz, maxDz;
-  //pulls
-  unsigned int nBinPull;
-  double wPull;
-  //resolustions
-  unsigned int nBinErr;
-  double minErrP, maxErrP;
-  double minErrPt, maxErrPt;
-  double minErrQPt, maxErrQPt;
-  double minErrEta, maxErrEta;
-  double minErrPhi, maxErrPhi;
-  double minErrDxy, maxErrDxy;
-  double minErrDz, maxErrDz;
-  //track multiplicities
-  unsigned int nTrks, nAssoc;
-  unsigned int nDof;
-  // for PF muons
-  bool usePFMuon;
-};
 
 //
 //Struct containing all histograms definitions
@@ -129,151 +85,152 @@ struct RecoMuonValidator::MuonME {
 //
 //books histograms
 //
-  void bookHistograms(DQMStore* dqm, const string& dirName, const HistoDimensions& hDim)
+  void bookHistos(DQMStore::IBooker & ibooker, const string& dirName, const HistoDimensions& hDim)
+
   {
-    dqm->cd();
-    dqm->setCurrentFolder(dirName.c_str());
+    ibooker.cd();
+    ibooker.setCurrentFolder(dirName.c_str());
 
     doAbsEta_ = hDim.doAbsEta;
     usePFMuon_ = hDim.usePFMuon;
 
     //histograms for efficiency plots
-    hP_   = dqm->book1D("P"  , "p of recoTracks"    , hDim.nBinP  , hDim.minP  , hDim.maxP  );
-    hPt_  = dqm->book1D("Pt" , "p_{T} of recoTracks", hDim.nBinPt , hDim.minPt , hDim.maxPt );
-    hEta_ = dqm->book1D("Eta", "#eta of recoTracks" , hDim.nBinEta, hDim.minEta, hDim.maxEta);
-    hPhi_ = dqm->book1D("Phi", "#phi of recoTracks" , hDim.nBinPhi, hDim.minPhi, hDim.maxPhi);
+    hP_   = ibooker.book1D("P"  , "p of recoTracks"    , hDim.nBinP  , hDim.minP  , hDim.maxP  );
+    hPt_  = ibooker.book1D("Pt" , "p_{T} of recoTracks", hDim.nBinPt , hDim.minPt , hDim.maxPt );
+    hEta_ = ibooker.book1D("Eta", "#eta of recoTracks" , hDim.nBinEta, hDim.minEta, hDim.maxEta);
+    hPhi_ = ibooker.book1D("Phi", "#phi of recoTracks" , hDim.nBinPhi, hDim.minPhi, hDim.maxPhi);
 
-    hSimP_   = dqm->book1D("SimP"  , "p of simTracks"    , hDim.nBinP  , hDim.minP  , hDim.maxP  );
-    hSimPt_  = dqm->book1D("SimPt" , "p_{T} of simTracks", hDim.nBinPt , hDim.minPt , hDim.maxPt );
-    hSimEta_ = dqm->book1D("SimEta", "#eta of simTracks" , hDim.nBinEta, hDim.minEta, hDim.maxEta);
-    hSimPhi_ = dqm->book1D("SimPhi", "#phi of simTracks" , hDim.nBinPhi, hDim.minPhi, hDim.maxPhi);
-    hSimDxy_ = dqm->book1D("SimDxy", "Dxy of simTracks" , hDim.nBinDxy, hDim.minDxy, hDim.maxDxy);
-    hSimDz_ = dqm->book1D("Dz", "Dz of simTracks" , hDim.nBinDz, hDim.minDz, hDim.maxDz);
+    hSimP_   = ibooker.book1D("SimP"  , "p of simTracks"    , hDim.nBinP  , hDim.minP  , hDim.maxP  );
+    hSimPt_  = ibooker.book1D("SimPt" , "p_{T} of simTracks", hDim.nBinPt , hDim.minPt , hDim.maxPt );
+    hSimEta_ = ibooker.book1D("SimEta", "#eta of simTracks" , hDim.nBinEta, hDim.minEta, hDim.maxEta);
+    hSimPhi_ = ibooker.book1D("SimPhi", "#phi of simTracks" , hDim.nBinPhi, hDim.minPhi, hDim.maxPhi);
+    hSimDxy_ = ibooker.book1D("SimDxy", "Dxy of simTracks" , hDim.nBinDxy, hDim.minDxy, hDim.maxDxy);
+    hSimDz_ = ibooker.book1D("Dz", "Dz of simTracks" , hDim.nBinDz, hDim.minDz, hDim.maxDz);
 
     //track multiplicities
-    hNSim_  = dqm->book1D("NSim" , "Number of particles per event", hDim.nTrks, -0.5, hDim.nTrks+0.5);
-    hNMuon_ = dqm->book1D("NMuon", "Number of muons per event"    , hDim.nTrks, -0.5, hDim.nTrks+0.5);
+    hNSim_  = ibooker.book1D("NSim" , "Number of particles per event", hDim.nTrks, -0.5, hDim.nTrks+0.5);
+    hNMuon_ = ibooker.book1D("NMuon", "Number of muons per event"    , hDim.nTrks, -0.5, hDim.nTrks+0.5);
 
     // - Misc. variables
-    hNTrks_ = dqm->book1D("NTrks", "Number of reco tracks per event", hDim.nTrks, -0.5, hDim.nTrks+0.5);
-    hNTrksEta_ = dqm->book1D("NTrksEta", "Number of reco tracks vs #eta", hDim.nBinEta, hDim.minEta, hDim.maxEta);
-    hNTrksPt_ = dqm->book1D("NTrksPt", "Number of reco tracks vs p_{T}", hDim.nBinPt, hDim.minPt, hDim.maxPt);
+    hNTrks_ = ibooker.book1D("NTrks", "Number of reco tracks per event", hDim.nTrks, -0.5, hDim.nTrks+0.5);
+    hNTrksEta_ = ibooker.book1D("NTrksEta", "Number of reco tracks vs #eta", hDim.nBinEta, hDim.minEta, hDim.maxEta);
+    hNTrksPt_ = ibooker.book1D("NTrksPt", "Number of reco tracks vs p_{T}", hDim.nBinPt, hDim.minPt, hDim.maxPt);
 
-    hMisQPt_  = dqm->book1D("MisQPt" , "Charge mis-id vs Pt" , hDim.nBinPt , hDim.minPt , hDim.maxPt );
-    hMisQEta_ = dqm->book1D("MisQEta", "Charge mis-id vs Eta", hDim.nBinEta, hDim.minEta, hDim.maxEta);
+    hMisQPt_  = ibooker.book1D("MisQPt" , "Charge mis-id vs Pt" , hDim.nBinPt , hDim.minPt , hDim.maxPt );
+    hMisQEta_ = ibooker.book1D("MisQEta", "Charge mis-id vs Eta", hDim.nBinEta, hDim.minEta, hDim.maxEta);
 
     // - Resolutions
-    hErrP_   = dqm->book1D("ErrP"  , "#Delta(p)/p"        , hDim.nBinErr, hDim.minErrP  , hDim.maxErrP  );
-    hErrPBarrel_   = dqm->book1D("ErrP_barrel"  , "#Delta(p)/p"        , hDim.nBinErr, hDim.minErrP  , hDim.maxErrP  );
-    hErrPOverlap_   = dqm->book1D("ErrP_overlap"  , "#Delta(p)/p"        , hDim.nBinErr, hDim.minErrP  , hDim.maxErrP  );
-    hErrPEndcap_   = dqm->book1D("ErrP_endcap"  , "#Delta(p)/p"        , hDim.nBinErr, hDim.minErrP  , hDim.maxErrP  );
-    hErrPt_  = dqm->book1D("ErrPt" , "#Delta(p_{T})/p_{T}", hDim.nBinErr, hDim.minErrPt , hDim.maxErrPt );
-    hErrPtBarrel_  = dqm->book1D("ErrPt_barrel" , "#Delta(p_{T})/p_{T}", hDim.nBinErr, hDim.minErrPt , hDim.maxErrPt );
-    hErrPtOverlap_  = dqm->book1D("ErrPt_overlap" , "#Delta(p_{T})/p_{T}", hDim.nBinErr, hDim.minErrPt , hDim.maxErrPt );
-    hErrPtEndcap_  = dqm->book1D("ErrPt_endcap" , "#Delta(p_{T})/p_{T}", hDim.nBinErr, hDim.minErrPt , hDim.maxErrPt );
-    hErrEta_ = dqm->book1D("ErrEta", "#sigma(#eta))"      , hDim.nBinErr, hDim.minErrEta, hDim.maxErrEta);
-    hErrPhi_ = dqm->book1D("ErrPhi", "#sigma(#phi)"       , hDim.nBinErr, hDim.minErrPhi, hDim.maxErrPhi);
-    hErrDxy_ = dqm->book1D("ErrDxy", "#sigma(d_{xy})"     , hDim.nBinErr, hDim.minErrDxy, hDim.maxErrDxy);
-    hErrDz_  = dqm->book1D("ErrDz" , "#sigma(d_{z})"      , hDim.nBinErr, hDim.minErrDz , hDim.maxErrDz );
+    hErrP_   = ibooker.book1D("ErrP"  , "#Delta(p)/p"        , hDim.nBinErr, hDim.minErrP  , hDim.maxErrP  );
+    hErrPBarrel_   = ibooker.book1D("ErrP_barrel"  , "#Delta(p)/p"        , hDim.nBinErr, hDim.minErrP  , hDim.maxErrP  );
+    hErrPOverlap_   = ibooker.book1D("ErrP_overlap"  , "#Delta(p)/p"        , hDim.nBinErr, hDim.minErrP  , hDim.maxErrP  );
+    hErrPEndcap_   = ibooker.book1D("ErrP_endcap"  , "#Delta(p)/p"        , hDim.nBinErr, hDim.minErrP  , hDim.maxErrP  );
+    hErrPt_  = ibooker.book1D("ErrPt" , "#Delta(p_{T})/p_{T}", hDim.nBinErr, hDim.minErrPt , hDim.maxErrPt );
+    hErrPtBarrel_  = ibooker.book1D("ErrPt_barrel" , "#Delta(p_{T})/p_{T}", hDim.nBinErr, hDim.minErrPt , hDim.maxErrPt );
+    hErrPtOverlap_  = ibooker.book1D("ErrPt_overlap" , "#Delta(p_{T})/p_{T}", hDim.nBinErr, hDim.minErrPt , hDim.maxErrPt );
+    hErrPtEndcap_  = ibooker.book1D("ErrPt_endcap" , "#Delta(p_{T})/p_{T}", hDim.nBinErr, hDim.minErrPt , hDim.maxErrPt );
+    hErrEta_ = ibooker.book1D("ErrEta", "#sigma(#eta))"      , hDim.nBinErr, hDim.minErrEta, hDim.maxErrEta);
+    hErrPhi_ = ibooker.book1D("ErrPhi", "#sigma(#phi)"       , hDim.nBinErr, hDim.minErrPhi, hDim.maxErrPhi);
+    hErrDxy_ = ibooker.book1D("ErrDxy", "#sigma(d_{xy})"     , hDim.nBinErr, hDim.minErrDxy, hDim.maxErrDxy);
+    hErrDz_  = ibooker.book1D("ErrDz" , "#sigma(d_{z})"      , hDim.nBinErr, hDim.minErrDz , hDim.maxErrDz );
 
     //PF-RECO comparisons
     if (usePFMuon_) {
-      hErrPt_PF_  = dqm->book1D("ErrPt_PF" , "#Delta(p_{T})|_{PF}/p_{T}", hDim.nBinErr, hDim.minErrPt, hDim.maxErrPt );
-      hErrQPt_PF_  = dqm->book1D("ErrQPt_PF" , "#Delta(q/p_{T})|_{PF}/(q/p_{T})", hDim.nBinErr, hDim.minErrQPt, hDim.maxErrQPt);
+      hErrPt_PF_  = ibooker.book1D("ErrPt_PF" , "#Delta(p_{T})|_{PF}/p_{T}", hDim.nBinErr, hDim.minErrPt, hDim.maxErrPt );
+      hErrQPt_PF_  = ibooker.book1D("ErrQPt_PF" , "#Delta(q/p_{T})|_{PF}/(q/p_{T})", hDim.nBinErr, hDim.minErrQPt, hDim.maxErrQPt);
       
-      hPFMomAssCorrectness  = dqm->book1D("hPFMomAssCorrectness", "Corrected momentum assignement PF/RECO",2,0.5,2.5);
-      hPt_vs_PFMomAssCorrectness  = dqm->book2D("hPt_vs_PFMomAssCorrectness", "Corrected momentum assignement PF/RECO", hDim.nBinPt, hDim.minPt, hDim.maxP, 2, 0.5, 2.5);
+      hPFMomAssCorrectness  = ibooker.book1D("hPFMomAssCorrectness", "Corrected momentum assignement PF/RECO",2,0.5,2.5);
+      hPt_vs_PFMomAssCorrectness  = ibooker.book2D("hPt_vs_PFMomAssCorrectness", "Corrected momentum assignement PF/RECO", hDim.nBinPt, hDim.minPt, hDim.maxP, 2, 0.5, 2.5);
       
-      hdPt_vs_Pt_  = dqm->book2D("dPt_vs_Pt", "#Delta(p_{T}) vs p_{T}", hDim.nBinPt, hDim.minPt, hDim.maxPt, hDim.nBinErr, hDim.minErrPt, hDim.maxErrPt);
-      hdPt_vs_Eta_  = dqm->book2D("dPt_vs_Eta", "#Delta(p_{T}) vs #eta", hDim.nBinEta, hDim.minEta, hDim.maxEta, hDim.nBinErr, hDim.minErrPt, hDim.maxErrPt);
+      hdPt_vs_Pt_  = ibooker.book2D("dPt_vs_Pt", "#Delta(p_{T}) vs p_{T}", hDim.nBinPt, hDim.minPt, hDim.maxPt, hDim.nBinErr, hDim.minErrPt, hDim.maxErrPt);
+      hdPt_vs_Eta_  = ibooker.book2D("dPt_vs_Eta", "#Delta(p_{T}) vs #eta", hDim.nBinEta, hDim.minEta, hDim.maxEta, hDim.nBinErr, hDim.minErrPt, hDim.maxErrPt);
     }
 
     // -- Resolutions vs Eta
-    hErrP_vs_Eta_   = dqm->book2D("ErrP_vs_Eta", "#Delta(p)/p vs #eta",
+    hErrP_vs_Eta_   = ibooker.book2D("ErrP_vs_Eta", "#Delta(p)/p vs #eta",
                                   hDim.nBinEta, hDim.minEta, hDim.maxEta, hDim.nBinErr, hDim.minErrP, hDim.maxErrP);
-    hErrPt_vs_Eta_  = dqm->book2D("ErrPt_vs_Eta", "#Delta(p_{T})/p_{T} vs #eta",
+    hErrPt_vs_Eta_  = ibooker.book2D("ErrPt_vs_Eta", "#Delta(p_{T})/p_{T} vs #eta",
                                   hDim.nBinEta, hDim.minEta, hDim.maxEta, hDim.nBinErr, hDim.minErrPt, hDim.maxErrPt);
-    hErrQPt_vs_Eta_ = dqm->book2D("ErrQPt_vs_Eta", "#Delta(q/p_{T})/(q/p_{T}) vs #eta",
+    hErrQPt_vs_Eta_ = ibooker.book2D("ErrQPt_vs_Eta", "#Delta(q/p_{T})/(q/p_{T}) vs #eta",
                                   hDim.nBinEta, hDim.minEta, hDim.maxEta, hDim.nBinErr, hDim.minErrQPt, hDim.maxErrQPt);
-    hErrEta_vs_Eta_ = dqm->book2D("ErrEta_vs_Eta", "#sigma(#eta) vs #eta",
+    hErrEta_vs_Eta_ = ibooker.book2D("ErrEta_vs_Eta", "#sigma(#eta) vs #eta",
                                   hDim.nBinEta, hDim.minEta, hDim.maxEta, hDim.nBinErr, hDim.minErrEta, hDim.maxErrEta);
 
     // -- Resolutions vs momentum
-    hErrP_vs_P_    = dqm->book2D("ErrP_vs_P", "#Delta(p)/p vs p",
+    hErrP_vs_P_    = ibooker.book2D("ErrP_vs_P", "#Delta(p)/p vs p",
                                  hDim.nBinP, hDim.minP, hDim.maxP, hDim.nBinErr, hDim.minErrP, hDim.maxErrP);
-    hErrPt_vs_Pt_  = dqm->book2D("ErrPt_vs_Pt", "#Delta(p_{T})/p_{T} vs p_{T}",
+    hErrPt_vs_Pt_  = ibooker.book2D("ErrPt_vs_Pt", "#Delta(p_{T})/p_{T} vs p_{T}",
                                  hDim.nBinPt, hDim.minPt, hDim.maxPt, hDim.nBinErr, hDim.minErrPt, hDim.maxErrPt);
-    hErrQPt_vs_Pt_ = dqm->book2D("ErrQPt_vs_Pt", "#Delta(q/p_{T})/(q/p_{T}) vs p_{T}",
+    hErrQPt_vs_Pt_ = ibooker.book2D("ErrQPt_vs_Pt", "#Delta(q/p_{T})/(q/p_{T}) vs p_{T}",
                                  hDim.nBinPt, hDim.minPt, hDim.maxPt, hDim.nBinErr, hDim.minErrQPt, hDim.maxErrQPt);
 
     // - Pulls
-    hPullPt_  = dqm->book1D("PullPt" , "Pull(#p_{T})" , hDim.nBinPull, -hDim.wPull, hDim.wPull);
-    hPullEta_ = dqm->book1D("PullEta", "Pull(#eta)"   , hDim.nBinPull, -hDim.wPull, hDim.wPull);
-    hPullPhi_ = dqm->book1D("PullPhi", "Pull(#phi)"   , hDim.nBinPull, -hDim.wPull, hDim.wPull);
-    hPullQPt_ = dqm->book1D("PullQPt", "Pull(q/p_{T})", hDim.nBinPull, -hDim.wPull, hDim.wPull);
-    hPullDxy_ = dqm->book1D("PullDxy", "Pull(D_{xy})" , hDim.nBinPull, -hDim.wPull, hDim.wPull);
-    hPullDz_  = dqm->book1D("PullDz" , "Pull(D_{z})"  , hDim.nBinPull, -hDim.wPull, hDim.wPull);
+    hPullPt_  = ibooker.book1D("PullPt" , "Pull(#p_{T})" , hDim.nBinPull, -hDim.wPull, hDim.wPull);
+    hPullEta_ = ibooker.book1D("PullEta", "Pull(#eta)"   , hDim.nBinPull, -hDim.wPull, hDim.wPull);
+    hPullPhi_ = ibooker.book1D("PullPhi", "Pull(#phi)"   , hDim.nBinPull, -hDim.wPull, hDim.wPull);
+    hPullQPt_ = ibooker.book1D("PullQPt", "Pull(q/p_{T})", hDim.nBinPull, -hDim.wPull, hDim.wPull);
+    hPullDxy_ = ibooker.book1D("PullDxy", "Pull(D_{xy})" , hDim.nBinPull, -hDim.wPull, hDim.wPull);
+    hPullDz_  = ibooker.book1D("PullDz" , "Pull(D_{z})"  , hDim.nBinPull, -hDim.wPull, hDim.wPull);
 
     // -- Pulls vs Eta
-    hPullPt_vs_Eta_  = dqm->book2D("PullPt_vs_Eta", "Pull(p_{T}) vs #eta",
+    hPullPt_vs_Eta_  = ibooker.book2D("PullPt_vs_Eta", "Pull(p_{T}) vs #eta",
                                    hDim.nBinEta, hDim.minEta, hDim.maxEta, hDim.nBinPull, -hDim.wPull, hDim.wPull);
-    hPullEta_vs_Eta_ = dqm->book2D("PullEta_vs_Eta", "Pull(#eta) vs #eta",
+    hPullEta_vs_Eta_ = ibooker.book2D("PullEta_vs_Eta", "Pull(#eta) vs #eta",
                                    hDim.nBinEta, hDim.minEta, hDim.maxEta, hDim.nBinPull, -hDim.wPull, hDim.wPull);
-    hPullPhi_vs_Eta_ = dqm->book2D("PullPhi_vs_Eta", "Pull(#phi) vs #eta",
+    hPullPhi_vs_Eta_ = ibooker.book2D("PullPhi_vs_Eta", "Pull(#phi) vs #eta",
                                    hDim.nBinEta, hDim.minEta, hDim.maxEta, hDim.nBinPull, -hDim.wPull, hDim.wPull);
 
     // -- Pulls vs Pt
-    hPullPt_vs_Pt_ = dqm->book2D("PullPt_vs_Pt", "Pull(p_{T}) vs p_{T}",
+    hPullPt_vs_Pt_ = ibooker.book2D("PullPt_vs_Pt", "Pull(p_{T}) vs p_{T}",
                                  hDim.nBinPt, hDim.minPt, hDim.maxPt, hDim.nBinPull, -hDim.wPull, hDim.wPull);
-    hPullEta_vs_Pt_ = dqm->book2D("PullEta_vs_Pt", "Pull(#eta) vs p_{T}",
+    hPullEta_vs_Pt_ = ibooker.book2D("PullEta_vs_Pt", "Pull(#eta) vs p_{T}",
                                   hDim.nBinPt, hDim.minPt, hDim.maxPt, hDim.nBinPull, -hDim.wPull, hDim.wPull);
 
     // -- Number of Hits
     const int nHits = 100;
-    hNHits_ = dqm->book1D("NHits", "Number of hits", nHits+1, -0.5, nHits+0.5);
-    hNHits_vs_Pt_  = dqm->book2D("NHits_vs_Pt", "Number of hits vs p_{T}",
+    hNHits_ = ibooker.book1D("NHits", "Number of hits", nHits+1, -0.5, nHits+0.5);
+    hNHits_vs_Pt_  = ibooker.book2D("NHits_vs_Pt", "Number of hits vs p_{T}",
                                  hDim.nBinPt, hDim.minPt, hDim.maxPt, nHits/4+1, -0.25, nHits+0.25);
-    hNHits_vs_Eta_ = dqm->book2D("NHits_vs_Eta", "Number of hits vs #eta",
+    hNHits_vs_Eta_ = ibooker.book2D("NHits_vs_Eta", "Number of hits vs #eta",
                                  hDim.nBinEta, hDim.minEta, hDim.maxEta, nHits/4+1, -0.25, nHits+0.25);
-    hNSimHits_ = dqm->book1D("NSimHits", "Number of simHits", nHits+1, -0.5, nHits+0.5);
+    hNSimHits_ = ibooker.book1D("NSimHits", "Number of simHits", nHits+1, -0.5, nHits+0.5);
 
     const int nLostHits = 5;
-    hNLostHits_ = dqm->book1D("NLostHits", "Number of Lost hits", nLostHits+1, -0.5, nLostHits+0.5);
-    hNLostHits_vs_Pt_  = dqm->book2D("NLostHits_vs_Pt", "Number of lost Hits vs p_{T}",
+    hNLostHits_ = ibooker.book1D("NLostHits", "Number of Lost hits", nLostHits+1, -0.5, nLostHits+0.5);
+    hNLostHits_vs_Pt_  = ibooker.book2D("NLostHits_vs_Pt", "Number of lost Hits vs p_{T}",
                                      hDim.nBinPt, hDim.minPt, hDim.maxPt, nLostHits+1, -0.5, nLostHits+0.5);
-    hNLostHits_vs_Eta_ = dqm->book2D("NLostHits_vs_Eta", "Number of lost Hits vs #eta",
+    hNLostHits_vs_Eta_ = ibooker.book2D("NLostHits_vs_Eta", "Number of lost Hits vs #eta",
                                      hDim.nBinEta, hDim.minEta, hDim.maxEta, nLostHits+1, -0.5, nLostHits+0.5);
 
     const int nTrackerHits = 40;
-    hNTrackerHits_ = dqm->book1D("NTrackerHits", "Number of valid tracker hits", nTrackerHits+1, -0.5, nTrackerHits+0.5);
-    hNTrackerHits_vs_Pt_ = dqm->book2D("NTrackerHits_vs_Pt", "Number of valid traker hits vs p_{T}",
+    hNTrackerHits_ = ibooker.book1D("NTrackerHits", "Number of valid tracker hits", nTrackerHits+1, -0.5, nTrackerHits+0.5);
+    hNTrackerHits_vs_Pt_ = ibooker.book2D("NTrackerHits_vs_Pt", "Number of valid traker hits vs p_{T}",
                                        hDim.nBinPt, hDim.minPt, hDim.maxPt, nTrackerHits/4+1, -0.25, nTrackerHits+0.25);
-    hNTrackerHits_vs_Eta_ = dqm->book2D("NTrackerHits_vs_Eta", "Number of valid tracker hits vs #eta",
+    hNTrackerHits_vs_Eta_ = ibooker.book2D("NTrackerHits_vs_Eta", "Number of valid tracker hits vs #eta",
                                         hDim.nBinEta, hDim.minEta, hDim.maxEta, nTrackerHits/4+1, -0.25, nTrackerHits+0.25);
 
     const int nMuonHits = 60;
-    hNMuonHits_ = dqm->book1D("NMuonHits", "Number of valid muon hits", nMuonHits+1, -0.5, nMuonHits+0.5);
-    hNMuonHits_vs_Pt_  = dqm->book2D("NMuonHits_vs_Pt", "Number of valid muon hits vs p_{T}",
+    hNMuonHits_ = ibooker.book1D("NMuonHits", "Number of valid muon hits", nMuonHits+1, -0.5, nMuonHits+0.5);
+    hNMuonHits_vs_Pt_  = ibooker.book2D("NMuonHits_vs_Pt", "Number of valid muon hits vs p_{T}",
                                      hDim.nBinPt, hDim.minPt, hDim.maxPt, nMuonHits/4+1, -0.25, nMuonHits+0.25);
-    hNMuonHits_vs_Eta_ = dqm->book2D("NMuonHits_vs_Eta", "Number of valid muon hits vs #eta",
+    hNMuonHits_vs_Eta_ = ibooker.book2D("NMuonHits_vs_Eta", "Number of valid muon hits vs #eta",
                                      hDim.nBinEta, hDim.minEta, hDim.maxEta, nMuonHits/4+1, -0.25, nMuonHits+0.25);
 
-    hNDof_ = dqm->book1D("NDof", "Number of DoF", hDim.nDof+1, -0.5, hDim.nDof+0.5);
-    hChi2_ = dqm->book1D("Chi2", "#Chi^{2}", hDim.nBinErr, 0, 200);
-    hChi2Norm_ = dqm->book1D("Chi2Norm", "Normalized #Chi^{2}", hDim.nBinErr, 0, 50);
-    hChi2Prob_ = dqm->book1D("Chi2Prob", "Prob(#Chi^{2})", hDim.nBinErr, 0, 1);
+    hNDof_ = ibooker.book1D("NDof", "Number of DoF", hDim.nDof+1, -0.5, hDim.nDof+0.5);
+    hChi2_ = ibooker.book1D("Chi2", "#Chi^{2}", hDim.nBinErr, 0, 200);
+    hChi2Norm_ = ibooker.book1D("Chi2Norm", "Normalized #Chi^{2}", hDim.nBinErr, 0, 50);
+    hChi2Prob_ = ibooker.book1D("Chi2Prob", "Prob(#Chi^{2})", hDim.nBinErr, 0, 1);
 
-    hNDof_vs_Eta_ = dqm->book2D("NDof_vs_Eta", "Number of DoF vs #eta",
+    hNDof_vs_Eta_ = ibooker.book2D("NDof_vs_Eta", "Number of DoF vs #eta",
 				hDim.nBinEta, hDim.minEta, hDim.maxEta, hDim.nDof+1, -0.5, hDim.nDof+0.5);
-    hChi2_vs_Eta_ = dqm->book2D("Chi2_vs_Eta", "#Chi^{2} vs #eta",
+    hChi2_vs_Eta_ = ibooker.book2D("Chi2_vs_Eta", "#Chi^{2} vs #eta",
                                 hDim.nBinEta, hDim.minEta, hDim.maxEta, hDim.nBinErr, 0., 200.);
-    hChi2Norm_vs_Eta_ = dqm->book2D("Chi2Norm_vs_Eta", "Normalized #Chi^{2} vs #eta",
+    hChi2Norm_vs_Eta_ = ibooker.book2D("Chi2Norm_vs_Eta", "Normalized #Chi^{2} vs #eta",
                                     hDim.nBinEta, hDim.minEta, hDim.maxEta, hDim.nBinErr, 0., 50.);
-    hChi2Prob_vs_Eta_ = dqm->book2D("Chi2Prob_vs_Eta", "Prob(#Chi^{2}) vs #eta",
+    hChi2Prob_vs_Eta_ = ibooker.book2D("Chi2Prob_vs_Eta", "Prob(#Chi^{2}) vs #eta",
                                     hDim.nBinEta, hDim.minEta, hDim.maxEta, hDim.nBinErr, 0., 1.);
 
-    hNSimToReco_ = dqm->book1D("NSimToReco", "Number of associated reco tracks", hDim.nAssoc+1, -0.5, hDim.nAssoc+0.5);
-    hNRecoToSim_ = dqm->book1D("NRecoToSim", "Number of associated sim TP's", hDim.nAssoc+1, -0.5, hDim.nAssoc+0.5);
+    hNSimToReco_ = ibooker.book1D("NSimToReco", "Number of associated reco tracks", hDim.nAssoc+1, -0.5, hDim.nAssoc+0.5);
+    hNRecoToSim_ = ibooker.book1D("NRecoToSim", "Number of associated sim TP's", hDim.nAssoc+1, -0.5, hDim.nAssoc+0.5);
 
   };
 
@@ -459,10 +416,10 @@ struct RecoMuonValidator::CommonME {
 //
 //Constructor
 //
-RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset):
+RecoMuonValidator::RecoMuonValidator(const edm::ParameterSet& pset):
     selector_(pset.getParameter<std::string>("selection"))
 {
-
+//  pset=ps;
   verbose_ = pset.getUntrackedParameter<unsigned int>("verbose", 0);
 
   outputFileName_ = pset.getUntrackedParameter<string>("outputFileName", "");
@@ -474,7 +431,7 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset):
   primvertexToken_ = consumes<reco::VertexCollection>(primvertexLabel_);
 
  // Set histogram dimensions from config
-  HistoDimensions hDim;
+
   
   hDim.nBinP = pset.getUntrackedParameter<unsigned int>("nBinP");
   hDim.minP = pset.getUntrackedParameter<double>("minP");
@@ -579,22 +536,25 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset):
   theMuonService = new MuonServiceProxy(serviceParameters);
 
   // retrieve the instance of DQMService
-  theDQM = 0;
-  theDQM = Service<DQMStore>().operator->();
-
-  if ( ! theDQM ) {
-    LogError("RecoMuonValidator") << "DQMService not initialized\n";
-    return;
-  }
+  dbe_ = Service<DQMStore>().operator->();
+  subsystemname_ = pset.getUntrackedParameter<std::string>("subSystemFolder", "YourSubsystem") ;
 
   subDir_ = pset.getUntrackedParameter<string>("subDir");
   if ( subDir_.empty() ) subDir_ = "RecoMuonV";
   if ( subDir_[subDir_.size()-1] == '/' ) subDir_.erase(subDir_.size()-1);
 
-  // book histograms
-  theDQM->cd();
 
-  theDQM->setCurrentFolder(subDir_);
+}
+
+void RecoMuonValidator::bookHistograms(DQMStore::IBooker & ibooker,
+                                  edm::Run const & iRun,
+                                  edm::EventSetup const & /* iSetup */){
+
+
+  // book histograms
+  ibooker.cd();
+
+  ibooker.setCurrentFolder(subDir_);
 
   commonME_ = new CommonME;
   muonME_  = new MuonME;
@@ -603,44 +563,41 @@ RecoMuonValidator::RecoMuonValidator(const ParameterSet& pset):
   const int nHits = 100;
 
   // - diffs
-  commonME_->hTrkToGlbDiffNTrackerHits_ = theDQM->book1D("TrkGlbDiffNTrackerHits", "Difference of number of tracker hits (tkMuon - globalMuon)", 2*nHits+1, -nHits-0.5, nHits+0.5);
-  commonME_->hStaToGlbDiffNMuonHits_ = theDQM->book1D("StaGlbDiffNMuonHits", "Difference of number of muon hits (staMuon - globalMuon)", 2*nHits+1, -nHits-0.5, nHits+0.5);
+  commonME_->hTrkToGlbDiffNTrackerHits_ = ibooker.book1D("TrkGlbDiffNTrackerHits", "Difference of number of tracker hits (tkMuon - globalMuon)", 2*nHits+1, -nHits-0.5, nHits+0.5);
+  commonME_->hStaToGlbDiffNMuonHits_ = ibooker.book1D("StaGlbDiffNMuonHits", "Difference of number of muon hits (staMuon - globalMuon)", 2*nHits+1, -nHits-0.5, nHits+0.5);
 
-  commonME_->hTrkToGlbDiffNTrackerHitsEta_ = theDQM->book2D("TrkGlbDiffNTrackerHitsEta", "Difference of number of tracker hits (tkMuon - globalMuon)", hDim.nBinEta, hDim.minEta, hDim.maxEta,2*nHits+1, -nHits-0.5, nHits+0.5);
-  commonME_->hStaToGlbDiffNMuonHitsEta_ = theDQM->book2D("StaGlbDiffNMuonHitsEta", "Difference of number of muon hits (staMuon - globalMuon)", hDim.nBinEta, hDim.minEta, hDim.maxEta,2*nHits+1, -nHits-0.5, nHits+0.5);
+  commonME_->hTrkToGlbDiffNTrackerHitsEta_ = ibooker.book2D("TrkGlbDiffNTrackerHitsEta", "Difference of number of tracker hits (tkMuon - globalMuon)", hDim.nBinEta, hDim.minEta, hDim.maxEta,2*nHits+1, -nHits-0.5, nHits+0.5);
+  commonME_->hStaToGlbDiffNMuonHitsEta_ = ibooker.book2D("StaGlbDiffNMuonHitsEta", "Difference of number of muon hits (staMuon - globalMuon)", hDim.nBinEta, hDim.minEta, hDim.maxEta,2*nHits+1, -nHits-0.5, nHits+0.5);
 
-  commonME_->hTrkToGlbDiffNTrackerHitsPt_ = theDQM->book2D("TrkGlbDiffNTrackerHitsPt", "Difference of number of tracker hits (tkMuon - globalMuon)", hDim.nBinPt, hDim.minPt, hDim.maxPt,2*nHits+1, -nHits-0.5, nHits+0.5);
-  commonME_->hStaToGlbDiffNMuonHitsPt_ = theDQM->book2D("StaGlbDiffNMuonHitsPt", "Difference of number of muon hits (staMuon - globalMuon)", hDim.nBinPt, hDim.minPt, hDim.maxPt,2*nHits+1, -nHits-0.5, nHits+0.5);
+  commonME_->hTrkToGlbDiffNTrackerHitsPt_ = ibooker.book2D("TrkGlbDiffNTrackerHitsPt", "Difference of number of tracker hits (tkMuon - globalMuon)", hDim.nBinPt, hDim.minPt, hDim.maxPt,2*nHits+1, -nHits-0.5, nHits+0.5);
+  commonME_->hStaToGlbDiffNMuonHitsPt_ = ibooker.book2D("StaGlbDiffNMuonHitsPt", "Difference of number of muon hits (staMuon - globalMuon)", hDim.nBinPt, hDim.minPt, hDim.maxPt,2*nHits+1, -nHits-0.5, nHits+0.5);
 
   // -global muon hit pattern
-  commonME_->hNInvalidHitsGTHitPattern_ = theDQM->book1D("NInvalidHitsGTHitPattern", "Number of invalid hits on a global track", nHits+1, -0.5, nHits+0.5);
-  commonME_->hNInvalidHitsITHitPattern_ = theDQM->book1D("NInvalidHitsITHitPattern", "Number of invalid hits on an inner track", nHits+1, -0.5, nHits+0.5);
-  commonME_->hNInvalidHitsOTHitPattern_ = theDQM->book1D("NInvalidHitsOTHitPattern", "Number of invalid hits on an outer track", nHits+1, -0.5, nHits+0.5);
-  commonME_->hNDeltaInvalidHitsHitPattern_ = theDQM->book1D("hNDeltaInvalidHitsHitPattern", "The discrepancy for Number of invalid hits on an global track and inner and outer tracks", 2*nHits+1, -nHits-0.5, nHits+0.5);
+  commonME_->hNInvalidHitsGTHitPattern_ = ibooker.book1D("NInvalidHitsGTHitPattern", "Number of invalid hits on a global track", nHits+1, -0.5, nHits+0.5);
+  commonME_->hNInvalidHitsITHitPattern_ = ibooker.book1D("NInvalidHitsITHitPattern", "Number of invalid hits on an inner track", nHits+1, -0.5, nHits+0.5);
+  commonME_->hNInvalidHitsOTHitPattern_ = ibooker.book1D("NInvalidHitsOTHitPattern", "Number of invalid hits on an outer track", nHits+1, -0.5, nHits+0.5);
+  commonME_->hNDeltaInvalidHitsHitPattern_ = ibooker.book1D("hNDeltaInvalidHitsHitPattern", "The discrepancy for Number of invalid hits on an global track and inner and outer tracks", 2*nHits+1, -nHits-0.5, nHits+0.5);
 
   //muon based kinematics
-  commonME_->hMuonP_   = theDQM->book1D("PMuon"  , "p of muon"    , hDim.nBinP  , hDim.minP  , hDim.maxP  );
-  commonME_->hMuonPt_  = theDQM->book1D("PtMuon" , "p_{T} of muon", hDim.nBinPt , hDim.minPt , hDim.maxPt );
-  commonME_->hMuonEta_ = theDQM->book1D("EtaMuon", "#eta of muon" , hDim.nBinEta, hDim.minEta, hDim.maxEta);
-  commonME_->hMuonPhi_ = theDQM->book1D("PhiMuon", "#phi of muon" , hDim.nBinPhi, hDim.minPhi, hDim.maxPhi);
+  commonME_->hMuonP_   = ibooker.book1D("PMuon"  , "p of muon"    , hDim.nBinP  , hDim.minP  , hDim.maxP  );
+  commonME_->hMuonPt_  = ibooker.book1D("PtMuon" , "p_{T} of muon", hDim.nBinPt , hDim.minPt , hDim.maxPt );
+  commonME_->hMuonEta_ = ibooker.book1D("EtaMuon", "#eta of muon" , hDim.nBinEta, hDim.minEta, hDim.maxEta);
+  commonME_->hMuonPhi_ = ibooker.book1D("PhiMuon", "#phi of muon" , hDim.nBinPhi, hDim.minPhi, hDim.maxPhi);
   //track based kinematics
-  commonME_->hMuonTrackP_   = theDQM->book1D("PMuonTrack"  , "p of reco muon track"    , hDim.nBinP  , hDim.minP  , hDim.maxP  );
-  commonME_->hMuonTrackPt_  = theDQM->book1D("PtMuonTrack" , "p_{T} of reco muon track", hDim.nBinPt , hDim.minPt , hDim.maxPt );
-  commonME_->hMuonTrackEta_ = theDQM->book1D("EtaMuonTrack", "#eta of reco muon track" , hDim.nBinEta, hDim.minEta, hDim.maxEta);
-  commonME_->hMuonTrackPhi_ = theDQM->book1D("PhiMuonTrack", "#phi of reco muon track" , hDim.nBinPhi, hDim.minPhi, hDim.maxPhi);
-  commonME_->hMuonTrackDxy_ = theDQM->book1D("DxyMuonTrack", "Dxy of reco muon track" , hDim.nBinDxy, hDim.minDxy, hDim.maxDxy);
-  commonME_->hMuonTrackDz_ = theDQM->book1D("DzMuonTrack", "Dz of reco muon track" , hDim.nBinDz, hDim.minDz, hDim.maxDz);
+  commonME_->hMuonTrackP_   = ibooker.book1D("PMuonTrack"  , "p of reco muon track"    , hDim.nBinP  , hDim.minP  , hDim.maxP  );
+  commonME_->hMuonTrackPt_  = ibooker.book1D("PtMuonTrack" , "p_{T} of reco muon track", hDim.nBinPt , hDim.minPt , hDim.maxPt );
+  commonME_->hMuonTrackEta_ = ibooker.book1D("EtaMuonTrack", "#eta of reco muon track" , hDim.nBinEta, hDim.minEta, hDim.maxEta);
+  commonME_->hMuonTrackPhi_ = ibooker.book1D("PhiMuonTrack", "#phi of reco muon track" , hDim.nBinPhi, hDim.minPhi, hDim.maxPhi);
+  commonME_->hMuonTrackDxy_ = ibooker.book1D("DxyMuonTrack", "Dxy of reco muon track" , hDim.nBinDxy, hDim.minDxy, hDim.maxDxy);
+  commonME_->hMuonTrackDz_ = ibooker.book1D("DzMuonTrack", "Dz of reco muon track" , hDim.nBinDz, hDim.minDz, hDim.maxDz);
 
   //histograms for fractions
-  commonME_->hMuonAllP_   = theDQM->book1D("PMuonAll"  , "p of muons of all types"    , hDim.nBinP  , hDim.minP  , hDim.maxP  );
-  commonME_->hMuonAllPt_  = theDQM->book1D("PtMuonAll" , "p_{T} of muon of all types", hDim.nBinPt , hDim.minPt , hDim.maxPt );
-  commonME_->hMuonAllEta_ = theDQM->book1D("EtaMuonAll", "#eta of muon of all types" , hDim.nBinEta, hDim.minEta, hDim.maxEta);
-  commonME_->hMuonAllPhi_ = theDQM->book1D("PhiMuonAll", "#phi of muon of all types" , hDim.nBinPhi, hDim.minPhi, hDim.maxPhi);
+  commonME_->hMuonAllP_   = ibooker.book1D("PMuonAll"  , "p of muons of all types"    , hDim.nBinP  , hDim.minP  , hDim.maxP  );
+  commonME_->hMuonAllPt_  = ibooker.book1D("PtMuonAll" , "p_{T} of muon of all types", hDim.nBinPt , hDim.minPt , hDim.maxPt );
+  commonME_->hMuonAllEta_ = ibooker.book1D("EtaMuonAll", "#eta of muon of all types" , hDim.nBinEta, hDim.minEta, hDim.maxEta);
+  commonME_->hMuonAllPhi_ = ibooker.book1D("PhiMuonAll", "#phi of muon of all types" , hDim.nBinPhi, hDim.minPhi, hDim.maxPhi);
 
-  muonME_->bookHistograms(theDQM, subDir_, hDim);
-
-  if ( verbose_ > 0 ) theDQM->showDirStructure();
-
+  muonME_->bookHistos(ibooker, subDir_, hDim);
 }
 
 //
@@ -655,7 +612,7 @@ RecoMuonValidator::~RecoMuonValidator()
 //Begin run
 //
 
-void RecoMuonValidator::beginRun(const edm::Run& , const EventSetup& eventSetup)
+void RecoMuonValidator::dqmBeginRun(const edm::Run& , const EventSetup& eventSetup)
 {
   if ( theMuonService ) theMuonService->update(eventSetup);
 
@@ -673,7 +630,7 @@ void RecoMuonValidator::beginRun(const edm::Run& , const EventSetup& eventSetup)
 //
 void RecoMuonValidator::endRun()
 {
-  if ( theDQM && ! outputFileName_.empty() ) theDQM->save(outputFileName_);
+  if ( dbe_ && ! outputFileName_.empty() ) dbe_->save(outputFileName_);
 }
 
 //
@@ -681,11 +638,6 @@ void RecoMuonValidator::endRun()
 //
 void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup)
 {
-  if ( ! theDQM ) {
-    LogError("RecoMuonValidator") << "DQMService not initialized\n";
-    return;
-  }
-
   // Look for the Primary Vertex (and use the BeamSpot instead, if you can't find it):
   reco::Vertex::Point posVtx;
   reco::Vertex::Error errVtx;

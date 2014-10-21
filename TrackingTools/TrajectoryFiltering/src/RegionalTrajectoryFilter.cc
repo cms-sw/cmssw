@@ -1,6 +1,6 @@
 #include "TrackingTools/TrajectoryFiltering/interface/RegionalTrajectoryFilter.h"
 
-RegionalTrajectoryFilter::RegionalTrajectoryFilter (const edm::ParameterSet &  pset) :thePtFilter(0){}
+RegionalTrajectoryFilter::RegionalTrajectoryFilter (const edm::ParameterSet &  pset, edm::ConsumesCollector& iC) :thePtFilter(0){}
 RegionalTrajectoryFilter::RegionalTrajectoryFilter( const TrackingRegion& region): thePtFilter(region.ptMin()) {}
     
 bool RegionalTrajectoryFilter::qualityFilter(const TempTrajectory& traj) const { return true;}

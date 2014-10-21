@@ -78,7 +78,6 @@ namespace edm {
                                                               "",
                                                               outputModulePathPositions,
                                                               parentProductRegistry->anyProductProduced());
-        
     selectProducts(*parentProductRegistry);
 
     std::string const maxEvents("maxEvents");
@@ -106,7 +105,7 @@ namespace edm {
 
     boost::shared_ptr<ParameterSet> subProcessParameterSet(popSubProcessParameterSet(*processParameterSet_).release());
   
-    ScheduleItems items(*parentProductRegistry, *parentBranchIDListHelper, *this);
+    ScheduleItems items(*parentProductRegistry, *this);
 
     ParameterSet const& optionsPset(processParameterSet_->getUntrackedParameterSet("options", ParameterSet()));
     IllegalParameters::setThrowAnException(optionsPset.getUntrackedParameter<bool>("throwIfIllegalParameter", true));
@@ -131,6 +130,9 @@ namespace edm {
     // intialize the event setup provider
     esp_ = esController.makeProvider(*processParameterSet_);
 
+    branchIDListHelper_ = items.branchIDListHelper_;
+    updateBranchIDListHelper(parentBranchIDListHelper->branchIDLists());
+
     // intialize the Schedule
     schedule_ = items.initSchedule(*processParameterSet_,subProcessParameterSet.get(),preallocConfig,&processContext_);
 
@@ -141,7 +143,8 @@ namespace edm {
     // the reducedProcessHistoryID from a full ProcessHistoryID that registry will not be in use by
     // another thread. We really need to change how this is done in the PrincipalCache.
     principalCache_.setProcessHistoryRegistry(processHistoryRegistries_[historyRunOffset_]);
-    branchIDListHelper_ = items.branchIDListHelper_;
+
+
     processConfiguration_ = items.processConfiguration_;
     processContext_.setProcessConfiguration(processConfiguration_.get());
     processContext_.setParentProcessContext(parentProcessContext);
@@ -307,6 +310,7 @@ namespace edm {
     auto & processHistoryRegistry = processHistoryRegistries_[principal.streamID().value()];
     processHistoryRegistry.registerProcessHistory(principal.processHistory());
     BranchListIndexes bli(principal.branchListIndexes());
+    branchIDListHelper_->fixBranchListIndexes(bli);
     ep.fillEventPrincipal(aux,
                           processHistoryRegistry,
                           std::move(esids),
@@ -526,11 +530,17 @@ namespace edm {
     }
   }
 
+  void SubProcess::updateBranchIDListHelper(BranchIDLists const& branchIDLists) {
+    branchIDListHelper_->updateFromParent(branchIDLists);
+    if(subProcess_.get()) {
+      subProcess_->updateBranchIDListHelper(branchIDListHelper_->branchIDLists());
+    }
+  }
+
   // Call respondToOpenInputFile() on all Modules
   void
   SubProcess::respondToOpenInputFile(FileBlock const& fb) {
     ServiceRegistry::Operate operate(serviceToken_);
-    branchIDListHelper_->updateFromInput(fb.branchIDLists());
     schedule_->respondToOpenInputFile(fb);
     if(subProcess_.get()) subProcess_->respondToOpenInputFile(fb);
   }

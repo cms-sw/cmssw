@@ -7,6 +7,8 @@
 POOL object to store HcalChannelStatus
 */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
 
@@ -23,6 +25,8 @@ class HcalChannelQuality: public HcalCondObjectContainer<HcalChannelStatus>
   std::string myname() const {return (std::string)"HcalChannelQuality";}
 
  private:
+
+ COND_SERIALIZABLE;
 };
 
 

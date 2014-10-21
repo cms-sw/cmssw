@@ -8,4 +8,5 @@
 <use   name="DataFormats/EcalDigi"/>
 <use   name="DataFormats/HcalDigi"/>
 <use   name="root"/>
+<use   name="boost_serialization"/>
 <flags   EDM_PLUGIN="1"/>

@@ -628,7 +628,6 @@ void HcalHotCellMonitor::processHit_rechitNeighbors( RECHIT& rechit,
   // Case 1:  above threshold energy; always count as hot
   if (et>params.maxEnergy)
     {
-      aboveneighbors[CalcEtaBin(id.subdet(),ieta,depth)][iphi-1][depth-1];
       if (makeDiagnostics_)
 	{
 	  // fill overflow bin when energy > max threshold

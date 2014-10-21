@@ -10,6 +10,8 @@
 //! 32-bit word.
 //-----------------------------------------------------------------------------
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/SiPixelObjects/interface/SiPixelDbItem.h"
 
 #include <vector>
@@ -32,5 +34,7 @@ class SiPixelPedestals {
   // TO DO: shouldn't the map be private???
 
   std::map<int, SiPixelPedestalsVector> m_pedestals;
+
+ COND_SERIALIZABLE;
 };
 #endif

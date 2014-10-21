@@ -245,7 +245,7 @@ namespace HLTOfflineDQMTopDiLepton {
 /// define MonitorDiLepton to be used
 //using TopDiLeptonOffline::MonitorDiLepton;
 
-class TopDiLeptonHLTOfflineDQM : public DQMEDAnalyzer  {
+class TopDiLeptonHLTOfflineDQM : public thread_unsafe::DQMEDAnalyzer  {
   public: 
     /// default constructor
     TopDiLeptonHLTOfflineDQM(const edm::ParameterSet& cfg);

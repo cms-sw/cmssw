@@ -77,7 +77,7 @@ private:
   /// For a given subdetector & layer number, this stores the minimum and maximum
   /// r (or z) values if it is barrel (or endcap) respectively.
   typedef std::map< DetInfo, std::pair< double, double> > RZrangeMap;
-  static RZrangeMap rangeRorZ_;
+  RZrangeMap rangeRorZ_;
 
 
 };

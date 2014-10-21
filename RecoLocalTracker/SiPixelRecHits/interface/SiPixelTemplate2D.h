@@ -104,12 +104,12 @@ struct SiPixelTemplateStore2D { //!< template storage structure
 // ******************************************************************************************
 class SiPixelTemplate2D {
  public:
-  SiPixelTemplate2D() {id_current_ = -1; index_id_ = -1; cota_current_ = 0.; cotb_current_ = 0.;} //!< Default constructor
-  bool pushfile(int filenum);     // load the private store with info from the 
+  SiPixelTemplate2D(const std::vector< SiPixelTemplateStore2D > & thePixelTemp) : thePixelTemp_(thePixelTemp) {id_current_ = -1; index_id_ = -1; cota_current_ = 0.; cotb_current_ = 0.;} //!< Default constructor
+  static bool pushfile(int filenum, std::vector< SiPixelTemplateStore2D > & thePixelTemp_);     // load the private store with info from the 
                                   // file with the index (int) filenum
 								  
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-  bool pushfile(const SiPixelTemplateDBObject& dbobject);     // load the private store with info from db
+  static bool pushfile(const SiPixelTemplateDBObject& dbobject, std::vector< SiPixelTemplateStore2D > & thePixelTemp_);     // load the private store with info from db
 #endif
   
 	
@@ -214,7 +214,7 @@ class SiPixelTemplate2D {
   
   // The actual template store is a std::vector container
 
-  std::vector< SiPixelTemplateStore2D > thePixelTemp_;
+  const std::vector< SiPixelTemplateStore2D > & thePixelTemp_;
 } ;
 
 

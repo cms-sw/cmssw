@@ -7,6 +7,8 @@
 
 */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <boost/cstdint.hpp>
 
 class HcalL1TriggerObject 
@@ -29,6 +31,8 @@ class HcalL1TriggerObject
   float mRespCorrGain;
   uint32_t mFlag;
 
+
+ COND_SERIALIZABLE;
 };
 
 #endif

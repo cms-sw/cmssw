@@ -62,7 +62,7 @@ void ArgSizeChecker::checkPreStmt(const CXXConstructExpr *E, CheckerContext &ctx
 					|| PQT->isMemberFunctionPointerType() || PQT->isArrayType()
 					|| PQT->isBuiltinType() || PQT->isUnionType() || PQT->isVectorType() ) continue;
 				uint64_t size_param = ctx.getASTContext().getTypeSize(PQT);
-				int64_t max_bits=128;
+				uint64_t max_bits=128;
 				if ( size_param <= max_bits ) continue;
 				std::string qname = QT.getAsString();
 				std::string pname = PQT.getAsString();
@@ -128,7 +128,7 @@ void ArgSizeChecker::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
 		if (PQT->isReferenceType() || PQT->isPointerType() || PQT->isMemberFunctionPointerType() 
 			|| PQT->isArrayType()|| PQT->isBuiltinType() || PQT->isUnionType() || PQT->isVectorType()  ) continue;
 		uint64_t size_param = mgr.getASTContext().getTypeSize(PQT);
-		int64_t max_bits=128;
+		uint64_t max_bits=128;
 		if ( size_param <= max_bits ) continue;
 				std::string qname = QT.getAsString();
 		std::string pname = PQT.getAsString();

@@ -1,7 +1,7 @@
 #ifndef PFCandIsolatorFromDeposits_H
 #define PFCandIsolatorFromDeposits_H
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
@@ -20,7 +20,7 @@
 namespace edm { class Event; }
 namespace edm { class EventSetup; }
 
-class PFCandIsolatorFromDeposits : public edm::EDProducer {
+class PFCandIsolatorFromDeposits : public edm::stream::EDProducer<> {
 
 public:
   typedef edm::ValueMap<double> CandDoubleMap;

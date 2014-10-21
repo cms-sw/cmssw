@@ -12,7 +12,7 @@
 #include <string>
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class PhotonIsolationCalculator {
 
@@ -26,7 +26,8 @@ public:
 	     std::vector<int> const & flagsEB_,
 	     std::vector<int> const & flagsEE_,
 	     std::vector<int> const & severitiesEB_,
-	     std::vector<int> const & severitiesEE_);
+	     std::vector<int> const & severitiesEE_,
+	     edm::ConsumesCollector && iC);
 
   void calculate(const reco::Photon*, 
 		 const edm::Event&, const edm::EventSetup& es,
@@ -94,12 +95,12 @@ private:
   
  private:
 
-  edm::InputTag barrelecalCollection_;
-  edm::InputTag endcapecalCollection_;
-  edm::InputTag hcalCollection_;
+  edm::EDGetToken barrelecalCollection_;
+  edm::EDGetToken endcapecalCollection_;
+  edm::EDGetToken hcalCollection_;
 
-  edm::InputTag trackInputTag_;
-  edm::InputTag beamSpotProducerTag_;
+  edm::EDGetToken trackInputTag_;
+  edm::EDGetToken beamSpotProducerTag_;
   double modulePhiBoundary_;
   std::vector<double> moduleEtaBoundary_;
   bool vetoClusteredEcalHits_;

@@ -1,6 +1,8 @@
 #ifndef RPCStripNoises_h
 #define RPCStripNoises_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include<vector>
 #include<map>
 #include<iostream>
@@ -15,7 +17,9 @@ class RPCStripNoises {
     float noise;
     float eff;
     float time;
-  };
+  
+  COND_SERIALIZABLE;
+};
   
   RPCStripNoises(){}
   ~RPCStripNoises(){}
@@ -25,6 +29,8 @@ class RPCStripNoises {
 
   std::vector<NoiseItem>  v_noises; 
   std::vector<float>  v_cls; 
+
+ COND_SERIALIZABLE;
 };
 
 #endif

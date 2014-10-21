@@ -87,7 +87,8 @@ IsolatedTracksCone::IsolatedTracksCone(const edm::ParameterSet& iConfig) {
 
   edm::ParameterSet parameters = 
     iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
-  parameters_.loadParameters( parameters );
+  edm::ConsumesCollector iC = consumesCollector();
+  parameters_.loadParameters( parameters, iC );
   trackAssociator_ =  new TrackDetectorAssociator();
   trackAssociator_->useDefaultPropagator();
 

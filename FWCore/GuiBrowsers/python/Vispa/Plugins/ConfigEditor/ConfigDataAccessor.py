@@ -252,6 +252,10 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
             self.readConnections(self.allChildren(folders["modules"]))
 	    self._scheduleRecursive(folders["paths"])
 	    self._scheduledObjects.reverse()
+	    names = [l for t,l,p,pr in self.applyCommands(self.outputEventContent(),self.outputCommands())]
+	    for obj in self.allChildren(folders["modules"]):
+	       if str(obj) in names:
+	           self._scheduledObjects+=[obj]
             scheduled_folder = ConfigFolder("scheduled", folders["paths"])
             self._allObjects += [scheduled_folder]
             folders["paths"]._configChildren.remove(scheduled_folder)
@@ -681,3 +685,38 @@ class ConfigDataAccessor(BasicDataAccessor, RelativeDataAccessor):
             return outputModules[0].outputCommands
         else:
             return []
+
+    def applyCommands(self, content, outputCommands):
+        keep = {}
+        if len(outputCommands)>0 and outputCommands[0]!="keep *":
+            for object in content:
+                keep[object] = False
+        else:
+            for object in content:
+                keep[object] = True
+        for o in outputCommands:
+            command, filter = o.split(" ")
+            if len(filter.split("_")) > 1:
+                module = filter.split("_")[1]
+                product = filter.split("_")[2]
+                process = filter.split("_")[3]
+            else:
+                module = filter
+                product = "*"
+                process = "*"
+            for object in content:
+                if "*" in module:
+                    match = module.strip("*") in object[1]
+                else:
+                    match = module == object[1]
+                if "*" in product:
+                    match = match and product.strip("*") in object[2]
+                else:
+                    match = match and product == object[2]
+                if "*" in process:
+                    match = match and process.strip("*") in object[3]
+                else:
+                    match = match and process == object[3]
+                if match:
+                    keep[object] = command == "keep"
+        return [object for object in content if keep[object]]

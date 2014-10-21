@@ -28,6 +28,8 @@
 // DQM Framework
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQM/SiPixelCommon/interface/SiPixelHistogramId.h"
+
 // Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -60,8 +62,8 @@ SiPixelRawDataErrorSource::SiPixelRawDataErrorSource(const edm::ParameterSet& iC
   bladeOn( conf_.getUntrackedParameter<bool>("bladeOn",false) ),
   isUpgrade( conf_.getUntrackedParameter<bool>("isUpgrade",false) )
 {
-   theDMBE = edm::Service<DQMStore>().operator->();
-   LogInfo ("PixelDQM") << "SiPixelRawDataErrorSource::SiPixelRawDataErrorSource: Got DQM BackEnd interface"<<endl;
+  firstRun = true;
+  LogInfo ("PixelDQM") << "SiPixelRawDataErrorSource::SiPixelRawDataErrorSource: Got DQM BackEnd interface"<<endl;
 }
 
 
@@ -72,36 +74,24 @@ SiPixelRawDataErrorSource::~SiPixelRawDataErrorSource()
   LogInfo ("PixelDQM") << "SiPixelRawDataErrorSource::~SiPixelRawDataErrorSource: Destructor"<<endl;
 }
 
-
-void SiPixelRawDataErrorSource::beginJob(){
-  firstRun = true;
-}
-
-void SiPixelRawDataErrorSource::beginRun(const edm::Run& r, const edm::EventSetup& iSetup){
+void SiPixelRawDataErrorSource::dqmBeginRun(const edm::Run& r, const edm::EventSetup& iSetup){
 
   LogInfo ("PixelDQM") << " SiPixelRawDataErrorSource::beginRun - Initialisation ... " << std::endl;
   LogInfo ("PixelDQM") << "Mod/Lad/Blade " << modOn << "/" << ladOn << "/" << bladeOn << std::endl;
 
   if(firstRun){
     eventNo = 0;
-    // Build map
-    buildStructure(iSetup);
-    // Book Monitoring Elements
-    bookMEs();
     
     firstRun = false;
   }
+
+  // Build map
+  buildStructure(iSetup);
 }
 
-
-void SiPixelRawDataErrorSource::endJob(void){
-
-  if(saveFile) {
-    LogInfo ("PixelDQM") << " SiPixelRawDataErrorSource::endJob - Saving Root File " << std::endl;
-    std::string outputFile = conf_.getParameter<std::string>("outputFile");
-    theDMBE->save( outputFile.c_str() );
-  }
-
+void SiPixelRawDataErrorSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const &, edm::EventSetup const & iSetup){
+  // Book Monitoring Elements
+  bookMEs(iBooker);
 }
 
 //------------------------------------------------------------------
@@ -110,18 +100,12 @@ void SiPixelRawDataErrorSource::endJob(void){
 void SiPixelRawDataErrorSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   eventNo++;
-  //std::cout<<"Event number: "<<eventNo<<std::endl;
+
   // get input data
   edm::Handle< DetSetVector<SiPixelRawDataError> >  input;
   iEvent.getByToken( src_, input );
   if (!input.isValid()) return; 
 
-  // Get DQM interface
-  DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
-   
-  //float iOrbitSec = iEvent.orbitNumber()/11223.;
-  //int bx = iEvent.bunchCrossing();
-  //long long tbx = (long long)iEvent.orbitNumber() * 3564 + bx;
   int lumiSection = (int)iEvent.luminosityBlock();
   
   int nEventBPIXModuleErrors = 0; int nEventFPIXModuleErrors = 0; int nEventBPIXFEDErrors = 0; int nEventFPIXFEDErrors = 0;
@@ -131,7 +115,7 @@ void SiPixelRawDataErrorSource::analyze(const edm::Event& iEvent, const edm::Eve
   std::map<uint32_t,SiPixelRawDataErrorModule*>::iterator struct_iter2;
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
     
-    int numberOfModuleErrors = (*struct_iter).second->fill(*input, modOn, ladOn, bladeOn);
+    int numberOfModuleErrors = (*struct_iter).second->fill(*input, &meMapFEDs_, modOn, ladOn, bladeOn);
     if(DetId( (*struct_iter).first ).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) nEventBPIXModuleErrors = nEventBPIXModuleErrors + numberOfModuleErrors;
     if(DetId( (*struct_iter).first ).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) nEventFPIXModuleErrors = nEventFPIXModuleErrors + numberOfModuleErrors;
     //cout<<"NErrors: "<<nEventBPIXModuleErrors<<" "<<nEventFPIXModuleErrors<<endl;
@@ -140,27 +124,23 @@ void SiPixelRawDataErrorSource::analyze(const edm::Event& iEvent, const edm::Eve
   }
   for (struct_iter2 = theFEDStructure.begin() ; struct_iter2 != theFEDStructure.end() ; struct_iter2++) {
     
-    int numberOfFEDErrors = (*struct_iter2).second->fillFED(*input);
+    int numberOfFEDErrors = (*struct_iter2).second->fillFED(*input, &meMapFEDs_);
     if((*struct_iter2).first <= 31) nEventBPIXFEDErrors = nEventBPIXFEDErrors + numberOfFEDErrors; // (*struct_iter2).first >= 0, since (*struct_iter2).first is unsigned
     if((*struct_iter2).first >= 32 && (*struct_iter2).first <= 39) nEventFPIXFEDErrors = nEventFPIXFEDErrors + numberOfFEDErrors;    
     //cout<<"NFEDErrors: "<<nEventBPIXFEDErrors<<" "<<nEventFPIXFEDErrors<<endl;
     nErrors = nErrors + numberOfFEDErrors;
     //if(nErrors>0) cout<<"FEDS: nErrors: "<<nErrors<<endl;
   }
-  MonitorElement* me = theDMBE->get("Pixel/AdditionalPixelErrors/byLumiErrors");
-  if(me){
-    me->setBinContent(0,eventNo);
+  if(byLumiErrors){
+    byLumiErrors->setBinContent(0,eventNo);
     //cout<<"NErrors: "<<nEventBPIXModuleErrors<<" "<<nEventFPIXModuleErrors<<" "<<nEventBPIXFEDErrors<<" "<<nEventFPIXFEDErrors<<endl;
-    //if(nEventBPIXModuleErrors+nEventBPIXFEDErrors>0) me->setBinContent(1,me->getBinContent(1)+nEventBPIXModuleErrors+nEventBPIXFEDErrors);
-    //if(nEventFPIXModuleErrors+nEventFPIXFEDErrors>0) me->setBinContent(2,me->getBinContent(2)+nEventFPIXModuleErrors+nEventFPIXFEDErrors);
-    if(nEventBPIXModuleErrors+nEventBPIXFEDErrors>0) me->Fill(0,1.);
-    if(nEventFPIXModuleErrors+nEventFPIXFEDErrors>0) me->Fill(1,1.);
-    //cout<<"histo: "<<me->getBinContent(0)<<" "<<me->getBinContent(1)<<" "<<me->getBinContent(2)<<endl;
+    if(nEventBPIXModuleErrors+nEventBPIXFEDErrors>0) byLumiErrors->Fill(0,1.);
+    if(nEventFPIXModuleErrors+nEventFPIXFEDErrors>0) byLumiErrors->Fill(1,1.);
+    //cout<<"histo: "<<byLumiErrors->getBinContent(0)<<" "<<byLumiErrors->getBinContent(1)<<" "<<byLumiErrors->getBinContent(2)<<endl;
   }  
   
   // Rate of errors per lumi section:
-  MonitorElement* me1 = theDMBE->get("Pixel/AdditionalPixelErrors/errorRate");
-  if(me1) me1->Fill(lumiSection, nErrors);
+  if(errorRate) errorRate->Fill(lumiSection, nErrors);
 
   // slow down...
   if(slowDown) usleep(100000);
@@ -269,16 +249,14 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup& iSetup){
 //------------------------------------------------------------------
 // Book MEs
 //------------------------------------------------------------------
-void SiPixelRawDataErrorSource::bookMEs(){
+void SiPixelRawDataErrorSource::bookMEs(DQMStore::IBooker & iBooker){
   //cout<<"Entering SiPixelRawDataErrorSource::bookMEs now: "<<endl;
-  // Get DQM interface
-  DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
-  theDMBE->setCurrentFolder("Pixel/AdditionalPixelErrors");
+  iBooker.setCurrentFolder("Pixel/AdditionalPixelErrors");
   char title[80]; sprintf(title, "By-LumiSection Error counters");
-  byLumiErrors = theDMBE->book1D("byLumiErrors",title,2,0.,2.);
+  byLumiErrors = iBooker.book1D("byLumiErrors",title,2,0.,2.);
   byLumiErrors->setLumiFlag();
   char title1[80]; sprintf(title1, "Errors per LumiSection;LumiSection;NErrors");
-  errorRate = theDMBE->book1D("errorRate",title1,5000,0.,5000.);
+  errorRate = iBooker.book1D("errorRate",title1,5000,0.,5000.);
   
   std::map<uint32_t,SiPixelRawDataErrorModule*>::iterator struct_iter;
   std::map<uint32_t,SiPixelRawDataErrorModule*>::iterator struct_iter2;
@@ -289,10 +267,7 @@ void SiPixelRawDataErrorSource::bookMEs(){
     /// Create folder tree and book histograms 
 
     if(modOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,0,isUpgrade)) {
-        (*struct_iter).second->book( conf_, 0 ,isUpgrade );
-      }
-      else {
+      if(!theSiPixelFolder.setModuleFolder((*struct_iter).first,0,isUpgrade)) {
         //std::cout<<"PIB! not booking histograms for non-PIB modules!"<<std::endl;
         if(!isPIB) throw cms::Exception("LogicError")
                        << "[SiPixelRawDataErrorSource::bookMEs] Creation of DQM folder failed";
@@ -300,19 +275,13 @@ void SiPixelRawDataErrorSource::bookMEs(){
     }
     
     if(ladOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,1,isUpgrade)) {
-        (*struct_iter).second->book( conf_, 1 , isUpgrade );
-      }
-      else {
+      if(!theSiPixelFolder.setModuleFolder((*struct_iter).first,1,isUpgrade)) {
         LogDebug ("PixelDQM") << "PROBLEM WITH LADDER-FOLDER\n";
       }
     }
     
     if(bladeOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,4,isUpgrade)) {
-        (*struct_iter).second->book( conf_, 4 ,isUpgrade );
-      }
-      else {
+      if(!theSiPixelFolder.setModuleFolder((*struct_iter).first,4,isUpgrade)) {
         LogDebug ("PixelDQM") << "PROBLEM WITH BLADE-FOLDER\n";
       }
     }
@@ -321,17 +290,79 @@ void SiPixelRawDataErrorSource::bookMEs(){
 
   for(struct_iter2 = theFEDStructure.begin(); struct_iter2 != theFEDStructure.end(); struct_iter2++){
     /// Create folder tree for errors without detId and book histograms 
-    if(theSiPixelFolder.setFedFolder((*struct_iter2).first)) {
-      (*struct_iter2).second->bookFED( conf_ );
-    }
-    else {
+    if(!theSiPixelFolder.setFedFolder((*struct_iter2).first)) {
       throw cms::Exception("LogicError")
 	<< "[SiPixelRawDataErrorSource::bookMEs] Creation of DQM folder failed";
     }
 
   }
-  //cout<<"...leaving SiPixelRawDataErrorSource::bookMEs now! "<<endl;
 
+  //Booking FED histograms
+  std::string hid;
+  // Get collection name and instantiate Histo Id builder
+  edm::InputTag src = conf_.getParameter<edm::InputTag>( "src" );
+  SiPixelHistogramId* theHistogramId = new SiPixelHistogramId( src.label() );
+
+  for (uint32_t id = 0; id < 40; id++){
+    char temp [50];
+    sprintf( temp, "Pixel/AdditionalPixelErrors/FED_%d",id);
+    iBooker.cd(temp);
+    // Types of errors
+    hid = theHistogramId->setHistoId("errorType",id);
+    meErrorType_[id] = iBooker.book1D(hid,"Type of errors",15,24.5,39.5);
+    meErrorType_[id]->setAxisTitle("Type of errors",1);
+    // Number of errors
+    hid = theHistogramId->setHistoId("NErrors",id);
+    meNErrors_[id] = iBooker.book1D(hid,"Number of errors",36,0.,36.);
+    meNErrors_[id]->setAxisTitle("Number of errors",1);
+    // Type of FIFO full (errorType = 28).  FIFO 1 is 1-5 (where fullType = channel of FIFO 1), 
+    // fullType = 6 signifies FIFO 2 nearly full, 7 signifies trigger FIFO nearly full, 8 
+    // indicates an unexpected result
+    hid = theHistogramId->setHistoId("fullType",id);
+    meFullType_[id] = iBooker.book1D(hid,"Type of FIFO full",7,0.5,7.5);
+    meFullType_[id]->setAxisTitle("FIFO type",1);
+    // For error type 30, the type of problem encoded in the TBM trailer
+    // 0 = stack full, 1 = Pre-cal issued, 2 = clear trigger counter, 3 = sync trigger, 
+    // 4 = sync trigger error, 5 = reset ROC, 6 = reset TBM, 7 = no token bit pass
+    hid = theHistogramId->setHistoId("TBMMessage",id);
+    meTBMMessage_[id] = iBooker.book1D(hid,"TBM trailer message",8,-0.5,7.5);
+    meTBMMessage_[id]->setAxisTitle("TBM message",1);
+    // For error type 30, the type of problem encoded in the TBM error trailer 0 = none
+    // 1 = data stream too long, 2 = FSM errors, 3 = invalid # of ROCs, 4 = multiple
+    hid = theHistogramId->setHistoId("TBMType",id);
+    meTBMType_[id] = iBooker.book1D(hid,"Type of TBM trailer",5,-0.5,4.5);
+    meTBMType_[id]->setAxisTitle("TBM Type",1);
+    // For error type 31, the event number of the TBM header with the error
+    hid = theHistogramId->setHistoId("EvtNbr",id);
+    meEvtNbr_[id] = iBooker.bookInt(hid);
+    // For errorType = 34, datastream size according to error word
+    hid = theHistogramId->setHistoId("evtSize",id);
+    meEvtSize_[id] = iBooker.bookInt(hid);
+    for(int j=0; j!=37; j++){
+      std::stringstream temp; temp << j;
+      hid = "FedChNErrArray_" + temp.str();
+      meFedChNErrArray_[id*37 + j] = iBooker.bookInt(hid);
+      hid = "FedChLErrArray_" + temp.str();
+      meFedChLErrArray_[id*37 + j] = iBooker.bookInt(hid);
+      hid = "FedETypeNErrArray_" + temp.str();
+      if(j<21) meFedETypeNErrArray_[id*21 + j] = iBooker.bookInt(hid);
+    }
+
+
+  }
+  //Add the booked histograms to the histogram map for booking
+  meMapFEDs_["meErrorType_"] = meErrorType_;
+  meMapFEDs_["meNErrors_"] = meNErrors_;
+  meMapFEDs_["meFullType_"] = meFullType_;
+  meMapFEDs_["meTBMMessage_"] = meTBMMessage_;
+  meMapFEDs_["meTBMType_"] = meTBMType_;
+  meMapFEDs_["meEvtNbr_"] = meEvtNbr_;
+  meMapFEDs_["meEvtSize_"] = meEvtSize_;
+  meMapFEDs_["meFedChNErrArray_"] = meFedChNErrArray_;
+  meMapFEDs_["meFedChLErrArray_"] = meFedChLErrArray_;
+  meMapFEDs_["meFedETypeNErrArray_"] = meFedETypeNErrArray_;
+
+  //cout<<"...leaving SiPixelRawDataErrorSource::bookMEs now! "<<endl;
 }
 
 DEFINE_FWK_MODULE(SiPixelRawDataErrorSource);

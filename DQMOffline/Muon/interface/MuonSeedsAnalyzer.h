@@ -17,7 +17,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
@@ -29,7 +29,7 @@ class TrajectoryStateOnSurface;
 class TrajectorySeed;
 class MuonServiceProxy;
 
-class MuonSeedsAnalyzer : public  edm::EDAnalyzer {
+class MuonSeedsAnalyzer : public  DQMEDAnalyzer {
  public:
 
   /// Constructor
@@ -38,17 +38,9 @@ class MuonSeedsAnalyzer : public  edm::EDAnalyzer {
   /// Destructor
   virtual ~MuonSeedsAnalyzer();
 
-  /// Inizialize parameters for histo binning
-  void beginJob();
-  void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
-
-  /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   
-  /// Get the TrajectoryStateOnSurface
-  ///  TrajectoryStateOnSurface getSeedTSOS(const TrajectorySeed& seed);
-  
-
   private:
   // ----------member data ---------------------------
   DQMStore *theDbe;

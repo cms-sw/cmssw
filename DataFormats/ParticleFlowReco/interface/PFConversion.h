@@ -36,7 +36,7 @@ namespace reco {
     ~PFConversion();
 
     const reco::ConversionRef& originalConversion() const   {return originalConversion_;} 
-    std::vector<reco::PFRecTrackRef> pfTracks() const {return pfTracks_ ;} 
+    const std::vector<reco::PFRecTrackRef>& pfTracks() const {return pfTracks_ ;} 
     
 
   private:

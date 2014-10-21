@@ -538,55 +538,55 @@
 		</LogicalPart>
 		<LogicalPart name="FibreBundle1" category="unspecified">
 			<rSolid name="FibreBundle1"/>
-			<rMaterial name="hcalforwardmaterial:Quartz"/>
+			<rMaterial name="hcalforwardmaterial:QuartzF"/>
 		</LogicalPart>
 		<LogicalPart name="FibreBundle2" category="unspecified">
 			<rSolid name="FibreBundle2"/>
-			<rMaterial name="hcalforwardmaterial:Quartz"/>
+			<rMaterial name="hcalforwardmaterial:QuartzF"/>
 		</LogicalPart>
 		<LogicalPart name="FibreBundle3" category="unspecified">
 			<rSolid name="FibreBundle3"/>
-			<rMaterial name="hcalforwardmaterial:Quartz"/>
+			<rMaterial name="hcalforwardmaterial:QuartzF"/>
 		</LogicalPart>
 		<LogicalPart name="FibreBundle4" category="unspecified">
 			<rSolid name="FibreBundle4"/>
-			<rMaterial name="hcalforwardmaterial:Quartz"/>
+			<rMaterial name="hcalforwardmaterial:QuartzF"/>
 		</LogicalPart>
 		<LogicalPart name="FibreBundle5" category="unspecified">
 			<rSolid name="FibreBundle5"/>
-			<rMaterial name="hcalforwardmaterial:Quartz"/>
+			<rMaterial name="hcalforwardmaterial:QuartzF"/>
 		</LogicalPart>
 		<LogicalPart name="FibreBundle6" category="unspecified">
 			<rSolid name="FibreBundle6"/>
-			<rMaterial name="hcalforwardmaterial:Quartz"/>
+			<rMaterial name="hcalforwardmaterial:QuartzF"/>
 		</LogicalPart>
 		<LogicalPart name="FibreBundle7" category="unspecified">
 			<rSolid name="FibreBundle7"/>
-			<rMaterial name="hcalforwardmaterial:Quartz"/>
+			<rMaterial name="hcalforwardmaterial:QuartzF"/>
 		</LogicalPart>
 		<LogicalPart name="FibreBundle8" category="unspecified">
 			<rSolid name="FibreBundle8"/>
-			<rMaterial name="hcalforwardmaterial:Quartz"/>
+			<rMaterial name="hcalforwardmaterial:QuartzF"/>
 		</LogicalPart>
 		<LogicalPart name="FibreBundle9" category="unspecified">
 			<rSolid name="FibreBundle9"/>
-			<rMaterial name="hcalforwardmaterial:Quartz"/>
+			<rMaterial name="hcalforwardmaterial:QuartzF"/>
 		</LogicalPart>
 		<LogicalPart name="FibreBundle10" category="unspecified">
 			<rSolid name="FibreBundle10"/>
-			<rMaterial name="hcalforwardmaterial:Quartz"/>
+			<rMaterial name="hcalforwardmaterial:QuartzF"/>
 		</LogicalPart>
 		<LogicalPart name="FibreBundle11" category="unspecified">
 			<rSolid name="FibreBundle11"/>
-			<rMaterial name="hcalforwardmaterial:Quartz"/>
+			<rMaterial name="hcalforwardmaterial:QuartzF"/>
 		</LogicalPart>
 		<LogicalPart name="FibreBundle12" category="unspecified">
 			<rSolid name="FibreBundle12"/>
-			<rMaterial name="hcalforwardmaterial:Quartz"/>
+			<rMaterial name="hcalforwardmaterial:QuartzF"/>
 		</LogicalPart>
 		<LogicalPart name="FibreBundle13" category="unspecified">
 			<rSolid name="FibreBundle13"/>
-			<rMaterial name="hcalforwardmaterial:Quartz"/>
+			<rMaterial name="hcalforwardmaterial:QuartzF"/>
 		</LogicalPart>
 	</LogicalPartSection>
 	<PosPartSection label="forwardshield.xml">
@@ -1125,7 +1125,7 @@
 		<Numeric name="DeltaZ" value="([CalShldZ1]-[cms:ForwdVcalZ2])"/>
 		<Numeric name="NumberPhi" value="4"/>
 		<Numeric name="TiltAngle" value="5.0*deg"/>
-		<String name="Material" value="hcalforwardmaterial:Quartz"/>
+		<String name="Material" value="hcalforwardmaterial:QuartzF"/>
 		<String name="Child" value="VcalFibreBundleL"/>
 		<Vector name="AreaSection" type="numeric" nEntries="13">
 			551*mm2, 652*mm2, 469*mm2, 324*mm2, 231*mm2, 167*mm2,
@@ -1150,7 +1150,7 @@
 		<Numeric name="DeltaZ" value="([CalShldZ1]-[cms:ForwdVcalZ2])"/>
 		<Numeric name="NumberPhi" value="4"/>
 		<Numeric name="TiltAngle" value="5.0*deg"/>
-		<String name="Material" value="hcalforwardmaterial:Quartz"/>
+		<String name="Material" value="hcalforwardmaterial:QuartzF"/>
 		<String name="Child" value="VcalFibreBundleR"/>
 		<Vector name="AreaSection" type="numeric" nEntries="13">
 			551*mm2, 652*mm2, 469*mm2, 324*mm2, 231*mm2, 167*mm2,

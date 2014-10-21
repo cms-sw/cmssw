@@ -39,6 +39,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/Common/interface/ConditionsInEdm.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 
 //
 // class declaration
@@ -69,6 +70,9 @@ class ConditionDumperInEdm : public edm::one::EDProducer<edm::EndRunProducer,
   edm::ConditionsInLumiBlock lumiBlock_;
   edm::ConditionsInRunBlock runBlock_;
   edm::ConditionsInEventBlock eventBlock_;
+
+  edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> gtEvmDigisLabelToken_;
+
 
 };
 

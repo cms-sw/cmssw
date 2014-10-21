@@ -16,8 +16,8 @@ HBHENoiseFilter = cms.EDFilter(
     minIsolatedNoiseSumE = cms.double(50.0),
     minIsolatedNoiseSumEt = cms.double(25.0),
     useTS4TS5 = cms.bool(True),
-    IgnoreTS4TS5ifJetInLowBVRegion=cms.bool(True), 
-    jetlabel = cms.InputTag('ak5PFJets'),
+    IgnoreTS4TS5ifJetInLowBVRegion=cms.bool(True),
+    jetlabel = cms.InputTag('ak4PFJets'),
     maxjetindex = cms.int32(0), # maximum jet index that will be checked for 'IgnoreTS4TS5ifJetInLowBVRegion'
     maxNHF = cms.double(0.9) # maximum allowed jet->neutralHadronEnergyFraction()
     )

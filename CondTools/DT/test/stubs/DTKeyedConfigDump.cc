@@ -12,7 +12,6 @@ Toy EDAnalyzer for testing purposes only.
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "CondTools/DT/test/stubs/DTKeyedConfigDump.h"
-#include "CondFormats/DTObjects/interface/DTConfigAbstractHandler.h"
 #include "CondFormats/DTObjects/interface/DTCCBConfig.h"
 #include "CondFormats/DTObjects/interface/DTKeyedConfig.h"
 #include "CondFormats/DataRecord/interface/DTCCBConfigRcd.h"
@@ -55,7 +54,6 @@ namespace edmtest {
 
     const DTKeyedConfig** allBricks = new const DTKeyedConfig*[100000];
     int nBricks = 0;
-    DTConfigAbstractHandler* cfgCache = DTConfigAbstractHandler::getInstance();
 
 // loop over chambers
     DTCCBConfig::ccb_config_map configKeys( conf->configKeyMap() );
@@ -81,8 +79,7 @@ namespace edmtest {
         std::cout << std::endl;
 	if( !dumpAllData ) continue;
         const DTKeyedConfig* kBrick = 0;
-//        cfgCache->get( context, id, kBrick );
-        cfgCache->get( context.get<DTKeyedConfigListRcd>(), id, kBrick );
+        cfgCache.get( context.get<DTKeyedConfigListRcd>(), id, kBrick );
         allBricks[nBricks++] = kBrick;
         if ( kBrick == 0 ) {
           std::cout << "brick missing" << std::endl;

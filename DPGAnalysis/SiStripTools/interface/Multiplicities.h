@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 #endif
 
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -22,8 +23,10 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
-#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 
+namespace edm {
+  class EventSetup;
+};
 
 #include <string>
 

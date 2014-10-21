@@ -15,7 +15,7 @@ public:
 
   explicit MinHitsTrajectoryFilter( int minHits=-1):theMinHits( minHits) {}
 
-  explicit MinHitsTrajectoryFilter( const edm::ParameterSet & pset): theMinHits( pset.getParameter<int>("minimumNumberOfHits")) {}
+  explicit MinHitsTrajectoryFilter( const edm::ParameterSet & pset, edm::ConsumesCollector& iC): theMinHits( pset.getParameter<int>("minimumNumberOfHits")) {}
     
   virtual bool qualityFilter( const Trajectory& traj) const { return QF<Trajectory>(traj);}
   virtual bool qualityFilter( const TempTrajectory& traj) const { return QF<TempTrajectory>(traj);}

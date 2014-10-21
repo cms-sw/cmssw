@@ -1,6 +1,8 @@
 #ifndef L1GCTJETFINDERPARAMS_H_
 #define L1GCTJETFINDERPARAMS_H_
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <stdint.h>
 #include <iosfwd>
@@ -128,6 +130,8 @@ class L1GctJetFinderParams
   bool convertToEnergy_;
   std::vector<double> energyConversionCoeffs_;
 
+
+ COND_SERIALIZABLE;
 };
 
 /// Overload << operator
