@@ -30,7 +30,7 @@ def dasFileQuery(dataset):
     query = 'file dataset=%s' % dataset
     jsondict = das_client.get_data(host, query, idx, limit, debug, thr, ckey, cert)
     # parse the results in JSON format, and extract the list of files
-    files = [ f['file'][0]['name'] for f in jsondict['data'] ]
+    files = sorted( f['file'][0]['name'] for f in jsondict['data'] )
     return files
 
 
