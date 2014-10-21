@@ -58,7 +58,7 @@ b = cms.vuint32(5),
 g = cms.vuint32(21),
 uds = cms.vuint32(1, 2, 3)
 ),
-mcPartons = cms.InputTag("hltJetsbyValAlgo")
+mcPartons = cms.InputTag("hltBtagJetMCTools")
 )
 #define bTagPostValidation for the b-tag DQM validation (efficiency and mistagrate plot)
 process.bTagPostValidation = cms.EDAnalyzer("HLTBTagHarvestingAnalyzer",
