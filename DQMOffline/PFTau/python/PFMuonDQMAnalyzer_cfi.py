@@ -1,21 +1,24 @@
 import FWCore.ParameterSet.Config as cms
 
-pfElectronDQMAnalyzer = cms.EDAnalyzer("PFCandidateDQMAnalyzer",
-    InputCollection = cms.InputTag('pfAllElectrons'),
+pfMuonDQMAnalyzer = cms.EDAnalyzer("PFMuonDQMAnalyzer",
+    InputCollection = cms.InputTag('muons'),
     MatchCollection = cms.InputTag('gensource'),
-    BenchmarkLabel  = cms.string('PFElectronValidation/PFElecVsGenElec'),
+    BenchmarkLabel  = cms.string('PFMuonValidation/PFMuonVsGenMuon'),
     deltaRMax = cms.double(0.2),
     matchCharge = cms.bool(True),
     mode = cms.int32( 1 ),
     CreateReferenceHistos = cms.bool(True),
-    CreateEfficiencyHistos = cms.bool(True),
-    ptMin = cms.double( 2.0 ), # since pT_reco seem to have this threshold
+    CreateEfficiencyHistos = cms.bool(False),
+    ptMin = cms.double( 0.0 ), # since pT_reco seem to have this threshold
     ptMax = cms.double( 999999 ),
     etaMin = cms.double(-2.5),
     etaMax = cms.double(2.5),
     phiMin = cms.double(-3.14),
     phiMax = cms.double(3.14),
-    slimmedLikeSelection = cms.bool(False),
+    # slimmed muons selection
+    slimmedLikeSelection = cms.bool(True),
+    ptBase = cms.double(5.0),
+    ptNotPF = cms.double(3.0),
     # Histogram Parameters related to pt
     #VariablePtBins  = cms.vdouble(0.,1.,2.,5.,10.,20.,50.,100.,200.,400.,1000.),
     VariablePtBins  = cms.vdouble(0.), # if only one entry PtHistoParameter used
@@ -79,4 +82,4 @@ pfElectronDQMAnalyzer = cms.EDAnalyzer("PFCandidateDQMAnalyzer",
       xMin = cms.double(-1.5),
       xMax = cms.double(1.5)        
     )
-)
+ )

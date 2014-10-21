@@ -1,5 +1,5 @@
-#ifndef __DQMOffline_PFTau_PFMETDQMAnalyzer__
-#define __DQMOffline_PFTau_PFMETDQMAnalyzer__
+#ifndef __DQMOffline_PFTau_PFMuonDQMAnalyzer__
+#define __DQMOffline_PFTau_PFMuonDQMAnalyzer__
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -8,27 +8,32 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
-#include "DQMOffline/PFTau/interface/PFMETMonitor.h"
+#include "DQMOffline/PFTau/interface/PFCandidateMonitor.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-class PFMETDQMAnalyzer: public DQMEDAnalyzer {
+class PFMuonDQMAnalyzer: public DQMEDAnalyzer {
  public:
   
-  PFMETDQMAnalyzer(const edm::ParameterSet& parameterSet);
+  PFMuonDQMAnalyzer(const edm::ParameterSet& parameterSet);
   
  private:
   void analyze(edm::Event const&, edm::EventSetup const&);
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
-  edm::EDGetTokenT< edm::View<reco::MET> > myMET_;
-  edm::EDGetTokenT< edm::View<reco::MET> > myMatchedMET_;
+
+  edm::EDGetTokenT< edm::View<reco::Muon> > myCand_;
+  edm::EDGetTokenT< edm::View<reco::Muon> > myMatchedCand_;
   edm::InputTag matchLabel_;
   edm::InputTag inputLabel_;
   std::string benchmarkLabel_;
-  
-  PFMETMonitor pfMETMonitor_;
+  bool createEfficiencyHistos_;
+
+  double ptBase_;
+  double ptNotPF_;
+
+  PFCandidateMonitor pfCandidateMonitor_;
 
   edm::ParameterSet pSet_;
   std::string eventInfoFolder_;
