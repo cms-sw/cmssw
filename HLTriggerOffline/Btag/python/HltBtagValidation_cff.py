@@ -1,31 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 from HLTriggerOffline.Btag.hltBtagJetMCTools_cff import *
-#from Validation.RecoB.bTagAnalysis_cfi import *
-
-
-#hltBtagPartons = cms.EDProducer("PartonSelector",
-#   src = cms.InputTag("genParticles"),
-#    withLeptons = cms.bool(False)
-#)
-
-#hltBtagJetsbyRef = cms.EDProducer("JetPartonMatcher",
-#    jets = cms.InputTag("hltBtagCaloJetL1FastJetCorrected","","HLT"),
-#    coneSizeToAssociate = cms.double(0.3),
-#    partons = cms.InputTag("hltBtagPartons")
-#)
-
-#hltBtagJetsbyValAlgo = cms.EDProducer("JetFlavourIdentifier",
-#    srcByReference = cms.InputTag("hltBtagJetsbyRef"),
-#    physicsDefinition = cms.bool(False)
-#)
-
-#hltBtagJetMCTools = cms.Sequence(hltBtagPartons*hltBtagJetsbyRef*hltBtagJetsbyValAlgo)
-
-#process.hltFastPVPixelVertexFilter = cms.EDFilter( "VertexSelector",
-#    filter = cms.bool( True ),
-#    src = cms.InputTag( "hltFastPrimaryVertex" ),
-#    cut = cms.string( "!isFake && ndof > 0 && abs(z) <= 25 && position.Rho <= 2" )
-#)
 
 #denominator trigger
 #hltBtagTriggerSelection = cms.EDFilter( "TriggerResultsFilter",
@@ -49,19 +23,11 @@ hltBtagJetsbyRef.jets = cms.InputTag("hltSelector4CentralJetsL1FastJet")
 HltVertexValidationVertices= cms.EDAnalyzer("HLTVertexPerformanceAnalyzer",
 TriggerResults = cms.InputTag('TriggerResults','',"HLT"),
 HLTPathNames =cms.vstring(
-#    'HLT_BTagCSV07_v1', 
-#    'HLT_BTagCSV07_v1', 
-#    'HLT_BTagCSV07_v1', 
-#    'HLT_PFMHT100_SingleCentralJet60_BTagCSV0p6_v1', 
-#    'HLT_PFMHT100_SingleCentralJet60_BTagCSV0p6_v1', 
-#    'HLT_PFMHT100_SingleCentralJet60_BTagCSV0p6_v1', 
     'HLT_BTagCSV07_v1', 
     'HLT_BTagCSV07_v1', 
     'HLT_BTagCSV07_v1'
     ),
 Vertex = cms.VInputTag(
-#	cms.InputTag("hltFastPrimaryVertex"), 
-#	cms.InputTag("hltFastPVPixelVertices"), 
 	cms.InputTag("hltVerticesL3"), 
 	cms.InputTag("hltFastPrimaryVertex"), 
 	cms.InputTag("hltFastPVPixelVertices"),
@@ -72,14 +38,10 @@ Vertex = cms.VInputTag(
 hltbTagValidation = cms.EDAnalyzer("HLTBTagPerformanceAnalyzer",
 TriggerResults = cms.InputTag('TriggerResults','','HLT'),
 HLTPathNames = cms.vstring(
-#    'HLT_BTagCSV07_v1', 
-#    'HLT_PFMHT100_SingleCentralJet60_BTagCSV0p6_v1', 
     'HLT_BTagCSV07_v1'
     ),
 JetTag = cms.VInputTag(
-#	cms.InputTag("hltL3CombinedSecondaryVertexBJetTags"), 
 	cms.InputTag("hltL3CombinedSecondaryVertexBJetTags"), 
-#	cms.InputTag("hltL3CombinedSecondaryVertexBJetTags")
 	),
 MinJetPT = cms.double(20),
 mcFlavours = cms.PSet(
@@ -94,7 +56,6 @@ mcPartons = cms.InputTag("hltBtagJetsbyValAlgo")
 
 #put all in a path
 hltbtagValidationSequence = cms.Sequence(
-hltBtagTriggerSelection +
 	hltBtagJetMCTools +
 	HltVertexValidationVertices +
 	hltbTagValidation

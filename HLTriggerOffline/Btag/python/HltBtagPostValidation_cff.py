@@ -4,13 +4,9 @@ from HLTriggerOffline.Btag.HltBtagValidation_cff import *
 #define HltBTagPostValidation for the b-tag DQM validation (efficiency and mistagrate plot)
 HltBTagPostValidation = cms.EDAnalyzer("HLTBTagHarvestingAnalyzer",
 HLTPathNames = cms.vstring(
-#    'HLT_BTagCSV07_v1', 
-#    'HLT_PFMHT100_SingleCentralJet60_BTagCSV0p6_v1', 
     'HLT_BTagCSV07_v1'
     ),
 histoName	= cms.vstring(
-#	'hltL3CombinedSecondaryVertexBJetTags',
-#	'hltL3CombinedSecondaryVertexBJetTags',
 	'hltL3CombinedSecondaryVertexBJetTags',
 	),
 minTag	= cms.double(0.6),
@@ -25,7 +21,6 @@ uds = cms.vuint32(1, 2, 3)
 )
 #put all in a path
 HltBTagPostVal = cms.Sequence(
-hltBtagTriggerSelection +
 	HltBTagPostValidation
 )	
 
