@@ -2,25 +2,25 @@ import FWCore.ParameterSet.Config as cms
 from HLTriggerOffline.Btag.hltBtagJetMCTools_cff import *
 
 #denominator trigger
-#hltBtagTriggerSelection = cms.EDFilter( "TriggerResultsFilter",
-#    triggerConditions = cms.vstring(
-#      "HLT_PFJet40*"),
-#    hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
+hltBtagTriggerSelection = cms.EDFilter( "TriggerResultsFilter",
+    triggerConditions = cms.vstring(
+      "HLT_PFMET170*"),
+    hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
 #    l1tResults = cms.InputTag( "simGtDigis" ),
-##    l1tResults = cms.InputTag( "hltGtDigis" ),
-#    throw = cms.bool( True )
-#)
+#    l1tResults = cms.InputTag( "hltGtDigis" ),
+    throw = cms.bool( True )
+)
 
 #correct the jet used for the matching
 hltBtagJetsbyRef.jets = cms.InputTag("hltSelector4CentralJetsL1FastJet")
 
 #define HltVertexValidationVertices for the vertex DQM validation
 HltVertexValidationVertices= cms.EDAnalyzer("HLTVertexPerformanceAnalyzer",
-TriggerResults = cms.InputTag('TriggerResults','',"HLT"),
-HLTPathNames =cms.vstring(
-	'HLT_BTagCSV07_v1', 
-	'HLT_BTagCSV07_v1', 
-	'HLT_BTagCSV07_v1'
+	TriggerResults = cms.InputTag('TriggerResults','',"HLT"),
+	HLTPathNames =cms.vstring(
+	'HLT_PFMET120_NoiseCleaned_BTagCSV07_v1', 
+	'HLT_PFMET120_NoiseCleaned_BTagCSV07_v1', 
+	'HLT_PFMET120_NoiseCleaned_BTagCSV07_v1'
 	),
 	Vertex = cms.VInputTag(
 		cms.InputTag("hltVerticesL3"), 
@@ -47,6 +47,7 @@ hltbTagValidation = cms.EDAnalyzer("HLTBTagPerformanceAnalyzer",
 
 #put all in a path
 hltbtagValidationSequence = cms.Sequence(
+	hltBtagTriggerSelection +
 	hltBtagJetMCTools +
 	HltVertexValidationVertices +
 	hltbTagValidation
