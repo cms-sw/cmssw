@@ -143,10 +143,7 @@
        MonitorElement* meNDigisCOMBBarrel_;
        MonitorElement* meNDigisCOMBEndcap_;
        MonitorElement* meNDigisCHANBarrel_;
-       MonitorElement* meNDigisCHANBarrelL1_;
-       MonitorElement* meNDigisCHANBarrelL2_;
-       MonitorElement* meNDigisCHANBarrelL3_;
-       MonitorElement* meNDigisCHANBarrelL4_;
+       std::vector<MonitorElement*> meNDigisCHANBarrelL_;
        MonitorElement* meNDigisCHANBarrelCh1_;
        MonitorElement* meNDigisCHANBarrelCh2_;
        MonitorElement* meNDigisCHANBarrelCh3_;
@@ -209,6 +206,7 @@
        
        //define Token(-s)
        edm::EDGetTokenT<edm::DetSetVector<PixelDigi> > srcToken_;
+       int noOfLayers;
  };
 
 #endif

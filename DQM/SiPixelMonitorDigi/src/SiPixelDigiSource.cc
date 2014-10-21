@@ -63,7 +63,8 @@ SiPixelDigiSource::SiPixelDigiSource(const edm::ParameterSet& iConfig) :
   bladeOn( conf_.getUntrackedParameter<bool>("bladeOn",false) ), 
   diskOn( conf_.getUntrackedParameter<bool>("diskOn",false) ),
   bigEventSize( conf_.getUntrackedParameter<int>("bigEventSize",1000) ), 
-  isUpgrade( conf_.getUntrackedParameter<bool>("isUpgrade",false) )
+  isUpgrade( conf_.getUntrackedParameter<bool>("isUpgrade",false) ),
+  noOfLayers(0)
 {
    //set Token(-s)
    srcToken_ = consumes<edm::DetSetVector<PixelDigi> >(conf_.getParameter<edm::InputTag>( "src" ));
@@ -214,7 +215,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
   int NloEffROCs[2]       = {0,-672};
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
     int numberOfDigisMod = (*struct_iter).second->fill(*input, 
-						       meNDigisCOMBBarrel_, meNDigisCHANBarrel_,meNDigisCHANBarrelL1_,meNDigisCHANBarrelL2_,meNDigisCHANBarrelL3_,meNDigisCHANBarrelL4_,meNDigisCOMBEndcap_,
+						       meNDigisCOMBBarrel_, meNDigisCHANBarrel_,meNDigisCHANBarrelL_,meNDigisCOMBEndcap_,
 						       modOn, ladOn, layOn, phiOn, 
 						       bladeOn, diskOn, ringOn, 
 						       twoDimOn, reducedSet, twoDimModOn, twoDimOnlyLayDisk,
@@ -583,6 +584,10 @@ void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup){
         if(isPIB) continue;
 	LogDebug ("PixelDQM") << " ---> Adding Barrel Module " <<  detId.rawId() << endl;
 	uint32_t id = detId();
+	int layer;
+	if (isUpgrade) layer = PixelBarrelName(DetId(id)).layerName();
+	else           layer = PixelBarrelNameUpgrade(DetId(id)).layerName();
+	if (layer > noOfLayers) noOfLayers = layer;
 	SiPixelDigiModule* theModule = new SiPixelDigiModule(id, ncols, nrows);
 	thePixelStructure.insert(pair<uint32_t,SiPixelDigiModule*> (id,theModule));
 
@@ -739,18 +744,13 @@ void SiPixelDigiSource::bookMEs(DQMStore::IBooker & iBooker){
   meNDigisCOMBBarrel_->setAxisTitle("Number of digis per module per event",1);
   meNDigisCHANBarrel_ = iBooker.book1D("ALLMODS_ndigisCHAN_Barrel","Number of Digis",100,0.,1000.);
   meNDigisCHANBarrel_->setAxisTitle("Number of digis per FED channel per event",1);
-  meNDigisCHANBarrelL1_ = iBooker.book1D("ALLMODS_ndigisCHAN_BarrelL1","Number of Digis L1",100,0.,1000.);
-  meNDigisCHANBarrelL1_->setAxisTitle("Number of digis per FED channel per event",1);
-  meNDigisCHANBarrelL2_ = iBooker.book1D("ALLMODS_ndigisCHAN_BarrelL2","Number of Digis L2",100,0.,1000.);
-  meNDigisCHANBarrelL2_->setAxisTitle("Number of digis per FED channel per event",1);
-  meNDigisCHANBarrelL3_ = iBooker.book1D("ALLMODS_ndigisCHAN_BarrelL3","Number of Digis L3",100,0.,1000.);
-  meNDigisCHANBarrelL3_->setAxisTitle("Number of digis per FED channel per event",1);
-  if (isUpgrade) {
-    meNDigisCHANBarrelL4_ = iBooker.book1D("ALLMODS_ndigisCHAN_BarrelL4","Number of Digis L4",100,0.,1000.);
-    meNDigisCHANBarrelL4_->setAxisTitle("Number of digis per FED channel per event",1);
-  }
-  else{
-    meNDigisCHANBarrelL4_=0;
+  std::stringstream ss1, ss2;
+  for (int i = 1; i <= noOfLayers; i++)
+  {
+    ss1.str(std::string()); ss1 << "ALLMODS_ndigisCHAN_BarrelL" << i;
+    ss2.str(std::string()); ss2 << "Number of Digis L" << i;
+    meNDigisCHANBarrelL_.push_back(iBooker.book1D(ss1.str(),ss2.str(),100,0.,1000.));
+    meNDigisCHANBarrelL_.at(i-1)->setAxisTitle("Number of digis per FED channel per event",1);
   }
   meNDigisCHANBarrelCh1_ = iBooker.book1D("ALLMODS_ndigisCHAN_BarrelCh1","Number of Digis Ch1",100,0.,1000.);
   meNDigisCHANBarrelCh1_->setAxisTitle("Number of digis per FED channel per event",1);
