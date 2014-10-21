@@ -42,7 +42,20 @@ TauAna = TauAnalyzer.defaultConfig
 JetAna = JetAnalyzer.defaultConfig
 
 sequence = [VertexAna,LepAna,TauAna,PhoAna,JetAna,treeProducer]
-sample = cfg.Component(files = "/scratch/arizzi/heppy/CMSSW_7_2_0_pre8/src/PhysicsTools/Heppy/test/E21AD523-E548-E411-8DF6-00261894388F.root", name="ATEST", isMC=False,isEmbed=False)
-looper = Looper( 'Loop', sample,sequence, Events, nPrint = 5)
-looper.loop()
-looper.write()
+sample = cfg.Component(
+    # files = "/scratch/arizzi/heppy/CMSSW_7_2_0_pre8/src/PhysicsTools/Heppy/test/E21AD523-E548-E411-8DF6-00261894388F.root", 
+    files = 'tt.root',
+    name="ATEST", isMC=False,isEmbed=False
+    )
+
+# the following is declared in case this cfg is used in input to the heppy.py script
+selectedComponents = [sample]
+config = cfg.Config( components = selectedComponents,
+                     sequence = sequence, 
+                     events_class = Events)
+
+# and the following runs the process directly 
+if __name__ == '__main__':
+    looper = Looper( 'Loop', sample, sequence, Events, nPrint = 5)
+    looper.loop()
+    looper.write()
