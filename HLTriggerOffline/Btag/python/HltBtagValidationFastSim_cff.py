@@ -14,12 +14,12 @@ from HLTriggerOffline.Btag.HltBtagValidation_cff import *
 
 #define HltVertexValidationVerticesFastSim for the vertex DQM validation (no hltFastPrimaryVertex)
 HltVertexValidationVerticesFastSim= cms.EDAnalyzer("HLTVertexPerformanceAnalyzer",
-TriggerResults = cms.InputTag('TriggerResults','',"HLT"),
-HLTPathNames =cms.vstring(
-	'HLT_BTagCSV07_v1', 
-#	'HLT_BTagCSV07_v1', 
-	'HLT_BTagCSV07_v1'
-	),
+	TriggerResults = cms.InputTag('TriggerResults','',"HLT"),
+	HLTPathNames =cms.vstring(
+		'HLT_BTagCSV07_v1', 
+	#	'HLT_BTagCSV07_v1', 
+		'HLT_BTagCSV07_v1'
+		),
 	Vertex = cms.VInputTag(
 		cms.InputTag("hltVerticesL3"), 
 #		cms.InputTag("hltFastPrimaryVertex"), 
