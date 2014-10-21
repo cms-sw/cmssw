@@ -33,10 +33,6 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
 	if hasattr(cfg_ana,"globalVariables"):
 		self.globalVariables=cfg_ana.globalVariables
 
-    def beginLoop(self) :
-        super(AutoFillTreeProducer, self).beginLoop()
-        self.declareVariables() 
-
     def declareHandles(self):
         super(AutoFillTreeProducer, self).declareHandles()
 #        self.handles['TriggerResults'] = AutoHandle( ('TriggerResults','','HLT'), 'edm::TriggerResults' )
