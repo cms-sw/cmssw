@@ -17,6 +17,8 @@ from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import GenParticle
 
 from PhysicsTools.HeppyCore.utils.deltar import deltaR,deltaPhi
 from PhysicsTools.Heppy.physicsutils.genutils import *
+import PhysicsTools.HeppyCore.framework.config as cfg
+
         
 class GeneratorAnalyzer( Analyzer ):
     """Do generator-level analysis of a ttH->leptons decay:
@@ -244,3 +246,11 @@ class GeneratorAnalyzer( Analyzer ):
         if self.doPDFWeights:
             self.makePDFWeights(event)
         return True
+
+setattr(GeneratorAnalyzer,"defaultConfig",cfg.Analyzer(
+    class_object=GeneratorAnalyzer,
+    filterHiggsDecays = False, 
+    verbose = False,
+    PDFWeights = []
+    )
+)

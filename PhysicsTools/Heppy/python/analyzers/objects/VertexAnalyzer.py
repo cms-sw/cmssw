@@ -5,6 +5,7 @@ from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 from PhysicsTools.HeppyCore.statistics.average import Average
 from PhysicsTools.Heppy.physicsutils.PileUpSummaryInfo import PileUpSummaryInfo
+import PhysicsTools.HeppyCore.framework.config as cfg
 
 class VertexAnalyzer( Analyzer ):
     """selects a list of good primary vertices,
@@ -154,3 +155,11 @@ class VertexAnalyzer( Analyzer ):
         super(VertexAnalyzer, self).write()
         if self.doHists:
             self.pileup.write()
+
+setattr(VertexAnalyzer,"defaultConfig",cfg.Analyzer(
+    class_object=VertexAnalyzer,
+    vertexWeight = None,
+    fixedWeight = 1,
+    verbose = False
+   )
+)

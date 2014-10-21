@@ -5,6 +5,7 @@ from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import Jet
 from PhysicsTools.HeppyCore.utils.deltar import * 
 from PhysicsTools.HeppyCore.statistics.counter import Counter, Counters
 from PhysicsTools.Heppy.physicsutils.JetReCalibrator import JetReCalibrator
+import PhysicsTools.HeppyCore.framework.config as cfg
 
 def cleanNearestJetOnly(jets,leptons,deltaR):
     dr2 = deltaR**2
@@ -25,15 +26,16 @@ class JetAnalyzer( Analyzer ):
         super(JetAnalyzer,self).__init__(cfg_ana, cfg_comp, looperName)
         mcGT   = cfg_ana.mcGT   if hasattr(cfg_ana,'mcGT') else "START53_V27"
         dataGT = cfg_ana.dataGT if hasattr(cfg_ana,'dataGT') else "FT_53_V21_AN5"
-        if self.cfg_comp.isMC:
-            self.jetReCalibrator    = JetReCalibrator(mcGT,"AK5PF",    False)
-            self.jetReCalibratorCHS = JetReCalibrator(mcGT,"AK5PFchs", False)
-        else:
-            self.jetReCalibrator    = JetReCalibrator(dataGT,"AK5PF",    True)
-            self.jetReCalibratorCHS = JetReCalibrator(dataGT,"AK5PFchs", True)
-        self.doPuId = self.cfg_ana.doPuId if hasattr(self.cfg_ana, 'doPuId') else True
         self.shiftJEC = self.cfg_ana.shiftJEC if hasattr(self.cfg_ana, 'shiftJEC') else 0
         self.doJEC = self.cfg_ana.recalibrateJets or (self.shiftJEC != 0)
+        if self.doJEC:
+          if self.cfg_comp.isMC:
+            self.jetReCalibrator    = JetReCalibrator(mcGT,"AK5PF",    False,cfg_ana.jecPath)
+            self.jetReCalibratorCHS = JetReCalibrator(mcGT,"AK5PFchs", False,cfg_ana.jecPath)
+          else:
+            self.jetReCalibrator    = JetReCalibrator(dataGT,"AK5PF",    True,cfg_ana.jecPath)
+            self.jetReCalibratorCHS = JetReCalibrator(dataGT,"AK5PFchs", True,cfg_ana.jecPath)
+        self.doPuId = self.cfg_ana.doPuId if hasattr(self.cfg_ana, 'doPuId') else True
         self.jetLepDR = self.cfg_ana.jetLepDR  if hasattr(self.cfg_ana, 'jetLepDR') else 0.5
         self.lepPtMin = self.cfg_ana.minLepPt  if hasattr(self.cfg_ana, 'minLepPt') else -1
         self.jetGammaDR = self.cfg_ana.jetGammaDR  if hasattr(self.cfg_ana, 'jetGammaDR') else 0.4
@@ -142,3 +144,20 @@ class JetAnalyzer( Analyzer ):
                abs( jet.eta() ) < self.cfg_ana.jetEta;
  
 
+setattr(JetAnalyzer,"defaultConfig", cfg.Analyzer(
+    class_object = JetAnalyzer,
+    jetCol = 'slimmedJets',
+    jetCol4MVA = 'slimmedJets',
+    jetPt = 25.,
+    jetEta = 4.7,
+    jetEtaCentral = 2.4,
+    jetLepDR = 0.4,
+    minLepPt = 10,
+    relaxJetId = False,  
+    doPuId = False, # Not commissioned in 7.0.X
+    recalibrateJets = False,
+    shiftJEC = 0, # set to +1 or -1 to get +/-1 sigma shifts
+    cleanJetsFromTaus = False,
+    jecPath = ""
+    )
+)

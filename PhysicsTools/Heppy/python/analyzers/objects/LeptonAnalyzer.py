@@ -9,6 +9,7 @@ from PhysicsTools.Heppy.physicsutils.RochesterCorrections import rochcor
 from PhysicsTools.Heppy.physicsutils.MuScleFitCorrector   import MuScleFitCorr
 from PhysicsTools.Heppy.physicsutils.ElectronCalibrator import EmbeddedElectronCalibrator
 #from CMGTools.TTHAnalysis.electronCalibrator import ElectronCalibrator
+import PhysicsTools.HeppyCore.framework.config as cfg
 
 from ROOT import CMGMuonCleanerBySegmentsAlgo
 cmgMuonCleanerBySegments = CMGMuonCleanerBySegmentsAlgo()
@@ -237,3 +238,54 @@ class LeptonAnalyzer( Analyzer ):
         self.makeLeptons(event)
 
         return True
+
+#A default config
+setattr(LeptonAnalyzer,"defaultConfig",cfg.Analyzer(
+    verbose=False,
+    class_object=LeptonAnalyzer,
+    # input collections
+    muons='slimmedMuons',
+    electrons='slimmedElectrons',
+    rhoMuon= 'fixedGridRhoFastjetAll',
+    rhoElectron = 'fixedGridRhoFastjetAll',
+##    photons='slimmedPhotons',
+    # energy scale corrections and ghost muon suppression (off by default)
+    doMuScleFitCorrections=False, # "rereco"
+    doRochesterCorrections=False,
+    doElectronScaleCorrections=False, # "embedded" in 5.18 for regression
+    doSegmentBasedMuonCleaning=False,
+    # inclusive very loose muon selection
+    inclusive_muon_id  = "POG_ID_Loose",
+    inclusive_muon_pt  = 3,
+    inclusive_muon_eta = 2.4,
+    inclusive_muon_dxy = 0.5,
+    inclusive_muon_dz  = 1.0,
+    # loose muon selection
+    loose_muon_id     = "POG_ID_Loose",
+    loose_muon_pt     = 5,
+    loose_muon_eta    = 2.4,
+    loose_muon_dxy    = 0.05,
+    loose_muon_dz     = 0.2,
+    loose_muon_relIso = 0.4,
+    # inclusive very loose electron selection
+    inclusive_electron_id  = "",
+    inclusive_electron_pt  = 5,
+    inclusive_electron_eta = 2.5,
+    inclusive_electron_dxy = 0.5,
+    inclusive_electron_dz  = 1.0,
+    inclusive_electron_lostHits = 1.0,
+    # loose electron selection
+    loose_electron_id     = "", #POG_MVA_ID_NonTrig_full5x5",
+    loose_electron_pt     = 7,
+    loose_electron_eta    = 2.4,
+    loose_electron_dxy    = 0.05,
+    loose_electron_dz     = 0.2,
+    loose_electron_relIso = 0.4,
+    loose_electron_lostHits = 1.0,
+    # electron isolation correction method (can be "rhoArea" or "deltaBeta")
+    ele_isoCorr = "rhoArea" ,
+    ele_tightId = "MVA" ,
+    # minimum deltaR between a loose electron and a loose muon (on overlaps, discard the electron)
+    min_dr_electron_muon = 0.02
+    )
+)

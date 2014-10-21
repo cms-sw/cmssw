@@ -14,6 +14,9 @@ from PhysicsTools.Heppy.physicsobjects.Lepton import Lepton
 from PhysicsTools.Heppy.physicsobjects.Tau import Tau
 
 from PhysicsTools.HeppyCore.utils.deltar import deltaR, deltaPhi, bestMatch
+
+import PhysicsTools.HeppyCore.framework.config as cfg
+
  
 class TauAnalyzer( Analyzer ):
 
@@ -94,3 +97,17 @@ class TauAnalyzer( Analyzer ):
         self.readCollections( event.input )
         self.makeTaus(event)
         return True
+
+setattr(TauAnalyzer,"defaultConfig",cfg.Analyzer(
+    class_object=TauAnalyzer,
+    ptMin = 20,
+    etaMax = 9999,
+    dxyMax = 0.5,
+    dzMax = 1.0,
+    vetoLeptons = True,
+    leptonVetoDR = 0.4,
+    vetoLeptonsPOG = False,
+    tauID = "byLooseCombinedIsolationDeltaBetaCorr3Hits",
+    tauLooseID = "decayModeFinding",
+  )
+)
