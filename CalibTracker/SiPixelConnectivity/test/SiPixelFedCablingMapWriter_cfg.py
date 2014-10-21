@@ -5,8 +5,11 @@ process.load("CondCore.DBCommon.CondDBCommon_cfi")
 process.CondDBCommon.connect = cms.string("sqlite_file:cabling.db")
 
 process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'MC_3XY_V15::All'
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+from Configuration.AlCa.autoCond_condDBv2 import autoCond
+process.GlobalTag.globaltag = autoCond['run2_design']
+#In case you of conditions missing, or if you want to test a specific GT
+#process.GlobalTag.globaltag = 'PRE_DES72_V6'
 
 process.source = cms.Source("EmptyIOVSource",
     timetype = cms.string('runnumber'),

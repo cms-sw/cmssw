@@ -6,12 +6,12 @@
 
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include <fstream>
 #include <stdio.h>
@@ -105,6 +105,11 @@ SiPixel2DTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const edm::
 			cout << "Error opening File " << tempfile << "\n";
 		}
 	}
+
+        //Retrieve tracker topology from geometry
+        edm::ESHandle<TrackerTopology> tTopoHandle;
+        es.get<IdealGeometryRecord>().get(tTopoHandle);
+        const TrackerTopology* const tTopo = tTopoHandle.product();
 	
 	edm::ESHandle<TrackerGeometry> pDD;
 	es.get<TrackerDigiGeometryRecord>().get( pDD );
@@ -118,16 +123,16 @@ SiPixel2DTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const edm::
 		if( (*it)!=0){
 			// Here is the actual looping step over all DetIds:				
 			DetId detid=(*it)->geographicalId();
+                        const DetId detidc = (*it)->geographicalId();
 
 			unsigned int layer=0, disk=0, side=0, blade=0, panel=0, module=0;
 					
 			// Now we sort them into the Barrel and Endcap:
 			if(detid.subdetId() == 1) {
-				PXBDetId pdetId = PXBDetId(detid);
-				//unsigned int detTypeP=pdetId.det();
-				//unsigned int subidP=pdetId.subdetId();
-				layer=pdetId.layer();
-				module=pdetId.module();
+
+                                layer=tTopo->pxbLayer(detidc.rawId());
+                                module=tTopo->pxbModule(detidc.rawId());
+
 				if(detid.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)){
 					if (layer == 1) {
 						if (module == 1) {
@@ -263,12 +268,13 @@ SiPixel2DTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const edm::
 				}
 			}
 			if(detid.subdetId() == 2) {
-				PXFDetId pdetId = PXFDetId(detid);
-				disk=pdetId.disk(); //1,2,3
-			       	blade=pdetId.blade(); //1-24
-			       	side=pdetId.side(); //size=1 for -z, 2 for +z
-			       	panel=pdetId.panel(); //panel=1,2	
-		        	module=pdetId.module(); // plaquette
+
+                                disk=tTopo->pxfDisk(detidc.rawId()); //1,2,3
+                                blade=tTopo->pxfBlade(detidc.rawId()); //1-24
+                                side=tTopo->pxfSide(detidc.rawId()); //size=1 for -z, 2 for +z
+                                panel=tTopo->pxfPanel(detidc.rawId()); //panel=1,2
+                                module=tTopo->pxfModule(detidc.rawId()); // plaquette
+
 				//short temp123abc = (short) theTemplIds[1];
 				if(detid.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)){
 					if (side ==1 ){
