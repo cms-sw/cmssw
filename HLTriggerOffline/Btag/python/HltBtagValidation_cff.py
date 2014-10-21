@@ -7,7 +7,7 @@ hltBtagTriggerSelection = cms.EDFilter( "TriggerResultsFilter",
       "HLT_PFMET170*"),
     hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
 #    l1tResults = cms.InputTag( "simGtDigis" ),
-#    l1tResults = cms.InputTag( "hltGtDigis" ),
+    l1tResults = cms.InputTag( "gtDigis" ),
     throw = cms.bool( True )
 )
 
