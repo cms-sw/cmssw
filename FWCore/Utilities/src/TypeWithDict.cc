@@ -58,6 +58,24 @@ namespace edm {
 
     typedef tbb::concurrent_unordered_map<std::string, TypeWithDict> TypeMap;
     static TypeMap typeMap;
+    static std::string const constPrefix("const ");
+    static std::string const constSuffix(" const");
+    static size_t const constPrefixSize(constPrefix.size());
+    static size_t const constSuffixSize(constSuffix.size());
+    if(name.back() == '&') {
+      property |= kIsReference;
+      return byName(name.substr(0, name.size() - 1), property);
+    }
+    if(name.size() > constSuffixSize && name.back() != '*') {
+      if(name.substr(0, constPrefixSize) == constPrefix) {
+        property |= kIsConstant;
+        return byName(name.substr(constPrefixSize), property);
+      }
+      if(name.substr(name.size() - constSuffixSize) == constSuffix) {
+        property |= kIsConstant;
+        return byName(name.substr(0, name.size() - constSuffixSize), property);
+      }
+    }
     TypeMap::const_iterator it = typeMap.find(name);
     if (it != typeMap.end()) {
       return TypeWithDict(it->second, property);
@@ -178,18 +196,15 @@ namespace edm {
     property_(property) {
 
     if(class_ != nullptr) {
-      property_ |= (long)kIsClass;
       return;
     }
 
     if(dataType_ != nullptr) {
-      property_ |= (long)kIsFundamental;
       return;
     }
 
     enum_ = TEnum::GetEnum(ti, TEnum::kAutoload);
     if(enum_ != nullptr) {
-      property_ |= (long)kIsEnum;
       return;
     }
 
@@ -205,7 +220,7 @@ namespace edm {
     class_(cl),
     enum_(nullptr),
     dataType_(nullptr),
-    property_((long) kIsClass | property) {
+    property_(property) {
   }
 
   TypeWithDict::TypeWithDict(TEnum* enm, std::string const& name, long property /*= 0L*/) :
@@ -214,7 +229,7 @@ namespace edm {
     class_(nullptr),
     enum_(enm),
     dataType_(nullptr),
-    property_((long) kIsEnum | property) {
+    property_(property) {
   }
 
   TypeWithDict::TypeWithDict(TMethodArg* arg, long property /*= 0L*/) :
