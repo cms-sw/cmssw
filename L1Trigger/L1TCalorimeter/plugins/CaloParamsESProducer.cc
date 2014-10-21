@@ -98,6 +98,11 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setEgEtToRemoveHECut(conf.getParameter<double>("egEtToRemoveHECut"));
   m_params.setEgRelativeJetIsolationBarrelCut(conf.getParameter<double>("egRelativeJetIsolationBarrelCut"));
   m_params.setEgRelativeJetIsolationEndcapCut(conf.getParameter<double>("egRelativeJetIsolationEndcapCut"));
+  m_params.setEgMinPtRelativeJetIsolation(conf.getParameter<int>("egMinPtRelativeJetIsolation"));
+  m_params.setEgMaxPtRelativeJetIsolation(conf.getParameter<int>("egMaxPtRelativeJetIsolation"));
+  m_params.setEgMinPt3x3HoE(conf.getParameter<int>("egMinPt3x3HoE"));
+  m_params.setEgMaxPt3x3HoE(conf.getParameter<int>("egMaxPt3x3HoE"));
+
 
   edm::FileInPath egMaxHOverELUTFile = conf.getParameter<edm::FileInPath>("egMaxHOverELUTFile");
   std::ifstream egMaxHOverELUTStream(egMaxHOverELUTFile.fullPath());
@@ -115,6 +120,17 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   std::ifstream egIsoLUTStream(egIsoLUTFile.fullPath());
   std::shared_ptr<l1t::LUT> egIsoLUT( new l1t::LUT(egIsoLUTStream) );
   m_params.setEgIsolationLUT(egIsoLUT);
+
+  edm::FileInPath egIsoLUTFileBarrel = conf.getParameter<edm::FileInPath>("egIsoLUTFileBarrel");
+  std::ifstream egIsoLUTBarrelStream(egIsoLUTFileBarrel.fullPath());
+  std::shared_ptr<l1t::LUT> egIsoLUTBarrel( new l1t::LUT(egIsoLUTBarrelStream) );
+  m_params.setEgIsolationLUTBarrel(egIsoLUTBarrel);
+
+  edm::FileInPath egIsoLUTFileEndcaps = conf.getParameter<edm::FileInPath>("egIsoLUTFileEndcaps");
+  std::ifstream egIsoLUTEndcapsStream(egIsoLUTFileEndcaps.fullPath());
+  std::shared_ptr<l1t::LUT> egIsoLUTEndcaps( new l1t::LUT(egIsoLUTEndcapsStream) );
+  m_params.setEgIsolationLUTEndcaps(egIsoLUTEndcaps);
+
 
   m_params.setEgIsoAreaNrTowersEta(conf.getParameter<unsigned int>("egIsoAreaNrTowersEta"));
   m_params.setEgIsoAreaNrTowersPhi(conf.getParameter<unsigned int>("egIsoAreaNrTowersPhi"));
