@@ -6,15 +6,15 @@ OuterTrackerMonitorCluster = cms.EDAnalyzer('OuterTrackerMonitorCluster',
 
 # Cluster Stacks
     TH1TTCluster_Stack = cms.PSet(
-        Nbinsx = cms.int32(12),
-        xmax = cms.double(11.5),                      
-        xmin = cms.double(-0.5)
+        Nbinsx = cms.int32(6),
+        xmax = cms.double(6.5),                      
+        xmin = cms.double(0.5)
         ),
     
     TH1TTCluster_Eta = cms.PSet(
         Nbinsx = cms.int32(50),
-        xmax = cms.double(3.5),                      
-        xmin = cms.double(-3.5)
+        xmax = cms.double(3.0),                      
+        xmin = cms.double(-3.0)
         ),
 
 # Cluster Width vs. I/O sensor

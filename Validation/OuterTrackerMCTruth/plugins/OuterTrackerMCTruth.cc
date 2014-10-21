@@ -420,8 +420,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
 																			psSimVtx_RZ.getParameter<int32_t>("Nbinsy"),
 																			psSimVtx_RZ.getParameter<double>("ymin"),
 																			psSimVtx_RZ.getParameter<double>("ymax"));
-	SimVtx_RZ->setAxisTitle("SimVtx #rho", 1);
-	SimVtx_RZ->setAxisTitle("SimVtx z", 2);
+	SimVtx_RZ->setAxisTitle("SimVtx z", 1);
+	SimVtx_RZ->setAxisTitle("SimVtx #rho", 2);
 	
 	
 	/// Eta distribution of Tracking Particles (Cluster width)
