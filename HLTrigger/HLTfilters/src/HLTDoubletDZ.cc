@@ -58,7 +58,6 @@ HLTDoubletDZ<T1,T2>::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<std::vector<edm::InputTag> >("originTag2",originTag2);
   desc.add<edm::InputTag>("inputTag1",edm::InputTag("hltFiltered1"));
   desc.add<edm::InputTag>("inputTag2",edm::InputTag("hltFiltered2"));
-  desc.add<edm::InputTag>("electronTag",edm::InputTag("electronTag"));
   desc.add<int>("triggerType1",0);
   desc.add<int>("triggerType2",0);
   desc.add<double>("MinDR",-1.0);
@@ -68,6 +67,68 @@ HLTDoubletDZ<T1,T2>::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   descriptions.add(std::string("hlt")+std::string(typeid(HLTDoubletDZ<T1,T2>).name()),desc);
 }
 
+template<>
+void
+HLTDoubletDZ<reco::RecoEcalCandidate, reco::RecoEcalCandidate>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  std::vector<edm::InputTag> originTag1(1,edm::InputTag("hltOriginal1"));
+  std::vector<edm::InputTag> originTag2(1,edm::InputTag("hltOriginal2"));
+  desc.add<std::vector<edm::InputTag> >("originTag1",originTag1);
+  desc.add<std::vector<edm::InputTag> >("originTag2",originTag2);
+  desc.add<edm::InputTag>("inputTag1",edm::InputTag("hltFiltered1"));
+  desc.add<edm::InputTag>("inputTag2",edm::InputTag("hltFiltered2"));
+  desc.add<edm::InputTag>("electronTag",edm::InputTag("electronTag"));
+  desc.add<int>("triggerType1",0);
+  desc.add<int>("triggerType2",0);
+  desc.add<double>("MinDR",-1.0);
+  desc.add<double>("MaxDZ",0.2);
+  desc.add<bool>("checkSC",false);
+  desc.add<int>("MinN",1);
+  descriptions.add(std::string("hlt")+std::string(typeid(HLTDoubletDZ<reco::RecoEcalCandidate, reco::RecoEcalCandidate>).name()),desc);
+}
+
+template<>
+void
+HLTDoubletDZ<reco::RecoChargedCandidate, reco::RecoEcalCandidate>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  std::vector<edm::InputTag> originTag1(1,edm::InputTag("hltOriginal1"));
+  std::vector<edm::InputTag> originTag2(1,edm::InputTag("hltOriginal2"));
+  desc.add<std::vector<edm::InputTag> >("originTag1",originTag1);
+  desc.add<std::vector<edm::InputTag> >("originTag2",originTag2);
+  desc.add<edm::InputTag>("inputTag1",edm::InputTag("hltFiltered1"));
+  desc.add<edm::InputTag>("inputTag2",edm::InputTag("hltFiltered2"));
+  desc.add<edm::InputTag>("electronTag",edm::InputTag("electronTag"));
+  desc.add<int>("triggerType1",0);
+  desc.add<int>("triggerType2",0);
+  desc.add<double>("MinDR",-1.0);
+  desc.add<double>("MaxDZ",0.2);
+  desc.add<bool>("checkSC",false);
+  desc.add<int>("MinN",1);
+  descriptions.add(std::string("hlt")+std::string(typeid(HLTDoubletDZ<reco::RecoChargedCandidate, reco::RecoEcalCandidate>).name()),desc);
+}
+
+template<>
+void
+HLTDoubletDZ<reco::RecoEcalCandidate, reco::RecoChargedCandidate>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  std::vector<edm::InputTag> originTag1(1,edm::InputTag("hltOriginal1"));
+  std::vector<edm::InputTag> originTag2(1,edm::InputTag("hltOriginal2"));
+  desc.add<std::vector<edm::InputTag> >("originTag1",originTag1);
+  desc.add<std::vector<edm::InputTag> >("originTag2",originTag2);
+  desc.add<edm::InputTag>("inputTag1",edm::InputTag("hltFiltered1"));
+  desc.add<edm::InputTag>("inputTag2",edm::InputTag("hltFiltered2"));
+  desc.add<edm::InputTag>("electronTag",edm::InputTag("electronTag"));
+  desc.add<int>("triggerType1",0);
+  desc.add<int>("triggerType2",0);
+  desc.add<double>("MinDR",-1.0);
+  desc.add<double>("MaxDZ",0.2);
+  desc.add<bool>("checkSC",false);
+  desc.add<int>("MinN",1);
+  descriptions.add(std::string("hlt")+std::string(typeid(HLTDoubletDZ<reco::RecoEcalCandidate, reco::RecoChargedCandidate>).name()),desc);
+}
 
 template<typename T1, typename T2>
 bool
@@ -174,6 +235,114 @@ HLTDoubletDZ<T1,T2>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup
 
 template<>
 bool
+HLTDoubletDZ<reco::RecoEcalCandidate, reco::RecoChargedCandidate>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
+{
+ 
+  edm::Handle<reco::ElectronCollection> electronHandle_;
+  iEvent.getByToken(electronToken_, electronHandle_);
+  if (!electronHandle_.isValid()) 
+    edm::LogError("HLTDoubletDZ") << "HLTDoubletDZ: Electron Handle not valid.";
+     
+  bool accept(false);
+  
+  std::vector<T1Ref> coll1;
+  std::vector<T2Ref> coll2;
+  
+  if (getCollections(iEvent, coll1, coll2, filterproduct)) { 
+    int n(0);
+    reco::RecoEcalCandidateRef r1;
+    T2Ref r2;
+
+    for (unsigned int i1=0; i1!=coll1.size(); i1++) {
+      r1 = coll1[i1];
+      unsigned int I(0);
+      if (same_) {I=i1+1;}
+      for (unsigned int i2=I; i2!=coll2.size(); i2++) {
+	r2=coll2[i2];
+	if (checkSC_) {
+	  if (r1->superCluster().isNonnull() && r2->superCluster().isNonnull()) {
+	    if (r1->superCluster() == r2->superCluster()) continue;
+	  }
+	}
+	
+	if ( reco::deltaR(*r1, *r2) < minDR_ ) continue;
+	reco::Electron e1;
+	for(reco::ElectronCollection::const_iterator eleIt = electronHandle_->begin(); eleIt != electronHandle_->end(); eleIt++) {
+	  if (eleIt->superCluster() == r1->superCluster())
+	    e1 = *(eleIt);
+	}
+
+	const reco::Candidate& candidate2(*r2);	
+	if ( std::abs(e1.vz()-candidate2.vz()) > maxDZ_ ) continue;
+	
+	n++;
+	filterproduct.addObject(triggerType1_,r1);
+	filterproduct.addObject(triggerType2_,r2);
+      }
+    }
+  
+    accept = accept || (n>=min_N_);
+  }
+  
+  return accept;
+}
+
+template<>
+bool
+HLTDoubletDZ<reco::RecoChargedCandidate, reco::RecoEcalCandidate>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
+{
+ 
+  edm::Handle<reco::ElectronCollection> electronHandle_;
+  iEvent.getByToken(electronToken_, electronHandle_);
+  if (!electronHandle_.isValid()) 
+    edm::LogError("HLTDoubletDZ") << "HLTDoubletDZ: Electron Handle not valid.";
+     
+  bool accept(false);
+  
+  std::vector<T1Ref> coll1;
+  std::vector<T2Ref> coll2;
+  
+  if (getCollections(iEvent, coll1, coll2, filterproduct)) { 
+    int n(0);
+    T1Ref r1;
+    reco::RecoEcalCandidateRef r2;
+
+    for (unsigned int i1=0; i1!=coll1.size(); i1++) {
+      r1 = coll1[i1];
+      unsigned int I(0);
+      if (same_) {I=i1+1;}
+      for (unsigned int i2=I; i2!=coll2.size(); i2++) {
+	r2=coll2[i2];
+	if (checkSC_) {
+	  if (r1->superCluster().isNonnull() && r2->superCluster().isNonnull()) {
+	    if (r1->superCluster() == r2->superCluster()) continue;
+	  }
+	}
+	
+	if ( reco::deltaR(*r1, *r2) < minDR_ ) continue;
+	reco::Electron e2;
+	for(reco::ElectronCollection::const_iterator eleIt = electronHandle_->begin(); eleIt != electronHandle_->end(); eleIt++) {
+	  if (eleIt->superCluster() == r2->superCluster())
+	    e2 = *(eleIt);
+	}
+
+	const reco::Candidate& candidate1(*r1);	
+	if ( std::abs(e2.vz()-candidate1.vz()) > maxDZ_ ) continue;
+	
+	n++;
+	filterproduct.addObject(triggerType1_,r1);
+	filterproduct.addObject(triggerType2_,r2);
+      }
+    }
+  
+    accept = accept || (n>=min_N_);
+  }
+  
+  return accept;
+}
+
+template<>
+bool
 HLTDoubletDZ<reco::RecoEcalCandidate, reco::RecoEcalCandidate>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
  
@@ -232,8 +401,12 @@ typedef HLTDoubletDZ<reco::Electron            , reco::Electron>             HLT
 typedef HLTDoubletDZ<reco::RecoChargedCandidate, reco::RecoChargedCandidate> HLT2MuonMuonDZ;
 typedef HLTDoubletDZ<reco::Electron            , reco::RecoChargedCandidate> HLT2ElectronMuonDZ;
 typedef HLTDoubletDZ<reco::RecoEcalCandidate   , reco::RecoEcalCandidate>    HLT2PhotonPhotonDZ;
+typedef HLTDoubletDZ<reco::RecoChargedCandidate, reco::RecoEcalCandidate>    HLT2PhotonMuonDZ;
+typedef HLTDoubletDZ<reco::RecoEcalCandidate   , reco::RecoChargedCandidate> HLT2MuonPhotonDZ;
 
 DEFINE_FWK_MODULE(HLT2ElectronElectronDZ);
 DEFINE_FWK_MODULE(HLT2MuonMuonDZ);
 DEFINE_FWK_MODULE(HLT2ElectronMuonDZ);
 DEFINE_FWK_MODULE(HLT2PhotonPhotonDZ);
+DEFINE_FWK_MODULE(HLT2PhotonMuonDZ);
+DEFINE_FWK_MODULE(HLT2MuonPhotonDZ);
