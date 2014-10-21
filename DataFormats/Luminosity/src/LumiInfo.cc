@@ -28,27 +28,15 @@ float LumiInfo::lumiSectionLength() const {
 
 bool LumiInfo::isProductEqual(LumiInfo const& next) const {
   return (deadtimeFraction_ == next.deadtimeFraction_ &&
-	  instLumiByBX_ == next.instLumiByBX_ &&
-	  beam1Intensities_ == next.beam1Intensities_ &&
-	  beam2Intensities_ == next.beam2Intensities_);
-}
-
-void LumiInfo::fill(const std::vector<float>& instLumiByBX,
-		    const std::vector<float>& beam1Intensities,
-		    const std::vector<float>& beam2Intensities) {
-  instLumiByBX_.assign(instLumiByBX.begin(), instLumiByBX.end());
-  beam1Intensities_.assign(beam1Intensities.begin(), beam1Intensities.end());
-  beam2Intensities_.assign(beam2Intensities.begin(), beam2Intensities.end());
+	  instLumiByBX_ == next.instLumiByBX_);
 }
 
 void LumiInfo::fillInstLumi(const std::vector<float>& instLumiByBX) {
   instLumiByBX_.assign(instLumiByBX.begin(), instLumiByBX.end());
 }
 
-void LumiInfo::fillBeamIntensities(const std::vector<float>& beam1Intensities,
-				   const std::vector<float>& beam2Intensities) {
-  beam1Intensities_.assign(beam1Intensities.begin(), beam1Intensities.end());
-  beam2Intensities_.assign(beam2Intensities.begin(), beam2Intensities.end());
+void LumiInfo::fill(const std::vector<float>& instLumiByBX) {
+  fillInstLumi(instLumiByBX);
 }
 
 std::ostream& operator<<(std::ostream& s, const LumiInfo& lumiInfo) {
@@ -61,18 +49,6 @@ std::ostream& operator<<(std::ostream& s, const LumiInfo& lumiInfo) {
   const std::vector<float>& lumiBX = lumiInfo.getInstLumiAllBX();
   for (unsigned int i=0; i<10 && i<lumiBX.size(); ++i) {
     s << lumiBX.at(i) << " ";
-  }
-  s << " ...\n";
-  s << "  beam1Intensities = ";
-  const std::vector<float>& b1int = lumiInfo.getBeam1Intensities();
-  for (unsigned int i=0; i<10 && i<b1int.size(); ++i) {
-    s << b1int.at(i) << " ";
-  }
-  s << " ...\n";
-  s << "  beam2Intensities = ";
-  const std::vector<float>& b2int = lumiInfo.getBeam2Intensities();
-  for (unsigned int i=0; i<10 && i<b2int.size(); ++i) {
-    s << b2int.at(i) << " ";
   }
   s << " ...\n";
 

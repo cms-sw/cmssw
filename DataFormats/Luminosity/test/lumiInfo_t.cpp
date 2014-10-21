@@ -47,17 +47,7 @@ TestLumiInfo::testFill() {
   lumBX.push_back(2.0f);
   lumBX.push_back(3.0f);
 
-  std::vector<float> beam1;
-  beam1.push_back(4.0f);
-  beam1.push_back(5.0f);
-  beam1.push_back(6.0f);
-
-  std::vector<float> beam2;
-  beam2.push_back(7.0f);
-  beam2.push_back(8.0f);
-  beam2.push_back(9.0f);
-
-  lumiInfo.fill(lumBX, beam1, beam2);
+  lumiInfo.fill(lumBX);
 
   CPPUNIT_ASSERT(std::abs(lumiInfo.getInstLumiBX(0) - 1.0f) < tol);
   CPPUNIT_ASSERT(std::abs(lumiInfo.getInstLumiBX(1) - 2.0f) < tol);
@@ -67,14 +57,6 @@ TestLumiInfo::testFill() {
   CPPUNIT_ASSERT(std::abs(lumiInfo.integLuminosity() - 6.0f*lumiInfo.lumiSectionLength()) < tol);
   CPPUNIT_ASSERT(std::abs(lumiInfo.recordedLuminosity() - 3.0f*lumiInfo.lumiSectionLength()) < tol);
   
-  CPPUNIT_ASSERT(std::abs(lumiInfo.getBeam1IntensityBX(0) - 4.0f) < tol);
-  CPPUNIT_ASSERT(std::abs(lumiInfo.getBeam1IntensityBX(1) - 5.0f) < tol);
-  CPPUNIT_ASSERT(std::abs(lumiInfo.getBeam1IntensityBX(2) - 6.0f) < tol);
-
-  CPPUNIT_ASSERT(std::abs(lumiInfo.getBeam2IntensityBX(0) - 7.0f) < tol);
-  CPPUNIT_ASSERT(std::abs(lumiInfo.getBeam2IntensityBX(1) - 8.0f) < tol);
-  CPPUNIT_ASSERT(std::abs(lumiInfo.getBeam2IntensityBX(2) - 9.0f) < tol);
-
   CPPUNIT_ASSERT(lumiInfo.isProductEqual(lumiInfo));
 
   LumiInfo lumiInfo2;

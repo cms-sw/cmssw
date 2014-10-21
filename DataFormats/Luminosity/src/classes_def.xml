@@ -13,8 +13,12 @@
   <class name="LumiInfoRunHeader"  ClassVersion="10">
    <version ClassVersion="10" checksum="1483887385"/>
   </class>
-  <class name="LumiInfo"  ClassVersion="10">
+  <class name="LumiInfo"  ClassVersion="11">
+   <version ClassVersion="11" checksum="4234044727"/>
    <version ClassVersion="10" checksum="1673739512"/>
+  </class>
+  <class name="BeamCurrentInfo" ClassVersion="10">
+   <version ClassVersion="10" checksum="1707145233"/>
   </class>
   <class name="LumiSummary::HLT" ClassVersion="11">
    <version ClassVersion="11" checksum="4065059464"/>

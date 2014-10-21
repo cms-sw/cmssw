@@ -28,23 +28,18 @@ public:
 
   /// default constructor
   LumiInfo():
-    deadtimeFraction_(0)
+  deadtimeFraction_(0)
   { 
     instLumiByBX_.assign(numBX_, 0.0);
-    beam1Intensities_.assign(numBX_, 0.0);
-    beam2Intensities_.assign(numBX_, 0.0);
   } 
-    
+  
   /// constructor with fill
-  LumiInfo(float deadtimeFraction,
-	   const std::vector<float>& instLumiByBX,
-	   const std::vector<float>& beam1Intensities,
-	   const std::vector<float>& beam2Intensities):
-    deadtimeFraction_(deadtimeFraction),
-    instLumiByBX_(instLumiByBX),
-    beam1Intensities_(beam1Intensities),
-    beam2Intensities_(beam2Intensities)
-  { }
+ LumiInfo(float deadtimeFraction,
+	  const std::vector<float>& instLumiByBX):
+  deadtimeFraction_(deadtimeFraction)
+  {
+    instLumiByBX_.assign(instLumiByBX.begin(), instLumiByBX.end());
+  }
 
   /// destructor
   ~LumiInfo(){}
@@ -70,12 +65,6 @@ public:
   float getInstLumiBX(int bx) const { return instLumiByBX_.at(bx); }
   const std::vector<float>& getInstLumiAllBX() const { return instLumiByBX_; }
 
-  // Beam intensities by bunch
-  float getBeam1IntensityBX(int bx) const { return beam1Intensities_.at(bx); }
-  const std::vector<float>& getBeam1Intensities() const { return beam1Intensities_; }
-  float getBeam2IntensityBX(int bx) const { return beam2Intensities_.at(bx); }
-  const std::vector<float>& getBeam2Intensities() const { return beam2Intensities_; }
-
   bool isProductEqual(LumiInfo const& next) const;
 
   //
@@ -83,22 +72,14 @@ public:
   //
 
   void setDeadFraction(float deadtimeFraction) { deadtimeFraction_ = deadtimeFraction; }
-  // fill all info
-  void fill(const std::vector<float>& instLumiByBX,
-	    const std::vector<float>& beam1Intensities,
-	    const std::vector<float>& beam2Intensities);
-  // fill just inst lumi
+  // fill inst lumi
+  void fill(const std::vector<float>& instLumiByBX);
+  // synonym for above
   void fillInstLumi(const std::vector<float>& instLumiByBX);
-
-  // fill just beam intensities
-  void fillBeamIntensities(const std::vector<float>& beam1Intensities,
-			   const std::vector<float>& beam2Intensities);
 
 private:
   float deadtimeFraction_;
   std::vector<float> instLumiByBX_;
-  std::vector<float> beam1Intensities_;
-  std::vector<float> beam2Intensities_;
 }; 
 
 std::ostream& operator<<(std::ostream& s, const LumiInfo& lumiInfo);
