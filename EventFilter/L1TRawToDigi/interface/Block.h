@@ -27,7 +27,7 @@ namespace l1t {
 
    class Block {
       public:
-         Block(const uint32_t *data) : header_(0) {};
+         Block(const BlockHeader& h, const uint32_t * payload_start, const uint32_t * payload_end) : header_(h), payload_(payload_start, payload_end) {};
          Block(unsigned int id, const std::vector<uint32_t>& payload) : header_(id, payload.size()), payload_(payload) {};
 
          bool operator<(const Block& o) const { return header() < o.header(); };

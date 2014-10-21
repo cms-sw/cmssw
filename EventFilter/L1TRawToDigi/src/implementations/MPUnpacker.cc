@@ -7,7 +7,7 @@
 namespace l1t {
    class MPUnpacker : public Unpacker {
       public:
-         virtual bool unpack(const unsigned block_id, const unsigned size, const unsigned char *data, UnpackerCollections *coll) override;
+         virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
    };
 }
 
@@ -15,10 +15,10 @@ namespace l1t {
 
 namespace l1t {
    bool
-   MPUnpacker::unpack(const unsigned block_id, const unsigned size, const unsigned char *data, UnpackerCollections *coll)
+   MPUnpacker::unpack(const Block& block, UnpackerCollections *coll)
    {
 
-     LogDebug("L1T") << "Block ID  = " << block_id << " size = " << size;
+     LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize();
 
      auto res1_ = static_cast<CaloCollections*>(coll)->getMPJets();
      auto res2_ = static_cast<CaloCollections*>(coll)->getMPEtSums();
@@ -30,7 +30,7 @@ namespace l1t {
 
      // ET / MET(x) / MET (y)
 
-     uint32_t raw_data = pop(data,i); // pop advances the index i internally
+     uint32_t raw_data = block.payload()[i++];
 
      l1t::EtSum et = l1t::EtSum();
     
@@ -42,11 +42,11 @@ namespace l1t {
      res2_->push_back(0,et);
 
      // Skip 9 empty frames
-     for (int j=0; j<9; j++) raw_data=pop(data,i); 
+     for (int j=0; j<9; j++) raw_data=block.payload()[i++];
 
      // HT / MHT(x)/ MHT (y)
 
-     raw_data = pop(data,i); // pop advances the index i internally
+     raw_data = block.payload()[i++];
 
      l1t::EtSum ht = l1t::EtSum();
     
@@ -58,11 +58,11 @@ namespace l1t {
      res2_->push_back(0,ht);
 
      // Skip 26 empty frames                                                                                                                                             
-     for (int j=0; j<26; j++) raw_data=pop(data,i);
+     for (int j=0; j<26; j++) raw_data=block.payload()[i++];
 
      // Two jets
      for (unsigned nJet=0; nJet < 2; nJet++){
-       raw_data = pop(data,i); // pop advances the index i internally
+       raw_data = block.payload()[i++];
 
        if (raw_data == 0)
             continue;
@@ -70,13 +70,13 @@ namespace l1t {
        l1t::Jet jet = l1t::Jet();
 
        int etasign = 1;
-       if ((block_id == 7) ||
-           (block_id == 9) ||
-           (block_id == 11)) {
+       if ((block.header().getID() == 7) ||
+           (block.header().getID() == 9) ||
+           (block.header().getID() == 11)) {
          etasign = -1;
        }
 
-       LogDebug("L1") << "block ID=" << block_id << " etasign=" << etasign;
+       LogDebug("L1") << "block ID=" << block.header().getID() << " etasign=" << block.header().getSize();
 
        jet.setHwEta(etasign*(raw_data & 0x3F));
        jet.setHwPhi((raw_data >> 6) & 0x7F);

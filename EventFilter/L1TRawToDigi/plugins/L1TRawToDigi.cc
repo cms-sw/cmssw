@@ -187,13 +187,15 @@ namespace l1t {
                return;
             }
 
+            Block block(block_hdr, payload, payload + block_hdr.getSize());
+
             auto unpacker = unpackers.find(block_hdr.getID());
             if (unpacker == unpackers.end()) {
                LogWarning("L1T") << "Cannot find an unpacker for block ID "
                   << block_hdr.getID() << ", FED ID " << fedId_ << ", and FW ID "
                   << fw << "!";
                // TODO Handle error
-            } else if (!unpacker->second->unpack(block_hdr.getID(), block_hdr.getSize(), (const unsigned char*) payload, coll.get())) {
+            } else if (!unpacker->second->unpack(block, coll.get())) {
                LogWarning("L1T") << "Error unpacking data for block ID "
                   << block_hdr.getID() << ", FED ID " << fedId_ << ", and FW ID "
                   << fw << "!";
