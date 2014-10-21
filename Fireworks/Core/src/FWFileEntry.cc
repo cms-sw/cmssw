@@ -76,17 +76,23 @@ void FWFileEntry::openFile(bool checkVersion)
             }
          }
       }
-   
 
-      fwLog(fwlog::kInfo) << "Checking process history. " << m_name.c_str() << " latest process \""  << dd->processName() << "\", version " << dd->releaseVersion() << std::endl;
-
-      b->SetAddress(0);
-      TString v = dd->releaseVersion();
-      if (!fireworks::acceptDataFormatsVersion(v))
-      {
-         int* di = (fireworks::supportedDataFormatsVersion());
-         TString msg = Form("incompatible data: Process version does not mactch major data formats version. File produced with %s. Data formats version \"CMSSW_%d_%d_%d\".\n", 
-                            dd->releaseVersion().c_str(), di[0], di[1], di[2]);
+      if (latestVersion) {
+         fwLog(fwlog::kInfo) << "Checking process history. " << m_name.c_str() << " latest process \""  << dd->processName() << "\", version " << dd->releaseVersion() << std::endl;
+    
+         b->SetAddress(0);
+         TString v = dd->releaseVersion();
+         if (!fireworks::acceptDataFormatsVersion(v))
+         {
+            int* di = (fireworks::supportedDataFormatsVersion());
+            TString msg = Form("incompatible data: Process version does not mactch major data formats version. File produced with %s. Data formats version \"CMSSW_%d_%d_%d\".\n", 
+                               dd->releaseVersion().c_str(), di[0], di[1], di[2]);
+            msg += "Use --no-version-check option if you still want to view the file.\n";
+            throw std::runtime_error(msg.Data());
+         }
+      }
+      else {
+         TString msg = "No process history available\n";
          msg += "Use --no-version-check option if you still want to view the file.\n";
          throw std::runtime_error(msg.Data());
       }
