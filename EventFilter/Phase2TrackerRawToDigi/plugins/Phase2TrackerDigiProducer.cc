@@ -236,7 +236,6 @@ namespace Phase2Tracker {
           pr->swap( proc_raw_dsv );
           std::auto_ptr< edm::DetSetVector<Phase2TrackerDigi> > pr_dsv(pr);
           event.put( pr_dsv, "Unsparsified" );
-          delete buffer;
         }
         else if (tr_header.getReadoutMode() == READOUT_MODE_ZERO_SUPPRESSED)
         {
@@ -325,7 +324,7 @@ namespace Phase2Tracker {
               } // end reading CBC's channel
               ichan++;
             } // end loop on channels
-           // store digis in edm collections
+            // store digis in edm collections
             std::sort( zs_work_registry_.begin(), zs_work_registry_.end() );
             std::vector< edm::DetSet<DummyClusterDigi> > sorted_and_merged;
 
@@ -353,13 +352,13 @@ namespace Phase2Tracker {
             zs->swap( sparsified_dsv );
             std::auto_ptr< edm::DetSetVector<DummyClusterDigi> > sp_dsv(zs);
             event.put(sp_dsv, "Sparsified" );
-            delete buffer;
           } // end loop on FE
         }
         else
         {
           // readout modes are checked in getreadoutMode(), so we should never end up here
         }
+        delete buffer;
       }
     }   
   } 
