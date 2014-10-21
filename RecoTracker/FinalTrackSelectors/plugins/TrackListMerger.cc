@@ -407,7 +407,11 @@ namespace {
 
     //cache the id and rechits of valid hits
     typedef std::pair<unsigned int, const TrackingRecHit*> IHit;
+    #ifdef __clang__
+    std::vector<std::vector<IHit>> rh1(ngood);  // an array of vectors!
+    #else
     std::vector<IHit> rh1[ngood];  // an array of vectors!
+    #endif
     //const TrackingRecHit*  fh1[ngood];  // first hit...
     uint8_t algo[ngood];
     float score[ngood];
@@ -635,8 +639,13 @@ namespace {
     //  output selected tracks - if any
     //
 
+    #ifdef __clang__
+    std::vector<reco::TrackRef> trackRefs(rSize);
+    std::vector<edm::RefToBase<TrajectorySeed>> seedsRefs(rSize);
+    #else
     reco::TrackRef trackRefs[rSize];
     edm::RefToBase<TrajectorySeed> seedsRefs[rSize];
+    #endif
 
     unsigned int nToWrite=0;
     for ( unsigned int i=0; i<rSize; i++)
