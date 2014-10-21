@@ -12,11 +12,18 @@
 
 namespace Phase2Tracker
 {
+  enum STACK_LAYER
+  {
+      LAYER_UNUSED = -1,
+      LAYER_INNER  = 0,
+      LAYER_OUTER  = 1
+  };
+
   class Phase2TrackerDigiToRaw
   {
     public:
       Phase2TrackerDigiToRaw() {}
-      Phase2TrackerDigiToRaw(const Phase2TrackerCabling *, const TrackerTopology *, edm::Handle< edmNew::DetSetVector<SiPixelCluster> >, int);
+      Phase2TrackerDigiToRaw(const Phase2TrackerCabling *, std::map<int,int>, edm::Handle< edmNew::DetSetVector<SiPixelCluster> >, int);
       ~Phase2TrackerDigiToRaw() {}
       // loop on FEDs to create buffers
       void buildFEDBuffers(std::auto_ptr<FEDRawDataCollection>&);
@@ -25,17 +32,17 @@ namespace Phase2Tracker
       // write FE Header to buffer
       void writeFeHeaderSparsified(std::vector<uint64_t>&,uint64_t&,int,int,int);
       // determine if a P or S cluster should be written
-      void writeCluster(std::vector<uint64_t>&,uint64_t&,const SiPixelCluster*,int,int);
+      void writeCluster(std::vector<uint64_t>&,uint64_t&,const SiPixelCluster*,int,STACK_LAYER);
       // write S cluster to buffer
-      void writeSCluster(std::vector<uint64_t>&,uint64_t&,const SiPixelCluster*,int);
+      void writeSCluster(std::vector<uint64_t>&,uint64_t&,const SiPixelCluster*,STACK_LAYER);
       // write P cluster to buffer
       void writePCluster(std::vector<uint64_t>&,uint64_t&,const SiPixelCluster*);
       // compute chip id and strip number from digi
-      std::pair<int,int> calcChipId(const SiPixelCluster*,int);
+      std::pair<int,int> calcChipId(const SiPixelCluster*,STACK_LAYER);
     private:
       // data you get from outside
       const Phase2TrackerCabling * cabling_; 
-      const TrackerTopology * topo_; 
+      std::map<int,int> stackMap_;
       edm::Handle< edmNew::DetSetVector<SiPixelCluster> > digishandle_;
       int mode_;
       // headers 

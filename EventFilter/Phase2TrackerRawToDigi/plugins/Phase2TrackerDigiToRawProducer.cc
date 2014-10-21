@@ -24,6 +24,12 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 
+// to use stacked geometry
+#include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerGeometry.h"
+#include "Geometry/Records/interface/StackedTrackerGeometryRecord.h" 
+
+
 using namespace std;
 
 namespace Phase2Tracker {
@@ -49,10 +55,20 @@ namespace Phase2Tracker {
     edm::ESHandle<Phase2TrackerCabling> c;
     es.get<Phase2TrackerCablingRcd>().get(c);
     cabling_ = c.product();
-    // get tracker topology
-    edm::ESHandle<TrackerTopology> tTopoHand;
-    es.get<IdealGeometryRecord>().get(tTopoHand);
-    topo_ = tTopoHand.product();
+    // build map to associate stacked tracker detids
+    edm::ESHandle<StackedTrackerGeometry>  StackedGeometryHandle;
+    es.get<StackedTrackerGeometryRecord>().get(StackedGeometryHandle);
+    const StackedTrackerGeometry * stackedGeometry = StackedGeometryHandle.product();
+    int id1, id2;
+    for (auto stk = stackedGeometry->stacks().begin(); stk != stackedGeometry->stacks().end(); ++stk)
+    {
+      StackedTrackerDetUnit* stackDetUnit = (*stk);
+      id1 = stackDetUnit->stackMember(0);
+      id2 = stackDetUnit->stackMember(1);
+      stackMap_[id1] =  id2;
+      stackMap_[id2] = -id1;
+    }
+
   }
   
   void Phase2TrackerDigiToRawProducer::endJob()
@@ -66,32 +82,9 @@ namespace Phase2Tracker {
     event.getByLabel("siPixelClusters","", digis_handle);
     // edm::Handle< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > > > digis_handle;
     // event.getByLabel("TTStubsFromPixelDigis", "ClusterAccepted", digis_handle );
-    // temp : get list of detids for modules in tracker
     // const edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >* digs = digis_handle.product();
     // edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >::const_iterator it;
-    /*    
-    const edmNew::DetSetVector<SiPixelCluster>* digs = digis_handle.product();
-    edmNew::DetSetVector<SiPixelCluster>::const_iterator it;
-    for (it = digs->begin(); it != digs->end(); it++)
-    {
-      DetId did(it->detId());
-      if (did.det() == DetId::Tracker) 
-      {
-        if (did.subdetId() == PixelSubdetector::PixelBarrel) 
-        {
-          PXBDetId pdid(did);
-          std::cout << it->detId() << " " << pdid.layer() << std::endl;
-        }  
-        else if (did.subdetId() == PixelSubdetector::PixelEndcap) 
-        {
-          // std::cout << it->detId() << " " << did.layer() << std::endl;
-        }
-      }
-      // std::cout << it->detId() << " " << did.subdetId() << std::endl;
-    } 
-    */   
-    // end of temp
-    Phase2TrackerDigiToRaw raw_producer(cabling_, topo_, digis_handle, 1);
+    Phase2TrackerDigiToRaw raw_producer(cabling_, stackMap_, digis_handle, 1);
     raw_producer.buildFEDBuffers(buffers);
     event.put(buffers);
   }

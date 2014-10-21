@@ -15,7 +15,6 @@
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "CondFormats/SiStripObjects/interface/Phase2TrackerCabling.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include <stdint.h>
 #include <iostream>
 #include <string>
@@ -38,7 +37,7 @@ namespace Phase2Tracker {
   private:
     edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> token_;
     const Phase2TrackerCabling * cabling_;
-    const TrackerTopology * topo_;
+    std::map<int,int> stackMap_;
   };
 }
 #endif // EventFilter_Phase2TrackerRawToDigi_Phase2TrackerDigiToRawProducer_H
