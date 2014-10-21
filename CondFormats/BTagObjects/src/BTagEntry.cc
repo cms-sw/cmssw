@@ -42,9 +42,9 @@ BTagEntry::BTagEntry(const TF1* func, BTagEntry::Parameters p):
   formula = std::string(func->GetExpFormula("p").Data());
 }
 
-// Creates step functions like this:
-// "(bin_low_bound<=x&&x<bin_high_bound) ? bin_value : <next_bin>"
-// e.g. "(1<=x&&x<2) ? 1 : (2<=x&&x<3) ? 2 : (3<=x&&x<4) ? 3 : 4"
+// Creates chained step functions like this:
+// "<prevous_bin> : x<bin_high_bound ? bin_value : <next_bin>"
+// e.g. "x<0 ? 1 : x<1 ? 2 : x<2 ? 3 : 4"
 BTagEntry::BTagEntry(const TH1* hist, BTagEntry::Parameters p):
   params(p)
 {
@@ -54,11 +54,11 @@ BTagEntry::BTagEntry(const TH1* hist, BTagEntry::Parameters p):
   ptMax = axis->GetBinUpEdge(nbins);
 
   std::stringstream buff;
+  buff << "x<" << axis->GetBinLowEdge(1) << " ? 1. : ";  // default value
   for (int i=1; i<nbins+1; ++i) {
     char tmp_buff[100];
     sprintf(tmp_buff,
-            "(%g<=x&&x<%g) ? %g : ",  // %g is the smaller one of %e or %f
-            axis->GetBinLowEdge(i),
+            "x<%g ? %g : ",  // %g is the smaller one of %e or %f
             axis->GetBinUpEdge(i),
             hist->GetBinContent(i));
     buff << tmp_buff;
