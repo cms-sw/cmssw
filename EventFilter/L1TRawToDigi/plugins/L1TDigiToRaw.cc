@@ -174,7 +174,7 @@ namespace l1t {
 
       payload += slinkHeaderSize_;
 
-      amc13.write(event.orbitNumber(), payload, size - slinkHeaderSize_ - slinkTrailerSize_);
+      amc13.write(event, payload, size - slinkHeaderSize_ - slinkTrailerSize_);
 
       payload += amc13.size() * 8;
 

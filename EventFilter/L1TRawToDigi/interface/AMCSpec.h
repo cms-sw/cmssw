@@ -5,6 +5,10 @@
 #include <vector>
 #include <stdint.h>
 
+namespace edm {
+   class Event;
+}
+
 namespace amc {
    static const unsigned int split_block_size = 0x1000;
 
@@ -96,6 +100,31 @@ namespace amc13 {
          uint64_t data_;
    };
 
+   class Trailer {
+      public:
+         Trailer(const uint64_t *data) : data_(data[0]) {};
+         Trailer(unsigned int crc, unsigned int blk, unsigned int lv1, unsigned int bx);
+
+         inline unsigned int getCRC() const { return (data_ >> CRC_shift) & CRC_mask; };
+         inline unsigned int getBlock() const { return (data_ >> BlkNo_shift) & BlkNo_mask; };
+         inline unsigned int getLV1ID() const { return (data_ >> LV1_shift) & LV1_mask; };
+         inline unsigned int getBX() const { return (data_ >> BX_shift) & BX_mask; };
+
+         uint32_t raw() const { return data_; };
+
+      private:
+         static const unsigned int CRC_shift = 32;
+         static const unsigned int CRC_mask = 0xffffffff;
+         static const unsigned int BlkNo_shift = 20;
+         static const unsigned int BlkNo_mask = 0xff;
+         static const unsigned int LV1_shift = 12;
+         static const unsigned int LV1_mask = 0xff;
+         static const unsigned int BX_shift = 0;
+         static const unsigned int BX_mask = 0xfff;
+
+         uint64_t data_;
+   };
+
    class Packet {
       public:
          Packet() {};
@@ -105,7 +134,7 @@ namespace amc13 {
 
          void add(unsigned int board, const std::vector<uint64_t>& load);
          bool parse(const uint64_t*, unsigned int);
-         bool write(unsigned int orbit, unsigned char * ptr, unsigned int size) const;
+         bool write(const edm::Event& ev, unsigned char * ptr, unsigned int size) const;
 
          inline std::vector<amc::Packet> payload() const { return payload_; };
 

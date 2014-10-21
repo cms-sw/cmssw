@@ -1,4 +1,6 @@
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/CRC32Calculator.h"
 #include "EventFilter/L1TRawToDigi/interface/AMCSpec.h"
 
 #define EDM_ML_DEBUG 1
@@ -118,6 +120,15 @@ namespace amc13 {
       return (getNumberOfAMCs() <= max_amc) && (getFormatVersion() == fov);
    }
 
+   Trailer::Trailer(unsigned int crc, unsigned int blk, unsigned int lv1, unsigned int bx)
+   {
+      data_ =
+         (static_cast<uint64_t>(crc & CRC_mask) << CRC_shift) |
+         (static_cast<uint64_t>(blk & BlkNo_mask) << BlkNo_shift) |
+         (static_cast<uint64_t>(lv1 & LV1_mask) << LV1_shift) |
+         (static_cast<uint64_t>(bx & BX_mask) << BX_shift);
+   }
+
    void
    Packet::add(unsigned int board, const std::vector<uint64_t>& load)
    {
@@ -188,8 +199,8 @@ namespace amc13 {
          data += amc.header().getBlockSize();
       }
 
-      // Skip trailer
-      data++;
+      // FIXME check checksum, block id, lv1 id...
+      Trailer t(data++);
 
       // Read in remaining AMC blocks
       for (unsigned int b = 1; b < maxblocks; ++b) {
@@ -204,8 +215,8 @@ namespace amc13 {
             data += amc.getBlockSize();
          }
 
-         // Skip trailer
-         data++;
+         // FIXME check checksum, block id, lv1 id...
+         t = Trailer(data++);
       }
 
       return true;
@@ -241,7 +252,7 @@ namespace amc13 {
    }
 
    bool
-   Packet::write(unsigned int orbit, unsigned char * ptr, unsigned int size) const
+   Packet::write(const edm::Event& ev, unsigned char * ptr, unsigned int size) const
    {
       if (size < this->size() * 8)
          return false;
@@ -250,9 +261,10 @@ namespace amc13 {
          return false;
 
       uint64_t * data = reinterpret_cast<uint64_t*>(ptr);
-      /* uint64_t * end = data + (size / 8); */
 
       for (unsigned int b = 0; b < blocks(); ++b) {
+         uint64_t * block_start = data;
+
          std::vector<uint64_t> block_headers;
          std::vector<uint64_t> block_load;
          for (const auto& amc: payload_) {
@@ -270,7 +282,7 @@ namespace amc13 {
          }
 
          if (b == 0) {
-            amc13::Header h(block_headers.size(), orbit);
+            amc13::Header h(block_headers.size(), ev.orbitNumber());
             edm::LogInfo("AMC")
                << "Writing header for AMC13 packet: "
                << "format version " << h.getFormatVersion()
@@ -278,14 +290,16 @@ namespace amc13 {
                << " AMC packets, orbit " << h.getOrbitNumber();
          }
 
-         *(data++) = amc13::Header(block_headers.size(), orbit).raw();
+         *(data++) = amc13::Header(block_headers.size(), ev.orbitNumber()).raw();
 
          block_headers.insert(block_headers.end(), block_load.begin(), block_load.end());
          for (const auto& word: block_headers)
             *(data++) = word;
 
          // FIXME skip trailer
-         ++data;
+         std::string dstring(reinterpret_cast<char*>(block_start), reinterpret_cast<char*>(data) + 1);
+         cms::CRC32Calculator crc(dstring);
+         *(data++) = Trailer(crc.checksum(), b, ev.id().event(), ev.bunchCrossing()).raw();
       }
 
       return true;
