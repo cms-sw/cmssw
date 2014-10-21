@@ -11,7 +11,7 @@ simCastorTTRecord = cms.EDProducer("CastorTTRecord",
     									   'L1Tech_CASTOR_HaloMuon.v0'
     									  ),
     TriggerThresholds		= cms.vdouble(	50, # gap trgger threshold 
-    										65000, # jet energy threshold per sector
+    										135000, # jet energy threshold per sector
     										1500, 100, # fist EM threshold, second HAD threshold for egamma trigger
     										50, # muon trigger threshold
     									 )
