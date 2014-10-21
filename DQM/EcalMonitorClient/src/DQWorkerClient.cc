@@ -19,8 +19,15 @@ namespace ecaldqm
     DQWorker(),
     sources_(),
     qualitySummaries_(),
+    hasLumiPlots_(false),
     statusManager_(0)
   {
+    for(MESetCollection::iterator mItr(MEs_.begin()); mItr != MEs_.end(); ++mItr){
+      if(mItr->second->getLumiFlag()){
+        hasLumiPlots_ = true;
+        break;
+      }
+    }
   }
 
   /*static*/
@@ -98,21 +105,17 @@ namespace ecaldqm
   bool
   DQWorkerClient::retrieveSource(DQMStore::IGetter& _igetter, ProcessType _type)
   {
-    int ready(-1);
-    
     std::string failedPath;
     for(MESetCollection::iterator sItr(sources_.begin()); sItr != sources_.end(); ++sItr){
-      if(_type == kLumi && !sItr->second->getLumiFlag()) continue;
+      if(!onlineMode_ && _type == kLumi && !sItr->second->getLumiFlag()) continue;
       if(verbosity_ > 1) edm::LogInfo("EcalDQM") << name_ << ": Retrieving source " << sItr->first;
       if(!sItr->second->retrieve(_igetter, &failedPath)){
-        ready = 0;
         if(verbosity_ > 1) edm::LogWarning("EcalDQM") << name_ << ": Could not find source " << sItr->first << "@" << failedPath;
-        break;
+        return false;
       }
-      ready = 1;
     }
 
-    return ready == 1;
+    return true;
   }
 
   void
