@@ -66,7 +66,7 @@ process.bTagValidation = cms.EDAnalyzer("HLTBTagPerformanceAnalyzer",
 	g = cms.vuint32(21),
 	uds = cms.vuint32(1, 2, 3)
 	),
-	mcPartons = cms.InputTag("hltBtagJetMCTools")
+	mcPartons = cms.InputTag("hltBtagJetsbyValAlgo")
 )
 
 #define bTagPostValidation for the b-tag DQM validation (efficiency and mistagrate plot)
