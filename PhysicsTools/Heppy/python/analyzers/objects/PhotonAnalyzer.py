@@ -14,6 +14,9 @@ from PhysicsTools.Heppy.physicsobjects.Photon import Photon
 #from CMGTools.TTHAnalysis.analyzers.ttHLepMCMatchAnalyzer import matchObjectCollection3
 from PhysicsTools.HeppyCore.utils.deltar import deltaR, deltaPhi, bestMatch
 
+import PhysicsTools.HeppyCore.framework.config as cfg
+
+
 class PhotonAnalyzer( Analyzer ):
 
     
@@ -122,3 +125,13 @@ class PhotonAnalyzer( Analyzer ):
 
 
         return True
+
+
+setattr(PhotonAnalyzer,"defaultConfig",cfg.Analyzer(
+    class_object=PhotonAnalyzer,
+    photons='slimmedPhotons',
+    ptMin = 20,
+    etaMax = 2.5,
+    gammaID = "PhotonCutBasedIDLoose"
+  )
+)
