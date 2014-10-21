@@ -17,8 +17,6 @@
 #include "Geometry/CommonTopologies/interface/SurfaceDeformationFactory.h"
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 
-#include "DataFormats/GeometryCommonDetAlgo/interface/LocalError.h"
-
 //__________________________________________________________________________________________________
 AlignableModifier::AlignableModifier( void ) :
   distribution_(""),
@@ -559,11 +557,7 @@ void AlignableModifier::addAlignmentPositionError( Alignable* alignable,
   LogDebug("PrintArgs") << "Adding an AlignmentPositionError of size " 
                         << dx << " "  << dy << " "  << dz;
 
-  //FIMXE
-  //AlignmentPositionError ape(dx,dy,dz);
-  LocalErrorExtended ge(0.,0.,0.,0.,0.,0.,0.,0.,0.,0.);
-  AlignmentPositionError ape( ge );
-
+  AlignmentPositionError ape(dx,dy,dz);
   alignable->addAlignmentPositionError( ape, true );
 
 }
@@ -586,9 +580,7 @@ void AlignableModifier::addAlignmentPositionErrorLocal( Alignable* alignable,
   am[2][0]=rt.zx(); am[2][1]=rt.zy(); am[2][2]=rt.zz();
   as=as.similarityT(am); //rotate error matrix
 
-  //GlobalError ge( asSMatrix<3>(as) );
-  //FIMXE will be fixed after DB layer is done       
-  LocalErrorExtended ge(0.,0.,0.,0.,0.,0.,0.,0.,0.,0.);
+  GlobalError ge( asSMatrix<3>(as) );
   AlignmentPositionError ape( ge );
 
   alignable->addAlignmentPositionError( ape, true ); // propagate down to components

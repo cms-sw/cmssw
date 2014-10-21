@@ -157,7 +157,7 @@ TestConverter::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
   edm::ESHandle<AlignmentErrors> alignmentErrors;
   iSetup.get<TrackerAlignmentErrorRcd>().get( alignmentErrors );
   
-  std::vector<AlignTransformError> alignErrors = alignmentErrors->m_alignError;
+  std::vector<AlignTransformErrorExtended> alignErrors = alignmentErrors->m_alignError;
   // int countDet = 0;
 
   // Now loop on detector units, and store difference position and orientation w.r.t. survey
@@ -211,7 +211,7 @@ TestConverter::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
               int thecomparison = (int)locPos[1] - (int)(*iGeomDet).rawId();
 	      if (thecomparison == 0) {
                 
-		for ( std::vector<AlignTransformError>::const_iterator it = alignErrors.begin();
+		for ( std::vector<AlignTransformErrorExtended>::const_iterator it = alignErrors.begin();
 		      it != alignErrors.end(); it++ ) {
 		  
 		  if ((*it).rawId() == (*iGeomDet).rawId()) {

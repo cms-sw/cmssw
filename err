@@ -1,0 +1,784 @@
+Reading cached build data
+>> Local Products Rules ..... started
+>> Local Products Rules ..... done
+>> Building CMSSW version CMSSW_7_2_0_pre6 ----
+------- copying files from src/RecoVertex/BeamSpotProducer/scripts -------
+>> copied BeamSpotObj.py
+>> copied BeamSpotWorkflow.cfg
+>> copied BeamSpotWorkflow.py
+>> copied CommonMethods.py
+>> copied IOVObj.py
+>> copied READMEMegascript.txt
+>> copied addToTag.csh
+>> copied beamvalidation.py
+>> copied checkPayloads.py
+>> copied checkRuns.py
+>> copied copyAndRename.py
+>> copied copyFiles.py
+>> copied copyFromCastor.py
+>> copied createPayload.py
+>> copied getBeamSpotDB.py
+>> copied ntuplemaker.py
+>> copied plotBeamSpotDB.py
+>> copied rename.py
+>> copied root
+>> copied splitter.py
+>> copied uploadPayloads.py
+>> copied uploadTags.txt
+>> copied uploader.py
+------- copying files from src/Alignment/OfflineValidation/scripts -------
+>> copied BiaspT_gaus.C
+------- copying files from src/Alignment/TrackerAlignment/scripts -------
+>> copied Chi2_mu.C
+>> copied Looper.sh
+>> copied Eff_Z_yzmu_nota.C
+>> copied MYmergelines.sh
+>> copied Effeta_nota.C
+>> copied PlotTrackStats.C
+>> copied FakeRate_d0.C
+>> copied PrescaleLooper.tpl
+>> copied FakeRate_eta.C
+>> copied SkimLooper.tpl
+>> copied FakeRate_nhit.C
+>> copied TkAlCaRecoPrescaling.ALCARECOTkAlCosmics0T.tpl
+>> copied TkAlCaRecoPrescaling.ALCARECOTkAlMinBias.tpl
+>> copied FakeRate_pt.C
+>> copied FakeRate_z0.C
+>> copied TkAlCaRecoSkimming.ALCARECOTkAlCosmics0T.tpl
+------- copying files from src/Alignment/CommonAlignmentProducer/scripts -------
+>> copied GeoComparisonGUI.C
+>> copied TkAlCaRecoSkimming.ALCARECOTkAlMinBias.tpl
+>> copied AlCaHLTBitMon_ParallelJobs.py
+>> copied Rescottheta_gaus.C
+>> copied cntevts_in_file.sh
+>> copied AlCaHLTBitMon_QueryRunRegistry.py
+>> copied mergemytree_cfg.tpl
+>> copied Resd0_gaus.C
+------- copying files from src/Alignment/HIPAlignmentAlgorithm/scripts -------
+>> copied move_files_castor.sh
+>> copied Resd0_pT_higgs.C
+>> copied README
+>> copied presc_exec.tpl
+>> copied Residual_mu.C
+>> copied checkError.sh
+>> copied query.py
+>> copied Residualcottheta_mu.C
+>> copied skim_exec.tpl
+>> copied compareGeomSerial_tpl.C
+------- copying files from src/Alignment/KalmanAlignmentAlgorithm/scripts -------
+>> copied Residuald0_mu.C
+>> copied taglist.txt
+>> copied configure
+>> copied kaps.sh
+>> copied ResidualmZ_mu.C
+>> copied configure.pl
+>> copied kaps_check.pl
+>> copied Residualphi_mu.C
+>> copied iterator
+>> copied kaps_fetch.pl
+>> copied Residualz0_mu.C
+>> copied iterator_py
+>> copied kaps_fire.pl
+------- copying files from src/Alignment/MillePedeAlignmentAlgorithm/scripts -------
+>> copied minbiascosmicsMC09.lst
+>> copied ResmZ_y_gaus.C
+>> copied kaps_kill.pl
+>> copied minbiasonly.lst
+>> copied mpedegui.pl
+>> copied kaps_merge.pl
+>> copied RespT_gaus.C
+>> copied runControl.csh
+>> copied mps_auto.pl
+------- copying files from src/Alignment/MuonAlignmentAlgorithms/scripts -------
+>> copied kaps_merge_template.sh
+>> copied runScript.csh
+>> copied mps_check.pl
+>> copied RespT_nhit.C
+>> copied alignCSCRings.py
+>> copied kaps_retry.pl
+>> copied serialGeomCompare.pl
+>> copied mps_disablejob.pl
+>> copied RespT_pT2_higgs.C
+>> copied kaps_script.pl
+>> copied alignmentValidation.py
+>> copied submitJobs
+>> copied mps_enablejob.pl
+>> copied kaps_scriptm.pl
+>> copied RespT_pT_higgs.C
+------- copying files from src/Alignment/SurveyAnalysis/scripts -------
+>> copied submitJobs_py
+>> copied applyRadialCorrections.py
+>> copied mps_fetch.pl
+>> copied kaps_setup.pl
+>> copied GetNewTibSurvey.pl
+>> copied Resphi_gaus.C
+>> copied auto_gallery.php
+>> copied mps_fire.pl
+>> copied kaps_splice.pl
+>> copied GetTibSurvey.pl
+>> copied mps_kill.pl
+>> copied Resz0_gaus.C
+>> copied combineBlockFiles.sh
+>> copied kaps_split.pl
+>> copied mps_merge.pl
+>> copied Resz0_pT_higgs.C
+>> copied convertSQLiteXML.py
+>> copied kaps_stat.pl
+>> copied mps_merge_millepedemonitor.pl
+>> copied compareAlignments.cc
+>> copied corrVsCorr.py
+>> copied kaps_template.sh
+>> copied mps_parse_pedechi2hist.pl
+>> copied compareGeoms
+>> copied createBeamHaloJobs.py
+>> copied kaps_update.pl
+>> copied mps_retry.pl
+>> copied compareTrackerGeometries.C
+>> copied createCSCRingsJobs.py
+>> copied mps_runMille_template.sh
+>> copied comparisonPlots.cc
+>> copied createJobs.py
+>> copied mps_runPede_rfcp_template.sh
+>> copied kapslib
+>> copied comparisonPlots.h
+>> copied mps_save.pl
+>> copied createTree.py
+>> copied comparisonScript.C
+>> copied mps_script.pl
+>> copied diffTwoXMLs.py
+>> copied comparisonScriptCSA08.C
+>> copied mps_scriptm.pl
+>> copied findQualityFiles.py
+>> copied drawCSC.C
+>> copied mps_setup.pl
+>> copied geometryDiffVisualizer.py
+>> copied drawCSC2D.C
+>> copied mps_setupm.pl
+>> copied groupFilesInBlocks.py
+>> copied drawChamberCSC.C
+>> copied mps_splice.pl
+>> copied drawChamberDT.C
+>> copied motionPolicyChamber.py
+>> copied mps_split.pl
+>> copied drawDT.C
+>> copied mutypes.py
+>> copied mps_stat.pl
+>> copied drawDT2D.C
+>> copied phiedges_fitfunctions.C
+>> copied mps_update.pl
+>> copied mZ_mu.C
+>> copied plotscripts.py
+>> copied mps_weight.pl
+>> copied mZfit.C
+>> copied relativeConstraints.py
+>> copied makeArrowPlots.C
+>> copied reportVsReport.py
+>> copied merge_TrackerOfflineValidation.C
+>> copied signConventions.py
+>> copied mpslib
+>> copied muonDBComparison.C
+>> copied wrapperExtraPlots.sh
+>> copied pulld0.C
+>> copied pullphi.C
+>> copied pullz0.C
+>> copied tdrstyle.C
+>> copied validateAlignments.py
+>> copied visualizationTracker.C
+------- copying files from src/Calibration/Tools/scripts -------
+>> copied alcaDQMUpload.py
+------- copying files from src/DQMOffline/CalibTracker/scripts -------
+>> copied SiStripBadComponentsDQMService.sh
+>> copied SiStripBadComponentsDQMServiceTemplate_cfg.py
+------- copying files from src/DQMOffline/EGamma/scripts -------
+>> copied electronCompare.py
+>> copied electronDataDiscovery.py
+>> copied electronStore.py
+------- copying files from src/CalibMuon/DTCalibration/scripts -------
+>> copied dtCalibration
+>> copied dtCalibrationOld
+>> copied mergeVDriftHistosByStation.py
+------- copying files from src/PhysicsTools/FWLite/scripts -------
+>> copied newFWLiteAna.py
+------- copying files from src/PhysicsTools/PatAlgos/scripts -------
+>> copied patReplaceFast.pl
+>> copied patReplaceGenerator.sh
+>> copied patReplaceParser.pl
+------- copying files from src/CaloOnlineTools/EcalTools/scripts -------
+>> copied ecalExclusiveTrigFilter.sh
+>> copied ecalFEDCRCErrorFilter.sh
+>> copied ecalHexDisplay.sh
+------- copying files from src/Fireworks/Core/scripts -------
+>> copied cmsShow
+>> copied gdb-backtrace.sh
+------- copying files from src/Fireworks/FWInterface/scripts -------
+>> copied cmsShowFF
+------- copying files from src/CondTools/SiPixel/scripts -------
+>> copied add_calibobjects_filelist_to_db
+>> copied fill_calibobjects
+>> copied fill_calibobjects_byIOV
+>> copied prepare_DBSchema_SiPixel.sh
+------- copying files from src/CondTools/SiStrip/scripts -------
+>> copied prepare_pixel_conditions.csh
+>> copied CreatingTables.sh
+>> copied list_tag.txt
+>> copied manipulate_condDb.pl
+>> copied prepare_DBSchema_SiStrip.sh
+------- copying files from src/DQM/SiPixelMonitorClient/scripts -------
+>> copied initialize
+------- copying files from src/Validation/RecoB/scripts -------
+>> copied Inspector.py
+>> copied Style.py
+>> copied cuy.py
+>> copied histoStyle.py
+>> copied listHistos.py
+>> copied plotFactory.py
+>> Subsystem BigProducts built
+>> Entering Package RecoPixelVertexing/PixelLowPtUtilities
+>> Creating project symlinks
+>> Entering Package DataFormats/VertexReco
+>> Entering Package DataFormats/TrackReco
+>> Entering Package DataFormats/MuonDetId
+>> Entering Package DataFormats/TrackCandidate
+>> Entering Package DataFormats/TrackingRecHit
+>> Entering Package DataFormats/GeometrySurface
+>> Entering Package Geometry/CommonDetUnit
+>> Entering Package Geometry/TrackerGeometryBuilder
+>> Entering Package Geometry/CommonTopologies
+>> Entering Package Geometry/TrackerNumberingBuilder
+>> Entering Package RecoPixelVertexing/PixelTrackFitting
+>> Entering Package DataFormats/TrackerRecHit2D
+>> Entering Package RecoPixelVertexing/PixelTriplets
+>> Entering Package RecoTracker/TkHitPairs
+>> Entering Package RecoTracker/TkDetLayers
+>> Entering Package TrackingTools/DetLayers
+>> Entering Package TrackingTools/TrajectoryState
+>> Entering Package TrackingTools/GeomPropagators
+>> Entering Package TrackingTools/PatternTools
+>> Entering Package RecoTracker/TkMSParametrization
+>> Entering Package RecoTracker/TkSeedingLayers
+>> Entering Package RecoTracker/TransientTrackingRecHit
+>> Entering Package RecoLocalTracker/ClusterParameterEstimator
+>> Entering Package RecoLocalTracker/SiPixelRecHits
+>> Entering Package CalibTracker/SiPixelESProducers
+>> Entering Package CondFormats/SiPixelObjects
+>> Entering Package RecoLocalTracker/SiStripRecHitConverter
+>> Entering Package CalibFormats/SiStripObjects
+>> Entering Package CalibTracker/SiStripCommon
+>> Entering Package TrackingTools/TransientTrackingRecHit
+>> Entering Package RecoTracker/TkSeedGenerator
+>> Entering Package CommonTools/Utils
+>> Entering Package DataFormats/TrajectorySeed
+>> Entering Package TrackingTools/KalmanUpdators
+>> Entering Package TrackingTools/MaterialEffects
+>> Entering Package DataFormats/GeometryCommonDetAlgo
+>> Entering Package TrackPropagation/RungeKutta
+>> Entering Package RecoTracker/TkTrackingRegions
+>> Entering Package RecoTracker/MeasurementDet
+>> Entering Package TrackingTools/MeasurementDet
+>> Entering Package TrackingTools/TrajectoryFiltering
+>> Entering Package SimTracker/TrackerHitAssociation
+>> Entering Package RecoPixelVertexing/PixelVertexFinding
+>> Entering Package DataFormats/JetReco
+>> Entering Package DataFormats/ParticleFlowCandidate
+>> Entering Package DataFormats/CSCRecHit
+>> Entering Package DataFormats/DTRecHit
+>> Entering Package DataFormats/EgammaCandidates
+>> Entering Package DataFormats/EgammaReco
+>> Entering Package DataFormats/RecoCandidate
+>> Entering Package DataFormats/GsfTrackReco
+>> Entering Package DataFormats/ParticleFlowReco
+>> Entering Package RecoLocalTracker/SiPixelClusterizer
+>> Entering Package TrackingTools/TrackFitters
+>> Entering Package TrackingTools/RecoGeometry
+>> Entering Package TrackingTools/TransientTrack
+>> Entering Package TrackingTools/GsfTools
+>> Entering Package RecoLocalTracker/SubCollectionProducers
+>> Entering Package RecoVertex/AdaptiveVertexFinder
+>> Entering Package DataFormats/BTauReco
+>> Entering Package RecoBTag/SecondaryVertex
+>> Entering Package DataFormats/PatCandidates
+>> Entering Package DataFormats/METReco
+>> Entering Package DataFormats/MuonReco
+>> Entering Package DataFormats/TauReco
+>> Entering Package RecoVertex/ConfigurableVertexReco
+>> Entering Package RecoVertex/AdaptiveVertexFit
+>> Entering Package RecoVertex/KalmanVertexFit
+>> Entering Package RecoVertex/LinearizationPointFinders
+>> Entering Package RecoVertex/VertexPrimitives
+>> Entering Package RecoVertex/VertexTools
+>> Entering Package SimDataFormats/TrackingAnalysis
+>> Entering Package SimTracker/TrackAssociation
+>> Entering Package TrackingTools/IPTools
+>> Entering Package RecoVertex/MultiVertexFit
+>> Entering Package RecoVertex/TrimmedKalmanVertexFinder
+>> Entering Package RecoVertex/BeamSpotProducer
+>> Entering Package CondFormats/Alignment
+>> Entering Package PhysicsTools/UtilAlgos
+>> Entering Package RecoVertex/GaussianSumVertexFit
+>> Entering Package RecoVertex/GhostTrackFitter
+>> Entering Package RecoVertex/KinematicFit
+>> Entering Package RecoVertex/KinematicFitPrimitives
+>> Entering Package RecoVertex/NuclearInteractionProducer
+>> Entering Package RecoTracker/NuclearSeedGenerator
+>> Entering Package RecoVertex/PrimaryVertexProducer
+>> Entering Package RecoVertex/TrimmedVertexFit
+>> Entering Package RecoVertex/V0Producer
+>> Entering Package HiggsAnalysis/HiggsToGammaGamma
+>> Entering Package RecoEcal/EgammaCoreTools
+>> Entering Package HiggsAnalysis/Skimming
+>> Entering Package JetMETCorrections/Algorithms
+>> Entering Package JetMETCorrections/FFTJetModules
+>> Entering Package JetMETCorrections/FFTJetObjects
+>> Entering Package JetMETCorrections/IsolatedParticles
+>> Entering Package TrackPropagation/SteppingHelixPropagator
+>> Entering Package TrackingTools/TrackAssociator
+>> Entering Package Geometry/CSCGeometry
+>> Entering Package Geometry/DTGeometry
+>> Entering Package Geometry/RPCGeometry
+>> Entering Package JetMETCorrections/JetVertexAssociation
+>> Entering Package JetMETCorrections/Modules
+>> Entering Package JetMETCorrections/TauJet
+>> Entering Package RecoTauTag/RecoTau
+>> Entering Package RecoParticleFlow/PFClusterTools
+>> Entering Package RecoTauTag/TauTagTools
+>> Entering Package JetMETCorrections/Type1MET
+>> Entering Package SimTracker/SiPixelDigitizer
+>> Entering Package SimGeneral/MixingModule
+>> Entering Package SimTracker/SiStripDigitizer
+>> Entering Package SimTracker/TrackAssociatorESProducer
+>> Entering Package SimTracker/TrackHistory
+>> Entering Package SimTracker/VertexAssociation
+>> Entering Package SimTracker/VertexAssociatorESProducer
+>> Entering Package SimGeneral/DataMixingModule
+>> Entering Package Alignment/CommonAlignment
+>> Entering Package Alignment/MuonAlignment
+>> Entering Package Geometry/CSCGeometryBuilder
+>> Entering Package Geometry/DTGeometryBuilder
+>> Entering Package Alignment/CommonAlignmentAlgorithm
+>> Entering Package Alignment/CommonAlignmentParametrization
+>> Entering Package Alignment/TrackerAlignment
+>> Entering Package Alignment/CocoaFit
+>> Entering Package Alignment/OfflineValidation
+>> Entering Package DQM/SiStripCommon
+>> Entering Package RecoMuon/TrackingTools
+>> Entering Package RecoMuon/DetLayers
+>> Entering Package RecoMuon/Navigation
+>> Entering Package RecoMuon/TransientTrackingRecHit
+>> Entering Package TrackingTools/TrackRefitter
+>> Entering Package Alignment/ReferenceTrajectories
+>> Entering Package Alignment/TwoBodyDecay
+>> Entering Package DataFormats/Alignment
+>> Entering Package Alignment/CommonAlignmentMonitor
+>> Entering Package Alignment/MuonAlignmentAlgorithms
+>> Entering Package Alignment/CommonAlignmentProducer
+>> Entering Package DataFormats/RPCRecHit
+>> Entering Package CommonTools/RecoAlgos
+>> Entering Package Alignment/HIPAlignmentAlgorithm
+>> Entering Package Alignment/KalmanAlignmentAlgorithm
+>> Entering Package RecoTracker/TrackProducer
+>> Entering Package Alignment/LaserAlignment
+>> Entering Package Alignment/LaserDQM
+>> Entering Package Alignment/MillePedeAlignmentAlgorithm
+>> Entering Package Alignment/SurveyAnalysis
+>> Entering Package RecoMET/METAlgorithms
+>> Entering Package RecoMET/METFilters
+>> Entering Package RecoJets/JetAlgorithms
+>> Entering Package RecoJets/JetProducers
+>> Entering Package RecoParticleFlow/PFProducer
+>> Entering Package RecoEgamma/ElectronIdentification
+>> Entering Package PhysicsTools/SelectorUtils
+>> Entering Package RecoEgamma/EgammaTools
+>> Entering Package RecoMET/METProducers
+>> Entering Package RecoLocalCalo/HcalRecAlgos
+>> Entering Package RecoMuon/CosmicMuonProducer
+>> Entering Package RecoMuon/GlobalTrackingTools
+>> Entering Package RecoMuon/MeasurementDet
+>> Entering Package RecoMuon/GlobalMuonProducer
+>> Entering Package RecoMuon/GlobalTrackFinder
+>> Entering Package PhysicsTools/IsolationAlgos
+>> Entering Package RecoMuon/L2MuonIsolationProducer
+>> Entering Package RecoMuon/MuonIsolation
+>> Entering Package RecoMuon/L2MuonProducer
+>> Entering Package RecoMuon/StandAloneTrackFinder
+>> Entering Package RecoMuon/L2MuonSeedGenerator
+>> Entering Package DataFormats/MuonSeed
+>> Entering Package RecoMuon/L3MuonIsolationProducer
+>> Entering Package RecoMuon/L3MuonProducer
+>> Entering Package RecoMuon/L3TrackFinder
+>> Entering Package RecoTracker/CkfPattern
+>> Entering Package TrackingTools/TrajectoryCleaning
+>> Entering Package RecoMuon/MuonIdentification
+>> Entering Package RecoMuon/MuonIsolationProducers
+>> Entering Package RecoMuon/MuonSeedGenerator
+>> Entering Package RecoMuon/StandAloneMuonProducer
+>> Entering Package RecoMuon/TrackerSeedGenerator
+>> Entering Package Calibration/EcalAlCaRecoProducers
+>> Entering Package RecoEcal/EgammaClusterAlgos
+>> Entering Package Calibration/EcalCalibAlgos
+>> Entering Package Calibration/Tools
+>> Entering Package Calibration/HcalAlCaRecoProducers
+>> Entering Package HLTrigger/HLTcore
+>> Entering Package DataFormats/HcalIsolatedTrack
+>> Entering Package Calibration/HcalCalibAlgos
+>> Entering Package Calibration/HcalIsolatedTrackReco
+>> Entering Package Calibration/IsolatedParticles
+>> Entering Package Calibration/TkAlCaRecoProducers
+>> Entering Package PhysicsTools/RecoAlgos
+>> Entering Package PhysicsTools/RecoUtils
+>> Entering Package RecoTracker/DebugTools
+>> Entering Package CalibTracker/SiStripESProducers
+>> Entering Package CalibTracker/SiStripLorentzAngle
+>> Entering Package CalibTracker/SiPixelConnectivity
+>> Entering Package CalibTracker/SiPixelErrorEstimation
+>> Entering Package CalibTracker/SiPixelLorentzAngle
+>> Entering Package CalibTracker/SiPixelTools
+>> Entering Package CalibTracker/SiStripChannelGain
+>> Entering Package RecoTracker/DeDx
+>> Entering Package CalibTracker/SiStripHitEfficiency
+>> Entering Package CalibTracker/SiStripQuality
+>> Entering Package DQMServices/Examples
+>> Entering Package RecoLocalMuon/CSCEfficiency
+>> Entering Package SimMuon/MCTruth
+>> Entering Package RecoLocalMuon/CSCRecHitD
+>> Entering Package CalibMuon/CSCCalibration
+>> Entering Package RecoLocalMuon/CSCSegment
+>> Entering Package RecoLocalMuon/CSCValidation
+>> Entering Package RecoLocalMuon/DTRecHit
+>> Entering Package CalibMuon/DTDigiSync
+>> Entering Package RecoLocalMuon/DTSegment
+>> Entering Package RecoLocalMuon/GEMRecHit
+>> Entering Package DataFormats/GEMRecHit
+>> Entering Package Geometry/GEMGeometry
+>> Entering Package RecoLocalMuon/RPCRecHit
+>> Entering Package HLTrigger/Egamma
+>> Entering Package RecoEgamma/EgammaElectronAlgos
+>> Entering Package RecoEgamma/EgammaIsolationAlgos
+>> Entering Package TrackingTools/GsfTracking
+>> Entering Package HLTrigger/HLTanalyzers
+>> Entering Package RecoHI/HiEgammaAlgos
+>> Entering Package HLTrigger/HLTfilters
+>> Entering Package HLTrigger/JetMET
+>> Entering Package HLTrigger/Muon
+>> Entering Package L1Trigger/CSCTrackFinder
+>> Entering Package L1Trigger/CSCCommonTrigger
+>> Entering Package L1Trigger/DTUtilities
+>> Entering Package HLTrigger/Timer
+>> Entering Package HLTrigger/btau
+>> Entering Package HLTrigger/special
+>> Entering Package DQMOffline/Alignment
+>> Entering Package DQMOffline/CalibCalo
+>> Entering Package DQMOffline/CalibMuon
+>> Entering Package DQMOffline/CalibTracker
+>> Entering Package DQMOffline/EGamma
+>> Entering Package DQMOffline/Ecal
+>> Entering Package DQMOffline/JetMET
+>> Entering Package RecoJets/JetAssociationAlgorithms
+>> Entering Package DQMOffline/L1Trigger
+>> Entering Package DQMOffline/Muon
+>> Entering Package DQMOffline/PFTau
+>> Entering Package DQMOffline/RecoB
+>> Entering Package RecoBTau/JetTagComputer
+>> Entering Package DQMOffline/Trigger
+>> Entering Package DQM/HLTEvF
+>> Entering Package RecoEgamma/EgammaHLTAlgos
+>> Entering Package CalibMuon/DTCalibration
+>> Entering Package RecoEcal/EgammaClusterProducers
+>> Entering Package PhysicsTools/FWLite
+>> Entering Package PhysicsTools/JetCharge
+>> Entering Package PhysicsTools/ParallelAnalysis
+>> Entering Package PhysicsTools/PatAlgos
+>> Entering Package PhysicsTools/PatUtils
+>> Entering Package PhysicsTools/PatExamples
+>> Entering Package PhysicsTools/TagAndProbe
+>> Entering Package GeneratorInterface/GenFilters
+>> Entering Package GeneratorInterface/HiGenCommon
+>> Entering Package HeavyFlavorAnalysis/Skimming
+>> Entering Package TauAnalysis/MCEmbeddingTools
+>> Entering Package RecoLocalCalo/HcalRecProducers
+>> Entering Package CaloOnlineTools/EcalTools
+>> Entering Package Fireworks/Geometry
+>> Entering Package Fireworks/Core
+>> Entering Package Fireworks/Eve
+>> Entering Package Fireworks/Tracks
+>> Entering Package Fireworks/Calo
+>> Entering Package Fireworks/Electrons
+>> Entering Package Fireworks/FWInterface
+>> Entering Package Fireworks/Muons
+>> Entering Package Fireworks/ParticleFlow
+>> Entering Package Fireworks/Vertices
+>> Entering Package AnalysisAlgos/TrackInfoProducer
+>> Entering Package AnalysisDataFormats/TrackInfo
+>> Entering Package SLHCUpgradeSimulations/Geometry
+>> Entering Package EventFilter/SiPixelRawToDigi
+>> Entering Package EventFilter/SiStripChannelChargeFilter
+>> Entering Package RecoHI/HiCentralityAlgos
+>> Entering Package RecoHI/HiEvtPlaneAlgos
+>> Entering Package RecoHI/HiJetAlgos
+>> Entering Package RecoHI/HiMuonAlgos
+>> Entering Package RecoHI/HiTracking
+>> Entering Package EgammaAnalysis/ElectronTools
+>> Entering Package EgammaAnalysis/PhotonIDProducers
+>> Entering Package TrackPropagation/NavGeometry
+>> Entering Package CondTools/DT
+>> Entering Package CondTools/SiPixel
+>> Entering Package CondTools/SiStrip
+>> Entering Package SimMuon/CSCDigitizer
+>> Entering Package SimMuon/DTDigitizer
+>> Entering Package SimMuon/GEMDigitizer
+>> Entering Package SimMuon/RPCDigitizer
+>> Entering Package HLTriggerOffline/B2G
+>> Entering Package HLTriggerOffline/Common
+>> Entering Package HLTriggerOffline/Egamma
+>> Entering Package HLTriggerOffline/Exotica
+>> Entering Package HLTriggerOffline/HeavyFlavor
+>> Entering Package HLTriggerOffline/Higgs
+>> Entering Package HLTriggerOffline/JetMET
+>> Entering Package HLTriggerOffline/Muon
+>> Entering Package HLTriggerOffline/SUSYBSM
+>> Entering Package HLTriggerOffline/Tau
+>> Entering Package HLTriggerOffline/Top
+>> Entering Package SUSYBSMAnalysis/HSCP
+>> Entering Package AnalysisDataFormats/SUSYBSMObjects
+>> Entering Package Configuration/Skimming
+>> Entering Package RecoJets/FFTJetProducers
+>> Entering Package RecoJets/JetAnalyzers
+>> Entering Package RecoJets/JetAssociationProducers
+>> Entering Package RecoJets/JetPlusTracks
+>> Entering Package MuonAnalysis/MomentumScaleCalibration
+>> Entering Package MuonAnalysis/MuonAssociators
+>> Entering Package TopQuarkAnalysis/Examples
+>> Entering Package AnalysisDataFormats/TopObjects
+>> Entering Package TopQuarkAnalysis/TopEventProducers
+>> Entering Package TopQuarkAnalysis/TopEventSelection
+>> Entering Package TopQuarkAnalysis/TopTools
+>> Entering Package TopQuarkAnalysis/TopHitFit
+>> Entering Package TopQuarkAnalysis/TopJetCombination
+>> Entering Package TopQuarkAnalysis/TopKinFitter
+>> Entering Package TopQuarkAnalysis/TopObjectResolutions
+>> Entering Package TopQuarkAnalysis/TopPairBSM
+>> Entering Package RecoEgamma/EgammaElectronProducers
+>> Entering Package RecoEgamma/EgammaHFProducers
+>> Entering Package RecoEgamma/EgammaHLTProducers
+>> Entering Package RecoEgamma/EgammaPhotonAlgos
+>> Entering Package RecoEgamma/EgammaPhotonProducers
+>> Entering Package DataFormats/EgammaTrackReco
+>> Entering Package RecoEgamma/PhotonIdentification
+>> Entering Package RecoEgamma/Examples
+>> Entering Package TrackingTools/Producers
+>> Entering Package RecoBTag/BTagTools
+>> Entering Package RecoBTag/ImpactParameter
+>> Entering Package RecoBTag/TrackProbability
+>> Entering Package RecoBTag/Skimming
+>> Entering Package RecoBTag/SoftLepton
+>> Entering Package L1Trigger/CSCTriggerPrimitives
+>> Entering Package L1Trigger/DTBti
+>> Entering Package L1Trigger/DTTrigger
+>> Entering Package RecoTracker/ConversionSeedGenerators
+>> Entering Package RecoTracker/FinalTrackSelectors
+>> Entering Package RecoTracker/GeometryESProducer
+>> Entering Package RecoTracker/SiTrackerMRHTools
+>> Entering Package RecoTracker/SingleTrackPattern
+>> Entering Package RecoTracker/SpecialSeedGenerators
+>> Entering Package RecoTracker/TkNavigation
+>> Entering Package RecoTauTag/HLTProducers
+>> Entering Package RecoTauTag/ImpactParameter
+>> Entering Package DPGAnalysis/SiStripTools
+>> Entering Package DPGAnalysis/Skims
+>> Entering Package DQM/BeamMonitor
+>> Entering Package DQM/DTMonitorClient
+>> Entering Package DQM/DTMonitorModule
+>> Entering Package DQM/DataScouting
+>> Entering Package DQM/HcalMonitorTasks
+>> Entering Package DQM/L1TMonitor
+>> Entering Package DQM/Physics
+>> Entering Package DQM/PhysicsHWW
+>> Entering Package CommonTools/ParticleFlow
+>> Entering Package DQM/PhysicsObjectsMonitoring
+>> Entering Package DQM/RPCMonitorDigi
+>> Entering Package DQM/SiPixelMonitorClient
+>> Entering Package DQM/SiPixelMonitorCluster
+>> Entering Package DQM/SiPixelMonitorDigi
+>> Entering Package DQM/SiPixelMonitorRawData
+>> Entering Package DQM/SiPixelMonitorRecHit
+>> Entering Package DQM/SiPixelMonitorTrack
+>> Entering Package DQM/SiStripCommissioningDbClients
+>> Entering Package DQM/SiStripCommissioningSources
+>> Entering Package DQM/SiStripMonitorTrack
+>> Entering Package DQM/TrackerMonitorTrack
+>> Entering Package DQM/TrackingMonitor
+>> Entering Package ElectroWeakAnalysis/Skimming
+>> Entering Package ElectroWeakAnalysis/Utilities
+>> Entering Package ElectroWeakAnalysis/WENu
+>> Entering Package ElectroWeakAnalysis/WMuNu
+>> Entering Package AnalysisDataFormats/EWK
+>> Entering Package ElectroWeakAnalysis/ZEE
+>> Entering Package ElectroWeakAnalysis/ZMuMu
+>> Entering Package RecoVZero/VZeroFinding
+>> Entering Package DataFormats/VZero
+>> Entering Package FastSimulation/TrackingRecHitProducer
+>> Entering Package FastSimulation/TrajectoryManager
+>> Entering Package FastSimulation/TrackerSetup
+>> Entering Package FastSimulation/EgammaElectronAlgos
+>> Entering Package FastSimulation/Tracking
+>> Entering Package FastSimulation/MuonSimHitProducer
+>> Entering Package FastSimulation/Muons
+>> Entering Package FastSimulation/ParticleFlow
+>> Entering Package DataFormats/V0Candidate
+>> Entering Package Validation/CSCRecHits
+>> Entering Package Validation/MuonCSCDigis
+>> Entering Package Validation/DTRecHits
+>> Entering Package Validation/EventGenerator
+>> Entering Package Validation/GlobalDigis
+>> Entering Package Validation/GlobalHits
+>> Entering Package Validation/GlobalRecHits
+>> Entering Package Validation/MuonDTDigis
+>> Entering Package Validation/MuonHits
+>> Entering Package Validation/MuonIdentification
+>> Entering Package Validation/MuonIsolation
+>> Entering Package Validation/MuonRPCDigis
+>> Entering Package Validation/MuonRPCGeometry
+>> Entering Package Validation/RPCRecHits
+>> Entering Package Validation/RecoB
+>> Entering Package Validation/RecoEgamma
+>> Entering Package Validation/RecoJets
+>> Entering Package Validation/RecoMET
+>> Entering Package Validation/RecoMuon
+>> Entering Package Validation/RecoParticleFlow
+>> Entering Package RecoParticleFlow/Benchmark
+>> Entering Package Validation/RecoPixelVertexing
+>> Entering Package Validation/RecoTau
+>> Entering Package Validation/RecoTrack
+>> Entering Package Validation/RecoVertex
+>> Entering Package Validation/TrackerDigis
+>> Entering Package Validation/TrackerRecHits
+>> Entering Package CommonTools/RecoUtils
+>> Entering Package Geometry/TrackingGeometryAligner
+>> Entering Package Geometry/GlobalTrackingGeometryBuilder
+>> Entering Package RecoParticleFlow/Configuration
+>> Entering Package RecoParticleFlow/PFSimProducer
+>> Entering Package RecoParticleFlow/PFTracking
+>> Compiling capabilities tmp/slc6_amd64_gcc481/src/DataFormats/TrackReco/src/DataFormatsTrackReco/a/seal_cap.cc 
+>> Building shared library tmp/slc6_amd64_gcc481/src/Geometry/CommonDetUnit/src/GeometryCommonDetUnit/libGeometryCommonDetUnit.so
+>> Building shared library tmp/slc6_amd64_gcc481/src/Geometry/TrackerNumberingBuilder/src/GeometryTrackerNumberingBuilder/libGeometryTrackerNumberingBuilder.so
+Entering library rule at RecoPixelVertexing/PixelTrackFitting
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoPixelVertexing/PixelTriplets/src/CosmicHitTripletGenerator.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoPixelVertexing/PixelTriplets/src/CosmicHitTripletGeneratorFromLayerTriplet.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoPixelVertexing/PixelTriplets/src/CosmicLayerTriplets.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoPixelVertexing/PixelTriplets/src/HitTripletGenerator.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoPixelVertexing/PixelTriplets/src/HitTripletGeneratorFromPairAndLayersFactory.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoPixelVertexing/PixelTriplets/src/LayerTriplets.cc 
+Copying tmp/slc6_amd64_gcc481/src/Geometry/CommonDetUnit/src/GeometryCommonDetUnit/libGeometryCommonDetUnit.so to productstore area:
+Copying tmp/slc6_amd64_gcc481/src/Geometry/TrackerNumberingBuilder/src/GeometryTrackerNumberingBuilder/libGeometryTrackerNumberingBuilder.so to productstore area:
+Leaving library rule at Geometry/CommonDetUnit
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoPixelVertexing/PixelTriplets/src/QuadrupletSeedMerger.cc 
+Leaving library rule at Geometry/TrackerNumberingBuilder
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoPixelVertexing/PixelTriplets/src/ThirdHitPredictionFromCircle.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoPixelVertexing/PixelTriplets/src/ThirdHitRZPredictionBase.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/BladeShapeBuilderFromDet.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/BoundDiskSector.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/CompatibleDetToGroupAdder.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/CompositeTECPetal.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/CompositeTECWedge.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/DetGroupMerger.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/DiskSectorBounds.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/ForwardDiskSectorBuilderFromDet.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/ForwardDiskSectorBuilderFromWedges.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/GeometricSearchTracker.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/GeometricSearchTrackerBuilder.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/GlobalDetRodRangeZPhi.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/PixelBarrelLayerBuilder.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/PixelBlade.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/PixelBladeBuilder.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/PixelForwardLayer.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/PixelForwardLayerBuilder.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/PixelForwardLayerPhase1.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/PixelRod.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/PixelRodBuilder.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/SimpleTECWedge.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/TBLayer.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/TBPLayer.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/TECLayer.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/TECLayerBuilder.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/TECPetal.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/TECPetalBuilder.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/TECWedge.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/TECWedgeBuilder.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/TIBLayer.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/TIBLayerBuilder.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/TIBRing.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/TIBRingBuilder.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/TIDLayer.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/TIDLayerBuilder.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/TIDRing.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/TIDRingBuilder.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/TOBLayerBuilder.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/TOBRod.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/TOBRodBuilder.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/TkDetUtil.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkDetLayers/src/modules.cc 
+>> Compiling capabilities tmp/slc6_amd64_gcc481/src/TrackingTools/TransientTrackingRecHit/src/TrackingToolsTransientTrackingRecHit/a/seal_cap.cc 
+Entering library rule at RecoTracker/TkSeedGenerator
+>> Building LCG reflex dict from header file src/RecoTracker/TkSeedGenerator/src/classes.h
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkSeedGenerator/src/ClusterChecker.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkSeedGenerator/src/FastCircle.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkSeedGenerator/src/FastHelix.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkSeedGenerator/src/FastLine.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkSeedGenerator/src/MultiHitGenerator.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkSeedGenerator/src/MultiHitGeneratorFromPairAndLayersFactory.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkSeedGenerator/src/SeedCreatorFactory.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkSeedGenerator/src/SeedFromProtoTrack.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkSeedGenerator/src/SeedGeneratorFromRegionHits.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/TrackingTools/KalmanUpdators/src/Chi2ChargeMeasurementEstimator.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/TrackingTools/KalmanUpdators/src/Chi2MeasurementEstimator.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/TrackingTools/KalmanUpdators/src/Chi2MeasurementEstimatorBase.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/TrackingTools/KalmanUpdators/src/Chi2Strip1DEstimator.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/TrackingTools/KalmanUpdators/src/Chi2Switching1DEstimator.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/TrackingTools/KalmanUpdators/src/EtaPhiMeasurementEstimator.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/TrackingTools/KalmanUpdators/src/KFStrip1DUpdator.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/TrackingTools/KalmanUpdators/src/KFSwitching1DUpdator.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/TrackingTools/KalmanUpdators/src/KFUpdator.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/TrackingTools/KalmanUpdators/src/MRHChi2MeasurementEstimator.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/TrackingTools/KalmanUpdators/src/Strip1DMeasurementTransformator.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/TrackingTools/KalmanUpdators/src/module.cc 
+>> Building shared library tmp/slc6_amd64_gcc481/src/DataFormats/GeometryCommonDetAlgo/src/DataFormatsGeometryCommonDetAlgo/libDataFormatsGeometryCommonDetAlgo.so
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkTrackingRegions/src/GlobalDetRangeRPhi.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkTrackingRegions/src/GlobalDetRangeZPhi.cc 
+Copying tmp/slc6_amd64_gcc481/src/DataFormats/GeometryCommonDetAlgo/src/DataFormatsGeometryCommonDetAlgo/libDataFormatsGeometryCommonDetAlgo.so to productstore area:
+Leaving library rule at DataFormats/GeometryCommonDetAlgo
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkTrackingRegions/src/GlobalTrackingRegion.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkTrackingRegions/src/OrderedHitsGeneratorFactory.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkTrackingRegions/src/OuterDetCompatibility.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkTrackingRegions/src/OuterHitCompatibility.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkTrackingRegions/src/OuterHitPhiPrediction.cc 
+--->> genreflex: INFO: Parsing file src/RecoTracker/TkSeedGenerator/src/classes.h with GCC_XML OK
+--->> genreflex: INFO: Generating Reflex Dictionary
+class reco::utils::ClusterTotals
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkTrackingRegions/src/RectangularEtaPhiTrackingRegion.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/TkTrackingRegions/src/TrackingRegionProducerFactory.cc 
+Entering library rule at RecoTracker/MeasurementDet
+>> Building LCG reflex dict from header file src/RecoTracker/MeasurementDet/src/classes.h
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/MeasurementDet/src/LayerCollector.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/MeasurementDet/src/MeasurementTracker.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/MeasurementDet/src/MeasurementTrackerEvent.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/MeasurementDet/src/StartingLayerFinder.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/RecoTracker/MeasurementDet/src/TkMeasurementDetSet.cc 
+>> Compiling  /afs/cern.ch/user/a/asvyatko/APEStudyDev_RepoNew/CMSSW_7_2_0_pre6/src/TrackingTools/MeasurementDet/src/LayerMeasurements.cc 
+>> Compiling capabilities tmp/slc6_amd64_gcc481/src/SimTracker/TrackerHitAssociation/src/SimTrackerTrackerHitAssociation/a/seal_cap.cc 
+Entering library rule at src/RecoPixelVertexing/PixelTriplets/plugins
+Entering library rule at src/RecoPixelVertexing/PixelTriplets/test
+>> Compiling LCG dictionary: tmp/slc6_amd64_gcc481/src/DataFormats/JetReco/src/DataFormatsJetReco/a/x3r.cc
+>> Compiling LCG dictionary: tmp/slc6_amd64_gcc481/src/DataFormats/JetReco/src/DataFormatsJetReco/a/x2r.cc
+>> Compiling LCG dictionary: tmp/slc6_amd64_gcc481/src/DataFormats/JetReco/src/DataFormatsJetReco/a/x1r.cc
+--->> genreflex: INFO: Parsing file src/RecoTracker/MeasurementDet/src/classes.h with GCC_XML 
+--->> genreflex: ERROR: processing file with gccxml. genreflex command failed.
+--->> genreflex: WARNING: Class MeasurementTrackerEvent in selection file src/RecoTracker/MeasurementDet/src/classes_def.xml not generated.
+--->> genreflex: WARNING: Class edm::Wrapper<MeasurementTrackerEvent> in selection file src/RecoTracker/MeasurementDet/src/classes_def.xml not generated.
+gmake: *** Deleting file `tmp/slc6_amd64_gcc481/src/RecoTracker/TkTrackingRegions/src/RecoTrackerTkTrackingRegions/RectangularEtaPhiTrackingRegion.o'
+gmake: *** [tmp/slc6_amd64_gcc481/src/RecoTracker/MeasurementDet/src/RecoTrackerMeasurementDet/a/xr.cc] Error 1
+gmake: *** [tmp/slc6_amd64_gcc481/src/RecoTracker/MeasurementDet/src/RecoTrackerMeasurementDet/MeasurementTrackerEvent.o] Interrupt
+gmake: *** [tmp/slc6_amd64_gcc481/src/RecoTracker/MeasurementDet/src/RecoTrackerMeasurementDet/TkMeasurementDetSet.o] Interrupt
+gmake: *** [tmp/slc6_amd64_gcc481/src/TrackingTools/MeasurementDet/src/TrackingToolsMeasurementDet/LayerMeasurements.o] Interrupt
+gmake: *** [tmp/slc6_amd64_gcc481/src/DataFormats/JetReco/src/DataFormatsJetReco/a/x3r.o] Interrupt
+gmake: *** [tmp/slc6_amd64_gcc481/src/DataFormats/JetReco/src/DataFormatsJetReco/a/x2r.o] Interrupt
+gmake: *** [tmp/slc6_amd64_gcc481/src/RecoTracker/TkTrackingRegions/src/RecoTrackerTkTrackingRegions/RectangularEtaPhiTrackingRegion.o] Interrupt
+gmake: *** [tmp/slc6_amd64_gcc481/src/DataFormats/JetReco/src/DataFormatsJetReco/a/x1r.o] Interrupt

@@ -211,11 +211,7 @@ void AlignableComposite::addAlignmentPositionErrorFromRotation( const RotationTy
       // (rotate the VECTOR rather than the frame) 
       GlobalVector moveVector( rotation.multiplyInverse(lpvgf) - lpvgf );    
       
-      //FIMXE
-      LocalErrorExtended ge(0.,0.,0.,0.,0.,0.,0.,0.,0.,0.);
-      AlignmentPositionError ape( ge );
-
-      //AlignmentPositionError ape( moveVector.x(), moveVector.y(), moveVector.z() );
+      AlignmentPositionError ape( moveVector.x(), moveVector.y(), moveVector.z() );
       (*i)->addAlignmentPositionError( ape, propagateDown );
       (*i)->addAlignmentPositionErrorFromRotation( rotation, propagateDown );
 	  
