@@ -47,6 +47,17 @@ process.options = cms.untracked.PSet(
 #--------------
 process.load("Validation.RecoParticleFlow.PFValidationClient_cff")
 
-process.pfClientSequence = cms.Sequence(process.pfJetClient * process.pfMETClient * process.pfJetResClient * process.pfElectronClient)
-process.p = cms.Path(process.EDMtoME * process.pfClientSequence * process.dqmEnv * process.dqmSaver)
+process.pfClientSequence = cms.Sequence(
+    process.pfJetClient *
+    process.pfMETClient *
+    process.pfJetResClient *
+    process.pfElectronClient
+    )
+
+process.p = cms.Path(
+    process.EDMtoME * 
+    process.pfClientSequence * 
+    process.dqmEnv * 
+    process.dqmSaver
+    )
 

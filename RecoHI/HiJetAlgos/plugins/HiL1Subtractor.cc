@@ -1,7 +1,4 @@
 #include "RecoHI/HiJetAlgos/plugins/HiL1Subtractor.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
-#include "DataFormats/JetReco/interface/GenJetCollection.h"
 
 #include <vector>
 
@@ -21,20 +18,24 @@ double medianPtkt[12];
 // constructors and destructor
 //
 HiL1Subtractor::HiL1Subtractor(const edm::ParameterSet& iConfig) :
-  src_       ( iConfig.getParameter<edm::InputTag>("src") ),
-  jetType_       (iConfig.getParameter<std::string>("jetType") ),
-  rhoTag_       (iConfig.getParameter<std::string>("rhoTag") )
+  jetType_ (iConfig.getParameter<std::string>("jetType") ),
+  rhoTagString_       (iConfig.getParameter<std::string>("rhoTag") )
 
 {
+  rhoTag_ = (consumes<std::vector<double> > (rhoTagString_));
 
   if(jetType_ == "CaloJet"){
     produces<reco::CaloJetCollection >();
+    caloJetSrc_ = (consumes< edm::View<reco::CaloJet> >(iConfig.getParameter<edm::InputTag>("src")));
   }
   else if(jetType_ == "PFJet"){
     produces<reco::PFJetCollection >();
+    pfJetSrc_ = (consumes< edm::View<reco::PFJet> >(iConfig.getParameter<edm::InputTag>("src")));
   }
   else if(jetType_ == "GenJet"){
-     produces<reco::GenJetCollection >();
+    produces<reco::GenJetCollection >();
+    genJetSrc_ = (consumes< edm::View<reco::GenJet> >(iConfig.getParameter<edm::InputTag>("src")));
+
   }
   else{
     throw cms::Exception("InvalidInput") << "invalid jet type in HiL1Subtractor\n";
@@ -63,12 +64,12 @@ HiL1Subtractor::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if(jetType_ == "GenJet"){
       std::auto_ptr<reco::GenJetCollection> jets( new reco::GenJetCollection);
       edm::Handle< edm::View<reco::GenJet> > h_jets;
-      iEvent.getByLabel( src_, h_jets );
+      iEvent.getByToken( genJetSrc_, h_jets );
 
       // Grab appropriate rho, hard coded for the moment                                                                                      
       edm::Handle<std::vector<double> > rs;
-      iEvent.getByLabel(edm::InputTag(rhoTag_,"rhos"),rs);
-      //iEvent.getByLabel(edm::InputTag("ic5CaloJets","rhos"),rs);                                                                            
+      iEvent.getByToken(rhoTag_, rs);
+
       int rsize = rs->size();
 
       for(int j = 0; j < rsize; j++){
@@ -119,12 +120,11 @@ HiL1Subtractor::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }else if(jetType_ == "CaloJet"){
     std::auto_ptr<reco::CaloJetCollection> jets( new reco::CaloJetCollection);
     edm::Handle< edm::View<reco::CaloJet> > h_jets;
-    iEvent.getByLabel( src_, h_jets );
+    iEvent.getByToken( caloJetSrc_, h_jets );
 
     // Grab appropriate rho, hard coded for the moment
     edm::Handle<std::vector<double> > rs;
-    iEvent.getByLabel(edm::InputTag(rhoTag_,"rhos"),rs);
-    //iEvent.getByLabel(edm::InputTag("ic5CaloJets","rhos"),rs);
+    iEvent.getByToken(rhoTag_, rs);
 
 
     int rsize = rs->size();
@@ -181,12 +181,11 @@ HiL1Subtractor::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   else if(jetType_ == "PFJet"){
     std::auto_ptr<reco::PFJetCollection> jets( new reco::PFJetCollection);
     edm::Handle< edm::View<reco::PFJet> > h_jets;
-    iEvent.getByLabel( src_, h_jets );
+    iEvent.getByToken( pfJetSrc_, h_jets );
 
     // Grab appropriate rho, hard coded for the moment
     edm::Handle<std::vector<double> > rs;
-    iEvent.getByLabel(edm::InputTag(rhoTag_,"rhos"),rs);
-    //iEvent.getByLabel(edm::InputTag("ic5CaloJets","rhos"),rs);
+    iEvent.getByToken(rhoTag_,rs);
 
 
     int rsize = rs->size();

@@ -43,7 +43,7 @@
 #include <utility>
 #include <vector>
 
-//#define NEW_CPEERROR // must be constistent with base.cc, generic cc/h and genericProducer.cc 
+#define NEW_CPEERROR // must be constistent with base.cc, generic cc/h and genericProducer.cc 
 
 #if 0
 /** \class PixelCPEGeneric

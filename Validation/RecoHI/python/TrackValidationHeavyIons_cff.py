@@ -10,7 +10,7 @@ TrackAssociatorByHitsRecoDenom = SimTracker.TrackAssociation.TrackAssociatorByHi
 
 # reco track quality cuts
 from Validation.RecoTrack.cuts_cff import *
-cutsRecoTracks.src = "hiSelectedTracks"
+cutsRecoTracks.src = "hiGeneralTracks"
 cutsRecoTracks.ptMin = 2.0
 cutsRecoTracks.quality = []
 
@@ -26,8 +26,8 @@ from Validation.RecoTrack.MultiTrackValidator_cff import *
 hiTrackValidator = multiTrackValidator.clone(
     label_tp_effic = cms.InputTag("primaryChgSimTracks"),
     label_tp_fake  = cms.InputTag("cutsTPFake"),
-    trackCollectionForDrCalculation = cms.InputTag("cutsRecoTracks"),
     signalOnlyTP = cms.bool(False),
+    trackCollectionForDrCalculation = cms.InputTag("cutsRecoTracks"),
     skipHistoFit = cms.untracked.bool(True), # done in post-processing
     minpT = cms.double(1.0),
     maxpT = cms.double(100.0),

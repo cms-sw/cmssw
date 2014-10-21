@@ -7,6 +7,7 @@ using namespace std;
 
 namespace {
   //const bool phase1 = false;
+  const bool pilot_blade = true;  
 }
 
 PixelEndcapName::PixelEndcapName(const DetId & id, const TrackerTopology* tt, bool phase)
@@ -18,8 +19,9 @@ PixelEndcapName::PixelEndcapName(const DetId & id, const TrackerTopology* tt, bo
   int tmpBlade = tt->pxfBlade(id);
   theDisk      = tt->pxfDisk(id);
   thePlaquette = tt->pxfModule(id);
+  bool outer = false;   // outer means with respect to the LHC ring (x - axis)
 
-  bool outer = false;
+
   if(phase1) {  // phase 1
 
     // this still has to be modified so blades start from 1 on the top
@@ -41,6 +43,19 @@ PixelEndcapName::PixelEndcapName(const DetId & id, const TrackerTopology* tt, bo
     //thePannel = tt->pxfRing(id); // this is the ring
 
   } else { // phase0
+
+    // hack for the pilot blade
+    if(pilot_blade && theDisk==3 ) { // do only for disk 3
+      //cout<<tmpBlade<<" "<<theDisk<<endl;
+      if(tmpBlade>=1 && tmpBlade<=4) {
+	// convert the sequential counting of pilot blades to std. cmssw convention
+	if(tmpBlade<3) tmpBlade +=3;
+	else  tmpBlade +=13;
+      } else {
+	edm::LogError ("Bad PilotBlade blade number ") 
+	  << tmpBlade;      
+      }
+    }
 
     if (tmpBlade >= 7 && tmpBlade <= 18) {
       outer = true;
@@ -67,14 +82,15 @@ PixelEndcapName::PixelEndcapName(const DetId & id, bool phase)
 {
   PXFDetId cmssw_numbering(id);
   int side = cmssw_numbering.side();
-
   int tmpBlade = cmssw_numbering.blade();
-  bool outer = false;
+  thePlaquette = cmssw_numbering.module();
+  theDisk = cmssw_numbering.disk();
+  bool outer = false;   // outer means with respect to the LHC ring (x - axis)
 
   if(phase1) { // phase1
     // this still has to be modified so blades start from 1 on the top
     if (tmpBlade>=7 && tmpBlade<=17) {
-      outer = true;
+      outer = true;   // outer means with respect to the LHC ring (x - axis)
       theBlade = tmpBlade-6;                      //7...17-->1...11
     } else if (tmpBlade>=32 && tmpBlade<=48) {
       outer = true;
@@ -91,8 +107,20 @@ PixelEndcapName::PixelEndcapName(const DetId & id, bool phase)
 
   } else { // phase 0
 
+    // hack for the pilot blade
+    if(pilot_blade && theDisk==3 ) { // do only for disk 3
+      if(tmpBlade>=1 && tmpBlade<=4) {
+	// convert the sequential counting of pilot blades to std. cmssw convention
+	if(tmpBlade<3) tmpBlade +=3;
+	else  tmpBlade +=13;
+      } else {
+	edm::LogError ("Bad PilotBlade blade number ") 
+	  << tmpBlade;      
+      }
+    }
+
     if (tmpBlade >= 7 && tmpBlade <= 18) {
-      outer = true;
+      outer = true;   // outer means with respect to the LHC ring (x - axis)
       theBlade = tmpBlade-6;
     } else if( tmpBlade <=6 ) { 
       theBlade = 7-tmpBlade; 
@@ -109,8 +137,6 @@ PixelEndcapName::PixelEndcapName(const DetId & id, bool phase)
   else if( side == 2 &&  outer ) thePart = pO;
   else if( side == 2 && !outer ) thePart = pI;
  
-  thePlaquette = cmssw_numbering.module();
-  theDisk = cmssw_numbering.disk();
 }
 
 // constructor from name string
@@ -247,6 +273,9 @@ PixelModuleName::ModuleType  PixelEndcapName::moduleType() const
       else if (plaquetteName() == 3) { type = v2x5; }
     }
 
+    // hack for the pilot blade
+    if(pilot_blade && theDisk==3 ) {type=v2x8;} // do only for disk 3
+
   } // end phase1
 
   return type;
@@ -270,12 +299,7 @@ string PixelEndcapName::name() const
 {
   std::ostringstream stm;
 
-  if(phase1) { // phase1
-  } else { // phase 0
-  } // end phase1
-
   stm <<"FPix_B"<<thePart<<"_D"<<theDisk<<"_BLD"<<theBlade<<"_PNL"<<thePannel<<"_PLQ"<<thePlaquette;
-
   return stm.str();
 }
 
@@ -329,11 +353,20 @@ DetId PixelEndcapName::getDetId(const TrackerTopology* tt) {
     module = static_cast<uint32_t>(ringName());
   
   } else { // phase 0
+ 
     if (outer) {
       blade = tmpBlade + 6;
     } else { // inner
       if (tmpBlade <= 6) blade = 7 - tmpBlade;
       else if (tmpBlade <= 12) blade = 31 - tmpBlade;
+    }
+
+    // hack for the pilot blade
+    if(pilot_blade && theDisk==3 ) { // do only for disk 3
+      //cout<<tmpBlade<<" "<<blade<<endl;
+      if(blade<=5) blade -=3;
+      else         blade -=13;
+      //cout<<tmpBlade<<" "<<blade<<endl;
     }
 
     module = static_cast<uint32_t>(plaquetteName());
@@ -391,6 +424,14 @@ PXFDetId PixelEndcapName::getDetId() {
     } else { // inner
       if (tmpBlade <= 6) blade = 7 - tmpBlade;
       else if (tmpBlade <= 12) blade = 31 - tmpBlade;
+    }
+
+    // hack for the pilot blade
+    if(pilot_blade && theDisk==3 ) { // do only for disk 3
+      //cout<<tmpBlade<<" "<<blade<<endl;
+      if(blade<=5) blade -=3;
+      else         blade -=13;
+      //cout<<tmpBlade<<" "<<blade<<endl;
     }
 
     module = static_cast<uint32_t>(plaquetteName());
