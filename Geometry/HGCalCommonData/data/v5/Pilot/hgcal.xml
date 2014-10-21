@@ -77,6 +77,11 @@
     <ZSection z="[zHGCal4]" rMin="[rMinHGCal4]" rMax="[rMapHGCal4]"/>
     <ZSection z="[zMaxHE]"  rMin="[rMinHEMax]"  rMax="[rMapHEMax]"/>
   </Polyhedra>
+  <Polycone name="HGCalSupport" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="299*cm" rMin="29.5*cm-0.6*cm" rMax="29.5*cm"/>
+    <ZSection z="[zHGCal1]" rMin="29.5*cm-0.6*cm" rMax="29.5*cm"/>
+    <ZSection z="417.5*cm" rMin="[etaMax:slope]*417.5*cm-2.7*cm" rMax="[etaMax:slope]*417.5*cm-2.1*cm"/>
+  </Polycone>
 </SolidSection>
 
 <LogicalPartSection label="hgcal.xml">
@@ -103,6 +108,10 @@
   <LogicalPart name="HGCalHE" category="unspecified">
     <rSolid name="HGCalHE"/>
     <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalSupport" category="unspecified">
+    <rSolid name="HGCalSupport"/>
+    <rMaterial name="materials:StainlessSteel"/>
   </LogicalPart>
 </LogicalPartSection>
 
@@ -140,6 +149,11 @@
   <PosPart copyNumber="1">
     <rParent name="HGCal"/>
     <rChild name="HGCalHE"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="caloBase:CALO"/>
+    <rChild name="HGCalSupport"/>
     <rRotation name="rotations:000D"/>
   </PosPart>
 </PosPartSection>
