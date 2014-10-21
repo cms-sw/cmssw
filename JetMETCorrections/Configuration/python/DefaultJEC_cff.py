@@ -6,7 +6,7 @@ from JetMETCorrections.Configuration.JetCorrectorsAllAlgos_cff import *
 ##------------------  DEFINE THE PRODUCER MODULES  --------------
 
 ##------------------  CALO JETS ---------------------------------
-ak4CaloJetsL2L3 = cms.EDProducer('CaloJetCorrectionProducer',
+ak4CaloJetsL2L3 = cms.EDProducer('CorrectedCaloJetProducer',
     src         = cms.InputTag('ak4CaloJets'),
     correctors  = cms.VInputTag('ak4CaloL2L3Corrector')
     )

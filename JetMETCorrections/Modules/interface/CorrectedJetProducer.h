@@ -1,5 +1,5 @@
-#ifndef JetCorrectionProducer_h
-#define JetCorrectionProducer_h
+#ifndef CorrectedJetProducer_h
+#define CorrectedJetProducer_h
 
 #include <sstream>
 #include <string>
@@ -10,51 +10,46 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/transform.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
+#include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 
 namespace edm
 {
   class ParameterSet;
 }
 
-class JetCorrector;
-
-namespace cms
+namespace reco
 {
   template<class T>
-  class JetCorrectionProducer : public edm::EDProducer
+  class CorrectedJetProducer : public edm::EDProducer
   {
   public:
     typedef std::vector<T> JetCollection;
-    explicit JetCorrectionProducer (const edm::ParameterSet& fParameters);
-    virtual ~JetCorrectionProducer () {}
+    explicit CorrectedJetProducer (const edm::ParameterSet& fParameters);
+    virtual ~CorrectedJetProducer () {}
     virtual void produce(edm::Event&, const edm::EventSetup&);
   private:
     edm::EDGetTokenT<JetCollection> mInput;
-    std::vector <std::string> mCorrectorNames;
+    std::vector <edm::EDGetTokenT<reco::JetCorrector> > mCorrectorTokens;
     // cache
-    std::vector <const JetCorrector*> mCorrectors;
-    unsigned long long mCacheId;
+    std::vector <const reco::JetCorrector*> mCorrectors;
     bool mVerbose;
   };
 }
 
 // ---------- implementation ----------
 
-namespace cms {
+namespace reco {
 
   template<class T>
-  JetCorrectionProducer<T>::JetCorrectionProducer(const edm::ParameterSet& fConfig)
+  CorrectedJetProducer<T>::CorrectedJetProducer(const edm::ParameterSet& fConfig)
     : mInput(consumes<JetCollection>(fConfig.getParameter <edm::InputTag> ("src")))
-    , mCorrectorNames(fConfig.getParameter<std::vector<std::string> >("correctors"))
-    , mCorrectors(mCorrectorNames.size(), 0)
-    , mCacheId (0)
+    , mCorrectorTokens(edm::vector_transform(fConfig.getParameter<std::vector<edm::InputTag> >("correctors"), [this](edm::InputTag const & tag){return consumes<reco::JetCorrector>(tag);}))
+    , mCorrectors(mCorrectorTokens.size(), 0)
     , mVerbose (fConfig.getUntrackedParameter <bool> ("verbose", false))
   {
     std::string alias = fConfig.getUntrackedParameter <std::string> ("alias", "");
@@ -65,20 +60,15 @@ namespace cms {
   }
 
   template<class T>
-  void JetCorrectionProducer<T>::produce(edm::Event& fEvent,
+  void CorrectedJetProducer<T>::produce(edm::Event& fEvent,
 					 const edm::EventSetup& fSetup)
   {
     // look for correctors
-    const JetCorrectionsRecord& record = fSetup.get <JetCorrectionsRecord> ();
-    if (record.cacheIdentifier() != mCacheId)
-      { // need to renew cache
-	for (unsigned i = 0; i < mCorrectorNames.size(); i++)
-	  {
-	    edm::ESHandle <JetCorrector> handle;
-	    record.get (mCorrectorNames [i], handle);
-	    mCorrectors [i] = &*handle;
-	  }
-	mCacheId = record.cacheIdentifier();
+    for (unsigned i = 0; i < mCorrectorTokens.size(); i++)
+      {
+        edm::Handle <reco::JetCorrector> handle;
+        fEvent.getByToken (mCorrectorTokens [i], handle);
+        mCorrectors [i] = &*handle;
       }
     edm::Handle<JetCollection> jets;                         //Define Inputs
     fEvent.getByToken (mInput, jets);                        //Get Inputs
@@ -91,7 +81,7 @@ namespace cms {
 	edm::RefToBase<reco::Jet> jetRef(edm::Ref<JetCollection>(jets,index));
 	T correctedJet = *jet; //copy original jet
 	if (mVerbose)
-	  std::cout<<"JetCorrectionProducer::produce-> original jet: "
+	  std::cout<<"CorrectedJetProducer::produce-> original jet: "
 		   <<jet->print()<<std::endl;
 	for (unsigned i = 0; i < mCorrectors.size(); ++i)
 	  {
@@ -99,28 +89,27 @@ namespace cms {
 	      // Scalar correction
               double scale = 1.;
               if (!(mCorrectors[i]->refRequired()))
-	        scale = mCorrectors[i]->correction (*referenceJet,fEvent,fSetup);
+	        scale = mCorrectors[i]->correction (*referenceJet);
               else
-                scale = mCorrectors[i]->correction (*referenceJet,jetRef,fEvent,fSetup);
+                scale = mCorrectors[i]->correction (*referenceJet,jetRef);
 	      if (mVerbose)
-		std::cout<<"JetCorrectionProducer::produce-> Corrector # "
+		std::cout<<"CorrectedJetProducer::produce-> Corrector # "
 			 <<i<<", correction factor: "<<scale<<std::endl;
 	      correctedJet.scaleEnergy (scale); // apply scalar correction
 	      referenceJet = &correctedJet;
 	    } else {
 	      // Vectorial correction
-	      JetCorrector::LorentzVector corrected;
-	      double scale = mCorrectors[i]->correction (*referenceJet, jetRef,
-							 fEvent, fSetup, corrected);
+	      reco::JetCorrector::LorentzVector corrected;
+	      double scale = mCorrectors[i]->correction (*referenceJet, jetRef, corrected);
 	      if (mVerbose)
-		std::cout<<"JetCorrectionProducer::produce-> Corrector # "
+		std::cout<<"CorrectedJetProducer::produce-> Corrector # "
 			 <<i<<", correction factor: "<<scale<<std::endl;
 	      correctedJet.setP4( corrected ); // apply vectorial correction
 	      referenceJet = &correctedJet;
 	    }
 	  }
 	if (mVerbose)
-	  std::cout<<"JetCorrectionProducer::produce-> corrected jet: "
+	  std::cout<<"CorrectedJetProducer::produce-> corrected jet: "
 		   <<correctedJet.print ()<<std::endl;
 	result->push_back (correctedJet);
       }
