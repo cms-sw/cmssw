@@ -33,9 +33,9 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
 	if hasattr(cfg_ana,"globalVariables"):
 		self.globalVariables=cfg_ana.globalVariables
 
-        if self.__class__.__name__ == "AutoFillTreeProducer":
-            self.initDone = True
-            self.declareVariables() 
+    def beginLoop(self) :
+        super(AutoFillTreeProducer, self).beginLoop()
+        self.declareVariables() 
 
     def declareHandles(self):
         super(AutoFillTreeProducer, self).declareHandles()
@@ -79,7 +79,6 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
                         tr.vector('pdfWeight_%s' % pdf, nvals)
 
     def declareVariables(self):
-        if not hasattr(self,'initDone'): return
         isMC = self.cfg_comp.isMC 
         tree = self.tree
         self.declareCoreVariables(tree, isMC)
