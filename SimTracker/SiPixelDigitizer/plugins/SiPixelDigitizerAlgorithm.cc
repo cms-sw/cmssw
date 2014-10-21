@@ -437,13 +437,6 @@ SiPixelDigitizerAlgorithm::PixelEfficiencies::PixelEfficiencies(const edm::Param
   }
   // the first "NumberOfBarrelLayers" settings [0],[1], ... , [NumberOfBarrelLayers-1] are for the barrel pixels
   // the next  "NumberOfEndcapDisks"  settings [NumberOfBarrelLayers],[NumberOfBarrelLayers+1], ... [NumberOfEndcapDisks+NumberOfBarrelLayers-1]
-  else {  // No inefficiency, all 100% efficient
-    for (int i=0; i<NumberOfTotLayers;i++) {
-      thePixelEfficiency[i]     = 1.;  // pixels = 100%
-      thePixelColEfficiency[i]  = 1.;  // columns = 100%
-      thePixelChipEfficiency[i] = 1.;  // chips = 100%
-    }
-  }
 }
 
 SiPixelDigitizerAlgorithm::PixelAging::PixelAging(const edm::ParameterSet& conf, bool AddAging, int NumberOfBarrelLayers, int NumberOfEndcapDisks) {
