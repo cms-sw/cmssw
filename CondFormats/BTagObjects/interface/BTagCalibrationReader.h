@@ -24,12 +24,14 @@ public:
   BTagCalibrationReader(BTagCalibration& c, BTagEntry::Parameters p);
   BTagCalibrationReader(BTagCalibration& c,
                         BTagEntry::OperatingPoint op,
-                        BTagEntry::JetFlavor jf,
                         std::string measurementType="comb",
                         std::string sysType="central");
   ~BTagCalibrationReader() {}
 
-  double eval(float eta, float pt, float discr=0.) const;
+  double eval(BTagEntry::JetFlavor jf,
+              float eta,
+              float pt,
+              float discr=0.) const;
 
 protected:
   struct TmpEntry {
@@ -44,7 +46,7 @@ protected:
   void setupTmpData(BTagCalibration& c);
 
   BTagEntry::Parameters params;
-  std::vector<TmpEntry> tmpData_;
+  std::map<BTagEntry::JetFlavor, std::vector<TmpEntry> > tmpData_;
 
   COND_SERIALIZABLE;
 };

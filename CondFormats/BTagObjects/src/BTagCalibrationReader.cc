@@ -9,15 +9,15 @@ BTagCalibrationReader::BTagCalibrationReader(BTagCalibration& c,
 
 BTagCalibrationReader::BTagCalibrationReader(BTagCalibration& c,
                                              BTagEntry::OperatingPoint op,
-                                             BTagEntry::JetFlavor jf,
                                              std::string measurementType,
                                              std::string sysType)
 {
-  params = BTagEntry::Parameters(op, jf, measurementType, sysType);
+  params = BTagEntry::Parameters(op, measurementType, sysType);
   setupTmpData(c);
 }
 
-double BTagCalibrationReader::eval(float eta,
+double BTagCalibrationReader::eval(BTagEntry::JetFlavor jf,
+                                   float eta,
                                    float pt,
                                    float discr) const
 {
@@ -25,8 +25,9 @@ double BTagCalibrationReader::eval(float eta,
 
   // search linearly through eta, pt and discr ranges and eval
   // future: find some clever data structure based on intervals
-  for (unsigned i=0; i<tmpData_.size(); ++i) {
-    const BTagCalibrationReader::TmpEntry &e = tmpData_.at(i);
+  const auto &entries = tmpData_.at(jf);
+  for (unsigned i=0; i<entries.size(); ++i) {
+    const BTagCalibrationReader::TmpEntry &e = entries.at(i);
     if (
       e.etaMin <= eta && eta < e.etaMax                   // find eta
       && e.ptMin <= pt && pt < e.ptMax                    // check pt
@@ -46,7 +47,7 @@ double BTagCalibrationReader::eval(float eta,
 
 void BTagCalibrationReader::setupTmpData(BTagCalibration& c)
 {
-  const std::vector<BTagEntry> &entries = c.getEntries(params);
+  const auto &entries = c.getEntries(params);
   for (unsigned i=0; i<entries.size(); ++i) {
     const BTagEntry &be = entries[i];
     BTagCalibrationReader::TmpEntry te;
@@ -65,6 +66,6 @@ void BTagCalibrationReader::setupTmpData(BTagCalibration& c)
                     be.params.ptMin, be.params.ptMax);
     }
 
-    tmpData_.push_back(te);
+    tmpData_[be.params.jetFlavor].push_back(te);
   }
 }

@@ -4,9 +4,9 @@
 
 BTagEntry::Parameters::Parameters(
   OperatingPoint op,
-  JetFlavor jf,
   std::string measurement_type,
   std::string sys_type,
+  JetFlavor jf,
   float eta_min,
   float eta_max,
   float pt_min,
@@ -15,9 +15,9 @@ BTagEntry::Parameters::Parameters(
   float discr_max
 ):
   operatingPoint(op),
-  jetFlavor(jf),
   measurementType(measurement_type),
   sysType(sys_type),
+  jetFlavor(jf),
   etaMin(eta_min),
   etaMax(eta_max),
   ptMin(pt_min),
@@ -25,16 +25,6 @@ BTagEntry::Parameters::Parameters(
   discrMin(discr_min),
   discrMax(discr_max)
 {}
-
-std::string BTagEntry::Parameters::token()
-{
-  std::stringstream buff;
-  buff << operatingPoint << ", "
-       << jetFlavor << ", "
-       << measurementType << ", "
-       << sysType;
-  return buff.str();
-}
 
 BTagEntry::BTagEntry(const std::string &func, BTagEntry::Parameters p):
   formula(func),

@@ -33,6 +33,8 @@ public:
   const std::vector<BTagEntry>& getEntries(BTagEntry::Parameters par) const;
 
 protected:
+  std::string token(const BTagEntry::Parameters &par) const;
+
   std::string tagger_;
   std::map<std::string, std::vector<BTagEntry> > data_;
 
