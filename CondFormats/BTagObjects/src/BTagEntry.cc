@@ -3,17 +3,27 @@
 #include "CondFormats/BTagObjects/interface/BTagEntry.h"
 
 BTagEntry::Parameters::Parameters(
-  OperatingPoint op, JetFlavor jf,
-  std::string measurement_type, std::string sys_type,
-  float eta_min, float eta_max,
-  float pt_min, float pt_max,
-  float discr_min, float discr_max
+  OperatingPoint op,
+  JetFlavor jf,
+  std::string measurement_type,
+  std::string sys_type,
+  float eta_min,
+  float eta_max,
+  float pt_min,
+  float pt_max,
+  float discr_min,
+  float discr_max
 ):
-  operatingPoint(op), jetFlavor(jf),
-  measurementType(measurement_type), sysType(sys_type),
-  etaMin(eta_min), etaMax(eta_max),
-  ptMin(pt_min), ptMax(pt_max),
-  discrMin(discr_min), discrMax(discr_max)
+  operatingPoint(op),
+  jetFlavor(jf),
+  measurementType(measurement_type),
+  sysType(sys_type),
+  etaMin(eta_min),
+  etaMax(eta_max),
+  ptMin(pt_min),
+  ptMax(pt_max),
+  discrMin(discr_min),
+  discrMax(discr_max)
 {}
 
 std::string BTagEntry::Parameters::token()

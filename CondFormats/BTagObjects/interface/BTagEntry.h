@@ -36,13 +36,10 @@ public:
     FLAV_UDSG=2,
   };
   struct Parameters {
-    // these go into the identifier token
     OperatingPoint operatingPoint;
     JetFlavor jetFlavor;
     std::string measurementType;
     std::string sysType;
-
-    // these do _not_ go into the identifier token
     float etaMin;
     float etaMax;
     float ptMin;
@@ -52,11 +49,16 @@ public:
 
     // default constructor
     Parameters(
-      OperatingPoint op=OP_TIGHT, JetFlavor jf=FLAV_B,
-      std::string measurement_type="comb", std::string sys_type="central",
-      float eta_min=-99999., float eta_max=99999.,
-      float pt_min=0., float pt_max=99999.,
-      float discr_min=0., float discr_max=99999.
+      OperatingPoint op=OP_TIGHT,
+      JetFlavor jf=FLAV_B,
+      std::string measurement_type="comb",
+      std::string sys_type="central",
+      float eta_min=-99999.,
+      float eta_max=99999.,
+      float pt_min=0.,
+      float pt_max=99999.,
+      float discr_min=0.,
+      float discr_max=99999.
     );
 
     // identifier token function
