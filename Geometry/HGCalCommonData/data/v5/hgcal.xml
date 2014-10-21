@@ -2,16 +2,16 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
 
 <ConstantsSection label="hgcal.xml" eval="true">
-  <Constant name="slope2"     value="tan(20.0*deg)"/>
+  <Constant name="slope2"     value="tan(19.3*deg)"/>
   <Constant name="slope3"     value="tan(53.0*deg)"/>
   <Constant name="z1Beam"     value="2412.7*mm"/>
   <Constant name="zHGCal1"    value="3170.0*mm"/>
-  <Constant name="rMaxHGCal1" value="1520.48*mm"/>
+  <Constant name="rMaxHGCal1" value="1534.5*mm"/>
   <Constant name="zHGCal2"    value="3887.85*mm"/>
   <Constant name="rMaxHGCal2" value="([rMaxHGCal1]+(([zHGCal2]-[zHGCal1])*[slope2]))"/>
   <Constant name="zHGCal3"    value="4522.85*mm"/>
   <Constant name="rMaxHGCal3" value="([rMaxHGCal2]+(([zHGCal3]-[zHGCal2])*[slope3]))"/>
-  <Constant name="rMaxHGCal4" value="2499.5*mm"/>
+  <Constant name="rMaxHGCal4" value="2458.0*mm"/>
   <Constant name="zHGCal4"    value="4870.85*mm"/>
   <Constant name="zHGCal5"    value="5218.85*mm"/>
   <Constant name="zMinEE"     value="[zHGCal1]"/>
