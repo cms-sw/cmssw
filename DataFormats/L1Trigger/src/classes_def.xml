@@ -11,7 +11,8 @@
   <class name="l1extra::L1MuonParticleExtended" ClassVersion="10">
    <version ClassVersion="10" checksum="3441232593"/>
   </class>
-  <class name="l1extra::L1MuonParticleExtended::StationData" ClassVersion="10">
+  <class name="l1extra::L1MuonParticleExtended::StationData" ClassVersion="11">
+   <version ClassVersion="11" checksum="234715042"/>
    <version ClassVersion="10" checksum="2917595494"/>
   </class>
   <class name="l1extra::L1EtMissParticle" ClassVersion="10">
