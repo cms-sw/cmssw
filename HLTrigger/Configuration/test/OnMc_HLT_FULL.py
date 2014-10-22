@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_2_1/HLT/V28 (CMSSW_7_2_0)
+# /dev/CMSSW_7_2_1/HLT/V29 (CMSSW_7_2_0)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFULL" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_2_1/HLT/V28')
+  tableName = cms.string('/dev/CMSSW_7_2_1/HLT/V29')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -20658,7 +20658,7 @@ process.hltHighPtTkMuonCands = cms.EDProducer( "L3MuonCandidateProducerFromMuons
 process.hltL3fL1sMu16Eta2p1f0TkFiltered20Q = cms.EDFilter( "HLTMuonTrkFilter",
     maxNormalizedChi2 = cms.double( 1.0E99 ),
     saveTags = cms.bool( False ),
-    maxAbsEta = cms.double( 1.0E99 ),
+    maxAbsEta = cms.double( 2.1 ),
     minPt = cms.double( 20.0 ),
     inputCandCollection = cms.InputTag( "hltHighPtTkMuonCands" ),
     minMuonStations = cms.int32( 2 ),
@@ -21469,7 +21469,7 @@ process.hltHighPtTkMu24TkFilt = cms.EDFilter( "HLTTrackWithHits",
 process.hltL3fL1sMu20Eta2p1f0TkFiltered24Q = cms.EDFilter( "HLTMuonTrkFilter",
     maxNormalizedChi2 = cms.double( 1.0E99 ),
     saveTags = cms.bool( False ),
-    maxAbsEta = cms.double( 1.0E99 ),
+    maxAbsEta = cms.double( 2.1 ),
     minPt = cms.double( 24.0 ),
     inputCandCollection = cms.InputTag( "hltHighPtTkMuonCands" ),
     minMuonStations = cms.int32( 2 ),
