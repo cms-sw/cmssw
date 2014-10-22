@@ -253,7 +253,6 @@ namespace cond {
 
     std::string Session::parsePoolToken( const std::string& poolToken ){
       m_session->openIovDb();
-      //std::cout <<"## parsing pool token="<<poolToken<<std::endl;
       return m_session->iovSchema().parsePoolToken( poolToken );
     }
 
