@@ -50,7 +50,7 @@
  <Constant name="BeampipeRout12" value="4.7160*cm"/>
  <Constant name="BeampipeRout13" value="4.7600*cm"/>
  <Constant name="BeampipeRout14" value="6.5000*cm"/>
- <Constant name="BeampipeRout15" value="5.3646*cm"/>
+ <Constant name="BeampipeRout15" value="5.3900*cm"/>
  <Constant name="BeampipeRout16" value="5.35*cm"/>
  <Constant name="BeampipeRout17" value="6.9500*cm"/>
  <Constant name="BeampipeRout18" value="4.9242*cm"/>
@@ -208,16 +208,15 @@
   <ZSection z="[BeampipeZ19]"     rMin="[cms:Rmin]" rMax="[BeampipeRout15]" />
  </Polycone> 
  <Polycone name="BeamVacuum8" startPhi="0*deg" deltaPhi="360*deg" >
-  <ZSection z="[BeampipeZ17]"     rMin="[cms:Rmin]" rMax="[BeampipeRin5]"   />
-  <ZSection z="[BeampipeZ18]"     rMin="[cms:Rmin]" rMax="[BeampipeRin15]"   />
+  <ZSection z="[BeampipeZ17]"     rMin="[cms:Rmin]" rMax="[BeampipeRin15]"   />
   <ZSection z="[BeampipeZ19]"     rMin="[cms:Rmin]" rMax="[BeampipeRin15]"   />
  </Polycone> 
  <Polycone name="BeamTube9" startPhi="0*deg" deltaPhi="360*deg" >
   <ZSection z="[BeampipeZ19]"     rMin="[cms:Rmin]" rMax="[BeampipeRout17]" />
   <ZSection z="[BeampipeZ20]"     rMin="[cms:Rmin]" rMax="[BeampipeRout17]" />
   <ZSection z="[BeampipeZ20]"     rMin="[cms:Rmin]" rMax="[BeampipeRout18]" />
-  <ZSection z="[BeampipeZ21]"     rMin="[cms:Rmin]" rMax="[BeampipeRout19]" />
-  <ZSection z="[BeampipeZ22]"     rMin="[cms:Rmin]" rMax="[BeampipeRout20]" />
+  <ZSection z="[BeampipeZ21]"     rMin="[cms:Rmin]" rMax="[BeampipeRout19]+0.2*mm" />
+  <ZSection z="[BeampipeZ22]"     rMin="[cms:Rmin]" rMax="[BeampipeRout20]+0.2*mm" />
  </Polycone> 
  <Polycone name="BeamVacuum9" startPhi="0*deg" deltaPhi="360*deg" >
   <ZSection z="[BeampipeZ19]"     rMin="[cms:Rmin]" rMax="[BeampipeRin9]"   />
@@ -227,8 +226,8 @@
  </Polycone> 
  <Tubs name="BeamBellow9" rMin="[BeampipeRin9]" rMax="[BeampipeRout17]" dz="([BeampipeZ20]-[BeampipeZ19])/2" startPhi="0*deg" deltaPhi="360*deg"/>
  <Polycone name="BeamTube10" startPhi="0*deg" deltaPhi="360*deg" >
-  <ZSection z="[BeampipeZ22]"     rMin="[cms:Rmin]" rMax="[BeampipeRout20]" />
-  <ZSection z="[BeampipeZ23]"     rMin="[cms:Rmin]" rMax="[BeampipeRout21]" />
+  <ZSection z="[BeampipeZ22]"     rMin="[cms:Rmin]" rMax="[BeampipeRout20]+0.2*mm" />
+  <ZSection z="[BeampipeZ23]"     rMin="[cms:Rmin]" rMax="[BeampipeRout21]+0.2*mm" />
   <ZSection z="[BeampipeZ23]"     rMin="[cms:Rmin]" rMax="[BeampipeRout17]" />
   <ZSection z="[BeampipeZ24]"     rMin="[cms:Rmin]" rMax="[BeampipeRout17]" />
  </Polycone> 
@@ -240,19 +239,11 @@
  </Polycone> 
  <Tubs name="BeamBellow10" rMin="[BeampipeRin9]" rMax="[BeampipeRout17]" dz="([BeampipeZ24]-[BeampipeZ23])/2" startPhi="0*deg" deltaPhi="360*deg"/>
  <Polycone name="BeamTube11" startPhi="0*deg" deltaPhi="360*deg" >
-  <ZSection z="[BeampipeZ24]"     rMin="[cms:Rmin]" rMax="[BeampipeRout22]" />
-  <ZSection z="[BeampipeZ25]"     rMin="[cms:Rmin]" rMax="[BeampipeRout23]" />
-  <ZSection z="[BeampipeZ26]"     rMin="[cms:Rmin]" rMax="[BeampipeRout24]" />
-  <ZSection z="[BeampipeZ26]"     rMin="[cms:Rmin]" rMax="[BeampipeRout25]" />
-  <ZSection z="[BeampipeZ27]"     rMin="[cms:Rmin]" rMax="[BeampipeRout26]" />
-  <ZSection z="[BeampipeZ27]"     rMin="[cms:Rmin]" rMax="[BeampipeRout27]" />
-  <ZSection z="[BeampipeZ28]"     rMin="[cms:Rmin]" rMax="[BeampipeRout28]" />
+  <ZSection z="[BeampipeZ24]"     rMin="[cms:Rmin]" rMax="[BeampipeRout22]+0.2*mm" />
+  <ZSection z="[BeampipeZ28]"     rMin="[cms:Rmin]" rMax="[BeampipeRout28]+0.2*mm" />
  </Polycone> 
  <Polycone name="BeamVacuum11" startPhi="0*deg" deltaPhi="360*deg" >
   <ZSection z="[BeampipeZ24]"     rMin="[cms:Rmin]" rMax="[BeampipeRin13]"  />
-  <ZSection z="[BeampipeZ25]"     rMin="[cms:Rmin]" rMax="[BeampipeRin14]"  />
-  <ZSection z="[BeampipeZ26]"     rMin="[cms:Rmin]" rMax="[BeampipeRin15]"  />
-  <ZSection z="[BeampipeZ27]"     rMin="[cms:Rmin]" rMax="[BeampipeRin16]"  />
   <ZSection z="[BeampipeZ28]"     rMin="[cms:Rmin]" rMax="[BeampipeRin17]"  />
  </Polycone> 
  <Polycone name="BeamTube12" startPhi="0*deg" deltaPhi="360*deg" >
@@ -451,63 +442,63 @@
  </LogicalPart>
  <LogicalPart name="BeamTube8" category="unspecified">
   <rSolid name="BeamTube8"/>
-  <rMaterial name="materials:StainlessSteel"/>
+  <rMaterial name="materials:Aluminium 2219"/>
  </LogicalPart>
  <LogicalPart name="BeamTube9" category="unspecified">
   <rSolid name="BeamTube9"/>
-  <rMaterial name="materials:StainlessSteel"/>
+  <rMaterial name="materials:Aluminium 2219"/>
  </LogicalPart>
  <LogicalPart name="BeamTube10" category="unspecified">
   <rSolid name="BeamTube10"/>
-  <rMaterial name="materials:StainlessSteel"/>
+  <rMaterial name="materials:Aluminium 2219"/>
  </LogicalPart>
  <LogicalPart name="BeamTube11" category="unspecified">
   <rSolid name="BeamTube11"/>
-  <rMaterial name="materials:StainlessSteel"/>
+  <rMaterial name="materials:Aluminium 2219"/>
  </LogicalPart>
  <LogicalPart name="BeamTube12" category="unspecified">
   <rSolid name="BeamTube12"/>
-  <rMaterial name="materials:StainlessSteel"/>
+  <rMaterial name="materials:Aluminium 2219"/>
  </LogicalPart>
  <LogicalPart name="BeamTube13" category="unspecified">
   <rSolid name="BeamTube13"/>
-  <rMaterial name="materials:StainlessSteel"/>
+  <rMaterial name="materials:Aluminium 2219"/>
  </LogicalPart>
  <LogicalPart name="BeamTube14" category="unspecified">
   <rSolid name="BeamTube14"/>
-  <rMaterial name="materials:StainlessSteel"/>
+  <rMaterial name="materials:Aluminium 2219"/>
  </LogicalPart>
  <LogicalPart name="BeamTube15" category="unspecified">
   <rSolid name="BeamTube15"/>
-  <rMaterial name="materials:StainlessSteel"/>
+  <rMaterial name="materials:Aluminium 2219"/>
  </LogicalPart>
  <LogicalPart name="BeamTube16" category="unspecified">
   <rSolid name="BeamTube16"/>
-  <rMaterial name="materials:StainlessSteel"/>
+  <rMaterial name="materials:Aluminium 2219"/>
  </LogicalPart>
  <LogicalPart name="BeamTube17" category="unspecified">
   <rSolid name="BeamTube17"/>
-  <rMaterial name="materials:StainlessSteel"/>
+  <rMaterial name="materials:Aluminium 2219"/>
  </LogicalPart>
  <LogicalPart name="BeamTube18" category="unspecified">
   <rSolid name="BeamTube18"/>
-  <rMaterial name="materials:StainlessSteel"/>
+  <rMaterial name="materials:Aluminium 2219"/>
  </LogicalPart>
  <LogicalPart name="BeamTube19" category="unspecified">
   <rSolid name="BeamTube19"/>
-  <rMaterial name="materials:StainlessSteel"/>
+  <rMaterial name="materials:Aluminium 2219"/>
  </LogicalPart>
  <LogicalPart name="BeamTube20" category="unspecified">
   <rSolid name="BeamTube20"/>
-  <rMaterial name="materials:StainlessSteel"/>
+  <rMaterial name="materials:Aluminium 2219"/>
  </LogicalPart>
  <LogicalPart name="BeamTube21" category="unspecified">
   <rSolid name="BeamTube21"/>
-  <rMaterial name="materials:StainlessSteel"/>
+  <rMaterial name="materials:Aluminium 2219"/>
  </LogicalPart>
  <LogicalPart name="BeamTube22" category="unspecified">
   <rSolid name="BeamTube22"/>
-  <rMaterial name="materials:StainlessSteel"/>
+  <rMaterial name="materials:Aluminium 2219"/>
  </LogicalPart>
  <LogicalPart name="BeamVacuum1" category="unspecified">
   <rSolid name="BeamVacuum1"/>
@@ -591,11 +582,11 @@
  </LogicalPart>
  <LogicalPart name="BeamInsert17" category="unspecified">
   <rSolid name="BeamInsert17"/>
-  <rMaterial name="materials:StainlessSteel"/>
+  <rMaterial name="materials:Aluminium 2219"/>
  </LogicalPart>
  <LogicalPart name="BeamInsert18" category="unspecified">
   <rSolid name="BeamInsert18"/>
-  <rMaterial name="materials:StainlessSteel"/>
+  <rMaterial name="materials:Aluminium 2219"/>
  </LogicalPart>
  <LogicalPart name="BeamAir15" category="unspecified">
   <rSolid name="BeamAir15"/>
@@ -615,23 +606,23 @@
  </LogicalPart>
  <LogicalPart name="BeamBellow9" category="unspecified">
   <rSolid name="BeamBellow9"/>
-  <rMaterial name="materials:Steel-light"/>
+  <rMaterial name="materials:Aluminium 2219 light"/>
  </LogicalPart>
  <LogicalPart name="BeamBellow10" category="unspecified">
   <rSolid name="BeamBellow10"/>
-  <rMaterial name="materials:Steel-light"/>
+  <rMaterial name="materials:Aluminium 2219 light"/>
  </LogicalPart>
  <LogicalPart name="BeamBellow18" category="unspecified">
   <rSolid name="BeamBellow18"/>
-  <rMaterial name="materials:Steel-light"/>
+  <rMaterial name="materials:Aluminium 2219"/>
  </LogicalPart>
  <LogicalPart name="BeamBellow21" category="unspecified">
   <rSolid name="BeamBellow21"/>
-  <rMaterial name="materials:Steel-light"/>
+  <rMaterial name="materials:Aluminium 2219"/>
  </LogicalPart>
  <LogicalPart name="BeamBellow22" category="unspecified">
   <rSolid name="BeamBellow22"/>
-  <rMaterial name="materials:Steel-light"/>
+  <rMaterial name="materials:Aluminium 2219"/>
  </LogicalPart>
 </LogicalPartSection>
 <PosPartSection label="beampipe.xml">
