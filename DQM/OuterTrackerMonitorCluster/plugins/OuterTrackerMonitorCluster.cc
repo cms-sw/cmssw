@@ -72,10 +72,7 @@ void OuterTrackerMonitorCluster::analyze(const edm::Event& iEvent, const edm::Ev
   const StackedTrackerGeometry* theStackedGeometry;
   iSetup.get< StackedTrackerGeometryRecord >().get(StackedGeometryHandle);
   theStackedGeometry = StackedGeometryHandle.product();
-  /*
-    edm::ESHandle<TrackerGeometry> geomHandle;
-    const TrackerGeometry*  tkGeom = &(*geomHandle);*/
-
+  
   /// Loop over the input Clusters
 	typename edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >::const_iterator inputIter;
 	typename edmNew::DetSet< TTCluster< Ref_PixelDigi_ > >::const_iterator contentIter;
@@ -91,21 +88,8 @@ void OuterTrackerMonitorCluster::analyze(const edm::Event& iEvent, const edm::Ev
 			unsigned int widClu = tempCluRef->findWidth();
       
       GlobalPoint posClu  = theStackedGeometry->findAverageGlobalPosition( &(*tempCluRef) );
-      
-//   std::cout<<"TEST 1"<<std::endl;
-//       const GeomDetUnit* geomDetUnit = theStackedGeometry->idToDetUnit(detIdClu, 0);
-//   std::cout<<"TEST 2"<<std::endl;
-//       const GeomDetUnit* geomDetUnit2 = theStackedGeometry->idToDetUnit(detIdClu, 1);
-//   std::cout<<"TEST 3"<<std::endl;
-//       MeasurementPoint mp = tempCluRef->findAverageLocalCoordinates();
-//   std::cout<<"TEST 4"<<std::endl;
-//       GlobalPoint gpoint = geomDetUnit->surface().toGlobal(geomDetUnit->topology().localPosition(mp));
-//   std::cout<<"TEST 5"<<std::endl;
-//       GlobalPoint gpoint2 = geomDetUnit2->surface().toGlobal(geomDetUnit2->topology().localPosition(mp));
-      
-//       double eta = gpoint.eta();
+  
       double eta = posClu.eta();
-//       std::cout<<posClu<<std::endl;
       
 			Cluster_W->Fill(widClu, memberClu);
       Cluster_Eta->Fill(eta);
@@ -181,6 +165,7 @@ OuterTrackerMonitorCluster::beginRun(const edm::Run& run, const edm::EventSetup&
   Cluster_W->setAxisTitle("Cluster Width", 1);
   Cluster_W->setAxisTitle("Stack Member", 2);
   
+  //Cluster eta distribution
   edm::ParameterSet psTTClusterEta = conf_.getParameter<edm::ParameterSet>("TH1TTCluster_Eta");
   HistoName = "Cluster_Eta";
   Cluster_Eta = dqmStore_->book1D(HistoName, HistoName, 
