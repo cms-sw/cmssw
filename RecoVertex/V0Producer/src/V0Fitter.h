@@ -19,102 +19,93 @@
 #ifndef RECOVERTEX__V0_FITTER_H
 #define RECOVERTEX__V0_FITTER_H
 
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DataFormats/Common/interface/Ref.h"
+#include "FWCore/Framework/interface/Event.h" 
+#include "FWCore/Framework/interface/ESHandle.h" 
+#include "FWCore/Utilities/interface/InputTag.h" 
+ 
+#include "DataFormats/Common/interface/Ref.h" 
+ 
+#include "DataFormats/VertexReco/interface/Vertex.h" 
+#include "DataFormats/TrackReco/interface/Track.h" 
+#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h" 
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h" 
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h" 
+#include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h" 
+ 
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
+#include "MagneticField/VolumeBasedEngine/interface/VolumeBasedMagneticField.h" 
+ 
+#include "DataFormats/Candidate/interface/VertexCompositeCandidate.h" 
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h" 
+ 
+#include "FWCore/ParameterSet/interface/ParameterSet.h" 
+ 
+#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h" 
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h" 
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h" 
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h" 
+#include "Geometry/CommonDetUnit/interface/GeomDet.h" 
+#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h" 
+#include "FWCore/Framework/interface/ConsumesCollector.h" 
+ 
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h" 
+#include "DataFormats/BeamSpot/interface/BeamSpot.h" 
 
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
-#include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
-
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "MagneticField/VolumeBasedEngine/interface/VolumeBasedMagneticField.h"
-
-#include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-
-#include <string>
-#include <fstream>
+#include <string> 
+#include <fstream> 
 
 
 class dso_hidden V0Fitter {
- public:
-  V0Fitter(const edm::ParameterSet& theParams,
-	   edm::ConsumesCollector && iC);
-  ~V0Fitter();
 
-  // Switching to L. Lista's reco::Candidate infrastructure for V0 storage
-  void fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup, 
-              reco::VertexCompositeCandidateCollection & k, 
-              reco::VertexCompositeCandidateCollection & l);
+   public:
 
- private:
+      V0Fitter(const edm::ParameterSet& theParams, edm::ConsumesCollector && iC);
+      // Switching to L. Lista's reco::Candidate infrastructure for V0 storage
+      void fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
+         reco::VertexCompositeCandidateCollection & k, reco::VertexCompositeCandidateCollection & l);
 
-  // Tracker geometry for discerning hit positions
-  const TrackerGeometry* trackerGeom;
+   private:
 
-  const MagneticField* magField;
+      bool useRefTrax;
+      bool doKShorts_;
+      bool doLambdas_;
 
-  bool useRefTrax;
-  //  bool storeRefTrax;
-  bool doKshorts;
-  bool doLambdas;
+      // cuts on the input track collection
+      std::vector<reco::TrackBase::TrackQuality> qualities;
+      double tkChi2Cut_;
+      double tkPtCut_;
+      int tkNhitsCut_;
+      double tkIPSigCut_;
+      // cuts on the V0 vertex
+      double vtxChi2Cut_;
+      double vtxRCut_;
+      double vtxRSigCut_;
+      // miscellaneous cuts after vertexing
+      //double mPiPiCut_;
+      double tkDCACut_;
+      double KShortMassCut_;
+      double LambdaMassCut_;
+      double innerHitPosCut_;
+      double V0costhetaCut_;
 
-  /*bool doPostFitCuts;
-    bool doTkQualCuts;*/
+      edm::EDGetTokenT<reco::TrackCollection> token_tracks;
+      edm::InputTag vtxFitter;
 
-  // Cuts
-  double chi2Cut;
-  double tkChi2Cut;
-  int tkNhitsCut;
-  double rVtxCut;
-  double vtxSigCut;
-  double kShortMassCut;
-  double lambdaMassCut;
-  double impactParameterSigCut;
-  //double mPiPiCut;
-  double tkDCACut;
-  double innerHitPosCut;
+      // Helper method that does the actual fitting using the KalmanVertexFitter
+      //double findV0MassError(const GlobalPoint &vtxPos, const std::vector<reco::TransientTrack> &dauTracks);
+      /*
+      // Stuff for debug file output. 
+      std::ofstream mPiPiMassOut; 
+      inline void initFileOutput() { 
+         mPiPiMassOut.open("mPiPi.txt", std::ios::app); 
+      } 
+      inline void cleanupFileOutput() { 
+         mPiPiMassOut.close(); 
+      } 
+      */
 
-  std::vector<reco::TrackBase::TrackQuality> qualities;
-
-  edm::EDGetTokenT<reco::TrackCollection>	 token_tracks; 
-  edm::EDGetTokenT<reco::BeamSpot> 	 token_beamSpot; 
-  edm::InputTag vtxFitter;
-
-  // Helper method that does the actual fitting using the KalmanVertexFitter
-  double findV0MassError(const GlobalPoint &vtxPos, const std::vector<reco::TransientTrack> &dauTracks);
-
-  // Applies cuts to the VertexCompositeCandidates after they are fitted/created.
-  //void applyPostFitCuts();
-
-  // Stuff for debug file output.
-  std::ofstream mPiPiMassOut;
-
-  inline void initFileOutput() {
-    mPiPiMassOut.open("mPiPi.txt", std::ios::app);
-  }
-  inline void cleanupFileOutput() {
-    mPiPiMassOut.close();
-  }
 };
 
 #endif
+
