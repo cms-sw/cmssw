@@ -8,7 +8,6 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelUtility.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelEDAClient.h"
 #include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
-#include "DQM/SiPixelMonitorClient/interface/SiPixelHistoPlotter.h"
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -71,8 +70,6 @@ SiPixelInformationExtractor::SiPixelInformationExtractor(bool offlineXMLfile) : 
     " Creating SiPixelInformationExtractor " << "\n" ;
   
   readReference_ = false;
-  histoPlotter_=0;
-  histoPlotter_ = new SiPixelHistoPlotter();
 }
 
 //------------------------------------------------------------------------------
@@ -83,7 +80,6 @@ SiPixelInformationExtractor::~SiPixelInformationExtractor() {
   edm::LogInfo("SiPixelInformationExtractor") << 
     " Deleting SiPixelInformationExtractor " << "\n" ;
   
-  if (histoPlotter_) delete histoPlotter_;
 }
 
 //------------------------------------------------------------------------------
@@ -874,12 +870,4 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei, bool init, flo
   }
   myfile_.close();
   return;
-}
-
-
-//
-// -- Create Images 
-//
-void SiPixelInformationExtractor::createImages(DQMStore* bei){
-  histoPlotter_->createPlots(bei);
 }
