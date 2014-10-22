@@ -85,6 +85,9 @@ namespace HcalDbASCIIIO {
   bool getObject (std::istream& fInput, HcalMCParams* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalMCParams& fObject);
 
+  bool getObject (std::istream& fInput, HcalODFCorrections* fObject);
+  bool dumpObject (std::ostream& fOutput, const HcalODFCorrections& fObject);
+
   bool getObject (std::istream& fInput, HcalCholeskyMatrices* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalCholeskyMatrices& fObject);
   bool getObject (std::istream& fInput, HcalCovarianceMatrices* fObject);

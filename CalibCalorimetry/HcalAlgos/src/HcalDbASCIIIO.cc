@@ -373,6 +373,9 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalPFCorrs& fObjec
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalTimeCorrs* fObject) {return getHcalSingleFloatObject (fInput, fObject, new HcalTimeCorr); }
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalTimeCorrs& fObject) {return dumpHcalSingleFloatObject (fOutput, fObject); }
 
+bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalODFCorrections* fObject) {return getHcalSingleFloatObject (fInput, fObject, new HcalODFCorrections); }
+bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalODFCorrections& fObject) {return dumpHcalSingleFloatObject (fOutput, fObject); }
+
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalZSThresholds* fObject) {return getHcalSingleIntObject (fInput, fObject, new HcalZSThreshold); }
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalZSThresholds& fObject) {return dumpHcalSingleIntObject (fOutput, fObject); }
 

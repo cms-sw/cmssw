@@ -44,8 +44,8 @@ eta	phi	low	high
 class HcalODFCorrections {
     
     public:
-        HcalODFCorrections();
-        ~HcalODFCorrections();
+        HcalODFCorrections(){};
+        ~HcalODFCorrections(){};
         
         struct Item {
             int eta;
