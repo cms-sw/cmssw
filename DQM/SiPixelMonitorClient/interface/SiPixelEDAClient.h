@@ -28,10 +28,6 @@ public:
 
   SiPixelEDAClient(const edm::ParameterSet& ps);
   virtual ~SiPixelEDAClient();
-  
-  //void defaultWebPage(xgi::Input *in, 
-  //xgi::Output *out); 
-  //void publish(xdata::InfoSpace *){};
 
 protected:
 
@@ -86,7 +82,6 @@ private:
   
   std::ostringstream html_out_;
   
-  //define Token(-s)
   edm::EDGetTokenT<FEDRawDataCollection> inputSourceToken_;
 };
 
