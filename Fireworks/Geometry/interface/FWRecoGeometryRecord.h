@@ -5,6 +5,6 @@
 # include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 # include "Geometry/Records/interface/CaloGeometryRecord.h"
 
-class FWRecoGeometryRecord : public edm::eventsetup::DependentRecordImplementation<FWRecoGeometryRecord,boost::mpl::vector<MuonGeometryRecord, GlobalTrackingGeometryRecord,CaloGeometryRecord> > {};
+class FWRecoGeometryRecord : public edm::eventsetup::DependentRecordImplementation<FWRecoGeometryRecord,boost::mpl::vector<MuonGeometryRecord, GlobalTrackingGeometryRecord,CaloGeometryRecord,IdealGeometryRecord> > {};
 
 #endif // GEOMETRY_FWRECO_GEOMETRY_RECORD_H

@@ -69,7 +69,7 @@ void PFArborLinker::produce(edm::Event& iEvent,
 	  }
   }
 
-  ArborBranch = arbor::Arbor(ArborIntegralHits, 2, 1,20.0);
+  ArborBranch = arbor::Arbor(ArborIntegralHits, 2, 1,20.0,true);
   int NBranch = ArborBranch.size();
   int BranchSize = 0; 
   // int currhitindex = 0;
