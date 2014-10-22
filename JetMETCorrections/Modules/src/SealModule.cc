@@ -9,7 +9,6 @@
 #include "JetMETCorrections/Modules/interface/JetCorrectionESSource.h"
 #include "JetMETCorrections/Modules/interface/JetCorrectionESChain.h"
 #include "JetMETCorrections/Modules/interface/JetCorrectionProducer.h"
-#include "JetMETCorrections/Modules/interface/CorrectedJetProducer.h"
 #include "JetMETCorrections/Modules/interface/QGLikelihoodESProducer.h"
 #include "JetMETCorrections/Modules/interface/QGLikelihoodSystematicsESProducer.h"
 #include "JetMETCorrections/Algorithms/interface/LXXXCorrector.h"
