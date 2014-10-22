@@ -14,6 +14,7 @@ namespace edm {
 
 namespace coral {
   class IConnectionServiceConfiguration;
+  class ISessionProxy;
 }
 
 namespace cond {
@@ -41,8 +42,12 @@ namespace cond {
       void configure();
       Session createSession( const std::string& connectionString, bool writeCapable=false, BackendType backType=DEFAULT_DB );
       Session createReadOnlySession( const std::string& connectionString, const std::string& transactionId );
+      boost::shared_ptr<coral::ISessionProxy> createCoralSession( const std::string& connectionString, bool writeCapable=false );
       
     private:
+      boost::shared_ptr<coral::ISessionProxy> createCoralSession( const std::string& connectionString, 
+								  const std::string& transactionId, 
+								  bool writeCapable=false );
       Session createSession( const std::string& connectionString, 
 			     const std::string& transactionId, 
 			     bool writeCapable=false, 

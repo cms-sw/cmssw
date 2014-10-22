@@ -21,6 +21,8 @@
 #include "CondCore/DBOutputService/interface/KeyedElement.h"
 #include "CondCore/CondDB/interface/KeyList.h"
 
+#include "RelationalAccess/ISessionProxy.h"
+#include "RelationalAccess/ITransaction.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ITable.h"
 #include "RelationalAccess/ICursor.h"
@@ -53,6 +55,7 @@ DTKeyedConfigHandler::DTKeyedConfigHandler( const edm::ParameterSet& ps ):
  onlineConnect(         ps.getParameter<std::string> ( "onlineDB" ) ),
  onlineAuthentication(  ps.getParameter<std::string> ( 
                         "onlineAuthentication" ) ),
+ onlineAuthSys( ps.getUntrackedParameter<int>( "onlineAuthSys",1 ) ),
  brickContainer(        ps.getParameter<std::string> ( "container" ) ),
  connection(),
  isession() {
@@ -116,21 +119,21 @@ void DTKeyedConfigHandler::getNewObjects() {
   std::cout << "configure DbConnection" << std::endl;
   //  conn->configure( cond::CmsDefaults );
   connection.setAuthenticationPath( onlineAuthentication );
+  connection.setAuthenticationSystem( onlineAuthSys );
   connection.configure();
   std::cout << "create/open DbSession" << std::endl;
-  isession = connection.createSession( onlineConnect );
+  isession = connection.createCoralSession( onlineConnect );
   std::cout << "start transaction" << std::endl;
-  isession.transaction().start();
+  isession->transaction().start( true );
 
   // =========== Update configuration data
   chkConfigList();
-
   // =========== Find latest runs
   std::cout << "get run config..." << std::endl;
   std::map<int,std::vector<int>*> runMap;
   std::map<int,std::vector<DTConfigKey>*> rhcMap;
   coral::ITable& runHistoryTable =
-    isession.nominalSchema().tableHandle( "RUNHISTORY" );
+    isession->nominalSchema().tableHandle( "RUNHISTORY" );
   std::auto_ptr<coral::IQuery>
     runHistoryQuery( runHistoryTable.newQuery() );
   runHistoryQuery->addToOutputList( "RUN" );
@@ -167,7 +170,7 @@ void DTKeyedConfigHandler::getNewObjects() {
   std::cout << "retrieve CCB map" << std::endl;
   std::map<int,DTCCBId> ccbMap;
   coral::ITable& ccbMapTable =
-    isession.nominalSchema().tableHandle( "CCBMAP" );
+    isession->nominalSchema().tableHandle( "CCBMAP" );
   std::auto_ptr<coral::IQuery>
     ccbMapQuery( ccbMapTable.newQuery() );
   ccbMapQuery->addToOutputList( "CCBID" );
@@ -193,7 +196,7 @@ void DTKeyedConfigHandler::getNewObjects() {
   std::map<int,int> bktMap;
   coral::AttributeList emptyBindVariableList;
   std::auto_ptr<coral::IQuery>
-         brickTypeQuery( isession.nominalSchema().newQuery() );
+         brickTypeQuery( isession->nominalSchema().newQuery() );
   brickTypeQuery->addToTableList( "CFGBRICKS" );
   brickTypeQuery->addToTableList( "BRKT2CSETT" );
   // ----------- join brick type (1-11) to subsystem part (1-6)
@@ -216,7 +219,7 @@ void DTKeyedConfigHandler::getNewObjects() {
   std::cout << "retrieve RH relations" << std::endl;
   std::map<int,int> cfgMap;
   coral::ITable& rhcRelTable =
-    isession.nominalSchema().tableHandle( "RHRELATIONS" );
+    isession->nominalSchema().tableHandle( "RHRELATIONS" );
   std::auto_ptr<coral::IQuery>
     rhcRelQuery( rhcRelTable.newQuery() );
   rhcRelQuery->addToOutputList( "RHID" );
@@ -249,7 +252,7 @@ void DTKeyedConfigHandler::getNewObjects() {
   std::map<int,std::map<int,int>*> keyMap;
   std::map<int,int> cckMap;
   coral::ITable& ccbRelTable =
-    isession.nominalSchema().tableHandle( "CCBRELATIONS" );
+    isession->nominalSchema().tableHandle( "CCBRELATIONS" );
   std::auto_ptr<coral::IQuery>
     ccbRelQuery( ccbRelTable.newQuery() );
   ccbRelQuery->addToOutputList( "CONFKEY" );
@@ -290,7 +293,7 @@ void DTKeyedConfigHandler::getNewObjects() {
   std::cout << "retrieve CCB configuration bricks" << std::endl;
   std::map<int,std::vector<int>*> brkMap;
   coral::ITable& confBrickTable =
-    isession.nominalSchema().tableHandle( "CFG2BRKREL" );
+    isession->nominalSchema().tableHandle( "CFG2BRKREL" );
   std::auto_ptr<coral::IQuery>
     confBrickQuery( confBrickTable.newQuery() );
   confBrickQuery->addToOutputList( "CONFID" );
@@ -433,8 +436,7 @@ void DTKeyedConfigHandler::getNewObjects() {
               << " ) " << std::endl;
   }
 
-  isession.transaction().commit();
-  isession.close();
+  isession->transaction().commit();
 
   return;
 
@@ -449,7 +451,7 @@ void DTKeyedConfigHandler::chkConfigList() {
   std::cout << "start queries " << std::endl;
   std::map<int,bool> activeConfigMap;
   coral::ITable& fullConfigTable =
-    isession.nominalSchema().tableHandle( "CONFIGSETS" );
+    isession->nominalSchema().tableHandle( "CONFIGSETS" );
   std::auto_ptr<coral::IQuery>
     fullConfigQuery( fullConfigTable.newQuery() );
   fullConfigQuery->addToOutputList( "CONFKEY" );
@@ -470,7 +472,7 @@ void DTKeyedConfigHandler::chkConfigList() {
 //  std::cout << " =============== CCB config list" << std::endl;
   std::map<int,bool> activeCCBCfgMap;
   coral::ITable& fullCCBCfgTable =
-    isession.nominalSchema().tableHandle( "CCBRELATIONS" );
+    isession->nominalSchema().tableHandle( "CCBRELATIONS" );
   std::auto_ptr<coral::IQuery>
     fullCCBCfgQuery( fullCCBCfgTable.newQuery() );
   fullCCBCfgQuery->addToOutputList( "CONFKEY" );
@@ -494,7 +496,7 @@ void DTKeyedConfigHandler::chkConfigList() {
 //  std::cout << " =============== config brick list" << std::endl;
   std::map<int,bool> activeCfgBrkMap;
   coral::ITable& ccbConfBrkTable =
-    isession.nominalSchema().tableHandle( "CFG2BRKREL" );
+    isession->nominalSchema().tableHandle( "CFG2BRKREL" );
   std::auto_ptr<coral::IQuery>
     ccbConfBrickQuery( ccbConfBrkTable.newQuery() );
   ccbConfBrickQuery->addToOutputList( "CONFID" );
@@ -518,7 +520,7 @@ void DTKeyedConfigHandler::chkConfigList() {
 //  std::cout << " ===============" << std::endl;
 
   coral::ITable& brickConfigTable =
-    isession.nominalSchema().tableHandle( "CFGBRICKS" );
+    isession->nominalSchema().tableHandle( "CFGBRICKS" );
   std::auto_ptr<coral::IQuery>
     brickConfigQuery( brickConfigTable.newQuery() );
   brickConfigQuery->addToOutputList( "BRKID" );
@@ -569,7 +571,7 @@ void DTKeyedConfigHandler::chkConfigList() {
     bindVariableList.extend( "brickId", typeid(int) );
     bindVariableList["brickId"].data<int>() = brickConfigId;
     std::auto_ptr<coral::IQuery>
-           brickDataQuery( isession.nominalSchema().newQuery() );
+           brickDataQuery( isession->nominalSchema().newQuery() );
     brickDataQuery->addToTableList( "CFGRELATIONS" );
     brickDataQuery->addToTableList( "CONFIGCMDS" );
     std::string
