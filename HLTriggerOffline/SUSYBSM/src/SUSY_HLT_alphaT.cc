@@ -136,16 +136,18 @@ void SUSY_HLT_alphaT::analyze(edm::Event const& e, edm::EventSetup const& eSetup
 
   double hltHt=0.;
   std::vector<LorentzV> hltJets;
+  std::cout << "\n Started looking for jets: \n";
   if( !(filterIndex >= triggerSummary->sizeFilters()) ){
     const trigger::Keys& keys = triggerSummary->filterKeys( filterIndex );
     for( size_t j = 0; j < keys.size(); ++j ){
       trigger::TriggerObject foundObject = triggerObjects[keys[j]];
       if(foundObject.id() == 85){ //It's a jet 
-        if(foundObject.pt()>ptThrJet_ && fabs(foundObject.eta()) < etaThrJet_){
-          hltHt += foundObject.pt();
-          LorentzV JetLVec(foundObject.pt(),foundObject.eta(),foundObject.phi(),foundObject.mass());
-          hltJets.push_back(JetLVec);
-        }
+          if(foundObject.pt()>ptThrJet_ && fabs(foundObject.eta()) < etaThrJet_){
+              std::cout << "\n found a jet! \n";
+              hltHt += foundObject.pt();
+              LorentzV JetLVec(foundObject.pt(),foundObject.eta(),foundObject.phi(),foundObject.mass());
+              hltJets.push_back(JetLVec);
+          }
       }
     }
   }
@@ -160,76 +162,76 @@ void SUSY_HLT_alphaT::analyze(edm::Event const& e, edm::EventSetup const& eSetup
   const edm::TriggerNames& trigNames = e.triggerNames(*hltresults);
   unsigned int numTriggers = trigNames.size();
   for( unsigned int hltIndex=0; hltIndex<numTriggers; ++hltIndex ){
-    if (trigNames.triggerName(hltIndex)==triggerPath_ && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) hasFired = true;
-    if (trigNames.triggerName(hltIndex)==triggerPathAuxiliaryForHadronic_ && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) hasFiredAuxiliaryForHadronicLeg = true;
+      if (trigNames.triggerName(hltIndex)==triggerPath_ && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) hasFired = true;
+      if (trigNames.triggerName(hltIndex)==triggerPathAuxiliaryForHadronic_ && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) hasFiredAuxiliaryForHadronicLeg = true;
   }
 
 
 
   if(hasFiredAuxiliaryForHadronicLeg) {
 
-    float caloHT = 0.0;
-    //float pfHT = 0.0;
-    //for (reco::PFJetCollection::const_iterator i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end(); ++i_pfjet){
-    //  if (i_pfjet->pt() < ptThrJet_) continue;
-    //  if (fabs(i_pfjet->eta()) > etaThrJet_) continue;
-    //  pfHT += i_pfjet->pt();
-    //}
+      float caloHT = 0.0;
+      //float pfHT = 0.0;
+      //for (reco::PFJetCollection::const_iterator i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end(); ++i_pfjet){
+      //  if (i_pfjet->pt() < ptThrJet_) continue;
+      //  if (fabs(i_pfjet->eta()) > etaThrJet_) continue;
+      //  pfHT += i_pfjet->pt();
+      //}
 
-    //Make the gen Calo HT and AlphaT
-    std::vector<LorentzV> jets;
-    for (reco::CaloJetCollection::const_iterator i_calojet = caloJetCollection->begin(); i_calojet != caloJetCollection->end(); ++i_calojet){
-      if (i_calojet->pt() < ptThrJet_) continue;
-      if (fabs(i_calojet->eta()) > etaThrJet_) continue;
-      caloHT += i_calojet->pt();
-      LorentzV JetLVec(i_calojet->pt(),i_calojet->eta(),i_calojet->phi(),i_calojet->mass());
-      jets.push_back(JetLVec);
-    }
+      //Make the gen Calo HT and AlphaT
+      std::vector<LorentzV> jets;
+      for (reco::CaloJetCollection::const_iterator i_calojet = caloJetCollection->begin(); i_calojet != caloJetCollection->end(); ++i_calojet){
+          if (i_calojet->pt() < ptThrJet_) continue;
+          if (fabs(i_calojet->eta()) > etaThrJet_) continue;
+          caloHT += i_calojet->pt();
+          LorentzV JetLVec(i_calojet->pt(),i_calojet->eta(),i_calojet->phi(),i_calojet->mass());
+          jets.push_back(JetLVec);
+      }
 
-    //AlphaT aT = AlphaT(jets);
-    double caloAlphaT = AlphaT(jets).value();
+      //AlphaT aT = AlphaT(jets);
+      double caloAlphaT = AlphaT(jets).value();
 
-    //Fill the turnons
-    if(hasFired) {
-      h_pfAlphaTTurnOn_num-> Fill(caloAlphaT);
-      h_pfHTTurnOn_num-> Fill(caloHT);
-    } 
-    h_pfAlphaTTurnOn_den-> Fill(caloAlphaT);
-    h_pfHTTurnOn_den-> Fill(caloHT);
+      //Fill the turnons
+      if(hasFired) {
+          h_alphaTTurnOn_num-> Fill(caloAlphaT);
+          h_htTurnOn_num-> Fill(caloHT);
+      } 
+      h_alphaTTurnOn_den-> Fill(caloAlphaT);
+      h_htTurnOn_den-> Fill(caloHT);
   }
 }
 
 
 void SUSY_HLT_alphaT::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup)
 {
-  edm::LogInfo("SUSY_HLT_alphaT") << "SUSY_HLT_alphaT::endLuminosityBlock" << std::endl;
+    edm::LogInfo("SUSY_HLT_alphaT") << "SUSY_HLT_alphaT::endLuminosityBlock" << std::endl;
 }
 
 
 void SUSY_HLT_alphaT::endRun(edm::Run const& run, edm::EventSetup const& eSetup)
 {
-  edm::LogInfo("SUSY_HLT_alphaT") << "SUSY_HLT_alphaT::endRun" << std::endl;
+    edm::LogInfo("SUSY_HLT_alphaT") << "SUSY_HLT_alphaT::endRun" << std::endl;
 }
 
 void SUSY_HLT_alphaT::bookHistos(DQMStore::IBooker & ibooker_)
 {
-  ibooker_.cd();
-  ibooker_.setCurrentFolder("HLTriggerOffline/SUSYBSM/" + triggerPath_);
+    ibooker_.cd();
+    ibooker_.setCurrentFolder("HLTriggerOffline/SUSYBSM/" + triggerPath_);
 
-  //offline quantities
+    //offline quantities
 
-  //online quantities 
-  h_triggerHt = ibooker_.book1D("triggerHt", "Trigger Ht; GeV", 30, 0.0, 1500.0);
-  h_triggerAlphaT = ibooker_.book1D("triggerAlphaT", "Trigger AlphaT", 40, 0., 1.0);
-  //h_triggerMht = ibooker_.book1D("triggerMht", "Trigger Mht", 20, -3.5, 3.5);
+    //online quantities 
+    h_triggerHt = ibooker_.book1D("triggerHt", "Trigger Ht; GeV", 30, 0.0, 1500.0);
+    h_triggerAlphaT = ibooker_.book1D("triggerAlphaT", "Trigger AlphaT", 40, 0., 1.0);
+    //h_triggerMht = ibooker_.book1D("triggerMht", "Trigger Mht", 20, -3.5, 3.5);
 
-  //num and den hists to be divided in harvesting step to make turn on curves
-  h_pfAlphaTTurnOn_num = ibooker_.book1D("pfAlphaTTurnOn_num", "AlphaT Turn On Numerator", 40, 0.0, 1.0 );
-  h_pfAlphaTTurnOn_den = ibooker_.book1D("pfAlphaTTurnOn_den", "AlphaT Turn OnDenominator", 40, 0.0, 1.0 );
-  h_pfHTTurnOn_num = ibooker_.book1D("pfHTTurnOn_num", "PF HT Turn On Numerator", 30, 0.0, 1500.0 );
-  h_pfHTTurnOn_den = ibooker_.book1D("pfHTTurnOn_den", "PF HT Turn On Denominator", 30, 0.0, 1500.0 );
+    //num and den hists to be divided in harvesting step to make turn on curves
+    h_alphaTTurnOn_num = ibooker_.book1D("alphaTTurnOn_num", "AlphaT Turn On Numerator", 40, 0.0, 1.0 );
+    h_alphaTTurnOn_den = ibooker_.book1D("alphaTTurnOn_den", "AlphaT Turn OnDenominator", 40, 0.0, 1.0 );
+    h_htTurnOn_num = ibooker_.book1D("htTurnOn_num", "PF HT Turn On Numerator", 30, 0.0, 1500.0 );
+    h_htTurnOn_den = ibooker_.book1D("htTurnOn_den", "PF HT Turn On Denominator", 30, 0.0, 1500.0 );
 
-  ibooker_.cd();
+    ibooker_.cd();
 }
 
 //define this as a plug-in
