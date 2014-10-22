@@ -185,7 +185,7 @@ HLTMuonL3PreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, trigger::
        if (tk->normalizedChi2() > max_NormalizedChi2_ ) continue;
 
        //dxy beamspot cut
-       if (fabs(tk->dxy(beamSpot.position())) > max_DXYBeamSpot_ || fabs(tk->dxy(beamSpot.position())) < min_DXYBeamSpot_ ) continue;
+       if (std::abs(tk->dxy(beamSpot.position())) > max_DXYBeamSpot_ || std::abs(tk->dxy(beamSpot.position())) < min_DXYBeamSpot_ ) continue;
 
        //min muon hits cut
        reco::HitPattern trackHits = tk->hitPattern();
