@@ -47,8 +47,6 @@ protected:
 
   BTagEntry::Parameters params;
   std::map<BTagEntry::JetFlavor, std::vector<TmpEntry> > tmpData_;
-
-  COND_SERIALIZABLE;
 };
 
 #endif  // BTagCalibrationReader_H
