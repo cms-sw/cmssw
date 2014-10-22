@@ -27,7 +27,9 @@ process.source = cms.Source("PoolSource",
     #fileNames = cms.untracked.vstring('file:/hadoop/cms/store/user/owen/qcd-300to470-muenriched/post-reco-000.root')
     #fileNames = cms.untracked.vstring('file:/tmp/pablom/QCD_Pt-300to470.root'),
     fileNames = cms.untracked.vstring( 
-        'file:///afs/cern.ch/work/a/aelwood/alphat/trigger/hltSkim.root',
+        #'file:///afs/cern.ch/work/a/aelwood/alphat/trigger/hltSkims/DY_withmuon1.root',
+        'file:///afs/cern.ch/work/a/aelwood/alphat/trigger/hltSkims/Susy_withmuon1.root',
+        #'file:///afs/cern.ch/work/a/aelwood/alphat/trigger/hltSkim.root',
     )
 
 
@@ -48,7 +50,10 @@ process.out = cms.OutputModule("PoolOutputModule",
     )
 
 
-process.HLTSusyExoValSeq = cms.Sequence(process.SUSY_HLT_HT200_alphaT0p57 + process.SUSY_HLT_HT250_alphaT0p55 + process.SUSY_HLT_HT300_alphaT0p54 )
+process.HLTSusyExoValSeq = cms.Sequence( process.SUSY_HLT_HT200_alphaT0p57 
+         + process.SUSY_HLT_HT250_alphaT0p55 
+         + process.SUSY_HLT_HT300_alphaT0p54 
+        )
 #process.HLTSusyExoValSeq = cms.Sequence(process.SUSY_HLT_InclusiveHT_aux350 + process.SUSY_HLT_InclusiveHT_aux600)
 
 process.run_module = cms.Path(process.HLTSusyExoValSeq+process.MEtoEDMConverter)

@@ -55,9 +55,9 @@ class SUSY_HLT_alphaT: public DQMEDAnalyzer{
   void bookHistos(DQMStore::IBooker &);
   
   //variables from config file
-  edm::EDGetTokenT<reco::PFMETCollection> thePfMETCollection_;
+  //edm::EDGetTokenT<reco::PFMETCollection> thePfMETCollection_;
   edm::EDGetTokenT<reco::CaloMETCollection> theCaloMETCollection_;
-  edm::EDGetTokenT<reco::PFJetCollection> thePfJetCollection_;
+  //edm::EDGetTokenT<reco::PFJetCollection> thePfJetCollection_;
   edm::EDGetTokenT<reco::CaloJetCollection> theCaloJetCollection_;
   edm::EDGetTokenT<edm::TriggerResults> triggerResults_;
   edm::EDGetTokenT<trigger::TriggerEvent> theTrigSummary_;

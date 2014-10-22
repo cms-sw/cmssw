@@ -13,9 +13,9 @@ SUSY_HLT_alphaT::SUSY_HLT_alphaT(const edm::ParameterSet& ps)
   edm::LogInfo("SUSY_HLT_alphaT") << "Constructor SUSY_HLT_alphaT::SUSY_HLT_alphaT " << std::endl;
   // Get parameters from configuration file
   theTrigSummary_ = consumes<trigger::TriggerEvent>(ps.getParameter<edm::InputTag>("trigSummary"));
-  thePfMETCollection_ = consumes<reco::PFMETCollection>(ps.getParameter<edm::InputTag>("pfMETCollection"));
-  theCaloMETCollection_ = consumes<reco::CaloMETCollection>(ps.getParameter<edm::InputTag>("caloMETCollection"));
-  thePfJetCollection_ = consumes<reco::PFJetCollection>(ps.getParameter<edm::InputTag>("pfJetCollection"));
+  //thePfMETCollection_ = consumes<reco::PFMETCollection>(ps.getParameter<edm::InputTag>("pfMETCollection"));
+  //theCaloMETCollection_ = consumes<reco::CaloMETCollection>(ps.getParameter<edm::InputTag>("caloMETCollection"));
+  //thePfJetCollection_ = consumes<reco::PFJetCollection>(ps.getParameter<edm::InputTag>("pfJetCollection"));
   theCaloJetCollection_ = consumes<reco::CaloJetCollection>(ps.getParameter<edm::InputTag>("caloJetCollection"));
   triggerResults_ = consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>("TriggerResults"));
   HLTProcess_ = ps.getParameter<std::string>("HLTProcess");
@@ -95,22 +95,7 @@ void SUSY_HLT_alphaT::analyze(edm::Event const& e, edm::EventSetup const& eSetup
  //   edm::LogError ("SUSY_HLT_alphaT") << "invalid collection: CaloMET" << "\n";
  //   return;
  // }
-  //-------------------------------
-  //--- Jets
-  //-------------------------------
-  edm::Handle<reco::PFJetCollection> pfJetCollection;
-  e.getByToken (thePfJetCollection_,pfJetCollection);
-  if ( !pfJetCollection.isValid() ){
-    edm::LogError ("SUSY_HLT_alphaT") << "invalid collection: PFJets" << "\n";
-    return;
-  }
-  edm::Handle<reco::CaloJetCollection> caloJetCollection;
-  e.getByToken (theCaloJetCollection_,caloJetCollection);
-  if ( !caloJetCollection.isValid() ){
-  edm::LogError ("SUSY_HLT_alphaT") << "invalid collection: CaloJets" << "\n";
-  return;
-  }
-  
+    
 
   //-------------------------------
   //--- Trigger
@@ -128,6 +113,21 @@ void SUSY_HLT_alphaT::analyze(edm::Event const& e, edm::EventSetup const& eSetup
     return;
   }
 
+  //-------------------------------
+  //--- Jets
+  //-------------------------------
+  //edm::Handle<reco::PFJetCollection> pfJetCollection;
+  //e.getByToken (thePfJetCollection_,pfJetCollection);
+  //if ( !pfJetCollection.isValid() ){
+  //  edm::LogError ("SUSY_HLT_alphaT") << "invalid collection: PFJets" << "\n";
+  //  return;
+  //}
+  edm::Handle<reco::CaloJetCollection> caloJetCollection;
+  e.getByToken (theCaloJetCollection_,caloJetCollection);
+  if ( !caloJetCollection.isValid() ){
+      edm::LogError ("SUSY_HLT_alphaT") << "invalid collection: CaloJets" << "\n";
+      return;
+  }
 
   //get online objects
   //For now just get the jets and recalculate ht and alphaT
@@ -136,20 +136,25 @@ void SUSY_HLT_alphaT::analyze(edm::Event const& e, edm::EventSetup const& eSetup
 
   double hltHt=0.;
   std::vector<LorentzV> hltJets;
-  std::cout << "\n Started looking for jets: \n";
+  //std::cout << "\n Started looking for jets: \n" << filterIndex << "\n" << triggerSummary->sizeFilters();
   if( !(filterIndex >= triggerSummary->sizeFilters()) ){
-    const trigger::Keys& keys = triggerSummary->filterKeys( filterIndex );
-    for( size_t j = 0; j < keys.size(); ++j ){
-      trigger::TriggerObject foundObject = triggerObjects[keys[j]];
-      if(foundObject.id() == 85){ //It's a jet 
-          if(foundObject.pt()>ptThrJet_ && fabs(foundObject.eta()) < etaThrJet_){
-              std::cout << "\n found a jet! \n";
-              hltHt += foundObject.pt();
-              LorentzV JetLVec(foundObject.pt(),foundObject.eta(),foundObject.phi(),foundObject.mass());
-              hltJets.push_back(JetLVec);
-          }
+      const trigger::Keys& keys = triggerSummary->filterKeys( filterIndex );
+      std::cout << "\n Passed L1 \n";
+      std::cout << "Keys size: " << keys.size() << '\n';
+
+      for( size_t j = 0; j < keys.size(); ++j ){
+          trigger::TriggerObject foundObject = triggerObjects[keys[j]];
+          std::cout << foundObject.id() << "\t" << foundObject.pt() <<"\n";
+          
+        //  if(foundObject.id() == 85){ //It's a jet 
+              if(foundObject.pt()>ptThrJet_ && fabs(foundObject.eta()) < etaThrJet_){
+                  std::cout << "\n found a jet! \n";
+                  hltHt += foundObject.pt();
+                  LorentzV JetLVec(foundObject.pt(),foundObject.eta(),foundObject.phi(),foundObject.mass());
+                  hltJets.push_back(JetLVec);
+              }
+       //   }
       }
-    }
   }
 
   //Fill the alphaT and HT histograms
@@ -166,7 +171,7 @@ void SUSY_HLT_alphaT::analyze(edm::Event const& e, edm::EventSetup const& eSetup
       if (trigNames.triggerName(hltIndex)==triggerPathAuxiliaryForHadronic_ && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) hasFiredAuxiliaryForHadronicLeg = true;
   }
 
-
+  if(!hasFired) std::cout << "Trigger didn't fire\n" ;
 
   if(hasFiredAuxiliaryForHadronicLeg) {
 
