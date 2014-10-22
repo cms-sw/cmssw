@@ -372,7 +372,7 @@ protected:
 								bool ignoreCase,
 								TiXmlEncoding encoding );
 
-	static const char* errorString[ TIXML_ERROR_STRING_COUNT ];
+	static const char* const errorString[ TIXML_ERROR_STRING_COUNT ];
 
 	TiXmlCursor location;
 
