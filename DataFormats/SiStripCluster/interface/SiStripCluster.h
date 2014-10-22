@@ -3,6 +3,7 @@
 
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include <vector>
+#include <numeric>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class SiStripCluster  {
@@ -51,6 +52,11 @@ public:
    *  should not be used as position estimate for tracking.
    */
   float barycenter() const;
+
+  /** total charge
+   *
+   */
+   int  charge() const { return std::accumulate(amplitudes().begin(), amplitudes().end(), int(0)); }
 
   float getSplitClusterError () const    {  return error_x;  }
   void  setSplitClusterError ( float errx ) { error_x = errx; }

@@ -9,7 +9,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 
-std::map<std::string, MonitorElement*> RPCEfficiencySecond::bookDetUnitSeg(RPCDetId & detId,int nstrips, std::string folderPath) {
+std::map<std::string, MonitorElement*> RPCEfficiencySecond::bookDetUnitSeg(DQMStore::IBooker & ibooker, RPCDetId & detId,int nstrips, std::string folderPath) {
   
   std::map<std::string, MonitorElement*> meMap;
    
@@ -19,7 +19,7 @@ std::map<std::string, MonitorElement*> RPCEfficiencySecond::bookDetUnitSeg(RPCDe
 
   delete folderStr;
 
-  dbe->setCurrentFolder(folder);
+  ibooker.setCurrentFolder(folder);
 
   RPCGeomServ RPCname(detId);
   std::string nameRoll = RPCname.name();
@@ -38,21 +38,21 @@ std::map<std::string, MonitorElement*> RPCEfficiencySecond::bookDetUnitSeg(RPCDe
     //std::cout<<"Booking "<<folder<<meId<<std::endl;
     sprintf(meId,"ExpectedOccupancyFromDT_%s",detUnitLabel);
     sprintf(meTitle,"ExpectedOccupancyFromDT_for_%s",layerLabel);
-    meMap[meId] = dbe->book1D(meId, meTitle, nstrips, 0.5, nstrips+0.5);
+    meMap[meId] = ibooker.book1D(meId, meTitle, nstrips, 0.5, nstrips+0.5);
     //std::cout<<"Booking "<<meId<<std::endl;
  
     sprintf(meId,"RPCDataOccupancyFromDT_%s",detUnitLabel);
     sprintf(meTitle,"RPCDataOccupancyFromDT_for_%s",layerLabel);
-    meMap[meId] = dbe->book1D(meId, meTitle, nstrips, 0.5, nstrips+0.5);
+    meMap[meId] = ibooker.book1D(meId, meTitle, nstrips, 0.5, nstrips+0.5);
 
     sprintf(meId,"Profile_%s",detUnitLabel);
     sprintf(meTitle,"Profile_for_%s",layerLabel);
-    meMap[meId] = dbe->book1D(meId, meTitle, nstrips, 0.5, nstrips+0.5);
+    meMap[meId] = ibooker.book1D(meId, meTitle, nstrips, 0.5, nstrips+0.5);
     //std::cout<<"Booking "<<folder<<meId<<std::endl;
 
 //     sprintf(meId,"BXDistribution_%s",detUnitLabel);
 //     sprintf(meTitle,"BXDistribution_for_%s",layerLabel);
-//     meMap[meId] = dbe->book1D(meId, meTitle, 11,-5.5, 5.5);
+//     meMap[meId] = ibooker.book1D(meId, meTitle, 11,-5.5, 5.5);
     
   }else{
     //std::cout<<"Booking for the EndCap"<<detUnitLabel<<std::endl;
@@ -60,22 +60,22 @@ std::map<std::string, MonitorElement*> RPCEfficiencySecond::bookDetUnitSeg(RPCDe
     //std::cout<<"Booking "<<meId<<std::endl;
     sprintf(meId,"ExpectedOccupancyFromCSC_%s",detUnitLabel);
     sprintf(meTitle,"ExpectedOccupancyFromCSC_for_%s",layerLabel);
-    meMap[meId] = dbe->book1D(meId, meTitle, nstrips, 0.5, nstrips+0.5);
+    meMap[meId] = ibooker.book1D(meId, meTitle, nstrips, 0.5, nstrips+0.5);
        
     //std::cout<<"Booking "<<meId<<std::endl;
     sprintf(meId,"RPCDataOccupancyFromCSC_%s",detUnitLabel);
     sprintf(meTitle,"RPCDataOccupancyFromCSC_for_%s",layerLabel);
-    meMap[meId] = dbe->book1D(meId, meTitle, nstrips, 0.5, nstrips+0.5);
+    meMap[meId] = ibooker.book1D(meId, meTitle, nstrips, 0.5, nstrips+0.5);
     
     //std::cout<<"Booking "<<meId<<std::endl;
     sprintf(meId,"Profile_%s",detUnitLabel);
     sprintf(meTitle,"Profile_for_%s",layerLabel);
-    meMap[meId] = dbe->book1D(meId, meTitle, nstrips, 0.5, nstrips+0.5);
+    meMap[meId] = ibooker.book1D(meId, meTitle, nstrips, 0.5, nstrips+0.5);
     
 //     //std::cout<<"Booking "<<meId<<std::endl;
 //     sprintf(meId,"BXDistribution_%s",detUnitLabel);
 //     sprintf(meTitle,"BXDistribution_for_%s",layerLabel);
-//     meMap[meId] = dbe->book1D(meId, meTitle, 11,-5.5, 5.5);
+//     meMap[meId] = ibooker.book1D(meId, meTitle, 11,-5.5, 5.5);
   }
   return meMap;
 }

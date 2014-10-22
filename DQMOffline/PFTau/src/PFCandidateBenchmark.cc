@@ -1,9 +1,8 @@
 #include "DQMOffline/PFTau/interface/PFCandidateBenchmark.h"
 
+
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
-// #include "DQMServices/Core/interface/MonitorElement.h"
-// #include "DQMServices/Core/interface/DQMStore.h"
 
 #include <TROOT.h>
 #include <TFile.h>
@@ -18,7 +17,7 @@ using namespace std;
 PFCandidateBenchmark::~PFCandidateBenchmark() {}
 
 
-void PFCandidateBenchmark::setup() {
+void PFCandidateBenchmark::setup(DQMStore::IBooker& b) {
 
   PhaseSpace ecalEnergyPS(100,0,100);
   PhaseSpace hcalEnergyPS(100,0,100);
@@ -35,16 +34,16 @@ void PFCandidateBenchmark::setup() {
     break;
   }
 
-  particleId_ = book1D("particleId_", "particle ID", 7,1,8);
-  ecalEnergy_ = book1D("ecalEnergy_", "ECAL energy, corrected;E_{ECAL} (GeV)",
+  particleId_ = book1D(b, "particleId_", "particle ID", 7,1,8);
+  ecalEnergy_ = book1D(b, "ecalEnergy_", "ECAL energy, corrected;E_{ECAL} (GeV)",
 		       ecalEnergyPS.n, ecalEnergyPS.m, ecalEnergyPS.M);
-  hcalEnergy_ = book1D("hcalEnergy_", "HCAL energy, corrected;E_{HCAL} (GeV)",
+  hcalEnergy_ = book1D(b, "hcalEnergy_", "HCAL energy, corrected;E_{HCAL} (GeV)",
 		       ecalEnergyPS.n, ecalEnergyPS.m, ecalEnergyPS.M);
-  mva_e_pi_ = book1D("mva_e_pi_", "e VS #pi MVA output;MVA", 
+  mva_e_pi_ = book1D(b, "mva_e_pi_", "e VS #pi MVA output;MVA", 
 		     mva_e_piPS.n, mva_e_piPS.m, mva_e_piPS.M);
-  elementsInBlocksSize_ = book1D("elementsInBlocksSize_", "number of elements used", 10, 0, 10);
-}
+  elementsInBlocksSize_ = book1D(b, "elementsInBlocksSize_", "number of elements used", 10, 0, 10);
 
+}
 
 
 void PFCandidateBenchmark::fill( const reco::PFCandidateCollection& pfCands) {

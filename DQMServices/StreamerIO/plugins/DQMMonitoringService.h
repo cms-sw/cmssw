@@ -9,7 +9,9 @@
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "FWCore/ServiceRegistry/interface/StreamContext.h"
+#include "FWCore/ServiceRegistry/interface/GlobalContext.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 #include "boost/filesystem.hpp"
 
 #include <string>
@@ -33,34 +35,30 @@
 namespace dqmservices {
 
 using boost::property_tree::ptree;
+using edm::StreamID;
+using edm::StreamContext;
+using edm::GlobalContext;
 
 class DQMMonitoringService {
   public:
     DQMMonitoringService(const edm::ParameterSet &, edm::ActivityRegistry&);
     ~DQMMonitoringService();
 
-    void registerExtra(std::string name, ptree data);
-    void reportLumiSection(int run, int lumi);
-    void reportEvents(int nevts);
+    void keepAlive();
+    void outputUpdate(ptree& doc);
+
+    void evLumi(GlobalContext const&);
+    void evEvent(StreamID const&);
+    
+    //void makeReport();
 
   private:
-    boost::filesystem::path json_path_;
-    std::string hostname_;
-    std::string tag_;
-    int fseq_;
+    std::shared_ptr<std::ostream> mstream_;
+    ptree doc_;
+
     long nevents_;
-
-    ptree extra_;
-    ptree ps_info_;
-
     long last_report_nevents_;
     std::chrono::high_resolution_clock::time_point last_report_time_;
-
-    void reportLumiSectionUnsafe(int run, int lumi);
-
-    void fillProcessInfoCmdline();
-    void fillProcessInfoStatus();
-    std::string hackoutTheStdErr();
 };
 
 } // end-of-namespace

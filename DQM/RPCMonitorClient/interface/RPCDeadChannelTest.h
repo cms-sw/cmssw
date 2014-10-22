@@ -18,34 +18,10 @@ public:
   /// Destructor
   virtual ~RPCDeadChannelTest();
 
-  /// BeginJob
-  void beginJob(DQMStore *, std::string);
-
-  //Begin Run
-   void endRun(const edm::Run& , const edm::EventSetup& );
-  
-  
-  /// Begin Lumi block 
-  void beginLuminosityBlock(edm::LuminosityBlock const& , edm::EventSetup const& ) ;
-
-  /// Analyze  
-  void analyze(const edm::Event& , const edm::EventSetup& );
-
-  /// End Lumi Block
-  void endLuminosityBlock(edm::LuminosityBlock const& , edm::EventSetup const& );
- 
-  //End Run
-  void beginRun(const edm::Run& , const edm::EventSetup& ); 		
-  
-  /// Endjob
-  void endJob();
-
-  void clientOperation(edm::EventSetup const& c);
-  void getMonitorElements(std::vector<MonitorElement *> &, std::vector<RPCDetId> &);
-
- protected:
-
-  // void CalculateDeadChannelPercentage(RPCDetId & , MonitorElement *  , edm::EventSetup const& );
+ void clientOperation();
+ void getMonitorElements(std::vector<MonitorElement *> &, std::vector<RPCDetId> &, std::string &);
+ void beginJob(std::string & );
+ void myBooker(DQMStore::IBooker &);
    
  private:
   int prescaleFactor_;
@@ -53,8 +29,6 @@ public:
   std::vector<MonitorElement *>  myOccupancyMe_;
   std::vector<RPCDetId>   myDetIds_;
   bool useRollInfo_;
-  DQMStore* dbe_;
- 
  
   int numberOfDisks_;
   int  numberOfRings_;

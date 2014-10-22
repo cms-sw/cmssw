@@ -10,11 +10,11 @@ PixelLayerTriplets.layerList = cms.vstring('BPix1+BPix2+BPix3',
     'BPix1+FPix1_neg+FPix2_neg'
 )
 PixelLayerTriplets.BPix = cms.PSet(
-    TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelTriplets'),
+    TTRHBuilder = cms.string('WithTrackAngle'),
     HitProducer = cms.string('siPixelRecHits'),
 )    
 PixelLayerTriplets.FPix = cms.PSet(
-    TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelTriplets'),
+    TTRHBuilder = cms.string('WithTrackAngle'),
     HitProducer = cms.string('siPixelRecHits'),
 )
 

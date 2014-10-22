@@ -89,7 +89,7 @@ public:
   LocalVector momentum() const {
     float op = std::abs(theQbp);
     if ( op<1.e-9f )  op = 1.e-9f;
-    float pz = float(thePzSign)/(op*std::sqrt(1. + theDxdz*theDxdz + theDydz*theDydz));
+    float pz = float(thePzSign)/(op*std::sqrt(1.f + theDxdz*theDxdz + theDydz*theDydz));
     float px = pz*theDxdz;
     float py = pz*theDydz;
     return LocalVector(px, py, pz);
@@ -97,7 +97,7 @@ public:
 
  /// Momentum vector unit in the local frame. 
   LocalVector direction() const {
-    float dz = float(thePzSign)/std::sqrt(1. + theDxdz*theDxdz + theDydz*theDydz);
+    float dz = float(thePzSign)/std::sqrt(1.f + theDxdz*theDxdz + theDydz*theDydz);
     float dx = dz*theDxdz;
     float dy = dz*theDydz;
     return LocalVector(dx, dy, dz);
@@ -160,6 +160,7 @@ public:
   float qbp() const { return theQbp;}
   float dxdz() const { return theDxdz;}
   float dydz() const { return theDydz;}
+  float absdz() const { return 1.f/std::sqrt(1.f + theDxdz*theDxdz + theDydz*theDydz); }
 
 
 private:

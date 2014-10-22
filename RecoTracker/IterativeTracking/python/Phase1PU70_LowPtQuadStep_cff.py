@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 # NEW CLUSTERS (remove previously used clusters)
 lowPtQuadStepClusters = cms.EDProducer("TrackClusterRemover",
-    clusterLessSolution= cms.bool(True),
     trajectories = cms.InputTag("highPtTripletStepTracks"),
     overrideTrkQuals = cms.InputTag('highPtTripletStepSelector','highPtTripletStep'),
     TrackQuality = cms.string('highPurity'),
@@ -112,7 +111,7 @@ lowPtQuadStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.
     src = 'lowPtQuadStepTrackCandidates',
     AlgorithmName = cms.string('iter2'),
     Fitter = cms.string('FlexibleKFFittingSmoother'),
-    TTRHBuilder=cms.string('WithTrackAngle')
+    TTRHBuilder=cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069)
     )
 
 from TrackingTools.TrajectoryCleaning.TrajectoryCleanerBySharedHits_cfi import trajectoryCleanerBySharedHits

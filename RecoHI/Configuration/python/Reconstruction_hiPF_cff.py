@@ -2,17 +2,28 @@ import FWCore.ParameterSet.Config as cms
 
 # include  particle flow local reconstruction
 from RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff import *
-particleFlowClusterPS.thresh_Pt_Seed_Endcap = cms.double(99999.)
-
-from RecoParticleFlow.PFTracking.pfTrack_cfi import *
-pfTrack.UseQuality = cms.bool(True)
-pfTrack.TrackQuality = cms.string('highPurity')
-pfTrack.TkColList = cms.VInputTag("hiSelectedTracks")
-pfTrack.PrimaryVertexLabel = cms.InputTag("hiSelectedVertex")
-pfTrack.MuColl = cms.InputTag("muons")
 
 # run a trimmed down PF sequence with heavy-ion vertex, no conversions, nucl int, etc.
+
+from RecoParticleFlow.PFProducer.particleFlowEGamma_cff import *
+particleFlowEGamma.vertexCollection = cms.InputTag("hiSelectedVertex")
+gedGsfElectronCores.ctfTracks = cms.InputTag("hiGeneralTracks")
+gedGsfElectronsTmp.ctfTracksTag = cms.InputTag("hiGeneralTracks")
+gedGsfElectronsTmp.vtxTag = cms.InputTag("hiSelectedVertex")
+gedPhotonsTmp.primaryVertexProducer = cms.InputTag("hiSelectedVertex")
+gedPhotonsTmp.regressionConfig.vertexCollection = cms.InputTag("hiSelectedVertex")
+gedPhotonsTmp.isolationSumsCalculatorSet.trackProducer = cms.InputTag("hiGeneralTracks")
+
+
+#These are set for consistency w/ HiElectronSequence, but these cuts need to be studied
+gedGsfElectronsTmp.maxHOverEBarrel = cms.double(0.25)
+gedGsfElectronsTmp.maxHOverEEndcaps = cms.double(0.25)
+
+
 from RecoParticleFlow.Configuration.RecoParticleFlow_cff import *
+
+mvaElectrons.vertexTag = cms.InputTag("hiSelectedVertex")
+
 particleFlowBlock.elementImporters = cms.VPSet(
     cms.PSet( importerName = cms.string("GSFTrackImporter"),
               source = cms.InputTag("pfTrackElec"),
@@ -56,20 +67,17 @@ particleFlowTmp.usePFElectrons = cms.bool(True)
 particleFlowTmp.muons = cms.InputTag("muons")
 particleFlowTmp.usePFConversions = cms.bool(False)
 
-from RecoParticleFlow.PFTracking.pfTrackElec_cfi import *
-pfTrackElec.applyGsfTrackCleaning = cms.bool(True)
-pfTrackElec.PrimaryVertexLabel = cms.InputTag("hiSelectedVertex")
 
-mvaElectrons.vertexTag = cms.InputTag("hiSelectedVertex")
+from RecoHI.HiJetAlgos.HiRecoPFJets_cff import *
 
 # local reco must run before electrons (RecoHI/HiEgammaAlgos), due to PF integration
-HiParticleFlowLocalReco = cms.Sequence(particleFlowCluster
-                                       * pfTrack
-                                       * pfTrackElec
-                                       )
+hiParticleFlowLocalReco = cms.Sequence(particleFlowCluster)
+
 
 #PF Reco runs after electrons
-HiParticleFlowReco = cms.Sequence(pfGsfElectronMVASelectionSequence
-                                  * particleFlowBlock
-                                  * particleFlowTmp
-                                  )
+hiParticleFlowReco = cms.Sequence( pfGsfElectronMVASelectionSequence
+                                   * particleFlowBlock
+                                   * particleFlowEGammaFull
+                                   * particleFlowTmp
+                                   * hiRecoPFJets
+                                   )

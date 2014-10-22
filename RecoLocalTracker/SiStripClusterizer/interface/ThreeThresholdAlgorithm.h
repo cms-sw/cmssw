@@ -45,7 +45,7 @@ class ThreeThresholdAlgorithm final : public StripClusterizerAlgorithm {
 
   template<class T> void clusterizeDetUnit_(const T&, output_t::FastFiller&);
   ThreeThresholdAlgorithm(float, float, float, unsigned, unsigned, unsigned, std::string qualityLabel,
-			  bool setDetId, bool removeApvShots=false);
+			  bool setDetId, bool removeApvShots, float minGoodCharge);
 
   //state of the candidate cluster
   std::vector<uint8_t> ADCs;  
@@ -69,6 +69,7 @@ class ThreeThresholdAlgorithm final : public StripClusterizerAlgorithm {
   float ChannelThreshold, SeedThreshold, ClusterThresholdSquared;
   uint8_t MaxSequentialHoles, MaxSequentialBad, MaxAdjacentBad;
   bool RemoveApvShots;
+  float MinGoodCharge;
 
   SiStripApvShotCleaner ApvCleaner;
 };

@@ -63,8 +63,8 @@ namespace {
                 }
             }
 
-            template<typename Test>
-            bool apply(const std::vector<uint8_t> & ampls, const Test & test, bool verbose=false, int firststrip=0) {
+            template<typename V, typename Test>
+            bool apply(const V & ampls, const Test & test, bool verbose=false, int firststrip=0) {
                 const uint8_t *begin = &*ampls.begin();
                 const uint8_t *end = &*ampls.end();
                 for (const uint8_t *x = begin; x < end - (half_-1); ++x) {
@@ -218,7 +218,7 @@ bool StripSubClusterShapeFilterBase::testLastHit
       if (!usable) return true;
 
       INC_COUNTER(called_)
-      const std::vector<uint8_t> &ampls = cluster.amplitudes();
+      const auto  &ampls = cluster.amplitudes();
       
       // pass-through of trivial case 
       if (std::abs(hitPredPos) < 1.5f && hitStrips <= 2) {
@@ -250,8 +250,8 @@ bool StripSubClusterShapeFilterBase::testLastHit
       unsigned int hitStripsTrim = ampls.size();
       int sum = std::accumulate(ampls.begin(), ampls.end(), 0);
       uint8_t trimCut = std::min<uint8_t>(trimMaxADC_, std::floor(trimMaxFracTotal_ * sum));
-      std::vector<uint8_t>::const_iterator begin = ampls.begin();
-      std::vector<uint8_t>::const_iterator last = ampls.end()-1;
+      auto begin = ampls.begin();
+      auto last = ampls.end()-1;
       while (hitStripsTrim > 1 && (*begin < std::max<uint8_t>(trimCut, trimMaxFracNeigh_*(*(begin+1)))) ) { hitStripsTrim--; ++begin; }
       while (hitStripsTrim > 1 && (*last  < std::max<uint8_t>(trimCut, trimMaxFracNeigh_*(*(last -1)))) ) { hitStripsTrim--; --last; }
 
