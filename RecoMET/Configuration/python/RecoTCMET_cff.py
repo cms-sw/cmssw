@@ -2,7 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoMET.METProducers.TCMET_cfi import *
 
-tcMetWithPFclusters = tcMet.clone()
+tcMetWithPFclusters = tcMet.clone(
+        PFClustersHFEM = cms.InputTag('particleFlowClusterHF'),
+        PFClustersHFHAD = cms.InputTag('particleFlowClusterHF')
+    )
 
 tcMetWithPFclusters.usePFClusters = cms.bool(True)
 
