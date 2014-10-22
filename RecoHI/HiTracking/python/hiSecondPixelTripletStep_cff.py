@@ -103,7 +103,7 @@ hiSecondPixelTripletTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_
 import RecoTracker.TrackProducer.TrackProducer_cfi
 hiSecondPixelTripletGlobalPrimTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'hiSecondPixelTripletTrackCandidates',
-    AlgorithmName = cms.string('lowPtTripletStep')
+    AlgorithmName = cms.string('lowPtTripletStep'),
     Fitter=cms.string('FlexibleKFFittingSmoother')
     )
 

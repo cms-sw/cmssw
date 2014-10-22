@@ -112,7 +112,7 @@ hiPixelPairTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTr
 # TRACK FITTING
 import RecoTracker.TrackProducer.TrackProducer_cfi
 hiPixelPairGlobalPrimTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
-    AlgorithmName = cms.string('pixelPairStep')
+    AlgorithmName = cms.string('pixelPairStep'),
     src = 'hiPixelPairTrackCandidates',
     Fitter = cms.string('FlexibleKFFittingSmoother')
     )
