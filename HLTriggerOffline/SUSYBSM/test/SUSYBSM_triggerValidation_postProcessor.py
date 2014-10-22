@@ -19,20 +19,20 @@ process.GlobalTag.globaltag = 'GR_R_52_V7::All'
 #process.GlobalTag.globaltag = 'GR10_P_V10::All'
 ## input file (adapt input file name correspondingly)
 process.source = cms.Source("PoolSource",
-fileNames = cms.untracked.vstring("file:testout.root"),
-#fileNames = cms.untracked.vstring("file:/tmp/pablom/OutputJason.root"),
-processingMode = cms.untracked.string('RunsAndLumis')
-)
+    fileNames = cms.untracked.vstring("file:testout.root"),
+    #fileNames = cms.untracked.vstring("file:/tmp/pablom/OutputJason.root"),
+    processingMode = cms.untracked.string('RunsAndLumis')
+    )
 
 ## number of events
 process.maxEvents = cms.untracked.PSet(
-input = cms.untracked.int32(-1)
-)
+    input = cms.untracked.int32(-1)
+    )
 ## output options
 process.options = cms.untracked.PSet(
-Rethrow = cms.untracked.vstring('ProductNotFound'),
-fileMode = cms.untracked.string('FULLMERGE')
-)
+    Rethrow = cms.untracked.vstring('ProductNotFound'),
+    fileMode = cms.untracked.string('FULLMERGE')
+    )
 ## DQMStore and output configuration
 process.DQMStore.collateHistograms = True
 process.EDMtoMEConverter.convertOnEndLumi = True
@@ -43,15 +43,15 @@ process.dqmSaver.forceRunNumber = cms.untracked.int32( 1)
 
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('HLTMuonVal'),
-    debugModules = cms.untracked.vstring('*'),
-    threshold = cms.untracked.string('INFO'),
-    HLTMuonVal = cms.untracked.PSet(
-        #threshold = cms.untracked.string('DEBUG'),
+        destinations = cms.untracked.vstring('cout'),
+        categories = cms.untracked.vstring('HLTMuonVal'),
+        debugModules = cms.untracked.vstring('*'),
+        threshold = cms.untracked.string('INFO'),
+        HLTMuonVal = cms.untracked.PSet(
+            #threshold = cms.untracked.string('DEBUG'),
         limit = cms.untracked.int32(100000),
-    ),
-)
+        ),
+      )
 
 
 #process.endpath = cms.EndPath(process.dqmSaver)
@@ -60,18 +60,18 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 ## path definitions
 process.edmtome = cms.Path(
-process.EDMtoME
-)
+    process.EDMtoME
+    )
 
-process.SusyExoPostVal = cms.Sequence(process.SUSY_HLT_MET_MUON_POSTPROCESSING)
+process.SusyExoPostVal = cms.Sequence(process.SUSY_HLT_alphaT_POSTPROCESSING )
 #process.SusyExoPostVal = cms.Sequence(process.SUSY_HLT_InclusiveHT_aux350_POSTPROCESSING + process.SUSY_HLT_InclusiveHT_aux600_POSTPROCESSING)
 
 process.susypost = cms.Path(
-process.SusyExoPostVal
-)
+    process.SusyExoPostVal
+    )
 
 process.dqmsave = cms.Path(
-process.DQMSaver
-)
+    process.DQMSaver
+    )
 ## schedule definition
 process.schedule = cms.Schedule(process.edmtome,process.susypost,process.dqmsave)

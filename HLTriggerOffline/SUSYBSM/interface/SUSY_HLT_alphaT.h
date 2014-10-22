@@ -77,10 +77,10 @@ class SUSY_HLT_alphaT: public DQMEDAnalyzer{
   MonitorElement* h_triggerHt;
   //MonitorElement* h_triggerMht;
   MonitorElement* h_triggerAlphaT;
-  MonitorElement* h_pfAlphaTTurnOn_num;
-  MonitorElement* h_pfAlphaTTurnOn_den;
-  MonitorElement* h_pfHTTurnOn_num;
-  MonitorElement* h_pfHTTurnOn_den;
+  MonitorElement* h_alphaTTurnOn_num;
+  MonitorElement* h_alphaTTurnOn_den;
+  MonitorElement* h_htTurnOn_num;
+  MonitorElement* h_htTurnOn_den;
 
 };
 

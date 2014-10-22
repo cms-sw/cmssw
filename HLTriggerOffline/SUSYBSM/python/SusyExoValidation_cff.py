@@ -12,9 +12,9 @@ HLTSusyExoValSeq = cms.Sequence(SUSY_HLT_HT_MET +
                                 SUSY_HLT_InclusiveMET +
                                 SUSY_HLT_MET_BTAG +
                                 SUSY_HLT_MET_MUON +
-                                SUSY_HLT200_alphaT0p57 +
-                                SUSY_HLT250_alphaT0p55 +
-                                SUSY_HLT300_alphaT0p54 +
+                                SUSY_HLT_HT200_alphaT0p57 +
+                                SUSY_HLT_HT250_alphaT0p55 +
+                                SUSY_HLT_HT300_alphaT0p54 +
                                 SUSY_HLT_InclusiveHT_aux350 + 
                                 SUSY_HLT_InclusiveHT_aux600)
 
