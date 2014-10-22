@@ -118,13 +118,6 @@ int SiPixelDataQuality::getDetId(MonitorElement * mE)
   std::istringstream isst;
   isst.str(detIdString);
   isst>>detId;
-// } else {
-//  cout << ACYellow << ACBold
-//       << "[SiPixelInformationExtractor::getDetId()] "
-//       << ACPlain
-//       << "Could not extract detId from "
-//       << mEName
-//       << endl ;
  }
       
   return detId ;
@@ -147,13 +140,6 @@ void SiPixelDataQuality::bookGlobalQualityFlag(DQMStore * bei, bool Tier0Flag, i
   } 
   bei->setCurrentFolder("Pixel/EventInfo");
   if(!Tier0Flag){
-    /*SummaryReportMap = bei->book2D("reportSummaryMap","Pixel Summary Map",40,0.,40.,36,1.,37.);
-    SummaryReportMap->setAxisTitle("Pixel FED #",1);
-    SummaryReportMap->setAxisTitle("Pixel FED Channel #",2);
-    allmodsMap = new TH2F("allmodsMap","allmodsMap",40,0.,40.,36,1.,37.);
-    errmodsMap = new TH2F("errmodsMap","errmodsMap",40,0.,40.,36,1.,37.);
-    goodmodsMap = new TH2F("goodmodsMap","goodmodsMap",40,0.,40.,36,1.,37.);
-    */
     SummaryReportMap = bei->book2D("reportSummaryMap","Pixel Summary Map",3000,0.,3000.,40,0.,40.);
     SummaryReportMap->setAxisTitle("Lumi Section",1);
     SummaryReportMap->setAxisTitle("Pixel FED #",2);
@@ -277,14 +263,7 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
                                                            bool init,
 							   int nFEDs,
 							   bool Tier0Flag){
-//cout<<"entering SiPixelDataQuality::ComputeGlobalQualityFlag"<<endl;
-//   cout << ACRed << ACBold
-//        << "[SiPixelDataQuality::ComputeGlobalQualityFlag]"
-//        << ACPlain
-//        << " Enter" 
-//        << endl ;
   if(init){
-//cout<<"Entering SiPixelDataQuality::computeGlobalQualityFlag for the first time"<<endl;
     allMods_=0; errorMods_=0; qflag_=0.; 
     barrelMods_=0; endcapMods_=0;
     objectCount_=0;
@@ -304,7 +283,6 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
   
   string currDir = bei->pwd();
   string dname = currDir.substr(currDir.find_last_of("/")+1);
-//cout<<"currDir="<<currDir<<endl;
   
   if((!Tier0Flag && dname.find("Module_")!=string::npos) || 
      (Tier0Flag && (dname.find("Ladder_")!=string::npos || dname.find("Blade_")!=string::npos))){
@@ -317,17 +295,12 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
     vector<string> meVec = bei->getMEs();
     for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
       string full_path = currDir + "/" + (*it);
-      //cout<<"full_path:"<<full_path<<endl;
       if(full_path.find("ndigis_")!=string::npos){
-      //cout<<"found an ndigi histo now"<<endl;
         MonitorElement * me = bei->get(full_path);
         if(!me) continue;
-	//cout<<"got the histo now"<<endl;
         if(me->getEntries()>25){
-	//cout<<"histo has more than 50 entries"<<endl;
 	  if(full_path.find("Barrel")!=string::npos) digiCounterBarrel++;
 	  if(full_path.find("Endcap")!=string::npos) digiCounterEndcap++;
-	  //cout<<"counter are now: "<<digiCounterBarrel<<","<<digiCounterBarrelL1<<endl;
         }
       }else if(Tier0Flag && full_path.find("nclusters_OnTrack_")!=string::npos){
         MonitorElement * me = bei->get(full_path);
@@ -394,7 +367,6 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
     meName0 = "Pixel/Barrel/SUMDIG_ndigis_Barrel";
     if(digiCounterBarrel/768 > 0.5) digiStatsBarrel = true;
     if(digiCounterEndcap/672 > 0.5) digiStatsEndcap = true;
-    //cout<<"digiStatsBarrel="<<digiStatsBarrel<<" , digiStatsEndcap="<<digiStatsEndcap<<endl;
   }else{
     meName0 = "Pixel/Barrel/SUMOFF_ndigis_Barrel"; 
     if(digiCounterBarrel/192 > 0.5) digiStatsBarrel = true;
@@ -403,7 +375,6 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
   me = bei->get(meName0);
   if(me){
     NDigisBarrel = bei->get("Pixel/Barrel/BarrelNDigisCut");
-   // cout<<"NDigis: "<<NDigisBarrel<<" , "<<digiStatsBarrel<<" , "<<me->hasError()<<endl;
     if(NDigisBarrel && digiStatsBarrel){
       if(me->hasError()) NDigisBarrel->Fill(0);
       else NDigisBarrel->Fill(1); 
@@ -550,16 +521,12 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
     if(barrel_cuts_temp[k]>=0){
       numerator = numerator + barrel_cuts_temp[k];
       denominator++;
-      //cout<<"cut flag, Barrel: "<<k<<","<<barrel_cuts_temp[k]<<","<<numerator<<","<<denominator<<endl;
     }
   } 
   if(denominator!=0) combinedCuts = float(numerator)/float(denominator);  
   barrelFlag = barrel_errors_temp[0] * combinedCuts;
   
-  
-  //cout<<" the resulting barrel flag is: "<<barrel_errors_temp[0]<<"*"<<combinedCuts<<"="<<barrelFlag<<endl;
-  
-  // Endcap results:
+    // Endcap results:
   combinedCuts = 1.; numerator = 0; denominator = 0;
   me = bei->get("Pixel/Endcap/EndcapNErrorsCut");
   if(me) endcap_errors_temp[0] = me->getFloatValue();
@@ -577,12 +544,10 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
     if(endcap_cuts_temp[k]>=0){
       numerator = numerator + endcap_cuts_temp[k];
       denominator++;
-      //cout<<"cut flag, Endcap: "<<k<<","<<endcap_cuts_temp[k]<<","<<numerator<<","<<denominator<<endl;
     }
   } 
   if(denominator!=0) combinedCuts = float(numerator)/float(denominator);  
   endcapFlag = endcap_errors_temp[0] * combinedCuts;
-  //cout<<" the resulting endcap flag is: "<<endcap_errors_temp[0]<<"*"<<combinedCuts<<"="<<endcapFlag<<endl;
   
   // Track results:
   combinedCuts = 1.; numerator = 0; denominator = 0;
@@ -596,7 +561,6 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
       numerator = numerator + barrel_cuts_temp[k];
       denominator++;
     }
-    //cout<<"after barrel: num="<<numerator<<" , den="<<denominator<<endl;
     if(endcap_cuts_temp[k]>=0){
       numerator = numerator + endcap_cuts_temp[k];
       denominator++;
@@ -605,13 +569,11 @@ void SiPixelDataQuality::computeGlobalQualityFlag(DQMStore * bei,
       numerator = numerator + pixel_cuts_temp[k];
       denominator++;
     }
-    //cout<<"after both: num="<<numerator<<" , den="<<denominator<<endl;
   } 
   if(denominator!=0) combinedCuts = float(numerator)/float(denominator); 
   pixelFlag = float(pixel_error_flag_) * float(combinedCuts);
   
   
-  //cout<<"barrel, endcap, pixel flags: "<<barrelFlag<<","<<endcapFlag<<","<<pixelFlag<<endl;
   SummaryPixel = bei->get("Pixel/EventInfo/reportSummary");
   if(SummaryPixel) SummaryPixel->Fill(pixelFlag);
   SummaryBarrel = bei->get("Pixel/EventInfo/reportSummaryContents/PixelBarrelFraction");
@@ -630,13 +592,6 @@ void SiPixelDataQuality::computeGlobalQualityFlagByLumi(DQMStore * bei,
 							   int nEvents_lastLS_,
 							   int nErrorsBarrel_lastLS_,
 							   int nErrorsEndcap_lastLS_){
-//cout<<"entering SiPixelDataQuality::ComputeGlobalQualityFlagByLumi"<<endl;
-//   cout << ACRed << ACBold
-//        << "[SiPixelDataQuality::ComputeGlobalQualityFlag]"
-//        << ACPlain
-//        << " Enter" 
-//        << endl ;
-
   if(nFEDs==0) return;  
   
   // evaluate fatal FED errors for data quality:
@@ -645,15 +600,12 @@ void SiPixelDataQuality::computeGlobalQualityFlagByLumi(DQMStore * bei,
   float PixelRate_LS = 1.;
   MonitorElement * me = bei->get("Pixel/AdditionalPixelErrors/byLumiErrors");
   if(me){
-    //cout<<"NENTRIES: "<<me->getEntries()<<" "<<nEvents_lastLS_<<" "<<nErrorsBarrel_lastLS_<<" "<<nErrorsEndcap_lastLS_<<endl;
     double nBarrelErrors_LS = me->getBinContent(1) - nErrorsBarrel_lastLS_;
     double nEndcapErrors_LS = me->getBinContent(2) - nErrorsEndcap_lastLS_;
     double nEvents_LS = me->getBinContent(0) - nEvents_lastLS_;
-    //cout<<"BINS: "<<me->getBinContent(0)<<" "<<me->getBinContent(1)<<" "<<me->getBinContent(2)<<endl;
     if(nBarrelErrors_LS/nEvents_LS>0.5) BarrelRate_LS=0.;
     if(nEndcapErrors_LS/nEvents_LS>0.5) EndcapRate_LS=0.;
     if((nBarrelErrors_LS + nEndcapErrors_LS)/nEvents_LS>0.5) PixelRate_LS=0.;
-    //std::cout<<"nEvents_LS: "<<nEvents_LS<<" , nBarrelErrors_LS: "<<nBarrelErrors_LS<<" , nEndcapErrors_LS: "<<nEndcapErrors_LS<<" , BarrelRate_LS: "<<BarrelRate_LS<<" , EndcapRate_LS: "<<EndcapRate_LS<<" , PixelRate_LS: "<<PixelRate_LS<<std::endl;
   }
   
   // evaluate mean cluster charge on tracks for data quality:
@@ -662,13 +614,10 @@ void SiPixelDataQuality::computeGlobalQualityFlagByLumi(DQMStore * bei,
   float PixelClusterCharge = 1.;
   MonitorElement * me1 = bei->get("Pixel/Clusters/OnTrack/charge_siPixelClusters_Barrel");
   if(me1 && me1->getMean()<12.) BarrelClusterCharge = 0.;
-  //if(me1) cout<<"Mean cluster charge in Barrel: "<<me1->getMean()<<endl;
   MonitorElement * me2 = bei->get("Pixel/Clusters/OnTrack/charge_siPixelClusters_Endcap");
   if(me2 && me2->getMean()<12.) EndcapClusterCharge = 0.;
-  //if(me2) cout<<"Mean cluster charge in Endcap: "<<me2->getMean()<<endl;
   MonitorElement * me3 = bei->get("Pixel/Clusters/OnTrack/charge_siPixelClusters");
   if(me3 && me3->getMean()<12.) PixelClusterCharge = 0.;
-  //if(me3) cout<<"Mean cluster charge in Pixel: "<<me3->getMean()<<endl;
   
   // evaluate average FED occupancy for data quality:
   float BarrelOccupancy = 1.;
@@ -689,21 +638,17 @@ void SiPixelDataQuality::computeGlobalQualityFlagByLumi(DQMStore * bei,
       if(i>32 && me4->getBinContent(i)<minEndcapOcc) minEndcapOcc=me4->getBinContent(i); 
       if(i>32 && me4->getBinContent(i)>maxEndcapOcc) maxEndcapOcc=me4->getBinContent(i); 
       if(i>32) meanEndcapOcc+=me4->getBinContent(i);
-      //cout<<"OCCUPANCY: "<<i<<" "<<me4->getBinContent(i)<<" : "<<minBarrelOcc<<" "<<maxBarrelOcc<<" "<<minEndcapOcc<<" "<<maxEndcapOcc<<endl;
     } 
     meanBarrelOcc = meanBarrelOcc/32.;
     meanEndcapOcc = meanEndcapOcc/8.;
-    //cout<<"MEANS: "<<meanBarrelOcc<<" "<<meanEndcapOcc<<endl;
     if(minBarrelOcc<0.1*meanBarrelOcc || maxBarrelOcc>2.5*meanBarrelOcc) BarrelOccupancy=0.;
     if(minEndcapOcc<0.2*meanEndcapOcc || maxEndcapOcc>1.8*meanEndcapOcc) EndcapOccupancy=0.;
     PixelOccupancy=BarrelOccupancy*EndcapOccupancy;
-    //cout<<"Occupancies: "<<meanBarrelOcc<<" "<<meanEndcapOcc<<endl;
   }
   
   float pixelFlag = PixelRate_LS * PixelClusterCharge * PixelOccupancy;
   float barrelFlag = BarrelRate_LS * BarrelClusterCharge * BarrelOccupancy;
   float endcapFlag = EndcapRate_LS * EndcapClusterCharge * EndcapOccupancy;
-  //cout<<"barrel, endcap, pixel flags: "<<barrelFlag<<","<<endcapFlag<<","<<pixelFlag<<endl;
   SummaryPixel = bei->get("Pixel/EventInfo/reportSummary");
   if(SummaryPixel) SummaryPixel->Fill(pixelFlag);
   SummaryBarrel = bei->get("Pixel/EventInfo/reportSummaryContents/PixelBarrelFraction");
@@ -717,8 +662,6 @@ void SiPixelDataQuality::computeGlobalQualityFlagByLumi(DQMStore * bei,
 
 void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::EventSetup const& eSetup, int nFEDs, bool Tier0Flag, int lumisec){
 //std::cout<<"Entering SiPixelDataQuality::fillGlobalQualityPlot: "<<nFEDs<<std::endl;
-  //calculate eta and phi of the modules and fill a 2D plot:
-  //if(lastLS_<lumisec){ cout<<"lastLS_="<<lastLS_<<" ,lumisec="<<lumisec<<endl; lastLS_=lumisec; init=true; cout<<"init="<<init<<endl; }
   if(init){
     count=0; errcount=0;
     init=false;
@@ -731,7 +674,6 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
     modCounter_=0;
   if(!Tier0Flag){
     
-    //cout<<"RESETS"<<endl;
     //The plots that these Vecs are integrated throughout a run
     //So at each lumi section I save their last values (lastmods)
     //And then subtract them out later when filling the SummaryMap
@@ -756,200 +698,7 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
 // Fill Maps:
   // Online:    
   if(nFEDs==0) return;
-/*  if(!Tier0Flag){
-    eSetup.get<SiPixelFedCablingMapRcd>().get(theCablingMap);
-    string currDir = bei->pwd();
-    if(currDir.find("Reference")!=string::npos) return;
-    //cout<<"currDir="<<currDir<<endl;
-    string dname = currDir.substr(currDir.find_last_of("/")+1);
-    // find a detId for Blades and Ladders (first of the contained Modules!):
-    std::ifstream infile(edm::FileInPath("DQM/SiPixelMonitorClient/test/detId.dat").fullPath().c_str(),ios::in);
-    string I_name[1440];
-    int I_detId[1440];
-    int I_fedId[1440];
-    int I_linkId[1440];
-    int nModsInFile=0;
-    while(!infile.eof()) {
-      infile >> I_name[nModsInFile] >> I_detId[nModsInFile] >> I_fedId[nModsInFile] >> I_linkId[nModsInFile] ;
-      //cout<<I_name<<" "<<I_detId<<" "<<I_fedId<<" "<<I_linkId ;
-      //getline(infile,dummys); //necessary to reach end of record
-      infile.close();
-      nModsInFile++;
-    }
-    if(dname.find("Module_")!=string::npos && currDir.find("Reference")==string::npos){
-      vector<string> meVec = bei->getMEs();
-      int detId=-1; int fedId=-1; int linkId=-1;
-      for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
-        //checking for any digis or FED errors to decide if this module is in DAQ:  
-        string full_path = currDir + "/" + (*it);
-        //cout<<"path: "<<full_path<<" , detId= "<<detId<<endl;
-        if(detId==-1 && full_path.find("SUMOFF")==string::npos &&
-           (full_path.find("ndigis")!=string::npos && full_path.find("SUMDIG")==string::npos) && 
-	   (getDetId(bei->get(full_path)) > 100)){
-	  //cout<<"Got into the first ndigis or NErrors histogram!"<<endl;
-          MonitorElement * me = bei->get(full_path);
-          if (!me) continue;
-	  if((full_path.find("ndigis")!=string::npos)){ 
-	    modCounter_++;
-            detId = getDetId(me);
-            for(int fedid=0; fedid!=40; ++fedid){
-              SiPixelFrameConverter converter(theCablingMap.product(),fedid);
-	      uint32_t newDetId = detId;
-              if(converter.hasDetUnit(newDetId)){
-                fedId=fedid;
-                break;   
-              }
-            }
-            if(fedId==-1) continue; 
-            sipixelobjects::ElectronicIndex cabling; 
-            SiPixelFrameConverter formatter(theCablingMap.product(),fedId);
-            sipixelobjects::DetectorIndex detector = {detId, 1, 1};      
-	    formatter.toCabling(cabling,detector);
-            linkId = cabling.link;
-	    //cout<<"it has this FED ID and channel ID: "<<fedId<<" , "<<linkId<<endl;
-	    int NDigis = 0;
-	    if(full_path.find("ndigis")!=string::npos) NDigis = me->getEntries(); 
-	    float weight = (allmodsMap->GetBinContent(fedId+1,linkId))+NDigis;
-	    allmodsMap->Fill(fedId,linkId,weight);
-            static const char buf[] = "Pixel/AdditionalPixelErrors/FED_%d/FedChNErrArray_%d";
-            char fedplot[sizeof(buf)+4]; 
-            sprintf(fedplot,buf,fedId,linkId);
-	    me = bei->get(fedplot);
-	    int NErrors = 0;
-	    if(me) NErrors = me->getIntValue();
-	    //if(fedId==37&&linkId==5) std::cout<<"THIS CHANNEL: "<<fedplot<<" , "<<NErrors<<" , "<<bei->pwd()<<std::endl;
-	    if(NErrors>0) {errmodsMap->Fill(fedId,linkId,NErrors);} //if(fedId==37&&linkId==5) std::cout<<"filling errmodsMap now : "<<errmodsMap->GetBinContent(fedId+1,linkId)<<" , and: "<<NErrors<<std::endl;}
-	  }
-        }
-      }//end loop over MEs
-    }//end of module dir's
-    vector<string> subDirVec = bei->getSubdirs();  
-    for (vector<string>::const_iterator ic = subDirVec.begin();
-         ic != subDirVec.end(); ic++) {
-      bei->cd(*ic);
-      init=false;
-      fillGlobalQualityPlot(bei,init,eSetup,nFEDs,Tier0Flag);
-      bei->goUp();
-    }
-    if(modCounter_==1440){
-      bei->cd("Pixel/EventInfo/reportSummaryContents");
-      //cout<<"B: Loop over all modules is done, now I am in    "<<bei->pwd()<<"     and currDir is    "<<currDir<<endl;
-      if(bei->pwd()=="Pixel/EventInfo/reportSummaryContents"){
-        SummaryReportMap = bei->get("Pixel/EventInfo/reportSummaryMap");
-        if(SummaryReportMap){ 
-          float contents=0.;
-          for(int i=0; i!=40; i++)for(int j=1; j!=37; j++){
-            //cout<<"bin: "<<i<<","<<j<<endl;
-            if((allmodsMap->GetBinContent(i+1,j)) + (errmodsMap->GetBinContent(i+1,j)) > 0){
-              contents = (allmodsMap->GetBinContent(i+1,j))/((allmodsMap->GetBinContent(i+1,j))+(errmodsMap->GetBinContent(i+1,j)));
-            }else{
-              contents = -1.;
-            }
-            //if(contents>=0.&&contents<0.8) std::cout<<"HERE: "<<i<<" , "<<j<<" , "<<allmodsMap->GetBinContent(i+1,j)<<" , "<<errmodsMap->GetBinContent(i+1,j)<<std::endl;
-            if(i==13&&j==17&&contents>0) count1++;
-            if(i==13&&j==18&&contents>0) count2++;
-            if(i==15&&j==5&&contents>0) count3++;
-            if(i==15&&j==6&&contents>0) count4++;
-            //cout<<"\t\t MAP: "<<i<<","<<j<<","<<contents<<endl;
-            if(((i==0||i==2||i==3||i==5||i==11||i==8)&&(j==1||j==8||j==13||j==17||j==20))||
-               ((i==1||i==9||i==10||i==13)&&(j==1||j==5||j==8||j==20||j==22))||
-               ((i==4||i==12)&&(j==5||j==10||j==13||j==17||j==22))||
-               ((i==2||i==5||i==6||i==7||i==14)&&(j==5||j==10||j==22))||
-               ((i==7||i==10)&&(j==13||j==17))||
-               ((i==6||i==14)&&(j==1||j==20))||
-               ((i==10||i==13)&&(j==10))||
-               ((i==4||i==12)&&(j==2))||
-               ((i==14)&&(j==15))){
-              SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j+1));
-            }else if(((i==16||i==19||i==21||i==24||i==26||i==27||i==29)&&(j==2||j==9||j==14||j==18||j==21))||
-               ((i==17||i==18||i==25)&&(j==2||j==6||j==9||j==21||j==23))||
-               ((i==20||i==23||i==28||i==31)&&(j==6||j==11||j==14||j==18||j==23))||
-               ((i==21||i==22||i==26||i==29||i==30)&&(j==6||j==11||j==23))||
-               ((i==18)&&(j==14||j==18))||
-               ((i==22||i==30)&&(j==2||j==21))||
-               ((i==18)&&(j==11))||
-               ((i==17||i==25)&&(j==16))||
-               ((i==19||i==27)&&(j==5))){
-              SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j-1));
-            }else if(i==6&&(j==14||j==15)){
-              SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j+2));
-            }else if((i==14)&&j==14){
-              SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j+3));
-            }else if((i==17||i==25)&&j==17){
-              SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j-3));
-            }else if(((i==0||i==2||i==3||i==5||i==8||i==10||i==11||i==13)&&(j==3||j==15))||
-        	     ((i==1||i==9)&&j==3)||
-        	     ((i==7||i==12||i==15)&&j==15)){
-              SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j+4));
-            }else if(((i==16||i==18||i==19||i==21||i==24||i==26||i==27||i==29)&&(j==7||j==19))||
-        	     ((i==17||i==25)&&j==7)||
-        	     ((i==20||i==23||i==28||i==31)&&j==19)){
-              SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j-4));
-            }else if((i==6||i==14)&&(j==13||j==19)){
-              SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j+5));
-            }else if((i==17||i==25)&&(j==18||j==24)){
-              SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j-5));
-            }else if(((i==4||i==12)&&j==1)||
-        	     ((i==3||i==11)&&j==6)){
-              SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j+6));
-            }else if((i==9||i==1)&&j==4){
-              SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j+8));
-            }else if((i==17||i==25)&&j==12){
-              SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j-8));
-            }else if(((i==20||i==28)&&j==20)||
-        	     ((i==19||i==27)&&j==22)){
-              SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j-11));
-            }else if(((i==20||i==28)&&j==21)||
-        	     ((i==19||i==27)&&j==23)){
-              SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j-13));
-            }else{
-              SummaryReportMap->setBinContent(i+1,j,contents);
-            }
-          }//end for loop over summaryReportMap bins
-          for(int i=0; i!=40; i++)for(int j=1; j!=37; j++){ // catch the last few holes...
-            if(((i==2||i==4||i==5||i==6||i==7||i==10||i==12||i==13||i==14||i==15)&&j==12)||
-               ((i==0||i==2||i==3||i==4||i==5||i==7||i==8||i==10||i==11||i==12||i==13||i==15)&&j==24)){
-              SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j-8));
-            }else if(((i==18||i==20||i==21||i==22||i==23||i==26||i==28||i==29||i==30||i==31)&&j==4)||
-               ((i==16||i==18||i==19||i==20||i==21||i==23||i==24||i==26||i==27||i==28||i==29||i==31)&&j==16)){
-              SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j+8));
-            }else if(((i==6||i==14)&&j==9)||
-        	     ((i==3||i==11)&&j==5)||
-        	     ((i==1||i==9)&&(j==11||j==16))){
-              SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j-1));
-            }else if(((i==17||i==25)&&j==10)||
-        	     ((i==22||i==30)&&(j==8||j==15))||
-        	     ((i==20||i==28)&&(j==2))){
-              SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j+1));
-            }else if((i==1||i==9)&&j==17){
-              SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j-3));
-            }else if((i==22||i==30)&&j==14){
-              SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j+3));
-            }else if((i==6||i==14)&&j==7){
-              SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j-4));
-            }else if((i==22||i==30)&&j==3){
-              SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j+4));
-            }else if((i==1||i==9)&&(j==18||j==24)){
-              SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j-5));
-            }else if((i==22||i==30)&&(j==13||j==19)){
-              SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j+5));
-            }else if(((i==20||i==28)&&j==1)||
-        	     ((i==19||i==27)&&j==6)){
-              SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j+6));
-            }else if(((i==4||i==12)&&j==20)||
-        	     ((i==3||i==11)&&j==22)){
-              SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j-11));
-            }else if(((i==4||i==12)&&j==21)||
-        	     ((i==3||i==11)&&j==23)){
-              SummaryReportMap->setBinContent(i+1,j,SummaryReportMap->getBinContent(i+1,j-13));
-            }
-          }//end of loop over bins
-          //std::cout<<"COUNTERS: "<<count1<<" , "<<count2<<" , "<<count3<<" , "<<count4<<" , "<<count5<<" , "<<count6<<std::endl;
-        }//end if reportSummaryMap ME exists
-      }//end if in summary directory
-    }//end if modCounter_  
-*/
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  
+
   if(!Tier0Flag){
     //Not elegant, but not sure where else to put this sweet new plot!
     MonitorElement * meTmp = bei->get("Pixel/Barrel/NClustertoChargeRatio_AllMod");
@@ -999,7 +748,6 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
     eSetup.get<SiPixelFedCablingMapRcd>().get(theCablingMap);
     string currDir = bei->pwd();
     if(currDir.find("Reference")!=string::npos || currDir.find("Additional")!=string::npos) return;
-    //cout<<"currDir="<<currDir<<endl;
     string dname = currDir.substr(currDir.find_last_of("/")+1);
     if(dname.find("Module_")!=string::npos && currDir.find("Reference")==string::npos){
       vector<string> meVec = bei->getMEs();
@@ -1026,17 +774,11 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
 	    double NDigis = 0;
 	    if(full_path.find("ndigis")!=string::npos) NDigis = me->getEntries(); 
 	    float weight = (allmodsVec->GetBinContent(fedId+1))+NDigis;
-	    //cout<<"DIGIS: "<<currDir<<" , "<<fedId<<" , "<<weight<<" , "<<NDigis<<endl;
 	    allmodsVec->SetBinContent(fedId+1,weight);
-	    //cout<<"\t filled: "<<allmodsVec->GetBinContent(fedId+1,weight)<<endl;
 	  }
         }
       }//end loop over MEs
     }//end of module dir's
-    //if(currDir.find("FED_")!=std::string::npos){
-      //fillGlobalQualityPlot(bei,init,eSetup,nFEDs,Tier0Flag,lumisec);
-      //bei->goUp();
-    //}
     vector<string> subDirVec = bei->getSubdirs();  
     for (vector<string>::const_iterator ic = subDirVec.begin();
          ic != subDirVec.end(); ic++) {
@@ -1045,7 +787,6 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
       fillGlobalQualityPlot(bei,init,eSetup,nFEDs,Tier0Flag,lumisec);
       bei->goUp();
     }
-    //cout<<"modCounter_: "<<modCounter_<<" , "<<bei->pwd()<<endl;
     if(modCounter_==1440){
       bei->cd("Pixel/EventInfo/reportSummaryContents");
       if(bei->pwd()=="Pixel/EventInfo/reportSummaryContents"){
@@ -1059,7 +800,6 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
 	    if(me) NErrors = NErrors + me->getBinContent(j+1);
 	  }
 	  //If I fill, then I end up majorly overcounting the numbers of errors...
-	  //if(NErrors>0){ errmodsVec->Fill(i,NErrors); } 
 	  if(NErrors>0){ errmodsVec->SetBinContent(i+1,NErrors); } 
 	}
         SummaryReportMap = bei->get("Pixel/EventInfo/reportSummaryMap");
@@ -1072,7 +812,6 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
             float myerrs  = errmodsVec->GetBinContent(i) - lasterrmods_[i-1];
 	    if ((mydigis + myerrs) > 0.){
 	      contents = mydigis/(mydigis + myerrs);
-	      //std::cout<<"Fed: "<<i-1<<" , nevents: "<<nevents<<" , ndigis: "<< mydigis <<" , nerrors: "<< myerrs << " , contents: " << contents << std::endl;
             }else{
 	      //Changed so that dynamic zooming will still
 	      //advance over these bins(in renderplugins)
@@ -1118,7 +857,6 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
     for(int j=2; j!=7; j++){
       SummaryReportMap->setBinContent(1,j,barrel_cuts_temp[j-2]);
       SummaryReportMap->setBinContent(2,j,endcap_cuts_temp[j-2]);
-      //cout<<"error cut values: "<<j<<" , "<<barrel_cuts_temp[j-2]<<" , "<<endcap_cuts_temp[j-2]<<endl;
     }
     me = bei->get("Pixel/Tracks/PixelTracksCut");
     if(me) pixel_cuts_temp[0] = me->getIntValue();  

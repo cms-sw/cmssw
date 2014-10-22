@@ -158,19 +158,13 @@ void SiPixelActionExecutor::createTkMap(DQMStore* bei,
 	
   SiPixelTrackerMapCreator tkmap_creator(mEName,theTKType,offlineXMLfile_);
   tkmap_creator.create(bei);
-	
-/*     cout << ACYellow << ACBold 
-  	  << "[SiPixelActionExecutor::createTkMap()]"
-  	  << ACPlain
-  	  << " Tracker map created (type:" 
-  	  << theTKType
-  	  << ")"
-  	  << endl;
-*/
+
 }
 
 //=============================================================================================================
 void SiPixelActionExecutor::createSummary(DQMStore* bei, bool isUpgrade) {
+  //To be majorly overhauled and split into two, I guess.
+
   //cout<<"entering SiPixelActionExecutor::createSummary..."<<endl;
   string barrel_structure_name;
   vector<string> barrel_me_names;
@@ -203,12 +197,10 @@ void SiPixelActionExecutor::createSummary(DQMStore* bei, bool isUpgrade) {
 //  cout << "--- Processing endcap" << endl;
 
   bei->setCurrentFolder("Pixel/");
-  //bei->cd();
+
   fillSummary(bei, endcap_structure_name, endcap_me_names, false, isUpgrade); // Endcap
   bei->setCurrentFolder("Pixel/");
-  //if(!Tier0Flag_) fillDeviations(bei);
-  bei->setCurrentFolder("Pixel/");
-  //bei->cd();
+
   if(source_type_==0||source_type_==5 || source_type_ == 20){//do this only if RawData source is present
     string federror_structure_name;
     vector<string> federror_me_names;
@@ -217,14 +209,10 @@ void SiPixelActionExecutor::createSummary(DQMStore* bei, bool isUpgrade) {
       return;
     }
     bei->setCurrentFolder("Pixel/");
-    //bei->cd();
+
     fillFEDErrorSummary(bei, federror_structure_name, federror_me_names);
     bei->setCurrentFolder("Pixel/");
-    //bei->cd();
   }
-  //createLayout(bei);
-  //string fname = "test.xml";
-  // configWriter_->write(fname);
   if (configWriter_) delete configWriter_;
   configWriter_ = 0;
 //  cout<<"leaving SiPixelActionExecutor::createSummary..."<<endl;
@@ -376,19 +364,17 @@ void SiPixelActionExecutor::fillDeviations(DQMStore* bei) {
 //=============================================================================================================
 
 void SiPixelActionExecutor::GetBladeSubdirs(DQMStore* bei, vector<string>& blade_subdirs) {
+
 	blade_subdirs.clear();
-//	cout << "BladeSubdirs::" << bei->pwd() << endl;
 	vector<string> panels = bei->getSubdirs();
 	vector<string> modules;
 	for (vector<string>::const_iterator it = panels.begin(); it != panels.end(); it++) {
 		bei->cd(*it);
 		modules = bei->getSubdirs();
 		for (vector<string>::const_iterator m_it = modules.begin(); m_it != modules.end(); m_it++) {
-//			cout << "Would have added " << (*m_it) << "." << endl;
 			blade_subdirs.push_back(*m_it);
 		}
 	}
-//	cout << "Got Blade subdirs" << endl;
 }
 
 
@@ -400,7 +386,6 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
 
   //cout<<"entering SiPixelActionExecutor::fillSummary..."<<endl;
   string currDir = bei->pwd();
-  //cout<<"currDir= "<<currDir<<endl;
   string prefix;
   if(source_type_==0) prefix="SUMRAW";
   else if (source_type_==1) prefix="SUMDIG";
@@ -514,8 +499,8 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
       return;
     }
     vector<string> subdirs = bei->getSubdirs();
-//Blade
-  if(dir_name.find("Blade_") == 0) GetBladeSubdirs(bei, subdirs);
+    //Blade
+    if(dir_name.find("Blade_") == 0) GetBladeSubdirs(bei, subdirs);
 	
     int ndet = 0;
     for (vector<string>::const_iterator it = subdirs.begin();
@@ -526,41 +511,38 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
       ndet++;
 
       vector<string> contents = bei->getMEs(); 
-			
-			for (vector<MonitorElement*>::const_iterator isum = sum_mes.begin();
-				 isum != sum_mes.end(); isum++) {
-				for (vector<string>::const_iterator im = contents.begin();
-					 im != contents.end(); im++) {
-					string sname = ((*isum)->getName());
-					string tname = " ";
-					tname = sname.substr(7,(sname.find("_",7)-6));
-					if(sname.find("ALLMODS_adcCOMB_")!=string::npos) tname = "adc_";
-					if(sname.find("ALLMODS_chargeCOMB_")!=string::npos) tname = "charge_";
-					if(sname.find("_charge_")!=string::npos && sname.find("Track_")==string::npos) tname = "charge_";
-					if(sname.find("_nclusters_")!=string::npos && sname.find("Track_")==string::npos) tname = "nclusters_";
-					if(sname.find("_size_")!=string::npos && sname.find("Track_")==string::npos) tname = "size_";
-					if(sname.find("_charge_OffTrack_")!=string::npos) tname = "charge_OffTrack_";
-					if(sname.find("_nclusters_OffTrack_")!=string::npos) tname = "nclusters_OffTrack_";
-					if(sname.find("_size_OffTrack_")!=string::npos) tname = "size_OffTrack_";
-					if(sname.find("_sizeX_OffTrack_")!=string::npos) tname = "sizeX_OffTrack_";
-					if(sname.find("_sizeY_OffTrack_")!=string::npos) tname = "sizeY_OffTrack_";
-					if(sname.find("_charge_OnTrack_")!=string::npos) tname = "charge_OnTrack_";
-					if(sname.find("_nclusters_OnTrack_")!=string::npos) tname = "nclusters_OnTrack_";
-					if(sname.find("_size_OnTrack_")!=string::npos) tname = "size_OnTrack_";
-					if(sname.find("_sizeX_OnTrack_")!=string::npos) tname = "sizeX_OnTrack_";
-					if(sname.find("_sizeY_OnTrack_")!=string::npos) tname = "sizeY_OnTrack_";
-					//if(sname.find("ALLMODS")!=string::npos) cout<<"sname and tname= "<<sname<<","<<tname<<endl;
-					if(tname.find("FREQ")!=string::npos) tname = "ndigis_";
-					if (((*im)).find(tname) == 0) {
-						string fullpathname = bei->pwd() + "/" + (*im); 
-					//cout<<"!!!!!!!!!!!!!!!!!!!!!!SNAME= "<<sname<<endl;	
+      
+      for (vector<MonitorElement*>::const_iterator isum = sum_mes.begin();
+	   isum != sum_mes.end(); isum++) {
+	for (vector<string>::const_iterator im = contents.begin();
+	     im != contents.end(); im++) {
+	  string sname = ((*isum)->getName());
+	  string tname = " ";
+	  tname = sname.substr(7,(sname.find("_",7)-6));
+	  if(sname.find("ALLMODS_adcCOMB_")!=string::npos) tname = "adc_";
+	  if(sname.find("ALLMODS_chargeCOMB_")!=string::npos) tname = "charge_";
+	  if(sname.find("_charge_")!=string::npos && sname.find("Track_")==string::npos) tname = "charge_";
+	  if(sname.find("_nclusters_")!=string::npos && sname.find("Track_")==string::npos) tname = "nclusters_";
+	  if(sname.find("_size_")!=string::npos && sname.find("Track_")==string::npos) tname = "size_";
+	  if(sname.find("_charge_OffTrack_")!=string::npos) tname = "charge_OffTrack_";
+	  if(sname.find("_nclusters_OffTrack_")!=string::npos) tname = "nclusters_OffTrack_";
+	  if(sname.find("_size_OffTrack_")!=string::npos) tname = "size_OffTrack_";
+	  if(sname.find("_sizeX_OffTrack_")!=string::npos) tname = "sizeX_OffTrack_";
+	  if(sname.find("_sizeY_OffTrack_")!=string::npos) tname = "sizeY_OffTrack_";
+	  if(sname.find("_charge_OnTrack_")!=string::npos) tname = "charge_OnTrack_";
+	  if(sname.find("_nclusters_OnTrack_")!=string::npos) tname = "nclusters_OnTrack_";
+	  if(sname.find("_size_OnTrack_")!=string::npos) tname = "size_OnTrack_";
+	  if(sname.find("_sizeX_OnTrack_")!=string::npos) tname = "sizeX_OnTrack_";
+	  if(sname.find("_sizeY_OnTrack_")!=string::npos) tname = "sizeY_OnTrack_";
+	  if(tname.find("FREQ")!=string::npos) tname = "ndigis_";
+	  if (((*im)).find(tname) == 0) {
+	    string fullpathname = bei->pwd() + "/" + (*im); 
 	    MonitorElement *  me = bei->get(fullpathname);
-
+	    
 	    if (me){ 
 	      if(sname.find("_charge")!=string::npos && sname.find("Track_")==string::npos && me->getName().find("Track_")!=string::npos) continue;
 	      if(sname.find("_nclusters_")!=string::npos && sname.find("Track_")==string::npos && me->getName().find("Track_")!=string::npos) continue;
 	      if(sname.find("_size")!=string::npos && sname.find("Track_")==string::npos && me->getName().find("Track_")!=string::npos) continue;
-//cout<<"tell me the sname and me name: "<<sname<<" , "<<me->getName()<<endl;
 	      // fill summary histos:
 	      if (sname.find("_RMS_")!=string::npos && 
 		  sname.find("GainDynamicRange2d")==string::npos && 
@@ -573,17 +555,15 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
 		  SumOfEntries+=me->getBinContent(cols,rows);
 		  SumOfSquaredEntries+=(me->getBinContent(cols,rows))*(me->getBinContent(cols,rows));
 		  SumOfPixels++;
-		}
+		  }
 
 		float MeanInZ = SumOfEntries / float(SumOfPixels);
 		float RMSInZ = sqrt(SumOfSquaredEntries/float(SumOfPixels));
 		if(sname.find("_mean_")!=string::npos) (*isum)->Fill(ndet, MeanInZ);
 		if(sname.find("_RMS_")!=string::npos) (*isum)->Fill(ndet, RMSInZ);
 	      }else if (sname.find("_FracOfPerfectPix_")!=string::npos){
-		//printing cout<<"nbins = "<<me->getNbinsX()<<" , "<<me->getBinContent(me->getNbinsX()-1)<<" , "<<me->getBinContent(me->getNbinsX())<<endl;
 		float nlast = me->getBinContent(me->getNbinsX());
 		float nall = (me->getTH1F())->Integral(1,11);
-		//printing cout << nall << endl;
 		(*isum)->Fill(ndet, nlast/nall);
 	      }else if (sname.find("_NCalibErrors_")!=string::npos ||
 			sname.find("FREQ_")!=string::npos){
@@ -637,7 +617,6 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
 	        (*isum)->Fill(ndet, me->getMean());
 	      }else if(sname.find("_charge_")==string::npos && sname.find("_nclusters_")==string::npos && sname.find("_size")==string::npos){
 		(*isum)->Fill(ndet, me->getMean());
-		//std::cout<<bei->pwd()<<"/"<<(*isum)->getName()<<" , "<<ndet<<" , "<<me->getMean()<<" , "<<(*isum)->getBinContent(ndet)<<std::endl;
 	      }
 	      
 	      // set titles:
@@ -713,7 +692,6 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
 			
 	for (vector<string>::const_iterator it = subdirs.begin();
 	     it != subdirs.end(); it++) {
-	  //				 cout << "##\t" << bei->pwd() << "\t" << (*it) << endl;
 	  if((bei->pwd()).find("Barrel")!=string::npos ||
 	     (bei->pwd()).find("AdditionalPixelErrors")!=string::npos) bei->goUp();
 	  bei->cd((*it));
@@ -734,9 +712,6 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
       }
   }
 //  cout<<"...leaving SiPixelActionExecutor::fillSummary!"<<endl;
-	
-  // End of cleanup
-	
 	
 }
 
@@ -915,7 +890,6 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
   string currDir = bei->pwd();
   string path_name = bei->pwd();
   string dir_name =  path_name.substr(path_name.find_last_of("/")+1);
-//  cout<<"I am in "<<path_name<<" now."<<endl;
   if ((dir_name.find("DQMData") == 0) ||
       (dir_name.find("Pixel") == 0) ||
       (dir_name.find("AdditionalPixelErrors") == 0) ||
@@ -936,32 +910,28 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
        it != subdirs.end(); it++) {
     cnt++;
     bei->cd(*it);
-//    cout << "--- " << cnt << "\t" << bei->pwd() << endl;
     vector<string> contents = bei->getMEs();
 		
     bei->goUp();
 		
-		string prefix;
-		if(source_type_==0) prefix="SUMRAW";
-		else if (source_type_==1) prefix="SUMDIG";
-		else if (source_type_==2) prefix="SUMCLU";
-		else if (source_type_==3) prefix="SUMTRK";
-		else if (source_type_==4) prefix="SUMHIT";
-		else if (source_type_>=7 && source_type_<20) prefix="SUMCAL";
-		else if (source_type_==20) prefix="SUMOFF";
-
+    string prefix;
+    if(source_type_==0) prefix="SUMRAW";
+    else if (source_type_==1) prefix="SUMDIG";
+    else if (source_type_==2) prefix="SUMCLU";
+    else if (source_type_==3) prefix="SUMTRK";
+    else if (source_type_==4) prefix="SUMHIT";
+    else if (source_type_>=7 && source_type_<20) prefix="SUMCAL";
+    else if (source_type_==20) prefix="SUMOFF";
+    
 		
     for (vector<string>::const_iterator im = contents.begin();
 	 im != contents.end(); im++) {
-//      cout<<"A: iterating over "<<(*im)<<" now:"<<endl;
       for (vector<string>::const_iterator iv = me_names.begin();
 	   iv != me_names.end(); iv++) {
 	string var = "_" + (*iv) + "_";
-//	cout<<"\t B: iterating over "<<(*iv)<<" now, var is set to: "<<var<<endl;
 	if ((*im).find(var) != string::npos) {
 	  if((var=="_charge_" || var=="_nclusters_" || var=="_size_" || var=="_sizeX_" || var=="_sizeY_") && 
 	     (*im).find("Track_")!=string::npos) continue;
-//	  cout << "Looking into " << (*iv) << endl;
 	  string full_path = (*it) + "/" +(*im);
 	  MonitorElement * me = bei->get(full_path.c_str());
 	  if (!me) continue; 
@@ -1004,14 +974,7 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
 	      prefix="SUMCAL";
 	  } // end source_type if
 	  
-	  // bugfix: gsum_mes is filled using the contents of me_names. Proceeding with each entry in me_names.
-      /*
-	  int actual_size = gsum_mes.size();
-	  int wanted_size = me_names.size();
-	  // printing cout << actual_size << "\t" << wanted_size << endl;
-	  if (actual_size !=  wanted_size) { */
 	  if (first_subdir && !isUpgrade){
-//	    bool create_me = true;
 	    nbin = me->getTH1F()->GetNbinsX();        
 	    string me_name = prefix + "_" + (*iv) + "_" + dir_name;
 	    if((*iv)=="adcCOMB"||(*iv)=="chargeCOMB") me_name = "ALLMODS_" + (*iv) + "_" + dir_name;
@@ -1024,7 +987,6 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
 
 		getGrandSummaryME(bei, nbin, me_name, gsum_mes);
 	  } else if (first_subdir && isUpgrade){
-//	    bool create_me = true;
 	    nbin = me->getTH1F()->GetNbinsX();        
 	    string me_name = prefix + "_" + (*iv) + "_" + dir_name;
 	    if((*iv)=="adcCOMB"||(*iv)=="chargeCOMB") me_name = "ALLMODS_" + (*iv) + "_" + dir_name;
@@ -1037,25 +999,10 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
 
 		getGrandSummaryME(bei, nbin, me_name, gsum_mes);
 	  }
-	  /*
-	    for (vector<MonitorElement*>::const_iterator igm = gsum_mes.begin();
-		 igm !=gsum_mes.end(); igm++) { 
-	      // To be further optimized
-	      if( (*iv).find("Clust") != string::npos && (*igm)->getName().find(me_name) != string::npos ) create_me = false; //cout << "Already have it" << endl;
-	    }
-	  
-	    // printing cout<<"me_name to be created= "<<me_name<<endl;
-	    if(create_me) getGrandSummaryME(bei, nbin, me_name, gsum_mes);
-	  }
-	  */
-	  // end bugfix: gsum_mes.
-
 
 	  for (vector<MonitorElement*>::const_iterator igm = gsum_mes.begin();
 	       igm != gsum_mes.end(); igm++) {
-//	    cout<<"\t \t C: iterating over "<<(*igm)->getName()<<" now:"<<endl;
 	    if ((*igm)->getName().find(var) != string::npos) {
-//	      cout<<"\t \t D: Have the correct var now!"<<endl;
 	      if(prefix=="SUMOFF") (*igm)->setAxisTitle("Ladders",1);
 	      else if((*igm)->getName().find("adcCOMB_")!=string::npos) (*igm)->setAxisTitle("Digi charge [ADC]",1);
 	      else if((*igm)->getName().find("chargeCOMB_")!=string::npos) (*igm)->setAxisTitle("Cluster charge [kilo electrons]",1);
@@ -1144,34 +1091,34 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
 		  }
 	        }
 	      }
-
-			if((*igm)->getName().find("ndigisFREQ")==string::npos)
-			{ 
-				if(((*igm)->getName().find("adcCOMB")!=string::npos && me->getName().find("adcCOMB")!=string::npos) 
-						|| ((*igm)->getName().find("chargeCOMB")!=string::npos && me->getName().find("chargeCOMB")!=string::npos))
-				{
-					(*igm)->getTH1F()->Add(me->getTH1F());
-				}else if(((*igm)->getName().find("charge_")!=string::npos && (*igm)->getName().find("Track_")==string::npos && 
-				          me->getName().find("charge_")!=string::npos && me->getName().find("Track_")==string::npos) || 
-					 ((*igm)->getName().find("nclusters_")!=string::npos && (*igm)->getName().find("Track_")==string::npos && 
-				          me->getName().find("nclusters_")!=string::npos && me->getName().find("Track_")==string::npos) || 
-					 ((*igm)->getName().find("size_")!=string::npos && (*igm)->getName().find("Track_")==string::npos && 
-				          me->getName().find("size_")!=string::npos && me->getName().find("Track_")==string::npos) || 
-					 ((*igm)->getName().find("charge_OffTrack_")!=string::npos && me->getName().find("charge_OffTrack_")!=string::npos) || 
-					 ((*igm)->getName().find("nclusters_OffTrack_")!=string::npos && me->getName().find("nclusters_OffTrack_")!=string::npos) || 
-					 ((*igm)->getName().find("size_OffTrack_")!=string::npos && me->getName().find("size_OffTrack_")!=string::npos) || 
-					 ((*igm)->getName().find("charge_OnTrack_")!=string::npos && me->getName().find("charge_OnTrack_")!=string::npos) || 
-					 ((*igm)->getName().find("nclusters_OnTrack_")!=string::npos && me->getName().find("nclusters_OnTrack_")!=string::npos) || 
-					 ((*igm)->getName().find("size_OnTrack_")!=string::npos && me->getName().find("size_OnTrack_")!=string::npos) || 
-				         ((*igm)->getName().find("charge_")==string::npos && (*igm)->getName().find("nclusters_")==string::npos && 
-					  (*igm)->getName().find("size_")==string::npos)){
-					for (int k = 1; k < nbin_subdir+1; k++) if(me->getBinContent(k) > 0) (*igm)->setBinContent(k+nbin_i, me->getBinContent(k));
-				}
-			}
-			else if(me->getName().find("ndigisFREQ")!=string::npos)
-			{
-				for (int k = 1; k < nbin_subdir+1; k++) if(me->getBinContent(k) > 0) (*igm)->setBinContent(k+nbin_i, me->getBinContent(k));
-			}
+	      
+	      if((*igm)->getName().find("ndigisFREQ")==string::npos)
+		{ 
+		  if(((*igm)->getName().find("adcCOMB")!=string::npos && me->getName().find("adcCOMB")!=string::npos) 
+		     || ((*igm)->getName().find("chargeCOMB")!=string::npos && me->getName().find("chargeCOMB")!=string::npos))
+		    {
+		      (*igm)->getTH1F()->Add(me->getTH1F());
+		    }else if(((*igm)->getName().find("charge_")!=string::npos && (*igm)->getName().find("Track_")==string::npos && 
+			      me->getName().find("charge_")!=string::npos && me->getName().find("Track_")==string::npos) || 
+			     ((*igm)->getName().find("nclusters_")!=string::npos && (*igm)->getName().find("Track_")==string::npos && 
+			      me->getName().find("nclusters_")!=string::npos && me->getName().find("Track_")==string::npos) || 
+			     ((*igm)->getName().find("size_")!=string::npos && (*igm)->getName().find("Track_")==string::npos && 
+			      me->getName().find("size_")!=string::npos && me->getName().find("Track_")==string::npos) || 
+			     ((*igm)->getName().find("charge_OffTrack_")!=string::npos && me->getName().find("charge_OffTrack_")!=string::npos) || 
+			     ((*igm)->getName().find("nclusters_OffTrack_")!=string::npos && me->getName().find("nclusters_OffTrack_")!=string::npos) || 
+			     ((*igm)->getName().find("size_OffTrack_")!=string::npos && me->getName().find("size_OffTrack_")!=string::npos) || 
+			     ((*igm)->getName().find("charge_OnTrack_")!=string::npos && me->getName().find("charge_OnTrack_")!=string::npos) || 
+			     ((*igm)->getName().find("nclusters_OnTrack_")!=string::npos && me->getName().find("nclusters_OnTrack_")!=string::npos) || 
+			     ((*igm)->getName().find("size_OnTrack_")!=string::npos && me->getName().find("size_OnTrack_")!=string::npos) || 
+			     ((*igm)->getName().find("charge_")==string::npos && (*igm)->getName().find("nclusters_")==string::npos && 
+			      (*igm)->getName().find("size_")==string::npos)){
+		    for (int k = 1; k < nbin_subdir+1; k++) if(me->getBinContent(k) > 0) (*igm)->setBinContent(k+nbin_i, me->getBinContent(k));
+		  }
+		}
+	      else if(me->getName().find("ndigisFREQ")!=string::npos)
+		{
+		  for (int k = 1; k < nbin_subdir+1; k++) if(me->getBinContent(k) > 0) (*igm)->setBinContent(k+nbin_i, me->getBinContent(k));
+		}
 	    } // end var in igm (gsum_mes)
 	  } // end igm loop
 	} // end var in im (contents)
@@ -1272,13 +1219,7 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 	      prefix="SUMCAL"; 
 	  }
 
-	  // bugfix: gsum_mes is filled using the contents of me_names. Proceeding with each entry in me_names.
-	  /*
-	  int actual_size = gsum_mes.size();
-	  int wanted_size = me_names.size();
-	  if (actual_size !=  wanted_size) { */
 	  if (first_subdir && !isUpgrade){
-//	    bool create_me = true;
 	    nbin = me->getTH1F()->GetNbinsX();        
 	    string me_name = prefix + "_" + (*iv) + "_" + dir_name;
 	    if((*iv)=="adcCOMB"||(*iv)=="chargeCOMB") me_name = "ALLMODS_" + (*iv) + "_" + dir_name;
@@ -1289,10 +1230,7 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 	    else if(prefix=="SUMOFF" && dir_name.find("Disk")!=string::npos) nbin=12;
 	    else if(dir_name.find("Disk")!=string::npos) nbin=84;
 	    else if(dir_name.find("Blade")!=string::npos) nbin=7;
-	    //else if(dir_name.find("Panel_1")!=string::npos) nbin=4;
-	    //else if(dir_name.find("Panel_2")!=string::npos) nbin=3;
-		//cout << dir_name.c_str() << "\t" << nbin << endl;
-		getGrandSummaryME(bei, nbin, me_name, gsum_mes);
+	    getGrandSummaryME(bei, nbin, me_name, gsum_mes);
 	  } else if(first_subdir && isUpgrade){
             nbin = me->getTH1F()->GetNbinsX();        
 	    string me_name = prefix + "_" + (*iv) + "_" + dir_name;
@@ -1306,19 +1244,6 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 	    else if(dir_name.find("Blade")!=string::npos) nbin=2;
             getGrandSummaryME(bei, nbin, me_name, gsum_mes);
           }
-	  /*
-
-	    for (vector<MonitorElement*>::const_iterator igm = gsum_mes.begin();
-		 igm !=gsum_mes.end(); igm++) { 
-	      // To be further optimized
-	      if( (*iv).find("Clust") != string::npos && (*igm)->getName().find(me_name) != string::npos ) create_me = false; //cout << "Already have it" << endl;
-	    }
-
-	    // printing cout<<"me_name to be created= "<<me_name<<endl;
-	    if(create_me) getGrandSummaryME(bei, nbin, me_name, gsum_mes);
-	  }
-	  */
-	  // end bugfix: gsum_mes.
 
 	  for (vector<MonitorElement*>::const_iterator igm = gsum_mes.begin();
 	       igm != gsum_mes.end(); igm++) { 
@@ -1344,10 +1269,6 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 		nbin_subdir=100;
 	      }else if((*igm)->getName().find("Panel_") != string::npos){
 		nbin_subdir=7;
-//	      }else if((*igm)->getName().find("Panel_1") != string::npos){
-//		nbin_subdir=4;
-//	      }else if((*igm)->getName().find("Panel_2") != string::npos){
-//		nbin_subdir=3;
 	      }else if((*igm)->getName().find("Blade") != string::npos){
 		if((*im).find("_1") != string::npos) nbin_subdir=4;
 		if((*im).find("_2") != string::npos) {nbin_i=4; nbin_subdir=3;}
@@ -1381,10 +1302,6 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 		  nbin_subdir=100;
 	        }else if((*igm)->getName().find("Panel_") != string::npos){
 		  nbin_subdir=2;
-		  //	        }else if((*igm)->getName().find("Panel_1") != string::npos){
-		  //		  nbin_subdir=4;
-		  //	        }else if((*igm)->getName().find("Panel_2") != string::npos){
-		  //		  nbin_subdir=3;
 	        }else if((*igm)->getName().find("Blade") != string::npos){
 		  if((*im).find("_1") != string::npos) nbin_subdir=1;
 		  if((*im).find("_2") != string::npos) {nbin_i=1; nbin_subdir=1;}
@@ -1415,7 +1332,6 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 	        }
               }
 							
-	      //	       for (int k = 1; k < nbin_subdir+1; k++) {
 	      if((*igm)->getName().find("ndigisFREQ")==string::npos){ 
 		if(((*igm)->getName().find("adcCOMB")!=string::npos && me->getName().find("adcCOMB")!=string::npos) || ((*igm)->getName().find("chargeCOMB")!=string::npos && me->getName().find("chargeCOMB")!=string::npos)){
 		  (*igm)->getTH1F()->Add(me->getTH1F());
@@ -1467,21 +1383,16 @@ void SiPixelActionExecutor::getGrandSummaryME(DQMStore* bei,
     //printing cout<<"in grand summary me: "<<me_name<<","<<(*it)<<endl;
     if ((*it).find(me_name) == 0) {
       string fullpathname = bei->pwd() + "/" + me_name;
-      //				cout << "###\t" << fullpathname << endl;
       MonitorElement* me = bei->get(fullpathname);
 			
       if (me) {
-	//      cout<<"Found grand ME: "<<fullpathname<<endl;
 	me->Reset();
 	mes.push_back(me);
-	// if printing cout<<"reset and add the following me: "<<me->getName()<<endl;
 	return;
       }
     }
   }
 
-  //  MonitorElement* temp_me = bei->book1D(me_name.c_str(),me_name.c_str(),nbin,1.,nbin+1.);
-  //  if (temp_me) mes.push_back(temp_me);
   MonitorElement* temp_me(0);
   if(me_name.find("ALLMODS_adcCOMB_")!=string::npos) temp_me = bei->book1D(me_name.c_str(),me_name.c_str(),128,0,256);
   else if(me_name.find("ALLMODS_chargeCOMB_")!=string::npos) temp_me = bei->book1D(me_name.c_str(),me_name.c_str(),100,0,200);
@@ -1511,27 +1422,16 @@ MonitorElement* SiPixelActionExecutor::getSummaryME(DQMStore* bei,
       me = bei->get(fullpathname);
 			
       if (me) {
-	//printing cout<<"got this ME: "<<fullpathname<<endl;
 	me->Reset();
 	return me;
       }
     }
   }
   contents.clear();
-//	cout << me_name.c_str() 
-//		<< "\t" << ((me_name.find("SUMOFF")==string::npos)?"true":"false")
-//		<< "\t" << ((me_name.find("Blade_")!= string::npos)?"true":"false")
-//		<< "\t" << ((me_name.find("Layer1_")!=string::npos)?"true":"false")
-//		<< "\t" << ((me_name.find("Layer2_")!=string::npos)?"true":"false")
-//		<< "\t" << ((me_name.find("Layer3_")!=string::npos)?"true":"false")
-//		<< "\t" << ((me_name.find("Disk_")!=string::npos)?"true":"false")
-//		<< endl;
   if (!isUpgrade) {
   if(me_name.find("SUMOFF")==string::npos){
   	if(me_name.find("Blade_")!=string::npos)me = bei->book1D(me_name.c_str(), me_name.c_str(),7,1.,8.);
 	else me = bei->book1D(me_name.c_str(), me_name.c_str(),4,1.,5.);
-//    if(me_name.find("Panel_2")!=string::npos)  me = bei->book1D(me_name.c_str(), me_name.c_str(),3,1.,4.);
-//    else me = bei->book1D(me_name.c_str(), me_name.c_str(),4,1.,5.);
   }else if(me_name.find("Layer_1")!=string::npos){ me = bei->book1D(me_name.c_str(), me_name.c_str(),10,1.,11.);
   }else if(me_name.find("Layer_2")!=string::npos){ me = bei->book1D(me_name.c_str(), me_name.c_str(),16,1.,17.);
   }else if(me_name.find("Layer_3")!=string::npos){ me = bei->book1D(me_name.c_str(), me_name.c_str(),22,1.,23.);
@@ -1542,8 +1442,6 @@ MonitorElement* SiPixelActionExecutor::getSummaryME(DQMStore* bei,
     if(me_name.find("SUMOFF")==string::npos){
       if(me_name.find("Blade_")!=string::npos)me = bei->book1D(me_name.c_str(), me_name.c_str(),2,1.,3.);
       else me = bei->book1D(me_name.c_str(), me_name.c_str(),1,1.,2.);
-      //      if(me_name.find("Panel_2")!=string::npos)  me = bei->book1D(me_name.c_str(), me_name.c_str(),3,1.,4.);
-      //      else me = bei->book1D(me_name.c_str(), me_name.c_str(),4,1.,5.);
     }else if(me_name.find("Layer_1")!=string::npos){ me = bei->book1D(me_name.c_str(), me_name.c_str(),6,1.,7.);
     }else if(me_name.find("Layer_2")!=string::npos){ me = bei->book1D(me_name.c_str(), me_name.c_str(),14,1.,15.);
     }else if(me_name.find("Layer_3")!=string::npos){ me = bei->book1D(me_name.c_str(), me_name.c_str(),22,1.,23.);
@@ -1551,12 +1449,7 @@ MonitorElement* SiPixelActionExecutor::getSummaryME(DQMStore* bei,
     }else if(me_name.find("Disk_")!=string::npos){ me = bei->book1D(me_name.c_str(), me_name.c_str(),28,1.,29.);
     }
   }//endifUpgrade
-  
-	
-  //  if(me) cout<<"Finally got this ME: "<<me_name<<endl;
-  //if(me_name.find("ALLMODS_adc_")!=string::npos) me = bei->book1D(me_name.c_str(), me_name.c_str(),256, 0., 256.);
-	
-  //printing cout<<"...leaving SiPixelActionExecutor::getSummaryME!"<<endl;
+  	
   return me;
 }
 
@@ -1577,7 +1470,6 @@ MonitorElement* SiPixelActionExecutor::getFEDSummaryME(DQMStore* bei,
       me = bei->get(fullpathname);
 			
       if (me) {
-	//printing cout<<"got the ME: "<<fullpathname<<endl;
 	me->Reset();
 	return me;
       }
@@ -1585,9 +1477,8 @@ MonitorElement* SiPixelActionExecutor::getFEDSummaryME(DQMStore* bei,
   }
   contents.clear();
   me = bei->book1D(me_name.c_str(), me_name.c_str(),40,-0.5,39.5);
-  //if(me) cout<<"finally got the ME: "<<me_name<<endl;
+
   return me;
-  //printing cout<<"...leaving SiPixelActionExecutor::getFEDSummaryME!"<<endl;
 }
 
 //=============================================================================================================
@@ -1660,7 +1551,6 @@ void SiPixelActionExecutor::fillOccupancy(DQMStore* bei, bool isbarrel)
   if(Tier0Flag_) return;
   string currDir = bei->pwd();
   string dname = currDir.substr(currDir.find_last_of("/")+1);
-  //occupancyprinting cout<<"currDir= "<<currDir<< " , dname= "<<dname<<std::endl;
 	
   if(dname.find("Layer_")!=string::npos || dname.find("Disk_")!=string::npos){ 
     vector<string> meVec = bei->getMEs();
@@ -1669,7 +1559,6 @@ void SiPixelActionExecutor::fillOccupancy(DQMStore* bei, bool isbarrel)
       if(full_path.find("hitmap_siPixelDigis")!=string::npos){ // If we have the hitmap ME
 	MonitorElement * me = bei->get(full_path);
 	if (!me) continue;
-	//occupancyprinting cout << full_path << endl;
 	string path = full_path;
 	while (path.find_last_of("/") != 5) // Stop before Pixel/
 	  {
@@ -1689,15 +1578,11 @@ void SiPixelActionExecutor::fillOccupancy(DQMStore* bei, bool isbarrel)
       }
 			
     }
-    //bei->goUp();
   } else {  
-    //occupancyprinting cout<<"finding subdirs now"<<std::endl;
     vector<string> subdirs = bei->getSubdirs();
     for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
       bei->cd(*it);
-      //occupancyprinting cout<<"now I am in "<<bei->pwd()<<std::endl;
       if(*it != "Pixel" && ((isbarrel && (*it).find("Barrel")==string::npos) || (!isbarrel && (*it).find("Endcap")==string::npos))) continue;
-      //occupancyprinting cout<<"calling myself again "<<std::endl;
       fillOccupancy(bei, isbarrel);
       bei->goUp();
     }
@@ -1749,14 +1634,10 @@ void SiPixelActionExecutor::createMaps(DQMStore* bei, std::string type, std::str
 	if(!min)
 		min = -0.01;
 	
-	//	prephistosB(histB, mapB, type, min, max);
-	//	prephistosE(histE, mapE, type, min, max);
-
 
 	MonitorElement* meB[NLayer];
-	//	TH2F* histB[NLayer];
 	MonitorElement* meE[NCyl];
-	//	TH2F* histE[NCyl];
+
 	bei->setCurrentFolder("Pixel/Barrel");
 	prephistosB(meB, bei, mapB, name, min, max);
 	bei->setCurrentFolder("Pixel/Endcap");
@@ -1769,25 +1650,21 @@ void SiPixelActionExecutor::createMaps(DQMStore* bei, std::string type, std::str
 
 int SiPixelActionExecutor::createMap(Double_t map[][NLev2][NLev3][NLev4], std::string type, DQMStore* bei, funcType ff, bool isBarrel)
 {
-	// cout << "Starting with SiPixelActionExecutor::createMap" << endl;
-	//int createMap(Double_t map[][NLev2][NLev3][NLev4], TString type, TDirectoryFile* dirMain, funcType ff){
+
 	vector<string> dirLev1 = bei->getSubdirs();
 	Int_t i = 0;
 	for (vector<string>::const_iterator it = dirLev1.begin(); it != dirLev1.end(); it++) // goes over HalfCylinders in Endcap and over Shells in Barrel
 	{
-		//cout << "Current Directory: " << *it << endl;
 		bei->cd(*it);
 		vector<string> dirLev2 = bei->getSubdirs();
 		Int_t j = 0;
 		for (vector<string>::const_iterator it2 = dirLev2.begin(); it2 != dirLev2.end(); it2++) // goes over Disks in Endcap and over Layers in Barrel
 		{
-			//cout << "Current Directory: " << *it2 << endl;
 			bei->cd(*it2);
 			Int_t k = 0;
 			vector<string> dirLev3 = bei->getSubdirs();
 			for (vector<string>::const_iterator it3 = dirLev3.begin(); it3 != dirLev3.end(); it3++) // goes over Blades in Endcap and over Ladders in Barrel
 			{
-				//cout << "Current Directory: " << *it3 << endl;
 				bei->cd(*it3);
 				if(Tier0Flag_)
 					for (Int_t l = 0; l < NLev4; l++)
@@ -1798,7 +1675,6 @@ int SiPixelActionExecutor::createMap(Double_t map[][NLev2][NLev3][NLev4], std::s
 					vector<string> dirLev4 = bei->getSubdirs();
 					for (vector<string>::const_iterator it4 = dirLev4.begin(); it4 != dirLev4.end(); it4++)
 					{
-						// cout << "Current Directory: " << *it4 << endl;
 						bei->cd(*it4);
 						if (isBarrel)
 							getData(map, type, bei, ff, i, j, k, l++);
@@ -1807,7 +1683,6 @@ int SiPixelActionExecutor::createMap(Double_t map[][NLev2][NLev3][NLev4], std::s
 							vector<string> dirLev5 = bei->getSubdirs();
 							for (vector<string>::const_iterator it5 = dirLev5.begin(); it5 != dirLev5.end(); it5++)
 							{
-								// cout << "Current Directory: " << *it5 << endl;
 								bei->cd(*it5);
 								getData(map, type, bei, ff, i, j, k, l++);
 							}
@@ -1829,15 +1704,12 @@ int SiPixelActionExecutor::createMap(Double_t map[][NLev2][NLev3][NLev4], std::s
 
 void SiPixelActionExecutor::getData(Double_t map[][NLev2][NLev3][NLev4], std::string type, DQMStore* bei, funcType ff, Int_t i, Int_t j, Int_t k, Int_t l) {
 	
-//	cout << "Starting with SiPixelActionExecutor::getData" << endl;
 	vector<string> contents = bei->getMEs();
 	for (vector<string>::const_iterator im = contents.begin(); im != contents.end(); im++)
 	{
 		if((*im).find(type + "_") == string::npos){
-			// cout << "Skip";
-			continue; // Searching for specific type
+		  continue; // Searching for specific type
 		}
-		//cout << "Name: "  << *im << endl;
 		std::string fullpathname = bei->pwd() + "/" + (*im);	
 		MonitorElement*  me = bei->get(fullpathname);
 		
@@ -1845,7 +1717,6 @@ void SiPixelActionExecutor::getData(Double_t map[][NLev2][NLev3][NLev4], std::st
 		TH1F* histo = me->getTH1F();
 		
 		Int_t nbins = histo->GetNbinsX();
-		// cout << "# of bins: " << nbins << endl;
 		switch (ff){
 			case EachBinContent:
 				map[i][j][k][l] = histo->GetBinContent(l + 1);
@@ -2028,7 +1899,6 @@ void SiPixelActionExecutor::checkQTestResults(DQMStore * bei) {
   vector<string> contentVec;
   bei->getContents(contentVec);
   configParser_->getCalibType(calib_type_);
-  //  cout << calib_type_ << endl;
   configParser_->getMessageLimitForQTests(message_limit_);
   for (vector<string>::iterator it = contentVec.begin();
        it != contentVec.end(); it++) {
@@ -2047,10 +1917,7 @@ void SiPixelActionExecutor::checkQTestResults(DQMStore * bei) {
 	    wi != warnings.end(); ++wi) {
 	  messageCounter++;
 	  if(messageCounter<message_limit_) {
-	    //edm::LogWarning("SiPixelQualityTester::checkTestResults") << 
-	    //  " *** Warning for " << me->getName() << 
-	    //  "," << (*wi)->getMessage() << "\n";
-						
+
 	    edm::LogWarning("SiPixelActionExecutor::checkQTestResults") <<  " *** Warning for " << me->getName() << "," 
 									<< (*wi)->getMessage() << " " << me->getMean() 
 									<< " " << me->getRMS() << me->hasWarning() 
@@ -2068,10 +1935,6 @@ void SiPixelActionExecutor::checkQTestResults(DQMStore * bei) {
 	  if((empty_mean != 0 && empty_rms != 0) || (calib_type_ == 0)){
 	    messageCounter++;
 	    if(messageCounter<=message_limit_) {
-	      //edm::LogError("SiPixelQualityTester::checkTestResults") << 
-	      //  " *** Error for " << me->getName() << 
-	      //  "," << (*ei)->getMessage() << "\n";
-							
 	      edm::LogWarning("SiPixelActionExecutor::checkQTestResults")  <<   " *** Error for " << me->getName() << ","
 									   << (*ei)->getMessage() << " " << me->getMean() 
 									   << " " << me->getRMS() 
@@ -2086,8 +1949,6 @@ void SiPixelActionExecutor::checkQTestResults(DQMStore * bei) {
     nval=int(); contents=vector<string>();
   }
   LogDebug("SiPixelActionExecutor::checkQTestResults") <<"messageCounter: "<<messageCounter<<" , message_limit: "<<message_limit_<<endl;
-  //  if (messageCounter>=message_limit_)
-  //    edm::LogWarning("SiPixelActionExecutor::checkQTestResults") << "WARNING: too many QTest failures! Giving up after "<<message_limit_<<" messages."<<endl;
   contentVec=vector<string>(); currDir=string(); messageCounter=int();
   //printing cout<<"...leaving SiPixelActionExecutor::checkQTestResults!"<<endl;
 }
@@ -2188,9 +2049,6 @@ void SiPixelActionExecutor::dumpBarrelModIds(DQMStore * bei, edm::EventSetup con
       if ( (*it).find("Module_") == string::npos) continue;
       bei->cd(*it);
       ndet_++;
-      // long version:
-      //cout<<"Ndet: "<<ndet_<<"  ,  Module: "<<bei->pwd();  
-      // short version:
       cout<<bei->pwd();  
       vector<string> contents = bei->getMEs(); 
       bool first_me = false;
@@ -2205,9 +2063,6 @@ void SiPixelActionExecutor::dumpBarrelModIds(DQMStore * bei, edm::EventSetup con
 	if(mEName.find("_3")!=string::npos) isst>>detId;
       }
       bei->goUp();
-      // long version:
-      //cout<<"  , detector ID: "<<detId;
-      // short version:
       cout<<" "<<detId;
       for(int fedid=0; fedid<=40; ++fedid){
         SiPixelFrameConverter converter(theCablingMap.product(),fedid);
@@ -2224,9 +2079,6 @@ void SiPixelActionExecutor::dumpBarrelModIds(DQMStore * bei, edm::EventSetup con
       sipixelobjects::DetectorIndex detector = {static_cast<unsigned int>(detId), 1, 1};	   
       formatter.toCabling(cabling,detector);
       linkId = cabling.link;
-      // long version:
-      //cout<<"  , FED ID: "<<fedId<<"  , Link ID: "<<linkId<<endl;
-      // short version:
       cout<<" "<<fedId<<" "<<linkId<<endl;
     }
   } else {  
@@ -2254,9 +2106,6 @@ void SiPixelActionExecutor::dumpEndcapModIds(DQMStore * bei, edm::EventSetup con
       if ( (*it).find("Module_") == string::npos) continue;
       bei->cd(*it);
       ndet_++;
-      // long version:
-      //cout<<"Ndet: "<<ndet_<<"  ,  Module: "<<bei->pwd();  
-      // short version:
       cout<<bei->pwd();  
       vector<string> contents = bei->getMEs(); 
       bool first_me = false;
@@ -2271,9 +2120,6 @@ void SiPixelActionExecutor::dumpEndcapModIds(DQMStore * bei, edm::EventSetup con
 	if(mEName.find("_3")!=string::npos) isst>>detId;
       }
       bei->goUp();
-      // long version:
-      //cout<<"  , detector ID: "<<detId;
-      // short version:
       cout<<" "<<detId;
       for(int fedid=0; fedid<=40; ++fedid){
         SiPixelFrameConverter converter(theCablingMap.product(),fedid);
@@ -2290,9 +2136,6 @@ void SiPixelActionExecutor::dumpEndcapModIds(DQMStore * bei, edm::EventSetup con
       sipixelobjects::DetectorIndex detector = {static_cast<unsigned int>(detId), 1, 1};	   
       formatter.toCabling(cabling,detector);
       linkId = cabling.link;
-      // long version:
-      //cout<<"  , FED ID: "<<fedId<<"  , Link ID: "<<linkId<<endl;
-      // short version:
       cout<<" "<<fedId<<" "<<linkId<<endl;
     }
   } else {  
@@ -2544,15 +2387,12 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore* bei, bool isbarrel, bool is
 	    MonitorElement * me = bei->get(full_path);
 	    if (!me) continue;
 	    float missingHits = me->getEntries();
-	    //if(currDir.find("Barrel/Shell_mI/Layer_1/Ladder_09F")!=string::npos) cout<<"missingHits= "<<missingHits<<endl;
 	    string new_path = full_path.replace(full_path.find("missing"),7,"valid");
 	    me = bei->get(new_path);
 	    if (!me) continue;
 	    float validHits = me->getEntries();
-	    //if(currDir.find("Barrel/Shell_mI/Layer_1/Ladder_09F")!=string::npos) cout<<"validHits= "<<validHits<<endl;
 	    float hitEfficiency = -1.;
 	    if(validHits + missingHits > 0.) hitEfficiency = validHits / (validHits + missingHits);
-	    //if(currDir.find("Barrel/Shell_mI/Layer_1/Ladder_09F")!=string::npos) cout<<"hitEfficiency= "<<hitEfficiency<<endl;
 	    int binx = 0; int biny = 0;
 	    if(currDir.find("Shell_m")!=string::npos){ binx = 1;}else{ binx = 2;}
 	    if(dname.find("01")!=string::npos){ biny = 1;}else if(dname.find("02")!=string::npos){ biny = 2;}
@@ -2581,7 +2421,6 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore* bei, bool isbarrel, bool is
 	    if(currDir.find("Layer_1")!=string::npos){
 	      HitEfficiency_L1 = bei->get("Pixel/Barrel/HitEfficiency_L1");
 	      if(HitEfficiency_L1) HitEfficiency_L1->setBinContent(binx, biny,(float)hitEfficiency);
-	      //if(currDir.find("Barrel/Shell_mI/Layer_1/Ladder_09F")!=string::npos) cout<<"setting bin ("<<binx<<","<<biny<<") with "<<(float)hitEfficiency<<endl;
 	    }else if(currDir.find("Layer_2")!=string::npos){
 	      HitEfficiency_L2 = bei->get("Pixel/Barrel/HitEfficiency_L2");
 	      if(HitEfficiency_L2) HitEfficiency_L2->setBinContent(binx, biny,(float)hitEfficiency);
@@ -2644,7 +2483,6 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore* bei, bool isbarrel, bool is
 	    HitEfficiency_Dp2 = bei->get("Pixel/Endcap/HitEfficiency_Dp2");
 	    if(HitEfficiency_Dp2) HitEfficiency_Dp2->setBinContent(binx, biny, (float)hitEfficiency);
           }
-	  //std::cout<<"EFFI: "<<currDir<<" , x: "<<binx<<" , y: "<<biny<<std::endl;
 	}
       } 
     }else if(!isbarrel && dname.find("Blade_")!=string::npos && isUpgrade){ 
@@ -2714,13 +2552,10 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore* bei, bool isbarrel, bool is
 	}
       } 
     }else{  
-      //cout<<"finding subdirs now"<<std::endl;
       vector<string> subdirs = bei->getSubdirs();
       for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
         bei->cd(*it);
-        //cout<<"now I am in "<<bei->pwd()<<std::endl;
         if(*it != "Pixel" && ((isbarrel && (*it).find("Barrel")==string::npos) || (!isbarrel && (*it).find("Endcap")==string::npos))) continue;
-        //cout<<"calling myself again "<<std::endl;
         fillEfficiency(bei, isbarrel, isUpgrade);
         bei->goUp();
       }
@@ -2858,15 +2693,11 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore* bei, bool isbarrel, bool is
       vector<string> subdirs = bei->getSubdirs();
       for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
         bei->cd(*it);
-        //cout<<"now I am in "<<bei->pwd()<<std::endl;
         if(*it != "Pixel" && ((isbarrel && (*it).find("Barrel")==string::npos) || (!isbarrel && (*it).find("Endcap")==string::npos))) continue;
-        //cout<<"calling myself again "<<std::endl;
         fillEfficiency(bei, isbarrel, isUpgrade);
         bei->goUp();
       }
     }
   } // end online/offline
-	
   //cout<<"leaving SiPixelActionExecutor::fillEfficiency..."<<std::endl;
-	
 }
