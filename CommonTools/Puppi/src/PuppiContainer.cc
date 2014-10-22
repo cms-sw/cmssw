@@ -79,6 +79,7 @@ double PuppiContainer::var_within_R(int iId, const vector<PseudoJet> & particles
     if(iId == 4) var += near_particles[i].pt();  
     if(iId == 5) var += (near_particles[i].pt()/pDR)*(near_particles[i].pt()/pDR);
   }
+  if(iId == 1) var += centre.pt(); //Sum in a cone
   if(iId == 0 && var != 0) var = log(var);
   if(iId == 3 && var != 0) var = log(var);
   if(iId == 5 && var != 0) var = log(var);
@@ -147,10 +148,10 @@ const std::vector<double> PuppiContainer::puppiWeights() {
   }
   std::vector<double> pVals;
   for(int i0 = 0; i0 < lNParticles; i0++) {
-      //Refresh
+    //Refresh
     pVals.clear();
     double pWeight = 1;
-      //Get the Puppi Id and if ill defined move on
+    //Get the Puppi Id and if ill defined move on
     int  pPupId   = getPuppiId(fRecoParticles[i0].pt,fRecoParticles[i0].eta);
     if(pPupId == -1) {
      fWeights .push_back(pWeight);
@@ -169,14 +170,13 @@ const std::vector<double> PuppiContainer::puppiWeights() {
    for(int i1 = 0; i1 < lNAlgos; i1++) pVals.push_back(fVals[lNParticles*i1+i0]);
     pWeight = fPuppiAlgo[pPupId].compute(pVals,pChi2);
       //Apply the CHS weights
-    if((fabs(fPFParticles[i0].user_index()) <= 2 && fabs(fPFParticles[i0].user_index()) != 0) && fApplyCHS ) pWeight = 1;
-    if(fabs(fPFParticles[i0].user_index()) >= 3 && fApplyCHS ) pWeight = 0;
+    if(fRecoParticles[i0].id == 1 && fApplyCHS ) pWeight = 1;
+    if(fRecoParticles[i0].id == 2 && fApplyCHS ) pWeight = 0;
       //Basic Weight Checks
     if(std::isnan(pWeight)) std::cerr << "====> Weight is nan  : pt " << fRecoParticles[i0].pt << " -- eta : " << fRecoParticles[i0].eta << " -- Value" << fVals[i0] << " -- id :  " << fRecoParticles[i0].id << " --  NAlgos: " << lNAlgos << std::endl;
-    //if(isnan(pWeight)) continue;
     //Basic Cuts      
     if(pWeight                         < fPuppiWeightCut) pWeight = 0;  //==> Elminate the low Weight stuff
-    if(pWeight*fPFParticles[i0].pt()   < fPuppiAlgo[pPupId].neutralPt(fNPV) && fabs(fPFParticles[i0].user_index()) > 3 ) pWeight = 0;  //threshold cut on the neutral Pt
+    if(pWeight*fPFParticles[i0].pt()   < fPuppiAlgo[pPupId].neutralPt(fNPV) && fRecoParticles[i0].id == 0 ) pWeight = 0;  //threshold cut on the neutral Pt
     fWeights .push_back(pWeight);
     //Now get rid of the thrown out weights for the particle collection
     if(pWeight == 0) continue;

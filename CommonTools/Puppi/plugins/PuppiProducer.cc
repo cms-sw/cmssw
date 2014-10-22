@@ -89,7 +89,8 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
    pDZ        = lPack->dz(); 
    pD0        = lPack->dxy(); 
    closestVtx = &(*(lPack->vertexRef()));
-   pVtxId     = (lPack->fromPV() !=  (pat::PackedCandidate::PVLoose || pat::PackedCandidate::PVTight || pat::PackedCandidate::PVUsedInFit));
+   pVtxId     = (lPack->fromPV() !=  (pat::PackedCandidate::PVUsedInFit));
+   if(lPack->fromPV() ==  (pat::PackedCandidate::PVLoose || pat::PackedCandidate::PVTight)) closestVtx = 0;
  }
  pReco.dZ      = pDZ;
  pReco.d0      = pD0;
@@ -103,8 +104,8 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
  if(closestVtx != 0 && pVtxId == 0 && fabs(pReco.charge) > 0) pReco.id = 1;
  if(closestVtx != 0 && pVtxId >  0 && fabs(pReco.charge) > 0) pReco.id = 2;
      //Add a dZ cut if wanted (this helps)
- // if(fUseDZ && pDZ > -9999 && closestVtx == 0 && (fabs(pDZ) < fDZCut)) pReco.id = 1; 
- // if(fUseDZ && pDZ > -9999 && closestVtx == 0 && (fabs(pDZ) > fDZCut)) pReco.id = 2; 
+ if(fUseDZ && pDZ > -9999 && closestVtx == 0 && (fabs(pDZ) < fDZCut)) pReco.id = 1; 
+ if(fUseDZ && pDZ > -9999 && closestVtx == 0 && (fabs(pDZ) > fDZCut)) pReco.id = 2; 
 
   //std::cout << "pVtxId = " << pVtxId << ", and charge = " << itPF->charge() << ", and closestVtx = " << closestVtx << ", and id = " << pReco.id << std::endl;
 
