@@ -11,25 +11,28 @@ hfv2 = hfv1.clone(
     TriggerPathName = cms.untracked.string("HLT_DoubleMu4_3_Jpsi_Displaced_v")
 )
 hfv3 = hfv1.clone(
-    TriggerPathName = cms.untracked.string("HLT_Dimuon20_Jpsi_v")
-)
-hfv4 = hfv1.clone(
-    TriggerPathName = cms.untracked.string("HLT_Dimuon13_PsiPrime_v")
-)
-hfv5 = hfv1.clone(
-    TriggerPathName = cms.untracked.string("HLT_Dimuon13_Upsilon_v")
-)
-hfv6 = hfv1.clone(
-    TriggerPathName = cms.untracked.string("HLT_Mu25_TkMu0_dEta18_Onia_v")
-)
-hfv7 = hfv1.clone(
     TriggerPathName = cms.untracked.string("HLT_DoubleMu4_JpsiTrk_Displaced_v")
 )
-hfv8 = hfv1.clone(
+hfv4 = hfv1.clone(
     TriggerPathName = cms.untracked.string("HLT_DoubleMu4_PsiPrimeTrk_Displaced_v")
 )
-hfv9 = hfv1.clone(
+hfv5 = hfv1.clone(
     TriggerPathName = cms.untracked.string("HLT_DoubleMu4_LowMassNonResonantTrk_Displaced_v")
+)
+
+hfv6 = hfv1.clone(
+    TriggerPathName = cms.untracked.string("HLT_Dimuon20_Jpsi_v"),
+    MuonPtBins = cms.untracked.vdouble(7.5, 10., 12.5, 15., 17.5, 20., 22.5, 25., 27.5, 30.),
+    DimuonPtBins = cms.untracked.vdouble(10., 12.5, 15., 17.5, 20., 22.5, 25., 27.5, 30.)
+)
+hfv7 = hfv6.clone(
+    TriggerPathName = cms.untracked.string("HLT_Dimuon13_PsiPrime_v"),
+)
+hfv8 = hfv6.clone(
+    TriggerPathName = cms.untracked.string("HLT_Dimuon13_Upsilon_v"),
+)
+hfv9 = hfv6.clone(
+    TriggerPathName = cms.untracked.string("HLT_Mu25_TkMu0_dEta18_Onia_v"),
 )
 heavyFlavorValidationSequence = cms.Sequence(
   hfv1+hfv2+hfv3+hfv4+hfv5+hfv6+hfv7+hfv8+hfv9
