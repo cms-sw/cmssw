@@ -79,7 +79,7 @@ class Reco(Scenario):
         options.conditions = globalTag
         options.filein = 'tobeoverwritten.xyz'
         if 'inputSource' in args:
-            options.fileType = args['inputSource']
+            options.filetype = args['inputSource']
         process = cms.Process('RECO')
         cb = ConfigBuilder(options, process = process, with_output = True, with_input = True)
 
