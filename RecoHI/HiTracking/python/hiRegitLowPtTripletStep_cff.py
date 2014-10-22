@@ -10,7 +10,7 @@ from RecoTracker.IterativeTracking.LowPtTripletStep_cff import *
 
 
 # NEW CLUSTERS (remove previously used clusters)
-hiRegitLowPtTripletStepClusters = cms.EDProducer("TrackClusterRemover",
+hiRegitLowPtTripletStepClusters = cms.EDProducer("HITrackClusterRemover",
                                      clusterLessSolution= cms.bool(True),
                                      oldClusterRemovalInfo = cms.InputTag("hiRegitInitialStepClusters"),
                                      trajectories = cms.InputTag("hiRegitInitialStepTracks"),
