@@ -54,16 +54,16 @@
     <ZSection z="[zHGCal5]" rMin="[rMinHGCal5]-2.1*cm" rMax="[rMaxHGCal4]"/>
   </Polycone>
   <Polycone name="HGCalBottomScreenCover1" startPhi="0*deg" deltaPhi="360*deg">
-    <ZSection z="[zHGCal1]" rMin="[rMinHGCal1]-0.1*cm" rMax="[rMinHGCal1]"/>
-    <ZSection z="[zHGCal44]" rMin="[rMinHGCal44]-0.1*cm" rMax="[rMinHGCal44]"/>
+    <ZSection z="[zHGCal1]" rMin="[rMinHGCal1]-0.3*cm" rMax="[rMinHGCal1]-0.1*cm"/>
+    <ZSection z="[zHGCal44]" rMin="[rMinHGCal44]-0.3*cm" rMax="[rMinHGCal44]-0.1*cm"/>
   </Polycone>
   <Polycone name="HGCalBottomScreen" startPhi="0*deg" deltaPhi="360*deg">
-    <ZSection z="[zHGCal1]" rMin="[rMinHGCal1]-2.0*cm" rMax="[rMinHGCal1]-0.1*cm"/>
-    <ZSection z="[zHGCal44]" rMin="[rMinHGCal44]-2.0*cm" rMax="[rMinHGCal44]-0.1*cm"/>
+    <ZSection z="[zHGCal1]" rMin="[rMinHGCal1]-1.9*cm" rMax="[rMinHGCal1]-0.3*cm"/>
+    <ZSection z="[zHGCal44]" rMin="[rMinHGCal44]-1.9*cm" rMax="[rMinHGCal44]-0.3*cm"/>
   </Polycone>
   <Polycone name="HGCalBottomScreenCover2" startPhi="0*deg" deltaPhi="360*deg">
-    <ZSection z="[zHGCal1]" rMin="[rMinHGCal1]-2.1*cm" rMax="[rMinHGCal1]-2.0*cm"/>
-    <ZSection z="[zHGCal44]" rMin="[rMinHGCal44]-2.1*cm" rMax="[rMinHGCal44]-2.0*cm"/>
+    <ZSection z="[zHGCal1]" rMin="[rMinHGCal1]-2.1*cm" rMax="[rMinHGCal1]-1.9*cm"/>
+    <ZSection z="[zHGCal44]" rMin="[rMinHGCal44]-2.1*cm" rMax="[rMinHGCal44]-1.9*cm"/>
   </Polycone>
   <Polyhedra name="HGCalEE" numSide="18" startPhi="350*deg" deltaPhi="360*deg">
     <ZSection z="[zMinEE]" rMin="[rMinEEMin]" rMax="[rMapEEMin]"/>
@@ -111,7 +111,7 @@
   </LogicalPart>
   <LogicalPart name="HGCalSupport" category="unspecified">
     <rSolid name="HGCalSupport"/>
-    <rMaterial name="materials:StainlessSteel"/>
+    <rMaterial name="materials:Aluminium"/>
   </LogicalPart>
 </LogicalPartSection>
 
