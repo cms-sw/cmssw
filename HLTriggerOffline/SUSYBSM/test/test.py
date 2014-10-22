@@ -28,8 +28,9 @@ process.source = cms.Source("PoolSource",
     #fileNames = cms.untracked.vstring('file:/tmp/pablom/QCD_Pt-300to470.root'),
     fileNames = cms.untracked.vstring( 
         #'file:///afs/cern.ch/work/a/aelwood/alphat/trigger/hltSkims/DY_withmuon1.root',
-        'file:///afs/cern.ch/work/a/aelwood/alphat/trigger/hltSkims/Susy_withmuon1.root',
+        #'file:///afs/cern.ch/work/a/aelwood/alphat/trigger/hltSkims/Susy_withmuon1.root',
         #'file:///afs/cern.ch/work/a/aelwood/alphat/trigger/hltSkim.root',
+        'file:///afs/cern.ch/user/a/aelwood/alphat/hlt/CMSSW_7_2_0/src/HLTTest/hltSkim.root'
     )
 
 
@@ -52,7 +53,9 @@ process.out = cms.OutputModule("PoolOutputModule",
 
 process.HLTSusyExoValSeq = cms.Sequence( process.SUSY_HLT_HT200_alphaT0p57 
          + process.SUSY_HLT_HT250_alphaT0p55 
-         + process.SUSY_HLT_HT300_alphaT0p54 
+         + process.SUSY_HLT_HT300_alphaT0p53 
+         + process.SUSY_HLT_HT350_alphaT0p52 
+         + process.SUSY_HLT_HT400_alphaT0p51 
         )
 #process.HLTSusyExoValSeq = cms.Sequence(process.SUSY_HLT_InclusiveHT_aux350 + process.SUSY_HLT_InclusiveHT_aux600)
 

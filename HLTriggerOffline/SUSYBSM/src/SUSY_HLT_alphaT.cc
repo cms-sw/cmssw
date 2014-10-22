@@ -139,21 +139,21 @@ void SUSY_HLT_alphaT::analyze(edm::Event const& e, edm::EventSetup const& eSetup
   //std::cout << "\n Started looking for jets: \n" << filterIndex << "\n" << triggerSummary->sizeFilters();
   if( !(filterIndex >= triggerSummary->sizeFilters()) ){
       const trigger::Keys& keys = triggerSummary->filterKeys( filterIndex );
-      std::cout << "\n Passed L1 \n";
-      std::cout << "Keys size: " << keys.size() << '\n';
+      //std::cout << "\n Passed L1 \n";
+      //std::cout << "Keys size: " << keys.size() << '\n';
 
       for( size_t j = 0; j < keys.size(); ++j ){
           trigger::TriggerObject foundObject = triggerObjects[keys[j]];
-          std::cout << foundObject.id() << "\t" << foundObject.pt() <<"\n";
-          
-        //  if(foundObject.id() == 85){ //It's a jet 
-              if(foundObject.pt()>ptThrJet_ && fabs(foundObject.eta()) < etaThrJet_){
-                  std::cout << "\n found a jet! \n";
-                  hltHt += foundObject.pt();
-                  LorentzV JetLVec(foundObject.pt(),foundObject.eta(),foundObject.phi(),foundObject.mass());
-                  hltJets.push_back(JetLVec);
-              }
-       //   }
+          //std::cout << foundObject.id() << "\t" << foundObject.pt() <<"\n";
+
+          //  if(foundObject.id() == 85){ //It's a jet 
+          if(foundObject.pt()>ptThrJet_ && fabs(foundObject.eta()) < etaThrJet_){
+              //std::cout << "\n found a jet! \n";
+              hltHt += foundObject.pt();
+              LorentzV JetLVec(foundObject.pt(),foundObject.eta(),foundObject.phi(),foundObject.mass());
+              hltJets.push_back(JetLVec);
+          }
+          //   }
       }
   }
 
@@ -171,9 +171,10 @@ void SUSY_HLT_alphaT::analyze(edm::Event const& e, edm::EventSetup const& eSetup
       if (trigNames.triggerName(hltIndex)==triggerPathAuxiliaryForHadronic_ && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) hasFiredAuxiliaryForHadronicLeg = true;
   }
 
-  if(!hasFired) std::cout << "Trigger didn't fire\n" ;
+  //if(!hasFired) std::cout << "Trigger didn't fire\n" ;
 
   if(hasFiredAuxiliaryForHadronicLeg) {
+      //std::cout << " Passed the muon " << std::endl;
 
       float caloHT = 0.0;
       //float pfHT = 0.0;
