@@ -37,40 +37,12 @@
 class DQMStore;
 class SiPixelEDAClient;
 class SiPixelWebInterface;
-class SiPixelHistoPlotter;
 class SiPixelInformationExtractor {
 
  public:
 
   SiPixelInformationExtractor(  bool                                      offlineXMLfile);
  ~SiPixelInformationExtractor();
-
- //  void getSingleModuleHistos(   DQMStore                                * bei, 
- //                                const std::multimap<std::string, std::string>& req_map, 
- //				xgi::Output                             * out,
- //				bool					  isUpgrade);
- //  void getHistosFromPath(       DQMStore                                * bei, 
- //                                const std::multimap<std::string, std::string>& req_map, 
- //				xgi::Output                             * out);
- //  void getTrackerMapHistos(     DQMStore                                * bei, 
- //                                const std::multimap<std::string, std::string>& req_map, 
- //				xgi::Output                             * out,
- //				bool					  isUpgrade);
-				
- //  void readModuleAndHistoList(	DQMStore				* bei,
- //                              	xgi::Output				* out);
- //  void readModuleHistoTree(   	DQMStore				* bei, 
- //                              	std::string				& str_name, 
- //			      	xgi::Output				* out);
- //  void readSummaryHistoTree(  	DQMStore				* bei, 
- //                              	std::string				& str_name, 
- //			      	xgi::Output				* out);
- //  void readAlarmTree(         	DQMStore				* bei, 
- //                              	std::string				& str_name, 
- //                              	xgi::Output				* out);
- //  void readStatusMessage(       DQMStore                                * bei, 
- //                                std::multimap<std::string, std::string>& req_map, 
- //				xgi::Output * out);
 
   void computeStatus(           MonitorElement                          * mE,
                                 double                                  & colorValue,
@@ -83,20 +55,12 @@ class SiPixelInformationExtractor {
                                 std::pair<double,double>                & normY,
 				std::string                               theMEType) ;
 
- //  void sendTkUpdatedStatus(     DQMStore				* bei,
- //                              	xgi::Output                             * out,
- //				std::string                             & meName,
-  //				std::string                             & theTKType) ;
   void selectMEList(            DQMStore                                * bei,  
                                 std::string                             & name, 
 				std::vector<MonitorElement*>            & mes);
   void getMEList(               DQMStore                                * bei,  
 				std::map<std::string, int>              & mEHash);
   int getDetId(                 MonitorElement                          * mE) ;				
-  //  void getIMGCImage(            const std::multimap<std::string, std::string>& req_map, 
-  //                                xgi::Output                             * out);
-  //  void getIMGCImage(            std::multimap<std::string, std::string>& req_map, 
-  //                                xgi::Output                             * out);
   std::string getMEType(        MonitorElement                          * mE) ;
     
   void readConfiguration();
@@ -113,8 +77,6 @@ class SiPixelInformationExtractor {
 				 float                                    noiseRate,
 				 int                                      noiseRateDenominator,
                                  edm::EventSetup const                  & eSetup);
-  
-  void createImages             (DQMStore                               * bei);
   
  private:
 
@@ -148,10 +110,6 @@ class SiPixelInformationExtractor {
   void selectColor(            std::string                              & col, 
                                std::vector<QReport*>                    & reports);
   
-  //  void setHTMLHeader(          xgi::Output                              * out);
-  //  void setXMLHeader(           xgi::Output                              * out);
-  //  void setPlainHeader(         xgi::Output                              * out);
- 
   int                                    alarmCounter_;
 
   SiPixelConfigParser   	       * configParser_  ;
@@ -190,6 +148,5 @@ class SiPixelInformationExtractor {
   MonitorElement * BarrelNdigisFREQProjection;
   
   
-  SiPixelHistoPlotter* histoPlotter_;
 };
 #endif

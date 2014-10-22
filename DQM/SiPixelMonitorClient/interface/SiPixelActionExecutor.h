@@ -37,7 +37,6 @@ enum funcType {EachBinContent, Entries, Mean, Sum, WeightedSum};
 
 #define NShell		4
 #define NLayer		3
-//#define NLadders	LayNum * 6 + 4		// where LayNum is number of interesting Layer => 10, 16, 22
 #define NModuleB	4
 
 #define NPoints		5
