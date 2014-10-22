@@ -3,15 +3,12 @@ from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE import customise as customiseBE
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5D import customise as customiseBE5D
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10D import customise as customiseBE5DPixel10D
+from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10Ddev import customise as customiseBE5DPixel10Ddev
 
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE import l1EventContent as customise_ev_BE
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5D import l1EventContent as customise_ev_BE5D
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10D import l1EventContent as customise_ev_BE5DPixel10D
 
-from SLHCUpgradeSimulations.Configuration.phase2TkCustoms_LB_6PS import customise as customiseLB6PS
-from SLHCUpgradeSimulations.Configuration.phase2TkCustoms_LB_4LPS_2L2S import customise as customiseLB4LPS_2L2S
-from SLHCUpgradeSimulations.Configuration.phase2TkCustoms_LB_6PS import l1EventContent as customise_ev_LB6PS
-from SLHCUpgradeSimulations.Configuration.phase2TkCustoms_LB_4LPS_2L2S import l1EventContent as customise_ev_LB4LPS_2L2S
 from SLHCUpgradeSimulations.Configuration.phase1TkCustomsPixel10D import customise as customisePhase1TkPixel10D
 from SLHCUpgradeSimulations.Configuration.combinedCustoms_TTI import customise as customiseTTI
 from SLHCUpgradeSimulations.Configuration.combinedCustoms_TTI import l1EventContent_TTI as customise_ev_l1tracker
@@ -19,6 +16,7 @@ from SLHCUpgradeSimulations.Configuration.combinedCustoms_TTI import l1EventCont
 
 from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_NoCrossing
 from SLHCUpgradeSimulations.Configuration.phase1TkCustoms import customise as customisePhase1Tk
+from SLHCUpgradeSimulations.Configuration.phase1TkCustomsdev import customise as customisePhase1Tkdev
 from SLHCUpgradeSimulations.Configuration.HCalCustoms import customise_HcalPhase1, customise_HcalPhase0, customise_HcalPhase2
 from SLHCUpgradeSimulations.Configuration.gemCustoms import customise2019 as customise_gem2019
 from SLHCUpgradeSimulations.Configuration.gemCustoms import customise2023 as customise_gem2023
@@ -62,21 +60,16 @@ def cust_phase2_BE(process):
     process=jetCustoms.customise_jets(process)
     return process
 
-def cust_phase2_LB6PS(process): #obsolete
-    process=customisePostLS1(process)
-    process=customiseLB6PS(process)
-    process=customise_ev_LB6PS(process)
-    return process
-
-def cust_phase2_LB4LPS_2L2S(process):#obsolete
-    process=customisePostLS1(process)
-    process=customiseLB4LPS_2L2S(process)
-    process=customise_ev_LB4LPS_2L2S(process)
-    return process
-
 def cust_2017(process):
     process=customisePostLS1(process)
     process=customisePhase1Tk(process)
+    process=customise_HcalPhase0(process)
+#    process=fixRPCConditions(process)
+    return process
+
+def cust_2017dev(process):
+    process=customisePostLS1(process)
+    process=customisePhase1Tkdev(process)
     process=customise_HcalPhase0(process)
 #    process=fixRPCConditions(process)
     return process
@@ -256,6 +249,24 @@ def cust_2023HGCal(process):
         process.mix.mixObjects.mixCH.subdets.append( process.hgceeDigitizer.hitCollection.value() )
         process.mix.mixObjects.mixCH.subdets.append( process.hgchebackDigitizer.hitCollection.value() )
         process.mix.mixObjects.mixCH.subdets.append( process.hgchefrontDigitizer.hitCollection.value() )
+    if hasattr(process,'raw2digi_step'):
+        process.ecalDigis.FEDs = cms.vint32(
+            # EE-:
+            #601, 602, 603, 604, 605,
+            #606, 607, 608, 609,
+            # EB-:
+            610, 611, 612, 613, 614, 615,
+            616, 617, 618, 619, 620, 621,
+            622, 623, 624, 625, 626, 627,
+            # EB+:
+            628, 629, 630, 631, 632, 633,
+            634, 635, 636, 637, 638, 639,
+            640, 641, 642, 643, 644, 645,
+            # EE+:
+            #646, 647, 648, 649, 650,
+            #651, 652, 653, 654
+            )
+        print "RAW2DIGI only for EB FEDs"
     if hasattr(process,'reconstruction_step'):
         process.particleFlowCluster += process.particleFlowRecHitHGC
         process.particleFlowCluster += process.particleFlowClusterHGC
@@ -319,6 +330,24 @@ def cust_2023HGCalMuon(process):
         process.mix.mixObjects.mixCH.subdets.append( process.hgceeDigitizer.hitCollection.value() )
         process.mix.mixObjects.mixCH.subdets.append( process.hgchebackDigitizer.hitCollection.value() )
         process.mix.mixObjects.mixCH.subdets.append( process.hgchefrontDigitizer.hitCollection.value() )
+    if hasattr(process,'raw2digi_step'):
+        process.ecalDigis.FEDs = cms.vint32(
+            # EE-:
+            #601, 602, 603, 604, 605,
+            #606, 607, 608, 609,
+            # EB-:
+            610, 611, 612, 613, 614, 615,
+            616, 617, 618, 619, 620, 621,
+            622, 623, 624, 625, 626, 627,
+            # EB+:
+            628, 629, 630, 631, 632, 633,
+            634, 635, 636, 637, 638, 639,
+            640, 641, 642, 643, 644, 645,
+            # EE+:
+            #646, 647, 648, 649, 650,
+            #651, 652, 653, 654
+            )
+        print "RAW2DIGI only for EB FEDs"
     if hasattr(process,'reconstruction_step'):
         process.particleFlowCluster += process.particleFlowRecHitHGC
         process.particleFlowCluster += process.particleFlowClusterHGC
@@ -371,6 +400,17 @@ def cust_2023Pixel(process):
 def cust_2023Muon(process):
     process=customisePostLS1(process)
     process=customiseBE5DPixel10D(process)
+    process=customise_HcalPhase2(process)
+    process=customise_ev_BE5DPixel10D(process)
+    process=customise_gem2023(process)
+    process=customise_rpc(process)
+    process=customise_me0(process)
+    process=jetCustoms.customise_jets(process)
+    return process
+
+def cust_2023Muondev(process):
+    process=customisePostLS1(process)
+    process=customiseBE5DPixel10Ddev(process)
     process=customise_HcalPhase2(process)
     process=customise_ev_BE5DPixel10D(process)
     process=customise_gem2023(process)
