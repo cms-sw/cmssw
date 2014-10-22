@@ -34,7 +34,6 @@ HLT_LooseIsoPFTau50_Trk30_eta2p1_MET120_v*		# JIRA: CMSHLT-99
 
 #HLT_CaloJet260_v*					# JIRA: CMSHLT-67 -> TEMPLATE PATH, not for GRun
 #HLT_HT650_v*						# JIRA: CMSHLT-67 -> TEMPLATE PATH, not for GRun
-#HLT_PFHT650_v*						# JIRA: CMSHLT-67 -> TEMPLATE PATH, not for GRun
 
 #HLT_PFJet40_v*						# JIRA: CMSHLT-67 -> TEMPLATE PATH, not for GRun, updated by CMSHLT-123
 #HLT_PFJet60_v*						# JIRA: CMSHLT-123
@@ -148,6 +147,8 @@ HLT_L2DoubleMu38_NoVertex_2Cha_Angle2p5_Mass10_v*		# JIRA: CMSHLT-103
 
 #HLT_PFMHT100_SingleCentralJet60_BTagCSV0p6_v*			# JIRA: CMSHLT-104
 
+HLT_PFHT350_v*                          			# JIRA: CMSHLT-127
+HLT_PFHT600_v*                          			# JIRA: CMSHLT-127
 HLT_PFHT900_v*                          			# JIRA: CMSHLT-105
 HLT_PFHT350_PFMET120_NoiseCleaned_v*                          	# JIRA: CMSHLT-105
 HLT_PFMET170_NoiseCleaned_v*                          		# JIRA: CMSHLT-105
@@ -155,7 +156,7 @@ HLT_PFMET120_NoiseCleaned_BTagCSV07_v*				# JIRA: CMSHLT-105
 
 #HLT_AK8PFHT850_TrimR0p1PT0p03Mass50_v*				# JIRA: CMSHLT-121
 
-#HLT_PFMET120_NoiseCleaned_Mu5_v*				# JIRA: CMSHLT-120
+HLT_PFMET120_NoiseCleaned_Mu5_v*				# JIRA: CMSHLT-120
 
 HLT_ZeroBias_v*							# JIRA: CMSHLT-117
 
