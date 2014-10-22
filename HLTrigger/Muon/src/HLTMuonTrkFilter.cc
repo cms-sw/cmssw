@@ -13,6 +13,8 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeed.h"
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 
 #include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
@@ -30,6 +32,8 @@ HLTMuonTrkFilter::HLTMuonTrkFilter(const edm::ParameterSet& iConfig) : HLTFilter
   m_muonsToken        = consumes<reco::MuonCollection>(m_muonsTag);
   m_candsTag          = iConfig.getParameter<edm::InputTag>("inputCandCollection");
   m_candsToken        = consumes<reco::RecoChargedCandidateCollection>(m_candsTag);
+  m_previousCandTag   = iConfig.getParameter<edm::InputTag> ("previousCandTag");
+  m_previousCandToken = consumes<trigger::TriggerFilterObjectWithRefs>(m_previousCandTag);
   m_minTrkHits        = iConfig.getParameter<int>("minTrkHits");
   m_minMuonHits       = iConfig.getParameter<int>("minMuonHits");
   m_minMuonStations   = iConfig.getParameter<int>("minMuonStations");
@@ -47,6 +51,7 @@ HLTMuonTrkFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputMuonCollection",edm::InputTag(""));
   desc.add<edm::InputTag>("inputCandCollection",edm::InputTag(""));
+  desc.add<edm::InputTag>("previousCandTag",edm::InputTag(""));
   desc.add<int>("minTrkHits",-1);
   desc.add<int>("minMuonHits",-1);
   desc.add<int>("minMuonStations",-1);
@@ -69,9 +74,35 @@ HLTMuonTrkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, t
   if ( saveTags() ) filterproduct.addCollectionTag(m_candsTag);
   if ( cands->size() != muons->size() )
     throw edm::Exception(edm::errors::Configuration) << "Both input collection must be aligned and represent same physical muon objects";
+
+  edm::Handle<trigger::TriggerFilterObjectWithRefs> previousLevelCands;
+  std::vector<l1extra::L1MuonParticleRef> vl1cands;
+  std::vector<l1extra::L1MuonParticleRef>::iterator vl1cands_begin;
+  std::vector<l1extra::L1MuonParticleRef>::iterator vl1cands_end;
+
+  bool check_l1match = true;
+  if (m_previousCandTag == edm::InputTag("")) check_l1match = false;
+  if (check_l1match) {
+    iEvent.getByToken(m_previousCandToken,previousLevelCands);
+    previousLevelCands->getObjects(trigger::TriggerL1Mu,vl1cands);
+    vl1cands_begin = vl1cands.begin();
+    vl1cands_end = vl1cands.end();
+  }
+
   std::vector<unsigned int> filteredMuons;
   for ( unsigned int i=0; i<muons->size(); ++i ){
     const reco::Muon& muon(muons->at(i));
+    // check for dR match to L1 muons
+    if (check_l1match) {
+      bool matchl1 = false;
+      for (std::vector<l1extra::L1MuonParticleRef>::iterator l1cand = vl1cands_begin; l1cand != vl1cands_end; ++l1cand) {
+	if (deltaR(muon,**l1cand) < 0.2) {
+	  matchl1 = true;
+	  break;
+	}
+      }
+      if (!matchl1) continue;
+    }
     if ( (muon.type() & m_allowedTypeMask) == 0 ) continue;
     if ( (muon.type() & m_requiredTypeMask) != m_requiredTypeMask ) continue;
     if ( muon.numberOfMatchedStations()<m_minMuonStations ) continue;
