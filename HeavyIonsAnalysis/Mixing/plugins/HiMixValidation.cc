@@ -41,7 +41,6 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Math/interface/deltaR.h"
-
 #include "TH1D.h"
 #include "TH2D.h"
 
@@ -132,7 +131,6 @@ class HiMixValidation : public edm::EDAnalyzer {
    double rMatch2;
 
    bool useCF_;
-
    edm::Service<TFileService> f;
 
 
@@ -161,7 +159,7 @@ HiMixValidation::HiMixValidation(const edm::ParameterSet& iConfig)
 
 HiMixValidation::~HiMixValidation()
 {
- }
+}
 
 void
 HiMixValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -338,6 +336,7 @@ HiMixValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
    hZrecoVertex0->Fill(z[0]);
    hZrecoVertex1->Fill(z[1]);
    hZrecoVertices->Fill(z[0],z[1]);
+
 }
 
 
