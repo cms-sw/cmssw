@@ -10,7 +10,6 @@
 #include "Validation/RecoEgamma/plugins/ElectronMcSignalPostValidator.h"
 #include "Validation/RecoEgamma/plugins/ElectronMcFakeValidator.h"
 #include "Validation/RecoEgamma/plugins/ElectronMcFakePostValidator.h"
-#include "Validation/RecoEgamma/plugins/ElectronWebGetter.h"
 #include "Validation/RecoEgamma/plugins/ElectronConversionRejectionValidator.h"
 
 
