@@ -32,6 +32,8 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "TH1D.h"
 #include "TH2D.h"
@@ -63,6 +65,7 @@ class HiMixValidation : public edm::EDAnalyzer {
 
    edm::InputTag genParticleSrc_;
    edm::InputTag genHIsrc_;
+   edm::InputTag vertexSrc_;
 
    TH1D *hGenParticleEtaSignal, 
       *hGenParticleEtaBkg, 
@@ -101,6 +104,8 @@ HiMixValidation::HiMixValidation(const edm::ParameterSet& iConfig)
 {
    genParticleSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("genpSrc",edm::InputTag("hiGenParticles"));
    genHIsrc_ = iConfig.getUntrackedParameter<edm::InputTag>("genHiSrc",edm::InputTag("heavyIon"));
+   vertexSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("vertexSrc",edm::InputTag("hiSelectedVertex"));
+
 }
 
 
@@ -153,6 +158,25 @@ HiMixValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
    }
 
+
+   // RECO INFO
+
+   const reco::VertexCollection * recoVertices;
+   edm::Handle<reco::VertexCollection> vertexCollection;
+   iEvent.getByLabel(vertexSrc_,vertexCollection);
+   recoVertices = vertexCollection.product();
+
+   int nVertex = recoVertices->size();
+   hNrecoVertex->Fill(nVertex);
+   if(nVertex > 2) nVertex = 2;
+   double z[2] = {-29,-29};
+   for (int i = 0 ; i< nVertex; ++i){
+      z[i] = (*recoVertices)[i].position().z();
+   }
+
+   hZrecoVertex0->Fill(z[0]);
+   hZrecoVertex1->Fill(z[1]);
+   hZrecoVertices->Fill(z[0],z[1]);
 }
 
 
