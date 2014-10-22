@@ -5,10 +5,14 @@
 
 GenXSecAnalyzer::GenXSecAnalyzer(const edm::ParameterSet& iConfig):
   hepidwtup_(-1),
+  theProcesses_size(0),
   xsec_(0,0),
-  jetMatchEffStat_(0,0,0,0,0.,0.,0.,0.),
-  totalEffStat_(0,0,0,0,0.,0.,0.,0.)
+  filterOnlyEffStat_(0,0,0,0,0.,0.,0.,0.)
 {
+  eventEffStat_.clear();
+  jetMatchEffStat_.clear();
+  xsecBeforeMatching_.clear();
+  xsecAfterMatching_.clear();
   products_.clear();
 }
 
@@ -18,6 +22,10 @@ GenXSecAnalyzer::~GenXSecAnalyzer()
 
 void
 GenXSecAnalyzer::beginJob() {
+  eventEffStat_.clear();
+  jetMatchEffStat_.clear();
+  xsecBeforeMatching_.clear();
+  xsecAfterMatching_.clear();
   products_.clear();  
 }
 
@@ -31,9 +39,10 @@ GenXSecAnalyzer::analyze(const edm::Event&, const edm::EventSetup&)
 void
 GenXSecAnalyzer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::EventSetup const&) {
 
+  // add up information of GenFilterInfo from different luminosity blocks
   edm::Handle<GenFilterInfo> genFilter;
   if(iLumi.getByLabel("genFilterEfficiencyProducer", genFilter))
-    totalEffStat_.mergeProduct(*genFilter);
+    filterOnlyEffStat_.mergeProduct(*genFilter);
 
 
   edm::Handle<GenLumiInfoProduct> genLumiInfo;
@@ -42,7 +51,7 @@ GenXSecAnalyzer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::Even
   hepidwtup_ = genLumiInfo->getHEPIDWTUP();
 
   std::vector<GenLumiInfoProduct::ProcessInfo> theProcesses = genLumiInfo->getProcessInfos();
-  unsigned int theProcesses_size = theProcesses.size();
+  theProcesses_size = theProcesses.size();
   // if it's a pure parton-shower generator, check there should be only one element in thisProcessInfos
   // the error of lheXSec is -1
   if(hepidwtup_== -1)
@@ -57,27 +66,6 @@ GenXSecAnalyzer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::Even
       }
     }
 
-  // doing generic summing 
-  for(unsigned int ip=0; ip < theProcesses_size; ip++)
-    {
-      GenLumiInfoProduct::FinalStat temp_killed   = theProcesses[ip].killed();
-      GenLumiInfoProduct::FinalStat temp_selected = theProcesses[ip].selected();
-      double passw  = temp_killed.sum();
-      double passw2 = temp_killed.sum2();
-      double totalw  = temp_selected.sum();
-      double totalw2 = temp_selected.sum2();
-      jetMatchEffStat_.mergeProduct(GenFilterInfo(
-						  theProcesses[ip].nPassPos(),
-						  theProcesses[ip].nPassNeg(),
-						  theProcesses[ip].nTotalPos(),
-						  theProcesses[ip].nTotalNeg(),
-						  passw,
-						  passw2,
-						  totalw,
-						  totalw2)
-				    );
-
-    }
   // now determine if this LuminosityBlock has the same lheXSec as existing products
   bool sameMC = false;
   for(unsigned int i=0; i < products_.size(); i++){
@@ -93,7 +81,90 @@ GenXSecAnalyzer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::Even
   }
   
   if(!sameMC)
-      products_.push_back(*genLumiInfo);
+    products_.push_back(*genLumiInfo);
+
+
+  // initialize jetMatchEffStat with nprocess+1 elements
+  if(jetMatchEffStat_.size()==0){
+    
+    for(unsigned int ip=0; ip < theProcesses_size; ip++)
+      {
+	jetMatchEffStat_.push_back(GenFilterInfo(0,0,0,0,0.,0.,0.,0.));
+      }
+    jetMatchEffStat_.push_back(GenFilterInfo(0,0,0,0,0.,0.,0.,0.));
+  }
+
+  // initialize event-level statistics with nprocess+1 elements
+  if(eventEffStat_.size()==0){
+    
+    for(unsigned int ip=0; ip < theProcesses_size; ip++)
+      {
+	eventEffStat_.push_back(GenFilterInfo(0,0,0,0,0.,0.,0.,0.));
+      }
+    eventEffStat_.push_back(GenFilterInfo(0,0,0,0,0.,0.,0.,0.));
+  }
+
+  // doing generic summing for jet matching statistics
+  for(unsigned int ip=0; ip < theProcesses_size; ip++)
+    {
+      GenLumiInfoProduct::FinalStat temp_killed   = theProcesses[ip].killed();
+      GenLumiInfoProduct::FinalStat temp_selected = theProcesses[ip].selected();
+      double passw  = temp_killed.sum();
+      double passw2 = temp_killed.sum2();
+      double totalw  = temp_selected.sum();
+      double totalw2 = temp_selected.sum2();
+      // matching statistics for each process
+      jetMatchEffStat_[ip].mergeProduct(GenFilterInfo(
+						      theProcesses[ip].nPassPos(),
+						      theProcesses[ip].nPassNeg(),
+						      theProcesses[ip].nTotalPos(),
+						      theProcesses[ip].nTotalNeg(),
+						      passw,
+						      passw2,
+						      totalw,
+						      totalw2)
+					);
+      // matching statistics for all processes
+      jetMatchEffStat_[theProcesses_size].mergeProduct(GenFilterInfo(
+								     theProcesses[ip].nPassPos(),
+								     theProcesses[ip].nPassNeg(),
+								     theProcesses[ip].nTotalPos(),
+								     theProcesses[ip].nTotalNeg(),
+								     passw,
+								     passw2,
+								     totalw,
+								     totalw2)
+						       );
+
+
+
+      // event-level statistics for each process
+      eventEffStat_[ip].mergeProduct(GenFilterInfo(
+						   theProcesses[ip].nPassPos()+theProcesses[ip].nPassNeg(),
+						   0,
+						   theProcesses[ip].nTotalPos()+theProcesses[ip].nTotalNeg(),
+						   0,
+						   theProcesses[ip].nPassPos()+theProcesses[ip].nPassNeg(),
+						   theProcesses[ip].nPassPos()+theProcesses[ip].nPassNeg(),
+						   theProcesses[ip].nTotalPos()+theProcesses[ip].nTotalNeg(),
+						   theProcesses[ip].nTotalPos()+theProcesses[ip].nTotalNeg())
+				     );
+      // event-level statistics for all processes
+      eventEffStat_[theProcesses_size].mergeProduct(GenFilterInfo(
+								  theProcesses[ip].nPassPos()+theProcesses[ip].nPassNeg(),
+								  0,
+								  theProcesses[ip].nTotalPos()+theProcesses[ip].nTotalNeg(),
+								  0,
+								  theProcesses[ip].nPassPos()+theProcesses[ip].nPassNeg(),
+								  theProcesses[ip].nPassPos()+theProcesses[ip].nPassNeg(),
+								  theProcesses[ip].nTotalPos()+theProcesses[ip].nTotalNeg(),
+								  theProcesses[ip].nTotalPos()+theProcesses[ip].nTotalNeg())
+						    );
+     
+
+    }
+
+
   return;
 }
 
@@ -110,42 +181,56 @@ GenXSecAnalyzer::compute()
 
 	GenLumiInfoProduct::ProcessInfo proc = products_[i].getProcessInfos()[0];	  
 	double hepxsec_value = proc.lheXSec().value();
-
 	sigSum += proc.tried().sum() * hepxsec_value;
 	totalN += proc.tried().sum();
       }
+      // average over number of events since the cross sections have no errors
       double sigAve = totalN>1e-6? sigSum/totalN: 0;
-      xsec_ = GenLumiInfoProduct::XSec(sigAve,-1);      
+      xsecBeforeMatching_.push_back(GenLumiInfoProduct::XSec(sigAve,-1));
+      xsecAfterMatching_.push_back(GenLumiInfoProduct::XSec(sigAve,-1));
     }
   // for ME+parton shower MC
   else{
 
-    double sum_numerator = 0;
-    double sum_denominator = 0;
+    const unsigned int sizeOfInfos= theProcesses_size+1;
+    // for computing cross sectiona before matching
+    double sum_numerator_before[sizeOfInfos]; 
+    double sum_denominator_before[sizeOfInfos];
+
+    // for computing cross sectiona after matching
+    double sum_numerator_after[sizeOfInfos];
+    double sum_denominator_after[sizeOfInfos];
+
+    // initialize every element with zero
+    for(unsigned int i=0; i < sizeOfInfos; i++)
+      {
+	sum_numerator_before[i]=0; 
+	sum_denominator_before[i]=0;
+	sum_numerator_after[i]=0;
+	sum_denominator_after[i]=0;
+      }
   
+    // loop over different MC samples
     for(unsigned int i=0; i < products_.size(); i++){
 
+      // sum of cross sections and errors over different processes
       double sigSelSum = 0.0;
+      double errSel2Sum = 0.0;
       double sigSum = 0.0;
-      double sigBrSum = 0.0;
       double err2Sum = 0.0;
-      double errBr2Sum = 0.0;
 
+      // loop over different processes for each sample
       unsigned int vectorSize = products_[i].getProcessInfos().size();
       for(unsigned int ip=0; ip < vectorSize; ip++){
 	GenLumiInfoProduct::ProcessInfo proc = products_[i].getProcessInfos()[ip];	  
 	double hepxsec_value = proc.lheXSec().value();
 	double hepxsec_error = proc.lheXSec().error();
 
-	if (!proc.killed().n())
+	// skips computation if jet matching efficiency=0
+	if (proc.killed().n()<1)
 	  continue;
 
-	double sigma2Sum, sigma2Err;
-	sigma2Sum = hepxsec_value * hepxsec_value;
-	sigma2Err = hepxsec_error * hepxsec_error;
-
-	double sigmaAvg = hepxsec_value;
-
+	// computing jet matching efficiency for this process
 	double fracAcc = 0;
 	double ntotal = proc.nTotalPos()-proc.nTotalNeg();
 	double npass  = proc.nPassPos() -proc.nPassNeg();
@@ -160,78 +245,101 @@ GenXSecAnalyzer::compute()
 
 	if(fracAcc<1e-6)continue;
 
-	double fracBr = proc.accepted().sum() > 0.0 ?
-	  proc.acceptedBr().sum() / proc.accepted().sum() : 1;
-	double sigmaFin = sigmaAvg * fracAcc * fracBr;
-	double sigmaFinBr = sigmaFin * fracBr;
+	// cross section after matching for this particular process
+	double sigmaFin = hepxsec_value * fracAcc;
 
+	// computing error on jet matching efficiency
 	double relErr = 1.0;
-	if (proc.killed().n() > 1) {
-	  double efferr2=0;
-	  switch(hepidwtup_) {
-	  case 3: case -3:
-	    {
-	      double ntotal_pos = proc.nTotalPos();
-	      double effp  = ntotal_pos > 1e-6?
-		(double)proc.nPassPos()/ntotal_pos:0;
-	      double effp_err2 = ntotal_pos > 1e-6?
-		(1-effp)*effp/ntotal_pos: 0;
+	double efferr2=0;
+	switch(hepidwtup_) {
+	case 3: case -3:
+	  {
+	    double ntotal_pos = proc.nTotalPos();
+	    double effp  = ntotal_pos > 1e-6?
+	      (double)proc.nPassPos()/ntotal_pos:0;
+	    double effp_err2 = ntotal_pos > 1e-6?
+	      (1-effp)*effp/ntotal_pos: 0;
 
-	      double ntotal_neg = proc.nTotalNeg();
-	      double effn  = ntotal_neg > 1e-6?
-		(double)proc.nPassNeg()/ntotal_neg:0;
-	      double effn_err2 = ntotal_neg > 1e-6?
-		(1-effn)*effn/ntotal_neg: 0;
+	    double ntotal_neg = proc.nTotalNeg();
+	    double effn  = ntotal_neg > 1e-6?
+	      (double)proc.nPassNeg()/ntotal_neg:0;
+	    double effn_err2 = ntotal_neg > 1e-6?
+	      (1-effn)*effn/ntotal_neg: 0;
 
-	      efferr2 = ntotal > 0 ? 
-		(ntotal_pos*ntotal_pos*effp_err2 +
-		 ntotal_neg*ntotal_neg*effn_err2)/ntotal/ntotal:0;
-	      break;
-	    }
-	  default:
-	    {
-	      double denominator = pow(proc.selected().sum(),4);
-	      double passw       = proc.killed().sum();
-	      double passw2      = proc.killed().sum2();
-	      double failw       = proc.selected().sum() - passw;
-	      double failw2      = proc.selected().sum2() - passw2;
-	      double numerator   = (passw2*failw*failw + failw2*passw*passw); 
-			    
-	      efferr2 = denominator>1e-6?
-		numerator/denominator:0;
-	      break;
-	    }
+	    efferr2 = ntotal > 0 ? 
+	      (ntotal_pos*ntotal_pos*effp_err2 +
+	       ntotal_neg*ntotal_neg*effn_err2)/ntotal/ntotal:0;
+	    break;
 	  }
-	  double delta2Veto = efferr2/fracAcc/fracAcc;
-	  double delta2Sum = delta2Veto
-	    + sigma2Err / sigma2Sum;
-	  relErr = (delta2Sum > 0.0 ?
-		    std::sqrt(delta2Sum) : 0.0);
+	default:
+	  {
+	    double denominator = pow(proc.selected().sum(),4);
+	    double passw       = proc.killed().sum();
+	    double passw2      = proc.killed().sum2();
+	    double failw       = proc.selected().sum() - passw;
+	    double failw2      = proc.selected().sum2() - passw2;
+	    double numerator   = (passw2*failw*failw + failw2*passw*passw); 
+			    
+	    efferr2 = denominator>1e-6?
+	      numerator/denominator:0;
+	    break;
+	  }
 	}
+	double delta2Veto = efferr2/fracAcc/fracAcc;
+	
+	// computing total error on cross section after matching efficiency
+
+	double sigma2Sum, sigma2Err;
+	sigma2Sum = hepxsec_value * hepxsec_value;
+	sigma2Err = hepxsec_error * hepxsec_error;
+
+	// sum of cross sections before matching and errors over different samples for each process
+	sum_denominator_before[ip]  +=  (sigma2Err > 0)? 1/sigma2Err: 0;
+	sum_numerator_before[ip]    +=  (sigma2Err > 0)?  hepxsec_value/sigma2Err: 0;
+
+
+	double delta2Sum = delta2Veto
+	  + sigma2Err / sigma2Sum;
+	relErr = (delta2Sum > 0.0 ?
+		  std::sqrt(delta2Sum) : 0.0);
 	double deltaFin = sigmaFin * relErr;
-	double deltaFinBr = sigmaFinBr * relErr;
 
-	sigSelSum += sigmaAvg;
+	// sum of cross sections and errors over different processes
+	sigSelSum += hepxsec_value;
+	errSel2Sum += sigma2Err;
 	sigSum += sigmaFin;
-	sigBrSum += sigmaFinBr;
 	err2Sum += deltaFin * deltaFin;
-	errBr2Sum += deltaFinBr * deltaFinBr;
-
+	
+	// sum of cross sections after matching and errors over different samples for each process
+	sum_denominator_after[ip]  +=  (deltaFin > 0)? 1/(deltaFin * deltaFin): 0;
+	sum_numerator_after[ip]    +=  (deltaFin > 0)? sigmaFin/(deltaFin * deltaFin): 0;
 
 
       } // end of loop over different processes
+
+      sum_denominator_before[sizeOfInfos-1]  +=  (errSel2Sum> 0)? 1/errSel2Sum: 0;
+      sum_numerator_before[sizeOfInfos-1]    +=  (errSel2Sum> 0)? sigSelSum/errSel2Sum: 0;
       
-      double dN = std::sqrt(errBr2Sum);
-      sum_denominator  +=  (dN> 1e-6)? 1/dN/dN: 0;
-      sum_numerator    +=  (dN> 1e-6)? sigBrSum/dN/dN: 0;
+      sum_denominator_after[sizeOfInfos-1]  +=  (err2Sum>0)? 1/err2Sum: 0;
+      sum_numerator_after[sizeOfInfos-1]    +=  (err2Sum>0)? sigSum/err2Sum: 0;
 
 
     } // end of loop over different samples
-    double final_value = sum_denominator > 0? sum_numerator/sum_denominator : 0;
-    double final_error = sum_denominator > 0? 1/sqrt(sum_denominator) : -1;
-    xsec_ = GenLumiInfoProduct::XSec(final_value, final_error);
+  
+    
+    for(unsigned int i=0; i<sizeOfInfos; i++)
+      {
+	double final_value = (sum_denominator_before[i]>0) ? (sum_numerator_before[i]/sum_denominator_before[i]):0;
+	double final_error = (sum_denominator_before[i]>0) ? (1/sqrt(sum_denominator_before[i])):-1;
+	xsecBeforeMatching_.push_back(GenLumiInfoProduct::XSec(final_value, final_error));
+	
+	double final_value2 = (sum_denominator_after[i]>0) ? (sum_numerator_after[i]/sum_denominator_after[i]):0;
+        double final_error2 = (sum_denominator_after[i]>0) ? 1/sqrt(sum_denominator_after[i]):-1;
+        xsecAfterMatching_.push_back(GenLumiInfoProduct::XSec(final_value2, final_error2));
   }
-  return;
+  	
+}
+return;
 }
 
 
@@ -241,33 +349,88 @@ GenXSecAnalyzer::endJob() {
   if(products_.size()>0)
     compute();
 
-  double filterOnly_eff = totalEffStat_.filterEfficiency(hepidwtup_);
-  double filterOnly_err = totalEffStat_.filterEfficiencyError(hepidwtup_);
+  std::cout << std::endl;
+  std::cout << "Process and cross-section statistics" << std::endl;
+  std::cout << "--------------------------------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
+  std::cout << "Process\t\txsec_before [pb]\t\tpassed\tnposw\tnnegw\ttried\tnposw\tnnegw \txsec_match [pb]\t\t\taccepted [%]\t event_eff [%]"
+	    << std::endl;
+  const int sizeOfInfos= theProcesses_size+1;
+  const int last = sizeOfInfos-1;
+
+  for(int i=0; i < sizeOfInfos; i++){
+
+    double jetmatch_eff=0;
+    double jetmatch_err=0;
+
+    if(i==last)
+      {
+	std::cout << "--------------------------------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
+	std::cout << "Total" << "\t\t";
+	jetmatch_eff = xsecBeforeMatching_[i].value()>0? xsecAfterMatching_[i].value()/xsecBeforeMatching_[i].value(): 0;
+	jetmatch_err = (xsecBeforeMatching_[i].value()>0 && xsecAfterMatching_[i].value()>0 && 
+			pow(xsecAfterMatching_[i].error()/xsecAfterMatching_[i].value(),2)>pow(xsecBeforeMatching_[i].error()/xsecBeforeMatching_[i].value(),2)
+			)? jetmatch_eff*sqrt(pow(xsecAfterMatching_[i].error()/xsecAfterMatching_[i].value(),2)-
+					     pow(xsecBeforeMatching_[i].error()/xsecBeforeMatching_[i].value(),2)):-1;
+      }
+    else
+      {
+	std::cout << i << "\t\t";
+	jetmatch_eff = jetMatchEffStat_[i].filterEfficiency(hepidwtup_);
+	jetmatch_err = jetMatchEffStat_[i].filterEfficiencyError(hepidwtup_);
+      }
+
+    std::cout << std::scientific << std::setprecision(3)
+	      << xsecBeforeMatching_[i].value()  << " +/- " 
+	      << xsecBeforeMatching_[i].error()  << "\t\t"
+	      << eventEffStat_[i].numEventsPassed() << "\t"
+	      << jetMatchEffStat_[i].numPassPositiveEvents() << "\t"
+	      << jetMatchEffStat_[i].numPassNegativeEvents() << "\t"
+	      << eventEffStat_[i].numEventsTotal() << "\t"
+	      << jetMatchEffStat_[i].numTotalPositiveEvents() << "\t"
+	      << jetMatchEffStat_[i].numTotalNegativeEvents() << "\t"
+	      << std::scientific << std::setprecision(3)
+	      << xsecAfterMatching_[i].value() << " +/- "
+	      << xsecAfterMatching_[i].error() << "\t\t"
+	      << std::fixed << std::setprecision(1)
+	      << (jetmatch_eff*100)  << " +/- " << (jetmatch_err*100) << "\t"
+	      << std::fixed << std::setprecision(1)
+	      << (eventEffStat_[i].filterEfficiency(+3) * 100) << " +/- " << ( eventEffStat_[i].filterEfficiencyError(+3) * 100)
+	      << std::endl;
+
+
+  }
+
+  std::cout << "--------------------------------------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
+
+  std::cout << "Before matching: total cross section = " 
+	    << std::scientific << std::setprecision(3)  
+	    << xsecBeforeMatching_[last].value() << " +- " << xsecBeforeMatching_[last].error() <<  " pb" << std::endl;
   
-  double jetmatching_eff_total = jetMatchEffStat_.filterEfficiency(hepidwtup_);
-  double jetmatching_err_total = jetMatchEffStat_.filterEfficiencyError(hepidwtup_);
+  double xsec_match  = xsecAfterMatching_[last].value();
+  double error_match = xsecAfterMatching_[last].error();
 
-  std::cout << "jet matching efficiency = " << 
-    jetMatchEffStat_.sumPassWeights() << "/" << 
-    jetMatchEffStat_.sumWeights() << " = " 
-	    << jetmatching_eff_total << " +- " << jetmatching_err_total << std::endl;
+  std::cout << "After matching: total cross section = " 
+	    << std::scientific << std::setprecision(3)  
+	    << xsec_match << " +- " << error_match <<  " pb" << std::endl;
 
-  std::cout << "Before filter: cross section = " << std::setprecision(6)  << xsec_.value() << " +- " << std::setprecision(6) << xsec_.error() <<  " pb" << std::endl;
+  double filterOnly_eff = filterOnlyEffStat_.filterEfficiency(hepidwtup_);
+  double filterOnly_err = filterOnlyEffStat_.filterEfficiencyError(hepidwtup_);
 
-  std::cout << "Filter efficiency = " << std::setprecision(6)  
+  std::cout << "Filter efficiency = " 
+	    <<  std::scientific << std::setprecision(3) 
 	    << filterOnly_eff << " +- " << filterOnly_err << std::endl;
 
 
-  double xsec_after  = xsec_.value()*filterOnly_eff ;
-  double error_after = xsec_after*sqrt(xsec_.error()*xsec_.error()/xsec_.value()/xsec_.value()+
-				  filterOnly_err*filterOnly_err/filterOnly_eff/filterOnly_eff);
+  double xsec_final  = xsec_match*filterOnly_eff ;
+  double error_final = xsec_final*sqrt(error_match*error_match/xsec_match/xsec_match+
+				       filterOnly_err*filterOnly_err/filterOnly_eff/filterOnly_eff);
 
-  std::cout << "After filter: cross section = " 
-	    << std::setprecision(6) << xsec_after
-	    << " +- " 
-	    << std::setprecision(6) << error_after
-	    << " pb"
-	    << std::endl;
+  std::cout << "After filter: final cross section = " 
+	    << std::scientific << std::setprecision(3)  
+	    << xsec_final << " +- " << error_final << " pb"  << std::endl;
+
+  xsec_ = GenLumiInfoProduct::XSec(xsec_final,error_final);
+  
 
 }
 

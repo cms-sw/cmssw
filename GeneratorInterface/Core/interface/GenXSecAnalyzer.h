@@ -44,12 +44,26 @@ private:
   virtual void endJob() override;
   void compute();
 
+  // ----------member data --------------------------
+
   int hepidwtup_;
+  unsigned int theProcesses_size;
+  // final cross sections
   GenLumiInfoProduct::XSec xsec_;
-  GenFilterInfo  jetMatchEffStat_;
-  GenFilterInfo  totalEffStat_;     // statistics from total filter
-  // ----------member data ---------------------------
-  std::vector<GenLumiInfoProduct> products_; // the size depends on the number of MC with different LHE information
+  // statistics from additional generator filter
+  GenFilterInfo  filterOnlyEffStat_;     
+  // statistics for event level efficiency, the size is the number of processes + 1 
+  std::vector<GenFilterInfo>  eventEffStat_; 
+  // statistics from jet matching, the size is the number of processes + 1 
+  std::vector<GenFilterInfo>  jetMatchEffStat_; 
+  // uncertainty-averaged cross sections before matching, the size is the number of processes + 1
+  std::vector<GenLumiInfoProduct::XSec> xsecBeforeMatching_;
+  // uncertainty-averaged cross sections after matching, the size is the number of processes + 1 
+  std::vector<GenLumiInfoProduct::XSec> xsecAfterMatching_; 
+  // the size depends on the number of MC with different LHE information
+  std::vector<GenLumiInfoProduct> products_; 
+
+  
 };
 
 #endif
