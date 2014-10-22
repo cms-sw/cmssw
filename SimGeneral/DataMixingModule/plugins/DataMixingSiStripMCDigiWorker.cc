@@ -37,7 +37,7 @@ namespace edm
     theFedAlgo(ps.getParameter<int>("FedAlgorithm")),
     geometryType(ps.getParameter<std::string>("GeometryType")),
     theSiZeroSuppress(new SiStripFedZeroSuppression(theFedAlgo)),
-    theSiDigitalConverter(new SiTrivialDigitalConverter(theElectronPerADC))
+    theSiDigitalConverter(new SiTrivialDigitalConverter(theElectronPerADC, false)) // no premixing
 
   {                                                         
 

@@ -114,6 +114,7 @@ class SiStripDigitizerAlgorithm {
   const double cosmicShift;
   const double inefficiency;
   const double pedOffset;
+  const bool PreMixing_;
 
   const ParticleDataTable * pdt;
   const ParticleData * particle;

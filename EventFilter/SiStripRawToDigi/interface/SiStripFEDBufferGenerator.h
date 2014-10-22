@@ -33,6 +33,7 @@ namespace sistrip {
         uint16_t getSample(const uint16_t sampleNumber) const;
         //get the 8 bit value to be used for ZS modes, converting it as the FED does if specified in constructor
         uint8_t get8BitSample(const uint16_t sampleNumber) const;
+        uint16_t get10BitSample(const uint16_t sampleNumber) const;
         void setSample(const uint16_t sampleNumber, const uint16_t adcValue);
         //setting value directly is equivalent to get and set Sample but without length check
         uint16_t& operator [] (const size_t sampleNumber);
@@ -241,6 +242,18 @@ namespace sistrip {
       if (sample < 0xFE) return sample;
       else if (sample == 0x3FF) return 0xFF;
       else return 0xFE;
+    }
+  }
+   
+  inline uint16_t FEDStripData::ChannelData::get10BitSample(const uint16_t sampleNumber) const
+  {
+    if (dataIs8Bit_) {
+      return (0xFF & getSample(sampleNumber));
+    }
+    else {
+      const uint16_t sample = getSample(sampleNumber);
+      if (sample < 0x3FF) return sample;
+      else return 0x3FF;
     }
   }
   

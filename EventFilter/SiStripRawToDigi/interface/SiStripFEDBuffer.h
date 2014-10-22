@@ -248,7 +248,7 @@ namespace sistrip {
       //CAMM - to modify more ?
       uint16_t length = channel.length();
       if (length & 0xF000) throwBadChannelLength(length);
-      FEDZSChannelUnpacker result(channel.data(),channel.offset()+2,length-2,2);
+      FEDZSChannelUnpacker result(channel.data(),channel.offset()+7,length-7,2);
       return result;
     }
   

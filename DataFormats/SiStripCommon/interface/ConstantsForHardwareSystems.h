@@ -107,7 +107,7 @@ namespace sistrip {
   static const char fedProcRaw_[]       = "FedProcessedRaw";
   static const char fedZeroSuppr_[]     = "FedZeroSuppressed";
   static const char fedZeroSupprLite_[] = "FedZeroSupprressedLite";
-  static const char fedPreMixRaw_[] = "FedPreMixRaw";
+  static const char fedPreMixRaw_[]     = "FedPreMixRaw";
   
   // -------------------- Enumerators --------------------
   

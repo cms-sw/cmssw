@@ -272,7 +272,7 @@ namespace sistrip {
 	    
 	    /// unpack -> add check to make sure strip < nstrips && strip > last strip......
             
-	    while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adc()));unpacker++;}
+	    while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adc())); unpacker++;}
           } catch (const cms::Exception& e) {
             if ( edm::isDebugEnabled() ) {
               edm::LogWarning(sistrip::mlRawToDigi_)
@@ -348,6 +348,7 @@ namespace sistrip {
 	  Registry regItem(key, 0, zs_work_digis_.size(), 0);
 	
 	  try {
+
             /// create unpacker
 	    sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::preMixRawModeUnpacker(buffer->channel(iconn->fedCh()));
 	    
