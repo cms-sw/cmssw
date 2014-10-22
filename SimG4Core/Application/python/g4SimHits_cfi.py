@@ -146,6 +146,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
     EventAction = cms.PSet(
         debug = cms.untracked.bool(False),
         StopFile = cms.string('StopRun'),
+        PrintRandomSeed = cms.bool(False),
         CollapsePrimaryVertices = cms.bool(False)
     ),
     StackingAction = cms.PSet(

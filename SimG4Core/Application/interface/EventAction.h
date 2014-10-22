@@ -50,6 +50,7 @@ private:
     SimRunInterface* m_runInterface;
     SimTrackManager* m_trackManager;
     std::string m_stopFile;
+    bool m_printRandom;
     bool m_debug;
 };
 
