@@ -49,13 +49,13 @@ bool ICEVisitor::VisitImplicitCastExpr( ImplicitCastExpr *CE )
 	clang::QualType OrigTy = BR.getContext().getCanonicalType(E->getType());
 	clang::QualType ToTy = BR.getContext().getCanonicalType(CE->getType());
 	if (!OrigTy->isIntegerType()) return true;
-	if (!ToTy->isIntegerType()) return true;
+	if (!(ToTy->isIntegerType()||ToTy->isFloatingType())) return true;
 	uint64_t size_otype = BR.getContext().getTypeSize(OrigTy);
 	uint64_t size_ttype = BR.getContext().getTypeSize(ToTy);
 	std::string oname = OrigTy.getAsString();
 	std::string tname = ToTy.getAsString();
 
-	if ( size_ttype < size_otype ) {
+	if ( size_ttype < size_otype || ToTy->isFloatingType() ) {
 		os <<"Size of cast-to type, "<<tname<<", is smaller than cast-from type, "<<oname<<", and may result in truncation"; 
 		clang::ento::PathDiagnosticLocation CELoc = clang::ento::PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(),AC);
  		BugType * BT = new BugType(CheckName(), "implicit cast size truncates","CMS code rules");
