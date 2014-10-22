@@ -348,36 +348,45 @@ void TriggerRatesMonitor::analyze(edm::Event const & event, edm::EventSetup cons
     L1GlobalTriggerReadoutRecord const & l1tResults = * get<L1GlobalTriggerReadoutRecord>(event, m_l1t_results);
 
     const std::vector<bool> & algoword = l1tResults.decisionWord();
-    assert(algoword.size() == m_l1t_algo_counts.size());
-    for (unsigned int i = 0; i < m_l1t_algo_counts.size(); ++i)
-      if (algoword[i])
-        m_l1t_algo_counts[i]->Fill(lumisection);
+    if (algoword.size() == m_l1t_algo_counts.size()) {
+      for (unsigned int i = 0; i < m_l1t_algo_counts.size(); ++i)
+        if (algoword[i])
+          m_l1t_algo_counts[i]->Fill(lumisection);
+    } else {
+      edm::LogWarning("TriggerRatesMonitor") << "This should never happen: the size of the L1 Algo Trigger mask does not match the number of L1 Algo Triggers";
+    }
 
     const std::vector<bool> & techword = l1tResults.technicalTriggerWord();
-    assert(techword.size() == m_l1t_tech_counts.size());
-    for (unsigned int i = 0; i < m_l1t_tech_counts.size(); ++i)
-      if (techword[i])
-        m_l1t_tech_counts[i]->Fill(lumisection);
+    if (techword.size() == m_l1t_tech_counts.size()) {
+      for (unsigned int i = 0; i < m_l1t_tech_counts.size(); ++i)
+        if (techword[i])
+          m_l1t_tech_counts[i]->Fill(lumisection);
+    } else {
+      edm::LogWarning("TriggerRatesMonitor") << "This should never happen: the size of the L1 Tech Trigger mask does not match the number of L1 Tech Triggers";
+    }
   }
 
   // monitor the HLT triggers and datsets rates
   if (m_hltConfig.inited()) {
     edm::TriggerResults const & hltResults = * get<edm::TriggerResults>(event, m_hlt_results);
-    assert(hltResults.size() == m_hlt_counts.size());
-    for (unsigned int i = 0; i < m_hlt_counts.size(); ++i) {
-      edm::HLTPathStatus const & path = hltResults.at(i);
-      if (path.wasrun())
-        m_hlt_counts[i].wasrun->Fill(lumisection);
-      if (path.index() > m_hltIndices[i].index_l1_seed)
-        m_hlt_counts[i].pass_l1_seed->Fill(lumisection);
-      if  (path.index() > m_hltIndices[i].index_prescale)
-        m_hlt_counts[i].pass_prescale->Fill(lumisection);
-      if (path.accept())
-        m_hlt_counts[i].accept->Fill(lumisection);
-      else if (path.error())
-        m_hlt_counts[i].error ->Fill(lumisection);
-      else
-        m_hlt_counts[i].reject->Fill(lumisection);
+    if (hltResults.size() == m_hlt_counts.size()) {
+      for (unsigned int i = 0; i < m_hlt_counts.size(); ++i) {
+        edm::HLTPathStatus const & path = hltResults.at(i);
+        if (path.wasrun())
+          m_hlt_counts[i].wasrun->Fill(lumisection);
+        if (path.index() > m_hltIndices[i].index_l1_seed)
+          m_hlt_counts[i].pass_l1_seed->Fill(lumisection);
+        if  (path.index() > m_hltIndices[i].index_prescale)
+          m_hlt_counts[i].pass_prescale->Fill(lumisection);
+        if (path.accept())
+          m_hlt_counts[i].accept->Fill(lumisection);
+        else if (path.error())
+          m_hlt_counts[i].error ->Fill(lumisection);
+        else
+          m_hlt_counts[i].reject->Fill(lumisection);
+      }
+    } else {
+      edm::LogWarning("TriggerRatesMonitor") << "This should never happen: the number of HLT paths has changed since the beginning of the run";
     }
 
     for (unsigned int i = 0; i < m_datasets.size(); ++i)
