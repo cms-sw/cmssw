@@ -580,8 +580,7 @@
     }
     if (mode==4) {
 
-    if (1){	 
-
+    if(1){	 
       //tracklettimer.start();
       L[0]->findTracklets(L[1]);
       L[0]->findTracklets(B[0],50.0);
@@ -675,10 +674,10 @@
       L[3]->findTracklets(F[0]);
       //tracklettimer.stop();
       //matchtimer.start();
-      L[3]->findMatches(L[0],phiWindowSF_,0.025,5.0);
-      L[3]->findMatches(L[1],phiWindowSF_,0.025,3.0);
-      L[3]->findMatches(L[2],phiWindowSF_,0.03,8.0);
-      L[3]->findMatches(L[5],phiWindowSF_,0.05,10.0);
+      L[3]->findMatches(L[0],phiWindowSF_,0.025,10.0); //5->10
+      L[3]->findMatches(L[1],phiWindowSF_,0.025,8.0);  //3->8
+      L[3]->findMatches(L[2],phiWindowSF_,0.03,6.0);   //8->6
+      L[3]->findMatches(L[5],phiWindowSF_,0.05,8.0);  //10->8
       L[3]->findMatches(F[0],phiWindowSF_);
       L[3]->findMatches(F[1],phiWindowSF_);
       L[3]->findMatches(F[2],phiWindowSF_);
@@ -695,6 +694,36 @@
       //fittimer.stop();
       
       allTracks.addTracks(L[3]->allTracks());
+    }
+
+    // TEST ADDING SEEDING BETWEEN LAYERS 5 AND 6
+    if(1){
+      //tracklettimer.start();
+      L[4]->findTracklets(L[5]);
+      //tracklettimer.stop();
+      //matchtimer.start();
+      L[4]->findMatches(L[0],phiWindowSF_,0.025,10.0); //5->10
+      L[4]->findMatches(L[1],phiWindowSF_,0.025,10.0); //5->10
+      L[4]->findMatches(L[2],phiWindowSF_,0.03,8.0);   //8->8
+      L[4]->findMatches(L[3],phiWindowSF_,0.05,6.0);  //10->6
+      /*
+      L[4]->findMatches(F[0],phiWindowSF_);
+      L[4]->findMatches(F[1],phiWindowSF_);
+      L[4]->findMatches(F[2],phiWindowSF_);
+      L[4]->findMatches(F[3],phiWindowSF_);
+      L[4]->findMatches(F[4],phiWindowSF_);
+      L[4]->findMatches(B[0],phiWindowSF_);
+      L[4]->findMatches(B[1],phiWindowSF_);
+      L[4]->findMatches(B[2],phiWindowSF_);
+      L[4]->findMatches(B[3],phiWindowSF_);
+      L[4]->findMatches(B[4],phiWindowSF_);
+      */
+      //matchtimer.stop();
+      //fittimer.start();
+      L[4]->fitTracks();
+      //fittimer.stop();
+      
+      allTracks.addTracks(L[4]->allTracks());
     }
   
     if(1){      

@@ -223,12 +223,12 @@ public:
 	    if (r<60) {
 	      if (fabs(rdeltaphi)>rphicut1*phiSF) continue;
 	      if (fabs(deltar)>rcut1) continue;
-	      dist=hypot(rdeltaphi/rphicut1,deltar/rcut1);
+	      dist=hypot(rdeltaphi/(rphicut1*phiSF),deltar/rcut1);
 	    }
 	    else {
 	      if (fabs(rdeltaphi)>rphicut2*phiSF) continue;
 	      if (fabs(deltar)>rcut2) continue;
-	      dist=hypot(rdeltaphi/rphicut2,deltar/rcut2);
+	      dist=hypot(rdeltaphi/(rphicut2*phiSF),deltar/rcut2);
 	    }
 
 	    /*
@@ -315,7 +315,7 @@ public:
 	    if (fabs(rdeltaphi)>0.1*phiSF) continue;
 	    if (fabs(deltaz)>5.0) continue; //LS modified from 0.5 to 5.0
 
-	    double dist=hypot(rdeltaphi/0.1,deltaz/5.0); //LS modified from 0.5 to 5.0
+	    double dist=hypot(rdeltaphi/(0.1*phiSF),deltaz/5.0); //LS modified from 0.5 to 5.0
 
 	    if (dist<bestdist) {
 	      bestdist=dist;
