@@ -13,8 +13,7 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-process.demo = cms.EDAnalyzer('HiMixValidation'
-)
+process.load("GeneratorInterface.HiGenCommon.HeavyIon_cff")
+process.demo = cms.EDAnalyzer('HiMixValidation')
 
-
-process.p = cms.Path(process.demo)
+process.p = cms.Path(process.heavyIon*process.demo)
