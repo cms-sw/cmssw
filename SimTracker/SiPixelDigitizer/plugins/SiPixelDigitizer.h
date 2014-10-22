@@ -60,9 +60,9 @@ namespace cms {
     virtual void beginJob() {}
 
     virtual void StorePileupInformation( std::vector<int> &numInteractionList,
-				 std::vector<int> &bunchCrossingList,
-				 std::vector<float> &TrueInteractionList){
-      PileupInfo_ = new PileupMixingContent(numInteractionList, bunchCrossingList, TrueInteractionList);
+					 std::vector<int> &bunchCrossingList,
+					 std::vector<float> &TrueInteractionList, int bunchSpacing){
+      PileupInfo_ = new PileupMixingContent(numInteractionList, bunchCrossingList, TrueInteractionList, bunchSpacing);
     }
 
     virtual PileupMixingContent* getEventPileupInfo() { return PileupInfo_; }
