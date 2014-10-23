@@ -56,6 +56,7 @@ private:
   edm::InputTag label;
   int ndigis;
   int nwords;
-
+  bool usePilotBlade;
+  bool usePhase1;
 };
 #endif
