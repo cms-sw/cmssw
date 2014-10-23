@@ -9,7 +9,6 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 // Trigger stuff
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -18,6 +17,7 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 namespace reco {
 class Jet;
@@ -26,7 +26,7 @@ class Jet;
 class DQMStore;
 class MonitorElement;
 
-class QcdPhotonsDQM : public edm::EDAnalyzer {
+class QcdPhotonsDQM : public DQMEDAnalyzer {
  public:
   /// Constructor
   QcdPhotonsDQM(const edm::ParameterSet&);
@@ -34,11 +34,11 @@ class QcdPhotonsDQM : public edm::EDAnalyzer {
   /// Destructor
   virtual ~QcdPhotonsDQM();
 
-  /// Inizialize parameters for histo binning
-  void beginJob();
-
+  //Book histograms
+  void bookHistograms(DQMStore::IBooker &,
+    edm::Run const &, edm::EventSetup const &) override;
   ///
-  void beginRun(const edm::Run&, const edm::EventSetup&);
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
 
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&);
@@ -46,13 +46,8 @@ class QcdPhotonsDQM : public edm::EDAnalyzer {
   // Divide histograms
   void endRun(const edm::Run&, const edm::EventSetup&);
 
-  /// Save the histos
-  void endJob(void);
-
  private:
   // ----------member data ---------------------------
-
-  DQMStore* theDbe;
 
   HLTConfigProvider hltConfigProvider_;
   bool isValidHltConfig_;

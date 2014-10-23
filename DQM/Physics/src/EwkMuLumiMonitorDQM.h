@@ -13,7 +13,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
@@ -23,6 +22,7 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 namespace trigger {
 class TriggerEvent;
@@ -34,13 +34,14 @@ class MET;
 
 class DQMStore;
 class MonitorElement;
-class EwkMuLumiMonitorDQM : public edm::EDAnalyzer {
+class EwkMuLumiMonitorDQM : public DQMEDAnalyzer {
  public:
   EwkMuLumiMonitorDQM(const edm::ParameterSet&);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginJob();
-  virtual void endJob();
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
+  //Book histograms
+  void bookHistograms(DQMStore::IBooker &,
+    edm::Run const &, edm::EventSetup const &) override;
+  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
   virtual void endRun(const edm::Run&, const edm::EventSetup&);
 
   void init_histograms();
@@ -80,8 +81,6 @@ class EwkMuLumiMonitorDQM : public edm::EDAnalyzer {
   double mtMax_;
   double acopCut_;
   double dxyCut_;
-
-  DQMStore* theDbe;
 
   MonitorElement* mass2HLT_;
   MonitorElement* highMass2HLT_;

@@ -11,8 +11,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+// #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 namespace reco {
 class Muon;
@@ -26,13 +27,14 @@ class BeamSpot;
 class DQMStore;
 class MonitorElement;
 
-class EwkMuDQM : public edm::EDAnalyzer {
+class EwkMuDQM : public DQMEDAnalyzer {
  public:
   EwkMuDQM(const edm::ParameterSet&);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginJob();
-  virtual void endJob();
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
+  //Book histograms
+  void bookHistograms(DQMStore::IBooker &,
+    edm::Run const &, edm::EventSetup const &) override;
+  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
   virtual void endRun(const edm::Run&, const edm::EventSetup&);
 
   void init_histograms();
@@ -92,8 +94,6 @@ class EwkMuDQM : public edm::EDAnalyzer {
   unsigned int nmet;
   unsigned int nsel;
   unsigned int nz;
-
-  DQMStore* theDbe;
 
   MonitorElement* pt_before_;
   MonitorElement* pt_after_;

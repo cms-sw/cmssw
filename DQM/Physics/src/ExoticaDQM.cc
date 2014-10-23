@@ -146,6 +146,9 @@ ExoticaDQM::ExoticaDQM(const edm::ParameterSet& ps) {
 
   // just to initialize
   // isValidHltConfig_ = false;
+  nLumiSecs_ = 0;
+  nEvents_ = 0;
+  pi = 3.14159265;
 }
 
 //
@@ -157,23 +160,10 @@ ExoticaDQM::~ExoticaDQM() {
 }
 
 //
-// -- Begin Job
-//
-void ExoticaDQM::beginJob() {
-  nLumiSecs_ = 0;
-  nEvents_ = 0;
-  pi = 3.14159265;
-}
-
-//
 // -- Begin Run
 //
-void ExoticaDQM::beginRun(Run const& run, edm::EventSetup const& eSetup) {
+void ExoticaDQM::dqmBeginRun(Run const& run, edm::EventSetup const& eSetup) {
   edm::LogInfo("ExoticaDQM") << "[ExoticaDQM]: Begining of Run";
-
-  bei_ = Service<DQMStore>().operator->();
-  bei_->setCurrentFolder("Physics/Exotica");
-  bookHistos(bei_);
 
   // passed as parameter to HLTConfigProvider::init(), not yet used
   bool isConfigChanged = false;
@@ -196,70 +186,65 @@ void ExoticaDQM::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
 //
 //  -- Book histograms
 //
-void ExoticaDQM::bookHistos(DQMStore* bei) {
+void ExoticaDQM::bookHistograms(DQMStore::IBooker & ibooker,
+  edm::Run const &, edm::EventSetup const & ){
 
-  bei->cd();
+  ibooker.cd();
+  ibooker.setCurrentFolder("Physics/Exotica");
 
   //--- Multijets
-  bei->setCurrentFolder("Physics/Exotica/MultiJets");
-  mj_monojet_pfchef =
-      bei->book1D("mj_monojet_pfchef", "PFJetID CHEF", 50, 0.0, 1.0);
-  mj_monojet_pfnhef =
-      bei->book1D("mj_monojet_pfnhef", "PFJetID NHEF", 50, 0.0, 1.0);
-  mj_monojet_pfcemf =
-      bei->book1D("mj_monojet_pfcemf", "PFJetID CEMF", 50, 0.0, 1.0);
-  mj_monojet_pfnemf =
-      bei->book1D("mj_monojet_pfnemf", "PFJetID NEMF", 50, 0.0, 1.0);
-  mj_monojet_pfJet1_pt =
-      bei->book1D("mj_monojet_pfJet1_pt", "Pt of PFJet-1 (GeV)", 40, 0.0, 1000);
-  mj_monojet_pfJet2_pt =
-      bei->book1D("mj_monojet_pfJet2_pt", "Pt of PFJet-2 (GeV)", 40, 0.0, 1000);
-  mj_monojet_pfJet1_eta =
-      bei->book1D("mj_monojet_pfJet1_eta", "#eta(PFJet-1)", 50, -5.0, 5.0);
-  mj_monojet_pfJet2_eta =
-      bei->book1D("mj_monojet_pfJet2_eta", "#eta(PFJet-2)", 50, -5.0, 5.0);
-  mj_monojet_pfJetMulti =
-      bei->book1D("mj_monojet_pfJetMulti", "No. of PFJets", 10, 0., 10.);
-  mj_monojet_deltaPhiPFJet1PFJet2 =
-      bei->book1D("mj_monojet_deltaPhiPFJet1PFJet2",
-                  "#Delta#phi(PFJet1, PFJet2)", 40, 0., 4.);
-  mj_monojet_deltaRPFJet1PFJet2 = bei->book1D(
-      "mj_monojet_deltaRPFJet1PFJet2", "#DeltaR(PFJet1, PFJet2)", 50, 0., 10.);
-  mj_monojet_pfmetnomu =
-      bei->book1D("mj_monojet_pfmetnomu", "PFMET no Mu", 100, 0.0, 500.0);
-  mj_caloMet_et =
-      bei->book1D("mj_caloMet", "Calo Missing E_{T}; GeV", 50, 0.0, 500);
-  mj_caloMet_phi = bei->book1D(
-      "mj_caloMet_phi", "Calo Missing E_{T} #phi;#phi(MET)", 35, -3.5, 3.5);
-  mj_pfMet_et = bei->book1D("mj_pfMet", "Pf Missing E_{T}; GeV", 50, 0.0, 500);
-  mj_pfMet_phi = bei->book1D("mj_pfMet_phi", "Pf Missing E_{T} #phi;#phi(MET)",
-                             35, -3.5, 3.5);
-
-  //
-  // bei->setCurrentFolder("Physics/Exotica/MultiJetsTrigger");
+  ibooker.setCurrentFolder("Physics/Exotica/MultiJets");
+  mj_monojet_pfchef = ibooker.book1D("mj_monojet_pfchef",
+      "PFJetID CHEF", 50, 0.0, 1.0);
+  mj_monojet_pfnhef = ibooker.book1D("mj_monojet_pfnhef",
+      "PFJetID NHEF", 50, 0.0, 1.0);
+  mj_monojet_pfcemf = ibooker.book1D("mj_monojet_pfcemf",
+      "PFJetID CEMF", 50, 0.0, 1.0);
+  mj_monojet_pfnemf = ibooker.book1D("mj_monojet_pfnemf",
+      "PFJetID NEMF", 50, 0.0, 1.0);
+  mj_monojet_pfJet1_pt = ibooker.book1D("mj_monojet_pfJet1_pt",
+      "Pt of PFJet-1 (GeV)", 40, 0.0, 1000);
+  mj_monojet_pfJet2_pt = ibooker.book1D("mj_monojet_pfJet2_pt",
+      "Pt of PFJet-2 (GeV)", 40, 0.0, 1000);
+  mj_monojet_pfJet1_eta = ibooker.book1D("mj_monojet_pfJet1_eta",
+      "#eta(PFJet-1)", 50, -5.0, 5.0);
+  mj_monojet_pfJet2_eta = ibooker.book1D("mj_monojet_pfJet2_eta",
+      "#eta(PFJet-2)", 50, -5.0, 5.0);
+  mj_monojet_pfJetMulti = ibooker.book1D("mj_monojet_pfJetMulti",
+      "No. of PFJets", 10, 0., 10.);
+  mj_monojet_deltaPhiPFJet1PFJet2 = ibooker.book1D("mj_monojet_deltaPhiPFJet1PFJet2",
+      "#Delta#phi(PFJet1, PFJet2)", 40, 0., 4.);
+  mj_monojet_deltaRPFJet1PFJet2 = ibooker.book1D("mj_monojet_deltaRPFJet1PFJet2",
+      "#DeltaR(PFJet1, PFJet2)", 50, 0., 10.);
+  mj_monojet_pfmetnomu = ibooker.book1D("mj_monojet_pfmetnomu",
+      "PFMET no Mu", 100, 0.0, 500.0);
+  mj_caloMet_et = ibooker.book1D("mj_caloMet",
+      "Calo Missing E_{T}; GeV", 50, 0.0, 500);
+  mj_caloMet_phi = ibooker.book1D("mj_caloMet_phi",
+      "Calo Missing E_{T} #phi;#phi(MET)", 35, -3.5, 3.5);
+  mj_pfMet_et = ibooker.book1D("mj_pfMet", "Pf Missing E_{T}; GeV", 50, 0.0, 500);
+  mj_pfMet_phi = ibooker.book1D("mj_pfMet_phi", "Pf Missing E_{T} #phi;#phi(MET)",
+      35, -3.5, 3.5);
 
   //--- LongLived
-  bei->setCurrentFolder("Physics/Exotica/LongLived");
-  ll_gammajet_sMajMajPhot =
-      bei->book1D("ll_gammajet_sMajMajPhot", "sMajMajPhot", 50, 0.0, 5.0);
-  ll_gammajet_sMinMinPhot =
-      bei->book1D("ll_gammajet_sMinMinPhot", "sMinMinPhot", 50, 0.0, 5.0);
+  ibooker.setCurrentFolder("Physics/Exotica/LongLived");
+  ll_gammajet_sMajMajPhot = ibooker.book1D("ll_gammajet_sMajMajPhot",
+      "sMajMajPhot", 50, 0.0, 5.0);
+  ll_gammajet_sMinMinPhot = ibooker.book1D("ll_gammajet_sMinMinPhot", 
+      "sMinMinPhot", 50, 0.0, 5.0);
 
   //
-  // bei->setCurrentFolder("Physics/Exotica/LongLivedTrigger");
-
-  //
-  bei->setCurrentFolder("Physics/Exotica/EIComparison");
-  ei_pfjet1_pt =
-      bei->book1D("ei_pfjet1_pt", "Pt of PFJet-1    (EI) (GeV)", 40, 0.0, 1000);
-  ei_pfmet_pt =
-      bei->book1D("ei_pfmet_pt", "Pt of PFMET      (EI) (GeV)", 40, 0.0, 1000);
+  ibooker.setCurrentFolder("Physics/Exotica/EIComparison");
+  ei_pfjet1_pt = ibooker.book1D("ei_pfjet1_pt",
+      "Pt of PFJet-1    (EI) (GeV)", 40, 0.0, 1000);
+  ei_pfmet_pt = ibooker.book1D("ei_pfmet_pt",
+      "Pt of PFMET      (EI) (GeV)", 40, 0.0, 1000);
   // ei_pfmuon_pt     = bei->book1D("ei_pfmuon_pt",     "Pt of PFMuon     (EI)
   // (GeV)", 40, 0.0 , 1000);
   // ei_pfelectron_pt = bei->book1D("ei_pfelectron_pt", "Pt of PFElectron (EI)
   // (GeV)", 40, 0.0 , 1000);
 
-  bei->cd();
+  ibooker.cd();
 }
 
 //
@@ -578,13 +563,6 @@ void ExoticaDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
 // -- End Run
 //
 void ExoticaDQM::endRun(edm::Run const& run, edm::EventSetup const& eSetup) {}
-
-//
-// -- End Job
-//
-void ExoticaDQM::endJob() {
-  // edm::LogInfo("ExoticaDQM") <<"[ExoticaDQM]: endjob called!";
-}
 
 // Local Variables:
 // show-trailing-whitespace: t
