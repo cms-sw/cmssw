@@ -146,7 +146,7 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
 	cout << "Total Et" << endl;
 	cout << bitset<12>(itetsum->hwPt()).to_string() << endl;
       }
-      if(EtSum::EtSumType::kTotalEt == itetsum->getType())
+      if(EtSum::EtSumType::kTotalHt == itetsum->getType())
       {
 	cout << "Total Ht" << endl;
 	cout << bitset<12>(itetsum->hwPt()).to_string() << endl;

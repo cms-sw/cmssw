@@ -203,43 +203,29 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
     etTotResult->resize(1);
     etHadResult->resize(1);
 
+    L1GctHFRingEtSums sum = L1GctHFRingEtSums::fromGctEmulator(itBX,
+							       0,
+							       0,
+							       0,
+							       0);
     for (l1t::CaloSpareBxCollection::const_iterator itCaloSpare = CaloSpare->begin(itBX);
 	 itCaloSpare != CaloSpare->end(itBX); ++itCaloSpare){
-      // L1GctHFRingEtSums sum = L1GctHFRingEtSums::fromConcRingSums(const uint16_t capBlock,
-      // 								  const uint16_t capIndex,
-      // 								  const int16_t bx,
-      // 								  const uint32_t data);
       if (CaloSpare::CaloSpareType::V2 == itCaloSpare->getType())
       {
-	L1GctHFRingEtSums sum = L1GctHFRingEtSums::fromGctEmulator(itBX,
-								   itCaloSpare->hwPt() & 0x7,
-								   (itCaloSpare->hwPt() >> 3) & 0x7,
-								   (itCaloSpare->hwPt() >> 6) & 0x7,
-								   (itCaloSpare->hwPt() >> 9) & 0x7);
-	hfRingEtSumResult->push_back(sum);
+	sum.setEtSum(3, itCaloSpare->hwPt());
       } else if (CaloSpare::CaloSpareType::Centrality == itCaloSpare->getType())
       {
-
-	// static L1GctHFBitCounts fromConcHFBitCounts(const uint16_t capBlock,
-	// 						  const uint16_t capIndex,
-	// 						  const int16_t bx,
-	// 						  const uint32_t data);
-
-	L1GctHFBitCounts bitcount = L1GctHFBitCounts::fromConcHFBitCounts(0,
-									  0,
-									  itBX,
-									  itCaloSpare->hwPt() & 0xfff);
-	hfBitCountResult->push_back(bitcount);
+	sum.setEtSum(0, itCaloSpare->hwPt());
       } else if (CaloSpare::CaloSpareType::Tau == itCaloSpare->getType())
       {
-	L1GctHFRingEtSums sum = L1GctHFRingEtSums::fromGctEmulator(itBX,
-								   itCaloSpare->hwPt() & 0x7,
-								   (itCaloSpare->hwPt() >> 3) & 0x7,
-								   (itCaloSpare->hwPt() >> 6) & 0x7,
-								   (itCaloSpare->hwPt() >> 9) & 0x7);
-	hfRingEtSumResult->push_back(sum);
+	sum.setEtSum(0, itCaloSpare->hwPt() & 0x7);
+	sum.setEtSum(1, (itCaloSpare->hwPt() >> 3) & 0x7);
+	sum.setEtSum(2, (itCaloSpare->hwPt() >> 6) & 0x7);
+	sum.setEtSum(3, (itCaloSpare->hwPt() >> 9) & 0x7);
       }
     }
+    hfRingEtSumResult->push_back(sum);
+
     hfRingEtSumResult->resize(1);
     hfBitCountResult->resize(1);
   }

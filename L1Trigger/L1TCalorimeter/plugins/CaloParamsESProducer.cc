@@ -45,9 +45,9 @@ class CaloParamsESProducer : public edm::ESProducer {
 public:
   CaloParamsESProducer(const edm::ParameterSet&);
   ~CaloParamsESProducer();
-  
+
   typedef boost::shared_ptr<CaloParams> ReturnType;
-  
+
   ReturnType produce(const L1TCaloParamsRcd&);
 
 private:
@@ -68,12 +68,12 @@ private:
 //
 CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
 {
-  
+
   //the following line is needed to tell the framework what
   // data is being produced
   setWhatProduced(this);
   //setWhatProduced(this, conf.getParameter<std::string>("label"));
-  
+
   // towers
   m_params.setTowerLsbH(conf.getParameter<double>("towerLsbH"));
   m_params.setTowerLsbE(conf.getParameter<double>("towerLsbE"));
@@ -88,7 +88,7 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setRegionLsb(conf.getParameter<double>("regionLsb"));
   m_params.setRegionPUSType(conf.getParameter<std::string>("regionPUSType"));
   m_params.setRegionPUSParams(conf.getParameter<std::vector<double> >("regionPUSParams"));
-    
+
   // EG
   m_params.setEgLsb(conf.getParameter<double>("egLsb"));
   m_params.setEgSeedThreshold(conf.getParameter<double>("egSeedThreshold"));
@@ -115,7 +115,7 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setEgShapeIdLUT(egShapeIdLUT);
 
   m_params.setEgIsoPUSType(conf.getParameter<std::string>("egIsoPUSType"));
-  
+
   edm::FileInPath egIsoLUTFile = conf.getParameter<edm::FileInPath>("egIsoLUTFile");
   std::ifstream egIsoLUTStream(egIsoLUTFile.fullPath());
   std::shared_ptr<l1t::LUT> egIsoLUT( new l1t::LUT(egIsoLUTStream) );
@@ -143,7 +143,7 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   std::ifstream egCalibrationLUTStream(egCalibrationLUTFile.fullPath());
   std::shared_ptr<l1t::LUT> egCalibrationLUT( new l1t::LUT(egCalibrationLUTStream) );
   m_params.setEgCalibrationLUT(egCalibrationLUT);
-  
+
   // tau
   m_params.setTauLsb(conf.getParameter<double>("tauLsb"));
   m_params.setTauSeedThreshold(conf.getParameter<double>("tauSeedThreshold"));
@@ -195,14 +195,14 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setJetPUSType(conf.getParameter<std::string>("jetPUSType"));
   m_params.setJetCalibrationType(conf.getParameter<std::string>("jetCalibrationType"));
   m_params.setJetCalibrationParams(conf.getParameter<std::vector<double> >("jetCalibrationParams"));
-  
+
   // sums
   m_params.setEtSumLsb(conf.getParameter<double>("etSumLsb"));
 
   std::vector<int> etSumEtaMin = conf.getParameter<std::vector<int> >("etSumEtaMin");
   std::vector<int> etSumEtaMax = conf.getParameter<std::vector<int> >("etSumEtaMax");
   std::vector<double> etSumEtThreshold = conf.getParameter<std::vector<double> >("etSumEtThreshold");
-  
+
   if ((etSumEtaMin.size() == etSumEtaMax.size()) &&  (etSumEtaMin.size() == etSumEtThreshold.size())) {
     for (unsigned i=0; i<etSumEtaMin.size(); ++i) {
       m_params.setEtSumEtaMin(i, etSumEtaMin.at(i));
@@ -214,12 +214,25 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
     edm::LogError("l1t|calo") << "Inconsistent number of EtSum parameters" << std::endl;
   }
 
+  // HI centrality trigger
+  edm::FileInPath centralityLUTFile = conf.getParameter<edm::FileInPath>("centralityLUTFile");
+  std::ifstream centralityLUTStream(centralityLUTFile.fullPath());
+  std::shared_ptr<l1t::LUT> centralityLUT( new l1t::LUT(centralityLUTStream) );
+  m_params.setCentralityLUT(centralityLUT);
+
+  // HI Q2 trigger
+  edm::FileInPath q2LUTFile = conf.getParameter<edm::FileInPath>("q2LUTFile");
+  std::ifstream q2LUTStream(q2LUTFile.fullPath());
+  std::shared_ptr<l1t::LUT> q2LUT( new l1t::LUT(q2LUTStream) );
+  m_params.setQ2LUT(q2LUT);
+
+
 }
 
 
 CaloParamsESProducer::~CaloParamsESProducer()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
