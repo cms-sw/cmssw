@@ -13,7 +13,7 @@ particleFlowRecHitHF = cms.EDProducer("PFRecHitProducer",
     producers = cms.VPSet(
            cms.PSet(
              name = cms.string("PFHFRecHitCreator"),
-             src  = cms.InputTag("hfUpgradeReco",""),
+             src  = cms.InputTag("hfreco",""),
              EMDepthCorrection = cms.double(22.),
              HADDepthCorrection = cms.double(25.),
              thresh_HF = cms.double(0.4),
