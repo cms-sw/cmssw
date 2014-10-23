@@ -8,6 +8,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <fstream>
+#include "Randomize.hh"
 
 //using std::cout;
 //using std::endl;
@@ -18,6 +19,7 @@ EventAction::EventAction(const edm::ParameterSet & p,
     : m_runInterface(rm),
       m_trackManager(iManager),
       m_stopFile(p.getParameter<std::string>("StopFile")),
+      m_printRandom(p.getParameter<bool>("PrintRandomSeed")),
       m_debug(p.getUntrackedParameter<bool>("debug",false))
 {
   m_trackManager->setCollapsePrimaryVertices(p.getParameter<bool>("CollapsePrimaryVertices"));
@@ -45,6 +47,14 @@ void EventAction::BeginOfEventAction(const G4Event * anEvent)
 
 void EventAction::EndOfEventAction(const G4Event * anEvent)
 {
+  if(m_printRandom) 
+    {
+      edm::LogInfo("SimG4CoreApplication") << " Event " << anEvent->GetEventID()
+					   << " Random number: " << G4UniformRand();  
+      //std::cout << " Event " << anEvent->GetEventID()
+      //	<< " Random number: " << G4UniformRand() << std::endl;  
+      //CLHEP::HepRandom::showEngineStatus();
+    }
   if (std::ifstream(m_stopFile.c_str()))
     {
       edm::LogWarning("SimG4CoreApplication")
