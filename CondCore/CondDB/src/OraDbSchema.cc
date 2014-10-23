@@ -233,19 +233,29 @@ namespace cond {
 				 const boost::posix_time::ptime& ){
       if(!m_cache.load(tag)) throwException("Tag "+tag+" has not been found in the database.",
 					    "OraIOVTable::insertOne");
-      m_cache.editor().append( since, payloadHash );
+      if( m_cache.editor().timetype() != cond::hash ){
+	m_cache.editor().append( since, payloadHash );
+      } else {
+	m_cache.editor().freeInsert( since, payloadHash );
+      }
     }
 
     void OraIOVTable::insertMany( const std::string& tag, 
 				  const std::vector<std::tuple<cond::Time_t,cond::Hash,boost::posix_time::ptime> >& iovs ){
       if(!m_cache.load(tag)) throwException("Tag "+tag+" has not been found in the database.",
 					    "OraIOVTable::insertOne");
-      std::vector<std::pair<cond::Time_t, std::string > > data;
-      data.reserve( iovs.size() );
-      for( auto v : iovs ){
-	data.push_back( std::make_pair( std::get<0>(v), std::get<1>(v) ) );
+      if( m_cache.editor().timetype() != cond::hash ){
+	std::vector<std::pair<cond::Time_t, std::string > > data;
+	data.reserve( iovs.size() );
+	for( auto v : iovs ){
+	  data.push_back( std::make_pair( std::get<0>(v), std::get<1>(v) ) );
+	}
+	m_cache.editor().bulkAppend( data );
+      } else {
+        for( auto v: iovs ){
+	  insertOne( tag, std::get<0>(v), std::get<1>(v), std::get<2>(v) );
+	}
       }
-      m_cache.editor().bulkAppend( data );
     }
 
     void OraIOVTable::erase( const std::string& ){

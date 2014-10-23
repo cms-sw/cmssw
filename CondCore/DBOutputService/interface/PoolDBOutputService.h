@@ -2,8 +2,8 @@
 #define CondCore_PoolDBOutputService_h
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/TypeID.h"
-//#include "CondCore/DBCommon/interface/Logger.h"
-//#include "CondCore/DBCommon/interface/LogDBEntry.h"
+#include "CondCore/DBCommon/interface/Logger.h"
+#include "CondCore/DBCommon/interface/LogDBEntry.h"
 //#include "CondCore/DBCommon/interface/TagInfo.h"
 #include "CondCore/CondDB/interface/Session.h"
 #include <string>
@@ -51,7 +51,7 @@ namespace cond{
       //
       std::string tag( const std::string& recordName );
       bool isNewTagRequest( const std::string& recordName );
-      //const cond::Logger& queryLog() const;
+      const cond::Logger& queryLog() const;
       
       // 
       template<typename T>
@@ -190,7 +190,7 @@ namespace cond{
       void initDB( bool forReading=true );
 
       Record & lookUpRecord(const std::string& recordName);
-      //cond::UserLogInfo& lookUpUserLogInfo(const std::string& recordName);
+      cond::UserLogInfo& lookUpUserLogInfo(const std::string& recordName);
       
     private:
       std::recursive_mutex m_mutex;
@@ -199,14 +199,14 @@ namespace cond{
       std::vector<cond::Time_t> m_currentTimes;
 
       cond::persistency::Session m_session;
-      //std::string m_logConnectionString;
-      //std::auto_ptr<cond::Logger> m_logdb;
+      std::string m_logConnectionString;
+      std::auto_ptr<cond::Logger> m_logdb;
       bool m_dbstarted;
 
       std::map<std::string, Record> m_callbacks;
-      //std::vector< std::pair<std::string,std::string> > m_newtags;
+      std::vector< std::pair<std::string,std::string> > m_newtags;
       bool m_closeIOV;
-      //std::map<std::string, cond::UserLogInfo> m_logheaders;
+      std::map<std::string, cond::UserLogInfo> m_logheaders;
 
     };//PoolDBOutputService
   }//ns service

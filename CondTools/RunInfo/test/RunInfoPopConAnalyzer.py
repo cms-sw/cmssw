@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ProcessOne")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = 'sqlite_file:runinfo_pop_test.db'
+process.CondDBCommon.connect = 'sqlite_file:dbox_upload.db'
 process.CondDBCommon.DBParameters.authenticationPath = '.'
 process.CondDBCommon.DBParameters.messageLevel=cms.untracked.int32(3)
 
@@ -26,16 +26,18 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     timetype = cms.untracked.string('runnumber'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('RunInfoRcd'),
-        tag = cms.string('runinfo_test')
+        tag = cms.string('runinfo_31X_hlt')
     ))
 )
 
 process.Test1 = cms.EDAnalyzer("RunInfoPopConAnalyzer",
     SinceAppendMode = cms.bool(True),
     record = cms.string('RunInfoRcd'),
-    Source = cms.PSet(),
+    Source = cms.PSet(
+        OnlineDBPass = cms.untracked.string('MICKEY2MOUSE')),
     loggingOn = cms.untracked.bool(True),
-    IsDestDbCheckedInQueryLog = cms.untracked.bool(False)
+    IsDestDbCheckedInQueryLog = cms.untracked.bool(False),
+    targetDBConnectionString = cms.untracked.string('sqlite_file:run_info_popcontest.db')
 )
 
 process.p = cms.Path(process.Test1)
