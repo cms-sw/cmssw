@@ -14,7 +14,9 @@ SUSY_HLT_HT200_alphaT0p57 = cms.EDAnalyzer("SUSY_HLT_alphaT",
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoTkMu24_eta2p1_IterTrk02_v1'),
   TriggerFilter = cms.InputTag('hltHT200CaloAlphaT0p57', '', 'TEST'), #the last filter in the path
   PtThrJet = cms.untracked.double(50.0),
-  EtaThrJet = cms.untracked.double(3.0)
+  EtaThrJet = cms.untracked.double(3.0),
+  alphaTThrTurnon = cms.untracked.double(0.59),
+  htThrTurnon = cms.untracked.double(225),
 )
 
 SUSY_HLT_HT250_alphaT0p55 = cms.EDAnalyzer("SUSY_HLT_alphaT",
@@ -31,7 +33,9 @@ SUSY_HLT_HT250_alphaT0p55 = cms.EDAnalyzer("SUSY_HLT_alphaT",
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoTkMu24_eta2p1_IterTrk02_v1'),
   TriggerFilter = cms.InputTag('hltHT250CaloAlphaT0p55', '', 'TEST'), #the last filter in the path
   PtThrJet = cms.untracked.double(50.0),
-  EtaThrJet = cms.untracked.double(3.0)
+  EtaThrJet = cms.untracked.double(3.0),
+  alphaTThrTurnon = cms.untracked.double(0.57),
+  htThrTurnon = cms.untracked.double(275),
 )
 
 SUSY_HLT_HT300_alphaT0p53 = cms.EDAnalyzer("SUSY_HLT_alphaT",
@@ -48,7 +52,9 @@ SUSY_HLT_HT300_alphaT0p53 = cms.EDAnalyzer("SUSY_HLT_alphaT",
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoTkMu24_eta2p1_IterTrk02_v1'),
   TriggerFilter = cms.InputTag('hltHT300CaloAlphaT0p53', '', 'TEST'), #the last filter in the path
   PtThrJet = cms.untracked.double(50.0),
-  EtaThrJet = cms.untracked.double(3.0)
+  EtaThrJet = cms.untracked.double(3.0),
+  alphaTThrTurnon = cms.untracked.double(0.55),
+  htThrTurnon = cms.untracked.double(325),
 )
 
 SUSY_HLT_HT350_alphaT0p52 = cms.EDAnalyzer("SUSY_HLT_alphaT",
@@ -65,7 +71,9 @@ SUSY_HLT_HT350_alphaT0p52 = cms.EDAnalyzer("SUSY_HLT_alphaT",
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoTkMu24_eta2p1_IterTrk02_v1'),
   TriggerFilter = cms.InputTag('hltHT350CaloAlphaT0p52', '', 'TEST'), #the last filter in the path
   PtThrJet = cms.untracked.double(50.0),
-  EtaThrJet = cms.untracked.double(3.0)
+  EtaThrJet = cms.untracked.double(3.0),
+  alphaTThrTurnon = cms.untracked.double(0.54),
+  htThrTurnon = cms.untracked.double(375),
 )
 
 SUSY_HLT_HT400_alphaT0p51 = cms.EDAnalyzer("SUSY_HLT_alphaT",
@@ -82,7 +90,9 @@ SUSY_HLT_HT400_alphaT0p51 = cms.EDAnalyzer("SUSY_HLT_alphaT",
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoTkMu24_eta2p1_IterTrk02_v1'),
   TriggerFilter = cms.InputTag('hltHT400CaloAlphaT0p51', '', 'TEST'), #the last filter in the path
   PtThrJet = cms.untracked.double(50.0),
-  EtaThrJet = cms.untracked.double(3.0)
+  EtaThrJet = cms.untracked.double(3.0),
+  alphaTThrTurnon = cms.untracked.double(0.53),
+  htThrTurnon = cms.untracked.double(425),
 )
 
 SUSY_HLT_alphaT_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",

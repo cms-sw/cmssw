@@ -21,10 +21,12 @@ SUSY_HLT_alphaT::SUSY_HLT_alphaT(const edm::ParameterSet& ps)
   HLTProcess_ = ps.getParameter<std::string>("HLTProcess");
   triggerPath_ = ps.getParameter<std::string>("TriggerPath");
   //triggerPathAuxiliaryForMuon_ = ps.getParameter<std::string>("TriggerPathAuxiliaryForMuon");
-  //triggerPathAuxiliaryForHadronic_ = ps.getParameter<std::string>("TriggerPathAuxiliaryForHadronic");
+  triggerPathAuxiliaryForHadronic_ = ps.getParameter<std::string>("TriggerPathAuxiliaryForHadronic");
   triggerFilter_ = ps.getParameter<edm::InputTag>("TriggerFilter");
   ptThrJet_ = ps.getUntrackedParameter<double>("PtThrJet");
   etaThrJet_ = ps.getUntrackedParameter<double>("EtaThrJet");
+  alphaTThrTurnon_ = ps.getUntrackedParameter<double>("alphaTThrTurnon");
+  htThrTurnon_ = ps.getUntrackedParameter<double>("htThrTurnon");
 }
 
 SUSY_HLT_alphaT::~SUSY_HLT_alphaT()
@@ -136,19 +138,14 @@ void SUSY_HLT_alphaT::analyze(edm::Event const& e, edm::EventSetup const& eSetup
 
   double hltHt=0.;
   std::vector<LorentzV> hltJets;
-  //std::cout << "\n Started looking for jets: \n" << filterIndex << "\n" << triggerSummary->sizeFilters();
   if( !(filterIndex >= triggerSummary->sizeFilters()) ){
       const trigger::Keys& keys = triggerSummary->filterKeys( filterIndex );
-      //std::cout << "\n Passed L1 \n";
-      //std::cout << "Keys size: " << keys.size() << '\n';
 
       for( size_t j = 0; j < keys.size(); ++j ){
           trigger::TriggerObject foundObject = triggerObjects[keys[j]];
-          //std::cout << foundObject.id() << "\t" << foundObject.pt() <<"\n";
 
           //  if(foundObject.id() == 85){ //It's a jet 
           if(foundObject.pt()>ptThrJet_ && fabs(foundObject.eta()) < etaThrJet_){
-              //std::cout << "\n found a jet! \n";
               hltHt += foundObject.pt();
               LorentzV JetLVec(foundObject.pt(),foundObject.eta(),foundObject.phi(),foundObject.mass());
               hltJets.push_back(JetLVec);
@@ -158,9 +155,12 @@ void SUSY_HLT_alphaT::analyze(edm::Event const& e, edm::EventSetup const& eSetup
   }
 
   //Fill the alphaT and HT histograms
-  h_triggerAlphaT->Fill(AlphaT(hltJets).value());
-  h_triggerHt->Fill(hltHt);
-
+  if(hltJets.size()>0){
+      double hltAlphaT = AlphaT(hltJets).value();
+      h_triggerAlphaT->Fill(hltAlphaT);
+      h_triggerHt->Fill(hltHt);
+      h_triggerAlphaT_triggerHt->Fill(hltHt, hltAlphaT);
+  }
 
   bool hasFired = false;
   bool hasFiredAuxiliaryForHadronicLeg = false;
@@ -169,12 +169,10 @@ void SUSY_HLT_alphaT::analyze(edm::Event const& e, edm::EventSetup const& eSetup
   for( unsigned int hltIndex=0; hltIndex<numTriggers; ++hltIndex ){
       if (trigNames.triggerName(hltIndex)==triggerPath_ && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) hasFired = true;
       if (trigNames.triggerName(hltIndex)==triggerPathAuxiliaryForHadronic_ && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) hasFiredAuxiliaryForHadronicLeg = true;
+
   }
 
-  //if(!hasFired) std::cout << "Trigger didn't fire\n" ;
-
   if(hasFiredAuxiliaryForHadronicLeg) {
-      //std::cout << " Passed the muon " << std::endl;
 
       float caloHT = 0.0;
       //float pfHT = 0.0;
@@ -199,11 +197,11 @@ void SUSY_HLT_alphaT::analyze(edm::Event const& e, edm::EventSetup const& eSetup
 
       //Fill the turnons
       if(hasFired) {
-          h_alphaTTurnOn_num-> Fill(caloAlphaT);
-          h_htTurnOn_num-> Fill(caloHT);
+          if(caloHT>htThrTurnon_) h_alphaTTurnOn_num-> Fill(caloAlphaT);
+          if(caloAlphaT>alphaTThrTurnon_) h_htTurnOn_num-> Fill(caloHT);
       } 
-      h_alphaTTurnOn_den-> Fill(caloAlphaT);
-      h_htTurnOn_den-> Fill(caloHT);
+      if(caloHT>htThrTurnon_) h_alphaTTurnOn_den-> Fill(caloAlphaT);
+      if(caloAlphaT>alphaTThrTurnon_) h_htTurnOn_den-> Fill(caloHT);
   }
 }
 
@@ -227,8 +225,10 @@ void SUSY_HLT_alphaT::bookHistos(DQMStore::IBooker & ibooker_)
     //offline quantities
 
     //online quantities 
-    h_triggerHt = ibooker_.book1D("triggerHt", "Trigger Ht; GeV", 30, 0.0, 1500.0);
-    h_triggerAlphaT = ibooker_.book1D("triggerAlphaT", "Trigger AlphaT", 40, 0., 1.0);
+    h_triggerHt = ibooker_.book1D("triggerHt", "Trigger Ht; GeV", 60, 0.0, 1500.0);
+    h_triggerAlphaT = ibooker_.book1D("triggerAlphaT", "Trigger AlphaT", 80, 0., 1.0);
+    h_triggerAlphaT_triggerHt = ibooker_.book2D("triggerAlphaT_triggerHt","Trigger HT vs Trigger AlphaT", 60,0.0,1500.,80,0.,1.0);
+    
     //h_triggerMht = ibooker_.book1D("triggerMht", "Trigger Mht", 20, -3.5, 3.5);
 
     //num and den hists to be divided in harvesting step to make turn on curves

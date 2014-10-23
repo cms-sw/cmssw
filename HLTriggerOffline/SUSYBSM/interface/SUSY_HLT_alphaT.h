@@ -72,11 +72,14 @@ class SUSY_HLT_alphaT: public DQMEDAnalyzer{
   edm::InputTag triggerFilter_;
   double ptThrJet_;
   double etaThrJet_;
+  double alphaTThrTurnon_;
+  double htThrTurnon_;
   
   // Histograms
   MonitorElement* h_triggerHt;
   //MonitorElement* h_triggerMht;
   MonitorElement* h_triggerAlphaT;
+  MonitorElement* h_triggerAlphaT_triggerHt;
   MonitorElement* h_alphaTTurnOn_num;
   MonitorElement* h_alphaTTurnOn_den;
   MonitorElement* h_htTurnOn_num;

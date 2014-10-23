@@ -17,6 +17,8 @@ process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 
 process.load('HLTriggerOffline.SUSYBSM.SusyExoValidation_cff')
 
+process.load('FWCore.MessageService.MessageLogger_cfi')
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
@@ -30,7 +32,29 @@ process.source = cms.Source("PoolSource",
         #'file:///afs/cern.ch/work/a/aelwood/alphat/trigger/hltSkims/DY_withmuon1.root',
         #'file:///afs/cern.ch/work/a/aelwood/alphat/trigger/hltSkims/Susy_withmuon1.root',
         #'file:///afs/cern.ch/work/a/aelwood/alphat/trigger/hltSkim.root',
-        'file:///afs/cern.ch/user/a/aelwood/alphat/hlt/CMSSW_7_2_0/src/HLTTest/hltSkim.root'
+        #'file:///afs/cern.ch/user/a/aelwood/alphat/hlt/CMSSW_7_2_0/src/HLTTest/hltSkim.root'
+
+        #TTBAR
+        #'/store/user/aelwood/141022_hltDqmTestSkim/TTBar/hltSkim_10_1_mg0.root',
+        #'/store/user/aelwood/141022_hltDqmTestSkim/TTBar/hltSkim_2_1_JAw.root',
+        #'/store/user/aelwood/141022_hltDqmTestSkim/TTBar/hltSkim_3_1_OJ9.root',
+        #'/store/user/aelwood/141022_hltDqmTestSkim/TTBar/hltSkim_4_1_lnc.root',
+        #'/store/user/aelwood/141022_hltDqmTestSkim/TTBar/hltSkim_5_1_0sw.root',
+        #'/store/user/aelwood/141022_hltDqmTestSkim/TTBar/hltSkim_7_1_Ttp.root',
+        #'/store/user/aelwood/141022_hltDqmTestSkim/TTBar/hltSkim_9_1_vwt.root',
+
+        #DYJets
+       '/store/user/aelwood/141022_hltDqmTestSkim/DYJets/hltSkim_10_1_hP7.root',
+       '/store/user/aelwood/141022_hltDqmTestSkim/DYJets/hltSkim_1_1_i13.root',
+       '/store/user/aelwood/141022_hltDqmTestSkim/DYJets/hltSkim_2_1_msV.root',
+       '/store/user/aelwood/141022_hltDqmTestSkim/DYJets/hltSkim_3_1_NkA.root',
+       '/store/user/aelwood/141022_hltDqmTestSkim/DYJets/hltSkim_4_1_w0e.root',
+       '/store/user/aelwood/141022_hltDqmTestSkim/DYJets/hltSkim_5_1_W02.root',
+       '/store/user/aelwood/141022_hltDqmTestSkim/DYJets/hltSkim_6_1_M4G.root',
+       '/store/user/aelwood/141022_hltDqmTestSkim/DYJets/hltSkim_7_1_4ZY.root',
+       '/store/user/aelwood/141022_hltDqmTestSkim/DYJets/hltSkim_8_1_NE6.root',
+       '/store/user/aelwood/141022_hltDqmTestSkim/DYJets/hltSkim_9_1_2KP.root',
+
     )
 
 
@@ -47,7 +71,8 @@ process.out = cms.OutputModule("PoolOutputModule",
            'drop *',
            'keep *_MEtoEDMConverter_*_*'
         ),
-    fileName = cms.untracked.string('testout.root'),
+    #fileName = cms.untracked.string('output/ttbar.root'),
+    fileName = cms.untracked.string('output/dyjets.root'),
     )
 
 
@@ -69,4 +94,4 @@ process.schedule = cms.Schedule(process.run_module, process.outpath)
 #process.analyzerpath = cms.Path(
 #    process.HLTSusyExoValSeq 
 #)
-
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
