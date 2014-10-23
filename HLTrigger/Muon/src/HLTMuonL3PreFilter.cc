@@ -53,6 +53,7 @@ HLTMuonL3PreFilter::HLTMuonL3PreFilter(const ParameterSet& iConfig) : HLTFilter(
    nsigma_Pt_  (iConfig.getParameter<double> ("NSigmaPt")),
    max_NormalizedChi2_ (iConfig.getParameter<double> ("MaxNormalizedChi2")),
    max_DXYBeamSpot_ (iConfig.getParameter<double> ("MaxDXYBeamSpot")),
+   min_DXYBeamSpot_ (iConfig.getParameter<double> ("MinDXYBeamSpot")),
    min_NmuonHits_ (iConfig.getParameter<int> ("MinNmuonHits")),
    max_PtDifference_ (iConfig.getParameter<double> ("MaxPtDifference")),
    min_TrackPt_ (iConfig.getParameter<double> ("MinTrackPt")),
@@ -95,6 +96,7 @@ HLTMuonL3PreFilter::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<double>("NSigmaPt",0.0);
   desc.add<double>("MaxNormalizedChi2",9999.0);
   desc.add<double>("MaxDXYBeamSpot",9999.0);
+  desc.add<double>("MinDXYBeamSpot",-1.0);
   desc.add<int>("MinNmuonHits",0);
   desc.add<double>("MaxPtDifference",9999.0);
   desc.add<double>("MinTrackPt",0.0);
@@ -183,7 +185,7 @@ HLTMuonL3PreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, trigger::
        if (tk->normalizedChi2() > max_NormalizedChi2_ ) continue;
 
        //dxy beamspot cut
-       if (fabs(tk->dxy(beamSpot.position())) > max_DXYBeamSpot_ ) continue;
+       if (std::abs(tk->dxy(beamSpot.position())) > max_DXYBeamSpot_ || std::abs(tk->dxy(beamSpot.position())) < min_DXYBeamSpot_ ) continue;
 
        //min muon hits cut
        reco::HitPattern trackHits = tk->hitPattern();
