@@ -306,12 +306,12 @@ void TriggerRatesMonitor::bookHistograms(DQMStore::IBooker & booker, edm::Run co
     booker.setCurrentFolder( m_dqm_path + "/HLT" );
     for (unsigned int i = 0; i < m_hltConfig.size(); ++i) {
       std::string const & name = m_hltConfig.triggerName(i);
-      m_hlt_counts[i].wasrun        = booker.book1D(name + "_wasrun",           name + " counts",           m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
-      m_hlt_counts[i].pass_l1_seed  = booker.book1D(name + "_pass_l1_seed",     name + " pass L1 seed",     m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
-      m_hlt_counts[i].pass_prescale = booker.book1D(name + "_pass_prescale",    name + " pass prescaler",   m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
-      m_hlt_counts[i].accept        = booker.book1D(name + "_accept",           name + " trigger",          m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
-      m_hlt_counts[i].reject        = booker.book1D(name + "_reject",           name + " reject",           m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
-      m_hlt_counts[i].error         = booker.book1D(name + "_error",            name + " error count",      m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
+      m_hlt_counts[i].wasrun        = booker.book1D(name + " counts",           name + " counts",           m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
+      m_hlt_counts[i].pass_l1_seed  = booker.book1D(name + " pass L1 seed",     name + " pass L1 seed",     m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
+      m_hlt_counts[i].pass_prescale = booker.book1D(name + " pass prescaler",   name + " pass prescaler",   m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
+      m_hlt_counts[i].accept        = booker.book1D(name + " accept",           name + " accept",           m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
+      m_hlt_counts[i].reject        = booker.book1D(name + " reject",           name + " reject",           m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
+      m_hlt_counts[i].error         = booker.book1D(name + " error",            name + " error",            m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
       // look for the index of the (last) L1 seed and prescale module in each path
       m_hltIndices[i].index_l1_seed  = m_hltConfig.size(i);
       m_hltIndices[i].index_prescale = m_hltConfig.size(i);
