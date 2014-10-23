@@ -447,9 +447,9 @@ GenXSecAnalyzer::endJob() {
 
   edm::LogPrint("GenXSecAnalyzer") 
     << "Filter efficiency (taking into account positive and negative weights)= "
-    << "(" << filterOnlyEffStat_.numPassPositiveEvents() << " - " << filterOnlyEffStat_.numPassNegativeEvents() << ")"
+    << "(" << filterOnlyEffStat_.sumPassWeights() << ")"
     << " / "
-    << "(" << filterOnlyEffStat_.numTotalPositiveEvents() << " - " << filterOnlyEffStat_.numTotalNegativeEvents() << ")"
+    << "(" << filterOnlyEffStat_.sumWeights() << ")"
     << " = " 
     <<  std::scientific << std::setprecision(3) 
     << filterOnly_eff << " +- " << filterOnly_err;
