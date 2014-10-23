@@ -446,7 +446,7 @@ GenXSecAnalyzer::endJob() {
   double filterOnly_err = filterOnlyEffStat_.filterEfficiencyError(hepidwtup_);
 
   edm::LogPrint("GenXSecAnalyzer") 
-    << "Filter efficiency (taking into account positive and negative weights)= "
+    << "Filter efficiency (taking into account weights)= "
     << "(" << filterOnlyEffStat_.sumPassWeights() << ")"
     << " / "
     << "(" << filterOnlyEffStat_.sumWeights() << ")"
