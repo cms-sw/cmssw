@@ -84,23 +84,6 @@ class SiPixelActionExecutor {
  bool readConfiguration(	    int 			 & tkmap_freq, 
                         	    int 			 & summary_freq);
  void readConfiguration(	    );
- void createLayout(     	    DQMStore    		 * bei);
- void fillLayout(       	    DQMStore    		 * bei);
- int getTkMapMENames(               std::vector<std::string>	 & names);
- void dumpModIds(                   DQMStore     		 * bei,
-                                    edm::EventSetup const        & eSetup);
- void dumpBarrelModIds(             DQMStore     		 * bei,
-                                    edm::EventSetup const        & eSetup);
- void dumpEndcapModIds(             DQMStore     		 * bei,
-                                    edm::EventSetup const        & eSetup);
- void dumpRefValues(                   DQMStore     		 * bei,
-                                    edm::EventSetup const        & eSetup);
- void dumpBarrelRefValues(             DQMStore     		 * bei,
-                                    edm::EventSetup const        & eSetup);
- void dumpEndcapRefValues(             DQMStore     		 * bei,
-                                    edm::EventSetup const        & eSetup);
- void createMaps(DQMStore* bei, std::string type, std::string name, funcType ff);
- void bookTrackerMaps(DQMStore* bei, std::string name);
 
 
 private:
@@ -174,14 +157,6 @@ private:
   MonitorElement * DEV_nclusters_Endcap;
   MonitorElement * DEV_size_Endcap;
   
-  
-  int createMap(Double_t map[][NLev2][NLev3][NLev4], std::string type, DQMStore* bei, funcType ff, bool isBarrel);
-  void getData(Double_t map[][NLev2][NLev3][NLev4], std::string type, DQMStore* bei, funcType ff, Int_t i, Int_t j, Int_t k, Int_t l);
-  void prephistosB(MonitorElement* me[NCyl], DQMStore *bei, const Double_t map[][NLev2][NLev3][NLev4], std::string name, Double_t min, Double_t max);
-  void prephistosE(MonitorElement* me[NCyl], DQMStore *bei, const Double_t map[][NLev2][NLev3][NLev4], std::string name, Double_t min, Double_t max);
-  Double_t mapMax(const Double_t map[][NLev2][NLev3][NLev4], bool isBarrel); 
-  Double_t mapMin(const Double_t map[][NLev2][NLev3][NLev4], bool isBarrel);
-
   TH2F * temp_H;
   TH2F * temp_1x2;
   TH2F * temp_1x5;
