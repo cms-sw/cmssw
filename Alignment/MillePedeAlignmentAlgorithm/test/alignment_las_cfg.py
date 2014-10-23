@@ -76,7 +76,7 @@ process.trackerAlignment = cms.ESSource("PoolDBESSource",
                                         toGet = cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentRcd"),
                                                                    tag = cms.string("TrackerGeometry_v5_offline")), #"Alignments"
                                                           cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"),
-                                                                   tag = cms.string("TrackerGeometryErrors_v5_offline")) #"AlignmentErrors"
+                                                                   tag = cms.string("TrackerGeometryErrors_v5_offline")) #"AlignmentErrorsExtended"
                                                           )
                                         )
 process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","trackerAlignment")

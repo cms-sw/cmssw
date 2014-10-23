@@ -27,7 +27,7 @@ class OpticalAlignments;
 class OpticalAlignInfo;
 class OpticalAlignMeasurements;
 class Alignments;
-class AlignmentErrors;
+class AlignmentErrorsExtended;
 class AlignTransform;
 class AlignTransformErrorExtended;
 
@@ -54,7 +54,7 @@ private:
 
   OpticalAlignInfo GetOptAlignInfoFromOptO( OpticalObject* opto );
 
-  std::pair< Alignments*,AlignmentErrors*> BuildAlignments(bool bDT);
+  std::pair< Alignments*,AlignmentErrorsExtended*> BuildAlignments(bool bDT);
   AlignTransform* GetAlignInfoFromOptO( OpticalObject* opto);
   AlignTransformErrorExtended* GetAlignInfoErrorFromOptO( OpticalObject* opto);
 

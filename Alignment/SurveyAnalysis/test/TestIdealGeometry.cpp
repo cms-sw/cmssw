@@ -31,7 +31,7 @@
 /* #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignTransform.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CondFormats/Alignment/interface/AlignTransformError.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"*/
 
@@ -152,7 +152,7 @@ TestIdealGeometry::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
   // Retrieve alignment[Error]s from DBase
   // edm::ESHandle<Alignments> alignments;
   // iSetup.get<TrackerAlignmentRcd>().get( alignments );
-  // edm::ESHandle<AlignmentErrors> alignmentErrors;
+  // edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
   // iSetup.get<TrackerAlignmentErrorRcd>().get( alignmentErrors );
 
   int countDet = 0; 

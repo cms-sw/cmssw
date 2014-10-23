@@ -12,7 +12,7 @@
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
 #include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 
 
 #include "Alignment/SurveyAnalysis/plugins/SurveyInputTrackerFromDB.h"
@@ -48,7 +48,7 @@ void SurveyInputTrackerFromDB::analyze(const edm::Event&, const edm::EventSetup&
 	
 	//write out to a DB ...
 	Alignments* myAlignments = detector()->alignments();
-	AlignmentErrors* myAlignmentErrors = detector()->alignmentErrors();
+	AlignmentErrorsExtended* myAlignmentErrorsExtended = detector()->alignmentErrors();
 	
 	// 2. Store alignment[Error]s to DB
 	edm::Service<cond::service::PoolDBOutputService> poolDbService;
@@ -58,7 +58,7 @@ void SurveyInputTrackerFromDB::analyze(const edm::Event&, const edm::EventSetup&
 		throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
 	
 	poolDbService->writeOne<Alignments>( myAlignments, poolDbService->beginOfTime(), "TrackerAlignmentRcd" );
-	poolDbService->writeOne<AlignmentErrors>( myAlignmentErrors, poolDbService->beginOfTime(), "TrackerAlignmentErrorRcd" );
+	poolDbService->writeOne<AlignmentErrorsExtended>( myAlignmentErrorsExtended, poolDbService->beginOfTime(), "TrackerAlignmentErrorRcd" );
 	
 	theFirstEvent = false;
   }

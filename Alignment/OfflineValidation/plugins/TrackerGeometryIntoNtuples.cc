@@ -176,7 +176,7 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
 	
 	//build the tracker
 	edm::ESHandle<Alignments> alignments;
-	edm::ESHandle<AlignmentErrors> alignmentErrors;
+	edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
 	edm::ESHandle<AlignmentSurfaceDeformations> surfaceDeformations;
 	
 	iSetup.get<TrackerAlignmentRcd>().get(alignments);
@@ -195,7 +195,7 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
 	theCurrentTracker = new AlignableTracker(&(*theCurTracker), tTopo);
 
 	Alignments* theAlignments = theCurrentTracker->alignments();
-	//AlignmentErrors* theAlignmentErrors = theCurrentTracker->alignmentErrors();	
+	//AlignmentErrorsExtended* theAlignmentErrorsExtended = theCurrentTracker->alignmentErrors();	
 	
 	//alignments
 	addBranches();

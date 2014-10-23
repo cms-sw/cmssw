@@ -18,7 +18,7 @@
 
 // Alignments
 #include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorRcd.h"
@@ -101,7 +101,7 @@ boost::shared_ptr<CSCGeometry> CSCGeometryESModule::produce(const MuonGeometryRe
     record.getRecord<GlobalPositionRcd>().get(alignmentsLabel_, globalPosition);
     edm::ESHandle<Alignments> alignments;
     record.getRecord<CSCAlignmentRcd>().get(alignmentsLabel_, alignments);
-    edm::ESHandle<AlignmentErrors> alignmentErrors;
+    edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
 // <<<<<<< CSCGeometryESModule.cc
 //     record.getRecord<CSCAlignmentErrorRcd>().get( alignmentErrors );
 //     GeometryAligner aligner;

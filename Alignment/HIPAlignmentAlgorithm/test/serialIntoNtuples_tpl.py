@@ -25,7 +25,7 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     ), 
         cms.PSet(
             record = cms.string('TrackerAlignmentErrorRcd'),
-            tag = cms.string('AlignmentErrors')
+            tag = cms.string('AlignmentErrorsExtended')
         )),
     connect = cms.string('sqlite_file:<PATH>/alignments_<N>.db')
 )

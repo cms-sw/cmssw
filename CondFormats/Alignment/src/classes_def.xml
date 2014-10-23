@@ -5,6 +5,8 @@
  <class name="uint32_t"/>
 
  <class name="AlignmentErrors"/>
+ <class name="AlignTransformError"/>
+ <class name="std::vector<AlignTransformError>"/>
  <class name="AlignTransformErrorExtended"/>
  <class name="std::vector<AlignTransformErrorExtended>"/>
 

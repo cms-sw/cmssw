@@ -74,7 +74,7 @@ process.trackerAlignment = cms.ESSource("PoolDBESSource",CondDBSetup,
                                                                    tag = cms.string("TrackerAlignment_GR10_v4_offline")
                                                                    )## ,
 ##                                                           cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"),
-##                                                                    tag = cms.string("TrackerAlignmentErrors_GR10_v2_offline")
+##                                                                    tag = cms.string("TrackerAlignmentErrorsExtended_GR10_v2_offline")
 ##                                                                    ),
 ##                                                           cms.PSet(record = cms.string("TrackerSurfaceDeformationRcd"),
 ##                                                                    tag = cms.string("Deformations")

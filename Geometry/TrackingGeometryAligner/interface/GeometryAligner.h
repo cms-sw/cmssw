@@ -12,6 +12,7 @@
 
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CondFormats/Alignment/interface/AlignTransform.h"
 #include "CondFormats/Alignment/interface/AlignTransformErrorExtended.h"
 #include "CondFormats/Alignment/interface/AlignmentSurfaceDeformations.h"
@@ -89,7 +90,7 @@ public:
   template<class C> 
   void applyAlignments( C* geometry,
 			const Alignments* alignments,
-			const AlignmentErrors* alignmentErrors,
+			const AlignmentErrorsExtended* alignmentErrors,
 			const AlignTransform& globalCoordinates );
 
   template<class C> 
@@ -97,17 +98,17 @@ public:
 				  const AlignmentSurfaceDeformations* surfaceDeformations );
 
   inline void removeGlobalTransform( const Alignments* alignments,
-                                     const AlignmentErrors* alignmentErrors,
+                                     const AlignmentErrorsExtended* alignmentErrors,
                                      const AlignTransform& globalCoordinates,
                                      Alignments* newAlignments,
-                                     AlignmentErrors* newAlignmentErrors );
+                                     AlignmentErrorsExtended* newAlignmentErrorsExtended );
 };
 
 
 template<class C>
 void GeometryAligner::applyAlignments( C* geometry,
 				       const Alignments* alignments,
-				       const AlignmentErrors* alignmentErrors,
+				       const AlignmentErrorsExtended* alignmentErrors,
 				       const AlignTransform& globalCoordinates )
 {
 
@@ -276,10 +277,10 @@ void GeometryAligner::attachSurfaceDeformations( C* geometry,
 }
 
 void GeometryAligner::removeGlobalTransform( const Alignments* alignments,
-                                             const AlignmentErrors* alignmentErrors,
+                                             const AlignmentErrorsExtended* alignmentErrors,
                                              const AlignTransform& globalCoordinates,
                                              Alignments* newAlignments,
-                                             AlignmentErrors* newAlignmentErrors )
+                                             AlignmentErrorsExtended* newAlignmentErrorsExtended )
 {
   edm::LogInfo("Alignment") << "@SUB=GeometryAligner::removeGlobalTransform" 
 			    << "Starting to remove global position from alignments and errors";
@@ -315,7 +316,7 @@ void GeometryAligner::removeGlobalTransform( const Alignments* alignments,
     // as it wasn't applied. Just fill vector with original
     // values
     GlobalError error( asSMatrix<3>((*iAlignError).matrix()) );
-    newAlignmentErrors->m_alignError.push_back( AlignTransformErrorExtended( (*iAlignError).matrix(),
+    newAlignmentErrorsExtended->m_alignError.push_back( AlignTransformErrorExtended( (*iAlignError).matrix(),
 								     (*iAlignError).rawId() ) );
     if ( error.cxx() || error.cyy() || error.czz() ||
 	 error.cyx() || error.czx() || error.czy() ) {
@@ -337,7 +338,7 @@ void GeometryAligner::removeGlobalTransform( const Alignments* alignments,
     //as = as.similarityT( am );
     
     //GlobalError newError( as );
-    //newAlignmentErrors->m_alignError.push_back( AlignTransformErrorExtended( newError.matrix(),
+    //newAlignmentErrorsExtended->m_alignError.push_back( AlignTransformErrorExtended( newError.matrix(),
     //                                                                 (*iAlignError).rawId() ) );
     //++nAPE;
   }

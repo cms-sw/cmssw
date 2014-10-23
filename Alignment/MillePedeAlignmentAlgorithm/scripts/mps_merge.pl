@@ -111,7 +111,7 @@ $saveAlignmentConstants = "from CondCore.DBCommon.CondDBSetup_cfi import *\n"
                         . "    ),\n"
                         . "        cms.PSet(\n"
                         . "            record = cms.string('TrackerAlignmentErrorRcd'),\n"
-                        . "            tag = cms.string('AlignmentErrors')\n"
+                        . "            tag = cms.string('AlignmentErrorsExtended')\n"
                         . "        ),
         cms.PSet(
             record = cms.string('TrackerSurfaceDeformationRcd'),

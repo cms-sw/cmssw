@@ -67,7 +67,7 @@ parser.add_option("--trackerAPEconnect",
 parser.add_option("--trackerAPE",
                   help="name of TrackerAlignmentErrorRcd tag (tracker APEs)",
                   type="string",
-                  default="AlignmentErrors",
+                  default="AlignmentErrorsExtended",
                   dest="trackerAPE")
 parser.add_option("--gprcdconnect",
                   help="connect string for GlobalPositionRcd (frontier://... or sqlite_file:...)",

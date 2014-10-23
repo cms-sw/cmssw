@@ -76,7 +76,7 @@ process.PoolDBOutputService = cms.Service(
     timetype = cms.untracked.string('runnumber'),
     connect = cms.string('sqlite_file:MyLocalApe.db'),
     toPut = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentErrorRcd'),
-                               tag = cms.string('AlignmentErrors')
+                               tag = cms.string('AlignmentErrorsExtended')
                                )
                       )
     )

@@ -8,7 +8,7 @@
 
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -49,7 +49,7 @@ void CreateSurveyRcds::analyze(const edm::Event& event, const edm::EventSetup& s
 	if (m_inputGeom == "sqlite"){
 		//build the tracker
         edm::ESHandle<Alignments> alignments;
-        edm::ESHandle<AlignmentErrors> alignmentErrors;
+        edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
         
         setup.get<TrackerAlignmentRcd>().get(alignments);
         setup.get<TrackerAlignmentErrorRcd>().get(alignmentErrors);

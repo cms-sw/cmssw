@@ -31,7 +31,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "CondFormats/Alignment/interface/AlignmentErrors.h" 
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h" 
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 #include "CLHEP/Matrix/SymMatrix.h"
 
@@ -186,7 +186,7 @@ void ApeSettingAlgorithm::initialize(const edm::EventSetup &setup,
 void ApeSettingAlgorithm::terminate(const edm::EventSetup& iSetup)
 {
   if (saveApeToAscii_)
-    { AlignmentErrors* aliErr=theTracker->alignmentErrors();
+    { AlignmentErrorsExtended* aliErr=theTracker->alignmentErrors();
     int theSize=aliErr->m_alignError.size();
     std::ofstream apeSaveFile(theConfig.getUntrackedParameter<std::string>("apeASCIISaveFile").c_str()); //requires <fstream>
     for (int i=0; i < theSize; ++i)

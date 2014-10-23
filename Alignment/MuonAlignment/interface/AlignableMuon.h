@@ -68,13 +68,13 @@ public:
   Alignments* dtAlignments();
 
   // Get DT alignment errors sorted by DetId
-  AlignmentErrors* dtAlignmentErrors();
+  AlignmentErrorsExtended* dtAlignmentErrorsExtended();
 
   // Get CSC alignments sorted by DetId
   Alignments* cscAlignments();
 
   // Get CSC alignment errors sorted by DetId
-  AlignmentErrors* cscAlignmentErrors();
+  AlignmentErrorsExtended* cscAlignmentErrorsExtended();
 
 
 
@@ -93,7 +93,7 @@ private:
   Alignments* alignments() const;
 
   // Get alignment errors sorted by DetId
-  AlignmentErrors* alignmentErrors() const;
+  AlignmentErrorsExtended* alignmentErrors() const;
 
 
 

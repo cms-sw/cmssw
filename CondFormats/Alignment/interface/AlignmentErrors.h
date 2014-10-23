@@ -3,7 +3,7 @@
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-#include "CondFormats/Alignment/interface/AlignTransformErrorExtended.h"
+#include "CondFormats/Alignment/interface/AlignTransformError.h"
 
 #include<vector>
 
@@ -16,7 +16,7 @@ public:
   /// Clear vector without having to look into internals:
   inline void clear() {m_alignError.clear();}
 
-  std::vector<AlignTransformErrorExtended> m_alignError;
+  std::vector<AlignTransformError> m_alignError;
 
   COND_SERIALIZABLE;
 };

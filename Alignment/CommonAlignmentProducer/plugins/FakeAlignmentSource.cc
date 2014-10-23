@@ -32,7 +32,7 @@ reconstruction Geometry should notice that and not pass to GeometryAligner.
 
 // Alignment
 #include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CondFormats/Alignment/interface/AlignmentSurfaceDeformations.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
@@ -52,24 +52,24 @@ public:
   std::auto_ptr<Alignments> produceTkAli(const TrackerAlignmentRcd&) {
     return std::auto_ptr<Alignments>(new Alignments);
   }
-  std::auto_ptr<AlignmentErrors> produceTkAliErr(const TrackerAlignmentErrorRcd&) { 
-    return std::auto_ptr<AlignmentErrors>(new AlignmentErrors);
+  std::auto_ptr<AlignmentErrorsExtended> produceTkAliErr(const TrackerAlignmentErrorRcd&) { 
+    return std::auto_ptr<AlignmentErrorsExtended>(new AlignmentErrorsExtended);
   }
 
   /// DT and its APE
   std::auto_ptr<Alignments> produceDTAli(const DTAlignmentRcd&) {
     return std::auto_ptr<Alignments>(new Alignments);
   }
-  std::auto_ptr<AlignmentErrors> produceDTAliErr(const DTAlignmentErrorRcd&) {
-    return std::auto_ptr<AlignmentErrors>(new AlignmentErrors);
+  std::auto_ptr<AlignmentErrorsExtended> produceDTAliErr(const DTAlignmentErrorRcd&) {
+    return std::auto_ptr<AlignmentErrorsExtended>(new AlignmentErrorsExtended);
   }
 
   /// CSC and its APE
   std::auto_ptr<Alignments> produceCSCAli(const CSCAlignmentRcd&) {
     return std::auto_ptr<Alignments>(new Alignments);
   }
-  std::auto_ptr<AlignmentErrors> produceCSCAliErr(const CSCAlignmentErrorRcd&) {
-    return std::auto_ptr<AlignmentErrors>(new AlignmentErrors);
+  std::auto_ptr<AlignmentErrorsExtended> produceCSCAliErr(const CSCAlignmentErrorRcd&) {
+    return std::auto_ptr<AlignmentErrorsExtended>(new AlignmentErrorsExtended);
   }
 
   /// GlobalPositions

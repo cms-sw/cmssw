@@ -146,7 +146,7 @@ process.allPath = cms.Path(process.offlineBeamSpot*process.MuonMillepedeTrackRef
 #DBParameters = CondCore.DBCommon.CondDBSetup_cfi.CondDBSetup.DBParameters,
 #toGet = cms.VPSet(
 #cms.PSet(record = cms.string("TrackerAlignmentRcd"), tag = cms.string("Alignments")),
-#cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"), tag = cms.string("AlignmentErrors"))
+#cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"), tag = cms.string("AlignmentErrorsExtended"))
 #))
 #
 #process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource", "trackerAlignment")

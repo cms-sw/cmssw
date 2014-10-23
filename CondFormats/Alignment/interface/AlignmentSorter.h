@@ -2,7 +2,7 @@
 #define __CondFormats_Alignment_AlignmentSorter_h
 
 ///
-/// A struct to sort Alignments and AlignmentErrors by increasing DetId
+/// A struct to sort Alignments and AlignmentErrorsExtended by increasing DetId
 ///
 /// To sort Alignments, do something like: 
 /// std::sort( alignments->m_align.begin(), alignments->m_align.end(), 

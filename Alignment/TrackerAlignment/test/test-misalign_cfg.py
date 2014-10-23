@@ -61,7 +61,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     ), 
         cms.PSet(
             record = cms.string('TrackerAlignmentErrorRcd'),
-            tag = cms.string('TrackerAlignmentErrors_XXX_mc')
+            tag = cms.string('TrackerAlignmentErrorsExtended_XXX_mc')
         ))
 )
 #process.PoolDBOutputService.DBParameters.messageLevel = 2

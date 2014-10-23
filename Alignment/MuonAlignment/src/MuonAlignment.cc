@@ -14,7 +14,7 @@
 
 // Alignment
 #include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CondFormats/Alignment/interface/SurveyErrors.h"
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
 #include "Alignment/MuonAlignment/interface/MuonAlignment.h"
@@ -142,11 +142,11 @@ void MuonAlignment::copyAlignmentToSurvey(double shiftErr, double angleErr) {
    recursiveMap(theAlignableMuon->CSCEndcaps(), alignableMap);
 
    // Set the survey error to the alignable error, expanding the matrix as needed
-   AlignmentErrors* dtAlignmentErrors = theAlignableMuon->dtAlignmentErrors();
-   AlignmentErrors* cscAlignmentErrors = theAlignableMuon->cscAlignmentErrors();
+   AlignmentErrorsExtended* dtAlignmentErrorsExtended = theAlignableMuon->dtAlignmentErrorsExtended();
+   AlignmentErrorsExtended* cscAlignmentErrorsExtended = theAlignableMuon->cscAlignmentErrorsExtended();
    std::vector<AlignTransformErrorExtended> alignmentErrors;
-   std::copy(dtAlignmentErrors->m_alignError.begin(), dtAlignmentErrors->m_alignError.end(), std::back_inserter(alignmentErrors));
-   std::copy(cscAlignmentErrors->m_alignError.begin(), cscAlignmentErrors->m_alignError.end(), std::back_inserter(alignmentErrors));
+   std::copy(dtAlignmentErrorsExtended->m_alignError.begin(), dtAlignmentErrorsExtended->m_alignError.end(), std::back_inserter(alignmentErrors));
+   std::copy(cscAlignmentErrorsExtended->m_alignError.begin(), cscAlignmentErrorsExtended->m_alignError.end(), std::back_inserter(alignmentErrors));
 
    for (std::vector<AlignTransformErrorExtended>::const_iterator alignmentError = alignmentErrors.begin();
 	alignmentError != alignmentErrors.end();
@@ -320,11 +320,11 @@ void MuonAlignment::saveDTtoDB(void) {
 
   // Get alignments and errors
   Alignments*      dt_Alignments       = theAlignableMuon->dtAlignments() ;
-  AlignmentErrors* dt_AlignmentErrors  = theAlignableMuon->dtAlignmentErrors();
+  AlignmentErrorsExtended* dt_AlignmentErrorsExtended  = theAlignableMuon->dtAlignmentErrorsExtended();
 
   // Store DT alignments and errors
   poolDbService->writeOne<Alignments>( &(*dt_Alignments), poolDbService->currentTime(), theDTAlignRecordName);
-  poolDbService->writeOne<AlignmentErrors>( &(*dt_AlignmentErrors), poolDbService->currentTime(), theDTErrorRecordName);
+  poolDbService->writeOne<AlignmentErrorsExtended>( &(*dt_AlignmentErrorsExtended), poolDbService->currentTime(), theDTErrorRecordName);
 }
 
 void MuonAlignment::saveCSCtoDB(void) {
@@ -335,11 +335,11 @@ void MuonAlignment::saveCSCtoDB(void) {
 
   // Get alignments and errors
   Alignments*      csc_Alignments      = theAlignableMuon->cscAlignments();
-  AlignmentErrors* csc_AlignmentErrors = theAlignableMuon->cscAlignmentErrors();
+  AlignmentErrorsExtended* csc_AlignmentErrorsExtended = theAlignableMuon->cscAlignmentErrorsExtended();
 
   // Store CSC alignments and errors
   poolDbService->writeOne<Alignments>( &(*csc_Alignments), poolDbService->currentTime(), theCSCAlignRecordName);
-  poolDbService->writeOne<AlignmentErrors>( &(*csc_AlignmentErrors), poolDbService->currentTime(), theCSCErrorRecordName);
+  poolDbService->writeOne<AlignmentErrorsExtended>( &(*csc_AlignmentErrorsExtended), poolDbService->currentTime(), theCSCErrorRecordName);
 }
 
 void MuonAlignment::saveToDB(void) {

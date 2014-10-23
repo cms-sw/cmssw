@@ -1,5 +1,5 @@
 #include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CondFormats/Alignment/interface/AlignmentSurfaceDeformations.h" 
 #include "CondFormats/Alignment/interface/Definitions.h" 
 #include "CLHEP/Vector/RotationInterfaces.h" 
@@ -251,7 +251,7 @@ void TrackerGeometryCompare::analyze(const edm::Event&, const edm::EventSetup& i
 	
 	if (_writeToDB){
 		Alignments* myAlignments = currentTracker->alignments();
-		AlignmentErrors* myAlignmentErrors = currentTracker->alignmentErrors();
+		AlignmentErrorsExtended* myAlignmentErrorsExtended = currentTracker->alignmentErrors();
 		
 		// 2. Store alignment[Error]s to DB
 		edm::Service<cond::service::PoolDBOutputService> poolDbService;
@@ -260,7 +260,7 @@ void TrackerGeometryCompare::analyze(const edm::Event&, const edm::EventSetup& i
 			throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
 		
 		poolDbService->writeOne<Alignments>(&(*myAlignments), poolDbService->beginOfTime(), "TrackerAlignmentRcd");
-		poolDbService->writeOne<AlignmentErrors>(&(*myAlignmentErrors), poolDbService->beginOfTime(), "TrackerAlignmentErrorRcd");
+		poolDbService->writeOne<AlignmentErrorsExtended>(&(*myAlignmentErrorsExtended), poolDbService->beginOfTime(), "TrackerAlignmentErrorRcd");
 		
 	}		
 
@@ -281,7 +281,7 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 
 	//declare alignments
 	Alignments* alignments1 = new Alignments();
-	AlignmentErrors* alignmentErrors1 = new AlignmentErrors();	
+	AlignmentErrorsExtended* alignmentErrors1 = new AlignmentErrorsExtended();	
 	if (_inputFilename1 != "IDEAL"){
 		_inputRootFile1 = new TFile(_inputFilename1.c_str());
 		TTree* _inputTree01 = (TTree*) _inputRootFile1->Get(_inputTreenameAlign.c_str());
@@ -316,7 +316,7 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup){
 	}
 	//------------------
 	Alignments* alignments2 = new Alignments();
-	AlignmentErrors* alignmentErrors2 = new AlignmentErrors();
+	AlignmentErrorsExtended* alignmentErrors2 = new AlignmentErrorsExtended();
 	if (_inputFilename2 != "IDEAL"){	
 		_inputRootFile2 = new TFile(_inputFilename2.c_str());
 		TTree* _inputTree02 = (TTree*) _inputRootFile2->Get(_inputTreenameAlign.c_str());
@@ -835,7 +835,7 @@ void TrackerGeometryCompare::fillTree(Alignable *refAli, const AlgebraicVector& 
 	
 }
 
-void TrackerGeometryCompare::surveyToTracker(AlignableTracker* ali, Alignments* alignVals, AlignmentErrors* alignErrors){
+void TrackerGeometryCompare::surveyToTracker(AlignableTracker* ali, Alignments* alignVals, AlignmentErrorsExtended* alignErrors){
 	
 	//getting the right alignables for the alignment record
 	std::vector<Alignable*> detPB = ali->pixelHalfBarrelGeomDets();

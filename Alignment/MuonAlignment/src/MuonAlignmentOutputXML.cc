@@ -28,7 +28,7 @@
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 
 //
 // constants, enums and typedefs
@@ -109,8 +109,8 @@ void MuonAlignmentOutputXML::write(AlignableMuon *alignableMuon, const edm::Even
    outputFile << "<MuonAlignment>" << std::endl << std::endl;
    
    std::map<align::ID, CLHEP::HepSymMatrix> errors;
-   AlignmentErrors *dtErrors = alignableMuon->dtAlignmentErrors();
-   AlignmentErrors *cscErrors = alignableMuon->cscAlignmentErrors();
+   AlignmentErrorsExtended *dtErrors = alignableMuon->dtAlignmentErrorsExtended();
+   AlignmentErrorsExtended *cscErrors = alignableMuon->cscAlignmentErrorsExtended();
    for (std::vector<AlignTransformErrorExtended>::const_iterator dtError = dtErrors->m_alignError.begin();  dtError != dtErrors->m_alignError.end();  ++dtError) {
       errors[dtError->rawId()] = dtError->matrix();
    }

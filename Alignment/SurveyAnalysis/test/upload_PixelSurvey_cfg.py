@@ -26,7 +26,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 			), 
 			cms.PSet(
 				record = cms.string('TrackerAlignmentErrorRcd'),
-				tag = cms.string('AlignmentErrors')
+				tag = cms.string('AlignmentErrorsExtended')
 			))
 )
 

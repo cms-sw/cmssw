@@ -132,7 +132,7 @@ class AlignmentProducer : public edm::ESProducerLooper
   /// (removes *globalCoordinates before writing if non-null...).
   /// Takes over ownership of alignments and alignmentErrrors.
   void writeDB(Alignments *alignments, const std::string &alignRcd,
-	       AlignmentErrors *alignmentErrors, const std::string &errRcd,
+	       AlignmentErrorsExtended *alignmentErrors, const std::string &errRcd,
 	       const AlignTransform *globalCoordinates,
 	       cond::Time_t time) const;
   /// Write surface deformations (bows & kinks) to DB for given record name
