@@ -300,16 +300,22 @@ void LHERunInfo::statistics() const
 	double sigSelSum = 0.0;
 	double sigSum = 0.0;
 	double sigBrSum = 0.0;
+	double errSel2Sum = 0.0;
 	double err2Sum = 0.0;
 	double errBr2Sum = 0.0;
+	double errMatch2Sum = 0.0;
 	unsigned long nAccepted = 0;
 	unsigned long nTried = 0;
+	unsigned long nAccepted_pos = 0;
+	unsigned long nTried_pos = 0;
+	unsigned long nAccepted_neg = 0;
+	unsigned long nTried_neg = 0;
 	int idwtup = std::abs(heprup.IDWTUP);
 
 	std::cout << std::endl;
 	std::cout << "Process and cross-section statistics" << std::endl;
 	std::cout << "------------------------------------" << std::endl;
-	std::cout << "Process\tevents\ttried\txsec [pb]\t\taccepted [%]"
+	std::cout << "Process\t\txsec_before [pb]\t\tpassed\tnposw\tnnegw\ttried\tnposw\tnnegw \txsec_match [pb]\t\t\taccepted [%]\t event_eff [%]"
 	          << std::endl;
 
 	for(std::vector<Process>::const_iterator proc = processes.begin();
@@ -348,8 +354,10 @@ void LHERunInfo::statistics() const
 		double sigmaFinBr = sigmaFin * fracBr;
 
 		double relErr = 1.0;
+		double relAccErr = 1.0;
+		double efferr2=0;
+
 		if (proc->killed().n() > 1) {
-			double efferr2=0;
 			switch(idwtup) {
 			case 3: case -3:
 			  {
@@ -389,36 +397,71 @@ void LHERunInfo::statistics() const
 			                   + sigma2Err / sigma2Sum;
 			relErr = (delta2Sum > 0.0 ?
 					std::sqrt(delta2Sum) : 0.0);
+			relAccErr = (delta2Veto > 0.0 ?
+					std::sqrt(delta2Veto) : 0.0);
 		}
 		double deltaFin = sigmaFin * relErr;
 		double deltaFinBr = sigmaFinBr * relErr;
+		
+		double ntotal_proc = proc->nTotalPos()+proc->nTotalNeg();
+		double event_eff_proc = ntotal_proc>1e-6? (double)(proc->nPassPos()+ proc->nPassNeg())/ntotal_proc: -1;
+		double event_eff_err_proc = ntotal_proc>1e-6? std::sqrt((1-event_eff_proc)*event_eff_proc/ntotal_proc): -1;
 
-		std::cout << proc->process() << "\t"
+		std::cout << proc->process() << "\t\t"
+			  << std::scientific << std::setprecision(3)
+			  << heprup.XSECUP[proc->heprupIndex()] << " +/- " 
+			  << heprup.XERRUP[proc->heprupIndex()] << "\t\t"
 		          << proc->accepted().n() << "\t"
+			  << proc->nPassPos() << "\t"
+			  << proc->nPassNeg() << "\t"
 		          << proc->tried().n() << "\t"
+			  << proc->nTotalPos() << "\t"
+			  << proc->nTotalNeg() << "\t"
 		          << std::scientific << std::setprecision(3)
 		          << sigmaFinBr << " +/- "
-		          << deltaFinBr << "\t"
+		          << deltaFinBr << "\t\t"
 		          << std::fixed << std::setprecision(1)
-		          << (fracAcc * 100) << std::endl;
+		          << (fracAcc * 100)  << " +/- " << ( std::sqrt(efferr2) * 100) << "\t"
+		          << std::fixed << std::setprecision(1)
+		          << (event_eff_proc * 100) << " +/- " << ( event_eff_err_proc * 100)
+			  << std::endl;
 
 		nAccepted += proc->accepted().n();
 		nTried += proc->tried().n();
+		nAccepted_pos += proc->nPassPos();
+		nTried_pos    += proc->nTotalPos();
+		nAccepted_neg += proc->nPassNeg();
+		nTried_neg    += proc->nTotalNeg();
 		sigSelSum += sigmaAvg;
 		sigSum += sigmaFin;
 		sigBrSum += sigmaFinBr;
+		errSel2Sum += sigma2Err;
 		err2Sum += deltaFin * deltaFin;
 		errBr2Sum += deltaFinBr * deltaFinBr;
+		errMatch2Sum += sigmaFin*relAccErr*sigmaFin*relAccErr;
 	}
 
-	std::cout << "Total\t"
+	double ntotal_all = (nTried_pos+nTried_neg);
+	double event_eff_all = ntotal_all>1e-6? (double)(nAccepted_pos+nAccepted_neg)/ntotal_all: -1;
+	double event_eff_err_all = ntotal_all>1e-6? std::sqrt((1-event_eff_all)*event_eff_all/ntotal_all): -1;
+
+	std::cout << "Total\t\t"
+	          << std::scientific << std::setprecision(3)
+		  << sigSelSum << " +/- " << std::sqrt(errSel2Sum) << "\t\t"
 	          << nAccepted << "\t"
+		  << nAccepted_pos << "\t"
+		  << nAccepted_neg << "\t"
 	          << nTried << "\t"
+		  << nTried_pos << "\t"
+		  << nTried_neg << "\t"
 	          << std::scientific << std::setprecision(3)
 	          << sigBrSum << " +/- "
-	          << std::sqrt(errBr2Sum) << "\t"
+	          << std::sqrt(errBr2Sum) << "\t\t"
 	          << std::fixed << std::setprecision(1)
-	          << (sigSum / sigSelSum * 100) << std::endl;
+	          << (sigSum / sigSelSum * 100)  << " +/- " << (std::sqrt(errMatch2Sum)/sigSelSum * 100) << "\t"
+	          << std::fixed << std::setprecision(1) 
+	          << (event_eff_all * 100) << " +/- " << (event_eff_err_all * 100)
+		  << std::endl;
 }
 
 LHERunInfo::Header::Header() :
