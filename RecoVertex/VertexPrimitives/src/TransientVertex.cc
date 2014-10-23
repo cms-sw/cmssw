@@ -1,6 +1,8 @@
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 #include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
+#include "TrackingTools/TransientTrack/interface/CandidatePtrTransientTrack.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
 
 using namespace std;
@@ -229,3 +231,36 @@ TransientVertex::operator reco::Vertex() const
   }
   return vertex;
 }
+
+TransientVertex::operator reco::VertexCompositePtrCandidate() const
+{
+using namespace reco;
+	if (!isValid())  return VertexCompositePtrCandidate();
+
+	VertexCompositePtrCandidate vtxCompPtrCand;
+
+	vtxCompPtrCand.setCovariance(vertexState().error().matrix_new());
+	vtxCompPtrCand.setChi2AndNdof(totalChiSquared(), degreesOfFreedom());
+	vtxCompPtrCand.setVertex(Candidate::Point(position().x(),position().y(),position().z()));
+
+	Candidate::LorentzVector p4;
+	for(std::vector<reco::TransientTrack>::const_iterator tt = theOriginalTracks.begin(); tt != theOriginalTracks.end(); ++tt)
+	{
+		if (trackWeight(*tt) < 0.5)
+			continue;
+
+		const CandidatePtrTransientTrack* cptt = dynamic_cast<const CandidatePtrTransientTrack*>(tt->basicTransientTrack());
+		if ( cptt==0 )
+			edm::LogError("DynamicCastingFailed") << "Casting of TransientTrack to CandidatePtrTransientTrack failed!";
+		else
+		{
+			p4 += cptt->candidate()->p4();
+			vtxCompPtrCand.addDaughter(cptt->candidate());
+		}
+	}
+
+	//TODO: if has refitted tracks we should scale the candidate p4 to the refitted one
+	vtxCompPtrCand.setP4(p4);
+	return vtxCompPtrCand;
+}
+

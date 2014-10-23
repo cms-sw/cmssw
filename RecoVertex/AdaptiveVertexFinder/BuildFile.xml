@@ -3,6 +3,7 @@
 <use   name="RecoVertex/VertexPrimitives"/>
 <use   name="RecoVertex/VertexTools"/>
 <use   name="TrackingTools/IPTools"/>
+<use   name="RecoVertex/VertexTools"/>
 <export>
   <lib   name="1"/>
 </export>

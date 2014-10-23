@@ -5,6 +5,7 @@
 <use name="DataFormats/VertexReco"/>
 <use name="DataFormats/BTauReco"/>
 <use name="DataFormats/PatCandidates"/>
+<use name="RecoVertex/VertexTools"/>
 <use name="rootmath"/>
 <export>
   <lib name="1"/>
