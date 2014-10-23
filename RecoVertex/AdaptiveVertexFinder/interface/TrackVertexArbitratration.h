@@ -93,7 +93,7 @@ TrackVertexArbitration<VTX>::TrackVertexArbitration(const edm::ParameterSet &par
 	trackMinPt                (params.getParameter<double>("trackMinPt")),
 	trackMinPixels            (params.getParameter<int32_t>("trackMinPixels"))
 {
-	
+	dRCut*=dRCut;
 }
 template <class VTX>
 bool TrackVertexArbitration<VTX>::trackFilterArbitrator(const reco::TransientTrack &track) const
@@ -154,12 +154,12 @@ std::vector<VTX> TrackVertexArbitration<VTX>::trackVertexArbitrator(
 
 	std::vector<VTX> recoVertices;
         VertexDistance3D vdist;
+        GlobalPoint ppv(pv.position().x(),pv.position().y(),pv.position().z());
 
         std::map<unsigned int, Measurement1D> cachedIP;  
         for(typename std::vector<VTX>::const_iterator sv = secondaryVertices.begin();
 	    sv != secondaryVertices.end(); ++sv) {
 
-	    GlobalPoint ppv(pv.position().x(),pv.position().y(),pv.position().z());
 	    GlobalPoint ssv(sv->position().x(),sv->position().y(),sv->position().z());
             GlobalVector flightDir = ssv-ppv;
 //            std::cout << "Vertex : " << sv-secondaryVertices->begin() << " " << sv->position() << std::endl;
@@ -186,7 +186,7 @@ std::vector<VTX> TrackVertexArbitration<VTX>::trackVertexArbitrator(
 		GlobalError refPointErr       = tsos.cartesianError().position();
 		Measurement1D isv = dist.distance(VertexState(RecoVertex::convertPos(sv->position()),RecoVertex::convertError(sv->error())),VertexState(refPoint, refPointErr));	   
 
-		float dR = Geom::deltaR(flightDir,tt.track()); //.eta(), flightDir.phi(), tt.track().eta(), tt.track().phi());
+		float dR = Geom::deltaR2(flightDir,tt.track()); //.eta(), flightDir.phi(), tt.track().eta(), tt.track().phi());
 
                 if( w > 0 || ( isv.significance() < sigCut && isv.value() < distCut && isv.value() < dlen.value()*dLenFraction ) )
                 {

@@ -133,6 +133,7 @@ void TemplatedInclusiveVertexFinder<InputContainer,VTX>::produce(edm::Event &eve
         if(primaryVertices->size()!=0) {
      
 	const reco::Vertex &pv = (*primaryVertices)[0];
+	GlobalPoint ppv(pv.position().x(),pv.position().y(),pv.position().z());
         
 	std::vector<TransientTrack> tts;
         //Fill transient track vector 
@@ -187,45 +188,39 @@ void TemplatedInclusiveVertexFinder<InputContainer,VTX>::produce(edm::Event &eve
 		}
 		for(std::vector<TransientVertex>::const_iterator v = vertices.begin();
 		    v != vertices.end(); ++v) {
-//			if(v->degreesOfFreedom() > 0.2)
-                        {
-                         Measurement1D dlen= vdist.distance(pv,*v);
-                         Measurement1D dlen2= vdist2d.distance(pv,*v);
-			 VTX vv(*v);
+			Measurement1D dlen= vdist.distance(pv,*v);
+			Measurement1D dlen2= vdist2d.distance(pv,*v);
 #ifdef VTXDEBUG
-                       std::cout << "V chi2/n: " << v->normalisedChiSquared() << " ndof: " <<v->degreesOfFreedom() ;
-                         std::cout << " dlen: " << dlen.value() << " error: " << dlen.error() << " signif: " << dlen.significance();
-                         std::cout << " dlen2: " << dlen2.value() << " error2: " << dlen2.error() << " signif2: " << dlen2.significance();
-                         std::cout << " pos: " << vv.position() << " error: " <<vv.xError() << " " << vv.yError() << " " << vv.zError() << std::endl;
+			VTX vv(*v);
+			std::cout << "V chi2/n: " << v->normalisedChiSquared() << " ndof: " <<v->degreesOfFreedom() ;
+			std::cout << " dlen: " << dlen.value() << " error: " << dlen.error() << " signif: " << dlen.significance();
+			std::cout << " dlen2: " << dlen2.value() << " error2: " << dlen2.error() << " signif2: " << dlen2.significance();
+			std::cout << " pos: " << vv.position() << " error: " <<vv.xError() << " " << vv.yError() << " " << vv.zError() << std::endl;
 #endif
-                         GlobalVector dir;  
-			 std::vector<reco::TransientTrack> ts = v->originalTracks();
-                        for(std::vector<reco::TransientTrack>::const_iterator i = ts.begin();
-                            i != ts.end(); ++i) {
-              //                  reco::TrackRef t = i->trackBaseRef().castTo<reco::TrackRef>();
-                                float w = v->trackWeight(*i);
-                                if (w > 0.5) dir+=i->impactPointState().globalDirection();
+			GlobalVector dir;  
+			std::vector<reco::TransientTrack> ts = v->originalTracks();
+			for(std::vector<reco::TransientTrack>::const_iterator i = ts.begin();
+					i != ts.end(); ++i) {
+				float w = v->trackWeight(*i);
+				if (w > 0.5) dir+=i->impactPointState().globalDirection();
 #ifdef VTXDEBUG
-                                std::cout << "\t[" << (*i).track().pt() << ": "
-                                          << (*i).track().eta() << ", "
-                                          << (*i).track().phi() << "], "
-                                          << w << std::endl;
+				std::cout << "\t[" << (*i).track().pt() << ": "
+					<< (*i).track().eta() << ", "
+					<< (*i).track().phi() << "], "
+					<< w << std::endl;
 #endif
                         }
-		       GlobalPoint ppv(pv.position().x(),pv.position().y(),pv.position().z());
-		       GlobalPoint sv((*v).position().x(),(*v).position().y(),(*v).position().z());
-                       float vscal = dir.unit().dot((sv-ppv).unit()) ;
-//                        std::cout << "Vscal: " <<  vscal << std::endl;
-                       if(dlen.significance() > vertexMinDLenSig  && vscal > vertexMinAngleCosine &&  v->normalisedChiSquared() < 10 && dlen2.significance() > vertexMinDLen2DSig)
-	            	  {	 
+			GlobalPoint sv((*v).position().x(),(*v).position().y(),(*v).position().z());
+			float vscal = dir.unit().dot((sv-ppv).unit()) ;
+			//                        std::cout << "Vscal: " <<  vscal << std::endl;
+			if(dlen.significance() > vertexMinDLenSig  && vscal > vertexMinAngleCosine &&  v->normalisedChiSquared() < 10 && dlen2.significance() > vertexMinDLen2DSig)
+			{	 
 				recoVertices->push_back(*v);
 #ifdef VTXDEBUG
-
 	                        std::cout << "ADDED" << std::endl;
 #endif
-
-                         }
-                      }
+                        }
+                      
                    }
         }
 #ifdef VTXDEBUG
