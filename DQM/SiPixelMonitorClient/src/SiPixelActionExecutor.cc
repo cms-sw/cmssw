@@ -4,7 +4,6 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelActionExecutor.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelUtility.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelInformationExtractor.h"
-#include "DQM/SiPixelMonitorClient/interface/SiPixelTrackerMapCreator.h"
 #include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
@@ -42,7 +41,6 @@ SiPixelActionExecutor::SiPixelActionExecutor(bool offlineXMLfile,
     " Creating SiPixelActionExecutor " << "\n" ;
   configParser_ = 0;
   configWriter_ = 0;
-  qtHandler_ = 0;  
   ndet_ = 0;
   //collationDone = false;
 }
@@ -55,7 +53,6 @@ SiPixelActionExecutor::~SiPixelActionExecutor() {
     " Deleting SiPixelActionExecutor " << "\n" ;
   if (configParser_) delete configParser_;
   if (configWriter_) delete configWriter_;  
-  if (qtHandler_) delete qtHandler_;
 }
 //=============================================================================================================
 //
@@ -147,18 +144,6 @@ bool SiPixelActionExecutor::readConfiguration(int& tkmap_freq, int& summary_freq
   }
   //printing cout<<"...leaving SiPixelActionExecutor::readConfiguration..."<<endl;
   return true;
-}
-//=============================================================================================================
-// -- Create Tracker Map
-//
-void SiPixelActionExecutor::createTkMap(DQMStore* bei, 
-                                        string mEName,
-					string theTKType) 
-{	
-
-  SiPixelTrackerMapCreator tkmap_creator(mEName,theTKType,offlineXMLfile_);
-  tkmap_creator.create(bei);
-
 }
 
 //=============================================================================================================
@@ -1590,98 +1575,6 @@ void SiPixelActionExecutor::fillOccupancy(DQMStore* bei, bool isbarrel)
 	
   //occupancyprinting cout<<"leaving SiPixelActionExecutor::fillOccupancy..."<<std::endl;
 	
-}
-
-//=============================================================================================================
-
-//
-// -- Setup Quality Tests 
-//
-void SiPixelActionExecutor::setupQTests(DQMStore * bei) {
-  //printing cout<<"Entering SiPixelActionExecutor::setupQTests: "<<endl;
-	
-  bei->cd();
-  bei->cd("Pixel");
-	
-  string localPath;
-  if(offlineXMLfile_) localPath = string("DQM/SiPixelMonitorClient/test/sipixel_tier0_qualitytest.xml");
-  else localPath = string("DQM/SiPixelMonitorClient/test/sipixel_qualitytest_config.xml");
-  if(!qtHandler_){
-    qtHandler_ = new QTestHandle();
-  }
-  if(!qtHandler_->configureTests(edm::FileInPath(localPath).fullPath(),bei)){
-    qtHandler_->attachTests(bei,false);
-    bei->cd();
-  }else{
-    cout << " Problem setting up quality tests "<<endl;
-  }
-	
-  //printing cout<<" leaving SiPixelActionExecutor::setupQTests. "<<endl;
-}
-//=============================================================================================================
-//
-// -- Check Status of Quality Tests
-//
-void SiPixelActionExecutor::checkQTestResults(DQMStore * bei) {
-  //printing cout<<"Entering SiPixelActionExecutor::checkQTestResults..."<<endl;
-	
-  int messageCounter=0;
-  string currDir = bei->pwd();
-  vector<string> contentVec;
-  bei->getContents(contentVec);
-  configParser_->getCalibType(calib_type_);
-  configParser_->getMessageLimitForQTests(message_limit_);
-  for (vector<string>::iterator it = contentVec.begin();
-       it != contentVec.end(); it++) {
-    vector<string> contents;
-    int nval = SiPixelUtility::getMEList((*it), contents);
-    if (nval == 0) continue;
-    for (vector<string>::const_iterator im = contents.begin();
-	 im != contents.end(); im++) {
-			
-      MonitorElement * me = bei->get((*im));
-      if (me) {
-	me->runQTests();
-	// get all warnings associated with me
-	vector<QReport*> warnings = me->getQWarnings();
-	for(vector<QReport *>::const_iterator wi = warnings.begin();
-	    wi != warnings.end(); ++wi) {
-	  messageCounter++;
-	  if(messageCounter<message_limit_) {
-
-	    edm::LogWarning("SiPixelActionExecutor::checkQTestResults") <<  " *** Warning for " << me->getName() << "," 
-									<< (*wi)->getMessage() << " " << me->getMean() 
-									<< " " << me->getRMS() << me->hasWarning() 
-									<< endl;
-	  }
-	}
-	warnings=vector<QReport*>();
-	// get all errors associated with me
-	vector<QReport *> errors = me->getQErrors();
-	for(vector<QReport *>::const_iterator ei = errors.begin();
-	    ei != errors.end(); ++ei) {
-					
-	  float empty_mean = me->getMean();
-	  float empty_rms = me->getRMS();
-	  if((empty_mean != 0 && empty_rms != 0) || (calib_type_ == 0)){
-	    messageCounter++;
-	    if(messageCounter<=message_limit_) {
-	      edm::LogWarning("SiPixelActionExecutor::checkQTestResults")  <<   " *** Error for " << me->getName() << ","
-									   << (*ei)->getMessage() << " " << me->getMean() 
-									   << " " << me->getRMS() 
-									   << endl;
-	    }
-	  }
-	}
-	errors=vector<QReport*>();
-      }
-      me=0;
-    }
-    nval=int(); contents=vector<string>();
-  }
-  LogDebug("SiPixelActionExecutor::checkQTestResults") <<"messageCounter: "<<messageCounter<<" , message_limit: "<<message_limit_<<endl;
-  contentVec=vector<string>(); currDir=string(); messageCounter=int();
-  //printing cout<<"...leaving SiPixelActionExecutor::checkQTestResults!"<<endl;
 }
 
 //=============================================================================================================

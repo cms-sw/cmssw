@@ -5,7 +5,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelConfigParser.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelConfigWriter.h"
-#include "DQMServices/ClientConfig/interface/QTestHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -68,11 +67,6 @@ class SiPixelActionExecutor {
  void bookOccupancyPlots(    	    DQMStore    		 * bei,
                                     bool                           hiRes);
  void createOccupancy(    	    DQMStore    		 * bei);
- void setupQTests(      	    DQMStore    		 * bei);
- void checkQTestResults(	    DQMStore    		 * bei);
- void createTkMap(      	    DQMStore    		 * bei, 
-                        	    std::string 	    	   mEName,
-				    std::string 	    	   theTKType);
  bool readConfiguration(	    int 			 & tkmap_freq, 
                         	    int 			 & sum_barrel_freq, 
 				    int 			 & sum_endcap_freq, 
@@ -131,8 +125,6 @@ private:
   int ndet_;
   bool offlineXMLfile_;
   bool Tier0Flag_;
-  
-  QTestHandle* qtHandler_;
   
   MonitorElement * OccupancyMap;
   MonitorElement * PixelOccupancyMap;
