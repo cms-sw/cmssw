@@ -127,54 +127,66 @@ namespace Phase2Tracker
           int currCBC = -1;
           int iCBC = -1;
           int chanSize = 0;
+          int iOffset = 0;
           for (int i=0; i<num_p; i++)
           {
               // test if new chip (CBC for 2S, ??? for PS)
               iCBC = static_cast<uint8_t>(read_n_at_m(payloadPointer_,4,bitOffset+14));
-              if(iCBC != currCBC or i==num_p-1)
+              if(iCBC != currCBC)
               {
                   if(currCBC >= 0) 
                   {
                       // save channel (P channels start after S channels)
-                      channels_[ichan + iCBC + MAX_CBC_PER_FE] = Phase2TrackerFEDChannel(payloadPointer_,bitOffset/8,(chanSize + 8 -1)/8,bitOffset%8,DET_PonPS);
+                      iOffset = bitOffset - chanSize;
+                      channels_[ichan + currCBC + MAX_CBC_PER_FE] = Phase2TrackerFEDChannel(payloadPointer_,iOffset/8,(chanSize + 8 -1)/8,iOffset%8,DET_PonPS);
                   }
-                  chanSize = P_CLUSTER_SIZE_BITS;
+                  chanSize   = P_CLUSTER_SIZE_BITS;
               }
               else 
               {
                   chanSize += P_CLUSTER_SIZE_BITS;
               }
-              // advance bit pointer
               bitOffset += P_CLUSTER_SIZE_BITS;
               currCBC = iCBC;
+              if(i == num_p-1)
+              {
+                iOffset = bitOffset - chanSize;
+                channels_[ichan + currCBC + MAX_CBC_PER_FE] = Phase2TrackerFEDChannel(payloadPointer_,iOffset/8,(chanSize + 8 -1)/8,iOffset%8,DET_PonPS);
+              }
           }
           currCBC = -1;
           for (int i=0; i<num_s; i++)
           {
               iCBC = static_cast<uint8_t>(read_n_at_m(payloadPointer_,4,bitOffset+11));
-              if(iCBC != currCBC or i==num_s-1)
+              if(iCBC != currCBC)
               {
                   if(currCBC >= 0) 
                   {
-                      // save channel
-                      DET_TYPE det_type = (mod_type == 0) ? DET_SonPS : DET_Son2S;
-                      channels_[ichan + iCBC] = Phase2TrackerFEDChannel(payloadPointer_,bitOffset/8,(chanSize + 8 -1)/8,bitOffset%8,det_type);
+                      // save channel according to module type
+                      DET_TYPE det_type = (mod_type == 0) ? DET_Son2S : DET_SonPS;
+                      iOffset = bitOffset - chanSize;
+                      channels_[ichan + currCBC] = Phase2TrackerFEDChannel(payloadPointer_,iOffset/8,(chanSize + 8 -1)/8,iOffset%8,det_type);
                   }
-                  chanSize = S_CLUSTER_SIZE_BITS;
+                  chanSize   = S_CLUSTER_SIZE_BITS;
               }
               else 
               {
                   chanSize += S_CLUSTER_SIZE_BITS;
               }
-              // advance bit pointer
               bitOffset += S_CLUSTER_SIZE_BITS;
               currCBC = iCBC;
+              if(i == num_s-1)
+              {
+                DET_TYPE det_type = (mod_type == 0) ? DET_Son2S : DET_SonPS;
+                iOffset = bitOffset - chanSize;
+                channels_[ichan + currCBC] = Phase2TrackerFEDChannel(payloadPointer_,iOffset/8,(chanSize + 8 -1)/8,iOffset%8,det_type);
+              } 
           }
         }
         else
         {
           // else fill with null channels, don't advance the channel pointer
-          channels_.insert(channels_.end(),size_t(MAX_CBC_PER_FE),Phase2TrackerFEDChannel(payloadPointer_,0,0));
+          channels_.insert(channels_.end(),size_t(MAX_CBC_PER_FE*2),Phase2TrackerFEDChannel(payloadPointer_,0,0));
         }
       }
       // compute byte offset for payload
@@ -202,7 +214,7 @@ namespace Phase2Tracker
         ss << "WARNING: Skipping FED buffer: " << "\n";
         ss << "Cause: FED Buffer Size does not match data => missing condition data? : " << "\n";
         ss << "Expected Buffer Size " << bufferSize_ << " bytes" << "\n";
-        ss << "Computed Buffer Size " << bufferSize_ + bufferDiff << " bytes" << "\n";
+        ss << "Computed Buffer Size " << bufferSize_ - bufferDiff << " bytes" << "\n";
         // throw cms::Exception("Phase2TrackerFEDBuffer") << ss.str();
         valid_ = 0;
       }
@@ -219,7 +231,7 @@ namespace Phase2Tracker
         ss << "WARNING: Skipping FED buffer: " << "\n";
         ss << "Cause: FED Buffer Size does not match data => corrupted buffer? : " << "\n";
         ss << "Expected Buffer Size " << bufferSize_ << " bytes" << "\n";
-        ss << "Computed Buffer Size " << bufferSize_ + bufferDiff << " bytes" << "\n";
+        ss << "Computed Buffer Size " << bufferSize_ - bufferDiff << " bytes" << "\n";
         // throw cms::Exception("Phase2TrackerFEDBuffer") << ss.str();
         valid_ = 0;
       }

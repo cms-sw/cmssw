@@ -49,7 +49,7 @@ namespace Phase2Tracker {
           Phase2TrackerFEDZSSChannelUnpacker(const Phase2TrackerFEDChannel& channel) : Phase2TrackerFEDZSChannelUnpacker(channel)
           {
               clusterdatasize_ = S_CLUSTER_SIZE_BITS;  
-              clustersLeft_ = (channel.length()*8 - channel.bitoffset())/clusterdatasize_;
+              clustersLeft_ = channel.length()*8/clusterdatasize_;
           }
           inline uint8_t clusterIndex() { return (uint8_t)read_n_at_m(data_,8,3+currentOffset_);  }
           inline uint8_t clusterSize()  { return (uint8_t)read_n_at_m(data_,3,currentOffset_); }
@@ -61,7 +61,7 @@ namespace Phase2Tracker {
           Phase2TrackerFEDZSPChannelUnpacker(const Phase2TrackerFEDChannel& channel) : Phase2TrackerFEDZSChannelUnpacker(channel)
           {
               clusterdatasize_ = P_CLUSTER_SIZE_BITS;  
-              clustersLeft_ = (channel.length()*8 - channel.bitoffset())/clusterdatasize_;
+              clustersLeft_ = channel.length()*8/clusterdatasize_;
           }
           inline uint8_t clusterIndex() { return (uint8_t)read_n_at_m(data_,7,7+currentOffset_);  }
           inline uint8_t clusterZpos()  { return (uint8_t)read_n_at_m(data_,4,3+currentOffset_); }
