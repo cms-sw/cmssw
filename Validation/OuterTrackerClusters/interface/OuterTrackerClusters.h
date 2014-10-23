@@ -16,10 +16,6 @@
 #include <vector>
 
 class DQMStore;
-class SiStripDetCabling;
-class SiStripCluster;
-class SiStripDCSStatus;
-class GenericTriggerEventFlag;
 
 class OuterTrackerClusters : public edm::EDAnalyzer {
 
@@ -47,7 +43,6 @@ public:
  private:
   DQMStore* dqmStore_;
   edm::ParameterSet conf_;
-  edm::InputTag clusterProducerStrip_;
 
   std::string topFolderName_;
   

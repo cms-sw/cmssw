@@ -1,8 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 OuterTrackerMCTruth = cms.EDAnalyzer('OuterTrackerMCTruth',
-                                     
-    ClusterProducerStrip = cms.InputTag('siStripClusters'),
     
     TopFolderName = cms.string('OuterTrackerV'),
     

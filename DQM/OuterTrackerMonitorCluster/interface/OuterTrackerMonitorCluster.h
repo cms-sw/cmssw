@@ -12,7 +12,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "DQM/SiStripCommon/interface/TkHistoMap.h"
 
 class DQMStore;
 

@@ -11,15 +11,10 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "DQM/SiStripCommon/interface/TkHistoMap.h"
 
 #include <vector>
 
 class DQMStore;
-class SiStripDetCabling;
-class SiStripCluster;
-class SiStripDCSStatus;
-class GenericTriggerEventFlag;
 
 class OuterTrackerVClient : public edm::EDAnalyzer {
 

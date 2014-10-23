@@ -25,28 +25,14 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
-#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
-#include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
-#include "DQM/SiStripCommon/interface/SiStripHistoId.h"
 #include "Validation/OuterTrackerVClient/interface/OuterTrackerVClient.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDCSStatus.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-
-#include "DPGAnalysis/SiStripTools/interface/APVCyclePhaseCollection.h"
-#include "DPGAnalysis/SiStripTools/interface/EventWithHistory.h"
 
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 
