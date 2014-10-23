@@ -225,17 +225,17 @@ void SUSY_HLT_alphaT::bookHistos(DQMStore::IBooker & ibooker_)
     //offline quantities
 
     //online quantities 
-    h_triggerHt = ibooker_.book1D("triggerHt", "Trigger Ht; GeV", 60, 0.0, 1500.0);
-    h_triggerAlphaT = ibooker_.book1D("triggerAlphaT", "Trigger AlphaT", 80, 0., 1.0);
-    h_triggerAlphaT_triggerHt = ibooker_.book2D("triggerAlphaT_triggerHt","Trigger HT vs Trigger AlphaT", 60,0.0,1500.,80,0.,1.0);
+    h_triggerHt = ibooker_.book1D("triggerHt", "Trigger Ht; HT (GeV)", 60, 0.0, 1500.0);
+    h_triggerAlphaT = ibooker_.book1D("triggerAlphaT", "Trigger AlphaT; AlphaT", 80, 0., 1.0);
+    h_triggerAlphaT_triggerHt = ibooker_.book2D("triggerAlphaT_triggerHt","Trigger HT vs Trigger AlphaT; HT (GeV); AlphaT", 60,0.0,1500.,80,0.,1.0);
     
     //h_triggerMht = ibooker_.book1D("triggerMht", "Trigger Mht", 20, -3.5, 3.5);
 
     //num and den hists to be divided in harvesting step to make turn on curves
-    h_alphaTTurnOn_num = ibooker_.book1D("alphaTTurnOn_num", "AlphaT Turn On Numerator", 40, 0.0, 1.0 );
-    h_alphaTTurnOn_den = ibooker_.book1D("alphaTTurnOn_den", "AlphaT Turn OnDenominator", 40, 0.0, 1.0 );
-    h_htTurnOn_num = ibooker_.book1D("htTurnOn_num", "PF HT Turn On Numerator", 30, 0.0, 1500.0 );
-    h_htTurnOn_den = ibooker_.book1D("htTurnOn_den", "PF HT Turn On Denominator", 30, 0.0, 1500.0 );
+    h_alphaTTurnOn_num = ibooker_.book1D("alphaTTurnOn_num", "AlphaT Turn On Numerator; AlphaT", 40, 0.0, 1.0 );
+    h_alphaTTurnOn_den = ibooker_.book1D("alphaTTurnOn_den", "AlphaT Turn OnDenominator; AlphaT", 40, 0.0, 1.0 );
+    h_htTurnOn_num = ibooker_.book1D("htTurnOn_num", "HT Turn On Numerator; HT (GeV)", 30, 0.0, 1500.0 );
+    h_htTurnOn_den = ibooker_.book1D("htTurnOn_den", "HT Turn On Denominator; HT (GeV)", 30, 0.0, 1500.0 );
 
     ibooker_.cd();
 }

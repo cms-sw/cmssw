@@ -106,7 +106,7 @@ SUSY_HLT_alphaT_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
     verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),
     efficiency     = cms.vstring(
-       "htTurnOn_eff 'Turn-on vs HT; PFHT (GeV); #epsilon' htTurnOn_num htTurnOn_den",
-       "alphaTTurnOn_eff 'Turn-on vs alpha T; PFMET (GeV); #epsilon' alphaTTurnOn_num alphaTTurnOn_den",
+       "htTurnOn_eff 'Turn-on vs HT; HT (GeV); #epsilon' htTurnOn_num htTurnOn_den",
+       "alphaTTurnOn_eff 'Turn-on vs alpha T; AlphaT (GeV); #epsilon' alphaTTurnOn_num alphaTTurnOn_den",
     )
 )
