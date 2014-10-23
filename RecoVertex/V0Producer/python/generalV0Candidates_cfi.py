@@ -28,7 +28,7 @@ generalV0Candidates = cms.EDProducer("V0Producer",
    # Pt of track >
    tkPtCut = cms.double(0.35),
    # Number of valid hits on track >=
-   tkNhitsCut = cms.int32(7),
+   tkNHitsCut = cms.int32(7),
    # Track impact parameter significance >
    tkIPSigCut = cms.double(2.0),
 
@@ -41,18 +41,16 @@ generalV0Candidates = cms.EDProducer("V0Producer",
    vtxRSigCut = cms.double(10.0),
 
    # -- miscellaneous cuts after vertexing --
-   # m_pipi calculated at PCA of tracks <
-   #mPiPiCut = cms.double(0.6),
    # PCA distance between tracks <
    tkDCACut = cms.double(2.0),
    #  V0 mass window +- pdg value
-   KShortMassCut = cms.double(0.07),
-   LambdaMassCut = cms.double(0.05),
+   kshortMassCut = cms.double(0.07),
+   lambdaMassCut = cms.double(0.05),
    # check if either track has a hit radially inside the vertex position minus this number times the sigma of the vertex fit
    # note: Set this to -1 to disable this cut, which MUST be done if you want to run V0Producer on the AOD track collection!
    innerHitPosCut = cms.double(4.0),
    # cos(angle) between x and p of V0 candidate >
-   V0costhetaCut = cms.double(0.9998)
+   v0CosThetaCut = cms.double(0.9998)
 
 )
 

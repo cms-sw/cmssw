@@ -75,35 +75,22 @@ class dso_hidden V0Fitter {
       std::vector<reco::TrackBase::TrackQuality> qualities;
       double tkChi2Cut_;
       double tkPtCut_;
-      int tkNhitsCut_;
+      int tkNHitsCut_;
       double tkIPSigCut_;
       // cuts on the V0 vertex
       double vtxChi2Cut_;
       double vtxRCut_;
       double vtxRSigCut_;
       // miscellaneous cuts after vertexing
-      //double mPiPiCut_;
       double tkDCACut_;
-      double KShortMassCut_;
-      double LambdaMassCut_;
+      double kshortMassCut_;
+      double lambdaMassCut_;
       double innerHitPosCut_;
-      double V0costhetaCut_;
+      double v0CosThetaCut_;
 
       edm::EDGetTokenT<reco::TrackCollection> token_tracks;
+      edm::EDGetTokenT<reco::BeamSpot> token_beamspot;
       edm::InputTag vtxFitter;
-
-      // Helper method that does the actual fitting using the KalmanVertexFitter
-      //double findV0MassError(const GlobalPoint &vtxPos, const std::vector<reco::TransientTrack> &dauTracks);
-      /*
-      // Stuff for debug file output. 
-      std::ofstream mPiPiMassOut; 
-      inline void initFileOutput() { 
-         mPiPiMassOut.open("mPiPi.txt", std::ios::app); 
-      } 
-      inline void cleanupFileOutput() { 
-         mPiPiMassOut.close(); 
-      } 
-      */
 
 };
 
