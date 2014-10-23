@@ -231,52 +231,51 @@ void TriggerRatesMonitor::bookHistograms(DQMStore::IBooker & booker, edm::Run co
   m_events_calibration  = booker.book1D("calibration",  "Calibration events",   m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
   m_events_random       = booker.book1D("random",       "Random events",        m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
   
-  if (m_l1tMenu and m_l1tAlgoMask and m_l1tTechMask) {
-    // book the L1T rate histograms
-    booker.setCurrentFolder( m_dqm_path + "/L1" );
+  if (m_l1tMenu and m_l1tAlgoMask) {
+    // book the rate histograms for the L1 Algorithm triggers
+    booker.setCurrentFolder( m_dqm_path + "/L1 Algo" );
 
     // book the histograms for L1 algo triggers that are included in the L1 menu
     for (auto const & keyval: m_l1tMenu->gtAlgorithmAliasMap()) {
       int bit = keyval.second.algoBitNumber();
-      std::string const & name  = keyval.first.substr( 0, keyval.first.find_first_of(".") );
-      std::string const & title = keyval.first;
       // check if the trigger is unmasked in *any* partition
-      if ((m_l1tAlgoMask->gtTriggerMask().at(bit) & 0xff) != 0xff)
-        m_l1t_algo_counts[bit] = booker.book1D(name, title,                 m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
-      else
-        m_l1t_algo_counts[bit] = booker.book1D(name, title + " (masked)",   m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
+      bool masked = ((m_l1tAlgoMask->gtTriggerMask().at(bit) & 0xff) == 0xff);
+      std::string const & name  = (boost::format("%s (bit %d)") % keyval.first.substr(0, keyval.first.find_first_of(".")) % bit).str();
+      std::string const & title = (boost::format("%s (bit %d)%s") % keyval.first % bit % (masked ? " (masked)" : "")).str();
+      m_l1t_algo_counts.at(bit) = booker.book1D(name, title, m_lumisections_range + 1, -0.5, m_lumisections_range + 0.5)->getTH1F();
     }
     // book the histograms for L1 algo triggers that are not included in the L1 menu
-    for (unsigned int bit = 0; bit < m_l1tAlgoMask->gtTriggerMask().size(); ++bit) if (not m_l1t_algo_counts[bit]) {
-      std::string const & name  = (boost::format("L1_algo_bit_%03d") % bit).str();
-      std::string const & title = (boost::format("L1 algo bit %03d") % bit).str();
+    for (unsigned int bit = 0; bit < m_l1tAlgoMask->gtTriggerMask().size(); ++bit) if (not m_l1t_algo_counts.at(bit)) {
       // check if the trigger is unmasked in *any* partition
-      if ((m_l1tAlgoMask->gtTriggerMask().at(bit) & 0xff) != 0xff)
-        m_l1t_algo_counts[bit] = booker.book1D(name, title,                 m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
-      else
-        m_l1t_algo_counts[bit] = booker.book1D(name, title + " (masked)",   m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
+      bool masked = ((m_l1tAlgoMask->gtTriggerMask().at(bit) & 0xff) == 0xff);
+      std::string const & name  = (boost::format("L1 Algo (bit %d)") % bit).str();
+      std::string const & title = (boost::format("L1 Algo (bit %d)%s") % bit % (masked ? " (masked)" : "")).str();
+      m_l1t_algo_counts.at(bit) = booker.book1D(name, title, m_lumisections_range + 1, -0.5, m_lumisections_range + 0.5)->getTH1F();
     }
-    // book the histograms for L1 tech triggers that are included in the L1 menu
+  }
+
+  if (m_l1tMenu and m_l1tTechMask) {
+    // book the rate histograms for the L1 Technical triggers
+    booker.setCurrentFolder( m_dqm_path + "/L1 Tech" );
+
+    // book the histograms for L1 algo triggers that are included in the L1 menu
     for (auto const & keyval: m_l1tMenu->gtTechnicalTriggerMap()) {
       int bit = keyval.second.algoBitNumber();
-      std::string const & name  = keyval.first.substr( 0, keyval.first.find_first_of(".") );
-      std::string const & title = keyval.first;
       // check if the trigger is unmasked in *any* partition
-      if ((m_l1tTechMask->gtTriggerMask()[bit] & 0xff) != 0xff)
-        m_l1t_tech_counts[bit] = booker.book1D(name, title,                 m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
-      else
-        m_l1t_tech_counts[bit] = booker.book1D(name, title + " (masked)",   m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
+      bool masked = ((m_l1tTechMask->gtTriggerMask().at(bit) & 0xff) == 0xff);
+      std::string const & name  = (boost::format("%s (bit %d)") % keyval.first.substr(0, keyval.first.find_first_of(".")) % bit).str();
+      std::string const & title = (boost::format("%s (bit %d)%s") % keyval.first % bit % (masked ? " (masked)" : "")).str();
+      m_l1t_algo_counts.at(bit) = booker.book1D(name, title, m_lumisections_range + 1, -0.5, m_lumisections_range + 0.5)->getTH1F();
     }
-    // book the histograms for L1 tech triggers that are not included in the L1 menu
-    for (unsigned int bit = 0; bit < m_l1tTechMask->gtTriggerMask().size(); ++bit) if (not m_l1t_tech_counts[bit]) {
-      std::string const & name  = (boost::format("L1_tech_bit_%03d") % bit).str();
-      std::string const & title = (boost::format("L1 tech bit %03d") % bit).str();
+    // book the histograms for L1 algo triggers that are not included in the L1 menu
+    for (unsigned int bit = 0; bit < m_l1tTechMask->gtTriggerMask().size(); ++bit) if (not m_l1t_algo_counts.at(bit)) {
       // check if the trigger is unmasked in *any* partition
-      if ((m_l1tTechMask->gtTriggerMask()[bit] & 0xff) != 0xff)
-        m_l1t_tech_counts[bit] = booker.book1D(name, title,                 m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
-      else
-        m_l1t_tech_counts[bit] = booker.book1D(name, title + " (masked)",   m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
+      bool masked = ((m_l1tTechMask->gtTriggerMask().at(bit) & 0xff) == 0xff);
+      std::string const & name  = (boost::format("L1 Tech (bit %d)") % bit).str();
+      std::string const & title = (boost::format("L1 Tech (bit %d)%s") % bit % (masked ? " (masked)" : "")).str();
+      m_l1t_algo_counts.at(bit) = booker.book1D(name, title, m_lumisections_range + 1, -0.5, m_lumisections_range + 0.5)->getTH1F();
     }
+
   }
 
   if (m_hltConfig.inited()) {
