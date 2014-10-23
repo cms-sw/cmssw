@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 # produce "raw" (uncorrected) pat::MET of calo-type
 from PhysicsTools.PatAlgos.producersLayer1.metProducer_cfi import patMETs
 patCaloMet = patMETs.clone(
-    metSource = cms.InputTag('corMetGlobalMuons'),
+    metSource = cms.InputTag('caloMetM'),
     addMuonCorrections = cms.bool(False),
     genMETSource = cms.InputTag('genMetTrue')
 )
@@ -20,7 +20,7 @@ patCaloMetType1Corr = cms.EDProducer(
     type1JetPtThreshold = cms.double(20.0),
     skipEM = cms.bool(True),
     skipEMfractionThreshold = cms.double(0.90),
-    srcMET = cms.InputTag('corMetGlobalMuons')
+    srcMET = cms.InputTag('caloMetM')
 )
 
 ##____________________________________________________________________________||
@@ -36,7 +36,7 @@ patCaloMetType2Corr = cms.EDProducer(
         cms.InputTag('patCaloMetType1Corr', 'type2'),
         cms.InputTag('patCaloMetMuCorr') # NOTE: use this for 'corMetGlobalMuons', do **not** use it for 'met' !!
         ),
-    type2CorrFormula = cms.string("A + B*TMath::Exp(-C*x)"),
+    type2CorrFormula = cms.string("A + B*exp(-C*x)"),
     type2CorrParameter = cms.PSet(
         A = cms.double(2.0),
         B = cms.double(1.3),
@@ -67,7 +67,7 @@ patCaloMetT1T2 = cms.EDProducer("CorrectedPATMETProducer",
     srcUnclEnergySums = cms.VInputTag(
         cms.InputTag('patCaloMetType1Corr', 'type2' ),                    
     ),                              
-    type2CorrFormula = cms.string("A + B*TMath::Exp(-C*x)"),
+    type2CorrFormula = cms.string("A + B*exp(-C*x)"),
     type2CorrParameter = cms.PSet(
         A = cms.double(2.0),
         B = cms.double(1.3),

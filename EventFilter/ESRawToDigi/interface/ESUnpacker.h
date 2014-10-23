@@ -27,7 +27,7 @@ class ESUnpacker {
   public :
       
   typedef unsigned int Word32;
-  typedef long long Word64;  
+  typedef unsigned long long Word64;
 
   ESUnpacker(const edm::ParameterSet& ps);
   ~ESUnpacker();

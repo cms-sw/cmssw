@@ -1,15 +1,3 @@
-// -*- C++ -*-
-//
-// Package:    MoveFlatParamsToDB
-// Class:      MoveFlatParamsToDB
-// 
-/**\class MoveFlatParamsToDB MoveFlatParamsToDB.cc HiEvtPlaneFlatten/MoveFlatParamsToDB/src/MoveFlatParamsToDB.cc
-
- Description: [one line class summary]
-
- Implementation:
-     [Notes on implementation]
-*/
 //
 // Original Author:  Stephen Sanders
 //         Created:  Fri Jun 11 12:56:15 EDT 2010
@@ -39,7 +27,6 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Ref.h"
 
 #include "CondFormats/DataRecord/interface/HeavyIonRPRcd.h"

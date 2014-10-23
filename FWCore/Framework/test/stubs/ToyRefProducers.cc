@@ -60,13 +60,13 @@ namespace edmtest {
     e.getByLabel(target_, input);
     assert(input.isValid());
 
-    std::auto_ptr<product_type> prod(new product_type());
+    std::unique_ptr<product_type> prod(new product_type());
 
     typedef product_type::value_type ref;
     for(size_t i = 0, sz = input->size(); i != sz; ++i)
       prod->push_back(ref(input, i));
 
-    e.put(prod);
+    e.put(std::move(prod));
   }
 
   //--------------------------------------------------------------------
@@ -98,8 +98,8 @@ namespace edmtest {
     e.getByLabel(target_, input);
     assert(input.isValid());
 
-    std::auto_ptr<product_type> prod(new product_type(input->refVector()));
-    e.put(prod);
+    std::unique_ptr<product_type> prod(new product_type(input->refVector()));
+    e.put(std::move(prod));
   }
 
   //--------------------------------------------------------------------
@@ -131,13 +131,13 @@ namespace edmtest {
     e.getByLabel(target_, input);
     assert(input.isValid());
 
-    std::auto_ptr<product_type> prod(new product_type());
+    std::unique_ptr<product_type> prod(new product_type());
 
     typedef product_type::value_type ref;
     for(size_t i = 0, sz = input->size(); i != sz; ++i)
       prod->push_back(ref(input, i));
 
-    e.put(prod);
+    e.put(std::move(prod));
   }
 
 }

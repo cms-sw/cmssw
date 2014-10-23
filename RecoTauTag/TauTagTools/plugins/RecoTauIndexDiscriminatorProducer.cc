@@ -11,17 +11,21 @@
 
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 
-class RecoTauIndexDiscriminatorProducer : public PFTauDiscriminationProducerBase {
+namespace {
+
+class RecoTauIndexDiscriminatorProducer final : public PFTauDiscriminationProducerBase {
   public:
       explicit RecoTauIndexDiscriminatorProducer(const edm::ParameterSet& cfg)
         :PFTauDiscriminationProducerBase(cfg) {}
       ~RecoTauIndexDiscriminatorProducer(){}
-      double discriminate(const reco::PFTauRef& thePFTauRef) override;
+      double discriminate(const reco::PFTauRef& thePFTauRef) const override;
       void beginEvent(const edm::Event& evt, const edm::EventSetup& evtSetup) override {};
 };
 
-double RecoTauIndexDiscriminatorProducer::discriminate(const reco::PFTauRef& thePFTauRef) {
+double RecoTauIndexDiscriminatorProducer::discriminate(const reco::PFTauRef& thePFTauRef) const {
   return thePFTauRef.key();
+}
+
 }
 
 DEFINE_FWK_MODULE(RecoTauIndexDiscriminatorProducer);

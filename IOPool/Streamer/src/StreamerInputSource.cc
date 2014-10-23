@@ -14,6 +14,7 @@
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
+#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 
 #include "zlib.h"
 
@@ -61,7 +62,11 @@ namespace edm {
   }
 
   void
-  StreamerInputSource::mergeIntoRegistry(SendJobHeader const& header, ProductRegistry& reg, BranchIDListHelper& branchIDListHelper, bool subsequent) {
+  StreamerInputSource::mergeIntoRegistry(SendJobHeader const& header,
+                                         ProductRegistry& reg,
+                                         BranchIDListHelper& branchIDListHelper,
+                                         ThinnedAssociationsHelper& thinnedHelper,
+                                         bool subsequent) {
 
     SendDescs const& descs = header.descs();
 
@@ -75,6 +80,7 @@ namespace edm {
         throw cms::Exception("MismatchedInput","RootInputFileSequence::previousEvent()") << mergeInfo;
       }
       branchIDListHelper.updateFromInput(header.branchIDLists());
+      thinnedHelper.updateFromInput(header.thinnedAssociationsHelper(), false, std::vector<BranchID>());
     } else {
       declareStreamers(descs);
       buildClassCache(descs);
@@ -83,6 +89,7 @@ namespace edm {
         reg.updateFromInput(descs);
       }
       branchIDListHelper.updateFromInput(header.branchIDLists());
+      thinnedHelper.updateFromInput(header.thinnedAssociationsHelper(), false, std::vector<BranchID>());
     }
   }
 
@@ -163,7 +170,7 @@ namespace edm {
   void
   StreamerInputSource::deserializeAndMergeWithRegistry(InitMsgView const& initView, bool subsequent) {
      std::auto_ptr<SendJobHeader> sd = deserializeRegistry(initView);
-     mergeIntoRegistry(*sd, productRegistryUpdate(), *branchIDListHelper(), subsequent);
+     mergeIntoRegistry(*sd, productRegistryUpdate(), *branchIDListHelper(), *thinnedAssociationsHelper(), subsequent);
      if (subsequent) {
        adjustEventToNewProductRegistry_ = true;
      }
@@ -288,11 +295,11 @@ namespace edm {
 
         if(spitem.prod() != nullptr) {
           FDEBUG(10) << "addproduct next " << spitem.branchID() << std::endl;
-          eventPrincipal.putOnRead(branchDesc, spitem.prod(), productProvenance);
+          eventPrincipal.putOnRead(branchDesc, std::unique_ptr<WrapperBase>(const_cast<WrapperBase*>(spitem.prod())), productProvenance);
           FDEBUG(10) << "addproduct done" << std::endl;
         } else {
           FDEBUG(10) << "addproduct empty next " << spitem.branchID() << std::endl;
-          eventPrincipal.putOnRead(branchDesc, spitem.prod(), productProvenance);
+          eventPrincipal.putOnRead(branchDesc, std::unique_ptr<WrapperBase>(), productProvenance);
           FDEBUG(10) << "addproduct empty done" << std::endl;
         }
         spitem.clear();
@@ -367,10 +374,23 @@ namespace edm {
 
   StreamerInputSource::EventPrincipalHolder::~EventPrincipalHolder() {}
 
-  WrapperHolder
+  WrapperBase const*
   StreamerInputSource::EventPrincipalHolder::getIt(ProductID const& id) const {
-    return eventPrincipal_ ? eventPrincipal_->getIt(id) : WrapperHolder();
+    return eventPrincipal_ ? eventPrincipal_->getIt(id) : nullptr;
   }
+
+  WrapperBase const*
+  StreamerInputSource::EventPrincipalHolder::getThinnedProduct(edm::ProductID const& id, unsigned int& index) const {
+    return eventPrincipal_ ? eventPrincipal_->getThinnedProduct(id, index) : nullptr;
+  }
+
+  void
+  StreamerInputSource::EventPrincipalHolder::getThinnedProducts(ProductID const& pid,
+                                                                std::vector<WrapperBase const*>& wrappers,
+                                                                std::vector<unsigned int>& keys) const {
+    if (eventPrincipal_) eventPrincipal_->getThinnedProducts(pid, wrappers, keys);
+  }
+
 
   unsigned int
   StreamerInputSource::EventPrincipalHolder::transitionIndex_() const {

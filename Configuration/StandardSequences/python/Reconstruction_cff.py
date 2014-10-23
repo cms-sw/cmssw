@@ -51,7 +51,6 @@ globalreco = cms.Sequence(offlineBeamSpot*
                           MeasurementTrackerEvent* # unclear where to put this
                           siPixelClusterShapeCache* # unclear where to put this
                           standalonemuontracking*
-                          recopixelvertexing*
                           trackingGlobalReco*
                           vertexreco*
                           hcalGlobalRecoSequence*
@@ -101,7 +100,8 @@ modulesToRemove.append(dt1DRecHits)
 modulesToRemove.append(dt1DCosmicRecHits)
 modulesToRemove.append(csc2DRecHits)
 modulesToRemove.append(rpcRecHits)
-modulesToRemove.append(ecalGlobalUncalibRecHit)
+#modulesToRemove.append(ecalGlobalUncalibRecHit)
+modulesToRemove.append(ecalMultiFitUncalibRecHit)
 modulesToRemove.append(ecalDetIdToBeRecovered)
 modulesToRemove.append(ecalRecHit)
 modulesToRemove.append(ecalCompactTrigPrim)

@@ -97,8 +97,10 @@ Generator::~Generator()
   delete fLumiFilter;
 }
 
-void Generator::HepMC2G4(const HepMC::GenEvent * evt, G4Event * g4evt)
+void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
 {
+
+  HepMC::GenEvent *evt=new HepMC::GenEvent(*evt_orig);
 
   if ( *(evt->vertices_begin()) == 0 ) {
     throw SimG4Exception("SimG4CoreGenerator: Corrupted Event - GenEvent with no vertex");
@@ -375,6 +377,8 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt, G4Event * g4evt)
     if ( verbose > 1 ) g4vtx->Print();
     g4evt->AddPrimaryVertex(g4vtx);
   }
+
+  delete evt;
 }
 
 void Generator::particleAssignDaughters( G4PrimaryParticle* g4p, 
@@ -447,7 +451,6 @@ void Generator::particleAssignDaughters( G4PrimaryParticle* g4p,
         double dd = std::sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2)+(z1-z2)*(z1-z2));
         particleAssignDaughters(g4daught,*vpdec,dd);
       }
-
     (*vpdec)->set_status(1000+(*vpdec)->status()); 
     g4p->SetDaughter(g4daught);
 

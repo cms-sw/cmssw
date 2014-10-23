@@ -7,6 +7,7 @@ Wrapper: A template wrapper around EDProducts to hold the product ID.
 
 ----------------------------------------------------------------------*/
 
+#include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Common/interface/fwd_fillPtrVector.h"
 #include "DataFormats/Common/interface/fwd_setPtr.h"
 #include "DataFormats/Common/interface/PtrVector.h"
@@ -14,8 +15,8 @@ Wrapper: A template wrapper around EDProducts to hold the product ID.
 #include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 #include "FWCore/Utilities/interface/Visibility.h"
-
 #include "boost/mpl/if.hpp"
 
 #include <algorithm>
@@ -24,53 +25,52 @@ Wrapper: A template wrapper around EDProducts to hold the product ID.
 #include <typeinfo>
 
 namespace edm {
-  template <typename T> class WrapperInterface;
   template <typename T>
-  class Wrapper {
+  class Wrapper : public WrapperBase {
   public:
     typedef T value_type;
     typedef T wrapped_type;  // used with the dictionary to identify Wrappers
-    Wrapper() : present(false), obj() {}
-    explicit Wrapper(std::auto_ptr<T> ptr);
-    ~Wrapper() {}
+    Wrapper() : WrapperBase(), present(false), obj() {}
+#ifndef __GCCXML__
+    explicit Wrapper(std::unique_ptr<T> ptr);
+#endif
+    virtual ~Wrapper() {}
     T const* product() const {return (present ? &obj : 0);}
     T const* operator->() const {return product();}
 
     //these are used by FWLite
-    static std::type_info const& productTypeInfo() { return typeid(T);}
-    static std::type_info const& typeInfo() { return typeid(Wrapper<T>);}
+    static std::type_info const& productTypeInfo() {return typeid(T);}
+    static std::type_info const& typeInfo() {return typeid(Wrapper<T>);}
 
     //  the constructor takes ownership of T*
     Wrapper(T*);
 
-    static
-    WrapperInterface<T> const* getInterface() dso_export;
+    //Used by ROOT storage
+    CMS_CLASS_VERSION(3)
 
-    void fillView(ProductID const& id,
-                  std::vector<void const*>& pointers,
-                  helper_vector_ptr& helpers) const;
+private:
+    virtual bool isPresent_() const GCC11_OVERRIDE {return present;}
+    virtual std::type_info const& dynamicTypeInfo_() const GCC11_OVERRIDE {return typeid(T);}
+    virtual std::type_info const& wrappedTypeInfo_() const GCC11_OVERRIDE {return typeid(Wrapper<T>);}
 
-    void setPtr(std::type_info const& iToType,
-                unsigned long iIndex,
-                void const*& oPtr) const;
-
-    void fillPtrVector(std::type_info const& iToType,
-                       std::vector<unsigned long> const& iIndicies,
-                       std::vector<void const*>& oPtr) const;
-
-    std::type_info const& dynamicTypeInfo() const {return dynamicTypeInfo_();}
-
-    bool isPresent() const {return present;}
-    std::type_info const& dynamicTypeInfo_() const {return typeid(T);}
+    virtual std::type_info const& valueTypeInfo_() const GCC11_OVERRIDE;
+    virtual std::type_info const& memberTypeInfo_() const GCC11_OVERRIDE;
 #ifndef __GCCXML__
-    bool isMergeable() const;
-
-    bool mergeProduct(Wrapper<T> const* wrappedNewProduct);
-
-    bool hasIsProductEqual() const;
-
-    bool isProductEqual(Wrapper<T> const* wrappedNewProduct) const;
+    virtual bool isMergeable_() const GCC11_OVERRIDE;
+    virtual bool mergeProduct_(WrapperBase const* newProduct) GCC11_OVERRIDE;
+    virtual bool hasIsProductEqual_() const GCC11_OVERRIDE;
+    virtual bool isProductEqual_(WrapperBase const* newProduct) const GCC11_OVERRIDE;
 #endif
+
+    virtual void do_fillView(ProductID const& id,
+                             std::vector<void const*>& pointers,
+                             helper_vector_ptr& helpers) const GCC11_OVERRIDE;
+    virtual void do_setPtr(std::type_info const& iToType,
+                           unsigned long iIndex,
+                           void const*& oPtr) const GCC11_OVERRIDE;
+    virtual void do_fillPtrVector(std::type_info const& iToType,
+                                  std::vector<unsigned long> const& iIndices,
+                                  std::vector<void const*>& oPtr) const GCC11_OVERRIDE;
 
   private:
     // We wish to disallow copy construction and assignment.
@@ -112,14 +112,9 @@ namespace edm {
 
   template <typename T>
   inline
-  void Wrapper<T>::fillView(ProductID const& id,
+  void Wrapper<T>::do_fillView(ProductID const& id,
                                std::vector<void const*>& pointers,
                                helper_vector_ptr& helpers) const {
-    // This should never be called with non-empty arguments, or an
-    // invalid ID; any attempt to do so is an indication of a coding error.
-    assert(id.isValid());
-    assert(pointers.empty());
-    assert(helpers.get() == 0);
     typename boost::mpl::if_c<has_fillView<T>::value,
     DoFillView<T>,
     DoNotFillView<T> >::type maybe_filler;
@@ -163,9 +158,9 @@ namespace edm {
 
   template <typename T>
   inline
-  void Wrapper<T>::setPtr(std::type_info const& iToType,
-                          unsigned long iIndex,
-                          void const*& oPtr) const {
+  void Wrapper<T>::do_setPtr(std::type_info const& iToType,
+                             unsigned long iIndex,
+                             void const*& oPtr) const {
     typename boost::mpl::if_c<has_setPtr<T>::value,
     DoSetPtr<T>,
     DoNotSetPtr<T> >::type maybe_filler;
@@ -173,9 +168,9 @@ namespace edm {
   }
 
   template <typename T>
-  void Wrapper<T>::fillPtrVector(std::type_info const& iToType,
-                                 std::vector<unsigned long> const& iIndices,
-                                 std::vector<void const*>& oPtr) const {
+  void Wrapper<T>::do_fillPtrVector(std::type_info const& iToType,
+                                       std::vector<unsigned long> const& iIndices,
+                                       std::vector<void const*>& oPtr) const {
     typename boost::mpl::if_c<has_setPtr<T>::value,
     DoSetPtr<T>,
     DoNotSetPtr<T> >::type maybe_filler;
@@ -261,6 +256,41 @@ namespace edm {
     };
 
 #ifndef __GCCXML__
+
+    template <typename T> static yes_tag& has_value_type(typename T::value_type*);
+    template <typename T> static no_tag& has_value_type(...);
+    template <typename T> struct has_typedef_value_type {
+      static const bool value = sizeof(has_value_type<T>(nullptr)) == sizeof(yes_tag);
+    };
+    template <typename T, bool = has_typedef_value_type<T>::value> struct getValueType;
+    template <typename T> struct getValueType<T, true> {
+      std::type_info const& operator()() {
+        return typeid(typename T::value_type);
+      }
+    };
+    template <typename T> struct getValueType<T, false> {
+      std::type_info const& operator()() {
+        return typeid(void);
+      }
+    };
+
+    template <typename T> static yes_tag& has_member_type(typename T::member_type*);
+    template <typename T> static no_tag& has_member_type(...);
+    template <typename T> struct has_typedef_member_type {
+      static const bool value = sizeof(has_member_type<T>(nullptr)) == sizeof(yes_tag);
+    };
+    template <typename T, bool = has_typedef_member_type<T>::value> struct getMemberType;
+    template <typename T> struct getMemberType<T, true> {
+      std::type_info const& operator()() {
+        return typeid(typename T::member_type);
+      }
+    };
+    template <typename T> struct getMemberType<T, false> {
+      std::type_info const& operator()() {
+        return typeid(void);
+      }
+    };
+
     template <typename T, bool (T::*)(T const&)>  struct mergeProduct_function;
     template <typename T> no_tag  has_mergeProduct_helper(...);
     template <typename T> yes_tag has_mergeProduct_helper(mergeProduct_function<T, &T::mergeProduct> * dummy);
@@ -283,8 +313,10 @@ namespace edm {
 #endif
   }
 
+#ifndef __GCCXML__
   template <typename T>
-  Wrapper<T>::Wrapper(std::auto_ptr<T> ptr) :
+  Wrapper<T>::Wrapper(std::unique_ptr<T> ptr) :
+    WrapperBase(),
     present(ptr.get() != 0),
     obj() {
     if (present) {
@@ -299,9 +331,10 @@ namespace edm {
 
   template <typename T>
   Wrapper<T>::Wrapper(T* ptr) :
+  WrapperBase(),
   present(ptr != 0),
   obj() {
-     std::auto_ptr<T> temp(ptr);
+     std::unique_ptr<T> temp(ptr);
      if (present) {
         // The following will call swap if T has such a function,
         // and use assignment if T has no such function.
@@ -312,10 +345,23 @@ namespace edm {
      }
 
   }
+#endif
 
 #ifndef __GCCXML__
   template <typename T>
-  bool Wrapper<T>::isMergeable() const {
+  std::type_info const& Wrapper<T>::valueTypeInfo_() const {
+    return detail::getValueType<T>()();
+  }
+
+  template <typename T>
+  std::type_info const& Wrapper<T>::memberTypeInfo_() const {
+    return detail::getMemberType<T>()();
+  }
+#endif
+
+#ifndef __GCCXML__
+  template <typename T>
+  bool Wrapper<T>::isMergeable_() const {
     typename boost::mpl::if_c<detail::has_mergeProduct_function<T>::value,
       IsMergeable<T>,
       IsNotMergeable<T> >::type is_mergeable;
@@ -323,7 +369,9 @@ namespace edm {
   }
 
   template <typename T>
-  bool Wrapper<T>::mergeProduct(Wrapper<T> const* wrappedNewProduct) {
+  bool Wrapper<T>::mergeProduct_(WrapperBase const* newProduct) {
+    Wrapper<T> const* wrappedNewProduct = dynamic_cast<Wrapper<T> const*>(newProduct);
+    assert(wrappedNewProduct != nullptr);
     typename boost::mpl::if_c<detail::has_mergeProduct_function<T>::value,
       DoMergeProduct<T>,
       DoNotMergeProduct<T> >::type merge_product;
@@ -331,7 +379,7 @@ namespace edm {
   }
 
   template <typename T>
-  bool Wrapper<T>::hasIsProductEqual() const {
+  bool Wrapper<T>::hasIsProductEqual_() const {
     typename boost::mpl::if_c<detail::has_isProductEqual_function<T>::value,
       DoHasIsProductEqual<T>,
       DoNotHasIsProductEqual<T> >::type has_is_equal;
@@ -339,7 +387,9 @@ namespace edm {
   }
 
   template <typename T>
-  bool Wrapper<T>::isProductEqual(Wrapper<T> const* wrappedNewProduct) const {
+  bool Wrapper<T>::isProductEqual_(WrapperBase const* newProduct) const {
+    Wrapper<T> const* wrappedNewProduct = dynamic_cast<Wrapper<T> const*>(newProduct);
+    assert(wrappedNewProduct != nullptr);
     typename boost::mpl::if_c<detail::has_isProductEqual_function<T>::value,
       DoIsProductEqual<T>,
       DoNotIsProductEqual<T> >::type is_equal;
@@ -430,6 +480,7 @@ namespace edm {
       };
   }
 
+#ifndef __GCCXML__
   template <typename T>
   void DoFillView<T>::operator()(T const& obj,
                                  ProductID const& id,
@@ -437,6 +488,7 @@ namespace edm {
                                  helper_vector_ptr& helpers) const {
     helpers::ViewFiller<T>::fill(obj, id, pointers, helpers);
   }
+#endif
 
   template <typename T>
   void DoSetPtr<T>::operator()(T const& obj,
@@ -460,16 +512,4 @@ namespace edm {
 #include "DataFormats/Common/interface/setPtr.h"
 #include "DataFormats/Common/interface/fillPtrVector.h"
 
-#ifndef __GCCXML__
-#include "DataFormats/Common/interface/WrapperInterface.h"
-namespace edm {
-  template <typename T>
-  WrapperInterface<T> const*
-  Wrapper<T>::getInterface() {
-    static const WrapperInterface<T> instance;
-    return &instance;
-  }
-}
-
-#endif
 #endif

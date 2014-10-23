@@ -43,7 +43,7 @@ class HcalDCCHeader {
   /** Check the third bit of second Slink64 CDF word */
   inline bool thereIsAThirdCDFHeaderWord() const {return ((commondataformat2>>3) & 0x0001); }
   /** Get the Orbit Number from the CDF. */
-  inline unsigned int getOrbitNumber() const { return ( ((commondataformat3 & 0xF) << 28) + ( commondataformat2>>4) ); }
+  inline unsigned int getOrbitNumber() const { return ( ((commondataformat3 && 0xF) << 28) + ( commondataformat2>>4) ); }
   /** get the (undefined) 'Reserved' part of the second Slink64 CDF word */
   inline unsigned int getSlink64ReservedBits() const { return (  (commondataformat3>>4)&0x00FFFFFF ); }
   /** Get the Beginning Of Event bits.  If it's not the first or last CDF Slink64 word, the high 4 bits must be zero.*/
@@ -128,13 +128,13 @@ class HcalDCCHeader {
 
  private:
   // CURRENTLY VALID FOR LITTLE-ENDIAN (LINUX/x86) ONLY
-  unsigned int commondataformat0;
-  unsigned int commondataformat1;
-  unsigned int commondataformat2;
-  unsigned int commondataformat3;
-  unsigned int dcch0;
-  unsigned int dcch1;
-  unsigned int spigotInfo[18];   //The last three of these 32bit words should always be zero!
+  uint32_t commondataformat0;
+  uint32_t commondataformat1;
+  uint32_t commondataformat2;
+  uint32_t commondataformat3;
+  uint32_t dcch0;
+  uint32_t dcch1;
+  uint32_t spigotInfo[18];   //The last three of these 32bit words should always be zero!
 
 };
 

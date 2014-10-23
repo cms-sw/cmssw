@@ -16,10 +16,12 @@
 
 #include "TLorentzVector.h"
 
+namespace { 
+
 using namespace reco;
 using namespace std;
 
-class CaloRecoTauDiscriminationByFlightPathSignificance : public CaloTauDiscriminationProducerBase  {
+class CaloRecoTauDiscriminationByFlightPathSignificance final : public CaloTauDiscriminationProducerBase  {
   public:
     explicit CaloRecoTauDiscriminationByFlightPathSignificance(
         const edm::ParameterSet& iConfig)
@@ -33,11 +35,11 @@ class CaloRecoTauDiscriminationByFlightPathSignificance : public CaloTauDiscrimi
     }
     ~CaloRecoTauDiscriminationByFlightPathSignificance(){}
     void beginEvent(const edm::Event&, const edm::EventSetup&) override;
-    double discriminate(const reco::CaloTauRef&) override;
+    double discriminate(const reco::CaloTauRef&) const override;
 
   private:
-    double threeProngFlightPathSig(const CaloTauRef&);
-    double vertexSignificance(reco::Vertex&,reco::Vertex&,GlobalVector&);
+    double threeProngFlightPathSig(const CaloTauRef&) const ;
+    double vertexSignificance(reco::Vertex const&,reco::Vertex const &,GlobalVector const &) const ;
 
     double flightPathSig;
     bool withPVError;
@@ -64,7 +66,7 @@ void CaloRecoTauDiscriminationByFlightPathSignificance::beginEvent(
 
 double
 CaloRecoTauDiscriminationByFlightPathSignificance::discriminate(
-    const CaloTauRef& tau){
+    const CaloTauRef& tau) const {
   if(booleanOutput)
     return ( threeProngFlightPathSig(tau) > flightPathSig ? 1. : 0. );
   return threeProngFlightPathSig(tau);
@@ -72,7 +74,7 @@ CaloRecoTauDiscriminationByFlightPathSignificance::discriminate(
 
 double
 CaloRecoTauDiscriminationByFlightPathSignificance::threeProngFlightPathSig(
-    const CaloTauRef& tau){
+    const CaloTauRef& tau) const {
   double flightPathSignificance = 0;
   //Secondary vertex
   reco::TrackRefVector signalTracks = tau->signalTracks();
@@ -96,10 +98,11 @@ CaloRecoTauDiscriminationByFlightPathSignificance::threeProngFlightPathSig(
 
 double
 CaloRecoTauDiscriminationByFlightPathSignificance::vertexSignificance(
-    reco::Vertex& pv, Vertex& sv,GlobalVector& direction){
+    reco::Vertex const & pv, Vertex const & sv,GlobalVector const & direction) const {
   return SecondaryVertex::computeDist3d(
       pv,sv,direction,withPVError).significance();
 }
 
+}
 DEFINE_FWK_MODULE(CaloRecoTauDiscriminationByFlightPathSignificance);
 

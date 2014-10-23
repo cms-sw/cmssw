@@ -20,15 +20,12 @@
 // Magnetic field
 #include "MagneticField/Engine/interface/MagneticField.h"
 
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 #include <iostream>
 
 using namespace std;
 
-//#define NEW_CPEERROR // must be constistent with base.cc, generic cc/h and genericProducer.cc 
+#define NEW_CPEERROR // must be constistent with base.cc, generic cc/h and genericProducer.cc 
 
 namespace {
 #ifndef NEW_CPEERROR  

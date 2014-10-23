@@ -416,7 +416,7 @@ int MuonIdProducer::overlap(const reco::Muon& muon, const reco::Track& track)
    int numberOfCommonDetIds = 0;
    if ( ! muon.isMatchesValid() ||
 	track.extra().isNull() ||
-	track.extra()->recHits().isNull() ) return numberOfCommonDetIds;
+	track.extra()->recHitsSize()==0 ) return numberOfCommonDetIds;
    const std::vector<reco::MuonChamberMatch>& matches( muon.matches() );
    for ( std::vector<reco::MuonChamberMatch>::const_iterator match = matches.begin();
 	 match != matches.end(); ++match )
@@ -424,14 +424,14 @@ int MuonIdProducer::overlap(const reco::Muon& muon, const reco::Track& track)
 	if ( match->segmentMatches.empty() ) continue;
 	bool foundCommonDetId = false;
 
-	for ( TrackingRecHitRefVector::const_iterator hit = track.extra()->recHitsBegin();
+	for ( auto hit = track.extra()->recHitsBegin();
 	      hit != track.extra()->recHitsEnd(); ++hit )
 	  {
 	     // LogTrace("MuonIdentification") << "hit DetId: " << std::hex << hit->get()->geographicalId().rawId() <<
 	     //  "\t hit chamber DetId: " << getChamberId(hit->get()->geographicalId()) <<
 	     //  "\t segment DetId: " << match->id.rawId() << std::dec;
 
-	     if ( chamberId(hit->get()->geographicalId()) == match->id.rawId() ) {
+	     if ( chamberId((*hit)->geographicalId()) == match->id.rawId() ) {
 		foundCommonDetId = true;
 		break;
 	     }
@@ -587,7 +587,6 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	     {
 		// make muon
 	       reco::Muon trackerMuon( makeMuon(iEvent, iSetup, reco::TrackRef( innerTrackCollectionHandle_, i ), reco::Muon::InnerTrack ) );
-		trackerMuon.setType( reco::Muon::TrackerMuon | reco::Muon::RPCMuon );
 		fillMuonId(iEvent, iSetup, trackerMuon, *direction);
 
 		if ( debugWithTruthMatching_ ) {
@@ -602,6 +601,8 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		bool newMuon = true;
 		bool goodTrackerMuon = isGoodTrackerMuon( trackerMuon );
 		bool goodRPCMuon = isGoodRPCMuon( trackerMuon );
+		if ( goodTrackerMuon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::TrackerMuon );
+		if ( goodRPCMuon ) trackerMuon.setType( trackerMuon.type() | reco::Muon::RPCMuon );
 		for ( reco::MuonCollection::iterator muon = outputMuons->begin();
 		      muon !=  outputMuons->end(); ++muon )
 		  {
@@ -620,7 +621,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		       }
 		  }
 		if ( newMuon ) {
-		   if ( goodTrackerMuon ){
+		   if ( goodTrackerMuon || goodRPCMuon ){
 		      outputMuons->push_back( trackerMuon );
 		   } else {
 		      LogTrace("MuonIdentification") << "track failed minimal number of muon matches requirement";

@@ -131,8 +131,8 @@ namespace edm {
             if(makeCrossingFrame) {
               workersObjects_.push_back(new MixingWorker<HepMCProduct>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,tagCF));
               produces<CrossingFrame<HepMCProduct> >(label);
-              consumes<HepMCProduct>(tag);
             }
+	    consumes<HepMCProduct>(tag);
 
             LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
             //            std::cout <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label<<std::endl;
@@ -342,7 +342,7 @@ namespace edm {
 
     boost::shared_ptr<PileUp> source0 = inputSources_[0];
 
-    if((source0 && source0->doPileUp() ) && !playback_) {
+    if((source0 && source0->doPileUp(0) ) && !playback_) {
       //    if((!inputSources_[0] || !inputSources_[0]->doPileUp()) && !playback_ ) 
 
       // Pre-calculate all pileup distributions before we go fishing for events
@@ -374,7 +374,7 @@ namespace edm {
           workers_[setSrcIdx]->setSourceOffset(readSrcIdx);
         }
 
-        if (!source || !source->doPileUp()) continue;
+        if (!source || !source->doPileUp(bunchIdx)) continue;
 
         int NumPU_Events = 0;
 
@@ -425,7 +425,7 @@ namespace edm {
     //Makin' a list: Basically, we don't care about the "other" sources at this point.
     for (int bunchCrossing=minBunch_;bunchCrossing<=maxBunch_;++bunchCrossing) {
       bunchCrossingList.push_back(bunchCrossing);
-      if(!inputSources_[0] || !inputSources_[0]->doPileUp()) {
+      if(!inputSources_[0] || !inputSources_[0]->doPileUp(0)) {
         numInteractionList.push_back(0);
         TrueInteractionList.push_back(0);
       }
@@ -438,13 +438,15 @@ namespace edm {
     for(Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end(); accItr != accEnd; ++accItr) {
       (*accItr)->StorePileupInformation( bunchCrossingList,
 					 numInteractionList,
-					 TrueInteractionList);
+					 TrueInteractionList,
+					 bunchSpace_);
     }
 
 
     PileupMixing_ = std::auto_ptr<PileupMixingContent>(new PileupMixingContent(bunchCrossingList,
                                                                                numInteractionList,
-                                                                               TrueInteractionList));
+                                                                               TrueInteractionList,
+									       bunchSpace_));
 
     e.put(PileupMixing_);
 
@@ -467,24 +469,28 @@ namespace edm {
     for(Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end(); accItr != accEnd; ++accItr) {
       (*accItr)->beginRun(run, setup);
     }
+    BMixingModule::beginRun( run, setup);
   }
 
   void MixingModule::endRun(edm::Run const& run, edm::EventSetup const& setup) {
     for(Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end(); accItr != accEnd; ++accItr) {
       (*accItr)->endRun(run, setup);
     }
+    BMixingModule::endRun( run, setup);
   }
 
   void MixingModule::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) {
     for(Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end(); accItr != accEnd; ++accItr) {
       (*accItr)->beginLuminosityBlock(lumi, setup);
     }
+    BMixingModule::beginLuminosityBlock(lumi, setup);
   }
 
   void MixingModule::endLuminosityBlock(edm::LuminosityBlock const & lumi, edm::EventSetup const& setup) {
     for(Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end(); accItr != accEnd; ++accItr) {
       (*accItr)->endLuminosityBlock(lumi, setup);
     }
+    BMixingModule::endLuminosityBlock(lumi, setup);
   }
 
   void

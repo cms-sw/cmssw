@@ -165,6 +165,8 @@ namespace reco {
       {}
     } ;
     void setShowerShapeVariables ( const ShowerShape& a )     { showerShapeBlock_ = a ;}
+    void full5x5_setShowerShapeVariables ( const ShowerShape& a )     { full5x5_showerShapeBlock_ = a ;}
+    
     /// the total hadronic over electromagnetic fraction
     float hadronicOverEm() const {return   showerShapeBlock_.hcalDepth1OverEcal + showerShapeBlock_.hcalDepth2OverEcal  ;}
     /// the  hadronic release in depth1 over electromagnetic fraction
@@ -191,6 +193,18 @@ namespace reco {
     float r1x5 ()           const {return showerShapeBlock_.e1x5/showerShapeBlock_.e5x5;}
     float r2x5 ()           const {return showerShapeBlock_.e2x5/showerShapeBlock_.e5x5;}
     float r9 ()             const {return showerShapeBlock_.e3x3/this->superCluster()->rawEnergy();}  
+    
+    ///full5x5 Shower shape variables
+    float full5x5_e1x5()            const {return full5x5_showerShapeBlock_.e1x5;}
+    float full5x5_e2x5()            const {return full5x5_showerShapeBlock_.e2x5;}
+    float full5x5_e3x3()            const {return full5x5_showerShapeBlock_.e3x3;}
+    float full5x5_e5x5()            const {return full5x5_showerShapeBlock_.e5x5;}
+    float full5x5_maxEnergyXtal()   const {return full5x5_showerShapeBlock_.maxEnergyXtal;}
+    float full5x5_sigmaEtaEta()     const {return full5x5_showerShapeBlock_.sigmaEtaEta;}
+    float full5x5_sigmaIetaIeta()   const {return full5x5_showerShapeBlock_.sigmaIetaIeta;}
+    float full5x5_r1x5 ()           const {return full5x5_showerShapeBlock_.e1x5/full5x5_showerShapeBlock_.e5x5;}
+    float full5x5_r2x5 ()           const {return full5x5_showerShapeBlock_.e2x5/full5x5_showerShapeBlock_.e5x5;}
+    float full5x5_r9 ()             const {return full5x5_showerShapeBlock_.e3x3/this->superCluster()->rawEnergy();}      
 
     //=======================================================
     // Energy Determinations
@@ -467,6 +481,7 @@ namespace reco {
     IsolationVariables isolationR04_;
     IsolationVariables isolationR03_;
     ShowerShape        showerShapeBlock_;
+    ShowerShape        full5x5_showerShapeBlock_;
     EnergyCorrections eCorrections_; 
     MIPVariables        mipVariableBlock_; 
     PflowIsolationVariables pfIsolation_;

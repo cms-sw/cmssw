@@ -17,7 +17,7 @@ offlinePrimaryVertices = cms.EDProducer("PrimaryVertexProducer",
     ),
 
     TkClusParameters = cms.PSet(
-        algorithm   = cms.string("DA"),
+        algorithm   = cms.string("DA_vect"),
         TkDAClusParameters = cms.PSet(
             coolingFactor = cms.double(0.6),  #  moderate annealing speed
             Tmin = cms.double(4.),            #  end of annealing
@@ -46,8 +46,4 @@ offlinePrimaryVertices = cms.EDProducer("PrimaryVertexProducer",
 
                                         
 )
-
-# These lines should be uncommented only for the gcc4X builds, with X>=6
-offlinePrimaryVertices.TkClusParameters.algorithm = cms.string("DA_vect" )
-offlinePrimaryVertices.TkClusParameters.TkDAClusParameters.use_vdt = cms.untracked.bool( True )
 

@@ -21,6 +21,11 @@
 
 class AlignmentPositionError;
 
+class Topology;
+class GeomDetType;
+class SurfaceDeformation;
+
+
 class GeomDet {
 public:
   typedef GeomDetEnumerators::SubDetector SubDetector;
@@ -72,17 +77,17 @@ public:
   DetId geographicalId() const { return m_detId; }
 
   /// Which subdetector
-  virtual SubDetector subDetector() const = 0;  
+  virtual SubDetector subDetector() const;;  
 
-  /// Return local alligment error
-  LocalError const & localAlignmentError() const { return theLocalAlignmentError;}
+  /// is a Unit
+  virtual bool isLeaf() const { return components().empty();}
 
   /// Returns direct components, if any
-  virtual std::vector< const GeomDet*> components() const = 0;
+  virtual std::vector< const GeomDet*> components() const { return std::vector< const GeomDet*>(); }
 
   /// Returns a component GeomDet given its DetId, if existing
   // FIXME: must become pure virtual
-  virtual const GeomDet* component(DetId /*id*/) const {return 0;}
+  virtual const GeomDet* component(DetId /*id*/) const {return nullptr;}
 
   /// Return pointer to alignment errors. 
   AlignmentPositionError const* alignmentPositionError() const { return theAlignmentPositionError;}
@@ -91,6 +96,18 @@ public:
   // specific unix index in a given subdetector (such as Tracker)
   int index() const { return m_index;}
   void setIndex(int i) { m_index=i;}
+
+
+  virtual const Topology& topology() const;
+
+  virtual const GeomDetType& type() const;
+
+
+  /// Return pointer to surface deformation. 
+  /// Defaults to "null" if not reimplemented in the derived classes.
+  virtual const SurfaceDeformation* surfaceDeformation() const { return 0; }
+
+
 
   protected:
 
@@ -101,10 +118,12 @@ public:
 private:
 
   ReferenceCountingPointer<Plane>  thePlane;
-  AlignmentPositionError*               theAlignmentPositionError;
-  LocalError                            theLocalAlignmentError;
   DetId m_detId;
   int m_index;
+protected:
+  AlignmentPositionError*               theAlignmentPositionError;
+
+private:
 
   /// Alignment part of interface, available only to friend 
   friend class DetPositioner;
@@ -127,9 +146,19 @@ private:
   /// set the LocalAlignmentError properly trasforming the ape 
   /// Does not affect the AlignmentPositionError of components (if any).
   
-  bool setAlignmentPositionError (const AlignmentPositionError& ape); 
+  virtual bool setAlignmentPositionError (const AlignmentPositionError& ape); 
+
+private:
+
+
+  /// set the SurfaceDeformation for this GeomDetUnit.
+  /// Does not affect the SurfaceDeformation of components (if any).
+  /// Throws if not implemented in derived class.
+  virtual void setSurfaceDeformation(const SurfaceDeformation * deformation);
 
 };
+
+typedef GeomDet GeomDetUnit;
   
 #endif
 

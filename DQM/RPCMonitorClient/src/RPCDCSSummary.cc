@@ -5,8 +5,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+//#include "DQMServices/Core/interface/DQMStore.h"
+//#include "DQMServices/Core/interface/MonitorElement.h"
+
 //CondFormats
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
@@ -19,46 +20,68 @@ RPCDCSSummary::RPCDCSSummary(const edm::ParameterSet& ps) {
  FEDRange_.first  = ps.getUntrackedParameter<unsigned int>("MinimumRPCFEDId", 790);
  FEDRange_.second = ps.getUntrackedParameter<unsigned int>("MaximumRPCFEDId", 792);
  
+ offlineDQM_ = ps.getUntrackedParameter<bool> ("OfflineDQM",true); 
+
  NumberOfFeds_ =FEDRange_.second -  FEDRange_.first +1;
+ init_=false;
+ defaultValue_ = 1.;
 }
 
 RPCDCSSummary::~RPCDCSSummary() {}
 
 void RPCDCSSummary::beginJob() {}
 
-void RPCDCSSummary::beginRun(const edm::Run& r, const edm::EventSetup& setup){
+void RPCDCSSummary::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, edm::LuminosityBlock const & lumiB, edm::EventSetup const& setup){
+  
+  if(!init_){
+    this->checkDCSbit(setup);        
+    if(!offlineDQM_ ){this->myBooker(ibooker);}
+  }
+}
+
+
+void  RPCDCSSummary::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
+ 
+  if( offlineDQM_){this->myBooker(ibooker);}
+}
+
+
+
+void  RPCDCSSummary::checkDCSbit( edm::EventSetup const& setup ){
+
  edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
 
- int defaultValue = 1;
-
+ defaultValue_ = 1.; 
+ 
  if(0 != setup.find( recordKey ) ) {
-    defaultValue = -1;
-    //get fed summary information
-    edm::ESHandle<RunInfo> sumFED;
-    setup.get<RunInfoRcd>().get(sumFED);    
-    std::vector<int> FedsInIds= sumFED->m_fed_in;   
-    unsigned int f = 0;
-    bool flag = false;
-    while(!flag && f < FedsInIds.size()) {
-      int fedID=FedsInIds[f];
-      //make sure fed id is in allowed range  
-      if(fedID>=FEDRange_.first && fedID<=FEDRange_.second) {
-	defaultValue = 1;
-	flag = true;
-      } 
-      f++;
-    }   
-  }   
+   defaultValue_ = -1.;
+   //get fed summary information
+   edm::ESHandle<RunInfo> sumFED;
+   setup.get<RunInfoRcd>().get(sumFED);    
+   std::vector<int> FedsInIds= sumFED->m_fed_in;   
+   unsigned int f = 0;
+   bool flag = false;
+   while(!flag && f < FedsInIds.size()) {
+     int fedID=FedsInIds[f];
+     //make sure fed id is in allowed range  
+     if(fedID>=FEDRange_.first && fedID<=FEDRange_.second) {
+       defaultValue_ = 1.;
+       flag = true;
+     } 
+     f++;
+   }   
+ }   
+ init_ = true;
+}
 
-  // get the DQMStore
- theDbe = edm::Service<DQMStore>().operator->();
-  
-  theDbe->setCurrentFolder("RPC/EventInfo");
+void  RPCDCSSummary::myBooker(DQMStore::IBooker & ibooker ){
+
+  ibooker.setCurrentFolder("RPC/EventInfo");
   // global fraction
-  totalDCSFraction = theDbe->bookFloat("DCSSummary");  
-  totalDCSFraction->Fill(defaultValue);
+  totalDCSFraction = ibooker.bookFloat("DCSSummary");  
+  totalDCSFraction->Fill(defaultValue_);
 
-  DCSMap_ = theDbe->book2D( "DCSSummaryMap","RPC DCS Summary Map",15, -7.5, 7.5, 12, 0.5 ,12.5);
+  DCSMap_ = ibooker.book2D( "DCSSummaryMap","RPC DCS Summary Map",15, -7.5, 7.5, 12, 0.5 ,12.5);
   
   //customize the 2d histo
   std::stringstream BinLabel;
@@ -89,7 +112,7 @@ void RPCDCSSummary::beginRun(const edm::Run& r, const edm::EventSetup& setup){
        if(i==5 || i==11 || (j>6 && (i<6 || i>10)))    
 	 DCSMap_->setBinContent(i,j,-1);//bins that not correspond to subdetector parts
        else
-	 DCSMap_->setBinContent(i,j,defaultValue);
+	 DCSMap_->setBinContent(i,j,defaultValue_);
      }
    }
 
@@ -102,7 +125,7 @@ void RPCDCSSummary::beginRun(const edm::Run& r, const edm::EventSetup& setup){
  }
 
   // book the ME
-  theDbe->setCurrentFolder("RPC/EventInfo/DCSContents");
+  ibooker.setCurrentFolder("RPC/EventInfo/DCSContents");
 
   int limit = numberOfDisks_;
   if(numberOfDisks_ < 2) limit = 2;
@@ -112,8 +135,8 @@ void RPCDCSSummary::beginRun(const edm::Run& r, const edm::EventSetup& setup){
     if (i>-3 && i<3){//wheels
       std::stringstream streams;
       streams << "RPC_Wheel" << i;
-      dcsWheelFractions[i+2] = theDbe->bookFloat(streams.str());
-      dcsWheelFractions[i+2]->Fill(defaultValue);
+      dcsWheelFractions[i+2] = ibooker.bookFloat(streams.str());
+      dcsWheelFractions[i+2]->Fill(defaultValue_);
    }
     
     if (i == 0  || i > numberOfDisks_ || i< (-1 * numberOfDisks_))continue;
@@ -122,28 +145,10 @@ void RPCDCSSummary::beginRun(const edm::Run& r, const edm::EventSetup& setup){
     if (i>0) offset --; //used to skip case equale to zero
     std::stringstream streams;
     streams << "RPC_Disk" << i;
-    dcsDiskFractions[i+2] = theDbe->bookFloat(streams.str());
-    dcsDiskFractions[i+2]->Fill(defaultValue);
+    dcsDiskFractions[i+2] = ibooker.bookFloat(streams.str());
+    dcsDiskFractions[i+2]->Fill(defaultValue_);
   }
 }
-
-
-
-void RPCDCSSummary::beginLuminosityBlock(const edm::LuminosityBlock& lumi, const  edm::EventSetup& setup) {
-}
-
-
-
-
-void RPCDCSSummary::endLuminosityBlock(const edm::LuminosityBlock&  lumi, const  edm::EventSetup& setup){}
-
-
-
-void RPCDCSSummary::endJob() {}
-
-
-
-void RPCDCSSummary::analyze(const edm::Event& event, const edm::EventSetup& setup){}
 
 
 

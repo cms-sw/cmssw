@@ -2,12 +2,15 @@
 import FWCore.ParameterSet.Config as cms
 
 from SLHCUpgradeSimulations.Configuration.muonCustoms import customise_csc_PostLS1,customise_csc_hlt
-
+from L1Trigger.L1TCommon.customsPostLS1 import customiseSimL1EmulatorForPostLS1
 
 def customisePostLS1(process):
 
     # deal with CSC separately:
     process = customise_csc_PostLS1(process)
+
+    # deal with L1 Emulation separately:
+    customiseSimL1EmulatorForPostLS1(process)
 
     # all the rest:
     if hasattr(process,'g4SimHits'):
@@ -50,6 +53,8 @@ def digiEventContent(process):
 
 def customise_DQM(process):
     #process.dqmoffline_step.remove(process.jetMETAnalyzer)
+    # Turn off flag of gangedME11a
+    process.l1tCsctf.gangedME11a = cms.untracked.bool(False)
     return process
 
 
@@ -63,14 +68,7 @@ def customise_Validation(process):
 
 def customise_Sim(process):
     # enable 2015 HF shower library
-    process.g4SimHits.HCalSD.UseShowerLibrary   = True
-    process.g4SimHits.HCalSD.UseParametrize     = False
-    process.g4SimHits.HCalSD.UsePMTHits         = False
-    process.g4SimHits.HCalSD.UseFibreBundleHits = False
-    process.g4SimHits.HFShowerLibrary.FileName  = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_eta4_16en.root'
-    process.g4SimHits.HFShowerLibrary.BranchPost= ''
-    process.g4SimHits.HFShowerLibrary.BranchPre = ''
-    process.g4SimHits.HFShowerLibrary.BranchEvt = ''
+    process.g4SimHits.HFShowerLibrary.FileName  = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en.root'
     return process
 
 
@@ -107,6 +105,21 @@ def customise_HLT(process):
 
 
 def customise_Reco(process):
+    #lowering HO threshold with SiPM
+    for prod in process.particleFlowRecHitHO.producers:
+        prod.qualityTests = cms.VPSet(
+            cms.PSet(
+                name = cms.string("PFRecHitQTestThreshold"),
+                threshold = cms.double(0.05) # new threshold for SiPM HO
+            ),
+            cms.PSet(
+                name = cms.string("PFRecHitQTestHCALChannel"),
+                maxSeverities      = cms.vint32(11),
+                cleaningThresholds = cms.vdouble(0.0),
+                flags              = cms.vstring('Standard')
+            )
+        )
+
     return process
 
 

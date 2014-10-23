@@ -167,8 +167,7 @@ particleFlowEGamma = cms.EDProducer("PFEGammaProducer",
     # Check HF cleaning
     cleanedHF = cms.VInputTag(
                 cms.InputTag("particleFlowRecHitHCAL","Cleaned"),
-                cms.InputTag("particleFlowClusterHFHAD","Cleaned"),
-                cms.InputTag("particleFlowClusterHFEM","Cleaned")
+                cms.InputTag("particleFlowClusterHF","Cleaned")
                 ),
     
     # number of sigmas for neutral energy detection

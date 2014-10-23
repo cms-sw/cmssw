@@ -273,19 +273,19 @@ ChainEvent::getByLabel(std::type_info const& iType,
   return event_->getByLabel(iType, iModule, iInstance, iProcess, iValue);
 }
 
-bool
-ChainEvent::getByLabel(std::type_info const& iType,
-                       char const* iModule,
-                       char const* iInstance,
-                       char const* iProcess,
-                       edm::WrapperHolder& holder) const
-{
-  return event_->getByLabel(iType, iModule, iInstance, iProcess, holder);
-}
-
-edm::WrapperHolder ChainEvent::getByProductID(edm::ProductID const& iID) const
+edm::WrapperBase const* ChainEvent::getByProductID(edm::ProductID const& iID) const
 {
   return event_->getByProductID(iID);
+}
+
+edm::WrapperBase const* ChainEvent::getThinnedProduct(edm::ProductID const& pid, unsigned int& key) const {
+  return event_->getThinnedProduct(pid, key);
+}
+
+void ChainEvent::getThinnedProducts(edm::ProductID const& pid,
+                                    std::vector<edm::WrapperBase const*>& foundContainers,
+                                    std::vector<unsigned int>& keys) const {
+  event_->getThinnedProducts(pid, foundContainers, keys);
 }
 
 bool

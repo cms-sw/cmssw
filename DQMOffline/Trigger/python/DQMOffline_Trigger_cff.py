@@ -39,7 +39,6 @@ import FWCore.ParameterSet.Config as cms
 from DQMOffline.Trigger.HLTGeneralOffline_cfi import *
 
 from DQMOffline.Trigger.EgHLTOfflineSource_cfi import *
-#from DQMOffline.Trigger.TopElectronHLTOfflineSource_cfi import *
 # Muon
 from DQMOffline.Trigger.MuonOffline_Trigger_cff import *
 # Top
@@ -57,18 +56,17 @@ from DQMOffline.Trigger.HLTInclusiveVBFSource_cfi import *
 # tracking
 from DQMOffline.Trigger.TrackingMonitoring_cff import *
 
-#import DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi
-#TrackerCollisionTrackMonHLT = DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi.TrackerCollisionTrackMon.clone()
-#TrackerCollisionTrackMonHLT.FolderName    = 'HLT/Tracking'
-#TrackerCollisionTrackMonHLT.TrackProducer    = 'hltPixelTracks'
+# strip
+from DQMOffline.Trigger.SiStrip_OfflineMonitoring_cff import *
+
+# photon jet
+from DQMOffline.Trigger.HigPhotonJetHLTOfflineSource_cfi import * 
 
 import DQMServices.Components.DQMEnvironment_cfi
 dqmEnvHLT= DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
 dqmEnvHLT.subSystemFolder = 'HLT'
 
-#offlineHLTSource = cms.Sequence(hltResults*egHLTOffDQMSource*topElectronHLTOffDQMSource*muonFullOfflineDQM*quadJetAna*HLTTauDQMOffline*jetMETHLTOfflineSource*TnPEfficiency*dqmEnvHLT)
 
-# Remove topElectronHLTOffDQMSource
 # remove quadJetAna
 from DQMOffline.Trigger.topHLTOfflineDQM_cff import *
 offlineHLTSource = cms.Sequence(
@@ -80,8 +78,9 @@ offlineHLTSource = cms.Sequence(
     jetMETHLTOfflineAnalyzer *
     #TnPEfficiency *
     hltInclusiveVBFSource *
-#    TrackerCollisionTrackMonHLT *
     trackingMonitorHLT *
+    sistripMonitorHLTsequence *
+    higPhotonJetHLTOfflineSource*
     dqmEnvHLT *
     topHLTriggerOfflineDQM)
 

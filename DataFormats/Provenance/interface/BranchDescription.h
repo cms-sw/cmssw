@@ -29,7 +29,6 @@ This description also applies to every product instance on the branch.
 */
 
 namespace edm {
-  class WrapperInterfaceBase;
   class BranchDescription {
   public:
     static int const invalidSplitLevel = -1;
@@ -112,9 +111,7 @@ namespace edm {
     BranchType const& branchType() const {return branchType_;}
     std::string const& wrappedName() const {return transient_.wrappedName_;}
     void setWrappedName(std::string const& name) {transient_.wrappedName_ = name;}
-    WrapperInterfaceBase*& wrapperInterfaceBase() {return transient_.wrapperInterfaceBase_;}
 
-    WrapperInterfaceBase const* getInterface() const;
     void updateFriendlyClassName();
 
     void initializeTransients() {transient_.reset();}
@@ -159,9 +156,6 @@ namespace edm {
 
       // A TypeWithDict object for the unwrapped object
       TypeWithDict unwrappedType_;
-
-      // A pointer to a polymorphic object to obtain typed Wrapper.
-      WrapperInterfaceBase* wrapperInterfaceBase_;
 
       // The split level of the branch, as marked
       // in the data dictionary.

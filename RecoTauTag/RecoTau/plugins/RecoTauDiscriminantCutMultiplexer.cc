@@ -37,7 +37,7 @@ class RecoTauDiscriminantCutMultiplexer : public PFTauDiscriminationProducerBase
   explicit RecoTauDiscriminantCutMultiplexer(const edm::ParameterSet& pset);
 
   ~RecoTauDiscriminantCutMultiplexer();
-  double discriminate(const reco::PFTauRef&) override;
+  double discriminate(const reco::PFTauRef&) const override;
   void beginEvent(const edm::Event& event, const edm::EventSetup& eventSetup) override;
   
  private:
@@ -49,27 +49,25 @@ class RecoTauDiscriminantCutMultiplexer : public PFTauDiscriminationProducerBase
   struct DiscriminantCutEntry
   {
     DiscriminantCutEntry()
-      : cutVariable_(0),
-	cutFunction_(0),
+      : cutVariable_(),
+	cutFunction_(),
 	mode_(kUndefined)
     {}
     ~DiscriminantCutEntry()
     {
-      delete cutVariable_;
-      delete cutFunction_;
     }
     double cutValue_;
     std::string cutName_;
-    StringObjectFunction<reco::PFTau>* cutVariable_;
-    const TGraph* cutFunction_;
+    std::unique_ptr<StringObjectFunction<reco::PFTau>> cutVariable_;
+    std::unique_ptr<const TGraph> cutFunction_;
     enum { kUndefined, kFixedCut, kVariableCut };
     int mode_;
   };
-  typedef std::map<int, DiscriminantCutEntry*> DiscriminantCutMap;
+  typedef std::map<int, std::unique_ptr<DiscriminantCutEntry>> DiscriminantCutMap;
   DiscriminantCutMap cuts_;
 
   std::string mvaOutputNormalizationName_;
-  const TFormula* mvaOutput_normalization_;
+  std::unique_ptr<const TFormula> mvaOutput_normalization_;
 
   bool isInitialized_;
 
@@ -80,32 +78,32 @@ class RecoTauDiscriminantCutMultiplexer : public PFTauDiscriminationProducerBase
   edm::EDGetTokenT<reco::PFTauDiscriminator> toMultiplex_token;
   edm::EDGetTokenT<reco::PFTauDiscriminator> key_token;
 
-  std::vector<TFile*> inputFilesToDelete_;
-
   int verbosity_;
 };
 
 namespace
 {
-  template <typename T>
-  const T* loadObjectFromFile(const edm::FileInPath& inputFileName, const std::string& objectName, std::vector<TFile*>& inputFilesToDelete)
-  {
+  std::unique_ptr<TFile> openInputFile(const edm::FileInPath& inputFileName) {
     if ( inputFileName.location() == edm::FileInPath::Unknown){  throw cms::Exception("RecoTauDiscriminantCutMultiplexer::loadObjectFromFile") 
       << " Failed to find File = " << inputFileName << " !!\n";
     }
-    TFile* inputFile = new TFile(inputFileName.fullPath().data());
-  
-    const T* object = dynamic_cast<T*>(inputFile->Get(objectName.data()));
-    if ( !object )
-      throw cms::Exception("RecoTauDiscriminantCutMultiplexer::loadObjectFromFile") 
-        << " Failed to load Object = " << objectName.data() << " from file = " << inputFileName.fullPath().data() << " !!\n";
-
-    inputFilesToDelete.push_back(inputFile);
-
-    return object;
+    return std::unique_ptr<TFile>{ new TFile(inputFileName.fullPath().data()) };
   }
 
-  const TGraph* loadTGraphFromDB(const edm::EventSetup& es, const std::string& graphName, const int& verbosity_ = 0)
+  template <typename T>
+  std::unique_ptr<const T> loadObjectFromFile(TFile& inputFile, const std::string& objectName)
+  {
+    const T* object = dynamic_cast<T*>(inputFile.Get(objectName.data()));
+    if ( !object )
+      throw cms::Exception("RecoTauDiscriminantCutMultiplexer::loadObjectFromFile") 
+        << " Failed to load Object = " << objectName.data() << " from file = " << inputFile.GetName() << " !!\n";
+    //Need to use TObject::Clone since the type T might be a base class
+    std::unique_ptr<const T> copy{ static_cast<T*>(object->Clone()) };
+
+    return std::move(copy);
+  }
+
+  std::unique_ptr<const TGraph> loadTGraphFromDB(const edm::EventSetup& es, const std::string& graphName, const int& verbosity_ = 0)
   {
     if(verbosity_){
       std::cout << "<loadTGraphFromDB>:" << std::endl;
@@ -113,11 +111,10 @@ namespace
     }
     edm::ESHandle<PhysicsTGraphPayload> graphPayload;
     es.get<PhysicsTGraphPayloadRcd>().get(graphName, graphPayload);
-    TGraph* graph = new TGraph(*graphPayload.product());
-    return graph;
+    return std::unique_ptr<const TGraph>{ new TGraph(*graphPayload.product()) };
   }  
 
-  const TFormula* loadTFormulaFromDB(const edm::EventSetup& es, const std::string& formulaName, const int& verbosity_ = 0)
+  std::unique_ptr<TFormula> loadTFormulaFromDB(const edm::EventSetup& es, const std::string& formulaName, const int& verbosity_ = 0)
   {
     if(verbosity_){
       std::cout << "<loadTFormulaFromDB>:" << std::endl;
@@ -125,21 +122,21 @@ namespace
     }
     edm::ESHandle<PhysicsTFormulaPayload> formulaPayload;
     es.get<PhysicsTFormulaPayloadRcd>().get(formulaName, formulaPayload);
-    TFormula* formula = 0;
+
     if ( formulaPayload->formulas().size() == 1 && formulaPayload->limits().size() == 1 ) {
-      formula = new TFormula("mvaNormalizationFormula", formulaPayload->formulas().at(0).data());
+      return std::unique_ptr<TFormula> {new TFormula("mvaNormalizationFormula", formulaPayload->formulas().at(0).data()) };
     } else {
       throw cms::Exception("RecoTauDiscriminantCutMultiplexer::loadTFormulaFromDB") 
 	<< "Failed to load TFormula = " << formulaName << " from Database !!\n";
     }
-    return formula;
+    return std::unique_ptr<TFormula>{};
   }  
 }
 
 RecoTauDiscriminantCutMultiplexer::RecoTauDiscriminantCutMultiplexer(const edm::ParameterSet& cfg)
   : PFTauDiscriminationProducerBase(cfg),
     moduleLabel_(cfg.getParameter<std::string>("@module_label")),
-    mvaOutput_normalization_(0),
+    mvaOutput_normalization_(),
     isInitialized_(false)
 {
   
@@ -167,20 +164,20 @@ RecoTauDiscriminantCutMultiplexer::RecoTauDiscriminantCutMultiplexer(const edm::
   for ( VPSet::const_iterator mappingEntry = mapping.begin();
 	mappingEntry != mapping.end(); ++mappingEntry ) {
     unsigned category = mappingEntry->getParameter<uint32_t>("category");
-    DiscriminantCutEntry* cut = new DiscriminantCutEntry();
+    std::unique_ptr<DiscriminantCutEntry> cut{new DiscriminantCutEntry()};
     if ( mappingEntry->existsAs<double>("cut") ) {
       cut->cutValue_ = mappingEntry->getParameter<double>("cut");
       cut->mode_ = DiscriminantCutEntry::kFixedCut;
     } else if ( mappingEntry->existsAs<std::string>("cut") ) {
       cut->cutName_ = mappingEntry->getParameter<std::string>("cut");
       std::string cutVariable_string = mappingEntry->getParameter<std::string>("variable");
-      cut->cutVariable_ = new StringObjectFunction<reco::PFTau>(cutVariable_string.data());
+      cut->cutVariable_.reset( new StringObjectFunction<reco::PFTau>(cutVariable_string.data()) );
       cut->mode_ = DiscriminantCutEntry::kVariableCut;
     } else {
       throw cms::Exception("RecoTauDiscriminantCutMultiplexer") 
         << " Undefined Configuration Parameter 'cut' !!\n";
     }
-    cuts_[category] = cut;
+    cuts_[category] = std::move(cut);
   }
 
   verbosity_ = ( cfg.exists("verbosity") ) ?
@@ -190,35 +187,34 @@ RecoTauDiscriminantCutMultiplexer::RecoTauDiscriminantCutMultiplexer(const edm::
 
 RecoTauDiscriminantCutMultiplexer::~RecoTauDiscriminantCutMultiplexer()
 {
-  for ( std::map<int, DiscriminantCutEntry*>::iterator it = cuts_.begin();
-	it != cuts_.end(); ++it ) {
-    delete it->second;
-  }
-  // CV: all entries in inputFilesToDelete list actually refer to the same file
-  //    --> delete the first entry only
-  if ( inputFilesToDelete_.size() >= 1 ) {
-    delete inputFilesToDelete_.front();
-  }
 }
 
 void RecoTauDiscriminantCutMultiplexer::beginEvent(const edm::Event& evt, const edm::EventSetup& es) 
 {
   if(verbosity_) std::cout << " begin! " << moduleLabel_ << " " << isInitialized_ << std::endl;
   if ( !isInitialized_ ) {
+    //Only open the file once and we can close it when this routine is done
+    // since all objects gotten from the file will have been copied
+    std::unique_ptr<TFile> inputFile;
     if ( mvaOutputNormalizationName_ != "" ) {
       if ( !loadMVAfromDB_ ) {
-	mvaOutput_normalization_ = loadObjectFromFile<TFormula>(inputFileName_, mvaOutputNormalizationName_, inputFilesToDelete_);
+	inputFile = openInputFile(inputFileName_);
+	mvaOutput_normalization_ = loadObjectFromFile<TFormula>(*inputFile, mvaOutputNormalizationName_);
       } else {
-	mvaOutput_normalization_ = loadTFormulaFromDB(es, mvaOutputNormalizationName_, verbosity_);
-	(const_cast<TFormula*>(mvaOutput_normalization_))->SetName(Form("%s_mvaOutput_normalization", moduleLabel_.data()));
+	auto temp = loadTFormulaFromDB(es, mvaOutputNormalizationName_, verbosity_);
+	temp->SetName(Form("%s_mvaOutput_normalization", moduleLabel_.data()));
+	mvaOutput_normalization_.reset(temp.release());
       }
     }
     for ( DiscriminantCutMap::iterator cut = cuts_.begin();
 	  cut != cuts_.end(); ++cut ) {
       if ( cut->second->mode_ == DiscriminantCutEntry::kVariableCut ) {
 	if ( !loadMVAfromDB_ ) {
+	  if(not inputFile) {
+	    inputFile = openInputFile(inputFileName_);
+	  }
 	  if(verbosity_) std::cout << "Loading from file" << inputFileName_ << std::endl;
-	  cut->second->cutFunction_ = loadObjectFromFile<TGraph>(inputFileName_, cut->second->cutName_, inputFilesToDelete_);
+	  cut->second->cutFunction_ = loadObjectFromFile<TGraph>(*inputFile, cut->second->cutName_);
 	} else {
 	  if(verbosity_) std::cout << "Loading from DB" << std::endl;
 	  cut->second->cutFunction_ = loadTGraphFromDB(es, cut->second->cutName_, verbosity_);
@@ -233,7 +229,7 @@ void RecoTauDiscriminantCutMultiplexer::beginEvent(const edm::Event& evt, const 
 }
 
 double
-RecoTauDiscriminantCutMultiplexer::discriminate(const reco::PFTauRef& tau) 
+RecoTauDiscriminantCutMultiplexer::discriminate(const reco::PFTauRef& tau) const
 {
   if ( verbosity_ ) {
     std::cout << "<RecoTauDiscriminantCutMultiplexer::discriminate>:" << std::endl;

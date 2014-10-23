@@ -6,7 +6,7 @@
 // user include files
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -49,7 +49,7 @@ class TrackerGeometry;
 class TrajectoryStateOnSurface;
 
 
-class GoodSeedProducer : public edm::EDProducer {
+class GoodSeedProducer final : public edm::stream::EDProducer<> {
   typedef TrajectoryStateOnSurface TSOS;
    public:
       explicit GoodSeedProducer(const edm::ParameterSet&);

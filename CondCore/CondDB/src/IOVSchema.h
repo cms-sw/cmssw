@@ -159,6 +159,30 @@ namespace cond {
 	coral::ISchema& m_schema;
       };
     }
+
+    // temporary... to be removed after the changeover.
+    table( PAYLOAD_MIGRATION ) {
+      
+      column( SOURCE_ACCOUNT, std::string );
+      column( SOURCE_TOKEN, std::string );
+      column( PAYLOAD_HASH, std::string, PAYLOAD::PAYLOAD_HASH_SIZE );
+      column( INSERTION_TIME, boost::posix_time::ptime );
+      
+      class Table : public IPayloadMigrationTable {
+      public:
+	explicit Table( coral::ISchema& schema );
+	virtual ~Table(){}
+	bool exists();
+	void create();
+	bool select( const std::string& sourceAccount, const std::string& sourceToken, std::string& payloadId );
+	void insert( const std::string& sourceAccount, const std::string& sourceToken, const std::string& payloadId, 
+		     const boost::posix_time::ptime& insertionTime);
+	void update( const std::string& sourceAccount, const std::string& sourceToken, const std::string& payloadId, 
+		     const boost::posix_time::ptime& insertionTime);
+      private:
+	coral::ISchema& m_schema;
+      };
+    } 
     
     class IOVSchema : public IIOVSchema {
     public: 
@@ -170,11 +194,14 @@ namespace cond {
       IIOVTable& iovTable();
       IPayloadTable& payloadTable();
       ITagMigrationTable& tagMigrationTable();
+      IPayloadMigrationTable& payloadMigrationTable();
+      std::string parsePoolToken( const std::string& );
     private:
       TAG::Table m_tagTable;
       IOV::Table m_iovTable;
       PAYLOAD::Table m_payloadTable;
       TAG_MIGRATION::Table m_tagMigrationTable;
+      PAYLOAD_MIGRATION::Table m_payloadMigrationTable;
     };
   }
 }

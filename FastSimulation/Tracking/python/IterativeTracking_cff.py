@@ -34,8 +34,8 @@ MeasurementTrackerEvent = RecoTracker.MeasurementDet.MeasurementTrackerEventProd
     inactiveStripDetectorLabels = cms.VInputTag(),
     switchOffPixelsIfEmpty = False
 )
-iterativeTracking = cms.Sequence(pixelTracking+pixelVertexing
-                                 +MeasurementTrackerEvent 
+iterativeTracking = cms.Sequence( 
+                                 MeasurementTrackerEvent 
                                  +iterativeInitialStep
                                  +iterativeLowPtTripletStep
                                  +iterativePixelPairStep

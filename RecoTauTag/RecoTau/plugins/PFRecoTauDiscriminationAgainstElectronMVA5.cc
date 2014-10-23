@@ -48,7 +48,7 @@ class PFRecoTauDiscriminationAgainstElectronMVA5 : public PFTauDiscriminationPro
 
   void beginEvent(const edm::Event&, const edm::EventSetup&);
 
-  double discriminate(const PFTauRef&);
+  double discriminate(const PFTauRef&) const;
 
   void endEvent(edm::Event&);
 
@@ -69,8 +69,8 @@ private:
   edm::EDGetTokenT<reco::GsfElectronCollection> GsfElectrons_token;
   edm::Handle<reco::GsfElectronCollection> gsfElectrons_;
   edm::Handle<TauCollection> taus_;
+
   std::auto_ptr<PFTauDiscriminator> category_output_;
-  size_t tauIndex_;
 
   int verbosity_;
 };
@@ -81,12 +81,11 @@ void PFRecoTauDiscriminationAgainstElectronMVA5::beginEvent(const edm::Event& ev
 
   evt.getByToken(Tau_token, taus_);
   category_output_.reset(new PFTauDiscriminator(TauRefProd(taus_)));
-  tauIndex_ = 0;
 
   evt.getByToken(GsfElectrons_token, gsfElectrons_);
 }
 
-double PFRecoTauDiscriminationAgainstElectronMVA5::discriminate(const PFTauRef& thePFTauRef)
+double PFRecoTauDiscriminationAgainstElectronMVA5::discriminate(const PFTauRef& thePFTauRef) const
 {
   double mvaValue = 1.;
   double category = -1.;
@@ -140,7 +139,6 @@ double PFRecoTauDiscriminationAgainstElectronMVA5::discriminate(const PFTauRef& 
 	  if ( isInEcalCrack(tauEtaAtEcalEntrance) || isInEcalCrack(leadChargedPFCandEtaAtEcalEntrance) ) {
 	    // add category index
 	    category_output_->setValue(tauIndex_, category);
-	    ++tauIndex_;
 	    // return MVA output value
 	    return -99;
 	  }
@@ -183,7 +181,6 @@ double PFRecoTauDiscriminationAgainstElectronMVA5::discriminate(const PFTauRef& 
       if ( isInEcalCrack(tauEtaAtEcalEntrance) || isInEcalCrack(leadChargedPFCandEtaAtEcalEntrance) ) {
 	// add category index
 	category_output_->setValue(tauIndex_, category);
-	++tauIndex_;
 	// return MVA output value
 	return -99;
       }
@@ -223,7 +220,6 @@ double PFRecoTauDiscriminationAgainstElectronMVA5::discriminate(const PFTauRef& 
 
   // add category index
   category_output_->setValue(tauIndex_, category);
-  ++tauIndex_;
   // return MVA output value
   return mvaValue;
 }

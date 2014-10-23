@@ -36,7 +36,7 @@ namespace edm {
   class PathContext;
   class HLTPathStatus;
   class ModuleCallingContext;
-  class TriggerTimingReport;
+  struct TriggerTimingReport;
   namespace service {
     class TriggersNameService;
   }

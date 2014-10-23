@@ -10,6 +10,7 @@
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
+#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"
 #include "DataFormats/TestObjects/interface/ThingCollection.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
@@ -70,6 +71,7 @@ namespace edm {
   void SecondaryProducer::beginJob() {
     eventPrincipal_.reset(new EventPrincipal(secInput_->productRegistry(),
                                              secInput_->branchIDListHelper(),
+                                             secInput_->thinnedAssociationsHelper(),
                                              *processConfiguration_,
                                              nullptr));
 
@@ -136,24 +138,20 @@ namespace edm {
     e.getByLabel<edmtest::IntProduct>("EventNumber", handle);
     assert(static_cast<EventNumber_t>(handle->value) == e.id().event());
 
-    BasicHandle bh = eventPrincipal.getByLabel(PRODUCT_TYPE, TypeID(typeid(TC)),
+    WrapperBase const* ep = eventPrincipal.getByLabel(PRODUCT_TYPE, TypeID(typeid(TC)),
                                                "Thing",
                                                "",
                                                "",
                                                nullptr,
-                                               nullptr);
-    assert(bh.isValid());
-    if(!(bh.interface()->dynamicTypeInfo() == typeid(TC))) {
-      handleimpl::throwConvertTypeError(typeid(TC), bh.interface()->dynamicTypeInfo());
-    }
-    WTC const* wtp = static_cast<WTC const*>(bh.wrapper());
-
+                                               nullptr).wrapper();
+    assert(ep != nullptr);
+    WTC const* wtp = static_cast<WTC const*>(ep);
     assert(wtp);
     TC const* tp = wtp->product();
-    std::auto_ptr<TC> thing(new TC(*tp));
+    std::unique_ptr<TC> thing(new TC(*tp));
 
     // Put output into event
-    e.put(thing);
+    e.put(std::move(thing));
 
     if(!sequential_ && !specified_ && firstLoop_ && en == 1) {
       expectedEventNumber_ = 1;
@@ -175,6 +173,7 @@ namespace edm {
     InputSourceDescription desc(ModuleDescription(),
                                 *productRegistry_,
 				std::make_shared<BranchIDListHelper>(),
+                                std::make_shared<ThinnedAssociationsHelper>(),
 				std::make_shared<ActivityRegistry>(),
 				-1, -1, -1, dummy);
     std::shared_ptr<VectorInputSource> input_(static_cast<VectorInputSource *>

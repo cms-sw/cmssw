@@ -28,6 +28,7 @@ PFCluster::PFCluster(PFLayer::Layer layer, double energy,
 	       CaloCluster::particleFlow ),
   posrep_( position_.Rho(), position_.Eta(), position_.Phi() ),
   time_(-99.),
+  depth_(0.),
   layer_(layer),
   color_(2)
 {  }

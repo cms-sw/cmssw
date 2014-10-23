@@ -11,7 +11,7 @@
 //
 
 // user include files
-#include "DataFormats/Common/interface/WrapperHolder.h"
+#include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Common/interface/PtrVectorBase.h"
 #include "DataFormats/Common/interface/traits.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -69,6 +69,25 @@ namespace edm {
     indicies_.push_back(iKey);
   }
 
+  bool
+  PtrVectorBase::isAvailable() const {
+    if(indicies_.empty()) {
+      return core_.isAvailable();
+    }
+    if(!hasCache()) {
+      if(!id().isValid() || productGetter() == nullptr) {
+        return false;
+      }
+      getProduct_();
+    }
+    for(auto ptr : cachedItems_) {
+      if(ptr == nullptr) {
+        return false;
+      }
+    }
+    return true;
+  }
+
 //
 // const member functions
 //
@@ -83,12 +102,37 @@ namespace edm {
     if(0 == productGetter()) {
       throw Exception(errors::LogicError) << "Tried to get data for a PtrVector which has no EDProductGetter\n";
     }
-    WrapperHolder product = productGetter()->getIt(id());
+    WrapperBase const* product = productGetter()->getIt(id());
 
-    if(!product.isValid()) {
-      throw Exception(errors::InvalidReference) << "Asked for data from a PtrVector which refers to a non-existent product which id " << id() << "\n";
+    if(product != nullptr) {
+      product->fillPtrVector(typeInfo(), indicies_, cachedItems_);
+      return;
     }
-    product.fillPtrVector(typeInfo(), indicies_, cachedItems_);
+
+    cachedItems_.resize(indicies_.size(), nullptr);
+
+    std::vector<unsigned int> thinnedKeys;
+    thinnedKeys.assign(indicies_.begin(), indicies_.end());
+    std::vector<WrapperBase const*> wrappers(indicies_.size(), nullptr);
+    productGetter()->getThinnedProducts(id(), wrappers, thinnedKeys);
+    unsigned int nWrappers = wrappers.size();
+    assert(wrappers.size() == indicies_.size());
+    assert(wrappers.size() == cachedItems_.size());
+    for(unsigned k = 0; k < nWrappers; ++k) {
+      if (wrappers[k] != nullptr) {
+        wrappers[k]->setPtr(typeInfo(), thinnedKeys[k], cachedItems_[k]);
+      }
+    }
+  }
+
+  void
+  PtrVectorBase::checkCachedItems() const {
+    for(auto item : cachedItems_) {
+      if(item == nullptr) {
+        throw Exception(errors::InvalidReference) << "Asked for data from a PtrVector which refers to a non-existent product with ProductID "
+                                                  << id() << "\n";
+      }
+    }
   }
 
   bool
@@ -102,7 +146,6 @@ namespace edm {
     return std::equal(indicies_.begin(),
                       indicies_.end(),
                       iRHS.indicies_.begin());
-    return true;
   }
 
 //

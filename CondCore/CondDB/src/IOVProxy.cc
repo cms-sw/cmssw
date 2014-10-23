@@ -22,8 +22,8 @@ namespace cond {
       cond::Time_t endOfValidity;
       cond::Time_t lastValidatedTime;
       // iov data
-      cond::Time_t lowerGroup = cond::time::MAX_VAL;
-      cond::Time_t higherGroup = cond::time::MIN_VAL;
+      cond::Time_t groupLowerIov = cond::time::MAX_VAL;
+      cond::Time_t groupHigherIov = cond::time::MIN_VAL;
       std::vector<cond::Time_t> sinceGroups;
       IOVProxy::IOVContainer iovSequence;
       size_t numberOfQueries = 0;
@@ -138,8 +138,8 @@ namespace cond {
 	
 	// load the full iov sequence in this case!
 	m_session->iovSchema().iovTable().selectLatest( m_data->tag, m_data->iovSequence );
-	m_data->lowerGroup = cond::time::MIN_VAL;
-	m_data->higherGroup = cond::time::MAX_VAL;
+	m_data->groupLowerIov = cond::time::MIN_VAL;
+	m_data->groupHigherIov = cond::time::MAX_VAL;
       } else {
 	m_session->iovSchema().iovTable().selectGroups( m_data->tag, m_data->sinceGroups );
       }
@@ -151,8 +151,8 @@ namespace cond {
     
     void IOVProxy::reset(){
       if( m_data.get() ){
-	m_data->lowerGroup = cond::time::MAX_VAL;
-	m_data->higherGroup = cond::time::MIN_VAL;
+	m_data->groupLowerIov = cond::time::MAX_VAL;
+	m_data->groupHigherIov = cond::time::MIN_VAL;
 	m_data->sinceGroups.clear();
 	m_data->iovSequence.clear();
 	m_data->numberOfQueries = 0;
@@ -206,8 +206,21 @@ namespace cond {
       m_data->iovSequence.clear();
       m_session->iovSchema().iovTable().selectLatestByGroup( m_data->tag, lowerGroup, higherGroup, m_data->iovSequence );
       
-      m_data->lowerGroup = lowerGroup;
-      m_data->higherGroup = higherGroup;
+      if( m_data->iovSequence.empty() ){
+	m_data->groupLowerIov = cond::time::MAX_VAL;
+	m_data->groupHigherIov = cond::time::MIN_VAL;
+      } else {
+	if( lowerGroup > cond::time::MIN_VAL ) {
+	  m_data->groupLowerIov = std::get<0>( m_data->iovSequence.front() );
+	} else {
+	  m_data->groupLowerIov = cond::time::MIN_VAL;
+	}
+        if( higherGroup < cond::time::MAX_VAL ) {
+	  m_data->groupHigherIov = std::get<0>(m_data->iovSequence.back());
+	} else {
+	  m_data->groupHigherIov = cond::time::MAX_VAL;
+	}
+      }
       
       m_data->numberOfQueries++;
     }
@@ -247,9 +260,10 @@ namespace cond {
       // first check the available iov cache:
       // case 0 empty cache ( the first request )
       
-      if( m_data->lowerGroup==cond::time::MAX_VAL ||
+      /** Pageing switched off temporarily 
+      if( m_data->groupLowerIov == cond::time::MAX_VAL ||
 	  // case 1 : target outside
-	  time < m_data->lowerGroup || time>= m_data->higherGroup ){
+	  time < m_data->groupLowerIov || time >= m_data->groupHigherIov ){
 	
 	// a new query required!
 	// first determine the groups
@@ -274,6 +288,11 @@ namespace cond {
 	}
 	// finally, get the iovs for the selected group interval!!
 	fetchSequence( lowG, highG );
+      }
+      **/
+      // only one page...
+      if( m_data->groupLowerIov == cond::time::MAX_VAL ){
+	fetchSequence( cond::time::MIN_VAL, cond::time::MAX_VAL );
       }
       
       // the current iov set is a good one...
@@ -314,7 +333,7 @@ namespace cond {
     }
     
     std::pair<cond::Time_t,cond::Time_t> IOVProxy::loadedGroup() const {
-      return m_data.get()? std::make_pair( m_data->lowerGroup, m_data->higherGroup ): std::make_pair( cond::time::MAX_VAL, cond::time::MIN_VAL );
+      return m_data.get()? std::make_pair( m_data->groupLowerIov, m_data->groupHigherIov ): std::make_pair( cond::time::MAX_VAL, cond::time::MIN_VAL );
     }
 
     const std::shared_ptr<SessionImpl>& IOVProxy::session() const {

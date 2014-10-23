@@ -35,7 +35,9 @@ namespace edm {
   class PreallocationConfiguration;
   class StreamID;
   class ActivityRegistry;
-  
+  class ProductRegistry;
+  class ThinnedAssociationsHelper;
+
   namespace maker {
     template<typename T> class ModuleHolderT;
   }
@@ -97,13 +99,15 @@ namespace edm {
       void doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
                                 ModuleCallingContext const*);
       
+      void doPreForkReleaseResources();
+      void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
+
       //For now, the following are just dummy implemenations with no ability for users to override
       void doRespondToOpenInputFile(FileBlock const& fb);
       void doRespondToCloseInputFile(FileBlock const& fb);
-      void doPreForkReleaseResources();
-      void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
-      
-      
+      void doRegisterThinnedAssociations(ProductRegistry const&,
+                                         ThinnedAssociationsHelper&) { }
+
       void registerProductsAndCallbacks(EDFilterBase* module, ProductRegistry* reg) {
         registerProducts(module, reg, moduleDescription_);
       }
@@ -113,6 +117,9 @@ namespace edm {
       virtual void beginJob() {}
       virtual void endJob(){}
 
+      virtual void preForkReleaseResources() {}
+      virtual void postForkReacquireResources(unsigned int /*iChildIndex*/, unsigned int /*iNumberOfChildren*/) {}
+      
       virtual void preallocStreams(unsigned int);
       virtual void doBeginStream_(StreamID id);
       virtual void doEndStream_(StreamID id);

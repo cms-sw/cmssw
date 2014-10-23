@@ -26,12 +26,13 @@
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "IOPool/Common/interface/getWrapperBasePtr.h"
 
-#include "TROOT.h"
 #include "TTree.h"
 #include "TFile.h"
 #include "TClass.h"
@@ -95,7 +96,8 @@ namespace edm {
       dataTypeReported_(false),
       processHistoryRegistry_(),
       parentageIDs_(),
-      branchesWithStoredHistory_() {
+      branchesWithStoredHistory_(),
+      wrapperBaseTClass_(TClass::GetClass("edm::WrapperBase")) {
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,30,0)
     if (om_->compressionAlgorithm() == std::string("ZLIB")) {
       filePtr_->SetCompressionAlgorithm(ROOT::kZLIB);
@@ -136,7 +138,6 @@ namespace edm {
         BranchDescription const& desc = *item.branchDescription_;
         theTree->addBranch(desc.branchName(),
                            desc.wrappedName(),
-                           desc.getInterface(),
                            item.product_,
                            item.splitLevel_,
                            item.basketSize_,
@@ -537,6 +538,13 @@ namespace edm {
     b->Fill();
   }
 
+  void RootOutputFile::writeThinnedAssociationsHelper() {
+    ThinnedAssociationsHelper const* p = om_->thinnedAssociationsHelper();
+    TBranch* b = metaDataTree_->Branch(poolNames::thinnedAssociationsHelperBranchName().c_str(), &p, om_->basketSize(), 0);
+    assert(b);
+    b->Fill();
+  }
+
   void RootOutputFile::writeParameterSetRegistry() {
     std::pair<ParameterSetID, ParameterSetBlob> idToBlob;
     std::pair<ParameterSetID, ParameterSetBlob>* pIdToBlob = &idToBlob;
@@ -672,8 +680,7 @@ namespace edm {
                 StoredProductProvenanceVector* productProvenanceVecPtr,
                 ModuleCallingContext const* mcc) {
 
-    typedef std::vector<std::pair<TClass*, void const*> > Dummies;
-    Dummies dummies;
+    std::vector<std::unique_ptr<WrapperBase> > dummies;
 
     bool const fastCloning = (branchType == InEvent) && (whyNotFastClonable_ == FileBlock::CanFastClone);
 
@@ -695,7 +702,7 @@ namespace edm {
       bool getProd = (produced || !fastCloning ||
          treePointers_[branchType]->uncloned(item.branchDescription_->branchName()));
 
-      void const* product = nullptr;
+      WrapperBase const* product = nullptr;
       OutputHandle const oh = principal.getForOutput(id, getProd, mcc);
       if(keepProvenance && oh.productProvenance()) {
         insertProductProvenance(*oh.productProvenance(),provenanceToKeep);
@@ -709,9 +716,12 @@ namespace edm {
         if(product == nullptr) {
           // No product with this ID is in the event.
           // Add a null product.
-          TClass* cp = gROOT->GetClass(item.branchDescription_->wrappedName().c_str());
-          product = cp->New();
-          dummies.emplace_back(cp, product);
+          TClass* cp = TClass::GetClass(item.branchDescription_->wrappedName().c_str());
+          int offset = cp->GetBaseClassOffset(wrapperBaseTClass_);
+          void* p = cp->New();
+          std::unique_ptr<WrapperBase> dummy = getWrapperBasePtr(p, offset);
+          product = dummy.get();
+          dummies.emplace_back(std::move(dummy));
         }
         item.product_ = product;
       }
@@ -720,9 +730,6 @@ namespace edm {
     if(productProvenanceVecPtr != nullptr) productProvenanceVecPtr->assign(provenanceToKeep.begin(), provenanceToKeep.end());
     treePointers_[branchType]->fillTree();
     if(productProvenanceVecPtr != nullptr) productProvenanceVecPtr->clear();
-    for(auto& dummy : dummies) {
-      dummy.first->Destructor(const_cast<void *>(dummy.second));
-    }
   }
   
   bool

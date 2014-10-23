@@ -52,6 +52,20 @@ class cosmics(Reco):
         customiseCosmicData(process)  
         return process
 
+    def visualizationProcessing(self, globalTag, **args):
+        """
+        _visualizationProcessing_
+
+        Cosmic data taking visualization processing
+
+        """
+
+        process = Reco.visualizationProcessing(self,globalTag, **args)
+
+        customiseCosmicData(process)  
+        process.reconstructionCosmics.remove(process.lumiProducer)
+
+        return process
 
     def alcaHarvesting(self, globalTag, datasetName, **args):
         """

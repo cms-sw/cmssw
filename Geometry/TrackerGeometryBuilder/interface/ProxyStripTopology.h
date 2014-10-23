@@ -24,8 +24,6 @@
 ///  \author    : Andreas Mussgiller
 ///  date       : November 2010
 
-#include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
-
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
@@ -112,7 +110,7 @@ private:
 
   StripGeomDetType const * theType;
   float theLength, theWidth;
-  DeepCopyPointerByClone<const SurfaceDeformation> theSurfaceDeformation;
+  std::unique_ptr<const SurfaceDeformation> theSurfaceDeformation;
 };
 
 #endif

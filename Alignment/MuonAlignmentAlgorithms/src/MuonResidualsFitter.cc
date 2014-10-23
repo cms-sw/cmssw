@@ -503,7 +503,7 @@ void MuonResidualsFitter::histogramChi2GaussianFit(int which, double &fit_mean, 
   f1->SetParameter(0, hist->GetEntries());
   f1->SetParameter(1, 0);
   f1->SetParameter(2, hist->GetRMS());
-  hist->Fit("f1","RQ");
+  hist->Fit(f1,"RQ");
   
   fit_mean  = f1->GetParameter(1);
   fit_sigma = f1->GetParameter(2);

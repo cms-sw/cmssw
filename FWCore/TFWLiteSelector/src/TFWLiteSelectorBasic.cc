@@ -15,7 +15,6 @@
 #include "FWCore/TFWLiteSelector/interface/TFWLiteSelectorBasic.h"
 
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
-#include "DataFormats/Common/interface/WrapperOwningHolder.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
@@ -34,6 +33,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
+#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
@@ -51,6 +51,7 @@
 #include "TChain.h"
 #include "TFile.h"
 #include "TTree.h"
+#include "Reflex/Type.h"
 
 namespace edm {
   namespace root {
@@ -61,8 +62,8 @@ namespace edm {
       void setTree(TTree* iTree) {eventTree_ = iTree;}
       void set(std::shared_ptr<ProductRegistry const> iReg) { reg_ = iReg;}
      private:
-      WrapperOwningHolder getTheProduct(BranchKey const& k) const;
-      virtual WrapperOwningHolder getProduct_(BranchKey const& k, WrapperInterfaceBase const* interface, EDProductGetter const* ep) const override;
+      std::unique_ptr<WrapperBase> getTheProduct(BranchKey const& k) const;
+      virtual std::unique_ptr<WrapperBase> getProduct_(BranchKey const& k, EDProductGetter const* ep) const override;
       virtual std::auto_ptr<EventEntryDescription> getProvenance_(BranchKey const&) const {
         return std::auto_ptr<EventEntryDescription>();
       }
@@ -73,12 +74,12 @@ namespace edm {
       std::shared_ptr<ProductRegistry const>(reg_);
     };
 
-    WrapperOwningHolder
-    FWLiteDelayedReader::getProduct_(BranchKey const& k, WrapperInterfaceBase const* /*interface*/, EDProductGetter const* /*ep*/) const {
+    std::unique_ptr<WrapperBase>
+    FWLiteDelayedReader::getProduct_(BranchKey const& k, EDProductGetter const* /*ep*/) const {
       return getTheProduct(k);
     }
 
-    WrapperOwningHolder
+    std::unique_ptr<WrapperBase>
     FWLiteDelayedReader::getTheProduct(BranchKey const& k) const {
       ProductRegistry::ProductList::const_iterator itFind= reg_->productList().find(k);
       if(itFind == reg_->productList().end()) {
@@ -94,22 +95,32 @@ namespace edm {
       }
       //find the class type
       std::string const fullName = wrappedClassName(bDesc.className());
-      TypeWithDict classType = TypeWithDict::byName(fullName);
-      if(!bool(classType)) {
+      Reflex::Type classType = Reflex::Type::ByName(fullName);
+      if(classType == Reflex::Type()) {
         throw cms::Exception("MissingDictionary")
         << "could not find dictionary for type '" << fullName << "'"
         << "\n Please make sure all the necessary libraries are available.";
       }
 
       //create an instance of it
-      void const* address  = classType.construct().address();
-      if(nullptr == address) {
+      Reflex::Object wrapperObj = classType.Construct();
+      if(nullptr == wrapperObj.Address()) {
         throw cms::Exception("FailedToCreate") << "could not create an instance of '" << fullName << "'";
       }
+      void* address = wrapperObj.Address();
       branch->SetAddress(&address);
+      Reflex::Object edProdObj = wrapperObj.CastObject(Reflex::Type::ByName("edm::WrapperBase"));
 
+      WrapperBase* prod = reinterpret_cast<WrapperBase*>(edProdObj.Address()); 	 
+	  	 
+      if(nullptr == prod) { 	 
+        throw cms::Exception("FailedConversion") 	 
+          << "failed to convert a '" << fullName 	 
+          << "' to a edm::WrapperBase." 	 
+          << "Please contact developers since something is very wrong."; 	 
+      }
       branch->GetEntry(entry_);
-      return WrapperOwningHolder(address, bDesc.getInterface());
+      return std::unique_ptr<WrapperBase>(prod);
     }
 
     struct TFWLiteSelectorMembers {
@@ -118,6 +129,13 @@ namespace edm {
       reg_(new ProductRegistry()),
       phreg_(new ProcessHistoryRegistry()),
       branchIDListHelper_(new BranchIDListHelper()),
+      // Note that thinned collections are not supported yet, the next
+      // line just makes it compile but when the Ref or Ptr tries to
+      // find the thinned collection it will report them not found.
+      // More work needed here if this is needed (we think no one
+      // is using TFWLiteSelector anymore and intend to implement
+      // this properly if it turns out we are wrong)
+      thinnedAssociationsHelper_(new ThinnedAssociationsHelper()),
       processNames_(),
       reader_(new FWLiteDelayedReader),
       prov_(),
@@ -133,6 +151,7 @@ namespace edm {
       std::shared_ptr<ProductRegistry> reg_;
       std::shared_ptr<ProcessHistoryRegistry> phreg_;
       std::shared_ptr<BranchIDListHelper> branchIDListHelper_;
+      std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper_;
       ProcessHistory processNames_;
       std::shared_ptr<FWLiteDelayedReader> reader_;
       std::vector<EventEntryDescription> prov_;
@@ -456,7 +475,7 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
   }
   m_->branchIDListHelper_->updateFromInput(*branchIDListsPtr);
   m_->reg_->setFrozen();
-  m_->ep_.reset(new edm::EventPrincipal(m_->reg_, m_->branchIDListHelper_, m_->pc_, nullptr));
+  m_->ep_.reset(new edm::EventPrincipal(m_->reg_, m_->branchIDListHelper_, m_->thinnedAssociationsHelper_, m_->pc_, nullptr));
   everythingOK_ = true;
 }
 

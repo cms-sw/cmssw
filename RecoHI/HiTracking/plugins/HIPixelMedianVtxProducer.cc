@@ -19,7 +19,7 @@
 
 /*****************************************************************************/
 HIPixelMedianVtxProducer::HIPixelMedianVtxProducer(const edm::ParameterSet& ps) : 
-  theTrackCollection(ps.getParameter<edm::InputTag>("TrackCollection")),
+  theTrackCollection(consumes<reco::TrackCollection>(ps.getParameter<edm::InputTag>("TrackCollection"))),
   thePtMin(ps.getParameter<double>("PtMin")),
   thePeakFindThresh(ps.getParameter<unsigned int>("PeakFindThreshold")),
   thePeakFindMaxZ(ps.getParameter<double>("PeakFindMaxZ")),
@@ -37,7 +37,7 @@ void HIPixelMedianVtxProducer::produce
 {
   // Get pixel tracks
   edm::Handle<reco::TrackCollection> trackCollection;
-  ev.getByLabel(theTrackCollection, trackCollection);
+  ev.getByToken(theTrackCollection, trackCollection);
   const reco::TrackCollection tracks_ = *(trackCollection.product());
   
   // Select tracks above minimum pt
@@ -156,7 +156,7 @@ void HIPixelMedianVtxProducer::produce
   f1.SetParLimits(2,0.001,0.05);
   f1.SetParLimits(3,0.0,0.005*tracks.size());
     
-  histo.Fit("f1","QN");
+  histo.Fit(&f1,"QN");
     
   LogTrace("MinBiasTracking")
     << "  [vertex position] fitted    = "

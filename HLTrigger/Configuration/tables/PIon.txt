@@ -1,30 +1,15 @@
-# "PIon" menu
+# "PIon" menu (placeholder)
 
-HLT_CaloJet260_v*                                       # JIRA: CMSHLT-67
+HLT_CaloJet260_v*
+HLT_PFJet260_v*
+HLT_Photon20_CaloIdVL_IsoL_v*
+HLT_Ele27_eta2p1_WP85_Gsf_v*
+HLT_Mu40_v*
+HLT_Physics_v*
 
-HLT_Mu40_v*                                             # JIRA: CMSHLT-64
-
-HLT_Photon20_CaloIdVL_IsoL_v*                           # JIRA: CMSHLT-63
-
-HLT_Physics_v*						# skim
-
-#DQM_FEDIntegrity_v*                                # sr 131577
-#HLT_LogMonitor_v*                                  # sr 131577
 HLTriggerFirstPath
-HLTriggerFinalPath                                 # sr 131577
-HLTAnalyzerEndpath                                 # only in 'PIon', not in 'online'
-AOutput                                            # sr 131577
-#BOutput                                           # sr 131577, removed by sr #135006
-#ALCAP0Output                                       # sr 131577
-#ALCAPHISYMOutput                                   # sr 131577
-#ALCALUMIPIXELSOutput                               # sr 131577
-#CalibrationOutput                                  # sr 131577
-DQMOutput                                          # online DQMFileSaver
-#EcalCalibrationOutput                              # sr 131577
-#ExpressOutput                                      # sr 131577
-#HLTDQMOutput                                       # sr 131577
-#HLTMONOutput                                      # sr 131577, removed by sr #134906 
-#NanoDSTOutput                                      # sr 131577
-#PhysicsDSTOutput                                  # sr 131577, removed by sr #135006
-#RPCMONOutput                                       # sr 131577
-#TrackerCalibrationOutput                           # sr 131577
+HLTriggerFinalPath
+HLTAnalyzerEndpath
+
+AOutput
+DQMOutput

@@ -17,7 +17,6 @@
 #include "FastSimulation/EventProducer/interface/FamosManager.h"
 #include "FastSimulation/Event/interface/FSimEvent.h"
 #include "FastSimulation/Event/interface/KineParticleFilter.h"
-#include "FastSimulation/Event/interface/PrimaryVertexGenerator.h"
 #include "FastSimulation/Calorimetry/interface/CalorimetryManager.h"
 #include "FastSimulation/TrajectoryManager/interface/TrajectoryManager.h"
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
@@ -109,9 +108,6 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    
    Handle<HepMCProduct> theHepMCProduct;
    
-   PrimaryVertexGenerator* theVertexGenerator = fevt->thePrimaryVertexGenerator();
-   
-   
    const reco::GenParticleCollection* myGenParticlesXF = 0; //OBSOLETE
    const reco::GenParticleCollection* myGenParticles = 0;
    const HepMC::GenEvent* thePUEvents = 0;
@@ -130,12 +126,6 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
      // BEGIN FUTURE OBSOLETE CODE
      bool source = iEvent.getByToken(sourceToken,theHepMCProduct);
      if ( source ) { 
-       myGenEvent = theHepMCProduct->GetEvent();
-       // First rotate in case of beam crossing angle (except if done already)
-       if ( theVertexGenerator ) { 
-	 TMatrixD* boost = theVertexGenerator->boost();
-	 if ( boost ) theHepMCProduct->boostToLab(boost,"momentum");
-       }          
        myGenEvent = theHepMCProduct->GetEvent();
      } 
 
@@ -172,20 +162,6 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    } else {
      famosManager_->reconstruct(myGenEvent,myGenParticles,thePUEvents,tTopo, &random); // FUTURE OBSOLETE ARGUMENTS: myGenEvents, thePUEvents 
    }
-
-   // BEGIN FUTURE OBSOLETE CODE
-   // Set the vertex back to the HepMCProduct (except if it was smeared already)
-   if ( myGenEvent ) { 
-     if ( theVertexGenerator ) { 
-       HepMC::FourVector theVertex(
-				   (theVertexGenerator->X()-theVertexGenerator->beamSpot().X()+BSPosition_.X())*10.,
-				   (theVertexGenerator->Y()-theVertexGenerator->beamSpot().Y()+BSPosition_.Y())*10.,
-				   (theVertexGenerator->Z()-theVertexGenerator->beamSpot().Z()+BSPosition_.Z())*10.,
-				   0.);
-       if ( fabs(theVertexGenerator->Z()) > 1E-10 ) theHepMCProduct->applyVtxGen( &theVertex );
-     }
-   }
-   // END FUTURE OBSOLETE CODE
 
    CalorimetryManager * calo = famosManager_->calorimetryManager();
    TrajectoryManager * tracker = famosManager_->trackerManager();

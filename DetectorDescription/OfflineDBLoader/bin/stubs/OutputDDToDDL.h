@@ -13,10 +13,12 @@
 
 class DDPartSelection;
 
+namespace {
 /// is sv1 < sv2 
 struct ddsvaluesCmp {
   bool operator() ( const  DDsvalues_type& sv1, const DDsvalues_type& sv2 );
 };
+}
 
 class OutputDDToDDL : public edm::EDAnalyzer {
 
@@ -30,7 +32,7 @@ class OutputDDToDDL : public edm::EDAnalyzer {
  private:
   void addToMatStore( const DDMaterial& mat, std::set<DDMaterial> & matStore );
   void addToSolStore( const DDSolid& sol, std::set<DDSolid> & solStore, std::set<DDRotation>& rotStore );
-  void addToSpecStore( const DDLogicalPart& lp, std::map<DDsvalues_type, std::set<DDPartSelection*>, ddsvaluesCmp > & specStore );
+  void addToSpecStore( const DDLogicalPart& lp, std::map<const DDsvalues_type, std::set<const DDPartSelection*>, ddsvaluesCmp > & specStore );
 
   int rotNumSeed_;
   std::string fname_;

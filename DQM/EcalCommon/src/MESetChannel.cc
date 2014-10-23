@@ -69,13 +69,6 @@ namespace ecaldqm
   }
 
   void
-  MESetChannel::book(DQMStore&)
-  {
-    clear();
-    active_ = true;
-  }
-
-  void
   MESetChannel::book(DQMStore::IBooker&)
   {
     clear();
@@ -83,7 +76,7 @@ namespace ecaldqm
   }
 
   bool
-  MESetChannel::retrieve(DQMStore const&, std::string*/* = 0*/) const
+  MESetChannel::retrieve(DQMStore::IGetter&, std::string*/* = 0*/) const
   {
     checkDirectory();
 

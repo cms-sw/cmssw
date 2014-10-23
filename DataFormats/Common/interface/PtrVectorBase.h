@@ -5,7 +5,7 @@
 // Package:     Common
 // Class  :     PtrVectorBase
 //
-/**\class PtrVectorBase PtrVectorBase.h DataFormats/Common/interface/PtrVectorBase.h
+/**\class edm::PtrVectorBase
 
  Description: Base class for PtrVector
 
@@ -60,11 +60,9 @@ namespace edm {
 
     bool hasCache() const { return !cachedItems_.empty(); }
 
-    bool hasProductCache() const { return 0 == core_.productPtr(); }
-
     /// True if the data is in memory or is available in the Event
     /// No type checking is done.
-    bool isAvailable() const { return core_.isAvailable(); }
+    bool isAvailable() const;
 
     /// Is the RefVector empty
     bool empty() const {return indicies_.empty();}
@@ -90,7 +88,7 @@ namespace edm {
     bool isTransient() const {return core_.isTransient();}
 
     void const* product() const {
-       return 0;
+      return 0;
     }
 
   protected:
@@ -103,10 +101,12 @@ namespace edm {
 
     std::vector<void const*>::const_iterator void_begin() const {
       getProduct_();
+      checkCachedItems();
       return cachedItems_.begin();
     }
     std::vector<void const*>::const_iterator void_end() const {
       getProduct_();
+      checkCachedItems();
       return cachedItems_.end();
     }
 
@@ -116,7 +116,7 @@ namespace edm {
         return TPtr(reinterpret_cast<typename TPtr::value_type const*>(cachedItems_[iIndex]),
                   indicies_[iIndex]);
       }
-      if (hasCache()) {
+      if (hasCache() && (cachedItems_[iIndex] != nullptr || productGetter() == nullptr)) {
         return TPtr(this->id(),
                   reinterpret_cast<typename TPtr::value_type const*>(cachedItems_[iIndex]),
                   indicies_[iIndex]);
@@ -130,7 +130,7 @@ namespace edm {
         return TPtr(reinterpret_cast<typename TPtr::value_type const*>(*iIt),
                   indicies_[iIt - cachedItems_.begin()]);
       }
-      if (hasCache()) {
+      if (hasCache() && (*iIt != nullptr || productGetter() == nullptr)) {
         return TPtr(this->id(),
                   reinterpret_cast<typename TPtr::value_type const*>(*iIt),
                   indicies_[iIt - cachedItems_.begin()]);
@@ -145,6 +145,9 @@ namespace edm {
       assert(false);
       return *reinterpret_cast<const std::type_info*>(0);
     }
+
+    void checkCachedItems() const;
+
     // ---------- member data --------------------------------
     RefCore core_;
     std::vector<key_type> indicies_;

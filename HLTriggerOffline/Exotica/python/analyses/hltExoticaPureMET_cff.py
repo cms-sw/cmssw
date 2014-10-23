@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 PureMETPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
-        "HLT_MET120_HBHENoiseCleaned_v",
+        "HLT_PFMET180_NoiseCleaned_v",    # Run2
+        "HLT_MET120_HBHENoiseCleaned_v" # Run1
         ),
     recPFMETLabel  = cms.InputTag("pfMet"),
     # -- Analysis specific cuts

@@ -16,7 +16,7 @@ addJetCollection(
    process,
    labelName = 'AK4PF',
    jetSource = cms.InputTag('ak4PFJets'),
-   jetCorrections = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'), # FIXME: Use proper JECs, as soon as available
+   jetCorrections = ('AK4PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'), # FIXME: Use proper JECs, as soon as available
    btagDiscriminators = [
        'jetBProbabilityBJetTags'
       ,'jetProbabilityBJetTags'
@@ -32,13 +32,14 @@ addJetCollection(
       ,'simpleSecondaryVertexHighPurBJetTags'
       ,'simpleSecondaryVertexNegativeHighEffBJetTags'
       ,'simpleSecondaryVertexNegativeHighPurBJetTags'
+      ,'pfCombinedSecondaryVertexBJetTags'
       ,'combinedSecondaryVertexBJetTags'
       ,'combinedSecondaryVertexPositiveBJetTags'
-      #,'combinedSecondaryVertexV1BJetTags'
-      #,'combinedSecondaryVertexV1PositiveBJetTags'
+      ,'combinedInclusiveSecondaryVertexV2BJetTags'
+      ,'combinedInclusiveSecondaryVertexV2PositiveBJetTags'
+      ,'combinedInclusiveSecondaryVertexV2NegativeBJetTags'
       ,'combinedSecondaryVertexMVABJetTags'
       ,'combinedSecondaryVertexNegativeBJetTags'
-      #,'combinedSecondaryVertexV1NegativeBJetTags'
       ,'softPFMuonBJetTags'
       ,'softPFMuonByPtBJetTags'
       ,'softPFMuonByIP3dBJetTags'
@@ -68,12 +69,9 @@ addJetCollection(
       ,'doubleSecondaryVertexHighEffBJetTags'
       ,'combinedInclusiveSecondaryVertexBJetTags'
       ,'combinedInclusiveSecondaryVertexPositiveBJetTags'
-      #,'combinedMVABJetTags'
+      ,'combinedMVABJetTags'
       ,'positiveCombinedMVABJetTags'
       ,'negativeCombinedMVABJetTags'
-      #,'combinedSecondaryVertexSoftPFLeptonV1BJetTags'
-      #,'positiveCombinedSecondaryVertexSoftPFLeptonV1BJetTags'
-      #,'negativeCombinedSecondaryVertexSoftPFLeptonV1BJetTags'
     ],
   )
 process.patJetsAK4PF.addTagInfos = True

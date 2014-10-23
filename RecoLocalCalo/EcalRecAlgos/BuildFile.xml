@@ -1,5 +1,6 @@
 <use   name="clhep"/>
 <use   name="DataFormats/EcalRecHit"/>
+<use   name="DataFormats/EcalDigi"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Framework"/>
@@ -10,6 +11,10 @@
 
 <use   name="root"/>
 <use   name="rootminuit"/>
+
+<use   name="eigen"/>
+
+<Flags CXXFLAGS="-Ofast"/>
 
 <export>
   <lib   name="1"/>

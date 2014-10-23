@@ -3,38 +3,18 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DQMOffline/RecoB/interface/BaseBTagPlotter.h"
-#include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/BTauReco/interface/JetTag.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DQMOffline/RecoB/interface/BTagDifferentialPlot.h"
 #include "DQMOffline/RecoB/interface/AcceptJet.h"
 #include "DQMOffline/RecoB/interface/JetTagPlotter.h"
 #include "DQMOffline/RecoB/interface/TagCorrelationPlotter.h"
 #include "DQMOffline/RecoB/interface/BaseTagInfoPlotter.h"
-#include "DQMOffline/RecoB/interface/Tools.h"
-#include "DataFormats/JetReco/interface/Jet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
 #include "SimDataFormats/JetMatching/interface/JetFlavour.h"
-
 #include "DQMOffline/RecoB/interface/CorrectJet.h"
 #include "DQMOffline/RecoB/interface/MatchJet.h"
-
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/Common/interface/Association.h"
-
-#include <string>
-#include <vector>
-#include <map>
-
-//class CaloJetRef;
 
 /** \class BTagPerformanceAnalyzerMC
  *
@@ -50,9 +30,6 @@ class BTagPerformanceAnalyzerMC : public thread_unsafe::DQMEDAnalyzer {
 
       virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-      //virtual void endRun(const edm::Run & run, const edm::EventSetup & es);
-      virtual void endJob();
-      
    private:
 
   struct JetRefCompare :
@@ -78,17 +55,10 @@ class BTagPerformanceAnalyzerMC : public thread_unsafe::DQMEDAnalyzer {
   bool getJetWithGenJet(edm::RefToBase<reco::Jet> jetRef, edm::Handle<edm::Association<reco::GenJetCollection> > genJetsMatched); 
 
   std::vector<std::string> tiDataFormatType;
-  bool partonKinematics;
-  double ptPartonMin, ptPartonMax;
   AcceptJet jetSelector;   // Decides if jet and parton satisfy kinematic cuts.
   std::vector<double> etaRanges, ptRanges;
-  bool produceEps, producePs;
-  std::string psBaseName, epsBaseName, inputFile;
   std::string JECsource;
   bool doJEC;
-  bool update, allHisto;
-  bool finalize;
-  bool finalizeOnly;
 
   bool ptHatWeight;
 
@@ -102,15 +72,12 @@ class BTagPerformanceAnalyzerMC : public thread_unsafe::DQMEDAnalyzer {
   std::vector<edm::InputTag> jetTagInputTags;
   std::vector< std::pair<edm::InputTag, edm::InputTag> > tagCorrelationInputTags;
   std::vector< std::vector<edm::InputTag> > tagInfoInputTags;
-  // Contains plots for each bin of rapidity and pt.
-  std::vector< std::vector<BTagDifferentialPlot*> > differentialPlots;
   //  JetFlavourIdentifier jfi;
   std::vector<edm::ParameterSet> moduleConfig;
   std::map<BaseTagInfoPlotter*, size_t> binTagInfoPlottersToModuleConfig;
 
   std::string flavPlots_;
   unsigned int mcPlots_;
-  bool makeDiffPlots_;
 
   CorrectJet jetCorrector;
   MatchJet jetMatcher;

@@ -376,4 +376,20 @@
  </class> 
  <class name="HcalFlagHFDigiTimeParams" class_version="0"/>
 
+ <class name="AbsOOTPileupCorrection"/>
+ <class name="std::map<std::string, AbsOOTPileupCorrection*>"/>
+ <class name="std::map<std::string, std::map<std::string, AbsOOTPileupCorrection*> >"/>
+ <class name="ScalingExponential" class_version="1"/> 
+ <class name="PiecewiseScalingPolynomial" class_version="1"/>
+ <class name="OOTPileupCorrDataFcn" class_version="1"/>
+ <class name="OOTPileupCorrData" class_version="1"/>
+ <class name="DummyOOTPileupCorrection" class_version="1"/>
+ <class name="std::vector<OOTPileupCorrDataFcn>"/>
+ <class name="OOTPileupCorrectionMapColl">
+  <field name="data_" mapping="blob" />
+ </class>
+ <class name="OOTPileupCorrectionBuffer">
+  <field name="m_buffer" mapping="blob" />
+ </class>
+
 </lcgdict>   

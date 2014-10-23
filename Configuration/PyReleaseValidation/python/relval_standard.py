@@ -167,7 +167,6 @@ workflows[33] = ['', ['PhotonJets_Pt_10','DIGI','RECO','HARVEST']]
 workflows[34] = ['', ['QQH1352T_Tauola','DIGI','RECO','HARVEST']]
 workflows[46] = ['', ['ZmumuJets_Pt_20_300']]
 
-# wip gen-sim being made in 71x_pre7: GF wf uncomment once available 
 workflows[7]  = ['', ['Cosmics','DIGICOS','RECOCOS','ALCACOS','HARVESTCOS']]
 workflows[8]  = ['', ['BeamHalo','DIGICOS','RECOCOS','ALCABH','HARVESTCOS']]
 workflows[11] = ['', ['MinBias','DIGI','RECOMIN','HARVEST','ALCAMIN']]
@@ -193,7 +192,11 @@ workflows[1338] = ['', ['QCD_FlatPt_15_3000HS_13','DIGIUP15','RECOUP15','HARVEST
 workflows[1309]  = ['', ['Higgs200ChargedTaus_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1313] = ['', ['QCD_Pt_3000_3500_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1339] = ['', ['QCD_Pt_600_800_13','DIGIUP15','RECOUP15','HARVESTUP15']]
-workflows[1323] = ['', ['JpsiMM_13','DIGIUP15','RECOUP15','HARVESTUP15']]
+# remove JpsiMM_13 at the next round
+#workflows[1323] = ['', ['JpsiMM_13','DIGIUP15','RECOUP15','HARVESTUP15']]
+workflows[1347] = ['', ['Upsilon1SToMuMu_13','DIGIUP15','RECOUP15','HARVESTUP15']]
+workflows[1348] = ['', ['BsToMuMu_13','DIGIUP15','RECOUP15','HARVESTUP15']]
+workflows[1349] = ['', ['BuToKstarMuMu_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1325] = ['', ['TTbar_13','DIGIUP15','RECOUP15','HARVESTUP15','ALCATT']]
 workflows[1326] = ['', ['WE_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1329] = ['', ['ZEE_13','DIGIUP15','RECOUP15','HARVESTUP15','ALCAELE']]
@@ -223,9 +226,12 @@ workflows[1345] = ['', ['ZpTT_1500_13TeV_Tauola','DIGIUP15','RECOUP15','HARVESTU
 
 ### HI test ###
 workflows[140] = ['',['HydjetQ_MinBias_2760GeV','DIGIHI','RECOHI','HARVESTHI']]
-workflows[141] = ['',['HydjetQ_B0_2760GeV','DIGIHI','RECOHI','HARVESTHI']]
-workflows[142] = ['',['HydjetQ_B8_2760GeV','DIGIHI','RECOHI','HARVESTHI']]
-workflows[143] = ['',['HydjetQ_B3_2760GeV','DIGIHI','RECOHI','HARVESTHI']]
+workflows[140.1] = ['',['QCD_Pt_80_120_13_HI','DIGIHI','RECOHI','HARVESTHI']]
+workflows[140.2] = ['',['PhotonJets_Pt_10_13_HI','DIGIHI','RECOHI','HARVESTHI']]
+workflows[140.3] = ['',['ZMM_13_HI','DIGIHI','RECOHI','HARVESTHI']]
+#workflows[141] = ['',['HydjetQ_B0_2760GeV','DIGIHI','RECOHI','HARVESTHI']]
+#workflows[142] = ['',['HydjetQ_B8_2760GeV','DIGIHI','RECOHI','HARVESTHI']]
+#workflows[143] = ['',['HydjetQ_B3_2760GeV','DIGIHI','RECOHI','HARVESTHI']]
 #workflows[144] = ['',['HydjetQ_B5_2760GeV','DIGIHI','RECOHI','HARVESTHI']]
 
 ### pPb test ###

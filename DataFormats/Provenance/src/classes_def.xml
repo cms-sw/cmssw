@@ -1,4 +1,7 @@
 <lcgdict>
+ <class name="edm::ViewTypeChecker" ClassVersion="2">
+  <version ClassVersion="2" checksum="2398868528"/>
+ </class>
  <class name="edm::ProductID" ClassVersion="10">
   <version ClassVersion="10" checksum="1501211476"/>
  </class>
@@ -186,7 +189,13 @@
  </class>
  <class name="std::vector<ROOT::TSchemaHelper>"/>
  <class name="std::vector<TFormula*>"/>
- 
+
+ <class name="edm::ThinnedAssociationBranches"/>
+ <class name="std::vector<edm::ThinnedAssociationBranches>"/>
+ <class name="edm::ThinnedAssociationsHelper" ClassVersion="10">
+  <version ClassVersion="10" checksum="3444973106"/>
+ </class>
+
  <ioread sourceClass="edm::ProductProvenance" targetClass="edm::ProductProvenance" version="[1-]" source="" target="transient_">
  <![CDATA[
 	newObj->initializeTransients();

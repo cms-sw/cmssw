@@ -131,7 +131,15 @@ namespace cond {
 				  cond::Binary& payloadData, 
 				  cond::Binary& //streamerInfoData
 				){
-      ora::Object obj = m_session.getObject( payloadHash );
+      ora::Object obj;
+      try {
+	obj = m_session.getObject( payloadHash );
+      } catch( const ora::Exception& e ){
+	// hack to trap the non-existance of the object
+	if( e.explainSelf().find("has not been found in the database. from ReadBuffer::read") != std::string::npos ) {
+	  return false;
+	} else throw;
+      } 
       objectType = obj.typeName();
       payloadData.fromOraObject(obj );
       return true;
@@ -225,19 +233,29 @@ namespace cond {
 				 const boost::posix_time::ptime& ){
       if(!m_cache.load(tag)) throwException("Tag "+tag+" has not been found in the database.",
 					    "OraIOVTable::insertOne");
-      m_cache.editor().append( since, payloadHash );
+      if( m_cache.editor().timetype() != cond::hash ){
+	m_cache.editor().append( since, payloadHash );
+      } else {
+	m_cache.editor().freeInsert( since, payloadHash );
+      }
     }
 
     void OraIOVTable::insertMany( const std::string& tag, 
 				  const std::vector<std::tuple<cond::Time_t,cond::Hash,boost::posix_time::ptime> >& iovs ){
       if(!m_cache.load(tag)) throwException("Tag "+tag+" has not been found in the database.",
 					    "OraIOVTable::insertOne");
-      std::vector<std::pair<cond::Time_t, std::string > > data;
-      data.reserve( iovs.size() );
-      for( auto v : iovs ){
-	data.push_back( std::make_pair( std::get<0>(v), std::get<1>(v) ) );
+      if( m_cache.editor().timetype() != cond::hash ){
+	std::vector<std::pair<cond::Time_t, std::string > > data;
+	data.reserve( iovs.size() );
+	for( auto v : iovs ){
+	  data.push_back( std::make_pair( std::get<0>(v), std::get<1>(v) ) );
+	}
+	m_cache.editor().bulkAppend( data );
+      } else {
+        for( auto v: iovs ){
+	  insertOne( tag, std::get<0>(v), std::get<1>(v), std::get<2>(v) );
+	}
       }
-      m_cache.editor().bulkAppend( data );
     }
 
     void OraIOVTable::erase( const std::string& ){
@@ -274,7 +292,17 @@ namespace cond {
       
     ITagMigrationTable& OraIOVSchema::tagMigrationTable(){
       throwException("Tag Migration interface is not available in this implementation.",
-		     "OraIOVSchema::tagMigrationTabl");
+		     "OraIOVSchema::tagMigrationTable");
+    }
+
+    IPayloadMigrationTable& OraIOVSchema::payloadMigrationTable(){
+      throwException("Payload Migration interface is not available in this implementation.",
+		     "OraIOVSchema::payloadMigrationTable");
+    }
+
+    std::string OraIOVSchema::parsePoolToken( const std::string& poolToken ){
+      cond::PoolTokenParser parser( m_cache.session().storage() );
+      return parser.parse( poolToken ).toString();
     }
 
     OraGTTable::OraGTTable( DbSession& session ):

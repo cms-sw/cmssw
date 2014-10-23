@@ -5,7 +5,7 @@ using namespace edm;
 using namespace reco;
 
 TaggingVariablePlotter::VariableConfig::VariableConfig(
-		const string &name, const ParameterSet &pSet, const bool& update,
+		const string &name, const ParameterSet &pSet,
 		const string &category, const string& label, const unsigned int& mc, DQMStore::IBooker & ibook) :
 	var(getTaggingVariableName(name)),
 	nBins(pSet.getParameter<unsigned int>("nBins")),
@@ -36,27 +36,29 @@ TaggingVariablePlotter::VariableConfig::VariableConfig(
 							       + (category.empty() ? "_" + label
 								  : ("_" + category) + "_" + label),
 							       TaggingVariableDescription[var], nBins, min, max,
-							       false, logScale, true, "b", update,label,mc,ibook));
+							       false, logScale, true, "b", label,mc,ibook));
 		plot.index = *iter;
 		plots.push_back(plot);
 	}
 }
 
 TaggingVariablePlotter::TaggingVariablePlotter(const std::string &tagName,
-					       const EtaPtBin &etaPtBin, const ParameterSet &pSet, const bool& update,
-					       const unsigned int& mc, DQMStore::IBooker & ibook,
+					       const EtaPtBin &etaPtBin, const ParameterSet &pSet,
+					       const unsigned int& mc, const bool& willFinalize, DQMStore::IBooker & ibook,
 					       const string &category) : BaseTagInfoPlotter(tagName, etaPtBin), mcPlots_(mc)
 {
   const std::string tagVarDir(theExtensionString.substr(1));
+  
+  if(willFinalize) return;
 
-	const vector<string>& pSets = pSet.getParameterNames();
-	for(vector<string>::const_iterator iter = pSets.begin();
-	    iter != pSets.end(); ++iter) {
-		VariableConfig var(*iter,
-		                   pSet.getParameter<ParameterSet>(*iter),
-		                   update, category,tagVarDir, mcPlots_, ibook);
-		variables.push_back(var);
-	}
+  const vector<string>& pSets = pSet.getParameterNames();
+  for(vector<string>::const_iterator iter = pSets.begin();
+      iter != pSets.end(); ++iter) {
+    VariableConfig var(*iter,
+		       pSet.getParameter<ParameterSet>(*iter),
+		       category,tagVarDir, mcPlots_, ibook);
+    variables.push_back(var);
+  }
 }
 
 
@@ -108,19 +110,4 @@ void TaggingVariablePlotter::analyzeTag (const TaggingVariableList &vars,
 				                  values[plot->index - 1],w);
 		}
 	}
-}
-
-void TaggingVariablePlotter::finalize()
-{
-}
-
-void TaggingVariablePlotter::psPlot(const std::string &name)
-{
-}
-
-
-
-
-void TaggingVariablePlotter::epsPlot(const std::string &name)
-{
 }

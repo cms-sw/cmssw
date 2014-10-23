@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 pixelDigitizer = cms.PSet(
+    DoPixelAging = cms.bool(False),
     accumulatorType = cms.string("SiPixelDigitizer"),
     hitsProducer = cms.string('g4SimHits'),
     makeDigiSimLinks = cms.untracked.bool(True),
@@ -41,17 +42,14 @@ pixelDigitizer = cms.PSet(
     TanLorentzAnglePerTesla_BPix = cms.double(0.106),
     AddNoisyPixels = cms.bool(True),
     Alpha2Order = cms.bool(True),
-    AddPixelInefficiency = cms.int32(0), # deprecated, use next option
     AddPixelInefficiencyFromPython = cms.bool(True),
     AddNoise = cms.bool(True),
     ChargeVCALSmearing = cms.bool(True),
     GainSmearing = cms.double(0.0),
     GeometryType = cms.string('idealForDigi'),                           
-    useDB = cms.bool(True),
+    useDB = cms.bool(False),
     LorentzAngle_DB = cms.bool(True),
     DeadModules_DB = cms.bool(True),
-##    killModules = cms.bool(False),
-##    DeadModules_DB = cms.bool(False),
     killModules = cms.bool(True),
     NumPixelBarrel = cms.int32(3),
     NumPixelEndcap = cms.int32(2),

@@ -1,10 +1,13 @@
-#ifndef IOPool_DQMStreamer_DQMStreamerReader_h
-#define IOPool_DQMStreamer_DQMStreamerReader_h
+#ifndef DQMServices_StreamerIO_DQMStreamerReader_h
+#define DQMServices_StreamerIO_DQMStreamerReader_h
 
-#include "IOPool/Streamer/interface/StreamerInputSource.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "IOPool/Streamer/interface/StreamerInputSource.h"
+#include "IOPool/Streamer/interface/StreamerInputFile.h"
+#include "IOPool/Streamer/interface/MsgTools.h"
 
 #include "DQMFileIterator.h"
+#include "DQMMonitoringService.h"
 #include "TriggerSelector.h"
 
 #include "boost/filesystem.hpp"
@@ -16,25 +19,16 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 
-class EventMsgView;
-class InitMsgView;
+namespace dqmservices {
 
-namespace edm {
-class ConfigurationDescriptions;
-class EventPrincipal;
-class EventSkipperByID;
-struct InputSourceDescription;
-class ParameterSet;
-class StreamerInputFile;
-
-class DQMStreamerReader : public StreamerInputSource {
+class DQMStreamerReader : public edm::StreamerInputSource {
  public:
-  DQMStreamerReader(ParameterSet const& pset,
-                    InputSourceDescription const& desc);
+  DQMStreamerReader(edm::ParameterSet const& pset,
+                    edm::InputSourceDescription const& desc);
   virtual ~DQMStreamerReader();
 
   bool newHeader();
-  static void fillDescriptions(ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   typedef std::vector<std::string> Strings;
 
@@ -57,7 +51,13 @@ class DQMStreamerReader : public StreamerInputSource {
   EventMsgView const* prepareNextEvent();
   bool prepareNextFile();
   bool acceptEvent( const EventMsgView*);
+ 
+  bool triggerSel();
+  bool matchTriggerSel(Strings const& tnames);
+  bool acceptAllEvt_;
+  bool matchTriggerSel_;
 
+  DQMFileIterator::LumiEntry currentLumi_;
   unsigned int runNumber_;
   std::string runInputDir_;
   std::string streamLabel_;
@@ -72,9 +72,12 @@ class DQMStreamerReader : public StreamerInputSource {
 
   DQMFileIterator fiterator_;
 
-  std::unique_ptr<StreamerInputFile> streamReader_;
-  std::shared_ptr<EventSkipperByID> eventSkipperByID_;
-  TriggerSelectorPtr eventSelector_;
+  std::unique_ptr<edm::StreamerInputFile> streamReader_;
+  std::shared_ptr<edm::EventSkipperByID> eventSkipperByID_;
+  std::shared_ptr<TriggerSelector> eventSelector_;
+
+  /* this is for monitoring */
+  edm::Service<DQMMonitoringService> mon_;
 };
 
 }  //end-of-namespace-def

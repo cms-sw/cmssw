@@ -30,3 +30,5 @@ dcsonly_json_2012_pickEvents = cms.EDFilter(
     LuminositySectionsBlockRange = LumiList(findFileInPath("DPGAnalysis/Skims/data/json_DCSONLY.txt")).getVLuminosityBlockRange()
     
     )
+
+dcsonly_json_2012 = cms.Sequence( dcsonly_json_2012_pickEvents )

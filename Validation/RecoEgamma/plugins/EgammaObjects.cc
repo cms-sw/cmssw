@@ -14,6 +14,8 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
+#include "TF1.h"
+
 EgammaObjects::EgammaObjects( const edm::ParameterSet& ps )
 {
   particleID = ps.getParameter<int>("particleID");
@@ -829,16 +831,18 @@ void EgammaObjects::getEfficiencyHistosViaDividing()
 
 void EgammaObjects::fitHistos()
 {
-  hist_EtOverTruth_->Fit("gaus","QEM");
+  //Use our own copy for thread safety
+  TF1 gaus("mygaus","gaus");
+  hist_EtOverTruth_->Fit(&gaus,"QEM");
 //  hist_EtNumRecoOverNumTrue_->Fit("pol1","QEM");
 
-  hist_EOverTruth_->Fit("gaus","QEM");
+  hist_EOverTruth_->Fit(&gaus,"QEM");
 //  hist_ENumRecoOverNumTrue_->Fit("pol1","QEM");
 
-  hist_EtaOverTruth_->Fit("gaus","QEM");
+  hist_EtaOverTruth_->Fit(&gaus,"QEM");
 //  hist_EtaNumRecoOverNumTrue_->Fit("pol1","QEM");
 
-  hist_PhiOverTruth_->Fit("gaus","QEM");
+  hist_PhiOverTruth_->Fit(&gaus,"QEM");
 //  hist_PhiNumRecoOverNumTrue_->Fit("pol1","QEM");
 
   /*

@@ -34,6 +34,7 @@ DQMService::DQMService(const edm::ParameterSet &pset, edm::ActivityRegistry &ar)
     publishFrequency_(5.0)
 {
   ar.watchPostEvent(this, &DQMService::flush);
+  ar.watchPostStreamEndLumi(this, &DQMService::flush);
 
   std::string host = pset.getUntrackedParameter<std::string>("collectorHost", ""); 
   int port = pset.getUntrackedParameter<int>("collectorPort", 9090);

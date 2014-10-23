@@ -60,9 +60,39 @@ namespace fwlite {
                 ProductGetter(Event* iEvent) : event_(iEvent) {}
 
                 virtual
-                edm::WrapperHolder
+                edm::WrapperBase const*
                 getIt(edm::ProductID const& iID) const override {
                     return event_->getByProductID(iID);
+                }
+
+                // getThinnedProduct assumes getIt was already called and failed to find
+                // the product. The input key is the index of the desired element in the
+                // container identified by ProductID (which cannot be found).
+                // If the return value is not null, then the desired element was found
+                // in a thinned container and key is modified to be the index into
+                // that thinned container. If the desired element is not found, then
+                // nullptr is returned.
+                virtual edm::WrapperBase const* getThinnedProduct(edm::ProductID const& pid,
+                                                                  unsigned int& key) const override {
+                  return event_->getThinnedProduct(pid, key);
+                }
+
+
+                // getThinnedProducts assumes getIt was already called and failed to find
+                // the product. The input keys are the indexes into the container identified
+                // by ProductID (which cannot be found). On input the WrapperBase pointers
+                // must all be set to nullptr (except when the function calls itself
+                // recursively where non-null pointers mark already found elements).
+                // Thinned containers derived from the product are searched to see
+                // if they contain the desired elements. For each that is
+                // found, the corresponding WrapperBase pointer is set and the key
+                // is modified to be the key into the container where the element
+                // was found. The WrapperBase pointers might or might not all point
+                // to the same thinned container.
+                virtual void getThinnedProducts(edm::ProductID const& pid,
+                                                std::vector<edm::WrapperBase const*>& foundContainers,
+                                                std::vector<unsigned int>& keys) const override {
+                  event_->getThinnedProducts(pid, foundContainers, keys);
                 }
 
             private:
@@ -293,19 +323,6 @@ Event::getByLabel(
     return dataHelper_.getByLabel(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel, oData, eventIndex);
 }
 
-bool
-Event::getByLabel(std::type_info const& iInfo,
-                  char const* iModuleLabel,
-                  char const* iProductInstanceLabel,
-                  char const* iProcessLabel,
-                  edm::WrapperHolder& holder) const {
-    if(atEnd()) {
-        throw cms::Exception("OffEnd") << "You have requested data past the last event";
-    }
-    Long_t eventIndex = branchMap_.getEventEntry();
-    return dataHelper_.getByLabel(iInfo, iModuleLabel, iProductInstanceLabel, iProcessLabel, holder, eventIndex);
-}
-
 edm::EventAuxiliary const&
 Event::eventAuxiliary() const {
    Long_t eventIndex = branchMap_.getEventEntry();
@@ -388,12 +405,25 @@ Event::history() const {
 }
 
 
-edm::WrapperHolder
+edm::WrapperBase const*
 Event::getByProductID(edm::ProductID const& iID) const {
-  Long_t eventIndex = branchMap_.getEventEntry();
-  return dataHelper_.getByProductID(iID, eventIndex);
+  Long_t eventEntry = branchMap_.getEventEntry();
+  return dataHelper_.getByProductID(iID, eventEntry);
 }
 
+edm::WrapperBase const*
+Event::getThinnedProduct(edm::ProductID const& pid, unsigned int& key) const {
+  Long_t eventEntry = branchMap_.getEventEntry();
+  return dataHelper_.getThinnedProduct(pid, key, eventEntry);
+}
+
+void
+Event::getThinnedProducts(edm::ProductID const& pid,
+                          std::vector<edm::WrapperBase const*>& foundContainers,
+                          std::vector<unsigned int>& keys) const {
+  Long_t eventEntry = branchMap_.getEventEntry();
+  return dataHelper_.getThinnedProducts(pid, foundContainers, keys, eventEntry);
+}
 
 edm::TriggerNames const&
 Event::triggerNames(edm::TriggerResults const& triggerResults) const {

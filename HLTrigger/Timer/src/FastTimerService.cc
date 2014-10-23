@@ -592,6 +592,13 @@ void
 FastTimerService::postStreamEndLumi(edm::StreamContext const & sc) {
   unsigned int sid = sc.streamID().value();
   auto & stream = m_stream[sid];
+
+  if (m_enable_dqm) {
+    DQMStore * store = edm::Service<DQMStore>().operator->();
+    assert(store);
+    store->mergeAndResetMEsLuminositySummaryCache(sc.eventID().run(),sc.eventID().luminosityBlock(),sid, m_module_id);
+  }
+
   stream.timer_last_transition = FastTimer::Clock::now();
 }
 
@@ -1400,7 +1407,6 @@ void FastTimerService::fillDescriptions(edm::ConfigurationDescriptions & descrip
   desc.addUntracked<bool>(   "enableDQMbyModule",        false);
   desc.addUntracked<bool>(   "enableDQMbyModuleType",    false);
   desc.addUntracked<bool>(   "enableDQMSummary",         false);
-  desc.addUntracked<bool>(   "enableDQMbyLuminosity",    false)->setComment("deprecated: this parameter is ignored");
   desc.addUntracked<bool>(   "enableDQMbyLumiSection",   false);
   desc.addUntracked<bool>(   "enableDQMbyProcesses",     false);
   desc.addUntracked<double>( "dqmTimeRange",             1000. );   // ms
@@ -1409,12 +1415,8 @@ void FastTimerService::fillDescriptions(edm::ConfigurationDescriptions & descrip
   desc.addUntracked<double>( "dqmPathTimeResolution",       0.5);   // ms
   desc.addUntracked<double>( "dqmModuleTimeRange",         40. );   // ms
   desc.addUntracked<double>( "dqmModuleTimeResolution",     0.2);   // ms
-  desc.addUntracked<double>( "dqmLuminosityRange",      1.e34  )->setComment("deprecated: this parameter is ignored");
-  desc.addUntracked<double>( "dqmLuminosityResolution", 1.e31  )->setComment("deprecated: this parameter is ignored");
   desc.addUntracked<uint32_t>( "dqmLumiSectionsRange",   2500  );   // ~ 16 hours
   desc.addUntracked<std::string>(   "dqmPath",           "HLT/TimerService");
-  desc.addUntracked<edm::InputTag>( "luminosityProduct", edm::InputTag("hltScalersRawToDigi"))->setComment("deprecated: this parameter is ignored");
-  desc.addUntracked<std::vector<unsigned int> >("supportedProcesses", std::vector<unsigned int> { })->setComment("deprecated: this parameter is ignored");
   descriptions.add("FastTimerService", desc);
 }
 

@@ -102,6 +102,23 @@ class L1TCSCTF : public edm::EDAnalyzer {
   MonitorElement* trackModeVsQ;
   MonitorElement* csctfAFerror;
 
+  // NEW: CSC EVENT LCT PLOTS, Renjie Wang
+  MonitorElement* csctflcts;
+  
+  // PLOTS SPECIFICALLY FOR ME1/1
+  MonitorElement* me11_lctStrip;
+  MonitorElement* me11_lctWire;
+  MonitorElement* me11_lctLocalPhi;
+  MonitorElement* me11_lctPackedPhi;
+  MonitorElement* me11_lctGblPhi;
+  MonitorElement* me11_lctGblEta;
+ 
+  // PLOTS SPECIFICALLY FOR ME4/2
+  MonitorElement* me42_lctGblPhi;
+  MonitorElement* me42_lctGblEta;  
+
+
+
   // 1-> 6 plus endcap
   // 7->12 minus endcap
   MonitorElement* DTstubsTimeTrackMenTimeArrival[12];
@@ -116,6 +133,7 @@ class L1TCSCTF : public edm::EDAnalyzer {
   bool monitorDaemon_;
   std::ofstream logFile_;
   edm::InputTag gmtProducer, lctProducer, trackProducer, statusProducer, mbProducer;
+  bool gangedME11a_;
 
   CSCSectorReceiverLUT *srLUTs_[5];
 

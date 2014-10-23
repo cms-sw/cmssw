@@ -29,15 +29,15 @@ namespace pat {
 
     /// default constructor  
   PackedCandidate()
-    : p4_(0,0,0,0), p4c_(0,0,0,0), vertex_(0,0,0), dphi_(0), pdgId_(0), qualityFlags_(0), unpacked_(false),dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),packedHits_(0) { }
+    : p4_(0,0,0,0), p4c_(0,0,0,0), vertex_(0,0,0), dphi_(0), pdgId_(0), qualityFlags_(0), unpacked_(false), unpackedVtx_(true), unpackedTrk_(false), dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),packedHits_(0),normalizedChi2_(0) { }
   explicit PackedCandidate( const reco::Candidate & c, const reco::VertexRef &pv)
-    : p4_(c.pt(), c.eta(), c.phi(), c.mass()), p4c_(p4_), vertex_(c.vertex()), dphi_(0), pdgId_(c.pdgId()), qualityFlags_(0), pvRef_(pv), unpacked_(true) , unpackedVtx_(true),dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),packedHits_(0){ packBoth(); }
+    : p4_(c.pt(), c.eta(), c.phi(), c.mass()), p4c_(p4_), vertex_(c.vertex()), dphi_(0), pdgId_(c.pdgId()), qualityFlags_(0), pvRef_(pv), unpacked_(true) , unpackedVtx_(true), unpackedTrk_(false), dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),packedHits_(0),normalizedChi2_(0) { packBoth(); }
 
   explicit PackedCandidate( const PolarLorentzVector &p4, const Point &vtx, float phiAtVtx, int pdgId, const reco::VertexRef &pv)
-    : p4_(p4), p4c_(p4_), vertex_(vtx), dphi_(reco::deltaPhi(phiAtVtx,p4_.phi())), pdgId_(pdgId), qualityFlags_(0), pvRef_(pv), unpacked_(true), unpackedVtx_(true),dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),packedHits_(0) { packBoth(); }
+    : p4_(p4), p4c_(p4_), vertex_(vtx), dphi_(reco::deltaPhi(phiAtVtx,p4_.phi())), pdgId_(pdgId), qualityFlags_(0), pvRef_(pv), unpacked_(true), unpackedVtx_(true), unpackedTrk_(false),dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),packedHits_(0),normalizedChi2_(0) { packBoth(); }
 
   explicit PackedCandidate( const LorentzVector &p4, const Point &vtx, float phiAtVtx, int pdgId, const reco::VertexRef &pv)
-    : p4_(p4.Pt(), p4.Eta(), p4.Phi(), p4.M()), p4c_(p4), vertex_(vtx), dphi_(reco::deltaPhi(phiAtVtx,p4_.phi())), pdgId_(pdgId), qualityFlags_(0), pvRef_(pv), unpacked_(true), unpackedVtx_(true),dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),packedHits_(0) { packBoth(); }
+    : p4_(p4.Pt(), p4.Eta(), p4.Phi(), p4.M()), p4c_(p4), vertex_(vtx), dphi_(reco::deltaPhi(phiAtVtx,p4_.phi())), pdgId_(pdgId), qualityFlags_(0), pvRef_(pv), unpacked_(true), unpackedVtx_(true), unpackedTrk_(false),dxydxy_(0),dzdz_(0),dxydz_(0),dlambdadz_(0),dphidxy_(0),packedHits_(0),normalizedChi2_(0) { packBoth(); }
  
  
     
@@ -228,8 +228,18 @@ namespace pat {
     virtual float dxyError() const { maybeUnpackBoth(); return sqrt(dxydxy_); }
 
 
-    /// Return by value (no caching heavy function) a pseudo track made with candidate kinematics, parameterized error for eta,phi,pt and full IP covariance	
-    virtual reco::Track pseudoTrack() const;
+    /// Return reference to a pseudo track made with candidate kinematics, parameterized error for eta,phi,pt and full IP covariance	
+    virtual const reco::Track & pseudoTrack() const { if (!unpackedTrk_) unpackTrk(); return track_; }
+
+    /// return a pointer to the track if present. otherwise, return a null pointer
+    virtual const reco::Track * bestTrack() const {
+      if (packedHits_!=0) {
+        if (!unpackedTrk_) unpackTrk();
+        return &track_;
+      }
+      else
+        return nullptr;
+    }
 
     /// true if the track had the highPurity quality bit
     bool trackHighPurity() const { return (qualityFlags_ & trackHighPurityMask)>>trackHighPurityShift; }
@@ -386,13 +396,16 @@ namespace pat {
     void unpackVtx() const ;
     void maybeUnpackBoth() const { if (!unpacked_) unpack(); if (!unpackedVtx_) unpackVtx(); }
     void packBoth() { pack(false); packVtx(false); unpack(); unpackVtx(); } // do it this way, so that we don't loose precision on the angles before computing dxy,dz
- 
+    void unpackTrk() const ;
+
     /// the four vector                                                 
     mutable PolarLorentzVector p4_;
     mutable LorentzVector p4c_;
     /// vertex position                                                                   
     mutable Point vertex_;
     mutable float dxy_, dz_, dphi_;
+    /// reco::Track                                                                   
+    mutable reco::Track track_;
     /// PDG identifier                                                                    
     int pdgId_;
     uint16_t qualityFlags_;
@@ -402,6 +415,8 @@ namespace pat {
     mutable bool unpacked_;
     // are the dxy, dz and vertex unpacked
     mutable bool unpackedVtx_;
+    // is the track unpacked
+    mutable bool unpackedTrk_;
     /// IP covariance	
     mutable float dxydxy_, dzdz_, dxydz_,dlambdadz_,dphidxy_,dptdpt_,detadeta_,dphidphi_;
     uint8_t packedHits_;

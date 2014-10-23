@@ -11,7 +11,7 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -33,7 +33,7 @@ namespace edmtest {
   //
   // Produces and SCSimpleProduct product instance.
   //
-  class SCSimpleProducer : public edm::EDProducer {
+  class SCSimpleProducer : public edm::stream::EDProducer<> {
   public:
     explicit SCSimpleProducer(edm::ParameterSet const& p) :
       size_(p.getParameter<int>("size")) {
@@ -47,7 +47,7 @@ namespace edmtest {
     }
 
     virtual ~SCSimpleProducer() {}
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    virtual void produce(edm::Event& e, edm::EventSetup const& c) override;
 
   private:
     int size_;  // number of Simples to put in the collection
@@ -69,17 +69,17 @@ namespace edmtest {
         assert(guts[i-1].id() > guts[i].id());
     }
 
-    std::auto_ptr<SCSimpleProduct> p(new SCSimpleProduct(guts));
+    std::unique_ptr<SCSimpleProduct> p(new SCSimpleProduct(guts));
 
     // Put the product into the Event, thus sorting it.
-    e.put(p);
+    e.put(std::move(p));
   }
 
   //--------------------------------------------------------------------
   //
   // Produces and OVSimpleProduct product instance.
   //
-  class OVSimpleProducer : public edm::EDProducer {
+  class OVSimpleProducer : public edm::stream::EDProducer<> {
   public:
     explicit OVSimpleProducer(edm::ParameterSet const& p) :
         size_(p.getParameter<int>("size")) {
@@ -95,7 +95,7 @@ namespace edmtest {
     }
 
     virtual ~OVSimpleProducer() {}
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    virtual void produce(edm::Event& e, edm::EventSetup const& c) override;
 
   private:
     int size_;  // number of Simples to put in the collection
@@ -105,7 +105,7 @@ namespace edmtest {
   OVSimpleProducer::produce(edm::Event& e,
                             edm::EventSetup const& /* unused */) {
     // Fill up a collection
-    std::auto_ptr<OVSimpleProduct> p(new OVSimpleProduct());
+    std::unique_ptr<OVSimpleProduct> p(new OVSimpleProduct());
 
     for(int i = 0; i < size_; ++i) {
         std::auto_ptr<Simple> simple(new Simple());
@@ -115,10 +115,10 @@ namespace edmtest {
     }
 
     // Put the product into the Event
-    e.put(p);
+    e.put(std::move(p));
 
     // Fill up a collection of SimpleDerived objects
-    std::auto_ptr<OVSimpleDerivedProduct> pd(new OVSimpleDerivedProduct());
+    std::unique_ptr<OVSimpleDerivedProduct> pd(new OVSimpleDerivedProduct());
 
     for(int i = 0; i < size_; ++i) {
         std::auto_ptr<SimpleDerived> simpleDerived(new SimpleDerived());
@@ -129,14 +129,14 @@ namespace edmtest {
     }
 
     // Put the product into the Event
-    e.put(pd, "derived");
+    e.put(std::move(pd), "derived");
   }
 
   //--------------------------------------------------------------------
   //
   // Produces and OVSimpleProduct product instance.
   //
-  class VSimpleProducer : public edm::EDProducer {
+  class VSimpleProducer : public edm::stream::EDProducer<> {
   public:
     explicit VSimpleProducer(edm::ParameterSet const& p) :
         size_(p.getParameter<int>("size")) {
@@ -150,7 +150,7 @@ namespace edmtest {
     }
 
     virtual ~VSimpleProducer() {}
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    virtual void produce(edm::Event& e, edm::EventSetup const& c) override;
 
   private:
     int size_;  // number of Simples to put in the collection
@@ -160,17 +160,17 @@ namespace edmtest {
   VSimpleProducer::produce(edm::Event& e,
                            edm::EventSetup const& /* unused */) {
     // Fill up a collection
-    std::auto_ptr<VSimpleProduct> p(new VSimpleProduct());
+    std::unique_ptr<VSimpleProduct> p(new VSimpleProduct());
 
     for(int i = 0; i < size_; ++i) {
         Simple simple;
         simple.key = size_ - i;
-        simple.value = 1.5 * i;
+        simple.value = 1.5 * i + e.id().event();
         p->push_back(simple);
     }
 
     // Put the product into the Event
-    e.put(p);
+    e.put(std::move(p));
   }
 
   //--------------------------------------------------------------------
@@ -178,7 +178,7 @@ namespace edmtest {
   // Produces AssociationVector<vector<Simple>, vector<Simple> > object
   // This is used to test a View of an AssociationVector
   //
-  class AVSimpleProducer : public edm::EDProducer {
+  class AVSimpleProducer : public edm::stream::EDProducer<> {
   public:
 
     explicit AVSimpleProducer(edm::ParameterSet const& p) :
@@ -187,8 +187,7 @@ namespace edmtest {
       consumes<std::vector<edmtest::Simple>>(src_);
     }
 
-    virtual ~AVSimpleProducer() {}
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    virtual void produce(edm::Event& e, edm::EventSetup const& c) override;
 
   private:
     edm::InputTag src_;
@@ -200,16 +199,17 @@ namespace edmtest {
     edm::Handle<std::vector<edmtest::Simple> > vs;
     e.getByLabel(src_, vs);
     // Fill up a collection
-    std::auto_ptr<AVSimpleProduct> p(new AVSimpleProduct(edm::RefProd<std::vector<edmtest::Simple> >(vs)));
+    std::unique_ptr<AVSimpleProduct> p(new AVSimpleProduct(edm::RefProd<std::vector<edmtest::Simple> >(vs)));
 
     for(unsigned int i = 0; i < vs->size(); ++i) {
         edmtest::Simple simple;
         simple.key = 100 + i;  // just some arbitrary number for testing
+        simple.value = .1 * e.id().event();
         p->setValue(i, simple);
     }
 
     // Put the product into the Event
-    e.put(p);
+    e.put(std::move(p));
   }
 
   //--------------------------------------------------------------------
@@ -218,7 +218,7 @@ namespace edmtest {
   //    DSVSimpleProduct
   //    DSVWeirdProduct
   //
-  class DSVProducer : public edm::EDProducer {
+  class DSVProducer : public edm::stream::EDProducer<> {
   public:
 
     explicit DSVProducer(edm::ParameterSet const& p) :
@@ -236,7 +236,7 @@ namespace edmtest {
 
     virtual ~DSVProducer() {}
 
-    virtual void produce(edm::Event& e, edm::EventSetup const&);
+    virtual void produce(edm::Event& e, edm::EventSetup const&) override;
 
   private:
     template<typename PROD> void make_a_product(edm::Event& e);
@@ -268,7 +268,7 @@ namespace edmtest {
       assert(guts[i-1].data > guts[i].data);
     }
 
-    std::auto_ptr<product_type> p(new product_type());
+    std::unique_ptr<product_type> p(new product_type());
     int n = 0;
     for(int id = 1; id<size_; ++id) {
       ++n;
@@ -279,7 +279,7 @@ namespace edmtest {
 
     // Put the product into the Event, thus sorting it ... or not,
     // depending upon the product type.
-    e.put(p);
+    e.put(std::move(p));
   }
 
   //--------------------------------------------------------------------
@@ -288,7 +288,7 @@ namespace edmtest {
   //    DSTVSimpleProduct
   //    DSTVSimpleDerivedProduct
   //
-  class DSTVProducer : public edm::EDProducer {
+  class DSTVProducer : public edm::stream::EDProducer<> {
   public:
 
     explicit DSTVProducer(edm::ParameterSet const& p) :
@@ -306,7 +306,7 @@ namespace edmtest {
 
     virtual ~DSTVProducer() {}
 
-    virtual void produce(edm::Event& e, edm::EventSetup const&);
+    virtual void produce(edm::Event& e, edm::EventSetup const&) override;
 
   private:
     template<typename PROD> void make_a_product(edm::Event& e);
@@ -342,7 +342,7 @@ namespace edmtest {
     typedef typename detset::value_type       value_type;
     typedef typename detset::id_type       id_type;
 
-    std::auto_ptr<product_type> p(new product_type());
+    std::unique_ptr<product_type> p(new product_type());
     product_type& v = *p;
 
     unsigned int n = 0;
@@ -356,14 +356,14 @@ namespace edmtest {
 
     // Put the product into the Event, thus sorting is not done by magic,
     // up to one user-line
-    e.put(p);
+    e.put(std::move(p));
   }
 
   //--------------------------------------------------------------------
   //
   // Produces an Prodigal instance.
   //
-  class ProdigalProducer : public edm::EDProducer {
+  class ProdigalProducer : public edm::stream::EDProducer<> {
   public:
     explicit ProdigalProducer(edm::ParameterSet const& p) :
       label_(p.getParameter<std::string>("label")) {
@@ -371,7 +371,7 @@ namespace edmtest {
       consumes<IntProduct>(edm::InputTag{label_});
     }
     virtual ~ProdigalProducer() {}
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    virtual void produce(edm::Event& e, edm::EventSetup const& c) override;
 
   private:
     std::string label_;
@@ -386,8 +386,8 @@ namespace edmtest {
     edm::Handle<IntProduct> parent;
     e.getByLabel(label_, parent);
 
-    std::auto_ptr<Prodigal> p(new Prodigal(parent->value));
-    e.put(p);
+    std::unique_ptr<Prodigal> p(new Prodigal(parent->value));
+    e.put(std::move(p));
   }
 
 }

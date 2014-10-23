@@ -117,19 +117,14 @@ AntiElectronIDMVA5::~AntiElectronIDMVA5()
 
 namespace
 {
-  const GBRForest* loadMVAfromFile(const edm::FileInPath& inputFileName, const std::string& mvaName, std::vector<TFile*>& inputFilesToDelete)
+  const GBRForest* loadMVAfromFile(TFile* inputFile, const std::string& mvaName)
   {
-    if ( inputFileName.location() == edm::FileInPath::Unknown ) throw cms::Exception("PFRecoTauDiscriminationAgainstMuonMVA::loadMVA") 
-      << " Failed to find File = " << inputFileName << " !!\n";
-    TFile* inputFile = new TFile(inputFileName.fullPath().data());
   
     //const GBRForest* mva = dynamic_cast<GBRForest*>(inputFile->Get(mvaName.data())); // CV: dynamic_cast<GBRForest*> fails for some reason ?!
     const GBRForest* mva = (GBRForest*)inputFile->Get(mvaName.data());
     if ( !mva )
       throw cms::Exception("PFRecoTauDiscriminationAgainstMuonMVA::loadMVA")
-        << " Failed to load MVA = " << mvaName.data() << " from file = " << inputFileName.fullPath().data() << " !!\n";
-
-    inputFilesToDelete.push_back(inputFile);
+        << " Failed to load MVA = " << mvaName.data() << " from file " << " !!\n";
 
     return mva;
   }
@@ -163,22 +158,27 @@ void AntiElectronIDMVA5::beginEvent(const edm::Event& evt, const edm::EventSetup
       mva_wGwoGSF_EC_             = loadMVAfromDB(es, mvaName_wGwoGSF_EC_);
       mva_wGwGSF_EC_              = loadMVAfromDB(es, mvaName_wGwGSF_EC_);  
     } else {
-      mva_NoEleMatch_woGwoGSF_BL_ = loadMVAfromFile(inputFileName_, mvaName_NoEleMatch_woGwoGSF_BL_, inputFilesToDelete_);
-      mva_NoEleMatch_woGwGSF_BL_  = loadMVAfromFile(inputFileName_, mvaName_NoEleMatch_woGwGSF_BL_, inputFilesToDelete_);
-      mva_NoEleMatch_wGwoGSF_BL_  = loadMVAfromFile(inputFileName_, mvaName_NoEleMatch_wGwoGSF_BL_, inputFilesToDelete_);
-      mva_NoEleMatch_wGwGSF_BL_   = loadMVAfromFile(inputFileName_, mvaName_NoEleMatch_wGwGSF_BL_, inputFilesToDelete_);
-      mva_woGwoGSF_BL_            = loadMVAfromFile(inputFileName_, mvaName_woGwoGSF_BL_, inputFilesToDelete_);
-      mva_woGwGSF_BL_             = loadMVAfromFile(inputFileName_, mvaName_woGwGSF_BL_, inputFilesToDelete_);
-      mva_wGwoGSF_BL_             = loadMVAfromFile(inputFileName_, mvaName_wGwoGSF_BL_, inputFilesToDelete_);
-      mva_wGwGSF_BL_              = loadMVAfromFile(inputFileName_, mvaName_wGwGSF_BL_, inputFilesToDelete_);
-      mva_NoEleMatch_woGwoGSF_EC_ = loadMVAfromFile(inputFileName_, mvaName_NoEleMatch_woGwoGSF_EC_, inputFilesToDelete_);
-      mva_NoEleMatch_woGwGSF_EC_  = loadMVAfromFile(inputFileName_, mvaName_NoEleMatch_woGwGSF_EC_, inputFilesToDelete_);
-      mva_NoEleMatch_wGwoGSF_EC_  = loadMVAfromFile(inputFileName_, mvaName_NoEleMatch_wGwoGSF_EC_, inputFilesToDelete_);
-      mva_NoEleMatch_wGwGSF_EC_   = loadMVAfromFile(inputFileName_, mvaName_NoEleMatch_wGwGSF_EC_, inputFilesToDelete_);
-      mva_woGwoGSF_EC_            = loadMVAfromFile(inputFileName_, mvaName_woGwoGSF_EC_, inputFilesToDelete_);
-      mva_woGwGSF_EC_             = loadMVAfromFile(inputFileName_, mvaName_woGwGSF_EC_, inputFilesToDelete_);
-      mva_wGwoGSF_EC_             = loadMVAfromFile(inputFileName_, mvaName_wGwoGSF_EC_, inputFilesToDelete_);
-      mva_wGwGSF_EC_              = loadMVAfromFile(inputFileName_, mvaName_wGwGSF_EC_, inputFilesToDelete_);  
+          if ( inputFileName_.location() == edm::FileInPath::Unknown ) throw cms::Exception("PFRecoTauDiscriminationAgainstMuonMVA::loadMVA")
+          << " Failed to find File = " << inputFileName_ << " !!\n";
+          TFile* inputFile = new TFile(inputFileName_.fullPath().data());
+
+      mva_NoEleMatch_woGwoGSF_BL_ = loadMVAfromFile(inputFile, mvaName_NoEleMatch_woGwoGSF_BL_);
+      mva_NoEleMatch_woGwGSF_BL_  = loadMVAfromFile(inputFile, mvaName_NoEleMatch_woGwGSF_BL_);
+      mva_NoEleMatch_wGwoGSF_BL_  = loadMVAfromFile(inputFile, mvaName_NoEleMatch_wGwoGSF_BL_);
+      mva_NoEleMatch_wGwGSF_BL_   = loadMVAfromFile(inputFile, mvaName_NoEleMatch_wGwGSF_BL_);
+      mva_woGwoGSF_BL_            = loadMVAfromFile(inputFile, mvaName_woGwoGSF_BL_);
+      mva_woGwGSF_BL_             = loadMVAfromFile(inputFile, mvaName_woGwGSF_BL_);
+      mva_wGwoGSF_BL_             = loadMVAfromFile(inputFile, mvaName_wGwoGSF_BL_);
+      mva_wGwGSF_BL_              = loadMVAfromFile(inputFile, mvaName_wGwGSF_BL_);
+      mva_NoEleMatch_woGwoGSF_EC_ = loadMVAfromFile(inputFile, mvaName_NoEleMatch_woGwoGSF_EC_);
+      mva_NoEleMatch_woGwGSF_EC_  = loadMVAfromFile(inputFile, mvaName_NoEleMatch_woGwGSF_EC_);
+      mva_NoEleMatch_wGwoGSF_EC_  = loadMVAfromFile(inputFile, mvaName_NoEleMatch_wGwoGSF_EC_);
+      mva_NoEleMatch_wGwGSF_EC_   = loadMVAfromFile(inputFile, mvaName_NoEleMatch_wGwGSF_EC_);
+      mva_woGwoGSF_EC_            = loadMVAfromFile(inputFile, mvaName_woGwoGSF_EC_);
+      mva_woGwGSF_EC_             = loadMVAfromFile(inputFile, mvaName_woGwGSF_EC_);
+      mva_wGwoGSF_EC_             = loadMVAfromFile(inputFile, mvaName_wGwoGSF_EC_);
+      mva_wGwGSF_EC_              = loadMVAfromFile(inputFile, mvaName_wGwGSF_EC_);
+      inputFilesToDelete_.push_back(inputFile);  
     }
     isInitialized_ = true;
   }

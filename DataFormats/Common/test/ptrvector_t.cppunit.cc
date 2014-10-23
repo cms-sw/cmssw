@@ -1,5 +1,4 @@
 
-#include "DataFormats/Common/interface/WrapperHolder.h"
 #include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/Common/interface/TestHandle.h"
 #include "DataFormats/Common/interface/Wrapper.h"
@@ -40,10 +39,19 @@ namespace testPtr {
   };
 
   struct TestGetter : public edm::EDProductGetter {
-    edm::WrapperHolder hold_;
-    virtual edm::WrapperHolder getIt(edm::ProductID const&) const override {
+    edm::WrapperBase const* hold_;
+    virtual edm::WrapperBase const* getIt(edm::ProductID const&) const override {
       return hold_;
     }
+    virtual edm::WrapperBase const*
+    getThinnedProduct(edm::ProductID const&, unsigned int&) const override {return nullptr;}
+
+    virtual void
+    getThinnedProducts(edm::ProductID const& pid,
+                       std::vector<edm::WrapperBase const*>& wrappers,
+                       std::vector<unsigned int>& keys) const { }
+
+
     virtual unsigned int transitionIndex_() const override {
     return 0U;
     }
@@ -144,16 +152,16 @@ void
 testPtrVector::get() {
   using namespace test_with_dictionaries;
   typedef std::vector<IntValue> IntCollection;
-  std::auto_ptr<IntCollection> ptr(new IntCollection);
+  std::unique_ptr<IntCollection> ptr(new IntCollection);
 
   ptr->push_back(0);
   ptr->push_back(1);
   ptr->push_back(2);
   ptr->push_back(3);
 
-  edm::Wrapper<IntCollection> wrapper(ptr);
+  edm::Wrapper<IntCollection> wrapper(std::move(ptr));
   TestGetter tester;
-  tester.hold_ = edm::WrapperHolder(&wrapper, wrapper.getInterface());
+  tester.hold_ = &wrapper;
 
   edm::ProductID const pid(1, 1);
 
@@ -188,6 +196,6 @@ testPtrVector::get() {
 
   edm::Wrapper<I1Collection> wrapper(ptr);
   TestGetter tester;
-  tester.hold_ = WrapperHolder(&wrapper, &wrapper.getInterface());
+  tester.hold_ = &wrapper;
   */
 }

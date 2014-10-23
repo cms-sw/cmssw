@@ -286,6 +286,15 @@ private:
   bool isAccumulateEnabled(void) const
     { return data_.flags & DQMNet::DQM_PROP_ACCUMULATE; }
 
+  /// true if ME is marked for deletion
+  bool markedToDelete(void) const
+    { return data_.flags & DQMNet::DQM_PROP_MARKTODELETE; }
+
+  /// Mark the object for deletion.
+  /// NB: make sure that the following method is not called simultaneously for the same ME
+  void markToDelete(void)
+    { data_.flags |= DQMNet::DQM_PROP_MARKTODELETE; }
+
 private:
   /// reset "was updated" flag
   void resetUpdate(void)

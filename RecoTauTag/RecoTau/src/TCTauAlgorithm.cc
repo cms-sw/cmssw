@@ -25,8 +25,8 @@ TCTauAlgorithm::~TCTauAlgorithm(){}
 
 void TCTauAlgorithm::init(){
 
-	event = 0;
-	setup = 0;
+	event = nullptr;
+	setup = nullptr;
 
 	trackAssociator = new TrackDetectorAssociator();
   	trackAssociator->useDefaultPropagator();
@@ -34,7 +34,6 @@ void TCTauAlgorithm::init(){
         all    = 0;
         passed = 0;
 	prongs = -1;
-	algoComponentUsed = 0;
 }
 
 void TCTauAlgorithm::inputConfig(const edm::ParameterSet& iConfig, edm::ConsumesCollector &iC){
@@ -61,23 +60,19 @@ void TCTauAlgorithm::inputConfig(const edm::ParameterSet& iConfig, edm::Consumes
 }
 
 
-double TCTauAlgorithm::efficiency(){
+double TCTauAlgorithm::efficiency() const {
 	return double(passed)/all;
 }
 
-int TCTauAlgorithm::statistics(){
+int TCTauAlgorithm::statistics() const {
 	return passed;
 }
 
-int TCTauAlgorithm::allTauCandidates(){
+int TCTauAlgorithm::allTauCandidates() const {
         return all;
 }
 
-int TCTauAlgorithm::algoComponent(){
-        return algoComponentUsed;
-}
-
-void TCTauAlgorithm::eventSetup(const edm::Event& iEvent,const edm::EventSetup& iSetup){
+void TCTauAlgorithm::eventSetup(const edm::Event& iEvent,const edm::EventSetup& iSetup) {
 
 	event = &iEvent;
 	setup = &iSetup;
@@ -108,7 +103,7 @@ void TCTauAlgorithm::eventSetup(const edm::Event& iEvent,const edm::EventSetup& 
 }
 
 
-math::XYZTLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloTau& jet){
+math::XYZTLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloTau& jet, TCAlgo& algoComponentUsed) const {
 
 	const TrackRef& leadTk = jet.leadTrack();
 
@@ -118,10 +113,10 @@ math::XYZTLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloTau& j
 	CaloJet caloJet = *cJet;
 	caloJet.setP4(jet.p4());
 
-	return recalculateEnergy(caloJet,leadTk,associatedTracks);
+	return recalculateEnergy(caloJet,leadTk,associatedTracks,algoComponentUsed);
 }
 
-math::XYZTLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloJet& caloJet,const TrackRef& leadTk,const TrackRefVector& associatedTracks){
+math::XYZTLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloJet& caloJet,const TrackRef& leadTk,const TrackRefVector& associatedTracks, TCAlgo&algoComponentUsed) const {
 
         all++;
 
@@ -212,7 +207,7 @@ math::XYZTLorentzVector TCTauAlgorithm::recalculateEnergy(const reco::CaloJet& c
 }
 
 
-XYZVector TCTauAlgorithm::trackEcalHitPoint(const TransientTrack& transientTrack,const CaloJet& caloJet){
+XYZVector TCTauAlgorithm::trackEcalHitPoint(const TransientTrack& transientTrack,const CaloJet& caloJet) const {
 
 
         GlobalPoint ecalHitPosition(0,0,0);
@@ -239,7 +234,7 @@ XYZVector TCTauAlgorithm::trackEcalHitPoint(const TransientTrack& transientTrack
         return ecalHitPoint;
 }
 
-XYZVector TCTauAlgorithm::trackEcalHitPoint(const Track& track){
+XYZVector TCTauAlgorithm::trackEcalHitPoint(const Track& track) const {
 
       	const FreeTrajectoryState fts = trackAssociator->getFreeTrajectoryState(*setup,track);
       	TrackDetMatchInfo info = trackAssociator->associate(*event, *setup, fts, trackAssociatorParameters);
@@ -249,7 +244,7 @@ XYZVector TCTauAlgorithm::trackEcalHitPoint(const Track& track){
 	return XYZVector(0,0,0);
 }
 
-std::pair<XYZVector,XYZVector> TCTauAlgorithm::getClusterEnergy(const CaloJet& caloJet,XYZVector& trackEcalHitPoint,double cone){
+std::pair<XYZVector,XYZVector> TCTauAlgorithm::getClusterEnergy(const CaloJet& caloJet,XYZVector& trackEcalHitPoint,double cone) const {
 
         XYZVector ecalCluster(0,0,0);
         XYZVector hcalCluster(0,0,0);
@@ -349,7 +344,7 @@ std::pair<XYZVector,XYZVector> TCTauAlgorithm::getClusterEnergy(const CaloJet& c
         return std::pair<XYZVector,XYZVector> (ecalCluster,hcalCluster);
 }
 
-XYZVector TCTauAlgorithm::getCellMomentum(const CaloCellGeometry* cell,double& energy){
+XYZVector TCTauAlgorithm::getCellMomentum(const CaloCellGeometry* cell,double& energy) const {
         XYZVector momentum(0,0,0);
         if(cell){
                 GlobalPoint hitPosition = cell->getPosition();

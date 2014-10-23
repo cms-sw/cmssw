@@ -9,7 +9,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 HcalCondObjectContainerBase::HcalCondObjectContainerBase(const HcalTopology* topo) : packedIndexVersion_(0), topo_(topo) { 
-  if (topo_) packedIndexVersion_=topo_->topoVersion();
+  if (topo) packedIndexVersion_=topo->topoVersion();
 }
 
 void HcalCondObjectContainerBase::setTopo(const HcalTopology* topo) const {
@@ -18,16 +18,10 @@ void HcalCondObjectContainerBase::setTopo(const HcalTopology* topo) const {
   }
   topo_=topo;
 }
-void HcalCondObjectContainerBase::setTopo(const HcalTopology* topo) {
-  if (topo && !topo->denseIdConsistent(packedIndexVersion_)) {
-    edm::LogError("HCAL") << "Inconsistent dense packing between current topology (" << topo->topoVersion() << ") and calibration object (" << packedIndexVersion_ << ")";
-  }
-  topo_=topo;  
-}
 
 unsigned int HcalCondObjectContainerBase::indexFor(DetId fId) const { 
   unsigned int retval=0xFFFFFFFFu;
-  if (!topo_) {
+  if (!topo()) {
     edm::LogError("HCAL") << "Topology pointer not set, HCAL conditions non-functional";
     throw cms::Exception("Topology pointer not set, HCAL conditions non-functional");
     return retval;
@@ -35,13 +29,13 @@ unsigned int HcalCondObjectContainerBase::indexFor(DetId fId) const {
 
   if (fId.det()==DetId::Hcal) {
     switch (HcalSubdetector(fId.subdetId())) {
-    case(HcalBarrel) : retval=topo_->detId2denseIdHB(fId); break;
-    case(HcalEndcap) : retval=topo_->detId2denseIdHE(fId); break;
-    case(HcalOuter) : retval=topo_->detId2denseIdHO(fId); break;
-    case(HcalForward) : retval=topo_->detId2denseIdHF(fId); break;
-    case(HcalTriggerTower) : retval=topo_->detId2denseIdHT(fId); break;
+    case(HcalBarrel) : retval=topo()->detId2denseIdHB(fId); break;
+    case(HcalEndcap) : retval=topo()->detId2denseIdHE(fId); break;
+    case(HcalOuter) : retval=topo()->detId2denseIdHO(fId); break;
+    case(HcalForward) : retval=topo()->detId2denseIdHF(fId); break;
+    case(HcalTriggerTower) : retval=topo()->detId2denseIdHT(fId); break;
     case(HcalOther) : if (extractOther(fId)==HcalCalibration)
-	retval=topo_->detId2denseIdCALIB(fId);
+	retval=topo()->detId2denseIdCALIB(fId);
       break; 
     default: break;
     }
@@ -71,7 +65,7 @@ unsigned int HcalCondObjectContainerBase::indexFor(DetId fId) const {
 unsigned int HcalCondObjectContainerBase::sizeFor(DetId fId) const {
   unsigned int retval=0;
 
-  if (!topo_) {
+  if (!topo()) {
     edm::LogError("HCAL") << "Topology pointer not set, HCAL conditions non-functional";
     throw cms::Exception("Topology pointer not set, HCAL conditions non-functional");
     return retval;
@@ -79,12 +73,12 @@ unsigned int HcalCondObjectContainerBase::sizeFor(DetId fId) const {
 
   if (fId.det()==DetId::Hcal) {
     switch (HcalSubdetector(fId.subdetId())) {
-    case(HcalBarrel) : retval=topo_->getHBSize(); break;
-    case(HcalEndcap) : retval=topo_->getHESize(); break;
-    case(HcalOuter) : retval=topo_->getHOSize(); break;
-    case(HcalForward) : retval=topo_->getHFSize(); break;
-    case(HcalTriggerTower) : retval=topo_->getHTSize(); break;
-    case(HcalOther) : if (extractOther(fId)==HcalCalibration) retval=topo_->getCALIBSize();
+    case(HcalBarrel) : retval=topo()->getHBSize(); break;
+    case(HcalEndcap) : retval=topo()->getHESize(); break;
+    case(HcalOuter) : retval=topo()->getHOSize(); break;
+    case(HcalForward) : retval=topo()->getHFSize(); break;
+    case(HcalTriggerTower) : retval=topo()->getHTSize(); break;
+    case(HcalOther) : if (extractOther(fId)==HcalCalibration) retval=topo()->getCALIBSize();
       break; 
     default: break;
     }

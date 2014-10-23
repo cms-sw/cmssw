@@ -21,7 +21,6 @@ namespace ecaldqm
 
     MESet* clone(std::string const& = "") const override;
 
-    void book(DQMStore&) override;
     void book(DQMStore::IBooker&) override;
 
     void fill(DetId const&, double, double = 1., double = 1.) override;
@@ -44,7 +43,6 @@ namespace ecaldqm
     bool isCumulative() const { return currentBin_ > 0; }
 
   private:
-    template<class Bookable> void doBook_(Bookable&);
     bool shift_(unsigned);
 
     bool minutely_; // if true, bins in minutes instead of lumis

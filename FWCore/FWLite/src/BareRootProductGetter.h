@@ -19,19 +19,25 @@
 //
 
 // user include files
+#include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
-#include "DataFormats/Common/interface/WrapperHolder.h"
-#include "DataFormats/Common/interface/WrapperOwningHolder.h"
 #include "FWCore/FWLite/interface/BranchMapReader.h"
 
 // system include files
 #include "Rtypes.h"
 #include <map>
+#include <memory>
+#include <vector>
 
 // forward declarations
 class TBranch;
-class TFile;
-class TTree;
+class TClass;
+
+namespace edm {
+   class BranchID;
+   class ProductID;
+   class ThinnedAssociation;
+}
 
 class BareRootProductGetter : public edm::EDProductGetter {
 
@@ -40,9 +46,34 @@ class BareRootProductGetter : public edm::EDProductGetter {
       virtual ~BareRootProductGetter();
 
       // ---------- const member functions ---------------------
-      virtual edm::WrapperHolder getIt(edm::ProductID const&) const override;
+      virtual edm::WrapperBase const* getIt(edm::ProductID const&) const override;
 
-private:
+     // getThinnedProduct assumes getIt was already called and failed to find
+     // the product. The input key is the index of the desired element in the
+     // container identified by ProductID (which cannot be found).
+     // If the return value is not null, then the desired element was found
+     // in a thinned container and key is modified to be the index into
+     // that thinned container. If the desired element is not found, then
+     // nullptr is returned.
+      virtual edm::WrapperBase const* getThinnedProduct(edm::ProductID const&,
+                                                        unsigned int& key) const override;
+
+     // getThinnedProducts assumes getIt was already called and failed to find
+     // the product. The input keys are the indexes into the container identified
+     // by ProductID (which cannot be found). On input the WrapperBase pointers
+     // must all be set to nullptr (except when the function calls itself
+     // recursively where non-null pointers mark already found elements).
+     // Thinned containers derived from the product are searched to see
+     // if they contain the desired elements. For each that is
+     // found, the corresponding WrapperBase pointer is set and the key
+     // is modified to be the key into the container where the element
+     // was found. The WrapperBase pointers might or might not all point
+     // to the same thinned container.
+      virtual void getThinnedProducts(edm::ProductID const&,
+                                      std::vector<edm::WrapperBase const*>& foundContainers,
+                                      std::vector<unsigned int>& keys) const override;
+
+   private:
 
       // ---------- static member functions --------------------
 
@@ -51,37 +82,33 @@ private:
         return 0u;
       }
 
+      edm::WrapperBase const* getIt(edm::BranchID const&, Long_t eventEntry) const;
+
       struct Buffer {
-        Buffer(edm::WrapperOwningHolder const& iProd, TBranch* iBranch, void* iAddress,
+        Buffer(edm::WrapperBase const* iProd, TBranch* iBranch, void* iAddress,
                TClass* iClass) :
         product_(iProd), branch_(iBranch), address_(iAddress), eventEntry_(-1),
         class_(iClass) {}
-        Buffer() : product_(), branch_(), address_(), eventEntry_(-1),class_(0) {}
+        Buffer() : product_(), branch_(), address_(), eventEntry_(-1), class_(nullptr) {}
 
-        edm::WrapperOwningHolder product_;
+        std::shared_ptr<edm::WrapperBase const> product_;
         TBranch* branch_;
         void* address_; //the address to pass to Root since as of 5.13 they cache that info
         Long_t eventEntry_; //the event Entry used with the last GetEntry call
         TClass* class_;
       };
-   private:
+
       BareRootProductGetter(BareRootProductGetter const&); // stop default
 
       BareRootProductGetter const& operator=(BareRootProductGetter const&); // stop default
 
-      // ---------- member data --------------------------------
-      void setupNewFile(TFile*) const;
-      TBranch* findBranch(edm::ProductID const&) const;
-      Buffer* createNewBuffer(edm::ProductID const&) const;
+      Buffer* createNewBuffer(edm::BranchID const&) const;
+      edm::ThinnedAssociation const* getThinnedAssociation(edm::BranchID const& branchID, Long_t eventEntry) const;
 
-//      mutable TFile* presentFile_;
-//      mutable TTree* eventTree_;
-//      mutable Long_t eventEntry_;
-//      typedef std::map<edm::ProductID,edm::BranchDescription> IdToBranchDesc;
-//      mutable IdToBranchDesc idToBranchDesc_;
-      typedef std::map<edm::ProductID, Buffer> IdToBuffers;
+      // ---------- member data --------------------------------
+
+      typedef std::map<edm::BranchID, Buffer> IdToBuffers;
       mutable IdToBuffers idToBuffers_;
       mutable fwlite::BranchMapReader branchMap_;
 };
-
 #endif

@@ -532,7 +532,7 @@ void FastTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& 
 	ri++;
 	if ((*it)->isValid()){
 
-	  if(const SiTrackerGSRecHit2D * rechit = dynamic_cast<const SiTrackerGSRecHit2D *> (it->get()))	  
+	  if(const SiTrackerGSRecHit2D * rechit = dynamic_cast<const SiTrackerGSRecHit2D *> (*it) )	  
 	    {
 	      std::cout<<"---------------------------------------------------------------"<< std::endl;
 	      int currentId = rechit->simtrackId();		      

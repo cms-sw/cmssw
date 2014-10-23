@@ -12,9 +12,7 @@
 #include <vector>
 #include <string>
 
-namespace edm
-{
-
+namespace dqmservices {
   /**
    * Event selector allowing for and/not combination of triggers/paths
    *
@@ -152,8 +150,6 @@ namespace edm
       static const bool debug_ = false;
 
   };
-
-  typedef boost::shared_ptr<TriggerSelector> TriggerSelectorPtr;
 
 } 
 

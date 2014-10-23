@@ -10,7 +10,7 @@ ALCARECOTkAlMinBiasHIHLT = ALCARECOTkAlMinBiasHLT.clone(
 ALCARECOTkAlMinBiasHIDCSFilter = ALCARECOTkAlMinBiasDCSFilter.clone()
 
 ALCARECOTkAlMinBiasHI = ALCARECOTkAlMinBias.clone(
-     src = 'hiSelectedTracks'
+     src = 'hiGeneralTracks'
 )
 
 seqALCARECOTkAlMinBiasHI = cms.Sequence(ALCARECOTkAlMinBiasHIHLT+ALCARECOTkAlMinBiasHIDCSFilter+ALCARECOTkAlMinBiasHI)

@@ -249,7 +249,7 @@ void PileUpProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
     // other modules using it also declare the same shared resource.
     // This also breaks replay.
     float d = (float) hprob->GetRandom();
-    PUevts = (int) d;
+    PUevts = (int) random.poissonShoot(d);
     truePUevts = d;
   }
   //  std::cout << "PUevts = " << PUevts << std::endl;
@@ -267,7 +267,7 @@ void PileUpProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
   std::vector<float> trueInteractionList;
   trueInteractionList.push_back(truePUevts);
   
-  PileupMixing_ = std::auto_ptr< PileupMixingContent >(new PileupMixingContent(bunchCrossingList,numInteractionList,trueInteractionList));
+  PileupMixing_ = std::auto_ptr< PileupMixingContent >(new PileupMixingContent(bunchCrossingList,numInteractionList,trueInteractionList,25)); // it shouldn't matter what the assumed bunchspacing is if there is no OOT PU. Add argument for compatibility.
   iEvent.put(PileupMixing_);
 
   // Get N events from random files

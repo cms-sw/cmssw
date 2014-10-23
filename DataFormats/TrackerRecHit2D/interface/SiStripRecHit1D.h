@@ -42,7 +42,7 @@ public:
 private:
   // double dispatch
   virtual SiStripRecHit1D * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const GCC11_OVERRIDE {
-    return cloner(*this,tsos);
+    return cloner(*this,tsos).release();
   }
 #ifdef NO_DICT
   virtual  RecHitPointer cloneSH(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const GCC11_OVERRIDE {

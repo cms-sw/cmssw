@@ -33,6 +33,7 @@ unscheduled execution. The tests are in FWCore/Integration/test:
 #include <functional>
 #include "FWCore/Utilities/interface/Signal.h"
 #include "FWCore/Utilities/interface/StreamID.h"
+#include "FWCore/ServiceRegistry/interface/TerminationOrigin.h"
 
 // user include files
 
@@ -379,6 +380,33 @@ namespace edm {
          postPathEventSignal_.connect_front(iSlot);
       }
       AR_WATCH_USING_METHOD_3(watchPostPathEvent)
+      
+      /// signal is emitted when began processing a stream transition and
+      ///  then we began terminating the application
+      typedef signalslot::Signal<void(StreamContext const&, TerminationOrigin)> PreStreamEarlyTermination;
+      PreStreamEarlyTermination preStreamEarlyTerminationSignal_;
+      void watchPreStreamEarlyTermination(PreStreamEarlyTermination::slot_type const& iSlot) {
+         preStreamEarlyTerminationSignal_.connect(iSlot);
+      }
+      AR_WATCH_USING_METHOD_2(watchPreStreamEarlyTermination)
+
+      /// signal is emitted if a began processing a global transition and
+      ///  then we began terminating the application
+      typedef signalslot::Signal<void(GlobalContext const&, TerminationOrigin)> PreGlobalEarlyTermination;
+      PreGlobalEarlyTermination preGlobalEarlyTerminationSignal_;
+      void watchPreGlobalEarlyTermination(PreGlobalEarlyTermination::slot_type const& iSlot) {
+         preGlobalEarlyTerminationSignal_.connect(iSlot);
+      }
+      AR_WATCH_USING_METHOD_2(watchPreGlobalEarlyTermination)
+
+      /// signal is emitted if while communicating with a source we began terminating
+      ///  the application
+      typedef signalslot::Signal<void(TerminationOrigin)> PreSourceEarlyTermination;
+      PreSourceEarlyTermination preSourceEarlyTerminationSignal_;
+      void watchPreSourceEarlyTermination(PreSourceEarlyTermination::slot_type const& iSlot) {
+         preSourceEarlyTerminationSignal_.connect(iSlot);
+      }
+      AR_WATCH_USING_METHOD_1(watchPreSourceEarlyTermination)
 
       // OLD DELETE THIS
       typedef signalslot::ObsoleteSignal<void(EventID const&, Timestamp const&)> PreProcessEvent;

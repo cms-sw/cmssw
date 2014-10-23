@@ -115,8 +115,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF, co
       G4TransportationManager * tM =
 	G4TransportationManager::GetTransportationManager();
       m_fieldBuilder->build( tM->GetFieldManager(),
-			     tM->GetPropagatorInField(),
-                             m_chordFinderSetter.get());
+			     tM->GetPropagatorInField());
       if("" != m_FieldFile) {
 	DumpMagneticField(tM->GetFieldManager()->GetDetectorField());
       }
@@ -143,6 +142,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF, co
   
   m_kernel->SetPhysics(phys);
   m_kernel->InitializePhysics();
+  m_kernel->SetUpDecayChannels();
   // The following line was with the following comment in
   // G4MTRunManager::InitializePhysics() in 10.00.p01; in practice
   // needed to initialize certain singletons during the master thread

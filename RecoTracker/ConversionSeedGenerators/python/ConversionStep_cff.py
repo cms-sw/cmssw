@@ -202,7 +202,7 @@ convLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
 
 
 photonConvTrajSeedFromSingleLeg.TrackRefitter = cms.InputTag('generalTracks')
-photonConvTrajSeedFromSingleLeg.primaryVerticesTag = cms.InputTag('pixelVertices')
+photonConvTrajSeedFromSingleLeg.primaryVerticesTag = cms.InputTag('firstStepPrimaryVertices')
 #photonConvTrajSeedFromQuadruplets.TrackRefitter = cms.InputTag('generalTracks')
 #photonConvTrajSeedFromQuadruplets.primaryVerticesTag = cms.InputTag('pixelVertices')
 
@@ -267,7 +267,7 @@ convStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiT
             minNumberLayers = 3,
             maxNumberLostLayers = 1,
             minNumber3DLayers = 1,
-            d0_par1 = ( 5., 8.0 ),
+            d0_par1 = ( 5., 8.0 ), # not sure these values are sane....
             dz_par1 = ( 5., 8.0 ),
             d0_par2 = ( 5., 8.0 ),
             dz_par2 = ( 5., 8.0 )

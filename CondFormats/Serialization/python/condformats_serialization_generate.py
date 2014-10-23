@@ -214,6 +214,8 @@ def get_serializable_classes_members(node, all_template_types=None, namespace=''
                 # Template non-type parameters (e.g. <int N>)
                 elif member.kind == clang.cindex.CursorKind.TEMPLATE_NON_TYPE_PARAMETER:
                     type_string = get_type_string(member)
+		    if not type_string: 
+		       type_string = get_basic_type_string(member)
                     logging.info('    Found template non-type parameter: %s %s', type_string, member.spelling)
                     template_types.append((type_string, member.spelling))
 
@@ -429,7 +431,7 @@ class SerializationCodeGenerator(object):
         log_flags('cxx_flags', cxx_flags)
         log_flags('std_flags', std_flags)
 
-        flags = cpp_flags + cxx_flags + std_flags
+        flags = ['-xc++'] + cpp_flags + cxx_flags + std_flags
 
         headers_h = self._join_package_path('src', 'headers.h')
         logging.debug('headers_h = %s', headers_h)
@@ -440,7 +442,7 @@ class SerializationCodeGenerator(object):
 
         logging.debug('Parsing C++ classes in file %s ...', headers_h)
         index = clang.cindex.Index.create()
-        translation_unit = index.parse(None, [headers_h] + flags)
+        translation_unit = index.parse(headers_h, flags)
         if not translation_unit:
             raise Exception('Unable to load input.')
 
@@ -467,7 +469,7 @@ class SerializationCodeGenerator(object):
         return os.path.join(self.cmssw_base, self.split_path[0], self.split_path[1], self.split_path[2], *path)
 
     def cleanFlags(self, flagsIn):
-	flags = [ flag for flag in flagsIn if not flag.startswith(('-march', '-mtune')) ]
+	flags = [ flag for flag in flagsIn if not flag.startswith(('-march', '-mtune', '-fdebug-prefix-map')) ]
         blackList = ['--', '-fipa-pta']
         return [x for x in flags if x not in blackList]
 

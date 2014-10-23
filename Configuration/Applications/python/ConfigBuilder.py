@@ -37,6 +37,7 @@ defaultOptions.filein = ""
 defaultOptions.dasquery=""
 defaultOptions.secondfilein = ""
 defaultOptions.customisation_file = []
+defaultOptions.customisation_file_unsch = []
 defaultOptions.customise_commands = ""
 defaultOptions.inline_custom=False
 defaultOptions.particleTable = 'pythiapdt'
@@ -74,6 +75,7 @@ defaultOptions.fast=False
 defaultOptions.runsAndWeightsForMC = None
 defaultOptions.runsScenarioForMC = None
 defaultOptions.runUnscheduled = False
+defaultOptions.timeoutOutput = False
 
 # some helper routines
 def dumpPython(process,name):
@@ -210,6 +212,7 @@ class ConfigBuilder(object):
         else:
             self.process = process
         self.imports = []
+        self.importsUnsch = []
         self.define_Configs()
         self.schedule = list()
 
@@ -276,14 +279,18 @@ class ConfigBuilder(object):
         self.process.load(includeFile)
         return sys.modules[includeFile]
 
-    def loadAndRemember(self, includeFile):
+    def loadAndRemember(self, includeFile,unsch=0):
         """helper routine to load am memorize imports"""
         # we could make the imports a on-the-fly data method of the process instance itself
         # not sure if the latter is a good idea
         includeFile = includeFile.replace('/','.')
-        self.imports.append(includeFile)
-        self.process.load(includeFile)
-        return sys.modules[includeFile]
+	if unsch==0:
+		self.imports.append(includeFile)
+		self.process.load(includeFile)
+		return sys.modules[includeFile]
+	else:
+		self.importsUnsch.append(includeFile)
+		return 0#sys.modules[includeFile]
 
     def executeAndRemember(self, command):
         """helper routine to remember replace statements"""
@@ -390,6 +397,11 @@ class ConfigBuilder(object):
 		   self.process.source=cms.Source("DQMRootSource",
 						  fileNames = cms.untracked.vstring())
 		   filesFromOption(self)
+
+	   elif self._options.filetype == "DQMDAQ":
+		   # FIXME: how to configure it if there are no input files specified?
+		   self.process.source=cms.Source("DQMStreamerReader")
+		   
 			   
            if ('HARVESTING' in self.stepMap.keys() or 'ALCAHARVEST' in self.stepMap.keys()) and (not self._options.filetype == "DQM"):
                self.process.source.processingMode = cms.untracked.string("RunsAndLumis")
@@ -509,6 +521,8 @@ class ConfigBuilder(object):
 				theFilterName='StreamALCACombined'
 
 			CppType='PoolOutputModule'
+			if self._options.timeoutOutput:
+				CppType='TimeoutPoolOutputModule'
 			if theStreamType=='DQM' and theTier=='DQMIO': CppType='DQMRootOutputModule'
 			output = cms.OutputModule(CppType,			
 						  theEventContent.clone(),
@@ -570,6 +584,8 @@ class ConfigBuilder(object):
                         theFileName=self._options.outfile_name.replace('.root','_in'+streamType+'.root')
                         theFilterName=self._options.filtername
 		CppType='PoolOutputModule'
+		if self._options.timeoutOutput:
+			CppType='TimeoutPoolOutputModule'
 		if streamType=='DQM' and tier=='DQMIO': CppType='DQMRootOutputModule'
                 output = cms.OutputModule(CppType,
                                           theEventContent,
@@ -638,6 +654,8 @@ class ConfigBuilder(object):
 			self._options.inlineObjets+=',mix'
 		else:
 			self.loadAndRemember(mixingDict['file'])
+			if self._options.fast:
+				self._options.customisation_file.append("FastSimulation/Configuration/MixingModule_Full2Fast.setVertexGeneratorPileUpProducer")
 
 		mixingDict.pop('file')
 		if not "DATAMIX" in self.stepMap.keys(): # when DATAMIX is present, pileup_input refers to pre-mixed GEN-RAW
@@ -760,12 +778,17 @@ class ConfigBuilder(object):
 		self.loadAndRemember("SLHCUpgradeSimulations/Geometry/fakeConditions_%s_cff"%(self._options.slhc,))
 		
 
-    def addCustomise(self):
+    def addCustomise(self,unsch=0):
         """Include the customise code """
 
 	custOpt=[]
-	for c in self._options.customisation_file:
-		custOpt.extend(c.split(","))
+	if unsch==0:
+		for c in self._options.customisation_file:
+			custOpt.extend(c.split(","))
+	else:
+		for c in self._options.customisation_file_unsch:
+			custOpt.extend(c.split(","))
+
 	custMap={}
 	for opt in custOpt:
 		if opt=='': continue
@@ -947,6 +970,7 @@ class ConfigBuilder(object):
 		self.GENDefaultSeq='fixGenInfo'
 
         if self._options.scenario=='cosmics':
+	    self._options.pileup='Cosmics'	
             self.DIGIDefaultCFF="Configuration/StandardSequences/DigiCosmics_cff"
             self.RECODefaultCFF="Configuration/StandardSequences/ReconstructionCosmics_cff"
 	    self.SKIMDefaultCFF="Configuration/StandardSequences/SkimsCosmics_cff"
@@ -1047,7 +1071,6 @@ class ConfigBuilder(object):
 
         # if fastsim switch event content
 	if self._options.fast:
-		self.GENDefaultSeq='pgen_genonly'
 		self.SIMDefaultCFF = 'FastSimulation.Configuration.FamosSequences_cff'
 		self.SIMDefaultSeq='simulationWithFamos'
 		self.RECODefaultCFF= 'FastSimulation.Configuration.FamosSequences_cff'
@@ -1151,11 +1174,11 @@ class ConfigBuilder(object):
     # prepare_STEPNAME modifies self.process and what else's needed.
     #----------------------------------------------------------------------------
 
-    def loadDefaultOrSpecifiedCFF(self, sequence,defaultCFF):
+    def loadDefaultOrSpecifiedCFF(self, sequence,defaultCFF,unsch=0):
             if ( len(sequence.split('.'))==1 ):
-                    l=self.loadAndRemember(defaultCFF)
+                    l=self.loadAndRemember(defaultCFF,unsch)
             elif ( len(sequence.split('.'))==2 ):
-                    l=self.loadAndRemember(sequence.split('.')[0])
+                    l=self.loadAndRemember(sequence.split('.')[0],unsch)
                     sequence=sequence.split('.')[1]
             else:
                     print "sub sequence configuration must be of the form dir/subdir/cff.a+b+c or cff.a"
@@ -1327,8 +1350,6 @@ class ConfigBuilder(object):
                 try:
 			from Configuration.StandardSequences.VtxSmeared import VtxSmeared
 			cffToBeLoaded=VtxSmeared[self._options.beamspot]
-			if self._options.fast:
-				cffToBeLoaded='IOMC.EventVertexGenerators.VtxSmearedParameters_cfi'
 			self.loadAndRemember(cffToBeLoaded)
                 except ImportError:
                         raise Exception("VertexSmearing type or beamspot "+self._options.beamspot+" unknown.")
@@ -1368,21 +1389,9 @@ class ConfigBuilder(object):
 			else:
 				self.loadAndRemember("SimGeneral/MixingModule/himixSIMIdeal_cff")
 	else:
-		self.executeAndRemember("process.famosSimHits.SimulateCalorimetry = True")
-		self.executeAndRemember("process.famosSimHits.SimulateTracking = True")
-		## manipulate the beamspot
-		if 'Flat' in self._options.beamspot:
-			beamspotType = 'Flat'
-		elif 'Gauss' in self._options.beamspot:
-			beamspotType = 'Gaussian'
-		else:
-			beamspotType = 'BetaFunc'
-		beamspotName = 'process.%sVtxSmearingParameters' %(self._options.beamspot)
-		self.executeAndRemember(beamspotName+'.type = cms.string("%s")'%(beamspotType))
-		self.executeAndRemember('process.famosSimHits.VertexGenerator = '+beamspotName)
-		if hasattr(self.process,'famosPileUp'):
-			self.executeAndRemember('process.famosPileUp.VertexGenerator = '+beamspotName)
-		
+		if self._options.magField=='0T':
+			self.executeAndRemember("process.famosSimHits.UseMagneticField = cms.bool(False)")
+
 	self.scheduleSequence(sequence.split('.')[-1],'simulation_step')
         return
 
@@ -1628,15 +1637,15 @@ class ConfigBuilder(object):
 
     def prepare_PAT(self, sequence = "miniAOD"):
         ''' Enrich the schedule with PAT '''
-        self.loadDefaultOrSpecifiedCFF(sequence,self.PATDefaultCFF)
+        self.loadDefaultOrSpecifiedCFF(sequence,self.PATDefaultCFF,1) #this is unscheduled
 	if not self._options.runUnscheduled:	
 		raise Exception("MiniAOD production can only run in unscheduled mode, please run cmsDriver with --runUnscheduled")
         if self._options.isData:
-            self._options.customisation_file.append("PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllData")
+            self._options.customisation_file_unsch.append("PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllData")
         else:
-            self._options.customisation_file.append("PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllMC")
+            self._options.customisation_file_unsch.append("PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllMC")
             if self._options.fast:
-                self._options.customisation_file.append("PhysicsTools/PatAlgos/slimming/metFilterPaths_cff.miniAOD_customizeMETFiltersFastSim")
+                self._options.customisation_file_unsch.append("PhysicsTools/PatAlgos/slimming/metFilterPaths_cff.miniAOD_customizeMETFiltersFastSim")
         return
 
     def prepare_EI(self, sequence = None):
@@ -2195,6 +2204,22 @@ class ConfigBuilder(object):
 
         # dump customise fragment
 	self.pythonCfgCode += self.addCustomise()
+
+	if self._options.runUnscheduled:	
+		# prune and delete paths
+		#this is not supporting the blacklist at this point since I do not understand it
+		self.pythonCfgCode+="#do not add changes to your config after this point (unless you know what you are doing)\n"
+		self.pythonCfgCode+="from FWCore.ParameterSet.Utilities import convertToUnscheduled\n"
+
+		self.pythonCfgCode+="process=convertToUnscheduled(process)\n"
+
+		#now add the unscheduled stuff
+		for module in self.importsUnsch:
+			self.process.load(module)
+			self.pythonCfgCode += ("process.load('"+module+"')\n")
+
+	self.pythonCfgCode += self.addCustomise(1)
+
 
 	# make the .io file
 

@@ -34,6 +34,8 @@ namespace edm {
   class ModuleCallingContext;
   class PreallocationConfiguration;
   class ActivityRegistry;
+  class ProductRegistry;
+  class ThinnedAssociationsHelper;
 
   namespace maker {
     template<typename T> class ModuleHolderT;
@@ -82,19 +84,25 @@ namespace edm {
       void doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
                                 ModuleCallingContext const*);
       
-      //For now, the following are just dummy implemenations with no ability for users to override
-      void doRespondToOpenInputFile(FileBlock const& fb);
-      void doRespondToCloseInputFile(FileBlock const& fb);
       void doPreForkReleaseResources();
       void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
 
-      
+      //For now, the following are just dummy implemenations with no ability for users to override
+      void doRespondToOpenInputFile(FileBlock const& fb);
+      void doRespondToCloseInputFile(FileBlock const& fb);
+      void doRegisterThinnedAssociations(ProductRegistry const&,
+                                         ThinnedAssociationsHelper&) { }
+
       void registerProductsAndCallbacks(EDAnalyzerBase const* module, ProductRegistry* reg);
       std::string workerType() const {return "WorkerT<EDAnalyzer>";}
       
       virtual void analyze(Event const&, EventSetup const&) = 0;
       virtual void beginJob() {}
       virtual void endJob(){}
+      
+      virtual void preForkReleaseResources() {}
+      virtual void postForkReacquireResources(unsigned int /*iChildIndex*/, unsigned int /*iNumberOfChildren*/) {}
+
 
       virtual void doBeginRun_(Run const& rp, EventSetup const& c);
       virtual void doEndRun_(Run const& rp, EventSetup const& c);

@@ -36,8 +36,11 @@ cmsRun geometrywriter.py
 # Input cff                    Output file
 # GeometryIdeal_cff            giSingleBigFile.xml
 #
-sed -i '{s/Extended2015/Ideal/g}' geometryxmlwriter.py
-sed -i '{s/\/ge/\/gi/g}' geometryxmlwriter.py
+sed -i '{s/Extended2015/Extended2015ZeroMaterial/g}' geometryxmlwriter.py
+sed -i '{s/\/ge/\/gzm/g}' geometryxmlwriter.py
+cmsRun geometryxmlwriter.py
+sed -i '{s/Extended2015ZeroMaterial/Ideal/g}' geometryxmlwriter.py
+sed -i '{s/\/gzm/\/gi/g}' geometryxmlwriter.py
 cmsRun geometryxmlwriter.py
 
 # Read the one big XML file and output a record to the
@@ -50,8 +53,11 @@ cmsRun geometryxmlwriter.py
 # gegSingleBigFile.xml      XMLFILE_Geometry_${mytag}_Extended2015GFlash_mc
 # giSingleBigFile.xml       XMLFILE_Geometry_${mytag}_Ideal_mc
 #
-sed -i '{s/Extended2015/Ideal/g}' xmlgeometrywriter.py
-sed -i '{s/\/ge/\/gi/g}' xmlgeometrywriter.py
+sed -i '{s/Extended2015/Extended2015ZeroMaterial/g}' xmlgeometrywriter.py
+sed -i '{s/\/ge/\/gzm/g}' xmlgeometrywriter.py
+cmsRun xmlgeometrywriter.py
+sed -i '{s/Extended2015ZeroMaterial/Ideal/g}' xmlgeometrywriter.py
+sed -i '{s/\/gzm/\/gi/g}' xmlgeometrywriter.py
 cmsRun xmlgeometrywriter.py
 
 # All the database objects were written into one database

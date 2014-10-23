@@ -819,7 +819,7 @@ TrajectorySeedProducer::stateOnDet(const TrajectoryStateOnSurface& ts,
   }
   int surfaceSide = static_cast<int>(ts.surfaceSide());
 
-  pts = PTrajectoryStateOnDet( ts.localParameters(),
+  pts = PTrajectoryStateOnDet( ts.localParameters(),ts.globalMomentum().perp(),
 			       localErrors, detid,
 			       surfaceSide);
 }

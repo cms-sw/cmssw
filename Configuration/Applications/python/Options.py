@@ -34,10 +34,10 @@ parser.add_option("--conditions",
                   default=None,
                   dest="conditions")
 
-parser.add_option("--useCondDBv2",
+parser.add_option("--useCondDBv1",
                   help="use conditions DB V1",
                   action="store_false",
-                  default=True,
+                  default=False,
                   dest="useCondDBv1")
 
 parser.add_option("--eventcontent",
@@ -59,7 +59,7 @@ parser.add_option("--filetype",
                   help="The type of the infile (EDM, LHE or MCDB).",
                   default=defaultOptions.filetype,
                   dest="filetype",
-                  choices=['EDM','DAT','LHE','MDCB','DQM']
+                  choices=['EDM','DAT','LHE','MDCB','DQM','DQMDAQ']
                   )
 
 parser.add_option("-n", "--number",
@@ -121,6 +121,11 @@ expertSettings.add_option("--customise",
                           default=[],
                           action="append",
                           dest="customisation_file")
+expertSettings.add_option("--customise_unsch",
+                          help="Specify the file where the code to modify the process object is stored.",
+                          default=[],
+                          action="append",
+                          dest="customisation_file_unsch")
 expertSettings.add_option("--customise_commands",
                           help="Specify a string of commands",
                           default="",
@@ -366,4 +371,10 @@ expertSettings.add_option("--lumiToProcess",
                           help="specify a certification json file in input to run on certified data",
                           default=None,
                           dest='lumiToProcess'
+                          )
+
+expertSettings.add_option("--timeoutOutput",
+                          help="use a TimeoutPoolOutputModule instead of a PoolOutputModule (needed for evt. display)",
+                          default=False,
+                          dest='timeoutOutput'
                           )

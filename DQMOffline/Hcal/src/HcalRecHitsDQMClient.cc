@@ -6,28 +6,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 HcalRecHitsDQMClient::HcalRecHitsDQMClient(const edm::ParameterSet& iConfig):conf_(iConfig)
 {
 
   outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile", "myfile.root");
-
-  dbe_ = edm::Service<DQMStore>().operator->();
-  if (!dbe_) {
-    edm::LogError("HcalRecHitsDQMClient") << "unable to get DQMStore service, upshot is no client histograms will be made";
-  }
-  if(iConfig.getUntrackedParameter<bool>("DQMStore", false)) {
-    if(dbe_) dbe_->setVerbose(0);
-  }
- 
   debug_ = false;
   verbose_ = false;
-
   dirName_=iConfig.getParameter<std::string>("DQMDirName");
-  if(dbe_) dbe_->setCurrentFolder(dirName_);
- 
 }
 
 
@@ -42,57 +29,30 @@ void HcalRecHitsDQMClient::beginJob()
 
 }
 
-void HcalRecHitsDQMClient::endJob() 
+
+void HcalRecHitsDQMClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter)
 {
-   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
-}
-
-void HcalRecHitsDQMClient::beginRun(const edm::Run& run, const edm::EventSetup& c)
-{
- 
-}
-
-
-void HcalRecHitsDQMClient::endRun(const edm::Run& run, const edm::EventSetup& c)
-{
-  runClient_();
-}
-
-//dummy analysis function
-void HcalRecHitsDQMClient::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup)
-{
-  
-}
-
-void HcalRecHitsDQMClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c)
-{ 
-//  runClient_();
-}
-
-void HcalRecHitsDQMClient::runClient_()
-{
-  if(!dbe_) return; //we dont have the DQMStore so we cant do anything
-  dbe_->setCurrentFolder(dirName_);
+  igetter.setCurrentFolder(dirName_);
 
   if (verbose_) std::cout << "\nrunClient" << std::endl; 
 
   std::vector<MonitorElement*> hcalMEs;
 
   // Since out folders are fixed to three, we can just go over these three folders
-  // i.e., CaloTowersV/CaloTowersTask, HcalRecHitsV/HcalRecHitTask, NoiseRatesV/NoiseRatesTask.
-  std::vector<std::string> fullPathHLTFolders = dbe_->getSubdirs();
+  // i.e., CaloTowersD/CaloTowersTask, HcalRecHitsD/HcalRecHitTask, NoiseRatesV/NoiseRatesTask.
+  std::vector<std::string> fullPathHLTFolders = igetter.getSubdirs();
   for(unsigned int i=0;i<fullPathHLTFolders.size();i++) {
 
     if (verbose_) std::cout <<"\nfullPath: "<< fullPathHLTFolders[i] << std::endl;
-    dbe_->setCurrentFolder(fullPathHLTFolders[i]);
+    igetter.setCurrentFolder(fullPathHLTFolders[i]);
 
-    std::vector<std::string> fullSubPathHLTFolders = dbe_->getSubdirs();
+    std::vector<std::string> fullSubPathHLTFolders = igetter.getSubdirs();
     for(unsigned int j=0;j<fullSubPathHLTFolders.size();j++) {
 
       if (verbose_) std::cout <<"fullSub: "<<fullSubPathHLTFolders[j] << std::endl;
 
-      if( strcmp(fullSubPathHLTFolders[j].c_str(), "HcalRecHitsV/HcalRecHitTask") ==0  ){
-         hcalMEs = dbe_->getContents(fullSubPathHLTFolders[j]);
+      if( strcmp(fullSubPathHLTFolders[j].c_str(), "HcalRecHitsD/HcalRecHitTask") ==0  ){
+         hcalMEs = igetter.getContents(fullSubPathHLTFolders[j]);
          if (verbose_) std::cout <<"hltMES size : "<<hcalMEs.size()<<std::endl;
          if( !HcalRecHitsEndjob(hcalMEs) ) std::cout<<"\nError in HcalRecHitsEndjob!"<<std::endl<<std::endl;
       }
@@ -104,7 +64,7 @@ void HcalRecHitsDQMClient::runClient_()
 }
 
 
-// called after entering the HcalRecHitsV/HcalRecHitTask directory
+// called after entering the HcalRecHitsD/HcalRecHitTask directory
 // hcalMEs are within that directory
 int HcalRecHitsDQMClient::HcalRecHitsEndjob(const std::vector<MonitorElement*> &hcalMEs){
 

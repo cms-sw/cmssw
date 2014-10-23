@@ -22,8 +22,8 @@ SingleTopSingleMuonHLTValidation = cms.EDAnalyzer('TopSingleLeptonHLTValidation'
         etaJets      = cms.untracked.double(5.),
         minJets      = cms.untracked.uint32(2),
         # Trigger
-        sTrigger     = cms.untracked.string("TriggerResults"),
-        vsPaths      = cms.untracked.vstring(['HLT_IsoMu24_IterTrk02_v', 'HLT_IsoMu24_IterTrk02_TriCentralPFJet60_50_35_v', 'HLT_IsoMu24_IterTrk02_TriCentralPFJet40_v', 'HLT_IsoMu24_IterTrk02_CentralPFJet30_BTagCSV_v']),
+        iTrigger     = cms.untracked.InputTag("TriggerResults","","HLT"),
+        vsPaths      = cms.untracked.vstring(['HLT_IsoMu24_IterTrk02_v', 'HLT_IsoMu24_IterTrk02_TriCentralPFJet60_50_35_v', 'HLT_IsoMu24_IterTrk02_TriCentralPFJet40_v', 'HLT_IsoMu24_IterTrk02_CentralPFJet30_BTagCSV_v', 'HLT_IsoMu20_eta2p1_IterTrk02_CentralPFJet30_BTagCSV_v', 'HLT_IsoMu20_eta2p1_IterTrk02_TriCentralPFJet40_v', 'HLT_IsoMu20_eta2p1_IterTrk02_TriCentralPFJet60_50_35_v', 'HLT_IsoMu20_eta2p1_IterTrk02_v', 'HLT_IsoTkMu20_eta2p1_IterTrk02_v', 'HLT_IsoMu24_eta2p1_IterTrk02_CentralPFJet30_BTagCSV_v', 'HLT_IsoMu24_eta2p1_IterTrk02_TriCentralPFJet40_v', 'HLT_IsoMu24_eta2p1_IterTrk02_TriCentralPFJet60_50_35_v', 'HLT_IsoMu24_eta2p1_IterTrk02_v', 'HLT_IsoTkMu24_eta2p1_IterTrk02_v']),
 )
 
 # single top electronique
@@ -48,6 +48,6 @@ SingleTopSingleElectronHLTValidation = cms.EDAnalyzer('TopSingleLeptonHLTValidat
         etaJets      = cms.untracked.double(5.),
         minJets      = cms.untracked.uint32(2),
         # Trigger
-        sTrigger     = cms.untracked.string("TriggerResults"),
-        vsPaths      = cms.untracked.vstring(['HLT_Ele27_WP80_Gsf_v', 'HLT_Ele27_WP80_Gsf_TriCentralPFJet40_v', 'HLT_Ele27_WP80_Gsf_TriCentralPFJet60_50_35_v', 'HLT_Ele27_WP80_Gsf_CentralPFJet30_BTagCSV_v']),
+        iTrigger     = cms.untracked.InputTag("TriggerResults","","HLT"),
+        vsPaths      = cms.untracked.vstring(['HLT_Ele27_eta2p1_WP85_Gsf_v', 'HLT_Ele27_eta2p1_WP85_Gsf_TriCentralPFJet40_v', 'HLT_Ele27_eta2p1_WP85_Gsf_TriCentralPFJet60_50_35_v', 'HLT_Ele27_eta2p1_WP85_Gsf_CentralPFJet30_BTagCSV_v', 'HLT_Ele32_WP85_Gsf_CentralPFJet30_BTagCSV_v', 'HLT_Ele32_WP85_Gsf_TriCentralPFJet40_v', 'HLT_Ele32_WP85_Gsf_TriCentralPFJet60_50_35_v', 'HLT_Ele32_WP85_Gsf_v']),
 )

@@ -51,7 +51,11 @@ EcalRecHit::ESFlags ESRecHitSimAlgo::evalAmplitude(float * results, const ESData
 
   // A from analytical formula:
   constexpr float t1 = 20.;
+  #ifdef __clang__
+  const float A_1 = 1./( std::pow(w/n*(t1),n) * std::exp(n-w*(t1)) );
+  #else
   constexpr float A_1 = 1./( std::pow(w/n*(t1),n) * std::exp(n-w*(t1)) );
+  #endif
   auto AA1 = A1 * A_1 ;
 
  if (adc[1] > 2800.f && adc[2] > 2800.f) status = EcalRecHit::kESSaturated;
@@ -92,7 +96,10 @@ EcalRecHit ESRecHitSimAlgo::reconstruct(const ESDataFrame& digi) const {
   LogDebug("ESRecHitSimAlgo") << "ESRecHitSimAlgo : reconstructed energy "<<energy;
 
   EcalRecHit rechit(digi.id(), energy, t0);
-  rechit.setOutOfTimeEnergy(otenergy);
+  // edm: this is just a placeholder for alternative energy reconstruction,
+  // so put it in the same float, with different name
+  // rechit.setOutOfTimeEnergy(otenergy);
+  rechit.setEnergyError(otenergy);
 
   rechit.setFlag(statusCh.getStatusCode() == 1 ? EcalRecHit::kESDead : status);
 
@@ -225,7 +232,10 @@ EcalRecHit ESRecHitSimAlgo::oldreconstruct(const ESDataFrame& digi) const {
   LogDebug("ESRecHitSimAlgo") << "ESRecHitSimAlgo : reconstructed energy "<<energy;
 
   EcalRecHit rechit(digi.id(), energy, t0);
-  rechit.setOutOfTimeEnergy(otenergy);
+  // edm: this is just a placeholder for alternative energy reconstruction,
+  // so put it in the same float, with different name
+  // rechit.setOutOfTimeEnergy(otenergy);
+  rechit.setEnergyError(otenergy);
 
   if (it_status->getStatusCode() == 1) {
     rechit.setFlag(EcalRecHit::kESDead);

@@ -80,7 +80,7 @@ PixelRod::compatibleDetsV( const TrajectoryStateOnSurface& startingState,
   // explore neighbours
   for (size_t idet=closest+1; idet < theDets.size(); idet++) {
     LocalPoint nextPos( theDets[idet]->surface().toLocal( closestCompat.second.globalPosition()));
-    if (fabs(nextPos.y()) < detHalfLen + maxDistance.y()) {
+    if (std::abs(nextPos.y()) < detHalfLen + maxDistance.y()) {
       if ( !add(idet, result, startingState, prop, est)) break;
     } else {
       break;
@@ -89,7 +89,7 @@ PixelRod::compatibleDetsV( const TrajectoryStateOnSurface& startingState,
 
   for (int idet=closest-1; idet >= 0; idet--) {
     LocalPoint nextPos( theDets[idet]->surface().toLocal( closestCompat.second.globalPosition()));
-    if (fabs(nextPos.y()) < detHalfLen + maxDistance.y()) {
+    if (std::abs(nextPos.y()) < detHalfLen + maxDistance.y()) {
       if ( !add(idet, result, startingState, prop, est)) break;
     } else {
       break;

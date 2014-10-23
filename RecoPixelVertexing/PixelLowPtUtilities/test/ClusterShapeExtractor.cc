@@ -50,9 +50,9 @@ class ClusterShapeExtractor : public edm::EDAnalyzer
  public:
    explicit ClusterShapeExtractor(const edm::ParameterSet& pset);
    ~ClusterShapeExtractor();
-   virtual void beginRun(edm::Run & run,       const edm::EventSetup& es);
-   virtual void analyze (const edm::Event& ev, const edm::EventSetup& es);
-   virtual void endJob();
+   virtual void beginRun(const edm::Run & run, const edm::EventSetup& es) override;
+   virtual void analyze (const edm::Event& ev, const edm::EventSetup& es) override;
+   virtual void endJob() override;
 
  private:
    bool isSuitable(const PSimHit & simHit);
@@ -104,7 +104,7 @@ class ClusterShapeExtractor : public edm::EDAnalyzer
 };
 
 /*****************************************************************************/
-void ClusterShapeExtractor::beginRun(edm::Run & run, const edm::EventSetup& es)
+void ClusterShapeExtractor::beginRun(const edm::Run & run, const edm::EventSetup& es)
 {
   // Get tracker geometry
   edm::ESHandle<TrackerGeometry>          tracker;
@@ -194,7 +194,8 @@ bool ClusterShapeExtractor::isSuitable(const PSimHit & simHit)
 {
   // Outgoing?
   DetId id = DetId(simHit.detUnitId());
-
+  const GeomDetUnit *gdu = theTracker->idToDetUnit(id);
+  if (gdu == 0) throw cms::Exception("MissingData") << "Missing DetUnit for detid " << id.rawId() << "\n" << std::endl;
   GlobalVector gvec = theTracker->idToDetUnit(id)->position() -
                       GlobalPoint(0,0,0);
   LocalVector  lvec = theTracker->idToDetUnit(id)->toLocal(gvec);
@@ -219,7 +220,7 @@ void ClusterShapeExtractor::processRec(const SiStripRecHit2D & recHit,
   int meas;
   float pred;
  
-  if(theClusterShape->getSizes(recHit,ldir, meas,pred))
+  if(theClusterShape->getSizes(recHit,LocalPoint(0,0,0), ldir, meas,pred))
     if(meas <= ewMax)
       histo[meas]->Fill(pred);
 }
@@ -353,6 +354,7 @@ void ClusterShapeExtractor::processMatchedRecHits
   map<pair<unsigned int, float>, const SiStripRecHit2D *> simHitMap;
   // VI very very quick fix
   std::vector<SiStripRecHit2D> cache;
+  cache.reserve(2*recHits->size());
   PSimHit simHit;
   pair<unsigned int, float> key;
 

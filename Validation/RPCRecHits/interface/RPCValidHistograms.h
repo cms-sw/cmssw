@@ -4,6 +4,8 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 #include <string>
 
@@ -16,7 +18,7 @@ struct RPCValidHistograms
     booked_ = false;
   };
 
-  void bookHistograms(DQMStore* dbe, const std::string subDir);
+  void bookHistograms(DQMStore::IBooker& booker, const std::string& subDir);
 
   // Hit properties
   MEP clusterSize, clusterSizeBarrel, clusterSizeEndcap;

@@ -34,8 +34,7 @@ void StaticLocalChecker::checkASTDecl(const clang::VarDecl *D,
 	    llvm::raw_string_ostream os(buf);
 	    os << "Non-const variable '" <<t.getAsString()<<" "<< *D << "' is static local or static member data and might be thread-unsafe";
 
-	    BR.EmitBasicReport(D, "Possibly Thread-Unsafe: non-const static variable",
-	    					"ThreadSafety",
+	    BR.EmitBasicReport(D, this, "non-const static variable", "ThreadSafety",
 	                       os.str(), DLoc);
 	    return;
 	}
