@@ -45,15 +45,15 @@ static const double SECS_PER_LUMI = 23.31040958083832;
 
 // helper functions
 template <typename T>
-static 
+static
 const T * get(const edm::Event & event, const edm::EDGetTokenT<T> & token) {
   edm::Handle<T> handle;
   event.getByToken(token, handle);
   if (not handle.isValid())
     throw * handle.whyFailed();
   return handle.product();
-}   
-    
+}
+
 template <typename R, typename T>
 static
 const T * get(const edm::EventSetup & setup) {
@@ -99,6 +99,7 @@ private:
   std::vector<HLTIndices>       m_hltIndices;
 
   std::vector<std::vector<unsigned int>>    m_datasets;
+  std::vector<std::vector<unsigned int>>    m_streams;
 
 
   struct HLTRatesPlots {
@@ -125,6 +126,9 @@ private:
 
   // datasets
   std::vector<TH1F *>           m_dataset_counts;
+
+  // streams
+  std::vector<TH1F *>           m_stream_counts;
 
 };
 
@@ -154,6 +158,7 @@ TriggerRatesMonitor::TriggerRatesMonitor(edm::ParameterSet const & config) :
   m_hltConfig(),
   m_hltIndices(),
   m_datasets(),
+  m_streams(),
   // overall event count and event types
   m_events_processed( nullptr ),
   m_events_physics( nullptr ),
@@ -165,7 +170,9 @@ TriggerRatesMonitor::TriggerRatesMonitor(edm::ParameterSet const & config) :
   // HLT triggers
   m_hlt_counts(),
   // datasets
-  m_dataset_counts()
+  m_dataset_counts(),
+  // streams
+  m_stream_counts()
 {
 }
 
@@ -216,6 +223,22 @@ void TriggerRatesMonitor::dqmBeginRun(edm::Run const & run, edm::EventSetup cons
     }
     m_dataset_counts.clear();
     m_dataset_counts.resize( datasets, nullptr );
+
+    unsigned int streams = m_hltConfig.streamNames().size();
+    m_streams.clear();
+    m_streams.resize( streams, {} );
+    for (unsigned int i = 0; i < streams; ++i) {
+      for (auto const & dataset : m_hltConfig.streamContent(i)) {
+        for (auto const & path : m_hltConfig.datasetContent(dataset))
+          m_streams[i].push_back(m_hltConfig.triggerIndex(path));
+      }
+      std::sort(m_streams[i].begin(), m_streams[i].end());
+      auto unique_end = std::unique(m_streams[i].begin(), m_streams[i].end());
+      m_streams[i].resize(unique_end - m_streams[i].begin());
+      m_streams[i].shrink_to_fit();
+    }
+    m_stream_counts.clear();
+    m_stream_counts.resize( streams, nullptr );
   } else {
     // HLTConfigProvider not initialised, skip the the HLT monitoring
     edm::LogError("TriggerRatesMonitor") << "failed to initialise HLTConfigProvider, the HLT trigger and datasets rates will not be monitored";
@@ -230,7 +253,7 @@ void TriggerRatesMonitor::bookHistograms(DQMStore::IBooker & booker, edm::Run co
   m_events_physics      = booker.book1D("physics",      "Physics evenst",       m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
   m_events_calibration  = booker.book1D("calibration",  "Calibration events",   m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
   m_events_random       = booker.book1D("random",       "Random events",        m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
-  
+
   if (m_l1tMenu and m_l1tAlgoMask) {
     // book the rate histograms for the L1 Algorithm triggers
     booker.setCurrentFolder( m_dqm_path + "/L1 Algo" );
@@ -313,6 +336,12 @@ void TriggerRatesMonitor::bookHistograms(DQMStore::IBooker & booker, edm::Run co
     auto const & datasets = m_hltConfig.datasetNames();
     for (unsigned int i = 0; i < datasets.size(); ++i)
       m_dataset_counts[i] = booker.book1D(datasets[i], datasets[i], m_lumisections_range + 1, -0.5, m_lumisections_range + 0.5)->getTH1F();
+
+    // book the HLT streams rate histograms
+    booker.setCurrentFolder( m_dqm_path + "/Streams" );
+    auto const & streams = m_hltConfig.streamNames();
+    for (unsigned int i = 0; i < streams.size(); ++i)
+      m_stream_counts[i]  = booker.book1D(streams[i],  streams[i],  m_lumisections_range + 1, -0.5, m_lumisections_range + 0.5)->getTH1F();
   }
 }
 
@@ -392,7 +421,15 @@ void TriggerRatesMonitor::analyze(edm::Event const & event, edm::EventSetup cons
       for (unsigned int j: m_datasets[i])
         if (hltResults.at(j).accept()) {
           m_dataset_counts[i]->Fill(lumisection);
-          // ensure each dataset is incremented only once per event 
+          // ensure each dataset is incremented only once per event
+          break;
+        }
+
+    for (unsigned int i = 0; i < m_streams.size(); ++i)
+      for (unsigned int j: m_streams[i])
+        if (hltResults.at(j).accept()) {
+          m_stream_counts[i]->Fill(lumisection);
+          // ensure each stream is incremented only once per event
           break;
         }
   }
