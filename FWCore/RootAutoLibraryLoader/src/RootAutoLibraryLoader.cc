@@ -21,6 +21,7 @@
 #include "FWCore/Utilities/interface/TypeDemangler.h"
 
 #include "TClass.h"
+#include "TClassTable.h"
 #include "TInterpreter.h"
 #include "TROOT.h"
 
@@ -30,18 +31,17 @@
 using CallbackPtr = int (*)(const char*);
 static void* gPrevious = nullptr;
 
-/// Check if the class name is known to the ROOT interpreter.
+/// Check if the class name is known to the ROOT type system
 static
 bool
-interpreterLookupClass(const std::string& name)
+rootTypeSystemLookupClass(const std::string& name)
 {
-  ClassInfo_t* ci = gInterpreter->ClassInfo_Factory(name.c_str());
-  return gInterpreter->ClassInfo_IsValid(ci);
+  return TClassTable::GetDict(name.c_str());
 }
 
 /// Use the SEAL Capabilities plugin to load a library which
 /// provides the definition of a class, and verify that the
-/// ROOT interpreter now knows about the class.
+/// ROOT type system now knows about the class.
 static
 bool
 loadLibraryForClass(const char* classname)
@@ -54,11 +54,11 @@ loadLibraryForClass(const char* classname)
   try {
     if (edmplugin::PluginCapabilities::get()->tryToLoad(cPrefix + name)) {
       // We loaded a library, now check to see if we got the class.
-      if (!interpreterLookupClass(name)) {
+      if (!rootTypeSystemLookupClass(name)) {
         // Nope, did not get it.
         return false;
       }
-      // Good, library loaded for class and the interpreter knows it now.
+      // Good, library loaded for class and the type system knows it now.
       return true;
     }
     // Try adding a std namespace qualifier.
@@ -68,11 +68,11 @@ loadLibraryForClass(const char* classname)
       return false;
     }
     // We loaded a library, now check to see if we got the class.
-    if (!interpreterLookupClass(stdName)) {
+    if (!rootTypeSystemLookupClass(stdName)) {
       // Nope, did not get it.
       return false;
     }
-    // Good, library loaded for class and the interpreter knows it now.
+    // Good, library loaded for class and the type system knows it now.
     return true;
   }
   catch (cms::Exception& e) {
@@ -83,7 +83,7 @@ loadLibraryForClass(const char* classname)
   return true;
 }
 
-/// Callback for the ROOT interpreter to invoke when it fails
+/// Callback for the ROOT type system to invoke when it fails
 /// during lookup of a class name.  We try to load a library
 /// that provides the definition of the class using the SEAL
 /// Capabilities plugin.
@@ -97,7 +97,7 @@ AutoLoadCallback(const char* c)
   }
   int result = loadLibraryForClass(c);
   if (result) {
-    // Good, library loaded and class is now known by the interpreter.
+    // Good, library loaded and class is now known by the type system.
     return result;
   }
   // Failed, chain to next callback.
