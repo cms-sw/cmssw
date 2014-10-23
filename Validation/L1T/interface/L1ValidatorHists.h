@@ -21,11 +21,12 @@ TH2F * ## TYPE ## _dR; \
 TH2F * ## TYPE ## _dPt;
 */
 
-class L1ValidatorHists{
+class L1ValidatorHists {
   public:
-    L1ValidatorHists(DQMStore *dbe);
+    L1ValidatorHists();
     ~L1ValidatorHists();
-    void Book();
+
+    void Book(DQMStore::IBooker &);
     void Normalize();
     void Write();
 
@@ -61,8 +62,6 @@ class L1ValidatorHists{
 
     // add the rest...
     //TH2F *ETM_Delta, *ETT_Delta, *HTM_Delta, *HTT_Delta;
-
-    DQMStore *_dbe;
 
     void Fill(int, const reco::LeafCandidate *, const reco::LeafCandidate *);
     void FillNumber(int, int);

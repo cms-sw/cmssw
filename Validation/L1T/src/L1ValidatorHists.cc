@@ -12,10 +12,7 @@ TYPE ## _Eff_Eta = new TH2F(#TYPE "_Eff_Eta", #TYPE " Number", 20, -4, 4); \
 TYPE ## _dR = new TH2F(#TYPE "_dR", #TYPE " Number", 20, 0, 1); \
 TYPE ## _dPt = new TH2F(#TYPE "_dPt", #TYPE " Number", 20, -1, 1);
 */
-L1ValidatorHists::L1ValidatorHists(DQMStore *dbe){
-  _dbe=dbe;
-  //_dbe->setCurrentFolder("L1T/L1Extra");
-
+L1ValidatorHists::L1ValidatorHists(){
   Name[0]="IsoEG";
   Name[1]="NonIsoEG";
   Name[2]="CenJet";
@@ -23,20 +20,21 @@ L1ValidatorHists::L1ValidatorHists(DQMStore *dbe){
   Name[4]="TauJet";
   Name[5]="Muon";
 }
+L1ValidatorHists::~L1ValidatorHists(){}
 
-void L1ValidatorHists::Book(){
+void L1ValidatorHists::Book(DQMStore::IBooker &iBooker){
   NEvents=0;
 
   for(int i=0; i<Type::Number; i++){
-    N[i] = _dbe->book1D( (Name[i]+"_N").c_str(), (Name[i]+" Number").c_str(), 5, -0.5, 4.5);
+    N[i] = iBooker.book1D( (Name[i]+"_N").c_str(), (Name[i]+" Number").c_str(), 5, -0.5, 4.5);
     N_Pt[i] = new TH1F( (Name[i]+"_N_Pt").c_str(), (Name[i]+" Number").c_str(), 20, 0, 100);
     N_Eta[i] = new TH1F( (Name[i]+"_N_Eta").c_str(), (Name[i]+" Number").c_str(), 20, -4, 4);
-    Eff_Pt[i] = _dbe->book1D( (Name[i]+"_Eff_Pt").c_str(), (Name[i]+" Efficiency").c_str(), 20, 0, 100);
-    Eff_Eta[i] = _dbe->book1D( (Name[i]+"_Eff_Eta").c_str(), (Name[i]+" Efficiency").c_str(), 20, -4, 4);
-    TurnOn_15[i] = _dbe->book1D( (Name[i]+"_TurnOn_15").c_str(), (Name[i]+" Turn On (15 GeV)").c_str(), 20, 0, 100);
-    TurnOn_30[i] = _dbe->book1D( (Name[i]+"_TurnOn_30").c_str(), (Name[i]+" Turn On (30 GeV)").c_str(), 20, 0, 100);
-    dR[i] = _dbe->book1D( (Name[i]+"_dR").c_str(), (Name[i]+" dR").c_str(), 20, 0, 1);
-    dPt[i] = _dbe->book1D( (Name[i]+"_dPt").c_str(), (Name[i]+" dPt").c_str(), 20, -1, 1);
+    Eff_Pt[i] = iBooker.book1D( (Name[i]+"_Eff_Pt").c_str(), (Name[i]+" Efficiency").c_str(), 20, 0, 100);
+    Eff_Eta[i] = iBooker.book1D( (Name[i]+"_Eff_Eta").c_str(), (Name[i]+" Efficiency").c_str(), 20, -4, 4);
+    TurnOn_15[i] = iBooker.book1D( (Name[i]+"_TurnOn_15").c_str(), (Name[i]+" Turn On (15 GeV)").c_str(), 20, 0, 100);
+    TurnOn_30[i] = iBooker.book1D( (Name[i]+"_TurnOn_30").c_str(), (Name[i]+" Turn On (30 GeV)").c_str(), 20, 0, 100);
+    dR[i] = iBooker.book1D( (Name[i]+"_dR").c_str(), (Name[i]+" dR").c_str(), 20, 0, 1);
+    dPt[i] = iBooker.book1D( (Name[i]+"_dPt").c_str(), (Name[i]+" dPt").c_str(), 20, -1, 1);
 
 //     N[i]->getTH1()->Sumw2();
 //     N_Pt[i]->Sumw2();

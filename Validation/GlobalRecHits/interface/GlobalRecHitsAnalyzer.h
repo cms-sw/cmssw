@@ -136,9 +136,10 @@
 
 #include "TString.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 
-class GlobalRecHitsAnalyzer : public edm::EDAnalyzer
+class GlobalRecHitsAnalyzer : public DQMEDAnalyzer 
 {
 
  public:
@@ -147,9 +148,10 @@ class GlobalRecHitsAnalyzer : public edm::EDAnalyzer
 
   explicit GlobalRecHitsAnalyzer(const edm::ParameterSet&);
   virtual ~GlobalRecHitsAnalyzer();
-  virtual void beginJob();
-  virtual void endJob();  
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
+
+ protected:
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   
  private:
 
