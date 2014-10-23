@@ -8,7 +8,7 @@
 
 #include "CondCore/ESSources/interface/registration_macros.h"
 #include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CondFormats/Alignment/interface/AlignmentSurfaceDeformations.h"
 #include "CondFormats/Alignment/interface/SurveyErrors.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
@@ -45,12 +45,12 @@
 
 REGISTER_PLUGIN(GlobalPositionRcd,Alignments);
 REGISTER_PLUGIN(TrackerAlignmentRcd,Alignments);
-REGISTER_PLUGIN(TrackerAlignmentErrorRcd,AlignmentErrors);
+REGISTER_PLUGIN(TrackerAlignmentErrorRcd,AlignmentErrorsExtended);
 REGISTER_PLUGIN(TrackerSurfaceDeformationRcd,AlignmentSurfaceDeformations);
 REGISTER_PLUGIN(DTAlignmentRcd,Alignments);
-REGISTER_PLUGIN(DTAlignmentErrorRcd,AlignmentErrors);
+REGISTER_PLUGIN(DTAlignmentErrorRcd,AlignmentErrorsExtended);
 REGISTER_PLUGIN(CSCAlignmentRcd,Alignments);
-REGISTER_PLUGIN(CSCAlignmentErrorRcd,AlignmentErrors);
+REGISTER_PLUGIN(CSCAlignmentErrorRcd,AlignmentErrorsExtended);
 REGISTER_PLUGIN(TrackerSurveyRcd,Alignments);
 REGISTER_PLUGIN(TrackerSurveyErrorRcd,SurveyErrors);
 REGISTER_PLUGIN(DTSurveyRcd,Alignments);
@@ -59,18 +59,18 @@ REGISTER_PLUGIN(CSCSurveyRcd,Alignments);
 REGISTER_PLUGIN(CSCSurveyErrorRcd,SurveyErrors);
 
 REGISTER_PLUGIN(EBAlignmentRcd,Alignments);
-REGISTER_PLUGIN(EBAlignmentErrorRcd,AlignmentErrors);
+REGISTER_PLUGIN(EBAlignmentErrorRcd,AlignmentErrorsExtended);
 REGISTER_PLUGIN(EEAlignmentRcd,Alignments);
-REGISTER_PLUGIN(EEAlignmentErrorRcd,AlignmentErrors);
+REGISTER_PLUGIN(EEAlignmentErrorRcd,AlignmentErrorsExtended);
 REGISTER_PLUGIN(ESAlignmentRcd,Alignments);
-REGISTER_PLUGIN(ESAlignmentErrorRcd,AlignmentErrors);
+REGISTER_PLUGIN(ESAlignmentErrorRcd,AlignmentErrorsExtended);
 REGISTER_PLUGIN(HBAlignmentRcd,Alignments);
-REGISTER_PLUGIN(HBAlignmentErrorRcd,AlignmentErrors);
+REGISTER_PLUGIN(HBAlignmentErrorRcd,AlignmentErrorsExtended);
 REGISTER_PLUGIN(HEAlignmentRcd,Alignments);
-REGISTER_PLUGIN(HEAlignmentErrorRcd,AlignmentErrors);
+REGISTER_PLUGIN(HEAlignmentErrorRcd,AlignmentErrorsExtended);
 REGISTER_PLUGIN(HOAlignmentRcd,Alignments);
-REGISTER_PLUGIN(HOAlignmentErrorRcd,AlignmentErrors);
+REGISTER_PLUGIN(HOAlignmentErrorRcd,AlignmentErrorsExtended);
 REGISTER_PLUGIN(HFAlignmentRcd,Alignments);
-REGISTER_PLUGIN(HFAlignmentErrorRcd,AlignmentErrors);
+REGISTER_PLUGIN(HFAlignmentErrorRcd,AlignmentErrorsExtended);
 REGISTER_PLUGIN(ZDCAlignmentRcd,Alignments);
-REGISTER_PLUGIN(ZDCAlignmentErrorRcd,AlignmentErrors);
+REGISTER_PLUGIN(ZDCAlignmentErrorRcd,AlignmentErrorsExtended);
