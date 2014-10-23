@@ -459,7 +459,7 @@ GenXSecAnalyzer::endJob() {
     (filterOnlyEffStat_.numPassPositiveEvents() + filterOnlyEffStat_.numPassNegativeEvents())/filterOnly_event_total : 0;
   double filterOnly_event_err = sqrt((1-filterOnly_event_eff)*filterOnly_event_eff/filterOnly_event_total);
   edm::LogPrint("GenXSecAnalyzer") 
-    << "Filter efficiency (event-level))= " 
+    << "Filter efficiency (event-level)= " 
     <<  std::scientific << std::setprecision(3) 
     << filterOnly_event_eff << " +- " << filterOnly_event_err;
 
