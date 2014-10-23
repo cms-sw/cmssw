@@ -191,7 +191,7 @@ void DTCalibrationMap::readConsts(const string& inputFileName) {
 	 istream_iterator<float>(),
 	 back_inserter(wireCalib.second));
     
-    if(wireCalib.second.size() !=  nFields){
+    if(wireCalib.second.size() <  nFields){
       cout << "[DTCalibrationMap]***Warning: the CalibConstFile is not consistent with the number of fields!" << endl;
     }
     
