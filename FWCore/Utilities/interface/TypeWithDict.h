@@ -60,9 +60,7 @@ public:
   explicit TypeWithDict(TEnum* type, std::string const& name, long property = 0L);
   explicit TypeWithDict(TMethodArg* arg, long property = 0L);
   explicit TypeWithDict(TType* type, long property = 0L);
-  //template<typename T> TypeWithDict() : TypeWithDict(typeid(T)) {}
   explicit operator bool() const;
-  bool hasDictionary() const;
   std::type_info const& typeInfo() const;
   std::type_info const& id() const;
   TClass* getClass() const;

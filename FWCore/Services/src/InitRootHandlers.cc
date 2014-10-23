@@ -272,7 +272,7 @@ namespace edm {
       setRefCoreStreamer();
 
       // Load the library containing dictionaries for std:: classes, if not already loaded.
-      if (!TypeWithDict(typeid(std::vector<std::vector<unsigned int> >)).hasDictionary()) {
+      if (!hasDictionary(typeid(std::vector<std::vector<unsigned int> >))) {
          edmplugin::PluginCapabilities::get()->load(dictionaryPlugInPrefix() + "std::vector<std::vector<unsigned int> >");
       }
 
