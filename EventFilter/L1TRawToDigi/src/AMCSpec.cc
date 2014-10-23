@@ -146,7 +146,7 @@ namespace amc13 {
          return false;
       }
 
-      /* const uint64_t * data = d; */
+      auto block_start = data;
       header_ = Header(data++);
 
       if (!header_.valid()) {
@@ -198,12 +198,28 @@ namespace amc13 {
          amc.addPayload(data, amc.header().getBlockSize());
          data += amc.header().getBlockSize();
       }
+      auto block_end = data;
 
-      // FIXME check checksum, block id, lv1 id...
       Trailer t(data++);
+
+      std::string check(reinterpret_cast<const char*>(block_start), reinterpret_cast<const char*>(block_end));
+      cms::CRC32Calculator crc(check);
+
+      if (crc.checksum() != t.getCRC()) {
+         edm::LogWarning("L1T") << "Mismatch in checksums for block 0";
+      }
+
+      if (t.getBlock() != 0 ) {
+         edm::LogWarning("L1T")
+            << "Block trailer mismatch: "
+            << "expected block 0, but trailer is for block "
+            << t.getBlock();
+      }
 
       // Read in remaining AMC blocks
       for (unsigned int b = 1; b < maxblocks; ++b) {
+         block_start = data;
+
          Header block_h(data++);
          std::vector<amc::Header> headers;
 
@@ -215,8 +231,23 @@ namespace amc13 {
             data += amc.getBlockSize();
          }
 
-         // FIXME check checksum, block id, lv1 id...
+         block_end = data;
+
          t = Trailer(data++);
+
+         check = std::string(reinterpret_cast<const char*>(block_start), reinterpret_cast<const char*>(block_end));
+         crc = cms::CRC32Calculator(check);
+
+         if (crc.checksum() != t.getCRC()) {
+            edm::LogWarning("L1T") << "Mismatch in checksums for block " << b;
+         }
+
+         if (t.getBlock() != 0 ) {
+            edm::LogWarning("L1T")
+               << "Block trailer mismatch: "
+               << "expected block " << b
+               << ", but trailer is for block " << t.getBlock();
+         }
       }
 
       return true;
@@ -296,8 +327,7 @@ namespace amc13 {
          for (const auto& word: block_headers)
             *(data++) = word;
 
-         // FIXME skip trailer
-         std::string dstring(reinterpret_cast<char*>(block_start), reinterpret_cast<char*>(data) + 1);
+         std::string dstring(reinterpret_cast<char*>(block_start), reinterpret_cast<char*>(data));
          cms::CRC32Calculator crc(dstring);
          *(data++) = Trailer(crc.checksum(), b, ev.id().event(), ev.bunchCrossing()).raw();
       }

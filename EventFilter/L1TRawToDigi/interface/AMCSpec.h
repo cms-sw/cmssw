@@ -21,13 +21,15 @@ namespace amc {
 
          operator uint64_t() const { return data_; };
 
+         inline uint64_t raw() const { return data_; };
+
          unsigned int getBlocks() const;
          unsigned int getBlockSize() const;
 
          inline unsigned int getAMCNumber() const { return (data_ >> AmcNo_shift) & AmcNo_mask; };
          inline unsigned int getBoardID() const { return (data_ >> BoardID_shift) & BoardID_mask; };
          inline unsigned int getSize() const { return (data_ >> Size_shift) & Size_mask; };
-         inline unsigned int getMore() const { return (data_ >> Length_bit_shift) & 1; };
+         inline unsigned int getMore() const { return (data_ >> More_bit_shift) & 1; };
          inline unsigned int getSegmented() const { return (data_ >> Segmented_bit_shift) & 1; };
 
       private:
@@ -110,7 +112,7 @@ namespace amc13 {
          inline unsigned int getLV1ID() const { return (data_ >> LV1_shift) & LV1_mask; };
          inline unsigned int getBX() const { return (data_ >> BX_shift) & BX_mask; };
 
-         uint32_t raw() const { return data_; };
+         uint64_t raw() const { return data_; };
 
       private:
          static const unsigned int CRC_shift = 32;
