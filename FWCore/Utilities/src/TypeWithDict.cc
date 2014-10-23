@@ -266,18 +266,6 @@ namespace edm {
     return gInterpreter->Type_Bool(type_);
   }
 
-  bool
-  TypeWithDict::hasDictionary() const {
-    if (*ti_ == typeid(void)) {
-      return true;
-    }
-    if (ti_->name()[1] == '\0') {
-      // returns true for built in types (single character mangled names)
-      return true; 
-    }
-    return (TClassTable::GetDict(*ti_) != nullptr);
-  }
-
   std::type_info const&
   TypeWithDict::typeInfo() const {
     return *ti_;

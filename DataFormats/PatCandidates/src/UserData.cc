@@ -4,8 +4,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 
 void pat::UserData::checkDictionaries(const std::type_info &type) {
-    edm::TypeWithDict edmType(type);
-    if (!edmType.hasDictionary()) {
+    if (!edm::hasDictionary(type)) {
         int status = 0;
         char * demangled = abi::__cxa_demangle(type.name(),  0, 0, &status);
         std::string typeName(status == 0 ? demangled : type.name());
