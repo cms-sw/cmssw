@@ -431,7 +431,7 @@ void testRefInROOT::testThinning() {
     // It is just checking that we read the values known to be
     // be put in by the relevant producer.
 
-    int offset = 100 + 100 * events.eventAuxiliary().event();
+    int offset = static_cast<int>(100 + 100 * events.eventAuxiliary().event());
 
     // In the D branch this tests accessing a value in
     // thinned collection made from a thinned collection
@@ -567,7 +567,7 @@ void testRefInROOT::testThinning() {
     // It is just checking that we read the values known to be
     // be put in by the relevant producer.
 
-    int offset = 100 + 100 * multiChainEvents.eventAuxiliary().event();
+    int offset = static_cast<int>(100 + 100 * multiChainEvents.eventAuxiliary().event());
 
     // In the D branch this tests accessing a value in
     // thinned collection made from a thinned collection

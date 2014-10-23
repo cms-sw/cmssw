@@ -93,7 +93,7 @@ namespace edm {
 
     std::cout << "(3) stop loop\n";
     std::cout << "(4) stop process" << std::endl;
-    int x;
+    long long int x;
 
     bool inputFailed = false;
     do {

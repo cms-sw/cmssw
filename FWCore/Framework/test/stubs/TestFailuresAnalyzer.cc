@@ -56,7 +56,7 @@ enum {
 //
 TestFailuresAnalyzer::TestFailuresAnalyzer(const edm::ParameterSet& iConfig)
   : whichFailure_(iConfig.getParameter<int>("whichFailure")),
-    eventToThrow_(iConfig.getUntrackedParameter<unsigned>("eventToThrow", 2U))
+    eventToThrow_(iConfig.getUntrackedParameter<unsigned long long>("eventToThrow", 2U))
 {
    //now do what ever initialization is needed
    if(whichFailure_ == kConstructor){

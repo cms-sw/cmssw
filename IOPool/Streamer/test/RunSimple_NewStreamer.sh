@@ -19,6 +19,7 @@ cd ${OUTDIR}
 cmsRun --parameter-set NewStreamOut_cfg.py > out 2>&1 || die "cmsRun NewStreamOut_cfg.py" $?
 cmsRun --parameter-set NewStreamIn_cfg.py  > in  2>&1 || die "cmsRun NewStreamIn_cfg.py" $?
 cmsRun --parameter-set NewStreamCopy_cfg.py  > copy  2>&1 || die "cmsRun NewStreamCopy_cfg.py" $?
+cmsRun --parameter-set NewStreamCopy2_cfg.py  > copy2  2>&1 || die "cmsRun NewStreamCopy2_cfg.py" $?
 
 # echo "CHECKSUM = 1" > out
 # echo "CHECKSUM = 1" > in

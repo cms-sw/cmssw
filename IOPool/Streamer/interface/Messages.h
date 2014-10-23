@@ -211,7 +211,7 @@ namespace edm {
 
     edm::EventNumber_t getEventNumber() const 
     {
-      assert(sizeof(edm::EventNumber_t) == sizeof(int) && "event ID streaming only knows how to work with 4 byte event ID numbers right now");
+      // assert(sizeof(edm::EventNumber_t) == sizeof(int) && "event ID streaming only knows how to work with 4 byte event ID numbers right now");
       return decodeInt(head_->event_num_);
     }
 
@@ -223,7 +223,7 @@ namespace edm {
 
     edm::RunNumber_t getRunNumber() const
     {
-      assert(sizeof(edm::EventNumber_t) == sizeof(int) && "event ID streaming only knows how to work with 4 byte event ID numbers right now");
+      // assert(sizeof(edm::EventNumber_t) == sizeof(int) && "event ID streaming only knows how to work with 4 byte event ID numbers right now");
       return decodeInt(head_->run_num_);
     }
 
