@@ -77,6 +77,7 @@
   <class name="reco::CompositeCandidateRef" />
   <class name="reco::CompositeCandidateRefVector" />
   <class name="reco::VertexCompositeCandidateRefVector" />
+  <class name="reco::VertexCompositePtrCandidate" />
   <class name="reco::VertexCompositePtrCandidateRefVector" />
   <class name="reco::CandidateRefProd" />
 
