@@ -10,8 +10,8 @@ float EcalClusterEnergyUncertaintyObjectSpecific::getValue( const reco::SuperClu
 	float en = superCluster.energy();
 	float eta = fabs(superCluster.eta()); 
 	float et = en/cosh(eta); 
-	float brem = superCluster.phiWidth()/superCluster.etaWidth(); 
-
+	float brem = superCluster.etaWidth()!=0 ? superCluster.phiWidth()/superCluster.etaWidth() : 0;
+	
 	
 	const int nBinsEta=6;
 	const float EtaBins[nBinsEta+1] = {0.0, 0.7, 1.15, 1.44, 1.56, 2.0, 2.5};
@@ -218,6 +218,14 @@ float EcalClusterEnergyUncertaintyObjectSpecific::getValue( const reco::SuperClu
 	  }													       					
 	}
 	
+	//this code is confusing as it has no concept of under and overflow bins
+	//we will use Et as an example but also applies to eta
+	//underflow is 1st bin (naively currently labeled as 0 to 0.7, its really <0.7)
+	//overflow is the final bin (naviely currently labeled as 5 to 10, its really >=5)
+	//logic: if brem is 0<=brem <0.7 it will be already set to the 1st bin, this checks if its <0
+	//logic: if brem is 5<=brem<10 it will be set to the last bin so this then checks if its >5 at which point 
+	//it also assigns it to the last bin. The value of 5 will have already been assigned in the for
+	//loop above to the last bin so its okay that its a >5 test 
 	if (eta>EtaBins[nBinsEta-1]) iEtaSl = nBinsEta-1;
 	if (brem<BremBins[0]) iBremSl = 0;
 	if (brem>BremBins[nBinsBrem-1]) iBremSl = nBinsBrem-1;
