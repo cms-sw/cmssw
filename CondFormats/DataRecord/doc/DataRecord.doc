@@ -157,7 +157,7 @@
 - HcalFlagHFDigiTimeParamsRcd
 - HcalGainWidthsRcd
 - HcalGainsRcd
-- HcalODFCorrections
+- HcalODFCorrectionsRcd
 - HcalL1TriggerObjectsRcd
 - HcalLUTCorrsRcd
 - HcalLongRecoParamsRcd

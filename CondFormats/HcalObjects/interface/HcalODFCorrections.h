@@ -55,8 +55,14 @@ class HcalODFCorrections {
           
             COND_SERIALIZABLE;
         };
-    
-    std::vector<Item> odfCorrections;
+
+        void addValues(int e, int p, float l, float h) {
+            Item i = {e, p, l, h};
+            odfCorrections.push_back(i);
+        }
+
+    private:
+        std::vector<Item> odfCorrections;
     
     COND_SERIALIZABLE;
 };
