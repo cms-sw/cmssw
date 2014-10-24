@@ -85,7 +85,6 @@
 #include <vector>
 #include <map>
 
-class DQMStore;
 
 class ExoticaDQM: public DQMEDAnalyzer {
 
@@ -115,11 +114,9 @@ private:
   void bookHistograms(DQMStore::IBooker& bei, edm::Run const&,
                               edm::EventSetup const&) override;
 
-  DQMStore* bei_;
   int nLumiSecs_;
   int nEvents_, irun, ievt;
 
-  HLTConfigProvider hltConfigProvider_;
   bool isValidHltConfig_;
 
   //Trigger
