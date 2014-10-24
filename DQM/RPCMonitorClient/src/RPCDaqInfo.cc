@@ -3,6 +3,10 @@
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "CondFormats/RunInfo/interface/RunSummary.h"
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
+
 
 RPCDaqInfo::RPCDaqInfo(const edm::ParameterSet& ps) {
  
@@ -12,17 +16,20 @@ RPCDaqInfo::RPCDaqInfo(const edm::ParameterSet& ps) {
   NumberOfFeds_ =FEDRange_.second -  FEDRange_.first +1;
 
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 4);
+
+  init_=false;
 }
 
 RPCDaqInfo::~RPCDaqInfo(){}
-
-void RPCDaqInfo::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup){
+void RPCDaqInfo::beginJob(){}
+void RPCDaqInfo::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, edm::LuminosityBlock const & LB, edm::EventSetup const& iSetup){
   
   edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
-
+  
+  if(!init_){this->myBooker(ibooker);}
 
   if(0 != iSetup.find( recordKey ) ) {
-
+    
     //get fed summary information
     edm::ESHandle<RunInfo> sumFED;
     iSetup.get<RunInfoRcd>().get(sumFED);    
@@ -49,17 +56,14 @@ void RPCDaqInfo::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, con
 }
 
 
-void RPCDaqInfo::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup){}
+void RPCDaqInfo::dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &){}
 
 
-void RPCDaqInfo::beginJob(){
+void RPCDaqInfo::myBooker(DQMStore::IBooker & ibooker){
 
-  dbe_ = 0;
-  dbe_ = edm::Service<DQMStore>().operator->();
-  
   //fraction of alive FEDs
-  dbe_->setCurrentFolder("RPC/EventInfo/DAQContents");
- 
+  ibooker.setCurrentFolder("RPC/EventInfo/DAQContents");
+  
   int limit = numberOfDisks_;
   if(numberOfDisks_ < 2) limit = 2;
   
@@ -67,7 +71,7 @@ void RPCDaqInfo::beginJob(){
     if (i>-3 && i<3){//wheels
       std::stringstream streams;
       streams << "RPC_Wheel" << i;
-      daqWheelFractions[i+2] = dbe_->bookFloat(streams.str());
+      daqWheelFractions[i+2] = ibooker.bookFloat(streams.str());
       daqWheelFractions[i+2]->Fill(-1);
     }
     
@@ -78,17 +82,17 @@ void RPCDaqInfo::beginJob(){
     
     std::stringstream streams;
     streams << "RPC_Disk" << i;
-    daqDiskFractions[i+2] = dbe_->bookFloat(streams.str());
+    daqDiskFractions[i+2] = ibooker.bookFloat(streams.str());
     daqDiskFractions[i+2]->Fill(-1);
   }
 
 
   //daq summary for RPCs
-  dbe_->setCurrentFolder("RPC/EventInfo");
+  ibooker.setCurrentFolder("RPC/EventInfo");
     
-  DaqFraction_ = dbe_->bookFloat("DAQSummary");
+  DaqFraction_ = ibooker.bookFloat("DAQSummary");
 
-  DaqMap_ = dbe_->book2D( "DAQSummaryMap","RPC DAQ Summary Map",15, -7.5, 7.5, 12, 0.5 ,12.5);
+  DaqMap_ = ibooker.book2D( "DAQSummaryMap","RPC DAQ Summary Map",15, -7.5, 7.5, 12, 0.5 ,12.5);
 
  //customize the 2d histo
   std::stringstream BinLabel;
@@ -111,12 +115,11 @@ void RPCDaqInfo::beginJob(){
  
      DaqMap_->setBinLabel(i,BinLabel.str(),1);
   }
+
+  init_=true;
+
 }
 
 
-void RPCDaqInfo::endJob() {}
 
-
-
-void RPCDaqInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){}
 

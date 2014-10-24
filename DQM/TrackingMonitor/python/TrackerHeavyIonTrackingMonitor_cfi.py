@@ -5,10 +5,15 @@ TrackerHeavyIonTrackMon = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clone
 
 # Update specific parameters
 
-TrackerHeavyIonTrackMon.TrackProducer         = cms.InputTag("hiGlobalPrimTracks")
+TrackerHeavyIonTrackMon.TrackProducer         = cms.InputTag("hiGeneralTracks")
 TrackerHeavyIonTrackMon.SeedProducer          = cms.InputTag("hiPixelTrackSeeds")
 TrackerHeavyIonTrackMon.TCProducer            = cms.InputTag("hiPrimTrackCandidates")
 TrackerHeavyIonTrackMon.beamSpot              = cms.InputTag("offlineBeamSpot")
+TrackerHeavyIonTrackMon.primaryVertex         = cms.InputTag('hiSelectedVertex')
+
+
+TrackerHeavyIonTrackMon.doHIPlots             = cms.bool(True)
+
 
 TrackerHeavyIonTrackMon.AlgoName              = cms.string('HeavyIonTk')
 TrackerHeavyIonTrackMon.Quality               = cms.string('')

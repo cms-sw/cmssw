@@ -28,7 +28,7 @@ import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 ALCARECOSiStripCalMinBias = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone()
 
 ALCARECOSiStripCalMinBias.filter         = True ##do not store empty events	
-ALCARECOSiStripCalMinBias.src            = 'hiSelectedTracks'
+ALCARECOSiStripCalMinBias.src            = 'hiGeneralTracks'
 ALCARECOSiStripCalMinBias.applyBasicCuts = True
 ALCARECOSiStripCalMinBias.ptMin          = 0.8 ##GeV
 ALCARECOSiStripCalMinBias.nHitMin        = 6 ## at least 6 hits required
