@@ -13,7 +13,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
-#include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "HLTrigger/JetMET/interface/HLTJetSortedVBFFilter.h"
 
@@ -25,6 +24,7 @@
 #include<typeinfo>
 
 using namespace std;
+
 //
 // constructors and destructor//
 //
@@ -35,7 +35,6 @@ HLTJetSortedVBFFilter<T>::HLTJetSortedVBFFilter(const edm::ParameterSet& iConfig
  ,mqq_         (iConfig.getParameter<double>       ("Mqq"         ))
  ,detaqq_      (iConfig.getParameter<double>       ("Detaqq"      ))
  ,detabb_      (iConfig.getParameter<double>       ("Detabb"      ))
- ,dphibb_      (iConfig.getParameter<double>       ("Dphibb"      )) 	
  ,ptsqq_       (iConfig.getParameter<double>       ("Ptsumqq"     ))
  ,ptsbb_       (iConfig.getParameter<double>       ("Ptsumbb"     ))
  ,seta_        (iConfig.getParameter<double>       ("Etaq1Etaq2"  ))
@@ -61,7 +60,6 @@ HLTJetSortedVBFFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<double>("Mqq",200);
   desc.add<double>("Detaqq",2.5);
   desc.add<double>("Detabb",10.);
-  desc.add<double>("Dphibb",10.);
   desc.add<double>("Ptsumqq",0.);
   desc.add<double>("Ptsumbb",0.);
   desc.add<double>("Etaq1Etaq2",40.);
@@ -70,21 +68,7 @@ HLTJetSortedVBFFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descr
   descriptions.add(string("hlt")+string(typeid(HLTJetSortedVBFFilter<T>).name()),desc);
 }
 
-template<typename T> float HLTJetSortedVBFFilter<T>::findCSV(const typename std::vector<T>::const_iterator & jet, const reco::JetTagCollection  & jetTags){
-        float minDr = 0.1;
-        float tmpCSV = -20 ;
-        for (reco::JetTagCollection::const_iterator jetb = jetTags.begin(); (jetb!=jetTags.end()); ++jetb) {
-        float tmpDr = reco::deltaR(*jet,*(jetb->first));
 
-        if (tmpDr < minDr) {
-                minDr = tmpDr ;
-                tmpCSV= jetb->second;
-                }
-
-        }
-        return tmpCSV;
-
-}
 //
 // member functions
 //
@@ -104,10 +88,10 @@ HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& se
    typedef Ref<TCollection> TRef;
 
    bool accept(false);
-   const unsigned int nMax(4);
 
    if (saveTags()) filterproduct.addCollectionTag(inputJets_);
 
+   const unsigned int nMax(4);
    vector<Jpair> sorted(nMax);
    vector<TRef> jetRefs(nMax);
 
@@ -145,13 +129,10 @@ HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& se
      q2 = jetRefs[0]->p4();
    } else {
      event.getByToken(m_theJetTagsToken,jetTags);
-
-
      if (jetTags->size()<nMax) return false;
-     for (typename TCollection::const_iterator jet=jets->begin(); (jet!=jets->end()&& nJet<nMax); ++jet) {
-
+     for (JetTagCollection::const_iterator jet = jetTags->begin(); (jet!=jetTags->end()&&nJet<nMax); ++jet) {
        if (value_=="second") {
-	 value = findCSV(jet, *jetTags);
+	 value = jet->second;
        } else {
 	 value = 0.0;
        }
@@ -171,7 +152,6 @@ HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& se
    double mqq_bs     = (q1+q2).M();
    double deltaetaqq = std::abs(q1.Eta()-q2.Eta());
    double deltaetabb = std::abs(b1.Eta()-b2.Eta());
-   double deltaphibb = std::abs(reco::deltaPhi(b1.Phi(),b2.Phi()));
    double ptsqq_bs   = (q1+q2).Pt();
    double ptsbb_bs   = (b1+b2).Pt();
    double signeta    = q1.Eta()*q2.Eta();
@@ -180,7 +160,6 @@ HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& se
 	(mqq_bs     > mqq_    ) &&
 	(deltaetaqq > detaqq_ ) &&
 	(deltaetabb < detabb_ ) &&
-	(deltaphibb < dphibb_ ) &&
 	(ptsqq_bs   > ptsqq_  ) &&
 	(ptsbb_bs   > ptsbb_  ) &&
 	(signeta    < seta_   )

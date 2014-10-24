@@ -20,14 +20,14 @@ from RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cff import *
 hiGlobalPrimTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone(
 	src = 'hiPrimTrackCandidates',
 	useHitsSplitting=True,
-        AlgorithmName = 'initialStep'
+        AlgorithmName = 'iter0'
 )
 
 ### track quality cuts
 from RecoHI.HiTracking.HISelectedTracks_cfi import *
 
 ### paths
-hiBasicTracking = cms.Sequence(hiPixelVertices
+heavyIonTracking = cms.Sequence(hiPixelVertices
                                 * hiPrimSeeds
                                 * hiPrimTrackCandidates
                                 * hiGlobalPrimTracks

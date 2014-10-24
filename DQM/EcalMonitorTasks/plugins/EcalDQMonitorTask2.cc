@@ -16,6 +16,8 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 
+#include "TStopwatch.h"
+
 template <typename CollectionClass>
 void
 EcalDQMonitorTask::runOnCollection(edm::Event const& _evt, ecaldqm::Collections _col, std::set<ecaldqm::DQWorker*> const& _enabledTasks)
@@ -30,12 +32,18 @@ EcalDQMonitorTask::runOnCollection(edm::Event const& _evt, ecaldqm::Collections 
 
   CollectionClass const* collection(hndl.product());
 
-  executeOnWorkers_([collection, _col, &_enabledTasks, this](ecaldqm::DQWorker* worker){
-                      if(_enabledTasks.find(worker) != _enabledTasks.end())
+  TStopwatch sw;
+  sw.Reset();
+
+  executeOnWorkers_([collection, _col, &_enabledTasks, &sw, this](ecaldqm::DQWorker* worker){
+                      if(_enabledTasks.find(worker) != _enabledTasks.end()){
+                        if(this->evaluateTime_) sw.Start();
                         static_cast<ecaldqm::DQWorkerTask*>(worker)->analyze(collection, _col);
+                        if(this->evaluateTime_) this->taskTimes_[worker] += sw.RealTime();
+                      }
                     }, "analyze");
 
-  if(verbosity_ > 1) edm::LogInfo("EcalDQM") << moduleName_ << "::runOn" << ecaldqm::collectionName[_col] << " returning";
+  edm::LogInfo("EcalDQM") << moduleName_ << "::runOn" << ecaldqm::collectionName[_col] << " returning";
 }
 
 void

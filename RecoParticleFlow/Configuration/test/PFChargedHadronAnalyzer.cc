@@ -230,10 +230,10 @@ PFChargedHadronAnalyzer::analyze(const Event& iEvent,
     unsigned int pxdN = 0;
     const reco::HitPattern& hp = et.trackRef()->hitPattern();
     switch ( et.trackRef()->algo() ) {
-    case TrackBase::initialStep:
-    case TrackBase::lowPtTripletStep:
-    case TrackBase::pixelPairStep:
-    case TrackBase::detachedTripletStep:
+    case TrackBase::iter0:
+    case TrackBase::iter1:
+    case TrackBase::iter2:
+    case TrackBase::iter3:
       tobN += hp.numberOfValidStripTOBHits();
       tecN += hp.numberOfValidStripTECHits();
       tibN += hp.numberOfValidStripTIBHits();
@@ -241,12 +241,12 @@ PFChargedHadronAnalyzer::analyze(const Event& iEvent,
       pxbN += hp.numberOfValidPixelBarrelHits(); 
       pxdN += hp.numberOfValidPixelEndcapHits(); 
       break;
-    case TrackBase::mixedTripletStep:
-    case TrackBase::pixelLessStep:
-    case TrackBase::tobTecStep:
-    case TrackBase::jetCoreRegionalStep:
-    case TrackBase::muonSeededStepInOut:
-    case TrackBase::muonSeededStepOutIn:
+    case TrackBase::iter4:
+    case TrackBase::iter5:
+    case TrackBase::iter6:
+    case TrackBase::iter7:
+    case TrackBase::iter9:
+    case TrackBase::iter10:
     default:
       break;
     }

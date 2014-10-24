@@ -1,8 +1,22 @@
+// -*- C++ -*-
+//
+// Package:    EvtPlaneProducer
+// Class:      EvtPlaneProducer
+// 
+/**\class EvtPlaneProducer EvtPlaneProducer.cc RecoHI/EvtPlaneProducer/src/EvtPlaneProducer.cc
+   
+Description: <one line class summary>
+
+Implementation:
+<Notes on implementation>
+*/
 //
 // Original Author:  Sergey Petrushanko
 //         Created:  Fri Jul 11 10:05:00 2008
 //
 //
+#define TRACKCOLLECTION 1
+//#define RECOCHARGEDCANDIDATECOLLECTION 1
 
 
 // system include files
@@ -113,14 +127,14 @@ private:
 
   GenPlane *rp[NumEPNames];
 
-  virtual void beginJob() ;
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void beginJob() override ;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override ;
   
   // ----------member data ---------------------------
-  edm::EDGetTokenT<reco::VertexCollection> vtxCollection_;
-  edm::EDGetTokenT<CaloTowerCollection> caloCollection_;
-  edm::EDGetTokenT<reco::TrackCollection> trackCollection_;
+  edm::InputTag vtxCollection_;
+  edm::InputTag caloCollection_;
+  edm::InputTag trackCollection_;
   bool useECAL_;
   bool useHCAL_;
   bool useTrack_;
@@ -154,9 +168,9 @@ EvtPlaneProducer::EvtPlaneProducer(const edm::ParameterSet& iConfig)
   
   
   //register your products
-  vtxCollection_    = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vtxCollection_"));
-  caloCollection_   = consumes<CaloTowerCollection>(iConfig.getParameter<edm::InputTag>("caloCollection_"));
-  trackCollection_  = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("trackCollection_"));
+  vtxCollection_  = iConfig.getParameter<edm::InputTag>("vtxCollection_");
+  caloCollection_  = iConfig.getParameter<edm::InputTag>("caloCollection_");
+  trackCollection_  = iConfig.getParameter<edm::InputTag>("trackCollection_");
   useECAL_ = iConfig.getUntrackedParameter<bool>("useECAL_",true);
   useHCAL_ = iConfig.getUntrackedParameter<bool>("useHCAL_",true);
   useTrack_ = iConfig.getUntrackedParameter<bool>("useTrack",true);
@@ -204,7 +218,7 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //Get Vertex
   //
   edm::Handle<reco::VertexCollection> vertexCollection3;
-  iEvent.getByToken(vtxCollection_,vertexCollection3);
+  iEvent.getByLabel(vtxCollection_,vertexCollection3);
   const reco::VertexCollection * vertices3 = vertexCollection3.product();
   vs_sell = vertices3->size();
   if(vs_sell>0) {
@@ -220,7 +234,7 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double tower_energyet, tower_energyet_e, tower_energyet_h;
     double s1, s2, s13,s23,s14,s24,s15,s25,s16,s26;
     Handle<CaloTowerCollection> calotower;
-    iEvent.getByToken(caloCollection_,calotower);
+    iEvent.getByLabel(caloCollection_,calotower);
     
     if(calotower.isValid()){
       
@@ -279,19 +293,28 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double track_eta;
     double track_phi;
     double track_pt;
-
+#ifdef TRACKCOLLECTION  
     Handle<reco::TrackCollection> tracks;
-    iEvent.getByToken(trackCollection_, tracks);
+    iEvent.getByLabel(trackCollection_, tracks);
     
     if(tracks.isValid()){
       for(reco::TrackCollection::const_iterator j = tracks->begin(); j != tracks->end(); j++){
 	
 	//Find possible collections with command line: edmDumpEventContent *.root
-	
+#endif
+#ifdef RECOCHARGEDCANDIDATECOLLECTION
+	edm::Handle<reco::RecoChargedCandidateCollection> trackCollection;
+	iEvent.getByLabel("allMergedPtSplit12Tracks",trackCollection);
+	//	iEvent.getByLabel("hiGoodMergedTracks",trackCollection);
+	if(trackCollection.isValid()){
+	  
+	  const reco::RecoChargedCandidateCollection * tracks = trackCollection.product();
+	  for(reco::RecoChargedCandidateCollection::const_iterator j = tracks->begin(); j != tracks->end(); j++){
+#endif  
 	edm::Handle<reco::VertexCollection> vertex;
-	iEvent.getByToken(vtxCollection_, vertex);
+	iEvent.getByLabel(vtxCollection_, vertex);
 	
-	// find the vertex point and error
+// find the vertex point and error
 
 	math::XYZPoint vtxPoint(0.0,0.0,0.0);
 	double vzErr =0.0, vxErr=0.0, vyErr=0.0;

@@ -497,24 +497,24 @@ bool PFElecTkProducer::isFifthStep(reco::PFRecTrackRef pfKfTrack) {
   switch (kfref->algo()) {
   case TrackBase::undefAlgorithm:
   case TrackBase::ctf:
-  case TrackBase::initialStep:
-  case TrackBase::lowPtTripletStep:
-  case TrackBase::pixelPairStep:
-  case TrackBase::jetCoreRegionalStep:
-  case TrackBase::muonSeededStepInOut:
-  case TrackBase::muonSeededStepOutIn:
+  case TrackBase::iter0:
+  case TrackBase::iter1:
+  case TrackBase::iter2:
+  case TrackBase::iter7:
+  case TrackBase::iter9:
+  case TrackBase::iter10:
     Algo = 0;
     break;
-  case TrackBase::detachedTripletStep:
+  case TrackBase::iter3:
     Algo = 1;
     break;
-  case TrackBase::mixedTripletStep:
+  case TrackBase::iter4:
     Algo = 2;
     break;
-  case TrackBase::pixelLessStep:
+  case TrackBase::iter5:
     Algo = 3;
     break;
-  case TrackBase::tobTecStep:
+  case TrackBase::iter6:
     Algo = 4;
     break;
   default:

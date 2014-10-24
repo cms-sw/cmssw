@@ -1,8 +1,17 @@
 #ifndef __HiEvtPlaneFlatten__
 #define __HiEvtPlaneFlatten__
+// -*- C++ -*-
+//
+// Package:    HiEvtPlaneFlatten
+// Class:      HiEvtPlaneFlatten
+// 
 
+//
+//
 // Original Author:  Stephen Sanders
 //         Created:  Mon Jun  7 14:40:12 EDT 2010
+//
+//
 
 // system include files
 #include <memory>

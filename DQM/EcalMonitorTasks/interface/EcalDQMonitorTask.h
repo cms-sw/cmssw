@@ -46,6 +46,8 @@ class EcalDQMonitorTask : public DQMEDAnalyzer, public ecaldqm::EcalDQMonitor {
   int processedEvents_;
 
   /* TASK TIME PROFILING */
+  bool evaluateTime_;
+  std::map<ecaldqm::DQWorker*, double> taskTimes_;
   time_t lastResetTime_;
   float resetInterval_;
 };

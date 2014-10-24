@@ -50,8 +50,7 @@ class PileupSummaryInfo {
 		     std::vector<int>& ntrks_lowpT,
 		     std::vector<int>& ntrks_highpT,
 		     int bunchCrossing,
-		     float TrueNumInteractions,
-		     int bunchSpacing);
+		     float TrueNumInteractions);
 
   PileupSummaryInfo( const int num_PU_vertices,
 		     std::vector<float>& instLumi,
@@ -69,7 +68,6 @@ class PileupSummaryInfo {
   const std::vector<float>& getPU_instLumi() const { return instLumi_; }
   const std::vector<edm::EventID>& getPU_EventID() const { return eventInfo_; }
   const int getBunchCrossing() const { return bunchCrossing_;}
-  const int getBunchSpacing() const { return bunchSpacing_;}
   const float getTrueNumInteractions() const { return TrueNumInteractions_;}
 
  private:
@@ -83,7 +81,6 @@ class PileupSummaryInfo {
   std::vector<int> ntrks_lowpT_;
   std::vector<int> ntrks_highpT_;
   int bunchCrossing_;
-  int bunchSpacing_;
   float TrueNumInteractions_;
 
 

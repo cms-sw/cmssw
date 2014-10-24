@@ -8,20 +8,15 @@
 
 #include "DQMOffline/PFTau/interface/Benchmark.h"
 
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-
 /// abtract base class for benchmark analyzers
-class BenchmarkAnalyzer: public DQMEDAnalyzer {
+class BenchmarkAnalyzer: public edm::EDAnalyzer {
 public:
 
-  /// Constructors
   BenchmarkAnalyzer();
   explicit BenchmarkAnalyzer(const edm::ParameterSet&);
-
-  /// Destructor
   virtual ~BenchmarkAnalyzer() {}
 
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  virtual void beginJob() = 0;
 
  protected:
 
@@ -33,10 +28,6 @@ public:
 
   /// benchmark label
   std::string benchmarkLabel_;
-
-
-  std::string eventInfoFolder_;
-  std::string subsystemname_;
 
 };
 

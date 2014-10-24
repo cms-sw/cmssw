@@ -16,17 +16,10 @@ GsfCombinedMaterialEffectsUpdator::GsfCombinedMaterialEffectsUpdator(GsfMaterial
 void GsfCombinedMaterialEffectsUpdator::compute (const TrajectoryStateOnSurface& TSoS,
 						 const PropagationDirection propDir, Effect effects[]) const
 {
-  #if __clang__
-  std::vector<Effect> msEffects(theMSUpdator->size());
-  theMSUpdator->compute(TSoS,propDir,msEffects.data());
-  std::vector<Effect> elEffects(theELUpdator->size());
-  theELUpdator->compute(TSoS,propDir,elEffects.data());
-  #else
   Effect msEffects[theMSUpdator->size()];
   theMSUpdator->compute(TSoS,propDir,msEffects);
   Effect elEffects[theELUpdator->size()];
   theELUpdator->compute(TSoS,propDir,elEffects);
-  #endif
  
   //
   // combine the two multi-updates

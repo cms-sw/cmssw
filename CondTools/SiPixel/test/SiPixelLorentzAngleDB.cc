@@ -4,13 +4,11 @@
 #include <fstream>
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondTools/SiPixel/test/SiPixelLorentzAngleDB.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -29,6 +27,8 @@ SiPixelLorentzAngleDB::SiPixelLorentzAngleDB(edm::ParameterSet const& conf) :
   conf_(conf){
   	magneticField_ = conf_.getParameter<double>("magneticField");
 	recordName_ = conf_.getUntrackedParameter<std::string>("record","SiPixelLorentzAngleRcd");
+//	bPixLorentzAnglePerTesla_ = (float)conf_.getParameter<double>("bPixLorentzAnglePerTesla");
+//	fPixLorentzAnglePerTesla_ = (float)conf_.getParameter<double>("fPixLorentzAnglePerTesla");
 	useFile_ = conf_.getParameter<bool>("useFile");		
 	fileName_ = conf_.getParameter<string>("fileName");
 
@@ -41,7 +41,6 @@ SiPixelLorentzAngleDB::SiPixelLorentzAngleDB(edm::ParameterSet const& conf) :
 void SiPixelLorentzAngleDB::beginJob(){
   
 }
-
 // Virtual destructor needed.
 
 SiPixelLorentzAngleDB::~SiPixelLorentzAngleDB() {  
@@ -54,35 +53,32 @@ void SiPixelLorentzAngleDB::analyze(const edm::Event& e, const edm::EventSetup& 
 {
 
 	SiPixelLorentzAngle* LorentzAngle = new SiPixelLorentzAngle();
-
-
-        //Retrieve tracker topology from geometry
-        edm::ESHandle<TrackerTopology> tTopoHandle;
-        es.get<IdealGeometryRecord>().get(tTopoHandle);
-        const TrackerTopology* const tTopo = tTopoHandle.product();
-
-
+	   
 	
-        //Retrieve old style tracker geometry from geometry
 	edm::ESHandle<TrackerGeometry> pDD;
 	es.get<TrackerDigiGeometryRecord>().get( pDD );
-	edm::LogInfo("SiPixelLorentzAngle (old)") <<" There are "<<pDD->detUnits().size() <<" detectors (old)"<<std::endl;
+	edm::LogInfo("SiPixelLorentzAngle") <<" There are "<<pDD->detUnits().size() <<" detectors"<<std::endl;
 	
 	for(TrackerGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); it++){
     
 	   if( dynamic_cast<PixelGeomDetUnit const*>((*it))!=0){
 		DetId detid=(*it)->geographicalId();
-                const DetId detidc = (*it)->geographicalId();
 			
 		// fill bpix values for LA 
 		if(detid.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
 				
-                cout << " pixel barrel:" << "  layer=" << tTopo->pxbLayer(detidc.rawId()) << "  ladder=" << tTopo->pxbLadder(detidc.rawId()) << "  module=" << tTopo->pxbModule(detidc.rawId()) << endl;
+                PXBDetId pxdetid = PXBDetId(detid);
+                cout << " hp:barrel:" << "  layer=" << pxdetid.layer() << "  ladder=" << pxdetid.ladder() << "  module=" << pxdetid.module() << endl;
 
 		   if(!useFile_){
-
+/*hp
+			if ( ! LorentzAngle->putLorentzAngle(detid.rawId(),bPixLorentzAnglePerTesla_) )
+			edm::LogError("SiPixelLorentzAngleDB")<<"[SiPixelLorentzAngleDB::analyze] detid already exists"<<std::endl;
+*/
+//hp
 		        for(Parameters::iterator it = BPixParameters_.begin(); it != BPixParameters_.end(); ++it) {
-                           if( it->getParameter<unsigned int>("module") == tTopo->pxbModule(detidc.rawId()) && it->getParameter<unsigned int>("layer") == tTopo->pxbLayer(detidc.rawId()) )
+//                           cout << " PSet: " << *it << ", module = " << it->getParameter<unsigned int>("module") << endl;
+                           if( it->getParameter<unsigned int>("module") == pxdetid.module() && it->getParameter<unsigned int>("layer") == pxdetid.layer() )
                            {
                               float lorentzangle = (float)it->getParameter<double>("angle");
                               LorentzAngle->putLorentzAngle(detid.rawId(),lorentzangle);
@@ -90,17 +86,24 @@ void SiPixelLorentzAngleDB::analyze(const edm::Event& e, const edm::EventSetup& 
                         }
 
 		   } else {
+//			cout << "method for reading file not implemented yet" << endl;
   			edm::LogError("SiPixelLorentzAngleDB")<<"[SiPixelLorentzAngleDB::analyze] method for reading file not implemented yet" << std::endl;
 		   }
 			
 		   // fill fpix values for LA 
 		} else if(detid.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
 				
-                      cout << " pixel endcap:" << "  side=" << tTopo->pxfSide(detidc.rawId()) << "  disk=" << tTopo->pxfDisk(detidc.rawId()) << "  blade=" << tTopo->pxfBlade(detidc.rawId()) << "  panel=" << tTopo->pxfPanel(detidc.rawId()) << "  module=" << tTopo->pxfModule(detidc.rawId()) << endl;
+//hp
+                      PXFDetId pxdetid = PXFDetId(detid);
+                      cout << " hp:endcap:" << "  side=" << pxdetid.side() << "  disk=" << pxdetid.disk() << "  blade=" << pxdetid.blade() << "  panel=" << pxdetid.panel() << "  module=" << pxdetid.module() << endl;
+/*hp
+		      if ( ! LorentzAngle->putLorentzAngle(detid.rawId(),fPixLorentzAnglePerTesla_) )  edm::LogError("SiPixelLorentzAngleDB")<<"[SiPixelLorentzAngleDB::analyze] detid already exists"<<std::endl;
+*/
 
-
+//hp
 		        for(Parameters::iterator it = FPixParameters_.begin(); it != FPixParameters_.end(); ++it) {
-                           if( it->getParameter<unsigned int>("side") == tTopo->pxfSide(detidc.rawId()) && it->getParameter<unsigned int>("disk") == tTopo->pxfDisk(detidc.rawId()) && it->getParameter<unsigned int>("HVgroup") == HVgroup( tTopo->pxfPanel(detidc.rawId()), tTopo->pxfModule(detidc.rawId()) ) )
+//                           cout << " PSet: " << *it << ", module = " << it->getParameter<unsigned int>("module") << endl;
+                           if( it->getParameter<unsigned int>("side") == pxdetid.side() && it->getParameter<unsigned int>("disk") == pxdetid.disk() && it->getParameter<unsigned int>("HVgroup") == HVgroup(pxdetid.panel(),pxdetid.module()) )
                            {
                               float lorentzangle = (float)it->getParameter<double>("angle");
                               LorentzAngle->putLorentzAngle(detid.rawId(),lorentzangle);

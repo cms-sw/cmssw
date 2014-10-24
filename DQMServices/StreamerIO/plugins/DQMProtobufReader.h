@@ -39,8 +39,6 @@ class DQMProtobufReader : public edm::InputSource {
 
   std::unique_ptr<double> streamReader_;
   DQMFileIterator fiterator_;
-  DQMFileIterator::LumiEntry currentLumi_;
-
 
   InputSource::ItemType nextItemType;
 };

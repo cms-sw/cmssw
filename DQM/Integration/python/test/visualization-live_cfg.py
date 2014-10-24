@@ -1,4 +1,3 @@
-import FWCore.ParameterSet.Config as cms
 from Configuration.DataProcessing.GetScenario import getScenario
 
 """
@@ -42,7 +41,7 @@ process = scenario.visualizationProcessing(globalTag='DUMMY', writeTiers=['FEVT'
 
 process.source = source
 
-process.load("DQM.Integration.test.FrontierCondition_GT_autoExpress_cfi")
+process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
 
 process.options = cms.untracked.PSet(
         Rethrow = cms.untracked.vstring('ProductNotFound'),

@@ -44,8 +44,8 @@ class ParticleTowerProducer : public edm::EDProducer {
   int phi2iphi(double phi, int ieta) const;
   
   // ----------member data ---------------------------
-
-  edm::EDGetTokenT<reco::PFCandidateCollection> src_;
+  
+  edm::InputTag src_;
   bool useHF_;
   
   std::map<DetId,double> towers_;

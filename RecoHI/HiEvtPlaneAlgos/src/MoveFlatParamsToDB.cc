@@ -1,3 +1,15 @@
+// -*- C++ -*-
+//
+// Package:    MoveFlatParamsToDB
+// Class:      MoveFlatParamsToDB
+// 
+/**\class MoveFlatParamsToDB MoveFlatParamsToDB.cc HiEvtPlaneFlatten/MoveFlatParamsToDB/src/MoveFlatParamsToDB.cc
+
+ Description: [one line class summary]
+
+ Implementation:
+     [Notes on implementation]
+*/
 //
 // Original Author:  Stephen Sanders
 //         Created:  Fri Jun 11 12:56:15 EDT 2010

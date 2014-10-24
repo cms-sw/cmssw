@@ -132,28 +132,6 @@ namespace cond {
       configure( connServ.configuration() );
     }
 
-    boost::shared_ptr<coral::ISessionProxy> ConnectionPool::createCoralSession( const std::string& connectionString, 
-										const std::string& transactionId,
-										bool writeCapable ){
-      coral::ConnectionService connServ;
-      std::pair<std::string,std::string> fullConnectionPars = getConnectionParams( connectionString, transactionId );
-      if( !fullConnectionPars.second.empty() ) {
-	// the olds formats
-	connServ.webCacheControl().refreshTable( fullConnectionPars.second, POOL_IOV_TABLE_DATA );
-	connServ.webCacheControl().refreshTable( fullConnectionPars.second, ORA_IOV_TABLE_1 );
-	connServ.webCacheControl().refreshTable( fullConnectionPars.second, ORA_IOV_TABLE_2 );
-	connServ.webCacheControl().refreshTable( fullConnectionPars.second, ORA_IOV_TABLE_3 );
-	// the new schema...
-	connServ.webCacheControl().setTableTimeToLive( fullConnectionPars.second, TAG::tname, 1 );
-	connServ.webCacheControl().setTableTimeToLive( fullConnectionPars.second, IOV::tname, 1 );
-	connServ.webCacheControl().setTableTimeToLive( fullConnectionPars.second, PAYLOAD::tname, 3 );
-      }
-
-      return boost::shared_ptr<coral::ISessionProxy>( connServ.connect( fullConnectionPars.first, 
-									writeCapable?Auth::COND_WRITER_ROLE:Auth::COND_READER_ROLE,
-									writeCapable?coral::Update:coral::ReadOnly ) ); 
-    }
-
     Session ConnectionPool::createSession( const std::string& connectionString, 
 					   const std::string& transactionId, 
 					   bool writeCapable,
@@ -172,8 +150,9 @@ namespace cond {
 	connServ.webCacheControl().setTableTimeToLive( fullConnectionPars.second, PAYLOAD::tname, 3 );
       }
 
-      boost::shared_ptr<coral::ISessionProxy> coralSession = createCoralSession( connectionString, transactionId, writeCapable );
-
+      boost::shared_ptr<coral::ISessionProxy> coralSession( connServ.connect( fullConnectionPars.first, 
+									      writeCapable?Auth::COND_WRITER_ROLE:Auth::COND_READER_ROLE,
+									      writeCapable?coral::Update:coral::ReadOnly ) );
       BackendType bt;
       auto it = m_dbTypes.find( connectionString);
       if( it == m_dbTypes.end() ){
@@ -195,12 +174,6 @@ namespace cond {
     Session ConnectionPool::createReadOnlySession( const std::string& connectionString, const std::string& transactionId ){
       return createSession( connectionString, transactionId );
     }
-
-    boost::shared_ptr<coral::ISessionProxy> ConnectionPool::createCoralSession( const std::string& connectionString, 
-										bool writeCapable ){
-      return createCoralSession( connectionString, "", writeCapable );
-    }
-
     void ConnectionPool::setMessageVerbosity( coral::MsgLevel level ){
       m_messageLevel = level;
     }

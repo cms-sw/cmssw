@@ -7,6 +7,8 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
+#include "FWCore/Utilities/interface/InputTag.h"
+
 namespace edm { class Event; class EventSetup; }
 
 class HIPixelMedianVtxProducer : public edm::EDProducer
@@ -19,7 +21,7 @@ public:
 private:
 	void beginJob(){};
 	
-	edm::EDGetTokenT<reco::TrackCollection> theTrackCollection;
+	edm::InputTag theTrackCollection;
 	double thePtMin;
 	unsigned int thePeakFindThresh;
 	double thePeakFindMaxZ;

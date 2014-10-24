@@ -16,9 +16,9 @@
 #include <atomic>
 #endif
 class CSCDMBHeader;
-struct CSCTMBHeader2006;
-struct CSCTMBHeader2007;
-struct CSCTMBHeader2013;
+class CSCTMBHeader2006;
+class CSCTMBHeader2007;
+class CSCTMBHeader2013;
 
 
 class CSCTMBHeader {

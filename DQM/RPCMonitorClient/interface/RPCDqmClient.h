@@ -1,18 +1,19 @@
 #ifndef RPCDqmClient_H
 #define RPCDqmClient_H
 
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/DQMEDHarvester.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQM/RPCMonitorClient/interface/RPCClient.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/ESHandle.h>
+
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <string>
 #include <vector>
 
-class RPCDqmClient:public  DQMEDHarvester { 
+class RPCDqmClient:public edm::EDAnalyzer{
 
- public:
+public:
 
   /// Constructor
  RPCDqmClient(const edm::ParameterSet& ps);
@@ -20,18 +21,33 @@ class RPCDqmClient:public  DQMEDHarvester {
   /// Destructor
   virtual ~ RPCDqmClient();
 
+  /// BeginJob
+  void beginJob( );
+
+  //Begin Run
+   void beginRun(const edm::Run& , const edm::EventSetup&);
+    
+  /// Begin Lumi block 
+  void beginLuminosityBlock(edm::LuminosityBlock const& , edm::EventSetup const& ) ;
+
+  /// Analyze  
+  void analyze(const edm::Event& , const edm::EventSetup& );
+
+  /// End Lumi Block
+  void endLuminosityBlock(edm::LuminosityBlock const& , edm::EventSetup const& );
+ 
+  //End Run
+  void endRun(const edm::Run& , const edm::EventSetup& ); 		
+  
+  /// Endjob
+  void endJob();
+
  protected:
-
- void beginJob();
- void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&); //performed in the endLumi
- void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
-
-  void makeClientMap(const edm::ParameterSet& parameters_);
-  void getMonitorElements(DQMStore::IGetter &, const edm::EventSetup& );
-
+  void makeClientMap(void);
+  void getMonitorElements(const edm::Run&, const edm::EventSetup& );
  private:
 
-  bool offlineDQM_;
+    bool offlineDQM_;
   int prescaleGlobalFactor_, minimumEvents_, numLumBlock_;
  
   bool useRollInfo_,enableDQMClients_ , init_; 
@@ -41,10 +57,16 @@ class RPCDqmClient:public  DQMEDHarvester {
   int lumiCounter_;
   MonitorElement * RPCEvents_; 
 
+  //  std::string  subsystemFolder_,   recHitTypeFolder_,  summaryFolder_;
   std::vector<std::string> clientNames_,clientHisto_; 
   std::vector<RPCClient*> clientModules_;
 
   std::vector<int> clientTag_;
-    
+  //std::map<RPCClient *, std::string> clientMap_;
+  edm::ParameterSet parameters_;
+
+  DQMStore* dbe_;
+ 
+  
 };
 #endif

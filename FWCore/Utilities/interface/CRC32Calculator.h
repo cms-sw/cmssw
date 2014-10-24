@@ -53,7 +53,7 @@ from the original code follow below to attribute the source.
 /*                                                               */
 /*****************************************************************/
 
-#include <cstdint>
+#include "boost/cstdint.hpp"
 
 #include <string>
 
@@ -65,11 +65,11 @@ namespace cms {
 
     CRC32Calculator(std::string const& message);
 
-    std::uint32_t checksum() { return checksum_; }
+    boost::uint32_t checksum() { return checksum_; }
 
   private:
 
-    std::uint32_t checksum_;
+    boost::uint32_t checksum_;
   };
 }
 #endif

@@ -54,5 +54,12 @@ reconstructionHeavyIons = cms.Sequence(reconstruct_PbPb)
 
 reconstructionHeavyIons_HcalNZS = cms.Sequence(localReco_HcalNZS*globalRecoPbPb)
 
-reconstructionHeavyIons_withRegitMu = cms.Sequence(reconstructionHeavyIons*regionalMuonRecoPbPb)
+reconstructionHeavyIons_withPF = cms.Sequence(reconstructionHeavyIons)
+reconstructionHeavyIons_HcalNZS_withPF = cms.Sequence(reconstructionHeavyIons_HcalNZS)
+
+reconstructionHeavyIons_withPF *= hiElectronSequence*HiParticleFlowReco
+reconstructionHeavyIons_HcalNZS_withPF *= hiElectronSequence*HiParticleFlowReco
+
+
+reconstructionHeavyIons_withRegitMu = cms.Sequence(reconstructionHeavyIons*reMuonRecoPbPb)
 #--------------------------------------------------------------------------

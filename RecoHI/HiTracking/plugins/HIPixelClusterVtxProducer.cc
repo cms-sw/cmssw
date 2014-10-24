@@ -14,6 +14,8 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
@@ -27,7 +29,7 @@
 
 /*****************************************************************************/
 HIPixelClusterVtxProducer::HIPixelClusterVtxProducer(const edm::ParameterSet& ps)
-  : srcPixelsString_(ps.getParameter<std::string>("pixelRecHits")),
+  : srcPixels_(ps.getParameter<std::string>("pixelRecHits")),
     minZ_(ps.getParameter<double>("minZ")),
     maxZ_(ps.getParameter<double>("maxZ")),
     zStep_(ps.getParameter<double>("zStep"))
@@ -35,8 +37,6 @@ HIPixelClusterVtxProducer::HIPixelClusterVtxProducer(const edm::ParameterSet& ps
 {
   // Constructor
   produces<reco::VertexCollection>();
-  srcPixels_ = (consumes<SiPixelRecHitCollection>(srcPixelsString_));
-
 }
 
 
@@ -56,7 +56,7 @@ void HIPixelClusterVtxProducer::produce(edm::Event& ev, const edm::EventSetup& e
 
   // get pixel rechits
   edm::Handle<SiPixelRecHitCollection> hRecHits;
-  ev.getByToken(srcPixels_,hRecHits);
+  ev.getByLabel(edm::InputTag(srcPixels_),hRecHits);
 
   // get tracker geometry
   if (hRecHits.isValid()) {

@@ -110,7 +110,7 @@ detachedTripletStepTrackCandidates.TrajectoryCleaner = 'detachedTripletStepTraje
 # TRACK FITTING
 import RecoTracker.TrackProducer.TrackProducer_cfi
 detachedTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
-    AlgorithmName = cms.string('detachedTripletStep'),
+    AlgorithmName = cms.string('iter3'),
     src = 'detachedTripletStepTrackCandidates',
     Fitter = cms.string('FlexibleKFFittingSmoother')
     )

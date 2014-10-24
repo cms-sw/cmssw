@@ -4,21 +4,20 @@ import FWCore.ParameterSet.Config as cms
 # HIGH LEVEL RECO
 
 # Tracking
-from RecoHI.HiTracking.HiTracking_cff import *    # two additional steps
+#from RecoHI.HiTracking.HighPtTracking_PbPb_cff import *  # above 1.5 GeV
+from RecoHI.HiTracking.LowPtTracking_PbPb_cff import *    # above 0.9 GeV
 
 # Egamma
 from RecoHI.HiEgammaAlgos.HiEgamma_cff import *
-from RecoHI.HiEgammaAlgos.HiElectronSequence_cff import *
 
 # Jet Reconstruction
 from RecoHI.HiJetAlgos.HiRecoJets_cff import *
 
 # Muon Reco
 from RecoHI.HiMuonAlgos.HiRecoMuon_cff import * 
-# keep regit seperate for the moment
-from RecoHI.HiMuonAlgos.HiRegionalRecoMuon_cff import *
 
-from RecoHI.Configuration.Reconstruction_hiPF_cff import *
+# Regit Muon Reco
+from RecoHI.HiMuonAlgos.HiReRecoMuon_cff import *
 
 # Heavy Ion Event Characterization
 from RecoHI.HiCentralityAlgos.HiCentrality_cfi import *
@@ -26,34 +25,19 @@ from RecoHI.HiEvtPlaneAlgos.HiEvtPlane_cfi import *
 
 # HCAL noise producer
 from RecoMET.METProducers.hcalnoiseinfoproducer_cfi import *
-hcalnoise.trackCollName = 'hiGeneralTracks'
+hcalnoise.trackCollName = 'hiSelectedTracks'
 
 # Global + High-Level Reco Sequence
-globalRecoPbPb = cms.Sequence(hiTracking
-                              * hiParticleFlowLocalReco
+globalRecoPbPb = cms.Sequence(heavyIonTracking
                               * hiEcalClusters
                               * hiRecoJets
                               * muonRecoPbPb
-                              * hiElectronSequence 
                               * hiEgammaSequence
-                              * hiParticleFlowReco
                               * hiCentrality
                               * hiEvtPlane
                               * hcalnoise
                               )
 
-globalRecoPbPb_wConformalPixel = cms.Sequence(hiTracking_wConformalPixel
-                                              * hiParticleFlowLocalReco
-                                              * hiEcalClusters
-                                              * hiRecoJets
-                                              * muonRecoPbPb
-                                              * hiElectronSequence
-                                              * hiEgammaSequence
-                                              * hiParticleFlowReco
-                                              * hiCentrality
-                                              * hiEvtPlane
-                                              * hcalnoise
-                                              )
 
 #--------------------------------------------------------------------------
 # Full sequence (LOCAL RECO + HIGH LEVEL RECO) 

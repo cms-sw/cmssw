@@ -55,7 +55,7 @@ lowPtTripletStepTracks = cms.EDProducer("FastTrackMerger",
                                         TrackProducers = cms.VInputTag(cms.InputTag("iterativeLowPtTripletTrackCandidatesWithTriplets"),
                                                                        cms.InputTag("iterativeLowPtTripletTracksWithTriplets")),
                                         RemoveTrackProducers =  cms.untracked.VInputTag(cms.InputTag("initialStep")),
-                                        trackAlgo = cms.untracked.uint32(5), # lowPtTripletStep
+                                        trackAlgo = cms.untracked.uint32(5), # iter1
                                         MinNumberOfTrajHits = cms.untracked.uint32(3),
                                         MaxLostTrajHits = cms.untracked.uint32(1)
                                         )

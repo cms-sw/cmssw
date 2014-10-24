@@ -11,6 +11,8 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+// #include "DQMServices/Core/interface/MonitorElement.h"
+// #include <TH1F.h>
 
 using namespace reco;
 using namespace edm;
@@ -34,22 +36,23 @@ PFCandidateManagerAnalyzer::PFCandidateManagerAnalyzer(const edm::ParameterSet& 
 
   myColl_ = consumes< PFCandidateCollection >(inputLabel_);
   myMatchColl_ = consumes< View<Candidate> >(matchLabel_);
-
 }
 
 
-void PFCandidateManagerAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
-					    edm::Run const & iRun,
-					    edm::EventSetup const & iSetup )
+void 
+PFCandidateManagerAnalyzer::beginJob()
 {
-  BenchmarkAnalyzer::bookHistograms(ibooker, iRun, iSetup);
-  setup(ibooker);
+
+  BenchmarkAnalyzer::beginJob();
+  setup();
 }
 
 void 
 PFCandidateManagerAnalyzer::analyze(const edm::Event& iEvent, 
 				      const edm::EventSetup& iSetup) {
-    
+  
+
+  
   Handle< PFCandidateCollection > collection; 
   iEvent.getByToken(myColl_, collection);
 
@@ -59,3 +62,5 @@ PFCandidateManagerAnalyzer::analyze(const edm::Event& iEvent,
   fill( *collection, *matchCollection );
 }
 
+void PFCandidateManagerAnalyzer::endJob() {
+}

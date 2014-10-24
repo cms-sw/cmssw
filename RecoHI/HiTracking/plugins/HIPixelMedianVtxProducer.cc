@@ -19,7 +19,7 @@
 
 /*****************************************************************************/
 HIPixelMedianVtxProducer::HIPixelMedianVtxProducer(const edm::ParameterSet& ps) : 
-  theTrackCollection(consumes<reco::TrackCollection>(ps.getParameter<edm::InputTag>("TrackCollection"))),
+  theTrackCollection(ps.getParameter<edm::InputTag>("TrackCollection")),
   thePtMin(ps.getParameter<double>("PtMin")),
   thePeakFindThresh(ps.getParameter<unsigned int>("PeakFindThreshold")),
   thePeakFindMaxZ(ps.getParameter<double>("PeakFindMaxZ")),
@@ -37,7 +37,7 @@ void HIPixelMedianVtxProducer::produce
 {
   // Get pixel tracks
   edm::Handle<reco::TrackCollection> trackCollection;
-  ev.getByToken(theTrackCollection, trackCollection);
+  ev.getByLabel(theTrackCollection, trackCollection);
   const reco::TrackCollection tracks_ = *(trackCollection.product());
   
   // Select tracks above minimum pt

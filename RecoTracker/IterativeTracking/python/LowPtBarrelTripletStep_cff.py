@@ -126,7 +126,7 @@ lowPtBarrelTripletStepKFFittingSmoother = TrackingTools.TrackFitters.KFFittingSm
 import RecoTracker.TrackProducer.TrackProducer_cfi
 lowPtBarrelTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'lowPtBarrelTripletStepTrackCandidates',
-    AlgorithmName = cms.string('lowPtTripletStep'),
+    AlgorithmName = cms.string('iter1'),
     Fitter = cms.string('lowPtBarrelTripletStepKFFittingSmoother'),
     #Propagator = cms.string('PropagatorWithMaterialForLoopers'),
     #NavigationSchool = cms.string('') ### Is the outerHitPattern filled correctly for loopers???

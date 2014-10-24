@@ -3,26 +3,30 @@
 
 RPCDcsInfoClient::RPCDcsInfoClient( const edm::ParameterSet& ps ) {
 
-   dcsinfofolder_ = ps.getUntrackedParameter<std::string>("dcsInfoFolder", "RPC/DCSInfo") ;
+  dbe_ = edm::Service<DQMStore>().operator->();
 
-  DCS.clear();
-  DCS.resize(10);  // start with 10 LS, resize later
-
+  dcsinfofolder_ = ps.getUntrackedParameter<std::string>("dcsInfoFolder", "RPC/DCSInfo") ;
 }
 
 
 RPCDcsInfoClient::~RPCDcsInfoClient() {}
 
-void RPCDcsInfoClient::beginJob() {}
+void RPCDcsInfoClient::beginRun(const edm::Run& r, const edm::EventSetup& c) {
+  DCS.clear();
+  DCS.resize(10);  // start with 10 LS, resize later
+}
 
-void RPCDcsInfoClient:: dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, edm::LuminosityBlock const & l, edm::EventSetup const& c){
-  
+void RPCDcsInfoClient::analyze(const edm::Event& e, const edm::EventSetup& c){}
+
+void RPCDcsInfoClient::endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c){
+  if (!dbe_) return;
+
   unsigned int nlumi = l.id().luminosityBlock() ;
 
   if (nlumi+1 > DCS.size())   DCS.resize(nlumi+1);
 
 
-  MonitorElement* DCSbyLS_ = igetter.get(dcsinfofolder_ + "/DCSbyLS" ); 
+  MonitorElement* DCSbyLS_ = dbe_->get(dcsinfofolder_ + "/DCSbyLS" ); 
 
   if ( !DCSbyLS_ ) return;
   
@@ -41,18 +45,20 @@ void RPCDcsInfoClient:: dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMSt
   return; 
 }
 
-
-void RPCDcsInfoClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter){
+void RPCDcsInfoClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
   // book 
-  ibooker.cd();  
-  ibooker.setCurrentFolder(dcsinfofolder_ );
+  dbe_->cd();  
+  dbe_->setCurrentFolder(dcsinfofolder_ );
 
   unsigned int nlsmax = DCS.size();
   if (nlsmax > 900 ) nlsmax = 900;
    
   std::string meName = dcsinfofolder_ + "/rpcHVStatus";
-  MonitorElement* rpcHVStatus = ibooker.book2D("rpcHVStatus","RPC HV Status", nlsmax, 1., nlsmax+1, 1, 0.5, 1.5);
+  MonitorElement* rpcHVStatus = dbe_->get(meName);
+  if (rpcHVStatus) dbe_->removeElement(rpcHVStatus->getName());
+
+  rpcHVStatus = dbe_->book2D("rpcHVStatus","RPC HV Status", nlsmax, 1., nlsmax+1, 1, 0.5, 1.5);
   rpcHVStatus->setAxisTitle("Luminosity Section", 1);
   rpcHVStatus->setBinLabel(1,"",2);   
 
@@ -64,7 +70,9 @@ void RPCDcsInfoClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter 
   }
 
   meName = dcsinfofolder_ + "/rpcHV";
-  MonitorElement* rpcHV = ibooker.bookInt("rpcHV");
+  MonitorElement* rpcHV = dbe_->get(meName);
+  if (rpcHV) dbe_->removeElement(rpcHVStatus->getName());
+  rpcHV = dbe_->bookInt("rpcHV");
 
   rpcHV ->Fill(lsCounter);
   
