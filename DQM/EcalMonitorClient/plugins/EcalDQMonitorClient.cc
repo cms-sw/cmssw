@@ -95,7 +95,7 @@ EcalDQMonitorClient::dqmEndLuminosityBlock(DQMStore::IBooker& _ibooker, DQMStore
 {
   executeOnWorkers_([&_ibooker](ecaldqm::DQWorker* worker){
       ecaldqm::DQWorkerClient* client(static_cast<ecaldqm::DQWorkerClient*>(worker));
-      if(!client->runsOn(ecaldqm::DQWorkerClient::kLumi)) return;
+      if(!client->onlineMode() && !client->runsOn(ecaldqm::DQWorkerClient::kLumi)) return;
       client->bookMEs(_ibooker);
     }, "bookMEs", "Booking MEs");
 
@@ -125,7 +125,7 @@ EcalDQMonitorClient::runWorkers(DQMStore::IGetter& _igetter, ecaldqm::DQWorkerCl
 
   executeOnWorkers_([&_igetter, &_type](ecaldqm::DQWorker* worker){
       ecaldqm::DQWorkerClient* client(static_cast<ecaldqm::DQWorkerClient*>(worker));
-      if(!client->runsOn(_type)) return;
+      if(!client->onlineMode() && !client->runsOn(_type)) return;
       client->releaseSource();
       client->resetMEs();
       if(!client->retrieveSource(_igetter, _type)) return;
