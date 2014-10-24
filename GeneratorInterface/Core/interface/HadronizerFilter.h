@@ -261,7 +261,7 @@ namespace edm
     //adjust event weights if necessary (in case input event was accepted multiple times)
     if (naccept>1) {
       std::vector<double> genEventInfoWeights = finalGenEventInfo->weights();
-      genEventInfoWeights.push_back(waccept/finalGenEventInfo->weight());
+      genEventInfoWeights.push_back(double(naccept)/double(nAttempts_));
       finalGenEventInfo->setWeights(genEventInfoWeights);
     }
     
