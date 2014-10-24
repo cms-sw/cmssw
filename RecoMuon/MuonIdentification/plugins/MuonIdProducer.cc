@@ -317,6 +317,7 @@ reco::Muon MuonIdProducer::makeMuon( const reco::MuonTrackLinks& links )
    reco::Muon::MuonTrackTypePair chosenTrack;
    reco::TrackRef tpfmsRef;
    reco::TrackRef pickyRef;
+   reco::TrackRef dytRef;
    bool useSigmaSwitch = false;
 
    if (tpfmsCollectionHandle_.isValid() && !tpfmsCollectionHandle_.failedToGet() &&
@@ -324,8 +325,9 @@ reco::Muon MuonIdProducer::makeMuon( const reco::MuonTrackLinks& links )
 
      tpfmsRef = muon::getTevRefitTrack(links.globalTrack(), *tpfmsCollectionHandle_);
      pickyRef = muon::getTevRefitTrack(links.globalTrack(), *pickyCollectionHandle_);
+     dytRef = muon::getTevRefitTrack(links.globalTrack(), *dytCollectionHandle_);
 
-     if (tpfmsRef.isNull() && pickyRef.isNull()){
+     if (tpfmsRef.isNull() && pickyRef.isNull() && dytRef.isNull()){
        edm::LogWarning("MakeMuonWithTEV")<<"Failed to get  TEV refits, fall back to sigma switch.";
        useSigmaSwitch = true;
      }
@@ -339,7 +341,7 @@ reco::Muon MuonIdProducer::makeMuon( const reco::MuonTrackLinks& links )
 				      ptThresholdToFillCandidateP4WithGlobalFit_);
    } else {
      chosenTrack = muon::tevOptimized( links.globalTrack(), links.trackerTrack(),
-				       tpfmsRef, pickyRef,
+				       tpfmsRef, pickyRef, dytRef,
 				       ptThresholdToFillCandidateP4WithGlobalFit_);
    }
    aMuon = makeMuon(*chosenTrack.first);
