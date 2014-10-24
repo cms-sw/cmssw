@@ -15,8 +15,8 @@ class PFCandidateBenchmarkAnalyzer: public BenchmarkAnalyzer, public PFCandidate
   PFCandidateBenchmarkAnalyzer(const edm::ParameterSet& parameterSet);
   
   void analyze(const edm::Event&, const edm::EventSetup&);
-
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void beginJob();
+  void endJob();
 
   edm::EDGetTokenT< reco::PFCandidateCollection > myColl_;
 };

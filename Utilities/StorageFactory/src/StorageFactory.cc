@@ -25,6 +25,8 @@ StorageFactory::StorageFactory (void)
 
 StorageFactory::~StorageFactory (void)
 {
+  for (MakerTable::iterator i = m_makers.begin (); i != m_makers.end (); ++i)
+    delete i->second;
 }
 
 StorageFactory *
@@ -130,18 +132,12 @@ StorageFactory::tempMinFree(void) const
 StorageMaker *
 StorageFactory::getMaker (const std::string &proto)
 {
-  auto itFound = m_makers.find(proto);
-  if(itFound != m_makers.end()) {
-     return itFound->second.get();
-  }
-  if (! edmplugin::PluginManager::isAvailable()) {
+  StorageMaker *&instance = m_makers [proto];
+  if (! edmplugin::PluginManager::isAvailable())
     edmplugin::PluginManager::configure(edmplugin::standard::config());
-  }
-  std::shared_ptr<StorageMaker> instance{ StorageMakerFactory::get()->tryToCreate(proto)};
-  auto insertResult = m_makers.insert(MakerTable::value_type(proto,instance));
-  //Can't use instance since it is possible that another thread beat
-  // us to the insertion so the map contains a different instance.
-  return insertResult.first->second.get();
+  if (! instance)
+    instance = StorageMakerFactory::get()->tryToCreate(proto);
+  return instance;
 }
 
 StorageMaker *

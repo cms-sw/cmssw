@@ -438,15 +438,13 @@ namespace edm {
     for(Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end(); accItr != accEnd; ++accItr) {
       (*accItr)->StorePileupInformation( bunchCrossingList,
 					 numInteractionList,
-					 TrueInteractionList,
-					 bunchSpace_);
+					 TrueInteractionList);
     }
 
 
     PileupMixing_ = std::auto_ptr<PileupMixingContent>(new PileupMixingContent(bunchCrossingList,
                                                                                numInteractionList,
-                                                                               TrueInteractionList,
-									       bunchSpace_));
+                                                                               TrueInteractionList));
 
     e.put(PileupMixing_);
 

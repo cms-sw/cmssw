@@ -38,6 +38,10 @@ namespace ecaldqm
     MESet& meReportSummaryContents(MEs_.at("ReportSummaryContents"));
     MESet& meReportSummary(MEs_.at("ReportSummary"));
 
+    MESet const& sIntegrityByLumi(sources_.at("IntegrityByLumi"));
+    MESet const& sDesyncByLumi(sources_.at("DesyncByLumi"));
+    MESet const& sFEByLumi(sources_.at("FEByLumi"));
+
     // TODO GIVE IMPLEMENTATIONT TO PER-LUMI REPORT
 
     for(unsigned iDCC(0); iDCC < nDCC; ++iDCC){
@@ -47,10 +51,6 @@ namespace ecaldqm
     meReportSummary.fill(1.);
 
     if(_pType == kLumi) return;
-
-    MESet const& sIntegrityByLumi(sources_.at("IntegrityByLumi"));
-    MESet const& sDesyncByLumi(sources_.at("DesyncByLumi"));
-    MESet const& sFEByLumi(sources_.at("FEByLumi"));
 
     double integrityByLumi[nDCC];
     double rawDataByLumi[nDCC];

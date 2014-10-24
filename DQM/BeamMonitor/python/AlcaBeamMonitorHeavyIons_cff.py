@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 from DQM.BeamMonitor.AlcaBeamMonitor_cfi import *
 
 AlcaBeamMonitor.PrimaryVertexLabel = 'hiSelectedVertex'
-AlcaBeamMonitor.TrackLabel         = 'hiGeneralTracks'
-AlcaBeamMonitor.BeamFitter.TrackCollection = 'hiGeneralTracks'
+AlcaBeamMonitor.TrackLabel         = 'hiSelectedTracks'
+AlcaBeamMonitor.BeamFitter.TrackCollection = 'hiSelectedTracks'
 AlcaBeamMonitor.BeamFitter.TrackQuality    = ['highPurity']
 AlcaBeamMonitor.PVFitter.VertexCollection  = 'hiSelectedVertex'
 

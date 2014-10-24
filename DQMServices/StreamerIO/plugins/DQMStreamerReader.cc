@@ -29,7 +29,8 @@ DQMStreamerReader::DQMStreamerReader(edm::ParameterSet const& pset,
                                      edm::InputSourceDescription const& desc)
     : StreamerInputSource(pset, desc),
       fiterator_(pset),
-      streamReader_() {
+      streamReader_(),
+      eventSkipperByID_(edm::EventSkipperByID::create(pset).release()) {
 
   runNumber_ = pset.getUntrackedParameter<unsigned int>("runNumber");
   runInputDir_ = pset.getUntrackedParameter<std::string>("runInputDir");
@@ -97,7 +98,7 @@ void DQMStreamerReader::openFile_(std::string newStreamerFile_) {
   edm::ParameterSet pset;
 
   streamReader_ = std::unique_ptr<edm::StreamerInputFile>(
-      new edm::StreamerInputFile(newStreamerFile_));
+      new edm::StreamerInputFile(newStreamerFile_, eventSkipperByID_));
 
   InitMsgView const* header = getHeaderMsg();
   deserializeAndMergeWithRegistry(*header, false);
@@ -137,8 +138,9 @@ void DQMStreamerReader::closeFile_() {
 bool DQMStreamerReader::openNextFile_() {
   closeFile_();
 
-  currentLumi_  = fiterator_.open();
-  std::string p = fiterator_.make_path_data(currentLumi_);
+  const DQMFileIterator::LumiEntry& lumi = fiterator_.front();
+  std::string p = fiterator_.make_path_data(lumi);
+  fiterator_.pop();
 
   if (boost::filesystem::exists(p)) {
     openFile_(p);
@@ -146,7 +148,6 @@ bool DQMStreamerReader::openNextFile_() {
   } else {
     /* dat file missing */
     fiterator_.logFileAction("Data file (specified in json) is missing:", p);
-    fiterator_.logLumiState(currentLumi_, "error: data file missing");
 
     return false;
   }
@@ -240,6 +241,8 @@ bool DQMStreamerReader::prepareNextFile() {
  * If end-of-run nullptr is returned.
  */
 EventMsgView const* DQMStreamerReader::prepareNextEvent() {
+  fiterator_.updateWatchdog();
+
   EventMsgView const* eview = nullptr;
   typedef DQMFileIterator::State State;
 
@@ -294,6 +297,10 @@ bool DQMStreamerReader::checkNextEvent() {
 
   processedEventPerLs_ += 1;
   deserializeEvent(*eview);
+
+  if (mon_.isAvailable()) {
+    mon_->reportEvents(1);
+  }
 
   return true;
 }
@@ -361,6 +368,13 @@ void DQMStreamerReader::skip(int toSkip) {
 
     if (evMsg == nullptr) {
       return;
+    }
+
+    // If the event would have been skipped anyway, don't count it as a skipped
+    // event.
+    if (eventSkipperByID_ && eventSkipperByID_->skipIt(
+                                 evMsg->run(), evMsg->lumi(), evMsg->event())) {
+      --i;
     }
   }
 }

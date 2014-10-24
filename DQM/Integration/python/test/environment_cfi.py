@@ -12,7 +12,9 @@ DQM = cms.Service("DQM",
                   filter = cms.untracked.string('')
                   )
 
-DQMMonitoringService = cms.Service("DQMMonitoringService")
+DQMMonitoringService = cms.Service("DQMMonitoringService",
+    jsonPath = cms.untracked.string("/tmp/dqm_monitoring/"),
+)
 
 from DQMServices.Components.DQMEnvironment_cfi import *
 

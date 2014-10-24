@@ -23,7 +23,6 @@ Photon::Photon( const Photon& rhs ) :
   isolationR04_ ( rhs.isolationR04_),
   isolationR03_ ( rhs.isolationR03_),
   showerShapeBlock_ ( rhs.showerShapeBlock_),
-  full5x5_showerShapeBlock_ ( rhs.full5x5_showerShapeBlock_),
   eCorrections_(rhs.eCorrections_),
   mipVariableBlock_ (rhs.mipVariableBlock_),
   pfIsolation_ ( rhs.pfIsolation_ )

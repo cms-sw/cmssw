@@ -73,7 +73,6 @@ namespace ecaldqm{
 
     std::string name_;
     MESetCollection MEs_;
-    bool booked_;
 
     Timestamp timestamp_;
     int verbosity_;

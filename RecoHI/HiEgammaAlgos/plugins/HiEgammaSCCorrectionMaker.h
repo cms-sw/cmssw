@@ -26,8 +26,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 #include "RecoHI/HiEgammaAlgos/interface/HiEgammaSCEnergyCorrectionAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h" 
@@ -61,10 +59,8 @@ class HiEgammaSCCorrectionMaker : public edm::EDProducer {
      double etThresh_;
      
      // vars to get products
-     edm::InputTag rHInputProducerTag_;
-     edm::InputTag sCInputProducerTag_;
-     edm::EDGetTokenT<EcalRecHitCollection> rHInputProducer_;
-     edm::EDGetTokenT<reco::SuperClusterCollection> sCInputProducer_;
+     edm::InputTag rHInputProducer_;
+     edm::InputTag sCInputProducer_;
 
      reco::CaloCluster::AlgoId sCAlgo_;
      std::string outputCollection_;

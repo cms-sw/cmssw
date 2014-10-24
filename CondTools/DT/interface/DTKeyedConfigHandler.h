@@ -24,10 +24,6 @@
 #include "CondFormats/DTObjects/interface/DTCCBConfig.h"
 #include <string>
 
-namespace coral {
-  class ISessionProxy;
-}
-
 namespace cond {
   namespace persistency {
     class KeyList;
@@ -74,12 +70,11 @@ class DTKeyedConfigHandler: public popcon::PopConSourceHandler<DTCCBConfig> {
   std::string dataTag;
   std::string onlineConnect;
   std::string onlineAuthentication;
-  int onlineAuthSys;
   std::string brickContainer;
   DTCCBConfig* ccbConfig;
   
   cond::persistency::ConnectionPool connection;
-  boost::shared_ptr<coral::ISessionProxy> isession;
+  cond::persistency::Session isession;
   void chkConfigList();
   static bool sameConfigList( const std::vector<DTConfigKey>& cfgl,
                               const std::vector<DTConfigKey>& cfgr );

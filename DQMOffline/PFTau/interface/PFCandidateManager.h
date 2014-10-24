@@ -44,7 +44,7 @@ class PFCandidateManager : public Benchmark {
   void setDirectory(TDirectory* dir);
 
   /// book histograms
-  void setup(DQMStore::IBooker& b);
+  void setup();
   
   /// fill histograms with all particle
   template< class C>

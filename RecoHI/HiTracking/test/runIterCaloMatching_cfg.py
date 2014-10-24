@@ -109,9 +109,9 @@ if rawORreco:
         process.hiTrackReco
         *process.muonRecoPbPb
         *process.electronGsfTrackingHi        
-        *process.hiParticleFlowLocalReco
+        *process.HiParticleFlowLocalReco
         *process.gsfEcalDrivenElectronSequence
-        *process.hiParticleFlowReco
+        *process.HiParticleFlowReco
         *process.PFTowers
         )        
 else:
@@ -141,7 +141,7 @@ process.hiGeneralCaloMatchedTracks = process.hiCaloCompatibleTracks.clone(
     srcTracks = 'hiGeneralTracks'
     )
 
-process.hiParticleFlowReco *= process.hiGeneralCaloMatchedTracks
+process.HiParticleFlowReco *= process.hiGeneralCaloMatchedTracks
     
 process.hiCaloMatchFilteredTracks = cms.EDFilter("TrackSelector",
                                                  src = cms.InputTag("hiGeneralCaloMatchedTracks"),
@@ -149,7 +149,7 @@ process.hiCaloMatchFilteredTracks = cms.EDFilter("TrackSelector",
     'quality("highPuritySetWithPV")')                                                                                            
                                                  )
 
-process.hiParticleFlowReco*=process.hiCaloMatchFilteredTracks
+process.HiParticleFlowReco*=process.hiCaloMatchFilteredTracks
 
 
 

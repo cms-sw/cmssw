@@ -14,6 +14,8 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
@@ -26,7 +28,7 @@
 
 /*****************************************************************************/
 HIPixelClusterVtxAnalyzer::HIPixelClusterVtxAnalyzer(const edm::ParameterSet& ps)
-  : srcPixels_(consumes<SiPixelRecHitCollection>(ps.getParameter<edm::InputTag>("pixelRecHits"))),
+  : srcPixels_(ps.getParameter<edm::InputTag>("pixelRecHits")),
     minZ_(ps.getParameter<double>("minZ")),
     maxZ_(ps.getParameter<double>("maxZ")),
     zStep_(ps.getParameter<double>("zStep")),
@@ -63,7 +65,7 @@ void HIPixelClusterVtxAnalyzer::analyze(const edm::Event& ev, const edm::EventSe
   // get pixel rechits
   edm::Handle<SiPixelRecHitCollection> hRecHits;
   try {
-    ev.getByToken(srcPixels_,hRecHits);
+    ev.getByLabel(srcPixels_,hRecHits);
   } catch (...) {}
 
   // get tracker geometry

@@ -2,14 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoMuon.Configuration.RecoMuonPPonly_cff import *
 
-hiTracks = 'hiGeneralTracks' #heavy ion track label
+hiTracks = 'hiSelectedTracks' #heavy ion track label
 
 # replace with heavy ion track label
 muons = muons1stStep.clone()
 muons.inputCollectionLabels = [hiTracks, 'globalMuons', 'standAloneMuons:UpdatedAtVtx','tevMuons:firstHit','tevMuons:picky','tevMuons:dyt']
 muons.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks','tev firstHit', 'tev picky', 'tev dyt']
 muons.TrackExtractorPSet.inputTrackCollection = hiTracks
-muons.minPt = cms.double(0.8)
 #muons.fillGlobalTrackRefits = False
 muonEcalDetIds.inputCollection = "muons"
 

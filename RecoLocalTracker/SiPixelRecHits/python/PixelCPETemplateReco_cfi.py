@@ -12,8 +12,8 @@ templates = cms.ESProducer("PixelCPETemplateRecoESProducer",
     # gavril
     DoCosmics = cms.bool(False), 
     # The flag to regulate if the LA offset is taken from Alignment 
-    # True in Run II for offline RECO
-    DoLorentz = cms.bool(True),
+    # Will be True in the future for offline RECO. kevin 
+    DoLorentz = cms.bool(False),
  
     LoadTemplatesFromDB = cms.bool(True)
 

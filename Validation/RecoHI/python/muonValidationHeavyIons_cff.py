@@ -5,7 +5,7 @@ from Validation.RecoMuon.muonValidation_cff import *
 # pt-selection of reco tracks
 import PhysicsTools.RecoAlgos.recoTrackSelector_cfi
 cutsRecoTrkMuons = PhysicsTools.RecoAlgos.recoTrackSelector_cfi.recoTrackSelector.clone()
-cutsRecoTrkMuons.src = "hiGeneralTracks"
+cutsRecoTrkMuons.src = "hiSelectedTracks"
 cutsRecoTrkMuons.quality = []
 cutsRecoTrkMuons.ptMin = 2.0
 

@@ -1,17 +1,17 @@
 #ifndef RPCEventSummary_H
 #define RPCEventSummary_H
 
-
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/ESHandle.h>
+#include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/DQMEDHarvester.h"
-
 #include <string>
 
 
-class RPCEventSummary:public DQMEDHarvester{
-
+class RPCEventSummary:public edm::EDAnalyzer {
 public:
 
   /// Constructor
@@ -20,23 +20,36 @@ public:
   /// Destructor
   virtual ~RPCEventSummary();
 
-
- protected:
+  /// BeginJob
   void beginJob();
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&); //performed in the endLumi
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
 
+  //Begin Run
+   void beginRun(const edm::Run& r, const edm::EventSetup& c);
+  
+   //End Run
+   void endRun(const edm::Run& r, const edm::EventSetup& c);
+  
+  /// Begin Lumi block 
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
+
+  /// Analyze  
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& c);
+
+  /// End Lumi Block
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
  
+
  private:
-  void clientOperation( DQMStore::IGetter & igetter);
+  void clientOperation();
   std::string eventInfoPath_, prefixDir_;
 
   //  bool tier0_;  
   bool enableReportSummary_;
   int prescaleFactor_, minimumEvents_;
-
+  MonitorElement *  RPCEvents ;
   bool init_;
-   bool offlineDQM_;
+  DQMStore* dbe_;
+  bool offlineDQM_;
   int lumiCounter_;
   std::string globalFolder_, prefixFolder_;
   

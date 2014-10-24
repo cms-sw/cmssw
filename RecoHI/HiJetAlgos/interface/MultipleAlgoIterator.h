@@ -5,7 +5,7 @@
 
 class MultipleAlgoIterator : public PileUpSubtractor {
  public:
- MultipleAlgoIterator(const edm::ParameterSet& iConfig, edm::ConsumesCollector && iC) : PileUpSubtractor(iConfig, std::move(iC)),
+   MultipleAlgoIterator(const edm::ParameterSet& iConfig) : PileUpSubtractor(iConfig),
      sumRecHits_(iConfig.getParameter<bool>("sumRecHits")),
      dropZeroTowers_(iConfig.getUntrackedParameter<bool>("dropZeroTowers",true))
        {;}

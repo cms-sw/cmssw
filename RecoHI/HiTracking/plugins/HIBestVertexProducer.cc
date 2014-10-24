@@ -5,6 +5,9 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <algorithm>
@@ -15,9 +18,9 @@ using namespace edm;
 /*****************************************************************************/
 HIBestVertexProducer::HIBestVertexProducer
 (const edm::ParameterSet& ps) : theConfig(ps),
-  theBeamSpotTag(consumes<reco::BeamSpot>(ps.getParameter<edm::InputTag>("beamSpotLabel"))),
-  theMedianVertexCollection(consumes<reco::VertexCollection>(ps.getParameter<edm::InputTag>("medianVertexCollection"))),
-  theAdaptiveVertexCollection(consumes<reco::VertexCollection>(ps.getParameter<edm::InputTag>("adaptiveVertexCollection")))
+  theBeamSpotTag(ps.getParameter<edm::InputTag>("beamSpotLabel")),
+  theMedianVertexCollection(ps.getParameter<edm::InputTag>("medianVertexCollection")),
+  theAdaptiveVertexCollection(ps.getParameter<edm::InputTag>("adaptiveVertexCollection"))
 {
   produces<reco::VertexCollection>();
 }
@@ -47,7 +50,7 @@ void HIBestVertexProducer::produce
 
   //** Get precise adaptive vertex **/
   edm::Handle<reco::VertexCollection> vc1;
-  ev.getByToken(theAdaptiveVertexCollection, vc1);
+  ev.getByLabel(theAdaptiveVertexCollection, vc1);
   const reco::VertexCollection *vertices1 = vc1.product();
 
   if(vertices1->size()==0)
@@ -67,18 +70,18 @@ void HIBestVertexProducer::produce
     
     //** Get fast median vertex **/
     edm::Handle<reco::VertexCollection> vc2;
-    ev.getByToken(theMedianVertexCollection, vc2);
+    ev.getByLabel(theMedianVertexCollection, vc2);
     const reco::VertexCollection * vertices2 = vc2.product();
     
     //** Get beam spot position and error **/
     reco::BeamSpot beamSpot;
     edm::Handle<reco::BeamSpot> beamSpotHandle;
-    ev.getByToken(theBeamSpotTag, beamSpotHandle);
+    ev.getByLabel(theBeamSpotTag, beamSpotHandle);
 
     if( beamSpotHandle.isValid() ) 
       beamSpot = *beamSpotHandle;
     else
-      LogError("HeavyIonVertexing") << "no beamspot found "  << endl;
+      LogError("HeavyIonVertexing") << "no beamspot with name: '" << theBeamSpotTag << "'" << endl;
 
     if(vertices2->size() > 0) { 
       

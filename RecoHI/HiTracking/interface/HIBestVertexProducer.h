@@ -3,9 +3,6 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 namespace edm { class Event; class EventSetup; }
 
@@ -19,8 +16,8 @@ public:
 private:
 	void beginJob();
 	edm::ParameterSet theConfig;
-	edm::EDGetTokenT<reco::BeamSpot> theBeamSpotTag;
-	edm::EDGetTokenT<reco::VertexCollection> theMedianVertexCollection;
-	edm::EDGetTokenT<reco::VertexCollection> theAdaptiveVertexCollection;
+        edm::InputTag theBeamSpotTag;
+        edm::InputTag theMedianVertexCollection;
+        edm::InputTag theAdaptiveVertexCollection;
 };
 #endif

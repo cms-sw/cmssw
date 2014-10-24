@@ -12,5 +12,6 @@ pfMETValidation2 = pfMETDQMAnalyzer.clone()
 pfMETValidation2.InputCollection = cms.InputTag('pfMet')
 pfMETValidation2.MatchCollection = cms.InputTag('caloMet')
 pfMETValidation2.BenchmarkLabel  = cms.string('PFMETValidation/CompWithCaloMET')
+pfMETValidation2.SkimParameter.switchOn  = cms.bool(False)
 
 pfMETValidationSequence = cms.Sequence( pfMETValidation1 * pfMETValidation2 )

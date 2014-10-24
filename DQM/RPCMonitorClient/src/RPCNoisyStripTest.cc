@@ -23,29 +23,42 @@ RPCNoisyStripTest::RPCNoisyStripTest(const edm::ParameterSet& ps ){
 
 }
 
-RPCNoisyStripTest::~RPCNoisyStripTest(){}
+RPCNoisyStripTest::~RPCNoisyStripTest(){dbe_=0;}
 
-void RPCNoisyStripTest::beginJob(std::string  & workingFolder){
+void RPCNoisyStripTest::beginJob(DQMStore * dbe, std::string workingFolder){
  edm::LogVerbatim ("rpcnoisetest") << "[RPCNoisyStripTest]: Begin job ";
-  globalFolder_ = workingFolder;
+ dbe_ = dbe;
+
+ globalFolder_ = workingFolder;
+}
+
+void RPCNoisyStripTest::endRun(const edm::Run& r, const edm::EventSetup& iSetup){
+ edm::LogVerbatim ("rpcnoisetest") << "[RPCNoisyStripTest]: End run";
 }
 
 
-void RPCNoisyStripTest::clientOperation() {  
+void RPCNoisyStripTest::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context){} 
+
+void RPCNoisyStripTest::analyze(const edm::Event& iEvent, const edm::EventSetup& c) {}
+
+void RPCNoisyStripTest::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) {}
+
+void RPCNoisyStripTest::clientOperation(edm::EventSetup const& iSetup) {  
 
   edm::LogVerbatim ("rpcnoisetest") <<"[RPCNoisyStripTest]: Client Operation";
     
  //Loop on MEs
   for (unsigned int  i = 0 ; i<myOccupancyMe_.size();i++){
-    this->fillGlobalME(myDetIds_[i],myOccupancyMe_[i]);
+    this->fillGlobalME(myDetIds_[i],myOccupancyMe_[i], iSetup);
   }//End loop on MEs
 
 }
  
-void  RPCNoisyStripTest::myBooker(DQMStore::IBooker & ibooker){
+void  RPCNoisyStripTest::beginRun(const edm::Run& r, const edm::EventSetup& c){
 
 
- ibooker.setCurrentFolder( globalFolder_);
+ MonitorElement* me;
+ dbe_->setCurrentFolder( globalFolder_);
 
  std::stringstream histoName;
 
@@ -56,17 +69,33 @@ void  RPCNoisyStripTest::myBooker(DQMStore::IBooker & ibooker){
    if(testMode_){
      histoName.str("");
      histoName<<"RPCNoisyStrips_Distribution_Wheel"<<w;     
-     NOISEDWheel[w+2] = ibooker.book1D(histoName.str().c_str(), histoName.str().c_str(),  6, -0.5, 5.5);
+     me =0;
+     me = dbe_->get( globalFolder_ +"/"+ histoName.str());
+     if ( 0!=me ) {
+       dbe_->removeElement(me->getName());
+     }
+     NOISEDWheel[w+2] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  6, -0.5, 5.5);
      
      
      histoName.str("");
      histoName<<"RPCStripsDeviation_Distribution_Wheel"<<w; 
-     DEVDWheel[w+2] = ibooker.book1D(histoName.str().c_str(), histoName.str().c_str(),  101, -0.01, 10.01);
+     me =0;
+     me = dbe_->get( globalFolder_ +"/"+ histoName.str());
+     if ( 0!=me ) {
+       dbe_->removeElement(me->getName());
+     }
+     DEVDWheel[w+2] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  101, -0.01, 10.01);
    }
 
    histoName.str("");
    histoName<<"RPCNoisyStrips_Roll_vs_Sector_Wheel"<<w;
-   NOISEWheel[w+2] = ibooker.book2D(histoName.str().c_str(), histoName.str().c_str() , 12, 0.5, 12.5, 21, 0.5, 21.5);
+   me =0;
+   me = dbe_->get( globalFolder_ +"/"+ histoName.str());
+   if ( 0!=me ) {
+     dbe_->removeElement(me->getName());
+   }
+   
+   NOISEWheel[w+2] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str() , 12, 0.5, 12.5, 21, 0.5, 21.5);
    rpcUtils.labelXAxisSector(NOISEWheel[w+2]);
    rpcUtils.labelYAxisRoll(NOISEWheel[w+2], 0, w, useRollInfo_);
  }
@@ -83,17 +112,33 @@ void  RPCNoisyStripTest::myBooker(DQMStore::IBooker & ibooker){
    if (testMode_){
      histoName.str("");
      histoName<<"RPCNoisyStrips_Distribution_Disk"<<d;      
-     NOISEDDisk[d+offset] = ibooker.book1D(histoName.str().c_str(), histoName.str().c_str(),  6, -0.5, 5.5);
+     me =0;
+     me = dbe_->get( globalFolder_ +"/"+ histoName.str());
+     if ( 0!=me ) {
+       dbe_->removeElement(me->getName());
+     }
+     NOISEDDisk[d+offset] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  6, -0.5, 5.5);
      
      
      histoName.str("");
      histoName<<"RPCStripsDeviation_Distribution_Disk"<<d;  
-     DEVDDisk[d+offset] = ibooker.book1D(histoName.str().c_str(), histoName.str().c_str(),  101, -0.01, 10.01);
+     me =0;
+     me = dbe_->get( globalFolder_ +"/"+ histoName.str());
+     if ( 0!=me ) {
+       dbe_->removeElement(me->getName());
+     }
+     DEVDDisk[d+offset] = dbe_->book1D(histoName.str().c_str(), histoName.str().c_str(),  101, -0.01, 10.01);
    }
 
    histoName.str("");
    histoName<<"RPCNoisyStrips_Ring_vs_Segment_Disk"<<d;
-   NOISEDisk[d+offset] = ibooker.book2D(histoName.str().c_str(), histoName.str().c_str() , 36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5);
+   me =0;
+   me = dbe_->get( globalFolder_ +"/"+ histoName.str());
+   if ( 0!=me ) {
+     dbe_->removeElement(me->getName());
+   }
+   
+   NOISEDisk[d+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str() , 36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5);
    rpcUtils.labelXAxisSegment(NOISEDisk[d+offset]);
    rpcUtils.labelYAxisRing(NOISEDisk[d+offset], numberOfRings_, useRollInfo_);
 
@@ -102,15 +147,25 @@ void  RPCNoisyStripTest::myBooker(DQMStore::IBooker & ibooker){
 }
 
 
-void  RPCNoisyStripTest::getMonitorElements(std::vector<MonitorElement *> & meVector, std::vector<RPCDetId> & detIdVector, std::string & clientHistoName){
+void  RPCNoisyStripTest::getMonitorElements(std::vector<MonitorElement *> & meVector, std::vector<RPCDetId> & detIdVector){
 
  //Get NumberOfDigi ME for each roll
  for (unsigned int i = 0 ; i<meVector.size(); i++){
-      
-    std::string meName =  meVector[i]->getName();
-
-    if(meName.find(clientHistoName) != std::string::npos){
-
+   
+   bool flag= false;
+   
+   DQMNet::TagList tagList;
+   tagList = meVector[i]->getTags();
+   DQMNet::TagList::iterator tagItr = tagList.begin();
+   
+   while (tagItr != tagList.end() && !flag ) {
+     if((*tagItr) ==  rpcdqm::OCCUPANCY)
+       flag= true;
+     
+     tagItr++;
+   }
+   
+   if(flag){
      myOccupancyMe_.push_back(meVector[i]);
      myDetIds_.push_back(detIdVector[i]);
    }
@@ -118,8 +173,13 @@ void  RPCNoisyStripTest::getMonitorElements(std::vector<MonitorElement *> & meVe
 
 }
 
-void  RPCNoisyStripTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe){
+void  RPCNoisyStripTest::endJob(){}
 
+void  RPCNoisyStripTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe,edm::EventSetup const& iSetup){
+
+ //   ESHandle<RPCGeometry> rpcgeo;
+//     iSetup.get<MuonGeometryRecord>().get(rpcgeo);
+ 
     std::stringstream meName;
     
     MonitorElement *  NOISE=NULL;

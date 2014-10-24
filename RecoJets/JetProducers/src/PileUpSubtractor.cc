@@ -15,7 +15,7 @@
 #include <map>
 using namespace std;
 
-PileUpSubtractor::PileUpSubtractor(const edm::ParameterSet& iConfig, edm::ConsumesCollector && iC) :
+PileUpSubtractor::PileUpSubtractor(const edm::ParameterSet& iConfig) :
   reRunAlgo_ (iConfig.getUntrackedParameter<bool>("reRunAlgo",false)),
   doAreaFastjet_ (iConfig.getParameter<bool>         ("doAreaFastjet")),
   doRhoFastjet_  (iConfig.getParameter<bool>         ("doRhoFastjet")),

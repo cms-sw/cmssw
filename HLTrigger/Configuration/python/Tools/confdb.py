@@ -1206,10 +1206,11 @@ if 'GlobalTag' in %%(dict)s:
     if self.config.input:
       # if a dataset or a list of input files was given, use it
       if self.config.input[0:8] == 'dataset:':
-        from dasFileQuery import dasFileQuery
-        # extract the dataset name, and use DAS to fine the list of LFNs
+        from dbsFileQuery import dbsFileQuery
+        # extract the dataset name, and use DBS to fine the list of LFNs
         dataset = self.config.input[8:]
-        files   = dasFileQuery(dataset)
+        query   = 'find file where dataset=' + dataset
+        files   = dbsFileQuery(query)
         self.source = files
       else:
         # assume a list of input files

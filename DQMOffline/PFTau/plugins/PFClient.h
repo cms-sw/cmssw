@@ -6,30 +6,32 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 class DQMStore;
 class MonitorElement;
-class PFClient: public DQMEDHarvester {
+class PFClient: public edm::EDAnalyzer {
  public:
   
   PFClient(const edm::ParameterSet& parameterSet);
   
  private:
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; 
+  void beginJob();
+  void analyze(edm::Event const&, edm::EventSetup const&){;}
+  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
+  void endJob();
 
-  void doSummaries(DQMStore::IBooker &, DQMStore::IGetter &);
-  void doEfficiency(DQMStore::IBooker &, DQMStore::IGetter &);
-  void doProjection(DQMStore::IBooker &, DQMStore::IGetter &);
-  void doProfiles(DQMStore::IBooker &, DQMStore::IGetter &);
-  void createResolutionPlots(DQMStore::IBooker &, DQMStore::IGetter &, std::string& folder, std::string& name);
-  void getHistogramParameters(MonitorElement* me_slice,
-			      double& avarage, double& rms, double& mean, double& sigma);
-  void createEfficiencyPlots(DQMStore::IBooker &, DQMStore::IGetter &, std::string& folder, std::string& name);
+  void doSummaries();
+  void doEfficiency();
+  void doProjection();
+  void doProfiles();
+  void createResolutionPlots(std::string& folder, std::string& name);
+  void getHistogramParameters(MonitorElement* me_slice, double& avarage, double& rms, 
+                                                        double& mean, double& sigma);
+  void createEfficiencyPlots(std::string& folder, std::string& name);
 
-  void createProjectionPlots(DQMStore::IBooker &, DQMStore::IGetter &, std::string& folder, std::string& name);
-  void createProfilePlots(DQMStore::IBooker &, DQMStore::IGetter &, std::string& folder, std::string& name);
-
+  void createProjectionPlots(std::string& folder, std::string& name);
+  void createProfilePlots(std::string& folder, std::string& name);
+     
   std::vector<std::string> folderNames_;
   std::vector<std::string> histogramNames_;
   std::vector<std::string> effHistogramNames_;
@@ -37,6 +39,8 @@ class PFClient: public DQMEDHarvester {
   std::vector<std::string> profileHistogramNames_;
   bool efficiencyFlag_;
   bool profileFlag_;
+
+  DQMStore* dqmStore_;
 
 };
 

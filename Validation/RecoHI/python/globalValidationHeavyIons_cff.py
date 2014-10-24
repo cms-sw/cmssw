@@ -6,7 +6,7 @@ from Validation.RecoHI.JetValidationHeavyIons_cff import *
 from Validation.RecoHI.muonValidationHeavyIons_cff import *
 
 # change track label for rechits
-hiTracks = 'hiGeneralTracks'
+hiTracks = 'hiSelectedTracks'
 PixelTrackingRecHitsValid.src = hiTracks
 StripTrackingRecHitsValid.trajectoryInput = hiTracks
 
@@ -47,7 +47,7 @@ globalValidationHI = cms.Sequence(
     + hcalRecHitsValidationSequence
     + calotowersValidationSequence
     
-    + hiTrackValidation         # validation of 'hiGeneralTracks'
+    + hiTrackValidation         # validation of 'hiSelectedTracks'
     + hiJetValidation           # validation of pileup jet finders
     + hiRecoMuonValidation      # validation of offline muon reco
    

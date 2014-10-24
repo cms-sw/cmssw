@@ -10,17 +10,18 @@
 
 #include "DQMOffline/PFTau/interface/PFMETMonitor.h"
 
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-class PFMETDQMAnalyzer: public DQMEDAnalyzer {
+class PFMETDQMAnalyzer: public edm::EDAnalyzer {
  public:
   
   PFMETDQMAnalyzer(const edm::ParameterSet& parameterSet);
   
  private:
   void analyze(edm::Event const&, edm::EventSetup const&);
+  void beginJob() ;
+  void endJob();
 
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void storeBadEvents(edm::Event const&, float& val);
 
   edm::EDGetTokenT< edm::View<reco::MET> > myMET_;
   edm::EDGetTokenT< edm::View<reco::MET> > myMatchedMET_;
@@ -31,8 +32,6 @@ class PFMETDQMAnalyzer: public DQMEDAnalyzer {
   PFMETMonitor pfMETMonitor_;
 
   edm::ParameterSet pSet_;
-  std::string eventInfoFolder_;
-  std::string subsystemname_;
 
   int nBadEvents_;
 };

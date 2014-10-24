@@ -15,8 +15,8 @@ class METBenchmarkAnalyzer: public BenchmarkAnalyzer, public METBenchmark {
   METBenchmarkAnalyzer(const edm::ParameterSet& parameterSet);
   
   void analyze(const edm::Event&, const edm::EventSetup&);
-
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void beginJob() ;
+  void endJob();
 
   edm::EDGetTokenT< edm::View<reco::MET> > myColl_;
 };

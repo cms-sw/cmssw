@@ -58,7 +58,7 @@ hiRegitInitialStepTrackCandidates        =  RecoTracker.IterativeTracking.Initia
 # fitting: feed new-names
 hiRegitInitialStepTracks                 = RecoTracker.IterativeTracking.InitialStep_cff.initialStepTracks.clone(
     src                 = 'hiRegitInitialStepTrackCandidates',
-    AlgorithmName = cms.string('initialStep')
+    AlgorithmName = cms.string('iter0')
 )
 
 

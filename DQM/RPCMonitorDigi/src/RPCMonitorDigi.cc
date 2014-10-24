@@ -471,9 +471,9 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
       if(meRegion[os.str()]) meRegion[os.str()]->Fill(sector, wheelOrDiskNumber, numDigi);
     }else {
       os<<"Occupancy_for_Endcap";
-      int xbin = wheelOrDiskNumber+ numberOfDisks_;
-      if (region==-1) {xbin = wheelOrDiskNumber+ numberOfDisks_+1;}
-      if(meRegion[os.str()]) {meRegion[os.str()]->Fill(xbin,ring,numDigi);}
+      int xbin = wheelOrDiskNumber+3;
+      if (region==-1) xbin = wheelOrDiskNumber+4;
+      if(meRegion[os.str()]) meRegion[os.str()]->Fill(xbin,ring,numDigi);
     }
 
     os.str("");

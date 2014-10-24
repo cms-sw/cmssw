@@ -16,7 +16,7 @@ class PFCandidateBenchmark : public Benchmark {
   virtual ~PFCandidateBenchmark();
 
   /// book histograms
-  void setup(DQMStore::IBooker& b);
+  void setup();
   
   void fill( const reco::PFCandidateCollection& pfCands);
 

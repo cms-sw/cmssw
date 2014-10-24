@@ -13,8 +13,6 @@ from DQMServices.StreamerIO.DQMProtobufReader_cff import DQMProtobufReader
 process.source = DQMProtobufReader
 process.source.runNumber = cms.untracked.uint32(1)
 process.source.runInputDir = cms.untracked.string("./")
-process.source.streamLabel = cms.untracked.string("streamDQMHistograms")
-process.source.datafnPosition = cms.untracked.uint32(4)
 
 
 elements = c.createElements()

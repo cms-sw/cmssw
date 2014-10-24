@@ -18,16 +18,15 @@ namespace dqmservices {
 class DQMFileIterator {
  public:
   struct LumiEntry {
+    bool loaded = false;
     std::string filename;
 
-    unsigned int file_ls;
+    int ls;
     std::size_t n_events;
     std::string datafilename;
 
     static LumiEntry load_json(const std::string& filename, int lumiNumber,
                                unsigned int datafn_position);
-
-    std::string state;
   };
 
   struct EorEntry {
@@ -55,16 +54,13 @@ class DQMFileIterator {
 
   /* methods to iterate the actual files */
 
-  /* nextLumiNumber_ is the first unprocessed lumi number
-   * lumiReady() returns if the next lumi is ready to be loaded
-   * open() opens a file and advances the pointer to the next lumi
-   *
+  /* currentLumi_ is the first unprocessed lumi number
+   * lumiReady() returns if it is loadable
    * front() a reference to the description (LumiEntry)
    * pop() advances to the next lumi
    */
   bool lumiReady();
-  const LumiEntry open();
-
+  const LumiEntry& front();
   void pop();
   std::string make_path_data(const LumiEntry& lumi);
 
@@ -75,11 +71,8 @@ class DQMFileIterator {
   /* misc helpers for input sources */
   void logFileAction(const std::string& msg,
                      const std::string& fileName = "") const;
-  void logLumiState(const LumiEntry& lumi, const std::string& msg);
-
   void delay();
-  void updateMonitoring();
-
+  void updateWatchdog();
   unsigned int runNumber();
 
   unsigned int lastLumiFound();
@@ -97,12 +90,13 @@ class DQMFileIterator {
 
   // file name position in the json file
   unsigned int datafnPosition_;
+ 
   std::string runPath_;
 
   EorEntry eor_;
   State state_;
 
-  unsigned int nextLumiNumber_;
+  unsigned int currentLumi_;
   std::map<unsigned int, LumiEntry> lumiSeen_;
 
   /* this should be different,

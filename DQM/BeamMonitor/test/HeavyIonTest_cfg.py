@@ -127,7 +127,8 @@ process.RecoForDQM_FirstStep = cms.Sequence(
     process.firstStep)
 
 # Needed, as the event content is different!
-process.dqmBeamMonitor.BeamFitter.TrackCollection = cms.untracked.InputTag('hiGeneralTracks')
+process.dqmBeamMonitor.BeamFitter.TrackCollection = \
+        cms.untracked.InputTag('hiSelectedTracks')
 
 process.pp = cms.Path(
     process.dqmTKStatus*
