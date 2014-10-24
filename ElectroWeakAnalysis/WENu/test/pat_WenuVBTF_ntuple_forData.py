@@ -211,7 +211,7 @@ selection_inverse = cms.PSet (
 ####################################################################################
 #
 # we need to store jet information, hence we have to produce the jets:
-process.load("JetMETCorrections.Configuration.DefaultJEC_cff")
+process.load("JetMETCorrections.Configuration.CorrectedJetProducersDefault_cff")
 #process.load("JetMETCorrections.Configuration.CorrectedJetProducers_cff")
 process.jetSequence = cms.Sequence( process.ak5CaloJetsL2L3  )
 process.pfjetAK5Sequence = cms.Sequence( process.ak5PFJetsL2L3 )

@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+from JetMETCorrections.Configuration.JetCorrectionProducers_cff import * # FIXME: only for downstream imports
 from JetMETCorrections.Configuration.CorrectedJetProducers_cff import *
 
 from DQMOffline.Trigger.JetMETHLTOfflineSource_cfi import *
