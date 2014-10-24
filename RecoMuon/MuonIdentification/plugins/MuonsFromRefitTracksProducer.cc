@@ -257,8 +257,9 @@ void MuonsFromRefitTracksProducer::produce(edm::Event& event, const edm::EventSe
 	if (fromTMR)
 	  tevTk = tevOptimizedTMR(*muon, *trackMapFirstHit, TMRcut);
 	else if (fromCocktail)
-	  tevTk = muon::tevOptimized(*muon, *trackMapDefault, *trackMapFirstHit,
-				     *trackMapPicky);
+          tevTk = muon::tevOptimized(*muon);	  
+          //tevTk = muon::tevOptimized(*muon, *trackMapDefault, *trackMapFirstHit,
+	  //			     *trackMapPicky);
 	else if (fromSigmaSwitch)
 	  tevTk = sigmaSwitch(*muon, nSigmaSwitch, ptThreshold);
 	else {
