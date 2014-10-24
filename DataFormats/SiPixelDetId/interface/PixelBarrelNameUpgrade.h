@@ -16,8 +16,6 @@ class DetId;
 class PixelBarrelNameUpgrade : public PixelModuleName, public PixelBarrelNameBase {
 public:
 
-  //enum Shell { mO = 1, mI = 2 , pO =3 , pI =4 };
-
   /// ctor from DetId
   PixelBarrelNameUpgrade(const DetId &);
 
