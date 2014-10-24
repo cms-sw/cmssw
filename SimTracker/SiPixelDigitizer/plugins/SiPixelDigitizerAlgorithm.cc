@@ -146,6 +146,9 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   NumberOfBarrelLayers(conf.exists("NumPixelBarrel")?conf.getParameter<int>("NumPixelBarrel"):3),
   NumberOfEndcapDisks(conf.exists("NumPixelEndcap")?conf.getParameter<int>("NumPixelEndcap"):2),
 
+  theInstLumiScaleFactor(conf.getParameter<double>("theInstLumiScaleFactor")), //For dynamic inefficiency PU scaling
+  bunchScale(conf.getParameter<double>("bunchScale")), //For dynamic inefficiency bunchspace scaling
+
   // ADC calibration 1adc count(135e.
   // Corresponds to 2adc/kev, 270[e/kev]/135[e/adc](2[adc/kev]
   // Be carefull, this parameter is also used in SiPixelDet.cc to
@@ -395,12 +398,12 @@ SiPixelDigitizerAlgorithm::PixelEfficiencies::PixelEfficiencies(const edm::Param
       throw cms::Exception("Configuration") << "Wrong module number in efficiency config!";
     //
     i=0;		     
-    thePUEfficiency_BPix[i++] = conf.getParameter<std::vector<double> >("thePUEfficiency_BPix1");
-    thePUEfficiency_BPix[i++] = conf.getParameter<std::vector<double> >("thePUEfficiency_BPix2");
-    thePUEfficiency_BPix[i++] = conf.getParameter<std::vector<double> >("thePUEfficiency_BPix3");		    		    
-    if ( ((thePUEfficiency_BPix[0].size()==0) || (thePUEfficiency_BPix[1].size()==0) || 
-	  (thePUEfficiency_BPix[2].size()==0)) && (NumberOfBarrelLayers==3) )
-      throw cms::Exception("Configuration") << "At least one PU efficiency  number is needed in efficiency config!";
+    thePUEfficiency[i++] = conf.getParameter<std::vector<double> >("thePUEfficiency_BPix1");
+    thePUEfficiency[i++] = conf.getParameter<std::vector<double> >("thePUEfficiency_BPix2");
+    thePUEfficiency[i++] = conf.getParameter<std::vector<double> >("thePUEfficiency_BPix3");		    		    
+    if ( ((thePUEfficiency[0].size()==0) || (thePUEfficiency[1].size()==0) || 
+	  (thePUEfficiency[2].size()==0)) && (NumberOfBarrelLayers==3) )
+      throw cms::Exception("Configuration") << "At least one PU efficiency (BPix) number is needed in efficiency config!";
     // The next is needed for Phase2 Tracker studies
     if (NumberOfBarrelLayers>=5){
       if (NumberOfTotLayers>20){throw cms::Exception("Configuration") <<"SiPixelDigitizer was given more layers than it can handle";}
@@ -434,6 +437,18 @@ SiPixelDigitizerAlgorithm::PixelEfficiencies::PixelEfficiencies(const edm::Param
 	thePixelChipEfficiency[j-1]=0.999;
       }
     }
+    //FPix Dynamic Inefficiency
+    i=FPixIndex;
+    theInnerEfficiency_FPix[i++] = conf.getParameter<double>("theInnerEfficiency_FPix1");
+    theInnerEfficiency_FPix[i++] = conf.getParameter<double>("theInnerEfficiency_FPix2");
+    i=FPixIndex;
+    theOuterEfficiency_FPix[i++] = conf.getParameter<double>("theOuterEfficiency_FPix1");
+    theOuterEfficiency_FPix[i++] = conf.getParameter<double>("theOuterEfficiency_FPix2");
+    i=FPixIndex;
+    thePUEfficiency[i++] = conf.getParameter<std::vector<double> >("thePUEfficiency_FPix_Inner");
+    thePUEfficiency[i++] = conf.getParameter<std::vector<double> >("thePUEfficiency_FPix_Outer");
+    if ( ((thePUEfficiency[3].size()==0) || (thePUEfficiency[4].size()==0)) && (NumberOfBarrelLayers==3) )
+    throw cms::Exception("Configuration") << "At least one (FPix) PU efficiency number is needed in efficiency config!";
   }
   // the first "NumberOfBarrelLayers" settings [0],[1], ... , [NumberOfBarrelLayers-1] are for the barrel pixels
   // the next  "NumberOfEndcapDisks"  settings [NumberOfBarrelLayers],[NumberOfBarrelLayers+1], ... [NumberOfEndcapDisks+NumberOfBarrelLayers-1]
@@ -533,7 +548,10 @@ void SiPixelDigitizerAlgorithm::calculateInstlumiFactor(PileupMixingContent* puI
     
     const std::vector<int> bunchCrossing = puInfo->getMix_bunchCrossing();
     const std::vector<float> TrueInteractionList = puInfo->getMix_TrueInteractions();      
-    
+    const int bunchSpacing = puInfo->getMix_bunchSpacing();
+
+    if (bunchSpacing==50) bunchScale=1.0;
+
     int pui = 0, p = 0;
     std::vector<int>::const_iterator pu;
     std::vector<int>::const_iterator pu0 = bunchCrossing.end();
@@ -547,19 +565,19 @@ void SiPixelDigitizerAlgorithm::calculateInstlumiFactor(PileupMixingContent* puI
     }
     
     if (pu0!=bunchCrossing.end()) {        
-      for (size_t i=0; i<3; i++) {
-	double instlumi = TrueInteractionList.at(p)*221.95;
+      for (size_t i=0; i<5; i++) {
+	double instlumi = TrueInteractionList.at(p)*theInstLumiScaleFactor*bunchScale;
 	double instlumi_pow=1.;
 	_pu_scale[i] = 0;
-	for  (size_t j=0; j<pixelEfficiencies_.thePUEfficiency_BPix[i].size(); j++){
-	  _pu_scale[i]+=instlumi_pow*pixelEfficiencies_.thePUEfficiency_BPix[i][j];
+	for  (size_t j=0; j<pixelEfficiencies_.thePUEfficiency[i].size(); j++){
+	  _pu_scale[i]+=instlumi_pow*pixelEfficiencies_.thePUEfficiency[i][j];
 	  instlumi_pow*=instlumi;
 	}
       }
     }
   } 
   else {
-    for (int i=0; i<3;i++) {
+    for (int i=0; i<5;i++) {
       _pu_scale[i] = 1.;
     }
   }
@@ -1406,6 +1424,8 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
 	 if(numRows>160)  LogWarning ("Pixel Geometry") <<" wrong rows in endcaps "<<numRows;
          return;
        }
+       if ((tTopo->pxfPanel(detID)+tTopo->pxfModule(detID))<4) columnEfficiency*=eff.theInnerEfficiency_FPix[diskIndex-1]*_pu_scale[3];//inner modules
+       else columnEfficiency*=eff.theOuterEfficiency_FPix[diskIndex-1]*_pu_scale[4];//outer modules
     }
   } // if barrel/forward
 
