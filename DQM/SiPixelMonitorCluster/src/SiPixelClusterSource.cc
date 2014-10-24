@@ -32,8 +32,7 @@
 // DataFormats
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameWrapper.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 //
@@ -220,8 +219,9 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup& iSetup){
           if(isPIB) continue;
 	  LogDebug ("PixelDQM") << " ---> Adding Barrel Module " <<  detId.rawId() << endl;
           int layer;
-          if (isUpgrade) layer = PixelBarrelName(DetId(id)).layerName();
-          else           layer = PixelBarrelNameUpgrade(DetId(id)).layerName();
+          //if (isUpgrade) layer = PixelBarrelName(DetId(id)).layerName();
+          //else           layer = PixelBarrelNameUpgrade(DetId(id)).layerName();
+          layer = PixelBarrelNameWrapper(conf_, DetId(id)).layerName();
           if (layer > noOfLayers) noOfLayers = layer;
 	  thePixelStructure.insert(pair<uint32_t,SiPixelClusterModule*> (id,theModule));
         }else if ( (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) && (!isUpgrade) ) {
@@ -232,6 +232,12 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup& iSetup){
           int blade  = PixelEndcapName(DetId(id)).bladeName();
           int panel  = PixelEndcapName(DetId(id)).pannelName();
           int module = PixelEndcapName(DetId(id)).plaquetteName();
+          /*PixelEndcapNameWrapper::HalfCylinder side = PixelEndcapNameWrapper(cfg_, DetId(id)).halfCylinder();
+          int disk   = PixelEndcapNameWrapper(cfg_, DetId(id)).diskName();
+          if (disk > noOfDisks) noOfDisks = disk;
+          int blade  = PixelEndcapNameWrapper(cfg_, DetId(id)).bladeName();
+          int panel  = PixelEndcapNameWrapper(cfg_, DetId(id)).pannelName();
+          int module = PixelEndcapNameWrapper(cfg_, DetId(id)).plaquetteName();*/
           char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
           char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);
           char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
@@ -255,6 +261,12 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup& iSetup){
           int blade  = PixelEndcapNameUpgrade(DetId(id)).bladeName();
           int panel  = PixelEndcapNameUpgrade(DetId(id)).pannelName();
           int module = PixelEndcapNameUpgrade(DetId(id)).plaquetteName();
+          /*PixelEndcapNameWrapper::HalfCylinder side = PixelEndcapNameWrapper(cfg_, DetId(id)).halfCylinder();
+          int disk   = PixelEndcapNameWrapper(cfg_, DetId(id)).diskName();
+          if (disk > noOfDisks) noOfDisks = disk;
+          int blade  = PixelEndcapNameWrapper(cfg_, DetId(id)).bladeName();
+          int panel  = PixelEndcapNameWrapper(cfg_, DetId(id)).pannelName();
+          int module = PixelEndcapNameWrapper(cfg_, DetId(id)).plaquetteName();*/
           char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
           char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);
           char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
