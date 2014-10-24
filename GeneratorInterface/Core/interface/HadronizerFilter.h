@@ -360,6 +360,10 @@ namespace edm
             << hadronizer_.classname()
             << "\n";
     }
+    
+    if (filter_) {
+      filter_->resetStatistics();
+    }
 
     if (! hadronizer_.initializeForExternalPartons())
       throw edm::Exception(errors::Configuration) 
