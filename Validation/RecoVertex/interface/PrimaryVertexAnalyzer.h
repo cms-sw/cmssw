@@ -69,8 +69,6 @@ public:
   const reco::Vertex *recVtx;
 };
 
-
-
 public:
   explicit PrimaryVertexAnalyzer(const edm::ParameterSet&);
   ~PrimaryVertexAnalyzer();
@@ -80,7 +78,6 @@ public:
   virtual void endJob();
 
 private:
-
   bool matchVertex(const simPrimaryVertex  &vsim, 
 		   const reco::Vertex       &vrec);
   bool isResonance(const HepMC::GenParticle * p);
@@ -110,4 +107,3 @@ private:
   std::map<std::string, TDirectory*> hdir;
 	
 };
-

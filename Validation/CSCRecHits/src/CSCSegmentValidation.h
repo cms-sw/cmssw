@@ -12,9 +12,10 @@
 class CSCSegmentValidation : public CSCBaseValidation
 {
 public:
-  CSCSegmentValidation(DQMStore* dbe, const edm::InputTag & inputTag, edm::ConsumesCollector && iC);
-
-  virtual ~CSCSegmentValidation() {}
+  CSCSegmentValidation(const edm::InputTag & inputTag,
+                       edm::ConsumesCollector && iC);
+  virtual ~CSCSegmentValidation();
+  void bookHistograms(DQMStore::IBooker &);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
  private:
@@ -52,8 +53,6 @@ public:
   MonitorElement* thedYdZResolutionPlots[10];
   MonitorElement* thedYdZPullPlots[10];
 
-
-
   MonitorElement* theTypePlot4HitsNoShower;
   MonitorElement* theTypePlot4HitsNoShowerSeg;
   MonitorElement* theTypePlot4HitsShower;
@@ -66,8 +65,6 @@ public:
   MonitorElement* theTypePlot6HitsNoShowerSeg;
   MonitorElement* theTypePlot6HitsShower;
   MonitorElement* theTypePlot6HitsShowerSeg;
-
-
 };
 
 #endif
