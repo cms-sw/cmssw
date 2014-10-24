@@ -32,7 +32,7 @@ namespace Phase2Tracker {
     cacheId_(0)
   {
     // define product
-    produces< edm::DetSetVector<Phase2TrackerDigi> >("ProcessedRaw");
+    produces< edm::DetSetVector<Phase2TrackerDigi> >("Unsparsified");
     produces< edm::DetSetVector<DummyClusterDigi> > ("Sparsified");
     token_ = consumes<FEDRawDataCollection>(pset.getParameter<edm::InputTag>("ProductLabel"));
   }
@@ -206,34 +206,6 @@ namespace Phase2Tracker {
 	      ichan ++;
 	    }
 	  } // end loop on channels
-          // store digis in edm collections
-          std::sort( proc_work_registry_.begin(), proc_work_registry_.end() );
-          std::vector< edm::DetSet<Phase2TrackerDigi> > sorted_and_merged;
-
-          edm::DetSetVector<Phase2TrackerDigi>* pr = new edm::DetSetVector<Phase2TrackerDigi>();
-
-          std::vector<Registry>::iterator it = proc_work_registry_.begin(), it2 = it+1, end = proc_work_registry_.end();
-          while (it < end) 
-          {
-            sorted_and_merged.push_back( edm::DetSet<Phase2TrackerDigi>(it->detid) );
-            std::vector<Phase2TrackerDigi> & digis = sorted_and_merged.back().data;
-            // first count how many digis we have
-            size_t len = it->length;
-            for (it2 = it+1; (it2 != end) && (it2->detid == it->detid); ++it2) { len += it2->length; }
-            // reserve memory 
-            digis.reserve(len);
-            // push them in
-            for (it2 = it+0; (it2 != end) && (it2->detid == it->detid); ++it2) 
-            {
-              digis.insert( digis.end(), & proc_work_digis_[it2->index], & proc_work_digis_[it2->index + it2->length] );
-            }
-            it = it2;
-          }
-
-          edm::DetSetVector<Phase2TrackerDigi> proc_raw_dsv( sorted_and_merged, true );
-          pr->swap( proc_raw_dsv );
-          std::auto_ptr< edm::DetSetVector<Phase2TrackerDigi> > pr_dsv(pr);
-          event.put( pr_dsv, "Unsparsified" );
         }
         else if (tr_header.getReadoutMode() == READOUT_MODE_ZERO_SUPPRESSED)
         {
@@ -241,7 +213,6 @@ namespace Phase2Tracker {
           int ichan = 0;
           for ( int ife = 0; ife < MAX_FE_PER_FED; ife++ )
           {
-            std::cout << "Current FE: " << ife << " ichan: " << ichan << std::endl;
             // there are two times more channels than CBCs in unsparsified FEDbuffers
             for ( int icbc = 0; icbc < MAX_CBC_PER_FE*2; icbc++ )
             {
@@ -269,7 +240,6 @@ namespace Phase2Tracker {
                     #ifdef EDM_ML_DEBUG
                     ss << dec << "Son2S cluster at position: " << (int)unpacker.clusterIndex() << " with size: " << (int)unpacker.clusterSize() << endl;
                     #endif
-                    std::cout << dec << "Son2S cluster at position: " << (int)unpacker.clusterIndex() << " with size: " << (int)unpacker.clusterSize() << std::endl;
                     if (unpacker.clusterIndex()%2) 
                     {
 		      // clustersTop.push_back(DummyClusterDigi((int)(STRIPS_PER_CBC*icbc + unpacker.clusterIndex())/2,unpacker.clusterSize(),side));
@@ -291,7 +261,6 @@ namespace Phase2Tracker {
                     #ifdef EDM_ML_DEBUG
                     ss << dec << "SonPS cluster at position: " << (int)unpacker.clusterIndex() << " with size: " << (int)unpacker.clusterSize() << endl;
                     #endif
-                    std::cout << dec << "SonPS cluster at position: " << (int)unpacker.clusterIndex() + STRIPS_PER_CBC*icbc/2 << " with size: " << (int)unpacker.clusterSize() << std::endl;
                     // clustersTop.push_back(DummyClusterDigi((int)(STRIPS_PER_CBC*icbc + unpacker.clusterIndex()),unpacker.clusterSize(),side));
                     clustersTop.push_back(DummyClusterDigi((int)(STRIPS_PER_CBC*icbc/2 + unpacker.clusterIndex()),unpacker.clusterSize()));
                     unpacker++;
@@ -305,7 +274,6 @@ namespace Phase2Tracker {
                     #ifdef EDM_ML_DEBUG
                     ss << dec << "PonPS cluster at position: " << (int)unpacker.clusterIndex() <<" , "<<  (int)unpacker.clusterZpos() << " with size: " << (int)unpacker.clusterSize() << endl;
                     #endif
-                    std::cout << dec << "PonPS cluster at position: " << (int)unpacker.clusterIndex() + STRIPS_PER_CBC*(icbc-MAX_CBC_PER_FE)/2 << " with size: " << (int)unpacker.clusterSize() << std::endl;
                     // clustersBottom.push_back(DummyClusterDigi((int)(STRIPS_PER_CBC*icbc + unpacker.clusterIndex())/2,unpacker.clusterSize(),unpacker.clusterZpos()));
                     clustersBottom.push_back(DummyClusterDigi((int)(STRIPS_PER_CBC*(icbc-MAX_CBC_PER_FE)/2 + unpacker.clusterIndex()),unpacker.clusterSize()));
                     unpacker++;
@@ -328,32 +296,6 @@ namespace Phase2Tracker {
             } // end loop on channels
           } // end loop on FE
           // store digis in edm collections
-          std::sort( zs_work_registry_.begin(), zs_work_registry_.end() );
-          std::vector< edm::DetSet<DummyClusterDigi> > sorted_and_merged;
-
-          edm::DetSetVector<DummyClusterDigi>* zs = new edm::DetSetVector<DummyClusterDigi>();
-
-          std::vector<Registry>::iterator it = zs_work_registry_.begin(), it2 = it+1, end = zs_work_registry_.end();
-          while (it < end)
-          {
-            sorted_and_merged.push_back( edm::DetSet<DummyClusterDigi>(it->detid) );
-            std::vector<DummyClusterDigi> & digis = sorted_and_merged.back().data;
-            // first count how many digis we have
-            size_t len = it->length;
-            for (it2 = it+1; (it2 != end) && (it2->detid == it->detid); ++it2) { len += it2->length; }
-            // reserve memory 
-            digis.reserve(len);
-            // push them in
-            for (it2 = it+0; (it2 != end) && (it2->detid == it->detid); ++it2)
-            {
-              digis.insert( digis.end(), & zs_work_digis_[it2->index], & zs_work_digis_[it2->index + it2->length] );
-            }
-            it = it2;
-          }
-          edm::DetSetVector<DummyClusterDigi> sparsified_dsv( sorted_and_merged, true );
-          zs->swap( sparsified_dsv );
-          std::auto_ptr< edm::DetSetVector<DummyClusterDigi> > sp_dsv(zs);
-          event.put(sp_dsv, "Sparsified" );
         }
         else
         {
@@ -362,5 +304,59 @@ namespace Phase2Tracker {
         delete buffer;
       }
     }   
+    // sort and store digis
+    std::sort( proc_work_registry_.begin(), proc_work_registry_.end() );
+    std::vector< edm::DetSet<Phase2TrackerDigi> > sorted_and_merged;
+    edm::DetSetVector<Phase2TrackerDigi>* pr = new edm::DetSetVector<Phase2TrackerDigi>();
+    std::vector<Registry>::iterator it = proc_work_registry_.begin(), it2 = it+1, end = proc_work_registry_.end();
+    while (it < end) 
+    {
+      sorted_and_merged.push_back( edm::DetSet<Phase2TrackerDigi>(it->detid) );
+      std::vector<Phase2TrackerDigi> & digis = sorted_and_merged.back().data;
+      // first count how many digis we have
+      size_t len = it->length;
+      for (it2 = it+1; (it2 != end) && (it2->detid == it->detid); ++it2) { len += it2->length; }
+      // reserve memory 
+      digis.reserve(len);
+      // push them in
+      for (it2 = it+0; (it2 != end) && (it2->detid == it->detid); ++it2) 
+      {
+        digis.insert( digis.end(), & proc_work_digis_[it2->index], & proc_work_digis_[it2->index + it2->length] );
+      }
+      it = it2;
+    }
+    edm::DetSetVector<Phase2TrackerDigi> proc_raw_dsv( sorted_and_merged, true );
+    pr->swap( proc_raw_dsv );
+    std::auto_ptr< edm::DetSetVector<Phase2TrackerDigi> > pr_dsv(pr);
+    event.put( pr_dsv, "Unsparsified" );
+
+    // sort and store clusters 
+    std::sort( zs_work_registry_.begin(), zs_work_registry_.end() );
+    std::vector< edm::DetSet<DummyClusterDigi> > sorted_and_merged_zs;
+    edm::DetSetVector<DummyClusterDigi>* zs = new edm::DetSetVector<DummyClusterDigi>();
+    // std::vector<Registry>::iterator it = zs_work_registry_.begin(), it2 = it+1, end = zs_work_registry_.end();
+    it = zs_work_registry_.begin();
+    it2 = it+1;
+    end = zs_work_registry_.end();
+    while (it < end)
+    {
+      sorted_and_merged_zs.push_back( edm::DetSet<DummyClusterDigi>(it->detid) );
+      std::vector<DummyClusterDigi> & digis = sorted_and_merged_zs.back().data;
+      // first count how many digis we have
+      size_t len = it->length;
+      for (it2 = it+1; (it2 != end) && (it2->detid == it->detid); ++it2) { len += it2->length; }
+      // reserve memory 
+      digis.reserve(len);
+      // push them in
+      for (it2 = it+0; (it2 != end) && (it2->detid == it->detid); ++it2)
+      {
+        digis.insert( digis.end(), & zs_work_digis_[it2->index], & zs_work_digis_[it2->index + it2->length] );
+      }
+      it = it2;
+    }
+    edm::DetSetVector<DummyClusterDigi> sparsified_dsv( sorted_and_merged_zs, true );
+    zs->swap( sparsified_dsv );
+    std::auto_ptr< edm::DetSetVector<DummyClusterDigi> > sp_dsv(zs);
+    event.put(sp_dsv, "Sparsified" );
   } 
 }
