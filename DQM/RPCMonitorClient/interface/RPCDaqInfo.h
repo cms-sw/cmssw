@@ -2,41 +2,31 @@
 # define DQM_RPCMonitorClient_DQMDaqInfo_H
 
 // system include files
-#include <memory>
 #include <iostream>
 #include <fstream>
 
-// FWCore
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-//DQM
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 
-class RPCDaqInfo : public edm::EDAnalyzer {
+class RPCDaqInfo : public DQMEDHarvester{
+ 
 public:
   explicit RPCDaqInfo(const edm::ParameterSet&);
   ~RPCDaqInfo();
-  
+
+protected:
+  void beginJob();
+  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&); //performed in the endLumi
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
 
 private:
-  virtual void beginJob() ;
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock& , const  edm::EventSetup&);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endLuminosityBlock(const edm::LuminosityBlock& , const  edm::EventSetup&);
-  virtual void endJob() ;
-  
-  DQMStore *dbe_;  
-  
+  void  myBooker(DQMStore::IBooker &);
+
+  bool init_;
+
   MonitorElement*  DaqFraction_;
   MonitorElement * DaqMap_;
   MonitorElement* daqWheelFractions[5];

@@ -9,7 +9,7 @@ RunInfoHandler::RunInfoHandler(const edm::ParameterSet& pset) :
   m_name(pset.getUntrackedParameter<std::string>("name","RunInfoHandler"))
   ,m_user(pset.getUntrackedParameter<std::string>("OnlineDBUser","CMS_RUNINFO_R")) 
   ,m_pass(pset.getUntrackedParameter<std::string>("OnlineDBPass","PASSWORD")) {
-  m_connectionString= "oracle://cms_omds_lb/CMS_RUNINFO";
+  m_connectionString= "oracle://cms_omds_adg/CMS_RUNINFO";
 }
 
 RunInfoHandler::~RunInfoHandler() {}

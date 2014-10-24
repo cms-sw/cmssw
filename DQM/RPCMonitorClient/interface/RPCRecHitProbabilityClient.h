@@ -3,46 +3,33 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include <FWCore/Framework/interface/ESHandle.h>
 
 
-class RPCRecHitProbabilityClient:public edm::EDAnalyzer{
+class RPCRecHitProbabilityClient:public  DQMEDHarvester{
 
 public:
 
   /// Constructor
- RPCRecHitProbabilityClient(const edm::ParameterSet& ps);
+  RPCRecHitProbabilityClient(const edm::ParameterSet& ps);
   
   /// Destructor
   virtual ~ RPCRecHitProbabilityClient();
-
-  /// BeginJob
-  void beginJob( );
-
-  //Begin Run
-   void beginRun(const edm::Run& , const edm::EventSetup&);
-    
-  /// Begin Lumi block 
-  void beginLuminosityBlock(edm::LuminosityBlock const& , edm::EventSetup const& ) ;
-
-  /// Analyze  
-  void analyze(const edm::Event& , const edm::EventSetup& );
-
-  /// End Lumi Block
-  void endLuminosityBlock(edm::LuminosityBlock const& , edm::EventSetup const& );
- 
-  //End Run
-  void endRun(const edm::Run& , const edm::EventSetup& ); 		
   
-  /// Endjob
-  void endJob();
+  
+protected:
+  void beginJob();
+  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&); //performed in the endLumi
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
+
+ 
+
 
  private:
 
     std::string  globalFolder_;
   
-    DQMStore* dbe_;
  
   
 };

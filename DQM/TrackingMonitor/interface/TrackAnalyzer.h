@@ -92,6 +92,9 @@ class TrackAnalyzer
 	// ADD by Mia in order to turnON test MEs
 	bool doTestPlots_;
 
+	//For HI Plots
+	bool doHIPlots_;
+
         struct TkParameterMEs {
 	  TkParameterMEs() :
 	    TrackP(NULL)
@@ -254,6 +257,10 @@ class TrackAnalyzer
 	// add by Mia in order to deal w/ LS transitions
 	MonitorElement* Chi2oNDF_lumiFlag;
 	MonitorElement* NumberOfRecHitsPerTrack_lumiFlag;
+
+	//new plots for Heavy Ion DQM
+	MonitorElement* LongDCASig;
+	MonitorElement* TransDCASig;
 	
 	
 	struct TkRecHitsPerSubDetMEs {

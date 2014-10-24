@@ -1,16 +1,3 @@
-// -*- C++ -*-
-//
-// Package:    HiEvtPlaneFlatCalib
-// Class:      HiEvtPlaneFlatCalib
-// 
-/**\class HiEvtPlaneFlatCalib HiEvtPlaneFlatCalib.cc HiEvtPlaneFlatten/HiEvtPlaneFlatCalib/src/HiEvtPlaneFlatCalib.cc
-
-
- Description: [one line class summary]
-
- Implementation:
-     [Notes on implementation]
-*/
 //
 // Original Author:  Stephen Sanders
 //         Created:  Sat Jun 26 16:04:04 EDT 2010
@@ -29,7 +16,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/HeavyIonEvent/interface/CentralityProvider.h"
+#include "RecoHI/HiCentralityAlgos/interface/CentralityProvider.h"
+
 #include "Math/Vector3D.h"
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -86,6 +74,7 @@ class HiEvtPlaneFlatCalib : public edm::EDAnalyzer {
       virtual void endJob() override ;
       
       // ----------member data ---------------------------
+  edm::EDGetTokenT <reco::VertexCollection> vtxCollection_;
   edm::Service<TFileService> fs;
   //  const CentralityBins * cbins_;
   CentralityProvider * centrality_;
@@ -131,6 +120,7 @@ class HiEvtPlaneFlatCalib : public edm::EDAnalyzer {
 HiEvtPlaneFlatCalib::HiEvtPlaneFlatCalib(const edm::ParameterSet& iConfig)
 {
   genFlatPsi_ = iConfig.getUntrackedParameter<bool>("genFlatPsi_",true);
+  vtxCollection_  = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vtxCollection_"));
 
   //  NumCentBins=9;
   wcent[0] = 0;
@@ -215,7 +205,7 @@ HiEvtPlaneFlatCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   //Get Vertex
   //
   edm::Handle<reco::VertexCollection> vertexCollection3;
-  iEvent.getByLabel("hiSelectedVertex",vertexCollection3);
+  iEvent.getByToken(vtxCollection_,vertexCollection3);
   const reco::VertexCollection * vertices3 = vertexCollection3.product();
   vs_sell = vertices3->size();
   if(vs_sell>0) {
