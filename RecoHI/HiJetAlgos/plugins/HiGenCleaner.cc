@@ -58,7 +58,7 @@ public:
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
       // ----------member data ---------------------------
 
-   InputTag jetSrc_;
+   edm::EDGetTokenT<edm::View<T2> > jetSrc_;
    double deltaR_;
    double ptCut_;
    bool makeNew_;
@@ -81,14 +81,14 @@ public:
 
 template <class T2>
 HiGenCleaner<T2>::HiGenCleaner(const edm::ParameterSet& iConfig) :
-  jetSrc_(iConfig.getParameter<InputTag>( "src")),
+  jetSrc_(consumes<edm::View<T2> >(iConfig.getParameter<edm::InputTag>("src"))),
   deltaR_(iConfig.getParameter<double>("deltaR")),
   ptCut_(iConfig.getParameter<double>("ptCut")),
   makeNew_(iConfig.getUntrackedParameter<bool>("createNewCollection",true)),
   fillDummy_(iConfig.getUntrackedParameter<bool>("fillDummyEntries",true))
 {
-   std::string alias = jetSrc_.label();
-   produces<T2Collection>().setBranchAlias (alias);
+  std::string alias = (iConfig.getParameter<InputTag>( "src")).label();
+  produces<T2Collection>().setBranchAlias (alias);
 }
 
 template <class T2>
@@ -115,7 +115,7 @@ HiGenCleaner<T2>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    jets = auto_ptr<T2Collection>(new T2Collection);
    
    edm::Handle<edm::View<T2> > genjets;
-   iEvent.getByLabel(jetSrc_,genjets);
+   iEvent.getByToken(jetSrc_,genjets);
 
    int jetsize = genjets->size();
 

@@ -1136,11 +1136,10 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
       if ( rejectTracks_Step45_ && ecalElems.empty() && 
 	   trackMomentum > 30. && Dpt > 0.5 && 
-	   ( trackRef->algo() == TrackBase::iter4 || 
-	     trackRef->algo() == TrackBase::iter5 || 
-	     trackRef->algo() == TrackBase::iter6 ) ) {
+	   ( trackRef->algo() == TrackBase::mixedTripletStep || 
+	     trackRef->algo() == TrackBase::pixelLessStep || 
+	     trackRef->algo() == TrackBase::tobTecStep ) ) {
 
-	//
 	double dptRel = Dpt/trackRef->pt()*100;
 	bool isPrimaryOrSecondary = isFromSecInt(elements[iTrack], "all");
 
@@ -1937,20 +1936,20 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       double blowError = 1.;
       switch (trackRef->algo()) {
       case TrackBase::ctf:
-      case TrackBase::iter0:
-      case TrackBase::iter1:
-      case TrackBase::iter2:
-      case TrackBase::iter3:
-      case TrackBase::iter4:
-      case TrackBase::iter7:
-      case TrackBase::iter9:
-      case TrackBase::iter10:
+      case TrackBase::initialStep:
+      case TrackBase::lowPtTripletStep:
+      case TrackBase::pixelPairStep:
+      case TrackBase::detachedTripletStep:
+      case TrackBase::mixedTripletStep:
+      case TrackBase::jetCoreRegionalStep:
+      case TrackBase::muonSeededStepInOut:
+      case TrackBase::muonSeededStepOutIn:
 	blowError = 1.;
 	break;
-      case TrackBase::iter5:
+      case TrackBase::pixelLessStep:
 	blowError = factors45_[0];
 	break;
-      case TrackBase::iter6:
+      case TrackBase::tobTecStep:
 	blowError = factors45_[1];
 	break;
       default:
@@ -2399,20 +2398,20 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
 
 	if (isPrimaryOrSecondary && dptRel < dptRel_DispVtx_) continue;
-	//
+
 	switch (trackref->algo()) {
 	case TrackBase::ctf:
-	case TrackBase::iter0:
-	case TrackBase::iter1:
-	case TrackBase::iter2:
-	case TrackBase::iter3:
-	case TrackBase::iter4:
-	case TrackBase::iter7:
-	case TrackBase::iter9:
-	case TrackBase::iter10:
+	case TrackBase::initialStep:
+	case TrackBase::lowPtTripletStep:
+	case TrackBase::pixelPairStep:
+	case TrackBase::detachedTripletStep:
+	case TrackBase::mixedTripletStep:
+	case TrackBase::jetCoreRegionalStep:
+	case TrackBase::muonSeededStepInOut:
+	case TrackBase::muonSeededStepOutIn:
 	  break;
-	case TrackBase::iter5:
-	case TrackBase::iter6:
+	case TrackBase::pixelLessStep:
+	case TrackBase::tobTecStep:
 	  active[iTrack] = false;	
 	  totalChargedMomentum -= trackref->p();
 	  

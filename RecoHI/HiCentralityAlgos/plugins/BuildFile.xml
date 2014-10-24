@@ -1,0 +1,4 @@
+<use   name="RecoHI/HiCentralityAlgos"/>
+<flags   EDM_PLUGIN="1"/>
+<library   file="*.cc" name="HiCentralityPlugins">
+</library>

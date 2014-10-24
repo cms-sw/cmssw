@@ -12,6 +12,7 @@
   <class name="reco::Photon" ClassVersion="14">
    <version ClassVersion="14" checksum="3272056827"/>
    <version ClassVersion="13" checksum="2963666409"/>
+   <version ClassVersion="14" checksum="753726370"/>
   </class>
   <class name="reco::Conversion" ClassVersion="11">
    <version ClassVersion="10" checksum="2140222741"/>

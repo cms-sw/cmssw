@@ -122,7 +122,12 @@ GsfBetheHeitlerUpdator::compute (const TrajectoryStateOnSurface& TSoS,
     if ( rl<0.01f )  rl = 0.01f;
     if ( rl>0.20f )  rl = 0.20f;
 
+    #if __clang__
+    std::vector<GSContainer> mixtureHolder(theNrComponents);
+    GSContainer *mixture = mixtureHolder.data();
+    #else
     GSContainer mixture[theNrComponents];
+    #endif
     getMixtureParameters(rl,mixture);
     correctWeights(mixture);
     if ( theCorrectionFlag>=1 )

@@ -77,6 +77,6 @@ TrackEffMon_bhmuon.FolderName                      = 'Tracking/TrackParameters/T
 # Clone for Heavy Ion Tracks (for HI Collisions)
 import DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi
 TrackEffMon_hi = DQM.TrackingMonitor.TrackEfficiencyMonitor_cfi.TrackEffMon.clone()
-TrackEffMon_hi.TKTrackCollection                   = 'hiGlobalPrimTracks'
+TrackEffMon_hi.TKTrackCollection                   = 'hiGeneralTracks'
 TrackEffMon_hi.AlgoName                            = 'HeavyIonTk'
 TrackEffMon_hi.FolderName                          = 'Tracking/TrackParameters/TrackEfficiency'
