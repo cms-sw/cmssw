@@ -10,11 +10,12 @@ void CmsTrackerLevelBuilder::build (
 				    GeometricDet* tracker,
 				    std::string attribute){
 
-  LogDebug("GeometricDetBuilding");
-  LogTrace("GeometricDetBuilding") << "GeometricDet name and type: " << tracker->name() << " " << tracker->type() << std::endl;
-  LogTrace("GeometricDetBuilding") << "Attribute string: " << attribute << std::endl;
-  LogTrace("GeometricDetBuilding") << "Filtered View logical parts: " << fv.logicalPart().ddname().name() << std::endl;
-  LogTrace("GeometricDetBuilding") << "Extracted string: " << ExtractStringFromDDD::getString(attribute,&fv) << std::endl;
+  LogTrace("GeometricDetBuilding") << std::string(3*fv.history().size(),'-') 
+				   << "+ "
+				   << ExtractStringFromDDD::getString(attribute,&fv) << " " 
+				   << tracker->type() << " " 
+				   << tracker->name() 
+				   << std::endl;
 
  bool doLayers = fv.firstChild(); // descend to the first Layer  
 
