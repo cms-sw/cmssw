@@ -1,5 +1,5 @@
-#ifndef OuterTrackerV_OuterTrackerMCTruth_h
-#define OuterTrackerV_OuterTrackerMCTruth_h
+#ifndef OuterTrackerCluster_OuterTrackerCluster_h
+#define OuterTrackerCluster_OuterTrackerCluster_h
 
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -21,36 +21,26 @@ class SiStripCluster;
 class SiStripDCSStatus;
 class GenericTriggerEventFlag;
 
-class OuterTrackerMCTruth : public edm::EDAnalyzer {
+class OuterTrackerCluster : public edm::EDAnalyzer {
 
 public:
-  explicit OuterTrackerMCTruth(const edm::ParameterSet&);
-  ~OuterTrackerMCTruth();
+  explicit OuterTrackerCluster(const edm::ParameterSet&);
+  ~OuterTrackerCluster();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   //virtual void beginJob() ;
   virtual void endJob() ;
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
  
-  
-	// TrackingParticle and TrackingVertex
-	MonitorElement* TPart_Pt = 0;
-	MonitorElement* TPart_Eta_Pt10 = 0;
-	MonitorElement* TPart_Phi_Pt10 = 0;
-	MonitorElement* SimVtx_XY = 0;
-	MonitorElement* SimVtx_RZ = 0;
-	// CW vs. TPart Eta
-	MonitorElement* TPart_Eta_INormalization = 0;
-	MonitorElement* TPart_Eta_ICW_1 = 0;
-	MonitorElement* TPart_Eta_ICW_2 = 0;
-	MonitorElement* TPart_Eta_ICW_3 = 0;
-	MonitorElement* TPart_Eta_ONormalization = 0;
-	MonitorElement* TPart_Eta_OCW_1 = 0;
-	MonitorElement* TPart_Eta_OCW_2 = 0;
-	MonitorElement* TPart_Eta_OCW_3 = 0;
-	// Stub in PS/2S module vs. TPart Eta
-	MonitorElement* TPart_Eta_Pt10_Normalization = 0;
-	MonitorElement* TPart_Eta_Pt10_NumPS = 0;
-	MonitorElement* TPart_Eta_Pt10_Num2S = 0;
+	// TTCluster stacks
+	MonitorElement* Cluster_Gen_Barrel = 0;
+	MonitorElement* Cluster_Unkn_Barrel = 0;
+	MonitorElement* Cluster_Comb_Barrel = 0;
+	MonitorElement* Cluster_Gen_Endcap = 0;
+	MonitorElement* Cluster_Unkn_Endcap = 0;
+	MonitorElement* Cluster_Comb_Endcap = 0;
+	MonitorElement* Cluster_Gen_Eta = 0;
+	MonitorElement* Cluster_Unkn_Eta = 0;
+	MonitorElement* Cluster_Comb_Eta = 0;
 	
 
  private:
