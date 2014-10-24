@@ -182,7 +182,7 @@ pixelLessStepTrackCandidates.TrajectoryCleaner = 'pixelLessStepTrajectoryCleaner
 import RecoTracker.TrackProducer.TrackProducer_cfi
 pixelLessStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'pixelLessStepTrackCandidates',
-    AlgorithmName = cms.string('iter5'),
+    AlgorithmName = cms.string('pixelLessStep'),
     Fitter = cms.string('FlexibleKFFittingSmoother')
     )
 
