@@ -1,11 +1,8 @@
 /* *  \author Anna Cimmino*/
 #include "DQM/RPCMonitorDigi/interface/utils.h"
 #include <DQM/RPCMonitorClient/interface/RPCDeadChannelTest.h>
-
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-//#include <FWCore/Framework/interface/ESHandle.h>
-
 // Geometry
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
@@ -24,60 +21,35 @@ RPCDeadChannelTest::RPCDeadChannelTest(const edm::ParameterSet& ps ){
   numberOfRings_ = ps.getUntrackedParameter<int>("NumberOfEndcapRings", 2);
 }
 
-RPCDeadChannelTest::~RPCDeadChannelTest(){dbe_ = 0;}
+RPCDeadChannelTest::~RPCDeadChannelTest(){}
 
-void RPCDeadChannelTest::beginJob(DQMStore *  dbe, std::string workingFolder ){
+void RPCDeadChannelTest::beginJob(std::string & workingFolder ){
  edm::LogVerbatim ("rpcdeadchanneltest") << "[RPCDeadChannelTest]: Begin Job";
   globalFolder_ =  workingFolder;
-  dbe_=dbe;
-}
-
-void RPCDeadChannelTest::endRun(const edm::Run& r, const edm::EventSetup& iSetup){
-
-   edm::LogVerbatim ("rpcdeadchanneltest") << "[RPCDeadChannelTest]: End run";
 
 }
 
 
-void RPCDeadChannelTest::getMonitorElements(std::vector<MonitorElement *> & meVector, std::vector<RPCDetId> & detIdVector){
+void RPCDeadChannelTest::getMonitorElements(std::vector<MonitorElement *> & meVector, std::vector<RPCDetId> & detIdVector, std::string & clientHistoName){
 
- //Get Occupancy ME for each roll
-  
- for (unsigned int i = 0 ; i<meVector.size(); i++){
+  for (unsigned int i = 0 ; i<meVector.size(); i++){
+    
+    std::string meName =  meVector[i]->getName();
 
-   bool flag= false;
-   
-   DQMNet::TagList tagList;
-   tagList = meVector[i]->getTags();
-   DQMNet::TagList::iterator tagItr = tagList.begin();
-
-   while (tagItr != tagList.end() && !flag ) {
-     if((*tagItr) ==  rpcdqm::OCCUPANCY)
-       flag= true;
-   
-     tagItr++;
-   }
-   
-   if(flag){
+    if(meName.find(clientHistoName) != std::string::npos){
       myOccupancyMe_.push_back(meVector[i]);
       myDetIds_.push_back(detIdVector[i]);
-   }
- }  
+    }  
+  }
 }
 
-void RPCDeadChannelTest::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) {}
 
-void RPCDeadChannelTest::analyze(const edm::Event& iEvent, const edm::EventSetup& c){}
-
-void RPCDeadChannelTest::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup){}
-
-void RPCDeadChannelTest::clientOperation( edm::EventSetup const& iSetup){
+void RPCDeadChannelTest::clientOperation(){
  
   edm::LogVerbatim ("rpcdeadchanneltest") <<"[RPCDeadChannelTest]:Client Operation";
 
 
   MonitorElement * DEAD = NULL;
-
  
   //Loop on chambers
     for (unsigned int  i = 0 ; i<myOccupancyMe_.size();i++){
@@ -136,10 +108,9 @@ void RPCDeadChannelTest::clientOperation( edm::EventSetup const& iSetup){
 
 }
  
-void RPCDeadChannelTest::beginRun(const edm::Run& r, const edm::EventSetup& c){
+void RPCDeadChannelTest::myBooker(DQMStore::IBooker & ibooker){
 
-  MonitorElement* me;
-  dbe_->setCurrentFolder( globalFolder_);
+  ibooker.setCurrentFolder( globalFolder_);
   
   std::stringstream histoName;
   
@@ -152,44 +123,33 @@ void RPCDeadChannelTest::beginRun(const edm::Run& r, const edm::EventSetup& c){
     if (i>-3 && i<3){//wheels
       histoName.str("");
       histoName<<"DeadChannelFraction_Roll_vs_Sector_Wheel"<<i;
-      me = 0;
-      me = dbe_->get(globalFolder_ +"/"+ histoName.str());
-      if (0!=me ) {
-	dbe_->removeElement(me->getName());
-      }
-      DEADWheel[i+2] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(), 12, 0.5, 12.5, 21, 0.5, 21.5);
+      DEADWheel[i+2] = ibooker.book2D(histoName.str().c_str(), histoName.str().c_str(), 12, 0.5, 12.5, 21, 0.5, 21.5);
       
-      for (int x = 1; x<=12; x++)
-	for(int y=1; y<=21; y++)
+      for (int x = 1; x<=12; x++){
+	for(int y=1; y<=21; y++){
 	  DEADWheel[i+2]->setBinContent(x,y,-1);
-      
+	}
+      }
+
       rpcUtils.labelXAxisSector( DEADWheel[i+2]);
       rpcUtils.labelYAxisRoll( DEADWheel[i+2], 0, i, useRollInfo_);
     }//end wheels
     
-    if (i == 0  || i > numberOfDisks_ || i< (-1 * numberOfDisks_))continue;
+    if (i == 0  || i > numberOfDisks_ || i< (-1 * numberOfDisks_)){continue;}
     
     int offset = numberOfDisks_;
-    if (i>0) offset --; //used to skip case equale to zero
+    if (i>0) {offset --;} //used to skip case equale to zero
     
     histoName.str("");
     histoName<<"DeadChannelFraction_Ring_vs_Segment_Disk"<<i;
-    me = 0;
-    me = dbe_->get(globalFolder_ +"/"+ histoName.str());
-    if (0!=me ) {
-      dbe_->removeElement(me->getName());
-    }
-    
-    DEADDisk[i+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5);
+    DEADDisk[i+offset] = ibooker.book2D(histoName.str().c_str(), histoName.str().c_str(),36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5);
     
     rpcUtils.labelXAxisSegment(DEADDisk[i+offset]);
     rpcUtils.labelYAxisRing(DEADDisk[i+offset], numberOfRings_ ,useRollInfo_);
-    
-    
+        
   }//end loop on wheels and disks
   
   
 }
 
-void RPCDeadChannelTest::endJob(){}
 

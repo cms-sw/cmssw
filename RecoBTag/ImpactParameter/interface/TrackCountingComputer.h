@@ -15,6 +15,8 @@ class TrackCountingComputer : public JetTagComputer
  public:
   TrackCountingComputer(const edm::ParameterSet  & parameters )
   {
+    m_minIP            = parameters.existsAs<double>("minimumImpactParameter") ? parameters.getParameter<double>("minimumImpactParameter") : -1;
+    m_useSignedIPSig   = parameters.existsAs<bool>("useSignedImpactParameterSig") ? parameters.getParameter<bool>("useSignedImpactParameterSig") : true;
     m_nthTrack         = parameters.getParameter<int>("nthTrack");
     m_ipType           = parameters.getParameter<int>("impactParameterType");
     m_deltaR           = parameters.getParameter<double>("deltaR");
@@ -72,14 +74,21 @@ class TrackCountingComputer : public JetTagComputer
     for(std::vector<reco::btag::TrackIPData>::const_iterator it = impactParameters.begin(); it!=impactParameters.end(); ++it, i++)  {
       if( fabs(impactParameters[i].distanceToJetAxis.value()) < m_cutMaxDistToAxis  &&        // distance to JetAxis
 	  (impactParameters[i].closestToJetAxis - pv).mag() < m_cutMaxDecayLen  &&      // max decay len
-	  (m_useAllQualities  == true || (*tracks[i]).quality(m_trackQuality)) // use selected track qualities
+	  (m_useAllQualities  == true || (*tracks[i]).quality(m_trackQuality)) && // use selected track qualities
+	  (fabs(((m_ipType==0) ? it->ip3d:it->ip2d).value()) > m_minIP) // minimum impact parameter
 	  ) {	 
+
+	//calculate the signed or un-signed significance
+	float signed_sig = ((m_ipType == 0) ? it->ip3d : it->ip2d).significance();  
+	float unsigned_sig = fabs(signed_sig);
+	float significance = (m_useSignedIPSig) ? signed_sig : unsigned_sig;
+
 	if (useVariableJTA_) {
-	  if (tkip.variableJTA( varJTApars )[i])  significances.insert( ((m_ipType==0)?it->ip3d:it->ip2d).significance() );
+	  if (tkip.variableJTA( varJTApars )[i])  significances.insert( significance );
 	}
 	else // no using variable JTA, use the default method 
 	  if(m_deltaR <=0  || ROOT::Math::VectorUtil::DeltaR((*tkip.jet()).p4().Vect(), (*tracks[i]).momentum()) < m_deltaR)
-	    significances.insert( ((m_ipType==0)?it->ip3d:it->ip2d).significance() );
+	    significances.insert( significance );
       }
     }	  
     
@@ -89,7 +98,10 @@ class TrackCountingComputer : public JetTagComputer
   
   bool useVariableJTA_;
   reco::btag::variableJTAParameters varJTApars;
-  
+
+  double m_minIP;
+  bool m_useSignedIPSig;
+
   int m_nthTrack;
   int m_ipType;
   double m_deltaR;

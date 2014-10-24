@@ -19,14 +19,6 @@
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-/*#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h" 
-#include "DataFormats/TrackCandidate/interface/TrackCandidate.h" 
-#include "DataFormats/TrackReco/interface/Track.h" 
-#include "DataFormats/TrackReco/interface/TrackFwd.h" 
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-*/
 
 //ROOT inclusion
 #include "TH1F.h"
@@ -45,7 +37,6 @@ using namespace std;
 SiStripBaselineValidator::SiStripBaselineValidator(const edm::ParameterSet& conf){
 
   srcProcessedRawDigi_ =  conf.getParameter<edm::InputTag>( "srcProcessedRawDigi" );
- // hiSelectedTracks =  conf.getParameter<edm::InputTag>( "hiSelectedTracks" );
   createOutputFile_ = conf.getUntrackedParameter<bool>("saveFile",false);
   outputFile_   = conf.getParameter<std::string>("outputFile");
   dbe = &*edm::Service<DQMStore>();

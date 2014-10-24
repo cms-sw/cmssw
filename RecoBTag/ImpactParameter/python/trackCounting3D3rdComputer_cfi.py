@@ -5,6 +5,8 @@ from RecoBTag.ImpactParameter.variableJTA_cfi import *
 # trackCounting3D3rd btag computer
 trackCounting3D3rd = cms.ESProducer("TrackCountingESProducer",
                                     variableJTAPars,
+                                    minimumImpactParameter = cms.double(-1),
+                                    useSignedImpactParameterSig = cms.bool(True),
                                     impactParameterType = cms.int32(0), ## 0 = 3D, 1 = 2D
                                     
                                     maximumDistanceToJetAxis = cms.double(0.07),

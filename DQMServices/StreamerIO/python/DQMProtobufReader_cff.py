@@ -22,7 +22,7 @@ options.register('runInputDir',
                  "Directory where the DQM files will appear.")
 
 options.register('streamLabel',
-                 '_streamDQMHistograms_StorageManager', # default value
+                 'streamDQMHistograms', # default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Stream label used in json discovery.")
