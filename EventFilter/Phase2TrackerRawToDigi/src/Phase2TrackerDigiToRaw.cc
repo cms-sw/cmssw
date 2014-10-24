@@ -229,7 +229,7 @@ namespace Phase2Tracker
     std::pair<int,int> chipstrip = calcChipId(digi, layer);
     uint16_t scluster = (chipstrip.first & 0x0F) << 11;
     scluster |= (chipstrip.second & 0xFF) << 3;
-    scluster |= (digi->sizeX() & 0x07);
+    scluster |= ((digi->sizeX()-1) & 0x07);
     write_n_at_m(buffer,15,bitpointer,scluster);
     bitpointer += 15;
   }
@@ -240,7 +240,7 @@ namespace Phase2Tracker
     uint32_t pcluster = (chipstrip.first & 0x0F) << 14;
     pcluster |= (chipstrip.second & 0x7F) << 7;
     pcluster |= ((int)digi->y() & 0x0F) << 3;
-    pcluster |= (digi->sizeX() & 0x07);
+    pcluster |= ((digi->sizeX()-1) & 0x07);
     write_n_at_m(buffer,18,bitpointer,pcluster);
     bitpointer += 18;
   }
