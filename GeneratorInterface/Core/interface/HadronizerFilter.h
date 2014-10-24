@@ -137,10 +137,8 @@ namespace edm
     }
     
     if ( ps.exists("HepMCFilter") ) {
-      printf("Creating HepMCFilter\n");
       ParameterSet psfilter = ps.getParameter<ParameterSet>("HepMCFilter");
       filter_ = new HepMCFilterDriver(psfilter);
-      printf("Created HepMCFilter\n");
     }
     
     //initialize setting for multiple hadronization attempts
