@@ -98,7 +98,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
    edm::Handle<reco::TrackCollection> trackHandle;
    iEvent.getByToken(token_tracks, trackHandle);
    if (!trackHandle->size()) return;
-
+   const reco::TrackCollection* trackColl = trackHandle.product();
+  
    edm::Handle<reco::BeamSpot> beamspotHandle;
    iEvent.getByToken(token_beamspot, beamspotHandle);
    const GlobalPoint beamspotPos(beamspotHandle->position().x(), beamspotHandle->position().y(), beamspotHandle->position().z());
@@ -110,33 +111,27 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
    ESHandle<GlobalTrackingGeometry> globTkGeomHandle;
    iSetup.get<GlobalTrackingGeometryRecord>().get(globTkGeomHandle);
 
-   // create std::vectors for Tracks and TrackRefs (required for passing to the KalmanVertexFitter)
-   std::vector<TrackRef> theTrackRefs;
-   std::vector<TransientTrack> theTransTracks;
-
-   // fill vectors of TransientTracks and TrackRefs which pass selection cuts
-   for (unsigned int indx = 0; indx < trackHandle->size(); indx++) {
-      TrackRef tmpRef(trackHandle, indx);
+   // fill theGoodTracks with track index if it passes preselection
+   std::vector<size_t> theGoodTracks;
+   for (TrackCollection::const_iterator iTrack = trackColl->begin(); iTrack != trackColl->end(); ++iTrack) {
       bool quality_ok = true;
       if (qualities.size() != 0) {
          quality_ok = false;
-         for (unsigned int ndx_ = 0; ndx_ < qualities.size(); ndx_++) {
-            if (tmpRef->quality(qualities[ndx_])) {
+         for (unsigned int ndx_ = 0; ndx_ < qualities.size(); ++ndx_) {
+            if ((*iTrack).quality(qualities[ndx_])) {
                quality_ok = true;
                break;
             }
          }
       }
       if (quality_ok) {
-         if (tmpRef->normalizedChi2() < tkChi2Cut_ && tmpRef->pt() > tkPtCut_ && tmpRef->numberOfValidHits() >= tkNHitsCut_) {
-            FreeTrajectoryState initialFTS = trajectoryStateTransform::initialFreeState(*tmpRef, magField);
+         if ((*iTrack).normalizedChi2() < tkChi2Cut_ && (*iTrack).pt() > tkPtCut_ && (*iTrack).numberOfValidHits() >= tkNHitsCut_) {
+            FreeTrajectoryState initialFTS = trajectoryStateTransform::initialFreeState((*iTrack), magField);
             TSCBLBuilderNoMaterial blsBuilder;
             TrajectoryStateClosestToBeamLine tscb(blsBuilder(initialFTS, *beamspotHandle));
             if (tscb.isValid()) {
                if (tscb.transverseImpactParameter().significance() > tkIPSigCut_) {
-                  theTrackRefs.push_back(std::move(tmpRef));
-                  TransientTrack tmpTk(*tmpRef, &(*bFieldHandle), globTkGeomHandle);
-                  theTransTracks.push_back(std::move(tmpTk));
+                  theGoodTracks.push_back(std::move(std::distance(trackColl->begin(), iTrack)));
                }
             }
          }
@@ -144,35 +139,33 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
    }
    // good tracks have now been selected for vertexing
 
-
-   // loop over tracks and vertex good charged track pairs
-   for (unsigned int trdx1 = 0; trdx1 < theTrackRefs.size(); trdx1++) {
-   for (unsigned int trdx2 = trdx1 + 1; trdx2 < theTrackRefs.size(); trdx2++) {
+   // loop over the tracks and vertex good charged track pairs
+   for (unsigned int trdx1 = 0; trdx1 < theGoodTracks.size(); ++trdx1) {
+   for (unsigned int trdx2 = trdx1 + 1; trdx2 < theGoodTracks.size(); ++trdx2) {
 
       TrackRef negativeTrackRef;
       TrackRef positiveTrackRef;
-      TransientTrack* negTransTkPtr = nullptr;
-      TransientTrack* posTransTkPtr = nullptr;
-        
+      TrackRef temp1(trackHandle, theGoodTracks[trdx1]);
+      TrackRef temp2(trackHandle, theGoodTracks[trdx2]);
+       
       // if the tracks are oppositely charged load them into the appropriate containers
-      if (theTrackRefs[trdx1]->charge() < 0. && theTrackRefs[trdx2]->charge() > 0.) {
-         negativeTrackRef = theTrackRefs[trdx1];
-         positiveTrackRef = theTrackRefs[trdx2];
-         negTransTkPtr = &theTransTracks[trdx1];
-         posTransTkPtr = &theTransTracks[trdx2];
-      } else if (theTrackRefs[trdx1]->charge() > 0. && theTrackRefs[trdx2]->charge() < 0.) {
-         negativeTrackRef = theTrackRefs[trdx2];
-         positiveTrackRef = theTrackRefs[trdx1];
-         negTransTkPtr = &theTransTracks[trdx2];
-         posTransTkPtr = &theTransTracks[trdx1];
+      if (temp1->charge() < 0. && temp2->charge() > 0.) {
+         negativeTrackRef = temp1;
+         positiveTrackRef = temp2;
+      } else if (temp1->charge() > 0. && temp2->charge() < 0.) {
+         negativeTrackRef = temp2;
+         positiveTrackRef = temp1;
       } else {
          continue; // try the next pair
       }
+
+      TransientTrack negTransTk(*negativeTrackRef, &(*bFieldHandle), globTkGeomHandle);
+      TransientTrack posTransTk(*positiveTrackRef, &(*bFieldHandle), globTkGeomHandle);
      
       // calculate the DCA and POCA for the track pair
-      if (!negTransTkPtr->impactPointTSCP().isValid() || !posTransTkPtr->impactPointTSCP().isValid()) continue;
-      FreeTrajectoryState const & posState = posTransTkPtr->impactPointTSCP().theState();
-      FreeTrajectoryState const & negState = negTransTkPtr->impactPointTSCP().theState();
+      if (!negTransTk.impactPointTSCP().isValid() || !posTransTk.impactPointTSCP().isValid()) continue;
+      FreeTrajectoryState const & negState = negTransTk.impactPointTSCP().theState();
+      FreeTrajectoryState const & posState = posTransTk.impactPointTSCP().theState();
       ClosestApproachInRPhi cApp;
       cApp.calculate(posState, negState);
       if (!cApp.status()) continue;
@@ -184,8 +177,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
       // fill the vector of TransientTracks to give to the vertexers
       std::vector<TransientTrack> transTracks;
       transTracks.reserve(2);
-      transTracks.push_back(*posTransTkPtr);
-      transTracks.push_back(*negTransTkPtr);
+      transTracks.push_back(negTransTk);
+      transTracks.push_back(posTransTk);
 
       // create the vertex fitter object and vertex the tracks
       TransientVertex theRecoVertex;
@@ -257,8 +250,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
         trajPlus.reset(new TrajectoryStateClosestToPoint(thePositiveRefTrack->trajectoryStateClosestToPoint(vtxPos)));
         trajMins.reset(new TrajectoryStateClosestToPoint(theNegativeRefTrack->trajectoryStateClosestToPoint(vtxPos)));
       } else {
-         trajPlus.reset(new TrajectoryStateClosestToPoint(posTransTkPtr->trajectoryStateClosestToPoint(vtxPos)));
-         trajMins.reset(new TrajectoryStateClosestToPoint(negTransTkPtr->trajectoryStateClosestToPoint(vtxPos)));
+         trajPlus.reset(new TrajectoryStateClosestToPoint(posTransTk.trajectoryStateClosestToPoint(vtxPos)));
+         trajMins.reset(new TrajectoryStateClosestToPoint(negTransTk.trajectoryStateClosestToPoint(vtxPos)));
       }
       if (trajPlus.get() == 0 || trajMins.get() == 0 || !trajPlus->isValid() || !trajMins->isValid()) continue;
 
