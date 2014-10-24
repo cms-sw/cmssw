@@ -264,7 +264,7 @@ StorageFactory::wrapNonLocalFile (Storage *s,
 				  int mode)
 {
   StorageFactory::CacheHint hint = cacheHint();
-  if ((hint == StorageFactory::CACHE_HINT_LAZY_DOWNLOAD)
+  if (((hint == StorageFactory::CACHE_HINT_LAZY_DOWNLOAD) || (mode & IOFlags::OpenWrap))
       && ! (mode & IOFlags::OpenWrite)
       && ! m_tempdir.empty()
       && (path.empty() || ! m_lfs.isLocalPath(path)))
