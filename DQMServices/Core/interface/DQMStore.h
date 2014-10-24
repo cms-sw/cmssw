@@ -629,7 +629,9 @@ class DQMStore
   void        initializeFrom(const edm::ParameterSet&);
   void        reset(void);
   void        forceReset(void);
-
+  void        markForDeletion(uint32_t run,
+			      uint32_t lumi);
+  
   bool        extract(TObject *obj, const std::string &dir, bool overwrite, bool collateHistograms);
   TObject *   extractNextObject(TBufferFile&) const;
 
