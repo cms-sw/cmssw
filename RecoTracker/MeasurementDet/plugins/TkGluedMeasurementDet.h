@@ -40,6 +40,9 @@ public:
   const TkStripMeasurementDet* monoDet() const{ return theMonoDet;} 
   const TkStripMeasurementDet* stereoDet() const{ return theStereoDet;} 
 
+  unsigned int rawId() const { return  fastGeomDet().geographicalId(); }
+
+
   /// return TRUE if both mono and stereo components are active
   bool isActive(const MeasurementTrackerEvent & data) const {return monoDet()->isActive(data) && stereoDet()->isActive(data); }
  	  	 

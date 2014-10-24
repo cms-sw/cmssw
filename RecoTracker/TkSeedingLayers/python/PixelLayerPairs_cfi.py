@@ -18,11 +18,11 @@ PixelLayerPairs.layerList = cms.vstring('BPix1+BPix2',
         'FPix1_neg+FPix2_neg'
 )
 PixelLayerPairs.BPix = cms.PSet(
-    TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
+    TTRHBuilder = cms.string('WithTrackAngle'),
     HitProducer = cms.string('siPixelRecHits'),
 )
 PixelLayerPairs.FPix = cms.PSet(
-    TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
+    TTRHBuilder = cms.string('WithTrackAngle'),
     HitProducer = cms.string('siPixelRecHits'),
 )
 

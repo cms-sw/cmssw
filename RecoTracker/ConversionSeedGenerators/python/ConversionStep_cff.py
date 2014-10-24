@@ -4,14 +4,13 @@ from RecoTracker.ConversionSeedGenerators.PhotonConversionTrajectorySeedProducer
 from RecoTracker.ConversionSeedGenerators.ConversionStep2_cff import *
 
 convClusters = cms.EDProducer("TrackClusterRemover",
-                              clusterLessSolution = cms.bool(True),
                               oldClusterRemovalInfo = cms.InputTag("tobTecStepClusters"),
                               trajectories = cms.InputTag("tobTecStepTracks"),
                               overrideTrkQuals = cms.InputTag('tobTecStepSelector','tobTecStep'),
                               TrackQuality = cms.string('highPurity'),
                               pixelClusters = cms.InputTag("siPixelClusters"),
                               stripClusters = cms.InputTag("siStripClusters"),
-                              Common = cms.PSet(maxChi2 = cms.double(30.0))
+                              maxChi2 = cms.double(30.0)
                               )
 
 convLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
@@ -101,32 +100,32 @@ convLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
                                                         ),
 
                                 BPix = cms.PSet(
-                                    TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
+                                    TTRHBuilder = cms.string('WithTrackAngle'),
                                     HitProducer = cms.string('siPixelRecHits'),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
                                 FPix = cms.PSet(
-                                    TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
+                                    TTRHBuilder = cms.string('WithTrackAngle'),
                                     HitProducer = cms.string('siPixelRecHits'),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
                                 TIB1 = cms.PSet(
-                                    TTRHBuilder = cms.string('WithTrackAngle'),
+                                    TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069.),
                                     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
                                 TIB2 = cms.PSet(
-                                    TTRHBuilder = cms.string('WithTrackAngle'),
+                                    TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069.),
                                     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
                                 TIB3 = cms.PSet(
-                                    TTRHBuilder = cms.string('WithTrackAngle'),
+                                    TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069.),
                                     rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
                                 TIB4 = cms.PSet(
-                                    TTRHBuilder = cms.string('WithTrackAngle'),
+                                    TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069.),
                                     rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
@@ -134,7 +133,7 @@ convLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
                                     useSimpleRphiHitsCleaner = cms.bool(False),
                                     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
                                     useRingSlector = cms.bool(True),
-                                    TTRHBuilder = cms.string('WithTrackAngle'),
+                                    TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069.),
                                     maxRing = cms.int32(2),
                                     minRing = cms.int32(1),
                                     skipClusters = cms.InputTag('convClusters'),
@@ -143,7 +142,7 @@ convLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
                                     useSimpleRphiHitsCleaner = cms.bool(False),
                                     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
                                     useRingSlector = cms.bool(True),
-                                    TTRHBuilder = cms.string('WithTrackAngle'),
+                                    TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069.),
                                     maxRing = cms.int32(2),
                                     minRing = cms.int32(1),
                                     skipClusters = cms.InputTag('convClusters'),
@@ -152,7 +151,7 @@ convLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
                                     useSimpleRphiHitsCleaner = cms.bool(False),
                                     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
                                     useRingSlector = cms.bool(True),
-                                    TTRHBuilder = cms.string('WithTrackAngle'),
+                                    TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069.),
                                     maxRing = cms.int32(2),
                                     minRing = cms.int32(1),
                                     skipClusters = cms.InputTag('convClusters'),
@@ -162,7 +161,7 @@ convLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
                                     minRing = cms.int32(1),
                                     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
                                     useRingSlector = cms.bool(True),
-                                    TTRHBuilder = cms.string('WithTrackAngle'),
+                                    TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069.),
                                     rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHitUnmatched"),
                                     maxRing = cms.int32(7),
                                     stereoRecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHitUnmatched"),
@@ -170,31 +169,31 @@ convLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
                                     ),
                                 TOB1 = cms.PSet(
                                     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-                                    TTRHBuilder = cms.string('WithTrackAngle'),
+                                    TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069.),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
                                 TOB2 = cms.PSet(
                                     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-                                    TTRHBuilder = cms.string('WithTrackAngle'),
+                                    TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069.),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
                                 TOB3 = cms.PSet(
-                                    TTRHBuilder = cms.string('WithTrackAngle'),
+                                    TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069.),
                                     rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
                                 TOB4 = cms.PSet(
-                                    TTRHBuilder = cms.string('WithTrackAngle'),
+                                    TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069.),
                                     rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
                                 TOB5 = cms.PSet(
-                                    TTRHBuilder = cms.string('WithTrackAngle'),
+                                    TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069.),
                                     rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
                                 TOB6 = cms.PSet(
-                                    TTRHBuilder = cms.string('WithTrackAngle'),
+                                    TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069.),
                                     rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
                                     skipClusters = cms.InputTag('convClusters'),
                                     )
@@ -217,12 +216,23 @@ convCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
         minPt = 0.1
     )
 
+
+import RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimatorESProducer_cfi
+convStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimatorESProducer_cfi.Chi2ChargeMeasurementEstimator.clone(
+    ComponentName = cms.string('convStepChi2Est'),
+    nSigma = cms.double(3.0),
+    MaxChi2 = cms.double(30.0),
+    minGoodStripCharge = cms.double(-2069.)
+)
+
+
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 convCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     trajectoryFilter = cms.PSet(refToPSet_ = cms.string('convCkfTrajectoryFilter')),
     minNrOfHitsForRebuild = 3,
-    maxCand = 1
+    maxCand = 1,
+    estimator = cms.string('convStepChi2Est')
     )
 
 # MAKING OF TRACK CANDIDATES

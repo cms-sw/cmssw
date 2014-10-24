@@ -127,7 +127,7 @@ SeedingLayerSetsBuilder::LayerSpec::LayerSpec(unsigned short index, const std::s
     extractor = std::make_shared<HitExtractorPIX>(side, idLayer, pixelHitProducer, iC);
   }
   else if(subdet != GeomDetEnumerators::invalidDet) { // strip
-    std::shared_ptr<HitExtractorSTRP> extr = std::make_shared<HitExtractorSTRP>(subdet, side, idLayer);
+    std::shared_ptr<HitExtractorSTRP> extr = std::make_shared<HitExtractorSTRP>(subdet, side, idLayer, cfgLayer.exists("minGoodCharge") ? cfgLayer.getParameter<double>("minGoodCharge") : 0);
     if (cfgLayer.exists("matchedRecHits")) {
       extr->useMatchedHits(cfgLayer.getParameter<edm::InputTag>("matchedRecHits"), iC);
     }
