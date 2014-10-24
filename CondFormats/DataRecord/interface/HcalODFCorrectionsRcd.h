@@ -19,7 +19,7 @@
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-class HcalODFCorrectionsRcd : public edm::eventsetup::EventSetupRecordImplementation<HcalODFCorrectionsRcd> {};
-
+class HcalODFCorrectionsRcd : public edm::eventsetup::DependentRecordImplementation<HcalODFCorrectionsRcd, boost::mpl::vector<IdealGeometryRecord> > {};
 #endif
