@@ -24,7 +24,7 @@ def addModuleToSequence(process, module, moduleName_parts, sequence, postfix):
 
         part = part.replace("selected", "")
         part = part.replace("clean",    "")
-    
+
         if lastPart is None:
             moduleName += part[0].lower() + part[1:]
             lastPart = part
@@ -33,13 +33,13 @@ def addModuleToSequence(process, module, moduleName_parts, sequence, postfix):
                 moduleName += part[0].capitalize() + part[1:]
             else:
                 moduleName += part[0].lower() + part[1:]
-                lastPart = part    
+                lastPart = part
 
     moduleName += postfix
     setattr(process, moduleName, module)
-        
+
     sequence += module
-        
+
     return moduleName
 
 
@@ -47,13 +47,13 @@ def addModuleToSequence(process, module, moduleName_parts, sequence, postfix):
 def addShiftedSingleParticleCollection(process, identifier,objectCollection,
                                  varyByNsigmas,sequence, postfix = ""):
 
-    shiftedParticleCollections = {}  
+    shiftedParticleCollections = {}
     collectionsToKeep = []
 
     shiftedCollectionName = identifier+"Collection"
     shiftedParticleCollections[ shiftedCollectionName ] = objectCollection
 
-   
+
 
     objectCollectionUp = None
     objectCollectionDown = None
@@ -75,7 +75,7 @@ def addShiftedSingleParticleCollection(process, identifier,objectCollection,
 
         ##
         ## Down variation
-        ##     
+        ##
         objectModuleDown = objectModuleUp.clone(
             shiftBy = cms.double(-1.*varyByNsigmas)
             )
@@ -107,9 +107,9 @@ def createShiftedSingleParticleUpModule(process,identifier, objectCollection,
                      binSelection = cms.string('!isEB'),
                      binUncertainty = cms.double(0.015)
                      ),
-                ),      
+                ),
                 shiftBy = cms.double(+1.*varyByNsigmas)
-            )     
+            )
 
     if identifier == "photon":
         shiftedModuleUp = cms.EDProducer("ShiftedPATPhotonProducer",
@@ -123,7 +123,7 @@ def createShiftedSingleParticleUpModule(process,identifier, objectCollection,
                     binSelection = cms.string('!isEB'),
                     binUncertainty = cms.double(0.025)
                     ),
-                ),                         
+                ),
                 shiftBy = cms.double(+1.*varyByNsigmas)
             )
 
@@ -146,10 +146,10 @@ def createShiftedSingleParticleUpModule(process,identifier, objectCollection,
     if identifier == "tau":
         shiftedModuleUp = cms.EDProducer("ShiftedPATTauProducer",
                 src = cms.InputTag(objectCollection),
-                uncertainty = cms.double(0.03),                      
+                uncertainty = cms.double(0.03),
                 shiftBy = cms.double(+1.*varyByNsigmas)
             )
-    
+
     shiftedCollectionUp = addModuleToSequence(process, shiftedModuleUp,
                         [ "shifted", objectCollection, "EnUp" ],
                         sequence, postfix)
@@ -162,15 +162,15 @@ def createShiftedSingleParticleUpModule(process,identifier, objectCollection,
 def addShiftedJetCollections(process, jetCollection, lastJetCollection,
                              jetCorrLabelUpToL3, jetCorrLabelUpToL3Res,
                              jecUncertaintyFile, jecUncertaintyTag,
-                             varyByNsigmas, sequence, 
+                             varyByNsigmas, sequence,
                              postfix = ""):
 
-    shiftedParticleCollections = {}  
+    shiftedParticleCollections = {}
     collectionsToKeep = []
 
     shiftedParticleCollections['jetCollection'] = jetCollection
     shiftedParticleCollections['lastJetCollection'] = lastJetCollection
-    
+
     #
     # Creating two sets for shifted jets corrections, depending of the use needed :
     #
@@ -180,7 +180,7 @@ def addShiftedJetCollections(process, jetCollection, lastJetCollection,
     for var in variations:
         # in case of "raw" (uncorrected) MET,
         # add residual jet energy corrections in quadrature to jet energy uncertainties:
-        # cf. https://twiki.cern.ch/twiki/bin/view/CMS/MissingETUncertaintyPrescription  
+        # cf. https://twiki.cern.ch/twiki/bin/view/CMS/MissingETUncertaintyPrescription
         jetsEnShiftForRawMEt = cms.EDProducer("ShiftedPATJetProducer",
                                          src = cms.InputTag(lastJetCollection),
                                          #jetCorrPayloadName = cms.string(jetCorrPayloadName),
@@ -188,18 +188,18 @@ def addShiftedJetCollections(process, jetCollection, lastJetCollection,
                                          jetCorrInputFileName = cms.FileInPath(jecUncertaintyFile),
                                          jetCorrUncertaintyTag = cms.string(jecUncertaintyTag),
                                          addResidualJES = cms.bool(True),
-                                         jetCorrLabelUpToL3 = cms.string(jetCorrLabelUpToL3),
-                                         jetCorrLabelUpToL3Res = cms.string(jetCorrLabelUpToL3Res),
+                                         jetCorrLabelUpToL3 = cms.InputTag(jetCorrLabelUpToL3.value()),
+                                         jetCorrLabelUpToL3Res = cms.InputTag(jetCorrLabelUpToL3Res.value()),
                                          shiftBy = cms.double(+1.*varyByNsigmas)
-                                         )   
-        
+                                         )
+
         jetCollectionEnShiftForRawMEt = \
             addModuleToSequence(process, jetsEnShiftForRawMEt,
                                 [ "shifted", jetCollection, "En%sForRawMEt"%var ],
                                 sequence, postfix)
         shiftedParticleCollections[ 'jetCollectionEn%sForRawMEt'%var ] = jetCollectionEnShiftForRawMEt
         collectionsToKeep.append(jetCollectionEnShiftForRawMEt)
-        
+
         ##
         ## Now, jet variation for corrected METs, the default collection to use
         ##
@@ -214,7 +214,7 @@ def addShiftedJetCollections(process, jetCollection, lastJetCollection,
                                                   sequence, postfix)
         shiftedParticleCollections['jetCollectionEn' + var ] = jetCollectionEnShift
         collectionsToKeep.append(jetCollectionEnShift)
-    
+
 
     return (shiftedParticleCollections, collectionsToKeep)
 
@@ -222,19 +222,19 @@ def addShiftedJetCollections(process, jetCollection, lastJetCollection,
 
 def addSmearedJets(process, jetCollection, smearedJetCollectionName_parts,
                    jetSmearFileName, jetSmearHistogram, jetResolutions,
-                   varyByNsigmas, shiftBy = None, sequence = None, postfix = ""): 
+                   varyByNsigmas, shiftBy = None, sequence = None, postfix = ""):
 
     smearedJets = cms.EDProducer("SmearedPATJetProducer",
             src = cms.InputTag(jetCollection),
             dRmaxGenJetMatch = cms.string('TMath::Min(0.5, 0.1 + 0.3*TMath::Exp(-0.05*(genJetPt - 10.)))'),
-            sigmaMaxGenJetMatch = cms.double(3.),                               
+            sigmaMaxGenJetMatch = cms.double(3.),
             inputFileName = cms.FileInPath(jetSmearFileName),
             lutName = cms.string(jetSmearHistogram),
             jetResolutions = jetResolutions.METSignificance_params,
             # CV: skip jet smearing for pat::Jets for which the jet-energy correction (JEC) factors are either very large or negative
             #     since both cases produce unphysically large tails in the Type 1 corrected MET distribution after the smearing,
             #
-            #     e.g. raw jet:   energy = 50 GeV, eta = 2.86, pt =  1   GeV 
+            #     e.g. raw jet:   energy = 50 GeV, eta = 2.86, pt =  1   GeV
             #          corr. jet: energy = -3 GeV            , pt = -0.1 GeV (JEC factor L1fastjet*L2*L3 = -17)
             #                     energy = 10 GeV for corrected jet after smearing
             #         --> smeared raw jet energy = -170 GeV !!
@@ -247,7 +247,7 @@ def addSmearedJets(process, jetCollection, smearedJetCollectionName_parts,
             ),
             skipRawJetPtThreshold = cms.double(10.), # GeV
             skipCorrJetPtThreshold = cms.double(1.e-2),
-            verbosity = cms.int32(0)                                     
+            verbosity = cms.int32(0)
         )
     if shiftBy is not None:
         setattr(smearedJets, "shiftBy", cms.double(shiftBy*varyByNsigmas))
