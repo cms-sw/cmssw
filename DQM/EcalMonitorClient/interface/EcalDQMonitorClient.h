@@ -24,7 +24,6 @@ class EcalDQMonitorClient : public DQMEDHarvester, public ecaldqm::EcalDQMonitor
 
   unsigned eventCycleLength_;
   unsigned iEvt_;
-  bool booked_;
 
   ecaldqm::StatusManager statusManager_;
 };

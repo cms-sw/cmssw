@@ -104,12 +104,12 @@ muonSeededTrackCandidatesOutIn = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.c
 import RecoTracker.TrackProducer.TrackProducer_cfi
 muonSeededTracksOutIn = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = cms.InputTag("muonSeededTrackCandidatesOutIn"),
-    AlgorithmName = cms.string('iter10'),
+    AlgorithmName = cms.string('muonSeededStepOutIn'),
     Fitter = cms.string("muonSeededFittingSmootherWithOutliersRejectionAndRK"),
 )
 muonSeededTracksInOut = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = cms.InputTag("muonSeededTrackCandidatesInOut"),
-    AlgorithmName = cms.string('iter9'),
+    AlgorithmName = cms.string('muonSeededStepInOut'),
     Fitter = cms.string("muonSeededFittingSmootherWithOutliersRejectionAndRK"),
 )
 

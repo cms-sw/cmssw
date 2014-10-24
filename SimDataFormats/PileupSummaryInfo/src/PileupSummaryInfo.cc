@@ -81,7 +81,8 @@ PileupSummaryInfo::PileupSummaryInfo( const int num_PU_vertices,
                      std::vector<int>&   ntrks_lowpT,
 		     std::vector<int>&   ntrks_highpT,
 		     int bunchCrossing,
-		     float TrueNumInteractions )
+		     float TrueNumInteractions,
+		     int bunchSpacing)
 {
 
   num_PU_vertices_ =  num_PU_vertices;
@@ -94,6 +95,7 @@ PileupSummaryInfo::PileupSummaryInfo( const int num_PU_vertices,
   eventInfo_.clear();
   bunchCrossing_ = bunchCrossing;
   TrueNumInteractions_ = TrueNumInteractions;
+  bunchSpacing_ = bunchSpacing;
 
   int NLoop = zpositions.size();
 
