@@ -4,6 +4,8 @@
 class PixelBarrelNameBase {
 public:
 
+  enum Shell { mO = 1, mI = 2 , pO =3 , pI =4 };
+
   /// layer id
   virtual int layerName() const = 0;
 
