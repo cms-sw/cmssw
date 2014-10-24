@@ -15,7 +15,7 @@ hiGeneralTrackFilter = cms.EDProducer("QualityFilter",
                                       )
 
 # NEW CLUSTERS (remove previously used clusters)
-hiRegitInitialStepClusters = cms.EDProducer("TrackClusterRemover",
+hiRegitInitialStepClusters = cms.EDProducer("HITrackClusterRemover",
                                             clusterLessSolution= cms.bool(True),
                                             oldClusterRemovalInfo = cms.InputTag("hiPixelPairClusters"),
                                             trajectories = cms.InputTag("hiGeneralTrackFilter"),

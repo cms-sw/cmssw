@@ -10,7 +10,7 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/mayown_ptr.h"
-
+#include <limits>
 
 namespace edm { class Event; class EventSetup; class ConsumesCollector;}
 namespace ctfseeding { class SeedingLayer; }
@@ -25,17 +25,21 @@ namespace ctfseeding {
     using Hits=std::vector<HitPointer>;
     
     virtual ~HitExtractor(){}
-    HitExtractor() : skipClusters(false){}
+    HitExtractor() {}
     
     virtual Hits hits(const TkTransientTrackingRecHitBuilder& ttrhBuilder, const edm::Event& , const edm::EventSetup& ) const =0;
     virtual HitExtractor * clone() const = 0;
     
     //skip clusters
     void useSkipClusters(const edm::InputTag & m, edm::ConsumesCollector& iC) {
-      skipClusters=true;
+      skipClusters=true; maskCluster=true;
       useSkipClusters_(m, iC);
     }
-    bool skipClusters;
+    bool skipClusters=false;
+    bool filterCluster=false;
+    bool maskCluster=false;
+    float minGoodCharge=0;  
+
   protected:
     virtual void useSkipClusters_(const edm::InputTag & m, edm::ConsumesCollector& iC) = 0;
   };
