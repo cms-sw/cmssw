@@ -65,11 +65,13 @@
 
 #include "boost/lexical_cast.hpp"
 
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+
 // forward declarations
 
 
 // class declaration
-class L1ExtraRecoDQM: public edm::EDAnalyzer {
+class L1ExtraRecoDQM: public DQMEDAnalyzer {
 
 public:
 
@@ -81,19 +83,12 @@ public:
 
 private:
 
-    virtual void beginJob();
-    virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-    virtual void beginLuminosityBlock(const edm::LuminosityBlock&,
-            const edm::EventSetup&);
+    virtual void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
+    virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
 
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-    /// end section
-    virtual void endLuminosityBlock(const edm::LuminosityBlock&,
-            const edm::EventSetup&);
-    virtual void endRun(const edm::Run&, const edm::EventSetup&);
-
-    virtual void endJob();
+    virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
 
 private:
 
@@ -110,7 +105,7 @@ private:
 
     /// internal members
 
-    DQMStore* m_dbe;
+    //DQMStore* m_dbe;
 
     bool m_resetModule;
     int m_currentRun;

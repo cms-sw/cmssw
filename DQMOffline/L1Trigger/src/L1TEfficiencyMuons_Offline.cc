@@ -136,11 +136,6 @@ L1TEfficiencyMuons_Offline::L1TEfficiencyMuons_Offline(const ParameterSet & ps){
     cout << "[L1TEfficiencyMuons_Offline:] ____________ Storage initialization ____________ " << endl;
   }
   
-  // Initializing DQM Store
-  dbe = Service<DQMStore>().operator->();
-  dbe->setVerbose(0);
-  if (m_verbose) {cout << "[L1TEfficiencyMuons_Offline:] Pointer for DQM Store: " << dbe << endl;}
-  
   // Initializing config params
   m_GmtPtCuts = ps.getUntrackedParameter< vector<int> >("gmtPtCuts");
   
@@ -168,36 +163,19 @@ L1TEfficiencyMuons_Offline::L1TEfficiencyMuons_Offline(const ParameterSet & ps){
 //_____________________________________________________________________
 L1TEfficiencyMuons_Offline::~L1TEfficiencyMuons_Offline(){ }
  
-
 //_____________________________________________________________________
-void L1TEfficiencyMuons_Offline::beginJob(void){
-   
-  if (m_verbose) {cout << "[L1TEfficiencyMuons_Offline:] Called beginJob." << endl;}
-  
-}
-
-
-//_____________________________________________________________________
-void L1TEfficiencyMuons_Offline::endJob(void){
-  
-  if (m_verbose) {cout << "[L1TEfficiencyMuons_Offline:] Called endJob." << endl;}
-  
-}
-
- 
-//_____________________________________________________________________
-void L1TEfficiencyMuons_Offline::beginRun(const edm::Run& run, const edm::EventSetup& iSetup){
+void L1TEfficiencyMuons_Offline::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& run, const edm::EventSetup& iSetup){
 
   if (m_verbose) {cout << "[L1TEfficiencyMuons_Offline:] Called beginRun." << endl;}
 
   //book histos
-  bookControlHistos();
+  bookControlHistos(ibooker);
   
   vector<int>::const_iterator gmtPtCutsIt  = m_GmtPtCuts.begin();
   vector<int>::const_iterator gmtPtCutsEnd = m_GmtPtCuts.end();
   
   for (; gmtPtCutsIt!=gmtPtCutsEnd; ++ gmtPtCutsIt) {
-    bookEfficiencyHistos((*gmtPtCutsIt));
+    bookEfficiencyHistos(ibooker, (*gmtPtCutsIt));
   } 
   
   
@@ -233,15 +211,6 @@ void L1TEfficiencyMuons_Offline::beginRun(const edm::Run& run, const edm::EventS
   
 }  
 
-
-//_____________________________________________________________________
-void L1TEfficiencyMuons_Offline::endRun(const edm::Run& run, const edm::EventSetup& iSetup){
-  
-  if (m_verbose) {cout << "[L1TEfficiencyMuons_Offline:] Called endRun." << endl;}
-  
-}
-
-
 //_____________________________________________________________________
 void L1TEfficiencyMuons_Offline::beginLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) {
   
@@ -254,7 +223,7 @@ void L1TEfficiencyMuons_Offline::beginLuminosityBlock(LuminosityBlock const& lum
 
 
 //_____________________________________________________________________
-void L1TEfficiencyMuons_Offline::endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) {
+void L1TEfficiencyMuons_Offline::dqmEndLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) {
   
   if(m_verbose){
     cout << "[L1TEfficiencyMuons_Offline:] Called endLuminosityBlock at LS=" 
@@ -347,26 +316,26 @@ void L1TEfficiencyMuons_Offline::analyze(const Event & iEvent, const EventSetup 
 
 
 //_____________________________________________________________________
-void L1TEfficiencyMuons_Offline::bookControlHistos() { 
+void L1TEfficiencyMuons_Offline::bookControlHistos(DQMStore::IBooker& ibooker) { 
   
   if(m_verbose){cout << "[L1TEfficiencyMuons_Offline:] Booking Control Plot Histos" << endl;}
 
-  dbe->setCurrentFolder("L1T/Efficiency/Muons/Control");
+  ibooker.setCurrentFolder("L1T/Efficiency/Muons/Control");
   
   string name = "MuonGmtDeltaR";
-  m_ControlHistos[name] = dbe->book1D(name.c_str(),name.c_str(),25.,0.,2.5);
+  m_ControlHistos[name] = ibooker.book1D(name.c_str(),name.c_str(),25.,0.,2.5);
 
   name = "NTightVsAll";
-  m_ControlHistos[name] = dbe->book2D(name.c_str(),name.c_str(),5,-0.5,4.5,5,-0.5,4.5);
+  m_ControlHistos[name] = ibooker.book2D(name.c_str(),name.c_str(),5,-0.5,4.5,5,-0.5,4.5);
 
   name = "NProbesVsTight";
-  m_ControlHistos[name] = dbe->book2D(name.c_str(),name.c_str(),5,-0.5,4.5,5,-0.5,4.5);
+  m_ControlHistos[name] = ibooker.book2D(name.c_str(),name.c_str(),5,-0.5,4.5,5,-0.5,4.5);
   
 }
 
 
 //_____________________________________________________________________
-void L1TEfficiencyMuons_Offline::bookEfficiencyHistos(int ptCut) { 
+void L1TEfficiencyMuons_Offline::bookEfficiencyHistos(DQMStore::IBooker &ibooker, int ptCut) { 
   
   if(m_verbose){
     cout << "[L1TEfficiencyMuons_Offline:] Booking Efficiency Plot Histos for pt cut = " 
@@ -376,19 +345,19 @@ void L1TEfficiencyMuons_Offline::bookEfficiencyHistos(int ptCut) {
   stringstream ptCutToTag; ptCutToTag << ptCut;
   string ptTag = ptCutToTag.str();
   
-  dbe->setCurrentFolder("L1T/Efficiency/Muons/");
+  ibooker.setCurrentFolder("L1T/Efficiency/Muons/");
 
   string effTag[2] = {"Den", "Num"};
   
   for(int iEffTag=0; iEffTag<2; ++ iEffTag) {
     string name = "EffvsPt" + ptTag + effTag[iEffTag];
-    m_EfficiencyHistos[ptCut][name] = dbe->book1D(name.c_str(),name.c_str(),16,0.,40.);
+    m_EfficiencyHistos[ptCut][name] = ibooker.book1D(name.c_str(),name.c_str(),16,0.,40.);
     
     name = "EffvsPhi" + ptTag + effTag[iEffTag];
-    m_EfficiencyHistos[ptCut][name] = dbe->book1D(name.c_str(),name.c_str(),12,0.,2*TMath::Pi());
+    m_EfficiencyHistos[ptCut][name] = ibooker.book1D(name.c_str(),name.c_str(),12,0.,2*TMath::Pi());
     
     name = "EffvsEta" + ptTag + effTag[iEffTag];
-    m_EfficiencyHistos[ptCut][name] = dbe->book1D(name.c_str(),name.c_str(),12,-2.4,2.4);
+    m_EfficiencyHistos[ptCut][name] = ibooker.book1D(name.c_str(),name.c_str(),12,-2.4,2.4);
   }
   
 }
@@ -443,8 +412,7 @@ const reco::Vertex L1TEfficiencyMuons_Offline::getPrimaryVertex( Handle<VertexCo
 
 
 //_____________________________________________________________________
-void L1TEfficiencyMuons_Offline::getTightMuons(edm::Handle<reco::MuonCollection> & muons, 
-					       const Vertex & vertex) {
+void L1TEfficiencyMuons_Offline::getTightMuons(edm::Handle<reco::MuonCollection> & muons,  const Vertex & vertex) {
 
   cout << "[L1TEfficiencyMuons_Offline:] Getting tight muons" << endl;
      

@@ -36,9 +36,6 @@ void L1TRPCTFClient::initialize(){
   counterLS_=0; 
   counterEvt_=0; 
   
-  // get back-end interface
-  dbe_ = Service<DQMStore>().operator->();
-  
   // base folder for the contents of this job
   monitorName_ = parameters_.getUntrackedParameter<string>("monitorName","");
 //  cout << "Monitor name = " << monitorName_ << endl;
@@ -65,96 +62,49 @@ void L1TRPCTFClient::initialize(){
 }
 
 //--------------------------------------------------------
-void L1TRPCTFClient::beginJob(void){
+void L1TRPCTFClient::book(DQMStore::IBooker &ibooker){
 
-  LogInfo("TriggerDQM")<<"[TriggerDQM]: Begin Job";
+  LogInfo("TriggerDQM")<<"[TriggerDQM]: Begin Job"; 
 
-  // get backendinterface
-  dbe_ = Service<DQMStore>().operator->();  
+  ibooker.setCurrentFolder(output_dir_);
 
-  dbe_->setCurrentFolder(output_dir_);
-
-  m_deadChannels = dbe_->book2D("RPCTF_deadchannels",
+  m_deadChannels = ibooker.book2D("RPCTF_deadchannels",
                                 "RPCTF deadchannels",
                                 33, -16.5, 16.5,
                                 144,  -0.5, 143.5);
-  m_noisyChannels =  dbe_->book2D("RPCTF_noisychannels",
+  m_noisyChannels = ibooker.book2D("RPCTF_noisychannels",
                                 "RPCTF noisy channels",
                                 33, -16.5, 16.5,
                                 144,  -0.5, 143.5);
 }
-//--------------------------------------------------------
-void L1TRPCTFClient::beginRun(const Run& r, const EventSetup& context) {
-}
 
 //--------------------------------------------------------
-void L1TRPCTFClient::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& context) {
-   // optionally reset histograms here
-   // clientHisto->Reset();
-}
-//--------------------------------------------------------
 
-void L1TRPCTFClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                          const edm::EventSetup& c)
+void L1TRPCTFClient::dqmEndLuminosityBlock(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c)
 {
    if (verbose_) std::cout <<  "L1TRPCTFClient::endLuminosityBlock" << std::endl;
 
    if (m_runInEndLumi) {
-
-       processHistograms();
+       book(ibooker);
+       processHistograms(igetter);
    }
 
 }			  
 
-//--------------------------------------------------------
-void L1TRPCTFClient::analyze(const Event& e, const EventSetup& context) {
-    //   cout << "L1TRPCTFClient::analyze" << endl;
-    counterEvt_++;
-    if (prescaleEvt_ < 1)
-        return;
-    if (prescaleEvt_ > 0 && counterEvt_ % prescaleEvt_ != 0)
-        return;
-
-    // there is no loop on events in the offline harvesting step
-    // code here will not be executed offline
-
-    if (m_runInEventLoop) {
-
-        processHistograms();
-    }
-
+void L1TRPCTFClient::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter){
+    book(ibooker);
+    processHistograms(igetter);
 }
 
 //--------------------------------------------------------
-void L1TRPCTFClient::endRun(const Run& r, const EventSetup& context){
+void L1TRPCTFClient::processHistograms(DQMStore::IGetter &igetter) {
 
-    if (m_runInEndRun) {
-
-        processHistograms();
-    }
-
-}
-
-//--------------------------------------------------------
-void L1TRPCTFClient::endJob() {
-
-    if (m_runInEndJob) {
-
-        processHistograms();
-    }
-
-}
-
-
-//--------------------------------------------------------
-void L1TRPCTFClient::processHistograms() {
-
-    dbe_->setCurrentFolder(input_dir_);
+    igetter.setCurrentFolder(input_dir_);
 
    {
 
      MonitorElement *me
-         = dbe_->get( (input_dir_+"/RPCTF_muons_eta_phi_bx0").c_str() );
+         = igetter.get( (input_dir_+"/RPCTF_muons_eta_phi_bx0").c_str() );
 
      if (me){
        const QReport *qreport;
@@ -192,11 +142,11 @@ void L1TRPCTFClient::processHistograms() {
 
    if (verbose_)
    {
-     std::vector<string> meVec = dbe_->getMEs();
+     std::vector<string> meVec = igetter.getMEs();
      for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
 
          std::string full_path = input_dir_ + "/" + (*it);
-         MonitorElement * me =dbe_->get(full_path);
+         MonitorElement * me =igetter.get(full_path);
 
          // for this MEs, get list of associated QTs
          std::vector<QReport *> Qtest_map = me->getQReports();

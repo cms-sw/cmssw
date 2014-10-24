@@ -27,6 +27,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+
 #include <TString.h>
 
 #include <iostream>
@@ -37,7 +39,7 @@
 // class declaration
 //
 
-class L1TEfficiencyEG_Offline : public edm::EDAnalyzer {
+class L1TEfficiencyEG_Offline : public DQMEDAnalyzer {
   
 public:
   
@@ -56,13 +58,8 @@ protected:
   // Event
   void analyze (const edm::Event& e, const edm::EventSetup& c); 
   
-  // Job
-  void beginJob();  
-  void endJob  ();
-  
   // Run
-  void beginRun(const edm::Run& run, const edm::EventSetup& iSetup);
-  void endRun  (const edm::Run& run, const edm::EventSetup& iSetup);
+  virtual void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& run, const edm::EventSetup& iSetup) override;
   
   // Luminosity Block
   virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
@@ -72,8 +69,6 @@ private:
   
   // bool
   bool  m_verbose;
-  
-  DQMStore* dbe;  // The DQM Service Handle
   
 };
 
