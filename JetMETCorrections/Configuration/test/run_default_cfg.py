@@ -28,7 +28,7 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup')
-process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
+process.load('JetMETCorrections.Configuration.CorrectedJetProducersDefault_cff')
 process.load('JetMETCorrections.Configuration.CorrectedJetProducersAllAlgos_cff')
 
 
