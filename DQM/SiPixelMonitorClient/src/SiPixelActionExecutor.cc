@@ -1,4 +1,4 @@
-#define printing false
+//#define printing false
 //#define occupancyprinting false
 
 #include "DQM/SiPixelMonitorClient/interface/SiPixelActionExecutor.h"
@@ -11,19 +11,11 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "CondFormats/SiPixelObjects/interface/DetectorIndex.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
-#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
 #include <math.h>
 
@@ -147,7 +139,7 @@ bool SiPixelActionExecutor::readConfiguration(int& tkmap_freq, int& summary_freq
 }
 
 //=============================================================================================================
-void SiPixelActionExecutor::createSummary(DQMStore* bei, bool isUpgrade) {
+void SiPixelActionExecutor::createSummary(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, bool isUpgrade) {
   //To be majorly overhauled and split into two, I guess.
 
   //cout<<"entering SiPixelActionExecutor::createSummary..."<<endl;
@@ -166,12 +158,12 @@ void SiPixelActionExecutor::createSummary(DQMStore* bei, bool isUpgrade) {
     return;
   }
   configParser_->getSourceType(source_type_); 
-//  cout<<"++++++++++++++++++++++++++SOURCE TYPE= "<<source_type_<<endl;
-  bei->setCurrentFolder("Pixel/");
-  //bei->cd();
-  fillSummary(bei, barrel_structure_name, barrel_me_names, true, isUpgrade); // Barrel
-  bei->setCurrentFolder("Pixel/");
-  //bei->cd();
+
+  iBooker.setCurrentFolder("Pixel/");
+  iGetter.setCurrentFolder("Pixel/");
+  fillSummary(iBooker, iGetter, barrel_structure_name, barrel_me_names, true, isUpgrade); // Barrel
+  iBooker.setCurrentFolder("Pixel/");
+  iGetter.setCurrentFolder("Pixel/");
   string endcap_structure_name;
   vector<string> endcap_me_names;
   if (!configParser_->getMENamesForEndcapSummary(endcap_structure_name, endcap_me_names)){
@@ -181,10 +173,12 @@ void SiPixelActionExecutor::createSummary(DQMStore* bei, bool isUpgrade) {
 
 //  cout << "--- Processing endcap" << endl;
 
-  bei->setCurrentFolder("Pixel/");
+  iBooker.setCurrentFolder("Pixel/");
+  iGetter.setCurrentFolder("Pixel/");
 
-  fillSummary(bei, endcap_structure_name, endcap_me_names, false, isUpgrade); // Endcap
-  bei->setCurrentFolder("Pixel/");
+  fillSummary(iBooker,iGetter, endcap_structure_name, endcap_me_names, false, isUpgrade); // Endcap
+  iBooker.setCurrentFolder("Pixel/");
+  iGetter.setCurrentFolder("Pixel/");
 
   if(source_type_==0||source_type_==5 || source_type_ == 20){//do this only if RawData source is present
     string federror_structure_name;
@@ -193,10 +187,12 @@ void SiPixelActionExecutor::createSummary(DQMStore* bei, bool isUpgrade) {
       cout << "SiPixelActionExecutor::createSummary: Failed to read FED Error Summary configuration parameters!! ";
       return;
     }
-    bei->setCurrentFolder("Pixel/");
+    iBooker.setCurrentFolder("Pixel/");
+    iGetter.setCurrentFolder("Pixel/");
 
-    fillFEDErrorSummary(bei, federror_structure_name, federror_me_names);
-    bei->setCurrentFolder("Pixel/");
+    fillFEDErrorSummary(iBooker, iGetter, federror_structure_name, federror_me_names);
+    iBooker.setCurrentFolder("Pixel/");
+    iGetter.setCurrentFolder("Pixel/");
   }
   if (configWriter_) delete configWriter_;
   configWriter_ = 0;
@@ -204,29 +200,29 @@ void SiPixelActionExecutor::createSummary(DQMStore* bei, bool isUpgrade) {
 }
 
 //=============================================================================================================
-void SiPixelActionExecutor::bookDeviations(DQMStore* bei, bool isUpgrade) {
+void SiPixelActionExecutor::bookDeviations(DQMStore::IBooker & iBooker, bool isUpgrade) {
   int nBPixModules;
   if (isUpgrade) {nBPixModules=1184;} else {nBPixModules=768;} 
   
-  bei->cd();
-  bei->setCurrentFolder("Pixel/Barrel");
-  DEV_adc_Barrel = bei->book1D("DEV_adc_Barrel","Deviation from reference;Module;<adc_ref>-<adc>",nBPixModules,0.,nBPixModules);
-  DEV_ndigis_Barrel = bei->book1D("DEV_ndigis_Barrel","Deviation from reference;Module;<ndigis_ref>-<ndigis>",nBPixModules,0.,nBPixModules);
-  DEV_charge_Barrel = bei->book1D("DEV_charge_Barrel","Deviation from reference;Module;<charge_ref>-<charge>",nBPixModules,0.,nBPixModules);
-  DEV_nclusters_Barrel = bei->book1D("DEV_nclusters_Barrel","Deviation from reference;Module;<nclusters_ref>-<nclusters>",nBPixModules,0.,nBPixModules);
-  DEV_size_Barrel = bei->book1D("DEV_size_Barrel","Deviation from reference;Module;<size_ref>-<size>",nBPixModules,0.,nBPixModules);
-  bei->cd();
-  bei->setCurrentFolder("Pixel/Endcap");
-  DEV_adc_Endcap = bei->book1D("DEV_adc_Endcap","Deviation from reference;Module;<adc_ref>-<adc>",672,0.,672.);
-  DEV_ndigis_Endcap = bei->book1D("DEV_ndigis_Endcap","Deviation from reference;Module;<ndigis_ref>-<ndigis>",672,0.,672.);
-  DEV_charge_Endcap = bei->book1D("DEV_charge_Endcap","Deviation from reference;Module;<charge_ref>-<charge>",672,0.,672.);
-  DEV_nclusters_Endcap = bei->book1D("DEV_nclusters_Endcap","Deviation from reference;Module;<nclusters_ref>-<nclusters>",672,0.,672.);
-  DEV_size_Endcap = bei->book1D("DEV_size_Endcap","Deviation from reference;Module;<size_ref>-<size>",672,0.,672.);  
-  bei->cd();
+  iBooker.cd();
+  iBooker.setCurrentFolder("Pixel/Barrel");
+  DEV_adc_Barrel = iBooker.book1D("DEV_adc_Barrel","Deviation from reference;Module;<adc_ref>-<adc>",nBPixModules,0.,nBPixModules);
+  DEV_ndigis_Barrel = iBooker.book1D("DEV_ndigis_Barrel","Deviation from reference;Module;<ndigis_ref>-<ndigis>",nBPixModules,0.,nBPixModules);
+  DEV_charge_Barrel = iBooker.book1D("DEV_charge_Barrel","Deviation from reference;Module;<charge_ref>-<charge>",nBPixModules,0.,nBPixModules);
+  DEV_nclusters_Barrel = iBooker.book1D("DEV_nclusters_Barrel","Deviation from reference;Module;<nclusters_ref>-<nclusters>",nBPixModules,0.,nBPixModules);
+  DEV_size_Barrel = iBooker.book1D("DEV_size_Barrel","Deviation from reference;Module;<size_ref>-<size>",nBPixModules,0.,nBPixModules);
+  iBooker.cd();
+  iBooker.setCurrentFolder("Pixel/Endcap");
+  DEV_adc_Endcap = iBooker.book1D("DEV_adc_Endcap","Deviation from reference;Module;<adc_ref>-<adc>",672,0.,672.);
+  DEV_ndigis_Endcap = iBooker.book1D("DEV_ndigis_Endcap","Deviation from reference;Module;<ndigis_ref>-<ndigis>",672,0.,672.);
+  DEV_charge_Endcap = iBooker.book1D("DEV_charge_Endcap","Deviation from reference;Module;<charge_ref>-<charge>",672,0.,672.);
+  DEV_nclusters_Endcap = iBooker.book1D("DEV_nclusters_Endcap","Deviation from reference;Module;<nclusters_ref>-<nclusters>",672,0.,672.);
+  DEV_size_Endcap = iBooker.book1D("DEV_size_Endcap","Deviation from reference;Module;<size_ref>-<size>",672,0.,672.);  
+  iBooker.cd();
 }
 
 
-void SiPixelActionExecutor::fillDeviations(DQMStore* bei) {
+void SiPixelActionExecutor::fillDeviations(DQMStore::IGetter& iGetter) {
   int n = 768;
   MonitorElement* me1; MonitorElement* me2; 
   MonitorElement* me3; MonitorElement* me4; 
@@ -237,21 +233,21 @@ void SiPixelActionExecutor::fillDeviations(DQMStore* bei) {
   MonitorElement* dev1; MonitorElement* dev2; 
   MonitorElement* dev3; MonitorElement* dev4; 
   MonitorElement* dev5; 
-  me1 = bei->get("Pixel/Barrel/SUMDIG_adc_Barrel");
+  me1 = iGetter.get("Pixel/Barrel/SUMDIG_adc_Barrel");
   ref1 = me1->getRefTH1();
-  dev1 = bei->get("Pixel/Barrel/DEV_adc_Barrel");
-  me2 = bei->get("Pixel/Barrel/SUMDIG_ndigis_Barrel");
+  dev1 = iGetter.get("Pixel/Barrel/DEV_adc_Barrel");
+  me2 = iGetter.get("Pixel/Barrel/SUMDIG_ndigis_Barrel");
   ref2 = me2->getRefTH1();
-  dev2 = bei->get("Pixel/Barrel/DEV_ndigis_Barrel");
-  me3 = bei->get("Pixel/Barrel/SUMCLU_charge_Barrel");
+  dev2 = iGetter.get("Pixel/Barrel/DEV_ndigis_Barrel");
+  me3 = iGetter.get("Pixel/Barrel/SUMCLU_charge_Barrel");
   ref3 = me3->getRefTH1();
-  dev3 = bei->get("Pixel/Barrel/DEV_charge_Barrel");
-  me4 = bei->get("Pixel/Barrel/SUMCLU_nclusters_Barrel");
+  dev3 = iGetter.get("Pixel/Barrel/DEV_charge_Barrel");
+  me4 = iGetter.get("Pixel/Barrel/SUMCLU_nclusters_Barrel");
   ref4 = me4->getRefTH1();
-  dev4 = bei->get("Pixel/Barrel/DEV_nclusters_Barrel");
-  me5 = bei->get("Pixel/Barrel/SUMCLU_size_Barrel");
+  dev4 = iGetter.get("Pixel/Barrel/DEV_nclusters_Barrel");
+  me5 = iGetter.get("Pixel/Barrel/SUMCLU_size_Barrel");
   ref5 = me5->getRefTH1();
-  dev5 = bei->get("Pixel/Barrel/DEV_size_Barrel");
+  dev5 = iGetter.get("Pixel/Barrel/DEV_size_Barrel");
   for(int i=1; i!=n+1; i++){
     float ref_value; float new_value;
     // Barrel adc: 
@@ -296,21 +292,21 @@ void SiPixelActionExecutor::fillDeviations(DQMStore* bei) {
   MonitorElement* dev11; MonitorElement* dev12; 
   MonitorElement* dev13; MonitorElement* dev14; 
   MonitorElement* dev15; 
-  me11 = bei->get("Pixel/Endcap/SUMDIG_adc_Endcap");
+  me11 = iGetter.get("Pixel/Endcap/SUMDIG_adc_Endcap");
   ref11 = me11->getRefTH1();
-  dev11 = bei->get("Pixel/Endcap/DEV_adc_Endcap");
-  me12 = bei->get("Pixel/Endcap/SUMDIG_ndigis_Endcap");
+  dev11 = iGetter.get("Pixel/Endcap/DEV_adc_Endcap");
+  me12 = iGetter.get("Pixel/Endcap/SUMDIG_ndigis_Endcap");
   ref12 = me12->getRefTH1();
-  dev12 = bei->get("Pixel/Endcap/DEV_ndigis_Endcap");
-  me13 = bei->get("Pixel/Endcap/SUMCLU_charge_Endcap");
+  dev12 = iGetter.get("Pixel/Endcap/DEV_ndigis_Endcap");
+  me13 = iGetter.get("Pixel/Endcap/SUMCLU_charge_Endcap");
   ref13 = me13->getRefTH1();
-  dev13 = bei->get("Pixel/Endcap/DEV_charge_Endcap");
-  me14 = bei->get("Pixel/Endcap/SUMCLU_nclusters_Endcap");
+  dev13 = iGetter.get("Pixel/Endcap/DEV_charge_Endcap");
+  me14 = iGetter.get("Pixel/Endcap/SUMCLU_nclusters_Endcap");
   ref14 = me14->getRefTH1();
-  dev14 = bei->get("Pixel/Endcap/DEV_nclusters_Endcap");
-  me15 = bei->get("Pixel/Endcap/SUMCLU_size_Endcap");
+  dev14 = iGetter.get("Pixel/Endcap/DEV_nclusters_Endcap");
+  me15 = iGetter.get("Pixel/Endcap/SUMCLU_size_Endcap");
   ref15 = me15->getRefTH1();
-  dev15 = bei->get("Pixel/Endcap/DEV_size_Endcap");
+  dev15 = iGetter.get("Pixel/Endcap/DEV_size_Endcap");
   for(int i=1; i!=nn+1; i++){
     float ref_value; float new_value;
     // Endcap adc: 
@@ -348,14 +344,15 @@ void SiPixelActionExecutor::fillDeviations(DQMStore* bei) {
 
 //=============================================================================================================
 
-void SiPixelActionExecutor::GetBladeSubdirs(DQMStore* bei, vector<string>& blade_subdirs) {
+void SiPixelActionExecutor::GetBladeSubdirs(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, vector<string>& blade_subdirs) {
 
 	blade_subdirs.clear();
-	vector<string> panels = bei->getSubdirs();
+	vector<string> panels = iGetter.getSubdirs();
 	vector<string> modules;
 	for (vector<string>::const_iterator it = panels.begin(); it != panels.end(); it++) {
-		bei->cd(*it);
-		modules = bei->getSubdirs();
+		iGetter.cd(*it);
+		iBooker.cd(*it);
+		modules = iGetter.getSubdirs();
 		for (vector<string>::const_iterator m_it = modules.begin(); m_it != modules.end(); m_it++) {
 			blade_subdirs.push_back(*m_it);
 		}
@@ -365,12 +362,12 @@ void SiPixelActionExecutor::GetBladeSubdirs(DQMStore* bei, vector<string>& blade
 
 //=============================================================================================================
 
-void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<string>& me_names, bool isbarrel, bool isUpgrade)
+void SiPixelActionExecutor::fillSummary(DQMStore::IBooker& iBooker, DQMStore::IGetter & iGetter, string dir_name, vector<string>& me_names, bool isbarrel, bool isUpgrade)
 {
 	
 
   //cout<<"entering SiPixelActionExecutor::fillSummary..."<<endl;
-  string currDir = bei->pwd();
+  string currDir = iBooker.pwd();
   string prefix;
   if(source_type_==0) prefix="SUMRAW";
   else if (source_type_==1) prefix="SUMDIG";
@@ -415,11 +412,11 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
       if((*iv).find("residual")!=string::npos){                           // track residuals
 	tag = prefix + "_" + (*iv) + "_mean_" 
 	  + currDir.substr(currDir.find(dir_name));
-	temp = getSummaryME(bei, tag, isUpgrade);
+	temp = getSummaryME(iBooker, iGetter, tag, isUpgrade);
 	sum_mes.push_back(temp);
 	tag = prefix + "_" + (*iv) + "_RMS_" 
 	  + currDir.substr(currDir.find(dir_name));
-	temp = getSummaryME(bei, tag, isUpgrade);
+	temp = getSummaryME(iBooker, iGetter, tag, isUpgrade);
 	sum_mes.push_back(temp);
       }else if(prefix == "SUMCAL"){                  // calibrations
 	if((*iv)=="Gain1d" || (*iv)=="GainChi2NDF1d" || (*iv)=="GainChi2Prob1d" ||
@@ -431,50 +428,50 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
 	   (*iv)=="ScurveSigmasSummary" || (*iv)=="ScurveThresholdSummary"){                    
 	  tag = prefix + "_" + (*iv) + "_mean_" 
 	    + currDir.substr(currDir.find(dir_name));
-	  temp = getSummaryME(bei, tag, isUpgrade);
+	  temp = getSummaryME(iBooker, iGetter, tag, isUpgrade);
 	  sum_mes.push_back(temp);
 	  tag = prefix + "_" + (*iv) + "_RMS_" 
 	    + currDir.substr(currDir.find(dir_name));
-	  temp = getSummaryME(bei, tag, isUpgrade);
+	  temp = getSummaryME(iBooker, iGetter, tag, isUpgrade);
 	  sum_mes.push_back(temp);
 	}else if((*iv) == "SiPixelErrorsCalibDigis"){
 	  tag = prefix + "_" + (*iv) + "_NCalibErrors_"
 	    + currDir.substr(currDir.find(dir_name));
-	  temp = getSummaryME(bei, tag, isUpgrade);
+	  temp = getSummaryME(iBooker, iGetter, tag, isUpgrade);
 	  sum_mes.push_back(temp);
 	}else if((*iv)=="GainFitResult2d"){
 	  tag = prefix + "_" + (*iv) + "_NNegativeFits_"
 	    + currDir.substr(currDir.find(dir_name));
-	  temp = getSummaryME(bei, tag, isUpgrade);
+	  temp = getSummaryME(iBooker, iGetter, tag, isUpgrade);
 	  sum_mes.push_back(temp);
 	}else if((*iv)=="pixelAliveSummary"){
 	  tag = prefix + "_" + (*iv) + "_FracOfPerfectPix_"
 	    + currDir.substr(currDir.find(dir_name));
-	  temp = getSummaryME(bei, tag, isUpgrade);
+	  temp = getSummaryME(iBooker, iGetter, tag, isUpgrade);
 	  sum_mes.push_back(temp);
 	  tag = prefix + "_" + (*iv) + "_mean_"
 	    + currDir.substr(currDir.find(dir_name));
-	  temp = getSummaryME(bei, tag, isUpgrade);
+	  temp = getSummaryME(iBooker, iGetter, tag, isUpgrade);
 	  sum_mes.push_back(temp);
 	}
       }else{
 	tag = prefix + "_" + (*iv) + "_" + currDir.substr(currDir.find(dir_name));
-	temp = getSummaryME(bei, tag, isUpgrade);
+	temp = getSummaryME(iBooker, iGetter, tag, isUpgrade);
 	sum_mes.push_back(temp);
 	if((*iv)=="ndigis"){
 	  tag = prefix + "_" + (*iv) + "FREQ_" 
 	    + currDir.substr(currDir.find(dir_name));
-	  temp = getSummaryME(bei, tag, isUpgrade);
+	  temp = getSummaryME(iBooker, iGetter, tag, isUpgrade);
 	  sum_mes.push_back(temp);
 	}
 	if(prefix=="SUMDIG" && (*iv)=="adc"){
 	  tag = "ALLMODS_" + (*iv) + "COMB_" + currDir.substr(currDir.find(dir_name));
-	  temp = bei->book1D(tag.c_str(), tag.c_str(),128, 0., 256.);
+	  temp = iBooker.book1D(tag.c_str(), tag.c_str(),128, 0., 256.);
 	  sum_mes.push_back(temp);
 	}
 	if(prefix=="SUMCLU" && (*iv)=="charge"){
 	  tag = "ALLMODS_" + (*iv) + "COMB_" + currDir.substr(currDir.find(dir_name));
-	  temp = bei->book1D(tag.c_str(), tag.c_str(),100, 0., 200.); // To look to get the size automatically	  
+	  temp = iBooker.book1D(tag.c_str(), tag.c_str(),100, 0., 200.); // To look to get the size automatically	  
 	  sum_mes.push_back(temp);
 	}
       }
@@ -483,19 +480,20 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
       edm::LogInfo("SiPixelActionExecutor") << " Summary MEs can not be created" << "\n" ;
       return;
     }
-    vector<string> subdirs = bei->getSubdirs();
+    vector<string> subdirs = iGetter.getSubdirs();
     //Blade
-    if(dir_name.find("Blade_") == 0) GetBladeSubdirs(bei, subdirs);
+    if(dir_name.find("Blade_") == 0) GetBladeSubdirs(iBooker, iGetter, subdirs);
 	
     int ndet = 0;
     for (vector<string>::const_iterator it = subdirs.begin();
 	 it != subdirs.end(); it++) {
       if (prefix!="SUMOFF" && (*it).find("Module_") == string::npos) continue;
       if (prefix=="SUMOFF" && (*it).find(isbarrel?"Layer_":"Disk_") == string::npos) continue;
-      bei->cd(*it);
+      iBooker.cd(*it);
+      iGetter.cd(*it);
       ndet++;
 
-      vector<string> contents = bei->getMEs(); 
+      vector<string> contents = iGetter.getMEs(); 
       
       for (vector<MonitorElement*>::const_iterator isum = sum_mes.begin();
 	   isum != sum_mes.end(); isum++) {
@@ -521,8 +519,8 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
 	  if(sname.find("_sizeY_OnTrack_")!=string::npos) tname = "sizeY_OnTrack_";
 	  if(tname.find("FREQ")!=string::npos) tname = "ndigis_";
 	  if (((*im)).find(tname) == 0) {
-	    string fullpathname = bei->pwd() + "/" + (*im); 
-	    MonitorElement *  me = bei->get(fullpathname);
+	    string fullpathname = iBooker.pwd() + "/" + (*im); 
+	    MonitorElement *  me = iGetter.get(fullpathname);
 	    
 	    if (me){ 
 	      if(sname.find("_charge")!=string::npos && sname.find("Track_")==string::npos && me->getName().find("Track_")!=string::npos) continue;
@@ -566,7 +564,7 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
 	      }else if (sname.find("_NErrors_")!=string::npos){
 	        string path1 = fullpathname;
 		path1 = path1.replace(path1.find("NErrors"),7,"errorType");
-		MonitorElement * me1 = bei->get(path1);
+		MonitorElement * me1 = iGetter.get(path1);
 		bool notReset=true;
 	        if(me1){
 	          for(int jj=1; jj<16; jj++){
@@ -574,7 +572,7 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
 	              if(jj==6){ //errorType=30 (reset)
 	                string path2 = path1;
 			path2 = path2.replace(path2.find("errorType"),9,"TBMMessage");
-	                MonitorElement * me2 = bei->get(path2);
+	                MonitorElement * me2 = iGetter.get(path2);
 	                if(me2) if(me2->getBinContent(6)>0. || me2->getBinContent(7)>0.) notReset=false;
 		      }
 		    }
@@ -643,25 +641,34 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
 	  }
 	}
       }
-      bei->goUp();
-	  if(dir_name.find("Blade") == 0) bei->goUp(); // Going up a second time if we are processing the Blade
+      iBooker.goUp();
+      iGetter.setCurrentFolder(iBooker.pwd());
+      if(dir_name.find("Blade") == 0) {
+	iBooker.goUp(); // Going up a second time if we are processing the Blade
+	iGetter.setCurrentFolder(iBooker.pwd());
+      }
     } // end for it (subdirs)
   } else {  
-    vector<string> subdirs = bei->getSubdirs();
-    // printing cout << "#\t" << bei->pwd() << endl;
+    vector<string> subdirs = iGetter.getSubdirs();
+    // printing cout << "#\t" << iBooker.pwd() << endl;
     if(isbarrel)
       {
 			
 	for (vector<string>::const_iterator it = subdirs.begin();
 	     it != subdirs.end(); it++) {
-	  //				 cout << "##\t" << bei->pwd() << "\t" << (*it) << endl;
-	  if((bei->pwd()).find("Endcap")!=string::npos ||
-	     (bei->pwd()).find("AdditionalPixelErrors")!=string::npos) bei->goUp();
-	  bei->cd(*it);
+	  //				 cout << "##\t" << iBooker.pwd() << "\t" << (*it) << endl;
+	  if((iBooker.pwd()).find("Endcap")!=string::npos ||
+	     (iBooker.pwd()).find("AdditionalPixelErrors")!=string::npos) {
+	    iBooker.goUp();
+	    iGetter.setCurrentFolder(iBooker.pwd());
+	  }
+	  iBooker.cd(*it);
+	  iGetter.cd(*it);
 	  if((*it).find("Endcap")!=string::npos ||
 	     (*it).find("AdditionalPixelErrors")!=string::npos) continue;
-	  fillSummary(bei, dir_name, me_names, true, isUpgrade); // Barrel
-	  bei->goUp();
+	  fillSummary(iBooker, iGetter, dir_name, me_names, true, isUpgrade); // Barrel
+	  iBooker.goUp();
+	  iGetter.setCurrentFolder(iBooker.pwd());
 	}
 	string grandbarrel_structure_name;
 	vector<string> grandbarrel_me_names;
@@ -669,7 +676,7 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
 	  cout << "SiPixelActionExecutor::createSummary: Failed to read Grand Barrel Summary configuration parameters!! ";
 	  return;
 	}
-	fillGrandBarrelSummaryHistos(bei, grandbarrel_me_names, isUpgrade);
+	fillGrandBarrelSummaryHistos(iBooker, iGetter, grandbarrel_me_names, isUpgrade);
 			
       }
     else // Endcap
@@ -677,13 +684,18 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
 			
 	for (vector<string>::const_iterator it = subdirs.begin();
 	     it != subdirs.end(); it++) {
-	  if((bei->pwd()).find("Barrel")!=string::npos ||
-	     (bei->pwd()).find("AdditionalPixelErrors")!=string::npos) bei->goUp();
-	  bei->cd((*it));
+	  if((iBooker.pwd()).find("Barrel")!=string::npos ||
+	     (iBooker.pwd()).find("AdditionalPixelErrors")!=string::npos){
+	    iBooker.goUp();
+	    iGetter.setCurrentFolder(iBooker.pwd());
+	  }
+	  iBooker.cd(*it);
+	  iGetter.cd(*it);
 	  if ((*it).find("Barrel")!=string::npos ||
 	      (*it).find("AdditionalPixelErrors")!=string::npos) continue;
-	  fillSummary(bei, dir_name, me_names, false, isUpgrade); // Endcap
-	  bei->goUp();
+	  fillSummary(iBooker, iGetter, dir_name, me_names, false, isUpgrade); // Endcap
+	  iBooker.goUp();
+	  iGetter.setCurrentFolder(iBooker.pwd());
 	}
 	string grandendcap_structure_name;
 	vector<string> grandendcap_me_names;
@@ -691,7 +703,7 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
 	  cout << "SiPixelActionExecutor::createSummary: Failed to read Grand Endcap Summary configuration parameters!! ";
 	  return;
 	}
-	fillGrandEndcapSummaryHistos(bei, grandendcap_me_names, isUpgrade);
+	fillGrandEndcapSummaryHistos(iBooker, iGetter, grandendcap_me_names, isUpgrade);
 			
 			
       }
@@ -701,11 +713,12 @@ void SiPixelActionExecutor::fillSummary(DQMStore* bei, string dir_name, vector<s
 }
 
 //=============================================================================================================
-void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore* bei,
+void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore::IBooker& iBooker,
+						DQMStore::IGetter& iGetter,
                                                 string dir_name,
 						vector<string>& me_names) {
   //printing cout<<"entering SiPixelActionExecutor::fillFEDErrorSummary..."<<endl;
-  string currDir = bei->pwd();
+  string currDir = iBooker.pwd();
   string prefix;
   if(source_type_==0) prefix="SUMRAW";
   else if(source_type_==20) prefix="SUMOFF";
@@ -715,7 +728,7 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore* bei,
     for (vector<string>::const_iterator iv = me_names.begin();
 	 iv != me_names.end(); iv++) {
       bool isBooked = false;
-      vector<string> contents = bei->getMEs();
+      vector<string> contents = iGetter.getMEs();
       for (vector<string>::const_iterator im = contents.begin(); im != contents.end(); im++)
         if ((*im).find(*iv) != string::npos) isBooked = true;
       if(source_type_==5||source_type_==6){
@@ -731,24 +744,24 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore* bei,
 	 (*iv)=="ROCId"||(*iv)=="DCOLId"||(*iv)=="PXId"||(*iv)=="ROCNmbr"||
 	 (*iv)=="TBMMessage"||(*iv)=="Type36Hitmap"){
         string tag = prefix + "_" + (*iv) + "_FEDErrors";
-        MonitorElement* temp = getFEDSummaryME(bei, tag);
+        MonitorElement* temp = getFEDSummaryME(iBooker, iGetter, tag);
         sum_mes.push_back(temp);
       }else if((*iv)=="FedChLErr"||(*iv)=="FedChNErr"||(*iv)=="FedETypeNErr"){
         string tag = prefix + "_" + (*iv);
 	MonitorElement* temp;
-	if((*iv)=="FedChLErr") {if (!isBooked) temp = bei->book2D("FedChLErr","Type of last error",40,-0.5,39.5,37,0.,37.);
+	if((*iv)=="FedChLErr") {if (!isBooked) temp = iBooker.book2D("FedChLErr","Type of last error",40,-0.5,39.5,37,0.,37.);
 	  else{ 
-	    string fullpathname = bei->pwd() + "/" + (*iv);
-	    temp = bei->get(fullpathname);
+	    string fullpathname = iBooker.pwd() + "/" + (*iv);
+	    temp = iGetter.get(fullpathname);
 	    temp->Reset();}}  //If I don't reset this one, then I instead start adding error codes..
-	if((*iv)=="FedChNErr") {if (!isBooked) temp = bei->book2D("FedChNErr","Total number of errors",40,-0.5,39.5,37,0.,37.);
+	if((*iv)=="FedChNErr") {if (!isBooked) temp = iBooker.book2D("FedChNErr","Total number of errors",40,-0.5,39.5,37,0.,37.);
 	  else{ 
-	    string fullpathname = bei->pwd() + "/" + (*iv);
-	    temp = bei->get(fullpathname);
+	    string fullpathname = iBooker.pwd() + "/" + (*iv);
+	    temp = iGetter.get(fullpathname);
 	    temp->Reset();}}  //If I don't reset this one, then I instead start adding error codes..
 	if((*iv)=="FedETypeNErr"){
 	  if(!isBooked){
-	    temp = bei->book2D("FedETypeNErr","Number of each error type",40,-0.5,39.5,21,0.,21.);
+	    temp = iBooker.book2D("FedETypeNErr","Number of each error type",40,-0.5,39.5,21,0.,21.);
 	    temp->setBinLabel(1,"ROC of 25",2);
 	    temp->setBinLabel(2,"Gap word",2);
 	    temp->setBinLabel(3,"Dummy word",2);
@@ -772,8 +785,8 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore* bei,
 	    temp->setBinLabel(21,"CRC error",2);
 	  }
 	  else{
-	    string fullpathname = bei->pwd() + "/" + (*iv);
-	    temp = bei->get(fullpathname);
+	    string fullpathname = iBooker.pwd() + "/" + (*iv);
+	    temp = iGetter.get(fullpathname);
 	    temp->Reset();}  //If I don't reset this one, then I instead start adding error codes..
 	}
 	sum_mes.push_back(temp);
@@ -783,17 +796,18 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore* bei,
       edm::LogInfo("SiPixelActionExecutor") << " Summary MEs can not be created" << "\n" ;
       return;
     }
-    vector<string> subdirs = bei->getSubdirs();
+    vector<string> subdirs = iGetter.getSubdirs();
     int ndet = 0;
     for (vector<string>::const_iterator it = subdirs.begin();
 	 it != subdirs.end(); it++) {
       if ( (*it).find("FED_") == string::npos) continue;
-      bei->cd(*it);
+      iBooker.cd(*it);
+      iGetter.cd(*it);
       string fedid = (*it).substr((*it).find("_")+1);
       std::istringstream isst;
       isst.str(fedid);
       isst>>ndet; ndet++;
-      vector<string> contents = bei->getMEs(); 
+      vector<string> contents = iGetter.getMEs(); 
 			
       for (vector<MonitorElement*>::const_iterator isum = sum_mes.begin();
 	   isum != sum_mes.end(); isum++) {
@@ -802,8 +816,8 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore* bei,
 	  if(((*im).find("FedChNErr")!=std::string::npos && (*isum)->getName().find("FedChNErr")!=std::string::npos) ||
 	     ((*im).find("FedChLErr")!=std::string::npos && (*isum)->getName().find("FedChLErr")!=std::string::npos) ||
 	     ((*im).find("FedETypeNErr")!=std::string::npos && (*isum)->getName().find("FedETypeNErr")!=std::string::npos)){
-	    string fullpathname = bei->pwd() + "/" + (*im); 
-	    MonitorElement *  me = bei->get(fullpathname);
+	    string fullpathname = iBooker.pwd() + "/" + (*im); 
+	    MonitorElement *  me = iGetter.get(fullpathname);
 	    if(me){
 	      for(int i=0; i!=37; i++){
                 if((*im).find("FedETypeNErr")!=std::string::npos && i<21) (*isum)->Fill(ndet-1,i,me->getBinContent(i+1));
@@ -815,15 +829,15 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore* bei,
 	  string tname = " ";
 	  tname = sname.substr(7,(sname.find("_",7)-6));
 	  if (((*im)).find(tname) == 0) {
-	    string fullpathname = bei->pwd() + "/" + (*im); 
-	    MonitorElement *  me = bei->get(fullpathname);
+	    string fullpathname = iBooker.pwd() + "/" + (*im); 
+	    MonitorElement *  me = iGetter.get(fullpathname);
 						
 	    if (me){ 
 	      if(me->getMean()>0.){
 	        if (sname.find("_NErrors_")!=string::npos){
 	          string path1 = fullpathname;
 		  path1 = path1.replace(path1.find("NErrors"),7,"errorType");
-		  MonitorElement * me1 = bei->get(path1);
+		  MonitorElement * me1 = iGetter.get(path1);
 		  bool notReset=true;
 	          if(me1){
 	            for(int jj=1; jj<16; jj++){
@@ -831,7 +845,7 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore* bei,
 	                if(jj==6){ //errorType=30 (reset)
 	                  string path2 = path1;
 			  path2 = path2.replace(path2.find("errorType"),9,"TBMMessage");
-	                  MonitorElement * me2 = bei->get(path2);
+	                  MonitorElement * me2 = iGetter.get(path2);
 	                  if(me2) if(me2->getBinContent(6)>0. || me2->getBinContent(7)>0.) notReset=false; 
 		        }
 		      }
@@ -849,17 +863,20 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore* bei,
 	  }
 	}
       }
-      bei->goUp();
+      iBooker.goUp();
+      iGetter.setCurrentFolder(iBooker.pwd());
     }
   } else {  
-    vector<string> subdirs = bei->getSubdirs();
+    vector<string> subdirs = iGetter.getSubdirs();
     for (vector<string>::const_iterator it = subdirs.begin();
 	 it != subdirs.end(); it++) {
       if((*it).find("Endcap")!=string::npos ||
 	 (*it).find("Barrel")!=string::npos) continue;
-      bei->cd(*it);
-      fillFEDErrorSummary(bei, dir_name, me_names);
-      bei->goUp();
+      iBooker.cd(*it);
+      iGetter.cd(*it);
+      fillFEDErrorSummary(iBooker,iGetter, dir_name, me_names);
+      iBooker.goUp();
+      iGetter.setCurrentFolder(iBooker.pwd());
     }
   }
   //printing cout<<"...leaving SiPixelActionExecutor::fillFEDErrorSummary!"<<endl;
@@ -867,13 +884,14 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore* bei,
 
 
 //=============================================================================================================
-void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
+void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore::IBooker & iBooker,
+							 DQMStore::IGetter & iGetter,
                                                          vector<string>& me_names,
                                                          bool isUpgrade) {
 //  cout<<"Entering SiPixelActionExecutor::fillGrandBarrelSummaryHistos...:"<<me_names.size()<<endl;
   vector<MonitorElement*> gsum_mes;
-  string currDir = bei->pwd();
-  string path_name = bei->pwd();
+  string currDir = iBooker.pwd();
+  string path_name = iBooker.pwd();
   string dir_name =  path_name.substr(path_name.find_last_of("/")+1);
   if ((dir_name.find("DQMData") == 0) ||
       (dir_name.find("Pixel") == 0) ||
@@ -883,7 +901,7 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
       (dir_name.find("Disk") == 0) ||
       (dir_name.find("Blade") == 0) ||
       (dir_name.find("Panel") == 0) ) return;
-  vector<string> subdirs = bei->getSubdirs();
+  vector<string> subdirs = iGetter.getSubdirs();
   int nDirs = subdirs.size();
   int iDir =0;
   int nbin = 0;
@@ -894,10 +912,12 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
   for (vector<string>::const_iterator it = subdirs.begin();
        it != subdirs.end(); it++) {
     cnt++;
-    bei->cd(*it);
-    vector<string> contents = bei->getMEs();
+    iBooker.cd(*it);
+    iGetter.cd(*it);
+    vector<string> contents = iGetter.getMEs();
 		
-    bei->goUp();
+    iBooker.goUp();
+    iGetter.setCurrentFolder(iBooker.pwd());
 		
     string prefix;
     if(source_type_==0) prefix="SUMRAW";
@@ -918,7 +938,7 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
 	  if((var=="_charge_" || var=="_nclusters_" || var=="_size_" || var=="_sizeX_" || var=="_sizeY_") && 
 	     (*im).find("Track_")!=string::npos) continue;
 	  string full_path = (*it) + "/" +(*im);
-	  MonitorElement * me = bei->get(full_path.c_str());
+	  MonitorElement * me = iGetter.get(full_path.c_str());
 	  if (!me) continue; 
 	  if(source_type_==5||source_type_==6){
 	    if((*iv)=="errorType"||(*iv)=="NErrors"||(*iv)=="fullType"||(*iv)=="chanNmbr"||
@@ -970,7 +990,7 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
 	    else if(dir_name.find("Shell")!=string::npos) nbin=192;
 	    else nbin=nbin*nDirs;
 
-		getGrandSummaryME(bei, nbin, me_name, gsum_mes);
+	    getGrandSummaryME(iBooker, iGetter, nbin, me_name, gsum_mes);
 	  } else if (first_subdir && isUpgrade){
 	    nbin = me->getTH1F()->GetNbinsX();        
 	    string me_name = prefix + "_" + (*iv) + "_" + dir_name;
@@ -982,7 +1002,7 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
 	    else if(dir_name.find("Shell")!=string::npos) nbin=296;
 	    else nbin=nbin*nDirs;
 
-		getGrandSummaryME(bei, nbin, me_name, gsum_mes);
+	    getGrandSummaryME(iBooker, iGetter, nbin, me_name, gsum_mes);
 	  }
 
 	  for (vector<MonitorElement*>::const_iterator igm = gsum_mes.begin();
@@ -1116,13 +1136,14 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore* bei,
 }
 
 //=============================================================================================================
-void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
+void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore::IBooker& iBooker,
+							 DQMStore::IGetter& iGetter,
                                                          vector<string>& me_names,
                                                          bool isUpgrade) {
   //printing cout<<"Entering SiPixelActionExecutor::fillGrandEndcapSummaryHistos..."<<endl;
   vector<MonitorElement*> gsum_mes;
-  string currDir = bei->pwd();
-  string path_name = bei->pwd();
+  string currDir = iBooker.pwd();
+  string path_name = iBooker.pwd();
   string dir_name =  path_name.substr(path_name.find_last_of("/")+1);
   if ((dir_name.find("DQMData") == 0) ||
       (dir_name.find("Pixel") == 0) ||
@@ -1131,7 +1152,7 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
       (dir_name.find("Shell") == 0) ||
       (dir_name.find("Layer") == 0) ||
       (dir_name.find("Ladder") == 0) ) return;
-  vector<string> subdirs = bei->getSubdirs();
+  vector<string> subdirs = iGetter.getSubdirs();
   int iDir =0;
   int nbin = 0;
   int nbin_i = 0; 
@@ -1141,9 +1162,11 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
   for (vector<string>::const_iterator it = subdirs.begin();
        it != subdirs.end(); it++) {
     cnt++;
-    bei->cd(*it);
-    vector<string> contents = bei->getMEs();
-    bei->goUp();
+    iBooker.cd(*it);
+    iGetter.cd(*it);
+    vector<string> contents = iGetter.getMEs();
+    iBooker.goUp();
+    iGetter.setCurrentFolder(iBooker.pwd());
 		
     string prefix;
     if(source_type_==0) prefix="SUMRAW";
@@ -1163,7 +1186,7 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 	  if((var=="_charge_" || var=="_nclusters_" || var=="_size_" || var=="_sizeX_" || var=="_sizeY_") && 
 	     (*im).find("Track_")!=string::npos) continue;
 	  string full_path = (*it) + "/" +(*im);
-	  MonitorElement * me = bei->get(full_path.c_str());
+	  MonitorElement * me = iGetter.get(full_path.c_str());
 	  if (!me) continue; 
 	  if(source_type_==5||source_type_==6){
 	    if((*iv)=="errorType"||(*iv)=="NErrors"||(*iv)=="fullType"||(*iv)=="chanNmbr"||
@@ -1215,7 +1238,7 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 	    else if(prefix=="SUMOFF" && dir_name.find("Disk")!=string::npos) nbin=12;
 	    else if(dir_name.find("Disk")!=string::npos) nbin=84;
 	    else if(dir_name.find("Blade")!=string::npos) nbin=7;
-	    getGrandSummaryME(bei, nbin, me_name, gsum_mes);
+	    getGrandSummaryME(iBooker, iGetter, nbin, me_name, gsum_mes);
 	  } else if(first_subdir && isUpgrade){
             nbin = me->getTH1F()->GetNbinsX();        
 	    string me_name = prefix + "_" + (*iv) + "_" + dir_name;
@@ -1227,7 +1250,7 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 	    else if(prefix=="SUMOFF" && dir_name.find("Disk")!=string::npos) nbin=28;
 	    else if(dir_name.find("Disk")!=string::npos) nbin=56;
 	    else if(dir_name.find("Blade")!=string::npos) nbin=2;
-            getGrandSummaryME(bei, nbin, me_name, gsum_mes);
+            getGrandSummaryME(iBooker, iGetter, nbin, me_name, gsum_mes);
           }
 
 	  for (vector<MonitorElement*>::const_iterator igm = gsum_mes.begin();
@@ -1355,20 +1378,21 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 //
 // -- Get Summary ME
 //
-void SiPixelActionExecutor::getGrandSummaryME(DQMStore* bei,
+void SiPixelActionExecutor::getGrandSummaryME(DQMStore::IBooker& iBooker,
+					      DQMStore::IGetter & iGetter,
                                               int nbin, 
 					      string& me_name, 
 					      vector<MonitorElement*> & mes) {
   //printing cout<<"Entering SiPixelActionExecutor::getGrandSummaryME for: "<<me_name<<endl;
-  if((bei->pwd()).find("Pixel")==string::npos) return; // If one doesn't find pixel
-  vector<string> contents = bei->getMEs();
+  if((iBooker.pwd()).find("Pixel")==string::npos) return; // If one doesn't find pixel
+  vector<string> contents = iGetter.getMEs();
 	
   for (vector<string>::const_iterator it = contents.begin();
        it != contents.end(); it++) {
     //printing cout<<"in grand summary me: "<<me_name<<","<<(*it)<<endl;
     if ((*it).find(me_name) == 0) {
-      string fullpathname = bei->pwd() + "/" + me_name;
-      MonitorElement* me = bei->get(fullpathname);
+      string fullpathname = iBooker.pwd() + "/" + me_name;
+      MonitorElement* me = iGetter.get(fullpathname);
 			
       if (me) {
 	me->Reset();
@@ -1379,9 +1403,9 @@ void SiPixelActionExecutor::getGrandSummaryME(DQMStore* bei,
   }
 
   MonitorElement* temp_me(0);
-  if(me_name.find("ALLMODS_adcCOMB_")!=string::npos) temp_me = bei->book1D(me_name.c_str(),me_name.c_str(),128,0,256);
-  else if(me_name.find("ALLMODS_chargeCOMB_")!=string::npos) temp_me = bei->book1D(me_name.c_str(),me_name.c_str(),100,0,200);
-  else temp_me = bei->book1D(me_name.c_str(),me_name.c_str(),nbin,1.,nbin+1.);
+  if(me_name.find("ALLMODS_adcCOMB_")!=string::npos) temp_me = iBooker.book1D(me_name.c_str(),me_name.c_str(),128,0,256);
+  else if(me_name.find("ALLMODS_chargeCOMB_")!=string::npos) temp_me = iBooker.book1D(me_name.c_str(),me_name.c_str(),100,0,200);
+  else temp_me = iBooker.book1D(me_name.c_str(),me_name.c_str(),nbin,1.,nbin+1.);
   if (temp_me) mes.push_back(temp_me);
 	
   //  if(temp_me) cout<<"finally found grand ME: "<<me_name<<endl;
@@ -1392,19 +1416,20 @@ void SiPixelActionExecutor::getGrandSummaryME(DQMStore* bei,
 //
 // -- Get Summary ME
 //
-MonitorElement* SiPixelActionExecutor::getSummaryME(DQMStore* bei,
+MonitorElement* SiPixelActionExecutor::getSummaryME(DQMStore::IBooker & iBooker,
+						    DQMStore::IGetter & iGetter,
                                                     string me_name,
                                                     bool isUpgrade) {
   //printing cout<<"Entering SiPixelActionExecutor::getSummaryME for: "<<me_name<<endl;
   MonitorElement* me = 0;
-  if((bei->pwd()).find("Pixel")==string::npos) return me;
-  vector<string> contents = bei->getMEs();    
+  if((iBooker.pwd()).find("Pixel")==string::npos) return me;
+  vector<string> contents = iGetter.getMEs();    
 	
   for (vector<string>::const_iterator it = contents.begin();
        it != contents.end(); it++) {
     if ((*it).find(me_name) == 0) {
-      string fullpathname = bei->pwd() + "/" + (*it); 
-      me = bei->get(fullpathname);
+      string fullpathname = iBooker.pwd() + "/" + (*it); 
+      me = iGetter.get(fullpathname);
 			
       if (me) {
 	me->Reset();
@@ -1415,23 +1440,23 @@ MonitorElement* SiPixelActionExecutor::getSummaryME(DQMStore* bei,
   contents.clear();
   if (!isUpgrade) {
   if(me_name.find("SUMOFF")==string::npos){
-  	if(me_name.find("Blade_")!=string::npos)me = bei->book1D(me_name.c_str(), me_name.c_str(),7,1.,8.);
-	else me = bei->book1D(me_name.c_str(), me_name.c_str(),4,1.,5.);
-  }else if(me_name.find("Layer_1")!=string::npos){ me = bei->book1D(me_name.c_str(), me_name.c_str(),10,1.,11.);
-  }else if(me_name.find("Layer_2")!=string::npos){ me = bei->book1D(me_name.c_str(), me_name.c_str(),16,1.,17.);
-  }else if(me_name.find("Layer_3")!=string::npos){ me = bei->book1D(me_name.c_str(), me_name.c_str(),22,1.,23.);
-  }else if(me_name.find("Disk_")!=string::npos){ me = bei->book1D(me_name.c_str(), me_name.c_str(),12,1.,13.);
+  	if(me_name.find("Blade_")!=string::npos)me = iBooker.book1D(me_name.c_str(), me_name.c_str(),7,1.,8.);
+	else me = iBooker.book1D(me_name.c_str(), me_name.c_str(),4,1.,5.);
+  }else if(me_name.find("Layer_1")!=string::npos){ me = iBooker.book1D(me_name.c_str(), me_name.c_str(),10,1.,11.);
+  }else if(me_name.find("Layer_2")!=string::npos){ me = iBooker.book1D(me_name.c_str(), me_name.c_str(),16,1.,17.);
+  }else if(me_name.find("Layer_3")!=string::npos){ me = iBooker.book1D(me_name.c_str(), me_name.c_str(),22,1.,23.);
+  }else if(me_name.find("Disk_")!=string::npos){ me = iBooker.book1D(me_name.c_str(), me_name.c_str(),12,1.,13.);
   }
   }//endifNOTUpgrade
   else if (isUpgrade) {
     if(me_name.find("SUMOFF")==string::npos){
-      if(me_name.find("Blade_")!=string::npos)me = bei->book1D(me_name.c_str(), me_name.c_str(),2,1.,3.);
-      else me = bei->book1D(me_name.c_str(), me_name.c_str(),1,1.,2.);
-    }else if(me_name.find("Layer_1")!=string::npos){ me = bei->book1D(me_name.c_str(), me_name.c_str(),6,1.,7.);
-    }else if(me_name.find("Layer_2")!=string::npos){ me = bei->book1D(me_name.c_str(), me_name.c_str(),14,1.,15.);
-    }else if(me_name.find("Layer_3")!=string::npos){ me = bei->book1D(me_name.c_str(), me_name.c_str(),22,1.,23.);
-    }else if(me_name.find("Layer_4")!=string::npos){ me = bei->book1D(me_name.c_str(), me_name.c_str(),32,1.,33.);
-    }else if(me_name.find("Disk_")!=string::npos){ me = bei->book1D(me_name.c_str(), me_name.c_str(),28,1.,29.);
+      if(me_name.find("Blade_")!=string::npos)me = iBooker.book1D(me_name.c_str(), me_name.c_str(),2,1.,3.);
+      else me = iBooker.book1D(me_name.c_str(), me_name.c_str(),1,1.,2.);
+    }else if(me_name.find("Layer_1")!=string::npos){ me = iBooker.book1D(me_name.c_str(), me_name.c_str(),6,1.,7.);
+    }else if(me_name.find("Layer_2")!=string::npos){ me = iBooker.book1D(me_name.c_str(), me_name.c_str(),14,1.,15.);
+    }else if(me_name.find("Layer_3")!=string::npos){ me = iBooker.book1D(me_name.c_str(), me_name.c_str(),22,1.,23.);
+    }else if(me_name.find("Layer_4")!=string::npos){ me = iBooker.book1D(me_name.c_str(), me_name.c_str(),32,1.,33.);
+    }else if(me_name.find("Disk_")!=string::npos){ me = iBooker.book1D(me_name.c_str(), me_name.c_str(),28,1.,29.);
     }
   }//endifUpgrade
   	
@@ -1440,19 +1465,20 @@ MonitorElement* SiPixelActionExecutor::getSummaryME(DQMStore* bei,
 
 
 //=============================================================================================================
-MonitorElement* SiPixelActionExecutor::getFEDSummaryME(DQMStore* bei,
+MonitorElement* SiPixelActionExecutor::getFEDSummaryME(DQMStore::IBooker & iBooker,
+						       DQMStore::IGetter & iGetter,
                                                        string me_name) {
   //printing cout<<"Entering SiPixelActionExecutor::getFEDSummaryME..."<<endl;
   MonitorElement* me = 0;
-  if((bei->pwd()).find("Pixel")==string::npos) return me;
-  vector<string> contents = bei->getMEs();
+  if((iBooker.pwd()).find("Pixel")==string::npos) return me;
+  vector<string> contents = iGetter.getMEs();
 	
   for (vector<string>::const_iterator it = contents.begin();
        it != contents.end(); it++) {
     if ((*it).find(me_name) == 0) {
-      string fullpathname = bei->pwd() + "/" + (*it); 
+      string fullpathname = iBooker.pwd() + "/" + (*it); 
 			
-      me = bei->get(fullpathname);
+      me = iGetter.get(fullpathname);
 			
       if (me) {
 	me->Reset();
@@ -1461,16 +1487,16 @@ MonitorElement* SiPixelActionExecutor::getFEDSummaryME(DQMStore* bei,
     }
   }
   contents.clear();
-  me = bei->book1D(me_name.c_str(), me_name.c_str(),40,-0.5,39.5);
+  me = iBooker.book1D(me_name.c_str(), me_name.c_str(),40,-0.5,39.5);
 
   return me;
 }
 
 //=============================================================================================================
-void SiPixelActionExecutor::bookOccupancyPlots(DQMStore* bei, bool hiRes, bool isbarrel) // Polymorphism
+void SiPixelActionExecutor::bookOccupancyPlots(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, bool hiRes, bool isbarrel) // Polymorphism
 {
   if(Tier0Flag_) return;
-  vector<string> subdirs = bei->getSubdirs();
+  vector<string> subdirs = iGetter.getSubdirs();
   for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++)
     {
       if(isbarrel && (*it).find("Barrel")==string::npos) continue;
@@ -1482,19 +1508,21 @@ void SiPixelActionExecutor::bookOccupancyPlots(DQMStore* bei, bool hiRes, bool i
       if((*it).find("Blade_")!=string::npos) continue;
       if((*it).find("Layer_")!=string::npos) continue;
       if((*it).find("Disk_")!=string::npos) continue;
-      bei->cd(*it);
-      bookOccupancyPlots(bei, hiRes, isbarrel);
+      iBooker.cd(*it);
+      iGetter.cd(*it);
+      bookOccupancyPlots(iBooker, iGetter, hiRes, isbarrel);
       if(!hiRes){
 	//occupancyprinting cout<<"booking low res barrel occ plot now!"<<endl;
-	OccupancyMap = bei->book2D((isbarrel?"barrelOccupancyMap":"endcapOccupancyMap"),"Barrel Digi Occupancy Map (4 pix per bin)",isbarrel?208:130,0.,isbarrel?416.:260.,80,0.,160.);
+	OccupancyMap = iBooker.book2D((isbarrel?"barrelOccupancyMap":"endcapOccupancyMap"),"Barrel Digi Occupancy Map (4 pix per bin)",isbarrel?208:130,0.,isbarrel?416.:260.,80,0.,160.);
       }else{
 	//occupancyprinting cout<<"booking high res barrel occ plot now!"<<endl;
-	OccupancyMap = bei->book2D((isbarrel?"barrelOccupancyMap":"endcapOccupancyMap"),"Barrel Digi Occupancy Map (1 pix per bin)",isbarrel?416:260,0.,isbarrel?416.:260.,160,0.,160.);
+	OccupancyMap = iBooker.book2D((isbarrel?"barrelOccupancyMap":"endcapOccupancyMap"),"Barrel Digi Occupancy Map (1 pix per bin)",isbarrel?416:260,0.,isbarrel?416.:260.,160,0.,160.);
       }
       OccupancyMap->setAxisTitle("Columns",1);
       OccupancyMap->setAxisTitle("Rows",2);
 		
-      bei->goUp();
+      iBooker.goUp();
+      iGetter.setCurrentFolder(iBooker.pwd());
 		
     }
 	
@@ -1502,54 +1530,61 @@ void SiPixelActionExecutor::bookOccupancyPlots(DQMStore* bei, bool hiRes, bool i
 	
 }
 //=============================================================================================================
-void SiPixelActionExecutor::bookOccupancyPlots(DQMStore* bei, bool hiRes) {
+void SiPixelActionExecutor::bookOccupancyPlots(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, bool hiRes) {
 	
   if(Tier0Flag_) return;
   // Barrel
-  bei->cd();
-  bei->setCurrentFolder("Pixel");
-  this->bookOccupancyPlots(bei, hiRes, true);
+  iGetter.cd();
+  iBooker.cd();
+  iGetter.setCurrentFolder("Pixel");
+  iBooker.setCurrentFolder("Pixel");
+  this->bookOccupancyPlots(iBooker, iGetter, hiRes, true);
 	
   // Endcap
-  bei->cd();
-  bei->setCurrentFolder("Pixel");
-  this->bookOccupancyPlots(bei, hiRes, false);
-	
+  iGetter.cd();
+  iBooker.cd();
+  iGetter.setCurrentFolder("Pixel");
+  iBooker.setCurrentFolder("Pixel");
+  this->bookOccupancyPlots(iBooker, iGetter, hiRes, false);
+
 }
 
-void SiPixelActionExecutor::createOccupancy(DQMStore* bei) {
+void SiPixelActionExecutor::createOccupancy(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter) {
   //std::cout<<"entering SiPixelActionExecutor::createOccupancy..."<<std::endl;
   if(Tier0Flag_) return;
-  bei->cd();
-  fillOccupancy(bei, true);
-  bei->cd();
-  fillOccupancy(bei, false);
-  bei->cd();
+  iBooker.cd();
+  iGetter.cd();
+  fillOccupancy(iBooker,iGetter, true);
+  iBooker.cd();
+  iGetter.cd();
+  fillOccupancy(iBooker,iGetter, false);
+  iBooker.cd();
+  iGetter.cd();
   //std::cout<<"leaving SiPixelActionExecutor::createOccupancy..."<<std::endl;
 }
 
 //=============================================================================================================
 
-void SiPixelActionExecutor::fillOccupancy(DQMStore* bei, bool isbarrel)
+void SiPixelActionExecutor::fillOccupancy(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, bool isbarrel)
 {
   //occupancyprinting cout<<"entering SiPixelActionExecutor::fillOccupancy..."<<std::endl;
   if(Tier0Flag_) return;
-  string currDir = bei->pwd();
+  string currDir = iBooker.pwd();
   string dname = currDir.substr(currDir.find_last_of("/")+1);
 	
   if(dname.find("Layer_")!=string::npos || dname.find("Disk_")!=string::npos){ 
-    vector<string> meVec = bei->getMEs();
+    vector<string> meVec = iGetter.getMEs();
     for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
       string full_path = currDir + "/" + (*it);
       if(full_path.find("hitmap_siPixelDigis")!=string::npos){ // If we have the hitmap ME
-	MonitorElement * me = bei->get(full_path);
+	MonitorElement * me = iGetter.get(full_path);
 	if (!me) continue;
 	string path = full_path;
 	while (path.find_last_of("/") != 5) // Stop before Pixel/
 	  {
 	    path = path.substr(0,path.find_last_of("/"));
 	    //							cout << "\t" << path << endl;
-	    OccupancyMap = bei->get(path + "/" + (isbarrel?"barrel":"endcap") + "OccupancyMap");
+	    OccupancyMap = iGetter.get(path + "/" + (isbarrel?"barrel":"endcap") + "OccupancyMap");
 					
 	    if(OccupancyMap){ 
 		for(int i=1; i!=me->getNbinsX()+1; i++) for(int j=1; j!=me->getNbinsY()+1; j++){
@@ -1564,12 +1599,14 @@ void SiPixelActionExecutor::fillOccupancy(DQMStore* bei, bool isbarrel)
 			
     }
   } else {  
-    vector<string> subdirs = bei->getSubdirs();
+    vector<string> subdirs = iGetter.getSubdirs();
     for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
-      bei->cd(*it);
+      iGetter.cd(*it);
+      iBooker.cd(*it);
       if(*it != "Pixel" && ((isbarrel && (*it).find("Barrel")==string::npos) || (!isbarrel && (*it).find("Endcap")==string::npos))) continue;
-      fillOccupancy(bei, isbarrel);
-      bei->goUp();
+      fillOccupancy(iBooker,iGetter, isbarrel);
+      iBooker.goUp();
+      iGetter.setCurrentFolder(iBooker.pwd());
     }
   }
 	
@@ -1579,102 +1616,105 @@ void SiPixelActionExecutor::fillOccupancy(DQMStore* bei, bool isbarrel)
 
 //=============================================================================================================
 
-void SiPixelActionExecutor::bookEfficiency(DQMStore * bei, bool isUpgrade){
+void SiPixelActionExecutor::bookEfficiency(DQMStore::IBooker & iBooker, bool isUpgrade){
   // Barrel
-  bei->cd();
-  bei->setCurrentFolder("Pixel/Barrel");
+  iBooker.cd();
+  iBooker.setCurrentFolder("Pixel/Barrel");
   if (!isUpgrade) {
   if(Tier0Flag_){
-    HitEfficiency_L1 = bei->book2D("HitEfficiency_L1","Hit Efficiency in Barrel_Layer1;Module;Ladder",8,-4,4,20,-10.,10.);
-    HitEfficiency_L2 = bei->book2D("HitEfficiency_L2","Hit Efficiency in Barrel_Layer2;Module;Ladder",8,-4,4,32,-16.,16.);
-    HitEfficiency_L3 = bei->book2D("HitEfficiency_L3","Hit Efficiency in Barrel_Layer3;Module;Ladder",8,-4,4,44,-22.,22.);
+    HitEfficiency_L1 = iBooker.book2D("HitEfficiency_L1","Hit Efficiency in Barrel_Layer1;Module;Ladder",8,-4,4,20,-10.,10.);
+    HitEfficiency_L2 = iBooker.book2D("HitEfficiency_L2","Hit Efficiency in Barrel_Layer2;Module;Ladder",8,-4,4,32,-16.,16.);
+    HitEfficiency_L3 = iBooker.book2D("HitEfficiency_L3","Hit Efficiency in Barrel_Layer3;Module;Ladder",8,-4,4,44,-22.,22.);
   }else{
-    HitEfficiency_L1 = bei->book2D("HitEfficiency_L1","Hit Efficiency in Barrel_Layer1;Module;Ladder",8,-4.,4.,20,-10.,10.);
-    HitEfficiency_L2 = bei->book2D("HitEfficiency_L2","Hit Efficiency in Barrel_Layer2;Module;Ladder",8,-4.,4.,32,-16.,16.);
-    HitEfficiency_L3 = bei->book2D("HitEfficiency_L3","Hit Efficiency in Barrel_Layer3;Module;Ladder",8,-4.,4.,44,-22.,22.);
+    HitEfficiency_L1 = iBooker.book2D("HitEfficiency_L1","Hit Efficiency in Barrel_Layer1;Module;Ladder",8,-4.,4.,20,-10.,10.);
+    HitEfficiency_L2 = iBooker.book2D("HitEfficiency_L2","Hit Efficiency in Barrel_Layer2;Module;Ladder",8,-4.,4.,32,-16.,16.);
+    HitEfficiency_L3 = iBooker.book2D("HitEfficiency_L3","Hit Efficiency in Barrel_Layer3;Module;Ladder",8,-4.,4.,44,-22.,22.);
   }
   }//endifNOTUpgrade
   else if (isUpgrade) {
       if(Tier0Flag_){
-      HitEfficiency_L1 = bei->book2D("HitEfficiency_L1","Hit Efficiency in Barrel_Layer1;z-side;Ladder",2,-1.,1.,12,-6.,6.);
-      HitEfficiency_L2 = bei->book2D("HitEfficiency_L2","Hit Efficiency in Barrel_Layer2;z-side;Ladder",2,-1.,1.,28,-14.,14.);
-      HitEfficiency_L3 = bei->book2D("HitEfficiency_L3","Hit Efficiency in Barrel_Layer3;z-side;Ladder",2,-1.,1.,44,-22.,22.);
-      HitEfficiency_L4 = bei->book2D("HitEfficiency_L4","Hit Efficiency in Barrel_Layer4;z-side;Ladder",2,-1.,1.,64,-32.,32.);
+      HitEfficiency_L1 = iBooker.book2D("HitEfficiency_L1","Hit Efficiency in Barrel_Layer1;z-side;Ladder",2,-1.,1.,12,-6.,6.);
+      HitEfficiency_L2 = iBooker.book2D("HitEfficiency_L2","Hit Efficiency in Barrel_Layer2;z-side;Ladder",2,-1.,1.,28,-14.,14.);
+      HitEfficiency_L3 = iBooker.book2D("HitEfficiency_L3","Hit Efficiency in Barrel_Layer3;z-side;Ladder",2,-1.,1.,44,-22.,22.);
+      HitEfficiency_L4 = iBooker.book2D("HitEfficiency_L4","Hit Efficiency in Barrel_Layer4;z-side;Ladder",2,-1.,1.,64,-32.,32.);
     }else{
-      HitEfficiency_L1 = bei->book2D("HitEfficiency_L1","Hit Efficiency in Barrel_Layer1;Module;Ladder",8,-4.,4.,12,-6.,6.);
-      HitEfficiency_L2 = bei->book2D("HitEfficiency_L2","Hit Efficiency in Barrel_Layer2;Module;Ladder",8,-4.,4.,28,-14.,14.);
-      HitEfficiency_L3 = bei->book2D("HitEfficiency_L3","Hit Efficiency in Barrel_Layer3;Module;Ladder",8,-4.,4.,44,-22.,22.);
-      HitEfficiency_L4 = bei->book2D("HitEfficiency_L4","Hit Efficiency in Barrel_Layer4;Module;Ladder",8,-4.,4.,64,-32.,32.);
+      HitEfficiency_L1 = iBooker.book2D("HitEfficiency_L1","Hit Efficiency in Barrel_Layer1;Module;Ladder",8,-4.,4.,12,-6.,6.);
+      HitEfficiency_L2 = iBooker.book2D("HitEfficiency_L2","Hit Efficiency in Barrel_Layer2;Module;Ladder",8,-4.,4.,28,-14.,14.);
+      HitEfficiency_L3 = iBooker.book2D("HitEfficiency_L3","Hit Efficiency in Barrel_Layer3;Module;Ladder",8,-4.,4.,44,-22.,22.);
+      HitEfficiency_L4 = iBooker.book2D("HitEfficiency_L4","Hit Efficiency in Barrel_Layer4;Module;Ladder",8,-4.,4.,64,-32.,32.);
     }
   }//endifUpgrade
   // Endcap
-  bei->cd();
-  bei->setCurrentFolder("Pixel/Endcap");
+  iBooker.cd();
+  iBooker.setCurrentFolder("Pixel/Endcap");
   if (!isUpgrade) {
   if(Tier0Flag_){
-    HitEfficiency_Dp1 = bei->book2D("HitEfficiency_Dp1","Hit Efficiency in Endcap_Disk_p1;Blades;",24,-12.,12.,1,0.,1.);
-    HitEfficiency_Dp2 = bei->book2D("HitEfficiency_Dp2","Hit Efficiency in Endcap_Disk_p2;Blades;",24,-12.,12.,1,0.,1.);
-    HitEfficiency_Dm1 = bei->book2D("HitEfficiency_Dm1","Hit Efficiency in Endcap_Disk_m1;Blades;",24,-12.,12.,1,0.,1.);
-    HitEfficiency_Dm2 = bei->book2D("HitEfficiency_Dm2","Hit Efficiency in Endcap_Disk_m2;Blades;",24,-12.,12.,1,0.,1.);
+    HitEfficiency_Dp1 = iBooker.book2D("HitEfficiency_Dp1","Hit Efficiency in Endcap_Disk_p1;Blades;",24,-12.,12.,1,0.,1.);
+    HitEfficiency_Dp2 = iBooker.book2D("HitEfficiency_Dp2","Hit Efficiency in Endcap_Disk_p2;Blades;",24,-12.,12.,1,0.,1.);
+    HitEfficiency_Dm1 = iBooker.book2D("HitEfficiency_Dm1","Hit Efficiency in Endcap_Disk_m1;Blades;",24,-12.,12.,1,0.,1.);
+    HitEfficiency_Dm2 = iBooker.book2D("HitEfficiency_Dm2","Hit Efficiency in Endcap_Disk_m2;Blades;",24,-12.,12.,1,0.,1.);
   }else{
-    HitEfficiency_Dp1 = bei->book2D("HitEfficiency_Dp1","Hit Efficiency in Endcap_Disk_p1;Blades;Modules",24,-12.,12.,7,1.,8.);
-    HitEfficiency_Dp2 = bei->book2D("HitEfficiency_Dp2","Hit Efficiency in Endcap_Disk_p2;Blades;Modules",24,-12.,12.,7,1.,8.);
-    HitEfficiency_Dm1 = bei->book2D("HitEfficiency_Dm1","Hit Efficiency in Endcap_Disk_m1;Blades;Modules",24,-12.,12.,7,1.,8.);
-    HitEfficiency_Dm2 = bei->book2D("HitEfficiency_Dm2","Hit Efficiency in Endcap_Disk_m2;Blades;Modules",24,-12.,12.,7,1.,8.);
+    HitEfficiency_Dp1 = iBooker.book2D("HitEfficiency_Dp1","Hit Efficiency in Endcap_Disk_p1;Blades;Modules",24,-12.,12.,7,1.,8.);
+    HitEfficiency_Dp2 = iBooker.book2D("HitEfficiency_Dp2","Hit Efficiency in Endcap_Disk_p2;Blades;Modules",24,-12.,12.,7,1.,8.);
+    HitEfficiency_Dm1 = iBooker.book2D("HitEfficiency_Dm1","Hit Efficiency in Endcap_Disk_m1;Blades;Modules",24,-12.,12.,7,1.,8.);
+    HitEfficiency_Dm2 = iBooker.book2D("HitEfficiency_Dm2","Hit Efficiency in Endcap_Disk_m2;Blades;Modules",24,-12.,12.,7,1.,8.);
   }
   } else if (isUpgrade) {
     if(Tier0Flag_){
-      HitEfficiency_Dp1 = bei->book2D("HitEfficiency_Dp1","Hit Efficiency in Endcap_Disk_p1;Blades;",28,-17.,11.,1,0.,1.);
-      HitEfficiency_Dp2 = bei->book2D("HitEfficiency_Dp2","Hit Efficiency in Endcap_Disk_p2;Blades;",28,-17.,11.,1,0.,1.);
-      HitEfficiency_Dp3 = bei->book2D("HitEfficiency_Dp3","Hit Efficiency in Endcap_Disk_p3;Blades;",28,-17.,11.,1,0.,1.);
-      HitEfficiency_Dm1 = bei->book2D("HitEfficiency_Dm1","Hit Efficiency in Endcap_Disk_m1;Blades;",28,-17.,11.,1,0.,1.);
-      HitEfficiency_Dm2 = bei->book2D("HitEfficiency_Dm2","Hit Efficiency in Endcap_Disk_m2;Blades;",28,-17.,11.,1,0.,1.);
-      HitEfficiency_Dm3 = bei->book2D("HitEfficiency_Dm3","Hit Efficiency in Endcap_Disk_m3;Blades;",28,-17.,11.,1,0.,1.);
+      HitEfficiency_Dp1 = iBooker.book2D("HitEfficiency_Dp1","Hit Efficiency in Endcap_Disk_p1;Blades;",28,-17.,11.,1,0.,1.);
+      HitEfficiency_Dp2 = iBooker.book2D("HitEfficiency_Dp2","Hit Efficiency in Endcap_Disk_p2;Blades;",28,-17.,11.,1,0.,1.);
+      HitEfficiency_Dp3 = iBooker.book2D("HitEfficiency_Dp3","Hit Efficiency in Endcap_Disk_p3;Blades;",28,-17.,11.,1,0.,1.);
+      HitEfficiency_Dm1 = iBooker.book2D("HitEfficiency_Dm1","Hit Efficiency in Endcap_Disk_m1;Blades;",28,-17.,11.,1,0.,1.);
+      HitEfficiency_Dm2 = iBooker.book2D("HitEfficiency_Dm2","Hit Efficiency in Endcap_Disk_m2;Blades;",28,-17.,11.,1,0.,1.);
+      HitEfficiency_Dm3 = iBooker.book2D("HitEfficiency_Dm3","Hit Efficiency in Endcap_Disk_m3;Blades;",28,-17.,11.,1,0.,1.);
     }else{
-      HitEfficiency_Dp1 = bei->book2D("HitEfficiency_Dp1","Hit Efficiency in Endcap_Disk_p1;Blades;Modules",28,-17.,11.,2,1.,3.);
-      HitEfficiency_Dp2 = bei->book2D("HitEfficiency_Dp2","Hit Efficiency in Endcap_Disk_p2;Blades;Modules",28,-17.,11.,2,1.,3.);
-      HitEfficiency_Dp3 = bei->book2D("HitEfficiency_Dp3","Hit Efficiency in Endcap_Disk_p3;Blades;Modules",28,-17.,11.,2,1.,3.);
-      HitEfficiency_Dm1 = bei->book2D("HitEfficiency_Dm1","Hit Efficiency in Endcap_Disk_m1;Blades;Modules",28,-17.,11.,2,1.,3.);
-      HitEfficiency_Dm2 = bei->book2D("HitEfficiency_Dm2","Hit Efficiency in Endcap_Disk_m2;Blades;Modules",28,-17.,11.,2,1.,3.);
-      HitEfficiency_Dm3 = bei->book2D("HitEfficiency_Dm3","Hit Efficiency in Endcap_Disk_m3;Blades;Modules",28,-17.,11.,2,1.,3.);
+      HitEfficiency_Dp1 = iBooker.book2D("HitEfficiency_Dp1","Hit Efficiency in Endcap_Disk_p1;Blades;Modules",28,-17.,11.,2,1.,3.);
+      HitEfficiency_Dp2 = iBooker.book2D("HitEfficiency_Dp2","Hit Efficiency in Endcap_Disk_p2;Blades;Modules",28,-17.,11.,2,1.,3.);
+      HitEfficiency_Dp3 = iBooker.book2D("HitEfficiency_Dp3","Hit Efficiency in Endcap_Disk_p3;Blades;Modules",28,-17.,11.,2,1.,3.);
+      HitEfficiency_Dm1 = iBooker.book2D("HitEfficiency_Dm1","Hit Efficiency in Endcap_Disk_m1;Blades;Modules",28,-17.,11.,2,1.,3.);
+      HitEfficiency_Dm2 = iBooker.book2D("HitEfficiency_Dm2","Hit Efficiency in Endcap_Disk_m2;Blades;Modules",28,-17.,11.,2,1.,3.);
+      HitEfficiency_Dm3 = iBooker.book2D("HitEfficiency_Dm3","Hit Efficiency in Endcap_Disk_m3;Blades;Modules",28,-17.,11.,2,1.,3.);
     }
   }//endif(isUpgrade)
 }
 
 //=============================================================================================================
 
-void SiPixelActionExecutor::createEfficiency(DQMStore * bei, bool isUpgrade){
+void SiPixelActionExecutor::createEfficiency(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, bool isUpgrade){
   //std::cout<<"entering SiPixelActionExecutor::createEfficiency..."<<std::endl;
-  bei->cd();
-  fillEfficiency(bei, true, isUpgrade); // Barrel
-  bei->cd();
-  fillEfficiency(bei, false, isUpgrade); // Endcap
-  bei->cd();
+  iGetter.cd();
+  iBooker.cd();
+  fillEfficiency(iBooker, iGetter, true, isUpgrade); // Barrel
+  iGetter.cd();
+  iBooker.cd();
+  fillEfficiency(iBooker, iGetter, false, isUpgrade); // Endcap
+  iGetter.cd();
+  iBooker.cd();
   //std::cout<<"leaving SiPixelActionExecutor::createEfficiency..."<<std::endl;
 }
 
 //=============================================================================================================
 
-void SiPixelActionExecutor::fillEfficiency(DQMStore* bei, bool isbarrel, bool isUpgrade){
+void SiPixelActionExecutor::fillEfficiency(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, bool isbarrel, bool isUpgrade){
   //cout<<"entering SiPixelActionExecutor::fillEfficiency..."<<std::endl;
-  string currDir = bei->pwd();
+  string currDir = iBooker.pwd();
   string dname = currDir.substr(currDir.find_last_of("/")+1);
   //cout<<"currDir= "<<currDir<< " , dname= "<<dname<<std::endl;
   
   if(Tier0Flag_){ // Offline	
     if(isbarrel && dname.find("Ladder_")!=string::npos){ 
       if (!isUpgrade) {
-      vector<string> meVec = bei->getMEs();
+      vector<string> meVec = iGetter.getMEs();
       for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
         string full_path = currDir + "/" + (*it);
 
 	if(full_path.find("missingMod_")!=string::npos){ // If we have missing hits ME
 	  
 	  //Get the MEs that contain missing and valid hits
-	  MonitorElement * missing = bei->get(full_path);
+	  MonitorElement * missing = iGetter.get(full_path);
 	  if (!missing) continue;
 	  string new_path = full_path.replace(full_path.find("missing"),7,"valid");
-	  MonitorElement * valid = bei->get(new_path);
+	  MonitorElement * valid = iGetter.get(new_path);
 	  if (!valid) continue;
 	  //int binx = 0; 
 	  int biny = 0;
@@ -1714,15 +1754,15 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore* bei, bool isbarrel, bool is
 	    validHits=valid->getBinContent(i);
 	    if(validHits + missingHits > 0.) hitEfficiency = validHits / (validHits + missingHits);
 	    if(currDir.find("Layer_1")!=string::npos){
-	      HitEfficiency_L1 = bei->get("Pixel/Barrel/HitEfficiency_L1");
+	      HitEfficiency_L1 = iGetter.get("Pixel/Barrel/HitEfficiency_L1");
 	      if(HitEfficiency_L1) HitEfficiency_L1->setBinContent(i, biny,(float)hitEfficiency);
 	    }
 	    else if(currDir.find("Layer_2")!=string::npos){
-	      HitEfficiency_L2 = bei->get("Pixel/Barrel/HitEfficiency_L2");
+	      HitEfficiency_L2 = iGetter.get("Pixel/Barrel/HitEfficiency_L2");
 	      if(HitEfficiency_L2) HitEfficiency_L2->setBinContent(i, biny,(float)hitEfficiency);
 	    }
 	    else if(currDir.find("Layer_3")!=string::npos){
-	      HitEfficiency_L3 = bei->get("Pixel/Barrel/HitEfficiency_L3");
+	      HitEfficiency_L3 = iGetter.get("Pixel/Barrel/HitEfficiency_L3");
 	      if(HitEfficiency_L3) HitEfficiency_L3->setBinContent(i, biny,(float)hitEfficiency);
 	    }     
 	    
@@ -1732,15 +1772,15 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore* bei, bool isbarrel, bool is
       }
       }//endifNOTUpgradeInBPix
       else if (isUpgrade) {
-        vector<string> meVec = bei->getMEs();
+        vector<string> meVec = iGetter.getMEs();
         for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
           string full_path = currDir + "/" + (*it);
           if(full_path.find("missing_")!=string::npos){ // If we have missing hits ME
-	    MonitorElement * me = bei->get(full_path);
+	    MonitorElement * me = iGetter.get(full_path);
 	    if (!me) continue;
 	    float missingHits = me->getEntries();
 	    string new_path = full_path.replace(full_path.find("missing"),7,"valid");
-	    me = bei->get(new_path);
+	    me = iGetter.get(new_path);
 	    if (!me) continue;
 	    float validHits = me->getEntries();
 	    float hitEfficiency = -1.;
@@ -1771,31 +1811,31 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore* bei, bool isbarrel, bool is
 	      else if(currDir.find("Layer_4")!=string::npos){ biny = biny + 32;}
 	    }
 	    if(currDir.find("Layer_1")!=string::npos){
-	      HitEfficiency_L1 = bei->get("Pixel/Barrel/HitEfficiency_L1");
+	      HitEfficiency_L1 = iGetter.get("Pixel/Barrel/HitEfficiency_L1");
 	      if(HitEfficiency_L1) HitEfficiency_L1->setBinContent(binx, biny,(float)hitEfficiency);
 	    }else if(currDir.find("Layer_2")!=string::npos){
-	      HitEfficiency_L2 = bei->get("Pixel/Barrel/HitEfficiency_L2");
+	      HitEfficiency_L2 = iGetter.get("Pixel/Barrel/HitEfficiency_L2");
 	      if(HitEfficiency_L2) HitEfficiency_L2->setBinContent(binx, biny,(float)hitEfficiency);
 	    }else if(currDir.find("Layer_3")!=string::npos){
-	      HitEfficiency_L3 = bei->get("Pixel/Barrel/HitEfficiency_L3");
+	      HitEfficiency_L3 = iGetter.get("Pixel/Barrel/HitEfficiency_L3");
 	      if(HitEfficiency_L3) HitEfficiency_L3->setBinContent(binx, biny,(float)hitEfficiency);
 	    }else if(currDir.find("Layer_4")!=string::npos){
-	      HitEfficiency_L4 = bei->get("Pixel/Barrel/HitEfficiency_L4");
+	      HitEfficiency_L4 = iGetter.get("Pixel/Barrel/HitEfficiency_L4");
 	      if(HitEfficiency_L4) HitEfficiency_L4->setBinContent(binx, biny,(float)hitEfficiency);
 	    }
           }
         }
       }//endifUpgradeInBPix
     }else if(!isbarrel && dname.find("Blade_")!=string::npos && !isUpgrade){ 
-      vector<string> meVec = bei->getMEs();
+      vector<string> meVec = iGetter.getMEs();
       for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
         string full_path = currDir + "/" + (*it);
         if(full_path.find("missing_")!=string::npos){ // If we have missing hits ME
-	  MonitorElement * me = bei->get(full_path);
+	  MonitorElement * me = iGetter.get(full_path);
 	  if (!me) continue;
 	  float missingHits = me->getEntries();
 	  string new_path = full_path.replace(full_path.find("missing"),7,"valid");
-	  me = bei->get(new_path);
+	  me = iGetter.get(new_path);
 	  if (!me) continue;
 	  float validHits = me->getEntries();
 	  float hitEfficiency = -1.;
@@ -1823,30 +1863,30 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore* bei, bool isbarrel, bool is
 	    else if(binx==12) binx = 1;
 	  }
 	  if(currDir.find("Disk_1")!=string::npos && currDir.find("HalfCylinder_m")!=string::npos){
-	    HitEfficiency_Dm1 = bei->get("Pixel/Endcap/HitEfficiency_Dm1");
+	    HitEfficiency_Dm1 = iGetter.get("Pixel/Endcap/HitEfficiency_Dm1");
 	    if(HitEfficiency_Dm1) HitEfficiency_Dm1->setBinContent(binx, biny, (float)hitEfficiency);
 	  }else if(currDir.find("Disk_2")!=string::npos && currDir.find("HalfCylinder_m")!=string::npos){
-	    HitEfficiency_Dm2 = bei->get("Pixel/Endcap/HitEfficiency_Dm2");
+	    HitEfficiency_Dm2 = iGetter.get("Pixel/Endcap/HitEfficiency_Dm2");
 	    if(HitEfficiency_Dm2) HitEfficiency_Dm2->setBinContent(binx, biny, (float)hitEfficiency);
 	  }else if(currDir.find("Disk_1")!=string::npos && currDir.find("HalfCylinder_p")!=string::npos){
-	    HitEfficiency_Dp1 = bei->get("Pixel/Endcap/HitEfficiency_Dp1");
+	    HitEfficiency_Dp1 = iGetter.get("Pixel/Endcap/HitEfficiency_Dp1");
 	    if(HitEfficiency_Dp1) HitEfficiency_Dp1->setBinContent(binx, biny, (float)hitEfficiency);
 	  }else if(currDir.find("Disk_2")!=string::npos && currDir.find("HalfCylinder_p")!=string::npos){
-	    HitEfficiency_Dp2 = bei->get("Pixel/Endcap/HitEfficiency_Dp2");
+	    HitEfficiency_Dp2 = iGetter.get("Pixel/Endcap/HitEfficiency_Dp2");
 	    if(HitEfficiency_Dp2) HitEfficiency_Dp2->setBinContent(binx, biny, (float)hitEfficiency);
           }
 	}
       } 
     }else if(!isbarrel && dname.find("Blade_")!=string::npos && isUpgrade){ 
-      vector<string> meVec = bei->getMEs();
+      vector<string> meVec = iGetter.getMEs();
       for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
         string full_path = currDir + "/" + (*it);
         if(full_path.find("missing_")!=string::npos){ // If we have missing hits ME
-	  MonitorElement * me = bei->get(full_path);
+	  MonitorElement * me = iGetter.get(full_path);
 	  if (!me) continue;
 	  float missingHits = me->getEntries();
 	  string new_path = full_path.replace(full_path.find("missing"),7,"valid");
-	  me = bei->get(new_path);
+	  me = iGetter.get(new_path);
 	  if (!me) continue;
 	  float validHits = me->getEntries();
 	  float hitEfficiency = -1.;
@@ -1882,47 +1922,49 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore* bei, bool isbarrel, bool is
 	    else if(binx==17) binx = 1;
 	  }
 	  if(currDir.find("Disk_1")!=string::npos && currDir.find("HalfCylinder_m")!=string::npos){
-	    HitEfficiency_Dm1 = bei->get("Pixel/Endcap/HitEfficiency_Dm1");
+	    HitEfficiency_Dm1 = iGetter.get("Pixel/Endcap/HitEfficiency_Dm1");
 	    if(HitEfficiency_Dm1) HitEfficiency_Dm1->setBinContent(binx, biny, (float)hitEfficiency);
 	  }else if(currDir.find("Disk_2")!=string::npos && currDir.find("HalfCylinder_m")!=string::npos){
-	    HitEfficiency_Dm2 = bei->get("Pixel/Endcap/HitEfficiency_Dm2");
+	    HitEfficiency_Dm2 = iGetter.get("Pixel/Endcap/HitEfficiency_Dm2");
 	    if(HitEfficiency_Dm2) HitEfficiency_Dm2->setBinContent(binx, biny, (float)hitEfficiency);
 	  }else if(currDir.find("Disk_3")!=string::npos && currDir.find("HalfCylinder_m")!=string::npos){
-	    HitEfficiency_Dm3 = bei->get("Pixel/Endcap/HitEfficiency_Dm3");
+	    HitEfficiency_Dm3 = iGetter.get("Pixel/Endcap/HitEfficiency_Dm3");
 	    if(HitEfficiency_Dm3) HitEfficiency_Dm3->setBinContent(binx, biny, (float)hitEfficiency);
 	  }else if(currDir.find("Disk_1")!=string::npos && currDir.find("HalfCylinder_p")!=string::npos){
-	    HitEfficiency_Dp1 = bei->get("Pixel/Endcap/HitEfficiency_Dp1");
+	    HitEfficiency_Dp1 = iGetter.get("Pixel/Endcap/HitEfficiency_Dp1");
 	    if(HitEfficiency_Dp1) HitEfficiency_Dp1->setBinContent(binx, biny, (float)hitEfficiency);
 	  }else if(currDir.find("Disk_2")!=string::npos && currDir.find("HalfCylinder_p")!=string::npos){
-	    HitEfficiency_Dp2 = bei->get("Pixel/Endcap/HitEfficiency_Dp2");
+	    HitEfficiency_Dp2 = iGetter.get("Pixel/Endcap/HitEfficiency_Dp2");
 	    if(HitEfficiency_Dp2) HitEfficiency_Dp2->setBinContent(binx, biny, (float)hitEfficiency);
           }else if(currDir.find("Disk_3")!=string::npos && currDir.find("HalfCylinder_p")!=string::npos){
-	    HitEfficiency_Dp3 = bei->get("Pixel/Endcap/HitEfficiency_Dp3");
+	    HitEfficiency_Dp3 = iGetter.get("Pixel/Endcap/HitEfficiency_Dp3");
 	    if(HitEfficiency_Dp3) HitEfficiency_Dp3->setBinContent(binx, biny, (float)hitEfficiency);
           }
 	  //std::cout<<"EFFI: "<<currDir<<" , x: "<<binx<<" , y: "<<biny<<std::endl;
 	}
       } 
     }else{  
-      vector<string> subdirs = bei->getSubdirs();
+      vector<string> subdirs = iGetter.getSubdirs();
       for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
-        bei->cd(*it);
+        iBooker.cd(*it);
+	iGetter.cd(*it);
         if(*it != "Pixel" && ((isbarrel && (*it).find("Barrel")==string::npos) || (!isbarrel && (*it).find("Endcap")==string::npos))) continue;
-        fillEfficiency(bei, isbarrel, isUpgrade);
-        bei->goUp();
+        fillEfficiency(iBooker, iGetter, isbarrel, isUpgrade);
+        iBooker.goUp();
+	iGetter.setCurrentFolder(iBooker.pwd());
       }
     }
   }else{ // Online
     if(dname.find("Module_")!=string::npos){ 
-      vector<string> meVec = bei->getMEs();
+      vector<string> meVec = iGetter.getMEs();
       for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
         string full_path = currDir + "/" + (*it);
         if(full_path.find("missing_")!=string::npos){ // If we have missing hits ME
-	  MonitorElement * me = bei->get(full_path);
+	  MonitorElement * me = iGetter.get(full_path);
 	  if (!me) continue;
 	  float missingHits = me->getEntries();
 	  string new_path = full_path.replace(full_path.find("missing"),7,"valid");
-	  me = bei->get(new_path);
+	  me = iGetter.get(new_path);
 	  if (!me) continue;
 	  float validHits = me->getEntries();
 	  float hitEfficiency = -1.;
@@ -2008,46 +2050,48 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore* bei, bool isbarrel, bool is
 	  }
 	  
 	  if(currDir.find("Layer_1")!=string::npos){
-	    HitEfficiency_L1 = bei->get("Pixel/Barrel/HitEfficiency_L1");
+	    HitEfficiency_L1 = iGetter.get("Pixel/Barrel/HitEfficiency_L1");
 	    if(HitEfficiency_L1) HitEfficiency_L1->setBinContent(binx, biny,(float)hitEfficiency);
 	  }else if(currDir.find("Layer_2")!=string::npos){
-	    HitEfficiency_L2 = bei->get("Pixel/Barrel/HitEfficiency_L2");
+	    HitEfficiency_L2 = iGetter.get("Pixel/Barrel/HitEfficiency_L2");
 	    if(HitEfficiency_L2) HitEfficiency_L2->setBinContent(binx, biny,(float)hitEfficiency);
 	  }else if(currDir.find("Layer_3")!=string::npos){
-	    HitEfficiency_L3 = bei->get("Pixel/Barrel/HitEfficiency_L3");
+	    HitEfficiency_L3 = iGetter.get("Pixel/Barrel/HitEfficiency_L3");
 	    if(HitEfficiency_L3) HitEfficiency_L3->setBinContent(binx, biny,(float)hitEfficiency);
 	  }else if( isUpgrade && (currDir.find("Layer_4")!=string::npos) ){
-	    HitEfficiency_L4 = bei->get("Pixel/Barrel/HitEfficiency_L4");
+	    HitEfficiency_L4 = iGetter.get("Pixel/Barrel/HitEfficiency_L4");
 	    if(HitEfficiency_L4) HitEfficiency_L4->setBinContent(binx, biny,(float)hitEfficiency);
 	  }else if(currDir.find("Disk_1")!=string::npos && currDir.find("HalfCylinder_m")!=string::npos){
-	    HitEfficiency_Dm1 = bei->get("Pixel/Endcap/HitEfficiency_Dm1");
+	    HitEfficiency_Dm1 = iGetter.get("Pixel/Endcap/HitEfficiency_Dm1");
 	    if(HitEfficiency_Dm1) HitEfficiency_Dm1->setBinContent(binx, biny,(float)hitEfficiency);
 	  }else if(currDir.find("Disk_2")!=string::npos && currDir.find("HalfCylinder_m")!=string::npos){
-	    HitEfficiency_Dm2 = bei->get("Pixel/Endcap/HitEfficiency_Dm2");
+	    HitEfficiency_Dm2 = iGetter.get("Pixel/Endcap/HitEfficiency_Dm2");
 	    if(HitEfficiency_Dm2) HitEfficiency_Dm2->setBinContent(binx, biny,(float)hitEfficiency);
 	  }else if(currDir.find("Disk_3")!=string::npos && currDir.find("HalfCylinder_m")!=string::npos){
-	    HitEfficiency_Dm3 = bei->get("Pixel/Endcap/HitEfficiency_Dm3");
+	    HitEfficiency_Dm3 = iGetter.get("Pixel/Endcap/HitEfficiency_Dm3");
 	    if(HitEfficiency_Dm3) HitEfficiency_Dm3->setBinContent(binx, biny,(float)hitEfficiency);
 	  }else if(currDir.find("Disk_1")!=string::npos && currDir.find("HalfCylinder_p")!=string::npos){
-	    HitEfficiency_Dp1 = bei->get("Pixel/Endcap/HitEfficiency_Dp1");
+	    HitEfficiency_Dp1 = iGetter.get("Pixel/Endcap/HitEfficiency_Dp1");
 	    if(HitEfficiency_Dp1) HitEfficiency_Dp1->setBinContent(binx, biny,(float)hitEfficiency);
 	  }else if(currDir.find("Disk_2")!=string::npos && currDir.find("HalfCylinder_p")!=string::npos){
-	    HitEfficiency_Dp2 = bei->get("Pixel/Endcap/HitEfficiency_Dp2");
+	    HitEfficiency_Dp2 = iGetter.get("Pixel/Endcap/HitEfficiency_Dp2");
 	    if(HitEfficiency_Dp2) HitEfficiency_Dp2->setBinContent(binx, biny,(float)hitEfficiency);
 	  }else if(currDir.find("Disk_3")!=string::npos && currDir.find("HalfCylinder_p")!=string::npos){
-	    HitEfficiency_Dp3 = bei->get("Pixel/Endcap/HitEfficiency_Dp3");
+	    HitEfficiency_Dp3 = iGetter.get("Pixel/Endcap/HitEfficiency_Dp3");
 	    if(HitEfficiency_Dp3) HitEfficiency_Dp3->setBinContent(binx, biny,(float)hitEfficiency);
           }
         }
       }
     }else{  
       //cout<<"finding subdirs now"<<std::endl;
-      vector<string> subdirs = bei->getSubdirs();
+      vector<string> subdirs = iGetter.getSubdirs();
       for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
-        bei->cd(*it);
+        iBooker.cd(*it);
+	iGetter.cd(*it);
         if(*it != "Pixel" && ((isbarrel && (*it).find("Barrel")==string::npos) || (!isbarrel && (*it).find("Endcap")==string::npos))) continue;
-        fillEfficiency(bei, isbarrel, isUpgrade);
-        bei->goUp();
+        fillEfficiency(iBooker, iGetter, isbarrel, isUpgrade);
+        iBooker.goUp();
+	iGetter.setCurrentFolder(iBooker.pwd());
       }
     }
   } // end online/offline

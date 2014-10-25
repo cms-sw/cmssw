@@ -55,8 +55,6 @@ SiPixelEDAClient::SiPixelEDAClient(const edm::ParameterSet& ps) {
  
   edm::LogInfo("SiPixelEDAClient") <<  " Creating SiPixelEDAClient " << "\n" ;
   
-  bei_ = Service<DQMStore>().operator->();
-
   summaryFrequency_      = ps.getUntrackedParameter<int>("SummaryCreationFrequency",20);
   tkMapFrequency_        = ps.getUntrackedParameter<int>("TkMapCreationFrequency",50); 
   staticUpdateFrequency_ = ps.getUntrackedParameter<int>("StaticUpdateFrequency",10);
@@ -88,6 +86,8 @@ SiPixelEDAClient::SiPixelEDAClient(const edm::ParameterSet& ps) {
     fin.close();
 
   }
+
+  firstRun = true;
   
    //instantiate the three work horses of the client:
   sipixelInformationExtractor_ = new SiPixelInformationExtractor(offlineXMLfile_);
@@ -122,12 +122,6 @@ SiPixelEDAClient::~SiPixelEDAClient(){
 //  cout<<"...leaving SiPixelEDAClient::~SiPixelEDAClient. "<<endl;
 }
 //
-// -- Begin Job
-//
-void SiPixelEDAClient::beginJob(){
-  firstRun = true;
-}
-//
 // -- Begin Run
 //
 void SiPixelEDAClient::beginRun(Run const& run, edm::EventSetup const& eSetup) {
@@ -147,133 +141,137 @@ void SiPixelEDAClient::beginRun(Run const& run, edm::EventSetup const& eSetup) {
     if(Tier0Flag_) nFEDs_ = 40;
     else nFEDs_ = 0;
     
-    bei_->setCurrentFolder("Pixel/");
-    // Creating Summary Histos:
-    sipixelActionExecutor_->createSummary(bei_, isUpgrade_);
-    // Booking Deviation Histos:
-    if(!Tier0Flag_) sipixelActionExecutor_->bookDeviations(bei_, isUpgrade_);
-    // Booking Efficiency Histos:
-    if(doHitEfficiency_) sipixelActionExecutor_->bookEfficiency(bei_, isUpgrade_);
-    // Creating occupancy plots:
-    sipixelActionExecutor_->bookOccupancyPlots(bei_, hiRes_);
-  // Booking noisy pixel ME's:
-    if(noiseRate_>0.) sipixelInformationExtractor_->bookNoisyPixels(bei_, noiseRate_, Tier0Flag_);
-    // Booking summary report ME's:
-    sipixelDataQuality_->bookGlobalQualityFlag(bei_, Tier0Flag_, nFEDs_);
-    
-    firstRun = false;
   }
 
 //  cout<<"...leaving SiPixelEDAClient::beginRun. "<<endl;
 
 }
 
-//
-// -- Begin  Luminosity Block
-//
-void SiPixelEDAClient::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
-                                            edm::EventSetup const& context) {
-//  cout<<"Entering SiPixelEDAClient::beginLuminosityBlock: "<<endl;
   
+
+
+//
+// -- End Luminosity Block
+//
+void SiPixelEDAClient::dqmEndLuminosityBlock(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {
+  //cout<<"Entering SiPixelEDAClient::endLuminosityBlock: "<<endl;
+
   edm::LogInfo ("SiPixelEDAClient") <<"[SiPixelEDAClient]: Begin of LS transition";
 
+  //Moved from beginLumi
   nEvents_lastLS_=0; nErrorsBarrel_lastLS_=0; nErrorsEndcap_lastLS_=0;
-  MonitorElement * me = bei_->get("Pixel/AdditionalPixelErrors/byLumiErrors");
+  MonitorElement * me = iGetter.get("Pixel/AdditionalPixelErrors/byLumiErrors");
   if(me){
     nEvents_lastLS_ = int(me->getBinContent(0));
     nErrorsBarrel_lastLS_ = int(me->getBinContent(1));
     nErrorsEndcap_lastLS_ = int(me->getBinContent(2));
     me->Reset();
   }
-//  cout<<"...leaving SiPixelEDAClient::beginLuminosityBlock. "<<endl;
-}
-//
-//  -- Analyze 
-//
-void SiPixelEDAClient::analyze(const edm::Event& e, const edm::EventSetup& eSetup){
-//  cout<<"[SiPixelEDAClient::analyze()] "<<endl;
-  nEvents_++;  
-  if(!Tier0Flag_){
-   
-    if(nEvents_==1){
-      // check if any Pixel FED is in readout:
-      edm::Handle<FEDRawDataCollection> rawDataHandle;
-      e.getByToken(inputSourceToken_, rawDataHandle);
-      if(!rawDataHandle.isValid()){
-        edm::LogInfo("SiPixelEDAClient") << inputSource_ << " is empty";
-	return;
-      } 
-      const FEDRawDataCollection& rawDataCollection = *rawDataHandle;
-      nFEDs_ = 0;
-      for(int i = 0; i != 40; i++){
-        if(rawDataCollection.FEDData(i).size() && rawDataCollection.FEDData(i).data()) nFEDs_++;
-      }
-    }
-  }
-}
 
-//
-// -- End Luminosity Block
-//
-void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {
-  //cout<<"Entering SiPixelEDAClient::endLuminosityBlock: "<<endl;
+
+  if (firstRun){
+    iBooker.setCurrentFolder("Pixel/");
+    iGetter.setCurrentFolder("Pixel/");
+    // Creating Summary Histos:
+    sipixelActionExecutor_->createSummary(iBooker,iGetter, isUpgrade_);
+    // Booking Deviation Histos:
+    if(!Tier0Flag_) sipixelActionExecutor_->bookDeviations(iBooker, isUpgrade_);
+    // Booking Efficiency Histos:
+    if(doHitEfficiency_) sipixelActionExecutor_->bookEfficiency(iBooker, isUpgrade_);
+    // Creating occupancy plots:
+    sipixelActionExecutor_->bookOccupancyPlots(iBooker, iGetter, hiRes_);
+  // Booking noisy pixel ME's:
+    if(noiseRate_>0.) sipixelInformationExtractor_->bookNoisyPixels(iBooker, noiseRate_, Tier0Flag_);
+    // Booking summary report ME's:
+    sipixelDataQuality_->bookGlobalQualityFlag(iBooker, Tier0Flag_, nFEDs_);
+
+    /*    nEvents_++;  
+    if(!Tier0Flag_){
+   
+      if(nEvents_==1){
+	// check if any Pixel FED is in readout:
+	edm::Handle<FEDRawDataCollection> rawDataHandle;
+	e.getByToken(inputSourceToken_, rawDataHandle);
+	if(!rawDataHandle.isValid()){
+	  edm::LogInfo("SiPixelEDAClient") << inputSource_ << " is empty";
+	  return;
+	} 
+	const FEDRawDataCollection& rawDataCollection = *rawDataHandle;
+	nFEDs_ = 0;
+	for(int i = 0; i != 40; i++){
+	  if(rawDataCollection.FEDData(i).size() && rawDataCollection.FEDData(i).data()) nFEDs_++;
+	}
+      }
+      }*/
+
+    eSetup.get<SiPixelFedCablingMapRcd>().get(theCablingMap);
+
+    firstRun = false;
+  }
 
   edm::LogInfo ("SiPixelEDAClient") <<"[SiPixelEDAClient]: End of LS transition, performing the DQM client operation";
 
   nLumiSecs_++;
   
   edm::LogInfo("SiPixelEDAClient") << "====================================================== " << endl << " ===> Iteration # " << nLumiSecs_ << " " << lumiSeg.luminosityBlock() << endl  << "====================================================== " << endl;
-  
+
+  bool init=true;  
   if(actionOnLumiSec_ && nLumiSecs_ % 1 == 0 ){
 
-    if(doHitEfficiency_) sipixelActionExecutor_->createEfficiency(bei_, isUpgrade_);
-    sipixelActionExecutor_->createOccupancy(bei_);
-    bei_->cd();
-    bool init=true;
-    sipixelDataQuality_->computeGlobalQualityFlagByLumi(bei_,init,nFEDs_,Tier0Flag_,nEvents_lastLS_,nErrorsBarrel_lastLS_,nErrorsEndcap_lastLS_);
+    if(doHitEfficiency_) sipixelActionExecutor_->createEfficiency(iBooker, iGetter, isUpgrade_);
+    sipixelActionExecutor_->createOccupancy(iBooker,iGetter);
+    iBooker.cd();
+    iGetter.cd();
+
+    sipixelDataQuality_->computeGlobalQualityFlagByLumi(iGetter,init,nFEDs_,Tier0Flag_,nEvents_lastLS_,nErrorsBarrel_lastLS_,nErrorsEndcap_lastLS_);
     init=true;
-    bei_->cd();
-    sipixelDataQuality_->fillGlobalQualityPlot(bei_,init,eSetup,nFEDs_,Tier0Flag_,nLumiSecs_);
+    iBooker.cd();
+    iGetter.cd();
+    sipixelDataQuality_->fillGlobalQualityPlot(iBooker,iGetter,init,theCablingMap,nFEDs_,Tier0Flag_,nLumiSecs_);
     init=true;
-    if(noiseRate_>=0.) sipixelInformationExtractor_->findNoisyPixels(bei_, init, noiseRate_, noiseRateDenominator_, eSetup);
+    if(noiseRate_>=0.) sipixelInformationExtractor_->findNoisyPixels(iBooker, iGetter, init, noiseRate_, noiseRateDenominator_, theCablingMap);
   }   
+
+  if (actionOnRunEnd_){
+    
+  }
+
+  init = true;
+  
+
+  init =true;
+
          
   //cout<<"...leaving SiPixelEDAClient::endLuminosityBlock. "<<endl;
 }
 //
-// -- End Run
-//
-void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
-  //cout<<"Entering SiPixelEDAClient::endRun: "<<endl;
-  
-  if(actionOnRunEnd_){
-
-    sipixelActionExecutor_->createSummary(bei_, isUpgrade_);
-
-    if(doHitEfficiency_) sipixelActionExecutor_->createEfficiency(bei_, isUpgrade_);
-
-    sipixelActionExecutor_->createOccupancy(bei_);
-
-    bei_->cd();
-    bool init=true;
-    sipixelDataQuality_->computeGlobalQualityFlag(bei_,init,nFEDs_,Tier0Flag_);
-    init=true;
-    bei_->cd();
-
-    sipixelDataQuality_->fillGlobalQualityPlot(bei_,init,eSetup,nFEDs_,Tier0Flag_,nLumiSecs_);
-
-    init=true;
-    if(noiseRate_>=0.) sipixelInformationExtractor_->findNoisyPixels(bei_, init, noiseRate_, noiseRateDenominator_, eSetup);
-  }
-  
-//  cout<<"...leaving SiPixelEDAClient::endRun. "<<endl;
-}
-
-//
 // -- End Job
 //
-void SiPixelEDAClient::endJob(){
+void SiPixelEDAClient::dqmEndJob(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter){
 //  cout<<"In SiPixelEDAClient::endJob "<<endl;
   edm::LogInfo("SiPixelEDAClient") <<"[SiPixelEDAClient]: endjob called!";
+
+  if(actionOnRunEnd_){
+
+    sipixelActionExecutor_->createSummary(iBooker, iGetter, isUpgrade_);
+
+    if(doHitEfficiency_) sipixelActionExecutor_->createEfficiency(iBooker,iGetter, isUpgrade_);
+
+    sipixelActionExecutor_->createOccupancy(iBooker,iGetter);
+
+    iBooker.cd();
+    iGetter.cd();
+    bool init=true;
+    sipixelDataQuality_->computeGlobalQualityFlag(iBooker,iGetter,init,nFEDs_,Tier0Flag_);
+    init=true;
+    iBooker.cd();
+    iGetter.cd();
+
+    sipixelDataQuality_->fillGlobalQualityPlot(iBooker,iGetter,init,theCablingMap,nFEDs_,Tier0Flag_,nLumiSecs_);
+    init=true;
+    if(noiseRate_>=0.) sipixelInformationExtractor_->findNoisyPixels(iBooker,iGetter, init, noiseRate_, noiseRateDenominator_, theCablingMap);
+  }
+  
+
 
 }

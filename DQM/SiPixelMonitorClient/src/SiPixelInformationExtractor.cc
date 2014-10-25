@@ -111,230 +111,6 @@ std::string  SiPixelInformationExtractor::getMEType(MonitorElement * theMe)
  *
  *  This method 
  */
-void SiPixelInformationExtractor::fillModuleAndHistoList(DQMStore * bei, 
-                                                         vector<string>        & modules,
-							 map<string,string>    & histos) {
-  string currDir = bei->pwd();
-  if(currDir.find("Module_") != string::npos){
-    if(histos.size() == 0){
-      vector<string> contents = bei->getMEs();
-      for (vector<string>::const_iterator it = contents.begin(); it != contents.end(); it++) {
-	string hname          = (*it).substr(0, (*it).find("_siPixel"));
-	if(hname==" ") hname = (*it).substr(0, (*it).find("_generalTracks"));
-        string fullpathname   = bei->pwd() + "/" + (*it); 
-        MonitorElement * me   = bei->get(fullpathname);
-        string htype          = "undefined" ;
-        if(me) htype = me->getRootObject()->IsA()->GetName() ;
-        histos[hname] = htype ;
-        string mId=" ";
-	if(hname.find("ndigis") 	       !=string::npos) mId = (*it).substr((*it).find("ndigis_siPixelDigis_")+20, 9);
-	if(mId==" " && hname.find("nclusters") !=string::npos) mId = (*it).substr((*it).find("nclusters_siPixelClusters_")+26, 9);
-        if(mId==" " && hname.find("residualX") !=string::npos) mId = (*it).substr((*it).find("residualX_ctfWithMaterialTracks_")+32, 9);
-        if(mId==" " && hname.find("NErrors") !=string::npos) mId = (*it).substr((*it).find("NErrors_siPixelDigis_")+21, 9);
-        if(mId==" " && hname.find("ClustX") !=string::npos) mId = (*it).substr((*it).find("ClustX_siPixelRecHit_")+21, 9);
-        if(mId==" " && hname.find("pixelAlive") !=string::npos) mId = (*it).substr((*it).find("pixelAlive_siPixelCalibDigis_")+29, 9);
-        if(mId==" " && hname.find("Gain1d") !=string::npos) mId = (*it).substr((*it).find("Gain1d_siPixelCalibDigis_")+25, 9);
-        if(mId!=" ") modules.push_back(mId);
-      }    
-    }
-  } else {  
-    vector<string> subdirs = bei->getSubdirs();
-    for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
-      if((bei->pwd()).find("Barrel")==string::npos && (bei->pwd()).find("Endcap")==string::npos) bei->goUp();
-      bei->cd(*it);
-      fillModuleAndHistoList(bei, modules, histos);
-      bei->goUp();
-    }
-  }
-}
-
-//------------------------------------------------------------------------------
-/*! \brief (Documentation under construction).
- *
- *  This method 
- */
-void SiPixelInformationExtractor::printModuleHistoList(DQMStore * bei, 
-                                                       ostringstream& str_val){
-  string currDir = bei->pwd();
-  string dname = currDir.substr(currDir.find_last_of("/")+1);
-  str_val << " <li>\n"
-	  << "  <a href=\"#\" id=\"" << currDir << "\">\n   " 
-	  <<     dname << "\n"
-	  << "  </a>\n"
-	  << endl << endl;
-
-  vector<string> meVec     = bei->getMEs(); 
-  
-  vector<string> subDirVec = bei->getSubdirs();
-  if ( meVec.size()== 0  && subDirVec.size() == 0 ) {
-    str_val << " </li>" << endl;    
-    return;
-  }
-  str_val << "\n   <ul>" << endl; 
-  for (vector<string>::const_iterator it  = meVec.begin();
-                                      it != meVec.end(); it++) {
-    if ((*it).find("_siPixel")!=string::npos || 
-        (*it).find("_ctfWithMaterialTracks")!=string::npos) {
-      string qit = (*it) ;
-      string temp_s;
-      if(qit.find("siPixel")!=string::npos || qit.find("ctfWithMaterialTracks")!=string::npos) { temp_s = qit.substr(0,qit.find_first_of("_")); }
-      str_val << "    <li class=\"dhtmlgoodies_sheet.gif\">\n"
-	      << "     <input id      = \"selectedME\""
-	      << "            folder  = \"" << currDir << "\""
-	      << "            type    = \"checkbox\""
-	      << "            name    = \"selected\""
-	      << "            class   = \"smallCheckBox\""
-	      << "            value   = \"" << (*it) << "\""
-	      << "            onclick = \"javascript:IMGC.selectedIMGCItems()\" />\n"
-	      << "     <a href=\"javascript:IMGC.plotFromPath('" << currDir << "')\">\n       " 
-	      <<        (*it) << "\n"
-	      << "     </a>\n"
-	      << "    </li>" 
-	      << endl;
-    }
-  }
-  for (vector<string>::const_iterator ic  = subDirVec.begin();
-                                      ic != subDirVec.end(); ic++) {
-    bei->cd(*ic);
-    printModuleHistoList(bei, str_val);
-    bei->goUp();
-  }
-  str_val << "   </ul>" << endl;  
-  str_val << "  </li>"  << endl;  
-}
-
-//------------------------------------------------------------------------------
-/*! \brief (Documentation under construction).
- *
- *  Returns a stringstream containing an HTML-formatted list of ME in the current
- *  directory. 
- *  This is a recursive method.
- */
-void SiPixelInformationExtractor::printSummaryHistoList(DQMStore * bei, 
-                                                        ostringstream& str_val){
-  string currDir = bei->pwd();
-  string dname = currDir.substr(currDir.find_last_of("/")+1);
-  if (dname.find("Module_") ==0 || dname.find("FED_")==0) return;
-  str_val << " <li>\n"
-          << "  <a href=\"#\" id=\"" << currDir << "\">\n   " 
-	  <<     dname 
-	  << "  </a>" 
-	  << endl;
-
-  vector<string> meVec     = bei->getMEs(); 
-  
-  vector<string> subDirVec = bei->getSubdirs();
-  if ( meVec.size()== 0  && subDirVec.size() == 0 ) {
-    str_val << " </li> "<< endl;    
-    return;
-  }
-  str_val << "\n   <ul>" << endl;      
-  for (vector<string>::const_iterator it = meVec.begin();
-       it != meVec.end(); it++) {
-    if ((*it).find("SUM") == 0) {
-      str_val << "    <li class=\"dhtmlgoodies_sheet.gif\">\n"
-	      << "     <input id      = \"selectedME\""
-	      << "            folder  = \"" << currDir << "\""
-	      << "            type    = \"checkbox\""
-	      << "            name    = \"selected\""
-	      << "            class   = \"smallCheckBox\""
-	      << "            value   = \"" << (*it) << "\""
-	      << "            onclick = \"javascript:IMGC.selectedIMGCItems()\" />\n"
-              << "     <a href=\"javascript:IMGC.plotFromPath('" << currDir << "')\">\n       " 
-	      <<       (*it) << "\n"
-	      << "     </a>\n"
-	      << "    </li>" 
-	      << endl;
-    }
-  }
-
-  for (vector<string>::const_iterator ic = subDirVec.begin();
-       ic != subDirVec.end(); ic++) {
-    bei->cd(*ic);
-    printSummaryHistoList(bei, str_val);
-    bei->goUp();
-  }
-  str_val << "   </ul> "<< endl;  
-  str_val << "  </li> "<< endl;  
-}
-
-//------------------------------------------------------------------------------
-/*! \brief (Documentation under construction).
- *  
- *  Returns a stringstream containing an HTML-formatted list of alarms for the current
- *  directory. 
- *  This is a recursive method.
- */
-void SiPixelInformationExtractor::printAlarmList(DQMStore * bei, 
-                                                 ostringstream& str_val){
-  string currDir = bei->pwd();
-  string dname = currDir.substr(currDir.find_last_of("/")+1);
-  string image_name;
-  selectImage(image_name,bei->getStatus(currDir));
-  if(image_name!="images/LI_green.gif")
-    str_val << " <li>\n"
-            << "  <a href=\"#\" id=\"" << currDir << "\">\n   " 
-	    <<     dname 
-	    << "  </a>\n"
-	    << "  <img src=\"" 
-            <<     image_name 
-	    << "\">" << endl;
-  vector<string> subDirVec = bei->getSubdirs();
-
-  vector<string> meVec = bei->getMEs();
-   
-  if (subDirVec.size() == 0 && meVec.size() == 0) {
-    str_val <<  "</li> "<< endl;    
-    return;
-  }
-  str_val << "<ul>" << endl;
-  for (vector<string>::const_iterator it = meVec.begin();
-	   it != meVec.end(); it++) {
-    string full_path = currDir + "/" + (*it);
-
-    MonitorElement * me = bei->get(full_path);
-    
-    if (!me) continue;
-    std::vector<QReport *> my_map = me->getQReports();
-    if (my_map.size() > 0) {
-      string image_name1;
-      selectImage(image_name1,my_map);
-      if(image_name1!="images/LI_green.gif") {
-        alarmCounter_++;
-        str_val << "	<li class=\"dhtmlgoodies_sheet.gif\">\n"
-        	<< "	 <input id	= \"selectedME\""
-        	<< "		folder  = \"" << currDir << "\""
-        	<< "		type	= \"checkbox\""
-        	<< "		name	= \"selected\""
-        	<< "		class	= \"smallCheckBox\""
-        	<< "		value	= \"" << (*it) << "\""
-        	<< "		onclick = \"javascript:IMGC.selectedIMGCItems()\" />\n"
-        	<< "	 <a href=\"javascript:IMGC.plotFromPath('" << currDir << "')\">\n       " 
-        	<<	  (*it) << "\n"
-        	<< "	 </a>\n"
-		<< "     <img src=\""
-		<<        image_name1 
-		<< "\">"
-        	<< "	</li>" 
-        	<< endl;
-	}	
-    }
-  }
-  for (vector<string>::const_iterator ic = subDirVec.begin();
-       ic != subDirVec.end(); ic++) {
-    bei->cd(*ic);
-    printAlarmList(bei, str_val);
-    bei->goUp();
-  }
-  str_val << "</ul> "<< endl;  
-  str_val << "</li> "<< endl;  
-}
-
-//------------------------------------------------------------------------------
-/*! \brief (Documentation under construction).
- *
- *  This method 
- */
 void SiPixelInformationExtractor::getItemList(const multimap<string, string>& req_map, 
                                               string item_name,
 					      vector<string>& items) {
@@ -428,21 +204,6 @@ void SiPixelInformationExtractor::selectImage(string& name, vector<QReport*>& re
     if (status > istat) istat = status;
   }
   selectImage(name, status);
-}
-
-//------------------------------------------------------------------------------
-/*! \brief (Documentation under construction).
- *
- *  This method 
- */
-bool SiPixelInformationExtractor::goToDir(DQMStore* bei, 
-                                          string& sname){ 
-  bei->cd();
-  //if(flg) bei->cd("Collector/Collated");
-  bei->cd(sname);
-  string dirName = bei->pwd();
-  if (dirName.find(sname) != string::npos) return true;
-  else return false;  
 }
 
 //------------------------------------------------------------------------------
@@ -545,52 +306,6 @@ void SiPixelInformationExtractor::getNormalization2D(MonitorElement     * theME,
 
 //------------------------------------------------------------------------------
 /*! \brief (Documentation under construction).
- *
- *   
- */
-void SiPixelInformationExtractor::selectMEList(DQMStore   * bei,  
-					       string	               & theMEName,
-					       vector<MonitorElement*> & mes) 
-{  
-//  cout<<"In SiPixelInformationExtractor::selectMEList: "<<endl;
-  string currDir = bei->pwd();
-   
-  string theME ;
-   
-  // Get ME from Collector/FU0/Tracker/PixelEndcap/HalfCylinder_pX/Disk_X/Blade_XX/Panel_XX/Module_XX
-  if (currDir.find("Module_") != string::npos ||
-      currDir.find("FED_") != string::npos)  
-  {
-    vector<string> contents = bei->getMEs(); 
-       
-    for (vector<string>::const_iterator it = contents.begin(); it != contents.end(); it++) 
-    {
-      theME = (*it) ;
-      if(theME.find("siPixel")==string::npos && theME.find("ctfWithMaterialTracks")==string::npos) {continue ;} // If the ME is not a siPixel or ctfWithMaterialTrack one, skip
-      string temp_s = theME.substr(0,theME.find_first_of("_"));
-      if (temp_s == theMEName)  
-      {
-        string full_path = currDir + "/" + (*it);
-
-        MonitorElement * me = bei->get(full_path.c_str());
-	
-        if (me) {mes.push_back(me);}
-      }
-    }
-    return;
-  } else {  // If not yet reached the desired level in the directory tree, recursively go down one level more
-    vector<string> subdirs = bei->getSubdirs();
-    for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) 
-    {
-      bei->cd(*it);
-      selectMEList(bei, theMEName, mes);
-      bei->goUp();
-    }
-  }
-}
-
-//------------------------------------------------------------------------------
-/*! \brief (Documentation under construction).
  *  
  *  Given a pointer to ME returns the associated detId 
  */
@@ -611,66 +326,19 @@ int SiPixelInformationExtractor::getDetId(MonitorElement * mE)
   
 }
 
-//------------------------------------------------------------------------------
-/*! \brief (Documentation under construction).
- *  
- */
-void SiPixelInformationExtractor::getMEList(DQMStore    * bei,  
-					    map<string, int>         & mEHash)
-{
-  string currDir = bei->pwd();
-   
-  string theME ;
-   
-  // Get ME from Collector/FU0/Tracker/PixelEndcap/HalfCylinder_pX/Disk_X/Blade_XX/Panel_XX/Module_XX
-  if (currDir.find("Module_") != string::npos ||
-      currDir.find("FED_") != string::npos)  
-  {
-    vector<string> contents = bei->getMEs(); 
-       
-    for (vector<string>::const_iterator it = contents.begin(); it != contents.end(); it++) 
-    {
-      theME = (*it) ;
-      if(theME.find("siPixel")==string::npos && theME.find("ctfWithMaterialTracks")==string::npos) 
-      {
-       cout << ACRed << ACBold
-            << "[SiPixelInformationExtractor::getMEList()]"
-	    << ACPlain
-	    << " ----> Skipping " 
-	    << (*it)
-	    << endl ;
-       continue ;
-      } // If the ME is not a Pixel one, skip
-      string full_path = currDir + "/" + (*it);
-      string mEName = theME.substr(0,theME.find_first_of("_"));
-      mEHash[mEName]++ ;
-    }
-    
-    return;
-  } else {  // If not yet reached the desired level in the directory tree, recursively go down one level more
-    vector<string> subdirs = bei->getSubdirs();
-    for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) 
-    {
-      bei->cd(*it);
-      getMEList(bei, mEHash);
-      bei->goUp();
-    }
-  }
-}
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void SiPixelInformationExtractor::bookNoisyPixels(DQMStore * bei, float noiseRate_,bool Tier0Flag) {
+void SiPixelInformationExtractor::bookNoisyPixels(DQMStore::IBooker & iBooker, float noiseRate_,bool Tier0Flag) {
 //std::cout<<"BOOK NOISY PIXEL MEs!"<<std::endl;
-  bei->cd();
+  iBooker.cd();
   if(noiseRate_>=0.){
-    bei->setCurrentFolder("Pixel/Barrel");
-    EventRateBarrelPixels = bei->book1D("barrelEventRate","Digi event rate for all Barrel pixels",1000,0.,0.01);
+    iBooker.setCurrentFolder("Pixel/Barrel");
+    EventRateBarrelPixels = iBooker.book1D("barrelEventRate","Digi event rate for all Barrel pixels",1000,0.,0.01);
     EventRateBarrelPixels->setAxisTitle("Event Rate",1);
     EventRateBarrelPixels->setAxisTitle("Number of Pixels",2);
-    bei->cd();  
-    bei->setCurrentFolder("Pixel/Endcap");
-    EventRateEndcapPixels = bei->book1D("endcapEventRate","Digi event rate for all Endcap pixels",1000,0.,0.01);
+    iBooker.cd();  
+    iBooker.setCurrentFolder("Pixel/Endcap");
+    EventRateEndcapPixels = iBooker.book1D("endcapEventRate","Digi event rate for all Endcap pixels",1000,0.,0.01);
     EventRateEndcapPixels->setAxisTitle("Event Rate",1);
     EventRateEndcapPixels->setAxisTitle("Number of Pixels",2);
   }
@@ -679,7 +347,7 @@ void SiPixelInformationExtractor::bookNoisyPixels(DQMStore * bei, float noiseRat
           
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei, bool init, float noiseRate_, int noiseRateDenominator_, edm::EventSetup const& eSetup)
+void SiPixelInformationExtractor::findNoisyPixels(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, bool init, float noiseRate_, int noiseRateDenominator_, edm::ESHandle<SiPixelFedCablingMap> theCablingMap)
 {
 
   
@@ -687,24 +355,27 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei, bool init, flo
     endOfModules_=false;
     nevents_=noiseRateDenominator_;
     if(nevents_ == -1){
-      bei->cd();
-      bei->setCurrentFolder("Pixel/EventInfo");
-      nevents_ = (bei->get("Pixel/EventInfo/processedEvents"))->getIntValue();
+      iBooker.cd();
+      iGetter.cd();
+      iBooker.setCurrentFolder("Pixel/EventInfo");
+      iGetter.setCurrentFolder("Pixel/EventInfo");
+      nevents_ = (iGetter.get("Pixel/EventInfo/processedEvents"))->getIntValue();
     }
-    bei->cd();  
+    iBooker.cd();
+    iGetter.cd();
     myfile_.open ("NoisyPixelList.txt", ios::app);
     myfile_ << "Noise summary, ran over " << nevents_ << " events, threshold was set to " << noiseRate_ <<  std::endl;
   }
-  string currDir = bei->pwd();
+  string currDir = iBooker.pwd();
   string dname = currDir.substr(currDir.find_last_of("/")+1);
 
 
   if(dname.find("Module_")!=string::npos){
-    vector<string> meVec = bei->getMEs();
+    vector<string> meVec = iGetter.getMEs();
     for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
       string full_path = currDir + "/" + (*it);
       if(full_path.find("hitmap_siPixelDigis")!=string::npos){
-        MonitorElement * me = bei->get(full_path);
+        MonitorElement * me = iGetter.get(full_path);
         if (!me) continue;
 	int detid=getDetId(me); int pixcol=-1; int pixrow=-1; 
 	std::vector<std::pair<std::pair<int, int>, float> > noisyPixelsInModule;
@@ -714,10 +385,10 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei, bool init, flo
 	    for(int j=1; j!=hothisto->GetNbinsY()+1; j++){
 	      float value = (hothisto->GetBinContent(i,j))/float(nevents_);
 	      if(me->getPathname().find("Barrel")!=string::npos){
-        	EventRateBarrelPixels = bei->get("Pixel/Barrel/barrelEventRate");
+        	EventRateBarrelPixels = iGetter.get("Pixel/Barrel/barrelEventRate");
         	if(EventRateBarrelPixels) EventRateBarrelPixels->Fill(value);
 	      }else if(me->getPathname().find("Endcap")!=string::npos){
-        	EventRateEndcapPixels = bei->get("Pixel/Endcap/endcapEventRate");
+        	EventRateEndcapPixels = iGetter.get("Pixel/Endcap/endcapEventRate");
         	if(EventRateEndcapPixels) EventRateEndcapPixels->Fill(value);
 	      }
 	      if(value > noiseRate_){
@@ -735,21 +406,22 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore * bei, bool init, flo
       }
     }
   }
-  vector<string> subDirVec = bei->getSubdirs();  
+  vector<string> subDirVec = iGetter.getSubdirs();  
   for (vector<string>::const_iterator ic = subDirVec.begin();
        ic != subDirVec.end(); ic++) {
     if((*ic).find("AdditionalPixelErrors")!=string::npos) continue;
-    bei->cd(*ic);
+    iGetter.cd(*ic);
+    iBooker.cd(*ic);
     init=false;
-    findNoisyPixels(bei,init,noiseRate_,noiseRateDenominator_,eSetup);
-    bei->goUp();
+    findNoisyPixels(iBooker,iGetter,init,noiseRate_,noiseRateDenominator_,theCablingMap);
+    iBooker.goUp();
+    iGetter.setCurrentFolder(iBooker.pwd());
   }
 
-  if(bei->pwd().find("EventInfo")!=string::npos) endOfModules_ = true;
+  if(iBooker.pwd().find("EventInfo")!=string::npos) endOfModules_ = true;
   
   if(!endOfModules_) return;
   if(currDir == "Pixel/EventInfo/reportSummaryContents"){
-    eSetup.get<SiPixelFedCablingMapRcd>().get(theCablingMap);
     std::vector<std::pair<sipixelobjects::DetectorIndex,double> > pixelvec;
     std::map<uint32_t,int> myfedmap;
     std::map<uint32_t,std::string> mynamemap;

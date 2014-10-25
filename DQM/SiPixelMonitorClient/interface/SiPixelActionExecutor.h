@@ -50,23 +50,29 @@ class SiPixelActionExecutor {
                                     bool                           Tier0Flag);
  ~SiPixelActionExecutor();
 
- void createSummary(    	    DQMStore    		 * bei,
+ void createSummary(    	    DQMStore::IBooker            & iBooker,
+				    DQMStore::IGetter            & iGetter,
  				    bool   			   isUpgrade);
- void bookDeviations(               DQMStore                     * bei,
+ void bookDeviations(               DQMStore::IBooker            & iBooker,
  				    bool			   isUpgrade);
- void bookEfficiency(    	    DQMStore    		 * bei,
+ void bookEfficiency(    	    DQMStore::IBooker            & iBooker,
  				    bool			   isUpgrade);
- void createEfficiency(    	    DQMStore    		 * bei,
+ void createEfficiency(    	    DQMStore::IBooker            & iBooker,
+				    DQMStore::IGetter 		 & iGetter,
  				    bool			   isUpgrade);
- void fillEfficiency(    	    DQMStore    		 * bei,
+ void fillEfficiency(    	    DQMStore::IBooker            & iBooker,
+				    DQMStore::IGetter  		 & iGetter,
                                     bool                           isbarrel,
 				    bool			   isUpgrade);
- void bookOccupancyPlots(    	    DQMStore    		 * bei,
+ void bookOccupancyPlots(    	    DQMStore::IBooker            & iBooker,
+				    DQMStore::IGetter            & iGetter,
                                     bool                           hiRes,
-									bool				isbarrel);
- void bookOccupancyPlots(    	    DQMStore    		 * bei,
+				    bool				isbarrel);
+ void bookOccupancyPlots(    	    DQMStore::IBooker            & iBooker,
+				    DQMStore::IGetter            & iGetter,
                                     bool                           hiRes);
- void createOccupancy(    	    DQMStore    		 * bei);
+ void createOccupancy(    	    DQMStore::IBooker            & iBooker,
+				    DQMStore::IGetter  		 & iGetter);
  bool readConfiguration(	    int 			 & tkmap_freq, 
                         	    int 			 & sum_barrel_freq, 
 				    int 			 & sum_endcap_freq, 
@@ -83,33 +89,43 @@ class SiPixelActionExecutor {
 private:
   
   
-  MonitorElement* getSummaryME(     DQMStore     		 * bei, 
+ MonitorElement* getSummaryME(      DQMStore::IBooker            & iBooker,
+				    DQMStore::IGetter            & iGetter,
                                     std::string 	     	   me_name,
 				    bool			   isUpgrade);
-  MonitorElement* getFEDSummaryME(  DQMStore     		 * bei, 
+ MonitorElement* getFEDSummaryME(   DQMStore::IBooker  		 & iBooker,
+				    DQMStore::IGetter            & iGetter,
                                     std::string 	     	   me_name);
-  void GetBladeSubdirs(DQMStore* bei, std::vector<std::string>& blade_subdirs); 
-  void fillSummary(           	    DQMStore     		 * bei, 
+  void GetBladeSubdirs(             DQMStore::IBooker            & iBooker, 
+				    DQMStore::IGetter            & iGetter,
+				    std::vector<std::string>& blade_subdirs); 
+  void fillSummary(           	    DQMStore::IBooker     	 & iBooker,
+				    DQMStore::IGetter            & iGetter,
                                     std::string 	     	   dir_name,
                                     std::vector<std::string> 	 & me_names,
 				    bool isbarrel,
 				    bool isUpgrade);
-  void fillDeviations(              DQMStore     		 * bei);
-  void fillFEDErrorSummary(         DQMStore     		 * bei, 
+  void fillDeviations(              DQMStore::IGetter            & iGetter);
+  void fillFEDErrorSummary(         DQMStore::IBooker  		 & iBooker,
+				    DQMStore::IGetter            & iGetter,
                                     std::string 	     	   dir_name,
                                     std::vector<std::string> 	 & me_names);
-  void fillGrandBarrelSummaryHistos(DQMStore     		 * bei, 
+  void fillGrandBarrelSummaryHistos(DQMStore::IBooker  		 & iBooker,
+				    DQMStore::IGetter            & iGetter,
 			            std::vector<std::string> 	 & me_names,
 				    bool 			   isUpgrade);
-  void fillGrandEndcapSummaryHistos(DQMStore     		 * bei, 
+  void fillGrandEndcapSummaryHistos(DQMStore::IBooker            & iBooker,
+				    DQMStore::IGetter            & iGetter,
 			            std::vector<std::string> 	 & me_names,
 				    bool			   isUpgrade);
-  void getGrandSummaryME(           DQMStore     		 * bei,
+  void getGrandSummaryME(           DQMStore::IBooker            & iBooker,
+				    DQMStore::IGetter            & iGetter,
                                     int                      	   nbin, 
                                     std::string              	 & me_name, 
 				    std::vector<MonitorElement*> & mes);
  
-  void fillOccupancy(    	    DQMStore    		 * bei,
+  void fillOccupancy(    	    DQMStore::IBooker            & iBooker,
+				    DQMStore::IGetter  		 & iGetter,
 				    bool isbarrel);
 
   SiPixelConfigParser* configParser_;

@@ -65,8 +65,8 @@ void SiPixelTrackerMapCreator::create(DQMStore * bei)
   vector<MonitorElement*> mEList ;
   map<string, int>        mEHash ;
   
-  infoExtractor_->selectMEList(bei, mEName, mEList) ;
-  infoExtractor_->getMEList(   bei,         mEHash) ;
+  //  infoExtractor_->selectMEList(bei, mEName, mEList) ;
+  //infoExtractor_->getMEList(   bei,         mEHash) ;
   
   int nImages = mEHash.size() ;
   
