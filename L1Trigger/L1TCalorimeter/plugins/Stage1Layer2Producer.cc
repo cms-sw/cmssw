@@ -104,7 +104,8 @@ namespace l1t {
   {
     // register what you produce
     produces<BXVector<l1t::EGamma>>();
-    produces<BXVector<l1t::Tau>>();
+    produces<BXVector<l1t::Tau>>("rlxTaus");
+    produces<BXVector<l1t::Tau>>("isoTaus");
     produces<BXVector<l1t::Jet>>();
     produces<BXVector<l1t::EtSum>>();
     produces<BXVector<l1t::CaloSpare>>();
@@ -180,12 +181,14 @@ Stage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
   //outputs
   std::auto_ptr<l1t::EGammaBxCollection> egammas (new l1t::EGammaBxCollection);
   std::auto_ptr<l1t::TauBxCollection> taus (new l1t::TauBxCollection);
+  std::auto_ptr<l1t::TauBxCollection> isoTaus (new l1t::TauBxCollection);
   std::auto_ptr<l1t::JetBxCollection> jets (new l1t::JetBxCollection);
   std::auto_ptr<l1t::EtSumBxCollection> etsums (new l1t::EtSumBxCollection);
   std::auto_ptr<l1t::CaloSpareBxCollection> calospares (new l1t::CaloSpareBxCollection);
 
   egammas->setBXRange(bxFirst, bxLast);
   taus->setBXRange(bxFirst, bxLast);
+  isoTaus->setBXRange(bxFirst, bxLast);
   jets->setBXRange(bxFirst, bxLast);
   etsums->setBXRange(bxFirst, bxLast);
   calospares->setBXRange(bxFirst, bxLast);
@@ -221,8 +224,10 @@ Stage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
     // copy the output into the BXVector -> there must be a better way
     for(std::vector<l1t::EGamma>::const_iterator eg = localEGammas->begin(); eg != localEGammas->end(); ++eg)
       egammas->push_back(i, *eg);
-    for(std::vector<l1t::Tau>::const_iterator tau = localTaus->begin(); tau != localTaus->end(); ++tau)
+    for(std::vector<l1t::Tau>::const_iterator tau = localTaus->begin(); tau != localTaus->end(); ++tau){
       taus->push_back(i, *tau);
+      if (tau->hwIso()==1)isoTaus->push_back(i, *tau);
+    }
     for(std::vector<l1t::Jet>::const_iterator jet = localJets->begin(); jet != localJets->end(); ++jet)
       jets->push_back(i, *jet);
     for(std::vector<l1t::EtSum>::const_iterator etsum = localEtSums->begin(); etsum != localEtSums->end(); ++etsum)
@@ -242,7 +247,8 @@ Stage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
 
 
   iEvent.put(egammas);
-  iEvent.put(taus);
+  iEvent.put(taus,"rlxTaus");
+  iEvent.put(isoTaus,"isoTaus");
   iEvent.put(jets);
   iEvent.put(etsums);
   iEvent.put(calospares);

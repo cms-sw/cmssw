@@ -30,6 +30,7 @@ l1ExtraLayer2.nonIsolatedEmSource = cms.InputTag("caloStage1LegacyFormatDigis","
 l1ExtraLayer2.forwardJetSource = cms.InputTag("caloStage1LegacyFormatDigis","forJets")
 l1ExtraLayer2.centralJetSource = cms.InputTag("caloStage1LegacyFormatDigis","cenJets")
 l1ExtraLayer2.tauJetSource     = cms.InputTag("caloStage1LegacyFormatDigis","tauJets")
+l1ExtraLayer2.isoTauJetSource  = cms.InputTag("caloStage1LegacyFormatDigis","isoTauJets")
 
 l1ExtraLayer2.etTotalSource = cms.InputTag("caloStage1LegacyFormatDigis")
 l1ExtraLayer2.etHadSource   = cms.InputTag("caloStage1LegacyFormatDigis")

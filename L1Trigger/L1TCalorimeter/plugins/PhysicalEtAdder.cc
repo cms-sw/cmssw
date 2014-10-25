@@ -27,13 +27,15 @@ double getPhysicalPhi(int phiIndex);
 l1t::PhysicalEtAdder::PhysicalEtAdder(const edm::ParameterSet& ps) {
 
   produces<l1t::EGammaBxCollection>();
-  produces<l1t::TauBxCollection>();
+  produces<l1t::TauBxCollection>("rlxTaus");
+  produces<l1t::TauBxCollection>("isoTaus");
   produces<l1t::JetBxCollection>();
   produces<l1t::EtSumBxCollection>();
   produces<l1t::CaloSpareBxCollection>();
 
   EGammaToken_ = consumes<l1t::EGammaBxCollection>(ps.getParameter<edm::InputTag>("InputCollection"));
-  TauToken_ = consumes<l1t::TauBxCollection>(ps.getParameter<edm::InputTag>("InputCollection"));
+  RlxTauToken_ = consumes<l1t::TauBxCollection>(ps.getParameter<edm::InputTag>("InputRlxTauCollection"));
+  IsoTauToken_ = consumes<l1t::TauBxCollection>(ps.getParameter<edm::InputTag>("InputIsoTauCollection"));
   JetToken_ = consumes<l1t::JetBxCollection>(ps.getParameter<edm::InputTag>("InputCollection"));
   EtSumToken_ = consumes<l1t::EtSumBxCollection>(ps.getParameter<edm::InputTag>("InputCollection"));
   CaloSpareToken_ = consumes<l1t::CaloSpareBxCollection>(ps.getParameter<edm::InputTag>("InputCollection"));
@@ -49,19 +51,22 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   // store new collections which include physical quantities
   std::auto_ptr<l1t::EGammaBxCollection> new_egammas (new l1t::EGammaBxCollection);
-  std::auto_ptr<l1t::TauBxCollection> new_taus (new l1t::TauBxCollection);
+  std::auto_ptr<l1t::TauBxCollection> new_rlxtaus (new l1t::TauBxCollection);
+  std::auto_ptr<l1t::TauBxCollection> new_isotaus (new l1t::TauBxCollection);
   std::auto_ptr<l1t::JetBxCollection> new_jets (new l1t::JetBxCollection);
   std::auto_ptr<l1t::EtSumBxCollection> new_etsums (new l1t::EtSumBxCollection);
   std::auto_ptr<l1t::CaloSpareBxCollection> new_calospares (new l1t::CaloSpareBxCollection);
 
   edm::Handle<l1t::EGammaBxCollection> old_egammas;
-  edm::Handle<l1t::TauBxCollection> old_taus;
+  edm::Handle<l1t::TauBxCollection> old_rlxtaus;
+  edm::Handle<l1t::TauBxCollection> old_isotaus;
   edm::Handle<l1t::JetBxCollection> old_jets;
   edm::Handle<l1t::EtSumBxCollection> old_etsums;
   edm::Handle<l1t::CaloSpareBxCollection> old_calospares;
 
   iEvent.getByToken(EGammaToken_, old_egammas);
-  iEvent.getByToken(TauToken_, old_taus);
+  iEvent.getByToken(RlxTauToken_, old_rlxtaus);
+  iEvent.getByToken(IsoTauToken_, old_isotaus);
   iEvent.getByToken(JetToken_, old_jets);
   iEvent.getByToken(EtSumToken_, old_etsums);
   iEvent.getByToken(CaloSpareToken_, old_calospares);
@@ -80,9 +85,10 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   int lastBX = old_egammas->getLastBX();
 
   new_egammas->setBXRange(firstBX, lastBX);
-  new_taus->setBXRange(firstBX, lastBX);
+  new_rlxtaus->setBXRange(firstBX, lastBX);
+  new_isotaus->setBXRange(firstBX, lastBX);
   new_jets->setBXRange(firstBX, lastBX);
-  new_taus->setBXRange(firstBX, lastBX);
+  new_etsums->setBXRange(firstBX, lastBX);
   new_calospares->setBXRange(firstBX, lastBX);
 
   for(int bx = firstBX; bx <= lastBX; ++bx)
@@ -104,8 +110,8 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     }
 
-    for(l1t::TauBxCollection::const_iterator itTau = old_taus->begin(bx);
-	itTau != old_taus->end(bx); ++itTau)
+    for(l1t::TauBxCollection::const_iterator itTau = old_rlxtaus->begin(bx);
+	itTau != old_rlxtaus->end(bx); ++itTau)
     {
       // use the full-circle conversion to match l1extra, accounts for linearLsb and max value automatically
       //const uint16_t rankPt = jetScale->rank((uint16_t)itTau->hwPt());
@@ -124,7 +130,31 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       l1t::Tau tau(*&p4, itTau->hwPt(),
 		   itTau->hwEta(), itTau->hwPhi(),
 		   itTau->hwQual(), itTau->hwIso());
-      new_taus->push_back(bx, *&tau);
+      new_rlxtaus->push_back(bx, *&tau);
+
+    }
+
+    for(l1t::TauBxCollection::const_iterator itTau = old_isotaus->begin(bx);
+	itTau != old_isotaus->end(bx); ++itTau)
+    {
+      // use the full-circle conversion to match l1extra, accounts for linearLsb and max value automatically
+      //const uint16_t rankPt = jetScale->rank((uint16_t)itTau->hwPt());
+      //const double et = jetScale->et( rankPt ) ;
+
+      // or use the emScale to get finer-grained et
+      //const double et = itTau->hwPt() * emScale->linearLsb();
+
+      // we are now already in the rankPt
+      const double et = jetScale->et( itTau->hwPt() );
+
+      const double eta = getPhysicalEta(itTau->hwEta());
+      const double phi = getPhysicalPhi(itTau->hwPhi());
+      math::PtEtaPhiMLorentzVector p4(et, eta, phi, 0);
+
+      l1t::Tau tau(*&p4, itTau->hwPt(),
+		   itTau->hwEta(), itTau->hwPhi(),
+		   itTau->hwQual(), itTau->hwIso());
+      new_isotaus->push_back(bx, *&tau);
 
     }
 
@@ -186,7 +216,8 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   iEvent.put(new_egammas);
-  iEvent.put(new_taus);
+  iEvent.put(new_rlxtaus,"rlxTaus");
+  iEvent.put(new_isotaus,"isoTaus");
   iEvent.put(new_jets);
   iEvent.put(new_etsums);
   iEvent.put(new_calospares);

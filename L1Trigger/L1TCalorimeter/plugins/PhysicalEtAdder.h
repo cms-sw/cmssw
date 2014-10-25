@@ -57,7 +57,8 @@ namespace l1t {
       // ----------member data ---------------------------
 
       edm::EDGetToken EGammaToken_;
-      edm::EDGetToken TauToken_;
+      edm::EDGetToken RlxTauToken_;
+      edm::EDGetToken IsoTauToken_;
       edm::EDGetToken JetToken_;
       edm::EDGetToken EtSumToken_;
       edm::EDGetToken CaloSpareToken_;
