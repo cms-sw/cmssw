@@ -21,7 +21,7 @@ edm::InputSource::ItemType DQMProtobufReader::getNextItemType() {
   typedef DQMFileIterator::State State;
   typedef DQMFileIterator::LumiEntry LumiEntry;
 
-  fiterator_.logFileAction("getNextItemType");
+  //fiterator_.logFileAction("getNextItemType");
 
   for (;;) {
     fiterator_.update_state();
@@ -55,7 +55,7 @@ edm::InputSource::ItemType DQMProtobufReader::getNextItemType() {
 }
 
 boost::shared_ptr<edm::RunAuxiliary> DQMProtobufReader::readRunAuxiliary_() {
-  fiterator_.logFileAction("readRunAuxiliary_");
+  //fiterator_.logFileAction("readRunAuxiliary_");
 
   edm::RunAuxiliary* aux = new edm::RunAuxiliary(
       fiterator_.runNumber(), edm::Timestamp(), edm::Timestamp());
@@ -63,7 +63,7 @@ boost::shared_ptr<edm::RunAuxiliary> DQMProtobufReader::readRunAuxiliary_() {
 }
 
 void DQMProtobufReader::readRun_(edm::RunPrincipal& rpCache) {
-  fiterator_.logFileAction("readRun_");
+  //fiterator_.logFileAction("readRun_");
   rpCache.fillRunPrincipal(processHistoryRegistryForUpdate());
 
   edm::Service<DQMStore> store;
@@ -75,7 +75,7 @@ void DQMProtobufReader::readRun_(edm::RunPrincipal& rpCache) {
 
 boost::shared_ptr<edm::LuminosityBlockAuxiliary>
 DQMProtobufReader::readLuminosityBlockAuxiliary_() {
-  fiterator_.logFileAction("readLuminosityBlockAuxiliary_");
+  //fiterator_.logFileAction("readLuminosityBlockAuxiliary_");
 
   currentLumi_ = fiterator_.open();
   edm::LuminosityBlockAuxiliary* aux = new edm::LuminosityBlockAuxiliary(
@@ -88,7 +88,7 @@ DQMProtobufReader::readLuminosityBlockAuxiliary_() {
 void DQMProtobufReader::readLuminosityBlock_(
     edm::LuminosityBlockPrincipal& lbCache) {
 
-  fiterator_.logFileAction("readLuminosityBlock_");
+  //fiterator_.logFileAction("readLuminosityBlock_");
   edm::Service<DQMStore> store;
 
   edm::Service<edm::JobReport> jr;
@@ -106,7 +106,7 @@ void DQMProtobufReader::readLuminosityBlock_(
   }
 
   // load the new file
-  std::string p = fiterator_.make_path_data(currentLumi_);
+  std::string p = fiterator_.make_path(currentLumi_.datafn);
 
   if (!boost::filesystem::exists(p)) {
     fiterator_.logFileAction("Data file is missing ", p);
