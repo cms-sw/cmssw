@@ -16,7 +16,6 @@
 
 l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::Stage2Layer2ClusterAlgorithmFirmwareImp1(CaloParams* params, ClusterInput clusterInput) :
   m_clusterInput(clusterInput),
-  m_trimCorners(true),
   params_(params)
 {
 
@@ -422,6 +421,7 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::sharing(const std::vector<l1
         filterSSSS = (clusterSSSS.hwPt() >= cluster.hwPt());
       }
 
+      // IN_FIRMWARE
       //if(filterNNWW || filterNNW || filterNN || filterWW || filterNWW || filterNNNW)    cluster.setClusterFlag(CaloCluster::INCLUDE_NW, false);
       //if(filterNNW || filterNN || filterNNE || filterNNN)                               cluster.setClusterFlag(CaloCluster::INCLUDE_N , false);
       //if(filterNN || filterNNE || filterNNEE || filterNEE || filterEE || filterNNNE)    cluster.setClusterFlag(CaloCluster::INCLUDE_NE, false);
@@ -432,7 +432,7 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::sharing(const std::vector<l1
       //if(filterSWW || filterWW || filterNWW || filterNNW || filterSSW)                  cluster.setClusterFlag(CaloCluster::INCLUDE_W , false);
       //if(filterNNW || filterNNE || filterNNNW || filterNNN || filterNNNE || filterNNNN) cluster.setClusterFlag(CaloCluster::INCLUDE_NN, false);
       //if(filterSSW || filterSSE || filterSSSW || filterSSS || filterSSSE || filterSSSS) cluster.setClusterFlag(CaloCluster::INCLUDE_SS, false);
-      
+      // END IN_FIRMWARE
 
       // NOT_IN_FIRMWARE
       const l1t::CaloTower& towerNW  = l1t::CaloTools::getTower(towers, iEtaM , iPhiM);
@@ -635,18 +635,20 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::refining(const std::vector<l
       int towerEtHadSS = towerSS.hwEtHad();
 
       // trim corners
-      if(m_trimCorners) {
-        //if(towerEtN<m_clusterThreshold && towerEtW<m_clusterThreshold) cluster.setClusterFlag(CaloCluster::INCLUDE_NW, false);
-        //if(towerEtN<m_clusterThreshold && towerEtE<m_clusterThreshold) cluster.setClusterFlag(CaloCluster::INCLUDE_NE, false);
-        //if(towerEtS<m_clusterThreshold && towerEtW<m_clusterThreshold) cluster.setClusterFlag(CaloCluster::INCLUDE_SW, false);
-        //if(towerEtS<m_clusterThreshold && towerEtE<m_clusterThreshold) cluster.setClusterFlag(CaloCluster::INCLUDE_SE, false);
-        // NOT_IN_FIRMWARE
-        if(!cluster.checkClusterFlag(CaloCluster::INCLUDE_N) && !cluster.checkClusterFlag(CaloCluster::INCLUDE_W)) cluster.setClusterFlag(CaloCluster::INCLUDE_NW, false);
-        if(!cluster.checkClusterFlag(CaloCluster::INCLUDE_N) && !cluster.checkClusterFlag(CaloCluster::INCLUDE_E)) cluster.setClusterFlag(CaloCluster::INCLUDE_NE, false);
-        if(!cluster.checkClusterFlag(CaloCluster::INCLUDE_S) && !cluster.checkClusterFlag(CaloCluster::INCLUDE_W)) cluster.setClusterFlag(CaloCluster::INCLUDE_SW, false);
-        if(!cluster.checkClusterFlag(CaloCluster::INCLUDE_S) && !cluster.checkClusterFlag(CaloCluster::INCLUDE_E)) cluster.setClusterFlag(CaloCluster::INCLUDE_SE, false);
-        // END NOT_IN_FIRMWARE
-      }
+      //if(m_trimCorners) {
+      //  // IN_FIRMWARE
+      //  //if(towerEtN<m_clusterThreshold && towerEtW<m_clusterThreshold) cluster.setClusterFlag(CaloCluster::INCLUDE_NW, false);
+      //  //if(towerEtN<m_clusterThreshold && towerEtE<m_clusterThreshold) cluster.setClusterFlag(CaloCluster::INCLUDE_NE, false);
+      //  //if(towerEtS<m_clusterThreshold && towerEtW<m_clusterThreshold) cluster.setClusterFlag(CaloCluster::INCLUDE_SW, false);
+      //  //if(towerEtS<m_clusterThreshold && towerEtE<m_clusterThreshold) cluster.setClusterFlag(CaloCluster::INCLUDE_SE, false);
+      //  // END IN_FIRMWARE
+      //  // NOT_IN_FIRMWARE
+      //  if(!cluster.checkClusterFlag(CaloCluster::INCLUDE_N) && !cluster.checkClusterFlag(CaloCluster::INCLUDE_W)) cluster.setClusterFlag(CaloCluster::INCLUDE_NW, false);
+      //  if(!cluster.checkClusterFlag(CaloCluster::INCLUDE_N) && !cluster.checkClusterFlag(CaloCluster::INCLUDE_E)) cluster.setClusterFlag(CaloCluster::INCLUDE_NE, false);
+      //  if(!cluster.checkClusterFlag(CaloCluster::INCLUDE_S) && !cluster.checkClusterFlag(CaloCluster::INCLUDE_W)) cluster.setClusterFlag(CaloCluster::INCLUDE_SW, false);
+      //  if(!cluster.checkClusterFlag(CaloCluster::INCLUDE_S) && !cluster.checkClusterFlag(CaloCluster::INCLUDE_E)) cluster.setClusterFlag(CaloCluster::INCLUDE_SE, false);
+      //  // END NOT_IN_FIRMWARE
+      //}
 
       // trim one eta-side
       int EtEtaRight = 0;
@@ -736,6 +738,3 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::refining(const std::vector<l
   }
 }
 
-void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::trimCorners(bool trimCorners) {
-  m_trimCorners = trimCorners;
-}

@@ -40,8 +40,8 @@ Stage1Layer2MainProcessorFirmwareImp1::Stage1Layer2MainProcessorFirmwareImp1(con
   else if ( m_fwv == 3 )
   { // hw testing algorithms
     m_jetAlgo = new Stage1Layer2JetAlgorithmImpSimpleHW(m_db);
-    m_egAlgo = NULL;
-    m_sumAlgo = NULL;
+    m_egAlgo = new Stage1Layer2EGammaAlgorithmImpPP(m_db);
+    m_sumAlgo = new Stage1Layer2EtSumAlgorithmImpPP(m_db);
     m_tauAlgo = NULL;
     m_hfRingAlgo = NULL;
     m_hfBitAlgo = NULL;

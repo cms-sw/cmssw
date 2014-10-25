@@ -38,8 +38,10 @@ namespace l1t {
     		     const std::vector<l1t::CaloRegion> & regions)  const;
     double HoverE(int et, int ieta, int iphi,
     		  const std::vector<l1t::CaloRegion> & regions)  const;
-    double AssociatedJetPt(int ieta, int iphi,
+    int AssociatedJetPt(int ieta, int iphi,
 		           const std::vector<l1t::Jet> * jets) const;
+
+    unsigned isoLutIndex(unsigned int etaPt,unsigned int jetPt) const;
   };
 }
 

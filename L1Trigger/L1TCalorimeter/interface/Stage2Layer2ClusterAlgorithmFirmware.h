@@ -31,8 +31,6 @@ namespace l1t {
     virtual ~Stage2Layer2ClusterAlgorithmFirmwareImp1();
     virtual void processEvent(const std::vector<l1t::CaloTower> & towers,
 			      std::vector<l1t::CaloCluster> & clusters);
-    //
-    void trimCorners(bool trimCorners=true);
 
   private:
     void clustering(const std::vector<l1t::CaloTower> & towers, std::vector<l1t::CaloCluster> & clusters);
@@ -45,7 +43,6 @@ namespace l1t {
     int m_seedThreshold;
     int m_clusterThreshold;
     int m_hcalThreshold;
-    bool m_trimCorners;
     CaloParams* params_;
   };
   
