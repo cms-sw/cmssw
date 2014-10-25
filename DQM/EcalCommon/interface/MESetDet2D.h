@@ -18,7 +18,6 @@ namespace ecaldqm
 
     MESet* clone(std::string const& = "") const override;
 
-    void book(DQMStore&) override;
     void book(DQMStore::IBooker&) override;
 
     void fill(DetId const&, double = 1., double = 0., double = 0.) override;
@@ -60,9 +59,6 @@ namespace ecaldqm
     void fill_(unsigned, int, double) override;
     void fill_(unsigned, int, double, double) override;
     void fill_(unsigned, double, double, double) override;
-
-  private:
-    template<class Bookable> void doBook_(Bookable&);
   };
 }
 

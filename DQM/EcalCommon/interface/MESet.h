@@ -39,9 +39,8 @@ namespace ecaldqm
 
     virtual MESet* clone(std::string const& = "") const;
 
-    virtual void book(DQMStore&) {}
     virtual void book(DQMStore::IBooker&) {}
-    virtual bool retrieve(DQMStore const&, std::string* = 0) const { return false; }
+    virtual bool retrieve(DQMStore::IGetter&, std::string* = 0) const { return false; }
     virtual void clear() const;
 
     virtual void fill(DetId const&, double = 1., double = 1., double = 1.) {}

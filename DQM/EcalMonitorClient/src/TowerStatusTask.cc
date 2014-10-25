@@ -15,15 +15,15 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
-#include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
-
 namespace ecaldqm {
 
   TowerStatusTask::TowerStatusTask() :
-    DQWorkerTask(),
+    DQWorkerClient(),
     doDAQInfo_(false),
     doDCSInfo_(false)
   {
+    std::fill_n(daqStatus_, nDCC, 0.);
+    std::fill_n(dcsStatus_, nDCC, 0.);
   }
 
   void
@@ -48,11 +48,10 @@ namespace ecaldqm {
   }
 
   void
-  TowerStatusTask::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const& _es)
+  TowerStatusTask::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const& _es)
   {
     if(doDAQInfo_){
-      float status[nDCC];
-      std::fill_n(status, nDCC, 1.);
+      std::fill_n(daqStatus_, nDCC, 1.);
 
       edm::ESHandle<EcalDAQTowerStatus> daqHndl;
       _es.get<EcalDAQTowerStatusRcd>().get(daqHndl);
@@ -60,26 +59,23 @@ namespace ecaldqm {
         for(unsigned id(0); id < EcalTrigTowerDetId::kEBTotalTowers; id++){
           if(daqHndl->barrel(id).getStatusCode() != 0){
             EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(id));
-            status[dccId(ttid) - 1] -= 25. / 1700.;
+            daqStatus_[dccId(ttid) - 1] -= 25. / 1700.;
           }
         }
         for(unsigned id(0); id < EcalScDetId::kSizeForDenseIndexing; id++){
           if(daqHndl->endcap(id).getStatusCode() != 0){
             EcalScDetId scid(EcalScDetId::unhashIndex(id));
             unsigned dccid(dccId(scid));
-            status[dccid - 1] -= double(scConstituents(scid).size()) / nCrystals(dccid);
+            daqStatus_[dccid - 1] -= double(scConstituents(scid).size()) / nCrystals(dccid);
           }
         }
-
-        runOnTowerStatus(status, DAQInfo);
       }
       else
-	edm::LogWarning("EventSetup") << "EcalDAQTowerStatus record not valid";
+        edm::LogWarning("EventSetup") << "EcalDAQTowerStatus record not valid";
     }
 
     if(doDCSInfo_){
-      float status[nDCC];
-      std::fill_n(status, nDCC, 1.);
+      std::fill_n(dcsStatus_, nDCC, 1.);
 
       edm::ESHandle<EcalDCSTowerStatus> dcsHndl;
       _es.get<EcalDCSTowerStatusRcd>().get(dcsHndl);
@@ -87,40 +83,38 @@ namespace ecaldqm {
         for(unsigned id(0); id < EcalTrigTowerDetId::kEBTotalTowers; id++){
           if(dcsHndl->barrel(id).getStatusCode() != 0){
             EcalTrigTowerDetId ttid(EcalTrigTowerDetId::detIdFromDenseIndex(id));
-            status[dccId(ttid) - 1] -= 25. / 1700.;
+            dcsStatus_[dccId(ttid) - 1] -= 25. / 1700.;
           }
         }
         for(unsigned id(0); id < EcalScDetId::kSizeForDenseIndexing; id++){
           if(dcsHndl->endcap(id).getStatusCode() != 0){
             EcalScDetId scid(EcalScDetId::unhashIndex(id));
             unsigned dccid(dccId(scid));
-            status[dccid - 1] -= double(scConstituents(scid).size()) / nCrystals(dccid);
+            dcsStatus_[dccid - 1] -= double(scConstituents(scid).size()) / nCrystals(dccid);
           }
         }
-        
-        runOnTowerStatus(status, DCSInfo);
       }
       else
-	edm::LogWarning("EventSetup") << "EcalDCSTowerStatus record not valid";
+        edm::LogWarning("EventSetup") << "EcalDCSTowerStatus record not valid";
     }
   }
 
   void
-  TowerStatusTask::runOnTowerStatus(float const* _status, InfoType _type)
+  TowerStatusTask::producePlots(ProcessType)
+  {
+    if(doDAQInfo_) producePlotsTask_(daqStatus_, "DAQ");
+    if(doDCSInfo_) producePlotsTask_(dcsStatus_, "DCS");
+  }
+
+  void
+  TowerStatusTask::producePlotsTask_(float const* _status, std::string const& _type)
   {
     MESet* meSummary(0);
     MESet* meSummaryMap(0);
     MESet* meContents(0);
-    if(_type == DAQInfo){
-      meSummary = &MEs_.at("DAQSummary");
-      meSummaryMap = &MEs_.at("DAQSummaryMap");
-      meContents = &MEs_.at("DAQContents");
-    }
-    else{
-      meSummary = &MEs_.at("DCSSummary");
-      meSummaryMap = &MEs_.at("DCSSummaryMap");
-      meContents = &MEs_.at("DCSContents");
-    }
+    meSummary = &MEs_.at(_type + "Summary");
+    meSummaryMap = &MEs_.at(_type + "SummaryMap");
+    meContents = &MEs_.at(_type + "Contents");
 
     meSummary->reset(-1.);
     meSummaryMap->resetAll(-1.);
@@ -139,5 +133,3 @@ namespace ecaldqm {
 
   DEFINE_ECALDQM_WORKER(TowerStatusTask);
 }
- 
-

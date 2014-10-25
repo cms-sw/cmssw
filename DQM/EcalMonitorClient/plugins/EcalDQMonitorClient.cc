@@ -25,9 +25,8 @@
 #include <fstream>
 
 EcalDQMonitorClient::EcalDQMonitorClient(edm::ParameterSet const& _ps) :
-  edm::EDAnalyzer(),
+  DQMEDHarvester(),
   ecaldqm::EcalDQMonitor(_ps),
-  eventCycleLength_(_ps.getUntrackedParameter<unsigned>("analyzeEvery")),
   iEvt_(0),
   statusManager_()
 {
@@ -45,6 +44,10 @@ EcalDQMonitorClient::EcalDQMonitorClient(edm::ParameterSet const& _ps) :
   }
 }
 
+EcalDQMonitorClient::~EcalDQMonitorClient()
+{
+}
+
 /*static*/
 void
 EcalDQMonitorClient::fillDescriptions(edm::ConfigurationDescriptions &_descs)
@@ -58,7 +61,6 @@ EcalDQMonitorClient::fillDescriptions(edm::ConfigurationDescriptions &_descs)
   allWorkers.addNode(edm::ParameterWildcard<edm::ParameterSetDescription>("*", edm::RequireZeroOrMore, false, clientParameters));
   desc.addUntracked("workerParameters", allWorkers);
 
-  desc.addUntracked<unsigned>("analyzeEvery", 0);
   desc.addOptionalUntracked<edm::FileInPath>("PNMaskFile");
 
   _descs.addDefault(desc);
@@ -79,8 +81,6 @@ EcalDQMonitorClient::beginRun(edm::Run const& _run, edm::EventSetup const& _es)
     statusManager_.readFromObj(*cStHndl, *tStHndl);
   }
 
-  ecaldqmBookHistograms(*edm::Service<DQMStore>());
-
   ecaldqmBeginRun(_run, _es);
 }
 
@@ -88,38 +88,47 @@ void
 EcalDQMonitorClient::endRun(edm::Run const& _run, edm::EventSetup const& _es)
 {
   ecaldqmEndRun(_run, _es);
-
-  runWorkers(ecaldqm::DQWorkerClient::kRun);
-
-  ecaldqmReleaseHistograms();
 }
 
 void
-EcalDQMonitorClient::endLuminosityBlock(edm::LuminosityBlock const& _lumi, edm::EventSetup const& _es)
+EcalDQMonitorClient::dqmEndLuminosityBlock(DQMStore::IBooker& _ibooker, DQMStore::IGetter& _igetter, edm::LuminosityBlock const& _lumi, edm::EventSetup const& _es)
 {
+  executeOnWorkers_([&_ibooker](ecaldqm::DQWorker* worker){
+      ecaldqm::DQWorkerClient* client(static_cast<ecaldqm::DQWorkerClient*>(worker));
+      if(!client->onlineMode() && !client->runsOn(ecaldqm::DQWorkerClient::kLumi)) return;
+      client->bookMEs(_ibooker);
+    }, "bookMEs", "Booking MEs");
+
   ecaldqmEndLuminosityBlock(_lumi, _es);
 
-  runWorkers(ecaldqm::DQWorkerClient::kLumi);
+  runWorkers(_igetter, ecaldqm::DQWorkerClient::kLumi);
 }
 
 void
-EcalDQMonitorClient::analyze(edm::Event const&, edm::EventSetup const&)
+EcalDQMonitorClient::dqmEndJob(DQMStore::IBooker& _ibooker, DQMStore::IGetter& _igetter)
 {
-  if(eventCycleLength_ != 0 && ++iEvt_ % eventCycleLength_ == 0) runWorkers(ecaldqm::DQWorkerClient::kLumi);
+  executeOnWorkers_([&_ibooker](ecaldqm::DQWorker* worker){
+      worker->bookMEs(_ibooker); // worker returns if already booked
+    }, "bookMEs", "Booking MEs");
+
+  runWorkers(_igetter, ecaldqm::DQWorkerClient::kJob);
+
+  executeOnWorkers_([](ecaldqm::DQWorker* worker){
+      worker->releaseMEs();
+    }, "releaseMEs", "releasing histograms");
 }
 
 void
-EcalDQMonitorClient::runWorkers(ecaldqm::DQWorkerClient::ProcessType _type)
+EcalDQMonitorClient::runWorkers(DQMStore::IGetter& _igetter, ecaldqm::DQWorkerClient::ProcessType _type)
 {
   if(verbosity_ > 0) edm::LogInfo("EcalDQM") << moduleName_ << ": Starting worker modules..";
 
-  DQMStore const& dqmStore(*edm::Service<DQMStore>());
-
-  executeOnWorkers_([&dqmStore, &_type](ecaldqm::DQWorker* worker){
+  executeOnWorkers_([&_igetter, &_type](ecaldqm::DQWorker* worker){
       ecaldqm::DQWorkerClient* client(static_cast<ecaldqm::DQWorkerClient*>(worker));
+      if(!client->onlineMode() && !client->runsOn(_type)) return;
       client->releaseSource();
       client->resetMEs();
-      if(!client->retrieveSource(dqmStore, _type)) return;
+      if(!client->retrieveSource(_igetter, _type)) return;
       if(client->onlineMode()) client->setTime(time(0));
       client->producePlots(_type);                      
     }, "retrieveAndRun", "producing plots");
