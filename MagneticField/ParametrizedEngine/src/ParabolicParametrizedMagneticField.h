@@ -10,17 +10,17 @@
  */
 
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include <vector>
 
 namespace edm { class ParameterSet; }
-namespace magfieldparam { class TkBfield; }
 
 class ParabolicParametrizedMagneticField : public MagneticField {
  public:
-  /// Constructor 
+  /// Default constructor, use default values for 3.8T map
   explicit ParabolicParametrizedMagneticField();
 
-  /// Constructor. Parameters taken from a PSet
-  //explicit ParabolicParametrizedMagneticField(const edm::ParameterSet& parameters);
+  /// Constructor with explicit parameter list (b0, b1, c1, a)
+  explicit ParabolicParametrizedMagneticField(const std::vector<double>& parameters);
 
   /// Destructor
   virtual ~ParabolicParametrizedMagneticField();
@@ -36,9 +36,9 @@ class ParabolicParametrizedMagneticField : public MagneticField {
   inline bool isDefined(const GlobalPoint& gp) const;
 
  private:
-  const float b0 = -3.94991e-06;  
-  const float b1 = 7.53701e-06;
-  const float c1 = 3.8114;     
-  const float a  = 2.43878e-11;
+  float c1;
+  float b0;
+  float b1;
+  float a;
 };
 #endif
