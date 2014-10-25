@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_2_1/Fake/V2 (CMSSW_7_2_0)
+# /dev/CMSSW_7_2_1/Fake/V3 (CMSSW_7_2_0)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_2_1/Fake/V2')
+  tableName = cms.string('/dev/CMSSW_7_2_1/Fake/V3')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -14041,7 +14041,7 @@ hltPreEle17Ele12Ele10CaloIdTrackId = cms.EDFilter( "HLTPrescaler",
 hltEGL1EG12EG7EG5Filter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.65 ),
-    saveTags = cms.bool( True ),
+    saveTags = cms.bool( False ),
     region_eta_size_ecap = cms.double( 1.0 ),
     barrel_end = cms.double( 1.4791 ),
     l1IsolatedTag = cms.InputTag( 'l1extraParticles','Isolated' ),
