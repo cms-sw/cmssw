@@ -89,5 +89,11 @@
   <class name="std::vector<L1TriggerError>"/>
   <class name="edm::Wrapper<std::vector<L1TriggerError> >"/>
 
+  <class name="BXVector<l1t::CaloSpare>"/>
+  <class name="BXVector<l1t::EGamma>"/>
+  <class name="BXVector<l1t::EtSum>"/>
+  <class name="BXVector<l1t::Jet>"/>
+  <class name="BXVector<l1t::Muon>"/>
+  <class name="BXVector<l1t::Tau>"/>
 
 </lcgdict>
