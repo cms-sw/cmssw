@@ -45,15 +45,15 @@ static const double SECS_PER_LUMI = 23.31040958083832;
 
 // helper functions
 template <typename T>
-static 
+static
 const T * get(const edm::Event & event, const edm::EDGetTokenT<T> & token) {
   edm::Handle<T> handle;
   event.getByToken(token, handle);
   if (not handle.isValid())
     throw * handle.whyFailed();
   return handle.product();
-}   
-    
+}
+
 template <typename R, typename T>
 static
 const T * get(const edm::EventSetup & setup) {
@@ -99,6 +99,7 @@ private:
   std::vector<HLTIndices>       m_hltIndices;
 
   std::vector<std::vector<unsigned int>>    m_datasets;
+  std::vector<std::vector<unsigned int>>    m_streams;
 
 
   struct HLTRatesPlots {
@@ -125,6 +126,9 @@ private:
 
   // datasets
   std::vector<TH1F *>           m_dataset_counts;
+
+  // streams
+  std::vector<TH1F *>           m_stream_counts;
 
 };
 
@@ -154,6 +158,7 @@ TriggerRatesMonitor::TriggerRatesMonitor(edm::ParameterSet const & config) :
   m_hltConfig(),
   m_hltIndices(),
   m_datasets(),
+  m_streams(),
   // overall event count and event types
   m_events_processed( nullptr ),
   m_events_physics( nullptr ),
@@ -165,7 +170,9 @@ TriggerRatesMonitor::TriggerRatesMonitor(edm::ParameterSet const & config) :
   // HLT triggers
   m_hlt_counts(),
   // datasets
-  m_dataset_counts()
+  m_dataset_counts(),
+  // streams
+  m_stream_counts()
 {
 }
 
@@ -216,6 +223,22 @@ void TriggerRatesMonitor::dqmBeginRun(edm::Run const & run, edm::EventSetup cons
     }
     m_dataset_counts.clear();
     m_dataset_counts.resize( datasets, nullptr );
+
+    unsigned int streams = m_hltConfig.streamNames().size();
+    m_streams.clear();
+    m_streams.resize( streams, {} );
+    for (unsigned int i = 0; i < streams; ++i) {
+      for (auto const & dataset : m_hltConfig.streamContent(i)) {
+        for (auto const & path : m_hltConfig.datasetContent(dataset))
+          m_streams[i].push_back(m_hltConfig.triggerIndex(path));
+      }
+      std::sort(m_streams[i].begin(), m_streams[i].end());
+      auto unique_end = std::unique(m_streams[i].begin(), m_streams[i].end());
+      m_streams[i].resize(unique_end - m_streams[i].begin());
+      m_streams[i].shrink_to_fit();
+    }
+    m_stream_counts.clear();
+    m_stream_counts.resize( streams, nullptr );
   } else {
     // HLTConfigProvider not initialised, skip the the HLT monitoring
     edm::LogError("TriggerRatesMonitor") << "failed to initialise HLTConfigProvider, the HLT trigger and datasets rates will not be monitored";
@@ -230,53 +253,52 @@ void TriggerRatesMonitor::bookHistograms(DQMStore::IBooker & booker, edm::Run co
   m_events_physics      = booker.book1D("physics",      "Physics evenst",       m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
   m_events_calibration  = booker.book1D("calibration",  "Calibration events",   m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
   m_events_random       = booker.book1D("random",       "Random events",        m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
-  
-  if (m_l1tMenu and m_l1tAlgoMask and m_l1tTechMask) {
-    // book the L1T rate histograms
-    booker.setCurrentFolder( m_dqm_path + "/L1" );
+
+  if (m_l1tMenu and m_l1tAlgoMask) {
+    // book the rate histograms for the L1 Algorithm triggers
+    booker.setCurrentFolder( m_dqm_path + "/L1 Algo" );
 
     // book the histograms for L1 algo triggers that are included in the L1 menu
     for (auto const & keyval: m_l1tMenu->gtAlgorithmAliasMap()) {
       int bit = keyval.second.algoBitNumber();
-      std::string const & name  = keyval.first.substr( 0, keyval.first.find_first_of(".") );
-      std::string const & title = keyval.first;
       // check if the trigger is unmasked in *any* partition
-      if ((m_l1tAlgoMask->gtTriggerMask().at(bit) & 0xff) != 0xff)
-        m_l1t_algo_counts[bit] = booker.book1D(name, title,                 m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
-      else
-        m_l1t_algo_counts[bit] = booker.book1D(name, title + " (masked)",   m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
+      bool masked = ((m_l1tAlgoMask->gtTriggerMask().at(bit) & 0xff) == 0xff);
+      std::string const & name  = (boost::format("%s (bit %d)") % keyval.first.substr(0, keyval.first.find_first_of(".")) % bit).str();
+      std::string const & title = (boost::format("%s (bit %d)%s") % keyval.first % bit % (masked ? " (masked)" : "")).str();
+      m_l1t_algo_counts.at(bit) = booker.book1D(name, title, m_lumisections_range + 1, -0.5, m_lumisections_range + 0.5)->getTH1F();
     }
     // book the histograms for L1 algo triggers that are not included in the L1 menu
-    for (unsigned int bit = 0; bit < m_l1tAlgoMask->gtTriggerMask().size(); ++bit) if (not m_l1t_algo_counts[bit]) {
-      std::string const & name  = (boost::format("L1_algo_bit_%03d") % bit).str();
-      std::string const & title = (boost::format("L1 algo bit %03d") % bit).str();
+    for (unsigned int bit = 0; bit < m_l1tAlgoMask->gtTriggerMask().size(); ++bit) if (not m_l1t_algo_counts.at(bit)) {
       // check if the trigger is unmasked in *any* partition
-      if ((m_l1tAlgoMask->gtTriggerMask().at(bit) & 0xff) != 0xff)
-        m_l1t_algo_counts[bit] = booker.book1D(name, title,                 m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
-      else
-        m_l1t_algo_counts[bit] = booker.book1D(name, title + " (masked)",   m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
+      bool masked = ((m_l1tAlgoMask->gtTriggerMask().at(bit) & 0xff) == 0xff);
+      std::string const & name  = (boost::format("L1 Algo (bit %d)") % bit).str();
+      std::string const & title = (boost::format("L1 Algo (bit %d)%s") % bit % (masked ? " (masked)" : "")).str();
+      m_l1t_algo_counts.at(bit) = booker.book1D(name, title, m_lumisections_range + 1, -0.5, m_lumisections_range + 0.5)->getTH1F();
     }
-    // book the histograms for L1 tech triggers that are included in the L1 menu
+  }
+
+  if (m_l1tMenu and m_l1tTechMask) {
+    // book the rate histograms for the L1 Technical triggers
+    booker.setCurrentFolder( m_dqm_path + "/L1 Tech" );
+
+    // book the histograms for L1 algo triggers that are included in the L1 menu
     for (auto const & keyval: m_l1tMenu->gtTechnicalTriggerMap()) {
       int bit = keyval.second.algoBitNumber();
-      std::string const & name  = keyval.first.substr( 0, keyval.first.find_first_of(".") );
-      std::string const & title = keyval.first;
       // check if the trigger is unmasked in *any* partition
-      if ((m_l1tTechMask->gtTriggerMask()[bit] & 0xff) != 0xff)
-        m_l1t_tech_counts[bit] = booker.book1D(name, title,                 m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
-      else
-        m_l1t_tech_counts[bit] = booker.book1D(name, title + " (masked)",   m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
+      bool masked = ((m_l1tTechMask->gtTriggerMask().at(bit) & 0xff) == 0xff);
+      std::string const & name  = (boost::format("%s (bit %d)") % keyval.first.substr(0, keyval.first.find_first_of(".")) % bit).str();
+      std::string const & title = (boost::format("%s (bit %d)%s") % keyval.first % bit % (masked ? " (masked)" : "")).str();
+      m_l1t_algo_counts.at(bit) = booker.book1D(name, title, m_lumisections_range + 1, -0.5, m_lumisections_range + 0.5)->getTH1F();
     }
-    // book the histograms for L1 tech triggers that are not included in the L1 menu
-    for (unsigned int bit = 0; bit < m_l1tTechMask->gtTriggerMask().size(); ++bit) if (not m_l1t_tech_counts[bit]) {
-      std::string const & name  = (boost::format("L1_tech_bit_%03d") % bit).str();
-      std::string const & title = (boost::format("L1 tech bit %03d") % bit).str();
+    // book the histograms for L1 algo triggers that are not included in the L1 menu
+    for (unsigned int bit = 0; bit < m_l1tTechMask->gtTriggerMask().size(); ++bit) if (not m_l1t_algo_counts.at(bit)) {
       // check if the trigger is unmasked in *any* partition
-      if ((m_l1tTechMask->gtTriggerMask()[bit] & 0xff) != 0xff)
-        m_l1t_tech_counts[bit] = booker.book1D(name, title,                 m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
-      else
-        m_l1t_tech_counts[bit] = booker.book1D(name, title + " (masked)",   m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
+      bool masked = ((m_l1tTechMask->gtTriggerMask().at(bit) & 0xff) == 0xff);
+      std::string const & name  = (boost::format("L1 Tech (bit %d)") % bit).str();
+      std::string const & title = (boost::format("L1 Tech (bit %d)%s") % bit % (masked ? " (masked)" : "")).str();
+      m_l1t_algo_counts.at(bit) = booker.book1D(name, title, m_lumisections_range + 1, -0.5, m_lumisections_range + 0.5)->getTH1F();
     }
+
   }
 
   if (m_hltConfig.inited()) {
@@ -284,12 +306,12 @@ void TriggerRatesMonitor::bookHistograms(DQMStore::IBooker & booker, edm::Run co
     booker.setCurrentFolder( m_dqm_path + "/HLT" );
     for (unsigned int i = 0; i < m_hltConfig.size(); ++i) {
       std::string const & name = m_hltConfig.triggerName(i);
-      m_hlt_counts[i].wasrun        = booker.book1D(name + "_wasrun",           name + " counts",           m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
-      m_hlt_counts[i].pass_l1_seed  = booker.book1D(name + "_pass_l1_seed",     name + " pass L1 seed",     m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
-      m_hlt_counts[i].pass_prescale = booker.book1D(name + "_pass_prescale",    name + " pass prescaler",   m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
-      m_hlt_counts[i].accept        = booker.book1D(name + "_accept",           name + " trigger",          m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
-      m_hlt_counts[i].reject        = booker.book1D(name + "_reject",           name + " reject",           m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
-      m_hlt_counts[i].error         = booker.book1D(name + "_error",            name + " error count",      m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
+      m_hlt_counts[i].wasrun        = booker.book1D(name + " counts",           name + " counts",           m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
+      m_hlt_counts[i].pass_l1_seed  = booker.book1D(name + " pass L1 seed",     name + " pass L1 seed",     m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
+      m_hlt_counts[i].pass_prescale = booker.book1D(name + " pass prescaler",   name + " pass prescaler",   m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
+      m_hlt_counts[i].accept        = booker.book1D(name + " accept",           name + " accept",           m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
+      m_hlt_counts[i].reject        = booker.book1D(name + " reject",           name + " reject",           m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
+      m_hlt_counts[i].error         = booker.book1D(name + " error",            name + " error",            m_lumisections_range + 1,   -0.5,   m_lumisections_range + 0.5)->getTH1F();
       // look for the index of the (last) L1 seed and prescale module in each path
       m_hltIndices[i].index_l1_seed  = m_hltConfig.size(i);
       m_hltIndices[i].index_prescale = m_hltConfig.size(i);
@@ -314,6 +336,12 @@ void TriggerRatesMonitor::bookHistograms(DQMStore::IBooker & booker, edm::Run co
     auto const & datasets = m_hltConfig.datasetNames();
     for (unsigned int i = 0; i < datasets.size(); ++i)
       m_dataset_counts[i] = booker.book1D(datasets[i], datasets[i], m_lumisections_range + 1, -0.5, m_lumisections_range + 0.5)->getTH1F();
+
+    // book the HLT streams rate histograms
+    booker.setCurrentFolder( m_dqm_path + "/Streams" );
+    auto const & streams = m_hltConfig.streamNames();
+    for (unsigned int i = 0; i < streams.size(); ++i)
+      m_stream_counts[i]  = booker.book1D(streams[i],  streams[i],  m_lumisections_range + 1, -0.5, m_lumisections_range + 0.5)->getTH1F();
   }
 }
 
@@ -348,43 +376,60 @@ void TriggerRatesMonitor::analyze(edm::Event const & event, edm::EventSetup cons
     L1GlobalTriggerReadoutRecord const & l1tResults = * get<L1GlobalTriggerReadoutRecord>(event, m_l1t_results);
 
     const std::vector<bool> & algoword = l1tResults.decisionWord();
-    assert(algoword.size() == m_l1t_algo_counts.size());
-    for (unsigned int i = 0; i < m_l1t_algo_counts.size(); ++i)
-      if (algoword[i])
-        m_l1t_algo_counts[i]->Fill(lumisection);
+    if (algoword.size() == m_l1t_algo_counts.size()) {
+      for (unsigned int i = 0; i < m_l1t_algo_counts.size(); ++i)
+        if (algoword[i])
+          m_l1t_algo_counts[i]->Fill(lumisection);
+    } else {
+      edm::LogWarning("TriggerRatesMonitor") << "This should never happen: the size of the L1 Algo Trigger mask does not match the number of L1 Algo Triggers";
+    }
 
     const std::vector<bool> & techword = l1tResults.technicalTriggerWord();
-    assert(techword.size() == m_l1t_tech_counts.size());
-    for (unsigned int i = 0; i < m_l1t_tech_counts.size(); ++i)
-      if (techword[i])
-        m_l1t_tech_counts[i]->Fill(lumisection);
+    if (techword.size() == m_l1t_tech_counts.size()) {
+      for (unsigned int i = 0; i < m_l1t_tech_counts.size(); ++i)
+        if (techword[i])
+          m_l1t_tech_counts[i]->Fill(lumisection);
+    } else {
+      edm::LogWarning("TriggerRatesMonitor") << "This should never happen: the size of the L1 Tech Trigger mask does not match the number of L1 Tech Triggers";
+    }
   }
 
   // monitor the HLT triggers and datsets rates
   if (m_hltConfig.inited()) {
     edm::TriggerResults const & hltResults = * get<edm::TriggerResults>(event, m_hlt_results);
-    assert(hltResults.size() == m_hlt_counts.size());
-    for (unsigned int i = 0; i < m_hlt_counts.size(); ++i) {
-      edm::HLTPathStatus const & path = hltResults.at(i);
-      if (path.wasrun())
-        m_hlt_counts[i].wasrun->Fill(lumisection);
-      if (path.index() > m_hltIndices[i].index_l1_seed)
-        m_hlt_counts[i].pass_l1_seed->Fill(lumisection);
-      if  (path.index() > m_hltIndices[i].index_prescale)
-        m_hlt_counts[i].pass_prescale->Fill(lumisection);
-      if (path.accept())
-        m_hlt_counts[i].accept->Fill(lumisection);
-      else if (path.error())
-        m_hlt_counts[i].error ->Fill(lumisection);
-      else
-        m_hlt_counts[i].reject->Fill(lumisection);
+    if (hltResults.size() == m_hlt_counts.size()) {
+      for (unsigned int i = 0; i < m_hlt_counts.size(); ++i) {
+        edm::HLTPathStatus const & path = hltResults.at(i);
+        if (path.wasrun())
+          m_hlt_counts[i].wasrun->Fill(lumisection);
+        if (path.index() > m_hltIndices[i].index_l1_seed)
+          m_hlt_counts[i].pass_l1_seed->Fill(lumisection);
+        if  (path.index() > m_hltIndices[i].index_prescale)
+          m_hlt_counts[i].pass_prescale->Fill(lumisection);
+        if (path.accept())
+          m_hlt_counts[i].accept->Fill(lumisection);
+        else if (path.error())
+          m_hlt_counts[i].error ->Fill(lumisection);
+        else
+          m_hlt_counts[i].reject->Fill(lumisection);
+      }
+    } else {
+      edm::LogWarning("TriggerRatesMonitor") << "This should never happen: the number of HLT paths has changed since the beginning of the run";
     }
 
     for (unsigned int i = 0; i < m_datasets.size(); ++i)
       for (unsigned int j: m_datasets[i])
         if (hltResults.at(j).accept()) {
           m_dataset_counts[i]->Fill(lumisection);
-          // ensure each dataset is incremented only once per event 
+          // ensure each dataset is incremented only once per event
+          break;
+        }
+
+    for (unsigned int i = 0; i < m_streams.size(); ++i)
+      for (unsigned int j: m_streams[i])
+        if (hltResults.at(j).accept()) {
+          m_stream_counts[i]->Fill(lumisection);
+          // ensure each stream is incremented only once per event
           break;
         }
   }
