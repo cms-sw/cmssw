@@ -14,19 +14,25 @@
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+
 //
 // Class declaration
 //
 
-class SiStripFEDDumpPlugin : public edm::EDAnalyzer
+class SiStripFEDDumpPlugin : public DQMEDAnalyzer
 {
  public:
   explicit SiStripFEDDumpPlugin(const edm::ParameterSet&);
   ~SiStripFEDDumpPlugin();
  private:
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  //virtual void beginJob() override;
+  virtual void beginJob();
+  //virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  //virtual void endJob() override;
+  virtual void endJob();
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   //tag of FEDRawData collection
   edm::InputTag rawDataTag_;
@@ -85,6 +91,10 @@ SiStripFEDDumpPlugin::beginJob()
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 SiStripFEDDumpPlugin::endJob()
+{
+}
+
+void SiStripFEDDumpPlugin::bookHistograms(DQMStore::IBooker & ibooker , const edm::Run & run, const edm::EventSetup & eSetup)
 {
 }
 

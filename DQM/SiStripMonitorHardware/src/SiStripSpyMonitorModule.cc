@@ -10,7 +10,7 @@
 
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+//#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -43,11 +43,13 @@
 #include "DQM/SiStripMonitorHardware/interface/SiStripSpyUtilities.h"
 #include "DQM/SiStripMonitorHardware/interface/SPYHistograms.h"
 
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 //
 // Class declaration
 //
 
-class SiStripSpyMonitorModule : public edm::EDAnalyzer
+class SiStripSpyMonitorModule : public DQMEDAnalyzer
 {
  public:
 
@@ -57,9 +59,9 @@ class SiStripSpyMonitorModule : public edm::EDAnalyzer
 
  private:
 
-  virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void dqmBeginRun(const edm::Run& , const edm::EventSetup& );
 
 
   //check if contains pedsubtr data = 0
@@ -196,33 +198,33 @@ SiStripSpyMonitorModule::~SiStripSpyMonitorModule()
 
 }
 
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-SiStripSpyMonitorModule::beginJob()
+void SiStripSpyMonitorModule::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) 
 {
-
-  //get DQM store
-  dqm_ = &(*edm::Service<DQMStore>());
-  dqm_->setCurrentFolder(folderName_);
-
-  LogInfo("SiStripSpyMonitorModule") << " Histograms will be written in " 
-				     << folderName_ 
-				     << ". Current folder is : " 
-				     << dqm_->pwd() 
-				     << std::endl;
-  
-  //this propagates dqm_ to the histoclass, must be called !
-  histManager_.bookTopLevelHistograms(dqm_);
-  
-  if (fillAllDetailedHistograms_) histManager_.bookAllFEDHistograms();
-
   evt_ = 0;
   firstHeaderBit_ = 0;
   firstTrailerBit_ = 0;
 }
 
+void SiStripSpyMonitorModule::bookHistograms(DQMStore::IBooker & ibooker , const edm::Run & run, const edm::EventSetup & eSetup)
+{
+  ibooker.setCurrentFolder(folderName_);
 
+  LogInfo("SiStripSpyMonitorModule") << " Histograms will be written in " 
+				     << folderName_ 
+				     << ". Current folder is : " 
+				     << ibooker.pwd() 
+				     << std::endl;
+  
+  //this propagates dqm_ to the histoclass, must be called !
+  histManager_.bookTopLevelHistograms(ibooker);
+  
+  if (fillAllDetailedHistograms_) histManager_.bookAllFEDHistograms(ibooker);
+
+  //dummy error object
+  SPYHistograms::Errors lError;
+  for (uint16_t lFedId = sistrip::FED_ID_MIN; lFedId <= sistrip::FED_ID_MAX; ++lFedId) 
+    histManager_.bookFEDHistograms(ibooker , lFedId , lError , true);
+}
 
 // ------------ method called to for each event  ------------
 void
@@ -255,11 +257,6 @@ SiStripSpyMonitorModule::analyze(const edm::Event& iEvent,
   //get map of TotalEventCount and L1ID, indexed by fedId, and APVaddress indexed by fedIndex.
   edm::Handle<std::vector<uint32_t> > lSpyL1IDHandle,lSpyTotCountHandle,lSpyAPVeHandle;
   try {
-    /*
-    iEvent.getByLabel(spyL1Tag_,lSpyL1IDHandle);
-    iEvent.getByLabel(spyTotCountTag_,lSpyTotCountHandle);
-    iEvent.getByLabel(spyAPVeTag_,lSpyAPVeHandle);
-    */
     iEvent.getByToken(spyL1Token_,lSpyL1IDHandle);
     iEvent.getByToken(spyTotCountToken_,lSpyTotCountHandle);
     iEvent.getByToken(spyAPVeToken_,lSpyAPVeHandle);
@@ -275,7 +272,6 @@ SiStripSpyMonitorModule::analyze(const edm::Event& iEvent,
   //retrieve the scope digis
   edm::Handle<edm::DetSetVector<SiStripRawDigi> > digisHandle;
   try {
-    //    iEvent.getByLabel(spyScopeRawDigisTag_, digisHandle);
     iEvent.getByToken(spyScopeRawDigisToken_, digisHandle);
   }
   catch (const cms::Exception& e) {
@@ -287,7 +283,6 @@ SiStripSpyMonitorModule::analyze(const edm::Event& iEvent,
   //retrieve the reordered payload digis
   edm::Handle<edm::DetSetVector<SiStripRawDigi> > payloadHandle;
   try {
-    //    iEvent.getByLabel(spyPedSubtrDigisTag_, payloadHandle);
     iEvent.getByToken(spyPedSubtrDigisToken_, payloadHandle);
   }
   catch (const cms::Exception& e) {
@@ -531,30 +526,6 @@ SiStripSpyMonitorModule::analyze(const edm::Event& iEvent,
   firstEvent = false;
 
 }//analyze method
-
-
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-SiStripSpyMonitorModule::endJob()
-{
-
-  LogInfo("SiStripSpyMonitorModule") << "WriteDQMStore ? " << writeDQMStore_ 
-				     << " file name = " << dqmStoreFileName_
-				     << std::endl;
-  if (writeDQMStore_) dqm_->save(dqmStoreFileName_);
-
-  const unsigned int nFiles = outfileNames_.size();
-  for (unsigned int i(0); i<nFiles; i++){
-    outfile_[i].close();
-  }
-
-  outfileMap_.clear();
-  outfileNames_.clear();
-
-}
-
-
 
 bool SiStripSpyMonitorModule::hasNegativePedSubtr(const edm::DetSetVector<SiStripRawDigi>::detset & channelDigis,
 						  uint16_t aPair)
