@@ -11,7 +11,7 @@ def customise(process):
     process.load("RecoParticleFlow.PFTracking.pfTrack_cfi")
     process.pfTrack.UseQuality = cms.bool(True)   
     process.pfTrack.TrackQuality = cms.string('highPurity')   
-    process.pfTrack.TkColList = cms.VInputTag("hiSelectedTracks")  
+    process.pfTrack.TkColList = cms.VInputTag("hiGeneralTracks")  
     process.pfTrack.PrimaryVertexLabel = cms.InputTag("hiSelectedVertex")
     process.pfTrack.MuColl = cms.InputTag("muons")
     process.pfTrack.GsfTracksInEvents = cms.bool(False)

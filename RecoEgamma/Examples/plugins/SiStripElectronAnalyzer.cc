@@ -965,7 +965,7 @@ SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	if(clust.isNonnull()) {
 	  //	  LogDebug("") << " barycenter " << clust->barycenter() ;
 	  //	  const std::vector<uint16_t> amplitudes=clust->amplitudes();
-	  const std::vector<uint8_t> amplitudes=clust->amplitudes();
+	  const auto & amplitudes=clust->amplitudes();
 	  for(size_t i = 0 ; i<amplitudes.size(); i++ ){
 	    Signal +=amplitudes[i] ;
 	    //ignore for now	     Noise2 +=SiStripNoiseService_.getNoise(detid,clust->firstStrip()+i)*SiStripNoiseService_.getNoise(detid,clust->firstStrip()+i);
@@ -1073,7 +1073,7 @@ SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 	if(clust.isNonnull()) {
 	  //	  LogDebug("") << " barycenter " << clust->barycenter() ;
 	  //	  const std::vector<uint16_t> amplitudes=clust->amplitudes();
-	  const std::vector<uint8_t> amplitudes=clust->amplitudes();
+	  const auto &  amplitudes=clust->amplitudes();
 	  for(size_t i = 0 ; i<amplitudes.size(); i++ ){
 	    Signal +=amplitudes[i] ;
 	    //ignore for now	     Noise2 +=SiStripNoiseService_.getNoise(detid,clust->firstStrip()+i)*SiStripNoiseService_.getNoise(detid,clust->firstStrip()+i);

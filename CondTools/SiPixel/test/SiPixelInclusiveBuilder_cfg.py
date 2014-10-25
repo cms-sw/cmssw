@@ -218,15 +218,6 @@ process.MapWriter = cms.EDAnalyzer("SiPixelFedCablingMapWriter",
 ###### LORENTZ ANGLE OBJECT ######
 process.SiPixelLorentzAngle = cms.EDAnalyzer("SiPixelLorentzAngleDB",
     magneticField = cms.double(3.8),
-#    bPixLorentzAnglePerTesla = cms.double(0.106),
-#    bPixLorentzAnglePerTesla_layer1 = cms.double(0.115),
-#    bPixLorentzAnglePerTesla_layer2 = cms.double(0.124),
-#    bPixLorentzAnglePerTesla_layer3 = cms.double(0.133),
-#    fPixLorentzAnglePerTesla = cms.double(0.091),
-#    fPixLorentzAnglePerTesla_side1_disk1 = cms.double(0.092),
-#    fPixLorentzAnglePerTesla_side1_disk2 = cms.double(0.102),
-#    fPixLorentzAnglePerTesla_side2_disk1 = cms.double(0.082),
-#    fPixLorentzAnglePerTesla_side2_disk2 = cms.double(0.071),
     #in case of PSet
     BPixParameters = cms.untracked.VPSet(
         cms.PSet(
@@ -408,8 +399,6 @@ process.SiPixelLorentzAngle = cms.EDAnalyzer("SiPixelLorentzAngleDB",
 
 process.SiPixelLorentzAngleSim = cms.EDAnalyzer("SiPixelLorentzAngleDB",
     magneticField = cms.double(3.8),
-    #bPixLorentzAnglePerTesla = cms.double(0.106),
-    #fPixLorentzAnglePerTesla = cms.double(0.091),
     #in case lorentz angle values for bpix should be read from file -> not implemented yet
     useFile = cms.bool(False),
     record = cms.untracked.string('SiPixelLorentzAngleSimRcd'),

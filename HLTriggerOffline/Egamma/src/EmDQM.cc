@@ -45,7 +45,7 @@ EmDQM::EmDQM(const edm::ParameterSet& pset_) : pset(pset_)
   histoFillerL1NonIso = new HistoFiller<l1extra::L1EmParticleCollection>(this);
 
   // consumes
-  genParticles_token = consumes<edm::View<reco::Candidate> >(edm::InputTag("genParticles", "", "SIM"));
+  genParticles_token = consumes<edm::View<reco::Candidate> >(edm::InputTag("genParticles"));
   triggerObject_token = consumes<trigger::TriggerEventWithRefs>(triggerObject_);
   hltResults_token = consumes<edm::TriggerResults>(edm::InputTag("TriggerResults", "", triggerObject_.process()));
   if (autoConfMode_) {

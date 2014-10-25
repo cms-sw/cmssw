@@ -39,7 +39,7 @@ class DDCompactView;
 class DDDWorld;
 class MagneticField;
 
-class G4RunManagerKernel;
+class G4MTRunManagerKernel;
 class G4Run;
 class G4Event;
 class G4Field;
@@ -109,7 +109,7 @@ private:
   void terminateRun();
   void DumpMagneticField( const G4Field*) const;
 
-  G4RunManagerKernel * m_kernel;
+  G4MTRunManagerKernel * m_kernel;
     
   std::unique_ptr<PhysicsList> m_physicsList;
   bool m_managerInitialized;

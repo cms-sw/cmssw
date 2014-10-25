@@ -32,6 +32,7 @@ namespace edm {
             std::string const* sourceCacheTempDir() const;
             double const* sourceCacheMinFree() const;
             std::string const* sourceCacheHint() const;
+            std::string const* sourceCloneCacheHint() const override;
             std::string const* sourceReadHint() const;
             unsigned int const* sourceTTreeCacheSize() const;
             unsigned int const* sourceTimeout() const;
@@ -63,6 +64,8 @@ namespace edm {
             double const*       m_cacheMinFreePtr;
             std::string         m_cacheHint;
             std::string const*  m_cacheHintPtr;
+            std::string         m_cloneCacheHint;
+            std::string const*  m_cloneCacheHintPtr;
             std::string         m_readHint;
             std::string const*  m_readHintPtr;
             unsigned int        m_ttreeCacheSize;

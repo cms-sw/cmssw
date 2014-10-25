@@ -595,7 +595,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 
       for(edmNew::DetSet<SiStripCluster>::const_iterator clusterIter = cluster_detset.begin(); clusterIter!= cluster_detset.end(); clusterIter++){
 
-	const std::vector<uint8_t>& ampls = clusterIter->amplitudes();
+	const auto & ampls = clusterIter->amplitudes();
 	// cluster position
 	float cluster_position = clusterIter->barycenter();
 	// start defined as nr. of first strip beloning to the cluster

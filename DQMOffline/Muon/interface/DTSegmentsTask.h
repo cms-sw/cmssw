@@ -16,13 +16,15 @@
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+
 #include <string>
 #include <vector>
 
-class DQMStore;
-class MonitorElement;
+class DTSegmentsTask: public DQMEDAnalyzer{
 
-class DTSegmentsTask: public edm::EDAnalyzer{
 public:
   /// Constructor
   DTSegmentsTask(const edm::ParameterSet& pset);
@@ -31,25 +33,17 @@ public:
   virtual ~DTSegmentsTask();
 
   /// book the histos
-  void beginJob(void);
-  void beginRun(const edm::Run&, const edm::EventSetup&);
-
-  /// Endjob
-  void endJob();
-  void endRun(const edm::Run&, const edm::EventSetup&);
-
-    // Operations
-  void analyze(const edm::Event& event, const edm::EventSetup& setup);
+  void analyze(const edm::Event&, const edm::EventSetup&);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 protected:
 
 private:
 
-  // The BE interface
-  DQMStore* theDbe;
 
   // Switch for verbosity
   bool debug;
+  bool checkNoisyChannels;
   edm::ParameterSet parameters;
   
   // the histos

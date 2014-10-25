@@ -13,9 +13,6 @@
 RPCEfficiencyPerRingLayer::RPCEfficiencyPerRingLayer(const edm::ParameterSet& ps) {
 
   globalFolder_ = ps.getUntrackedParameter<std::string>("GlobalFolder", "RPC/RPCEfficiency/");
-  SaveFile  = ps.getUntrackedParameter<bool>("SaveFile", false);
-  NameFile  = ps.getUntrackedParameter<std::string>("NameFile","RPCEfficiency.root");
-
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 4);
   innermostRings_ = ps.getUntrackedParameter<int>("NumberOfInnermostEndcapRings", 2);
 
@@ -24,25 +21,18 @@ RPCEfficiencyPerRingLayer::RPCEfficiencyPerRingLayer(const edm::ParameterSet& ps
 
 RPCEfficiencyPerRingLayer::~RPCEfficiencyPerRingLayer(){ }
 
-void RPCEfficiencyPerRingLayer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){}
+void RPCEfficiencyPerRingLayer::beginJob(){}
 
-void RPCEfficiencyPerRingLayer::beginJob(){
+void RPCEfficiencyPerRingLayer::dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&){}
 
-  dbe_ = edm::Service<DQMStore>().operator->();
-}
-
-void RPCEfficiencyPerRingLayer::beginRun(const edm::Run& r, const edm::EventSetup& c){
-
-  if(dbe_ == 0) return;
-
-  dbe_->setCurrentFolder(globalFolder_);
-  EfficiencyPerRing = dbe_->book1D("EfficiencyPerRing","Efficiency per Ring",12,0.5,12.5);
-  EfficiencyPerLayer = dbe_->book1D("EfficiencyPerLayer","Efficiency per Layer",6,0.5,6.5);
+void RPCEfficiencyPerRingLayer::dqmEndJob(DQMStore::IBooker & ibooker , DQMStore::IGetter & igetter){
 
 
-}
+  ibooker.setCurrentFolder(globalFolder_);
+  EfficiencyPerRing = ibooker.book1D("EfficiencyPerRing","Efficiency per Ring",12,0.5,12.5);
+  EfficiencyPerLayer = ibooker.book1D("EfficiencyPerLayer","Efficiency per Layer",6,0.5,6.5);
 
-void RPCEfficiencyPerRingLayer::endRun(const edm::Run& r, const edm::EventSetup& c){
+
 
    std::stringstream meName1;
    MonitorElement * myMe1;
@@ -86,8 +76,8 @@ void RPCEfficiencyPerRingLayer::endRun(const edm::Run& r, const edm::EventSetup&
 			k++;}
 
 		myMe1 = NULL; myMe1 = NULL;
-       		myMe1 = dbe_->get(meName1.str());
-       		myMe2 = dbe_->get(meName2.str());
+       		myMe1 = igetter.get(meName1.str());
+       		myMe2 = igetter.get(meName2.str());
 
 		if(myMe1 && myMe2){
 		  TH1 * histo1 = myMe1->getTH1();
@@ -136,8 +126,8 @@ void RPCEfficiencyPerRingLayer::endRun(const edm::Run& r, const edm::EventSetup&
 			meName1<<globalFolder_<<"BarrelPerLayer/ExpLayerW"<<j;
 	       		meName2<<globalFolder_<<"BarrelPerLayer/ObsLayerW"<<j;}
 		myMe1 = NULL; myMe1 = NULL;
-		myMe1 = dbe_->get(meName1.str());
-	       	myMe2 = dbe_->get(meName2.str());
+		myMe1 = igetter.get(meName1.str());
+	       	myMe2 = igetter.get(meName2.str());
 		if(myMe1 && myMe2){
 			Exp += myMe1->getBinContent(i);
 			Obs += myMe2->getBinContent(i);
@@ -153,9 +143,7 @@ void RPCEfficiencyPerRingLayer::endRun(const edm::Run& r, const edm::EventSetup&
 	binName<<"Layer "<<i;
 	EfficiencyPerLayer->setBinLabel(i, binName.str());
 
-  }
-
-   if(SaveFile) dbe_->save(NameFile);
+   }
 
 }
 

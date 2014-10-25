@@ -196,7 +196,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
 
     volumeHandle* v = new volumeHandle(fv, expand);
 
-    if (theGridFiles.get()) {
+    if (theGridFiles!=0) {
       int key = (v->volumeno)*100+v->copyno;
       TableFileMap::const_iterator itable = theGridFiles->find(key);
       if (itable == theGridFiles->end()) {
@@ -678,8 +678,8 @@ void MagGeoBuilderFromDDD::setScaling(const std::vector<int>& keys,
 }
 
 
-void MagGeoBuilderFromDDD::setGridFiles(auto_ptr<TableFileMap> gridFiles){
-  theGridFiles=gridFiles;
+void MagGeoBuilderFromDDD::setGridFiles(const TableFileMap& gridFiles){
+  theGridFiles=&gridFiles;
 }
 
 

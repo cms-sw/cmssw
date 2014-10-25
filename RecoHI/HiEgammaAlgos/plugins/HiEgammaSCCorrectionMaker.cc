@@ -1,8 +1,6 @@
 #include "RecoHI/HiEgammaAlgos/plugins/HiEgammaSCCorrectionMaker.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -37,8 +35,10 @@ HiEgammaSCCorrectionMaker::HiEgammaSCCorrectionMaker(const edm::ParameterSet& ps
   else                               verbosity_ = HiEgammaSCEnergyCorrectionAlgo::pERROR;
 
   // the input producers
-  rHInputProducer_ = ps.getParameter<edm::InputTag>("recHitProducer");
-  sCInputProducer_ = ps.getParameter<edm::InputTag>("rawSuperClusterProducer");
+  rHInputProducerTag_ = ps.getParameter<edm::InputTag>("recHitProducer");
+  sCInputProducerTag_ = ps.getParameter<edm::InputTag>("rawSuperClusterProducer");
+  rHInputProducer_ = consumes<EcalRecHitCollection>(rHInputProducerTag_);
+  sCInputProducer_ = consumes<reco::SuperClusterCollection>(sCInputProducerTag_);
   std::string sCAlgo_str = ps.getParameter<std::string>("superClusterAlgo");
 
   // determine which BasicCluster algo we are correcting for
@@ -106,7 +106,7 @@ HiEgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
   es.get<CaloTopologyRecord>().get(theCaloTopo_);
   const CaloTopology *topology = theCaloTopo_.product();
 
-  std::string rHInputCollection = rHInputProducer_.instance();
+  std::string rHInputCollection = rHInputProducerTag_.instance();
   if(rHInputCollection == "EcalRecHitsEB") {
     geometry_p = geometry.getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
   } else if(rHInputCollection == "EcalRecHitsEE") {
@@ -121,21 +121,21 @@ HiEgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
   // Get raw SuperClusters from the event    
   Handle<reco::SuperClusterCollection> pRawSuperClusters;
   try { 
-    evt.getByLabel(sCInputProducer_, pRawSuperClusters);
+    evt.getByToken(sCInputProducer_, pRawSuperClusters);
   } catch ( cms::Exception& ex ) {
     edm::LogError("HiEgammaSCCorrectionMakerError") 
       << "Error! can't get the rawSuperClusters " 
-      << sCInputProducer_.label() ;
+      << sCInputProducerTag_.label() ;
   }    
   
   // Get the RecHits from the event
   Handle<EcalRecHitCollection> pRecHits;
   try { 
-    evt.getByLabel(rHInputProducer_, pRecHits);
+    evt.getByToken(rHInputProducer_, pRecHits);
   } catch ( cms::Exception& ex ) {
     edm::LogError("HiEgammaSCCorrectionMakerError") 
       << "Error! can't get the RecHits " 
-      << rHInputProducer_.label();
+      << rHInputProducerTag_.label();
   }    
   
   // Create a pointer to the RecHits and raw SuperClusters

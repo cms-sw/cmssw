@@ -30,8 +30,9 @@
 #include <memory>
 
 namespace edm {
-  PileUp::PileUp(ParameterSet const& pset, double averageNumber, TH1F * const histo, const bool playback) :
+  PileUp::PileUp(ParameterSet const& pset, std::string sourcename, double averageNumber, TH1F * const histo, const bool playback) :
     type_(pset.getParameter<std::string>("type")),
+    Source_type_(sourcename),
     averageNumber_(averageNumber),
     intAverage_(static_cast<int>(averageNumber)),
     histo_(histo),
@@ -163,7 +164,19 @@ namespace edm {
     }
     }
     
-  }
+    if(Source_type_ == "cosmics") {  // allow for some extra flexibility for mixing
+      minBunch_cosmics_ = pset.getUntrackedParameter<int>("minBunch_cosmics", -1000);
+      maxBunch_cosmics_ = pset.getUntrackedParameter<int>("maxBunch_cosmics", 1000);
+    }
+
+
+
+  } // end of constructor
+
+
+
+
+
   void PileUp::beginJob () {
     input_->doBeginJob();
     if (provider_.get() != nullptr) {

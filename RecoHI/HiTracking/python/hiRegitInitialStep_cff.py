@@ -15,7 +15,7 @@ hiGeneralTrackFilter = cms.EDProducer("QualityFilter",
                                       )
 
 # NEW CLUSTERS (remove previously used clusters)
-hiRegitInitialStepClusters = cms.EDProducer("TrackClusterRemover",
+hiRegitInitialStepClusters = cms.EDProducer("HITrackClusterRemover",
                                             clusterLessSolution= cms.bool(True),
                                             oldClusterRemovalInfo = cms.InputTag("hiPixelPairClusters"),
                                             trajectories = cms.InputTag("hiGeneralTrackFilter"),
@@ -58,7 +58,7 @@ hiRegitInitialStepTrackCandidates        =  RecoTracker.IterativeTracking.Initia
 # fitting: feed new-names
 hiRegitInitialStepTracks                 = RecoTracker.IterativeTracking.InitialStep_cff.initialStepTracks.clone(
     src                 = 'hiRegitInitialStepTrackCandidates',
-    AlgorithmName = cms.string('iter0')
+    AlgorithmName = cms.string('initialStep')
 )
 
 

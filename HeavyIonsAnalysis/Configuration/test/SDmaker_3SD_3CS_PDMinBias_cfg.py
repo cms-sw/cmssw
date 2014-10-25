@@ -132,7 +132,7 @@ process.outputCsJetHI = cms.OutputModule("PoolOutputModule",
 
 process.outputCsJetHI.outputCommands.extend([
     "keep recoVertexs_hiSelectedVertex__RECO",
-    "keep recoTracks_hiSelectedTracks__RECO",
+    "keep recoTracks_hiGeneralTracks__RECO",
     "keep recoPhotons_*_*_*" ,
     "keep edmTriggerResults_TriggerResults__*" ,
     "keep triggerTriggerEvent_hltTriggerSummaryAOD__*"

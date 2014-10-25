@@ -20,8 +20,8 @@ process.source = cms.Source("PoolSource",
 )
 
 process.postprocessor_path = cms.Path(
-		process.HLTHiggsPostVal
-		#   process.hltHiggsPostProcessors #*
+        process.HLTHiggsPostVal
+        #   process.hltHiggsPostProcessors #*
     #    process.hltHiggsQualityTester
 )
 

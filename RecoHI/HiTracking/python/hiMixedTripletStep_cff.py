@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # NEW CLUSTERS (remove previously used clusters)
-hiMixedTripletClusters = cms.EDProducer("TrackClusterRemover",
+hiMixedTripletClusters = cms.EDProducer("HITrackClusterRemover",
                                         clusterLessSolution= cms.bool(True),
                                         oldClusterRemovalInfo = cms.InputTag("hiSecondPixelTripletClusters"),
                                         trajectories = cms.InputTag("hiSecondPixelTripletGlobalPrimTracks"),
@@ -162,7 +162,7 @@ hiMixedTripletTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ck
 # TRACK FITTING
 import RecoTracker.TrackProducer.TrackProducer_cfi
 hiMixedTripletGlobalPrimTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
-    AlgorithmName = cms.string('iter4'),
+    AlgorithmName = cms.string('mixedTripletStep'),
     src = 'hiMixedTripletTrackCandidates'
     )
 

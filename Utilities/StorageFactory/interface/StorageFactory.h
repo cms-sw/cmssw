@@ -6,7 +6,8 @@
 # include "Utilities/StorageFactory/interface/IOTypes.h"
 # include "Utilities/StorageFactory/interface/IOFlags.h"
 # include <string>
-# include <map>
+#include <memory>
+#include "tbb/concurrent_unordered_map.h"
 
 class Storage;
 class StorageFactory 
@@ -65,8 +66,8 @@ public:
 				  const std::string &path,
 				  int mode);
 
-protected:
-  typedef std::map<std::string, StorageMaker *> MakerTable;
+private:
+  typedef tbb::concurrent_unordered_map<std::string, std::shared_ptr<StorageMaker>> MakerTable;
 
   StorageFactory (void);
   StorageMaker *getMaker (const std::string &proto);

@@ -10,7 +10,7 @@ echo Start $0 $1 $2
 if ( $2 == "" ) then
   set tables = ( GRun )
 else if ( $2 == ALL ) then
-  set tables = ( FULL Fake 2014 GRun HIon PIon )
+  set tables = ( FULL Fake GRun HIon PIon )
 else if ( $2 == DEV ) then
   set tables = ( GRun HIon PIon )
 else if ( $2 == FULL ) then
@@ -18,7 +18,7 @@ else if ( $2 == FULL ) then
 else if ( $2 == FAKE ) then
   set tables = ( Fake )
 else if ( $2 == FROZEN ) then
-  set tables = ( 2014 )
+  set tables = ( Fake )
 else
   set tables = ( $2 )
 endif
@@ -43,7 +43,7 @@ foreach gtag ( $1 )
     rm -rf ${name}*
 
     set config = `grep tableName ${basepy}_HLT_${table}.py | cut -f2 -d "'"`
-    if ( ($table == 2014) || ($table == Fake) ) then
+    if ($table == Fake) then
       set basegt = auto:run1_${infix}_${table}
     else
       set basegt = auto:run2_${infix}_${table}

@@ -31,7 +31,6 @@
 #include "CondFormats/DTObjects/interface/DTLVStatus.h"
 #include "CondFormats/DTObjects/interface/DTMtime.h"
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
-#include "CondFormats/DTObjects/interface/DTRecoUncertainties.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 #include "CondFormats/DTObjects/interface/DTT0.h"
 #include "CondFormats/DTObjects/interface/DTTPGParameters.h"
@@ -202,6 +201,8 @@
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include "CondFormats/BTauObjects/interface/TrackProbabilityCalibration.h"
+#include "CondFormats/MFObjects/interface/MagFieldConfig.h"
+
 #include "CondFormats/Common/interface/BaseKeyed.h"
 //#include "CondFormats/Common/interface/KeyList.h"
 

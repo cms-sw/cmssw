@@ -57,6 +57,7 @@ class DQMStreamerReader : public edm::StreamerInputSource {
   bool acceptAllEvt_;
   bool matchTriggerSel_;
 
+  DQMFileIterator::LumiEntry currentLumi_;
   unsigned int runNumber_;
   std::string runInputDir_;
   std::string streamLabel_;
