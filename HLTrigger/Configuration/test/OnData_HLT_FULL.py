@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_2_1/HLT/V29 (CMSSW_7_2_0)
+# /dev/CMSSW_7_2_1/HLT/V30 (CMSSW_7_2_0)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFULL" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_2_1/HLT/V29')
+  tableName = cms.string('/dev/CMSSW_7_2_1/HLT/V30')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -14559,7 +14559,7 @@ process.hltPreEle17Ele12Ele10CaloIdTrackId = cms.EDFilter( "HLTPrescaler",
 process.hltEGL1EG12EG7EG5Filter = cms.EDFilter( "HLTEgammaL1MatchFilterRegional",
     doIsolated = cms.bool( False ),
     endcap_end = cms.double( 2.65 ),
-    saveTags = cms.bool( True ),
+    saveTags = cms.bool( False ),
     region_eta_size_ecap = cms.double( 1.0 ),
     barrel_end = cms.double( 1.4791 ),
     l1IsolatedTag = cms.InputTag( 'hltL1extraParticles','Isolated' ),
