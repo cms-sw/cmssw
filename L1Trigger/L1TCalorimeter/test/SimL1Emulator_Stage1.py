@@ -61,8 +61,8 @@ process.p1 = cms.Path(
     process.L1TCaloStage1_PPFromRaw
     +process.simGtDigis
     +process.l1ExtraLayer2
-    +process.l1tDigiToRaw
-    +process.l1tRawToDigi
+    ## +process.l1tDigiToRaw
+    ## +process.l1tRawToDigi
     )
 
 process.output_step = cms.EndPath(process.output)
