@@ -6,11 +6,10 @@ process = cms.Process("BeamPixel")
 #----------------------------
 # Common for PP and HI running
 #----------------------------
-### @@@@@@ Comment when running locally @@@@@@ ###
 process.load("DQM.Integration.test.inputsource_cfi")
-
-# for testing in lxplus
+### For testing on lxplus ###
 #process.load("DQM.Integration.test.fileinputsource_cfi")
+
 
 #----------------------------
 # HLT Filter
@@ -20,25 +19,22 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
     SelectedTriggerType = cms.int32(1)
 )
 
+
 #----------------------------
 # DQM Environment
 #----------------------------
 process.load("DQM.Integration.test.environment_cfi")
-### @@@@@@ Un-comment when running locally @@@@@@ ###
-#process.DQM.collectorHost = ''
-#process.DQM.collectorPort = 8160
-### @@@@@@ Un-comment when running locally @@@@@@ ###
 process.dqmEnv.subSystemFolder = "BeamPixel"
+### Un-comment when running locally ###
+#process.dqmSaver.dirName = '.'
 
 
 #----------------------------
 # Sub-system Configuration
 #----------------------------
-### @@@@@@ Comment when running locally @@@@@@ ###
 process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
-# Condition for lxplus
+### For testing on lxplus ###
 #process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
-### @@@@@@ Comment when running locally @@@@@@ ###
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
@@ -55,8 +51,6 @@ process.load("RecoVertex.PrimaryVertexProducer.OfflinePixel3DPrimaryVertices_cfi
 #----------------------------
 process.dqmmodules  = cms.Sequence(process.dqmEnv + process.dqmSaver)
 process.phystrigger = cms.Sequence(process.hltTriggerTypeFilter)
-
-
 
 
 #----------------------------
@@ -132,8 +126,6 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     # Define Path
     #----------------------------
     process.p = cms.Path(process.phystrigger*process.reconstruction_step*process.dqmmodules)
-
-
 
 
 #----------------------------
