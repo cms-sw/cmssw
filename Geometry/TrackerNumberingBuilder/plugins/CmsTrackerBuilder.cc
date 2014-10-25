@@ -7,6 +7,7 @@
 
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerSubStrctBuilder.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerPixelPhase1EndcapBuilder.h"
+#include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerPixelPhase2EndcapBuilder.h"
 
 #include <bitset>
 
@@ -18,6 +19,7 @@ CmsTrackerBuilder::buildComponent( DDFilteredView& fv, GeometricDet* g, std::str
 {
   CmsTrackerSubStrctBuilder theCmsTrackerSubStrctBuilder;
   CmsTrackerPixelPhase1EndcapBuilder theCmsTrackerPixelPhase1EndcapBuilder;
+  CmsTrackerPixelPhase2EndcapBuilder theCmsTrackerPixelPhase2EndcapBuilder;
 
   GeometricDet* subdet = new GeometricDet( &fv, theCmsTrackerStringToEnum.type( ExtractStringFromDDD::getString( s, &fv )));
   switch( theCmsTrackerStringToEnum.type( ExtractStringFromDDD::getString( s, &fv )))
@@ -30,6 +32,9 @@ CmsTrackerBuilder::buildComponent( DDFilteredView& fv, GeometricDet* g, std::str
     break;
   case GeometricDet::PixelPhase1EndCap:
     theCmsTrackerPixelPhase1EndcapBuilder.build( fv, subdet, s );      
+    break;
+  case GeometricDet::PixelPhase2EndCap:
+    theCmsTrackerPixelPhase2EndcapBuilder.build( fv, subdet, s );      
     break;
   case GeometricDet::TIB:
     theCmsTrackerSubStrctBuilder.build( fv, subdet, s );      

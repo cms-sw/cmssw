@@ -61,17 +61,15 @@ public:
   struct LessModExtPhase2Z{
     bool operator()(const GeometricDet* a, const GeometricDet* b) const
     {
-      std::string det_name_a = a->name();
-      std::string det_name_b = b->name();
-      if ( (det_name_a.find("PixelForwardDisk") < det_name_a.size()) &&
-	   (det_name_b.find("PixelForwardDisk") < det_name_b.size()) )
+      if ( (a->type()!=GeometricDet::OTPhase2Wheel) &&
+	   (b->type()!=GeometricDet::OTPhase2Wheel ) )
 	{
 	  // both are inner pixels
 	  // sort by z
 	  return fabs(a->translation().z()) < fabs(b->translation().z());  
 	}
-      else if ( !(det_name_a.find("PixelForwardDisk") < det_name_a.size()) &&
-		!(det_name_b.find("PixelForwardDisk") < det_name_b.size()) )
+      else if ( (a->type()==GeometricDet::OTPhase2Wheel) &&
+	   (b->type()==GeometricDet::OTPhase2Wheel ) )
 	{
 	  // both are outer tracker
 	  // sort by z
@@ -79,7 +77,7 @@ public:
 	}
       else
 	{
-	  if ( det_name_a.find("PixelForwardDisk") < det_name_a.size() )
+	  if ( b->type()==GeometricDet::OTPhase2Wheel )
 	    {
 	      // a is inner pixel
 	      // let it be first

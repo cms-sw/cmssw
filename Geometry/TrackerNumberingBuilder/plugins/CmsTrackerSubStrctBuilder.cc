@@ -6,7 +6,6 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerLayerBuilder.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerWheelBuilder.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerDiskBuilder.h"  
-#include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerOTDiscBuilder.h"  
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
 
@@ -21,7 +20,6 @@ CmsTrackerSubStrctBuilder::buildComponent( DDFilteredView& fv, GeometricDet* g, 
   CmsTrackerLayerBuilder theCmsTrackerLayerBuilder;
   CmsTrackerWheelBuilder theCmsTrackerWheelBuilder;
   CmsTrackerDiskBuilder  theCmsTrackerDiskBuilder;   
-  CmsTrackerOTDiscBuilder  theCmsTrackerOTDiscBuilder;   
 
   GeometricDet * subdet = new GeometricDet( &fv, theCmsTrackerStringToEnum.type( ExtractStringFromDDD::getString( s, &fv )));
   std::string subdet_name = subdet->name();
@@ -34,12 +32,7 @@ CmsTrackerSubStrctBuilder::buildComponent( DDFilteredView& fv, GeometricDet* g, 
     theCmsTrackerWheelBuilder.build(fv,subdet,s);      
     break;
   case GeometricDet::disk:    
-    LogDebug("DiskNames") << "The name of the components is: " << subdet_name;
-    if(subdet_name.find("PixelForwardDisk") < subdet_name.size()) {
-      theCmsTrackerDiskBuilder.build(fv,subdet,s);
-    }
-    else if(subdet_name.find("Disc") < subdet_name.size()) theCmsTrackerOTDiscBuilder.build(fv,subdet,s);
-    else edm::LogError("WrongDiskType")<<" ERROR - I was expecting a PixelForwardDisk or a Disc... I got a "<< subdet_name;
+    theCmsTrackerDiskBuilder.build(fv,subdet,s);
     break;
 
   default:
@@ -64,7 +57,7 @@ CmsTrackerSubStrctBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
     std::sort( comp.begin(), comp.end(), LessModZ());
     break;	
   case GeometricDet::disk:
-    std::sort( comp.begin(), comp.end(), LessModExtPhase2Z());
+    std::sort( comp.begin(), comp.end(), LessModZ());
     break;
   default:
     edm::LogError( "CmsTrackerSubStrctBuilder" ) << "ERROR - wrong SubDet to sort..... " << det->components().front()->type(); 

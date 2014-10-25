@@ -21,7 +21,7 @@ CmsTrackerPixelPhase1EndcapBuilder::buildComponent( DDFilteredView& fv, Geometri
   std::string subdet_name = subdet->name();
   switch( theCmsTrackerStringToEnum.type( ExtractStringFromDDD::getString( s, &fv )))
   {
-  case GeometricDet::disk:    
+  case GeometricDet::PixelPhase1Disk:    
     LogDebug("DiskNames") << "The name of the components is: " << subdet_name;
     theCmsTrackerPhase1DiskBuilder.build(fv,subdet,s);
     break;
@@ -41,8 +41,8 @@ CmsTrackerPixelPhase1EndcapBuilder::sortNS( DDFilteredView& fv, GeometricDet* de
 
   switch( comp.front()->type())
   {
-  case GeometricDet::disk:
-    std::sort( comp.begin(), comp.end(), LessModExtPhase2Z());
+  case GeometricDet::PixelPhase1Disk:
+    std::sort( comp.begin(), comp.end(), LessModZ());
     break;
   default:
     edm::LogError( "CmsTrackerPixelPhase1EndcapBuilder" ) << "ERROR - wrong SubDet to sort..... " << det->components().front()->type(); 
