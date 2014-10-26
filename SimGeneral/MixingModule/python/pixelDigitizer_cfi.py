@@ -53,7 +53,7 @@ pixelDigitizer = cms.PSet(
     killModules = cms.bool(True),
     NumPixelBarrel = cms.int32(3),
     NumPixelEndcap = cms.int32(2),
-    theInstLumiScaleFactor = cms.double(221.95),
+    theInstLumiScaleFactor = cms.double(261.9),
     bunchScale = cms.double(1.0), #for 25ns case
     thePixelColEfficiency_BPix1 = cms.double(1.0), 	# Only used when AddPixelInefficiency = true
     thePixelColEfficiency_BPix2 = cms.double(1.0),
@@ -210,10 +210,10 @@ pixelDigitizer = cms.PSet(
     theOuterEfficiency_FPix1 = cms.double(1.0),
     theOuterEfficiency_FPix2 = cms.double(1.0),
     thePUEfficiency_FPix_Inner = cms.vdouble(
-        1
+        1.0
         ),
     thePUEfficiency_FPix_Outer = cms.vdouble(
-        1
+        1.0
         ),
 DeadModules = cms.VPSet(
  cms.PSet(Dead_detID = cms.int32(302055940), Module = cms.string("tbmB"))

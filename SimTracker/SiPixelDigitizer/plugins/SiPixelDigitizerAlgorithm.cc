@@ -447,7 +447,7 @@ SiPixelDigitizerAlgorithm::PixelEfficiencies::PixelEfficiencies(const edm::Param
     i=FPixIndex;
     thePUEfficiency[i++] = conf.getParameter<std::vector<double> >("thePUEfficiency_FPix_Inner");
     thePUEfficiency[i++] = conf.getParameter<std::vector<double> >("thePUEfficiency_FPix_Outer");
-    if ( ((thePUEfficiency[3].size()==0) || (thePUEfficiency[4].size()==0)) && (NumberOfBarrelLayers==3) )
+    if ( ((thePUEfficiency[3].size()==0) || (thePUEfficiency[4].size()==0)) && (NumberOfEndcapDisks==2) )
     throw cms::Exception("Configuration") << "At least one (FPix) PU efficiency number is needed in efficiency config!";
   }
   // the first "NumberOfBarrelLayers" settings [0],[1], ... , [NumberOfBarrelLayers-1] are for the barrel pixels
@@ -550,7 +550,7 @@ void SiPixelDigitizerAlgorithm::calculateInstlumiFactor(PileupMixingContent* puI
     const std::vector<float> TrueInteractionList = puInfo->getMix_TrueInteractions();      
     const int bunchSpacing = puInfo->getMix_bunchSpacing();
 
-    if (bunchSpacing==50) bunchScale=1.0;
+    if (bunchSpacing==25) bunchScale=1.0;
 
     int pui = 0, p = 0;
     std::vector<int>::const_iterator pu;
@@ -1384,9 +1384,9 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
   int numRows = topol->nrows();
 
   // Predefined efficiencies
-  float pixelEfficiency  = 1.0;
-  float columnEfficiency = 1.0;
-  float chipEfficiency   = 1.0;
+  double pixelEfficiency  = 1.0;
+  double columnEfficiency = 1.0;
+  double chipEfficiency   = 1.0;
 
   // setup the chip indices conversion
   unsigned int Subid=DetId(detID).subdetId();
