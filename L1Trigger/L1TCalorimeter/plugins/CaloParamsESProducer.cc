@@ -187,6 +187,8 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setTauCalibrationLUTEndcapsB(tauCalibrationLUTEndcapsB);
   m_params.setTauCalibrationLUTEndcapsC(tauCalibrationLUTEndcapsC);
   m_params.setTauCalibrationLUTEta(tauCalibrationLUTEta);
+  m_params.setIsoTauThresholds(conf.getParameter<std::vector<double> >("isoTauThresholds"));
+  m_params.setDiIsoTauThresholds(conf.getParameter<std::vector<double> >("diIsoTauThresholds"));
 
   // jets
   m_params.setJetLsb(conf.getParameter<double>("jetLsb"));

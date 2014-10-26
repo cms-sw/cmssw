@@ -37,7 +37,8 @@ caloStage1Params.switchOffTauIso = cms.double(192.)
 caloStage1Params.tauRelativeJetIsolationLimit  = cms.double(100.)
 caloStage1Params.tauRelativeJetIsolationCut = cms.double(0.1)
 caloStage1Params.tauIsoLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauIsoLUT.txt")
-
+caloStage1Params.isoTauThresholds      = cms.vdouble(44,56,64,72,80,88)
+caloStage1Params.diIsoTauThresholds    = cms.vdouble(56,68,80,96,112,120)  ## number of iso+diIso threholds must be <= 12
 # jets
 caloStage1Params.jetLsb                = cms.double(0.5)
 caloStage1Params.jetSeedThreshold      = cms.double(10.)

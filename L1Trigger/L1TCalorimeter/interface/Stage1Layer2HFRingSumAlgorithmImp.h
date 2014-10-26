@@ -49,6 +49,7 @@ namespace l1t {
 			      const std::vector<l1t::Tau> * taus,
 			      std::vector<l1t::CaloSpare> * spares);
   private:
+    CaloParamsStage1* params_;
   };
 }
 

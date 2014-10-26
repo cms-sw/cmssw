@@ -135,6 +135,8 @@ namespace l1t {
     l1t::LUT* tauIsolationLUT() { return tauIsolationLUT_.get(); }
     std::string tauCalibrationType() const { return tauCalibrationType_; }
     std::vector<double> tauCalibrationParams() { return tauCalibrationParams_; }
+    std::vector<double> isoTauThresholds() { return isoTauThresholds_; }
+    std::vector<double> diIsoTauThresholds() { return diIsoTauThresholds_; }
     l1t::LUT* tauCalibrationLUTBarrelA() { return tauCalibrationLUTBarrelA_.get(); }
     l1t::LUT* tauCalibrationLUTBarrelB() { return tauCalibrationLUTBarrelB_.get(); }
     l1t::LUT* tauCalibrationLUTBarrelC() { return tauCalibrationLUTBarrelC_.get(); }
@@ -162,6 +164,8 @@ namespace l1t {
     void setTauCalibrationLUTEndcapsC(std::shared_ptr<LUT> lut) { tauCalibrationLUTEndcapsC_ = lut; }
     void setTauCalibrationLUTEta(std::shared_ptr<LUT> lut) { tauCalibrationLUTEta_ = lut; }
 
+    void setIsoTauThresholds(std::vector<double> params) { isoTauThresholds_ = params; }
+    void setDiIsoTauThresholds(std::vector<double> params) { diIsoTauThresholds_ = params; }
     // jets
     double jetLsb() const { return jetLsb_; }
     double jetSeedThreshold() const { return jetSeedThreshold_; }
@@ -377,7 +381,9 @@ namespace l1t {
     std::shared_ptr<l1t::LUT> tauCalibrationLUTEndcapsC_;
     std::shared_ptr<l1t::LUT> tauCalibrationLUTEta_;
 
-
+    // thesholds for iso and di-iso tau triggers (HF ET Ring Sum repurposing)
+    std::vector<double> isoTauThresholds_;
+    std::vector<double> diIsoTauThresholds_;
 
     /* Jets */
 

@@ -11,7 +11,7 @@
 //#include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"
 //#include "L1Trigger/L1TCalorimeter/interface/legacyGtHelper.h"
 
-l1t::Stage1Layer2DiTauAlgorithm::Stage1Layer2DiTauAlgorithm(CaloParamsStage1* )
+l1t::Stage1Layer2DiTauAlgorithm::Stage1Layer2DiTauAlgorithm(CaloParamsStage1* params) : params_(params)
 {
 }
 
@@ -24,7 +24,9 @@ void l1t::Stage1Layer2DiTauAlgorithm::processEvent(const std::vector<l1t::CaloRe
 						   const std::vector<l1t::Tau> * taus,
 						   std::vector<l1t::CaloSpare> * spares) {
 
-  int outputBits =0; // we have 12 bits to fill as output
+  const size_t nMaxThresh(12); // we have 12 bits to fill as output
+  int outputBits =0;
+
   // int overThreshold[32] = {0};
   // 
   // for(std::vector<l1t::Tau>::const_iterator itTau = taus->begin();
@@ -42,8 +44,12 @@ void l1t::Stage1Layer2DiTauAlgorithm::processEvent(const std::vector<l1t::CaloRe
   //   if(overThreshold[i] > 1) outputBits = i;
   
 
-  int DiIsoThresholds[6] ={12,56,64,72,80,88};
-  int   IsoThresholds[6] ={12,56,64,72,80,88};
+  //int DiIsoThresholds[6] ={12,56,64,72,80,88};
+
+  std::vector<double> DiIsoThresholds = params_->diIsoTauThresholds();
+  std::vector<double> IsoThresholds   = params_->isoTauThresholds();
+  int nDiIsoThresh=std::min(DiIsoThresholds.size(),nMaxThresh);
+  int nIsoThresh= (nDiIsoThresh+IsoThresholds.size()<=nMaxThresh) ? IsoThresholds.size() : (nDiIsoThresh+IsoThresholds.size())-nMaxThresh;
 
   std::vector<l1t::Tau> *isoTaus = new std::vector<l1t::Tau>();
   for(std::vector<l1t::Tau>::const_iterator itTau = taus->begin();
@@ -60,12 +66,16 @@ void l1t::Stage1Layer2DiTauAlgorithm::processEvent(const std::vector<l1t::CaloRe
   }
 
   int isowd=0;
-  int diIsowd=0; 
-  for (int i= 0; i<6; i++){
-    int thresh=IsoThresholds[i]/4;
+  for (int i= 0; i<nIsoThresh; i++){
+    std::cout << "IsoThresholds: " << IsoThresholds.at(i) << std::endl; 
+    int thresh=IsoThresholds.at(i)/4;
     if (isoPtMax >= thresh) isowd |= 1 << i;
+  }
 
-    thresh=DiIsoThresholds[i]/4;
+  int diIsowd=0; 
+  for (int i= 0; i<nDiIsoThresh; i++){
+    std::cout << "DiIsoThresholds: " << DiIsoThresholds.at(i) << std::endl; 
+    int thresh=DiIsoThresholds.at(i)/4;
     if (diIsoPtMax >= thresh) diIsowd |= 1 << i;
   }
 
