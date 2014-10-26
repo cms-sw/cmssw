@@ -1,5 +1,5 @@
-#ifndef OuterTrackerClusters_OuterTrackerClusters_h
-#define OuterTrackerClusters_OuterTrackerClusters_h
+#ifndef OuterTrackerCluster_OuterTrackerCluster_h
+#define OuterTrackerCluster_OuterTrackerCluster_h
 
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -17,27 +17,26 @@
 
 class DQMStore;
 
-class OuterTrackerClusters : public edm::EDAnalyzer {
+class OuterTrackerCluster : public edm::EDAnalyzer {
 
 public:
-  explicit OuterTrackerClusters(const edm::ParameterSet&);
-  ~OuterTrackerClusters();
+  explicit OuterTrackerCluster(const edm::ParameterSet&);
+  ~OuterTrackerCluster();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   //virtual void beginJob() ;
   virtual void endJob() ;
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
  
-	// TTCluster stacks (pure cluster!)
-	MonitorElement* Cluster_IMem_Barrel = 0;
-	MonitorElement* Cluster_IMem_Endcap = 0;
-	MonitorElement* Cluster_OMem_Barrel = 0;
-	MonitorElement* Cluster_OMem_Endcap = 0;
+	// TTCluster stacks
 	MonitorElement* Cluster_Gen_Barrel = 0;
 	MonitorElement* Cluster_Unkn_Barrel = 0;
 	MonitorElement* Cluster_Comb_Barrel = 0;
 	MonitorElement* Cluster_Gen_Endcap = 0;
 	MonitorElement* Cluster_Unkn_Endcap = 0;
 	MonitorElement* Cluster_Comb_Endcap = 0;
+	MonitorElement* Cluster_Gen_Eta = 0;
+	MonitorElement* Cluster_Unkn_Eta = 0;
+	MonitorElement* Cluster_Comb_Eta = 0;
 	
 
  private:

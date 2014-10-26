@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    OuterTrackerVClient
-// Class:      OuterTrackerVClient
+// Package:    OuterTrackerClient
+// Class:      OuterTrackerClient
 // 
-/**\class OuterTrackerVClient OuterTrackerVClient.cc Validation/OuterTrackerVClient/plugins/OuterTrackerVClient.cc
+/**\class OuterTrackerClient OuterTrackerClient.cc Validation/OuterTrackerClient/plugins/OuterTrackerClient.cc
 
  Description: [one line class summary]
 
@@ -29,7 +29,8 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
-#include "Validation/OuterTrackerVClient/interface/OuterTrackerVClient.h"
+#include "DQM/SiStripCommon/interface/SiStripHistoId.h"
+#include "Validation/OuterTrackerClient/interface/OuterTrackerClient.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
@@ -42,13 +43,13 @@
 //
 // constructors and destructor
 //
-OuterTrackerVClient::OuterTrackerVClient(const edm::ParameterSet& iConfig)
+OuterTrackerClient::OuterTrackerClient(const edm::ParameterSet& iConfig)
 {
  
 }
 
 
-OuterTrackerVClient::~OuterTrackerVClient()
+OuterTrackerClient::~OuterTrackerClient()
 {
  
 
@@ -61,7 +62,7 @@ OuterTrackerVClient::~OuterTrackerVClient()
 
 // ------------ method called for each event  ------------
 void
-OuterTrackerVClient::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+OuterTrackerClient::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   
 }
@@ -69,7 +70,7 @@ OuterTrackerVClient::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-OuterTrackerVClient::beginRun(const edm::Run& run, const edm::EventSetup& es)
+OuterTrackerClient::beginRun(const edm::Run& run, const edm::EventSetup& es)
 {
 
 
@@ -78,9 +79,9 @@ OuterTrackerVClient::beginRun(const edm::Run& run, const edm::EventSetup& es)
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-OuterTrackerVClient::endJob(void) 
+OuterTrackerClient::endJob(void) 
 {
 
 }
 
-DEFINE_FWK_MODULE(OuterTrackerVClient);
+DEFINE_FWK_MODULE(OuterTrackerClient);

@@ -1,5 +1,5 @@
-#ifndef OuterTrackerVClient_OuterTrackerVClient_h
-#define OuterTrackerVClient_OuterTrackerVClient_h
+#ifndef OuterTrackerClient_OuterTrackerClient_h
+#define OuterTrackerClient_OuterTrackerClient_h
 
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -16,11 +16,11 @@
 
 class DQMStore;
 
-class OuterTrackerVClient : public edm::EDAnalyzer {
+class OuterTrackerClient : public edm::EDAnalyzer {
 
 public:
-  explicit OuterTrackerVClient(const edm::ParameterSet&);
-  ~OuterTrackerVClient();
+  explicit OuterTrackerClient(const edm::ParameterSet&);
+  ~OuterTrackerClient();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   //virtual void beginJob() ;
   virtual void endJob() ;

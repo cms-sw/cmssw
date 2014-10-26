@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    OuterTrackerClusters
-// Class:      OuterTrackerClusters
+// Package:    OuterTrackerCluster
+// Class:      OuterTrackerCluster
 // 
-/**\class OuterTrackerClusters OuterTrackerClusters.cc Validation/OuterTrackerClusters/plugins/OuterTrackerClusters.cc
+/**\class OuterTrackerCluster OuterTrackerCluster.cc Validation/OuterTrackerCluster/plugins/OuterTrackerCluster.cc
 
  Description: [one line class summary]
 
@@ -11,8 +11,8 @@
      [Notes on implementation]
 */
 //
-// Original Author:  Isabelle Helena J De Bruyn
-//         Created:  Wed, 17 Sep 2014 12:33:30 GMT
+// Original Author:  Lieselotte Moreels
+//         Created:  Fri, 13 Jun 2014 09:57:34 GMT
 // $Id$
 //
 //
@@ -27,20 +27,41 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+//#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
+//#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+//#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
+//#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+//#include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
+//#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
+//#include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
+//#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
-#include "Validation/OuterTrackerClusters/interface/OuterTrackerClusters.h"
+//#include "DQM/SiStripCommon/interface/SiStripHistoId.h"
+#include "Validation/OuterTrackerCluster/interface/OuterTrackerCluster.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+//#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+//#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
+//#include "CalibTracker/SiStripCommon/interface/SiStripDCSStatus.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
+//#include "DPGAnalysis/SiStripTools/interface/APVCyclePhaseCollection.h"
+//#include "DPGAnalysis/SiStripTools/interface/EventWithHistory.h"
+
+//#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
+
+// For TPart_Eta_ICW_1 (TrackingParticles)
+//#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+//#include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/L1TrackTrigger/interface/TTCluster.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-
+// For TPart_Eta_Pt10_PS
+//#include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerGeometry.h"
 #include "Geometry/Records/interface/StackedTrackerGeometryRecord.h"
 
@@ -50,7 +71,7 @@
 //
 // constructors and destructor
 //
-OuterTrackerClusters::OuterTrackerClusters(const edm::ParameterSet& iConfig)
+OuterTrackerCluster::OuterTrackerCluster(const edm::ParameterSet& iConfig)
 : dqmStore_(edm::Service<DQMStore>().operator->()), conf_(iConfig)
 
 {
@@ -59,7 +80,7 @@ OuterTrackerClusters::OuterTrackerClusters(const edm::ParameterSet& iConfig)
 }
 
 
-OuterTrackerClusters::~OuterTrackerClusters()
+OuterTrackerCluster::~OuterTrackerCluster()
 {
 	
 	// do anything here that needs to be done at desctruction time
@@ -74,15 +95,20 @@ OuterTrackerClusters::~OuterTrackerClusters()
 
 // ------------ method called for each event  ------------
 void
-OuterTrackerClusters::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+OuterTrackerCluster::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 	
 	/// Geometry handles etc
   edm::ESHandle< TrackerGeometry >                GeometryHandle;
+	edm::ESHandle< StackedTrackerGeometry >         StackedGeometryHandle;
+	const StackedTrackerGeometry*                   theStackedGeometry;
 	
 	/// Geometry setup
   /// Set pointers to Geometry
   iSetup.get< TrackerDigiGeometryRecord >().get(GeometryHandle);
+	/// Set pointers to Stacked Modules
+  iSetup.get< StackedTrackerGeometryRecord >().get(StackedGeometryHandle);
+  theStackedGeometry = StackedGeometryHandle.product(); /// Note this is different from the "global" geometry
 	
 	/// Track Trigger
 	edm::Handle< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > > > PixelDigiTTClusterHandle;	// same for stubs
@@ -105,7 +131,7 @@ OuterTrackerClusters::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 			/// Make the reference to be put in the map
 			edm::Ref< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >, TTCluster< Ref_PixelDigi_ > > tempCluRef = edmNew::makeRefTo( PixelDigiTTClusterHandle, contentIter );
 
-			StackedTrackerDetId detIdClu( tempCluRef->getDetId() );		// find it!
+			StackedTrackerDetId detIdClu( tempCluRef->getDetId() );
 			bool genuineClu     = MCTruthTTClusterHandle->isGenuine( tempCluRef );
 			bool combinClu      = MCTruthTTClusterHandle->isCombinatoric( tempCluRef );
 			//bool unknownClu     = MCTruthTTClusterHandle->isUnknown( tempCluRef );
@@ -115,6 +141,8 @@ OuterTrackerClusters::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 				edm::Ptr< TrackingParticle > thisTP = MCTruthTTClusterHandle->findTrackingParticlePtr( tempCluRef );
 				//partClu = thisTP->pdgId();
 			}
+			
+			GlobalPoint posClu  = theStackedGeometry->findAverageGlobalPosition( &(*tempCluRef) );
 
 			if ( detIdClu.isBarrel() )
 			{
@@ -148,6 +176,21 @@ OuterTrackerClusters::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 				}
 
 			}	// end if isEndcap()
+			
+			/// Eta distribution in function of genuine/combinatorial/unknown cluster
+      if ( genuineClu )
+      {
+        Cluster_Gen_Eta->Fill( posClu.eta() );
+      }
+      else if ( combinClu )
+      {
+        Cluster_Comb_Eta->Fill( posClu.eta() );
+      }
+      else
+      {
+        Cluster_Unkn_Eta->Fill( posClu.eta() );
+      }
+			
 		}	// end loop contentIter
 	}	// end loop inputIter
 	
@@ -156,7 +199,7 @@ OuterTrackerClusters::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 // ------------ method called once each job just before starting event loop  ------------
 void
-OuterTrackerClusters::beginRun(const edm::Run& run, const edm::EventSetup& es)
+OuterTrackerCluster::beginRun(const edm::Run& run, const edm::EventSetup& es)
 {
 	
 	SiStripFolderOrganizer folder_organizer;
@@ -168,45 +211,13 @@ OuterTrackerClusters::beginRun(const edm::Run& run, const edm::EventSetup& es)
 	
 	/// TTCluster stacks
 	edm::ParameterSet psTTClusterStacks =  conf_.getParameter<edm::ParameterSet>("TH1TTCluster_Stack");
-	std::string HistoName = "Cluster_IMem_Barrel";
-	Cluster_IMem_Barrel = dqmStore_->book1D(HistoName, HistoName,
-																				psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
-																				psTTClusterStacks.getParameter<double>("xmin"),
-																				psTTClusterStacks.getParameter<double>("xmax"));
-	Cluster_IMem_Barrel->setAxisTitle("Inner TTCluster Stack", 1);
-	Cluster_IMem_Barrel->setAxisTitle("Number of Events", 2);
-	
-	HistoName = "Cluster_IMem_Endcap";
-	Cluster_IMem_Endcap = dqmStore_->book1D(HistoName, HistoName,
-																				psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
-																				psTTClusterStacks.getParameter<double>("xmin"),
-																				psTTClusterStacks.getParameter<double>("xmax"));
-	Cluster_IMem_Endcap->setAxisTitle("Inner TTCluster Stack", 1);
-	Cluster_IMem_Endcap->setAxisTitle("Number of Events", 2);
-	
-	HistoName = "Cluster_OMem_Barrel";
-	Cluster_OMem_Barrel = dqmStore_->book1D(HistoName, HistoName,
-																				psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
-																				psTTClusterStacks.getParameter<double>("xmin"),
-																				psTTClusterStacks.getParameter<double>("xmax"));
-	Cluster_OMem_Barrel->setAxisTitle("Outer TTCluster Stack", 1);
-	Cluster_OMem_Barrel->setAxisTitle("Number of Events", 2);
-	
-	HistoName = "Cluster_OMem_Endcap";
-	Cluster_OMem_Endcap = dqmStore_->book1D(HistoName, HistoName,
-																				psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
-																				psTTClusterStacks.getParameter<double>("xmin"),
-																				psTTClusterStacks.getParameter<double>("xmax"));
-	Cluster_OMem_Endcap->setAxisTitle("Outer TTCluster Stack", 1);
-	Cluster_OMem_Endcap->setAxisTitle("Number of Events", 2);
-	
-	HistoName = "Cluster_Gen_Barrel";
+	std::string HistoName = "Cluster_Gen_Barrel";
 	Cluster_Gen_Barrel = dqmStore_->book1D(HistoName, HistoName,
 																				psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
 																				psTTClusterStacks.getParameter<double>("xmin"),
 																				psTTClusterStacks.getParameter<double>("xmax"));
 	Cluster_Gen_Barrel->setAxisTitle("Genuine TTCluster Stack", 1);
-	Cluster_Gen_Barrel->setAxisTitle("Number of Events", 2);
+	Cluster_Gen_Barrel->setAxisTitle("Number of Clusters", 2);
 	
 	HistoName = "Cluster_Unkn_Barrel";
 	Cluster_Unkn_Barrel = dqmStore_->book1D(HistoName, HistoName,
@@ -214,7 +225,7 @@ OuterTrackerClusters::beginRun(const edm::Run& run, const edm::EventSetup& es)
 																				psTTClusterStacks.getParameter<double>("xmin"),
 																				psTTClusterStacks.getParameter<double>("xmax"));
 	Cluster_Unkn_Barrel->setAxisTitle("Unknown TTCluster Stack", 1);
-	Cluster_Unkn_Barrel->setAxisTitle("Number of Events", 2);
+	Cluster_Unkn_Barrel->setAxisTitle("Number of Clusters", 2);
 	
 	HistoName = "Cluster_Comb_Barrel";
 	Cluster_Comb_Barrel = dqmStore_->book1D(HistoName, HistoName,
@@ -222,7 +233,7 @@ OuterTrackerClusters::beginRun(const edm::Run& run, const edm::EventSetup& es)
 																				psTTClusterStacks.getParameter<double>("xmin"),
 																				psTTClusterStacks.getParameter<double>("xmax"));
 	Cluster_Comb_Barrel->setAxisTitle("Combinatorial TTCluster Stack", 1);
-	Cluster_Comb_Barrel->setAxisTitle("Number of Events", 2);
+	Cluster_Comb_Barrel->setAxisTitle("Number of Clusters", 2);
 	
 	HistoName = "Cluster_Gen_Endcap";
 	Cluster_Gen_Endcap = dqmStore_->book1D(HistoName, HistoName,
@@ -230,7 +241,7 @@ OuterTrackerClusters::beginRun(const edm::Run& run, const edm::EventSetup& es)
 																				psTTClusterStacks.getParameter<double>("xmin"),
 																				psTTClusterStacks.getParameter<double>("xmax"));
 	Cluster_Gen_Endcap->setAxisTitle("Genuine TTCluster Stack", 1);
-	Cluster_Gen_Endcap->setAxisTitle("Number of Events", 2);
+	Cluster_Gen_Endcap->setAxisTitle("Number of Clusters", 2);
 	
 	HistoName = "Cluster_Unkn_Endcap";
 	Cluster_Unkn_Endcap = dqmStore_->book1D(HistoName, HistoName,
@@ -238,7 +249,7 @@ OuterTrackerClusters::beginRun(const edm::Run& run, const edm::EventSetup& es)
 																				psTTClusterStacks.getParameter<double>("xmin"),
 																				psTTClusterStacks.getParameter<double>("xmax"));
 	Cluster_Unkn_Endcap->setAxisTitle("Unknown TTCluster Stack", 1);
-	Cluster_Unkn_Endcap->setAxisTitle("Number of Events", 2);
+	Cluster_Unkn_Endcap->setAxisTitle("Number of Clusters", 2);
 	
 	HistoName = "Cluster_Comb_Endcap";
 	Cluster_Comb_Endcap = dqmStore_->book1D(HistoName, HistoName,
@@ -246,17 +257,42 @@ OuterTrackerClusters::beginRun(const edm::Run& run, const edm::EventSetup& es)
 																				psTTClusterStacks.getParameter<double>("xmin"),
 																				psTTClusterStacks.getParameter<double>("xmax"));
 	Cluster_Comb_Endcap->setAxisTitle("Combinatorial TTCluster Stack", 1);
-	Cluster_Comb_Endcap->setAxisTitle("Number of Events", 2);
+	Cluster_Comb_Endcap->setAxisTitle("Number of Clusters", 2);
+	
+	edm::ParameterSet psTTClusterEta =  conf_.getParameter<edm::ParameterSet>("TH1TTCluster_Eta");
+	HistoName = "Cluster_Gen_Eta";
+	Cluster_Gen_Eta = dqmStore_->book1D(HistoName, HistoName,
+																				psTTClusterEta.getParameter<int32_t>("Nbinsx"),
+																				psTTClusterEta.getParameter<double>("xmin"),
+																				psTTClusterEta.getParameter<double>("xmax"));
+	Cluster_Gen_Eta->setAxisTitle("Genuine TTCluster Eta", 1);
+	Cluster_Gen_Eta->setAxisTitle("Number of Clusters", 2);
+	
+	HistoName = "Cluster_Unkn_Eta";
+	Cluster_Unkn_Eta = dqmStore_->book1D(HistoName, HistoName,
+																				psTTClusterEta.getParameter<int32_t>("Nbinsx"),
+																				psTTClusterEta.getParameter<double>("xmin"),
+																				psTTClusterEta.getParameter<double>("xmax"));
+	Cluster_Unkn_Eta->setAxisTitle("Unknown TTCluster Eta", 1);
+	Cluster_Unkn_Eta->setAxisTitle("Number of Clusters", 2);
+	
+	HistoName = "Cluster_Comb_Eta";
+	Cluster_Comb_Eta = dqmStore_->book1D(HistoName, HistoName,
+																				psTTClusterEta.getParameter<int32_t>("Nbinsx"),
+																				psTTClusterEta.getParameter<double>("xmin"),
+																				psTTClusterEta.getParameter<double>("xmax"));
+	Cluster_Comb_Eta->setAxisTitle("Combinatorial TTCluster Eta", 1);
+	Cluster_Comb_Eta->setAxisTitle("Number of Clusters", 2);
 	
 }//end of method
 
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-OuterTrackerClusters::endJob(void) 
+OuterTrackerCluster::endJob(void) 
 {
 	
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(OuterTrackerClusters);
+DEFINE_FWK_MODULE(OuterTrackerCluster);

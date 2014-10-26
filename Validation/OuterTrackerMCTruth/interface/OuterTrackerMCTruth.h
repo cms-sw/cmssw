@@ -42,21 +42,11 @@ public:
 	MonitorElement* TPart_Eta_OCW_1 = 0;
 	MonitorElement* TPart_Eta_OCW_2 = 0;
 	MonitorElement* TPart_Eta_OCW_3 = 0;
-	MonitorElement* TPart_AbsEta_INormalization = 0;
-	MonitorElement* TPart_AbsEta_ICW_1 = 0;
-	MonitorElement* TPart_AbsEta_ICW_2 = 0;
-	MonitorElement* TPart_AbsEta_ICW_3 = 0;
-	MonitorElement* TPart_AbsEta_ONormalization = 0;
-	MonitorElement* TPart_AbsEta_OCW_1 = 0;
-	MonitorElement* TPart_AbsEta_OCW_2 = 0;
-	MonitorElement* TPart_AbsEta_OCW_3 = 0;
 	// Stub in PS/2S module vs. TPart Eta
 	MonitorElement* TPart_Eta_Pt10_Normalization = 0;
 	MonitorElement* TPart_Eta_Pt10_NumPS = 0;
 	MonitorElement* TPart_Eta_Pt10_Num2S = 0;
-	MonitorElement* TPart_AbsEta_Pt10_Normalization = 0;
-	MonitorElement* TPart_AbsEta_Pt10_NumPS = 0;
-	MonitorElement* TPart_AbsEta_Pt10_Num2S = 0;	
+	
 
  private:
   DQMStore* dqmStore_;
