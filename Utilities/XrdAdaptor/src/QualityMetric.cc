@@ -26,6 +26,7 @@
 
 using namespace XrdAdaptor;
 
+// Right now, MessageLogger requires a global mutex.
 std::mutex XrdAdaptor::g_ml_mutex;
 
 QualityMetricWatch::QualityMetricWatch(QualityMetric *parent1, QualityMetric *parent2)

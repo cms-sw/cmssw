@@ -47,7 +47,7 @@ public:
 
     RequestManager(const std::string & filename, XrdCl::OpenFlags::Flags flags, XrdCl::Access::Mode perms);
 
-    ~RequestManager();
+    ~RequestManager() = default;
 
     /**
      * Interface for handling a client request.
@@ -127,6 +127,20 @@ private:
      */
     void checkSources(timespec &now, IOSize requestSize); // TODO: inline
     void checkSourcesImpl(timespec &now, IOSize requestSize);
+    /**
+     * Helper function for checkSources; compares the quality of source A
+     * versus source B; if source A is significantly worse, remove it from
+     * the list of active sources.
+     *
+     * NOTE: assumes two sources are active and the caller must already hold
+     * m_source_mutex
+     */
+    bool compareSources(const timespec &now, int a, int b);
+
+    /**
+     * Picks a single source for the next operation.
+     */
+    std::shared_ptr<Source> pickSingleSource();
 
     /**
      * Prepare an opaque string appropriate for asking a redirector to open the
@@ -134,6 +148,10 @@ private:
      */
     std::string prepareOpaqueString();
 
+    /**
+     * Note these member variables can only be accessed when the source mutex
+     * is held.
+     */
     std::vector<std::shared_ptr<Source> > m_activeSources;
     std::vector<std::shared_ptr<Source> > m_inactiveSources;
     std::set<std::string> m_disabledSourceStrings;
