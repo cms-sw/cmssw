@@ -7,7 +7,6 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include <vector>
 
-#include "Geometry/TrackerNumberingBuilder/plugins/TrackerStablePhiSort.h"
 
 void CmsTrackerPanelBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s){
 
@@ -25,11 +24,8 @@ void CmsTrackerPanelBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g,
 void CmsTrackerPanelBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
  GeometricDet::GeometricDetContainer & comp = det->components();
 
- if (comp.front()->type()==GeometricDet::DetUnit){ 
-
+ if (comp.front()->type()==GeometricDet::DetUnit)
    std::sort(comp.begin(),comp.end(),LessR());
-
- }
  else
    edm::LogError("CmsTrackerPanelBuilder")<<"ERROR - wrong SubDet to sort..... "<<det->components().front()->type(); 
 

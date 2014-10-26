@@ -53,6 +53,7 @@ class GeometricDet {
 			  layer=8, wheel=9, strng=10, rod=11, petal=12, ring=13,
 			   ladder=14, mergedDet=15, DetUnit=16, disk=17, panel=18, 
 			   PixelPhase1EndCap=102, PixelPhase1Disk=117,
+			   OTPhase2Layer=208,
 			   PixelPhase2EndCap=202, OTPhase2Wheel=209, PixelPhase2FullDisk=217,
 			   PixelPhase2ReducedDisk=227 } GeometricEnumType;
   /**

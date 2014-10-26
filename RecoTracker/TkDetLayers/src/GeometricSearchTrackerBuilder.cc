@@ -107,20 +107,20 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
       it!=theGeometricDetLayers.end(); it++){
 
     if( (*it)->type() == GeometricDet::PixelBarrel) {
-      std::string barrel_name = (*it)->name();
-      LogDebug("BuildingPixelBarrel") << "I got  " << barrel_name << " type " << (*it)->type();
       vector<const GeometricDet*> thePxlBarGeometricDetLayers = (*it)->components();
       for(vector<const GeometricDet*>::const_iterator it2=thePxlBarGeometricDetLayers.begin();
 	  it2!=thePxlBarGeometricDetLayers.end(); it2++){
 	std::string layer_name = (*it2)->name();
-	if(layer_name.find("PixelBarrelLayer") < layer_name.size()) {
-	  LogDebug("BuildingPixelBarrelLayer") << "I got  " << layer_name << " type " << (*it2)->type();
+	if((*it2)->type() ==GeometricDet::layer) {
+	  LogDebug("BuildingPixelBarrelLayer") << "I got  " << (*it2)->name() << " type " << (*it2)->type();
 	  thePxlBarLayers.push_back( aPixelBarrelLayerBuilder.build(*it2,theGeomDetGeometry) );
 	}
-	else {
-	  LogDebug("BuildingPhase2OTBarrelLayer") << "I got  " << layer_name << " type " << (*it2)->type();
+	else if ((*it2)->type() ==GeometricDet::OTPhase2Layer) {
+	  LogDebug("BuildingPhase2OTBarrelLayer") << "I got  " << (*it2)->name() << " type " << (*it2)->type();
 	  thePxlBarLayers.push_back( aPhase2OTBarrelLayerBuilder.build(*it2,theGeomDetGeometry) );
 	}
+	else edm::LogError("WrongLayerType") <<" ERROR - I was expecting a PixelBarrelLayer or a OTPhase2Layer... I got a "
+					     << (*it2)->name() << " type " << (*it2)->type();
       }
     }
 

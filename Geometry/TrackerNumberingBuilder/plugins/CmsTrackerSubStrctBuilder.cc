@@ -22,10 +22,12 @@ CmsTrackerSubStrctBuilder::buildComponent( DDFilteredView& fv, GeometricDet* g, 
   CmsTrackerDiskBuilder  theCmsTrackerDiskBuilder;   
 
   GeometricDet * subdet = new GeometricDet( &fv, theCmsTrackerStringToEnum.type( ExtractStringFromDDD::getString( s, &fv )));
-  std::string subdet_name = subdet->name();
   switch( theCmsTrackerStringToEnum.type( ExtractStringFromDDD::getString( s, &fv )))
   {
   case GeometricDet::layer:
+    theCmsTrackerLayerBuilder.build(fv,subdet,s);      
+    break;
+  case GeometricDet::OTPhase2Layer:
     theCmsTrackerLayerBuilder.build(fv,subdet,s);      
     break;
   case GeometricDet::wheel:

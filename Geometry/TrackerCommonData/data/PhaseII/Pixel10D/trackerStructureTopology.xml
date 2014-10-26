@@ -309,7 +309,7 @@
 <PartSelector path="//Layer4"/>
 <PartSelector path="//Layer5"/>
 <PartSelector path="//Layer6"/>
-<Parameter name="TkDDDStructure" value="PixelBarrelLayer"/>
+<Parameter name="TkDDDStructure" value="Phase2OTBarrelLayer"/>
 </SpecPar>
 <SpecPar name="OuterTrackerPixelBarrelLadderPar">
 <PartSelector path="//Rod1"/>
