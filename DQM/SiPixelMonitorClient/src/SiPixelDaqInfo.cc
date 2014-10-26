@@ -19,6 +19,8 @@ SiPixelDaqInfo::SiPixelDaqInfo(const edm::ParameterSet& ps) {
   NEvents_ = 0;
   for(int i=0; i!=40; i++) FEDs_[i] = 0;
 
+  firstRun = true;
+
   //set Token(-s)
   daqSourceToken_ = consumes<FEDRawDataCollection>(ps.getUntrackedParameter<string>("daqSource", "source"));
 }
@@ -40,7 +42,6 @@ void SiPixelDaqInfo::dqmEndLuminosityBlock(DQMStore::IBooker & iBooker, DQMStore
 
   edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
   if(0 != iSetup.find( recordKey ) ) {
-    // cout<<"record key found"<<endl;
     //get fed summary information
     ESHandle<RunInfo> sumFED;
     iSetup.get<RunInfoRcd>().get(sumFED);    
@@ -54,14 +55,12 @@ void SiPixelDaqInfo::dqmEndLuminosityBlock(DQMStore::IBooker & iBooker, DQMStore
     for(unsigned int fedItr=0;fedItr<FedsInIds.size(); ++fedItr) {
       int fedID=FedsInIds[fedItr];
       //make sure fed id is in allowed range  
-      //cout<<fedID<<endl;   
       if(fedID>=FEDRange_.first && fedID<=FEDRange_.second){
         ++FedCount;
 	if(fedID>=0 && fedID<=31) ++FedCountBarrel;
 	else if(fedID>=32 && fedID<=39) ++FedCountEndcap;
       }
     }   
-    
     //Fill active fed fraction ME
     if(FedCountBarrel<=32){
       FedCountBarrel = 0; FedCountEndcap = 0; FedCount = 0; NumberOfFeds_ = 40;
@@ -83,7 +82,6 @@ void SiPixelDaqInfo::dqmEndLuminosityBlock(DQMStore::IBooker & iBooker, DQMStore
       FractionBarrel_->Fill(-1);
       FractionEndcap_->Fill(-1);
     } 
-    
   }else{      
     Fraction_->Fill(-1);	       
     FractionBarrel_->Fill(-1);

@@ -154,7 +154,7 @@ void SiPixelEDAClient::beginRun(Run const& run, edm::EventSetup const& eSetup) {
 // -- End Luminosity Block
 //
 void SiPixelEDAClient::dqmEndLuminosityBlock(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {
-  cout<<"Entering SiPixelEDAClient::endLuminosityBlock: "<<endl;
+  //cout<<"Entering SiPixelEDAClient::endLuminosityBlock: "<<endl;
 
   edm::LogInfo ("SiPixelEDAClient") <<"[SiPixelEDAClient]: Begin of LS transition";
 
