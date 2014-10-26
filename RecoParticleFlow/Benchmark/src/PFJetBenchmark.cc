@@ -316,28 +316,28 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
 	unsigned int iter = 0; 
 	switch (trackRef->algo()) {
 	case TrackBase::ctf:
-	case TrackBase::iter0:
+	case TrackBase::initialStep:
 	  iter = 0;
 	  break;
-	case TrackBase::iter1:
+	case TrackBase::lowPtTripletStep:
 	  iter = 1;
 	  break;
-	case TrackBase::iter2:
+	case TrackBase::pixelPairStep:
 	  iter = 2;
 	  break;
-	case TrackBase::iter3:
+	case TrackBase::detachedTripletStep:
 	  iter = 3;
 	  break;
-	case TrackBase::iter4:
+	case TrackBase::mixedTripletStep:
 	  iter = 4;
 	  break;
-	case TrackBase::iter5:
+	case TrackBase::pixelLessStep:
 	  iter = 5;
 	  break;
-	case TrackBase::iter6:
+	case TrackBase::tobTecStep:
 	  iter = 6;
 	  break;
-	case TrackBase::iter8:
+	case TrackBase::conversionStep:
 	  iter = 7;
 	  //std::cout << "Warning in entry " << entry_ << " : iter = " << trackRef->algo() << std::endl;
 	  //std::cout << ic << " " << *(constituents[ic]) << std::endl;

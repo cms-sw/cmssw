@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 # NEW CLUSTERS (remove previously used clusters)
-hiPixelPairClusters = cms.EDProducer("TrackClusterRemover",
+hiPixelPairClusters = cms.EDProducer("HITrackClusterRemover",
                                      clusterLessSolution= cms.bool(True),
                                      oldClusterRemovalInfo = cms.InputTag("hiSecondPixelTripletClusters"),
                                      trajectories = cms.InputTag("hiSecondPixelTripletGlobalPrimTracks"),
@@ -112,7 +112,7 @@ hiPixelPairTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTr
 # TRACK FITTING
 import RecoTracker.TrackProducer.TrackProducer_cfi
 hiPixelPairGlobalPrimTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
-    AlgorithmName = cms.string('iter2'),
+    AlgorithmName = cms.string('pixelPairStep'),
     src = 'hiPixelPairTrackCandidates',
     Fitter = cms.string('FlexibleKFFittingSmoother')
     )

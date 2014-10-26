@@ -7,10 +7,10 @@
 #include <map>
 
 
-class RPCDCSSummary : DQMEDHarvester {
+class RPCDCSSummary : public DQMEDHarvester {
 public:
   /// Constructor
-  RPCDCSSummary(const edm::ParameterSet& pset);
+  RPCDCSSummary(const edm::ParameterSet&);
 
   /// Destructor
   virtual ~RPCDCSSummary();

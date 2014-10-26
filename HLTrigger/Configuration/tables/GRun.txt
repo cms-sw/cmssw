@@ -158,6 +158,15 @@ HLT_PFMET120_NoiseCleaned_BTagCSV07_v*				# JIRA: CMSHLT-105
 
 HLT_PFMET120_NoiseCleaned_Mu5_v*				# JIRA: CMSHLT-120
 
+HLT_Mu8_TrkIsoVVL_v*						# JIRA: CMSHLT-129
+HLT_Mu17_TrkIsoVVL_v*						# JIRA: CMSHLT-129
+HLT_Mu24_TrkIsoVVL_v*						# JIRA: CMSHLT-129
+HLT_Mu34_TrkIsoVVL_v*						# JIRA: CMSHLT-129
+HLT_Ele12_CaloId_TrackId_Iso_PFJet30_v*				# JIRA: CMSHLT-129
+HLT_Ele18_CaloId_TrackId_Iso_PFJet30_v*				# JIRA: CMSHLT-129
+HLT_Ele23_CaloId_TrackId_Iso_PFJet30_v*				# JIRA: CMSHLT-129
+HLT_Ele33_CaloId_TrackId_Iso_PFJet30_v*				# JIRA: CMSHLT-129
+
 HLT_ZeroBias_v*							# JIRA: CMSHLT-117
 
 HLT_Physics_v*							# skim

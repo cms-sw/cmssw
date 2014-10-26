@@ -20,10 +20,12 @@
   <class name="L1GctFibreWord" ClassVersion="10">
    <version ClassVersion="10" checksum="1795607404"/>
   </class>
-  <class name="L1GctEmCand" ClassVersion="10">
+  <class name="L1GctEmCand" ClassVersion="11">
+   <version ClassVersion="11" checksum="2377749723"/>
    <version ClassVersion="10" checksum="10695715"/>
   </class>
-  <class name="L1GctJetCand" ClassVersion="10">
+  <class name="L1GctJetCand" ClassVersion="11">
+   <version ClassVersion="11" checksum="2323860712"/>
    <version ClassVersion="10" checksum="2872109126"/>
   </class>
   <class name="L1GctEtTotal" ClassVersion="10">
