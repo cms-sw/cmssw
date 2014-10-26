@@ -307,8 +307,8 @@ class SiPixelDigitizerAlgorithm  {
     const int NumberOfBarrelLayers;     // Default = 3
     const int NumberOfEndcapDisks;      // Default = 2
 
-    const float theInstLumiScaleFactor;
-    float bunchScale;
+    const double theInstLumiScaleFactor;
+    double bunchScale;
 
     //-- make_digis 
     const float theElectronPerADC;     // Gain, number of electrons per adc count.
