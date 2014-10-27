@@ -159,9 +159,9 @@ ElectronTagProbeAnalyzer::ElectronTagProbeAnalyzer( const edm::ParameterSet & co
 ElectronTagProbeAnalyzer::~ElectronTagProbeAnalyzer()
  {}
 
-//void ElectronTagProbeAnalyzer::book()
 void ElectronTagProbeAnalyzer::bookHistograms( DQMStore::IBooker & iBooker, edm::Run const &, edm::EventSetup const & )
  {
+  iBooker.setCurrentFolder(outputInternalPath_) ;
   nEvents_ = 0 ;
   //nAfterTrigger_ = 0 ;
 
