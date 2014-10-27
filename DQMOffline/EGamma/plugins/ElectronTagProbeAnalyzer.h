@@ -53,6 +53,11 @@ class ElectronTagProbeAnalyzer : public ElectronDqmAnalyzerBase
 //    double maxAbsEtaMatchingObject_; // SURE ?
 //    double deltaR_;
 
+    std::string inputFile_ ;
+    std::string outputFile_ ;
+    std::string inputInternalPath_ ;
+    std::string outputInternalPath_ ;
+
     // tag and probe NEW
     double massLow_;
     double massHigh_;
