@@ -7,7 +7,6 @@ import FWCore.ParameterSet.Config as cms
 # REMOVE HITS ASSIGNED TO GOOD TRACKS FROM PREVIOUS ITERATIONS
 
 detachedQuadStepClusters = cms.EDProducer("TrackClusterRemover",
-    clusterLessSolution = cms.bool(True),
     oldClusterRemovalInfo = cms.InputTag("lowPtTripletStepClusters"),
     trajectories = cms.InputTag("lowPtTripletStepTracks"),
     overrideTrkQuals = cms.InputTag('lowPtTripletStepSelector','lowPtTripletStep'),
@@ -15,9 +14,7 @@ detachedQuadStepClusters = cms.EDProducer("TrackClusterRemover",
     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
     pixelClusters = cms.InputTag("siPixelClusters"),
     stripClusters = cms.InputTag("siStripClusters"),
-    Common = cms.PSet(
-        maxChi2 = cms.double(9.0)
-    )
+    maxChi2 = cms.double(9.0)
 )
 
 # SEEDING LAYERS
@@ -133,7 +130,7 @@ detachedQuadStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProduc
     AlgorithmName = cms.string('iter4'),
     src = 'detachedQuadStepTrackCandidates',
     Fitter = cms.string('FlexibleKFFittingSmoother'),
-    TTRHBuilder=cms.string('WithTrackAngle')
+    TTRHBuilder=cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069)
     )
 
 # TRACK SELECTION AND QUALITY FLAG SETTING.

@@ -9,6 +9,8 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/RootHandlers.h"
+#include "FWCore/Catalog/interface/SiteLocalConfig.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "TBranch.h"
 #include "TBranchElement.h"
@@ -21,6 +23,66 @@
 #include <limits>
 
 namespace edm {
+
+    /**
+     * Currently, ROOT doesn't use any latency-hiding optimizations for
+     * fast-cloning.  This causes a significant slowdown when doing fast-cloning
+     * over a high-latency network (30ms latency makes this multiple factors slower).
+     *
+     * Accordingly, we allow sites to provide a separate hint on how to treat fast-
+     * cloning.  The DuplicateTreeSentry allows us to implement it - given a tree
+     * we are about to clone, with the appropriate configs, this will re-open the
+     * file with lazy-download and re-open the tree.  The new tree is appropriate
+     * for cloning.  When the object is destroyed, the new file and tree are cleaned up.
+     *
+     */
+    class DuplicateTreeSentry
+    {
+    public:
+        DuplicateTreeSentry(TTree * tree)
+          : tree_(tree)
+        {
+            dup();
+        }
+
+        TTree *tree() const {return mytree_ ? mytree_.get() : tree_;}
+
+    private:
+        DuplicateTreeSentry(DuplicateTreeSentry const&) = delete; // Disallow copying and moving
+        DuplicateTreeSentry& operator=(DuplicateTreeSentry const&) = delete;
+        struct CloseBeforeDelete { void operator()(TFile* iFile) const { if( iFile) { iFile->Close(); } delete iFile; } };
+
+        void dup()
+        {
+            edm::Service<edm::SiteLocalConfig> pSLC;
+            if (!pSLC.isAvailable()) {return;}
+            if (pSLC->sourceCacheHint() && *(pSLC->sourceCacheHint()) == "lazy-download") {return;}
+            if (!pSLC->sourceCloneCacheHint() || *(pSLC->sourceCloneCacheHint()) != "lazy-download") {return;}
+            edm::LogWarning("DuplicateTreeSentry") << "Re-opening file for fast-cloning";
+
+            TFile *file = tree_->GetCurrentFile();
+            const TUrl *url = file->GetEndpointUrl();
+            if (!url)
+            {
+                return;
+            }
+            file_.reset(TFile::Open(url->GetUrl(), "READWRAP")); // May throw an exception.
+            if (!file_)
+            {
+                return;
+            }
+            mytree_.reset(dynamic_cast<TTree*>(file_->Get(tree_->GetName())));
+            if (!mytree_) {return;}
+        }
+
+        /**
+         * Note this relies on the implicit delete ordering - mytree_ (if non-null)
+         * must be deleted before file_.  Do not reorder the class members!
+         */
+        std::unique_ptr<TFile, CloseBeforeDelete> file_;
+        TTree *tree_ = nullptr;
+        std::unique_ptr<TTree> mytree_ = nullptr;
+    };
 
     RootOutputTree::RootOutputTree(
                    std::shared_ptr<TFile> filePtr,
@@ -179,7 +241,8 @@ namespace edm {
         branches->Compress();
       }
 
-      TTreeCloner cloner(in, tree_, option.c_str(), TTreeCloner::kNoWarnings|TTreeCloner::kIgnoreMissingTopLevel);
+      DuplicateTreeSentry dupTree(in);
+      TTreeCloner cloner(dupTree.tree(), tree_, option.c_str(), TTreeCloner::kNoWarnings|TTreeCloner::kIgnoreMissingTopLevel);
 
       if(!cloner.IsValid()) {
         // Let's check why
@@ -194,6 +257,7 @@ namespace edm {
       tree_->SetEntries(tree_->GetEntries() + in->GetEntries());
       Service<RootHandlers> rootHandler;
       rootHandler->ignoreWarningsWhileDoing([&cloner] { cloner.Exec(); });
+
       if(mustRemoveSomeAuxs) {
         for(std::map<Int_t, TBranch *>::const_iterator it = auxIndexes.begin(), itEnd = auxIndexes.end();
              it != itEnd; ++it) {

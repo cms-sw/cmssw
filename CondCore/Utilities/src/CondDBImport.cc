@@ -220,6 +220,7 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( L1RPCHsbConfig ) 
       IMPORT_PAYLOAD_CASE( L1RPCHwConfig )
       IMPORT_PAYLOAD_CASE( L1TriggerKey )
+      IMPORT_PAYLOAD_CASE( MagFieldConfig )
       if( inputTypeName == "L1TriggerKeyList" ){ 
 	match = true;
 	const L1TriggerKeyList& obj = *static_cast<const L1TriggerKeyList*>( inputPtr );
@@ -258,6 +259,7 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( lumi::LumiSectionData )
       IMPORT_PAYLOAD_CASE( MixingModuleConfig )
       IMPORT_PAYLOAD_CASE( MuScleFitDBobject )
+      IMPORT_PAYLOAD_CASE( DYTThrObject )
       IMPORT_PAYLOAD_CASE( OOTPileupCorrectionBuffer )
       IMPORT_PAYLOAD_CASE( StorableDoubleMap<AbsOOTPileupCorrection> )
       IMPORT_PAYLOAD_CASE( PhysicsTools::Calibration::MVAComputerContainer )
@@ -285,6 +287,7 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( RPCObTemp )
       IMPORT_PAYLOAD_CASE( RPCObUXC )
       IMPORT_PAYLOAD_CASE( RPCObVmon )
+      IMPORT_PAYLOAD_CASE( RPFlatParams )
       IMPORT_PAYLOAD_CASE( RecoIdealGeometry )
       IMPORT_PAYLOAD_CASE( RunInfo )
       IMPORT_PAYLOAD_CASE( SiPixelCalibConfiguration )
@@ -295,6 +298,7 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( SiPixelLorentzAngle )
       IMPORT_PAYLOAD_CASE( SiPixelQuality )
       IMPORT_PAYLOAD_CASE( SiPixelTemplateDBObject )
+      IMPORT_PAYLOAD_CASE( SiPixel2DTemplateDBObject )
       IMPORT_PAYLOAD_CASE( SiStripApvGain )
       IMPORT_PAYLOAD_CASE( SiStripBadStrip )
       IMPORT_PAYLOAD_CASE( SiStripBackPlaneCorrection )
@@ -518,6 +522,7 @@ namespace cond {
     FETCH_PAYLOAD_CASE( lumi::LumiSectionData )
     FETCH_PAYLOAD_CASE( MixingModuleConfig )
     FETCH_PAYLOAD_CASE( MuScleFitDBobject )
+    FETCH_PAYLOAD_CASE( DYTThrObject )
     FETCH_PAYLOAD_CASE( PhysicsTools::Calibration::MVAComputerContainer )
     FETCH_PAYLOAD_CASE( PCaloGeometry )
     FETCH_PAYLOAD_CASE( PGeometricDet )
@@ -543,6 +548,7 @@ namespace cond {
     FETCH_PAYLOAD_CASE( RPCObTemp )
     FETCH_PAYLOAD_CASE( RPCObUXC )
     FETCH_PAYLOAD_CASE( RPCObVmon )
+    FETCH_PAYLOAD_CASE( RPFlatParams )
     FETCH_PAYLOAD_CASE( RecoIdealGeometry )
     FETCH_PAYLOAD_CASE( RunInfo )
     FETCH_PAYLOAD_CASE( SiPixelCalibConfiguration )
@@ -553,6 +559,7 @@ namespace cond {
     FETCH_PAYLOAD_CASE( SiPixelLorentzAngle )
     FETCH_PAYLOAD_CASE( SiPixelQuality )
     FETCH_PAYLOAD_CASE( SiPixelTemplateDBObject )
+    FETCH_PAYLOAD_CASE( SiPixel2DTemplateDBObject )
     FETCH_PAYLOAD_CASE( SiStripApvGain )
     FETCH_PAYLOAD_CASE( SiStripBackPlaneCorrection )
     FETCH_PAYLOAD_CASE( SiStripBadStrip )
@@ -574,6 +581,7 @@ namespace cond {
     FETCH_PAYLOAD_CASE( EcalCondObjectContainer<EcalTPGPedestal> )
     FETCH_PAYLOAD_CASE( EcalCondObjectContainer<EcalXtalGroupId> )
     FETCH_PAYLOAD_CASE( EcalCondObjectContainer<float> )
+    FETCH_PAYLOAD_CASE( MagFieldConfig )
 
     //   
     if( payloadTypeName == "PhysicsTools::Calibration::Histogram3D<double,double,double,double>" ){    

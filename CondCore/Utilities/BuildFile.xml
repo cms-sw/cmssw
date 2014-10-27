@@ -35,6 +35,7 @@
 <use   name="CondFormats/SiStripObjects"/>
 <use   name="CondFormats/Common"/>
 <use   name="CondFormats/BTauObjects"/>
+<use   name="CondFormats/MFObjects"/>
 <export>
   <lib   name="1"/>
 </export>
