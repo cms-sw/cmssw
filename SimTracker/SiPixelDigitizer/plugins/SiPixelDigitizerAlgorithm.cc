@@ -1374,20 +1374,18 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
 			                           const PixelGeomDetUnit* pixdet,
 						   const TrackerTopology *tTopo,
                                                    CLHEP::HepRandomEngine* engine) {
-
+  
   uint32_t detID= pixdet->geographicalId().rawId();
-
   signal_map_type& theSignal = _signal[detID];
-
   const PixelTopology* topol=&pixdet->specificTopology();
   int numColumns = topol->ncolumns();  // det module number of cols&rows
   int numRows = topol->nrows();
-
+  
   // Predefined efficiencies
   double pixelEfficiency  = 1.0;
   double columnEfficiency = 1.0;
   double chipEfficiency   = 1.0;
-
+  
   // setup the chip indices conversion
   unsigned int Subid=DetId(detID).subdetId();
   if    (Subid==  PixelSubdetector::PixelBarrel){// barrel layers
@@ -1398,18 +1396,20 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
     //std::cout <<"Using BPix columnEfficiency = "<<columnEfficiency<< " for layer = "<<layerIndex <<"\n";
     // This should never happen, but only check if it is not an upgrade geometry
     if (NumberOfBarrelLayers==3){
-       if(numColumns>416)  LogWarning ("Pixel Geometry") <<" wrong columns in barrel "<<numColumns;
-       if(numRows>160)  LogWarning ("Pixel Geometry") <<" wrong rows in barrel "<<numRows;
+      if(numColumns>416)  LogWarning ("Pixel Geometry") <<" wrong columns in barrel "<<numColumns;
+      if(numRows>160)  LogWarning ("Pixel Geometry") <<" wrong rows in barrel "<<numRows;
       
-       int ladder=tTopo->pxbLadder(detID);
-       int module=tTopo->pxbModule(detID);
-       if (module<=4) module=5-module;
-       else module-=4;
-       
-       columnEfficiency *= eff.theLadderEfficiency_BPix[layerIndex-1][ladder-1]*eff.theModuleEfficiency_BPix[layerIndex-1][module-1]*_pu_scale[layerIndex-1];
+      int ladder=tTopo->pxbLadder(detID);
+      int module=tTopo->pxbModule(detID);
+      if (module<=4) module=5-module;
+      else module-=4;
+      
+      columnEfficiency *= eff.theLadderEfficiency_BPix[layerIndex-1][ladder-1]*eff.theModuleEfficiency_BPix[layerIndex-1][module-1]*_pu_scale[layerIndex-1];
     }
   } else {                // forward disks
     unsigned int diskIndex=tTopo->pxfDisk(detID)+eff.FPixIndex; // Use diskIndex-1 later to stay consistent with BPix
+    unsigned int panelIndex=tTopo->pxfPanel(detID);
+    unsigned int moduleIndex=tTopo->pxfModule(detID);
     //if (eff.FPixIndex>diskIndex-1){throw cms::Exception("Configuration") <<"SiPixelDigitizer is using the wrong efficiency value. index = "
     //                                                                       <<diskIndex-1<<" , MinIndex = "<<eff.FPixIndex<<" ... "<<tTopo->pxfDisk(detID);}
     pixelEfficiency  = eff.thePixelEfficiency[diskIndex-1];
@@ -1419,21 +1419,24 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
     // Sometimes the forward pixels have wrong size,
     // this crashes the index conversion, so exit, but only check if it is not an upgrade geometry
     if (NumberOfBarrelLayers==3){
-       if(numColumns>260 || numRows>160) {
-         if(numColumns>260)  LogWarning ("Pixel Geometry") <<" wrong columns in endcaps "<<numColumns;
-	 if(numRows>160)  LogWarning ("Pixel Geometry") <<" wrong rows in endcaps "<<numRows;
-         return;
-       }
-       if ((tTopo->pxfPanel(detID)+tTopo->pxfModule(detID))<4) columnEfficiency*=eff.theInnerEfficiency_FPix[diskIndex-1]*_pu_scale[3];//inner modules
-       else columnEfficiency*=eff.theOuterEfficiency_FPix[diskIndex-1]*_pu_scale[4];//outer modules
-    }
+      if(numColumns>260 || numRows>160) {
+	if(numColumns>260)  LogWarning ("Pixel Geometry") <<" wrong columns in endcaps "<<numColumns;
+	if(numRows>160)  LogWarning ("Pixel Geometry") <<" wrong rows in endcaps "<<numRows;
+	return;
+      }
+      if ((panelIndex==1 && (moduleIndex==1 || moduleIndex==2)) || (panelIndex==2 && moduleIndex==1)) { //inner modules
+	columnEfficiency*=eff.theInnerEfficiency_FPix[diskIndex-1]*_pu_scale[3];
+      } else { //outer modules
+	columnEfficiency*=eff.theOuterEfficiency_FPix[diskIndex-1]*_pu_scale[4];
+      }
+    } // current detector, forward
   } // if barrel/forward
-
+  
 #ifdef TP_DEBUG
   LogDebug ("Pixel Digitizer") << " enter pixel_inefficiency " << pixelEfficiency << " "
 			       << columnEfficiency << " " << chipEfficiency;
 #endif
- 
+  
   // Initilize the index converter
   //PixelIndices indexConverter(numColumns,numRows);
   std::auto_ptr<PixelIndices> pIndexConverter(new PixelIndices(numColumns,numRows));
@@ -1443,11 +1446,11 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
   int colROC = 0;
   std::map<int, int, std::less<int> >chips, columns;
   std::map<int, int, std::less<int> >::iterator iter;
-
+  
   // Find out the number of columns and rocs hits
   // Loop over hit pixels, amplitude in electrons, channel = coded row,col
   for (signal_map_const_iterator i = theSignal.begin(); i != theSignal.end(); ++i) {
-
+    
     int chan = i->first;
     std::pair<int,int> ip = PixelDigi::channelToPixel(chan);
     int row = ip.first;  // X in row
@@ -1457,29 +1460,29 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
     int dColInChip = pIndexConverter->DColumn(colROC); // get ROC dcol from ROC col
     //dcol in mod
     int dColInDet = pIndexConverter->DColumnInModule(dColInChip,chipIndex);
-
+    
     chips[chipIndex]++;
     columns[dColInDet]++;
   }
-
+  
   // Delete some ROC hits.
   for ( iter = chips.begin(); iter != chips.end() ; iter++ ) {
     //float rand  = RandFlat::shoot();
     float rand  = CLHEP::RandFlat::shoot(engine);
     if( rand > chipEfficiency ) chips[iter->first]=0;
   }
-
+  
   // Delete some Dcol hits.
   for ( iter = columns.begin(); iter != columns.end() ; iter++ ) {
     //float rand  = RandFlat::shoot();
     float rand  = CLHEP::RandFlat::shoot(engine);
     if( rand > columnEfficiency ) columns[iter->first]=0;
   }
-
+  
   // Now loop again over pixels to kill some of them.
   // Loop over hit pixels, amplitude in electrons, channel = coded row,col
   for(signal_map_iterator i = theSignal.begin();i != theSignal.end(); ++i) {
-
+    
     //    int chan = i->first;
     std::pair<int,int> ip = PixelDigi::channelToPixel(i->first);//get pixel pos
     int row = ip.first;  // X in row
@@ -1489,8 +1492,7 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
     int dColInChip = pIndexConverter->DColumn(colROC); //get ROC dcol from ROC col
     //dcol in mod
     int dColInDet = pIndexConverter->DColumnInModule(dColInChip,chipIndex);
-
-
+    
     //float rand  = RandFlat::shoot();
     float rand  = CLHEP::RandFlat::shoot(engine);
     if( chips[chipIndex]==0 || columns[dColInDet]==0
@@ -1498,7 +1500,7 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
       // make pixel amplitude =0, pixel will be lost at clusterization
       i->second.set(0.); // reset amplitude,
     } // end if
-
+    
   } // end pixel loop
 } // end pixel_indefficiency
 
