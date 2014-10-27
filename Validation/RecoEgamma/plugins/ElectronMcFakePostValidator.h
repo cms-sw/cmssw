@@ -13,6 +13,11 @@ class ElectronMcFakePostValidator : public ElectronDqmHarvesterBase
     virtual void finalize( DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter ) ; // 
 
   private:
+    std::string inputFile_ ;
+    std::string outputFile_ ;
+    std::string inputInternalPath_ ;
+    std::string outputInternalPath_ ;
+
     // histos limits and binning
 
     bool set_EfficiencyFlag ; bool set_StatOverflowFlag ;
