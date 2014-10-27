@@ -55,6 +55,7 @@ OuterTrackerMonitorStub::OuterTrackerMonitorStub(const edm::ParameterSet& iConfi
 
 {
    //now do what ever initialization is needed
+   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
 
 }
 
@@ -130,7 +131,7 @@ OuterTrackerMonitorStub::analyze(const edm::Event& iEvent, const edm::EventSetup
 }
 
 
-// ------------ method called once each job just before starting event loop  ------------
+// ------------ method called when starting to processes a run  ------------
 void 
 OuterTrackerMonitorStub::beginRun(edm::Run const&, edm::EventSetup const&)
 {
@@ -142,7 +143,7 @@ OuterTrackerMonitorStub::beginRun(edm::Run const&, edm::EventSetup const&)
   dqmStore_->setCurrentFolder(topFolderName_+"/Stubs/");
 
   // Declaring histograms 
-  std::string HistoName = " "; 
+  std::string HistoName = "abc"; 
   edm::ParameterSet psTTStub_Barrel_XY =  conf_.getParameter<edm::ParameterSet>("TH2TTStub_Barrel_XY");
   HistoName = "hStub_Barrel_XY";
   //book the histogram
@@ -165,48 +166,6 @@ OuterTrackerMonitorStub::endJob()
 {
 }
 
-// ------------ method called when starting to processes a run  ------------
-/*
-void 
-OuterTrackerMonitorStub::beginRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a run  ------------
-/*
-void 
-OuterTrackerMonitorStub::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-void 
-OuterTrackerMonitorStub::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-void 
-OuterTrackerMonitorStub::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-/*void
-OuterTrackerMonitorStub::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
-  edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
-}
-*/
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(OuterTrackerMonitorStub);
