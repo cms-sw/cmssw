@@ -15,7 +15,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-//#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
@@ -86,6 +85,8 @@ ElectronAnalyzer::ElectronAnalyzer( const edm::ParameterSet & conf )
   triggerResults_ = conf.getParameter<edm::InputTag>("TriggerResults");
 
   // histos limits and binning
+  edm::ParameterSet histosSet = conf.getParameter<edm::ParameterSet>("histosCfg") ;
+
   nbineta=conf.getParameter<int>("NbinEta");
   nbineta2D=conf.getParameter<int>("NbinEta2D");
   etamin=conf.getParameter<double>("EtaMin");
@@ -148,6 +149,9 @@ ElectronAnalyzer::ElectronAnalyzer( const edm::ParameterSet & conf )
   nbinhoe= conf.getParameter<int>("NbinHoe");
   hoemin=conf.getParameter<double>("HoeMin");
   hoemax=conf.getParameter<double>("HoeMax");
+
+  set_EfficiencyFlag=histosSet.getParameter<bool>("EfficiencyFlag");
+  set_StatOverflowFlag=histosSet.getParameter<bool>("StatOverflowFlag");
  }
 
 ElectronAnalyzer::~ElectronAnalyzer()
@@ -158,6 +162,9 @@ void ElectronAnalyzer::bookHistograms( DQMStore::IBooker & iBooker, edm::Run con
   iBooker.setCurrentFolder(outputInternalPath_) ;
 
   nEvents_ = 0 ;
+  setBookIndex(-1) ;
+  setBookPrefix("h") ;
+  setBookStatOverflowFlag( set_StatOverflowFlag ) ;
 
   // basic quantities
   h1_vertexPt_barrel = bookH1(iBooker, "vertexPt_barrel","ele transverse momentum in barrel",nbinpt,0.,ptmax,"p_{T vertex} (GeV/c)");
@@ -238,10 +245,9 @@ void ElectronAnalyzer::bookHistograms( DQMStore::IBooker & iBooker, edm::Run con
   else
    { edm::LogInfo("ElectronMcFakeValidator::beginJob")<<"Matching object type: "<<matchingObjectType ; }
 
-   std::cout << "bookH1withSumw2 call : matchingObject_Eta " << &iBooker << std::endl;
   // matching object distributions
   h1_matchingObject_Eta = bookH1withSumw2(iBooker, "matchingObject_Eta",matchingObjectType+" #eta",nbineta,etamin,etamax,"#eta_{SC}");
-  std::cout << "bookH1withSumw2 call : matchingObject_Eta done " << std::endl;
+
 
   h1_matchingObject_Pt = bookH1withSumw2(iBooker, "matchingObject_Pt",matchingObjectType+" pt",nbinpteff,5.,ptmax,"pt_{SC} (GeV/c)");
   h1_matchingObject_Phi = bookH1withSumw2(iBooker, "matchingObject_Phi",matchingObjectType+" #phi",nbinphi,phimin,phimax,"#phi (rad)");
@@ -249,7 +255,7 @@ void ElectronAnalyzer::bookHistograms( DQMStore::IBooker & iBooker, edm::Run con
   h1_matchedObject_Eta = bookH1withSumw2(iBooker, "matchedObject_Eta","Efficiency vs matching SC #eta",nbineta,etamin,etamax,"#eta_{SC}");
   h1_matchedObject_Pt = bookH1withSumw2(iBooker, "matchedObject_Pt","Efficiency vs matching SC E_{T}",nbinpteff,5.,ptmax,"pt_{SC} (GeV/c)");
   h1_matchedObject_Phi = bookH1withSumw2(iBooker, "matchedObject_Phi","Efficiency vs matching SC #phi",nbinphi,phimin,phimax,"#phi (rad)");
-  std::cout << "bookH1withSumw2 call : done" << std::endl;
+  /**/
 
   }
 
@@ -394,10 +400,9 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
      { continue ; }
 
 //    // suppress the endcaps
-
     h1_matchingObject_Eta->Fill( moIter->eta() );
-    h1_matchingObject_Pt->Fill( moIter->energy()/cosh(moIter->eta()) );
-    h1_matchingObject_Phi->Fill( moIter->phi() );
+//    h1_matchingObject_Pt->Fill( moIter->energy()/cosh(moIter->eta()) );
+//    h1_matchingObject_Phi->Fill( moIter->phi() );
 
     bool okGsfFound = false ;
     double gsfOkRatio = 999999999. ;
