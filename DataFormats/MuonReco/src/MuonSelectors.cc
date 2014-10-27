@@ -777,7 +777,6 @@ bool muon::isSoftMuon(const reco::Muon& muon, const reco::Vertex& vtx){
   
   bool ip = fabs(muon.innerTrack()->dxy(vtx.position())) < 0.3 && fabs(muon.innerTrack()->dz(vtx.position())) < 20.;
   
-  //return muID && layers && ip && ishighq;
   return layers && ip && ishighq;
 }
 
