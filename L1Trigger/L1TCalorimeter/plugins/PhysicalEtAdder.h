@@ -60,6 +60,7 @@ namespace l1t {
       edm::EDGetToken RlxTauToken_;
       edm::EDGetToken IsoTauToken_;
       edm::EDGetToken JetToken_;
+      edm::EDGetToken preGtJetToken_;
       edm::EDGetToken EtSumToken_;
       edm::EDGetToken CaloSpareToken_;
   };

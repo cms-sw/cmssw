@@ -9,17 +9,14 @@
 
 namespace l1t {
 
-  void JetToGtScales(CaloParamsStage1 *params,
-		     const std::vector<l1t::Jet> * input,
-		     std::vector<l1t::Jet> *output){
+  void JetToGtEtaScales(CaloParamsStage1 *params,
+			const std::vector<l1t::Jet> * input,
+			std::vector<l1t::Jet> *output){
 
     for(std::vector<l1t::Jet>::const_iterator itJet = input->begin();
 	itJet != input->end(); ++itJet){
       unsigned newPhi = itJet->hwPhi();
       unsigned newEta = gtEta(itJet->hwEta());
-      uint16_t linPt = (uint16_t)itJet->hwPt();
-      if(linPt > params->jetScale().linScaleMax() ) linPt = params->jetScale().linScaleMax();
-      const uint16_t rankPt = params->jetScale().rank(linPt);
 
       // jets with hwQual & 10 ==10 are "padding" jets from a sort, set their eta and phi
       // to the max value
@@ -31,10 +28,28 @@ namespace l1t {
 
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
 
-      l1t::Jet gtJet(*&ldummy, rankPt, newEta, newPhi, itJet->hwQual());
+      l1t::Jet gtJet(*&ldummy, itJet->hwPt(), newEta, newPhi, itJet->hwQual());
       output->push_back(gtJet);
     }
   }
+
+  void JetToGtPtScales(CaloParamsStage1 *params,
+			const std::vector<l1t::Jet> * input,
+			std::vector<l1t::Jet> *output){
+
+    for(std::vector<l1t::Jet>::const_iterator itJet = input->begin();
+	itJet != input->end(); ++itJet){
+      uint16_t linPt = (uint16_t)itJet->hwPt();
+      if(linPt > params->jetScale().linScaleMax() ) linPt = params->jetScale().linScaleMax();
+      const uint16_t rankPt = params->jetScale().rank(linPt);
+
+      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
+
+      l1t::Jet gtJet(*&ldummy, rankPt, itJet->hwEta(), itJet->hwPhi(), itJet->hwQual());
+      output->push_back(gtJet);
+    }
+  }
+
 
   void EGammaToGtScales(CaloParamsStage1 *params,
 			const std::vector<l1t::EGamma> * input,

@@ -107,6 +107,7 @@ namespace l1t {
     produces<BXVector<l1t::Tau>>("rlxTaus");
     produces<BXVector<l1t::Tau>>("isoTaus");
     produces<BXVector<l1t::Jet>>();
+    produces<BXVector<l1t::Jet>>("preGtJets");
     produces<BXVector<l1t::EtSum>>();
     produces<BXVector<l1t::CaloSpare>>();
 
@@ -183,6 +184,7 @@ Stage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
   std::auto_ptr<l1t::TauBxCollection> taus (new l1t::TauBxCollection);
   std::auto_ptr<l1t::TauBxCollection> isoTaus (new l1t::TauBxCollection);
   std::auto_ptr<l1t::JetBxCollection> jets (new l1t::JetBxCollection);
+  std::auto_ptr<l1t::JetBxCollection> preGtJets (new l1t::JetBxCollection);
   std::auto_ptr<l1t::EtSumBxCollection> etsums (new l1t::EtSumBxCollection);
   std::auto_ptr<l1t::CaloSpareBxCollection> calospares (new l1t::CaloSpareBxCollection);
 
@@ -190,6 +192,7 @@ Stage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
   taus->setBXRange(bxFirst, bxLast);
   isoTaus->setBXRange(bxFirst, bxLast);
   jets->setBXRange(bxFirst, bxLast);
+  preGtJets->setBXRange(bxFirst, bxLast);
   etsums->setBXRange(bxFirst, bxLast);
   calospares->setBXRange(bxFirst, bxLast);
 
@@ -205,6 +208,7 @@ Stage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
     std::vector<l1t::EGamma> *localEGammas = new std::vector<l1t::EGamma>();
     std::vector<l1t::Tau> *localTaus = new std::vector<l1t::Tau>();
     std::vector<l1t::Jet> *localJets = new std::vector<l1t::Jet>();
+    std::vector<l1t::Jet> *localPreGtJets = new std::vector<l1t::Jet>();
     std::vector<l1t::EtSum> *localEtSums = new std::vector<l1t::EtSum>();
     std::vector<l1t::CaloSpare> *localCaloSpares = new std::vector<l1t::CaloSpare>();
 
@@ -218,7 +222,7 @@ Stage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
 
     //run the firmware on one event
     m_fw->processEvent(*localEmCands, *localRegions,
-		       localEGammas, localTaus, localJets, localEtSums,
+		       localEGammas, localTaus, localJets, localPreGtJets, localEtSums,
 		       localCaloSpares);
 
     // copy the output into the BXVector -> there must be a better way
@@ -230,6 +234,8 @@ Stage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
     }
     for(std::vector<l1t::Jet>::const_iterator jet = localJets->begin(); jet != localJets->end(); ++jet)
       jets->push_back(i, *jet);
+    for(std::vector<l1t::Jet>::const_iterator jet = localPreGtJets->begin(); jet != localPreGtJets->end(); ++jet)
+      preGtJets->push_back(i, *jet);
     for(std::vector<l1t::EtSum>::const_iterator etsum = localEtSums->begin(); etsum != localEtSums->end(); ++etsum)
       etsums->push_back(i, *etsum);
     for(std::vector<l1t::CaloSpare>::const_iterator calospare = localCaloSpares->begin(); calospare != localCaloSpares->end(); ++calospare)
@@ -241,6 +247,7 @@ Stage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
     delete localEGammas;
     delete localTaus;
     delete localJets;
+    delete localPreGtJets;
     delete localEtSums;
     delete localCaloSpares;
   }
@@ -250,6 +257,7 @@ Stage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
   iEvent.put(taus,"rlxTaus");
   iEvent.put(isoTaus,"isoTaus");
   iEvent.put(jets);
+  iEvent.put(preGtJets,"preGtJets");
   iEvent.put(etsums);
   iEvent.put(calospares);
 }

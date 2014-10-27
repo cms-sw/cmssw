@@ -21,7 +21,7 @@ using namespace l1t;
 Stage1Layer2MainProcessorFirmwareImp1::Stage1Layer2MainProcessorFirmwareImp1(const int fwv, CaloParamsStage1* dbPars) : m_fwv(fwv), m_db(dbPars) {
   if (m_fwv == 1)
   { //HI algo
-    m_egAlgo = new Stage1Layer2EGammaAlgorithmImpPP(m_db);
+    m_egAlgo = new Stage1Layer2EGammaAlgorithmImpHI(m_db);
     m_sumAlgo = new Stage1Layer2EtSumAlgorithmImpPP(m_db);
     m_jetAlgo = new Stage1Layer2JetAlgorithmImpHI(m_db); //fwv =1 => HI algo
     m_tauAlgo = new Stage1Layer2SingleTrackHI(m_db); //fwv=1 => single track seed
@@ -67,10 +67,11 @@ void Stage1Layer2MainProcessorFirmwareImp1::processEvent(const std::vector<CaloE
 							 std::vector<EGamma> * egammas,
 							 std::vector<Tau> * taus,
 							 std::vector<Jet> * jets,
+							 std::vector<Jet> * preGtJets,
 							 std::vector<EtSum> * etsums,
 							 std::vector<CaloSpare> * calospares){
   if(m_jetAlgo)
-    m_jetAlgo->processEvent(regions, emcands, jets); // need to run jets before egammas and taus for rel. isol. cuts
+    m_jetAlgo->processEvent(regions, emcands, jets, preGtJets); // need to run jets before egammas and taus for rel. isol. cuts
   if(m_egAlgo)
   {
     // printf("%p\n",m_egAlgo);

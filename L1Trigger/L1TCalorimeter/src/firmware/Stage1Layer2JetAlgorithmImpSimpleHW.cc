@@ -26,11 +26,12 @@ Stage1Layer2JetAlgorithmImpSimpleHW::Stage1Layer2JetAlgorithmImpSimpleHW(CaloPar
 Stage1Layer2JetAlgorithmImpSimpleHW::~Stage1Layer2JetAlgorithmImpSimpleHW(){};
 
 void Stage1Layer2JetAlgorithmImpSimpleHW::processEvent(const std::vector<l1t::CaloRegion> & regions,
-						 const std::vector<l1t::CaloEmCand> & EMCands,
-						 std::vector<l1t::Jet> * jets){
+						       const std::vector<l1t::CaloEmCand> & EMCands,
+						       std::vector<l1t::Jet> * jets,
+						       std::vector<l1t::Jet> * preGtJets){
 
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
-  std::vector<l1t::Jet> *preGtJets = new std::vector<l1t::Jet>();
+  std::vector<l1t::Jet> *preGtEtaJets = new std::vector<l1t::Jet>();
   std::vector<l1t::Jet> *sortedJets = new std::vector<l1t::Jet>();
 
   //simpleHWSubtraction(regions, subRegions);
@@ -39,11 +40,12 @@ void Stage1Layer2JetAlgorithmImpSimpleHW::processEvent(const std::vector<l1t::Ca
   std::vector<double> regionPUSParams = params_->regionPUSParams();
   RegionCorrection(regions, subRegions, regionPUSParams, regionPUSType);
 
-  slidingWindowJetFinder(0, subRegions, preGtJets);
+  slidingWindowJetFinder(0, subRegions, preGtEtaJets);
 
-  SortJets(preGtJets, sortedJets);
+  SortJets(preGtEtaJets, sortedJets);
 
-  JetToGtScales(params_, sortedJets, jets);
+  JetToGtEtaScales(params_, sortedJets, preGtJets);
+  JetToGtPtScales(params_, preGtJets, jets);
 
   const bool verbose = false;
   if(verbose)
@@ -74,6 +76,6 @@ void Stage1Layer2JetAlgorithmImpSimpleHW::processEvent(const std::vector<l1t::Ca
   }
 
   delete subRegions;
-  delete preGtJets;
+  delete preGtEtaJets;
   delete sortedJets;
 }
