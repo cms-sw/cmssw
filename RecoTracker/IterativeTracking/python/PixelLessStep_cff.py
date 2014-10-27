@@ -5,7 +5,6 @@ import FWCore.ParameterSet.Config as cms
 ##########################################################################
 
 pixelLessStepClusters = cms.EDProducer("TrackClusterRemover",
-    clusterLessSolution = cms.bool(True),
     oldClusterRemovalInfo = cms.InputTag("mixedTripletStepClusters"),
     trajectories = cms.InputTag("mixedTripletStepTracks"),
     overrideTrkQuals = cms.InputTag('mixedTripletStep'),
@@ -13,9 +12,7 @@ pixelLessStepClusters = cms.EDProducer("TrackClusterRemover",
     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
     pixelClusters = cms.InputTag("siPixelClusters"),
     stripClusters = cms.InputTag("siStripClusters"),
-    Common = cms.PSet(
-        maxChi2 = cms.double(9.0)
-    )
+    maxChi2 = cms.double(9.0)
 )
 
 # SEEDING LAYERS
@@ -47,12 +44,12 @@ pixelLessStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
     'TEC4_pos+TEC5_pos+TEC6_pos', 'TEC4_neg+TEC5_neg+TEC6_neg'    
     ),
     TIB = cms.PSet(
-         TTRHBuilder    = cms.string('WithTrackAngle'),
+         TTRHBuilder    = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069),
          matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
          skipClusters   = cms.InputTag('pixelLessStepClusters')
     ),
     MTIB = cms.PSet(
-         TTRHBuilder    = cms.string('WithTrackAngle'),
+         TTRHBuilder    = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069),
          skipClusters   = cms.InputTag('pixelLessStepClusters'),
          rphiRecHits    = cms.InputTag("siStripMatchedRecHits","rphiRecHit")
     ),
@@ -60,7 +57,7 @@ pixelLessStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         skipClusters = cms.InputTag('pixelLessStepClusters'),
         useRingSlector = cms.bool(True),
-        TTRHBuilder = cms.string('WithTrackAngle'),
+        TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069),
         minRing = cms.int32(1),
         maxRing = cms.int32(2)
     ),
@@ -68,7 +65,7 @@ pixelLessStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
         rphiRecHits    = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
         skipClusters = cms.InputTag('pixelLessStepClusters'),
         useRingSlector = cms.bool(True),
-        TTRHBuilder = cms.string('WithTrackAngle'),
+        TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069),
         minRing = cms.int32(3),
         maxRing = cms.int32(3)
     ),
@@ -76,7 +73,7 @@ pixelLessStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
         skipClusters = cms.InputTag('pixelLessStepClusters'),
         useRingSlector = cms.bool(True),
-        TTRHBuilder = cms.string('WithTrackAngle'),
+        TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069),
         minRing = cms.int32(1),
         maxRing = cms.int32(2)
     ),
@@ -84,7 +81,7 @@ pixelLessStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
         rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
         skipClusters = cms.InputTag('pixelLessStepClusters'),
         useRingSlector = cms.bool(True),
-        TTRHBuilder = cms.string('WithTrackAngle'),
+        TTRHBuilder = cms.string('WithTrackAngle'), minGoodCharge = cms.double(2069),
         minRing = cms.int32(3),
         maxRing = cms.int32(3)
     )
@@ -137,8 +134,8 @@ pixelLessStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilt
     minPt = 0.1
     )
 
-import TrackingTools.KalmanUpdators.Chi2ChargeMeasurementEstimatorESProducer_cfi
-pixelLessStepChi2Est = TrackingTools.KalmanUpdators.Chi2ChargeMeasurementEstimatorESProducer_cfi.Chi2ChargeMeasurementEstimator.clone(
+import RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimatorESProducer_cfi
+pixelLessStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimatorESProducer_cfi.Chi2ChargeMeasurementEstimator.clone(
     ComponentName = cms.string('pixelLessStepChi2Est'),
     nSigma = cms.double(3.0),
     MaxChi2 = cms.double(9.0),

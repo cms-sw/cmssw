@@ -32,6 +32,7 @@ namespace edm {
     virtual std::string const* sourceCacheTempDir() const = 0;
     virtual double const* sourceCacheMinFree() const = 0;
     virtual std::string const* sourceCacheHint() const = 0;
+    virtual std::string const* sourceCloneCacheHint() const = 0;
     virtual std::string const* sourceReadHint() const = 0;
     virtual unsigned int const* sourceTTreeCacheSize() const = 0;
     virtual unsigned int const* sourceTimeout() const = 0;

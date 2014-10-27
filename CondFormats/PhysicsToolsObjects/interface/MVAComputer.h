@@ -14,7 +14,6 @@
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-#include <memory>
 #include <string>
 #include <vector>
 #include <map>

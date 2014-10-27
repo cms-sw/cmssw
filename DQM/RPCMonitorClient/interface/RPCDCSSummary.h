@@ -10,7 +10,7 @@
 class RPCDCSSummary : DQMEDHarvester {
 public:
   /// Constructor
-  RPCDCSSummary(const edm::ParameterSet& pset);
+  RPCDCSSummary(const edm::ParameterSet&);
 
   /// Destructor
   virtual ~RPCDCSSummary();

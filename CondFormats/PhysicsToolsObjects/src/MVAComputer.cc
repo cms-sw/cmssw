@@ -13,6 +13,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
+// $Id: MVAComputer.cc,v 1.10 2010/01/26 19:40:03 saout Exp $
 //
 #include <functional>
 #include <algorithm>
@@ -43,81 +44,6 @@ std::string VarProcessor::getInstanceName() const
 			<< typeid(*this).name() << "." << std::endl;
 
 	return type.substr(sizeof prefix - 1);
-}
-
-std::unique_ptr<VarProcessor>
-VarProcessor::clone() const {
-   return(std::unique_ptr<VarProcessor>(new VarProcessor(*this)));
-}
-
-std::unique_ptr<VarProcessor>
-ProcOptional::clone() const {
-   return(std::unique_ptr<VarProcessor>(new ProcOptional(*this)));
-}
-
-std::unique_ptr<VarProcessor>
-ProcCount::clone() const {
-   return(std::unique_ptr<VarProcessor>(new ProcCount(*this)));
-}
-
-std::unique_ptr<VarProcessor>
-ProcClassed::clone() const {
-   return(std::unique_ptr<VarProcessor>(new ProcClassed(*this)));
-}
-
-std::unique_ptr<VarProcessor>
-ProcSplitter::clone() const {
-   return(std::unique_ptr<VarProcessor>(new ProcSplitter(*this)));
-}
-
-std::unique_ptr<VarProcessor>
-ProcForeach::clone() const {
-   return(std::unique_ptr<VarProcessor>(new ProcForeach(*this)));
-}
-
-std::unique_ptr<VarProcessor>
-ProcSort::clone() const {
-   return(std::unique_ptr<VarProcessor>(new ProcSort(*this)));
-}
-
-std::unique_ptr<VarProcessor>
-ProcCategory::clone() const {
-   return(std::unique_ptr<VarProcessor>(new ProcCategory(*this)));
-}
-
-std::unique_ptr<VarProcessor>
-ProcNormalize::clone() const {
-   return(std::unique_ptr<VarProcessor>(new ProcNormalize(*this)));
-}
-
-std::unique_ptr<VarProcessor>
-ProcLikelihood::clone() const {
-   return(std::unique_ptr<VarProcessor>(new ProcLikelihood(*this)));
-}
-
-std::unique_ptr<VarProcessor>
-ProcLinear::clone() const {
-   return(std::unique_ptr<VarProcessor>(new ProcLinear(*this)));
-}
-
-std::unique_ptr<VarProcessor>
-ProcMultiply::clone() const {
-   return(std::unique_ptr<VarProcessor>(new ProcMultiply(*this)));
-}
-
-std::unique_ptr<VarProcessor>
-ProcMatrix::clone() const {
-   return(std::unique_ptr<VarProcessor>(new ProcMatrix(*this)));
-}
-
-std::unique_ptr<VarProcessor>
-ProcExternal::clone() const {
-   return(std::unique_ptr<VarProcessor>(new ProcExternal(*this)));
-}
-
-std::unique_ptr<VarProcessor>
-ProcMLP::clone() const {
-   return(std::unique_ptr<VarProcessor>(new ProcMLP(*this)));
 }
 
 std::string ProcExternal::getInstanceName() const
