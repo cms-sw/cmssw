@@ -24,6 +24,8 @@ namespace Phase2Tracker {
   static const int MAX_FE_PER_FED = 72;
   static const int MAX_CBC_PER_FE = 16;
   static const int STRIPS_PER_CBC = 254;
+  static const int PS_ROWS = 127;
+  static const int PS_COLS = 32;
   static const int STRIPS_PADDING = 2;
   static const int TRIGGER_SIZE = 0; 
   static const int P_CLUSTER_SIZE_BITS = 18;
@@ -160,6 +162,12 @@ namespace Phase2Tracker {
       DET_Son2S = 0,
       DET_SonPS = 1,
       DET_PonPS = 2
+  };
+
+  enum MOD_TYPE
+  {
+      MOD_2S = 0,
+      MOD_PS = 1
   };
 
   //to make enums printable

@@ -17,12 +17,49 @@
 #include <sstream>
 #include <iomanip>
 #include <ext/algorithm>
-// this is ok while we use pixel clusters , we should switch to Phase2TrackerDigi later
-#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
 using namespace std;
 
 namespace Phase2Tracker {
+
+  SiPixelCluster makeSiPixelCluster(int x, int sizex, int y = 0)
+  {
+    uint16_t adcs[sizex];
+    std::fill_n(adcs,sizex,255);
+    uint16_t xpos[sizex];
+    uint16_t ypos[sizex];
+    for (int i=0; i<sizex; i++)
+    {
+      xpos[i] = x + i;
+      ypos[i] = y;
+    }
+    SiPixelCluster cluster (sizex, adcs, xpos, ypos, x, y);
+    return cluster;
+  }
+
+  std::map<std::string,int> stripFromRaw(int icbc, DET_TYPE dettype, int rawx, int rawy = 0)
+  {
+    std::map<std::string,int> strxy;
+    strxy["y"] = rawy;
+    switch(dettype)
+    {
+      case DET_Son2S:
+        if(icbc > 7) { strxy["y"] = 1; icbc -= 8; }
+        strxy["x"] = (int)(STRIPS_PER_CBC*icbc + rawx)/2;
+        break;
+      case DET_SonPS:
+        if(icbc > 7) { strxy["y"] = 1; icbc -= 8; }
+        strxy["x"] = (int)(PS_ROWS*icbc + rawx);
+        break;
+      case DET_PonPS:
+        if(icbc-MAX_CBC_PER_FE > 7) { strxy["y"] = rawy + PS_COLS/2; icbc -= 8; }
+        strxy["x"] = (int)(PS_ROWS*(icbc-MAX_CBC_PER_FE) + rawx); 
+        break;
+      case UNUSED:
+        return strxy;
+    }
+    return strxy;
+  }
 
   typedef Phase2TrackerDigi DummyClusterDigi;
 
@@ -33,7 +70,7 @@ namespace Phase2Tracker {
   {
     // define product
     produces< edm::DetSetVector<Phase2TrackerDigi> >("Unsparsified");
-    produces< edm::DetSetVector<DummyClusterDigi> > ("Sparsified");
+    produces< edm::DetSetVector<SiPixelCluster> > ("Sparsified");
     token_ = consumes<FEDRawDataCollection>(pset.getParameter<edm::InputTag>("ProductLabel"));
   }
   
@@ -77,6 +114,7 @@ namespace Phase2Tracker {
       const FEDRawData& fed = buffers->FEDData(*fedIndex);
       if(fed.size()!=0)
       {
+        std::cout << *fedIndex << "====================================" << std::endl;
 	// construct buffer
 	Phase2Tracker:: Phase2TrackerFEDBuffer* buffer = 0;
 	buffer = new Phase2Tracker::Phase2TrackerFEDBuffer(fed.data(),fed.size());
@@ -228,10 +266,9 @@ namespace Phase2Tracker {
                 ss << dec << " with length  : " << (int) channel.length() << endl;
                 #endif
                 // container for this channel's digis
-                std::vector<DummyClusterDigi> clustersTop;
-                std::vector<DummyClusterDigi> clustersBottom;
+                std::vector<SiPixelCluster> clustersTop;
+                std::vector<SiPixelCluster> clustersBottom;
                 // create appropriate unpacker
-                // int side = (icbc<=7) ? 0 : 1;
                 if (channel.dettype() == DET_Son2S) 
                 {
                   Phase2TrackerFEDZSSChannelUnpacker unpacker = Phase2TrackerFEDZSSChannelUnpacker(channel);
@@ -240,15 +277,15 @@ namespace Phase2Tracker {
                     #ifdef EDM_ML_DEBUG
                     ss << dec << "Son2S cluster at position: " << (int)unpacker.clusterIndex() << " with size: " << (int)unpacker.clusterSize() << endl;
                     #endif
+                    std::map<std::string,int> rawxy = stripFromRaw(icbc,channel.dettype(),(int)unpacker.clusterIndex());
+                    std::cout << std::dec << "Son2S " << rawxy["x"] << std::endl;
                     if (unpacker.clusterIndex()%2) 
                     {
-		      // clustersTop.push_back(DummyClusterDigi((int)(STRIPS_PER_CBC*icbc + unpacker.clusterIndex())/2,unpacker.clusterSize(),side));
-		      clustersTop.push_back(DummyClusterDigi((int)(STRIPS_PER_CBC*icbc + unpacker.clusterIndex())/2,unpacker.clusterSize()));
+		      clustersTop.push_back(makeSiPixelCluster(rawxy["x"],unpacker.clusterSize(),rawxy["y"]));
                     }
                     else 
                     {
-                      // clustersBottom.push_back(DummyClusterDigi((int)(STRIPS_PER_CBC*icbc + unpacker.clusterIndex())/2,unpacker.clusterSize(),side));
-                      clustersBottom.push_back(DummyClusterDigi((int)(STRIPS_PER_CBC*icbc + unpacker.clusterIndex())/2,unpacker.clusterSize()));
+                      clustersBottom.push_back(makeSiPixelCluster(rawxy["x"],unpacker.clusterSize(),rawxy["y"]));
                     }
                     unpacker++;
                   }
@@ -261,8 +298,9 @@ namespace Phase2Tracker {
                     #ifdef EDM_ML_DEBUG
                     ss << dec << "SonPS cluster at position: " << (int)unpacker.clusterIndex() << " with size: " << (int)unpacker.clusterSize() << endl;
                     #endif
-                    // clustersTop.push_back(DummyClusterDigi((int)(STRIPS_PER_CBC*icbc + unpacker.clusterIndex()),unpacker.clusterSize(),side));
-                    clustersTop.push_back(DummyClusterDigi((int)(STRIPS_PER_CBC*icbc/2 + unpacker.clusterIndex()),unpacker.clusterSize()));
+                    std::map<std::string,int> rawxy = stripFromRaw(icbc,channel.dettype(),(int)unpacker.clusterIndex());
+                    std::cout << "SonPS " << rawxy["x"] << std::endl;
+                    clustersTop.push_back(makeSiPixelCluster(rawxy["x"],unpacker.clusterSize(),rawxy["y"]));
                     unpacker++;
                   }
                 }
@@ -274,8 +312,9 @@ namespace Phase2Tracker {
                     #ifdef EDM_ML_DEBUG
                     ss << dec << "PonPS cluster at position: " << (int)unpacker.clusterIndex() <<" , "<<  (int)unpacker.clusterZpos() << " with size: " << (int)unpacker.clusterSize() << endl;
                     #endif
-                    // clustersBottom.push_back(DummyClusterDigi((int)(STRIPS_PER_CBC*icbc + unpacker.clusterIndex())/2,unpacker.clusterSize(),unpacker.clusterZpos()));
-                    clustersBottom.push_back(DummyClusterDigi((int)(STRIPS_PER_CBC*(icbc-MAX_CBC_PER_FE)/2 + unpacker.clusterIndex()),unpacker.clusterSize()));
+                    std::map<std::string,int> rawxy = stripFromRaw(icbc,channel.dettype(),(int)unpacker.clusterIndex(),(int)unpacker.clusterZpos());
+                    std::cout << "PonPS " << rawxy["x"] << std::endl;
+                    clustersBottom.push_back(makeSiPixelCluster(rawxy["x"],unpacker.clusterSize(),rawxy["y"]));
                     unpacker++;
                   }
                 }
@@ -332,16 +371,16 @@ namespace Phase2Tracker {
 
     // sort and store clusters 
     std::sort( zs_work_registry_.begin(), zs_work_registry_.end() );
-    std::vector< edm::DetSet<DummyClusterDigi> > sorted_and_merged_zs;
-    edm::DetSetVector<DummyClusterDigi>* zs = new edm::DetSetVector<DummyClusterDigi>();
+    std::vector< edm::DetSet<SiPixelCluster> > sorted_and_merged_zs;
+    edm::DetSetVector<SiPixelCluster>* zs = new edm::DetSetVector<SiPixelCluster>();
     // std::vector<Registry>::iterator it = zs_work_registry_.begin(), it2 = it+1, end = zs_work_registry_.end();
     it = zs_work_registry_.begin();
     it2 = it+1;
     end = zs_work_registry_.end();
     while (it < end)
     {
-      sorted_and_merged_zs.push_back( edm::DetSet<DummyClusterDigi>(it->detid) );
-      std::vector<DummyClusterDigi> & digis = sorted_and_merged_zs.back().data;
+      sorted_and_merged_zs.push_back( edm::DetSet<SiPixelCluster>(it->detid) );
+      std::vector<SiPixelCluster> & digis = sorted_and_merged_zs.back().data;
       // first count how many digis we have
       size_t len = it->length;
       for (it2 = it+1; (it2 != end) && (it2->detid == it->detid); ++it2) { len += it2->length; }
@@ -354,9 +393,9 @@ namespace Phase2Tracker {
       }
       it = it2;
     }
-    edm::DetSetVector<DummyClusterDigi> sparsified_dsv( sorted_and_merged_zs, true );
+    edm::DetSetVector<SiPixelCluster> sparsified_dsv( sorted_and_merged_zs, true );
     zs->swap( sparsified_dsv );
-    std::auto_ptr< edm::DetSetVector<DummyClusterDigi> > sp_dsv(zs);
+    std::auto_ptr< edm::DetSetVector<SiPixelCluster> > sp_dsv(zs);
     event.put(sp_dsv, "Sparsified" );
   } 
 }

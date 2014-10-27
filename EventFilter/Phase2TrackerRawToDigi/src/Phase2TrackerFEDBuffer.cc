@@ -130,7 +130,7 @@ namespace Phase2Tracker
           int iOffset = 0;
           for (int i=0; i<num_p; i++)
           {
-              // test if new chip (CBC for 2S, ??? for PS)
+              // test if new chip 
               iCBC = static_cast<uint8_t>(read_n_at_m(payloadPointer_,4,bitOffset+14));
               if(iCBC != currCBC)
               {

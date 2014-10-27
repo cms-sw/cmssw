@@ -18,6 +18,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+// this is ok while we use pixel clusters , we should switch later
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
 namespace Phase2Tracker {
 
@@ -55,7 +57,7 @@ namespace Phase2Tracker {
     std::vector<Registry>          proc_work_registry_;
     std::vector<Phase2TrackerDigi> proc_work_digis_;
     std::vector<Registry>          zs_work_registry_;
-    std::vector<Phase2TrackerDigi> zs_work_digis_;
+    std::vector<SiPixelCluster> zs_work_digis_;
   };
 }
 #endif // EventFilter_Phase2TrackerRawToDigi_Phase2TrackerDigiProducer_H
