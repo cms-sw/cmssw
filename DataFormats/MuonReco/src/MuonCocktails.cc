@@ -15,9 +15,10 @@ reco::Muon::MuonTrackTypePair  muon::tevOptimized(const reco::TrackRef& combined
 						  const double tune1,
 						  const double tune2,
 						  double dptcut) {
+  const unsigned int nAlgo=5; 
 
   // Array for convenience below.
-  const reco::Muon::MuonTrackTypePair refit[5] = { 
+  const reco::Muon::MuonTrackTypePair refit[nAlgo] = { 
     make_pair(trackerTrack, reco::Muon::InnerTrack), 
     make_pair(combinedTrack,reco::Muon::CombinedTrack),
     make_pair(tpfmsTrack,   reco::Muon::TPFMS),
@@ -30,20 +31,20 @@ reco::Muon::MuonTrackTypePair  muon::tevOptimized(const reco::TrackRef& combined
   // the track being not available, whether the (re)fit failed or it's
   // just not in the event, or if the (re)fit ended up with no valid
   // hits.
-  double prob[5] = {0.,0.,0.,0.,0.};
-  bool valid[5] = {0,0,0,0,0};
+  double prob[nAlgo] = {0.,0.,0.,0.,0.};
+  bool valid[nAlgo] = {0,0,0,0,0};
 
   double dptmin = 1.;
 
   if (dptcut>0) {  
-    for (unsigned int i = 0; i < 5; ++i)
+    for (unsigned int i = 0; i < nAlgo; ++i)
       if (refit[i].first.isNonnull())
         if (refit[i].first->ptError()/refit[i].first->pt()<dptmin) dptmin = refit[i].first->ptError()/refit[i].first->pt();
   
     if (dptmin>dptcut) dptcut = dptmin+0.15;
   }
 
-  for (unsigned int i = 0; i < 5; ++i) 
+  for (unsigned int i = 0; i < nAlgo; ++i) 
     if (refit[i].first.isNonnull()){ 
       valid[i] = true;
       if (refit[i].first->numberOfValidHits() && (refit[i].first->ptError()/refit[i].first->pt()<dptcut || dptcut<0)) 
@@ -77,10 +78,12 @@ reco::Muon::MuonTrackTypePair  muon::tevOptimized(const reco::TrackRef& combined
   // is greater than a tuned value. Then compare the
   // so-picked track to TPFMS in the same manner using another tuned
   // value.
-  if (prob[4] && prob[3])
-  if(refit[4].first->ptError()/refit[4].first->pt()-refit[3].first->ptError()/refit[3].first->pt()<=0) 
-  chosen=4; // dyt
-  
+  if (prob[4] && prob[3]) {
+    if(refit[3].first->pt()>0 && refit[4].first->pt()>0 &&
+       (refit[4].first->ptError()/refit[4].first->pt()-refit[3].first->ptError()/refit[3].first->pt())<=0) 
+      chosen=4; // dyt
+  }
+
   if (prob[0] > 0. && prob[chosen] > 0. && (prob[chosen] - prob[0]) > tune1)
     chosen = 0;
   if (prob[2] > 0. && (prob[chosen] - prob[2]) > tune2)
