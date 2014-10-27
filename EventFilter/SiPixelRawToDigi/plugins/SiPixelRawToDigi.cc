@@ -1,6 +1,7 @@
+// Skip FED40 pilot-blade
 // Include parameter driven interface to SiPixelQuality for study purposes
 // exclude ROC(raw) based on bad ROC list in SiPixelQuality
-// enabled by: process.siPixelDigis.UseQualityInfo = True
+// enabled by: process.siPixelDigis.UseQualityInfo = True (BY DEFAULT NOT USED)
 // 20-10-2010 Andrew York (Tennessee)
 
 #include "SiPixelRawToDigi.h"
@@ -80,6 +81,21 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
     hCPU = new TH1D ("hCPU","hCPU",100,0.,0.050);
     hDigi = new TH1D("hDigi","hDigi",50,0.,15000.);
   }
+
+  // Control the usage of pilot-blade data, FED=40
+  usePilotBlade = false; 
+  if (config_.exists("UsePilotBlade")) {
+    usePilotBlade = config_.getParameter<bool> ("UsePilotBlade");
+    if(usePilotBlade) edm::LogInfo("SiPixelRawToDigi")  << " Use pilot blade data (FED 40)";
+  }
+
+  // Control the usage of phase1
+  usePhase1 = false;
+  if (config_.exists("UsePhase1")) {
+    usePhase1 = config_.getParameter<bool> ("UsePhase1");
+    if(usePhase1) edm::LogInfo("SiPixelRawToDigi")  << " Use pilot blade data (FED 40)";
+  }
+
 }
 
 
@@ -129,7 +145,6 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   }
 
   edm::Handle<FEDRawDataCollection> buffers;
-  label = config_.getParameter<edm::InputTag>("InputLabel");
   ev.getByToken(tFEDRawDataCollection, buffers);
 
 // create product (digis & errors)
@@ -139,7 +154,9 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   std::auto_ptr< DetIdCollection > tkerror_detidcollection(new DetIdCollection());
   std::auto_ptr< DetIdCollection > usererror_detidcollection(new DetIdCollection());
 
-  PixelDataFormatter formatter(cabling_.get());
+  //PixelDataFormatter formatter(cabling_.get()); // phase 0 only
+  PixelDataFormatter formatter(cabling_.get(), usePhase1); // for phase 1 & 0
+
   formatter.setErrorStatus(includeErrors);
 
   if (useQuality) formatter.setQualityStatus(useQuality, badPixelInfo_);
@@ -157,6 +174,8 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
 
   for (auto aFed = fedIds.begin(); aFed != fedIds.end(); ++aFed) {
     int fedId = *aFed;
+
+    if(!usePilotBlade && (fedId==40) ) continue; // skip pilot blade data
 
     if (regions_ && !regions_->mayUnpackFED(fedId)) continue;
 
