@@ -50,6 +50,7 @@ class HLTMuonL3PreFilter : public HLTFilter {
       double nsigma_Pt_;        // pt uncertainty margin (in number of sigmas)
       double max_NormalizedChi2_; // cutoff in normalized chi2
       double max_DXYBeamSpot_; // cutoff in dxy from the beamspot
+      double min_DXYBeamSpot_; // minimum cut on dxy from the beamspot
   int min_NmuonHits_; // cutoff in minumum number of chi2 hits
   double max_PtDifference_; // cutoff in maximum different between global track and tracker track
   double min_TrackPt_; //cutoff in tracker track pt

@@ -12,6 +12,9 @@ process.MessageLogger.cout = cms.untracked.PSet(threshold = cms.untracked.string
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
+#hptopo
+process.load("Configuration.StandardSequences.GeometryIdeal_cff")
+
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 
 process.load("CalibTracker.Configuration.TrackerAlignment.TrackerAlignment_Fake_cff")
@@ -44,15 +47,15 @@ user = getpass.getuser()
 #    user = subprocess.call('whoami')
 #    # user = commands.getoutput('whoami')
  
-#file = "/tmp/" + user + "/prova.db"
-file = "prova.db"
+#file = "/tmp/" + user + "/SiPixelLorentzAngle.db"
+file = "siPixelLorentzAngle.db"
 sqlfile = "sqlite_file:" + file
 print '\n-> Uploading as user %s into file %s, i.e. %s\n' % (user, file, sqlfile)
 
 #standard python libraries instead of spawn processes
-shutil.move("prova.db", "prova_old.db")
-#subprocess.call(["/bin/cp", "prova.db", file])
-#subprocess.call(["/bin/mv", "prova.db", "prova_old.db"])
+shutil.move("siPixelLorentzAngle.db", "siPixelLorentzAngle_old.db")
+#subprocess.call(["/bin/cp", "siPixelLorentzAngle.db", file])
+#subprocess.call(["/bin/mv", "siPixelLorentzAngle.db", "siPixelLorentzAngle.db"])
 
 ##### DATABASE CONNNECTION AND INPUT TAGS ######
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
@@ -73,11 +76,11 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     toPut = cms.VPSet(
         cms.PSet(
             record = cms.string('SiPixelLorentzAngleRcd'),
-            tag = cms.string('SiPixelLorentzAngle_v01')
+            tag = cms.string('SiPixelLorentzAngle_v1')
         ),
 ###        cms.PSet(
 ###            record = cms.string('SiPixelLorentzAngleSimRcd'),
-###            tag = cms.string('SiPixelLorentzAngleSim_v01')
+###            tag = cms.string('SiPixelLorentzAngleSim_v1')
 ###        ),
                      )
 )
@@ -90,15 +93,6 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 ###### LORENTZ ANGLE OBJECT ######
 process.SiPixelLorentzAngle = cms.EDAnalyzer("SiPixelLorentzAngleDB",
     magneticField = cms.double(3.8),
-#    bPixLorentzAnglePerTesla = cms.double(0.106),
-#    bPixLorentzAnglePerTesla_layer1 = cms.double(0.115),
-#    bPixLorentzAnglePerTesla_layer2 = cms.double(0.124),
-#    bPixLorentzAnglePerTesla_layer3 = cms.double(0.133),
-#    fPixLorentzAnglePerTesla = cms.double(0.091),
-#    fPixLorentzAnglePerTesla_side1_disk1 = cms.double(0.092),
-#    fPixLorentzAnglePerTesla_side1_disk2 = cms.double(0.102),
-#    fPixLorentzAnglePerTesla_side2_disk1 = cms.double(0.082),
-#    fPixLorentzAnglePerTesla_side2_disk2 = cms.double(0.071),
     #in case of PSet
     BPixParameters = cms.untracked.VPSet(
         cms.PSet(
@@ -280,8 +274,6 @@ process.SiPixelLorentzAngle = cms.EDAnalyzer("SiPixelLorentzAngleDB",
 
 process.SiPixelLorentzAngleSim = cms.EDAnalyzer("SiPixelLorentzAngleDB",
     magneticField = cms.double(3.8),
-    #bPixLorentzAnglePerTesla = cms.double(0.106),
-    #fPixLorentzAnglePerTesla = cms.double(0.091),
     #in case lorentz angle values for bpix should be read from file -> not implemented yet
     useFile = cms.bool(False),
     record = cms.untracked.string('SiPixelLorentzAngleSimRcd'),
