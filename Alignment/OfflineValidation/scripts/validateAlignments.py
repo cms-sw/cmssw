@@ -302,7 +302,8 @@ def createParallelMergeScript( path, validations ):
     repMap.update({
             "DownloadData":"",
             "CompareAlignments":"",
-            "RunExtendedOfflineValidation":""
+            "RunExtendedOfflineValidation":"",
+            "RunTrackSplitPlot":""
             })
 
     comparisonLists = {} # directory of lists containing the validations that are comparable
