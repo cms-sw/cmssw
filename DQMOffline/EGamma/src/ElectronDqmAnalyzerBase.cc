@@ -97,6 +97,7 @@ MonitorElement * ElectronDqmAnalyzerBase::bookH1
    const std::string & titleX, const std::string & titleY,
    Option_t * option )
  {
+  iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement * me = iBooker.book1D(newName(name),title,nchX,lowX,highX) ;
   if (titleX!="") { me->getTH1F()->GetXaxis()->SetTitle(titleX.c_str()) ; }
   if (titleY!="") { me->getTH1F()->GetYaxis()->SetTitle(titleY.c_str()) ; }
@@ -111,6 +112,7 @@ MonitorElement * ElectronDqmAnalyzerBase::bookH1withSumw2
    const std::string & titleX, const std::string & titleY,
    Option_t * option )
  {
+  iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement * me = iBooker.book1D(newName(name),title,nchX,lowX,highX) ;
   me->getTH1F()->Sumw2() ;
   if (titleX!="") { me->getTH1F()->GetXaxis()->SetTitle(titleX.c_str()) ; }
@@ -127,6 +129,7 @@ MonitorElement * ElectronDqmAnalyzerBase::bookH2
    const std::string & titleX, const std::string & titleY,
    Option_t * option )
  {
+  iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement * me = iBooker.book2D(newName(name),title,nchX,lowX,highX,nchY,lowY,highY) ;
   if (titleX!="") { me->getTH2F()->GetXaxis()->SetTitle(titleX.c_str()) ; }
   if (titleY!="") { me->getTH2F()->GetYaxis()->SetTitle(titleY.c_str()) ; }
@@ -142,6 +145,7 @@ MonitorElement * ElectronDqmAnalyzerBase::bookH2withSumw2
    const std::string & titleX, const std::string & titleY,
    Option_t * option )
  {
+  iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement * me = iBooker.book2D(newName(name),title,nchX,lowX,highX,nchY,lowY,highY) ;
   me->getTH2F()->Sumw2() ;
   if (titleX!="") { me->getTH2F()->GetXaxis()->SetTitle(titleX.c_str()) ; }
@@ -158,6 +162,7 @@ MonitorElement * ElectronDqmAnalyzerBase::bookP1
    const std::string & titleX, const std::string & titleY,
    Option_t * option )
  {
+  iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement * me = iBooker.bookProfile(newName(name),title,nchX,lowX,highX,lowY,highY," ") ;
   if (titleX!="") { me->getTProfile()->GetXaxis()->SetTitle(titleX.c_str()) ; }
   if (titleY!="") { me->getTProfile()->GetYaxis()->SetTitle(titleY.c_str()) ; }
