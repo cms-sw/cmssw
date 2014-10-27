@@ -98,7 +98,7 @@ private:
   int hasDetDigis;
   ErrorChecker errorcheck;
 
-  // For the 32bit data format (moved from ccnamespace)
+  // For the 32bit data format (moved from *.cc namespace, keep uppercase for compatibility)
   int ADC_shift, PXID_shift, DCOL_shift, ROC_shift, LINK_shift;
   Word32 LINK_mask, ROC_mask, DCOL_mask, PXID_mask, ADC_mask;
   int maxROCIndex;

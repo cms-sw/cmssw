@@ -33,12 +33,12 @@ namespace {
   constexpr int LINK_bits1 = 7;
   constexpr int ROC_bits1  = 4;
 
+  // Moved to the header file, keep commented out unti the final version is done/ 
   // constexpr int ADC_shift  = 0;
   // constexpr int PXID_shift = ADC_shift + ADC_bits;
   // constexpr int DCOL_shift = PXID_shift + PXID_bits;
   // constexpr int ROC_shift  = DCOL_shift + DCOL_bits;
   // constexpr int LINK_shift = ROC_shift + ROC_bits;
-  
   // constexpr PixelDataFormatter::Word32 LINK_mask = ~(~PixelDataFormatter::Word32(0) << LINK_bits);
   // constexpr PixelDataFormatter::Word32 ROC_mask  = ~(~PixelDataFormatter::Word32(0) << ROC_bits);
   // constexpr PixelDataFormatter::Word32 DCOL_mask = ~(~PixelDataFormatter::Word32(0) << DCOL_bits);
@@ -215,6 +215,8 @@ void PixelDataFormatter::interpretRawData(bool& errorsInEvent, int fedId, const 
 
 }
 
+// I do not know what this was for or if it is needed? d.k. 10.14
+// Keep it commented out until we are sure that it is not needed.
 // void doVectorize(int const * __restrict__ w, int * __restrict__ row, int * __restrict__ col, int * __restrict__ valid, int N, PixelROC const * rocp) {
 //   for (int i=0; i<N; ++i) {
 //     auto ww = w[i];

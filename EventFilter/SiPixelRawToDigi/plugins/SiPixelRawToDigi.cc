@@ -145,7 +145,6 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   }
 
   edm::Handle<FEDRawDataCollection> buffers;
-  //label = config_.getParameter<edm::InputTag>("InputLabel"); // unused 
   ev.getByToken(tFEDRawDataCollection, buffers);
 
 // create product (digis & errors)
