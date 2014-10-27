@@ -146,7 +146,7 @@ process.genParticles = cms.EDProducer("GenParticleProducer",
 )
 process.printTree1 = cms.EDAnalyzer("ParticleListDrawer",
     src = cms.InputTag("genParticles"),
-    maxEventsToPrint  = cms.untracked.int32(10)
+    maxEventsToPrint  = cms.untracked.int32(0)
 )
 
 process.path = cms.Path(process.generator*process.genParticles*process.printTree1)

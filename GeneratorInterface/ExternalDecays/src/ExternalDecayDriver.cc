@@ -61,9 +61,9 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
 	exSharedResources.emplace_back(edm::SharedResourceNames::kPhotos);
       }
     }
-    else if (curSet == "Photospp355" ){
+    else if (curSet == "Photospp" || curSet == "Photospp356" ){
       if ( !fPhotosInterface ){
-        fPhotosInterface = (PhotosInterfaceBase*)(PhotosFactory::get()->create("Photospp355", pset.getUntrackedParameter< ParameterSet>(curSet)));
+        fPhotosInterface = (PhotosInterfaceBase*)(PhotosFactory::get()->create("Photospp356", pset.getUntrackedParameter< ParameterSet>(curSet)));
         exSharedResources.emplace_back(edm::SharedResourceNames::kPhotos);
       }
     }
