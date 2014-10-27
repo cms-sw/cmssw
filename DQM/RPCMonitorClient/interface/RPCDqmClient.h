@@ -19,7 +19,7 @@ public:
  RPCDqmClient(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~ RPCDqmClient();
+  virtual ~RPCDqmClient();
 
   /// BeginJob
   void beginJob( );

@@ -21,6 +21,7 @@ XMLGeometryBuilder::XMLGeometryBuilder(const edm::ParameterSet& iConfig)
 {
   fname = iConfig.getUntrackedParameter<std::string>("XMLFileName","test.xml");
   zip = iConfig.getUntrackedParameter<bool>("ZIP",true);
+  record = iConfig.getUntrackedParameter<std::string>("record","GeometryFileRcd");
 }
 
 XMLGeometryBuilder::~XMLGeometryBuilder()
@@ -40,8 +41,8 @@ XMLGeometryBuilder::beginJob()
 
   FileBlob* pgf= new FileBlob(fname,zip);
 
-  if ( mydbservice->isNewTagRequest("GeometryFileRcd") ) {
-    mydbservice->createNewIOV<FileBlob>( pgf,mydbservice->beginOfTime(),mydbservice->endOfTime(),"GeometryFileRcd");
+  if ( mydbservice->isNewTagRequest(record) ) {
+    mydbservice->createNewIOV<FileBlob>( pgf,mydbservice->beginOfTime(),mydbservice->endOfTime(),record);
   } else {
     edm::LogError("XMLGeometryBuilder")<<"GeometryFileRcd Tag already exist";
   }

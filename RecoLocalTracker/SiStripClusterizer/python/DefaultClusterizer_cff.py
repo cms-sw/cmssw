@@ -9,5 +9,6 @@ DefaultClusterizer = cms.PSet(
     MaxSequentialBad = cms.uint32(1),
     MaxAdjacentBad = cms.uint32(0),
     QualityLabel = cms.string(""),
-    RemoveApvShots     = cms.bool(True)
+    RemoveApvShots     = cms.bool(True),
+    MinGoodCharge = cms.double(-2069)
     )

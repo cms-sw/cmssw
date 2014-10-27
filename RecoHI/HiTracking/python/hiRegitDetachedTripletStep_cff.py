@@ -10,7 +10,7 @@ from RecoHI.HiTracking.HITrackingRegionProducer_cfi import *
 from RecoTracker.IterativeTracking.DetachedTripletStep_cff import *
 
 # NEW CLUSTERS (remove previously used clusters)
-hiRegitDetachedTripletStepClusters = cms.EDProducer("TrackClusterRemover",
+hiRegitDetachedTripletStepClusters = cms.EDProducer("HITrackClusterRemover",
                                                 clusterLessSolution= cms.bool(True),
                                                 oldClusterRemovalInfo = cms.InputTag("hiRegitPixelPairStepClusters"),
                                                 trajectories = cms.InputTag("hiRegitPixelPairStepTracks"),

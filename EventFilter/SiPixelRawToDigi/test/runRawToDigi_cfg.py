@@ -14,8 +14,9 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100))
 process.source = cms.Source("PoolSource",
 # fileNames =  cms.untracked.vstring('file:rawdata.root')
 fileNames =  cms.untracked.vstring(
-#  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/205/217/2EF61B7D-F216-E211-98C3-001D09F28D54.root",
-  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/208/686/A88F66A0-393F-E211-9287-002481E0D524.root",
+  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/205/217/2EF61B7D-F216-E211-98C3-001D09F28D54.root",
+#  "rfio:/castor/cern.ch/cms/store/data/Run2012D/MinimumBias/RAW/v1/000/208/686/A88F66A0-393F-E211-9287-002481E0D524.root",
+#    "file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100_71_pre7/raw/raw2.root"
  )
 )
 
@@ -36,15 +37,16 @@ fileNames =  cms.untracked.vstring(
 # Choose the global tag here:
 #process.GlobalTag.globaltag = "GR_P_V40::All"
 # for data in V7
-process.GlobalTag.globaltag = "GR_R_71_V1::All"
-
+# process.GlobalTag.globaltag = "GR_R_71_V1::All"
+# for MC 
+process.GlobalTag.globaltag = "MC_71_V1::All"
 
 process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
 # for simultaions 
-# process.siPixelDigis.InputLabel = 'siPixelRawData'
+process.siPixelDigis.InputLabel = 'siPixelRawData'
 # for data
 #process.siPixelDigis.InputLabel = 'source'
-process.siPixelDigis.InputLabel = 'rawDataCollector'
+#process.siPixelDigis.InputLabel = 'rawDataCollector'
 process.siPixelDigis.IncludeErrors = True
 process.siPixelDigis.Timing = False 
 #process.siPixelDigis.UseCablingTree = True 
