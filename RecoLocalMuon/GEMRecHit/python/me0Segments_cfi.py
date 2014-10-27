@@ -10,8 +10,8 @@ me0Segments = cms.EDProducer("ME0SegmentProducer",
         dXclusBoxMax = cms.double(1.),
         dYclusBoxMax = cms.double(5.),
         preClusteringUseChaining = cms.bool(True),
-        dPhiChainBoxMax = cms.double(1.),
-        dEtaChainBoxMax = cms.double(1.),
+        dPhiChainBoxMax = cms.double(.02),
+        dEtaChainBoxMax = cms.double(.05),
         maxRecHitsInCluster = cms.int32(6)
     )
 )

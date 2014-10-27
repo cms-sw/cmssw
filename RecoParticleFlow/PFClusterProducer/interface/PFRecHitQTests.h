@@ -573,6 +573,63 @@ class PFRecHitQTestHCALCalib29 : public PFRecHitQTestBase {
     float calibFactor_;
 };
 
+//
+//  Quality test to clean Shashlik rechits with bad timing reco
+//
+class PFRecHitQTestShashlikTiming : public PFRecHitQTestBase {
+ public:
+  PFRecHitQTestShashlikTiming() {
+
+  }
+
+  PFRecHitQTestShashlikTiming(const edm::ParameterSet& iConfig):
+    PFRecHitQTestBase(iConfig)
+    {
+      badTimingEThreshold_ =iConfig.getParameter<double>("BadTimingEThreshold");
+      useSafetyCuts_ = iConfig.getParameter<bool>("UseSafetyCuts");
+    }
+
+    void beginEvent(const edm::Event& event,const edm::EventSetup& iSetup) {
+    }
+
+    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& cleanit) {
+      if( useSafetyCuts_ && 
+	  ( rh.timeError() < 1e5 || !rh.isTimeValid() ||
+	    rh.isTimeErrorValid() ) ) {
+	// never clean safe rechits
+	return true;
+      }
+      const bool toclean = ( std::abs(rh.time()+2.112) < 1e-5 && 
+			     rh.energy() <  badTimingEThreshold_ );
+      cleanit *= toclean;
+      return !toclean; // should return 
+    }
+    bool test(reco::PFRecHit& hit,const HBHERecHit& rh,bool& clean) {      
+      return true;
+
+    }
+
+    bool test(reco::PFRecHit& hit,const HFRecHit& rh,bool& clean) {
+      return true;
+
+    }
+    bool test(reco::PFRecHit& hit,const HORecHit& rh,bool& clean) {
+      return true;
+    }
+
+    bool test(reco::PFRecHit& hit,const CaloTower& rh,bool& clean) {      
+      return true;
+	  
+    }
+
+    bool test(reco::PFRecHit& hit,const HGCRecHit& rh,bool& clean) {
+      return true;
+    }
+
+ protected:
+    float badTimingEThreshold_;
+    bool useSafetyCuts_;
+};
 
 
 #endif

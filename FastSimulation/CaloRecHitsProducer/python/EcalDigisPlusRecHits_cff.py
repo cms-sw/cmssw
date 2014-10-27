@@ -15,7 +15,7 @@ simRctDigis.ecalDigis = cms.VInputTag( cms.InputTag( 'simEcalTriggerPrimitiveDig
 simRctDigis.useHcal = cms.bool(False)
 
 #ECAL reconstruction
-from RecoLocalCalo.EcalRecProducers.ecalGlobalUncalibRecHit_cfi import *
+from RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalDetIdToBeRecovered_cfi import *
 
@@ -45,7 +45,7 @@ ecalDigisSequence = cms.Sequence(simEcalTriggerPrimitiveDigis*simEcalDigis*simEc
 			  simRctDigis*							           # L1Simulation
                           ecalPacker*esDigiToRaw*rawDataCollector* ecalPreshowerDigis*ecalDigis)	
 
-ecalRecHitSequence = cms.Sequence(ecalGlobalUncalibRecHit*ecalDetIdToBeRecovered*ecalRecHit*ecalPreshowerRecHit)	   # Reconstruction	
+ecalRecHitSequence = cms.Sequence(ecalMultiFitUncalibRecHit*ecalDetIdToBeRecovered*ecalRecHit*ecalPreshowerRecHit)	   # Reconstruction	
 
 ecalDigisPlusRecHitSequence = cms.Sequence(ecalDigisSequence*ecalRecHitSequence)	           # Reconstruction	
 			  

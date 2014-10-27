@@ -16,7 +16,6 @@ private:
 
 REGISTER_FWPROXYBUILDER( FWHGCEERecHitProxyBuilder, HGCRecHitCollection, "HGCEE RecHit", FWViewType::kISpyBit );
 
-
 // AMT: Refelct box. Previously used energyScaledBox3DCorners()
 
 /*

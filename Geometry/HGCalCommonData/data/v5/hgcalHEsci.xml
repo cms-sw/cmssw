@@ -53,7 +53,7 @@
   <Vector name="Thickness" type="numeric" nEntries="3">
    34.5*mm, 9.0*mm, 9.0*mm </Vector>
   <Vector name="ZMinType" type="numeric" nEntries="3">
-   4175.0*mm, 4209.5*mm, 4209.5*mm</Vector>
+   4174.85*mm, 4209.35*mm, 4209.35*mm</Vector>
   <Vector name="Offsets" type="numeric" nEntries="3"> 1, 1, 1</Vector>
   <String name="Rotation"     value="rotations:YXZ4"/>
   <Vector name="LayerType" type="numeric" nEntries="72">

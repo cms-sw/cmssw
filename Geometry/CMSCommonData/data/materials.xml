@@ -286,12 +286,58 @@
     <rMaterial name="materials:Zinc"/>
    </MaterialFraction>
   </CompositeMaterial>
-  <CompositeMaterial name="Al_2 O_3" density="3.91*g/cm3" symbol=" " method="mixture by weight">
-   <MaterialFraction fraction="0.52924272">
+  <CompositeMaterial name="Al-silicate + Zi" density="3.3196*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.34196227">
     <rMaterial name="materials:Aluminium"/>
    </MaterialFraction>
-   <MaterialFraction fraction="0.47075728">
+   <MaterialFraction fraction="0.11867705">
+    <rMaterial name="materials:Silicon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.43936068">
     <rMaterial name="materials:Oxygen"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.1">
+    <rMaterial name="materials:Zinc"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="Aluminium 2219" density="2.84*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.9168">
+    <rMaterial name="materials:Aluminium"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.068">
+    <rMaterial name="materials:Copper"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.003">
+    <rMaterial name="materials:Iron"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.0002">
+    <rMaterial name="materials:Magnesium"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.004">
+    <rMaterial name="materials:Manganese"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.002">
+    <rMaterial name="materials:Silicon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.001">
+    <rMaterial name="materials:Titanium"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.0015">
+    <rMaterial name="materials:Vanadium"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.001">
+    <rMaterial name="materials:Zinc"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.0025">
+    <rMaterial name="materials:Zirconium"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+  <CompositeMaterial name="Aluminium 2219 light" density="1.42*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.5">
+    <rMaterial name="materials:Aluminium 2219"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.5">
+    <rMaterial name="materials:Air"/>
    </MaterialFraction>
   </CompositeMaterial>
   <CompositeMaterial name="Alumina" density="3.52*g/cm3" symbol=" " method="mixture by weight">

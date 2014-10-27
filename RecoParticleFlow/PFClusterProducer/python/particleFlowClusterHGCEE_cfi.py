@@ -31,6 +31,7 @@ _manqiArborClusterizer_HGCEE = cms.PSet(
     distSeedForMerge = cms.double(20.0),
     killNoiseClusters = cms.bool(True),
     maxNoiseClusterSize = cms.uint32(3),
+    allowSameLayerSeedMerge = cms.bool(False),
     thresholdsByDetector = cms.VPSet( )
 )
 

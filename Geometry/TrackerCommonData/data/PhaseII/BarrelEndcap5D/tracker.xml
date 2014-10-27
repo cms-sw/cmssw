@@ -16030,16 +16030,22 @@
       <ZSection z="-291.0*cm" rMin="7.4*cm" rMax="120.0*cm"/>
       <ZSection z="-270.65*cm" rMin="7.4*cm" rMax="120.0*cm"/>
       <ZSection z="-270.65*cm" rMin="7.4*cm" rMax="120.0*cm"/>
-      <ZSection z="-194.8*cm" rMin="[cms:TrackBeamR1]" rMax="120.0*cm"/>
-      <ZSection z="-180.0*cm" rMin="[cms:TrackBeamR1]" rMax="120.0*cm"/>
+      <ZSection z="-180.0*cm" rMin="[cms:TrackLumiR2Min]" rMax="120.0*cm"/>
       <ZSection z="-180.0*cm" rMin="[cms:TrackLumiR1]" rMax="120.0*cm"/>
       <ZSection z="-172.2*cm" rMin="[cms:TrackLumiR1]" rMax="120.0*cm"/>
-      <ZSection z="-172.2*cm" rMin="[cms:TrackBeamR1]" rMax="120.0*cm"/>
-      <ZSection z="172.2*cm" rMin="[cms:TrackBeamR1]" rMax="120.0*cm"/>
+      <ZSection z="-172.2*cm" rMin="[cms:TrackLumiR1Min]" rMax="120.0*cm"/>
+      <ZSection z="-[beampipe:BeampipeZ3]"  rMin="[beampipe:BeampipeRout4]" rMax="120.0*cm"/>
+      <ZSection z="-[beampipe:BeampipeZ2]"  rMin="[beampipe:BeampipeRout3]" rMax="120.0*cm"/>
+      <ZSection z="-[beampipe:BeampipeZ2]"  rMin="[beampipe:BeampipeRout2]" rMax="120.0*cm"/>
+      <ZSection z="-28.70*cm" rMin="[pixbar:Rin1]" rMax="120.0*cm"/>
+      <ZSection z="28.70*cm" rMin="[pixbar:Rin1]" rMax="120.0*cm"/>
+      <ZSection z="[beampipe:BeampipeZ2]"  rMin="[beampipe:BeampipeRout2]" rMax="120.0*cm"/>
+      <ZSection z="[beampipe:BeampipeZ2]"  rMin="[beampipe:BeampipeRout3]" rMax="120.0*cm"/>
+      <ZSection z="[beampipe:BeampipeZ3]"  rMin="[beampipe:BeampipeRout4]" rMax="120.0*cm"/>
+      <ZSection z="172.2*cm" rMin="[cms:TrackLumiR1Min]" rMax="120.0*cm"/>
       <ZSection z="172.2*cm" rMin="[cms:TrackLumiR1]" rMax="120.0*cm"/>
       <ZSection z="180.0*cm" rMin="[cms:TrackLumiR1]" rMax="120.0*cm"/>
-      <ZSection z="180.0*cm" rMin="[cms:TrackBeamR1]" rMax="120.0*cm"/>
-      <ZSection z="194.8*cm" rMin="[cms:TrackBeamR1]" rMax="120.0*cm"/>
+      <ZSection z="180.0*cm" rMin="[cms:TrackLumiR2Min]" rMax="120.0*cm"/>
       <ZSection z="270.65*cm" rMin="7.4*cm" rMax="120.0*cm"/>
       <ZSection z="270.65*cm" rMin="7.4*cm" rMax="120.0*cm"/>
       <ZSection z="291.0*cm" rMin="7.4*cm" rMax="120.0*cm"/>

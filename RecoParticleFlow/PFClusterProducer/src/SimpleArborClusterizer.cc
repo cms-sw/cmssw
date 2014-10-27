@@ -53,9 +53,9 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
     << "arbor loaded: " << arbor_points[1].size() << " in positive endcap!";
   
 
-  the_branches[0] = arbor::Arbor(arbor_points[0],_cellSize,_layerThickness,_distSeedForMerge);
+  the_branches[0] = arbor::Arbor(arbor_points[0],_cellSize,_layerThickness,_distSeedForMerge,_allowSameLayerSeedMerge);
   edm::LogInfo("ArborProgress") << "arbor clustered negative endcap!";
-  the_branches[1] = arbor::Arbor(arbor_points[1],_cellSize,_layerThickness,_distSeedForMerge);
+  the_branches[1] = arbor::Arbor(arbor_points[1],_cellSize,_layerThickness,_distSeedForMerge,_allowSameLayerSeedMerge);
   edm::LogInfo("ArborProgress") << "arbor clustered positive endcap!";
   output.reserve(the_branches[0].size()+the_branches[1].size());
   

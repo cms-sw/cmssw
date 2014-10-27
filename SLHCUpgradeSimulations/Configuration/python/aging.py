@@ -74,7 +74,7 @@ def ageHcal(process,lumi):
 	
     if hasattr(process,'mix') and hasattr(process.mix,'digitizers') and hasattr(process.mix.digitizers,'hcal'):  
         process.mix.digitizers.hcal.DelivLuminosity = cms.double(float(lumi))  # integrated lumi in fb-1
-        process.mix.digitizers.hcal.HEDarkening     = cms.bool(True)
+        process.mix.digitizers.hcal.HEDarkening     = cms.uint32(1)
         process.mix.digitizers.hcal.HFDarkening     = cms.bool(True)
 
     #these lines need to be further activated by tuning on 'complete' aging for HF 
@@ -225,7 +225,7 @@ def ecal_complete_aging(process):
 
 def turn_off_HE_aging(process):
     if hasattr(process,'mix') and hasattr(process.mix,'digitizers') and hasattr(process.mix.digitizers,'hcal'):    
-        process.mix.digitizers.hcal.HEDarkening = cms.bool(False)
+        process.mix.digitizers.hcal.HEDarkening = cms.uint32(0)
     if hasattr(process,'es_hardcode'):
         process.es_hardcode.HERecalibration = cms.bool(False)		
     if hasattr(process,'simHcalDigis'):

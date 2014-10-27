@@ -152,6 +152,21 @@ public:
     topology_.reset(topoHandle.product());
   }
 };
+class PFRecHitShashlikNavigatorWithTime : public PFRecHitCaloNavigatorWithTime<EKDetId,ShashlikTopology,false> {
+ public:
+  PFRecHitShashlikNavigatorWithTime(const edm::ParameterSet& iConfig):
+    PFRecHitCaloNavigatorWithTime(iConfig)
+    {
+
+    }
+
+  void beginEvent(const edm::EventSetup& iSetup) {
+    edm::ESHandle<ShashlikTopology> topoHandle;
+    iSetup.get<ShashlikNumberingRecord>().get(topoHandle);
+    topology_.release();
+    topology_.reset( topoHandle.product() );
+  }
+};
 typedef PFRecHitDualNavigator<PFLayer::ECAL_BARREL,
 			      PFRecHitEcalBarrelNavigator,
 			      PFLayer::ECAL_ENDCAP,
@@ -199,6 +214,7 @@ DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitHGCEENavigator, "PFRecHitHG
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitHGCHENavigator, "PFRecHitHGCHENavigator");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitEcalBarrelNavigatorWithTime, "PFRecHitEcalBarrelNavigatorWithTime");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitEcalEndcapNavigatorWithTime, "PFRecHitEcalEndcapNavigatorWithTime");
+DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitShashlikNavigatorWithTime, "PFRecHitShashlikNavigatorWithTime");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFECALHashNavigator, "PFECALHashNavigator");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitECALNavigator, "PFRecHitECALNavigator");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitEBEKNavigator, "PFRecHitEBEKNavigator");
