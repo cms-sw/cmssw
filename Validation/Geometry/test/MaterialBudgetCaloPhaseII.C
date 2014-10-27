@@ -19,7 +19,7 @@ std::string dets[7] = {"BeamPipe", "Tracker", "EM Calorimeter", "HG Calorimeter"
 		       "Hadron Calorimeter", "Muon System", "Forward Shield"};
 
 void etaPhiPlot(TString fileName="matbdg_Calo.root", TString plot="IntLen", 
-		int ifirst=0, int ilast=5, int drawLeg=1, bool ifEta=true,
+		int ifirst=0, int ilast=6, int drawLeg=1, bool ifEta=true,
 		double maxEta=-1, bool debug=false);
 void etaPhiDiff(TString fileName1="matbdg_Calo1.root", 
 		TString fileName2="matbdg_Calo2.root", TString plot="IntLen", 
@@ -57,7 +57,7 @@ void etaPhiPlot(TString fileName, TString plot, int ifirst, int ilast,
   leg->SetTextSize(0.018);
 
   int nplots=0;
-  TProfile *prof[6];
+  TProfile *prof[7];
   for (int ii=ilast; ii>=ifirst; ii--) {
     char hname[10], title[50];
     sprintf(hname, "%i", istart+ii);
