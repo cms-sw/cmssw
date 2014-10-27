@@ -48,7 +48,7 @@ from RecoBTag.SecondaryVertex.combinedInclusiveSecondaryVertexPositiveBJetTags_c
 from RecoBTag.SecondaryVertex.candidateCombinedSecondaryVertexES_cfi import *
 from RecoBTag.SecondaryVertex.pfSecondaryVertexTagInfos_cfi import *
 from RecoBTag.SecondaryVertex.pfCombinedSecondaryVertexBJetTags_cfi import *
-
+from RecoBTag.SecondaryVertex.pfInclusiveSecondaryVertexFinderTagInfos_cfi import *
 # Backwards compatibility
 
 simpleSecondaryVertexBJetTags = simpleSecondaryVertexHighEffBJetTags.clone()

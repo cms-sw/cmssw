@@ -3,6 +3,7 @@
 <use   name="CalibTracker/Records"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/SiPixelObjects"/>
+<use   name="TrackingTools/KalmanUpdators"/>
 <use   name="RecoTracker/Record"/>
 <use   name="RecoTracker/TkDetLayers"/>
 <library   file="*.cc" name="RecoTrackerMeasurementDetPlugins">
