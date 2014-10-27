@@ -34,15 +34,15 @@ fi
 mkdir lheevent; cd lheevent
 
 # retrieve the wanted gridpack from the official repository 
-fn-fileget -c `cmsGetFnConnect frontier://smallfiles` ${repo}/${name}_tarball.tar.gz 
+fn-fileget -c `cmsGetFnConnect frontier://smallfiles` ${repo}/${name}
 
 #check the structure of the tarball
-tar xzf ${name}_tarball.tar.gz ; rm -f ${name}_tarball.tar.gz ;
+tar xaf ${name} ; rm -f ${name} ;
 
 #generate events (call for 1 core always for now until hooks to set number of cores are implemented upstream)
 ./runcmsgrid.sh $nevt $rnum 1
 
-mv cmsgrid_final.lhe $LHEWORKDIR/${name}_final.lhe
+mv cmsgrid_final.lhe $LHEWORKDIR/
 
 cd $LHEWORKDIR
 
