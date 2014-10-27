@@ -157,7 +157,8 @@ TStorageFactoryFile::Initialize(const char *path,
   Bool_t create   = (fOption == "CREATE");
   Bool_t recreate = (fOption == "RECREATE");
   Bool_t update   = (fOption == "UPDATE");
-  Bool_t read     = (fOption == "READ");
+  Bool_t read     = (fOption == "READ") || (fOption == "READWRAP");
+  Bool_t readwrap = (fOption == "READWRAP");
 
   if (!create && !recreate && !update && !read)
   {
@@ -188,6 +189,7 @@ TStorageFactoryFile::Initialize(const char *path,
   if (!read)    openFlags |= IOFlags::OpenWrite;
   if (create)   openFlags |= IOFlags::OpenCreate;
   //if (recreate) openFlags |= IOFlags::OpenCreate | IOFlags::OpenTruncate;
+  if (readwrap) openFlags |= IOFlags::OpenWrap;
 
   // Open storage
   if (! (storage_ = StorageFactory::get()->open(path, openFlags)))

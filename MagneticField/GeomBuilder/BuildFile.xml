@@ -9,6 +9,7 @@
 <use   name="MagneticField/Layers"/>
 <use   name="MagneticField/VolumeGeometry"/>
 <use   name="Utilities/BinningTools"/>
+<use   name="CondFormats/MFObjects"/>
 <use   name="clhep"/>
 <export>
   <lib   name="1"/>

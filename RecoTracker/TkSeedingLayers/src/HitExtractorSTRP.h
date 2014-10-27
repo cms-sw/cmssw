@@ -24,10 +24,10 @@ class HitExtractorSTRP final : public HitExtractor {
 public:
   typedef SiStripRecHit2D::ClusterRef SiStripClusterRef;
 
-  HitExtractorSTRP(GeomDetEnumerators::SubDetector subdet, SeedingLayer::Side & side, int idLayer);
+  HitExtractorSTRP(GeomDetEnumerators::SubDetector subdet, SeedingLayer::Side & side, int idLayer, float iminGoodCharge);
   virtual ~HitExtractorSTRP(){}
 
-  virtual HitExtractor::Hits hits( const TkTransientTrackingRecHitBuilder &ttrhBuilder, const edm::Event& , const edm::EventSetup& ) const override;
+  virtual HitExtractor::Hits hits( const TkTransientTrackingRecHitBuilder &ttrhBuilder, const edm::Event& , const edm::EventSetup&) const override;
   virtual HitExtractorSTRP * clone() const { return new HitExtractorSTRP(*this); }
 
   void useMatchedHits( const edm::InputTag & m, edm::ConsumesCollector& iC) { hasMatchedHits = true; theMatchedHits = iC.consumes<SiStripMatchedRecHit2DCollection>(m); }
@@ -42,7 +42,7 @@ public:
     skipThis(const TkTransientTrackingRecHitBuilder& ttrhBuilder, TkHitRef matched,
 	     edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > & stripClusterMask) const;
 
-  bool skipThis(OmniClusterRef const& clus, edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > & stripClusterMask) const;
+  bool skipThis(DetId id, OmniClusterRef const& clus, edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > & stripClusterMask) const;
 
   void setNoProjection() const {failProjection=true;};
   void setMinAbsZ(double minZToSet) {minAbsZ=minZToSet;}
