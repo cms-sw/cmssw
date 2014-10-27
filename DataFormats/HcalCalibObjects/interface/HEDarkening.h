@@ -17,7 +17,7 @@
 class HEDarkening {
 
 public:
-  HEDarkening(unsigned int scenario = 3);
+  HEDarkening(unsigned int scenario);
   ~HEDarkening();
 
   float degradation(float intlumi, int ieta, int lay) const;

@@ -16,7 +16,7 @@
 class HERecalibration {
 
 public:
-  HERecalibration(double integrated_lumi, double cutoff, unsigned int scenario = 1);
+  HERecalibration(double integrated_lumi, double cutoff, unsigned int scenario);
   ~HERecalibration();
 
   double getCorr(int ieta, int idepth);
