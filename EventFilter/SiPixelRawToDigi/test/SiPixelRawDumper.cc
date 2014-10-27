@@ -1014,8 +1014,6 @@ void SiPixelRawDumper::analyze(const  edm::Event& ev, const edm::EventSetup& es)
 
   // Loop over FEDs
   for (int fedId = fedIds.first; fedId <= fedIds.second; fedId++) {
-    //LogDebug("SiPixelRawDumper")<< " GET DATA FOR FED: " <<  fedId ;
-    if(printHeaders) cout<<"Get data For FED = "<<fedId<<endl;
 
     //edm::DetSetVector<PixelDigi> collection;
     PixelDataFormatter::Errors errors;
@@ -1023,10 +1021,14 @@ void SiPixelRawDumper::analyze(const  edm::Event& ev, const edm::EventSetup& es)
     //get event data for this fed
     const FEDRawData& rawData = buffers->FEDData( fedId );
 
+    if(printHeaders) cout<<"Get data For FED = "<<fedId<<" size in bytes "<<rawData.size()<<endl;
+    if(rawData.size()==0) continue;  // skip if not data for this fed
+
     for(int i=0;i<36;++i) fedchannelsize[i]=0;
 
     int nWords = rawData.size()/sizeof(Word64);
     //cout<<" size "<<nWords<<endl;
+
     sumFedSize += float(nWords);    
     if(fedId<32) aveFedSize += double(2.*nWords);
 
@@ -1042,14 +1044,15 @@ void SiPixelRawDumper::analyze(const  edm::Event& ev, const edm::EventSetup& es)
     hsizep->Fill(float(fedId),float(2*nWords)); // profile 
     if(fedId<32) hsizels->Fill(float(lumiBlock),float(2*nWords)); // bpix versu sls
 
-
     // check headers
     const Word64* header = reinterpret_cast<const Word64* >(rawData.data()); 
     //cout<<hex<<*header<<dec<<endl;
+
     unsigned int bxid = 0;
     eventId = MyDecode::header(*header, fedId, printHeaders, bxid);
     //if(fedId = fedIds.first) 
     if(bx != int(bxid) ) cout<<" Inconsistent BX: from event "<<bx<<" from FED "<<bxid<<endl;
+
 
     const Word64* trailer = reinterpret_cast<const Word64* >(rawData.data())+(nWords-1);
     //cout<<hex<<*trailer<<dec<<endl;
@@ -1061,6 +1064,7 @@ void SiPixelRawDumper::analyze(const  edm::Event& ev, const edm::EventSetup& es)
     int countErrorsInFed2=0;
     int fedChannel = 0;
     int num=0;
+
     // Loop over payload words
     for (const Word64* word = header+1; word != trailer; word++) {
       static const Word64 WORD32_mask  = 0xffffffff;
