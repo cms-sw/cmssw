@@ -11,7 +11,7 @@ ThreeThresholdAlgorithm::
 ThreeThresholdAlgorithm(float chan, float seed, float cluster, unsigned holes, unsigned bad, unsigned adj, std::string qL, 
 			bool setDetId, bool removeApvShots, float minGoodCharge) 
   : ChannelThreshold( chan ), SeedThreshold( seed ), ClusterThresholdSquared( cluster*cluster ),
-    MaxSequentialHoles( holes ), MaxSequentialBad( bad ), MaxAdjacentBad( adj ), RemoveApvShots(removeApvShots), MinGoodCharge(minGoodCharge) {
+    MaxSequentialHoles( holes ), MaxSequentialBad( bad ), MaxAdjacentBad( adj ), RemoveApvShots(removeApvShots), minGoodCharge(minGoodCharge) {
   _setDetId=setDetId;
   qualityLabel = (qL);
   ADCs.reserve(128);
@@ -85,7 +85,7 @@ endCandidate(T& out) {
   if(candidateAccepted()) {
     applyGains();
     appendBadNeighbors();
-    if(siStripClusterTools::chargePerCM(currentId(),ADCs.begin(), ADCs.end()) > MinGoodCharge)
+    if(siStripClusterTools::chargePerCM(currentId(),ADCs.begin(), ADCs.end()) > minGoodCharge)
       out.push_back(SiStripCluster(firstStrip(), ADCs.begin(), ADCs.end()));
   }
   clearCandidate();  
