@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 PhotosppPythia8TauSettings = cms.untracked.PSet(
-    parameterSets = cms.vstring("suppressAll","setMomentumConservationThreshold","forceBremForDecay"),
+    parameterSets = cms.vstring("UseHadronizerQEDBrem","suppressAll","setMomentumConservationThreshold","forceBremForDecay"),
     #setExponentiation = cms.bool(True),
     #setInfraredCutOff = cms.double(0.0001),
     setMomentumConservationThreshold = cms.double(14000.), # 0.5GeV
