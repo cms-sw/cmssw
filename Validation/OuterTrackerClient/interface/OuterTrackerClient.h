@@ -1,6 +1,7 @@
 #ifndef OuterTrackerClient_OuterTrackerClient_h
 #define OuterTrackerClient_OuterTrackerClient_h
 
+#include <vector>
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -13,13 +14,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DQM/SiStripCommon/interface/TkHistoMap.h"
 
-#include <vector>
-
 class DQMStore;
-class SiStripDetCabling;
-class SiStripCluster;
-class SiStripDCSStatus;
-class GenericTriggerEventFlag;
 
 class OuterTrackerClient : public edm::EDAnalyzer {
 

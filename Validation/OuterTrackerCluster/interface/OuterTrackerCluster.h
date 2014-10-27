@@ -1,6 +1,7 @@
 #ifndef OuterTrackerCluster_OuterTrackerCluster_h
 #define OuterTrackerCluster_OuterTrackerCluster_h
 
+#include <vector>
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -13,13 +14,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DQM/SiStripCommon/interface/TkHistoMap.h"
 
-#include <vector>
-
 class DQMStore;
-class SiStripDetCabling;
-class SiStripCluster;
-class SiStripDCSStatus;
-class GenericTriggerEventFlag;
 
 class OuterTrackerCluster : public edm::EDAnalyzer {
 
@@ -46,7 +41,6 @@ public:
  private:
   DQMStore* dqmStore_;
   edm::ParameterSet conf_;
-  edm::InputTag clusterProducerStrip_;
 
   std::string topFolderName_;
   

@@ -1,10 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 OuterTrackerCluster = cms.EDAnalyzer('OuterTrackerCluster',
-                                     
-    ClusterProducerStrip = cms.InputTag('siStripClusters'),
     
-    TopFolderName = cms.string('OuterTrackerV'),
+    TopFolderName = cms.string('OuterTrackerValidation'),
     
 # Cluster Stacks
     TH1TTCluster_Stack = cms.PSet(
