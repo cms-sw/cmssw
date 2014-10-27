@@ -205,22 +205,22 @@ namespace edm {
       catch (cms::Exception & ex) {
         std::ostringstream ost;
         if (T::begin_ && T::branchType_ == InRun) {
-          ost << "Calling beginRun";
+          ost << "Calling global beginRun";
         }
         else if (T::begin_ && T::branchType_ == InLumi) {
-          ost << "Calling beginLuminosityBlock";
+          ost << "Calling global beginLuminosityBlock";
         }
         else if (!T::begin_ && T::branchType_ == InLumi) {
-          ost << "Calling endLuminosityBlock";
+          ost << "Calling global endLuminosityBlock";
         }
         else if (!T::begin_ && T::branchType_ == InRun) {
-          ost << "Calling endRun";
+          ost << "Calling global endRun";
         }
         else {
           // It should be impossible to get here ...
           ost << "Calling unknown function";
         }
-        ost << " for unscheduled module " << worker->description().moduleName()
+        ost << " for module " << worker->description().moduleName()
         << "/'" << worker->description().moduleLabel() << "'";
         ex.addContext(ost.str());
         ost.str("");
