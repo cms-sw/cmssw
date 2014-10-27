@@ -30,7 +30,7 @@ class ElectronDqmHarvesterBase : public DQMEDHarvester
     void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
 
     // interface to implement in derived classes
-    virtual void book() {} ;
+//    virtual void book() {} ;
     virtual void finalize( DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter ) {} ; //  override ;, const edm::Event& e, const edm::EventSetup & c
 
     // utility methods
@@ -38,7 +38,6 @@ class ElectronDqmHarvesterBase : public DQMEDHarvester
     int verbosity() { return verbosity_ ; }
     MonitorElement * get( DQMStore::IGetter & iGetter, const std::string & name ) ;
     void remove( DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, const std::string & name ) ;
-    void remove_other_dirs(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter) ;
 
     void setBookPrefix( const std::string & ) ;
     void setBookIndex( short ) ;
@@ -147,8 +146,8 @@ class ElectronDqmHarvesterBase : public DQMEDHarvester
     std::string inputInternalPath_ ;
     std::string outputInternalPath_ ;
 //    DQMStore * store_ ; 
-    DQMStore::IBooker * iBooker ;
-    DQMStore::IGetter * iGetter ;
+//    DQMStore::IBooker * iBooker ;
+//    DQMStore::IGetter * iGetter ;
     bool finalDone_ ;
 
     // utility methods
