@@ -30,7 +30,7 @@ namespace ecaldqm
       // TEMPORARY MEASURE - softReset does not accept variable bin size as of September 2012
       // isVariableBinning is true for 1. MESetEcal or MESetNonObject with any custom binning or 2. MESetTrend
       // In principle it is sufficient to protect the MESetTrends from being reset
-      if(/*mItr->second->getBinType() != BinService::kTrend &&*/
+      if(mItr->second->getBinType() != ecaldqm::binning::kTrend &&
          !mItr->second->isVariableBinning() &&
          mItr->second->getKind() != MonitorElement::DQM_KIND_REAL)
         resettable_.insert(mItr->first);

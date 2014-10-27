@@ -8,7 +8,7 @@ class CSCDMBHeader;
 class CSCDMBTrailer;
 class CSCStripDigi;
 class CSCALCTHeader;
-class CSCALCTHeader2007;
+struct CSCALCTHeader2007;
 class CSCAnodeData;
 class CSCALCTTrailer;
 class CSCTMBHeader;

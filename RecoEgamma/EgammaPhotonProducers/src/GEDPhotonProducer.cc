@@ -498,6 +498,20 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
       
     float sigmaEtaEta = sqrt(cov[0]);
     float sigmaIetaIeta = sqrt(locCov[0]);
+    
+    float full5x5_maxXtal =   noZS::EcalClusterTools::eMax( *(scRef->seed()), &(*hits) );
+    //AA
+    //Change these to consider severity level of hits
+    float full5x5_e1x5    =   noZS::EcalClusterTools::e1x5(  *(scRef->seed()), &(*hits), &(*topology));
+    float full5x5_e2x5    =   noZS::EcalClusterTools::e2x5Max(  *(scRef->seed()), &(*hits), &(*topology));
+    float full5x5_e3x3    =   noZS::EcalClusterTools::e3x3(  *(scRef->seed()), &(*hits), &(*topology));
+    float full5x5_e5x5    =   noZS::EcalClusterTools::e5x5( *(scRef->seed()), &(*hits), &(*topology));
+    std::vector<float> full5x5_cov =  noZS::EcalClusterTools::covariances( *(scRef->seed()), &(*hits), &(*topology), geometry);
+    std::vector<float> full5x5_locCov =  noZS::EcalClusterTools::localCovariances( *(scRef->seed()), &(*hits), &(*topology));
+      
+    float full5x5_sigmaEtaEta = sqrt(full5x5_cov[0]);
+    float full5x5_sigmaIetaIeta = sqrt(full5x5_locCov[0]);    
+    
     // compute position of ECAL shower
     math::XYZPoint caloPosition = scRef->position();
     
@@ -542,6 +556,17 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     showerShape.hcalTowersBehindClusters =  TowersBehindClus;
     newCandidate.setShowerShapeVariables ( showerShape ); 
 
+    /// fill full5x5 shower shape block
+    reco::Photon::ShowerShape  full5x5_showerShape;
+    full5x5_showerShape.e1x5= full5x5_e1x5;
+    full5x5_showerShape.e2x5= full5x5_e2x5;
+    full5x5_showerShape.e3x3= full5x5_e3x3;
+    full5x5_showerShape.e5x5= full5x5_e5x5;
+    full5x5_showerShape.maxEnergyXtal =  full5x5_maxXtal;
+    full5x5_showerShape.sigmaEtaEta =    full5x5_sigmaEtaEta;
+    full5x5_showerShape.sigmaIetaIeta =  full5x5_sigmaIetaIeta;
+    newCandidate.full5x5_setShowerShapeVariables ( full5x5_showerShape );     
+    
     /// get ecal photon specific corrected energy 
     /// plus values from regressions     and store them in the Photon
     // Photon candidate takes by default (set in photons_cfi.py) 
