@@ -5,7 +5,7 @@ pythia8CUEP8M1SettingsBlock = cms.PSet(
         'Tune:pp 14',
         'Tune:ee 7',
         'MultipartonInteractions:pT0Ref=2.4024',
-        'MultipartonInteractions:ecmPow=2.5208',
+        'MultipartonInteractions:ecmPow=0.25208',
         'MultipartonInteractions:expPow=1.6',
     )
 )
