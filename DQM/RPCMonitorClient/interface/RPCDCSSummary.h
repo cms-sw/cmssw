@@ -9,10 +9,10 @@
 class DQMStore;
 class MonitorElement;
 
-class RPCDCSSummary : public edm::EDAnalyzer {
+class RPCDCSSummary : public DQMEDHarvester {
 public:
   /// Constructor
-  RPCDCSSummary(const edm::ParameterSet& pset);
+  RPCDCSSummary(const edm::ParameterSet&);
 
   /// Destructor
   virtual ~RPCDCSSummary();

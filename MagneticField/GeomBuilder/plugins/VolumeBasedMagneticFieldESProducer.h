@@ -29,8 +29,6 @@ namespace magneticfield {
     VolumeBasedMagneticFieldESProducer(const VolumeBasedMagneticFieldESProducer&);
     const VolumeBasedMagneticFieldESProducer& operator=(const VolumeBasedMagneticFieldESProducer&);
 
-    std::vector<unsigned> expandList(const std::string& list);
-
     edm::ParameterSet pset;
   };
 }
