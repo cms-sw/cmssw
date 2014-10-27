@@ -1,5 +1,5 @@
-#ifndef OuterTrackerMonitorCluster_OuterTrackerMonitorCluster_h
-#define OuterTrackerMonitorCluster_OuterTrackerMonitorCluster_h
+#ifndef OuterTrackerMonitorStub_OuterTrackerMonitorStub_h
+#define OuterTrackerMonitorStub_OuterTrackerMonitorStub_h
 
 #include <vector>
 #include <memory>
@@ -26,7 +26,14 @@ public:
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
  
   // TTStub stacks
+  // * Global position of the stubs * //
   MonitorElement* hStub_Barrel_XY = 0;  //TTStub barrel y vs x
+  MonitorElement* hStub_Barrel_XY_Zoom = 0;  //TTStub barrel y vs x zoom
+  MonitorElement* hStub_Endcap_Fw_XY = 0; //TTStub Forward Endcap y vs. x
+  MonitorElement* hStub_Endcap_Bw_XY = 0; //TTStub Backward Endcap y vs. x
+  MonitorElement* hStub_RZ = 0; // TTStub #rho vs. z
+  MonitorElement* hStub_Endcap_Fw_RZ_Zoom = 0; // TTStub Forward Endcap #rho vs. z
+  MonitorElement* hStub_Endcap_Bw_RZ_Zoom = 0; // TTStub Backward Endcap #rho vs. z
 	
 
  private:
