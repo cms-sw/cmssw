@@ -104,7 +104,7 @@ void ElectronDqmHarvesterBase::beginJob()
 //  book() ;
   if (inputFile_!="")
    { edm::Service<DQMStore>().operator->()->open(inputFile_) ; }
-  edm::Service<DQMStore>().operator->()->setCurrentFolder(outputInternalPath_) ;
+  edm::Service<DQMStore>().operator->()->setCurrentFolder(outputInternalPath_) ;/**/
  }
 
 void ElectronDqmHarvesterBase::dqmEndLuminosityBlock( DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, edm::LuminosityBlock const &, edm::EventSetup const& )
@@ -139,7 +139,7 @@ void ElectronDqmHarvesterBase::dqmEndJob(DQMStore::IBooker & iBooker, DQMStore::
    {
    iBooker.setCurrentFolder(outputInternalPath_) ;
    finalize( iBooker, iGetter ) ; 
-   edm::Service<DQMStore>().operator->()->save(outputFile_) ; 
+//   edm::Service<DQMStore>().operator->()->save(outputFile_) ; 
    }
 /*  else {
    iBooker.setCurrentFolder(outputInternalPath_) ;
