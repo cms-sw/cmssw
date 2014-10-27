@@ -25,13 +25,9 @@ public:
   virtual void endJob() ;
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
  
-	// TTStub stacks
-	MonitorElement* Stub_IMem_Barrel = 0;
-	MonitorElement* Stub_IMem_Endcap = 0;
-	MonitorElement* Stub_OMem_Barrel = 0;
-	MonitorElement* Stub_OMem_Endcap = 0;
-	MonitorElement* Stub_W = 0;
-  MonitorElement* Stub_Eta = 0;
+  // TTStub stacks
+  MonitorElement* hStub_Barrel_XY = 0;  //TTStub barrel y vs x
+	
 
  private:
   DQMStore* dqmStore_;
@@ -40,3 +36,5 @@ public:
   std::string topFolderName_;
 };
 #endif
+
+
