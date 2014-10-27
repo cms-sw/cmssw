@@ -9,7 +9,6 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 // Trigger stuff
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -19,6 +18,7 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 namespace reco {
 class Jet;
@@ -27,7 +27,7 @@ class MET;
 class DQMStore;
 class MonitorElement;
 
-class EwkDQM : public edm::EDAnalyzer {
+class EwkDQM : public DQMEDAnalyzer {
  public:
   /// Constructor
   EwkDQM(const edm::ParameterSet&);
@@ -35,24 +35,20 @@ class EwkDQM : public edm::EDAnalyzer {
   /// Destructor
   virtual ~EwkDQM();
 
-  /// Inizialize parameters for histo binning
-  void beginJob();
-
   ///
-  void beginRun(const edm::Run&, const edm::EventSetup&);
+  //Book histograms
+  void bookHistograms(DQMStore::IBooker &,
+    edm::Run const &, edm::EventSetup const &) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
 
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&);
-
-  /// Save the histos
-  void endJob(void);
 
   double calcDeltaPhi(double phi1, double phi2);
 
  private:
   // ----------member data ---------------------------
 
-  DQMStore* theDbe;
   // Switch for verbosity
   std::string logTraceName;
 

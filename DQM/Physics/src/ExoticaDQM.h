@@ -1,7 +1,6 @@
 #ifndef ExoticaDQM_H
 #define ExoticaDQM_H
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -74,6 +73,8 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -82,22 +83,23 @@
 
 class DQMStore;
 
-class ExoticaDQM : public edm::EDAnalyzer {
+class ExoticaDQM : public DQMEDAnalyzer {
 
  public:
   ExoticaDQM(const edm::ParameterSet& ps);
   virtual ~ExoticaDQM();
 
  protected:
-  virtual void beginJob();
-  virtual void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
+  //Book histograms
+  void bookHistograms(DQMStore::IBooker &,
+    edm::Run const &, edm::EventSetup const &) override;
+  virtual void dqmBeginRun(edm::Run const& run, edm::EventSetup const& eSetup);
   virtual void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
   virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
                                     edm::EventSetup const& context);
   virtual void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
                                   edm::EventSetup const& c);
   virtual void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
-  virtual void endJob();
 
   // Diagnostic
   virtual void analyzeMultiJets(edm::Event const& e);
@@ -120,7 +122,6 @@ class ExoticaDQM : public edm::EDAnalyzer {
   // virtual void analyzeNonHadronicTrigger(edm::Event const& e);
 
  private:
-  void bookHistos(DQMStore* bei);
 
   unsigned long long m_cacheID_;
   int nLumiSecs_;
@@ -129,7 +130,6 @@ class ExoticaDQM : public edm::EDAnalyzer {
   int leptonflavor;
   float pi;
 
-  DQMStore* bei_;
   HLTConfigProvider hltConfigProvider_;
   bool isValidHltConfig_;
 

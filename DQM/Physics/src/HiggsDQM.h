@@ -1,7 +1,6 @@
 #ifndef HiggsDQM_H
 #define HiggsDQM_H
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -34,6 +33,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include <iostream>
 #include <fstream>
@@ -43,22 +43,23 @@
 
 class DQMStore;
 
-class HiggsDQM : public edm::EDAnalyzer {
+class HiggsDQM : public DQMEDAnalyzer {
 
  public:
   HiggsDQM(const edm::ParameterSet& ps);
   virtual ~HiggsDQM();
 
  protected:
-  void beginJob();
-  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
+  //Book histograms
+  void bookHistograms(DQMStore::IBooker &,
+    edm::Run const &, edm::EventSetup const &) override;
+  void dqmBeginRun(edm::Run const& run, edm::EventSetup const& eSetup);
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
                             edm::EventSetup const& context);
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
                           edm::EventSetup const& c);
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
-  void endJob();
 
  private:
   double Distance(const reco::Candidate& c1, const reco::Candidate& c2);
@@ -73,7 +74,6 @@ class HiggsDQM : public edm::EDAnalyzer {
   int leptonflavor;
   float pi;
 
-  DQMStore* bei_;
   HLTConfigProvider hltConfigProvider_;
   bool isValidHltConfig_;
 
