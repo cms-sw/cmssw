@@ -63,7 +63,7 @@ process.edmtome = cms.Path(
     process.EDMtoME
     )
 
-process.SusyExoPostVal = cms.Sequence(process.SUSY_HLT_alphaT_POSTPROCESSING )
+#process.SusyExoPostVal = cms.Sequence(process.SUSY_HLT_alphaT_POSTPROCESSING )
 #process.SusyExoPostVal = cms.Sequence(process.SUSY_HLT_InclusiveHT_aux350_POSTPROCESSING + process.SUSY_HLT_InclusiveHT_aux600_POSTPROCESSING)
 
 process.susypost = cms.Path(

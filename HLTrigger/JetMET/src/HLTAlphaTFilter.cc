@@ -4,6 +4,11 @@
  *  \author Bryn Mathias
  *  \modified Mark Baber, Adam Elwood
  *
+ *  Filter for the AlphaT SUSY analysis
+ *  Makes a trigger decision based on the event HT
+ *  and the AlphaT value. AlphaT cut is chosen
+ *  to reject all the QCD background
+ *
  */
 
 #include <vector>
@@ -80,7 +85,7 @@ void HLTAlphaTFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<double>("minHt",0.0);
   desc.add<double>("minAlphaT",0.0);
   desc.add<int>("triggerType",trigger::TriggerJet);
-  desc.add<bool>("dynamicAlphaT",false);
+  desc.add<bool>("dynamicAlphaT",true); //Set to reproduce old behaviour
   descriptions.add(std::string("hlt")+std::string(typeid(HLTAlphaTFilter<T>).name()),desc);
 }
 
@@ -117,9 +122,11 @@ bool HLTAlphaTFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
 
   int n(0);
 
+  //OLD - DYNAMIC ALPHAT BEHAVIOUR
+  //Produce AlphaT dynamically, first on two jets, then three etc until it does
+  //or doesn't pass
   if (dynamicAlphaT_){
     // look at all candidates,  check cuts and add to filter object
-    //    int n(0);
     int flag(0);
     double htFast = 0.;
     double aT =0.;
@@ -165,7 +172,8 @@ bool HLTAlphaTFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
         }
 
       }
-
+      
+      //If passed, add jets to the filter product for the DQM
       if (flag==1) {
         for (typename TCollection::const_iterator recojet = recojets->begin(); recojet!=jjet; recojet++) {
           if (recojet->et() > minPtJet_.at(0)) {
@@ -174,17 +182,6 @@ bool HLTAlphaTFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
             n++;
           }
         }
-        //std::auto_ptr<reco::METCollection> htPtr(new reco::METCollection());
-        //reco::MET::LorentzVector p4(0, 0, 0, 0);
-        //reco::MET::Point vtx(0, 0, 0);
-        //reco::MET htObj(htFast,p4,vtx);
-        //htPtr->push_back(htObj);
-        //edm::Ref<reco::METCollection> htRef(htPtr,0);
-        //filterproduct.addObject(trigger::TriggerTHT, htRef);
-
-        //std::auto_ptr<reco::METCollection> alphaTPtr(new reco::METCollection());
-        //edm::Ref<reco::METCollection> alphaTRef(alphaTPtr,0);
-        //filterproduct.addObject(triggerType_, alphaTRef);
       }
     }// events with at least two jet
 
@@ -194,6 +191,7 @@ bool HLTAlphaTFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
     return accept;
   }
   // NEW - STATIC ALPHAT BEHAVIOUR
+  // just reproduce
   else{
     // look at all candidates,  check cuts and add to filter object
     int flag(0);
@@ -238,6 +236,7 @@ bool HLTAlphaTFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
         }
 
         if(flag!=1){ //Added for efficiency
+          //Calculate the value for alphaT
           float aT = AlphaT(jets).value();
 
           // Trigger decision!
@@ -246,6 +245,7 @@ bool HLTAlphaTFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
           }
         }
 
+        //If passed, add the jets to the filterproduct for DQM
         if (flag==1) {
           for (typename TCollection::const_iterator recojet = recojets->begin(); recojet!=jjet; recojet++) {
             if (recojet->et() > minPtJet_.at(0)) {
@@ -254,10 +254,6 @@ bool HLTAlphaTFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
               n++;
             }
           }
-          //reco::METRef htRef = Ref<double>(htFast);
-          //Ref<double> alphaTRef = Ref<double>(aT);
-          //filterproduct.addObject(trigger::TriggerTHT, htRef);
-          //filterproduct.addObject(triggerType_, alphaTRef);
         }
       }
     }// events with at least two jet
