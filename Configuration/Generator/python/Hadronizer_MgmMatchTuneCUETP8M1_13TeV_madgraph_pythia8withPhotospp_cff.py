@@ -4,8 +4,8 @@ from Configuration.Generator.Pythia8CUEP8M1Settings_cfi import *
 from GeneratorInterface.PhotosInterface.PhotosppPythia8TauSettings_cfi import *
 generator = cms.EDFilter("Pythia8HadronizerFilter",
                          ExternalDecays = cms.PSet(
-        Photospp355 = PhotosppPythia8TauSettings,
-        parameterSets = cms.vstring('Photospp355')
+        Photospp = PhotosppPythia8TauSettings,
+        parameterSets = cms.vstring('Photospp')
         ),
                          maxEventsToPrint = cms.untracked.int32(1),
                          pythiaPylistVerbosity = cms.untracked.int32(1),
