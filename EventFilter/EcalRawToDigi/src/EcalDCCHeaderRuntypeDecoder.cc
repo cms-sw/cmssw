@@ -1,3 +1,5 @@
+//Emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-
+
 #include <EventFilter/EcalRawToDigi/interface/EcalDCCHeaderRuntypeDecoder.h>
 #include "EventFilter/EcalRawToDigi/interface/DCCDataUnpacker.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -9,23 +11,23 @@ EcalDCCHeaderRuntypeDecoder::EcalDCCHeaderRuntypeDecoder(){;}
 EcalDCCHeaderRuntypeDecoder::~EcalDCCHeaderRuntypeDecoder(){;}
 
 bool EcalDCCHeaderRuntypeDecoder::Decode( unsigned long TrigType,            // global header,     bits 56-59
-					  unsigned long detTrigType,         // dcc header word 2, bits 32-47
-					  unsigned long runType,             // dcc header word 2, bits  0-31
-					  EcalDCCHeaderBlock* EcalDCCHeaderInfos)
+                                          unsigned long detTrigType,         // dcc header word 2, bits 32-47
+                                          unsigned long runType,             // dcc header word 2, bits  0-31
+                                          EcalDCCHeaderBlock* EcalDCCHeaderInfos)
 {
-  
+
   //  unsigned int DCCNumberMask   = 63;//2^6-1
 
-  unsigned int WhichHalfOffSet= 64;//2^6 
+  unsigned int WhichHalfOffSet= 64;//2^6
   unsigned int TypeOffSet     = 256;//2^8
   unsigned int SubTypeOffSet  = 2048;//2^11
   unsigned int SettingOffSet  = 131072;//2^17;
   unsigned int GainModeOffSet = 16384;//2^14
-  
+
   unsigned int TwoBitsMask    = 3;
   unsigned int ThreeBitsMask  = 7;
   unsigned int ThirdBitMask   = 4;
-  
+
   EcalDCCHeaderInfos-> setRtHalf( int ((runType / WhichHalfOffSet) & TwoBitsMask) );
   int type      = int ((runType / TypeOffSet)      & ThreeBitsMask);
   int sequence  = int ((runType / SubTypeOffSet)   & ThreeBitsMask);
@@ -53,7 +55,7 @@ bool EcalDCCHeaderRuntypeDecoder::Decode( unsigned long TrigType,            // 
   else if (type ==5 && sequence == 0){EcalDCCHeaderInfos->setRunType(EcalDCCHeaderBlock::PHYSICS_GLOBAL);}
   else if (type ==5 && sequence == 1){EcalDCCHeaderInfos->setRunType(EcalDCCHeaderBlock::COSMICS_GLOBAL);}
   else if (type ==5 && sequence == 2){EcalDCCHeaderInfos->setRunType(EcalDCCHeaderBlock::HALO_GLOBAL);}
-  // 
+  //
   // else if (type ==5 && sequence == 3){EcalDCCHeaderInfos->setRunType(EcalDCCHeaderBlock::CALIB_GLOBAL);}
 
   else if (type ==6 && sequence == 0){EcalDCCHeaderInfos->setRunType(EcalDCCHeaderBlock::PHYSICS_LOCAL);}
@@ -69,12 +71,12 @@ bool EcalDCCHeaderRuntypeDecoder::Decode( unsigned long TrigType,            // 
     WasDecodingOk_ = false;
     return WasDecodingOk_;
   }
-  
+
   // decoding of settings depends on whether run is global or local
   if (type == 5 || type == 6){    DecodeSettingGlobal ( TrigType, detTrigType, EcalDCCHeaderInfos );         }
   else {                 DecodeSetting            (int ( runType / SettingOffSet),EcalDCCHeaderInfos);  }
-  
-  
+
+
   return WasDecodingOk_;
 }
 
@@ -88,63 +90,45 @@ void EcalDCCHeaderRuntypeDecoder::DecodeSettingGlobal ( unsigned long TrigType, 
   // keep an eye on the possible: EcalDCCHeaderBlock::CALIB_GLOBAL
   bool isLocal = false;
   if (theHeader->getRunType() == EcalDCCHeaderBlock::CALIB_LOCAL)     isLocal = true;
-  
+
+  EcalDCCHeaderBlock::EcalDCCEventSettings theSettings;
+  CleanEcalDCCSettingsInfo(&theSettings);
+
+  int dccIdInTTCCommand                    = (detTrigType >> H_DCCID_B)    &  H_DCCID_MASK;
+  int halfInTTCCommand                     = (detTrigType >> H_HALF_B)     &  H_HALF_MASK;
+  int detailedTriggerTypeInTTCCommand      = (detTrigType >> H_TR_TYPE_B)  &  H_TR_TYPE_MASK;
+  int wavelengthInTTCCommand               = (detTrigType >> H_WAVEL_B)    &  H_WAVEL_MASK;
+
   // if Trigger_Type is physics, only dccIdInTTCCommand is meaningful
-  if         (TrigType == 1){
-      int dccIdInTTCCommand  = (detTrigType >> H_DCCID_B)    &  H_DCCID_MASK;
-      theHeader-> setDccInTTCCommand( dccIdInTTCCommand );
-      return;
-  }
-  
-  // if calibration trigger (gap)
-  else if (TrigType == 2) {
-
-
-    EcalDCCHeaderBlock::EcalDCCEventSettings theSettings;
-    CleanEcalDCCSettingsInfo(&theSettings);
-
-    int dccIdInTTCCommand                    = (detTrigType >> H_DCCID_B)    &  H_DCCID_MASK;
-    int halfInTTCCommand                     = (detTrigType >> H_HALF_B)     &  H_HALF_MASK;
-    int detailedTriggerTypeInTTCCommand      = (detTrigType >> H_TR_TYPE_B)  &  H_TR_TYPE_MASK;
-    int wavelengthInTTCCommand               = (detTrigType >> H_WAVEL_B)    &  H_WAVEL_MASK;
-
-
+  if (TrigType == 1){
+    int dccIdInTTCCommand  = (detTrigType >> H_DCCID_B)    &  H_DCCID_MASK;
+    theSettings.wavelength = wavelengthInTTCCommand;
+    theHeader-> setRtHalf( halfInTTCCommand );
+    theHeader-> setDccInTTCCommand( dccIdInTTCCommand );
+  } else if (TrigType == 2) { // if calibration trigger (gap)
     theHeader-> setRtHalf( halfInTTCCommand );
     theHeader-> setDccInTTCCommand( dccIdInTTCCommand );
     if (detailedTriggerTypeInTTCCommand == EcalDCCHeaderBlock::TTC_LASER){
       if(isLocal) theHeader->        setRunType(EcalDCCHeaderBlock::LASER_STD);
       else        theHeader->        setRunType(EcalDCCHeaderBlock::LASER_GAP);
-      theSettings.wavelength = wavelengthInTTCCommand;    }
-    
-    
-    else if (detailedTriggerTypeInTTCCommand == EcalDCCHeaderBlock::TTC_LED){
+    } else if (detailedTriggerTypeInTTCCommand == EcalDCCHeaderBlock::TTC_LED){
       if(isLocal)  theHeader->      setRunType(EcalDCCHeaderBlock::LED_STD);
       else         theHeader->      setRunType(EcalDCCHeaderBlock::LED_GAP);
-      theSettings.wavelength = wavelengthInTTCCommand;    }
-    
-    else if (detailedTriggerTypeInTTCCommand == EcalDCCHeaderBlock::TTC_TESTPULSE){
+      theSettings.wavelength = wavelengthInTTCCommand;
+    } else if (detailedTriggerTypeInTTCCommand == EcalDCCHeaderBlock::TTC_TESTPULSE){
       if(isLocal) theHeader->       setRunType(EcalDCCHeaderBlock::TESTPULSE_MGPA);
       else        theHeader->       setRunType(EcalDCCHeaderBlock::TESTPULSE_GAP);
-    }
-    
-    else if (detailedTriggerTypeInTTCCommand == EcalDCCHeaderBlock::TTC_PEDESTAL){
+    } else if (detailedTriggerTypeInTTCCommand == EcalDCCHeaderBlock::TTC_PEDESTAL){
       if(isLocal) theHeader->       setRunType(EcalDCCHeaderBlock::PEDESTAL_STD);
       else        theHeader->       setRunType(EcalDCCHeaderBlock::PEDESTAL_GAP);
-    }
-
-    else {
+    } else {
       if( ! DCCDataUnpacker::silentMode_ ){
         edm::LogError("IncorrectHeader") <<"Unrecognized detailedTriggerTypeInTTCCommand: " << detailedTriggerTypeInTTCCommand;
       }
       theHeader->setRunType(-1);
       WasDecodingOk_ = false;
     }
-    
-    theHeader->setEventSettings(theSettings);
-    
-  }
-  
-  else {
+  } else { //TrigType > 2
     if( ! DCCDataUnpacker::silentMode_ ){
       edm::LogError("IncorrectHeader") <<"Unrecognized detailed trigger type";
     }
@@ -152,6 +136,7 @@ void EcalDCCHeaderRuntypeDecoder::DecodeSettingGlobal ( unsigned long TrigType, 
     WasDecodingOk_ = false;
   }
 
+  theHeader->setEventSettings(theSettings);
 }
 
 
@@ -161,9 +146,9 @@ void  EcalDCCHeaderRuntypeDecoder::DecodeSetting ( int Setting,  EcalDCCHeaderBl
   EcalDCCHeaderBlock::EcalDCCEventSettings theSettings;
   CleanEcalDCCSettingsInfo(&theSettings);
 
-  if( theHeader->getRunType() == EcalDCCHeaderBlock::COSMIC || 
-      theHeader->getRunType() == EcalDCCHeaderBlock::BEAMH2 || 
-      theHeader->getRunType() == EcalDCCHeaderBlock::BEAMH4 || 
+  if( theHeader->getRunType() == EcalDCCHeaderBlock::COSMIC ||
+      theHeader->getRunType() == EcalDCCHeaderBlock::BEAMH2 ||
+      theHeader->getRunType() == EcalDCCHeaderBlock::BEAMH4 ||
       theHeader->getRunType() == EcalDCCHeaderBlock::MTCC ||
       theHeader->getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ||
       theHeader->getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
@@ -185,7 +170,7 @@ void  EcalDCCHeaderRuntypeDecoder::DecodeSetting ( int Setting,  EcalDCCHeaderBl
   }
 
   else if(theHeader->getRunType() == EcalDCCHeaderBlock::LASER_DELAY_SCAN){
-    theSettings.wavelength = Setting & 7;  
+    theSettings.wavelength = Setting & 7;
     theSettings.delay = (Setting & 2040)/8;
   }
 
@@ -204,7 +189,7 @@ void  EcalDCCHeaderRuntypeDecoder::DecodeSetting ( int Setting,  EcalDCCHeaderBl
   }
 
   else if(theHeader->getRunType() == EcalDCCHeaderBlock::PEDESTAL_25NS_SCAN ){
-    theSettings.delay = (Setting & 255);  
+    theSettings.delay = (Setting & 255);
   }
 
   else if(theHeader->getRunType() == EcalDCCHeaderBlock::LED_STD){
@@ -218,17 +203,17 @@ void  EcalDCCHeaderRuntypeDecoder::DecodeSetting ( int Setting,  EcalDCCHeaderBl
   }
 
   theHeader->setEventSettings(theSettings);
-  
+
 }
 
 
 
 void EcalDCCHeaderRuntypeDecoder::CleanEcalDCCSettingsInfo( EcalDCCHeaderBlock::EcalDCCEventSettings * dummySettings){
-  dummySettings->LaserPower =-1;
-  dummySettings->LaserFilter =-1;
-  dummySettings->wavelength =-1;
-  dummySettings->delay =-1;
-  dummySettings->MEMVinj =-1;
-  dummySettings->mgpa_content =-1;
-  dummySettings->ped_offset =-1;
+  dummySettings->LaserPower   = 0;
+  dummySettings->LaserFilter  = 0;
+  dummySettings->wavelength   = 0;
+  dummySettings->delay        = 0;
+  dummySettings->MEMVinj      = 0;
+  dummySettings->mgpa_content = 1;
+  dummySettings->ped_offset   = 0;
 }
