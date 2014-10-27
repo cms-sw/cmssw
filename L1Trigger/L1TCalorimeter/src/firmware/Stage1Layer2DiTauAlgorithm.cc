@@ -67,14 +67,14 @@ void l1t::Stage1Layer2DiTauAlgorithm::processEvent(const std::vector<l1t::CaloRe
 
   int isowd=0;
   for (int i= 0; i<nIsoThresh; i++){
-    std::cout << "IsoThresholds: " << IsoThresholds.at(i) << std::endl; 
+    // std::cout << "IsoThresholds: " << IsoThresholds.at(i) << std::endl; 
     int thresh=IsoThresholds.at(i)/4;
     if (isoPtMax >= thresh) isowd |= 1 << i;
   }
 
   int diIsowd=0; 
   for (int i= 0; i<nDiIsoThresh; i++){
-    std::cout << "DiIsoThresholds: " << DiIsoThresholds.at(i) << std::endl; 
+    // std::cout << "DiIsoThresholds: " << DiIsoThresholds.at(i) << std::endl; 
     int thresh=DiIsoThresholds.at(i)/4;
     if (diIsoPtMax >= thresh) diIsowd |= 1 << i;
   }
