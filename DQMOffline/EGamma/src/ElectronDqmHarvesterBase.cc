@@ -101,7 +101,10 @@ const std::string * ElectronDqmHarvesterBase::find( DQMStore::IGetter & iGetter,
 
 void ElectronDqmHarvesterBase::beginJob()
  {
-  book() ;
+//  book() ;
+  if (inputFile_!="")
+   { edm::Service<DQMStore>().operator->()->open(inputFile_) ; }
+  edm::Service<DQMStore>().operator->()->setCurrentFolder(outputInternalPath_) ;
  }
 
 void ElectronDqmHarvesterBase::dqmEndLuminosityBlock( DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, edm::LuminosityBlock const &, edm::EventSetup const& )
@@ -136,15 +139,21 @@ void ElectronDqmHarvesterBase::dqmEndJob(DQMStore::IBooker & iBooker, DQMStore::
    {
    iBooker.setCurrentFolder(outputInternalPath_) ;
    finalize( iBooker, iGetter ) ; 
+   edm::Service<DQMStore>().operator->()->save(outputFile_) ; 
    }
+/*  else {
+   iBooker.setCurrentFolder(outputInternalPath_) ;
+   finalize( iBooker, iGetter ) ; 
+   }*/
+
  }
 
 MonitorElement * ElectronDqmHarvesterBase::get( DQMStore::IGetter & iGetter, const std::string & name )
  {
   const std::string * fullName = find(iGetter, name) ;
-   std::cout << "name = " << name << std::endl;
   if (fullName)
    { return iGetter.get(inputInternalPath_+"/"+*fullName) ; }
+//   { return iGetter.get(*fullName) ; }
   else
   { return 0 ; }
  }
@@ -159,50 +168,14 @@ void ElectronDqmHarvesterBase::remove( DQMStore::IBooker & iBooker, DQMStore::IG
    }
  }
 
-void ElectronDqmHarvesterBase::remove_other_dirs(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter)
- {
-  std::string currentPath = iBooker.pwd() ;
-  iGetter.cd() ;
-
-  std::string currentFolder ;
-  std::vector<std::string> subDirs ;
-  std::vector<std::string>::iterator subDir ;
-  std::string delimiter = "/" ;
-
-  std::string::size_type lastPos = currentPath.find_first_not_of(delimiter,0) ;
-  std::string::size_type pos = currentPath.find_first_of(delimiter,lastPos) ;
-  while (std::string::npos != pos || std::string::npos != lastPos)
-   {
-    if (currentFolder.empty())
-     { currentFolder = currentPath.substr(lastPos, pos - lastPos) ; }
-    else
-     {
-      currentFolder += "/" ;
-      currentFolder += currentPath.substr(lastPos, pos - lastPos) ;
-     }
-    lastPos = currentPath.find_first_not_of(delimiter, pos);
-    pos = currentPath.find_first_of(delimiter, lastPos);
-
-    subDirs = iGetter.getSubdirs() ;
-    for ( subDir = subDirs.begin() ; subDir != subDirs.end() ; subDir++ )
-     {
-      if (currentFolder!=(*subDir))
-       { 
-       //store_->rmdir(*subDir) ; 
-//       iBooker.rmdir(*subDir); 
-//       iGetter.rmdir(*subDir); 
-       }
-     }
-    iGetter.cd(currentFolder) ;
-   }
- }
-
 MonitorElement * ElectronDqmHarvesterBase::bookH1andDivide
  ( DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter,
    const std::string & name, const std::string & num, const std::string & denom,
    const std::string & titleX, const std::string & titleY,
    const std::string & title )
- { return bookH1andDivide(iBooker, iGetter, name,get(iGetter, num),get(iGetter, denom),titleX,titleY,title) ;  }
+ { 
+   return bookH1andDivide(iBooker, iGetter, name,get(iGetter, num),get(iGetter, denom),titleX,titleY,title) ;  
+ }
 
 MonitorElement * ElectronDqmHarvesterBase::bookH2andDivide
  ( DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter,
@@ -237,6 +210,7 @@ MonitorElement * ElectronDqmHarvesterBase::bookH1
    const std::string & titleX, const std::string & titleY,
    Option_t * option )
  {
+  iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement * me = iBooker.book1D(newName(name),title,nchX,lowX,highX) ;
   if (titleX!="") { me->getTH1F()->GetXaxis()->SetTitle(titleX.c_str()) ; }
   if (titleY!="") { me->getTH1F()->GetYaxis()->SetTitle(titleY.c_str()) ; }
@@ -251,6 +225,7 @@ MonitorElement * ElectronDqmHarvesterBase::bookH1withSumw2
    const std::string & titleX, const std::string & titleY,
    Option_t * option )
  {
+  iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement * me = iBooker.book1D(newName(name),title,nchX,lowX,highX) ;
   me->getTH1F()->Sumw2() ;
   if (titleX!="") { me->getTH1F()->GetXaxis()->SetTitle(titleX.c_str()) ; }
@@ -267,6 +242,7 @@ MonitorElement * ElectronDqmHarvesterBase::bookH2
    const std::string & titleX, const std::string & titleY,
    Option_t * option )
  {
+  iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement * me = iBooker.book2D(newName(name),title,nchX,lowX,highX,nchY,lowY,highY) ;
   if (titleX!="") { me->getTH2F()->GetXaxis()->SetTitle(titleX.c_str()) ; }
   if (titleY!="") { me->getTH2F()->GetYaxis()->SetTitle(titleY.c_str()) ; }
@@ -282,7 +258,8 @@ MonitorElement * ElectronDqmHarvesterBase::bookH2withSumw2
    const std::string & titleX, const std::string & titleY,
    Option_t * option )
  {
-  MonitorElement * me = iBooker.book2D(newName(name),title,nchX,lowX,highX,nchY,lowY,highY) ;
+   iBooker.setCurrentFolder(outputInternalPath_);
+ MonitorElement * me = iBooker.book2D(newName(name),title,nchX,lowX,highX,nchY,lowY,highY) ;
   me->getTH2F()->Sumw2() ;
   if (titleX!="") { me->getTH2F()->GetXaxis()->SetTitle(titleX.c_str()) ; }
   if (titleY!="") { me->getTH2F()->GetYaxis()->SetTitle(titleY.c_str()) ; }
@@ -298,6 +275,7 @@ MonitorElement * ElectronDqmHarvesterBase::bookP1
    const std::string & titleX, const std::string & titleY,
    Option_t * option )
  {
+  iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement * me = iBooker.bookProfile(newName(name),title,nchX,lowX,highX,lowY,highY," ") ;
   if (titleX!="") { me->getTProfile()->GetXaxis()->SetTitle(titleX.c_str()) ; }
   if (titleY!="") { me->getTProfile()->GetYaxis()->SetTitle(titleY.c_str()) ; }
@@ -313,6 +291,7 @@ MonitorElement * ElectronDqmHarvesterBase::bookH1andDivide
    const std::string & title )
  {
   if ((!num)||(!denom)) return 0 ;
+  iBooker.setCurrentFolder(outputInternalPath_);
   std::string name2 = newName(name) ;
   TH1F * h_temp = (TH1F *)num->getTH1F()->Clone(name2.c_str()) ;
   h_temp->Reset() ;
@@ -334,6 +313,7 @@ MonitorElement * ElectronDqmHarvesterBase::bookH2andDivide
    const std::string & title )
  {
   if ((!num)||(!denom)) return 0 ;
+  iBooker.setCurrentFolder(outputInternalPath_);
   std::string name2 = newName(name) ;
   TH2F * h_temp = (TH2F *)num->getTH2F()->Clone(name2.c_str()) ;
   h_temp->Reset() ;
@@ -354,6 +334,7 @@ MonitorElement * ElectronDqmHarvesterBase::cloneH1
    const std::string & title )
  {
   if (!original) return 0 ;
+  iBooker.setCurrentFolder(outputInternalPath_);
   std::string name2 = newName(name) ;
   TH1F * h_temp = (TH1F *)original->getTH1F()->Clone(name2.c_str()) ;
   h_temp->Reset() ;
@@ -368,6 +349,7 @@ MonitorElement * ElectronDqmHarvesterBase::profileX
    const std::string & title, const std::string & titleX, const std::string & titleY,
    Double_t minimum, Double_t maximum )
  {
+  iBooker.setCurrentFolder(outputInternalPath_);
   std::string name2 = me2d->getName()+"_pfx" ;
   TProfile * p1_temp = me2d->getTH2F()->ProfileX() ;
   if (title!="") { p1_temp->SetTitle(title.c_str()) ; }
@@ -385,6 +367,7 @@ MonitorElement * ElectronDqmHarvesterBase::profileY
    const std::string & title, const std::string & titleX, const std::string & titleY,
    Double_t minimum, Double_t maximum )
  {
+  iBooker.setCurrentFolder(outputInternalPath_);
   std::string name2 = me2d->getName()+"_pfy" ;
   TProfile * p1_temp = me2d->getTH2F()->ProfileY() ;
   if (title!="") { p1_temp->SetTitle(title.c_str()) ; }
