@@ -373,9 +373,6 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalPFCorrs& fObjec
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalTimeCorrs* fObject) {return getHcalSingleFloatObject (fInput, fObject, new HcalTimeCorr); }
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalTimeCorrs& fObject) {return dumpHcalSingleFloatObject (fOutput, fObject); }
 
-bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalODFCorrections* fObject) {return getHcalSingleFloatObject (fInput, fObject, new HcalODFCorrections); }
-bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalODFCorrections& fObject) {return dumpHcalSingleFloatObject (fOutput, fObject); }
-
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalZSThresholds* fObject) {return getHcalSingleIntObject (fInput, fObject, new HcalZSThreshold); }
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalZSThresholds& fObject) {return dumpHcalSingleIntObject (fOutput, fObject); }
 
@@ -694,6 +691,38 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalLongRecoParams&
       }
   }
   return true;
+}
+
+bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalODFCorrections* fObject)
+{
+  
+  if (!fObject) return false; // fObject = new HcalLongRecoParams();
+  char buffer [1024];
+  while (fInput.getline(buffer, 1024)) {
+    if (buffer [0] == '#') continue; //ignore comment
+    std::vector <std::string> items = splitString (std::string (buffer));
+    if (items.size() == 0) continue; // blank line
+    if (items.size() < 4) {
+      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 6 items: eta, phi, low, high" << std::endl;
+      continue;
+    }
+    if (items.size() > 4) {
+      edm::LogWarning("Format Error") << "Check line: " << buffer << "\n line must contain 4 items: eta, phi, low, high. " << std::endl;
+      continue;
+    }
+    int eta = atoi(items[0].c_str());
+    int phi = atoi(items[1].c_str());
+    float low = atof(items[2].c_str());
+    float high = atof(items[3].c_str());
+    fObject->addValues(eta, phi, low, high);
+
+  }
+  return true;
+}
+
+bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalODFCorrections& fObject)
+{
+    //code
 }
 
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalMCParams* fObject)
