@@ -23,10 +23,10 @@ void ElectronMcFakePostValidator::book()
 
 void ElectronMcFakePostValidator::finalize( DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter )
  {
+  iBooker.setCurrentFolder(outputInternalPath_) ;
+  setBookIndex(-1) ;
   setBookPrefix("h_ele") ;
-//  std::cout << "appel setBookEfficiencyFlag : " << set_EfficiencyFlag << std::endl;
   setBookEfficiencyFlag(set_EfficiencyFlag);
-//  std::cout << "appel setBookStatOverflowFlag : " << set_StatOverflowFlag << std::endl;
   setBookStatOverflowFlag( set_StatOverflowFlag ) ;
 
   edm::LogInfo("ElectronMcFakePostValidator::finalize") << "efficiency calculation " ;
