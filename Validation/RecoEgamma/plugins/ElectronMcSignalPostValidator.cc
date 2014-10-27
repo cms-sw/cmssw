@@ -18,18 +18,19 @@ ElectronMcSignalPostValidator::ElectronMcSignalPostValidator( const edm::Paramet
 ElectronMcSignalPostValidator::~ElectronMcSignalPostValidator()
  {}
 
-void ElectronMcSignalPostValidator::book()
- { setBookIndex(-1) ; }/**/
+/*void ElectronMcSignalPostValidator::book()
+ { setBookIndex(-1) ; }*/
 
 void ElectronMcSignalPostValidator::finalize( DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter )
  {
 
+//  iBooker.setCurrentFolder(outputInternalPath_) ; // A enlever !!
   setBookIndex(-1) ;
-  setBookPrefix("h_ele") ;
-//  std::cout << "appel setBookEfficiencyFlag : " << set_EfficiencyFlag << std::endl;
+//  setBookPrefix("h_ele") ;
+  std::cout << "ElectronMcSignalPostValidator::finalize : " << std::endl;
   setBookEfficiencyFlag(set_EfficiencyFlag);
-//  std::cout << "appel setBookStatOverflowFlag : " << set_StatOverflowFlag << std::endl;
   setBookStatOverflowFlag( set_StatOverflowFlag ) ;
+  setBookPrefix("h") ;
   
   edm::LogInfo("ElectronMcSignalPostValidator::finalize") << "efficiency calculation" ;
   bookH1andDivide(iBooker,iGetter, "etaEff","mc_Eta_matched","mc_Eta","#eta","Efficiency",""); 
@@ -103,6 +104,7 @@ void ElectronMcSignalPostValidator::finalize( DQMStore::IBooker & iBooker, DQMSt
   profileX(iBooker, iGetter, "seedDrz2Pos_VsEta","mean ele seed dr(dz) 2nd layer positron vs eta","#eta","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
   profileX(iBooker, iGetter, "seedDrz2Pos_VsPt","mean ele seed dr(dz) 2nd layer positron vs pt","p_{T} (GeV/c)","<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",-0.15,0.15);
 /**/
+
 //  // investigation
 //  TH2F * h2 = get("PoPtrueVsEta")->getTH2F() ;
 //  std::cout<<"H2   entries : "<<h2->GetEntries()<<std::endl ;
