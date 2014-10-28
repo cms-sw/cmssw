@@ -25,6 +25,7 @@ namespace DataFormats_TestObjects {
 struct dictionary {
   edm::Wrapper<edmtest::DummyProduct> dummyw12;
   edm::Wrapper<edmtest::IntProduct> dummyw13;
+  edm::Wrapper<edmtest::UInt64Product> dummyw13ull;
   edm::Wrapper<edmtest::TransientIntProduct> dummyw13t;
   edm::Wrapper<edmtest::DoubleProduct> dummyw14;
   edm::Wrapper<edmtest::StringProduct> dummyw15;
