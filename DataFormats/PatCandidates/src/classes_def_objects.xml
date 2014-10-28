@@ -113,7 +113,8 @@
     <version ClassVersion="10" checksum="1628501942" />
   </class>
   <class name="std::vector<pat::tau::TauPFEssential>" />
-  <class name="pat::Photon"  ClassVersion="16">
+  <class name="pat::Photon"  ClassVersion="17">
+   <version ClassVersion="17" checksum="344001813"/>
    <field name="superClusterRelinked_" transient="true"/>
    <version ClassVersion="16" checksum="1272212778"/>
    <version ClassVersion="15" checksum="3096238365"/>
