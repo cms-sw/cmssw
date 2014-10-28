@@ -48,8 +48,8 @@
 //#include "DataFormats/Luminosity/interface/LumiSummary.h"
 
 // L1TMonitor includes
-///#include "DQM/L1TMonitor/interface/L1TMenuHelper.h"
-#include "DQMOffline/L1Trigger/interface/L1TMenuHelper.h"
+#include "DQM/L1TMonitor/interface/L1TMenuHelper.h"
+//#include "DQMOffline/L1Trigger/interface/L1TMenuHelper.h"
 
 #include "TList.h"
 
