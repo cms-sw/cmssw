@@ -12,7 +12,8 @@ namespace edm {
 	// calls can and should be deleted from the code.
         firstRun_(pset.getUntrackedParameter<unsigned int>("firstRun", 1U)),
         firstLumi_(pset.getUntrackedParameter<unsigned int>("firstLuminosityBlock", 0U)),
-        firstEvent_(pset.getUntrackedParameter<unsigned int>("firstEvent", 1U)),
+        firstEvent_(pset.existsAs<unsigned int>("firstEvent", false) ? pset.getUntrackedParameter<unsigned int>("firstEvent") :
+                                                                       pset.getUntrackedParameter<unsigned long long>("firstEvent", 1U)),
         whichLumisToSkip_(pset.getUntrackedParameter<std::vector<LuminosityBlockRange> >("lumisToSkip", std::vector<LuminosityBlockRange>())),
         whichLumisToProcess_(pset.getUntrackedParameter<std::vector<LuminosityBlockRange> >("lumisToProcess", std::vector<LuminosityBlockRange>())),
         whichEventsToSkip_(pset.getUntrackedParameter<std::vector<EventRange> >("eventsToSkip",std::vector<EventRange>())),
@@ -20,6 +21,7 @@ namespace edm {
         skippingLumis_(!(whichLumisToSkip_.empty() && whichLumisToProcess_.empty())),
         skippingEvents_(!(whichEventsToSkip_.empty() && whichEventsToProcess_.empty())),
         somethingToSkip_(skippingLumis_ || skippingEvents_ || !(firstRun_ <= 1U && firstLumi_ <= 1U && firstEvent_ <= 1U)) {
+
     sortAndRemoveOverlaps(whichLumisToSkip_);
     sortAndRemoveOverlaps(whichLumisToProcess_);
     sortAndRemoveOverlaps(whichEventsToSkip_);
@@ -113,8 +115,11 @@ namespace edm {
         ->setComment("Skip any run with run number < 'firstRun'.");
     desc.addUntracked<unsigned int>("firstLuminosityBlock", 0U)
         ->setComment("Skip any lumi in run 'firstRun' with lumi number < 'firstLuminosityBlock'.");
-    desc.addUntracked<unsigned int>("firstEvent", 1U)
-        ->setComment("If 'firstLuminosityBlock' == 0, skip any event in run 'firstRun' with event number < 'firstEvent'.\n"
+
+    desc.addNode( edm::ParameterDescription<unsigned int>("firstEvent", 1U, false) xor
+                  edm::ParameterDescription<unsigned long long>("firstEvent", 1ULL, false))
+        ->setComment("'firstEvent' is an XOR group because it can have type uint32 or uint64, default:1\n"
+                     "If 'firstLuminosityBlock' == 0, skip any event in run 'firstRun' with event number < 'firstEvent'.\n"
                      "If 'firstLuminosityBlock' != 0, skip any event in lumi 'firstRun:firstLuminosityBlock' with event number < 'firstEvent'.");
 
     std::vector<LuminosityBlockRange> defaultLumis;

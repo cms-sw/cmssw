@@ -12,11 +12,8 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:myout.root')
-)
-
-process.a1 = cms.EDAnalyzer("StreamThingAnalyzer",
-    product_to_get = cms.string('m1')
+    fileNames = cms.untracked.vstring('file:myout.root'),
+    firstEvent = cms.untracked.uint64(10123456792)
 )
 
 process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
@@ -24,9 +21,9 @@ process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
     expectedRunLumiEvents = cms.untracked.vuint64(
       1, 0, 0,
       1, 1, 0,
-      1, 1, 10123456789,
-      1, 1, 10123456790,
-      1, 1, 10123456791,
+      #1, 1, 10123456789,
+      #1, 1, 10123456790,
+      #1, 1, 10123456791,
       1, 1, 10123456792,
       1, 1, 10123456793,
       1, 1, 10123456794,
@@ -77,18 +74,7 @@ process.test = cms.EDAnalyzer('RunLumiEventAnalyzer',
       1, 1, 0,
       1, 0, 0
     ),
-    expectedEndingIndex = cms.untracked.int32(162)
+    expectedEndingIndex = cms.untracked.int32(153)
 )
 
-process.out = cms.OutputModule("EventStreamFileWriter",
-    fileName = cms.untracked.string('teststreamfile_copy.dat'),
-    compression_level = cms.untracked.int32(1),
-    use_compression = cms.untracked.bool(True),
-    max_event_size = cms.untracked.int32(7000000)
-)
-
-process.outp = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('myout2.root')
-)
-
-process.e = cms.EndPath(process.test*process.a1*process.out*process.outp)
+process.e = cms.EndPath(process.test)

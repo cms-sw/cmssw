@@ -175,7 +175,7 @@ BigEventsDebugger<T>::analyze(const edm::Event& iEvent, const edm::EventSetup& i
      m_hist.clear();     m_hprof.clear();     m_hist2d.clear();
 
      char dirname[500];
-     sprintf(dirname,"event_%u_%u",iEvent.run(),iEvent.id().event());
+     sprintf(dirname,"event_%u_%llu",iEvent.run(),iEvent.id().event());
      TFileDirectory subd = tfserv->mkdir(dirname);
 
      //book histos

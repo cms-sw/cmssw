@@ -116,7 +116,7 @@ namespace edmtest {
       for(auto const& thing : *parentCollection) {
         // Just some numbers that match the somewhat arbitrary values put in
         // by the ThingProducer.
-        int expected  = expectedParentContent_.at(i) + event.eventAuxiliary().event() * 100 + 100;
+        int expected = static_cast<int>(expectedParentContent_.at(i) + event.eventAuxiliary().event() * 100 + 100);
         if(thing.a != expected) {
           throw cms::Exception("TestFailure") << "parent collection has unexpected content";
         }
