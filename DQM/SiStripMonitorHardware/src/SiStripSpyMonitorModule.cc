@@ -10,7 +10,6 @@
 
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-//#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -103,7 +102,6 @@ class SiStripSpyMonitorModule : public DQMEDAnalyzer
 
   unsigned int evt_;
 
-  DQMStore* dqm_;
   //folder name for histograms in DQMStore
   std::string folderName_;
   //book detailed histograms even if they will be empty (for merging)
@@ -111,9 +109,6 @@ class SiStripSpyMonitorModule : public DQMEDAnalyzer
   //do histos vs time with time=event number. Default time = orbit number (s)
   bool fillWithEvtNum_;
   bool fillWithLocalEvtNum_;
-  //write the DQMStore to a root file at the end of the job
-  bool writeDQMStore_;
-  std::string dqmStoreFileName_;
 
   SPYHistograms histManager_;  
   uint16_t firstHeaderBit_;
@@ -145,13 +140,10 @@ SiStripSpyMonitorModule::SiStripSpyMonitorModule(const edm::ParameterSet& iConfi
     spyL1Tag_(iConfig.getUntrackedParameter<edm::InputTag>("SpyL1Tag",edm::InputTag("SiStripSpyDigiConverter","L1ACount"))),
     spyTotCountTag_(iConfig.getUntrackedParameter<edm::InputTag>("SpyTotalEventCountTag",edm::InputTag("SiStripSpyDigiConverter","TotalEventCount"))),
     spyAPVeTag_(iConfig.getUntrackedParameter<edm::InputTag>("SpyAPVeTag",edm::InputTag("SiStripSpyDigiConverter","APVAddress"))),
-    dqm_(0),
     folderName_(iConfig.getUntrackedParameter<std::string>("HistogramFolderName","SiStrip/ReadoutView/SpyMonitoringSummary")),
     fillAllDetailedHistograms_(iConfig.getUntrackedParameter<bool>("FillAllDetailedHistograms",false)),
     fillWithEvtNum_(iConfig.getUntrackedParameter<bool>("FillWithEventNumber",false)),
     fillWithLocalEvtNum_(iConfig.getUntrackedParameter<bool>("FillWithLocalEventNumber",false)),
-    writeDQMStore_(iConfig.getUntrackedParameter<bool>("WriteDQMStore",false)),
-    dqmStoreFileName_(iConfig.getUntrackedParameter<std::string>("DQMStoreFileName","DQMStore.root")),
     firstHeaderBit_(0),
     firstTrailerBit_(0),
     outfileNames_(iConfig.getUntrackedParameter<std::vector<std::string> >("OutputErrors")),
