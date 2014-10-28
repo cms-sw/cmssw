@@ -54,7 +54,7 @@ pixelDigitizer = cms.PSet(
     NumPixelBarrel = cms.int32(3),
     NumPixelEndcap = cms.int32(2),
     theInstLumiScaleFactor = cms.double(261.9),
-    bunchScale = cms.double(1.0), #for 25ns case
+    bunchScaleAt25 = cms.double(1.0), #for 25ns case
     thePixelColEfficiency_BPix1 = cms.double(1.0), 	# Only used when AddPixelInefficiency = true
     thePixelColEfficiency_BPix2 = cms.double(1.0),
     thePixelColEfficiency_BPix3 = cms.double(1.0),
