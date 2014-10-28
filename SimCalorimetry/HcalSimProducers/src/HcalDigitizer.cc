@@ -133,6 +133,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps) :
   theHOSiPMCode(ps.getParameter<edm::ParameterSet>("ho").getParameter<int>("siPMCode")),
   deliveredLumi(0.),
   m_HEDarkening(0),
+  m_HBDarkening(0),
   m_HFRecalibration(0)
 {
   bool doNoise = ps.getParameter<bool>("doNoise");
@@ -149,6 +150,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps) :
   bool doHFUpgrade   = ps.getParameter<bool>("HFUpgradeQIE");
   deliveredLumi      = ps.getParameter<double>("DelivLuminosity");
   unsigned int agingFlagHE   = ps.getParameter<unsigned>("HEDarkening");
+  unsigned int agingFlagHB   = ps.getParameter<unsigned>("HBDarkening");
   bool agingFlagHF   = ps.getParameter<bool>("HFDarkening");
 
   // need to make copies, because they might get different noise generators
@@ -326,8 +328,8 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps) :
   if (theHitCorrection!=0) theHitCorrection->setRandomEngine(engine);
 
   hitsProducer_ = ps.getParameter<std::string>("hitsProducer");
-  
   if(agingFlagHE) m_HEDarkening = new HEDarkening(agingFlagHE);
+  if(agingFlagHB) m_HBDarkening = new HBDarkening(agingFlagHB);
   if(agingFlagHF) m_HFRecalibration = new HFRecalibration();
 }
 
@@ -363,6 +365,9 @@ HcalDigitizer::~HcalDigitizer() {
   delete theHitCorrection;
   delete theNoiseGenerator;
   if (theRelabeller)           delete theRelabeller;
+  if(m_HEDarkening) delete m_HEDarkening;
+  if(m_HBDarkening) delete m_HBDarkening;
+  if(m_HFRecalibration) delete m_HFRecalibration;
 }
 
 
@@ -714,6 +719,12 @@ void HcalDigitizer::darkening(std::vector<PCaloHit>& hcalHits){
     //HE darkening
     if(det==int(HcalEndcap) && m_HEDarkening){
       dweight = m_HEDarkening->degradation(deliveredLumi,ieta,lay-2);//NB:diff. layer count
+      darkened = true;
+    }
+	
+	//HB darkening
+    else if(det==int(HcalBarrel) && m_HBDarkening){
+      dweight = m_HBDarkening->degradation(deliveredLumi,ieta,lay-1);//NB:diff. layer count
       darkened = true;
     }
 	

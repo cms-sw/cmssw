@@ -124,10 +124,15 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
 
   if( iLumi > 0.0 ) {
     unsigned he_recalib = iConfig.getParameter<unsigned>("HERecalibration");
+    unsigned hb_recalib = iConfig.getParameter<unsigned>("HBRecalibration");
     bool hf_recalib = iConfig.getParameter<bool>("HFRecalibration");
     if(he_recalib) {
       double cutoff = iConfig.getParameter<double>("HEreCalibCutoff"); 
       he_recalibration = new HERecalibration(iLumi,cutoff,he_recalib);
+    }
+    if(hb_recalib) {
+      double cutoff = iConfig.getParameter<double>("HBreCalibCutoff"); 
+      hb_recalibration = new HBRecalibration(iLumi,cutoff,hb_recalib);
     }
     if(hf_recalib)  hf_recalibration = new HFRecalibration();
     
