@@ -42,7 +42,8 @@ double BTagCalibrationReader::eval(BTagEntry::JetFlavor jf,
     }
   }
 
-  return 1.;  // default value
+  // TODO: print warning message.
+  return 0.;  // default value
 }
 
 void BTagCalibrationReader::setupTmpData(BTagCalibration& c)
