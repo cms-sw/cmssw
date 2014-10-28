@@ -55,6 +55,7 @@ void ICEVisitor::VisitBinaryOperator( BinaryOperator *BO )
 	std::string ename = "EventNumber_t";
 	clang::Expr * LHS = BO->getLHS();
 	clang::Expr * RHS = BO->getRHS();
+	if (!LHS || !RHS) return;
 	std::string lname = LHS->getType().getAsString();
 	std::string rname = RHS->getType().getAsString();
 	if (IntegerLiteral::classof(LHS->IgnoreCasts()) || IntegerLiteral::classof(RHS->IgnoreCasts())) return;
@@ -62,16 +63,17 @@ void ICEVisitor::VisitBinaryOperator( BinaryOperator *BO )
 	if (  lname == ename && rname == ename ) return;
 	clang::QualType OTy;
 	clang::QualType TTy;
-	if (lname == ename) {
+	if (lname == ename && ImplicitCastExpr::classof(RHS) ) {
 		ImplicitCastExpr * ICE = dyn_cast<ImplicitCastExpr>(RHS);
 		TTy = BR.getContext().getCanonicalType(LHS->getType());
 		OTy = BR.getContext().getCanonicalType(ICE->getSubExprAsWritten()->getType());
 	}
-	if (rname == ename) {
+	if (rname == ename && ImplicitCastExpr::classof(LHS) ) {
 		ImplicitCastExpr * ICE = dyn_cast<ImplicitCastExpr>(LHS);
 		TTy = BR.getContext().getCanonicalType(RHS->getType());
 		OTy = BR.getContext().getCanonicalType(ICE->getSubExprAsWritten()->getType());
 	}
+	if ( TTy.isNull() || OTy.isNull() ) return;
 	QualType ToTy = TTy.getUnqualifiedType();
 	QualType OrigTy = OTy.getUnqualifiedType();
 	if (!(ToTy->isIntegerType()||ToTy->isFloatingType()) ) return;
