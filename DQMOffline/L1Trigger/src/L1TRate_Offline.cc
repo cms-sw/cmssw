@@ -1,7 +1,6 @@
 // L1TMonitor includes
 #include "DQMOffline/L1Trigger/interface/L1TRate_Offline.h"
-
-#include "DQMOffline/L1Trigger/interface/L1TMenuHelper.h"
+#include "DQM/L1TMonitor/interface/L1TMenuHelper.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
