@@ -69,6 +69,8 @@ public:
   BTagEntry(const TF1* func, Parameters p);
   BTagEntry(const TH1* histo, Parameters p);
   ~BTagEntry() {}
+  static std::string makeCSVHeader();
+  std::string makeCSVLine() const;
 
   // public, no getters needed
   std::string formula;

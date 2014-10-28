@@ -11,6 +11,18 @@ const std::vector<BTagEntry>& BTagCalibration::getEntries(
   return data_.at(token(par));  // throws exception if key unavailable
 }
 
+void BTagCalibration::makeCSV(ostream &s) const
+{
+  s << BTagEntry::makeCSVHeader();
+  for (auto i = data_.cbegin(); i != data_.cend(); ++i) {
+    auto vec = i->second;
+    for (auto j = vec.cbegin(); j != vec.cend(); ++j) {
+      s << j->makeCSVLine();
+    }
+  }
+}
+
+
 std::string BTagCalibration::token(const BTagEntry::Parameters &par) const
 {
   std::stringstream buff;

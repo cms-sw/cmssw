@@ -58,3 +58,36 @@ BTagEntry::BTagEntry(const TH1* hist, BTagEntry::Parameters p):
   buff << 0.;  // default value
   formula = buff.str();
 }
+
+std::string BTagEntry::makeCSVHeader()
+{
+  return "OperatingPoint, "
+         "measurementType, "
+         "sysType, "
+         "jetFlavor, "
+         "etaMin, "
+         "etaMax, "
+         "ptMin, "
+         "ptMax, "
+         "discrMin, "
+         "discrMax, "
+         "formula \n";
+}
+
+std::string BTagEntry::makeCSVLine() const
+{
+  std::stringstream buff;
+  buff << params.operatingPoint
+       << ", " << params.measurementType
+       << ", " << params.sysType
+       << ", " << params.jetFlavor
+       << ", " << params.etaMin
+       << ", " << params.etaMax
+       << ", " << params.ptMin
+       << ", " << params.ptMax
+       << ", " << params.discrMin
+       << ", " << params.discrMax
+       << ", \"" << formula
+       << "\" \n";
+  return buff.str();
+}

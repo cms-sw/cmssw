@@ -18,6 +18,7 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <ostream>
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include "CondFormats/BTagObjects/interface/BTagEntry.h"
@@ -31,6 +32,7 @@ public:
 
   void addEntry(BTagEntry entry);
   const std::vector<BTagEntry>& getEntries(BTagEntry::Parameters par) const;
+  void makeCSV(ostream &s) const;
 
 protected:
   std::string token(const BTagEntry::Parameters &par) const;
