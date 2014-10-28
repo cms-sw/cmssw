@@ -100,8 +100,16 @@ namespace edm {
 
       // ---------- static functions ---------------------------
 
-      static EventNumber_t maxEventNumber() {
+      static RunNumber_t maxRunNumber() {
          return 0xFFFFFFFFU;
+      }
+
+      static LuminosityBlockNumber_t maxLuminosityBlockNumber() {
+         return 0xFFFFFFFFU;
+      }
+
+      static EventNumber_t maxEventNumber() {
+         return 0xFFFFFFFFFFFFFFFFULL;
       }
 
       static EventID firstValidEvent() {

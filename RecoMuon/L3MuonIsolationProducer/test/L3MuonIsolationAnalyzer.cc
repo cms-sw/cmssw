@@ -211,7 +211,7 @@ void L3MuonIsolationAnalyzer::analyze(const Event & event, const EventSetup& eve
     }
 
   }
-  Puts("L3MuonIsolationAnalyzer>>> Run: %ld, Event %ld, number of muons %d"
+  Puts("L3MuonIsolationAnalyzer>>> Run: %llu, Event %llu, number of muons %d"
                  , event.id().run(), event.id().event(), depMap->size());
 }
 

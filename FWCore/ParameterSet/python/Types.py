@@ -397,6 +397,8 @@ class EventRange(_ParameterTypeBase):
             eevent = endParts[1]             
         else:
             raise RuntimeError('EventRange ctor must have 4 or 6 arguments')
+        # note int will return a long if the value is too large to fit in
+        # a smaller type
         return EventRange(int(brun), int(blumi), int(bevent),
                           int(erun), int(elumi), int(eevent))
 
