@@ -70,7 +70,6 @@ class SiStripFEDMonitorPlugin : public DQMEDAnalyzer
   virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
 				  const edm::EventSetup& context) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void dqmBeginRun(const edm::Run& , const edm::EventSetup& );
 
   //update the cabling if necessary
   void updateCabling(const edm::EventSetup& eventSetup);
@@ -98,7 +97,6 @@ class SiStripFEDMonitorPlugin : public DQMEDAnalyzer
   bool fillWithEvtNum_;
   //print debug messages when problems are found: 1=error debug, 2=light debug, 3=full debug
   unsigned int printDebug_;
-  //bool printDebug_;
   //FED cabling
   uint32_t cablingCacheId_;
   const SiStripFedCabling* cabling_;
@@ -108,8 +106,6 @@ class SiStripFEDMonitorPlugin : public DQMEDAnalyzer
   bool doMedHists_;
   bool doFEMajorityCheck_;
 
-  unsigned int nEvt_;
-  
   //FED errors
   //need class member for lumi histograms
   FEDErrors fedErrors_;
@@ -164,17 +160,7 @@ SiStripFEDMonitorPlugin::SiStripFEDMonitorPlugin(const edm::ParameterSet& iConfi
 
   if (printDebug_) {
     LogTrace("SiStripMonitorHardware") << debugStream.str();
-
-    //debugStream.str("");
-
-    //debugStream << " -- Quelle est la difference entre un canard ? " << std::endl 
-    //	<< " -- Reponse: c'est qu'il a les deux pattes de la meme longueur, surtout la gauche." << std::endl;
-
-    //edm::LogError("SiStripMonitorHardware") << debugStream.str();
   }
-
-  nEvt_ = 0;
-
 }
 
 SiStripFEDMonitorPlugin::~SiStripFEDMonitorPlugin()
@@ -370,18 +356,12 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
 
   }
 
-  //FEDErrors::getFEDErrorsCounters().nTotalBadChannels = lNTotBadChannels;
-  //FEDErrors::getFEDErrorsCounters().nTotalBadActiveChannels = lNTotBadActiveChannels;
   fedErrors_.getFEDErrorsCounters().nTotalBadChannels = lNTotBadChannels;
   fedErrors_.getFEDErrorsCounters().nTotalBadActiveChannels = lNTotBadActiveChannels;
 
-  //fedHists_.fillCountersHistograms(FEDErrors::getFEDErrorsCounters(), nEvt_);
   //time in seconds since beginning of the run or event number
   if (fillWithEvtNum_) fedHists_.fillCountersHistograms(fedErrors_.getFEDErrorsCounters(),fedErrors_.getChannelErrorsCounters(),maxFedBufferSize_,iEvent.id().event());
   else fedHists_.fillCountersHistograms(fedErrors_.getFEDErrorsCounters(),fedErrors_.getChannelErrorsCounters(),maxFedBufferSize_,iEvent.orbitNumber()/11223.);
-
-  nEvt_++;
-
 }//analyze method
 
 
@@ -462,22 +442,6 @@ void SiStripFEDMonitorPlugin::bookHistograms(DQMStore::IBooker & ibooker , const
   ibooker.setCurrentFolder(folderName_);
   fedHists_.bookTopLevelHistograms(ibooker);
   if (fillAllDetailedHistograms_) fedHists_.bookAllFEDHistograms(ibooker , fullDebugMode_ );
-}
-
-void SiStripFEDMonitorPlugin::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) 
-{
-  nEvt_ = 0;
-
-  //const unsigned int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
-  //const unsigned int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID;
-
-  //mark all channels as inactive until they have been 'locked' at least once
-  //   activeChannels_.resize(siStripFedIdMax+1);
-  //   for (unsigned int fedId = siStripFedIdMin; 
-  //        fedId <= siStripFedIdMax; 
-  //        fedId++) {
-  //     activeChannels_[fedId].resize(sistrip::FEDCH_PER_FED,false);
-  //   }
 }
 
 void 

@@ -8,8 +8,6 @@
 
 CMHistograms::CMHistograms()
 {
-  dqm_ = 0;
-
   for (unsigned int i(0); i<500; i++){
     doFed_[i] = false;
   }
@@ -149,7 +147,6 @@ void CMHistograms::bookTopLevelHistograms(DQMStore::IBooker & ibooker)
     
   //book map after, as it creates a new folder...
   if (tkMapConfig_.enabled){
-    //const std::string dqmPath = dqm_->pwd();
     tkmapCM_[0] = new TkHistoMap("SiStrip/TkHisto","TkHMap_MeanCMAPV",0.,500);
     tkmapCM_[1] = new TkHistoMap("SiStrip/TkHisto","TkHMap_RmsCMAPV",0.,500);
     tkmapCM_[2] = new TkHistoMap("SiStrip/TkHisto","TkHMap_MeanCMAPV0minusAPV1",-500.,500);
