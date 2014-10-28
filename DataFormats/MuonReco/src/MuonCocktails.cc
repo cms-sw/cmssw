@@ -78,7 +78,7 @@ reco::Muon::MuonTrackTypePair  muon::tevOptimized(const reco::TrackRef& combined
   // is greater than a tuned value. Then compare the
   // so-picked track to TPFMS in the same manner using another tuned
   // value.
-  if (prob[4] && prob[3]) {
+  if (prob[4]>0. && prob[3]>0.) {
     if(refit[3].first->pt()>0 && refit[4].first->pt()>0 &&
        (refit[4].first->ptError()/refit[4].first->pt()-refit[3].first->ptError()/refit[3].first->pt())<=0) 
       chosen=4; // dyt
