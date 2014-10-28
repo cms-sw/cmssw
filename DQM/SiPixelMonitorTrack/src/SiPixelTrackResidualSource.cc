@@ -125,9 +125,7 @@ void SiPixelTrackResidualSource::dqmBeginRun(const edm::Run& r, edm::EventSetup 
     if (dynamic_cast<PixelGeomDetUnit const *>((*pxb))!=0) {
       SiPixelTrackResidualModule* module = new SiPixelTrackResidualModule((*pxb)->geographicalId().rawId());
       theSiPixelStructure.insert(pair<uint32_t, SiPixelTrackResidualModule*>((*pxb)->geographicalId().rawId(), module));
-      int DBlayer;
-      if (!isUpgrade) { DBlayer = PixelBarrelName(DetId((*pxb)->geographicalId())).layerName(); }
-                 else { DBlayer = PixelBarrelNameUpgrade(DetId((*pxb)->geographicalId())).layerName(); }
+      int DBlayer = PixelBarrelNameWrapper(pSet_, DetId((*pxb)->geographicalId())).layerName();
       if (noOfLayers < DBlayer) noOfLayers = DBlayer;
     }
   }

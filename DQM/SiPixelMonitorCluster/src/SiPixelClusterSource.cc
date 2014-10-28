@@ -218,8 +218,7 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup& iSetup){
         if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
           if(isPIB) continue;
 	  LogDebug ("PixelDQM") << " ---> Adding Barrel Module " <<  detId.rawId() << endl;
-          int layer;
-          layer = PixelBarrelNameWrapper(conf_, DetId(id)).layerName();
+          int layer = PixelBarrelNameWrapper(conf_, DetId(id)).layerName();
           if (layer > noOfLayers) noOfLayers = layer;
 	  thePixelStructure.insert(pair<uint32_t,SiPixelClusterModule*> (id,theModule));
         }else if ( (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) && (!isUpgrade) ) {

@@ -31,8 +31,7 @@
 // DataFormats
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameWrapper.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 //
@@ -586,9 +585,7 @@ void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup){
         if(isPIB) continue;
 	LogDebug ("PixelDQM") << " ---> Adding Barrel Module " <<  detId.rawId() << endl;
 	uint32_t id = detId();
-	int layer;
-	if (isUpgrade) layer = PixelBarrelName(DetId(id)).layerName();
-	else           layer = PixelBarrelNameUpgrade(DetId(id)).layerName();
+	int layer = PixelBarrelNameWrapper(conf_, DetId(id)).layerName();
 	if (layer > noOfLayers) noOfLayers = layer;
 	SiPixelDigiModule* theModule = new SiPixelDigiModule(id, ncols, nrows);
 	thePixelStructure.insert(pair<uint32_t,SiPixelDigiModule*> (id,theModule));
