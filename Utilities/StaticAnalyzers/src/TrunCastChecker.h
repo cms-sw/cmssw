@@ -8,10 +8,10 @@
 
 namespace clangcms {
 
-class TrunCastChecker: public clang::ento::Checker< clang::ento::check::ASTDecl<clang::TranslationUnitDecl> > {
+class TrunCastChecker: public clang::ento::Checker< clang::ento::check::ASTDecl<clang::CXXRecordDecl> > {
 public:
      mutable std::unique_ptr<clang::ento::BugType> BT;
-     void checkASTDecl(const clang::TranslationUnitDecl *D, clang::ento::AnalysisManager& Mgr, clang::ento::BugReporter &BR) const; 
+     void checkASTDecl(const clang::CXXRecordDecl *D, clang::ento::AnalysisManager& Mgr, clang::ento::BugReporter &BR) const; 
 
 private:
   CmsException m_exception;
