@@ -21,7 +21,7 @@ void HBRecalibration::setDsegm( const std::vector<std::vector<int>>& m_segmentat
   for (unsigned int ieta = 0; ieta < HBDarkening::nEtaBins; ieta++) {
     //    std::cout << "["<< ieta << "]  ieta =" << ieta + 16 << "  ";
     for(unsigned int ilay = 0; ilay < HBDarkening::nScintLayers; ilay++) {
-      dsegm[ieta][ilay] = m_segmentation[ieta][ilay]; // 0 not used
+      dsegm[ieta][ilay] = m_segmentation[ieta+1][ilay]; // 0 not used
       //      std::cout << dsegm [ieta][ilay];
     }
     //    std::cout << std::endl;
