@@ -4,6 +4,7 @@
 #include "TPRegexp.h"
 #include "TSystem.h"
 #include "TGeoArb8.h"
+#include "TObjArray.h"
 
 #include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/fwLog.h"
@@ -24,40 +25,24 @@ FWGeometry::~FWGeometry( void )
 TFile*
 FWGeometry::findFile( const char* fileName )
 {
-   TString file;
-   if( fileName[0] == '/' || ( fileName[0] == '.' &&  fileName[1] == '/' ))
-   {
-      file = fileName;
-   }
-   else
-   {
-      if( const char* cmspath = gSystem->Getenv( "CMSSW_BASE" ))
-      {
-         file += cmspath;
-         file += "/";
-      }
-      file += fileName;
-   }
-   if( !gSystem->AccessPathName( file.Data()))
-   {
-      return TFile::Open( file );
+   std::string searchPath = ".";
+
+   if (gSystem->Getenv( "CMSSW_SEARCH_PATH" ))
+   {    
+       TString paths = gSystem->Getenv( "CMSSW_SEARCH_PATH" );
+       TObjArray* tokens = paths.Tokenize( ":" );
+       for( int i = 0; i < tokens->GetEntries(); ++i )
+       {
+           TObjString* path = (TObjString*)tokens->At( i );
+           searchPath += ":";
+           searchPath += path->GetString();
+           searchPath += "/Fireworks/Geometry/data/";
+       }
    }
 
-   const char* searchpath = gSystem->Getenv( "CMSSW_SEARCH_PATH" );
-   if( searchpath == 0 )
-     return 0;
-   TString paths( searchpath );
-   TObjArray* tokens = paths.Tokenize( ":" );
-   for( int i = 0; i < tokens->GetEntries(); ++i )
-   {
-      TObjString* path = (TObjString*)tokens->At( i );
-      TString fullFileName( path->GetString());
-      fullFileName += "/Fireworks/Geometry/data/";
-      fullFileName += fileName;
-      if( !gSystem->AccessPathName( fullFileName.Data()))
-         return TFile::Open( fullFileName.Data());
-   }
-   return 0;
+   TString fn = fileName;
+   const char* fp = gSystem->FindFile(searchPath.c_str(), fn, kFileExists);
+   return fp ? TFile::Open( fp) : 0;
 }
 
 void
@@ -69,6 +54,7 @@ FWGeometry::loadMap( const char* fileName )
       throw std::runtime_error( "ERROR: failed to find geometry file. Initialization failed." );
       return;
    }
+
    TTree* tree = static_cast<TTree*>(file->Get( "idToGeo" ));
    if( ! tree )
    {
@@ -133,6 +119,20 @@ FWGeometry::loadMap( const char* fileName )
 	    m_idToInfo[i].matrix[j] = matrix[j];
       }
    }
+
+
+   m_versionInfo.productionTag  = static_cast<TNamed*>(file->Get( "tag" ));
+   m_versionInfo.cmsswVersion   = static_cast<TNamed*>(file->Get( "CMSSW_VERSION" ));
+   m_versionInfo.extraDetectors = static_cast<TObjArray*>(file->Get( "ExtraDetectors" ));
+  
+   TString path = file->GetPath();
+   if (path.EndsWith(":/"))  path.Resize(path.Length() -2);
+
+   if (m_versionInfo.productionTag)
+      fwLog( fwlog::kInfo ) << Form("Load %s %s from %s\n ",  tree->GetName(),  m_versionInfo.productionTag->GetName(), path.Data());  
+   else 
+      fwLog( fwlog::kInfo ) << Form("Load %s from %s\n ",  tree->GetName(), path.Data());  
+
    file->Close();
 }
 
@@ -369,4 +369,12 @@ FWGeometry::localToGlobal( const GeomDetInfo& info, const float* local, float* g
 		   + local[1] * info.matrix[3 * i + 1]
 		   + local[2] * info.matrix[3 * i + 2];
    }
+}
+
+//______________________________________________________________________________
+
+bool FWGeometry::VersionInfo::haveExtraDet(const char* det) const
+{
+   
+   return (extraDetectors && extraDetectors->FindObject(det)) ? true : false;
 }

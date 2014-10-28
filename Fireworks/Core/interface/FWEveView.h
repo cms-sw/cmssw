@@ -100,6 +100,9 @@ protected:
    void addToPerspectiveCamera(TGLPerspectiveCamera*, const std::string&, FWConfiguration&) const;
    void setFromPerspectiveCamera(TGLPerspectiveCamera*,  const std::string&, const FWConfiguration&);
 
+protected:
+   const fireworks::Context*  m_context;
+
 private:
    FWEveView(const FWEveView&);    // stop default
    const FWEveView& operator=(const FWEveView&);    // stop default
@@ -117,7 +120,6 @@ private:
    ScaleAnnotation*     m_energyMaxValAnnotation;
    TGLCameraGuide*      m_cameraGuide;
 
-   const fireworks::Context*  m_context;
 
 
 

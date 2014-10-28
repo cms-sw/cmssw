@@ -1,4 +1,4 @@
-#ifndef Fireworks_Core_FW3DEnergyView_h
+#ifndef Fireworks_Core_FW3DView_h
 #define Fireworks_Core_FW3DView_h
 // -*- C++ -*-
 //
