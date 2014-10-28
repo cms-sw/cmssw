@@ -11,79 +11,6 @@ namespace Phase2Tracker
   const int MAX_NP = 31;
   const int MAX_NS = 31;
 
-  std::map<std::string,int> calcChipId(const SiPixelCluster * digi, STACK_LAYER layer, int moduletype)
-  {
-    int x = digi->minPixelRow(); 
-    int y = digi->minPixelCol();
-    std::map<std::string,int> id;
-    if (moduletype== 1)
-    {
-      if(layer == LAYER_INNER)
-      {
-        // PonPS
-        id["chipid"] = x/PS_ROWS;
-        // which side ?
-        if (y >= PS_COLS/2) 
-        { 
-          id["chipid"] += 8; 
-          id["rawy"] = y - PS_COLS/2;
-        }
-        id["rawx"] = x%PS_ROWS;
-      }
-      else
-      {
-        // SonPS
-        id["chipid"] = x/PS_ROWS;
-        if (y > 0) { id["chipid"] += 8; }
-        id["rawx"] = x%PS_ROWS;
-        id["rawy"] = y;
-      }
-    }
-    else 
-    {
-      x *= 2;
-      if(layer == LAYER_OUTER) { x += 1; }
-      id["chipid"] = x/STRIPS_PER_CBC;
-      // which side ? 
-      if (y > 0) { id["chipid"] += 8; }
-      id["rawx"] = x%STRIPS_PER_CBC;
-      id["rawy"] = y;
-    }
-    return id;
-  }
-
-  class stackedDigi {
-    public:
-      stackedDigi() {}
-      stackedDigi(const SiPixelCluster *, STACK_LAYER, int);
-      ~stackedDigi() {}
-      std::map<std::string,int> chipid() const ;
-      bool operator<(stackedDigi) const ;
-      inline const SiPixelCluster * getDigi() { return digi_; } 
-      inline STACK_LAYER getLayer() { return layer_; } 
-      inline int getModuleType() { return moduletype_; }
-    private:
-      const SiPixelCluster * digi_;
-      STACK_LAYER layer_;
-      int moduletype_;
-  };
-
-  stackedDigi::stackedDigi(const SiPixelCluster * digi, STACK_LAYER layer, int moduletype) : digi_(digi), layer_(layer), moduletype_(moduletype) {}
-
-  std::map<std::string,int> stackedDigi::chipid() const
-  {
-    return calcChipId(digi_,layer_,moduletype_);
-  }
-
-  bool stackedDigi::operator<(const stackedDigi d2) const
-  {
-    std::map<std::string,int> c1 = chipid();
-    std::map<std::string,int> c2 = d2.chipid();
-    if (c1["chipid"] <  c2["chipid"]) { return true; }
-    if (c1["chipid"] == c2["chipid"] and c1["rawx"] < c2["rawx"] ) { return true; } 
-    return false;
-  }
-
   Phase2TrackerDigiToRaw::Phase2TrackerDigiToRaw(const Phase2TrackerCabling * cabling, std::map<int,int> stackmap, edm::Handle< edmNew::DetSetVector<SiPixelCluster> > digis_handle, int mode):
     cabling_(cabling),
     stackMap_(stackmap),
@@ -205,7 +132,7 @@ namespace Phase2Tracker
             std::vector<stackedDigi>::iterator its;
             for(its = digs_mod.begin(); its != digs_mod.end(); its++)
             {
-              writeCluster(fedbuffer, bitindex, its->getDigi(), its->getModuleType(), its->getLayer());
+              writeCluster(fedbuffer, bitindex, *its);
             }
           }
           else
@@ -220,22 +147,23 @@ namespace Phase2Tracker
             {
               digs_mod.push_back(stackedDigi(it,LAYER_INNER,moduletype));
             }
-            std::sort(digs_mod.begin(),digs_mod.end());
-            std::vector<stackedDigi>::iterator its;
-            for(its = digs_mod.begin(); its != digs_mod.end(); its++)
-            {
-              writeCluster(fedbuffer, bitindex, its->getDigi(), its->getModuleType(), its->getLayer()); 
-            }
+            // std::sort(digs_mod.begin(),digs_mod.end());
+            // std::vector<stackedDigi>::iterator its;
+            // for(its = digs_mod.begin(); its != digs_mod.end(); its++)
+            // {
+            //   writeCluster(fedbuffer, bitindex, *its); 
+            // }
+            // digs_mod.clear();
             idigi++;
-            digs_mod.clear();
             for (it = idigi->begin(); it != idigi->end() and std::distance(idigi->begin(),it) < MAX_NS; it++)
             {
               digs_mod.push_back(stackedDigi(it,LAYER_OUTER,moduletype));
             }
             std::sort(digs_mod.begin(),digs_mod.end());
+            std::vector<stackedDigi>::iterator its;
             for(its = digs_mod.begin(); its != digs_mod.end(); its++)
             {
-              writeCluster(fedbuffer, bitindex, its->getDigi(), its->getModuleType(), its->getLayer()); 
+              writeCluster(fedbuffer, bitindex, *its); 
             }
           }
         }
@@ -259,7 +187,7 @@ namespace Phase2Tracker
           std::vector<stackedDigi>::iterator its;
           for(its = digs_mod.begin(); its != digs_mod.end(); its++)
           {
-            writeCluster(fedbuffer, bitindex, its->getDigi(), its->getModuleType(), its->getLayer());
+            writeCluster(fedbuffer, bitindex, *its);
           }
         }
       }
@@ -276,7 +204,7 @@ namespace Phase2Tracker
         std::vector<stackedDigi>::iterator its;
         for(its = digs_mod.begin(); its != digs_mod.end(); its++)
         {
-          writeCluster(fedbuffer, bitindex, its->getDigi(), its->getModuleType(), its->getLayer());
+          writeCluster(fedbuffer, bitindex, *its);
         }
       }
     } // end idigi loop
@@ -308,47 +236,45 @@ namespace Phase2Tracker
   }
 
   // layer = 0 for inner, 1 for outer (-1 if irrelevant)
-  void Phase2TrackerDigiToRaw::writeCluster(std::vector<uint64_t> & buffer, uint64_t & bitpointer, const SiPixelCluster * digi, int moduletype, STACK_LAYER layer)
+  void Phase2TrackerDigiToRaw::writeCluster(std::vector<uint64_t> & buffer, uint64_t & bitpointer, stackedDigi digi)
   {
-    if(moduletype == 0)
+    if(digi.getModuleType() == 0)
     {
       // 2S module
-      writeSCluster(buffer,bitpointer,digi,layer,moduletype);
+      writeSCluster(buffer,bitpointer,digi);
     } 
     else
     {
       // PS module
-      if(layer == LAYER_INNER)
+      if(digi.getLayer() == LAYER_INNER)
       {
         writePCluster(buffer,bitpointer,digi);
       }
       else
       {
-        writeSCluster(buffer,bitpointer,digi,LAYER_OUTER,moduletype);   
+        writeSCluster(buffer,bitpointer,digi);   
       }
     }
   }
 
 
-  void Phase2TrackerDigiToRaw::writeSCluster(std::vector<uint64_t> & buffer, uint64_t & bitpointer, const SiPixelCluster * digi, STACK_LAYER layer, int moduletype)
+  void Phase2TrackerDigiToRaw::writeSCluster(std::vector<uint64_t> & buffer, uint64_t & bitpointer, stackedDigi digi)
   {
-    std::map<std::string,int> chipstrip = calcChipId(digi, layer,moduletype);
-    std::cout << "S " << layer << " digi x= " <<digi->minPixelRow()<< " chip: " <<chipstrip["chipid"]<< " raw strip: " << chipstrip["rawx"] << std::endl;
-    uint16_t scluster = (chipstrip["chipid"] & 0x0F) << 11;
-    scluster |= (chipstrip["rawx"] & 0xFF) << 3;
-    scluster |= ((digi->sizeX()-1) & 0x07);
+    std::cout << "S " << digi.getLayer() << " digi x= " <<digi.getDigi()->minPixelRow()<< " chip: " << digi.getChipId() << " raw strip: " << digi.getRawX() << std::endl;
+    uint16_t scluster = (digi.getChipId() & 0x0F) << 11;
+    scluster |= (digi.getRawX() & 0xFF) << 3;
+    scluster |= ((digi.getDigi()->sizeX()-1) & 0x07);
     write_n_at_m(buffer,15,bitpointer,scluster);
     bitpointer += 15;
   }
 
-  void Phase2TrackerDigiToRaw::writePCluster(std::vector<uint64_t> & buffer, uint64_t & bitpointer, const SiPixelCluster * digi)
+  void Phase2TrackerDigiToRaw::writePCluster(std::vector<uint64_t> & buffer, uint64_t & bitpointer, stackedDigi digi)
   {
-    std::map<std::string,int> chipstrip = calcChipId(digi,LAYER_INNER,1);
-    std::cout << "P digi x= " <<digi->minPixelRow()<< " chip: " <<chipstrip["chipid"]<< " raw strip: " << chipstrip["rawx"] << std::endl;
-    uint32_t pcluster = (chipstrip["chipid"] & 0x0F) << 14;
-    pcluster |= (chipstrip["rawx"] & 0x7F) << 7;
-    pcluster |= (chipstrip["rawy"] & 0x0F) << 3;
-    pcluster |= ((digi->sizeX()-1) & 0x07);
+    std::cout << "P digi x= " <<digi.getDigi()->minPixelRow()<< " chip: " << digi.getChipId() << " raw strip: " << digi.getRawX() << std::endl;
+    uint32_t pcluster = (digi.getChipId() & 0x0F) << 14;
+    pcluster |= (digi.getRawX() & 0x7F) << 7;
+    pcluster |= (digi.getRawY() & 0x0F) << 3;
+    pcluster |= ((digi.getDigi()->sizeX()-1) & 0x07);
     write_n_at_m(buffer,18,bitpointer,pcluster);
     bitpointer += 18;
   }

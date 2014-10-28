@@ -170,6 +170,13 @@ namespace Phase2Tracker {
       MOD_PS = 1
   };
 
+  enum STACK_LAYER
+  {
+      LAYER_UNUSED = -1,
+      LAYER_INNER  = 0,
+      LAYER_OUTER  = 1
+  };
+
   //to make enums printable
   std::ostream& operator<<(std::ostream& os, const READ_MODE& value);
   inline std::ostream& operator<<(std::ostream& os, const READ_MODE& value)

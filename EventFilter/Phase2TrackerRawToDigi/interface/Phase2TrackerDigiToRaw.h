@@ -1,6 +1,7 @@
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDDAQHeader.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDDAQTrailer.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDHeader.h"
+#include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerStackedDigi.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -12,12 +13,6 @@
 
 namespace Phase2Tracker
 {
-  enum STACK_LAYER
-  {
-      LAYER_UNUSED = -1,
-      LAYER_INNER  = 0,
-      LAYER_OUTER  = 1
-  };
 
   class Phase2TrackerDigiToRaw
   {
@@ -32,11 +27,11 @@ namespace Phase2Tracker
       // write FE Header to buffer
       void writeFeHeaderSparsified(std::vector<uint64_t>&,uint64_t&,int,int,int);
       // determine if a P or S cluster should be written
-      void writeCluster(std::vector<uint64_t>&,uint64_t&,const SiPixelCluster*,int,STACK_LAYER);
+      void writeCluster(std::vector<uint64_t>&,uint64_t&, stackedDigi);
       // write S cluster to buffer
-      void writeSCluster(std::vector<uint64_t>&,uint64_t&,const SiPixelCluster*,STACK_LAYER,int);
+      void writeSCluster(std::vector<uint64_t>&,uint64_t&, stackedDigi);
       // write P cluster to buffer
-      void writePCluster(std::vector<uint64_t>&,uint64_t&,const SiPixelCluster*);
+      void writePCluster(std::vector<uint64_t>&,uint64_t&, stackedDigi);
     private:
       // data you get from outside
       const Phase2TrackerCabling * cabling_; 
