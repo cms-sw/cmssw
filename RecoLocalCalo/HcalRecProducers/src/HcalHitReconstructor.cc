@@ -47,7 +47,8 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   setPileupCorrection_(0),
   setPileupCorrectionForNegative_(0),
   paramTS(0),
-  theTopology(0)
+  theTopology(0),
+  puCorrMethod_(conf.getUntrackedParameter<int>("puCorrMethod", 0))
 {
   // register for data access
   tok_hbhe_ = consumes<HBHEDigiCollection>(inputLabel_);
@@ -251,6 +252,8 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
       setPileupCorrection_ = 0;
       setPileupCorrectionForNegative_ = 0;
   }
+
+  reco_.setpuCorrMethod(puCorrMethod_);
 }
 
 HcalHitReconstructor::~HcalHitReconstructor() {
@@ -325,7 +328,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 
   // HACK related to HB- corrections
   const bool isData = e.isRealData();
-  if (isData) reco_.setForData(e.run());    
+  if (isData) reco_.setForData(e.run()); else reco_.setForData(0);
   if (useLeakCorrection_) reco_.setLeakCorrection();
 
   edm::ESHandle<HcalChannelQuality> p;
