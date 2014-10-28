@@ -42,8 +42,8 @@ HEDarkening::HEDarkening(unsigned int scenario) {
   for(unsigned int j = 0; j < nEtaBins; j++){
     for(unsigned int i = 0; i < nScintLayers; i++){
       if (scenario == 0 ||
-	  (scenario == 2 && exp(-500./_lumiscale[j][i])<0.2) ||
-	  (scenario == 3 && i<4)) {
+	  (scenario == 2 && exp(-500./(_lumiscale[j][i]/flux_factor))<0.2) ||
+	  (scenario == 3 && i<5)) {
 	lumiscale[j][i] = 0;
       }
       else {
