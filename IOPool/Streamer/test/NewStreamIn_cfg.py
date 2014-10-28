@@ -8,7 +8,8 @@ process.options = FWCore.Framework.test.cmsExceptionsFatal_cff.options
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.source = cms.Source("NewEventStreamFileReader",
-    fileNames = cms.untracked.vstring('file:teststreamfile.dat'),
+    fileNames = cms.untracked.vstring('file:teststreamfile.dat')
+    #firstEvent = cms.untracked.uint64(10123456835)
 )
 
 process.a1 = cms.EDAnalyzer("StreamThingAnalyzer",

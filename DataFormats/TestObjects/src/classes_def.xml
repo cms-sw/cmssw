@@ -5,6 +5,9 @@
  <class name="edmtest::IntProduct" ClassVersion="10">
   <version ClassVersion="10" checksum="4286676158"/>
  </class>
+ <class name="edmtest::UInt64Product" ClassVersion="10">
+  <version ClassVersion="10" checksum="380152127"/>
+ </class>
  <class name="edmtest::EnumProduct" ClassVersion="10">
   <version ClassVersion="10" checksum="3025325436"/>
  </class>
@@ -62,6 +65,7 @@
  </ioread>
  <class name="edm::Wrapper<edmtest::DummyProduct>"/>
  <class name="edm::Wrapper<edmtest::IntProduct>"/>
+ <class name="edm::Wrapper<edmtest::UInt64Product>"/>
  <class name="edm::Wrapper<edmtest::TransientIntProduct>" persistent="false"/>
  <class name="edm::Wrapper<edmtest::Int16_tProduct>"/>
  <class name="edm::Wrapper<edmtest::DoubleProduct>"/>

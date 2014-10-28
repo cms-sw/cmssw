@@ -504,7 +504,7 @@ namespace edm {
   }
 
   void
-  JobReport::eventWrittenToFile(JobReport::Token fileToken, unsigned int /*run*/, unsigned int) {
+  JobReport::eventWrittenToFile(JobReport::Token fileToken, RunNumber_t /*run*/, EventNumber_t) {
     JobReport::OutputFile& f = impl_->getOutputFileForToken(fileToken);
     ++f.numEventsWritten;
   }
@@ -517,7 +517,7 @@ namespace edm {
   }
 
   void
-  JobReport::reportSkippedEvent(unsigned int run, unsigned int event) {
+  JobReport::reportSkippedEvent(RunNumber_t run, EventNumber_t event) {
     if(impl_->ost_) {
       std::ostream& msg = *(impl_->ost_);
       {

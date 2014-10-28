@@ -102,10 +102,10 @@ namespace edmtest {
   class EventNumberIntProducer : public edm::EDProducer {
   public:
     explicit EventNumberIntProducer(edm::ParameterSet const&) {
-      produces<IntProduct>();
+      produces<UInt64Product>();
     }
     EventNumberIntProducer() {
-      produces<IntProduct>();
+      produces<UInt64Product>();
     }
     virtual ~EventNumberIntProducer() {}
     virtual void produce(edm::Event& e, edm::EventSetup const& c);
@@ -116,7 +116,7 @@ namespace edmtest {
   void
   EventNumberIntProducer::produce(edm::Event& e, edm::EventSetup const&) {
     // EventSetup is not used.
-    std::unique_ptr<IntProduct> p(new IntProduct(e.id().event()));
+    std::unique_ptr<UInt64Product> p(new UInt64Product(e.id().event()));
     e.put(std::move(p));
   }
 
