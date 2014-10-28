@@ -1,7 +1,7 @@
 // L1TMonitor includes
 #include "DQMOffline/L1Trigger/interface/L1TRate_Harvest.h"
 
-#include "DQMOffline/L1Trigger/interface/L1TMenuHelper.h"
+#include "DQM/L1TMonitor/interface/L1TMenuHelper.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
