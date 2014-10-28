@@ -205,7 +205,7 @@ void HLTRFilter::addObjects(edm::Event& iEvent, trigger::TriggerFilterObjectWith
 
     //add it to the trigger object collection
     filterproduct.addCollectionTag(edm::InputTag( *moduleLabel()));
-    filterproduct.addObject(87, mrRsqRef); //give it the ID of a MET object 
+    filterproduct.addObject(trigger::TriggerMET, mrRsqRef); //give it the ID of a MET object 
 }
 
 double 
