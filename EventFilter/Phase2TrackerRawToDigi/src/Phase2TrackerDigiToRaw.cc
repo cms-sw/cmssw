@@ -100,7 +100,8 @@ namespace Phase2Tracker
       moduletype = cabling_->findDetid(idigi->detId()).getModuleType();
       int ns = 0; 
       int np = 0;
-
+      // container for digis, to be sorted afterwards
+      std::vector<stackedDigi> digs_mod;
       // pair modules if there are digis for both
       if(stackMap_[idigi->detId()] > 0)
       {
@@ -111,7 +112,6 @@ namespace Phase2Tracker
           if (moduletype == 0)
           {
             // 2S module
-            std::vector<stackedDigi> digs_mod;
             edmNew::DetSet<SiPixelCluster>::const_iterator it;
             for (it = idigi->begin(); it != idigi->end(); it++)
             {
@@ -127,13 +127,6 @@ namespace Phase2Tracker
             // do not overflow max number of clusters
             if((int)digs_mod.size() > MAX_NS) { digs_mod.resize(MAX_NS); }
             writeFeHeaderSparsified(fedbuffer,bitindex,moduletype,0,digs_mod.size());
-            // sort digis of both channels according to strip
-            std::sort(digs_mod.begin(),digs_mod.end());
-            std::vector<stackedDigi>::iterator its;
-            for(its = digs_mod.begin(); its != digs_mod.end(); its++)
-            {
-              writeCluster(fedbuffer, bitindex, *its);
-            }
           }
           else
           {
@@ -141,29 +134,15 @@ namespace Phase2Tracker
             np = idigi->size();
             ns = (idigi+1)->size();
             writeFeHeaderSparsified(fedbuffer,bitindex,moduletype,np,ns);
-            std::vector<stackedDigi> digs_mod;
             edmNew::DetSet<SiPixelCluster>::const_iterator it;
             for (it = idigi->begin(); it != idigi->end() and std::distance(idigi->begin(),it) < MAX_NP; it++)
             {
               digs_mod.push_back(stackedDigi(it,LAYER_INNER,moduletype));
             }
-            // std::sort(digs_mod.begin(),digs_mod.end());
-            // std::vector<stackedDigi>::iterator its;
-            // for(its = digs_mod.begin(); its != digs_mod.end(); its++)
-            // {
-            //   writeCluster(fedbuffer, bitindex, *its); 
-            // }
-            // digs_mod.clear();
             idigi++;
             for (it = idigi->begin(); it != idigi->end() and std::distance(idigi->begin(),it) < MAX_NS; it++)
             {
               digs_mod.push_back(stackedDigi(it,LAYER_OUTER,moduletype));
-            }
-            std::sort(digs_mod.begin(),digs_mod.end());
-            std::vector<stackedDigi>::iterator its;
-            for(its = digs_mod.begin(); its != digs_mod.end(); its++)
-            {
-              writeCluster(fedbuffer, bitindex, *its); 
             }
           }
         }
@@ -178,16 +157,10 @@ namespace Phase2Tracker
           {
             writeFeHeaderSparsified(fedbuffer,bitindex,moduletype,idigi->size(),0);
           }
-          std::vector<stackedDigi> digs_mod;
           edmNew::DetSet<SiPixelCluster>::const_iterator it;
           for (it = idigi->begin(); it != idigi->end() and std::distance(idigi->begin(),it) < MAX_NP; it++)
           {
             digs_mod.push_back(stackedDigi(it,LAYER_INNER,moduletype));
-          }
-          std::vector<stackedDigi>::iterator its;
-          for(its = digs_mod.begin(); its != digs_mod.end(); its++)
-          {
-            writeCluster(fedbuffer, bitindex, *its);
           }
         }
       }
@@ -196,17 +169,20 @@ namespace Phase2Tracker
         // digis from outer plane (S in case of PS) 
         writeFeHeaderSparsified(fedbuffer,bitindex,moduletype,0,idigi->size());
         edmNew::DetSet<SiPixelCluster>::const_iterator it;
-        std::vector<stackedDigi> digs_mod;
         for (it = idigi->begin(); it != idigi->end() and std::distance(idigi->begin(),it) < MAX_NS; it++)
         {
           digs_mod.push_back(stackedDigi(it,LAYER_OUTER,moduletype));
         }
-        std::vector<stackedDigi>::iterator its;
-        for(its = digs_mod.begin(); its != digs_mod.end(); its++)
-        {
-          writeCluster(fedbuffer, bitindex, *its);
-        }
       }
+      // sort according to strip, side and chip id
+      std::sort(digs_mod.begin(),digs_mod.end());
+      std::vector<stackedDigi>::iterator its;
+      // write all clusters
+      for(its = digs_mod.begin(); its != digs_mod.end(); its++)
+      {
+        writeCluster(fedbuffer, bitindex, *its);
+      }
+
     } // end idigi loop
     // add daq trailer 
     fedbuffer.push_back(*(uint64_t*)FedDaqTrailer_.data());
