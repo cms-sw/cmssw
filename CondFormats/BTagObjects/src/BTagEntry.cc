@@ -1,4 +1,6 @@
+#include <iostream>
 #include <sstream>
+#include <boost/tokenizer.hpp>
 
 #include "CondFormats/BTagObjects/interface/BTagEntry.h"
 
@@ -25,6 +27,33 @@ BTagEntry::Parameters::Parameters(
   discrMin(discr_min),
   discrMax(discr_max)
 {}
+
+BTagEntry::BTagEntry(const std::string &csvLine)
+{
+  using namespace std;
+  using namespace boost;
+  tokenizer<escaped_list_separator<char> > tok(csvLine);
+  vector<string> vec;
+  vec.assign(tok.begin(), tok.end());
+  if (vec.size() != 11) {
+    cerr << "BTagEntry::BTagEntry: Invalid csv line; num tokens != 11" << endl;
+    std::exception();  // TODO: is there a cmssw exception??
+  }
+  TF1("", vec[10].c_str());  // compile formula to check validity
+  formula = vec[10];
+  params = BTagEntry::Parameters(
+    BTagEntry::OperatingPoint(stoi(vec[0])),
+    vec[1],
+    vec[2],
+    BTagEntry::JetFlavor(stoi(vec[3])),
+    stof(vec[4]),
+    stof(vec[5]),
+    stof(vec[6]),
+    stof(vec[7]),
+    stof(vec[8]),
+    stof(vec[9])
+  );
+}
 
 BTagEntry::BTagEntry(const std::string &func, BTagEntry::Parameters p):
   formula(func),

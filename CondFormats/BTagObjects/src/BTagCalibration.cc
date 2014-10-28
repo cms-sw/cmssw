@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "CondFormats/BTagObjects/interface/BTagCalibration.h"
 
 void BTagCalibration::addEntry(BTagEntry entry)
@@ -9,6 +11,14 @@ const std::vector<BTagEntry>& BTagCalibration::getEntries(
   BTagEntry::Parameters par) const
 {
   return data_.at(token(par));  // throws exception if key unavailable
+}
+
+void BTagCalibration::readCSV(istream &s)
+{
+  std::string line;
+  while (getline(s,line)) {
+    addEntry(BTagEntry(line));
+  }
 }
 
 void BTagCalibration::makeCSV(ostream &s) const
