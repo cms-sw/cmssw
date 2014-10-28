@@ -21,8 +21,7 @@ class BTagCalibrationReader
 {
 public:
   BTagCalibrationReader() {}
-  BTagCalibrationReader(BTagCalibration& c, BTagEntry::Parameters p);
-  BTagCalibrationReader(BTagCalibration& c,
+  BTagCalibrationReader(const BTagCalibration* c,
                         BTagEntry::OperatingPoint op,
                         std::string measurementType="comb",
                         std::string sysType="central");
@@ -43,7 +42,7 @@ protected:
     float discrMax;
     TF1 func;
   };
-  void setupTmpData(BTagCalibration& c);
+  void setupTmpData(const BTagCalibration* c);
 
   BTagEntry::Parameters params;
   std::map<BTagEntry::JetFlavor, std::vector<TmpEntry> > tmpData_;

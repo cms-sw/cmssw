@@ -1,13 +1,6 @@
 #include "CondFormats/BTagObjects/interface/BTagCalibrationReader.h"
 
-BTagCalibrationReader::BTagCalibrationReader(BTagCalibration& c,
-                                             BTagEntry::Parameters p):
-  params(p)
-{
-  setupTmpData(c);
-}
-
-BTagCalibrationReader::BTagCalibrationReader(BTagCalibration& c,
+BTagCalibrationReader::BTagCalibrationReader(const BTagCalibration* c,
                                              BTagEntry::OperatingPoint op,
                                              std::string measurementType,
                                              std::string sysType)
@@ -46,9 +39,9 @@ double BTagCalibrationReader::eval(BTagEntry::JetFlavor jf,
   return 0.;  // default value
 }
 
-void BTagCalibrationReader::setupTmpData(BTagCalibration& c)
+void BTagCalibrationReader::setupTmpData(const BTagCalibration* c)
 {
-  const auto &entries = c.getEntries(params);
+  const auto &entries = c->getEntries(params);
   for (unsigned i=0; i<entries.size(); ++i) {
     const BTagEntry &be = entries[i];
     BTagCalibrationReader::TmpEntry te;
