@@ -1,15 +1,12 @@
 # Copied from https://github.com/cms-sw/genproductions for RelVal June 5, 2014
 import FWCore.ParameterSet.Config as cms
-from GeneratorInterface.ExternalDecays.TauolaSettings_cff import *
+from GeneratorInterface.TauolaInterface.TauolappDefaults_cfi import *
 
 generator = cms.EDFilter("Pythia8HadronizerFilter",
                          ExternalDecays = cms.PSet(
-    Tauola = cms.untracked.PSet(
-    TauolaPolar,
-    TauolaDefaultInputCards
-    ),
-    parameterSets = cms.vstring('Tauola')
-    ),
+        Tauola = TauolappDefaults,
+        parameterSets = cms.vstring('Tauola')
+        ),
                          UseExternalGenerators = cms.untracked.bool(True),
                          maxEventsToPrint = cms.untracked.int32(1),
                          pythiaPylistVerbosity = cms.untracked.int32(1),
