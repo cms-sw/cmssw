@@ -13,29 +13,27 @@
 #include <iostream>
 #include "DataFormats/HcalCalibObjects/interface/HEDarkening.h"
 
-#define maxEta    14   // ieta rings for HE 
-#define maxLay    19   // max.number of layers 
-#define maxDepth  7    // with some safety margin (wrt 5)
-
 class HERecalibration {
 
 public:
-  HERecalibration(double integrated_lumi, double cutoff);
+  HERecalibration(double integrated_lumi, double cutoff, unsigned int scenario);
   ~HERecalibration();
 
   double getCorr(int ieta, int idepth);
-  void  setDsegm(std::vector<std::vector<int> > m_segmentation);
+  void  setDsegm(const std::vector<std::vector<int> >& m_segmentation);
 
 private:
-
+  // max number of HE recalibration depths
+  static const unsigned int nDepths = 7; 
+  
   void initialize();
   double iLumi;
   double cutoff_;
   HEDarkening darkening;
 
  // Tabulated mean energy values per layer and per depth
-  double dsegm[maxEta][maxLay];
-  double corr[maxEta][maxDepth];
+  double dsegm[HEDarkening::nEtaBins][HEDarkening::nScintLayers];
+  double  corr[HEDarkening::nEtaBins][nDepths];
 
 };
 
