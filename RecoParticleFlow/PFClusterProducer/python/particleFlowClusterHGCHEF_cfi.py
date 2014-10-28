@@ -31,9 +31,11 @@ _manqiArborClusterizer_HGCHEF = cms.PSet(
     thresholdsByDetector = cms.VPSet( )
 )
 
-#weights for layers from P.Silva (26 June 2014)
-weight_vec = [0.0902 for x in range(12)]
-weight_vec.extend([0.1051 for x in range(10)])
+#weights for layers from P.Silva (24 October 2014)
+# this is for V5!!!!!
+weight_vec = [0.0464]
+weight_vec.extend([0.0474 for x in range(10)])
+weight_vec.extend([0.1215 for x in range(11)])
 
 # MIP effective to 1.0/GeV (from fit to data of P. Silva) for HEF
 #f(x) = a/(1-exp(-bx - c))

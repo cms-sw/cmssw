@@ -47,25 +47,26 @@ _arborClusterizer_HGCEE = cms.PSet(
     minFractionToKeep = cms.double(1e-7)
 )
 
-#weights for layers from P.Silva (24 June 2014)
-weight_vec = [0.42]
-weight_vec.extend([1.00 for x in range(10)])
-weight_vec.extend([1.61 for x in range(10)])
-weight_vec.extend([2.44 for x in range(10)])
+#weights for layers from P.Silva (24 October 2014)
+## this is for V5!
+weight_vec = [0.080]
+weight_vec.extend([0.62 for x in range(9)])
+weight_vec.extend([0.81 for x in range(9)])
+weight_vec.extend([1.19 for x in range(8)])
 
 # MIP effective to 1.0/GeV (from fit to data of P. Silva)
 #f(x) = a/(1-exp(-bx - c))
 # x = cosh(eta)
-# a = 168.0
-# b = 0.6871
-# c = 0.9038
+# a = 82.8
+# b = 1e6
+# c = 1e6
 
 _HGCEE_ElectronEnergy = cms.PSet(
     algoName = cms.string("HGCEEElectronEnergyCalibrator"),
     weights = cms.vdouble(weight_vec),
-    effMip_to_InverseGeV_a = cms.double(168.0),
-    effMip_to_InverseGeV_b = cms.double(0.6871),
-    effMip_to_InverseGeV_c = cms.double(0.9038),
+    effMip_to_InverseGeV_a = cms.double(82.8),
+    effMip_to_InverseGeV_b = cms.double(1e6),
+    effMip_to_InverseGeV_c = cms.double(1e6),
     MipValueInGeV = cms.double(55.1*1e-6)
 )
 
