@@ -3,3 +3,7 @@
 <bin file="testSerializationBTagObjects.cpp">
     <use name="CondFormats/BTagObjects"/>
 </bin>
+
+<bin file="testBTagEntry.cpp">
+    <use name="CondFormats/BTagObjects"/>
+</bin>
