@@ -325,7 +325,7 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, DQMStore::IBooker
 // Fill histograms
 //
 int SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input, 
-			    MonitorElement* combBarrel, MonitorElement* chanBarrel, MonitorElement* chanBarrelL1, MonitorElement* chanBarrelL2, MonitorElement* chanBarrelL3, MonitorElement* chanBarrelL4, MonitorElement* combEndcap,
+			    MonitorElement* combBarrel, MonitorElement* chanBarrel, std::vector<MonitorElement*>& chanBarrelL, MonitorElement* combEndcap,
 			    bool modon, bool ladon, bool layon, bool phion, 
 			    bool bladeon, bool diskon, bool ringon, 
 			    bool twoD, bool reducedSet, bool twoDimModOn, bool twoDimOnlyLayDisk,
@@ -529,10 +529,12 @@ int SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input,
     if(barrel){ 
       if(combBarrel) combBarrel->Fill((float)numberOfDigisMod);
       if(chanBarrel){ if(numberOfDigis[0]>0) chanBarrel->Fill((float)numberOfDigis[0]); if(numberOfDigis[1]>0) chanBarrel->Fill((float)numberOfDigis[1]); }
-      if(chanBarrelL1){ if(numberOfDigis[2]>0) chanBarrelL1->Fill((float)numberOfDigis[2]); }
-      if(chanBarrelL2){ if(numberOfDigis[3]>0) chanBarrelL2->Fill((float)numberOfDigis[3]); }
-      if(chanBarrelL3){ if(numberOfDigis[4]>0) chanBarrelL3->Fill((float)numberOfDigis[4]); }
-      if(chanBarrelL4){ if(numberOfDigis[5]>0) chanBarrelL4->Fill((float)numberOfDigis[5]); }
+      int j = 2;
+      for (std::vector<MonitorElement*>::iterator i = chanBarrelL.begin(); i != chanBarrelL.end(); i++)
+      {
+         if(numberOfDigis[j]>0) (*i)->Fill((float)numberOfDigis[j]);
+         j++;
+      }
     }else if(endcap){
       if(combEndcap) combEndcap->Fill((float)numberOfDigisMod);
     }

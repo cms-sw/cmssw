@@ -9,12 +9,12 @@
 #include <string>
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameBase.h"
+
 class DetId; 
 
-class PixelBarrelNameUpgrade : public PixelModuleName {
+class PixelBarrelNameUpgrade : public PixelModuleName, public PixelBarrelNameBase {
 public:
-
-  enum Shell { mO = 1, mI = 2 , pO =3 , pI =4 };
 
   /// ctor from DetId
   PixelBarrelNameUpgrade(const DetId &);
@@ -64,5 +64,5 @@ private:
   int theLayer, theModule, theLadder;
 };
 
-std::ostream & operator<<( std::ostream& out, const PixelBarrelNameUpgrade::Shell& t);
+std::ostream & operator<<( std::ostream& out, const PixelBarrelNameBase::Shell& t);
 #endif
