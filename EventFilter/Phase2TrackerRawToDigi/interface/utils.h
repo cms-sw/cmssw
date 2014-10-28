@@ -24,7 +24,7 @@ namespace Phase2Tracker {
   static const int MAX_FE_PER_FED = 72;
   static const int MAX_CBC_PER_FE = 16;
   static const int STRIPS_PER_CBC = 254;
-  static const int PS_ROWS = 127;
+  static const int PS_ROWS = 120;
   static const int PS_COLS = 32;
   static const int STRIPS_PADDING = 2;
   static const int TRIGGER_SIZE = 0; 
