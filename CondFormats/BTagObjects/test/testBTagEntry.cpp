@@ -32,6 +32,7 @@ int main()
   );
   assert (b3.formula == string("x<0 ? 0. : x<1 ? 1 : x<2 ? 2 : 0"));
 
+  // csv constructor
   string csv = "0, comb, up, 0, 1, 2, 3, 4, 5, 6, \"2*x\" \n";
   auto b4 = BTagEntry(csv);
   auto csv2 = b4.makeCSVLine();

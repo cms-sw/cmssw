@@ -16,6 +16,13 @@ const std::vector<BTagEntry>& BTagCalibration::getEntries(
 void BTagCalibration::readCSV(istream &s)
 {
   std::string line;
+
+  // firstline might be the header
+  getline(s,line);
+  if (line.find("OperatingPoint") == std::string::npos) {
+    addEntry(BTagEntry(line));
+  }
+
   while (getline(s,line)) {
     addEntry(BTagEntry(line));
   }
