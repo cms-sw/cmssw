@@ -108,7 +108,7 @@ namespace {
 
 }
 
-HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iConfig ): he_recalibration(0), hf_recalibration(0), setHEdsegm(false)
+HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iConfig ): he_recalibration(0), hb_recalibration(0), hf_recalibration(0), setHEdsegm(false), setHBdsegm(false)
 {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::HcalHardcodeCalibrations->...";
 
@@ -364,16 +364,22 @@ std::auto_ptr<HcalRespCorrs> HcalHardcodeCalibrations::produceRespCorrs (const H
   rcd.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
 
-  //set depth segmentation for HE recalib - only happens once
-  if(he_recalibration && !setHEdsegm){
+  //set depth segmentation for HB/HE recalib - only happens once
+  if((he_recalibration && !setHEdsegm) || (hb_recalibration && !setHBdsegm)){
     std::vector<std::vector<int>> m_segmentation;
     m_segmentation.resize(29);
     for (int i = 0; i < 29; i++) {
       if(i>0) topo->getDepthSegmentation(i,m_segmentation[i]);
     }
     
-    he_recalibration->setDsegm(m_segmentation);
-	setHEdsegm = true;
+	if(he_recalibration && !setHEdsegm){
+      he_recalibration->setDsegm(m_segmentation);
+	  setHEdsegm = true;
+	}
+	if(hb_recalibration && !setHBdsegm){
+      hb_recalibration->setDsegm(m_segmentation);
+	  setHBdsegm = true;
+	}
   }
   
   std::auto_ptr<HcalRespCorrs> result (new HcalRespCorrs (topo));
@@ -391,6 +397,19 @@ std::auto_ptr<HcalRespCorrs> HcalHardcodeCalibrations::produceRespCorrs (const H
       
       /*
 	std::cout << "HE ieta, depth = " << ieta_  << ",  " << depth_  
+	<< "   corr = "  << corr << std::endl;
+      */
+
+    }
+	else if ((hb_recalibration != 0 ) && 
+	((*cell).genericSubdet() == HcalGenericDetId::HcalGenBarrel)) {
+      
+      int depth_ = HcalDetId(*cell).depth();
+      int ieta_  = HcalDetId(*cell).ieta();
+      corr = hb_recalibration->getCorr(ieta_, depth_); 
+      
+      /*
+	std::cout << "HB ieta, depth = " << ieta_  << ",  " << depth_  
 	<< "   corr = "  << corr << std::endl;
       */
 
