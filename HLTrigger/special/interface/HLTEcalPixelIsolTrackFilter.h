@@ -4,6 +4,12 @@
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
 
+/*
+ This filter is an improvement in the HLT_IsoTrack for HB(HE) trigger paths
+ by complementing the HLTPixelIsolTrackFilter with information from
+ ECAL to remove non-MIP candidates. 
+ */
+
 class HLTEcalPixelIsolTrackFilter : public HLTFilter {  
  public:
   explicit HLTEcalPixelIsolTrackFilter(const edm::ParameterSet&);
