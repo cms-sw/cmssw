@@ -367,8 +367,8 @@ std::auto_ptr<HcalRespCorrs> HcalHardcodeCalibrations::produceRespCorrs (const H
   //set depth segmentation for HB/HE recalib - only happens once
   if((he_recalibration && !setHEdsegm) || (hb_recalibration && !setHBdsegm)){
     std::vector<std::vector<int>> m_segmentation;
-    m_segmentation.resize(29);
-    for (int i = 0; i < 29; i++) {
+    m_segmentation.resize(30);
+    for (int i = 0; i < 30; i++) {
       if(i>0) topo->getDepthSegmentation(i,m_segmentation[i]);
     }
     
