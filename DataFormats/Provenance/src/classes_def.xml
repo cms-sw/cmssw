@@ -8,7 +8,8 @@
  <class name="edm::BranchID" ClassVersion="10">
   <version ClassVersion="10" checksum="21214741"/>
  </class>
- <class name="edm::EventID" ClassVersion="10">
+ <class name="edm::EventID" ClassVersion="11">
+  <version ClassVersion="11" checksum="341254076"/>
   <version ClassVersion="10" checksum="1903450811"/>
  </class>
  <class name="edm::LuminosityBlockID" ClassVersion="10">
@@ -105,7 +106,8 @@
  <class name="edm::FileFormatVersion" ClassVersion="10">
   <version ClassVersion="10" checksum="2078548510"/>
  </class>
- <class name="edm::FileIndex::Element" ClassVersion="10">
+ <class name="edm::FileIndex::Element" ClassVersion="11">
+  <version ClassVersion="11" checksum="1881476699"/>
   <version ClassVersion="10" checksum="1310120368"/>
  </class>
  <class name="std::vector<edm::FileIndex::Element>"/>

@@ -27,7 +27,8 @@ namespace edm {
       eventCreationDelay_(pset.getUntrackedParameter<unsigned int>("eventCreationDelay", 0)),
       numberEventsInThisRun_(0),
       numberEventsInThisLumi_(0),
-      zerothEvent_(pset.getUntrackedParameter<unsigned int>("firstEvent", 1) - 1),
+      zerothEvent_(pset.existsAs<unsigned int>("firstEvent", false) ? pset.getUntrackedParameter<unsigned int>("firstEvent", 1) - 1 :
+                                                                      pset.getUntrackedParameter<unsigned long long>("firstEvent", 1) - 1),
       eventID_(pset.getUntrackedParameter<unsigned int>("firstRun", 1), pset.getUntrackedParameter<unsigned int>("firstLuminosityBlock", 1), zerothEvent_),
       origEventID_(eventID_),
       isRealData_(realData),
@@ -232,7 +233,12 @@ namespace edm {
     desc.addUntracked<unsigned long long>("firstTime", 1)->setComment("Time before first event (ns) (for timestamp).");
     desc.addUntracked<unsigned long long>("timeBetweenEvents", kNanoSecPerSec/kAveEventPerSec)->setComment("Time between consecutive events (ns) (for timestamp).");
     desc.addUntracked<unsigned int>("eventCreationDelay", 0)->setComment("Real time delay between generation of consecutive events (ms).");
-    desc.addUntracked<unsigned int>("firstEvent", 1)->setComment("Event number of first event to generate.");
+
+    desc.addNode( edm::ParameterDescription<unsigned int>("firstEvent", 1U, false) xor
+                  edm::ParameterDescription<unsigned long long>("firstEvent", 1ULL, false))
+        ->setComment("'firstEvent' is an XOR group because it can have type uint32 or uint64, default:1\n"
+                     "Event number of first event to generate.");
+
     desc.addUntracked<unsigned int>("firstLuminosityBlock", 1)->setComment("Luminosity block number of first lumi to generate.");
     desc.addUntracked<unsigned int>("firstRun", 1)->setComment("Run number of first run to generate.");
     InputSource::fillDescription(desc);

@@ -7,7 +7,7 @@
 #define MAX_HOSTNAME_LEN 25
 
 EventMsgBuilder::EventMsgBuilder(void* buf, uint32 size,
-                                 uint32 run, uint32 event, uint32 lumi,
+                                 uint32 run, uint64 event, uint32 lumi,
                                  uint32 outModId, uint32 droppedEventsCount,
                                  std::vector<bool>& l1_bits,
                                  uint8* hlt_bits, uint32 hlt_bit_count, 
@@ -15,7 +15,7 @@ EventMsgBuilder::EventMsgBuilder(void* buf, uint32 size,
   buf_((uint8*)buf),size_(size)
 {
   EventHeader* h = (EventHeader*)buf_;
-  h->protocolVersion_ = 10;
+  h->protocolVersion_ = 11;
   convert(run,h->run_);
   convert(event,h->event_);
   convert(lumi,h->lumi_);

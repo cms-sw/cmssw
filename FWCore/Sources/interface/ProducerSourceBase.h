@@ -10,6 +10,7 @@
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/Provenance/interface/RunID.h"
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 
 #include <memory>
 
@@ -67,7 +68,7 @@ namespace edm {
 
     unsigned int numberEventsInThisRun_;
     unsigned int numberEventsInThisLumi_;
-    unsigned int const zerothEvent_;
+    EventNumber_t const zerothEvent_;
     EventID eventID_;
     EventID origEventID_;
     bool isRealData_;
