@@ -73,10 +73,10 @@ public:
       return 9999; 
   }   
   double get_ped_ho(int eta,int phi,int depth,int cup){
-      if(nHO[eta+50][phi][depth][cup]<10) return 2.5; 
+      if(nHO[eta+50][phi][depth][cup]<10) return 8.5; 
       if(nHO[eta+50][phi][depth][cup]!=0){
          double ped=HO[eta+50][phi][depth][cup]/nHO[eta+50][phi][depth][cup];
-         if(ped>1.5 && ped<4.5) return ped;
+         if(ped>5 && ped<15) return ped;
       }
       return 9999; 
   }   
@@ -128,6 +128,8 @@ private:
   int  GCTTriggerBit5_; 
   bool CosmicsCorr_; 
   
+  MonitorElement *HBHEShape;
+  MonitorElement *HOShape;
   MonitorElement *HBTimeDT; 
   MonitorElement *HBTimeRPC; 
   MonitorElement *HBTimeGCT; 
