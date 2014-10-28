@@ -45,6 +45,15 @@ BTagEntry::BTagEntry(const TH1* hist, BTagEntry::Parameters p):
   int nbins = hist->GetNbinsX();
   auto axis = hist->GetXaxis();
 
+  // overwrite bounds with histo values
+  if (params.operatingPoint == BTagEntry::OP_RESHAPING) {
+    params.discrMin = axis->GetBinLowEdge(1);
+    params.discrMax = axis->GetBinUpEdge(nbins);
+  } else {
+    params.ptMin = axis->GetBinLowEdge(1);
+    params.ptMax = axis->GetBinUpEdge(nbins);
+  }
+
   std::stringstream buff;
   buff << "x<" << axis->GetBinLowEdge(1) << " ? 0. : ";  // default value
   for (int i=1; i<nbins+1; ++i) {
