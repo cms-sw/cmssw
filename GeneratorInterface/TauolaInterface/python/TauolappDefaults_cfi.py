@@ -30,10 +30,10 @@ TauolaBRDefault = cms.PSet(
         BR  = cms.vdouble(0.1783,         # G3      JAKID 1 tau->enunu
                           0.1741,         # G5      JAKID 2 tau->mununu
                           0.1083,         # G9      JAKID 3 tau->pinu
-                          0.2552-0.00160, # G14     JAKID 4 tau->pipi0nu
-                          0.0930+0.0902,  # G20+G62 JAKID 5 tau->pipipinu/pipi0pi0nu
+                          0.2536,         # G14     JAKID 4 tau->pipi0nu
+                          0.1832,         # G20+G62 JAKID 5 tau->pipipinu/pipi0pi0nu
                           0.0070,         # G10     JAKID 6 tau->Knu
-                          0.00429+0.0084, # G16+G35 JAKID 7 tau->K*nu = KS0pi/KL0pi/Kpi0
+                          0.01269,        # G16+G35 JAKID 7 tau->K*nu = KS0pi/KL0pi/Kpi0
                           0.0448,         # G71     JAKID 8 tau->3pipi0nu
                           0.0105,         # G27     JAKID 9 tau->pi3pi0nu
                           0.00498,        # G78     JAKID 10 tau->3pi2pi0nu
@@ -98,10 +98,10 @@ TauolaBRHAD = cms.PSet(
         BR  = cms.vdouble(0.0,
                           0.0,
                           0.1083,         # G9      JAKID 3 tau->pinu
-                          0.2552-0.00160, # G14     JAKID 4 tau->pipi0nu
-                          0.0930+0.0902,  # G20+G62 JAKID 5 tau->pipipinu/pipi0pi0nu
+                          0.2536,         # G14     JAKID 4 tau->pipi0nu
+                          0.1832,         # G20+G62 JAKID 5 tau->pipipinu/pipi0pi0nu
                           0.0070,         # G10     JAKID 6 tau->Knu
-                          0.00429+0.0084, # G16+G35 JAKID 7 tau->K*nu = KS0pi/KL0pi/Kpi0
+                          0.01269,        # G16+G35 JAKID 7 tau->K*nu = KS0pi/KL0pi/Kpi0
                           0.0448,         # G71     JAKID 8 tau->3pipi0nu
                           0.0105,         # G27     JAKID 9 tau->pi3pi0nu
                           0.00498,        # G78     JAKID 10 tau->3pi2pi0nu
