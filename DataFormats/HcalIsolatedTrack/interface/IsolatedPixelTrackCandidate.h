@@ -23,7 +23,15 @@ namespace reco {
   public:
     
     // default constructor
-    IsolatedPixelTrackCandidate() : RecoCandidate() { etaPhiEcal_= false; }
+    IsolatedPixelTrackCandidate() : RecoCandidate() { 
+      enIn_=-1;
+      enOut_=-1;
+      nhitIn_=-1;
+      nhitOut_=-1;
+      maxPtPxl_=-1;
+      sumPtPxl_=-1;
+      etaPhiEcal_=false; 
+    }
     ///constructor from LorentzVector
     IsolatedPixelTrackCandidate(const LorentzVector& v): RecoCandidate(0,v) {
       enIn_=-1;

@@ -4,7 +4,8 @@
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 HLTEcalPixelIsolTrackFilter::HLTEcalPixelIsolTrackFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) {
   candTag_             = iConfig.getParameter<edm::InputTag> ("candTag");
@@ -16,6 +17,17 @@ HLTEcalPixelIsolTrackFilter::HLTEcalPixelIsolTrackFilter(const edm::ParameterSet
 }
 
 HLTEcalPixelIsolTrackFilter::~HLTEcalPixelIsolTrackFilter(){}
+
+void HLTEcalPixelIsolTrackFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
+  desc.add<edm::InputTag>("candTag",edm::InputTag("isolEcalPixelTrackProdHB"));
+  desc.add<double>("MaxEnergyIn",1.2);
+  desc.add<double>("MaxEnergyOut",1.2);
+  desc.add<int>("NMaxTrackCandidates",10);
+  desc.add<bool>("DropMultiL2Event",false);
+  descriptions.add("isolEcalPixelTrackFilter",desc);
+}
 
 bool HLTEcalPixelIsolTrackFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
   //  std::cout << "Inside MIP Filter" << std::endl;
