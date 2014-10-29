@@ -1,4 +1,4 @@
-#ifndef OuterTrackerMonitorStub_OuterTrackerMonitorStub_h
+	#ifndef OuterTrackerMonitorStub_OuterTrackerMonitorStub_h
 #define OuterTrackerMonitorStub_OuterTrackerMonitorStub_h
 
 #include <vector>
@@ -34,7 +34,19 @@ public:
   MonitorElement* hStub_RZ = 0; // TTStub #rho vs. z
   MonitorElement* hStub_Endcap_Fw_RZ_Zoom = 0; // TTStub Forward Endcap #rho vs. z
   MonitorElement* hStub_Endcap_Bw_RZ_Zoom = 0; // TTStub Backward Endcap #rho vs. z
-	
+  
+  // * Number of stubs * //
+  MonitorElement* hStub_Endcap = 0; // TTStubs stack
+  MonitorElement* hStub_Barrel = 0; //TTStub stack
+  MonitorElement* hStub_Endcap_Fw = 0; //TTStub stack	
+  MonitorElement* hStub_Endcap_Bw = 0; //TTStub stack	
+  
+  
+  // * STUB Displacement - offset * //
+  MonitorElement* hStub_Barrel_W = 0; //TTstub Pos-Corr Displacement (layer)
+  MonitorElement* hStub_Barrel_O = 0; // TTStub Offset (layer)
+  MonitorElement* hStub_Endcap_W = 0; // TTstub Pos-Corr Displacement (layer)
+  MonitorElement* hStub_Endcap_O = 0; // TTStub Offset (layer)
 
  private:
   DQMStore* dqmStore_;
