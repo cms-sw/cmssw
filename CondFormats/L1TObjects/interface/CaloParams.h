@@ -74,6 +74,11 @@ namespace l1t {
     l1t::LUT* egShapeIdLUT() { return egShapeIdLUT_.get(); }
     double egRelativeJetIsolationBarrelCut() const { return egRelativeJetIsolationBarrelCut_; }
     double egRelativeJetIsolationEndcapCut() const { return egRelativeJetIsolationEndcapCut_; }
+    int egMinPtRelativeJetIsolation() const { return egMinPtRelativeJetIsolation_; }
+    int egMaxPtRelativeJetIsolation() const { return egMaxPtRelativeJetIsolation_; }
+    int egMinPt3x3HoE() const { return egMinPt3x3HoE_; }
+    int egMaxPt3x3HoE() const { return egMaxPt3x3HoE_; }
+
     unsigned egIsoAreaNrTowersEta()const{return egIsoAreaNrTowersEta_;}
     unsigned egIsoAreaNrTowersPhi()const{return egIsoAreaNrTowersPhi_;}
     unsigned egIsoVetoNrTowersPhi()const{return egIsoVetoNrTowersPhi_;}
@@ -82,6 +87,8 @@ namespace l1t {
     unsigned egIsoMaxEtaAbsForIsoSum()const{return egIsoMaxEtaAbsForIsoSum_;}
     std::string egIsoPUSType() const { return egIsoPUSType_; }
     l1t::LUT* egIsolationLUT() { return egIsolationLUT_.get(); }
+    l1t::LUT* egIsolationLUTBarrel() { return egIsolationLUTBarrel_.get(); }
+    l1t::LUT* egIsolationLUTEndcaps() { return egIsolationLUTEndcaps_.get(); }
     std::string egCalibrationType() const { return egCalibrationType_; }
     std::vector<double> egCalibrationParams() { return egCalibrationParams_; }
     l1t::LUT* egCalibrationLUT() { return egCalibrationLUT_.get(); }
@@ -96,6 +103,10 @@ namespace l1t {
     void setEgShapeIdLUT(std::shared_ptr<LUT> lut) { egShapeIdLUT_ = lut; }
     void setEgRelativeJetIsolationBarrelCut(double cutValue) { egRelativeJetIsolationBarrelCut_ = cutValue; }
     void setEgRelativeJetIsolationEndcapCut(double cutValue) { egRelativeJetIsolationEndcapCut_ = cutValue; }
+    void setEgMinPtRelativeJetIsolation(int cutValue) { egMinPtRelativeJetIsolation_ = cutValue; }
+    void setEgMaxPtRelativeJetIsolation(int cutValue) { egMaxPtRelativeJetIsolation_ = cutValue; }
+    void setEgMinPt3x3HoE(int cutValue) { egMinPt3x3HoE_ = cutValue; }
+    void setEgMaxPt3x3HoE(int cutValue) { egMaxPt3x3HoE_ = cutValue; }
 
     void setEgIsoAreaNrTowersEta(unsigned iEgIsoAreaNrTowersEta){egIsoAreaNrTowersEta_=iEgIsoAreaNrTowersEta;}
     void setEgIsoAreaNrTowersPhi(unsigned iEgIsoAreaNrTowersPhi){egIsoAreaNrTowersPhi_=iEgIsoAreaNrTowersPhi;}
@@ -105,6 +116,8 @@ namespace l1t {
     void setEgIsoMaxEtaAbsForIsoSum(unsigned iEgIsoMaxEtaAbsForIsoSum){egIsoMaxEtaAbsForIsoSum_=iEgIsoMaxEtaAbsForIsoSum;}
     void setEgIsoPUSType(std::string type) { egIsoPUSType_ = type; }
     void setEgIsolationLUT(std::shared_ptr<LUT> lut) { egIsolationLUT_ = lut; }
+    void setEgIsolationLUTBarrel(std::shared_ptr<LUT> lut) { egIsolationLUTBarrel_ = lut; }
+    void setEgIsolationLUTEndcaps(std::shared_ptr<LUT> lut) { egIsolationLUTEndcaps_ = lut; }
     void setEgCalibrationType(std::string type) { egCalibrationType_ = type; }
     void setEgCalibrationParams(std::vector<double> params) { egCalibrationParams_ = params; }
     void setEgCalibrationLUT(std::shared_ptr<LUT> lut) { egCalibrationLUT_ = lut; }
@@ -122,6 +135,8 @@ namespace l1t {
     l1t::LUT* tauIsolationLUT() { return tauIsolationLUT_.get(); }
     std::string tauCalibrationType() const { return tauCalibrationType_; }
     std::vector<double> tauCalibrationParams() { return tauCalibrationParams_; }
+    std::vector<double> isoTauThresholds() { return isoTauThresholds_; }
+    std::vector<double> diIsoTauThresholds() { return diIsoTauThresholds_; }
     l1t::LUT* tauCalibrationLUTBarrelA() { return tauCalibrationLUTBarrelA_.get(); }
     l1t::LUT* tauCalibrationLUTBarrelB() { return tauCalibrationLUTBarrelB_.get(); }
     l1t::LUT* tauCalibrationLUTBarrelC() { return tauCalibrationLUTBarrelC_.get(); }
@@ -149,6 +164,8 @@ namespace l1t {
     void setTauCalibrationLUTEndcapsC(std::shared_ptr<LUT> lut) { tauCalibrationLUTEndcapsC_ = lut; }
     void setTauCalibrationLUTEta(std::shared_ptr<LUT> lut) { tauCalibrationLUTEta_ = lut; }
 
+    void setIsoTauThresholds(std::vector<double> params) { isoTauThresholds_ = params; }
+    void setDiIsoTauThresholds(std::vector<double> params) { diIsoTauThresholds_ = params; }
     // jets
     double jetLsb() const { return jetLsb_; }
     double jetSeedThreshold() const { return jetSeedThreshold_; }
@@ -177,6 +194,14 @@ namespace l1t {
     void setEtSumEtaMin(unsigned isum, int eta);
     void setEtSumEtaMax(unsigned isum, int eta);
     void setEtSumEtThreshold(unsigned isum, double thresh);
+
+    // HI centrality
+    l1t::LUT* centralityLUT() { return centralityLUT_.get(); }
+    void setCentralityLUT(std::shared_ptr<LUT> lut) { centralityLUT_ = lut; }
+
+    // HI Q2
+    l1t::LUT* q2LUT() { return q2LUT_.get(); }
+    void setQ2LUT(std::shared_ptr<LUT> lut) { q2LUT_ = lut; }
 
     // print parameters to stream:
     void print(std::ostream&) const;
@@ -270,6 +295,14 @@ namespace l1t {
     // Relative jet isolation cut for EG in the endcap (Stage1Layer2)
     double egRelativeJetIsolationEndcapCut_;
 
+    // Range of jet isolation for EG (in rank!) (Stage1Layer2)
+    int egMinPtRelativeJetIsolation_;
+    int egMaxPtRelativeJetIsolation_;
+
+    // Range of 3x3 HoE isolation for EG (in rank!) (Stage1Layer2)
+    int egMinPt3x3HoE_;
+    int egMaxPt3x3HoE_;
+
     // isolation area in eta is seed tower +/- <=egIsoAreaNrTowersPhi
     unsigned egIsoAreaNrTowersEta_;
 
@@ -300,6 +333,8 @@ namespace l1t {
 
     // EG isolation LUT (indexed by eta, Et ?)
     std::shared_ptr<l1t::LUT> egIsolationLUT_;
+    std::shared_ptr<l1t::LUT> egIsolationLUTBarrel_;
+    std::shared_ptr<l1t::LUT> egIsolationLUTEndcaps_;
 
 
 
@@ -346,7 +381,9 @@ namespace l1t {
     std::shared_ptr<l1t::LUT> tauCalibrationLUTEndcapsC_;
     std::shared_ptr<l1t::LUT> tauCalibrationLUTEta_;
 
-
+    // thesholds for iso and di-iso tau triggers (HF ET Ring Sum repurposing)
+    std::vector<double> isoTauThresholds_;
+    std::vector<double> diIsoTauThresholds_;
 
     /* Jets */
 
@@ -389,6 +426,13 @@ namespace l1t {
     std::vector<double> etSumEtThreshold_;
 
 
+    /* HI */
+
+    // centrality LUT
+    std::shared_ptr<l1t::LUT> centralityLUT_;
+
+    // Q2 LUT
+    std::shared_ptr<l1t::LUT> q2LUT_;
 
   };
 
