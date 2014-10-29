@@ -4,7 +4,7 @@ process = cms.Process("Analyzer")
 
 
 ## setting the format of the input files AOD/miniAOD
-runOnAOD = False
+runOnAOD = True
 
 ## enabling unscheduled mode for modules
 process.options = cms.untracked.PSet(
@@ -23,10 +23,10 @@ process.source = cms.Source("PoolSource",
     ## add your favourite file here (1000+ events in each file defined below)
     ## Check runOnAOD parameter to match the format of input files
     # AOD
-#    '/store/relval/CMSSW_7_2_0_pre7/RelValTTbar_13/GEN-SIM-RECO/PU50ns_PRE_LS172_V12-v1/00000/1267B7ED-2F4E-E411-A0B9-0025905964A6.root',
+    '/store/relval/CMSSW_7_2_0_pre7/RelValTTbar_13/GEN-SIM-RECO/PU50ns_PRE_LS172_V12-v1/00000/1267B7ED-2F4E-E411-A0B9-0025905964A6.root',
 
     # miniAOD
-    '/store/cmst3/user/gpetrucc/miniAOD/v1/TTbarH_HToBB_M-125_13TeV_pythia6_PU_S14_PAT.root',
+#    '/store/cmst3/user/gpetrucc/miniAOD/v1/TTbarH_HToBB_M-125_13TeV_pythia6_PU_S14_PAT.root',
 
     # other AOD samples
 #    '/store/mc/Spring14dr/TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/AODSIM/PU_S14_POSTLS170_V6-v1/00000/00120F7A-84F5-E311-9FBE-002618943910.root',
