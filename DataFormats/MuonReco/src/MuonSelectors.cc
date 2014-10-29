@@ -771,13 +771,13 @@ bool muon::isSoftMuon(const reco::Muon& muon, const reco::Vertex& vtx){
   if(!muID) return false;
   
   bool layers = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
-    muon.innerTrack()->hitPattern().pixelLayersWithMeasurement() > 1;
+    muon.innerTrack()->hitPattern().pixelLayersWithMeasurement() > 0;
 
-  bool chi2 = muon.innerTrack()->normalizedChi2() < 1.8;  
+  bool ishighq = muon.innerTrack()->quality(reco::Track::highPurity); 
   
-  bool ip = fabs(muon.innerTrack()->dxy(vtx.position())) < 3. && fabs(muon.innerTrack()->dz(vtx.position())) < 30.;
+  bool ip = fabs(muon.innerTrack()->dxy(vtx.position())) < 0.3 && fabs(muon.innerTrack()->dz(vtx.position())) < 20.;
   
-  return muID && layers && ip && chi2 ;
+  return layers && ip && ishighq;
 }
 
 
