@@ -30,8 +30,8 @@ jetMETHLTOfflineSource = cms.EDAnalyzer(
     #PFJetCollectionLabel   = cms.InputTag("ak4PFJetsL1FastL2L3"),
     CaloJetCollectionLabel = cms.InputTag("ak4CaloJets"),
     PFJetCollectionLabel   = cms.InputTag("ak4PFJets"),
-    CaloJetCorService      = cms.string("ak4CaloL1FastL2L3"),
-    PFJetCorService        = cms.string("ak4PFL1FastL2L3"),
+    CaloJetCorLabel      = cms.string("ak4CaloL1FastL2L3Corrector"),
+    PFJetCorLabel        = cms.string("ak4PFL1FastL2L3Corrector"),
     #
     fEMF       = cms.untracked.double(0.01),
     feta       = cms.untracked.double(2.6),
@@ -51,7 +51,7 @@ jetMETHLTOfflineSource = cms.EDAnalyzer(
                                        "HLT_PFNoPUJet",
                                        "HLT_DiPFJetAve",
                                        "HLT_PFMET",
-                                       "HLT_PFchMET",                                       
+                                       "HLT_PFchMET",
                                        "HLT_MET"),
     pathRejectKeyword = cms.untracked.vstring("dEdx","NoBPTX"),
     #
@@ -60,7 +60,7 @@ jetMETHLTOfflineSource = cms.EDAnalyzer(
             pathname = cms.string("HLT_PFJet260_v"),
             denompathname = cms.string("HLT_PFJet40_v"),
             ),
-        cms.PSet(        
+        cms.PSet(
             pathname = cms.string("HLT_PFNoPUJet260_v"),
             denompathname = cms.string("HLT_PFJet40_v"),
             )

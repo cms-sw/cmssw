@@ -733,12 +733,12 @@ namespace edm {
 
   bool
   IndexIntoFile::containsItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) const {
-        return event ? containsEvent(run, lumi, event) : (lumi ? containsLumi(run, lumi) : containsRun(run));
+    return (event != 0) ? containsEvent(run, lumi, event) : (lumi ? containsLumi(run, lumi) : containsRun(run));
   }
 
   bool
   IndexIntoFile::containsEvent(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) const {
-        return findEventPosition(run, lumi, event).getEntryType() != kEnd;
+    return findEventPosition(run, lumi, event).getEntryType() != kEnd;
   }
 
   bool

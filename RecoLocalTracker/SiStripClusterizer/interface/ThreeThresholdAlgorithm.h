@@ -69,7 +69,7 @@ class ThreeThresholdAlgorithm final : public StripClusterizerAlgorithm {
   float ChannelThreshold, SeedThreshold, ClusterThresholdSquared;
   uint8_t MaxSequentialHoles, MaxSequentialBad, MaxAdjacentBad;
   bool RemoveApvShots;
-  float MinGoodCharge;
+  float minGoodCharge;
 
   SiStripApvShotCleaner ApvCleaner;
 };

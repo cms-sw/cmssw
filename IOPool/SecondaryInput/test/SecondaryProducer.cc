@@ -65,7 +65,7 @@ namespace edm {
 
     produces<edmtest::ThingCollection>();
     produces<edmtest::OtherThingCollection>("testUserTag");
-    consumes<edmtest::IntProduct>(edm::InputTag{"EventNumber"});
+    consumes<edmtest::UInt64Product>(edm::InputTag{"EventNumber"});
   }
 
   void SecondaryProducer::beginJob() {
@@ -123,19 +123,19 @@ namespace edm {
 
     EventNumber_t en = eventPrincipal.id().event();
     // Check that secondary source products are retrieved from the same event as the EventAuxiliary
-    BasicHandle bhandle = eventPrincipal.getByLabel(PRODUCT_TYPE, TypeID(typeid(edmtest::IntProduct)),
+    BasicHandle bhandle = eventPrincipal.getByLabel(PRODUCT_TYPE, TypeID(typeid(edmtest::UInt64Product)),
                                                     "EventNumber",
                                                     "",
                                                     "",
                                                     nullptr,
                                                     nullptr);
     assert(bhandle.isValid());
-    Handle<edmtest::IntProduct> handle;
-    convert_handle<edmtest::IntProduct>(std::move(bhandle), handle);
+    Handle<edmtest::UInt64Product> handle;
+    convert_handle<edmtest::UInt64Product>(std::move(bhandle), handle);
     assert(static_cast<EventNumber_t>(handle->value) == en);
 
     // Check that primary source products are retrieved from the same event as the EventAuxiliary
-    e.getByLabel<edmtest::IntProduct>("EventNumber", handle);
+    e.getByLabel<edmtest::UInt64Product>("EventNumber", handle);
     assert(static_cast<EventNumber_t>(handle->value) == e.id().event());
 
     WrapperBase const* ep = eventPrincipal.getByLabel(PRODUCT_TYPE, TypeID(typeid(TC)),

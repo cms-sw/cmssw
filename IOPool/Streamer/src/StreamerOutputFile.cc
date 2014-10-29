@@ -21,9 +21,6 @@
     /** Offset where current event starts */
     uint64 offset_to_return = streamerfile_->current_offset();
 
-    /** Offset of last written event */
-    streamerfile_->set_last_event_offset(streamerfile_->current_offset());
-
     writeEventHeader(ineview);
     bool ret = streamerfile_->write((const char*) ineview.eventData(),
                                     ineview.size() - ineview.headerSize());
@@ -33,9 +30,6 @@
         << streamerfile_->fileName() << ".  Possibly the output disk "
         << "is full?" << std::endl;
     }
-
-    streamerfile_->inc_events();
-
     return offset_to_return;
   }
 
@@ -46,11 +40,6 @@
     /** Offset where current event starts */
     uint64 offset_to_return = streamerfile_->current_offset();
 
-    if (fragIndex == 0) {
-      /** Offset of last written event */
-      streamerfile_->set_last_event_offset(streamerfile_->current_offset());
-    }
-
     bool ret = streamerfile_->write(dataPtr, dataSize);
     if (ret) {
       throw cms::Exception("OutputFile", "writeEventFragment()")
@@ -58,9 +47,6 @@
         << streamerfile_->fileName() << ".  Possibly the output disk "
         << "is full?" << std::endl;
     }
-
-    if (fragIndex == fragCount-1) {streamerfile_->inc_events();}
-
     return offset_to_return;
   }
 
@@ -94,9 +80,6 @@
         << streamerfile_->fileName() << ".  Possibly the output disk "
         << "is full?" << std::endl;
     }
-
-    /** Offset of first event to be written */
-    streamerfile_->set_first_event_offset(streamerfile_->current_offset());
   }
 
   void StreamerOutputFile::
@@ -109,11 +92,6 @@
         << "Error writing streamer header data to "
         << streamerfile_->fileName() << ".  Possibly the output disk "
         << "is full?" << std::endl;
-    }
-
-    if (fragIndex == fragCount-1) {
-      /** Offset of first event to be written */
-      streamerfile_->set_first_event_offset(streamerfile_->current_offset());
     }
   }
 
@@ -128,6 +106,5 @@
         << streamerfile_->fileName() << ".  Possibly the output disk "
         << "is full?" << std::endl;
     }
-    streamerfile_->set_run(inview.run()); 
   }
 

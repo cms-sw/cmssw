@@ -81,7 +81,8 @@ namespace reco {
       kTrkMuonVertex=4,
       kGSFVertex=5,
       kTPFMSMuonVertex=6,
-      kPickyMuonVertex=7
+      kPickyMuonVertex=7,
+      kDYTMuonVertex=8
     };
 
 
