@@ -46,6 +46,7 @@ protected:
 
   BTagEntry::Parameters params;
   std::map<BTagEntry::JetFlavor, std::vector<TmpEntry> > tmpData_;
+  bool useAbsEta;
 };
 
 #endif  // BTagCalibrationReader_H

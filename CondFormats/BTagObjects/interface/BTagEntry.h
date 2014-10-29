@@ -5,7 +5,7 @@
  *
  * BTagEntry
  *
- * Represents one pt-dependent calibration function.
+ * Represents one pt- or discriminator-dependent calibration function.
  *
  * measurement_type:    e.g. comb, ttbar, di-mu, boosted, ...
  * sys_type:            e.g. central, plus, minus, plus_JEC, plus_JER, ...

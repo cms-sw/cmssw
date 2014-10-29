@@ -3,9 +3,10 @@
 BTagCalibrationReader::BTagCalibrationReader(const BTagCalibration* c,
                                              BTagEntry::OperatingPoint op,
                                              std::string measurementType,
-                                             std::string sysType)
+                                             std::string sysType):
+  params(BTagEntry::Parameters(op, measurementType, sysType)),
+  useAbsEta(true)
 {
-  params = BTagEntry::Parameters(op, measurementType, sysType);
   setupTmpData(c);
 }
 
@@ -15,6 +16,9 @@ double BTagCalibrationReader::eval(BTagEntry::JetFlavor jf,
                                    float discr) const
 {
   bool use_discr = (params.operatingPoint == BTagEntry::OP_RESHAPING);
+  if (useAbsEta && eta < 0) {
+    eta = -eta;
+  }
 
   // search linearly through eta, pt and discr ranges and eval
   // future: find some clever data structure based on intervals
@@ -51,6 +55,10 @@ void BTagCalibrationReader::setupTmpData(const BTagCalibration* c)
     te.ptMax = be.params.ptMax;
     te.discrMin = be.params.discrMin;
     te.discrMax = be.params.discrMax;
+
+    if (te.etaMin < 0) {
+      useAbsEta = false;
+    }
 
     if (params.operatingPoint == BTagEntry::OP_RESHAPING) {
       te.func = TF1("", be.formula.c_str(),
