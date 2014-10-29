@@ -13,11 +13,11 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
+#include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
-//TFile Service 
+//TFile Service
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
@@ -30,13 +30,14 @@ public:
   explicit JetCorrectorDemo(const edm::ParameterSet&);
   ~JetCorrectorDemo();
   typedef reco::Particle::LorentzVector LorentzVector;
-  
+
 private:
   virtual void beginJob() override ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override ;
- 
-  std::string mJetCorService,mPayloadName,mUncertaintyTag,mUncertaintyFile;
+
+  edm::EDGetTokenT<reco::JetCorrector> mJetCorrector;
+  std::string mPayloadName,mUncertaintyTag,mUncertaintyFile;
   bool mDebug,mUseCondDB;
   int mNHistoPoints,mNGraphPoints;
   double mEtaMin,mEtaMax,mPtMin,mPtMax;
@@ -55,7 +56,7 @@ private:
 //---------------------------------------------------------------------------
 JetCorrectorDemo::JetCorrectorDemo(const edm::ParameterSet& iConfig)
 {
-  mJetCorService     = iConfig.getParameter<std::string>          ("JetCorrectionService");
+  mJetCorrector      = consumes<reco::JetCorrector>(iConfig.getParameter<edm::InputTag>("JetCorrector"));
   mPayloadName       = iConfig.getParameter<std::string>          ("PayloadName");
   mUncertaintyTag    = iConfig.getParameter<std::string>          ("UncertaintyTag");
   mUncertaintyFile   = iConfig.getParameter<std::string>          ("UncertaintyFile");
@@ -73,27 +74,28 @@ JetCorrectorDemo::JetCorrectorDemo(const edm::ParameterSet& iConfig)
 //---------------------------------------------------------------------------
 JetCorrectorDemo::~JetCorrectorDemo()
 {
-  
+
 }
 //---------------------------------------------------------------------------
 void JetCorrectorDemo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  const JetCorrector* corrector = JetCorrector::getJetCorrector(mJetCorService,iSetup);
+  edm::Handle<reco::JetCorrector> corrector;
+  iEvent.getByToken(mJetCorrector, corrector);
   JetCorrectionUncertainty *jecUnc(0);
   if (mUncertaintyTag != "")
     {
       if (mUseCondDB)
         {
           edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
-          iSetup.get<JetCorrectionsRecord>().get(mPayloadName,JetCorParColl); 
+          iSetup.get<JetCorrectionsRecord>().get(mPayloadName,JetCorParColl);
           JetCorrectorParameters const & JetCorPar = (*JetCorParColl)[mUncertaintyTag];
           jecUnc = new JetCorrectionUncertainty(JetCorPar);
-          std::cout<<"Configured Uncertainty from CondDB"<<std::endl;   
+          std::cout<<"Configured Uncertainty from CondDB"<<std::endl;
         }
       else
-        {  
+        {
           edm::FileInPath fip("CondFormats/JetMETObjects/data/"+mUncertaintyFile+".txt");
-          jecUnc = new JetCorrectionUncertainty(fip.fullPath()); 
+          jecUnc = new JetCorrectionUncertainty(fip.fullPath());
         }
     }
   double jec,rawPt,corPt,eta,unc;
@@ -103,7 +105,7 @@ void JetCorrectorDemo::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     {
       rawPt  = mRandom->Uniform(mPtMin,mPtMax);
       eta = mRandom->Uniform(mEtaMin,mEtaMax);
-      P4.SetPtEtaPhiE(rawPt,eta,0,0); 
+      P4.SetPtEtaPhiE(rawPt,eta,0,0);
       LorentzVector rawP4(P4.Px(),P4.Py(),P4.Pz(),P4.E());
       jec = corrector->correction(rawP4);
       mJECvsEta->Fill(eta,jec);
@@ -113,12 +115,12 @@ void JetCorrectorDemo::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   for(unsigned ieta=0;ieta<mVEta.size();ieta++)
     {
       double rPt  = pow((3500./TMath::CosH(mVEta[ieta]))/mPtMin,1./mNGraphPoints);
-      for(int i=0;i<mNGraphPoints;i++) 
+      for(int i=0;i<mNGraphPoints;i++)
         {
           rawPt  = mPtMin*pow(rPt,i);
           eta = mVEta[ieta];
           vpt[ieta][i] = rawPt;
-          P4.SetPtEtaPhiE(rawPt,eta,0,0); 
+          P4.SetPtEtaPhiE(rawPt,eta,0,0);
           LorentzVector rawP4(P4.Px(),P4.Py(),P4.Pz(),P4.E());
           jec = corrector->correction(rawP4);// the jec is a function of the raw pt
           vjec_eta[ieta][i] = jec;
@@ -148,20 +150,20 @@ void JetCorrectorDemo::analyze(const edm::Event& iEvent, const edm::EventSetup& 
           //---------- find the raw pt -----------
           double e = 1.0;
           int nLoop(0);
-          rawPt = corPt; 
-          while(e > 0.0001 && nLoop < 10) 
+          rawPt = corPt;
+          while(e > 0.0001 && nLoop < 10)
              {
-               P4.SetPtEtaPhiE(rawPt,eta,0,0); 
-               LorentzVector rawP4(P4.Px(),P4.Py(),P4.Pz(),P4.E()); 
-               jec = corrector->correction(rawP4); 
+               P4.SetPtEtaPhiE(rawPt,eta,0,0);
+               LorentzVector rawP4(P4.Px(),P4.Py(),P4.Pz(),P4.E());
+               jec = corrector->correction(rawP4);
                double tmp = rawPt * jec;
                e = fabs(tmp-corPt)/corPt;
                if (jec > 0)
                  rawPt = corPt/jec;
                nLoop++;
-             } 
+             }
           //--------- calculate the jec for the rawPt --------
-          P4.SetPtEtaPhiE(rawPt,eta,0,0); 
+          P4.SetPtEtaPhiE(rawPt,eta,0,0);
           LorentzVector rawP4(P4.Px(),P4.Py(),P4.Pz(),P4.E());
           jec = corrector->correction(rawP4);// the jec is a function of the raw pt
           vjec_pt[ipt][i] = jec;
@@ -196,7 +198,7 @@ void JetCorrectorDemo::beginJob()
   mRandom->SetSeed(0);
 }
 //---------------------------------------------------------------------------
-void JetCorrectorDemo::endJob() 
+void JetCorrectorDemo::endJob()
 {
   char name[1000];
   for(unsigned ipt=0;ipt<mVPt.size();ipt++)

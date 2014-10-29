@@ -1,6 +1,5 @@
 #include "PhysicsTools/PatUtils/plugins/ShiftedPFCandidateProducerForNoPileUpPFMEt.h"
 
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
