@@ -1,6 +1,7 @@
-#ifndef OuterTrackerV_OuterTrackerMCTruth_h
-#define OuterTrackerV_OuterTrackerMCTruth_h
+#ifndef OuterTrackerMCTruth_OuterTrackerMCTruth_h
+#define OuterTrackerMCTruth_OuterTrackerMCTruth_h
 
+#include <vector>
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -11,8 +12,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
-
-#include <vector>
 
 class DQMStore;
 

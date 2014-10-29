@@ -27,41 +27,19 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-//#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
-//#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-//#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
-//#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
-//#include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
-//#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
-//#include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
-//#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
-//#include "DQM/SiStripCommon/interface/SiStripHistoId.h"
 #include "Validation/OuterTrackerCluster/interface/OuterTrackerCluster.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-//#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-//#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
-//#include "CalibTracker/SiStripCommon/interface/SiStripDCSStatus.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
-//#include "DPGAnalysis/SiStripTools/interface/APVCyclePhaseCollection.h"
-//#include "DPGAnalysis/SiStripTools/interface/EventWithHistory.h"
-
-//#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
-
-// For TPart_Eta_ICW_1 (TrackingParticles)
-//#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-//#include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
+// For TrackingParticles
 #include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/L1TrackTrigger/interface/TTCluster.h"
-#include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-// For TPart_Eta_Pt10_PS
-//#include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
+
 #include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerGeometry.h"
 #include "Geometry/Records/interface/StackedTrackerGeometryRecord.h"
 

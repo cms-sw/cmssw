@@ -1,6 +1,7 @@
 #ifndef OuterTrackerClient_OuterTrackerClient_h
 #define OuterTrackerClient_OuterTrackerClient_h
 
+#include <vector>
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -11,8 +12,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
-
-#include <vector>
 
 class DQMStore;
 

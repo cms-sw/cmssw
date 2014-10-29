@@ -4,6 +4,7 @@ from SimGeneral.TrackingAnalysis.simHitTPAssociation_cfi import *
 from Validation.TrackerHits.trackerHitsValidation_cff import *
 from Validation.OuterTrackerMCTruth.OuterTrackerMCTruth_cfi import *
 from Validation.OuterTrackerCluster.OuterTrackerCluster_cfi import *
+from Validation.OuterTrackerStub.OuterTrackerStub_cfi import *
 from Validation.TrackerDigis.trackerDigisValidation_cff import *
 from Validation.TrackerRecHits.trackerRecHitsValidation_cff import *
 from Validation.TrackingMCTruth.trackingTruthValidation_cfi import *
@@ -56,6 +57,7 @@ globalValidation = cms.Sequence(   trackerHitsValidation
                                  + trackerDigisValidation 
                                  + OuterTrackerMCTruth
                                  + OuterTrackerCluster
+																 + OuterTrackerStub
                                  + trackerRecHitsValidation 
                                  + trackingTruthValid 
                                  + trackingRecHitsValid 

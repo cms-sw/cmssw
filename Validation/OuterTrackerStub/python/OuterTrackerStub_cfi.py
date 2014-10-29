@@ -1,18 +1,18 @@
 import FWCore.ParameterSet.Config as cms
 
-OuterTrackerCluster = cms.EDAnalyzer('OuterTrackerCluster',
+OuterTrackerStub = cms.EDAnalyzer('OuterTrackerStub',
     
     TopFolderName = cms.string('OuterTrackerValidation'),
     
-# Cluster Stacks
-    TH1TTCluster_Stack = cms.PSet(
+# Stub Stacks
+    TH1TTStub_Stack = cms.PSet(
         Nbinsx = cms.int32(6),
         xmax = cms.double(6.5),                      
         xmin = cms.double(0.5)
         ),
 
-# Cluster Eta
-    TH1TTCluster_Eta = cms.PSet(
+# Stub Eta
+    TH1TTStub_Eta = cms.PSet(
         Nbinsx = cms.int32(60),
         xmax = cms.double(3),                      
         xmin = cms.double(-3)
