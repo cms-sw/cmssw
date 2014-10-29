@@ -33,6 +33,7 @@
 #include "zlib.h"
 
 #include <iostream>
+#include <map>
 #include <memory>
 
 bool compares_bad(EventMsgView const* eview1, EventMsgView const* eview2);

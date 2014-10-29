@@ -17,29 +17,6 @@
 
 namespace edm
 {
-  struct StreamerFileWriterHeaderParams
-  {
-    uint32 runNumber;
-    const char* headerPtr;
-    uint32 headerSize;
-
-    uint32 fragmentIndex;
-    uint32 fragmentCount;
-    const char* dataPtr;
-    uint32 dataSize;
-  };
-
-  struct StreamerFileWriterEventParams
-  {
-    const char* headerPtr;
-    uint32 headerSize;
-
-    uint32 fragmentIndex;
-    uint32 fragmentCount;
-    const char* dataPtr;
-    uint32 dataSize;
-  };
-
   class ParameterSetDescription;
   class StreamerFileWriter 
   {
@@ -53,11 +30,9 @@ namespace edm
 
     void doOutputHeader(InitMsgBuilder const& init_message);    
     void doOutputHeader(InitMsgView const& init_message);    
-    void doOutputHeaderFragment(StreamerFileWriterHeaderParams const&);
 
     void doOutputEvent(EventMsgBuilder const& msg);
     void doOutputEvent(EventMsgView const& msg);
-    void doOutputEventFragment(StreamerFileWriterEventParams const&);
 
     void start(){}
     void stop(){};
