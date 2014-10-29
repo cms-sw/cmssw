@@ -30,20 +30,16 @@ void HLTEcalPixelIsolTrackFilter::fillDescriptions(edm::ConfigurationDescription
 }
 
 bool HLTEcalPixelIsolTrackFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
-  //  std::cout << "Inside MIP Filter" << std::endl;
+
   if (saveTags())
     filterproduct.addCollectionTag(candTag_);
 
-
-  // get hold of filtered candidates
   edm::Handle<reco::IsolatedPixelTrackCandidateCollection> recotrackcands;
   iEvent.getByToken(candTok,recotrackcands);
   if (!recotrackcands.isValid()) return false;
 
-  //Filtering
   int n=0;
   for (unsigned int i=0; i<recotrackcands->size(); i++) {
-    // Ref to Candidate object to be recorded in filter object
     edm::Ref<reco::IsolatedPixelTrackCandidateCollection> candref =
       edm::Ref<reco::IsolatedPixelTrackCandidateCollection>(recotrackcands, i);
     //    std::cout << "candref.isNull() " << candref.isNull() << std::endl;
@@ -56,12 +52,11 @@ bool HLTEcalPixelIsolTrackFilter::hltFilter(edm::Event& iEvent, const edm::Event
       filterproduct.addObject(trigger::TriggerTrack, candref);
       n++;
     }
-    // stop looping over tracks if max number is reached
     if(!dropMultiL2Event_ && n>=nMaxTrackCandidates_) break; 
 
-  } // loop over tracks
+  } 
   bool accept(n>0);
-  if( dropMultiL2Event_ && n>nMaxTrackCandidates_ ) accept=false;  
+  if (dropMultiL2Event_ && n>nMaxTrackCandidates_ ) accept=false;  
   //  std::cout << "accept here" << accept << std::endl;
   return accept;
 }
