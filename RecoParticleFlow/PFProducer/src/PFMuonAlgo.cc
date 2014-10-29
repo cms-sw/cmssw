@@ -643,27 +643,43 @@ std::vector<reco::Muon::MuonTrackTypePair> PFMuonAlgo::muonTracks(const reco::Mu
   std::vector<reco::Muon::MuonTrackTypePair> out;
 
   
-  if(muon->globalTrack().isNonnull()) 
+  if(muon->globalTrack().isNonnull() && muon->globalTrack()->pt()>0) 
     if(muon->globalTrack()->ptError()/muon->globalTrack()->pt()<dpt)
       out.push_back(std::make_pair(muon->globalTrack(),reco::Muon::CombinedTrack));
 
-  if(muon->innerTrack().isNonnull()) 
+  if(muon->innerTrack().isNonnull() && muon->innerTrack()->pt()>0) 
     if(muon->innerTrack()->ptError()/muon->innerTrack()->pt()<dpt)//Here Loose!@
       out.push_back(std::make_pair(muon->innerTrack(),reco::Muon::InnerTrack));
 
   bool pickyExists=false; 
-  if(muon->pickyTrack().isNonnull()) {
-    if(muon->pickyTrack()->ptError()/muon->pickyTrack()->pt()<dpt) 
+  double pickyDpt=99999.; 
+  if(muon->pickyTrack().isNonnull() && muon->pickyTrack()->pt()>0) {
+    pickyDpt = muon->pickyTrack()->ptError()/muon->pickyTrack()->pt(); 
+    if(pickyDpt<dpt) 
       out.push_back(std::make_pair(muon->pickyTrack(),reco::Muon::Picky));
     pickyExists=true;
+  }
+
+  bool dytExists=false; 
+  double dytDpt=99999.; 
+  if(muon->dytTrack().isNonnull() && muon->dytTrack()->pt()>0) {
+    dytDpt = muon->dytTrack()->ptError()/muon->dytTrack()->pt(); 
+    if(dytDpt<dpt) 
+      out.push_back(std::make_pair(muon->dytTrack(),reco::Muon::DYT));
+    dytExists=true;
   }
 
   //Magic: TPFMS is not a really good track especially under misalignment
   //IT is kind of crap because if mu system is displaced it can make a change
   //So allow TPFMS if there is no picky or the error of tpfms is better than picky
-  if(muon->tpfmsTrack().isNonnull() && ((pickyExists && muon->tpfmsTrack()->ptError()/muon->tpfmsTrack()->pt()<muon->pickyTrack()->ptError()/muon->pickyTrack()->pt())||(!pickyExists)) ) 
-    if(muon->tpfmsTrack()->ptError()/muon->tpfmsTrack()->pt()<dpt)
+  //AND if there is no DYT or the error of tpfms is better than DYT
+  if(muon->tpfmsTrack().isNonnull() && muon->tpfmsTrack()->pt()>0) { 
+    double tpfmsDpt = muon->tpfmsTrack()->ptError()/muon->tpfmsTrack()->pt(); 
+    if( ( (pickyExists && tpfmsDpt<pickyDpt) || (!pickyExists) ) && 
+	( (dytExists   && tpfmsDpt<dytDpt)   || (!dytExists)   ) && 
+	tpfmsDpt<dpt )
       out.push_back(std::make_pair(muon->tpfmsTrack(),reco::Muon::TPFMS));
+  }
 
   if(includeSA && muon->outerTrack().isNonnull())
     if(muon->outerTrack()->ptError()/muon->outerTrack()->pt()<dpt)
@@ -774,6 +790,8 @@ void  PFMuonAlgo::changeTrack(reco::PFCandidate& candidate,const MuonTrackTypePa
       candidate.setVertexSource( PFCandidate::kTPFMSMuonVertex );
     else if(trackType == reco::Muon::Picky)
       candidate.setVertexSource( PFCandidate::kPickyMuonVertex );
+    else if(trackType == reco::Muon::DYT)
+      candidate.setVertexSource( PFCandidate::kDYTMuonVertex );
   }
 
 
