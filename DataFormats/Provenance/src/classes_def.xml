@@ -8,7 +8,8 @@
  <class name="edm::BranchID" ClassVersion="10">
   <version ClassVersion="10" checksum="21214741"/>
  </class>
- <class name="edm::EventID" ClassVersion="11">
+ <class name="edm::EventID" ClassVersion="12">
+  <version ClassVersion="12" checksum="1501865997"/>
   <version ClassVersion="11" checksum="341254076"/>
   <version ClassVersion="10" checksum="1903450811"/>
  </class>
@@ -106,7 +107,8 @@
  <class name="edm::FileFormatVersion" ClassVersion="10">
   <version ClassVersion="10" checksum="2078548510"/>
  </class>
- <class name="edm::FileIndex::Element" ClassVersion="11">
+ <class name="edm::FileIndex::Element" ClassVersion="12">
+  <version ClassVersion="12" checksum="3292924581"/>
   <version ClassVersion="11" checksum="436636819"/>
   <version ClassVersion="10" checksum="1310120368"/>
  </class>

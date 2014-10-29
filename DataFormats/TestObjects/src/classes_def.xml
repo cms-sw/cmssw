@@ -5,7 +5,8 @@
  <class name="edmtest::IntProduct" ClassVersion="10">
   <version ClassVersion="10" checksum="4286676158"/>
  </class>
- <class name="edmtest::UInt64Product" ClassVersion="10">
+ <class name="edmtest::UInt64Product" ClassVersion="11">
+  <version ClassVersion="11" checksum="3240540910"/>
   <version ClassVersion="10" checksum="380152127"/>
  </class>
  <class name="edmtest::EnumProduct" ClassVersion="10">
