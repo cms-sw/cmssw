@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 
 template <class T> 
@@ -148,7 +149,7 @@ MixCollection<T>::MixCollection(const CrossingFrame<T> *cf,const std::pair<int,i
     crossingFrames_.push_back(cf);
     init(bunchRange);
   }
-  else std::cout <<"Could not construct MixCollection for "<<typeid(T).name() <<", pointer to CrossingFrame invalid!"<<std::endl;
+  else edm::LogWarning("MixCollectionInvalidCtr") <<"Could not construct MixCollection for "<<typeid(T).name() <<", pointer to CrossingFrame invalid!"<<std::endl;
 } 
 
 template <class T> 
