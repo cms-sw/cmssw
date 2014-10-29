@@ -10,7 +10,7 @@ pfType1MET = cms.EDProducer("Type1PFMET",
     metType = cms.string("PFMET"),
     jetPTthreshold = cms.double(20.0),
     # pfMET should be not corrected for HF 0.7
-    inputUncorMetLabel = cms.string("pfMET"),
-    corrector = cms.string("L2L3JetCorrectorAK4PF")
+    inputUncorMetLabel = cms.InputTag("pfMET"),
+    corrector = cms.InputTag("ak4PFL2L3Corrector")
 )
 
