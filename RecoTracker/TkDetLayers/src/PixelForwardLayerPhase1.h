@@ -3,18 +3,18 @@
 
 
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
-#include "PixelBlade.h"
+#include "Phase1PixelBlade.h"
 #include "Utilities/BinningTools/interface/PeriodicBinFinderInPhi.h"
 
 
 /** A concrete implementation for PixelForward layer
- *  built out of ForwardPixelBlade
+ *  built out of ForwardPhase1PixelBlade
  */
 
 #pragma GCC visibility push(hidden)
 class PixelForwardLayerPhase1 GCC11_FINAL : public ForwardDetLayer, public GeometricSearchDetWithGroups {
  public:
-  PixelForwardLayerPhase1(std::vector<const PixelBlade*>& blades);
+  PixelForwardLayerPhase1(std::vector<const Phase1PixelBlade*>& blades);
   ~PixelForwardLayerPhase1();
 
   // GeometricSearchDet interface

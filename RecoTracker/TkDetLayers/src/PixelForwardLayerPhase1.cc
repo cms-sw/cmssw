@@ -22,7 +22,7 @@ using namespace std;
 
 typedef GeometricSearchDet::DetWithState DetWithState;
 
-PixelForwardLayerPhase1::PixelForwardLayerPhase1(vector<const PixelBlade*>& blades):
+PixelForwardLayerPhase1::PixelForwardLayerPhase1(vector<const Phase1PixelBlade*>& blades):
     theComps(blades.begin(),blades.end())
 {
   // Assumes blades are ordered inner first then outer; and within each by phi

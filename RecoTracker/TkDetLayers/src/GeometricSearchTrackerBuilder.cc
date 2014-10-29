@@ -28,7 +28,8 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
 {
   PixelBarrelLayerBuilder aPixelBarrelLayerBuilder;
   Phase2OTBarrelLayerBuilder aPhase2OTBarrelLayerBuilder;
-  PixelForwardLayerBuilder aPixelForwardLayerBuilder;
+  PixelForwardLayerBuilder<PixelBlade,PixelForwardLayer> aPixelForwardLayerBuilder;
+  PixelForwardLayerBuilder<Phase1PixelBlade,PixelForwardLayerPhase1> aPhase1PixelForwardLayerBuilder;
   Phase2OTECRingedLayerBuilder aPhase2OTECRingedLayerBuilder;
   TIBLayerBuilder aTIBLayerBuilder;
   TOBLayerBuilder aTOBLayerBuilder;
@@ -157,9 +158,9 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
       for(vector<const GeometricDet*>::const_iterator it2=thePxlFwdGeometricDetLayers.begin();
 	  it2!=thePxlFwdGeometricDetLayers.end(); it2++){
 	if((*it2)->positionBounds().z() < 0)
-	  theNegPxlFwdLayers.push_back( aPixelForwardLayerBuilder.build(*it2,theGeomDetGeometry) );
+	  theNegPxlFwdLayers.push_back( aPhase1PixelForwardLayerBuilder.build(*it2,theGeomDetGeometry) );
 	if((*it2)->positionBounds().z() > 0)
-	  thePosPxlFwdLayers.push_back( aPixelForwardLayerBuilder.build(*it2,theGeomDetGeometry) );
+	  thePosPxlFwdLayers.push_back( aPhase1PixelForwardLayerBuilder.build(*it2,theGeomDetGeometry) );
       }
     }
 
@@ -170,9 +171,9 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
 	if((*it2)->type() == GeometricDet::PixelPhase2FullDisk || (*it2)->type() == GeometricDet::PixelPhase2ReducedDisk ){
 	  LogDebug("BuildingPixelPhase2Disk") << "I got  " << (*it2)->name() << " type " << (*it2)->type();
 	  if((*it2)->positionBounds().z() < 0)
-	    theNegPxlFwdLayers.push_back( aPixelForwardLayerBuilder.build(*it2,theGeomDetGeometry) );
+	    theNegPxlFwdLayers.push_back( aPhase1PixelForwardLayerBuilder.build(*it2,theGeomDetGeometry) );
 	  if((*it2)->positionBounds().z() > 0)
-	    thePosPxlFwdLayers.push_back( aPixelForwardLayerBuilder.build(*it2,theGeomDetGeometry) );
+	    thePosPxlFwdLayers.push_back( aPhase1PixelForwardLayerBuilder.build(*it2,theGeomDetGeometry) );
 	}
 	else if((*it2)->type() == GeometricDet::OTPhase2Wheel){
 	  LogDebug("BuildingPhase2OTECRingedLayer") << "I got " << (*it2)->name() << " type " << (*it2)->type();
