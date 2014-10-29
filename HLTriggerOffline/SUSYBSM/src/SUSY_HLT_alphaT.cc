@@ -4,7 +4,6 @@
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "HLTriggerOffline/SUSYBSM/interface/SUSY_HLT_alphaT.h"
-#include "HLTriggerOffline/SUSYBSM/interface/AlphaT.h"
 
 typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > LorentzV;
 
