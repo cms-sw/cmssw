@@ -40,7 +40,7 @@ public:
   std::string makeCSV() const;
 
 protected:
-  std::string token(const BTagEntry::Parameters &par) const;
+  static std::string token(const BTagEntry::Parameters &par);
 
   std::string tagger_;
   std::map<std::string, std::vector<BTagEntry> > data_;

@@ -52,7 +52,7 @@ std::string BTagCalibration::makeCSV() const
   return buff.str();
 }
 
-std::string BTagCalibration::token(const BTagEntry::Parameters &par) const
+std::string BTagCalibration::token(const BTagEntry::Parameters &par)
 {
   std::stringstream buff;
   buff << par.operatingPoint << ", "
