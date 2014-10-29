@@ -3,8 +3,7 @@
 
 
 #include "TrackingTools/DetLayers/interface/DetRodOneR.h"
-//#include "TrackingTools/DetLayers/interface/PeriodicBinFinderInZ.h"
-#include "Utilities/BinningTools/interface/GenericBinFinderInZ.h"
+#include "TrackingTools/DetLayers/interface/PeriodicBinFinderInZ.h"
 
 /** A concrete implementation for PixelRod
  */
@@ -12,8 +11,7 @@
 #pragma GCC visibility push(hidden)
 class PixelRod GCC11_FINAL : public DetRodOneR{
  public:
-    //typedef PeriodicBinFinderInZ<float>   BinFinderType;
-    typedef GenericBinFinderInZ<float, GeomDet>   BinFinderType;
+    typedef PeriodicBinFinderInZ<float>   BinFinderType;
 
   PixelRod(std::vector<const GeomDet*>& theDets);
   ~PixelRod();
