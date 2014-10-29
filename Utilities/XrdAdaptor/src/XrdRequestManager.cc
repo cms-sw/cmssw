@@ -210,18 +210,18 @@ RequestManager::compareSources(const timespec &now, int a, int b)
 {
   bool findNewSource = false;
   if ((m_activeSources[a]->getQuality() > 5130) ||
-     ((m_activeSources[a]->getQuality() > 260) && (m_activeSources[1]->getQuality()*4 < m_activeSources[a]->getQuality())))
+     ((m_activeSources[a]->getQuality() > 260) && (m_activeSources[b]->getQuality()*4 < m_activeSources[a]->getQuality())))
   {
     {
       std::unique_lock<std::mutex> sentry(g_ml_mutex);
       edm::LogVerbatim("XrdAdaptorInternal") << "Removing "
           << m_activeSources[a]->ID() << " from active sources due to poor quality ("
-          << m_activeSources[a]->getQuality() << " vs " << m_activeSources[1]->getQuality() << ")" << std::endl;
+          << m_activeSources[a]->getQuality() << " vs " << m_activeSources[b]->getQuality() << ")" << std::endl;
     }
     if (m_activeSources[a]->getLastDowngrade().tv_sec != 0) {findNewSource = true;}
     m_activeSources[a]->setLastDowngrade(now);
     m_inactiveSources.emplace_back(m_activeSources[a]);
-    m_activeSources.erase(m_activeSources.begin());
+    m_activeSources.erase(m_activeSources.begin()+a);
   }
   return findNewSource;
 }
