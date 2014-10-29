@@ -16,6 +16,8 @@ DISCR_MAX = 999.
 class DataLoader(object):
     def __init__(self, csv_data):
 
+        print "Loading csv data"
+
         # list of entries
         ens = list(ROOT.BTagEntry(l) for l in csv_data)
         self.entries = ens
@@ -34,7 +36,7 @@ class DataLoader(object):
         # test points for variable data (using bound +- epsilon)
         eps = 1e-4
         eta_min = ETA_MIN if self.full_eta_mode else 0.
-        self.eta_test_points = list(itertools.ifilter(
+        eta_test_points = list(itertools.ifilter(
             lambda x: eta_min < x < ETA_MAX,
             itertools.chain(
                 (a + eps for a, _ in self.etas),
@@ -44,7 +46,7 @@ class DataLoader(object):
                 (eta_min + eps, ETA_MAX - eps),
             )
         ))
-        self.pt_test_points = list(itertools.ifilter(
+        pt_test_points = list(itertools.ifilter(
             lambda x: PT_MIN < x < PT_MAX,
             itertools.chain(
                 (a + eps for a, _ in self.pts),
@@ -54,7 +56,7 @@ class DataLoader(object):
                 (PT_MIN + eps, PT_MAX - eps),
             )
         ))
-        self.discr_test_points = list(itertools.ifilter(
+        discr_test_points = list(itertools.ifilter(
             lambda x: DISCR_MIN < x < DISCR_MAX,
             itertools.chain(
                 (a + eps for a, _ in self.discrs),
@@ -65,11 +67,11 @@ class DataLoader(object):
             )
         ))
         # use sets
-        self.eta_test_points = set(round(f, 5) for f in self.eta_test_points)
-        self.pt_test_points = set(round(f, 5) for f in self.pt_test_points)
-        self.discr_test_points = set(round(f, 5) for f in self.discr_test_points)
+        self.eta_test_points = set(round(f, 5) for f in eta_test_points)
+        self.pt_test_points = set(round(f, 5) for f in pt_test_points)
+        self.discr_test_points = set(round(f, 5) for f in discr_test_points)
 
-
+        print "Loading csv data done"
 
         print "\nFound operating points (need at least 0, 1, 2):"
         print self.ops
@@ -96,13 +98,13 @@ class DataLoader(object):
               "covered from %g to %g):" % (DISCR_MIN, DISCR_MAX)
         print self.discrs
 
-        print "\nTest points for eta:"
+        print "\nTest points for eta (bounds +- epsilon):"
         print self.eta_test_points
 
-        print "\nTest points for pt:"
+        print "\nTest points for pt (bounds +- epsilon):"
         print self.pt_test_points
 
-        print "\nTest points for discr:"
+        print "\nTest points for discr (bounds +- epsilon):"
         print self.discr_test_points
         print ""
 data = None
