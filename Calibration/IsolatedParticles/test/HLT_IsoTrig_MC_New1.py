@@ -112,32 +112,31 @@ process.GlobalTag = GlobalTag(process.GlobalTag,
 #                              'MCRUN2_72_V1A::All', '') 
 
 process.load('Calibration.IsolatedParticles.HLT_IsoTrack_cff')
-process.load('Calibration.HcalIsolatedTrackReco.isolEcalPixelTrackProd_cfi')
-process.load('HLTrigger.special.ecalIsolPixelTrackFilter_cfi')
-
-process.isolEcalPixelTrackProdHB = process.isolEcalPixelTrackProd.clone(
-    filterLabel          = cms.InputTag("hltIsolPixelTrackL2FilterHB"),
-    EBRecHitSource = cms.InputTag('hltEcalRecHit','EcalRecHitsEB'),
-    EERecHitSource = cms.InputTag('hltEcalRecHit','EcalRecHitsEE')
-    )
-
-process.isolEcalPixelTrackProdHE = process.isolEcalPixelTrackProdHB.clone(
-    filterLabel          = cms.InputTag("hltIsolPixelTrackL2FilterHE"),
-    )
-process.ecalIsolPixelTrackFilterHB = process.ecalIsolPixelTrackFilter.clone(
-    candTag = cms.InputTag("isolEcalPixelTrackProdHB"),
-    MaxEnergyIn = cms.double( 1.2 ),
-    MaxEnergyOut = cms.double( 1.2 )
-    )
-process.ecalIsolPixelTrackFilterHE = process.ecalIsolPixelTrackFilter.clone(
-    candTag = cms.InputTag("isolEcalPixelTrackProdHE"),
-    MaxEnergyIn = cms.double( 1.2 ),
-    MaxEnergyOut = cms.double( 1.2 )
-    )
+#process.load('Calibration.HcalIsolatedTrackReco.isolEcalPixelTrackProd_cfi')
+#
+#process.isolEcalPixelTrackProdHB = process.isolEcalPixelTrackProd.clone(
+#    filterLabel          = cms.InputTag("hltIsolPixelTrackL2FilterHB"),
+#    EBRecHitSource = cms.InputTag('hltEcalRecHit','EcalRecHitsEB'),
+#    EERecHitSource = cms.InputTag('hltEcalRecHit','EcalRecHitsEE')
+#    )
+#
+#process.isolEcalPixelTrackProdHE = process.isolEcalPixelTrackProdHB.clone(
+#    filterLabel          = cms.InputTag("hltIsolPixelTrackL2FilterHE"),
+#    )
+#process.ecalIsolPixelTrackFilterHB = process.ecalIsolPixelTrackFilter.clone(
+#    candTag = cms.InputTag("isolEcalPixelTrackProdHB"),
+#    MaxEnergyIn = cms.double( 1.2 ),
+#    MaxEnergyOut = cms.double( 1.2 )
+#    )
+#process.ecalIsolPixelTrackFilterHE = process.ecalIsolPixelTrackFilter.clone(
+#    candTag = cms.InputTag("isolEcalPixelTrackProdHE"),
+#    MaxEnergyIn = cms.double( 1.2 ),
+#    MaxEnergyOut = cms.double( 1.2 )
+#    )
 #process.hltIsolPixelTrackProdHE.maxPTrackForIsolation = 3.0
 #process.hltIsolPixelTrackProdHB.maxPTrackForIsolation = 3.0
-process.hltIsolPixelTrackProdHE.minPTrack = 10.0
-process.hltIsolPixelTrackProdHB.minPTrack = 10.0
+#process.hltIsolPixelTrackProdHE.minPTrack = 10.0
+#process.hltIsolPixelTrackProdHB.minPTrack = 10.0
 
 #process.hltHITIPTCorrectorHE.filterLabel = "ecalIsolPixelTrackFilterHE"
 #process.hltHITIPTCorrectorHB.filterLabel = "ecalIsolPixelTrackFilterHB"
@@ -150,10 +149,10 @@ process.hltIsolPixelTrackProdHB.minPTrack = 10.0
 #                                        ))
 
 process.HLT_IsoTrackHE_v16 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet68 + process.hltPreIsoTrackHE + process.HLTDoLocalPixelSequence + process.hltPixelLayerTripletsHITHB + process.hltHITPixelTracksHB + process.hltPixelLayerTripletsHITHE + process.hltHITPixelTracksHE + process.hltHITPixelVerticesHE + process.hltIsolPixelTrackProdHE + process.hltIsolPixelTrackL2FilterHE + 
-#process.HLTDoFullUnpackingEgammaEcalSequence + process.isolEcalPixelTrackProdHE + process.ecalIsolPixelTrackFilterHE +
+process.HLTDoFullUnpackingEgammaEcalSequence + process.hltIsolEcalPixelTrackProdHE + process.hltEcalIsolPixelTrackL2FilterHE +
 process.HLTDoLocalStripSequence + process.hltPixelLayerTriplets + process.hltHITPixelTripletSeedGeneratorHE + process.hltHITCkfTrackCandidatesHE + process.hltHITCtfWithMaterialTracksHE + process.hltHITIPTCorrectorHE + process.hltIsolPixelTrackL3FilterHE + process.HLTEndSequence )
 process.HLT_IsoTrackHB_v15 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet68 + process.hltPreIsoTrackHB + process.HLTDoLocalPixelSequence + process.hltPixelLayerTripletsHITHB + process.hltHITPixelTracksHB + process.hltHITPixelVerticesHB + process.hltIsolPixelTrackProdHB + process.hltIsolPixelTrackL2FilterHB + 
-#process.HLTDoFullUnpackingEgammaEcalSequence + process.isolEcalPixelTrackProdHB + process.ecalIsolPixelTrackFilterHB +
+process.HLTDoFullUnpackingEgammaEcalSequence + process.hltIsolEcalPixelTrackProdHB + process.hltEcalIsolPixelTrackL2FilterHB +
 process.HLTDoLocalStripSequence + process.hltPixelLayerTriplets + process.hltHITPixelTripletSeedGeneratorHB + process.hltHITCkfTrackCandidatesHB + process.hltHITCtfWithMaterialTracksHB + process.hltHITIPTCorrectorHB + process.hltIsolPixelTrackL3FilterHB + process.HLTEndSequence )
 
 process.HLTSchedule = cms.Schedule( *(process.HLTAnalyzerEndpath, process.HLT_AK8PFJet360TrimMod_Mass30_v1, process.HLT_Dimuon13_PsiPrime_v1, process.HLT_Dimuon13_Upsilon_v1, process.HLT_Dimuon20_Jpsi_v1, process.HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_MW_v1, process.HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v1, process.HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v1, process.HLT_DoubleMu33NoFiltersNoVtx_v1, process.HLT_DoubleMu38NoFiltersNoVtx_v1, process.HLT_DoubleMu4_3_Bs_v1, process.HLT_DoubleMu4_3_Jpsi_Displaced_v1, process.HLT_DoubleMu4_JpsiTrk_Displaced_v1, process.HLT_DoubleMu4_LowMassNonResonantTrk_Displaced_v1, process.HLT_DoubleMu4_PsiPrimeTrk_Displaced_v1, process.HLT_DoublePhoton85_v1, process.HLT_Ele17_Ele12_Ele10_CaloId_TrackId_v1, process.HLT_Ele20WP60_Ele8_Mass55_v1, process.HLT_Ele22_eta2p1_WP85_Gsf_LooseIsoPFTau20_v1, process.HLT_Ele23_Ele12_CaloId_TrackId_Iso_v1, process.HLT_Ele25WP60_SC4_Mass55_v1, process.HLT_Ele27_eta2p1_WP85_Gsf_CentralPFJet30_BTagCSV_v1, process.HLT_Ele27_eta2p1_WP85_Gsf_TriCentralPFJet40_v1, process.HLT_Ele27_eta2p1_WP85_Gsf_TriCentralPFJet60_50_35_v1, process.HLT_Ele27_eta2p1_WP85_Gsf_v1, process.HLT_Ele32_eta2p1_WP85_Gsf_CentralPFJet30_BTagCSV_v1, process.HLT_Ele32_eta2p1_WP85_Gsf_TriCentralPFJet40_v1, process.HLT_Ele32_eta2p1_WP85_Gsf_TriCentralPFJet60_50_35_v1, process.HLT_Ele32_eta2p1_WP85_Gsf_v1, process.HLT_Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50_v1, process.HLT_Ele95_CaloIdVT_GsfTrkIdT_v1, process.HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v1, process.HLT_IsoMu20_eta2p1_IterTrk02_CentralPFJet30_BTagCSV_v1, process.HLT_IsoMu20_eta2p1_IterTrk02_TriCentralPFJet40_v1, process.HLT_IsoMu20_eta2p1_IterTrk02_TriCentralPFJet60_50_35_v1, process.HLT_IsoMu20_eta2p1_IterTrk02_v1, process.HLT_IsoMu24_IterTrk02_v1, process.HLT_IsoMu24_eta2p1_IterTrk02_CentralPFJet30_BTagCSV_v1, process.HLT_IsoMu24_eta2p1_IterTrk02_TriCentralPFJet40_v1, process.HLT_IsoMu24_eta2p1_IterTrk02_TriCentralPFJet60_50_35_v1, process.HLT_IsoMu24_eta2p1_IterTrk02_v1, 
