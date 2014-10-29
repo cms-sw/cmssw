@@ -33,8 +33,7 @@
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-
-
+#include "HLTrigger/JetMET/interface/AlphaT.h"
 
 class SUSY_HLT_alphaT: public DQMEDAnalyzer{
 
