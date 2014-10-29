@@ -66,6 +66,11 @@ parser.add_argument('--l1Xml',
                     default = defaults.l1Xml,
                     metavar = 'MENU',
                     help    = 'Override the L1 menu, using the given Xml file. %(metavar)s should have the format "L1Menu_Collisions2012_v0_L1T_Scales_20101224_Imp0_0x1027.xml".\nThe default behaviour is to run with the L1 menu from the GlobalTag' )
+parser.add_argument('--l1skim',
+                    dest    = 'l1skim',
+                    action  = 'store_true',
+                    default = defaults.l1skim,
+                    help    = 'Add py config snippet to use new L1 skim files produced using the new L1, and ignoring the old L1.\nThe default behaviour is to not add this snippet' )
 parser.add_argument('--l1-emulator',
                     dest    = 'emulator',
                     action  = 'store',
