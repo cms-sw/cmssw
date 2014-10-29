@@ -1,15 +1,8 @@
 import itertools
 import unittest
+import sys
 import ROOT
 ROOT.gSystem.Load('libCondFormatsBTagObjects')
-
-
-def get_csv_data():
-    return [
-        "0, comb, central, 0, 0, 2.4, 20, 100, 0, 999, \"2*x\" \n",
-        "0, comb, central, 0, 0, 2.4, 100, 1000, 0, 999, \"2*x\" \n",
-        "0, ttbar, central, 0, 0, 2.4, 20, 1000, 0, 999, \"2*x\" \n",
-    ]
 
 
 ETA_MIN = -2.4
@@ -214,6 +207,15 @@ class BtagCalibConsistencyChecker(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    data = DataLoader(get_csv_data())
+    if len(sys.argv) < 2:
+        print "Need csv data file as first argument. Exit."
+        exit(-1)
+    with open(sys.argv.pop(1)) as f:
+        lines = f.readlines()
+        if not (lines and "OperatingPoint" in lines[0]):
+            print "Data file does not contain typical header. Exit."
+            exit(-1)
+        lines.pop(0)  # remove header
+        data = DataLoader(lines)
     unittest.main()
 
