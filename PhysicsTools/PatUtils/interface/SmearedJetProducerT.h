@@ -44,6 +44,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <type_traits>
 
 namespace SmearedJetProducer_namespace
 {
@@ -151,6 +152,7 @@ template <typename T, typename Textractor>
     : moduleLabel_(cfg.getParameter<std::string>("@module_label")),
       genJetMatcher_(cfg, consumesCollector()),
       jetResolutionExtractor_(cfg.getParameter<edm::ParameterSet>("jetResolutions")),
+      jetCorrLabel_(""),
       skipJetSelection_(0)
   {
     //std::cout << "<SmearedJetProducer::SmearedJetProducer>:" << std::endl;
@@ -171,8 +173,11 @@ template <typename T, typename Textractor>
       throw cms::Exception("SmearedJetProducer")
         << " Failed to load LUT = " << lutName.data() << " from file = " << inputFileName.fullPath().data() << " !!\n";
 
-    jetCorrLabel_ = ( cfg.exists("jetCorrLabel") ) ?
-      cfg.getParameter<std::string>("jetCorrLabel") : "";
+    if ( cfg.exists("jetCorrLabel") ) {
+      jetCorrLabel_ = cfg.getParameter<edm::InputTag>("jetCorrLabel");
+      jetCorrToken_ = consumes<reco::JetCorrector>(jetCorrLabel_);
+    }
+
     jetCorrEtaMax_ = ( cfg.exists("jetCorrEtaMax") ) ?
       cfg.getParameter<double>("jetCorrEtaMax") : 9.9;
 
@@ -232,7 +237,14 @@ template <typename T, typename Textractor>
       }
 
       reco::Candidate::LorentzVector corrJetP4 = jet.p4();
-      if ( jetCorrLabel_ != "" ) corrJetP4 = jetCorrExtractor_(jet, jetCorrLabel_, &evt, &es, jetCorrEtaMax_, &rawJetP4);
+      if ( !jetCorrLabel_.label().empty() ) {
+        edm::Handle<reco::JetCorrector> jetCorr;
+        evt.getByToken(jetCorrToken_, jetCorr);
+	corrJetP4 =
+	std::is_base_of<class PATJetCorrExtractor, Textractor>::value ?
+	  jetCorrExtractor_(jet, jetCorrLabel_.label(), jetCorrEtaMax_, &rawJetP4) :
+	  jetCorrExtractor_(jet, jetCorr.product(), jetCorrEtaMax_, &rawJetP4);
+      }
       if ( verbosity_ ) {
 	std::cout << "corrJet: Pt = " << corrJetP4.pt() << ", eta = " << corrJetP4.eta() << ", phi = " << corrJetP4.phi() << std::endl;
       }
@@ -346,7 +358,8 @@ template <typename T, typename Textractor>
   SmearedJetProducer_namespace::JetResolutionExtractorT<T> jetResolutionExtractor_;
   TRandom3 rnd_;
 
-  std::string jetCorrLabel_; // e.g. 'ak5PFJetL1FastL2L3' (reco::PFJets) / '' (pat::Jets)
+  edm::InputTag jetCorrLabel_;
+  edm::EDGetTokenT<reco::JetCorrector> jetCorrToken_;    // e.g. 'ak5CaloJetL1FastL2L3' (MC) / 'ak5CaloJetL1FastL2L3Residual' (Data)
   double jetCorrEtaMax_; // do not use JEC factors for |eta| above this threshold (recommended default = 4.7),
                          // in order to work around problem with CMSSW_4_2_x JEC factors at high eta,
                          // reported in

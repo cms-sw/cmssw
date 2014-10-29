@@ -24,6 +24,7 @@ template <typename T, typename Textractor>
 SmearedPFCandidateProducerForPFNoPUMEtT<T, Textractor>::SmearedPFCandidateProducerForPFNoPUMEtT(const edm::ParameterSet& cfg)
   : genJetMatcher_(cfg,consumesCollector()),
     jetResolutionExtractor_(cfg.getParameter<edm::ParameterSet>("jetResolutions")),
+    jetCorrLabel_(""),
     skipJetSelection_(nullptr)
 {
 
@@ -32,44 +33,47 @@ SmearedPFCandidateProducerForPFNoPUMEtT<T, Textractor>::SmearedPFCandidateProduc
 
   edm::FileInPath inputFileName = cfg.getParameter<edm::FileInPath>("inputFileName");
   std::string lutName = cfg.getParameter<std::string>("lutName");
-  if ( inputFileName.location() == edm::FileInPath::Unknown ) 
-    throw cms::Exception("SmearedPFCandidateProducerForPFNoPUMEt") 
+  if ( inputFileName.location() == edm::FileInPath::Unknown )
+    throw cms::Exception("SmearedPFCandidateProducerForPFNoPUMEt")
       << " Failed to find File = " << inputFileName << " !!\n";
-  
+
   inputFile_ = new TFile(inputFileName.fullPath().data());
   lut_ = dynamic_cast<TH2*>(inputFile_->Get(lutName.data()));
-  if ( !lut_ ) 
-    throw cms::Exception("SmearedPFCandidateProducerForPFNoPUMEt") 
+  if ( !lut_ )
+    throw cms::Exception("SmearedPFCandidateProducerForPFNoPUMEt")
       << " Failed to load LUT = " << lutName.data() << " from file = " << inputFileName.fullPath().data() << " !!\n";
-  
-  jetCorrLabel_ = ( cfg.exists("jetCorrLabel") ) ?
-    cfg.getParameter<std::string>("jetCorrLabel") : "";
+
+    if ( cfg.exists("jetCorrLabel") ) {
+      jetCorrLabel_ = cfg.getParameter<edm::InputTag>("jetCorrLabel");
+      jetCorrToken_ = consumes<reco::JetCorrector>(jetCorrLabel_);
+    }
+
   jetCorrEtaMax_ = ( cfg.exists("jetCorrEtaMax") ) ?
     cfg.getParameter<double>("jetCorrEtaMax") : etaMaxBound;
-  
+
   sigmaMaxGenJetMatch_ = cfg.getParameter<double>("sigmaMaxGenJetMatch");
-  
+
   smearBy_ = ( cfg.exists("smearBy") ) ? cfg.getParameter<double>("smearBy") : 1.0;
   //std::cout << "smearBy = " << smearBy_ << std::endl;
-  
+
   shiftBy_ = ( cfg.exists("shiftBy") ) ? cfg.getParameter<double>("shiftBy") : 0.;
   //std::cout << "shiftBy = " << shiftBy_ << std::endl;
-  
+
   skipJetSel_ = cfg.exists("skipJetSelection");
   if ( skipJetSel_ ) {
     std::string skipJetSelection_string = cfg.getParameter<std::string>("skipJetSelection");
     skipJetSelection_ = new StringCutObjectSelector<T>(skipJetSelection_string);
   }
-  
 
-  skipRawJetPtThreshold_  = ( cfg.exists("skipRawJetPtThreshold")  ) ? 
+
+  skipRawJetPtThreshold_  = ( cfg.exists("skipRawJetPtThreshold")  ) ?
     cfg.getParameter<double>("skipRawJetPtThreshold")  : defJetPtThr;
-  skipCorrJetPtThreshold_ = ( cfg.exists("skipCorrJetPtThreshold") ) ? 
+  skipCorrJetPtThreshold_ = ( cfg.exists("skipCorrJetPtThreshold") ) ?
     cfg.getParameter<double>("skipCorrJetPtThreshold") : defJetPtThr;
-  
+
   verbosity_ = ( cfg.exists("verbosity") ) ?
     cfg.getParameter<int>("verbosity") : 0;
-    
+
   produces<reco::PFCandidateCollection>();
 }
 
@@ -95,7 +99,7 @@ void SmearedPFCandidateProducerForPFNoPUMEtT<T, Textractor>::produce(edm::Event&
 
   for ( reco::PFCandidateCollection::const_iterator originalPFCandidate = originalPFCandidates->begin();
 	originalPFCandidate != originalPFCandidates->end(); ++originalPFCandidate ) {
-    
+
     const T* jet_matched = nullptr;
     for ( typename JetCollection::const_iterator jet = jets->begin();
 	  jet != jets->end(); ++jet ) {
@@ -113,37 +117,41 @@ void SmearedPFCandidateProducerForPFNoPUMEtT<T, Textractor>::produce(edm::Event&
     // if ( verbosity_ ) {
     //   std::cout << "rawJet: Pt = " << rawJetP4.pt() << ", eta = " << rawJetP4.eta() << ", phi = " << rawJetP4.phi() << std::endl;
     // }
-    
+
     reco::Candidate::LorentzVector corrJetP4 = jet_matched->p4();
-    if ( jetCorrLabel_ != "" ) corrJetP4 = jetCorrExtractor_(*jet_matched, jetCorrLabel_, &evt, &es, jetCorrEtaMax_, &rawJetP4);
+    if ( !jetCorrLabel_.label().empty() ) {
+      edm::Handle<reco::JetCorrector> jetCorr;
+      evt.getByToken(jetCorrToken_, jetCorr);
+      corrJetP4 = jetCorrExtractor_(*jet_matched, jetCorr.product(), jetCorrEtaMax_, &rawJetP4);
+    }
     // if ( verbosity_ ) {
     //   std::cout << "corrJet: Pt = " << corrJetP4.pt() << ", eta = " << corrJetP4.eta() << ", phi = " << corrJetP4.phi() << std::endl;
     // }
-    
-    double smearFactor = 1.;      
+
+    double smearFactor = 1.;
     double x = std::abs(corrJetP4.eta());
     double y = corrJetP4.pt();
     if ( x > lut_->GetXaxis()->GetXmin() && x < lut_->GetXaxis()->GetXmax() &&
 	 y > lut_->GetYaxis()->GetXmin() && y < lut_->GetYaxis()->GetXmax() ) {
       int binIndex = lut_->FindBin(x, y);
-      
+
       if ( smearBy_ > 0. ) smearFactor += smearBy_*(lut_->GetBinContent(binIndex) - 1.);
       double smearFactorErr = lut_->GetBinError(binIndex);
       //if ( verbosity_ ) std::cout << "smearFactor = " << smearFactor << " +/- " << smearFactorErr << std::endl;
-      
+
       if ( shiftBy_ != 0. ) {
 	smearFactor += (shiftBy_*smearFactorErr);
 	//if ( verbosity_ ) std::cout << "smearFactor(shifted) = " << smearFactor << std::endl;
       }
     }
-    
+
     double smearedJetEn = jet_matched->energy();
-      
+
     T rawJet(*jet_matched);
     rawJet.setP4(rawJetP4);
     double jetResolution = jetResolutionExtractor_(rawJet);
     double sigmaEn = jetResolution;
-    
+
     const reco::GenJet* genJet = genJetMatcher_(*jet_matched, &evt);
     bool isGenMatched = false;
     if ( genJet!=nullptr ) {
@@ -152,35 +160,35 @@ void SmearedPFCandidateProducerForPFNoPUMEtT<T, Textractor>::produce(edm::Event&
       // }
       double dEn = corrJetP4.E() - genJet->energy();
       if ( std::abs(dEn) < (sigmaMaxGenJetMatch_*sigmaEn) ) {
-//--- case 1: reconstructed jet matched to generator level jet, 
+//--- case 1: reconstructed jet matched to generator level jet,
 //            smear difference between reconstructed and "true" jet energy
 
 	// if ( verbosity_ ) {
-	//   std::cout << " successfully matched to genJet" << std::endl;	
+	//   std::cout << " successfully matched to genJet" << std::endl;
 	//   std::cout << "corrJetEn = " << corrJetP4.E() << ", genJetEn = " << genJet->energy() << " --> dEn = " << dEn << std::endl;
 	// }
-	
+
 	//smearedJetEn = jet_matched->energy()*(1. + (smearFactor - 1.)*dEn/std::max(rawJetP4.E(), corrJetP4.E()));
 	smearedJetEn = jet_matched->energy() + (smearFactor - 1.)*dEn;
 	isGenMatched = true;
       }
     }
     if ( !isGenMatched ) {
-//--- case 2: reconstructed jet **not** matched to generator level jet, 
+//--- case 2: reconstructed jet **not** matched to generator level jet,
 //            smear jet energy using MC resolution functions implemented in PFMEt significance algorithm (CMS AN-10/400)
 
       // if ( verbosity_ ) {
       // 	std::cout << " not matched to genJet" << std::endl;
       // 	std::cout << "corrJetEn = " << corrJetP4.E() << ", sigmaEn = " << sigmaEn << std::endl;
       // }
-      
+
       if ( smearFactor > 1. ) {
 	// CV: MC resolution already accounted for in reconstructed jet,
-	//     add additional Gaussian smearing of width = sqrt(smearFactor^2 - 1) 
+	//     add additional Gaussian smearing of width = sqrt(smearFactor^2 - 1)
 	//     to account for Data/MC **difference** in jet resolutions.
 	//     Take maximum(rawJetEn, corrJetEn) to avoid pathological cases
 	//    (e.g. corrJetEn << rawJetEn, due to L1Fastjet corrections)
-	
+
 	double addSigmaEn = jetResolution*sqrt(smearFactor*smearFactor - 1.);
 	//smearedJetEn = jet_matched->energy()*(1. + rnd_.Gaus(0., addSigmaEn)/std::max(rawJetP4.E(), corrJetP4.E()));
 	smearedJetEn = jet_matched->energy() + rnd_.Gaus(0., addSigmaEn);
@@ -204,14 +212,14 @@ void SmearedPFCandidateProducerForPFNoPUMEtT<T, Textractor>::produce(edm::Event&
       // }
       smearedJetP4 *= (smearedJetEn/jet_matched->energy());
     }
-    
+
     // if ( verbosity_ ) {
     //   std::cout << "smearedJet: Pt = " << smearedJetP4.pt() << ", eta = " << smearedJetP4.eta() << ", phi = " << smearedJetP4.phi() << std::endl;
-    //   std::cout << " dPt = " << (smearedJetP4.pt() - jet_matched->pt()) 
+    //   std::cout << " dPt = " << (smearedJetP4.pt() - jet_matched->pt())
     // 		<< " (dPx = " << (smearedJetP4.px() - jet_matched->px()) << ", dPy = " << (smearedJetP4.py() - jet_matched->py()) << ")" << std::endl;
     // }
-    
-    double scaleFactor = ( jet_matched->p4().energy() > 0. ) ? 
+
+    double scaleFactor = ( jet_matched->p4().energy() > 0. ) ?
       (smearedJetP4.energy()/jet_matched->p4().energy()) : 1.0;
 
     double smearedPx = scaleFactor*originalPFCandidate->px();
@@ -220,13 +228,13 @@ void SmearedPFCandidateProducerForPFNoPUMEtT<T, Textractor>::produce(edm::Event&
     double mass      = originalPFCandidate->mass();
     double smearedEn = sqrt(smearedPx*smearedPx + smearedPy*smearedPy + smearedPz*smearedPz + mass*mass);
     reco::Candidate::LorentzVector smearedPFCandidateP4(smearedPx, smearedPy, smearedPz, smearedEn);
-    
-    reco::PFCandidate smearedPFCandidate(*originalPFCandidate);      
+
+    reco::PFCandidate smearedPFCandidate(*originalPFCandidate);
     smearedPFCandidate.setP4(smearedPFCandidateP4);
-    
+
     smearedPFCandidates->push_back(smearedPFCandidate);
   }
-  
+
   evt.put(smearedPFCandidates);
 }
 
@@ -241,7 +249,7 @@ namespace SmearedJetProducer_namespace
   {
     public:
 
-     JetResolutionExtractorT(const edm::ParameterSet& cfg) 
+     JetResolutionExtractorT(const edm::ParameterSet& cfg)
        : jetResolutions_(cfg)
      {}
      ~JetResolutionExtractorT() {}
@@ -265,4 +273,4 @@ typedef SmearedPFCandidateProducerForPFNoPUMEtT<reco::PFJet, JetCorrExtractorT<r
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE(SmearedPFCandidateProducerForPFNoPUMEt);
- 
+
