@@ -288,6 +288,9 @@ process = customisePostLS1(process)
       # if requested or necessary, override the GlobalTag and connection strings (incl. L1!)
       self.overrideGlobalTag()
 
+      # if requested, add snippet to run on new L1 skim
+      self.switchToNewL1Skim()
+
       # if requested, run (part of) the L1 emulator
       self.runL1Emulator()
 
@@ -618,6 +621,24 @@ process = HLTrigger.Configuration.customizeHLTforL1Emulator.switchToL1Emulator( 
 process = HLTrigger.Configuration.customizeHLTforL1Emulator.%(CustomHLT)s( process )
 """ % emulator
 
+  def switchToNewL1Skim(self):
+    # add snippet to switch to new L1 skim files
+    if self.config.l1skim:
+      self.data += """
+# Customize the menu to use information from new L1 emulator in the L1 skim files
+process.hltL2MuonSeeds.GMTReadoutCollection = cms.InputTag("simGmtDigis::L1SKIM" )
+process.hltL1extraParticles.muonSource = cms.InputTag("simGmtDigis::L1SKIM" )
+for module in process.__dict__.itervalues():
+  if isinstance(module, cms._Module):
+    for parameter in module.__dict__.itervalues():
+      if isinstance(parameter, cms.InputTag):
+        if parameter.moduleLabel == 'hltGtDigis':
+          parameter.moduleLabel = "gtDigisFromSkim"
+        elif parameter.moduleLabel == 'hltL1GtObjectMap':
+          parameter.moduleLabel = "gtDigisFromSkim"
+        elif parameter.moduleLabel == 'hltGctDigis':
+          parameter.moduleLabel ="caloStage1LegacyFormatDigis"
+"""
 
   def overrideOutput(self):
     # override the "online" ShmStreamConsumer output modules with "offline" PoolOutputModule's
