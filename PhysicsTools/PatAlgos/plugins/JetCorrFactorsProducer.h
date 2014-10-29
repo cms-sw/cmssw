@@ -123,8 +123,11 @@ namespace pat {
     /// per definition the vectors for all elements in this map should
     /// have the same size
     FlavorCorrLevelMap levels_;
+    /// cache identifier for JetCorrectionsRecord
     unsigned long long cacheId_;
+    /// cache container for jet corrections
     std::map<JetCorrFactors::Flavor, std::shared_ptr<FactorizedJetCorrector> > correctors_;
+    /// cache container for JPTOffset jet corrections
     std::shared_ptr<FactorizedJetCorrector> extraJPTOffsetCorrector_;
   };
 
