@@ -549,7 +549,7 @@ U2000by1={'--relval': '2000,1'}
 U80by1={'--relval': '80,1'}
 
 hiAlca = {'--conditions':'auto:run2_mc_HIon'}
-hiDefaults=merge([hiAlca,{'--scenario':'HeavyIons'}])
+hiDefaults=merge([hiAlca,{'--scenario':'HeavyIons','-n':2}])
 
 steps['HydjetQ_MinBias_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_MinBias_2760GeV_cfi',U2000by1)])
 steps['HydjetQ_MinBias_2760GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_MinBias_2760GeV/%s/GEN-SIM'%(baseDataSetRelease[1],),location='STD',split=5)}
@@ -789,7 +789,7 @@ steps['RESIM']=merge([{'-s':'reGEN,reSIM','-n':10},steps['DIGI']])
 steps['RESIMDIGI']=merge([{'-s':'reGEN,reSIM,DIGI,L1,DIGI2RAW,HLT:@fake,RAW2DIGI,L1Reco','-n':10,'--restoreRNDSeeds':'','--process':'HLT'},steps['DIGI']])
 
     
-steps['DIGIHI']=merge([{'--conditions':'auto:run2_mc_HIon', '-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:HIon,RAW2DIGI,L1Reco', '--inputCommands':'"keep *","drop *_simEcalPreshowerDigis_*_*"', '-n':10}, hiDefaults, step2Upg2015Defaults])
+steps['DIGIHI']=merge([{'--conditions':'auto:run2_mc_HIon', '-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:HIon,RAW2DIGI,L1Reco', '--inputCommands':'"keep *","drop *_simEcalPreshowerDigis_*_*"', '-n':2}, hiDefaults, step2Upg2015Defaults])
 
 
 
@@ -892,7 +892,7 @@ steps['RECOCOSD']=merge([{'--scenario':'cosmics',
                           '--customise':'Configuration/DataProcessing/RecoTLR.customiseCosmicData'
                           },dataReco])
 
-step2HImixDefaults=merge([{'-n':'10',
+step2HImixDefaults=merge([{'-n':'2', #too slow for 10 events/hour
                            '--himix':'',
                            '--filein':'file.root',
                            '--process':'HISIGNAL'
