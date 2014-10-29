@@ -10,7 +10,12 @@ void BTagCalibration::addEntry(BTagEntry entry)
 const std::vector<BTagEntry>& BTagCalibration::getEntries(
   BTagEntry::Parameters par) const
 {
-  return data_.at(token(par));  // throws exception if key unavailable
+  auto tok = token(par);
+  if (!data_.count(tok)) {
+    std::cerr << "(OperatingPoint, measurementType, sysType) not available: "
+              << tok << std::endl;
+  }
+  return data_.at(tok);
 }
 
 void BTagCalibration::readCSV(const std::string &s)
