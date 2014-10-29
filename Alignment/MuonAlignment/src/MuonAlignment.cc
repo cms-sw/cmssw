@@ -152,16 +152,16 @@ void MuonAlignment::copyAlignmentToSurvey(double shiftErr, double angleErr) {
 	alignmentError != alignmentErrors.end();
 	++alignmentError) {
       align::ErrorMatrix matrix6x6 = ROOT::Math::SMatrixIdentity();
-      CLHEP::HepSymMatrix matrix3x3 = alignmentError->matrix();
+      CLHEP::HepSymMatrix matrix6x6new = alignmentError->matrix();
 
-      for (int i = 0;  i < 3;  i++) {
-	 for (int j = 0;  j < 3;  j++) {
-	    matrix6x6(i, j) = matrix3x3(i+1, j+1);
+      for (int i = 0;  i < 6;  i++) {
+	 for (int j = 0;  j < 6;  j++) {
+	    matrix6x6(i, j) = matrix6x6new(i, j);
 	 }
       }
-      matrix6x6(3,3) = angleErr;
-      matrix6x6(4,4) = angleErr;
-      matrix6x6(5,5) = angleErr;
+      //matrix6x6(3,3) = angleErr;
+      //matrix6x6(4,4) = angleErr;
+      //matrix6x6(5,5) = angleErr;
 
       Alignable *alignable = alignableMap[alignmentError->rawId()];
       alignable->setSurvey(new SurveyDet(alignable->surface(), matrix6x6));
@@ -212,10 +212,10 @@ void MuonAlignment::recursiveCopySurveyToAlignment(Alignable *alignable) {
       alignable->move(align::GlobalVector(pos.x(), pos.y(), pos.z()));
 
       align::ErrorMatrix matrix6x6 = survey->errors();  // start from 0,0
-      AlgebraicSymMatrix33 matrix3x3;                   // start from 0,0
-      for (int i = 0;  i < 3;  i++) {
+      AlgebraicSymMatrix66 matrix6x6new;                   // start from 0,0
+      for (int i = 0;  i < 6;  i++) {
 	 for (int j = 0;  j <= i;  j++) {
-	    matrix3x3(i, j) = matrix6x6(i, j);
+	    matrix6x6new(i, j) = matrix6x6(i, j);
 	 }
       }
 

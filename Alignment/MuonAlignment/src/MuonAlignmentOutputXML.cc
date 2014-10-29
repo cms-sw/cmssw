@@ -341,10 +341,15 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables, alig
 	 }
 
 	 else if (rawId != 0) {
+
 	    CLHEP::HepSymMatrix err = errors[(*alignable)->id()];
 
-	    outputFile << "  <setape xx=\"" << err(1,1) << "\" xy=\"" << err(1,2) << "\" xz=\"" << err(1,3)
-		       << "\" yy=\"" << err(2,2) << "\" yz=\"" << err(2,3) << "\" zz=\"" << err(3,3) << "\" />" << std::endl;
+            outputFile <<"  <setape xx=\"" << err(0,0) << "\" xy=\"" << err(0,1) << "\" xz=\"" << err(0,2) << "\" xa=\"" << err(0,3) << "\" xb=\"" << err(0,4) << "\" xc=\"" << err(0,5)
+                       << "\" yy=\"" << err(1,1) << "\" yz=\"" << err(1,2) << "\" ya=\"" << err(1,3) << "\" yb=\"" << err(1,4) << "\" yc=\"" << err(1,5)
+                       << "\" zz=\"" << err(2,2) << "\" za=\"" << err(2,3) << "\" zb=\"" << err(2,4) << "\" zc=\"" << err(2,5)
+                       << "\" aa=\"" << err(3,3) << "\" ab=\"" << err(3,4) << "\" ac=\"" << err(3,5)
+                       << "\" bb=\"" << err(4,4) << "\" bc=\"" << err(4,5)
+                       << "\" cc=\"" << err(5,5) << "\" />" << std::endl;
 	 }
 
 	 outputFile << "</operation>" << std::endl << std::endl;
