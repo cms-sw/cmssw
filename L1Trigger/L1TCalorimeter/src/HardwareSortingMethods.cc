@@ -399,8 +399,8 @@ namespace l1t{
     for(int k=0; k<2*N_INPUT_EGAMMAS*FIBER_PAIRS; k++){
       l1t::L1Candidate dummyJet;
       dummyJet.setHwPt(0);
-      dummyJet.setHwEta(0);
-      dummyJet.setHwPhi(0);
+      dummyJet.setHwEta(99);
+      dummyJet.setHwPhi(99);
       dummyJet.setHwQual(10);
       if(k<N_INPUT_EGAMMAS*FIBER_PAIRS){
 	iso_egamma_array_p.push_back(dummyJet);
@@ -432,6 +432,22 @@ namespace l1t{
 	noniso_egamma_array_p[8*fiberNum+index] = *ineg;
 
     }
+
+    // std::cout << "iso_egamma_array_m" << std::endl;
+    // for(int i = 0; i < (int)iso_egamma_array_m.size(); ++i)
+    // {
+    //   std::cout << iso_egamma_array_m[i].hwPt() << " "
+    // 	   << iso_egamma_array_m[i].hwEta() << " "
+    // 	   << iso_egamma_array_m[i].hwPhi() << std::endl;
+    // }
+
+    // std::cout << "iso_egamma_array_p" << std::endl;
+    // for(int i = 0; i < (int)iso_egamma_array_p.size(); ++i)
+    // {
+    //   std::cout << iso_egamma_array_p[i].hwPt() << " "
+    // 	   << iso_egamma_array_p[i].hwEta() << " "
+    // 	   << iso_egamma_array_p[i].hwPhi() << std::endl;
+    // }
 
     //verbose = true;
     //1
