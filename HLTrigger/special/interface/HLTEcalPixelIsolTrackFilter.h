@@ -3,7 +3,11 @@
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
-
+/*
+ This filter complements HLTPixelIsolTrackFilter in the trigger path
+ IsoTrackHB(HE) to eliminates non-MIP tracks in ECAL and thus improving
+ efficiency and reducing data rate significantly
+ */
 namespace edm {
   class ConfigurationDescriptions;
 }

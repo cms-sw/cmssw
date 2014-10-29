@@ -30,6 +30,8 @@ namespace reco {
       nhitOut_=-1;
       maxPtPxl_=-1;
       sumPtPxl_=-1;
+      etaEcal_=0;
+      phiEcal_=0;
       etaPhiEcal_=false; 
     }
     ///constructor from LorentzVector
@@ -40,6 +42,8 @@ namespace reco {
       nhitOut_=-1;
       maxPtPxl_=-1;
       sumPtPxl_=-1;
+      etaEcal_=0;
+      phiEcal_=0;
       etaPhiEcal_=false;
     }
     /// constructor from a track
@@ -50,6 +54,8 @@ namespace reco {
       enOut_=-1;
       nhitIn_=-1;
       nhitOut_=-1;
+      etaEcal_=0;
+      phiEcal_=0;
       etaPhiEcal_=false;
     }
         
@@ -59,7 +65,9 @@ namespace reco {
       l1tauJet_(tauRef), enIn_(enIn), enOut_(enOut), nhitIn_(nhitIn), nhitOut_(nhitOut) {
       maxPtPxl_=-1;
       sumPtPxl_=-1;
-      etaPhiEcal_ = false;
+      etaEcal_=0;
+      phiEcal_=0;
+      etaPhiEcal_=false;
     }
     /// Copy constructor
     IsolatedPixelTrackCandidate(const IsolatedPixelTrackCandidate&);
