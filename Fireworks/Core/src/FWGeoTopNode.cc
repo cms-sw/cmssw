@@ -261,7 +261,7 @@ void FWGeoTopNode::paintShape( Int_t tableIndex, const TGeoHMatrix& nm, bool vol
    if (compositeShape)
    {
       // m_scene->fNextCompositeID = phyID(tableIndex);
-
+return;
       Double_t halfLengths[3] = { compositeShape->GetDX(), compositeShape->GetDY(), compositeShape->GetDZ() };
 
       TBuffer3D buff(TBuffer3DTypes::kComposite);
