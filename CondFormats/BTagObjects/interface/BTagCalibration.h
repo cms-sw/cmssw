@@ -11,7 +11,7 @@
  *       - by type of measurement
  *         - by systematic
  *           - by eta bin
- *             - as 1D-function dependent of pt
+ *             - as 1D-function dependent of pt or discriminant
  *
  ************************************************************/
 

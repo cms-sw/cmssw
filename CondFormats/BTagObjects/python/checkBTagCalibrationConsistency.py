@@ -154,14 +154,18 @@ class BtagCalibConsistencyChecker(unittest.TestCase):
             self.assertLess(b, DISCR_MAX + 1e-7)
 
     def test_coverage(self):
-        for op in data.ops:
-            for meas in data.meass:
-                for sys in data.syss:
-                    for flav in data.flavs:
-                        self._check_coverage(op, meas, sys, flav)
+        res = list(itertools.chain.from_iterable(
+            self._check_coverage(op, meas, sys, flav)
+            for flav in data.flavs
+            for sys in data.syss
+            for meas in data.meass
+            for op in data.ops
+        ))
+        self.assertFalse(bool(res), "\n"+"\n".join(res))
 
     def _check_coverage(self, op, meas, sys, flav):
-        print "Checking coverage (op meas sys flav):", op, meas, sys, flav
+        region = "op=%d, %s, %s, flav=%d" % (op, meas, sys, flav)
+        print "Checking coverage for", region
         ens = filter(
             lambda e:
             e.params.operatingPoint == op and
@@ -170,6 +174,7 @@ class BtagCalibConsistencyChecker(unittest.TestCase):
             e.params.jetFlavor == flav,
             data.entries
         )
+        res = []
         for eta in data.eta_test_points:
             for pt in data.pt_test_points:
                 tmp_eta_pt = filter(
@@ -186,24 +191,29 @@ class BtagCalibConsistencyChecker(unittest.TestCase):
                             tmp_eta_pt
                         )
                         size = len(tmp_eta_pt_discr)
-                        self.assertGreater(
-                            size, 0, "Region not covered: "
-                            "eta=%f, pt=%f, discr=%f)" % (eta, pt, discr)
-                        )
-                        self.assertLess(
-                            size, 2, "Region covered %d times: "
-                            "eta=%f, pt=%f, discr=%f)" % (size, eta, pt, discr)
-                        )
+                        if size == 0:
+                            res.append(
+                                "Region not covered: %s eta=%f, pt=%f, "
+                                "discr=%f" % (region, eta, pt, discr)
+                            )
+                        elif size > 1:
+                            res.append(
+                                "Region covered %d times: %s eta=%f, pt=%f, "
+                                "discr=%f" % (size, region, eta, pt, discr)
+                            )
                 else:
                     size = len(tmp_eta_pt)
-                    self.assertGreater(
-                        size, 0, "Region not covered: "
-                        "eta=%f, pt=%f)" % (eta, pt)
-                    )
-                    self.assertLess(
-                        size, 2, "Region covered %d times: "
-                        "eta=%f, pt=%f)" % (size, eta, pt)
-                    )
+                    if size == 0:
+                        res.append(
+                            "Region not covered: "
+                            "%s eta=%f, pt=%f" % (region, eta, pt)
+                        )
+                    elif size > 1:
+                        res.append(
+                            "Region covered %d times: "
+                            "%s eta=%f, pt=%f" % (size, region, eta, pt)
+                        )
+        return res
 
 
 if __name__ == '__main__':
