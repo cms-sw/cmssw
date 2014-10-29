@@ -79,11 +79,7 @@ namespace Phase2Tracker {
   {
     std::auto_ptr<FEDRawDataCollection> buffers( new FEDRawDataCollection );
     edm::Handle< edmNew::DetSetVector<SiPixelCluster> > digis_handle;
-    event.getByLabel("siPixelClusters","", digis_handle);
-    // edm::Handle< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > > > digis_handle;
-    // event.getByLabel("TTStubsFromPixelDigis", "ClusterAccepted", digis_handle );
-    // const edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >* digs = digis_handle.product();
-    // edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >::const_iterator it;
+    event.getByToken( token_, digis_handle );
     Phase2TrackerDigiToRaw raw_producer(cabling_, stackMap_, digis_handle, 1);
     raw_producer.buildFEDBuffers(buffers);
     event.put(buffers);
