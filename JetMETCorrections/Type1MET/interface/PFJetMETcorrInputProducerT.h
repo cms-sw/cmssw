@@ -174,9 +174,9 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
 
       reco::Candidate::LorentzVector corrJetP4;
       if ( checkInputType.isPatJet(rawJet) )
-        corrJetP4 = jetCorrExtractor_(rawJet, jetCorrLabel_.label(), jetCorrEtaMax_);
+        corrJetP4 = jetCorrExtractor_(rawJet, jetCorrLabel_.label(), jetCorrEtaMax_, &rawJetP4);
       else
-        corrJetP4 = jetCorrExtractor_(rawJet, jetCorr.product(), jetCorrEtaMax_);
+        corrJetP4 = jetCorrExtractor_(rawJet, jetCorr.product(), jetCorrEtaMax_, &rawJetP4);
 
       if ( corrJetP4.pt() > type1JetPtThreshold_ ) {
 
@@ -185,9 +185,9 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
           edm::Handle<reco::JetCorrector> offsetCorr;
           evt.getByToken(offsetCorrToken_, offsetCorr);
           if ( checkInputType.isPatJet(rawJet) )
-            rawJetP4offsetCorr = jetCorrExtractor_(rawJet, offsetCorrLabel_.label(), jetCorrEtaMax_);
+            rawJetP4offsetCorr = jetCorrExtractor_(rawJet, offsetCorrLabel_.label(), jetCorrEtaMax_, &rawJetP4);
           else
-	    rawJetP4offsetCorr = jetCorrExtractor_(rawJet, offsetCorr.product(), jetCorrEtaMax_);
+	    rawJetP4offsetCorr = jetCorrExtractor_(rawJet, offsetCorr.product(), jetCorrEtaMax_, &rawJetP4);
 
 	  for ( typename std::vector<type2BinningEntryType*>::iterator type2BinningEntry = type2Binning_.begin();
 		type2BinningEntry != type2Binning_.end(); ++type2BinningEntry ) {
