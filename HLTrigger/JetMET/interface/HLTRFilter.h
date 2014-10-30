@@ -7,8 +7,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "HLTrigger/HLTcore/interface/HLTFilter.h"
+
 #include "DataFormats/METReco/interface/CaloMET.h"
-#include "DataFormats/METReco/interface/CaloMETCollection.h"
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/METReco/interface/METCollection.h"
 #include "TVector3.h"
 #include "TLorentzVector.h"
 
@@ -20,21 +24,23 @@ namespace edm {
 // class declaration
 //
 
-class HLTRFilter : public edm::EDFilter {
+class HLTRFilter : public HLTFilter {
 
    public:
 
       explicit HLTRFilter(const edm::ParameterSet&);
       ~HLTRFilter();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
       static double CalcMR(TLorentzVector ja,TLorentzVector jb);
-      static double CalcR(double MR, TLorentzVector ja,TLorentzVector jb, edm::Handle<reco::CaloMETCollection> met, const std::vector<math::XYZTLorentzVector>& muons);
+      static double CalcR(double MR, TLorentzVector ja,TLorentzVector jb, edm::Handle<edm::View<reco::MET> > met, const std::vector<math::XYZTLorentzVector>& muons);
+      //adds the values of MR and Rsq to the event as MET objects
+      void addObjects(edm::Event&, trigger::TriggerFilterObjectWithRefs & filterproduct, double MR, double Rsq) const; 
 
    private:
       edm::EDGetTokenT<std::vector<math::XYZTLorentzVector>> m_theInputToken;
-      edm::EDGetTokenT<reco::CaloMETCollection> m_theMETToken;
+      edm::EDGetTokenT<edm::View<reco::MET>> m_theMETToken;
       edm::InputTag inputTag_; // input tag identifying product
       edm::InputTag inputMetTag_; // input tag identifying MET product
       bool doMuonCorrection_;  // do the muon corrections

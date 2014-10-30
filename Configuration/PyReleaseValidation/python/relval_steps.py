@@ -327,7 +327,7 @@ baseDataSetRelease=[
     #'CMSSW_7_1_0_pre5-START71_V1-v1',         # 8 TeV , for the one sample which is part of the routine relval production (MinBias)   -- unused in 72_pre4
     'CMSSW_7_1_0_pre5-START71_V1-v2',          # 8 TeV , for the one sample which is part of the routine relval production (RelValZmumuJets_Pt_20_300, because of -v2)
                                                # this an previous should be unified, when -v2 will be gone
-    'CMSSW_7_2_0_pre4-POSTLS172_V3-v2',        # 13 TeV samples with GEN-SIM from 720_p4;
+    'CMSSW_7_3_0_pre1-PRE_LS172_V15-v1',        # 13 TeV samples with GEN-SIM from 720_p4;
     ]
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available 
@@ -399,7 +399,7 @@ steps['H130GGgluonfusion_13INPUT']={'INPUT':InputInfo(dataSet='/RelValH130GGgluo
 steps['PhotonJets_Pt_10_13INPUT']={'INPUT':InputInfo(dataSet='/RelValPhotonJets_Pt_10_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
 steps['PhotonJets_Pt_10_13_HIINPUT']={'INPUT':InputInfo(dataSet='/RelValPhotonJets_Pt_10_13_HI/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
 steps['QQH1352T_Tauola_13INPUT']={'INPUT':InputInfo(dataSet='/RelValQQH1352T_Tauola_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
-steps['ZmumuJets_Pt_20_300_13INPUT']={'INPUT':InputInfo(dataSet='/RelValZmumuJets_Pt_20_300_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
+#steps['ZmumuJets_Pt_20_300_13INPUT']={'INPUT':InputInfo(dataSet='/RelValZmumuJets_Pt_20_300_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
 steps['ADDMonoJet_d3MD3_13INPUT']={'INPUT':InputInfo(dataSet='/RelValADDMonoJet_d3MD3_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
 steps['RSKKGluon_m3000GeV_13INPUT']={'INPUT':InputInfo(dataSet='/RelValRSKKGluon_m3000GeV_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
 steps['Pythia6_BuJpsiK_TuneZ2star_13INPUT']={'INPUT':InputInfo(dataSet='/RelValPythia6_BuJpsiK_TuneZ2star_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
@@ -476,8 +476,8 @@ steps['ZTT_13']=gen2015('ZTT_Tauola_All_hadronic_13TeV_cfi',Kby(9,150))
 steps['H130GGgluonfusion_13']=gen2015('H130GGgluonfusion_13TeV_cfi',Kby(9,100))
 steps['PhotonJets_Pt_10_13']=gen2015('PhotonJet_Pt_10_13TeV_cfi',Kby(9,150))
 steps['QQH1352T_Tauola_13']=gen2015('QQH1352T_Tauola_13TeV_cfi',Kby(9,100))
-steps['ZmumuJets_Pt_20_300']=gen('ZmumuJets_Pt_20_300_GEN_8TeV_cfg',Kby(25,100))
-steps['ZmumuJets_Pt_20_300_13']=gen2015('ZmumuJets_Pt_20_300_GEN_13TeV_cfg',Kby(25,100))
+#steps['ZmumuJets_Pt_20_300']=gen('ZmumuJets_Pt_20_300_GEN_8TeV_cfg',Kby(25,100))
+#steps['ZmumuJets_Pt_20_300_13']=gen2015('ZmumuJets_Pt_20_300_GEN_13TeV_cfg',Kby(25,100))
 steps['ADDMonoJet_d3MD3']=genS('ADDMonoJet_8TeV_d3MD3_cfi',Kby(9,100))
 steps['ADDMonoJet_d3MD3_13']=gen2015('ADDMonoJet_13TeV_d3MD3_cfi',Kby(9,100))
 steps['RSKKGluon_m3000GeV_13']=gen2015('RSKKGluon_m3000GeV_13TeV_cff',Kby(9,100))
@@ -505,7 +505,7 @@ steps['ZpEE_2250_8TeV_TauolaINPUT']={'INPUT':InputInfo(dataSet='/RelValZpEE_2250
 steps['ZpTT_1500_8TeV_TauolaINPUT']={'INPUT':InputInfo(dataSet='/RelValZpTT_1500_8TeV_Tauola/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 
 
-steps['ZmumuJets_Pt_20_300INPUT']={'INPUT':InputInfo(dataSet='/RelValZmumuJets_Pt_20_300/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+#steps['ZmumuJets_Pt_20_300INPUT']={'INPUT':InputInfo(dataSet='/RelValZmumuJets_Pt_20_300/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 
 
 steps['Cosmics']=merge([{'cfg':'UndergroundCosmicMu_cfi.py','--scenario':'cosmics'},Kby(666,100000),step1Defaults])
@@ -736,6 +736,7 @@ PU2={'-n':10,'--pileup':'default','--pileup_input':'das:/RelValMinBias/%s/GEN-SI
 PU25={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(baseDataSetRelease[4],)}
 PU50={'-n':10,'--pileup':'AVE_35_BX_50ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(baseDataSetRelease[4],)}
 
+
 #PU for FastSim
 PUFS={'--pileup':'default'}
 PUFS2={'--pileup':'mix_2012_Startup_inTimeOnly'}
@@ -867,7 +868,7 @@ steps['REPACKHID']=merge([{'--scenario':'HeavyIons',
 steps['RECOHID10']=merge([{'--scenario':'HeavyIons',
                          '-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBiasHI+HcalCalMinBias,DQM',
                          '--datatier':'RECO,DQMIO',
-                         '--eventcontent':'RECO,DQM'},
+                         '--eventcontent':'RECO,DQM','-n':30},
                         steps['RECOD']])
 steps['RECOHID11']=merge([{'--repacked':''},
                         steps['RECOHID10']])
