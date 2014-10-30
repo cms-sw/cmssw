@@ -18,7 +18,7 @@ process.load("Configuration.Generator.TTbar_cfi")
 
 
 # Common inputs, with fake conditions
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 process.load('FastSimulation.Configuration.Geometries_cff')
 
 # L1 Emulator and HLT Setup
@@ -79,7 +79,7 @@ process.load('FastSimulation.PileUpProducer.PileUpSimulator_2012_Startup_inTimeO
 #process.famosPileUp.PileUpSimulator.averageNumber = 0.0
 
 # Get frontier conditions   - not applied in the HCAL, see below
-from HLTrigger.Configuration.AutoCondGlobalTag import AutoCondGlobalTag
+from HLTrigger.Configuration.AutoCondGlobalTag_condDBv2 import AutoCondGlobalTag
 process.GlobalTag = AutoCondGlobalTag(process.GlobalTag,'auto:run2_mc_GRun')
 
 # Apply ECAL miscalibration 
