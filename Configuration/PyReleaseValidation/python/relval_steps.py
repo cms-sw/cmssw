@@ -384,10 +384,11 @@ steps['Higgs200ChargedTaus_13INPUT']={'INPUT':InputInfo(dataSet='/RelValHiggs200
 # steps['JpsiMM_13INPUT']={'INPUT':InputInfo(dataSet='/RelValJpsiMM_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
 
 # activate GEN-SIM recycling once we'll have the first set of gen-sim
-# steps['Upsilon1SToMuMu_13INPUT']={'INPUT':InputInfo(dataSet='/Upsilon1SToMuMu_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
-# steps['BsToMuMu_13INPUT']={'INPUT':InputInfo(dataSet='/BsToMuMu_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
-# steps['BuToKstarMuMu_13INPUT']={'INPUT':InputInfo(dataSet='/BuToKstarMuMu_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
-
+steps['Upsilon1SToMuMu_13INPUT']={'INPUT':InputInfo(dataSet='/Upsilon1SToMuMu_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
+steps['BuToKstarMuMu_13INPUT']={'INPUT':InputInfo(dataSet='/BuToKstarMuMu_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
+steps['BsToMuMu_13INPUT']={'INPUT':InputInfo(dataSet='/BsToMuMu_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
+steps['JpsiMuMu_Pt-15INPUT']={'INPUT':InputInfo(dataSet='/JpsiMuMu_Pt-15/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
+steps['BuToKstarPsi2S_13INPUT']={'INPUT':InputInfo(dataSet='/BuToKstarPsi2S_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
 steps['WE_13INPUT']={'INPUT':InputInfo(dataSet='/RelValWE_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
 steps['WM_13INPUT']={'INPUT':InputInfo(dataSet='/RelValWM_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
 steps['WpM_13INPUT']={'INPUT':InputInfo(dataSet='/RelValWpM_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
@@ -457,11 +458,11 @@ steps['WpM']=genS('WpM_8TeV_cfi',Kby(9,200))
 steps['ZMM']=genS('ZMM_8TeV_cfi',Kby(18,300))
 steps['ZpMM']=genS('ZpMM_8TeV_cfi',Kby(9,200))
 steps['Higgs200ChargedTaus_13']=gen2015('H200ChargedTaus_Tauola_13TeV_cfi',Kby(9,100))
-# remove JpsiMM_13 at the next round
-# steps['JpsiMM_13']=gen2015('JpsiMM_13TeV_cfi',Kby(66,1000))
-steps['Upsilon1SToMuMu_13']=gen2015('Upsilon1SToMuMu_forSTEAM_13TeV_cfi',Kby(64,709))
-steps['BsToMuMu_13']=gen2015('BsToMuMu_forSTEAM_13TeV_cfi',Kby(30000,333333))
+steps['Upsilon1SToMuMu_13']=gen2015('Upsilon1SToMuMu_forSTEAM_13TeV_cfi',Kby(17,190))
 steps['BuToKstarMuMu_13']=gen2015('BuToKstarMuMu_forSTEAM_13TeV_cfi',Kby(2250,25000))
+steps['BsToMuMu_13']=gen2015('BsToMuMu_forSTEAM_13TeV_cfi',Kby(30000,333333))
+steps['JpsiMuMu_Pt-15']=gen2015('JpsiMuMu_Pt-15_forSTEAM_13TeV_cfi',Kby(11000,122000))
+steps['BuToKstarPsi2S_13']=gen2015('BuToKstarPsi2S_forSTEAM_13TeV_cfi',Kby(16000,176000))
 steps['WE_13']=gen2015('WE_13TeV_cfi',Kby(9,100))
 steps['WM_13']=gen2015('WM_13TeV_cfi',Kby(9,200))
 steps['WpM_13']=gen2015('WpM_13TeV_cfi',Kby(9,200))
