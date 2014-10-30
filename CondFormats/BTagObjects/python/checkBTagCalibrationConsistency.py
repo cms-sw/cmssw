@@ -31,19 +31,26 @@ class DataLoader(object):
         self.pts = set((e.params.ptMin, e.params.ptMax) for e in ens)
         self.discrs = set((e.params.discrMin, e.params.discrMax) for e in ens)
 
-        self.full_eta_mode = any(eta_min < 0. for eta_min, _ in self.etas)
-
         # test points for variable data (using bound +- epsilon)
         eps = 1e-4
-        eta_min = ETA_MIN if self.full_eta_mode else 0.
         eta_test_points = list(itertools.ifilter(
-            lambda x: eta_min < x < ETA_MAX,
+            lambda x: ETA_MIN < x < ETA_MAX,
             itertools.chain(
                 (a + eps for a, _ in self.etas),
                 (a - eps for a, _ in self.etas),
                 (b + eps for _, b in self.etas),
                 (b - eps for _, b in self.etas),
-                (eta_min + eps, ETA_MAX - eps),
+                (ETA_MIN + eps, ETA_MAX - eps),
+            )
+        ))
+        abseta_test_points = list(itertools.ifilter(
+            lambda x: 0. < x < ETA_MAX,
+            itertools.chain(
+                (a + eps for a, _ in self.etas),
+                (a - eps for a, _ in self.etas),
+                (b + eps for _, b in self.etas),
+                (b - eps for _, b in self.etas),
+                (eps, ETA_MAX - eps),
             )
         ))
         pt_test_points = list(itertools.ifilter(
@@ -68,6 +75,7 @@ class DataLoader(object):
         ))
         # use sets
         self.eta_test_points = set(round(f, 5) for f in eta_test_points)
+        self.abseta_test_points = set(round(f, 5) for f in abseta_test_points)
         self.pt_test_points = set(round(f, 5) for f in pt_test_points)
         self.discr_test_points = set(round(f, 5) for f in discr_test_points)
 
@@ -168,6 +176,8 @@ class BtagCalibConsistencyChecker(unittest.TestCase):
     def _check_coverage(self, op, meas, sys, flav):
         region = "op=%d, %s, %s, flav=%d" % (op, meas, sys, flav)
         print "Checking coverage for", region
+
+        # load relevant entries
         ens = filter(
             lambda e:
             e.params.operatingPoint == op and
@@ -176,8 +186,16 @@ class BtagCalibConsistencyChecker(unittest.TestCase):
             e.params.jetFlavor == flav,
             data.entries
         )
+
+        # use full or half eta range?
+        if any(e.params.etaMin < 0. for e in ens):
+            eta_test_points = data.eta_test_points
+        else:
+            eta_test_points = data.abseta_test_points
+
+        # walk over all testpoints
         res = []
-        for eta in data.eta_test_points:
+        for eta in eta_test_points:
             for pt in data.pt_test_points:
                 tmp_eta_pt = filter(
                     lambda e:
