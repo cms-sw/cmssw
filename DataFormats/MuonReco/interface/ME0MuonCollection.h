@@ -6,7 +6,7 @@
  * The collection of ME0Muon's. See \ref ME0MuonCollection.h for details.
  *
  *  $Date: 2010/03/12 13:08:15 $
- *  \author Matteo Sani
+ *  \author David Nash
  */
 
 #include "DataFormats/MuonReco/interface/ME0Muon.h"
@@ -17,5 +17,6 @@ typedef std::vector<reco::ME0Muon> ME0MuonCollection;
 
 /// persistent reference to a ME0Muon
 typedef edm::Ref<ME0MuonCollection> ME0MuonRef;
+
 	
 #endif

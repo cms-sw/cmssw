@@ -28,6 +28,8 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="Geometry/CommonDetUnit"/>
 <use   name="Geometry/CSCGeometry"/>
+<use   name="Geometry/GEMGeometry"/>
+<use   name="DataFormats/GEMRecHit"/>
 <use   name="Geometry/Records"/>
 <use   name="SimDataFormats/Track"/>
 <use   name="SimDataFormats/TrackingHit"/>
@@ -35,6 +37,9 @@
 <use   name="RecoMuon/TrackingTools"/>
 <use   name="DataFormats/CSCRecHit"/>
 <use   name="RecoLocalCalo/HcalRecAlgos"/>
+<use   name="SimTracker/TrackAssociation"/>
+<use   name="SimTracker/TrackerHitAssociation"/>
+
 <export>
   <lib   name="1"/>
 </export>

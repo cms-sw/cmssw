@@ -184,8 +184,8 @@
     <class name="edm::Ref<std::vector<EmulatedME0Segment>,EmulatedME0Segment,edm::refhelper::FindUsingAdvance<std::vector<EmulatedME0Segment>,EmulatedME0Segment> >"/>
     
     <class name="std::vector<reco::ME0Muon>"/>
-    <class name="reco::ME0Muon" ClassVersion="14">
-      <version ClassVersion="14" checksum="13864262"/>
+    <class name="reco::ME0Muon" ClassVersion="15">
+      <version ClassVersion="15" checksum="3167678990"/>
     </class>
     <class name="edm::Wrapper<std::vector<reco::ME0Muon> >"/>
     

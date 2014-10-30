@@ -28,6 +28,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include <DataFormats/GEMRecHit/interface/ME0SegmentCollection.h>
 
 
 class ME0MuonConverter : public edm::EDProducer {
