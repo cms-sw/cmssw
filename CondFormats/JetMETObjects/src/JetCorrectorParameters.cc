@@ -88,8 +88,8 @@ JetCorrectorParameters::Record::Record(const std::string& fLine,unsigned fNvar) 
         }
       for(unsigned i=0;i<mNvar;i++)
         {
-          mMin.push_back(getFloat(tokens[i*mNvar]));
-          mMax.push_back(getFloat(tokens[i*mNvar+1])); 
+          mMin.push_back(getFloat(tokens[i*2]));
+          mMax.push_back(getFloat(tokens[i*2+1])); 
         }
       unsigned nParam = getUnsigned(tokens[2*mNvar]);
       if (nParam != tokens.size()-(2*mNvar+1)) 
