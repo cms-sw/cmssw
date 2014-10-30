@@ -162,7 +162,7 @@ class Reco(Scenario):
         options.scenario = self.cbSc
         options.step = step
         options.conditions = args['globaltag'] if 'globaltag' in args else 'None'
-        if args.has_key('globalTagConnect'):
+        if args.has_key('globalTagConnect') and args['globalTagConnect'] != '':
             options.conditions += ','+args['globalTagConnect']
 
         options.triggerResultsProcess = 'RECO'
