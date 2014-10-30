@@ -1,9 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 matchGenHFHadron = cms.EDProducer("GenHFHadronMatcher",
-    genJets = cms.InputTag('ak5GenJets','','SIM'),   
+    genParticles = cms.InputTag('genParticles'),
+    jetFlavourInfos = cms.InputTag("genJetFlavourInfos"),
     flavour = cms.int32(5),
-    onlyJetClusteredHadrons = cms.bool(False),
+    onlyJetClusteredHadrons = cms.bool(True),
     noBBbarResonances = cms.bool(True),
 )
 
