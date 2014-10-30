@@ -3,6 +3,7 @@
 SectorTree::SectorTree(){
   srand ( time(NULL) );
   superStripSize=-1;
+  mapNeedsUpdate=true;
 }
 
 SectorTree::~SectorTree(){
@@ -12,6 +13,11 @@ SectorTree::~SectorTree(){
 }
 
 Sector* SectorTree::getSector(vector<int> ladders, vector<int> modules){
+
+  // check that the multimap is populated
+  if(mapNeedsUpdate)
+    updateSectorMap();
+
   pair<multimap<string,Sector*>::iterator,multimap<string,Sector*>::iterator> ret;
   multimap<string,Sector*>::iterator first;
 
@@ -63,10 +69,7 @@ Sector* SectorTree::getSector(const Hit& h){
 void SectorTree::addSector(Sector s){
   Sector* ns = new Sector(s);
   sector_list.push_back(ns);
-  vector<string> keys = ns->getKeys();
-  for(unsigned int i=0;i<keys.size();i++){
-    sectors.insert(pair<string, Sector*>(keys[i],ns));
-  }
+  mapNeedsUpdate = true;
 }
 
 void SectorTree::updateSectorMap(){
@@ -78,6 +81,7 @@ void SectorTree::updateSectorMap(){
       sectors.insert(pair<string, Sector*>(keys[i],ns));
     }
   }
+  mapNeedsUpdate=false;
 }
 
 vector<Sector*> SectorTree::getAllSectors(){
