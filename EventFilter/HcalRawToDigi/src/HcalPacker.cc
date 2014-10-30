@@ -38,9 +38,9 @@ static unsigned char processTrig(const HcalTrigPrimDigiCollection* pt, const Hca
   HcalTrigPrimDigiCollection::const_iterator i=pt->find(tid);
   if (i!=pt->end()) {
     int presamples=i->presamples();
-    int samples=i->size();
+    size=i->size();
 
-    for (int j=0; j<samples; j++) {
+    for (int j=0; j<size; j++) {
        buffer[j]=(*i)[j].raw();
        if (j==presamples) buffer[j]|=0x0200;
     }
