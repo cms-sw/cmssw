@@ -7,7 +7,7 @@
 namespace l1t {
    class TauUnpacker : public Unpacker {
       public:
-         virtual bool unpack(const unsigned block_id, const unsigned size, const unsigned char *data, UnpackerCollections *coll) override;
+         virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
    };
 }
 
@@ -15,12 +15,12 @@ namespace l1t {
 
 namespace l1t {
    bool
-   TauUnpacker::unpack(const unsigned block_id, const unsigned size, const unsigned char *data, UnpackerCollections *coll)
+   TauUnpacker::unpack(const Block& block, UnpackerCollections *coll)
    {
 
-     LogDebug("L1T") << "Block ID  = " << block_id << " size = " << size;
+     LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize();
 
-     int nBX = int(ceil(size / 8.)); // Since there are 8 Tau objects reported per event (see CMS IN-2013/005)
+     int nBX = int(ceil(block.header().getSize() / 8.)); // Since there are 8 Tau objects reported per event (see CMS IN-2013/005)
 
      // Find the first and last BXs
      int firstBX = -(ceil((double)nBX/2.)-1);
@@ -42,9 +42,9 @@ namespace l1t {
      // Loop over multiple BX and then number of Tau cands filling collection
      for (int bx=firstBX; bx<lastBX; bx++){
 
-       for (unsigned nTau=0; nTau < 8 && nTau < size; nTau++){
+       for (unsigned nTau=0; nTau < 8 && nTau < block.header().getSize(); nTau++){
 
-         uint32_t raw_data = pop(data,i); // pop advances the index i internally
+         uint32_t raw_data = block.payload()[i++];
 
          if (raw_data == 0)
             continue;

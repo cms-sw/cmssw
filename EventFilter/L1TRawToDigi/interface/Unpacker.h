@@ -3,22 +3,14 @@
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
-namespace l1t {
-   inline uint32_t pop(const unsigned char* ptr, unsigned& idx) {
-     uint32_t res = ptr[idx + 0] | (ptr[idx + 1] << 8) | (ptr[idx + 2] << 16) | (ptr[idx + 3] << 24);
-     idx += 4;
-     return res;
-   };
+#include "EventFilter/L1TRawToDigi/interface/Block.h"
 
+namespace l1t {
    class UnpackerCollections;
 
    class Unpacker {
       public:
-         virtual bool unpack(
-               const unsigned block_id,
-               const unsigned size,
-               const unsigned char *data,
-               UnpackerCollections *coll) = 0;
+         virtual bool unpack(const Block& block, UnpackerCollections *coll) = 0;
    };
 
    typedef Unpacker*(unpack_fct)();

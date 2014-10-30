@@ -7,7 +7,7 @@
 namespace l1t {
    class JetUnpacker : public Unpacker {
       public:
-         virtual bool unpack(const unsigned block_id, const unsigned size, const unsigned char *data, UnpackerCollections *coll) override;
+         virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
    };
 }
 
@@ -15,12 +15,12 @@ namespace l1t {
 
 namespace l1t {
    bool
-   JetUnpacker::unpack(const unsigned block_id, const unsigned size, const unsigned char *data, UnpackerCollections *coll)
+   JetUnpacker::unpack(const Block& block, UnpackerCollections *coll)
    {
 
-     LogDebug("L1T") << "Block ID  = " << block_id << " size = " << size;
+     LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize();
 
-     int nBX = int(ceil(size / 12.)); // Since there are 12 jets reported per event (see CMS IN-2013/005)
+     int nBX = int(ceil(block.header().getSize() / 12.)); // Since there are 12 jets reported per event (see CMS IN-2013/005)
 
      // Find the first and last BXs
      int firstBX = -(ceil((double)nBX/2.)-1);
@@ -41,8 +41,8 @@ namespace l1t {
 
      // Loop over multiple BX and then number of jets filling jet collection
      for (int bx=firstBX; bx<lastBX; bx++){
-       for (unsigned nJet=0; nJet < 12 && nJet < size; nJet++){
-         uint32_t raw_data = pop(data,i); // pop advances the index i internally
+       for (unsigned nJet=0; nJet < 12 && nJet < block.header().getSize(); nJet++){
+         uint32_t raw_data = block.payload()[i++];
 
          if (raw_data == 0)
             continue;

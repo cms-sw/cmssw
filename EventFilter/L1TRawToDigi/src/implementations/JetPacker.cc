@@ -1,50 +1,26 @@
-#include "DataFormats/L1Trigger/interface/Jet.h"
-
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 
-#include "EventFilter/L1TRawToDigi/interface/PackerFactory.h"
+#include "EventFilter/L1TRawToDigi/interface/Packer.h"
+
+#include "CaloTokens.h"
 
 namespace l1t {
-   class JetPacker : public BasePacker {
+   class JetPacker : public Packer {
       public:
-         JetPacker(const edm::ParameterSet&, edm::ConsumesCollector&);
-         virtual Blocks pack(const edm::Event&) override;
-      private:
-         edm::EDGetTokenT<JetBxCollection> jetToken_;
-   };
-
-   class JetPackerFactory : public BasePackerFactory {
-      public:
-         JetPackerFactory(const edm::ParameterSet&, edm::ConsumesCollector&);
-         virtual PackerList create(const unsigned& fw, const int fedid) override;
-
-      private:
-         const edm::ParameterSet& cfg_;
-         edm::ConsumesCollector& cc_;
+         virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
    };
 }
 
 // Implementation
 
 namespace l1t {
-   JetPacker::JetPacker(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc)
-   {
-      jetToken_ = cc.consumes<JetBxCollection>(cfg.getParameter<edm::InputTag>("InputLabel"));
-   }
-
    Blocks
-   JetPacker::pack(const edm::Event& event)
+   JetPacker::pack(const edm::Event& event, const PackerTokens* toks)
    {
       edm::Handle<JetBxCollection> jets;
-      event.getByToken(jetToken_, jets);
+      event.getByToken(static_cast<const CaloTokens*>(toks)->getJetToken(), jets);
 
-      // Return one block only
-      Block res;
-      res.id = 5;
+      std::vector<uint32_t> load;
 
       for (int i = jets->getFirstBX(); i <= jets->getLastBX(); ++i) {
          int n = 0;
@@ -55,25 +31,15 @@ namespace l1t {
                             ((j->hwEta() < 0) & 0x1) << 18 |
                             (j->hwPhi() & 0xFF) << 19 |
                             (j->hwQual() & 0x7) << 27;
-            res.load.push_back(word);
+            load.push_back(word);
          }
 
          for (; n < 12; ++n)
-            res.load.push_back(0);
+            load.push_back(0);
       }
 
-      return {res};
-   }
-
-   JetPackerFactory::JetPackerFactory(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) : cfg_(cfg), cc_(cc)
-   {
-   }
-
-   PackerList
-   JetPackerFactory::create(const unsigned& fw, const int fedid)
-   {
-      return {std::shared_ptr<BasePacker>(new JetPacker(cfg_, cc_))};
+      return {Block(5, load)};
    }
 }
 
-DEFINE_L1TPACKER(l1t::JetPackerFactory);
+DEFINE_L1T_PACKER(l1t::JetPacker);

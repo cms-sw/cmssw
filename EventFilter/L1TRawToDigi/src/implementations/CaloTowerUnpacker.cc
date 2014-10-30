@@ -7,7 +7,7 @@
 namespace l1t {
    class CaloTowerUnpacker : public Unpacker {
       public:
-         virtual bool unpack(const unsigned block_id, const unsigned size, const unsigned char *data, UnpackerCollections *coll) override;
+         virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
    };
 }
 
@@ -15,12 +15,12 @@ namespace l1t {
 
 namespace l1t {
    bool
-   CaloTowerUnpacker::unpack(const unsigned block_id, const unsigned size, const unsigned char *data, UnpackerCollections *coll)
+   CaloTowerUnpacker::unpack(const Block& block, UnpackerCollections *coll)
    {
 
-     LogDebug("L1T") << "Block ID  = " << block_id << " size = " << size;
+     LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize();
 
-     int nBX = int(ceil(size/44.)); // Since there are two Rx links per block with 2*28 slices in barrel and endcap + 2*13 for upgraded HF 
+     int nBX = int(ceil(block.header().getSize()/44.)); // Since there are two Rx links per block with 2*28 slices in barrel and endcap + 2*13 for upgraded HF 
 
      // Find the first and last BXs
      int firstBX = -(std::ceil((double)nBX/2.)-1);
@@ -40,7 +40,7 @@ namespace l1t {
      int unsigned i = 0;
 
      // Link number is block_ID / 2
-     unsigned link = block_id/2;
+     unsigned link = block.header().getID()/2;
      
      // Also need link number rounded down to even number
      unsigned link_phi = (link % 2 == 0) ? link : (link -1);
@@ -48,9 +48,9 @@ namespace l1t {
      // Loop over multiple BX and fill towers collection
      for (int bx=firstBX; bx<lastBX; bx++){
 
-       for (unsigned frame=1; frame<42 && frame<(size+1); frame++){
+       for (unsigned frame=1; frame<42 && frame<(block.header().getSize()+1); frame++){
 
-	 uint32_t raw_data = pop(data,i); // pop advances the index i internally
+         uint32_t raw_data = block.payload()[i++];
 
          if ((raw_data & 0xFFFF) != 0) {
 

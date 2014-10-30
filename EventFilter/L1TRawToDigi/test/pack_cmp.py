@@ -52,7 +52,7 @@ jets_out = Handle('BXVector<l1t::Jet>')
 taus_in = Handle('BXVector<l1t::Tau>')
 taus_out = Handle('BXVector<l1t::Tau>')
 
-in_label = "Layer2HW"
+in_label = "caloStage2Digis"
 out_label = "l1tRawToDigi"
 
 for event in events:
@@ -60,6 +60,7 @@ for event in events:
     event.getByLabel(in_label, etsums_in)
     event.getByLabel(in_label, jets_in)
     event.getByLabel(in_label, taus_in)
+
     event.getByLabel(out_label, egammas_out)
     event.getByLabel(out_label, etsums_out)
     event.getByLabel(out_label, jets_out)

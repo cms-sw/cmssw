@@ -7,7 +7,7 @@
 namespace l1t {
    class EtSumUnpacker : public Unpacker {
       public:
-         virtual bool unpack(const unsigned block_id, const unsigned size, const unsigned char *data, UnpackerCollections *coll) override;
+         virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
    };
 }
 
@@ -15,12 +15,12 @@ namespace l1t {
 
 namespace l1t {
    bool
-   EtSumUnpacker::unpack(const unsigned block_id, const unsigned size, const unsigned char *data, UnpackerCollections *coll)
+   EtSumUnpacker::unpack(const Block& block, UnpackerCollections *coll)
    {
 
-     LogDebug("L1T") << "Block ID  = " << block_id << " size = " << size;
+     LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize();
 
-     int nBX = int(ceil(size / 4.)); // Since there are 4 EtSum objects reported per event (see CMS IN-2013/005)
+     int nBX = int(ceil(block.header().getSize() / 4.)); // Since there are 4 EtSum objects reported per event (see CMS IN-2013/005)
 
      // Find the central, first and last BXs
      int firstBX = -(ceil((double)nBX/2.)-1);
@@ -44,7 +44,7 @@ namespace l1t {
 
        //  MET
 
-       uint32_t raw_data = pop(data,i); // pop advances the index i internally
+       uint32_t raw_data = block.payload()[i++];
 
        l1t::EtSum met = l1t::EtSum();
     
@@ -58,7 +58,7 @@ namespace l1t {
 
        // MHT
 
-       raw_data = pop(data,i); // pop advances the index i internally
+       raw_data = block.payload()[i++];
 
        l1t::EtSum mht = l1t::EtSum();
     
@@ -72,7 +72,7 @@ namespace l1t {
 
        // ET
 
-       raw_data = pop(data,i); // pop advances the index i internally
+       raw_data = block.payload()[i++];
 
        l1t::EtSum et = l1t::EtSum();
     
@@ -85,7 +85,7 @@ namespace l1t {
 
        // HT
 
-       raw_data = pop(data,i); // pop advances the index i internally
+       raw_data = block.payload()[i++];
 
        l1t::EtSum ht = l1t::EtSum();
     
