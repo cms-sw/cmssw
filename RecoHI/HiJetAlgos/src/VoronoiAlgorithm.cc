@@ -1,4 +1,5 @@
 #include "RecoHI/HiJetAlgos/interface/VoronoiAlgorithm.h"
+#include <tgmath.h>
 
 extern "C" {
 
@@ -856,11 +857,7 @@ namespace {
 				k * two_pi_2;
 		}
 		else {
-			long double sin_x;
-			long double cos_x;
-
-			sincosl(x, &sin_x, &cos_x);
-			ret = (double)atan2l(sin_x, cos_x);
+			ret = static_cast<double>(atan2l(sinl(x), cosl(x)));
 		}
 		if (ret == -M_PI) {
 			ret = M_PI;
