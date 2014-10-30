@@ -16,7 +16,7 @@ double BTagCalibrationReader::eval(BTagEntry::JetFlavor jf,
                                    float discr) const
 {
   bool use_discr = (params.operatingPoint == BTagEntry::OP_RESHAPING);
-  if (useAbsEta && eta < 0) {
+  if (useAbsEta[jf] && eta < 0) {
     eta = -eta;
   }
 
@@ -45,6 +45,7 @@ double BTagCalibrationReader::eval(BTagEntry::JetFlavor jf,
 
 void BTagCalibrationReader::setupTmpData(const BTagCalibration* c)
 {
+  useAbsEta = std::vector<bool>(4, true);
   const auto &entries = c->getEntries(params);
   for (unsigned i=0; i<entries.size(); ++i) {
     const BTagEntry &be = entries[i];
@@ -57,7 +58,7 @@ void BTagCalibrationReader::setupTmpData(const BTagCalibration* c)
     te.discrMax = be.params.discrMax;
 
     if (te.etaMin < 0) {
-      useAbsEta = false;
+      useAbsEta[be.params.jetFlavor] = false;
     }
 
     if (params.operatingPoint == BTagEntry::OP_RESHAPING) {
