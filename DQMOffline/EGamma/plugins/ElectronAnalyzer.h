@@ -128,7 +128,7 @@ class ElectronAnalyzer : public ElectronDqmAnalyzerBase
     int nbinpoptrue; double poptruemin; double poptruemax; //NEW
     int nbinmee; double meemin; double meemax; //NEW
     int nbinhoe; double hoemin; double hoemax; //NEW
-    bool set_EfficiencyFlag ; bool set_StatOverflowFlag ;
+//    bool set_EfficiencyFlag ; bool set_StatOverflowFlag ;
 
     //=========================================
     // general attributes and utility methods
