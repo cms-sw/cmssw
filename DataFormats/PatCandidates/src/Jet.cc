@@ -380,23 +380,36 @@ const T *  Jet::tagInfoByType() const {
 }
 
 
+template<typename T>
+const T *
+Jet::tagInfoByTypeAndLabel(const std::string &label) const {
+    return (label.empty() ? tagInfoByType<T>()
+                          : dynamic_cast<const T *>(tagInfo(label)) );
+}
+
+const reco::CandIPTagInfo *
+Jet::tagInfoCandIP(const std::string &label) const {
+    return tagInfoByTypeAndLabel<reco::CandIPTagInfo>(label);
+}
 
 const reco::TrackIPTagInfo *
 Jet::tagInfoTrackIP(const std::string &label) const {
-    return (label.empty() ? tagInfoByType<reco::TrackIPTagInfo>()
-                          : dynamic_cast<const reco::TrackIPTagInfo *>(tagInfo(label)) );
+    return tagInfoByTypeAndLabel<reco::TrackIPTagInfo>(label);
 }
 
 const reco::SoftLeptonTagInfo *
 Jet::tagInfoSoftLepton(const std::string &label) const {
-    return (label.empty() ? tagInfoByType<reco::SoftLeptonTagInfo>()
-                          : dynamic_cast<const reco::SoftLeptonTagInfo *>(tagInfo(label)) );
+    return tagInfoByTypeAndLabel<reco::SoftLeptonTagInfo>(label);
+}
+
+const reco::CandSecondaryVertexTagInfo *
+Jet::tagInfoCandSecondaryVertex(const std::string &label) const {
+    return tagInfoByTypeAndLabel<reco::CandSecondaryVertexTagInfo>(label);
 }
 
 const reco::SecondaryVertexTagInfo *
 Jet::tagInfoSecondaryVertex(const std::string &label) const {
-    return (label.empty() ? tagInfoByType<reco::SecondaryVertexTagInfo>()
-                          : dynamic_cast<const reco::SecondaryVertexTagInfo *>(tagInfo(label)) );
+    return tagInfoByTypeAndLabel<reco::SecondaryVertexTagInfo>(label);
 }
 
 void
