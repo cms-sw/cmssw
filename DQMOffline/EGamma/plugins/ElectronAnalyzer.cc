@@ -85,7 +85,7 @@ ElectronAnalyzer::ElectronAnalyzer( const edm::ParameterSet & conf )
   triggerResults_ = conf.getParameter<edm::InputTag>("TriggerResults");
 
   // histos limits and binning
-  edm::ParameterSet histosSet = conf.getParameter<edm::ParameterSet>("histosCfg") ;
+//  edm::ParameterSet histosSet = conf.getParameter<edm::ParameterSet>("histosCfg") ;
 
   nbineta=conf.getParameter<int>("NbinEta");
   nbineta2D=conf.getParameter<int>("NbinEta2D");
@@ -150,8 +150,8 @@ ElectronAnalyzer::ElectronAnalyzer( const edm::ParameterSet & conf )
   hoemin=conf.getParameter<double>("HoeMin");
   hoemax=conf.getParameter<double>("HoeMax");
 
-  set_EfficiencyFlag=histosSet.getParameter<bool>("EfficiencyFlag");
-  set_StatOverflowFlag=histosSet.getParameter<bool>("StatOverflowFlag");
+//  set_EfficiencyFlag=histosSet.getParameter<bool>("EfficiencyFlag");
+//  set_StatOverflowFlag=histosSet.getParameter<bool>("StatOverflowFlag");
  }
 
 ElectronAnalyzer::~ElectronAnalyzer()
@@ -164,7 +164,7 @@ void ElectronAnalyzer::bookHistograms( DQMStore::IBooker & iBooker, edm::Run con
   nEvents_ = 0 ;
   setBookIndex(-1) ;
   setBookPrefix("h") ;
-  setBookStatOverflowFlag( set_StatOverflowFlag ) ;
+//  setBookStatOverflowFlag( set_StatOverflowFlag ) ;
 
   // basic quantities
   h1_vertexPt_barrel = bookH1(iBooker, "vertexPt_barrel","ele transverse momentum in barrel",nbinpt,0.,ptmax,"p_{T vertex} (GeV/c)");
