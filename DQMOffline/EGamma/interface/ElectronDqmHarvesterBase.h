@@ -136,8 +136,8 @@ class ElectronDqmHarvesterBase : public DQMEDHarvester
     int verbosity_ ;
     std::string bookPrefix_ ;
     short bookIndex_ ;
-    bool bookEfficiencyFlag_ ;
-    bool bookStatOverflowFlag_ ;
+    bool bookEfficiencyFlag_ = false;
+    bool bookStatOverflowFlag_ = false;
     bool histoNamesReady ;
     std::vector<std::string> histoNames_ ;
     std::string finalStep_ ;
@@ -145,9 +145,6 @@ class ElectronDqmHarvesterBase : public DQMEDHarvester
     std::string outputFile_ ;
     std::string inputInternalPath_ ;
     std::string outputInternalPath_ ;
-//    DQMStore * store_ ; 
-//    DQMStore::IBooker * iBooker ;
-//    DQMStore::IGetter * iGetter ;
     bool finalDone_ ;
 
     // utility methods
