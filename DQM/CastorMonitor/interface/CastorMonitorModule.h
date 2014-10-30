@@ -26,6 +26,7 @@
 
 #include "FWCore/Utilities/interface/CPUTimer.h"
 #include "DataFormats/Provenance/interface/EventID.h"  
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
@@ -179,9 +180,11 @@ public:
 
   ////---- define the DQMStore 
   DQMStore* dbe_;  
-  
+
   ////---- define environment variables
-  int irun_,ilumisec_,ievent_,itime_,ibunch_;
+  int ilumisec_, itime_,ibunch_;
+  edm::RunNumber_t irun_;
+  edm::EventNumber_t ievent_;
   bool actonLS_ ;
   std::string rootFolder_;
 
