@@ -17,8 +17,8 @@
 #include "DQM/HcalMonitorTasks/interface/HcalEtaPhiHists.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-
 #include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h"
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 // forward declarations
 
 class MonitorElement;
@@ -68,8 +68,8 @@ public:
  private:
 
   int ievt_;
-  int runNumber_;
-  int evtNumber_;
+  edm::RunNumber_t runNumber_;
+  edm::EventNumber_t evtNumber_;
 
   MonitorElement* meStatus_;
   MonitorElement* meRun_;
