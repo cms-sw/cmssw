@@ -150,6 +150,11 @@ CaloTPGTranscoderULUTs::produce(const CaloTPGRecord& iRecord)
    edm::ESHandle<HcalTrigTowerGeometry> theTrigTowerGeometry;
    iRecord.getRecord<CaloGeometryRecord>().get(theTrigTowerGeometry);
 
+   edm::ESHandle<HcalTopology> htopo;
+   iRecord.getRecord<HcalLutMetadataRcd>().getRecord<IdealGeometryRecord>().get(htopo);
+
+   HcalLutMetadata fullLut{ *lutMetadata };
+   fullLut.setTopo(htopo.product());
 
    std::auto_ptr<CaloTPGTranscoderULUT> pTCoder(new CaloTPGTranscoderULUT(file1, file2));
    pTCoder->setup(*lutMetadata, *theTrigTowerGeometry);
