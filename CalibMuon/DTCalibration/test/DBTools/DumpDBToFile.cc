@@ -28,7 +28,10 @@
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
 #include "CondFormats/DataRecord/interface/DTRecoUncertaintiesRcd.h"
 #include "CondFormats/DTObjects/interface/DTRecoUncertainties.h"
-
+#include "CondFormats/DTObjects/interface/DTRecoConditions.h"
+#include "CondFormats/DataRecord/interface/DTRecoConditionsTtrigRcd.h"
+#include "CondFormats/DataRecord/interface/DTRecoConditionsVdriftRcd.h"
+#include "CondFormats/DataRecord/interface/DTRecoConditionsUncertRcd.h"
 #include <iostream>
 #include <fstream>
 #include <algorithm>
@@ -43,10 +46,16 @@ DumpDBToFile::DumpDBToFile(const ParameterSet& pset) {
 
   dbToDump = pset.getUntrackedParameter<string>("dbToDump", "TTrigDB");
   dbLabel  = pset.getUntrackedParameter<string>("dbLabel", "");
+  format = pset.getUntrackedParameter<string>("dbFormat", "Legacy");
 
   if(dbToDump != "VDriftDB" && dbToDump != "TTrigDB" && dbToDump != "TZeroDB" 
      && dbToDump != "NoiseDB" && dbToDump != "DeadDB" && dbToDump != "ChannelsDB" && dbToDump != "RecoUncertDB")
     cout << "[DumpDBToFile] *** Error: parameter dbToDump is not valid, check the cfg file" << endl;
+
+  if (format != "Legacy" &&
+      format != "DTRecoConditions")
+    cout << "[DumpFileToDB] *** Error: parameter format is not valid, check the cfg file" << endl;
+
 }
 
 DumpDBToFile::~DumpDBToFile(){}
@@ -55,10 +64,18 @@ DumpDBToFile::~DumpDBToFile(){}
 void DumpDBToFile::beginRun(const edm::Run&, const EventSetup& setup) {
   // Read the right DB accordingly to the parameter dbToDump
   if(dbToDump == "VDriftDB") {
-    ESHandle<DTMtime> mTime;
-    setup.get<DTMtimeRcd>().get(mTime);
-    mTimeMap = &*mTime;
-    cout << "[DumpDBToFile] MTime version: " << mTime->version() << endl;
+    if (format=="Legacy") {
+      ESHandle<DTMtime> mTime;
+      setup.get<DTMtimeRcd>().get(mTime);
+      mTimeMap = &*mTime;
+      cout << "[DumpDBToFile] MTime version: " << mTime->version() << endl;
+    } else if (format=="DTRecoConditions"){
+      ESHandle<DTRecoConditions> h_rconds;
+      setup.get<DTRecoConditionsVdriftRcd>().get(h_rconds);
+      rconds = &*h_rconds;
+      cout << "[DumpDBToFile] DTRecoConditions (vdrift) version: " << rconds->version() 
+	   << " expression: " << rconds->getFormulaExpr() << endl;
+    }
   } else if(dbToDump == "TTrigDB") {
     ESHandle<DTTtrig> tTrig;
     setup.get<DTTtrigRcd>().get(dbLabel,tTrig);
@@ -85,7 +102,6 @@ void DumpDBToFile::beginRun(const edm::Run&, const EventSetup& setup) {
     ESHandle<DTRecoUncertainties> uncerts;
     setup.get<DTRecoUncertaintiesRcd>().get(uncerts);
     uncertMap = &*uncerts;
-    
   }
 }
 
@@ -94,31 +110,51 @@ void DumpDBToFile::endJob() {
   
   if (dbToDump != "ChannelsDB") {
     if(dbToDump == "VDriftDB") {
-      for(DTMtime::const_iterator mtime = mTimeMap->begin();
-	  mtime != mTimeMap->end(); mtime++) {
- 	DTWireId wireId((*mtime).first.wheelId,
-			(*mtime).first.stationId,
-			(*mtime).first.sectorId,
-			(*mtime).first.slId, 0, 0);
-        float vdrift;
-        float reso;
-        DetId detId( wireId.rawId() );
-	// vdrift is cm/ns , resolution is cm
-       mTimeMap->get(detId, vdrift, reso, DTVelocityUnits::cm_per_ns);
-	cout << "Wh: " << (*mtime).first.wheelId
-	     << " St: " << (*mtime).first.stationId
-	     << " Sc: " << (*mtime).first.sectorId
-	     << " Sl: " << (*mtime).first.slId
-	     << " VDrift (cm/ns): " << vdrift
-	     << " Hit reso (cm): " << reso << endl;
-	vector<float> consts;
-	consts.push_back(-1);
-	consts.push_back(-1);
-	consts.push_back(-1);
-	consts.push_back(vdrift);
-	consts.push_back(reso);
+      if (format=="Legacy") {
+	for(DTMtime::const_iterator mtime = mTimeMap->begin();
+	    mtime != mTimeMap->end(); mtime++) {
+	  DTWireId wireId((*mtime).first.wheelId,
+			  (*mtime).first.stationId,
+			  (*mtime).first.sectorId,
+			  (*mtime).first.slId, 0, 0);
+	  float vdrift;
+	  float reso;
+	  DetId detId( wireId.rawId() );
+	  // vdrift is cm/ns , resolution is cm
+	  mTimeMap->get(detId, vdrift, reso, DTVelocityUnits::cm_per_ns);
+	  cout << "Wh: " << (*mtime).first.wheelId
+	       << " St: " << (*mtime).first.stationId
+	       << " Sc: " << (*mtime).first.sectorId
+	       << " Sl: " << (*mtime).first.slId
+	       << " VDrift (cm/ns): " << vdrift
+	       << " Hit reso (cm): " << reso << endl;
+	  int version = 1;
+	  int type =1;
+	  int nfields=1;
+	  vector<float> consts = {-1, -1, -1, vdrift, reso, -1, -1, -1, -1, -1, float(version*1000+type*100+nfields), vdrift};
+	  theCalibFile->addCell(wireId, consts);
+	}
+      }	else if (format=="DTRecoConditions") {
+	for(DTRecoConditions::const_iterator irc = rconds->begin(); irc != rconds->end(); ++irc) {
+	  DTWireId wireId(irc->first);
+	  const vector<double>& data = irc->second;
 
-	theCalibFile->addCell(wireId, consts);
+	  int version = rconds->version();
+	  int type =1;
+	  int nfields = data.size();
+	  
+	  // FIXME check size
+	  float vdrift = data[0];
+	  float reso = 0;
+
+
+	  vector<float> consts(11+nfields,-1);
+	  consts[3] = vdrift;
+	  consts[4] = reso;
+	  consts[10] = float(version*1000+type*100+nfields);	  
+	  std::copy(data.begin(),data.end(),consts.begin()+11);
+	  theCalibFile->addCell(wireId, consts);
+	}
       }
     } else if(dbToDump == "TTrigDB") {
        for(DTTtrig::const_iterator ttrig = tTrigMap->begin();
