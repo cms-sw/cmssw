@@ -5,18 +5,17 @@ source = cms.Source("EmptySource")
 generator = cms.EDFilter("Pythia8GeneratorFilter",
                          pythiaHepMCVerbosity = cms.untracked.bool(False),
                          maxEventsToPrint = cms.untracked.int32(0),
-                         pythiaPylistVerbosity = cms.untracked.int32(1),
-                         filterEfficiency = cms.untracked.double(1.),
-                         crossSection = cms.untracked.double(0.02123),
-                         comEnergy = cms.double(13000.0),
+                         pythiaPylistVerbosity = cms.untracked.int32(0),
+                         filterEfficiency = cms.untracked.double(1.0),
+                         comEnergy = cms.double(8000.0),
                          PythiaParameters = cms.PSet(
         pythia8CommonSettingsBlock,
         pythia8CUEP8M1SettingsBlock,
         processParameters = cms.vstring(
-            'NewGaugeBoson:ffbar2Wprime = on',
-            '34:m0 = 2000 '
-            '34:onMode = off',
-            '34:onIfAny = 13 14',
+            'WeakSingleBoson:ffbar2gmZ = on',
+            '23:onMode = off',
+            '23:onIfAny = 11',
+            '23:PhaseSpace:pTHatMin = 40.',
             ),
         parameterSets = cms.vstring('pythia8CommonSettings',
                                     'pythia8CUEP8M1Settings',
@@ -25,4 +24,3 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
         )
                          )
 
-ProductionFilterSequence = cms.Sequence(generator)
