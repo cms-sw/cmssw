@@ -34,7 +34,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 
-#include "EventFilter/L1TRawToDigi/interface/UnpackerProvider.h"
+#include "EventFilter/L1TRawToDigi/interface/UnpackerSetup.h"
 
 namespace l1t {
    class L1TRawToDigi : public edm::one::EDProducer<edm::one::SharedResources, edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
@@ -56,7 +56,7 @@ namespace l1t {
          edm::EDGetTokenT<FEDRawDataCollection> fedData_;
          int fedId_;
 
-         std::auto_ptr<UnpackerProvider> prov_;
+         std::auto_ptr<UnpackerSetup> prov_;
 
          // header and trailer sizes in chars
          int slinkHeaderSize_;
@@ -72,10 +72,10 @@ namespace l1t {
    {
       fedData_ = consumes<FEDRawDataCollection>(config.getParameter<edm::InputTag>("InputLabel"));
 
-      prov_ = UnpackerProviderFactory::get()->make("l1t::CaloSetup", *this);
+      prov_ = UnpackerSetupFactory::get()->make("l1t::CaloSetup", *this);
 
       slinkHeaderSize_ = config.getUntrackedParameter<int>("lenSlinkHeader", 16);
-      slinkTrailerSize_ = config.getUntrackedParameter<int>("lenSlinkTrailer", 16);
+      slinkTrailerSize_ = config.getUntrackedParameter<int>("lenSlinkTrailer", 8);
       amcHeaderSize_ = config.getUntrackedParameter<int>("lenAMCHeader", 12);
       amcTrailerSize_ = config.getUntrackedParameter<int>("lenAMCTrailer", 8);
    }
@@ -106,9 +106,9 @@ namespace l1t {
          return;
       }
 
-      LogInfo("L1T") << "Found FEDRawDataCollection";
-
       const FEDRawData& l1tRcd = feds->FEDData(fedId_);
+
+      LogInfo("L1T") << "Found FEDRawDataCollection with ID " << fedId_ << " and size " << l1tRcd.size();
 
       if ((int) l1tRcd.size() < slinkHeaderSize_ + slinkTrailerSize_ + amcHeaderSize_ + amcTrailerSize_) {
          LogError("L1T") << "Cannot unpack: empty/invalid L1T raw data (size = "
@@ -186,6 +186,19 @@ namespace l1t {
          uint32_t block_size = (block_hdr >> 16) & 0xFF;
 
          LogDebug("L1T") << "Found MP7 header: block ID " << block_id << " block size " << block_size;
+#ifdef EDM_ML_DEBUG
+         std::stringstream s("");
+         s << "Block content:" << std::endl;
+         s << std::hex << std::setfill('0');
+         for (unsigned int w = 0; w < block_size; ++w) {
+            s << std::hex << std::setw(2) << (unsigned int) data[idx + w * 4 + 3];
+            s << std::hex << std::setw(2) << (unsigned int) data[idx + w * 4 + 2];
+            s << std::hex << std::setw(2) << (unsigned int) data[idx + w * 4 + 1];
+            s << std::hex << std::setw(2) << (unsigned int) data[idx + w * 4];
+            s << std::endl;
+         }
+         LogDebug("L1T") << s.str();
+#endif
 
          // set AMC id to 1 for now
          auto unpacker = unpackers.find(block_id);
