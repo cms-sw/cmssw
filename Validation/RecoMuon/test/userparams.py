@@ -41,11 +41,11 @@ NewParams = dict(
     Condition='PRE_LS1',
 
     # 'no' if no pileup, otherwise set spacing
-    # PileUp='25ns',
-    PileUp='no',
+    PileUp='50ns',
+    #PileUp='no',
 
     # If True use Fastsim, else use Fullsim
-    FastSim=True,
+    FastSim=False,
 
     # Where to get the root file from. Possible values
     # * WEB: Take root files from the MuonPOG Validation repo on the web
@@ -67,7 +67,7 @@ NewParams = dict(
     # These are only needed if you copy any root file from the DQM GUI.
     # See GetLabel function for more details
     #Label='70_V6_corrHARV',
-    Label='72_V15',
+    Label='72_V16',
 
     # ???
     Format='DQMIO',
@@ -87,7 +87,7 @@ RefParams = dict(
     Type='Ref',
     Release='CMSSW_7_2_0_pre8',
     #Label='70_V6_AlcaCSA14',
-    Label='72_V15',
+    Label='72_V16',
     Version='v1'
 )
 
@@ -105,10 +105,10 @@ ValidateDQM  = True
 # samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValSingleMuPt1000','RelValTTbar','RelValZMM','RelValJpsiMM','RelValZpMM_2250_13TeV_Tauola']
 
 # For PU 25 ns and 50 ns
-# samples= ['RelValTTbar','RelValZMM','RelValZmumuJets_Pt_20_300']
+samples= ['RelValTTbar','RelValZMM','RelValZmumuJets_Pt_20_300']
 
 # For No PU FastSim
-samples=['RelValSingleMuPt10','RelValSingleMuPt100','RelValTTbar']
+# samples=['RelValSingleMuPt10','RelValSingleMuPt100','RelValTTbar']
 
 #############################################################
 

@@ -165,7 +165,8 @@ def getSampleFiles(params, sample):
                     theGuiPostFixLS1 = "_13"
                 else:
                     theGuiPostFixLS1 = "_UP15"
-                    theGuiSample = theGuiSample+theGuiPostFixLS1
+                    
+            theGuiSample = theGuiSample+theGuiPostFixLS1
 
         guiFileName='DQM_V0001_R000000001__'+theGuiSample+'__'+params['Release']+'-'+GetLabel(params)+'__'+params['Format']+'.root'
         guiFullURL=GetGuiRepository(params)+guiFileName
