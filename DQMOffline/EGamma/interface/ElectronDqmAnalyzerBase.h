@@ -88,8 +88,8 @@ class ElectronDqmAnalyzerBase : public DQMEDAnalyzer
     int verbosity_ ;
     std::string bookPrefix_ ;
     short bookIndex_ ;
-    bool bookEfficiencyFlag_ ;
-    bool bookStatOverflowFlag_ ;
+    bool bookEfficiencyFlag_ = false;
+    bool bookStatOverflowFlag_ = false;
     bool histoNamesReady ;
     std::vector<std::string> histoNames_ ;
     std::string finalStep_ ;
