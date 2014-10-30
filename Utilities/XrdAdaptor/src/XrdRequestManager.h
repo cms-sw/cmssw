@@ -135,7 +135,7 @@ private:
      * NOTE: assumes two sources are active and the caller must already hold
      * m_source_mutex
      */
-    bool compareSources(const timespec &now, int a, int b);
+    bool compareSources(const timespec &now, unsigned a, unsigned b);
 
     /**
      * Picks a single source for the next operation.
