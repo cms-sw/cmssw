@@ -16,7 +16,7 @@ HcalTimeSlewSim::HcalTimeSlewSim(const CaloVSimParameterMap * parameterMap)
 }
 
 
-
+// not quite adequate to 25ns high-PU regime
 double HcalTimeSlewSim::charge(const CaloSamples & samples) const
 {
   double totalCharge = 0.;
@@ -45,13 +45,13 @@ void HcalTimeSlewSim::delay(CaloSamples & samples, CLHEP::HepRandomEngine* engin
       HcalTimeSlew::Slow :
       HcalTimeSlew::Medium;
 
-    // double totalCharge = charge(samples);
+    // double totalCharge = charge(samples); 
 
     int maxbin =  samples.size();
-    std::vector<double> data(maxbin);    
-    for(int i = 0; i < maxbin-1; ++i) data[i] = samples[i];  
+    CaloSamples data(detId, maxbin);   // for a temporary copy 
+    data =  samples;  
 
-    for(int i = 0; i < samples.size(); ++i) {
+    for(int i = 0; i < samples.size()-1; ++i) {
       double totalCharge = data[i]/0.6;   // temporary change from total charge to approximation TS/0.6
                                           // until we get more precise/reliable QIE8 simulation  
 
@@ -77,7 +77,6 @@ void HcalTimeSlewSim::delay(CaloSamples & samples, CLHEP::HepRandomEngine* engin
       data[i] = v2*f;
       data[i+1] = data[i+1] + (v2 - data[i]); 
     }
-    for(int i = 0; i < maxbin; ++i)  samples[i] = data[i];  
-
+    samples = data;
   }
 }
