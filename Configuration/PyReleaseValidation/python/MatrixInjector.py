@@ -191,6 +191,8 @@ class MatrixInjector(object):
                     index=0
                     splitForThisWf=None
                     thisLabel=self.speciallabel
+                    if 'HARVESTGEN' in s[3]:
+                        thisLabel=thisLabel+"_gen"
                     processStrPrefix=''
                     setPrimaryDs=None
                     for step in s[3]:
