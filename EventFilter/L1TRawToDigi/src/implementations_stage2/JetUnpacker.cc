@@ -5,15 +5,18 @@
 #include "CaloCollections.h"
 
 namespace l1t {
-   class JetUnpacker : public Unpacker {
-      public:
-         virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
-   };
+   namespace stage2 {
+      class JetUnpacker : public Unpacker {
+         public:
+            virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
+      };
+   }
 }
 
 // Implementation
 
 namespace l1t {
+namespace stage2 {
    bool
    JetUnpacker::unpack(const Block& block, UnpackerCollections *coll)
    {
@@ -70,5 +73,6 @@ namespace l1t {
      return true;
    }
 }
+}
 
-DEFINE_L1T_UNPACKER(l1t::JetUnpacker);
+DEFINE_L1T_UNPACKER(l1t::stage2::JetUnpacker);

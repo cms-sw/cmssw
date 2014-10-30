@@ -5,15 +5,18 @@
 #include "CaloTokens.h"
 
 namespace l1t {
-   class JetPacker : public Packer {
-      public:
-         virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
-   };
+   namespace stage2 {
+      class JetPacker : public Packer {
+         public:
+            virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
+      };
+   }
 }
 
 // Implementation
 
 namespace l1t {
+namespace stage2 {
    Blocks
    JetPacker::pack(const edm::Event& event, const PackerTokens* toks)
    {
@@ -41,5 +44,6 @@ namespace l1t {
       return {Block(5, load)};
    }
 }
+}
 
-DEFINE_L1T_PACKER(l1t::JetPacker);
+DEFINE_L1T_PACKER(l1t::stage2::JetPacker);

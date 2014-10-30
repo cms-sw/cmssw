@@ -6,15 +6,18 @@
 #include "CaloTokens.h"
 
 namespace l1t {
-   class CaloTowerPacker : public Packer {
-      public:
-         virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
-   };
+   namespace stage2 {
+      class CaloTowerPacker : public Packer {
+         public:
+            virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
+      };
+   }
 }
 
 // Implementation
 
 namespace l1t {
+namespace stage2 {
    Blocks
    CaloTowerPacker::pack(const edm::Event& event, const PackerTokens* toks)
    {
@@ -75,5 +78,6 @@ namespace l1t {
       return res;
    }
 }
+}
 
-DEFINE_L1T_PACKER(l1t::CaloTowerPacker);
+DEFINE_L1T_PACKER(l1t::stage2::CaloTowerPacker);

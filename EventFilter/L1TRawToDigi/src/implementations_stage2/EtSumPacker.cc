@@ -5,15 +5,18 @@
 #include "CaloTokens.h"
 
 namespace l1t {
-   class EtSumPacker : public Packer {
-      public:
-         virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
-   };
+   namespace stage2 {
+      class EtSumPacker : public Packer {
+         public:
+            virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
+      };
+   }
 }
 
 // Implementation
 
 namespace l1t {
+namespace stage2 {
    Blocks
    EtSumPacker::pack(const edm::Event& event, const PackerTokens* toks)
    {
@@ -34,5 +37,6 @@ namespace l1t {
       return {Block(3, load)};
    }
 }
+}
 
-DEFINE_L1T_PACKER(l1t::EtSumPacker);
+DEFINE_L1T_PACKER(l1t::stage2::EtSumPacker);
