@@ -118,7 +118,8 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
 
     //std::cout << "tau et, neighbor et " << tauEt << " " << highestNeighborEt << std::endl;
     if((tauEt > highestNeighborEt && (NESW=="isEast" || NESW=="isNorth"))
-       || (tauEt >= highestNeighborEt && (NESW=="isSouth" || NESW=="isWest"))) {
+       || (tauEt >= highestNeighborEt && (NESW=="isSouth" || NESW=="isWest"))
+       || highestNeighborEt == 0 ) {
 
       if (highestNeighborEt >= tauNeighbourThreshold) tauEt += highestNeighborEt;
 

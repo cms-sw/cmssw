@@ -66,7 +66,8 @@ namespace l1t {
     virtual void endRun(Run const& iR, EventSetup const& iE);
 
     EDGetToken EGammaToken_;
-    EDGetToken TauToken_;
+    EDGetToken RlxTauToken_;
+    EDGetToken IsoTauToken_;
     EDGetToken JetToken_;
     EDGetToken EtSumToken_;
     EDGetToken CaloSpareToken_;
