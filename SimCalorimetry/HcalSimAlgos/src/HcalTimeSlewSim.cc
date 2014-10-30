@@ -16,7 +16,7 @@ HcalTimeSlewSim::HcalTimeSlewSim(const CaloVSimParameterMap * parameterMap)
 }
 
 
-
+// not quite adequate to 25ns high-PU regime
 double HcalTimeSlewSim::charge(const CaloSamples & samples) const
 {
   double totalCharge = 0.;
@@ -45,19 +45,38 @@ void HcalTimeSlewSim::delay(CaloSamples & samples, CLHEP::HepRandomEngine* engin
       HcalTimeSlew::Slow :
       HcalTimeSlew::Medium;
 
-    double totalCharge = charge(samples);
-    if(totalCharge <= 0.) totalCharge = 1.e-6; // protecion against negaive v.
-    double delay = HcalTimeSlew::delay(totalCharge, biasSetting);
-    // now, the smearing
-    const HcalSimParameters& params=static_cast<const HcalSimParameters&>(theParameterMap->simParameters(detId));
-    if (params.doTimeSmear()) {
-      double rms=params.timeSmearRMS(totalCharge);
-      double smearns=CLHEP::RandGaussQ::shoot(engine)*rms;
+    // double totalCharge = charge(samples); 
 
-      LogDebug("HcalTimeSlewSim") << "TimeSmear charge " << totalCharge << " rms " << rms << " delay " << delay << " smearns " << smearns;
-      delay+=smearns;
+    int maxbin =  samples.size();
+    CaloSamples data(detId, maxbin);   // for a temporary copy 
+    data =  samples;  
+
+    for(int i = 0; i < samples.size()-1; ++i) {
+      double totalCharge = data[i]/0.6;   // temporary change from total charge to approximation TS/0.6
+                                          // until we get more precise/reliable QIE8 simulation  
+
+      if(totalCharge <= 0.) totalCharge = 1.e-6; // protecion against negaive v.
+      double delay = HcalTimeSlew::delay(totalCharge, biasSetting);
+      // now, the smearing still remains
+      const HcalSimParameters& params=static_cast<const HcalSimParameters&>(theParameterMap->simParameters(detId));
+      if (params.doTimeSmear()) {
+	double rms=params.timeSmearRMS(totalCharge);
+	double smearns=CLHEP::RandGaussQ::shoot(engine)*rms;
+	
+	LogDebug("HcalTimeSlewSim") << "TimeSmear charge " << totalCharge << " rms " << rms << " delay " << delay << " smearns " << smearns;
+	delay+=smearns;
+      }
+      
+      // samples.offsetTime(delay);  -> replacing it with 1TS move 
+
+      double t = i*25. - delay;
+      int firstbin = floor(t/25.);
+      double f = t/25. - firstbin;
+      int nextbin = firstbin + 1;
+      double v2 = (nextbin < 0  || nextbin  >= maxbin) ? 0. : data[nextbin];
+      data[i] = v2*f;
+      data[i+1] = data[i+1] + (v2 - data[i]); 
     }
-
-    samples.offsetTime(delay);
+    samples = data;
   }
 }

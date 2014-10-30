@@ -66,7 +66,7 @@ class MonitorEnsemble {
   ~MonitorEnsemble() {};
 
   /// book histograms in subdirectory _directory_
-  void book(std::string directory);
+  void book(DQMStore::IBooker & ibooker);
   /// fill monitor histograms with electronId and jetCorrections
   void fill(const edm::Event& event, const edm::EventSetup& setup);
 
@@ -145,26 +145,26 @@ class MonitorEnsemble {
   // the cut for the MVA Id
   double eidCutValue_;
   /// extra isolation criterion on electron
-  StringCutObjectSelector<reco::PFCandidate>* elecIso_;
+  std::unique_ptr<StringCutObjectSelector<reco::PFCandidate> > elecIso_;
   /// extra selection on electrons
-  StringCutObjectSelector<reco::PFCandidate>* elecSelect_;
+  std::unique_ptr<StringCutObjectSelector<reco::PFCandidate> > elecSelect_;
 
   /// extra selection on primary vertices; meant to investigate the pile-up
   /// effect
-  StringCutObjectSelector<reco::Vertex>* pvSelect_;
+  std::unique_ptr<StringCutObjectSelector<reco::Vertex> > pvSelect_;
 
   /// extra isolation criterion on muon
-  StringCutObjectSelector<reco::PFCandidate>* muonIso_;
+  std::unique_ptr<StringCutObjectSelector<reco::PFCandidate> > muonIso_;
 
   /// extra selection on muons
-  StringCutObjectSelector<reco::PFCandidate>* muonSelect_;
+  std::unique_ptr<StringCutObjectSelector<reco::PFCandidate> > muonSelect_;
 
   /// jetCorrector
   std::string jetCorrector_;
   /// jetID as an extra selection type
   edm::EDGetTokenT<reco::JetIDValueMap> jetIDLabel_;
   /// extra jetID selection on calo jets
-  StringCutObjectSelector<reco::JetID>* jetIDSelect_;
+  std::unique_ptr<StringCutObjectSelector<reco::JetID> > jetIDSelect_;
   /// extra selection on jets (here given as std::string as it depends
   /// on the the jet type, which selections are valid and which not)
   std::string jetSelect_;
@@ -181,11 +181,12 @@ class MonitorEnsemble {
 
   /// number of logged interesting events
   int logged_;
-  /// storage manager
-  DQMStore* store_;
+
   /// histogram container
   std::map<std::string, MonitorElement*> hists_;
   edm::EDConsumerBase tmpConsumerBase;
+
+  std::string directory_;
 };
 
 inline void MonitorEnsemble::triggerBinLabels(
@@ -224,7 +225,6 @@ inline void MonitorEnsemble::fill(const edm::Event& event,
 #include <utility>
 
 #include "DQM/Physics/interface/TopDQMHelpers.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -233,6 +233,7 @@ inline void MonitorEnsemble::fill(const edm::Event& event,
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 /**
    \class   TopSingleLeptonDQM TopSingleLeptonDQM.h
@@ -275,28 +276,20 @@ inline void MonitorEnsemble::fill(const edm::Event& event,
 /// define MonitorEnsembple to be used
 // using TopSingleLepton::MonitorEnsemble;
 
-class TopSingleLeptonDQM : public edm::EDAnalyzer {
+class TopSingleLeptonDQM : public DQMEDAnalyzer {
  public:
   /// default constructor
   TopSingleLeptonDQM(const edm::ParameterSet& cfg);
   /// default destructor
-  ~TopSingleLeptonDQM() {
-    if (vertexSelect_) delete vertexSelect_;
-    if (beamspotSelect_) delete beamspotSelect_;
-    if (MuonStep) delete MuonStep;
-    if (ElectronStep) delete ElectronStep;
-    if (PvStep) delete PvStep;
-    if (METStep) delete METStep;
-    for (unsigned int i = 0; i < JetSteps.size(); i++)
-      if (JetSteps[i]) delete JetSteps[i];
-    for (unsigned int i = 0; i < CaloJetSteps.size(); i++)
-      if (CaloJetSteps[i]) delete CaloJetSteps[i];
-    for (unsigned int i = 0; i < PFJetSteps.size(); i++)
-      if (PFJetSteps[i]) delete PFJetSteps[i];
-  };
+  ~TopSingleLeptonDQM() {};
 
   /// do this during the event loop
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
+ 
+ protected:
+  //Book histograms
+  void bookHistograms(DQMStore::IBooker &,
+    edm::Run const &, edm::EventSetup const &) override;
 
  private:
   /// deduce object type from ParameterSet label, the label
@@ -316,13 +309,13 @@ class TopSingleLeptonDQM : public edm::EDAnalyzer {
   /// trigger paths
   std::vector<std::string> triggerPaths_;
   /// string cut selector
-  StringCutObjectSelector<reco::Vertex>* vertexSelect_;
+  std::unique_ptr<StringCutObjectSelector<reco::Vertex> > vertexSelect_;
 
   /// beamspot
   edm::InputTag beamspot_;
   edm::EDGetTokenT<reco::BeamSpot> beamspot__;
   /// string cut selector
-  StringCutObjectSelector<reco::BeamSpot>* beamspotSelect_;
+  std::unique_ptr<StringCutObjectSelector<reco::BeamSpot> > beamspotSelect_;
 
   /// needed to guarantee the selection order as defined by the order of
   /// ParameterSets in the _selection_ vector as defined in the config
@@ -333,15 +326,18 @@ class TopSingleLeptonDQM : public edm::EDAnalyzer {
   /// MonitoringEnsemble keeps an instance of the MonitorEnsemble class to
   /// be filled _after_ each selection step
   std::map<std::string,
-           std::pair<edm::ParameterSet, TopSingleLepton::MonitorEnsemble*> >
+           std::pair<edm::ParameterSet, std::unique_ptr<TopSingleLepton::MonitorEnsemble> > >
       selection_;
-  SelectionStep<reco::PFCandidate>* MuonStep;
-  SelectionStep<reco::PFCandidate>* ElectronStep;
-  SelectionStep<reco::Vertex>* PvStep;
-  SelectionStep<reco::MET>* METStep;
-  std::vector<SelectionStep<reco::Jet>*> JetSteps;
-  std::vector<SelectionStep<reco::CaloJet>*> CaloJetSteps;
-  std::vector<SelectionStep<reco::PFJet>*> PFJetSteps;
+  std::unique_ptr<SelectionStep<reco::PFCandidate> > MuonStep;
+  std::unique_ptr<SelectionStep<reco::PFCandidate> > ElectronStep;
+  std::unique_ptr<SelectionStep<reco::Vertex> > PvStep;
+  std::unique_ptr<SelectionStep<reco::MET> > METStep;
+  std::vector<std::unique_ptr<SelectionStep<reco::Jet> > > JetSteps;
+  std::vector<std::unique_ptr<SelectionStep<reco::CaloJet> > > CaloJetSteps;
+  std::vector<std::unique_ptr<SelectionStep<reco::PFJet> > > PFJetSteps;
+
+  std::vector<edm::ParameterSet> sel_;
+  edm::ParameterSet setup_;
 };
 
 #endif
