@@ -24,6 +24,7 @@
 
 //Work with all jet collections without changing the module name
 #include "HLTrigger/JetMET/interface/HLTHtMhtProducer.h"
+#include "HLTrigger/JetMET/interface/HLTCaloTowerHtMhtProducer.h"
 #include "HLTrigger/JetMET/interface/HLTMhtProducer.h"
 #include "HLTrigger/JetMET/interface/HLTTrackMETProducer.h"
 #include "HLTrigger/JetMET/interface/HLTMinDPhiMETFilter.h"
@@ -163,6 +164,7 @@ DEFINE_FWK_MODULE(HLTMETCleanerUsingJetID);
 //Work with all jet collections without changing the module name
 DEFINE_FWK_MODULE(HLTMhtProducer);
 DEFINE_FWK_MODULE(HLTHtMhtProducer);
+DEFINE_FWK_MODULE(HLTCaloTowerHtMhtProducer);
 DEFINE_FWK_MODULE(HLTTrackMETProducer);
 DEFINE_FWK_MODULE(HLTMinDPhiMETFilter);
 
