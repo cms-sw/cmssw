@@ -263,8 +263,8 @@ steps['QCD_Pt_3000_3500_13']=gen2015('QCD_Pt_3000_3500_13TeV_TuneCUETP8M1_cfi',K
 steps['QCD_Pt_600_800_13']=gen2015('QCD_Pt_600_800_13TeV_TuneCUETP8M1_cfi',Kby(9,50))
 steps['QCD_Pt_80_120_13']=gen2015('QCD_Pt_80_120_13TeV_TuneCUETP8M1_cfi',Kby(9,100))
 
-steps['QCD_Pt_30_80_BCtoE_8TeV']=gen('QCD_Pt_30_80_BCtoE_8TeV',Kby(9000,100))
-steps['QCD_Pt_80_170_BCtoE_8TeV']=gen('QCD_Pt_80_170_BCtoE_8TeV',Kby(9000,100))
+steps['QCD_Pt_30_80_BCtoE_8TeV']=gen('QCD_Pt_30_80_BCtoE_8TeV_TuneCUETP8M1_cfi',Kby(9000,100))
+steps['QCD_Pt_80_170_BCtoE_8TeV']=gen('QCD_Pt_80_170_BCtoE_8TeV_TuneCUETP8M1_cfi',Kby(9000,100))
 steps['SingleElectronPt10']=gen('SingleElectronPt10_cfi',Kby(9,3000))
 steps['SingleElectronPt35']=gen('SingleElectronPt35_cfi',Kby(9,500))
 steps['SingleElectronPt1000']=gen('SingleElectronPt1000_cfi',Kby(9,50))
