@@ -156,11 +156,18 @@ void HcalPacker::pack(int fedid, int dccnumber,
           
 	// finally, what about a trigger channel?
 	if (!tid.null()) {
+      if (presamples < 0) {
+        exampleEId = fullEid;
+      }
 	  unsigned short* trigbase=&(trigdata[linear*HcalHTRData::MAXIMUM_SAMPLES_PER_CHANNEL]);
 	  triglen[linear]=processTrig(inputs.tpCont,tid,trigbase);
+      if (triglen[linear]) {
+        npresent++;
+      }
 	  
 	  for (unsigned char q=0; q<triglen[linear]; q++)
 	    trigbase[q]=(trigbase[q]&0x7FF)|chanid;
+
 	}
       }
     /// pack into HcalHTRData
@@ -173,6 +180,14 @@ void HcalPacker::pack(int fedid, int dccnumber,
       int submodule=exampleEId.htrTopBottom()&0x1;
       submodule|=(exampleEId.htrSlot()&0x1F)<<1;
       submodule|=(exampleEId.readoutVMECrateId()&0x1f)<<6;
+      // Samples and Presamples can't be negative, or the HeaderTrailer will
+      // generate a large large number using them (unsigned int roll over)
+      if (samples < 0) {
+        samples = 0;
+      }
+      if (presamples < 0) {
+        presamples = 0;
+      }
       spigots[spigot].packHeaderTrailer(nl1a,
 					bcn,
 					submodule,
