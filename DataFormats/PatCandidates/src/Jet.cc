@@ -358,35 +358,6 @@ const reco::BaseTagInfo * Jet::tagInfo(const std::string &label) const {
 }
 
 
-template<typename T>
-const T *  Jet::tagInfoByType() const {
-  // First check the factorized PAT version
-    for (size_t i = 0, n = tagInfosFwdPtr_.size(); i < n; ++i) {
-      TagInfoFwdPtrCollection::value_type const & val = tagInfosFwdPtr_[i];
-      reco::BaseTagInfo const * baseTagInfo = val.get();
-      if ( typeid(*baseTagInfo) == typeid(T) ) {
-	return static_cast<const T *>( baseTagInfo );
-      }
-    }
-    // Then check compatibility version
-    for (size_t i = 0, n = tagInfos_.size(); i < n; ++i) {
-      edm::OwnVector<reco::BaseTagInfo>::value_type const & val = tagInfos_[i];
-      reco::BaseTagInfo const * baseTagInfo = &val;
-      if ( typeid(*baseTagInfo) == typeid(T) ) {
-	return static_cast<const T *>( baseTagInfo );
-      }
-    }
-    return 0;
-}
-
-
-template<typename T>
-const T *
-Jet::tagInfoByTypeAndLabel(const std::string &label) const {
-    return (label.empty() ? tagInfoByType<T>()
-                          : dynamic_cast<const T *>(tagInfo(label)) );
-}
-
 const reco::CandIPTagInfo *
 Jet::tagInfoCandIP(const std::string &label) const {
     return tagInfoByTypeAndLabel<reco::CandIPTagInfo>(label);
