@@ -18,7 +18,7 @@ from CommonTools.ParticleFlow.TopProjectors.pfNoTau_cfi import *
 
 # b-tagging
 from RecoJets.JetAssociationProducers.ak4JTA_cff import ak4JetTracksAssociatorAtVertex
-from RecoBTag.ImpactParameter.impactParameter_cfi import impactParameterTagInfos
+from RecoBTag.ImpactParameter.impactParameterTagInfos_cfi import impactParameterTagInfos
 from RecoBTag.SecondaryVertex.secondaryVertexTagInfos_cfi import secondaryVertexTagInfos
 from RecoBTag.SecondaryVertex.combinedSecondaryVertexBJetTags_cfi import combinedSecondaryVertexBJetTags
 

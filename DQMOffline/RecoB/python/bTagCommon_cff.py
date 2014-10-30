@@ -49,7 +49,7 @@ bTagCommonBlock = cms.PSet(
             ipTagInfos = cms.InputTag("impactParameterTagInfos"),
             type = cms.string('GenericMVA'),
             svTagInfos = cms.InputTag("secondaryVertexTagInfos"),
-            label = cms.InputTag("combinedSecondaryVertex"),
+            label = cms.InputTag("combinedSecondaryVertexComputer"),
             folder = cms.string("CSVTag")
 
         ),
