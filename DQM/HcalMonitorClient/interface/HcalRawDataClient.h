@@ -18,16 +18,14 @@ class HcalRawDataClient : public HcalBaseDQClient {
   HcalRawDataClient(std::string myname);//{ name_=myname;};
   HcalRawDataClient(std::string myname, const edm::ParameterSet& ps);
 
-  void analyze(void);
-  void calculateProblems(void); // calculates problem histogram contents
+  void analyze(DQMStore::IBooker &, DQMStore::IGetter &);
+  void calculateProblems(DQMStore::IBooker &, DQMStore::IGetter &); // calculates problem histogram contents
   void updateChannelStatus(std::map<HcalDetId, unsigned int>& myqual);
-  void beginJob(void);
   void endJob(void);
   void beginRun(void);
-  void endRun(void); 
+  //void endRun(void); 
   void setup(void);  
   void cleanup(void);
-  void endLuminosityBlock(void);
   bool hasErrors_Temp(void);  
   bool hasWarnings_Temp(void);
   bool hasOther_Temp(void);
@@ -66,9 +64,9 @@ class HcalRawDataClient : public HcalBaseDQClient {
   // handy array of pointers to pointers...
   TH2F* Chann_DataIntegrityCheck_[NUMDCCS];
 
-  void getHardwareSpaceHistos(void);
+  void getHardwareSpaceHistos(DQMStore::IBooker &, DQMStore::IGetter &);
 
-  void fillProblemCountArray(void);
+  void fillProblemCountArray(DQMStore::IBooker &, DQMStore::IGetter &);
   uint64_t problemcount[85][72][4]; // HFd1,2 at 'depths' 3,4 to avoid collision with HE
   void mapDCCproblem  (int dcc, float n) ;                         // Take maximum problem counters for affected cells
   void mapHTRproblem  (int dcc, int spigot, float n) ;             // Take maximum problem counters for affected cells
@@ -77,6 +75,14 @@ class HcalRawDataClient : public HcalBaseDQClient {
   void normalizeHardwareSpaceHistos(void);
 
   bool excludeHORing2_;
+
+  // - setup problem cell flags
+  bool doProblemCellSetup_;  // defaults to true in the constructor
+  // setup the problem cell monitor elements
+  // This method sets the doProblemCellSetup_ flag to false
+  void setupProblemCells(DQMStore::IBooker &, DQMStore::IGetter &);
+
+
 };
 
 #endif
