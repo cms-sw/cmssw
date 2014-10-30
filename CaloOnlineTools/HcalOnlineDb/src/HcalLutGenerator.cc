@@ -42,7 +42,7 @@ void HcalLutGenerator::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   //
   edm::ESHandle<CaloTPGTranscoder> outTranscoder;
   iSetup.get<CaloTPGRecord>().get(outTranscoder);
-  outTranscoder->setup(iSetup,CaloTPGTranscoder::HcalTPG);
+ 
   edm::ESHandle<CaloTPGTranscoderULUT> transcoder;
   transcoder.swap(outTranscoder);
 
@@ -120,7 +120,6 @@ void HcalLutGenerator::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   manager -> createLutXmlFiles_HBEFFromCoder_HOFromAscii_ZDC( _tag, *inputCoder, *transcoder, _lin_file, split_by_crate );
   delete manager;
 
-  transcoder->releaseSetup();
    
 }
 

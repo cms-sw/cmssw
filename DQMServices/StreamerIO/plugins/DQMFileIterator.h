@@ -8,7 +8,7 @@
 #include "boost/filesystem.hpp"
 
 #include <map>
-#include <queue>
+#include <unordered_set>
 #include <chrono>
 
 #include "DQMMonitoringService.h"
@@ -22,7 +22,7 @@ class DQMFileIterator {
 
     unsigned int file_ls;
     std::size_t n_events;
-    std::string datafilename;
+    std::string datafn;
 
     static LumiEntry load_json(const std::string& filename, int lumiNumber,
                                unsigned int datafn_position);
@@ -36,7 +36,6 @@ class DQMFileIterator {
 
     std::size_t n_events;
     std::size_t n_lumi;
-    std::string datafilename;
 
     static EorEntry load_json(const std::string& filename);
   };
@@ -63,10 +62,10 @@ class DQMFileIterator {
    * pop() advances to the next lumi
    */
   bool lumiReady();
-  const LumiEntry open();
+  LumiEntry open();
 
   void pop();
-  std::string make_path_data(const LumiEntry& lumi);
+  std::string make_path(const std::string& fn);
 
   /* control */
   void reset();
@@ -78,12 +77,10 @@ class DQMFileIterator {
   void logLumiState(const LumiEntry& lumi, const std::string& msg);
 
   void delay();
-  void updateMonitoring();
 
   unsigned int runNumber();
-
   unsigned int lastLumiFound();
-  void advanceToLumi(unsigned int lumi);
+  void advanceToLumi(unsigned int lumi, std::string reason);
 
   static void fillDescription(edm::ParameterSetDescription& d);
 
@@ -104,6 +101,7 @@ class DQMFileIterator {
 
   unsigned int nextLumiNumber_;
   std::map<unsigned int, LumiEntry> lumiSeen_;
+  std::unordered_set<std::string> filesSeen_;
 
   /* this should be different,
    * since time between hosts might be not in sync */
@@ -114,6 +112,7 @@ class DQMFileIterator {
   std::chrono::high_resolution_clock::time_point lastLumiLoad_;
 
   void collect(bool ignoreTimers);
+  void monUpdateLumi(const LumiEntry& lumi); 
 
   /* this is for monitoring */
   edm::Service<DQMMonitoringService> mon_;
