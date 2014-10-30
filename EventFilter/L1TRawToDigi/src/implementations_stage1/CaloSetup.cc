@@ -22,11 +22,11 @@ namespace l1t {
                if (fed == 1) {
                   // Use amc id 1 for packing
                   res[1] = {
-                     PackerFactory::get()->make("stage1::CaloTowerPacker"),
-                     PackerFactory::get()->make("stage1::EGammaPacker"),
-                     PackerFactory::get()->make("stage1::EtSumPacker"),
+                     /* PackerFactory::get()->make("stage1::CaloTowerPacker"), */
+                     /* PackerFactory::get()->make("stage1::EGammaPacker"), */
+                     /* PackerFactory::get()->make("stage1::EtSumPacker"), */
                      PackerFactory::get()->make("stage1::JetPacker"),
-                     PackerFactory::get()->make("stage1::TauPacker")
+                     /* PackerFactory::get()->make("stage1::TauPacker") */
                   };
                }
 
@@ -54,10 +54,10 @@ namespace l1t {
 
                UnpackerMap res;
                if (fed == 1) {
-                  res[1] = egamma_unp;
-                  res[3] = etsum_unp;
+                  /* res[1] = egamma_unp; */
+                  /* res[3] = etsum_unp; */
                   res[5] = jet_unp;
-                  res[7] = tau_unp;
+                  /* res[7] = tau_unp; */
                }
 
                return res;
