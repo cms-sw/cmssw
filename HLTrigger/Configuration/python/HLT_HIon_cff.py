@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_2_0/HIon/V16 (CMSSW_7_2_0)
+# /dev/CMSSW_7_2_0/HIon/V18 (CMSSW_7_2_1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_2_0/HIon/V16')
+  tableName = cms.string('/dev/CMSSW_7_2_0/HIon/V18')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -3150,6 +3150,7 @@ hltL3fL1sMu16L1f0L2f16QL3Filtered40Q = cms.EDFilter( "HLTMuonL3PreFilter",
     MaxPtDifference = cms.double( 9999.0 ),
     MaxDr = cms.double( 2.0 ),
     CandTag = cms.InputTag( "hltL3MuonCandidates" ),
+    MinDXYBeamSpot = cms.double( -1.0 ),
     MinDr = cms.double( -1.0 ),
     BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
     MinPt = cms.double( 40.0 )
