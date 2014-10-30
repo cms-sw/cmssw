@@ -157,7 +157,7 @@ CaloTPGTranscoderULUTs::produce(const CaloTPGRecord& iRecord)
    fullLut.setTopo(htopo.product());
 
    std::auto_ptr<CaloTPGTranscoderULUT> pTCoder(new CaloTPGTranscoderULUT(file1, file2));
-   pTCoder->setup(*lutMetadata, *theTrigTowerGeometry);
+   pTCoder->setup(fullLut, *theTrigTowerGeometry);
    return std::auto_ptr<CaloTPGTranscoder>( pTCoder );
 }
 
