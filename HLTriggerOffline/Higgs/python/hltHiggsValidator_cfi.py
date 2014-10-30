@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         
     hltProcessName = cms.string("HLT"),
-    analysis       = cms.vstring("HWW", "HZZ", "Hgg", "Htaunu", "H2tau", "ZnnHbb"), 
+    analysis       = cms.vstring("HWW", "HZZ", "Hgg", "Htaunu", "H2tau", "VBFHbb", "ZnnHbb"), 
     
     # -- The instance name of the reco::GenParticles collection
     genParticleLabel = cms.string("genParticles"),
@@ -81,8 +81,8 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
     PFMET_cutMaxEta   = cms.double(0),  # TO BE DEPRECATED
     
     # --- Jets: 
-    Jet_genCut      = cms.string("pt > 0."),
-    Jet_recCut      = cms.string("pt > 0."),  
+    Jet_genCut      = cms.string("pt > 10"),
+    Jet_recCut      = cms.string("pt > 10"),  
     Jet_cutMinPt    = cms.double(0), # TO BE DEPRECATED
     Jet_cutMaxEta   = cms.double(0),  # TO BE DEPRECATED
     
@@ -170,29 +170,30 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         # -- Analysis specific cuts
         minCandidates = cms.uint32(2), 
         ),
-    #VBFHbb  = cms.PSet( 
-        #hltPathsToCheck = cms.vstring(
-            #"HLT_QuadJet75_55_35_20_BTagIP_VBF_v",
-            #"HLT_QuadJet75_55_38_20_BTagIP_VBF_v"
-            #),
-        ##recJetLabel  = cms.string("ak5PFJets"),
-        #recJetLabel  = cms.string("higgsDqmPFJetsFilter"),
-        #jetTagLabel  = cms.string("hltHiggsDqmPfCombinedSecondaryVertexBJetTags"),
-        ## -- Analysis specific cuts
-        #minCandidates = cms.uint32(4), 
-        #NminOneCuts = cms.untracked.vdouble(2.4, 300, 2, 0, 0, 0, 0, 85, 70, 60, 40), #dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
-        #),
+    VBFHbb  = cms.PSet( 
+        hltPathsToCheck = cms.vstring(
+            "HLT_QuadPFJet_BTagCSV_VBF_v",
+            "HLT_QuadPFJet_VBF_v",
+            "HLT_L1_TripleJet_VBF_v"
+            ),
+        recJetLabel  = cms.string("ak4PFJetsCHS"),
+        jetTagLabel  = cms.string("pfCombinedSecondaryVertexBJetTags"),
+        # -- Analysis specific cuts
+        minCandidates = cms.uint32(4), 
+        NminOneCuts = cms.untracked.vdouble(2.6, 350, 2.6, 0.8, 0, 0, 0, 95, 85, 70, 40), #dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
+        ),
     ZnnHbb = cms.PSet( 
         hltPathsToCheck = cms.vstring(
-            "HLT_PFMHT100_SingleCentralJet60_BTagCSV0p6_v"
-            #"HLT_DiCentralPFJet30_PFMET80_BTagCSV07_v"
+            "HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDLoose_BTagCSV0p7_v",
+            "HLT_PFMET110_PFMHT110_IDLoose_v",
+            "HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDLoose_v"
             ),
-        Jet_recCut   = cms.string("abs(eta) < 2.6"),
+        Jet_recCut   = cms.string("pt > 10 && abs(eta) < 2.6"),
         recJetLabel  = cms.string("ak4PFJetsCHS"),
         jetTagLabel  = cms.string("pfCombinedSecondaryVertexBJetTags"),
         recPFMETLabel = cms.string("pfMet"),  
         # -- Analysis specific cuts
         minCandidates = cms.uint32(1), 
-        NminOneCuts = cms.untracked.vdouble(0, 0, 0, 0.9, 4, 20, 80, 60), #dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, MET, pt1
+        NminOneCuts = cms.untracked.vdouble(0, 0, 0, 0.9, 8, 30, 100, 70), #dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, MET, pt1
         ),
 )
