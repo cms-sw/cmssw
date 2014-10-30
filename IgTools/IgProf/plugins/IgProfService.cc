@@ -154,9 +154,9 @@ void IgProfService::makeDump(const std::string &format) {
 
   std::string final(format);
   final = replace(final, "%I", nrecord_);
-  final = replace(final, "%E", nevent_);
-  final = replace(final, "%R", nrun_);
-  final = replace(final, "%L", nlumi_);
+  final = replaceU64(final, "%E", nevent_);
+  final = replaceU64(final, "%R", nrun_);
+  final = replaceU64(final, "%L", nlumi_);
   final = replace(final, "%F", nfileopened_);
   final = replace(final, "%C", nfileclosed_);
   dump_(final.c_str());
@@ -171,6 +171,22 @@ IgProfService::replace(const std::string &s, const char *pat, int val) {
   {
     char buf[64];
     int n = sprintf(buf, "%d", val);
+    result.replace(pos, patlen, buf);
+    pos = pos - patlen + n;
+  }
+
+  return result;
+}
+
+std::string 
+IgProfService::replaceU64(const std::string &s, const char *pat, unsigned long long val) {
+  size_t pos = 0;
+  size_t patlen = strlen(pat);
+  std::string result = s;
+  while ((pos = result.find(pat, pos)) != std::string::npos)
+  {
+    char buf[64];
+    int n = sprintf(buf, "%llu", val);
     result.replace(pos, patlen, buf);
     pos = pos - patlen + n;
   }
