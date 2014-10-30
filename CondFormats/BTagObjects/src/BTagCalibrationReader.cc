@@ -57,10 +57,6 @@ void BTagCalibrationReader::setupTmpData(const BTagCalibration* c)
     te.discrMin = be.params.discrMin;
     te.discrMax = be.params.discrMax;
 
-    if (te.etaMin < 0) {
-      useAbsEta[be.params.jetFlavor] = false;
-    }
-
     if (params.operatingPoint == BTagEntry::OP_RESHAPING) {
       te.func = TF1("", be.formula.c_str(),
                     be.params.discrMin, be.params.discrMax);
@@ -70,5 +66,8 @@ void BTagCalibrationReader::setupTmpData(const BTagCalibration* c)
     }
 
     tmpData_[be.params.jetFlavor].push_back(te);
+    if (te.etaMin < 0) {
+      useAbsEta[be.params.jetFlavor] = false;
+    }
   }
 }
