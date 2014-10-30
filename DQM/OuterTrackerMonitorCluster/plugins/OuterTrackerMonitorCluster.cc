@@ -126,7 +126,7 @@ OuterTrackerMonitorCluster::beginRun(const edm::Run& run, const edm::EventSetup&
 	psTTClusterStacks.getParameter<double>("xmin"),
 	psTTClusterStacks.getParameter<double>("xmax"));
 	Cluster_IMem_Barrel->setAxisTitle("Layer", 1);
-	Cluster_IMem_Barrel->setAxisTitle("Number of Clusters", 2);
+	Cluster_IMem_Barrel->setAxisTitle("# TTClusters", 2);
 	
 	HistoName = "NClusters_IMem_Endcap";
 	Cluster_IMem_Endcap = dqmStore_->book1D(HistoName, HistoName,
@@ -134,7 +134,7 @@ OuterTrackerMonitorCluster::beginRun(const edm::Run& run, const edm::EventSetup&
 	psTTClusterStacks.getParameter<double>("xmin"),
 	psTTClusterStacks.getParameter<double>("xmax"));
 	Cluster_IMem_Endcap->setAxisTitle("Disc", 1);
-	Cluster_IMem_Endcap->setAxisTitle("Number of Clusters", 2);
+	Cluster_IMem_Endcap->setAxisTitle("# TTClusters", 2);
 	
 	HistoName = "NClusters_OMem_Barrel";
 	Cluster_OMem_Barrel = dqmStore_->book1D(HistoName, HistoName,
@@ -142,7 +142,7 @@ OuterTrackerMonitorCluster::beginRun(const edm::Run& run, const edm::EventSetup&
 	psTTClusterStacks.getParameter<double>("xmin"),
 	psTTClusterStacks.getParameter<double>("xmax"));
 	Cluster_OMem_Barrel->setAxisTitle("Layer", 1);
-	Cluster_OMem_Barrel->setAxisTitle("Number of Clusters", 2);
+	Cluster_OMem_Barrel->setAxisTitle("# TTClusters", 2);
 	
 	HistoName = "NClusters_OMem_Endcap";
 	Cluster_OMem_Endcap = dqmStore_->book1D(HistoName, HistoName,
@@ -150,7 +150,7 @@ OuterTrackerMonitorCluster::beginRun(const edm::Run& run, const edm::EventSetup&
 	psTTClusterStacks.getParameter<double>("xmin"),
 	psTTClusterStacks.getParameter<double>("xmax"));
 	Cluster_OMem_Endcap->setAxisTitle("Disc", 1);
-	Cluster_OMem_Endcap->setAxisTitle("Number of Clusters", 2);
+	Cluster_OMem_Endcap->setAxisTitle("# TTClusters", 2);
         
   //Cluster Width
   edm::ParameterSet psTTClusterWidth =  conf_.getParameter<edm::ParameterSet>("TH2TTCluster_Width");
@@ -173,7 +173,7 @@ OuterTrackerMonitorCluster::beginRun(const edm::Run& run, const edm::EventSetup&
   psTTClusterEta.getParameter<double>("xmin"),
   psTTClusterEta.getParameter<double>("xmax"));
   Cluster_Eta->setAxisTitle("#eta", 1);
-  Cluster_Eta->setAxisTitle("Number of Clusters", 2);
+  Cluster_Eta->setAxisTitle("# TTClusters", 2);
                                   
 }//end of method
 

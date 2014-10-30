@@ -294,51 +294,51 @@ OuterTrackerMonitorStub::beginRun(edm::Run const&, edm::EventSetup const&)
   
   //TTStub barrel stack
   edm::ParameterSet psTTStub_Barrel =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Stack");
-  HistoName = "hStub_Barrel"; 
+  HistoName = "NStubs_Barrel"; 
   hStub_Barrel = dqmStore_ ->book1D(HistoName,HistoName, 
   psTTStub_Barrel.getParameter<int32_t>("Nbinsx"), 
   psTTStub_Barrel.getParameter<double>("xmin"), 
   psTTStub_Barrel.getParameter<double>("xmax")); 
   //SetTitle
   hStub_Barrel->setAxisTitle("Barrel Layer",1); 
-  hStub_Barrel->setAxisTitle("#TTStub ",2);
+  hStub_Barrel->setAxisTitle("# TTStubs ",2);
   
   //TTStub Endcap stack
   edm::ParameterSet psTTStub_Endcap =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Stack");
-  HistoName = "hStub_Endcap"; 
+  HistoName = "NStubs_Endcap"; 
   hStub_Endcap = dqmStore_ ->book1D(HistoName,HistoName, 
   psTTStub_Endcap.getParameter<int32_t>("Nbinsx"), 
   psTTStub_Endcap.getParameter<double>("xmin"), 
   psTTStub_Endcap.getParameter<double>("xmax")); 
   //SetTitle
   hStub_Endcap->setAxisTitle("Endcap disk",1); 
-  hStub_Endcap->setAxisTitle("# TTStub ",2);
+  hStub_Endcap->setAxisTitle("# TTStubs ",2);
   
   //TTStub Endcap stack
   edm::ParameterSet psTTStub_Endcap_Fw =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Stack");
-  HistoName = "hStub_Endcap_Fw"; 
+  HistoName = "NStubs_Endcap_Fw"; 
   hStub_Endcap_Fw = dqmStore_ ->book1D(HistoName,HistoName, 
   psTTStub_Endcap_Fw.getParameter<int32_t>("Nbinsx"), 
   psTTStub_Endcap_Fw.getParameter<double>("xmin"), 
   psTTStub_Endcap_Fw.getParameter<double>("xmax")); 
   //SetTitle
   hStub_Endcap_Fw->setAxisTitle("Forward Endcap disk",1); 
-  hStub_Endcap_Fw->setAxisTitle("# TTStub ",2);
+  hStub_Endcap_Fw->setAxisTitle("# TTStubs ",2);
   
   //TTStub Endcap stack
   edm::ParameterSet psTTStub_Endcap_Bw =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Stack");
-  HistoName = "hStub_Endcap_Bw"; 
+  HistoName = "NStubs_Endcap_Bw"; 
   hStub_Endcap_Bw = dqmStore_ ->book1D(HistoName,HistoName, 
   psTTStub_Endcap_Bw.getParameter<int32_t>("Nbinsx"), 
   psTTStub_Endcap_Bw.getParameter<double>("xmin"), 
   psTTStub_Endcap_Bw.getParameter<double>("xmax")); 
   //SetTitle
   hStub_Endcap_Bw->setAxisTitle("Backward Endcap disk",1); 
-  hStub_Endcap_Bw->setAxisTitle("# TTStub ",2);
+  hStub_Endcap_Bw->setAxisTitle("# TTStubs ",2);
   
   //TTStub displ/offset
   edm::ParameterSet psTTStub_Barrel_W =  conf_.getParameter<edm::ParameterSet>("TH2TTStub_DisOf");
-  HistoName = "hStub_Barrel_W";
+  HistoName = "Stub_Width_Barrel";
   //book the histogram
   hStub_Barrel_W = dqmStore_->book2D(HistoName, HistoName,
   psTTStub_Barrel_W.getParameter<int32_t>("Nbinsx"),
@@ -352,7 +352,7 @@ OuterTrackerMonitorStub::beginRun(edm::Run const&, edm::EventSetup const&)
   hStub_Barrel_W->setAxisTitle("Displacement - Offset",2);
   
   edm::ParameterSet psTTStub_Barrel_O =  conf_.getParameter<edm::ParameterSet>("TH2TTStub_DisOf");
-  HistoName = "hStub_Barrel_O";
+  HistoName = "Stub_Offset_Barrel";
   //book the histogram
   hStub_Barrel_O = dqmStore_->book2D(HistoName, HistoName,
   psTTStub_Barrel_O.getParameter<int32_t>("Nbinsx"),
@@ -366,7 +366,7 @@ OuterTrackerMonitorStub::beginRun(edm::Run const&, edm::EventSetup const&)
   hStub_Barrel_O->setAxisTitle("Trigger Offset",2);
   
   edm::ParameterSet psTTStub_Endcap_W =  conf_.getParameter<edm::ParameterSet>("TH2TTStub_DisOf");
-  HistoName = "hStub_Endcap_W";
+  HistoName = "Stub_Width_Endcap";
   //book the histogram
   hStub_Endcap_W = dqmStore_->book2D(HistoName, HistoName,
   psTTStub_Endcap_W.getParameter<int32_t>("Nbinsx"),
@@ -380,7 +380,7 @@ OuterTrackerMonitorStub::beginRun(edm::Run const&, edm::EventSetup const&)
   hStub_Endcap_W->setAxisTitle("Displacement - Offset",2);
   
   edm::ParameterSet psTTStub_Endcap_O =  conf_.getParameter<edm::ParameterSet>("TH2TTStub_DisOf");
-  HistoName = "hStub_Endcap_O";
+  HistoName = "Stub_Offset_Endcap";
   //book the histogram
   hStub_Endcap_O = dqmStore_->book2D(HistoName, HistoName,
   psTTStub_Endcap_O.getParameter<int32_t>("Nbinsx"),

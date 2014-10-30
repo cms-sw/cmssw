@@ -54,16 +54,16 @@ TH2TTStub_Endcap_Bw_RZ_Zoom = cms.PSet(
 	
 #TTStub stack (Endcap or Barrel)
 TH1TTStub_Stack = cms.PSet(
-	Nbinsx = cms.int32(12), 
-	xmin = cms.double(-0.5), 
-	xmax = cms.double(11.5)
+	Nbinsx = cms.int32(6), 
+	xmin = cms.double(0.5), 
+	xmax = cms.double(6.5)
 	),
 	
 #TTstub displacement or offset
 TH2TTStub_DisOf = cms.PSet(
-	Nbinsx = cms.int32(12),
-        xmax = cms.double(11.5),                      
-        xmin = cms.double(-0.5),
+	Nbinsx = cms.int32(6),
+        xmax = cms.double(6.5),                      
+        xmin = cms.double(0.5),
         Nbinsy = cms.int32(43),
         ymax = cms.double(10.75),                      
         ymin = cms.double(-10.75)

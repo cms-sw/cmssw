@@ -14,7 +14,7 @@ OuterTrackerMCTruth = cms.EDAnalyzer('OuterTrackerMCTruth',
 
 # TPart Eta/Phi
     TH1TPart_Angle_Pt10 = cms.PSet(
-        Nbinsx = cms.int32(45),
+        Nbinsx = cms.int32(30),
         xmax = cms.double(3.1416),                      
         xmin = cms.double(-3.1416)
         ),
@@ -41,14 +41,14 @@ OuterTrackerMCTruth = cms.EDAnalyzer('OuterTrackerMCTruth',
 
 # CW vs. TPart Eta
     TH1TPart_Eta_CW = cms.PSet(
-        Nbinsx = cms.int32(50),
+        Nbinsx = cms.int32(30),
         xmax = cms.double(3.0),                      
         xmin = cms.double(-3.0)
         ),
 
 # Stub modules vs. TPart Eta
     TH1TPart_Eta_PS2S = cms.PSet(
-        Nbinsx = cms.int32(60),
+        Nbinsx = cms.int32(30),
         xmax = cms.double(3.1416),                      
         xmin = cms.double(-3.1416)
         ),

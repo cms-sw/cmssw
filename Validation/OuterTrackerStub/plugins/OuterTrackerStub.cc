@@ -196,53 +196,53 @@ OuterTrackerStub::beginRun(edm::Run const&, edm::EventSetup const&)
 	
 	/// TTStub stacks
 	edm::ParameterSet psTTStubStacks =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Stack");
-	std::string HistoName = "Stub_Gen_Barrel";
+	std::string HistoName = "NStubs_Gen_Barrel";
 	Stub_Gen_Barrel = dqmStore_->book1D(HistoName, HistoName,
 																				psTTStubStacks.getParameter<int32_t>("Nbinsx"),
 																				psTTStubStacks.getParameter<double>("xmin"),
 																				psTTStubStacks.getParameter<double>("xmax"));
-	Stub_Gen_Barrel->setAxisTitle("Genuine TTStub Stack", 1);
-	Stub_Gen_Barrel->setAxisTitle("Number of Stubs", 2);
+	Stub_Gen_Barrel->setAxisTitle("Barrel layer", 1);
+	Stub_Gen_Barrel->setAxisTitle("# TTStubs", 2);
 	
-	HistoName = "Stub_Unkn_Barrel";
+	HistoName = "NStubs_Unkn_Barrel";
 	Stub_Unkn_Barrel = dqmStore_->book1D(HistoName, HistoName,
 																				psTTStubStacks.getParameter<int32_t>("Nbinsx"),
 																				psTTStubStacks.getParameter<double>("xmin"),
 																				psTTStubStacks.getParameter<double>("xmax"));
-	Stub_Unkn_Barrel->setAxisTitle("Unknown TTStub Stack", 1);
-	Stub_Unkn_Barrel->setAxisTitle("Number of Stubs", 2);
+	Stub_Unkn_Barrel->setAxisTitle("Barrel layer", 1);
+	Stub_Unkn_Barrel->setAxisTitle("# TTStubs", 2);
 	
-	HistoName = "Stub_Comb_Barrel";
+	HistoName = "NStubs_Comb_Barrel";
 	Stub_Comb_Barrel = dqmStore_->book1D(HistoName, HistoName,
 																				psTTStubStacks.getParameter<int32_t>("Nbinsx"),
 																				psTTStubStacks.getParameter<double>("xmin"),
 																				psTTStubStacks.getParameter<double>("xmax"));
-	Stub_Comb_Barrel->setAxisTitle("Combinatorial TTStub Stack", 1);
-	Stub_Comb_Barrel->setAxisTitle("Number of Stubs", 2);
+	Stub_Comb_Barrel->setAxisTitle("Barrel layer", 1);
+	Stub_Comb_Barrel->setAxisTitle("# TTStubs", 2);
 	
-	HistoName = "Stub_Gen_Endcap";
+	HistoName = "NStubs_Gen_Endcap";
 	Stub_Gen_Endcap = dqmStore_->book1D(HistoName, HistoName,
 																				psTTStubStacks.getParameter<int32_t>("Nbinsx"),
 																				psTTStubStacks.getParameter<double>("xmin"),
 																				psTTStubStacks.getParameter<double>("xmax"));
-	Stub_Gen_Endcap->setAxisTitle("Genuine TTStub Stack", 1);
-	Stub_Gen_Endcap->setAxisTitle("Number of Stubs", 2);
+	Stub_Gen_Endcap->setAxisTitle("Endcap disk", 1);
+	Stub_Gen_Endcap->setAxisTitle("# TTStubs", 2);
 	
-	HistoName = "Stub_Unkn_Endcap";
+	HistoName = "NStubs_Unkn_Endcap";
 	Stub_Unkn_Endcap = dqmStore_->book1D(HistoName, HistoName,
 																				psTTStubStacks.getParameter<int32_t>("Nbinsx"),
 																				psTTStubStacks.getParameter<double>("xmin"),
 																				psTTStubStacks.getParameter<double>("xmax"));
-	Stub_Unkn_Endcap->setAxisTitle("Unknown TTStub Stack", 1);
-	Stub_Unkn_Endcap->setAxisTitle("Number of Stubs", 2);
+	Stub_Unkn_Endcap->setAxisTitle("Endcap disk", 1);
+	Stub_Unkn_Endcap->setAxisTitle("# TTStubs", 2);
 	
-	HistoName = "Stub_Comb_Endcap";
+	HistoName = "NStubs_Comb_Endcap";
 	Stub_Comb_Endcap = dqmStore_->book1D(HistoName, HistoName,
 																				psTTStubStacks.getParameter<int32_t>("Nbinsx"),
 																				psTTStubStacks.getParameter<double>("xmin"),
 																				psTTStubStacks.getParameter<double>("xmax"));
-	Stub_Comb_Endcap->setAxisTitle("Combinatorial TTStub Stack", 1);
-	Stub_Comb_Endcap->setAxisTitle("Number of Stubs", 2);
+	Stub_Comb_Endcap->setAxisTitle("Encap disk", 1);
+	Stub_Comb_Endcap->setAxisTitle("# TTStubs", 2);
 	
 	edm::ParameterSet psTTStubEta =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Eta");
 	HistoName = "Stub_Gen_Eta";
@@ -251,7 +251,7 @@ OuterTrackerStub::beginRun(edm::Run const&, edm::EventSetup const&)
 																				psTTStubEta.getParameter<double>("xmin"),
 																				psTTStubEta.getParameter<double>("xmax"));
 	Stub_Gen_Eta->setAxisTitle("Genuine TTStub Eta", 1);
-	Stub_Gen_Eta->setAxisTitle("Number of Stubs", 2);
+	Stub_Gen_Eta->setAxisTitle("# TTStubs", 2);
 	
 	HistoName = "Stub_Unkn_Eta";
 	Stub_Unkn_Eta = dqmStore_->book1D(HistoName, HistoName,
@@ -259,7 +259,7 @@ OuterTrackerStub::beginRun(edm::Run const&, edm::EventSetup const&)
 																				psTTStubEta.getParameter<double>("xmin"),
 																				psTTStubEta.getParameter<double>("xmax"));
 	Stub_Unkn_Eta->setAxisTitle("Unknown TTStub Eta", 1);
-	Stub_Unkn_Eta->setAxisTitle("Number of Stubs", 2);
+	Stub_Unkn_Eta->setAxisTitle("# TTStubs", 2);
 	
 	HistoName = "Stub_Comb_Eta";
 	Stub_Comb_Eta = dqmStore_->book1D(HistoName, HistoName,
@@ -267,7 +267,7 @@ OuterTrackerStub::beginRun(edm::Run const&, edm::EventSetup const&)
 																				psTTStubEta.getParameter<double>("xmin"),
 																				psTTStubEta.getParameter<double>("xmax"));
 	Stub_Comb_Eta->setAxisTitle("Combinatorial TTStub Eta", 1);
-	Stub_Comb_Eta->setAxisTitle("Number of Stubs", 2);
+	Stub_Comb_Eta->setAxisTitle("# TTStubs", 2);
 }
 
 

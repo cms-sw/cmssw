@@ -278,7 +278,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
 																			psTPart_Pt.getParameter<double>("xmin"),
 																			psTPart_Pt.getParameter<double>("xmax"));
 	TPart_Pt->setAxisTitle("TPart_Pt", 1);
-	TPart_Pt->setAxisTitle("Number of Events", 2);
+	TPart_Pt->setAxisTitle("# TParticles", 2);
 	
 	edm::ParameterSet psTPart_Angle_Pt10 =  conf_.getParameter<edm::ParameterSet>("TH1TPart_Angle_Pt10");
 	HistoName = "TPart_Eta_Pt10";
@@ -287,7 +287,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
 																			psTPart_Angle_Pt10.getParameter<double>("xmin"),
 																			psTPart_Angle_Pt10.getParameter<double>("xmax"));
 	TPart_Eta_Pt10->setAxisTitle("TPart_Eta_Pt10", 1);
-	TPart_Eta_Pt10->setAxisTitle("Number of Events", 2);
+	TPart_Eta_Pt10->setAxisTitle("# TParticles", 2);
 	
 	HistoName = "TPart_Phi_Pt10";
 	TPart_Phi_Pt10 = dqmStore_->book1D(HistoName, HistoName,
@@ -295,7 +295,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
 																			psTPart_Angle_Pt10.getParameter<double>("xmin"),
 																			psTPart_Angle_Pt10.getParameter<double>("xmax"));
 	TPart_Phi_Pt10->setAxisTitle("TPart_Phi_Pt10", 1);
-	TPart_Phi_Pt10->setAxisTitle("Number of Events", 2);
+	TPart_Phi_Pt10->setAxisTitle("# TParticles", 2);
 	
 	edm::ParameterSet psSimVtx_XY =  conf_.getParameter<edm::ParameterSet>("TH1SimVtx_XY");
 	HistoName = "SimVtx_XY";
@@ -331,7 +331,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
 																			psTPart_Eta_CW.getParameter<double>("xmin"),
 																			psTPart_Eta_CW.getParameter<double>("xmax"));
 	TPart_Eta_ICW_1->setAxisTitle("TPart_Eta_ICW_1", 1);
-	TPart_Eta_ICW_1->setAxisTitle("Number of Events", 2);
+	TPart_Eta_ICW_1->setAxisTitle("# TParticles", 2);
 	
 	HistoName = "TPart_Eta_ICW_2";
 	TPart_Eta_ICW_2 = dqmStore_->book1D(HistoName, HistoName,
@@ -339,7 +339,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
 																			psTPart_Eta_CW.getParameter<double>("xmin"),
 																			psTPart_Eta_CW.getParameter<double>("xmax"));
 	TPart_Eta_ICW_2->setAxisTitle("TPart_Eta_ICW_2", 1);
-	TPart_Eta_ICW_2->setAxisTitle("Number of Events", 2);
+	TPart_Eta_ICW_2->setAxisTitle("# TParticles", 2);
 	
 	HistoName = "TPart_Eta_ICW_3";
 	TPart_Eta_ICW_3 = dqmStore_->book1D(HistoName, HistoName,
@@ -347,7 +347,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
 																			psTPart_Eta_CW.getParameter<double>("xmin"),
 																			psTPart_Eta_CW.getParameter<double>("xmax"));
 	TPart_Eta_ICW_3->setAxisTitle("TPart_Eta_ICW_3", 1);
-	TPart_Eta_ICW_3->setAxisTitle("Number of Events", 2);
+	TPart_Eta_ICW_3->setAxisTitle("# TParticles", 2);
 	
 	HistoName = "TPart_Eta_INormalization";
 	TPart_Eta_INormalization = dqmStore_->book1D(HistoName, HistoName,
@@ -355,7 +355,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
 																							 psTPart_Eta_CW.getParameter<double>("xmin"),
 																							 psTPart_Eta_CW.getParameter<double>("xmax"));
 	TPart_Eta_INormalization->setAxisTitle("TPart_Eta_INormalization", 1);
-	TPart_Eta_INormalization->setAxisTitle("Number of Events", 2);
+	TPart_Eta_INormalization->setAxisTitle("# TParticles", 2);
 	
 	
 	// Outer
@@ -365,7 +365,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
 																			psTPart_Eta_CW.getParameter<double>("xmin"),
 																			psTPart_Eta_CW.getParameter<double>("xmax"));
 	TPart_Eta_OCW_1->setAxisTitle("TPart_Eta_OCW_1", 1);
-	TPart_Eta_OCW_1->setAxisTitle("Number of Events", 2);
+	TPart_Eta_OCW_1->setAxisTitle("# TParticles", 2);
 	
 	HistoName = "TPart_Eta_OCW_2";
 	TPart_Eta_OCW_2 = dqmStore_->book1D(HistoName, HistoName,
@@ -373,7 +373,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
 																			psTPart_Eta_CW.getParameter<double>("xmin"),
 																			psTPart_Eta_CW.getParameter<double>("xmax"));
 	TPart_Eta_OCW_2->setAxisTitle("TPart_Eta_OCW_2", 1);
-	TPart_Eta_OCW_2->setAxisTitle("Number of Events", 2);
+	TPart_Eta_OCW_2->setAxisTitle("# TParticles", 2);
 	
 	HistoName = "TPart_Eta_OCW_3";
 	TPart_Eta_OCW_3 = dqmStore_->book1D(HistoName, HistoName,
@@ -381,7 +381,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
 																			psTPart_Eta_CW.getParameter<double>("xmin"),
 																			psTPart_Eta_CW.getParameter<double>("xmax"));
 	TPart_Eta_OCW_3->setAxisTitle("TPart_Eta_OCW_3", 1);
-	TPart_Eta_OCW_3->setAxisTitle("Number of Events", 2);
+	TPart_Eta_OCW_3->setAxisTitle("# TParticles", 2);
 	
 	HistoName = "TPart_Eta_ONormalization";
 	TPart_Eta_ONormalization = dqmStore_->book1D(HistoName, HistoName,
@@ -389,7 +389,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
 																							 psTPart_Eta_CW.getParameter<double>("xmin"),
 																							 psTPart_Eta_CW.getParameter<double>("xmax"));
 	TPart_Eta_ONormalization->setAxisTitle("TPart_Eta_ONormalization", 1);
-	TPart_Eta_ONormalization->setAxisTitle("Number of Events", 2);
+	TPart_Eta_ONormalization->setAxisTitle("# TParticles", 2);
 	
 	
 	
