@@ -68,7 +68,7 @@ class MonitorEnsemble {
   ~MonitorEnsemble() {}
 
   /// book histograms in subdirectory _directory_
-  void book(std::string directory);
+  void book(DQMStore::IBooker & ibooker);
   /// fill monitor histograms with electronId and jetCorrections
   void fill(const edm::Event& event, const edm::EventSetup& setup);
 
@@ -196,10 +196,11 @@ class MonitorEnsemble {
   /// number of logged interesting events
   int logged_;
   /// storage manager
-  DQMStore* store_;
   /// histogram container
   std::map<std::string, MonitorElement*> hists_;
   edm::EDConsumerBase tmpConsumerBase;
+
+  std::string directory_;
 };
 
 inline void MonitorEnsemble::triggerBinLabels(
@@ -238,7 +239,6 @@ inline void MonitorEnsemble::fill(const edm::Event& event,
 #include <utility>
 
 #include "DQM/Physics/interface/TopDQMHelpers.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -247,6 +247,7 @@ inline void MonitorEnsemble::fill(const edm::Event& event,
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 /**
    \class   SingleTopTChannelLeptonDQM SingleTopTChannelLeptonDQM.h
@@ -282,7 +283,7 @@ inline void MonitorEnsemble::fill(const edm::Event& event,
 /// define MonitorEnsembple to be used
 // using SingleTopTChannelLepton::MonitorEnsemble;
 
-class SingleTopTChannelLeptonDQM : public edm::EDAnalyzer {
+class SingleTopTChannelLeptonDQM : public DQMEDAnalyzer {
  public:
   /// default constructor
   SingleTopTChannelLeptonDQM(const edm::ParameterSet& cfg);
@@ -291,6 +292,11 @@ class SingleTopTChannelLeptonDQM : public edm::EDAnalyzer {
 
   /// do this during the event loop
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
+ 
+ protected:
+  //Book histograms
+  void bookHistograms(DQMStore::IBooker &,
+    edm::Run const &, edm::EventSetup const &) override;
 
  private:
   /// deduce object type from ParameterSet label, the label
@@ -347,6 +353,7 @@ class SingleTopTChannelLeptonDQM : public edm::EDAnalyzer {
   std::vector<std::unique_ptr<SelectionStep<reco::PFJet> > > PFJetSteps;
 
   std::unique_ptr<SelectionStep<reco::MET> > METStep;
+  std::vector<edm::ParameterSet> sel;
 };
 
 #endif
