@@ -867,7 +867,7 @@ steps['REPACKHID']=merge([{'--scenario':'HeavyIons',
 steps['RECOHID10']=merge([{'--scenario':'HeavyIons',
                          '-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBiasHI+HcalCalMinBias,DQM',
                          '--datatier':'RECO,DQMIO',
-                         '--eventcontent':'RECO,DQM'},
+                         '--eventcontent':'RECO,DQM','-n':30},
                         steps['RECOD']])
 steps['RECOHID11']=merge([{'--repacked':''},
                         steps['RECOHID10']])
