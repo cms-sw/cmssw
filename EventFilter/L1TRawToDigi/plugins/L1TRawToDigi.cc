@@ -34,7 +34,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 
-#include "EventFilter/L1TRawToDigi/interface/UnpackerProvider.h"
+#include "EventFilter/L1TRawToDigi/interface/UnpackerSetup.h"
 
 namespace l1t {
    class L1TRawToDigi : public edm::one::EDProducer<edm::one::SharedResources, edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
@@ -56,7 +56,7 @@ namespace l1t {
          edm::EDGetTokenT<FEDRawDataCollection> fedData_;
          int fedId_;
 
-         std::auto_ptr<UnpackerProvider> prov_;
+         std::auto_ptr<UnpackerSetup> prov_;
 
          // header and trailer sizes in chars
          int slinkHeaderSize_;
@@ -72,7 +72,7 @@ namespace l1t {
    {
       fedData_ = consumes<FEDRawDataCollection>(config.getParameter<edm::InputTag>("InputLabel"));
 
-      prov_ = UnpackerProviderFactory::get()->make("l1t::CaloSetup", *this);
+      prov_ = UnpackerSetupFactory::get()->make("l1t::CaloSetup", *this);
 
       slinkHeaderSize_ = config.getUntrackedParameter<int>("lenSlinkHeader", 16);
       slinkTrailerSize_ = config.getUntrackedParameter<int>("lenSlinkTrailer", 8);
