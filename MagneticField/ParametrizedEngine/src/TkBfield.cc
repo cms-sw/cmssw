@@ -25,11 +25,9 @@ namespace {
     for (int i=0; i<5; ++i){
       if (fabs(fld-flds_f[i])<0.001) {
 	return fpars[i];
-      } else {    
-	throw cms::Exception("BadParameters") << "Undefined field value " << fld;	
       }
     }
-    return fpar4; // make the compiler happy
+    throw cms::Exception("BadParameters") << "Undefined field value " << fld;	
   }
 
 

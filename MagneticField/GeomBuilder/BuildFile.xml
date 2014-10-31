@@ -8,6 +8,7 @@
 <use   name="MagneticField/Interpolation"/>
 <use   name="MagneticField/Layers"/>
 <use   name="MagneticField/VolumeGeometry"/>
+<use   name="MagneticField/ParametrizedEngine"/>
 <use   name="Utilities/BinningTools"/>
 <use   name="CondFormats/MFObjects"/>
 <use   name="clhep"/>
