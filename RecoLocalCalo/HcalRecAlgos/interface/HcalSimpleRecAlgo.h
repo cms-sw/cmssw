@@ -76,8 +76,8 @@ public:
   HORecHit reconstruct(const HODataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
   HcalCalibRecHit reconstruct(const HcalCalibDataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
 
-  void setpuCorrMethod(int method){ puCorrMethod_ = method; }
-
+  void setpuCorrMethod(int method){ puCorrMethod_ = method; if( puCorrMethod_ ==2 ) psFitOOTpuCorr_ = std::auto_ptr<PulseShapeFitOOTPileupCorrection>(new PulseShapeFitOOTPileupCorrection()); }
+  void setpufitChrgThr(double chrgThrInput){ if( puCorrMethod_ ==2 ) psFitOOTpuCorr_->setChargeThreshold(chrgThrInput); }
 
 private:
   bool correctForTimeslew_;

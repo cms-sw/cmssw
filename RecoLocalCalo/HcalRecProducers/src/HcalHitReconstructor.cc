@@ -48,7 +48,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   setPileupCorrectionForNegative_(0),
   paramTS(0),
   theTopology(0),
-  puCorrMethod_(conf.getUntrackedParameter<int>("puCorrMethod", 0))
+  puCorrMethod_(conf.existsAs<int>("puCorrMethod") ? conf.getParameter<int>("puCorrMethod") : 0)
 {
   // register for data access
   tok_hbhe_ = consumes<HBHEDigiCollection>(inputLabel_);
@@ -254,6 +254,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   }
 
   reco_.setpuCorrMethod(puCorrMethod_);
+  if(conf.existsAs<double>("pufitChargeThreshold")) reco_.setpufitChrgThr(conf.getParameter<double>("pufitChargeThreshold"));
 }
 
 HcalHitReconstructor::~HcalHitReconstructor() {
