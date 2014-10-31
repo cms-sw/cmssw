@@ -3,10 +3,12 @@ import FWCore.ParameterSet.Config as cms
 HTPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
         "HLT_PFHT650_FatDijet900_v",
+        "HLT_PFHT650_FatDijet950_v",
         "HLT_PFHT750_4Jet_v", # Run2
         "HLT_PFHT650_4Jet_v", # Run2
         "HLT_PFHT550_4Jet_v", # Run2
         "HLT_PFHT900_v",      # Run2
+        "HLT_PFHT650_v",
         "HLT_HT900_v",        # Run2
         "HLT_HT300_v",        # Run2
         #"HLT_HT750_v"         # Run1 (frozenHLT)

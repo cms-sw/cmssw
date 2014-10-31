@@ -6,9 +6,10 @@ DisplacedMuEGPSet = cms.PSet(
         "HLT_Mu42NoFiltersNoVtx_Photon42_CaloIdL_v", # Run2 Displaced muons
         #"HLT_Mu33NoFilters_NoVtx_2Cha_Photon33_CaloIdL_R9Id65_HE10_v", # Run2 
         "HLT_Mu33NoFiltersNoVtx_Photon33_CaloIdL_R9Id65_HE10_v", # Run2 
+        "HLT_Mu28NoFiltersNoVtxDisplaced_Photon28_CaloIdL",
         "HLT_Mu33NoFiltersNoVtxDisplaced_Photon33_CaloIdL"
-        "HLT_Photon36_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon22_AND_HE10_R9Id65_Eta2_Mass15_v1", 
-        "HLT_Photon26_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon16_AND_HE10_R9Id65_Eta2_Mass60_v1"
+        #"HLT_Photon36_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon22_AND_HE10_R9Id65_Eta2_Mass15_v1", 
+        #"HLT_Photon26_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon16_AND_HE10_R9Id65_Eta2_Mass60_v1"
         #"HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v", # Run1
         #"HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v"  # Run1
         ),
