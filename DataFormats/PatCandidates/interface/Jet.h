@@ -562,7 +562,7 @@ namespace pat {
         return 0;
       }
 
-      template<typename T> const T * tagInfoByTypeAndLabel(const std::string &label="") const
+      template<typename T> const T * tagInfoByTypeOrLabel(const std::string &label="") const
       {
         return ( label.empty() ? tagInfoByType<T>() : dynamic_cast<const T *>(tagInfo(label)) );
       }

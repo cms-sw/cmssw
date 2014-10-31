@@ -360,27 +360,27 @@ const reco::BaseTagInfo * Jet::tagInfo(const std::string &label) const {
 
 const reco::CandIPTagInfo *
 Jet::tagInfoCandIP(const std::string &label) const {
-    return tagInfoByTypeAndLabel<reco::CandIPTagInfo>(label);
+    return tagInfoByTypeOrLabel<reco::CandIPTagInfo>(label);
 }
 
 const reco::TrackIPTagInfo *
 Jet::tagInfoTrackIP(const std::string &label) const {
-    return tagInfoByTypeAndLabel<reco::TrackIPTagInfo>(label);
+    return tagInfoByTypeOrLabel<reco::TrackIPTagInfo>(label);
 }
 
 const reco::SoftLeptonTagInfo *
 Jet::tagInfoSoftLepton(const std::string &label) const {
-    return tagInfoByTypeAndLabel<reco::SoftLeptonTagInfo>(label);
+    return tagInfoByTypeOrLabel<reco::SoftLeptonTagInfo>(label);
 }
 
 const reco::CandSecondaryVertexTagInfo *
 Jet::tagInfoCandSecondaryVertex(const std::string &label) const {
-    return tagInfoByTypeAndLabel<reco::CandSecondaryVertexTagInfo>(label);
+    return tagInfoByTypeOrLabel<reco::CandSecondaryVertexTagInfo>(label);
 }
 
 const reco::SecondaryVertexTagInfo *
 Jet::tagInfoSecondaryVertex(const std::string &label) const {
-    return tagInfoByTypeAndLabel<reco::SecondaryVertexTagInfo>(label);
+    return tagInfoByTypeOrLabel<reco::SecondaryVertexTagInfo>(label);
 }
 
 void
