@@ -4,10 +4,10 @@ from Configuration.Generator.Pythia8CUEP8M1Settings_cfi import *
 source = cms.Source("EmptySource")
 generator = cms.EDFilter("Pythia8GeneratorFilter",
                          pythiaPylistVerbosity = cms.untracked.int32(0),
-                         filterEfficiency = cms.untracked.double(0.0154),
+                         filterEfficiency = cms.untracked.double(0.138),
                          pythiaHepMCVerbosity = cms.untracked.bool(False),
-                         crossSection = cms.untracked.double(354400000.0),
-                         comEnergy = cms.double(8000.0),
+                         crossSection = cms.untracked.double(1256000.0),
+                         comEnergy = cms.double(13000.0),
                          maxEventsToPrint = cms.untracked.int32(0),
                          PythiaParameters = cms.PSet(
         pythia8CommonSettingsBlock,
@@ -15,9 +15,9 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
         processParameters = cms.vstring(
             'Charmonium:all = on',
             'Charmonium:states(3S1) = 443' # filter on 443 and prevents other onium states decaying to 443, so we should turn the others off
-            '443:onMode = off',            # ignore cross-section re-weighting (CSAMODE=6) since selecting wanted decay mode
+            '443:onMode = off',            # ignore cross-section re-weighting (CSAMODE=6) since selecting wanted decay mode 
             '443:onIfAny = 13',
-            'PhaseSpace:pTHatMin = 20.',
+            'PhaseSpace:pTHatMin = 10.', 
             ),
         parameterSets = cms.vstring('pythia8CommonSettings',
                                     'pythia8CUEP8M1Settings',
@@ -45,4 +45,10 @@ mumugenfilter = cms.EDFilter("MCParticlePairFilter",
     ParticleID2 = cms.untracked.vint32(13)
 )
 
-ProductionFilterSequence = cms.Sequence(generator*oniafilter*mumugenfilter)
+mugenfilter = cms.EDFilter("MCSingleParticleFilter",
+    Status = cms.untracked.vint32(1,1),
+    MinPt = cms.untracked.vdouble(10.0,10.0),
+    ParticleID = cms.untracked.vint32(13,-13),
+)
+
+ProductionFilterSequence = cms.Sequence(generator*oniafilter*mumugenfilter*mugenfilter)
