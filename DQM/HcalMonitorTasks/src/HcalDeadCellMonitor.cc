@@ -407,8 +407,8 @@ void HcalDeadCellMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c
   if (badChannelStatusMask_>0)
     {
       edm::ESHandle<HcalChannelQuality> p;
-      c.get<HcalChannelQualityRcd>().get(p);
-      HcalChannelQuality* chanquality= new HcalChannelQuality(*p.product());
+      c.get<HcalChannelQualityRcd>().get("withTopo",p);
+      const HcalChannelQuality* chanquality= p.product();
       std::vector<DetId> mydetids = chanquality->getAllChannels();
       for (std::vector<DetId>::const_iterator i = mydetids.begin();
 	   i!=mydetids.end();
@@ -420,7 +420,6 @@ void HcalDeadCellMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c
 	  if ((status & badChannelStatusMask_))
 	    KnownBadCells_[id.rawId()]=status;
 	} 
-      delete chanquality;
     } // if (badChannelStatusMask_>0)
   return;
 } //void HcalDeadCellMonitor::beginRun(...)
