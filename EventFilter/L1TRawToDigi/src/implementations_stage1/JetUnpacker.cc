@@ -47,7 +47,7 @@ namespace l1t {
           uint32_t raw_data0 = block.payload()[i++];
           uint32_t raw_data1 = block.payload()[i++];        
 
-          if (raw_data0 == 0 || raw_data1==0) continue;
+          /* if (raw_data0 == 0 || raw_data1==0) continue; */
 
           uint16_t jetbit[4];
           jetbit[0] = raw_data0 & 0xFFFF;
@@ -76,7 +76,7 @@ namespace l1t {
             jet.setHwPhi(jetPhi);
             jet.setHwQual(jetqualflag);
 
-            std::cout << "Jet: eta " << jet.hwEta() << " phi " << jet.hwPhi() << " pT " << jet.hwPt() << " qual " << jet.hwQual();
+            std::cout << "Jet: eta " << jet.hwEta() << " phi " << jet.hwPhi() << " pT " << jet.hwPt() << " qual " << jet.hwQual() << std::endl;
             res_->push_back(bx,jet);
           }        
         }

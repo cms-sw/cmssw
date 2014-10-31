@@ -56,7 +56,7 @@ namespace l1t {
                if (fed == 1) {
                   /* res[1] = egamma_unp; */
                   /* res[3] = etsum_unp; */
-                  res[5] = jet_unp;
+                  res[3] = jet_unp;
                   /* res[7] = tau_unp; */
                }
 
