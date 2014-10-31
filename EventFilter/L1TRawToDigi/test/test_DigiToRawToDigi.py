@@ -24,7 +24,8 @@ process.maxEvents = cms.untracked.PSet(
 # Input source
 process.source = cms.Source(
         "PoolSource",
-        fileNames = cms.untracked.vstring("file:L1T_EDM.root")
+        # fileNames = cms.untracked.vstring("file:L1T_EDM.root")
+        fileNames = cms.untracked.vstring("file:SimL1Emulator_Stage1_SimpleHW.root")
 )
 
 
@@ -35,7 +36,7 @@ process.output = cms.OutputModule(
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
     outputCommands = cms.untracked.vstring("keep *",
         "drop *_mix_*_*"),
-    fileName = cms.untracked.string('L1T_PACK_EDM.root'),
+    fileName = cms.untracked.string('L1T_PACK_stage1_EDM.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('')
@@ -64,39 +65,17 @@ process.MessageLogger = cms.Service(
 )
 
 
-# plotting
-process.load("CommonTools.UtilAlgos.TFileService_cfi")
-process.TFileService.fileName = cms.string('l1t.root')
-
-import L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi
-process.packPlots = L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi.l1tStage2CaloAnalyzer.clone()
-process.packPlots.towerToken = cms.InputTag("l1tRawToDigi")
-process.packPlots.clusterToken = cms.InputTag("None")
-process.packPlots.egToken = cms.InputTag("None")
-process.packPlots.tauToken = cms.InputTag("None")
-process.packPlots.jetToken = cms.InputTag("l1tRawToDigi")
-process.packPlots.etSumToken = cms.InputTag("l1tRawToDigi")
-
-# plots from emulator
-process.simPlots = L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi.l1tStage2CaloAnalyzer.clone()
-process.simPlots.towerToken = cms.InputTag("l1tDigis")
-process.simPlots.clusterToken = cms.InputTag("None")
-process.simPlots.egToken = cms.InputTag("None")
-process.simPlots.tauToken = cms.InputTag("None")
-process.simPlots.jetToken = cms.InputTag("l1tDigis")
-process.simPlots.etSumToken = cms.InputTag("l1tDigis")
-
 # user stuff
 process.load("EventFilter.L1TRawToDigi.l1tDigiToRaw_cfi")
-process.l1tDigiToRaw.InputLabel = cms.InputTag("l1tDigis")
+process.l1tDigiToRaw.Setup = cms.string("stage1::CaloSetup")
+process.l1tDigiToRaw.InputLabel = cms.InputTag("caloStage1FinalDigis", "")
 process.load("EventFilter.L1TRawToDigi.l1tRawToDigi_cfi")
+process.l1tRawToDigi.Setup = cms.string("stage1::CaloSetup")
 
 # Path and EndPath definitions
 process.path = cms.Path(
     process.l1tDigiToRaw
     +process.l1tRawToDigi
-    +process.simPlots
-    +process.packPlots
 )
 
 process.out = cms.EndPath(

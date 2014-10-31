@@ -30,26 +30,27 @@ namespace l1t {
           uint16_t jetbit[4];
 
           for (auto j = jets->begin(i); j != jets->end(i) && n < 4; ++j, ++n) {
-          
+            std::cout << j->hwPt() << " @ " << j->hwEta() << ", " << j->hwPhi() << std::endl;
             jetbit[n] = \
                             std::min(j->hwPt(), 0x3F) |
                             (abs(j->hwEta()) & 0x7) << 6 |
                             ((j->hwEta() < 0) & 0x1) << 9 |
                             (j->hwPhi() & 0x1F) << 10 |
                             (j->hwQual() & 0x1) << 15;
+            std::cout << jetbit[n] << std::endl;
             
           }
-          uint32_t word0=(jetbit[0] & 0xFFFF) || ((jetbit[0] & 0xFFFF) << 16);
-          uint32_t word1=(jetbit[0] & 0xFFFF) || ((jetbit[0] & 0xFFFF) << 16);
+          uint32_t word0=(jetbit[0] & 0xFFFF) | ((jetbit[1] & 0xFFFF) << 16);
+          uint32_t word1=(jetbit[2] & 0xFFFF) | ((jetbit[3] & 0xFFFF) << 16);
+
+          std::cout << word0 << std::endl;
+          std::cout << word1 << std::endl;
 
           load.push_back(word0);
           load.push_back(word1);
-
-          for (; n < 2; ++n)
-            load.push_back(0);
         }
 
-        return {Block(5, load)};
+        return {Block(3, load)};
       }
   }
 }

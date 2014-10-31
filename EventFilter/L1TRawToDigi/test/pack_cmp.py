@@ -11,6 +11,8 @@ def compare_bx_vector(xs, ys):
 
     if x_total_size != y_total_size:
         print "> BX count mismatch:", x_total_size, "vs", y_total_size
+        print ">", xs.getFirstBX(), ",", ys.getFirstBX()
+        print ">", xs.getLastBX(), ",", ys.getLastBX()
         return
 
     for bx in range(xs.getFirstBX(), xs.getLastBX() + 1):
@@ -19,9 +21,8 @@ def compare_bx_vector(xs, ys):
 
         if x_size != y_size:
             print ">> BX size mismatch:", x_size, "vs", y_size
-            continue
 
-        for i in range(x_size):
+        for i in range(min(x_size, y_size)):
             x = xs.at(bx, i)
             y = ys.at(bx, i)
 
@@ -38,6 +39,13 @@ def compare_bx_vector(xs, ys):
 
             yield x, y
 
+        for j in range(min(x_size, 0), x_size):
+            print ">>>> Add Pt:", xs.at(bx, j).hwPt()
+            print ">>>> Add Eta:", xs.at(bx, j).hwEta()
+            print ">>>> Add Qual:", xs.at(bx, j).hwQual()
+
+        print "<< Compared", x_size, "quantities"
+
 events = Events(sys.argv[1])
 
 egammas_in = Handle('BXVector<l1t::EGamma>')
@@ -52,33 +60,35 @@ jets_out = Handle('BXVector<l1t::Jet>')
 taus_in = Handle('BXVector<l1t::Tau>')
 taus_out = Handle('BXVector<l1t::Tau>')
 
-in_label = "caloStage2Digis"
+# in_label = "Layer2Phys"
+in_label = ("caloStage1FinalDigis", "")
 out_label = "l1tRawToDigi"
 
 for event in events:
-    event.getByLabel(in_label, egammas_in)
-    event.getByLabel(in_label, etsums_in)
+    print "< New event"
+    # event.getByLabel(in_label, egammas_in)
+    # event.getByLabel(in_label, etsums_in)
     event.getByLabel(in_label, jets_in)
-    event.getByLabel(in_label, taus_in)
+    # event.getByLabel(in_label, taus_in)
 
-    event.getByLabel(out_label, egammas_out)
-    event.getByLabel(out_label, etsums_out)
+    # event.getByLabel(out_label, egammas_out)
+    # event.getByLabel(out_label, etsums_out)
     event.getByLabel(out_label, jets_out)
-    event.getByLabel(out_label, taus_out)
+    # event.getByLabel(out_label, taus_out)
 
-    print "Checking egammas"
-    for a, b in compare_bx_vector(egammas_in.product(), egammas_out.product()):
-        pass
+    # print "Checking egammas"
+    # for a, b in compare_bx_vector(egammas_in.product(), egammas_out.product()):
+    #     pass
 
-    print "Checking etsums"
-    for a, b in compare_bx_vector(etsums_in.product(), etsums_out.product()):
-        if a.getType() != b.getType():
-            print ">>> Type different:", a.getType(), "vs", b.getType()
+    # print "Checking etsums"
+    # for a, b in compare_bx_vector(etsums_in.product(), etsums_out.product()):
+    #     if a.getType() != b.getType():
+    #         print ">>> Type different:", a.getType(), "vs", b.getType()
 
     print "Checking jets"
     for a, b in compare_bx_vector(jets_in.product(), jets_out.product()):
         pass
 
-    print "Checking taus"
-    for a, b in compare_bx_vector(taus_in.product(), taus_out.product()):
-        pass
+    # print "Checking taus"
+    # for a, b in compare_bx_vector(taus_in.product(), taus_out.product()):
+    #     pass
