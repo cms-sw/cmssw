@@ -31,7 +31,7 @@ def customisePostLS1(process):
         process=customise_DQM(process)
     if hasattr(process,'dqmHarvesting'):
         process=customise_harvesting(process)
-    if hasattr(process,'validation_step'):
+    OBif hasattr(process,'validation_step'):
         process=customise_Validation(process)
 
     return process
@@ -84,6 +84,111 @@ def customise_Digi(process):
             process.mix.digitizers.hcal.hf1.samplingFactor = cms.double(0.60)
         if hasattr(process.mix.digitizers,'hcal') and hasattr(process.mix.digitizers.hcal,'hf2'):
             process.mix.digitizers.hcal.hf2.samplingFactor = cms.double(0.60)
+    if hasattr(process.mix.digitizers,'pixel'):
+	process.mix.digitizers.pixel.theInstLumiScaleFactor = cms.double(261.9)
+	process.mix.digitizers.pixel.bunchScaleAt25 = cms.double(1.0)
+    	process.mix.digitizers.pixel.theLadderEfficiency_BPix1 = cms.vdouble(
+            0.979259,
+            0.976677,
+            0.979259,
+            0.976677,
+            0.979259,
+            0.976677,
+            0.979259,
+            0.976677,
+            0.979259,
+            0.976677,
+            0.979259,
+            0.976677,
+            0.979259,
+            0.976677,
+            0.979259,
+            0.976677,
+            0.979259,
+            0.976677,
+            0.979259,
+            0.976677,
+            )
+    	process.mix.digitizers.pixel.theLadderEfficiency_BPix2 = cms.vdouble(
+            0.994321,
+            0.993944,
+            0.994321,
+            0.993944,
+            0.994321,
+            0.993944,
+            0.994321,
+            0.993944,
+            0.994321,
+            0.993944,
+            0.994321,
+            0.993944,
+            0.994321,
+            0.993944,
+            0.994321,
+            0.993944,
+            0.994321,
+            0.993944,
+            0.994321,
+            0.993944,
+            0.994321,
+            0.993944,
+            0.994321,
+            0.993944,
+            0.994321,
+            0.993944,
+            0.994321,
+            0.993944,
+            0.994321,
+            0.993944,
+            0.994321,
+            0.993944,
+            )
+    	process.mix.digitizers.pixel.theLadderEfficiency_BPix3 = cms.vdouble(
+            0.996787,
+            0.996945,
+            0.996787,
+            0.996945,
+            0.996787,
+            0.996945,
+            0.996787,
+            0.996945,
+            0.996787,
+            0.996945,
+            0.996787,
+            0.996945,
+            0.996787,
+            0.996945,
+            0.996787,
+            0.996945,
+            0.996787,
+            0.996945,
+            0.996787,
+            0.996945,
+            0.996787,
+            0.996945,
+            0.996787,
+            0.996945,
+            0.996787,
+            0.996945,
+            0.996787,
+            0.996945,
+            0.996787,
+            0.996945,
+            0.996787,
+            0.996945,
+            0.996787,
+            0.996945,
+            0.996787,
+            0.996945,
+            0.996787,
+            0.996945,
+            0.996787,
+            0.996945,
+            0.996787,
+            0.996945,
+            0.996787,
+            0.996945,
+            )
     return process
 
 
