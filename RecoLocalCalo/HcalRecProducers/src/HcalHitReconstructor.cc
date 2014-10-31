@@ -5,7 +5,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
@@ -46,8 +45,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   mcOOTCorrectionCategory_("MC"),
   setPileupCorrection_(0),
   setPileupCorrectionForNegative_(0),
-  paramTS(0),
-  theTopology(0)
+  paramTS(0)
 {
   // register for data access
   tok_hbhe_ = consumes<HBHEDigiCollection>(inputLabel_);
@@ -260,22 +258,21 @@ HcalHitReconstructor::~HcalHitReconstructor() {
   delete hbhePulseShapeFlagSetter_;
   delete hfS9S1_;
   delete hfPET_;
-  delete theTopology;
   delete paramTS;
 }
 
 void HcalHitReconstructor::beginRun(edm::Run const&r, edm::EventSetup const & es){
+
+  edm::ESHandle<HcalTopology> htopo;
+  es.get<IdealGeometryRecord>().get(htopo);
 
   if ( tsFromDB_== true || recoParamsFromDB_ == true )
     {
       edm::ESHandle<HcalRecoParams> p;
       es.get<HcalRecoParamsRcd>().get(p);
       paramTS = new HcalRecoParams(*p.product());
+      paramTS->setTopo(htopo.product());
 
-      edm::ESHandle<HcalTopology> htopo;
-      es.get<IdealGeometryRecord>().get(htopo);
-      theTopology=new HcalTopology(*htopo);
-      paramTS->setTopo(theTopology);
       
 
 
@@ -288,16 +285,14 @@ void HcalHitReconstructor::beginRun(edm::Run const&r, edm::EventSetup const & es
     {
       edm::ESHandle<HcalFlagHFDigiTimeParams> p;
       es.get<HcalFlagHFDigiTimeParamsRcd>().get(p);
-      HFDigiTimeParams = p.product();
+      HFDigiTimeParams.reset( new HcalFlagHFDigiTimeParams( *p ) );
 
-      if (theTopology==0) {
-	edm::ESHandle<HcalTopology> htopo;
-	es.get<IdealGeometryRecord>().get(htopo);
-	theTopology=new HcalTopology(*htopo);
-      }
-      HFDigiTimeParams->setTopo(theTopology);
+      edm::ESHandle<HcalTopology> htopo;
+      es.get<IdealGeometryRecord>().get(htopo);
+      HFDigiTimeParams->setTopo(htopo.product());
 
     }
+
   reco_.beginRun(es);
 }
 
@@ -329,11 +324,8 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
   if (useLeakCorrection_) reco_.setLeakCorrection();
 
   edm::ESHandle<HcalChannelQuality> p;
-  eventSetup.get<HcalChannelQualityRcd>().get(p);
-  //DLHcalChannelQuality* myqual = new HcalChannelQuality(*p.product());
+  eventSetup.get<HcalChannelQualityRcd>().get("withTopo",p);
   const HcalChannelQuality* myqual = p.product();
-  if (!myqual->topo()) myqual->setTopo(topo.product());
-
 
   edm::ESHandle<HcalSeverityLevelComputer> mycomputer;
   eventSetup.get<HcalSeverityLevelComputerRcd>().get(mycomputer);

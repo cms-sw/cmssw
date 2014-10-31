@@ -12,7 +12,7 @@ HcalCondObjectContainerBase::HcalCondObjectContainerBase(const HcalTopology* top
   if (topo) packedIndexVersion_=topo->topoVersion();
 }
 
-void HcalCondObjectContainerBase::setTopo(const HcalTopology* topo) const {
+void HcalCondObjectContainerBase::setTopo(const HcalTopology* topo) {
   if (topo && !topo->denseIdConsistent(packedIndexVersion_)) {
     edm::LogError("HCAL") << std::string("Inconsistent dense packing between current topology (") << topo->topoVersion() << ") and calibration object (" << packedIndexVersion_ << ")";
   }

@@ -168,7 +168,7 @@ HcalRecHitReflagger::~HcalRecHitReflagger()
 void HcalRecHitReflagger::beginRun(const Run& r, const EventSetup& c)
 {
   edm::ESHandle<HcalChannelQuality> p;
-  c.get<HcalChannelQualityRcd>().get(p);
+  c.get<HcalChannelQualityRcd>().get("withTopo",p);
   const HcalChannelQuality& chanquality_(*p.product());
 
   std::vector<DetId> mydetids = chanquality_.getAllChannels();

@@ -26,7 +26,7 @@ private:
     //Using ES to get the data:
 
     edm::ESHandle<HcalChannelQuality> objecthandle;
-    esetup.get<HcalChannelQualityRcd>().get(objecthandle);
+    esetup.get<HcalChannelQualityRcd>().get("withTopo",objecthandle);
     myDBObject = new HcalChannelQuality(*objecthandle.product() );
   }
 

@@ -350,8 +350,8 @@ void HcalDigiMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
 
   // Get all pedestals by Cap ID
   edm::ESHandle<HcalChannelQuality> p;
-  c.get<HcalChannelQualityRcd>().get(p);
-  HcalChannelQuality *chanquality= new HcalChannelQuality(*p.product());
+  c.get<HcalChannelQualityRcd>().get("withTopo",p);
+  const HcalChannelQuality *chanquality= p.product();
   std::vector<DetId> mydetids = chanquality->getAllChannels();
   PedestalsByCapId_.clear();
 
@@ -377,15 +377,14 @@ void HcalDigiMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
 
   if (tevt_==0) this->setup(); // create all histograms; not necessary if merging runs together
   if (mergeRuns_==false) this->reset(); // call reset at start of all runs
-  delete chanquality;
 
   // Get known dead cells for this run
   KnownBadCells_.clear();
   if (badChannelStatusMask_>0)
     {
       edm::ESHandle<HcalChannelQuality> p;
-      c.get<HcalChannelQualityRcd>().get(p);
-      HcalChannelQuality* chanquality= new HcalChannelQuality(*p.product());
+      c.get<HcalChannelQualityRcd>().get("withTopo",p);
+      const HcalChannelQuality* chanquality= p.product();
       std::vector<DetId> mydetids = chanquality->getAllChannels();
       for (std::vector<DetId>::const_iterator i = mydetids.begin();
 	   i!=mydetids.end();
@@ -399,7 +398,6 @@ void HcalDigiMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
 	      KnownBadCells_[id.rawId()]=status;
 	    }
 	} 
-        delete chanquality;
     } // if (badChannelStatusMask_>0)
 
 } // void HcalDigiMonitor::beginRun()
