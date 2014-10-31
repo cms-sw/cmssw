@@ -61,6 +61,8 @@ namespace edm
   
   class EventPrincipal;
   class ModuleCallingContext;
+  class ThinnedAssociationsHelper;
+
   class StreamSerializer
   {
 
@@ -68,7 +70,10 @@ namespace edm
 
     StreamSerializer(SelectedProducts const* selections);
 
-    int serializeRegistry(SerializeDataBuffer &data_buffer, const BranchIDLists &branchIDLists);   
+    int serializeRegistry(SerializeDataBuffer &data_buffer,
+                          const BranchIDLists &branchIDLists,
+                          ThinnedAssociationsHelper const& thinnedAssociationsHelper);
+
     int serializeEvent(EventPrincipal const& eventPrincipal,
                        ParameterSetID const& selectorConfig,
                        bool use_compression, int compression_level,

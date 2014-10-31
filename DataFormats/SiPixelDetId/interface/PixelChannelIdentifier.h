@@ -30,18 +30,18 @@ class PixelChannelIdentifier{
     // Constructor: pre-computes masks and shifts from field widths
     // gcc4.8: sorry, unimplemented: use of the value of the object being constructed in a constant expression
     // no constexpr yet....
-    Packing(int row_w, int column_w, 
-		      int time_w, int adc_w) : 
+    Packing(unsigned int row_w, unsigned int column_w,
+	    unsigned int time_w, unsigned int adc_w) :
       row_width(row_w), column_width(column_w), adc_width(adc_w)
       ,row_shift(0)
       ,column_shift(row_shift + row_w)
       ,time_shift(column_shift + column_w)
       ,adc_shift(time_shift + time_w)
-      ,row_mask(~(~0 << row_w))
-      ,column_mask( ~(~0 << column_w))
-      ,time_mask(~(~0 << time_w))
-      ,adc_mask(~(~0 << adc_w))
-      ,rowcol_mask(~(~0 << (column_w+row_w)))
+      ,row_mask(~(~0U << row_w))
+      ,column_mask( ~(~0U << column_w))
+      ,time_mask(~(~0U << time_w))
+      ,adc_mask(~(~0U << adc_w))
+      ,rowcol_mask(~(~0U << (column_w+row_w)))
       ,max_row(row_mask)
       ,max_column(column_mask)
       ,max_adc(adc_mask){}

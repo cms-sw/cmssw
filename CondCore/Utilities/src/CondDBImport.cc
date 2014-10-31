@@ -232,6 +232,8 @@ namespace cond {
 	    bool exists = false;
             std::pair<std::string,boost::shared_ptr<void> > missingPayload = fetchIfExists( sourcePid, source, exists );
 	    if( exists ) pid = import( source, sourcePid, missingPayload.first, missingPayload.second.get(), destination );
+	    std::cout <<"WARNING: OID "<<sourcePid<<" will be mapped to HASH "<<pid<<std::endl;
+	    if( pid != "0" ) destination.addMigratedPayload( source.connectionString(), sourcePid, pid );
 	  }
           converted.addKey( kitem.first, pid );
 	}
@@ -244,6 +246,8 @@ namespace cond {
 	      bool exists = false;
 	      std::pair<std::string,boost::shared_ptr<void> > missingPayload = fetchIfExists( sourcePid, source, exists );
 	      if( exists ) pid = import( source, sourcePid, missingPayload.first, missingPayload.second.get(), destination );
+	      std::cout <<"WARNING: OID "<<sourcePid<<" will be mapped to HASH "<<pid<<std::endl;
+	      if( pid != "0" ) destination.addMigratedPayload( source.connectionString(), sourcePid, pid );
 	    }
 	    converted.addKey( ritem.first, kitem.first, pid );
 	  }
@@ -254,6 +258,8 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( lumi::LumiSectionData )
       IMPORT_PAYLOAD_CASE( MixingModuleConfig )
       IMPORT_PAYLOAD_CASE( MuScleFitDBobject )
+      IMPORT_PAYLOAD_CASE( OOTPileupCorrectionBuffer )
+      IMPORT_PAYLOAD_CASE( StorableDoubleMap<AbsOOTPileupCorrection> )
       IMPORT_PAYLOAD_CASE( PhysicsTools::Calibration::MVAComputerContainer )
       IMPORT_PAYLOAD_CASE( PCaloGeometry )
       IMPORT_PAYLOAD_CASE( PGeometricDet )
@@ -468,6 +474,8 @@ namespace cond {
     FETCH_PAYLOAD_CASE( HcalRespCorrs )
     FETCH_PAYLOAD_CASE( HcalTimeCorrs )
     FETCH_PAYLOAD_CASE( HcalZSThresholds )
+    FETCH_PAYLOAD_CASE( OOTPileupCorrectionBuffer )
+    FETCH_PAYLOAD_CASE( StorableDoubleMap<AbsOOTPileupCorrection> )
     FETCH_PAYLOAD_CASE( JetCorrectorParametersCollection )
     FETCH_PAYLOAD_CASE( L1CaloEcalScale )
     FETCH_PAYLOAD_CASE( L1CaloEtScale )

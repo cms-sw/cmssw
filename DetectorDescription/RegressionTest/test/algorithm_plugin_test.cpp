@@ -4,21 +4,22 @@
 #include "FWCore/PluginManager/interface/standard.h"
 #include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
 #include "DetectorDescription/Algorithm/interface/DDAlgorithmFactory.h"
-#include "SealBase/Signal.h"
 
 int main(int, char **argv)
 {
-  seal::Signal::handleFatal (argv [0]);
   DDAlgorithm * algo;
+  DDCompactView cpv;
   edmplugin::PluginManager::configure(edmplugin::standard::config());
-  string name("DDTestAlgorithm");
+  std::string name("test:DDTestAlgorithm");
   algo = DDAlgorithmFactory::get()->create(name);
   if (algo) {
-    algo->execute();
+    algo->execute( cpv );
+    std::cout << "OK\n";
   }
   else {
-    cout << "SEVERE ERROR: algorithm not found in registered plugins!" << endl;
-    cout << "              name=" << name << endl;
+    std::cout << "SEVERE ERROR: algorithm not found in registered plugins!" << std::endl;
+    std::cout << "              name=" << name << std::endl;
   }
   return 0;
 }
+

@@ -11,7 +11,7 @@
 //#include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"
 //#include "L1Trigger/L1TCalorimeter/interface/legacyGtHelper.h"
 
-l1t::Stage1Layer2DiTauAlgorithm::Stage1Layer2DiTauAlgorithm(CaloParamsStage1* params) : params_(params)
+l1t::Stage1Layer2DiTauAlgorithm::Stage1Layer2DiTauAlgorithm(CaloParamsStage1* )
 {
 }
 

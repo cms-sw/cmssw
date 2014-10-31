@@ -21,8 +21,8 @@
 #include "RecoMET/METAlgorithms/interface/significanceAlgo.h"
 #include "RecoMET/METAlgorithms/interface/SignAlgoResolutions.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "TMatrixD.h"
 
 //____________________________________________________________________________||
 namespace metsig
@@ -39,8 +39,8 @@ namespace metsig
     void addPFJets(const edm::View<reco::PFJet>* PFJets);
     void addPFCandidate(reco::PFCandidatePtr pf);
     void useOriginalPtrs(const edm::ProductID& productID);
-    TMatrixD getSignifMatrix() const {return algo_.getSignifMatrix();}
-    TMatrixD mkSignifMatrix(edm::Handle<edm::View<reco::Candidate> > &PFCandidates);
+    reco::METCovMatrix getSignifMatrix() const {return algo_.getSignifMatrix();}
+    reco::METCovMatrix mkSignifMatrix(edm::Handle<edm::View<reco::Candidate> > &PFCandidates);
 
   private:
     metsig::SignAlgoResolutions *resolutions_;

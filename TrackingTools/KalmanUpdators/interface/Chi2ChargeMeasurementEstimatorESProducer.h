@@ -21,6 +21,15 @@ class  Chi2ChargeMeasurementEstimatorESProducer: public edm::ESProducer{
  private:
   boost::shared_ptr<Chi2MeasurementEstimatorBase> _estimator;
   edm::ParameterSet pset_;
+
+  double maxChi2_;
+  double nSigma_;
+  bool cutOnPixelCharge_;
+  bool cutOnStripCharge_;
+  double minGoodPixelCharge_; 
+  double minGoodStripCharge_;
+  float pTChargeCutThreshold_;
+
 };
 
 

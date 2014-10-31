@@ -192,9 +192,6 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   std::auto_ptr<TrajectorySeedCollection> outputSeeds;
   edm::RefProd< TrajectorySeedCollection > refTrajSeeds;
 
-  const int rSize = (int)originalHandle->size();
-  edm::RefToBase<TrajectorySeed> seedsRefs[rSize];
-
   edm::Handle<edm::ValueMap<float> > originalMVAStore;
   edm::Handle<edm::ValueMap<float> > mergedMVAStore;
 
@@ -337,7 +334,6 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 						   track.outerStateCovariance(), track.outerDetId(),
 						   track.innerStateCovariance(), track.innerDetId(),
 						   track.seedDirection(), origSeedRef ) );
-      seedsRefs[(*matchIter0).first]=origSeedRef;
       out_generalTracks->back().setExtra( reco::TrackExtraRef( refTrkExtras, outputTrkExtras->size() - 1) );
       reco::TrackExtra & tx = outputTrkExtras->back();
       tx.setResiduals(track.residuals());
@@ -435,7 +431,6 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 						     track.outerStateCovariance(), track.outerDetId(),
 						     track.innerStateCovariance(), track.innerDetId(),
 						     track.seedDirection(), origSeedRef ) );
-	seedsRefs[i]=origSeedRef;
 	out_generalTracks->back().setExtra( reco::TrackExtraRef( refTrkExtras, outputTrkExtras->size() - 1) );
 	reco::TrackExtra & tx = outputTrkExtras->back();
 	tx.setResiduals(track.residuals());

@@ -9,6 +9,7 @@
 #include "DataFormats/TestObjects/interface/Thing.h"
 #include "DataFormats/TestObjects/interface/ThingWithMerge.h"
 #include "DataFormats/TestObjects/interface/ThingWithIsEqual.h"
+#include "DataFormats/TestObjects/interface/TrackOfThings.h"
 
 #include "DataFormats/TestObjects/interface/StreamTestSimple.h"
 #include "DataFormats/TestObjects/interface/StreamTestThing.h"
@@ -18,6 +19,7 @@
 
 #include "DataFormats/Common/interface/Holder.h"
 #include "DataFormats/Common/interface/RefToBaseProd.h"
+#include "DataFormats/Common/interface/RefToBaseVector.h"
 
 namespace DataFormats_TestObjects {
 struct dictionary {
@@ -45,6 +47,8 @@ struct dictionary {
   edmtest::OtherThingCollection dummy2;
   edm::Wrapper<edmtest::ThingCollection> dummy3;
   edm::Wrapper<edmtest::OtherThingCollection> dummy4;
+  edmtest::TrackOfThingsCollection dummyTrackOfThingsC;
+  edm::Wrapper<edmtest::TrackOfThingsCollection> dummyWTrackOfThingsC;
 
   edmtestprod::Ord<edmtestprod::Simple> dummy20;
   edmtestprod::StreamTestTmpl<edmtestprod::Ord<edmtestprod::Simple> > dummy21;
@@ -62,12 +66,16 @@ struct dictionary {
   std::vector<edmtest::Sortable> x3;
   std::vector<edmtest::Unsortable> x4;
 
+  edm::Ref<std::vector<edmtest::Thing> > dummyRefThings;
   edm::reftobase::Holder<edmtest::Thing,edm::Ref<std::vector<edmtest::Thing> > > bhThing;
   edm::RefToBaseProd<edmtest::Thing> rtbpThing;
   
   edm::Ptr<edmtest::Thing> ptrThing;
   edm::PtrVector<edmtest::Thing> ptrVecThing;
-  
+
+  edm::RefToBaseVector<edmtest::Thing> refToBaseVectorThing;
+  edm::reftobase::VectorHolder<edmtest::Thing, edm::RefVector<std::vector<edmtest::Thing> > > vectorHolderThing;
+
   edm::Wrapper<edmtest::DeleteEarly> wrapperDeleteEarly;
 };
 }

@@ -6,6 +6,7 @@
 #include "RootInputFileSequence.h"
 #include "RootTree.h"
 
+#include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
@@ -259,6 +260,8 @@ namespace edm {
           productSelectorRules_,
           inputType_,
           (inputType_ == InputType::SecondarySource ?  std::make_shared<BranchIDListHelper>() :  input_.branchIDListHelper()),
+          (inputType_ == InputType::SecondarySource ?  std::shared_ptr<ThinnedAssociationsHelper>() : input_.thinnedAssociationsHelper()),
+          associationsFromSecondary_,
           duplicateChecker_,
           dropDescendants_,
           processHistoryRegistryForUpdate(),
@@ -841,5 +844,12 @@ namespace edm {
       return ProcessingController::kAtFirstEvent;
     }
     return ProcessingController::kUnknownReverse;
+  }
+
+  void RootInputFileSequence::initAssociationsFromSecondary(std::set<BranchID> const& associationsFromSecondary) {
+    for(auto const& branchID : associationsFromSecondary) {
+      associationsFromSecondary_.push_back(branchID);
+    }
+    rootFile_->initAssociationsFromSecondary(associationsFromSecondary_);
   }
 }

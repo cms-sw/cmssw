@@ -46,6 +46,7 @@ namespace edm {
 
   class ExceptionToActionTable;
   class BranchIDListHelper;
+  class ThinnedAssociationsHelper;
   class EDLooperBase;
   class HistoryAppender;
   class ProcessDesc;
@@ -255,6 +256,7 @@ namespace edm {
     std::shared_ptr<ActivityRegistry>           actReg_;
     std::shared_ptr<ProductRegistry const>      preg_;
     std::shared_ptr<BranchIDListHelper>         branchIDListHelper_;
+    std::shared_ptr<ThinnedAssociationsHelper>  thinnedAssociationsHelper_;
     ServiceToken                                  serviceToken_;
     std::unique_ptr<InputSource>                  input_;
     std::unique_ptr<eventsetup::EventSetupsController> espController_;

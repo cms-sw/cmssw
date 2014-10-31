@@ -1,11 +1,57 @@
 /*----------------------------------------------------------------------
 
-Test program for edm::Ref use in ROOT.
+Test program for edm::Ref use in ROOT using the
+BareRootProductGetter.
+
+One of the main purposes of this package is to run ROOT
+directly and be able to use Refs. In addition to this
+automated test, I ran the following manually to verify
+this was working:
+
+This runs the FWLite Ref testing from FWCore/FWLite
+(you might need to edit the SCRAM architecture)
+
+../tmp/slc6_amd64_gcc481/src/FWCore/FWLite/test/testFWCoreFWLite/testFWCoreFWLite
+
+It will produce a file called good.root. If you want
+to run Draw using the BareRootProductGetter, then use
+the following sequence of commands.
+
+  cmsenv
+  root.exe
+  gSystem->Load("libFWCoreFWLite.so");
+  AutoLibraryLoader::enable();
+  TFile f("good.root");
+
+Then this one will draw just a simple variable:
+
+  Events.Draw("edmtestThings_Thing__TEST.obj.a")
+
+This runs Draw through a Ref using the BareRootProductGetter:
+
+  Events.Draw("edmtestOtherThings_OtherThing_testUserTag_TEST.obj.ref.get().a")
+
+This runs Draw through a Ref and navigates thinned collections using
+the BareRootProductGetter:
+
+  Events.Draw("edmtestTrackOfThingss_trackOfThingsProducerG__TEST.obj.ref1.get().a")
+  Events.Draw("edmtestTrackOfThingss_trackOfThingsProducerDMinus__TEST.obj.ref1.get().a")
+
+I tried and failed to draw through a Ref using the TBrowser,
+although maybe there is some way to do it.
+
+I also tried and failed to draw through a RefVector or PtrVector.
+Again, there may be some way to do this and I just do not understand
+the syntax. The BareRootProductGetter should support this without any
+problems (the automated test below verifies this). I am not sure
+whether ROOT can handle the complexities of navigating a PtrVector
+using ROOT's "Draw" interface.
 
  ----------------------------------------------------------------------*/
 
 #include <iostream>
 #include <string>
+#include <vector>
 #include <cppunit/extensions/HelperMacros.h>
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
 #include "TFile.h"
@@ -14,6 +60,7 @@ Test program for edm::Ref use in ROOT.
 #include "TSystem.h"
 #include "TChain.h"
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"
+#include "DataFormats/TestObjects/interface/TrackOfThings.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "FWCore/Utilities/interface/TestHelper.h"
 
@@ -36,10 +83,12 @@ class testRefInROOT: public CppUnit::TestFixture
   // CPPUNIT_TEST_EXCEPTION(failChainWithMissingFile,std::exception);
   //failTwoDifferentFiles
   CPPUNIT_TEST_EXCEPTION(failDidNotCallGetEntryForEvents,std::exception);
-  
+  CPPUNIT_TEST(testThinning);
+
   CPPUNIT_TEST_SUITE_END();
 public:
   testRefInROOT() { }
+  ~testRefInROOT() { }
   void setUp()
   {
     if(!sWasRun_) {
@@ -67,6 +116,7 @@ public:
   // void failChainWithMissingFile();
   void failDidNotCallGetEntryForEvents();
   void testMissingRef();
+  void testThinning();
 
 
  private:
@@ -89,7 +139,7 @@ static void checkMatch(const edmtest::OtherThingCollection* pOthers,
   CPPUNIT_ASSERT(pOthers->size() > 0 );
   const edm::View<edmtest::Thing>& view = *(pOthers->front().refToBaseProd);
   CPPUNIT_ASSERT(view.size() == pOthers->size());
-  
+
   edmtest::ThingCollection::const_iterator itThing = pThings->begin(), itThingEnd = pThings->end();
   edmtest::OtherThingCollection::const_iterator itOther = pOthers->begin();
   edm::View<edmtest::Thing>::const_iterator itView = view.begin();
@@ -116,8 +166,7 @@ static void checkMatch(const edmtest::OtherThingCollection* pOthers,
       std::cout <<" *PROBLEM: ptr "<<itOther->ptr.get()->a<<"!= thing "<<itThing->a<<std::endl;
     }
     CPPUNIT_ASSERT( itOther->ptr.get()->a == itThing->a);
-    
-    
+
     if(itView->a != itThing->a) {
       std::cout <<" *PROBLEM: RefToBaseProd "<<itView->a<<"!= thing "<<itThing->a<<std::endl;
     }
@@ -143,7 +192,7 @@ static void testTree(TTree* events) {
   //NOTE: the period at the end is needed
   TBranch* thingBranch = events->GetBranch("edmtestThings_Thing__TEST.");
   CPPUNIT_ASSERT( thingBranch != 0);
-  
+
   int nev = events->GetEntries();
   for( int ev=0; ev<nev; ++ev) {
 
@@ -160,7 +209,6 @@ void testRefInROOT::testOneGoodFile()
 {
    TFile file("good.root");
    TTree* events = dynamic_cast<TTree*>(file.Get(edm::poolNames::eventTreeName().c_str()));
-   
    testTree(events);
 }
 
@@ -295,6 +343,164 @@ void testRefInROOT::failDidNotCallGetEntryForEvents()
   CPPUNIT_ASSERT(pOthers->product() != 0);
 
   pOthers->product()->at(0).ref.get();
+}
+
+void testRefInROOT::testThinning() {
+  TFile file("good.root");
+  TTree* events = dynamic_cast<TTree*>(file.Get(edm::poolNames::eventTreeName().c_str()));
+  CPPUNIT_ASSERT(events !=0);
+  if(events==0) return; // To silence Coverity
+  edm::Wrapper<std::vector<edmtest::TrackOfThings> > *pTracks =0;
+  TBranch* tracksBranchD = events->GetBranch("edmtestTrackOfThingss_trackOfThingsProducerDPlus__TEST.");
+  TBranch* tracksBranchG = events->GetBranch("edmtestTrackOfThingss_trackOfThingsProducerG__TEST.");
+  TBranch* tracksBranchM = events->GetBranch("edmtestTrackOfThingss_trackOfThingsProducerM__TEST.");
+  CPPUNIT_ASSERT( tracksBranchD!= 0 &&
+                  tracksBranchG!= 0 &&
+                  tracksBranchM!= 0);
+
+  std::vector<edmtest::TrackOfThings> const* vTracks = nullptr;
+
+  int nev = events->GetEntries();
+  for( int ev=0; ev<nev; ++ev) {
+
+    // The values in the tests below have no particular meaning.
+    // It is just checking that we read the values known to be
+    // be put in by the relevant producer.
+
+    int offset = 200 + ev * 100;
+
+    events->GetEntry(ev,0);
+
+    // In the D branch this tests accessing a value in
+    // thinned collection made from a thinned collection
+    // made from a master collection.
+    tracksBranchD->SetAddress(&pTracks);
+    tracksBranchD->GetEntry(ev);
+    vTracks = pTracks->product();
+    CPPUNIT_ASSERT(vTracks != 0);
+    edmtest::TrackOfThings const& trackD = vTracks->at(0);
+    CPPUNIT_ASSERT(trackD.ref1.isAvailable());
+    CPPUNIT_ASSERT(trackD.ref1->a == 10 + offset);
+    CPPUNIT_ASSERT(trackD.ptr1.isAvailable());
+    CPPUNIT_ASSERT(trackD.ptr1->a == 12 + offset);
+    CPPUNIT_ASSERT(trackD.refToBase1.isAvailable());
+    CPPUNIT_ASSERT(trackD.refToBase1->a == 10 + offset);
+
+    CPPUNIT_ASSERT(trackD.refVector1[0]->a == 10 + offset);
+    CPPUNIT_ASSERT(trackD.refVector1[4]->a == 14 + offset);
+    CPPUNIT_ASSERT_THROW(trackD.refVector1[8]->a, cms::Exception);
+    CPPUNIT_ASSERT(!trackD.refVector1.isAvailable());
+    CPPUNIT_ASSERT(trackD.refVector1[0]->a == 10 + offset);
+    CPPUNIT_ASSERT(trackD.refVector1[4]->a == 14 + offset);
+    CPPUNIT_ASSERT_THROW(trackD.refVector1[8]->a, cms::Exception);
+
+    CPPUNIT_ASSERT(trackD.ptrVector1[0]->a == 10 + offset);
+    CPPUNIT_ASSERT(trackD.ptrVector1[4]->a == 14 + offset);
+    CPPUNIT_ASSERT_THROW(trackD.ptrVector1[8]->a, cms::Exception);
+    CPPUNIT_ASSERT(trackD.ptrVector1[9]->a == 21 + offset);
+    CPPUNIT_ASSERT(!trackD.ptrVector1.isAvailable());
+    CPPUNIT_ASSERT(trackD.ptrVector1[0]->a == 10 + offset);
+    CPPUNIT_ASSERT(trackD.ptrVector1[4]->a == 14 + offset);
+    CPPUNIT_ASSERT_THROW(trackD.ptrVector1[8]->a, cms::Exception);
+    CPPUNIT_ASSERT(trackD.ptrVector1[9]->a == 21 + offset);
+
+    CPPUNIT_ASSERT(trackD.refToBaseVector1[0]->a == 10 + offset);
+    CPPUNIT_ASSERT(trackD.refToBaseVector1[4]->a == 14 + offset);
+    CPPUNIT_ASSERT_THROW(trackD.refToBaseVector1[8]->a, cms::Exception);
+    CPPUNIT_ASSERT(!trackD.refToBaseVector1.isAvailable());
+    CPPUNIT_ASSERT(trackD.refToBaseVector1[0]->a == 10 + offset);
+    CPPUNIT_ASSERT(trackD.refToBaseVector1[4]->a == 14 + offset);
+    CPPUNIT_ASSERT_THROW(trackD.refToBaseVector1[8]->a, cms::Exception);
+
+    // In the G branch this tests accessing a value in
+    // thinned collection made from a master collection.
+    // Otherwise the tests are very similar the preceding
+    // tests.
+    tracksBranchG->SetAddress(&pTracks);
+    tracksBranchG->GetEntry(ev);
+    vTracks = pTracks->product();
+    CPPUNIT_ASSERT(vTracks != 0);
+    edmtest::TrackOfThings const& trackG = vTracks->at(0);
+    CPPUNIT_ASSERT(trackG.ref1.isAvailable());
+    CPPUNIT_ASSERT(trackG.ref1->a == 20 + offset);
+    CPPUNIT_ASSERT(trackG.ptr1.isAvailable());
+    CPPUNIT_ASSERT(trackG.ptr1->a == 22 + offset);
+    CPPUNIT_ASSERT(trackG.refToBase1.isAvailable());
+    CPPUNIT_ASSERT(trackG.refToBase1->a == 20 + offset);
+
+    CPPUNIT_ASSERT(trackG.refVector1[0]->a == 20 + offset);
+    CPPUNIT_ASSERT(trackG.refVector1[4]->a == 24 + offset);
+    CPPUNIT_ASSERT(trackG.refVector1[8]->a == 28 + offset);
+    CPPUNIT_ASSERT(trackG.refVector1.isAvailable());
+    CPPUNIT_ASSERT(trackG.refVector1[0]->a == 20 + offset);
+    CPPUNIT_ASSERT(trackG.refVector1[4]->a == 24 + offset);
+    CPPUNIT_ASSERT(trackG.refVector1[8]->a == 28 + offset);
+
+    CPPUNIT_ASSERT(trackG.ptrVector1[0]->a == 20 + offset);
+    CPPUNIT_ASSERT(trackG.ptrVector1[4]->a == 24 + offset);
+    CPPUNIT_ASSERT(trackG.ptrVector1[8]->a == 28 + offset);
+    CPPUNIT_ASSERT(trackG.ptrVector1.isAvailable());
+    CPPUNIT_ASSERT(trackG.ptrVector1[0]->a == 20 + offset);
+    CPPUNIT_ASSERT(trackG.ptrVector1[4]->a == 24 + offset);
+    CPPUNIT_ASSERT(trackG.ptrVector1[8]->a == 28 + offset);
+
+    CPPUNIT_ASSERT(trackG.refToBaseVector1[0]->a == 20 + offset);
+    CPPUNIT_ASSERT(trackG.refToBaseVector1[4]->a == 24 + offset);
+    CPPUNIT_ASSERT(trackG.refToBaseVector1[8]->a == 28 + offset);
+    CPPUNIT_ASSERT(trackG.refToBaseVector1.isAvailable());
+    CPPUNIT_ASSERT(trackG.refToBaseVector1[0]->a == 20 + offset);
+    CPPUNIT_ASSERT(trackG.refToBaseVector1[4]->a == 24 + offset);
+    CPPUNIT_ASSERT(trackG.refToBaseVector1[8]->a == 28 + offset);
+
+    // The tests for the M branch are very similar to the preceding
+    // tests except some of the elements are through two levels
+    // of thinning or some just one level of thinning.
+    tracksBranchM->SetAddress(&pTracks);
+    tracksBranchM->GetEntry(ev);
+    vTracks = pTracks->product();
+    CPPUNIT_ASSERT(vTracks != 0);
+
+    edmtest::TrackOfThings const& trackM0 = vTracks->at(0);
+    CPPUNIT_ASSERT(!trackM0.ref1.isAvailable());
+    CPPUNIT_ASSERT_THROW(trackM0.ref1->a, cms::Exception);
+    CPPUNIT_ASSERT(!trackM0.ptr1.isAvailable());
+    CPPUNIT_ASSERT_THROW(trackM0.ptr1->a, cms::Exception);
+    CPPUNIT_ASSERT(!trackM0.refToBase1.isAvailable());
+    CPPUNIT_ASSERT_THROW(trackM0.refToBase1->a, cms::Exception);
+
+    edmtest::TrackOfThings const& trackM1 = vTracks->at(1);
+    CPPUNIT_ASSERT(trackM1.ref1.isAvailable());
+    CPPUNIT_ASSERT(trackM1.ref1->a == 44 + offset);
+    CPPUNIT_ASSERT(trackM1.ptr1.isAvailable());
+    CPPUNIT_ASSERT(trackM1.ptr1->a == 46 + offset);
+    CPPUNIT_ASSERT(trackM1.refToBase1.isAvailable());
+    CPPUNIT_ASSERT(trackM1.refToBase1->a == 44 + offset);
+
+    edmtest::TrackOfThings const& trackM = vTracks->at(0);
+    CPPUNIT_ASSERT_THROW(trackM.refVector1[0]->a, cms::Exception);
+    CPPUNIT_ASSERT(trackM.refVector1[4]->a == 44 + offset);
+    CPPUNIT_ASSERT_THROW(trackM.refVector1[8]->a, cms::Exception);
+    CPPUNIT_ASSERT(!trackM.refVector1.isAvailable());
+    CPPUNIT_ASSERT_THROW(trackM.refVector1[0]->a, cms::Exception);
+    CPPUNIT_ASSERT(trackM.refVector1[4]->a == 44 + offset);
+    CPPUNIT_ASSERT_THROW(trackM.refVector1[8]->a, cms::Exception);
+
+    CPPUNIT_ASSERT_THROW(trackM.ptrVector1[0]->a, cms::Exception);
+    CPPUNIT_ASSERT(trackM.ptrVector1[4]->a == 44 + offset);
+    CPPUNIT_ASSERT_THROW(trackM.ptrVector1[8]->a, cms::Exception);
+    CPPUNIT_ASSERT(!trackM.ptrVector1.isAvailable());
+    CPPUNIT_ASSERT_THROW(trackM.ptrVector1[0]->a, cms::Exception);
+    CPPUNIT_ASSERT(trackM.ptrVector1[4]->a == 44 + offset);
+    CPPUNIT_ASSERT_THROW(trackM.ptrVector1[8]->a, cms::Exception);
+
+    CPPUNIT_ASSERT_THROW(trackM.refToBaseVector1[0]->a, cms::Exception);
+    CPPUNIT_ASSERT(trackM.refToBaseVector1[4]->a == 44 + offset);
+    CPPUNIT_ASSERT_THROW(trackM.refToBaseVector1[8]->a, cms::Exception);
+    CPPUNIT_ASSERT(!trackM.refToBaseVector1.isAvailable());
+    CPPUNIT_ASSERT_THROW(trackM.refToBaseVector1[0]->a, cms::Exception);
+    CPPUNIT_ASSERT(trackM.refToBaseVector1[4]->a == 44 + offset);
+    CPPUNIT_ASSERT_THROW(trackM.refToBaseVector1[8]->a, cms::Exception);
+  }
 }
 
 //Stolen from Utilities/Testing/interface/CppUnit_testdriver.icpp

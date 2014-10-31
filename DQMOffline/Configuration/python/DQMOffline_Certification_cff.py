@@ -11,6 +11,7 @@ DQMOffline_Certification = cms.Sequence(daq_dqmoffline*dcs_dqmoffline*crt_dqmoff
 DQMCertCommon = cms.Sequence(siStripDaqInfo * sipixelDaqInfo * 
                              siStripDcsInfo * sipixelDcsInfo *
                              siStripCertificationInfo * sipixelCertification *
+                             trackingCertificationInfo *
                              egammaDataCertificationTask *
                              dqmOfflineTriggerCert)
 

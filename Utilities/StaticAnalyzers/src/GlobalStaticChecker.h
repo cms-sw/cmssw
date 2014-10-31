@@ -15,7 +15,7 @@
 
 namespace clangcms {
 class GlobalStaticChecker : public clang::ento::Checker< clang::ento::check::ASTDecl< clang::VarDecl> > {
-  mutable clang::OwningPtr< clang::ento::BuiltinBug> BT;
+  mutable std::unique_ptr< clang::ento::BuiltinBug> BT;
 
 public:
   void checkASTDecl(const clang::VarDecl *D,

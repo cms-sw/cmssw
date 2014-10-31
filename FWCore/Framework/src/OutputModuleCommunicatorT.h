@@ -8,7 +8,8 @@
 
 namespace edm {
   class OutputModule;
-  
+  class ThinnedAssociationsHelper;
+
   namespace one {
     class OutputModuleBase;
   }
@@ -47,7 +48,7 @@ namespace edm {
     
     virtual edm::SelectedProductsForBranchType const& keptProducts() const override;
     
-    virtual void selectProducts(edm::ProductRegistry const& preg) override;
+    virtual void selectProducts(edm::ProductRegistry const& preg, ThinnedAssociationsHelper const&) override;
     
     virtual void setEventSelectionInfo(std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,
                                        bool anyProductProduced) override;

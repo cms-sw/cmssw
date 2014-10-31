@@ -49,6 +49,8 @@ HcalNoiseInfoProducer::HcalNoiseInfoProducer(const edm::ParameterSet& iConfig) :
   minRecHitE_        = iConfig.getParameter<double>("minRecHitE");
   minLowHitE_        = iConfig.getParameter<double>("minLowHitE");
   minHighHitE_       = iConfig.getParameter<double>("minHighHitE");
+  if(iConfig.existsAs<double>("minR45HitE"))
+     minR45HitE_        = iConfig.getParameter<double>("minR45HitE");
 
   HcalAcceptSeverityLevel_ = iConfig.getParameter<uint32_t>("HcalAcceptSeverityLevel");
   if (iConfig.exists("HcalRecHitFlagsToBeExcluded"))
@@ -166,7 +168,7 @@ HcalNoiseInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   for(HcalNoiseRBXArray::iterator rit = rbxarray.begin(); rit!=rbxarray.end(); ++rit) {
     HcalNoiseRBX &rbx=(*rit);
     CommonHcalNoiseRBXData data(rbx, minRecHitE_, minLowHitE_, minHighHitE_, TS4TS5EnergyThreshold_,
-      TS4TS5UpperCut_, TS4TS5LowerCut_);
+      TS4TS5UpperCut_, TS4TS5LowerCut_, minR45HitE_);
 
     // find the highest energy rbx
     if(data.energy()>maxenergy) {
@@ -243,6 +245,11 @@ HcalNoiseInfoProducer::fillOtherSummaryVariables(HcalNoiseSummary& summary, cons
   // TS4TS5
   if(data.PassTS4TS5() == false)
      summary.hasBadRBXTS4TS5_ = true;
+
+  if(algo_.passLooseRBXRechitR45(data) == false)
+     summary.hasBadRBXRechitR45Loose_ = true;
+  if(algo_.passTightRBXRechitR45(data) == false)
+     summary.hasBadRBXRechitR45Tight_ = true;
 
   // hit timing
   if(data.minLowEHitTime()<summary.min10GeVHitTime()) {
@@ -542,6 +549,7 @@ HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iS
     uint32_t spikebitset = (1 << HcalCaloFlagLabels::HBHESpikeNoise);
     uint32_t trianglebitset = (1 << HcalCaloFlagLabels::HBHETriangleNoise);
     uint32_t ts4ts5bitset = (1 << HcalCaloFlagLabels::HBHETS4TS5Noise);
+    uint32_t negativebitset = (1 << HcalCaloFlagLabels::HBHENegativeNoise);
     for(unsigned int i=0; i<HcalRecHitFlagsToBeExcluded_.size(); i++) {
       uint32_t bitset = (1 << HcalRecHitFlagsToBeExcluded_[i]);
       recHitFlag = (recHitFlag & bitset) ? recHitFlag-bitset : recHitFlag;
@@ -617,6 +625,14 @@ HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iS
 	  double et = rechit.energy()*gp.perp()/gp.mag();
 	  summary.ts4ts5noiseet_ += et;
 	}
+    }
+    
+    if(rechit.flags() & negativebitset) {
+	  summary.nnegativenoise_++;
+	  summary.negativenoisee_ += rechit.energy();
+	  GlobalPoint gp = geo->getPosition(rechit.id());
+	  double et = rechit.energy()*gp.perp()/gp.mag();
+	  summary.negativenoiseet_ += et;
     }
 
     // find the hpd that the rechit is in

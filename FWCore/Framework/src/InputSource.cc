@@ -63,6 +63,7 @@ namespace edm {
       productRegistry_(createSharedPtrToStatic<ProductRegistry>(desc.productRegistry_)),
       processHistoryRegistry_(new ProcessHistoryRegistry),
       branchIDListHelper_(desc.branchIDListHelper_),
+      thinnedAssociationsHelper_(desc.thinnedAssociationsHelper_),
       primary_(pset.getParameter<std::string>("@module_label") == std::string("@main_input")),
       processGUID_(primary_ ? createGlobalIdentifier() : std::string()),
       time_(),

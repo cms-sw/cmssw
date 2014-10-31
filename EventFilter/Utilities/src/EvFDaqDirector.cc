@@ -48,6 +48,7 @@ namespace evf {
 		pset.getUntrackedParameter<bool> ("directorIsBu", false)
 		),
     run_(pset.getUntrackedParameter<unsigned int> ("runNumber",0)),
+    outputAdler32Recheck_(pset.getUntrackedParameter<bool>("outputAdler32Recheck",false)),
     hostname_(""),
     bu_readlock_fd_(-1),
     bu_writelock_fd_(-1),
@@ -304,7 +305,6 @@ namespace evf {
     return bu_run_dir_ + "/open/" + fffnaming::inputJsonFileName(run_,ls,index);
   }
 
-
   std::string EvFDaqDirector::getOpenDatFilePath(const unsigned int ls, std::string const& stream) const {
     return run_dir_ + "/open/" + fffnaming::streamerDataFileNameWithPid(run_,ls,stream);
   }
@@ -319,6 +319,10 @@ namespace evf {
 
   std::string EvFDaqDirector::getMergedDatFilePath(const unsigned int ls, std::string const& stream) const {
     return run_dir_ + "/" + fffnaming::streamerDataFileNameWithInstance(run_,ls,stream,hostname_);
+  }
+
+  std::string EvFDaqDirector::getMergedDatChecksumFilePath(const unsigned int ls, std::string const& stream) const {
+    return run_dir_ + "/" + fffnaming::streamerDataChecksumFileNameWithInstance(run_,ls,stream,hostname_);
   }
 
   std::string EvFDaqDirector::getInitFilePath(std::string const& stream) const {

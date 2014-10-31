@@ -106,9 +106,6 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) :
   edm::ParameterSet ParametersTotDigiProf = conf_.getParameter<edm::ParameterSet>("TProfTotalNumberOfDigis");
   subdetswitchtotdigiprofon = ParametersTotDigiProf.getParameter<bool>("subdetswitchon");
 
-  //  edm::ParameterSet ParametersTotDigisProfVsLS = conf_.getParameter<edm::ParameterSet>("TProfTotalNumberOfDigisVsLS");
-  //  subdetswitchtotdigiproflson = ParametersTotDigisProfVsLS.getParameter<bool>("subdetswitchon");
-
   edm::ParameterSet ParametersTotDigiFailure = conf_.getParameter<edm::ParameterSet>("TotalNumberOfDigisFailure");
   subdetswitchtotdigifailureon = ParametersTotDigiFailure.getParameter<bool>("subdetswitchon");
 
@@ -272,9 +269,6 @@ void SiStripMonitorDigi::endRun(const edm::Run&, const edm::EventSetup&){
 
 //--------------------------------------------------------------------------------------------
 void SiStripMonitorDigi::beginLuminosityBlock(const edm::LuminosityBlock& lb, const edm::EventSetup& es){
-  if (subdetswitchtotdigiproflson){
-    //    if (digiFailureMEs.SubDetTotDigiProfLS) digiFailureMEs.SubDetTotDigiProfLS->Reset();
-  }
   if (subdetswitchtotdigifailureon) {
     isStableBeams = false;
     //integrate stats over several LS to prevent eventual low trigger rates
@@ -523,7 +517,6 @@ void SiStripMonitorDigi::createMEs(DQMStore::IBooker & ibooker , const edm::Even
     folder_organizer.getLayerFolderName(ss, 0, tTopo);
     ibooker.setCurrentFolder(ss.str().c_str());
     
-    //    if (subdetswitchtotdigiproflson) {
     if (subdetswitchtotdigifailureon) {
       const char* HistoName = "NumberOfDigisInLastLS";
       digiFailureMEs.SubDetTotDigiProfLS= ibooker.bookProfile(HistoName, HistoName,
@@ -767,7 +760,6 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
   for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin();
        it != SubDetMEsMap.end(); it++) {
 
-    //      if (subdetswitchtotdigiproflson) {
       if (subdetswitchtotdigifailureon) {
         if (strcmp(it->first.c_str(),"TEC__MINUS")==0){
           digiFailureMEs.SubDetTotDigiProfLS->Fill(1, it->second.totNDigis);

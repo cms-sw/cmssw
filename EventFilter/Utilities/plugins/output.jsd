@@ -34,6 +34,11 @@
          "name" : "InputFiles",
          "operation" : "cat",
          "type" : "string"
+      },
+      {
+         "name" : "FileAdler32",
+         "operation" : "sum",
+         "type" : "integer"
       }
    ]
 }

@@ -211,7 +211,7 @@ SingleTopSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOffline
     ## will be empty
     triggerExtras = cms.PSet(
       src   = cms.InputTag("TriggerResults","","HLT"),
-      paths = cms.vstring(['HLT_Ele27_WP85_Gsf_v', 'HLT_Ele27_WP85_Gsf_TriCentralPFJet40_v', 'HLT_Ele27_WP85_Gsf_TriCentralPFJet60_50_35_v', 'HLT_Ele27_WP85_Gsf_CentralPFJet30_BTagCSV_v'])
+      paths = cms.vstring(['HLT_Ele27_eta2p1_WP85_Gsf_v', 'HLT_Ele27_eta2p1_WP85_Gsf_TriCentralPFJet40_v', 'HLT_Ele27_eta2p1_WP85_Gsf_TriCentralPFJet60_50_35_v', 'HLT_Ele27_eta2p1_WP85_Gsf_CentralPFJet30_BTagCSV_v'])
      )
   ),
   ## ------------------------------------------------------
@@ -224,7 +224,7 @@ SingleTopSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOffline
   preselection = cms.PSet(
     trigger = cms.PSet(
       src    = cms.InputTag("TriggerResults","","HLT"),
-      select = cms.vstring(['HLT_Ele27_WP85_Gsf_v', 'HLT_Ele27_WP85_Gsf_TriCentralPFJet40_v', 'HLT_Ele27_WP85_Gsf_TriCentralPFJet60_50_35_v', 'HLT_Ele27_WP85_Gsf_CentralPFJet30_BTagCSV_v'])
+      select = cms.vstring(['HLT_Ele27_eta2p1_WP85_Gsf_v', 'HLT_Ele27_eta2p1_WP85_Gsf_TriCentralPFJet40_v', 'HLT_Ele27_eta2p1_WP85_Gsf_TriCentralPFJet60_50_35_v', 'HLT_Ele27_eta2p1_WP85_Gsf_CentralPFJet30_BTagCSV_v'])
      ),
     ## [optional] : when omitted no preselection is applied
     vertex = cms.PSet(

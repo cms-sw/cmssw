@@ -10,6 +10,7 @@
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
+#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"
 #include "DataFormats/TestObjects/interface/ThingCollection.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
@@ -70,6 +71,7 @@ namespace edm {
   void SecondaryProducer::beginJob() {
     eventPrincipal_.reset(new EventPrincipal(secInput_->productRegistry(),
                                              secInput_->branchIDListHelper(),
+                                             secInput_->thinnedAssociationsHelper(),
                                              *processConfiguration_,
                                              nullptr));
 
@@ -171,6 +173,7 @@ namespace edm {
     InputSourceDescription desc(ModuleDescription(),
                                 *productRegistry_,
 				std::make_shared<BranchIDListHelper>(),
+                                std::make_shared<ThinnedAssociationsHelper>(),
 				std::make_shared<ActivityRegistry>(),
 				-1, -1, -1, dummy);
     std::shared_ptr<VectorInputSource> input_(static_cast<VectorInputSource *>

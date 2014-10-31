@@ -105,6 +105,7 @@ namespace edm {
   class GlobalSchedule;
   struct TriggerTimingReport;
   class ModuleRegistry;
+  class ThinnedAssociationsHelper;
   class TriggerResultInserter;
   
   class Schedule {
@@ -120,6 +121,7 @@ namespace edm {
              service::TriggerNamesService& tns,
              ProductRegistry& pregistry,
              BranchIDListHelper& branchIDListHelper,
+             ThinnedAssociationsHelper& thinnedAssociationsHelper,
              ExceptionToActionTable const& actions,
              std::shared_ptr<ActivityRegistry> areg,
              std::shared_ptr<ProcessConfiguration> processConfiguration,

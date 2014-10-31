@@ -3,7 +3,10 @@
 #include "PoolSource.h"
 #include "InputFile.h"
 #include "RootInputFileSequence.h"
+#include "DataFormats/Common/interface/ThinnedAssociation.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
@@ -17,13 +20,16 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/InputType.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 #include <set>
 
 namespace edm {
 
+  class BranchID;
   class LuminosityBlockID;
   class EventID;
+  class ThinnedAssociationsHelper;
 
   namespace {
     void checkHistoryConsistency(Principal const& primary, Principal const& secondary) {
@@ -77,6 +83,7 @@ namespace edm {
       for(unsigned int index = 0; index < nStreams; ++index) {
         secondaryEventPrincipals_.emplace_back(new EventPrincipal(secondaryFileSequence_->fileProductRegistry(),
                                                                   secondaryFileSequence_->fileBranchIDListHelper(),
+                                                                  std::make_shared<ThinnedAssociationsHelper const>(),
                                                                   processConfiguration(),
                                                                   nullptr,
                                                                   index));
@@ -84,6 +91,7 @@ namespace edm {
       std::array<std::set<BranchID>, NumBranchTypes> idsToReplace;
       ProductRegistry::ProductList const& secondary = secondaryFileSequence_->fileProductRegistry()->productList();
       ProductRegistry::ProductList const& primary = primaryFileSequence_->fileProductRegistry()->productList();
+      std::set<BranchID> associationsFromSecondary;
       typedef ProductRegistry::ProductList::const_iterator const_iterator;
       typedef ProductRegistry::ProductList::iterator iterator;
       //this is the registry used by the 'outside' world and only has the primary file information in it at present
@@ -91,6 +99,10 @@ namespace edm {
       for(const_iterator it = secondary.begin(), itEnd = secondary.end(); it != itEnd; ++it) {
         if(it->second.present()) {
           idsToReplace[it->second.branchType()].insert(it->second.branchID());
+          if(it->second.branchType() == InEvent &&
+             it->second.unwrappedType().typeInfo() == typeid(ThinnedAssociation)) {
+            associationsFromSecondary.insert(it->second.branchID());
+          }
           //now make sure this is marked as not dropped else the product will not be 'get'table from the Event
           iterator itFound = fullList.find(it->first);
           if(itFound != fullList.end()) {
@@ -99,7 +111,10 @@ namespace edm {
         }
       }
       for(const_iterator it = primary.begin(), itEnd = primary.end(); it != itEnd; ++it) {
-        if(it->second.present()) idsToReplace[it->second.branchType()].erase(it->second.branchID());
+        if(it->second.present()) {
+          idsToReplace[it->second.branchType()].erase(it->second.branchID());
+          associationsFromSecondary.erase(it->second.branchID());
+        }
       }
       if(idsToReplace[InEvent].empty() && idsToReplace[InLumi].empty() && idsToReplace[InRun].empty()) {
         secondaryFileSequence_.reset();
@@ -112,6 +127,7 @@ namespace edm {
           }
         }
       }
+      secondaryFileSequence_->initAssociationsFromSecondary(associationsFromSecondary);
     }
   }
 

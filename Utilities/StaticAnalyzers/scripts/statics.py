@@ -31,6 +31,9 @@ for line in f :
 		if fields[2] == ' static variable ' :
 			G.add_edge(fields[1],fields[3],kind=' static variable ')
 			statics.add(fields[3])
+		if fields[2] == ' known thread unsafe function ' :
+			G.add_edge(fields[1],fields[3],kind=' known thread unsafe function ')
+			statics.add(fields[3])
 f.close()
 for tfunc in sorted(toplevelfuncs):
 	for static in sorted(statics): 

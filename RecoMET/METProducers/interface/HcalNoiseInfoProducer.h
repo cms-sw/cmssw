@@ -101,7 +101,7 @@ namespace reco {
 
     double TotalCalibCharge;    // placeholder to calculate total charge in calibration channels
 
-    double minRecHitE_, minLowHitE_, minHighHitE_; // parameters used to determine noise status
+    double minRecHitE_, minLowHitE_, minHighHitE_, minR45HitE_; // parameters used to determine noise status
     HcalNoiseAlgo algo_; // algorithms to determine if an RBX is noisy
 
     bool useCalibDigi_;

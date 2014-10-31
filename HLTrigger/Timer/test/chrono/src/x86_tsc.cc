@@ -122,9 +122,6 @@ double calibrate_tsc_hz() {
 }
 
 
-#if defined __GLIBC__ && (__GLIBC__ > 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 11)
-// IFUNC support requires GLIBC >= 2.11.1
-
 // new processors can use rdtscp;
 uint64_t serialising_rdtscp(void)
 {
@@ -157,7 +154,7 @@ namespace {
 
   static inline constexpr
   unsigned int _(const char b[4]) {
-    return * reinterpret_cast<const unsigned int *>(b);
+    return * (unsigned int *)(b);
   }
 
 } // namespace
@@ -166,10 +163,14 @@ extern "C" {
 
   static uint64_t (*serialising_rdtsc_resolver(void))(void)
   {
+    if (not tsc_allowed())
+      return serialising_rdtsc_unimplemented;
+
     if (has_rdtscp())
       // if available, use the RDTSCP instruction
       return serialising_rdtscp;
-    else if (has_tsc()) {
+
+    if (has_tsc()) {
       // if the TSC is available, chck the processor vendor
       unsigned int eax, ebx, ecx, edx;
       __get_cpuid(0x00, & eax, & ebx, & ecx, & edx);
@@ -182,13 +183,23 @@ extern "C" {
       else
         // for other processors, assume that MFENCE can be used as a serialising instruction before RDTSC
         return serialising_rdtsc_mfence;
-    } else
-      return serialising_rdtsc_unimplemented;
+    }
+
+    return serialising_rdtsc_unimplemented;
   }
 
 }
 
-extern uint64_t serialising_rdtsc(void) __attribute__((ifunc("serialising_rdtsc_resolver"))) __attribute__((externally_visible));
-#endif // defined __GLIBC__ && (__GLIBC__ > 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 11)
+// IFUNC support requires GCC >= 4.6.0 and GLIBC >= 2.11.1
+#if ( defined __GNUC__ && (__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6) ) \
+  and ( defined __GLIBC__ && (__GLIBC__ > 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 11) )
+
+uint64_t serialising_rdtsc(void) __attribute__((ifunc("serialising_rdtsc_resolver"))) __attribute__((externally_visible));
+
+#else
+
+uint64_t (*serialising_rdtsc)(void) = serialising_rdtsc_resolver();
+
+#endif // IFUNC support
 
 #endif // defined __x86_64__ or defined __i386__

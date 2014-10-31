@@ -20,6 +20,7 @@
 
 // system include files
 #include <array>
+#include <memory>
 #include <string>
 #include <vector>
 #include <map>
@@ -49,6 +50,9 @@ namespace edm {
   class ModuleCallingContext;
   class PreallocationConfiguration;
   class ActivityRegistry;
+  class ProductRegistry;
+  class ThinnedAssociationsHelper;
+
   template <typename T> class OutputModuleCommunicatorT;
   
   namespace maker {
@@ -82,7 +86,7 @@ namespace edm {
       
       bool selected(BranchDescription const& desc) const;
       
-      void selectProducts(ProductRegistry const& preg);
+      void selectProducts(ProductRegistry const& preg, ThinnedAssociationsHelper const&);
       std::string const& processName() const {return process_name_;}
       SelectedProductsForBranchType const& keptProducts() const {return keptProducts_;}
       std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
@@ -97,6 +101,8 @@ namespace edm {
       bool wantAllEvents() const {return wantAllEvents_;}
       
       BranchIDLists const* branchIDLists() const;
+
+      ThinnedAssociationsHelper const* thinnedAssociationsHelper() const;
       
       const ModuleDescription& moduleDescription() const {
         return moduleDescription_;
@@ -173,7 +179,10 @@ namespace edm {
       std::map<BranchID::value_type, BranchID::value_type> droppedBranchIDToKeptBranchID_;
       std::unique_ptr<BranchIDLists> branchIDLists_;
       BranchIDLists const* origBranchIDLists_;
-      
+
+      std::unique_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper_;
+      std::map<BranchID, bool> keepAssociation_;
+
       typedef std::map<BranchID, std::set<ParentageID> > BranchParents;
       BranchParents branchParents_;
       
@@ -181,6 +190,7 @@ namespace edm {
       
       SharedResourcesAcquirer resourcesAcquirer_;
       std::mutex mutex_;
+
       //------------------------------------------------------------------
       // private member functions
       //------------------------------------------------------------------
@@ -194,7 +204,9 @@ namespace edm {
       void doRespondToCloseInputFile(FileBlock const& fb);
       void doPreForkReleaseResources();
       void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
-      
+      void doRegisterThinnedAssociations(ProductRegistry const&,
+                                         ThinnedAssociationsHelper&) { }
+
       std::string workerType() const {return "WorkerT<edm::one::OutputModuleBase>";}
       
       /// Tell the OutputModule that is must end the current file.
@@ -234,6 +246,10 @@ namespace edm {
       virtual void doRespondToOpenInputFile_(FileBlock const&) {}
       virtual void doRespondToCloseInputFile_(FileBlock const&) {}
       
+      void keepThisBranch(BranchDescription const& desc,
+                          std::map<BranchID, BranchDescription const*>& trueBranchIDToKeptBranchDesc,
+                          std::set<BranchID>& keptProductsInEvent);
+
       void setModuleDescription(ModuleDescription const& md) {
         moduleDescription_ = md;
       }

@@ -18,6 +18,8 @@ namespace edm {
 
   class ModuleCallingContext;
   class ProductHolderIndexAndSkipBit;
+  class ProductRegistry;
+  class ThinnedAssociationsHelper;
 
   UnscheduledHandler* getUnscheduledHandler(EventPrincipal const& ep);
 
@@ -26,16 +28,16 @@ namespace edm {
   public:
     typedef T ModuleType;
     typedef WorkerT<T> WorkerType;
-    WorkerT(T*,
+    WorkerT(std::shared_ptr<T>,
             ModuleDescription const&,
             ExceptionToActionTable const* actions);
 
     virtual ~WorkerT();
 
-  void setModule( T* iModule) {
-    module_ = iModule;
-    resetModuleDescription(&(module_->moduleDescription()));
-  }
+    void setModule( std::shared_ptr<T> iModule) {
+      module_ = iModule;
+      resetModuleDescription(&(module_->moduleDescription()));
+    }
     
     virtual Types moduleType() const override;
 
@@ -96,6 +98,7 @@ namespace edm {
     virtual void implPreForkReleaseResources() override;
     virtual void implPostForkReacquireResources(unsigned int iChildIndex, 
                                                unsigned int iNumberOfChildren) override;
+    virtual void implRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) override;
     virtual std::string workerType() const override;
 
     virtual void modulesDependentUpon(std::vector<const char*>& oModuleLabels) const override {
@@ -112,7 +115,7 @@ namespace edm {
 
     virtual std::vector<ProductHolderIndexAndSkipBit> const& itemsToGetFromEvent() const override { return module_->itemsToGetFromEvent(); }
 
-    T* module_;
+    std::shared_ptr<T> module_;
   };
 
 }

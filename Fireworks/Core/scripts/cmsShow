@@ -15,18 +15,11 @@ checkOS()
            exit 1;
        fi
        osv=`sw_vers -productVersion |awk '{split($0,a,"\."); print a[1]a[2];}' `
-       if [ "$osv" -lt "106" ]; then
+       if [ "$osv" -lt "108" ]; then
            echo "#######################################"
-           echo "Only version 10.6 or greater supported!"
+           echo "Only version 10.8 or greater supported!"
            echo "#######################################"
    	   exit 1;
-       fi
-       support_106=`awk -F', '   '{ if ($1 ~/CMSSW_[0-5]_[0-2]_/ ) print $1 }' $CMSSW_BASE/src/Fireworks/Core/data/version.txt`
-       if [ "$osv" == "106" ] && [ -z "$support_106" ]; then
-           echo "#######################################"
-           echo "Only version 10.7 supported!"
-           echo "#######################################"
-           exit 1
        fi
    else
        arch=`uname -m`
@@ -98,7 +91,7 @@ setupEnv()
    # see if we are running in standalone mode
    if [ ! -d $SHELLDIR/../../.SCRAM ] ; then
      export CMSSW_BASE=$SHELLDIR
-     export CMSSW_SEARCH_PATH="."
+     export CMSSW_SEARCH_PATH=".:$CMSSW_BASE"
      export CMSSW_DATA_PATH="."
      export ROOTSYS=$CMSSW_BASE/external/root 
      export LD_LIBRARY_PATH=${CMSSW_BASE}/external/gcc/lib64:${ROOTSYS}/lib:${CMSSW_BASE}/external/lib:${CMSSW_BASE}/lib:$LD_LIBRARY_PATH

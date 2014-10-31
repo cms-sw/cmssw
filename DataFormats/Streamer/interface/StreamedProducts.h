@@ -22,6 +22,7 @@
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/BranchIDList.h"
+#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 
 namespace edm {
 
@@ -104,15 +105,18 @@ namespace edm {
     SendDescs const& descs() const {return descs_;}
     ParameterSetMap const& processParameterSet() const {return processParameterSet_;}
     BranchIDLists const& branchIDLists() const {return branchIDLists_;}
+    ThinnedAssociationsHelper const& thinnedAssociationsHelper() const { return thinnedAssociationsHelper_; }
     void push_back(BranchDescription const& bd) {descs_.push_back(bd);}
     void setParameterSetMap(ParameterSetMap const& psetMap) {processParameterSet_ = psetMap;}
     void setBranchIDLists(BranchIDLists const& bidlists) {branchIDLists_ = bidlists;}
+    void setThinnedAssociationsHelper(ThinnedAssociationsHelper const& v) { thinnedAssociationsHelper_ = v; }
     void initializeTransients();
 
   private:
     SendDescs descs_;
     ParameterSetMap processParameterSet_;
     BranchIDLists branchIDLists_;
+    ThinnedAssociationsHelper thinnedAssociationsHelper_;
     // trigger bit descriptions will be added here and permanent
     //  provenance values
   };

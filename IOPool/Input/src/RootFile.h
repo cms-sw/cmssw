@@ -35,6 +35,7 @@ namespace edm {
   //------------------------------------------------------------
   // Class RootFile: supports file reading.
 
+  class BranchID;
   class BranchIDListHelper;
   class ProductProvenanceRetriever;
   class DaqProvenanceHelper;
@@ -45,6 +46,8 @@ namespace edm {
   class InputFile;
   class ProvenanceReaderBase;
   class ProvenanceAdaptor;
+  class ThinnedAssociationsHelper;
+
   typedef std::map<EntryDescriptionID, EventEntryDescription> EntryDescriptionMap;
 
   class MakeProvenanceReader {
@@ -72,6 +75,8 @@ namespace edm {
              ProductSelectorRules const& productSelectorRules,
              InputType inputType,
              std::shared_ptr<BranchIDListHelper> branchIDListHelper,
+             std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper,
+             std::vector<BranchID> const& associationsFromSecondary,
              std::shared_ptr<DuplicateChecker> duplicateChecker,
              bool dropDescendantsOfDroppedProducts,
              ProcessHistoryRegistry& processHistoryRegistry,
@@ -99,7 +104,6 @@ namespace edm {
     std::string const& file() const {return file_;}
     std::shared_ptr<ProductRegistry const> productRegistry() const {return productRegistry_;}
     std::shared_ptr<BranchIDListHelper const> branchIDListHelper() const {return branchIDListHelper_;}
-    BranchIDLists const& branchIDLists() {return *branchIDLists_;}
     EventAuxiliary const& eventAux() const {return eventAux_;}
     // IndexIntoFile::EntryNumber_t const& entryNumber() const {return indexIntoFileIter().entry();}
     // LuminosityBlockNumber_t const& luminosityBlockNumber() const {return indexIntoFileIter().lumi();}
@@ -145,6 +149,7 @@ namespace edm {
     bool wasFirstEventJustRead() const;
     IndexIntoFile::IndexIntoFileItr indexIntoFileIter() const;
     void setPosition(IndexIntoFile::IndexIntoFileItr const& position);
+    void initAssociationsFromSecondary(std::vector<BranchID> const&);
 
   private:
     RootTreePtrArray& treePointers() {return treePointers_;}
@@ -161,6 +166,7 @@ namespace edm {
     void overrideRunNumber(LuminosityBlockID& id);
     void overrideRunNumber(EventID& id, bool isRealData);
     std::string const& newBranchToOldBranch(std::string const& newBranch) const;
+    void markBranchToBeDropped(bool dropDescendants, BranchID const& branchID, std::set<BranchID>& branchesToDrop) const;
     void dropOnInput(ProductRegistry& reg, ProductSelectorRules const& rules, bool dropDescendants, InputType inputType);
     void readParentageTree(InputType inputType);
     void readEntryDescriptionTree(EntryDescriptionMap& entryDescriptionMap, InputType inputType); // backward compatibility
@@ -204,6 +210,8 @@ namespace edm {
     std::shared_ptr<ProductRegistry const> productRegistry_;
     std::shared_ptr<BranchIDLists const> branchIDLists_;
     std::shared_ptr<BranchIDListHelper> branchIDListHelper_;
+    std::unique_ptr<ThinnedAssociationsHelper> fileThinnedAssociationsHelper_;
+    std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper_;
     InputSource::ProcessingMode processingMode_;
     int forcedRunOffset_;
     std::map<std::string, std::string> newBranchToOldBranch_;
