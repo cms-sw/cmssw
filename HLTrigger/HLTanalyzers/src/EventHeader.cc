@@ -70,8 +70,8 @@ void EventHeader::analyze(edm::Event const& iEvent, TTree* HltTree) {
   
   if (_Debug) {	
     std::cout << "EventHeader -- event = "          << fEvent     << std::endl;
-    std::cout << "EventHeader -- lumisection = "    << fLumiBlock << std::endl;    std::cout << "EventHeader -- run   = "          << fRun       << std::endl;
- 
+    std::cout << "EventHeader -- lumisection = "    << fLumiBlock << std::endl;
+    std::cout << "EventHeader -- run   = "          << fRun       << std::endl;
     std::cout << "EventHeader -- bunch crossing = " << fBx        << std::endl; 
     std::cout << "EventHeader -- orbit number = "   << fOrbit     << std::endl; 
   }
