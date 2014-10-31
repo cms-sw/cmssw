@@ -28,7 +28,7 @@ class ElectronGeneralAnalyzer : public ElectronDqmAnalyzerBase
     virtual ~ElectronGeneralAnalyzer() ;
 
     virtual void bookHistograms( DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) ;
-    virtual void analyze( DQMStore::IBooker &, DQMStore::IGetter &, const edm::Event & e, const edm::EventSetup & c ) ;
+    virtual void analyze( const edm::Event & e, const edm::EventSetup & c ) ;
 
   private:
 
