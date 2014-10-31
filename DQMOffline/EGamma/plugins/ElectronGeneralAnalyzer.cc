@@ -55,7 +55,7 @@ void ElectronGeneralAnalyzer::bookHistograms( DQMStore::IBooker & iBooker, edm::
   h1_ele_triggers = bookH1(iBooker, "triggers","hlt triggers",256,0.,256.,"HLT bit") ;
  }
 
-void ElectronGeneralAnalyzer::analyze( DQMStore::IBooker &, DQMStore::IGetter &, const edm::Event& iEvent, const edm::EventSetup & iSetup )
+void ElectronGeneralAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup & iSetup )
  {
   edm::Handle<GsfElectronCollection> gsfElectrons ;
   iEvent.getByToken(electronCollection_,gsfElectrons) ;
