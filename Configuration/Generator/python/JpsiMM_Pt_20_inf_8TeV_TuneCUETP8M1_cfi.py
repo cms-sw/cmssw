@@ -13,7 +13,6 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
         pythia8CommonSettingsBlock,
         pythia8CUEP8M1SettingsBlock,
         processParameters = cms.vstring(
-            'Charmonium:all = on',
             'Charmonium:states(3S1) = 443' # filter on 443 and prevents other onium states decaying to 443, so we should turn the others off
             '443:onMode = off',            # ignore cross-section re-weighting (CSAMODE=6) since selecting wanted decay mode
             '443:onIfAny = 13',
