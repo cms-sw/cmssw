@@ -98,3 +98,10 @@
   <use name="FWCore/PluginManager"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library file="FillSchemeInfoProducer.cc" name="FillSchemeInfoProducer">
+  <use name="RecoLuminosity/LumiProducer"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="DataFormats/Provenance"/>
+  <use name="DataFormats/Luminosity"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

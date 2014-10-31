@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoLuminosity.LumiProducer.lumiProducer_cff import *
+from RecoLuminosity.LumiProducer.fillSchemeInfoProducer_cfi import *
 from RecoLocalMuon.Configuration.RecoLocalMuon_cff import *
 from RecoLocalCalo.Configuration.RecoLocalCalo_cff import *
 from RecoTracker.Configuration.RecoTracker_cff import *
@@ -37,8 +38,8 @@ from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 
 from RecoLocalCalo.CastorReco.CastorSimpleReconstructor_cfi import *
 
-localreco = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalreco+castorreco)
-localreco_HcalNZS = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalrecoNZS+castorreco)
+localreco = cms.Sequence(fillSchemeInfo+trackerlocalreco+muonlocalreco+calolocalreco+castorreco)
+localreco_HcalNZS = cms.Sequence(fillSchemeInfo+trackerlocalreco+muonlocalreco+calolocalrecoNZS+castorreco)
 
 #
 # temporarily switching off recoGenJets; since this are MC and wil be moved to a proper sequence
