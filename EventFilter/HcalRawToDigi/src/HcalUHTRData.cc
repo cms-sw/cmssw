@@ -25,7 +25,7 @@ void HcalUHTRData::const_iterator::determineMode() {
   m_flavor=flavor();
   m_stepclass=0;
   if (m_flavor==5) { m_stepclass=1; m_microstep=0; }
-  else if ((m_flavor&0x6)==0x2) { m_stepclass=2; }
+  else if (m_flavor == 2) { m_stepclass=2; }
 }
 
 uint8_t HcalUHTRData::const_iterator::adc() const {
@@ -35,19 +35,19 @@ uint8_t HcalUHTRData::const_iterator::adc() const {
 
 uint8_t HcalUHTRData::const_iterator::re_tdc() const {
   if (m_flavor==0x5) return 0x80;
-  else if ((m_flavor&0x6)==0x2) return (m_ptr[1]&0x3F);
+  else if (m_flavor == 2) return (m_ptr[1]&0x3F);
   else return (((*m_ptr)&0x3F00)>>8);
 }
 
 bool HcalUHTRData::const_iterator::soi() const {
   if (m_flavor==0x5) return false;
-  else if ((m_flavor&0x6)==0x2) return (m_ptr[0]&0x2000);
+  else if (m_flavor == 2) return (m_ptr[0]&0x2000);
   else return (((*m_ptr)&0x4000));
 }
 
 uint8_t HcalUHTRData::const_iterator::fe_tdc() const {
-  if (m_flavor==0x5 || (m_flavor&0x6)==0x0) return 0x80;
-  else return ((m_ptr[1]>>6)&0xF);
+  if (m_flavor==2) return(m_ptr[1]>>6)&0x1F;
+  else return 0x80;
 }
 
 
