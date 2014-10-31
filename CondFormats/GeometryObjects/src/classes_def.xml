@@ -34,5 +34,9 @@
    <field name="pChamberType" mapping="blob"/>
    <field name="pfupars" mapping="blob"/>
  </class>
+ 
+ <class name="PTrackerParameters" class_version="0"> 
+   <field name="pfupars" mapping="blob"/>
+ </class>
 
 </lcgdict> 

@@ -13,6 +13,7 @@ int main()
     testSerialization<RecoIdealGeometry>();
     testSerialization<std::vector<PGeometricDet::Item>>();
     testSerialization<std::vector<PGeometricDetExtra::Item>>();
+    testSerialization<PTrackerParameters>();
 
     return 0;
 }
