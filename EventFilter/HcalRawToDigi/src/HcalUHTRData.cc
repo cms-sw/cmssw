@@ -50,6 +50,11 @@ uint8_t HcalUHTRData::const_iterator::te_tdc() const {
   else return 0x80;
 }
 
+bool HcalUHTRData::const_iterator::ok() const {
+  if (m_flavor == 2) { return (m_ptr[0]>>12)&0x1; }
+  else if (m_flavor == 4) { return (m_ptr[0]>>13)&0x1; }
+  else return { false; }
+}
 
 HcalUHTRData::const_iterator HcalUHTRData::begin() const {
   return HcalUHTRData::const_iterator(m_raw16+HEADER_LENGTH_16BIT,m_raw16+(m_rawLength64-1)*sizeof(uint64_t)/sizeof(uint16_t));
