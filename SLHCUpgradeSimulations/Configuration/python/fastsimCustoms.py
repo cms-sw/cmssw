@@ -10,7 +10,6 @@ def customiseDefault(process):
         process.validation_step.remove(process.HLTSusyExoValFastSim)
         process.validation_step.remove(process.hltHiggsValidator)
 
-    process.trackerNumberingSLHCGeometry.layerNumberPXB = cms.uint32(20)
     process.trackerTopologyConstants.pxb_layerStartBit = cms.uint32(20)
     process.trackerTopologyConstants.pxb_ladderStartBit = cms.uint32(12)
     process.trackerTopologyConstants.pxb_moduleStartBit = cms.uint32(2)
