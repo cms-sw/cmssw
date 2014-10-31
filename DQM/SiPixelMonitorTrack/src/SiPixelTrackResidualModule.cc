@@ -22,10 +22,8 @@
 #include "DQM/SiPixelMonitorTrack/interface/SiPixelTrackResidualModule.h"
 
 // Data Formats
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameWrapper.h"
+#include "DataFormats/SiPixelDetId/interface/PixelEndcapNameWrapper.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
@@ -252,9 +250,7 @@ void SiPixelTrackResidualModule::book(const edm::ParameterSet& iConfig, DQMStore
   }
 
   if(type==4 && endcap){
-    uint32_t blade;
-    if (!isUpgrade) { blade= PixelEndcapName(DetId(id_)).bladeName(); }
-    else { blade= PixelEndcapNameUpgrade(DetId(id_)).bladeName(); }
+    uint32_t blade = PixelEndcapNameWrapper(iConfig, DetId(id_)).bladeName();
     char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
     hisID = src.label() + "_" + sblade;
     meResidualXBlade_ = iBooker.book1D("residualX_"+hisID,"Hit-to-Track Residual in r-phi",100,-150,150);
@@ -296,9 +292,7 @@ void SiPixelTrackResidualModule::book(const edm::ParameterSet& iConfig, DQMStore
   }
 
   if(type==5 && endcap){
-    uint32_t disk;
-    if (!isUpgrade) { disk = PixelEndcapName(DetId(id_)).diskName(); }
-    else { disk = PixelEndcapNameUpgrade(DetId(id_)).diskName(); }
+    uint32_t disk = PixelEndcapNameWrapper(iConfig, DetId(id_)).diskName();
     
     char sdisk[80]; sprintf(sdisk, "Disk_%i",disk);
     hisID = src.label() + "_" + sdisk;
@@ -343,13 +337,8 @@ void SiPixelTrackResidualModule::book(const edm::ParameterSet& iConfig, DQMStore
   if(type==6 && endcap){
     uint32_t panel;
     uint32_t module;
-    if (!isUpgrade) {
-      panel= PixelEndcapName(DetId(id_)).pannelName();
-      module= PixelEndcapName(DetId(id_)).plaquetteName();
-    } else {
-      panel= PixelEndcapNameUpgrade(DetId(id_)).pannelName();
-      module= PixelEndcapNameUpgrade(DetId(id_)).plaquetteName();
-    }
+    panel= PixelEndcapNameWrapper(iConfig, DetId(id_)).pannelName();
+    module= PixelEndcapNameWrapper(iConfig, DetId(id_)).plaquetteName();
     
     char slab[80]; sprintf(slab, "Panel_%i_Ring_%i",panel, module);
     hisID = src.label() + "_" + slab;

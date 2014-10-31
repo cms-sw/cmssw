@@ -135,8 +135,7 @@ void SiPixelTrackResidualSource::dqmBeginRun(const edm::Run& r, edm::EventSetup 
       SiPixelTrackResidualModule* module = new SiPixelTrackResidualModule((*pxf)->geographicalId().rawId());
       theSiPixelStructure.insert(pair<uint32_t, SiPixelTrackResidualModule*>((*pxf)->geographicalId().rawId(), module));
       int DBdisk;
-      if (!isUpgrade) { DBdisk = PixelEndcapName(DetId((*pxf)->geographicalId())).diskName(); }
-                 else { DBdisk = PixelEndcapNameUpgrade(DetId((*pxf)->geographicalId())).diskName(); }
+      DBdisk = PixelEndcapNameWrapper(pSet_, DetId((*pxf)->geographicalId())).diskName();
       if (noOfDisks < DBdisk) noOfDisks = DBdisk;
     }
   }

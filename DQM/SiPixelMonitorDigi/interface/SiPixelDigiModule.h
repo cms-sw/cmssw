@@ -54,7 +54,7 @@ class SiPixelDigiModule {
 //						 bool bladeon=false, bool diskon=false, bool ringon=false, 
 //						 bool twoD=true, bool reducedSet=false, bool twoDimModOn = true, bool twoDimOnlyLayDisk = false,
 //						 int &nDigisA, int &nDigisB);
-  int fill(const edm::DetSetVector<PixelDigi> & input, 
+  int fill(const edm::ParameterSet& iConfig, const edm::DetSetVector<PixelDigi> & input, 
 	   MonitorElement* combBarrel, MonitorElement* chanBarrel, std::vector<MonitorElement*>& chanBarrelL, MonitorElement* combEndcap,
 	   const bool modon, const bool ladon, const bool layon, const bool phion, 
 	   const bool bladeon, const bool diskon, const bool ringon, 

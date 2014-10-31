@@ -34,8 +34,7 @@
 #include "Alignment/OfflineValidation/interface/TrackerValidationVariables.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelNameWrapper.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
+#include "DataFormats/SiPixelDetId/interface/PixelEndcapNameWrapper.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
 #include "DataFormats/VertexReco/interface/VertexFwd.h"

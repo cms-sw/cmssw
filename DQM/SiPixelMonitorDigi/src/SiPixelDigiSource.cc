@@ -32,8 +32,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelNameWrapper.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
+#include "DataFormats/SiPixelDetId/interface/PixelEndcapNameWrapper.h"
 //
 #include <string>
 #include <stdlib.h>
@@ -214,7 +213,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
   int NzeroROCs[2]        = {0,-672};
   int NloEffROCs[2]       = {0,-672};
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
-    int numberOfDigisMod = (*struct_iter).second->fill(*input, 
+    int numberOfDigisMod = (*struct_iter).second->fill(conf_, *input, 
 						       meNDigisCOMBBarrel_, meNDigisCHANBarrel_,meNDigisCHANBarrelLs_,meNDigisCOMBEndcap_,
 						       modOn, ladOn, layOn, phiOn, 
 						       bladeOn, diskOn, ringOn, 
@@ -357,14 +356,14 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
       } //endif Barrel/(Endcap && !isUpgrade)
       else if (endcap && isUpgrade) {
         nFPIXDigis = nFPIXDigis + numberOfDigisMod;
-        PixelEndcapNameUpgrade::HalfCylinder side = PixelEndcapNameUpgrade(DetId((*struct_iter).first)).halfCylinder();
-        int disk = PixelEndcapNameUpgrade(DetId((*struct_iter).first)).diskName();
-        int blade = PixelEndcapNameUpgrade(DetId((*struct_iter).first)).bladeName();
-        int panel = PixelEndcapNameUpgrade(DetId((*struct_iter).first)).pannelName();
-        int module = PixelEndcapNameUpgrade(DetId((*struct_iter).first)).plaquetteName();
+        PixelEndcapNameBase::HalfCylinder side = PixelEndcapNameWrapper(conf_, DetId((*struct_iter).first)).halfCylinder();
+        int disk = PixelEndcapNameWrapper(conf_, DetId((*struct_iter).first)).diskName();
+        int blade = PixelEndcapNameWrapper(conf_, DetId((*struct_iter).first)).bladeName();
+        int panel = PixelEndcapNameWrapper(conf_, DetId((*struct_iter).first)).pannelName();
+        int module = PixelEndcapNameWrapper(conf_, DetId((*struct_iter).first)).plaquetteName();
         
         int iter=0; int i=0;
-        if(side==PixelEndcapNameUpgrade::mI){
+        if(side==PixelEndcapNameBase::mI){
           if(disk==1){
             i=0;
             if(panel==1){ if(module==1) nDM1P1M1+=numberOfDigisMod; }
@@ -381,7 +380,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
             else if(panel==2){ if(module==1) nDM3P2M1+=numberOfDigisMod; }
 	    if(blade<12 && blade>0 && (panel==1 || panel==2)) iter = i+2*(blade-1)+(panel-1);
           }
-        }else if(side==PixelEndcapNameUpgrade::mO){
+        }else if(side==PixelEndcapNameBase::mO){
           if(disk==1){
             i=66;
             if(panel==1){ if(module==1) nDM1P1M1+=numberOfDigisMod; }
@@ -398,7 +397,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
             else if(panel==2){ if(module==1) nDM3P2M1+=numberOfDigisMod; }
 	    if(blade<18 && blade>0 && (panel==1 || panel==2)) iter = i+2*(blade-1)+(panel-1);
           }
-        }else if(side==PixelEndcapNameUpgrade::pI){
+        }else if(side==PixelEndcapNameBase::pI){
           if(disk==1){
             i=168;
             if(panel==1){ if(module==1) nDP1P1M1+=numberOfDigisMod; }
@@ -415,7 +414,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
             else if(panel==2){ if(module==1) nDP3P2M1+=numberOfDigisMod; }
 	    if(blade<12 && blade>0 && (panel==1 || panel==2)) iter = i+2*(blade-1)+(panel-1);
           }
-        }else if(side==PixelEndcapNameUpgrade::pO){
+        }else if(side==PixelEndcapNameBase::pO){
           if(disk==1){
             i=234;
             if(panel==1){ if(module==1) nDP1P1M1+=numberOfDigisMod; }
@@ -623,12 +622,12 @@ void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup){
 	uint32_t id = detId();
 	SiPixelDigiModule* theModule = new SiPixelDigiModule(id, ncols, nrows);
         
-        PixelEndcapNameUpgrade::HalfCylinder side = PixelEndcapNameUpgrade(DetId(id)).halfCylinder();
-        int disk   = PixelEndcapNameUpgrade(DetId(id)).diskName();
+        PixelEndcapNameBase::HalfCylinder side = PixelEndcapNameWrapper(conf_, DetId(id)).halfCylinder();
+        int disk   = PixelEndcapNameWrapper(conf_, DetId(id)).diskName();
         if (disk > noOfDisks) noOfDisks = disk;
-        int blade  = PixelEndcapNameUpgrade(DetId(id)).bladeName();
-        int panel  = PixelEndcapNameUpgrade(DetId(id)).pannelName();
-        int module = PixelEndcapNameUpgrade(DetId(id)).plaquetteName();
+        int blade  = PixelEndcapNameWrapper(conf_, DetId(id)).bladeName();
+        int panel  = PixelEndcapNameWrapper(conf_, DetId(id)).pannelName();
+        int module = PixelEndcapNameWrapper(conf_, DetId(id)).plaquetteName();
 
         char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
         char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);
