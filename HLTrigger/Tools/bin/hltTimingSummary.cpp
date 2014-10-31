@@ -1014,11 +1014,11 @@ int main(int argc, char ** argv) {
   std::vector<int> longestEventByModule ; 
   std::vector<int> pathFilterModule ; 
 
-  std::vector< std::pair<unsigned int,unsigned int> > slowEventSummaryVector ; 
-  std::vector< std::pair<unsigned int,unsigned int> > slowPathSummaryVector ; 
-  std::vector< std::pair<unsigned int,unsigned int> > slowModuleSummaryVector ; 
+  std::vector< std::pair<unsigned int,unsigned long long> > slowEventSummaryVector ; 
+  std::vector< std::pair<unsigned int,unsigned long long> > slowPathSummaryVector ; 
+  std::vector< std::pair<unsigned int,unsigned long long> > slowModuleSummaryVector ; 
   std::vector<int> modIdxInterested;
-  std::vector < std::vector< std::pair<unsigned int,unsigned int> > > slowModInterestedVector ; 
+  std::vector < std::vector< std::pair<unsigned int,unsigned long long> > > slowModInterestedVector ; 
   
   //--- One loop through all events ---//
   bool init = false ; int nSkips = 0 ; 
@@ -1047,8 +1047,8 @@ int main(int argc, char ** argv) {
       for (int k=0; k<numberOfspecificTotalTime; k++) {
       	specificPathTimeSummaryVector.push_back(specificPathTimeSummaryVectorAtK);
       }
-      std::pair<unsigned int,unsigned int> pair ;
-      std::vector <std::pair<unsigned int,unsigned int> > slowModInterestedVectorAtK;
+      //      std::pair<unsigned int,unsigned int> pair ;
+      std::vector <std::pair<unsigned int,unsigned long long> > slowModInterestedVectorAtK;
       for (unsigned k=0; k<modInterested.size(); k++) {
       	slowModInterestedVector.push_back(slowModInterestedVectorAtK);
       }
@@ -1612,7 +1612,7 @@ int main(int argc, char ** argv) {
     // Needed to get run/event numbers
     TBEvtAux->GetEntry(ievt) ;
     //std::pair<int,int> eventInfo ;
-    std::pair<unsigned int,unsigned int> eventInfo ;
+    std::pair<unsigned int,unsigned long long> eventInfo ;
     eventInfo.first  = EvtAuxWrapper->id().run() ; 
     eventInfo.second = EvtAuxWrapper->id().event() ;
 
