@@ -17,7 +17,7 @@
 //
 //
 
-
+//#define DebugLog
 // system include files
 #include <memory>
 
@@ -52,7 +52,9 @@ IsolatedEcalPixelTrackCandidateProducer::~IsolatedEcalPixelTrackCandidateProduce
 
 // ------------ method called to produce the data  ------------
 void IsolatedEcalPixelTrackCandidateProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  //  std::cout << "==============Inside IsolatedEcalPixelTrackCandidateProducer" << std::endl;
+#ifdef DebugLog
+  std::cout << "==============Inside IsolatedEcalPixelTrackCandidateProducer" << std::endl;
+#endif
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
   const CaloGeometry* geo = pG.product();
@@ -62,7 +64,9 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::Event& iEvent, const 
 
   edm::Handle<EcalRecHitCollection> ecalEE;
   iEvent.getByToken(tok_ee,ecalEE);
-  //  std::cout << "ecal Collections isValid: " << ecalEB.isValid() << "/" << ecalEE.isValid() << std::endl;
+#ifdef DebugLog
+  std::cout << "ecal Collections isValid: " << ecalEB.isValid() << "/" << ecalEE.isValid() << std::endl;
+#endif
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> trigCand;
   iEvent.getByToken(tok_trigcand,trigCand);
@@ -72,7 +76,9 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::Event& iEvent, const 
   int nCand=isoPixTrackRefs.size();  
 
   reco::IsolatedPixelTrackCandidateCollection * iptcCollection=new reco::IsolatedPixelTrackCandidateCollection;
-  //  std::cout << "coneSize_ " << coneSizeEta0_ << "/"<< coneSizeEta1_ << " hitCountEthr_ " << hitCountEthr_ << " hitEthr_ " << hitEthr_ << std::endl;
+#ifdef DebugLog
+  std::cout << "coneSize_ " << coneSizeEta0_ << "/"<< coneSizeEta1_ << " hitCountEthr_ " << hitCountEthr_ << " hitEthr_ " << hitEthr_ << std::endl;
+#endif
   for (int p=0; p<nCand; p++) {
     int    nhitIn(0), nhitOut(0);
     double inEnergy(0), outEnergy(0);
@@ -80,8 +86,10 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::Event& iEvent, const 
     if (isoPixTrackRefs[p]->etaPhiEcal()) etaPhi = isoPixTrackRefs[p]->EtaPhiEcal();
     double etaAbs = std::abs(etaPhi.first);
     double coneSize_ = (etaAbs > 1.5) ? coneSizeEta1_ : (coneSizeEta0_*(1.5-etaAbs)+coneSizeEta1_*etaAbs)/1.5;
-    //    std::cout << "Track: eta/phi " << etaPhi.first << "/" << etaPhi.second << " pt:" << isoPixTrackRefs[p]->track()->pt() << " cone " << coneSize_ << std::endl;
-    //    std::cout << "rechit size EB/EE : " << ecalEB->size() << "/" << ecalEE->size() << " coneSize_: " <<  coneSize_ << std::endl;
+#ifdef DebugLog
+    std::cout << "Track: eta/phi " << etaPhi.first << "/" << etaPhi.second << " pt:" << isoPixTrackRefs[p]->track()->pt() << " cone " << coneSize_ << std::endl;
+    std::cout << "rechit size EB/EE : " << ecalEB->size() << "/" << ecalEE->size() << " coneSize_: " <<  coneSize_ << std::endl;
+#endif
     if (etaAbs<1.7) {
       for (EcalRecHitCollection::const_iterator eItr=ecalEB->begin(); eItr!=ecalEB->end(); eItr++) {
 	GlobalPoint pos = geo->getPosition(eItr->detid());
@@ -91,8 +99,10 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::Event& iEvent, const 
 	  inEnergy += (eItr->energy());
 	  if (eItr->energy() > hitCountEthr_) nhitOut++;
 	  if (eItr->energy() > hitEthr_)      outEnergy += (eItr->energy());
-	  //	  std::cout << "Rechit Close to the track has energy " << eItr->energy() << 
-	  //	    " eta/phi: " << pos.eta() << "/" << pos.phi() << " deltaR: " << R << std::endl;
+#ifdef DebugLog
+	  std::cout << "Rechit Close to the track has energy " << eItr->energy()
+		    << " eta/phi: " << pos.eta() << "/" << pos.phi() << " deltaR: " << R << std::endl;
+#endif
 	}
       }
     }
@@ -105,12 +115,16 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::Event& iEvent, const 
 	  inEnergy += (eItr->energy());
 	  if (eItr->energy() > hitCountEthr_) nhitOut++;
 	  if (eItr->energy() > hitEthr_)      outEnergy += (eItr->energy());
-	  //	  std::cout << "Rechit Close to the track has energy " << eItr->energy() << 
-	  //	    " eta/phi: " << pos.eta() << "/" << pos.phi() << " deltaR: " << R << std::endl;
+#ifdef DebugLog
+	  std::cout << "Rechit Close to the track has energy " << eItr->energy()
+		    << " eta/phi: " << pos.eta() << "/" << pos.phi() << " deltaR: " << R << std::endl;
+#endif
 	}
       }
     }
-    //    std::cout << "nhitIn:" << nhitIn << " inEnergy:" << inEnergy << " nhitOut:" << nhitOut << " outEnergy:" << outEnergy << std::endl;
+#ifdef DebugLog
+    std::cout << "nhitIn:" << nhitIn << " inEnergy:" << inEnergy << " nhitOut:" << nhitOut << " outEnergy:" << outEnergy << std::endl;
+#endif
     reco::IsolatedPixelTrackCandidate newca(*isoPixTrackRefs[p]);
     newca.SetEnergyIn(inEnergy);
     newca.SetEnergyOut(outEnergy);
@@ -118,7 +132,9 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::Event& iEvent, const 
     newca.SetNHitOut(nhitOut);
     iptcCollection->push_back(newca);	
   }
-  //  std::cout << "ncand:" << nCand << " outcollction size:" << iptcCollection->size() << std::endl;
+#ifdef DebugLog
+  std::cout << "ncand:" << nCand << " outcollction size:" << iptcCollection->size() << std::endl;
+#endif
   std::auto_ptr<reco::IsolatedPixelTrackCandidateCollection> outCollection(iptcCollection);
   iEvent.put(outCollection);
 }

@@ -157,15 +157,15 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
     double minDZ = 1000;
     bool   found(false);
     for (reco::VertexCollection::const_iterator vit=pVert->begin(); vit!=pVert->end(); vit++) {
-      if (fabs(pixelTrackRefs[iS]->dz(vit->position()))<minDZ) {
-	minDZ  = fabs(pixelTrackRefs[iS]->dz(vit->position()));
+      if (std::abs(pixelTrackRefs[iS]->dz(vit->position()))<minDZ) {
+	minDZ  = std::abs(pixelTrackRefs[iS]->dz(vit->position()));
 	vitSel = vit;
 	found  = true;
       }
     }
     //cut on dYX:
     if (found) {
-      if(fabs(pixelTrackRefs[iS]->dxy(vitSel->position()))<vtxCutSeed_) vtxMatch=true;
+      if(std::abs(pixelTrackRefs[iS]->dxy(vitSel->position()))<vtxCutSeed_) vtxMatch=true;
     } else {
       vtxMatch=true;
     }
@@ -215,14 +215,14 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
       bool   found(false);
       reco::VertexCollection::const_iterator vitSel2;
       for (reco::VertexCollection::const_iterator vit=pVert->begin(); vit!=pVert->end(); vit++) {
-	if (fabs(pixelTrackRefs[iSurr]->dz(vit->position()))<minDZ2) {
-	  minDZ2  = fabs(pixelTrackRefs[iSurr]->dz(vit->position()));
+	if (std::abs(pixelTrackRefs[iSurr]->dz(vit->position()))<minDZ2) {
+	  minDZ2  = std::abs(pixelTrackRefs[iSurr]->dz(vit->position()));
 	  vitSel2 = vit;
 	  found   = true;
 	}
       }
       //cut ot dXY:
-      if (found&&fabs(pixelTrackRefs[iSurr]->dxy(vitSel2->position()))>vtxCutIsol_) continue;
+      if (found&&std::abs(pixelTrackRefs[iSurr]->dxy(vitSel2->position()))>vtxCutIsol_) continue;
       //calculate distance at ECAL surface and update isolation: 
       if (getDistInCM(VecSeedsatEC[i].eta, VecSeedsatEC[i].phi, VecSeedsatEC[j].eta, VecSeedsatEC[j].phi)<pixelIsolationConeSizeAtEC_) {
 	sumP+=pixelTrackRefs[iSurr]->p();
@@ -246,13 +246,13 @@ double IsolatedPixelTrackCandidateProducer::getDistInCM(double eta1, double phi1
   double Rec;
   double theta1=2*atan(exp(-eta1));
   double theta2=2*atan(exp(-eta2));
-  if (fabs(eta1)<1.479) Rec=rEB_; //radius of ECAL barrel
-  else if (fabs(eta1)>1.479&&fabs(eta1)<7.0) Rec=tan(theta1)*zEE_; //distance from IP to ECAL endcap
+  if (std::abs(eta1)<1.479) Rec=rEB_; //radius of ECAL barrel
+  else if (std::abs(eta1)>1.479&&std::abs(eta1)<7.0) Rec=tan(theta1)*zEE_; //distance from IP to ECAL endcap
   else return 1000;
 
   //|vect| times tg of acos(scalar product)
   double angle=acos((sin(theta1)*sin(theta2)*(sin(phi1)*sin(phi2)+cos(phi1)*cos(phi2))+cos(theta1)*cos(theta2)));
-  if (angle<M_PI_2) return fabs((Rec/sin(theta1))*tan(angle));
+  if (angle<M_PI_2) return std::abs((Rec/sin(theta1))*tan(angle));
   else return 1000;
 }
 
@@ -271,7 +271,7 @@ std::pair<double,double> IsolatedPixelTrackCandidateProducer::GetEtaPhiAtEcal(do
   double theta  = 2*atan(exp(-etaIP));
   double zNew   = 0;
   if (theta>M_PI_2) theta=M_PI-theta;
-  if (fabs(etaIP)<ebEtaBoundary_) {
+  if (std::abs(etaIP)<ebEtaBoundary_) {
     if ((0.5*ecRad/Rcurv)>1) {
       etaEC         = 10000;
       deltaPhi      = 0;
@@ -281,14 +281,14 @@ std::pair<double,double> IsolatedPixelTrackCandidateProducer::GetEtaPhiAtEcal(do
       double z      = ecRad/tan(theta);
       if (etaIP>0) zNew = z*(Rcurv*alpha1)/ecRad+vtxZ; //new z-coordinate of track
       else         zNew =-z*(Rcurv*alpha1)/ecRad+vtxZ; //new z-coordinate of track
-      double zAbs=fabs(zNew);
+      double zAbs=std::abs(zNew);
       if (zAbs<ecDist) {
 	etaEC    = -log(tan(0.5*atan(ecRad/zAbs)));
 	deltaPhi = -charge*asin(0.5*ecRad/Rcurv);
       }
       if (zAbs>ecDist) {
-	zAbs           = (fabs(etaIP)/etaIP)*ecDist;
-	double Zflight = fabs(zAbs-vtxZ);
+	zAbs           = (std::abs(etaIP)/etaIP)*ecDist;
+	double Zflight = std::abs(zAbs-vtxZ);
 	double alpha   = (Zflight*ecRad)/(z*Rcurv);
 	double Rec     = 2*Rcurv*sin(alpha/2);
 	deltaPhi       =-charge*alpha/2;
@@ -296,9 +296,9 @@ std::pair<double,double> IsolatedPixelTrackCandidateProducer::GetEtaPhiAtEcal(do
       }
     }
   } else {
-    zNew           = (fabs(etaIP)/etaIP)*ecDist;
-    double Zflight = fabs(zNew-vtxZ);
-    double Rvirt   = fabs(Zflight*tan(theta));
+    zNew           = (std::abs(etaIP)/etaIP)*ecDist;
+    double Zflight = std::abs(zNew-vtxZ);
+    double Rvirt   = std::abs(Zflight*tan(theta));
     double Rec     = 2*Rcurv*sin(Rvirt/(2*Rcurv));
     deltaPhi       =-(charge)*(Rvirt/(2*Rcurv));
     etaEC          =-log(tan(0.5*atan(Rec/ecDist)));
