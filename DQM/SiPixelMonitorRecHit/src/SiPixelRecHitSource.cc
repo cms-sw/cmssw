@@ -194,11 +194,11 @@ void SiPixelRecHitSource::buildStructure(const edm::EventSetup& iSetup){
 		
 	}	else if( (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) && (!isUpgrade)) {
 	  LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
-	  PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(id)).halfCylinder();
-	  int disk   = PixelEndcapName(DetId(id)).diskName();
-	  int blade  = PixelEndcapName(DetId(id)).bladeName();
-	  int panel  = PixelEndcapName(DetId(id)).pannelName();
-	  int module = PixelEndcapName(DetId(id)).plaquetteName();
+	  PixelEndcapNameBase::HalfCylinder side = PixelEndcapNameWrapper(conf_, DetId(id)).halfCylinder();
+	  int disk   = PixelEndcapNameWrapper(conf_, DetId(id)).diskName();
+	  int blade  = PixelEndcapNameWrapper(conf_, DetId(id)).bladeName();
+	  int panel  = PixelEndcapNameWrapper(conf_, DetId(id)).pannelName();
+	  int module = PixelEndcapNameWrapper(conf_, DetId(id)).plaquetteName();
 
 	  char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
 	  char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);

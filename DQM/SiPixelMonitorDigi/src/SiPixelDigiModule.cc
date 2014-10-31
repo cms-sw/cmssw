@@ -343,9 +343,9 @@ int SiPixelDigiModule::fill(const edm::ParameterSet& iConfig, const edm::DetSetV
       int DBmodule =0;
       
       if (!isUpgrade) {
-      PixelBarrelName::Shell DBshell = PixelBarrelName(DetId(id_)).shell();
-        DBlayer  = PixelBarrelName(DetId(id_)).layerName();
-        DBmodule = PixelBarrelName(DetId(id_)).moduleName();
+      PixelBarrelName::Shell DBshell = PixelBarrelNameWrapper(iConfig, DetId(id_)).shell();
+        DBlayer  = PixelBarrelNameWrapper(iConfig, DetId(id_)).layerName();
+        DBmodule = PixelBarrelNameWrapper(iConfig, DetId(id_)).moduleName();
       if(barrel){
         if(isHalfModule){
           if(DBshell==PixelBarrelName::pI||DBshell==PixelBarrelName::pO){
