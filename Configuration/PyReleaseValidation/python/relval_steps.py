@@ -853,6 +853,7 @@ steps['HLTD']=merge([{'--process':'reHLT',
                       '--data':'',
                       '--output':'\'[{"e":"RAW","t":"RAW","o":["drop FEDRawDataCollection_rawDataCollector__LHC"]}]\'',
                       },])
+steps['HLTDSKIM']=merge([{'--inputCommands':'"keep *","drop *_*_*_RECO"'},steps['HLTD']])
 
 steps['RECOD']=merge([{'--scenario':'pp',},dataReco])
 steps['RECODSplit']=steps['RECOD'] # finer job splitting  
