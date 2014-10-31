@@ -11,9 +11,9 @@
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "MagneticField/VolumeBasedEngine/interface/VolumeBasedMagneticField.h"
+#include "MagneticField/ParametrizedEngine/interface/ParametrizedMagneticFieldFactory.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
@@ -106,61 +106,64 @@ std::auto_ptr<MagneticField> VolumeBasedMagneticFieldESProducerFromDB::produce(c
     cout << "VolumeBasedMagneticFieldESProducerFromDB::produce() " << conf->version << endl;
   }
 
-  MagGeoBuilderFromDDD builder(conf->version,
-			       conf->geometryVersion,
-			       debug);
 
-  // Set scaling factors
-  if (conf->keys.size() != 0) {
-    builder.setScaling(conf->keys, conf->values);
-  }
-  
-  // Set specification for the grid tables to be used.
-  if (conf->gridFiles.size()!=0) {
-    builder.setGridFiles(conf->gridFiles);
-  }
+  // Get the parametrized field
+  std::auto_ptr<MagneticField> paramField = ParametrizedMagneticFieldFactory::get(conf->slaveFieldVersion, conf->slaveFieldParameters);
   
 
-  // Build the geomeytry (DDDCompactView) from the DB blob
-  // (code taken from GeometryReaders/XMLIdealGeometryESSource/src/XMLIdealMagneticFieldGeometryESProducer.cc) 
-  edm::ESTransientHandle<FileBlob> gdd;
-  iRecord.getRecord<MFGeometryFileRcd>().get( boost::lexical_cast<string>(conf->geometryVersion), gdd );
+  if (conf->version == "parametrizedMagneticField") {
+    // The map consist of only the parametrization in this case
+    return paramField;
+  } else {
+    // Full VolumeBased map + parametrization
+    MagGeoBuilderFromDDD builder(conf->version,
+				 conf->geometryVersion,
+				 debug);
 
-  DDName ddName("cmsMagneticField:MAGF");
-  DDLogicalPart rootNode(ddName);
-  DDRootDef::instance().set(rootNode);
-  std::auto_ptr<DDCompactView> cpv(new DDCompactView(rootNode));
-  DDLParser parser(*cpv);
-  parser.getDDLSAX2FileHandler()->setUserNS(true);
-  parser.clearFiles();
-  std::unique_ptr<std::vector<unsigned char> > tb = (*gdd).getUncompressedBlob();
-  parser.parse(*tb, tb->size());
-  cpv->lockdown();
+    // Set scaling factors
+    if (conf->keys.size() != 0) {
+      builder.setScaling(conf->keys, conf->values);
+    }
+  
+    // Set specification for the grid tables to be used.
+    if (conf->gridFiles.size()!=0) {
+      builder.setGridFiles(conf->gridFiles);
+    }
 
-  builder.build(*cpv);
+    // Build the geomeytry (DDDCompactView) from the DB blob
+    // (code taken from GeometryReaders/XMLIdealGeometryESSource/src/XMLIdealMagneticFieldGeometryESProducer.cc) 
+    edm::ESTransientHandle<FileBlob> gdd;
+    iRecord.getRecord<MFGeometryFileRcd>().get( boost::lexical_cast<string>(conf->geometryVersion), gdd );
+    
+    DDName ddName("cmsMagneticField:MAGF");
+    DDLogicalPart rootNode(ddName);
+    DDRootDef::instance().set(rootNode);
+    std::auto_ptr<DDCompactView> cpv(new DDCompactView(rootNode));
+    DDLParser parser(*cpv);
+    parser.getDDLSAX2FileHandler()->setUserNS(true);
+    parser.clearFiles();
+    std::unique_ptr<std::vector<unsigned char> > tb = (*gdd).getUncompressedBlob();
+    parser.parse(*tb, tb->size());
+    cpv->lockdown();
+    
+    builder.build(*cpv);
 
-
-  // Get slave field (FIXME build directly)
-  edm::ESHandle<MagneticField> paramField;
-  if (conf->slaveFieldVersion!="") {
-    iRecord.get(conf->slaveFieldVersion,paramField);
+    // Build the VB map. Ownership of the parametrization is transferred to it, so and auto_ptr is released
+    std::auto_ptr<MagneticField> s(new VolumeBasedMagneticField(conf->geometryVersion,builder.barrelLayers(), builder.endcapSectors(), builder.barrelVolumes(), builder.endcapVolumes(), builder.maxR(), builder.maxZ(), paramField.release(), true));
+    return s;
   }
-  std::auto_ptr<MagneticField> s(new VolumeBasedMagneticField(conf->geometryVersion,builder.barrelLayers(), builder.endcapSectors(), builder.barrelVolumes(), builder.endcapVolumes(), builder.maxR(), builder.maxZ(), paramField.product(), false));
-
-  return s;
 }
 
 
-//FIXME
- std::string VolumeBasedMagneticFieldESProducerFromDB::closerNominalLabel(float current) {
+std::string VolumeBasedMagneticFieldESProducerFromDB::closerNominalLabel(float current) {
 
-   int i=0;
-   for(;i<(int)nominalLabels.size()-1;i++) {
-     if(2*current < nominalCurrents[i]+nominalCurrents[i+1] )
-       return nominalLabels[i];
-   }
-   return nominalLabels[i];
- }
+  int i=0;
+  for(;i<(int)nominalLabels.size()-1;i++) {
+    if(2*current < nominalCurrents[i]+nominalCurrents[i+1] )
+      return nominalLabels[i];
+  }
+  return nominalLabels[i];
+}
 
 
 DEFINE_FWK_EVENTSETUP_MODULE(VolumeBasedMagneticFieldESProducerFromDB);
