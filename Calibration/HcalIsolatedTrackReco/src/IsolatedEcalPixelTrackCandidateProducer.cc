@@ -28,6 +28,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/Math/interface/deltaR.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
@@ -84,7 +85,7 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::Event& iEvent, const 
     if (etaAbs<1.7) {
       for (EcalRecHitCollection::const_iterator eItr=ecalEB->begin(); eItr!=ecalEB->end(); eItr++) {
 	GlobalPoint pos = geo->getPosition(eItr->detid());
-	double      R   = deltaR(pos.eta(),pos.phi(),etaPhi);
+	double      R   = reco::deltaR(pos.eta(),pos.phi(),etaPhi.first,etaPhi.second);
 	if (R < coneSize_) {
 	  nhitIn++;
 	  inEnergy += (eItr->energy());
@@ -98,7 +99,7 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::Event& iEvent, const 
     if (etaAbs>1.25) {
       for (EcalRecHitCollection::const_iterator eItr=ecalEE->begin(); eItr!=ecalEE->end(); eItr++) {
 	GlobalPoint pos = geo->getPosition(eItr->detid());
-	double      R   = deltaR(pos.eta(),pos.phi(),etaPhi);
+	double      R   = reco::deltaR(pos.eta(),pos.phi(),etaPhi.first,etaPhi.second);
 	if (R < coneSize_) {
 	  nhitIn++;
 	  inEnergy += (eItr->energy());
@@ -122,25 +123,7 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::Event& iEvent, const 
   iEvent.put(outCollection);
 }
 // ------------ method called once each job just before starting event loop  ------------
-void IsolatedEcalPixelTrackCandidateProducer::beginJob() { 
-  pi    = acos(-1.);
-  twopi = 2*pi;
-}
+void IsolatedEcalPixelTrackCandidateProducer::beginJob() { }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void IsolatedEcalPixelTrackCandidateProducer::endJob() { }
-
-double IsolatedEcalPixelTrackCandidateProducer::deltaPhi(double v1, double v2) {
-  // Computes the correctly normalized phi difference
-  // v1, v2 = phi of object 1 and 2
-  double diff = std::abs(v2 - v1);
-  double corr = (diff < pi) ? diff : twopi - diff;
-  return corr;
-}
-
-double IsolatedEcalPixelTrackCandidateProducer::deltaR(double eta1, double phi1, 
-						       std::pair<double,double> etaPhi) {
-  double deta = eta1 - etaPhi.first;
-  double dphi = deltaPhi(phi1, etaPhi.second);
-  return std::sqrt(deta*deta + dphi*dphi);
-}

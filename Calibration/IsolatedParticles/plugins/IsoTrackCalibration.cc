@@ -29,12 +29,15 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/Luminosity/interface/LumiDetails.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Common/interface/TriggerNames.h"
@@ -70,7 +73,6 @@ public:
   ~IsoTrackCalibration();
  
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  double dR(double eta1, double eta2, double phi1, double phi2);
 
 private:
   virtual void beginJob() ;
@@ -545,21 +547,11 @@ double IsoTrackCalibration::dEta(math::XYZTLorentzVector& vec1, math::XYZTLorent
 }
 
 double IsoTrackCalibration::dPhi(math::XYZTLorentzVector& vec1, math::XYZTLorentzVector& vec2) {
-
-  double phi1 = vec1.phi();
-  if (phi1 < 0) phi1 += 2.0*M_PI;
-  double phi2 = vec2.phi();
-  if (phi2 < 0) phi2 += 2.0*M_PI;
-  double dphi = phi1-phi2;
-  if (dphi > M_PI)       dphi -= 2.*M_PI;
-  else if (dphi < -M_PI) dphi += 2.*M_PI;
-  return dphi;
+  return reco::deltaPhi(vec1.phi(),vec2.phi());
 }
 
 double IsoTrackCalibration::dR(math::XYZTLorentzVector& vec1, math::XYZTLorentzVector& vec2) {
-  double deta = dEta(vec1,vec2);
-  double dphi = dPhi(vec1,vec2);
-  return std::sqrt(deta*deta + dphi*dphi);
+  return reco::deltaR(vec1.eta(),vec1.phi(),vec2.eta(),vec2.phi());
 }
 
 //define this as a plug-in

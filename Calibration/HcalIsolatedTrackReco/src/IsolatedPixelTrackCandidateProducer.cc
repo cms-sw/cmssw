@@ -1,6 +1,7 @@
 #include <vector>
 #include <memory>
 #include <algorithm>
+#include <cmath>
 
 // Class header file
 #include "Calibration/HcalIsolatedTrackReco/interface/IsolatedPixelTrackCandidateProducer.h"
@@ -57,8 +58,6 @@ IsolatedPixelTrackCandidateProducer::IsolatedPixelTrackCandidateProducer(const e
   ebEtaBoundary_              = config.getParameter<double>("EBEtaBoundary");
   rEB_ = zEE_ = -1;
   bfVal = 0;
-  pi   = acos(-1);
-  piby2= 0.5*pi;
   // Register the product
   produces< reco::IsolatedPixelTrackCandidateCollection >();
 }
@@ -155,26 +154,32 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
     bool vtxMatch = false;
     //associate to vertex (in Z) 
     reco::VertexCollection::const_iterator vitSel;
-    double minDZ = 100;
+    double minDZ = 1000;
+    bool   found(false);
     for (reco::VertexCollection::const_iterator vit=pVert->begin(); vit!=pVert->end(); vit++) {
       if (fabs(pixelTrackRefs[iS]->dz(vit->position()))<minDZ) {
 	minDZ  = fabs(pixelTrackRefs[iS]->dz(vit->position()));
 	vitSel = vit;
+	found  = true;
       }
     }
     //cut on dYX:
-    if (minDZ!=100&&fabs(pixelTrackRefs[iS]->dxy(vitSel->position()))<vtxCutSeed_) vtxMatch=true;
-    if (minDZ==100) vtxMatch=true;
+    if (found) {
+      if(fabs(pixelTrackRefs[iS]->dxy(vitSel->position()))<vtxCutSeed_) vtxMatch=true;
+    } else {
+      vtxMatch=true;
+    }
 
     //select tracks not matched to triggered L1 jet
-    double R=deltaR(etaTriggered, phiTriggered, pixelTrackRefs[iS]->eta(), pixelTrackRefs[iS]->phi());
+    double R=reco::deltaR(etaTriggered, phiTriggered, 
+			  pixelTrackRefs[iS]->eta(), pixelTrackRefs[iS]->phi());
     if (R<tauUnbiasCone_) continue;
 
     //check taujet matching
     bool tmatch=false;
     l1extra::L1JetParticleCollection::const_iterator selj;
     for (l1extra::L1JetParticleCollection::const_iterator tj=l1eTauJets->begin(); tj!=l1eTauJets->end(); tj++) {
-      if(ROOT::Math::VectorUtil::DeltaR(pixelTrackRefs[iS]->momentum(),tj->momentum()) > drMaxL1Track_) continue;
+      if (reco::deltaR(pixelTrackRefs[iS]->momentum().eta(), pixelTrackRefs[iS]->momentum().phi(), tj->momentum().eta(), tj->momentum().phi()) > drMaxL1Track_) continue;
       selj   = tj;
       tmatch = true;
     } //loop over L1 tau
@@ -183,9 +188,9 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
     //propagate seed track to ECAL surface:
     std::pair<double,double> seedCooAtEC;
     // in case vertex is found:
-    if (minDZ!=100) seedCooAtEC=GetEtaPhiAtEcal(pixelTrackRefs[iS]->eta(), pixelTrackRefs[iS]->phi(), pixelTrackRefs[iS]->pt(), pixelTrackRefs[iS]->charge(), vitSel->z());
+    if (found) seedCooAtEC=GetEtaPhiAtEcal(pixelTrackRefs[iS]->eta(), pixelTrackRefs[iS]->phi(), pixelTrackRefs[iS]->pt(), pixelTrackRefs[iS]->charge(), vitSel->z());
     //in case vertex is not found:
-    else            seedCooAtEC=GetEtaPhiAtEcal(pixelTrackRefs[iS]->eta(), pixelTrackRefs[iS]->phi(), pixelTrackRefs[iS]->pt(), pixelTrackRefs[iS]->charge(), 0);
+    else       seedCooAtEC=GetEtaPhiAtEcal(pixelTrackRefs[iS]->eta(), pixelTrackRefs[iS]->phi(), pixelTrackRefs[iS]->pt(), pixelTrackRefs[iS]->charge(), 0);
     seedAtEC seed(iS,(tmatch||vtxMatch),seedCooAtEC.first,seedCooAtEC.second);
     VecSeedsatEC.push_back(seed);
   }
@@ -196,26 +201,28 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
     if(pixelTrackRefs[iSeed]->p()<minPTrackValue_) continue; 
     l1extra::L1JetParticleCollection::const_iterator selj;
     for (l1extra::L1JetParticleCollection::const_iterator tj=l1eTauJets->begin(); tj!=l1eTauJets->end(); tj++)  {
-      if(ROOT::Math::VectorUtil::DeltaR(pixelTrackRefs[iSeed]->momentum(),tj->momentum()) > drMaxL1Track_) continue;
+      if (reco::deltaR(pixelTrackRefs[iSeed]->momentum().eta(),pixelTrackRefs[iSeed]->momentum().phi(),tj->momentum().eta(),tj->momentum().phi()) > drMaxL1Track_) continue;
       selj   = tj;
     } //loop over L1 tau
     double maxP = 0;
     double sumP = 0;
     for(unsigned int j=0; j<VecSeedsatEC.size(); j++) {
-      if(i==j) continue;
+      if (i==j) continue;
       unsigned int iSurr = VecSeedsatEC[j].index;
       //define preliminary cone around seed track impact point from which tracks will be extrapolated:
-      if (deltaR(pixelTrackRefs[iSeed]->eta(), pixelTrackRefs[iSeed]->phi(), pixelTrackRefs[iSurr]->eta(), pixelTrackRefs[iSurr]->phi())>prelimCone_) continue;
-      double minDZ2=100;
+      if (reco::deltaR(pixelTrackRefs[iSeed]->eta(), pixelTrackRefs[iSeed]->phi(), pixelTrackRefs[iSurr]->eta(), pixelTrackRefs[iSurr]->phi())>prelimCone_) continue;
+      double minDZ2(1000);
+      bool   found(false);
       reco::VertexCollection::const_iterator vitSel2;
       for (reco::VertexCollection::const_iterator vit=pVert->begin(); vit!=pVert->end(); vit++) {
 	if (fabs(pixelTrackRefs[iSurr]->dz(vit->position()))<minDZ2) {
 	  minDZ2  = fabs(pixelTrackRefs[iSurr]->dz(vit->position()));
 	  vitSel2 = vit;
+	  found   = true;
 	}
       }
       //cut ot dXY:
-      if (minDZ2!=100&&fabs(pixelTrackRefs[iSurr]->dxy(vitSel2->position()))>vtxCutIsol_) continue;
+      if (found&&fabs(pixelTrackRefs[iSurr]->dxy(vitSel2->position()))>vtxCutIsol_) continue;
       //calculate distance at ECAL surface and update isolation: 
       if (getDistInCM(VecSeedsatEC[i].eta, VecSeedsatEC[i].phi, VecSeedsatEC[j].eta, VecSeedsatEC[j].phi)<pixelIsolationConeSizeAtEC_) {
 	sumP+=pixelTrackRefs[iSurr]->p();
@@ -245,7 +252,7 @@ double IsolatedPixelTrackCandidateProducer::getDistInCM(double eta1, double phi1
 
   //|vect| times tg of acos(scalar product)
   double angle=acos((sin(theta1)*sin(theta2)*(sin(phi1)*sin(phi2)+cos(phi1)*cos(phi2))+cos(theta1)*cos(theta2)));
-  if (angle<piby2) return fabs((Rec/sin(theta1))*tan(angle));
+  if (angle<M_PI_2) return fabs((Rec/sin(theta1))*tan(angle));
   else return 1000;
 }
 
@@ -263,7 +270,7 @@ std::pair<double,double> IsolatedPixelTrackCandidateProducer::GetEtaPhiAtEcal(do
   double ecRad  = rEB_;  //radius of ECAL barrel (cm)
   double theta  = 2*atan(exp(-etaIP));
   double zNew   = 0;
-  if (theta>piby2) theta=pi-theta;
+  if (theta>M_PI_2) theta=M_PI-theta;
   if (fabs(etaIP)<ebEtaBoundary_) {
     if ((0.5*ecRad/Rcurv)>1) {
       etaEC         = 10000;
@@ -300,8 +307,8 @@ std::pair<double,double> IsolatedPixelTrackCandidateProducer::GetEtaPhiAtEcal(do
   if (zNew<0) etaEC=-etaEC;
   phiEC            = phiIP+deltaPhi;
 
-  if (phiEC<-pi) phiEC += 2*pi;
-  if (phiEC>pi)  phiEC -= 2*pi;
+  if (phiEC<-M_PI) phiEC += M_2_PI;
+  if (phiEC>M_PI)  phiEC -= M_2_PI;
 
   std::pair<double,double> retVal(etaEC,phiEC);
   return retVal;

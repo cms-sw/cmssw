@@ -28,8 +28,6 @@ private:
   virtual void beginJob() ;
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
-  double       deltaPhi(double phi1, double phi2);
-  double       deltaR(double eta1, double phi1, std::pair<double,double> etaPhi);
 
   double coneSizeEta0_, coneSizeEta1_;
   double hitCountEthr_;
@@ -37,8 +35,6 @@ private:
   edm::EDGetTokenT<EcalRecHitCollection> tok_ee;
   edm::EDGetTokenT<EcalRecHitCollection> tok_eb;
   edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_trigcand;
-
-  double pi, twopi;
 };
 
 #endif

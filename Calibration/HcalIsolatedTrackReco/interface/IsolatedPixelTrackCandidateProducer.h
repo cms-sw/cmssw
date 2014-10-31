@@ -81,7 +81,6 @@ private:
   double rEB_;
   double zEE_;
   double ebEtaBoundary_;
-  double pi, piby2;
   double bfVal;
 };
 

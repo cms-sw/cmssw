@@ -4,6 +4,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "FWCore/Common/interface/TriggerNames.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -71,23 +72,24 @@ StudyHLT::StudyHLT(const edm::ParameterSet& iConfig) : nRun(0) {
     tok_hbhe_   = consumes<HBHERecHitCollection>(edm::InputTag("hbhereco"));
   }
   
-  std::cout << "Verbosity " << verbosity << " with " << trigNames.size()
-	    << " triggers:";
+  edm::LogInfo("IsoTrack") << "Verbosity " << verbosity << " with " 
+			   << trigNames.size() << " triggers:";
   for (unsigned int k=0; k<trigNames.size(); ++k)
-    std::cout << " [" << k << "] " << trigNames[k];
-  std::cout << std::endl << "TrackQuality " << theTrackQuality << " Minpt "
-	    << selectionParameters.minPt << " maxDxy " 
-	    << selectionParameters.maxDxyPV << " maxDz "
-	    << selectionParameters.maxDzPV << " maxChi2 "
-	    << selectionParameters.maxChi2 << " maxDp/p "
-	    << selectionParameters.maxDpOverP << " minOuterHit "
-	    << selectionParameters.minOuterHit << " minLayerCrossed "
-	    << selectionParameters.minLayerCrossed << " maxInMiss "
-	    << selectionParameters.maxInMiss << " maxOutMiss " 
-	    << selectionParameters.maxOutMiss << " minTrackP " << std::endl
-	    << minTrackP << " maxTrackEta " << maxTrackEta << " tMinE_ " 
-	    << tMinE_ << " tMaxE " << tMaxE_ << " tMinH_ " << tMinH_ 
-	    << " tMaxH_ " << tMaxH_ << " isItAOD " << isItAOD << std::endl;
+    edm::LogInfo("IsoTrack") << " [" << k << "] " << trigNames[k];
+  edm::LogInfo("IsoTrack") << "TrackQuality " << theTrackQuality << " Minpt "
+			   << selectionParameters.minPt << " maxDxy " 
+			   << selectionParameters.maxDxyPV << " maxDz "
+			   << selectionParameters.maxDzPV << " maxChi2 "
+			   << selectionParameters.maxChi2 << " maxDp/p "
+			   << selectionParameters.maxDpOverP << " minOuterHit "
+			   << selectionParameters.minOuterHit << " minLayerCrossed "
+			   << selectionParameters.minLayerCrossed << " maxInMiss "
+			   << selectionParameters.maxInMiss << " maxOutMiss " 
+			   << selectionParameters.maxOutMiss << " minTrackP "
+			   << minTrackP << " maxTrackEta " << maxTrackEta 
+			   << " tMinE_ " << tMinE_ << " tMaxE " << tMaxE_ 
+			   << " tMinH_ " << tMinH_ << " tMaxH_ " << tMaxH_ 
+			   << " isItAOD " << isItAOD;
 
   double pBins[nPBin+1] = {1.0,2.0,3.0,4.0,5.0,6.0,7.0,9.0,11.0,15.0,20.0};
   int    etaBins[nEtaBin+1] = {1, 7, 13, 17, 23};
@@ -101,8 +103,7 @@ StudyHLT::~StudyHLT() {}
 
 void StudyHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 if (verbosity > 0) 
-    std::cout << "Event starts====================================" 
-	      << std::endl;
+  edm::LogInfo("IsoTrack") << "Event starts===================================="; 
   int RunNo = iEvent.id().run();
   int EvtNo = iEvent.id().event();
   int Lumi  = iEvent.luminosityBlock();
@@ -119,8 +120,9 @@ if (verbosity > 0)
     mybxlumi=Lumid->lumiValue(LumiDetails::kOCC1,iEvent.bunchCrossing())*6.37;
   
   if (verbosity > 0)
-    std::cout << "RunNo " << RunNo << " EvtNo " << EvtNo << " Lumi " << Lumi 
-	      << " Bunch " << Bunch << " mybxlumi " << mybxlumi << std::endl;
+    edm::LogInfo("IsoTrack") << "RunNo " << RunNo << " EvtNo " << EvtNo 
+			     << " Lumi " << Lumi << " Bunch " << Bunch 
+			     << " mybxlumi " << mybxlumi;
   
   trigger::TriggerEvent triggerEvent;
   edm::Handle<trigger::TriggerEvent> triggerEventHandle;
@@ -130,7 +132,8 @@ if (verbosity > 0)
   if (trigNames.size() < 1) {
     ok = true;
   } else if (!triggerEventHandle.isValid()) {
-    std::cout << "Error! Can't get the product "<< triggerEvent_.label() << std::endl;
+    edm::LogWarning("IsoTrack") << "Error! Can't get the product "
+				<< triggerEvent_.label();
   } else {
     triggerEvent = *(triggerEventHandle.product());
     
@@ -162,7 +165,8 @@ if (verbosity > 0)
 	    h_HLTAccept->GetXaxis()->SetBinLabel(ipos,newtriggerName.c_str());
 	}
 	if ((int)(iHLT+1) > h_HLTAccepts[nRun]->GetNbinsX()) {
-	  std::cout << "Wrong trigger " << RunNo << " Event " << EvtNo << " Hlt " << iHLT << std::endl;
+	  edm::LogInfo("IsoTrack") << "Wrong trigger " << RunNo << " Event " 
+				   << EvtNo << " Hlt " << iHLT;
 	} else {
 	  if (firstEvent)  h_HLTAccepts[nRun]->GetXaxis()->SetBinLabel(iHLT+1, newtriggerName.c_str());
 	}
@@ -174,15 +178,15 @@ if (verbosity > 0)
 	for (unsigned int i=0; i<trigNames.size(); ++i) {
 	  if (newtriggerName.find(trigNames[i].c_str())!=std::string::npos) {
 	    if (verbosity%10 > 0)  
-	      std::cout << newtriggerName << std::endl;
+	      edm::LogInfo("IsoTrack") << newtriggerName;
 	    if (hlt > 0) ok = true;
 	  }
 	}
 	for (int i=0; i<5; ++i) {
 	  if (newtriggerName.find(newNames[i].c_str())!=std::string::npos) {
 	    if (verbosity%10 > 0)
-	      std::cout << "[" << i << "] " << newNames[i] << " : " 
-			<< newtriggerName << std::endl;
+	      edm::LogInfo("IsoTrack") << "[" << i << "] " << newNames[i] 
+				       << " : " << newtriggerName;
 	    if (hlt > 0) newAccept[i] = 1;
 	  }
 	}
@@ -231,8 +235,8 @@ if (verbosity > 0)
       }
     }
     if ((verbosity/10)%10 > 0) 
-      std::cout << "Number of vertices: " << recVtxs->size() << " Good " 
-		<< ngoodPV << " Bin " << nPV << std::endl;
+      edm::LogInfo("IsoTrack") << "Number of vertices: " << recVtxs->size() 
+			       << " Good " << ngoodPV << " Bin " << nPV;
     h_numberPV->Fill((int)(recVtxs->size()));
     h_goodPV->Fill(ngoodPV);
     
@@ -262,9 +266,9 @@ if (verbosity > 0)
       double eta1        = pTrack->momentum().eta();
       double phi1        = pTrack->momentum().phi();
       if ((verbosity/10)%10 > 0) 
-	std::cout << "track: p " << p1 << " pt " << pt1 << " eta " << eta1 
-		  << " phi " << phi1 << " okEcal " << trkDetItr->okECAL
-		  << std::endl;
+	edm::LogInfo("IsoTrack") << "track: p " << p1 << " pt " << pt1 
+				 << " eta " << eta1 << " phi " << phi1 
+				 << " okEcal " << trkDetItr->okECAL;
       fillTrack(2, pt1,p1,eta1,phi1);
       if (pt1>minTrackP && std::abs(eta1)<maxTrackEta && trkDetItr->okECAL) { 
 	fillTrack(3, pt1,p1,eta1,phi1);
@@ -289,10 +293,11 @@ if (verbosity > 0)
 	double h3x3(0), h5x5(0), h7x7(0);
 	fillIsolation(0, maxNearP31x31,e11x11P.first,e15x15P.first);
 	if ((verbosity/10)%10 > 0) 
-	  std::cout << "Accepted Tracks reaching Ecal maxNearP31x31 " 
-		    << maxNearP31x31 << " e11x11P " << e11x11P.first 
-		    << " e15x15P " << e15x15P.first << " okHCAL " 
-		    << trkDetItr->okHCAL << std::endl;
+	  edm::LogInfo("IsoTrack") << "Accepted Tracks reaching Ecal maxNearP31x31 " 
+				   << maxNearP31x31 << " e11x11P " 
+				   << e11x11P.first << " e15x15P " 
+				   << e15x15P.first << " okHCAL " 
+				   << trkDetItr->okHCAL;
 
 	if (trkDetItr->okHCAL) {
 	  edm::Handle<HBHERecHitCollection> hbhe;
@@ -304,9 +309,8 @@ if (verbosity > 0)
 	  h7x7 = spr::eHCALmatrix(theHBHETopology, ClosestCell, hbhe,3,3, false, true, 0.7, 0.8, -100.0, -100.0, tMinH_,tMaxH_, ((verbosity/10000)%10 > 0) );  
 	  fillIsolation(1, maxNearHcalP7x7,h5x5,h7x7);
 	  if ((verbosity/10)%10 > 0)
-	    std::cout << "Tracks Reaching Hcal maxNearHcalP7x7/h5x5/h7x7 " 
-		      << maxNearHcalP7x7 << "/" << h5x5 << "/" << h7x7 
-		      << std::endl;
+	    edm::LogInfo("IsoTrack") << "Tracks Reaching Hcal maxNearHcalP7x7/h5x5/h7x7 " 
+				     << maxNearHcalP7x7 << "/" << h5x5 << "/" << h7x7; 
 	}
 	if (maxNearP31x31 < 0) {
 	  fillTrack(4, pt1,p1,eta1,phi1);
@@ -445,21 +449,21 @@ void StudyHLT::endJob() {}
 // ------------ method called when starting to processes a run  ------------
 void StudyHLT::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   char hname[100], htit[400];
-  std::cout  << "Run[" << nRun << "] " << iRun.run() << " hltconfig.init " 
-	     << hltConfig_.init(iRun,iSetup,"HLT",changed) << std::endl;
+  edm::LogInfo("IsoTrack")  << "Run[" << nRun << "] " << iRun.run() << " hltconfig.init " 
+			    << hltConfig_.init(iRun,iSetup,"HLT",changed);
   sprintf(hname, "h_HLTAccepts_%i", iRun.run());
   sprintf(htit, "HLT Accepts for Run No %i", iRun.run());
   TH1I *hnew = fs->make<TH1I>(hname, htit, 500, 0, 500);
   for (int i=1; i<=500; ++i) hnew->GetXaxis()->SetBinLabel(i," ");
   h_HLTAccepts.push_back(hnew);
-  std::cout << "beginrun " << iRun.run() << std::endl;
+  edm::LogInfo("IsoTrack") << "beginrun " << iRun.run();
   firstEvent = true;
 }
 
 // ------------ method called when ending the processing of a run  ------------
 void StudyHLT::endRun(edm::Run const& iRun, edm::EventSetup const&) {
   nRun++;
-  std::cout << "endrun[" << nRun << "] " << iRun.run() << std::endl;
+  edm::LogInfo("IsoTrack") << "endrun[" << nRun << "] " << iRun.run();
 }
 
 // ------------ method called when starting to processes a luminosity block  ------------

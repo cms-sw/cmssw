@@ -1,4 +1,7 @@
 #include "IsoTrackCalib.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 IsoTrackCalib::IsoTrackCalib(const edm::ParameterSet& iConfig) : changed(false),
 								 nRun(0) {
@@ -55,34 +58,31 @@ IsoTrackCalib::IsoTrackCalib(const edm::ParameterSet& iConfig) : changed(false),
   }
 
   if (verbosity>=0) {
-    std::cout <<"Parameters read from config file \n" 
-	      <<"\t minPt "           << selectionParameters.minPt   
-              <<"\t theTrackQuality " << theTrackQuality
-	      <<"\t minQuality "      << selectionParameters.minQuality
-	      <<"\t maxDxyPV "        << selectionParameters.maxDxyPV          
-	      <<"\t maxDzPV "         << selectionParameters.maxDzPV          
-	      <<"\t maxChi2 "         << selectionParameters.maxChi2          
-	      <<"\t maxDpOverP "      << selectionParameters.maxDpOverP
-	      <<"\t minOuterHit "     << selectionParameters.minOuterHit
-	      <<"\t minLayerCrossed " << selectionParameters.minLayerCrossed
-	      <<"\t maxInMiss "       << selectionParameters.maxInMiss
-	      <<"\t maxOutMiss "      << selectionParameters.maxOutMiss
-	      <<"\t a_coneR "         << a_coneR          
-	      <<"\t a_charIsoR "      << a_charIsoR          
-	      <<"\t a_neutIsoR "      << a_neutIsoR          
-	      <<"\t a_mipR "          << a_mipR 
-	      <<"\t a_neutR "         << a_neutR1 << ":" << a_neutR2
-              <<"\t cuts (MIP "       << cutMip << " : Charge " << cutCharge
-	      <<" : Neutral "         << cutNeutral << ")"
-	      << std::endl;
-    std::cout << trigNames.size() << " triggers to be studied";
+    edm::LogInfo("IsoTrack") <<"Parameters read from config file \n" 
+			     <<"\t minPt "           << selectionParameters.minPt   
+			     <<"\t theTrackQuality " << theTrackQuality
+			     <<"\t minQuality "      << selectionParameters.minQuality
+			     <<"\t maxDxyPV "        << selectionParameters.maxDxyPV          
+			     <<"\t maxDzPV "         << selectionParameters.maxDzPV          
+			     <<"\t maxChi2 "         << selectionParameters.maxChi2          
+			     <<"\t maxDpOverP "      << selectionParameters.maxDpOverP
+			     <<"\t minOuterHit "     << selectionParameters.minOuterHit
+			     <<"\t minLayerCrossed " << selectionParameters.minLayerCrossed
+			     <<"\t maxInMiss "       << selectionParameters.maxInMiss
+			     <<"\t maxOutMiss "      << selectionParameters.maxOutMiss
+			     <<"\t a_coneR "         << a_coneR          
+			     <<"\t a_charIsoR "      << a_charIsoR          
+			     <<"\t a_neutIsoR "      << a_neutIsoR          
+			     <<"\t a_mipR "          << a_mipR 
+			     <<"\t a_neutR "         << a_neutR1 << ":" << a_neutR2
+			     <<"\t cuts (MIP "       << cutMip << " : Charge " << cutCharge
+			     <<" : Neutral "         << cutNeutral << ")";
+    edm::LogInfo("IsoTrack") << trigNames.size() << " triggers to be studied";
     for (unsigned int k=0; k<trigNames.size(); ++k)
-      std::cout << ": " << trigNames[k];
-    std::cout << std::endl;
-    std::cout << drCuts.size() << " Delta R zones wrt trigger objects";
+      edm::LogInfo("IsoTrack") << "Trigger[" << k << "] : " << trigNames[k];
+    edm::LogInfo("IsoTrack") << drCuts.size() << " Delta R zones wrt trigger objects";
     for (unsigned int k=0; k<drCuts.size(); ++k)
-    std::cout << ": " << drCuts[k];
-    std::cout << std::endl;
+      edm::LogInfo("IsoTrack") << "Cut[" << k << "]: " << drCuts[k];
   }
 }
 
@@ -97,9 +97,9 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   Run    = iEvent.id().run();
   Event  = iEvent.id().event();
   if (verbosity%10 > 0) 
-    std::cout << "Run " << Run << " Event " << Event
-	      << " Luminosity " << iEvent.luminosityBlock() << " Bunch "
-	      << iEvent.bunchCrossing() << " starts ==========" << std::endl;
+    edm::LogInfo("IsoTrack") << "Run " << Run << " Event " << Event
+			     << " Luminosity " << iEvent.luminosityBlock() 
+			     << " Bunch " << iEvent.bunchCrossing() << " start";
   clearTreeVectors();
 
   //Get magnetic field and ECAL channel status
@@ -143,10 +143,9 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     leadPV = beamSpotH->position();
   }
   if ((verbosity/100)%10>0) {
-    std::cout << "Primary Vertex " << leadPV;
-    if (beamSpotH.isValid()) std::cout << " Beam Spot " 
-				       << beamSpotH->position();
-    std::cout << std::endl;
+    edm::LogInfo("IsoTrack") << "Primary Vertex " << leadPV;
+    if (beamSpotH.isValid()) edm::LogInfo("IsoTrack") << "Beam Spot " 
+						      << beamSpotH->position();
   }
   
   // RecHits
@@ -162,14 +161,14 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   float mybxlumi=-1;
   if (Lumid.isValid()) 
   mybxlumi=Lumid->lumiValue(LumiDetails::kOCC1,iEvent.bunchCrossing())*6.37;
-  if (verbosity%10 > 0) std::cout << "Luminosity " << mybxlumi << std::endl;
+  if (verbosity%10 > 0) edm::LogInfo("IsoTrack") << "Luminosity " << mybxlumi;
 
   trigger::TriggerEvent triggerEvent;
   edm::Handle<trigger::TriggerEvent> triggerEventHandle;
   iEvent.getByToken(tok_trigEvt, triggerEventHandle);
   if (!triggerEventHandle.isValid()) {
-    std::cout << "Error! Can't get the product "<< triggerEvent_.label() 
-	      << std::endl;
+    edm::LogWarning("IsoTrack") << "Error! Can't get the product "
+				<< triggerEvent_.label();
   } else {
     triggerEvent = *(triggerEventHandle.product());
     
@@ -187,7 +186,7 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       bool ok(false);
 	unsigned int triggerindx = hltConfig_.triggerIndex(triggerNames_[iHLT]);
 	const std::vector<std::string>& moduleLabels(hltConfig_.moduleLabels(triggerindx));
-        std::cout<< iHLT << "   " <<triggerNames_[iHLT] << std::endl;
+        edm::LogInfo("IsoTrack") << iHLT << "   " <<triggerNames_[iHLT];
 	int ipos = -1;
 	for (unsigned int i=0; i<HLTNames.size(); ++i) {
 	  if (triggerNames_[iHLT] == HLTNames[i]) {
@@ -206,16 +205,18 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  h_HLTAccepts[nRun]->Fill(iHLT+1);
 	  h_HLTAccept->Fill(ipos+1);
 	}
-	if (iHLT >= 645) std::cout << "Wrong trigger " << Run << " Event " 
-				   << Event << " Hlt " << iHLT 
-				   << std::endl;
+	if (iHLT >= 645) edm::LogInfo("IsoTrack") << "Wrong trigger " << Run 
+						  << " Event " << Event 
+						  << " Hlt " << iHLT;
 	for (unsigned int i=0; i<trigNames.size(); ++i) {
 	  if (triggerNames_[iHLT].find(trigNames[i].c_str())!=std::string::npos) {
-	    if(verbosity)  std::cout << "This is the trigger we are looking for " << triggerNames_[iHLT] << std::endl;
+	    if (verbosity)
+	      edm::LogInfo("IsoTrack") << "This is the trigger we are looking for " << triggerNames_[iHLT];
 	    if (hlt > 0) ok = true;
 	  }
 	}
-        if (verbosity%10 > 2) std::cout << "Trigger fired? : " << ok << std::endl;
+        if (verbosity%10 > 2) 
+	  edm::LogInfo("IsoTrack") << "Trigger fired? : " << ok;
 	if (ok) {
 	  std::vector<math::XYZTLorentzVector> vec[3];
 	  const std::pair<int,int> prescales(hltConfig_.prescaleValues(iEvent,iSetup,triggerNames_[iHLT]));
@@ -223,9 +224,9 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  int preHLT = prescales.second;
 	  int prescale = preL1*preHLT;
 	  if (verbosity%10 > 0) 
-	    std::cout << triggerNames_[iHLT] << " accept " << hlt << " preL1 " 
-		      << preL1 << " preHLT " << preHLT << " preScale " 
-		      << prescale << std::endl;
+	    edm::LogInfo("IsoTrack") << triggerNames_[iHLT] << " accept " 
+				     << hlt << " preL1 " << preL1 << " preHLT "
+				     << preHLT << " preScale " << prescale;
 	  std::pair<unsigned int, std::string> iRunTrig =
 	    std::pair<unsigned int, std::string>(Run,triggerNames_[iHLT]);
 	  if (TrigList.find(iRunTrig) != TrigList.end() ) {
@@ -242,7 +243,7 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	    for (unsigned int imodule=0; imodule<moduleLabels.size(); imodule++) {
 	      if (label.find(moduleLabels[imodule]) != std::string::npos) {
 		if (verbosity%10 > 0) 
-		  std::cout << "FilterName " << label << std::endl;
+		  edm::LogInfo("IsoTrack") << "FilterName " << label;
 		for (unsigned int ifiltrKey=0; ifiltrKey<triggerEvent.filterKeys(ifilter).size(); ++ifiltrKey) {
 		  Keys.push_back(triggerEvent.filterKeys(ifilter)[ifiltrKey]);
 		  const trigger::TriggerObject& TO(TOC[Keys[ifiltrKey]]);
@@ -255,10 +256,10 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		    vec[0].push_back(v4);
 		  }
 		  if (verbosity%10 > 2)
-		    std::cout << "key " << ifiltrKey << " : pt " << TO.pt() 
-			      << " eta " << TO.eta() << " phi " << TO.phi() 
-			      << " mass " << TO.mass() << " Id " << TO.id() 
-			      << std::endl;
+		    edm::LogInfo("IsoTrack") << "key " << ifiltrKey << " : pt " 
+					     << TO.pt() << " eta " << TO.eta()
+					     << " phi " << TO.phi() << " mass "
+					     << TO.mass() << " Id " << TO.id();
 		}
 	      }
 	    }
@@ -267,9 +268,10 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  if (verbosity%10 > 0) {
 	    for (int j=0; j<3; j++) {
 	      for (unsigned int k=0; k<vec[j].size(); k++) {
-		std::cout << "vec[" << j << "][" << k << "] pt " 
-			  << vec[j][k].pt() << " eta " << vec[j][k].eta() 
-			  << " phi " << vec[j][k].phi() << std::endl;
+		edm::LogInfo("IsoTrack") << "vec[" << j << "][" << k << "] pt " 
+					 << vec[j][k].pt() << " eta " 
+					 << vec[j][k].eta() << " phi "
+					 << vec[j][k].phi();
 	      }
 	    }
 	  }
@@ -283,22 +285,24 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	      dphi = dPhi(vec[0][0],vec[lvl][i]);
 	      dr   = dR(vec[0][0],vec[lvl][i]);
 	      if (verbosity%10 > 2) 
-		std::cout << "lvl " <<lvl << " i " << i << " deta " << deta 
-			  << " dphi " << dphi << " dR " << dr << std::endl;
+		edm::LogInfo("IsoTrack") << "lvl " << lvl << " i " << i 
+					 << " deta " << deta << " dphi " 
+					 << dphi << " dR " << dr;
 	      if (dr<mindR1) {
 		mindR1    = dr;
 		mindRvec1 = vec[lvl][i];
 	      }
 	    }
 	  }
-          if (verbosity%10 > 0) 
-	    std::cout << "-------------------------------------------------------------" << std::endl;  
           //leading jet loop
           for(pfItr=pfJetsHandle->begin();pfItr!=pfJetsHandle->end(); pfItr++){
 	    t_leadingpt->push_back(pfItr->pt());  
 	    t_leadingeta->push_back(pfItr->eta());
 	    t_leadingphi->push_back(pfItr->phi());
-	    if (verbosity%10 > 0) std::cout<< "Leading jet : pt/eta/phi " << pfItr->pt() << "/" << pfItr->eta() << "/" << pfItr->phi() <<std::endl;
+	    if (verbosity%10 > 0) 
+	      edm::LogInfo("IsoTrack") << "Leading jet : pt/eta/phi " 
+				       << pfItr->pt() << "/" << pfItr->eta()
+				       << "/" << pfItr->phi();
 	    break;
 	  }
 	  //tracks loop
@@ -313,9 +317,10 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
             TLorentzVector trackinfo;
             trackinfo.SetPxPyPzE(pTrack->px(), pTrack->py(), pTrack->pz(), pTrack->p());
 	    if (verbosity%10 > 0) 
-	      std::cout << "This track : " << nTracks << " (pt/eta/phi/p) :" 
-			<< pTrack->pt() << "/" << pTrack->eta() << "/" 
-			<< pTrack->phi() << "/" << pTrack->p() << std::endl;
+	      edm::LogInfo("IsoTrack") << "This track : " << nTracks 
+				       << " (pt/eta/phi/p) :" << pTrack->pt() 
+				       << "/" << pTrack->eta() << "/" 
+				       << pTrack->phi() << "/" << pTrack->p();
 	    math::XYZTLorentzVector mindRvec2;
 	    double mindR2(999);
             if(pTrack->pt()>10){
@@ -327,8 +332,8 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		}
 	      }
 	      if (verbosity%10 > 2)
-		std::cout << "Closest L3 object at mindr :" << mindR2 << " is "
-			  << mindRvec2 << std::endl;
+		edm::LogInfo("IsoTrack") << "Closest L3 object at mindr :" 
+					 << mindR2 << " is " << mindRvec2;
 	      double mindR = dR(mindRvec1,v4);
 	    
 	      unsigned int i1 = drCuts.size();
@@ -352,10 +357,11 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		ieta = detId.ieta();
 	      }
 	      if (verbosity%10 > 0) 
-		std::cout << "seltlk/okECAL/okHCAL : " << selectTk << "/" 
-			  << trkDetItr->okECAL << "/" << trkDetItr->okHCAL 
-			  << "iEta " << ieta << " Classify " << i1 << ":" << i2
-			  << std::endl;
+		edm::LogInfo("IsoTrack") << "seltlk/okECAL/okHCAL : "<< selectTk
+					 << "/"  << trkDetItr->okECAL << "/" 
+					 << trkDetItr->okHCAL  << " iEta " 
+					 << ieta << " Classify " << i1 << ":" 
+					 << i2;
 	      if (selectTk && trkDetItr->okECAL && trkDetItr->okHCAL) {
 		nselTracks++;
 		int nRH_eMipDR=0, nNearTRKs=0;
@@ -381,17 +387,16 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		double e_inCone = e2 - e1;
 
 		if (verbosity%10 > 0) {
-		  std::cout << "This track : " << nTracks <<" (pt/eta/phi/p) :" 
-			    << pTrack->pt() << "/" << pTrack->eta() << "/" 
-			    << pTrack->phi() << "/" << pTrack->p() << std::endl;
-
-		  std::cout << " (MIP/neu_isol/charge_iso/HCAL_energy/iEta/distfromHcell/iEtaHcell) = " 
-			    << eMipDR << "/"<< e_inCone << "/" << conehmaxNearP 
-			    << "/" << eHcal << "/" << ieta << "/" 
-			    << distFromHotCell << "/" <<ietaHotCell <<std::endl;
-
-		  std::cout<< "-------------------------------------------------------------" <<std::endl;
-		  std::cout<< "-------------------------------------------------------------" <<std::endl;
+		  edm::LogInfo("IsoTrack") << "This track : " << nTracks 
+					   <<" (pt/eta/phi/p) :" << pTrack->pt()
+					   << "/" << pTrack->eta() << "/" 
+					   << pTrack->phi() << "/" 
+					   << pTrack->p() << "\n"
+					   << " (MIP/neu_isol/charge_iso/HCAL_energy/iEta/distfromHcell/iEtaHcell) = " 
+					   << eMipDR << "/"<< e_inCone << "/" 
+					   << conehmaxNearP << "/" << eHcal 
+					   << "/" << ieta << "/" << distFromHotCell
+					   << "/" <<ietaHotCell;
 		}
 		t_trackP->push_back(pTrack->p());
 		t_trackPx->push_back(pTrack->px());
@@ -412,14 +417,14 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	    }
 	  }
 	  if (verbosity%10 > 0) {
-	    std::cout<< "selected tracks = " << nselTracks <<std::endl;
-	    std::cout << "event weight is = " << flatPtWeight <<std::endl;  
-	    std::cout << " L1 trigger object : pt/eta/phi " << vec[0][0].pt() 
-		      << "/" << vec[0][0].eta() << "/" << vec[0][0].phi() 
-		      <<std::endl;
-	    std::cout << " L3 trigger object : pt/eta/phi " << vec[2][0].pt() 
-		      << "/" << vec[2][0].eta() << "/"<< vec[2][0].phi()
-		      <<std::endl;
+	    edm::LogInfo("IsoTrack") << "selected tracks = " << nselTracks 
+				     << "\nevent weight is = " << flatPtWeight 
+				     << "\n L1 trigger object : pt/eta/phi " 
+				     << vec[0][0].pt() << "/" << vec[0][0].eta()
+				     << "/" << vec[0][0].phi()
+				     << "\n L3 trigger object : pt/eta/phi " 
+				     << vec[2][0].pt() << "/" << vec[2][0].eta()
+				     << "/"<< vec[2][0].phi();
 	  }
 	  t_l1pt->push_back(vec[0][0].pt());
 	  t_l1eta->push_back(vec[0][0].eta());
@@ -428,8 +433,6 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  t_l3eta->push_back(vec[2][0].eta());
 	  t_l3phi->push_back(vec[2][0].phi());
 	  t_eventweight->push_back(flatPtWeight);
-	  if (verbosity%10 > 0) std::cout<< "-----------------------------------------------------------------------------------------" <<std::endl;
-                   		
 	  //	  break;
 	}
       }
@@ -437,15 +440,16 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       if (changed) {
 	changed = false;
 	if ((verbosity/10)%10 > 1) {
-	  std::cout<<"New trigger menu found !!!" << std::endl;
+	  edm::LogInfo("IsoTrack") <<"New trigger menu found !!!";
 	  const unsigned int n(hltConfig_.size());
 	  for (unsigned itrig=0; itrig<triggerNames_.size(); itrig++) {
 	    unsigned int triggerindx = hltConfig_.triggerIndex(triggerNames_[itrig]);
-	    std::cout << triggerNames_[itrig] << " " << triggerindx << " ";
 	    if (triggerindx >= n)
-	      std::cout << "does not exist in the current menu" << std::endl;
+	      edm::LogInfo("IsoTrack") << triggerNames_[itrig] << " " 
+				       << triggerindx << " does not exist";
 	    else
-	      std::cout << "exists" << std::endl;
+	      edm::LogInfo("IsoTrack") << triggerNames_[itrig] << " " 
+				       << triggerindx << " exists";
 	  }
 	}
       }
@@ -519,7 +523,7 @@ void IsoTrackCalib::endJob() {
   unsigned int preL1, preHLT;
   std::map<std::pair<unsigned int, std::string>, unsigned int>::iterator itr;
   std::map<std::pair<unsigned int, std::string>, const std::pair<int, int>>::iterator itrPre;
-  std::cout << "RunNo vs HLT accepts" << std::endl;
+  edm::LogInfo("IsoTrack") << "RunNo vs HLT accepts";
   unsigned int n = maxRunNo - minRunNo +1;
   g_Pre = fs->make<TH1I>("h_PrevsRN", "PreScale Vs Run Number", n, minRunNo, maxRunNo);
   g_PreL1 = fs->make<TH1I>("h_PreL1vsRN", "L1 PreScale Vs Run Number", n, minRunNo, maxRunNo);
@@ -538,8 +542,8 @@ void IsoTrackCalib::endJob() {
 
 // ------------ method called when starting to processes a run  ------------
 void IsoTrackCalib::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
-  std::cout  << "Run[" << nRun <<"] " << iRun.run() << " hltconfig.init " 
-	     << hltConfig_.init(iRun,iSetup,"HLT",changed) << std::endl;;
+  edm::LogInfo("IsoTrack") << "Run[" << nRun <<"] " << iRun.run() 
+			   << " hltconfig.init " << hltConfig_.init(iRun,iSetup,"HLT",changed);
   char  hname[100], htit[100];
   sprintf(hname, "h_HLTAccepts_%i", iRun.run());
   sprintf(htit, "HLT Accepts for Run No %i", iRun.run());
@@ -551,7 +555,7 @@ void IsoTrackCalib::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup
 // ------------ method called when ending the processing of a run  ------------
 void IsoTrackCalib::endRun(edm::Run const& iRun, edm::EventSetup const&) {
   nRun++;
-  std::cout << "endRun[" << nRun << "] " << iRun.run() << std::endl;
+  edm::LogInfo("IsoTrack") << "endRun[" << nRun << "] " << iRun.run();
 }
 
 // ------------ method called when starting to processes a luminosity block  ------------
@@ -572,21 +576,11 @@ double IsoTrackCalib::dEta(math::XYZTLorentzVector& vec1, math::XYZTLorentzVecto
 }
 
 double IsoTrackCalib::dPhi(math::XYZTLorentzVector& vec1, math::XYZTLorentzVector& vec2) {
-
-  double phi1 = vec1.phi();
-  if (phi1 < 0) phi1 += 2.0*M_PI;
-  double phi2 = vec2.phi();
-  if (phi2 < 0) phi2 += 2.0*M_PI;
-  double dphi = phi1-phi2;
-  if (dphi > M_PI)       dphi -= 2.*M_PI;
-  else if (dphi < -M_PI) dphi += 2.*M_PI;
-  return dphi;
+  return reco::deltaPhi(vec1.phi(),vec2.phi());
 }
 
 double IsoTrackCalib::dR(math::XYZTLorentzVector& vec1, math::XYZTLorentzVector& vec2) {
-  double deta = dEta(vec1,vec2);
-  double dphi = dPhi(vec1,vec2);
-  return std::sqrt(deta*deta + dphi*dphi);
+  return reco::deltaR(vec1.eta(),vec1.phi(),vec2.eta(),vec2.phi());
 }
 
 double IsoTrackCalib::dPt(math::XYZTLorentzVector& vec1, math::XYZTLorentzVector& vec2) {
