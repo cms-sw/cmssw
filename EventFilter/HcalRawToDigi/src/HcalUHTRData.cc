@@ -33,7 +33,7 @@ uint8_t HcalUHTRData::const_iterator::adc() const {
   else return (*m_ptr)&0xFF;
 }
 
-uint8_t HcalUHTRData::const_iterator::re_tdc() const {
+uint8_t HcalUHTRData::const_iterator::le_tdc() const {
   if (m_flavor==0x5) return 0x80;
   else if (m_flavor == 2) return (m_ptr[1]&0x3F);
   else return (((*m_ptr)&0x3F00)>>8);
@@ -45,7 +45,7 @@ bool HcalUHTRData::const_iterator::soi() const {
   else return (((*m_ptr)&0x4000));
 }
 
-uint8_t HcalUHTRData::const_iterator::fe_tdc() const {
+uint8_t HcalUHTRData::const_iterator::te_tdc() const {
   if (m_flavor==2) return(m_ptr[1]>>6)&0x1F;
   else return 0x80;
 }
