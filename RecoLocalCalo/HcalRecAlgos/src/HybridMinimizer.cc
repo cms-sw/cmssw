@@ -1,13 +1,4 @@
-// @(#)root/minuit2:$Id$
-// Author: L. Moneta Wed Oct 18 11:48:00 2006
-
-/**********************************************************************
- *                                                                    *
- * Copyright (c) 2006  LCG ROOT Math Team, CERN/PH-SFT                *
- *                                                                    *
- *                                                                    *
- **********************************************************************/
-
+// Note copied and modifed from the Minuit2Minimizer to suit our purpose
 // Implementation file for class HybridMinimizer
 
 #include "RecoLocalCalo/HcalRecAlgos/src/HybridMinimizer.h"
@@ -324,9 +315,9 @@ bool HybridMinimizer::Minimize() {
          int nvar = fState.VariableParameters();
          maxfcn_used = 200 + 100*nvar + 5*nvar*nvar;
       }      
-      std::cout << "HybridMinimizer: Minimize with max-calls " << maxfcn_used 
-                << " convergence for edm < " << tol << " strategy " 
-                << strategyLevel << std::endl; 
+//      std::cout << "HybridMinimizer: Minimize with max-calls " << maxfcn_used 
+//                << " convergence for edm < " << tol << " strategy " 
+//                << strategyLevel << std::endl; 
    }
 
    // internal minuit messages
@@ -371,7 +362,7 @@ bool HybridMinimizer::Minimize() {
       strategy.SetHessianG2Tolerance(hessStepTol);
 
       if (PrintLevel() > 0) { 
-         std::cout << "HybridMinimizer::Minuit  - Changing default stratgey options" << std::endl;
+//         std::cout << "HybridMinimizer::Minuit  - Changing default stratgey options" << std::endl;
          minuit2Opt->Print();
       }
       
@@ -411,7 +402,7 @@ bool  HybridMinimizer::ExamineMinimum(const ROOT::Minuit2::FunctionMinimum & min
    // debug ( print all the states) 
    int debugLevel = PrintLevel(); 
    if (debugLevel >= 3) { 
-      
+/*      
       const std::vector<ROOT::Minuit2::MinimumState>& iterationStates = min.States();
       std::cout << "Number of iterations " << iterationStates.size() << std::endl;
       for (unsigned int i = 0; i <  iterationStates.size(); ++i) {
@@ -427,6 +418,7 @@ bool  HybridMinimizer::ExamineMinimum(const ROOT::Minuit2::FunctionMinimum & min
          for (int j = 0; j < st.size() ; ++j) std::cout << " p" << j << " = " << fState.Int2ext( j, st.Vec()(j) );
          std::cout << std::endl;
       }
+*/
    }
 
    fStatus = 0;
@@ -475,6 +467,7 @@ void HybridMinimizer::PrintResults() {
    if (!fMinimum) return;
    if (fMinimum->IsValid() ) {
       // valid minimum
+/*
       std::cout << "HybridMinimizer : Valid minimum - status = " << fStatus  << std::endl; 
       int pr = std::cout.precision(18);
       std::cout << "FVAL  = " << fState.Fval() << std::endl;
@@ -491,12 +484,15 @@ void HybridMinimizer::PrintResults() {
          else 
             std::cout << "+/-  " << par.Error() << std::endl; 
       }
+*/
    }
    else { 
+/*
       std::cout << "HybridMinimizer : Invalid Minimum - status = " << fStatus << std::endl; 
       std::cout << "FVAL  = " << fState.Fval() << std::endl;
       std::cout << "Edm   = " << fState.Edm() << std::endl;
       std::cout << "Nfcn  = " << fState.NFcn() << std::endl;
+*/
    }
 }
 
@@ -686,7 +682,7 @@ bool HybridMinimizer::GetMinosError(unsigned int i, double & errLow, double & er
    int maxfcn = MaxFunctionCalls(); 
    double tol = Tolerance();
 
-   const char * par_name = fState.Name(i);
+//   const char * par_name = fState.Name(i);
 
    // now input tolerance for migrad calls inside Minos (MnFunctionCross)
    // before it was fixed to 0.05 
@@ -700,8 +696,8 @@ bool HybridMinimizer::GetMinosError(unsigned int i, double & errLow, double & er
          int nvar = fState.VariableParameters();
          maxfcn_used = 2*(nvar+1)*(200 + 100*nvar + 5*nvar*nvar);
       }
-      std::cout << "HybridMinimizer::GetMinosError for parameter " << i << "  " << par_name
-                << " using max-calls " << maxfcn_used << ", tolerance " << tol << std::endl; 
+//      std::cout << "HybridMinimizer::GetMinosError for parameter " << i << "  " << par_name
+//                << " using max-calls " << maxfcn_used << ", tolerance " << tol << std::endl; 
    }
 
 
@@ -717,6 +713,7 @@ bool HybridMinimizer::GetMinosError(unsigned int i, double & errLow, double & er
 
 
    if (debugLevel >= 1) {
+/*
       if (runLower) { 
          if (!me.LowerValid() )  
             std::cout << "Minos:  Invalid lower error for parameter " << par_name << std::endl; 
@@ -742,7 +739,7 @@ bool HybridMinimizer::GetMinosError(unsigned int i, double & errLow, double & er
 
          if (debugLevel > 1)  std::cout << "Minos: Upper error for parameter " << par_name << "  :  " << me.Upper() << std::endl;
       }
-      
+*/      
    }
 
    bool lowerInvalid =  (runLower && !me.LowerValid() ); 
@@ -921,8 +918,8 @@ bool HybridMinimizer::Hesse( ) {
    if (prev_level > -2) RestoreGlobalPrintLevel(prev_level);
 
    if (PrintLevel() >= 3) { 
-      std::cout << "State returned from Hesse " << std::endl;
-      std::cout << fState << std::endl; 
+//      std::cout << "State returned from Hesse " << std::endl;
+//      std::cout << fState << std::endl; 
    }
 
    if (!fState.HasCovariance() ) { 
