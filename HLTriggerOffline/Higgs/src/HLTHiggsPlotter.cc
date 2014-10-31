@@ -229,7 +229,7 @@ void HLTHiggsPlotter::analyze(const bool & isPassTrigger, const std::string & so
             break;
         }
     }
-    if( source == "rec") {
+    if( source == "rec" && _objectsType.find(EVTColContainer::PFJET) != _objectsType.end()) {
         if( _NminOneCuts[0] && nMinOne["dEtaqq"] ) {
             this->fillHist(isPassTrigger,source,EVTColContainer::getTypeString(EVTColContainer::PFJET),"dEtaqq",dEtaqq);
         }
@@ -275,7 +275,7 @@ void HLTHiggsPlotter::bookHist(const std::string & source,
         
         std::string jetObj = EVTColContainer::getTypeString(EVTColContainer::PFJET);
         if( objType == jetObj ) {
-            const size_t nBinsJets = 20;
+            const size_t nBinsJets = 25;
             nBins = nBinsJets;
             delete [] edges;
             edges = new float[nBinsJets+1];
