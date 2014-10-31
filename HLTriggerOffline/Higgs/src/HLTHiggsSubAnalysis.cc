@@ -656,8 +656,10 @@ const std::vector<unsigned int> HLTHiggsSubAnalysis::getObjectsType(const std::s
         // Check if it is needed this object for this trigger
         if( ! TString(hltPath).Contains(objTypeStr) )
         {
-            if( !( objtriggernames[i] == EVTColContainer::PFMET && TString(hltPath).Contains("MHT") ) ) // fix for ZnnHbb
-                continue;
+            if( (objtriggernames[i] == EVTColContainer::PFJET && TString(hltPath).Contains("BTagCSV")) ||   // fix for ZnnHbb PFJET            
+                (objtriggernames[i] == EVTColContainer::PFMET && TString(hltPath).Contains("MHT")) )        // fix for ZnnHbb PFMET
+                objsType.insert(objtriggernames[i]);
+           continue;
         }
         if( objtriggernames[i] == EVTColContainer::CALOMET && (TString(hltPath).Contains("PFMET") || TString(hltPath).Contains("MHT") ) ) continue; // fix for PFMET
 
@@ -842,7 +844,7 @@ void HLTHiggsSubAnalysis::bookHist(const std::string & source,
         
         std::string jetObj = EVTColContainer::getTypeString(EVTColContainer::PFJET);
         if( objType == jetObj ) {
-            const size_t nBinsJets = 20;
+            const size_t nBinsJets = 25;
             nBins = nBinsJets;
             delete [] edges;
             edges = new float[nBinsJets+1];
