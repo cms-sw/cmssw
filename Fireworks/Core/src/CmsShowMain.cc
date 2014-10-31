@@ -346,7 +346,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    }
    if(vm.count(kAutoSaveAllViews)) {
       std::string fmt = vm[kAutoSaveAllViews].as<std::string>();
-      fmt += "%u_%u_%u_%s.png";
+      fmt += "%u_%u_%llu_%s.png";
       setAutoSaveAllViewsFormat(fmt);
    }
    if(vm.count(kNoVersionCheck)) {
