@@ -117,7 +117,7 @@ private:
   std::vector<HcalBaseDQClient*> clients_;  
 
   DQMStore* dqmStore_;
-  HcalChannelQuality* chanquality_;
+  const HcalChannelQuality* chanquality_;
 
   HcalSummaryClient* summaryClient_;
   EtaPhiHists* ChannelStatus;

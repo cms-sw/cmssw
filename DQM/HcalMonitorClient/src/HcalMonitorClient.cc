@@ -193,9 +193,8 @@ void HcalMonitorClient::beginRun(const edm::Run& r, const edm::EventSetup& c)
   c.get<IdealGeometryRecord>().get(topo);
 
   edm::ESHandle<HcalChannelQuality> p;
-  c.get<HcalChannelQualityRcd>().get(p);
-  chanquality_= new HcalChannelQuality(*p.product());
-  if (!chanquality_->topo()) chanquality_->setTopo(topo.product());
+  c.get<HcalChannelQualityRcd>().get("withTopo",p);
+  chanquality_= p.product();
  
   if (dqmStore_ && ChannelStatus==0)
     {
