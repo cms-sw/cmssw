@@ -73,6 +73,7 @@
    <class name="edm::SortedCollection<CastorTriggerPrimitiveDigi,edm::StrictWeakOrdering<CastorTriggerPrimitiveDigi> >"/>
    <class name="edm::SortedCollection<HcalTTPDigi,edm::StrictWeakOrdering<HcalTTPDigi> >"/>
    <class name="edm::SortedCollection<HcalUpgradeDataFrame,edm::StrictWeakOrdering<HcalUpgradeDataFrame> >"/>
+   <class name="HcalDataFrameContainer<QIE10DataFrame>"/>
 
    <class name="edm::Wrapper<edm::SortedCollection<HBHEDataFrame,edm::StrictWeakOrdering<HBHEDataFrame> > >" splitLevel="0" />
    <class name="edm::Wrapper<edm::SortedCollection<HODataFrame,edm::StrictWeakOrdering<HODataFrame> > >" splitLevel="0" />
@@ -86,6 +87,7 @@
    <class name="edm::Wrapper<edm::SortedCollection<CastorTriggerPrimitiveDigi,edm::StrictWeakOrdering<CastorTriggerPrimitiveDigi> > >" splitLevel="0" />
    <class name="edm::Wrapper<edm::SortedCollection<HcalTTPDigi,edm::StrictWeakOrdering<HcalTTPDigi> > >" splitLevel="0" />
    <class name="edm::Wrapper<edm::SortedCollection<HcalUpgradeDataFrame,edm::StrictWeakOrdering<HcalUpgradeDataFrame> > >" splitLevel="0" />
+   <class name="edm::Wrapper<HcalDataFrameContainer<QIE10DataFrame> >" splitLevel="0"/>
    <class name="edm::Wrapper<HcalUnpackerReport>"/>
    <class name="HcalLaserDigi" ClassVersion="10">
     <version ClassVersion="10" checksum="2447500554"/>
