@@ -29,15 +29,13 @@ process.load("Configuration.Generator.QCD_Pt_80_120_cfi")
 
 
 # Famos sequences
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 process.load('FastSimulation.Configuration.Geometries_cff')
 #process.load("FastSimulation.Configuration.CommonInputs_cff")
 
 # Get frontier conditions (STARTUP conditions, not Fake or IDEAL anymore, otherwise we cannot set them for HLT!)
-from HLTrigger.Configuration.AutoCondGlobalTag import AutoCondGlobalTag
-process.GlobalTag = AutoCondGlobalTag(process.GlobalTag,'auto:run2_mc_GRun')
-#from Configuration.AlCa.autoCond import autoCond
-#process.GlobalTag.globaltag = autoCond['mc']
+from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag as customiseGlobalTag
+process.GlobalTag = customiseGlobalTag(process.GlobalTag,'auto:run2_mc_GRun')
 
 # L1 Emulator and HLT Setup
 #process.load("FastSimulation.HighLevelTrigger.HLTSetup_cff")
