@@ -55,6 +55,9 @@ CmsShowCommon::CmsShowCommon(fireworks::Context* c):
    m_trackBreak.changed_.connect(boost::bind(&CmsShowCommon::setTrackBreakMode, this));
    m_drawBreakPoints.changed_.connect(boost::bind(&CmsShowCommon::setDrawBreakMarkers, this));
    m_gamma.changed_.connect(boost::bind(&CmsShowCommon::setGamma, this));
+
+   m_lightColorSet.StdLightBackground();
+   m_darkColorSet .StdDarkBackground();
 }
 
 CmsShowCommon::~CmsShowCommon()
@@ -131,7 +134,7 @@ CmsShowCommon::setGeomTransparency(int iTransp, bool projected)
 
 namespace 
 {
-  void addGLColorToConfig(const char* cname, TGLColor& c, FWConfiguration& oTo)
+  void addGLColorToConfig(const char* cname, const TGLColor& c, FWConfiguration& oTo)
   {
     FWConfiguration pc;
 
@@ -170,11 +173,10 @@ CmsShowCommon::addTo(FWConfiguration& oTo) const
 
   if (gEve)
   {
-    TGLViewer* v = gEve->GetDefaultGLViewer();
-    addGLColorToConfig("SelectionColorLight", v->RefLightColorSet().Selection(1), oTo);
-    addGLColorToConfig("HighlightColorLight", v->RefLightColorSet().Selection(3), oTo);
-    addGLColorToConfig("SelectionColorDark",  v->RefDarkColorSet().Selection(1), oTo);
-    addGLColorToConfig("HighlightColorDark",  v->RefDarkColorSet().Selection(3), oTo);
+    addGLColorToConfig("SelectionColorLight", m_lightColorSet.Selection(1), oTo);
+    addGLColorToConfig("HighlightColorLight", m_lightColorSet.Selection(3), oTo);
+    addGLColorToConfig("SelectionColorDark",  m_darkColorSet .Selection(1), oTo);
+    addGLColorToConfig("HighlightColorDark",  m_darkColorSet .Selection(3), oTo);
   }
 }
 
@@ -221,10 +223,9 @@ CmsShowCommon::setFrom(const FWConfiguration& iFrom)
 
   if (gEve)
   {
-     TGLViewer* v = gEve->GetDefaultGLViewer();
-     setGLColorFromConfig(v->RefLightColorSet().Selection(1),  iFrom.valueForKey("SelectionColorLight"));
-     setGLColorFromConfig(v->RefLightColorSet().Selection(3),  iFrom.valueForKey("HighlightColorLight"));
-     setGLColorFromConfig(v->RefDarkColorSet().Selection(1),  iFrom.valueForKey("SelectionColorDark"));
-     setGLColorFromConfig(v->RefDarkColorSet().Selection(3),  iFrom.valueForKey("HighlightColorDark"));
+     setGLColorFromConfig(m_lightColorSet.Selection(1), iFrom.valueForKey("SelectionColorLight"));
+     setGLColorFromConfig(m_lightColorSet.Selection(3), iFrom.valueForKey("HighlightColorLight"));
+     setGLColorFromConfig(m_darkColorSet .Selection(1), iFrom.valueForKey("SelectionColorDark"));
+     setGLColorFromConfig(m_darkColorSet .Selection(3), iFrom.valueForKey("HighlightColorDark"));
   }
 }
