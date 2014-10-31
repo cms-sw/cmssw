@@ -12,6 +12,8 @@ public:
   PixelBarrelNameWrapper(const edm::ParameterSet&, const DetId&);
   
   virtual ~PixelBarrelNameWrapper() {}
+
+  PixelBarrelNameBase::Shell shell() const { return pixelBarrelNameBase->shell(); }
   
   /// layer id
   int layerName() const {return pixelBarrelNameBase->layerName();}
