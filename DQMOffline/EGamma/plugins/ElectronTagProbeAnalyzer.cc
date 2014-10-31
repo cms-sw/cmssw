@@ -248,7 +248,7 @@ void ElectronTagProbeAnalyzer::bookHistograms( DQMStore::IBooker & iBooker, edm:
 
  }
 
-void ElectronTagProbeAnalyzer::analyze( DQMStore::IBooker &, DQMStore::IGetter &, const edm::Event& iEvent, const edm::EventSetup & iSetup )
+void ElectronTagProbeAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup & iSetup )
  {
   nEvents_++ ;
 
