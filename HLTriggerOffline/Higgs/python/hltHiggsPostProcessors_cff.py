@@ -146,26 +146,26 @@ hltHiggsPostHtaunu.efficiencyProfile = efficiency_strings
 #Specific plots for VBFHbb  
 #dEtaqq, mqq, dPhibb, CVS1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
 NminOneCutNames = ("EffdEtaqq", "Effmqq", "EffdPhibb", "EffCSV1", "EffmaxCSV", "", "TurnOn1", "TurnOn2", "TurnOn3", "TurnOn4")
-#plot_types = ["EffEta", "EffPhi"]
-#NminOneCuts = (_config.__getattribute__("VBFHbb")).__getattribute__("NminOneCuts")
-#if NminOneCuts: 
-    #for iCut in range(0,len(NminOneCuts)-1):
-        #if( NminOneCuts[iCut] and NminOneCutNames[iCut] ):
-            #if( NminOneCutNames[iCut] == "EffmaxCSV" ):
-                #plot_types.pop()
-            #plot_types.append(NminOneCutNames[iCut])
+plot_types = ["EffEta", "EffPhi"]
+NminOneCuts = (_config.__getattribute__("VBFHbb")).__getattribute__("NminOneCuts")
+if NminOneCuts: 
+    for iCut in range(0,len(NminOneCuts)-1):
+        if( NminOneCuts[iCut] and NminOneCutNames[iCut] ):
+            if( NminOneCutNames[iCut] == "EffmaxCSV" ):
+                plot_types.pop()
+            plot_types.append(NminOneCutNames[iCut])
     
-#efficiency_strings = []
-#for type in plot_types:
-    #for obj in ["Jet"]:
-        #for trig in triggers:
-            #efficiency_strings.append(efficiency_string(obj,type,trig))
+efficiency_strings = []
+for type in plot_types:
+    for obj in ["Jet"]:
+        for trig in triggers:
+            efficiency_strings.append(efficiency_string(obj,type,trig))
         
-#efficiency_strings = get_reco_strings(efficiency_strings)
+efficiency_strings = get_reco_strings(efficiency_strings)
     
-#hltHiggsPostVBFHbb = hltHiggsPostProcessor.clone()
-#hltHiggsPostVBFHbb.subDirs = ['HLT/Higgs/VBFHbb']
-#hltHiggsPostVBFHbb.efficiencyProfile = efficiency_strings
+hltHiggsPostVBFHbb = hltHiggsPostProcessor.clone()
+hltHiggsPostVBFHbb.subDirs = ['HLT/Higgs/VBFHbb']
+hltHiggsPostVBFHbb.efficiencyProfile = efficiency_strings
 
 #Specific plots for ZnnHbb
 #Jet plots
@@ -205,7 +205,7 @@ hltHiggsPostProcessors = cms.Sequence(
         hltHiggsPostHgg+
         hltHiggsPostHtaunu+
         hltHiggsPostH2tau+
-        #hltHiggsPostVBFHbb+
+        hltHiggsPostVBFHbb+
         hltHiggsPostZnnHbb
 )
 
