@@ -53,6 +53,7 @@ class HcalUHTRData {
     uint8_t le_tdc() const;
     uint8_t te_tdc() const;
     bool soi() const;
+    bool ok() const;
 
     uint16_t operator*() const { return *m_ptr; }
 
