@@ -36,6 +36,11 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
 
   // uncertainty calculation (CPU intensive)
   ampErrorCalculation_ = ps.getParameter<bool>("ampErrorCalculation");
+  useFillSchemeInfo_ = ps.getParameter<bool>("useFillSchemeInfo");
+  
+  if (useFillSchemeInfo_) {
+    fillSchemeInfo_ = c.consumes<FillSchemeInfo>(edm::InputTag("fillSchemeInfo"));
+  }
 
   // algorithm to be used for timing
   timealgo_ = ps.getParameter<std::string>("timealgo");
@@ -125,6 +130,28 @@ EcalUncalibRecHitWorkerMultiFit::set(const edm::EventSetup& es)
 
         // for the time correction methods
         es.get<EcalTimeBiasCorrectionsRcd>().get(timeCorrBias_);
+}
+
+void
+EcalUncalibRecHitWorkerMultiFit::set(const edm::Event& evt)
+{
+
+  if (useFillSchemeInfo_) {
+    edm::Handle<FillSchemeInfo> fillSchemeInfoH;
+    evt.getByToken(fillSchemeInfo_,fillSchemeInfoH);
+    int bunchspacing = fillSchemeInfoH->bunchSpacing();
+    
+    if (bunchspacing == 25) {
+      activeBX.resize(10);
+      activeBX << -5,-4,-3,-2,-1,0,1,2,3,4;
+    }
+    else {
+      //50ns configuration otherwise (also for no pileup)
+      activeBX.resize(5);
+      activeBX << -4,-2,0,2,4;
+    }
+  }
+  
 }
 
 /**
