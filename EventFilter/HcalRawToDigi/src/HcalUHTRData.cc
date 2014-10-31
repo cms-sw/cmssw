@@ -14,7 +14,10 @@ HcalUHTRData::const_iterator& HcalUHTRData::const_iterator::operator++() {
     if (m_microstep==0) { m_ptr++; m_microstep++; }
     else { m_microstep--; }
   } 
-  else if (m_stepclass==2) m_ptr+=2;
+  else if (m_stepclass==2) {
+    if (isHeader()) { m_ptr++; }
+    else { m_ptr+=2; }
+  }
 
   if (isHeader()) determineMode();
   return *this;
