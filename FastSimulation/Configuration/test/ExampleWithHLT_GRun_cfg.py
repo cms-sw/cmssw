@@ -22,12 +22,12 @@ process.load("Configuration.Generator.TTbar_cfi")
 
 
 # Common inputs, with fake conditions (not fake ay more!)
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 process.load('FastSimulation.Configuration.Geometries_cff')
 
 # Get frontier conditions
-from HLTrigger.Configuration.AutoCondGlobalTag import AutoCondGlobalTag
-process.GlobalTag = AutoCondGlobalTag(process.GlobalTag,'auto:run2_mc_GRun')
+from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag as customiseGlobalTag
+process.GlobalTag = customiseGlobalTag(process.GlobalTag,'auto:run2_mc_GRun')
 
 # L1 Emulator and HLT Setup
 #process.load("FastSimulation.HighLevelTrigger.HLTSetup_cff")

@@ -9,9 +9,9 @@
 #include "HLTrigger/HLTanalyzers/interface/EventHeader.h"
 
 EventHeader::EventHeader() :
-  fRun( -1 ),
-  fEvent( -1 ),
+  fEvent( 0 ),
   fLumiBlock( -1 ),
+  fRun( -1 ),
   fBx( -1 ),
   fOrbit( -1 ),
   fAvgInstDelLumi( -999. ),
@@ -25,16 +25,16 @@ EventHeader::~EventHeader() {
 /*  Setup the analysis to put the branch-variables into the tree. */
 void EventHeader::setup(edm::ConsumesCollector && iC, TTree* HltTree) {
 
-  fRun = -1;
-  fEvent = -1;
+  fEvent = 0;
   fLumiBlock=-1;
+  fRun = -1;
   fBx = -1;
   fOrbit = -1;
   fAvgInstDelLumi = -999.; 
 
-  HltTree->Branch("Run",       &fRun,         "Run/I");
-  HltTree->Branch("Event",     &fEvent,       "Event/I");
+  HltTree->Branch("Event",     &fEvent,       "Event/l");
   HltTree->Branch("LumiBlock", &fLumiBlock,   "LumiBlock/I"); 
+  HltTree->Branch("Run",       &fRun,         "Run/I");
   HltTree->Branch("Bx",        &fBx,          "Bx/I"); 
   HltTree->Branch("Orbit",     &fOrbit,       "Orbit/I"); 
   HltTree->Branch("AvgInstDelLumi", &fAvgInstDelLumi, "AvgInstDelLumi/D");
@@ -45,9 +45,9 @@ void EventHeader::setup(edm::ConsumesCollector && iC, TTree* HltTree) {
 /* **Analyze the event** */
 void EventHeader::analyze(edm::Event const& iEvent, TTree* HltTree) {
 					
-  fRun 		= iEvent.id().run();
   fEvent 	= iEvent.id().event();
   fLumiBlock    = iEvent.luminosityBlock();
+  fRun 		= iEvent.id().run();
   fBx           = iEvent.bunchCrossing();
   fOrbit        = iEvent.orbitNumber();
   
@@ -69,9 +69,9 @@ void EventHeader::analyze(edm::Event const& iEvent, TTree* HltTree) {
   
   
   if (_Debug) {	
-    std::cout << "EventHeader -- run   = "          << fRun       << std::endl;
     std::cout << "EventHeader -- event = "          << fEvent     << std::endl;
-    std::cout << "EventHeader -- lumisection = "    << fLumiBlock << std::endl; 
+    std::cout << "EventHeader -- lumisection = "    << fLumiBlock << std::endl;
+    std::cout << "EventHeader -- run   = "          << fRun       << std::endl;
     std::cout << "EventHeader -- bunch crossing = " << fBx        << std::endl; 
     std::cout << "EventHeader -- orbit number = "   << fOrbit     << std::endl; 
   }
