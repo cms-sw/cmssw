@@ -5,7 +5,6 @@ hltSMPValidator = cms.EDAnalyzer("HLTHiggsValidator",
 		
     hltProcessName = cms.string("HLT"),
     histDirectory  = cms.string("HLT/SMP"),
-#    analysis       = cms.vstring("SingleEle", "SingleMu", "SinglePhoton"),
     analysis       = cms.vstring("SinglePhoton"),
     
     # -- The instance name of the reco::GenParticles collection
@@ -21,7 +20,7 @@ hltSMPValidator = cms.EDAnalyzer("HLTHiggsValidator",
                                    22, 24, 26, 28, 30, 32, 34, 36, 38, 40,
                                    45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 
                                    110, 120, 130, 140, 150, 160, 170, 180, 190, 200,
-                                   220, 250, 300
+                                   220, 250, 300, 400, 500
                                    ),
 
     # -- (NBins, minVal, maxValue) for the Eta,Phi and nInterations efficiency plots
@@ -54,11 +53,10 @@ hltSMPValidator = cms.EDAnalyzer("HLTHiggsValidator",
 
     # --- Photons
     Photon_genCut     = cms.string("abs(pdgId) == 22 && status == 1"),
-    Photon_recCut     = cms.string("pt > 20 && abs(eta) < 2.4 && hadronicOverEm < 0.1 && ( r9 < 0.85 || ("+\
-		    " ( abs(eta) < 1.479 && sigmaIetaIeta < 0.014  || "+\
-		    "   abs(eta) > 1.479 && sigmaIetaIeta < 0.0035 ) && "+\
-		    " ecalRecHitSumEtConeDR03 < (5.0+0.012*et) && hcalTowerSumEtConeDR03 < (5.0+0.0005*et )  && trkSumPtSolidConeDR03 < (5.0 + 0.0002*et)"+\
-		    " )"+")" ),
+    Photon_recCut     = cms.string("pt > 20 && abs(eta) < 2.4 && hadronicOverEm < 0.1 && ("+\
+		    "   abs(eta) < 1.479 && sigmaIetaIeta < 0.010  || "+\
+		    "   abs(eta) > 1.479 && sigmaIetaIeta < 0.027 ) && "+\
+		    " ecalRecHitSumEtConeDR03 < (5.0+0.012*et) && hcalTowerSumEtConeDR03 < (5.0+0.0005*et )  && trkSumPtSolidConeDR03 < (5.0 + 0.0002*et)" ),
     Photon_cutMinPt   = cms.double(20), # TO BE DEPRECATED
     Photon_cutMaxEta  = cms.double(2.4),# TO BE DEPRECATED
 
@@ -77,26 +75,24 @@ hltSMPValidator = cms.EDAnalyzer("HLTHiggsValidator",
     # for any object you want.
     #    * Var_genCut, Var_recCut (cms.string): where Var=Mu, Ele, Photon, MET, PFTau (see above)
 
-    # SingleEle = cms.PSet( 
-    #         hltPathsToCheck = cms.vstring(
-    #     	    "HLT_Ele27_WP85_Gsf_v",
-    #     	    ),
-    #         recElecLabel  = cms.string("gedGsfElectrons"),
-    #         # -- Analysis specific cuts
-    #         minCandidates = cms.uint32(1),
-    #         ),
-    # SingleMu = cms.PSet( 
-    #         hltPathsToCheck = cms.vstring(
-    #     	    "HLT_IsoMu24_IterTrk02_v",
-    #     	    "HLT_IsoTkMu24_IterTrk02_v",
-    #     	    ),
-    #         recMuonLabel  = cms.string("muons"),
-    #         # -- Analysis specific cuts
-    #         minCandidates = cms.uint32(1), 
-    #         ),
     SinglePhoton = cms.PSet( 
 	    hltPathsToCheck = cms.vstring(
+		    "HLT_Photon22_v",
+		    "HLT_Photon30_v",
+		    "HLT_Photon36_v",
+		    "HLT_Photon50_v",
+		    "HLT_Photon75_v",
+		    "HLT_Photon90_v",
+		    "HLT_Photon120_v",
 		    "HLT_Photon155_v",
+		    "HLT_Photon22_R9Id90_HE10_Iso40_v",
+		    "HLT_Photon30_R9Id90_HE10_Iso40_v",
+		    "HLT_Photon36_R9Id90_HE10_Iso40_v",
+		    "HLT_Photon50_R9Id90_HE10_Iso40_v",
+		    "HLT_Photon75_R9Id90_HE10_Iso40_v",
+		    "HLT_Photon90_R9Id90_HE10_Iso40_v",
+		    "HLT_Photon120_R9Id90_HE10_Iso40_v",
+		    "HLT_Photon155_R9Id90_HE10_Iso40_v",
 		    ),
 	    recPhotonLabel  = cms.string("photons"),
 	    # -- Analysis specific cuts

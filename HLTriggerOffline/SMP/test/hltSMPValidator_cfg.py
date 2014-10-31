@@ -21,8 +21,8 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-	    '/store/relval/CMSSW_7_2_0_pre6/RelValH130GGgluonfusion_13/GEN-SIM-RECO/PRE_LS172_V11-v1/00000/0E219073-8E3F-E411-AC64-0026189438F2.root',
-	    '/store/relval/CMSSW_7_2_0_pre6/RelValH130GGgluonfusion_13/GEN-SIM-RECO/PRE_LS172_V11-v1/00000/404B9C6F-8E3F-E411-9894-00261894393D.root',
+        '/store/relval/CMSSW_7_3_0_pre1/RelValH130GGgluonfusion_13/GEN-SIM-RECO/PRE_LS172_V15-v1/00000/A8F284E4-FC59-E411-8934-0025905A48D0.root',
+        '/store/relval/CMSSW_7_3_0_pre1/RelValH130GGgluonfusion_13/GEN-SIM-RECO/PRE_LS172_V15-v1/00000/F2BA47E7-FC59-E411-9031-0025905964B4.root'
     ),
     secondaryFileNames = cms.untracked.vstring(
     )
