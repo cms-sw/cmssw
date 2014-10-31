@@ -324,7 +324,7 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
   edm::ESHandle<HcalDbService> conditions;
   iSetup.get<HcalDbRecord>().get(conditions);
   edm::ESHandle<HcalChannelQuality> qualhandle;
-  iSetup.get<HcalChannelQualityRcd>().get(qualhandle);
+  iSetup.get<HcalChannelQualityRcd>().get("withTopo",qualhandle);
   const HcalChannelQuality* myqual = qualhandle.product();
   edm::ESHandle<HcalSeverityLevelComputer> mycomputer;
   iSetup.get<HcalSeverityLevelComputerRcd>().get(mycomputer);
@@ -501,7 +501,7 @@ HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iS
 {
   // get the HCAL channel status map
   edm::ESHandle<HcalChannelQuality> hcalChStatus;
-  iSetup.get<HcalChannelQualityRcd>().get( hcalChStatus );
+  iSetup.get<HcalChannelQualityRcd>().get( "withTopo", hcalChStatus );
   const HcalChannelQuality* dbHcalChStatus = hcalChStatus.product();
 
   // get the severity level computer
