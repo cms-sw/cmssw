@@ -1,4 +1,5 @@
 <flags   GENREFLEX_ARGS="--"/>
+<use   name="DataFormats/StdDictionaries"/>
 <use   name="CondFormats/Common"/>
 <use   name="FWCore/Utilities"/>
 <use   name="CondCore/DBCommon"/>

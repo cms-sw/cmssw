@@ -20,6 +20,7 @@ namespace edm{
 
 namespace magneticfield{
   class ParametrizedMagneticFieldProducer;
+  class VolumeBasedMagneticFieldESProducerFromDB;
 }
 
 class ParametrizedMagneticFieldFactory {
@@ -28,7 +29,8 @@ class ParametrizedMagneticFieldFactory {
   ParametrizedMagneticFieldFactory();
   
  private:
-  friend class magneticfield::ParametrizedMagneticFieldProducer;  
+  friend class magneticfield::ParametrizedMagneticFieldProducer;
+  friend class magneticfield::VolumeBasedMagneticFieldESProducerFromDB;
 
   // Get map configured from pset (deprecated)
   std::auto_ptr<MagneticField>
