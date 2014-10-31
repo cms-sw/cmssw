@@ -9,6 +9,13 @@ jetCoreClusterSplitter = cms.EDProducer("JetCoreClusterSplitter",
            cores = cms.InputTag("ak5CaloJets"),
            chargeFractionMin = cms.double(1.2),
            deltaRmax  = cms.double(0.05),
+           forceXError  = cms.double(100), #negative means do not force
+           forceYError  = cms.double(150),
+           fractionalWidth  = cms.double(0.4),
+           chargePerUnit  = cms.double(2000),
+           centralMIPCharge  = cms.double(26000),
+	
+
     )
 
 
