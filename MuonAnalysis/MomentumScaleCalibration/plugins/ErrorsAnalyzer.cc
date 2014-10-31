@@ -182,7 +182,7 @@ void ErrorsAnalyzer::fillHistograms()
 
   typedef std::vector<std::pair<lorentzVector,lorentzVector> > MuonPairVector;
   MuonPairVector savedPair;
-  std::vector<std::pair<int, int> > evtRun;
+  std::vector<std::pair<unsigned int, unsigned long long> > evtRun;
   rootTreeHandler.readTree(maxEvents_, treeFileName_, &savedPair, 0, &evtRun);
   // rootTreeHandler.readTree(maxEvents, inputRootTreeFileName_, &savedPair, &(MuScleFitUtils::genPair));
 
