@@ -873,7 +873,7 @@ FWGUIManager::exportImagesOfAllViews()
          if (name.find(ext) == name.npos)
             name += ext;
          // now add format trailing before the extension
-         name.insert(name.rfind('.'), "-%u_%u_%u_%s");
+         name.insert(name.rfind('.'), "-%u_%u_%llu_%s");
          exportAllViews(name);
       }
    }
@@ -884,7 +884,7 @@ void
 FWGUIManager::exportAllViews(const std::string& format)
 {
    // Save all GL views.
-   // Expects format to have "%d %d %d %s" which are replaced with
+   // Expects format to have "%u %u %llu %s" which are replaced with
    //   run-number, event number, lumi block and view-name.
    // Blanks in view-name are removed.
    // If several views shave the same name, they are post-fixed
@@ -1331,21 +1331,36 @@ FWGUIManager::setDelayBetweenEvents(Float_t val)
 
 void FWGUIManager::runIdChanged()
 {
+   if (m_cmsShowMainFrame->m_runEntry->GetUIntNumber() == edm::invalidRunNumber)
+   {
+      m_cmsShowMainFrame->m_runEntry->SetUIntNumber(1);
+   }
+
    m_cmsShowMainFrame->m_lumiEntry->SetText("", kFALSE);
    m_cmsShowMainFrame->m_lumiEntry->SetFocus();
 }
 
 void FWGUIManager::lumiIdChanged()
 {
+   if (m_cmsShowMainFrame->m_lumiEntry->GetUIntNumber() == edm::invalidLuminosityBlockNumber)
+   {
+      m_cmsShowMainFrame->m_lumiEntry->SetUIntNumber(1);
+   }
+
    m_cmsShowMainFrame->m_eventEntry->SetText("", kFALSE);
    m_cmsShowMainFrame->m_eventEntry->SetFocus();
 }
 
 void FWGUIManager::eventIdChanged()
 {
+   if (m_cmsShowMainFrame->m_eventEntry->GetUIntNumber() == edm::invalidEventNumber)
+   {
+      m_cmsShowMainFrame->m_eventEntry->SetULong64Number(1);
+   }
+
    changedEventId_.emit(m_cmsShowMainFrame->m_runEntry->GetUIntNumber(),
                         m_cmsShowMainFrame->m_lumiEntry->GetUIntNumber(),
-                        m_cmsShowMainFrame->m_eventEntry->GetUIntNumber());
+                        m_cmsShowMainFrame->m_eventEntry->GetULong64Number());
 }
 
 void
