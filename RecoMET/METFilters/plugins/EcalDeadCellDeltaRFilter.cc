@@ -268,7 +268,7 @@ void EcalDeadCellDeltaRFilter::envSet(const edm::EventSetup& iSetup) {
   iSetup.get<IdealGeometryRecord>().get(ttMap_);
 
   iSetup.get<EcalChannelStatusRcd> ().get(ecalStatus);
-  iSetup.get<HcalChannelQualityRcd>().get(hcalStatus);
+  iSetup.get<HcalChannelQualityRcd>().get("withTopo",hcalStatus);
   iSetup.get<CaloGeometryRecord>   ().get(geometry);
 
   if( !ecalStatus.isValid() )  throw "Failed to get ECAL channel status!";

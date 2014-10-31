@@ -659,11 +659,8 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const& ev, edm::EventSetup const& c
 
   // HCAL channel status map ****************************************
   edm::ESHandle<HcalChannelQuality> hcalChStatus;
-  c.get<HcalChannelQualityRcd>().get( hcalChStatus );
+  c.get<HcalChannelQualityRcd>().get( "withTopo", hcalChStatus );
   theHcalChStatus = hcalChStatus.product();
-  edm::ESHandle<HcalTopology> topo;
-  c.get<IdealGeometryRecord>().get(topo);
-  if (!theHcalChStatus->topo()) theHcalChStatus->setTopo(topo.product());
 
   // Assignment of severity levels **********************************
   edm::ESHandle<HcalSeverityLevelComputer> hcalSevLvlComputerHndl;

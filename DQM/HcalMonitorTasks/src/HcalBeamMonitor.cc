@@ -432,8 +432,8 @@ void HcalBeamMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
   // Get Channel quality info for the run
   // Exclude bad channels from overall calculation
   edm::ESHandle<HcalChannelQuality> p;
-  c.get<HcalChannelQualityRcd>().get(p);
-  HcalChannelQuality* chanquality = new HcalChannelQuality(*p.product());
+  c.get<HcalChannelQualityRcd>().get("withTopo",p);
+  const HcalChannelQuality* chanquality = p.product();
   std::vector<DetId> mydetids = chanquality->getAllChannels();
   
   for (unsigned int i=0;i<mydetids.size();++i)
@@ -446,20 +446,19 @@ void HcalBeamMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
 	  (id.depth()==2 && (abs(id.ieta())==35 || abs(id.ieta())==36)))
 	{
 	  const HcalChannelStatus* origstatus=chanquality->getValues(id);
-	  HcalChannelStatus* mystatus=new HcalChannelStatus(origstatus->rawId(),origstatus->getValue());
-	  if (mystatus->isBitSet(HcalChannelStatus::HcalCellHot)) 
+	  HcalChannelStatus mystatus(origstatus->rawId(),origstatus->getValue());
+	  if (mystatus.isBitSet(HcalChannelStatus::HcalCellHot)) 
 	    BadCells_[id]=HcalChannelStatus::HcalCellHot;
 	  
-	  else if (mystatus->isBitSet(HcalChannelStatus::HcalCellDead))
+	  else if (mystatus.isBitSet(HcalChannelStatus::HcalCellDead))
 	    BadCells_[id]=HcalChannelStatus::HcalCellDead;
 	  
-	  if (mystatus->isBitSet(HcalChannelStatus::HcalCellHot) || 
-	      mystatus->isBitSet(HcalChannelStatus::HcalCellDead))
+	  if (mystatus.isBitSet(HcalChannelStatus::HcalCellHot) || 
+	      mystatus.isBitSet(HcalChannelStatus::HcalCellDead))
 	    {
 	      if (id.depth()==1) --ring1totalchannels_;
 	      else if (id.depth()==2) --ring2totalchannels_;
 	    }
-	  delete mystatus;
 	} // if ((id.depth()==1) ...
     } // for (unsigned int i=0;...)
     
