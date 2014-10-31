@@ -1,13 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-DisplacedDimuonPSet = cms.PSet(
+DisplacedDimuonDijetPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
-        "HLT_DoubleMu33NoFiltersNoVtx_v", # Run2
-        "HLT_DoubleMu38NoFiltersNoVtx_v"  # Run2
-        "HLT_DoubleMu23NoFiltersNoVtxDisplaced_v", # Run2
-        "HLT_DoubleMu28NoFiltersNoVtxDisplaced_v", # Run2
+        "HLT_DoubleDisplacedMu8NoFilters_DisplacedDijet60_v"
         ),
     recMuonLabel  = cms.InputTag("muons"),
+    recPFJetLabel = cms.InputTag("ak4PFJets"),
     # -- Analysis specific cuts
     minCandidates = cms.uint32(2),
     # -- Analysis specific binnings
