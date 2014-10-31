@@ -178,8 +178,7 @@ int PixelBarrelName::convertLadderNumber(int oldLadder) {
 
 // constructor from name string
 PixelBarrelName::PixelBarrelName(std::string name) 
-  : PixelModuleName(true), thePart(mO), theLayer(0),
-    theModule(0), theLadder(0) {
+  : PixelModuleName(true), PixelBarrelNameBase(mO, 0, 0, 0) {
 
   // parse the name string
   // first, check to make sure this is an BPix name, should start with "BPix_"

@@ -22,9 +22,6 @@ public:
   /// ladder id (index in phi)
   int ladderName() const {return pixelBarrelNameBase->ladderName();}
 
-  /// sector id
-  int sectorName() const {return pixelBarrelNameBase->sectorName();}
-
   /// full or half module
   bool isHalfModule() const {return pixelBarrelNameBase->isHalfModule();}
 

@@ -5,7 +5,6 @@
  * Module name (as in PixelDatabase) in barrel
  */
 
-#include "DataFormats/SiPixelDetId/interface/PixelModuleName.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
@@ -26,7 +25,7 @@ public:
   /// ctor for defined name with dummy parameters
  PixelBarrelName(Shell shell=mO, int layer=0, int module=0, int ladder=0, bool phase=false)
    : PixelModuleName(true), 
-    thePart(shell), theLayer(layer), theModule(module), theLadder(ladder), phase1(phase) 
+     PixelBarrelNameBase(shell, layer, module, ladder, phase) 
   { }
 
   /// ctor from name string
@@ -38,17 +37,6 @@ public:
 
   /// from base class
   virtual std::string name() const;
-
-  Shell shell() const { return thePart; }
-
-  /// layer id 
-  int layerName() const { return theLayer; }   
-
-  /// module id (index in z) 
-  int moduleName() const { return theModule; }  
-
-  /// ladder id (index in phi) 
-  int ladderName() const { return theLadder; } 
 
   /// sector id
   int sectorName() const;
@@ -67,10 +55,7 @@ public:
   virtual bool operator== (const PixelModuleName &) const;
 
 private:
-  Shell thePart;
-  int theLayer, theModule, theLadder;
   bool phase1;
 };
 
-std::ostream & operator<<( std::ostream& out, const PixelBarrelNameBase::Shell& t);
 #endif
