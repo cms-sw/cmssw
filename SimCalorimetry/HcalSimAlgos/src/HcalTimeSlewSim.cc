@@ -57,7 +57,8 @@ void HcalTimeSlewSim::delay(CaloSamples & samples, CLHEP::HepRandomEngine* engin
 
       if(totalCharge <= 0.) totalCharge = 1.e-6; // protecion against negaive v.
       double delay = HcalTimeSlew::delay(totalCharge, biasSetting);
-      // now, the smearing still remains
+      // now, the smearing removed
+      /*
       const HcalSimParameters& params=static_cast<const HcalSimParameters&>(theParameterMap->simParameters(detId));
       if (params.doTimeSmear()) {
 	double rms=params.timeSmearRMS(totalCharge);
@@ -66,7 +67,7 @@ void HcalTimeSlewSim::delay(CaloSamples & samples, CLHEP::HepRandomEngine* engin
 	LogDebug("HcalTimeSlewSim") << "TimeSmear charge " << totalCharge << " rms " << rms << " delay " << delay << " smearns " << smearns;
 	delay+=smearns;
       }
-      
+      */
       // samples.offsetTime(delay);  -> replacing it with 1TS move 
 
       double t = i*25. - delay;
