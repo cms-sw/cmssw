@@ -145,11 +145,11 @@ hltHiggsPostHtaunu.efficiencyProfile = efficiency_strings
 
 #Specific plots for VBFHbb  
 #dEtaqq, mqq, dPhibb, CVS1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
-NminOneCutNames = ("EffdEtaqq", "Effmqq", "EffdPhibb", "EffCSV1", "EffmaxCSV", "", "TurnOn1", "TurnOn2", "TurnOn3", "TurnOn4")
+NminOneCutNames = ("EffdEtaqq", "Effmqq", "EffdPhibb", "EffCSV1", "EffmaxCSV", "", "", "TurnOn1", "TurnOn2", "TurnOn3", "TurnOn4")
 plot_types = ["EffEta", "EffPhi"]
 NminOneCuts = (_config.__getattribute__("VBFHbb")).__getattribute__("NminOneCuts")
 if NminOneCuts: 
-    for iCut in range(0,len(NminOneCuts)-1):
+    for iCut in range(0,len(NminOneCuts)):
         if( NminOneCuts[iCut] and NminOneCutNames[iCut] ):
             if( NminOneCutNames[iCut] == "EffmaxCSV" ):
                 plot_types.pop()
@@ -172,7 +172,7 @@ hltHiggsPostVBFHbb.efficiencyProfile = efficiency_strings
 plot_types = ["EffEta", "EffPhi"]
 NminOneCuts = (_config.__getattribute__("ZnnHbb")).__getattribute__("NminOneCuts")
 if NminOneCuts: 
-    for iCut in range(0,len(NminOneCuts)-1):
+    for iCut in range(0,len(NminOneCuts)):
         if( NminOneCuts[iCut] and NminOneCutNames[iCut] ):
             plot_types.append(NminOneCutNames[iCut])
     
