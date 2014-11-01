@@ -37,7 +37,7 @@ template <class Digi>
 class HcalDataFrameContainer : protected edm::DataFrameContainer {
 public:
   HcalDataFrameContainer() { }
-  HcalDataFrameContainer(int nsamples_per_digi) { }
+  HcalDataFrameContainer(int nsamples_per_digi) : edm::DataFrameContainer(nsamples_per_digi*Digi::WORDS_PER_SAMPLE+Digi::HEADER_WORDS) { }
 
   int size() const { return int(edm::DataFrameContainer::size()); }
   Digi operator[](size_type i) const { return Digi(edm::DataFrameContainer::operator[](i));}
