@@ -3,16 +3,20 @@
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/Common/interface/DataFrame.h"
+#include <ostream>
 
 /** Precision readout digi from QIE10 including TDC information
 
  */
-class QIE10DataFrame {
+class QIE10DataFrame : protected edm::DataFrame {
 public:
 
-  inline QIE10DataFrame() { }
-  inline QIE10DataFrame(const edm::DataFrameContainer& c, edm::DataFrame::size_type i) : frame_(c,i) { }
-  inline QIE10DataFrame(edm::DataFrame df) : frame_(df) { }
+  static const int WORDS_PER_SAMPLE = 2;
+  static const int HEADER_WORDS = 1;
+
+  QIE10DataFrame() { }
+  QIE10DataFrame(const edm::DataFrameContainer& c, edm::DataFrame::size_type i) : edm::DataFrame(c,i) { }
+  QIE10DataFrame(edm::DataFrame df) : edm::DataFrame(df) { }
 
   class Sample {
   public:
@@ -29,21 +33,21 @@ public:
   };
 
   /// Get the detector id
-  DetId detid() const { return DetId(frame_.id()); }
+  DetId detid() const { return DetId(id()); }
   /// total number of samples in the digi
-  int samples() const { return (frame_.size()-1)/2; }
+  int samples() const { return (size()-1)/2; }
   /// was there a link error?
-  bool linkError() const { return frame_[0]&0x800; } 
+  bool linkError() const { return edm::DataFrame::operator[](0)&0x800; } 
   /// was this a mark-and-pass ZS event?  
-  bool wasMarkAndPass() const {return frame_[0]&0x100; }
+  bool wasMarkAndPass() const {return edm::DataFrame::operator[](0)&0x100; }
   /// get the sample
-  inline Sample operator[](edm::DataFrame::size_type i) const { return Sample(frame_,i*2+1); }
+  inline Sample operator[](edm::DataFrame::size_type i) const { return Sample(*this,i*2+1); }
   /// set the sample contents
   void setSample(edm::DataFrame::size_type isample, int adc, int le_tdc, int fe_tdc, int capid, bool soi=false, bool ok=true);
 
-private:
-  edm::DataFrame frame_;
 };
+
+std::ostream& operator<<(std::ostream&, const QIE10DataFrame&);
 
 
 #endif // DATAFORMATS_HCALDIGI_QIE10DATAFRAME_H
