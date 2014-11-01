@@ -62,7 +62,36 @@ public:
   
     GlobalErrorBaseExtended(const AlgebraicSymMatrix66 & err) : 
       theCartesianError(err) { }
-  
+
+    GlobalErrorBaseExtended(const AlgebraicSymMatrix33 & err) {
+     theCartesianError(0,0)=err[0][0];
+     theCartesianError(1,0)=err[1][0];
+     theCartesianError(2,0)=err[2][0];
+     theCartesianError(3,0)=0;
+     theCartesianError(4,0)=0;
+     theCartesianError(5,0)=0;
+
+     theCartesianError(1,1)=err[1][1];
+     theCartesianError(2,1)=err[2][1];
+     theCartesianError(3,1)=0;
+     theCartesianError(4,1)=0;
+     theCartesianError(5,1)=0;
+
+     theCartesianError(2,2)=err[2][2];
+     theCartesianError(3,2)=0;
+     theCartesianError(4,2)=0;
+     theCartesianError(5,2)=0;
+
+     theCartesianError(3,3)=0;
+     theCartesianError(4,3)=0;
+     theCartesianError(5,3)=0;
+
+     theCartesianError(4,4)=0;
+     theCartesianError(5,4)=0;
+
+     theCartesianError(5,5)=0;
+    }
+ 
   ~GlobalErrorBaseExtended() {}
 
   T cxx() const {
