@@ -179,6 +179,10 @@ HLT_Ele33_CaloId_TrackId_Iso_PFJet30_v*				# JIRA: CMSHLT-129
 HLT_MET75_IsoTrk50_v*						# JIRA: CMSHLT-130
 HLT_MET90_IsoTrk50_v*						# JIRA: CMSHLT-130
 
+#HLT_Ele35_eta2p1_WP85_Gsf_v*					# JIRA: CMSHLT-130
+#HLT_Ele40_eta2p1_WP85_Gsf_v*					# JIRA: CMSHLT-130
+#HLT_Ele25_eta2p1_WP85_Gsf_PFMET80_boostedW_v*			# JIRA: CMSHLT-130
+
 HLT_ZeroBias_v*							# JIRA: CMSHLT-117
 
 HLT_Physics_v*							# skim
