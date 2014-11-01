@@ -40,9 +40,11 @@ def compare_bx_vector(xs, ys):
             yield x, y
 
         for j in range(min(x_size, 0), x_size):
-            print ">>>> Add Pt:", xs.at(bx, j).hwPt()
-            print ">>>> Add Eta:", xs.at(bx, j).hwEta()
-            print ">>>> Add Qual:", xs.at(bx, j).hwQual()
+            x = xs.at(bx, j)
+            y = ys.at(bx, j)
+            print ">>>> ({0} @ {1}, {2} : {3} - {4}) vs ({5} @ {6}, {7} : {8} - {9})".format(
+                    x.hwPt(), x.hwEta(), x.hwPhi(), x.hwQual(), x.hwIso(),
+                    y.hwPt(), y.hwEta(), y.hwPhi(), y.hwQual(), y.hwIso())
 
         print "<< Compared", x_size, "quantities"
 
@@ -62,23 +64,24 @@ taus_out = Handle('BXVector<l1t::Tau>')
 
 # in_label = "Layer2Phys"
 in_label = ("caloStage1FinalDigis", "")
+tau_label = ("caloStage1FinalDigis", "isoTaus")
 out_label = "l1tRawToDigi"
 
 for event in events:
     print "< New event"
-    # event.getByLabel(in_label, egammas_in)
+    event.getByLabel(in_label, egammas_in)
     # event.getByLabel(in_label, etsums_in)
     event.getByLabel(in_label, jets_in)
-    # event.getByLabel(in_label, taus_in)
+    event.getByLabel(tau_label, taus_in)
 
-    # event.getByLabel(out_label, egammas_out)
+    event.getByLabel(out_label, egammas_out)
     # event.getByLabel(out_label, etsums_out)
     event.getByLabel(out_label, jets_out)
-    # event.getByLabel(out_label, taus_out)
+    event.getByLabel(out_label, taus_out)
 
-    # print "Checking egammas"
-    # for a, b in compare_bx_vector(egammas_in.product(), egammas_out.product()):
-    #     pass
+    print "Checking egammas"
+    for a, b in compare_bx_vector(egammas_in.product(), egammas_out.product()):
+        pass
 
     # print "Checking etsums"
     # for a, b in compare_bx_vector(etsums_in.product(), etsums_out.product()):
@@ -89,6 +92,6 @@ for event in events:
     for a, b in compare_bx_vector(jets_in.product(), jets_out.product()):
         pass
 
-    # print "Checking taus"
-    # for a, b in compare_bx_vector(taus_in.product(), taus_out.product()):
-    #     pass
+    print "Checking taus"
+    for a, b in compare_bx_vector(taus_in.product(), taus_out.product()):
+        pass

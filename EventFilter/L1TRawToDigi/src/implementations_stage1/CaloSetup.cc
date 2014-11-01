@@ -23,10 +23,12 @@ namespace l1t {
                   // Use amc id 1 for packing
                   res[1] = {
                      /* PackerFactory::get()->make("stage1::CaloTowerPacker"), */
-                     /* PackerFactory::get()->make("stage1::EGammaPacker"), */
+                     PackerFactory::get()->make("stage1::IsoEGammaPacker"),
+                     PackerFactory::get()->make("stage1::NonIsoEGammaPacker"),
                      /* PackerFactory::get()->make("stage1::EtSumPacker"), */
-                     PackerFactory::get()->make("stage1::JetPacker"),
-                     /* PackerFactory::get()->make("stage1::TauPacker") */
+                     PackerFactory::get()->make("stage1::CentralJetPacker"),
+                     PackerFactory::get()->make("stage1::ForwardJetPacker"),
+                     PackerFactory::get()->make("stage1::TauPacker")
                   };
                }
 
@@ -47,17 +49,21 @@ namespace l1t {
 
             virtual UnpackerMap getUnpackers(int fed, int amc, int fw) override {
                auto tower_unp = UnpackerFactory::get()->make("stage1::CaloTowerUnpacker");
-               auto egamma_unp = UnpackerFactory::get()->make("stage1::EGammaUnpacker");
+               auto iegamma_unp = UnpackerFactory::get()->make("stage1::IsoEGammaUnpacker");
+               auto niegamma_unp = UnpackerFactory::get()->make("stage1::NonIsoEGammaUnpacker");
                auto etsum_unp = UnpackerFactory::get()->make("stage1::EtSumUnpacker");
-               auto jet_unp = UnpackerFactory::get()->make("stage1::JetUnpacker");
+               auto cjet_unp = UnpackerFactory::get()->make("stage1::CentralJetUnpacker");
+               auto fjet_unp = UnpackerFactory::get()->make("stage1::ForwardJetUnpacker");
                auto tau_unp = UnpackerFactory::get()->make("stage1::TauUnpacker");
 
                UnpackerMap res;
                if (fed == 1) {
-                  /* res[1] = egamma_unp; */
+                  res[1] = iegamma_unp;
+                  res[2] = niegamma_unp;
                   /* res[3] = etsum_unp; */
-                  res[3] = jet_unp;
-                  /* res[7] = tau_unp; */
+                  res[3] = cjet_unp;
+                  res[4] = fjet_unp;
+                  res[5] = tau_unp;
                }
 
                return res;

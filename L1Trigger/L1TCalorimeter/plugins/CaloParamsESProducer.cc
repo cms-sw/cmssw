@@ -94,6 +94,12 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setEgSeedThreshold(conf.getParameter<double>("egSeedThreshold"));
   m_params.setEgNeighbourThreshold(conf.getParameter<double>("egNeighbourThreshold"));
   m_params.setEgHcalThreshold(conf.getParameter<double>("egHcalThreshold"));
+
+  edm::FileInPath egTrimmingLUTFile = conf.getParameter<edm::FileInPath>("egTrimmingLUTFile");
+  std::ifstream egTrimmingLUTStream(egTrimmingLUTFile.fullPath());
+  std::shared_ptr<l1t::LUT> egTrimmingLUT( new l1t::LUT(egTrimmingLUTStream) );
+  m_params.setEgTrimmingLUT(egTrimmingLUT);
+
   m_params.setEgMaxHcalEt(conf.getParameter<double>("egMaxHcalEt"));
   m_params.setEgEtToRemoveHECut(conf.getParameter<double>("egEtToRemoveHECut"));
   m_params.setEgRelativeJetIsolationBarrelCut(conf.getParameter<double>("egRelativeJetIsolationBarrelCut"));

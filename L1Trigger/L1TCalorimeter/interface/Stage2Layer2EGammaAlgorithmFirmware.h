@@ -28,6 +28,9 @@ namespace l1t {
 			      std::vector<EGamma> & egammas);
     
   private:
+    // trimming
+    l1t::CaloCluster trimCluster(const l1t::CaloCluster& clus);
+    unsigned int trimmingLutIndex(unsigned int shape, int iEta);
     // identification
     bool idHOverE(const l1t::CaloCluster& clus);
     unsigned int idHOverELutIndex(int iEta);

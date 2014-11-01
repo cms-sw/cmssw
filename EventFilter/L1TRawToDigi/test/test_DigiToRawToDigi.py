@@ -69,6 +69,7 @@ process.MessageLogger = cms.Service(
 process.load("EventFilter.L1TRawToDigi.l1tDigiToRaw_cfi")
 process.l1tDigiToRaw.Setup = cms.string("stage1::CaloSetup")
 process.l1tDigiToRaw.InputLabel = cms.InputTag("caloStage1FinalDigis", "")
+process.l1tDigiToRaw.TauInputLabel = cms.InputTag("caloStage1FinalDigis", "isoTaus")
 process.load("EventFilter.L1TRawToDigi.l1tRawToDigi_cfi")
 process.l1tRawToDigi.Setup = cms.string("stage1::CaloSetup")
 
