@@ -45,9 +45,9 @@ class CaloParamsESProducer : public edm::ESProducer {
 public:
   CaloParamsESProducer(const edm::ParameterSet&);
   ~CaloParamsESProducer();
-  
+
   typedef boost::shared_ptr<CaloParams> ReturnType;
-  
+
   ReturnType produce(const L1TCaloParamsRcd&);
 
 private:
@@ -68,12 +68,12 @@ private:
 //
 CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
 {
-  
+
   //the following line is needed to tell the framework what
   // data is being produced
   setWhatProduced(this);
   //setWhatProduced(this, conf.getParameter<std::string>("label"));
-  
+
   // towers
   m_params.setTowerLsbH(conf.getParameter<double>("towerLsbH"));
   m_params.setTowerLsbE(conf.getParameter<double>("towerLsbE"));
@@ -88,7 +88,7 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setRegionLsb(conf.getParameter<double>("regionLsb"));
   m_params.setRegionPUSType(conf.getParameter<std::string>("regionPUSType"));
   m_params.setRegionPUSParams(conf.getParameter<std::vector<double> >("regionPUSParams"));
-    
+
   // EG
   m_params.setEgLsb(conf.getParameter<double>("egLsb"));
   m_params.setEgSeedThreshold(conf.getParameter<double>("egSeedThreshold"));
@@ -98,6 +98,11 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setEgEtToRemoveHECut(conf.getParameter<double>("egEtToRemoveHECut"));
   m_params.setEgRelativeJetIsolationBarrelCut(conf.getParameter<double>("egRelativeJetIsolationBarrelCut"));
   m_params.setEgRelativeJetIsolationEndcapCut(conf.getParameter<double>("egRelativeJetIsolationEndcapCut"));
+  m_params.setEgMinPtRelativeJetIsolation(conf.getParameter<int>("egMinPtRelativeJetIsolation"));
+  m_params.setEgMaxPtRelativeJetIsolation(conf.getParameter<int>("egMaxPtRelativeJetIsolation"));
+  m_params.setEgMinPt3x3HoE(conf.getParameter<int>("egMinPt3x3HoE"));
+  m_params.setEgMaxPt3x3HoE(conf.getParameter<int>("egMaxPt3x3HoE"));
+
 
   edm::FileInPath egMaxHOverELUTFile = conf.getParameter<edm::FileInPath>("egMaxHOverELUTFile");
   std::ifstream egMaxHOverELUTStream(egMaxHOverELUTFile.fullPath());
@@ -110,11 +115,22 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setEgShapeIdLUT(egShapeIdLUT);
 
   m_params.setEgIsoPUSType(conf.getParameter<std::string>("egIsoPUSType"));
-  
+
   edm::FileInPath egIsoLUTFile = conf.getParameter<edm::FileInPath>("egIsoLUTFile");
   std::ifstream egIsoLUTStream(egIsoLUTFile.fullPath());
   std::shared_ptr<l1t::LUT> egIsoLUT( new l1t::LUT(egIsoLUTStream) );
   m_params.setEgIsolationLUT(egIsoLUT);
+
+  edm::FileInPath egIsoLUTFileBarrel = conf.getParameter<edm::FileInPath>("egIsoLUTFileBarrel");
+  std::ifstream egIsoLUTBarrelStream(egIsoLUTFileBarrel.fullPath());
+  std::shared_ptr<l1t::LUT> egIsoLUTBarrel( new l1t::LUT(egIsoLUTBarrelStream) );
+  m_params.setEgIsolationLUTBarrel(egIsoLUTBarrel);
+
+  edm::FileInPath egIsoLUTFileEndcaps = conf.getParameter<edm::FileInPath>("egIsoLUTFileEndcaps");
+  std::ifstream egIsoLUTEndcapsStream(egIsoLUTFileEndcaps.fullPath());
+  std::shared_ptr<l1t::LUT> egIsoLUTEndcaps( new l1t::LUT(egIsoLUTEndcapsStream) );
+  m_params.setEgIsolationLUTEndcaps(egIsoLUTEndcaps);
+
 
   m_params.setEgIsoAreaNrTowersEta(conf.getParameter<unsigned int>("egIsoAreaNrTowersEta"));
   m_params.setEgIsoAreaNrTowersPhi(conf.getParameter<unsigned int>("egIsoAreaNrTowersPhi"));
@@ -127,7 +143,7 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   std::ifstream egCalibrationLUTStream(egCalibrationLUTFile.fullPath());
   std::shared_ptr<l1t::LUT> egCalibrationLUT( new l1t::LUT(egCalibrationLUTStream) );
   m_params.setEgCalibrationLUT(egCalibrationLUT);
-  
+
   // tau
   m_params.setTauLsb(conf.getParameter<double>("tauLsb"));
   m_params.setTauSeedThreshold(conf.getParameter<double>("tauSeedThreshold"));
@@ -171,6 +187,8 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setTauCalibrationLUTEndcapsB(tauCalibrationLUTEndcapsB);
   m_params.setTauCalibrationLUTEndcapsC(tauCalibrationLUTEndcapsC);
   m_params.setTauCalibrationLUTEta(tauCalibrationLUTEta);
+  m_params.setIsoTauThresholds(conf.getParameter<std::vector<double> >("isoTauThresholds"));
+  m_params.setDiIsoTauThresholds(conf.getParameter<std::vector<double> >("diIsoTauThresholds"));
 
   // jets
   m_params.setJetLsb(conf.getParameter<double>("jetLsb"));
@@ -179,14 +197,14 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setJetPUSType(conf.getParameter<std::string>("jetPUSType"));
   m_params.setJetCalibrationType(conf.getParameter<std::string>("jetCalibrationType"));
   m_params.setJetCalibrationParams(conf.getParameter<std::vector<double> >("jetCalibrationParams"));
-  
+
   // sums
   m_params.setEtSumLsb(conf.getParameter<double>("etSumLsb"));
 
   std::vector<int> etSumEtaMin = conf.getParameter<std::vector<int> >("etSumEtaMin");
   std::vector<int> etSumEtaMax = conf.getParameter<std::vector<int> >("etSumEtaMax");
   std::vector<double> etSumEtThreshold = conf.getParameter<std::vector<double> >("etSumEtThreshold");
-  
+
   if ((etSumEtaMin.size() == etSumEtaMax.size()) &&  (etSumEtaMin.size() == etSumEtThreshold.size())) {
     for (unsigned i=0; i<etSumEtaMin.size(); ++i) {
       m_params.setEtSumEtaMin(i, etSumEtaMin.at(i));
@@ -198,12 +216,25 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
     edm::LogError("l1t|calo") << "Inconsistent number of EtSum parameters" << std::endl;
   }
 
+  // HI centrality trigger
+  edm::FileInPath centralityLUTFile = conf.getParameter<edm::FileInPath>("centralityLUTFile");
+  std::ifstream centralityLUTStream(centralityLUTFile.fullPath());
+  std::shared_ptr<l1t::LUT> centralityLUT( new l1t::LUT(centralityLUTStream) );
+  m_params.setCentralityLUT(centralityLUT);
+
+  // HI Q2 trigger
+  edm::FileInPath q2LUTFile = conf.getParameter<edm::FileInPath>("q2LUTFile");
+  std::ifstream q2LUTStream(q2LUTFile.fullPath());
+  std::shared_ptr<l1t::LUT> q2LUT( new l1t::LUT(q2LUTStream) );
+  m_params.setQ2LUT(q2LUT);
+
+
 }
 
 
 CaloParamsESProducer::~CaloParamsESProducer()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 

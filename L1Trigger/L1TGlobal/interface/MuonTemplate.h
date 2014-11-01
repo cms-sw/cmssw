@@ -67,6 +67,8 @@ public:
         unsigned int phiHigh;
         unsigned int phiLow;
 
+	int charge;
+
       unsigned int etaWindowLower;
       unsigned int etaWindowUpper;
       unsigned int etaWindowVetoLower;
