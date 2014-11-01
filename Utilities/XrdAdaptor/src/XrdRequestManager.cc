@@ -206,8 +206,10 @@ RequestManager::checkSources(timespec &now, IOSize requestSize)
 
 
 bool
-RequestManager::compareSources(const timespec &now, int a, int b)
+RequestManager::compareSources(const timespec &now, unsigned a, unsigned b)
 {
+  if (m_activeSources.size() < std::max(a, b)+1) {return false;}
+
   bool findNewSource = false;
   if ((m_activeSources[a]->getQuality() > 5130) ||
      ((m_activeSources[a]->getQuality() > 260) && (m_activeSources[b]->getQuality()*4 < m_activeSources[a]->getQuality())))
