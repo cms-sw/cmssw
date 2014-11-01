@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_2_1/HLT/V42 (CMSSW_7_2_1_patch1)
+# /dev/CMSSW_7_2_1/HLT/V43 (CMSSW_7_2_1_patch1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_2_1/HLT/V42')
+  tableName = cms.string('/dev/CMSSW_7_2_1/HLT/V43')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -26423,7 +26423,7 @@ hltPFHT900 = cms.EDFilter( "HLTHtMhtFilter",
     htLabels = cms.VInputTag( 'hltPFHT' ),
     minHt = cms.vdouble( 900.0 )
 )
-hltL1sL1SingleJet52 = cms.EDFilter( "HLTLevel1GTSeed",
+hltL1sL1SingleJet16 = cms.EDFilter( "HLTLevel1GTSeed",
     L1SeedsLogicalExpression = cms.string( "L1_SingleJet52" ),
     saveTags = cms.bool( True ),
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
@@ -26465,6 +26465,18 @@ hltSinglePFJet40 = cms.EDFilter( "HLT1PFJet",
     MinE = cms.double( -1.0 ),
     triggerType = cms.int32( 85 )
 )
+hltL1sL1SingleJet36 = cms.EDFilter( "HLTLevel1GTSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJet52" ),
+    saveTags = cms.bool( True ),
+    L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
+    L1UseL1TriggerObjectMaps = cms.bool( True ),
+    L1UseAliasesForSeeding = cms.bool( True ),
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
+    L1NrBxInEvent = cms.int32( 3 ),
+    L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
+    L1TechTriggerSeeding = cms.bool( False )
+)
 hltPrePFJet60 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
@@ -26494,6 +26506,18 @@ hltSinglePFJet60 = cms.EDFilter( "HLT1PFJet",
     inputTag = cms.InputTag( "hltPFJetsCorrectedMatchedToCaloJets40" ),
     MinE = cms.double( -1.0 ),
     triggerType = cms.int32( 85 )
+)
+hltL1sL1SingleJet52 = cms.EDFilter( "HLTLevel1GTSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJet52" ),
+    saveTags = cms.bool( True ),
+    L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
+    L1UseL1TriggerObjectMaps = cms.bool( True ),
+    L1UseAliasesForSeeding = cms.bool( True ),
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
+    L1NrBxInEvent = cms.int32( 3 ),
+    L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
+    L1TechTriggerSeeding = cms.bool( False )
 )
 hltPrePFJet80 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -26759,18 +26783,6 @@ hltSinglePFJet500 = cms.EDFilter( "HLT1PFJet",
     MinE = cms.double( -1.0 ),
     triggerType = cms.int32( 85 )
 )
-hltL1sL1SingleJet16 = cms.EDFilter( "HLTLevel1GTSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJet16" ),
-    saveTags = cms.bool( True ),
-    L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
-    L1UseL1TriggerObjectMaps = cms.bool( True ),
-    L1UseAliasesForSeeding = cms.bool( True ),
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
-    L1NrBxInEvent = cms.int32( 3 ),
-    L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
-    L1TechTriggerSeeding = cms.bool( False )
-)
 hltPreDiPFJetAve30HFJEC = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
@@ -26804,18 +26816,6 @@ hltDiPFJetAve30ForHFJEC = cms.EDFilter( "HLTDiPFJetAveEtaFilter",
     maxProbeEta = cms.double( 5.5 ),
     minTagEta = cms.double( -1.0 ),
     minDphi = cms.double( 2.5 )
-)
-hltL1sL1SingleJet36 = cms.EDFilter( "HLTLevel1GTSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJet36" ),
-    saveTags = cms.bool( True ),
-    L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
-    L1UseL1TriggerObjectMaps = cms.bool( True ),
-    L1UseAliasesForSeeding = cms.bool( True ),
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
-    L1NrBxInEvent = cms.int32( 3 ),
-    L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
-    L1TechTriggerSeeding = cms.bool( False )
 )
 hltPreDiPFJetAve60HFJEC = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -31549,8 +31549,8 @@ HLT_PFHT750_4Jet_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT150ORHTT175 + hltP
 HLT_PFHT350_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT150ORHTT175 + hltPrePFHT350 + HLTAK4CaloJetsSequence + hltHtMht + hltHt280 + HLTAK4PFJetsSequence + hltPFHT + hltPFHT350 + HLTEndSequence )
 HLT_PFHT600_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT150ORHTT175 + hltPrePFHT600 + HLTAK4CaloJetsSequence + hltHtMht + hltHt500 + HLTAK4PFJetsSequence + hltPFHT + hltPFHT600 + HLTEndSequence )
 HLT_PFHT900_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT150ORHTT175 + hltPrePFHT900 + HLTAK4CaloJetsSequence + hltHtMht + hltHt700 + HLTAK4PFJetsSequence + hltPFHT + hltPFHT900 + HLTEndSequence )
-HLT_PFJet40_v1 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet52 + hltPrePFJet40 + HLTAK4CaloJetsSequence + hltSingleCaloJet20 + HLTAK4PFJetsSequence + hltPFJetsCorrectedMatchedToCaloJets20 + hltSinglePFJet40 + HLTEndSequence )
-HLT_PFJet60_v1 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet52 + hltPrePFJet60 + HLTAK4CaloJetsSequence + hltSingleCaloJet40 + HLTAK4PFJetsSequence + hltPFJetsCorrectedMatchedToCaloJets40 + hltSinglePFJet60 + HLTEndSequence )
+HLT_PFJet40_v1 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet16 + hltPrePFJet40 + HLTAK4CaloJetsSequence + hltSingleCaloJet20 + HLTAK4PFJetsSequence + hltPFJetsCorrectedMatchedToCaloJets20 + hltSinglePFJet40 + HLTEndSequence )
+HLT_PFJet60_v1 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet36 + hltPrePFJet60 + HLTAK4CaloJetsSequence + hltSingleCaloJet40 + HLTAK4PFJetsSequence + hltPFJetsCorrectedMatchedToCaloJets40 + hltSinglePFJet60 + HLTEndSequence )
 HLT_PFJet80_v1 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet52 + hltPrePFJet80 + HLTAK4CaloJetsSequence + hltSingleCaloJet50 + HLTAK4PFJetsSequence + hltPFJetsCorrectedMatchedToCaloJets50 + hltSinglePFJet80 + HLTEndSequence )
 HLT_PFJet140_v1 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet92 + hltPrePFJet140 + HLTAK4CaloJetsSequence + hltSingleCaloJet110 + HLTAK4PFJetsSequence + hltPFJetsCorrectedMatchedToCaloJets110 + hltSinglePFJet140 + HLTEndSequence )
 HLT_PFJet200_v1 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet128 + hltPrePFJet200 + HLTAK4CaloJetsSequence + hltSingleCaloJet170 + HLTAK4PFJetsSequence + hltPFJetsCorrectedMatchedToCaloJets170 + hltSinglePFJet200 + HLTEndSequence )
