@@ -124,6 +124,10 @@ namespace edm {
       }
     }
 
+    if(name == "void") {
+      return TypeWithDict(typeid(void), property);
+    }
+
     TEnum* theEnum = TEnum::GetEnum(name.c_str(), TEnum::kAutoload);
     if(theEnum) {
       return TypeWithDict(theEnum, name, property);
@@ -268,6 +272,9 @@ namespace edm {
       // Must be a class, struct, or union.
       class_ = TClass::GetClass(*ti_);
     }
+    if (gInterpreter->Type_IsEnum(ttype)) {
+      enum_ = TEnum::GetEnum(*ti_, TEnum::kAutoload);
+    }
   }
 
   TypeWithDict::operator bool() const {
@@ -283,6 +290,10 @@ namespace edm {
 
   std::type_info const&
   TypeWithDict::typeInfo() const {
+    if(isEnum() && *ti_ == typeid(int)) {
+      TType* ttype = gInterpreter->Type_Factory(name());
+      return *gInterpreter->Type_TypeInfo(ttype);
+    }
     return *ti_;
   }
 
@@ -414,7 +425,7 @@ namespace edm {
 
   std::string
   TypeWithDict::name() const {
-    if(enum_ != nullptr) {
+    if(enum_ != nullptr && *ti_ == typeid(int)) {
       return std::string(enum_->GetClass()->GetName()) + "::" + enum_->GetName();
     }
     return TypeID(*ti_).className();
