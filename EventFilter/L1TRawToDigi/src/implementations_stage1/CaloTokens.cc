@@ -16,6 +16,7 @@ namespace l1t {
          etSumToken_ = cc.consumes<EtSumBxCollection>(tag);
          jetToken_ = cc.consumes<JetBxCollection>(tag);
          tauToken_ = cc.consumes<TauBxCollection>(tautag);
+         calospareToken_ = cc.consumes<CaloSpareBxCollection>(tag);
       }
    }
 }
