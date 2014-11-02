@@ -160,7 +160,7 @@ void ApeSettingAlgorithm::initialize(const edm::EventSetup &setup,
 	       }
 	     else
 	       {
-                 if (!readLocalNotGlobal_ || readFullLocalMatrix_)
+                 if (readFullLocalMatrix_)
 		    globErr = GlobalErrorExtended(x11,x21,x31,0,0,0,x22,x32,0,0,0,x33,0,0,0,0,0,0,0,0,0);
                  else {
                     globErr = GlobalErrorExtended(x11,0,0,0,0,0,x22,0,0,0,0,x33,0,0,0,0,0,0,0,0,0);
@@ -232,6 +232,3 @@ void ApeSettingAlgorithm::run(const edm::EventSetup &setup, const EventInfo &eve
 // Plugin definition for the algorithm
 DEFINE_EDM_PLUGIN(AlignmentAlgorithmPluginFactory,
 		   ApeSettingAlgorithm, "ApeSettingAlgorithm");
-
-
-
