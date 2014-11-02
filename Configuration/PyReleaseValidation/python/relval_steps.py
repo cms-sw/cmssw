@@ -1300,12 +1300,10 @@ upgradeStepDict={}
 for step in upgradeSteps:
     upgradeStepDict[step]={}
 
-print PUDataSets
 # just make all combinations - yes, some will be nonsense.. but then these are not used unless
 # specified above
 for k in upgradeKeys:
     k2=k
-    print k,k2
     if 'PU' in k[-2:]:
         k2=k[:-2]
     geom=upgradeGeoms[k2]
@@ -1342,11 +1340,9 @@ for k in upgradeKeys:
                                       '--geometry' : geom
                                       }
     if cust!=None : upgradeStepDict['DigiFull'][k]['--customise']=cust
-    print k2, PUDataSets,'toto'
     
     if k2 in PUDataSets:
         upgradeStepDict['DigiFullPU'][k]=merge([PUDataSets[k2],upgradeStepDict['DigiFull'][k]])
-	print k2
     upgradeStepDict['DigiTrkTrigFull'][k] = {'-s':'DIGI:pdigi_valid,L1,L1TrackTrigger,DIGI2RAW,RECO:pixeltrackerlocalreco',
                                              '--conditions':gt,
                                              '--datatier':'GEN-SIM-DIGI-RAW',
