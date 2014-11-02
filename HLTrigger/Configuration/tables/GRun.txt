@@ -142,6 +142,11 @@ HLT_DoubleMu38NoFiltersNoVtx_v*					# JIRA: CMSHLT-97
 HLT_Mu38NoFiltersNoVtx_Photon38_CaloIdL_v*			# JIRA: CMSHLT-97, updated by CMSHLT-124
 HLT_Mu42NoFiltersNoVtx_Photon42_CaloIdL_v*			# JIRA: CMSHLT-97, updated by CMSHLT-124
 
+#HLT_DoubleMu23NoFiltersNoVtxDisplaced_v*			# JIRA: CMSHLT-140
+#HLT_DoubleMu28NoFiltersNoVtxDisplaced_v*			# JIRA: CMSHLT-140
+#HLT_Mu28NoFiltersNoVtxDisplaced_Photon28_CaloIdL_v*		# JIRA: CMSHLT-140
+#HLT_Mu33NoFiltersNoVtxDisplaced_Photon33_CaloIdL_v*		# JIRA: CMSHLT-140
+
 HLT_Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50_v*		# JIRA: CMSHLT-98
 HLT_Mu40_eta2p1_PFJet200_PFJet50_v*				# JIRA: CMSHLT-98
 
