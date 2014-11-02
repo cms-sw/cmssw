@@ -313,7 +313,7 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
       bool fitStatus = false;
       if(n_above_thr<=5){
          // Set starting values and step sizes for parameters
-         double vstart[3] = {iniTimesArr[i_tsmax-1], tsMAX_NOPED, 0};
+         double vstart[3] = {iniTimesArr[i_tsmax], tsMAX_NOPED, 0};
          double step[3] = {0.1, 0.1, 0.1};
 
          ROOT::Math::Functor spfunctor(&FitterFuncs::singlePulseShapeFunc, 3);
@@ -354,7 +354,7 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
 
          if(n_max==1){
             // Set starting values and step sizes for parameters
-            double vstart[5] = {iniTimesArr[i_tsmax-1], iniTimesArr[first_above_thr_index-1], tsMAX_NOPED, 0, 0};
+            double vstart[5] = {iniTimesArr[i_tsmax], iniTimesArr[first_above_thr_index], tsMAX_NOPED, 0, 0};
             Double_t step[5] = {0.1, 0.1, 0.1, 0.1, 0.1};
 
             hybridfitter->Clear();
@@ -388,7 +388,7 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
            }
         } else if(n_max>=2) {
            // Set starting values and step sizes for parameters
-           double vstart[5] = {iniTimesArr[max_index[0]-1], iniTimesArr[max_index[1]-1], tsMAX_NOPED, 0, 0};
+           double vstart[5] = {iniTimesArr[max_index[0]], iniTimesArr[max_index[1]], tsMAX_NOPED, 0, 0};
            double step[5] = {0.1, 0.1, 0.1, 0.1, 0.1};
 
            hybridfitter->Clear();

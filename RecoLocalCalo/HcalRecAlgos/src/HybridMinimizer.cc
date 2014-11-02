@@ -1,4 +1,16 @@
-// Note copied and modifed from the Minuit2Minimizer to suit our purpose
+// @(#)root/minuit2:$Id$
+// Author: L. Moneta Wed Oct 18 11:48:00 2006
+
+/**********************************************************************
+ *                                                                    *
+ * Copyright (c) 2006  LCG ROOT Math Team, CERN/PH-SFT                *
+ *                                                                    *
+ *                                                                    *
+ **********************************************************************/
+
+// by lhx: Note copied and modifed from the Minuit2Minimizer to suit our purpose
+// Changes mainly to make the SetMinimizerType public so that user can re-new to
+// different minimizer...
 // Implementation file for class HybridMinimizer
 
 #include "RecoLocalCalo/HcalRecAlgos/src/HybridMinimizer.h"
