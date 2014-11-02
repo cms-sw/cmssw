@@ -79,7 +79,7 @@ namespace l1t {
           mht.setHwPt(htmiss);
           mht.setHwPhi(htmissphi);
           mht.setType(l1t::EtSum::kMissingHt);       
-          LogDebug("L1T") << "MHT: phi " << met.hwPhi() << " pT " << met.hwPt();
+          LogDebug("L1T") << "MHT: phi " << mht.hwPhi() << " pT " << mht.hwPt();
           reset_->push_back(bx,mht);       
 
         }
