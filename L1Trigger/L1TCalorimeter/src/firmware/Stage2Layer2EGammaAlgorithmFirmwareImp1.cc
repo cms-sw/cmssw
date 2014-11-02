@@ -30,12 +30,66 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
 							      const std::vector<l1t::CaloTower>& towers,
                     std::vector<l1t::EGamma> & egammas) {
 
+  l1t::CaloStage2Nav caloNav;
   egammas.clear();
   for(size_t clusNr=0;clusNr<clusters.size();clusNr++){
     // Keep only actual clusters
     if(clusters[clusNr].isValid()){ 
 
+      // need tower energies to recompute egamma trimmed energy
+      int iEta = clusters[clusNr].hwEta();
+      int iPhi = clusters[clusNr].hwPhi();
+      int iEtaP  = caloNav.offsetIEta(iEta, 1);
+      int iEtaM  = caloNav.offsetIEta(iEta, -1);
+      int iPhiP  = caloNav.offsetIPhi(iPhi, 1);
+      int iPhiP2 = caloNav.offsetIPhi(iPhi, 2);
+      int iPhiM  = caloNav.offsetIPhi(iPhi, -1);
+      int iPhiM2 = caloNav.offsetIPhi(iPhi, -2);
+      const l1t::CaloTower& seed    = l1t::CaloTools::getTower(towers, iEta , iPhi );
+      const l1t::CaloTower& towerNW = l1t::CaloTools::getTower(towers, iEtaM, iPhiM);
+      const l1t::CaloTower& towerN  = l1t::CaloTools::getTower(towers, iEta , iPhiM);
+      const l1t::CaloTower& towerNE = l1t::CaloTools::getTower(towers, iEtaP, iPhiM);
+      const l1t::CaloTower& towerE  = l1t::CaloTools::getTower(towers, iEtaP, iPhi );
+      const l1t::CaloTower& towerSE = l1t::CaloTools::getTower(towers, iEtaP, iPhiP);
+      const l1t::CaloTower& towerS  = l1t::CaloTools::getTower(towers, iEta , iPhiP);
+      const l1t::CaloTower& towerSW = l1t::CaloTools::getTower(towers, iEtaM, iPhiP);
+      const l1t::CaloTower& towerW  = l1t::CaloTools::getTower(towers, iEtaM, iPhi );
+      const l1t::CaloTower& towerNN = l1t::CaloTools::getTower(towers, iEta , iPhiM2);
+      const l1t::CaloTower& towerSS = l1t::CaloTools::getTower(towers, iEta , iPhiP2);
+      //
+      int seedEt    = seed   .hwEtEm();
+      int towerEtNW = towerNW.hwEtEm();
+      int towerEtN  = towerN .hwEtEm();
+      int towerEtNE = towerNE.hwEtEm();
+      int towerEtE  = towerE .hwEtEm();
+      int towerEtSE = towerSE.hwEtEm();
+      int towerEtS  = towerS .hwEtEm();
+      int towerEtSW = towerSW.hwEtEm();
+      int towerEtW  = towerW .hwEtEm();
+      int towerEtNN = towerNN.hwEtEm();
+      int towerEtSS = towerSS.hwEtEm(); 
+
+      // initialize egamma from cluster
       egammas.push_back(clusters[clusNr]);
+
+      // Trim cluster (only for egamma energy computation, the original cluster is unchanged)
+      l1t::CaloCluster clusterTrim = trimCluster(clusters[clusNr]);
+
+      // Recompute hw energy (of the trimmed cluster) from towers
+      egammas.back().setHwPt(seedEt);
+      if(clusterTrim.checkClusterFlag(CaloCluster::INCLUDE_NW)) egammas.back().setHwPt(egammas.back().hwPt() + towerEtNW);
+      if(clusterTrim.checkClusterFlag(CaloCluster::INCLUDE_N))  egammas.back().setHwPt(egammas.back().hwPt() + towerEtN);
+      if(clusterTrim.checkClusterFlag(CaloCluster::INCLUDE_NE)) egammas.back().setHwPt(egammas.back().hwPt() + towerEtNE);
+      if(clusterTrim.checkClusterFlag(CaloCluster::INCLUDE_E))  egammas.back().setHwPt(egammas.back().hwPt() + towerEtE);
+      if(clusterTrim.checkClusterFlag(CaloCluster::INCLUDE_SE)) egammas.back().setHwPt(egammas.back().hwPt() + towerEtSE);
+      if(clusterTrim.checkClusterFlag(CaloCluster::INCLUDE_S))  egammas.back().setHwPt(egammas.back().hwPt() + towerEtS);
+      if(clusterTrim.checkClusterFlag(CaloCluster::INCLUDE_SW)) egammas.back().setHwPt(egammas.back().hwPt() + towerEtSW);
+      if(clusterTrim.checkClusterFlag(CaloCluster::INCLUDE_W))  egammas.back().setHwPt(egammas.back().hwPt() + towerEtW);
+      if(clusterTrim.checkClusterFlag(CaloCluster::INCLUDE_NN)) egammas.back().setHwPt(egammas.back().hwPt() + towerEtNN);
+      if(clusterTrim.checkClusterFlag(CaloCluster::INCLUDE_SS)) egammas.back().setHwPt(egammas.back().hwPt() + towerEtSS);
+
+
+
 
       // Identification part 
       bool hOverEBit = idHOverE(clusters[clusNr]);
@@ -194,4 +248,52 @@ unsigned int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::calibrationLutIndex(i
 {
   unsigned int iEtaNormed = abs(iEta);
   return iEtaNormed-1;
+}
+
+
+l1t::CaloCluster l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::trimCluster(const l1t::CaloCluster& clus)
+{
+  l1t::CaloCluster clusCopy = clus;
+
+  unsigned int shape = 0;
+  if( (clus.checkClusterFlag(CaloCluster::INCLUDE_N)) ) shape |= (0x1);
+  if( (clus.checkClusterFlag(CaloCluster::INCLUDE_S)) ) shape |= (0x1<<1);
+  if( clus.checkClusterFlag(CaloCluster::TRIM_LEFT)  && (clus.checkClusterFlag(CaloCluster::INCLUDE_E))  ) shape |= (0x1<<2);
+  if( !clus.checkClusterFlag(CaloCluster::TRIM_LEFT) && (clus.checkClusterFlag(CaloCluster::INCLUDE_W))  ) shape |= (0x1<<2);
+  if( clus.checkClusterFlag(CaloCluster::TRIM_LEFT)  && (clus.checkClusterFlag(CaloCluster::INCLUDE_NE)) ) shape |= (0x1<<3);
+  if( !clus.checkClusterFlag(CaloCluster::TRIM_LEFT) && (clus.checkClusterFlag(CaloCluster::INCLUDE_NW)) ) shape |= (0x1<<3);
+  if( clus.checkClusterFlag(CaloCluster::TRIM_LEFT)  && (clus.checkClusterFlag(CaloCluster::INCLUDE_SE)) ) shape |= (0x1<<4);
+  if( !clus.checkClusterFlag(CaloCluster::TRIM_LEFT) && (clus.checkClusterFlag(CaloCluster::INCLUDE_SW)) ) shape |= (0x1<<4);
+  if( clus.checkClusterFlag(CaloCluster::INCLUDE_NN) ) shape |= (0x1<<5);
+  if( clus.checkClusterFlag(CaloCluster::INCLUDE_SS) ) shape |= (0x1<<6);
+
+  unsigned int lutAddress = trimmingLutIndex(shape, clus.hwEta()); 
+  unsigned int shapeTrim = params_->egTrimmingLUT()->data(lutAddress);
+  // apply trimming flags
+  clusCopy.setClusterFlag(CaloCluster::INCLUDE_N,  ( shapeTrim&(0x1) )    ? true : false); 
+  clusCopy.setClusterFlag(CaloCluster::INCLUDE_S,  ( shapeTrim&(0x1<<1) ) ? true : false);
+  clusCopy.setClusterFlag(CaloCluster::INCLUDE_NN, ( shapeTrim&(0x1<<5) ) ? true : false);
+  clusCopy.setClusterFlag(CaloCluster::INCLUDE_SS, ( shapeTrim&(0x1<<6) ) ? true : false);
+  if( clusCopy.checkClusterFlag(CaloCluster::TRIM_LEFT) )
+  {
+      clusCopy.setClusterFlag(CaloCluster::INCLUDE_E,  ( shapeTrim&(0x1<<2) ) ? true : false);
+      clusCopy.setClusterFlag(CaloCluster::INCLUDE_NE, ( shapeTrim&(0x1<<3) ) ? true : false);
+      clusCopy.setClusterFlag(CaloCluster::INCLUDE_SE, ( shapeTrim&(0x1<<4) ) ? true : false);
+  }
+  else
+  {
+      clusCopy.setClusterFlag(CaloCluster::INCLUDE_W,  ( shapeTrim&(0x1<<2) ) ? true : false);
+      clusCopy.setClusterFlag(CaloCluster::INCLUDE_NW, ( shapeTrim&(0x1<<3) ) ? true : false);
+      clusCopy.setClusterFlag(CaloCluster::INCLUDE_SW, ( shapeTrim&(0x1<<4) ) ? true : false);
+  }
+  return clusCopy;
+}
+
+unsigned int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::trimmingLutIndex(unsigned int shape, int iEta)
+{
+  unsigned int iEtaNormed = abs(iEta)-1;
+  if(iEtaNormed>31) iEtaNormed = 31;
+  if(shape>127) shape = 127;
+  unsigned int index = iEtaNormed*128+shape;
+  return index;
 }

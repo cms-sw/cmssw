@@ -6,6 +6,7 @@
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
+#include "DataFormats/L1Trigger/interface/CaloSpare.h"
 
 #include "EventFilter/L1TRawToDigi/interface/UnpackerCollections.h"
 
@@ -19,7 +20,8 @@ namespace l1t {
                egammas_(new EGammaBxCollection()),
                etsums_(new EtSumBxCollection()),
                jets_(new JetBxCollection()),
-               taus_(new TauBxCollection()) {};
+               taus_(new TauBxCollection()),
+               calospare_(new CaloSpareBxCollection()) {};
 
             virtual ~CaloCollections();
 
@@ -28,6 +30,7 @@ namespace l1t {
             inline EtSumBxCollection* getEtSums() { return etsums_.get(); };
             inline JetBxCollection* getJets() { return jets_.get(); };
             inline TauBxCollection* getTaus() { return taus_.get(); };
+            inline CaloSpareBxCollection* getCaloSpare() { return calospare_.get(); };
 
          private:
             std::auto_ptr<CaloTowerBxCollection> towers_;
@@ -35,6 +38,7 @@ namespace l1t {
             std::auto_ptr<EtSumBxCollection> etsums_;
             std::auto_ptr<JetBxCollection> jets_;
             std::auto_ptr<TauBxCollection> taus_;
+            std::auto_ptr<CaloSpareBxCollection> calospare_;
       };
    }
 }

@@ -6,6 +6,8 @@
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
+#include "DataFormats/L1Trigger/interface/CaloSpare.h"
+
 
 #include "EventFilter/L1TRawToDigi/interface/PackerTokens.h"
 
@@ -20,6 +22,7 @@ namespace l1t {
             inline const edm::EDGetTokenT<EtSumBxCollection>& getEtSumToken() const { return etSumToken_; };
             inline const edm::EDGetTokenT<JetBxCollection>& getJetToken() const { return jetToken_; };
             inline const edm::EDGetTokenT<TauBxCollection>& getTauToken() const { return tauToken_; };
+            inline const edm::EDGetTokenT<CaloSpareBxCollection>& getCaloSpareToken() const { return calospareToken_; };
 
          private:
             edm::EDGetTokenT<CaloTowerBxCollection> towerToken_;
@@ -27,6 +30,7 @@ namespace l1t {
             edm::EDGetTokenT<EtSumBxCollection> etSumToken_;
             edm::EDGetTokenT<JetBxCollection> jetToken_;
             edm::EDGetTokenT<TauBxCollection> tauToken_;
+            edm::EDGetTokenT<CaloSpareBxCollection> calospareToken_;
       };
    }
 }

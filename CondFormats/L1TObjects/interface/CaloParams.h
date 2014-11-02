@@ -68,6 +68,7 @@ namespace l1t {
     double egSeedThreshold() const { return egSeedThreshold_; }
     double egNeighbourThreshold() const { return egNeighbourThreshold_; }
     double egHcalThreshold() const { return egHcalThreshold_; }
+    l1t::LUT* egTrimmingLUT() { return egTrimmingLUT_.get(); }
     double egMaxHcalEt() const { return egMaxHcalEt_; }
     double egEtToRemoveHECut() const {return egEtToRemoveHECut_;}
     l1t::LUT* egMaxHOverELUT() { return egMaxHOverELUT_.get(); }
@@ -97,6 +98,7 @@ namespace l1t {
     void setEgSeedThreshold(double thresh) { egSeedThreshold_ = thresh; }
     void setEgNeighbourThreshold(double thresh) { egNeighbourThreshold_ = thresh; }
     void setEgHcalThreshold(double thresh) { egHcalThreshold_ = thresh; }
+    void setEgTrimmingLUT(std::shared_ptr<LUT> lut) { egTrimmingLUT_ = lut; }
     void setEgMaxHcalEt(double cut) { egMaxHcalEt_ = cut; }
     void setEgEtToRemoveHECut(double thresh) { egEtToRemoveHECut_ = thresh;}
     void setEgMaxHOverELUT(std::shared_ptr<LUT> lut) { egMaxHOverELUT_ = lut; }
@@ -276,6 +278,9 @@ namespace l1t {
 
     // Et threshold on HCAL for H/E computation
     double egHcalThreshold_;
+
+    // EG Trimmed shapes (indexed by |ieta|, shape)
+    std::shared_ptr<l1t::LUT> egTrimmingLUT_;
 
     // EG maximum value of HCAL Et
     double egMaxHcalEt_;

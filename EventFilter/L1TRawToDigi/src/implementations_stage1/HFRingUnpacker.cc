@@ -6,7 +6,7 @@
 
 namespace l1t {
   namespace stage1 {
-    class EtSumUnpacker : public Unpacker {
+    class HFRingUnpacker : public Unpacker {
       public:
         virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
     };
@@ -18,7 +18,7 @@ namespace l1t {
 namespace l1t {
   namespace stage1 {
     bool
-      EtSumUnpacker::unpack(const Block& block, UnpackerCollections *coll)
+      HFRingUnpacker::unpack(const Block& block, UnpackerCollections *coll)
       {
 
         LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize();
@@ -34,8 +34,11 @@ namespace l1t {
           lastBX = ceil((double)nBX/2.);
         }
 
-        auto res_ = static_cast<CaloCollections*>(coll)->getEtSums();
+        auto res_ = static_cast<CaloCollections*>(coll)->getCaloSpare();
         res_->setBXRange(firstBX, lastBX);
+        
+        auto reset_ = static_cast<CaloCollections*>(coll)->getEtSums();
+        reset_->setBXRange(firstBX, lastBX);
 
         LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
 
@@ -55,29 +58,29 @@ namespace l1t {
           candbit[2] = raw_data1 & 0xFFFF;
           candbit[3] = (raw_data1 >> 16) & 0xFFFF;
 
-          int totet=candbit[0] & 0xFFF;
-          int totht=candbit[1] & 0xFFF;
-          int etmiss=candbit[2] & 0xFFF;
-          int etmissphi=candbit[3] & 0x7F;
+          int hfbitcount=candbit[0] & 0xFFF;
+          int hfringsum=((candbit[0]>>12) & 0x7) | ((candbit[1] & 0x1FF) << 3);
+          int htmissphi=candbit[2] & 0x1F;
+          int htmiss=(candbit[2]>>5) & 0x7F;
+          
+          l1t::CaloSpare hfbc= l1t::CaloSpare();
+          hfbc.setHwPt(hfbitcount);
+          hfbc.setType(l1t::CaloSpare::HFBitCount);  
+          LogDebug("L1T") << "hfbc pT " << hfbc.hwPt(); 
+          res_->push_back(bx,hfbc);        
+          
+          l1t::CaloSpare hfrs= l1t::CaloSpare();
+          hfrs.setHwPt(hfringsum);
+          hfrs.setType(l1t::CaloSpare::HFRingSum);  
+          LogDebug("L1T") << "hfrs pT " << hfrs.hwPt();  
+          res_->push_back(bx,hfrs);       
 
-          l1t::EtSum et = l1t::EtSum();
-          et.setHwPt(totet);
-          et.setType(l1t::EtSum::kTotalEt);       
-          LogDebug("L1T") << "ET: pT " << et.hwPt();
-          res_->push_back(bx,et);
-
-          l1t::EtSum ht = l1t::EtSum();
-          ht.setHwPt(totht);
-          ht.setType(l1t::EtSum::kTotalHt);       
-          LogDebug("L1T") << "HT: pT " << ht.hwPt();
-          res_->push_back(bx,ht);
-
-          l1t::EtSum met = l1t::EtSum();
-          met.setHwPt(etmiss);
-          met.setHwPhi(etmissphi);
-          met.setType(l1t::EtSum::kMissingEt);       
-          LogDebug("L1T") << "MET: phi " << met.hwPhi() << " pT " << met.hwPt();
-          res_->push_back(bx,met);
+          l1t::EtSum mht = l1t::EtSum();
+          mht.setHwPt(htmiss);
+          mht.setHwPhi(htmissphi);
+          mht.setType(l1t::EtSum::kMissingHt);       
+          LogDebug("L1T") << "MHT: phi " << mht.hwPhi() << " pT " << mht.hwPt();
+          reset_->push_back(bx,mht);       
 
         }
 
@@ -87,4 +90,4 @@ namespace l1t {
   }
 }
 
-DEFINE_L1T_UNPACKER(l1t::stage1::EtSumUnpacker);
+DEFINE_L1T_UNPACKER(l1t::stage1::HFRingUnpacker);
