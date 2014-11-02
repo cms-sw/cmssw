@@ -73,7 +73,7 @@ namespace stage1 {
 
 
 
-      return {};
+      return {Block(6, load)};
    }
 }
 }

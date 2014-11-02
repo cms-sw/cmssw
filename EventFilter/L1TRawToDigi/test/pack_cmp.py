@@ -50,6 +50,9 @@ def compare_bx_vector(xs, ys):
 
 events = Events(sys.argv[1])
 
+spares_in = Handle('BXVector<l1t::CaloSpare>')
+spares_out = Handle('BXVector<l1t::CaloSpare>')
+
 egammas_in = Handle('BXVector<l1t::EGamma>')
 egammas_out = Handle('BXVector<l1t::EGamma>')
 
@@ -69,13 +72,15 @@ out_label = "l1tRawToDigi"
 
 for event in events:
     print "< New event"
+    event.getByLabel(in_label, spares_in)
     event.getByLabel(in_label, egammas_in)
-    # event.getByLabel(in_label, etsums_in)
+    event.getByLabel(in_label, etsums_in)
     event.getByLabel(in_label, jets_in)
     event.getByLabel(tau_label, taus_in)
 
+    event.getByLabel(out_label, spares_out)
     event.getByLabel(out_label, egammas_out)
-    # event.getByLabel(out_label, etsums_out)
+    event.getByLabel(out_label, etsums_out)
     event.getByLabel(out_label, jets_out)
     event.getByLabel(out_label, taus_out)
 
@@ -83,10 +88,15 @@ for event in events:
     for a, b in compare_bx_vector(egammas_in.product(), egammas_out.product()):
         pass
 
-    # print "Checking etsums"
-    # for a, b in compare_bx_vector(etsums_in.product(), etsums_out.product()):
-    #     if a.getType() != b.getType():
-    #         print ">>> Type different:", a.getType(), "vs", b.getType()
+    print "Checking spares"
+    for a, b in compare_bx_vector(spares_in.product(), spares_out.product()):
+        if a.getType() != b.getType():
+            print ">>> Type different:", a.getType(), "vs", b.getType()
+
+    print "Checking etsums"
+    for a, b in compare_bx_vector(etsums_in.product(), etsums_out.product()):
+        if a.getType() != b.getType():
+            print ">>> Type different:", a.getType(), "vs", b.getType()
 
     print "Checking jets"
     for a, b in compare_bx_vector(jets_in.product(), jets_out.product()):

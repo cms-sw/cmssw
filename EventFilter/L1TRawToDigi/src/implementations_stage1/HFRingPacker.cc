@@ -89,7 +89,7 @@ namespace l1t {
           load.push_back(word1);
         }
 
-        return {};
+        return {Block(7, load)};
       }
   }
 }
