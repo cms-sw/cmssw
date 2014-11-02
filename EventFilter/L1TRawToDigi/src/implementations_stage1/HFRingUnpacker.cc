@@ -59,9 +59,9 @@ namespace l1t {
           candbit[3] = (raw_data1 >> 16) & 0xFFFF;
 
           int hfbitcount=candbit[0] & 0xFFF;
-          int hfringsum=((candbit[0]>>12) & 0x7) | ((candbit[1] & 0x1FF) << 3);
-          int htmissphi=candbit[2] & 0x1F;
-          int htmiss=(candbit[2]>>5) & 0x7F;
+          int hfringsum=((candbit[0]>>12) & 0x7) | ((candbit[2] & 0x1FF) << 3);
+          int htmissphi=candbit[1] & 0x1F;
+          int htmiss=(candbit[1]>>5) & 0x7F;
           
           l1t::CaloSpare hfbc= l1t::CaloSpare();
           hfbc.setHwPt(hfbitcount);

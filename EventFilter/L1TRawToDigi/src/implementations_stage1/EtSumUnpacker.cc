@@ -56,8 +56,8 @@ namespace l1t {
           candbit[3] = (raw_data1 >> 16) & 0xFFFF;
 
           int totet=candbit[0] & 0xFFF;
-          int totht=candbit[1] & 0xFFF;
-          int etmiss=candbit[2] & 0xFFF;
+          int etmiss=candbit[1] & 0xFFF;
+          int totht=candbit[2] & 0xFFF;
           int etmissphi=candbit[3] & 0x7F;
 
           l1t::EtSum et = l1t::EtSum();
