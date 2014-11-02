@@ -217,7 +217,7 @@ RequestManager::compareSources(const timespec &now, unsigned a, unsigned b)
     {
       std::unique_lock<std::mutex> sentry(g_ml_mutex);
       edm::LogVerbatim("XrdAdaptorInternal") << "Removing "
-          << m_activeSources[a]->ID() << " from active sources due to poor quality ("
+          << m_activeSources[a]->PrettyID() << " from active sources due to poor quality ("
           << m_activeSources[a]->getQuality() << " vs " << m_activeSources[b]->getQuality() << ")" << std::endl;
     }
     if (m_activeSources[a]->getLastDowngrade().tv_sec != 0) {findNewSource = true;}
@@ -261,12 +261,12 @@ RequestManager::checkSourcesImpl(timespec &now, IOSize requestSize)
     if (bestInactiveSource != eligibleInactiveSources.end() && bestInactiveSource->get())
     {
         std::unique_lock<std::mutex> sentry(g_ml_mutex);
-        edm::LogVerbatim("XrdAdaptorInternal") << "Best inactive source: " <<(*bestInactiveSource)->ID()
+        edm::LogVerbatim("XrdAdaptorInternal") << "Best inactive source: " <<(*bestInactiveSource)->PrettyID()
             << ", quality " << (*bestInactiveSource)->getQuality();
     }
     {
       std::unique_lock<std::mutex> sentry(g_ml_mutex);
-      edm::LogVerbatim("XrdAdaptorInternal") << "Worst active source: " <<(*worstActiveSource)->ID() 
+      edm::LogVerbatim("XrdAdaptorInternal") << "Worst active source: " <<(*worstActiveSource)->PrettyID() 
         << ", quality " << (*worstActiveSource)->getQuality();
     }
     if ((bestInactiveSource != eligibleInactiveSources.end()) && m_activeSources.size() == 1)
@@ -277,9 +277,9 @@ RequestManager::checkSourcesImpl(timespec &now, IOSize requestSize)
     else while ((bestInactiveSource != eligibleInactiveSources.end()) && (*worstActiveSource)->getQuality() > (*bestInactiveSource)->getQuality()+XRD_ADAPTOR_SOURCE_QUALITY_FUDGE)
     {
         {std::unique_lock<std::mutex> sentry(g_ml_mutex);
-        edm::LogVerbatim("XrdAdaptorInternal") << "Removing " << (*worstActiveSource)->ID()
+        edm::LogVerbatim("XrdAdaptorInternal") << "Removing " << (*worstActiveSource)->PrettyID()
             << " from active sources due to quality (" << (*worstActiveSource)->getQuality()
-            << ") and promoting " << (*bestInactiveSource)->ID() << " (quality: "
+            << ") and promoting " << (*bestInactiveSource)->PrettyID() << " (quality: "
             << (*bestInactiveSource)->getQuality() << ")" << std::endl;
         }
         (*worstActiveSource)->setLastDowngrade(now);
@@ -339,6 +339,16 @@ RequestManager::getActiveSourceNames(std::vector<std::string> & sources)
 }
 
 void
+RequestManager::getPrettyActiveSourceNames(std::vector<std::string> & sources)
+{
+  std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);
+  sources.reserve(m_activeSources.size());
+  for (auto const& source : m_activeSources) {
+    sources.push_back(source->PrettyID());
+  }
+}
+
+void
 RequestManager::getDisabledSourceNames(std::vector<std::string> & sources)
 {
   std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);
@@ -352,7 +362,7 @@ void
 RequestManager::addConnections(cms::Exception &ex)
 {
   std::vector<std::string> sources;
-  getActiveSourceNames(sources);
+  getPrettyActiveSourceNames(sources);
   for (auto const& source : sources)
   {
     ex.addAdditionalInfo("Active source: " + source);
@@ -442,14 +452,14 @@ XrdAdaptor::RequestManager::handleOpen(XrdCl::XRootDStatus &status, std::shared_
     if (status.IsOK())
     {
         {std::unique_lock<std::mutex> sentry(g_ml_mutex);
-        edm::LogVerbatim("XrdAdaptorInternal") << "Successfully opened new source: " << source->ID() << std::endl;
+        edm::LogVerbatim("XrdAdaptorInternal") << "Successfully opened new source: " << source->PrettyID() << std::endl;
         }
         for (const auto & s : m_activeSources)
         {
             if (source->ID() == s->ID())
             {
                 std::unique_lock<std::mutex> sentry(g_ml_mutex);
-                edm::LogVerbatim("XrdAdaptorInternal") << "Xrootd server returned excluded source " << source->ID()
+                edm::LogVerbatim("XrdAdaptorInternal") << "Xrootd server returned excluded source " << source->PrettyID()
                     << "; ignoring" << std::endl;
                 m_nextActiveSourceCheck.tv_sec += XRD_ADAPTOR_LONG_OPEN_DELAY - XRD_ADAPTOR_SHORT_OPEN_DELAY;
                 return;
@@ -460,7 +470,7 @@ XrdAdaptor::RequestManager::handleOpen(XrdCl::XRootDStatus &status, std::shared_
             if (source->ID() == s->ID())
             {
                 std::unique_lock<std::mutex> sentry(g_ml_mutex);
-                edm::LogVerbatim("XrdAdaptorInternal") << "Xrootd server returned excluded inactive source " << source->ID() 
+                edm::LogVerbatim("XrdAdaptorInternal") << "Xrootd server returned excluded inactive source " << source->PrettyID() 
                     << "; ignoring" << std::endl;
                 m_nextActiveSourceCheck.tv_sec += XRD_ADAPTOR_LONG_OPEN_DELAY - XRD_ADAPTOR_SHORT_OPEN_DELAY;
                 return;
@@ -561,18 +571,18 @@ RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr,
     // Fail early for invalid responses - XrdFile has a separate path for handling this.
     if (c_status.code == XrdCl::errInvalidResponse)
     {
-        edm::LogWarning("XrdAdaptorInternal") << "Invalid response when reading from " << source_ptr->ID();
+        edm::LogWarning("XrdAdaptorInternal") << "Invalid response when reading from " << source_ptr->PrettyID();
         XrootdException ex(c_status, edm::errors::FileReadError);
         ex << "XrdAdaptor::RequestManager::requestFailure readv(name='" << m_name
                << "', flags=0x" << std::hex << m_flags
                << ", permissions=0" << std::oct << m_perms << std::dec
-               << ", old source=" << source_ptr->ID()
+               << ", old source=" << source_ptr->PrettyID()
                << ") => Invalid ReadV response from server";
         ex.addContext("In XrdAdaptor::RequestManager::requestFailure()");
         addConnections(ex);
         throw ex;
     }
-    edm::LogWarning("XrdAdaptorInternal") << "Request failure when reading from " << source_ptr->ID();
+    edm::LogWarning("XrdAdaptorInternal") << "Request failure when reading from " << source_ptr->PrettyID();
 
     // Note that we do not delete the Source itself.  That is because this
     // function may be called from within XrdCl::ResponseHandler::HandleResponseWithHosts
@@ -606,7 +616,7 @@ RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr,
             ex << "XrdAdaptor::RequestManager::requestFailure Open(name='" << m_name
                << "', flags=0x" << std::hex << m_flags
                << ", permissions=0" << std::oct << m_perms << std::dec
-               << ", old source=" << source_ptr->ID()
+               << ", old source=" << source_ptr->PrettyID()
                << ", current server=" << m_open_handler.current_source()
                << ") => timeout when waiting for file open";
             ex.addContext("In XrdAdaptor::RequestManager::requestFailure()");
@@ -622,7 +632,7 @@ RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr,
             catch (edm::Exception &ex)
             {
                 ex.addContext("Handling XrdAdaptor::RequestManager::requestFailure()");
-                ex.addAdditionalInfo("Original failed source is " + source_ptr->ID());
+                ex.addAdditionalInfo("Original failed source is " + source_ptr->PrettyID());
                 throw;
             }
         }
@@ -635,8 +645,8 @@ RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr,
             ex << "XrdAdaptor::RequestManager::requestFailure Open(name='" << m_name
                << "', flags=0x" << std::hex << m_flags
                << ", permissions=0" << std::oct << m_perms << std::dec
-               << ", old source=" << source_ptr->ID()
-               << ", new source=" << new_source->ID() << ") => Xrootd server returned an excluded source";
+               << ", old source=" << source_ptr->PrettyID()
+               << ", new source=" << new_source->PrettyID() << ") => Xrootd server returned an excluded source";
             ex.addContext("In XrdAdaptor::RequestManager::requestFailure()");
             addConnections(ex);
             throw ex;

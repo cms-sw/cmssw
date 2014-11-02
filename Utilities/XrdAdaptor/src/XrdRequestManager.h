@@ -78,6 +78,7 @@ public:
      * (primarily meant to enable meaningful log messages).
      */
     void getActiveSourceNames(std::vector<std::string> & sources);
+    void getPrettyActiveSourceNames(std::vector<std::string> & sources);
 
     /**
      * Retrieve the names of the disabled sources

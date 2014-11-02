@@ -47,8 +47,52 @@ Source::Source(timespec now, std::unique_ptr<XrdCl::File> fh)
           << "Source::Source() failed to determine data server name.'";
       }
     }
+    m_prettyid = m_id + " (unknown site)";
+    m_site = "Unknown (" + m_id + ")";
+    getXrootdSite();
     assert(m_qm.get());
     assert(m_fh.get());
+}
+
+void
+Source::getXrootdSite()
+{
+    const std::string attr = "sitename";
+    XrdCl::Buffer *response = 0;
+    XrdCl::Buffer arg( attr.size() );
+    arg.FromString( attr );
+
+    std::string lastUrl;
+    m_fh->GetProperty("LastURL", lastUrl);
+    if (!lastUrl.size())
+    {
+        edm::LogWarning("XrdFileWarning")
+          << "Unable to determine the URL associated with server " << m_id;
+        return;
+    }
+
+    XrdCl::FileSystem fs(lastUrl);
+    XrdCl::XRootDStatus st = fs.Query(XrdCl::QueryCode::Config, arg, response);
+    if (!st.IsOK())
+    {
+        edm::LogWarning("XrdFileWarning")
+          << "Xrootd server " << m_id << " did not provide a sitename.  Monitoring may be incomplete.";
+        return;
+    }
+    std::string site = response->ToString();
+    if (site.size() && (site[site.size()-1] == '\n'))
+    {
+        site = site.substr(0, site.size()-1);
+    }
+    if (site == "sitename")
+    {
+        edm::LogWarning("XrdFileWarning") << "Xrootd server " << m_id << " provided an unusable sitename.  Contact site admins.  Monitoring may be incomplete.";
+        return;
+    }
+    m_site = site;
+    m_prettyid = m_id + " (site " + m_site + ")";
+    edm::LogInfo("XrdAdaptorInternal") << "Reading from new server " << m_id << " at site " << m_site;
+    delete response;
 }
 
 Source::~Source()
