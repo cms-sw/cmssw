@@ -1237,13 +1237,17 @@ upgradeFragments=['FourMuPt_1_200_cfi','SingleElectronPt10_cfi',
 defaultDataSets={}
 defaultDataSets['Extended2023HGCal']='CMSSW_6_2_0_SLHC20-DES23_62_V1_UPGHGCalV5-v'
 defaultDataSets['Extended2023SHCalNoTaper']='CMSSW_6_2_0_SLHC20-DES23_62_V1_UPG2023SHNoTaper-v'
+keys=defaultDataSets.keys()
+for key in keys:
+  defaultDataSets[key+'PU']=defaultDataSets[key]
+  
 # sometimes v1 won't be used - override it here - the dictionary key is gen fragment + '_' + geometry
 versionOverrides={}
 
 baseDataSetReleaseBetter={}
 for gen in upgradeFragments:
     for ds in defaultDataSets: 
-        key=gen[:-4]+'_'+ds
+       	key=gen[:-4]+'_'+ds   
         version='1'
         if key in versionOverrides:
             version = versionOverrides[key]
