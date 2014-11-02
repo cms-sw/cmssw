@@ -72,6 +72,7 @@ namespace l1t {
     double egMaxHcalEt() const { return egMaxHcalEt_; }
     double egEtToRemoveHECut() const {return egEtToRemoveHECut_;}
     l1t::LUT* egMaxHOverELUT() { return egMaxHOverELUT_.get(); }
+    l1t::LUT* egCompressShapesLUT() { return egCompressShapesLUT_.get(); }
     l1t::LUT* egShapeIdLUT() { return egShapeIdLUT_.get(); }
     double egRelativeJetIsolationBarrelCut() const { return egRelativeJetIsolationBarrelCut_; }
     double egRelativeJetIsolationEndcapCut() const { return egRelativeJetIsolationEndcapCut_; }
@@ -102,6 +103,7 @@ namespace l1t {
     void setEgMaxHcalEt(double cut) { egMaxHcalEt_ = cut; }
     void setEgEtToRemoveHECut(double thresh) { egEtToRemoveHECut_ = thresh;}
     void setEgMaxHOverELUT(std::shared_ptr<LUT> lut) { egMaxHOverELUT_ = lut; }
+    void setEgCompressShapesLUT(std::shared_ptr<LUT> lut) { egCompressShapesLUT_ = lut; }
     void setEgShapeIdLUT(std::shared_ptr<LUT> lut) { egShapeIdLUT_ = lut; }
     void setEgRelativeJetIsolationBarrelCut(double cutValue) { egRelativeJetIsolationBarrelCut_ = cutValue; }
     void setEgRelativeJetIsolationEndcapCut(double cutValue) { egRelativeJetIsolationEndcapCut_ = cutValue; }
@@ -290,6 +292,9 @@ namespace l1t {
 
     // EG maximum values of H/E (indexed by |ieta|, ??)
     std::shared_ptr<l1t::LUT> egMaxHOverELUT_;
+
+    // Compress shapes
+    std::shared_ptr<l1t::LUT> egCompressShapesLUT_;
 
     // Shape identification bits (indexed by |ieta|, shape)
     std::shared_ptr<l1t::LUT> egShapeIdLUT_;

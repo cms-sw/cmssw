@@ -32,16 +32,16 @@ namespace l1t {
     l1t::CaloCluster trimCluster(const l1t::CaloCluster& clus);
     unsigned int trimmingLutIndex(unsigned int shape, int iEta);
     // identification
-    bool idHOverE(const l1t::CaloCluster& clus);
-    unsigned int idHOverELutIndex(int iEta);
+    bool idHOverE(const l1t::CaloCluster& clus, int hwPt);
+    unsigned int idHOverELutIndex(int iEta, int E);
     bool idShape(const l1t::CaloCluster& clus);
     unsigned int idShapeLutIndex(unsigned int shape, int iEta);
     // isolation
     int isoCalEgHwFootPrint(const l1t::CaloCluster&,const std::vector<l1t::CaloTower>&);
     unsigned isoLutIndex(int iEta,unsigned int nrTowers);
     // calibration
-    int calibratedPt(const l1t::CaloCluster& clus); 
-    unsigned int calibrationLutIndex(int iEta);
+    int calibratedPt(const l1t::CaloCluster& clus, int hwPt); 
+    unsigned int calibrationLutIndex(int iEta, int E, int shape);
     
   private:
     CaloParams* params_;
