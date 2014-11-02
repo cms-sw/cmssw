@@ -22,7 +22,7 @@
 #include <set>
 #include <algorithm>
 
-int verbose=0;
+int verbose=3;
 
 /// Constructor
 HLTExoticaSubAnalysis::HLTExoticaSubAnalysis(const edm::ParameterSet & pset,
@@ -455,7 +455,6 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 	    const unsigned int objType = matchesGen[j].pdgId();
 	    //std::cout << "(4) Gonna call with " << objType << std::endl;
 	    const std::string objTypeStr = EVTColContainer::getTypeString(objType);
-//std::cerr << "### " << objTypeStr << std::endl;
 	
 	    float pt  = matchesGen[j].pt();
 
@@ -463,8 +462,13 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 
                 // Cut for the pt-leading object 
                 StringCutObjectSelector<reco::LeafCandidate> select( _genCut_leading[objType] );
-                if ( !select( matchesGen[j] ) ) break;
-
+                if ( !select( matchesGen[j] ) ) {
+                  size_t max_size = matchesGen.size();
+                  for ( size_t jj = j; jj < max_size; jj++ ) {
+                    matchesGen.erase(matchesGen.end());
+                  }
+                  break;
+                }
 		this->fillHist("gen", objTypeStr, "MaxPt1", pt);
 		// Filled the high pt ...
 		++((*countobjects)[objType]);
@@ -477,21 +481,24 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 	    } else {
 		// Already the minimum two objects has been filled, get out...
 		if (counttotal == totalobjectssize2) {
-		    break;
+                  size_t max_size = matchesGen.size();
+                  for ( size_t jj = j; jj < max_size; jj++ ) {
+                    matchesGen.erase(matchesGen.end());
+                  }
+		  break;
 		}
 	    }
+
 
 	    float eta = matchesGen[j].eta();
 	    float phi = matchesGen[j].phi();
 	    float sumEt = 0;//matchesGen[j].sumEt;
-//std::cerr << "### matchesGen[j].Et=" << matchesGen[j].et() << std::endl;
-	
+
 	    this->fillHist("gen", objTypeStr, "Eta", eta);
 	    this->fillHist("gen", objTypeStr, "Phi", phi);
 	    this->fillHist("gen", objTypeStr, "SumEt", sumEt);
 
 	} // Closes loop in gen
-
 	LogDebug("ExoticaValidation") << "                        deleting countobjects";
 	//delete countobjects;
 
@@ -503,7 +510,7 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 	    LogDebug("ExoticaValidation") << "                        preparing to call the plotters analysis";
 	    an->analyze(ispassTrigger, "gen", matchesGen);
 	    LogDebug("ExoticaValidation") << "                        called the plotter";
-	}
+        }
     } /// Close GEN case
 
 
@@ -534,7 +541,7 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
     
 	/// Debugging.
 	//std::cout << "Our RECO vector has matchesReco.size() = " << matchesReco.size() << std::endl;
-	
+
 	for (size_t j = 0; j != matchesReco.size(); ++j) {
 	    const unsigned int objType = matchesReco[j].pdgId();
 	    //std::cout << "(4) Gonna call with " << objType << std::endl;
@@ -546,7 +553,14 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 
                 // Cut for the pt-leading object 
                 StringCutObjectSelector<reco::LeafCandidate> select( _recCut_leading[objType] );
-                if ( !select( matchesReco[j] ) ) break;
+                //if ( !select( matchesReco[j] ) ) break;
+                if ( !select( matchesReco[j] ) ) {
+                  size_t max_size = matchesReco.size();
+                  for ( size_t jj = j; jj < max_size; jj++ ) {
+                    matchesReco.erase(matchesReco.end());
+                  }
+                  break;
+                }
 
 		this->fillHist("rec", objTypeStr, "MaxPt1", pt);
 		// Filled the high pt ...
@@ -560,7 +574,11 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 	    } else {
 		// Already the minimum two objects has been filled, get out...
 		if (counttotal == totalobjectssize2) {
-		    break;
+                  size_t max_size = matchesReco.size();
+                  for ( size_t jj = j; jj < max_size; jj++ ) {
+                    matchesReco.erase(matchesReco.end());
+                  }
+		  break;
 		}
 	    }
 
