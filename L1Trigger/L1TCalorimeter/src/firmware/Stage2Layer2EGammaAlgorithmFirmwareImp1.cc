@@ -93,7 +93,7 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
 
       // Identification part 
       bool hOverEBit = idHOverE(clusters[clusNr], egammas.back().hwPt());
-      bool shapeBit = idShape(clusters[clusNr]);
+      bool shapeBit = idShape(clusters[clusNr], egammas.back().hwPt());
       bool fgBit = !(clusters[clusNr].hwSeedPt()>6 && clusters[clusNr].fgECAL()); 
       int qual = 0;
       if(fgBit) qual |= (0x1); // first bit = FG
@@ -161,32 +161,32 @@ unsigned int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::idHOverELutIndex(int 
   return E+(iEtaNormed-1)*256;
 }
 
-bool l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::idShape(const l1t::CaloCluster& clus)
+bool l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::idShape(const l1t::CaloCluster& clus, int hwPt)
 {
   unsigned int shape = 0;
   if( (clus.checkClusterFlag(CaloCluster::INCLUDE_N)) ) shape |= (0x1);
   if( (clus.checkClusterFlag(CaloCluster::INCLUDE_S)) ) shape |= (0x1<<1);
-  if( clus.checkClusterFlag(CaloCluster::TRIM_LEFT)  && (clus.checkClusterFlag(CaloCluster::INCLUDE_NE)) ) shape |= (0x1<<2);
-  if( !clus.checkClusterFlag(CaloCluster::TRIM_LEFT) && (clus.checkClusterFlag(CaloCluster::INCLUDE_NW)) ) shape |= (0x1<<2);
-  if( clus.checkClusterFlag(CaloCluster::TRIM_LEFT)  && (clus.checkClusterFlag(CaloCluster::INCLUDE_E))  ) shape |= (0x1<<3);
-  if( !clus.checkClusterFlag(CaloCluster::TRIM_LEFT) && (clus.checkClusterFlag(CaloCluster::INCLUDE_W))  ) shape |= (0x1<<3);
+  if( clus.checkClusterFlag(CaloCluster::TRIM_LEFT)  && (clus.checkClusterFlag(CaloCluster::INCLUDE_E))  ) shape |= (0x1<<2);
+  if( !clus.checkClusterFlag(CaloCluster::TRIM_LEFT) && (clus.checkClusterFlag(CaloCluster::INCLUDE_W))  ) shape |= (0x1<<2);
+  if( clus.checkClusterFlag(CaloCluster::TRIM_LEFT)  && (clus.checkClusterFlag(CaloCluster::INCLUDE_NE)) ) shape |= (0x1<<3);
+  if( !clus.checkClusterFlag(CaloCluster::TRIM_LEFT) && (clus.checkClusterFlag(CaloCluster::INCLUDE_NW)) ) shape |= (0x1<<3);
   if( clus.checkClusterFlag(CaloCluster::TRIM_LEFT)  && (clus.checkClusterFlag(CaloCluster::INCLUDE_SE)) ) shape |= (0x1<<4);
   if( !clus.checkClusterFlag(CaloCluster::TRIM_LEFT) && (clus.checkClusterFlag(CaloCluster::INCLUDE_SW)) ) shape |= (0x1<<4);
   if( clus.checkClusterFlag(CaloCluster::INCLUDE_NN) ) shape |= (0x1<<5);
   if( clus.checkClusterFlag(CaloCluster::INCLUDE_SS) ) shape |= (0x1<<6);
 
-  unsigned int lutAddress = idShapeLutIndex(shape, clus.hwEta()); 
+  unsigned int lutAddress = idShapeLutIndex(clus.hwEta(), hwPt, shape); 
   bool shapeBit = params_->egShapeIdLUT()->data(lutAddress);
   return shapeBit;
 }
 
-unsigned int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::idShapeLutIndex(unsigned int shape, int iEta)
+unsigned int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::idShapeLutIndex(int iEta, int E, int shape)
 {
-  unsigned int iEtaNormed = abs(iEta)-1;
-  if(iEtaNormed>31) iEtaNormed = 31;
-  if(shape>127) shape = 127;
-  unsigned int index = iEtaNormed*128+shape;
-  return index;
+  unsigned int iEtaNormed = abs(iEta);
+  if(iEtaNormed>28) iEtaNormed = 28;
+  if(E>255) E = 255;
+  unsigned int compressedShape = params_->egCompressShapesLUT()->data(shape);
+  return E+compressedShape*256+(iEtaNormed-1)*256*64;
 }
 
 //calculates the footprint of the electron in hardware values
@@ -265,6 +265,7 @@ unsigned int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::calibrationLutIndex(i
   if(E>255) E = 255;
   if(E<22) E = 22;
   unsigned int compressedShape = params_->egCompressShapesLUT()->data(shape);
+  if(compressedShape>31) compressedShape = 31;
   return (E-20)+compressedShape*236+(iEtaNormed-1)*236*32;
 }
 

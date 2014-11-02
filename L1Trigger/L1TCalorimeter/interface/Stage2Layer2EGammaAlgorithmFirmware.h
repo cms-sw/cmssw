@@ -34,8 +34,8 @@ namespace l1t {
     // identification
     bool idHOverE(const l1t::CaloCluster& clus, int hwPt);
     unsigned int idHOverELutIndex(int iEta, int E);
-    bool idShape(const l1t::CaloCluster& clus);
-    unsigned int idShapeLutIndex(unsigned int shape, int iEta);
+    bool idShape(const l1t::CaloCluster& clus, int hwPt);
+    unsigned int idShapeLutIndex(int iEta, int E, int shape);
     // isolation
     int isoCalEgHwFootPrint(const l1t::CaloCluster&,const std::vector<l1t::CaloTower>&);
     unsigned isoLutIndex(int iEta,unsigned int nrTowers);
