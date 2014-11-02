@@ -174,6 +174,10 @@ namespace l1t {
          const uint32_t * payload = (const uint32_t*) payload64.get();
          const uint32_t * end = payload + (amc.size() * 2);
 
+         // TODO this skips the still to be added MP7 header containing the
+         // firmware version
+         payload++;
+
          while (payload != end) {
             BlockHeader block_hdr(payload++);
 
