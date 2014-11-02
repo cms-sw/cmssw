@@ -1121,10 +1121,9 @@ upgradeKeys=['2017',
              'Extended2023Muon4Eta',
              'Extended2023HGCalV4',
              'Extended2023HGCalPU',
-             'Extended2023SHCalNoTaperPU'
+             'Extended2023SHCalNoTaperPU'	     
+	     ]
 	     
-	     ]
-	     ]
 upgradeGeoms={ '2017' : 'Extended2017',
                '2019' : 'Extended2019',
                '2019WithGEM' : 'Extended2019',
@@ -1237,6 +1236,7 @@ upgradeFragments=['FourMuPt_1_200_cfi','SingleElectronPt10_cfi',
 # for each geometry define the GT and processing string here
 defaultDataSets={}
 defaultDataSets['Extended2023HGCal']='CMSSW_6_2_0_SLHC20-DES23_62_V1_UPGHGCalV5-v'
+defaultDataSets['Extended2023SHCalNoTaper']='CMSSW_6_2_0_SLHC20-DES23_62_V1_UPG2023SHNoTaper-v'
 # sometimes v1 won't be used - override it here - the dictionary key is gen fragment + '_' + geometry
 versionOverrides={}
 
@@ -1291,18 +1291,21 @@ upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023SHCalNoTaper4Eta':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023HGCal':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023HGCalMuon4Eta':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
-                   'Extended2023HGCalV4' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull']
-                   'Extended2023HGCalPU' : ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFull']
+                   'Extended2023HGCalV4' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
+                   'Extended2023HGCalPU' : ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFull'],
+                   'Extended2023SHCalNoTaperPU' : ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFull']
                    }
 
 upgradeStepDict={}
 for step in upgradeSteps:
     upgradeStepDict[step]={}
 
+print PUDataSets
 # just make all combinations - yes, some will be nonsense.. but then these are not used unless
 # specified above
 for k in upgradeKeys:
     k2=k
+    print k,k2
     if 'PU' in k[-2:]:
         k2=k[:-2]
     geom=upgradeGeoms[k2]
@@ -1339,10 +1342,11 @@ for k in upgradeKeys:
                                       '--geometry' : geom
                                       }
     if cust!=None : upgradeStepDict['DigiFull'][k]['--customise']=cust
-
+    print k2, PUDataSets,'toto'
+    
     if k2 in PUDataSets:
         upgradeStepDict['DigiFullPU'][k]=merge([PUDataSets[k2],upgradeStepDict['DigiFull'][k]])
-
+	print k2
     upgradeStepDict['DigiTrkTrigFull'][k] = {'-s':'DIGI:pdigi_valid,L1,L1TrackTrigger,DIGI2RAW,RECO:pixeltrackerlocalreco',
                                              '--conditions':gt,
                                              '--datatier':'GEN-SIM-DIGI-RAW',
