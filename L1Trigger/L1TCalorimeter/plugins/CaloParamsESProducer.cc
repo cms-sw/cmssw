@@ -115,6 +115,11 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   std::shared_ptr<l1t::LUT> egMaxHOverELUT( new l1t::LUT(egMaxHOverELUTStream) );
   m_params.setEgMaxHOverELUT(egMaxHOverELUT);
 
+  edm::FileInPath egCompressShapesLUTFile = conf.getParameter<edm::FileInPath>("egCompressShapesLUTFile");
+  std::ifstream egCompressShapesLUTStream(egCompressShapesLUTFile.fullPath());
+  std::shared_ptr<l1t::LUT> egCompressShapesLUT( new l1t::LUT(egCompressShapesLUTStream) );
+  m_params.setEgCompressShapesLUT(egCompressShapesLUT);
+
   edm::FileInPath egShapeIdLUTFile = conf.getParameter<edm::FileInPath>("egShapeIdLUTFile");
   std::ifstream egShapeIdLUTStream(egShapeIdLUTFile.fullPath());
   std::shared_ptr<l1t::LUT> egShapeIdLUT( new l1t::LUT(egShapeIdLUTStream) );

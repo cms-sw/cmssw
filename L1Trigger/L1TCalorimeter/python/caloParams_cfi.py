@@ -35,6 +35,7 @@ caloParams = cms.ESProducer(
     egEtToRemoveHECut          = cms.double(128.),
     egMaxHOverE                = cms.double(0.15),
     egMaxHOverELUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egMaxHOverELUT.txt"),
+    egCompressShapesLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egCompressShapesLUT.txt"),
     egShapeIdLUTFile           = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egShapeIdLUT.txt"),
     egCalibrationLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egCalibrationLUT.txt"),
     egRelativeJetIsolationBarrelCut  = cms.double(0.3),  # 0.3 for loose, 0.2 for tight

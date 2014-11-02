@@ -121,7 +121,7 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
       //  egammas.back().setHwIso(hwEtSum-hwFootPrint); //naughtly little debug hack, shouldnt be in release, comment out if it is
 
       // calibration part
-      int calibPt = calibratedPt(clusters[clusNr]);
+      int calibPt = calibratedPt(clusters[clusNr], egammas.back().hwPt());
 
       // physical eta/phi
       double eta = 0.;
@@ -228,12 +228,24 @@ unsigned l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::isoLutIndex(int iEta,unsi
   
 }
 
-int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::calibratedPt(const l1t::CaloCluster& clus)
+int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::calibratedPt(const l1t::CaloCluster& clus, int hwPt)
 {
-  unsigned int lutAddress = calibrationLutIndex(clus.hwEta()); 
+  unsigned int shape = 0;
+  if( (clus.checkClusterFlag(CaloCluster::INCLUDE_N)) ) shape |= (0x1);
+  if( (clus.checkClusterFlag(CaloCluster::INCLUDE_S)) ) shape |= (0x1<<1);
+  if( clus.checkClusterFlag(CaloCluster::TRIM_LEFT)  && (clus.checkClusterFlag(CaloCluster::INCLUDE_E))  ) shape |= (0x1<<2);
+  if( !clus.checkClusterFlag(CaloCluster::TRIM_LEFT) && (clus.checkClusterFlag(CaloCluster::INCLUDE_W))  ) shape |= (0x1<<2);
+  if( clus.checkClusterFlag(CaloCluster::TRIM_LEFT)  && (clus.checkClusterFlag(CaloCluster::INCLUDE_NE)) ) shape |= (0x1<<3);
+  if( !clus.checkClusterFlag(CaloCluster::TRIM_LEFT) && (clus.checkClusterFlag(CaloCluster::INCLUDE_NW)) ) shape |= (0x1<<3);
+  if( clus.checkClusterFlag(CaloCluster::TRIM_LEFT)  && (clus.checkClusterFlag(CaloCluster::INCLUDE_SE)) ) shape |= (0x1<<4);
+  if( !clus.checkClusterFlag(CaloCluster::TRIM_LEFT) && (clus.checkClusterFlag(CaloCluster::INCLUDE_SW)) ) shape |= (0x1<<4);
+  if( clus.checkClusterFlag(CaloCluster::INCLUDE_NN) ) shape |= (0x1<<5);
+  if( clus.checkClusterFlag(CaloCluster::INCLUDE_SS) ) shape |= (0x1<<6);
+
+  unsigned int lutAddress = calibrationLutIndex(clus.hwEta(), hwPt, shape); 
   int corr = params_->egCalibrationLUT()->data(lutAddress); // 9 bits. [0,1]. corrPt = (1+corr)*rawPt
   // the correction can only increase the energy, and it cannot increase it more than a factor two
-  int rawPt = clus.hwPt();
+  int rawPt = hwPt;
   int corrXrawPt = corr*rawPt;// 17 bits
   // round corr*rawPt
   int addPt = corrXrawPt>>9;// 8 MS bits (truncation)
@@ -244,10 +256,14 @@ int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::calibratedPt(const l1t::CaloCl
   return corrPt;
 }
 
-unsigned int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::calibrationLutIndex(int iEta)
+unsigned int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::calibrationLutIndex(int iEta, int E, int shape)
 {
   unsigned int iEtaNormed = abs(iEta);
-  return iEtaNormed-1;
+  if(iEtaNormed>28) iEtaNormed = 28;
+  if(E>255) E = 255;
+  if(E<22) E = 22;
+  unsigned int compressedShape = params_->egCompressShapesLUT()->data(shape);
+  return (E-20)+compressedShape*236+(iEtaNormed-1)*236*32;
 }
 
 
