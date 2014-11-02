@@ -92,7 +92,7 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
 
 
       // Identification part 
-      bool hOverEBit = idHOverE(clusters[clusNr]);
+      bool hOverEBit = idHOverE(clusters[clusNr], egammas.back().hwPt());
       bool shapeBit = idShape(clusters[clusNr]);
       bool fgBit = !(clusters[clusNr].hwSeedPt()>6 && clusters[clusNr].fgECAL()); 
       int qual = 0;
@@ -145,18 +145,20 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
   }//end of cluster loop
 }
 
-bool l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::idHOverE(const l1t::CaloCluster& clus)
+bool l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::idHOverE(const l1t::CaloCluster& clus, int hwPt)
 {
-  unsigned int lutAddress = idHOverELutIndex(clus.hwEta()); 
+  unsigned int lutAddress = idHOverELutIndex(clus.hwEta(), hwPt); 
   bool hOverEBit = ( clus.hOverE() <= params_->egMaxHOverELUT()->data(lutAddress) );
   hOverEBit |= ( clus.hwPt()>=floor(params_->egEtToRemoveHECut()/params_->egLsb()) );
   return hOverEBit;
 }
 
-unsigned int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::idHOverELutIndex(int iEta)
+unsigned int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::idHOverELutIndex(int iEta, int E)
 {
   unsigned int iEtaNormed = abs(iEta);
-  return iEtaNormed-1;
+  if(iEtaNormed>28) iEtaNormed = 28;
+  if(E>255) E = 255;
+  return E+(iEtaNormed-1)*256;
 }
 
 bool l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::idShape(const l1t::CaloCluster& clus)

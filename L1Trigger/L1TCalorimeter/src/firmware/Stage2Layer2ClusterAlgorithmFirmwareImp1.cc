@@ -73,8 +73,8 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::clustering(const std::vector
       clusters.back().setHwSeedPt(hwEt);
       // H/E of the cluster is H/E of the seed
       int hwEtHadTh = (towers[towerNr].hwEtHad()>=m_hcalThreshold ? towers[towerNr].hwEtHad() : 0);
-      int hOverE = (towers[towerNr].hwEtEm()>0 ? (hwEtHadTh<<8)/towers[towerNr].hwEtEm() : 255);
-      if(hOverE>255) hOverE = 255; // bound H/E at 1-? In the future it will be useful to replace with H/(E+H) (or add an other variable), for taus.
+      int hOverE = (towers[towerNr].hwEtEm()>0 ? (hwEtHadTh<<9)/towers[towerNr].hwEtEm() : 511);
+      if(hOverE>511) hOverE = 511; // bound H/E at 1-? In the future it will be useful to replace with H/(E+H) (or add an other variable), for taus.
       clusters.back().setHOverE(hOverE);
       // FG of the cluster is FG of the seed
       bool fg = (towers[towerNr].hwQual() & (0x1<<2));
