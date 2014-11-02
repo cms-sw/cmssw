@@ -11,8 +11,6 @@
 
 namespace XrdAdaptor {
 
-extern std::mutex g_ml_mutex;
-
 class QualityMetric;
 class QualityMetricSource;
 class QualityMetricUniqueSource;
