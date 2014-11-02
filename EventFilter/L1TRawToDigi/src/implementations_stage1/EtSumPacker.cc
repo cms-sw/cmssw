@@ -61,8 +61,8 @@ namespace stage1 {
             }
           }
           
-          uint32_t word0=(objectTotalEt & 0xFFFF) | ((objectTotalHt & 0xFFFF) << 16);
-          uint32_t word1=(objectMissingEt & 0xFFFF) | ((objectMissingEtPhi & 0xFFFF) << 16);
+          uint32_t word0=(objectTotalEt & 0xFFFF) | ((objectMissingEt & 0xFFFF) << 16);
+          uint32_t word1=(objectTotalHt & 0xFFFF) | ((objectMissingEtPhi & 0xFFFF) << 16);
 
           std::cout << word0 << std::endl;
           std::cout << word1 << std::endl;
