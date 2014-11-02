@@ -79,8 +79,8 @@ namespace l1t {
                             (0x0 << 13) | (0x1 << 14);
                             if (i==0) object[3] = object[3] | ((0x1) << 15);
                             
-          uint32_t word0=(object[0] & 0xFFFF) | ((object[1] & 0xFFFF) << 16);
-          uint32_t word1=(object[2] & 0xFFFF) | ((object[3] & 0xFFFF) << 16);
+          uint32_t word0=(object[0] & 0xFFFF) | ((object[2] & 0xFFFF) << 16);
+          uint32_t word1=(object[1] & 0xFFFF) | ((object[3] & 0xFFFF) << 16);
 
           std::cout << word0 << std::endl;
           std::cout << word1 << std::endl;
