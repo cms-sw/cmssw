@@ -60,7 +60,8 @@ namespace l1t {
 
           int hfbitcount=candbit[0] & 0xFFF;
           int hfringsum=((candbit[0]>>12) & 0x7) | ((candbit[1] & 0x1FF) << 3);
-          int htmiss=candbit[2] & 0xFFF;
+          int htmissphi=candbit[2] & 0x1F;
+          int htmiss=(candbit[2]>>5) & 0x7F;
           
           l1t::CaloSpare hfbc= l1t::CaloSpare();
           hfbc.setHwPt(hfbitcount);
@@ -75,9 +76,10 @@ namespace l1t {
           res_->push_back(bx,hfrs);       
 
           l1t::EtSum mht = l1t::EtSum();
-          mht.setHwPt(htmiss & 0xFFF);
+          mht.setHwPt(htmiss);
+          mht.setHwPhi(htmissphi);
           mht.setType(l1t::EtSum::kMissingHt);       
-          LogDebug("L1T") << "MHT: pT " << mht.hwPt();
+          LogDebug("L1T") << "MHT: phi " << met.hwPhi() << " pT " << met.hwPt();
           reset_->push_back(bx,mht);       
 
         }
