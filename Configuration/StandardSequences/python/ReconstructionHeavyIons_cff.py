@@ -24,6 +24,7 @@ from RecoLocalCalo.CastorReco.CastorSimpleReconstructor_cfi import *
 from RecoLocalMuon.Configuration.RecoLocalMuon_cff import *
 
 from RecoLuminosity.LumiProducer.lumiProducer_cff import *
+from RecoLuminosity.LumiProducer.fillSchemeInfoProducer_cfi import *
 
 #--------------------------------------------------------------------------
 # HIGH LEVEL RECO
@@ -49,10 +50,10 @@ localReco_HcalNZS = cms.Sequence(offlineBeamSpot*muonReco*caloRecoNZS)
 #--------------------------------------------------------------------------
 # Main Sequence
 
-reconstruct_PbPb = cms.Sequence(localReco*globalRecoPbPb*CastorFullReco)
+reconstruct_PbPb = cms.Sequence(fillSchemeInfo*localReco*globalRecoPbPb*CastorFullReco)
 reconstructionHeavyIons = cms.Sequence(reconstruct_PbPb)
 
-reconstructionHeavyIons_HcalNZS = cms.Sequence(localReco_HcalNZS*globalRecoPbPb)
+reconstructionHeavyIons_HcalNZS = cms.Sequence(fillSchemeInfo*localReco_HcalNZS*globalRecoPbPb)
 
 reconstructionHeavyIons_withRegitMu = cms.Sequence(reconstructionHeavyIons*regionalMuonRecoPbPb)
 #--------------------------------------------------------------------------
