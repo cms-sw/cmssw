@@ -5,5 +5,5 @@ l1tRawToDigi = cms.EDProducer(
     Setup = cms.string("stage2::CaloSetup"),
     InputLabel = cms.InputTag("l1tDigiToRaw"),
     FedId = cms.int32(1),
-    FWId = cms.int32(1)
+    FWId = cms.untracked.int32(1)
 )

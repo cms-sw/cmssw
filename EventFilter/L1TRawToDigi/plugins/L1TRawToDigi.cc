@@ -57,6 +57,7 @@ namespace l1t {
          // ----------member data ---------------------------
          edm::EDGetTokenT<FEDRawDataCollection> fedData_;
          int fedId_;
+         int fwId_;
 
          std::auto_ptr<PackingSetup> prov_;
 
@@ -77,7 +78,8 @@ std::ostream & operator<<(std::ostream& o, const l1t::BlockHeader& h) {
 
 namespace l1t {
    L1TRawToDigi::L1TRawToDigi(const edm::ParameterSet& config) :
-      fedId_(config.getParameter<int>("FedId"))
+      fedId_(config.getParameter<int>("FedId")),
+      fwId_(config.getUntrackedParameter<int>("FWId", -1))
    {
       fedData_ = consumes<FEDRawDataCollection>(config.getParameter<edm::InputTag>("InputLabel"));
 
@@ -164,15 +166,22 @@ namespace l1t {
       }
 
       for (auto& amc: packet.payload()) {
-         // TODO fix this with new MP7 headers in the payload
-         unsigned fw = 0;
-         unsigned board = amc.header().getBoardID();
-
-         auto unpackers = prov_->getUnpackers(fedId_, board, fw);
-
          auto payload64 = amc.data();
          const uint32_t * payload = (const uint32_t*) payload64.get();
          const uint32_t * end = payload + (amc.size() * 2);
+
+         // TODO this skips the still to be added MP7 header containing the
+         // firmware version
+         unsigned fw = 0;
+         payload++;
+
+         // Let parameterset value override FW version
+         if (fwId_ > 0)
+            fw = fwId_;
+
+         unsigned board = amc.header().getBoardID();
+
+         auto unpackers = prov_->getUnpackers(fedId_, board, fw);
 
          while (payload != end) {
             BlockHeader block_hdr(payload++);
