@@ -52,7 +52,6 @@ if(COLLECTION1.product() != COLLECTION2.product()){ \
 }
 
 L1Validator::L1Validator(const edm::ParameterSet& iConfig){
-  _dbe = edm::Service<DQMStore>().operator->();
   _dirName = iConfig.getParameter<std::string>("dirName");
   _GenSource = consumes<reco::GenParticleCollection> (iConfig.getParameter<edm::InputTag>("GenSource"));
 
@@ -65,13 +64,16 @@ L1Validator::L1Validator(const edm::ParameterSet& iConfig){
   //_L1ExtraMETSource = consumes<l1extra::L1EtMissParticleCollection> (iConfig.getParameter<edm::InputTag>("L1ExtraMETSource"));
 
   //_fileName = iConfig.getParameter<std::string>("fileName");
-
-  _Hists = new L1ValidatorHists(_dbe);
 }
 
 
 L1Validator::~L1Validator(){
 }
+
+void L1Validator::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &, edm::EventSetup const &) {
+  iBooker.setCurrentFolder(_dirName.c_str());
+  _Hists.Book(iBooker);
+};
 
 void L1Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   using namespace edm;
@@ -101,14 +103,14 @@ void L1Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   if(!GotEverything) return;
 
 
-  _Hists->NEvents++;
+  _Hists.NEvents++;
 
-  _Hists->FillNumber(L1ValidatorHists::Type::IsoEG, IsoEGs->size());
-  _Hists->FillNumber(L1ValidatorHists::Type::NonIsoEG, NonIsoEGs->size());
-  _Hists->FillNumber(L1ValidatorHists::Type::CenJet, CenJets->size());
-  _Hists->FillNumber(L1ValidatorHists::Type::ForJet, ForJets->size());
-  _Hists->FillNumber(L1ValidatorHists::Type::TauJet, Taus->size());
-  _Hists->FillNumber(L1ValidatorHists::Type::Muon, Muons->size());
+  _Hists.FillNumber(L1ValidatorHists::Type::IsoEG, IsoEGs->size());
+  _Hists.FillNumber(L1ValidatorHists::Type::NonIsoEG, NonIsoEGs->size());
+  _Hists.FillNumber(L1ValidatorHists::Type::CenJet, CenJets->size());
+  _Hists.FillNumber(L1ValidatorHists::Type::ForJet, ForJets->size());
+  _Hists.FillNumber(L1ValidatorHists::Type::TauJet, Taus->size());
+  _Hists.FillNumber(L1ValidatorHists::Type::Muon, Muons->size());
 
   for(uint i=0; i < GenParticles->size(); i++){
     const GenParticle *GenPart = &GenParticles->at(i);
@@ -119,84 +121,41 @@ void L1Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       FINDRECOPART(L1EmParticle, IsoEGs, NonIsoEGs)
 
       if(RecoPart==NULL){
- 	_Hists->Fill(L1ValidatorHists::Type::IsoEG, GenPart, NULL);
- 	_Hists->Fill(L1ValidatorHists::Type::NonIsoEG, GenPart, NULL);
+ 	_Hists.Fill(L1ValidatorHists::Type::IsoEG, GenPart, NULL);
+ 	_Hists.Fill(L1ValidatorHists::Type::NonIsoEG, GenPart, NULL);
       }else if(RecoPart->type() == L1EmParticle::EmType::kIsolated){
- 	_Hists->Fill(L1ValidatorHists::Type::IsoEG, GenPart, RecoPart);
- 	_Hists->Fill(L1ValidatorHists::Type::NonIsoEG, GenPart, NULL);
+ 	_Hists.Fill(L1ValidatorHists::Type::IsoEG, GenPart, RecoPart);
+ 	_Hists.Fill(L1ValidatorHists::Type::NonIsoEG, GenPart, NULL);
       }else if(RecoPart->type() == L1EmParticle::EmType::kNonIsolated){
- 	_Hists->Fill(L1ValidatorHists::Type::IsoEG, GenPart, NULL);
- 	_Hists->Fill(L1ValidatorHists::Type::NonIsoEG, GenPart, RecoPart);
+ 	_Hists.Fill(L1ValidatorHists::Type::IsoEG, GenPart, NULL);
+ 	_Hists.Fill(L1ValidatorHists::Type::NonIsoEG, GenPart, RecoPart);
       }
     }else if(status==1 && abs(pdg)==13){
       FINDRECOPART(L1MuonParticle, Muons, Muons)
 
-      _Hists->Fill(L1ValidatorHists::Type::Muon, GenPart, RecoPart);
+      _Hists.Fill(L1ValidatorHists::Type::Muon, GenPart, RecoPart);
     }else if(status==3 && abs(pdg)==15){
       FINDRECOPART(L1JetParticle, Taus, Taus)
 
-      _Hists->Fill(L1ValidatorHists::Type::TauJet, GenPart, RecoPart);
+      _Hists.Fill(L1ValidatorHists::Type::TauJet, GenPart, RecoPart);
     }else if(status==3 && (abs(pdg)<=5 || pdg==21)){
       FINDRECOPART(L1JetParticle, CenJets, ForJets)
 
       if(RecoPart==NULL){
- 	_Hists->Fill(L1ValidatorHists::Type::CenJet, GenPart, NULL);
- 	_Hists->Fill(L1ValidatorHists::Type::ForJet, GenPart, NULL);
+ 	_Hists.Fill(L1ValidatorHists::Type::CenJet, GenPart, NULL);
+ 	_Hists.Fill(L1ValidatorHists::Type::ForJet, GenPart, NULL);
       }else if(RecoPart->type() == L1JetParticle::JetType::kCentral){
- 	_Hists->Fill(L1ValidatorHists::Type::CenJet, GenPart, RecoPart);
- 	_Hists->Fill(L1ValidatorHists::Type::ForJet, GenPart, NULL);
+ 	_Hists.Fill(L1ValidatorHists::Type::CenJet, GenPart, RecoPart);
+ 	_Hists.Fill(L1ValidatorHists::Type::ForJet, GenPart, NULL);
       }else if(RecoPart->type() == L1JetParticle::JetType::kForward){
- 	_Hists->Fill(L1ValidatorHists::Type::CenJet, GenPart, NULL);
- 	_Hists->Fill(L1ValidatorHists::Type::ForJet, GenPart, RecoPart);
+ 	_Hists.Fill(L1ValidatorHists::Type::CenJet, GenPart, NULL);
+ 	_Hists.Fill(L1ValidatorHists::Type::ForJet, GenPart, RecoPart);
       }
     }else continue;
 
     //cout << GenPart->pt() << '\t' << GenPart->eta() << '\t' << GenPart->phi() << '\t' << GenPart->pdgId() << endl;
   }
 }
-
-
-// ------------ method called once each job just before starting event loop  ------------
-/*
-void L1Validator::beginJob(){
-}
-*/
-
-// ------------ method called once each job just after ending the event loop  ------------
-void L1Validator::endJob(){
-
-  //TFile OutFile(_fileName.c_str(), "recreate");
-  //_Hists->Write();
-  //OutFile.Close();
-}
-
-// ------------ method called when starting to processes a run  ------------
-void L1Validator::beginRun(edm::Run const&, edm::EventSetup const&){
-  _dbe->setCurrentFolder(_dirName.c_str());
-  _Hists->Book();
-}
-
-// ------------ method called when ending the processing of a run  ------------
-
-void L1Validator::endRun(edm::Run const&, edm::EventSetup const&){
-  //_Hists->Normalize();
-}
-
-
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-void L1Validator::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-void L1Validator::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
-
 
 //The next three are exactly the same, but apparently inheritance doesn't work like I thought it did.
 const reco::LeafCandidate *L1Validator::FindBest(const reco::GenParticle *GenPart, const std::vector<l1extra::L1EmParticle> *Collection1, const std::vector<l1extra::L1EmParticle> *Collection2=NULL){
