@@ -156,7 +156,15 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('.oO[outputFile]Oo.')
 )
 
-process.p = cms.Path(process.offlineBeamSpot*process.TrackRefitter1*process.AlignmentTrackSelector*process.cosmicTrackSplitter*process.HitFilteredTracks*process.TrackRefitter2*process.cosmicValidation)
+#needed for 7X
+#https://hypernews.cern.ch/HyperNews/CMS/get/tif-alignment/232/1.html
+process.load("RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi")
+process.MeasurementTrackerEvent.pixelClusterProducer = '.oO[TrackCollection]Oo.'
+process.MeasurementTrackerEvent.stripClusterProducer = '.oO[TrackCollection]Oo.'
+process.MeasurementTrackerEvent.inactivePixelDetectorLabels = cms.VInputTag()
+process.MeasurementTrackerEvent.inactiveStripDetectorLabels = cms.VInputTag()
+
+process.p = cms.Path(process.offlineBeamSpot*process.MeasurementTrackerEvent*process.TrackRefitter1*process.AlignmentTrackSelector*process.cosmicTrackSplitter*process.HitFilteredTracks*process.TrackRefitter2*process.cosmicValidation)
 """
 
 
