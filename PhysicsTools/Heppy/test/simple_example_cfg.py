@@ -11,13 +11,14 @@ inputSample = cfg.Component(
     files = miniAodFiles(),
     )
 inputSample.isMC = True
-inputSample.splitFactor = 2 
+# inputSample.splitFactor = 2 
 
 selectedComponents  = [inputSample]
 
 from PhysicsTools.Heppy.analyzers.examples.SimpleJetAnalyzer import SimpleJetAnalyzer
 jets = cfg.Analyzer(
     SimpleJetAnalyzer,
+    'jets',
     ptmin = 30. 
     )
 
