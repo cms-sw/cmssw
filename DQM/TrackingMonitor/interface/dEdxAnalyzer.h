@@ -67,17 +67,21 @@ class dEdxAnalyzer : public DQMEDAnalyzer {
     MonitorElement* ME_MipDeDxNSatHits;
     MonitorElement* ME_MipDeDxMass;
     MonitorElement* ME_HipDeDxMass;
-    
+    MonitorElement* ME_MipHighPtDeDx;
+    MonitorElement* ME_MipHighPtDeDxNHits;
+  
     dEdxMEs()
       :ME_MipDeDx(NULL)
       ,ME_MipDeDxNHits(NULL)
       ,ME_MipDeDxNSatHits(NULL)
       ,ME_MipDeDxMass(NULL)
       ,ME_HipDeDxMass(NULL)
+      ,ME_MipHighPtDeDx(NULL)
+      ,ME_MipHighPtDeDxNHits(NULL)
     {}
   };
   
-  double TrackHitMin, HIPdEdxMin;
+  double TrackHitMin, HIPdEdxMin, HighPtThreshold;
   double dEdxK, dEdxC;
   
   edm::InputTag trackInputTag_;
