@@ -29,6 +29,7 @@ horeco = cms.EDProducer(
     setSaturationFlags = cms.bool(True),
     setTimingTrustFlags = cms.bool(False), # timing flags currently only implemented for HF
     setPulseShapeFlags = cms.bool(False),  # not yet defined for HO
+    setNegativeFlags          = cms.bool(False),  # only in HBHE
     saturationParameters=  cms.PSet(maxADCvalue=cms.int32(127))
 ) # horeco
 

@@ -20,7 +20,7 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -39,7 +39,7 @@
 #include <string>
 #include <vector>
 
-class ShiftedPFCandidateProducerForNoPileUpPFMEt : public edm::EDProducer
+class ShiftedPFCandidateProducerForNoPileUpPFMEt : public edm::stream::EDProducer<>
 {
  public:
 
@@ -49,8 +49,6 @@ class ShiftedPFCandidateProducerForNoPileUpPFMEt : public edm::EDProducer
  private:
 
   void produce(edm::Event&, const edm::EventSetup&);
-
-  std::string moduleLabel_;
 
   edm::EDGetTokenT<reco::PFCandidateCollection> srcPFCandidatesToken_;
   edm::EDGetTokenT<reco::PFJetCollection>       srcJetsToken_;

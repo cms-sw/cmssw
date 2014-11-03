@@ -29,8 +29,11 @@ GenFilterEfficiencyProducer::GenFilterEfficiencyProducer(const edm::ParameterSet
       edm::LogError("ServiceNotAvailable") << "TriggerNamesServive not available, no filter information stored";
   }
 
+  triggerResultsToken_ = consumes<edm::TriggerResults>(edm::InputTag("TriggerResults","",thisProcess));
+  genEventInfoToken_ = consumes<GenEventInfoProduct>(edm::InputTag("generator",""));
   produces<GenFilterInfo, edm::InLumi>(); 
 
+  
 }
 
 
@@ -49,15 +52,13 @@ void
 GenFilterEfficiencyProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-  edm::InputTag theTrig("TriggerResults","",thisProcess);
   edm::Handle<edm::TriggerResults> trigR;
-  iEvent.getByLabel(theTrig,trigR); 
+  iEvent.getByToken(triggerResultsToken_,trigR); 
   edm::Handle<GenEventInfoProduct>    genEventScale;
-  double weight = 1;
-  if (iEvent.getByLabel("generator", genEventScale)) 
-    weight = genEventScale->weight();
+  iEvent.getByToken(genEventInfoToken_,genEventScale);
+  if (!genEventScale.isValid()) return;
+  double weight = genEventScale->weight();
   
-
   unsigned int nSize = (*trigR).size();
   // std::cout << "Number of paths in TriggerResults = " << nSize  << std::endl;
   if ( nSize >= pathIndex ) {

@@ -243,6 +243,13 @@
    ...
 }
 {
+   EventProcessor_resondToCloseInputFile
+   Helgrind:Race
+   ...
+   fun:_ZN3edm14EventProcessor23respondToCloseInputFileEv
+   ...
+}
+{
    TBBArena
    Helgrind:Race
    fun:_ZN3tbb8internal5arena14is_out_of_workEv
@@ -326,5 +333,63 @@
    Helgrind:Race
    ...
    fun:_ZN3rml8internal10MemoryPool21processThreadShutdownEPNS0_7TLSDataE
+   ...
+}
+{
+   MagGeometryFindVolumeCache
+   Helgrind:Race
+   fun:_ZNK11MagGeometry10findVolumeERK11Point3DBaseIf9GlobalTagEd
+   ...
+}
+{
+   TBBInternalCmpSwp1
+   Helgrind:Race
+   fun:__TBB_machine_cmpswp1
+   ...
+}
+{
+   TBBInternalStoreWithRelease
+   Helgrind:Race
+   fun:store_with_release
+   ...
+}
+{
+   TBBInternalLoadWithAcquire
+   Helgrind:Race
+   fun:load_with_acquire
+   ...
+}
+{
+   TBBInternalPopSchedule
+   Helgrind:Race
+   fun:pop
+   fun:_ZN3tbb8internal16custom_schedulerINS0_20IntelSchedulerTraitsEE21receive_or_steal_taskERlb
+   fun:_ZN3tbb8internal5arena7processERNS0_17generic_schedulerE
+   fun:_ZN3tbb8internal6market7processERN3rml3jobE
+   fun:_ZN3tbb8internal3rml14private_worker3runEv
+   fun:_ZN3tbb8internal3rml14private_worker14thread_routineEPv
+   ...
+}
+{
+   TBBInternalPriorityScheduler
+   Helgrind:Race
+   fun:priority
+   fun:_ZN3tbb8internal16custom_schedulerINS0_20IntelSchedulerTraitsEE18local_wait_for_allERNS_4taskEPS4_
+   fun:_ZN3tbb8internal5arena7processERNS0_17generic_schedulerE
+   fun:_ZN3tbb8internal6market7processERN3rml3jobE
+   fun:_ZN3tbb8internal3rml14private_worker3runEv
+   fun:_ZN3tbb8internal3rml14private_worker14thread_routineEPv
+   ...
+}
+{
+   ROOTWriteVersionAtomicClassVersion
+   Helgrind:Race
+   fun:_ZN11TBufferFile12WriteVersionEPK6TClassb
+   ...
+}
+{
+   ROOTReadVersionAtomicClassVersion
+   Helgrind:Race
+   fun:_ZN11TBufferFile11ReadVersionEPjS0_PK6TClass
    ...
 }

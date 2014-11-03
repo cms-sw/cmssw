@@ -148,7 +148,7 @@ printCluster(const SiStripCluster & cluster) {
   std::stringstream s;
   s  << "\t" << cluster.firstStrip() << " [ ";
   for(unsigned i=0; i<cluster.amplitudes().size(); i++) {
-    s << static_cast<int>(cluster.amplitudes().at(i)) << " ";
+    s << static_cast<int>(cluster.amplitudes()[i]) << " ";
   }
   s << "]" << std::endl;
   return s.str();

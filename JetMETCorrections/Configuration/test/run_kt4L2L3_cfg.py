@@ -50,7 +50,7 @@ process.TFileService=cms.Service("TFileService",fileName=cms.string('histos.root
 #!
 from JetMETCorrections.Configuration.JetCorrectionEra_cff import *
 JetCorrectionEra.era = 'Summer09_7TeV' # FIXME for input
-process.load('JetMETCorrections.Configuration.JetCorrectionProducers_cff')
+process.load('JetMETCorrections.Configuration.CorrectedJetProducers_cff')
 
 
 #!

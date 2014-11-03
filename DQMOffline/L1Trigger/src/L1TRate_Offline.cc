@@ -1,7 +1,6 @@
 // L1TMonitor includes
 #include "DQMOffline/L1Trigger/interface/L1TRate_Offline.h"
-
-#include "DQMOffline/L1Trigger/interface/L1TMenuHelper.h"
+#include "DQM/L1TMonitor/interface/L1TMenuHelper.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
@@ -113,7 +112,7 @@ void L1TRate_Offline::beginRun(const edm::Run& run, const edm::EventSetup& iSetu
   m_ErrorMonitor->setBinLabel(UNKNOWN               ,"UNKNOWN");
   m_ErrorMonitor->setBinLabel(WARNING_PY_MISSING_FIT,"WARNING_PY_MISSING_FIT");
 
-  cout << "[L1TRate_Offline:] m_ErrorMonitor: " << m_ErrorMonitor << endl;
+  if (m_verbose) {cout << "[L1TRate_Offline:] m_ErrorMonitor: " << m_ErrorMonitor << endl;}
 
   // Retriving the list of prescale sets
   m_listsPrescaleFactors = &(m_l1GtPfAlgo->gtPrescaleFactors());

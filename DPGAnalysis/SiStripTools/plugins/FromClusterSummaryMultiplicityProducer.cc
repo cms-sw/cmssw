@@ -51,11 +51,10 @@ private:
 
       // ----------member data ---------------------------
 
-  edm::EDGetTokenT<ClusterSummary> m_collectionToken;
-  std::map<unsigned int, std::string> m_subdets;
-  std::map<unsigned int, int> m_subdetenums;
-  std::map<unsigned int, std::string> m_subdetvars;
-  std::vector<std::string> m_clustsummvar;
+  edm::EDGetTokenT<ClusterSummary>        m_collectionToken;
+  std::vector<ClusterSummary::CMSTracker> m_subdetenums;
+  std::vector<int>                        m_subdetsel;
+  ClusterSummary::VariablePlacement       m_subdetvar;
 
 };
 
@@ -73,27 +72,21 @@ private:
 //
 FromClusterSummaryMultiplicityProducer::FromClusterSummaryMultiplicityProducer(const edm::ParameterSet& iConfig):
   m_collectionToken(consumes<ClusterSummary>(iConfig.getParameter<edm::InputTag>("clusterSummaryCollection"))),
-  m_subdets(),m_subdetenums(),m_subdetvars(),m_clustsummvar()
+  m_subdetenums(),m_subdetsel(),m_subdetvar(ClusterSummary::NCLUSTERS)
 {
-
-  m_clustsummvar.push_back("cHits");
-  m_clustsummvar.push_back("cSize");
-  m_clustsummvar.push_back("cCharge");
-  m_clustsummvar.push_back("pHits");
-  m_clustsummvar.push_back("pSize");
-  m_clustsummvar.push_back("pCharge");
-
   produces<std::map<unsigned int,int> >();
 
    //now do what ever other initialization is needed
 
   std::vector<edm::ParameterSet> wantedsubds(iConfig.getParameter<std::vector<edm::ParameterSet> >("wantedSubDets"));
+  m_subdetenums.reserve(wantedsubds.size());
+  m_subdetsel.reserve(wantedsubds.size());
 
   for(std::vector<edm::ParameterSet>::iterator ps=wantedsubds.begin();ps!=wantedsubds.end();++ps) {
-    m_subdets[ps->getParameter<unsigned int>("detSelection")] = ps->getParameter<std::string>("detLabel");
-    m_subdetenums[ps->getParameter<unsigned int>("detSelection")] = ps->getParameter<int >("subDetEnum");
-    m_subdetvars[ps->getParameter<unsigned int>("detSelection")] = ps->getParameter<std::string>("subDetVariable");
+    m_subdetenums.push_back((ClusterSummary::CMSTracker)ps->getParameter<int >("subDetEnum"));
+    m_subdetsel.push_back(ps->getParameter<int >("subDetEnum"));
   }
+  m_subdetvar = (ClusterSummary::VariablePlacement)iConfig.getParameter<int>("varEnum");
 }
 
 FromClusterSummaryMultiplicityProducer::~FromClusterSummaryMultiplicityProducer()
@@ -124,21 +117,29 @@ FromClusterSummaryMultiplicityProducer::produce(edm::Event& iEvent, const edm::E
   Handle<ClusterSummary> clustsumm;
   iEvent.getByToken(m_collectionToken,clustsumm);
 
-  clustsumm->SetUserContent(m_clustsummvar);
-
-  for(std::map<unsigned int,std::string>::const_iterator sdet=m_subdets.begin();sdet!=m_subdets.end();++sdet) { (*mults)[sdet->first]=0; }
-
-  for(std::map<unsigned int,int>::const_iterator detsel=m_subdetenums.begin();detsel!=m_subdetenums.end();++detsel) {
-
-    //    (*mults)[detsel->first] = int(clustsumm->GetGenericVariable(m_subdetvars[detsel->first])[clustsumm->GetModuleLocation(detsel->second)]);
-    (*mults)[detsel->first] = int(clustsumm->GetGenericVariable(m_subdetvars[detsel->first],detsel->second));
-    LogDebug("Multiplicity") << "GetModuleLocation result: " << detsel->second << " " << clustsumm->GetModuleLocation(detsel->second);
+  switch(m_subdetvar){
+    case ClusterSummary::NCLUSTERS     :
+      for(unsigned int iS = 0; iS < m_subdetenums.size(); ++iS)
+        (*mults)[m_subdetsel[iS]] = int(clustsumm->getNClus     (m_subdetenums[iS]));
+      break;
+    case ClusterSummary::CLUSTERSIZE   :
+      for(unsigned int iS = 0; iS < m_subdetenums.size(); ++iS)
+        (*mults)[m_subdetsel[iS]] = int(clustsumm->getClusSize     (m_subdetenums[iS]));
+      break;
+    case ClusterSummary::CLUSTERCHARGE :
+      for(unsigned int iS = 0; iS < m_subdetenums.size(); ++iS)
+        (*mults)[m_subdetsel[iS]] = int(clustsumm->getClusCharge     (m_subdetenums[iS]));
+      break;
+    default :
+      for(unsigned int iS = 0; iS < m_subdetenums.size(); ++iS)
+        (*mults)[m_subdetsel[iS]] = -1;
   }
 
-
+  for(unsigned int iS = 0; iS < m_subdetenums.size(); ++iS)
+    LogDebug("Multiplicity") << "GetModuleLocation result: " << m_subdetenums[iS] << " " << clustsumm->getModuleLocation(m_subdetenums[iS]);
 
   for(std::map<unsigned int,int>::const_iterator it=mults->begin();it!=mults->end();++it) {
-    LogDebug("Multiplicity") << " Found " << it->second << " digis/clusters in " << it->first << " " << m_subdets[it->first];
+    LogDebug("Multiplicity") << " Found " << it->second << " digis/clusters in " << it->first;
   }
 
   iEvent.put(mults);

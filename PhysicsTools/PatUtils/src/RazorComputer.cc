@@ -1,6 +1,4 @@
 #include "PhysicsTools/PatUtils/interface/RazorComputer.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
-#include "DataFormats/PatCandidates/interface/MET.h"
 #include "TLorentzVector.h"
 
 RazorBox::RazorBox( const CachingVariable::CachingVariableFactoryArg& arg, edm::ConsumesCollector& iC) :
@@ -15,8 +13,8 @@ void RazorBox::compute( const edm::Event & iEvent) const{
 RazorComputer::RazorComputer( const CachingVariable::CachingVariableFactoryArg& arg, edm::ConsumesCollector& iC) : VariableComputer(arg,iC){
   jet_ = edm::Service<InputTagDistributorService>()->retrieve("jet",arg.iConfig);
   met_ = edm::Service<InputTagDistributorService>()->retrieve("met",arg.iConfig);
-  iC.consumes<std::vector<pat::Jet>>(jet_);
-  iC.consumes<std::vector<pat::MET>>(met_);
+  jetToken_ = iC.consumes<std::vector<pat::Jet>>(jet_);
+  metToken_ = iC.consumes<std::vector<pat::MET>>(met_);
   pt_ = 40.;
   eta_=2.4;
 
@@ -57,8 +55,8 @@ void RazorComputer::compute(const edm::Event & iEvent) const{
 
   edm::Handle<std::vector<pat::Jet>> jetH;
   edm::Handle<std::vector<pat::MET>> metH;
-  iEvent.getByLabel( jet_, jetH);
-  iEvent.getByLabel( met_, metH);
+  iEvent.getByToken( jetToken_, jetH);
+  iEvent.getByToken( metToken_, metH);
   
   typedef reco::Candidate::LorentzVector LorentzVector;
 

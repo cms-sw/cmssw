@@ -1,8 +1,8 @@
-/* \class PFJetSelector
+/* \class JetDeltaRValueMapProducer
  *
- * Selects jets with a configurable string-based cut,
- * and also writes out the constituents of the jet
- * into a separate collection.
+ * Associates jets using delta-R matching, and writes out
+ * a valuemap of single float variables based on a StringObjectFunction. 
+ * This is used for miniAOD. 
  *
  * \author: Sal Rappoccio
  *

@@ -36,15 +36,49 @@ namespace ecaldqm
   }
 
   void
-  MESetDet2D::book(DQMStore& _dqmStore)
-  {
-    doBook_(_dqmStore);
-  }
-
-  void
   MESetDet2D::book(DQMStore::IBooker& _ibooker)
   {
-    doBook_(_ibooker);
+    MESetEcal::book(_ibooker);
+
+    if(btype_ == binning::kCrystal){
+      for(unsigned iME(0); iME < mes_.size(); iME++){
+        MonitorElement* me(mes_[iME]);
+
+        binning::ObjectType actualObject(binning::getObject(otype_, iME));
+        if(actualObject == binning::kMEM){
+          for(int iBin(1); iBin <= me->getNbinsX(); ++iBin)
+            me->setBinLabel(iBin, binning::channelName(memDCCId(iBin - 1)));
+        }
+        if(actualObject == binning::kEBMEM){
+          for(int iBin(1); iBin <= me->getNbinsX(); ++iBin)
+            me->setBinLabel(iBin, binning::channelName(iBin + kEBmLow));
+        }
+        if(actualObject == binning::kEEMEM){
+          for(int iBin(1); iBin <= me->getNbinsX() / 2; ++iBin){
+            me->setBinLabel(iBin, binning::channelName(memDCCId(iBin - 1)));
+            me->setBinLabel(iBin + me->getNbinsX() / 2, binning::channelName(memDCCId(iBin + 39)));
+          }
+        }
+      }
+    }
+    else if(btype_ == binning::kDCC){
+      for(unsigned iME(0); iME < mes_.size(); iME++){
+        MonitorElement* me(mes_[iME]);
+
+        binning::ObjectType actualObject(binning::getObject(otype_, iME));
+        if(actualObject == binning::kEcal){
+          me->setBinLabel(1, "EE", 2);
+          me->setBinLabel(6, "EE", 2);
+          me->setBinLabel(3, "EB", 2);
+          me->setBinLabel(5, "EB", 2);
+        }
+      }
+    }
+
+    // To avoid the ambiguity between "content == 0 because the mean is 0" and "content == 0 because the entry is 0"
+    // RenderPlugin must be configured accordingly
+    if(!batchMode_ && kind_ == MonitorElement::DQM_KIND_TPROFILE2D)
+      resetAll(0., 0., -1.);
   }
 
   void
@@ -541,52 +575,5 @@ namespace ecaldqm
     }
 
     MESet::fill_(_iME, _x, _wy, _w);
-  }
-
-  template<class Bookable>
-  void
-  MESetDet2D::doBook_(Bookable& _booker)
-  {
-    MESetEcal::book(_booker);
-
-    if(btype_ == binning::kCrystal){
-      for(unsigned iME(0); iME < mes_.size(); iME++){
-        MonitorElement* me(mes_[iME]);
-
-        binning::ObjectType actualObject(binning::getObject(otype_, iME));
-        if(actualObject == binning::kMEM){
-          for(int iBin(1); iBin <= me->getNbinsX(); ++iBin)
-            me->setBinLabel(iBin, binning::channelName(memDCCId(iBin - 1)));
-        }
-        if(actualObject == binning::kEBMEM){
-          for(int iBin(1); iBin <= me->getNbinsX(); ++iBin)
-            me->setBinLabel(iBin, binning::channelName(iBin + kEBmLow));
-        }
-        if(actualObject == binning::kEEMEM){
-          for(int iBin(1); iBin <= me->getNbinsX() / 2; ++iBin){
-            me->setBinLabel(iBin, binning::channelName(memDCCId(iBin - 1)));
-            me->setBinLabel(iBin + me->getNbinsX() / 2, binning::channelName(memDCCId(iBin + 39)));
-          }
-        }
-      }
-    }
-    else if(btype_ == binning::kDCC){
-      for(unsigned iME(0); iME < mes_.size(); iME++){
-        MonitorElement* me(mes_[iME]);
-
-        binning::ObjectType actualObject(binning::getObject(otype_, iME));
-        if(actualObject == binning::kEcal){
-          me->setBinLabel(1, "EE", 2);
-          me->setBinLabel(6, "EE", 2);
-          me->setBinLabel(3, "EB", 2);
-          me->setBinLabel(5, "EB", 2);
-        }
-      }
-    }
-
-    // To avoid the ambiguity between "content == 0 because the mean is 0" and "content == 0 because the entry is 0"
-    // RenderPlugin must be configured accordingly
-    if(!batchMode_ && kind_ == MonitorElement::DQM_KIND_TPROFILE2D)
-      resetAll(0., 0., -1.);
   }
 }

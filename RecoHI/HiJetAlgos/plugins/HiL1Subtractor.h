@@ -31,8 +31,10 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
 
 //
 // class declaration
@@ -58,11 +60,16 @@ class HiL1Subtractor : public edm::EDProducer {
 
 
   // ----------member data ---------------------------
-  edm::InputTag                 src_;         // input jet source
-
+  // input jet source
+  edm::EDGetTokenT<edm::View<reco::GenJet> >                 genJetSrc_;         
+  edm::EDGetTokenT<edm::View<reco::CaloJet> >                caloJetSrc_;        
+  edm::EDGetTokenT<edm::View<reco::PFJet> >                  pfJetSrc_;        
+  
  protected:
   std::string                   jetType_;     // Type of jet
-  std::string                   rhoTag_;     // Algorithm for rho estimation
+  std::string                   rhoTagString_;     // Algorithm for rho estimation
+
+  edm::EDGetTokenT<std::vector<double> >                     rhoTag_;        
 };
 
 

@@ -314,6 +314,7 @@ bool reco::makeSpecific(vector<reco::CandidatePtr> const & particles,
       case 1: // PFCandidate::h_HF :    // hadron in HF
 	HFHadronEnergy += pfCand->energy();
 	HFHadronMultiplicity++;
+	neutralHadronEnergy += pfCand->energy();
 	neutralMultiplicity++;
 	break;
 

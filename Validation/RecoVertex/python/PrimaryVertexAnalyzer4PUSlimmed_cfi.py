@@ -9,8 +9,8 @@ selectedOfflinePrimaryVertices = cms.EDFilter("VertexSelector",
 selectedOfflinePrimaryVerticesWithBS = selectedOfflinePrimaryVertices.clone()
 selectedOfflinePrimaryVerticesWithBS.src = cms.InputTag('offlinePrimaryVerticesWithBS')
 
-selectedPixelVertices = selectedOfflinePrimaryVertices.clone()
-selectedPixelVertices.src = cms.InputTag('pixelVertices')
+#selectedPixelVertices = selectedOfflinePrimaryVertices.clone()
+#selectedPixelVertices.src = cms.InputTag('pixelVertices')
 
 vertexAnalysis = cms.EDAnalyzer("PrimaryVertexAnalyzer4PUSlimmed",
                                 simG4 = cms.InputTag("g4SimHits"),
@@ -23,14 +23,15 @@ vertexAnalysis = cms.EDAnalyzer("PrimaryVertexAnalyzer4PUSlimmed",
                                 recoTrackProducer = cms.untracked.string("generalTracks"),
                                 vertexRecoCollections = cms.VInputTag("offlinePrimaryVertices",
                                                                       "offlinePrimaryVerticesWithBS",
-                                                                      "pixelVertices",
+#                                                                      "pixelVertices",
                                                                       "selectedOfflinePrimaryVertices",
                                                                       "selectedOfflinePrimaryVerticesWithBS",
-                                                                      "selectedPixelVertices"),
+#                                                                      "selectedPixelVertices"
+                                ),
 )
 
 vertexAnalysisSequence = cms.Sequence(cms.ignore(selectedOfflinePrimaryVertices)
                                       * cms.ignore(selectedOfflinePrimaryVerticesWithBS)
-                                      * cms.ignore(selectedPixelVertices)
+#                                      * cms.ignore(selectedPixelVertices)
                                       * vertexAnalysis
 )

@@ -2,6 +2,7 @@
 
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "FWCore/Framework/interface/OutputModuleDescription.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
@@ -71,10 +72,10 @@ namespace edm {
       bool postCalled = false;
       std::shared_ptr<TriggerResultInserter> returnValue;
       try {
-        maker::ModuleHolderT<TriggerResultInserter> holder(new TriggerResultInserter(*trig_pset, iPrealloc.numberOfStreams()),static_cast<Maker const*>(nullptr));
+        maker::ModuleHolderT<TriggerResultInserter> holder(std::make_shared<TriggerResultInserter>(*trig_pset, iPrealloc.numberOfStreams()),static_cast<Maker const*>(nullptr));
         holder.setModuleDescription(md);
         holder.registerProductsAndCallbacks(&preg);
-        returnValue.reset(holder.release());
+        returnValue =holder.module();
         postCalled = true;
         // if exception then post will be called in the catch block
         areg->postModuleConstructionSignal_(md);
@@ -358,6 +359,7 @@ namespace edm {
                      service::TriggerNamesService& tns,
                      ProductRegistry& preg,
                      BranchIDListHelper& branchIDListHelper,
+                     ThinnedAssociationsHelper& thinnedAssociationsHelper,
                      ExceptionToActionTable const& actions,
                      std::shared_ptr<ActivityRegistry> areg,
                      std::shared_ptr<ProcessConfiguration> processConfiguration,
@@ -375,7 +377,7 @@ namespace edm {
     assert(0<prealloc.numberOfStreams());
     streamSchedules_.reserve(prealloc.numberOfStreams());
     for(unsigned int i=0; i<prealloc.numberOfStreams();++i) {
-      streamSchedules_.emplace_back(std::make_shared<StreamSchedule>(resultsInserter_.get(),moduleRegistry_,proc_pset,tns,prealloc,preg,branchIDListHelper,actions,areg,processConfiguration,nullptr==subProcPSet,StreamID{i},processContext));
+      streamSchedules_.emplace_back(std::make_shared<StreamSchedule>(resultsInserter_,moduleRegistry_,proc_pset,tns,prealloc,preg,branchIDListHelper,actions,areg,processConfiguration,nullptr==subProcPSet,StreamID{i},processContext));
     }
     
     //TriggerResults are injected automatically by StreamSchedules and are
@@ -399,7 +401,7 @@ namespace edm {
       std::copy(modulesToUse.begin(),itBeginUnscheduled,std::back_inserter(temp));
       temp.swap(modulesToUse);
     }
-    globalSchedule_.reset( new GlobalSchedule{ resultsInserter_.get(),
+    globalSchedule_.reset( new GlobalSchedule{ resultsInserter_,
       moduleRegistry_,
       modulesToUse,
       proc_pset, preg, prealloc,
@@ -446,9 +448,14 @@ namespace edm {
 
     preg.setFrozen();
 
+    for(auto const& worker : streamSchedules_[0]->allWorkers()) {
+      worker->registerThinnedAssociations(preg, thinnedAssociationsHelper);
+    }
+    thinnedAssociationsHelper.sort();
+
     for (auto c : all_output_communicators_) {
       c->setEventSelectionInfo(outputModulePathPositions, preg.anyProductProduced());
-      c->selectProducts(preg);
+      c->selectProducts(preg, thinnedAssociationsHelper);
     }
     
     if(wantSummary_) {

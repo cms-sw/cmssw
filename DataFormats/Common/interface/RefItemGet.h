@@ -27,6 +27,23 @@ namespace edm {
         return p;
       }
     };
+
+    template< typename C, typename T, typename F>
+    struct GetPtrImpl<C, T, F, unsigned int> {
+      static T const* getPtr_(RefCore const& product, unsigned int key) {
+        C const* prod = edm::template tryToGetProduct<C>(product);
+        if(prod != nullptr) {
+          F func;
+          T const* p = func(*prod, key);
+          return p;
+        }
+        unsigned int thinnedKey = key;
+        prod = edm::template getThinnedProduct<C>(product, thinnedKey);
+        F func;
+        T const* p = func(*prod, thinnedKey);
+        return p;
+      }
+    };
   }
 
   template <typename C, typename T, typename F, typename KEY>
@@ -42,6 +59,33 @@ namespace edm {
     return p;
   }
 
+  namespace refitem {
+    template< typename C, typename KEY>
+    struct IsThinnedAvailableImpl {
+      static bool isThinnedAvailable_(RefCore const& product, KEY const& key) {
+        return false;
+      }
+    };
+
+    template< typename C >
+    struct IsThinnedAvailableImpl<C, unsigned int> {
+      static bool isThinnedAvailable_(RefCore const& ref, unsigned int key) {
+        if(ref.productPtr() != nullptr) {
+          return true;
+        }
+        if (ref.isTransient()) {
+          return false;
+        }
+        return ref.isThinnedAvailable(key);
+      }
+    };
+  }
+
+  template <typename C, typename KEY>
+  inline
+  bool isThinnedAvailable(RefCore const& product, KEY const& iKey) {
+    return refitem::IsThinnedAvailableImpl<C, KEY>::isThinnedAvailable_(product, iKey);
+  }
 }
 
 #endif

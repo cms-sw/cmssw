@@ -34,7 +34,6 @@ namespace l1t {
 			      std::vector<l1t::CaloSpare> * spares);
 
   private:
-    CaloParamsStage1* const params_;
   };
 }
 

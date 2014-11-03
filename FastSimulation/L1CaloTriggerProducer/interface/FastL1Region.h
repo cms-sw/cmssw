@@ -196,7 +196,6 @@ class FastL1Region {
   FastL1BitInfo BitInfo;
 
   void SetFGBit(int twrid,bool FGBIT);
-  void SetHCFGBit(int twrid,bool FGBIT);
   void SetHOEBit(int twrid,bool FGBIT);
 
  private:
@@ -205,7 +204,6 @@ class FastL1Region {
   void SetHOEBit();
   void SetQuietBit();
   void SetMIPBit();
-  void SetHCFGBit();
 
   // Save Tower info
   // 4x4 matrices (rows,columns):

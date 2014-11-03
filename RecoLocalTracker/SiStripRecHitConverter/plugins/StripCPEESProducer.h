@@ -24,7 +24,7 @@ class  StripCPEESProducer: public edm::ESProducer {
   std::map<std::string,CPE_t> enumMap; 
 
   CPE_t cpeNum;
-  edm::ParameterSet pset;
+  edm::ParameterSet parametersPSet;
   boost::shared_ptr<StripClusterParameterEstimator> cpe;
 
 };

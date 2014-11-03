@@ -346,9 +346,9 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  float innermost_x =0.;
 	  float innermost_y =0.;
 	  float innermost_r =0.;
-	  for(unsigned int j = 0 ; j < Track->extra()->recHits().size(); j++ )
+	  for(unsigned int j = 0 ; j < Track->extra()->recHitsSize(); j++ )
 	    {
-	      edm::Ref<TrackingRecHitCollection> hit( Track->extra()->recHits(), j );
+	      auto hit = Track->extra()->recHitRef(j);
 	      DetId TheDetUnitId(hit->geographicalId());
 	      if( TheDetUnitId.det() != DetId::Muon ) continue;
 	      if( TheDetUnitId.subdetId() != MuonSubdetId::CSC ) continue;

@@ -34,6 +34,7 @@ namespace edmtest {
     
     // ---------- static member functions --------------------
     static unsigned int nDeletes() {return s_nDeletes;}
+    static void resetDeleteCount() {s_nDeletes = 0;}
     
     // ---------- member functions ---------------------------
     

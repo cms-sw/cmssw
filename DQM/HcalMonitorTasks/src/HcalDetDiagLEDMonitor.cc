@@ -305,8 +305,8 @@ void HcalDetDiagLEDMonitor::beginRun(const edm::Run& run, const edm::EventSetup&
   if (mergeRuns_==false) this->reset();
 
   edm::ESHandle<HcalChannelQuality> p;
-  c.get<HcalChannelQualityRcd>().get(p);
-  HcalChannelQuality* chanquality= new HcalChannelQuality(*p.product());
+  c.get<HcalChannelQualityRcd>().get("withTopo",p);
+  const HcalChannelQuality* chanquality= p.product();
   std::vector<DetId> mydetids = chanquality->getAllChannels();
   KnownBadCells_.clear();
 

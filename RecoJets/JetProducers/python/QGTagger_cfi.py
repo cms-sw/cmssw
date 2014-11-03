@@ -9,13 +9,13 @@ QGPoolDBESSource = cms.ESSource("PoolDBESSource",
       toGet = cms.VPSet(
         cms.PSet(
             record = cms.string('QGLikelihoodRcd'),
-            tag    = cms.string('QGLikelihoodObject_'+qgDatabaseVersion+'_AK5PFchs'),
-            label  = cms.untracked.string('QGL_AK5PFchs')
+            tag    = cms.string('QGLikelihoodObject_'+qgDatabaseVersion+'_AK4PFchs'),
+            label  = cms.untracked.string('QGL_AK4PFchs')
         ),
         cms.PSet(
             record = cms.string('QGLikelihoodRcd'),
-            tag    = cms.string('QGLikelihoodObject_'+qgDatabaseVersion+'_AK5PF'),
-            label  = cms.untracked.string('QGL_AK5PF')
+            tag    = cms.string('QGLikelihoodObject_'+qgDatabaseVersion+'_AK4PF'),
+            label  = cms.untracked.string('QGL_AK4PF')
         ),
         cms.PSet(
             record = cms.string('QGLikelihoodSystematicsRcd'),

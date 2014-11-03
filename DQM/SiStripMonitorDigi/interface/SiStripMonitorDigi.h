@@ -173,7 +173,6 @@ class SiStripMonitorDigi : public thread_unsafe::DQMEDAnalyzer {
   bool subdetswitchapvcycleprofon;
   bool subdetswitchapvcycleth2on;
 
-  bool subdetswitchtotdigiproflson;
   bool subdetswitchtotdigifailureon;
 
   bool subdetswitchnapvshotson;

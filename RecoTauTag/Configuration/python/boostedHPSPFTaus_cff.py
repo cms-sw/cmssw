@@ -40,9 +40,9 @@ boostedTauSeeds = cms.EDProducer("BoostedTauSeedsProducer",
 )
 
 from RecoTauTag.Configuration.RecoPFTauTag_cff import *
-recoTauAK5PFJets08Region.src = cms.InputTag('boostedTauSeeds')
-recoTauAK5PFJets08Region.pfCandSrc = cms.InputTag('pfNoPileUpForBoostedTaus')
-recoTauAK5PFJets08Region.pfCandAssocMapSrc = cms.InputTag('boostedTauSeeds', 'pfCandAssocMapForIsolation')
+recoTauAK4PFJets08Region.src = cms.InputTag('boostedTauSeeds')
+recoTauAK4PFJets08Region.pfCandSrc = cms.InputTag('pfNoPileUpForBoostedTaus')
+recoTauAK4PFJets08Region.pfCandAssocMapSrc = cms.InputTag('boostedTauSeeds', 'pfCandAssocMapForIsolation')
 
 ak4PFJetsLegacyHPSPiZeros.jetSrc = cms.InputTag('boostedTauSeeds')
 

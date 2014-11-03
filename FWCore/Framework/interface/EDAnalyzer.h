@@ -17,6 +17,8 @@ namespace edm {
   class ModuleCallingContext;
   class PreallocationConfiguration;
   class ActivityRegistry;
+  class ProductRegistry;
+  class ThinnedAssociationsHelper;
 
   namespace maker {
     template<typename T> class ModuleHolderT;
@@ -61,6 +63,9 @@ namespace edm {
     void doRespondToCloseInputFile(FileBlock const& fb);
     void doPreForkReleaseResources();
     void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
+    void doRegisterThinnedAssociations(ProductRegistry const&,
+                                       ThinnedAssociationsHelper&) { }
+
     void registerProductsAndCallbacks(EDAnalyzer const*, ProductRegistry* reg);
 
     virtual void analyze(Event const&, EventSetup const&) = 0;

@@ -13,7 +13,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/TypeID.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 #include <iostream>
 #include <iomanip>
@@ -72,16 +71,16 @@ void TestProductHolderIndexHelper::testCreateEmpty() {
   matches = helper.relatedIndexes(PRODUCT_TYPE, typeID_ProductID);
   CPPUNIT_ASSERT(matches.numberOfMatches() == 0);
 
-  TypeWithDict typeWithDict(typeid(ProductID));
-  CPPUNIT_ASSERT_THROW( helper.insert(typeWithDict, "labelA", "instanceA", "processA") , cms::Exception);
+  TypeID typeID(typeid(ProductID));
+  CPPUNIT_ASSERT_THROW( helper.insert(typeID, "labelA", "instanceA", "processA") , cms::Exception);
 }
 
 void TestProductHolderIndexHelper::testOneEntry() {
 
   edm::ProductHolderIndexHelper helper;
 
-  TypeWithDict typeWithDictProductID(typeid(ProductID));
-  helper.insert(typeWithDictProductID, "labelA", "instanceA", "processA");
+  TypeID typeIDProductID(typeid(ProductID));
+  helper.insert(typeIDProductID, "labelA", "instanceA", "processA");
 
   CPPUNIT_ASSERT(helper.index(PRODUCT_TYPE, typeID_ProductID, "labelA", "instanceA", "processA") == ProductHolderIndexInvalid);
   CPPUNIT_ASSERT(helper.index(ELEMENT_TYPE, typeID_ProductID, "labelA", "instanceA", "processA") == ProductHolderIndexInvalid);
@@ -141,30 +140,30 @@ void TestProductHolderIndexHelper::testManyEntries() {
 
   edm::ProductHolderIndexHelper helper;
 
-  TypeWithDict typeWithDictProductID(typeid(ProductID));
-  TypeWithDict typeWithDictEventID(typeid(EventID));
-  TypeWithDict typeWithDictVectorInt(typeid(std::vector<int>));
-  TypeWithDict typeWithDictSetInt(typeid(std::set<int>));
-  TypeWithDict typeWithDictVSimpleDerived(typeid(std::vector<edmtest::SimpleDerived>));
+  TypeID typeIDProductID(typeid(ProductID));
+  TypeID typeIDEventID(typeid(EventID));
+  TypeID typeIDVectorInt(typeid(std::vector<int>));
+  TypeID typeIDSetInt(typeid(std::set<int>));
+  TypeID typeIDVSimpleDerived(typeid(std::vector<edmtest::SimpleDerived>));
 
-  helper.insert(typeWithDictVectorInt, "labelC", "instanceC", "processC"); // 0, 1, 2
-  helper.insert(typeWithDictVectorInt, "label",  "instance",  "process");  // 3, 4, 5
-  helper.insert(typeWithDictEventID, "labelB", "instanceB", "processB");   // 6, 7
-  helper.insert(typeWithDictEventID, "label",  "instanceB", "processB");   // 8, 9
-  helper.insert(typeWithDictEventID, "labelX", "instanceB", "processB");   // 10, 11
-  helper.insert(typeWithDictEventID, "labelB", "instance",  "processB");   // 12, 13
-  helper.insert(typeWithDictEventID, "labelB", "instanceX", "processB");   // 14, 15
-  helper.insert(typeWithDictEventID, "labelB", "instanceB", "processB1");  // 16, 5
-  helper.insert(typeWithDictEventID, "labelB", "instanceB", "processB3");  // 17, 5
-  helper.insert(typeWithDictEventID, "labelB", "instanceB", "processB2");  // 18, 5
-  helper.insert(typeWithDictProductID, "label",  "instance",  "process");  // 19, 20
-  helper.insert(typeWithDictEventID, "label",  "instance",  "process");    // 21, 22
-  helper.insert(typeWithDictProductID, "labelA", "instanceA", "processA"); // 23, 24
-  CPPUNIT_ASSERT_THROW(helper.insert(typeWithDictProductID, "labelA", "instanceA", "processA"), cms::Exception); // duplicate
+  helper.insert(typeIDVectorInt, "labelC", "instanceC", "processC"); // 0, 1, 2
+  helper.insert(typeIDVectorInt, "label",  "instance",  "process");  // 3, 4, 5
+  helper.insert(typeIDEventID, "labelB", "instanceB", "processB");   // 6, 7
+  helper.insert(typeIDEventID, "label",  "instanceB", "processB");   // 8, 9
+  helper.insert(typeIDEventID, "labelX", "instanceB", "processB");   // 10, 11
+  helper.insert(typeIDEventID, "labelB", "instance",  "processB");   // 12, 13
+  helper.insert(typeIDEventID, "labelB", "instanceX", "processB");   // 14, 15
+  helper.insert(typeIDEventID, "labelB", "instanceB", "processB1");  // 16, 5
+  helper.insert(typeIDEventID, "labelB", "instanceB", "processB3");  // 17, 5
+  helper.insert(typeIDEventID, "labelB", "instanceB", "processB2");  // 18, 5
+  helper.insert(typeIDProductID, "label",  "instance",  "process");  // 19, 20
+  helper.insert(typeIDEventID, "label",  "instance",  "process");    // 21, 22
+  helper.insert(typeIDProductID, "labelA", "instanceA", "processA"); // 23, 24
+  CPPUNIT_ASSERT_THROW(helper.insert(typeIDProductID, "labelA", "instanceA", "processA"), cms::Exception); // duplicate
 
-  helper.insert(typeWithDictSetInt, "labelC", "instanceC", "processC"); // 25, 26
+  helper.insert(typeIDSetInt, "labelC", "instanceC", "processC"); // 25, 26
 
-  helper.insert(typeWithDictVSimpleDerived, "labelC", "instanceC", "processC"); // 27, 28, 29, 30
+  helper.insert(typeIDVSimpleDerived, "labelC", "instanceC", "processC"); // 27, 28, 29, 30
 
   // helper.print(std::cout);
   helper.setFrozen();

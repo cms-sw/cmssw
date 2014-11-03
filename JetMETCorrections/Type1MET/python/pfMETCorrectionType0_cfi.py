@@ -54,6 +54,13 @@ type0PFMEtCorrectionPFCandToVertexAssociation = cms.Sequence(
    * pfCandidateToVertexAssociation
 )
 
+type0PFMEtCorrectionPFCandToVertexAssociationForValidation = cms.Sequence(
+    cms.ignore(selectedVerticesForPFMEtCorrType0)
+   * cms.ignore(selectedPrimaryVertexHighestPtTrackSumForPFMEtCorrType0)
+   * particleFlowDisplacedVertex
+   * pfCandidateToVertexAssociation
+)
+
 type0PFMEtCorrection = cms.Sequence(
     type0PFMEtCorrectionPFCandToVertexAssociation
    * pfMETcorrType0

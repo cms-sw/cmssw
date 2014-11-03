@@ -431,7 +431,7 @@ void TSGForRoadSearch::pushTrajectorySeed(const reco::Track & muon, std::vector<
 	  LogDebug(theCategory)<<"copying ("<<muon.recHitsSize()<<") muon recHits";
 	  //copy the muon rechit into the seed
 	  for (trackingRecHit_iterator trit = muon.recHitsBegin(); trit!=muon.recHitsEnd();trit++) {
-	    rhContainer.push_back( (*trit).get()->clone() );  }}
+	    rhContainer.push_back( (*trit)->clone() );  }}
 	
 	if ( hit->isValid()) {
 	  TrajectoryStateOnSurface upState(theUpdator->update(predState,*hit));
@@ -477,7 +477,7 @@ void TSGForRoadSearch::pushTrajectorySeed(const reco::Track & muon, std::vector<
       LogDebug(theCategory)<<"copying ("<<muon.recHitsSize()<<") muon recHits";
       //copy the muon rechit into the seed
       for (trackingRecHit_iterator trit = muon.recHitsBegin(); trit!=muon.recHitsEnd();trit++) {
-	rhContainer.push_back( (*trit).get()->clone() );  }}
+	rhContainer.push_back( (*trit)->clone() );  }}
     
     //add this seed to the list and return it
     result.push_back(TrajectorySeed(PTSOD,rhContainer,direction));

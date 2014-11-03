@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <iostream>
 #include <fstream>
@@ -13,7 +14,6 @@
 #include <vector>
 #include <string>
 
-class DQMStore;
 class MonitorElement;
 class TkDetMap;
 class TrackingDetCabling;
@@ -27,14 +27,14 @@ class TrackingQualityChecker {
   virtual ~TrackingQualityChecker();
 
 
-  void bookGlobalStatus(DQMStore* dqm_store);     
-  void bookLSStatus(DQMStore* dqm_store);     
+  void bookGlobalStatus(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter);     
+  void bookLSStatus(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter);     
   void resetGlobalStatus();
   void resetLSStatus();
   void fillDummyGlobalStatus();
   void fillDummyLSStatus();
-  void fillGlobalStatus(DQMStore* dqm_store);
-  void fillLSStatus(DQMStore* dqm_store);
+  void fillGlobalStatus(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter);
+  void fillLSStatus(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter);
   
  private:
 
@@ -52,8 +52,8 @@ class TrackingQualityChecker {
     float           HistoLSUpperCut; 
   };
 
-  void fillTrackingStatus(DQMStore* dqm_store); 
-  void fillTrackingStatusAtLumi(DQMStore* dqm_store);
+  void fillTrackingStatus(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter); 
+  void fillTrackingStatusAtLumi(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter);
 
   void fillStatusHistogram(MonitorElement*, int xbin, int ybin, float val);
 
@@ -67,6 +67,7 @@ class TrackingQualityChecker {
   MonitorElement* TrackLSSummaryReportGlobal;
 
   edm::ParameterSet pSet_;
+  bool verbose_;
 
   bool bookedTrackingGlobalStatus_;
   bool bookedTrackingLSStatus_;

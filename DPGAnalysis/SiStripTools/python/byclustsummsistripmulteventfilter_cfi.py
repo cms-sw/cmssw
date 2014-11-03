@@ -4,7 +4,7 @@ byclustsummsistripmulteventfilter = cms.EDFilter('ByClusterSummarySingleMultipli
                                                  multiplicityConfig = cms.PSet(
                                                                  clusterSummaryCollection = cms.InputTag("clusterSummaryProducer"),
                                                                  subDetEnum = cms.int32(0),
-                                                                 subDetVariable = cms.string("cHits")
+                                                                 varEnum = cms.int32(0)
                                                                  ),
                                                  cut = cms.string("mult > 300")
                                                  )

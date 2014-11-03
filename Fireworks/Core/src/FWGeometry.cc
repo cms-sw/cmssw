@@ -29,14 +29,17 @@ FWGeometry::findFile( const char* fileName )
 
    if (gSystem->Getenv( "CMSSW_SEARCH_PATH" ))
    {    
+
        TString paths = gSystem->Getenv( "CMSSW_SEARCH_PATH" );
+
        TObjArray* tokens = paths.Tokenize( ":" );
        for( int i = 0; i < tokens->GetEntries(); ++i )
        {
            TObjString* path = (TObjString*)tokens->At( i );
            searchPath += ":";
            searchPath += path->GetString();
-           searchPath += "/Fireworks/Geometry/data/";
+           if (gSystem->Getenv("CMSSW_VERSION"))
+               searchPath += "/Fireworks/Geometry/data/";
        }
    }
 

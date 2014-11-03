@@ -26,6 +26,7 @@ output stream.
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 #include <array>
+#include <memory>
 #include <string>
 #include <vector>
 #include <map>
@@ -37,6 +38,8 @@ namespace edm {
   class ModuleCallingContext;
   class PreallocationConfiguration;
   class ActivityRegistry;
+  class ProductRegistry;
+  class ThinnedAssociationsHelper;
 
   namespace maker {
     template<typename T> class ModuleHolderT;
@@ -67,7 +70,7 @@ namespace edm {
 
     bool selected(BranchDescription const& desc) const;
 
-    void selectProducts(ProductRegistry const& preg);
+    void selectProducts(ProductRegistry const& preg, ThinnedAssociationsHelper const&);
     std::string const& processName() const {return process_name_;}
     SelectedProductsForBranchType const& keptProducts() const {return keptProducts_;}
     std::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
@@ -82,6 +85,8 @@ namespace edm {
     bool wantAllEvents() const {return wantAllEvents_;}
 
     BranchIDLists const* branchIDLists() const;
+
+    ThinnedAssociationsHelper const* thinnedAssociationsHelper() const;
 
   protected:
 
@@ -162,6 +167,9 @@ namespace edm {
     std::unique_ptr<BranchIDLists> branchIDLists_;
     BranchIDLists const* origBranchIDLists_;
 
+    std::unique_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper_;
+    std::map<BranchID, bool> keepAssociation_;
+
     typedef std::map<BranchID, std::set<ParentageID> > BranchParents;
     BranchParents branchParents_;
 
@@ -180,6 +188,8 @@ namespace edm {
     void doRespondToCloseInputFile(FileBlock const& fb);
     void doPreForkReleaseResources();
     void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
+    void doRegisterThinnedAssociations(ProductRegistry const&,
+                                       ThinnedAssociationsHelper&) { }
 
     std::string workerType() const {return "WorkerT<OutputModule>";}
 
@@ -218,6 +228,10 @@ namespace edm {
     virtual bool isFileOpen() const { return true; }
 
     virtual void reallyOpenFile() {}
+
+    void keepThisBranch(BranchDescription const& desc,
+                        std::map<BranchID, BranchDescription const*>& trueBranchIDToKeptBranchDesc,
+                        std::set<BranchID>& keptProductsInEvent);
 
     void setModuleDescription(ModuleDescription const& md) {
       moduleDescription_ = md;

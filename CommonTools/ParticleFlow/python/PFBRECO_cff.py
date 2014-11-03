@@ -13,8 +13,8 @@ from CommonTools.ParticleFlow.pfTaus_cff import *
 #from CommonTools.ParticleFlow.deltaBetaWeights_cff  import *
 
 # sequential top projection cleaning
-from CommonTools.ParticleFlow.TopProjectors.pfNoMuon_cfi import * 
-from CommonTools.ParticleFlow.TopProjectors.pfNoElectron_cfi import * 
+from CommonTools.ParticleFlow.TopProjectors.pfNoMuon_cfi import *
+from CommonTools.ParticleFlow.TopProjectors.pfNoElectron_cfi import *
 from CommonTools.ParticleFlow.TopProjectors.pfNoJet_cff import *
 from CommonTools.ParticleFlow.TopProjectors.pfNoTau_cff import *
 
@@ -29,19 +29,19 @@ from CommonTools.ParticleFlow.genForPF2PAT_cff import *
 
 pfPileUp.PFCandidates = 'particleFlowPtrs'
 pfNoPileUp.bottomCollection = 'particleFlowPtrs'
-pfPileUpIso.PFCandidates = 'particleFlowPtrs' 
+pfPileUpIso.PFCandidates = 'particleFlowPtrs'
 pfNoPileUpIso.bottomCollection='particleFlowPtrs'
-pfPileUpJME.PFCandidates = 'particleFlowPtrs' 
+pfPileUpJME.PFCandidates = 'particleFlowPtrs'
 pfNoPileUpJME.bottomCollection='particleFlowPtrs'
 
 PFBRECO = cms.Sequence(
     particleFlowPtrs +
     pfNoPileUpSequence +
     pfNoPileUpJMESequence +
-    pfParticleSelectionSequence + 
+    pfParticleSelectionSequence +
 #    pfDeltaBetaWeightingSequence +
     pfPhotonSequence +
-    pfMuonSequence + 
+    pfMuonSequence +
     pfNoMuon +
     pfNoMuonJME +
     pfElectronSequence +
@@ -49,7 +49,7 @@ PFBRECO = cms.Sequence(
     pfNoElectronJME +
     pfNoElectronJMEClones+
     pfJetSequence +
-    pfNoJet + 
+    pfNoJet +
     pfTauSequence +
     pfNoTau +
     pfMET

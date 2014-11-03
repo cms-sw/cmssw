@@ -139,7 +139,7 @@ void testExpressionParser::checkAll() {
   edm::TestHandle<reco::TrackExtraCollection> h(&trkExtras, pid);
   reco::TrackExtraRef trkExtraRef(h, 0);
   trk.setExtra(trkExtraRef);
-  trk.setAlgorithm(reco::Track::iter2);
+  trk.setAlgorithm(reco::Track::pixelPairStep);
   {
     edm::TypeWithDict t(typeid(reco::Track));
     o = edm::ObjectWithDict(t, & trk);
@@ -153,7 +153,7 @@ void testExpressionParser::checkAll() {
     checkTrack("hitPattern.numberOfValidHits", trk.hitPattern().numberOfValidHits());
     checkTrack("extra.outerPhi", trk.extra()->outerPhi());
     checkTrack("referencePoint.R", trk.referencePoint().R());
-    checkTrack("algo", reco::Track::iter2);
+    checkTrack("algo", reco::Track::pixelPairStep);
     checkTrack("quality('highPurity')", trk.quality(reco::TrackBase::highPurity));
     checkTrack("cosh(theta)", cosh(trk.theta()));
     checkTrack("hypot(px, py)", hypot(trk.px(), trk.py()));

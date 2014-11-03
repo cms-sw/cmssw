@@ -6,12 +6,12 @@ from DQMOffline.PFTau.metBenchmark_cfi import matchMetBenchmark
 ########
 # Cor Calo MET
 from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import *
-from JetMETCorrections.Type1MET.MetType1Corrections_cff import metJESCorAK5CaloJet
+from JetMETCorrections.Type1MET.MetType1Corrections_cff import metJESCorAK4CaloJet
 
-metMuonJESCorAK5 = metJESCorAK5CaloJet.clone()
-metMuonJESCorAK5.inputUncorMetLabel = "caloMetM"
+metMuonJESCorAK4 = metJESCorAK4CaloJet.clone()
+metMuonJESCorAK4.inputUncorMetLabel = "caloMetM"
 
-metCorSequence = cms.Sequence(metMuonJESCorAK5)
+metCorSequence = cms.Sequence(metMuonJESCorAK4)
 #########
 
 
@@ -23,8 +23,8 @@ pfMetBenchmark.mode = 2
 caloMetBenchmark = metBenchmark.clone()
 #caloMetBenchmark.InputCollection = 'met'
 #caloMetBenchmark.BenchmarkLabel = 'met'
-caloMetBenchmark.InputCollection = 'metMuonJESCorAK5'
-caloMetBenchmark.BenchmarkLabel = 'metMuonJESCorAK5'
+caloMetBenchmark.InputCollection = 'metMuonJESCorAK4'
+caloMetBenchmark.BenchmarkLabel = 'metMuonJESCorAK4'
 caloMetBenchmark.mode = 2
 
 trueMetBenchmark = metBenchmark.clone()
@@ -40,11 +40,11 @@ MatchPfMetBenchmark.BenchmarkLabel = 'pfMet'
 
 MatchCaloMetBenchmark = matchMetBenchmark.clone()
 #MatchCaloMetBenchmark.InputCollection = 'met'
-MatchCaloMetBenchmark.InputCollection = 'metMuonJESCorAK5'
+MatchCaloMetBenchmark.InputCollection = 'metMuonJESCorAK4'
 MatchCaloMetBenchmark.MatchCollection = 'genMetTrue'
 MatchCaloMetBenchmark.mode = 2
 #MatchCaloMetBenchmark.BenchmarkLabel = 'met'
-MatchCaloMetBenchmark.BenchmarkLabel = 'metMuonJESCorAK5'
+MatchCaloMetBenchmark.BenchmarkLabel = 'metMuonJESCorAK4'
 
 UncorrCaloMetBenchmark = metBenchmark.clone()
 UncorrCaloMetBenchmark.InputCollection = 'caloMetM'

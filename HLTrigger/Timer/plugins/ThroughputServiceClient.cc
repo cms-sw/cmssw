@@ -33,8 +33,8 @@ public:
 private:
   std::string m_dqm_path;
 
-  void dqmEndLuminosityBlock(DQMStore::IGetter & getter, edm::LuminosityBlock const & lumi, edm::EventSetup const & setup);
-  void dqmEndJob(DQMStore::IBooker & booker, DQMStore::IGetter & getter);
+  void dqmEndLuminosityBlock(DQMStore::IBooker & booker, DQMStore::IGetter & getter, edm::LuminosityBlock const &, edm::EventSetup const&) override;
+  void dqmEndJob(DQMStore::IBooker & booker, DQMStore::IGetter & getter) override;
 
 private:
   void fillSummaryPlots(        DQMStore::IBooker & booker, DQMStore::IGetter & getter);
@@ -57,9 +57,9 @@ ThroughputServiceClient::dqmEndJob(DQMStore::IBooker & booker, DQMStore::IGetter
 }
 
 void
-ThroughputServiceClient::dqmEndLuminosityBlock(DQMStore::IGetter & getter, edm::LuminosityBlock const & lumi, edm::EventSetup const & setup)
+ThroughputServiceClient::dqmEndLuminosityBlock(DQMStore::IBooker & booker, DQMStore::IGetter & getter, edm::LuminosityBlock const &, edm::EventSetup const&)
 {
-  // fillSummaryPlots(getter);
+  fillSummaryPlots(booker, getter);
 }
 
 void
@@ -85,10 +85,19 @@ ThroughputServiceClient::fillSummaryPlots(DQMStore::IBooker & booker, DQMStore::
   for (auto const & folder: folders) {
     TH1F * sourced = getter.get( folder + "/throughput_sourced" )->getTH1F();
     TH1F * retired = getter.get( folder + "/throughput_retired" )->getTH1F();
+    TH1F * concurrent = nullptr;
     booker.setCurrentFolder(folder);
     unsigned int nbins = sourced->GetXaxis()->GetNbins();
     double       range = sourced->GetXaxis()->GetXmax();
-    TH1F * concurrent = booker.book1D("concurrent", "Concurrent events being processed", nbins, 0., range)->getTH1F();
+    MonitorElement * me = getter.get( folder + "/concurrent" );
+    if (me) {
+      concurrent = me->getTH1F();
+      assert( concurrent->GetXaxis()->GetNbins() == (int) nbins );
+      assert( concurrent->GetXaxis()->GetXmax()  == range );
+      concurrent->Reset();
+    } else {
+      concurrent = booker.book1D("concurrent", "Concurrent events being processed", nbins, 0., range)->getTH1F();
+    }
     double sum = 0;
     // from bin=0 (underflow) to bin=nbins+1 (overflow)
     for (unsigned int i = 0; i <= nbins+1; ++i) {

@@ -8,7 +8,7 @@ from PhysicsTools.PatAlgos.tools.trigTools import _addEventContent
 #from PhysicsTools.PatUtils.patPFMETCorrections_cff import *
 import RecoMET.METProducers.METSigParams_cfi as jetResolutions
 from PhysicsTools.PatAlgos.producersLayer1.metProducer_cfi import patMETs
- 
+
 from PhysicsTools.PatUtils.tools.objectsUncertaintyTools import *
 
 ##MM
@@ -21,35 +21,35 @@ class JetMEtUncertaintyTools(ConfigToolBase):
     _defaultParameters=dicttypes.SortedKeysDict()
     def __init__(self):
         ConfigToolBase.__init__(self)
-        self.addParameter(self._defaultParameters, 'electronCollection', cms.InputTag('cleanPatElectrons'), 
+        self.addParameter(self._defaultParameters, 'electronCollection', cms.InputTag('cleanPatElectrons'),
 	                  "Input electron collection", Type=cms.InputTag, acceptNoneValue=True)
-	self.addParameter(self._defaultParameters, 'photonCollection', None, # CV: set to empty InputTag to avoid double-counting wrt. cleanPatElectrons collection 
+	self.addParameter(self._defaultParameters, 'photonCollection', None, # CV: set to empty InputTag to avoid double-counting wrt. cleanPatElectrons collection
 	                  "Input photon collection", Type=cms.InputTag, acceptNoneValue=True)
-	self.addParameter(self._defaultParameters, 'muonCollection', cms.InputTag('cleanPatMuons'), 
+	self.addParameter(self._defaultParameters, 'muonCollection', cms.InputTag('cleanPatMuons'),
                           "Input muon collection", Type=cms.InputTag, acceptNoneValue=True)
-	self.addParameter(self._defaultParameters, 'tauCollection', cms.InputTag('cleanPatTaus'), 
+	self.addParameter(self._defaultParameters, 'tauCollection', cms.InputTag('cleanPatTaus'),
                           "Input tau collection", Type=cms.InputTag, acceptNoneValue=True)
-	self.addParameter(self._defaultParameters, 'jetCollection', cms.InputTag('cleanPatJets'), 
+	self.addParameter(self._defaultParameters, 'jetCollection', cms.InputTag('cleanPatJets'),
                           "Input jet collection", Type=cms.InputTag)
-        self.addParameter(self._defaultParameters, 'jetCorrLabel', "L3Absolute", 
-                          "NOTE: use 'L3Absolute' for MC/'L2L3Residual' for Data", Type=str)
-	self.addParameter(self._defaultParameters, 'doSmearJets', True, 
+        self.addParameter(self._defaultParameters, 'jetCorrLabel', cms.InputTag("L3Absolute"),
+                          "NOTE: use 'L3Absolute' for MC/'L2L3Residual' for Data", Type=cms.InputTag)
+	self.addParameter(self._defaultParameters, 'doSmearJets', True,
                           "Flag to enable/disable jet smearing to better match MC to Data", Type=bool)
-	self.addParameter(self._defaultParameters, 'jetSmearFileName', 'PhysicsTools/PatUtils/data/pfJetResolutionMCtoDataCorrLUT.root', 
-                          "Name of ROOT file containing histogram with jet smearing factors", Type=str) 
-        self.addParameter(self._defaultParameters, 'jetSmearHistogram', 'pfJetResolutionMCtoDataCorrLUT', 
-                          "Name of histogram with jet smearing factors", Type=str) 
-	self.addParameter(self._defaultParameters, 'jetCorrPayloadName', 'AK4PF', 
+	self.addParameter(self._defaultParameters, 'jetSmearFileName', 'PhysicsTools/PatUtils/data/pfJetResolutionMCtoDataCorrLUT.root',
+                          "Name of ROOT file containing histogram with jet smearing factors", Type=str)
+        self.addParameter(self._defaultParameters, 'jetSmearHistogram', 'pfJetResolutionMCtoDataCorrLUT',
+                          "Name of histogram with jet smearing factors", Type=str)
+	self.addParameter(self._defaultParameters, 'jetCorrPayloadName', 'AK4PF',
                           "Use AK4PF for PFJets, AK4Calo for CaloJets", Type=str)
-        self.addParameter(self._defaultParameters, 'jetCorrLabelUpToL3', 'ak4PFL1FastL2L3',
-                          "Use ak4PFL1FastL2L3 (ak4PFchsL1FastL2L3) for PFJets with (without) charged hadron subtraction, ak4CaloL1FastL2L3 for CaloJets", Type=str)
-        self.addParameter(self._defaultParameters, 'jetCorrLabelUpToL3Res', 'ak4PFL1FastL2L3Residual',
-                          "Use ak4PFL1FastL2L3Residual (ak4PFchsL1FastL2L3Residual) for PFJets with (without) charged hadron subtraction, ak4CaloL1FastL2L3Residual for CaloJets", Type=str)
+        self.addParameter(self._defaultParameters, 'jetCorrLabelUpToL3', cms.InputTag('ak4PFL1FastL2L3Corrector'),
+                          "Use ak4PFL1FastL2L3Corrector (ak4PFchsL1FastL2L3Corrector) for PFJets with (without) charged hadron subtraction, ak4CaloL1FastL2L3Corrector for CaloJets", Type=cms.InputTag)
+        self.addParameter(self._defaultParameters, 'jetCorrLabelUpToL3Res', cms.InputTag('ak4PFL1FastL2L3ResidualCorrector'),
+                          "Use ak4PFL1FastL2L3ResidualCorrector (ak4PFchsL1FastL2L3ResiduaCorrectorl) for PFJets with (without) charged hadron subtraction, ak4CaloL1FastL2L3ResidualCorrector for CaloJets", Type=cms.InputTag)
         self.addParameter(self._defaultParameters, 'jecUncertaintyFile', "PhysicsTools/PatUtils/data/Summer13_V1_DATA_UncertaintySources_AK5PF.txt",
                           "Name of file containing jet energy uncertainty parameters", Type=str)
         self.addParameter(self._defaultParameters, 'jecUncertaintyTag', 'SubTotalMC',
                           "Name of tag for Data/MC jet energy uncertainties", Type=str)
-	self.addParameter(self._defaultParameters, 'varyByNsigmas', 1.0, 
+	self.addParameter(self._defaultParameters, 'varyByNsigmas', 1.0,
                           "Number of standard deviations by which energies are varied", Type=float)
         self.addParameter(self._defaultParameters, 'addToPatDefaultSequence', True,
                           "Flag to enable/disable that metUncertaintySequence is inserted into patDefaultSequence", Type=bool)
@@ -59,11 +59,11 @@ class JetMEtUncertaintyTools(ConfigToolBase):
                           "Technical parameter to identify the resulting sequence and its modules (allows multiple calls in a job)", Type=str)
         self._parameters = copy.deepcopy(self._defaultParameters)
         self._comment = ""
-        
+
     def getDefaultParameters(self):
         return self._defaultParameters
 
-  
+
     def _initializeInputTag(self, input, default):
         retVal = None
         if input is None:
@@ -100,12 +100,12 @@ class JetMEtUncertaintyTools(ConfigToolBase):
                     algorithm           = cms.string("byDeltaR"),
                     preselection        = cms.string(""),
                     deltaR              = cms.double(0.5),
-                    checkRecoComponents = cms.bool(False), 
+                    checkRecoComponents = cms.bool(False),
                     pairCut             = cms.string(""),
                     requireNoOverlaps   = cms.bool(True),
                 ))
                 numOverlapCollections = numOverlapCollections + 1
-        lastJetCollection = jetCollection.value()        
+        lastJetCollection = jetCollection.value()
         if numOverlapCollections >= 1:
             lastJetCollection = \
                 addModuleToSequence(process, jetsNotOverlappingWithLeptons,
@@ -116,7 +116,7 @@ class JetMEtUncertaintyTools(ConfigToolBase):
         return ( lastJetCollection, cleanedJetCollection )
 
 
-    def _addShiftedParticleCollections(self, process, 
+    def _addShiftedParticleCollections(self, process,
                                        electronCollection = None,
                                        photonCollection = None,
                                        muonCollection = None,
@@ -128,19 +128,19 @@ class JetMEtUncertaintyTools(ConfigToolBase):
                                        jetSmearFileName=None, jetSmearHistogram=None,
                                        varyByNsigmas = None,
                                        postfix = ""):
-    
+
         shiftedParticleSequence = cms.Sequence()
-        shiftedParticleCollections = {}        
+        shiftedParticleCollections = {}
         collectionsToKeep = []
 
         # standard jet collections
         shiftedParticleCollections[ 'cleanedJetCollection' ] = cleanedJetCollection
 
         #--------------------------------------------------------------------------------------------
-        # store collection of jets shifted up/down in energy resolution    
-        #--------------------------------------------------------------------------------------------  
+        # store collection of jets shifted up/down in energy resolution
+        #--------------------------------------------------------------------------------------------
         if not isValidInputTag(jetCollection) or jetCollection=="":
-            print "Warning, jet collection %s does not exists, no energy resolution shifting performed in PAT" % jetCollection
+            print "INFO : jet collection %s does not exists, no energy resolution shifting will be performed in MET uncertainty tools" % jetCollection
         else:
             if addShiftedResJetCollections:
                 variations = { "ResUp":-1., "ResDown":1.  }
@@ -154,41 +154,41 @@ class JetMEtUncertaintyTools(ConfigToolBase):
                     jetCol={'jetCollection%s'%var:jetCollectionToKeep}
                     shiftedParticleCollections.update( jetCol )
                     collectionsToKeep.append( jetCollectionToKeep )
-               
+
         #--------------------------------------------------------------------------------------------
-        # produce collection of jets shifted up/down in energy    
-        #--------------------------------------------------------------------------------------------     
+        # produce collection of jets shifted up/down in energy
+        #--------------------------------------------------------------------------------------------
         if not isValidInputTag(jetCollection) or jetCollection=="":
-            print "Warning, jet collection %s does not exists, no energy shifting performed in PAT" % jetCollection
+            print "INFO : jet collection %s does not exists, no energy shifting will be performed in MET uncertainty tools" % jetCollection
         else:
             shiftedJetsCollections, jetsCollectionsToKeep = addShiftedJetCollections(
                 process,jetCollection,lastJetCollection,
                 jetCorrLabelUpToL3, jetCorrLabelUpToL3Res,
                 jecUncertaintyFile, jecUncertaintyTag,
-                varyByNsigmas, shiftedParticleSequence, 
+                varyByNsigmas, shiftedParticleSequence,
                 postfix)
             shiftedParticleCollections.update( shiftedJetsCollections )
             collectionsToKeep.extend( jetsCollectionsToKeep )
-        
+
         #--------------------------------------------------------------------------------------------
         # produce collection of electrons shifted up/down in energy
         #--------------------------------------------------------------------------------------------
         if not isValidInputTag(electronCollection) or electronCollection=="":
-            print "Warning, electron collection %s does not exists, no energy shifting performed in PAT" % electronCollection
+            print "INFO : electron collection %s does not exists, no energy shifting will be performed in MET uncertainty tools" % electronCollection
         else:
             shiftedElectronsCollections, electronsCollectionsToKeep = addShiftedSingleParticleCollection(
                 process, "electron", electronCollection,
                 varyByNsigmas,shiftedParticleSequence,
                 postfix)
-            
+
             shiftedParticleCollections.update( shiftedElectronsCollections )
             collectionsToKeep.extend( electronsCollectionsToKeep )
 
         #--------------------------------------------------------------------------------------------
         # produce collection of (high Pt) photon candidates shifted up/down in energy
-        #--------------------------------------------------------------------------------------------  
+        #--------------------------------------------------------------------------------------------
         if not isValidInputTag(photonCollection) or photonCollection=="":
-            print "Warning, photon collection %s does not exists, no energy shifting performed in PAT" % photonCollection
+            print "INFO : photon collection %s does not exists, no energy shifting will be performed in MET uncertainty tools" % photonCollection
         else:
             shiftedPhotonsCollections, photonsCollectionsToKeep = addShiftedSingleParticleCollection(
                 process, "photon", photonCollection,
@@ -198,10 +198,10 @@ class JetMEtUncertaintyTools(ConfigToolBase):
             collectionsToKeep.extend( photonsCollectionsToKeep )
 
         #--------------------------------------------------------------------------------------------
-        # produce collection of muons shifted up/down in energy/momentum  
+        # produce collection of muons shifted up/down in energy/momentum
         #--------------------------------------------------------------------------------------------
         if not isValidInputTag(muonCollection) or muonCollection=="":
-            print "Warning, muon collection %s does not exists, no energy shifting performed in PAT" % muonCollection
+            print "INFO : muon collection %s does not exists, no energy shifting will be performed in MET uncertainty tools" % muonCollection
         else:
             shiftedMuonsCollections, muonsCollectionsToKeep = addShiftedSingleParticleCollection(process, "muon", muonCollection,
                                                varyByNsigmas,shiftedParticleSequence,
@@ -211,9 +211,9 @@ class JetMEtUncertaintyTools(ConfigToolBase):
 
         #--------------------------------------------------------------------------------------------
         # produce collection of tau-jets shifted up/down in energy
-        #-------------------------------------------------------------------------------------------- 
+        #--------------------------------------------------------------------------------------------
         if not isValidInputTag(tauCollection) or tauCollection=="":
-            print "Warning, tau collection %s does not exists, no energy shifting performed in PAT" % tauCollection
+            print "INFO : tau collection %s does not exists, no energy shifting  will be performed in MET uncertainty tools" % tauCollection
         else:
             shiftedTausCollections, tausCollectionsToKeep = addShiftedSingleParticleCollection(process, "tau", tauCollection,
                                                varyByNsigmas,shiftedParticleSequence,
@@ -253,15 +253,15 @@ class JetMEtUncertaintyTools(ConfigToolBase):
         setattr(process, moduleNameShiftDown, moduleShiftDown)
         metUncertaintySequence += moduleShiftDown
 
-        return ( moduleNameShiftUp, moduleNameShiftDown )
+        moduleNameShifts = { 'Up':moduleNameShiftUp , 'Down':moduleNameShiftDown }
+        return moduleNameShifts
+ #       return ( moduleNameShiftUp, moduleNameShiftDown )
 
     def _getLeptonsForPFMEtInput(self, shiftedParticleCollections, substituteKeyUnshifted = None, substituteKeyShifted = None, postfix=""):
         retVal = []
-        for collectionName in [ 'electronCollection',
-                                'photonCollection',
-                                'muonCollection',
-                                'tauCollection' ]:
-            if self._isValidInputTag(shiftedParticleCollections[collectionName]):
+        for particleCol in shiftedParticleCollections.keys():
+            if not (particleCol.find("Jet") or particleCol.find("jet") ) and isValidInputTag(shiftedParticleCollections[collectionName]):
+                print collectionName,"==>:"+shiftedParticleCollections[collectionName]
                 if substituteKeyUnshifted is not None and substituteKeyUnshifted in shiftedParticleCollections.keys() and \
                    substituteKeyShifted is not None and substituteKeyShifted in shiftedParticleCollections.keys() and \
                    shiftedParticleCollections[collectionName] == shiftedParticleCollections[substituteKeyUnshifted]:
@@ -269,11 +269,11 @@ class JetMEtUncertaintyTools(ConfigToolBase):
                 else:
                     retVal.append(shiftedParticleCollections[collectionName])
         return retVal
-            
+
     def _addPATMEtProducer(self, process, metUncertaintySequence,
-                           patMEtCollection, metCollection,
+                           metCollection, patMEtCollection,
                            collectionsToKeep, postfix):
-    
+
         module = patMETs.clone(
             metSource = cms.InputTag(metCollection),
             addMuonCorrections = cms.bool(False),
@@ -283,6 +283,7 @@ class JetMEtUncertaintyTools(ConfigToolBase):
         setattr(process, patMEtCollectionName, module)
         metUncertaintySequence += module
         collectionsToKeep.append(patMEtCollectionName)
+
 
     def __call__(self, process,
                  electronCollection      = None,
@@ -353,4 +354,4 @@ class JetMEtUncertaintyTools(ConfigToolBase):
         self.setParameter('addToPatDefaultSequence', addToPatDefaultSequence)
         self.setParameter('outputModule', outputModule)
         self.setParameter('postfix', postfix)
-  
+

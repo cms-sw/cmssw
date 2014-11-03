@@ -39,7 +39,6 @@ import FWCore.ParameterSet.Config as cms
 from DQMOffline.Trigger.HLTGeneralOffline_cfi import *
 
 from DQMOffline.Trigger.EgHLTOfflineSource_cfi import *
-#from DQMOffline.Trigger.TopElectronHLTOfflineSource_cfi import *
 # Muon
 from DQMOffline.Trigger.MuonOffline_Trigger_cff import *
 # Top
@@ -67,9 +66,7 @@ import DQMServices.Components.DQMEnvironment_cfi
 dqmEnvHLT= DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
 dqmEnvHLT.subSystemFolder = 'HLT'
 
-#offlineHLTSource = cms.Sequence(hltResults*egHLTOffDQMSource*topElectronHLTOffDQMSource*muonFullOfflineDQM*quadJetAna*HLTTauDQMOffline*jetMETHLTOfflineSource*TnPEfficiency*dqmEnvHLT)
 
-# Remove topElectronHLTOffDQMSource
 # remove quadJetAna
 from DQMOffline.Trigger.topHLTOfflineDQM_cff import *
 offlineHLTSource = cms.Sequence(

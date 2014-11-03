@@ -285,7 +285,9 @@ public:
     uint32_t getTrackerLayerCase(HitCategory category, uint16_t substr, uint16_t layer) const;
     uint16_t getTrackerMonoStereo(HitCategory category, uint16_t substr, uint16_t layer) const;
 
+    int trackerLayersWithMeasurementOld() const;        // case 0: tracker
     int trackerLayersWithMeasurement() const;        // case 0: tracker
+    int pixelLayersWithMeasurementOld() const;          // case 0: pixel  
     int pixelLayersWithMeasurement() const;          // case 0: pixel
     int stripLayersWithMeasurement() const;          // case 0: strip
     int pixelBarrelLayersWithMeasurement() const;    // case 0: pixel PXB
@@ -296,6 +298,7 @@ public:
     int stripTECLayersWithMeasurement() const;       // case 0: strip TEC
 
     int trackerLayersWithoutMeasurement(HitCategory category) const;     // case 1: tracker
+    int trackerLayersWithoutMeasurementOld(HitCategory category) const;     // case 1: tracker 
     int pixelLayersWithoutMeasurement(HitCategory category) const;       // case 1: pixel
     int stripLayersWithoutMeasurement(HitCategory category) const;       // case 1: strip
     int pixelBarrelLayersWithoutMeasurement(HitCategory category) const; // case 1: pixel PXB
@@ -381,6 +384,11 @@ private:
     // 1 bit to distinguish tracker and muon subsystems
     const static unsigned short SubDetectorOffset = 10;
     const static unsigned short SubDetectorMask = 0x1;
+
+    const static unsigned short minTrackerWord = 1<< SubDetectorOffset;
+    const static unsigned short minPixelWord = minTrackerWord |  (1<<SubstrOffset);
+    const static unsigned short minStripWord = minTrackerWord |  (3<<SubstrOffset);
+
 
     // detector side for tracker modules (mono/stereo)
     static uint16_t isStereo(DetId i);
@@ -527,16 +535,9 @@ inline bool HitPattern::pixelEndcapHitFilter(uint16_t pattern)
 
 inline bool HitPattern::stripHitFilter(uint16_t pattern)
 {
-    if unlikely(!trackerHitFilter(pattern)) {
-        return false;
-    }
-
-    uint32_t substructure = getSubStructure(pattern);
-    return (substructure == StripSubdetector::TIB ||
-            substructure == StripSubdetector::TID ||
-            substructure == StripSubdetector::TOB ||
-            substructure == StripSubdetector::TEC);
+    return pattern > minStripWord;
 }
+
 
 inline bool HitPattern::stripSubdetectorHitFilter(uint16_t pattern, StripSubdetector::SubDetector substructure)
 {
@@ -599,11 +600,7 @@ inline bool HitPattern::muonRPCHitFilter(uint16_t pattern)
 
 inline bool HitPattern::trackerHitFilter(uint16_t pattern)
 {
-    if unlikely(pattern == HitPattern::EMPTY_PATTERN) {
-        return false;
-    }
-
-    return (((pattern >> SubDetectorOffset) & SubDetectorMask) == 1);
+  return pattern > minTrackerWord;
 }
 
 inline bool HitPattern::muonHitFilter(uint16_t pattern)
@@ -909,12 +906,12 @@ inline int HitPattern::numberOfInactiveTrackerHits() const
     return countTypedHits(TRACK_HITS, inactiveHitFilter, trackerHitFilter);
 }
 
-inline int HitPattern::trackerLayersWithMeasurement() const
+inline int HitPattern::trackerLayersWithMeasurementOld() const
 {
     return pixelLayersWithMeasurement() + stripLayersWithMeasurement();
 }
 
-inline int HitPattern::pixelLayersWithMeasurement() const
+inline int HitPattern::pixelLayersWithMeasurementOld() const
 {
     return pixelBarrelLayersWithMeasurement() + pixelEndcapLayersWithMeasurement();
 }
@@ -925,7 +922,7 @@ inline int HitPattern::stripLayersWithMeasurement() const
            stripTOBLayersWithMeasurement() + stripTECLayersWithMeasurement();
 }
 
-inline int HitPattern::trackerLayersWithoutMeasurement(HitCategory category) const
+inline int HitPattern::trackerLayersWithoutMeasurementOld(HitCategory category) const
 {
     return pixelLayersWithoutMeasurement(category) +
            stripLayersWithoutMeasurement(category);

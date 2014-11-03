@@ -204,7 +204,8 @@ void RunManagerMTWorker::initializeThread(const RunManagerMT& runManagerMaster, 
       G4TransportationManager * tM =
 	G4TransportationManager::GetTransportationManager();
       m_tls->fieldBuilder->build( tM->GetFieldManager(),
-                                  tM->GetPropagatorInField());
+                                  tM->GetPropagatorInField(),
+                                  runManagerMaster.chordFinderSetterForWorker());
     }
 
 

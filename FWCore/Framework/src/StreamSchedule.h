@@ -149,7 +149,7 @@ namespace edm {
 
     typedef std::vector<WorkerInPath> PathWorkers;
 
-    StreamSchedule(TriggerResultInserter* inserter,
+    StreamSchedule(std::shared_ptr<TriggerResultInserter> inserter,
                    std::shared_ptr<ModuleRegistry>,
                    ParameterSet& proc_pset,
                    service::TriggerNamesService& tns,

@@ -434,11 +434,11 @@ SiStripFineDelayHit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
            LogDebug("produce") << "    The cluster is close enough."<< std::endl;
   	 // build the rawdigi corresponding to the leading strip and save it
   	 // here, only the leading strip is retained. All other rawdigis in the module are set to 0.
-  	 const std::vector< uint8_t >& amplitudes = candidateCluster.first->amplitudes();
+  	 const auto & amplitudes = candidateCluster.first->amplitudes();
   	 uint8_t leadingCharge = 0;
   	 uint8_t leadingStrip = candidateCluster.first->firstStrip();
   	 uint8_t leadingPosition = 0;
-  	 for(std::vector< uint8_t >::const_iterator amplit = amplitudes.begin();amplit<amplitudes.end();amplit++,leadingStrip++) {
+  	 for(auto amplit = amplitudes.begin();amplit<amplitudes.end();amplit++,leadingStrip++) {
   	   if(leadingCharge<*amplit) {
   	     leadingCharge = *amplit;
   	     leadingPosition = leadingStrip;
@@ -520,11 +520,11 @@ SiStripFineDelayHit::produceNoTracking(edm::Event& iEvent, const edm::EventSetup
      for(edmNew::DetSet<SiStripCluster>::const_iterator iter=begin;iter!=end;++iter) {
          // build the rawdigi corresponding to the leading strip and save it
          // here, only the leading strip is retained. All other rawdigis in the module are set to 0.
-	 const std::vector< uint8_t >& amplitudes = iter->amplitudes();
+	 auto const & amplitudes = iter->amplitudes();
 	 uint8_t leadingCharge = 0;
 	 uint8_t leadingStrip = iter->firstStrip();
 	 uint8_t leadingPosition = 0;
-	 for(std::vector< uint8_t >::const_iterator amplit = amplitudes.begin();amplit<amplitudes.end();amplit++,leadingStrip++) {
+	 for(auto amplit = amplitudes.begin();amplit<amplitudes.end();amplit++,leadingStrip++) {
 	   if(leadingCharge<*amplit) {
 	     leadingCharge = *amplit;
 	     leadingPosition = leadingStrip;

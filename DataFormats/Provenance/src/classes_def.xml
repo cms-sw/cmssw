@@ -1,11 +1,15 @@
 <lcgdict>
+ <class name="edm::ViewTypeChecker" ClassVersion="2">
+  <version ClassVersion="2" checksum="2398868528"/>
+ </class>
  <class name="edm::ProductID" ClassVersion="10">
   <version ClassVersion="10" checksum="1501211476"/>
  </class>
  <class name="edm::BranchID" ClassVersion="10">
   <version ClassVersion="10" checksum="21214741"/>
  </class>
- <class name="edm::EventID" ClassVersion="10">
+ <class name="edm::EventID" ClassVersion="11">
+  <version ClassVersion="11" checksum="341254076"/>
   <version ClassVersion="10" checksum="1903450811"/>
  </class>
  <class name="edm::LuminosityBlockID" ClassVersion="10">
@@ -102,7 +106,8 @@
  <class name="edm::FileFormatVersion" ClassVersion="10">
   <version ClassVersion="10" checksum="2078548510"/>
  </class>
- <class name="edm::FileIndex::Element" ClassVersion="10">
+ <class name="edm::FileIndex::Element" ClassVersion="11">
+  <version ClassVersion="11" checksum="1881476699"/>
   <version ClassVersion="10" checksum="1310120368"/>
  </class>
  <class name="std::vector<edm::FileIndex::Element>"/>
@@ -186,7 +191,13 @@
  </class>
  <class name="std::vector<ROOT::TSchemaHelper>"/>
  <class name="std::vector<TFormula*>"/>
- 
+
+ <class name="edm::ThinnedAssociationBranches"/>
+ <class name="std::vector<edm::ThinnedAssociationBranches>"/>
+ <class name="edm::ThinnedAssociationsHelper" ClassVersion="10">
+  <version ClassVersion="10" checksum="3444973106"/>
+ </class>
+
  <ioread sourceClass="edm::ProductProvenance" targetClass="edm::ProductProvenance" version="[1-]" source="" target="transient_">
  <![CDATA[
 	newObj->initializeTransients();

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ProcessOne")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = 'sqlite_file:EcalSRSettings_v00_beam10_mc.db'
+process.CondDBCommon.connect = 'sqlite_file:EcalSRSettings_beam2015_option1_v00_mc.db'
 process.CondDBCommon.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -21,7 +21,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDBCommon,
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('EcalSRSettingsRcd'),
-        tag = cms.string('EcalSRSettings_v00_beam10_mc')
+        tag = cms.string('EcalSRSettings_beam2015_option1_v00_mc')
     ))
 )
 
@@ -116,23 +116,58 @@ process.writeInDB = cms.EDAnalyzer("EcalSRCondTools",
 )
 
 
-# Changes settings to 2009 and 2010 beam ones:
+## Changes settings to 2009 and 2010 beam ones:
+##
+## DCC ZS FIR weights.
+#process.writeInDB.dccNormalizedWeights = cms.vdouble(-1.1865, 0.0195, 0.2900, 0.3477, 0.3008, 0.2266)
 #
-# DCC ZS FIR weights.
-process.writeInDB.dccNormalizedWeights = cms.vdouble(-1.1865, 0.0195, 0.2900, 0.3477, 0.3008, 0.2266)
+## Index of time sample (starting from 1) the first DCC weights is implied
+#process.writeInDB.ecalDccZs1stSample = cms.int32(3)
+#
+## ZS energy threshold in GeV to apply to low interest channels of barrel
+#process.writeInDB.ebDccAdcToGeV = cms.double(0.035)
+#process.writeInDB.srpBarrelLowInterestChannelZS = cms.double(2.25*0.035)
+#
+## ZS energy threshold in GeV to apply to low interest channels of endcap
+#process.writeInDB.eeDccAdcToGeV = cms.double(0.06)
+#process.writeInDB.srpEndcapLowInterestChannelZS = cms.double(3.75*0.06)
 
-# Index of time sample (staring from 1) the first DCC weights is implied
+
+## Changes settings to 2011 beam ones:
+## Index of time sample (starting from 1) the first DCC weights is implied
+#process.writeInDB.ecalDccZs1stSample = cms.int32(2)
+#
+## ZS energy threshold in GeV to apply to low interest channels of barrel
+#process.writeInDB.ebDccAdcToGeV = cms.double(0.035)
+#process.writeInDB.srpBarrelLowInterestChannelZS = cms.double(2.25*0.035)
+#
+## ZS energy threshold in GeV to apply to low interest channels of endcap
+#process.writeInDB.eeDccAdcToGeV = cms.double(0.06)
+#process.writeInDB.srpEndcapLowInterestChannelZS = cms.double(3.75*0.06)
+
+
+## Changes settings to 2012 beam ones:
+## Index of time sample (starting from 1) the first DCC weights is implied
+#process.writeInDB.ecalDccZs1stSample = cms.int32(2)
+#
+## ZS energy threshold in GeV to apply to low interest channels of barrel
+#process.writeInDB.ebDccAdcToGeV = cms.double(0.035)
+#process.writeInDB.srpBarrelLowInterestChannelZS = cms.double(2.75*0.035)
+#
+## ZS energy threshold in GeV to apply to low interest channels of endcap
+#process.writeInDB.eeDccAdcToGeV = cms.double(0.06)
+#process.writeInDB.srpEndcapLowInterestChannelZS = cms.double(6*0.06)
+
+# Changes settings to 2015 beam ones:
+# Index of time sample (starting from 1) the first DCC weights is implied
 process.writeInDB.ecalDccZs1stSample = cms.int32(3)
 
 # ZS energy threshold in GeV to apply to low interest channels of barrel
 process.writeInDB.ebDccAdcToGeV = cms.double(0.035)
-process.writeInDB.srpBarrelLowInterestChannelZS = cms.double(2.25*0.035)
+process.writeInDB.srpBarrelLowInterestChannelZS = cms.double(2.75*0.035)
 
 # ZS energy threshold in GeV to apply to low interest channels of endcap
 process.writeInDB.eeDccAdcToGeV = cms.double(0.06)
-process.writeInDB.srpEndcapLowInterestChannelZS = cms.double(3.75*0.06)
-
-
+process.writeInDB.srpEndcapLowInterestChannelZS = cms.double(6*0.06)
 
 process.p = cms.Path(process.writeInDB)
-

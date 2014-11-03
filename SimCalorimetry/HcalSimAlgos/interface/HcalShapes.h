@@ -32,7 +32,7 @@ public:
 private:
   // hardcoded, if we can't figure it out form the DB
   const CaloVShape * defaultShape(const DetId & detId) const;
-  const HcalMCParams * theMCParams;
+  HcalMCParams * theMCParams;
   const HcalTopology * theTopology;
   typedef std::map<int, const CaloVShape *> ShapeMap;
   ShapeMap theShapes;

@@ -4,6 +4,7 @@
 #include <cctype>
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/ProductSelector.h"
 #include "FWCore/Framework/interface/ProductSelectorRules.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -70,6 +71,46 @@ namespace edm {
        << productsToSelect_.size()
        << " products to select:\n";      
     copy_all(productsToSelect_, std::ostream_iterator<std::string>(os, "\n"));
+  }
+
+  void
+  ProductSelector::checkForDuplicateKeptBranch(BranchDescription const& desc,
+                                               std::map<BranchID, BranchDescription const*>& trueBranchIDToKeptBranchDesc) {
+    // Check if an equivalent branch has already been selected due to an EDAlias.
+    // We only need the check for products produced in this process.
+    if(desc.produced()) {
+      BranchID const& trueBranchID = desc.originalBranchID();
+      std::map<BranchID, BranchDescription const*>::const_iterator iter = trueBranchIDToKeptBranchDesc.find(trueBranchID);
+      if(iter != trueBranchIDToKeptBranchDesc.end()) {
+        throw edm::Exception(errors::Configuration, "Duplicate Output Selection")
+          << "Two (or more) equivalent branches have been selected for output.\n"
+          << "#1: " << BranchKey(desc) << "\n"
+          << "#2: " << BranchKey(*iter->second) << "\n"
+          << "Please drop at least one of them.\n";
+      }
+      trueBranchIDToKeptBranchDesc.insert(std::make_pair(trueBranchID, &desc));
+    }
+  }
+
+  // Fills in a mapping needed in the case that a branch was dropped while its EDAlias was kept.
+  void
+  ProductSelector::fillDroppedToKept(ProductRegistry const& preg,
+                                     std::map<BranchID, BranchDescription const*> const& trueBranchIDToKeptBranchDesc,
+                                     std::map<BranchID::value_type, BranchID::value_type>& droppedBranchIDToKeptBranchID_) {
+    for(auto const& it : preg.productList()) {
+      BranchDescription const& desc = it.second;
+      if(!desc.produced() || desc.isAlias()) continue;
+      BranchID const& branchID = desc.branchID();
+      std::map<BranchID, BranchDescription const*>::const_iterator iter = trueBranchIDToKeptBranchDesc.find(branchID);
+      if(iter != trueBranchIDToKeptBranchDesc.end()) {
+        // This branch, produced in this process, or an alias of it, was persisted.
+        BranchID const& keptBranchID = iter->second->branchID();
+        if(keptBranchID != branchID) {
+          // An EDAlias branch was persisted.
+          droppedBranchIDToKeptBranchID_.insert(std::make_pair(branchID.id(), keptBranchID.id()));
+        }
+      }
+    }
   }
 
 

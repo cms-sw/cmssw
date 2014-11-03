@@ -31,6 +31,10 @@ class TFile;
 class TTree;
 class TBranch;
 
+namespace edm {
+  class ThinnedAssociationsHelper;
+}
+
 namespace fwlite {
   namespace internal {
     class BMRStrategy {
@@ -45,8 +49,10 @@ namespace fwlite {
       virtual bool updateMap() = 0;
       virtual edm::BranchID productToBranchID(const edm::ProductID& pid) = 0;
       virtual const edm::BranchDescription& productToBranch(const edm::ProductID& pid) = 0;
+      virtual const edm::BranchDescription& branchIDToBranch(const edm::BranchID& bid) const = 0;
       virtual const std::vector<edm::BranchDescription>& getBranchDescriptions() = 0;
       virtual const edm::BranchListIndexes& branchListIndexes() const = 0;
+      virtual const edm::ThinnedAssociationsHelper& thinnedAssociationsHelper() const = 0;
 
       TFile* currentFile_;
       TTree* eventTree_;
@@ -74,7 +80,9 @@ namespace fwlite {
     bool updateEvent(Long_t eventEntry);
     bool updateLuminosityBlock(Long_t luminosityBlockEntry);
     bool updateRun(Long_t runEntry);
+    edm::BranchID productToBranchID(const edm::ProductID& pid) { return strategy_->productToBranchID(pid); }
     const edm::BranchDescription& productToBranch(const edm::ProductID& pid);
+    const edm::BranchDescription& branchIDToBranch(const edm::BranchID& bid) const { return strategy_->branchIDToBranch(bid); }
     int getFileVersion(TFile* file);
     int getFileVersion() const { return  fileVersion_;}
 
@@ -88,6 +96,7 @@ namespace fwlite {
     Long_t getRunEntry() const { return strategy_->runEntry_; }
     const std::vector<edm::BranchDescription>& getBranchDescriptions();
     const edm::BranchListIndexes& branchListIndexes() const { strategy_->updateMap(); return strategy_->branchListIndexes(); }
+    const edm::ThinnedAssociationsHelper& thinnedAssociationsHelper() const { return strategy_->thinnedAssociationsHelper(); }
 
       // ---------- member data --------------------------------
   private:

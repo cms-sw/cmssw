@@ -27,18 +27,14 @@ class SiPixelGenErrorDBObjectReader : public edm::EDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 		
-			edm::ESWatcher<SiPixelGenErrorDBObjectESProducerRcd>  SiPixGenerDBObjectWatcher_;
-      edm::ESWatcher<SiPixelGenErrorDBObjectRcd>  SiPixGenerDBObjWatcher_;
+      //edm::ESWatcher<SiPixelGenErrorDBObjectESProducerRcd>  SiPixGenerDBObjectWatcher_;
+      //edm::ESWatcher<SiPixelGenErrorDBObjectRcd>  SiPixGenerDBObjWatcher_;
 			
       std::string theGenErrorCalibrationLocation;
       bool theDetailedGenErrorDBErrorOutput;
       bool theFullGenErrorDBOutput;
-			bool testGlobalTag;
-			
-			SiPixelGenErrorDBObject dbobject;
-			bool hasTriggeredWatcher;			
-			
-
+      //bool testGlobalTag;
+      SiPixelGenErrorDBObject dbobject;
+      //bool hasTriggeredWatcher;			
 };
-
 #endif

@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 pixelDigitizer = cms.PSet(
+    DoPixelAging = cms.bool(False),
     accumulatorType = cms.string("SiPixelDigitizer"),
     hitsProducer = cms.string('g4SimHits'),
     makeDigiSimLinks = cms.untracked.bool(True),
@@ -41,20 +42,19 @@ pixelDigitizer = cms.PSet(
     TanLorentzAnglePerTesla_BPix = cms.double(0.106),
     AddNoisyPixels = cms.bool(True),
     Alpha2Order = cms.bool(True),
-    AddPixelInefficiency = cms.int32(0), # deprecated, use next option
     AddPixelInefficiencyFromPython = cms.bool(True),
     AddNoise = cms.bool(True),
     ChargeVCALSmearing = cms.bool(True),
     GainSmearing = cms.double(0.0),
     GeometryType = cms.string('idealForDigi'),                           
-    useDB = cms.bool(True),
+    useDB = cms.bool(False),
     LorentzAngle_DB = cms.bool(True),
     DeadModules_DB = cms.bool(True),
-##    killModules = cms.bool(False),
-##    DeadModules_DB = cms.bool(False),
     killModules = cms.bool(True),
     NumPixelBarrel = cms.int32(3),
     NumPixelEndcap = cms.int32(2),
+    theInstLumiScaleFactor = cms.double(261.9),
+    bunchScaleAt25 = cms.double(1.0), #for 25ns case
     thePixelColEfficiency_BPix1 = cms.double(1.0), 	# Only used when AddPixelInefficiency = true
     thePixelColEfficiency_BPix2 = cms.double(1.0),
     thePixelColEfficiency_BPix3 = cms.double(1.0),
@@ -204,6 +204,16 @@ pixelDigitizer = cms.PSet(
         1.0032,
         -1.96206e-08,
         -1.99009e-10
+        ),
+    theInnerEfficiency_FPix1 = cms.double(1.0),
+    theInnerEfficiency_FPix2 = cms.double(1.0),
+    theOuterEfficiency_FPix1 = cms.double(1.0),
+    theOuterEfficiency_FPix2 = cms.double(1.0),
+    thePUEfficiency_FPix_Inner = cms.vdouble(
+        1.0
+        ),
+    thePUEfficiency_FPix_Outer = cms.vdouble(
+        1.0
         ),
 DeadModules = cms.VPSet(
  cms.PSet(Dead_detID = cms.int32(302055940), Module = cms.string("tbmB"))

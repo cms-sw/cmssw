@@ -4,6 +4,8 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+
 namespace edm { class Run; class Event; class EventSetup; }
 
 class TrackerGeometry;
@@ -25,7 +27,8 @@ private:
   virtual void produce(edm::Event& ev, const edm::EventSetup& es);
   int getContainedHits(const std::vector<VertexHit> &hits, double z0, double &chi);
 
-  std::string srcPixels_; //pixel rec hits
+  std::string srcPixelsString_; //pixel rec hits
+  edm::EDGetTokenT<SiPixelRecHitCollection> srcPixels_;
 
   double minZ_;
   double maxZ_;

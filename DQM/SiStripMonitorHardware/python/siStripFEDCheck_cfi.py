@@ -11,6 +11,11 @@ siStripFEDCheck = cms.EDAnalyzer("SiStripFEDCheckPlugin",
   HistogramUpdateFrequency = cms.untracked.uint32(1000),
   #Print info about errors buffer dumps to LogInfo(SiStripFEDCheck)
   PrintDebugMessages = cms.untracked.bool(False),
+  doPLOTfedsPresent       = cms.bool(True),                                 
+  doPLOTfedFatalErrors    = cms.bool(True),                                 
+  doPLOTfedNonFatalErrors = cms.bool(True),                                 
+  doPLOTnFEDinVsLS        = cms.bool(False),                                 
+  doPLOTnFEDinWdataVsLS   = cms.bool(False),                                 
   #Write the DQM store to a file (DQMStore.root) at the end of the run
   WriteDQMStore = cms.untracked.bool(False),
   #Use to disable all payload (non-fatal) checks
@@ -23,4 +28,7 @@ siStripFEDCheck = cms.EDAnalyzer("SiStripFEDCheckPlugin",
   CheckFELengths = cms.untracked.bool(True),
   #Use to disable check on channel status bits
   CheckChannelStatus = cms.untracked.bool(True),
+  LSBin = cms.int32(5000),
+  LSMin = cms.double(0.5),
+  LSMax = cms.double(5000.5),  
 )

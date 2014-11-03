@@ -82,8 +82,8 @@ namespace fwlite {
             TBranch* branch_;
             Long64_t lastProduct_;
             edm::ObjectWithDict obj_; // For wrapped object
-            void* pObj_; // pointer to pProd_.  ROOT requires the address of the pointer be stable
-            edm::WrapperBase* pProd_; // pointer to product wrapper
+            void* pObj_; // ROOT requires the address of the pointer be stable
+            edm::WrapperBase const* pProd_; // WrapperBase of the wrapped object
 
             ~Data() {
                obj_.typeOf().destruct(obj_.address(), true);

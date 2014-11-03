@@ -3,6 +3,7 @@
 #include "DQM/EcalCommon/interface/MESetUtils.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -12,8 +13,7 @@ EcalCondDBReader::EcalCondDBReader(edm::ParameterSet const& _ps) :
   worker_(0),
   formula_(_ps.getUntrackedParameter<std::string>("formula")),
   meSet_(ecaldqm::createMESet(_ps.getUntrackedParameterSet("plot"))),
-  verbosity_(_ps.getUntrackedParameter<int>("verbosity")),
-  executed_(false)
+  verbosity_(_ps.getUntrackedParameter<int>("verbosity"))
 {
   std::string table(_ps.getUntrackedParameter<std::string>("table"));
   edm::ParameterSet const& workerParams(_ps.getUntrackedParameterSet("workerParams"));
@@ -49,8 +49,6 @@ EcalCondDBReader::EcalCondDBReader(edm::ParameterSet const& _ps) :
 
   if(!worker_)
     throw cms::Exception("Configuration") << "Invalid worker type";
-
-  meSet_->book(*edm::Service<DQMStore>());
 
   std::string DBName(_ps.getUntrackedParameter<std::string>("DBName"));
   std::string hostName(_ps.getUntrackedParameter<std::string>("hostName"));
@@ -120,13 +118,11 @@ EcalCondDBReader::~EcalCondDBReader()
 }
  
 void
-EcalCondDBReader::analyze(edm::Event const&, edm::EventSetup const&)
+EcalCondDBReader::dqmEndJob(DQMStore::IBooker& _ibooker, DQMStore::IGetter&)
 {
-  if(executed_) return;
+  meSet_->book(_ibooker);
 
   std::map<DetId, double> values(worker_->run(db_, monIOV_, formula_));
   for(std::map<DetId, double>::const_iterator vItr(values.begin()); vItr != values.end(); ++vItr)
     meSet_->setBinContent(vItr->first, vItr->second);
-
-  executed_ = true;
 }

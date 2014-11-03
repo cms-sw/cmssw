@@ -631,7 +631,7 @@ void SiStripMonitorTrack::trackStudyFromTrack(edm::Handle<reco::TrackCollection 
       if (!(*hit)->isValid()) continue;
       DetId detID = (*hit)->geographicalId();
       if (detID.det() != DetId::Tracker) continue;
-      const TrackingRecHit* theHit = (*hit).get();
+      const TrackingRecHit* theHit = (*hit);
       const ProjectedSiStripRecHit2D* projhit    = dynamic_cast<const ProjectedSiStripRecHit2D*>( (theHit) );
       const SiStripMatchedRecHit2D*   matchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>  ( (theHit) );
       const SiStripRecHit2D*          hit2D      = dynamic_cast<const SiStripRecHit2D*>         ( (theHit) );
@@ -892,7 +892,7 @@ void SiStripMonitorTrack::fillModMEs(SiStripClusterInfo* cluster,std::string nam
     int PGVposCounter = cluster->maxIndex();
     for (int i= int(conf_.getParameter<edm::ParameterSet>("TProfileClusterPGV").getParameter<double>("xmin"));i<PGVposCounter;++i)
       fillME(iModME->second.ClusterPGV, i,0.);
-    for (std::vector<uint8_t>::const_iterator it=cluster->stripCharges().begin();it<cluster->stripCharges().end();++it) {
+    for (auto it=cluster->stripCharges().begin();it<cluster->stripCharges().end();++it) {
       fillME(iModME->second.ClusterPGV, PGVposCounter++,(*it)/PGVmax);
     }
     for (int i= PGVposCounter;i<int(conf_.getParameter<edm::ParameterSet>("TProfileClusterPGV").getParameter<double>("xmax"));++i)

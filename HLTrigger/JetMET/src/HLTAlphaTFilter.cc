@@ -2,6 +2,12 @@
  *
  *
  *  \author Bryn Mathias
+ *  \modified Mark Baber, Adam Elwood
+ *
+ *  Filter for the AlphaT SUSY analysis
+ *  Makes a trigger decision based on the event HT
+ *  and the AlphaT value. AlphaT cut is chosen
+ *  to reject all the QCD background
  *
  */
 
@@ -35,6 +41,7 @@ HLTAlphaTFilter<T>::HLTAlphaTFilter(const edm::ParameterSet& iConfig) : HLTFilte
   minHt_               = iConfig.getParameter<double> ("minHt");
   minAlphaT_           = iConfig.getParameter<double> ("minAlphaT");
   triggerType_         = iConfig.getParameter<int>("triggerType");
+  dynamicAlphaT_       = iConfig.getParameter<bool>("dynamicAlphaT");
   // sanity checks
 
   if (       (minPtJet_.size()    !=  etaJet_.size())
@@ -78,6 +85,7 @@ void HLTAlphaTFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<double>("minHt",0.0);
   desc.add<double>("minAlphaT",0.0);
   desc.add<int>("triggerType",trigger::TriggerJet);
+  desc.add<bool>("dynamicAlphaT",true); //Set to reproduce old behaviour
   descriptions.add(std::string("hlt")+std::string(typeid(HLTAlphaTFilter<T>).name()),desc);
 }
 
@@ -112,70 +120,150 @@ bool HLTAlphaTFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
   iEvent.getByToken(m_theFastJetToken,recojetsFastJet);
 
 
+  int n(0);
+
+  //OLD - DYNAMIC ALPHAT BEHAVIOUR
+  //Produce AlphaT dynamically, first on two jets, then three etc until it does
+  //or doesn't pass
+  if (dynamicAlphaT_){
+    // look at all candidates,  check cuts and add to filter object
+    int flag(0);
+    double htFast = 0.;
+    double aT =0.;
+    unsigned int njets(0);
+
+    if(recojets->size() > 1){
+      // events with at least two jets, needed for alphaT
+      // Make a vector of Lorentz Jets for the AlphaT calcualtion
+      std::vector<LorentzV> jets;
+      typename TCollection::const_iterator ijet     = recojets->begin();
+      typename TCollection::const_iterator ijetFast = recojetsFastJet->begin();
+      typename TCollection::const_iterator jjet     = recojets->end();
 
 
 
-  // look at all candidates,  check cuts and add to filter object
-  int n(0), flag(0);
-  double htFast = 0.;
-  unsigned int njets(0);
+      for( ; ijet != jjet; ijet++, ijetFast++ ) {
+        if( flag == 1) break;
+        // Do Some Jet selection!
+        if( std::abs(ijet->eta()) > etaJet_.at(0) ) continue;
+        if( ijet->et() < minPtJet_.at(0) ) continue;
+        njets++;
 
-  if(recojets->size() > 1){
-    // events with at least two jets, needed for alphaT
-    // Make a vector of Lorentz Jets for the AlphaT calcualtion
-    std::vector<LorentzV> jets;
+        if (njets > maxNJets_) //to keep timing reasonable - if too many jets passing pt / eta cuts, just accept the event
+          flag = 1;
+
+        else {
+
+          if( std::abs(ijetFast->eta()) < etaJet_.at(1) ){
+            if( ijetFast->et() > minPtJet_.at(1) ) {
+              // Add to HT
+              htFast += ijetFast->et();
+            }
+          }
+
+          // Add to JetVector
+          LorentzV JetLVec(ijet->pt(),ijet->eta(),ijet->phi(),ijet->mass());
+          jets.push_back( JetLVec );
+          aT = AlphaT(jets).value();
+          if(htFast > minHt_ && aT > minAlphaT_){
+            // set flat to one so that we don't carry on looping though the jets
+            flag = 1;
+          }
+        }
+
+      }
+      
+      //If passed, add jets to the filter product for the DQM
+      if (flag==1) {
+        for (typename TCollection::const_iterator recojet = recojets->begin(); recojet!=jjet; recojet++) {
+          if (recojet->et() > minPtJet_.at(0)) {
+            ref = TRef(recojets,distance(recojets->begin(),recojet));
+            filterproduct.addObject(triggerType_,ref);
+            n++;
+          }
+        }
+      }
+    }// events with at least two jet
+
+    // filter decision
+    bool accept(n>0);
+
+    return accept;
+  }
+  // NEW - STATIC ALPHAT BEHAVIOUR
+  // just reproduce
+  else{
+    // look at all candidates,  check cuts and add to filter object
+    int flag(0);
     typename TCollection::const_iterator ijet     = recojets->begin();
-    typename TCollection::const_iterator ijetFast = recojetsFastJet->begin();
     typename TCollection::const_iterator jjet     = recojets->end();
 
 
+    if( (recojets->size() > 1) && (recojetsFastJet->size() > 1) ){
 
-    for( ; ijet != jjet; ijet++, ijetFast++ ) {
-      if( flag == 1) break;
-      // Do Some Jet selection!
-      if( std::abs(ijet->eta()) > etaJet_.at(0) ) continue;
-      if( ijet->et() < minPtJet_.at(0) ) continue;
-      njets++;
-
-      if (njets > maxNJets_) //to keep timing reasonable - if too many jets passing pt / eta cuts, just accept the event
-	flag = 1;
-
-      else {
-
-	if( std::abs(ijetFast->eta()) < etaJet_.at(1) ){
-	  if( ijetFast->et() > minPtJet_.at(1) ) {
-	    // Add to HT
-	    htFast += ijetFast->et();
-	  }
-	}
-
-	// Add to JetVector
-	LorentzV JetLVec(ijet->pt(),ijet->eta(),ijet->phi(),ijet->mass());
-	jets.push_back( JetLVec );
-	double aT = AlphaT(jets).value();
-	if(htFast > minHt_ && aT > minAlphaT_){
-	  // set flat to one so that we don't carry on looping though the jets
-	  flag = 1;
-	}
+      // events with at least two jets, needed for alphaT
+      double htFast = 0.;
+      typename TCollection::const_iterator ijetFast = recojetsFastJet->begin();
+      typename TCollection::const_iterator jjetFast = recojetsFastJet->end();
+      for( ; ijetFast != jjetFast; ijetFast++ ) {
+        if( std::abs(ijetFast->eta()) < etaJet_.at(1) ){
+          if( ijetFast->et() > minPtJet_.at(1) ) {
+            // Add to HT
+            htFast += ijetFast->et();
+          }
+        }
       }
 
-    }
+      if(htFast > minHt_){
 
-    if (flag==1) {
-      for (typename TCollection::const_iterator recojet = recojets->begin(); recojet!=jjet; recojet++) {
-	if (recojet->et() > minPtJet_.at(0)) {
-	  ref = TRef(recojets,distance(recojets->begin(),recojet));
-	  filterproduct.addObject(triggerType_,ref);
-	  n++;
-	}
+        unsigned int njets(0);
+        // Make a vector of Lorentz Jets for the AlphaT calcualtion
+        std::vector<LorentzV> jets;
+        for( ; ijet != jjet; ijet++ ) {
+          if( std::abs(ijet->eta()) > etaJet_.at(0) ) continue;
+          if( ijet->et() < minPtJet_.at(0) ) continue;
+          njets++;
+
+          if (njets > maxNJets_) { //to keep timing reasonable - if too many jets passing pt / eta cuts, just accept the event
+            flag = 1;
+            break; //Added for efficiency
+          }
+
+          // Add to JetVector
+          LorentzV JetLVec(ijet->pt(),ijet->eta(),ijet->phi(),ijet->mass());
+          jets.push_back( JetLVec );
+
+        }
+
+        if(flag!=1){ //Added for efficiency
+          //Calculate the value for alphaT
+          float aT = AlphaT(jets).value();
+
+          // Trigger decision!
+          if(aT > minAlphaT_){
+            flag = 1;
+          }
+        }
+
+        //If passed, add the jets to the filterproduct for DQM
+        if (flag==1) {
+          for (typename TCollection::const_iterator recojet = recojets->begin(); recojet!=jjet; recojet++) {
+            if (recojet->et() > minPtJet_.at(0)) {
+              ref = TRef(recojets,distance(recojets->begin(),recojet));
+              filterproduct.addObject(triggerType_,ref);
+              n++;
+            }
+          }
+        }
       }
-    }
-  }// events with at least two jet
+    }// events with at least two jet
 
-  // filter decision
-  bool accept(n>0);
+    // filter decision
+    bool accept(n>0);
 
+    return accept;
+  }
 
-
-  return accept;
+  // THIS WILL NEVER HAPPEN
+  return true;
 }

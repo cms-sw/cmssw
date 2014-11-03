@@ -16,7 +16,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
-
+#include "DataFormats/TrackReco/interface/Track.h"
 
 ///ESHANDLE
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
@@ -62,7 +62,7 @@ class ConvBremSeedProducer : public edm::EDProducer {
 						const MagneticField* field) const;
   const DetLayer* detLayer( const TrackerLayer& layer, float zpos) const;
 
-  bool isGsfTrack(const TrackingRecHitRefVector&, const TrackingRecHit *);
+  bool isGsfTrack(const reco::Track &, const TrackingRecHit *);
 
   int GoodCluster(const BaseParticlePropagator& bpg, const reco::PFClusterCollection& pfc, 
 		  float minep, bool sec=false);

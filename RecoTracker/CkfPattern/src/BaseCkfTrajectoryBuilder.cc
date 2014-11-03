@@ -222,8 +222,12 @@ BaseCkfTrajectoryBuilder::findStateAndLayers(const TrajectorySeed& seed, const T
 
 BaseCkfTrajectoryBuilder::StateAndLayers
 BaseCkfTrajectoryBuilder::findStateAndLayers(const TempTrajectory& traj) const{
-  assert(!traj.empty());
- 
+  //assert(!traj.empty());
+  if ( traj.empty() ) {
+    edm::LogWarning("CkfPattern")<< "empty traj. Skipping.";
+    return StateAndLayers();
+  }
+
   TSOS const & currentState = traj.lastMeasurement().updatedState();
   return StateAndLayers(currentState,theNavigationSchool->nextLayers(*traj.lastLayer(), *currentState.freeState(), traj.direction()) );
 }

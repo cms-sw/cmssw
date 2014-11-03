@@ -66,9 +66,9 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 	  GlobalPoint InnerMostGlobalPosition(0.,0.,0.);  // smallest abs(z)
 	  GlobalPoint OuterMostGlobalPosition(0.,0.,0.);  // largest abs(z)
 	  int nCSCHits = 0;
-	  for(unsigned int j = 0 ; j < Track->extra()->recHits().size(); j++ )
+	  for(unsigned int j = 0 ; j < Track->extra()->recHitsSize(); j++ )
 	    {
-	      edm::Ref<TrackingRecHitCollection> hit( Track->extra()->recHits(), j );
+	      auto hit = Track->extra()->recHitRef(j);
 	      if( !hit->isValid() ) continue;
 	      DetId TheDetUnitId(hit->geographicalId());
 	      if( TheDetUnitId.det() != DetId::Muon ) continue;

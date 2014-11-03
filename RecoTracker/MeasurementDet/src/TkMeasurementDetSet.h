@@ -86,6 +86,10 @@ public:
   bool maskBad128StripBlocks() const { return maskBad128StripBlocks_;}
   bool hasAny128StripBad(int i) const { return  hasAny128StripBad_[i];}
   
+  /// note: index is 6*detector index + offset!
+  bool bad128Strip(int offset) const { return  bad128Strip_[offset];}
+  bool bad128Strip(int index, int strip) const { return  bad128Strip_[nbad128*index+(strip>>7)];}
+
   std::vector<BadStripBlock> & getBadStripBlocks(int i) { return badStripBlocks_[i]; }
   std::vector<BadStripBlock> const & badStripBlocks(int i) const {return badStripBlocks_[i]; }
 

@@ -32,7 +32,7 @@ l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::~Stage2Layer2EtSumAlgorithmFirmware
 void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector<l1t::CaloTower> & towers,
       std::vector<l1t::EtSum> & etsums) {
 
-  double pi = std::atan(1.d) * 4.0d;
+  double pi = std::atan(1.0) * 4.0;
 
   int ietaMax=28, ietaMin=-28, iphiMax=72, iphiMin=1;
   

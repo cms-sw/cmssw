@@ -273,7 +273,7 @@ namespace edm {
 
     /// Checks if collection is in memory or available
     /// in the Event. No type checking is done.
-    bool isAvailable() const {return product_.isAvailable();}
+    bool isAvailable() const;
 
     /// Checks if this ref is transient (i.e. not persistable).
     bool isTransient() const {return product_.isTransient();}
@@ -431,8 +431,8 @@ namespace edm {
     
     /// Checks if collection is in memory or available
     /// in the Event. No type checking is done.
-    bool isAvailable() const {return product_.isAvailable();}
-    
+    bool isAvailable() const;
+
     /// Checks if this ref is transient (i.e. not persistable).
     bool isTransient() const {return product_.isTransient();}
     
@@ -606,6 +606,26 @@ namespace edm {
   std::vector<E> const*
   Ref<REF_FOR_VECTOR_ARGS>::product() const {
     return isNull() ? 0 : edm::template getProduct<std::vector<E> >(product_.toRefCore());
+  }
+
+  template <typename C, typename T, typename F>
+  inline
+  bool
+  Ref<C, T, F>::isAvailable() const {
+    if(product_.isAvailable()) {
+      return true;
+    }
+    return isThinnedAvailable<C>(product_, index_);
+  }
+
+  template <typename E>
+  inline
+  bool
+  Ref<REF_FOR_VECTOR_ARGS>::isAvailable() const {
+    if(product_.isAvailable()) {
+      return true;
+    }
+    return isThinnedAvailable<std::vector<E> >(product_.toRefCore(), key());
   }
 
   /// Dereference operator

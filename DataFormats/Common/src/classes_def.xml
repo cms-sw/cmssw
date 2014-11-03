@@ -1,6 +1,7 @@
 <lcgdict>
- <class name="edm::WrapperBase" ClassVersion="2">
+ <class name="edm::WrapperBase" ClassVersion="3">
   <version ClassVersion="2" checksum="2150796830"/>
+  <version ClassVersion="3" checksum="1936948526"/>
  </class>
  <class name="edm::EDProductGetter" ClassVersion="10">
   <version ClassVersion="10" checksum="2702412727"/>
@@ -24,6 +25,10 @@
       edm::EDProductGetter::assignEDProductGetter(reinterpret_cast<edm::EDProductGetter const*&>(cachePtr_));
     ]]>
   </ioread>
+ <class name="edm::ThinnedAssociation" ClassVersion="10">
+  <version ClassVersion="10" checksum="1914950449"/>
+ </class>
+ <class name="edm::Wrapper<edm::ThinnedAssociation>" splitLevel="0"/>
  <class name="edm::ConstPtrCache" ClassVersion="10">
   <version ClassVersion="10" checksum="2166959629"/>
    <field name="ptr_" transient="true"/>

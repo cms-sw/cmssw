@@ -17,7 +17,7 @@
 #include <string>
 #include <memory>
 
-//#define NEW_CPEERROR // must be constistent with base.cc, generic cc/h and genericProducer.cc 
+#define NEW_CPEERROR // must be constistent with base.cc, generic cc/h and genericProducer.cc 
 
 using namespace edm;
 

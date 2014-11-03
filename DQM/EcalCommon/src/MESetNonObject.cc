@@ -55,23 +55,136 @@ namespace ecaldqm
   }
 
   void
-  MESetNonObject::book(DQMStore& _dqmStore)
-  {
-    doBook_(_dqmStore);
-  }
-
-  void
   MESetNonObject::book(DQMStore::IBooker& _ibooker)
   {
-    doBook_(_ibooker);
+    using namespace std;
+
+    clear();
+
+    if(path_.find('%') != string::npos)
+      throw_("book() called with incompletely formed path");
+
+    size_t slashPos(path_.find_last_of('/'));
+    string name(path_.substr(slashPos + 1));
+    _ibooker.setCurrentFolder(path_.substr(0, slashPos));
+
+    MonitorElement* me(0);
+
+    switch(kind_) {
+    case MonitorElement::DQM_KIND_REAL :
+      me = _ibooker.bookFloat(name);
+      break;
+
+    case MonitorElement::DQM_KIND_TH1F :
+      {
+        if(!xaxis_)
+          throw_("No xaxis found for MESetNonObject");
+
+        if(xaxis_->edges)
+          me = _ibooker.book1D(name, name, xaxis_->nbins, xaxis_->edges);
+        else
+          me = _ibooker.book1D(name, name, xaxis_->nbins, xaxis_->low, xaxis_->high);
+      }
+      break;
+
+    case MonitorElement::DQM_KIND_TPROFILE :
+      {
+        if(!xaxis_)
+          throw_("No xaxis found for MESetNonObject");
+
+        double ylow, yhigh;
+        if(!yaxis_){
+          ylow = -numeric_limits<double>::max();
+          yhigh = numeric_limits<double>::max();
+        }
+        else{
+          ylow = yaxis_->low;
+          yhigh = yaxis_->high;
+        }
+        if(xaxis_->edges){
+          // DQMStore bookProfile interface uses double* for bin edges
+          double* edges(new double[xaxis_->nbins + 1]);
+          std::copy(xaxis_->edges, xaxis_->edges + xaxis_->nbins + 1, edges);
+          me = _ibooker.bookProfile(name, name, xaxis_->nbins, edges, ylow, yhigh, "");
+          delete edges;
+        }
+        else
+          me = _ibooker.bookProfile(name, name, xaxis_->nbins, xaxis_->low, xaxis_->high, ylow, yhigh, "");
+      }
+      break;
+
+    case MonitorElement::DQM_KIND_TH2F :
+      {
+        if(!xaxis_ || !yaxis_)
+          throw_("No x/yaxis found for MESetNonObject");
+
+        if(!xaxis_->edges || !yaxis_->edges) // unlike MESetEcal, if either of X or Y is not set as variable, binning will be fixed
+          me = _ibooker.book2D(name, name, xaxis_->nbins, xaxis_->low, xaxis_->high, yaxis_->nbins, yaxis_->low, yaxis_->high);
+        else
+          me = _ibooker.book2D(name, name, xaxis_->nbins, xaxis_->edges, yaxis_->nbins, yaxis_->edges);
+      }
+      break;
+
+    case MonitorElement::DQM_KIND_TPROFILE2D :
+      {
+        if(!xaxis_ || !yaxis_)
+          throw_("No x/yaxis found for MESetNonObject");
+        if(xaxis_->edges || yaxis_->edges)
+          throw_("Variable bin size for 2D profile not implemented");
+
+        double high(0.), low(0.);
+        if(zaxis_){
+          low = zaxis_->low;
+          high = zaxis_->high;
+        }
+        else{
+          low = -numeric_limits<double>::max();
+          high = numeric_limits<double>::max();
+        }
+
+        me = _ibooker.bookProfile2D(name, name, xaxis_->nbins, xaxis_->low, xaxis_->high, yaxis_->nbins, yaxis_->low, yaxis_->high, low, high, "");
+      }
+      break;
+
+    default :
+      throw_("Unsupported MonitorElement kind");
+    }
+
+    if(xaxis_){
+      me->setAxisTitle(xaxis_->title, 1);
+      if(xaxis_->labels){
+        for(int iBin(1); iBin <= xaxis_->nbins; ++iBin)
+          me->setBinLabel(iBin, xaxis_->labels[iBin - 1], 1);
+      }
+    }
+    if(yaxis_){
+      me->setAxisTitle(yaxis_->title, 2);
+      if(yaxis_->labels){
+        for(int iBin(1); iBin <= yaxis_->nbins; ++iBin)
+          me->setBinLabel(iBin, yaxis_->labels[iBin - 1], 2);
+      }
+    }
+    if(zaxis_){
+      me->setAxisTitle(zaxis_->title, 3);
+      if(zaxis_->labels){
+        for(int iBin(1); iBin <= zaxis_->nbins; ++iBin)
+          me->setBinLabel(iBin, zaxis_->labels[iBin - 1], 3);
+      }
+    }
+
+    if(lumiFlag_) me->setLumiFlag();
+
+    mes_.push_back(me);
+
+    active_ = true;
   }
 
   bool
-  MESetNonObject::retrieve(DQMStore const& _store, std::string* _failedPath/* = 0*/) const
+  MESetNonObject::retrieve(DQMStore::IGetter& _igetter, std::string* _failedPath/* = 0*/) const
   {
     mes_.clear();
 
-    MonitorElement* me(_store.get(path_));
+    MonitorElement* me(_igetter.get(path_));
     if(!me){
       if(_failedPath) *_failedPath = path_;
       return false;
@@ -192,138 +305,5 @@ namespace ecaldqm
   MESetNonObject::isVariableBinning() const
   {
     return (xaxis_ && xaxis_->edges) || (yaxis_ && yaxis_->edges) || (zaxis_ && zaxis_->edges);
-  }
-
-  template<class Bookable>
-  void
-  MESetNonObject::doBook_(Bookable& _booker)
-  {
-    using namespace std;
-
-    clear();
-
-    if(path_.find('%') != string::npos)
-      throw_("book() called with incompletely formed path");
-
-    size_t slashPos(path_.find_last_of('/'));
-    string name(path_.substr(slashPos + 1));
-    _booker.setCurrentFolder(path_.substr(0, slashPos));
-
-    MonitorElement* me(0);
-
-    switch(kind_) {
-    case MonitorElement::DQM_KIND_REAL :
-      me = _booker.bookFloat(name);
-      break;
-
-    case MonitorElement::DQM_KIND_TH1F :
-      {
-        if(!xaxis_)
-          throw_("No xaxis found for MESetNonObject");
-
-        if(!xaxis_->edges)
-          me = _booker.book1D(name, name, xaxis_->nbins, xaxis_->low, xaxis_->high);
-        else{
-          float* edges(new float[xaxis_->nbins + 1]);
-          for(int i(0); i < xaxis_->nbins + 1; i++)
-            edges[i] = xaxis_->edges[i];
-          me = _booker.book1D(name, name, xaxis_->nbins, edges);
-          delete [] edges;
-        }
-      }
-      break;
-
-    case MonitorElement::DQM_KIND_TPROFILE :
-      {
-        if(!xaxis_)
-          throw_("No xaxis found for MESetNonObject");
-
-        double ylow, yhigh;
-        if(!yaxis_){
-          ylow = -numeric_limits<double>::max();
-          yhigh = numeric_limits<double>::max();
-        }
-        else{
-          ylow = yaxis_->low;
-          yhigh = yaxis_->high;
-        }
-        if(xaxis_->edges)
-          me = _booker.bookProfile(name, name, xaxis_->nbins, xaxis_->edges, ylow, yhigh, "");
-        else
-          me = _booker.bookProfile(name, name, xaxis_->nbins, xaxis_->low, xaxis_->high, ylow, yhigh, "");
-
-      }
-      break;
-
-    case MonitorElement::DQM_KIND_TH2F :
-      {
-        if(!xaxis_ || !yaxis_)
-          throw_("No x/yaxis found for MESetNonObject");
-
-        if(!xaxis_->edges || !yaxis_->edges)
-          me = _booker.book2D(name, name, xaxis_->nbins, xaxis_->low, xaxis_->high, yaxis_->nbins, yaxis_->low, yaxis_->high);
-        else{
-          float* xedges(new float[xaxis_->nbins + 1]);
-          for(int i(0); i < xaxis_->nbins + 1; i++)
-            xedges[i] = xaxis_->edges[i];
-          float* yedges(new float[yaxis_->nbins + 1]);
-          for(int i(0); i < yaxis_->nbins + 1; i++)
-            yedges[i] = yaxis_->edges[i];
-          me = _booker.book2D(name, name, xaxis_->nbins, xedges, yaxis_->nbins, yedges);
-          delete [] xedges;
-          delete [] yedges;
-        }
-      }
-      break;
-
-    case MonitorElement::DQM_KIND_TPROFILE2D :
-      {
-        if(!xaxis_ || !yaxis_)
-          throw_("No x/yaxis found for MESetNonObject");
-        double high(0.), low(0.);
-        if(zaxis_){
-          low = zaxis_->low;
-          high = zaxis_->high;
-        }
-        else{
-          low = -numeric_limits<double>::max();
-          high = numeric_limits<double>::max();
-        }
-
-        me = _booker.bookProfile2D(name, name, xaxis_->nbins, xaxis_->low, xaxis_->high, yaxis_->nbins, yaxis_->low, yaxis_->high, low, high, "");
-      }
-      break;
-
-    default :
-      throw_("Unsupported MonitorElement kind");
-    }
-
-    if(xaxis_){
-      me->setAxisTitle(xaxis_->title, 1);
-      if(xaxis_->labels){
-        for(int iBin(1); iBin <= xaxis_->nbins; ++iBin)
-          me->setBinLabel(iBin, xaxis_->labels[iBin - 1], 1);
-      }
-    }
-    if(yaxis_){
-      me->setAxisTitle(yaxis_->title, 2);
-      if(yaxis_->labels){
-        for(int iBin(1); iBin <= yaxis_->nbins; ++iBin)
-          me->setBinLabel(iBin, yaxis_->labels[iBin - 1], 2);
-      }
-    }
-    if(zaxis_){
-      me->setAxisTitle(zaxis_->title, 3);
-      if(zaxis_->labels){
-        for(int iBin(1); iBin <= zaxis_->nbins; ++iBin)
-          me->setBinLabel(iBin, zaxis_->labels[iBin - 1], 3);
-      }
-    }
-
-    if(lumiFlag_) me->setLumiFlag();
-
-    mes_.push_back(me);
-
-    active_ = true;
   }
 }

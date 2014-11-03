@@ -2,12 +2,15 @@
 
 #include "DataFormats/Common/interface/BasicHandle.h"
 #include "DataFormats/Common/interface/FunctorHandleExceptionFactory.h"
+#include "DataFormats/Common/interface/ThinnedAssociation.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
 #include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 #include "DataFormats/Provenance/interface/ProductIDToBranchID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "FWCore/Common/interface/Provenance.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/interface/ProductHolder.h"
@@ -19,12 +22,15 @@
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 
 #include <algorithm>
+#include <cassert>
+#include <limits>
 #include <memory>
 
 namespace edm {
   EventPrincipal::EventPrincipal(
         std::shared_ptr<ProductRegistry const> reg,
         std::shared_ptr<BranchIDListHelper const> branchIDListHelper,
+        std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper,
         ProcessConfiguration const& pc,
         HistoryAppender* historyAppender,
         unsigned int streamIndex) :
@@ -36,9 +42,12 @@ namespace edm {
           moduleLabelsRunning_(),
           eventSelectionIDs_(),
           branchIDListHelper_(branchIDListHelper),
+          thinnedAssociationsHelper_(thinnedAssociationsHelper),
           branchListIndexes_(),
           branchListIndexToProcessIndex_(),
-          streamID_(streamIndex){}
+          streamID_(streamIndex) {
+    assert(thinnedAssociationsHelper_);
+  }
 
   void
   EventPrincipal::clearEventPrincipal() {
@@ -284,6 +293,112 @@ namespace edm {
     return getByProductID(pid).wrapper();
   }
 
+  WrapperBase const*
+  EventPrincipal::getThinnedProduct(ProductID const& pid, unsigned int& key) const {
+
+    BranchID parent = pidToBid(pid);
+
+    // Loop over thinned containers which were made by selecting elements from the parent container
+    for(auto associatedBranches = thinnedAssociationsHelper_->parentBegin(parent),
+                           iEnd = thinnedAssociationsHelper_->parentEnd(parent);
+        associatedBranches != iEnd; ++associatedBranches) {
+
+      ThinnedAssociation const* thinnedAssociation =
+        getThinnedAssociation(associatedBranches->association());
+      if(thinnedAssociation == nullptr) continue;
+
+      if(associatedBranches->parent() != pidToBid(thinnedAssociation->parentCollectionID())) {
+        continue;
+      }
+
+      unsigned int thinnedIndex = 0;
+      // Does this thinned container have the element referenced by key?
+      // If yes, thinnedIndex is set to point to it in the thinned container
+      if(!thinnedAssociation->hasParentIndex(key, thinnedIndex)) {
+        continue;
+      }
+      // Get the thinned container and return a pointer if we can find it
+      ProductID const& thinnedCollectionPID = thinnedAssociation->thinnedCollectionID();
+      BasicHandle bhThinned = getByProductID(thinnedCollectionPID);
+      if(!bhThinned.isValid()) {
+        // Thinned container is not found, try looking recursively in thinned containers
+        // which were made by selecting elements from this thinned container.
+        WrapperBase const* wrapperBase = getThinnedProduct(thinnedCollectionPID, thinnedIndex);
+        if(wrapperBase != nullptr) {
+          key = thinnedIndex;
+          return wrapperBase;
+        } else {
+          continue;
+        }
+      }
+      key = thinnedIndex;
+      return bhThinned.wrapper();
+    }
+    return nullptr;
+  }
+
+  void
+  EventPrincipal::getThinnedProducts(ProductID const& pid,
+                                     std::vector<WrapperBase const*>& foundContainers,
+                                     std::vector<unsigned int>& keys) const {
+
+    BranchID parent = pidToBid(pid);
+
+    // Loop over thinned containers which were made by selecting elements from the parent container
+    for(auto associatedBranches = thinnedAssociationsHelper_->parentBegin(parent),
+                           iEnd = thinnedAssociationsHelper_->parentEnd(parent);
+        associatedBranches != iEnd; ++associatedBranches) {
+
+      ThinnedAssociation const* thinnedAssociation =
+        getThinnedAssociation(associatedBranches->association());
+      if(thinnedAssociation == nullptr) continue;
+
+      if(associatedBranches->parent() != pidToBid(thinnedAssociation->parentCollectionID())) {
+        continue;
+      }
+
+      unsigned nKeys = keys.size();
+      unsigned int doNotLookForThisIndex = std::numeric_limits<unsigned int>::max();
+      std::vector<unsigned int> thinnedIndexes(nKeys, doNotLookForThisIndex);
+      bool hasAny = false;
+      for(unsigned k = 0; k < nKeys; ++k) {
+        // Already found this one
+        if(foundContainers[k] != nullptr) continue;
+        // Already know this one is not in this thinned container
+        if(keys[k] == doNotLookForThisIndex) continue;
+        // Does the thinned container hold the entry of interest?
+        // Modifies thinnedIndexes[k] only if it returns true and
+        // sets it to the index in the thinned collection.
+        if(thinnedAssociation->hasParentIndex(keys[k], thinnedIndexes[k])) {
+          hasAny = true;
+        }
+      }
+      if(!hasAny) {
+        continue;
+      }
+      // Get the thinned container and set the pointers and indexes into
+      // it (if we can find it)
+      ProductID thinnedCollectionPID = thinnedAssociation->thinnedCollectionID();
+      BasicHandle bhThinned = getByProductID(thinnedCollectionPID);
+      if(!bhThinned.isValid()) {
+        // Thinned container is not found, try looking recursively in thinned containers
+        // which were made by selecting elements from this thinned container.
+        getThinnedProducts(thinnedCollectionPID, foundContainers, thinnedIndexes);
+        for(unsigned k = 0; k < nKeys; ++k) {
+          if(foundContainers[k] == nullptr) continue;
+          if(thinnedIndexes[k] == doNotLookForThisIndex) continue;
+          keys[k] = thinnedIndexes[k];
+        }
+      } else {
+        for(unsigned k = 0; k < nKeys; ++k) {
+          if(thinnedIndexes[k] == doNotLookForThisIndex) continue;
+          keys[k] = thinnedIndexes[k];
+          foundContainers[k] = bhThinned.wrapper();
+        }
+      }
+    }
+  }
+
   Provenance
   EventPrincipal::getProvenance(ProductID const& pid, ModuleCallingContext const* mcc) const {
     BranchID bid = pidToBid(pid);
@@ -308,6 +423,30 @@ namespace edm {
   BranchListIndexes const&
   EventPrincipal::branchListIndexes() const {
     return branchListIndexes_;
+  }
+
+  edm::ThinnedAssociation const*
+  EventPrincipal::getThinnedAssociation(edm::BranchID const& branchID) const {
+
+    ConstProductHolderPtr const phb = getProductHolder(branchID);
+
+    if(phb == nullptr) {
+      throw Exception(errors::LogicError)
+        << "EventPrincipal::getThinnedAssociation, ThinnedAssociation ProductHolder cannot be found\n"
+        << "This should never happen. Contact a Framework developer";
+    }
+    ProductHolderBase::ResolveStatus status;
+    ProductData const* productData = phb->resolveProduct(status,false,nullptr);
+    if (productData == nullptr) {
+      return nullptr;
+    }
+    WrapperBase const* product = productData->wrapper_.get();
+    if(!(typeid(edm::ThinnedAssociation) == product->dynamicTypeInfo())) {
+      throw Exception(errors::LogicError)
+        << "EventPrincipal::getThinnedProduct, product has wrong type, not a ThinnedAssociation.\n";
+    }
+    Wrapper<ThinnedAssociation> const* wrapper = static_cast<Wrapper<ThinnedAssociation> const*>(product);
+    return wrapper->product();
   }
 
   bool

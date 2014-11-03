@@ -28,9 +28,9 @@ public:
 private:
 
   // Tree variables
-	int fRun;
-	int fEvent;
+	unsigned long long fEvent;
 	int fLumiBlock;
+	int fRun;
 	int fBx;
 	int fOrbit;
 	double fAvgInstDelLumi;

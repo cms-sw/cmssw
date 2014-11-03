@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("SEEDVALIDATOR")
-process.load("Configuration/StandardSequences/GeometryPilot2_cff")
+process.load("Configuration/StandardSequences/Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("FWCore.MessageService.MessageLogger_cfi")

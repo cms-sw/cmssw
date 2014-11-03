@@ -39,7 +39,7 @@ class DDCompactView;
 class DDDWorld;
 class MagneticField;
 
-class G4RunManagerKernel;
+class G4MTRunManagerKernel;
 class G4Run;
 class G4Event;
 class G4Field;
@@ -96,11 +96,20 @@ public:
     return m_physicsList.get();
   }
 
+  // In order to share the ChordFinderSetter (for
+  // G4MonopoleTransportation) with the worker threads, we need a
+  // non-const pointer. Thread-safety is handled inside
+  // ChordFinderStter with TLS. Should we consider a friend
+  // declaration here in order to avoid misuse?
+  sim::ChordFinderSetter *chordFinderSetterForWorker() const {
+    return m_chordFinderSetter.get();
+  }
+
 private:
   void terminateRun();
   void DumpMagneticField( const G4Field*) const;
 
-  G4RunManagerKernel * m_kernel;
+  G4MTRunManagerKernel * m_kernel;
     
   std::unique_ptr<PhysicsList> m_physicsList;
   bool m_managerInitialized;

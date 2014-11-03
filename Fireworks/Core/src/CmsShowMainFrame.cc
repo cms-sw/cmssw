@@ -542,7 +542,7 @@ void CmsShowMainFrame::loadEvent(const edm::EventBase& event)
 {
    m_runEntry  ->SetUIntNumber(event.id().run());
    m_lumiEntry ->SetUIntNumber(event.id().luminosityBlock());
-   m_eventEntry->SetUIntNumber(event.id().event());
+   m_eventEntry->SetULong64Number(event.id().event());
 
    m_timeText->SetText( fireworks::getLocalTime( event ).c_str() );
 }
