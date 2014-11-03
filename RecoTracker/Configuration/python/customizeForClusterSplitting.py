@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 def customizeForClusterSplitting(process):
-     process.Load('RecoLocalTracker.SubCollectionProducers.jetCoreClusterSplitter_cfi')	
+     process.load('RecoLocalTracker.SubCollectionProducers.jetCoreClusterSplitter_cfi')	
      clustersTmp = 'siPixelClustersPreSplitting'
      # 0. Produce tmp clusters in the first place.
      process.siPixelClustersPreSplitting = process.siPixelClusters.clone()
