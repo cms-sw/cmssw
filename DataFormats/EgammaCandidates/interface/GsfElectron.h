@@ -789,7 +789,33 @@ class GsfElectron : public RecoCandidate
 
     // attributes
     Corrections corrections_ ;
-
+  
+  public:
+    struct PixelMatchVariables{
+      int subdetector1 ;
+      int subdetector2 ;
+      float dPhi1 ;
+      float dPhi2 ;
+      float dRz1  ;
+      float dRz2  ;
+      PixelMatchVariables():
+        subdetector1(-1),
+        subdetector2(-1),
+        dPhi1(-999),
+        dPhi2(-999),
+        dRz1(-999),
+        dRz2(-999)
+      {}
+      ~PixelMatchVariables(){}
+    };
+  void setPixelMatchSubdetector1(int sd1){ pixelMatchVariables_.subdetector1 = sd1 ; }
+  void setPixelMatchSubdetector2(int sd2){ pixelMatchVariables_.subdetector2 = sd2 ; }
+  void setPixelMatchDPhi1(float dPhi1){ pixelMatchVariables_.dPhi1 = dPhi1 ; }
+  void setPixelMatchDPhi2(float dPhi2){ pixelMatchVariables_.dPhi2 = dPhi2 ; }
+  void setPixelMatchDRz1 (float dRz1 ){ pixelMatchVariables_.dRz1  = dRz1  ; }
+  void setPixelMatchDRz2 (float dRz2 ){ pixelMatchVariables_.dRz2  = dRz2  ; }
+  private:
+    PixelMatchVariables pixelMatchVariables_ ;
  } ;
 
  } // namespace reco
