@@ -1269,7 +1269,7 @@ for ds in defaultDataSets:
 # step6 is fastsim
 # step7 is fastsim harvesting
 
-upgradeSteps=['GenSimFull','GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull','DigiTrkTrigFull','FastSim','HARVESTFast','DigiFullPU','RecoFullPU']
+upgradeSteps=['GenSimFull','GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull','DigiTrkTrigFull','FastSim','HARVESTFast','DigiFullPU','RecoFullPU','HARVESTFullPU']
 
 upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    '2019':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
@@ -1296,8 +1296,8 @@ upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023HGCal':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023HGCalMuon4Eta':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023HGCalV4' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
-                   'Extended2023HGCalPU' : ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFull'],
-                   'Extended2023SHCalNoTaperPU' : ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFull']
+                   'Extended2023HGCalPU' : ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU'],
+                   'Extended2023SHCalNoTaperPU' : ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
                    }
 
 upgradeStepDict={}
@@ -1368,8 +1368,8 @@ for k in upgradeKeys:
     if cust!=None : upgradeStepDict['RecoFull'][k]['--customise']=cust
 
     if k2 in PUDataSets:
-        upgradeStepDict['RecoFullPU'][k]=merge([PUDataSets[k2],upgradeStepDict['RecoFull'][k],{'-s':'RAW2DIGI,L1Reco,RECO,DQM'}])
-    
+        upgradeStepDict['RecoFullPU'][k]=merge([PUDataSets[k2],{'-s':'RAW2DIGI,L1Reco,RECO,DQM'},upgradeStepDict['RecoFull'][k]])
+
     upgradeStepDict['HARVESTFull'][k]={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                                     '--conditions':gt,
                                     '--mc':'',
@@ -1379,6 +1379,9 @@ for k in upgradeKeys:
                                     '--filetype':'DQM'
                                     }
     if cust!=None : upgradeStepDict['HARVESTFull'][k]['--customise']=cust
+
+    if k2 in PUDataSets:
+        upgradeStepDict['HARVESTFullPU'][k]=merge([PUDataSets[k2],{'-s':'HARVESTING:dqmHarvesting'},upgradeStepDict['HARVESTFull'][k]])
 
     upgradeStepDict['FastSim'][k]={'-s':'GEN,SIM,RECO,VALIDATION',
                                    '--eventcontent':'FEVTDEBUGHLT,DQM',
