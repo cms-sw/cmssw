@@ -16,6 +16,7 @@ dEdxAnalyzer = cms.EDAnalyzer("dEdxAnalyzer",
        #cuts on number of hits
        TrackHitMin         = cms.double(8),
        HIPdEdxMin          = cms.double(3.5),
+       HighPtThreshold     = cms.double(100.0),
 
        #constants for dEdx mass reco
        dEdxK               = cms.double(2.529),

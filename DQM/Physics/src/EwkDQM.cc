@@ -115,123 +115,109 @@ EwkDQM::EwkDQM(const ParameterSet& parameters) {
   h_mumu_invMass = 0;
   h_ee_invMass = 0;
 
-  theDbe = Service<DQMStore>().operator->();
 }
 
 EwkDQM::~EwkDQM() {}
 
-void EwkDQM::beginJob() {
+void EwkDQM::bookHistograms(DQMStore::IBooker & ibooker,
+  edm::Run const &, edm::EventSetup const & ){
+  ibooker.setCurrentFolder("Physics/EwkDQM");
+
   char chtitle[256] = "";
   const size_t title_s = sizeof(chtitle);
 
   logTraceName = "EwkAnalyzer";
 
   LogTrace(logTraceName) << "Parameters initialization";
-  theDbe->setCurrentFolder("Physics/EwkDQM");  // Use folder with name of PAG
 
   const float pi = 4 * atan(1);
 
   // Keep the number of plots and number of bins to a minimum!
-  h_vertex_number = theDbe->book1D(
+
+  h_vertex_number = ibooker.book1D(
       "vertex_number", "Number of event vertices in collection", 10, -0.5, 9.5);
-  h_vertex_chi2 = theDbe->book1D(
+  h_vertex_chi2 = ibooker.book1D(
       "vertex_chi2", "Event Vertex #chi^{2}/n.d.o.f.", 20, 0.0, 2.0);
-  h_vertex_numTrks = theDbe->book1D(
+  h_vertex_numTrks = ibooker.book1D(
       "vertex_numTrks", "Event Vertex, number of tracks", 20, -0.5, 59.5);
-  h_vertex_sumTrks = theDbe->book1D(
+  h_vertex_sumTrks = ibooker.book1D(
       "vertex_sumTrks", "Event Vertex, sum of track pt", 20, 0.0, 100.0);
-  h_vertex_d0 = theDbe->book1D("vertex_d0", "Event Vertex d0", 20, 0.0, 0.05);
+  h_vertex_d0 = ibooker.book1D("vertex_d0", "Event Vertex d0", 20, 0.0, 0.05);
 
-  snprintf(chtitle, title_s, "Number of %s (E_{T} > 15 GeV);Number of Jets",
-           thePFJetCollectionLabel_.label().data());
-  h_jet_count = theDbe->book1D("jet_count", chtitle, 8, -0.5, 7.5);
+  h_jet_count = ibooker.book1D("jet_count", chtitle, 8, -0.5, 7.5);
 
-  snprintf(chtitle, title_s,
-           "Leading jet E_{T} (from %s);E_{T}(1^{st} jet) (GeV)",
-           thePFJetCollectionLabel_.label().data());
-  h_jet_et = theDbe->book1D("jet_et", chtitle, 20, 0., 200.0);
+  snprintf(chtitle, title_s, "Leading jet E_{T} (from %s);E_{T}(1^{st} jet) (GeV)",
+      thePFJetCollectionLabel_.label().data());
+  h_jet_et = ibooker.book1D("jet_et", chtitle, 20, 0., 200.0);
 
-  snprintf(chtitle, title_s,
-           "Leading jet p_{T} (from %s);p_{T}(1^{st} jet) (GeV/c)",
-           thePFJetCollectionLabel_.label().data());
-  h_jet_pt = theDbe->book1D("jet_pt", chtitle, 20, 0., 200.0);
+  snprintf(chtitle, title_s, "Leading jet p_{T} (from %s);p_{T}(1^{st} jet) (GeV/c)",
+      thePFJetCollectionLabel_.label().data());
+  h_jet_pt = ibooker.book1D("jet_pt", chtitle, 20, 0., 200.0);
 
   snprintf(chtitle, title_s, "Leading jet #eta (from %s); #eta (1^{st} jet)",
-           thePFJetCollectionLabel_.label().data());
-  h_jet_eta = theDbe->book1D("jet_eta", chtitle, 20, -10., 10.0);
+      thePFJetCollectionLabel_.label().data());
+  h_jet_eta = ibooker.book1D("jet_eta", chtitle, 20, -10., 10.0);
+
   snprintf(chtitle, title_s, "Leading jet #phi (from %s); #phi(1^{st} jet)",
-           thePFJetCollectionLabel_.label().data());
-  h_jet_phi = theDbe->book1D("jet_phi", chtitle, 22, -1.1 * pi, 1.1 * pi);
+      thePFJetCollectionLabel_.label().data());
+  h_jet_phi = ibooker.book1D("jet_phi", chtitle, 22, -1.1 * pi, 1.1 * pi);
 
   snprintf(chtitle, title_s,
-           "2^{nd} leading jet E_{T} (from %s);E_{T}(2^{nd} jet) (GeV)",
-           thePFJetCollectionLabel_.label().data());
-  h_jet2_et = theDbe->book1D("jet2_et", chtitle, 20, 0., 200.0);
-  // snprintf(chtitle, title_s, "2^{nd} leading jet p_{T} (from %s);p_{T}(2^{nd}
-  // jet) (GeV/c)",
-  // thePFJetCollectionLabel_.label().data());
-  // h_jet2_pt = theDbe->book1D("jet2_pt", chtitle,  20, 0., 200.0);
+      "2^{nd} leading jet E_{T} (from %s);E_{T}(2^{nd} jet) (GeV)",
+      thePFJetCollectionLabel_.label().data());
+  h_jet2_et = ibooker.book1D("jet2_et", chtitle, 20, 0., 200.0);
 
-  snprintf(chtitle, title_s,
-           "2^{nd} leading jet #eta (from %s); #eta (2^{nd} jet)",
-           thePFJetCollectionLabel_.label().data());
-  h_jet2_eta = theDbe->book1D("jet2_eta", chtitle, 20, -10., 10.0);
+  snprintf(chtitle, title_s, "2^{nd} leading jet #eta (from %s); #eta (2^{nd} jet)",
+      thePFJetCollectionLabel_.label().data());
+  h_jet2_eta = ibooker.book1D("jet2_eta", chtitle, 20, -10., 10.0);
 
-  snprintf(chtitle, title_s,
-           "2^{nd} leading jet #phi (from %s); #phi(2^{nd} jet)",
-           thePFJetCollectionLabel_.label().data());
-  h_jet2_phi = theDbe->book1D("jet2_phi", chtitle, 22, -1.1 * pi, 1.1 * pi);
+  snprintf(chtitle, title_s, "2^{nd} leading jet #phi (from %s); #phi(2^{nd} jet)",
+      thePFJetCollectionLabel_.label().data());
+  h_jet2_phi = ibooker.book1D("jet2_phi", chtitle, 22, -1.1 * pi, 1.1 * pi);
 
-  h_e1_et = theDbe->book1D("e1_et", "E_{T} of Leading Electron;E_{T} (GeV)", 20,
-                           0.0, 100.0);
-  h_e2_et = theDbe->book1D("e2_et", "E_{T} of Second Electron;E_{T} (GeV)", 20,
-                           0.0, 100.0);
-  h_e1_eta =
-      theDbe->book1D("e1_eta", "#eta of Leading Electron;#eta", 20, -4.0, 4.0);
-  h_e2_eta =
-      theDbe->book1D("e2_eta", "#eta of Second Electron;#eta", 20, -4.0, 4.0);
-  h_e1_phi = theDbe->book1D("e1_phi", "#phi of Leading Electron;#phi", 22,
-                            -1.1 * pi, 1.1 * pi);
-  h_e2_phi = theDbe->book1D("e2_phi", "#phi of Second Electron;#phi", 22,
-                            -1.1 * pi, 1.1 * pi);
-  h_m1_pt = theDbe->book1D(
+  h_e1_et = ibooker.book1D("e1_et", "E_{T} of Leading Electron;E_{T} (GeV)", 20,
+      0.0, 100.0);
+  h_e2_et = ibooker.book1D("e2_et", "E_{T} of Second Electron;E_{T} (GeV)", 20,
+      0.0, 100.0);
+  h_e1_eta = ibooker.book1D("e1_eta", "#eta of Leading Electron;#eta", 20, -4.0, 4.0);
+
+  h_e2_eta = ibooker.book1D("e2_eta", "#eta of Second Electron;#eta", 20, -4.0, 4.0);
+
+  h_e1_phi = ibooker.book1D("e1_phi", "#phi of Leading Electron;#phi", 22,
+      -1.1 * pi, 1.1 * pi);
+  h_e2_phi = ibooker.book1D("e2_phi", "#phi of Second Electron;#phi", 22,
+      -1.1 * pi, 1.1 * pi);
+  h_m1_pt = ibooker.book1D(
       "m1_pt", "p_{T} of Leading Muon;p_{T}(1^{st} #mu) (GeV)", 20, 0.0, 100.0);
-  h_m2_pt = theDbe->book1D(
+  h_m2_pt = ibooker.book1D(
       "m2_pt", "p_{T} of Second Muon;p_{T}(2^{nd} #mu) (GeV)", 20, 0.0, 100.0);
-  h_m1_eta = theDbe->book1D("m1_eta", "#eta of Leading Muon;#eta(1^{st} #mu)",
-                            20, -4.0, 4.0);
-  h_m2_eta = theDbe->book1D("m2_eta", "#eta of Second Muon;#eta(2^{nd} #mu)",
-                            20, -4.0, 4.0);
-  h_m1_phi = theDbe->book1D("m1_phi", "#phi of Leading Muon;#phi(1^{st} #mu)",
-                            20, (-1. - 1. / 10.) * pi, (1. + 1. / 10.) * pi);
-  h_m2_phi = theDbe->book1D("m2_phi", "#phi of Second Muon;#phi(2^{nd} #mu)",
-                            20, (-1. - 1. / 10.) * pi, (1. + 1. / 10.) * pi);
-  //  h_t1_et = theDbe->book1D("t1_et", "E_{T} of Leading Tau;E_{T} (GeV)",
-  //  20, 0.0 , 100.0);
-  //  h_t1_eta = theDbe->book1D("t1_eta", "#eta of Leading Tau;#eta",
-  //  20, -4.0, 4.0);
-  //  h_t1_phi = theDbe->book1D("t1_phi", "#phi of Leading Tau;#phi",
-  //  20, -4.0, 4.0);
-  snprintf(chtitle, title_s, "Missing E_{T} (%s); GeV",
-           theCaloMETCollectionLabel_.label().data());
-  h_met = theDbe->book1D("met", chtitle, 20, 0.0, 100);
-  h_met_phi = theDbe->book1D("met_phi", "Missing E_{T} #phi;#phi(MET)", 22,
-                             (-1. - 1. / 10.) * pi, (1. + 1. / 10.) * pi);
+  h_m1_eta = ibooker.book1D("m1_eta", "#eta of Leading Muon;#eta(1^{st} #mu)",
+      20, -4.0, 4.0);
+  h_m2_eta = ibooker.book1D("m2_eta", "#eta of Second Muon;#eta(2^{nd} #mu)",
+      20, -4.0, 4.0);
+  h_m1_phi = ibooker.book1D("m1_phi", "#phi of Leading Muon;#phi(1^{st} #mu)",
+      20, (-1. - 1. / 10.) * pi, (1. + 1. / 10.) * pi);
+  h_m2_phi = ibooker.book1D("m2_phi", "#phi of Second Muon;#phi(2^{nd} #mu)",
+      20, (-1. - 1. / 10.) * pi, (1. + 1. / 10.) * pi);
 
-  h_e_invWMass = theDbe->book1D(
+  snprintf(chtitle, title_s, "Missing E_{T} (%s); GeV",
+      theCaloMETCollectionLabel_.label().data());
+  h_met = ibooker.book1D("met", chtitle, 20, 0.0, 100);
+  h_met_phi = ibooker.book1D("met_phi", "Missing E_{T} #phi;#phi(MET)", 22,
+      (-1. - 1. / 10.) * pi, (1. + 1. / 10.) * pi);
+
+  h_e_invWMass = ibooker.book1D(
       "we_invWMass", "W-> e #nu Transverse Mass;M_{T} (GeV)", 20, 0.0, 140.0);
-  h_m_invWMass = theDbe->book1D(
+  h_m_invWMass = ibooker.book1D(
       "wm_invWMass", "W-> #mu #nu Transverse Mass;M_{T} (GeV)", 20, 0.0, 140.0);
-  h_mumu_invMass = theDbe->book1D(
+  h_mumu_invMass = ibooker.book1D(
       "z_mm_invMass", "#mu#mu Invariant Mass;InvMass (GeV)", 20, 40.0, 140.0);
-  h_ee_invMass = theDbe->book1D(
+  h_ee_invMass = ibooker.book1D(
       "z_ee_invMass", "ee Invariant Mass;InvMass (Gev)", 20, 40.0, 140.0);
 }
 
 ///
-///
-///
-void EwkDQM::beginRun(const edm::Run& theRun, const edm::EventSetup& theSetup) {
+void EwkDQM::dqmBeginRun(const edm::Run& theRun, const edm::EventSetup& theSetup) {
   // passed as parameter to HLTConfigProvider::init(), not yet used
   bool isConfigChanged = false;
 
@@ -636,8 +622,6 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   }
   ////////////////////////////////////////////////////////////////////////////////
 }
-
-void EwkDQM::endJob(void) {}
 
 // This always returns only a positive deltaPhi
 double EwkDQM::calcDeltaPhi(double phi1, double phi2) {
