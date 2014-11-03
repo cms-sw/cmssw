@@ -102,6 +102,7 @@ hiRegitMuPixelLessStepSelector               = RecoTracker.IterativeTracking.Pix
 )
 
 hiRegitMuonPixelLessStep = cms.Sequence(hiRegitMuPixelLessStepClusters*
+                                        hiRegitMuPixelLessStepSeedLayers*
                                         hiRegitMuPixelLessStepSeeds*
                                         hiRegitMuPixelLessStepTrackCandidates*
                                         hiRegitMuPixelLessStepTracks*

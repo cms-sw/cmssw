@@ -35,13 +35,13 @@ hiGeneralAndRegitMuTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.
     )
 
 hiRegitMuTracking = cms.Sequence(hiRegitMuonInitialStep
+                                 *hiRegitMuonDetachedTripletStep
                                  *hiRegitMuonLowPtTripletStep
                                  *hiRegitMuonPixelPairStep
-                                 *hiRegitMuonDetachedTripletStep
                                  *hiRegitMuonMixedTripletStep
                                  *hiRegitMuonPixelLessStep
                                  *hiRegitMuonTobTecStep
-                                 *hiGeneralAndRegitMuTracks
+                                 # *hiGeneralAndRegitMuTracks
                                  )
 
 # Emilien

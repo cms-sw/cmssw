@@ -19,9 +19,9 @@ from RecoTracker.IterativeTracking.MixedTripletStep_cff import *
 
 # NEW CLUSTERS (remove previously used clusters)
 hiRegitMuMixedTripletStepClusters = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepClusters.clone(
-    oldClusterRemovalInfo = cms.InputTag("hiRegitMuDetachedTripletStepClusters"),
-    trajectories          = cms.InputTag("hiRegitMuDetachedTripletStepTracks"),
-    overrideTrkQuals      = cms.InputTag('hiRegitMuDetachedTripletStepSelector','hiRegitMuDetachedTripletStep'),
+    oldClusterRemovalInfo = cms.InputTag("hiRegitMuPixelPairStepClusters"),
+    trajectories          = cms.InputTag("hiRegitMuPixelPairStepTracks"),
+    overrideTrkQuals      = cms.InputTag('hiRegitMuPixelPairStepSelector','hiRegitMuPixelPairStep'),
     TrackQuality          = cms.string('tight')
 )
 
@@ -132,7 +132,9 @@ hiRegitMuMixedTripletStepSelector =  RecoTracker.IterativeTracking.MixedTripletS
     ) #end of clone
 
 hiRegitMuonMixedTripletStep = cms.Sequence(hiRegitMuMixedTripletStepClusters*
+                                         hiRegitMuMixedTripletStepSeedLayersA*
                                          hiRegitMuMixedTripletStepSeedsA*
+                                         hiRegitMuMixedTripletStepSeedLayersB*
                                          hiRegitMuMixedTripletStepSeedsB*
                                          hiRegitMuMixedTripletStepSeeds*
                                          hiRegitMuMixedTripletStepTrackCandidates*

@@ -12,7 +12,7 @@ hiTracking_noRegitMu = cms.Sequence(
     hiBasicTracking
     *hiSecondPixelTripletStep
     *hiPixelPairStep
-    *hiGeneralTracksNoRegitMu
+    # *hiGeneralTracksNoRegitMu
     )
 
 hiTracking = cms.Sequence(
