@@ -17,7 +17,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-//#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
@@ -265,9 +264,9 @@ void ElectronTagProbeAnalyzer::analyze( const edm::Event& iEvent, const edm::Eve
   iEvent.getByToken(beamSpotTag_,recoBeamSpotHandle) ;
   const BeamSpot bs = *recoBeamSpotHandle ;
 
-  int ievt = iEvent.id().event();
-  int irun = iEvent.id().run();
-  int ils = iEvent.luminosityBlock();
+  edm::EventNumber_t ievt = iEvent.id().event();
+  edm::RunNumber_t irun = iEvent.id().run();
+  edm::LuminosityBlockNumber_t ils = iEvent.luminosityBlock();
 
   edm::LogInfo("ElectronMcSignalValidator::analyze")
     <<"Treating "<<gsfElectrons.product()->size()<<" electrons"

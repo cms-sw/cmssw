@@ -115,7 +115,7 @@ class SiStripCMMonitorPlugin : public edm::EDAnalyzer
 
   std::pair<uint16_t,uint16_t> prevMedians_[FEDNumbering::MAXSiStripFEDID+1][sistrip::FEDCH_PER_FED];
 
-  unsigned int evt_;
+  edm::EventNumber_t evt_;
 
 };
 
@@ -345,9 +345,19 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
     }//loop on channels
     
     float lTime = 0;
-    if (fillWithEvtNum_) lTime = iEvent.id().event();
-    else if (fillWithLocalEvtNum_) lTime = evt_;//iEvent.id().event();
-    else lTime = iEvent.orbitNumber()/11223.;
+    if (fillWithEvtNum_) {
+      // casting from unsigned long long to a float here
+      // doing it explicitely
+      lTime = static_cast<float>(iEvent.id().event());
+    } else {
+      if (fillWithLocalEvtNum_) {
+        // casting from unsigned long long to a float here
+        // doing it explicitely
+        lTime = static_cast<float>(evt_);
+      } else {
+        lTime = iEvent.orbitNumber()/11223.;
+      }
+    }
 
     cmHists_.fillHistograms(values,lTime,fedId);
 
