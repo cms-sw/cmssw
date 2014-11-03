@@ -44,6 +44,8 @@ HLTDeDxFilter::HLTDeDxFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConf
   maxNHitMissMid_   = iConfig.getParameter<double> ("maxNHitMissMid");
   maxRelTrkIsoDeltaRp3_     = iConfig.getParameter<double> ("maxRelTrkIsoDeltaRp3");
   relTrkIsoDeltaRSize_     = iConfig.getParameter<double> ("relTrkIsoDeltaRSize");
+  maxAssocCaloE_     = iConfig.getParameter<double> ("maxAssocCaloE");
+  maxAssocCaloEDeltaRSize_     = iConfig.getParameter<double> ("maxAssocCaloEDeltaRSize");
   inputTracksTag_ = iConfig.getParameter< edm::InputTag > ("inputTracksTag");
   inputdedxTag_   = iConfig.getParameter< edm::InputTag > ("inputDeDxTag");
   inputTracksToken_ = consumes<reco::TrackCollection>(iConfig.getParameter< edm::InputTag > ("inputTracksTag"));
@@ -69,6 +71,8 @@ void HLTDeDxFilter::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<double>("maxNHitMissMid",99);
   desc.add<double>("maxRelTrkIsoDeltaRp3", -1);
   desc.add<double>("relTrkIsoDeltaRSize", 0.3);
+  desc.add<double>("maxAssocCaloE", -99);
+  desc.add<double>("maxAssocCaloEDeltaRSize", 0.5);
   desc.add<edm::InputTag>("inputTracksTag",edm::InputTag("hltL3Mouns"));
   desc.add<edm::InputTag>("inputDeDxTag",edm::InputTag("HLTdedxHarm2"));
   descriptions.add("hltDeDxFilter",desc);
@@ -144,6 +148,38 @@ bool
        double relTrkIso = (ptCone - pt[i])/(pt[i]);
        if (relTrkIso > maxRelTrkIsoDeltaRp3_) continue;
        }
+       
+       //calculate the calorimeter energy associated with the track if maxAssocCaloE_ >= 0 
+       if(maxAssocCaloE_ >= 0){
+       // Copy code from:  http://cmslxr.fnal.gov/lxr/source/DataFormats/CaloTowers/test/CaloTowersDump.cc                   
+       // See reference:  https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideCaloTowers                                   
+       std::vector<edm::Handle<CaloTowerCollection> > prods;
+       try {
+         iEvent.getManyByType(prods);
+       } catch (...) {
+	 edm::LogWarning("HLTDeDxFilter")
+	   << "\nWarning: No CaloTowers found."
+	   << std::endl;
+	 //         cout << "No CaloTowers." << endl;
+	 }
+       //Access info about Calo Towers                                                                                       
+       double caloEMDeltaRp5  = 0;
+       double caloHadDeltaRp5 = 0;
+       std::vector<edm::Handle<CaloTowerCollection> >::iterator ci = prods.begin();
+       const CaloTowerCollection& c=*(*ci);
+       for (CaloTowerCollection::const_iterator j=c.begin(); j!=c.end(); j++) {
+	 auto caloDeltaR2 = deltaR2(eta[i], phi[i], j->eta(), j->phi());
+         double Eem  = j->emEnergy();
+         double Ehad = j->hadEnergy();
+
+         if (caloDeltaR2 < (maxAssocCaloEDeltaRSize_ * maxAssocCaloEDeltaRSize_) ) {
+           caloEMDeltaRp5  += Eem;
+           caloHadDeltaRp5 += Ehad;
+         }
+       }
+       if (caloEMDeltaRp5 + caloHadDeltaRp5 > maxAssocCaloE_) continue;
+       }
+
        accept=true;
     }
   }
