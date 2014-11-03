@@ -38,8 +38,8 @@ from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 
 from RecoLocalCalo.CastorReco.CastorSimpleReconstructor_cfi import *
 
-localreco = cms.Sequence(fillSchemeInfo+trackerlocalreco+muonlocalreco+calolocalreco+castorreco)
-localreco_HcalNZS = cms.Sequence(fillSchemeInfo+trackerlocalreco+muonlocalreco+calolocalrecoNZS+castorreco)
+localreco = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalreco+castorreco)
+localreco_HcalNZS = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalrecoNZS+castorreco)
 
 #
 # temporarily switching off recoGenJets; since this are MC and wil be moved to a proper sequence
@@ -89,7 +89,7 @@ highlevelreco = cms.Sequence(egammaHighLevelRecoPrePF*
 from FWCore.Modules.logErrorHarvester_cfi import *
 
 # "Export" Section
-reconstruction         = cms.Sequence(localreco*globalreco*highlevelreco*logErrorHarvester)
+reconstruction         = cms.Sequence(fillSchemeInfo*localreco*globalreco*highlevelreco*logErrorHarvester)
 
 #need a fully expanded sequence copy
 modulesToRemove = list() # copy does not work well
@@ -153,17 +153,17 @@ reconstruction_noTracking = reconstruction.copyAndExclude(noTrackingAndDependent
 
 
 #sequences with additional stuff
-reconstruction_withPixellessTk  = cms.Sequence(localreco        *globalreco_plusPL*highlevelreco*logErrorHarvester)
-reconstruction_HcalNZS = cms.Sequence(localreco_HcalNZS*globalreco       *highlevelreco*logErrorHarvester)
+reconstruction_withPixellessTk  = cms.Sequence(fillSchemeInfo*localreco        *globalreco_plusPL*highlevelreco*logErrorHarvester)
+reconstruction_HcalNZS = cms.Sequence(fillSchemeInfo*localreco_HcalNZS*globalreco       *highlevelreco*logErrorHarvester)
 
 #sequences without some stuffs
 #
-reconstruction_woCosmicMuons = cms.Sequence(localreco*globalreco*highlevelreco*logErrorHarvester)
+reconstruction_woCosmicMuons = cms.Sequence(fillSchemeInfo*localreco*globalreco*highlevelreco*logErrorHarvester)
 
 
 # define a standard candle. please note I am picking up individual
 # modules instead of sequences
 #
-reconstruction_standard_candle = cms.Sequence(localreco*globalreco*vertexreco*recoJetAssociations*btagging*electronSequence*photonSequence)
+reconstruction_standard_candle = cms.Sequence(fillSchemeInfo*localreco*globalreco*vertexreco*recoJetAssociations*btagging*electronSequence*photonSequence)
 
 
