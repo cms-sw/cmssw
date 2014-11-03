@@ -51,7 +51,11 @@ class HLTProcess(object):
     "HLT_DoubleMu38NoFiltersNoVtx_v*",
     "HLT_Mu38NoFiltersNoVtx_Photon38_CaloIdL_v*",
     "HLT_Mu42NoFiltersNoVtx_Photon42_CaloIdL_v*",
- 
+    "HLT_DoubleMu23NoFiltersNoVtxDisplaced_v*",
+    "HLT_DoubleMu28NoFiltersNoVtxDisplaced_v*",
+    "HLT_Mu28NoFiltersNoVtxDisplaced_Photon28_CaloIdL_v*",
+    "HLT_Mu33NoFiltersNoVtxDisplaced_Photon33_CaloIdL_v*"
+    
   )
 
   def __init__(self, configuration):
