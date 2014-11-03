@@ -1,5 +1,6 @@
 import os
 import PhysicsTools.HeppyCore.framework.config as cfg
+from PhysicsTools.Heppy.utils.miniAodFiles import miniAodFiles
 
 
 # input component 
@@ -7,7 +8,7 @@ import PhysicsTools.HeppyCore.framework.config as cfg
 # and added to the list of selected components
 inputSample = cfg.Component(
     'test_component',
-    files = ['tt.root'],
+    files = miniAodFiles(),
     )
 inputSample.isMC = True
 
@@ -38,4 +39,6 @@ config = cfg.Config( components = selectedComponents,
                      sequence = sequence, 
                      events_class = Events)
 
-print config 
+print config
+import sys
+print sys.modules.keys()
