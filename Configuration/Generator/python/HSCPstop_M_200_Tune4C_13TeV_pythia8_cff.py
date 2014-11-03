@@ -9,7 +9,8 @@ USE_REGGE = False
 
 import FWCore.ParameterSet.Config as cms
 
-source = cms.Source("EmptySource")
+from Configuration.Generator.Pythia8CommonSettings_cfi import *
+from Configuration.Generator.Pythia8CUEP8M1Settings_cfi import *
 
 generator = cms.EDFilter("Pythia8GeneratorFilter",
                          pythiaPylistVerbosity = cms.untracked.int32(0),
@@ -21,7 +22,6 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
                          SLHAFileForPythia8 = cms.string('%s' % SLHA_FILE), 
 			 PythiaParameters = cms.PSet(
     processParameters = cms.vstring(
-			  'Tune:pp  = 5',
 			  'SUSY:all = off',
 			  'SUSY:gg2squarkantisquark  = on',
 			  'SUSY:qqbar2squarkantisquark= on',
@@ -29,9 +29,10 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
 			  'RHadrons:allowDecay = off',
 			  'RHadrons:setMasses = on',
 			  ),
-    parameterSets = cms.vstring(
-    'processParameters'
-    )
+    parameterSets = cms.vstring('pythia8CommonSettings',
+                                'pythia8CUEP8M1Settings',
+                                'processParameters'
+                                )
     
     )
                          )
