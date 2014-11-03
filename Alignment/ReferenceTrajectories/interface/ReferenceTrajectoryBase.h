@@ -79,6 +79,12 @@
  *      selected with "BrokenLines[Coarse]Pca" or "BrokenLinesFinePca"
  *   2) For coarse Broken Lines linear interpolation is used for combined hits
  *   3) TwoBodyDecayTrajectory implemented for break points and Broken Lines
+ *
+ * 141103 C. Kleinwort: 'General Broken Lines' introduced for description of multiple scattering
+ *       (C. Kleinwort, Nuclear Instruments and Methods A, 673 (2012), pp. 107-110)
+ *        needs GBL version >= V01-13-00 (from svnsrv.desy.de)
+ *        Selected by TrajectoryFactory.MaterialEffects = "LocalGBL" or = "CurvlinGBL"
+ *        (for trajectory constructed in local or curvilinear system)
  */
 
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
@@ -91,6 +97,10 @@
 
 #include <vector>
 
+#include "Alignment/ReferenceTrajectories/interface/GblTrajectory.h"
+
+using namespace gbl;
+
 class ReferenceTrajectoryBase : public ReferenceCounted
 {
 
@@ -99,7 +109,7 @@ public:
   typedef ReferenceCountingPointer<ReferenceTrajectoryBase> ReferenceTrajectoryPtr;
 
   enum MaterialEffects { none, multipleScattering, energyLoss, combined, 
-			 breakPoints, brokenLinesCoarse, brokenLinesFine };
+			 breakPoints, brokenLinesCoarse, brokenLinesFine, localGBL, curvlinGBL };
 
   virtual ~ReferenceTrajectoryBase() {}
 
@@ -132,7 +142,24 @@ public:
   const AlgebraicMatrix& trajectoryToCurv() const { return theInnerTrajectoryToCurvilinear; }
   /** Returns the transformation of local to tracjectory parameters
    */
-  const AlgebraicMatrix& localToTrajectory() const { return theInnerLocalToTrajectory; }    
+  const AlgebraicMatrix& localToTrajectory() const { return theInnerLocalToTrajectory; }  
+  
+  /** Returns the GBL input
+   */
+  std::vector<std::pair<std::vector<GblPoint>, TMatrixD> >& gblInput() { return theGblInput; }
+
+  /** Returns the GBL external derivatives.
+   */
+  const TMatrixD& gblExtDerivatives() const { return theGblExtDerivatives; }
+
+  /** Returns the GBL external derivatives.
+   */
+  const TVectorD& gblExtMeasurements() const { return theGblExtMeasurements; }
+
+  /** Returns the GBL external derivatives.
+   */
+  const TVectorD& gblExtPrecisions() const { return theGblExtPrecisions; }
+  
 
   /** Returns the set of 'track'-parameters.
    */  
@@ -164,7 +191,8 @@ public:
   inline unsigned int numberOfVirtualMeas() const { return theNumberOfVirtualMeas; }  
   inline unsigned int numberOfVirtualPar() const { return theNumberOfVirtualPars; }  
   inline unsigned int numberOfHitMeas() const { return theNumberOfHits * nMeasPerHit; } 
-     
+  inline int nominalField() const { return theNomField; }
+       
   virtual ReferenceTrajectoryBase* clone() const = 0;
 
 protected:
@@ -200,7 +228,14 @@ protected:
 // CHK for beamspot   transformation trajectory parameter to curvilinear at refTSos
   AlgebraicMatrix     theInnerTrajectoryToCurvilinear;  
 // CHK for TwoBodyD.  transformation local to trajectory parameter at refTsos
-  AlgebraicMatrix     theInnerLocalToTrajectory;  
+  AlgebraicMatrix     theInnerLocalToTrajectory;
+// CHK GBL input:     list of (list of points on trajectory and transformation at inner (first) point)
+  std::vector<std::pair<std::vector<GblPoint>, TMatrixD> > theGblInput;
+  int                           theNomField;
+// CHK GBL TBD:       virtual (mass) measurement
+  TMatrixD            theGblExtDerivatives;
+  TVectorD            theGblExtMeasurements;
+  TVectorD            theGblExtPrecisions;    
     
   static const unsigned int nMeasPerHit = 2;
 };
