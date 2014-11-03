@@ -233,8 +233,7 @@ dEdxAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
   desc.setUnknown();
-  desc.add<double>("HIPdEdxMin",100.0);
-  descriptions.add("dEdxAnalyzer", desc);
+  descriptions.addDefault(desc);
 }
 
 DEFINE_FWK_MODULE(dEdxAnalyzer);
