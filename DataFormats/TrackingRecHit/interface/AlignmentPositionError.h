@@ -21,9 +21,9 @@ class AlignmentPositionError {
 
   ~AlignmentPositionError(){};
   
-  //FIXME use all APEs for now
+  //FIXME 
   bool valid() const {
-    return true; //( theGlobalError.cxx()>0 || theGlobalError.cyy()>0 || theGlobalError.cphixphix()>0 || theGlobalError.cphiyphiy()>0);
+    return ( theGlobalError.cxx()>0 || theGlobalError.cyy()>0 || theGlobalError.cxx()>0);
   }
 
   const GlobalErrorExtended & globalError() const { return theGlobalError; };
