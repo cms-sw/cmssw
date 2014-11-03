@@ -30,6 +30,7 @@ l1ExtraLayer2.nonIsolatedEmSource = cms.InputTag("caloStage1LegacyFormatDigis","
 l1ExtraLayer2.forwardJetSource = cms.InputTag("caloStage1LegacyFormatDigis","forJets")
 l1ExtraLayer2.centralJetSource = cms.InputTag("caloStage1LegacyFormatDigis","cenJets")
 l1ExtraLayer2.tauJetSource     = cms.InputTag("caloStage1LegacyFormatDigis","tauJets")
+l1ExtraLayer2.isoTauJetSource  = cms.InputTag("caloStage1LegacyFormatDigis","isoTauJets")
 
 l1ExtraLayer2.etTotalSource = cms.InputTag("caloStage1LegacyFormatDigis")
 l1ExtraLayer2.etHadSource   = cms.InputTag("caloStage1LegacyFormatDigis")
@@ -38,6 +39,10 @@ l1ExtraLayer2.htMissSource  = cms.InputTag("caloStage1LegacyFormatDigis")
 
 l1ExtraLayer2.hfRingEtSumsSource    = cms.InputTag("caloStage1LegacyFormatDigis")
 l1ExtraLayer2.hfRingBitCountsSource = cms.InputTag("caloStage1LegacyFormatDigis")
+
+## update l1ExtraLayer2 muon tag
+l1ExtraLayer2.muonSource = cms.InputTag("simGmtDigis")
+
 
 # the sequence
 L1TCaloStage1_PPFromRaw = cms.Sequence(

@@ -31,15 +31,23 @@ caloParams = cms.ESProducer(
     egNeighbourThreshold       = cms.double(1.),
     egHcalThreshold            = cms.double(1.),
     egMaxHcalEt                = cms.double(0.),
+    egTrimmingLUTFile          = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egTrimmingLUT_corners.txt"),
     egEtToRemoveHECut          = cms.double(128.),
     egMaxHOverE                = cms.double(0.15),
     egMaxHOverELUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egMaxHOverELUT.txt"),
+    egCompressShapesLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egCompressShapesLUT.txt"),
     egShapeIdLUTFile           = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egShapeIdLUT.txt"),
     egCalibrationLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egCalibrationLUT.txt"),
     egRelativeJetIsolationBarrelCut  = cms.double(0.3),  # 0.3 for loose, 0.2 for tight
     egRelativeJetIsolationEndcapCut  = cms.double(0.5),  # 0.5 for loose, 0.4 for tight
+    egMinPtRelativeJetIsolation      = cms.int32(25),
+    egMaxPtRelativeJetIsolation      = cms.int32(63),
+    egMinPt3x3HoE                    = cms.int32(1),
+    egMaxPt3x3HoE                    = cms.int32(40),
     egIsoPUSType               = cms.string("None"),
     egIsoLUTFile               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egIsoLUT.txt"),
+    egIsoLUTFileBarrel         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egIsoLUT_stage1_isol0.30.txt"),
+    egIsoLUTFileEndcaps        = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egIsoLUT_stage1_isol0.50.txt"),
     egIsoAreaNrTowersEta       = cms.uint32(2),
     egIsoAreaNrTowersPhi       = cms.uint32(4),
     egIsoVetoNrTowersPhi       = cms.uint32(3),
@@ -57,6 +65,8 @@ caloParams = cms.ESProducer(
     tauRelativeJetIsolationCut    = cms.double(0.1),
     tauIsoPUSType                 = cms.string("None"),
     tauIsoLUTFile                 = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauIsoLUT.txt"),
+    isoTauThresholds              = cms.vdouble(44,56,64,72,80,88),
+    diIsoTauThresholds            = cms.vdouble(56,68,80,96,112,120),  ## number of iso+diIso threholds must be <= 12
     tauCalibrationLUTFileBarrelA  = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTBarrelA.txt"),
     tauCalibrationLUTFileBarrelB  = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTBarrelB.txt"),
     tauCalibrationLUTFileBarrelC  = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTBarrelC.txt"),
@@ -79,6 +89,10 @@ caloParams = cms.ESProducer(
     etSumLsb                = cms.double(0.5),
     etSumEtaMin             = cms.vint32(-999, -999, -999, -999),
     etSumEtaMax             = cms.vint32(999,  999,  999,  999),
-    etSumEtThreshold        = cms.vdouble(0.,  0.,   0.,   0.)
+    etSumEtThreshold        = cms.vdouble(0.,  0.,   0.,   0.),
+
+    # HI
+    centralityLUTFile = cms.FileInPath("L1Trigger/L1TCalorimeter/data/centralityLUT_stage1.txt"),
+    q2LUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/q2LUT_stage1.txt")
 
 )

@@ -23,12 +23,13 @@ Stage1Layer2JetAlgorithmImpPP::~Stage1Layer2JetAlgorithmImpPP(){};
 
 void Stage1Layer2JetAlgorithmImpPP::processEvent(const std::vector<l1t::CaloRegion> & regions,
 						 const std::vector<l1t::CaloEmCand> & EMCands,
-						 std::vector<l1t::Jet> * jets){
+						 std::vector<l1t::Jet> * jets,
+						 std::vector<l1t::Jet> * preGtJets){
 
 
   std::vector<l1t::CaloRegion> * subRegions = new std::vector<l1t::CaloRegion>();
   std::vector<l1t::Jet> * uncalibjets = new std::vector<l1t::Jet>();
-  std::vector<l1t::Jet> * preGtJets = new std::vector<l1t::Jet>();
+  std::vector<l1t::Jet> * preGtEtaJets = new std::vector<l1t::Jet>();
 
   double towerLsb = params_->towerLsbSum();
   int jetSeedThreshold = floor( params_->jetSeedThreshold()/towerLsb + 0.5);
@@ -46,14 +47,15 @@ void Stage1Layer2JetAlgorithmImpPP::processEvent(const std::vector<l1t::CaloRegi
 
   //will return jets with no response corrections
   //if jetCalibrationType is set to None in the config
-  JetCalibration(uncalibjets, jetCalibrationParams, preGtJets, jetCalibrationType, towerLsb);
+  JetCalibration(uncalibjets, jetCalibrationParams, preGtEtaJets, jetCalibrationType, towerLsb);
 
   // takes input jets (using region scales/eta) and outputs jets using Gt scales/eta
-  JetToGtScales(params_, preGtJets, jets);
+  JetToGtEtaScales(params_, preGtEtaJets, preGtJets);
+  JetToGtPtScales(params_, preGtJets, jets);
 
   delete subRegions;
   delete uncalibjets;
-  delete preGtJets;
+  delete preGtEtaJets;
 
   //the jets should be sorted, highest pT first.
   // do not truncate the tau list, GT converter handles that
