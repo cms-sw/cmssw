@@ -9,8 +9,9 @@ from PhysicsTools.HeppyCore.analyzers.SimpleTreeProducer import SimpleTreeProduc
 # and added to the list of selected components
 inputSample = cfg.Component(
     'test_component',
+    # create the test file by running
+    # python create_tree.py
     files = [os.path.abspath('test_tree.root')],
-    # tree_name = 'test_tree'
     )
 
 selectedComponents  = [inputSample]
