@@ -146,10 +146,9 @@ void HcalMonitorClient::beginJob(void)
   begin_run_ = false;
   end_run_   = false;
 
-  run_=-1;
-  evt_=-1;
-  ievt_=0;
-  jevt_=0;
+  run_ = edm::invalidRunNumber;
+  ievt_ = 0;
+  jevt_ =0;
 
   current_time_ = time(NULL);
   last_time_html_ = 0; 
@@ -179,10 +178,9 @@ void HcalMonitorClient::beginRun(const edm::Run& r, const edm::EventSetup& c)
   begin_run_ = true;
   end_run_   = false;
 
-  run_=r.id().run();
-  evt_=0;
-  jevt_=0;
-  htmlcounter_=0;
+  run_ = r.id().run();
+  jevt_ = 0;
+  htmlcounter_ = 0;
 
   // Store list of bad channels and their values
   std::map <HcalDetId, unsigned int> badchannelmap; 
@@ -325,7 +323,6 @@ void HcalMonitorClient::analyze(const edm::Event & e, const edm::EventSetup & c)
   jevt_++;
 
   run_=e.id().run();
-  evt_=e.id().event();
   if (prescaleFactor_>0 && jevt_%prescaleFactor_==0) {
 
     for (unsigned int i=0;i<clients_.size();++i)
@@ -470,8 +467,11 @@ void HcalMonitorClient::writeHtml()
 
   char tmp[20];
 
-  if(run_!=-1) sprintf(tmp, "DQM_%s_R%09d_%i", prefixME_.substr(0,prefixME_.size()-1).c_str(),run_,htmlcounter_);
-  else sprintf(tmp, "DQM_%s_R%09d_%i", prefixME_.substr(0,prefixME_.size()-1).c_str(),0,htmlcounter_);
+  if (run_ != edm::invalidRunNumber) {
+    sprintf(tmp, "DQM_%s_R%09d_%i", prefixME_.substr(0,prefixME_.size()-1).c_str(),run_,htmlcounter_);
+  } else {
+    sprintf(tmp, "DQM_%s_R%09d_%i", prefixME_.substr(0,prefixME_.size()-1).c_str(),0,htmlcounter_);
+  }
   std::string htmlDir = baseHtmlDir_ + "/" + tmp + "/";
   system(("/bin/mkdir -p " + htmlDir).c_str());
 
