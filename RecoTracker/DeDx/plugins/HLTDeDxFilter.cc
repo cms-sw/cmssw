@@ -48,6 +48,9 @@ HLTDeDxFilter::HLTDeDxFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConf
   maxAssocCaloEDeltaRSize_     = iConfig.getParameter<double> ("maxAssocCaloEDeltaRSize");
   inputTracksTag_ = iConfig.getParameter< edm::InputTag > ("inputTracksTag");
   inputdedxTag_   = iConfig.getParameter< edm::InputTag > ("inputDeDxTag");
+  caloTowersTag_ =  iConfig.getParameter<edm::InputTag>("caloTowersTag");
+
+  caloTowersToken_ = consumes<CaloTowerCollection> (iConfig.getParameter<edm::InputTag>("caloTowersTag"));
   inputTracksToken_ = consumes<reco::TrackCollection>(iConfig.getParameter< edm::InputTag > ("inputTracksTag"));
   inputdedxToken_   = consumes<edm::ValueMap<reco::DeDxData> >(iConfig.getParameter< edm::InputTag > ("inputDeDxTag"));
 
@@ -56,6 +59,7 @@ HLTDeDxFilter::HLTDeDxFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConf
   //register your products
   produces<reco::RecoChargedCandidateCollection>();
 }
+
 
 HLTDeDxFilter::~HLTDeDxFilter(){}
 
@@ -73,6 +77,7 @@ void HLTDeDxFilter::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<double>("relTrkIsoDeltaRSize", 0.3);
   desc.add<double>("maxAssocCaloE", -99);
   desc.add<double>("maxAssocCaloEDeltaRSize", 0.5);
+  desc.add<edm::InputTag>("caloTowersTag",edm::InputTag("hltTowerMakerForAll"));
   desc.add<edm::InputTag>("inputTracksTag",edm::InputTag("hltL3Mouns"));
   desc.add<edm::InputTag>("inputDeDxTag",edm::InputTag("HLTdedxHarm2"));
   descriptions.add("hltDeDxFilter",desc);
@@ -106,6 +111,11 @@ bool
   edm::Handle<edm::ValueMap<reco::DeDxData> > dEdxTrackHandle;
   iEvent.getByToken(inputdedxToken_, dEdxTrackHandle);
   const edm::ValueMap<reco::DeDxData> dEdxTrack = *dEdxTrackHandle.product();
+
+  edm::Handle<CaloTowerCollection> caloTowersHandle;
+  iEvent.getByToken(caloTowersToken_, caloTowersHandle);
+  const CaloTowerCollection caloTower = *caloTowersHandle.product();
+
 
   bool accept=false;
   int  NTracks = 0;
@@ -151,26 +161,13 @@ bool
        
        //calculate the calorimeter energy associated with the track if maxAssocCaloE_ >= 0 
        if(maxAssocCaloE_ >= 0){
-       // Copy code from:  http://cmslxr.fnal.gov/lxr/source/DataFormats/CaloTowers/test/CaloTowersDump.cc                   
-       // See reference:  https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideCaloTowers                                   
-       std::vector<edm::Handle<CaloTowerCollection> > prods;
-       try {
-         iEvent.getManyByType(prods);
-       } catch (...) {
-	 edm::LogWarning("HLTDeDxFilter")
-	   << "\nWarning: No CaloTowers found."
-	   << std::endl;
-	 //         cout << "No CaloTowers." << endl;
-	 }
        //Access info about Calo Towers                                                                                       
        double caloEMDeltaRp5  = 0;
        double caloHadDeltaRp5 = 0;
-       std::vector<edm::Handle<CaloTowerCollection> >::iterator ci = prods.begin();
-       const CaloTowerCollection& c=*(*ci);
-       for (CaloTowerCollection::const_iterator j=c.begin(); j!=c.end(); j++) {
+       for (CaloTowerCollection::const_iterator j=caloTower.begin(); j!=caloTower.end(); j++) {
 	 auto caloDeltaR2 = deltaR2(eta[i], phi[i], j->eta(), j->phi());
-         double Eem  = j->emEnergy();
-         double Ehad = j->hadEnergy();
+	 double Eem  = j->emEnergy();
+	 double Ehad = j->hadEnergy();
 
          if (caloDeltaR2 < (maxAssocCaloEDeltaRSize_ * maxAssocCaloEDeltaRSize_) ) {
            caloEMDeltaRp5  += Eem;
