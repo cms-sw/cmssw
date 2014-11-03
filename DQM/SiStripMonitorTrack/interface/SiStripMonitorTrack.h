@@ -188,7 +188,7 @@ private:
   bool tracksCollection_in_EventTree;
   bool trackAssociatorCollection_in_EventTree;
   bool flag_ring;
-  int runNb, eventNb;
+  edm::EventNumber_t eventNb;
   int firstEvent;
 
   bool   applyClusterQuality_;
