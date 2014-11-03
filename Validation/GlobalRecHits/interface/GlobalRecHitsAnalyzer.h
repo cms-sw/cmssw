@@ -178,8 +178,6 @@ class GlobalRecHitsAnalyzer : public DQMEDAnalyzer
   bool printProvenanceInfo;
   std::string hitsProducer;
 
-  DQMStore *dbe;
-
   // Electromagnetic info
   // ECal info
  

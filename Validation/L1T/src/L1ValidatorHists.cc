@@ -27,32 +27,18 @@ void L1ValidatorHists::Book(DQMStore::IBooker &iBooker){
 
   for(int i=0; i<Type::Number; i++){
     N[i] = iBooker.book1D( (Name[i]+"_N").c_str(), (Name[i]+" Number").c_str(), 5, -0.5, 4.5);
-    N_Pt[i] = new TH1F( (Name[i]+"_N_Pt").c_str(), (Name[i]+" Number").c_str(), 20, 0, 100);
-    N_Eta[i] = new TH1F( (Name[i]+"_N_Eta").c_str(), (Name[i]+" Number").c_str(), 20, -4, 4);
+
     Eff_Pt[i] = iBooker.book1D( (Name[i]+"_Eff_Pt").c_str(), (Name[i]+" Efficiency").c_str(), 20, 0, 100);
     Eff_Eta[i] = iBooker.book1D( (Name[i]+"_Eff_Eta").c_str(), (Name[i]+" Efficiency").c_str(), 20, -4, 4);
     TurnOn_15[i] = iBooker.book1D( (Name[i]+"_TurnOn_15").c_str(), (Name[i]+" Turn On (15 GeV)").c_str(), 20, 0, 100);
     TurnOn_30[i] = iBooker.book1D( (Name[i]+"_TurnOn_30").c_str(), (Name[i]+" Turn On (30 GeV)").c_str(), 20, 0, 100);
     dR[i] = iBooker.book1D( (Name[i]+"_dR").c_str(), (Name[i]+" dR").c_str(), 20, 0, 1);
     dPt[i] = iBooker.book1D( (Name[i]+"_dPt").c_str(), (Name[i]+" dPt").c_str(), 20, -1, 1);
-
-//     N[i]->getTH1()->Sumw2();
-//     N_Pt[i]->Sumw2();
-//     N_Eta[i]->Sumw2();
-//     Eff_Pt[i]->getTH1()->Sumw2();
-//     Eff_Eta[i]->getTH1()->Sumw2();
-//     TurnOn_15[i]->getTH1()->Sumw2();
-//     TurnOn_30[i]->getTH1()->Sumw2();
-//     dR[i]->getTH1()->Sumw2();
-//     dPt[i]->getTH1()->Sumw2();
   }
 
 }
 
 void L1ValidatorHists::Fill(int i, const reco::LeafCandidate *GenPart, const reco::LeafCandidate *RecoPart){
-  N_Pt[i]->Fill(GenPart->pt());
-  N_Eta[i]->Fill(GenPart->eta());
-
   if(RecoPart==NULL) return;
 
   Eff_Pt[i]->Fill(GenPart->pt());
@@ -65,18 +51,6 @@ void L1ValidatorHists::Fill(int i, const reco::LeafCandidate *GenPart, const rec
 
 void L1ValidatorHists::FillNumber(int i, int Number){
   N[i]->Fill(Number);
-}
-
-void L1ValidatorHists::Normalize(){
-  for(int i=0; i<Type::Number; i++){
-    Eff_Pt[i]->getTH1F()->Divide(N_Pt[i]);
-    TurnOn_15[i]->getTH1F()->Divide(N_Pt[i]);
-    TurnOn_30[i]->getTH1F()->Divide(N_Pt[i]);
-    Eff_Eta[i]->getTH1F()->Divide(N_Eta[i]);
-    N[i]->getTH1()->Scale(1./N[i]->getEntries());
-    dR[i]->getTH1()->Scale(1./dR[i]->getEntries());
-    dPt[i]->getTH1()->Scale(1./dPt[i]->getEntries());
-  }
 }
 
 void L1ValidatorHists::Write(){

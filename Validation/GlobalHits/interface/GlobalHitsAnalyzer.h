@@ -129,8 +129,6 @@ class GlobalHitsAnalyzer : public DQMEDAnalyzer
   bool validPresh;
   bool validHcal;
 
-  DQMStore *dbe;
-
   // G4MC info
   MonitorElement *meMCRGP[2];
   MonitorElement *meMCG4Vtx[2];

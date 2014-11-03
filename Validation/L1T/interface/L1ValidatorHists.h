@@ -27,7 +27,6 @@ class L1ValidatorHists {
     ~L1ValidatorHists();
 
     void Book(DQMStore::IBooker &);
-    void Normalize();
     void Write();
 
     int NEvents;
@@ -51,8 +50,7 @@ class L1ValidatorHists {
     DECLARE_HISTS(Muon)*/
 
     MonitorElement *N[Type::Number];
-    TH1F *N_Pt[Type::Number];
-    TH1F *N_Eta[Type::Number];
+
     MonitorElement *Eff_Pt[Type::Number];
     MonitorElement *Eff_Eta[Type::Number];
     MonitorElement *TurnOn_15[Type::Number];
