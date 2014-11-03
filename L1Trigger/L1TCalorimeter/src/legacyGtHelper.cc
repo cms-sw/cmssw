@@ -20,7 +20,7 @@ namespace l1t {
 
       // jets with hwQual & 10 ==10 are "padding" jets from a sort, set their eta and phi
       // to the max value
-      if((itJet->hwQual() & 10) == 10)
+      if((itJet->hwQual() & 0x10) == 0x10)
       {
 	newEta = 0xf;
 	newPhi = 0x1f;
@@ -62,7 +62,7 @@ namespace l1t {
       const uint16_t rankPt = (uint16_t)itEGamma->hwPt(); //max value?
 
       //hwQual &10 == 10 means that the object came from a sort and is padding
-      if((itEGamma->hwQual() & 10) == 10)
+      if((itEGamma->hwQual() & 0x10) == 0x10)
       {
 	newEta = 0;
 	newPhi = 0;

@@ -58,7 +58,7 @@ std::vector<std::vector<l1t::L1Candidate> > presort(std::vector<std::vector<l1t:
   dummyJet.setHwPt(0);
   dummyJet.setHwPhi(99);
   dummyJet.setHwEta(99);
-  dummyJet.setHwQual(10);
+  dummyJet.setHwQual(0x10);
   std::vector<std::vector<l1t::L1Candidate> > sorted_energies (rows, std::vector<l1t::L1Candidate>(cols, dummyJet));
   if(verbose) print2DVector( sorted_energies );
 
@@ -97,7 +97,7 @@ std::vector<std::vector<l1t::L1Candidate> > extract_sub_jet_energy_position_matr
   dummyJet.setHwPt(0);
   dummyJet.setHwPhi(99);
   dummyJet.setHwEta(99);
-  dummyJet.setHwQual(10);
+  dummyJet.setHwQual(0x10);
   for(unsigned int i=0; i<row_f-row_i+1; i++){
     for(unsigned int j=0; j<col_f-col_i+1; j++){
       if(row_i+i > input_matrix.size()-1) output_matrix[i][j] = dummyJet;
@@ -164,7 +164,7 @@ std::vector<l1t::L1Candidate> array_from_row_sorted_matrix(std::vector<std::vect
   dummyJet.setHwPt(0);
   dummyJet.setHwPhi(99);
   dummyJet.setHwEta(99);
-  dummyJet.setHwQual(10);
+  dummyJet.setHwQual(0x10);
   for(unsigned int k=array_position; k<output_array.size(); k++){
     output_array[k]=dummyJet;
   }
@@ -209,7 +209,7 @@ std::vector<std::vector<l1t::L1Candidate> > presort_egamma(std::vector<l1t::L1Ca
   dummyJet.setHwPt(0);
   dummyJet.setHwPhi(99);
   dummyJet.setHwEta(99);
-  dummyJet.setHwQual(10);
+  dummyJet.setHwQual(0x10);
   std::vector<std::vector<l1t::L1Candidate> > sorted_energies (rows, std::vector<l1t::L1Candidate>(cols, dummyJet));
   if(verbose) print2DVector( sorted_energies );
 
@@ -401,7 +401,7 @@ namespace l1t{
       dummyJet.setHwPt(0);
       dummyJet.setHwEta(99);
       dummyJet.setHwPhi(99);
-      dummyJet.setHwQual(10);
+      dummyJet.setHwQual(0x10);
       if(k<N_INPUT_EGAMMAS*FIBER_PAIRS){
 	iso_egamma_array_p.push_back(dummyJet);
 	noniso_egamma_array_p.push_back(dummyJet);
