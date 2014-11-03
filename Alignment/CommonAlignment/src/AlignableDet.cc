@@ -139,7 +139,7 @@ AlignmentErrorsExtended* AlignableDet::alignmentErrors( void ) const
 
   // Add associated alignment position error
   uint32_t detId = this->geomDetId().rawId();
-  CLHEP::HepSymMatrix clhepSymMatrix(3,0);
+  CLHEP::HepSymMatrix clhepSymMatrix(6,0);
   if ( theAlignmentPositionError ) // Might not be set
     clhepSymMatrix= asHepMatrix(theAlignmentPositionError->globalError().matrix());
   AlignTransformErrorExtended transformError( clhepSymMatrix, detId );
