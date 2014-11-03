@@ -70,7 +70,7 @@ namespace Phase2Tracker {
   {
     // define product
     produces< edm::DetSetVector<Phase2TrackerDigi> >("Unsparsified");
-    produces< edm::DetSetVector<SiPixelCluster> > ("Sparsified");
+    produces< edmNew::DetSetVector<SiPixelCluster> > ("Sparsified");
     token_ = consumes<FEDRawDataCollection>(pset.getParameter<edm::InputTag>("ProductLabel"));
   }
   
@@ -101,6 +101,9 @@ namespace Phase2Tracker {
     proc_work_digis_.clear();
     zs_work_registry_.clear();    
     zs_work_digis_.clear();
+
+    // NEW
+    std::auto_ptr<edmNew::DetSetVector<SiPixelCluster>> clusters( new edmNew::DetSetVector<SiPixelCluster>() ); 
 
     // Retrieve FEDRawData collection
     edm::Handle<FEDRawDataCollection> buffers;
@@ -251,23 +254,24 @@ namespace Phase2Tracker {
           int ichan = 0;
           for ( int ife = 0; ife < MAX_FE_PER_FED; ife++ )
           {
+            // get fedid from cabling
+            const Phase2TrackerModule mod = cabling_->findFedCh(std::make_pair(*fedIndex, ife));
+            uint32_t detid = mod.getDetid();
+            std::cout << "id : " << detid << " FE : " << ife << std::endl;
+            // container for this module's digis
+            std::vector<SiPixelCluster> clustersTop;
+            std::vector<SiPixelCluster> clustersBottom;
             // there are two times more channels than CBCs in unsparsified FEDbuffers
             for ( int icbc = 0; icbc < MAX_CBC_PER_FE*2; icbc++ )
             {
               const Phase2TrackerFEDChannel& channel = buffer->channel(ichan);
               if(channel.length() > 0)
               {
-                // get fedid from cabling
-                const Phase2TrackerModule mod = cabling_->findFedCh(std::make_pair(*fedIndex, ife));
-                uint32_t detid = mod.getDetid();
                 #ifdef EDM_ML_DEBUG
                 ss << dec << " id from cabling : " << detid << endl;
                 ss << dec << " reading channel : " << icbc << " on FE " << ife;
                 ss << dec << " with length  : " << (int) channel.length() << endl;
                 #endif
-                // container for this channel's digis
-                std::vector<SiPixelCluster> clustersTop;
-                std::vector<SiPixelCluster> clustersBottom;
                 // create appropriate unpacker
                 if (channel.dettype() == DET_Son2S) 
                 {
@@ -322,17 +326,29 @@ namespace Phase2Tracker {
                 {
                   // TODO: throw appropriate exception for nonexistant module type
                 }
-                // store and index (top plane)
-                Registry regItemTop(detid, STRIPS_PER_CBC*icbc/2, zs_work_digis_.size(), clustersTop.size());
-                zs_work_registry_.push_back(regItemTop);
-                zs_work_digis_.insert(zs_work_digis_.end(),clustersTop.begin(),clustersTop.end());
-                // store and index (bottom plane)
-                Registry regItemBottom(detid+4, STRIPS_PER_CBC*icbc/2, zs_work_digis_.size(), clustersBottom.size());
-                zs_work_registry_.push_back(regItemBottom);
-                zs_work_digis_.insert(zs_work_digis_.end(),clustersBottom.begin(),clustersBottom.end());                
+                
               } // end reading CBC's channel
               ichan++;
             } // end loop on channels
+            // NEW
+            if(detid > 0)
+            {
+              std::vector<SiPixelCluster>::iterator it;
+              {
+                edmNew::DetSetVector<SiPixelCluster>::FastFiller spct(*clusters, detid+4);
+                for(it=clustersTop.begin();it!=clustersTop.end();it++)
+                {
+                  spct.push_back(*it);
+                }
+              }
+              {
+                edmNew::DetSetVector<SiPixelCluster>::FastFiller spcb(*clusters, detid);
+                for(it=clustersBottom.begin();it!=clustersBottom.end();it++)
+                {
+                  spcb.push_back(*it);
+                }
+              }
+            }
           } // end loop on FE
           // store digis in edm collections
         }
@@ -346,7 +362,7 @@ namespace Phase2Tracker {
     // sort and store digis
     std::sort( proc_work_registry_.begin(), proc_work_registry_.end() );
     std::vector< edm::DetSet<Phase2TrackerDigi> > sorted_and_merged;
-    edm::DetSetVector<Phase2TrackerDigi>* pr = new edm::DetSetVector<Phase2TrackerDigi>();
+    // edmNew::DetSetVector<Phase2TrackerDigi>* pr = new edmNew::DetSetVector<Phase2TrackerDigi>();
     std::vector<Registry>::iterator it = proc_work_registry_.begin(), it2 = it+1, end = proc_work_registry_.end();
     while (it < end) 
     {
@@ -364,16 +380,16 @@ namespace Phase2Tracker {
       }
       it = it2;
     }
-    edm::DetSetVector<Phase2TrackerDigi> proc_raw_dsv( sorted_and_merged, true );
-    pr->swap( proc_raw_dsv );
-    std::auto_ptr< edm::DetSetVector<Phase2TrackerDigi> > pr_dsv(pr);
-    event.put( pr_dsv, "Unsparsified" );
+    // edmNew::DetSetVector<Phase2TrackerDigi> proc_raw_dsv( sorted_and_merged, true );
+    // pr->swap( proc_raw_dsv );
+    // std::auto_ptr< edmNew::DetSetVector<Phase2TrackerDigi> > pr_dsv(pr);
+    // event.put( pr_dsv, "Unsparsified" );
 
     // sort and store clusters 
+    /*
     std::sort( zs_work_registry_.begin(), zs_work_registry_.end() );
     std::vector< edm::DetSet<SiPixelCluster> > sorted_and_merged_zs;
-    edm::DetSetVector<SiPixelCluster>* zs = new edm::DetSetVector<SiPixelCluster>();
-    // std::vector<Registry>::iterator it = zs_work_registry_.begin(), it2 = it+1, end = zs_work_registry_.end();
+    edmNew::DetSetVector<SiPixelCluster>* zs = new edmNew::DetSetVector<SiPixelCluster>();
     it = zs_work_registry_.begin();
     it2 = it+1;
     end = zs_work_registry_.end();
@@ -393,9 +409,10 @@ namespace Phase2Tracker {
       }
       it = it2;
     }
-    edm::DetSetVector<SiPixelCluster> sparsified_dsv( sorted_and_merged_zs, true );
+    edmNew::DetSetVector<SiPixelCluster> sparsified_dsv( sorted_and_merged_zs, true );
     zs->swap( sparsified_dsv );
-    std::auto_ptr< edm::DetSetVector<SiPixelCluster> > sp_dsv(zs);
-    event.put(sp_dsv, "Sparsified" );
+    std::auto_ptr< edmNew::DetSetVector<SiPixelCluster> > sp_dsv(zs);
+    */
+    event.put(clusters, "Sparsified" );
   } 
 }
