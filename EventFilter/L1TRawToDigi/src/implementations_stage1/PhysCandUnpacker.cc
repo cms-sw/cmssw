@@ -49,6 +49,9 @@ process(const l1t::Block& block, BXVector<T> * coll, F modify) {
          cand.setHwPt(candPt);
          cand.setHwEta((candEtasign << 3) | candEta);
          cand.setHwPhi(candPhi);
+         int qualflag=cand.hwQual();
+         qualflag|= (candPt == 0x3F);
+         cand.setHwQual(qualflag);
 
          /* std::cout << "cand: eta " << cand.hwEta() << " phi " << cand.hwPhi() << " pT " << cand.hwPt() << " qual " << cand.hwQual() << std::endl; */
          std::cout << cand.hwPt() << " @ " << cand.hwEta() << ", " << cand.hwPhi() << " > " << cand.hwQual() << " > " << cand.hwIso() << std::endl;
