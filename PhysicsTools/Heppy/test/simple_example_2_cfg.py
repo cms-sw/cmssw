@@ -11,13 +11,14 @@ inputSample = cfg.Component(
     files = miniAodFiles(),
     )
 inputSample.isMC = True
+inputSample.splitFactor = 2 
 
 selectedComponents  = [inputSample]
 
 from PhysicsTools.Heppy.analyzers.examples.SimpleJetAnalyzer import SimpleJetAnalyzer
 jets = cfg.Analyzer(
     SimpleJetAnalyzer,
-    ptmin = 50. 
+    ptmin = 30. 
     )
 
 from PhysicsTools.Heppy.analyzers.examples.SimpleTreeAnalyzer import SimpleTreeAnalyzer
@@ -40,5 +41,4 @@ config = cfg.Config( components = selectedComponents,
                      events_class = Events)
 
 print config
-import sys
-print sys.modules.keys()
+

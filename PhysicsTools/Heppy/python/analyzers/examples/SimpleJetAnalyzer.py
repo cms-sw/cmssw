@@ -15,11 +15,10 @@ class SimpleJetAnalyzer(Analyzer):
         
     def process(self, event):
         super(SimpleJetAnalyzer, self).readCollections(event.input)
-        event.jets = map(Jet, self.handles['jets'].product())
+        # creating Jet python objects wrapping the EDM jets
+        # keeping only the first 2 leading jets
+        event.jets = map(Jet, self.handles['jets'].product())[:2]
         event.jets = [ jet for jet in event.jets if jet.pt()>self.cfg_ana.ptmin]
-        # print 'event', event.iEv
-        # for jet in event.jets:
-        #    print jet
 
         if self.cfg_comp.isMC:
             event.genjets =  map(GenJet, self.mchandles['genjets'].product())
