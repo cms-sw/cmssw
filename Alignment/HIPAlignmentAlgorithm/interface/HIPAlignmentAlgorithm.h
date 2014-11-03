@@ -46,7 +46,7 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
  private:
 
   // private member functions
-
+  
   bool processHit1D(const AlignableDetOrUnitPtr& alidet,
 		    const Alignable* ali,
 		    const TrajectoryStateOnSurface & tsos,

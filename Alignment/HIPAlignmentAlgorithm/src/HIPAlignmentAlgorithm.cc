@@ -28,6 +28,12 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
+#include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
+#include "FWCore/Framework/interface/ValidityInterval.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
+
 #include "Alignment/HIPAlignmentAlgorithm/interface/HIPAlignmentAlgorithm.h"
 
 // using namespace std;
@@ -98,6 +104,17 @@ HIPAlignmentAlgorithm::initialize( const edm::EventSetup& setup,
 				   AlignmentParameterStore* store )
 {
   edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm] Initializing...";
+
+  edm::ESHandle<Alignments> globalPositionRcd;
+  edm::ValidityInterval iov(setup.get<GlobalPositionRcd>().validityInterval() );
+  if (iov.first().eventID().run()!=1 || iov.last().eventID().run()!=4294967295) {
+    throw cms::Exception("DatabaseError")
+      << "@SUB=AlignmentProducer::applyDB"
+      << "\nTrying to apply "<< setup.get<GlobalPositionRcd>().key().name()
+      << " with multiple IOVs in tag.\n"
+      << "Validity range is "
+      << iov.first().eventID().run() << " - " << iov.last().eventID().run();
+  }
 	
   // accessor Det->AlignableDet
   if ( !muon )
