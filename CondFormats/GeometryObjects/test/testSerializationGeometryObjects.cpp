@@ -14,6 +14,12 @@ int main()
     testSerialization<std::vector<PGeometricDet::Item>>();
     testSerialization<std::vector<PGeometricDetExtra::Item>>();
     testSerialization<PTrackerParameters>();
+    testSerialization<PTrackerParameters::PxbItem>();
+    testSerialization<PTrackerParameters::PxfItem>();
+    testSerialization<PTrackerParameters::TECItem>();
+    testSerialization<PTrackerParameters::TIBItem>();
+    testSerialization<PTrackerParameters::TIDItem>();
+    testSerialization<PTrackerParameters::TOBItem>();
 
     return 0;
 }
