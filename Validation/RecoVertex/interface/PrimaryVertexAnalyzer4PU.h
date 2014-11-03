@@ -325,9 +325,9 @@ private:
   int ndump_;
 
   // from the event setup
-  int run_;
-  int luminosityBlock_;
-  int event_;
+  edm::RunNumber_t run_;
+  edm::LuminosityBlockNumber_t luminosityBlock_;
+  edm::EventNumber_t event_;
   int bunchCrossing_;
   int orbitNumber_;
 
