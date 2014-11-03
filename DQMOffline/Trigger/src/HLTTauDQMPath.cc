@@ -46,7 +46,7 @@ namespace {
           continue;
         if(type == "HLTTriggerTypeFilter" || type == "HLTBool")
           continue;
-        if(type == "HLT2ElectronPFTau" || type == "HLT2MuonPFTau" || type == "HLT2ElectronTau" || type == "HLT2MuonTau")
+        if(type == "HLT2PhotonPFTau" || type == "HLT2ElectronPFTau" || type == "HLT2MuonPFTau" || type == "HLT2PhotonTau" || type == "HLT2ElectronTau" || type == "HLT2MuonTau")
           leptonTauFilters.emplace_back(*iLabel);
         else if(type.find("Electron") != std::string::npos || type.find("Egamma") != std::string::npos || type.find("Muon") != std::string::npos)
           continue;
@@ -182,7 +182,7 @@ namespace {
     else if(moduleType == "HLTMuonIsoFilter" || moduleType == "HLTMuonL3PreFilter") {
       n.muon = HLTCP.modulePSet(filterName).getParameter<int>("MinN");
     }
-    else if(moduleType == "HLT2ElectronTau" || moduleType == "HLT2ElectronPFTau") {
+    else if(moduleType == "HLT2ElectronTau" || moduleType == "HLT2ElectronPFTau" || moduleType == "HLT2PhotonTau" || moduleType == "HLT2PhotonPFTau") {
       //int num = HLTCP.modulePSet(filterName).getParameter<int>("MinN");
       int num = getParameterSafe(HLTCP, filterName, "MinN");
       n.tau = num;
