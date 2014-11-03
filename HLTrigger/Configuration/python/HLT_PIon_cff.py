@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_2_1/PIon/V13 (CMSSW_7_2_1_patch1)
+# /dev/CMSSW_7_2_1/PIon/V18 (CMSSW_7_2_1_patch1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_2_1/PIon/V13')
+  tableName = cms.string('/dev/CMSSW_7_2_1/PIon/V18')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -2482,7 +2482,7 @@ hltEle27WP85ClusterShapeFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     lessThan = cms.bool( True ),
     useEt = cms.bool( False ),
     ncandcut = cms.int32( 1 ),
-    isoTag = cms.InputTag( "hltEgammaClusterShape" ),
+    isoTag = cms.InputTag( 'hltEgammaClusterShape','sigmaIEtaIEta5x5' ),
     candTag = cms.InputTag( "hltEG27EtFilter" ),
     nonIsoTag = cms.InputTag( "" )
 )
@@ -7053,7 +7053,7 @@ hltEG20CaloIdVLClusterShapeFilter = cms.EDFilter( "HLTEgammaGenericFilter",
     lessThan = cms.bool( True ),
     useEt = cms.bool( False ),
     ncandcut = cms.int32( 1 ),
-    isoTag = cms.InputTag( "hltEgammaClusterShape" ),
+    isoTag = cms.InputTag( 'hltEgammaClusterShape','sigmaIEtaIEta5x5' ),
     candTag = cms.InputTag( "hltEG20EtFilter" ),
     nonIsoTag = cms.InputTag( "" )
 )
