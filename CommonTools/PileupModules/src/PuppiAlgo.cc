@@ -1,4 +1,4 @@
-#include "CommonTools/Puppi/interface/PuppiAlgo.h"
+#include "CommonTools/PileupModules/interface/PuppiAlgo.h"
 #include "fastjet/internal/base.hh"
 #include "Math/QuantFuncMathCore.h"
 #include "Math/SpecFuncMathCore.h"
