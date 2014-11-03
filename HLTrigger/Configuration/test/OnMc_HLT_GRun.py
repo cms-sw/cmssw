@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_2_1/GRun/V12 (CMSSW_7_2_1)
+# /dev/CMSSW_7_2_1/GRun/V13 (CMSSW_7_2_1_patch1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_2_1/GRun/V12')
+  tableName = cms.string('/dev/CMSSW_7_2_1/GRun/V13')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -1636,11 +1636,13 @@ process.hltESPPixelCPETemplateReco = cms.ESProducer( "PixelCPETemplateRecoESProd
 process.hltESPPromptTrackCountingESProducer = cms.ESProducer( "PromptTrackCountingESProducer",
   maxImpactParameterSig = cms.double( 999999.0 ),
   deltaR = cms.double( -1.0 ),
+  minimumImpactParameter = cms.double( -1.0 ),
   maximumDecayLength = cms.double( 999999.0 ),
   impactParameterType = cms.int32( 0 ),
   trackQualityClass = cms.string( "any" ),
   deltaRmin = cms.double( 0.0 ),
   maxImpactParameter = cms.double( 0.03 ),
+  useSignedImpactParameterSig = cms.bool( True ),
   maximumDistanceToJetAxis = cms.double( 999999.0 ),
   nthTrack = cms.int32( -1 )
 )
@@ -1802,9 +1804,10 @@ process.hltESPTTRHBuilderWithoutAngle4PixelTriplets = cms.ESProducer( "TkTransie
 process.hltESPTrackCounting3D1st = cms.ESProducer( "TrackCountingESProducer",
   b_pT = cms.double( 0.3684 ),
   deltaR = cms.double( -1.0 ),
+  minimumImpactParameter = cms.double( -1.0 ),
   a_dR = cms.double( -0.001053 ),
   min_pT = cms.double( 120.0 ),
-  maximumDecayLength = cms.double( 5.0 ),
+  maximumDistanceToJetAxis = cms.double( 0.07 ),
   max_pT = cms.double( 500.0 ),
   impactParameterType = cms.int32( 0 ),
   trackQualityClass = cms.string( "any" ),
@@ -1814,15 +1817,17 @@ process.hltESPTrackCounting3D1st = cms.ESProducer( "TrackCountingESProducer",
   max_pT_dRcut = cms.double( 0.1 ),
   b_dR = cms.double( 0.6263 ),
   a_pT = cms.double( 0.005263 ),
-  maximumDistanceToJetAxis = cms.double( 0.07 ),
-  nthTrack = cms.int32( 1 )
+  maximumDecayLength = cms.double( 5.0 ),
+  nthTrack = cms.int32( 1 ),
+  useSignedImpactParameterSig = cms.bool( True )
 )
 process.hltESPTrackCounting3D2nd = cms.ESProducer( "TrackCountingESProducer",
   b_pT = cms.double( 0.3684 ),
   deltaR = cms.double( -1.0 ),
+  minimumImpactParameter = cms.double( -1.0 ),
   a_dR = cms.double( -0.001053 ),
   min_pT = cms.double( 120.0 ),
-  maximumDecayLength = cms.double( 5.0 ),
+  maximumDistanceToJetAxis = cms.double( 0.07 ),
   max_pT = cms.double( 500.0 ),
   impactParameterType = cms.int32( 0 ),
   trackQualityClass = cms.string( "any" ),
@@ -1832,8 +1837,9 @@ process.hltESPTrackCounting3D2nd = cms.ESProducer( "TrackCountingESProducer",
   max_pT_dRcut = cms.double( 0.1 ),
   b_dR = cms.double( 0.6263 ),
   a_pT = cms.double( 0.005263 ),
-  maximumDistanceToJetAxis = cms.double( 0.07 ),
-  nthTrack = cms.int32( 2 )
+  maximumDecayLength = cms.double( 5.0 ),
+  nthTrack = cms.int32( 2 ),
+  useSignedImpactParameterSig = cms.bool( True )
 )
 process.hltESPTrackerRecoGeometryESProducer = cms.ESProducer( "TrackerRecoGeometryESProducer",
   appendToDataLabel = cms.string( "" ),
@@ -2141,23 +2147,16 @@ process.MessageLogger = cms.Service( "MessageLogger",
       'hltL3TkTracksFromL2OIHit' )
 )
 
-process.hltPreAOutput = cms.EDFilter( "HLTPrescaler",
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    offset = cms.uint32( 0 )
+process.hltGetConditions = cms.EDAnalyzer( "EventSetupRecordDataGetter",
+    toGet = cms.VPSet( 
+    ),
+    verbose = cms.untracked.bool( False )
 )
-process.hltL1GtTrigReport = cms.EDAnalyzer( "L1GtTrigReport",
-    PrintVerbosity = cms.untracked.int32( 10 ),
-    UseL1GlobalTriggerRecord = cms.bool( False ),
-    PrintOutput = cms.untracked.int32( 3 ),
-    L1GtRecordInputTag = cms.InputTag( "hltGtDigis" )
+process.hltGetRaw = cms.EDAnalyzer( "HLTGetRaw",
+    RawDataCollection = cms.InputTag( "rawDataCollector" )
 )
-process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
-    ReferencePath = cms.untracked.string( "HLTriggerFinalPath" ),
-    ReferenceRate = cms.untracked.double( 100.0 ),
-    serviceBy = cms.untracked.string( "never" ),
-    resetBy = cms.untracked.string( "never" ),
-    reportBy = cms.untracked.string( "job" ),
-    HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
+process.hltBoolFalse = cms.EDFilter( "HLTBool",
+    result = cms.bool( False )
 )
 process.hltTriggerType = cms.EDFilter( "HLTTriggerTypeFilter",
     SelectedTriggerType = cms.int32( 1 )
@@ -27502,16 +27501,23 @@ process.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
 process.hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
     processName = cms.string( "@" )
 )
-process.hltGetConditions = cms.EDAnalyzer( "EventSetupRecordDataGetter",
-    toGet = cms.VPSet( 
-    ),
-    verbose = cms.untracked.bool( False )
+process.hltPreAOutput = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    offset = cms.uint32( 0 )
 )
-process.hltGetRaw = cms.EDAnalyzer( "HLTGetRaw",
-    RawDataCollection = cms.InputTag( "rawDataCollector" )
+process.hltL1GtTrigReport = cms.EDAnalyzer( "L1GtTrigReport",
+    PrintVerbosity = cms.untracked.int32( 10 ),
+    UseL1GlobalTriggerRecord = cms.bool( False ),
+    PrintOutput = cms.untracked.int32( 3 ),
+    L1GtRecordInputTag = cms.InputTag( "hltGtDigis" )
 )
-process.hltBoolFalse = cms.EDFilter( "HLTBool",
-    result = cms.bool( False )
+process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
+    ReferencePath = cms.untracked.string( "HLTriggerFinalPath" ),
+    ReferenceRate = cms.untracked.double( 100.0 ),
+    serviceBy = cms.untracked.string( "never" ),
+    resetBy = cms.untracked.string( "never" ),
+    reportBy = cms.untracked.string( "job" ),
+    HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
 )
 
 process.hltOutputA = cms.OutputModule( "PoolOutputModule",
@@ -27820,19 +27826,7 @@ process.HLTEle18CaloIdTrackIdIsoSequence = cms.Sequence( process.HLTDoFullUnpack
 process.HLTEle23CaloIdTrackIdIsoSequence = cms.Sequence( process.HLTDoFullUnpackingEgammaEcalSequence + process.HLTPFClusteringForEgamma + process.hltEgammaCandidates + process.hltEGL1SingleEG20Filter + process.hltEle23CaloIdTrackIdIsoEtFilter + process.hltEgammaClusterShape + process.hltEle23CaloIdTrackIdIsoClusterShapeFilter + process.HLTDoLocalHcalWithTowerSequence + process.HLTFastJetForEgamma + process.hltEgammaHoverE + process.hltEle23CaloIdTrackIdIsoHEFilter + process.hltEgammaEcalPFClusterIso + process.hltEle23CaloIdTrackIdIsoEcalIsoFilter + process.HLTPFHcalClusteringForEgamma + process.hltEgammaHcalPFClusterIso + process.hltEle23CaloIdTrackIdIsoHcalIsoFilter + process.HLTDoLocalPixelSequence + process.HLTDoLocalStripSequence + process.hltMixedLayerPairs + process.hltEgammaElectronPixelSeeds + process.hltEle23CaloIdTrackIdIsoPixelMatchFilter + process.HLTGsfElectronSequence + process.hltEle23CaloIdTrackIdIsoOneOEMinusOneOPFilter + process.hltEle23CaloIdTrackIdIsoDetaFilter + process.hltEle23CaloIdTrackIdIsoDphiFilter + process.HLTTrackReconstructionForIsoElectronIter02 + process.hltEgammaEleGsfTrackIso + process.hltEle23CaloIdTrackIdIsoTrackIsoFilter )
 process.HLTEle33CaloIdTrackIdIsoSequence = cms.Sequence( process.HLTDoFullUnpackingEgammaEcalSequence + process.HLTPFClusteringForEgamma + process.hltEgammaCandidates + process.hltEGL1SingleEG20Filter + process.hltEle33CaloIdTrackIdIsoEtFilter + process.hltEgammaClusterShape + process.hltEle33CaloIdTrackIdIsoClusterShapeFilter + process.HLTDoLocalHcalWithTowerSequence + process.HLTFastJetForEgamma + process.hltEgammaHoverE + process.hltEle33CaloIdTrackIdIsoHEFilter + process.hltEgammaEcalPFClusterIso + process.hltEle33CaloIdTrackIdIsoEcalIsoFilter + process.HLTPFHcalClusteringForEgamma + process.hltEgammaHcalPFClusterIso + process.hltEle33CaloIdTrackIdIsoHcalIsoFilter + process.HLTDoLocalPixelSequence + process.HLTDoLocalStripSequence + process.hltMixedLayerPairs + process.hltEgammaElectronPixelSeeds + process.hltEle33CaloIdTrackIdIsoPixelMatchFilter + process.HLTGsfElectronSequence + process.hltEle33CaloIdTrackIdIsoOneOEMinusOneOPFilter + process.hltEle33CaloIdTrackIdIsoDetaFilter + process.hltEle33CaloIdTrackIdIsoDphiFilter + process.HLTTrackReconstructionForIsoElectronIter02 + process.hltEgammaEleGsfTrackIso + process.hltEle33CaloIdTrackIdIsoTrackIsoFilter )
 
-process.AOutput = cms.EndPath( process.hltPreAOutput + process.hltOutputA )
-
-# load the DQMStore and DQMRootOutputModule
-process.load( "DQMServices.Core.DQMStore_cfi" )
-process.DQMStore.enableMultiThread = True
-
-process.dqmOutput = cms.OutputModule("DQMRootOutputModule",
-    fileName = cms.untracked.string("DQMIO.root")
-)
-
-process.DQMOutput = cms.EndPath( process.dqmOutput )
-
-process.HLTAnalyzerEndpath = cms.EndPath( process.hltL1GtTrigReport + process.hltTrigReport )
+process.HLTriggerFirstPath = cms.Path( process.hltGetConditions + process.hltGetRaw + process.hltBoolFalse )
 process.HLT_AK8PFJet360TrimMod_Mass30_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet176ORSingleJet200 + process.hltPreAK8PFJet360TrimModMass30 + process.HLTAK8CaloJetsSequence + process.hltAK8SingleCaloJet260 + process.HLTAK8PFJetsSequence + process.hltAK8PFJetsCorrectedMatchedToCaloJets260 + process.hltAK8TrimModJets + process.hltAK8SinglePFJet360TrimModMass30 + process.HLTEndSequence )
 process.HLT_Dimuon13_PsiPrime_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMu10MuOpenHighQ + process.hltPreDimuon13PsiPrime + process.hltL1fL1sL1DoubleMu10MuOpenHighQL1Filtered0 + process.HLTL2muonrecoSequence + process.hltL2fL1sL1DoubleMu10MuOpenHighQL1f0L2PreFiltered0 + process.HLTL3muonrecoSequence + process.hltDimuon13PsiPrimeL3Filtered + process.hltDisplacedmumuVtxProducerDimuon13PsiPrime + process.hltDisplacedmumuFilterDimuon13PsiPrime + process.HLTEndSequence )
 process.HLT_Dimuon13_Upsilon_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMu10MuOpenHighQ + process.hltPreDimuon13Upsilon + process.hltL1fL1sL1DoubleMu10MuOpenHighQL1Filtered0 + process.HLTL2muonrecoSequence + process.hltL2fL1sL1DoubleMu10MuOpenHighQL1f0L2PreFiltered0 + process.HLTL3muonrecoSequence + process.hltDimuon13UpsilonL3Filtered + process.hltDisplacedmumuVtxProducerDimuon13Upsilon + process.hltDisplacedmumuFilterDimuon13Upsilon + process.HLTEndSequence )
@@ -27943,7 +27937,19 @@ process.HLT_Physics_v1 = cms.Path( process.HLTBeginSequence + process.hltPrePhys
 process.HLT_ReducedIterativeTracking_v1 = cms.Path( process.HLTBeginSequence + process.hltPreReducedIterativeTracking + process.HLTRecoJetSequenceAK4PrePF + process.HLTDoLocalPixelSequence + process.HLTRecopixelvertexingSequence + process.HLTDoLocalStripSequence + process.HLTIterativeTrackingIter02 + process.HLTEndSequence )
 process.HLT_ZeroBias_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ZeroBias + process.hltPreZeroBias + process.HLTEndSequence )
 process.HLTriggerFinalPath = cms.Path( process.hltGtDigis + process.hltScalersRawToDigi + process.hltFEDSelector + process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW )
-process.HLTriggerFirstPath = cms.Path( process.hltGetConditions + process.hltGetRaw + process.hltBoolFalse )
+process.AOutput = cms.EndPath( process.hltPreAOutput + process.hltOutputA )
+
+# load the DQMStore and DQMRootOutputModule
+process.load( "DQMServices.Core.DQMStore_cfi" )
+process.DQMStore.enableMultiThread = True
+
+process.dqmOutput = cms.OutputModule("DQMRootOutputModule",
+    fileName = cms.untracked.string("DQMIO.root")
+)
+
+process.DQMOutput = cms.EndPath( process.dqmOutput )
+
+process.HLTAnalyzerEndpath = cms.EndPath( process.hltL1GtTrigReport + process.hltTrigReport )
 
 
 process.source = cms.Source( "PoolSource",
