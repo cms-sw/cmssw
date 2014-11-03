@@ -45,6 +45,7 @@ bool HcalSeverityLevelComputer::getRecHitFlag(HcalSeverityDefinition& mydef,
   else if (mybit == "HBHESpikeNoise")    setBit(HcalCaloFlagLabels::HBHESpikeNoise, mydef.HBHEFlagMask);
   else if (mybit == "HBHETriangleNoise") setBit(HcalCaloFlagLabels::HBHETriangleNoise, mydef.HBHEFlagMask);
   else if (mybit == "HBHETS4TS5Noise") setBit(HcalCaloFlagLabels::HBHETS4TS5Noise, mydef.HBHEFlagMask);
+  else if (mybit == "HBHENegativeNoise") setBit(HcalCaloFlagLabels::HBHENegativeNoise, mydef.HBHEFlagMask);
 
 
   // These are multi-bit counters; we may have to revisit how to set them in the SLComputer in the future
