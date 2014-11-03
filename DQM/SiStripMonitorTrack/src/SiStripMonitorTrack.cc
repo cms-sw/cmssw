@@ -106,7 +106,6 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
 
   //initialization of global quantities
   LogDebug("SiStripMonitorTrack") << "[SiStripMonitorTrack::analyse]  " << "Run " << e.id().run() << " Event " << e.id().event() << std::endl;
-  runNb   = e.id().run();
   eventNb = e.id().event();
 //  vPSiStripCluster.clear();
   vPSiStripCluster.clear();

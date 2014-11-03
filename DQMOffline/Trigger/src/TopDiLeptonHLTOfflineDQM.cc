@@ -411,9 +411,13 @@ namespace HLTOfflineDQMTopDiLepton {
               if(elecMuLogged_<=hists_.find("elecMuLogger_")->second->getNbinsY()){
                 // log runnumber, lumi block, event number & some
                 // more pysics infomation for interesting events
-                fill("elecMuLogger_", 0.5, elecMuLogged_+0.5, event.eventAuxiliary().run()); 
-                fill("elecMuLogger_", 1.5, elecMuLogged_+0.5, event.eventAuxiliary().luminosityBlock()); 
-                fill("elecMuLogger_", 2.5, elecMuLogged_+0.5, event.eventAuxiliary().event()); 
+                // We're doing a static_cast here to denote the explicity of the cast
+                double runID = static_cast<double>(event.eventAuxiliary().run());
+                double luminosityBlockID = static_cast<double>(event.eventAuxiliary().luminosityBlock());
+                double eventID = static_cast<double>(event.eventAuxiliary().event());
+                fill("elecMuLogger_", 0.5, elecMuLogged_+0.5, runID); 
+                fill("elecMuLogger_", 1.5, elecMuLogged_+0.5, luminosityBlockID); 
+                fill("elecMuLogger_", 2.5, elecMuLogged_+0.5, eventID); 
                 fill("elecMuLogger_", 3.5, elecMuLogged_+0.5, isoMuons[0]->pt()); 
                 fill("elecMuLogger_", 4.5, elecMuLogged_+0.5, isoElecs[0]->pt()); 
                 if(leadingJets.size()>0) fill("elecMuLogger_", 5.5, elecMuLogged_+0.5, leadingJets[0].pt()); 
@@ -438,9 +442,13 @@ namespace HLTOfflineDQMTopDiLepton {
               if(diMuonLogged_<=hists_.find("diMuonLogger_")->second->getNbinsY()){
                 // log runnumber, lumi block, event number & some
                 // more pysics infomation for interesting events
-                fill("diMuonLogger_", 0.5, diMuonLogged_+0.5, event.eventAuxiliary().run()); 
-                fill("diMuonLogger_", 1.5, diMuonLogged_+0.5, event.eventAuxiliary().luminosityBlock()); 
-                fill("diMuonLogger_", 2.5, diMuonLogged_+0.5, event.eventAuxiliary().event()); 
+                // We're doing a static_cast here to denote the explicity of the cast
+                double runID = static_cast<double>(event.eventAuxiliary().run());
+                double luminosityBlockID = static_cast<double>(event.eventAuxiliary().luminosityBlock());
+                double eventID = static_cast<double>(event.eventAuxiliary().event());
+                fill("diMuonLogger_", 0.5, diMuonLogged_+0.5, runID); 
+                fill("diMuonLogger_", 1.5, diMuonLogged_+0.5, luminosityBlockID); 
+                fill("diMuonLogger_", 2.5, diMuonLogged_+0.5, eventID); 
                 fill("diMuonLogger_", 3.5, diMuonLogged_+0.5, isoMuons[0]->pt()); 
                 fill("diMuonLogger_", 4.5, diMuonLogged_+0.5, isoMuons[1]->pt()); 
                 if(leadingJets.size()>0) fill("diMuonLogger_", 5.5, diMuonLogged_+0.5, leadingJets[0].pt()); 
@@ -465,9 +473,13 @@ namespace HLTOfflineDQMTopDiLepton {
               if(diElecLogged_<=hists_.find("diElecLogger_")->second->getNbinsY()){
                 // log runnumber, lumi block, event number & some
                 // more pysics infomation for interesting events
-                fill("diElecLogger_", 0.5, diElecLogged_+0.5, event.eventAuxiliary().run()); 
-                fill("diElecLogger_", 1.5, diElecLogged_+0.5, event.eventAuxiliary().luminosityBlock()); 
-                fill("diElecLogger_", 2.5, diElecLogged_+0.5, event.eventAuxiliary().event()); 
+                // We're doing a static_cast here to denote the explicity of the cast
+                double runID = static_cast<double>(event.eventAuxiliary().run());
+                double luminosityBlockID = static_cast<double>(event.eventAuxiliary().luminosityBlock());
+                double eventID = static_cast<double>(event.eventAuxiliary().event());
+                fill("diElecLogger_", 0.5, diElecLogged_+0.5, runID); 
+                fill("diElecLogger_", 1.5, diElecLogged_+0.5, luminosityBlockID); 
+                fill("diElecLogger_", 2.5, diElecLogged_+0.5, eventID); 
                 fill("diElecLogger_", 3.5, diElecLogged_+0.5, isoElecs[0]->pt()); 
                 fill("diElecLogger_", 4.5, diElecLogged_+0.5, isoElecs[1]->pt()); 
                 if(leadingJets.size()>0) fill("diElecLogger_", 5.5, diElecLogged_+0.5, leadingJets[0].pt()); 

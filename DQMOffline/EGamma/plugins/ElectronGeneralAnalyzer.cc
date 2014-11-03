@@ -71,9 +71,9 @@ void ElectronGeneralAnalyzer::analyze( const edm::Event& iEvent, const edm::Even
   iEvent.getByToken(beamSpotTag_,recoBeamSpotHandle) ;
   const BeamSpot bs = *recoBeamSpotHandle ;
 
-  int ievt = iEvent.id().event();
-  int irun = iEvent.id().run();
-  int ils = iEvent.luminosityBlock();
+  edm::EventNumber_t ievt = iEvent.id().event();
+  edm::RunNumber_t irun = iEvent.id().run();
+  edm::LuminosityBlockNumber_t ils = iEvent.luminosityBlock();
 
   edm::LogInfo("ElectronGeneralAnalyzer::analyze")
     <<"Treating "<<gsfElectrons.product()->size()<<" electrons"
