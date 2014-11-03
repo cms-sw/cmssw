@@ -6,8 +6,6 @@ jetMETHLTOfflineClient = cms.EDAnalyzer("JetMETHLTOfflineClient",
                                  DQMDirName=cms.string("HLT/JetMET"),
                                  hltTag = cms.string("HLT")
 
-                                 #-----
-                                 
 )
 
 
