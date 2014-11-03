@@ -9,7 +9,7 @@ bool
 process(const l1t::Block& block, BXVector<T> * coll, F modify) {
    LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize();
 
-   int nBX = int(ceil(block.header().getSize() / 12.)); // Since there are 12 jets reported per event (see CMS IN-2013/005)
+   int nBX = int(ceil(block.header().getSize() / 2.)); 
 
    // Find the first and last BXs
    int firstBX = -(ceil((double)nBX/2.)-1);
@@ -32,8 +32,6 @@ process(const l1t::Block& block, BXVector<T> * coll, F modify) {
       uint32_t raw_data0 = block.payload()[i++];
       uint32_t raw_data1 = block.payload()[i++];        
 
-      /* if (raw_data0 == 0 || raw_data1==0) continue; */
-
       uint16_t candbit[4];
       candbit[0] = raw_data0 & 0xFFFF;
       candbit[1] = (raw_data0 >> 16) & 0xFFFF;
@@ -46,17 +44,11 @@ process(const l1t::Block& block, BXVector<T> * coll, F modify) {
          int candEta=(candbit[icand]>>6 ) & 0x7;
          int candEtasign=(candbit[icand]>>9) & 0x1;
          int candPhi=(candbit[icand]>>10) & 0x1F;
-         int candqualflag=(candbit[icand]>>15) & 0x1;
 
          T cand;
          cand.setHwPt(candPt);
          cand.setHwEta((candEtasign << 3) | candEta);
-         /* if(candEtasign) */
-         /*    cand.setHwEta(-1 * candEta); */
-         /* else */
-         /*    cand.setHwEta(candEta); */
          cand.setHwPhi(candPhi);
-         cand.setHwQual(candqualflag);
 
          /* std::cout << "cand: eta " << cand.hwEta() << " phi " << cand.hwPhi() << " pT " << cand.hwPt() << " qual " << cand.hwQual() << std::endl; */
          std::cout << cand.hwPt() << " @ " << cand.hwEta() << ", " << cand.hwPhi() << " > " << cand.hwQual() << " > " << cand.hwIso() << std::endl;

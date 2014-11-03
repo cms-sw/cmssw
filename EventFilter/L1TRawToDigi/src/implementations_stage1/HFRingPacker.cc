@@ -59,31 +59,24 @@ namespace l1t {
           
           object[0]=\
                             hfbitcount|
-                            ((hfringsum & 0x7) << 12) |
-                            (0x1 << 15);
+                            ((hfringsum & 0x7) << 12);
           object[1]=\
                             ((hfringsum>>3) & 0x1FF) |
-                            (0x0)<<9 | (0x1)<<10 | (0x0)<<11 | (0x1)<<12 | (0x0)<<13 | (0x1)<<14;
-                            if (i==0) object[1] = object[1] | ((0x1) << 15);
+                            (0x1)<<10 | (0x1)<<12 | (0x1)<<14;
                             
           object[2]=\
                             htmissphi|
                             ((htmiss & 0x7F) << 5 ) |
-                            (0x0 << 12) |
-                            (0x0 << 13) |
-                            (0x1 << 14) |
-                            (0x1 << 15);
+                            (0x1 << 14);
           object[3]=\
-                             0x1 | (0x0 << 1) | (0x1 << 2) | (0x0 << 3) | (0x1 << 4) | (0x0 << 5) | (0x1 << 6) |
-                            (0x0 << 7) | (0x1 << 8) | (0x0 << 9) | (0x1 << 10) | (0x0 << 11) | (0x1 << 12) |
-                            (0x0 << 13) | (0x1 << 14);
-                            if (i==0) object[3] = object[3] | ((0x1) << 15);
+                             0x1 | (0x1 << 2) | (0x1 << 4) | (0x1 << 6) |
+                            (0x1 << 8) | (0x1 << 10) | (0x1 << 12) | (0x1 << 14);
                             
           uint32_t word0=(object[0] & 0xFFFF) | ((object[2] & 0xFFFF) << 16);
           uint32_t word1=(object[1] & 0xFFFF) | ((object[3] & 0xFFFF) << 16);
 
-          std::cout << word0 << std::endl;
-          std::cout << word1 << std::endl;
+          word0 |= (1 << 31) | (1 << 15);
+          word1 |= ((i == 0) << 31) | ((i == 0) << 15);
 
           load.push_back(word0);
           load.push_back(word1);

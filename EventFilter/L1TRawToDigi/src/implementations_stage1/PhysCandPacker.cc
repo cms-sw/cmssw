@@ -21,12 +21,13 @@ process(unsigned int id, const BXVector<T>& coll, F filter)
                      std::min(j->hwPt(), 0x3F) |
                      (abs(j->hwEta()) & 0x7) << 6 |
                      ((j->hwEta() >> 3) & 0x1) << 9 |
-                     (j->hwPhi() & 0x1F) << 10 |
-                     (j->hwQual() & 0x1) << 15;
-
+                     (j->hwPhi() & 0x1F) << 10;
       }
       uint32_t word0=(jetbit[0] & 0xFFFF) | ((jetbit[1] & 0xFFFF) << 16);
       uint32_t word1=(jetbit[2] & 0xFFFF) | ((jetbit[3] & 0xFFFF) << 16);
+      
+      word0 |= (1 << 31) | (1 << 15);
+      word1 |= ((i == 0) << 31) | ((i == 0) << 15);
 
       load.push_back(word0);
       load.push_back(word1);
