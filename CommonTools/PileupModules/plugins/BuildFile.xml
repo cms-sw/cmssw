@@ -9,6 +9,7 @@
   <use   name="JetMETCorrections/Objects"/>
   <use   name="CommonTools/Utils"/>
   <use   name="CommonTools/ParticleFlow"/>
+  <use   name="CommonTools/PileupModules"/>
   <use   name="fastjet"/>
   <use   name="fastjet-contrib"/>
 </library>
