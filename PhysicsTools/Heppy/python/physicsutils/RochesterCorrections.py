@@ -3,7 +3,7 @@ import copy
 from ROOT import RochCor, RochCor2012, TLorentzVector
 from PhysicsTools.Heppy.utils.cmsswRelease import isNewerThan
 
-is2012 = isNewerThan('CMSSW_5_2_X')
+is2012 = isNewerThan('CMSSW_5_2_0')
 
 class RochesterCorrections(object):
     
