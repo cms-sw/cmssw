@@ -31,7 +31,7 @@ def customisePostLS1(process):
         process=customise_DQM(process)
     if hasattr(process,'dqmHarvesting'):
         process=customise_harvesting(process)
-    OBif hasattr(process,'validation_step'):
+    if hasattr(process,'validation_step'):
         process=customise_Validation(process)
 
     return process
