@@ -295,9 +295,11 @@ def createMergeScript( path, validations ):
     repMap["CompareAlignments"] = "#run comparisons"
     for validationId in comparisonLists:
         compareStrings = [ val.getCompareStrings(validationId) for val in comparisonLists[validationId] ]
+        compareStringsPlain = [ val.getCompareStrings(validationId, plain=True) for val in comparisonLists[validationId] ]
             
         repMap.update({"validationId": validationId,
-                       "compareStrings": " , ".join(compareStrings) })
+                       "compareStrings": " , ".join(compareStrings),
+                       "compareStringsPlain": " ".join(compareStringsPlain) })
         
         repMap["CompareAlignments"] += \
             replaceByMap(configTemplates.compareAlignmentsExecution, repMap)
