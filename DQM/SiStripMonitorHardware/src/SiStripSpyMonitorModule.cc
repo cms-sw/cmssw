@@ -99,7 +99,7 @@ class SiStripSpyMonitorModule : public edm::EDAnalyzer
   uint32_t minDigitalHigh_;
   uint32_t maxDigitalHigh_;
 
-  unsigned int evt_;
+  edm::EventNumber_t evt_;
 
   DQMStore* dqm_;
   //folder name for histograms in DQMStore
@@ -520,8 +520,15 @@ SiStripSpyMonitorModule::analyze(const edm::Event& iEvent,
   //else if (fillWithLocalEvtNum_) lTime = evt_;
   //no orbit number for spy data !!
   //else lTime = iEvent.orbitNumber()/11223.;
-  lTime = iEvent.id().event();
-  if (fillWithLocalEvtNum_) lTime = evt_;
+  if (fillWithLocalEvtNum_) {
+    // casting from unsigned long long to a double here
+    // doing it explicitely
+    lTime = static_cast<double>(evt_);
+  } else {
+    // casting from unsigned long long to a double here
+    // doing it explicitely
+    lTime = static_cast<double>(iEvent.id().event());
+  }
   
   histManager_.fillCountersHistograms(lCounters,lTime);
  

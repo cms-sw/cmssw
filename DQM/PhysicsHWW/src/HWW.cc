@@ -604,15 +604,15 @@ std::vector<int>            & HWW::hyp_type(){
 }
 
 //event variables
-unsigned int                & HWW::evt_run(){
+edm::RunNumber_t             & HWW::evt_run(){
   if(!evt_run_isLoaded) edm::LogWarning("VariableNotSet") << "evt_run not loaded!";
   return(evt_run_);
 }
-unsigned int                & HWW::evt_lumiBlock(){
+edm::LuminosityBlockNumber_t & HWW::evt_lumiBlock(){
   if(!evt_lumiBlock_isLoaded) edm::LogWarning("VariableNotSet") << "evt_lumiBlock not loaded!";
   return(evt_lumiBlock_);
 }
-unsigned int                & HWW::evt_event(){
+edm::EventNumber_t           & HWW::evt_event(){
   if(!evt_event_isLoaded) edm::LogWarning("VariableNotSet") << "evt_event not loaded!";
   return(evt_event_);
 }

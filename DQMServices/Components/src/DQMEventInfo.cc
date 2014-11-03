@@ -115,7 +115,7 @@ void DQMEventInfo::beginLuminosityBlock(const edm::LuminosityBlock& l, const edm
 
 void DQMEventInfo::analyze(const edm::Event& e, const edm::EventSetup& c){
 
-  eventId_->Fill(int64_t(e.id().event()));
+  eventId_->Fill(e.id().event()); // Handing edm::EventNumber_t to Fill method which will handle further casting
   eventTimeStamp_->Fill(stampToReal(e.time()));
 
   pEvent_++;
