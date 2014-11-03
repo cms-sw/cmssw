@@ -192,12 +192,10 @@ RequestManager::RequestManager(const std::string &filename, XrdCl::OpenFlags::Fl
 void
 RequestManager::checkSources(timespec &now, IOSize requestSize)
 {
-  {std::unique_lock<std::mutex> sentry(g_ml_mutex);
   edm::LogVerbatim("XrdAdaptorInternal") << "Time since last check "
     << timeDiffMS(now, m_lastSourceCheck) << "; last check "
     << m_lastSourceCheck.tv_sec << "; now " <<now.tv_sec
     << "; next check " << m_nextActiveSourceCheck.tv_sec << std::endl;  
-  }
   if (timeDiffMS(now, m_lastSourceCheck) > 1000 && timeDiffMS(now, m_nextActiveSourceCheck) > 0)
   {   
     checkSourcesImpl(now, requestSize);
@@ -214,12 +212,9 @@ RequestManager::compareSources(const timespec &now, unsigned a, unsigned b)
   if ((m_activeSources[a]->getQuality() > 5130) ||
      ((m_activeSources[a]->getQuality() > 260) && (m_activeSources[b]->getQuality()*4 < m_activeSources[a]->getQuality())))
   {
-    {
-      std::unique_lock<std::mutex> sentry(g_ml_mutex);
-      edm::LogVerbatim("XrdAdaptorInternal") << "Removing "
+    edm::LogVerbatim("XrdAdaptorInternal") << "Removing "
           << m_activeSources[a]->ID() << " from active sources due to poor quality ("
           << m_activeSources[a]->getQuality() << " vs " << m_activeSources[b]->getQuality() << ")" << std::endl;
-    }
     if (m_activeSources[a]->getLastDowngrade().tv_sec != 0) {findNewSource = true;}
     m_activeSources[a]->setLastDowngrade(now);
     m_inactiveSources.emplace_back(m_activeSources[a]);
@@ -240,10 +235,7 @@ RequestManager::checkSourcesImpl(timespec &now, IOSize requestSize)
   }
   else if (m_activeSources.size() > 1)
   {
-    {
-      std::unique_lock<std::mutex> sentry(g_ml_mutex);
-      edm::LogVerbatim("XrdAdaptorInternal") << "Source 0 quality " << m_activeSources[0]->getQuality() << ", source 1 quality " << m_activeSources[1]->getQuality() << std::endl;
-    }
+    edm::LogVerbatim("XrdAdaptorInternal") << "Source 0 quality " << m_activeSources[0]->getQuality() << ", source 1 quality " << m_activeSources[1]->getQuality() << std::endl;
     findNewSource |= compareSources(now, 0, 1);
     findNewSource |= compareSources(now, 1, 0);
 
@@ -259,16 +251,10 @@ RequestManager::checkSourcesImpl(timespec &now, IOSize requestSize)
     std::vector<std::shared_ptr<Source> >::iterator worstActiveSource = std::max_element(m_activeSources.begin(), m_activeSources.end(),
         [](const std::shared_ptr<Source> &s1, const std::shared_ptr<Source> &s2) {return s1->getQuality() < s2->getQuality();});
     if (bestInactiveSource != eligibleInactiveSources.end() && bestInactiveSource->get())
-    {
-        std::unique_lock<std::mutex> sentry(g_ml_mutex);
-        edm::LogVerbatim("XrdAdaptorInternal") << "Best inactive source: " <<(*bestInactiveSource)->ID()
+    edm::LogVerbatim("XrdAdaptorInternal") << "Best inactive source: " <<(*bestInactiveSource)->ID()
             << ", quality " << (*bestInactiveSource)->getQuality();
-    }
-    {
-      std::unique_lock<std::mutex> sentry(g_ml_mutex);
-      edm::LogVerbatim("XrdAdaptorInternal") << "Worst active source: " <<(*worstActiveSource)->ID() 
+    edm::LogVerbatim("XrdAdaptorInternal") << "Worst active source: " <<(*worstActiveSource)->ID() 
         << ", quality " << (*worstActiveSource)->getQuality();
-    }
     if ((bestInactiveSource != eligibleInactiveSources.end()) && m_activeSources.size() == 1)
     {
         m_activeSources.push_back(*bestInactiveSource);
@@ -276,12 +262,10 @@ RequestManager::checkSourcesImpl(timespec &now, IOSize requestSize)
     }
     else while ((bestInactiveSource != eligibleInactiveSources.end()) && (*worstActiveSource)->getQuality() > (*bestInactiveSource)->getQuality()+XRD_ADAPTOR_SOURCE_QUALITY_FUDGE)
     {
-        {std::unique_lock<std::mutex> sentry(g_ml_mutex);
         edm::LogVerbatim("XrdAdaptorInternal") << "Removing " << (*worstActiveSource)->ID()
             << " from active sources due to quality (" << (*worstActiveSource)->getQuality()
             << ") and promoting " << (*bestInactiveSource)->ID() << " (quality: "
             << (*bestInactiveSource)->getQuality() << ")" << std::endl;
-        }
         (*worstActiveSource)->setLastDowngrade(now);
         for (auto it = m_inactiveSources.begin(); it != m_inactiveSources.end(); it++) if (it->get() == bestInactiveSource->get()) {m_inactiveSources.erase(it); break;}
         m_inactiveSources.emplace_back(std::move(*worstActiveSource));
@@ -441,14 +425,11 @@ XrdAdaptor::RequestManager::handleOpen(XrdCl::XRootDStatus &status, std::shared_
     std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);
     if (status.IsOK())
     {
-        {std::unique_lock<std::mutex> sentry(g_ml_mutex);
         edm::LogVerbatim("XrdAdaptorInternal") << "Successfully opened new source: " << source->ID() << std::endl;
-        }
         for (const auto & s : m_activeSources)
         {
             if (source->ID() == s->ID())
             {
-                std::unique_lock<std::mutex> sentry(g_ml_mutex);
                 edm::LogVerbatim("XrdAdaptorInternal") << "Xrootd server returned excluded source " << source->ID()
                     << "; ignoring" << std::endl;
                 m_nextActiveSourceCheck.tv_sec += XRD_ADAPTOR_LONG_OPEN_DELAY - XRD_ADAPTOR_SHORT_OPEN_DELAY;
@@ -459,7 +440,6 @@ XrdAdaptor::RequestManager::handleOpen(XrdCl::XRootDStatus &status, std::shared_
         {
             if (source->ID() == s->ID())
             {
-                std::unique_lock<std::mutex> sentry(g_ml_mutex);
                 edm::LogVerbatim("XrdAdaptorInternal") << "Xrootd server returned excluded inactive source " << source->ID() 
                     << "; ignoring" << std::endl;
                 m_nextActiveSourceCheck.tv_sec += XRD_ADAPTOR_LONG_OPEN_DELAY - XRD_ADAPTOR_SHORT_OPEN_DELAY;
@@ -477,7 +457,6 @@ XrdAdaptor::RequestManager::handleOpen(XrdCl::XRootDStatus &status, std::shared_
     }
     else
     {   // File-open failure - wait at least 120s before next attempt.
-        std::unique_lock<std::mutex> sentry(g_ml_mutex);
         edm::LogVerbatim("XrdAdaptorInternal") << "Got failure when trying to open a new source" << std::endl;
         m_nextActiveSourceCheck.tv_sec += XRD_ADAPTOR_LONG_OPEN_DELAY - XRD_ADAPTOR_SHORT_OPEN_DELAY;
     }
@@ -793,9 +772,7 @@ XrdAdaptor::RequestManager::splitClientRequest(const std::vector<IOPosBuffer> &i
 
     assert(size_orig == size1 + size2);
 
-    {std::unique_lock<std::mutex> sentry(g_ml_mutex);
     edm::LogVerbatim("XrdAdaptorInternal") << "Original request size " << iolist.size() << " (" << size_orig << " bytes) split into requests size " << req1.size() << " (" << size1 << " bytes) and " << req2.size() << " (" << size2 << " bytes)" << std::endl;
-    }
 }
 
 XrdAdaptor::RequestManager::OpenHandler::OpenHandler(RequestManager & manager)
@@ -814,7 +791,6 @@ XrdAdaptor::RequestManager::OpenHandler::~OpenHandler()
         // safety net against issues in the XrdCl callback.
         if (m_shared_future.wait_for(std::chrono::seconds(0)) != std::future_status::ready)
         {
-          std::unique_lock<std::mutex> sentry(g_ml_mutex);
           edm::LogWarning("XrdAdaptorInternal") << "Waiting until all opens are completed before destroying object." << std::endl;
         }
         m_shared_future.wait_for(std::chrono::seconds(m_manager.m_timeout+10));
@@ -900,9 +876,7 @@ XrdAdaptor::RequestManager::OpenHandler::open()
 
     auto opaque = m_manager.prepareOpaqueString();
     std::string new_name = m_manager.m_name + ((m_manager.m_name.find("?") == m_manager.m_name.npos) ? "?" : "&") + opaque;
-    {std::unique_lock<std::mutex> sentry(g_ml_mutex);
     edm::LogVerbatim("XrdAdaptorInternal") << "Trying to open URL: " << new_name;
-    }
     m_file.reset(new XrdCl::File());
     XrdCl::XRootDStatus status;
     if (!(status = m_file->Open(new_name, m_manager.m_flags, m_manager.m_perms, this)).IsOK())
