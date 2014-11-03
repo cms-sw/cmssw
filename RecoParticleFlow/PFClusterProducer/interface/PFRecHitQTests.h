@@ -1,6 +1,7 @@
 #ifndef RecoParticleFlow_PFClusterProducer_PFEcalRecHitQTests_h
 #define RecoParticleFlow_PFClusterProducer_PFEcalRecHitQTests_h
 
+#include <memory>
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitQTestBase.h"
 
 
@@ -111,9 +112,8 @@ class PFRecHitQTestHCALChannel : public PFRecHitQTestBase {
       edm::ESHandle<HcalTopology> topo;
       iSetup.get<IdealGeometryRecord>().get(topo);
       edm::ESHandle<HcalChannelQuality> hcalChStatus;    
-      iSetup.get<HcalChannelQualityRcd>().get( hcalChStatus );
+      iSetup.get<HcalChannelQualityRcd>().get( "withTopo", hcalChStatus );
       theHcalChStatus_ = hcalChStatus.product();
-      if (!theHcalChStatus_->topo()) theHcalChStatus_->setTopo(topo.product());
       edm::ESHandle<HcalSeverityLevelComputer> hcalSevLvlComputerHndl;
       iSetup.get<HcalSeverityLevelComputerRcd>().get(hcalSevLvlComputerHndl);
       hcalSevLvlComputer_  =  hcalSevLvlComputerHndl.product();

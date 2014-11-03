@@ -62,10 +62,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 # Hcal DQM Source, including Rec Hit Reconstructor
 #-----------------------------
 process.load("EventFilter.HcalRawToDigi.HcalRawToDigi_cfi")
-process.load("RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_hbhe_cfi")
-process.load("RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_ho_cfi")
-process.load("RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_hf_cfi")
-process.load("RecoLocalCalo.HcalRecProducers.HcalHitReconstructor_zdc_cfi")
+process.load("RecoLocalCalo.Configuration.hcalLocalReco_cff")
 
 # Only use this correction in CMSSW_3_9_1 and above, after hbhereco was renamed!
 #print process.hbheprereco
@@ -84,7 +81,6 @@ process.essourceSev =  cms.ESSource("EmptyESSource",
                                     firstValid = cms.vuint32(1),
                                     iovIsRunNotTime = cms.bool(True)
                                     )
-process.load("RecoLocalCalo.HcalRecAlgos.hcalRecAlgoESProd_cfi")
 process.hcalRecAlgos.DropChannelStatusBits = cms.vstring('') # Had been ('HcalCellOff','HcalCellDead')
 
 #----------------------------
@@ -194,6 +190,10 @@ process.hcalDigiMonitor.maxDigiSizeHF = cms.untracked.int32(10)
 if (HEAVYION):
     process.hcalHotCellMonitor.ETThreshold = cms.untracked.double(10.0)
     process.hcalHotCellMonitor.ETThreshold_HF  = cms.untracked.double(10.0)
+    
+if process.runType.getRunType() == process.runType.cosmic_run:
+    process.hcalDetDiagTimingMonitor.CosmicsCorr=True
+
 
 # Don't create problem histograms for tasks that aren't run:
 process.hcalClient.enabledClients = ["DeadCellMonitor",

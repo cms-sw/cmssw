@@ -1,6 +1,8 @@
 #ifndef HCALHITRECONSTRUCTOR_H 
 #define HCALHITRECONSTRUCTOR_H 1
 
+#include <memory>
+
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -31,6 +33,7 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalHF_PETalgorithm.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 
     /** \class HcalHitReconstructor
 	
@@ -47,7 +50,7 @@ class HcalTopology;
 
       virtual void beginRun(edm::Run const&r, edm::EventSetup const & es) override final;
       virtual void endRun(edm::Run const&r, edm::EventSetup const & es) override final;
-      virtual void produce(edm::Event& e, const edm::EventSetup& c);
+      virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
 
     private:      
       typedef void (HcalSimpleRecAlgo::*SetCorrectionFcn)(boost::shared_ptr<AbsOOTPileupCorrection>);
@@ -106,9 +109,7 @@ class HcalTopology;
       SetCorrectionFcnForNegative setPileupCorrectionForNegative_;
 
       HcalRecoParams* paramTS;  // firstSample & sampleToAdd from DB  
-      const HcalFlagHFDigiTimeParams* HFDigiTimeParams; // HF DigiTime parameters
-
-      HcalTopology *theTopology;
+      std::unique_ptr<HcalFlagHFDigiTimeParams> HFDigiTimeParams; // HF DigiTime parameters
     };
 
 #endif

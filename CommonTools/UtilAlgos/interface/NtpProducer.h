@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 
@@ -49,7 +50,7 @@ NtpProducer<C>::NtpProducer( const edm::ParameterSet& par ) :
    std::vector<edm::ParameterSet>::const_iterator
      q = variables.begin(), end = variables.end();
    if(eventInfo_){
-     produces<unsigned int>( prefix_+"EventNumber" ).setBranchAlias( prefix_ + "EventNumber" );
+     produces<edm::EventNumber_t>( prefix_+"EventNumber" ).setBranchAlias( prefix_ + "EventNumber" );
      produces<unsigned int>( prefix_ + "RunNumber" ).setBranchAlias( prefix_ + "RunNumber" );
      produces<unsigned int>( prefix_ + "LumiBlock" ).setBranchAlias( prefix_ + "Lumiblock" );
    }
@@ -71,7 +72,7 @@ void NtpProducer<C>::produce( edm::Event& iEvent, const edm::EventSetup&) {
    edm::Handle<C> coll;
    iEvent.getByToken(srcToken_, coll);
    if(eventInfo_){
-     std::auto_ptr<unsigned int> event( new unsigned int );
+     std::auto_ptr<edm::EventNumber_t> event( new edm::EventNumber_t );
      std::auto_ptr<unsigned int> run( new unsigned int );
      std::auto_ptr<unsigned int> lumi( new unsigned int );
      *event = iEvent.id().event();
