@@ -36,7 +36,8 @@ void Stage1Layer2JetAlgorithmImpHI::processEvent(const std::vector<l1t::CaloRegi
   JetToGtPtScales(params_, preGtJets, jets);
 
   delete subRegions;
-  delete preGtJets;
+  delete preGtEtaJets;
+  //delete preGtJets;
 
   //the jets should be sorted, highest pT first.
   // do not truncate the tau list, GT converter handles that

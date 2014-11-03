@@ -108,11 +108,17 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
 
   const ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > etLorentz(0,0,0,0);
 
-  // convert back to hardware ET
+  int ETTqual = 0;
+  int HTTqual = 0;
+  if(sumET >= 0xfff) //hardcoded 12 bit maximum
+    ETTqual = 1;
+  if(sumHT >= 0xfff)
+    HTTqual = 1;
+
   l1t::EtSum etMiss(*&etLorentz,EtSum::EtSumType::kMissingEt,MET,0,iPhiET,0);
   l1t::EtSum htMiss(*&etLorentz,EtSum::EtSumType::kMissingHt,MHT,0,iPhiHT,0);
-  l1t::EtSum etTot (*&etLorentz,EtSum::EtSumType::kTotalEt,sumET,0,0,0);
-  l1t::EtSum htTot (*&etLorentz,EtSum::EtSumType::kTotalHt,sumHT,0,0,0);
+  l1t::EtSum etTot (*&etLorentz,EtSum::EtSumType::kTotalEt,sumET&0xfff,0,0,ETTqual);
+  l1t::EtSum htTot (*&etLorentz,EtSum::EtSumType::kTotalHt,sumHT&0xfff,0,0,HTTqual);
 
   std::vector<l1t::EtSum> *preGtEtSums = new std::vector<l1t::EtSum>();
 

@@ -48,8 +48,8 @@ void l1t::Stage1Layer2EGammaAlgorithmImpHW::processEvent(const std::vector<l1t::
   TwelveByTwelveFinder(0, subRegions, unCorrJets);
 
 
-  std::cout << "Begin egamma cand debug dump:" << std::endl;
-  std::cout << "pt eta phi index assocJetPt lutAddress lutResult" << std::endl;
+  //std::cout << "Begin egamma cand debug dump:" << std::endl;
+  //std::cout << "pt eta phi index assocJetPt lutAddress lutResult" << std::endl;
   for(CaloEmCandBxCollection::const_iterator egCand = EMCands.begin();
       egCand != EMCands.end(); egCand++) {
 
