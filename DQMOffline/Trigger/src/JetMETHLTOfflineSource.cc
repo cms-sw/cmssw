@@ -23,8 +23,6 @@
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
-
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "TMath.h"
@@ -73,8 +71,8 @@ JetMETHLTOfflineSource::JetMETHLTOfflineSource(const edm::ParameterSet& iConfig)
   //Vertex info
   vertexToken          = consumes<reco::VertexCollection> (std::string("offlinePrimaryVertices"));
   //
-  CaloJetCorService_   = iConfig.getParameter<std::string>("CaloJetCorService");
-  PFJetCorService_     = iConfig.getParameter<std::string>("PFJetCorService");
+  CaloJetCorToken_     = consumes<reco::JetCorrector>(iConfig.getParameter<edm::InputTag>("CaloJetCorLabel"));
+  PFJetCorToken_       = consumes<reco::JetCorrector>(iConfig.getParameter<edm::InputTag>("PFJetCorLabel"));
   //JetID
   jetID                = new reco::helper::JetIDHelper(iConfig.getParameter<ParameterSet>("JetIDParams"), consumesCollector());
   _fEMF                = iConfig.getUntrackedParameter< double >("fEMF", 0.01);
@@ -192,10 +190,11 @@ JetMETHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
   }
 
   //---------- CaloJet Correction (on-the-fly) ----------
-  const JetCorrector* calocorrector = JetCorrector::getJetCorrector(CaloJetCorService_,iSetup);
+  edm::Handle<reco::JetCorrector> calocorrector;
+  iEvent.getByToken(CaloJetCorToken_, calocorrector);
   CaloJetCollection::const_iterator calojet_ = calojet.begin();
   for(; calojet_ != calojet.end(); ++calojet_){
-    double scale = calocorrector->correction(*calojet_,iEvent, iSetup);	
+    double scale = calocorrector->correction(*calojet_);	
     jetID->calculate(iEvent, *calojet_);
     
     if(scale*calojet_->pt()>CaloJetPt[0]){
@@ -233,10 +232,11 @@ JetMETHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
   //---------- PFJet Correction (on-the-fly) ----------
   pfMHTx_All = 0.;
   pfMHTy_All = 0.;
-  const JetCorrector* pfcorrector = JetCorrector::getJetCorrector(PFJetCorService_,iSetup);
+  edm::Handle<reco::JetCorrector> pfcorrector;
+  iEvent.getByToken(PFJetCorToken_, pfcorrector);
   PFJetCollection::const_iterator pfjet_ = pfjet.begin();
   for(; pfjet_ != pfjet.end(); ++pfjet_){
-    double scale = pfcorrector->correction(*pfjet_,iEvent, iSetup);
+    double scale = pfcorrector->correction(*pfjet_);
     pfMHTx_All = pfMHTx_All + scale*pfjet_->px();
     pfMHTy_All = pfMHTy_All + scale*pfjet_->py();
     if(scale*pfjet_->pt()>PFJetPt[0]){
