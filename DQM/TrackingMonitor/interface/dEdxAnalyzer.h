@@ -81,7 +81,7 @@ class dEdxAnalyzer : public DQMEDAnalyzer {
     {}
   };
   
-  double TrackHitMin, HIPdEdxMin;
+  double TrackHitMin, HIPdEdxMin, HighPtThreshold;
   double dEdxK, dEdxC;
   
   edm::InputTag trackInputTag_;

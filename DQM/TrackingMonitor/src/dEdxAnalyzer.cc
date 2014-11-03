@@ -82,6 +82,7 @@ void dEdxAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     // get binning from the configuration
     TrackHitMin  = conf_.getParameter<double>("TrackHitMin");
     HIPdEdxMin   = conf_.getParameter<double>("HIPdEdxMin");
+    HighPtThreshold =  conf_.getParameter<double>("HighPtThreshold");
 
     dEdxK      = conf_.getParameter<double>("dEdxK");
     dEdxC      = conf_.getParameter<double>("dEdxC");
@@ -140,12 +141,12 @@ void dEdxAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
 
          histname = "MIPOfHighPt_dEdxPerTrack_";
          dEdxMEsVector[i].ME_MipHighPtDeDx = ibooker.book1D(histname, histname, dEdxBin, dEdxMin, dEdxMax);
-         dEdxMEsVector[i].ME_MipHighPtDeDx->setAxisTitle("dEdx of each MIP (pT>100GeV) Track (MeV/cm)");
+         dEdxMEsVector[i].ME_MipHighPtDeDx->setAxisTitle("dEdx of each MIP (of High pT) Track (MeV/cm)");
          dEdxMEsVector[i].ME_MipHighPtDeDx->setAxisTitle("Number of Tracks", 2);
 
          histname =  "MIPOfHighPt_NumberOfdEdxHitsPerTrack_";
          dEdxMEsVector[i].ME_MipHighPtDeDxNHits = ibooker.book1D(histname, histname, dEdxNHitBin, dEdxNHitMin, dEdxNHitMax);
-         dEdxMEsVector[i].ME_MipHighPtDeDxNHits->setAxisTitle("Number of dEdxHits of each MIP (pT>100GeV) Track");
+         dEdxMEsVector[i].ME_MipHighPtDeDxNHits->setAxisTitle("Number of dEdxHits of each MIP (of High pT) Track");
          dEdxMEsVector[i].ME_MipHighPtDeDxNHits->setAxisTitle("Number of Tracks", 2);
        }
     }
@@ -197,7 +198,7 @@ void dEdxAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
                  dEdxMEsVector[i].ME_MipDeDxMass    ->Fill(mass(track->p(), dEdxColl[track].dEdx()));
 
 
-                 if(track->pt() >= 100.0){
+                 if(track->pt() >= HighPtThreshold){
                     dEdxMEsVector[i].ME_MipHighPtDeDx        ->Fill(dEdxColl[track].dEdx());
                     dEdxMEsVector[i].ME_MipHighPtDeDxNHits   ->Fill(dEdxColl[track].numberOfMeasurements());
                  }
@@ -232,7 +233,8 @@ dEdxAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
   desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<double>("HIPdEdxMin",100.0);
+  descriptions.add("dEdxAnalyzer", desc);
 }
 
 DEFINE_FWK_MODULE(dEdxAnalyzer);
