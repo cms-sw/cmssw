@@ -76,59 +76,62 @@ namespace l1t {
 
   /// --------- New region correction (PUsub, no response correction at the moment) -----------
 
- void RegionCorrection(const std::vector<l1t::CaloRegion> & regions,
-		       std::vector<l1t::CaloRegion> *subRegions,
-		       std::vector<double> regionPUSParams,
-		       std::string regionPUSType)
-{
+  void RegionCorrection(const std::vector<l1t::CaloRegion> & regions,
+			std::vector<l1t::CaloRegion> *subRegions,
+			std::vector<double> regionPUSParams,
+			std::string regionPUSType)
+  {
 
-
-  if(regionPUSType == "None") {
-    for(std::vector<CaloRegion>::const_iterator notCorrectedRegion = regions.begin();
-	notCorrectedRegion != regions.end(); notCorrectedRegion++){
-      CaloRegion newSubRegion= *notCorrectedRegion;
-      subRegions->push_back(newSubRegion);
+    if(regionPUSType == "None") {
+      for(std::vector<CaloRegion>::const_iterator notCorrectedRegion = regions.begin();
+	  notCorrectedRegion != regions.end(); notCorrectedRegion++){
+	CaloRegion newSubRegion= *notCorrectedRegion;
+	subRegions->push_back(newSubRegion);
+      }
     }
-  }
 
-  if (regionPUSType == "HICaloRingSub") {
-    HICaloRingSubtraction(regions, subRegions);
-  }
-
-  if (regionPUSType == "PUM0") {
-    int puMult = 0;
-
-    // ------------ This calulates PUM0 ------------------
-    for(std::vector<CaloRegion>::const_iterator notCorrectedRegion = regions.begin();
-	notCorrectedRegion != regions.end(); notCorrectedRegion++){
-      int regionET = notCorrectedRegion->hwPt();
-      // cout << "regionET: " << regionET <<endl;
-      if (regionET > 0) {puMult++;}
+    if (regionPUSType == "HICaloRingSub") {
+      HICaloRingSubtraction(regions, subRegions);
     }
-    int pumbin = (int) puMult/22;
-    if(pumbin == 18) pumbin = 17; // if puMult = 396 exactly there is an overflow
 
-    for(std::vector<CaloRegion>::const_iterator notCorrectedRegion = regions.begin();
-	notCorrectedRegion != regions.end(); notCorrectedRegion++){
+    if (regionPUSType == "PUM0") {
+      int puMult = 0;
 
-      int regionET = notCorrectedRegion->hwPt();
-      int regionEta = notCorrectedRegion->hwEta();
-      int regionPhi = notCorrectedRegion->hwPhi();
+      // ------------ This calulates PUM0 ------------------
+      for(std::vector<CaloRegion>::const_iterator notCorrectedRegion = regions.begin();
+	  notCorrectedRegion != regions.end(); notCorrectedRegion++){
+	int regionET = notCorrectedRegion->hwPt();
+	// cout << "regionET: " << regionET <<endl;
+	if (regionET > 0) {puMult++;}
+      }
+      int pumbin = (int) puMult/22;
+      if(pumbin == 18) pumbin = 17; // if puMult = 396 exactly there is an overflow
 
-      int puSub = ceil(regionPUSParams[18*regionEta+pumbin]*2);
-      // The values in regionSubtraction are MULTIPLIED by
-      // RegionLSB=.5 (physicalRegionEt), so to get back unmultiplied
-      // regionSubtraction we want to multiply the number by 2
-      // (aka divide by LSB).
+      for(std::vector<CaloRegion>::const_iterator notCorrectedRegion = regions.begin();
+	  notCorrectedRegion != regions.end(); notCorrectedRegion++){
 
-      int regionEtCorr = std::max(0, regionET - puSub);
+	int regionET = notCorrectedRegion->hwPt();
+	int regionEta = notCorrectedRegion->hwEta();
+	int regionPhi = notCorrectedRegion->hwPhi();
 
-      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > lorentz(0,0,0,0);
-      CaloRegion newSubRegion(*&lorentz, 0, 0, regionEtCorr, regionEta, regionPhi, notCorrectedRegion->hwQual(), notCorrectedRegion->hwEtEm(), notCorrectedRegion->hwEtHad());
-      subRegions->push_back(newSubRegion);
+	int puSub = ceil(regionPUSParams[18*regionEta+pumbin]*2);
+	// The values in regionSubtraction are MULTIPLIED by
+	// RegionLSB=.5 (physicalRegionEt), so to get back unmultiplied
+	// regionSubtraction we want to multiply the number by 2
+	// (aka divide by LSB).
+
+	//if(puSub > 0)
+	//std::cout << "eta: " << regionEta << " pusub: " << puSub << std::endl;
+
+	int regionEtCorr = std::max(0, regionET - puSub);
+
+	ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > lorentz(0,0,0,0);
+	CaloRegion newSubRegion(*&lorentz, 0, 0, regionEtCorr, regionEta, regionPhi, notCorrectedRegion->hwQual(), notCorrectedRegion->hwEtEm(), notCorrectedRegion->hwEtHad());
+	subRegions->push_back(newSubRegion);
+      }
+      //std::cout << "PUM0 " << puMult << std::endl;
     }
-  }
 
-}
+  }
 
 }

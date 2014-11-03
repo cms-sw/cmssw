@@ -21,20 +21,23 @@ Stage1Layer2JetAlgorithmImpHI::~Stage1Layer2JetAlgorithmImpHI(){};
 
 void Stage1Layer2JetAlgorithmImpHI::processEvent(const std::vector<l1t::CaloRegion> & regions,
 						 const std::vector<l1t::CaloEmCand> & EMCands,
-						 std::vector<l1t::Jet> * jets){
+						 std::vector<l1t::Jet> * jets,
+						 std::vector<l1t::Jet> * preGtJets ){
 
   double towerLsb = params_->towerLsbSum();
   int jetSeedThreshold= floor( params_->jetSeedThreshold()/towerLsb + 0.5);
 
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
-  std::vector<l1t::Jet> *preGtJets = new std::vector<l1t::Jet>();
+  std::vector<l1t::Jet> *preGtEtaJets = new std::vector<l1t::Jet>();
 
   HICaloRingSubtraction(regions, subRegions);
-  slidingWindowJetFinder(jetSeedThreshold, subRegions, preGtJets);
-  JetToGtScales(params_, preGtJets, jets);
+  slidingWindowJetFinder(jetSeedThreshold, subRegions, preGtEtaJets);
+  JetToGtEtaScales(params_, preGtEtaJets, preGtJets);
+  JetToGtPtScales(params_, preGtJets, jets);
 
   delete subRegions;
-  delete preGtJets;
+  delete preGtEtaJets;
+  //delete preGtJets;
 
   //the jets should be sorted, highest pT first.
   // do not truncate the tau list, GT converter handles that

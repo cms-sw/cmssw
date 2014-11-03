@@ -26,6 +26,7 @@ l1t::L1TCaloUpgradeToGCTConverter::L1TCaloUpgradeToGCTConverter(const ParameterS
   produces<L1GctJetCandCollection>("cenJets");
   produces<L1GctJetCandCollection>("forJets");
   produces<L1GctJetCandCollection>("tauJets");
+  produces<L1GctJetCandCollection>("isoTauJets");
   produces<L1GctInternJetDataCollection>();
   produces<L1GctEtTotalCollection>();
   produces<L1GctEtHadCollection>();
@@ -38,7 +39,8 @@ l1t::L1TCaloUpgradeToGCTConverter::L1TCaloUpgradeToGCTConverter(const ParameterS
 
   // register what you consume and keep token for later access:
   EGammaToken_ = consumes<l1t::EGammaBxCollection>(iConfig.getParameter<InputTag>("InputCollection"));
-  TauToken_ = consumes<l1t::TauBxCollection>(iConfig.getParameter<InputTag>("InputCollection"));
+  RlxTauToken_ = consumes<l1t::TauBxCollection>(iConfig.getParameter<InputTag>("InputRlxTauCollection"));
+  IsoTauToken_ = consumes<l1t::TauBxCollection>(iConfig.getParameter<InputTag>("InputIsoTauCollection"));
   JetToken_ = consumes<l1t::JetBxCollection>(iConfig.getParameter<InputTag>("InputCollection"));
   EtSumToken_ = consumes<l1t::EtSumBxCollection>(iConfig.getParameter<InputTag>("InputCollection"));
   CaloSpareToken_ = consumes<l1t::CaloSpareBxCollection>(iConfig.getParameter<edm::InputTag>("InputCollection"));
@@ -62,8 +64,11 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
   Handle<l1t::EGammaBxCollection> EGamma;
   e.getByToken(EGammaToken_,EGamma);
 
-  Handle<l1t::TauBxCollection> Tau;
-  e.getByToken(TauToken_,Tau);
+  Handle<l1t::TauBxCollection> RlxTau;
+  e.getByToken(RlxTauToken_,RlxTau);
+
+  Handle<l1t::TauBxCollection> IsoTau;
+  e.getByToken(IsoTauToken_,IsoTau);
 
   Handle<l1t::JetBxCollection> Jet;
   e.getByToken(JetToken_,Jet);
@@ -80,6 +85,7 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
   std::auto_ptr<L1GctJetCandCollection> cenJetResult(new L1GctJetCandCollection( ) );
   std::auto_ptr<L1GctJetCandCollection> forJetResult(new L1GctJetCandCollection( ) );
   std::auto_ptr<L1GctJetCandCollection> tauJetResult(new L1GctJetCandCollection( ) );
+  std::auto_ptr<L1GctJetCandCollection> isoTauJetResult(new L1GctJetCandCollection( ) );
 
   // create the energy sum digis
   std::auto_ptr<L1GctEtTotalCollection> etTotResult (new L1GctEtTotalCollection( ) );
@@ -135,8 +141,8 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 
     //looping over Tau elments with a specific BX
     int tauCount = 0; //max 4
-    for(l1t::TauBxCollection::const_iterator itTau = Tau->begin(itBX);
-	itTau != Tau->end(itBX); ++itTau){
+    for(l1t::TauBxCollection::const_iterator itTau = RlxTau->begin(itBX);
+	itTau != RlxTau->end(itBX); ++itTau){
       // taus are not allowed to be forward
       const bool forward= false;
 
@@ -150,6 +156,26 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
       }
     }
     tauJetResult->resize(4);
+
+
+    //looping over Iso Tau elments with a specific BX
+    int isoTauCount = 0; //max 4
+    for(l1t::TauBxCollection::const_iterator itTau = IsoTau->begin(itBX);
+	itTau != IsoTau->end(itBX); ++itTau){
+      // taus are not allowed to be forward
+      const bool forward= false;
+
+      L1GctJetCand TauCand(itTau->hwPt(), itTau->hwPhi(), itTau->hwEta(),
+			   true, forward,0, 0, itBX);
+      //L1GctJetCand(unsigned rank, unsigned phi, unsigned eta,
+      //             bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx);
+      if(isoTauCount != 4){
+	isoTauJetResult->push_back(TauCand);
+	isoTauCount++;
+      }
+    }
+    isoTauJetResult->resize(4);
+
 
     //looping over Jet elments with a specific BX
     int forCount = 0; //max 4
@@ -203,43 +229,29 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
     etTotResult->resize(1);
     etHadResult->resize(1);
 
+    L1GctHFRingEtSums sum = L1GctHFRingEtSums::fromGctEmulator(itBX,
+							       0,
+							       0,
+							       0,
+							       0);
     for (l1t::CaloSpareBxCollection::const_iterator itCaloSpare = CaloSpare->begin(itBX);
 	 itCaloSpare != CaloSpare->end(itBX); ++itCaloSpare){
-      // L1GctHFRingEtSums sum = L1GctHFRingEtSums::fromConcRingSums(const uint16_t capBlock,
-      // 								  const uint16_t capIndex,
-      // 								  const int16_t bx,
-      // 								  const uint32_t data);
       if (CaloSpare::CaloSpareType::V2 == itCaloSpare->getType())
       {
-	L1GctHFRingEtSums sum = L1GctHFRingEtSums::fromGctEmulator(itBX,
-								   itCaloSpare->hwPt() & 0x7,
-								   (itCaloSpare->hwPt() >> 3) & 0x7,
-								   (itCaloSpare->hwPt() >> 6) & 0x7,
-								   (itCaloSpare->hwPt() >> 9) & 0x7);
-	hfRingEtSumResult->push_back(sum);
+	sum.setEtSum(3, itCaloSpare->hwPt());
       } else if (CaloSpare::CaloSpareType::Centrality == itCaloSpare->getType())
       {
-
-	// static L1GctHFBitCounts fromConcHFBitCounts(const uint16_t capBlock,
-	// 						  const uint16_t capIndex,
-	// 						  const int16_t bx,
-	// 						  const uint32_t data);
-
-	L1GctHFBitCounts bitcount = L1GctHFBitCounts::fromConcHFBitCounts(0,
-									  0,
-									  itBX,
-									  itCaloSpare->hwPt() & 0xfff);
-	hfBitCountResult->push_back(bitcount);
+	sum.setEtSum(0, itCaloSpare->hwPt());
       } else if (CaloSpare::CaloSpareType::Tau == itCaloSpare->getType())
       {
-	L1GctHFRingEtSums sum = L1GctHFRingEtSums::fromGctEmulator(itBX,
-								   itCaloSpare->hwPt() & 0x7,
-								   (itCaloSpare->hwPt() >> 3) & 0x7,
-								   (itCaloSpare->hwPt() >> 6) & 0x7,
-								   (itCaloSpare->hwPt() >> 9) & 0x7);
-	hfRingEtSumResult->push_back(sum);
+	sum.setEtSum(0, itCaloSpare->hwPt() & 0x7);
+	sum.setEtSum(1, (itCaloSpare->hwPt() >> 3) & 0x7);
+	sum.setEtSum(2, (itCaloSpare->hwPt() >> 6) & 0x7);
+	sum.setEtSum(3, (itCaloSpare->hwPt() >> 9) & 0x7);
       }
     }
+    hfRingEtSumResult->push_back(sum);
+
     hfRingEtSumResult->resize(1);
     hfBitCountResult->resize(1);
   }
@@ -249,6 +261,7 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
   e.put(cenJetResult,"cenJets");
   e.put(forJetResult,"forJets");
   e.put(tauJetResult,"tauJets");
+  e.put(isoTauJetResult,"isoTauJets");
   e.put(etTotResult);
   e.put(etHadResult);
   e.put(etMissResult);
