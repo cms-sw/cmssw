@@ -32,50 +32,45 @@ namespace Phase2Tracker
     std::vector<bool> festatus (72,false);
     // iterate on all possible channels 
     Phase2TrackerCabling::cabling conns = cabling_->orderedConnections(0);
-    Phase2TrackerCabling::cabling::const_iterator iconn;
-    int fedid_current = -1;
-    for(iconn = conns.begin(); iconn != conns.end(); iconn++) 
+    // testing better way to gather stuff:
+    Phase2TrackerCabling::cabling::const_iterator iconn = conns.begin(), end = conns.end(), icon2;
+    while(iconn != end)
     {
-      std::pair<unsigned int, unsigned int> fedch = (*iconn)->getCh();
-      int detid = (*iconn)->getDetid();
-      edmNew::DetSetVector<SiPixelCluster>::const_iterator  digis = digishandle_->find(detid);
-      if((int)fedch.first != fedid_current and fedid_current >= 0)
+      unsigned int fedid = (*iconn)->getCh().first;
+      for (icon2 = iconn; icon2 != end && (*icon2)->getCh().first == fedid; icon2++)
       {
-        std::cout << "XCHECK: saving buffer " << fedid_current << std::endl;
-        FedHeader_.setFrontendStatus(festatus);
-        std::vector<uint64_t> fedbuffer = makeBuffer(digis_t);
-        FEDRawData& frd = rcollection->FEDData(fedid_current);
-        int size = fedbuffer.size()*8;
-        uint8_t arrtemp[size];
-        vec_to_array(fedbuffer,arrtemp);
-        frd.resize(size);
-        memcpy(frd.data(),arrtemp,size);
-        digis_t.clear();
-        festatus.assign(72,false);
+        int detid = (*icon2)->getDetid();
+        edmNew::DetSetVector<SiPixelCluster>::const_iterator  digis;
+        digis = digishandle_->find(detid);
+        if (digis != digishandle_->end())
+        {
+          digis_t.push_back(*digis);
+          festatus[(*icon2)->getCh().second] = true;
+        }
+        // store digis from other module plane
+        digis = digishandle_->find(stackMap_[detid]);
+        if (digis != digishandle_->end())
+        {
+          digis_t.push_back(*digis);
+          festatus[(*icon2)->getCh().second] = true;
+        }
       }
-      if (digis != digishandle_->end())
-      {
-        digis_t.push_back(*digis);
-        // add digis from second plane
-        digis = digishandle_->find(detid+4);
-        if (digis != digishandle_->end()) { digis_t.push_back(*digis); }
-        // set fe status for header
-        festatus[fedch.second] = true;
-      }
-      fedid_current = (int)fedch.first;
-      // save last fed
-      if ((conns.end()-iconn)==1)
-      {
-        std::cout << "XCHECK: saving buffer " <<  fedid_current << std::endl;
-        FedHeader_.setFrontendStatus(festatus);
-        std::vector<uint64_t> fedbuffer = makeBuffer(digis_t);
-        FEDRawData& frd = rcollection->FEDData(fedid_current);
-        int size = fedbuffer.size()*8;
-        uint8_t arrtemp[size];
-        vec_to_array(fedbuffer,arrtemp);
-        frd.resize(size);
-        memcpy(frd.data(),arrtemp,size);
-      }
+      // save buffer
+      std::cout << "XCHECK: saving buffer " << fedid << std::endl;
+      // save FE status
+      FedHeader_.setFrontendStatus(festatus);
+      festatus.assign(72,false);
+      // write digis to buffer
+      std::vector<uint64_t> fedbuffer = makeBuffer(digis_t);
+      FEDRawData& frd = rcollection->FEDData(fedid);
+      int size = fedbuffer.size()*8;
+      uint8_t arrtemp[size];
+      vec_to_array(fedbuffer,arrtemp);
+      frd.resize(size);
+      memcpy(frd.data(),arrtemp,size);
+      digis_t.clear();
+      // advance connections pointer
+      iconn = icon2;
     }
   }
 
@@ -97,11 +92,15 @@ namespace Phase2Tracker
     for (idigi = digis.begin(); idigi != digis.end(); idigi++ )
     {
       // determine module type
-      moduletype = cabling_->findDetid(idigi->detId()).getModuleType();
-      int ns = 0; 
-      int np = 0;
+      int detid = idigi->detId();
+      if(stackMap_[detid] < 0) { detid = - stackMap_[detid]; }
+      moduletype = cabling_->findDetid(detid).getModuleType();
+      std::cout << "id : " << detid << " type: " << moduletype << std::endl; 
       // container for digis, to be sorted afterwards
       std::vector<stackedDigi> digs_mod;
+      edmNew::DetSet<SiPixelCluster>::const_iterator it;
+      int ns = 0; 
+      int np = 0;
       // pair modules if there are digis for both
       if(stackMap_[idigi->detId()] > 0)
       {
@@ -112,20 +111,20 @@ namespace Phase2Tracker
           if (moduletype == 0)
           {
             // 2S module
-            edmNew::DetSet<SiPixelCluster>::const_iterator it;
             for (it = idigi->begin(); it != idigi->end(); it++)
             {
-              // associate with odd strip number
               digs_mod.push_back(stackedDigi(it,LAYER_INNER,moduletype));
             }
             idigi++;
             for (it = idigi->begin(); it != idigi->end(); it++)
             {
-              // associate with even strip number
-              digs_mod.push_back(stackedDigi(it,LAYER_INNER,moduletype));
+              digs_mod.push_back(stackedDigi(it,LAYER_OUTER,moduletype));
             }
             // do not overflow max number of clusters
-            if((int)digs_mod.size() > MAX_NS) { digs_mod.resize(MAX_NS); }
+            if((int)digs_mod.size() > MAX_NS) 
+            { 
+              digs_mod.resize(MAX_NS); 
+            }
             writeFeHeaderSparsified(fedbuffer,bitindex,moduletype,0,digs_mod.size());
           }
           else
@@ -134,7 +133,6 @@ namespace Phase2Tracker
             np = idigi->size();
             ns = (idigi+1)->size();
             writeFeHeaderSparsified(fedbuffer,bitindex,moduletype,np,ns);
-            edmNew::DetSet<SiPixelCluster>::const_iterator it;
             for (it = idigi->begin(); it != idigi->end() and std::distance(idigi->begin(),it) < MAX_NP; it++)
             {
               digs_mod.push_back(stackedDigi(it,LAYER_INNER,moduletype));
@@ -157,7 +155,6 @@ namespace Phase2Tracker
           {
             writeFeHeaderSparsified(fedbuffer,bitindex,moduletype,idigi->size(),0);
           }
-          edmNew::DetSet<SiPixelCluster>::const_iterator it;
           for (it = idigi->begin(); it != idigi->end() and std::distance(idigi->begin(),it) < MAX_NP; it++)
           {
             digs_mod.push_back(stackedDigi(it,LAYER_INNER,moduletype));
@@ -168,7 +165,6 @@ namespace Phase2Tracker
       {
         // digis from outer plane (S in case of PS) 
         writeFeHeaderSparsified(fedbuffer,bitindex,moduletype,0,idigi->size());
-        edmNew::DetSet<SiPixelCluster>::const_iterator it;
         for (it = idigi->begin(); it != idigi->end() and std::distance(idigi->begin(),it) < MAX_NS; it++)
         {
           digs_mod.push_back(stackedDigi(it,LAYER_OUTER,moduletype));
