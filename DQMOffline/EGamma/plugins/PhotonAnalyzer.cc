@@ -72,33 +72,10 @@ void PhotonAnalyzer::bookHistograms(DQMStore::IBooker & iBooker,
                                     edm::Run const & /* iRun */,
                                     edm::EventSetup const & /* iSetup */)
 {
-  bookHistogramsForHistogramCounts(iBooker);
-
   bookHistogramsEfficiency(iBooker);
   bookHistogramsInvMass(iBooker);
   bookHistogramsPhotons(iBooker);
   bookHistogramsConversions(iBooker);
-
-  fillHistogramsForHistogramCounts(iBooker);
-}
-
-void PhotonAnalyzer::bookHistogramsForHistogramCounts(DQMStore::IBooker & iBooker)
-{
-  iBooker.setCurrentFolder("Egamma/"+fName_+"/");
-  // Int values stored in MEs to keep track of how many histograms are in each folder
-  totalNumberOfHistos_efficiencyFolder =  iBooker.bookInt("numberOfHistogramsInEfficiencyFolder");
-  totalNumberOfHistos_invMassFolder =     iBooker.bookInt("numberOfHistogramsInInvMassFolder");
-  totalNumberOfHistos_photonsFolder =     iBooker.bookInt("numberOfHistogramsInPhotonsFolder");
-  totalNumberOfHistos_conversionsFolder = iBooker.bookInt("numberOfHistogramsInConversionsFolder");
-}
-
-void PhotonAnalyzer::fillHistogramsForHistogramCounts(DQMStore::IBooker & iBooker)
-{
-  iBooker.setCurrentFolder("Egamma/"+fName_+"/");
-  totalNumberOfHistos_efficiencyFolder->Fill(histo_index_efficiency_);
-  totalNumberOfHistos_invMassFolder->Fill(histo_index_invMass_);
-  totalNumberOfHistos_photonsFolder->Fill(histo_index_photons_);
-  totalNumberOfHistos_conversionsFolder->Fill(histo_index_conversions_);
 }
 
 void PhotonAnalyzer::bookHistogramsEfficiency(DQMStore::IBooker & iBooker)
