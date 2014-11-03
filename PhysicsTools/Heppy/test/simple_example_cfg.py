@@ -1,49 +1,37 @@
 import os
 import PhysicsTools.HeppyCore.framework.config as cfg
+from PhysicsTools.Heppy.utils.miniAodFiles import miniAodFiles
 
 
 # input component 
 # several input components can be declared,
 # and added to the list of selected components
-inputSample = cfg.MCComponent(
+inputSample = cfg.Component(
     'test_component',
-    files = ['tt.root', 'tt_2.root'],
-    # tree_name = 'test_tree
-    triggers = [], 
-    xSection = 259, 
-    nGenEvents = 1, 
-    effCorrFactor = 1,
+    files = miniAodFiles(),
     )
-
-selectedComponents  = [inputSample]
+inputSample.isMC = True
 inputSample.splitFactor = 2 
 
-from PhysicsTools.Heppy.analyzers.core.JSONAnalyzer import JSONAnalyzer
-json = cfg.Analyzer(
-    JSONAnalyzer
+selectedComponents  = [inputSample]
+
+from PhysicsTools.Heppy.analyzers.examples.SimpleJetAnalyzer import SimpleJetAnalyzer
+jets = cfg.Analyzer(
+    SimpleJetAnalyzer,
+    ptmin = 30. 
     )
 
-from PhysicsTools.Heppy.analyzers.examples.JetAnalyzer import JetAnalyzer
-jets = cfg.Analyzer(
-    JetAnalyzer,
-    jetCol = 'slimmedJets',
-    # cmg jet input collection
-    # pt threshold
-    jetPt = 30,
-    # eta range definition
-    jetEta = 5.0,
-    # seed for the btag scale factor
-    # btagSFseed = 123456,
-    # if True, the PF and PU jet ID are not applied, and the jets get flagged
-    relaxJetId = False,
-    btagSFseed = 0xdeadbeef
+from PhysicsTools.Heppy.analyzers.examples.SimpleTreeAnalyzer import SimpleTreeAnalyzer
+tree = cfg.Analyzer(
+    SimpleTreeAnalyzer
     )
+
 
 # definition of a sequence of analyzers,
 # the analyzers will process each event in this order
 sequence = cfg.Sequence( [
-    json,
-    jets
+    jets,
+    tree
     ] )
 
 # finalization of the configuration object. 
@@ -52,4 +40,5 @@ config = cfg.Config( components = selectedComponents,
                      sequence = sequence, 
                      events_class = Events)
 
-print config 
+print config
+
