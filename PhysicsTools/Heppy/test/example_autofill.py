@@ -1,11 +1,8 @@
 #! /usr/bin/env python
 import ROOT
-from PhysicsTools.Heppy.analyzers  import * 
-from PhysicsTools.Heppy.physicsobjects import *
 import PhysicsTools.HeppyCore.framework.config as cfg
-from PhysicsTools.HeppyCore.framework.looper import * 
-from PhysicsTools.HeppyCore.framework.eventsfwlite import Events
 
+from PhysicsTools.Heppy.analyzers.core.AutoFillTreeProducer  import * 
 treeProducer= cfg.Analyzer(
 	class_object=AutoFillTreeProducer, 
 	verbose=False, 
@@ -31,31 +28,45 @@ treeProducer= cfg.Analyzer(
 
 	}
 	)
+
 # Lepton Analyzer, take its default config
+from PhysicsTools.Heppy.analyzers.objects.LeptonAnalyzer import LeptonAnalyzer
 LepAna = LeptonAnalyzer.defaultConfig
 #replace one parameter
 LepAna.loose_muon_pt = 10
 
+from PhysicsTools.Heppy.analyzers.objects.VertexAnalyzer import VertexAnalyzer
 VertexAna = VertexAnalyzer.defaultConfig
+
+from PhysicsTools.Heppy.analyzers.objects.PhotonAnalyzer import PhotonAnalyzer
 PhoAna = PhotonAnalyzer.defaultConfig
+
+from PhysicsTools.Heppy.analyzers.objects.TauAnalyzer import TauAnalyzer
 TauAna = TauAnalyzer.defaultConfig
+
+from PhysicsTools.Heppy.analyzers.objects.JetAnalyzer import JetAnalyzer
 JetAna = JetAnalyzer.defaultConfig
 
 sequence = [VertexAna,LepAna,TauAna,PhoAna,JetAna,treeProducer]
+
+
+from PhysicsTools.Heppy.utils.miniAodFiles import miniAodFiles
 sample = cfg.Component(
     # files = "/scratch/arizzi/heppy/CMSSW_7_2_0_pre8/src/PhysicsTools/Heppy/test/E21AD523-E548-E411-8DF6-00261894388F.root", 
-    files = 'tt.root',
+    files = miniAodFiles(),
     name="ATEST", isMC=False,isEmbed=False
     )
 
 # the following is declared in case this cfg is used in input to the heppy.py script
 selectedComponents = [sample]
+from PhysicsTools.HeppyCore.framework.eventsfwlite import Events
 config = cfg.Config( components = selectedComponents,
                      sequence = sequence, 
                      events_class = Events)
 
 # and the following runs the process directly 
 if __name__ == '__main__':
+    from PhysicsTools.HeppyCore.framework.looper import Looper 
     looper = Looper( 'Loop', sample, sequence, Events, nPrint = 5)
     looper.loop()
     looper.write()
