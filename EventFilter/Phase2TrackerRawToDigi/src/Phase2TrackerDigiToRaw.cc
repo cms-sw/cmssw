@@ -56,10 +56,7 @@ namespace Phase2Tracker
         }
       }
       // save buffer
-      std::cout << "XCHECK: saving buffer " << fedid << std::endl;
-      // save FE status
       FedHeader_.setFrontendStatus(festatus);
-      festatus.assign(72,false);
       // write digis to buffer
       std::vector<uint64_t> fedbuffer = makeBuffer(digis_t);
       FEDRawData& frd = rcollection->FEDData(fedid);
@@ -68,6 +65,7 @@ namespace Phase2Tracker
       vec_to_array(fedbuffer,arrtemp);
       frd.resize(size);
       memcpy(frd.data(),arrtemp,size);
+      festatus.assign(72,false);
       digis_t.clear();
       // advance connections pointer
       iconn = icon2;
@@ -95,7 +93,6 @@ namespace Phase2Tracker
       int detid = idigi->detId();
       if(stackMap_[detid] < 0) { detid = - stackMap_[detid]; }
       moduletype = cabling_->findDetid(detid).getModuleType();
-      std::cout << "id : " << detid << " type: " << moduletype << std::endl; 
       // container for digis, to be sorted afterwards
       std::vector<stackedDigi> digs_mod;
       edmNew::DetSet<SiPixelCluster>::const_iterator it;
@@ -232,7 +229,6 @@ namespace Phase2Tracker
 
   void Phase2TrackerDigiToRaw::writeSCluster(std::vector<uint64_t> & buffer, uint64_t & bitpointer, stackedDigi digi)
   {
-    std::cout << "S " << digi.getLayer() << " digi x= " <<digi.getDigi()->minPixelRow()<< " chip: " << digi.getChipId() << " raw strip: " << digi.getRawX() << std::endl;
     uint16_t scluster = (digi.getChipId() & 0x0F) << 11;
     scluster |= (digi.getRawX() & 0xFF) << 3;
     scluster |= ((digi.getDigi()->sizeX()-1) & 0x07);
@@ -242,7 +238,6 @@ namespace Phase2Tracker
 
   void Phase2TrackerDigiToRaw::writePCluster(std::vector<uint64_t> & buffer, uint64_t & bitpointer, stackedDigi digi)
   {
-    std::cout << "P digi x= " <<digi.getDigi()->minPixelRow()<< " chip: " << digi.getChipId() << " raw strip: " << digi.getRawX() << std::endl;
     uint32_t pcluster = (digi.getChipId() & 0x0F) << 14;
     pcluster |= (digi.getRawX() & 0x7F) << 7;
     pcluster |= (digi.getRawY() & 0x0F) << 3;

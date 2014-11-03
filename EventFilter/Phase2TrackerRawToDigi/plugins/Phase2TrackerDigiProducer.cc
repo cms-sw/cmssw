@@ -117,7 +117,6 @@ namespace Phase2Tracker {
       const FEDRawData& fed = buffers->FEDData(*fedIndex);
       if(fed.size()!=0)
       {
-        std::cout << *fedIndex << "====================================" << std::endl;
 	// construct buffer
 	Phase2Tracker:: Phase2TrackerFEDBuffer* buffer = 0;
 	buffer = new Phase2Tracker::Phase2TrackerFEDBuffer(fed.data(),fed.size());
@@ -257,7 +256,6 @@ namespace Phase2Tracker {
             // get fedid from cabling
             const Phase2TrackerModule mod = cabling_->findFedCh(std::make_pair(*fedIndex, ife));
             uint32_t detid = mod.getDetid();
-            std::cout << "id : " << detid << " FE : " << ife << std::endl;
             // container for this module's digis
             std::vector<SiPixelCluster> clustersTop;
             std::vector<SiPixelCluster> clustersBottom;
@@ -282,7 +280,6 @@ namespace Phase2Tracker {
                     ss << dec << "Son2S cluster at position: " << (int)unpacker.clusterIndex() << " with size: " << (int)unpacker.clusterSize() << endl;
                     #endif
                     std::map<std::string,int> rawxy = stripFromRaw(icbc,channel.dettype(),(int)unpacker.clusterIndex());
-                    std::cout << std::dec << "Son2S " << rawxy["x"] << std::endl;
                     if (unpacker.clusterIndex()%2) 
                     {
 		      clustersTop.push_back(makeSiPixelCluster(rawxy["x"],unpacker.clusterSize(),rawxy["y"]));
@@ -303,7 +300,6 @@ namespace Phase2Tracker {
                     ss << dec << "SonPS cluster at position: " << (int)unpacker.clusterIndex() << " with size: " << (int)unpacker.clusterSize() << endl;
                     #endif
                     std::map<std::string,int> rawxy = stripFromRaw(icbc,channel.dettype(),(int)unpacker.clusterIndex());
-                    std::cout << "SonPS " << rawxy["x"] << std::endl;
                     clustersTop.push_back(makeSiPixelCluster(rawxy["x"],unpacker.clusterSize(),rawxy["y"]));
                     unpacker++;
                   }
@@ -317,7 +313,6 @@ namespace Phase2Tracker {
                     ss << dec << "PonPS cluster at position: " << (int)unpacker.clusterIndex() <<" , "<<  (int)unpacker.clusterZpos() << " with size: " << (int)unpacker.clusterSize() << endl;
                     #endif
                     std::map<std::string,int> rawxy = stripFromRaw(icbc,channel.dettype(),(int)unpacker.clusterIndex(),(int)unpacker.clusterZpos());
-                    std::cout << "PonPS " << rawxy["x"] << std::endl;
                     clustersBottom.push_back(makeSiPixelCluster(rawxy["x"],unpacker.clusterSize(),rawxy["y"]));
                     unpacker++;
                   }

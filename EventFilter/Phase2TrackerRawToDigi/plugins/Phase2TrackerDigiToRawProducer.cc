@@ -59,8 +59,9 @@ namespace Phase2Tracker {
     edm::ESHandle<StackedTrackerGeometry>  StackedGeometryHandle;
     es.get<StackedTrackerGeometryRecord>().get(StackedGeometryHandle);
     const StackedTrackerGeometry * stackedGeometry = StackedGeometryHandle.product();
+    const std::vector< StackedTrackerDetUnit* > stacks = stackedGeometry->stacks();
     int id1, id2;
-    for (auto stk = stackedGeometry->stacks().begin(); stk != stackedGeometry->stacks().end(); ++stk)
+    for (auto stk = stacks.begin(); stk != stacks.end(); ++stk)
     {
       StackedTrackerDetUnit* stackDetUnit = (*stk);
       id1 = stackDetUnit->stackMember(0);

@@ -180,15 +180,15 @@ namespace Phase2Tracker
     for(sti=status.begin();sti<status.end();sti++)
     {
       if(*sti)
-        {
+      {
         index = (sti-status.begin());
         if(index<8)
         {
-          fe_status_0 |= 1LL<<(7-index);
+          fe_status_0 |= 1LL<<(index);
         }
         else
         {
-          fe_status_1 |= 1LL<<(63-index+8);
+          fe_status_1 |= 1LL<<(index-8);
         }
       }
     }
