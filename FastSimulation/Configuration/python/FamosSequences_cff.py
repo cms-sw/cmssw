@@ -19,6 +19,9 @@ from FastSimulation.TrackingRecHitProducer.SiTrackerGaussianSmearingRecHitConver
 # Rec Hit Tranlator to the Full map with DeTId'
 from FastSimulation.TrackingRecHitProducer.TrackingRecHitTranslator_cfi import *
 
+#FillSchemeInfoProducer
+from RecoLuminosity.LumiProducer.fillSchemeInfoProducer_cfi import *
+
 # CTF and Iterative tracking (contains pixelTracks and pixelVertices)
 
 # 1) Common algorithms and configuration taken from full reconstruction
@@ -423,6 +426,7 @@ if(CaloMode==3):
     if(MixingMode=='GenMixing'):
         reconstructionWithFamos = cms.Sequence(
             digitizationSequence+ # temporary; repetition!
+            fillSchemeInfo+
             trackVertexReco+
             caloTowersSequence+
             particleFlowCluster+
@@ -450,6 +454,7 @@ if(CaloMode==3):
             )
     elif(MixingMode=='DigiRecoMixing'):
         reconstructionWithFamos = cms.Sequence(
+            fillSchemeInfo+
             caloTowersSequence+
             particleFlowCluster+
             ecalClusters+
@@ -478,6 +483,7 @@ if(CaloMode==3):
         print 'unsupported MixingMode label'
 else:
     reconstructionWithFamos = cms.Sequence(
+        fillSchemeInfo+
         trackVertexReco+
         caloTowersSequence+
         particleFlowCluster+
@@ -729,6 +735,7 @@ simulationWithFamos = cms.Sequence(
 
 
 reconstructionWithFamosNoTk = cms.Sequence(
+    fillSchemeInfo+
     vertexreco+
     caloTowersSequence+
     particleFlowCluster+
