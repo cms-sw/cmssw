@@ -8,10 +8,16 @@
 
 #include "RecoJets/JetProducers/plugins/VirtualJetProducer.h"
 
+#include <fastjet/tools/Transformer.hh>
+
 class FastjetJetProducer : public VirtualJetProducer
 {
 
 public:
+  // typedefs
+  typedef fastjet::Transformer         transformer;
+  typedef std::unique_ptr<transformer> transformer_ptr;
+  typedef std::vector<transformer_ptr> transformer_coll;
   //
   // construction/destruction
   //
@@ -46,6 +52,7 @@ protected:
   bool useTrimming_;          /// Jet trimming technique
   bool usePruning_;           /// Jet pruning technique
   bool useCMSBoostedTauSeedingAlgorithm_; /// algorithm for seeding reconstruction of boosted Taus (similar to mass-drop tagging)
+  bool useConstituentSubtraction_; /// constituent subtraction technique
   double muCut_;              /// for mass-drop tagging, m0/mjet (m0 = mass of highest mass subjet)
   double yCut_;               /// for mass-drop tagging, symmetry cut: min(pt1^2,pt2^2) * dR(1,2) / mjet > ycut
   double rFilt_;              /// for filtering, trimming: dR scale of sub-clustering
@@ -53,6 +60,8 @@ protected:
   double trimPtFracMin_;      /// for trimming: constituent minimum pt fraction of full jet
   double zCut_;               /// for pruning: constituent minimum pt fraction of parent cluster
   double RcutFactor_;         /// for pruning: constituent dR * pt/2m < rcut_factor
+  double csRho_EtaMax_;       /// for constituent subtraction : maximum rapidity for ghosts
+  double csRParam_;           /// for constituent subtraction : R parameter for KT alg in jet median background estimator
 
   double subjetPtMin_;        /// for CMSBoostedTauSeedingAlgorithm : subjet pt min
   double muMin_;              /// for CMSBoostedTauSeedingAlgorithm : min mass-drop
