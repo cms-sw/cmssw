@@ -22,6 +22,7 @@
 
 #include "TClass.h"
 #include "TClassTable.h"
+#include "TEnum.h"
 #include "TInterpreter.h"
 #include "TROOT.h"
 
@@ -36,7 +37,11 @@ static
 bool
 rootTypeSystemLookupClass(const std::string& name)
 {
-  return TClassTable::GetDict(name.c_str());
+  bool found = TClassTable::GetDict(name.c_str()) != nullptr;
+  if (!found) {
+    found = TEnum::GetEnum(name.c_str(), TEnum::kNone) != nullptr;
+  }
+  return found;
 }
 
 /// Use the SEAL Capabilities plugin to load a library which
