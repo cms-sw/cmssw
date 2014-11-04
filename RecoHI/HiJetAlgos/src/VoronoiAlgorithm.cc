@@ -1,4 +1,5 @@
 #include "RecoHI/HiJetAlgos/interface/VoronoiAlgorithm.h"
+#include "DataFormats/Math/interface/normalizedPhi.h"
 
 extern "C" {
 
@@ -846,7 +847,7 @@ namespace {
 		static const double two_pi_0 = 6.2831853071795649157;
 		static const double two_pi_1 = 2.1561211432631314669e-14;
 		static const double two_pi_2 = 1.1615423895917441336e-27;
-		double ret;
+		double ret = 0;
 
 		if (x >= -cody_waite_x_max && x <= cody_waite_x_max) {
 			static const double inverse_two_pi =
@@ -856,11 +857,7 @@ namespace {
 				k * two_pi_2;
 		}
 		else {
-			long double sin_x;
-			long double cos_x;
-
-			sincosl(x, &sin_x, &cos_x);
-			ret = (double)atan2l(sin_x, cos_x);
+			ret = normalizedPhi(ret);
 		}
 		if (ret == -M_PI) {
 			ret = M_PI;
