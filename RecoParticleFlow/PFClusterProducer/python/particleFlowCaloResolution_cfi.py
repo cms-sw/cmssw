@@ -22,13 +22,13 @@ _timeResolutionECALEndcap = cms.PSet(
   )
 
 _timeResolutionHCAL = cms.PSet(
-    noiseTerm = cms.double(15.92),
-    constantTerm = cms.double(2.59),
-    noiseTermLowE = cms.double(3.313),
+    noiseTerm = cms.double(8.64),
+    constantTerm = cms.double(1.92),
+    noiseTermLowE = cms.double(0.0),
     corrTermLowE = cms.double(0.0),
-    constantTermLowE = cms.double(4.088),
-    threshLowE = cms.double(5.0),
-    threshHighE = cms.double(20.0)
+    constantTermLowE = cms.double(6.0),
+    threshLowE = cms.double(2.0),
+    threshHighE = cms.double(8.0)
   )
 
 _timeResolutionHCALMaxSample = cms.PSet(

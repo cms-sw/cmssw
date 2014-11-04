@@ -36,7 +36,7 @@ particleFlowClusterHBHE = cms.EDProducer(
     ),
     
     pfClusterBuilder = cms.PSet(
-           algoName = cms.string("PFlow2DClusterizerWithTime"),
+           algoName = cms.string("Basic2DGenericPFlowClusterizer"),
            #pf clustering parameters
            minFractionToKeep = cms.double(1e-7),
            positionCalc = cms.PSet(
