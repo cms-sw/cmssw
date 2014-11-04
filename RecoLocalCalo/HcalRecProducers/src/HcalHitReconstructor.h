@@ -110,6 +110,8 @@ class HcalTopology;
 
       HcalRecoParams* paramTS;  // firstSample & sampleToAdd from DB  
       std::unique_ptr<HcalFlagHFDigiTimeParams> HFDigiTimeParams; // HF DigiTime parameters
+
+      int puCorrMethod_;
     };
 
 #endif
