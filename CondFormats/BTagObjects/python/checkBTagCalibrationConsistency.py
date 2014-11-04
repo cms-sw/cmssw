@@ -11,9 +11,6 @@ check_sys = True
 
 
 class BtagCalibConsistencyChecker(unittest.TestCase):
-    def __init__(self, *args, **kws):
-        super(BtagCalibConsistencyChecker, self).__init__(*args, **kws)
-
     def test_ops_tight(self):
         if check_op:
             self.assertIn(0, data.ops, "OP_TIGHT is missing")
