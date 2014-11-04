@@ -144,9 +144,8 @@ AlignmentErrorsExtended* AlignableBeamSpot::alignmentErrors( void ) const
   // Add associated alignment position error
   uint32_t detId = theId;
   CLHEP::HepSymMatrix clhepSymMatrix(6,0);
-  //FIMXE to be fixed
-  //if ( theAlignmentPositionError ) // Might not be set
-  //  clhepSymMatrix = asHepMatrix(theAlignmentPositionError->globalError().matrix());
+  if ( theAlignmentPositionError ) // Might not be set
+    clhepSymMatrix = asHepMatrix(theAlignmentPositionError->globalError().matrix());
   AlignTransformErrorExtended transformError( clhepSymMatrix, detId );
   m_alignmentErrors->m_alignError.push_back( transformError );
   
