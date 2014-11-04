@@ -91,7 +91,7 @@ class PiZeroAnalyzer : public DQMEDAnalyzer
 
   int nEvt_;
 
-  edm::ParameterSet parameters_;
+  edm::ParameterSet posCalcParameters_;
 
   edm::EDGetTokenT<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > barrelEcalHits_token_;
   edm::EDGetTokenT<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > endcapEcalHits_token_;

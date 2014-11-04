@@ -25,6 +25,8 @@ PiZeroAnalyzer::PiZeroAnalyzer( const edm::ParameterSet& pset )
   barrelEcalHits_token_ = consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(pset.getParameter<edm::InputTag>("barrelEcalHits"));
   endcapEcalHits_token_ = consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(pset.getParameter<edm::InputTag>("endcapEcalHits"));
 
+  nEvt_=0;
+
   // parameters for Pizero finding
   seleXtalMinEnergy_    = pset.getParameter<double> ("seleXtalMinEnergy");
   clusSeedThr_          = pset.getParameter<double> ("clusSeedThr");
@@ -46,9 +48,7 @@ PiZeroAnalyzer::PiZeroAnalyzer( const edm::ParameterSet& pset )
   seleMinvMaxPi0_       = pset.getParameter<double> ("seleMinvMaxPi0");
   seleMinvMinPi0_       = pset.getParameter<double> ("seleMinvMinPi0");
 
-  parameters_ = pset;
-  
-  nEvt_=0;
+  posCalcParameters_    = pset.getParameter<edm::ParameterSet>("posCalcParameters");
 }
 
 PiZeroAnalyzer::~PiZeroAnalyzer() {
@@ -123,9 +123,7 @@ void PiZeroAnalyzer::makePizero(const edm::EventSetup& es, const edm::Handle<Eca
   geometryES_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
 
   // Parameters for the position calculation:
-  edm::ParameterSet posCalcParameters =
-    parameters_.getParameter<edm::ParameterSet>("posCalcParameters");
-  PositionCalc posCalculator_ = PositionCalc(posCalcParameters);
+  PositionCalc posCalculator_ = PositionCalc(posCalcParameters_);
   //
   std::map<DetId, EcalRecHit> recHitsEB_map;
   //

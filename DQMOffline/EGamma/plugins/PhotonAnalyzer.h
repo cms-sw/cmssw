@@ -170,8 +170,6 @@ class PhotonAnalyzer : public DQMEDAnalyzer
   int isolationStrength_; 
 
   bool isHeavyIon_;
-
-  edm::ParameterSet parameters_;
            
   ////////
 
@@ -189,6 +187,80 @@ class PhotonAnalyzer : public DQMEDAnalyzer
   std::vector<std::string> parts_;
 
   //////////
+  
+  // Histogram parameters
+  int    etaBin_;
+  double etaMin_;
+  double etaMax_;
+  
+  int    etBin_;
+  double etMin_;
+  double etMax_;
+
+  int    phiBin_;
+  double phiMin_;
+  double phiMax_;
+
+  int    eBin_;
+  double eMin_;
+  double eMax_;
+
+  int    numberBin_;
+  double numberMin_;
+  double numberMax_;
+
+  int    r9Bin_;
+  double r9Min_;
+  double r9Max_;
+
+  int    sigmaIetaBin_;
+  double sigmaIetaMin_;
+  double sigmaIetaMax_;
+
+  int    sumBin_;
+  double sumMin_;
+  double sumMax_;
+  
+  int    hOverEBin_;
+  double hOverEMin_;
+  double hOverEMax_;
+
+  int    eOverPBin_;
+  double eOverPMin_;
+  double eOverPMax_;
+
+  int    dPhiTracksBin_;
+  double dPhiTracksMin_;
+  double dPhiTracksMax_;
+  
+  int    dEtaTracksBin_;
+  double dEtaTracksMin_;
+  double dEtaTracksMax_;
+
+  int    chi2Bin_;
+  double chi2Min_;
+  double chi2Max_;
+
+  int    zBin_;
+  double zMin_;
+  double zMax_;
+
+  int    rBin_;
+  double rMin_;
+  double rMax_;
+
+  int    xBin_;
+  double xMin_;
+  double xMax_;
+
+  int    yBin_;
+  double yMin_;
+  double yMax_;
+
+  int reducedEtBin_;
+  int reducedEtaBin_;
+  int reducedR9Bin_;
+  int reducedSumBin_;
 
   MonitorElement* h_nRecoVtx_;
 

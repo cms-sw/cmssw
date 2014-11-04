@@ -122,7 +122,6 @@ class ZToMuMuGammaAnalyzer : public DQMEDAnalyzer
   bool use2DHistos_;
   bool makeProfiles_;
   unsigned int prescaleFactor_;
-  edm::ParameterSet parameters_;
   std::stringstream currentFolder_;
   int nEvt_;
 
@@ -152,6 +151,48 @@ class ZToMuMuGammaAnalyzer : public DQMEDAnalyzer
   float farMuonMinPt_;
   float minMumuGammaInvMass_;
   float maxMumuGammaInvMass_;
+
+  // Histogram parameters
+  double eMin_;
+  double eMax_;
+  int    eBin_;
+
+  double etMin_;
+  double etMax_;
+  int    etBin_;
+
+  double sumMin_;
+  double sumMax_;
+  int    sumBin_;
+
+  double etaMin_;
+  double etaMax_;
+  int    etaBin_;
+
+  double phiMin_;
+  double phiMax_;
+  int    phiBin_;
+
+  double r9Min_;
+  double r9Max_;
+  int    r9Bin_;
+
+  double hOverEMin_;
+  double hOverEMax_;
+  int    hOverEBin_;
+
+  double numberMin_;
+  double numberMax_;
+  int    numberBin_;
+
+  double sigmaIetaMin_;
+  double sigmaIetaMax_;
+  int    sigmaIetaBin_;
+
+  int reducedEtBin_;
+  int reducedEtaBin_;
+  int reducedSumBin_;
+  int reducedR9Bin_;
 
   float mumuInvMass( const reco::Muon & m1,const reco::Muon & m2 ) ;
   float mumuGammaInvMass(const reco::Muon & mu1,const reco::Muon & mu2, const reco::PhotonRef& pho );
