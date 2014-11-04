@@ -20,9 +20,9 @@ from RecoTracker.IterativeTracking.DetachedTripletStep_cff import *
 
 # NEW CLUSTERS (remove previously used clusters)
 hiRegitMuDetachedTripletStepClusters = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepClusters.clone(
-    oldClusterRemovalInfo = cms.InputTag("hiRegitMuPixelPairStepClusters"),
-    trajectories          = cms.InputTag("hiRegitMuPixelPairStepTracks"),
-    overrideTrkQuals      = cms.InputTag('hiRegitMuPixelPairStepSelector','hiRegitMuPixelPairStep'),
+    # oldClusterRemovalInfo = cms.InputTag("hiRegitMuInitialStepClusters"),
+    trajectories          = cms.InputTag("hiRegitMuInitialStepTracks"),
+    overrideTrkQuals      = cms.InputTag('hiRegitMuInitialStepSelector','hiRegitMuInitialStep'),
     TrackQuality          = cms.string('tight')
 )
 
@@ -59,7 +59,8 @@ hiRegitMuDetachedTripletStepTrajectoryBuilder = RecoTracker.IterativeTracking.De
 
 hiRegitMuDetachedTripletStepTrackCandidates        =  RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepTrackCandidates.clone(
     src               = cms.InputTag('hiRegitMuDetachedTripletStepSeeds'),
-    TrajectoryBuilder = 'hiRegitMuDetachedTripletStepTrajectoryBuilder'
+    TrajectoryBuilder = 'hiRegitMuDetachedTripletStepTrajectoryBuilder',
+    clustersToSkip = cms.InputTag("hiRegitMuDetachedTripletStepClusters")
     )
 
 # fitting: feed new-names
@@ -93,6 +94,7 @@ hiRegitMuDetachedTripletStepSelector               = RecoTracker.IterativeTracki
 
 
 hiRegitMuonDetachedTripletStep = cms.Sequence(hiRegitMuDetachedTripletStepClusters*
+                                              hiRegitMuDetachedTripletStepSeedLayers*
                                               hiRegitMuDetachedTripletStepSeeds*
                                               hiRegitMuDetachedTripletStepTrackCandidates*
                                               hiRegitMuDetachedTripletStepTracks*

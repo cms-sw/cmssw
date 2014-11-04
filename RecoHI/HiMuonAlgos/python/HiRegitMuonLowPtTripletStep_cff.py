@@ -17,8 +17,9 @@ from RecoTracker.IterativeTracking.LowPtTripletStep_cff import *
 
 # remove previously used clusters
 hiRegitMuLowPtTripletStepClusters = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepClusters.clone(
-    trajectories          = cms.InputTag("hiRegitMuInitialStepTracks"),
-    overrideTrkQuals      = cms.InputTag('hiRegitMuInitialStepSelector','hiRegitMuInitialStep'),
+    trajectories          = cms.InputTag("hiRegitMuDetachedTripletStepTracks"),
+    overrideTrkQuals      = cms.InputTag('hiRegitMuDetachedTripletStepSelector','hiRegitMuDetachedTripletStep'),
+    oldClusterRemovalInfo = cms.InputTag("hiRegitMuDetachedTripletStepClusters"),
     TrackQuality          = cms.string('tight')
 )
 
@@ -105,6 +106,7 @@ hiRegitMuLowPtTripletStepSelector               = RecoTracker.IterativeTracking.
 )
 
 hiRegitMuonLowPtTripletStep = cms.Sequence(hiRegitMuLowPtTripletStepClusters*
+                                           hiRegitMuLowPtTripletStepSeedLayers*
                                            hiRegitMuLowPtTripletStepSeeds*
                                            hiRegitMuLowPtTripletStepTrackCandidates*
                                            hiRegitMuLowPtTripletStepTracks*

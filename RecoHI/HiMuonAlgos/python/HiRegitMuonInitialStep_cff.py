@@ -15,9 +15,13 @@ HiTrackingRegionFactoryFromSTAMuonsBlock.MuonTrackingRegionBuilder.Eta_fixed    
 ###################################  
 from RecoTracker.IterativeTracking.InitialStep_cff import *
 
+# SEEDING LAYERS
+hiRegitMuInitialStepSeedLayers =  RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeedLayers.clone()
+
 # seeding
 hiRegitMuInitialStepSeeds     = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.clone()
 hiRegitMuInitialStepSeeds.RegionFactoryPSet                                           = HiTrackingRegionFactoryFromSTAMuonsBlock.clone()
+hiRegitMuInitialStepSeeds.OrderedHitsFactoryPSet.SeedingLayers                        = cms.InputTag("hiRegitMuInitialStepSeedLayers")
 hiRegitMuInitialStepSeeds.ClusterCheckPSet.doClusterCheck                             = False # do not check for max number of clusters pixel or strips
 hiRegitMuInitialStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.EscapePt        = 3.0
 hiRegitMuInitialStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaR          = 1 # default = 0.2
@@ -77,7 +81,8 @@ hiRegitMuInitialStepSelector               = RecoTracker.IterativeTracking.Initi
         ) #end of vpset
     )
 
-hiRegitMuonInitialStep = cms.Sequence(hiRegitMuInitialStepSeeds*
+hiRegitMuonInitialStep = cms.Sequence(hiRegitMuInitialStepSeedLayers*
+                                      hiRegitMuInitialStepSeeds*
                                       hiRegitMuInitialStepTrackCandidates*
                                       hiRegitMuInitialStepTracks*
                                       hiRegitMuInitialStepSelector)

@@ -69,6 +69,7 @@ hiRegitMuPixelPairStepTrajectoryBuilder = RecoTracker.IterativeTracking.PixelPai
 hiRegitMuPixelPairStepTrackCandidates        =  RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTrackCandidates.clone(
     src               = cms.InputTag('hiRegitMuPixelPairStepSeeds'),
     TrajectoryBuilder = 'hiRegitMuPixelPairStepTrajectoryBuilder',
+    clustersToSkip = cms.InputTag("hiRegitMuPixelPairStepClusters"),
     maxNSeeds         = cms.uint32(1000000)
     )
 
@@ -103,6 +104,7 @@ hiRegitMuPixelPairStepSelector               = RecoTracker.IterativeTracking.Pix
 )
 
 hiRegitMuonPixelPairStep = cms.Sequence(hiRegitMuPixelPairStepClusters*
+                                        hiRegitMuPixelPairStepSeedLayers*
                                         hiRegitMuPixelPairStepSeeds*
                                         hiRegitMuPixelPairStepTrackCandidates*
                                         hiRegitMuPixelPairStepTracks*

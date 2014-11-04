@@ -129,6 +129,10 @@ hiRegitMuTobTecStepSelector               = RecoTracker.IterativeTracking.TobTec
 )
 
 hiRegitMuonTobTecStep = cms.Sequence(hiRegitMuTobTecStepClusters*
+                                     hiRegitMuTobTecStepSeedLayersTripl*
+                                     hiRegitMuTobTecStepSeedsTripl*
+                                     hiRegitMuTobTecStepSeedLayersPair*
+                                     hiRegitMuTobTecStepSeedsPair*
                                      hiRegitMuTobTecStepSeeds*
                                      hiRegitMuTobTecStepTrackCandidates*
                                      hiRegitMuTobTecStepTracks*
