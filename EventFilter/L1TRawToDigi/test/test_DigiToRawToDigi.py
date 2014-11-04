@@ -25,7 +25,8 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source(
         "PoolSource",
         # fileNames = cms.untracked.vstring("file:L1T_EDM.root")
-        fileNames = cms.untracked.vstring("file:SimL1Emulator_Stage1_SimpleHW.root")
+        # fileNames = cms.untracked.vstring("file:SimL1Emulator_Stage1_SimpleHW.root")
+        fileNames = cms.untracked.vstring("file:SimL1Emulator_Stage1_PP.root")
 )
 
 
