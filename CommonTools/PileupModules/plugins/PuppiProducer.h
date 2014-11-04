@@ -5,7 +5,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -16,7 +16,7 @@
 #include "CommonTools/PileupModules/interface/PuppiContainer.h"
 
 // ------------------------------------------------------------------------------------------
-class PuppiProducer : public edm::EDProducer {
+class PuppiProducer : public edm::stream::EDProducer<> {
 
 public:
 	explicit PuppiProducer(const edm::ParameterSet&);
@@ -24,6 +24,12 @@ public:
 
 	static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 	typedef math::XYZTLorentzVector LorentzVector;
+	typedef std::vector<LorentzVector> LorentzVectorCollection;
+	typedef reco::VertexCollection VertexCollection;
+	typedef edm::View<reco::Candidate> CandidateView;
+	typedef std::vector< reco::PFCandidate >               PFInputCollection;
+	typedef std::vector< reco::PFCandidate >  PFOutputCollection;
+	typedef edm::View<reco::PFCandidate>                   PFView;
 
 private:
 	virtual void beginJob() ;
@@ -35,16 +41,17 @@ private:
 	virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
 	virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
 	reco::PFCandidate::ParticleType translatePdgIdToType(int pdgid) const;
-        
-	  edm::InputTag fPFCands;
-        edm::InputTag fVertices;
+
+
+	edm::EDGetTokenT< CandidateView > tokenPFCandidates_;
+	edm::EDGetTokenT< VertexCollection > tokenVertices_;
 	std::string     fPuppiName;
 	std::string     fPFName;	
 	std::string     fPVName;
 	bool            fUseDZ;
         float           fDZCut;
-        PuppiContainer *fPuppiContainer;
+	std::unique_ptr<PuppiContainer> fPuppiContainer;
 	std::vector<RecoObj> fRecoObjCollection;
-        std::auto_ptr< reco::PFCandidateCollection >          fPuppiCandidates;
+        std::auto_ptr< PFOutputCollection >          fPuppiCandidates;
 };
 #endif
