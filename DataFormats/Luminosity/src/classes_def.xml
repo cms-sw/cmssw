@@ -17,7 +17,7 @@
    <version ClassVersion="10" checksum="4234044727"/>
   </class>
   <class name="BeamCurrentInfo" ClassVersion="10">
-   <version ClassVersion="10" checksum="1707145233"/>
+   <version ClassVersion="10" checksum="1651276771"/>
   </class>
   <class name="LumiSummary::HLT" ClassVersion="11">
    <version ClassVersion="11" checksum="4065059464"/>

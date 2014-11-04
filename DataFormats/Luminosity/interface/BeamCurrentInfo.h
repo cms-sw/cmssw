@@ -20,14 +20,13 @@
 // libminifloat. The beamIntensitiesUnpacked variables contain the expanded
 // float versions, and the beamIntensitiesPacked variables contain the
 // 16-bit versions. The intensities are also divided by 1e10 during packing
-// so that the values are near 1 (this is not strictly necessary since the
-// values are still ~1e11 and so within the limit of precision, but this
-// should keep us safer).
+// so that the values are near 1, to avoid running into the limits of
+// this packing.
 
 #include <vector>
 #include <iosfwd>
 #include <string>
-#include "DataFormats/PatCandidates/interface/libminifloat.h"
+#include <stdint.h>
 
 class BeamCurrentInfo {
  public:
@@ -39,8 +38,8 @@ class BeamCurrentInfo {
   BeamCurrentInfo() {
     beam1IntensitiesUnpacked_.assign(numBX_, 0.0);
     beam2IntensitiesUnpacked_.assign(numBX_, 0.0);
-    beam1IntensitiesPacked_.assign(numBX_, 0.0);
-    beam2IntensitiesPacked_.assign(numBX_, 0.0);
+    beam1IntensitiesPacked_.assign(numBX_, 0);
+    beam2IntensitiesPacked_.assign(numBX_, 0);
     unpackedReady_ = true;
   } 
   
@@ -49,6 +48,7 @@ class BeamCurrentInfo {
                   const std::vector<float>& beam2Intensities) {
     beam1IntensitiesUnpacked_.assign(beam1Intensities.begin(), beam1Intensities.end());
     beam2IntensitiesUnpacked_.assign(beam2Intensities.begin(), beam2Intensities.end());
+    unpackedReady_ = true;
     packData();
   }
   
@@ -61,6 +61,10 @@ class BeamCurrentInfo {
   float getBeam2IntensityBX(int bx) const;
   const std::vector<float>& getBeam2Intensities() const;
 
+  // Get packed intensities. Only use this if you really know that this is what you want!
+  const std::vector<uint16_t>& getBeam1IntensitiesPacked() const { return beam1IntensitiesPacked_; }
+  const std::vector<uint16_t>& getBeam2IntensitiesPacked() const { return beam2IntensitiesPacked_; }
+  
   bool isProductEqual(BeamCurrentInfo const& next) const;
 
   //
@@ -75,13 +79,13 @@ class BeamCurrentInfo {
 	    const std::vector<float>& beam2Intensities);
   
  private:
-  mutable std::vector<uint16_t> beam1IntensitiesPacked_;
-  mutable std::vector<uint16_t> beam2IntensitiesPacked_;
-  std::vector<float> beam1IntensitiesUnpacked_;
-  std::vector<float> beam2IntensitiesUnpacked_;
+  std::vector<uint16_t> beam1IntensitiesPacked_;
+  std::vector<uint16_t> beam2IntensitiesPacked_;
+  mutable std::vector<float> beam1IntensitiesUnpacked_;
+  mutable std::vector<float> beam2IntensitiesUnpacked_;
   void packData(void);
-  void unpackData(void);
-  bool unpackedReady_;
+  void unpackData(void) const;
+  mutable bool unpackedReady_;
 }; 
 
 std::ostream& operator<<(std::ostream& s, const BeamCurrentInfo& beamInfo);
