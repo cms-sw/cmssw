@@ -54,6 +54,7 @@ class SiPixelTrackResidualSource : public thread_unsafe::DQMEDAnalyzer {
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
     void triplets(double x1,double y1,double z1,double x2,double y2,double z2,double x3,double y3,double z3,
                   double ptsig, double & dc,double & dz, double kap); 
+    std::string topFolderName_;
   private: 
     edm::ParameterSet pSet_; 
     edm::InputTag src_; 

@@ -68,6 +68,8 @@ SiPixelDigiSource::SiPixelDigiSource(const edm::ParameterSet& iConfig) :
    //set Token(-s)
    srcToken_ = consumes<edm::DetSetVector<PixelDigi> >(conf_.getParameter<edm::InputTag>( "src" ));
 
+   topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
+
    firstRun = true;  
    // find a FED# for the current detId:
    ifstream infile(edm::FileInPath("DQM/SiPixelMonitorClient/test/detId.dat").fullPath().c_str(),ios::in);
@@ -652,7 +654,7 @@ void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup){
 void SiPixelDigiSource::bookMEs(DQMStore::IBooker & iBooker){
   
   // Get DQM interface
-  iBooker.setCurrentFolder("Pixel");
+  iBooker.setCurrentFolder(topFolderName_);
   char title[80];   sprintf(title, "Rate of events with >%i digis;LumiSection;Rate [Hz]",bigEventSize);
   bigEventRate    = iBooker.book1D("bigEventRate",title,5000,0.,5000.);
   char title1[80];  sprintf(title1, "Pixel events vs. BX;BX;# events");
@@ -734,7 +736,7 @@ void SiPixelDigiSource::bookMEs(DQMStore::IBooker & iBooker){
       }
     }
   }
-  iBooker.cd("Pixel/Barrel");
+  iBooker.cd(topFolderName_+"/Barrel");
   meNDigisCOMBBarrel_ = iBooker.book1D("ALLMODS_ndigisCOMB_Barrel","Number of Digis",200,0.,400.);
   meNDigisCOMBBarrel_->setAxisTitle("Number of digis per module per event",1);
   meNDigisCHANBarrel_ = iBooker.book1D("ALLMODS_ndigisCHAN_Barrel","Number of Digis",100,0.,1000.);
@@ -824,7 +826,7 @@ void SiPixelDigiSource::bookMEs(DQMStore::IBooker & iBooker){
   meNDigisCHANBarrelCh35_->setAxisTitle("Number of digis per FED channel per event",1);
   meNDigisCHANBarrelCh36_ = iBooker.book1D("ALLMODS_ndigisCHAN_BarrelCh36","Number of Digis Ch36",100,0.,1000.);
   meNDigisCHANBarrelCh36_->setAxisTitle("Number of digis per FED channel per event",1);
-  iBooker.cd("Pixel/Endcap");
+  iBooker.cd(topFolderName_+"/Endcap");
   meNDigisCOMBEndcap_ = iBooker.book1D("ALLMODS_ndigisCOMB_Endcap","Number of Digis",200,0.,400.);
   meNDigisCOMBEndcap_->setAxisTitle("Number of digis per module per event",1);
   meNDigisCHANEndcap_ = iBooker.book1D("ALLMODS_ndigisCHAN_Endcap","Number of Digis",100,0.,1000.);
@@ -845,7 +847,8 @@ void SiPixelDigiSource::bookMEs(DQMStore::IBooker & iBooker){
     meNDigisCHANEndcapDm3_ = iBooker.book1D("ALLMODS_ndigisCHAN_EndcapDm3","Number of Digis Disk m3",100,0.,1000.);
     meNDigisCHANEndcapDm3_->setAxisTitle("Number of digis per FED channel per event",1);
   }
-  iBooker.cd("Pixel");
+  iBooker.cd(topFolderName_);
+
 }
 
 //define this as a plug-in

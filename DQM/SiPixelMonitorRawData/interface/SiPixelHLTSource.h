@@ -56,6 +56,8 @@
        virtual void dqmBeginRun(const edm::Run&, edm::EventSetup const&) ;
        virtual void bookMEs(DQMStore::IBooker &);
 
+       std::string topFolderName_;
+
     private:
        edm::ParameterSet conf_;
        edm::EDGetTokenT<FEDRawDataCollection> rawin_;
@@ -63,7 +65,6 @@
        edm::ESHandle<TrackerGeometry> pDD;
        bool saveFile;
        bool slowDown;
-       std::string dirName_;
        int eventNo;
        MonitorElement* meRawWords_;
        MonitorElement* meNCRCs_;
