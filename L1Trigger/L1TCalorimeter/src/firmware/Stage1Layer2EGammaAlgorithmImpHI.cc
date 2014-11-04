@@ -58,16 +58,17 @@ void l1t::Stage1Layer2EGammaAlgorithmImpHI::processEvent(const std::vector<l1t::
 
     unsigned int lutAddress = isoLutIndex(eg_et,ijet_pt);
 
+    enum {MAX_LUT_ADDRESS = 0x7fff}; // upper bit is used to indicate Barrel / Endcap
+    enum {LUT_BARREL_OFFSET = 0x0, LUT_ENDCAP_OFFSET = 0x8000};
+   
     if (eg_et >0){
-      if (isinBarrel){
-	if (lutAddress > params_->egIsolationLUTBarrel()->maxSize()) lutAddress = params_->egIsolationLUTBarrel()->maxSize();
-	isoFlag= params_->egIsolationLUTBarrel()->data(lutAddress);
+      if (lutAddress > MAX_LUT_ADDRESS) lutAddress = MAX_LUT_ADDRESS;
+      if (isinBarrel){	
+    	isoFlag= params_->egIsolationLUT()->data(LUT_BARREL_OFFSET + lutAddress);
       } else{
-	if (lutAddress > params_->egIsolationLUTEndcaps()->maxSize()) lutAddress = params_->egIsolationLUTEndcaps()->maxSize();
-	isoFlag= params_->egIsolationLUTEndcaps()->data(lutAddress);
+    	isoFlag= params_->egIsolationLUT()->data(LUT_ENDCAP_OFFSET + lutAddress);
       }
     }
-
 
     l1t::EGamma theEG(*&egLorentz, eg_et, eg_eta, eg_phi, index, isoFlag);
     preSortEGammas->push_back(theEG);
