@@ -19,7 +19,12 @@ class DataLoader(object):
         print "Loading csv data"
 
         # list of entries
-        ens = list(ROOT.BTagEntry(l) for l in csv_data)
+        ens = []
+        for l in csv_data:
+            try:
+                ens.append(ROOT.BTagEntry(l))
+            except TypeError:
+                raise RuntimeError("Error: can not interpret line: " + l)
         self.entries = ens
 
         # sets of fixed data
