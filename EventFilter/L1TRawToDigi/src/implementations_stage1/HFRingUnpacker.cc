@@ -62,6 +62,7 @@ namespace l1t {
           int hfringsum=((candbit[0]>>12) & 0x7) | ((candbit[2] & 0x1FF) << 3);
           int htmissphi=candbit[1] & 0x1F;
           int htmiss=(candbit[1]>>5) & 0x7F;
+          int overflowhtmiss=(candbit[1]>>12) & 0x1;
           
           l1t::CaloSpare hfbc= l1t::CaloSpare();
           hfbc.setHwPt(hfbitcount);
@@ -78,8 +79,11 @@ namespace l1t {
           l1t::EtSum mht = l1t::EtSum();
           mht.setHwPt(htmiss);
           mht.setHwPhi(htmissphi);
-          mht.setType(l1t::EtSum::kMissingHt);       
-          LogDebug("L1T") << "MHT: phi " << mht.hwPhi() << " pT " << mht.hwPt();
+          mht.setType(l1t::EtSum::kMissingHt); 
+          int flaghtmiss=mht.hwQual();
+          flaghtmiss|= overflowhtmiss;
+          mht.setHwQual(flaghtmiss);       
+          LogDebug("L1T") << "MHT: pT " << mht.hwPt()<<"is overflow "<<overflowhtmiss<<std::endl;
           reset_->push_back(bx,mht);       
 
         }
