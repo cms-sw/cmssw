@@ -439,11 +439,11 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
   gethostname(hostname,32);
   std::string sourceHost(hostname);
 
-  std::stringstream sOutDef;
-  sOutDef << "output_" << std::setfill('0') << std::setw(5) << getpid() << ".jsd";
-
   //Get the output directory                                                                                                                                           
   std::string monPath = iSummary->baseRunDir + "/";
+
+  std::stringstream sOutDef;
+  sOutDef << monPath << "output_" << getpid() << ".jsd";
 
   unsigned int iLs  = iLumi.luminosityBlock();
   unsigned int iRun = iLumi.run();
@@ -495,7 +495,10 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
 
   //HLT and L1 .ini files. They are only written once per run, but must be
   //at the end of a lumi section because it needs the path and dataset names 
-  if (iLs == 1){
+
+  bool writeIni= ( iLs==1 ? true:false);
+  if (edm::Service<evf::EvFDaqDirector>().isAvailable()) writeIni = !(edm::Service<evf::EvFDaqDirector>()->registerStreamProducer("TriggerJSONMonitoring"));
+  if (writeIni) {
     //HLT
     Json::Value hltIni;
 
