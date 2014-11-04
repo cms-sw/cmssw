@@ -15,6 +15,7 @@
   <class pattern="std::vector<ROOT::Math::*>" />
   <class pattern="edm::Wrapper<*>" />
   <class pattern="edm::RefVector<*>" />
+  <class pattern="edm::ValueMap<*>" />
   <class pattern="std::pair<ROOT::Math::PositionVector3D<*>,float>"/>
   <class pattern="std::vector<std::pair<ROOT::Math::PositionVector3D<*>,float> >"/>
 </selection>

@@ -126,11 +126,19 @@ SoftKillerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr<edm::ValueMap<LorentzVector> > p4SKOut(new edm::ValueMap<LorentzVector>());
   LorentzVectorCollection skP4s;
 
-  for ( auto j = soft_killed_event.begin(),
-	  jend = soft_killed_event.end(); j != jend; ++j ) {
+  // To satisfy the value map, the size of the "killed" collection needs to be the
+  // same size as the input collection, so if the constituent is killed, just set E = 0
+  for ( auto j = fjInputs.begin(), 
+	  jend = fjInputs.end(); j != jend; ++j ) {
     PFInputCollection::value_type pCand( pfCandidates->at(j->user_index()) );
+    auto val = j->user_index();
+    auto skmatch = find_if( soft_killed_event.begin(), soft_killed_event.end(), [&val](fastjet::PseudoJet const & i){return i.user_index() == val;} );
     LorentzVector pVec;
-    pVec.SetPxPyPzE(j->px(),j->py(),j->pz(),j->E());
+    if ( skmatch != soft_killed_event.end() ) {
+      pVec.SetPxPyPzE(skmatch->px(),skmatch->py(),skmatch->pz(),skmatch->E());      
+    } else {
+      pVec.SetPxPyPzE( 0., 0., 0., 0.);
+    }
     pCand.setP4(pVec);
     skP4s.push_back( pVec );
     pOutput->push_back(pCand);
