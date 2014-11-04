@@ -2,7 +2,12 @@ import itertools
 import unittest
 import sys
 from dataLoader import *
+
+
 data = None
+check_flavor = True
+check_op = True
+check_sys = True
 
 
 class BtagCalibConsistencyChecker(unittest.TestCase):
@@ -10,42 +15,53 @@ class BtagCalibConsistencyChecker(unittest.TestCase):
         super(BtagCalibConsistencyChecker, self).__init__(*args, **kws)
 
     def test_ops_tight(self):
-        self.assertIn(0, data.ops, "OP_TIGHT is missing")
+        if check_op:
+            self.assertIn(0, data.ops, "OP_TIGHT is missing")
 
     def test_ops_medium(self):
-        self.assertIn(1, data.ops, "OP_MEDIUM is missing")
+        if check_op:
+            self.assertIn(1, data.ops, "OP_MEDIUM is missing")
 
     def test_ops_loose(self):
-        self.assertIn(2, data.ops, "OP_LOOSE is missing")
+        if check_op:
+            self.assertIn(2, data.ops, "OP_LOOSE is missing")
 
     def test_flavs_b(self):
-        self.assertIn(0, data.flavs, "FLAV_B is missing")
+        if check_flavor:
+            self.assertIn(0, data.flavs, "FLAV_B is missing")
 
     def test_flavs_c(self):
-        self.assertIn(1, data.flavs, "FLAV_C is missing")
+        if check_flavor:
+            self.assertIn(1, data.flavs, "FLAV_C is missing")
 
     def test_flavs_udsg(self):
-        self.assertIn(2, data.flavs, "FLAV_UDSG is missing")
+        if check_flavor:
+            self.assertIn(2, data.flavs, "FLAV_UDSG is missing")
 
     def test_systematics_central(self):
-        self.assertIn("central", data.syss, "'central' sys. uncert. is missing")
+        if check_sys:
+            self.assertIn("central", data.syss,
+                          "'central' sys. uncert. is missing")
 
     def test_systematics_up(self):
-        self.assertIn("up", data.syss, "'up' sys. uncert. is missing")
+        if check_sys:
+            self.assertIn("up", data.syss, "'up' sys. uncert. is missing")
 
     def test_systematics_down(self):
-        self.assertIn("down", data.syss, "'down' sys. uncert. is missing")
+        if check_sys:
+            self.assertIn("down", data.syss, "'down' sys. uncert. is missing")
 
     def test_systematics_doublesidedness(self):
-        for sys in data.syss:
-            if "up" in sys:
-                other = sys.replace("up", "down")
-                self.assertIn(other, data.syss,
-                              "'%s' sys. uncert. is missing" % other)
-            elif "down" in sys:
-                other = sys.replace("down", "up")
-                self.assertIn(other, data.syss,
-                              "'%s' sys. uncert. is missing" % other)
+        if check_sys:
+            for sys in data.syss:
+                if "up" in sys:
+                    other = sys.replace("up", "down")
+                    self.assertIn(other, data.syss,
+                                  "'%s' sys. uncert. is missing" % other)
+                elif "down" in sys:
+                    other = sys.replace("down", "up")
+                    self.assertIn(other, data.syss,
+                                  "'%s' sys. uncert. is missing" % other)
 
     def test_eta_ranges(self):
         for a, b in data.etas:
@@ -138,16 +154,22 @@ class BtagCalibConsistencyChecker(unittest.TestCase):
         return res
 
 
-def run_check(filename):
-    global data
+def run_check(filename, op=True, sys=True, flavor=True, print_data=True):
     with open(filename) as f:
         lines = f.readlines()
-        if not (lines and "OperatingPoint" in lines[0]):
-            print "Data file does not contain typical header. Exit."
-            return False
-        lines.pop(0)  # remove header
-        data = DataLoader(lines)
-    data.print_data()
+    if not (lines and "OperatingPoint" in lines[0]):
+        print "Data file does not contain typical header."
+        return False
+    lines.pop(0)  # remove header
+    run_check_csv(lines, op, sys, flavor, print_data)
+
+
+def run_check_csv(csv_data, op=True, sys=True, flavor=True, print_data=True):
+    global data, check_op, check_sys, check_flavor
+    check_op, check_sys, check_flavor = op, sys, flavor
+    data = DataLoader(csv_data)
+    if print_data:
+        data.print_data()
     testsuite = unittest.TestLoader().loadTestsFromTestCase(
         BtagCalibConsistencyChecker)
     res = unittest.TextTestRunner().run(testsuite)
@@ -158,6 +180,7 @@ if __name__ == '__main__':
     if len(sys.argv) < 2:
         print "Need csv data file as first argument. Exit."
         exit(-1)
-    if not run_check(sys.argv[1]):
+    light = not '--light' in sys.argv
+    if not run_check(sys.argv[1], light, light, light):
         exit(-1)
 

@@ -8,7 +8,7 @@ ETA_MAX = 2.4
 PT_MIN = 20.
 PT_MAX = 1000.
 DISCR_MIN = 0.
-DISCR_MAX = 999.
+DISCR_MAX = 1.
 
 
 class DataLoader(object):
