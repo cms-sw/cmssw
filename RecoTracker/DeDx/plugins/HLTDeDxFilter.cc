@@ -106,15 +106,15 @@ bool
 
   edm::Handle<reco::TrackCollection> trackCollectionHandle;
   iEvent.getByToken(inputTracksToken_,trackCollectionHandle);
-  reco::TrackCollection trackCollection = *trackCollectionHandle.product();
+  const reco::TrackCollection &trackCollection = *trackCollectionHandle.product();
 
   edm::Handle<edm::ValueMap<reco::DeDxData> > dEdxTrackHandle;
   iEvent.getByToken(inputdedxToken_, dEdxTrackHandle);
-  const edm::ValueMap<reco::DeDxData> dEdxTrack = *dEdxTrackHandle.product();
+  const edm::ValueMap<reco::DeDxData> &dEdxTrack = *dEdxTrackHandle.product();
 
   edm::Handle<CaloTowerCollection> caloTowersHandle;
   iEvent.getByToken(caloTowersToken_, caloTowersHandle);
-  const CaloTowerCollection caloTower = *caloTowersHandle.product();
+  const CaloTowerCollection &caloTower = *caloTowersHandle.product();
 
 
   bool accept=false;
