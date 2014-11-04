@@ -23,8 +23,11 @@ namespace l1t {
         edm::Handle<EtSumBxCollection> etSums;
         event.getByToken(static_cast<const CaloTokens*>(toks)->getEtSumToken(), etSums);
 
-        edm::Handle<CaloSpareBxCollection> calospares;
-        event.getByToken(static_cast<const CaloTokens*>(toks)->getCaloSpareToken(), calospares);
+        edm::Handle<CaloSpareBxCollection> calosparesHFBitCounts;
+        event.getByToken(static_cast<const CaloTokens*>(toks)->getCaloSpareHFBitCountsToken(), calosparesHFBitCounts);
+        
+        edm::Handle<CaloSpareBxCollection> calosparesHFRingSums;
+        event.getByToken(static_cast<const CaloTokens*>(toks)->getCaloSpareHFRingSumsToken(), calosparesHFRingSums);
 
         std::vector<uint32_t> load;
 
@@ -52,7 +55,7 @@ namespace l1t {
           
           n=0;
           
-          for (auto m = calospares->begin(i); m != calospares->end(i) && n < 2; ++m, ++n) {
+          for (auto m = calosparesHFBitCounts->begin(i); m != calosparesHFBitCounts->end(i) && n < 2; ++m, ++n) {
             if (m->getType()==l1t::CaloSpare::HFBitCount){
               hfbitcount=\
                         std::min(m->hwPt(),0xFFF);

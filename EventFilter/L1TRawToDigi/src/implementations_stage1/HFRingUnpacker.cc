@@ -34,7 +34,7 @@ namespace l1t {
           lastBX = ceil((double)nBX/2.);
         }
 
-        auto res_ = static_cast<CaloCollections*>(coll)->getCaloSpare();
+        auto res_ = static_cast<CaloCollections*>(coll)->getCaloSpareHFBitCounts();
         res_->setBXRange(firstBX, lastBX);
         
         auto reset_ = static_cast<CaloCollections*>(coll)->getEtSums();

@@ -11,7 +11,8 @@ namespace l1t {
          event_.put(etsums_);
          event_.put(jets_);
          event_.put(taus_);
-         event_.put(calospare_);
+         event_.put(calospareHFBitCounts_);
+         event_.put(calospareHFRingSums_);
       }
    }
 }
