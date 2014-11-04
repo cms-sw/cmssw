@@ -1,13 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('TestPuppi')
+process = cms.Process('TestPUMods')
 process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.MessageLogger.cerr.FwkReport.reportEvery = 10
 process.GlobalTag.globaltag = 'START53_V7G::All'
 
-process.load('CommonTools/Puppi/Puppi_cff')   
+process.load('CommonTools/PileupModules/Puppi_cff')
+process.load('CommonTools/PileupModules/softKiller_cfi')
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(50) )
 process.source = cms.Source("PoolSource",
@@ -23,11 +24,13 @@ process.options = cms.untracked.PSet(
 )
 
 
-process.puppiSequence = cms.Sequence(process.puppi)
-process.p = cms.Path(process.puppiSequence)
-process.output = cms.OutputModule("PoolOutputModule",                                                                                                                                                     
-                                  outputCommands = cms.untracked.vstring('drop *','keep *_*_*_RECO','drop *_*_Cleaned_*','keep *_puppi_*_*'),
-                                  fileName       = cms.untracked.string ("Output.root")                                                                                                                   
+process.puSequence = cms.Sequence(process.puppi*process.softKiller)
+process.p = cms.Path(process.puSequence)
+process.output = cms.OutputModule("PoolOutputModule",
+                                  outputCommands = cms.untracked.vstring('drop *',
+                                                                         'keep *_particleFlow_*_*',
+                                                                         'keep *_*_*_TestPUMods'),
+                                  fileName       = cms.untracked.string ("Output.root")
 )
 # schedule definition                                                                                                       
 process.outpath  = cms.EndPath(process.output) 
