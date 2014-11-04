@@ -400,10 +400,13 @@ void LinkIteration()	//Energy corrections, semi-local correction
   std::pair<int, int> currlink; 
   
   TVector3 RefDir[NHits];
+  float    RefDirNorm[NHits];
+  memset(RefDirNorm,0,NHits*sizeof(float));
   
   for(int i = 0; i < NHits; i++) {
     const auto& hit = cleanedHits[i].first;
-    RefDir[i] = 1.0/hit.Mag() * hit;
+    RefDir[i] = 0.0;//1.0*hit.Unit();
+    RefDirNorm[i] = 0.0;//1.0;
     
     nodes.emplace_back(i,(float)hit.X(),(float)hit.Y(),(float)hit.Z());
     if( i == 0 ) {
@@ -430,10 +433,12 @@ void LinkIteration()	//Energy corrections, semi-local correction
     currlink = InitLinks[j];
     const auto& hit1 = cleanedHits[ currlink.first ];
     const auto& hit2 = cleanedHits[ currlink.second ];
-    linkDir = (hit1.first - hit2.first);		//Links are always from first point to second - verify
-    linkDir *= 1.0/linkDir.Mag(); 
-    RefDir[currlink.first] += (1e6*hit1.second)*linkDir; 	//Weights... might be optimized...
-    RefDir[currlink.second] += (1e6*hit2.second)*linkDir; 
+    linkDir = (hit1.first - hit2.first).Unit();		//Links are always from first point to second - verify
+    //linkDir *= 1.0/linkDir.Mag(); 
+    RefDir[currlink.first] += hit1.second*linkDir; //(hit1.second)	
+    RefDirNorm[currlink.first] += hit1.second;
+    RefDir[currlink.second] += hit2.second*linkDir; //(hit2.second)
+    RefDirNorm[currlink.second] += hit2.second;
   }
   
   const float IterLinkThreshold2 = std::pow(IterLinkThreshold,2.0);
@@ -441,7 +446,7 @@ void LinkIteration()	//Energy corrections, semi-local correction
 
   for(unsigned i1 = 0; i1 < (unsigned)NHits; i1++) {
     found.clear();
-    RefDir[i1] *= 1.0/RefDir[i1].Mag();
+    //RefDir[i1] *= 1.0/RefDir[i1].Mag();//1.0/RefDirNorm[i1];
     PosA = cleanedHits[i1].first;
     
     const float side = IterLinkThreshold;
@@ -477,6 +482,11 @@ void LinkIteration()	//Energy corrections, semi-local correction
 	    currlink.second = found[j1].data;
 	  }
 	
+	RefDir[currlink.first] += cleanedHits[currlink.first].second*DiffPosAB; //(hit1.second)	
+	RefDirNorm[currlink.first] += cleanedHits[currlink.first].second;
+	RefDir[currlink.second] += cleanedHits[currlink.second].second*DiffPosAB; //(hit2.second)
+	RefDirNorm[currlink.second] += cleanedHits[currlink.second].second;
+
 	alliterBackLinksMap.emplace(currlink.second,currlink.first);
 	alliterlinks.push_back(currlink);
       } 
@@ -509,6 +519,7 @@ void LinkIteration()	//Energy corrections, semi-local correction
   for(int i2 = 0; i2 < NHits; i2++)
     {
       PosB = cleanedHits[i2].first;
+      //float energyB = cleanedHits[i2].second;
       MinAngleIndex = -10;
       MinAngle = 1E6;
 
@@ -519,6 +530,7 @@ void LinkIteration()	//Energy corrections, semi-local correction
       for(int j2 = 0; j2 < Ncurrhitlinks; j2++)
 	{
 	  PosA = cleanedHits[ currhitlink[j2] ].first;
+	  //float energyA = cleanedHits[ currhitlink[j2] ].second;
 	  DirAngle = (RefDir[i2]).Angle(PosA - PosB);
 	  const float paddedAngle = (DirAngle + 1.0);
 	  tmpOrder = (PosB - PosA).Mag2() * paddedAngle * paddedAngle;
