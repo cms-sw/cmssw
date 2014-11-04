@@ -137,9 +137,9 @@ hltHiggsPostDoubleHinTaus = hltHiggsPostProcessor.clone()
 hltHiggsPostDoubleHinTaus.subDirs = ['HLT/Higgs/DoubleHinTaus']
 hltHiggsPostDoubleHinTaus.efficiencyProfile = efficiency_strings
 
-ltHiggsPostHiggsDalitz = hltHiggsPostProcessor.clone()
-ltHiggsPostHiggsDalitz.subDirs = ['HLT/Higgs/HiggsDalitz']
-ltHiggsPostHiggsDalitz.efficiencyProfile = efficiency_strings
+hltHiggsPostHiggsDalitz = hltHiggsPostProcessor.clone()
+hltHiggsPostHiggsDalitz.subDirs = ['HLT/Higgs/HiggsDalitz']
+hltHiggsPostHiggsDalitz.efficiencyProfile = efficiency_strings
 
 hltHiggsPostH2tau = hltHiggsPostProcessor.clone()
 hltHiggsPostH2tau.subDirs = ['HLT/Higgs/H2tau']
@@ -213,7 +213,9 @@ hltHiggsPostProcessors = cms.Sequence(
         hltHiggsPostHtaunu+
         hltHiggsPostH2tau+
         hltHiggsPostVBFHbb+
-        hltHiggsPostZnnHbb
+        hltHiggsPostZnnHbb+
+        hltHiggsPostDoubleHinTaus+
+        hltHiggsPostHiggsDalitz
 )
 
 
