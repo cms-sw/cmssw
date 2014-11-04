@@ -1,3 +1,6 @@
+#ifndef CommonTools_PileupModules_PuppiAlgo_h
+#define CommonTools_PileupModules_PuppiAlgo_h
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "fastjet/PseudoJet.hh"
@@ -12,16 +15,16 @@ public:
   void   add(const fastjet::PseudoJet &iParticle,const double &iVal,const unsigned int iAlgo);
   void   computeMedRMS(const unsigned int &iAlgo,const double &iPVFrac);
   //Get the Weight
-  double compute(std::vector<double> &iVals,double iChi2);
+  double compute(std::vector<double> const &iVals,double iChi2) const;
   //Helpers
-  double ptMin();
-  double etaMin();
-  double etaMax();
-  int    numAlgos ();
-  int    algoId   (const unsigned int &iAlgo);
-  bool   isCharged(const unsigned int &iAlgo);
-  double coneSize (const unsigned int &iAlgo);
-  double neutralPt(int iNPV);
+  inline double ptMin() const { return fPtMin; }
+  inline double etaMin() const { return fEtaMin; }
+  inline double etaMax() const { return fEtaMax; }
+  inline int    numAlgos () const { return fNAlgos;}
+  inline int    algoId  ( unsigned int iAlgo) const { return fAlgoId.at(iAlgo); }
+  inline bool   isCharged  ( unsigned int iAlgo) const { return fCharged.at(iAlgo); }
+  inline double coneSize  ( unsigned int iAlgo) const { return fConeSize.at(iAlgo); }
+  inline double neutralPt  (int iNPV) const { return fNeutralPtMin + iNPV * fNeutralPtSlope; }
 
 private:  
   unsigned int   fNAlgos;
@@ -44,3 +47,6 @@ private:
   std::vector<double> fMean;
   std::vector<int>    fNCount;
 };
+
+
+#endif

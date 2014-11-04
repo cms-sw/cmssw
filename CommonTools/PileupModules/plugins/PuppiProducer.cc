@@ -51,7 +51,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Get PFCandidate Collection
   edm::Handle<CandidateView> hPFProduct;
   iEvent.getByToken(tokenPFCandidates_,hPFProduct);
-  const CandidateView *PFCol = hPFProduct.product();
+  const CandidateView *pfCol = hPFProduct.product();
 
   // Get vertex collection w/PV as the first entry?
   edm::Handle<reco::VertexCollection> hVertexProduct;
@@ -60,7 +60,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   //Fill the reco objects
   fRecoObjCollection.clear();
-  for(CandidateView::const_iterator itPF = PFCol->begin(); itPF!=PFCol->end(); itPF++) {
+  for(CandidateView::const_iterator itPF = pfCol->begin(); itPF!=pfCol->end(); itPF++) {
     RecoObj pReco;
     pReco.pt  = itPF->pt();
     pReco.eta = itPF->eta();
@@ -133,11 +133,13 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   LorentzVectorCollection puppiP4s;
   for(unsigned int i0 = 0; i0 < lCandidates.size(); i0++) {
     //reco::PFCandidate pCand;
-    reco::PFCandidate pCand(PFCol->at(lCandidates[i0].user_index()).charge(),
-			    PFCol->at(lCandidates[i0].user_index()).p4(),
-			    translatePdgIdToType(PFCol->at(lCandidates[i0].user_index()).pdgId()) );
+    auto tmpCand = pfCol->ptrAt(lCandidates[i0].user_index());
+    reco::PFCandidate pCand( tmpCand->charge(),
+			     tmpCand->p4(),
+			     translatePdgIdToType(tmpCand->pdgId()) );
     LorentzVector pVec; //pVec.SetPtEtaPhiM(lCandidates[i0].pt(),lCandidates[i0].eta(),lCandidates[i0].phi(),lCandidates[i0].Mass());
-    pVec.SetPxPyPzE(lCandidates[i0].px(),lCandidates[i0].py(),lCandidates[i0].pz(),lCandidates[i0].E());
+    auto tmpFJ = lCandidates[i0];
+    pVec.SetPxPyPzE(tmpFJ.px(),tmpFJ.py(),tmpFJ.pz(),tmpFJ.E());
     pCand.setP4(pVec);
     puppiP4s.push_back( pVec );
     fPuppiCandidates->push_back(pCand);
