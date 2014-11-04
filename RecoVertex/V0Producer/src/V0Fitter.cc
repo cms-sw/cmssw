@@ -69,7 +69,7 @@ V0Fitter::V0Fitter(const edm::ParameterSet& theParameters, edm::ConsumesCollecto
    // cuts on vertex
    vtxChi2Cut_ = theParameters.getParameter<double>(string("vtxChi2Cut"));
    vtxDecayRSigCut_ = theParameters.getParameter<double>(string("vtxDecayRSigCut"));
-   // cuts post-vertexing
+   // miscellaneous cuts
    tkDCACut_ = theParameters.getParameter<double>(string("tkDCACut"));
    innerHitPosCut_ = theParameters.getParameter<double>(string("innerHitPosCut"));
    v0CosThetaCut_ = theParameters.getParameter<double>(string("v0CosThetaCut"));
@@ -105,7 +105,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
    // fill vectors of TransientTracks and TrackRefs after applying preselection cuts
    for (reco::TrackCollection::const_iterator iTk = theTrackCollection->begin(); iTk != theTrackCollection->end(); ++iTk) {
       const reco::Track* tmpTrack = &(*iTk);
-      double ipsig = fabs(tmpTrack->dxy(*theBeamSpot)/tmpTrack->dxyError());
+      double ipsig = std::abs(tmpTrack->dxy(*theBeamSpot)/tmpTrack->dxyError());
       if (tmpTrack->normalizedChi2() < tkChi2Cut_ && tmpTrack->numberOfValidHits() >= tkNHitsCut_ &&
           tmpTrack->pt() > tkPtCut_ && ipsig > tkIPSigCut_) {
          TrackRef tmpRef(theTrackHandle, std::distance(theTrackCollection->begin(), iTk));
@@ -146,11 +146,11 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
       ClosestApproachInRPhi cApp;
       cApp.calculate(posState, negState);
       if (!cApp.status()) continue;
-      double dca = fabs(cApp.distance());
+      float dca = std::abs(cApp.distance());
       if (dca > tkDCACut_) continue;
       // the POCA should at least be in the sensitive volume
       GlobalPoint cxPt = cApp.crossingPoint();
-      if (sqrt(cxPt.x()*cxPt.x() + cxPt.y()*cxPt.y()) > 120. || fabs(cxPt.z()) > 300.) continue;
+      if (sqrt(cxPt.x()*cxPt.x() + cxPt.y()*cxPt.y()) > 120. || std::abs(cxPt.z()) > 300.) continue;
       // the tracks should at least point in the same quadrant
       std::pair<GlobalTrajectoryParameters, GlobalTrajectoryParameters> gtp = cApp.trajectoryParameters();
       if ((gtp.first.momentum()).dot(gtp.second.momentum()) < 0) continue;
