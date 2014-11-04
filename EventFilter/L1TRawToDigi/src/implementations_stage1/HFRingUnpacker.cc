@@ -34,8 +34,11 @@ namespace l1t {
           lastBX = ceil((double)nBX/2.);
         }
 
-        auto res_ = static_cast<CaloCollections*>(coll)->getCaloSpareHFBitCounts();
-        res_->setBXRange(firstBX, lastBX);
+        auto resHFBitCounts_ = static_cast<CaloCollections*>(coll)->getCaloSpareHFBitCounts();
+        resHFBitCounts_->setBXRange(firstBX, lastBX);
+
+        auto resHFRingSums_ = static_cast<CaloCollections*>(coll)->getCaloSpareHFRingSums();
+        resHFRingSums_->setBXRange(firstBX, lastBX);
         
         auto reset_ = static_cast<CaloCollections*>(coll)->getEtSums();
         reset_->setBXRange(firstBX, lastBX);
@@ -68,13 +71,13 @@ namespace l1t {
           hfbc.setHwPt(hfbitcount);
           hfbc.setType(l1t::CaloSpare::HFBitCount);  
           LogDebug("L1T") << "hfbc pT " << hfbc.hwPt(); 
-          res_->push_back(bx,hfbc);        
+          resHFBitCounts_->push_back(bx,hfbc);        
           
           l1t::CaloSpare hfrs= l1t::CaloSpare();
           hfrs.setHwPt(hfringsum);
           hfrs.setType(l1t::CaloSpare::HFRingSum);  
           LogDebug("L1T") << "hfrs pT " << hfrs.hwPt();  
-          res_->push_back(bx,hfrs);       
+          resHFRingSums_->push_back(bx,hfrs);       
 
           l1t::EtSum mht = l1t::EtSum();
           mht.setHwPt(htmiss);

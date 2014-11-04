@@ -55,18 +55,16 @@ namespace l1t {
           
           n=0;
           
-          for (auto m = calosparesHFBitCounts->begin(i); m != calosparesHFBitCounts->end(i) && n < 2; ++m, ++n) {
-            if (m->getType()==l1t::CaloSpare::HFBitCount){
+          for (auto j = calosparesHFBitCounts->begin(i); j != calosparesHFBitCounts->end(i) && n < 2; ++j, ++n) {
               hfbitcount=\
-                        std::min(m->hwPt(),0xFFF);
-            }
-            
-            else if (m->getType()==l1t::CaloSpare::HFRingSum){
-              hfringsum=\
-                       std::min(m->hwPt(),0xFFF);
-            }
-          }
+                        std::min(j->hwPt(),0xFFF);
+          } 
           
+          for (auto j = calosparesHFRingSums->begin(i); j != calosparesHFRingSums->end(i) && n < 2; ++j, ++n) {
+              hfringsum=\
+                        std::min(j->hwPt(),0xFFF);
+          } 
+                 
           uint16_t object[4]={0,0,0,0};
           
           object[0]=\
