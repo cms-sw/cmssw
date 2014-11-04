@@ -15,10 +15,17 @@ def cmsswIs52X():
         return False
 
 def releaseNumber(release = None):
-    rerel = re.compile('^CMSSW_(\d+)_(\d+)_(\d+)(_\S+)*$')
-    prel = re.compile('_patch(\d+)')
+    # first check if this is an integration build
     if release is None:
         release = cmsswRelease()
+    ibrel = re.compile('^CMSSW_(\d+)_(\d+)_X.*$')
+    m = ibrel.match(release)
+    if m:
+        big = int(m.group(1))
+        medium = int(m.group(2))
+        return big, medium
+    rerel = re.compile('^CMSSW_(\d+)_(\d+)_(\d+)(_\S+)*$')
+    prel = re.compile('_patch(\d+)')
     m = rerel.match(release)
     if m is None:
         raise ValueError('malformed release string '+release)
@@ -53,6 +60,8 @@ if __name__ == '__main__':
             self.assertEqual(out, (7,2,1))
             out = releaseNumber('CMSSW_10_2_1_patch4')
             self.assertEqual(out, (10,2,1,4))
+            out = releaseNumber('CMSSW_7_3_X_2014-10-30-0200')
+            self.assertEqual(out, (7,3))
             self.assertRaises(ValueError, releaseNumber, 'foobar')
             self.assertRaises(ValueError, releaseNumber, 'CMSSW_1_2_3_xat3')
             self.assertRaises(ValueError, releaseNumber, 'CMSSW_1_2_a')
