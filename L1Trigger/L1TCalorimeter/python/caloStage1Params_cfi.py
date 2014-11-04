@@ -24,6 +24,9 @@ caloStage1Params.egMaxPtRelativeJetIsolation = cms.int32(63)
 caloStage1Params.egMinPt3x3HoE = cms.int32(1)
 caloStage1Params.egMaxPt3x3HoE = cms.int32(40)
 
+caloStage1Params.egPUSType    = cms.string("None")
+caloStage1Params.egPUSParams  = cms.vdouble()
+
 ## EG Isolation LUT
 caloStage1Params.egIsoLUTFileBarrel   = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egIsoLUT_stage1_isol0.30.txt")
 caloStage1Params.egIsoLUTFileEndcaps  = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egIsoLUT_stage1_isol0.50.txt")

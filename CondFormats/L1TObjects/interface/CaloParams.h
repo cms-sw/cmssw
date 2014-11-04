@@ -84,10 +84,12 @@ namespace l1t {
     unsigned egIsoAreaNrTowersEta()const{return egIsoAreaNrTowersEta_;}
     unsigned egIsoAreaNrTowersPhi()const{return egIsoAreaNrTowersPhi_;}
     unsigned egIsoVetoNrTowersPhi()const{return egIsoVetoNrTowersPhi_;}
-    unsigned egIsoPUEstTowerGranularity()const{return egIsoPUEstTowerGranularity_;}
-    unsigned egIsoMaxEtaAbsForTowerSum()const{return egIsoMaxEtaAbsForTowerSum_;}
-    unsigned egIsoMaxEtaAbsForIsoSum()const{return egIsoMaxEtaAbsForIsoSum_;}
-    std::string egIsoPUSType() const { return egIsoPUSType_; }
+    //unsigned egIsoPUEstTowerGranularity()const{return egIsoPUEstTowerGranularity_;}
+    //unsigned egIsoMaxEtaAbsForTowerSum()const{return egIsoMaxEtaAbsForTowerSum_;}
+    //unsigned egIsoMaxEtaAbsForIsoSum()const{return egIsoMaxEtaAbsForIsoSum_;}
+    const std::string & egPUSType() const { return egPUSType_; }
+    const std::vector<double> & egPUSParams() const { return egPUSParams_; }
+    double egPUSParam(int ipar) const { return egPUSParams_.at(ipar); }
     l1t::LUT* egIsolationLUT() { return egIsolationLUT_.get(); }
     l1t::LUT* egIsolationLUTBarrel() { return egIsolationLUTBarrel_.get(); }
     l1t::LUT* egIsolationLUTEndcaps() { return egIsolationLUTEndcaps_.get(); }
@@ -115,10 +117,11 @@ namespace l1t {
     void setEgIsoAreaNrTowersEta(unsigned iEgIsoAreaNrTowersEta){egIsoAreaNrTowersEta_=iEgIsoAreaNrTowersEta;}
     void setEgIsoAreaNrTowersPhi(unsigned iEgIsoAreaNrTowersPhi){egIsoAreaNrTowersPhi_=iEgIsoAreaNrTowersPhi;}
     void setEgIsoVetoNrTowersPhi(unsigned iEgIsoVetoNrTowersPhi){egIsoVetoNrTowersPhi_=iEgIsoVetoNrTowersPhi;}
-    void setEgIsoPUEstTowerGranularity(unsigned iEgIsoPUEstTowerGranularity){egIsoPUEstTowerGranularity_=iEgIsoPUEstTowerGranularity;}
-    void setEgIsoMaxEtaAbsForTowerSum(unsigned iEgIsoMaxEtaAbsForTowerSum){egIsoMaxEtaAbsForTowerSum_=iEgIsoMaxEtaAbsForTowerSum;}
-    void setEgIsoMaxEtaAbsForIsoSum(unsigned iEgIsoMaxEtaAbsForIsoSum){egIsoMaxEtaAbsForIsoSum_=iEgIsoMaxEtaAbsForIsoSum;}
-    void setEgIsoPUSType(std::string type) { egIsoPUSType_ = type; }
+    //void setEgIsoPUEstTowerGranularity(unsigned iEgIsoPUEstTowerGranularity){egIsoPUEstTowerGranularity_=iEgIsoPUEstTowerGranularity;}
+    //void setEgIsoMaxEtaAbsForTowerSum(unsigned iEgIsoMaxEtaAbsForTowerSum){egIsoMaxEtaAbsForTowerSum_=iEgIsoMaxEtaAbsForTowerSum;}
+    //void setEgIsoMaxEtaAbsForIsoSum(unsigned iEgIsoMaxEtaAbsForIsoSum){egIsoMaxEtaAbsForIsoSum_=iEgIsoMaxEtaAbsForIsoSum;}
+    void setEgPUSType(std::string type) { egPUSType_ = type; }
+    void setEgPUSParams(const std::vector<double> & params) { egPUSParams_ = params; }
     void setEgIsolationLUT(std::shared_ptr<LUT> lut) { egIsolationLUT_ = lut; }
     void setEgIsolationLUTBarrel(std::shared_ptr<LUT> lut) { egIsolationLUTBarrel_ = lut; }
     void setEgIsolationLUTEndcaps(std::shared_ptr<LUT> lut) { egIsolationLUTEndcaps_ = lut; }
@@ -323,13 +326,13 @@ namespace l1t {
     unsigned egIsoVetoNrTowersPhi_;
 
     // for # towers based PU estimator, estimator is #towers/egIsoPUEstTowerGranularity_
-    unsigned egIsoPUEstTowerGranularity_;
+    //unsigned egIsoPUEstTowerGranularity_; // -> egPUSParams_[0]
 
     // eta range over which # towers is estimated
-    unsigned egIsoMaxEtaAbsForTowerSum_;
+    //unsigned egIsoMaxEtaAbsForTowerSum_; // -> egPUSParams_[1]
 
     // max abs eta for which a tower is included in the isolation sum
-    unsigned egIsoMaxEtaAbsForIsoSum_;
+    //unsigned egIsoMaxEtaAbsForIsoSum_; // -> egPUSParams_[2]
 
     // EG calibration
     std::string egCalibrationType_;
@@ -339,7 +342,8 @@ namespace l1t {
     std::shared_ptr<l1t::LUT> egCalibrationLUT_;
 
     // EG isolation PUS
-    std::string egIsoPUSType_;
+    std::string egPUSType_;
+    std::vector<double> egPUSParams_;
 
     // EG isolation LUT (indexed by eta, Et ?)
     std::shared_ptr<l1t::LUT> egIsolationLUT_;

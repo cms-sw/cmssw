@@ -108,11 +108,11 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
       int hwEtSum = CaloTools::calHwEtSum(cluster.hwEta(), cluster.hwPhi(), towers,
           -1*params_->egIsoAreaNrTowersEta(),params_->egIsoAreaNrTowersEta(),
           -1*params_->egIsoAreaNrTowersPhi(),params_->egIsoAreaNrTowersPhi(),
-          params_->egIsoMaxEtaAbsForIsoSum());
+          params_->egPUSParam(2));
       int hwFootPrint = isoCalEgHwFootPrint(cluster,towers);
 
-      int nrTowers = CaloTools::calNrTowers(-1*params_->egIsoMaxEtaAbsForTowerSum(),
-          params_->egIsoMaxEtaAbsForTowerSum(),
+      int nrTowers = CaloTools::calNrTowers(-1*params_->egPUSParam(1),
+          params_->egPUSParam(1),
           1,72,towers,1,999,CaloTools::CALO);
       unsigned int lutAddress = isoLutIndex(egamma.hwEta(), nrTowers);
 
@@ -216,12 +216,12 @@ int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::isoCalEgHwFootPrint(const l1t:
 
   int ecalHwFootPrint = CaloTools::calHwEtSum(iEta,iPhi,towers,0,0,
       -1*params_->egIsoVetoNrTowersPhi(),params_->egIsoVetoNrTowersPhi(),
-      params_->egIsoMaxEtaAbsForIsoSum(),CaloTools::ECAL) +
+      params_->egPUSParam(2),CaloTools::ECAL) +
     CaloTools::calHwEtSum(iEta,iPhi,towers,etaSide,etaSide,
         -1*params_->egIsoVetoNrTowersPhi(),params_->egIsoVetoNrTowersPhi(),
-        params_->egIsoMaxEtaAbsForIsoSum(),CaloTools::ECAL);
-  int hcalHwFootPrint = CaloTools::calHwEtSum(iEta,iPhi,towers,0,0,0,0,params_->egIsoMaxEtaAbsForIsoSum(),CaloTools::HCAL) +
-    CaloTools::calHwEtSum(iEta,iPhi,towers,0,0,phiSide,phiSide,params_->egIsoMaxEtaAbsForIsoSum(),CaloTools::HCAL);
+        params_->egPUSParam(2),CaloTools::ECAL);
+  int hcalHwFootPrint = CaloTools::calHwEtSum(iEta,iPhi,towers,0,0,0,0,params_->egPUSParam(2),CaloTools::HCAL) +
+    CaloTools::calHwEtSum(iEta,iPhi,towers,0,0,phiSide,phiSide,params_->egPUSParam(2),CaloTools::HCAL);
   return ecalHwFootPrint+hcalHwFootPrint;
 }
 
@@ -230,8 +230,8 @@ int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::isoCalEgHwFootPrint(const l1t:
 unsigned l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::isoLutIndex(int iEta,unsigned int nrTowers)
 /*****************************************************************/
 {
-  const unsigned int kNrTowersInSum=72*params_->egIsoMaxEtaAbsForTowerSum()*2;
-  const unsigned int kTowerGranularity=params_->egIsoPUEstTowerGranularity();
+  const unsigned int kNrTowersInSum=72*params_->egPUSParam(1)*2;
+  const unsigned int kTowerGranularity=params_->egPUSParam(0);
   const unsigned int kMaxAddress = kNrTowersInSum%kTowerGranularity==0 ? (kNrTowersInSum/kTowerGranularity+1)*28*2 : 
     (kNrTowersInSum/kTowerGranularity)*28*2;
 
