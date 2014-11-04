@@ -21,7 +21,8 @@ namespace l1t {
                etsums_(new EtSumBxCollection()),
                jets_(new JetBxCollection()),
                taus_(new TauBxCollection()),
-               calospare_(new CaloSpareBxCollection()) {};
+               calospareHFBitCounts_(new CaloSpareBxCollection()),
+               calospareHFRingSums_(new CaloSpareBxCollection()) {};
 
             virtual ~CaloCollections();
 
@@ -30,7 +31,9 @@ namespace l1t {
             inline EtSumBxCollection* getEtSums() { return etsums_.get(); };
             inline JetBxCollection* getJets() { return jets_.get(); };
             inline TauBxCollection* getTaus() { return taus_.get(); };
-            inline CaloSpareBxCollection* getCaloSpare() { return calospare_.get(); };
+            inline CaloSpareBxCollection* getCaloSpareHFBitCounts() { return calospareHFBitCounts_.get(); };
+            inline CaloSpareBxCollection* getCaloSpareHFRingSums() { return calospareHFRingSums_.get(); };
+            
 
          private:
             std::auto_ptr<CaloTowerBxCollection> towers_;
@@ -38,7 +41,8 @@ namespace l1t {
             std::auto_ptr<EtSumBxCollection> etsums_;
             std::auto_ptr<JetBxCollection> jets_;
             std::auto_ptr<TauBxCollection> taus_;
-            std::auto_ptr<CaloSpareBxCollection> calospare_;
+            std::auto_ptr<CaloSpareBxCollection> calospareHFBitCounts_;
+            std::auto_ptr<CaloSpareBxCollection> calospareHFRingSums_;
       };
    }
 }

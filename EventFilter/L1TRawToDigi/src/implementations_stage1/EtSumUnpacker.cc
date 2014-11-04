@@ -56,27 +56,39 @@ namespace l1t {
           candbit[3] = (raw_data1 >> 16) & 0xFFFF;
 
           int totet=candbit[0] & 0xFFF;
+          int overflowtotet=(candbit[0]>>12) & 0x1;
           int etmiss=candbit[1] & 0xFFF;
+          int overflowetmiss=(candbit[1]>>12) & 0x1;
           int totht=candbit[2] & 0xFFF;
+          int overflowtotht=(candbit[2]>>12) & 0x1;
           int etmissphi=candbit[3] & 0x7F;
 
           l1t::EtSum et = l1t::EtSum();
           et.setHwPt(totet);
-          et.setType(l1t::EtSum::kTotalEt);       
-          LogDebug("L1T") << "ET: pT " << et.hwPt();
+          et.setType(l1t::EtSum::kTotalEt);      
+          int flagtotet=et.hwQual();
+          flagtotet|= overflowtotet;
+          et.setHwQual(flagtotet);       
+          LogDebug("L1T") << "ET: pT " << et.hwPt()<<"is overflow "<<overflowtotet<<std::endl;
           res_->push_back(bx,et);
 
           l1t::EtSum ht = l1t::EtSum();
           ht.setHwPt(totht);
           ht.setType(l1t::EtSum::kTotalHt);       
-          LogDebug("L1T") << "HT: pT " << ht.hwPt();
+          int flagtotht=ht.hwQual();
+          flagtotht|= overflowtotht;
+          ht.setHwQual(flagtotht);       
+          LogDebug("L1T") << "HT: pT " << ht.hwPt()<<"is overflow "<<overflowtotht<<std::endl;
           res_->push_back(bx,ht);
 
           l1t::EtSum met = l1t::EtSum();
           met.setHwPt(etmiss);
           met.setHwPhi(etmissphi);
-          met.setType(l1t::EtSum::kMissingEt);       
-          LogDebug("L1T") << "MET: phi " << met.hwPhi() << " pT " << met.hwPt();
+          met.setType(l1t::EtSum::kMissingEt);   
+          int flagetmiss=met.hwQual();
+          flagetmiss|= overflowetmiss;
+          met.setHwQual(flagetmiss);       
+          LogDebug("L1T") << "MET: pT " << met.hwPt()<<"is overflow "<<overflowetmiss<<std::endl;
           res_->push_back(bx,met);
 
         }

@@ -23,8 +23,11 @@ namespace l1t {
         edm::Handle<EtSumBxCollection> etSums;
         event.getByToken(static_cast<const CaloTokens*>(toks)->getEtSumToken(), etSums);
 
-        edm::Handle<CaloSpareBxCollection> calospares;
-        event.getByToken(static_cast<const CaloTokens*>(toks)->getCaloSpareToken(), calospares);
+        edm::Handle<CaloSpareBxCollection> calosparesHFBitCounts;
+        event.getByToken(static_cast<const CaloTokens*>(toks)->getCaloSpareHFBitCountsToken(), calosparesHFBitCounts);
+        
+        edm::Handle<CaloSpareBxCollection> calosparesHFRingSums;
+        event.getByToken(static_cast<const CaloTokens*>(toks)->getCaloSpareHFRingSumsToken(), calosparesHFRingSums);
 
         std::vector<uint32_t> load;
 
@@ -36,25 +39,32 @@ namespace l1t {
           int htmissphi=0;
           int htmiss=0;
           
+          int flaghtmiss=0;
+          
           for (auto j = etSums->begin(i); j != etSums->end(i) && n < 4; ++j, ++n) {
             if (j->getType()==l1t::EtSum::kMissingHt){
-              htmiss=std::min(j->hwPt(),0x7F);
+            
+              flaghtmiss=j->hwQual() & 0x1;
+              htmiss=\
+                    std::min(j->hwPt(),0x7F)|
+                    flaghtmiss<<12;
+              
               htmissphi=std::min(j->hwPhi(),0x1F);
             }
           }
           
           n=0;
           
-          for (auto m = calospares->begin(i); m != calospares->end(i) && n < 2; ++m, ++n) {
-            if (m->getType()==l1t::CaloSpare::HFBitCount){
-              hfbitcount=std::min(m->hwPt(),0xFFF);
-            }
-            
-            else if (m->getType()==l1t::CaloSpare::HFRingSum){
-              hfringsum=std::min(m->hwPt(),0xFFF);
-            }
-          }
+          for (auto j = calosparesHFBitCounts->begin(i); j != calosparesHFBitCounts->end(i) && n < 2; ++j, ++n) {
+              hfbitcount=\
+                        std::min(j->hwPt(),0xFFF);
+          } 
           
+          for (auto j = calosparesHFRingSums->begin(i); j != calosparesHFRingSums->end(i) && n < 2; ++j, ++n) {
+              hfringsum=\
+                        std::min(j->hwPt(),0xFFF);
+          } 
+                 
           uint16_t object[4]={0,0,0,0};
           
           object[0]=\

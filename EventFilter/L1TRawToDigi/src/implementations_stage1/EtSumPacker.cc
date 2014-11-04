@@ -32,22 +32,36 @@ namespace stage1 {
           uint16_t objectTotalHt=0;
           uint16_t objectMissingEt=0;
           uint16_t objectMissingEtPhi=0;
+          
+          int flagTotalEt=0;
+          int flagTotalHt=0;
+          int flagMissingEt=0;
 
           for (auto j = etSums->begin(i); j != etSums->end(i) && n < 4; ++j, ++n) {
  
             if (j->getType()==l1t::EtSum::kTotalEt){
+            
+               flagTotalEt=j->hwQual() & 0x1;
                objectTotalEt=\
-                            std::min(j->hwPt(), 0xFFF);
+                            std::min(j->hwPt(), 0xFFF)|
+                            flagTotalEt<<12;
             }
           
             else if (j->getType()==l1t::EtSum::kTotalHt){
+               
+               flagTotalHt=j->hwQual() & 0x1;
                objectTotalHt=\
-                            std::min(j->hwPt(), 0xFFF);
+                            std::min(j->hwPt(), 0xFFF)|
+                            flagTotalHt<<12;
             }
              
             else if (j->getType()==l1t::EtSum::kMissingEt){
+               
+               flagMissingEt=j->hwQual() & 0x1;
                objectMissingEt=\
-                            std::min(j->hwPt(), 0xFFF);
+                            std::min(j->hwPt(), 0xFFF)|
+                            flagMissingEt<<12;
+                            
                objectMissingEtPhi=\
                             std::min(j->hwPhi(), 0x3F);               
             }
