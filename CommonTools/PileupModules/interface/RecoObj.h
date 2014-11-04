@@ -1,5 +1,5 @@
-#ifndef BACONANA_PUPPI_RECOOBJ_HH
-#define BACONANA_PUPPI_RECOOBJ_HH
+#ifndef CommonTools_PileupModules_PUPPI_RECOOBJ_HH
+#define CommonTools_PileupModules_PUPPI_RECOOBJ_HH
 
 class RecoObj 
 {

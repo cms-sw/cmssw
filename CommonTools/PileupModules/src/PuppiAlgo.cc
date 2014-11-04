@@ -56,9 +56,9 @@ void PuppiAlgo::reset() {
 }
 void PuppiAlgo::add(const fastjet::PseudoJet &iParticle,const double &iVal,const unsigned int iAlgo) { 
   if(iParticle.pt() < fRMSPtMin[iAlgo]) return;
-  if(fCharged[iAlgo] && fabs(iParticle.user_index())  < 1) return;
-  if(fCharged[iAlgo] && (fabs(iParticle.user_index()) >=1 && fabs(iParticle.user_index()) <=2)) fPupsPV.push_back(iVal);
-  if(fCharged[iAlgo] && fabs(iParticle.user_index()) < 3) return;
+  if(fCharged[iAlgo] && std::abs(iParticle.user_index())  < 1) return;
+  if(fCharged[iAlgo] && (std::abs(iParticle.user_index()) >=1 && std::abs(iParticle.user_index()) <=2)) fPupsPV.push_back(iVal);
+  if(fCharged[iAlgo] && std::abs(iParticle.user_index()) < 3) return;
   fPups.push_back(iVal);
   fNCount[iAlgo]++;
 }
@@ -104,7 +104,7 @@ void PuppiAlgo::computeMedRMS(const unsigned int &iAlgo,const double &iPVFrac) {
   if(lAdjust > 0) fMedian[iAlgo] -= sqrt(ROOT::Math::chisquared_quantile(lAdjust,1.)*fRMS[iAlgo]);
 }
 //This code is probably a bit confusing
-double PuppiAlgo::compute(std::vector<double> &iVals,double iChi2) { 
+double PuppiAlgo::compute(std::vector<double> const &iVals,double iChi2) const { 
   if(fAlgoId[0] == -1) return 1;
   double lVal  = 0.;
   double lPVal = 1.;
@@ -130,31 +130,4 @@ double PuppiAlgo::compute(std::vector<double> &iVals,double iChi2) {
   //Top it off with the last calc
   lPVal *= ROOT::Math::chisquared_cdf(lVal,lNDOF);
   return lPVal;
-}
-double PuppiAlgo::neutralPt(int iNPV) { 
-  return fNeutralPtMin + iNPV * fNeutralPtSlope;
-}
-int PuppiAlgo::numAlgos() { 
-  return fNAlgos;
-}
-double PuppiAlgo::ptMin() { 
-  return fPtMin;
-}
-double PuppiAlgo::etaMin() { 
-  return fEtaMin;
-}
-double PuppiAlgo::etaMax() { 
-  return fEtaMax;
-}
-int PuppiAlgo::algoId(const unsigned int &iAlgo) { 
-  assert(iAlgo < fNAlgos);
-  return fAlgoId[iAlgo];
-}
-bool PuppiAlgo::isCharged(const unsigned int &iAlgo) { 
-  assert(iAlgo < fNAlgos);
-  return fCharged[iAlgo];
-}
-double PuppiAlgo::coneSize(const unsigned int &iAlgo) { 
-  assert(iAlgo < fNAlgos);
-  return fConeSize[iAlgo];
 }
