@@ -133,6 +133,13 @@ hltHiggsPostHgg = hltHiggsPostProcessor.clone()
 hltHiggsPostHgg.subDirs = ['HLT/Higgs/Hgg']
 hltHiggsPostHgg.efficiencyProfile = efficiency_strings
 
+hltHiggsPostDoubleHinTaus = hltHiggsPostProcessor.clone()
+hltHiggsPostDoubleHinTaus.subDirs = ['HLT/Higgs/DoubleHinTaus']
+hltHiggsPostDoubleHinTaus.efficiencyProfile = efficiency_strings
+
+ltHiggsPostHiggsDalitz = hltHiggsPostProcessor.clone()
+ltHiggsPostHiggsDalitz.subDirs = ['HLT/Higgs/HiggsDalitz']
+ltHiggsPostHiggsDalitz.efficiencyProfile = efficiency_strings
 
 hltHiggsPostH2tau = hltHiggsPostProcessor.clone()
 hltHiggsPostH2tau.subDirs = ['HLT/Higgs/H2tau']
