@@ -140,9 +140,6 @@ class BtagCalibConsistencyChecker(unittest.TestCase):
     def test_flavs_udsg(self):
         self.assertIn(2, data.flavs, "FLAV_UDSG is missing")
 
-    def test_measurment_types(self):
-        self.assertIn("comb", data.meass, "measurementType comb is missing")
-
     def test_systematics_central(self):
         self.assertIn("central", data.syss, "'central' sys. uncert. is missing")
 
