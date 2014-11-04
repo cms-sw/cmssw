@@ -22,7 +22,7 @@
 #include <set>
 #include <algorithm>
 
-int verbose=3;
+int verbose=0;
 
 /// Constructor
 HLTExoticaSubAnalysis::HLTExoticaSubAnalysis(const edm::ParameterSet & pset,
@@ -194,7 +194,7 @@ void HLTExoticaSubAnalysis::subAnalysisBookHistos(DQMStore::IBooker &iBooker,
             bookHist(iBooker, source, objStr, "Phi");
             bookHist(iBooker, source, objStr, "MaxPt1");
             bookHist(iBooker, source, objStr, "MaxPt2");
-            bookHist(iBooker, source, objStr, "SumEt");
+            //bookHist(iBooker, source, objStr, "SumEt");
         }
     } // closes loop in _recLabels
 
@@ -492,11 +492,11 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 
 	    float eta = matchesGen[j].eta();
 	    float phi = matchesGen[j].phi();
-	    float sumEt = 0;//matchesGen[j].sumEt;
+	    //float sumEt = 0;//matchesGen[j].sumEt;
 
 	    this->fillHist("gen", objTypeStr, "Eta", eta);
 	    this->fillHist("gen", objTypeStr, "Phi", phi);
-	    this->fillHist("gen", objTypeStr, "SumEt", sumEt);
+	    //this->fillHist("gen", objTypeStr, "SumEt", sumEt);
 
 	} // Closes loop in gen
 	LogDebug("ExoticaValidation") << "                        deleting countobjects";
@@ -584,11 +584,11 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 
 	    float eta = matchesReco[j].eta();
 	    float phi = matchesReco[j].phi();
-	    float sumEt = 0;//matchesReco[j].sumEt;
+	    //float sumEt = 0;//matchesReco[j].sumEt;
 	
 	    this->fillHist("rec", objTypeStr, "Eta", eta);
 	    this->fillHist("rec", objTypeStr, "Phi", phi);
-	    this->fillHist("rec", objTypeStr, "SumEt", sumEt);
+	    //this->fillHist("rec", objTypeStr, "SumEt", sumEt);
 	} // Closes loop in reco
 
 	LogDebug("ExoticaValidation") << "                        deleting countobjects";
@@ -916,6 +916,7 @@ void HLTExoticaSubAnalysis::bookHist(DQMStore::IBooker & iBooker,
     std::string name = source + objType + variable ;
     TH1F * h = 0;
     
+#if 0
     if (variable.find("SumEt") != std::string::npos) {
         std::string title = "Sum ET of " + sourceUpper + " " + objType;
         const size_t nBins = _parametersTurnOn.size() - 1;
@@ -927,6 +928,9 @@ void HLTExoticaSubAnalysis::bookHist(DQMStore::IBooker & iBooker,
         delete[] edges;
     }
     else if (variable.find("MaxPt") != std::string::npos) {
+#else // Temporary commented out SumEt part
+    if (variable.find("MaxPt") != std::string::npos) {
+#endif
         std::string desc = (variable == "MaxPt1") ? "Leading" : "Next-to-Leading";
         std::string title = "pT of " + desc + " " + sourceUpper + " " + objType;
         const size_t nBins = _parametersTurnOn.size() - 1;
