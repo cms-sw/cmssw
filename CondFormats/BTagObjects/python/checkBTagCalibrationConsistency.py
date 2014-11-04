@@ -122,28 +122,46 @@ class BtagCalibConsistencyChecker(unittest.TestCase):
     def __init__(self, *args, **kws):
         super(BtagCalibConsistencyChecker, self).__init__(*args, **kws)
 
-    def test_ops(self):
-        self.assertIn(0, data.ops)
-        self.assertIn(1, data.ops)
-        self.assertIn(2, data.ops)
+    def test_ops_tight(self):
+        self.assertIn(0, data.ops, "OP_TIGHT is missing")
 
-    def test_flavs(self):
-        self.assertIn(0, data.flavs)
-        self.assertIn(1, data.flavs)
-        self.assertIn(2, data.flavs)
+    def test_ops_medium(self):
+        self.assertIn(1, data.ops, "OP_MEDIUM is missing")
 
-    def test_meass(self):
-        self.assertIn("comb", data.meass)
+    def test_ops_loose(self):
+        self.assertIn(2, data.ops, "OP_LOOSE is missing")
 
-    def test_syss(self):
-        self.assertIn("central", data.syss)
-        self.assertIn("up", data.syss)
-        self.assertIn("down", data.syss)
+    def test_flavs_b(self):
+        self.assertIn(0, data.flavs, "FLAV_B is missing")
+
+    def test_flavs_c(self):
+        self.assertIn(1, data.flavs, "FLAV_C is missing")
+
+    def test_flavs_udsg(self):
+        self.assertIn(2, data.flavs, "FLAV_UDSG is missing")
+
+    def test_measurment_types(self):
+        self.assertIn("comb", data.meass, "measurementType comb is missing")
+
+    def test_systematics_central(self):
+        self.assertIn("central", data.syss, "'central' sys. uncert. is missing")
+
+    def test_systematics_up(self):
+        self.assertIn("up", data.syss, "'up' sys. uncert. is missing")
+
+    def test_systematics_down(self):
+        self.assertIn("down", data.syss, "'down' sys. uncert. is missing")
+
+    def test_systematics_doublesidedness(self):
         for sys in data.syss:
             if "up" in sys:
-                self.assertIn(sys.replace("up", "down"), data.syss)
+                other = sys.replace("up", "down")
+                self.assertIn(other, data.syss,
+                              "'%s' sys. uncert. is missing" % other)
             elif "down" in sys:
-                self.assertIn(sys.replace("down", "up"), data.syss)
+                other = sys.replace("down", "up")
+                self.assertIn(other, data.syss,
+                              "'%s' sys. uncert. is missing" % other)
 
     def test_eta_ranges(self):
         for a, b in data.etas:
