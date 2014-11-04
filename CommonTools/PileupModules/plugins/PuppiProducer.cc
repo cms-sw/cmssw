@@ -126,21 +126,32 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   lPupFiller.insert(hPFProduct,lWeights.begin(),lWeights.end());
   lPupFiller.fill();
 
-  //Fill a new PF Candidate Collection and write out the ValueMap of the new p4s
+  //Fill a new PF Candidate Collection and write out the ValueMap of the new p4s.
+  // Since the size of the ValueMap must be equal to the input collection, we need
+  // to search the "puppi" particles to find a match for each input. If none is found,
+  // the input is set to have a four-vector of 0,0,0,0
   const std::vector<fastjet::PseudoJet> lCandidates = fPuppiContainer->puppiParticles();
   fPuppiCandidates.reset( new PFOutputCollection );
   std::auto_ptr<edm::ValueMap<LorentzVector> > p4PupOut(new edm::ValueMap<LorentzVector>());
   LorentzVectorCollection puppiP4s;
-  for(unsigned int i0 = 0; i0 < lCandidates.size(); i0++) {
+  for ( auto i0 = hPFProduct->begin(),
+	  i0begin = hPFProduct->begin(),
+	  i0end = hPFProduct->end(); i0 != i0end; ++i0 ) {
+    //for(unsigned int i0 = 0; i0 < lCandidates.size(); i0++) {
     //reco::PFCandidate pCand;
-    auto tmpCand = pfCol->ptrAt(lCandidates[i0].user_index());
-    reco::PFCandidate const * tmpCandPF = dynamic_cast<reco::PFCandidate const *>( tmpCand.get() );
-    reco::PFCandidate pCand( tmpCand->charge(),
-			     tmpCand->p4(),
-			     tmpCandPF->translatePdgIdToType(tmpCand->pdgId()) );
-    LorentzVector pVec; //pVec.SetPtEtaPhiM(lCandidates[i0].pt(),lCandidates[i0].eta(),lCandidates[i0].phi(),lCandidates[i0].Mass());
-    auto tmpFJ = lCandidates[i0];
-    pVec.SetPxPyPzE(tmpFJ.px(),tmpFJ.py(),tmpFJ.pz(),tmpFJ.E());
+    reco::PFCandidate const * tmpCandPF = dynamic_cast<reco::PFCandidate const *>( &*i0 );
+    auto id = (tmpCandPF != 0) ? tmpCandPF->translatePdgIdToType(i0->pdgId()) : reco::PFCandidate::X;
+    reco::PFCandidate pCand( i0->charge(),
+			     i0->p4(),
+			     id );
+    LorentzVector pVec;
+    int val = i0 - i0begin;
+    auto puppiMatched = find_if( lCandidates.begin(), lCandidates.end(), [&val]( fastjet::PseudoJet const & i ){ return i.user_index() == val; } );
+    if ( puppiMatched != lCandidates.end() ) {
+      pVec.SetPxPyPzE( 0., 0., 0., 0. );
+    } else {
+      pVec.SetPxPyPzE(puppiMatched->px(),puppiMatched->py(),puppiMatched->pz(),puppiMatched->E());
+    }
     pCand.setP4(pVec);
     puppiP4s.push_back( pVec );
     fPuppiCandidates->push_back(pCand);
@@ -150,7 +161,6 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::ValueMap<LorentzVector>::Filler  p4PupFiller(*p4PupOut);
   p4PupFiller.insert(hPFProduct,puppiP4s.begin(), puppiP4s.end() );
   p4PupFiller.fill();
-
 
   iEvent.put(lPupOut,"PuppiWeights");
   iEvent.put(p4PupOut,"PuppiP4s");
