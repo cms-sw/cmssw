@@ -1,11 +1,11 @@
 #include "DataFormats/Luminosity/interface/LumiInfoRunHeader.h"
 
 LumiInfoRunHeader::LumiInfoRunHeader(std::string& lumiProvider, std::string& fillingSchemeName,
-				     vbool_t& fillingScheme):
+				     std::bitset<numBX>& fillingScheme):
   m_lumiProvider(lumiProvider),
   m_fillingSchemeName(fillingSchemeName)
 {
-  m_fillingScheme.assign(fillingScheme.begin(), fillingScheme.end());
+  m_fillingScheme = fillingScheme;
 }
 
 bool LumiInfoRunHeader::isProductEqual(LumiInfoRunHeader const& o) const
@@ -17,7 +17,7 @@ bool LumiInfoRunHeader::isProductEqual(LumiInfoRunHeader const& o) const
 
 //==============================================================================
 
-void LumiInfoRunHeader::setFillingScheme(const vbool_t& fillingScheme)
+void LumiInfoRunHeader::setFillingScheme(const std::bitset<numBX>& fillingScheme)
 {
-  m_fillingScheme.assign(fillingScheme.begin(), fillingScheme.end());
+  m_fillingScheme = fillingScheme;
 }

@@ -14,13 +14,13 @@
  *
  */
 
-#include <vector>
 #include <string>
+#include <bitset>
 
 class LumiInfoRunHeader
 {
 public:
-  typedef std::vector<bool> vbool_t;
+  static const unsigned int numBX = 3564; // number of BX per orbit
 
   //----------------------------------------------------------------
 
@@ -28,7 +28,7 @@ public:
   LumiInfoRunHeader() {}
 
   /// Constructor with lumi provider, filling scheme name, and filling scheme.
-  LumiInfoRunHeader(std::string& lumiProvider, std::string& fillingSchemeName, vbool_t& fillingScheme);
+  LumiInfoRunHeader(std::string& lumiProvider, std::string& fillingSchemeName, std::bitset<numBX>& fillingScheme);
 
   /// Destructor.
   ~LumiInfoRunHeader() {}
@@ -45,7 +45,7 @@ public:
   void setFillingSchemeName(const std::string& fillingSchemeName) { m_fillingSchemeName = fillingSchemeName; }
 
   /// Set filling scheme.
-  void setFillingScheme(const vbool_t& fillingScheme);
+  void setFillingScheme(const std::bitset<numBX>& fillingScheme);
 
   //----------------------------------------------------------------
 
@@ -56,17 +56,17 @@ public:
   std::string getFillingSchemeName() const { return m_fillingSchemeName; }
 
   /// Get filling scheme for given bunch.
-  bool getBunchIsFilled(unsigned int bunch) const { return m_fillingScheme.at(bunch); }
+  bool getBunchIsFilled(unsigned int bunch) const { return m_fillingScheme[bunch]; }
 
   /// Get full filling scheme.
-  const vbool_t& getFillingScheme() const { return m_fillingScheme; }
+  const std::bitset<numBX>& getFillingScheme() const { return m_fillingScheme; }
 
   //----------------------------------------------------------------
 
 private:
   std::string m_lumiProvider;       // string with name of lumi provider
   std::string m_fillingSchemeName;  // name of filling scheme
-  vbool_t m_fillingScheme;          // filling scheme
+  std::bitset<numBX> m_fillingScheme;          // filling scheme
 };
 
 #endif
