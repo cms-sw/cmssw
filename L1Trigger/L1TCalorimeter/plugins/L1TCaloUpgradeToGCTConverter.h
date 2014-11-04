@@ -70,7 +70,8 @@ namespace l1t {
     EDGetToken IsoTauToken_;
     EDGetToken JetToken_;
     EDGetToken EtSumToken_;
-    EDGetToken CaloSpareToken_;
+    EDGetToken HfSumsToken_;
+    EDGetToken HfCountsToken_;
   };
 }
 #endif

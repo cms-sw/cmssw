@@ -37,7 +37,8 @@ namespace l1t {
 			      std::vector<Jet> * jets,
 			      std::vector<Jet> * preGtJets,
 			      std::vector<EtSum> * etsums,
-			      std::vector<CaloSpare> * calospares) = 0;
+			      CaloSpare * hfSums,
+			      CaloSpare *hfCounts) = 0;
 
     virtual ~Stage1Layer2MainProcessor(){};
   };

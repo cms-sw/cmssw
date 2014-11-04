@@ -43,7 +43,8 @@ l1t::L1TCaloUpgradeToGCTConverter::L1TCaloUpgradeToGCTConverter(const ParameterS
   IsoTauToken_ = consumes<l1t::TauBxCollection>(iConfig.getParameter<InputTag>("InputIsoTauCollection"));
   JetToken_ = consumes<l1t::JetBxCollection>(iConfig.getParameter<InputTag>("InputCollection"));
   EtSumToken_ = consumes<l1t::EtSumBxCollection>(iConfig.getParameter<InputTag>("InputCollection"));
-  CaloSpareToken_ = consumes<l1t::CaloSpareBxCollection>(iConfig.getParameter<edm::InputTag>("InputCollection"));
+  HfSumsToken_ = consumes<l1t::CaloSpareBxCollection>(iConfig.getParameter<edm::InputTag>("InputHFSumsCollection"));
+  HfCountsToken_ = consumes<l1t::CaloSpareBxCollection>(iConfig.getParameter<edm::InputTag>("InputHFCountsCollection"));
 }
 
 
@@ -76,8 +77,11 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
   Handle<l1t::EtSumBxCollection> EtSum;
   e.getByToken(EtSumToken_,EtSum);
 
-  Handle<l1t::CaloSpareBxCollection> CaloSpare;
-  e.getByToken(CaloSpareToken_, CaloSpare);
+  Handle<l1t::CaloSpareBxCollection> HfSums;
+  e.getByToken(HfSumsToken_, HfSums);
+
+  Handle<l1t::CaloSpareBxCollection> HfCounts;
+  e.getByToken(HfCountsToken_, HfCounts);
 
   // create the em and jet collections
   std::auto_ptr<L1GctEmCandCollection> isoEmResult(new L1GctEmCandCollection( ) );
@@ -234,25 +238,30 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 							       0,
 							       0,
 							       0);
-    for (l1t::CaloSpareBxCollection::const_iterator itCaloSpare = CaloSpare->begin(itBX);
-	 itCaloSpare != CaloSpare->end(itBX); ++itCaloSpare){
-      if (CaloSpare::CaloSpareType::V2 == itCaloSpare->getType())
+    for (l1t::CaloSpareBxCollection::const_iterator itCaloSpare = HfSums->begin(itBX);
+	 itCaloSpare != HfSums->end(itBX); ++itCaloSpare){
+      // if (CaloSpare::CaloSpareType::V2 == itCaloSpare->getType())
+      // {
+      // 	sum.setEtSum(3, itCaloSpare->hwPt());
+      // } else if (CaloSpare::CaloSpareType::Centrality == itCaloSpare->getType())
+      // {
+      // 	sum.setEtSum(0, itCaloSpare->hwPt());
+      // } else if (CaloSpare::CaloSpareType::Tau == itCaloSpare->getType())
+      // {
+      // 	sum.setEtSum(0, itCaloSpare->hwPt() & 0x7);
+      // 	sum.setEtSum(1, (itCaloSpare->hwPt() >> 3) & 0x7);
+      // 	sum.setEtSum(2, (itCaloSpare->hwPt() >> 6) & 0x7);
+      // 	sum.setEtSum(3, (itCaloSpare->hwPt() >> 9) & 0x7);
+      // }
+      for(int i = 0; i < 4; i++)
       {
-	sum.setEtSum(3, itCaloSpare->hwPt());
-      } else if (CaloSpare::CaloSpareType::Centrality == itCaloSpare->getType())
-      {
-	sum.setEtSum(0, itCaloSpare->hwPt());
-      } else if (CaloSpare::CaloSpareType::Tau == itCaloSpare->getType())
-      {
-	sum.setEtSum(0, itCaloSpare->hwPt() & 0x7);
-	sum.setEtSum(1, (itCaloSpare->hwPt() >> 3) & 0x7);
-	sum.setEtSum(2, (itCaloSpare->hwPt() >> 6) & 0x7);
-	sum.setEtSum(3, (itCaloSpare->hwPt() >> 9) & 0x7);
+	sum.setEtSum(i, itCaloSpare->GetRing(i));
       }
     }
     hfRingEtSumResult->push_back(sum);
 
     hfRingEtSumResult->resize(1);
+    //no hfBitCounts yet
     hfBitCountResult->resize(1);
   }
 

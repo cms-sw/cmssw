@@ -32,7 +32,8 @@ l1t::PhysicalEtAdder::PhysicalEtAdder(const edm::ParameterSet& ps) {
   produces<l1t::JetBxCollection>();
   produces<l1t::JetBxCollection>("preGtJets");
   produces<l1t::EtSumBxCollection>();
-  produces<l1t::CaloSpareBxCollection>();
+  produces<l1t::CaloSpareBxCollection>("HFRingSums");
+  produces<l1t::CaloSpareBxCollection>("HFBitCounts");
 
   EGammaToken_ = consumes<l1t::EGammaBxCollection>(ps.getParameter<edm::InputTag>("InputCollection"));
   RlxTauToken_ = consumes<l1t::TauBxCollection>(ps.getParameter<edm::InputTag>("InputRlxTauCollection"));
@@ -40,7 +41,8 @@ l1t::PhysicalEtAdder::PhysicalEtAdder(const edm::ParameterSet& ps) {
   JetToken_ = consumes<l1t::JetBxCollection>(ps.getParameter<edm::InputTag>("InputCollection"));
   preGtJetToken_ = consumes<l1t::JetBxCollection>(ps.getParameter<edm::InputTag>("InputPreGtJetCollection"));
   EtSumToken_ = consumes<l1t::EtSumBxCollection>(ps.getParameter<edm::InputTag>("InputCollection"));
-  CaloSpareToken_ = consumes<l1t::CaloSpareBxCollection>(ps.getParameter<edm::InputTag>("InputCollection"));
+  HfSumsToken_ = consumes<l1t::CaloSpareBxCollection>(ps.getParameter<edm::InputTag>("InputHFSumsCollection"));
+  HfCountsToken_ = consumes<l1t::CaloSpareBxCollection>(ps.getParameter<edm::InputTag>("InputHFCountsCollection"));
 }
 
 l1t::PhysicalEtAdder::~PhysicalEtAdder() {
@@ -58,7 +60,8 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr<l1t::JetBxCollection> new_jets (new l1t::JetBxCollection);
   std::auto_ptr<l1t::JetBxCollection> new_preGtJets (new l1t::JetBxCollection);
   std::auto_ptr<l1t::EtSumBxCollection> new_etsums (new l1t::EtSumBxCollection);
-  std::auto_ptr<l1t::CaloSpareBxCollection> new_calospares (new l1t::CaloSpareBxCollection);
+  std::auto_ptr<l1t::CaloSpareBxCollection> new_hfsums (new l1t::CaloSpareBxCollection);
+  std::auto_ptr<l1t::CaloSpareBxCollection> new_hfcounts (new l1t::CaloSpareBxCollection);
 
   edm::Handle<l1t::EGammaBxCollection> old_egammas;
   edm::Handle<l1t::TauBxCollection> old_rlxtaus;
@@ -66,7 +69,8 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<l1t::JetBxCollection> old_jets;
   edm::Handle<l1t::JetBxCollection> old_preGtJets;
   edm::Handle<l1t::EtSumBxCollection> old_etsums;
-  edm::Handle<l1t::CaloSpareBxCollection> old_calospares;
+  edm::Handle<l1t::CaloSpareBxCollection> old_hfsums;
+  edm::Handle<l1t::CaloSpareBxCollection> old_hfcounts;
 
   iEvent.getByToken(EGammaToken_, old_egammas);
   iEvent.getByToken(RlxTauToken_, old_rlxtaus);
@@ -74,7 +78,8 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByToken(JetToken_, old_jets);
   iEvent.getByToken(preGtJetToken_, old_preGtJets);
   iEvent.getByToken(EtSumToken_, old_etsums);
-  iEvent.getByToken(CaloSpareToken_, old_calospares);
+  iEvent.getByToken(HfSumsToken_, old_hfsums);
+  iEvent.getByToken(HfCountsToken_, old_hfcounts);
 
   //get the proper scales for conversion to physical et
   edm::ESHandle< L1CaloEtScale > emScale ;
@@ -95,7 +100,8 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   new_jets->setBXRange(firstBX, lastBX);
   new_preGtJets->setBXRange(firstBX, lastBX);
   new_etsums->setBXRange(firstBX, lastBX);
-  new_calospares->setBXRange(firstBX, lastBX);
+  new_hfsums->setBXRange(firstBX, lastBX);
+  new_hfcounts->setBXRange(firstBX, lastBX);
 
   for(int bx = firstBX; bx <= lastBX; ++bx)
   {
@@ -238,13 +244,22 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     }
 
-    for(l1t::CaloSpareBxCollection::const_iterator itCaloSpare = old_calospares->begin(bx);
-	itCaloSpare != old_calospares->end(bx); ++itCaloSpare)
+    for(l1t::CaloSpareBxCollection::const_iterator itCaloSpare = old_hfsums->begin(bx);
+	itCaloSpare != old_hfsums->end(bx); ++itCaloSpare)
     {
       //just pass through for now
       //a different scale is needed depending on the type
-      new_calospares->push_back(bx, *itCaloSpare);
+      new_hfsums->push_back(bx, *itCaloSpare);
     }
+
+    for(l1t::CaloSpareBxCollection::const_iterator itCaloSpare = old_hfcounts->begin(bx);
+	itCaloSpare != old_hfcounts->end(bx); ++itCaloSpare)
+    {
+      //just pass through for now
+      //a different scale is needed depending on the type
+      new_hfcounts->push_back(bx, *itCaloSpare);
+    }
+
   }
 
   iEvent.put(new_egammas);
@@ -253,7 +268,8 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(new_jets);
   iEvent.put(new_preGtJets,"preGtJets");
   iEvent.put(new_etsums);
-  iEvent.put(new_calospares);
+  iEvent.put(new_hfsums,"HFRingSums");
+  iEvent.put(new_hfcounts,"HFBitCounts");
 }
 
 // ------------ method called once each job just before starting event loop  ------------
