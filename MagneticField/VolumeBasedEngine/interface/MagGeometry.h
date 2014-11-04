@@ -19,7 +19,6 @@ class MagESector;
 class MagVolume;
 class MagVolume6Faces;
 template <class T> class PeriodicBinFinderInPhi;
-namespace edm {class ParameterSet;}
 
 class MagGeometry {
 public:
@@ -28,11 +27,11 @@ public:
   typedef Surface::GlobalPoint    GlobalPoint;
 
   /// Constructor
-  MagGeometry(const edm::ParameterSet& config, const std::vector<MagBLayer *>& ,
+  MagGeometry(int geomVersion, const std::vector<MagBLayer *>& ,
 			     const std::vector<MagESector *>& ,
 			     const std::vector<MagVolume6Faces*>& ,
 			     const std::vector<MagVolume6Faces*>& );
-  MagGeometry(const edm::ParameterSet& config, const std::vector<MagBLayer const*>& ,
+  MagGeometry(int geomVersion, const std::vector<MagBLayer const*>& ,
 			     const std::vector<MagESector const*>& ,
 			     const std::vector<MagVolume6Faces const*>& ,
 			     const std::vector<MagVolume6Faces const*>& );

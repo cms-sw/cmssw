@@ -384,10 +384,23 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
   fedErrors_.getFEDErrorsCounters().nTotalBadChannels = lNTotBadChannels;
   fedErrors_.getFEDErrorsCounters().nTotalBadActiveChannels = lNTotBadActiveChannels;
 
-  //fedHists_.fillCountersHistograms(FEDErrors::getFEDErrorsCounters(), nEvt_);
   //time in seconds since beginning of the run or event number
-  if (fillWithEvtNum_) fedHists_.fillCountersHistograms(fedErrors_.getFEDErrorsCounters(),fedErrors_.getChannelErrorsCounters(),maxFedBufferSize_,iEvent.id().event());
-  else fedHists_.fillCountersHistograms(fedErrors_.getFEDErrorsCounters(),fedErrors_.getChannelErrorsCounters(),maxFedBufferSize_,iEvent.orbitNumber()/11223.);
+  if (fillWithEvtNum_) {
+    // explicitely casting the event number unsigned long long to double here
+    double eventNumber = static_cast<double>(iEvent.id().event());
+    fedHists_.fillCountersHistograms(
+        fedErrors_.getFEDErrorsCounters(),
+        fedErrors_.getChannelErrorsCounters(),
+        maxFedBufferSize_,
+        eventNumber);
+  } else {
+    double aTime = iEvent.orbitNumber()/11223.;    
+    fedHists_.fillCountersHistograms(
+        fedErrors_.getFEDErrorsCounters(),
+        fedErrors_.getChannelErrorsCounters(),
+        maxFedBufferSize_,
+        aTime);
+  }
 
   nEvt_++;
 

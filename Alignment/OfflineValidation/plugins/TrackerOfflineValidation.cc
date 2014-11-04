@@ -382,6 +382,7 @@ TrackerOfflineValidation::~TrackerOfflineValidation()
 void
 TrackerOfflineValidation::checkBookHists(const edm::EventSetup& es)
 {
+  lastSetup_ = &es;
   es.get<TrackerDigiGeometryRecord>().get( tkGeom_ );
   const TrackerGeometry *newBareTkGeomPtr = &(*tkGeom_);
   if (newBareTkGeomPtr == bareTkGeomPtr_) return; // already booked hists, nothing changed

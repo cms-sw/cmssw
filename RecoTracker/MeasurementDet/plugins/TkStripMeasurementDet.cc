@@ -64,10 +64,10 @@ bool TkStripMeasurementDet::recHits(SimpleHitContainer & result,
   if unlikely( (!isActive(data)) || isEmpty(data.stripData())) return false;
   auto oldSize = result.size();
   
-  float utraj =  specificGeomDet().specificTopology().measurementPosition( stateOnThisDet.localPosition()).x();
+  int utraj =  specificGeomDet().specificTopology().measurementPosition( stateOnThisDet.localPosition()).x();
   const detset & detSet = data.stripData().detSet(index()); 
   auto rightCluster = 
-    std::find_if( detSet.begin(), detSet.end(), [utraj](const SiStripCluster& hit) { return hit.barycenter() > utraj; });
+    std::find_if( detSet.begin(), detSet.end(), [utraj](const SiStripCluster& hit) { return hit.firstStrip() > utraj; });
   
   
   std::vector<SiStripRecHit2D> tmp;
@@ -101,10 +101,10 @@ bool TkStripMeasurementDet::simpleRecHits( const TrajectoryStateOnSurface& state
 
   auto oldSize = result.size();
 
-  float utraj =  specificGeomDet().specificTopology().measurementPosition( stateOnThisDet.localPosition()).x();
+  int utraj =  specificGeomDet().specificTopology().measurementPosition( stateOnThisDet.localPosition()).x();
   const detset & detSet = data.stripData().detSet(index()); 
   auto rightCluster = 
-    std::find_if( detSet.begin(), detSet.end(), [utraj](const SiStripCluster& hit) { return hit.barycenter() > utraj; });
+    std::find_if( detSet.begin(), detSet.end(), [utraj](const SiStripCluster& hit) { return hit.firstStrip() > utraj; });
   
   if ( rightCluster != detSet.begin()) {
     // there are hits on the left of the utraj
@@ -133,11 +133,11 @@ TkStripMeasurementDet::recHits( const TrajectoryStateOnSurface& stateOnThisDet, 
 
   auto oldSize = result.size();
 
-  float utraj =  specificGeomDet().specificTopology().measurementPosition( stateOnThisDet.localPosition()).x();
+  int utraj =  specificGeomDet().specificTopology().measurementPosition( stateOnThisDet.localPosition()).x();
  
     const detset & detSet = data.stripData().detSet(index()); 
     auto rightCluster = 
-      std::find_if( detSet.begin(), detSet.end(), [utraj](const SiStripCluster& hit) { return hit.barycenter() > utraj; });
+      std::find_if( detSet.begin(), detSet.end(), [utraj](const SiStripCluster& hit) { return hit.firstStrip() > utraj; });
     
     if ( rightCluster != detSet.begin()) {
       // there are hits on the left of the utraj

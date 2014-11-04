@@ -686,12 +686,18 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     
 
       //////////////////
-      //HI PLOTS///////                                                                                                                                                                                    
-      ////////////////                                                                                                                                                                                     
+      //HI PLOTS/////// 
+      //////////////// 
+
       if(doHIPlots_)
 	{
-          LongDCASig->Fill(track.dz(pv.position())/(track.dzError()*track.dzError()+pv.zError()*pv.zError()));
-          TransDCASig->Fill(track.dxy(pv.position())/(track.d0Error()*track.d0Error()+pv.xError()*pv.yError()));
+	   double longDCAsig = 0, transDCAsig = 0;
+	   double zerr2 = track.dzError()*track.dzError()+pv.zError()*pv.zError();
+	   double xyerr2 = track.d0Error()*track.d0Error()+pv.xError()*pv.yError();
+	   if(zerr2 > 0) longDCAsig = track.dz(pv.position())/zerr2;
+           if(xyerr2 > 0) transDCAsig = track.dxy(pv.position())/xyerr2;	   
+	   LongDCASig->Fill(longDCAsig);
+	   TransDCASig->Fill(transDCAsig);
         }
 
 

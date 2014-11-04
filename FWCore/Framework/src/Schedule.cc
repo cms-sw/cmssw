@@ -2,6 +2,7 @@
 
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "FWCore/Framework/interface/OutputModuleDescription.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
@@ -358,6 +359,7 @@ namespace edm {
                      service::TriggerNamesService& tns,
                      ProductRegistry& preg,
                      BranchIDListHelper& branchIDListHelper,
+                     ThinnedAssociationsHelper& thinnedAssociationsHelper,
                      ExceptionToActionTable const& actions,
                      std::shared_ptr<ActivityRegistry> areg,
                      std::shared_ptr<ProcessConfiguration> processConfiguration,
@@ -446,9 +448,14 @@ namespace edm {
 
     preg.setFrozen();
 
+    for(auto const& worker : streamSchedules_[0]->allWorkers()) {
+      worker->registerThinnedAssociations(preg, thinnedAssociationsHelper);
+    }
+    thinnedAssociationsHelper.sort();
+
     for (auto c : all_output_communicators_) {
       c->setEventSelectionInfo(outputModulePathPositions, preg.anyProductProduced());
-      c->selectProducts(preg);
+      c->selectProducts(preg, thinnedAssociationsHelper);
     }
     
     if(wantSummary_) {

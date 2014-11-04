@@ -5,10 +5,12 @@
 #include "FWCore/Framework/interface/OutputModule.h"
 
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/ThinnedAssociation.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/OutputModuleDescription.h"
@@ -43,6 +45,7 @@ namespace edm {
     droppedBranchIDToKeptBranchID_(),
     branchIDLists_(new BranchIDLists),
     origBranchIDLists_(nullptr),
+    thinnedAssociationsHelper_(new ThinnedAssociationsHelper),
     branchParents_(),
     branchChildren_() {
 
@@ -71,7 +74,8 @@ namespace edm {
     origBranchIDLists_ = desc.branchIDLists_;
   }
 
-  void OutputModule::selectProducts(ProductRegistry const& preg) {
+  void OutputModule::selectProducts(ProductRegistry const& preg,
+                                    ThinnedAssociationsHelper const& thinnedAssociationsHelper) {
     if(productSelector_.initialized()) return;
     productSelector_.initialize(productSelectorRules_, preg.allBranchDescriptions());
 
@@ -80,6 +84,8 @@ namespace edm {
     // for more information.
 
     std::map<BranchID, BranchDescription const*> trueBranchIDToKeptBranchDesc;
+    std::vector<BranchDescription const*> associationDescriptions;
+    std::set<BranchID> keptProductsInEvent;
 
     for(auto const& it : preg.productList()) {
       BranchDescription const& desc = it.second;
@@ -88,74 +94,78 @@ namespace edm {
       } else if(!desc.present() && !desc.produced()) {
         // else if the branch containing the product has been previously dropped,
         // output nothing
+      } else if(desc.unwrappedType().typeInfo() == typeid(ThinnedAssociation)) {
+        associationDescriptions.push_back(&desc);
       } else if(selected(desc)) {
-        // else if the branch has been selected, put it in the list of selected branches.
-        if(desc.produced()) {
-          // First we check if an equivalent branch has already been selected due to an EDAlias.
-          // We only need the check for products produced in this process.
-          BranchID const& trueBranchID = desc.originalBranchID();
-          std::map<BranchID, BranchDescription const*>::const_iterator iter = trueBranchIDToKeptBranchDesc.find(trueBranchID);
-          if(iter != trueBranchIDToKeptBranchDesc.end()) {
-             throw edm::Exception(errors::Configuration, "Duplicate Output Selection")
-               << "Two (or more) equivalent branches have been selected for output.\n"
-               << "#1: " << BranchKey(desc) << "\n" 
-               << "#2: " << BranchKey(*iter->second) << "\n" 
-               << "Please drop at least one of them.\n";
-          }
-          trueBranchIDToKeptBranchDesc.insert(std::make_pair(trueBranchID, &desc));
-        }
-        switch (desc.branchType()) {
-          case InEvent:
-          {
-            consumes(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
-                     InputTag{desc.moduleLabel(),
-                              desc.productInstanceName(),
-                       desc.processName()});
-            break;
-          }
-          case InLumi:
-          {
-            consumes<InLumi>(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
-                             InputTag(desc.moduleLabel(),
-                                      desc.productInstanceName(),
-                                      desc.processName()));
-            break;
-          }
-          case InRun:
-          {
-            consumes<InRun>(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
-                            InputTag(desc.moduleLabel(),
-                                     desc.productInstanceName(),
-                                     desc.processName()));
-            break;
-          }
-          default:
-            assert(false);
-            break;
-        }
-        // Now put it in the list of selected branches.
-        keptProducts_[desc.branchType()].push_back(&desc);
+        keepThisBranch(desc, trueBranchIDToKeptBranchDesc, keptProductsInEvent);
       } else {
         // otherwise, output nothing,
         // and mark the fact that there is a newly dropped branch of this type.
         hasNewlyDroppedBranch_[desc.branchType()] = true;
       }
     }
-    // Now fill in a mapping needed in the case that a branch was dropped while its EDAlias was kept.
-    for(auto const& it : preg.productList()) {
-      BranchDescription const& desc = it.second;
-      if(!desc.produced() || desc.isAlias()) continue;
-      BranchID const& branchID = desc.branchID();
-      std::map<BranchID, BranchDescription const*>::const_iterator iter = trueBranchIDToKeptBranchDesc.find(branchID);
-      if(iter != trueBranchIDToKeptBranchDesc.end()) {
-        // This branch, produced in this process, or an alias of it, was persisted.
-        BranchID const& keptBranchID = iter->second->branchID();
-        if(keptBranchID != branchID) {
-          // An EDAlias branch was persisted.
-          droppedBranchIDToKeptBranchID_.insert(std::make_pair(branchID.id(), keptBranchID.id()));
-        }
+
+    thinnedAssociationsHelper.selectAssociationProducts(associationDescriptions,
+                                                        keptProductsInEvent,
+                                                        keepAssociation_);
+
+    for(auto association : associationDescriptions) {
+      if(keepAssociation_[association->branchID()]) {
+        keepThisBranch(*association, trueBranchIDToKeptBranchDesc, keptProductsInEvent);
+      } else {
+        hasNewlyDroppedBranch_[association->branchType()] = true;
       }
     }
+
+    // Now fill in a mapping needed in the case that a branch was dropped while its EDAlias was kept.
+    ProductSelector::fillDroppedToKept(preg, trueBranchIDToKeptBranchDesc, droppedBranchIDToKeptBranchID_);
+
+    thinnedAssociationsHelper_->updateFromParentProcess(thinnedAssociationsHelper, keepAssociation_, droppedBranchIDToKeptBranchID_);
+  }
+
+  void OutputModule::keepThisBranch(BranchDescription const& desc,
+                                    std::map<BranchID, BranchDescription const*>& trueBranchIDToKeptBranchDesc,
+                                    std::set<BranchID>& keptProductsInEvent) {
+
+    ProductSelector::checkForDuplicateKeptBranch(desc,
+                                                 trueBranchIDToKeptBranchDesc);
+
+    switch (desc.branchType()) {
+    case InEvent:
+      {
+        if(desc.produced()) {
+          keptProductsInEvent.insert(desc.originalBranchID());
+        } else {
+          keptProductsInEvent.insert(desc.branchID());
+        }
+        consumes(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
+                 InputTag{desc.moduleLabel(),
+                     desc.productInstanceName(),
+                     desc.processName()});
+        break;
+      }
+    case InLumi:
+      {
+        consumes<InLumi>(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
+                         InputTag(desc.moduleLabel(),
+                                  desc.productInstanceName(),
+                                  desc.processName()));
+        break;
+      }
+    case InRun:
+      {
+        consumes<InRun>(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
+                        InputTag(desc.moduleLabel(),
+                                 desc.productInstanceName(),
+                                 desc.processName()));
+        break;
+      }
+    default:
+      assert(false);
+      break;
+    }
+    // Now put it in the list of selected branches.
+    keptProducts_[desc.branchType()].push_back(&desc);
   }
 
   OutputModule::~OutputModule() { }
@@ -329,6 +339,11 @@ namespace edm {
       return branchIDLists_.get();
     }
     return origBranchIDLists_;
+  }
+
+  ThinnedAssociationsHelper const*
+  OutputModule::thinnedAssociationsHelper() const {
+    return thinnedAssociationsHelper_.get();
   }
 
   ModuleDescription const&

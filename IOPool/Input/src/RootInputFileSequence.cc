@@ -6,6 +6,7 @@
 #include "RootInputFileSequence.h"
 #include "RootTree.h"
 
+#include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
@@ -224,7 +225,10 @@ namespace edm {
         usedFallback_ = true;
         std::unique_ptr<InputSource::FileOpenSentry>
           sentry(inputType_ == InputType::Primary ? new InputSource::FileOpenSentry(input_, lfn_, usedFallback_) : 0);
-        filePtr.reset(new InputFile(gSystem->ExpandPathName(fallbackName.c_str()), "  Fallback request to file ", inputType_));
+        std::string fallbackFullName = gSystem->ExpandPathName(fallbackName.c_str());
+        StorageFactory *factory = StorageFactory::get();
+        if (factory) {factory->activateTimeout(fallbackFullName);}
+        filePtr.reset(new InputFile(fallbackFullName.c_str(), "  Fallback request to file ", inputType_));
       }
       catch (cms::Exception const& e) {
         if(!skipBadFiles) {
@@ -259,6 +263,8 @@ namespace edm {
           productSelectorRules_,
           inputType_,
           (inputType_ == InputType::SecondarySource ?  std::make_shared<BranchIDListHelper>() :  input_.branchIDListHelper()),
+          (inputType_ == InputType::SecondarySource ?  std::shared_ptr<ThinnedAssociationsHelper>() : input_.thinnedAssociationsHelper()),
+          associationsFromSecondary_,
           duplicateChecker_,
           dropDescendants_,
           processHistoryRegistryForUpdate(),
@@ -841,5 +847,12 @@ namespace edm {
       return ProcessingController::kAtFirstEvent;
     }
     return ProcessingController::kUnknownReverse;
+  }
+
+  void RootInputFileSequence::initAssociationsFromSecondary(std::set<BranchID> const& associationsFromSecondary) {
+    for(auto const& branchID : associationsFromSecondary) {
+      associationsFromSecondary_.push_back(branchID);
+    }
+    rootFile_->initAssociationsFromSecondary(associationsFromSecondary_);
   }
 }

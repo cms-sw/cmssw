@@ -13,6 +13,7 @@
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -65,6 +66,7 @@ namespace sistrip {
 
     eventPrincipal_.reset(new edm::EventPrincipal(source_->productRegistry(),
                                                   source_->branchIDListHelper(),
+                                                  source_->thinnedAssociationsHelper(),
                                                   *processConfiguration_,
                                                   nullptr));
   }
@@ -75,6 +77,7 @@ namespace sistrip {
     edm::InputSourceDescription description(edm::ModuleDescription(),
                                             *productRegistry_,
                                             std::make_shared<edm::BranchIDListHelper>(),
+                                            std::make_shared<edm::ThinnedAssociationsHelper>(),
                                             std::make_shared<edm::ActivityRegistry>(),
                                             -1, -1, -1,
                                             edm::PreallocationConfiguration());

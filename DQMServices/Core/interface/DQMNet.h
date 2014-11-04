@@ -61,6 +61,7 @@ public:
   static const uint32_t DQM_PROP_DEAD		 = 0x00080000;
   static const uint32_t DQM_PROP_STALE		 = 0x00100000;
   static const uint32_t DQM_PROP_EFFICIENCY_PLOT = 0x00200000;
+  static const uint32_t DQM_PROP_MARKTODELETE    = 0x01000000;
 
   static const uint32_t DQM_MSG_HELLO		 = 0;
   static const uint32_t DQM_MSG_UPDATE_ME	 = 1;

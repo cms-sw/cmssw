@@ -12,8 +12,12 @@
 
 // user include files
 #include "FWCore/FWLite/src/BareRootProductGetter.h"
-
+#include "DataFormats/Common/interface/ThinnedAssociation.h"
+#include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
+#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
@@ -26,7 +30,6 @@
 #include "TFile.h"
 #include "TTree.h"
 
-#include <memory>
 //
 // constants, enums and typedefs
 //
@@ -67,8 +70,8 @@ BareRootProductGetter::~BareRootProductGetter() {
 // const member functions
 //
 edm::WrapperBase const*
-BareRootProductGetter::getIt(edm::ProductID const& iID) const  {
-  // std::cout << "getIt called" << std::endl;
+BareRootProductGetter::getIt(edm::ProductID const& pid) const  {
+  // std::cout << "getIt called " << pid << std::endl;
   TFile* currentFile = dynamic_cast<TFile*>(gROOT->GetListOfFiles()->Last());
   if(0 == currentFile) {
      throw cms::Exception("FileNotFound")
@@ -98,11 +101,20 @@ BareRootProductGetter::getIt(edm::ProductID const& iID) const  {
         ;
   }
 
+  edm::BranchID branchID = branchMap_.productToBranchID(pid);
+
+  return getIt(branchID, eventEntry);
+}
+
+edm::WrapperBase const*
+BareRootProductGetter::getIt(edm::BranchID const& branchID, Long_t eventEntry) const  {
+
   Buffer* buffer = nullptr;
-  IdToBuffers::iterator itBuffer = idToBuffers_.find(iID);
+  IdToBuffers::iterator itBuffer = idToBuffers_.find(branchID);
+
   // std::cout << "Buffers" << std::endl;
   if(itBuffer == idToBuffers_.end()) {
-    buffer = createNewBuffer(iID);
+    buffer = createNewBuffer(branchID);
     // std::cout << "buffer " << buffer << std::endl;
     if(nullptr == buffer) {
        return nullptr;
@@ -155,10 +167,123 @@ BareRootProductGetter::getIt(edm::ProductID const& iID) const  {
   return buffer->product_.get();
 }
 
+edm::WrapperBase const*
+BareRootProductGetter::getThinnedProduct(edm::ProductID const& pid, unsigned int& key) const {
+
+  Long_t eventEntry = branchMap_.getEventTree()->GetReadEntry();
+  edm::BranchID parent = branchMap_.productToBranchID(pid);
+  if(!parent.isValid()) return nullptr;
+  edm::ThinnedAssociationsHelper const& thinnedAssociationsHelper = branchMap_.thinnedAssociationsHelper();
+
+  // Loop over thinned containers which were made by selecting elements from the parent container
+  for(auto associatedBranches = thinnedAssociationsHelper.parentBegin(parent),
+                         iEnd = thinnedAssociationsHelper.parentEnd(parent);
+      associatedBranches != iEnd; ++associatedBranches) {
+
+    edm::ThinnedAssociation const* thinnedAssociation =
+      getThinnedAssociation(associatedBranches->association(), eventEntry);
+    if(thinnedAssociation == nullptr) continue;
+
+    if(associatedBranches->parent() != branchMap_.productToBranchID(thinnedAssociation->parentCollectionID())) {
+      continue;
+    }
+
+    unsigned int thinnedIndex = 0;
+    // Does this thinned container have the element referenced by key?
+    // If yes, thinnedIndex is set to point to it in the thinned container
+    if(!thinnedAssociation->hasParentIndex(key, thinnedIndex)) {
+      continue;
+    }
+    // Get the thinned container and return a pointer if we can find it
+    edm::ProductID const& thinnedCollectionPID = thinnedAssociation->thinnedCollectionID();
+    edm::WrapperBase const* thinnedCollection = getIt(thinnedCollectionPID);
+    if(thinnedCollection == nullptr) {
+      // Thinned container is not found, try looking recursively in thinned containers
+      // which were made by selecting elements from this thinned container.
+      edm::WrapperBase const* thinnedFromRecursiveCall = getThinnedProduct(thinnedCollectionPID, thinnedIndex);
+      if(thinnedFromRecursiveCall != nullptr) {
+        key = thinnedIndex;
+        return thinnedFromRecursiveCall;
+      } else {
+        continue;
+      }
+    }
+    key = thinnedIndex;
+    return thinnedCollection;
+  }
+  return nullptr;
+}
+
+void
+BareRootProductGetter::getThinnedProducts(edm::ProductID const& pid,
+                                          std::vector<edm::WrapperBase const*>& foundContainers,
+                                          std::vector<unsigned int>& keys) const {
+
+  Long_t eventEntry = branchMap_.getEventTree()->GetReadEntry();
+  edm::BranchID parent = branchMap_.productToBranchID(pid);
+  if(!parent.isValid()) return;
+  edm::ThinnedAssociationsHelper const& thinnedAssociationsHelper = branchMap_.thinnedAssociationsHelper();
+
+  // Loop over thinned containers which were made by selecting elements from the parent container
+  for(auto associatedBranches = thinnedAssociationsHelper.parentBegin(parent),
+                         iEnd = thinnedAssociationsHelper.parentEnd(parent);
+      associatedBranches != iEnd; ++associatedBranches) {
+
+    edm::ThinnedAssociation const* thinnedAssociation =
+      getThinnedAssociation(associatedBranches->association(), eventEntry);
+    if(thinnedAssociation == nullptr) continue;
+
+    if(associatedBranches->parent() != branchMap_.productToBranchID(thinnedAssociation->parentCollectionID())) {
+      continue;
+    }
+
+    unsigned int nKeys = keys.size();
+    unsigned int doNotLookForThisIndex = std::numeric_limits<unsigned int>::max();
+    std::vector<unsigned int> thinnedIndexes(nKeys, doNotLookForThisIndex);
+    bool hasAny = false;
+    for(unsigned k = 0; k < nKeys; ++k) {
+      // Already found this one
+      if(foundContainers[k] != nullptr) continue;
+      // Already know this one is not in this thinned container
+      if(keys[k] == doNotLookForThisIndex) continue;
+      // Does the thinned container hold the entry of interest?
+      // Modifies thinnedIndexes[k] only if it returns true and
+      // sets it to the index in the thinned collection.
+      if(thinnedAssociation->hasParentIndex(keys[k], thinnedIndexes[k])) {
+        hasAny = true;
+      }
+    }
+    if(!hasAny) {
+      continue;
+    }
+    // Get the thinned container and set the pointers and indexes into
+    // it (if we can find it)
+    edm::ProductID thinnedCollectionPID = thinnedAssociation->thinnedCollectionID();
+    edm::WrapperBase const* thinnedCollection = getIt(thinnedCollectionPID);
+
+    if(thinnedCollection == nullptr) {
+      // Thinned container is not found, try looking recursively in thinned containers
+      // which were made by selecting elements from this thinned container.
+      getThinnedProducts(thinnedCollectionPID, foundContainers, thinnedIndexes);
+      for(unsigned k = 0; k < nKeys; ++k) {
+        if(foundContainers[k] == nullptr) continue;
+        if(thinnedIndexes[k] == doNotLookForThisIndex) continue;
+        keys[k] = thinnedIndexes[k];
+      }
+    } else {
+      for(unsigned k = 0; k < nKeys; ++k) {
+        if(thinnedIndexes[k] == doNotLookForThisIndex) continue;
+        keys[k] = thinnedIndexes[k];
+        foundContainers[k] = thinnedCollection;
+      }
+    }
+  }
+}
+
 BareRootProductGetter::Buffer*
-BareRootProductGetter::createNewBuffer(edm::ProductID const& iID) const {
+BareRootProductGetter::createNewBuffer(edm::BranchID const& branchID) const {
   //find the branch
-  edm::BranchDescription bdesc = branchMap_.productToBranch(iID);
+  edm::BranchDescription const& bdesc = branchMap_.branchIDToBranch(branchID);
 
   TBranch* branch= branchMap_.getEventTree()->GetBranch(bdesc.branchName().c_str());
   if(nullptr == branch) {
@@ -169,7 +294,7 @@ BareRootProductGetter::createNewBuffer(edm::ProductID const& iID) const {
   std::string const fullName = edm::wrappedClassName(bdesc.className());
   edm::TypeWithDict classType(edm::TypeWithDict::byName(fullName));
   if(!bool(classType)) {
-    cms::Exception("MissingDictionary")
+    throw cms::Exception("MissingDictionary")
        << "could not find dictionary for type '" << fullName << "'"
        << "\n Please make sure all the necessary libraries are available.";
     return nullptr;
@@ -185,9 +310,9 @@ BareRootProductGetter::createNewBuffer(edm::ProductID const& iID) const {
   void* address = rootClassType->New();
 
   static TClass const* edproductTClass = TClass::GetClass(typeid(edm::WrapperBase));
-  edm::WrapperBase const* prod = reinterpret_cast<edm::WrapperBase const*>( rootClassType->DynamicCast(edproductTClass,address,true));
+  edm::WrapperBase const* prod = static_cast<edm::WrapperBase const*>( rootClassType->DynamicCast(edproductTClass,address,true));
   if(nullptr == prod) {
-     cms::Exception("FailedConversion")
+     throw cms::Exception("FailedConversion")
         << "failed to convert a '" << fullName
         << "' to a edm::WrapperBase."
         << "Please contact developers since something is very wrong.";
@@ -196,16 +321,31 @@ BareRootProductGetter::createNewBuffer(edm::ProductID const& iID) const {
   //connect the instance to the branch
   //void* address  = wrapperObj.Address();
   Buffer b(prod, branch, address, rootClassType);
-  idToBuffers_[iID] = b;
+  idToBuffers_[branchID] = b;
 
   //As of 5.13 ROOT expects the memory address held by the pointer passed to
   // SetAddress to be valid forever
-  address = &(idToBuffers_[iID].address_);
+  address = &(idToBuffers_[branchID].address_);
   branch->SetAddress(address);
 
-  return &(idToBuffers_[iID]);
+  return &(idToBuffers_[branchID]);
 }
 
-//
-// static member functions
-//
+edm::ThinnedAssociation const*
+BareRootProductGetter::getThinnedAssociation(edm::BranchID const& branchID, Long_t eventEntry) const {
+
+  edm::WrapperBase const* wrapperBase = getIt(branchID, eventEntry);
+  if(wrapperBase == nullptr) {
+    throw edm::Exception(edm::errors::LogicError)
+      << "BareRootProductGetter::getThinnedAssociation, product ThinnedAssociation not found.\n";
+  }
+  if(!(typeid(edm::ThinnedAssociation) == wrapperBase->dynamicTypeInfo())) {
+    throw edm::Exception(edm::errors::LogicError)
+      << "BareRootProductGetter::getThinnedAssociation, product has wrong type, not a ThinnedAssociation.\n";
+  }
+  edm::Wrapper<edm::ThinnedAssociation> const* wrapper =
+    static_cast<edm::Wrapper<edm::ThinnedAssociation> const*>(wrapperBase);
+
+  edm::ThinnedAssociation const* thinnedAssociation = wrapper->product();
+  return thinnedAssociation;
+}

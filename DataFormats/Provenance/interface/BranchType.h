@@ -69,6 +69,7 @@ namespace edm {
     std::string const& processHistoryBranchName();
     std::string const& processConfigurationBranchName();
     std::string const& branchIDListBranchName();
+    std::string const& thinnedAssociationsHelperBranchName();
     std::string const& fileFormatVersionBranchName();
     std::string const& fileIdentifierBranchName();
     std::string const& fileIndexBranchName(); // backward compatibility

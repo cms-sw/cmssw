@@ -16,7 +16,7 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -39,12 +39,12 @@
 #include <TFile.h>
 #include <TFormula.h>
 #include <TH2.h>
-#include <TMath.h>
 #include <TRandom3.h>
 #include <TString.h>
 
 #include <iostream>
 #include <iomanip>
+#include <type_traits>
 
 namespace SmearedJetProducer_namespace
 {
@@ -142,7 +142,7 @@ namespace SmearedJetProducer_namespace
 }
 
 template <typename T, typename Textractor>
-class SmearedJetProducerT : public edm::EDProducer
+  class SmearedJetProducerT : public edm::stream::EDProducer<>
 {
   typedef std::vector<T> JetCollection;
 
@@ -152,6 +152,7 @@ class SmearedJetProducerT : public edm::EDProducer
     : moduleLabel_(cfg.getParameter<std::string>("@module_label")),
       genJetMatcher_(cfg, consumesCollector()),
       jetResolutionExtractor_(cfg.getParameter<edm::ParameterSet>("jetResolutions")),
+      jetCorrLabel_(""),
       skipJetSelection_(0)
   {
     //std::cout << "<SmearedJetProducer::SmearedJetProducer>:" << std::endl;
@@ -172,8 +173,11 @@ class SmearedJetProducerT : public edm::EDProducer
       throw cms::Exception("SmearedJetProducer")
         << " Failed to load LUT = " << lutName.data() << " from file = " << inputFileName.fullPath().data() << " !!\n";
 
-    jetCorrLabel_ = ( cfg.exists("jetCorrLabel") ) ?
-      cfg.getParameter<std::string>("jetCorrLabel") : "";
+    if ( cfg.exists("jetCorrLabel") ) {
+      jetCorrLabel_ = cfg.getParameter<edm::InputTag>("jetCorrLabel");
+      jetCorrToken_ = consumes<reco::JetCorrector>(jetCorrLabel_);
+    }
+
     jetCorrEtaMax_ = ( cfg.exists("jetCorrEtaMax") ) ?
       cfg.getParameter<double>("jetCorrEtaMax") : 9.9;
 
@@ -233,13 +237,20 @@ class SmearedJetProducerT : public edm::EDProducer
       }
 
       reco::Candidate::LorentzVector corrJetP4 = jet.p4();
-      if ( jetCorrLabel_ != "" ) corrJetP4 = jetCorrExtractor_(jet, jetCorrLabel_, &evt, &es, jetCorrEtaMax_, &rawJetP4);
+      if ( !jetCorrLabel_.label().empty() ) {
+        edm::Handle<reco::JetCorrector> jetCorr;
+        evt.getByToken(jetCorrToken_, jetCorr);
+	corrJetP4 =
+	std::is_base_of<class PATJetCorrExtractor, Textractor>::value ?
+	  jetCorrExtractor_(jet, jetCorrLabel_.label(), jetCorrEtaMax_, &rawJetP4) :
+	  jetCorrExtractor_(jet, jetCorr.product(), jetCorrEtaMax_, &rawJetP4);
+      }
       if ( verbosity_ ) {
 	std::cout << "corrJet: Pt = " << corrJetP4.pt() << ", eta = " << corrJetP4.eta() << ", phi = " << corrJetP4.phi() << std::endl;
       }
 
       double smearFactor = 1.;
-      double x = TMath::Abs(corrJetP4.eta());
+      double x = std::abs(corrJetP4.eta());
       double y = corrJetP4.pt();
       if ( x > lut_->GetXaxis()->GetXmin() && x < lut_->GetXaxis()->GetXmax() &&
 	   y > lut_->GetYaxis()->GetXmin() && y < lut_->GetYaxis()->GetXmax() ) {
@@ -256,7 +267,7 @@ class SmearedJetProducerT : public edm::EDProducer
       }
 
       double smearedJetEn = jet.energy();
-      double sigmaEn = jetResolutionExtractor_(jet)*TMath::Sqrt(smearFactor*smearFactor - 1.);
+      double sigmaEn = jetResolutionExtractor_(jet)*sqrt(smearFactor*smearFactor - 1.);
       const reco::GenJet* genJet = genJetMatcher_(jet, &evt);
       bool isGenMatched = false;
       if ( genJet ) {
@@ -273,7 +284,7 @@ class SmearedJetProducerT : public edm::EDProducer
 	    std::cout << "corrJetEn = " << corrJetP4.E() << ", genJetEn = " << genJet->energy() << " --> dEn = " << dEn << std::endl;
 	  }
 
-	  smearedJetEn = jet.energy()*(1. + (smearFactor - 1.)*dEn/TMath::Max(rawJetP4.E(), corrJetP4.E()));
+	  smearedJetEn = jet.energy()*(1. + (smearFactor - 1.)*dEn/std::max( rawJetP4.E(), corrJetP4.E()));
 	  isGenMatched = true;
 	}
       }
@@ -293,7 +304,7 @@ class SmearedJetProducerT : public edm::EDProducer
 	  //     Take maximum(rawJetEn, corrJetEn) to avoid pathological cases
 	  //    (e.g. corrJetEn << rawJetEn, due to L1Fastjet corrections)
 
-	  smearedJetEn = jet.energy()*(1. + rnd_.Gaus(0., sigmaEn)/TMath::Max(rawJetP4.E(), corrJetP4.E()));
+	  smearedJetEn = jet.energy()*(1. + rnd_.Gaus(0., sigmaEn)/std::max( rawJetP4.E(), corrJetP4.E()) );
 	}
       }
 
@@ -347,7 +358,8 @@ class SmearedJetProducerT : public edm::EDProducer
   SmearedJetProducer_namespace::JetResolutionExtractorT<T> jetResolutionExtractor_;
   TRandom3 rnd_;
 
-  std::string jetCorrLabel_; // e.g. 'ak5PFJetL1FastL2L3' (reco::PFJets) / '' (pat::Jets)
+  edm::InputTag jetCorrLabel_;
+  edm::EDGetTokenT<reco::JetCorrector> jetCorrToken_;    // e.g. 'ak5CaloJetL1FastL2L3' (MC) / 'ak5CaloJetL1FastL2L3Residual' (Data)
   double jetCorrEtaMax_; // do not use JEC factors for |eta| above this threshold (recommended default = 4.7),
                          // in order to work around problem with CMSSW_4_2_x JEC factors at high eta,
                          // reported in

@@ -18,7 +18,7 @@ process.load("Configuration.Generator.TTbar_cfi")
 
 # Famos sequences (NO HLT)
 #process.load("FastSimulation.Configuration.CommonInputs_cff")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 process.load('FastSimulation.Configuration.Geometries_cff')
 process.load("FastSimulation.Configuration.FamosSequences_cff")
 
@@ -35,8 +35,8 @@ process.famosSimHits.SimulateCalorimetry = True
 process.famosSimHits.SimulateTracking = True
 
 # Get frontier conditions    - not applied in the HCAL, see below
-from HLTrigger.Configuration.AutoCondGlobalTag import AutoCondGlobalTag
-process.GlobalTag = AutoCondGlobalTag(process.GlobalTag,'auto:startup_GRun')
+from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag as customiseGlobalTag
+process.GlobalTag = customiseGlobalTag(process.GlobalTag,'auto:run1_mc')
 # Allow reading of the tracker geometry from the DB
 process.load('CalibTracker/Configuration/Tracker_DependentRecords_forGlobalTag_nofakes_cff')
 

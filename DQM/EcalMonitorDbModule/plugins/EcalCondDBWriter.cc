@@ -3,6 +3,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -24,18 +25,42 @@ getBit(int& _bitArray, unsigned _iBit)
 }
 
 EcalCondDBWriter::EcalCondDBWriter(edm::ParameterSet const& _ps) :
+  runNumber_(0),
   db_(0),
   location_(_ps.getUntrackedParameter<std::string>("location")),
   runType_(_ps.getUntrackedParameter<std::string>("runType")),
   runGeneralTag_(_ps.getUntrackedParameter<std::string>("runGeneralTag")),
   monRunGeneralTag_(_ps.getUntrackedParameter<std::string>("monRunGeneralTag")),
-  inputRootFiles_(_ps.getUntrackedParameter<std::vector<std::string> >("inputRootFiles")),
   summaryWriter_(_ps.getUntrackedParameterSet("workerParams")),
   verbosity_(_ps.getUntrackedParameter<int>("verbosity")),
   executed_(false)
 {
-  if(inputRootFiles_.size() == 0)
+  std::vector<std::string> inputRootFiles(_ps.getUntrackedParameter<std::vector<std::string> >("inputRootFiles"));
+
+  if(inputRootFiles.size() == 0)
     throw cms::Exception("Configuration") << "No input ROOT file given";
+
+  if(verbosity_ > 0) edm::LogInfo("EcalDQM") << "Initializing DQMStore from input ROOT files";
+
+  DQMStore& dqmStore(*edm::Service<DQMStore>());
+
+  for(unsigned iF(0); iF < inputRootFiles.size(); ++iF){
+    std::string& fileName(inputRootFiles[iF]);
+
+    if(verbosity_ > 1) edm::LogInfo("EcalDQM") << " " << fileName;
+
+    TPRegexp pat("DQM_V[0-9]+(?:|_[0-9a-zA-Z]+)_R([0-9]+)");
+    std::auto_ptr<TObjArray> matches(pat.MatchS(fileName.c_str()));
+    if(matches->GetEntries() == 0)
+      throw cms::Exception("Configuration") << "Input file " << fileName << " is not an DQM output";
+
+    if(iF == 0)
+      runNumber_ = TString(matches->At(1)->GetName()).Atoi();
+    else if(TString(matches->At(1)->GetName()).Atoi() != runNumber_)
+      throw cms::Exception("Configuration") << "Input files disagree in run number";
+
+    dqmStore.open(fileName, false, "", "", DQMStore::StripRunDirs);
+  }
 
   std::string DBName(_ps.getUntrackedParameter<std::string>("DBName"));
   std::string hostName(_ps.getUntrackedParameter<std::string>("hostName"));
@@ -102,47 +127,23 @@ EcalCondDBWriter::~EcalCondDBWriter()
 }
 
 void
-EcalCondDBWriter::analyze(edm::Event const&, edm::EventSetup const&)
+EcalCondDBWriter::dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter& _igetter)
 {
   if(executed_) return;
 
   /////////////////////// INPUT INITIALIZATION /////////////////////////
-
-  if(verbosity_ > 0) edm::LogInfo("EcalDQM") << "Initializing DQMStore from input ROOT files";
-
-  DQMStore& dqmStore(*edm::Service<DQMStore>());
-
-  int runNumber(0);
-
-  for(unsigned iF(0); iF < inputRootFiles_.size(); ++iF){
-    std::string& fileName(inputRootFiles_[iF]);
-
-    if(verbosity_ > 1) edm::LogInfo("EcalDQM") << " " << fileName;
-
-    TPRegexp pat("DQM_V[0-9]+(?:|_[0-9a-zA-Z]+)_R([0-9]+)");
-    std::auto_ptr<TObjArray> matches(pat.MatchS(fileName.c_str()));
-    if(matches->GetEntries() == 0)
-      throw cms::Exception("Configuration") << "Input file " << fileName << " is not an DQM output";
-
-    if(iF == 0)
-      runNumber = TString(matches->At(1)->GetName()).Atoi();
-    else if(TString(matches->At(1)->GetName()).Atoi() != runNumber)
-      throw cms::Exception("Configuration") << "Input files disagree in run number";
-
-    dqmStore.open(fileName, false, "", "", DQMStore::StripRunDirs);
-  }
 
   if(verbosity_ > 1) edm::LogInfo("EcalDQM") << " Searching event info";
 
   uint64_t timeStampInFile(0);
   unsigned processedEvents(0);
 
-  dqmStore.cd();
-  std::vector<std::string> dirs(dqmStore.getSubdirs());
+  _igetter.cd();
+  std::vector<std::string> dirs(_igetter.getSubdirs());
   for(unsigned iD(0); iD < dirs.size(); ++iD){
-    if(!dqmStore.dirExists(dirs[iD] + "/EventInfo")) continue;
+    if(!_igetter.dirExists(dirs[iD] + "/EventInfo")) continue;
 
-    MonitorElement* timeStampME(dqmStore.get(dirs[iD] + "/EventInfo/runStartTimeStamp"));
+    MonitorElement* timeStampME(_igetter.get(dirs[iD] + "/EventInfo/runStartTimeStamp"));
     if(timeStampME){
       double timeStampValue(timeStampME->getFloatValue());
       uint64_t seconds(timeStampValue);
@@ -150,7 +151,7 @@ EcalCondDBWriter::analyze(edm::Event const&, edm::EventSetup const&)
       timeStampInFile = (seconds << 32) | microseconds;
     }
 
-    MonitorElement* eventsME(dqmStore.get(dirs[iD] + "/EventInfo/processedEvents"));
+    MonitorElement* eventsME(_igetter.get(dirs[iD] + "/EventInfo/processedEvents"));
     if(eventsME)
       processedEvents = eventsME->getIntValue();
 
@@ -170,7 +171,7 @@ EcalCondDBWriter::analyze(edm::Event const&, edm::EventSetup const&)
   for(unsigned iC(0); iC < nTasks; ++iC){
     if(!workers_[iC] || !workers_[iC]->runsOn(runType_)) continue;
 
-    workers_[iC]->retrieveSource(dqmStore);
+    workers_[iC]->retrieveSource(_igetter);
 
     setBit(taskList, iC);
   }
@@ -184,7 +185,7 @@ EcalCondDBWriter::analyze(edm::Event const&, edm::EventSetup const&)
   RunIOV runIOV;
   RunTag runTag;
   try{
-    runIOV = db_->fetchRunIOV(location_, runNumber);
+    runIOV = db_->fetchRunIOV(location_, runNumber_);
     runTag = runIOV.getRunTag();
   }
   catch(std::runtime_error& e){
@@ -202,12 +203,12 @@ EcalCondDBWriter::analyze(edm::Event const&, edm::EventSetup const&)
     runTag.setGeneralTag(runGeneralTag_);
 
     runIOV.setRunStart(Tm(timeStampInFile));
-    runIOV.setRunNumber(runNumber);
+    runIOV.setRunNumber(runNumber_);
     runIOV.setRunTag(runTag);
 
     try{
       db_->insertRunIOV(&runIOV);
-      runIOV = db_->fetchRunIOV(&runTag, runNumber);
+      runIOV = db_->fetchRunIOV(&runTag, runNumber_);
     }
     catch(std::runtime_error& e){
       throw cms::Exception("DBError") << e.what();
@@ -227,7 +228,7 @@ EcalCondDBWriter::analyze(edm::Event const&, edm::EventSetup const&)
   MonRunIOV monIOV;
 
   try{
-    monIOV = db_->fetchMonRunIOV(&runTag, &monTag, runNumber, 1);
+    monIOV = db_->fetchMonRunIOV(&runTag, &monTag, runNumber_, 1);
   }
   catch(std::runtime_error& e){
     std::cerr << e.what();
@@ -240,7 +241,7 @@ EcalCondDBWriter::analyze(edm::Event const&, edm::EventSetup const&)
 
     try{
       db_->insertMonRunIOV(&monIOV);
-      monIOV = db_->fetchMonRunIOV(&runTag, &monTag, runNumber, 1);
+      monIOV = db_->fetchMonRunIOV(&runTag, &monTag, runNumber_, 1);
     }
     catch(std::runtime_error& e){
       throw cms::Exception("DBError") << e.what();

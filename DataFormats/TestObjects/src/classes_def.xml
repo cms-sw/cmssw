@@ -5,6 +5,9 @@
  <class name="edmtest::IntProduct" ClassVersion="10">
   <version ClassVersion="10" checksum="4286676158"/>
  </class>
+ <class name="edmtest::UInt64Product" ClassVersion="10">
+  <version ClassVersion="10" checksum="380152127"/>
+ </class>
  <class name="edmtest::EnumProduct" ClassVersion="10">
   <version ClassVersion="10" checksum="3025325436"/>
  </class>
@@ -41,9 +44,8 @@
  <class name="edm::OwnVector<edmtest::SimpleDerived, edm::ClonePolicy<edmtest::SimpleDerived> >"/>
  <class name="std::vector<edmtest::Simple>"/>
  <class name="edm::Wrapper<std::vector<edmtest::Simple> >"/>
- <class name="std::vector<edmtest::Simple*>"/>
  <class name="std::vector<edmtest::SimpleDerived>"/>
- <class name="std::vector<edmtest::SimpleDerived*>"/>
+ <class name="edm::Wrapper<std::vector<edmtest::SimpleDerived> >"/>
  <class name="edm::RefProd<std::vector<edmtest::Simple> >"/>
  <class name="edm::DetSet<edmtest::Sortable>"/>
  <class name="std::vector<edm::DetSet<edmtest::Sortable> >"/>
@@ -53,11 +55,17 @@
  <class name="std::vector<edmtest::Unsortable>"/>
  <class name="edm::DetSetVector<edmtest::Sortable>"/>
  <class name="edm::DetSetVector<edmtest::Unsortable>"/>
- <class pattern="class edm::AssociationVector<edm::RefProd<std::vector<edmtest::Simple> >,std::vector<edmtest::Simple>,edm::Ref<std::vector<edmtest::Simple>,edmtest::Simple,edm::refhelper::FindUsingAdvance<std::vector<edmtest::Simple>,edmtest::Simple> >,unsigned int>">
+ <class name="edm::AssociationVector<edm::RefProd<std::vector<edmtest::Simple> >,std::vector<edmtest::Simple>,edm::Ref<std::vector<edmtest::Simple>,edmtest::Simple,edm::refhelper::FindUsingAdvance<std::vector<edmtest::Simple>,edmtest::Simple> >,unsigned int,edm::helper::AssociationIdenticalKeyReference>">
    <field name="transientVector_" transient="true"/>
  </class>
+ <class name="std::pair<edm::Ref<std::vector<edmtest::Simple>,edmtest::Simple,edm::refhelper::FindUsingAdvance<std::vector<edmtest::Simple>,edmtest::Simple> >,edmtest::Simple>"/>
+ <ioread sourceClass = "edm::AssociationVector<edm::RefProd<std::vector<edmtest::Simple> >,std::vector<edmtest::Simple>,edm::Ref<std::vector<edmtest::Simple>,edmtest::Simple,edm::refhelper::FindUsingAdvance<std::vector<edmtest::Simple>,edmtest::Simple> >,unsigned int,edm::helper::AssociationIdenticalKeyReference>" version="[1-]" targetClass = "edm::AssociationVector<edm::RefProd<std::vector<edmtest::Simple> >,std::vector<edmtest::Simple>,edm::Ref<std::vector<edmtest::Simple>,edmtest::Simple,edm::refhelper::FindUsingAdvance<std::vector<edmtest::Simple>,edmtest::Simple> >,unsigned int,edm::helper::AssociationIdenticalKeyReference>" source = "" target="transientVector_">
+   <![CDATA[delete transientVector_; transientVector_=nullptr;
+   ]]>
+ </ioread>
  <class name="edm::Wrapper<edmtest::DummyProduct>"/>
  <class name="edm::Wrapper<edmtest::IntProduct>"/>
+ <class name="edm::Wrapper<edmtest::UInt64Product>"/>
  <class name="edm::Wrapper<edmtest::TransientIntProduct>" persistent="false"/>
  <class name="edm::Wrapper<edmtest::Int16_tProduct>"/>
  <class name="edm::Wrapper<edmtest::DoubleProduct>"/>
@@ -66,9 +74,7 @@
  <class name="edm::Wrapper<edm::SortedCollection<edmtest::Simple, edm::StrictWeakOrdering<edmtest::Simple> > >"/>
  <class name="edm::Wrapper<edm::OwnVector<edmtest::Simple, edm::ClonePolicy<edmtest::Simple> > >"/>
  <class name="edm::Wrapper<edm::OwnVector<edmtest::SimpleDerived, edm::ClonePolicy<edmtest::SimpleDerived> > >"/>
-<!--
- <class name="edm::Wrapper<edm::AssociationVector<edm::RefProd<std::vector<edmtest::Simple> >, std::vector<edmtest::Simple> > >"/>
--->
+ <class name="edm::Wrapper<edm::AssociationVector<edm::RefProd<std::vector<edmtest::Simple> >,std::vector<edmtest::Simple>,edm::Ref<std::vector<edmtest::Simple>,edmtest::Simple,edm::refhelper::FindUsingAdvance<std::vector<edmtest::Simple>,edmtest::Simple> >,unsigned int,edm::helper::AssociationIdenticalKeyReference> >"/>
  <class name="edm::Wrapper<edm::DetSetVector<edmtest::Sortable> >"/>
  <class name="edm::Wrapper<edm::DetSetVector<edmtest::Unsortable> >"/>
 
@@ -97,10 +103,18 @@
  <class name="edm::reftobase::BaseHolder<edmtest::Thing>"/>
  <class name="edm::reftobase::Holder<edmtest::Thing,edm::Ref<std::vector<edmtest::Thing>,edmtest::Thing,edm::refhelper::FindUsingAdvance<std::vector<edmtest::Thing>,edmtest::Thing> > >"/>
  <class name="edm::RefToBase<edmtest::Thing>"/>
+ <class name="edm::RefToBaseVector<edmtest::Thing>"/>
+ <class name="edm::reftobase::BaseVectorHolder<edmtest::Thing>"/>
+ <class name="edm::reftobase::VectorHolder<edmtest::Thing, edm::RefVector<std::vector<edmtest::Thing>,edmtest::Thing,edm::refhelper::FindUsingAdvance<std::vector<edmtest::Thing>,edmtest::Thing> > >"/>
  <class name="edm::Ptr<edmtest::Thing>"/>
  <class name="edm::PtrVector<edmtest::Thing>"/>
  <class name="edm::Ref<std::vector<edmtest::Thing>,edmtest::Thing,edm::refhelper::FindUsingAdvance<std::vector<edmtest::Thing>,edmtest::Thing> >"/>
  <class name="edm::RefVector<std::vector<edmtest::Thing>,edmtest::Thing,edm::refhelper::FindUsingAdvance<std::vector<edmtest::Thing>,edmtest::Thing> >"/>
+ <class name="edmtest::TrackOfThings"/>
+ <class name="std::vector<edmtest::TrackOfThings>" ClassVersion="10">
+  <version ClassVersion="10" checksum="1189167006"/>
+ </class>
+ <class name="edm::Wrapper<std::vector<edmtest::TrackOfThings> >"/>
  <class name="edm::Wrapper<edmtest::Thing>"/>
  <class name="edm::Wrapper<edmtest::ThingWithMerge>"/>
  <class name="edm::Wrapper<edmtest::ThingWithIsEqual>"/>

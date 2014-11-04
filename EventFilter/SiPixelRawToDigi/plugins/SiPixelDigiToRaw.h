@@ -51,5 +51,7 @@ private:
   edm::ESWatcher<SiPixelFedCablingMapRcd> recordWatcher;
   bool debug;
   edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> tPixelDigi; 
+  bool usePilotBlade;
+  bool usePhase1;
 };
 #endif

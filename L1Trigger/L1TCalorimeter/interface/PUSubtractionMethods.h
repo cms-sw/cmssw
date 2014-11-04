@@ -25,7 +25,6 @@ namespace l1t {
 			   std::vector<l1t::CaloRegion> *subRegions);
 
   void RegionCorrection(const std::vector<l1t::CaloRegion> & regions,
-			const std::vector<l1t::CaloEmCand> & EMCands,
 			std::vector<l1t::CaloRegion> *subRegions,
 			std::vector<double> regionPUSparams,
 			std::string regionPUSType);

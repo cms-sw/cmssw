@@ -201,7 +201,10 @@ void writeMessage(const dqmstorepb::ROOTFilePB &dqmstore_output_msg,
   DEBUG(1, "Writing file" << std::endl);
 
   int out_fd = ::open(output_filename.c_str(),
-                      O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+                      O_WRONLY | O_CREAT | O_TRUNC,
+                      S_IRUSR | S_IWUSR |
+                      S_IRGRP | S_IWGRP |
+                      S_IROTH);
   FileOutputStream out_stream(out_fd);
   GzipOutputStream::Options options;
   options.format = GzipOutputStream::GZIP;
@@ -255,7 +258,7 @@ void processDirectory(TFile *file,
         subdir += '/';
       subdir += obj->GetName();
       processDirectory(file, subdir, dirs, objs, fullnames, micromes);
-    } else if ((dynamic_cast<TH1 *>(obj)) && (dynamic_cast<TObjString *>(obj))) {
+    } else if ((dynamic_cast<TH1 *>(obj)) || (dynamic_cast<TObjString *>(obj))) {
       if (dynamic_cast<TH1 *>(obj)) {
         dynamic_cast<TH1 *>(obj)->SetDirectory(0);
       }
@@ -319,7 +322,7 @@ int convertFile(const std::string &output_filename,
                     (void*)h.streamed_histo().data(),
                     kFALSE);
     buf.Reset();
-    TObject *obj = static_cast<TH1*>(extractNextObject(buf));
+    TObject *obj = extractNextObject(buf);
     std::string path,objname;
     get_info(h, path, objname, &obj);
     gDirectory->cd("/");
@@ -393,7 +396,7 @@ int addFiles(const std::string &output_filename,
   std::set<std::string> fullnames;
   std::set<MicroME> micromes;
 
-  assert(filenames.size() > 1);
+  assert(filenames.size() > 0);
   DEBUG(1, "Adding file " << filenames[0] << std::endl);
   {
     dqmstorepb::ROOTFilePB dqmstore_message;

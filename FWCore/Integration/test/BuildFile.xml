@@ -46,6 +46,10 @@
     <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_SeriesOfProcesses.sh"/>
     <use   name="FWCore/Utilities"/>
   </bin>
+  <bin   file="TestIntegration.cpp" name="TestIntegrationThinningTests">
+    <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_ThinningTests.sh"/>
+    <use   name="FWCore/Utilities"/>
+  </bin>
   <bin   file="TestIntegration.cpp" name="TestIntegrationGetBy">
     <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_TestGetBy.sh"/>
     <use   name="FWCore/Utilities"/>
@@ -98,7 +102,7 @@
     <use   name="FWCore/ParameterSet"/>
     <use   name="FWCore/Framework"/>
   </library>
-  <library   file="ThingProducer.cc,ThingAlgorithm.cc" name="TestThingProducer">
+  <library   file="ThingProducer.cc,ThingAlgorithm.cc,TrackOfThingsProducer.cc,ThinningThingProducer.cc,ThinningTestAnalyzer.cc,WhatsIt.cc,GadgetRcd.cc" name="TestThingProducer">
     <flags   EDM_PLUGIN="1"/>
     <use   name="FWCore/Framework"/>
   </library>

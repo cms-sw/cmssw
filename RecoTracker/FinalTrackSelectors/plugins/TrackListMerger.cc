@@ -407,7 +407,11 @@ namespace {
 
     //cache the id and rechits of valid hits
     typedef std::pair<unsigned int, const TrackingRecHit*> IHit;
+    #ifdef __clang__
+    std::vector<std::vector<IHit>> rh1(ngood);  // an array of vectors!
+    #else
     std::vector<IHit> rh1[ngood];  // an array of vectors!
+    #endif
     //const TrackingRecHit*  fh1[ngood];  // first hit...
     uint8_t algo[ngood];
     float score[ngood];
@@ -430,9 +434,8 @@ namespace {
 
       rh1[i].reserve(validHits) ;
       auto compById = [](IHit const &  h1, IHit const & h2) {return h1.first < h2.first;};
-      // fh1[i] = &(**track->recHitsBegin());
       for (trackingRecHit_iterator it = track->recHitsBegin();  it != track->recHitsEnd(); ++it) {
-	const TrackingRecHit* hit = &(**it);
+	const TrackingRecHit* hit = (*it);
 	unsigned int id = hit->rawId() ;
 	if(hit->geographicalId().subdetId()>2)  id &= (~3); // mask mono/stereo in strips...
 	if likely(hit->isValid()) { rh1[i].emplace_back(id,hit); std::push_heap(rh1[i].begin(),rh1[i].end(),compById); }
@@ -636,8 +639,13 @@ namespace {
     //  output selected tracks - if any
     //
 
+    #ifdef __clang__
+    std::vector<reco::TrackRef> trackRefs(rSize);
+    std::vector<edm::RefToBase<TrajectorySeed>> seedsRefs(rSize);
+    #else
     reco::TrackRef trackRefs[rSize];
     edm::RefToBase<TrajectorySeed> seedsRefs[rSize];
+    #endif
 
     unsigned int nToWrite=0;
     for ( unsigned int i=0; i<rSize; i++)
@@ -754,11 +762,10 @@ namespace {
 
 	// fill TrackingRecHits
 	unsigned nh1=track->recHitsSize();
-	for ( unsigned ih=0; ih<nh1; ++ih ) {
-	  //const TrackingRecHit*hit=&((*(track->recHit(ih))));
-	  outputTrkHits->push_back( track->recHit(ih)->clone() );
-	  tx.add( TrackingRecHitRef( refTrkHits, outputTrkHits->size() - 1) );
-	}
+        tx.setHits(refTrkHits,outputTrkHits->size(),nh1);
+        for (auto hh = track->recHitsBegin(), eh=track->recHitsEnd(); hh!=eh; ++hh ) {
+          outputTrkHits->push_back( (*hh)->clone() );
+        }
       }
       trackRefs[i] = reco::TrackRef(refTrks, outputTrks->size() - 1);
 

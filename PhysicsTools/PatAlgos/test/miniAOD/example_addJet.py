@@ -33,11 +33,12 @@ addJetCollection(
    jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
    btagDiscriminators = [      'combinedSecondaryVertexBJetTags'     ]
    )
-process.patJetPartonMatchPatJetsAK5PFCHS.matched = "prunedGenParticles"
-process.patJetPartons.src = "prunedGenParticles"
-process.patJetPartons.skipFirstN = cms.uint32(0) # do not skip first 6 particles, we already pruned some!
-process.patJetPartons.acceptNoDaughters = cms.bool(True) # as we drop intermediate stuff, we need to accept quarks with no siblings
-process.patJetCorrFactorsPatJetsAK5PFCHS.primaryVertices = "offlineSlimmedPrimaryVertices"
+process.patJetPartonMatchAK5PFCHS.matched = "prunedGenParticles"
+process.patJetPartons.particles = "prunedGenParticles"
+process.patJetPartonsLegacy.src = "prunedGenParticles" # if using legacy jet flavour (not used by default)
+process.patJetPartonsLegacy.skipFirstN = cms.uint32(0) # do not skip first 6 particles, we already pruned some!
+process.patJetPartonsLegacy.acceptNoDaughters = cms.bool(True) # as we drop intermediate stuff, we need to accept quarks with no siblings
+process.patJetCorrFactorsAK5PFCHS.primaryVertices = "offlineSlimmedPrimaryVertices"
 
 #recreate tracks and pv for btagging
 process.load('PhysicsTools.PatAlgos.slimming.unpackedTracksAndVertices_cfi')

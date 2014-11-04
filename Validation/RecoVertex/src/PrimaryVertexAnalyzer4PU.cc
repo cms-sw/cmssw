@@ -2147,7 +2147,7 @@ PrimaryVertexAnalyzer4PU::analyze(const Event& iEvent, const EventSetup& iSetup)
       Fill(hnoBS,"yrecBeamvsdyXBS",recVtxs->begin()->yError(),recVtxs->begin()->y()-vertexBeamSpot_.y0());
 
       if(printXBS_) {
-	cout << Form("XBS %10d %5d %10d  %4d   %lu %5.2f    %8f %8f       %8f %8f      %8f %8f",
+	cout << Form("XBS %10d %5d %14llu  %4d   %lu %5.2f    %8f %8f       %8f %8f      %8f %8f",
 		      run_,luminosityBlock_,event_,bunchCrossing_,
 		      (unsigned long)(recVtxs->begin()->tracksSize()), recVtxs->begin()->ndof(),
 		      recVtxs->begin()->x(), 		   recVtxs->begin()->xError(), 
@@ -3346,7 +3346,7 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
     Fill(h,"eff0vsntrec",nrectrks,0.);
     Fill(h,"eff0vsntsel",nseltrks,0.);
     if((nseltrks>1)&&(verbose_)){
-      cout << Form("PrimaryVertexAnalyzer4PU: %s may have lost a vertex  %10d  %10d     %4d / %4d ",message.c_str(),run_, event_, nrectrks,nseltrks) << endl;
+      cout << Form("PrimaryVertexAnalyzer4PU: %s may have lost a vertex  %10d  %14llu     %4d / %4d ",message.c_str(),run_, event_, nrectrks,nseltrks) << endl;
       dumpThisEvent_=true;
     }
   }

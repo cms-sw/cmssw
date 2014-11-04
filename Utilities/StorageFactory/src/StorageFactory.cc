@@ -25,8 +25,6 @@ StorageFactory::StorageFactory (void)
 
 StorageFactory::~StorageFactory (void)
 {
-  for (MakerTable::iterator i = m_makers.begin (); i != m_makers.end (); ++i)
-    delete i->second;
 }
 
 StorageFactory *
@@ -132,12 +130,18 @@ StorageFactory::tempMinFree(void) const
 StorageMaker *
 StorageFactory::getMaker (const std::string &proto)
 {
-  StorageMaker *&instance = m_makers [proto];
-  if (! edmplugin::PluginManager::isAvailable())
+  auto itFound = m_makers.find(proto);
+  if(itFound != m_makers.end()) {
+     return itFound->second.get();
+  }
+  if (! edmplugin::PluginManager::isAvailable()) {
     edmplugin::PluginManager::configure(edmplugin::standard::config());
-  if (! instance)
-    instance = StorageMakerFactory::get()->tryToCreate(proto);
-  return instance;
+  }
+  std::shared_ptr<StorageMaker> instance{ StorageMakerFactory::get()->tryToCreate(proto)};
+  auto insertResult = m_makers.insert(MakerTable::value_type(proto,instance));
+  //Can't use instance since it is possible that another thread beat
+  // us to the insertion so the map contains a different instance.
+  return insertResult.first->second.get();
 }
 
 StorageMaker *
@@ -260,7 +264,7 @@ StorageFactory::wrapNonLocalFile (Storage *s,
 				  int mode)
 {
   StorageFactory::CacheHint hint = cacheHint();
-  if ((hint == StorageFactory::CACHE_HINT_LAZY_DOWNLOAD)
+  if (((hint == StorageFactory::CACHE_HINT_LAZY_DOWNLOAD) || (mode & IOFlags::OpenWrap))
       && ! (mode & IOFlags::OpenWrite)
       && ! m_tempdir.empty()
       && (path.empty() || ! m_lfs.isLocalPath(path)))

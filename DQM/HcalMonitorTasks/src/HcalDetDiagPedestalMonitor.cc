@@ -296,8 +296,8 @@ void HcalDetDiagPedestalMonitor::beginRun(const edm::Run& run, const edm::EventS
   emap=conditions_->getHcalMapping();
   
   edm::ESHandle<HcalChannelQuality> p;
-  c.get<HcalChannelQualityRcd>().get(p);
-  HcalChannelQuality* chanquality= new HcalChannelQuality(*p.product());
+  c.get<HcalChannelQualityRcd>().get("withTopo",p);
+  const HcalChannelQuality* chanquality= p.product();
   std::vector<DetId> mydetids = chanquality->getAllChannels();
   KnownBadCells_.clear();
 

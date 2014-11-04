@@ -1,14 +1,12 @@
 #include "PhysicsTools/PatUtils/plugins/ShiftedPFCandidateProducerForNoPileUpPFMEt.h"
 
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
 
 ShiftedPFCandidateProducerForNoPileUpPFMEt::ShiftedPFCandidateProducerForNoPileUpPFMEt(const edm::ParameterSet& cfg)
-  : moduleLabel_(cfg.getParameter<std::string>("@module_label"))
-  , srcPFCandidatesToken_(consumes<reco::PFCandidateCollection>(cfg.getParameter<edm::InputTag>("srcPFCandidates")))
+  : srcPFCandidatesToken_(consumes<reco::PFCandidateCollection>(cfg.getParameter<edm::InputTag>("srcPFCandidates")))
   , srcJetsToken_(consumes<reco::PFJetCollection>(cfg.getParameter<edm::InputTag>("srcJets")))
 {
 

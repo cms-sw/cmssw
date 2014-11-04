@@ -290,7 +290,7 @@ void TkAlCaRecoMonitor::fillHitmaps(const reco::Track &track, const TrackerGeome
 {
   for (trackingRecHit_iterator iHit = track.recHitsBegin(); iHit != track.recHitsEnd(); ++iHit) {    
     if( (*iHit)->isValid() ){
-      const TrackingRecHit *hit = (*iHit).get();
+      const TrackingRecHit *hit = (*iHit);
       const DetId geoId(hit->geographicalId());
       const GeomDet* gd = geometry.idToDet(geoId);
       // since 2_1_X local hit positions are transient. taking center of the hit module for now.

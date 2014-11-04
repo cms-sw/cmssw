@@ -11,7 +11,7 @@ muonEmbedTrack = True  # embedded track needed for muon ID cuts
 ### Jet configuration
 
 # Jet algorithm
-jetAlgo = 'AK5'
+jetAlgo = 'AK4'
 
 # JEC sets
 jecSetBase = jetAlgo

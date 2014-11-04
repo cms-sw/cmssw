@@ -2,12 +2,15 @@
 import FWCore.ParameterSet.Config as cms
 
 from SLHCUpgradeSimulations.Configuration.muonCustoms import customise_csc_PostLS1,customise_csc_hlt
-
+from L1Trigger.L1TCommon.customsPostLS1 import customiseSimL1EmulatorForPostLS1
 
 def customisePostLS1(process):
 
     # deal with CSC separately:
     process = customise_csc_PostLS1(process)
+
+    # deal with L1 Emulation separately:
+    customiseSimL1EmulatorForPostLS1(process)
 
     # all the rest:
     if hasattr(process,'g4SimHits'):
@@ -50,6 +53,8 @@ def digiEventContent(process):
 
 def customise_DQM(process):
     #process.dqmoffline_step.remove(process.jetMETAnalyzer)
+    # Turn off flag of gangedME11a
+    process.l1tCsctf.gangedME11a = cms.untracked.bool(False)
     return process
 
 

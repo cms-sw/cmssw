@@ -90,8 +90,8 @@ bTagCommonBlock = cms.PSet(
         ),
         cms.PSet(
             bTagGenericAnalysisBlock,
-            label = cms.InputTag("combinedSecondaryVertexMVABJetTags"),
-            folder = cms.string("CSVMVA")
+            label = cms.InputTag("combinedInclusiveSecondaryVertexV2BJetTags"),
+            folder = cms.string("CSVv2")
         ),
         cms.PSet(
             bTagGenericAnalysisBlock,

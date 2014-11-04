@@ -9,7 +9,6 @@ void edmChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Analy
                     clang::ento::BugReporter &BR) const {
 	if (!RD->hasDefinition()) return;
 	const clang::SourceManager &SM = BR.getSourceManager();
-	clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( RD, SM );
 	for ( auto J=RD->bases_begin(), F=RD->bases_end();J != F; ++J) {
 		auto BRD = J->getType()->getAsCXXRecordDecl();
 		if (!BRD) continue;

@@ -468,9 +468,13 @@ namespace HLTOfflineDQMTopSingleLepton {
         if(logged_<=hists_.find("eventLogger_")->second->getNbinsY()){
           // log runnumber, lumi block, event number & some
           // more pysics infomation for interesting events
-          fill("eventLogger_", 0.5, logged_+0.5, event.eventAuxiliary().run()); 
-          fill("eventLogger_", 1.5, logged_+0.5, event.eventAuxiliary().luminosityBlock()); 
-          fill("eventLogger_", 2.5, logged_+0.5, event.eventAuxiliary().event()); 
+          // We're doing a static_cast here to denote the explicity of the cast
+          double runID = static_cast<double>(event.eventAuxiliary().run());
+          double luminosityBlockID = static_cast<double>(event.eventAuxiliary().luminosityBlock());
+          double eventID = static_cast<double>(event.eventAuxiliary().event());
+          fill("eventLogger_", 0.5, logged_+0.5, runID); 
+          fill("eventLogger_", 1.5, logged_+0.5, luminosityBlockID); 
+          fill("eventLogger_", 2.5, logged_+0.5, eventID); 
           ++logged_;
         }
       }

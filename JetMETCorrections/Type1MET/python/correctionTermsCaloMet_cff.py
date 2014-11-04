@@ -1,12 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 ##____________________________________________________________________________||
-from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
+from JetMETCorrections.Configuration.JetCorrectors_cff import *
 
 corrCaloMetType1 = cms.EDProducer(
     "CaloJetMETcorrInputProducer",
     src = cms.InputTag('ak4CaloJets'),
-    jetCorrLabel = cms.string("ak4CaloL2L3"), # NOTE: use "ak4CaloL2L3" for MC / "ak4CaloL2L3Residual" for Data
+    jetCorrLabel = cms.InputTag("ak4CaloL2L3Corrector"), # NOTE: use "ak4CaloL2L3Corrector" for MC / "ak4CaloL2L3ResidualCorrector" for Data
     jetCorrEtaMax = cms.double(9.9),
     type1JetPtThreshold = cms.double(20.0),
     skipEM = cms.bool(True),
@@ -37,6 +37,7 @@ corrCaloMetType2 = cms.EDProducer(
 
 ##____________________________________________________________________________||
 correctionTermsCaloMet = cms.Sequence(
+    ak4CaloL2L3CorrectorChain + # NOTE: use "ak4CaloL2L3CorrectorChain" for MC / "ak4CaloL2L3ResidualCorrectorChain" for Data
     corrCaloMetType1 +
     muCaloMetCorr +
     corrCaloMetType2

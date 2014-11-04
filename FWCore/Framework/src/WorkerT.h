@@ -18,6 +18,8 @@ namespace edm {
 
   class ModuleCallingContext;
   class ProductHolderIndexAndSkipBit;
+  class ProductRegistry;
+  class ThinnedAssociationsHelper;
 
   UnscheduledHandler* getUnscheduledHandler(EventPrincipal const& ep);
 
@@ -96,6 +98,7 @@ namespace edm {
     virtual void implPreForkReleaseResources() override;
     virtual void implPostForkReacquireResources(unsigned int iChildIndex, 
                                                unsigned int iNumberOfChildren) override;
+    virtual void implRegisterThinnedAssociations(ProductRegistry const&, ThinnedAssociationsHelper&) override;
     virtual std::string workerType() const override;
 
     virtual void modulesDependentUpon(std::vector<const char*>& oModuleLabels) const override {

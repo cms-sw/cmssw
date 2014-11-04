@@ -555,10 +555,10 @@ void PFSimParticleProducer::getSimIDs( const TrackHandle& trackh,
       for (trackingRecHit_iterator it = rhitbeg;  
 	   it != rhitend; it++){
 
-	if( it->get()->isValid() ){
+	if( (*it)->isValid() ){
 
 	  const SiTrackerGSMatchedRecHit2D * rechit 
-	    = (const SiTrackerGSMatchedRecHit2D*) (it->get());
+	    = (const SiTrackerGSMatchedRecHit2D*) (*it);
 	  
 // 	  cout <<  "rechit" 	       
 // 	       << " corresponding simId " 

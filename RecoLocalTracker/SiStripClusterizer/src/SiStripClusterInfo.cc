@@ -37,7 +37,7 @@ chargeLR() const {
 float SiStripClusterInfo::
 variance() const {
   float q(0), x1(0), x2(0);
-  for(std::vector<uint8_t>::const_iterator 
+  for(auto 
 	begin(stripCharges().begin()), end(stripCharges().end()), it(begin); 
       it!=end; ++it) {
     unsigned i = it-begin;
@@ -101,7 +101,7 @@ calculate_noise(const std::vector<float>& noise) const {
   float noiseSumInQuadrature = 0;
   int numberStripsOverThreshold = 0;
   for(int i=0;i<width();i++) {
-    if(stripCharges().at(i)!=0) {
+    if(stripCharges()[i]!=0) {
       noiseSumInQuadrature += noise.at(i) * noise.at(i);
       numberStripsOverThreshold++;
     }
@@ -151,7 +151,7 @@ reclusterize(const edm::ParameterSet& conf) const {
   
   std::vector<SiStripCluster> clusters;
 
-  std::vector<uint8_t> charges = stripCharges();
+  std::vector<uint8_t> charges(stripCharges().begin(),stripCharges().end());
   std::vector<float> gains = stripGains();
   for(unsigned i=0; i < charges.size(); i++)
     charges[i] = (charges[i] < 254) 

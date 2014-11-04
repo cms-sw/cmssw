@@ -55,7 +55,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 
 ### standard includes
 process.load('Configuration/StandardSequences/Services_cff')
-process.load('Configuration.StandardSequences.GeometryPilot2_cff')
+process.load('Configuration.StandardSequences.Geometry_cff')
 process.load("Configuration.StandardSequences.RawToDigi_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")

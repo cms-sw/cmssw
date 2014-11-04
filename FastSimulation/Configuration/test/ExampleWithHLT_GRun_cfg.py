@@ -22,12 +22,12 @@ process.load("Configuration.Generator.TTbar_cfi")
 
 
 # Common inputs, with fake conditions (not fake ay more!)
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 process.load('FastSimulation.Configuration.Geometries_cff')
 
 # Get frontier conditions
-from HLTrigger.Configuration.AutoCondGlobalTag import AutoCondGlobalTag
-process.GlobalTag = AutoCondGlobalTag(process.GlobalTag,'auto:startup_GRun')
+from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag as customiseGlobalTag
+process.GlobalTag = customiseGlobalTag(process.GlobalTag,'auto:run2_mc_GRun')
 
 # L1 Emulator and HLT Setup
 #process.load("FastSimulation.HighLevelTrigger.HLTSetup_cff")
@@ -103,3 +103,7 @@ process.MessageLogger.categories.append('HLTrigReport')
 
 # Make the job crash in case of missing product
 process.options = cms.untracked.PSet( Rethrow = cms.untracked.vstring('ProductNotFound') )
+
+# PostLS1
+from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1
+process = customisePostLS1(process)

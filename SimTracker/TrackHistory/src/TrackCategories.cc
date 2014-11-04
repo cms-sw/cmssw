@@ -3,7 +3,7 @@
 
 #include "SimTracker/TrackHistory/interface/TrackCategories.h"
 
-const char * TrackCategories::Names[] =
+const char * const TrackCategories::Names[] =
 {
     "Fake",
     "Bad",

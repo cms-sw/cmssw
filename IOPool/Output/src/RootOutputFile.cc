@@ -26,13 +26,13 @@
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "IOPool/Common/interface/getWrapperBasePtr.h"
 
-#include "TROOT.h"
 #include "TTree.h"
 #include "TFile.h"
 #include "TClass.h"
@@ -97,7 +97,7 @@ namespace edm {
       processHistoryRegistry_(),
       parentageIDs_(),
       branchesWithStoredHistory_(),
-      wrapperBaseTClass_(gROOT->GetClass("edm::WrapperBase")) {
+      wrapperBaseTClass_(TClass::GetClass("edm::WrapperBase")) {
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,30,0)
     if (om_->compressionAlgorithm() == std::string("ZLIB")) {
       filePtr_->SetCompressionAlgorithm(ROOT::kZLIB);
@@ -538,6 +538,13 @@ namespace edm {
     b->Fill();
   }
 
+  void RootOutputFile::writeThinnedAssociationsHelper() {
+    ThinnedAssociationsHelper const* p = om_->thinnedAssociationsHelper();
+    TBranch* b = metaDataTree_->Branch(poolNames::thinnedAssociationsHelperBranchName().c_str(), &p, om_->basketSize(), 0);
+    assert(b);
+    b->Fill();
+  }
+
   void RootOutputFile::writeParameterSetRegistry() {
     std::pair<ParameterSetID, ParameterSetBlob> idToBlob;
     std::pair<ParameterSetID, ParameterSetBlob>* pIdToBlob = &idToBlob;
@@ -709,7 +716,7 @@ namespace edm {
         if(product == nullptr) {
           // No product with this ID is in the event.
           // Add a null product.
-          TClass* cp = gROOT->GetClass(item.branchDescription_->wrappedName().c_str());
+          TClass* cp = TClass::GetClass(item.branchDescription_->wrappedName().c_str());
           int offset = cp->GetBaseClassOffset(wrapperBaseTClass_);
           void* p = cp->New();
           std::unique_ptr<WrapperBase> dummy = getWrapperBasePtr(p, offset);

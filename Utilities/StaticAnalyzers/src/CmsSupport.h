@@ -50,6 +50,7 @@ bool isSafeClassName(const std::string &d);
 bool isDataClass(const std::string &d);
 bool isInterestingLocation(const std::string &d);
 bool isKnownThrUnsafeFunc(const std::string &name );
+void writeLog(const std::string &ostring,const std::string &tfstring); 
 }
 } 
 

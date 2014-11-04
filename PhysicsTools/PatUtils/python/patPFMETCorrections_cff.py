@@ -18,13 +18,13 @@ patPFMet = patMETs.clone(
 #
 
 selectedPatJetsForMETtype1p2Corr = cms.EDFilter("PATJetSelector",
-    src = cms.InputTag('patJets'),                                    
+    src = cms.InputTag('patJets'),
     cut = cms.string('abs(eta) < 9.9'),
     filter = cms.bool(False)
 )
 
 selectedPatJetsForMETtype2Corr = cms.EDFilter("PATJetSelector",
-    src = cms.InputTag('patJets'),                                               
+    src = cms.InputTag('patJets'),
     cut = cms.string('abs(eta) > 9.9'),
     filter = cms.bool(False)
 )
@@ -34,12 +34,12 @@ selectedPatJetsForMETtype2Corr = cms.EDFilter("PATJetSelector",
 # produce Type 1 + 2 MET corrections for pat::Jets of PF-type
 patPFJetMETtype1p2Corr = cms.EDProducer("PATPFJetMETcorrInputProducer",
     src = cms.InputTag('selectedPatJetsForMETtype1p2Corr'),
-    offsetCorrLabel = cms.string("L1FastJet"),
-    jetCorrLabel = cms.string("L3Absolute"), # NOTE: use "L3Absolute" for MC / "L2L3Residual" for Data
+    offsetCorrLabel = cms.InputTag("L1FastJet"),
+    jetCorrLabel = cms.InputTag("L3Absolute"), # NOTE: use "L3Absolute" for MC / "L2L3Residual" for Data
     type1JetPtThreshold = cms.double(10.0),
-    type2ResidualCorrLabel = cms.string(""),
+    type2ResidualCorrLabel = cms.InputTag(""),
     type2ResidualCorrEtaMax = cms.double(9.9),
-    type2ExtraCorrFactor = cms.double(1.),                                    
+    type2ExtraCorrFactor = cms.double(1.),
     type2ResidualCorrOffset = cms.double(0.),
     isMC = cms.bool(False), # CV: only used to decide whether to apply "unclustered energy" calibration to MC or Data
     skipEM = cms.bool(True),
@@ -50,7 +50,7 @@ patPFJetMETtype1p2Corr = cms.EDProducer("PATPFJetMETcorrInputProducer",
 
 patPFJetMETtype2Corr = patPFJetMETtype1p2Corr.clone(
     src = cms.InputTag('selectedPatJetsForMETtype2Corr')
-)    
+)
 #--------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------
@@ -66,30 +66,30 @@ patPFMetT1 = cms.EDProducer("CorrectedPATMETProducer",
     applyType1Corrections = cms.bool(True),
     srcType1Corrections = cms.VInputTag(
         cms.InputTag('patPFJetMETtype1p2Corr', 'type1'),
-#        cms.InputTag('patPFMETtype0Corr')                    
+#        cms.InputTag('patPFMETtype0Corr')
     ),
     applyType2Corrections = cms.bool(False)
-)   
+)
 
 patPFMetT1T2 = cms.EDProducer("CorrectedPATMETProducer",
     src = cms.InputTag('patPFMet'),
     applyType1Corrections = cms.bool(True),
     srcType1Corrections = cms.VInputTag(
         cms.InputTag('patPFJetMETtype1p2Corr', 'type1'),
-#        cms.InputTag('patPFMETtype0Corr')             
+#        cms.InputTag('patPFMETtype0Corr')
     ),
     applyType2Corrections = cms.bool(True),
     srcUnclEnergySums = cms.VInputTag(
         cms.InputTag('patPFJetMETtype1p2Corr', 'type2' ),
-        cms.InputTag('patPFJetMETtype2Corr',   'type2' ),                                   
+        cms.InputTag('patPFJetMETtype2Corr',   'type2' ),
         cms.InputTag('patPFJetMETtype1p2Corr', 'offset'),
-        cms.InputTag('pfCandMETcorr')                                    
-    ),                              
+        cms.InputTag('pfCandMETcorr')
+    ),
     type2CorrFormula = cms.string("A"),
     type2CorrParameter = cms.PSet(
         A = cms.double(1.4)
     )
-)   
+)
 #--------------------------------------------------------------------------------
 #extra modules for naming scheme
 patPFMetT1Txy = patPFMetT1.clone()
@@ -112,12 +112,12 @@ producePatPFMETCorrections = cms.Sequence(
     patPFMet
    * pfCandsNotInJetsForMetCorr
    * selectedPatJetsForMETtype1p2Corr
-   * selectedPatJetsForMETtype2Corr 
+   * selectedPatJetsForMETtype2Corr
    * patPFJetMETtype1p2Corr
    * patPFJetMETtype2Corr
    * type0PFMEtCorrectionPFCandToVertexAssociation
    * patPFMETtype0Corr
-   * pfCandMETcorr 
+   * pfCandMETcorr
    * patPFMetT1
    * patPFMetT1T2
    * patPFMetT0pcT1
@@ -126,9 +126,9 @@ producePatPFMETCorrections = cms.Sequence(
 #--------------------------------------------------------------------------------
 
 #
-# define special sequence for PAT runType1uncertainty tool 
+# define special sequence for PAT runType1uncertainty tool
 # only preliminary modules processed
-# pat met producer modules cloned accordingly to what is needed 
+# pat met producer modules cloned accordingly to what is needed
 producePatPFMETCorrectionsUnc = cms.Sequence(
     patPFMet
    * pfCandsNotInJetsForMetCorr
@@ -138,5 +138,5 @@ producePatPFMETCorrectionsUnc = cms.Sequence(
    * patPFJetMETtype2Corr
    * type0PFMEtCorrectionPFCandToVertexAssociation
    * patPFMETtype0Corr
-   * pfCandMETcorr 
+   * pfCandMETcorr
 )

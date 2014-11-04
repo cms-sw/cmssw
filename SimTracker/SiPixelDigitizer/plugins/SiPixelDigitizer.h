@@ -60,9 +60,9 @@ namespace cms {
     virtual void beginJob() {}
 
     virtual void StorePileupInformation( std::vector<int> &numInteractionList,
-				 std::vector<int> &bunchCrossingList,
-				 std::vector<float> &TrueInteractionList){
-      PileupInfo_ = new PileupMixingContent(numInteractionList, bunchCrossingList, TrueInteractionList);
+					 std::vector<int> &bunchCrossingList,
+					 std::vector<float> &TrueInteractionList, int bunchSpacing){
+      PileupInfo_ = new PileupMixingContent(numInteractionList, bunchCrossingList, TrueInteractionList, bunchSpacing);
     }
 
     virtual PileupMixingContent* getEventPileupInfo() { return PileupInfo_; }
@@ -71,7 +71,8 @@ namespace cms {
     void accumulatePixelHits(edm::Handle<std::vector<PSimHit> >,
 			     size_t globalSimHitIndex,
 			     const unsigned int tofBin,
-			     CLHEP::HepRandomEngine*);
+			     CLHEP::HepRandomEngine*,
+			     edm::EventSetup const& c);
     CLHEP::HepRandomEngine* randomEngine(edm::StreamID const& streamID);
 
     bool first;

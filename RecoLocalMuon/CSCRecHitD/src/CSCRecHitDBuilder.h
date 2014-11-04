@@ -67,7 +67,7 @@ class CSCRecHitDBuilder
   /**
    * Pass conditions downstream
    */
-  void setConditions ( const CSCRecoConditions* reco );
+  void setConditions ( CSCRecoConditions* reco );
 
   const CSCLayer* getLayer( const CSCDetId& detId );
 
@@ -92,6 +92,10 @@ class CSCRecHitDBuilder
    * Cache geometry for current event
    */
   const CSCGeometry* geom_;
+  /* 
+   * Cache conditions data for current event - cannot be const because we need to update bad channels words
+   */
+  CSCRecoConditions* recoConditions_;
 };
 
 #endif

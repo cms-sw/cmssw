@@ -869,30 +869,6 @@ namespace {
 		return ret;
 	}
 
-
-	size_t pf_id_reduce(const int pf_id)
-	{
-		// Particle::pdgId_ PFCandidate::particleId_
-		// PFCandidate::ParticleType Particle
-		// 0           0  X          unknown, or dummy 
-		// +211, -211  1  h          charged hadron 
-		// +11, -11    2  e          electron 
-		// +13, -13    3  mu         muon 
-		// 22          4  gamma      photon 
-		// 130         5  h0         neutral hadron 
-		// 130         6  h_HF       hadronic energy in an HF tower 
-		// 22          7  egamma_HF  electromagnetic energy in an HF tower
-
-		if (pf_id == 4) {
-			return 1;
-		}
-		else if (pf_id >= 5 && pf_id <= 7) {
-			return 2;
-		}
-
-		return 0;
-	}
-
 }
 
 		void VoronoiAlgorithm::initialize_geometry(void)

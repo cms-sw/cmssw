@@ -7,6 +7,7 @@
 #include "DQWorker.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 namespace edm
 {
@@ -27,8 +28,6 @@ namespace ecaldqm
 
   protected:
     void ecaldqmGetSetupObjects(edm::EventSetup const&);
-    template<typename Booker> void ecaldqmBookHistograms(Booker&);
-    void ecaldqmReleaseHistograms();
     void ecaldqmBeginRun(edm::Run const&, edm::EventSetup const&);
     void ecaldqmEndRun(edm::Run const&, edm::EventSetup const&);
     void ecaldqmBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
@@ -40,16 +39,6 @@ namespace ecaldqm
     std::string const moduleName_;
     int const verbosity_;
   };
-
-  template<typename Booker>
-    void
-    EcalDQMonitor::ecaldqmBookHistograms(Booker& _booker)
-    {
-      executeOnWorkers_([&_booker](ecaldqm::DQWorker* worker){
-          worker->releaseMEs();
-          worker->bookMEs(_booker);
-        }, "bookMEs", "Booking MEs");
-    }
 
   template<typename FuncOnWorker>
     void

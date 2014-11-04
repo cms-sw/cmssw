@@ -59,7 +59,8 @@
 
             /// return class, or -1 if rejected
             bool select (unsigned tsNum,
-			 const reco::BeamSpot &vertexBeamSpot, 
+			 const reco::BeamSpot &vertexBeamSpot,
+                         const TrackingRecHitCollection & recHits,
 			 const reco::Track &tk, 
 			 const std::vector<Point> &points,
 			 std::vector<float> &vterr,
@@ -75,6 +76,7 @@
 
             /// source collection label
             edm::EDGetTokenT<reco::TrackCollection> src_;
+            edm::EDGetTokenT<TrackingRecHitCollection> hSrc_;
             edm::EDGetTokenT<reco::BeamSpot> beamspot_;
             bool          useVertices_;
             bool          useVtxError_;

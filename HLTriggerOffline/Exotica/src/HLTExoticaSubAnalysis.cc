@@ -423,14 +423,14 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 	// |  0   |  1  | --> 1 muon used
 	// |  1   |  2  | --> 2 electrons used  
 	// Initializing the count of the used objects.
-	std::map<unsigned int, int> * countobjects = new std::map<unsigned int, int>;
+	std::map<unsigned int, int> countobjects;
 	for (std::map<unsigned int, edm::InputTag>::iterator co = _recLabels.begin();
 	     co != _recLabels.end(); ++co) {
-	    countobjects->insert(std::pair<unsigned int, int>(co->first, 0));
+	    countobjects.insert(std::pair<unsigned int, int>(co->first, 0));
 	}
     
 	int counttotal = 0;
-	int totalobjectssize2 = 2 * countobjects->size();
+	int totalobjectssize2 = 2 * countobjects.size();
     
 	for (size_t j = 0; j != matchesGen.size(); ++j) {
 	    const unsigned int objType = matchesGen[j].pdgId();
@@ -439,7 +439,7 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 	
 	    float pt  = matchesGen[j].pt();
 
-	    if ((*countobjects)[objType] == 0) {
+	    if (countobjects[objType] == 0) {
 
                 // Cut for the pt-leading object 
                 StringCutObjectSelector<reco::LeafCandidate> select( _genCut_leading[objType] );
@@ -447,12 +447,12 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 
 		this->fillHist("gen", objTypeStr, "MaxPt1", pt);
 		// Filled the high pt ...
-		++((*countobjects)[objType]);
+		++countobjects[objType];
 		++counttotal;
-	    } else if ((*countobjects)[objType] == 1) {
+	    } else if (countobjects[objType] == 1) {
 		this->fillHist("gen", objTypeStr, "MaxPt2", pt);
 		// Filled the second high pt ...
-		++((*countobjects)[objType]);
+		++countobjects[objType];
 		++counttotal;
 	    } else {
 		// Already the minimum two objects has been filled, get out...
@@ -470,9 +470,6 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 	    this->fillHist("gen", objTypeStr, "SumEt", sumEt);
 
 	} // Closes loop in gen
-
-	LogDebug("ExoticaValidation") << "                        deleting countobjects";
-	//delete countobjects;
 
 	// Calling to the plotters analysis (where the evaluation of the different trigger paths are done)
 	//const std::string source = "gen";
@@ -502,14 +499,14 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 	// |  0   |  1  | --> 1 muon used
 	// |  1   |  2  | --> 2 electrons used  
 	// Initializing the count of the used objects.
-	std::map<unsigned int, int> * countobjects = new std::map<unsigned int, int>;
+	std::map<unsigned int, int> countobjects;
 	for (std::map<unsigned int, edm::InputTag>::iterator co = _recLabels.begin();
 	     co != _recLabels.end(); ++co) {
-	    countobjects->insert(std::pair<unsigned int, int>(co->first, 0));
+	    countobjects.insert(std::pair<unsigned int, int>(co->first, 0));
 	}
     
 	int counttotal = 0;
-	int totalobjectssize2 = 2 * countobjects->size();
+	int totalobjectssize2 = 2 * countobjects.size();
     
 	/// Debugging.
 	//std::cout << "Our RECO vector has matchesReco.size() = " << matchesReco.size() << std::endl;
@@ -521,7 +518,7 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 	    
 	    float pt  = matchesReco[j].pt();
 
-	    if ((*countobjects)[objType] == 0) {
+	    if (countobjects[objType] == 0) {
 
                 // Cut for the pt-leading object 
                 StringCutObjectSelector<reco::LeafCandidate> select( _recCut_leading[objType] );
@@ -529,12 +526,12 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 
 		this->fillHist("rec", objTypeStr, "MaxPt1", pt);
 		// Filled the high pt ...
-		++((*countobjects)[objType]);
+		++countobjects[objType];
 		++counttotal;
-	    } else if ((*countobjects)[objType] == 1) {
+	    } else if (countobjects[objType] == 1) {
 		this->fillHist("rec", objTypeStr, "MaxPt2", pt);
 		// Filled the second high pt ...
-		++((*countobjects)[objType]);
+		++countobjects[objType];
 		++counttotal;
 	    } else {
 		// Already the minimum two objects has been filled, get out...
@@ -552,9 +549,6 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 	    this->fillHist("rec", objTypeStr, "SumEt", sumEt);
 	} // Closes loop in reco
 
-	LogDebug("ExoticaValidation") << "                        deleting countobjects";
-	//delete countobjects;
-	
 	// Calling to the plotters analysis (where the evaluation of the different trigger paths are done)
 	//const std::string source = "reco";
 	for (std::vector<HLTExoticaPlotter>::iterator an = _plotters.begin(); an != _plotters.end(); ++an) {

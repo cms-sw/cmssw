@@ -116,6 +116,7 @@ namespace evf{
       std::string initFileName(std::string const& stream) const;
       std::string eolsFileName(const unsigned int ls) const;
       std::string eorFileName() const;
+      int getNFilesFromEoLS(std::string BUEoLSFile);
 
       bool testModeNoBuilderUnit_;
       std::string base_dir_;
@@ -173,6 +174,9 @@ namespace evf{
 
       unsigned int nStreams_=0;
       unsigned int nThreads_=0;
+
+      bool readEolsDefinition_ = true;
+      unsigned int eolsNFilesIndex_ = 1;
 
   };
 }

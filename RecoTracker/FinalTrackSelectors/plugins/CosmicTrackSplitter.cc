@@ -192,15 +192,15 @@ namespace reco { namespace modules {
 			// check if the trajectories and rechits are in reverse order...
 			trackingRecHit_iterator bIt = trackFromMap->recHitsBegin();
 			trackingRecHit_iterator fIt = trackFromMap->recHitsEnd() - 1;
-			const TrackingRecHit* bHit = bIt->get();
-			const TrackingRecHit* fHit = fIt->get();
+			const TrackingRecHit* bHit = (*bIt);
+			const TrackingRecHit* fHit = (*fIt);
 			// hit type valid = 0, missing = 1, inactive = 2, bad = 3
 			if( bHit->type() != 0 || bHit->isValid() != 1){
 				//loop over hits forwards until first Valid hit is found
 				trackingRecHit_iterator ihit;
 				for( ihit =  trackFromMap->recHitsBegin();
 					ihit != trackFromMap->recHitsEnd(); ++ihit){
-					const TrackingRecHit* iHit = ihit->get();
+					const TrackingRecHit* iHit = (*ihit);
 					if( iHit->type() == 0 && iHit->isValid() == 1){
 						bHit = iHit;
 						break;
@@ -215,7 +215,7 @@ namespace reco { namespace modules {
 				trackingRecHit_iterator ihitf;
 				for( ihitf =  trackFromMap->recHitsEnd()-1;
 					ihitf != trackFromMap->recHitsBegin(); --ihitf){
-					const TrackingRecHit* iHit = ihitf->get();
+					const TrackingRecHit* iHit = (*ihitf);
 					if( iHit->type() == 0 && iHit->isValid() == 1){
 						fHit = iHit;
 						break;
@@ -268,7 +268,7 @@ namespace reco { namespace modules {
 				int hitCtr = 0;
 				for (trackingRecHit_iterator ith = itt->recHitsBegin(), edh = itt->recHitsEnd(); ith != edh; ++ith) {
 					//hitCtr++;
-					const TrackingRecHit * hit = ith->get(); // ith is an iterator on edm::Ref to rechit
+					const TrackingRecHit * hit = (*ith); // ith is an iterator on edm::Ref to rechit
 					LogDebug("CosmicTrackSplitter") << "         hit number " << (ith - itt->recHitsBegin());
 					// let's look at valid hits
 					if (hit->isValid()) {

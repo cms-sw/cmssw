@@ -15,7 +15,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 #include "CondCore/CondDB/interface/Time.h"
-
+#include "CondCore/DBCommon/interface/LogDBEntry.h"
 
 #include <boost/bind.hpp>
 #include <algorithm>
@@ -51,27 +51,35 @@ namespace popcon {
     
      
   private:
-     void initialize();
+     cond::persistency::Session initialize();
      void finalize(Time_t lastTill);
 
 
   private:
 
     edm::Service<cond::service::PoolDBOutputService> m_dbService;
+
+    cond::persistency::Session m_targetSession;
+
+    std::string m_targetConnectionString;
+
+    std::string m_authPath;
+
+    int m_authSys;
     
     std::string  m_record;
     
     std::string m_payload_name;
     
     bool m_LoggingOn;
-    
-    bool m_IsDestDbCheckedInQueryLog;
 
+    bool m_IsDestDbCheckedInQueryLog;
+    
     std::string m_tag;
     
     cond::TagInfo_t m_tagInfo;
     
-    cond::LogDBEntry_t m_logDBEntry;
+    cond::LogDBEntry m_logDBEntry;
 
     bool m_close;
     Time_t m_lastTill;
@@ -118,8 +126,7 @@ namespace popcon {
     typedef typename Source::value_type value_type;
     typedef typename Source::Container Container;
     
-    initialize();
-    std::pair<Container const *, std::string const> ret = source(m_dbService->session(),
+    std::pair<Container const *, std::string const> ret = source(initialize(),
   								 m_tagInfo,m_logDBEntry); 
     Container const & payloads = *ret.first;
     

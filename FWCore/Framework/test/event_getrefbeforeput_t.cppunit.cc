@@ -12,6 +12,7 @@ Test of the EventPrincipal class.
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
+#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 
@@ -66,6 +67,7 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
   preg->setFrozen();
   auto branchIDListHelper = std::make_shared<edm::BranchIDListHelper>();
   branchIDListHelper->updateFromRegistry(*preg);
+  auto thinnedAssociationsHelper = std::make_shared<edm::ThinnedAssociationsHelper>();
   edm::EventID col(1L, 1L, 1L);
   std::string uuid = edm::createGlobalIdentifier();
   edm::Timestamp fakeTime;
@@ -77,7 +79,7 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
   auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(lumiAux, pregc, pc, &historyAppender_,0);
   lbp->setRunPrincipal(rp);
   edm::EventAuxiliary eventAux(col, uuid, fakeTime, true);
-  edm::EventPrincipal ep(pregc, branchIDListHelper, pc, &historyAppender_,edm::StreamID::invalidStreamID());
+  edm::EventPrincipal ep(pregc, branchIDListHelper, thinnedAssociationsHelper, pc, &historyAppender_,edm::StreamID::invalidStreamID());
   edm::ProcessHistoryRegistry phr;
   ep.fillEventPrincipal(eventAux, phr);
   ep.setLuminosityBlockPrincipal(lbp);
@@ -136,6 +138,7 @@ void testEventGetRefBeforePut::getRefTest() {
   preg->setFrozen();
   auto branchIDListHelper = std::make_shared<edm::BranchIDListHelper>();
   branchIDListHelper->updateFromRegistry(*preg);
+  auto thinnedAssociationsHelper = std::make_shared<edm::ThinnedAssociationsHelper>();
   edm::EventID col(1L, 1L, 1L);
   std::string uuid = edm::createGlobalIdentifier();
   edm::Timestamp fakeTime;
@@ -148,7 +151,7 @@ void testEventGetRefBeforePut::getRefTest() {
   auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(lumiAux, pregc, pc, &historyAppender_,0);
   lbp->setRunPrincipal(rp);
   edm::EventAuxiliary eventAux(col, uuid, fakeTime, true);
-  edm::EventPrincipal ep(pregc, branchIDListHelper, pc, &historyAppender_,edm::StreamID::invalidStreamID());
+  edm::EventPrincipal ep(pregc, branchIDListHelper, thinnedAssociationsHelper, pc, &historyAppender_,edm::StreamID::invalidStreamID());
   edm::ProcessHistoryRegistry phr;
   ep.fillEventPrincipal(eventAux, phr);
   ep.setLuminosityBlockPrincipal(lbp);

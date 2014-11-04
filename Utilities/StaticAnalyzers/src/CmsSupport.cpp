@@ -20,7 +20,6 @@
 #include "dablooms.h"
 #define CAPACITY 5000
 #define ERROR_RATE .0002
-#define BYTES 2
 
 
 using namespace clangcms;
@@ -28,12 +27,11 @@ using namespace clang;
 using namespace llvm;
 bool support::isCmsLocalFile(const char* file)
 {
-  static char* LocalDir=0;
-  static int DirLen=-1;
+  static const char* LocalDir= std::getenv("LOCALRT");
+  [[cms::thread_safe]] static int DirLen=-1;
   if (DirLen==-1)
   {
     DirLen=0;
-    LocalDir = getenv ("LOCALRT");
     if (LocalDir!=NULL) DirLen=strlen(LocalDir);
   }
   if ((DirLen==0) || (strncmp(file,LocalDir,DirLen)!=0) || (strncmp(&file[DirLen],"/src/",5)!=0)) return false;
@@ -123,7 +121,7 @@ bool support::isSafeClassName(const std::string &cname) {
 }
 
 bool support::isDataClass(const std::string & name) {
-	static std::string iname("");
+	[[cms::thread_safe]] static std::string iname("");
 	if ( iname == "") {
 		clang::FileSystemOptions FSO;
 		clang::FileManager FM(FSO);
@@ -148,7 +146,7 @@ bool support::isDataClass(const std::string & name) {
 			iname = fname2;
 	}
 
-	static scaling_bloom_t * blmflt = new_scaling_bloom_from_file( CAPACITY, ERROR_RATE, iname.c_str() );
+	[[cms::thread_safe]] static scaling_bloom_t * blmflt = new_scaling_bloom_from_file( CAPACITY, ERROR_RATE, iname.c_str() );
 
 	if ( scaling_bloom_check( blmflt, name.c_str(), name.length() ) == 1 ) return true;
 
@@ -175,3 +173,22 @@ bool support::isKnownThrUnsafeFunc(const std::string &fname ) {
   		if ( fname.substr(0,name.length()) == name ) return true;	
 	return false;
 }
+
+void support::writeLog(const std::string &ostring,const std::string &tfstring) {
+	const char * pPath = std::getenv("LOCALRT");
+	if ( pPath == NULL ) {
+		llvm::errs()<<"\n\nThe scram runtime envorinment is not set.\nRun 'cmsenv' or 'eval `scram runtime -csh`'.\n\n\n";
+		exit(1);
+	}
+
+	std::string pname = std::string(pPath) +"/tmp/";
+	const std::string tname = pname + tfstring;
+
+	std::fstream file;
+	file.open(tname.c_str(),std::ios::out|std::ios::app);
+	file<<ostring<<"\n";
+	file.close();
+
+	return;
+}
+

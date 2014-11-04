@@ -49,12 +49,12 @@ caloParams = cms.ESProducer(
     
     # Tau
     tauLsb                        = cms.double(0.5),
-    tauSeedThreshold              = cms.double(0.),
+    tauSeedThreshold              = cms.double(7.),
     tauNeighbourThreshold         = cms.double(0.),
-    switchOffTauVeto              = cms.double(70.),
-    switchOffTauIso               = cms.double(60.),
+    switchOffTauVeto              = cms.double(64.),
+    switchOffTauIso               = cms.double(192.),
     tauRelativeJetIsolationLimit  = cms.double(100.),
-    tauRelativeJetIsolationCut    = cms.double(0.15),
+    tauRelativeJetIsolationCut    = cms.double(0.1),
     tauIsoPUSType                 = cms.string("None"),
     tauIsoLUTFile                 = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauIsoLUT.txt"),
     tauCalibrationLUTFileBarrelA  = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTBarrelA.txt"),

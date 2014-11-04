@@ -16,12 +16,14 @@
 
 #include <string>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <iostream>
 #include <fstream>
@@ -29,11 +31,11 @@
 #include <vector>
 #include <map>
 
-class DQMStore;
 class MonitorElement;
 class SiStripDetCabling;
 
-class TrackingCertificationInfo: public edm::EDAnalyzer {
+class TrackingCertificationInfo: public DQMEDHarvester
+{
 
  public:
 
@@ -52,32 +54,25 @@ class TrackingCertificationInfo: public edm::EDAnalyzer {
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
   /// End Of Luminosity
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup);
+  void dqmEndLuminosityBlock(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_,edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup);
   
-  /// EndRun
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
-
-  /// Analyze
-  void analyze(edm::Event const&, edm::EventSetup const&);
-
-
+  /// EndJob
+  void dqmEndJob(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_);
 
 private:
 
-  void bookTrackingCertificationMEs();
-  void bookTrackingCertificationMEsAtLumi();
+  void bookTrackingCertificationMEs(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_);
+  void bookTrackingCertificationMEsAtLumi(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_);
 
-  void resetTrackingCertificationMEs();
-  void resetTrackingCertificationMEsAtLumi();
+  void resetTrackingCertificationMEs(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_);
+  void resetTrackingCertificationMEsAtLumi(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_);
 
-  void fillTrackingCertificationMEs(edm::EventSetup const& eSetup);
-  void fillTrackingCertificationMEsAtLumi();
+  void fillTrackingCertificationMEs(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_);
+  void fillTrackingCertificationMEsAtLumi(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_);
 
-  void fillDummyTrackingCertification();
-  void fillDummyTrackingCertificationAtLumi();
+  void fillDummyTrackingCertification(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_);
+  void fillDummyTrackingCertificationAtLumi(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_);
 
-
-  DQMStore* dqmStore_;
 
   struct TrackingMEs{
     MonitorElement* TrackingFlag;
@@ -102,6 +97,7 @@ private:
   bool trackingLSCertificationBooked_;
   int nFEDConnected_;
   bool allPixelFEDConnected_;
+  bool verbose_;
   std::string TopFolderName_;
 
   bool checkPixelFEDs_;

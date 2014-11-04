@@ -24,6 +24,10 @@
 #include "CondFormats/DTObjects/interface/DTDeadFlag.h"
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
 #include "CondFormats/DTObjects/interface/DTRecoUncertainties.h"
+#include "CondFormats/DTObjects/interface/DTRecoConditions.h"
+#include "CondFormats/DataRecord/interface/DTRecoConditionsTtrigRcd.h"
+#include "CondFormats/DataRecord/interface/DTRecoConditionsVdriftRcd.h"
+#include "CondFormats/DataRecord/interface/DTRecoConditionsUncertRcd.h"
 #include "CalibMuon/DTCalibration/interface/DTCalibDBUtils.h"
 
 using namespace edm;
@@ -32,6 +36,7 @@ using namespace std;
 DumpFileToDB::DumpFileToDB(const ParameterSet& pset) {
 
   dbToDump = pset.getUntrackedParameter<string>("dbToDump", "TTrigDB");
+  format = pset.getUntrackedParameter<string>("dbFormat", "Legacy");
 
   if(dbToDump != "ChannelsDB")
     theCalibFile = new DTCalibrationMap(pset.getUntrackedParameter<ParameterSet>("calibFileConfig"));
@@ -47,10 +52,20 @@ DumpFileToDB::DumpFileToDB(const ParameterSet& pset) {
      dbToDump != "RecoUncertDB")
     cout << "[DumpFileToDB] *** Error: parameter dbToDump is not valid, check the cfg file" << endl;
 
+  if (format != "Legacy" &&
+      format != "DTRecoConditions")
+    cout << "[DumpFileToDB] *** Error: parameter format is not valid, check the cfg file" << endl;
+
+  if (format == "DTRecoConditions" &&
+      (dbToDump != "VDriftDB" && 
+       dbToDump != "TTrigDB" &&
+       dbToDump != "RecoUncertDB"))
+    cout << "[DumpFileToDB] ***Error: DTRecoConditions currently implemented for ttrig, vdrift, uncertainties only" << endl;
+
   diffMode = pset.getUntrackedParameter<bool>("differentialMode", false);
   if(diffMode) {
     if(dbToDump != "TTrigDB") {
-      cout << "***Error: differential mode currentl implemented for ttrig only" << endl;
+      cout << "[DumpFileToDB] ***Error: differential mode currently implemented for ttrig only" << endl;
       abort();
     }
     cout << "Using differential mode: mean value of txt table will be added to the current DB value" << endl;
@@ -64,27 +79,63 @@ DumpFileToDB::~DumpFileToDB(){}
 void DumpFileToDB::endJob() {
   if(dbToDump == "VDriftDB") { // Write the Vdrift
 
-    // Create the object to be written to DB
-    DTMtime* mtime = new DTMtime();
+    if (format=="Legacy") {
+      // Create the object to be written to DB
+      DTMtime* mtime = new DTMtime();
 
-    // Loop over file entries
-    for(DTCalibrationMap::const_iterator keyAndCalibs = theCalibFile->keyAndConsts_begin();
-	keyAndCalibs != theCalibFile->keyAndConsts_end();
-	++keyAndCalibs) {
-      cout << "key: " << (*keyAndCalibs).first
-	   << " vdrift (cm/ns): " << theCalibFile->meanVDrift((*keyAndCalibs).first)
-	   << " hit reso (cm): " << theCalibFile->sigma_meanVDrift((*keyAndCalibs).first) << endl;
-      // vdrift is cm/ns , resolution is cm
-      mtime->set((*keyAndCalibs).first.superlayerId(),
-		 theCalibFile->meanVDrift((*keyAndCalibs).first), 
-		 theCalibFile->sigma_meanVDrift((*keyAndCalibs).first),
-		 DTVelocityUnits::cm_per_ns);
+      // Loop over file entries
+      for(DTCalibrationMap::const_iterator keyAndCalibs = theCalibFile->keyAndConsts_begin();
+	  keyAndCalibs != theCalibFile->keyAndConsts_end();
+	  ++keyAndCalibs) {
+	cout << "key: " << (*keyAndCalibs).first
+	     << " vdrift (cm/ns): " << theCalibFile->meanVDrift((*keyAndCalibs).first)
+	     << " hit reso (cm): " << theCalibFile->sigma_meanVDrift((*keyAndCalibs).first) << endl;
+	// vdrift is cm/ns , resolution is cm
+	mtime->set((*keyAndCalibs).first.superlayerId(),
+		   theCalibFile->meanVDrift((*keyAndCalibs).first), 
+		   theCalibFile->sigma_meanVDrift((*keyAndCalibs).first),
+		   DTVelocityUnits::cm_per_ns);
+      }    
+
+      cout << "[DumpFileToDB]Writing mtime object to DB!" << endl;
+      string record = "DTMtimeRcd";
+      DTCalibDBUtils::writeToDB<DTMtime>(record, mtime);
+    } else if (format=="DTRecoConditions") {
+      DTRecoConditions* conds = new DTRecoConditions();
+      conds->setFormulaExpr("[0]*(1-[1]*x)");
+      for(DTCalibrationMap::const_iterator keyAndCalibs = theCalibFile->keyAndConsts_begin();
+	  keyAndCalibs != theCalibFile->keyAndConsts_end();
+	  ++keyAndCalibs) {
+
+	vector<float> values = (*keyAndCalibs).second;
+	if (values.size()<11) {
+	  cout << "[DumpFileToDB] ***Error: Incorrect file format for VDriftDB to be stored in DTRecoConditions" << endl;
+	  abort();
+	}  
+	int version = int(values[10]/1000);
+	int type = (int(values[10])%1000)/100;
+	int nfields = int(values[10])%100;
+
+	if (type !=1) {
+	  cout << "[DumpFileToDB] ***Error: input file is not for VDriftDB" << endl;
+	  abort();	  
+	}
+	conds->setVersion(version);
+	
+	if(values.size()!=unsigned(nfields+11)) {
+	  cout << "[DumpFileToDB] ***Error: Inconsistent number of fields" << endl;
+	  abort();	  
+	}
+
+	vector<double> params(values.begin()+11, values.begin()+11+nfields);
+
+	conds->set((*keyAndCalibs).first, params);
+      }    
+
+      cout << "[DumpFileToDB]Writing DTRecoConditions object to DB!" << endl;
+      DTCalibDBUtils::writeToDB<DTRecoConditions>("DTRecoConditionsVdriftRcd", conds);      
     }
-
-    cout << "[DumpFileToDB]Writing mtime object to DB!" << endl;
-    string record = "DTMtimeRcd";
-    DTCalibDBUtils::writeToDB<DTMtime>(record, mtime);
-
+  
   } else if(dbToDump == "TTrigDB") { // Write the TTrig
 
     // Create the object to be written to DB

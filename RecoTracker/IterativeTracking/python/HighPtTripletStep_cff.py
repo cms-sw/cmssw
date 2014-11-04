@@ -2,15 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 # NEW CLUSTERS (remove previously used clusters)
 highPtTripletStepClusters = cms.EDProducer("TrackClusterRemover",
-    clusterLessSolution= cms.bool(True),
     trajectories = cms.InputTag("initialStepTracks"),
     overrideTrkQuals = cms.InputTag('initialStepSelector','initialStep'),
     TrackQuality = cms.string('highPurity'),
     pixelClusters = cms.InputTag("siPixelClusters"),
     stripClusters = cms.InputTag("siStripClusters"),
-    Common = cms.PSet(
-        maxChi2 = cms.double(9.0)
-    )
+    maxChi2 = cms.double(9.0)
 )
 
 # SEEDING LAYERS
@@ -76,7 +73,7 @@ highPtTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 import RecoTracker.TrackProducer.TrackProducer_cfi
 highPtTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'highPtTripletStepTrackCandidates',
-    AlgorithmName = cms.string('iter1')
+    AlgorithmName = cms.string('lowPtTripletStep')
     )
 
 

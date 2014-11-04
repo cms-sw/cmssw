@@ -2,6 +2,7 @@
 #define HWW_H
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 #include "Math/LorentzVector.h"
 #include "TMath.h"
 #include <vector>
@@ -169,16 +170,16 @@ class HWW{
   std::vector<int>            hyp_type_;
 
   //event variables
-  unsigned int                evt_run_;
-  unsigned int                evt_lumiBlock_;
-  unsigned int                evt_event_;
-  int                         evt_isRealData_;
-  float                       evt_ww_rho_vor_;
-  float                       evt_ww_rho_;
-  float                       evt_rho_;
-  float                       evt_kt6pf_foregiso_rho_;
-  float                       evt_pfmet_;
-  float                       evt_pfmetPhi_;
+  edm::RunNumber_t             evt_run_;
+  edm::LuminosityBlockNumber_t evt_lumiBlock_;
+  edm::EventNumber_t           evt_event_;
+  int                          evt_isRealData_;
+  float                        evt_ww_rho_vor_;
+  float                        evt_ww_rho_;
+  float                        evt_rho_;
+  float                        evt_kt6pf_foregiso_rho_;
+  float                        evt_pfmet_;
+  float                        evt_pfmetPhi_;
 
   std::vector<float>          convs_ndof_;
   std::vector<float>          convs_chi2_;
@@ -593,16 +594,16 @@ public:
   std::vector<int>            &hyp_type();
 
   //event variables
-  unsigned int                &evt_run();
-  unsigned int                &evt_lumiBlock();
-  unsigned int                &evt_event();
-  int                         &evt_isRealData();
-  float                       &evt_ww_rho_vor();
-  float                       &evt_ww_rho();
-  float                       &evt_rho();
-  float                       &evt_kt6pf_foregiso_rho();
-  float                       &evt_pfmet();
-  float                       &evt_pfmetPhi();
+  edm::RunNumber_t             &evt_run();
+  edm::LuminosityBlockNumber_t &evt_lumiBlock();
+  edm::EventNumber_t           &evt_event();
+  int                          &evt_isRealData();
+  float                        &evt_ww_rho_vor();
+  float                        &evt_ww_rho();
+  float                        &evt_rho();
+  float                        &evt_kt6pf_foregiso_rho();
+  float                        &evt_pfmet();
+  float                        &evt_pfmetPhi();
 
   std::vector<float>          &convs_ndof();
   std::vector<float>          &convs_chi2();

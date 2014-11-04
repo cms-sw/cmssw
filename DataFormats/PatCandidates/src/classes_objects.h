@@ -167,6 +167,8 @@ namespace DataFormats_PatCandidates {
 
   edm::Wrapper<edm::Association<pat::PackedCandidateCollection > > w_asso_pc;
   edm::Wrapper<edm::Association<reco::PFCandidateCollection > >    w_asso_pfc;
+  edm::Wrapper<edm::Association<std::vector<pat::PackedGenParticle> > > asso_pgp;
+
 
   };
 

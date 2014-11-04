@@ -462,6 +462,8 @@ class TrackerTopology {
 
   std::string print(DetId detid) const;
 
+  SiStripDetId::ModuleGeometry moduleGeometry(const DetId &id) const; 
+
  private:
 
   PixelBarrelValues pbVals_;

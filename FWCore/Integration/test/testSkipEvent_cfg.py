@@ -26,7 +26,7 @@ process.source = cms.Source("EmptySource",
 
 process.testThrow = cms.EDAnalyzer("TestFailuresAnalyzer",
     whichFailure = cms.int32(5),
-    eventToThrow = cms.untracked.uint32(2)
+    eventToThrow = cms.untracked.uint64(2)
 )
 
 # In the path before the module throwing an exception all 3 events should run

@@ -6,10 +6,10 @@ namespace cms {
 
   namespace {
 
-    const boost::uint32_t CRC32_XINIT = 0xFFFFFFFFL;
-    const boost::uint32_t CRC32_XOROT = 0xFFFFFFFFL;
+    const std::uint32_t CRC32_XINIT = 0xFFFFFFFFL;
+    const std::uint32_t CRC32_XOROT = 0xFFFFFFFFL;
 
-    boost::uint32_t crctable[256] =
+    const std::uint32_t crctable[256] =
     {
       0x00000000L, 0x77073096L, 0xEE0E612CL, 0x990951BAL,
       0x076DC419L, 0x706AF48FL, 0xE963A535L, 0x9E6495A3L,
@@ -84,9 +84,9 @@ namespace cms {
     checksum_ = CRC32_XINIT;
 
     /* process each byte prior to checksum field */
-    int length = message.length();
+    auto length = message.length();
     char const* p = message.data();
-    for (int j = 0; j < length; j++) {
+    for (size_t j = 0; j < length; j++) {
       unsigned char uc = *p++;
       checksum_ = cms::crctable[(checksum_ ^ uc) & 0xFFL] ^ (checksum_ >> 8);
     }

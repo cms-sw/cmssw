@@ -667,6 +667,9 @@ const math::XYZPoint & PFCandidate::vertex() const {
   case kPickyMuonVertex:
     return muonRef()->pickyTrack()->vertex();
     break;
+  case kDYTMuonVertex:
+    return muonRef()->dytTrack()->vertex();
+    break;
 
   case kGSFVertex:
     return gsfTrackRef()->vertex();

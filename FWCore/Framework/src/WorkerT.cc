@@ -323,6 +323,15 @@ namespace edm{
     module_->doPostForkReacquireResources(iChildIndex, iNumberOfChildren);
   }
 
+
+  template<typename T>
+  inline
+  void
+  WorkerT<T>::implRegisterThinnedAssociations(ProductRegistry const& registry,
+                                               ThinnedAssociationsHelper& helper) {
+    module_->doRegisterThinnedAssociations(registry, helper);
+  }
+
   template<typename T>
   void WorkerT<T>::updateLookup(BranchType iBranchType,
                                 ProductHolderIndexHelper const& iHelper) {

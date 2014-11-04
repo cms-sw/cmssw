@@ -11,7 +11,7 @@ Toy EDProducers and EDProducts for testing purposes only.
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -33,7 +33,7 @@ namespace edmtest {
   //
   // Produces and SCSimpleProduct product instance.
   //
-  class SCSimpleProducer : public edm::EDProducer {
+  class SCSimpleProducer : public edm::stream::EDProducer<> {
   public:
     explicit SCSimpleProducer(edm::ParameterSet const& p) :
       size_(p.getParameter<int>("size")) {
@@ -47,7 +47,7 @@ namespace edmtest {
     }
 
     virtual ~SCSimpleProducer() {}
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    virtual void produce(edm::Event& e, edm::EventSetup const& c) override;
 
   private:
     int size_;  // number of Simples to put in the collection
@@ -79,7 +79,7 @@ namespace edmtest {
   //
   // Produces and OVSimpleProduct product instance.
   //
-  class OVSimpleProducer : public edm::EDProducer {
+  class OVSimpleProducer : public edm::stream::EDProducer<> {
   public:
     explicit OVSimpleProducer(edm::ParameterSet const& p) :
         size_(p.getParameter<int>("size")) {
@@ -95,7 +95,7 @@ namespace edmtest {
     }
 
     virtual ~OVSimpleProducer() {}
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    virtual void produce(edm::Event& e, edm::EventSetup const& c) override;
 
   private:
     int size_;  // number of Simples to put in the collection
@@ -136,7 +136,7 @@ namespace edmtest {
   //
   // Produces and OVSimpleProduct product instance.
   //
-  class VSimpleProducer : public edm::EDProducer {
+  class VSimpleProducer : public edm::stream::EDProducer<> {
   public:
     explicit VSimpleProducer(edm::ParameterSet const& p) :
         size_(p.getParameter<int>("size")) {
@@ -150,7 +150,7 @@ namespace edmtest {
     }
 
     virtual ~VSimpleProducer() {}
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    virtual void produce(edm::Event& e, edm::EventSetup const& c) override;
 
   private:
     int size_;  // number of Simples to put in the collection
@@ -165,7 +165,7 @@ namespace edmtest {
     for(int i = 0; i < size_; ++i) {
         Simple simple;
         simple.key = size_ - i;
-        simple.value = 1.5 * i;
+        simple.value = 1.5 * i + e.id().event();
         p->push_back(simple);
     }
 
@@ -178,7 +178,7 @@ namespace edmtest {
   // Produces AssociationVector<vector<Simple>, vector<Simple> > object
   // This is used to test a View of an AssociationVector
   //
-  class AVSimpleProducer : public edm::EDProducer {
+  class AVSimpleProducer : public edm::stream::EDProducer<> {
   public:
 
     explicit AVSimpleProducer(edm::ParameterSet const& p) :
@@ -187,8 +187,7 @@ namespace edmtest {
       consumes<std::vector<edmtest::Simple>>(src_);
     }
 
-    virtual ~AVSimpleProducer() {}
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    virtual void produce(edm::Event& e, edm::EventSetup const& c) override;
 
   private:
     edm::InputTag src_;
@@ -205,6 +204,7 @@ namespace edmtest {
     for(unsigned int i = 0; i < vs->size(); ++i) {
         edmtest::Simple simple;
         simple.key = 100 + i;  // just some arbitrary number for testing
+        simple.value = .1 * e.id().event();
         p->setValue(i, simple);
     }
 
@@ -218,7 +218,7 @@ namespace edmtest {
   //    DSVSimpleProduct
   //    DSVWeirdProduct
   //
-  class DSVProducer : public edm::EDProducer {
+  class DSVProducer : public edm::stream::EDProducer<> {
   public:
 
     explicit DSVProducer(edm::ParameterSet const& p) :
@@ -236,7 +236,7 @@ namespace edmtest {
 
     virtual ~DSVProducer() {}
 
-    virtual void produce(edm::Event& e, edm::EventSetup const&);
+    virtual void produce(edm::Event& e, edm::EventSetup const&) override;
 
   private:
     template<typename PROD> void make_a_product(edm::Event& e);
@@ -288,7 +288,7 @@ namespace edmtest {
   //    DSTVSimpleProduct
   //    DSTVSimpleDerivedProduct
   //
-  class DSTVProducer : public edm::EDProducer {
+  class DSTVProducer : public edm::stream::EDProducer<> {
   public:
 
     explicit DSTVProducer(edm::ParameterSet const& p) :
@@ -306,7 +306,7 @@ namespace edmtest {
 
     virtual ~DSTVProducer() {}
 
-    virtual void produce(edm::Event& e, edm::EventSetup const&);
+    virtual void produce(edm::Event& e, edm::EventSetup const&) override;
 
   private:
     template<typename PROD> void make_a_product(edm::Event& e);
@@ -363,7 +363,7 @@ namespace edmtest {
   //
   // Produces an Prodigal instance.
   //
-  class ProdigalProducer : public edm::EDProducer {
+  class ProdigalProducer : public edm::stream::EDProducer<> {
   public:
     explicit ProdigalProducer(edm::ParameterSet const& p) :
       label_(p.getParameter<std::string>("label")) {
@@ -371,7 +371,7 @@ namespace edmtest {
       consumes<IntProduct>(edm::InputTag{label_});
     }
     virtual ~ProdigalProducer() {}
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    virtual void produce(edm::Event& e, edm::EventSetup const& c) override;
 
   private:
     std::string label_;

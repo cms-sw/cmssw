@@ -2,19 +2,21 @@
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-// #include "DQMServices/Core/interface/MonitorElement.h"
-// #include "DQMServices/Core/interface/DQMStore.h"
+
 
 #include <TROOT.h>
 #include <TFile.h>
 #include <TH1.h>
 #include <TH2.h>
 
+
 using namespace std;
+
 
 MatchMETBenchmark::~MatchMETBenchmark() {}
 
-void MatchMETBenchmark::setup() {
+
+void MatchMETBenchmark::setup(DQMStore::IBooker& b) {
 
   //std::cout << "FL: MatchMETBenchmark.cc: start setup()" << std::endl;
   PhaseSpace ptPS;
@@ -51,46 +53,46 @@ void MatchMETBenchmark::setup() {
 
   //float ptBins[11] = {0, 1, 2, 5, 10, 20, 50, 100, 200, 400, 1000};
 
-  delta_et_Over_et_VS_et_ = book2D("delta_et_Over_et_VS_et_", 
+  delta_et_Over_et_VS_et_ = book2D(b, "delta_et_Over_et_VS_et_", 
 				   ";ME_{T, true} (GeV);#DeltaME_{T}/ME_{T}",
 				   ptPS.n, ptPS.m, ptPS.M,
 				   dptOvptPS.n, dptOvptPS.m, dptOvptPS.M );
 
-  delta_et_VS_et_ = book2D("delta_et_VS_et_", 
+  delta_et_VS_et_ = book2D(b, "delta_et_VS_et_", 
 			   ";ME_{T, true} (GeV);#DeltaME_{T}",
 			   ptPS.n, ptPS.m, ptPS.M,
 			   dptPS.n, dptPS.m, dptPS.M );
 
-  delta_phi_VS_et_ = book2D("delta_phi_VS_et_", 
+  delta_phi_VS_et_ = book2D(b, "delta_phi_VS_et_", 
 			    ";ME_{T, true} (GeV);#Delta#phi",
 			    ptPS.n, ptPS.m, ptPS.M,
 			    dphiPS.n, dphiPS.m, dphiPS.M );
 
-  delta_ex_ = book1D("delta_ex_", 
+  delta_ex_ = book1D(b, "delta_ex_", 
 			   "#DeltaME_{X}",
 			   dptPS.n, dptPS.m, dptPS.M );
 
-  RecEt_VS_TrueEt_ = book2D("RecEt_VS_TrueEt_", 
+  RecEt_VS_TrueEt_ = book2D(b, "RecEt_VS_TrueEt_", 
 			   ";ME_{T, true} (GeV);ME_{T}",
 			   ptPS.n, ptPS.m, ptPS.M,
 			   ptPS.n, ptPS.m, ptPS.M );
 
-  delta_set_VS_set_ = book2D("delta_set_VS_set_", 
+  delta_set_VS_set_ = book2D(b, "delta_set_VS_set_", 
 			   ";SE_{T, true} (GeV);#DeltaSE_{T}",
 			   setPS.n, setPS.m, setPS.M,
 			   dsetPS.n, dsetPS.m, dsetPS.M );
 
-  delta_set_Over_set_VS_set_ = book2D("delta_set_Over_set_VS_set_", 
+  delta_set_Over_set_VS_set_ = book2D(b, "delta_set_Over_set_VS_set_", 
 			   ";SE_{T, true} (GeV);#DeltaSE_{T}/SE_{T}",
 			   setPS.n, setPS.m, setPS.M,
 			   dptOvptPS.n, dptOvptPS.m, dptOvptPS.M );
 
-  delta_ex_VS_set_ = book2D("delta_ex_VS_set_", 
+  delta_ex_VS_set_ = book2D(b, "delta_ex_VS_set_", 
 			   ";SE_{T, true} (GeV);#DeltaE_{X}",
 			   setPS.n, setPS.m, setPS.M,
 			   ptPS.n, -ptPS.M, ptPS.M );
 
-  RecSet_Over_TrueSet_VS_TrueSet_ = book2D("RecSet_Over_TrueSet_VS_TrueSet_", 
+  RecSet_Over_TrueSet_VS_TrueSet_ = book2D(b, "RecSet_Over_TrueSet_VS_TrueSet_", 
 			   ";SE_{T, true} (GeV);SE_{T}/SE_{T}",
 			   setPS.n, setPS.m, setPS.M,
 			   setOvsetPS.n, setOvsetPS.m, setOvsetPS.M );

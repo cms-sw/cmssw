@@ -30,31 +30,28 @@ public:
    ~TestBeginEndJobAnalyzer();
    
    
-   virtual void analyze(const edm::Event&, const edm::EventSetup&);
+   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
    
-   virtual void beginJob();
-   virtual void endJob();
-   virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-   virtual void endRun(edm::Run const&, edm::EventSetup const&);
-   virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+   virtual void beginJob() override;
+   virtual void endJob() override;
+   virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+   virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+   virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
    
 
-   struct dso_export  Control {
-      bool beginJobCalled;
-      bool endJobCalled;
-      bool beginRunCalled;
-      bool endRunCalled;
-      bool beginLumiCalled;
-      bool endLumiCalled;
-      bool destructorCalled;
+   struct Control {
+      bool beginJobCalled = false;
+      bool endJobCalled = false;
+      bool beginRunCalled = false;
+      bool endRunCalled = false;
+      bool beginLumiCalled = false;
+      bool endLumiCalled = false;
+      bool destructorCalled = false;
    };
 
-   static Control & control() dso_export {
-       static Control l;
-       return l;
-   }
+   static Control & control();
 
 
 private:

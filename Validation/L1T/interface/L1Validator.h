@@ -48,7 +48,8 @@
 #include <DataFormats/L1Trigger/interface/L1EtMissParticle.h>
 #include <DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h>
 
-#include <DQMServices/Core/interface/DQMStore.h>
+#include <DQMServices/Core/interface/MonitorElement.h>
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 #include <Validation/L1T/interface/L1ValidatorHists.h>
 
@@ -56,27 +57,19 @@
 // class declaration
 //
 
-class L1Validator : public edm::EDAnalyzer {
+class L1Validator : public DQMEDAnalyzer {
   public:
     explicit L1Validator(const edm::ParameterSet&);
     ~L1Validator();
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
+  protected:
+    void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   private:
-    //virtual void beginJob() override;
-    //virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-    virtual void endJob() override;
-
-    virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-    virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-    //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-    //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-    void analyze(const edm::Event&, const edm::EventSetup&);
-
     // ----------member data ---------------------------
-    DQMStore* _dbe;
     std::string _dirName;
     std::string _fileName;
 
@@ -89,7 +82,7 @@ class L1Validator : public edm::EDAnalyzer {
     edm::EDGetTokenT<l1extra::L1MuonParticleCollection> _L1ExtraMuonSource;
     //edm::EDGetTokenT<l1extra::L1EtMissParticleCollection> _L1ExtraMETSource;
 
-    L1ValidatorHists *_Hists;
+    L1ValidatorHists _Hists;
 
     //---------------helper functions------------------
   private:

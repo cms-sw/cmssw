@@ -125,7 +125,7 @@ float HcalNoiseHPD::recHitEnergyFailR45(float threshold) const
   float total=0.0;
   for(edm::RefVector<HBHERecHitCollection>::const_iterator it=rechits_.begin(); it!=rechits_.end(); ++it) {
     float energy=(*it)->energy();
-    if((*it)->flagField(HcalCaloFlagLabels::HBHENegativeNoise))
+    if((*it)->flagField(HcalCaloFlagLabels::HBHETS4TS5Noise))
        if(energy>=threshold) total+=energy;
   }
   return total;
@@ -165,7 +165,7 @@ int HcalNoiseHPD::numRecHitsFailR45(float threshold) const
 {
   int count=0;
   for(edm::RefVector<HBHERecHitCollection>::const_iterator it=rechits_.begin(); it!=rechits_.end(); ++it)
-    if((*it)->flagField(HcalCaloFlagLabels::HBHENegativeNoise))
+    if((*it)->flagField(HcalCaloFlagLabels::HBHETS4TS5Noise))
       if((*it)->energy()>=threshold) ++count;
   return count;
 }

@@ -84,8 +84,8 @@ namespace edm {
   }
   
   template<typename T>
-  void OutputModuleCommunicatorT<T>::selectProducts(edm::ProductRegistry const& preg) {
-    module().selectProducts(preg);
+  void OutputModuleCommunicatorT<T>::selectProducts(edm::ProductRegistry const& preg, ThinnedAssociationsHelper const& helper) {
+    module().selectProducts(preg, helper);
   }
   
   template<typename T>

@@ -5,6 +5,8 @@
 #include "DataFormats/Provenance/interface/EventRange.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockRange.h"
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
+
 #include <memory>
 #include <vector>
 

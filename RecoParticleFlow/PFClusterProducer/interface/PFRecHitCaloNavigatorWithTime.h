@@ -120,21 +120,24 @@ class PFRecHitCaloNavigatorWithTime : public PFRecHitNavigatorBase {
     double sigma2=10000.0;
     
     const reco::PFRecHit temp(id,PFLayer::NONE,0.0,math::XYZPoint(0,0,0),math::XYZVector(0,0,0),std::vector<math::XYZPoint>());
+
     auto found_hit = std::lower_bound(hits->begin(),hits->end(),
 				      temp,
 				      [](const reco::PFRecHit& a, 
 					 const reco::PFRecHit& b){
 					return a.detId() < b.detId();
 				      });
-    if( found_hit != hits->end() && found_hit->detId() == id.rawId() ) {
-        sigma2 = _timeResolutionCalc->timeResolution2(hit.energy()) + _timeResolutionCalc->timeResolution2(found_hit->energy());
-	const double deltaTime = hit.time()-found_hit->time();
-	if(deltaTime*deltaTime/sigma2<sigmaCut2_) {
-	  hit.addNeighbour(eta,phi,0,reco::PFRecHitRef(refProd,std::distance(hits->begin(),found_hit)));
+
+
+    if (found_hit != hits->end() && found_hit->detId() == id.rawId()) {
+      sigma2 = _timeResolutionCalc->timeResolution2(hit.energy()) + _timeResolutionCalc->timeResolution2(found_hit->energy());
+      const double deltaTime = hit.time()-found_hit->time();
+      if(deltaTime*deltaTime<sigmaCut2_*sigma2) {
+	hit.addNeighbour(eta,phi,0,reco::PFRecHitRef(refProd,std::distance(hits->begin(),found_hit)));
       }
     }
-  }
 
+  }
 
 
 

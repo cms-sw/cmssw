@@ -9,7 +9,6 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load("DQMServices.Components.EDMtoMEConverter_cff")
 
 process.load("DQMOffline.Trigger.EgHLTOfflineClient_cfi")
-#process.load("DQMOffline.Trigger.TopElectronHLTOfflineClient_cfi")
 process.load("DQMOffline.Trigger.EgHLTOfflineSummaryClient_cfi")
 #process.load("Configuration.StandardSequences.Geometry_cff")
 #process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
@@ -74,7 +73,6 @@ process.DQMStore.collateHistograms = True
 process.EDMtoMEConverter.convertOnEndLumi = False
 process.EDMtoMEConverter.convertOnEndRun = True
 
-#process.p1 = cms.Path(process.EDMtoMEConverter*process.egHLTOffDQMClient*process.topElectronHLTOffDQMClient*process.qTester*process.egHLTOffDQMSummaryClient*process.dqmSaver)
 process.p1 = cms.Path(process.EDMtoMEConverter*process.egHLTOffDQMClient*process.egHLTOffDQMSummaryClient*process.dqmSaver)
 
 

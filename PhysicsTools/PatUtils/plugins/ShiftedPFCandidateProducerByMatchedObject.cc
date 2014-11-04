@@ -1,11 +1,10 @@
 #include "PhysicsTools/PatUtils/plugins/ShiftedPFCandidateProducerByMatchedObject.h"
 
-#include <TMath.h>
+const double dRDefault = 1000;
 
 ShiftedPFCandidateProducerByMatchedObject::ShiftedPFCandidateProducerByMatchedObject(const edm::ParameterSet& cfg)
-  : moduleLabel_(cfg.getParameter<std::string>("@module_label"))
 {
-  srcPFCandidates_ = consumes<edm::Handle<reco::PFCandidateCollection> >(cfg.getParameter<edm::InputTag>("srcPFCandidates"));
+  srcPFCandidates_ = consumes<reco::PFCandidateCollection>(cfg.getParameter<edm::InputTag>("srcPFCandidates"));
   srcUnshiftedObjects_ = consumes<edm::View<reco::Candidate> >(cfg.getParameter<edm::InputTag>("srcUnshiftedObjects"));
   srcShiftedObjects_ = consumes<edm::View<reco::Candidate> >(cfg.getParameter<edm::InputTag>("srcShiftedObjects"));
 
@@ -39,11 +38,11 @@ void ShiftedPFCandidateProducerByMatchedObject::produce(edm::Event& evt, const e
   
   CandidateView::const_iterator shiftedObjectP4_matched;
   bool isMatched_Object = false;
-  double dR2bestMatch_Object = 1.e+3;
+  double dR2bestMatch_Object = dRDefault;
   for ( CandidateView::const_iterator unshiftedObject = unshiftedObjects->begin();
 	unshiftedObject != unshiftedObjects->end(); ++unshiftedObject ) {
     isMatched_Object = false;
-    dR2bestMatch_Object = 1.e+3;
+    dR2bestMatch_Object = dRDefault;
    
     for ( CandidateView::const_iterator shiftedObject = shiftedObjects->begin();
 	shiftedObject != shiftedObjects->end(); ++shiftedObject ) {
@@ -66,7 +65,7 @@ void ShiftedPFCandidateProducerByMatchedObject::produce(edm::Event& evt, const e
     
     double shift = 0.;
     bool applyShift = false;
-    double dR2bestMatch_PFCandidate = 1.e+3;
+    double dR2bestMatch_PFCandidate = dRDefault;
     for ( std::vector<objectEntryType>::const_iterator object = objects_.begin();
 	  object != objects_.end(); ++object ) {
       if ( !object->isValidMatch_ ) continue;
@@ -84,7 +83,7 @@ void ShiftedPFCandidateProducerByMatchedObject::produce(edm::Event& evt, const e
       double shiftedPy = (1. + shift)*originalPFCandidate->py();
       double shiftedPz = (1. + shift)*originalPFCandidate->pz();
       double mass = originalPFCandidate->mass();
-      double shiftedEn = TMath::Sqrt(shiftedPx*shiftedPx + shiftedPy*shiftedPy + shiftedPz*shiftedPz + mass*mass);
+      double shiftedEn = sqrt(shiftedPx*shiftedPx + shiftedPy*shiftedPy + shiftedPz*shiftedPz + mass*mass);
       shiftedPFCandidateP4.SetPxPyPzE(shiftedPx, shiftedPy, shiftedPz, shiftedEn);
     }
     

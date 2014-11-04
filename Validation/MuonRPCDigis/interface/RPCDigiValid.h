@@ -1,29 +1,20 @@
 #ifndef RPCDigiValid_h
 #define RPCDigiValid_h
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include <iostream>
+
 #include <string>
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DataFormats/MuonDetId/interface/RPCDetId.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "TH1F.h"
 
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
-class RPCDigiValid: public edm::EDAnalyzer
+class RPCDigiValid: public DQMEDAnalyzer
 {
 
 public:
@@ -33,10 +24,7 @@ public:
 
 protected:
   void analyze(const edm::Event& e, const edm::EventSetup& c);
-  void beginJob();
-  void endJob(void);
-  void beginRun(edm::Run const&, edm::EventSetup const&);
-  void endRun(edm::Run const&, edm::EventSetup const&);
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
 private:
 
@@ -112,7 +100,6 @@ private:
   MonitorElement *xyvDmin4;
   MonitorElement *CLS_Endcap_4;
 
-  DQMStore* dbe_;
   std::string outputFile_;
   std::string digiLabel;
 
