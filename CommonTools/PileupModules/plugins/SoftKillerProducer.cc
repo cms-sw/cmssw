@@ -23,7 +23,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -31,28 +31,30 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 #include "fastjet/contrib/SoftKiller.hh"
+
 
 
 //
 // class declaration
 //
 
-class SoftKillerProducer : public edm::EDProducer {
+class SoftKillerProducer : public edm::stream::EDProducer<> {
 public:
-
-  typedef std::vector< edm::FwdPtr<reco::PFCandidate> >  PFCollection;
+  typedef math::XYZTLorentzVector LorentzVector;
+  typedef std::vector<LorentzVector> LorentzVectorCollection;
+  typedef std::vector< reco::PFCandidate >   PFInputCollection;
+  typedef std::vector< reco::PFCandidate >   PFOutputCollection;
   typedef edm::View<reco::PFCandidate>                   PFView;
 
   explicit SoftKillerProducer(const edm::ParameterSet&);
   ~SoftKillerProducer();
 
 private:
-  virtual void beginJob() override;
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
 
-  edm::EDGetTokenT< PFCollection > tokenPFCandidates_;
+  edm::EDGetTokenT< PFInputCollection > tokenPFCandidates_;
 
 
   double Rho_EtaMax_;
@@ -77,9 +79,10 @@ SoftKillerProducer::SoftKillerProducer(const edm::ParameterSet& iConfig) :
 {
 
   tokenPFCandidates_
-    = consumes<PFCollection>(iConfig.getParameter<edm::InputTag>("PFCandidates"));
+    = consumes<PFInputCollection>(iConfig.getParameter<edm::InputTag>("PFCandidates"));
 
-  produces< PFCollection >();
+  produces<edm::ValueMap<LorentzVector> > ("SoftKillerP4s");
+  produces< PFOutputCollection >();
 
 }
 
@@ -99,17 +102,17 @@ void
 SoftKillerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-  std::auto_ptr< PFCollection > pOutput( new PFCollection );
+  std::auto_ptr< PFOutputCollection > pOutput( new PFOutputCollection );
 
   // get PF Candidates
-  edm::Handle<PFCollection> pfCandidates;
+  edm::Handle<PFInputCollection> pfCandidates;
   iEvent.getByToken( tokenPFCandidates_, pfCandidates);
 
   std::vector<fastjet::PseudoJet> fjInputs;
   for ( auto i = pfCandidates->begin(), 
 	  ibegin = pfCandidates->begin(),
 	  iend = pfCandidates->end(); i != iend; ++i ) {
-    fjInputs.push_back( fastjet::PseudoJet( (*i)->px(), (*i)->py(), (*i)->pz(), (*i)->energy() ) );
+    fjInputs.push_back( fastjet::PseudoJet( i->px(), i->py(), i->pz(), i->energy() ) );
     fjInputs.back().set_user_index( i - ibegin );
   }
 
@@ -120,24 +123,27 @@ SoftKillerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::vector<fastjet::PseudoJet> soft_killed_event;
   soft_killer.apply(fjInputs, soft_killed_event, pt_threshold);
 
+  std::auto_ptr<edm::ValueMap<LorentzVector> > p4SKOut(new edm::ValueMap<LorentzVector>());
+  LorentzVectorCollection skP4s;
+
   for ( auto j = soft_killed_event.begin(),
 	  jend = soft_killed_event.end(); j != jend; ++j ) {
-    pOutput->push_back( (*pfCandidates)[ j->user_index() ] );
+    PFInputCollection::value_type pCand( pfCandidates->at(j->user_index()) );
+    LorentzVector pVec;
+    pVec.SetPxPyPzE(j->px(),j->py(),j->pz(),j->E());
+    pCand.setP4(pVec);
+    skP4s.push_back( pVec );
+    pOutput->push_back(pCand);
   }
 
+  //Compute the modified p4s
+  edm::ValueMap<LorentzVector>::Filler  p4SKFiller(*p4SKOut);
+  p4SKFiller.insert(pfCandidates,skP4s.begin(), skP4s.end() );
+  p4SKFiller.fill();
+
+  iEvent.put(p4SKOut,"SoftKillerP4s");
   iEvent.put( pOutput );
 
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-SoftKillerProducer::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-SoftKillerProducer::endJob() {
 }
 
 //define this as a plug-in
