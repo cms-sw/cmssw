@@ -83,6 +83,7 @@ protected:
   bool useCMSBoostedTauSeedingAlgorithm_; /// algorithm for seeding reconstruction of boosted Taus (similar to mass-drop tagging)
   bool useKtPruning_;         /// Use Kt clustering algorithm for pruning (default is Cambridge/Aachen)
   bool useConstituentSubtraction_; /// constituent subtraction technique
+  bool useSoftDrop_;          /// Soft drop
   double muCut_;              /// for mass-drop tagging, m0/mjet (m0 = mass of highest mass subjet)
   double yCut_;               /// for mass-drop tagging, symmetry cut: min(pt1^2,pt2^2) * dR(1,2) / mjet > ycut
   double rFilt_;              /// for filtering, trimming: dR scale of sub-clustering
@@ -90,10 +91,12 @@ protected:
   double rFiltFactor_;        /// for dynamic filtering radius (as in arXiv:0802.2470)
   int    nFilt_;              /// for filtering, pruning: number of subjets expected
   double trimPtFracMin_;      /// for trimming: constituent minimum pt fraction of full jet
-  double zCut_;               /// for pruning: constituent minimum pt fraction of parent cluster
+  double zCut_;               /// for pruning OR soft drop: constituent minimum pt fraction of parent cluster
   double RcutFactor_;         /// for pruning: constituent dR * pt/2m < rcut_factor
   double csRho_EtaMax_;       /// for constituent subtraction : maximum rapidity for ghosts
   double csRParam_;           /// for constituent subtraction : R parameter for KT alg in jet median background estimator
+  double beta_;               /// for soft drop : beta (angular exponent)
+
 
   double subjetPtMin_;        /// for CMSBoostedTauSeedingAlgorithm : subjet pt min
   double muMin_;              /// for CMSBoostedTauSeedingAlgorithm : min mass-drop
