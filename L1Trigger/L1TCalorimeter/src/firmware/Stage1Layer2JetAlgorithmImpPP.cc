@@ -12,6 +12,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"
 #include "L1Trigger/L1TCalorimeter/interface/JetCalibrationMethods.h"
 #include "L1Trigger/L1TCalorimeter/interface/legacyGtHelper.h"
+#include "L1Trigger/L1TCalorimeter/interface/HardwareSortingMethods.h"
 
 using namespace std;
 using namespace l1t;
@@ -29,6 +30,7 @@ void Stage1Layer2JetAlgorithmImpPP::processEvent(const std::vector<l1t::CaloRegi
 
   std::vector<l1t::CaloRegion> * subRegions = new std::vector<l1t::CaloRegion>();
   std::vector<l1t::Jet> * uncalibjets = new std::vector<l1t::Jet>();
+  std::vector<l1t::Jet> * unSortedJets = new std::vector<l1t::Jet>();
   std::vector<l1t::Jet> * preGtEtaJets = new std::vector<l1t::Jet>();
 
   double towerLsb = params_->towerLsbSum();
@@ -47,7 +49,9 @@ void Stage1Layer2JetAlgorithmImpPP::processEvent(const std::vector<l1t::CaloRegi
 
   //will return jets with no response corrections
   //if jetCalibrationType is set to None in the config
-  JetCalibration(uncalibjets, jetCalibrationParams, preGtEtaJets, jetCalibrationType, towerLsb);
+  JetCalibration(uncalibjets, jetCalibrationParams, unSortedJets, jetCalibrationType, towerLsb);
+
+  SortJets(unSortedJets, preGtEtaJets);
 
   // takes input jets (using region scales/eta) and outputs jets using Gt scales/eta
   JetToGtEtaScales(params_, preGtEtaJets, preGtJets);
@@ -55,14 +59,15 @@ void Stage1Layer2JetAlgorithmImpPP::processEvent(const std::vector<l1t::CaloRegi
 
   delete subRegions;
   delete uncalibjets;
+  delete unSortedJets;
   delete preGtEtaJets;
 
   //the jets should be sorted, highest pT first.
   // do not truncate the tau list, GT converter handles that
-  auto comp = [&](l1t::Jet i, l1t::Jet j)-> bool {
-    return (i.hwPt() < j.hwPt() );
-  };
+  // auto comp = [&](l1t::Jet i, l1t::Jet j)-> bool {
+  //   return (i.hwPt() < j.hwPt() );
+  // };
 
-  std::sort(jets->begin(), jets->end(), comp);
-  std::reverse(jets->begin(), jets->end());
+  // std::sort(jets->begin(), jets->end(), comp);
+  // std::reverse(jets->begin(), jets->end());
 }
