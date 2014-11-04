@@ -110,7 +110,9 @@ int DTPerformance::get( int   wheelId,
   chanKey.push_back(  sectorId );
   chanKey.push_back(      slId );
   int ientry;
-  int searchStatus = dBuf->find( chanKey.begin(), chanKey.end(), ientry );
+  //Guarantee const correctness for thread-safety
+  const DTBufferTree<int,int>* constDBuf = dBuf;
+  int searchStatus = constDBuf->find( chanKey.begin(), chanKey.end(), ientry );
   if ( !searchStatus ) {
     const DTPerformanceData& data( dataList[ientry].second );
     meanT0         = data.meanT0;

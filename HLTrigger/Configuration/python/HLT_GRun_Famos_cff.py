@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_2_1/GRun/V18 (CMSSW_7_2_1_patch1)
+# /dev/CMSSW_7_2_1/GRun/V19 (CMSSW_7_2_1_patch1)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_2_1/GRun/V18')
+  tableName = cms.string('/dev/CMSSW_7_2_1/GRun/V19')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -5227,7 +5227,7 @@ hltDiEG33CaloIdLClusterShapeUnseededFilter = cms.EDFilter( "HLTEgammaGenericFilt
     lessThan = cms.bool( True ),
     useEt = cms.bool( False ),
     ncandcut = cms.int32( 2 ),
-    isoTag = cms.InputTag( 'hltEgammaClusterShapeUnseedeed','sigmaIEtaIEta5x5' ),
+    isoTag = cms.InputTag( 'hltEgammaClusterShapeUnseeded','sigmaIEtaIEta5x5' ),
     candTag = cms.InputTag( "hltDiEG33HEUnseededFilter" ),
     nonIsoTag = cms.InputTag( "" )
 )
@@ -15875,7 +15875,7 @@ hltEG16CaloId24b40eHE10R9Id65ClusterShapeUnseededFilter = cms.EDFilter( "HLTEgam
     lessThan = cms.bool( True ),
     useEt = cms.bool( False ),
     ncandcut = cms.int32( 1 ),
-    isoTag = cms.InputTag( 'hltEgammaClusterShapeUnseedeed','sigmaIEtaIEta5x5' ),
+    isoTag = cms.InputTag( 'hltEgammaClusterShapeUnseeded','sigmaIEtaIEta5x5' ),
     candTag = cms.InputTag( "hltDiEG16HE10R9Id65HEUnseededFilter" ),
     nonIsoTag = cms.InputTag( "" )
 )
@@ -16453,7 +16453,7 @@ hltEG18CaloId24b40eHE10R9Id65ClusterShapeUnseededFilter = cms.EDFilter( "HLTEgam
     lessThan = cms.bool( True ),
     useEt = cms.bool( False ),
     ncandcut = cms.int32( 1 ),
-    isoTag = cms.InputTag( 'hltEgammaClusterShapeUnseedeed','sigmaIEtaIEta5x5' ),
+    isoTag = cms.InputTag( 'hltEgammaClusterShapeUnseeded','sigmaIEtaIEta5x5' ),
     candTag = cms.InputTag( "hltDiEG18HE10R9Id65HEUnseededFilter" ),
     nonIsoTag = cms.InputTag( "" )
 )
@@ -16726,7 +16726,7 @@ hltEG22CaloId24b40eHE10R9Id65ClusterShapeUnseededFilter = cms.EDFilter( "HLTEgam
     lessThan = cms.bool( True ),
     useEt = cms.bool( False ),
     ncandcut = cms.int32( 1 ),
-    isoTag = cms.InputTag( 'hltEgammaClusterShapeUnseedeed','sigmaIEtaIEta5x5' ),
+    isoTag = cms.InputTag( 'hltEgammaClusterShapeUnseeded','sigmaIEtaIEta5x5' ),
     candTag = cms.InputTag( "hltDiEG22HE10R9Id65HEUnseededFilter" ),
     nonIsoTag = cms.InputTag( "" )
 )
