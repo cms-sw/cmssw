@@ -132,15 +132,15 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   std::shared_ptr<l1t::LUT> egIsoLUT( new l1t::LUT(egIsoLUTStream) );
   m_params.setEgIsolationLUT(egIsoLUT);
 
-  edm::FileInPath egIsoLUTFileBarrel = conf.getParameter<edm::FileInPath>("egIsoLUTFileBarrel");
-  std::ifstream egIsoLUTBarrelStream(egIsoLUTFileBarrel.fullPath());
-  std::shared_ptr<l1t::LUT> egIsoLUTBarrel( new l1t::LUT(egIsoLUTBarrelStream) );
-  m_params.setEgIsolationLUTBarrel(egIsoLUTBarrel);
+  //edm::FileInPath egIsoLUTFileBarrel = conf.getParameter<edm::FileInPath>("egIsoLUTFileBarrel");
+  //std::ifstream egIsoLUTBarrelStream(egIsoLUTFileBarrel.fullPath());
+  //std::shared_ptr<l1t::LUT> egIsoLUTBarrel( new l1t::LUT(egIsoLUTBarrelStream) );
+  //m_params.setEgIsolationLUTBarrel(egIsoLUTBarrel);
 
-  edm::FileInPath egIsoLUTFileEndcaps = conf.getParameter<edm::FileInPath>("egIsoLUTFileEndcaps");
-  std::ifstream egIsoLUTEndcapsStream(egIsoLUTFileEndcaps.fullPath());
-  std::shared_ptr<l1t::LUT> egIsoLUTEndcaps( new l1t::LUT(egIsoLUTEndcapsStream) );
-  m_params.setEgIsolationLUTEndcaps(egIsoLUTEndcaps);
+  //edm::FileInPath egIsoLUTFileEndcaps = conf.getParameter<edm::FileInPath>("egIsoLUTFileEndcaps");
+  //std::ifstream egIsoLUTEndcapsStream(egIsoLUTFileEndcaps.fullPath());
+  //std::shared_ptr<l1t::LUT> egIsoLUTEndcaps( new l1t::LUT(egIsoLUTEndcapsStream) );
+  //m_params.setEgIsolationLUTEndcaps(egIsoLUTEndcaps);
 
 
   m_params.setEgIsoAreaNrTowersEta(conf.getParameter<unsigned int>("egIsoAreaNrTowersEta"));
