@@ -8,7 +8,8 @@
 #include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -23,6 +24,9 @@ class PFHBHERecHitCreator :  public  PFRecHitCreatorBase {
     PFRecHitCreatorBase(iConfig,iC)
     {
       recHitToken_ = iC.consumes<edm::SortedCollection<HBHERecHit> >(iConfig.getParameter<edm::InputTag>("src"));
+      vertexToken_ = iC.consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexSrc"));
+      offset_32_ = iConfig.getParameter<std::vector<double> >("offset_32");
+      offset_33_ = iConfig.getParameter<std::vector<double> >("offset_33");
     }
 
     void importRecHits(std::auto_ptr<reco::PFRecHitCollection>&out,std::auto_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) {
@@ -32,6 +36,7 @@ class PFHBHERecHitCreator :  public  PFRecHitCreatorBase {
       }
 
       edm::Handle<edm::SortedCollection<HBHERecHit> > recHitHandle;
+      edm::Handle<reco::VertexCollection> vertexHandle;
 
       edm::ESHandle<CaloGeometry> geoHandle;
       iSetup.get<CaloGeometryRecord>().get(geoHandle);
@@ -43,6 +48,9 @@ class PFHBHERecHitCreator :  public  PFRecHitCreatorBase {
 	geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalEndcap);
 
       iEvent.getByToken(recHitToken_,recHitHandle);
+      iEvent.getByToken(vertexToken_,vertexHandle);
+
+      int vertices = vertexHandle->size();
       for( const auto& erh : *recHitHandle ) {      
 	const HcalDetId& detid = (HcalDetId)erh.detid();
 	HcalSubdetector esd=(HcalSubdetector)detid.subdetId();
@@ -81,6 +89,17 @@ class PFHBHERecHitCreator :  public  PFRecHitCreatorBase {
 	position.SetCoordinates ( thisCell->getPosition().x(),
 				  thisCell->getPosition().y(),
 				  thisCell->getPosition().z() );
+
+
+
+	//Decalibration for side effcet
+	if (offset_32_.size()>0 && abs(detid.ieta()) ==32) {
+	  energy = energy - offset_32_[depth-1]*vertices;
+
+	}
+	if (offset_33_.size()>0 && abs(detid.ieta()) ==33) {
+	  energy = energy - offset_33_[depth-1]*vertices;
+	}
   
 	reco::PFRecHit rh( detid.rawId(),layer,
 			   energy, 
@@ -99,6 +118,12 @@ class PFHBHERecHitCreator :  public  PFRecHitCreatorBase {
 
 	bool rcleaned = false;
 	bool keep=true;
+
+
+
+
+
+
 
 	//Apply Q tests
 	for( const auto& qtest : qualityTests_ ) {
@@ -120,7 +145,9 @@ class PFHBHERecHitCreator :  public  PFRecHitCreatorBase {
 
  protected:
     edm::EDGetTokenT<edm::SortedCollection<HBHERecHit> > recHitToken_;
-
+    edm::EDGetTokenT<reco::VertexCollection > vertexToken_;
+    std::vector<double> offset_32_;
+    std::vector<double> offset_33_;
 
 };
 
