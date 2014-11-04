@@ -134,9 +134,10 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   for(unsigned int i0 = 0; i0 < lCandidates.size(); i0++) {
     //reco::PFCandidate pCand;
     auto tmpCand = pfCol->ptrAt(lCandidates[i0].user_index());
+    reco::PFCandidate const * tmpCandPF = dynamic_cast<reco::PFCandidate const *>( tmpCand.get() );
     reco::PFCandidate pCand( tmpCand->charge(),
 			     tmpCand->p4(),
-			     translatePdgIdToType(tmpCand->pdgId()) );
+			     tmpCandPF->translatePdgIdToType(tmpCand->pdgId()) );
     LorentzVector pVec; //pVec.SetPtEtaPhiM(lCandidates[i0].pt(),lCandidates[i0].eta(),lCandidates[i0].phi(),lCandidates[i0].Mass());
     auto tmpFJ = lCandidates[i0];
     pVec.SetPxPyPzE(tmpFJ.px(),tmpFJ.py(),tmpFJ.pz(),tmpFJ.E());
@@ -155,20 +156,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put(p4PupOut,"PuppiP4s");
   iEvent.put(fPuppiCandidates);
 }
-// ------------------------------------------------------------------------------------------
-reco::PFCandidate::ParticleType PuppiProducer::translatePdgIdToType(int pdgid) const {
-  switch (std::abs(pdgid)) {
-  case 211: return reco::PFCandidate::h;
-  case 11:  return reco::PFCandidate::e;
-  case 13:  return reco::PFCandidate::mu;
-  case 22:  return reco::PFCandidate::gamma;
-  case 130: return reco::PFCandidate::h0;
-  case 1:   return reco::PFCandidate::h_HF;
-  case 2:   return reco::PFCandidate::egamma_HF;
-  case 0:   return reco::PFCandidate::X;  
-  default: return reco::PFCandidate::X;
-  }
-}
+
 // ------------------------------------------------------------------------------------------
 void PuppiProducer::beginJob() {
 }

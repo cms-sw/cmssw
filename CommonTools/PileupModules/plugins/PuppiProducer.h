@@ -40,8 +40,6 @@ private:
 	virtual void endRun(edm::Run&, edm::EventSetup const&);
 	virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
 	virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-	reco::PFCandidate::ParticleType translatePdgIdToType(int pdgid) const;
-
 
 	edm::EDGetTokenT< CandidateView > tokenPFCandidates_;
 	edm::EDGetTokenT< VertexCollection > tokenVertices_;
