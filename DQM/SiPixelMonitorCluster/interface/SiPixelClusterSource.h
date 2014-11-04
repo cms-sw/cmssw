@@ -69,7 +69,7 @@
        virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
        virtual void buildStructure(edm::EventSetup const&);
-       virtual void bookMEs(DQMStore::IBooker &);
+       virtual void bookMEs(DQMStore::IBooker &, const edm::EventSetup& iSetup);
 
     private:
        edm::ParameterSet conf_;

@@ -36,6 +36,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 //
 // Constructors
 //
@@ -63,8 +64,12 @@ SiPixelClusterModule::~SiPixelClusterModule() {}
 //
 // Book histograms
 //
-void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, DQMStore::IBooker & iBooker, int type, bool twoD, bool reducedSet, bool isUpgrade) {
+void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, const edm::EventSetup& iSetup, DQMStore::IBooker & iBooker, int type, bool twoD, bool reducedSet, bool isUpgrade) {
   
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology *pTT = tTopoHandle.product();
+
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
   bool isHalfModule = false;
@@ -327,8 +332,7 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, DQMStore::IBoo
 
   if(type==4 && endcap){
     uint32_t blade;
-    if (!isUpgrade) { blade = PixelEndcapName(DetId(id_)).bladeName(); }
-    else { blade = PixelEndcapNameUpgrade(DetId(id_)).bladeName(); }
+    blade = PixelEndcapName(DetId(id_),pTT,isUpgrade).bladeName();
     
     char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
     hid = src.label() + "_" + sblade;
@@ -370,8 +374,7 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, DQMStore::IBoo
   }
   if(type==5 && endcap){
     uint32_t disk;
-    if (!isUpgrade) { disk = PixelEndcapName(DetId(id_)).diskName(); }
-    else { disk = PixelEndcapNameUpgrade(DetId(id_)).diskName(); }
+    disk = PixelEndcapName(DetId(id_),pTT,isUpgrade).diskName();
     
     char sdisk[80]; sprintf(sdisk, "Disk_%i",disk);
     hid = src.label() + "_" + sdisk;
@@ -415,13 +418,8 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, DQMStore::IBoo
   if(type==6 && endcap){
     uint32_t panel;
     uint32_t module;
-    if (!isUpgrade) {
-      panel= PixelEndcapName(DetId(id_)).pannelName();
-      module= PixelEndcapName(DetId(id_)).plaquetteName();
-    } else {
-      panel= PixelEndcapNameUpgrade(DetId(id_)).pannelName();
-      module= PixelEndcapNameUpgrade(DetId(id_)).plaquetteName();
-    }
+    panel= PixelEndcapName(DetId(id_),pTT,isUpgrade).pannelName();
+    module= PixelEndcapName(DetId(id_),pTT,isUpgrade).plaquetteName();
     
     char slab[80]; sprintf(slab, "Panel_%i_Ring_%i",panel, module);
     hid = src.label() + "_" + slab;
