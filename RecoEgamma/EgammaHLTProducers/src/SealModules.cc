@@ -44,6 +44,8 @@
 
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTCaloTowerProducer.h"
 
+#include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTTimeCleanedRechitProducer.h"
+
 DEFINE_FWK_MODULE(EgammaHLTElectronTrackIsolationProducers);
 DEFINE_FWK_MODULE(EgammaHLTElectronDetaDphiProducer);
 DEFINE_FWK_MODULE(EgammaHLTGsfTrackVarProducer);
@@ -81,3 +83,5 @@ DEFINE_FWK_MODULE(EgammaHLTEcalPFClusterIsolationProducer);
 DEFINE_FWK_MODULE(EgammaHLTHcalPFClusterIsolationProducer);
 
 DEFINE_FWK_MODULE(EgammaHLTCaloTowerProducer);
+
+DEFINE_FWK_MODULE(EgammaHLTTimeCleanedRechitProducer);

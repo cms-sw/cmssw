@@ -17,3 +17,11 @@ DEFINE_FWK_MODULE(L3MuonCombinedRelativeIsolationProducer);
 
 DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, IsolationRegionAroundL3Muon, "IsolationRegionAroundL3Muon");
 
+#include "RecoMuon/L3MuonIsolationProducer/src/MuonHLTHcalPFClusterIsolationProducer.h"
+DEFINE_FWK_MODULE(MuonHLTHcalPFClusterIsolationProducer);
+
+#include "RecoMuon/L3MuonIsolationProducer/src/MuonHLTEcalPFClusterIsolationProducer.h"
+DEFINE_FWK_MODULE(MuonHLTEcalPFClusterIsolationProducer);
+
+#include "RecoMuon/L3MuonIsolationProducer/src/L3MuonSumCaloPFIsolationProducer.h"
+DEFINE_FWK_MODULE(L3MuonSumCaloPFIsolationProducer);
