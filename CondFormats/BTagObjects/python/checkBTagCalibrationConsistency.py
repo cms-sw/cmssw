@@ -158,7 +158,7 @@ def run_check(filename, op=True, sys=True, flavor=True, print_data=True):
         print "Data file does not contain typical header."
         return False
     lines.pop(0)  # remove header
-    run_check_csv(lines, op, sys, flavor, print_data)
+    return run_check_csv(lines, op, sys, flavor, print_data)
 
 
 def run_check_csv(csv_data, op=True, sys=True, flavor=True, print_data=True):

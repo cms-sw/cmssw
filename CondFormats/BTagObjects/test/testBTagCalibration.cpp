@@ -13,6 +13,7 @@ int main()
     "0, comb, up, 0, 1, 2, 3, 4, 5, 6, \"2*x\" \n"
     "0, comb, central, 0, 1, 2, 3, 4, 5, 6, \"2*x\" \n"
     "0, comb, central, 0, 1, 2, 3, 4, 6, 7, \"2*x\" \n"
+    " \n \t    \t"
     "0, ttbar, central, 0, 1, 2, 3, 4, 6, 7, \"2*x\" \n"
     "1, comb, central, 0, 1, 2, 3, 4, 6, 7, \"2*x\" \n"
     "0, comb, down, 0, 1, 2, 3, 4, 5, 6, \"2*x\" \n"

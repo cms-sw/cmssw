@@ -19,6 +19,8 @@ class DataLoader(object):
         # list of entries
         ens = []
         for l in csv_data:
+            if not l.strip():
+                continue  # skip empty lines
             try:
                 ens.append(ROOT.BTagEntry(l))
             except TypeError:
