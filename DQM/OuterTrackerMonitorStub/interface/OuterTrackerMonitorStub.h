@@ -41,6 +41,8 @@ public:
   MonitorElement* hStub_Endcap_Fw = 0; //TTStub stack	
   MonitorElement* hStub_Endcap_Bw = 0; //TTStub stack	
   
+  // * Stub Eta distribution * //
+  MonitorElement* hStub_Eta = 0; //TTstub eta distribution
   
   // * STUB Displacement - offset * //
   MonitorElement* hStub_Barrel_W = 0; //TTstub Pos-Corr Displacement (layer)

@@ -13,7 +13,7 @@ OuterTrackerCluster = cms.EDAnalyzer('OuterTrackerCluster',
 
 # Cluster Eta
     TH1TTCluster_Eta = cms.PSet(
-        Nbinsx = cms.int32(30),
+        Nbinsx = cms.int32(45),
         xmax = cms.double(3),                      
         xmin = cms.double(-3)
         ),          
