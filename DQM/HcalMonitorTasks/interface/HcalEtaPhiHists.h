@@ -21,7 +21,7 @@ class EtaPhiHists{
   ~EtaPhiHists(){};
 
   // dummy 
-  void setup(DQMStore *& m_dbe,std::string Name, std::string Units="") 
+  /*void setup(DQMStore *& m_dbe,std::string Name, std::string Units="") 
     {
       std::stringstream name;
       name<<Name;
@@ -74,7 +74,7 @@ class EtaPhiHists{
 	(depth[i]->getTH2F())->SetOption("colz");
       setBinLabels(); // set axis titles, special bins
       
-    } // void setup(...)
+    }*/ // void setup(...)
 
   void setup(DQMStore::IBooker & m_dbe,std::string Name, std::string Units="")
     {
