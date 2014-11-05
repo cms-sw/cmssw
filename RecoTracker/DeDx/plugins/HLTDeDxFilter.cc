@@ -44,8 +44,13 @@ HLTDeDxFilter::HLTDeDxFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConf
   maxNHitMissMid_   = iConfig.getParameter<double> ("maxNHitMissMid");
   maxRelTrkIsoDeltaRp3_     = iConfig.getParameter<double> ("maxRelTrkIsoDeltaRp3");
   relTrkIsoDeltaRSize_     = iConfig.getParameter<double> ("relTrkIsoDeltaRSize");
+  maxAssocCaloE_     = iConfig.getParameter<double> ("maxAssocCaloE");
+  maxAssocCaloEDeltaRSize_     = iConfig.getParameter<double> ("maxAssocCaloEDeltaRSize");
   inputTracksTag_ = iConfig.getParameter< edm::InputTag > ("inputTracksTag");
   inputdedxTag_   = iConfig.getParameter< edm::InputTag > ("inputDeDxTag");
+  caloTowersTag_ =  iConfig.getParameter<edm::InputTag>("caloTowersTag");
+
+  caloTowersToken_ = consumes<CaloTowerCollection> (iConfig.getParameter<edm::InputTag>("caloTowersTag"));
   inputTracksToken_ = consumes<reco::TrackCollection>(iConfig.getParameter< edm::InputTag > ("inputTracksTag"));
   inputdedxToken_   = consumes<edm::ValueMap<reco::DeDxData> >(iConfig.getParameter< edm::InputTag > ("inputDeDxTag"));
 
@@ -54,6 +59,7 @@ HLTDeDxFilter::HLTDeDxFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConf
   //register your products
   produces<reco::RecoChargedCandidateCollection>();
 }
+
 
 HLTDeDxFilter::~HLTDeDxFilter(){}
 
@@ -69,6 +75,9 @@ void HLTDeDxFilter::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<double>("maxNHitMissMid",99);
   desc.add<double>("maxRelTrkIsoDeltaRp3", -1);
   desc.add<double>("relTrkIsoDeltaRSize", 0.3);
+  desc.add<double>("maxAssocCaloE", -99);
+  desc.add<double>("maxAssocCaloEDeltaRSize", 0.5);
+  desc.add<edm::InputTag>("caloTowersTag",edm::InputTag("hltTowerMakerForAll"));
   desc.add<edm::InputTag>("inputTracksTag",edm::InputTag("hltL3Mouns"));
   desc.add<edm::InputTag>("inputDeDxTag",edm::InputTag("HLTdedxHarm2"));
   descriptions.add("hltDeDxFilter",desc);
@@ -97,11 +106,16 @@ bool
 
   edm::Handle<reco::TrackCollection> trackCollectionHandle;
   iEvent.getByToken(inputTracksToken_,trackCollectionHandle);
-  reco::TrackCollection trackCollection = *trackCollectionHandle.product();
+  const reco::TrackCollection &trackCollection = *trackCollectionHandle.product();
 
   edm::Handle<edm::ValueMap<reco::DeDxData> > dEdxTrackHandle;
   iEvent.getByToken(inputdedxToken_, dEdxTrackHandle);
-  const edm::ValueMap<reco::DeDxData> dEdxTrack = *dEdxTrackHandle.product();
+  const edm::ValueMap<reco::DeDxData> &dEdxTrack = *dEdxTrackHandle.product();
+
+  edm::Handle<CaloTowerCollection> caloTowersHandle;
+  iEvent.getByToken(caloTowersToken_, caloTowersHandle);
+  const CaloTowerCollection &caloTower = *caloTowersHandle.product();
+
 
   bool accept=false;
   int  NTracks = 0;
@@ -144,6 +158,25 @@ bool
        double relTrkIso = (ptCone - pt[i])/(pt[i]);
        if (relTrkIso > maxRelTrkIsoDeltaRp3_) continue;
        }
+       
+       //calculate the calorimeter energy associated with the track if maxAssocCaloE_ >= 0 
+       if(maxAssocCaloE_ >= 0){
+       //Access info about Calo Towers                                                                                       
+       double caloEMDeltaRp5  = 0;
+       double caloHadDeltaRp5 = 0;
+       for (CaloTowerCollection::const_iterator j=caloTower.begin(); j!=caloTower.end(); j++) {
+	 auto caloDeltaR2 = deltaR2(eta[i], phi[i], j->eta(), j->phi());
+	 double Eem  = j->emEnergy();
+	 double Ehad = j->hadEnergy();
+
+         if (caloDeltaR2 < (maxAssocCaloEDeltaRSize_ * maxAssocCaloEDeltaRSize_) ) {
+           caloEMDeltaRp5  += Eem;
+           caloHadDeltaRp5 += Ehad;
+         }
+       }
+       if (caloEMDeltaRp5 + caloHadDeltaRp5 > maxAssocCaloE_) continue;
+       }
+
        accept=true;
     }
   }

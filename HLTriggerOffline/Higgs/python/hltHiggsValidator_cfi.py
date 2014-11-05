@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         
     hltProcessName = cms.string("HLT"),
-    analysis       = cms.vstring("HWW", "HZZ", "Hgg", "Htaunu", "H2tau", "VBFHbb", "ZnnHbb"), 
+    analysis       = cms.vstring("HWW", "HZZ", "Hgg", "Htaunu", "H2tau", "VBFHbb", "ZnnHbb","DoubleHinTaus","HiggsDalitz"),
     
     # -- The instance name of the reco::GenParticles collection
     genParticleLabel = cms.string("genParticles"),
@@ -105,17 +105,19 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
 
     HWW = cms.PSet( 
         hltPathsToCheck = cms.vstring(
-            "HLT_Mu17_Mu8_v",
-            "HLT_Mu17_TkMu8_v",
-            "HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v",
-            "HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v",
-            "HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v",
-            "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v",
-                    "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v",
-                    "HLT_Mu23_TrkIsoVVL_Ele12_Gsf_CaloId_TrackId_Iso_MediumWP_v",
-                    "HLT_Mu8_TrkIsoVVL_Ele23_Gsf_CaloId_TrackId_Iso_MediumWP_v",
-                    "HLT_Ele23_Ele12_CaloId_TrackId_Iso_v"
-            ),
+          #dileptons for Hww and Hzz
+              "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v",
+              "HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v",
+              "HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v",
+              "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
+              "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v",
+              #prescaled control paths
+              "HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_v",
+              "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v",
+              "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v",
+              "HLT_Ele23_CaloIdL_TrackIdL_IsoVL_v",
+              "HLT_Ele12_CaloIdL_TrackIdL_IsoVL_v"
+          ),
         recMuonLabel  = cms.string("muons"),
         recElecLabel  = cms.string("gedGsfElectrons"),
         # -- Analysis specific cuts
@@ -123,10 +125,13 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         ),
     HZZ = cms.PSet( 
         hltPathsToCheck = cms.vstring(
-            "HLT_Mu17_TkMu8_v",
-            "HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v",
-            "HLT_Ele17_Ele12_Ele10_CaloId_TrackId_v"
-            ),
+        #tri-leptons for Hzz
+            "HLT_Ele16_Ele12_Ele8_CaloIdL_TrackIdL_v",
+            "HLT_Mu8_DiEle12_CaloIdL_TrackIdL_v",
+            "HLT_DiMu9_Ele9_CaloIdL_TrackIdL_v",
+            "HLT_TripleMu_12_10_5_1PairDZ_v",
+            "HLT_TripleMu_12_10_5_v"
+        ),
         recMuonLabel  = cms.string("muons"),
         recElecLabel  = cms.string("gedGsfElectrons"),
         #recTrackLabel = cms.string("globalMuons"),
@@ -135,17 +140,38 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         ),
     Hgg = cms.PSet( 
         hltPathsToCheck = cms.vstring(
-            "HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v",
-            "HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon22_R9Id85_OR_CaloId10_Iso50_v",
-            "HLT_Photon36_R9Id85_OR_CaloId10_Iso50_Photon10_R9Id85_OR_CaloId10_Iso50_Mass80_v",
             "HLT_Photon36_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon18_AND_HE10_R9Id65_Mass95_v",
-            "HLT_Photon42_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon22_AND_HE10_R9Id65_v"
-            ),
+            "HLT_Photon42_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon22_AND_HE10_R9Id65_v",
+            "HLT_Photon28_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon14_AND_HE10_R9Id65_Mass50_Eta1p5_v",
+            "HLT_Photon36_R9Id85_AND_CaloId24b40e_Iso50T80L_Photon18_AND_HE10_R9Id65_Mass30_v",
+            "HLT_Photon36_R9Id85_AND_CaloId24b40e_Iso50T80L_Photon18_AND_HE10_R9Id65_v",
+            "HLT_Photon36_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon18_AND_HE10_R9Id65_Mass70_v"
+        ),
         recPhotonLabel  = cms.string("photons"),
         # -- Analysis specific cuts
         minCandidates = cms.uint32(2), 
         ),
-    Htaunu = cms.PSet( 
+     DoubleHinTaus = cms.PSet(
+        hltPathsToCheck = cms.vstring(
+            "HLT_Mu17_Mu8_SameSign_v",
+            "HLT_Mu17_Mu8_SameSign_DPhi_v"
+        ),
+        recMuonLabel  = cms.string("muons"),
+        # -- Analysis specific cuts
+        minCandidates = cms.uint32(2),
+        ),
+     HiggsDalitz = cms.PSet(
+        hltPathsToCheck = cms.vstring(
+            "HLT_Mu12_Photon25_CaloIdL_v",
+            "HLT_Mu12_Photon25_CaloIdL_L1ISO_v",
+            "HLT_Mu12_Photon25_CaloIdL_L1OR_v"
+        ),
+        recMuonLabel  = cms.string("muons"),
+        recPhotonLabel  = cms.string("photons"),
+        # -- Analysis specific cuts
+        minCandidates = cms.uint32(2),
+        ),
+     Htaunu = cms.PSet(
         hltPathsToCheck = cms.vstring(
             "HLT_LooseIsoPFTau35_Trk20_Prong1_MET70_v",
             "HLT_LooseIsoPFTau35_Trk20_Prong1_MET75_v",
