@@ -1,7 +1,9 @@
-########################################
-# egIsolation LUT for ISOL(EB)= 0.30  ISOL(EE)= 0.50
-# Address in binary: JJJJJJJJJEEEEEE
+# A single LUT file assembled from several LUT files by merge_lookups.pl
 #<header> V1 16 1 </header>
+# LUT data extracted from file egIsoLUT_stage1_isol0.30.txt, will offset address by 0x0
+########################################
+# egIsolation LUT for ISOL = 0.30
+# Address in binary: JJJJJJJJJEEEEEE
 # Format:  Address  Payload  ## hwEGPt hwJetPt
 ########################################
 0 0
@@ -32772,6 +32774,12 @@
 32765 0
 32766 0
 32767 1
+# LUT data extracted from file egIsoLUT_stage1_isol0.50.txt, will offset address by 0x8000
+########################################
+# egIsolation LUT for ISOL = 0.50
+# Address in binary: JJJJJJJJJEEEEEE
+# Format:  Address  Payload  ## hwEGPt hwJetPt
+########################################
 32768 0
 32769 0
 32770 0
