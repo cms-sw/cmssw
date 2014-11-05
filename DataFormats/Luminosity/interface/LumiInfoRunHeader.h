@@ -27,7 +27,8 @@ public:
   LumiInfoRunHeader() {}
 
   /// Constructor with lumi provider, filling scheme name, and filling scheme.
-  LumiInfoRunHeader(std::string& lumiProvider, std::string& fillingSchemeName, std::bitset<LumiConstants::numBX>& fillingScheme);
+  LumiInfoRunHeader(std::string& lumiProvider, std::string& fillingSchemeName,
+		    std::bitset<LumiConstants::numBX>& fillingScheme, int bunchSpacing);
 
   /// Destructor.
   ~LumiInfoRunHeader() {}
@@ -38,34 +39,41 @@ public:
   //----------------------------------------------------------------
 
   /// Set lumi provider.
-  void setLumiProvider(const std::string& lumiProvider) { m_lumiProvider = lumiProvider; }
+  void setLumiProvider(const std::string& lumiProvider) { lumiProvider_ = lumiProvider; }
 
   /// Set filling scheme name.
-  void setFillingSchemeName(const std::string& fillingSchemeName) { m_fillingSchemeName = fillingSchemeName; }
+  void setFillingSchemeName(const std::string& fillingSchemeName) { fillingSchemeName_ = fillingSchemeName; }
 
   /// Set filling scheme.
-  void setFillingScheme(const std::bitset<LumiConstants::numBX>& fillingScheme);
+  void setFillingScheme(const std::bitset<LumiConstants::numBX>& fillingScheme) { fillingScheme_ = fillingScheme; }
 
+  /// Set bunch spacing.
+  void setBunchSpacing(int bunchSpacing) { bunchSpacing_ = bunchSpacing; }
+  
   //----------------------------------------------------------------
 
   /// Get lumi provider.
-  std::string getLumiProvider() const { return m_lumiProvider; }
+  std::string getLumiProvider() const { return lumiProvider_; }
 
   /// Get filling scheme name.
-  std::string getFillingSchemeName() const { return m_fillingSchemeName; }
+  std::string getFillingSchemeName() const { return fillingSchemeName_; }
 
   /// Get filling scheme for given bunch.
-  bool getBunchIsFilled(unsigned int bunch) const { return m_fillingScheme[bunch]; }
+  bool getBunchIsFilled(unsigned int bunch) const { return fillingScheme_[bunch]; }
 
   /// Get full filling scheme.
-  const std::bitset<LumiConstants::numBX>& getFillingScheme() const { return m_fillingScheme; }
+  const std::bitset<LumiConstants::numBX>& getFillingScheme() const { return fillingScheme_; }
+
+  /// Get bunch spacing.
+  int getBunchSpacing() const { return bunchSpacing_; }
 
   //----------------------------------------------------------------
 
 private:
-  std::string m_lumiProvider;       // string with name of lumi provider
-  std::string m_fillingSchemeName;  // name of filling scheme
-  std::bitset<LumiConstants::numBX> m_fillingScheme;          // filling scheme
+  std::string lumiProvider_;       // string with name of lumi provider
+  std::string fillingSchemeName_;  // name of filling scheme
+  std::bitset<LumiConstants::numBX> fillingScheme_;          // filling scheme
+  int bunchSpacing_;
 };
 
 #endif
