@@ -35,7 +35,8 @@ TestLumiInfoRunHeader::testConstructor() {
   fillingScheme[1] = true;
   fillingScheme[10] = true;
   fillingScheme[12] = true;
-
+  fillingScheme[16] = true;
+  
   LumiInfoRunHeader lumiInfoRH(lumiProviderName, fillingSchemeName, fillingScheme);
   
   CPPUNIT_ASSERT(lumiInfoRH.getLumiProvider() == lumiProviderName);

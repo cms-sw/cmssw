@@ -33,7 +33,9 @@ void LumiInfoRunHeader::setBunchSpacing(void) {
   for (unsigned int i=0; i<LumiConstants::numBX; i++) {
     if (fillingScheme_[i]) {
       if (lastFilledBunch >= 0) {
-	minimumSpacingFound = i-lastFilledBunch;
+	int thisSpacing = i-lastFilledBunch;
+	if (thisSpacing < minimumSpacingFound)
+	  minimumSpacingFound = thisSpacing;
       }
       lastFilledBunch = i;
     }
