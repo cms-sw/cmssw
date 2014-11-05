@@ -11,29 +11,41 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 //Electron
-//#include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
 //Muon
-#include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 
-// MET
+//MET
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
+#include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/METReco/interface/METCollection.h"
 
-// Jets
+//Jets
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 
-// Trigger
+//Trigger
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+
+//Vertices
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+
+//Conversions
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
+
+//Beam spot
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 class SUSY_HLT_SingleLepton: public DQMEDAnalyzer{
 
@@ -61,6 +73,24 @@ class SUSY_HLT_SingleLepton: public DQMEDAnalyzer{
   edm::EDGetTokenT<reco::PFJetCollection> thePfJetCollection_;
   edm::InputTag theJetTagTag_;
   edm::EDGetTokenT<reco::JetTagCollection> theJetTagCollection_;
+
+  edm::InputTag theVertexCollectionTag_;
+  edm::EDGetTokenT<reco::VertexCollection> theVertexCollection_;
+  edm::InputTag theConversionCollectionTag_;
+  edm::EDGetTokenT<reco::ConversionCollection> theConversionCollection_;
+  edm::InputTag theBeamSpotTag_;
+  edm::EDGetTokenT<reco::BeamSpot> theBeamSpot_;
+
+  edm::InputTag theLeptonFilterTag_;
+  edm::InputTag theHLTHTTag_;
+  edm::EDGetTokenT<reco::MET> theHLTHT_;
+  edm::InputTag theHLTMETTag_;
+  edm::EDGetTokenT<reco::MET> theHLTMET_;
+  edm::InputTag theHLTJetCollectionTag_;
+  edm::EDGetTokenT<reco::CaloJetCollection> theHLTJetCollection_;
+  edm::InputTag theHLTJetTagCollectionTag_;
+  edm::EDGetTokenT<reco::JetTagCollection> theHLTJetTagCollection_;
+
   edm::InputTag theTriggerResultsTag_;
   edm::EDGetTokenT<edm::TriggerResults> theTriggerResults_;
   edm::InputTag theTrigSummaryTag_;
@@ -69,17 +99,19 @@ class SUSY_HLT_SingleLepton: public DQMEDAnalyzer{
   HLTConfigProvider fHltConfig_;
 
   std::string HLTProcess_;
+
   std::string triggerPath_;
   std::string triggerPathAuxiliary_;
-  edm::InputTag triggerFilter_;
+
   double jetPtCut_;
   double jetEtaCut_;
-  double leptonPtCut_;
-  double leptonPtPlateau_;
-  double htPlateau_;
-  double metPlateau_;
-  double csvPlateau_;
-  
+  double metCut_;
+
+  double lep_pt_threshold_;
+  double ht_threshold_;
+  double met_threshold_;
+  double csv_threshold_;
+
   // Histograms
   MonitorElement* h_triggerLepPt_;
   MonitorElement* h_triggerLepEta_;
@@ -90,8 +122,10 @@ class SUSY_HLT_SingleLepton: public DQMEDAnalyzer{
   MonitorElement* h_pfMetTurnOn_den_;
   MonitorElement* h_pfHTTurnOn_num_;
   MonitorElement* h_pfHTTurnOn_den_;
-  MonitorElement* h_leptonTurnOn_num_;
-  MonitorElement* h_leptonTurnOn_den_;
+  MonitorElement* h_leptonPtTurnOn_num_;
+  MonitorElement* h_leptonPtTurnOn_den_;
+  MonitorElement* h_leptonIsoTurnOn_num_;
+  MonitorElement* h_leptonIsoTurnOn_den_;
 };
 
 #endif
