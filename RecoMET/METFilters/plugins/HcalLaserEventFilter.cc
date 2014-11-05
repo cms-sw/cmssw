@@ -65,7 +65,6 @@ class HcalLaserEventFilter : public edm::EDFilter {
 
   // Filter option 1:  veto events by run, event number
   const bool vetoByRunEventNumber_;
-//  std::vector<std::pair<unsigned int,unsigned int> > RunEventData_;
   std::vector<std::pair<edm::RunNumber_t,edm::EventNumber_t> > RunEventData_;
 
   // Filter option 2:  veto events by HBHE occupancy
