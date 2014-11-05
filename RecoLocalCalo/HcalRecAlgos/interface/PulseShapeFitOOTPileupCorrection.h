@@ -9,7 +9,6 @@
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 
 #include <TMinuit.h>
-#include "TFitterMinuit.h"
 
 #include <TH1F.h>
 #include "Minuit2/FCNBase.h"
