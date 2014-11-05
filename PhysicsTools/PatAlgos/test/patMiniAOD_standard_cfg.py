@@ -33,6 +33,6 @@ miniAOD_customizeOutput(process.out)
 #                                         ##
 #   process.options.wantSummary = False   ##  (to suppress the long output at the end of the job)
 #                                         ##
-process.out.fileName = 'miniAOD_standard.root'
+process.out.fileName = 'patMiniAOD_standard.root'
 #
 
