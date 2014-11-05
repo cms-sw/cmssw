@@ -44,6 +44,9 @@ from RecoParticleFlow.PFClusterProducer.particleFlowClusterHGC_cff import *
 from RecoParticleFlow.PFClusterProducer.particleFlowRecHitShashlik_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterShashlik_cfi import *
 
+#provides primary vertex
+from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import *
+
 pfClusteringECAL = cms.Sequence()
 
 pfClusteringECAL = cms.Sequence(particleFlowRecHitECAL*particleFlowClusterECALUncorrected*particleFlowClusterECAL)
@@ -81,7 +84,7 @@ pfClusteringPS = cms.Sequence(particleFlowRecHitPS*particleFlowClusterPS)
 
 
 #pfClusteringHBHEHF = cms.Sequence(towerMakerPF*particleFlowRecHitHCAL*particleFlowClusterHCAL+particleFlowClusterHFHAD+particleFlowClusterHFEM)
-pfClusteringHBHEHF = cms.Sequence(particleFlowRecHitHBHE*particleFlowRecHitHF*particleFlowClusterHBHE*particleFlowClusterHF*particleFlowClusterHCAL)
+pfClusteringHBHEHF = cms.Sequence(offlinePrimaryVertices*particleFlowRecHitHBHE*particleFlowRecHitHF*particleFlowClusterHBHE*particleFlowClusterHF*particleFlowClusterHCAL)
 pfClusteringHO = cms.Sequence(particleFlowRecHitHO*particleFlowClusterHO)
 
 
