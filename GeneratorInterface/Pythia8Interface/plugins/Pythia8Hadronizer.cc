@@ -288,7 +288,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   if(fReweightPtHatRapUserHook) fMasterGen->setUserHooksPtr(fReweightPtHatRapUserHook);
   if(fJetMatchingHook) fMasterGen->setUserHooksPtr(fJetMatchingHook);
   if(fEmissionVetoHook1) { 
-    std::cout << "Turning on Emission Veto Hook 1 from CMSSW Pythia8Interface";
+    edm::LogInfo("Pythia8Interface") << "Turning on Emission Veto Hook 1 from CMSSW Pythia8Interface";
     fMasterGen->setUserHooksPtr(fEmissionVetoHook1);
   }
 
@@ -359,7 +359,7 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
 bool Pythia8Hadronizer::initializeForExternalPartons()
 {
 
-  std::cout << "Initializing for external partons" << std::endl;
+  edm::LogInfo("Pythia8Interface") << "Initializing for external partons";
 
   if((fMasterGen->settings.mode("POWHEG:veto") > 0 || fMasterGen->settings.mode("POWHEG:MPIveto") > 0) && !fEmissionVetoHook) {
 
@@ -369,7 +369,7 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
 
     fEmissionVetoHook = new PowhegHooks();
 
-    std::cout << "Turning on Emission Veto Hook from pythia8 code";
+    edm::LogInfo("Pythia8Interface") << "Turning on Emission Veto Hook from pythia8 code";
     fMasterGen->setUserHooksPtr(fEmissionVetoHook);
 
   }
