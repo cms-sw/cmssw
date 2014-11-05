@@ -255,37 +255,37 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::loadCalibrationLuts()
   offsetEndcapsEH_  = 0.;
   offsetEndcapsH_   = 1.5;
 
-  std::vector<l1t::LUT*> luts;
-  luts.push_back( params_->tauCalibrationLUTBarrelA()  );
-  luts.push_back( params_->tauCalibrationLUTBarrelB()  );
-  luts.push_back( params_->tauCalibrationLUTBarrelC()  );
-  luts.push_back( params_->tauCalibrationLUTEndcapsA() );
-  luts.push_back( params_->tauCalibrationLUTEndcapsB() );
-  luts.push_back( params_->tauCalibrationLUTEndcapsC() );
+  // In the combined calibration LUT, upper 3-bits are used as LUT index:
+  // (0=BarrelA, 1=BarrelB, 2=BarrelC, 3=EndCapA, 4=EndCapA, 5=EndCapA, 6=Eta)
+  enum {LUT_UPPER = 3};
+  enum {LUT_OFFSET = 0x80};
 
-  unsigned int size = (1 << luts.back()->nrBitsData());
-  unsigned int nBins = (1 << luts.back()->nrBitsAddress());
-
+  l1t::LUT* lut = params_->tauCalibrationLUT();
+  unsigned int size = (1 << lut->nrBitsData());
+  unsigned int nBins = (1 << (lut->nrBitsAddress() - LUT_UPPER));
 
   std::vector<float> emptyCoeff;
   emptyCoeff.resize(nBins,0.);
   float binSize = (maxScale-minScale)/(float)size;
-  for(unsigned iLut=0;  iLut < luts.size();  ++iLut ) {
+  for(unsigned iLut=0;  iLut < 6;  ++iLut ) {
     coefficients_.push_back(emptyCoeff);
     for(unsigned addr=0;addr<nBins;addr++) {
-      float y = (float)luts[iLut]->data(addr);
+      float y = (float)lut->data(iLut*LUT_OFFSET + addr);
       coefficients_[iLut][addr] = minScale + binSize*y;
     }
   }
 
-  l1t::LUT* lutEta = params_->tauCalibrationLUTEta();
-  size = (1 << lutEta->nrBitsData());
-  nBins = (1 << lutEta->nrBitsAddress());
+  //l1t::LUT* lutEta = params_->tauCalibrationLUTEta();
+  //(now this is in the combined LUT at index 7)
+  //size = (1 << lutEta->nrBitsData());
+  //nBins = (1 << lutEta->nrBitsAddress());
+  size = (1 << lut->nrBitsData());
+  nBins = (1 << 6);  // can't auto-extract this now due to combined LUT.
   emptyCoeff.resize(nBins,0.);
   binSize = (maxScaleEta-minScaleEta)/(float)size;
   coefficients_.push_back(emptyCoeff);
   for(unsigned addr=0;addr<nBins;addr++) {
-    float y = (float)lutEta->data(addr);
+    float y = (float)lut->data(7*LUT_OFFSET + addr);
     coefficients_.back()[addr] = minScaleEta + binSize*y;
   }
 

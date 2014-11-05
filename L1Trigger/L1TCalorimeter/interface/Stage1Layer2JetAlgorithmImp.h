@@ -31,7 +31,8 @@ namespace l1t {
     virtual ~Stage1Layer2JetAlgorithmImpHI();
     virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::CaloEmCand> & EMCands,
-			      std::vector<l1t::Jet> * jets);
+			      std::vector<l1t::Jet> * jets,
+			      std::vector<l1t::Jet> * preGtJets);
   private:
     CaloParamsStage1* const params_;
     //double regionLSB_;
@@ -43,7 +44,8 @@ namespace l1t {
     virtual ~Stage1Layer2JetAlgorithmImpPP();
     virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::CaloEmCand> & EMCands,
-			      std::vector<l1t::Jet> * jets);
+			      std::vector<l1t::Jet> * jets,
+			      std::vector<l1t::Jet> * preGtJets);
   private:
     CaloParamsStage1* const params_;
     //double regionLSB_;
@@ -55,7 +57,8 @@ namespace l1t {
     virtual ~Stage1Layer2JetAlgorithmImpSimpleHW();
     virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::CaloEmCand> & EMCands,
-			      std::vector<l1t::Jet> * jets);
+			      std::vector<l1t::Jet> * jets,
+			      std::vector<l1t::Jet> * preGtJets);
   private:
     CaloParamsStage1* const params_;
     //double regionLSB_;
