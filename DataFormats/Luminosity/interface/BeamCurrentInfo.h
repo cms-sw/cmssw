@@ -27,19 +27,18 @@
 #include <iosfwd>
 #include <string>
 #include <stdint.h>
+#include "DataFormats/Luminosity/interface/LumiConstants.h"
 
 class BeamCurrentInfo {
  public:
-  static const int numOrbits_ = 262144; // number of orbits per LS (2^18)
-  static const unsigned int numBX_ = 3564; // number of BX per orbit
   static const float scaleFactor; // factor to scale data by when packing/unpacking
   
   /// default constructor
   BeamCurrentInfo() {
-    beam1IntensitiesUnpacked_.assign(numBX_, 0.0);
-    beam2IntensitiesUnpacked_.assign(numBX_, 0.0);
-    beam1IntensitiesPacked_.assign(numBX_, 0);
-    beam2IntensitiesPacked_.assign(numBX_, 0);
+    beam1IntensitiesUnpacked_.assign(LumiConstants::numBX, 0.0);
+    beam2IntensitiesUnpacked_.assign(LumiConstants::numBX, 0.0);
+    beam1IntensitiesPacked_.assign(LumiConstants::numBX, 0);
+    beam2IntensitiesPacked_.assign(LumiConstants::numBX, 0);
     unpackedReady_ = true;
   } 
   
