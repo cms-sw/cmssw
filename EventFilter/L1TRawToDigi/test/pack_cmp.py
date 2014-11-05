@@ -32,8 +32,10 @@ def compare_bx_vector(xs, ys):
                 print ">>> Eta mismatch:", x.hwEta(), "vs", y.hwEta()
             if x.hwPhi() != y.hwPhi():
                 print ">>> Phi mismatch:", x.hwPhi(), "vs", y.hwPhi()
-            if x.hwQual() != y.hwQual():
-                print ">>> Qual mismatch:", x.hwQual(), "vs", y.hwQual()
+            if ((x.hwQual()>>0)&0x1) != ((y.hwQual()>>0)&0x1):
+                print ">>> Qual bit 0 mismatch:", ((x.hwQual()>>0)&0x1), "vs", ((y.hwQual()>>0)&0x1)
+            if ((x.hwQual()>>1)&0x1) != ((y.hwQual()>>1)&0x1):
+                print ">>> Qual bit 1 mismatch:", ((x.hwQual()>>1)&0x1), "vs", ((y.hwQual()>>1)&0x1)
             if x.hwIso() != y.hwIso():
                 print ">>> Iso mismatch:", x.hwIso(), "vs", y.hwIso()
 
@@ -42,9 +44,9 @@ def compare_bx_vector(xs, ys):
         for j in range(min(x_size, 0), min(x_size, y_size)):
             x = xs.at(bx, j)
             y = ys.at(bx, j)
-            print ">>>> ({0} @ {1}, {2} : {3} - {4}) vs ({5} @ {6}, {7} : {8} - {9})".format(
-                    x.hwPt(), x.hwEta(), x.hwPhi(), x.hwQual(), x.hwIso(),
-                    y.hwPt(), y.hwEta(), y.hwPhi(), y.hwQual(), y.hwIso())
+            print ">>>> ({0} @ {1}, {2} : {3}, {4} - {5}) vs ({6} @ {7}, {8} : {9}, {10} - {11})".format(
+                    x.hwPt(), x.hwEta(), x.hwPhi(), ((x.hwQual()>>0)&0x1), ((x.hwQual()>>1)&0x1), x.hwIso(),
+                    y.hwPt(), y.hwEta(), y.hwPhi(), ((y.hwQual()>>0)&0x1), ((y.hwQual()>>1)&0x1), y.hwIso())
 
         print "<< Compared", x_size, "quantities"
 
