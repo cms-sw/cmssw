@@ -15,7 +15,7 @@ process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 # process.hltMuonValidator.recMuonCut = "isGlobalMuon && eta < 1.2"
 ##############################################################################
 
-hltProcessName = "reHLT"
+hltProcessName = "HLT"
 process.hltHiggsValidator.hltProcessName = hltProcessName
 #process.hltHiggsValidator.HWW.hltPathsToCheck = cms.vstring(
 #		"HLT_Photon26",
