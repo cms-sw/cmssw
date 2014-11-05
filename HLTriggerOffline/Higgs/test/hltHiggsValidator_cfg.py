@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("HLTHiggsOfflineAnalysis")
 
 #process.load("DQMOffline.RecoB.dqmAnalyzer_cff")
-process.load("HLTriggerOffline.Higgs.dqmAnalyzer_cff")
 process.load("HLTriggerOffline.Higgs.HiggsValidation_cff")
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 
