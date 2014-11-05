@@ -80,23 +80,21 @@ class BtagCalibConsistencyChecker(unittest.TestCase):
 
     def test_coverage(self):
         res = list(itertools.chain.from_iterable(
-            self._check_coverage(op, meas, sys, flav)
+            self._check_coverage(op, sys, flav)
             for flav in data.flavs
             for sys in data.syss
-            for meas in data.meass
             for op in data.ops
         ))
         self.assertFalse(bool(res), "\n"+"\n".join(res))
 
-    def _check_coverage(self, op, meas, sys, flav):
-        region = "op=%d, %s, %s, flav=%d" % (op, meas, sys, flav)
+    def _check_coverage(self, op, sys, flav):
+        region = "op=%d, %s, flav=%d" % (op, sys, flav)
         print "Checking coverage for", region
 
         # load relevant entries
         ens = filter(
             lambda e:
             e.params.operatingPoint == op and
-            e.params.measurementType == meas and
             e.params.sysType == sys and
             e.params.jetFlavor == flav,
             data.entries
@@ -164,13 +162,28 @@ def run_check(filename, op=True, sys=True, flavor=True, print_data=True):
 def run_check_csv(csv_data, op=True, sys=True, flavor=True, print_data=True):
     global data, check_op, check_sys, check_flavor
     check_op, check_sys, check_flavor = op, sys, flavor
-    data = DataLoader(csv_data)
-    if print_data:
-        data.print_data()
-    testsuite = unittest.TestLoader().loadTestsFromTestCase(
-        BtagCalibConsistencyChecker)
-    res = unittest.TextTestRunner().run(testsuite)
-    return not bool(res.failures)
+
+    # grab measurement types
+    meas_types = set(
+        l.split(',')[1].strip()
+        for l in csv_data
+        if len(l.split()) == 11
+    )
+
+    # for
+    all_res = []
+    for meas_type in meas_types:
+        print '\n\n' + '='*80
+        print '# Checking csv data for type:', meas_type
+        print '='*80 + '\n'
+        data = DataLoader(csv_data, meas_type)
+        if print_data:
+            data.print_data()
+        testsuite = unittest.TestLoader().loadTestsFromTestCase(
+            BtagCalibConsistencyChecker)
+        res = unittest.TextTestRunner().run(testsuite)
+        all_res.append((not bool(res.failures), data))
+    return all_res
 
 
 if __name__ == '__main__':
@@ -178,6 +191,6 @@ if __name__ == '__main__':
         print "Need csv data file as first argument. Exit."
         exit(-1)
     light = not '--light' in sys.argv
-    if not run_check(sys.argv[1], light, light, light):
+    if not all(r for r, _ in run_check(sys.argv[1], light, light, light)):
         exit(-1)
 

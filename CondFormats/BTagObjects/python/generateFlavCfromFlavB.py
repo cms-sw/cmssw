@@ -48,18 +48,25 @@ if __name__ == '__main__':
         exit(-1)
 
     print '\nChecking input file consistency...'
-    if not checker.run_check(sys.argv[1], True, True, False, False):
-        print 'Checks on input file failed. Exit.'
-        exit(-1)
-    if not 0 in checker.data.flavs:
-        print 'FLAV_B not found in input file. Exit.'
-        exit(-1)
-    if 1 in checker.data.flavs:
-        print 'FLAV_C already present in input file. Exit.'
-        exit(-1)
+    checks_n_data = checker.run_check(sys.argv[1], True, True, False, False)
+    for res, data in checks_n_data:
+        typ = data.meas_type
+        if not res:
+            print 'Checks on input file failed for %s. Exit.' % typ
+            exit(-1)
+        if not 0 in data.flavs:
+            print 'FLAV_B not found in input file for %s. Exit.' % typ
+            exit(-1)
+        if 1 in data.flavs:
+            print 'FLAV_C already present in input file for %s. Exit.' % typ
+            exit(-1)
 
     print '\nGenerating new csv content...'
-    new_csv_data = generate_flav_c(checker.data)
+    new_csv_data = list(itertools.chain.from_iterable(
+        l
+        for _, data in checks_n_data
+        for l in generate_flav_c(data)
+    ))
 
     with open(sys.argv[1]) as f:
         old_csv_data = f.readlines()

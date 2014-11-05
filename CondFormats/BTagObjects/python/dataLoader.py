@@ -4,8 +4,8 @@ ROOT.gSystem.Load('libCondFormatsBTagObjects')
 
 
 class DataLoader(object):
-    def __init__(self, csv_data):
-
+    def __init__(self, csv_data, measurement_type):
+        self.meas_type = measurement_type
         print "Loading csv data"
 
         # list of entries
@@ -14,7 +14,9 @@ class DataLoader(object):
             if not l.strip():
                 continue  # skip empty lines
             try:
-                ens.append(ROOT.BTagEntry(l))
+                e = ROOT.BTagEntry(l)
+                if e.params.measurementType == measurement_type:
+                    ens.append(e)
             except TypeError:
                 raise RuntimeError("Error: can not interpret line: " + l)
         self.entries = ens
@@ -29,7 +31,6 @@ class DataLoader(object):
         # sets of fixed data
         self.ops = set(e.params.operatingPoint for e in ens)
         self.flavs = set(e.params.jetFlavor for e in ens)
-        self.meass = set(e.params.measurementType for e in ens)
         self.syss = set(e.params.sysType for e in ens)
         self.etas = set((e.params.etaMin, e.params.etaMax) for e in ens)
         self.pts = set((e.params.ptMin, e.params.ptMax) for e in ens)
@@ -91,9 +92,6 @@ class DataLoader(object):
 
         print "\nFound jet flavors (need 0, 1, 2):"
         print self.flavs
-
-        print "\nFound measurement types (at least 'comb'):"
-        print self.meass
 
         print "\nFound sys types (need at least 'central', 'up', 'down'; " \
               "also 'up_SYS'/'down_SYS' compatibility is checked):"
