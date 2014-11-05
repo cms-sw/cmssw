@@ -38,8 +38,12 @@ class HLTDeDxFilter : public HLTFilter {
       double maxNHitMissMid_;
       double maxRelTrkIsoDeltaRp3_;
       double relTrkIsoDeltaRSize_;
+      double maxAssocCaloE_;
+      double maxAssocCaloEDeltaRSize_;
       edm::EDGetToken inputTracksToken_;
+      edm::EDGetToken caloTowersToken_;
       edm::EDGetToken inputdedxToken_;
+      edm::InputTag caloTowersTag_;
       edm::InputTag inputTracksTag_;
       edm::InputTag inputdedxTag_;
       edm::InputTag thisModuleTag_;
