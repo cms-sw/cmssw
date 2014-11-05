@@ -217,7 +217,8 @@ void HLTHiggsPlotter::analyze(const bool & isPassTrigger, const std::string & so
             }
             ++(countobjects[objType]);
             ++counttotal;
-        }  // else not needed (minCandidates == _NptPlots if _useNminOneCuts 
+        }
+        else continue;  // if not needed (minCandidates == _NptPlots if _useNminOneCuts 
         
         if( ! objType == EVTColContainer::PFJET || passAllCuts ) {
             this->fillHist(isPassTrigger,source,objTypeStr,"Eta",eta);

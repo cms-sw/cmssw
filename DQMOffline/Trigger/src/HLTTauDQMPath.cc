@@ -175,7 +175,7 @@ namespace {
     else if(moduleType == "HLTPFTauPairDzMatchFilter") {
       n.tau = 2;
     }
-    else if(moduleType == "HLTElectronGenericFilter") {
+    else if(moduleType == "HLTElectronGenericFilter" || moduleType == "HLTEgammaGenericFilter") {
       //n.electron = HLTCP.modulePSet(filterName).getParameter<int>("ncandcut");
       n.electron = getParameterSafe(HLTCP, filterName, "ncandcut");
     }

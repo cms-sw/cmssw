@@ -155,7 +155,7 @@ void HeavyFlavorValidation::dqmBeginRun(const edm::Run& iRun, const edm::EventSe
 						level = 2;
 					if(name.Contains("L3"))
 						level = 3;
-					if(name.Contains("mumuFilter") || name.Contains("DiMuon"))
+					if(name.Contains("mumuFilter") || name.Contains("DiMuon") || name.Contains("MuonL3Filtered") || name.Contains("TrackMassFiltered"))
 						level = 4;
 					if(name.Contains("Vertex") || name.Contains("Dz"))
 						level = 5;
@@ -276,9 +276,9 @@ void HeavyFlavorValidation::bookHistograms(DQMStore::IBooker & ibooker,
 }
 
 void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetup){
-  if(filterNamesLevels.size()==0){
+  if(filterNamesLevels.size()==0){ 
     return;
-  }
+  } 
 //access the containers and create LeafCandidate copies
   vector<LeafCandidate> genMuons;
   Handle<GenParticleCollection> genParticles;
