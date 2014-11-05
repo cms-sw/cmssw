@@ -99,6 +99,8 @@ def outputCustoms(process):
             getattr(process,b).outputCommands.append('keep *_me0RecHits_*_*')
             getattr(process,b).outputCommands.append('keep *_me0Segments_*_*')
             getattr(process,b).outputCommands.append('keep *_me0SegmentProducer_*_*')
-            getattr(process,b).outputCommands.append('keep *_me0SegmentMatcher_*_*')
-            getattr(process,b).outputCommands.append('keep *_me0MuonConverter_*_*')
+            getattr(process,b).outputCommands.append('drop *_me0SegmentMatcher_*_*')
+            getattr(process,b).outputCommands.append('drop *_me0MuonConverter_*_*')
+            getattr(process,b).outputCommands.append('keep *_me0SegmentMatching_*_*')
+            getattr(process,b).outputCommands.append('keep *_me0MuonConverting_*_*')
     return process

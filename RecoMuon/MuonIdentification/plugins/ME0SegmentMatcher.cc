@@ -38,9 +38,7 @@
 
 
 ME0SegmentMatcher::ME0SegmentMatcher(const edm::ParameterSet& pas) : iev(0){
-	
   produces<std::vector<reco::ME0Muon> >();  
-
 }
 
 ME0SegmentMatcher::~ME0SegmentMatcher() {}
@@ -197,6 +195,7 @@ void ME0SegmentMatcher::produce(edm::Event& ev, const edm::EventSetup& setup) {
     }
 
     // put collection in event
+
     ev.put(oc);
 }
 
