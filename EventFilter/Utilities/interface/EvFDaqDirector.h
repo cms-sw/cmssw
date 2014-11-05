@@ -103,14 +103,7 @@ namespace evf{
         fileDeleteLockPtr_=fileDeleteLock;
         filesToDeletePtr_ = filesToDelete;
       }
-      bool registerStreamProducer(std::string producer) {
-        auto itr = std::find(streamProducers_.begin(),streamProducers_.end(),producer);
-        if (itr==streamProducers_.end()) {
-            streamProducers_.push_back(producer);
-            return false;
-        }
-        else return true;
-      }
+
 
     private:
       //bool bulock();
@@ -184,8 +177,6 @@ namespace evf{
 
       bool readEolsDefinition_ = true;
       unsigned int eolsNFilesIndex_ = 1;
-
-      std::vector<std::string> streamProducers_;
 
   };
 }
