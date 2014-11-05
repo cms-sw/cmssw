@@ -15,6 +15,55 @@ hfv4 = heavyFlavorValidationHarvesting.clone(
 hfv5 = heavyFlavorValidationHarvesting.clone(
   MyDQMrootFolder = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_Dimuon13_Upsilon_v')
 )
+
+hfvQuadmu1 = heavyFlavorValidationHarvesting.clone(
+    TriggerPathName = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_Dimuon0_Jpsi_Muon_v')
+)
+hfvQuadmu2 = heavyFlavorValidationHarvesting.clone(
+    TriggerPathName = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_Dimuon0_Upsilon_Muon_v')
+)
+hfvQuadmu3 = heavyFlavorValidationHarvesting.clone(
+    TriggerPathName = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_QuadMuon0_Dimuon0_Jpsi_v')
+)
+hfvQuadmu4 = heavyFlavorValidationHarvesting.clone(
+    TriggerPathName = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_QuadMuon0_Dimuon0_Upsilon_v')
+)
+
+hfvTnP1 = heavyFlavorValidationHarvesting.clone(
+    TriggerPathName = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_Mu7p5_L2Mu2_Jpsi_v')
+)
+hfvTnP2 = heavyFlavorValidationHarvesting.clone(
+    TriggerPathName = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_Mu7p5_L2Mu2_Upsilon_v')
+)
+hfvTnP3 = heavyFlavorValidationHarvesting.clone(
+    TriggerPathName = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_Mu7p5_Track2_Jpsi_v')
+)
+hfvTnP4 = heavyFlavorValidationHarvesting.clone(
+    TriggerPathName = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_Mu7p5_Track3p5_Jpsi_v')
+)
+hfvTnP5 = heavyFlavorValidationHarvesting.clone(
+    TriggerPathName = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_Mu7p5_Track7_Jpsi_v')
+)
+hfvTnP6 = heavyFlavorValidationHarvesting.clone(
+    TriggerPathName = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_Mu7p5_Track2_Upsilon_v')
+)
+hfvTnP7 = heavyFlavorValidationHarvesting.clone(
+    TriggerPathName = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_Mu7p5_Track3p5_Upsilon_v')
+)
+hfvTnP8 = heavyFlavorValidationHarvesting.clone(
+    TriggerPathName = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_Mu7p5_Track7_Upsilon_v')
+)
+hfvTnP9 = heavyFlavorValidationHarvesting.clone(
+    TriggerPathName = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_Dimuon0er16_Jpsi_NoOS_NoVertexing_v')
+)
+hfvTnP10 = heavyFlavorValidationHarvesting.clone(
+    TriggerPathName = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_Dimuon0er16_Jpsi_NoVertexing_v')
+)
+hfvTnP11 = heavyFlavorValidationHarvesting.clone(
+    TriggerPathName = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_Dimuon6_Jpsi_NoVertexing_v')
+)
+
+
 hfv6 = heavyFlavorValidationHarvesting.clone(
   MyDQMrootFolder = cms.untracked.string('HLT/HeavyFlavor/HLT/HLT_Mu25_TkMu0_dEta18_Onia_v')
 )
@@ -71,6 +120,11 @@ combiner2 = combiner.clone(
   )
 )
 
-heavyFlavorValidationHarvestingSequence = cms.Sequence(hfv1+hfv2+hfv3+hfv4+hfv5+hfv6+hfv7+hfv8+hfv9
-													  +combiner+combiner2)
+heavyFlavorValidationHarvestingSequence = cms.Sequence(
+  hfv1+hfv2+hfv3+hfv4+hfv5 
+  +hfvQuadmu1+hfvQuadmu2+hfvQuadmu3+hfvQuadmu4
+  +hfvTnP1+hfvTnP2+hfvTnP3+hfvTnP4+hfvTnP5+hfvTnP6+hfvTnP7+hfvTnP8+hfvTnP9+hfvTnP10+hfvTnP11
+  +hfv6+hfv7+hfv8+hfv9
+	+combiner+combiner2
+)
 
