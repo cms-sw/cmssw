@@ -98,7 +98,9 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
   unsigned int MHT = ((unsigned int) sqrt(sumHx * sumHx + sumHy * sumHy));
 
   double physicalPhi = atan2(sumEy, sumEx) + 3.1415927;
-  unsigned int iPhiET = L1CaloRegionDetId::N_PHI * physicalPhi / (2 * 3.1415927);
+  // Global Trigger expects MET phi to be 0-71 (e.g. tower granularity)
+  // Although we calculated it with regions, there is some benefit to interpolation.
+  unsigned int iPhiET = 4*L1CaloRegionDetId::N_PHI * physicalPhi / (2 * 3.1415927);
 
   double physicalPhiHT = atan2(sumHy, sumHx) + 3.1415927;
   unsigned int iPhiHT = L1CaloRegionDetId::N_PHI * (physicalPhiHT) / (2 * 3.1415927);
