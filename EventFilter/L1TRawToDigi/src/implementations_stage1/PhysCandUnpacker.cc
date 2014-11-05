@@ -128,7 +128,7 @@ namespace l1t {
        if (res->size(0) != 4)
           edm::LogWarning("L1T") << "Need to unpack central jets before forward ones";
 
-       return process(block, res, [](l1t::Jet j) { j.setHwQual(2); return j; });
+       return process(block, res, [](l1t::Jet j) { j.setHwQual(j.hwQual() | 2); return j; });
     }
 
     bool
