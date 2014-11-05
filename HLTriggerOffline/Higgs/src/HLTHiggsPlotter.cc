@@ -88,7 +88,6 @@ void HLTHiggsPlotter::bookHistograms(DQMStore::IBooker &ibooker, const bool & us
                     if( _NminOneCuts[1] ) bookHist(source, objTypeStr, "mqq", ibooker);
                     if( _NminOneCuts[2] ) bookHist(source, objTypeStr, "dPhibb", ibooker);
                     if( _NminOneCuts[3] ) {
-//                        if ( _NminOneCuts[4] ) bookHist(source, objTypeStr, "maxCSV", ibooker);
                         if ( _NminOneCuts[6] ) bookHist(source, objTypeStr, "maxCSV", ibooker);
                         else bookHist(source, objTypeStr, "CSV1", ibooker);
                     }
@@ -208,7 +207,6 @@ void HLTHiggsPlotter::analyze(const bool & isPassTrigger, const std::string & so
         float phi = matches[j].phi;
         
         // PFMET N-1 cut
-//        if( objType == EVTColContainer::PFMET && _NminOneCuts[6] && ! nMinOne["PFMET"] ) continue;
         if( objType == EVTColContainer::PFMET && _NminOneCuts[8] && ! nMinOne["PFMET"] ) continue;
         
         TString maxPt;
@@ -245,7 +243,6 @@ void HLTHiggsPlotter::analyze(const bool & isPassTrigger, const std::string & so
         }
         if( _NminOneCuts[3] ) {
             std::string nameCSVplot = "CSV1";
-//            if ( _NminOneCuts[4] ) nameCSVplot = "maxCSV";
             if ( _NminOneCuts[6] ) nameCSVplot = "maxCSV";
             if ( nMinOne[nameCSVplot] ) this->fillHist(isPassTrigger,source,EVTColContainer::getTypeString(EVTColContainer::PFJET),nameCSVplot,CSV1);
         }

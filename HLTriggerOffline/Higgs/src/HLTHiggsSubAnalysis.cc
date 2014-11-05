@@ -102,13 +102,11 @@ HLTHiggsSubAnalysis::HLTHiggsSubAnalysis(const edm::ParameterSet & pset,
     if( anpset.existsAs<std::vector<double>>( "NminOneCuts" , false) )
     {
         _NminOneCuts = anpset.getUntrackedParameter<std::vector<double> >("NminOneCuts"); 
-//        if( _NminOneCuts.size() < 7 + _minCandidates ) {
         if( _NminOneCuts.size() < 9 + _minCandidates ) {
             edm::LogError("HiggsValidation") << "In HLTHiggsSubAnalysis::HLTHiggsSubAnalysis, " 
                         << "Incoherence found in the python configuration file!!\nThe SubAnalysis '" 
                         << _analysisname << "' has a vector NminOneCuts with size "
                         << _NminOneCuts.size() << ", while it needs to be at least of size " 
-//                        <<  (7 + _minCandidates) << ".";
                         <<  (9 + _minCandidates) << ".";
             exit(-1);
         }
@@ -271,7 +269,6 @@ void HLTHiggsSubAnalysis::bookHistograms(DQMStore::IBooker &ibooker)
                     if( _NminOneCuts[1] ) bookHist(source, objStr, "mqq", ibooker);
                     if( _NminOneCuts[2] ) bookHist(source, objStr, "dPhibb", ibooker);
                     if( _NminOneCuts[3] ) {
-//                        if ( _NminOneCuts[4] ) bookHist(source, objStr, "maxCSV", ibooker);
                         if ( _NminOneCuts[6] ) bookHist(source, objStr, "maxCSV", ibooker);
                         else bookHist(source, objStr, "CSV1", ibooker);
                     }
@@ -541,7 +538,6 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
             float phi = (it->second)[j].phi;
             
             // PFMET N-1 cut
-//            if( _useNminOneCuts && objType == EVTColContainer::PFMET && _NminOneCuts[6] && ! nMinOne["PFMET"] ) {
             if( _useNminOneCuts && objType == EVTColContainer::PFMET && _NminOneCuts[8] && ! nMinOne["PFMET"] ) {
                 continue;
             }
@@ -604,7 +600,6 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
             }
             if( _NminOneCuts[3] ) {
                 std::string nameCSVplot = "CSV1";
-//                if ( _NminOneCuts[4] ) nameCSVplot = "maxCSV";
                 if ( _NminOneCuts[6] ) nameCSVplot = "maxCSV";
                 if ( nMinOne[nameCSVplot] ) this->fillHist(u2str[it->first],EVTColContainer::getTypeString(EVTColContainer::PFJET),nameCSVplot,CSV1);
             }
@@ -1039,7 +1034,7 @@ void HLTHiggsSubAnalysis::initAndInsertJets(const edm::Event & iEvent, EVTColCon
 }
 
 void HLTHiggsSubAnalysis::passJetCuts(std::vector<MatchStruct> * matches, std::map<std::string,bool> & jetCutResult, float & dEtaqq, float & mqq, float & dPhibb, float & CSV1, float & CSV2, float & CSV3) 
-{ //dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, PFMET, pt1, pt2, pt3, pt4
+{ //dEtaqq, mqq, dPhibb, CSV1, CSV2, CSV3, maxCSV_jets, maxCSV_E, PFMET, pt1, pt2, pt3, pt4
     
     // Perform pt cuts
     std::sort(matches->begin(), matches->end(), matchesByDescendingPt());
@@ -1048,7 +1043,6 @@ void HLTHiggsSubAnalysis::passJetCuts(std::vector<MatchStruct> * matches, std::m
     {
         maxPt = "MaxPt";
         maxPt += i+1;
-//        if( (*matches)[i].pt > _NminOneCuts[7+i] ) jetCutResult[maxPt.Data()] = true;
         if( (*matches)[i].pt > _NminOneCuts[9+i] ) jetCutResult[maxPt.Data()] = true;
         else jetCutResult[maxPt.Data()] = false;
     }  
@@ -1096,23 +1090,18 @@ void HLTHiggsSubAnalysis::passJetCuts(std::vector<MatchStruct> * matches, std::m
     if( _NminOneCuts[3] ) {
         CSV1 = (*matches)[0].bTag;
         std::string nameCSVplot = "CSV1";
-//        if ( _NminOneCuts[4] ) nameCSVplot = "maxCSV";
         if ( _NminOneCuts[6] ) nameCSVplot = "maxCSV";
 
         if( CSV1 > _NminOneCuts[3] ) jetCutResult[nameCSVplot] = true;
         else jetCutResult[nameCSVplot] = false;
         
         // max(CSV)
-//        if( _NminOneCuts[4] ) {
         if( _NminOneCuts[6] ) {
             std::sort(matches->begin(), matches->end(), matchesByDescendingPt());
             CSV1 = (*matches)[0].bTag;
-//            unsigned int Njets = (unsigned int) _NminOneCuts[4];
             unsigned int Njets = (unsigned int) _NminOneCuts[6];
-//            if ( _NminOneCuts[4] > matches->size()) Njets = matches->size();
             if ( _NminOneCuts[6] > matches->size()) Njets = matches->size();
             for(unsigned int i=1; i < (unsigned int) Njets ; ++i) {
-//                if( (*matches)[i].bTag > CSV1 && (*matches)[i].pt > _NminOneCuts[5] ) CSV1 = (*matches)[i].bTag;
                 if( (*matches)[i].bTag > CSV1 && (*matches)[i].pt > _NminOneCuts[7] ) CSV1 = (*matches)[i].bTag;
             }
         }
@@ -1120,13 +1109,11 @@ void HLTHiggsSubAnalysis::passJetCuts(std::vector<MatchStruct> * matches, std::m
 } 
 
 void HLTHiggsSubAnalysis::passOtherCuts(const std::vector<MatchStruct> & matches, std::map<std::string,bool> & jetCutResult){
-//    if( _NminOneCuts[6] ) {
     if( _NminOneCuts[8] ) {
         jetCutResult["PFMET"] = false;
         for(std::vector<MatchStruct>::const_iterator it = matches.begin(); it != matches.end(); ++it)
         {
             if( it->objType == EVTColContainer::PFMET ) {
-//                if( it->pt > _NminOneCuts[6] ) jetCutResult["PFMET"] = true;
                 if( it->pt > _NminOneCuts[8] ) jetCutResult["PFMET"] = true;
                 break;
             }
