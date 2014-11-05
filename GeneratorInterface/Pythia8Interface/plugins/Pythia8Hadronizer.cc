@@ -361,13 +361,11 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
 
   std::cout << "Initializing for external partons" << std::endl;
 
-  if(fMasterGen->settings.mode("POWHEG:veto") > 0 || fMasterGen->settings.mode("POWHEG:MPIveto") > 0) {
+  if((fMasterGen->settings.mode("POWHEG:veto") > 0 || fMasterGen->settings.mode("POWHEG:MPIveto") > 0) && !fEmissionVetoHook) {
 
     if(NHooks)
       throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
       <<" Attempt to turn on PowhegHooks by pythia8 settings but there are already other UserHooks \n Other possible hooks are: reweightGen, reweightGenRap, reweightGenPtHatRap,  jetMatching, emissionVeto1 \n";
-
-    NHooks++;
 
     fEmissionVetoHook = new PowhegHooks();
 
