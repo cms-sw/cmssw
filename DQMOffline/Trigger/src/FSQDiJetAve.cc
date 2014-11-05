@@ -59,9 +59,18 @@ struct HLTConfigDataContainer {
 class BaseHandler {
     public:
         BaseHandler();
-        BaseHandler(const edm::ParameterSet& iConfig, DQMStore * dbe) {
+        BaseHandler(const edm::ParameterSet& iConfig) {
+              std::string pathPartialName  = iConfig.getParameter<std::string>("partialPathName");
+              std::string dirname = iConfig.getUntrackedParameter("mainDQMDirname",std::string("HLT/FSQ/"))+pathPartialName + "/";
+              m_dbe = Service < DQMStore > ().operator->();
+              m_dbe->setCurrentFolder(dirname);
         };
         virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const HLTConfigDataContainer &hc) = 0;
+
+        DQMStore * m_dbe;
+        std::map<std::string,  MonitorElement*> m_histos;
+
+        
 };
 //################################################################################################
 //
@@ -82,9 +91,12 @@ class HLTHandler: public BaseHandler {
         StringCutObjectSelector<std::vector<TCandidateType> >  m_combinedObjectSelection;
         StringObjectFunction<std::vector<TCandidateType> >     m_combinedObjectSortFunction;
 
+        std::vector< edm::ParameterSet > m_drawables;
+        bool m_isSetup;
+
     public:
-        HLTHandler(const edm::ParameterSet& iConfig, DQMStore * dbe):
-            BaseHandler(iConfig, dbe),
+        HLTHandler(const edm::ParameterSet& iConfig):
+            BaseHandler(iConfig),
             m_singleObjectSelection(iConfig.getParameter<std::string>("singleObjectsPreselection")),
             m_combinedObjectSelection(iConfig.getParameter<std::string>("combinedObjectSelection")),
             m_combinedObjectSortFunction(iConfig.getParameter<std::string>("combinedObjectSortCriteria"))
@@ -101,6 +113,26 @@ class HLTHandler: public BaseHandler {
                                                                                            
              m_pathPartialName  = iConfig.getParameter<std::string>("partialPathName");
              m_combinedObjectDimension = iConfig.getParameter<int>("combinedObjectDimension");
+
+             m_drawables = iConfig.getParameter<  std::vector< edm::ParameterSet > >("drawables");
+             m_isSetup = false;
+
+
+        }
+
+        void beginRun(){
+            if(!m_isSetup){
+                m_isSetup = true;
+                for (unsigned int i = 0; i < m_drawables.size(); ++i){
+                    std::string histoName = m_dqmhistolabel + "_" +m_drawables.at(i).getParameter<std::string>("name");
+                    //std::string expression = m_drawables.at(i).getParameter<std::string>("expression");
+                    int bins =  m_drawables.at(i).getParameter<int>("bins");
+                    double rangeLow  =  m_drawables.at(i).getParameter<double>("min");
+                    double rangeHigh =  m_drawables.at(i).getParameter<double>("max");
+
+                    m_histos[histoName] =  m_dbe->book1D(histoName, histoName, bins, rangeLow, rangeHigh);
+                }   
+            }
         }
 
 
@@ -253,9 +285,9 @@ FSQDiJetAve::FSQDiJetAve(const edm::ParameterSet& iConfig):
   m_isSetup(false)
 {
    //now do what ever initialization is needed
-  m_dbe = Service < DQMStore > ().operator->();
-  m_dirname = iConfig.getUntrackedParameter("dirname",std::string("HLT/FSQ/DiJETAve/"));
-  m_dbe->setCurrentFolder(m_dirname);
+  //m_dbe = Service < DQMStore > ().operator->();
+  //m_dirname = iConfig.getUntrackedParameter("dirname",std::string("HLT/FSQ/DiJETAve/"));
+  //m_dbe->setCurrentFolder(m_dirname);
   m_useGenWeight = iConfig.getUntrackedParameter("useGenWeight", false);
 
 
@@ -267,6 +299,20 @@ FSQDiJetAve::FSQDiJetAve(const edm::ParameterSet& iConfig):
 
   triggerSummaryFUToken= consumes <trigger::TriggerEvent> (edm::InputTag(triggerSummaryLabel_.label(),triggerSummaryLabel_.instance(),std::string("FU")));
   triggerResultsFUToken= consumes <edm::TriggerResults>   (edm::InputTag(triggerResultsLabel_.label(),triggerResultsLabel_.instance(),std::string("FU")));
+
+
+
+    std::vector< edm::ParameterSet > todo  = iConfig.getParameter<  std::vector< edm::ParameterSet > >("todo");
+    for (unsigned int i = 0; i < todo.size(); ++i) {
+
+            edm::ParameterSet pset = todo.at(i);
+            std::string type = pset.getParameter<std::string>("handlerType");
+            if (type == "FromHLT") {
+                m_handlers.push_back(new FSQ::HLTHandler(pset));
+            } else {
+                throw cms::Exception("FSQ DQM handler not know: "+ type);
+            }
+    }
 
 }
 

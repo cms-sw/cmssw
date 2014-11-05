@@ -45,6 +45,10 @@
 // class declaration
 //
 
+namespace FSQ {
+    class BaseHandler;
+}
+
 class FSQDiJetAve : public edm::EDAnalyzer {
    public:
       explicit FSQDiJetAve(const edm::ParameterSet&);
@@ -81,6 +85,10 @@ class FSQDiJetAve : public edm::EDAnalyzer {
       edm::Handle<trigger::TriggerEvent> triggerObj_;
       edm::InputTag triggerSummaryLabel_;
       edm::InputTag triggerResultsLabel_;
+
+
+      // TODO: auto ptr
+      std::vector<FSQ::BaseHandler *> m_handlers;
 };
 
 #endif
