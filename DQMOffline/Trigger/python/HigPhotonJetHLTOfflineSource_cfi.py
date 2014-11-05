@@ -20,6 +20,7 @@ higPhotonJetHLTOfflineSource = cms.EDAnalyzer(
         "HLT_Photon120_R9Id90_HE10_Iso40_EBOnly_VBF_v",
         "HLT_Photon135_PFMET40_v",
         "HLT_Photon135_VBF_v",
+        "HLT_Photon155_v",
         "HLT_Photon250_NoHE_v",
         "HLT_Photon300_NoHE_v",
     ),
