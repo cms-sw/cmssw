@@ -88,9 +88,12 @@ void HLTHiggsPlotter::bookHistograms(DQMStore::IBooker &ibooker, const bool & us
                     if( _NminOneCuts[1] ) bookHist(source, objTypeStr, "mqq", ibooker);
                     if( _NminOneCuts[2] ) bookHist(source, objTypeStr, "dPhibb", ibooker);
                     if( _NminOneCuts[3] ) {
-                        if ( _NminOneCuts[4] ) bookHist(source, objTypeStr, "maxCSV", ibooker);
+//                        if ( _NminOneCuts[4] ) bookHist(source, objTypeStr, "maxCSV", ibooker);
+                        if ( _NminOneCuts[6] ) bookHist(source, objTypeStr, "maxCSV", ibooker);
                         else bookHist(source, objTypeStr, "CSV1", ibooker);
                     }
+                    if( _NminOneCuts[4] ) bookHist(source, objTypeStr, "CSV2", ibooker);
+                    if( _NminOneCuts[5] ) bookHist(source, objTypeStr, "CSV3", ibooker);
                 }
             }
             
@@ -171,7 +174,7 @@ void HLTHiggsPlotter::analyze(const bool & isPassTrigger,
 }
 
 void HLTHiggsPlotter::analyze(const bool & isPassTrigger, const std::string & source, const std::vector<MatchStruct> & matches,
-                std::map<std::string,bool> & nMinOne, const float & dEtaqq, const float & mqq, const float & dPhibb, const float & CSV1, const bool & passAllCuts)
+                std::map<std::string,bool> & nMinOne, const float & dEtaqq, const float & mqq, const float & dPhibb, const float & CSV1, const float & CSV2, const float & CSV3, const bool & passAllCuts)
 {
     if ( !isPassTrigger )
     {
@@ -205,7 +208,8 @@ void HLTHiggsPlotter::analyze(const bool & isPassTrigger, const std::string & so
         float phi = matches[j].phi;
         
         // PFMET N-1 cut
-        if( objType == EVTColContainer::PFMET && _NminOneCuts[6] && ! nMinOne["PFMET"] ) continue;
+//        if( objType == EVTColContainer::PFMET && _NminOneCuts[6] && ! nMinOne["PFMET"] ) continue;
+        if( objType == EVTColContainer::PFMET && _NminOneCuts[8] && ! nMinOne["PFMET"] ) continue;
         
         TString maxPt;
         if( (unsigned)(countobjects)[objType] < _NptPlots )
@@ -241,8 +245,15 @@ void HLTHiggsPlotter::analyze(const bool & isPassTrigger, const std::string & so
         }
         if( _NminOneCuts[3] ) {
             std::string nameCSVplot = "CSV1";
-            if ( _NminOneCuts[4] ) nameCSVplot = "maxCSV";
+//            if ( _NminOneCuts[4] ) nameCSVplot = "maxCSV";
+            if ( _NminOneCuts[6] ) nameCSVplot = "maxCSV";
             if ( nMinOne[nameCSVplot] ) this->fillHist(isPassTrigger,source,EVTColContainer::getTypeString(EVTColContainer::PFJET),nameCSVplot,CSV1);
+        }
+        if( _NminOneCuts[4] && nMinOne["CSV2"] ) {
+            this->fillHist(isPassTrigger,source,EVTColContainer::getTypeString(EVTColContainer::PFJET),"CSV2",CSV2);
+        }
+        if( _NminOneCuts[5] && nMinOne["CSV3"] ) {
+            this->fillHist(isPassTrigger,source,EVTColContainer::getTypeString(EVTColContainer::PFJET),"CSV3",CSV3);
         }
     }
 }
@@ -322,6 +333,20 @@ void HLTHiggsPlotter::bookHist(const std::string & source,
         }
         else if ( variable == "CSV1" ){
             std::string title  = "CSV1 of " + sourceUpper + " " + objType;
+            int    nBins = 20;
+            double min   = 0;
+            double max   = 1;
+            h = new TH1F(name.c_str(), title.c_str(), nBins, min, max);
+        } 
+        else if ( variable == "CSV2" ){
+            std::string title  = "CSV2 of " + sourceUpper + " " + objType;
+            int    nBins = 20;
+            double min   = 0;
+            double max   = 1;
+            h = new TH1F(name.c_str(), title.c_str(), nBins, min, max);
+        } 
+        else if ( variable == "CSV3" ){
+            std::string title  = "CSV3 of " + sourceUpper + " " + objType;
             int    nBins = 20;
             double min   = 0;
             double max   = 1;
