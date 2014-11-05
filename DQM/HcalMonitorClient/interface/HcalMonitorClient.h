@@ -17,6 +17,8 @@
 #include "DQM/HcalMonitorClient/interface/HcalBaseDQClient.h"
 #include "DQM/HcalMonitorTasks/interface/HcalEtaPhiHists.h"
 
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
+
 class DQMStore;
 class HcalChannelQuality;
 class HcalSummaryClient;
@@ -80,7 +82,7 @@ private:
   // Event counters
   int ievt_; // all events
   int jevt_; // events in current run
-  int run_;
+  edm::RunNumber_t run_;
   int evt_;
   bool begin_run_;
   bool end_run_;
@@ -117,7 +119,7 @@ private:
   std::vector<HcalBaseDQClient*> clients_;  
 
   DQMStore* dqmStore_;
-  HcalChannelQuality* chanquality_;
+  const HcalChannelQuality* chanquality_;
 
   HcalSummaryClient* summaryClient_;
   EtaPhiHists* ChannelStatus;

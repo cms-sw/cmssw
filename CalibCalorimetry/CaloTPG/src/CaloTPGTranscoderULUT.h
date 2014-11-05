@@ -1,6 +1,7 @@
 #ifndef CALOTPGTRANSCODERULUT_H
 #define CALOTPGTRANSCODERULUT_H 1
 
+#include <memory>
 #include <vector>
 #include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
 

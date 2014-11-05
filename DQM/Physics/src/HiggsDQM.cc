@@ -127,10 +127,6 @@ HiggsDQM::HiggsDQM(const edm::ParameterSet& ps) {
   edm::LogInfo("HZZ4LeptonsDQM") << " Creating HZZ4LeptonsDQM "
                                  << "\n";
 
-  bei_ = Service<DQMStore>().operator->();
-  bei_->setCurrentFolder("Physics/Higgs");
-  bookHistos(bei_);
-
   typedef std::vector<edm::InputTag> vtag;
   // Get parameters from configuration file
   theElecTriggerPathToPass = ps.getParameter<string>("elecTriggerPathToPass");
@@ -154,12 +150,13 @@ HiggsDQM::HiggsDQM(const edm::ParameterSet& ps) {
       consumes<reco::VertexCollection>(ps.getUntrackedParameter<InputTag>(
           "vertexCollection", InputTag("offlinePrimaryVertices")));
 
-  // just to initialize
-  isValidHltConfig_ = false;
   // cuts:
   ptThrMu1_ = ps.getUntrackedParameter<double>("PtThrMu1");
   ptThrMu2_ = ps.getUntrackedParameter<double>("PtThrMu2");
 
+  nLumiSecs_ = 0;
+  nEvents_ = 0;
+  pi = 3.14159265;
   // cout<<"...leaving  HiggsDQM::HiggsDQM. "<<endl;
 }
 //
@@ -173,32 +170,7 @@ HiggsDQM::~HiggsDQM() {
 
   // cout<<"...leaving HiggsDQM::~HiggsDQM. "<<endl;
 }
-//
-// -- Begin Job
-//
-void HiggsDQM::beginJob() {
-  // cout<<"Entering HiggsDQM::beginJob: "<<endl;
 
-  nLumiSecs_ = 0;
-  nEvents_ = 0;
-  pi = 3.14159265;
-
-  // cout<<"...leaving HiggsDQM::beginJob. "<<endl;
-}
-//
-// -- Begin Run
-//
-void HiggsDQM::beginRun(Run const& run, edm::EventSetup const& eSetup) {
-  edm::LogInfo("HiggsDQM") << "[HiggsDQM]: Begining of Run";
-  // passed as parameter to HLTConfigProvider::init(), not yet used
-  bool isConfigChanged = false;
-
-  // isValidHltConfig_ used to short-circuit analyze() in case of problems
-  //  const std::string hltProcessName( "HLT" );
-  const std::string hltProcessName = theTriggerResultsCollectionTag_.process();
-  isValidHltConfig_ =
-      hltConfigProvider_.init(run, eSetup, hltProcessName, isConfigChanged);
-}
 //
 // -- Begin  Luminosity Block
 //
@@ -213,78 +185,75 @@ void HiggsDQM::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
 //
 //  -- Book histograms
 //
-void HiggsDQM::bookHistos(DQMStore* bei) {
-  bei->cd();
-  bei->setCurrentFolder("Physics/Higgs");
-  h_vertex_number =
-      bei->book1D("h_vertex_number", "Number of event vertices in collection",
-                  10, -0.5, 9.5);
-  h_vertex_chi2 = bei->book1D("h_vertex_chi2", "Event Vertex #chi^{2}/n.d.o.f.",
-                              100, 0.0, 2.0);
-  h_vertex_numTrks = bei->book1D(
-      "h_vertex_numTrks", "Event Vertex, number of tracks", 100, -0.5, 99.5);
-  h_vertex_sumTrks = bei->book1D(
-      "h_vertex_sumTrks", "Event Vertex, sum of track pt", 100, 0.0, 100.0);
-  h_vertex_d0 = bei->book1D("h_vertex_d0", "Event Vertex d0", 100, -10.0, 10.0);
-  h_jet_et = bei->book1D("h_jet_et", "Jet with highest E_{T} (from " +
-                                         theCaloJetCollectionLabel_.label() +
-                                         ");E_{T}(1^{st} jet) (GeV)",
-                         20, 0., 200.0);
-  h_jet2_et = bei->book1D("h_jet2_et", "Jet with 2^{nd} highest E_{T} (from " +
-                                           theCaloJetCollectionLabel_.label() +
-                                           ");E_{T}(2^{nd} jet) (GeV)",
-                          20, 0., 200.0);
-  h_jet_count = bei->book1D("h_jet_count",
-                            "Number of " + theCaloJetCollectionLabel_.label() +
-                                " (E_{T} > 15 GeV);Number of Jets",
-                            8, -0.5, 7.5);
-  h_caloMet = bei->book1D("h_caloMet", "Calo Missing E_{T}; GeV", 20, 0.0, 100);
-  h_caloMet_phi = bei->book1D(
-      "h_caloMet_phi", "Calo Missing E_{T} #phi;#phi(MET)", 35, -3.5, 3.5);
-  h_pfMet = bei->book1D("h_pfMet", "Pf Missing E_{T}; GeV", 20, 0.0, 100);
-  h_pfMet_phi = bei->book1D("h_pfMet_phi", "Pf Missing E_{T} #phi;#phi(MET)",
-                            35, -3.5, 3.5);
-  h_eMultiplicity =
-      bei_->book1D("NElectrons", "# of electrons per event", 10, 0., 10.);
-  h_mMultiplicity = bei_->book1D("NMuons", "# of muons per event", 10, 0., 10.);
-  h_ePt = bei_->book1D("ElePt", "Pt of electrons", 50, 0., 100.);
-  h_eEta = bei_->book1D("EleEta", "Eta of electrons", 100, -5., 5.);
-  h_ePhi = bei_->book1D("ElePhi", "Phi of electrons", 100, -3.5, 3.5);
-  h_mPt_GMTM =
-      bei_->book1D("MuonPt_GMTM", "Pt of global+tracker muons", 50, 0., 100.);
-  h_mEta_GMTM =
-      bei_->book1D("MuonEta_GMTM", "Eta of global+tracker muons", 60, -3., 3.);
-  h_mPhi_GMTM = bei_->book1D("MuonPhi_GMTM", "Phi of global+tracker muons", 70,
-                             -3.5, 3.5);
-  h_mPt_GMPT = bei_->book1D("MuonPt_GMPT", "Pt of global prompt-tight muons",
-                            50, 0., 100.);
-  h_mEta_GMPT = bei_->book1D("MuonEta_GMPT", "Eta of global prompt-tight muons",
-                             60, -3., 3.);
-  h_mPhi_GMPT = bei_->book1D("MuonPhi_GMPT", "Phi of global prompt-tight muons",
-                             70, -3.5, 3.5);
-  h_mPt_GM = bei_->book1D("MuonPt_GM", "Pt of global muons", 50, 0., 100.);
-  h_mEta_GM = bei_->book1D("MuonEta_GM", "Eta of global muons", 60, -3., 3.);
-  h_mPhi_GM = bei_->book1D("MuonPhi_GM", "Phi of global muons", 70, -3.5, 3.5);
-  h_mPt_TM = bei_->book1D("MuonPt_TM", "Pt of tracker muons", 50, 0., 100.);
-  h_mEta_TM = bei_->book1D("MuonEta_TM", "Eta of tracker muons", 60, -3., 3.);
-  h_mPhi_TM = bei_->book1D("MuonPhi_TM", "Phi of tracker muons", 70, -3.5, 3.5);
-  h_mPt_STAM = bei_->book1D("MuonPt_STAM", "Pt of STA muons", 50, 0., 100.);
-  h_mEta_STAM = bei_->book1D("MuonEta_STAM", "Eta of STA muons", 60, -3., 3.);
-  h_mPhi_STAM = bei_->book1D("MuonPhi_STAM", "Phi of STA muons", 70, -3.5, 3.5);
-  h_eCombIso = bei_->book1D("EleCombIso", "CombIso of electrons", 100, 0., 10.);
-  h_mCombIso = bei_->book1D("MuonCombIso", "CombIso of muons", 100, 0., 10.);
-  h_dimumass_GMGM = bei->book1D("DimuMass_GMGM", "Invariant mass of GMGM pairs",
-                                100, 0., 200.);
-  h_dimumass_GMTM = bei->book1D("DimuMass_GMTM", "Invariant mass of GMTM pairs",
-                                100, 0., 200.);
-  h_dimumass_TMTM = bei->book1D("DimuMass_TMTM", "Invariant mass of TMTM pairs",
-                                100, 0., 200.);
-  h_dielemass =
-      bei->book1D("DieleMass", "Invariant mass of EE pairs", 100, 0., 200.);
-  h_lepcounts = bei->book1D(
-      "LeptonCounts", "LeptonCounts for multi lepton events", 49, 0., 49.);
+void HiggsDQM::bookHistograms(DQMStore::IBooker & ibooker,
+  edm::Run const &, edm::EventSetup const & ){
+  ibooker.setCurrentFolder("Physics/Higgs");
 
-  bei->cd();
+  h_vertex_number = ibooker.book1D("h_vertex_number",
+      "Number of event vertices in collection", 10, -0.5, 9.5);
+  h_vertex_chi2 = ibooker.book1D("h_vertex_chi2",
+      "Event Vertex #chi^{2}/n.d.o.f.", 100, 0.0, 2.0);
+  h_vertex_numTrks = ibooker.book1D("h_vertex_numTrks",
+      "Event Vertex, number of tracks", 100, -0.5, 99.5);
+  h_vertex_sumTrks = ibooker.book1D("h_vertex_sumTrks",
+      "Event Vertex, sum of track pt", 100, 0.0, 100.0);
+  h_vertex_d0 = ibooker.book1D("h_vertex_d0", "Event Vertex d0", 100, -10.0, 10.0);
+  h_jet_et = ibooker.book1D("h_jet_et",
+      "Jet with highest E_{T} (from " + theCaloJetCollectionLabel_.label() +
+      ");E_{T}(1^{st} jet) (GeV)", 20, 0., 200.0);
+  h_jet2_et = ibooker.book1D("h_jet2_et",
+      "Jet with 2^{nd} highest E_{T} (from " + theCaloJetCollectionLabel_.label() +
+      ");E_{T}(2^{nd} jet) (GeV)", 20, 0., 200.0);
+  h_jet_count = ibooker.book1D("h_jet_count",
+      "Number of " + theCaloJetCollectionLabel_.label() +
+      " (E_{T} > 15 GeV);Number of Jets", 8, -0.5, 7.5);
+  h_caloMet = ibooker.book1D("h_caloMet", "Calo Missing E_{T}; GeV", 20, 0.0, 100);
+  h_caloMet_phi = ibooker.book1D("h_caloMet_phi",
+      "Calo Missing E_{T} #phi;#phi(MET)", 35, -3.5, 3.5);
+  h_pfMet = ibooker.book1D("h_pfMet", "Pf Missing E_{T}; GeV", 20, 0.0, 100);
+  h_pfMet_phi = ibooker.book1D("h_pfMet_phi", "Pf Missing E_{T} #phi;#phi(MET)",
+      35, -3.5, 3.5);
+  h_eMultiplicity = ibooker.book1D("NElectrons",
+      "# of electrons per event", 10, 0., 10.);
+  h_mMultiplicity = ibooker.book1D("NMuons", "# of muons per event", 10, 0., 10.);
+  h_ePt = ibooker.book1D("ElePt", "Pt of electrons", 50, 0., 100.);
+  h_eEta = ibooker.book1D("EleEta", "Eta of electrons", 100, -5., 5.);
+  h_ePhi = ibooker.book1D("ElePhi", "Phi of electrons", 100, -3.5, 3.5);
+  h_mPt_GMTM = ibooker.book1D("MuonPt_GMTM",
+      "Pt of global+tracker muons", 50, 0., 100.);
+  h_mEta_GMTM = ibooker.book1D("MuonEta_GMTM",
+      "Eta of global+tracker muons", 60, -3., 3.);
+  h_mPhi_GMTM = ibooker.book1D("MuonPhi_GMTM",
+      "Phi of global+tracker muons", 70, -3.5, 3.5);
+  h_mPt_GMPT = ibooker.book1D("MuonPt_GMPT",
+      "Pt of global prompt-tight muons", 50, 0., 100.);
+  h_mEta_GMPT = ibooker.book1D("MuonEta_GMPT",
+      "Eta of global prompt-tight muons", 60, -3., 3.);
+  h_mPhi_GMPT = ibooker.book1D("MuonPhi_GMPT",
+      "Phi of global prompt-tight muons", 70, -3.5, 3.5);
+  h_mPt_GM = ibooker.book1D("MuonPt_GM", "Pt of global muons", 50, 0., 100.);
+  h_mEta_GM = ibooker.book1D("MuonEta_GM", "Eta of global muons", 60, -3., 3.);
+  h_mPhi_GM = ibooker.book1D("MuonPhi_GM", "Phi of global muons", 70, -3.5, 3.5);
+  h_mPt_TM = ibooker.book1D("MuonPt_TM", "Pt of tracker muons", 50, 0., 100.);
+  h_mEta_TM = ibooker.book1D("MuonEta_TM", "Eta of tracker muons", 60, -3., 3.);
+  h_mPhi_TM = ibooker.book1D("MuonPhi_TM", "Phi of tracker muons", 70, -3.5, 3.5);
+  h_mPt_STAM = ibooker.book1D("MuonPt_STAM", "Pt of STA muons", 50, 0., 100.);
+  h_mEta_STAM = ibooker.book1D("MuonEta_STAM", "Eta of STA muons", 60, -3., 3.);
+  h_mPhi_STAM = ibooker.book1D("MuonPhi_STAM", "Phi of STA muons", 70, -3.5, 3.5);
+  h_eCombIso = ibooker.book1D("EleCombIso", "CombIso of electrons", 100, 0., 10.);
+  h_mCombIso = ibooker.book1D("MuonCombIso", "CombIso of muons", 100, 0., 10.);
+  h_dimumass_GMGM = ibooker.book1D("DimuMass_GMGM", "Invariant mass of GMGM pairs",
+      100, 0., 200.);
+  h_dimumass_GMTM = ibooker.book1D("DimuMass_GMTM",
+      "Invariant mass of GMTM pairs", 100, 0., 200.);
+  h_dimumass_TMTM = ibooker.book1D("DimuMass_TMTM",
+      "Invariant mass of TMTM pairs", 100, 0., 200.);
+  h_dielemass = ibooker.book1D("DieleMass",
+      "Invariant mass of EE pairs", 100, 0., 200.);
+  h_lepcounts = ibooker.book1D("LeptonCounts",
+      "LeptonCounts for multi lepton events", 49, 0., 49.);
+
+  ibooker.cd();
 }
 //
 //  -- Analyze
@@ -295,23 +264,9 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup) {
   //-------------------------------
   //--- Trigger Info
   //-------------------------------
-  // short-circuit if hlt problems
-  if (!isValidHltConfig_) return;
   // Did it pass certain HLT path?
-  Handle<TriggerResults> HLTresults;
-  e.getByToken(theTriggerResultsCollection_, HLTresults);
-  if (!HLTresults.isValid()) return;
-  // unsigned int triggerIndex_elec =
-  // hltConfig.triggerIndex(theElecTriggerPathToPass);
-  // unsigned int triggerIndex_muon =
-  // hltConfig.triggerIndex(theMuonTriggerPathToPass);
   bool passed_electron_HLT = true;
   bool passed_muon_HLT = true;
-  // if (triggerIndex_elec < HLTresults->size()) passed_electron_HLT =
-  // HLTresults->accept(triggerIndex_elec);
-  // if (triggerIndex_muon < HLTresults->size()) passed_muon_HLT     =
-  // HLTresults->accept(triggerIndex_muon);
-  // if ( !(passed_electron_HLT || passed_muon_HLT) ) return;
 
   //-------------------------------
   //--- Vertex Info
@@ -641,14 +596,6 @@ void HiggsDQM::endRun(edm::Run const& run, edm::EventSetup const& eSetup) {
   // int iRun = run.run();
 
   //  cout<<"...leaving HiggsDQM::endRun. "<<endl;
-}
-
-//
-// -- End Job
-//
-void HiggsDQM::endJob() {
-  //  cout<<"In HiggsDQM::endJob "<<endl;
-  edm::LogInfo("HiggsDQM") << "[HiggsDQM]: endjob called!";
 }
 
 // Local Variables:

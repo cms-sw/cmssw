@@ -305,9 +305,9 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   EventID TheEvent = iEvent.id();
   int BXN = iEvent.bunchCrossing() ;
   bool Dump = TextFileName.size();
-  int TheEventNumber = TheEvent.event();
-  int Lumi = iEvent.luminosityBlock();
-  int Run  = iEvent.run();
+  edm::EventNumber_t TheEventNumber = TheEvent.event();
+  edm::LuminosityBlockNumber_t Lumi = iEvent.luminosityBlock();
+  edm::RunNumber_t Run  = iEvent.run();
 
   //Get CSC Geometry
   edm::ESHandle<CSCGeometry> TheCSCGeometry;

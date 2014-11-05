@@ -58,7 +58,7 @@ void HcalLutGenerator::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   //_____ get Channel Quality conditions from Event Setup (example)______
   //
   edm::ESHandle<HcalChannelQuality> hCQ;
-  iSetup.get<HcalChannelQualityRcd>().get(hCQ);
+  iSetup.get<HcalChannelQualityRcd>().get("withTopo",hCQ);
   const HcalChannelQuality * _cq = &(*hCQ);
   //
   /*

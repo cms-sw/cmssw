@@ -6,6 +6,7 @@
 #include <MagneticField/ParametrizedEngine/interface/ParametrizedMagneticFieldFactory.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
+#include "MagneticField/UniformEngine/src/UniformMagneticField.h"
 #include "OAEParametrizedMagneticField.h"
 #include "ParabolicParametrizedMagneticField.h"
 #include "PolyFit2DParametrizedMagneticField.h"
@@ -49,7 +50,11 @@ ParametrizedMagneticFieldFactory::get(string version, const ParameterSet& parame
 std::auto_ptr<MagneticField>
 ParametrizedMagneticFieldFactory::get(string version, vector<double> parameters) {
 
-  if (version=="OAE_1103l_071212") {
+  if (version=="Uniform") {
+    if (parameters.size()!=1) throw cms::Exception("InvalidParameter") << "Incorrect parameters (" << parameters.size()<< ")`for " << version ;
+     std::auto_ptr<MagneticField> result(new UniformMagneticField(parameters[0]));
+    return result;
+  } else if (version=="OAE_1103l_071212") {
     // V. Karimaki's off-axis expansion fitted to v1103l TOSCA computation
     if (parameters.size()!=1) throw cms::Exception("InvalidParameter") << "Incorrect parameters (" << parameters.size()<< ")`for " << version ;
     std::auto_ptr<MagneticField> result( new OAEParametrizedMagneticField(parameters[0]));

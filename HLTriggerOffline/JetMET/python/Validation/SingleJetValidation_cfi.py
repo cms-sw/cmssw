@@ -1,15 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-rootfile="ttbar_output.root"
+#pfjetcoll="hltAK4PFJetsCorrected"
+pfjetcoll="hltAK4PFJets"
 
-# calojetcoll="iterativeCone5CaloJets"
-#calojetcoll="hltIterativeCone5CaloJets"
-#calojetcoll="hltAntiKT5L2L3CorrCaloJets"
-calojetcoll="hltAntiKT5PFJets"
-
-#hltlow15  ="HLT_L1SingleJet36"
-#hltname15="HLT_Jet30"
-#folderjet15="HLT/HLTJETMET/SingleJet30"
 foldernm="HLT/HLTJETMET/"
 
 SingleJetMetPaths = cms.EDAnalyzer("HLTJetMETValidation",
@@ -18,16 +11,12 @@ SingleJetMetPaths = cms.EDAnalyzer("HLTJetMETValidation",
     PatternJetTrg         = cms.untracked.string("HLT_PF(NoPU)?Jet([0-9])+(_v[0-9]+)?$"),                                   
     PatternMetTrg         = cms.untracked.string("HLT_PF(ch)?MET([0-9])+(_NoiseCleaned+)+(_v[0-9]+)?$"),
     PatternMuTrg          = cms.untracked.string("HLT_Mu([0-9])+(_v[0-9]+)?$"),
-    OutputFileName        = cms.untracked.string(rootfile),
     LogFileName           = cms.untracked.string('JetMETSingleJetValidation.log'),
-    #HLTLow               = cms.untracked.InputTag(hltlow15),
-    #HLTPath              = cms.untracked.InputTag(hltname15),
-    CaloJetAlgorithm      = cms.untracked.InputTag(calojetcoll),
+    PFJetAlgorithm        = cms.untracked.InputTag(pfjetcoll),
     GenJetAlgorithm       = cms.untracked.InputTag("ak4GenJets"),
     CaloMETCollection     = cms.untracked.InputTag("hltMet"),
     GenMETCollection      = cms.untracked.InputTag("genMetCalo"),
     HLTriggerResults      = cms.InputTag("TriggerResults::HLT"),
-    #WriteFile = cms.untracked.bool(True)
 )
 
 SingleJetValidation = cms.Sequence(SingleJetMetPaths)

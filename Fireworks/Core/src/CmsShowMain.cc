@@ -284,7 +284,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    // open any graphics or build dictionaries
    AutoLibraryLoader::enable();
 
-   TEveManager::Create(kFALSE, "FIV");
+   TEveManager::Create(kFALSE, eveMode ? "FIV" : "FI");
 
    setup(m_navigator.get(), m_context.get(), m_metadataManager.get());
 
@@ -346,7 +346,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    }
    if(vm.count(kAutoSaveAllViews)) {
       std::string fmt = vm[kAutoSaveAllViews].as<std::string>();
-      fmt += "%u_%u_%u_%s.png";
+      fmt += "%u_%u_%llu_%s.png";
       setAutoSaveAllViewsFormat(fmt);
    }
    if(vm.count(kNoVersionCheck)) {

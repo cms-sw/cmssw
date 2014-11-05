@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 #from RecoParticleFlow.PFClusterProducer.towerMakerPF_cfi import *
-from RecoParticleFlow.PFClusterProducer.particleFlowCaloResolution_cfi import _timeResolutionHCALMaxSample
+#from RecoParticleFlow.PFClusterProducer.particleFlowCaloResolution_cfi import _timeResolutionHCALMaxSample
 
 from RecoParticleFlow.PFClusterProducer.particleFlowRecHitECAL_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowRecHitHBHE_cfi import *
@@ -15,7 +15,7 @@ from RecoParticleFlow.PFClusterProducer.particleFlowClusterECAL_cfi import *
 
 
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHBHE_cfi import *
-from RecoParticleFlow.PFClusterProducer.particleFlowClusterHBHEMaxSampleTimeSelected_cfi import *
+from RecoParticleFlow.PFClusterProducer.particleFlowClusterHBHETimeSelected_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHF_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHCAL_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHO_cfi import *

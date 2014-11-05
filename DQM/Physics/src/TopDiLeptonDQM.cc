@@ -6,6 +6,7 @@
 
 #include "TLorentzVector.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 #include "DQM/Physics/src/TopDiLeptonDQM.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 
@@ -219,8 +220,8 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt,
   bool Fired_Signal_Trigger[100] = {false};
   bool Fired_Control_Trigger[100] = {false};
 
-  int N_run = (evt.id()).run();
-  int N_event = (evt.id()).event();
+  edm::RunNumber_t N_run = (evt.id()).run();
+  edm::EventNumber_t N_event = (evt.id()).event();
   int N_lumi = evt.luminosityBlock();
 
   int N_leptons = 0;
