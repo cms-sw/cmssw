@@ -42,6 +42,9 @@ namespace l1t {
 
     void setType(CaloSpareType type);
 
+    int GetRing(unsigned index) const;
+    void SetRing(unsigned index, int value);
+
     CaloSpareType getType() const;
 
   private:
