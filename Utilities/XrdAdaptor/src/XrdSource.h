@@ -39,10 +39,14 @@ public:
     struct timespec getLastDowngrade() const {return m_lastDowngrade;}
     void setLastDowngrade(struct timespec now) {m_lastDowngrade = now;}
 
+    static bool getDomain(const std::string &host, std::string &domain);
+    static bool getXrootdSite(XrdCl::File &file, std::string &site);
+    static bool getXrootdSiteFromURL(std::string url, std::string &site);
+
 private:
     void requestCallback(/* TODO: type? */);
 
-    void getXrootdSite();
+    void setXrootdSite();
 
     struct timespec m_lastDowngrade;
     std::string m_id;

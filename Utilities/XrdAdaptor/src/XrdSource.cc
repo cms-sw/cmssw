@@ -48,51 +48,94 @@ Source::Source(timespec now, std::unique_ptr<XrdCl::File> fh)
       }
     }
     m_prettyid = m_id + " (unknown site)";
-    m_site = "Unknown (" + m_id + ")";
-    getXrootdSite();
+    std::string domain_id;
+    if (getDomain(m_id, domain_id)) {m_site = domain_id;}
+    else {m_site = "Unknown (" + m_id + ")";}
+    setXrootdSite();
     assert(m_qm.get());
     assert(m_fh.get());
 }
 
-void
-Source::getXrootdSite()
+bool Source::getDomain(const std::string &host, std::string &domain)
+{
+    size_t pos = host.find(":");
+    domain = host;
+    if ((pos != std::string::npos) && (pos > 0)) {domain = host.substr(0, pos);}
+    pos = domain.find(".");
+    if (pos != std::string::npos && (pos < domain.size())) {domain = domain.substr(pos+1);}
+
+    return domain.size();
+}
+
+bool
+Source::getXrootdSite(XrdCl::File &fh, std::string &site)
+{
+    std::string lastUrl;
+    fh.GetProperty("LastURL", lastUrl);
+    if (!lastUrl.size())
+    {
+        std::string id;
+        if (!fh.GetProperty("DataServer", id)) {id = "(unknown)";}
+        edm::LogWarning("XrdFileWarning")
+          << "Unable to determine the URL associated with server " << id;
+        site = "Unknown";
+        std::string server;
+        fh.GetProperty("DataServer", server);
+        if (server.size()) {getDomain(server, site);}
+        return false;
+    }
+    return getXrootdSiteFromURL(lastUrl, site);
+}
+
+bool
+Source::getXrootdSiteFromURL(std::string url, std::string &site)
 {
     const std::string attr = "sitename";
     XrdCl::Buffer *response = 0;
     XrdCl::Buffer arg( attr.size() );
     arg.FromString( attr );
 
-    std::string lastUrl;
-    m_fh->GetProperty("LastURL", lastUrl);
-    if (!lastUrl.size())
-    {
-        edm::LogWarning("XrdFileWarning")
-          << "Unable to determine the URL associated with server " << m_id;
-        return;
-    }
-
-    XrdCl::FileSystem fs(lastUrl);
+    XrdCl::FileSystem fs(url);
     XrdCl::XRootDStatus st = fs.Query(XrdCl::QueryCode::Config, arg, response);
     if (!st.IsOK())
     {
-        edm::LogWarning("XrdFileWarning")
-          << "Xrootd server " << m_id << " did not provide a sitename.  Monitoring may be incomplete.";
-        return;
+        XrdCl::URL xurl(url);
+        getDomain(xurl.GetHostName(), site);
+        delete response;
+        return false;
     }
-    std::string site = response->ToString();
-    if (site.size() && (site[site.size()-1] == '\n'))
-    {
-        site = site.substr(0, site.size()-1);
-    }
-    if (site == "sitename")
-    {
-        edm::LogWarning("XrdFileWarning") << "Xrootd server " << m_id << " provided an unusable sitename.  Contact site admins.  Monitoring may be incomplete.";
-        return;
-    }
-    m_site = site;
-    m_prettyid = m_id + " (site " + m_site + ")";
-    edm::LogInfo("XrdAdaptorInternal") << "Reading from new server " << m_id << " at site " << m_site;
+    std::string rsite = response->ToString();
     delete response;
+    if (rsite.size() && (rsite[rsite.size()-1] == '\n'))
+    {
+        rsite = rsite.substr(0, rsite.size()-1);
+    }
+    if (rsite == "sitename")
+    {
+        XrdCl::URL xurl(url);
+        getDomain(xurl.GetHostName(), site);
+        return false;
+    }
+    site = rsite;
+    return true;
+}
+
+void
+Source::setXrootdSite()
+{
+    std::string site;
+    bool goodSitename = getXrootdSite(*m_fh, site);
+    if (!goodSitename)
+    {
+        edm::LogInfo("XrdAdaptorInternal")
+          << "Xrootd server at " << m_id << " did not provide a sitename.  Monitoring may be incomplete.";
+    }
+    else
+    {
+       m_site = site;
+        m_prettyid = m_id + " (site " + m_site + ")";
+    }
+    edm::LogInfo("XrdAdaptorInternal") << "Reading from new server " << m_id << " at site " << m_site;
 }
 
 Source::~Source()

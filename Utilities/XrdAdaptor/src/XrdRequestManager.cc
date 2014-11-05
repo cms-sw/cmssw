@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <iostream>
 #include <algorithm>
+#include <netdb.h>
 
 #include "XrdCl/XrdClFile.hh"
 #include "XrdCl/XrdClDefaultEnv.hh"
@@ -115,6 +116,17 @@ RequestManager::RequestManager(const std::string &filename, XrdCl::OpenFlags::Fl
   XrdCl::Env *env = XrdCl::DefaultEnv::GetEnv();
   if (env) {env->GetInt("StreamErrorWindow", m_timeout);}
 
+  std::string orig_site;
+  if (!Source::getXrootdSiteFromURL(m_name, orig_site) && (orig_site.find(".") == std::string::npos))
+  {
+    struct hostent *host_info = gethostbyname(orig_site.c_str());
+    if (host_info)
+    {
+        std::string host = host_info->h_name;
+        Source::getDomain(host, orig_site);
+    }
+  }
+
   std::unique_ptr<XrdCl::File> file;
   edm::Exception ex(edm::errors::FileOpenError);
   bool validFile = false;
@@ -181,11 +193,33 @@ RequestManager::RequestManager(const std::string &filename, XrdCl::OpenFlags::Fl
   {
     std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);
     m_activeSources.push_back(source);
+    updateSiteInfo(orig_site);
   }
 
   m_lastSourceCheck = ts;
   ts.tv_sec += XRD_ADAPTOR_SHORT_OPEN_DELAY;
   m_nextActiveSourceCheck = ts;
+}
+
+
+void
+RequestManager::updateSiteInfo(std::string orig_site)
+{
+  std::string siteA, siteB, siteList;
+  if (m_activeSources.size()) {siteA = m_activeSources[0]->Site();}
+  if (m_activeSources.size() == 2) {siteB = m_activeSources[1]->Site();}
+  siteList = siteA;
+  if (siteB.size() && (siteB != siteA)) {siteList = siteA + ", " + siteB;}
+  if (orig_site.size() && (orig_site != siteList))
+  {
+    edm::LogWarning("XrdAdaptor") << "Data is served from " << siteList << " instead of original site " << orig_site;
+    m_activeSites = siteList;
+  }
+  else if (!orig_site.size() && (siteList != m_activeSites))
+  {
+    edm::LogWarning("XrdAdaptor") << "Data is now served from " << siteList << " instead of previous " << m_activeSites;
+    m_activeSites = siteList;
+  }
 }
 
 
@@ -224,6 +258,7 @@ RequestManager::compareSources(const timespec &now, unsigned a, unsigned b)
     m_activeSources[a]->setLastDowngrade(now);
     m_inactiveSources.emplace_back(m_activeSources[a]);
     m_activeSources.erase(m_activeSources.begin()+a);
+    updateSiteInfo();
   }
   return findNewSource;
 }
@@ -272,6 +307,7 @@ RequestManager::checkSourcesImpl(timespec &now, IOSize requestSize)
     if ((bestInactiveSource != eligibleInactiveSources.end()) && m_activeSources.size() == 1)
     {
         m_activeSources.push_back(*bestInactiveSource);
+        updateSiteInfo();
         for (auto it = m_inactiveSources.begin(); it != m_inactiveSources.end(); it++) if (it->get() == bestInactiveSource->get()) {m_inactiveSources.erase(it); break;}
     }
     else while ((bestInactiveSource != eligibleInactiveSources.end()) && (*worstActiveSource)->getQuality() > (*bestInactiveSource)->getQuality()+XRD_ADAPTOR_SOURCE_QUALITY_FUDGE)
@@ -287,6 +323,7 @@ RequestManager::checkSourcesImpl(timespec &now, IOSize requestSize)
         m_inactiveSources.emplace_back(std::move(*worstActiveSource));
         m_activeSources.erase(worstActiveSource);
         m_activeSources.emplace_back(std::move(*bestInactiveSource));
+        updateSiteInfo();
         eligibleInactiveSources.clear();
         for (const auto & source : m_inactiveSources) if (timeDiffMS(now, source->getLastDowngrade()) > (XRD_ADAPTOR_LONG_OPEN_DELAY-1)*1000) eligibleInactiveSources.push_back(source);
         bestInactiveSource = std::min_element(eligibleInactiveSources.begin(), eligibleInactiveSources.end(),
@@ -479,6 +516,7 @@ XrdAdaptor::RequestManager::handleOpen(XrdCl::XRootDStatus &status, std::shared_
         if (m_activeSources.size() < 2)
         {
             m_activeSources.push_back(source);
+            updateSiteInfo();
         }
         else
         {
@@ -593,10 +631,12 @@ RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr,
     if ((m_activeSources.size() > 0) && (m_activeSources[0].get() == source_ptr.get()))
     {
         m_activeSources.erase(m_activeSources.begin());
+        updateSiteInfo();
     }
     else if ((m_activeSources.size() > 1) && (m_activeSources[1].get() == source_ptr.get()))
     {
         m_activeSources.erase(m_activeSources.begin()+1);
+        updateSiteInfo();
     }
     std::shared_ptr<Source> new_source;
     if (m_activeSources.size() == 0)
@@ -652,6 +692,7 @@ RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr,
             throw ex;
         }
         m_activeSources.push_back(new_source);
+        updateSiteInfo();
     }
     else
     {
