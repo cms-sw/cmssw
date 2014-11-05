@@ -294,12 +294,16 @@ namespace edm {
 
     InitRootHandlers::~InitRootHandlers () {
       // close all open ROOT files
-      // We get a new iterator each time,
-      // because closing a file can invalidate the iterator
-      while(gROOT->GetListOfFiles()->GetSize()) {
-        TIter iter(gROOT->GetListOfFiles());
-        TFile* f = dynamic_cast<TFile*>(iter.Next());
-        if(f) f->Close();
+      TIter iter(gROOT->GetListOfFiles());
+      TObject *obj = nullptr;
+      while(nullptr != (obj = iter.Next())) {
+        TFile* f = dynamic_cast<TFile*>(obj);
+        if(f) {
+          // We get a new iterator each time,
+          // because closing a file can invalidate the iterator
+          f->Close();
+          iter = TIter(gROOT->GetListOfFiles());
+        }
       }
     }
     
