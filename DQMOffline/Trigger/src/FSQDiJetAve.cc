@@ -147,8 +147,71 @@ class HLTHandler: public BaseHandler {
                 }
             }
 
+            // 3. Fun part - built/select best objects combination
+            int columnSize = cands.size();
+            std::vector<int> currentCombination(m_combinedObjectDimension, 0);
+            std::vector<int> bestCombination(m_combinedObjectDimension, -1);
+
+            int maxCombinations = 1;
+            int cnt = 0;
+            while (cnt < m_combinedObjectDimension){
+                cnt += 1;
+                maxCombinations *= columnSize;
+            }
+            float bestCombinedCandVal = -1;
+            while ( cnt < maxCombinations){
+                cnt += 1;
+
+                // 1. Check if current combination contains duplicates
+                std::vector<int> currentCombinationCopy(currentCombination);
+                std::vector<int>::iterator it;
+                std::sort(currentCombinationCopy.begin(), currentCombinationCopy.end());
+                it = std::unique(currentCombinationCopy.begin(), currentCombinationCopy.end());
+                currentCombinationCopy.resize( std::distance(currentCombinationCopy.begin(),it) );
+                bool duplicatesPresent = currentCombination.size() != currentCombinationCopy.size();
 
 
+                // 2. If no duplicates found - 
+                //          - check if current combination passes the cut
+                //          - rank current combination
+                if (!duplicatesPresent) { // no duplicates, we can consider this combined object
+                    /*
+                    std::cout << cnt << " " << duplicatesPresent << " ";
+                    for (int i = 0; i< dimension; ++i){
+                        std::cout << cands.at(currentCombination.at(i));
+                    }
+                    std::cout << std::endl;
+                    // */
+                    std::vector<TCandidateType > currentCombinationFromCands;
+                    for (int i = 0; i<m_combinedObjectDimension;++i){
+                        currentCombinationFromCands.push_back( cands.at(currentCombination.at(i)));
+                    }
+                    bool isOK = m_combinedObjectSelection(currentCombinationFromCands);
+                    if (isOK){
+                        float curVal = m_combinedObjectSortFunction(currentCombinationFromCands);
+                        // FIXME
+                        if (curVal < 0) {
+                            edm::LogError("FSQDiJetAve") << "Problem: ranking function returned negative value: " << curVal << std::endl;
+                        } else if (curVal > bestCombinedCandVal){
+                            //std::cout << curVal << " " << bestCombinedCandVal << std::endl;
+                            bestCombinedCandVal = curVal;
+                            bestCombination = currentCombination;
+                        }
+                    }
+                }
+
+                // 3. Prepare next combination to test
+                currentCombination.at(m_combinedObjectDimension-1)+=1; // increase last number
+                int carry = 0;
+                for (int i = m_combinedObjectDimension-1; i>=0; --i){  // iterate over all numbers, check if we are out of range
+                    currentCombination.at(i)+= carry;
+                    carry = 0;
+                    if (currentCombination.at(i)>=columnSize){
+                        carry = 1;
+                        currentCombination.at(i) = 0;
+                    }
+                }
+            } // combinations loop ends
 
         }
 
