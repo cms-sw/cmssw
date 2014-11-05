@@ -72,6 +72,7 @@ public:
   ~BTagEntry() {}
   static std::string makeCSVHeader();
   std::string makeCSVLine() const;
+  static std::string trimStr(std::string str);
 
   // public, no getters needed
   std::string formula;

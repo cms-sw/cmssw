@@ -1,7 +1,6 @@
+#include <algorithm>
 #include <iostream>
 #include <sstream>
-#include <boost/algorithm/string.hpp>
-#include <boost/tokenizer.hpp>
 
 #include "CondFormats/BTagObjects/interface/BTagEntry.h"
 
@@ -32,42 +31,51 @@ BTagEntry::Parameters::Parameters(
 BTagEntry::BTagEntry(const std::string &csvLine)
 {
   using namespace std;
-  using namespace boost;
 
   // make tokens
-  tokenizer<escaped_list_separator<char> > tok(csvLine);
+  stringstream buff(csvLine);
   vector<string> vec;
-  vec.assign(tok.begin(), tok.end());
+  string token;
+  while (getline(buff, token, ","[0])) {
+    token = BTagEntry::trimStr(token);
+    if (token.empty()) {
+      continue;
+    }
+    vec.push_back(token);
+  }
   if (vec.size() != 11) {
     cerr << "BTagEntry::BTagEntry: Invalid csv line; num tokens != 11" << endl;
-    throw std::exception();  // TODO: is there a cmssw exception??
+    throw exception();  // TODO: is there a cmssw exception??
+  }
+
+  // clean string values
+  char chars[] = " \"\n";
+  for (unsigned int i = 0; i < strlen(chars); ++i) {
+    vec[1].erase(remove(vec[1].begin(),vec[1].end(),chars[i]),vec[1].end());
+    vec[2].erase(remove(vec[2].begin(),vec[2].end(),chars[i]),vec[2].end());
+    vec[10].erase(remove(vec[10].begin(),vec[10].end(),chars[i]),vec[10].end());
   }
 
   // make formula
   formula = vec[10];
-  erase_all(formula, "\"");
-  erase_all(formula, " ");
-  erase_all(formula, "\n");
-  auto f1 = TF1("", formula.c_str());  // compile formula to check validity
+  TF1 f1("", formula.c_str());  // compile formula to check validity
   if (f1.IsZombie()) {
     cerr << "BTagEntry::BTagEntry: Invalid csv line; formula does not compile"
          << endl;
-    throw std::exception();  // TODO: is there a cmssw exception??
+    throw exception();  // TODO: is there a cmssw exception??
   }
 
   // make parameters
   if (stoi(vec[0]) > 3) {
     cerr << "BTagEntry::BTagEntry: Invalid csv line; OperatingPoint > 3"
          << endl;
-    throw std::exception();  // TODO: is there a cmssw exception??
+    throw exception();  // TODO: is there a cmssw exception??
   }
   if (stoi(vec[3]) > 2) {
     cerr << "BTagEntry::BTagEntry: Invalid csv line; JetFlavor > 2"
          << endl;
-    throw std::exception();  // TODO: is there a cmssw exception??
+    throw exception();  // TODO: is there a cmssw exception??
   }
-  erase_all(vec[1], " ");
-  erase_all(vec[2], " ");
   params = BTagEntry::Parameters(
     BTagEntry::OperatingPoint(stoi(vec[0])),
     vec[1],
@@ -155,4 +163,14 @@ std::string BTagEntry::makeCSVLine() const
        << ", \"" << formula
        << "\" \n";
   return buff.str();
+}
+
+std::string BTagEntry::trimStr(std::string str) {
+  size_t s = str.find_first_not_of(" \n\r\t");
+  size_t e = str.find_last_not_of (" \n\r\t");
+
+  if((std::string::npos == s) || (std::string::npos == e))
+    return "";
+  else
+    return str.substr(s, e-s+1);
 }

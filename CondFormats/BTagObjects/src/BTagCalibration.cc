@@ -1,6 +1,4 @@
 #include <iostream>
-#include <boost/algorithm/string.hpp>
-
 #include "CondFormats/BTagObjects/interface/BTagCalibration.h"
 
 void BTagCalibration::addEntry(BTagEntry entry)
@@ -36,7 +34,7 @@ void BTagCalibration::readCSV(istream &s)
   }
 
   while (getline(s,line)) {
-    boost::algorithm::trim(line);
+    line = BTagEntry::trimStr(line);
     if (line.empty()) {  // skip empty lines
       continue;
     }
