@@ -17,6 +17,7 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring('HLT_AK8DiPFJe
     'HLT_CaloJet500_NoJetID_v1', 
     'HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDLoose_BTagCSV0p7_v1', 
     'HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDLoose_v1', 
+    'HLT_DiCentralPFJet70_PFMET120_NoiseCleaned_v1', 
     'HLT_Dimuon13_PsiPrime_v1', 
     'HLT_Dimuon13_Upsilon_v1', 
     'HLT_Dimuon20_Jpsi_v1', 
