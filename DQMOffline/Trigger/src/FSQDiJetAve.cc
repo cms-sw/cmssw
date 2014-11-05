@@ -47,6 +47,7 @@ namespace FSQ {
 
 struct HLTConfigDataContainer {
     HLTConfigProvider m_hltConfig;
+    trigger::TriggerEvent m_trgEvent;
 
 };
 
@@ -109,6 +110,40 @@ class HLTHandler: public BaseHandler {
                             ++numFilterMatches;
                         }
                     }
+                }
+            }
+
+            // LogWarning or LogError?
+            if (numPathMatches != 1) {
+                  edm::LogWarning("FSQDiJetAve") << "Problem: found " << numPathMatches
+                    << " paths matching " << m_pathPartialName << std::endl;
+            }
+            if (numFilterMatches != 1) {
+                  edm::LogWarning("FSQDiJetAve") << "Problem: found " << numFilterMatches
+                    << " filter matching " << m_filterPartialName
+                    << " in path "<< m_pathPartialName << std::endl;
+            }
+
+            // 2. Fetch HLT objects saved by selected filter. Save those fullfilling preselection
+            //      objects are saved in cands variable
+            std::string process = hc.m_trgEvent.usedProcessName();
+            edm::InputTag hltTag(filterFullName ,"", process);
+            const int hltIndex = hc.m_trgEvent.filterIndex(hltTag);
+            if ( hltIndex >= hc.m_trgEvent.sizeFilters() ) {
+              edm::LogInfo("FSQDiJetAve") << "no index hlt"<< hltIndex << " of that name ";
+              return;
+            }
+
+            const trigger::TriggerObjectCollection & toc(hc.m_trgEvent.getObjects());
+            const trigger::Keys & khlt = hc.m_trgEvent.filterKeys(hltIndex);
+
+            std::vector<TCandidateType> cands;
+            trigger::Keys::const_iterator kj = khlt.begin();
+
+            for(;kj != khlt.end(); ++kj){
+                bool preselection = m_singleObjectSelection(toc[*kj]);
+                if (preselection){
+                    cands.push_back( toc[*kj]);
                 }
             }
 
