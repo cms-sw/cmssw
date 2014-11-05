@@ -59,7 +59,8 @@ struct HLTConfigDataContainer {
 class BaseHandler {
     public:
         BaseHandler();
-        BaseHandler(const edm::ParameterSet& iConfig);
+        BaseHandler(const edm::ParameterSet& iConfig, DQMStore * dbe) {
+        };
         virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const HLTConfigDataContainer &hc) = 0;
 };
 //################################################################################################
@@ -68,8 +69,22 @@ class BaseHandler {
 //
 //################################################################################################
 class HLTHandler: public BaseHandler {
+    private:
+        typedef trigger::TriggerObject TCandidateType;
+
+        std::string m_dqmhistolabel;
+        std::string m_pathPartialName; //#("HLT_DiPFJetAve30_HFJEC_");
+        std::string m_filterPartialName; //#("ForHFJECBase"); // Calo jet preFilter
+
+        int m_combinedObjectDimension;
+
+        StringCutObjectSelector<TCandidateType>  m_singleObjectSelection;
+        StringCutObjectSelector<std::vector<TCandidateType> >  m_combinedObjectSelection;
+        StringObjectFunction<std::vector<TCandidateType> >     m_combinedObjectSortFunction;
+
     public:
-        HLTHandler(const edm::ParameterSet& iConfig):
+        HLTHandler(const edm::ParameterSet& iConfig, DQMStore * dbe):
+            BaseHandler(iConfig, dbe),
             m_singleObjectSelection(iConfig.getParameter<std::string>("singleObjectsPreselection")),
             m_combinedObjectSelection(iConfig.getParameter<std::string>("combinedObjectSelection")),
             m_combinedObjectSortFunction(iConfig.getParameter<std::string>("combinedObjectSortCriteria"))
@@ -213,21 +228,18 @@ class HLTHandler: public BaseHandler {
                 }
             } // combinations loop ends
 
+            if (bestCombination.size()==0 || bestCombination.at(0)<0){
+                return;
+            }
+
+            std::vector<TCandidateType > bestCombinationFromCands;
+            for (int i = 0; i<m_combinedObjectDimension;++i){
+                      bestCombinationFromCands.push_back( cands.at(bestCombination.at(i)));
+            }
+
+
         }
 
-    private:
-        typedef trigger::TriggerObject TCandidateType;
-
-        std::string m_dqmhistolabel;
-        std::string m_pathPartialName; //#("HLT_DiPFJetAve30_HFJEC_");
-        std::string m_filterPartialName; //#("ForHFJECBase"); // Calo jet preFilter
-
-
-        int m_combinedObjectDimension;
-
-        StringCutObjectSelector<TCandidateType>  m_singleObjectSelection;
-        StringCutObjectSelector<std::vector<TCandidateType> >  m_combinedObjectSelection;
-        StringObjectFunction<std::vector<TCandidateType> >     m_combinedObjectSortFunction;
 };
 
 }
