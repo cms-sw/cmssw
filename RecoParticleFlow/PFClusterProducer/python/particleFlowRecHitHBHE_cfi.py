@@ -1,15 +1,15 @@
 import FWCore.ParameterSet.Config as cms
-from RecoParticleFlow.PFClusterProducer.particleFlowCaloResolution_cfi import _timeResolutionHCALMaxSample
+from RecoParticleFlow.PFClusterProducer.particleFlowCaloResolution_cfi import _timeResolutionHCAL
 
 particleFlowRecHitHBHE = cms.EDProducer("PFRecHitProducer",
     navigator = cms.PSet(
             name = cms.string("PFRecHitHCALNavigatorWithTime"),
             sigmaCut = cms.double(4.0),
-            timeResolutionCalc = _timeResolutionHCALMaxSample
+            timeResolutionCalc = _timeResolutionHCAL
     ),
     producers = cms.VPSet(
            cms.PSet(
-             name = cms.string("PFHBHERecHitCreatorMaxSample"),
+             name = cms.string("PFHBHERecHitCreator"),
              src  = cms.InputTag("hbhereco",""),
              qualityTests = cms.VPSet(
                   cms.PSet(

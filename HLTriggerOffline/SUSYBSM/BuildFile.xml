@@ -14,5 +14,6 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="HLTrigger/HLTcore"/>
+<use   name="HLTrigger/JetMET"/>
 <use   name="rootgraphics"/>
 <flags   EDM_PLUGIN="1"/>

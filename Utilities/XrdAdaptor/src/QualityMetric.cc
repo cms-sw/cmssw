@@ -26,9 +26,6 @@
 
 using namespace XrdAdaptor;
 
-// Right now, MessageLogger requires a global mutex.
-std::mutex XrdAdaptor::g_ml_mutex;
-
 QualityMetricWatch::QualityMetricWatch(QualityMetric *parent1, QualityMetric *parent2)
     : m_parent1(parent1), m_parent2(parent2)
 {
@@ -44,9 +41,7 @@ QualityMetricWatch::~QualityMetricWatch()
         GET_CLOCK_MONOTONIC(stop);
 
         int ms = 1000*(stop.tv_sec - m_start.tv_sec) + (stop.tv_nsec - m_start.tv_nsec)/1e6;
-        {std::unique_lock<std::mutex> sentry(g_ml_mutex);
         edm::LogVerbatim("XrdAdaptorInternal") << "Finished timer after " << ms << std::endl;
-        }
         m_parent1->finishWatch(stop, ms);
         m_parent2->finishWatch(stop, ms);
     }

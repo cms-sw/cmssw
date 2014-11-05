@@ -109,7 +109,7 @@
  </class>
  <class name="edm::FileIndex::Element" ClassVersion="12">
   <version ClassVersion="12" checksum="3292924581"/>
-  <version ClassVersion="11" checksum="436636819"/>
+  <version ClassVersion="11" checksum="1881476699"/>
   <version ClassVersion="10" checksum="1310120368"/>
  </class>
  <class name="std::vector<edm::FileIndex::Element>"/>

@@ -46,13 +46,11 @@ XrdAdaptor::ClientRequest::HandleResponse(XrdCl::XRootDStatus *stat, XrdCl::AnyO
     else
     {
         Source *source = m_source.get();
-        {std::unique_lock<std::mutex> sentry(g_ml_mutex);
         edm::LogWarning("XrdAdaptorInternal") << "XrdRequestManager::handle(name='"
           << m_manager.getFilename() << ") failure when reading from "
           << (source ? source->PrettyID() : "(unknown source)")
           << "; failed with error '" << status->ToStr() << "' (errno="
           << status->errNo << ", code=" << status->code << ").";
-        }
         m_failure_count++;
         try
         {
@@ -78,9 +76,7 @@ XrdAdaptor::ClientRequest::HandleResponse(XrdCl::XRootDStatus *stat, XrdCl::AnyO
               << status->errNo << ", code=" << status->code << ", source=" << (source ? source->PrettyID() : "(unknown source)") << ").";
             ex.addAdditionalInfo(ss.str());
             m_promise.set_exception(std::current_exception());
-            {std::unique_lock<std::mutex> sentry(g_ml_mutex);
             edm::LogWarning("XrdAdaptorInternal") << "Caught a CMSSW exception when running connection recovery.";
-            }
         }
         catch (...)
         {
@@ -94,9 +90,7 @@ XrdAdaptor::ClientRequest::HandleResponse(XrdCl::XRootDStatus *stat, XrdCl::AnyO
             m_manager.addConnections(ex);
             ex.addAdditionalInfo("Original source of error is " + (source ? source->PrettyID() : "(unknown source)"));
             m_promise.set_exception(std::make_exception_ptr(ex));
-            {std::unique_lock<std::mutex> sentry(g_ml_mutex);
             edm::LogWarning("XrdAdaptorInternal") << "Caught a new exception when running connection recovery.";
-            }
         }
     }
     m_self_reference = nullptr;

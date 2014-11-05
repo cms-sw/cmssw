@@ -143,7 +143,6 @@ Source::~Source()
   XrdCl::XRootDStatus status;
   if (! (status = m_fh->Close()).IsOK())
   {
-    std::unique_lock<std::mutex> sentry(g_ml_mutex);
     edm::LogWarning("XrdFileWarning")
       << "Source::~Source() failed with error '" << status.ToStr()
       << "' (errno=" << status.errNo << ", code=" << status.code << ")";
@@ -175,9 +174,7 @@ validateList(const XrdCl::ChunkList& cl)
 void
 Source::handle(std::shared_ptr<ClientRequest> c)
 {
-    {std::unique_lock<std::mutex> sentry(g_ml_mutex);
     edm::LogVerbatim("XrdAdaptorInternal") << "Reading from " << ID() << ", quality " << m_qm->get() << std::endl;
-    }
     c->m_source = shared_from_this();
     c->m_self_reference = c;
     m_qm->startWatch(c->m_qmw);
