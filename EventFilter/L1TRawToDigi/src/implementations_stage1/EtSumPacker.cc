@@ -63,7 +63,7 @@ namespace stage1 {
                             flagMissingEt<<12;
                             
                objectMissingEtPhi=\
-                            std::min(j->hwPhi(), 0x3F);               
+                            std::min(j->hwPhi(), 0x7F);               
             }
           }
           
