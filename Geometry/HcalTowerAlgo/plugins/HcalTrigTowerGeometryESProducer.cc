@@ -6,8 +6,6 @@
 
 HcalTrigTowerGeometryESProducer::HcalTrigTowerGeometryESProducer( const edm::ParameterSet & config )
 {
-  useFullGranularityHF_=config.getParameter<bool>("useFullGranularityHF");
-
   setWhatProduced( this );
 }
 
@@ -22,14 +20,16 @@ HcalTrigTowerGeometryESProducer::produce( const CaloGeometryRecord & iRecord )
 
     m_hcalTrigTowerGeom =
 	boost::shared_ptr<HcalTrigTowerGeometry>( new HcalTrigTowerGeometry( &*hcalTopology));
-    m_hcalTrigTowerGeom->setUpgradeConfigurationHFTowers(useFullGranularityHF_);
+    HcalTopologyMode::TriggerMode tmode=hcalTopology->triggerMode();
+    bool enableRCTHF=(tmode==HcalTopologyMode::tm_LHC_RCT || tmode==HcalTopologyMode::tm_LHC_RCT_and_1x1);
+    bool enable1x1HF=(tmode==HcalTopologyMode::tm_LHC_1x1 || tmode==HcalTopologyMode::tm_LHC_RCT_and_1x1);
+    m_hcalTrigTowerGeom->setupHFTowers(enableRCTHF,enable1x1HF);
 
     return m_hcalTrigTowerGeom;
 }
 
 void HcalTrigTowerGeometryESProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
    edm::ParameterSetDescription desc;
-   desc.add<bool>("useFullGranularityHF", false);
    descriptions.add("HcalTrigTowerGeometryESProducer", desc);
 }
 

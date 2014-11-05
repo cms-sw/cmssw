@@ -100,7 +100,8 @@ class HcalHTRData {
 	    do_capid=false);
   /** \brief pack header and trailer (call _after_ pack)*/
   void packHeaderTrailer(int L1Anumber, int bcn, int submodule, int
-			 orbitn, int pipeline, int ndd, int nps, int firmwareRev=0);
+			 orbitn, int pipeline, int ndd, int nps, int firmwareRev=0,
+			 int firmwareFlav=0);
 
   /** \brief pack trailer with Mark and Pass bits */
   void packUnsuppressed(const bool* mp);

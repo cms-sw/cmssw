@@ -15,10 +15,18 @@
 void testTriggerGeometry( HcalTopology& topology ) {
 
   HcalTrigTowerGeometry trigTowers( &topology );
-  std::cout << "HCAL trigger tower eta bounds " << std::endl;
+
+  std::cout << "HCAL trigger tower eta bounds (version 0)" << std::endl;
   for(int ieta = 1; ieta <= 32; ++ieta) {
     double eta1, eta2;
-    trigTowers.towerEtaBounds(ieta, eta1, eta2);
+    trigTowers.towerEtaBounds(ieta, 0, eta1, eta2);
+    std::cout << ieta << " "  << eta1 << " " << eta2 << std::endl;
+  }
+
+  std::cout << "HCAL trigger tower eta bounds (version 1)" << std::endl;
+  for(int ieta = 1; ieta <= 41; ++ieta) {
+    double eta1, eta2;
+    trigTowers.towerEtaBounds(ieta, 1, eta1, eta2);
     std::cout << ieta << " "  << eta1 << " " << eta2 << std::endl;
   }
 

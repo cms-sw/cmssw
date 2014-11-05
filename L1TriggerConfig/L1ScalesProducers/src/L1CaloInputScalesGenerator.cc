@@ -25,6 +25,8 @@ using std::ofstream;
 #include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
 
 //
 // constants, enums and typedefs
@@ -161,13 +163,14 @@ L1CaloInputScalesGenerator::analyze(const edm::Event& iEvent, const edm::EventSe
      scalesFile << endl << "\tL1HcalEtThresholdsPositiveEta = cms.vdouble(" << endl;
 
    // loop over ietas
-
+   edm::ESHandle<HcalTrigTowerGeometry> theTrigTowerGeometry;
+   iSetup.get<CaloGeometryRecord>().get(theTrigTowerGeometry);
      nEntries=0;
    for (unsigned short absIeta = 1; absIeta <= 32; absIeta++)
      {
        for (unsigned short input = 0; input <= 0xFF; input++)
 	 {
-	   output = caloTPGTranscoder->hcaletValue(absIeta, input); 
+	   output = caloTPGTranscoder->hcaletValue(absIeta, input, *theTrigTowerGeometry); 
 	   scalesFile << setprecision (8) << output ;
 	   nEntries++;
 
@@ -199,7 +202,7 @@ L1CaloInputScalesGenerator::analyze(const edm::Event& iEvent, const edm::EventSe
      {
        for (unsigned short input = 0; input <= 0xFF; input++)
 	 {
-	   output = caloTPGTranscoder->hcaletValue(-absIeta, input); 
+	   output = caloTPGTranscoder->hcaletValue(-absIeta, input, *theTrigTowerGeometry); 
 	   scalesFile << setprecision (8) << output ;
 	   nEntries++;
 
