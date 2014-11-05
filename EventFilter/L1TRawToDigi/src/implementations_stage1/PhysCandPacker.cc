@@ -17,8 +17,7 @@ process(unsigned int id, const BXVector<T>& coll, F filter)
          if (!filter(*j))
             continue;
          std::cout << j->hwPt() << " @ " << j->hwEta() << ", " << j->hwPhi() << " > " << j->hwQual() << " > " << j->hwIso() << std::endl;
-         jetbit[n++] = \
-                     std::min(j->hwPt(), 0x3F) |
+         jetbit[n++] = std::min(j->hwPt(), 0x3F) |
                      (abs(j->hwEta()) & 0x7) << 6 |
                      ((j->hwEta() >> 3) & 0x1) << 9 |
                      (j->hwPhi() & 0x1F) << 10;
