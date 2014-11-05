@@ -23,7 +23,7 @@ float LumiInfo::recordedLuminosity() const {
 
 float LumiInfo::lumiSectionLength() const {
   // numorbits (262144)*numBX/orbit (3564)*bx spacing (24.95e-09)
-  return LumiConstants::numOrbits*LumiConstants::numBX*LumiConstants::bxSpacing;
+  return LumiConstants::numOrbits*LumiConstants::numBX*LumiConstants::bxSpacingExact;
 }
 
 bool LumiInfo::isProductEqual(LumiInfo const& next) const {

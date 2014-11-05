@@ -28,7 +28,7 @@ public:
 
   /// Constructor with lumi provider, filling scheme name, and filling scheme.
   LumiInfoRunHeader(std::string& lumiProvider, std::string& fillingSchemeName,
-		    std::bitset<LumiConstants::numBX>& fillingScheme, int bunchSpacing);
+		    std::bitset<LumiConstants::numBX>& fillingScheme);
 
   /// Destructor.
   ~LumiInfoRunHeader() {}
@@ -45,11 +45,8 @@ public:
   void setFillingSchemeName(const std::string& fillingSchemeName) { fillingSchemeName_ = fillingSchemeName; }
 
   /// Set filling scheme.
-  void setFillingScheme(const std::bitset<LumiConstants::numBX>& fillingScheme) { fillingScheme_ = fillingScheme; }
+  void setFillingScheme(const std::bitset<LumiConstants::numBX>& fillingScheme);
 
-  /// Set bunch spacing.
-  void setBunchSpacing(int bunchSpacing) { bunchSpacing_ = bunchSpacing; }
-  
   //----------------------------------------------------------------
 
   /// Get lumi provider.
@@ -59,12 +56,12 @@ public:
   std::string getFillingSchemeName() const { return fillingSchemeName_; }
 
   /// Get filling scheme for given bunch.
-  bool getBunchIsFilled(unsigned int bunch) const { return fillingScheme_[bunch]; }
+  bool getBunchFilled(unsigned int bunch) const { return fillingScheme_[bunch]; }
 
   /// Get full filling scheme.
   const std::bitset<LumiConstants::numBX>& getFillingScheme() const { return fillingScheme_; }
 
-  /// Get bunch spacing.
+  /// Get bunch spacing (in ns).
   int getBunchSpacing() const { return bunchSpacing_; }
 
   //----------------------------------------------------------------
@@ -74,6 +71,8 @@ private:
   std::string fillingSchemeName_;  // name of filling scheme
   std::bitset<LumiConstants::numBX> fillingScheme_;          // filling scheme
   int bunchSpacing_;
+
+  void setBunchSpacing();
 };
 
 #endif
