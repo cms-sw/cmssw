@@ -45,6 +45,9 @@ public:
 	MonitorElement* TPart_Eta_Pt10_Normalization = 0;
 	MonitorElement* TPart_Eta_Pt10_NumPS = 0;
 	MonitorElement* TPart_Eta_Pt10_Num2S = 0;
+	// PID
+	MonitorElement* Cluster_PID = 0;
+	MonitorElement* Stub_PID = 0;
 	
 
  private:

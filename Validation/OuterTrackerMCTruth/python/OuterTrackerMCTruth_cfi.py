@@ -53,6 +53,23 @@ OuterTrackerMCTruth = cms.EDAnalyzer('OuterTrackerMCTruth',
         xmin = cms.double(-3.1416)
         ),
 
+# Cluster PID vs. Stack member
+    TH1Cluster_PID = cms.PSet(
+        Nbinsx = cms.int32(501),
+        xmax = cms.double(250.5),                      
+        xmin = cms.double(-250.5),
+        Nbinsy = cms.int32(2),
+        ymax = cms.double(1.5),                      
+        ymin = cms.double(-0.5)
+        ),
 
-          
+# Stub PID
+    TH1Stub_PID = cms.PSet(
+        Nbinsx = cms.int32(501),
+        xmax = cms.double(250.5),                      
+        xmin = cms.double(-250.5),
+        ),          
+
+
+
 )

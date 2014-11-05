@@ -256,6 +256,41 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 		}	// end loop TrackingParticles
   } // end if there are TrackingParticles
 	
+	
+	/// Loop over the input Clusters
+	typename edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >::const_iterator inputIter;
+	typename edmNew::DetSet< TTCluster< Ref_PixelDigi_ > >::const_iterator contentIter;
+	for ( inputIter = PixelDigiTTClusterHandle->begin();
+			 inputIter != PixelDigiTTClusterHandle->end();
+			 ++inputIter )
+	{
+		for ( contentIter = inputIter->begin();
+				 contentIter != inputIter->end();
+				 ++contentIter )
+		{
+			/// Make the reference to be put in the map
+			edm::Ref< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >, TTCluster< Ref_PixelDigi_ > > tempCluRef = edmNew::makeRefTo( PixelDigiTTClusterHandle, contentIter );
+			
+			//StackedTrackerDetId detIdClu( tempCluRef->getDetId() );
+			unsigned int memberClu = tempCluRef->getStackMember();
+			bool genuineClu     = MCTruthTTClusterHandle->isGenuine( tempCluRef );
+			//bool combinClu      = MCTruthTTClusterHandle->isCombinatoric( tempCluRef );
+			//bool unknownClu     = MCTruthTTClusterHandle->isUnknown( tempCluRef );
+			int partClu         = 999999999;
+			if ( genuineClu )
+			{
+				edm::Ptr< TrackingParticle > thisTP = MCTruthTTClusterHandle->findTrackingParticlePtr( tempCluRef );
+				partClu = thisTP->pdgId();
+			}
+			
+			Cluster_PID->Fill( partClu, memberClu );
+			
+		}
+	} /// End of Loop over TTClusters
+
+	
+	
+	
 }
 
 
@@ -418,6 +453,29 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
 																			psTPart_Eta_PS2S.getParameter<double>("xmax"));
 	TPart_Eta_Pt10_Num2S->setAxisTitle("TPart_Eta_Pt10_Num2S", 1);
 	TPart_Eta_Pt10_Num2S->setAxisTitle("Average nb. of Stubs", 2);
+	
+	
+	/// PID
+	edm::ParameterSet psCluster_PID =  conf_.getParameter<edm::ParameterSet>("TH1Cluster_PID");
+	HistoName = "Cluster_PID";
+	Cluster_PID = dqmStore_->book2D(HistoName, HistoName,
+																psCluster_PID.getParameter<int32_t>("Nbinsx"),
+																psCluster_PID.getParameter<double>("xmin"),
+																psCluster_PID.getParameter<double>("xmax"),
+																psCluster_PID.getParameter<int32_t>("Nbinsy"),
+																psCluster_PID.getParameter<double>("ymin"),
+																psCluster_PID.getParameter<double>("ymax"));
+	Cluster_PID->setAxisTitle("TTCluster pdgID", 1);
+	Cluster_PID->setAxisTitle("Stack Member", 2);
+
+	edm::ParameterSet psStub_PID =  conf_.getParameter<edm::ParameterSet>("TH1Stub_PID");
+	HistoName = "Stub_PID";
+	Stub_PID = dqmStore_->book1D(HistoName, HistoName,
+																	psStub_PID.getParameter<int32_t>("Nbinsx"),
+																	psStub_PID.getParameter<double>("xmin"),
+																	psStub_PID.getParameter<double>("xmax"));
+	Stub_PID->setAxisTitle("TTStub pdgID", 1);
+	Stub_PID->setAxisTitle("# TTStubs", 2);
 	
 }//end of method
 
