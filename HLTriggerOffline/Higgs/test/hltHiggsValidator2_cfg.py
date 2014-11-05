@@ -15,7 +15,7 @@ process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 # process.hltMuonValidator.recMuonCut = "isGlobalMuon && eta < 1.2"
 ##############################################################################
 
-hltProcessName = "reHLT"
+hltProcessName = "HLT"
 process.hltHiggsValidator.hltProcessName = hltProcessName
 #process.hltHiggsValidator.HWW.hltPathsToCheck = cms.vstring(
 #		"HLT_Photon26",
@@ -32,14 +32,15 @@ from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = cms.string(autoCond['startup'])
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(100)
 )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         #'file:/afs/cern.ch/user/d/duarte/scratch0/step2_RAW2DIGI_RECO.root',
-        'file:/afs/cern.ch/user/s/sdonato/AFSwork/public/TTbar-GEN-SIM-RECO-new.root'
-        #'file:/afs/cern.ch/user/s/sdonato/AFSwork/public/forJasper/ZnnHbb_GEN_SIM_RECO_trigger.root'
+        #'file:/afs/cern.ch/work/j/jlauwers/hlt/CMSSW_7_2_0_pre1/src/RECO/0090828A-AC71-E311-A488-7845C4FC36D7.root'
+        'file:/scratch/sdonato/DQM4b/CMSSW_7_3_0_pre1/src/hlt2_RAW2DIGI_RECO_HLT_VALIDATION_DQM.root'
+	#'file:/afs/cern.ch/user/s/sdonato/AFSwork/public/forJasper/ZnnHbb_GEN_SIM_RECO_trigger.root'
     ),
     secondaryFileNames = cms.untracked.vstring(
         #'file:/afs/cern.ch/user/d/duarte/scratch0/H130GGgluonfusion_cfi_py_GEN_SIM_DIGI_L1_DIGI2RAW_HLT.root',
