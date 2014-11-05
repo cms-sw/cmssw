@@ -3,14 +3,6 @@ import ROOT
 ROOT.gSystem.Load('libCondFormatsBTagObjects')
 
 
-ETA_MIN = -2.4
-ETA_MAX = 2.4
-PT_MIN = 20.
-PT_MAX = 1000.
-DISCR_MIN = 0.
-DISCR_MAX = 1.
-
-
 class DataLoader(object):
     def __init__(self, csv_data):
 
@@ -27,6 +19,13 @@ class DataLoader(object):
                 raise RuntimeError("Error: can not interpret line: " + l)
         self.entries = ens
 
+        self.ETA_MIN = -2.4
+        self.ETA_MAX = 2.4
+        self.PT_MIN = min(e.params.ptMin for e in ens)
+        self.PT_MAX = max(e.params.ptMax for e in ens)
+        self.DISCR_MIN = min(e.params.discrMin for e in ens)
+        self.DISCR_MAX = max(e.params.discrMax for e in ens)
+
         # sets of fixed data
         self.ops = set(e.params.operatingPoint for e in ens)
         self.flavs = set(e.params.jetFlavor for e in ens)
@@ -39,43 +38,43 @@ class DataLoader(object):
         # test points for variable data (using bound +- epsilon)
         eps = 1e-4
         eta_test_points = list(itertools.ifilter(
-            lambda x: ETA_MIN < x < ETA_MAX,
+            lambda x: self.ETA_MIN < x < self.ETA_MAX,
             itertools.chain(
                 (a + eps for a, _ in self.etas),
                 (a - eps for a, _ in self.etas),
                 (b + eps for _, b in self.etas),
                 (b - eps for _, b in self.etas),
-                (ETA_MIN + eps, ETA_MAX - eps),
+                (self.ETA_MIN + eps, self.ETA_MAX - eps),
             )
         ))
         abseta_test_points = list(itertools.ifilter(
-            lambda x: 0. < x < ETA_MAX,
+            lambda x: 0. < x < self.ETA_MAX,
             itertools.chain(
                 (a + eps for a, _ in self.etas),
                 (a - eps for a, _ in self.etas),
                 (b + eps for _, b in self.etas),
                 (b - eps for _, b in self.etas),
-                (eps, ETA_MAX - eps),
+                (eps, self.ETA_MAX - eps),
             )
         ))
         pt_test_points = list(itertools.ifilter(
-            lambda x: PT_MIN < x < PT_MAX,
+            lambda x: self.PT_MIN < x < self.PT_MAX,
             itertools.chain(
                 (a + eps for a, _ in self.pts),
                 (a - eps for a, _ in self.pts),
                 (b + eps for _, b in self.pts),
                 (b - eps for _, b in self.pts),
-                (PT_MIN + eps, PT_MAX - eps),
+                (self.PT_MIN + eps, self.PT_MAX - eps),
             )
         ))
         discr_test_points = list(itertools.ifilter(
-            lambda x: DISCR_MIN < x < DISCR_MAX,
+            lambda x: self.DISCR_MIN < x < self.DISCR_MAX,
             itertools.chain(
                 (a + eps for a, _ in self.discrs),
                 (a - eps for a, _ in self.discrs),
                 (b + eps for _, b in self.discrs),
                 (b - eps for _, b in self.discrs),
-                (DISCR_MIN + eps, DISCR_MAX - eps),
+                (self.DISCR_MIN + eps, self.DISCR_MAX - eps),
             )
         ))
         # use sets
@@ -101,15 +100,15 @@ class DataLoader(object):
         print self.syss
 
         print "\nFound eta ranges: (need everything covered from %g or 0. " \
-              "up to %g):" % (ETA_MIN, ETA_MAX)
+              "up to %g):" % (self.ETA_MIN, self.ETA_MAX)
         print self.etas
 
         print "\nFound pt ranges: (need everything covered from %g " \
-              "to %g):" % (PT_MIN, PT_MAX)
+              "to %g):" % (self.PT_MIN, self.PT_MAX)
         print self.pts
 
         print "\nFound discr ranges: (only needed for operatingPoint==3, " \
-              "covered from %g to %g):" % (DISCR_MIN, DISCR_MAX)
+              "covered from %g to %g):" % (self.DISCR_MIN, self.DISCR_MAX)
         print self.discrs
 
         print "\nTest points for eta (bounds +- epsilon):"

@@ -1,7 +1,7 @@
 import itertools
 import unittest
 import sys
-from dataLoader import *
+from dataLoader import DataLoader
 
 
 data = None
@@ -63,20 +63,20 @@ class BtagCalibConsistencyChecker(unittest.TestCase):
     def test_eta_ranges(self):
         for a, b in data.etas:
             self.assertLess(a, b)
-            self.assertGreater(a, ETA_MIN - 1e-7)
-            self.assertLess(b, ETA_MAX + 1e-7)
+            self.assertGreater(a, data.ETA_MIN - 1e-7)
+            self.assertLess(b, data.ETA_MAX + 1e-7)
 
     def test_pt_ranges(self):
         for a, b in data.pts:
             self.assertLess(a, b)
-            self.assertGreater(a, PT_MIN - 1e-7)
-            self.assertLess(b, PT_MAX + 1e-7)
+            self.assertGreater(a, data.PT_MIN - 1e-7)
+            self.assertLess(b, data.PT_MAX + 1e-7)
 
     def test_discr_ranges(self):
         for a, b in data.discrs:
             self.assertLess(a, b)
-            self.assertGreater(a, DISCR_MIN - 1e-7)
-            self.assertLess(b, DISCR_MAX + 1e-7)
+            self.assertGreater(a, data.DISCR_MIN - 1e-7)
+            self.assertLess(b, data.DISCR_MAX + 1e-7)
 
     def test_coverage(self):
         res = list(itertools.chain.from_iterable(
