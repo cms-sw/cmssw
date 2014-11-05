@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         
     hltProcessName = cms.string("HLT"),
-    analysis       = cms.vstring("HWW", "HZZ", "Hgg", "Htaunu", "H2tau", "VBFHbb", "ZnnHbb"), 
+    analysis       = cms.vstring("HWW", "HZZ", "Hgg", "Htaunu", "H2tau", "VBFHbb", "ZnnHbb","X4b"), 
     
     # -- The instance name of the reco::GenParticles collection
     genParticleLabel = cms.string("genParticles"),
@@ -197,8 +197,11 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         jetTagLabel  = cms.string("pfCombinedSecondaryVertexBJetTags"),
         # -- Analysis specific cuts
         minCandidates = cms.uint32(4), 
-        NminOneCuts = cms.untracked.vdouble(2.6, 350, 2.6, 0.8, 0, 0, 0, 95, 85, 70, 40), #dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
+        NminOneCuts = cms.untracked.vdouble(2.6, 350, 2.6, 0.8, 0, 0, 0, 0, 0, 95, 85, 70, 40), #dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
+#        NminOneCuts = cms.untracked.vdouble(2.6, 350, 2.6, 0.8, 0, 0, 0, 95, 85, 70, 40), #dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
         ),
+# HLT_PFMET120_NoiseCleaned_BTagCSV07_v1, HLT_PFMET120_NoiseCleaned_Mu5_v1, HLT_PFMET170_NoiseCleaned_v1, 
+#HLT_PFMET110_PFMHT110_IDLoose_v1, HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDLoose_BTagCSV0p7_v1, HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDLoose_v1, HLT_QuadPFJet_BTagCSV_VBF_v1, HLT_QuadPFJet_VBF_v1, HLT_L1_TripleJet_VBF_v1, HLT_QuadJet45_TripleCSV0p5_v1, HLT_QuadJet45_DoubleCSV0p5_v1, HLT_DoubleJet90_Double30_TripleCSV0p5_v1, HLT_DoubleJet90_Double30_DoubleCSV0p5_v1
     ZnnHbb = cms.PSet( 
         hltPathsToCheck = cms.vstring(
             "HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDLoose_BTagCSV0p7_v",
@@ -211,6 +214,36 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         recPFMETLabel = cms.string("pfMet"),  
         # -- Analysis specific cuts
         minCandidates = cms.uint32(1), 
-        NminOneCuts = cms.untracked.vdouble(0, 0, 0, 0.9, 8, 30, 100, 70), #dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, MET, pt1
+        NminOneCuts = cms.untracked.vdouble(0, 0, 0, 0.9, 0, 0, 8, 30, 100, 70), #dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, MET, pt1
+#        NminOneCuts = cms.untracked.vdouble(0, 0, 0, 0.9, 8, 30, 100, 70), #dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, MET, pt1
         ),
+    X4b  = cms.PSet( 
+        hltPathsToCheck = cms.vstring(
+            "HLT_DoubleJet90_Double30_TripleCSV0p5_v",
+            "HLT_DoubleJet90_Double30_DoubleCSV0p5_v",
+            "HLT_QuadJet45_TripleCSV0p5_v",
+            "HLT_QuadJet45_DoubleCSV0p5_v",
+            ),
+        recJetLabel  = cms.string("ak4PFJetsCHS"),
+        jetTagLabel  = cms.string("pfCombinedSecondaryVertexBJetTags"),
+        # -- Analysis specific cuts
+        minCandidates = cms.uint32(4), 
+        NminOneCuts = cms.untracked.vdouble(0, 0, 0, 0.5, 0.5 , 0.5, 0, 0, 0, 0, 90, 0, 45), #dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
+#        NminOneCuts = cms.untracked.vdouble(0, 0, 999, 0.7, 0.7 , 0.7, 0, 0, 0, 0, 90, 0, 50), #dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
+#        NminOneCuts = cms.untracked.vdouble(0, 0, 999, 0.3, 0, 0, 0, 45, 45, 45, 45), #dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
+        ),
+#    X4bQuadjet  = cms.PSet( 
+#        hltPathsToCheck = cms.vstring(
+##            "HLT_DoubleJet90_Double30_TripleCSV0p5_v",
+##            "HLT_DoubleJet90_Double30_DoubleCSV0p5_v",
+#            "HLT_QuadJet45_TripleCSV0p5_v",
+#            "HLT_QuadJet45_DoubleCSV0p5_v",
+#            ),
+#        recJetLabel  = cms.string("ak4PFJetsCHS"),
+#        jetTagLabel  = cms.string("pfCombinedSecondaryVertexBJetTags"),
+#        # -- Analysis specific cuts
+#        minCandidates = cms.uint32(4), 
+#        NminOneCuts = cms.untracked.vdouble(0, 0, 999, 0.7, 0.7, 0.7, 0, 0, 0, 0, 0, 0, 50), #dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
+##        NminOneCuts = cms.untracked.vdouble(0, 0, 999, 0.3, 0, 0, 0, 45, 45, 45, 45), #dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
+#        )
 )
