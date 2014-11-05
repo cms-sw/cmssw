@@ -6,7 +6,6 @@ ROOT.gSystem.Load('libCondFormatsBTagObjects')
 class DataLoader(object):
     def __init__(self, csv_data, measurement_type):
         self.meas_type = measurement_type
-        print "Loading csv data"
 
         # list of entries
         ens = []
@@ -84,8 +83,6 @@ class DataLoader(object):
         self.pt_test_points = set(round(f, 5) for f in pt_test_points)
         self.discr_test_points = set(round(f, 5) for f in discr_test_points)
 
-        print "Loading csv data done"
-
     def print_data(self):
         print "\nFound operating points (need at least 0, 1, 2):"
         print self.ops
@@ -118,3 +115,23 @@ class DataLoader(object):
         print "\nTest points for discr (bounds +- epsilon):"
         print self.discr_test_points
         print ""
+
+
+def get_data_csv(csv_data):
+    # grab measurement types
+    meas_types = set(
+        l.split(',')[1].strip()
+        for l in csv_data
+        if len(l.split()) == 11
+    )
+    return list(DataLoader(csv_data, mt) for mt in meas_types)
+
+
+def get_data(filename):
+    with open(filename) as f:
+        csv_data = f.readlines()
+    if not (csv_data and "OperatingPoint" in csv_data[0]):
+        print "Data file does not contain typical header: %s. Exit" % filename
+        return False
+    csv_data.pop(0)  # remove header
+    return get_data_csv(csv_data)

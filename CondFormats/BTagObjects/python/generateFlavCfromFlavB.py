@@ -1,6 +1,7 @@
 import os
 import sys
 import itertools
+import dataLoader
 import checkBTagCalibrationConsistency as checker
 
 
@@ -48,8 +49,9 @@ def main():
         exit(-1)
 
     print '\nChecking input file consistency...'
-    checks_n_data = checker.run_check(sys.argv[1], True, True, False, False)
-    for res, data in checks_n_data:
+    loaders = dataLoader.get_data(sys.argv[1])
+    checks = checker.run_check_data(loaders, True, True, False)
+    for res, data in itertools.izip(checks, loaders):
         typ = data.meas_type
         if not res:
             print 'Checks on input file failed for %s. Exit.' % typ
@@ -64,8 +66,8 @@ def main():
     print '\nGenerating new csv content...'
     new_csv_data = list(itertools.chain.from_iterable(
         l
-        for _, data in checks_n_data
-        for l in generate_flav_c(data)
+        for d in loaders
+        for l in generate_flav_c(d)
     ))
 
     with open(sys.argv[1]) as f:
@@ -73,7 +75,7 @@ def main():
 
     with open(sys.argv[2], 'w') as f:
         f.writelines(old_csv_data)
-        f.write('\n\n')
+        f.write('\n')
         f.writelines(new_csv_data)
 
     print 'Done.'

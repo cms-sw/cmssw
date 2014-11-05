@@ -1,13 +1,14 @@
 import itertools
 import unittest
 import sys
-from dataLoader import DataLoader
+import dataLoader
 
 
 data = None
 check_flavor = True
 check_op = True
 check_sys = True
+verbose = False
 
 
 class BtagCalibConsistencyChecker(unittest.TestCase):
@@ -89,7 +90,8 @@ class BtagCalibConsistencyChecker(unittest.TestCase):
 
     def _check_coverage(self, op, sys, flav):
         region = "op=%d, %s, flav=%d" % (op, sys, flav)
-        print "Checking coverage for", region
+        if verbose:
+            print "Checking coverage for", region
 
         # load relevant entries
         ens = filter(
@@ -149,40 +151,32 @@ class BtagCalibConsistencyChecker(unittest.TestCase):
         return res
 
 
-def run_check(filename, op=True, sys=True, flavor=True, print_data=True):
-    with open(filename) as f:
-        lines = f.readlines()
-    if not (lines and "OperatingPoint" in lines[0]):
-        print "Data file does not contain typical header."
-        return False
-    lines.pop(0)  # remove header
-    return run_check_csv(lines, op, sys, flavor, print_data)
+def run_check(filename, op=True, sys=True, flavor=True):
+    loaders = dataLoader.get_data(filename)
+    return run_check_data(loaders, op, sys, flavor)
 
 
-def run_check_csv(csv_data, op=True, sys=True, flavor=True, print_data=True):
+def run_check_csv(csv_data, op=True, sys=True, flavor=True):
+    loaders = dataLoader.get_data_csv(csv_data)
+    return run_check_data(loaders, op, sys, flavor)
+
+
+def run_check_data(data_loaders,
+                   op=True, sys=True, flavor=True):
     global data, check_op, check_sys, check_flavor
     check_op, check_sys, check_flavor = op, sys, flavor
 
-    # grab measurement types
-    meas_types = set(
-        l.split(',')[1].strip()
-        for l in csv_data
-        if len(l.split()) == 11
-    )
-
-    # for
     all_res = []
-    for meas_type in meas_types:
-        print '\n\n' + '='*80
-        print '# Checking csv data for type:', meas_type
-        print '='*80 + '\n'
-        data = DataLoader(csv_data, meas_type)
-        if print_data:
+    for data in data_loaders:
+        print '\n\n'
+        print '# Checking csv data for type:', data.meas_type
+        print '='*60 + '\n'
+        if verbose:
             data.print_data()
         testsuite = unittest.TestLoader().loadTestsFromTestCase(
             BtagCalibConsistencyChecker)
         res = unittest.TextTestRunner().run(testsuite)
-        all_res.append((not bool(res.failures), data))
+        all_res.append(not bool(res.failures))
     return all_res
 
 
@@ -191,6 +185,7 @@ if __name__ == '__main__':
         print "Need csv data file as first argument. Exit."
         exit(-1)
     light = not '--light' in sys.argv
-    if not all(r for r, _ in run_check(sys.argv[1], light, light, light)):
+    verbose = True
+    if not all(run_check(sys.argv[1], light, light, light)):
         exit(-1)
 
