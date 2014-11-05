@@ -39,7 +39,7 @@ def generate_flav_c(loaded_data):
     return list(l for l in csv_lines)
 
 
-if __name__ == '__main__':
+def main():
     if len(sys.argv) < 3:
         print 'Need input/output filenames as first/second arguments. Exit.'
         exit(-1)
@@ -78,3 +78,6 @@ if __name__ == '__main__':
 
     print 'Done.'
 
+
+if __name__ == '__main__':
+    main()
