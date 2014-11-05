@@ -33,6 +33,8 @@ cmsRun ${LOCAL_TEST_DIR}/patTuple_fastsim_cfg.py || die 'Failure using patTuple_
 
 cmsRun ${LOCAL_TEST_DIR}/patTuple_metUncertainties_cfg.py || die 'Failure using patTuple_metUncertainties_cfg.py' $?
 
+cmsRun ${LOCAL_TEST_DIR}/miniAOD_standard_cfg.py || die 'Failure using miniAOD_standard_cfg.py' $?
+
 # Not needed in IBs
 # cmsRun ${LOCAL_TEST_DIR}/patTuple_onlyElectrons_cfg.py || die 'Failure using patTuple_onlyElectrons_cfg.py' $?
 # cmsRun ${LOCAL_TEST_DIR}/patTuple_onlyJets_cfg.py || die 'Failure using patTuple_onlyJets_cfg.py' $?
