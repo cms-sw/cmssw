@@ -104,9 +104,9 @@ namespace evf{
         filesToDeletePtr_ = filesToDelete;
       }
       bool registerStreamProducer(std::string producer) {
-        auto itr = iniFileMap_.find(producer);
-        if (itr==iniFileMap_.end()) {
-            iniFileMap_[producer]=true;
+        auto itr = std::find(streamProducers_.begin(),streamProducers_.end(),producer);
+        if (itr==streamProducers_.end()) {
+            streamProducers_.push_back(producer);
             return false;
         }
         else return true;
@@ -185,7 +185,7 @@ namespace evf{
       bool readEolsDefinition_ = true;
       unsigned int eolsNFilesIndex_ = 1;
 
-      std::map<std::string,bool> iniFileMap_;
+      std::vector<std::string> streamProducers_;
 
   };
 }
