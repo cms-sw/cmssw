@@ -17,8 +17,7 @@ process(unsigned int id, const BXVector<T>& coll, F filter)
          if (!filter(*j))
             continue;
          std::cout << j->hwPt() << " @ " << j->hwEta() << ", " << j->hwPhi() << " > " << j->hwQual() << " > " << j->hwIso() << std::endl;
-         jetbit[n++] = \
-                     std::min(j->hwPt(), 0x3F) |
+         jetbit[n++] = std::min(j->hwPt(), 0x3F) |
                      (abs(j->hwEta()) & 0x7) << 6 |
                      ((j->hwEta() >> 3) & 0x1) << 9 |
                      (j->hwPhi() & 0x1F) << 10;
@@ -93,7 +92,7 @@ namespace l1t {
        edm::Handle<JetBxCollection> jets;
        event.getByToken(static_cast<const CaloTokens*>(toks)->getJetToken(), jets);
 
-       return process(3, *jets, [](const l1t::Jet& jet) -> bool { return jet.hwQual() != 2; });
+       return process(3, *jets, [](const l1t::Jet& jet) -> bool { return !(jet.hwQual() & 2); });
     }
 
     Blocks
@@ -102,7 +101,7 @@ namespace l1t {
        edm::Handle<JetBxCollection> jets;
        event.getByToken(static_cast<const CaloTokens*>(toks)->getJetToken(), jets);
 
-       return process(4, *jets, [](const l1t::Jet& jet) -> bool { return jet.hwQual() == 2; });
+       return process(4, *jets, [](const l1t::Jet& jet) -> bool { return jet.hwQual() & 2; });
     }
 
     Blocks

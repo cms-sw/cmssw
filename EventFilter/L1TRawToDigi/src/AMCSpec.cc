@@ -133,7 +133,8 @@ namespace amc13 {
    Packet::add(unsigned int board, const std::vector<uint64_t>& load)
    {
       edm::LogInfo("AMC") << "Adding board " << board << " with payload size " << load.size();
-      payload_.push_back(amc::Packet(payload_.size(), board, load));
+      // Start by indexing with 1
+      payload_.push_back(amc::Packet(payload_.size() + 1, board, load));
    }
 
    bool
@@ -227,7 +228,7 @@ namespace amc13 {
             headers.push_back(amc::Header(data++));
 
          for (const auto& amc: headers) {
-            payload_[amc.getAMCNumber()].addPayload(data, amc.getBlockSize());
+            payload_[amc.getAMCNumber() - 1].addPayload(data, amc.getBlockSize());
             data += amc.getBlockSize();
          }
 

@@ -45,10 +45,7 @@ namespace l1t {
             if (j->getType()==l1t::EtSum::kMissingHt){
             
               flaghtmiss=j->hwQual() & 0x1;
-              htmiss=\
-                    std::min(j->hwPt(),0x7F)|
-                    flaghtmiss<<12;
-              
+              htmiss=std::min(j->hwPt(),0x7F);              
               htmissphi=std::min(j->hwPhi(),0x1F);
             }
           }
@@ -56,34 +53,22 @@ namespace l1t {
           n=0;
           
           for (auto j = calosparesHFBitCounts->begin(i); j != calosparesHFBitCounts->end(i) && n < 2; ++j, ++n) {
-              hfbitcount=\
-                        std::min(j->hwPt(),0xFFF);
+              hfbitcount=std::min(j->hwPt(),0xFFF);
           } 
           
           for (auto j = calosparesHFRingSums->begin(i); j != calosparesHFRingSums->end(i) && n < 2; ++j, ++n) {
-              hfringsum=\
-                        std::min(j->hwPt(),0xFFF);
+              hfringsum=std::min(j->hwPt(),0xFFF);
           } 
                  
           uint16_t object[4]={0,0,0,0};
           
-          object[0]=\
-                            hfbitcount|
-                            ((hfringsum & 0x7) << 12);
-          object[1]=\
-                            ((hfringsum>>3) & 0x1FF) |
-                            (0x1)<<10 | (0x1)<<12 | (0x1)<<14;
+          object[0]=hfbitcount|((hfringsum & 0x7) << 12);
+          object[1]=htmissphi|((htmiss & 0x7F) << 5 ) |(flaghtmiss<<12)|(0x1 << 14);
+          object[2]=((hfringsum>>3) & 0x1FF) |(0x1)<<10 | (0x1)<<12 | (0x1)<<14;               
+          object[3]= 0x1 | (0x1 << 2) | (0x1 << 4) | (0x1 << 6) |(0x1 << 8) | (0x1 << 10) | (0x1 << 12) | (0x1 << 14);
                             
-          object[2]=\
-                            htmissphi|
-                            ((htmiss & 0x7F) << 5 ) |
-                            (0x1 << 14);
-          object[3]=\
-                             0x1 | (0x1 << 2) | (0x1 << 4) | (0x1 << 6) |
-                            (0x1 << 8) | (0x1 << 10) | (0x1 << 12) | (0x1 << 14);
-                            
-          uint32_t word0=(object[0] & 0xFFFF) | ((object[2] & 0xFFFF) << 16);
-          uint32_t word1=(object[1] & 0xFFFF) | ((object[3] & 0xFFFF) << 16);
+          uint32_t word0=(object[0] & 0xFFFF) | ((object[1] & 0xFFFF) << 16);
+          uint32_t word1=(object[2] & 0xFFFF) | ((object[3] & 0xFFFF) << 16);
 
           word0 |= (1 << 31) | (1 << 15);
           word1 |= ((i == 0) << 31) | ((i == 0) << 15);
