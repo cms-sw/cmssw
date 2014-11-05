@@ -31,11 +31,114 @@
 #include "DQMOffline/Trigger/interface/FSQDiJetAve.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "CommonTools/Utils/interface/StringObjectFunction.h"
+
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+
+
 using namespace edm;
 //#using namespace reco;
 using namespace std;
 //using namespace trigger;
 
+
+namespace FSQ {
+
+struct HLTConfigDataContainer {
+    HLTConfigProvider m_hltConfig;
+
+};
+
+//################################################################################################
+//
+// Base Handler class
+//
+//################################################################################################
+class BaseHandler {
+    public:
+        BaseHandler();
+        BaseHandler(const edm::ParameterSet& iConfig);
+        virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const HLTConfigDataContainer &hc) = 0;
+};
+//################################################################################################
+//
+// Handle objects saved into hlt event by hlt filters
+//
+//################################################################################################
+class HLTHandler: public BaseHandler {
+    public:
+        HLTHandler(const edm::ParameterSet& iConfig):
+            m_singleObjectSelection(iConfig.getParameter<std::string>("singleObjectsPreselection")),
+            m_combinedObjectSelection(iConfig.getParameter<std::string>("combinedObjectSelection")),
+            m_combinedObjectSortFunction(iConfig.getParameter<std::string>("combinedObjectSortCriteria"))
+        {
+             std::string type = iConfig.getParameter<std::string>("handlerType");
+             if (type != "FromHLT") {
+                throw cms::Exception("FSQ - HLTHandler: wrong " + type);
+             }
+
+             m_dqmhistolabel = iConfig.getParameter<std::string>("dqmhistolabel");
+             m_filterPartialName = iConfig.getParameter<std::string>("partialFilterName"); // std::string find is used to match filter
+                                                                                           // there should be just one matching filter
+                                                                                           //  in path
+                                                                                           
+             m_pathPartialName  = iConfig.getParameter<std::string>("partialPathName");
+             m_combinedObjectDimension = iConfig.getParameter<int>("combinedObjectDimension");
+        }
+
+
+        void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const HLTConfigDataContainer &hc){
+
+            // 1. Find matching path. Inside matchin path find matching filter
+            std::string filterFullName = "";
+            std::vector<std::string> filtersForThisPath;
+            //int pathIndex = -1;
+            int numPathMatches = 0;
+            int numFilterMatches = 0;
+            for (unsigned int i = 0; i < hc.m_hltConfig.size(); ++i) {
+                if (hc.m_hltConfig.triggerName(i).find(m_pathPartialName) == std::string::npos) continue;
+                //pathIndex = i;
+                ++numPathMatches;
+                std::vector<std::string > moduleLabels = hc.m_hltConfig.moduleLabels(i);
+                for (unsigned int iMod = 0; iMod <moduleLabels.size(); ++iMod){
+                    if ("EDFilter" ==  hc.m_hltConfig.moduleEDMType(moduleLabels.at(iMod))) {
+                        filtersForThisPath.push_back(moduleLabels.at(iMod));
+                        if ( moduleLabels.at(iMod).find(m_filterPartialName)!= std::string::npos  ){
+                            filterFullName = moduleLabels.at(iMod);
+                            ++numFilterMatches;
+                        }
+                    }
+                }
+            }
+
+
+
+
+        }
+
+    private:
+        typedef trigger::TriggerObject TCandidateType;
+
+        std::string m_dqmhistolabel;
+        std::string m_pathPartialName; //#("HLT_DiPFJetAve30_HFJEC_");
+        std::string m_filterPartialName; //#("ForHFJECBase"); // Calo jet preFilter
+
+
+        int m_combinedObjectDimension;
+
+        StringCutObjectSelector<TCandidateType>  m_singleObjectSelection;
+        StringCutObjectSelector<std::vector<TCandidateType> >  m_combinedObjectSelection;
+        StringObjectFunction<std::vector<TCandidateType> >     m_combinedObjectSortFunction;
+};
+
+}
+
+//################################################################################################
+//
+// Plugin functions
+//
+//################################################################################################
 FSQDiJetAve::FSQDiJetAve(const edm::ParameterSet& iConfig):
   m_isSetup(false)
 {
