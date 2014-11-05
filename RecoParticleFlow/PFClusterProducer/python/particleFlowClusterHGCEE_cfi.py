@@ -5,8 +5,15 @@ import FWCore.ParameterSet.Config as cms
 #cleaning 
 
 #seeding
-_noseeds_HGCEE = cms.PSet(
-    algoName = cms.string("PassThruSeedFinder")   
+_localmaxseeds_HGCEE = cms.PSet(
+    algoName = cms.string("LocalMaximumSeedFinder"),
+    thresholdsByDetector = cms.VPSet(
+    cms.PSet( detector = cms.string("HGC_ECAL"),
+              seedingThreshold = cms.double(1e-6*0.70), #in KeV
+              seedingThresholdPt = cms.double(0.0)
+              )
+    ),
+    nNeighbours = cms.int32(8)
 )
 
 #for arbor this is more a pre-clustering step to find little clusters
@@ -33,6 +40,22 @@ _manqiArborClusterizer_HGCEE = cms.PSet(
     maxNoiseClusterSize = cms.uint32(3),
     allowSameLayerSeedMerge = cms.bool(False),
     thresholdsByDetector = cms.VPSet( )
+)
+
+_positionCalcHGCEE_onelayer = cms.PSet(
+    algoName = cms.string("Basic2DGenericPFlowPositionCalc"),
+    ##
+    minFractionInCalc = cms.double(1e-9),
+    posCalcNCrystals = cms.int32(-1),
+    logWeightDenominator = cms.double(1e-6*0.25*55.1), # use ADC value 0.25*MIP
+    minAllowedNormalization = cms.double(1e-9)
+    )
+
+_fromScratchHGCClusterizer_HGCEE = cms.PSet(
+    algoName = cms.string("HGCClusterizer"), 
+    thresholdsByDetector = cms.VPSet( ),
+    positionCalcInLayer = _positionCalcHGCEE_onelayer,
+    moliereRadii = cms.PSet( HGC_ECAL = cms.double(2.9)  ) #cm
 )
 
 _arborClusterizer_HGCEE = cms.PSet(
@@ -75,8 +98,8 @@ particleFlowClusterHGCEE = cms.EDProducer(
     "PFClusterProducer",
     recHitsSource = cms.InputTag("particleFlowRecHitHGCEE"),
     recHitCleaners = cms.VPSet(),
-    seedFinder = _noseeds_HGCEE,
-    initialClusteringStep = _manqiArborClusterizer_HGCEE,
+    seedFinder = _localmaxseeds_HGCEE,
+    initialClusteringStep = _fromScratchHGCClusterizer_HGCEE,
     pfClusterBuilder = cms.PSet( ), #_arborClusterizer_HGCEE,
     positionReCalc = cms.PSet( ), #_simplePosCalcHGCEE,
     energyCorrector = _HGCEE_ElectronEnergy
