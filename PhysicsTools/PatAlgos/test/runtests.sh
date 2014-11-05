@@ -5,7 +5,7 @@ function die { echo $1: status $2 ;  exit $2; }
 cmsRun ${LOCAL_TEST_DIR}/patTuple_standard_cfg.py || die 'Failure using patTuple_standard_cfg.py' $?
 
 # FIXME: event content broken in only available data RelVal
-# cmsRun ${LOCAL_TEST_DIR}/patTuple_data_cfg.py || die 'Failure using patTuple_data_cfg.py' $?
+# cmsRun ${LOCAL_TEST_DIR}/patTuple_data_cfg.py || die 'Failure using patTuple_data_cfg.py' $? # Recent input RelVals currently not reachable (from CERN)
 
 cmsRun ${LOCAL_TEST_DIR}/patTuple_PF2PAT_cfg.py || die 'Failure using patTuple_PF2PAT_cfg.py' $?
 
@@ -23,7 +23,7 @@ cmsRun ${LOCAL_TEST_DIR}/patTuple_addTriggerInfo_cfg.py || die 'Failure using pa
 
 cmsRun ${LOCAL_TEST_DIR}/patTuple_addVertexInfo_cfg.py || die 'Failure using patTuple_addVertexInfo_cfg.py' $?
 
-cmsRun ${LOCAL_TEST_DIR}/patTuple_fastsim_cfg.py || die 'Failure using patTuple_fastsim_cfg.py' $? # Input RelVals currently not reachable (from CERN)
+cmsRun ${LOCAL_TEST_DIR}/patTuple_fastsim_cfg.py || die 'Failure using patTuple_fastsim_cfg.py' $?
 
 # cmsRun ${LOCAL_TEST_DIR}/patTuple_topSelection_cfg.py || die 'Failure using patTuple_topSelection_cfg.py' $?
 

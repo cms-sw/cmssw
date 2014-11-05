@@ -81,11 +81,6 @@ process.patJetsAK4PF.addTagInfos = True
 #process.patJets.jetIDMap="ak4JetID"
 process.out.outputCommands.append( 'drop *_selectedPatJetsAK4PF_caloTowers_*' )
 
-## let it run
-process.p = cms.Path(
-    process.selectedPatCandidates
-)
-
 ## ------------------------------------------------------
 #  In addition you usually want to change the following
 #  parameters:
