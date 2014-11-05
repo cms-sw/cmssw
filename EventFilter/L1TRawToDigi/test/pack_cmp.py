@@ -32,8 +32,8 @@ def compare_bx_vector(xs, ys):
                 print ">>> Eta mismatch:", x.hwEta(), "vs", y.hwEta()
             if x.hwPhi() != y.hwPhi():
                 print ">>> Phi mismatch:", x.hwPhi(), "vs", y.hwPhi()
-            if ((x.hwQual()>>0)&0x1) != ((y.hwQual()>>0)&0x1):
-                print ">>> Qual bit 0 mismatch:", ((x.hwQual()>>0)&0x1), "vs", ((y.hwQual()>>0)&0x1)
+            #if ((x.hwQual()>>0)&0x1) != ((y.hwQual()>>0)&0x1):
+            #    print ">>> Qual bit 0 mismatch:", ((x.hwQual()>>0)&0x1), "vs", ((y.hwQual()>>0)&0x1)
             if ((x.hwQual()>>1)&0x1) != ((y.hwQual()>>1)&0x1):
                 print ">>> Qual bit 1 mismatch:", ((x.hwQual()>>1)&0x1), "vs", ((y.hwQual()>>1)&0x1)
             if x.hwIso() != y.hwIso():
