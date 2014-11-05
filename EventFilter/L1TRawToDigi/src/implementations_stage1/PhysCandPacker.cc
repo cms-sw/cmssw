@@ -93,7 +93,7 @@ namespace l1t {
        edm::Handle<JetBxCollection> jets;
        event.getByToken(static_cast<const CaloTokens*>(toks)->getJetToken(), jets);
 
-       return process(3, *jets, [](const l1t::Jet& jet) -> bool { return jet.hwQual() != 2; });
+       return process(3, *jets, [](const l1t::Jet& jet) -> bool { return !(jet.hwQual() & 2); });
     }
 
     Blocks
@@ -102,7 +102,7 @@ namespace l1t {
        edm::Handle<JetBxCollection> jets;
        event.getByToken(static_cast<const CaloTokens*>(toks)->getJetToken(), jets);
 
-       return process(4, *jets, [](const l1t::Jet& jet) -> bool { return jet.hwQual() == 2; });
+       return process(4, *jets, [](const l1t::Jet& jet) -> bool { return jet.hwQual() & 2; });
     }
 
     Blocks
