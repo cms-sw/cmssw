@@ -1,7 +1,7 @@
 # A single LUT file assembled from several LUT files by merge_lookups.pl
 #anything after # is ignored with the exception of the header
 #the header is first valid line starting with #<header> versionStr(unused but may be in future) nrBitsAddress nrBitsData </header>
-# <header> V1 10 9 </header>
+#<header> V1 10 9 </header>
 # LUT data extracted from file tauCalibrationLUTBarrelA.txt, will offset address by 0x0
 #Min 0
 #Max 2
