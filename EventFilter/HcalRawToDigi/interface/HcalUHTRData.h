@@ -53,6 +53,7 @@ class HcalUHTRData {
     uint8_t le_tdc() const;
     uint8_t te_tdc() const;
     bool soi() const;
+    uint8_t capid() const;
     bool ok() const;
 
     uint16_t operator*() const { return *m_ptr; }
@@ -62,10 +63,12 @@ class HcalUHTRData {
 
     bool operator==(const const_iterator& i) { return m_ptr==i.m_ptr; }
     bool operator!=(const const_iterator& i) { return m_ptr!=i.m_ptr; }
+    const uint16_t* raw() const { return m_ptr; }
 
   private:
     void determineMode();
     const uint16_t* m_ptr, *m_limit;
+    const uint16_t* m_header_ptr, *m_0th_data_ptr;
     int m_microstep;
     int m_stepclass;
     int m_flavor;

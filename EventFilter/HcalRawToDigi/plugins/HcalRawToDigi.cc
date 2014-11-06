@@ -51,6 +51,7 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
     produces<ZDCDigiCollection>();
   if (unpackTTP_)
     produces<HcalTTPDigiCollection>();
+  produces<QIE10DigiCollection>();
 
   memset(&stats_,0,sizeof(stats_));
 
@@ -151,6 +152,10 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   std::auto_ptr<HODigiCollection> ho_prod(new HODigiCollection());
   std::auto_ptr<HcalTrigPrimDigiCollection> htp_prod(new HcalTrigPrimDigiCollection());  
   std::auto_ptr<HOTrigPrimDigiCollection> hotp_prod(new HOTrigPrimDigiCollection());  
+  if (colls.qie10 == 0) {
+    colls.qie10 = new QIE10DigiCollection(); 
+  }
+  std::auto_ptr<QIE10DigiCollection> qie10_prod(colls.qie10);
 
   hbhe_prod->swap_contents(hbhe);
   hf_prod->swap_contents(hf);
@@ -177,12 +182,14 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   hf_prod->sort();
   htp_prod->sort();
   hotp_prod->sort();
+  qie10_prod->sort();
 
   e.put(hbhe_prod);
   e.put(ho_prod);
   e.put(hf_prod);
   e.put(htp_prod);
   e.put(hotp_prod);
+  e.put(qie10_prod);
 
   /// calib
   if (unpackCalib_) {
