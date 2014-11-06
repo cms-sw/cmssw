@@ -143,6 +143,7 @@ namespace DataFormats_EgammaCandidates {
     edm::Ref<reco::GsfElectronCollection> r4;
     edm::RefProd<reco::GsfElectronCollection> rp4;
     edm::Wrapper<edm::RefVector<reco::GsfElectronCollection> > rv4;
+    reco::GsfElectron::PixelMatchVariables gepmv ;
 
     reco::SiStripElectronCollection v5;
     edm::Wrapper<reco::SiStripElectronCollection> w5;
