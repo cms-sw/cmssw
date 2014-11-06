@@ -20,4 +20,7 @@
   </class>
   <class name="std::vector<LumiSummary::L1>"/>
   <class name="std::vector<LumiSummary::HLT>"/>
+  <class name="FillSchemeInfo" ClassVersion="2">
+   <version ClassVersion="2" checksum="550713909"/>
+  </class>
 </lcgdict>
