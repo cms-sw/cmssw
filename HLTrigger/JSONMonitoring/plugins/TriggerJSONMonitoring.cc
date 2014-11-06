@@ -485,6 +485,7 @@ TriggerJSONMonitoring::endLuminosityBlockSummary(const edm::LuminosityBlock& iLu
 void
 TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup, const LuminosityBlockContext* iContext, hltJson::lumiVars* iSummary)
 {
+  if (iSummary->processed->value().at(0)==0) return;
   Json::StyledWriter writer;
 
   char hostname[33];
