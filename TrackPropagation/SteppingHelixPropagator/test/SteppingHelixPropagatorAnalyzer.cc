@@ -75,6 +75,8 @@
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixStateInfo.h"
 
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
+
 #include "TFile.h"
 #include "TTree.h"
 
@@ -140,8 +142,8 @@ private:
   float covFlat_[1000][21];
 
   bool debug_;
-  int run_;
-  int event_;
+  edm::RunNumber_t run_;
+  edm::EventNumber_t event_;
 
   int trkIndOffset_;
 
@@ -188,8 +190,8 @@ SteppingHelixPropagatorAnalyzer::SteppingHelixPropagatorAnalyzer(const edm::Para
   tr_->Branch("p3R", p3R_, "p3R[nPoints][3]/F");
   tr_->Branch("r3R", r3R_, "r3R[nPoints][3]/F");
   tr_->Branch("covFlat", covFlat_, "covFlat[nPoints][21]/F");
-  tr_->Branch("run", &run_, "run/I");
-  tr_->Branch("event_", &event_, "event/I");
+  tr_->Branch("run", &run_, "run/i");
+  tr_->Branch("event_", &event_, "event/l");
 
   trkIndOffset_ = iConfig.getParameter<int>("trkIndOffset");
   debug_ = iConfig.getParameter<bool>("debug");
@@ -266,8 +268,8 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
   //     std::cout<<"Got RPCGeometry "<<std::endl;
   //   }
 
-  run_ = (int)iEvent.id().run();
-  event_ = (int)iEvent.id().event();
+  run_ = iEvent.id().run();
+  event_ = iEvent.id().event();
   if (debug_){
     LogTrace(metname)<<"Begin for run:event =="<<run_<<":"<<event_<<std::endl;
   }
