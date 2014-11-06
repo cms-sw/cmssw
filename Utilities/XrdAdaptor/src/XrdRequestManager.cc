@@ -111,7 +111,7 @@ RequestManager::RequestManager(const std::string &filename, XrdCl::OpenFlags::Fl
       m_flags(flags),
       m_perms(perms),
       m_distribution(0,100),
-      m_open_handler(*this)
+      m_open_handler(new OpenHandler(*this))
 {
   XrdCl::Env *env = XrdCl::DefaultEnv::GetEnv();
   if (env) {env->GetInt("StreamErrorWindow", m_timeout);}
@@ -201,6 +201,13 @@ RequestManager::RequestManager(const std::string &filename, XrdCl::OpenFlags::Fl
   m_nextActiveSourceCheck = ts;
 }
 
+
+RequestManager::~RequestManager()
+{
+  // This will cause the open handler to delete itself once
+  // the final open comes through.
+  m_open_handler->GiftSelf(std::move(m_open_handler));
+}
 
 void
 RequestManager::updateSiteInfo(std::string orig_site)
@@ -328,7 +335,7 @@ RequestManager::checkSourcesImpl(timespec &now, IOSize requestSize)
   }
   if (findNewSource)
   {
-    m_open_handler.open();
+    m_open_handler->open();
     m_lastSourceCheck = now;
   }
 
@@ -622,7 +629,7 @@ RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr,
     std::shared_ptr<Source> new_source;
     if (m_activeSources.size() == 0)
     {
-        std::shared_future<std::shared_ptr<Source> > future = m_open_handler.open();
+        std::shared_future<std::shared_ptr<Source> > future = m_open_handler->open();
         timespec now;
         GET_CLOCK_MONOTONIC(now);
         m_lastSourceCheck = now;
@@ -638,7 +645,7 @@ RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr,
                << "', flags=0x" << std::hex << m_flags
                << ", permissions=0" << std::oct << m_perms << std::dec
                << ", old source=" << source_ptr->PrettyID()
-               << ", current server=" << m_open_handler.current_source()
+               << ", current server=" << m_open_handler->current_source()
                << ") => timeout when waiting for file open";
             ex.addContext("In XrdAdaptor::RequestManager::requestFailure()");
             addConnections(ex);
@@ -836,17 +843,20 @@ XrdAdaptor::RequestManager::OpenHandler::OpenHandler(RequestManager & manager)
 
 XrdAdaptor::RequestManager::OpenHandler::~OpenHandler()
 {
+}
+
+
+void
+XrdAdaptor::RequestManager::OpenHandler::GiftSelf(std::unique_ptr<OpenHandler> me)
+{
+    m_self = std::move(me);
     m_ignore_response.test_and_set();
-    // Make sure there are no outstanding requests that may try to callback to us.
-    if (m_shared_future.valid())
+    // The test and set indicates to the open handler it should throw away the results.  However,
+    // if the open handler fired between the time we set m_self and m_ignore_response, we must
+    // make sure to delete ourself.
+    if (m_shared_future.valid() && (m_shared_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready))
     {
-        // Note that we wait for a maximum amount of time - this is as an extra
-        // safety net against issues in the XrdCl callback.
-        if (m_shared_future.wait_for(std::chrono::seconds(0)) != std::future_status::ready)
-        {
-          edm::LogWarning("XrdAdaptorInternal") << "Waiting until all opens are completed before destroying object." << std::endl;
-        }
-        m_shared_future.wait_for(std::chrono::seconds(m_manager.m_timeout+10));
+        m_self.reset();
     }
 }
 
@@ -864,6 +874,7 @@ XrdAdaptor::RequestManager::OpenHandler::HandleResponseWithHosts(XrdCl::XRootDSt
         {
             delete hostList;
         }
+        m_self.reset();
         return;
     }
     m_ignore_response.clear();
