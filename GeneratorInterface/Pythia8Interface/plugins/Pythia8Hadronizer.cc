@@ -453,8 +453,10 @@ void Pythia8Hadronizer::statistics()
   fMasterGen->stat();
 
   if(fEmissionVetoHook) {
-    cout << "Number of ISR vetoed = " << nISRveto << endl;
-    cout << "Number of FSR vetoed = " << nFSRveto << endl;
+    edm::LogPrint("Pythia8Interface") << "\n"
+      << "Number of ISR vetoed = " << nISRveto;
+    edm::LogPrint("Pythia8Interface")
+      << "Number of FSR vetoed = " << nFSRveto;
   }
 
   double xsec = fMasterGen->info.sigmaGen(); // cross section in mb
