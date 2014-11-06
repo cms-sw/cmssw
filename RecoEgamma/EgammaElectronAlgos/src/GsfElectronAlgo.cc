@@ -1691,14 +1691,9 @@ void GsfElectronAlgo::setPixelMatchInfomation(reco::GsfElectron* ele){
   float dRz2  = 0 ;
   edm::RefToBase<TrajectorySeed> seed = ele->gsfTrack()->extra()->seedRef();
   ElectronSeedRef elseed = seed.castTo<ElectronSeedRef>();
-  if(seed.isNull()){
-    nPixelMatchErrorNoSeed_++ ;
-  }
+  if(seed.isNull()){}
   else{
-    if(elseed.isNull()){
-      nPixelMatchErrorNotElectronSeed_++ ;
-      
-    }
+    if(elseed.isNull()){}
     else{
       sd1     = elseed->subDet1() ;
       sd2     = elseed->subDet2() ;
