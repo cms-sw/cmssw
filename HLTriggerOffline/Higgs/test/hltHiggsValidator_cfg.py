@@ -76,5 +76,4 @@ process.analyzerpath = cms.Path(
     process.MEtoEDMConverter
 )
 
-
 process.outpath = cms.EndPath(process.out)
