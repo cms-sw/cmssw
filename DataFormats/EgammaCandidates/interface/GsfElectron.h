@@ -789,7 +789,37 @@ class GsfElectron : public RecoCandidate
 
     // attributes
     Corrections corrections_ ;
-
+  
+  public:
+    struct PixelMatchVariables{
+      unsigned char subdetectors ;
+      float dPhi1 ;
+      float dPhi2 ;
+      float dRz1  ;
+      float dRz2  ;
+      PixelMatchVariables():
+        subdetectors(0),
+        dPhi1(-999),
+        dPhi2(-999),
+        dRz1(-999),
+        dRz2(-999)
+      {}
+      ~PixelMatchVariables(){}
+    };
+  void setPixelMatchSubdetectors(int sd1, int sd2){ pixelMatchVariables_.subdetectors = 10*sd1+sd2 ; }
+  void setPixelMatchDPhi1(float dPhi1){ pixelMatchVariables_.dPhi1 = dPhi1 ; }
+  void setPixelMatchDPhi2(float dPhi2){ pixelMatchVariables_.dPhi2 = dPhi2 ; }
+  void setPixelMatchDRz1 (float dRz1 ){ pixelMatchVariables_.dRz1  = dRz1  ; }
+  void setPixelMatchDRz2 (float dRz2 ){ pixelMatchVariables_.dRz2  = dRz2  ; }
+  
+  int pixelMatchSubdetector1(){ return pixelMatchVariables_.subdetectors/10 ; }
+  int pixelMatchSubdetector2(){ return pixelMatchVariables_.subdetectors%10 ; }
+  float pixelMatchDPhi1(){ return pixelMatchVariables_.dPhi1 ; }
+  float pixelMatchDPhi2(){ return pixelMatchVariables_.dPhi2 ; }
+  float pixelMatchDRz1 (){ return pixelMatchVariables_.dRz1  ; }
+  float pixelMatchDRz2 (){ return pixelMatchVariables_.dRz2  ; }
+  private:
+    PixelMatchVariables pixelMatchVariables_ ;
  } ;
 
  } // namespace reco

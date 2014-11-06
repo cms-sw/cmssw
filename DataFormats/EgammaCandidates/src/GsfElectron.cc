@@ -94,7 +94,8 @@ GsfElectron::GsfElectron
    ambiguousGsfTracks_(electron.ambiguousGsfTracks_),
    classVariables_(electron.classVariables_),
    class_(electron.class_),
-   corrections_(electron.corrections_)
+   corrections_(electron.corrections_),
+   pixelMatchVariables_(electron.pixelMatchVariables_)
  {
   assert(electron.core()->ctfTrack()==core->ctfTrack()) ;
   assert(electron.core()->ctfGsfOverlap()==core->ctfGsfOverlap()) ;
@@ -130,7 +131,8 @@ GsfElectron::GsfElectron
    //mva_(electron.mva_),
    classVariables_(electron.classVariables_),
    class_(electron.class_),
-   corrections_(electron.corrections_)
+   corrections_(electron.corrections_),
+   pixelMatchVariables_(electron.pixelMatchVariables_)
  {
   trackClusterMatching_.electronCluster = electronCluster ;
   //closestCtfTrack_.ctfTrack = closestCtfTrack ;
