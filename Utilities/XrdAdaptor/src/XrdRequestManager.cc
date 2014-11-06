@@ -206,7 +206,15 @@ RequestManager::~RequestManager()
 {
   // This will cause the open handler to delete itself once
   // the final open comes through.
-  m_open_handler->GiftSelf(std::move(m_open_handler));
+  if (m_open_handler)
+  {
+    // Note that this is invalid:
+    //   m_open_handler->GiftSelf(std::move(m_open_handler));
+    // in gcc 4.8, the std::move is evaluated first, meaning
+    // m_open_handler->GiftSelf is a null-pointer dereference.
+    OpenHandler *handler = m_open_handler.get();
+    handler->GiftSelf(std::move(m_open_handler));
+  }
 }
 
 void
