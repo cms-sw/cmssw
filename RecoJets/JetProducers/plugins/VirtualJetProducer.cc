@@ -307,8 +307,10 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
   if ( useDeterministicSeed_ ) {
     fastjet::GhostedAreaSpec gas;
     std::vector<int> seeds(2);
-    seeds[0] = std::max(iEvent.id().run(),minSeed_ + 3) + 3 * iEvent.id().event();
-    seeds[1] = std::max(iEvent.id().run(),minSeed_ + 5) + 5 * iEvent.id().event();
+    unsigned int runNum_uint = static_cast <unsigned int> (iEvent.id().run());
+    unsigned int evNum_uint = static_cast <unsigned int> (iEvent.id().event()); 
+    seeds[0] = std::max(runNum_uint,minSeed_ + 3) + 3 * evNum_uint;
+    seeds[1] = std::max(runNum_uint,minSeed_ + 5) + 5 * evNum_uint;
     gas.set_random_status(seeds);
   }
 
