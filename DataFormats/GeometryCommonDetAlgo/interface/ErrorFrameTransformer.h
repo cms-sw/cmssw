@@ -32,37 +32,6 @@ struct   ErrorFrameTransformer {
                         r.xz()*(r.xz()*cxx+r.yz()*cxy) + r.yz()*(r.xz()*cxy+r.yz()*cyy) );
   }
  
-  //old version 2 
-  static LocalError transform(const LocalErrorExtended& ge, const Surface& surf) {
-    LocalError newError(ge.matrix()[0][0], ge.matrix()[0][1], ge.matrix()[1][1]);
-    return newError;
-  }
-
-  //for validation 1
-  static GlobalError transform33(const GlobalError& ge, const Surface& surf, bool fromGlobalToLocal) {
-
-    AlgebraicSymMatrix as(3,0);
-    as[0][0] = ge.cxx();
-    as[1][0] = ge.cyx(); as[1][1] = ge.cyy();
-    as[2][0] = ge.czx(); as[2][1] = ge.czy(); as[2][2] = ge.czz();
-
-    Surface::RotationType r=surf.rotation();
-
-    AlgebraicMatrix am(3,3);
-    am[0][0] = r.xx(); am[0][1] = r.xy(); am[0][2] = r.xz();
-    am[1][0] = r.yx(); am[1][1] = r.yy(); am[1][2] = r.yz();
-    am[2][0] = r.zx(); am[2][1] = r.zy(); am[2][2] = r.zz();
-
-    if (fromGlobalToLocal) { 
-       as = as.similarityT(am);
-    } else {
-       as = as.similarity(am);
-    }
-    GlobalError newError(as[0][0], as[1][0], as[1][1], as[2][0], as[2][1], as[2][2]);
-
-    return newError;
-  }
-
   static LocalError transform(const GlobalError& ge, const Surface& surf) {
     Scalar cxx = ge.cxx(); Scalar cyx = ge.cyx(); Scalar cyy = ge.cyy();
     Scalar czx = ge.czx(); Scalar czy = ge.czy(); Scalar czz = ge.czz();
@@ -86,38 +55,38 @@ struct   ErrorFrameTransformer {
   }
 
   //Jacobian used in the GeometryAligner
-  static LocalErrorExtended transform46(const GlobalErrorExtended& ge, const AlgebraicVector& shifts, const AlgebraicVector& angles) {
+  static LocalErrorExtended transform46(const GlobalErrorExtended& ge, const AlgebraicVector& positions, const AlgebraicVector& directions) {
 
     AlgebraicSymMatrix66 as(ge.matrix());
 
     AlgebraicMatrix46 jacobian46;
     jacobian46[0][0] = 1.;
     jacobian46[0][1] = 0.;
-    jacobian46[0][2] = -angles[0];
-    jacobian46[0][3] = -shifts[1]*angles[0];
-    jacobian46[0][4] = shifts[0]*angles[0];
-    jacobian46[0][5] = -shifts[1];
+    jacobian46[0][2] = -directions[0];
+    jacobian46[0][3] = -positions[1]*directions[0];
+    jacobian46[0][4] = positions[0]*directions[0];
+    jacobian46[0][5] = -positions[1];
 
     jacobian46[1][0] = 0.;
     jacobian46[1][1] = 1.;
-    jacobian46[1][2] = -angles[1];
-    jacobian46[1][3] = -shifts[1]*angles[1];
-    jacobian46[1][4] = shifts[0]*angles[1];
-    jacobian46[1][5] = shifts[0];
+    jacobian46[1][2] = -directions[1];
+    jacobian46[1][3] = -positions[1]*directions[1];
+    jacobian46[1][4] = positions[0]*directions[1];
+    jacobian46[1][5] = positions[0];
 
     jacobian46[2][0] = 0.;
     jacobian46[2][1] = 0.;
     jacobian46[2][2] = 0.;
-    jacobian46[2][3] = -angles[1]*angles[0];
-    jacobian46[2][4] = 1.+angles[0]*angles[0];
-    jacobian46[2][5] = -angles[1];
+    jacobian46[2][3] = -directions[1]*directions[0];
+    jacobian46[2][4] = 1.+directions[0]*directions[0];
+    jacobian46[2][5] = -directions[1];
 
     jacobian46[3][0] = 0.;
     jacobian46[3][1] = 0.;
     jacobian46[3][2] = 0.;
-    jacobian46[3][3] = -1.-angles[1]*angles[1];
-    jacobian46[3][4] = angles[0]*angles[1];
-    jacobian46[3][5] = angles[0];
+    jacobian46[3][3] = -1.-directions[1]*directions[1];
+    jacobian46[3][4] = directions[0]*directions[1];
+    jacobian46[3][5] = directions[0];
 
     AlgebraicSymMatrix44 out = ROOT::Math::Similarity(jacobian46,as); 
 
