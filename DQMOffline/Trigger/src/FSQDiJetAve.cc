@@ -143,13 +143,18 @@ class HandlerTemplate: public BaseHandler {
             }
         }
 
-
-        void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup,
+        // Notes:
+        //  - FIXME this function should take only event/ event setup
+        //  - FIXME responsibility to apply preselection should be elsewhere
+        //          hard to fix, since we dont want to copy all objects due to
+        //          performance reasons
+        std::vector<TCandidateType> getFilteredCands(const edm::Event& iEvent,  
+                     const edm::EventSetup& iSetup,
                      const HLTConfigProvider&  hltConfig,
-                     const trigger::TriggerEvent& trgEvent,
-                     float weight)
+                     const trigger::TriggerEvent& trgEvent)
         {
 
+            std::vector<TCandidateType> cands;
             // 1. Find matching path. Inside matchin path find matching filter
             std::string filterFullName = "";
             std::vector<std::string> filtersForThisPath;
@@ -176,13 +181,13 @@ class HandlerTemplate: public BaseHandler {
             if (numPathMatches != 1) {
                   edm::LogError("FSQDiJetAve") << "Problem: found " << numPathMatches
                     << " paths matching " << m_pathPartialName << std::endl;
-                  return;  
+                  return cands;   
             }
             if (numFilterMatches != 1) {
                   edm::LogError("FSQDiJetAve") << "Problem: found " << numFilterMatches
                     << " filter matching " << m_filterPartialName
                     << " in path "<< m_pathPartialName << std::endl;
-                  return;
+                  return cands;
             }
 
             // 2. Fetch HLT objects saved by selected filter. Save those fullfilling preselection
@@ -193,13 +198,12 @@ class HandlerTemplate: public BaseHandler {
             const int hltIndex = trgEvent.filterIndex(hltTag);
             if ( hltIndex >= trgEvent.sizeFilters() ) {
               edm::LogInfo("FSQDiJetAve") << "Cannot determine hlt index for |" << filterFullName << "|" << process;
-              return;
+              return cands;
             }
 
             const trigger::TriggerObjectCollection & toc(trgEvent.getObjects());
             const trigger::Keys & khlt = trgEvent.filterKeys(hltIndex);
 
-            std::vector<TCandidateType> cands;
             trigger::Keys::const_iterator kj = khlt.begin();
 
             for(;kj != khlt.end(); ++kj){
@@ -208,10 +212,20 @@ class HandlerTemplate: public BaseHandler {
                     cands.push_back( toc[*kj]);
                 }
             }
+            return cands;
 
+        }
+            // xxx
+        void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup,
+                     const HLTConfigProvider&  hltConfig,
+                     const trigger::TriggerEvent& trgEvent,
+                     float weight)
+        {
+
+            std::vector<TCandidateType> cands = getFilteredCands(iEvent, iSetup, hltConfig, trgEvent);
+            if (cands.size()==0) return;
             std::vector<TCandidateType> bestCombinationFromCands = getBestCombination(cands);
             if (bestCombinationFromCands.size()==0) return;
-
 
             // plot 
             std::map<std::string,  MonitorElement*>::iterator it, itE;
