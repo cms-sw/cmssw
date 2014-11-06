@@ -5,9 +5,6 @@
 <use name="CommonTools/TriggerUtils"/>
 <use name="DataFormats/L1TrackTrigger"/>
 <use name="DataFormats/L1Trigger"/>
-<use name="DataFormats/SiStripCluster"/>
-<use name="DataFormats/SiPixelCluster"/>
-<use name="CalibFormats/SiStripObjects"/>
 <use name="CalibTracker/Records"/>
 <use name="CondFormats/L1TObjects"/>
 <use name="DPGAnalysis/SiStripTools"/>
