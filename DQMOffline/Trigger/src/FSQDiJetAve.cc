@@ -99,6 +99,7 @@ class HandlerTemplate: public BaseHandler {
 
         std::vector< edm::ParameterSet > m_drawables;
         bool m_isSetup;
+        edm::InputTag m_input;
 
     public:
         HandlerTemplate(const edm::ParameterSet& iConfig):
@@ -109,8 +110,10 @@ class HandlerTemplate: public BaseHandler {
         {
              std::string type = iConfig.getParameter<std::string>("handlerType");
              if (type != "FromHLT") {
-                throw cms::Exception("FSQ - HandlerTemplate: wrong " + type);
+                m_input = iConfig.getParameter<edm::InputTag>("inputCol");
+                //throw cms::Exception("FSQ - HandlerTemplate: wrong " + type);
              }
+
 
              m_dqmhistolabel = iConfig.getParameter<std::string>("dqmhistolabel");
              m_filterPartialName = iConfig.getParameter<std::string>("partialFilterName"); // std::string find is used to match filter
@@ -144,7 +147,6 @@ class HandlerTemplate: public BaseHandler {
             }
         }
 
-        //*
         void getFilteredCands(
                      reco::Candidate::LorentzVector *, // pass a dummy pointer, makes possible to select correct getFilteredCands
                      std::vector<reco::Candidate::LorentzVector> & cands, // output collection
@@ -153,9 +155,17 @@ class HandlerTemplate: public BaseHandler {
                      const HLTConfigProvider&  hltConfig,
                      const trigger::TriggerEvent& trgEvent)
         {  
-            //return cands;
+
+           Handle<View<reco::Candidate> > hIn;
+           iEvent.getByLabel(InputTag(m_input), hIn);
+           for (unsigned int i = 0; i<hIn->size(); ++i) {
+                bool preselection = m_singleObjectSelection(hIn->at(i).p4());
+                if (preselection){
+                    cands.push_back(hIn->at(i).p4());
+                }
+           }
+
         }
-        //*/
 
         // Notes:
         //  - FIXME this function should take only event/ event setup
