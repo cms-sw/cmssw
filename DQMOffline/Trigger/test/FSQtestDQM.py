@@ -40,6 +40,7 @@ process.ttt = cms.EDAnalyzer("FSQDiJetAve",
     triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","","TTT"),
     triggerResultsLabel = cms.InputTag("TriggerResults","","TTT"),
     useGenWeight = cms.bool(False),
+    #useGenWeight = cms.bool(True),
     todo = cms.VPSet(
         cms.PSet(
             handlerType = cms.string("FromHLT"),
@@ -92,6 +93,6 @@ process.load('DQMServices.Components.DQMFileSaver_cfi')
 process.dqmSaver.workflow = "/HLT/FSQ/All"
 
 process.p = cms.Path(process.ttt*process.dqmEnv*process.dqmSaver)
-process.MessageLogger.threshold = cms.untracked.string( "INFO" )
-process.MessageLogger.categories.append("FSQDiJetAve")
+#process.MessageLogger.threshold = cms.untracked.string( "INFO" )
+#process.MessageLogger.categories.append("FSQDiJetAve")
 
