@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.Generator.Pythia8CommonSettings_cfi import *
 from Configuration.Generator.Pythia8CUEP8M1Settings_cfi import *
+from GeneratorInterface.ExternalDecays.TauolaSettings_cff import *
 source = cms.Source("EmptySource")
 generator = cms.EDFilter("Pythia8GeneratorFilter",
                          pythiaHepMCVerbosity = cms.untracked.bool(False),
@@ -15,7 +16,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
                 pjak1 = cms.int32(0),
                 pjak2 = cms.int32(0),
                 mdtau = cms.int32(214)
-                )
+                ),
             ),
         parameterSets = cms.vstring('Tauola')
         ),
@@ -26,7 +27,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
             'WeakSingleBoson:ffbar2gmZ = on',
             '23:onMode = off',
             '23:onIfAny = 15',
-            '23:PhaseSpace:pTHatMin = 40.',
+            'PhaseSpace:pTHatMin = 40.',
             ),
         parameterSets = cms.vstring('pythia8CommonSettings',
                                     'pythia8CUEP8M1Settings',
@@ -34,4 +35,5 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
                                     )
         )
                          )
+
 

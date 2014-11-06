@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-generator = cms.EDProducer("Pythia6PtGun",
+generator = cms.EDFilter("Pythia8PtGun",
     PGunParameters = cms.PSet(
         ParticleID = cms.vint32(-15),
         AddAntiParticle = cms.bool(False),
@@ -10,12 +10,12 @@ generator = cms.EDProducer("Pythia6PtGun",
         MaxPt = cms.double(50.0001),
         MinEta = cms.double(-2.4),
         MaxEta = cms.double(2.4)
-    ),
-    PythiaParameters = cms.PSet(
+        ),
+                         PythiaParameters = cms.PSet(
         pythiaTauJets = cms.vstring(
             'MDME(89,1)=0      ! no tau->electron',
             'MDME(90,1)=0      ! no tau->muon'
-        ),
+            ),
         pythiaUESettings = cms.vstring(
             'MSTJ(11)=3     ! Choice of the fragmentation function',
             'MSTJ(22)=2     ! Decay those unstable particles',
@@ -39,10 +39,10 @@ generator = cms.EDProducer("Pythia6PtGun",
             'MSTP(91)=1     !',
             'PARP(91)=2.1   ! kt distribution',
             'PARP(93)=15.0  ! '
-        ),
+            ),
         parameterSets = cms.vstring(
             'pythiaUESettings',
             'pythiaTauJets'
+            )
         )
-    )
-)
+                         )

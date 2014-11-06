@@ -24,4 +24,3 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
         )
                          )
 
-k
