@@ -792,17 +792,17 @@ class GsfElectron : public RecoCandidate
   
   public:
     struct PixelMatchVariables{
-      unsigned char subdetectors ;
       float dPhi1 ;
       float dPhi2 ;
       float dRz1  ;
       float dRz2  ;
+      unsigned char subdetectors ;
       PixelMatchVariables():
-        subdetectors(0),
         dPhi1(-999),
         dPhi2(-999),
         dRz1(-999),
-        dRz2(-999)
+        dRz2(-999),
+        subdetectors(0)
       {}
       ~PixelMatchVariables(){}
     };
