@@ -209,9 +209,23 @@ class HandlerTemplate: public BaseHandler {
                 }
             }
 
+            std::vector<TCandidateType> bestCombinationFromCands = getBestCombination(cands);
+            if (bestCombinationFromCands.size()==0) return;
 
-            // XXXXX
-            // 3. Fun part - built/select best objects combination
+
+            // plot 
+            std::map<std::string,  MonitorElement*>::iterator it, itE;
+            it = m_histos.begin();
+            itE = m_histos.end();
+            for (;it!=itE;++it){
+                float val = (*m_plotters[it->first])(bestCombinationFromCands);
+                it->second->Fill(val, weight);
+            }
+
+        }
+
+
+        std::vector<TCandidateType> getBestCombination(std::vector<TCandidateType> & cands ){
             int columnSize = cands.size();
             std::vector<int> currentCombination(m_combinedObjectDimension, 0);
             std::vector<int> bestCombination(m_combinedObjectDimension, -1);
@@ -278,30 +292,13 @@ class HandlerTemplate: public BaseHandler {
                 }
             } // combinations loop ends
 
-            // XXX 
-
-            if (bestCombination.size()==0 || bestCombination.at(0)<0){
-                return;
-            }
-
             std::vector<TCandidateType > bestCombinationFromCands;
-            for (int i = 0; i<m_combinedObjectDimension;++i){
-                      bestCombinationFromCands.push_back( cands.at(bestCombination.at(i)));
+            if (bestCombination.size()!=0 && bestCombination.at(0)>=0){
+                for (int i = 0; i<m_combinedObjectDimension;++i){
+                          bestCombinationFromCands.push_back( cands.at(bestCombination.at(i)));
+                }
             }
-
-            // plot 
-            //
-            //std::map<std::string, 
-            std::map<std::string,  MonitorElement*>::iterator it, itE;
-            it = m_histos.begin();
-            itE = m_histos.end();
-            for (;it!=itE;++it){
-                float val = (*m_plotters[it->first])(bestCombinationFromCands);
-                // TODO: weight
-                it->second->Fill(val, weight);
-            }
-
-
+            return bestCombinationFromCands;
         }
 
 };
