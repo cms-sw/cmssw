@@ -40,9 +40,11 @@ void PuppiContainer::initialize(const std::vector<RecoObj> &iRecoObjects) {
     fastjet::PseudoJet curPseudoJet;
     auto fRecoParticle = fRecoParticles[i];
     curPseudoJet.reset_PtYPhiM(fRecoParticle.pt,fRecoParticle.eta,fRecoParticle.phi,fRecoParticle.m);
-    if(fRecoParticle.id == 0 or fRecoParticle.charge == 0)  curPseudoJet.set_user_index(0); // zero is neutral hadron                                                         
-    if(fRecoParticle.id == 1 and fRecoParticle.charge != 0) curPseudoJet.set_user_index(fRecoParticle.charge); // from PV use the                             
-    if(fRecoParticle.id == 2 and fRecoParticle.charge != 0) curPseudoJet.set_user_index(fRecoParticle.charge+5); // from NPV use the charge as key +5 as key                 
+    int puppi_register = 0;
+    if(fRecoParticle.id == 0 or fRecoParticle.charge == 0)  puppi_register = 0; // zero is neutral hadron                                                         
+    if(fRecoParticle.id == 1 and fRecoParticle.charge != 0) puppi_register = fRecoParticle.charge; // from PV use the                             
+    if(fRecoParticle.id == 2 and fRecoParticle.charge != 0) puppi_register = fRecoParticle.charge+5; // from NPV use the charge as key +5 as key
+    curPseudoJet.set_user_info( new PuppiUserInfo( puppi_register ) );
     // fill vector of pseudojets for internal references
     fPFParticles.push_back(curPseudoJet);
     //Take Charged particles associated to PV
@@ -179,16 +181,18 @@ std::vector<double> const & PuppiContainer::puppiWeights() {
     if(fRecoParticles[i0].id == 1 && fApplyCHS ) pWeight = 1;
     if(fRecoParticles[i0].id == 2 && fApplyCHS ) pWeight = 0;
       //Basic Weight Checks
-    if(std::isnan(pWeight)) std::cerr << "====> Weight is nan  : pt " << fRecoParticles[i0].pt << " -- eta : " << fRecoParticles[i0].eta << " -- Value" << fVals[i0] << " -- id :  " << fRecoParticles[i0].id << " --  NAlgos: " << lNAlgos << std::endl;
+    if(std::isnan(pWeight)) { 
+      edm::LogError("PuppiWeightError") << "====> Weight is nan  : pt " << fRecoParticles[i0].pt << " -- eta : " << fRecoParticles[i0].eta << " -- Value" << fVals[i0] << " -- id :  " << fRecoParticles[i0].id << " --  NAlgos: " << lNAlgos << std::endl;
+    }
     //Basic Cuts      
     if(pWeight                         < fPuppiWeightCut) pWeight = 0;  //==> Elminate the low Weight stuff
     if(pWeight*fPFParticles[i0].pt()   < fPuppiAlgo[pPupId].neutralPt(fNPV) && fRecoParticles[i0].id == 0 ) pWeight = 0;  //threshold cut on the neutral Pt
     fWeights .push_back(pWeight);
     //Now get rid of the thrown out weights for the particle collection
-    if(pWeight == 0) continue;
+    if(std::abs(pWeight) < std::numeric_limits<double>::denorm_min() ) continue;
       //Produce
     PseudoJet curjet( pWeight*fPFParticles[i0].px(), pWeight*fPFParticles[i0].py(), pWeight*fPFParticles[i0].pz(), pWeight*fPFParticles[i0].e());
-    curjet.set_user_index(i0);//fRecoParticles[i0].id);
+    curjet.set_user_index(i0);
     fPupParticles.push_back(curjet);
   }
   return fWeights;

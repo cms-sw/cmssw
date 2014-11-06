@@ -140,17 +140,22 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     //for(unsigned int i0 = 0; i0 < lCandidates.size(); i0++) {
     //reco::PFCandidate pCand;
     reco::PFCandidate const * tmpCandPF = dynamic_cast<reco::PFCandidate const *>( &*i0 );
+    if ( tmpCandPF == 0 ) {
+      throw cms::Exception("LogicError") << "Non-PFCandidates treated as PFCandidates in PuppiProducer." << std::endl;
+    }
     auto id = (tmpCandPF != 0) ? tmpCandPF->translatePdgIdToType(i0->pdgId()) : reco::PFCandidate::X;
     reco::PFCandidate pCand( i0->charge(),
 			     i0->p4(),
 			     id );
-    LorentzVector pVec;
+    LorentzVector pVec = i0->p4();
     int val = i0 - i0begin;
+
+    // Find the Puppi particle matched to the input collection using the "user_index" of the object. 
     auto puppiMatched = find_if( lCandidates.begin(), lCandidates.end(), [&val]( fastjet::PseudoJet const & i ){ return i.user_index() == val; } );
     if ( puppiMatched != lCandidates.end() ) {
-      pVec.SetPxPyPzE( 0., 0., 0., 0. );
-    } else {
       pVec.SetPxPyPzE(puppiMatched->px(),puppiMatched->py(),puppiMatched->pz(),puppiMatched->E());
+    } else {
+      pVec.SetPxPyPzE( 0, 0, 0, 0);
     }
     pCand.setP4(pVec);
     puppiP4s.push_back( pVec );
