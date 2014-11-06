@@ -849,12 +849,13 @@ XrdAdaptor::RequestManager::OpenHandler::~OpenHandler()
 void
 XrdAdaptor::RequestManager::OpenHandler::GiftSelf(std::unique_ptr<OpenHandler> me)
 {
-    m_self = std::move(me);
+    std::shared_ptr<OpenHandler> myself(std::move(me));
+    m_self = myself;
     m_ignore_response.test_and_set();
     // The test and set indicates to the open handler it should throw away the results.  However,
     // if the open handler fired between the time we set m_self and m_ignore_response, we must
     // make sure to delete ourself.
-    if (m_shared_future.valid() && (m_shared_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready))
+    if (!m_shared_future.valid() || (m_shared_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready))
     {
         m_self.reset();
     }

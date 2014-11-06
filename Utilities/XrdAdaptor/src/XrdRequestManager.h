@@ -224,7 +224,7 @@ private:
         std::recursive_mutex m_mutex;
         std::atomic_flag m_ignore_response;
 
-        std::unique_ptr<OpenHandler> m_self;
+        std::shared_ptr<OpenHandler> m_self;
     };
 
     std::unique_ptr<OpenHandler> m_open_handler;
