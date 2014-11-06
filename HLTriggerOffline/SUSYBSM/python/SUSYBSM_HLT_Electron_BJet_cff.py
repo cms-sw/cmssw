@@ -1,15 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
 SUSY_HLT_Electron_BJet = cms.EDAnalyzer("SUSY_HLT_Electron_BJet",
-  trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'TEST'), #to use with test sample
+  trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
   ElectronCollection = cms.InputTag("gedGsfElectrons"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
   caloJetCollection = cms.InputTag("ak4CaloJets"),
-  TriggerResults = cms.InputTag('TriggerResults','','TEST'), #to use with test sample
-  HLTProcess = cms.string('TEST'),
+  TriggerResults = cms.InputTag('TriggerResults','','HLT'), #to use with test sample
+  HLTProcess = cms.string('HLT'),
   TriggerPath = cms.string('HLT_Ele10_CaloId_TrackIdVL_CentralPFJet40_BTagCSV_v1'),
-  TriggerFilterEle = cms.InputTag('hltSingleEle10CaloIdTrackIdVLDphiFilter', '', 'TEST'), #the last filter in the path hltSingleEle10CaloIdTrackIdVLOneOEMinusOneOPFilterRegional
-  TriggerFilterJet = cms.InputTag('hltCSVFilterSingleEle10', '', 'TEST'), #the last filter in the path
+  TriggerFilterEle = cms.InputTag('hltSingleEle10CaloIdTrackIdVLDphiFilter', '', 'HLT'), #the last filter in the path hltSingleEle10CaloIdTrackIdVLOneOEMinusOneOPFilterRegional
+  TriggerFilterJet = cms.InputTag('hltCSVFilterSingleEle10', '', 'HLT'), #the last filter in the path
   PtThrJet = cms.untracked.double(40.0),
   EtaThrJet = cms.untracked.double(3.0)
 )
@@ -17,15 +17,15 @@ SUSY_HLT_Electron_BJet = cms.EDAnalyzer("SUSY_HLT_Electron_BJet",
 
 
 SUSY_HLT_Electron_BJet_FASTSIM = cms.EDAnalyzer("SUSY_HLT_Electron_BJet",
-  trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'TEST'), #to use with test sample
+  trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
   ElectronCollection = cms.InputTag("gedGsfElectrons"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
   caloJetCollection = cms.InputTag("ak4CaloJets"),
-  TriggerResults = cms.InputTag('TriggerResults','','TEST'), #to use with test sample
-  HLTProcess = cms.string('TEST'),
+  TriggerResults = cms.InputTag('TriggerResults','','HLT'), #to use with test sample
+  HLTProcess = cms.string('HLT'),
   TriggerPath = cms.string('HLT_Ele10_CaloId_TrackIdVL_CentralPFJet40_BTagCSV_v1'),
-  TriggerFilterEle = cms.InputTag('hltSingleEle10CaloIdTrackIdVLDphiFilter', '', 'TEST'), #the last filter in the path hltSingleEle10CaloIdTrackIdVLOneOEMinusOneOPFilterRegional
-  TriggerFilterJet = cms.InputTag('hltCSVFilterSingleEle10', '', 'TEST'), #the last filter in the path
+  TriggerFilterEle = cms.InputTag('hltSingleEle10CaloIdTrackIdVLDphiFilter', '', 'HLT'), #the last filter in the path hltSingleEle10CaloIdTrackIdVLOneOEMinusOneOPFilterRegional
+  TriggerFilterJet = cms.InputTag('hltCSVFilterSingleEle10', '', 'HLT'), #the last filter in the path
   PtThrJet = cms.untracked.double(40.0),
   EtaThrJet = cms.untracked.double(3.0)
 )

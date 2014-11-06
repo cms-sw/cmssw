@@ -1,38 +1,38 @@
 import FWCore.ParameterSet.Config as cms
 
 SUSY_HLT_HT_MuEle = cms.EDAnalyzer("SUSY_HLT_MuEle_Hadronic",
-  trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'TEST'), #to use with test sample
+  trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
   #trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   MuonCollection = cms.InputTag("muons"),
   ElectronCollection = cms.InputTag("gedGsfElectrons"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
   caloJetCollection = cms.InputTag("ak4CaloJets"),
-  TriggerResults = cms.InputTag('TriggerResults','','TEST'), #to use with test sample
-  #TriggerResults = cms.InputTag('TriggerResults','','TEST'),
-  HLTProcess = cms.string('TEST'),
+  TriggerResults = cms.InputTag('TriggerResults','','HLT'), #to use with test sample
+  #TriggerResults = cms.InputTag('TriggerResults','','HLT'),
+  HLTProcess = cms.string('HLT'),
   TriggerPath = cms.string('HLT_Mu8_Ele8_CaloIdL_TrkIdVL_Mass8_PFNoPUHT300_v1'),
   TriggerPathAuxiliaryForMuEle = cms.string('HLT_PFHT900_v1'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_Mu23_TrkIsoVVL_Ele12_Gsf_CaloId_TrackId_Iso_MediumWP_v1'),
-  TriggerFilter = cms.InputTag('HLTElectronMuonInvMassFilter', '', 'TEST'), #the last filter in the path 
+  TriggerFilter = cms.InputTag('HLTElectronMuonInvMassFilter', '', 'HLT'), #the last filter in the path 
   PtThrJet = cms.untracked.double(40.0),
   EtaThrJet = cms.untracked.double(3.0)
 )
 
 
 SUSY_HLT_HT_MuEle_FASTSIM = cms.EDAnalyzer("SUSY_HLT_MuEle_Hadronic",
-  trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'TEST'), #to use with test sample
+  trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
   #trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   MuonCollection = cms.InputTag("muons"),
   ElectronCollection = cms.InputTag("gedGsfElectrons"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
   caloJetCollection = cms.InputTag("ak4CaloJets"),
-  TriggerResults = cms.InputTag('TriggerResults','','TEST'), #to use with test sample
-  #TriggerResults = cms.InputTag('TriggerResults','','TEST'),
-  HLTProcess = cms.string('TEST'),
+  TriggerResults = cms.InputTag('TriggerResults','','HLT'), #to use with test sample
+  #TriggerResults = cms.InputTag('TriggerResults','','HLT'),
+  HLTProcess = cms.string('HLT'),
   TriggerPath = cms.string('HLT_Mu8_Ele8_CaloIdL_TrkIdVL_Mass8_PFNoPUHT300_v1'),
   TriggerPathAuxiliaryForMuEle = cms.string('HLT_PFHT900_v1'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_Mu23_TrkIsoVVL_Ele12_Gsf_CaloId_TrackId_Iso_MediumWP_v1'),
-  TriggerFilter = cms.InputTag('HLTElectronMuonInvMassFilter', '', 'TEST'), #the last filter in the path
+  TriggerFilter = cms.InputTag('HLTElectronMuonInvMassFilter', '', 'HLT'), #the last filter in the path
   PtThrJet = cms.untracked.double(40.0),
   EtaThrJet = cms.untracked.double(3.0)
 )

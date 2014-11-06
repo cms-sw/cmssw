@@ -1,20 +1,20 @@
 import FWCore.ParameterSet.Config as cms
 
 SUSY_HLT_MET_HT_MUON = cms.EDAnalyzer("SUSY_HLT_Muon_Hadronic",
-  trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLTX'), #to use with test sample
+  trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
   #trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   MuonCollection = cms.InputTag("muons"),
   pfMETCollection = cms.InputTag("pfMet"),
   caloMETCollection = cms.InputTag("met"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
   caloJetCollection = cms.InputTag("ak4CaloJets"),
-  TriggerResults = cms.InputTag('TriggerResults','','HLTX'), #to use with test sample
+  TriggerResults = cms.InputTag('TriggerResults','','HLT'), #to use with test sample
   #TriggerResults = cms.InputTag('TriggerResults','','HLT'),
-  HLTProcess = cms.string('HLTX'),
+  HLTProcess = cms.string('HLT'),
   TriggerPath = cms.string('HLT_Mu6_PFHT200_PFMET125_NoiseCleaned_v1'),
   TriggerPathAuxiliaryForMuon = cms.string('HLT_PFHT900_v1'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoMu24_eta2p1_IterTrk02_v1'),
-  TriggerFilter = cms.InputTag('hltMu6PFHT200PFMET125L3PreFiltered', '', 'HLTX'), #the last filter in the path
+  TriggerFilter = cms.InputTag('hltMu6PFHT200PFMET125L3PreFiltered', '', 'HLT'), #the last filter in the path
   ptMuonOffline = cms.untracked.double(8.0), 
   etaMuonOffline = cms.untracked.double(5.0), 
   HTOffline = cms.untracked.double(250.0),

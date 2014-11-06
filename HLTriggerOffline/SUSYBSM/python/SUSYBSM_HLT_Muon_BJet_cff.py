@@ -1,30 +1,30 @@
 import FWCore.ParameterSet.Config as cms
 
 SUSY_HLT_Muon_BJet = cms.EDAnalyzer("SUSY_HLT_Muon_BJet",
-  trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'TEST'), #to use with test sample
+  trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
   MuonCollection = cms.InputTag("muons"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
   caloJetCollection = cms.InputTag("ak4CaloJets"),
-  TriggerResults = cms.InputTag('TriggerResults','','TEST'), #to use with test sample
-  HLTProcess = cms.string('TEST'),
+  TriggerResults = cms.InputTag('TriggerResults','','HLT'), #to use with test sample
+  HLTProcess = cms.string('HLT'),
   TriggerPath = cms.string('HLT_Mu10_CentralPFJet40_BTagCSV_v1'),
-  TriggerFilterMuon = cms.InputTag('hltL3fL1sMu16L1f0L2f3QL3Filtered10Q', '','TEST'),
-  TriggerFilterJet = cms.InputTag('hltCSVFilterSingleMu10', '', 'TEST'), #the last filter in the path
+  TriggerFilterMuon = cms.InputTag('hltL3fL1sMu16L1f0L2f3QL3Filtered10Q', '','HLT'),
+  TriggerFilterJet = cms.InputTag('hltCSVFilterSingleMu10', '', 'HLT'), #the last filter in the path
   PtThrJet = cms.untracked.double(40.0),
   EtaThrJet = cms.untracked.double(3.0)
 )
 
 
 SUSY_HLT_Muon_BJet_FASTSIM = cms.EDAnalyzer("SUSY_HLT_Muon_BJet",
-  trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'TEST'), #to use with test sample
+  trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
   MuonCollection = cms.InputTag("muons"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
   caloJetCollection = cms.InputTag("ak4CaloJets"),
-  TriggerResults = cms.InputTag('TriggerResults','','TEST'), #to use with test sample
+  TriggerResults = cms.InputTag('TriggerResults','','HLT'), #to use with test sample
   HLTProcess = cms.string('HLT'),
   TriggerPath = cms.string('HLT_DoubleMu8_Mass8_PFHTT300_v1'),
- TriggerFilterMuon = cms.InputTag('hltL3fL1sMu16L1f0L2f3QL3Filtered10Q', '','TEST'),
-  TriggerFilterJet = cms.InputTag('hltCSVFilterSingleMu10', '', 'TEST'), #the last filter in the path
+ TriggerFilterMuon = cms.InputTag('hltL3fL1sMu16L1f0L2f3QL3Filtered10Q', '','HLT'),
+  TriggerFilterJet = cms.InputTag('hltCSVFilterSingleMu10', '', 'HLT'), #the last filter in the path
   PtThrJet = cms.untracked.double(40.0),
   EtaThrJet = cms.untracked.double(3.0)
 )
