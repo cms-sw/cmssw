@@ -85,7 +85,7 @@ def customise_Digi(process):
         if hasattr(process.mix.digitizers,'hcal') and hasattr(process.mix.digitizers.hcal,'hf2'):
             process.mix.digitizers.hcal.hf2.samplingFactor = cms.double(0.60)
         if hasattr(process.mix.digitizers,'pixel'):
-            process.mix.digitizers.pixel.theInstLumiScaleFactor = cms.double(261.9)
+            process.mix.digitizers.pixel.theInstLumiScaleFactor = cms.double(246.4)
             process.mix.digitizers.pixel.bunchScaleAt25 = cms.double(1.0)
             process.mix.digitizers.pixel.theLadderEfficiency_BPix1 = cms.vdouble(
                 0.979259,
