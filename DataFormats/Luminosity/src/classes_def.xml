@@ -10,6 +10,22 @@
   <class name="LumiDetails" ClassVersion="10">
    <version ClassVersion="10" checksum="3520498663"/>
   </class>
+  <class name="LumiInfoRunHeader"  ClassVersion="10">
+   <version ClassVersion="10" checksum="3459250671"/>
+  </class>
+  <class name="LumiInfo"  ClassVersion="10">
+   <version ClassVersion="10" checksum="4234044727"/>
+  </class>
+  <class name="BeamCurrentInfo" ClassVersion="10">
+   <version ClassVersion="10" checksum="706652033"/>
+   <field name="beam1IntensitiesUnpacked_" transient="true"/>
+   <field name="beam2IntensitiesUnpacked_" transient="true"/>
+   <field name="unpackedReady_" transient="true"/>
+  </class>
+  <ioread sourceClass="BeamCurrentInfo" version="[1-]" targetClass="BeamCurrentInfo" source="" target="unpackedReady_">
+  <![CDATA[ unpackedReady_=false;
+  ]]>
+  </ioread>
   <class name="LumiSummary::HLT" ClassVersion="11">
    <version ClassVersion="11" checksum="4065059464"/>
    <version ClassVersion="10" checksum="2862036727"/>
