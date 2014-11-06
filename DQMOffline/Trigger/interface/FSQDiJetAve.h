@@ -41,6 +41,9 @@
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "FWCore/Common/interface/TriggerNames.h"
+
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+
 //
 // class declaration
 //
@@ -71,6 +74,9 @@ class FSQDiJetAve : public edm::EDAnalyzer {
       bool m_isSetup;
       bool m_useGenWeight;
       DQMStore * m_dbe;
+      HLTConfigProvider m_hltConfig;
+
+
       std::string m_dirname;
       std::map<std::string,  MonitorElement*> m_me;
 
@@ -79,10 +85,9 @@ class FSQDiJetAve : public edm::EDAnalyzer {
       edm::EDGetTokenT <trigger::TriggerEvent> triggerSummaryToken;
       edm::EDGetTokenT <trigger::TriggerEvent> triggerSummaryFUToken;
 
-      std::string processname_;
       edm::TriggerNames triggerNames_; // TriggerNames class
       edm::Handle<edm::TriggerResults> triggerResults_;
-      edm::Handle<trigger::TriggerEvent> triggerObj_;
+      edm::Handle<trigger::TriggerEvent> m_trgEvent;
       edm::InputTag triggerSummaryLabel_;
       edm::InputTag triggerResultsLabel_;
 

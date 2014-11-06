@@ -45,11 +45,12 @@ using namespace std;
 
 namespace FSQ {
 
+/*
 struct HLTConfigDataContainer {
     HLTConfigProvider m_hltConfig;
     trigger::TriggerEvent m_trgEvent;
-
-};
+    float weight;
+};*/
 
 //################################################################################################
 //
@@ -61,13 +62,19 @@ class BaseHandler {
         BaseHandler();
         BaseHandler(const edm::ParameterSet& iConfig) {
               std::string pathPartialName  = iConfig.getParameter<std::string>("partialPathName");
-              std::string dirname = iConfig.getUntrackedParameter("mainDQMDirname",std::string("HLT/FSQ/"))+pathPartialName + "/";
+              m_dirname = iConfig.getUntrackedParameter("mainDQMDirname",std::string("HLT/FSQ/"))+pathPartialName + "/";
               m_dbe = Service < DQMStore > ().operator->();
-              m_dbe->setCurrentFolder(dirname);
+
         };
-        virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const HLTConfigDataContainer &hc) = 0;
+        virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, 
+                             const HLTConfigProvider&  hltConfig,
+                             const trigger::TriggerEvent& trgEvent,
+                             float weight) = 0;
+        virtual void beginRun() = 0;
 
         DQMStore * m_dbe;
+        std::string m_dirname;
+
         std::map<std::string,  MonitorElement*> m_histos;
 
         
@@ -90,6 +97,9 @@ class HLTHandler: public BaseHandler {
         StringCutObjectSelector<TCandidateType>  m_singleObjectSelection;
         StringCutObjectSelector<std::vector<TCandidateType> >  m_combinedObjectSelection;
         StringObjectFunction<std::vector<TCandidateType> >     m_combinedObjectSortFunction;
+        // TODO: auto ptr
+        std::map<std::string, StringObjectFunction<std::vector<TCandidateType> > * > m_plotters;
+
 
         std::vector< edm::ParameterSet > m_drawables;
         bool m_isSetup;
@@ -122,21 +132,28 @@ class HLTHandler: public BaseHandler {
 
         void beginRun(){
             if(!m_isSetup){
+                m_dbe->setCurrentFolder(m_dirname);
                 m_isSetup = true;
                 for (unsigned int i = 0; i < m_drawables.size(); ++i){
                     std::string histoName = m_dqmhistolabel + "_" +m_drawables.at(i).getParameter<std::string>("name");
-                    //std::string expression = m_drawables.at(i).getParameter<std::string>("expression");
+                    std::string expression = m_drawables.at(i).getParameter<std::string>("expression");
                     int bins =  m_drawables.at(i).getParameter<int>("bins");
                     double rangeLow  =  m_drawables.at(i).getParameter<double>("min");
                     double rangeHigh =  m_drawables.at(i).getParameter<double>("max");
 
                     m_histos[histoName] =  m_dbe->book1D(histoName, histoName, bins, rangeLow, rangeHigh);
+                    StringObjectFunction<std::vector<TCandidateType> > * func = new StringObjectFunction<std::vector<TCandidateType> >(expression);
+                    m_plotters[histoName] = func;
                 }   
             }
         }
 
 
-        void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const HLTConfigDataContainer &hc){
+        void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup,
+                     const HLTConfigProvider&  hltConfig,
+                     const trigger::TriggerEvent& trgEvent,
+                     float weight)
+        {
 
             // 1. Find matching path. Inside matchin path find matching filter
             std::string filterFullName = "";
@@ -144,13 +161,13 @@ class HLTHandler: public BaseHandler {
             //int pathIndex = -1;
             int numPathMatches = 0;
             int numFilterMatches = 0;
-            for (unsigned int i = 0; i < hc.m_hltConfig.size(); ++i) {
-                if (hc.m_hltConfig.triggerName(i).find(m_pathPartialName) == std::string::npos) continue;
+            for (unsigned int i = 0; i < hltConfig.size(); ++i) {
+                if (hltConfig.triggerName(i).find(m_pathPartialName) == std::string::npos) continue;
                 //pathIndex = i;
                 ++numPathMatches;
-                std::vector<std::string > moduleLabels = hc.m_hltConfig.moduleLabels(i);
+                std::vector<std::string > moduleLabels = hltConfig.moduleLabels(i);
                 for (unsigned int iMod = 0; iMod <moduleLabels.size(); ++iMod){
-                    if ("EDFilter" ==  hc.m_hltConfig.moduleEDMType(moduleLabels.at(iMod))) {
+                    if ("EDFilter" ==  hltConfig.moduleEDMType(moduleLabels.at(iMod))) {
                         filtersForThisPath.push_back(moduleLabels.at(iMod));
                         if ( moduleLabels.at(iMod).find(m_filterPartialName)!= std::string::npos  ){
                             filterFullName = moduleLabels.at(iMod);
@@ -162,27 +179,30 @@ class HLTHandler: public BaseHandler {
 
             // LogWarning or LogError?
             if (numPathMatches != 1) {
-                  edm::LogWarning("FSQDiJetAve") << "Problem: found " << numPathMatches
+                  edm::LogError("FSQDiJetAve") << "Problem: found " << numPathMatches
                     << " paths matching " << m_pathPartialName << std::endl;
+                  return;  
             }
             if (numFilterMatches != 1) {
-                  edm::LogWarning("FSQDiJetAve") << "Problem: found " << numFilterMatches
+                  edm::LogError("FSQDiJetAve") << "Problem: found " << numFilterMatches
                     << " filter matching " << m_filterPartialName
                     << " in path "<< m_pathPartialName << std::endl;
+                  return;
             }
 
             // 2. Fetch HLT objects saved by selected filter. Save those fullfilling preselection
             //      objects are saved in cands variable
-            std::string process = hc.m_trgEvent.usedProcessName();
+            std::string process = trgEvent.usedProcessName(); // broken?
             edm::InputTag hltTag(filterFullName ,"", process);
-            const int hltIndex = hc.m_trgEvent.filterIndex(hltTag);
-            if ( hltIndex >= hc.m_trgEvent.sizeFilters() ) {
-              edm::LogInfo("FSQDiJetAve") << "no index hlt"<< hltIndex << " of that name ";
+            
+            const int hltIndex = trgEvent.filterIndex(hltTag);
+            if ( hltIndex >= trgEvent.sizeFilters() ) {
+              edm::LogInfo("FSQDiJetAve") << "Cannot determine hlt index for |" << filterFullName << "|" << process;
               return;
             }
 
-            const trigger::TriggerObjectCollection & toc(hc.m_trgEvent.getObjects());
-            const trigger::Keys & khlt = hc.m_trgEvent.filterKeys(hltIndex);
+            const trigger::TriggerObjectCollection & toc(trgEvent.getObjects());
+            const trigger::Keys & khlt = trgEvent.filterKeys(hltIndex);
 
             std::vector<TCandidateType> cands;
             trigger::Keys::const_iterator kj = khlt.begin();
@@ -248,6 +268,7 @@ class HLTHandler: public BaseHandler {
                 }
 
                 // 3. Prepare next combination to test
+                //    note to future self: less error prone method with modulo
                 currentCombination.at(m_combinedObjectDimension-1)+=1; // increase last number
                 int carry = 0;
                 for (int i = m_combinedObjectDimension-1; i>=0; --i){  // iterate over all numbers, check if we are out of range
@@ -269,6 +290,18 @@ class HLTHandler: public BaseHandler {
                       bestCombinationFromCands.push_back( cands.at(bestCombination.at(i)));
             }
 
+            // plot 
+            //
+            //std::map<std::string, 
+            std::map<std::string,  MonitorElement*>::iterator it, itE;
+            it = m_histos.begin();
+            itE = m_histos.end();
+            for (;it!=itE;++it){
+                float val = (*m_plotters[it->first])(bestCombinationFromCands);
+                // TODO: weight
+                it->second->Fill(val);
+            }
+
 
         }
 
@@ -284,14 +317,8 @@ class HLTHandler: public BaseHandler {
 FSQDiJetAve::FSQDiJetAve(const edm::ParameterSet& iConfig):
   m_isSetup(false)
 {
-   //now do what ever initialization is needed
-  //m_dbe = Service < DQMStore > ().operator->();
-  //m_dirname = iConfig.getUntrackedParameter("dirname",std::string("HLT/FSQ/DiJETAve/"));
-  //m_dbe->setCurrentFolder(m_dirname);
-  m_useGenWeight = iConfig.getUntrackedParameter("useGenWeight", false);
+  m_useGenWeight = iConfig.getParameter<bool>("useGenWeight");
 
-
-  processname_         = iConfig.getParameter<std::string>("processname");
   triggerSummaryLabel_ = iConfig.getParameter<edm::InputTag>("triggerSummaryLabel");
   triggerResultsLabel_ = iConfig.getParameter<edm::InputTag>("triggerResultsLabel");
   triggerSummaryToken  = consumes <trigger::TriggerEvent> (triggerSummaryLabel_);
@@ -300,56 +327,34 @@ FSQDiJetAve::FSQDiJetAve(const edm::ParameterSet& iConfig):
   triggerSummaryFUToken= consumes <trigger::TriggerEvent> (edm::InputTag(triggerSummaryLabel_.label(),triggerSummaryLabel_.instance(),std::string("FU")));
   triggerResultsFUToken= consumes <edm::TriggerResults>   (edm::InputTag(triggerResultsLabel_.label(),triggerResultsLabel_.instance(),std::string("FU")));
 
-
-
-    std::vector< edm::ParameterSet > todo  = iConfig.getParameter<  std::vector< edm::ParameterSet > >("todo");
-    for (unsigned int i = 0; i < todo.size(); ++i) {
-
-            edm::ParameterSet pset = todo.at(i);
-            std::string type = pset.getParameter<std::string>("handlerType");
-            if (type == "FromHLT") {
-                m_handlers.push_back(new FSQ::HLTHandler(pset));
-            } else {
-                throw cms::Exception("FSQ DQM handler not know: "+ type);
-            }
-    }
+  std::vector< edm::ParameterSet > todo  = iConfig.getParameter<  std::vector< edm::ParameterSet > >("todo");
+  for (unsigned int i = 0; i < todo.size(); ++i) {
+        edm::ParameterSet pset = todo.at(i);
+        std::string type = pset.getParameter<std::string>("handlerType");
+        if (type == "FromHLT") {
+            m_handlers.push_back(new FSQ::HLTHandler(pset));
+        } else {
+            throw cms::Exception("FSQ DQM handler not know: "+ type);
+        }
+  }
 
 }
 
 
 FSQDiJetAve::~FSQDiJetAve()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
+{}
 
-}
-
-
-//
-// member functions
-//
-
-// ------------ method called for each event  ------------
 void
 FSQDiJetAve::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
-   static int cnt = 0;
-   cnt += 1;
-   float w = 1./float(cnt);
-
-    std::cout << w << std::endl;
-    m_me["test"]->Fill(cnt, w);
-
 
   //---------- triggerResults ----------
   iEvent.getByToken(triggerResultsToken, triggerResults_);
   if(!triggerResults_.isValid()) {
     iEvent.getByToken(triggerResultsFUToken,triggerResults_);
     if(!triggerResults_.isValid()) {
-      edm::LogInfo("FSQDiJetAve") << "TriggerResults not found, "
-	"skipping event";
+      edm::LogInfo("FSQDiJetAve") << "TriggerResults not found, skipping event";
       return;
     }
   }
@@ -367,17 +372,20 @@ FSQDiJetAve::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   } 
   
   //---------- triggerSummary ----------
-  iEvent.getByToken(triggerSummaryToken,triggerObj_);
-  if(!triggerObj_.isValid()) {
-    iEvent.getByToken(triggerSummaryFUToken,triggerObj_);
-    if(!triggerObj_.isValid()) {
+  iEvent.getByToken(triggerSummaryToken, m_trgEvent);
+  if(!m_trgEvent.isValid()) {
+    iEvent.getByToken(triggerSummaryFUToken, m_trgEvent);
+    if(!m_trgEvent.isValid()) {
       edm::LogInfo("FSQDiJetAve") << "TriggerEvent not found, ";
       return;
     }
   } 
   
 
-
+  float weight = 1.;  
+  for (unsigned int i = 0; i < m_handlers.size(); ++i) {
+        m_handlers.at(i)->analyze(iEvent, iSetup, m_hltConfig, *m_trgEvent.product(), weight);
+  }
 
 
 
@@ -399,13 +407,19 @@ FSQDiJetAve::endJob()
 // ------------ method called when starting to processes a run  ------------
 //*
 void 
-FSQDiJetAve::beginRun(edm::Run const&, edm::EventSetup const&)
+FSQDiJetAve::beginRun(edm::Run const& run, edm::EventSetup const& c)
 {
 
-    if (!m_isSetup){
-      m_me["test"]= m_dbe->book1D("test", "test", 100, 0, 100);
-      m_isSetup = true;
+    bool changed(true);
+    if (m_hltConfig.init(run, c, "TTT", changed)) {
+        LogDebug("FSQDiJetAve") << "HLTConfigProvider failed to initialize.";
     }
+
+
+    for (unsigned int i = 0; i < m_handlers.size(); ++i) {
+        m_handlers.at(i)->beginRun();
+    }
+
 
 }
 //*/
