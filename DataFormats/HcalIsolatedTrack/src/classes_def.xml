@@ -2,8 +2,9 @@
 
   <class name="edm::Wrapper<std::map <int,std::pair<double,double> > >"/> 
 
-  <class name="reco::IsolatedPixelTrackCandidate" ClassVersion="10">
+ <class name="reco::IsolatedPixelTrackCandidate" ClassVersion="11">
    <version ClassVersion="10" checksum="3865088611"/>
+   <version ClassVersion="11" checksum="264617237"/>
   </class>
   <class name="reco::IsolatedPixelTrackCandidateCollection"/>
   <class name="reco::IsolatedPixelTrackCandidateRef"/>
@@ -17,10 +18,10 @@
   <class name="reco::EcalIsolatedParticleCandidate" ClassVersion="11">
    <version ClassVersion="10" checksum="4174683084"/>
    <version ClassVersion="11" checksum="928263435"/>
-   <ioread sourceClass="reco::EcalIsolatedParticleCandidate" version="[1-10]" targetClass="reco::LeafParticle" source="double eta_" target="float eta_">
+   <ioread sourceClass="reco::EcalIsolatedParticleCandidate" version="[1-11]" targetClass="reco::LeafParticle" source="double eta_" target="float eta_">
    <![CDATA[eta_ = onfile.eta_;]]>
    </ioread>  
-   <ioread sourceClass="reco::EcalIsolatedParticleCandidate" version="[1-10]" targetClass="reco::LeafParticle" source="double phi_" target="float phi_">
+   <ioread sourceClass="reco::EcalIsolatedParticleCandidate" version="[1-11]" targetClass="reco::LeafParticle" source="double phi_" target="float phi_">
    <![CDATA[phi_ = onfile.phi_;]]>
    </ioread>   
   </class>
