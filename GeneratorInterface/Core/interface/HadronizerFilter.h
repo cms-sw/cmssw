@@ -156,6 +156,8 @@ namespace edm
     produces<GenEventInfoProduct>();
     produces<GenLumiInfoProduct, edm::InLumi>();
     produces<GenRunInfoProduct, edm::InRun>();
+    if(filter_)
+      produces<GenFilterInfo, edm::InLumi>(); 
   }
 
   template <class HAD, class DEC>
@@ -406,6 +408,23 @@ namespace edm
     genLumiInfo->setProcessInfo( GenLumiProcess );
     lumi.put(genLumiInfo);
 
+
+    // produce GenFilterInfo if HepMCFilter is called
+    if (filter_) {
+
+      std::auto_ptr<GenFilterInfo> thisProduct(new GenFilterInfo(
+								 filter_->numEventsPassPos(),
+								 filter_->numEventsPassNeg(),
+								 filter_->numEventsTotalPos(),
+								 filter_->numEventsTotalNeg(),
+								 filter_->sumpass_w(),
+								 filter_->sumpass_w2(),
+								 filter_->sumtotal_w(),
+								 filter_->sumtotal_w2()
+								 ));
+      lumi.put(thisProduct);
+    }
+      
 
   }
 

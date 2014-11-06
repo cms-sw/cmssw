@@ -5,10 +5,14 @@
 
 HepMCFilterDriver::HepMCFilterDriver(const edm::ParameterSet& pset) :
   filter_(0),
-  ntried_(0),
-  naccepted_(0),
-  weighttried_(0.),
-  weightaccepted_(0.)
+  numEventsPassPos_(0),
+  numEventsPassNeg_(0),
+  numEventsTotalPos_(0),
+  numEventsTotalNeg_(0),
+  sumpass_w_(0.),
+  sumpass_w2_(0.),
+  sumtotal_w_(0.),
+  sumtotal_w2_(0.)
 {
     
   std::string filterName = pset.getParameter<std::string>("filterName");
@@ -31,14 +35,26 @@ HepMCFilterDriver::~HepMCFilterDriver()
 
 bool HepMCFilterDriver::filter(const HepMC::GenEvent* evt, double weight)
 { 
-  ++ntried_;
-  weighttried_ += weight;
+  if(weight>0)
+    numEventsTotalPos_++;
+  else
+    numEventsTotalNeg_++;
+
+  sumtotal_w_ += weight;
+  sumtotal_w2_ += weight*weight;
+
   
   bool accepted = filter_->filter(evt);
   
   if (accepted) {
-    ++naccepted_;
-    weightaccepted_ += weight;
+
+    if(weight>0)
+      numEventsPassPos_++;
+    else
+      numEventsPassNeg_++;
+    sumpass_w_   += weight;
+    sumpass_w2_ += weight*weight;
+
   }
   
   return accepted;
@@ -47,16 +63,23 @@ bool HepMCFilterDriver::filter(const HepMC::GenEvent* evt, double weight)
 void HepMCFilterDriver::statistics() const
 { 
 
+  unsigned int ntried_    = numEventsTotalPos_ + numEventsTotalNeg_;
+  unsigned int naccepted_ = numEventsPassPos_ + numEventsPassNeg_;
   printf("ntried = %i, naccepted = %i, efficiency = %5f\n",ntried_,naccepted_,(double)naccepted_/(double)ntried_);
-  printf("weighttried = %5f, weightaccepted = %5f, efficiency = %5f\n",weighttried_,weightaccepted_,weightaccepted_/weighttried_);
+  printf("weighttried = %5f, weightaccepted = %5f, efficiency = %5f\n",sumtotal_w_,sumpass_w_,sumpass_w_/sumtotal_w_);
   
 }
 
+
 void HepMCFilterDriver::resetStatistics() {
  
-  ntried_ = 0;
-  naccepted_ = 0;
-  weighttried_ = 0.;
-  weightaccepted_ = 0.;
+  numEventsPassPos_  = 0;
+  numEventsPassNeg_  = 0;
+  numEventsTotalPos_ = 0;
+  numEventsTotalNeg_ = 0;
+  sumpass_w_         = 0;
+  sumpass_w2_        = 0;
+  sumtotal_w_        = 0;
+  sumtotal_w2_       = 0;
   
 }
