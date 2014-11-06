@@ -98,8 +98,10 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	edm::Handle< std::vector< TrackingParticle > > TrackingParticleHandle;
 	iEvent.getByLabel( "mix", "MergedTrackTruth", TrackingParticleHandle );
 	/// Track Trigger
-	edm::Handle< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > > > PixelDigiTTClusterHandle;	// same for stubs
+	edm::Handle< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > > > PixelDigiTTClusterHandle;
 	iEvent.getByLabel( "TTClustersFromPixelDigis", "ClusterInclusive", PixelDigiTTClusterHandle );
+	edm::Handle< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > >    PixelDigiTTStubHandle;
+	iEvent.getByLabel( "TTStubsFromPixelDigis", "StubAccepted",        PixelDigiTTStubHandle );
 	/// Track Trigger MC Truth
 	edm::Handle< TTClusterAssociationMap< Ref_PixelDigi_ > > MCTruthTTClusterHandle;
 	iEvent.getByLabel( "TTClusterAssociatorFromPixelDigis", "ClusterInclusive", MCTruthTTClusterHandle );
@@ -287,9 +289,37 @@ OuterTrackerMCTruth::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 			
 		}
 	} /// End of Loop over TTClusters
-
 	
 	
+	/// Loop over the input Stubs
+	typename edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >::const_iterator otherInputIter;
+	typename edmNew::DetSet< TTStub< Ref_PixelDigi_ > >::const_iterator otherContentIter;
+	for ( otherInputIter = PixelDigiTTStubHandle->begin();
+			 otherInputIter != PixelDigiTTStubHandle->end();
+			 ++otherInputIter )
+	{
+		for ( otherContentIter = otherInputIter->begin();
+				 otherContentIter != otherInputIter->end();
+				 ++otherContentIter )
+		{
+			/// Make the reference to be put in the map
+			edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > tempStubRef = edmNew::makeRefTo( PixelDigiTTStubHandle, otherContentIter );
+			
+			//StackedTrackerDetId detIdStub( tempStubRef->getDetId() );
+			
+			bool genuineStub    = MCTruthTTStubHandle->isGenuine( tempStubRef );
+			//bool combinStub     = MCTruthTTStubHandle->isCombinatoric( tempStubRef );
+			//bool unknownStub    = MCTruthTTStubHandle->isUnknown( tempStubRef );
+			int partStub         = 999999999;
+			if ( genuineStub )
+			{
+				edm::Ptr< TrackingParticle > thisTP = MCTruthTTStubHandle->findTrackingParticlePtr( tempStubRef );
+				partStub = thisTP->pdgId();
+			}
+			
+			Stub_PID->Fill( partStub );
+		}
+	} /// End of loop over TTStubs
 	
 }
 
