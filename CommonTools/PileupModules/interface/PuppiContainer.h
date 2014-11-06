@@ -8,9 +8,32 @@
 
 //FASTJET_BEGIN_NAMESPACE      // defined in fastjet/internal/base.hh
 
+
 //......................
 class PuppiContainer{
 public:
+  
+
+  // Helper class designed to store Puppi information inside of fastjet pseudojets.
+  // In CMSSW we use the user_index to refer to the index of the input collection, 
+  // but Puppi uses it to decide between NHs, PV CHs, and PU CHs. Instead,
+  // make that a register. 
+  class PuppiUserInfo : public fastjet::PseudoJet::UserInfoBase {
+   public : 
+     PuppiUserInfo( int puppi_register = -1) : puppi_register_(puppi_register) {}
+     virtual ~PuppiUserInfo(){}
+  
+     void set_puppi_register(int i) { puppi_register_ = i; }
+  
+     inline int puppi_register() const { return puppi_register_; }
+  
+   protected : 
+     int puppi_register_;     /// Used by puppi algorithm to decide neutrals vs PV vs PU
+  };
+
+
+
+
     PuppiContainer(const edm::ParameterSet &iConfig);
     ~PuppiContainer(); 
     void initialize(const std::vector<RecoObj> &iRecoObjects);
