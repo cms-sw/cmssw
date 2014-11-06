@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <iostream>
 #include <algorithm>
+#include <netdb.h>
 
 #include "XrdCl/XrdClFile.hh"
 #include "XrdCl/XrdClDefaultEnv.hh"
@@ -110,10 +111,21 @@ RequestManager::RequestManager(const std::string &filename, XrdCl::OpenFlags::Fl
       m_flags(flags),
       m_perms(perms),
       m_distribution(0,100),
-      m_open_handler(*this)
+      m_open_handler(new OpenHandler(*this))
 {
   XrdCl::Env *env = XrdCl::DefaultEnv::GetEnv();
   if (env) {env->GetInt("StreamErrorWindow", m_timeout);}
+
+  std::string orig_site;
+  if (!Source::getXrootdSiteFromURL(m_name, orig_site) && (orig_site.find(".") == std::string::npos))
+  {
+    struct hostent *host_info = gethostbyname(orig_site.c_str());
+    if (host_info)
+    {
+        std::string host = host_info->h_name;
+        Source::getDomain(host, orig_site);
+    }
+  }
 
   std::unique_ptr<XrdCl::File> file;
   edm::Exception ex(edm::errors::FileOpenError);
@@ -181,11 +193,48 @@ RequestManager::RequestManager(const std::string &filename, XrdCl::OpenFlags::Fl
   {
     std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);
     m_activeSources.push_back(source);
+    updateSiteInfo(orig_site);
   }
 
   m_lastSourceCheck = ts;
   ts.tv_sec += XRD_ADAPTOR_SHORT_OPEN_DELAY;
   m_nextActiveSourceCheck = ts;
+}
+
+
+RequestManager::~RequestManager()
+{
+  // This will cause the open handler to delete itself once
+  // the final open comes through.
+  if (m_open_handler)
+  {
+    // Note that this is invalid:
+    //   m_open_handler->GiftSelf(std::move(m_open_handler));
+    // in gcc 4.8, the std::move is evaluated first, meaning
+    // m_open_handler->GiftSelf is a null-pointer dereference.
+    OpenHandler *handler = m_open_handler.get();
+    handler->GiftSelf(std::move(m_open_handler));
+  }
+}
+
+void
+RequestManager::updateSiteInfo(std::string orig_site)
+{
+  std::string siteA, siteB, siteList;
+  if (m_activeSources.size()) {siteA = m_activeSources[0]->Site();}
+  if (m_activeSources.size() == 2) {siteB = m_activeSources[1]->Site();}
+  siteList = siteA;
+  if (siteB.size() && (siteB != siteA)) {siteList = siteA + ", " + siteB;}
+  if (orig_site.size() && (orig_site != siteList))
+  {
+    edm::LogWarning("XrdAdaptor") << "Data is served from " << siteList << " instead of original site " << orig_site;
+    m_activeSites = siteList;
+  }
+  else if (!orig_site.size() && (siteList != m_activeSites))
+  {
+    edm::LogWarning("XrdAdaptor") << "Data is now served from " << siteList << " instead of previous " << m_activeSites;
+    m_activeSites = siteList;
+  }
 }
 
 
@@ -213,12 +262,13 @@ RequestManager::compareSources(const timespec &now, unsigned a, unsigned b)
      ((m_activeSources[a]->getQuality() > 260) && (m_activeSources[b]->getQuality()*4 < m_activeSources[a]->getQuality())))
   {
     edm::LogVerbatim("XrdAdaptorInternal") << "Removing "
-          << m_activeSources[a]->ID() << " from active sources due to poor quality ("
+          << m_activeSources[a]->PrettyID() << " from active sources due to poor quality ("
           << m_activeSources[a]->getQuality() << " vs " << m_activeSources[b]->getQuality() << ")" << std::endl;
     if (m_activeSources[a]->getLastDowngrade().tv_sec != 0) {findNewSource = true;}
     m_activeSources[a]->setLastDowngrade(now);
     m_inactiveSources.emplace_back(m_activeSources[a]);
     m_activeSources.erase(m_activeSources.begin()+a);
+    updateSiteInfo();
   }
   return findNewSource;
 }
@@ -251,26 +301,30 @@ RequestManager::checkSourcesImpl(timespec &now, IOSize requestSize)
     std::vector<std::shared_ptr<Source> >::iterator worstActiveSource = std::max_element(m_activeSources.begin(), m_activeSources.end(),
         [](const std::shared_ptr<Source> &s1, const std::shared_ptr<Source> &s2) {return s1->getQuality() < s2->getQuality();});
     if (bestInactiveSource != eligibleInactiveSources.end() && bestInactiveSource->get())
-    edm::LogVerbatim("XrdAdaptorInternal") << "Best inactive source: " <<(*bestInactiveSource)->ID()
+    {
+      edm::LogVerbatim("XrdAdaptorInternal") << "Best inactive source: " <<(*bestInactiveSource)->PrettyID()
             << ", quality " << (*bestInactiveSource)->getQuality();
-    edm::LogVerbatim("XrdAdaptorInternal") << "Worst active source: " <<(*worstActiveSource)->ID() 
+    }
+    edm::LogVerbatim("XrdAdaptorInternal") << "Worst active source: " <<(*worstActiveSource)->PrettyID() 
         << ", quality " << (*worstActiveSource)->getQuality();
     if ((bestInactiveSource != eligibleInactiveSources.end()) && m_activeSources.size() == 1)
     {
         m_activeSources.push_back(*bestInactiveSource);
+        updateSiteInfo();
         for (auto it = m_inactiveSources.begin(); it != m_inactiveSources.end(); it++) if (it->get() == bestInactiveSource->get()) {m_inactiveSources.erase(it); break;}
     }
     else while ((bestInactiveSource != eligibleInactiveSources.end()) && (*worstActiveSource)->getQuality() > (*bestInactiveSource)->getQuality()+XRD_ADAPTOR_SOURCE_QUALITY_FUDGE)
     {
-        edm::LogVerbatim("XrdAdaptorInternal") << "Removing " << (*worstActiveSource)->ID()
+        edm::LogVerbatim("XrdAdaptorInternal") << "Removing " << (*worstActiveSource)->PrettyID()
             << " from active sources due to quality (" << (*worstActiveSource)->getQuality()
-            << ") and promoting " << (*bestInactiveSource)->ID() << " (quality: "
+            << ") and promoting " << (*bestInactiveSource)->PrettyID() << " (quality: "
             << (*bestInactiveSource)->getQuality() << ")" << std::endl;
         (*worstActiveSource)->setLastDowngrade(now);
         for (auto it = m_inactiveSources.begin(); it != m_inactiveSources.end(); it++) if (it->get() == bestInactiveSource->get()) {m_inactiveSources.erase(it); break;}
         m_inactiveSources.emplace_back(std::move(*worstActiveSource));
         m_activeSources.erase(worstActiveSource);
         m_activeSources.emplace_back(std::move(*bestInactiveSource));
+        updateSiteInfo();
         eligibleInactiveSources.clear();
         for (const auto & source : m_inactiveSources) if (timeDiffMS(now, source->getLastDowngrade()) > (XRD_ADAPTOR_LONG_OPEN_DELAY-1)*1000) eligibleInactiveSources.push_back(source);
         bestInactiveSource = std::min_element(eligibleInactiveSources.begin(), eligibleInactiveSources.end(),
@@ -289,7 +343,7 @@ RequestManager::checkSourcesImpl(timespec &now, IOSize requestSize)
   }
   if (findNewSource)
   {
-    m_open_handler.open();
+    m_open_handler->open();
     m_lastSourceCheck = now;
   }
 
@@ -323,6 +377,16 @@ RequestManager::getActiveSourceNames(std::vector<std::string> & sources)
 }
 
 void
+RequestManager::getPrettyActiveSourceNames(std::vector<std::string> & sources)
+{
+  std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);
+  sources.reserve(m_activeSources.size());
+  for (auto const& source : m_activeSources) {
+    sources.push_back(source->PrettyID());
+  }
+}
+
+void
 RequestManager::getDisabledSourceNames(std::vector<std::string> & sources)
 {
   std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);
@@ -336,7 +400,7 @@ void
 RequestManager::addConnections(cms::Exception &ex)
 {
   std::vector<std::string> sources;
-  getActiveSourceNames(sources);
+  getPrettyActiveSourceNames(sources);
   for (auto const& source : sources)
   {
     ex.addAdditionalInfo("Active source: " + source);
@@ -425,12 +489,12 @@ XrdAdaptor::RequestManager::handleOpen(XrdCl::XRootDStatus &status, std::shared_
     std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);
     if (status.IsOK())
     {
-        edm::LogVerbatim("XrdAdaptorInternal") << "Successfully opened new source: " << source->ID() << std::endl;
+        edm::LogVerbatim("XrdAdaptorInternal") << "Successfully opened new source: " << source->PrettyID() << std::endl;
         for (const auto & s : m_activeSources)
         {
             if (source->ID() == s->ID())
             {
-                edm::LogVerbatim("XrdAdaptorInternal") << "Xrootd server returned excluded source " << source->ID()
+                edm::LogVerbatim("XrdAdaptorInternal") << "Xrootd server returned excluded source " << source->PrettyID()
                     << "; ignoring" << std::endl;
                 m_nextActiveSourceCheck.tv_sec += XRD_ADAPTOR_LONG_OPEN_DELAY - XRD_ADAPTOR_SHORT_OPEN_DELAY;
                 return;
@@ -440,7 +504,7 @@ XrdAdaptor::RequestManager::handleOpen(XrdCl::XRootDStatus &status, std::shared_
         {
             if (source->ID() == s->ID())
             {
-                edm::LogVerbatim("XrdAdaptorInternal") << "Xrootd server returned excluded inactive source " << source->ID() 
+                edm::LogVerbatim("XrdAdaptorInternal") << "Xrootd server returned excluded inactive source " << source->PrettyID() 
                     << "; ignoring" << std::endl;
                 m_nextActiveSourceCheck.tv_sec += XRD_ADAPTOR_LONG_OPEN_DELAY - XRD_ADAPTOR_SHORT_OPEN_DELAY;
                 return;
@@ -449,6 +513,7 @@ XrdAdaptor::RequestManager::handleOpen(XrdCl::XRootDStatus &status, std::shared_
         if (m_activeSources.size() < 2)
         {
             m_activeSources.push_back(source);
+            updateSiteInfo();
         }
         else
         {
@@ -540,18 +605,18 @@ RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr,
     // Fail early for invalid responses - XrdFile has a separate path for handling this.
     if (c_status.code == XrdCl::errInvalidResponse)
     {
-        edm::LogWarning("XrdAdaptorInternal") << "Invalid response when reading from " << source_ptr->ID();
+        edm::LogWarning("XrdAdaptorInternal") << "Invalid response when reading from " << source_ptr->PrettyID();
         XrootdException ex(c_status, edm::errors::FileReadError);
         ex << "XrdAdaptor::RequestManager::requestFailure readv(name='" << m_name
                << "', flags=0x" << std::hex << m_flags
                << ", permissions=0" << std::oct << m_perms << std::dec
-               << ", old source=" << source_ptr->ID()
+               << ", old source=" << source_ptr->PrettyID()
                << ") => Invalid ReadV response from server";
         ex.addContext("In XrdAdaptor::RequestManager::requestFailure()");
         addConnections(ex);
         throw ex;
     }
-    edm::LogWarning("XrdAdaptorInternal") << "Request failure when reading from " << source_ptr->ID();
+    edm::LogWarning("XrdAdaptorInternal") << "Request failure when reading from " << source_ptr->PrettyID();
 
     // Note that we do not delete the Source itself.  That is because this
     // function may be called from within XrdCl::ResponseHandler::HandleResponseWithHosts
@@ -562,15 +627,17 @@ RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr,
     if ((m_activeSources.size() > 0) && (m_activeSources[0].get() == source_ptr.get()))
     {
         m_activeSources.erase(m_activeSources.begin());
+        updateSiteInfo();
     }
     else if ((m_activeSources.size() > 1) && (m_activeSources[1].get() == source_ptr.get()))
     {
         m_activeSources.erase(m_activeSources.begin()+1);
+        updateSiteInfo();
     }
     std::shared_ptr<Source> new_source;
     if (m_activeSources.size() == 0)
     {
-        std::shared_future<std::shared_ptr<Source> > future = m_open_handler.open();
+        std::shared_future<std::shared_ptr<Source> > future = m_open_handler->open();
         timespec now;
         GET_CLOCK_MONOTONIC(now);
         m_lastSourceCheck = now;
@@ -585,8 +652,8 @@ RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr,
             ex << "XrdAdaptor::RequestManager::requestFailure Open(name='" << m_name
                << "', flags=0x" << std::hex << m_flags
                << ", permissions=0" << std::oct << m_perms << std::dec
-               << ", old source=" << source_ptr->ID()
-               << ", current server=" << m_open_handler.current_source()
+               << ", old source=" << source_ptr->PrettyID()
+               << ", current server=" << m_open_handler->current_source()
                << ") => timeout when waiting for file open";
             ex.addContext("In XrdAdaptor::RequestManager::requestFailure()");
             addConnections(ex);
@@ -601,7 +668,7 @@ RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr,
             catch (edm::Exception &ex)
             {
                 ex.addContext("Handling XrdAdaptor::RequestManager::requestFailure()");
-                ex.addAdditionalInfo("Original failed source is " + source_ptr->ID());
+                ex.addAdditionalInfo("Original failed source is " + source_ptr->PrettyID());
                 throw;
             }
         }
@@ -614,13 +681,14 @@ RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr,
             ex << "XrdAdaptor::RequestManager::requestFailure Open(name='" << m_name
                << "', flags=0x" << std::hex << m_flags
                << ", permissions=0" << std::oct << m_perms << std::dec
-               << ", old source=" << source_ptr->ID()
-               << ", new source=" << new_source->ID() << ") => Xrootd server returned an excluded source";
+               << ", old source=" << source_ptr->PrettyID()
+               << ", new source=" << new_source->PrettyID() << ") => Xrootd server returned an excluded source";
             ex.addContext("In XrdAdaptor::RequestManager::requestFailure()");
             addConnections(ex);
             throw ex;
         }
         m_activeSources.push_back(new_source);
+        updateSiteInfo();
     }
     else
     {
@@ -783,17 +851,21 @@ XrdAdaptor::RequestManager::OpenHandler::OpenHandler(RequestManager & manager)
 
 XrdAdaptor::RequestManager::OpenHandler::~OpenHandler()
 {
+}
+
+
+void
+XrdAdaptor::RequestManager::OpenHandler::GiftSelf(std::unique_ptr<OpenHandler> me)
+{
+    std::shared_ptr<OpenHandler> myself(std::move(me));
+    m_self = myself;
     m_ignore_response.test_and_set();
-    // Make sure there are no outstanding requests that may try to callback to us.
-    if (m_shared_future.valid())
+    // The test and set indicates to the open handler it should throw away the results.  However,
+    // if the open handler fired between the time we set m_self and m_ignore_response, we must
+    // make sure to delete ourself.
+    if (!m_shared_future.valid() || (m_shared_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready))
     {
-        // Note that we wait for a maximum amount of time - this is as an extra
-        // safety net against issues in the XrdCl callback.
-        if (m_shared_future.wait_for(std::chrono::seconds(0)) != std::future_status::ready)
-        {
-          edm::LogWarning("XrdAdaptorInternal") << "Waiting until all opens are completed before destroying object." << std::endl;
-        }
-        m_shared_future.wait_for(std::chrono::seconds(m_manager.m_timeout+10));
+        m_self.reset();
     }
 }
 
@@ -811,6 +883,7 @@ XrdAdaptor::RequestManager::OpenHandler::HandleResponseWithHosts(XrdCl::XRootDSt
         {
             delete hostList;
         }
+        m_self.reset();
         return;
     }
     m_ignore_response.clear();

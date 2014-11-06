@@ -47,7 +47,7 @@ public:
 
     RequestManager(const std::string & filename, XrdCl::OpenFlags::Flags flags, XrdCl::Access::Mode perms);
 
-    ~RequestManager() = default;
+    ~RequestManager();
 
     /**
      * Interface for handling a client request.
@@ -78,6 +78,7 @@ public:
      * (primarily meant to enable meaningful log messages).
      */
     void getActiveSourceNames(std::vector<std::string> & sources);
+    void getPrettyActiveSourceNames(std::vector<std::string> & sources);
 
     /**
      * Retrieve the names of the disabled sources
@@ -138,6 +139,12 @@ private:
     bool compareSources(const timespec &now, unsigned a, unsigned b);
 
     /**
+     * Anytime we potentially switch sources, update the internal site source list;
+     * alert the user if necessary.
+     */
+    void updateSiteInfo(std::string orig_site="");
+
+    /**
      * Picks a single source for the next operation.
      */
     std::shared_ptr<Source> pickSingleSource();
@@ -156,6 +163,7 @@ private:
     std::vector<std::shared_ptr<Source> > m_inactiveSources;
     std::set<std::string> m_disabledSourceStrings;
     std::set<std::shared_ptr<Source> > m_disabledSources;
+    std::string m_activeSites;
 
     timespec m_lastSourceCheck;
     int m_timeout;
@@ -196,6 +204,16 @@ private:
          */
         std::string current_source();
 
+        /**
+         * Turn lifetime management of the open handler to itself.
+         * The post conditions are one of the following:
+         *   - The OpenHandler deletes itself, OR
+         *   - The OpenHandler will delete itself when the callback fires.
+         * In the latter case, the OpenHandler will not attempt to call
+         * back to the RequestManager - it is assumed to have already been deleted.
+         */
+        void GiftSelf(std::unique_ptr<OpenHandler> me);
+
     private:
         RequestManager & m_manager;
         std::shared_future<std::shared_ptr<Source> > m_shared_future;
@@ -205,9 +223,11 @@ private:
         std::unique_ptr<XrdCl::File> m_file;
         std::recursive_mutex m_mutex;
         std::atomic_flag m_ignore_response;
+
+        std::shared_ptr<OpenHandler> m_self;
     };
 
-    OpenHandler m_open_handler;
+    std::unique_ptr<OpenHandler> m_open_handler;
 };
 
 }

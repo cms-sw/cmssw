@@ -33,7 +33,7 @@ public:
     XrdCl::Env *env = XrdCl::DefaultEnv::GetEnv();
     if (env)
     {
-      env->PutString("NetworkStack", "IPAll");
+      env->PutString("NetworkStack", "IPAuto");
     }
     setTimeout(XRD_DEFAULT_TIMEOUT);
   }
