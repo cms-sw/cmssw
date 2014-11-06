@@ -49,6 +49,7 @@ public:
     typedef std::vector<FileData>::const_iterator const_iterator;
     
     MP7FileReader( const std::string& path );
+
     virtual ~MP7FileReader();
     
     /// reader status. valid() == 1 indicates that data was successfully read from file

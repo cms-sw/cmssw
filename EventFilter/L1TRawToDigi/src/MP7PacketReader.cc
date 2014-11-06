@@ -11,6 +11,17 @@ MP7PacketReader::MP7PacketReader(const std::string& path, uint32_t striphdr, uin
     load();
 }
 
+//MP7PacketReader::MP7PacketReader(MP7FileReader rdr,
+//				 uint32_t striphdr,
+//				 uint32_t stripftr) :
+//  reader_( rdr ),
+//  header_(striphdr),
+//  footer_(stripftr) 
+//{    
+//  if ( !reader_.valid() ) return;
+//  load();
+//}
+
 MP7PacketReader::~MP7PacketReader() {
 }
 
