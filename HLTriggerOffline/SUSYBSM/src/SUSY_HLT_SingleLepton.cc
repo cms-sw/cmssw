@@ -135,26 +135,26 @@ SUSY_HLT_SingleLepton::SUSY_HLT_SingleLepton(const edm::ParameterSet &ps):
   theHLTJetTagCollectionTag_(ps.getParameter<edm::InputTag>("hltJetTags")),
   theHLTJetTagCollection_(consumes<reco::JetTagCollection>(theHLTJetTagCollectionTag_)),
 
-  theTriggerResultsTag_(ps.getParameter<edm::InputTag>("TriggerResults")),
+  theTriggerResultsTag_(ps.getParameter<edm::InputTag>("triggerResults")),
   theTriggerResults_(consumes<edm::TriggerResults>(theTriggerResultsTag_)),
   theTrigSummaryTag_(ps.getParameter<edm::InputTag>("trigSummary")),
   theTrigSummary_(consumes<trigger::TriggerEvent>(theTrigSummaryTag_)),
 
   fHltConfig_(),
 
-  HLTProcess_(ps.getParameter<std::string>("HLTProcess")),
+  HLTProcess_(ps.getParameter<std::string>("hltProcess")),
 
-  triggerPath_(ps.getParameter<std::string>("TriggerPath")),
-  triggerPathAuxiliary_(ps.getParameter<std::string>("TriggerPathAuxiliary")),
+  triggerPath_(ps.getParameter<std::string>("triggerPath")),
+  triggerPathAuxiliary_(ps.getParameter<std::string>("triggerPathAuxiliary")),
 
-  jetPtCut_(ps.getUntrackedParameter<double>("JetPtCut")),
-  jetEtaCut_(ps.getUntrackedParameter<double>("JetEtaCut")),
-  metCut_(ps.getUntrackedParameter<double>("MetCut")),
+  jetPtCut_(ps.getUntrackedParameter<double>("jetPtCut")),
+  jetEtaCut_(ps.getUntrackedParameter<double>("jetEtaCut")),
+  metCut_(ps.getUntrackedParameter<double>("metCut")),
   
-  lep_pt_threshold_(ps.getUntrackedParameter<double>("LeptonPtThreshold")),
-  ht_threshold_(ps.getUntrackedParameter<double>("HtThreshold")),
-  met_threshold_(ps.getUntrackedParameter<double>("MetThreshold")),
-  csv_threshold_(ps.getUntrackedParameter<double>("CSVThreshold")),
+  lep_pt_threshold_(ps.getUntrackedParameter<double>("leptonPtThreshold")),
+  ht_threshold_(ps.getUntrackedParameter<double>("htThreshold")),
+  met_threshold_(ps.getUntrackedParameter<double>("metThreshold")),
+  csv_threshold_(ps.getUntrackedParameter<double>("csvThreshold")),
 
   h_triggerLepPt_(nullptr),
   h_triggerLepEta_(nullptr),
