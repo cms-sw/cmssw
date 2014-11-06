@@ -792,10 +792,15 @@ class GsfElectron : public RecoCandidate
   
   public:
     struct PixelMatchVariables{
+      //! Pixel match variable: deltaPhi for innermost hit
       float dPhi1 ;
+      //! Pixel match variable: deltaPhi for second hit
       float dPhi2 ;
+      //! Pixel match variable: deltaRz for innermost hit
       float dRz1  ;
+      //! Pixel match variable: deltaRz for second hit
       float dRz2  ;
+      //! Subdetectors for first and second pixel hit
       unsigned char subdetectors ;
       PixelMatchVariables():
         dPhi1(-999),
@@ -812,12 +817,12 @@ class GsfElectron : public RecoCandidate
   void setPixelMatchDRz1 (float dRz1 ){ pixelMatchVariables_.dRz1  = dRz1  ; }
   void setPixelMatchDRz2 (float dRz2 ){ pixelMatchVariables_.dRz2  = dRz2  ; }
   
-  int pixelMatchSubdetector1(){ return pixelMatchVariables_.subdetectors/10 ; }
-  int pixelMatchSubdetector2(){ return pixelMatchVariables_.subdetectors%10 ; }
-  float pixelMatchDPhi1(){ return pixelMatchVariables_.dPhi1 ; }
-  float pixelMatchDPhi2(){ return pixelMatchVariables_.dPhi2 ; }
-  float pixelMatchDRz1 (){ return pixelMatchVariables_.dRz1  ; }
-  float pixelMatchDRz2 (){ return pixelMatchVariables_.dRz2  ; }
+  int pixelMatchSubdetector1() const { return pixelMatchVariables_.subdetectors/10 ; }
+  int pixelMatchSubdetector2() const { return pixelMatchVariables_.subdetectors%10 ; }
+  float pixelMatchDPhi1() const { return pixelMatchVariables_.dPhi1 ; }
+  float pixelMatchDPhi2() const { return pixelMatchVariables_.dPhi2 ; }
+  float pixelMatchDRz1 () const { return pixelMatchVariables_.dRz1  ; }
+  float pixelMatchDRz2 () const { return pixelMatchVariables_.dRz2  ; }
   private:
     PixelMatchVariables pixelMatchVariables_ ;
  } ;

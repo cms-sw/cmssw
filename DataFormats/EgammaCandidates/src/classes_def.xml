@@ -207,7 +207,8 @@
   <class name="reco::GsfElectron::ClassificationVariables" ClassVersion="11">
    <version ClassVersion="11" checksum="2094185381"/>
   </class>
-  <class name="reco::GsfElectron::PixelMatchVariables">
+  <class name="reco::GsfElectron::PixelMatchVariables" ClassVersion="2">
+    <version ClassVersion="2" checksum="3522539867"/>
   </class>
   <class name="reco::GsfElectron" ClassVersion="15">
    <version ClassVersion="15" checksum="515498629"/>
