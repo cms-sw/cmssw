@@ -1119,8 +1119,11 @@ upgradeKeys=['2017',
              'Extended2023HGCal',
              'Extended2023HGCalMuon4Eta',
              'Extended2023Muon4Eta',
-             'Extended2023HGCalV4'
+             'Extended2023HGCalV4',
+             'Extended2023HGCalPU',
+             'Extended2023SHCalNoTaperPU'	     
 	     ]
+	     
 upgradeGeoms={ '2017' : 'Extended2017',
                '2019' : 'Extended2019',
                '2019WithGEM' : 'Extended2019',
@@ -1199,133 +1202,6 @@ upgradeCustoms={ '2017' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.
                  'Extended2023HGCalMuon4Eta' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023HGCalMuon',
                  'Extended2023HGCalV4' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023HGCalMuon'
                  }
-### remember that you need to add a new step for phase 2 to include the track trigger
-### remember that you need to add fastsim
-
-# step1 is normal gen-sim
-# step2 is digi
-# step3 is reco
-# step4 is harvest
-# step5 is digi+l1tracktrigger
-# step6 is fastsim
-# step7 is fastsim harvesting
-
-upgradeSteps=['GenSimFull','GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull','DigiTrkTrigFull','FastSim','HARVESTFast']
-
-upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
-                   '2019':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
-                   '2019WithGEM':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
-                   '2017Aging':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
-                   '2019Aging':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
-                   'BE5D':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
-                   'BE5DPixel10D':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
-                   '2017dev':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
-                   'Extended2023Muondev':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
-                   'BE5DForwardFast':['FastSim','HARVESTFast'],
-                   'Extended2023':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
-                   'Extended2023HGCalMuon':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
-                   'Extended2023SHCal':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
-                   'Extended2023SHCal4Eta':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
-                   'Extended2023TTI':['GenSimHLBeamSpotFull','DigiTrkTrigFull'], ##no need to go beyond local reco
-                   'Extended2023Muon':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
-                   'Extended2023Muon4Eta':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
-                   'Extended2023CFCal':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
-                   'Extended2023CFCal4Eta':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
-                   'Extended2023Pixel':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],          
-                   'Extended2023SHCalNoTaper':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
-                   'Extended2023SHCalNoTaper4Eta':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
-                   'Extended2023HGCal':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
-                   'Extended2023HGCalMuon4Eta':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
-                   'Extended2023HGCalV4' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull']
-                   }
-
-upgradeStepDict={}
-for step in upgradeSteps:
-    upgradeStepDict[step]={}
-
-# just make all combinations - yes, some will be nonsense.. but then these are not used unless
-# specified above
-for k in upgradeKeys:
-    upgradeStepDict['GenSimFull'][k]= {'-s' : 'GEN,SIM',
-                                       '-n' : 10,
-                                       '--conditions' : upgradeGTs[k],
-                                       '--beamspot' : 'Gauss',
-                                       '--magField' : '38T_PostLS1',
-                                       '--datatier' : 'GEN-SIM',
-                                       '--eventcontent': 'FEVTDEBUG',
-                                       '--geometry' : upgradeGeoms[k]
-                                       }
-    if upgradeCustoms[k]!=None : upgradeStepDict['GenSimFull'][k]['--customise']=upgradeCustoms[k]
-    
-    upgradeStepDict['GenSimHLBeamSpotFull'][k]= {'-s' : 'GEN,SIM',
-                                       '-n' : 10,
-                                       '--conditions' : upgradeGTs[k],
-                                       '--beamspot' : 'HLLHC',
-                                       '--magField' : '38T_PostLS1',
-                                       '--datatier' : 'GEN-SIM',
-                                       '--eventcontent': 'FEVTDEBUG',
-                                       '--geometry' : upgradeGeoms[k]
-                                       }
-    if upgradeCustoms[k]!=None : upgradeStepDict['GenSimHLBeamSpotFull'][k]['--customise']=upgradeCustoms[k]
-
-    upgradeStepDict['DigiFull'][k] = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
-                                      '--conditions':upgradeGTs[k],
-                                      '--datatier':'GEN-SIM-DIGI-RAW',
-                                      '-n':'10',
-                                      '--magField' : '38T_PostLS1',
-                                      '--eventcontent':'FEVTDEBUGHLT',
-                                      '--geometry' : upgradeGeoms[k]
-                                      }
-    if upgradeCustoms[k]!=None : upgradeStepDict['DigiFull'][k]['--customise']=upgradeCustoms[k]
-
-    upgradeStepDict['DigiTrkTrigFull'][k] = {'-s':'DIGI:pdigi_valid,L1,L1TrackTrigger,DIGI2RAW,RECO:pixeltrackerlocalreco',
-                                             '--conditions':upgradeGTs[k],
-                                             '--datatier':'GEN-SIM-DIGI-RAW',
-                                             '-n':'10',
-                                             '--magField' : '38T_PostLS1',
-                                             '--eventcontent':'FEVTDEBUGHLT',
-                                             '--geometry' : upgradeGeoms[k]
-                                             }
-    if upgradeCustoms[k]!=None : upgradeStepDict['DigiTrkTrigFull'][k]['--customise']=upgradeCustoms[k]
-
-    upgradeStepDict['RecoFull'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
-                                      '--conditions':upgradeGTs[k],
-                                      '--datatier':'GEN-SIM-RECO,DQMIO',
-                                      '-n':'10',
-                                      '--eventcontent':'FEVTDEBUGHLT,DQM',
-                                      '--magField' : '38T_PostLS1',
-                                      '--geometry' : upgradeGeoms[k]
-                                      }
-    if upgradeCustoms[k]!=None : upgradeStepDict['RecoFull'][k]['--customise']=upgradeCustoms[k]
-    
-    upgradeStepDict['HARVESTFull'][k]={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
-                                    '--conditions':upgradeGTs[k],
-                                    '--mc':'',
-                                    '--magField' : '38T_PostLS1',
-                                    '--geometry' : upgradeGeoms[k],
-                                    '--scenario' : 'pp',
-                                    '--filetype':'DQM'
-                                    }
-    if upgradeCustoms[k]!=None : upgradeStepDict['HARVESTFull'][k]['--customise']=upgradeCustoms[k]
-
-    upgradeStepDict['FastSim'][k]={'-s':'GEN,SIM,RECO,VALIDATION',
-                                   '--eventcontent':'FEVTDEBUGHLT,DQM',
-                                   '--datatier':'GEN-SIM-DIGI-RECO,DQMIO',
-                                   '--conditions':upgradeGTs[k],
-                                   '--fast':'',
-                                   '--geometry' : upgradeGeoms[k],
-                                   '--relval':'27000,3000'}
-    if upgradeCustoms[k]!=None : upgradeStepDict['FastSim'][k]['--customise']=upgradeCustoms[k]
-
-    upgradeStepDict['HARVESTFast'][k]={'-s':'HARVESTING:validationHarvestingFS',
-                                    '--conditions':upgradeGTs[k],
-                                    '--mc':'',
-                                    '--magField' : '38T_PostLS1',
-                                    '--geometry' : upgradeGeoms[k],
-                                    '--scenario' : 'pp'
-                                    }
-    if upgradeCustoms[k]!=None : upgradeStepDict['HARVESTFast'][k]['--customise']=upgradeCustoms[k]
-
 
 upgradeFragments=['FourMuPt_1_200_cfi','SingleElectronPt10_cfi',
                   'SingleElectronPt35_cfi','SingleElectronPt1000_cfi',
@@ -1354,6 +1230,189 @@ upgradeFragments=['FourMuPt_1_200_cfi','SingleElectronPt10_cfi',
                   'SingleMuPt1000Extended_cfi',
                   'TenMuE_0_200_cfi',
                   'SinglePiE50HCAL_cfi']
+
+
+
+# for each geometry define the GT and processing string here
+defaultDataSets={}
+defaultDataSets['Extended2023HGCal']='CMSSW_6_2_0_SLHC20-DES23_62_V1_UPGHGCalV5-v'
+defaultDataSets['Extended2023SHCalNoTaper']='CMSSW_6_2_0_SLHC20-DES23_62_V1_UPG2023SHNoTaper-v'
+keys=defaultDataSets.keys()
+for key in keys:
+  defaultDataSets[key+'PU']=defaultDataSets[key]
+  
+# sometimes v1 won't be used - override it here - the dictionary key is gen fragment + '_' + geometry
+versionOverrides={}
+
+baseDataSetReleaseBetter={}
+for gen in upgradeFragments:
+    for ds in defaultDataSets: 
+       	key=gen[:-4]+'_'+ds   
+        version='1'
+        if key in versionOverrides:
+            version = versionOverrides[key]
+        baseDataSetReleaseBetter[key]=defaultDataSets[ds]+version
+
+PUDataSets={}
+for ds in defaultDataSets:
+    key='MinBias_TuneZ2star_14TeV_pythia6'+'_'+ds
+    name=baseDataSetReleaseBetter[key]
+    PUDataSets[ds]={'-n':10,'--pileup':'AVE_140_BX_25ns','--pileup_input':'das:/RelValMinBias_TuneZ2star_14TeV/%s/GEN-SIM'%(name,)}
+### remember that you need to add a new step for phase 2 to include the track trigger
+### remember that you need to add fastsim
+
+# step1 is normal gen-sim
+# step2 is digi
+# step3 is reco
+# step4 is harvest
+# step5 is digi+l1tracktrigger
+# step6 is fastsim
+# step7 is fastsim harvesting
+
+upgradeSteps=['GenSimFull','GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull','DigiTrkTrigFull','FastSim','HARVESTFast','DigiFullPU','RecoFullPU','HARVESTFullPU','DigiFullTrigger']
+
+upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
+                   '2019':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
+                   '2019WithGEM':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
+                   '2017Aging':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
+                   '2019Aging':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
+                   'BE5D':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
+                   'BE5DPixel10D':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
+                   '2017dev':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
+                   'Extended2023Muondev':['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFull','HARVESTFull'],
+                   'BE5DForwardFast':['FastSim','HARVESTFast'],
+                   'Extended2023':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
+                   'Extended2023HGCalMuon':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
+                   'Extended2023SHCal':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
+                   'Extended2023SHCal4Eta':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
+                   'Extended2023TTI':['GenSimHLBeamSpotFull','DigiTrkTrigFull'], ##no need to go beyond local reco
+                   'Extended2023Muon':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
+                   'Extended2023Muon4Eta':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
+                   'Extended2023CFCal':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
+                   'Extended2023CFCal4Eta':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
+                   'Extended2023Pixel':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],          
+                   'Extended2023SHCalNoTaper':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
+                   'Extended2023SHCalNoTaper4Eta':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
+                   'Extended2023HGCal':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
+                   'Extended2023HGCalMuon4Eta':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
+                   'Extended2023HGCalV4' : ['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
+                   'Extended2023HGCalPU' : ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullPU','HARVESTFullPU'],
+                   'Extended2023SHCalNoTaperPU' : ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
+                   }
+
+upgradeStepDict={}
+for step in upgradeSteps:
+    upgradeStepDict[step]={}
+
+# just make all combinations - yes, some will be nonsense.. but then these are not used unless
+# specified above
+for k in upgradeKeys:
+    k2=k
+    if 'PU' in k[-2:]:
+        k2=k[:-2]
+    geom=upgradeGeoms[k2]
+    gt=upgradeGTs[k2]
+    cust=upgradeCustoms[k2]
+    upgradeStepDict['GenSimFull'][k]= {'-s' : 'GEN,SIM',
+                                       '-n' : 10,
+                                       '--conditions' : gt,
+                                       '--beamspot' : 'Gauss',
+                                       '--magField' : '38T_PostLS1',
+                                       '--datatier' : 'GEN-SIM',
+                                       '--eventcontent': 'FEVTDEBUG',
+                                       '--geometry' : geom
+                                       }
+    if cust!=None : upgradeStepDict['GenSimFull'][k]['--customise']=cust
+        
+    upgradeStepDict['GenSimHLBeamSpotFull'][k]= {'-s' : 'GEN,SIM',
+                                       '-n' : 10,
+                                       '--conditions' : gt,
+                                       '--beamspot' : 'HLLHC',
+                                       '--magField' : '38T_PostLS1',
+                                       '--datatier' : 'GEN-SIM',
+                                       '--eventcontent': 'FEVTDEBUG',
+                                       '--geometry' : geom
+                                       }
+    if cust!=None : upgradeStepDict['GenSimHLBeamSpotFull'][k]['--customise']=cust
+    
+    upgradeStepDict['DigiFull'][k] = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
+                                      '--conditions':gt,
+                                      '--datatier':'GEN-SIM-DIGI-RAW',
+                                      '-n':'10',
+                                      '--magField' : '38T_PostLS1',
+                                      '--eventcontent':'FEVTDEBUGHLT',
+                                      '--geometry' : geom
+                                      }
+    if cust!=None : upgradeStepDict['DigiFull'][k]['--customise']=cust
+    
+    upgradeStepDict['DigiFullTrigger'][k] = {'-s':'DIGI:pdigi_valid,L1,L1TrackTrigger,DIGI2RAW',
+                                      '--conditions':gt,
+                                      '--datatier':'GEN-SIM-DIGI-RAW',
+                                      '-n':'10',
+                                      '--magField' : '38T_PostLS1',
+                                      '--eventcontent':'FEVTDEBUGHLT',
+                                      '--geometry' : geom
+                                      }
+    if cust!=None : upgradeStepDict['DigiFullTrigger'][k]['--customise']=cust
+    
+    
+    if k2 in PUDataSets:
+        upgradeStepDict['DigiFullPU'][k]=merge([PUDataSets[k2],upgradeStepDict['DigiFull'][k]])
+    upgradeStepDict['DigiTrkTrigFull'][k] = {'-s':'DIGI:pdigi_valid,L1,L1TrackTrigger,DIGI2RAW,RECO:pixeltrackerlocalreco',
+                                             '--conditions':gt,
+                                             '--datatier':'GEN-SIM-DIGI-RAW',
+                                             '-n':'10',
+                                             '--magField' : '38T_PostLS1',
+                                             '--eventcontent':'FEVTDEBUGHLT',
+                                             '--geometry' : geom
+                                             }
+    if cust!=None : upgradeStepDict['DigiTrkTrigFull'][k]['--customise']=cust
+
+    upgradeStepDict['RecoFull'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
+                                      '--conditions':gt,
+                                      '--datatier':'GEN-SIM-RECO,DQMIO',
+                                      '-n':'10',
+                                      '--eventcontent':'FEVTDEBUGHLT,DQM',
+                                      '--magField' : '38T_PostLS1',
+                                      '--geometry' : geom
+                                      }
+    if cust!=None : upgradeStepDict['RecoFull'][k]['--customise']=cust
+
+    if k2 in PUDataSets:
+        upgradeStepDict['RecoFullPU'][k]=merge([PUDataSets[k2],{'-s':'RAW2DIGI,L1Reco,RECO,DQM'},upgradeStepDict['RecoFull'][k]])
+
+    upgradeStepDict['HARVESTFull'][k]={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
+                                    '--conditions':gt,
+                                    '--mc':'',
+                                    '--magField' : '38T_PostLS1',
+                                    '--geometry' : geom,
+                                    '--scenario' : 'pp',
+                                    '--filetype':'DQM'
+                                    }
+    if cust!=None : upgradeStepDict['HARVESTFull'][k]['--customise']=cust
+
+    if k2 in PUDataSets:
+        upgradeStepDict['HARVESTFullPU'][k]=merge([PUDataSets[k2],{'-s':'HARVESTING:dqmHarvesting'},upgradeStepDict['HARVESTFull'][k]])
+
+    upgradeStepDict['FastSim'][k]={'-s':'GEN,SIM,RECO,VALIDATION',
+                                   '--eventcontent':'FEVTDEBUGHLT,DQM',
+                                   '--datatier':'GEN-SIM-DIGI-RECO,DQMIO',
+                                   '--conditions':gt,
+                                   '--fast':'',
+                                   '--geometry' : geom,
+                                   '--relval':'27000,3000'}
+    if cust!=None : upgradeStepDict['FastSim'][k]['--customise']=cust
+
+    upgradeStepDict['HARVESTFast'][k]={'-s':'HARVESTING:validationHarvestingFS',
+                                    '--conditions':gt,
+                                    '--mc':'',
+                                    '--magField' : '38T_PostLS1',
+                                    '--geometry' : geom,
+                                    '--scenario' : 'pp'
+                                    }
+    if cust!=None : upgradeStepDict['HARVESTFast'][k]['--customise']=cust
+
+
 
 howMuches={'FourMuPt_1_200_cfi':Kby(10,100),
            'TenMuE_0_200_cfi':Kby(10,100),
@@ -1495,8 +1554,15 @@ for step in upgradeSteps:
             for key in upgradeKeys:
                 k=frag[:-4]+'_'+key+'_'+step
                 steps[k]=merge([ {'cfg':frag},howMuch,upgradeStepDict[step][key]])
+                #get inputs in case of -i...but no need to specify in great detail
+                #however, there can be a conflict of beam spots but this is lost in the dataset name
+                #so please be careful   
+                s=frag[:-4]+'_'+key
+                if 'FastSim' not in k and s+'INPUT' not in steps and s in baseDataSetReleaseBetter:
+                    steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+frag[:-4]+'/%s/GEN-SIM'%(baseDataSetReleaseBetter[s],),location='STD')}
    else:
         for key in upgradeKeys:
             k=step+'_'+key
-            steps[k]=merge([upgradeStepDict[step][key]])
+            if step in upgradeStepDict and key in upgradeStepDict[step]: 
+                steps[k]=merge([upgradeStepDict[step][key]])
             
