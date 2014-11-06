@@ -98,7 +98,7 @@ class HLTHandler: public BaseHandler {
         StringCutObjectSelector<std::vector<TCandidateType> >  m_combinedObjectSelection;
         StringObjectFunction<std::vector<TCandidateType> >     m_combinedObjectSortFunction;
         // TODO: auto ptr
-        std::map<std::string, StringObjectFunction<std::vector<TCandidateType> > * > m_plotters;
+        std::map<std::string, std::shared_ptr<StringObjectFunction<std::vector<TCandidateType> > > > m_plotters;
 
 
         std::vector< edm::ParameterSet > m_drawables;
@@ -143,7 +143,7 @@ class HLTHandler: public BaseHandler {
 
                     m_histos[histoName] =  m_dbe->book1D(histoName, histoName, bins, rangeLow, rangeHigh);
                     StringObjectFunction<std::vector<TCandidateType> > * func = new StringObjectFunction<std::vector<TCandidateType> >(expression);
-                    m_plotters[histoName] = func;
+                    m_plotters[histoName] =  std::shared_ptr<StringObjectFunction<std::vector<TCandidateType> > >(func);
                 }   
             }
         }
@@ -332,7 +332,7 @@ FSQDiJetAve::FSQDiJetAve(const edm::ParameterSet& iConfig):
         edm::ParameterSet pset = todo.at(i);
         std::string type = pset.getParameter<std::string>("handlerType");
         if (type == "FromHLT") {
-            m_handlers.push_back(new FSQ::HLTHandler(pset));
+            m_handlers.push_back(std::shared_ptr<FSQ::HLTHandler>(new FSQ::HLTHandler(pset)));
         } else {
             throw cms::Exception("FSQ DQM handler not know: "+ type);
         }
