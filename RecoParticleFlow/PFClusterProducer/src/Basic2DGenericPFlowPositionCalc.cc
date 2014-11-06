@@ -95,7 +95,7 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     const reco::PFRecHitRef& refhit = rhf.recHitRef();
 
     // since this is 2D position calc only use neighbours in the same layer
-    if( refhit->depth() != refseed->depth() ) continue;
+    //if( refhit->depth() != refseed->depth() ) continue;
     
     if( refhit != refseed && _posCalcNCrystals != -1 ) {
       auto pos = std::find(seedNeighbours->begin(),seedNeighbours->end(),

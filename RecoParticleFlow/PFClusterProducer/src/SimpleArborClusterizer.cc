@@ -27,7 +27,7 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
 	      const std::vector<bool>& seedable,
 	      reco::PFClusterCollection& output) {  
   const reco::PFRecHitCollection& hits = *input;
-  std::vector<TVector3> arbor_points[2];
+  std::vector<std::pair<TVector3,float> > arbor_points[2];
   std::vector<unsigned> hits_for_arbor[2];
   arbor::branchcoll the_branches[2];  
 
@@ -38,13 +38,14 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
   hits_for_arbor[1].reserve(hits.size()/2);
   for( unsigned i = 0; i < hits.size(); ++i ) {
     if( !rechitMask[i] ) continue;
-    const math::XYZPoint& pos = hits[i].position();
-    if( pos.z() < 0 ) {
+    const math::XYZPoint& pos = hits[i].position();     
+    TVector3 v3pos(10.0*pos.x(),10.0*pos.y(),10.0*pos.z()); // convert to mm
+    if( v3pos.z() < 0 ) {
       hits_for_arbor[0].emplace_back(i);
-      arbor_points[0].emplace_back(10*pos.x(),10*pos.y(),10*pos.z());
+      arbor_points[0].emplace_back(v3pos,hits[i].energy());
     } else {
       hits_for_arbor[1].emplace_back(i);
-      arbor_points[1].emplace_back(10*pos.x(),10*pos.y(),10*pos.z());
+      arbor_points[1].emplace_back(v3pos,hits[i].energy());
     }
   }
   edm::LogInfo("ArborProgress") 

@@ -10,7 +10,7 @@ namespace arbor {
 
   void init(float CellSize, float LayerThickness);
   
-  void HitsCleaning(std::vector<TVector3> inputHits );
+  void HitsCleaning(std::vector<std::pair<TVector3,float> > inputHits );
   
   void HitsClassification( linkcoll inputLinks );
   
@@ -26,7 +26,7 @@ namespace arbor {
   
   void MakingCMSCluster();
   
-  branchcoll Arbor( std::vector<TVector3>, const float CellSize, const float LayerThickness, const float distSeedForMerge, const bool allowSameLayerSeedMerge );
+  branchcoll Arbor( std::vector<std::pair<TVector3,float> >, const float CellSize, const float LayerThickness, const float distSeedForMerge, const bool allowSameLayerSeedMerge );
 }
 
 #endif
