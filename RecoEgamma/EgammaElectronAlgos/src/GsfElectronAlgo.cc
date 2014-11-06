@@ -666,8 +666,7 @@ GsfElectronAlgo::GsfElectronAlgo
  )
    : generalData_(new GeneralData(inputCfg,strategyCfg,cutsCfg,cutsCfgPflow,hcalCfg,hcalCfgPflow,isoCfg,recHitsCfg,superClusterErrorFunction,crackCorrectionFunction,mva_NIso_Cfg,mva_Iso_Cfg,regCfg)),
    eventSetupData_(new EventSetupData),
-   eventData_(0), electronData_(0),
-   nPixelMatchErrorNoSeed_(0), nPixelMatchErrorNotElectronSeed_(0)
+   eventData_(0), electronData_(0)
  {}
 
 GsfElectronAlgo::~GsfElectronAlgo()
