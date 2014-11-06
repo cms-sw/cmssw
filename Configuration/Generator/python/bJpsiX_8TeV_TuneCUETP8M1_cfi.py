@@ -9,14 +9,14 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
                          maxEventsToPrint = cms.untracked.int32(0),
                          comEnergy = cms.double(8000.0),
                          PythiaParameters = cms.PSet(
+        pythia8CommonSettingsBlock,
+        pythia8CUEP8M1SettingsBlock,
         processParameters = cms.vstring(
             ' Bottomonium:all = on', # Quarkonia, MSEL=61
             'ParticleDecays:allowPhotonRadiation = on', # Turn on QED FSR
             '443:onMode = off', # Turn off J/psi decays
             '443:onIfMatch = 13 -13' # just let J/psi -> mu+ mu-
             ),
-        pythia8CommonSettingsBlock,
-        pythia8CUEP8M1SettingsBlock,
         parameterSets = cms.vstring('pythia8CommonSettings',
                                     'pythia8CUEP8M1Settings',
                                     'processParameters',
