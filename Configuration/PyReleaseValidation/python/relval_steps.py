@@ -124,7 +124,7 @@ steps = Steps()
 #wmsplit = {}
 
 #### Production test section ####
-steps['ProdMinBias']=merge([{'cfg':'MinBias_8TeV_pythia8_TuneCUETP8M1_cfi','--relval':'9000,300'},step1Defaults])
+steps['ProdMinBias']=merge([{'cfg':'MinBias_8TeV_pythia8_TuneCUETP8M1_cff','--relval':'9000,300'},step1Defaults])
 steps['ProdTTbar']=merge([{'cfg':'TTbar_Tauola_8TeV_TuneCUETP8M1_cfi','--relval':'9000,100'},step1Defaults])
 steps['ProdQCD_Pt_3000_3500']=merge([{'cfg':'QCD_Pt_3000_3500_8TeV_TuneCUETP8M1_cfi','--relval':'9000,50'},step1Defaults])
 
@@ -254,7 +254,7 @@ steps['ProdTTbar_13']=gen2015('TTbar_Tauola_13TeV_TuneCUETP8M1_cfi',Kby(9,100))
 steps['ProdZEE_13']=gen2015('ZEE_13TeV_TuneCUETP8M1_cfi',Kby(9,100))
 steps['ProdQCD_Pt_3000_3500_13']=gen2015('QCD_Pt_3000_3500_13TeV_TuneCUETP8M1_cfi',Kby(9,100))
 
-steps['MinBias']=gen('MinBias_8TeV_pythia8_TuneCUETP8M1_cfi',Kby(9,300))
+steps['MinBias']=gen('MinBias_8TeV_pythia8_TuneCUETP8M1_cff',Kby(9,300))
 steps['QCD_Pt_3000_3500']=gen('QCD_Pt_3000_3500_8TeV_TuneCUETP8M1_cfi',Kby(9,25))
 steps['QCD_Pt_600_800']=gen('QCD_Pt_600_800_8TeV_TuneCUETP8M1_cfi',Kby(9,50))
 steps['QCD_Pt_80_120']=gen('QCD_Pt_80_120_8TeV_TuneCUETP8M1_cfi',Kby(9,100))
@@ -432,12 +432,12 @@ ecalHcal={
 steps['SingleElectronE120EHCAL']=merge([{'cfg':'SingleElectronE120EHCAL_pythia8_cfi'},ecalHcal,Kby(25,250),step1Defaults])
 steps['SinglePiE50HCAL']=merge([{'cfg':'SinglePiE50HCAL_pythia8_cfi'},ecalHcal,Kby(25,250),step1Defaults])
 
-steps['MinBiasHS']=gen('MinBias_8TeV_pythia8_TuneCUETP8M1_cfi',Kby(25,300))
+steps['MinBiasHS']=gen('MinBias_8TeV_pythia8_TuneCUETP8M1_cff',Kby(25,300))
 steps['InclusiveppMuX']=gen('InclusiveppMuX_8TeV_cfi',Mby(11,45000))
 steps['SingleElectronFlatPt5To100']=gen('SingleElectronFlatPt5To100_pythia8_cfi',Kby(25,250))
 steps['SinglePiPt1']=gen('SinglePiPt1_pythia8_cfi',Kby(25,250))
 steps['SingleMuPt1HS']=gen('SingleMuPt1_pythia8_cfi',Kby(25,1000))
-steps['ZPrime5000Dijet']=gen('ZPrime5000JJ_8TeV_pythia8_cfi',Kby(25,100))
+steps['ZPrime5000Dijet']=gen('ZPrime5000JJ_8TeV_TuneCUETP8M1_cfi',Kby(25,100))
 steps['SinglePi0E10']=gen('SinglePi0E10_pythia8_cfi',Kby(25,100))
 steps['SinglePiPt10']=gen('SinglePiPt10_pythia8_cfi',Kby(25,250))
 steps['SingleGammaFlatPt10To100']=gen('SingleGammaFlatPt10To100_pythia8_cfi',Kby(25,250))
