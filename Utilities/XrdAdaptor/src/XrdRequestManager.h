@@ -78,6 +78,7 @@ public:
      * (primarily meant to enable meaningful log messages).
      */
     void getActiveSourceNames(std::vector<std::string> & sources);
+    void getPrettyActiveSourceNames(std::vector<std::string> & sources);
 
     /**
      * Retrieve the names of the disabled sources
@@ -138,6 +139,12 @@ private:
     bool compareSources(const timespec &now, unsigned a, unsigned b);
 
     /**
+     * Anytime we potentially switch sources, update the internal site source list;
+     * alert the user if necessary.
+     */
+    void updateSiteInfo(std::string orig_site="");
+
+    /**
      * Picks a single source for the next operation.
      */
     std::shared_ptr<Source> pickSingleSource();
@@ -156,6 +163,7 @@ private:
     std::vector<std::shared_ptr<Source> > m_inactiveSources;
     std::set<std::string> m_disabledSourceStrings;
     std::set<std::shared_ptr<Source> > m_disabledSources;
+    std::string m_activeSites;
 
     timespec m_lastSourceCheck;
     int m_timeout;

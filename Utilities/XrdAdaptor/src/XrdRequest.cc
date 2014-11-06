@@ -48,7 +48,7 @@ XrdAdaptor::ClientRequest::HandleResponse(XrdCl::XRootDStatus *stat, XrdCl::AnyO
         Source *source = m_source.get();
         edm::LogWarning("XrdAdaptorInternal") << "XrdRequestManager::handle(name='"
           << m_manager.getFilename() << ") failure when reading from "
-          << (source ? source->ID() : "(unknown source)")
+          << (source ? source->PrettyID() : "(unknown source)")
           << "; failed with error '" << status->ToStr() << "' (errno="
           << status->errNo << ", code=" << status->code << ").";
         m_failure_count++;
@@ -73,7 +73,7 @@ XrdAdaptor::ClientRequest::HandleResponse(XrdCl::XRootDStatus *stat, XrdCl::AnyO
             ex.addContext("XrdAdaptor::ClientRequest::HandleResponse() failure while running connection recovery");
             std::stringstream ss;
             ss << "Original error: '" << status->ToStr() << "' (errno="
-              << status->errNo << ", code=" << status->code << ", source=" << (source ? source->ID() : "(unknown source)") << ").";
+              << status->errNo << ", code=" << status->code << ", source=" << (source ? source->PrettyID() : "(unknown source)") << ").";
             ex.addAdditionalInfo(ss.str());
             m_promise.set_exception(std::current_exception());
             edm::LogWarning("XrdAdaptorInternal") << "Caught a CMSSW exception when running connection recovery.";
@@ -88,7 +88,7 @@ XrdAdaptor::ClientRequest::HandleResponse(XrdCl::XRootDStatus *stat, XrdCl::AnyO
                << " connection recovery.";
             ex.addContext("Calling XrdRequestManager::handle()");
             m_manager.addConnections(ex);
-            ex.addAdditionalInfo("Original source of error is " + (source ? source->ID() : "(unknown source)"));
+            ex.addAdditionalInfo("Original source of error is " + (source ? source->PrettyID() : "(unknown source)"));
             m_promise.set_exception(std::make_exception_ptr(ex));
             edm::LogWarning("XrdAdaptorInternal") << "Caught a new exception when running connection recovery.";
         }
