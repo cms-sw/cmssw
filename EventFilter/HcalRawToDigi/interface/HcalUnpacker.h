@@ -14,6 +14,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "DataFormats/HcalDigi/interface/HcalTTPDigi.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include <set>
 
 class HcalUnpacker {
@@ -29,6 +30,7 @@ public:
     std::vector<HcalTriggerPrimitiveDigi>* tpCont;
     std::vector<HOTriggerPrimitiveDigi>* tphoCont;
     std::vector<HcalTTPDigi>* ttp;
+    QIE10DigiCollection* qie10;
   };
 
   /// for normal data
