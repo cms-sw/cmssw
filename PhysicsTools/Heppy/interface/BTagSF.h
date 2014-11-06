@@ -1,5 +1,5 @@
-#ifndef BTagSF_hh
-#define BTagSF_hh
+#ifndef PhysicsTools_Heppy_BTagSF_h
+#define PhysicsTools_Heppy_BTagSF_h
 
 #include "TRandom3.h"
 #include <iostream>

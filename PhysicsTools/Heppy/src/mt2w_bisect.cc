@@ -42,6 +42,14 @@ using namespace std;
 namespace mt2w_bisect
 {
 
+/*The user can change the desired precision below, the larger one of the following two definitions is used. Relative precision less than 0.00001 is not guaranteed to be achievable--use with caution*/ 
+
+  const float mt2w::RELATIVE_PRECISION = 0.0001;
+  const float mt2w::ABSOLUTE_PRECISION = 0.0;
+  const float mt2w::MIN_MASS = 0.1; 
+  const float mt2w::ZERO_MASS = 0.0; 
+  const float mt2w::SCANSTEP = 0.1;
+
   mt2w::mt2w(double upper_bound, double error_value, double scan_step)
   {
     solved = false;

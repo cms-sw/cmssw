@@ -1,5 +1,5 @@
-#ifndef WWAnalysis_AnalysisStep_RochCor2012_h
-#define WWAnalysis_AnalysisStep_RochCor2012_h
+#ifndef PhysicsTools_Heppy_RochCor2012_h
+#define PhysicsTools_Heppy_RochCor2012_h
 
 ////  VERSION for 2012 received from Jiyeon on 30 september 2012
 ////  moved static const float from .h to .cc to make the gcc happy
