@@ -122,7 +122,7 @@ void SUSY_HLT_InclusiveHT::analyze(edm::Event const& e, edm::EventSetup const& e
     if (trigNames.triggerName(hltIndex)==triggerPathAuxiliaryForHadronic_ && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) hasFiredAuxiliaryForHadronicLeg = true;
   }
 
-  if(hasFiredAuxiliaryForHadronicLeg) {
+  if(hasFiredAuxiliaryForHadronicLeg || !e.isRealData()) {
     float caloHT = 0.0;
     float pfHT = 0.0;
     for (reco::PFJetCollection::const_iterator i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end(); ++i_pfjet){
