@@ -163,7 +163,7 @@ void ApeSettingAlgorithm::initialize(const edm::EventSetup &setup,
                  if (readFullLocalMatrix_)
 		    globErr = GlobalErrorExtended(x11,x21,x31,0,0,0,x22,x32,0,0,0,x33,0,0,0,0,0,0,0,0,0);
                  else {
-                    globErr = GlobalErrorExtended(x11,0,0,0,0,0,x22,0,0,0,0,x33,0,0,0,0,0,0,0,0,0);
+                    globErr = GlobalErrorExtended(x11*x11,0,0,0,0,0,x22*x22,0,0,0,0,x33*x33,0,0,0,0,0,0,0,0,0);
                   }
 	       }
 	     alidet->setAlignmentPositionError(globErr, false); // do not propagate down!
