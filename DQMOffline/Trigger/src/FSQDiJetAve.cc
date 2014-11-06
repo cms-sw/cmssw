@@ -35,7 +35,7 @@
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 using namespace edm;
 //#using namespace reco;
@@ -44,13 +44,6 @@ using namespace std;
 
 
 namespace FSQ {
-
-/*
-struct HLTConfigDataContainer {
-    HLTConfigProvider m_hltConfig;
-    trigger::TriggerEvent m_trgEvent;
-    float weight;
-};*/
 
 //################################################################################################
 //
@@ -299,7 +292,7 @@ class HLTHandler: public BaseHandler {
             for (;it!=itE;++it){
                 float val = (*m_plotters[it->first])(bestCombinationFromCands);
                 // TODO: weight
-                it->second->Fill(val);
+                it->second->Fill(val, weight);
             }
 
 
@@ -383,6 +376,12 @@ FSQDiJetAve::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
 
   float weight = 1.;  
+  if (m_useGenWeight){
+    edm::Handle<GenEventInfoProduct> hGW;
+    iEvent.getByLabel(edm::InputTag("generator"), hGW);
+    weight = hGW->weight();
+  }
+
   for (unsigned int i = 0; i < m_handlers.size(); ++i) {
         m_handlers.at(i)->analyze(iEvent, iSetup, m_hltConfig, *m_trgEvent.product(), weight);
   }
