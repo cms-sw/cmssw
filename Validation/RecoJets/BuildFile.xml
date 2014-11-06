@@ -4,6 +4,7 @@
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="JetMETCorrections/Objects"/>
 <use   name="rootgraphics"/>
+<use   name="DataFormats/PatCandidates"/>
 <export>
   <lib   name="1"/>
 </export>
