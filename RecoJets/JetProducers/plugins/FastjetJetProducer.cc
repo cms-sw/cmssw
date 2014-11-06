@@ -206,6 +206,7 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
       }
       useSoftDrop_ = iConfig.getParameter<bool>("useSoftDrop");
       zCut_ = iConfig.getParameter<double>("zcut");
+      beta_ = iConfig.getParameter<double>("beta");
     }
 
   }

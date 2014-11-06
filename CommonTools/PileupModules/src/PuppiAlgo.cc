@@ -1,9 +1,12 @@
 #include "CommonTools/PileupModules/interface/PuppiAlgo.h"
+#include "CommonTools/PileupModules/interface/PuppiContainer.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "fastjet/internal/base.hh"
 #include "Math/QuantFuncMathCore.h"
 #include "Math/SpecFuncMathCore.h"
 #include "Math/ProbFunc.h"
 #include "TMath.h"
+
 
 PuppiAlgo::PuppiAlgo(edm::ParameterSet &iConfig) { 
   fEtaMin             = iConfig.getParameter<double>("etaMin");
@@ -56,9 +59,23 @@ void PuppiAlgo::reset() {
 }
 void PuppiAlgo::add(const fastjet::PseudoJet &iParticle,const double &iVal,const unsigned int iAlgo) { 
   if(iParticle.pt() < fRMSPtMin[iAlgo]) return;
-  if(fCharged[iAlgo] && std::abs(iParticle.user_index())  < 1) return;
-  if(fCharged[iAlgo] && (std::abs(iParticle.user_index()) >=1 && std::abs(iParticle.user_index()) <=2)) fPupsPV.push_back(iVal);
-  if(fCharged[iAlgo] && std::abs(iParticle.user_index()) < 3) return;
+  // Change from SRR : Previously used fastjet::PseudoJet::user_index to decide the particle type.
+  // In CMSSW we use the user_index to specify the index in the input collection, so I invented
+  // a new mechanism using the fastjet UserInfo functionality. Of course, it's still just an integer
+  // but that interface could be changed (or augmented) if desired / needed. 
+  int puppi_register = std::numeric_limits<int>::lowest();
+  if ( iParticle.has_user_info() ) {
+    PuppiContainer::PuppiUserInfo const * pInfo = dynamic_cast<PuppiContainer::PuppiUserInfo const *>( iParticle.user_info_ptr() );
+    if ( pInfo != 0 ) {
+      puppi_register = pInfo->puppi_register();
+    }
+  }
+  if ( puppi_register == std::numeric_limits<int>::lowest() ) {
+    throw cms::Exception("PuppiRegisterNotSet") << "The puppi register is not set. This must be set before use.\n";
+  }
+  if(fCharged[iAlgo] && std::abs(puppi_register)  < 1) return;
+  if(fCharged[iAlgo] && (std::abs(puppi_register) >=1 && std::abs(puppi_register) <=2)) fPupsPV.push_back(iVal);
+  if(fCharged[iAlgo] && std::abs(puppi_register) < 3) return;
   fPups.push_back(iVal);
   fNCount[iAlgo]++;
 }

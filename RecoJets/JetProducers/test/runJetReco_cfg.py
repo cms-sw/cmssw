@@ -6,7 +6,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 # input
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
@@ -49,7 +49,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 process.load("RecoJets/Configuration/RecoJetsGlobal_cff")
 
-process.recoJets = cms.Path(process.recoPFJets)
+process.recoJets = cms.Path(process.recoPFJetsWithSubstructure)
 
 process.out = cms.EndPath(process.output)
 
