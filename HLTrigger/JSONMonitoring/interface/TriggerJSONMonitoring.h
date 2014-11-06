@@ -38,6 +38,7 @@
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h" //DS                                                 
 
+#include <atomic>
 
 namespace hltJson {
   //Struct for storing variables that must be written and reset every lumi section                                                     
@@ -53,10 +54,6 @@ namespace hltJson {
 
     HistoJ<unsigned int> *hltDatasets; // # of events accepted by each dataset                                                         
 
-    //Names and directories aren't changed at lumi section boundaries,                                                                 
-    //but they need to be in this struct to be write JSON files at the end                                                             
-    HistoJ<std::string> *hltNames;     // list of HLT path names                                                                       
-    HistoJ<std::string> *datasetNames; // list of dataset names                                                                        
 
     std::string baseRunDir;        //Base directory from EvFDaqDirector                                                                
     std::string stHltJsd;   //Definition file name for JSON with rates                                                          
@@ -64,19 +61,20 @@ namespace hltJson {
     HistoJ<unsigned int> *L1Global;     // Global # of Phyics, Cailibration and Random L1 triggers //DS  
     HistoJ<unsigned int> *L1Accept;     // # of events accepted by L1T[i] //DS                                                         
     HistoJ<unsigned int> *L1TechAccept; // # of events accepted by L1 Technical Triggers[i] //DS                                       
-    HistoJ<std::string> *L1Names;       // list of L1 algorithm names    //DS                                                          
-    HistoJ<std::string> *L1TechNames;   // list of L1 technical trigger names    //DS                                                  
-    HistoJ<std::string> *L1GlobalType;  // list of L1 technical trigger names    //DS                                                  
     
     std::string stL1Jsd;                 //Definition file name for JSON with L1 rates            //DS                                  
-
+  };
+  //End lumi struct
+  //Struct for storing variable written once per run
+  struct runVars{
+    mutable std::atomic<bool> wroteFiles;
   };
 }//End hltJson namespace                                                                                                               
 
 //                                                                                                                                     
 // class declaration                                                                                                                   
 //                                                                                                                                     
-class TriggerJSONMonitoring : public edm::stream::EDAnalyzer <edm::LuminosityBlockSummaryCache<hltJson::lumiVars>>
+class TriggerJSONMonitoring : public edm::stream::EDAnalyzer <edm::RunCache<hltJson::runVars>, edm::LuminosityBlockSummaryCache<hltJson::lumiVars>>
 {
  public:
   explicit TriggerJSONMonitoring(const edm::ParameterSet&);
@@ -88,6 +86,15 @@ class TriggerJSONMonitoring : public edm::stream::EDAnalyzer <edm::LuminosityBlo
 
   void beginRun(edm::Run const&,
                 edm::EventSetup const&);
+
+  static std::shared_ptr<hltJson::runVars> globalBeginRun(edm::Run const&, edm::EventSetup const&, void const*){
+    std::shared_ptr<hltJson::runVars> rv(new hltJson::runVars);
+    rv->wroteFiles = false;
+    return rv;
+  }
+  
+  static void globalEndRun(edm::Run const& iRun, edm::EventSetup const&, RunContext const* iContext){ } 
+
 
   void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
