@@ -19,7 +19,11 @@ HcalUHTRData::const_iterator& HcalUHTRData::const_iterator::operator++() {
     else { m_ptr+=2; }
   }
 
-  if (isHeader()) determineMode();
+  if (isHeader()) {
+    determineMode();
+    m_header_ptr = m_ptr;
+    m_0th_data_ptr = m_header_ptr + 1;
+  }
   return *this;
 }
 
@@ -53,10 +57,21 @@ uint8_t HcalUHTRData::const_iterator::te_tdc() const {
   else return 0x80;
 }
 
+uint8_t HcalUHTRData::const_iterator::capid() const {
+  if (m_flavor==2) return(m_ptr[1]>>12)&0x3;
+  else if (m_flavor == 1 || m_flavor == 0) {
+    // For flavor 0,1 we only get the first capid in the header, and so we need
+    // to count the number of data rows and figure out which cap we want,
+    // knowing that they go 0->1->2->3->0
+    return 0;
+  }
+  else { return 0; }
+}
+
 bool HcalUHTRData::const_iterator::ok() const {
   if (m_flavor == 2) { return (m_ptr[0]>>12)&0x1; }
   else if (m_flavor == 4) { return (m_ptr[0]>>13)&0x1; }
-  else return { false; }
+  else { return false; }
 }
 
 HcalUHTRData::const_iterator HcalUHTRData::begin() const {

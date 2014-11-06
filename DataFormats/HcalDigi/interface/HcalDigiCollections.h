@@ -42,8 +42,11 @@ public:
   int size() const { return int(edm::DataFrameContainer::size()); }
   Digi operator[](size_type i) const { return Digi(edm::DataFrameContainer::operator[](i));}
   void addDataFrame(DetId detid, const uint16_t* data) { push_back(detid.rawId(),data); }
+  int samples() const { return int((stride()-Digi::HEADER_WORDS)/Digi::WORDS_PER_SAMPLE); }
+  void sort() { edm::DataFrameContainer::sort(); }
 };
 
 typedef HcalDataFrameContainer<QIE10DataFrame> QIE10DigiCollection;
+
 
 #endif
