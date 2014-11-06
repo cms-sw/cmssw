@@ -485,145 +485,147 @@ TriggerJSONMonitoring::endLuminosityBlockSummary(const edm::LuminosityBlock& iLu
 void
 TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup, const LuminosityBlockContext* iContext, hltJson::lumiVars* iSummary)
 {
-  Json::StyledWriter writer;
+  if (iSummary->processed->value().at(0)!=0) {
+    Json::StyledWriter writer;
 
-  char hostname[33];
-  gethostname(hostname,32);
-  std::string sourceHost(hostname);
+    char hostname[33];
+    gethostname(hostname,32);
+    std::string sourceHost(hostname);
 
-  //Get the output directory                                        
-  std::string monPath = iSummary->baseRunDir + "/";
+    //Get the output directory                                        
+    std::string monPath = iSummary->baseRunDir + "/";
 
-  std::stringstream sOutDef;
-  sOutDef << monPath << "output_" << getpid() << ".jsd";
+    std::stringstream sOutDef;
+    sOutDef << monPath << "output_" << getpid() << ".jsd";
 
-  unsigned int iLs  = iLumi.luminosityBlock();
-  unsigned int iRun = iLumi.run();
+    unsigned int iLs  = iLumi.luminosityBlock();
+    unsigned int iRun = iLumi.run();
 
-  //Write the .jsndata files which contain the actual rates
-  //HLT .jsndata file
-  Json::Value hltJsnData;
-  hltJsnData[DataPoint::SOURCE] = sourceHost;
-  hltJsnData[DataPoint::DEFINITION] = iSummary->stHltJsd;
+    //Write the .jsndata files which contain the actual rates
+    //HLT .jsndata file
+    Json::Value hltJsnData;
+    hltJsnData[DataPoint::SOURCE] = sourceHost;
+    hltJsnData[DataPoint::DEFINITION] = iSummary->stHltJsd;
 
-  hltJsnData[DataPoint::DATA].append(iSummary->processed->toJsonValue());
-  hltJsnData[DataPoint::DATA].append(iSummary->hltWasRun->toJsonValue());
-  hltJsnData[DataPoint::DATA].append(iSummary->hltL1s   ->toJsonValue());
-  hltJsnData[DataPoint::DATA].append(iSummary->hltPre   ->toJsonValue());
-  hltJsnData[DataPoint::DATA].append(iSummary->hltAccept->toJsonValue());
-  hltJsnData[DataPoint::DATA].append(iSummary->hltReject->toJsonValue());
-  hltJsnData[DataPoint::DATA].append(iSummary->hltErrors->toJsonValue());
+    hltJsnData[DataPoint::DATA].append(iSummary->processed->toJsonValue());
+    hltJsnData[DataPoint::DATA].append(iSummary->hltWasRun->toJsonValue());
+    hltJsnData[DataPoint::DATA].append(iSummary->hltL1s   ->toJsonValue());
+    hltJsnData[DataPoint::DATA].append(iSummary->hltPre   ->toJsonValue());
+    hltJsnData[DataPoint::DATA].append(iSummary->hltAccept->toJsonValue());
+    hltJsnData[DataPoint::DATA].append(iSummary->hltReject->toJsonValue());
+    hltJsnData[DataPoint::DATA].append(iSummary->hltErrors->toJsonValue());
 
-  hltJsnData[DataPoint::DATA].append(iSummary->hltDatasets->toJsonValue());
+    hltJsnData[DataPoint::DATA].append(iSummary->hltDatasets->toJsonValue());
 
-  std::string && result = writer.write(hltJsnData);
+    std::string && result = writer.write(hltJsnData);
 
-  std::stringstream ssHltJsnData;
-  ssHltJsnData <<  "run" << iRun << "_ls" << std::setfill('0') << std::setw(4) << iLs;
-  ssHltJsnData << "_streamHLTRates_pid" << std::setfill('0') << std::setw(5) << getpid() << ".jsndata";
+    std::stringstream ssHltJsnData;
+    ssHltJsnData <<  "run" << iRun << "_ls" << std::setfill('0') << std::setw(4) << iLs;
+    ssHltJsnData << "_streamHLTRates_pid" << std::setfill('0') << std::setw(5) << getpid() << ".jsndata";
 
-  std::ofstream outHltJsnData( monPath + ssHltJsnData.str() );
-  outHltJsnData<<result;
-  outHltJsnData.close();
+    std::ofstream outHltJsnData( monPath + ssHltJsnData.str() );
+    outHltJsnData<<result;
+    outHltJsnData.close();
 
-  //L1 .jsndata file
-  Json::Value l1JsnData;
-  l1JsnData[DataPoint::SOURCE] = sourceHost;
-  l1JsnData[DataPoint::DEFINITION] = iSummary->stL1Jsd;
+    //L1 .jsndata file
+    Json::Value l1JsnData;
+    l1JsnData[DataPoint::SOURCE] = sourceHost;
+    l1JsnData[DataPoint::DEFINITION] = iSummary->stL1Jsd;
 
-  l1JsnData[DataPoint::DATA].append(iSummary->processed->toJsonValue());
-  l1JsnData[DataPoint::DATA].append(iSummary->L1Accept ->toJsonValue());
-  l1JsnData[DataPoint::DATA].append(iSummary->L1TechAccept ->toJsonValue()); //DS                                                                                               
-  l1JsnData[DataPoint::DATA].append(iSummary->L1Global ->toJsonValue());     //DS                                                                                               
-  result = writer.write(l1JsnData);
+    l1JsnData[DataPoint::DATA].append(iSummary->processed->toJsonValue());
+    l1JsnData[DataPoint::DATA].append(iSummary->L1Accept ->toJsonValue());
+    l1JsnData[DataPoint::DATA].append(iSummary->L1TechAccept ->toJsonValue()); //DS                                                                                               
+    l1JsnData[DataPoint::DATA].append(iSummary->L1Global ->toJsonValue());     //DS                                                                                               
+    result = writer.write(l1JsnData);
 
-  std::stringstream ssL1JsnData;
-  ssL1JsnData << "run" << iRun << "_ls" << std::setfill('0') << std::setw(4) << iLs;
-  ssL1JsnData << "_streamL1Rates_pid" << std::setfill('0') << std::setw(5) << getpid() << ".jsndata";
+    std::stringstream ssL1JsnData;
+    ssL1JsnData << "run" << iRun << "_ls" << std::setfill('0') << std::setw(4) << iLs;
+    ssL1JsnData << "_streamL1Rates_pid" << std::setfill('0') << std::setw(5) << getpid() << ".jsndata";
 
-  std::ofstream outL1JsnData( monPath + "/" + ssL1JsnData.str() );
-  outL1JsnData<<result;
-  outL1JsnData.close();
+    std::ofstream outL1JsnData( monPath + "/" + ssL1JsnData.str() );
+    outL1JsnData<<result;
+    outL1JsnData.close();
 
-  //Create special DAQ JSON file for L1 and HLT rates pseudo-streams
-  //Only three variables are different between the files: 
-  //the file list, the file size and the Adler32 value
-  IntJ daqJsnProcessed_   = iSummary->processed->value().at(0);
-  IntJ daqJsnAccepted_    = daqJsnProcessed_;
-  IntJ daqJsnErrorEvents_ = 0;                  
-  IntJ daqJsnRetCodeMask_ = 0;                 
+    //Create special DAQ JSON file for L1 and HLT rates pseudo-streams
+    //Only three variables are different between the files: 
+    //the file list, the file size and the Adler32 value
+    IntJ daqJsnProcessed_   = iSummary->processed->value().at(0);
+    IntJ daqJsnAccepted_    = daqJsnProcessed_;
+    IntJ daqJsnErrorEvents_ = 0;                  
+    IntJ daqJsnRetCodeMask_ = 0;                 
 
-  struct stat st;
+    struct stat st;
 
-  //HLT
-  StringJ hltJsnFilelist_;
-  hltJsnFilelist_.update(ssHltJsnData.str());                 
+    //HLT
+    StringJ hltJsnFilelist_;
+    hltJsnFilelist_.update(ssHltJsnData.str());                 
 
-  const char* cName = (monPath+ssHltJsnData.str()).c_str();
-  stat(cName, &st);
-  
-  IntJ hltJsnFilesize_    = st.st_size;                    
-  StringJ hltJsnInputFiles_;               
-  hltJsnInputFiles_.update("");
-  IntJ hltJsnFileAdler32_ = cms::Adler32(cName, st.st_size);        
-  
-  Json::Value hltDaqJsn;
-  hltDaqJsn[DataPoint::SOURCE] = sourceHost;
-  hltDaqJsn[DataPoint::DEFINITION] = sOutDef.str();
+    const char* cName = (monPath+ssHltJsnData.str()).c_str();
+    stat(cName, &st);
 
-  hltDaqJsn[DataPoint::DATA].append((unsigned int)daqJsnProcessed_.value());
-  hltDaqJsn[DataPoint::DATA].append((unsigned int)daqJsnAccepted_.value());
-  hltDaqJsn[DataPoint::DATA].append((unsigned int)daqJsnErrorEvents_.value());
-  hltDaqJsn[DataPoint::DATA].append((unsigned int)daqJsnRetCodeMask_.value());
-  hltDaqJsn[DataPoint::DATA].append(hltJsnFilelist_.value());
-  hltDaqJsn[DataPoint::DATA].append((unsigned int)hltJsnFilesize_.value());
-  hltDaqJsn[DataPoint::DATA].append(hltJsnInputFiles_.value());
-  hltDaqJsn[DataPoint::DATA].append((unsigned int)hltJsnFileAdler32_.value());
+    IntJ hltJsnFilesize_    = st.st_size;                    
+    StringJ hltJsnInputFiles_;               
+    hltJsnInputFiles_.update("");
+    IntJ hltJsnFileAdler32_ = cms::Adler32(cName, st.st_size);        
 
-  result = writer.write(hltDaqJsn);
+    Json::Value hltDaqJsn;
+    hltDaqJsn[DataPoint::SOURCE] = sourceHost;
+    hltDaqJsn[DataPoint::DEFINITION] = sOutDef.str();
 
-  std::stringstream ssHltDaqJsn;
-  ssHltDaqJsn <<  "run" << iRun << "_ls" << std::setfill('0') << std::setw(4) << iLs;
-  ssHltDaqJsn << "_streamHLTRates_pid" << std::setfill('0') << std::setw(5) << getpid() << ".jsn";
+    hltDaqJsn[DataPoint::DATA].append((unsigned int)daqJsnProcessed_.value());
+    hltDaqJsn[DataPoint::DATA].append((unsigned int)daqJsnAccepted_.value());
+    hltDaqJsn[DataPoint::DATA].append((unsigned int)daqJsnErrorEvents_.value());
+    hltDaqJsn[DataPoint::DATA].append((unsigned int)daqJsnRetCodeMask_.value());
+    hltDaqJsn[DataPoint::DATA].append(hltJsnFilelist_.value());
+    hltDaqJsn[DataPoint::DATA].append((unsigned int)hltJsnFilesize_.value());
+    hltDaqJsn[DataPoint::DATA].append(hltJsnInputFiles_.value());
+    hltDaqJsn[DataPoint::DATA].append((unsigned int)hltJsnFileAdler32_.value());
 
-  std::ofstream outHltDaqJsn( monPath + ssHltDaqJsn.str() );
-  outHltDaqJsn<<result;
-  outHltDaqJsn.close();
+    result = writer.write(hltDaqJsn);
 
-  //L1
-  StringJ l1JsnFilelist_;
-  l1JsnFilelist_.update(ssL1JsnData.str());                 
+    std::stringstream ssHltDaqJsn;
+    ssHltDaqJsn <<  "run" << iRun << "_ls" << std::setfill('0') << std::setw(4) << iLs;
+    ssHltDaqJsn << "_streamHLTRates_pid" << std::setfill('0') << std::setw(5) << getpid() << ".jsn";
 
-  cName = (monPath+ssL1JsnData.str()).c_str();
-  stat(cName, &st);
-  
-  IntJ l1JsnFilesize_    = st.st_size;                    
-  StringJ l1JsnInputFiles_;               
-  l1JsnInputFiles_.update("");
-  IntJ l1JsnFileAdler32_ = cms::Adler32(cName, st.st_size);        
-  
-  Json::Value l1DaqJsn;
-  l1DaqJsn[DataPoint::SOURCE] = sourceHost;
-  l1DaqJsn[DataPoint::DEFINITION] = sOutDef.str();
+    std::ofstream outHltDaqJsn( monPath + ssHltDaqJsn.str() );
+    outHltDaqJsn<<result;
+    outHltDaqJsn.close();
 
-  l1DaqJsn[DataPoint::DATA].append((unsigned int)daqJsnProcessed_.value());
-  l1DaqJsn[DataPoint::DATA].append((unsigned int)daqJsnAccepted_.value());
-  l1DaqJsn[DataPoint::DATA].append((unsigned int)daqJsnErrorEvents_.value());
-  l1DaqJsn[DataPoint::DATA].append((unsigned int)daqJsnRetCodeMask_.value());
-  l1DaqJsn[DataPoint::DATA].append(l1JsnFilelist_.value());
-  l1DaqJsn[DataPoint::DATA].append((unsigned int)l1JsnFilesize_.value());
-  l1DaqJsn[DataPoint::DATA].append(l1JsnInputFiles_.value());
-  l1DaqJsn[DataPoint::DATA].append((unsigned int)l1JsnFileAdler32_.value());
+    //L1
+    StringJ l1JsnFilelist_;
+    l1JsnFilelist_.update(ssL1JsnData.str());                 
 
-  result = writer.write(l1DaqJsn);
+    cName = (monPath+ssL1JsnData.str()).c_str();
+    stat(cName, &st);
 
-  std::stringstream ssL1DaqJsn;
-  ssL1DaqJsn <<  "run" << iRun << "_ls" << std::setfill('0') << std::setw(4) << iLs;
-  ssL1DaqJsn << "_streamL1Rates_pid" << std::setfill('0') << std::setw(5) << getpid() << ".jsn";
+    IntJ l1JsnFilesize_    = st.st_size;                    
+    StringJ l1JsnInputFiles_;               
+    l1JsnInputFiles_.update("");
+    IntJ l1JsnFileAdler32_ = cms::Adler32(cName, st.st_size);        
 
-  std::ofstream outL1DaqJsn( monPath + ssL1DaqJsn.str() );
-  outL1DaqJsn<<result;
-  outL1DaqJsn.close();
+    Json::Value l1DaqJsn;
+    l1DaqJsn[DataPoint::SOURCE] = sourceHost;
+    l1DaqJsn[DataPoint::DEFINITION] = sOutDef.str();
+
+    l1DaqJsn[DataPoint::DATA].append((unsigned int)daqJsnProcessed_.value());
+    l1DaqJsn[DataPoint::DATA].append((unsigned int)daqJsnAccepted_.value());
+    l1DaqJsn[DataPoint::DATA].append((unsigned int)daqJsnErrorEvents_.value());
+    l1DaqJsn[DataPoint::DATA].append((unsigned int)daqJsnRetCodeMask_.value());
+    l1DaqJsn[DataPoint::DATA].append(l1JsnFilelist_.value());
+    l1DaqJsn[DataPoint::DATA].append((unsigned int)l1JsnFilesize_.value());
+    l1DaqJsn[DataPoint::DATA].append(l1JsnInputFiles_.value());
+    l1DaqJsn[DataPoint::DATA].append((unsigned int)l1JsnFileAdler32_.value());
+
+    result = writer.write(l1DaqJsn);
+
+    std::stringstream ssL1DaqJsn;
+    ssL1DaqJsn <<  "run" << iRun << "_ls" << std::setfill('0') << std::setw(4) << iLs;
+    ssL1DaqJsn << "_streamL1Rates_pid" << std::setfill('0') << std::setw(5) << getpid() << ".jsn";
+
+    std::ofstream outL1DaqJsn( monPath + ssL1DaqJsn.str() );
+    outL1DaqJsn<<result;
+    outL1DaqJsn.close();
+  }
 
   //Delete the individual HistoJ pointers                                                                                                                                  
   delete iSummary->processed;
