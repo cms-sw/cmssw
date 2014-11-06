@@ -93,7 +93,7 @@ class FSQDiJetAve : public edm::EDAnalyzer {
 
 
       // TODO: auto ptr
-      std::vector<FSQ::BaseHandler *> m_handlers;
+      std::vector< std::shared_ptr<FSQ::BaseHandler> > m_handlers;
 };
 
 #endif
