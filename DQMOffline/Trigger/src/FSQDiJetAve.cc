@@ -63,6 +63,8 @@ class BaseHandler {
         virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, 
                              const HLTConfigProvider&  hltConfig,
                              const trigger::TriggerEvent& trgEvent,
+                             const edm::TriggerResults & triggerResults, 
+                             const edm::TriggerNames  & triggerNames,
                              float weight) = 0;
         virtual void beginRun() = 0;
 
@@ -111,22 +113,14 @@ class HandlerTemplate: public BaseHandler {
              std::string type = iConfig.getParameter<std::string>("handlerType");
              if (type != "FromHLT") {
                 m_input = iConfig.getParameter<edm::InputTag>("inputCol");
-                //throw cms::Exception("FSQ - HandlerTemplate: wrong " + type);
              }
-
 
              m_dqmhistolabel = iConfig.getParameter<std::string>("dqmhistolabel");
              m_filterPartialName = iConfig.getParameter<std::string>("partialFilterName"); // std::string find is used to match filter
-                                                                                           // there should be just one matching filter
-                                                                                           //  in path
-                                                                                           
              m_pathPartialName  = iConfig.getParameter<std::string>("partialPathName");
              m_combinedObjectDimension = iConfig.getParameter<int>("combinedObjectDimension");
-
              m_drawables = iConfig.getParameter<  std::vector< edm::ParameterSet > >("drawables");
              m_isSetup = false;
-
-
         }
 
         void beginRun(){
@@ -167,28 +161,18 @@ class HandlerTemplate: public BaseHandler {
 
         }
 
-        // Notes:
-        //  - FIXME this function should take only event/ event setup
-        //  - FIXME responsibility to apply preselection should be elsewhere
-        //          hard to fix, since we dont want to copy all objects due to
-        //          performance reasons
-        void getFilteredCands(
-                     trigger::TriggerObject *, // input object type
-                     std::vector<trigger::TriggerObject> &cands, // output collection
-                     const edm::Event& iEvent,  
-                     const edm::EventSetup& iSetup,
-                     const HLTConfigProvider&  hltConfig,
-                     const trigger::TriggerEvent& trgEvent)
-        {
-            
-            // 1. Find matching path. Inside matchin path find matching filter
+
+        std::vector<std::string > findPathAndFilter(const HLTConfigProvider&  hltConfig){
+            std::vector<std::string> ret(2,"");
             std::string filterFullName = "";
+            std::string pathFullName = "";
             std::vector<std::string> filtersForThisPath;
             //int pathIndex = -1;
             int numPathMatches = 0;
             int numFilterMatches = 0;
             for (unsigned int i = 0; i < hltConfig.size(); ++i) {
                 if (hltConfig.triggerName(i).find(m_pathPartialName) == std::string::npos) continue;
+                pathFullName = hltConfig.triggerName(i);
                 //pathIndex = i;
                 ++numPathMatches;
                 std::vector<std::string > moduleLabels = hltConfig.moduleLabels(i);
@@ -207,13 +191,37 @@ class HandlerTemplate: public BaseHandler {
             if (numPathMatches != 1) {
                   edm::LogError("FSQDiJetAve") << "Problem: found " << numPathMatches
                     << " paths matching " << m_pathPartialName << std::endl;
-                  return;   
+                  return ret;   
             }
+            ret[0] = pathFullName;
             if (numFilterMatches != 1) {
                   edm::LogError("FSQDiJetAve") << "Problem: found " << numFilterMatches
                     << " filter matching " << m_filterPartialName
                     << " in path "<< m_pathPartialName << std::endl;
-                  return;
+                  return ret;
+            }
+            ret[1] = filterFullName;
+            return ret;
+        }
+
+        // Notes:
+        //  - FIXME this function should take only event/ event setup
+        //  - FIXME responsibility to apply preselection should be elsewhere
+        //          hard to fix, since we dont want to copy all objects due to
+        //          performance reasons
+        void getFilteredCands(
+                     trigger::TriggerObject *, // input object type
+                     std::vector<trigger::TriggerObject> &cands, // output collection
+                     const edm::Event& iEvent,  
+                     const edm::EventSetup& iSetup,
+                     const HLTConfigProvider&  hltConfig,
+                     const trigger::TriggerEvent& trgEvent)
+        {
+            
+            // 1. Find matching path. Inside matchin path find matching filter
+            std::string filterFullName = findPathAndFilter(hltConfig)[1];
+            if (filterFullName == "") {
+                return;
             }
 
             // 2. Fetch HLT objects saved by selected filter. Save those fullfilling preselection
@@ -245,9 +253,22 @@ class HandlerTemplate: public BaseHandler {
         void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup,
                      const HLTConfigProvider&  hltConfig,
                      const trigger::TriggerEvent& trgEvent,
+                     const edm::TriggerResults & triggerResults, 
+                     const edm::TriggerNames  & triggerNames,
                      float weight)
         {
 
+            std::vector<std::string> pathAndFilter = findPathAndFilter(hltConfig);
+
+            std::string pathFullName = pathAndFilter[0];
+            if (pathFullName == "") {
+                return;
+            }
+            unsigned indexNum = triggerNames.triggerIndex(pathFullName);
+            if(indexNum >= triggerNames.size()){
+                  edm::LogError("FSQDiJetAve") << "Problem determining trigger index for " << pathFullName << " " << m_pathPartialName;
+            }
+            if (!triggerResults.accept(indexNum)) return;
 
             std::vector<TOutputCandidateType> cands;
             getFilteredCands((TInputCandidateType *)0, cands, iEvent, iSetup, hltConfig, trgEvent);
@@ -394,10 +415,10 @@ FSQDiJetAve::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace edm;
 
   //---------- triggerResults ----------
-  iEvent.getByToken(triggerResultsToken, triggerResults_);
-  if(!triggerResults_.isValid()) {
-    iEvent.getByToken(triggerResultsFUToken,triggerResults_);
-    if(!triggerResults_.isValid()) {
+  iEvent.getByToken(triggerResultsToken, m_triggerResults);
+  if(!m_triggerResults.isValid()) {
+    iEvent.getByToken(triggerResultsFUToken, m_triggerResults);
+    if(!m_triggerResults.isValid()) {
       edm::LogInfo("FSQDiJetAve") << "TriggerResults not found, skipping event";
       return;
     }
@@ -405,10 +426,10 @@ FSQDiJetAve::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   //---------- triggerResults ----------
   //int npath;
-  if(&triggerResults_) {  
+  if(&m_triggerResults) {  
     // Check how many HLT triggers are in triggerResults
-    //npath = triggerResults_->size();
-    triggerNames_ = iEvent.triggerNames(*triggerResults_);
+    //npath = m_triggerResults->size();
+    m_triggerNames = iEvent.triggerNames(*m_triggerResults);
   } 
   else {
     edm::LogInfo("FSQDiJetAve") << "TriggerResults::HLT not found";
@@ -434,7 +455,7 @@ FSQDiJetAve::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   for (unsigned int i = 0; i < m_handlers.size(); ++i) {
-        m_handlers.at(i)->analyze(iEvent, iSetup, m_hltConfig, *m_trgEvent.product(), weight);
+        m_handlers.at(i)->analyze(iEvent, iSetup, m_hltConfig, *m_trgEvent.product(), *m_triggerResults.product(), m_triggerNames, weight);
   }
 
 
