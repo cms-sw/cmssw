@@ -152,11 +152,15 @@ protected:
   AlignmentCorrelationsStore* theCorrelationsStore;
 
 private:
+  enum TypeOfConstraints { NONE, HIERARCHY_CONSTRAINTS, APPROX_AVERAGING_CONSTRAINTS };
+
   // data members
 
   /// alignables 
   align::Alignables theAlignables;
 
+  /// type of constraints
+  TypeOfConstraints theTypeOfConstraints;  
 };
 
 #endif
