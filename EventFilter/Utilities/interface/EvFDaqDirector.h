@@ -103,14 +103,7 @@ namespace evf{
         fileDeleteLockPtr_=fileDeleteLock;
         filesToDeletePtr_ = filesToDelete;
       }
-      bool registerStreamProducer(std::string producer) {
-        auto itr = iniFileMap_.find(producer);
-        if (itr==iniFileMap_.end()) {
-            iniFileMap_[producer]=true;
-            return false;
-        }
-        else return true;
-      }
+
 
     private:
       //bool bulock();
@@ -184,8 +177,6 @@ namespace evf{
 
       bool readEolsDefinition_ = true;
       unsigned int eolsNFilesIndex_ = 1;
-
-      std::map<std::string,bool> iniFileMap_;
 
   };
 }
