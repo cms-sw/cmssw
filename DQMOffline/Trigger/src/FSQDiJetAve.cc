@@ -77,9 +77,11 @@ class BaseHandler {
 // Handle objects saved into hlt event by hlt filters
 //
 //################################################################################################
-class HLTHandler: public BaseHandler {
+//
+template <class TCandidateType>
+class HandlerTemplate: public BaseHandler {
     private:
-        typedef trigger::TriggerObject TCandidateType;
+        //typedef trigger::TriggerObject TCandidateType;
 
         std::string m_dqmhistolabel;
         std::string m_pathPartialName; //#("HLT_DiPFJetAve30_HFJEC_");
@@ -98,7 +100,7 @@ class HLTHandler: public BaseHandler {
         bool m_isSetup;
 
     public:
-        HLTHandler(const edm::ParameterSet& iConfig):
+        HandlerTemplate(const edm::ParameterSet& iConfig):
             BaseHandler(iConfig),
             m_singleObjectSelection(iConfig.getParameter<std::string>("singleObjectsPreselection")),
             m_combinedObjectSelection(iConfig.getParameter<std::string>("combinedObjectSelection")),
@@ -106,7 +108,7 @@ class HLTHandler: public BaseHandler {
         {
              std::string type = iConfig.getParameter<std::string>("handlerType");
              if (type != "FromHLT") {
-                throw cms::Exception("FSQ - HLTHandler: wrong " + type);
+                throw cms::Exception("FSQ - HandlerTemplate: wrong " + type);
              }
 
              m_dqmhistolabel = iConfig.getParameter<std::string>("dqmhistolabel");
@@ -207,6 +209,8 @@ class HLTHandler: public BaseHandler {
                 }
             }
 
+
+            // XXXXX
             // 3. Fun part - built/select best objects combination
             int columnSize = cands.size();
             std::vector<int> currentCombination(m_combinedObjectDimension, 0);
@@ -274,6 +278,8 @@ class HLTHandler: public BaseHandler {
                 }
             } // combinations loop ends
 
+            // XXX 
+
             if (bestCombination.size()==0 || bestCombination.at(0)<0){
                 return;
             }
@@ -299,6 +305,9 @@ class HLTHandler: public BaseHandler {
         }
 
 };
+    //typedef trigger::TriggerObject TCandidateType;
+    //
+typedef HandlerTemplate<trigger::TriggerObject > HLTHandler;
 
 }
 
