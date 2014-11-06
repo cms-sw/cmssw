@@ -153,6 +153,7 @@ void HLTBTagHarvestingAnalyzer::mistagrate(DQMStore::IBooker& ibooker, DQMStore:
 	}
 	ibooker.book1D(effName.c_str(),eff);
 
+	delete eff;
 	return;
 }
 

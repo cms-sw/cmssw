@@ -32,7 +32,7 @@
 using namespace reco;
 using namespace edm;
 
-class HLTVertexPerformanceAnalyzer : public DQMEDAnalyzer {
+class HLTVertexPerformanceAnalyzer : public thread_unsafe::DQMEDAnalyzer {
 	public:
 		explicit HLTVertexPerformanceAnalyzer(const edm::ParameterSet&);
 		~HLTVertexPerformanceAnalyzer();

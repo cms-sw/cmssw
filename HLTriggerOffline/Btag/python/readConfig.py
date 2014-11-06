@@ -15,7 +15,7 @@ class fileINI:
 		 self.jets=ConfigSectionMap("config")["hltjets"]
 		 files=ConfigSectionMap("config")["files"]
 		 self.maxEvents=ConfigSectionMap("config")["maxevents"]
-		 self.denominatorTriggerPath=ConfigSectionMap("config")["denominatorTriggerPath"]
+#		 self.denominatorTriggerPath=ConfigSectionMap("config")["denominatorTriggerPath"]
 
 		 files=files.splitlines()
 		 self.files=filter(lambda x: len(x)>0,files)

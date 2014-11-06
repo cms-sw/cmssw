@@ -31,10 +31,24 @@ print "vertex_modules ",fileini.vertex_modules
 print "vertex_pathes ",fileini.vertex_pathes
 print
 
+triggerFilter = []
+triggerFilter.extend(fileini.vertex_pathes)
+triggerFilter.extend(fileini.btag_pathes)
+triggerFilter = list(set(triggerFilter))
+triggerString = ""
+
+for i in range(len(triggerFilter)):
+	if i is not 0:
+		triggerString += " OR "
+	
+	triggerString +=  triggerFilter[i] + "*"
+
+print "triggerString : ",triggerString
+
 #denominator trigger
 process.hltBtagTriggerSelection = cms.EDFilter( "TriggerResultsFilter",
     triggerConditions = cms.vstring(
-      fileini.denominatorTriggerPath),
+      triggerString),
     hltResults = cms.InputTag( "TriggerResults", "", fileini.processname ),
 #    l1tResults = cms.InputTag( "gtDigis" ),
 #    l1tIgnoreMask = cms.bool( False ),

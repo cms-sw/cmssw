@@ -5,9 +5,9 @@ from HLTriggerOffline.Btag.HltBtagValidation_cff import *
 HltVertexValidationVerticesFastSim= cms.EDAnalyzer("HLTVertexPerformanceAnalyzer",
 	TriggerResults = cms.InputTag('TriggerResults','',"HLT"),
 	HLTPathNames =cms.vstring(
-		'HLT_PFMET120_NoiseCleaned_BTagCSV07_v1', 
-	#	'HLT_PFMET120_NoiseCleaned_BTagCSV07_v1', 
-		'HLT_PFMET120_NoiseCleaned_BTagCSV07_v1'
+		'HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDLoose_v', 
+	#	'HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDLoose_v', 
+		'HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDLoose_v'
 		),
 	Vertex = cms.VInputTag(
 		cms.InputTag("hltVerticesL3"), 
