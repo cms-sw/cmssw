@@ -23,7 +23,7 @@
 #include <iostream>
 #include <cmath>
 
-using namespace std;
+namespace heppy {
 
 class Hemisphere {
 
@@ -72,17 +72,17 @@ class Hemisphere {
   // RejectISRDRmax() max DeltaR below which objects can be included
   //   (default = 10.)
 
-  Hemisphere(vector<float> Px_vector, vector<float> Py_vector, vector<float> Pz_vector, vector<float> E_vector, int seed_method, int hemisphere_association_method);
+  Hemisphere(std::vector<float> Px_vector, std::vector<float> Py_vector, std::vector<float> Pz_vector, std::vector<float> E_vector, int seed_method, int hemisphere_association_method);
 
-  Hemisphere(vector<float> Px_vector, vector<float> Py_vector, vector<float> Pz_vector, vector<float> E_vector);
+  Hemisphere(std::vector<float> Px_vector, std::vector<float> Py_vector, std::vector<float> Pz_vector, std::vector<float> E_vector);
 
   // Destructor
   ~Hemisphere(){};
 
   // return Nx, Ny, Nz, P, E of the axis of group 1
-  vector<float> getAxis1(); 
+  std::vector<float> getAxis1(); 
   // return Nx, Ny, Nz, P, E of the axis of group 2
-  vector<float> getAxis2(); 
+  std::vector<float> getAxis2(); 
 
   // where Nx, Ny, Nz are the direction cosines e.g. Nx = Px/P, 
   // P is the momentum, E is the energy
@@ -90,7 +90,7 @@ class Hemisphere {
   // return vector with "1" and "2"'s according to which group the object belongs 
   //   and 0 if the object is not associated to any hemisphere
   //   (order of objects in vector is same as input)
-  vector<int> getGrouping();
+  std::vector<int> getGrouping();
 
   // set or overwrite the seed and association methods
   void SetMethod(int seed_method, int hemisphere_association_method) {
@@ -166,20 +166,20 @@ class Hemisphere {
   int RejectISR(); 
 
 
-  vector<float> Object_Px;
-  vector<float> Object_Py;
-  vector<float> Object_Pz;
-  vector<float> Object_P;
-  vector<float> Object_Pt;
-  vector<float> Object_E;
-  vector<float> Object_Phi;
-  vector<float> Object_Eta;
-  vector<int> Object_Group;
-  vector<int> Object_Noseed;
-  vector<int> Object_Noassoc;
+  std::vector<float> Object_Px;
+  std::vector<float> Object_Py;
+  std::vector<float> Object_Pz;
+  std::vector<float> Object_P;
+  std::vector<float> Object_Pt;
+  std::vector<float> Object_E;
+  std::vector<float> Object_Phi;
+  std::vector<float> Object_Eta;
+  std::vector<int> Object_Group;
+  std::vector<int> Object_Noseed;
+  std::vector<int> Object_Noassoc;
 
-  vector<float> Axis1;
-  vector<float> Axis2;
+  std::vector<float> Axis1;
+  std::vector<float> Axis2;
 
   //static const float hemivsn = 1.01;
   int seed_meth;
@@ -196,5 +196,6 @@ class Hemisphere {
   int numLoop;
 
 };
+}
 
 #endif

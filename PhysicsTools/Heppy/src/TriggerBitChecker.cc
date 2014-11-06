@@ -2,6 +2,8 @@
 
 #include "FWCore/Common/interface/TriggerNames.h"
 
+namespace heppy {
+
 TriggerBitChecker::TriggerBitChecker(const std::string &path) : paths_(1,returnPathStruct(path)), lastRun_(0) { rmstar(); }
 
 TriggerBitChecker::TriggerBitChecker(const std::vector<std::string> &paths) : paths_(paths.size()), lastRun_(0) { 
@@ -45,4 +47,5 @@ void TriggerBitChecker::rmstar() {
         std::string::size_type idx = itp->pathName.find("*");
         if (idx != std::string::npos) itp->pathName.erase(idx);
     }
+}
 }

@@ -17,6 +17,7 @@
 #include <TLorentzVector.h>
 #include <TRandom3.h>
 
+namespace heppy {
 
 class RochCor2012 {
  public:
@@ -107,5 +108,6 @@ class RochCor2012 {
   float gscler_mc_dev;
   float gscler_da_dev;
 };
+}
   
 #endif

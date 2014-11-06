@@ -4,6 +4,8 @@
 #include "TRandom3.h"
 #include <iostream>
 
+namespace heppy {
+
 class BTagSF{
 
  public:
@@ -25,6 +27,6 @@ class BTagSF{
   TRandom3* randm;
 
 };
-
+};
 
 #endif

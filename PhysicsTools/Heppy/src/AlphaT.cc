@@ -4,6 +4,7 @@
 #include <numeric>
 #include <vector>
 
+namespace heppy {
 
 double AlphaT::getAlphaT( const std::vector<double>& et,
 			  const std::vector<double>& px,
@@ -32,3 +33,4 @@ double AlphaT::getAlphaT( const std::vector<double>& et,
     return ( 0.5 * ( sum_et - min_delta_sum_et ) / sqrt( sum_et*sum_et - (sum_px*sum_px+sum_py*sum_py) ) );
 
   }
+}

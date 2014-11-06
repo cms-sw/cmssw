@@ -7,10 +7,6 @@
 #include <TLorentzVector.h>
 #include <TMath.h>
 
-using namespace std;
-using std::vector;
-using std::cout;
-using std::endl;
 
 #include <boost/shared_ptr.hpp>
 #include <fastjet/internal/base.hh>
@@ -22,15 +18,24 @@ using std::endl;
 
 //FASTJET_BEGIN_NAMESPACE
 
+namespace heppy {
+
 class HemisphereViaKt {
     
  public:
 
-  HemisphereViaKt(vector<float> Px_vector, vector<float> Py_vector, vector<float> Pz_vector, vector<float> E_vector);
-  HemisphereViaKt(vector<float> Px_vector, vector<float> Py_vector, vector<float> Pz_vector, vector<float> E_vector, double ktpower);
+  HemisphereViaKt(std::vector<float> Px_vector, 
+		  std::vector<float> Py_vector, 
+		  std::vector<float> Pz_vector, 
+		  std::vector<float> E_vector);
+  HemisphereViaKt(std::vector<float> Px_vector, 
+		  std::vector<float> Py_vector, 
+		  std::vector<float> Pz_vector, 
+		  std::vector<float> E_vector, 
+		  double ktpower);
 
   // get grouping
-  std::vector<vector<float> > getGrouping();
+  std::vector<std::vector<float> > getGrouping();
 
 
  private:
@@ -39,17 +44,17 @@ class HemisphereViaKt {
   int Reconstruct();
 
   // used to handle the inputs
-  vector<float> Object_Px;
-  vector<float> Object_Py;
-  vector<float> Object_Pz;
-  vector<float> Object_E;
+  std::vector<float> Object_Px;
+  std::vector<float> Object_Py;
+  std::vector<float> Object_Pz;
+  std::vector<float> Object_E;
 
   // used to store the exclusive jets
-  vector<float> JetObject_Px;
-  vector<float> JetObject_Py;
-  vector<float> JetObject_Pz;
-  vector<float> JetObject_E;
-  std::vector<vector<float> > JetObjectAll;
+  std::vector<float> JetObject_Px;
+  std::vector<float> JetObject_Py;
+  std::vector<float> JetObject_Pz;
+  std::vector<float> JetObject_E;
+  std::vector<std::vector<float> > JetObjectAll;
 
   std::vector<fastjet::PseudoJet> fjInputs_;        // fastjet inputs
   std::vector<fastjet::PseudoJet> fjJets_;          // fastjet jets
@@ -66,6 +71,6 @@ class HemisphereViaKt {
     
 };
 
-//FASTJET_END_NAMESPACE
+}
  
 #endif    

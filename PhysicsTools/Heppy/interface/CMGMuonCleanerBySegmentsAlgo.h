@@ -5,6 +5,8 @@
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include <vector>
 
+namespace heppy {
+
 class CMGMuonCleanerBySegmentsAlgo {
     public:
         CMGMuonCleanerBySegmentsAlgo(double sharedFraction=0.499, const std::string & preselection="track.isNonnull", const std::string & passthrough="isGlobalMuon && numberOfMatches >= 2") :
@@ -29,5 +31,7 @@ class CMGMuonCleanerBySegmentsAlgo {
         bool isSameMuon(const pat::Muon &mu1, const pat::Muon &mu2) const ;
         bool isBetterMuon(const pat::Muon &mu1, bool mu1PF, const pat::Muon &mu2, bool mu2PF) const ;
 };
+
+}
 
 #endif

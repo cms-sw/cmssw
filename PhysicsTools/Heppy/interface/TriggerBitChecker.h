@@ -5,6 +5,9 @@
 #include "FWCore/Common/interface/EventBase.h"
 #include <vector>
 #include <string>
+
+namespace heppy {
+
 class TriggerBitChecker {
     public:
         struct pathStruct {
@@ -35,5 +38,6 @@ class TriggerBitChecker {
         /// executes a 'rm -rf *' in current directory
         void rmstar() ;
 };
+}
 
 #endif

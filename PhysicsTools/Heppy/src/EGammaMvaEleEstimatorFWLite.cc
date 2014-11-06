@@ -3,6 +3,8 @@
 #include "EgammaAnalysis/ElectronTools/interface/EGammaMvaEleEstimator.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
+namespace heppy {
+
 EGammaMvaEleEstimatorFWLite::EGammaMvaEleEstimatorFWLite() :
     estimator_(0)
 {
@@ -45,3 +47,4 @@ float EGammaMvaEleEstimatorFWLite::mvaValue(const pat::Electron& ele,
 //    return estimator_->mvaValue(ele,vertex,rho,full5x5,printDebug);
 }
 
+}

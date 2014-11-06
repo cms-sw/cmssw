@@ -1,6 +1,8 @@
 #include "PhysicsTools/Heppy/interface/BTagSF.h"
 #include "TMath.h"
 
+namespace heppy {
+
 BTagSF::BTagSF( int seed ) {
 
   randm = new TRandom3(seed);
@@ -266,3 +268,4 @@ Double_t BTagSF::getMistag(Float_t pt, Float_t eta)
 
 }
 
+}

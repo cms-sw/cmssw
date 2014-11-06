@@ -7,6 +7,8 @@ using std::vector;
 using std::cout;
 using std::endl;
 
+namespace heppy { 
+
 HemisphereViaKt::HemisphereViaKt(vector<float> Px_vector, vector<float> Py_vector, vector<float> Pz_vector,
 				 vector<float> E_vector) : Object_Px(Px_vector),
 							   Object_Py(Py_vector), Object_Pz(Pz_vector), Object_E(E_vector), ktpower(-1), status(0), dbg(1) {
@@ -105,4 +107,5 @@ int HemisphereViaKt::Reconstruct(){
   return 1;
     
     
+}
 }

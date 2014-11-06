@@ -11,8 +11,8 @@ from PhysicsTools.Heppy.physicsutils.ElectronCalibrator import EmbeddedElectronC
 #from CMGTools.TTHAnalysis.electronCalibrator import ElectronCalibrator
 import PhysicsTools.HeppyCore.framework.config as cfg
 
-from ROOT import CMGMuonCleanerBySegmentsAlgo
-cmgMuonCleanerBySegments = CMGMuonCleanerBySegmentsAlgo()
+from ROOT import heppy
+cmgMuonCleanerBySegments = heppy.CMGMuonCleanerBySegmentsAlgo()
 
 class LeptonAnalyzer( Analyzer ):
 

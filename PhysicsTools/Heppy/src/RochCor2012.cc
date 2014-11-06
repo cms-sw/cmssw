@@ -1,6 +1,7 @@
 #include "PhysicsTools/Heppy/interface/RochCor2012.h"
 #include <TLorentzVector.h>
 
+namespace heppy {
 
 const double RochCor2012::pi = 3.14159265358979323846;
   
@@ -418,4 +419,6 @@ float RochCor2012::zptcor(float gzpt) {
   float zptwt = zptscl[ibin];
 
   return zptwt;
+}
+
 }

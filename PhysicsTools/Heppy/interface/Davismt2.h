@@ -7,6 +7,8 @@
 
 // using namespace std;
 
+namespace heppy {
+
 class Davismt2{
   // class Davismt2 : public TObject {
  public:
@@ -62,4 +64,6 @@ class Davismt2{
   double precision;
   // ClassDef(Davismt2,1)
 };
+}
+
 #endif

@@ -8,6 +8,8 @@ using std::vector;
 using std::cout;
 using std::endl;
 
+namespace heppy {
+
 // constructor specifying the seed and association methods
 Hemisphere::Hemisphere(vector<float> Px_vector, vector<float> Py_vector, vector<float> Pz_vector,
 	vector<float> E_vector, int seed_method, int hemisphere_association_method) : Object_Px(Px_vector),
@@ -705,4 +707,6 @@ int Hemisphere::RejectISR(){
 
 	status = 1;
 	return 1;
+}
+
 }

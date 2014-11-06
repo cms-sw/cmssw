@@ -37,6 +37,8 @@ double mt2_value = mt2_event.get_mt2();
 
 using namespace std;
 
+namespace heppy {
+
 /*The user can change the desired precision below, the larger one of the following two definitions is used. Relative precision less than 0.00001 is not guaranteed to be 
   achievable--use with caution*/ 
 
@@ -671,4 +673,5 @@ int Davismt2::signchange_p(long double t1, long double t2, long double t3, long 
 	return nsc;
 }
 
-// #endif
+}
+
