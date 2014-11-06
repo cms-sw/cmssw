@@ -85,8 +85,8 @@ class FSQDiJetAve : public edm::EDAnalyzer {
       edm::EDGetTokenT <trigger::TriggerEvent> triggerSummaryToken;
       edm::EDGetTokenT <trigger::TriggerEvent> triggerSummaryFUToken;
 
-      edm::TriggerNames triggerNames_; // TriggerNames class
-      edm::Handle<edm::TriggerResults> triggerResults_;
+      edm::TriggerNames m_triggerNames; // TriggerNames class
+      edm::Handle<edm::TriggerResults> m_triggerResults;
       edm::Handle<trigger::TriggerEvent> m_trgEvent;
       edm::InputTag triggerSummaryLabel_;
       edm::InputTag triggerResultsLabel_;
