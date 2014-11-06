@@ -206,6 +206,38 @@ namespace evf{
 
   }
 
+  void FastMonitoringService::preStreamEarlyTermination(edm::StreamContext const& sc, edm::TerminationOrigin to)
+  {
+    std::string context;
+    if (to==edm::TerminationOrigin::ExceptionFromThisContext) context =  " FromThisContext ";
+    if (to==edm::TerminationOrigin::ExceptionFromAnotherContext) context =  " FromAnotherContext";
+    if (to==edm::TerminationOrigin::ExternalSignal) context = " FromExternalSignal";
+    edm::LogInfo("FastMonitoringService") << " STREAM " << sc.streamID().value() << " earlyTermination -: ID:"<< sc.eventID() 
+                                          << " LS:" << sc.eventID().luminosityBlock() << " " << context;
+    exception_detected_=true; 
+  }
+
+  void FastMonitoringService::preGlobalEarlyTermination(edm::GlobalContext const& gc, edm::TerminationOrigin to)
+  {
+    std::string context;
+    if (to==edm::TerminationOrigin::ExceptionFromThisContext) context =  " FromThisContext ";
+    if (to==edm::TerminationOrigin::ExceptionFromAnotherContext) context =  " FromAnotherContext";
+    if (to==edm::TerminationOrigin::ExternalSignal) context = " FromExternalSignal";
+    edm::LogInfo("FastMonitoringService") << " GLOBAL " << "earlyTermination -: LS:"
+                                          << gc.luminosityBlockID().luminosityBlock() << " " << context;
+    exception_detected_=true; 
+  }
+
+  void FastMonitoringService::preSourceEarlyTermination(edm::TerminationOrigin to)
+  {
+    std::string context;
+    if (to==edm::TerminationOrigin::ExceptionFromThisContext) context =  " FromThisContext ";
+    if (to==edm::TerminationOrigin::ExceptionFromAnotherContext) context =  " FromAnotherContext";
+    if (to==edm::TerminationOrigin::ExternalSignal) context = " FromExternalSignal";
+    edm::LogInfo("FastMonitoringService") << " SOURCE " << "earlyTermination -: " << context;
+    exception_detected_=true; 
+  }
+
   void FastMonitoringService::jobFailure()
   {
     macrostate_ = FastMonitoringThread::sError;
@@ -313,7 +345,7 @@ namespace evf{
 	    auto itr = sourceEventsReport_.find(lumi);
 	    if (itr==sourceEventsReport_.end()) {
               //do not throw exception in case of signal termination
-              if (edm::shutdown_flag) {
+              if (edm::shutdown_flag || exception_detected_) {
                 edm::LogInfo("FastMonitoringService") << "Run interrupted. Skip writing EoL information -: "
                                                       << processedEventsPerLumi_[lumi] << " events were processed in LUMI " << lumi;
                 //this will prevent output modules from producing json file for possibly incomplete lumi
