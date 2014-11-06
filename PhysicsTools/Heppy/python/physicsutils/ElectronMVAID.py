@@ -1,9 +1,10 @@
+import PhysicsTools.Heppy.loadlibs
+import ROOT 
 
 class ElectronMVAID:
     def __init__(self,name,type,*xmls):
-        import ROOT
         self.name = name
-        self.estimator = ROOT.EGammaMvaEleEstimatorFWLite()
+        self.estimator = ROOT.heppy.EGammaMvaEleEstimatorFWLite()
         self.sxmls = ROOT.vector(ROOT.string)()
         for x in xmls: self.sxmls.push_back(x)  
         self.etype = -1

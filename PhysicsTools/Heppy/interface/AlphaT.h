@@ -14,6 +14,7 @@
  *  08 Sept 2014 - Ported from ICF code (Mark Baber)
  */
 
+namespace heppy {
 
 struct AlphaT {
 
@@ -21,6 +22,8 @@ struct AlphaT {
 		    const std::vector<double>& px,
 		    const std::vector<double>& py );
    
+};
+
 };
 
 #endif // AlphaT_h

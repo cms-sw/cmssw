@@ -1,5 +1,6 @@
 #include "PhysicsTools/Heppy/interface/CMGMuonCleanerBySegmentsAlgo.h"
 
+namespace heppy {
 
 CMGMuonCleanerBySegmentsAlgo::~CMGMuonCleanerBySegmentsAlgo() {
 }
@@ -60,4 +61,5 @@ CMGMuonCleanerBySegmentsAlgo::isBetterMuon(const pat::Muon &mu1, bool mu1PF, con
         int nm2 = mu2.numberOfMatches(reco::Muon::SegmentArbitration);
         return (nm1 != nm2 ? nm1 > nm2 : mu1.pt() > mu2.pt());
     }
+}
 }

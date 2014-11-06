@@ -12,7 +12,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include "MuScleFitCorrector_Functions.h"
+#include "PhysicsTools/Heppy/interface/MuScleFitCorrector_Functions.h"
 #include "TLorentzVector.h"
 #include "TRandom3.h"
 
@@ -22,6 +22,9 @@
  * The constructor receives the name identifying the parameters for the correction function.
  * It reads the parameters from a txt file in data/.
  */
+
+namespace heppy {
+
 class MuScleFitCorrector
 {
  public:
@@ -304,5 +307,6 @@ class MuScleFitCorrector
   // Bool for using resolution function or not (value depends from the information on the parameters txt file)
   bool useResol_;
 };
+}
 
 #endif

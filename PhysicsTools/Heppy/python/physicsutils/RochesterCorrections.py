@@ -1,6 +1,6 @@
 import copy
-
-from ROOT import RochCor, RochCor2012, TLorentzVector
+import PhysicsTools.Heppy.loadlibs
+from ROOT import heppy
 from PhysicsTools.Heppy.utils.cmsswRelease import isNewerThan
 
 is2012 = isNewerThan('CMSSW_5_2_0')
@@ -8,8 +8,8 @@ is2012 = isNewerThan('CMSSW_5_2_0')
 class RochesterCorrections(object):
     
     def __init__(self):
-        self.cor = RochCor()
-        self.cor2012 = RochCor2012()
+        self.cor = heppy.RochCor()
+        self.cor2012 = heppy.RochCor2012()
 
     def corrected_p4( self, particle, run ):
         '''Returns the corrected p4 for a particle.
@@ -46,31 +46,4 @@ class RochesterCorrections(object):
 
 rochcor = RochesterCorrections() 
         
-
-# Below, Mike's C++ code from the HZZ analysis
-##     unsigned int run = iEvent.id().run(); 
-
-##     for (unsigned int i = 0; i < nsrc; ++i) {
-##         T mu = (*src)[i];
-## 	TLorentzVector p4(mu.px(),mu.py(),mu.pz(),mu.energy());
-
-
-##         if (run <100 && !is55X) { //Monte Carlo 2011
-## 	  corrector_.momcor_mc(p4, mu.charge(), 0.0, 0);
-## 	}
-## 	else if  (run <100 && is55X) {
-## 	  corrector12_.momcor_mc(p4, mu.charge(), 0.0, 0);
-## 	}
-## 	else if (run>100&&run<=180252) { //2011 Data
-##             corrector_.momcor_data(p4, mu.charge(), 0.0, run <= 173692 ? 0 : 1);
-## 	}	 
-## 	else  if (run>190000) { //2012 Data
-##             corrector12_.momcor_data(p4, mu.charge(), 0.0, 0.0);
-## 	}	 
-
-## 	math::XYZTLorentzVector newP4(p4.Px(),p4.Py(),p4.Pz(),p4.Energy());
-## 	mu.setP4(newP4);
-
-
-##         out->push_back(mu);
 

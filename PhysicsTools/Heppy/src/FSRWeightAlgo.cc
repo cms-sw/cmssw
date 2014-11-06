@@ -6,6 +6,7 @@
 #include "CommonTools/CandUtils/interface/Booster.h"
 #include <Math/VectorUtil.h>
 
+namespace heppy {
 
 double FSRWeightAlgo::weight() const {
 
@@ -111,4 +112,6 @@ double FSRWeightAlgo::alphaRatio(double pt) const {
 
   // Done
   return 1./(1.-pigaga);
+}
+
 }

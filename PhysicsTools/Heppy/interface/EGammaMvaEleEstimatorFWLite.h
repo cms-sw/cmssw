@@ -7,6 +7,8 @@ namespace pat { struct Electron; }
 #include <vector>
 #include <string>
 
+namespace heppy {
+
 class EGammaMvaEleEstimatorFWLite {
     public:
         EGammaMvaEleEstimatorFWLite();
@@ -31,4 +33,5 @@ class EGammaMvaEleEstimatorFWLite {
     private:
         EGammaMvaEleEstimator *estimator_;
 };
+}
 #endif

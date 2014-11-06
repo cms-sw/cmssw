@@ -3,6 +3,8 @@
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
+namespace heppy {
+
 class FSRWeightAlgo {
 
  public:
@@ -17,5 +19,5 @@ class FSRWeightAlgo {
   
   std::vector< reco::GenParticle > genParticles_;
   };
-
+}
 #endif

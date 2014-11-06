@@ -3,15 +3,14 @@
 <use name="rootinteractive"/>
 <use name="rootrflx"/>
 <use name="rootpy"/>
-<use   name="clhepheader"/>
-<use   name="DataFormats/Candidate"/>
-<use   name="DataFormats/PatCandidates"/>
-<use   name="DataFormats/HepMCCandidate"/>
-<use   name="fastjet"/>
-<use   name="ktjet"/>
-<use   name="EgammaAnalysis/ElectronTools"/>
-<use   name="boost"/>
-
+<use name="clhepheader"/>
+<use name="DataFormats/Candidate"/>
+<use name="DataFormats/PatCandidates"/>
+<use name="DataFormats/HepMCCandidate"/>
+<use name="fastjet"/>
+<use name="ktjet"/>
+<use name="EgammaAnalysis/ElectronTools"/>
+<use name="boost"/>
 <export>
-<lib name="1"/>
+  <lib name="1"/>
 </export>

@@ -11,6 +11,8 @@
 #ifndef PhysicsTools_Heppy_mt2w_bisect_H
 #define PhysicsTools_Heppy_mt2w_bisect_H
 
+namespace heppy {
+
 namespace mt2w_bisect
 {
 class mt2w
@@ -77,5 +79,6 @@ class mt2w
 };
 
 }//end namespace mt2w_bisect
+}//end namespace heppy
 
 #endif

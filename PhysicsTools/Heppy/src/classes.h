@@ -17,21 +17,21 @@
 
 namespace {
   namespace {
-    BTagSF  bTagSF_; 
-    RochCor rc_;
-    RochCor2012 rc2012_;
-    FSRWeightAlgo walgo_;
-    TriggerBitChecker checker;
-    CMGMuonCleanerBySegmentsAlgo cmgMuonCleanerBySegmentsAlgo;
-    EGammaMvaEleEstimatorFWLite egMVA;
-    Hemisphere hemisphere(vector<float> px, vector<float> py, vector<float> pz, vector<float> E, int hemi_seed, int hemi_association);
-    HemisphereViaKt hemisphere(vector<float> px, vector<float> py, vector<float> pz, vector<float> E, double ktpower);
-    Davismt2 mt2;
-    mt2w_bisect::mt2w mt2wlept;
-    AlphaT alphaT;
-    SimpleElectron fuffaElectron;
-  //  ElectronEnergyCalibrator fuffaElectronCalibrator;
-    ElectronEPcombinator fuffaElectronCombinator;
+    heppy::BTagSF  bTagSF_; 
+    heppy::RochCor rc_;
+    heppy::RochCor2012 rc2012_;
+    heppy::FSRWeightAlgo walgo_;
+    heppy::TriggerBitChecker checker;
+    heppy::CMGMuonCleanerBySegmentsAlgo cmgMuonCleanerBySegmentsAlgo;
+    heppy::EGammaMvaEleEstimatorFWLite egMVA;
+    heppy::Hemisphere hemisphere(std::vector<float> px, std::vector<float> py, std::vector<float> pz, std::vector<float> E, int hemi_seed, int hemi_association);
+    heppy::HemisphereViaKt hemisphere(std::vector<float> px, std::vector<float> py, std::vector<float> pz, std::vector<float> E, double ktpower);
+    heppy::Davismt2 mt2;
+    heppy::mt2w_bisect::mt2w mt2wlept;
+    heppy::AlphaT alphaT;
+    //  heppy::SimpleElectron fuffaElectron;
+    //  ElectronEnergyCalibrator fuffaElectronCalibrator;
+    //  heppy::ElectronEPcombinator fuffaElectronCombinator;
 
   }
 }

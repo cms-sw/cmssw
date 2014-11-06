@@ -1,6 +1,8 @@
 #include "PhysicsTools/Heppy/interface/RochCor.h"
 #include <TLorentzVector.h>
 
+namespace heppy {
+
 ////^^^^^------------ GP BEGIN 
 const double RochCor::pi = 3.14159265358979323846;
 const float RochCor::genm_smr = 9.09956e+01; //gen mass peak with eta dependent gaussian smearing => better match in Z mass profile vs. eta/phi
@@ -591,4 +593,6 @@ float RochCor::zptcor(float gzpt) {
   float zptwt = zptscl[ibin];
 
   return zptwt;
+}
+
 }

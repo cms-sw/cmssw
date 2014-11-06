@@ -38,6 +38,8 @@
 #include "PhysicsTools/Heppy/interface/mt2w_bisect.h"
 
 using namespace std;
+
+namespace heppy {
   
 namespace mt2w_bisect
 {
@@ -392,3 +394,5 @@ namespace mt2w_bisect
   }
 
 }//end namespace mt2w_bisect
+
+}
