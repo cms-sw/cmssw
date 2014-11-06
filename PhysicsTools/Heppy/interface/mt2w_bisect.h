@@ -8,26 +8,19 @@
 /*              May 8, 2012, v1.00a                                    */
 /*                                                                     */  
 /***********************************************************************/
+#ifndef PhysicsTools_Heppy_mt2w_bisect_H
+#define PhysicsTools_Heppy_mt2w_bisect_H
 
-#ifndef MT2W_BISECT_H
-#define MT2W_BISECT_H
-
-
-/*The user can change the desired precision below, the larger one of the following two definitions is used. Relative precision less than 0.00001 is not guaranteed to be achievable--use with caution*/ 
-
-#define RELATIVE_PRECISION 0.00001 //defined as precision = RELATIVE_PRECISION * scale, where scale = max{Ea, Eb}
-#define ABSOLUTE_PRECISION 0.0     //absolute precision for mt2w, unused by default
-
-
-//Reserved for expert
-#define MIN_MASS  0.1   //if ma<MINMASS and mb<MINMASS, use massless code
-#define ZERO_MASS 0.000 //give massless particles a small mass
-#define SCANSTEP 0.1
 namespace mt2w_bisect
 {
 class mt2w
 {  
  public:
+  static const float RELATIVE_PRECISION; 
+  static const float ABSOLUTE_PRECISION;
+  static const float MIN_MASS;
+  static const float ZERO_MASS;
+  static const float SCANSTEP;
       
   mt2w(double upper_bound=500.0, double error_value=499.0, double scan_step=0.5);
   // Constructor where:

@@ -1,3 +1,7 @@
+#ifndef PhysicsTools_Heppy_MuScleFitCorrector_h
+#define PhysicsTools_Heppy_MuScleFitCorrector_h
+
+
 /**
  * MuScleFitCorrector class
  * Author M. De Mattia - 18/11/2008
@@ -301,3 +305,4 @@ class MuScleFitCorrector
   bool useResol_;
 };
 
+#endif

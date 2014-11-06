@@ -1,5 +1,5 @@
-#ifndef __PhysicsTools_Heppy_FSRWeightAlgo__
-#define __PhysicsTools_Heppy_FSRWeightAlgo__
+#ifndef PhysicsTools_Heppy_FSRWeightAlgo_h
+#define PhysicsTools_Heppy_FSRWeightAlgo_h
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 

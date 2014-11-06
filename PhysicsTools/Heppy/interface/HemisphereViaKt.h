@@ -1,5 +1,5 @@
-#ifndef HemisphereViaKt_h
-#define HemisphereViaKt_h
+#ifndef PhysicsTools_Heppy_HemisphereViaKt_h
+#define PhysicsTools_Heppy_HemisphereViaKt_h
 
 #include <vector>
 #include <iostream>

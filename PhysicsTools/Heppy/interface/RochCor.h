@@ -1,5 +1,5 @@
-#ifndef ZZAnalysis_AnalysisStep_RochCor_h
-#define ZZAnalysis_AnalysisStep_RochCor_h
+#ifndef PhysicsTools_Heppy_RochCor_h
+#define PhysicsTools_Heppy_RochCor_h
 
 ////  VERSION 4, taken from http://www-cdf.fnal.gov/~jyhan/cms_momscl/cms_RochCor_manual.html on 19 september 2012
 ////  moved static const float from .h to .cc to make the gcc434 happy

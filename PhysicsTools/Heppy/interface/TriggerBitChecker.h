@@ -1,5 +1,5 @@
-#ifndef RootTools_TriggerBitChecker
-#define RootTools_TriggerBitChecker
+#ifndef PhysicsTools_Heppy_TriggerBitChecker_h
+#define PhysicsTools_Heppy_TriggerBitChecker_h
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Common/interface/EventBase.h"

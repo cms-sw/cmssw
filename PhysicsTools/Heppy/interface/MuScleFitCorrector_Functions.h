@@ -1,3 +1,6 @@
+#ifndef PhysicsTools_Heppy_MuScleFitCorrector_Functions_h
+#define PhysicsTools_Heppy_MuScleFitCorrector_Functions_h
+
 /**
  * Scale function classes
  * Author M. De Mattia - 18/11/2008
@@ -295,3 +298,4 @@ resolutionFunctionBase<double * > * resolutionFunctionService( const int identif
   }
 }
 
+#endif

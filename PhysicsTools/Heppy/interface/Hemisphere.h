@@ -1,5 +1,5 @@
-#ifndef Hemisphere_h
-#define Hemisphere_h
+#ifndef PhysicsTools_Heppy_Hemisphere_h
+#define PhysicsTools_Heppy_Hemisphere_h
 
 
 /*  \class Hemisphere
