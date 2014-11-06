@@ -123,6 +123,7 @@ namespace edm {
     Ptr<value_type> ptrAt(size_type i) const;
     RefToBaseVector<T> const& refVector() const { return refs_; }
     PtrVector<T> const& ptrVector() const { return ptrs_; }
+    std::vector<Ptr<value_type> > const& ptrs() const;
 
     const_reference front() const;
     const_reference back() const;
@@ -144,6 +145,7 @@ namespace edm {
     seq_t items_;
     RefToBaseVector<T> refs_;
     PtrVector<T> ptrs_;
+    mutable std::vector<Ptr<value_type> > vPtrs_;
     ViewBase* doClone() const;
   };
 
@@ -297,6 +299,19 @@ namespace edm {
     RefToBase<T> ref = refAt(i);
     return Ptr<T>(ref.id(), (ref.isAvailable() ? ref.get(): 0), ref.key());
   }
+  
+  template<typename T>
+  inline
+  std::vector<Ptr<T> > const&
+  View<T>::ptrs() const {
+    //vPtrs_.insert(ptrs_.begin(),ptrs_.end());
+    if(vPtrs_.size()!=ptrs_.size()) {
+      vPtrs_.reserve(ptrs_.size());
+      std::copy(ptrs_.begin(),ptrs_.end(),std::back_inserter(vPtrs_));
+    } 
+    return vPtrs_;
+  }
+
 
   template<typename T>
   inline
