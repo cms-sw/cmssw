@@ -48,8 +48,8 @@ process.ttt = cms.EDAnalyzer("FSQDiJetAve",
             partialFilterName  = cms.string("ForHFJECBase"),
             dqmhistolabel  = cms.string("hltcalo"),
             mainDQMDirname = cms.untracked.string(fsqdirname),
-            singleObjectsPreselection = cms.string("1==1"),
-            combinedObjectSelection =  cms.string("abs(at(0).eta)<1.4 || abs(at(0).eta) > 2.7 "),
+            singleObjectsPreselection = cms.string("abs(eta)<1.4 || abs(eta) > 2.7 "),
+            combinedObjectSelection =  cms.string("1==1"),
             combinedObjectSortCriteria = cms.string("at(0).pt"),
             combinedObjectDimension = cms.int32(1),
             drawables =  cms.VPSet(
@@ -62,6 +62,8 @@ process.ttt = cms.EDAnalyzer("FSQDiJetAve",
                 )
             )
         ),
+
+
 
 
         cms.PSet(
@@ -70,8 +72,8 @@ process.ttt = cms.EDAnalyzer("FSQDiJetAve",
             partialFilterName  = cms.string("ForHFJECBase"),
             dqmhistolabel  = cms.string("hltcalo"),
             mainDQMDirname = cms.untracked.string(fsqdirname),
-            singleObjectsPreselection = cms.string("1==1"),
-            combinedObjectSelection =  cms.string("abs(at(0).eta)<1.4 || abs(at(0).eta) > 2.7 "),
+            singleObjectsPreselection = cms.string("abs(eta)<1.4 || abs(eta) > 2.7"),
+            combinedObjectSelection =  cms.string("1==1"),
             combinedObjectSortCriteria = cms.string("at(0).pt"),
             combinedObjectDimension = cms.int32(1),
             drawables =  cms.VPSet(
@@ -84,8 +86,28 @@ process.ttt = cms.EDAnalyzer("FSQDiJetAve",
                 )
             )
         ),
-
-
+        # vector<reco::GenJet>                "ak5GenJets"                ""          "SIM"          recoGenJets_ak5GenJets__SIM
+        cms.PSet(
+            handlerType = cms.string("FromRecoCandidate"),
+            inputCol = cms.InputTag("ak4GenJets"),
+            partialPathName = cms.string("HLT_DiPFJetAve30_HFJEC_"),
+            partialFilterName  = cms.string("dummy"),
+            dqmhistolabel  = cms.string("ak4gen"),
+            mainDQMDirname = cms.untracked.string(fsqdirname),
+            singleObjectsPreselection = cms.string("abs(eta)< 5.2 && pt > 20"),
+            combinedObjectSelection =  cms.string("1==1"),
+            combinedObjectSortCriteria = cms.string("at(0).pt"),
+            combinedObjectDimension = cms.int32(1),
+            drawables =  cms.VPSet(
+                cms.PSet (
+                    name = cms.string("pt"),
+                    expression = cms.string("at(0).pt"),
+                    bins = cms.int32(100),
+                    min = cms.double(0),
+                    max = cms.double(100)
+                )
+            )
+        ),
     )
 )
 
