@@ -37,10 +37,11 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
+#include "DataFormats/Candidate/interface/Candidate.h"
+
+
 using namespace edm;
-//#using namespace reco;
 using namespace std;
-//using namespace trigger;
 
 
 namespace FSQ {
@@ -78,10 +79,10 @@ class BaseHandler {
 //
 //################################################################################################
 //
-template <class TCandidateType>
+template <class TInputCandidateType, class TOutputCandidateType>
 class HandlerTemplate: public BaseHandler {
     private:
-        //typedef trigger::TriggerObject TCandidateType;
+        //typedef trigger::TriggerObject TInputCandidateType;
 
         std::string m_dqmhistolabel;
         std::string m_pathPartialName; //#("HLT_DiPFJetAve30_HFJEC_");
@@ -89,11 +90,11 @@ class HandlerTemplate: public BaseHandler {
 
         int m_combinedObjectDimension;
 
-        StringCutObjectSelector<TCandidateType>  m_singleObjectSelection;
-        StringCutObjectSelector<std::vector<TCandidateType> >  m_combinedObjectSelection;
-        StringObjectFunction<std::vector<TCandidateType> >     m_combinedObjectSortFunction;
+        StringCutObjectSelector<TInputCandidateType>  m_singleObjectSelection;
+        StringCutObjectSelector<std::vector<TOutputCandidateType> >  m_combinedObjectSelection;
+        StringObjectFunction<std::vector<TOutputCandidateType> >     m_combinedObjectSortFunction;
         // TODO: auto ptr
-        std::map<std::string, std::shared_ptr<StringObjectFunction<std::vector<TCandidateType> > > > m_plotters;
+        std::map<std::string, std::shared_ptr<StringObjectFunction<std::vector<TOutputCandidateType> > > > m_plotters;
 
 
         std::vector< edm::ParameterSet > m_drawables;
@@ -137,24 +138,39 @@ class HandlerTemplate: public BaseHandler {
                     double rangeHigh =  m_drawables.at(i).getParameter<double>("max");
 
                     m_histos[histoName] =  m_dbe->book1D(histoName, histoName, bins, rangeLow, rangeHigh);
-                    StringObjectFunction<std::vector<TCandidateType> > * func = new StringObjectFunction<std::vector<TCandidateType> >(expression);
-                    m_plotters[histoName] =  std::shared_ptr<StringObjectFunction<std::vector<TCandidateType> > >(func);
+                    StringObjectFunction<std::vector<TInputCandidateType> > * func = new StringObjectFunction<std::vector<TInputCandidateType> >(expression);
+                    m_plotters[histoName] =  std::shared_ptr<StringObjectFunction<std::vector<TOutputCandidateType> > >(func);
                 }   
             }
         }
+
+        //*
+        void getFilteredCands(
+                     reco::Candidate::LorentzVector *, // pass a dummy pointer, makes possible to select correct getFilteredCands
+                     std::vector<reco::Candidate::LorentzVector> & cands, // output collection
+                     const edm::Event& iEvent,  
+                     const edm::EventSetup& iSetup,
+                     const HLTConfigProvider&  hltConfig,
+                     const trigger::TriggerEvent& trgEvent)
+        {  
+            //return cands;
+        }
+        //*/
 
         // Notes:
         //  - FIXME this function should take only event/ event setup
         //  - FIXME responsibility to apply preselection should be elsewhere
         //          hard to fix, since we dont want to copy all objects due to
         //          performance reasons
-        std::vector<TCandidateType> getFilteredCands(const edm::Event& iEvent,  
+        void getFilteredCands(
+                     trigger::TriggerObject *, // input object type
+                     std::vector<trigger::TriggerObject> &cands, // output collection
+                     const edm::Event& iEvent,  
                      const edm::EventSetup& iSetup,
                      const HLTConfigProvider&  hltConfig,
                      const trigger::TriggerEvent& trgEvent)
         {
-
-            std::vector<TCandidateType> cands;
+            
             // 1. Find matching path. Inside matchin path find matching filter
             std::string filterFullName = "";
             std::vector<std::string> filtersForThisPath;
@@ -181,13 +197,13 @@ class HandlerTemplate: public BaseHandler {
             if (numPathMatches != 1) {
                   edm::LogError("FSQDiJetAve") << "Problem: found " << numPathMatches
                     << " paths matching " << m_pathPartialName << std::endl;
-                  return cands;   
+                  return;   
             }
             if (numFilterMatches != 1) {
                   edm::LogError("FSQDiJetAve") << "Problem: found " << numFilterMatches
                     << " filter matching " << m_filterPartialName
                     << " in path "<< m_pathPartialName << std::endl;
-                  return cands;
+                  return;
             }
 
             // 2. Fetch HLT objects saved by selected filter. Save those fullfilling preselection
@@ -198,7 +214,7 @@ class HandlerTemplate: public BaseHandler {
             const int hltIndex = trgEvent.filterIndex(hltTag);
             if ( hltIndex >= trgEvent.sizeFilters() ) {
               edm::LogInfo("FSQDiJetAve") << "Cannot determine hlt index for |" << filterFullName << "|" << process;
-              return cands;
+              return;
             }
 
             const trigger::TriggerObjectCollection & toc(trgEvent.getObjects());
@@ -212,19 +228,22 @@ class HandlerTemplate: public BaseHandler {
                     cands.push_back( toc[*kj]);
                 }
             }
-            return cands;
 
         }
-            // xxx
+
+        // xxx
         void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup,
                      const HLTConfigProvider&  hltConfig,
                      const trigger::TriggerEvent& trgEvent,
                      float weight)
         {
 
-            std::vector<TCandidateType> cands = getFilteredCands(iEvent, iSetup, hltConfig, trgEvent);
+
+            std::vector<TOutputCandidateType> cands;
+            getFilteredCands((TInputCandidateType *)0, cands, iEvent, iSetup, hltConfig, trgEvent);
+
             if (cands.size()==0) return;
-            std::vector<TCandidateType> bestCombinationFromCands = getBestCombination(cands);
+            std::vector<TOutputCandidateType> bestCombinationFromCands = getBestCombination(cands);
             if (bestCombinationFromCands.size()==0) return;
 
             // plot 
@@ -239,7 +258,7 @@ class HandlerTemplate: public BaseHandler {
         }
 
 
-        std::vector<TCandidateType> getBestCombination(std::vector<TCandidateType> & cands ){
+        std::vector<TOutputCandidateType> getBestCombination(std::vector<TOutputCandidateType> & cands ){
             int columnSize = cands.size();
             std::vector<int> currentCombination(m_combinedObjectDimension, 0);
             std::vector<int> bestCombination(m_combinedObjectDimension, -1);
@@ -274,7 +293,7 @@ class HandlerTemplate: public BaseHandler {
                     }
                     std::cout << std::endl;
                     // */
-                    std::vector<TCandidateType > currentCombinationFromCands;
+                    std::vector<TOutputCandidateType > currentCombinationFromCands;
                     for (int i = 0; i<m_combinedObjectDimension;++i){
                         currentCombinationFromCands.push_back( cands.at(currentCombination.at(i)));
                     }
@@ -306,7 +325,7 @@ class HandlerTemplate: public BaseHandler {
                 }
             } // combinations loop ends
 
-            std::vector<TCandidateType > bestCombinationFromCands;
+            std::vector<TInputCandidateType > bestCombinationFromCands;
             if (bestCombination.size()!=0 && bestCombination.at(0)>=0){
                 for (int i = 0; i<m_combinedObjectDimension;++i){
                           bestCombinationFromCands.push_back( cands.at(bestCombination.at(i)));
@@ -316,9 +335,8 @@ class HandlerTemplate: public BaseHandler {
         }
 
 };
-    //typedef trigger::TriggerObject TCandidateType;
-    //
-typedef HandlerTemplate<trigger::TriggerObject > HLTHandler;
+typedef HandlerTemplate<trigger::TriggerObject, trigger::TriggerObject> HLTHandler;
+typedef HandlerTemplate<reco::Candidate::LorentzVector, reco::Candidate::LorentzVector> RecoCandidateHandler;// in fact reco::Candidate, reco::Candidate::LorentzVector
 
 }
 
@@ -346,6 +364,9 @@ FSQDiJetAve::FSQDiJetAve(const edm::ParameterSet& iConfig):
         std::string type = pset.getParameter<std::string>("handlerType");
         if (type == "FromHLT") {
             m_handlers.push_back(std::shared_ptr<FSQ::HLTHandler>(new FSQ::HLTHandler(pset)));
+        }
+        else if (type == "FromRecoCandidate") {
+            m_handlers.push_back(std::shared_ptr<FSQ::RecoCandidateHandler>(new FSQ::RecoCandidateHandler(pset)));
         } else {
             throw cms::Exception("FSQ DQM handler not know: "+ type);
         }
