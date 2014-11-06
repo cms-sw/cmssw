@@ -145,8 +145,8 @@ OuterTrackerMonitorStub::analyze(const edm::Event& iEvent, const edm::EventSetup
       else if ( detIdStub.isEndcap() )
       {
         hStub_Endcap->Fill(detIdStub.iDisk() );  
-        hStub_Endcap_W->Fill(detIdStub.iLayer(), displStub - offsetStub);
-        hStub_Endcap_O->Fill(detIdStub.iLayer(), offsetStub);
+        hStub_Endcap_W->Fill(detIdStub.iDisk(), displStub - offsetStub);
+        hStub_Endcap_O->Fill(detIdStub.iDisk(), offsetStub);
 
         if ( posStub.z() > 0 )
         {
