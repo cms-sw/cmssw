@@ -91,7 +91,7 @@ namespace amc13 {
       private:
          static const unsigned int uFOV_shift = 60;
          static const unsigned int uFOV_mask = 0xf;
-         static const unsigned int nAMC_shift = 42;
+         static const unsigned int nAMC_shift = 52;
          static const unsigned int nAMC_mask = 0xf;
          static const unsigned int OrN_shift = 4;
          static const unsigned int OrN_mask = 0xffffffff;

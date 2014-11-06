@@ -111,7 +111,8 @@ namespace l1t {
     produces<BXVector<l1t::Jet>>();
     produces<BXVector<l1t::Jet>>("preGtJets");
     produces<BXVector<l1t::EtSum>>();
-    produces<BXVector<l1t::CaloSpare>>();
+    produces<BXVector<l1t::CaloSpare>>("HFRingSums");
+    produces<BXVector<l1t::CaloSpare>>("HFBitCounts");
 
     // register what you consume and keep token for later access:
     regionToken = consumes<BXVector<l1t::CaloRegion>>(iConfig.getParameter<InputTag>("CaloRegions"));
@@ -189,7 +190,8 @@ Stage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
   std::auto_ptr<l1t::JetBxCollection> jets (new l1t::JetBxCollection);
   std::auto_ptr<l1t::JetBxCollection> preGtJets (new l1t::JetBxCollection);
   std::auto_ptr<l1t::EtSumBxCollection> etsums (new l1t::EtSumBxCollection);
-  std::auto_ptr<l1t::CaloSpareBxCollection> calospares (new l1t::CaloSpareBxCollection);
+  std::auto_ptr<l1t::CaloSpareBxCollection> hfSums (new l1t::CaloSpareBxCollection);
+  std::auto_ptr<l1t::CaloSpareBxCollection> hfCounts (new l1t::CaloSpareBxCollection);
 
   egammas->setBXRange(bxFirst, bxLast);
   taus->setBXRange(bxFirst, bxLast);
@@ -197,7 +199,8 @@ Stage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
   jets->setBXRange(bxFirst, bxLast);
   preGtJets->setBXRange(bxFirst, bxLast);
   etsums->setBXRange(bxFirst, bxLast);
-  calospares->setBXRange(bxFirst, bxLast);
+  hfSums->setBXRange(bxFirst, bxLast);
+  hfCounts->setBXRange(bxFirst, bxLast);
 
   //producer is responsible for splitting the BXVector into pieces for
   //the firmware to handle
@@ -213,7 +216,10 @@ Stage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
     std::vector<l1t::Jet> *localJets = new std::vector<l1t::Jet>();
     std::vector<l1t::Jet> *localPreGtJets = new std::vector<l1t::Jet>();
     std::vector<l1t::EtSum> *localEtSums = new std::vector<l1t::EtSum>();
-    std::vector<l1t::CaloSpare> *localCaloSpares = new std::vector<l1t::CaloSpare>();
+    l1t::CaloSpare *localHfSums = new l1t::CaloSpare();
+    localHfSums->setType(l1t::CaloSpare::HFRingSum);
+    l1t::CaloSpare *localHfCounts = new l1t::CaloSpare();
+    localHfCounts->setType(l1t::CaloSpare::HFBitCount);
 
     // copy over the inputs -> there must be a better way to do this
     for(std::vector<l1t::CaloRegion>::const_iterator region = caloRegions->begin(i);
@@ -226,7 +232,7 @@ Stage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
     //run the firmware on one event
     m_fw->processEvent(*localEmCands, *localRegions,
 		       localEGammas, localTaus, localJets, localPreGtJets, localEtSums,
-		       localCaloSpares);
+		       localHfSums, localHfCounts);
 
     // copy the output into the BXVector -> there must be a better way
     for(std::vector<l1t::EGamma>::const_iterator eg = localEGammas->begin(); eg != localEGammas->end(); ++eg)
@@ -235,15 +241,18 @@ Stage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
       taus->push_back(i, *tau);
       if (tau->hwIso()==1)isoTaus->push_back(i, *tau);
     }
+    taus->resize(i,4); //FIXME proper tau handling with hardware sorting
+    isoTaus->resize(i,4); //FIXME proper tau handling with hardware sorting
     for(std::vector<l1t::Jet>::const_iterator jet = localJets->begin(); jet != localJets->end(); ++jet)
       jets->push_back(i, *jet);
     for(std::vector<l1t::Jet>::const_iterator jet = localPreGtJets->begin(); jet != localPreGtJets->end(); ++jet)
       preGtJets->push_back(i, *jet);
     for(std::vector<l1t::EtSum>::const_iterator etsum = localEtSums->begin(); etsum != localEtSums->end(); ++etsum)
       etsums->push_back(i, *etsum);
-    for(std::vector<l1t::CaloSpare>::const_iterator calospare = localCaloSpares->begin(); calospare != localCaloSpares->end(); ++calospare)
-      calospares->push_back(i, *calospare);
-
+    // for(std::vector<l1t::CaloSpare>::const_iterator calospare = localCaloSpares->begin(); calospare != localCaloSpares->end(); ++calospare)
+    //   calospares->push_back(i, *calospare);
+    hfSums->push_back(i, *localHfSums);
+    hfCounts->push_back(i, *localHfCounts);
 
     delete localRegions;
     delete localEmCands;
@@ -252,7 +261,9 @@ Stage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
     delete localJets;
     delete localPreGtJets;
     delete localEtSums;
-    delete localCaloSpares;
+    //delete localCaloSpares;
+    delete localHfSums;
+    delete localHfCounts;
   }
 
 
@@ -262,7 +273,9 @@ Stage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
   iEvent.put(jets);
   iEvent.put(preGtJets,"preGtJets");
   iEvent.put(etsums);
-  iEvent.put(calospares);
+  // iEvent.put(calospares);
+  iEvent.put(hfSums,"HFRingSums");
+  iEvent.put(hfCounts,"HFBitCounts");
 }
 
 // ------------ method called once each job just before starting event loop ------------

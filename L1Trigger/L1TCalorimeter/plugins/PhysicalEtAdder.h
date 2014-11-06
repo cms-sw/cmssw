@@ -62,7 +62,8 @@ namespace l1t {
       edm::EDGetToken JetToken_;
       edm::EDGetToken preGtJetToken_;
       edm::EDGetToken EtSumToken_;
-      edm::EDGetToken CaloSpareToken_;
+      edm::EDGetToken HfSumsToken_;
+      edm::EDGetToken HfCountsToken_;
   };
 
 }

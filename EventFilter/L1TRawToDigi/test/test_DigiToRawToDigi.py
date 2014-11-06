@@ -25,7 +25,8 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source(
         "PoolSource",
         # fileNames = cms.untracked.vstring("file:L1T_EDM.root")
-        fileNames = cms.untracked.vstring("file:SimL1Emulator_Stage1_SimpleHW.root")
+        # fileNames = cms.untracked.vstring("file:SimL1Emulator_Stage1_SimpleHW.root")
+        fileNames = cms.untracked.vstring("file:SimL1Emulator_Stage1_PP.root")
 )
 
 
@@ -70,6 +71,8 @@ process.load("EventFilter.L1TRawToDigi.l1tDigiToRaw_cfi")
 process.l1tDigiToRaw.Setup = cms.string("stage1::CaloSetup")
 process.l1tDigiToRaw.InputLabel = cms.InputTag("caloStage1FinalDigis", "")
 process.l1tDigiToRaw.TauInputLabel = cms.InputTag("caloStage1FinalDigis", "isoTaus")
+process.l1tDigiToRaw.HFBitCountsInputLabel = cms.InputTag("caloStage1FinalDigis", "HFBitCounts")
+process.l1tDigiToRaw.HFRingSumsInputLabel = cms.InputTag("caloStage1FinalDigis", "HFRingSums")
 process.load("EventFilter.L1TRawToDigi.l1tRawToDigi_cfi")
 process.l1tRawToDigi.Setup = cms.string("stage1::CaloSetup")
 

@@ -21,6 +21,11 @@ from L1Trigger.L1TCalorimeter.L1TCaloStage1_cff import *
 rctUpgradeFormatDigis.regionTag = cms.InputTag("simRctDigis")
 rctUpgradeFormatDigis.emTag = cms.InputTag("simRctDigis")
 
+# 
+# Update HfRing thresholds to accomodate di-iso tau trigger thresholds
+from L1TriggerConfig.L1ScalesProducers.l1CaloScales_cfi import l1CaloScales
+l1CaloScales.L1HfRingThresholds = cms.vdouble(0.0, 24.0, 28.0, 32.0, 36.0, 40.0, 44.0, 48.0)
+
 # L1Extra
 import L1Trigger.Configuration.L1Extra_cff
 l1ExtraLayer2 = L1Trigger.Configuration.L1Extra_cff.l1extraParticles.clone()

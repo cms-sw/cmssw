@@ -20,7 +20,7 @@ def compare_bx_vector(xs, ys):
         y_size = ys.size(bx)
 
         if x_size != y_size:
-            print ">> BX size mismatch:", x_size, "vs", y_size
+            print ">> BX size mismatch:", x_size, "vs", y_size, "@", bx
 
         for i in range(min(x_size, y_size)):
             x = xs.at(bx, i)
@@ -32,19 +32,21 @@ def compare_bx_vector(xs, ys):
                 print ">>> Eta mismatch:", x.hwEta(), "vs", y.hwEta()
             if x.hwPhi() != y.hwPhi():
                 print ">>> Phi mismatch:", x.hwPhi(), "vs", y.hwPhi()
-            if x.hwQual() != y.hwQual():
-                print ">>> Qual mismatch:", x.hwQual(), "vs", y.hwQual()
+            #if ((x.hwQual()>>0)&0x1) != ((y.hwQual()>>0)&0x1):
+            #    print ">>> Qual bit 0 mismatch:", ((x.hwQual()>>0)&0x1), "vs", ((y.hwQual()>>0)&0x1)
+            if ((x.hwQual()>>1)&0x1) != ((y.hwQual()>>1)&0x1):
+                print ">>> Qual bit 1 mismatch:", ((x.hwQual()>>1)&0x1), "vs", ((y.hwQual()>>1)&0x1)
             if x.hwIso() != y.hwIso():
                 print ">>> Iso mismatch:", x.hwIso(), "vs", y.hwIso()
 
             yield x, y
 
-        for j in range(min(x_size, 0), x_size):
+        for j in range(min(x_size, 0), min(x_size, y_size)):
             x = xs.at(bx, j)
             y = ys.at(bx, j)
-            print ">>>> ({0} @ {1}, {2} : {3} - {4}) vs ({5} @ {6}, {7} : {8} - {9})".format(
-                    x.hwPt(), x.hwEta(), x.hwPhi(), x.hwQual(), x.hwIso(),
-                    y.hwPt(), y.hwEta(), y.hwPhi(), y.hwQual(), y.hwIso())
+            print ">>>> ({0} @ {1}, {2} : {3}, {4} - {5}) vs ({6} @ {7}, {8} : {9}, {10} - {11})".format(
+                    x.hwPt(), x.hwEta(), x.hwPhi(), ((x.hwQual()>>0)&0x1), ((x.hwQual()>>1)&0x1), x.hwIso(),
+                    y.hwPt(), y.hwEta(), y.hwPhi(), ((y.hwQual()>>0)&0x1), ((y.hwQual()>>1)&0x1), y.hwIso())
 
         print "<< Compared", x_size, "quantities"
 
@@ -70,15 +72,21 @@ in_label = ("caloStage1FinalDigis", "")
 tau_label = ("caloStage1FinalDigis", "isoTaus")
 out_label = "l1tRawToDigi"
 
+in_ring_label = ("caloStage1FinalDigis", "HFRingSums")
+out_ring_label = ("l1tRawToDigi", "HFRingSums")
+
+in_bit_label = ("caloStage1FinalDigis", "HFBitCounts")
+out_bit_label = ("l1tRawToDigi", "HFBitCounts")
+
 for event in events:
     print "< New event"
-    event.getByLabel(in_label, spares_in)
+    event.getByLabel(in_ring_label, spares_in)
     event.getByLabel(in_label, egammas_in)
     event.getByLabel(in_label, etsums_in)
     event.getByLabel(in_label, jets_in)
     event.getByLabel(tau_label, taus_in)
 
-    event.getByLabel(out_label, spares_out)
+    event.getByLabel(out_ring_label, spares_out)
     event.getByLabel(out_label, egammas_out)
     event.getByLabel(out_label, etsums_out)
     event.getByLabel(out_label, jets_out)
@@ -88,7 +96,15 @@ for event in events:
     for a, b in compare_bx_vector(egammas_in.product(), egammas_out.product()):
         pass
 
-    print "Checking spares"
+    print "Checking spare ring"
+    for a, b in compare_bx_vector(spares_in.product(), spares_out.product()):
+        if a.getType() != b.getType():
+            print ">>> Type different:", a.getType(), "vs", b.getType()
+
+    event.getByLabel(in_bit_label, spares_in)
+    event.getByLabel(out_bit_label, spares_out)
+
+    print "Checking spare bits"
     for a, b in compare_bx_vector(spares_in.product(), spares_out.product()):
         if a.getType() != b.getType():
             print ">>> Type different:", a.getType(), "vs", b.getType()
