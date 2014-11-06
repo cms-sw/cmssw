@@ -7,6 +7,9 @@ PatternFinder::PatternFinder(int sp, int at, SectorTree* st, string f, string of
   eventsFilename = f;
   outputFileName = of;
 
+  //we don't need the map of patterns, a vector will be enough and uses less memory
+  sectors->getAllSectors()[0]->getPatternTree()->switchToVector();
+
   map< int, vector<int> > detector_config = Sector::readConfig("detector.cfg");
 
   //We add the layers corresponding to the sectors structure
@@ -39,6 +42,9 @@ PatternFinder::PatternFinder(int sp, int at, SectorTree* st, string f, string of
   d_detector=d;
   d_p_bank = p;
   d_parameters = dp;
+
+  //we don't need the map of patterns, a vector will be enough and uses less memory
+  sectors->getAllSectors()[0]->getPatternTree()->switchToVector();
 
   //we use 1024 threads and want to compute the number of blocks
   int nb_patterns = sectors->getAllSectors()[0]->getLDPatternNumber();
