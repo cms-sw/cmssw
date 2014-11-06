@@ -64,6 +64,8 @@
 #include "Geometry/CaloTopology/interface/CaloTowerConstituentsMap.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
+
 #include "TFile.h"
 #include "TTree.h"
 
@@ -145,7 +147,9 @@ private:
   std::vector<std::string> *cutFlowStrTmpPtr;
 
   void loadEventInfo(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-  unsigned int run, event, ls;
+  edm::RunNumber_t run;
+  edm::EventNumber_t event;
+  edm::LuminosityBlockNumber_t ls;
 
   bool getEventInfoForFilterOnce_;
 
@@ -356,7 +360,7 @@ bool EcalDeadCellTriggerPrimitiveFilter::filter(edm::Event& iEvent, const edm::E
 
   if(debug_ && verbose_ >=2){
      int evtstatusABS = abs(evtTagged);
-     printf("\nrun : %8d  event : %10d  lumi : %4d  evtTPstatus  ABS : %d  13 : % 2d\n", run, event, ls, evtstatusABS, evtTagged);
+     printf("\nrun : %8u  event : %10llu  lumi : %4u  evtTPstatus  ABS : %d  13 : % 2d\n", run, event, ls, evtstatusABS, evtTagged);
   }
 
   std::auto_ptr<bool> pOut( new bool(pass) );
