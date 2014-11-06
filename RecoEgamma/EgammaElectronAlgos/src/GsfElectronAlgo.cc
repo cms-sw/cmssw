@@ -666,7 +666,8 @@ GsfElectronAlgo::GsfElectronAlgo
  )
    : generalData_(new GeneralData(inputCfg,strategyCfg,cutsCfg,cutsCfgPflow,hcalCfg,hcalCfgPflow,isoCfg,recHitsCfg,superClusterErrorFunction,crackCorrectionFunction,mva_NIso_Cfg,mva_Iso_Cfg,regCfg)),
    eventSetupData_(new EventSetupData),
-   eventData_(0), electronData_(0)
+   eventData_(0), electronData_(0),
+   nPixelMatchErrorNoSeed_(0), nPixelMatchErrorNotElectronSeed_(0)
  {}
 
 GsfElectronAlgo::~GsfElectronAlgo()
@@ -1683,28 +1684,34 @@ void GsfElectronAlgo::removeAmbiguousElectrons()
 
 // Pixel match variables
 void GsfElectronAlgo::setPixelMatchInfomation(reco::GsfElectron* ele){
+  int sd1     = 0 ;
+  int sd2     = 0 ;
+  float dPhi1 = 0 ;
+  float dPhi2 = 0 ;
+  float dRz1  = 0 ;
+  float dRz2  = 0 ;
   edm::RefToBase<TrajectorySeed> seed = ele->gsfTrack()->extra()->seedRef();
   ElectronSeedRef elseed = seed.castTo<ElectronSeedRef>();
   if(seed.isNull()){
-    edm::LogError("GsfElectronAlgo")<<"The GsfTrack has no seed, so cannot set pixel match variable" ;
+    nPixelMatchErrorNoSeed_++ ;
   }
   else{
     if(elseed.isNull()){
-      edm::LogError("GsfElectronAlgo")<<"The GsfTrack seed is not an ElectronSeed, so cannot set pixel match variable" ;
+      nPixelMatchErrorNotElectronSeed_++ ;
+      
     }
     else{
-      int sd1     = elseed->subDet1() ;
-      int sd2     = elseed->subDet2() ;
-      float dPhi1 = elseed->dPhi1() ;
-      float dPhi2 = elseed->dPhi2() ;
-      float dRz1  = elseed->dRz1 () ;
-      float dRz2  = elseed->dRz2 () ;
-      
-      ele->setPixelMatchSubdetectors(sd1,sd2) ;
-      ele->setPixelMatchDPhi1(dPhi1) ;
-      ele->setPixelMatchDPhi2(dPhi2) ;
-      ele->setPixelMatchDRz1 (dRz1 ) ;
-      ele->setPixelMatchDRz2 (dRz2 ) ;
+      sd1     = elseed->subDet1() ;
+      sd2     = elseed->subDet2() ;
+      dPhi1 = elseed->dPhi1() ;
+      dPhi2 = elseed->dPhi2() ;
+      dRz1  = elseed->dRz1 () ;
+      dRz2  = elseed->dRz2 () ;
     }
   }
+  ele->setPixelMatchSubdetectors(sd1,sd2) ;
+  ele->setPixelMatchDPhi1(dPhi1) ;
+  ele->setPixelMatchDPhi2(dPhi2) ;
+  ele->setPixelMatchDRz1 (dRz1 ) ;
+  ele->setPixelMatchDRz2 (dRz2 ) ;
 }

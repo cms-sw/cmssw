@@ -256,6 +256,9 @@ class GsfElectronAlgo {
     
     // Pixel match variables
     void setPixelMatchInfomation(reco::GsfElectron*) ;
+    unsigned int nPixelMatchErrorNoSeed_ ;
+    unsigned int nPixelMatchErrorNotElectronSeed_ ;
+    
  } ;
 
 #endif // GsfElectronAlgo_H
