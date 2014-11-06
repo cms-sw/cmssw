@@ -48,12 +48,15 @@ hiRegitMuPixelPairStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'hiRegitMuPix
 
 
 # building: feed the new-named seeds
-hiRegitMuPixelPairStepTrajectoryFilter = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTrajectoryFilter.clone(
-    # ComponentName    = 'hiRegitMuPixelPairStepTrajectoryFilter'
-    )
-hiRegitMuPixelPairStepTrajectoryFilter.minPt                = 0.8
-hiRegitMuPixelPairStepTrajectoryFilter.minimumNumberOfHits  = 6
-hiRegitMuPixelPairStepTrajectoryFilter.minHitsMinPt         = 4
+hiRegitMuPixelPairStepTrajectoryFilterBase = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTrajectoryFilterBase.clone()
+hiRegitMuPixelPairStepTrajectoryFilterBase.minPt                = 0.8
+hiRegitMuPixelPairStepTrajectoryFilterBase.minimumNumberOfHits  = 6
+hiRegitMuPixelPairStepTrajectoryFilterBase.minHitsMinPt         = 4
+
+hiRegitMuPixelPairStepTrajectoryFilter = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTrajectoryFilter.clone()
+hiRegitMuPixelPairStepTrajectoryFilter.filters = cms.VPSet(
+      cms.PSet( refToPSet_ = cms.string('hiRegitMuPixelPairStepTrajectoryFilterBase')),
+      cms.PSet( refToPSet_ = cms.string('pixelPairStepTrajectoryFilterShape')))
 
 
 hiRegitMuPixelPairStepTrajectoryBuilder = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTrajectoryBuilder.clone(
