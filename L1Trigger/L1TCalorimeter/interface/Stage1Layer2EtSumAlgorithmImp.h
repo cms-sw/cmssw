@@ -36,6 +36,7 @@ namespace l1t {
   private:
     CaloParamsStage1* const params_;
 
+    int DiJetPhi(const std::vector<l1t::Jet> * jets) const;
     std::vector<double> sinPhi;
     std::vector<double> cosPhi;
 

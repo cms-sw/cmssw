@@ -107,8 +107,10 @@ namespace l1t {
       {
 	// if(rankPt > params->HtMissScale().linScaleMax()) rankPt = params->HtMissScale().linScaleMax();
 	// params->HtMissScale().linScaleMax() always returns zero.  Hardcode 512 for now
-	if(rankPt > 512) rankPt = 512;
-	rankPt = params->HtMissScale().rank(rankPt*params->emScale().linearLsb());
+
+	// comment out for mht/ht (already in GT scale)
+	//if(rankPt > 512) rankPt = 512;
+	//rankPt = params->HtMissScale().rank(rankPt*params->emScale().linearLsb());
       }
 
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
