@@ -14,6 +14,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
         processParameters = cms.vstring(
             ' Bottomonium:all = on', # Quarkonia, MSEL=61
             'ParticleDecays:allowPhotonRadiation = on', # Turn on QED FSR
+            ' ParticleDecays:mixB = off',
             '443:onMode = off', # Turn off J/psi decays
             '443:onIfMatch = 13 -13' # just let J/psi -> mu+ mu-
             ),
