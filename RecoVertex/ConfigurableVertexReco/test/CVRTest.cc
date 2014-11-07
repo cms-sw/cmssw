@@ -9,6 +9,9 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "RecoVertex/ConfigurableVertexReco/test/CVRTest.h"
+
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
+
 #include <iostream>
 
 using namespace std;
@@ -93,7 +96,7 @@ void CVRTest::discussPrimary( const edm::Event& iEvent ) const
 void CVRTest::analyze( const edm::Event & iEvent,
                        const edm::EventSetup & iSetup )
 {
-  int evt=iEvent.id().event();
+  edm::EventNumber_t const evt = iEvent.id().event();
   cout << "[CVRTest] next event: " << evt << endl;
   edm::ESHandle<MagneticField> magneticField;
   iSetup.get<IdealMagneticFieldRecord>().get(magneticField);

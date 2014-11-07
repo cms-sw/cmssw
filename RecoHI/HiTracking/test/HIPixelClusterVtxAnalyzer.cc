@@ -19,6 +19,8 @@
 
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
+
 #include <fstream>
 #include <iostream>
 #include <vector>
@@ -54,8 +56,8 @@ void HIPixelClusterVtxAnalyzer::analyze(const edm::Event& ev, const edm::EventSe
   std::cout << "counter = " << counter << std::endl;
   counter++;
 
-  int evtnum = ev.id().event();
-  TH1D *hClusterVtx = fs->make<TH1D>(Form("hClusterVtx_%d",evtnum),"compatibility of pixel cluster length with vertex hypothesis; z [cm]",(int)((maxZ_-minZ_)/zStep_),minZ_,maxZ_);
+  edm::EventNumber_t evtnum  = ev.id().event();
+  TH1D *hClusterVtx = fs->make<TH1D>(Form("hClusterVtx_%llu",evtnum),"compatibility of pixel cluster length with vertex hypothesis; z [cm]",(int)((maxZ_-minZ_)/zStep_),minZ_,maxZ_);
 
   // new vertex collection
   std::auto_ptr<reco::VertexCollection> vertices(new reco::VertexCollection);

@@ -29,6 +29,8 @@
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
+
 #include <map>
 
 // Forward declarations
@@ -80,7 +82,7 @@ class RecoTauVertexAssociator {
     edm::EDGetTokenT<reco::VertexCollection> vxToken_;
     // containers for holding vertices associated to jets
     std::map<const reco::PFJet*, reco::VertexRef>* jetToVertexAssociation_;
-    int lastEvent_;    
+    edm::EventNumber_t lastEvent_;    
     int verbosity_;
 };
 
