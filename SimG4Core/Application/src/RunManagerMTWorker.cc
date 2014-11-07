@@ -69,7 +69,8 @@ namespace {
   void createWatchers(const edm::ParameterSet& iP,
                       SimActivityRegistry& iReg,
                       std::vector<std::shared_ptr<SimWatcher> >& oWatchers,
-                      std::vector<std::shared_ptr<SimProducer> >& oProds
+                      std::vector<std::shared_ptr<SimProducer> >& oProds,
+                      int thisThreadID
                       )
   {
     using namespace std;
@@ -78,6 +79,10 @@ namespace {
       return;
 
     vector<ParameterSet> watchers = iP.getParameter<vector<ParameterSet> >("Watchers");
+
+    if(!watchers.empty() && thisThreadID > 0) {
+      throw cms::Exception("Unsupported") << "SimWatchers are not supported for more than 1 thread. If this use case is needed, RunManagerMTWorker has to be updated, and SimWatchers and SimProducers have to be made thread safe.";
+    }
 
     for(vector<ParameterSet>::iterator itWatcher = watchers.begin();
         itWatcher != watchers.end();
@@ -156,11 +161,15 @@ void RunManagerMTWorker::initializeTLS() {
   edm::Service<SimActivityRegistry> otherRegistry;
   //Look for an outside SimActivityRegistry
   // this is used by the visualization code
+  int thisID = getThreadIndex();
   if(otherRegistry){
     m_tls->registry.connect(*otherRegistry);
+    if(thisID > 0) {
+      throw cms::Exception("Unsupported") << "SimActivityRegistry service (i.e. visualization) is not supported for more than 1 thread. If this use case is needed, RunManagerMTWorker has to be updated.";
+    }
   }
 
-  createWatchers(m_p, m_tls->registry, m_tls->watchers, m_tls->producers);
+  createWatchers(m_p, m_tls->registry, m_tls->watchers, m_tls->producers, thisID);
 }
 
 void RunManagerMTWorker::initializeThread(const RunManagerMT& runManagerMaster, const edm::EventSetup& es) {
