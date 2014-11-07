@@ -109,8 +109,11 @@ class BTagCalibration
 {
 public:
   BTagCalibration() {}
-  BTagCalibration(std::string tagger): tagger_(tagger) {}
+  BTagCalibration(const std::string &tagger);
+  BTagCalibration(const std::string &tagger, const std::string &filename);
   ~BTagCalibration() {}
+
+  std::string tagger() const {return tagger_;}
 
   void addEntry(BTagEntry entry);
   const std::vector<BTagEntry>& getEntries(BTagEntry::Parameters par) const;

@@ -176,6 +176,20 @@ std::string BTagEntry::trimStr(std::string str) {
 }
 
 #include <iostream>
+#include <fstream>
+
+BTagCalibration::BTagCalibration(const std::string &taggr):
+  tagger_(taggr)
+{}
+
+BTagCalibration::BTagCalibration(const std::string &taggr,
+                                 const std::string &filename):
+  tagger_(taggr)
+{
+  std::ifstream ifs(filename);
+  readCSV(ifs);
+  ifs.close();
+}
 
 void BTagCalibration::addEntry(BTagEntry entry)
 {

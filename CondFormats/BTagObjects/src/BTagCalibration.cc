@@ -1,5 +1,19 @@
 #include <iostream>
+#include <fstream>
 #include "CondFormats/BTagObjects/interface/BTagCalibration.h"
+
+BTagCalibration::BTagCalibration(const std::string &taggr):
+  tagger_(taggr)
+{}
+
+BTagCalibration::BTagCalibration(const std::string &taggr,
+                                 const std::string &filename):
+  tagger_(taggr)
+{
+  std::ifstream ifs(filename);
+  readCSV(ifs);
+  ifs.close();
+}
 
 void BTagCalibration::addEntry(BTagEntry entry)
 {
