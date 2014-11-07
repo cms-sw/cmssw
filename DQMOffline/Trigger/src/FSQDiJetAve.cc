@@ -38,7 +38,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
-
+#include "DataFormats/JetReco/interface/PFJet.h"
 
 using namespace edm;
 using namespace std;
@@ -141,26 +141,29 @@ class HandlerTemplate: public BaseHandler {
             }
         }
 
-        void getFilteredCands(
-                     reco::Candidate::LorentzVector *, // pass a dummy pointer, makes possible to select correct getFilteredCands
-                     std::vector<reco::Candidate::LorentzVector> & cands, // output collection
-                     const edm::Event& iEvent,  
+        // Notes:
+        //  - FIXME this function should take only event/ event setup (?)
+        //  - FIXME responsibility to apply preselection should be elsewhere
+        //          hard to fix, since we dont want to copy all objects due to
+        //          performance reasons
+        //
+        //           implementation below working when in/out types are equal
+        //           in other cases you must provide specialized version (see below)
+        void getFilteredCands(TInputCandidateType *, std::vector<TOutputCandidateType> & cands,
+                     const edm::Event& iEvent,
                      const edm::EventSetup& iSetup,
                      const HLTConfigProvider&  hltConfig,
                      const trigger::TriggerEvent& trgEvent)
-        {  
-
-           Handle<View<reco::Candidate> > hIn;
-           iEvent.getByLabel(InputTag(m_input), hIn);
-           for (unsigned int i = 0; i<hIn->size(); ++i) {
-                bool preselection = m_singleObjectSelection(hIn->at(i).p4());
-                if (preselection){
-                    cands.push_back(hIn->at(i).p4());
-                }
-           }
-
+        {
+               Handle<std::vector<TInputCandidateType> > hIn;
+               iEvent.getByLabel(InputTag(m_input), hIn);
+               for (unsigned int i = 0; i<hIn->size(); ++i) {
+                    bool preselection = m_singleObjectSelection(hIn->at(i));
+                    if (preselection){
+                        cands.push_back(hIn->at(i));
+                    }
+               }
         }
-
 
         std::vector<std::string > findPathAndFilter(const HLTConfigProvider&  hltConfig){
             std::vector<std::string> ret(2,"");
@@ -204,50 +207,6 @@ class HandlerTemplate: public BaseHandler {
             return ret;
         }
 
-        // Notes:
-        //  - FIXME this function should take only event/ event setup
-        //  - FIXME responsibility to apply preselection should be elsewhere
-        //          hard to fix, since we dont want to copy all objects due to
-        //          performance reasons
-        void getFilteredCands(
-                     trigger::TriggerObject *, // input object type
-                     std::vector<trigger::TriggerObject> &cands, // output collection
-                     const edm::Event& iEvent,  
-                     const edm::EventSetup& iSetup,
-                     const HLTConfigProvider&  hltConfig,
-                     const trigger::TriggerEvent& trgEvent)
-        {
-            
-            // 1. Find matching path. Inside matchin path find matching filter
-            std::string filterFullName = findPathAndFilter(hltConfig)[1];
-            if (filterFullName == "") {
-                return;
-            }
-
-            // 2. Fetch HLT objects saved by selected filter. Save those fullfilling preselection
-            //      objects are saved in cands variable
-            std::string process = trgEvent.usedProcessName(); // broken?
-            edm::InputTag hltTag(filterFullName ,"", process);
-            
-            const int hltIndex = trgEvent.filterIndex(hltTag);
-            if ( hltIndex >= trgEvent.sizeFilters() ) {
-              edm::LogInfo("FSQDiJetAve") << "Cannot determine hlt index for |" << filterFullName << "|" << process;
-              return;
-            }
-
-            const trigger::TriggerObjectCollection & toc(trgEvent.getObjects());
-            const trigger::Keys & khlt = trgEvent.filterKeys(hltIndex);
-
-            trigger::Keys::const_iterator kj = khlt.begin();
-
-            for(;kj != khlt.end(); ++kj){
-                bool preselection = m_singleObjectSelection(toc[*kj]);
-                if (preselection){
-                    cands.push_back( toc[*kj]);
-                }
-            }
-
-        }
 
         // xxx
         void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup,
@@ -366,9 +325,80 @@ class HandlerTemplate: public BaseHandler {
         }
 
 };
+//#############################################################################
+//
+// Read any object inheriting from reco::Candidate. Save p4
+//
+//#############################################################################
+template<>
+void HandlerTemplate<reco::Candidate::LorentzVector, reco::Candidate::LorentzVector>::getFilteredCands(
+             reco::Candidate::LorentzVector *, // pass a dummy pointer, makes possible to select correct getFilteredCands
+             std::vector<reco::Candidate::LorentzVector> & cands, // output collection
+             const edm::Event& iEvent,  
+             const edm::EventSetup& iSetup,
+             const HLTConfigProvider&  hltConfig,
+             const trigger::TriggerEvent& trgEvent)
+{  
+   Handle<View<reco::Candidate> > hIn;
+   iEvent.getByLabel(InputTag(m_input), hIn);
+   for (unsigned int i = 0; i<hIn->size(); ++i) {
+        bool preselection = m_singleObjectSelection(hIn->at(i).p4());
+        if (preselection){
+            cands.push_back(hIn->at(i).p4());
+        }
+   }
+}
+//#############################################################################
+//
+// Read and save trigger::TriggerObject from triggerEvent
+//
+//#############################################################################
+template<>
+void HandlerTemplate<trigger::TriggerObject, trigger::TriggerObject>::getFilteredCands(
+             trigger::TriggerObject *, 
+             std::vector<trigger::TriggerObject> &cands, 
+             const edm::Event& iEvent,  
+             const edm::EventSetup& iSetup,
+             const HLTConfigProvider&  hltConfig,
+             const trigger::TriggerEvent& trgEvent)
+{
+    
+    // 1. Find matching path. Inside matchin path find matching filter
+    std::string filterFullName = findPathAndFilter(hltConfig)[1];
+    if (filterFullName == "") {
+        return;
+    }
+
+    // 2. Fetch HLT objects saved by selected filter. Save those fullfilling preselection
+    //      objects are saved in cands variable
+    std::string process = trgEvent.usedProcessName(); // broken?
+    edm::InputTag hltTag(filterFullName ,"", process);
+    
+    const int hltIndex = trgEvent.filterIndex(hltTag);
+    if ( hltIndex >= trgEvent.sizeFilters() ) {
+      edm::LogInfo("FSQDiJetAve") << "Cannot determine hlt index for |" << filterFullName << "|" << process;
+      return;
+    }
+
+    const trigger::TriggerObjectCollection & toc(trgEvent.getObjects());
+    const trigger::Keys & khlt = trgEvent.filterKeys(hltIndex);
+
+    trigger::Keys::const_iterator kj = khlt.begin();
+
+    for(;kj != khlt.end(); ++kj){
+        bool preselection = m_singleObjectSelection(toc[*kj]);
+        if (preselection){
+            cands.push_back( toc[*kj]);
+        }
+    }
+
+}
+
+
+
 typedef HandlerTemplate<trigger::TriggerObject, trigger::TriggerObject> HLTHandler;
 typedef HandlerTemplate<reco::Candidate::LorentzVector, reco::Candidate::LorentzVector> RecoCandidateHandler;// in fact reco::Candidate, reco::Candidate::LorentzVector
-
+typedef HandlerTemplate<reco::PFJet, reco::PFJet> JetTestHandler;
 }
 
 //################################################################################################
@@ -398,6 +428,9 @@ FSQDiJetAve::FSQDiJetAve(const edm::ParameterSet& iConfig):
         }
         else if (type == "FromRecoCandidate") {
             m_handlers.push_back(std::shared_ptr<FSQ::RecoCandidateHandler>(new FSQ::RecoCandidateHandler(pset)));
+        }
+        else if (type == "FromJet") {
+            m_handlers.push_back(std::shared_ptr<FSQ::JetTestHandler>(new FSQ::JetTestHandler(pset)));
         } else {
             throw cms::Exception("FSQ DQM handler not know: "+ type);
         }
