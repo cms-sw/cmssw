@@ -54,7 +54,11 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize = cms.untracked.int32(1048576),
     outputCommands = process.FEVTDEBUGHLTEventContent.outputCommands,
+<<<<<<< HEAD
     fileName = cms.untracked.string('output_workflowD_step2_4.root'),
+=======
+    fileName = cms.untracked.string('output_workflowD_step2_2.root'),
+>>>>>>> digi and reco cfgs
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('GEN-SIM-DIGI-RAW-HLTDEBUG')
