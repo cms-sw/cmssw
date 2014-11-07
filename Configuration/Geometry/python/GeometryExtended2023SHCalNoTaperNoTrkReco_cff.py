@@ -10,7 +10,7 @@ from Geometry.CommonDetUnit.globalTrackingSLHCGeometry_cfi import *
 
 #Tracker
 #from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
-#from Geometry.TrackerNumberingBuilder.trackerTopologyConstants_cfi import *
+from Geometry.TrackerNumberingBuilder.trackerTopologyConstants_cfi import *
 
 #Muon
 from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *
