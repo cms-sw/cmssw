@@ -2,7 +2,7 @@
 
 #include <limits>
 #include <algorithm>
-#include <iostream>//QQQ
+#include <iostream>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -50,8 +50,14 @@ namespace{
     const float dPhiIn = el.deltaPhiSuperClusterTrackAtVtx();
     const float sigmaietaieta = el.full5x5_sigmaIetaIeta();
     const float hOverE = el.hcalOverEcal();
-    const float d0 = -1.0*el.gsfTrack()->dxy(pv_position);
-    const float dz = el.gsfTrack()->dz(pv_position);
+    float d0 = 0.0, dz=0.0;
+    try{
+      d0=-(el.gsfTrack()->dxy(pv_position));
+      dz = el.gsfTrack()->dz(pv_position);
+    }catch(...){
+      edm::LogError("SUSY_HLT_SingleLepton") << "Could not read electron.gsfTrack().\n";
+      return false;
+    }
     float ooemoop = 1e30;
     if(el.ecalEnergy()>0.0 && std::isfinite(el.ecalEnergy())){
       ooemoop = fabs(1.0/el.ecalEnergy() - el.eSuperClusterOverP()/el.ecalEnergy());
@@ -63,10 +69,21 @@ namespace{
 
     bool pass_conversion = false;
     if(convs.isValid()){
-      pass_conversion = !ConversionTools::hasMatchedConversion(el, convs, bs_position);
+      try{
+	pass_conversion = !ConversionTools::hasMatchedConversion(el, convs, bs_position);
+      }catch(...){
+	edm::LogError("SUSY_HLT_SingleLepton") << "Electron conversion matching failed.\n";
+	return false;
+      }
     }
-
-    const float etasc = el.superCluster()->eta();
+    
+    float etasc = 0.0;
+    try{
+      etasc = el.superCluster()->eta();
+    }catch(...){
+      edm::LogError("SUSY_HLT_SingleLepton") << "Could not read electron.superCluster().\n";
+      return false;
+    }
     if(fabs(etasc)>2.5){
       return false;
     }else if(fabs(etasc)>1.479){
@@ -96,13 +113,28 @@ namespace{
   bool IsGood(const reco::Muon &mu, const reco::Vertex::Point &pv_position){
     if(!mu.isGlobalMuon()) return false;
     if(!mu.isPFMuon()) return false;
-    if(mu.globalTrack()->normalizedChi2()>=10.) return false;
-    if(mu.globalTrack()->hitPattern().numberOfValidMuonHits()<=0) return false;
+    try{
+      if(mu.globalTrack()->normalizedChi2()>=10.) return false;
+      if(mu.globalTrack()->hitPattern().numberOfValidMuonHits()<=0) return false;
+    }catch(...){
+      edm::LogWarning("SUSY_HLT_SingleLepton") << "Could not read muon.globalTrack().\n";
+      return false;
+    }
     if(mu.numberOfMatchedStations()<=1) return false;
-    if(fabs(mu.muonBestTrack()->dxy(pv_position))>=0.2) return false;
-    if(fabs(mu.muonBestTrack()->dz(pv_position))>=0.5) return false;
-    if(mu.innerTrack()->hitPattern().numberOfValidPixelHits()<=0) return false;
-    if(mu.innerTrack()->hitPattern().trackerLayersWithMeasurement()<=5) return false;
+    try{
+      if(fabs(mu.muonBestTrack()->dxy(pv_position))>=0.2) return false;
+      if(fabs(mu.muonBestTrack()->dz(pv_position))>=0.5) return false;
+    }catch(...){
+      edm::LogWarning("SUSY_HLT_SingleLepton") << "Could not read muon.muonBestTrack().\n";
+      return false;
+    }
+    try{
+      if(mu.innerTrack()->hitPattern().numberOfValidPixelHits()<=0) return false;
+      if(mu.innerTrack()->hitPattern().trackerLayersWithMeasurement()<=5) return false;
+    }catch(...){
+      edm::LogWarning("SUSY_HLT_SingleLepton") << "Could not read muon.innerTrack().\n";
+      return false;
+    }
     return true;
   }
 }
@@ -147,6 +179,7 @@ SUSY_HLT_SingleLepton::SUSY_HLT_SingleLepton(const edm::ParameterSet &ps):
 
   triggerPath_(ps.getParameter<std::string>("triggerPath")),
   triggerPathAuxiliary_(ps.getParameter<std::string>("triggerPathAuxiliary")),
+  triggerPathLeptonAuxiliary_(ps.getParameter<std::string>("triggerPathLeptonAuxiliary")),
 
   jetPtCut_(ps.getUntrackedParameter<double>("jetPtCut")),
   jetEtaCut_(ps.getUntrackedParameter<double>("jetEtaCut")),
@@ -160,16 +193,19 @@ SUSY_HLT_SingleLepton::SUSY_HLT_SingleLepton(const edm::ParameterSet &ps):
   h_triggerLepPt_(nullptr),
   h_triggerLepEta_(nullptr),
   h_triggerLepPhi_(nullptr),
-  h_CSVTurnOn_num_(nullptr),
-  h_CSVTurnOn_den_(nullptr),
-  h_pfMetTurnOn_num_(nullptr),
-  h_pfMetTurnOn_den_(nullptr),
+  h_HT_(nullptr),
+  h_MET_(nullptr),
+  h_maxCSV_(nullptr),
+  h_leptonTurnOn_num_(nullptr),
+  h_leptonTurnOn_den_(nullptr),
   h_pfHTTurnOn_num_(nullptr),
   h_pfHTTurnOn_den_(nullptr),
-  h_leptonPtTurnOn_num_(nullptr),
-  h_leptonPtTurnOn_den_(nullptr),
-  h_leptonIsoTurnOn_num_(nullptr),
-  h_leptonIsoTurnOn_den_(nullptr){
+  h_pfMetTurnOn_num_(nullptr),
+  h_pfMetTurnOn_den_(nullptr),
+  h_CSVTurnOn_num_(nullptr),
+  h_CSVTurnOn_den_(nullptr),
+  h_btagTurnOn_num_(nullptr),
+  h_btagTurnOn_den_(nullptr){
   edm::LogInfo("SUSY_HLT_SingleLepton")
     << "Constructor SUSY_HLT_SingleLepton::SUSY_HLT_SingleLepton\n";
   }
@@ -226,54 +262,73 @@ void SUSY_HLT_SingleLepton::bookHistograms(DQMStore::IBooker &ibooker,
 
   //online quantities 
   h_triggerLepPt_ = ibooker.book1D("triggerLepPt",
-				   (";"+Lepton+" p_{T} [GeV]").c_str(),
+				   (";"+Lepton+" p_{T} [GeV];").c_str(),
 				   20, 0.0, 500.0);
   h_triggerLepEta_ = ibooker.book1D("triggerLepEta",
-				    (";"+Lepton+" #eta").c_str(),
+				    (";"+Lepton+" #eta;").c_str(),
 				    20, -3.0, 3.0);
   h_triggerLepPhi_ = ibooker.book1D("triggerLepPhi",
-				    (";"+Lepton+" #phi").c_str(),
+				    (";"+Lepton+" #phi;").c_str(),
 				    20, -3.5, 3.5);
 
+  if(theHLTHTTag_.label()!=""){
+    h_HT_ = ibooker.book1D("HT",
+			   ";HLT HT [GeV];",
+			   40, 0.0, 1000.0);
+  }
+
+  if(theHLTMETTag_.label()!=""){
+    h_MET_ = ibooker.book1D("MET",
+			    ";HLT MET [GeV];",
+			    40, 0.0, 1000.0);
+  }
+
+  if(theHLTJetCollectionTag_.label()!="" && theHLTJetTagCollectionTag_.label()!=""){
+    h_maxCSV_ = ibooker.book1D("maxCSV",
+			       ";Max HLT CSV;",
+			       20, 0.0, 1.0);
+  }
+
   //num and den hists to be divided in harvesting step to make turn on curves
-  h_leptonPtTurnOn_num_ = ibooker.book1D("leptonPtTurnOn_num",
-					 ("Numerator;Offline "+lepton+" p_{T} [GeV]").c_str(),
-					 30, 0.0, 150);
-  h_leptonPtTurnOn_den_ = ibooker.book1D("leptonPtTurnOn_den",
-					 ("Denominator;Offline "+lepton+" p_{T} [GeV]").c_str(),
-					 30, 0.0, 150.0);
-  h_leptonIsoTurnOn_num_ = ibooker.book1D("leptonIsoTurnOn_num",
-					  ("Numerator;Offline "+lepton+" rel. iso.").c_str(),
-					  30, 0.0, 3.0);
-  h_leptonIsoTurnOn_den_ = ibooker.book1D("leptonIsoTurnOn_den",
-					  ("Denominator;Offline "+lepton+" rel. iso.").c_str(),
-					  30, 0.0, 3.0);
+  h_leptonTurnOn_num_ = ibooker.book1D("leptonTurnOn_num",
+				       ("Numerator;Offline "+lepton+" p_{T} [GeV];").c_str(),
+				       30, 0.0, 150);
+  h_leptonTurnOn_den_ = ibooker.book1D("leptonTurnOn_den",
+				       ("Denominator;Offline "+lepton+" p_{T} [GeV];").c_str(),
+				       30, 0.0, 150.0);
   h_pfHTTurnOn_num_ = ibooker.book1D("pfHTTurnOn_num",
-				     "Numerator;Offline H_{T} [GeV]",
+				     "Numerator;Offline H_{T} [GeV];",
 				     30, 0.0, 1500.0 );
   h_pfHTTurnOn_den_ = ibooker.book1D("pfHTTurnOn_den",
-				     "Denominator;Offline H_{T} [GeV]",
+				     "Denominator;Offline H_{T} [GeV];",
 				     30, 0.0, 1500.0 );
 
   if(theHLTMETTag_.label()!=""){
     h_pfMetTurnOn_num_ = ibooker.book1D("pfMetTurnOn_num",
-					"Numerator;Offline MET [GeV]",
+					"Numerator;Offline MET [GeV];",
 					20, 0.0, 500.0 );
     h_pfMetTurnOn_den_ = ibooker.book1D("pfMetTurnOn_den",
-					"Denominator;Offline MET [GeV]",
+					"Denominator;Offline MET [GeV];",
 					20, 0.0, 500.0 );
   }
 
   if(theHLTJetCollectionTag_.label()!="" && theHLTJetTagCollectionTag_.label()!=""){
     h_CSVTurnOn_num_ = ibooker.book1D("CSVTurnOn_num",
-				      "Numerator;Offline CSV Requirements",
+				      "Numerator;Offline Max CSV Discriminant;",
 				      13, -0.5, 12.5);
     h_CSVTurnOn_den_ = ibooker.book1D("CSVTurnOn_den",
-				      "Denominator;Offline CSV Requirements",
+				      "Denominator;Offline Max CSV Discriminant;",
 				      13, -0.5, 12.5);
 
-    SetBinLabels(h_CSVTurnOn_num_);
-    SetBinLabels(h_CSVTurnOn_den_);
+    h_btagTurnOn_num_ = ibooker.book1D("btagTurnOn_num",
+				      "Numerator;Offline CSV Requirement;",
+				      13, -0.5, 12.5);
+    h_btagTurnOn_den_ = ibooker.book1D("btagTurnOn_den",
+				      "Denominator;Offline CSV Requirements;",
+				      13, -0.5, 12.5);
+
+    SetBinLabels(h_btagTurnOn_num_);
+    SetBinLabels(h_btagTurnOn_den_);
   }
   ibooker.cd();
 }
@@ -291,7 +346,7 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
   if(theHLTHTTag_.label() != ""){
     e.getByToken(theHLTHT_, HLTHT);
     if( !HLTHT.isValid() ){
-      edm::LogWarning("SUSY_HLT_SingleLepton")
+      edm::LogInfo("SUSY_HLT_SingleLepton")
 	<< "Invalid METCollection: " << theHLTHTTag_.label() << '\n';
     }
   }
@@ -301,7 +356,7 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
   if(theHLTMETTag_.label() != ""){
     e.getByToken(theHLTMET_, HLTMET);
     if( !HLTMET.isValid() ){
-      edm::LogWarning("SUSY_HLT_SingleLepton")
+      edm::LogInfo("SUSY_HLT_SingleLepton")
 	<< "Invalid METCollection: " << theHLTMETTag_.label() << '\n';
     }
   }
@@ -311,7 +366,7 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
   if(theHLTJetCollectionTag_.label() != ""){
     e.getByToken(theHLTJetCollection_, HLTJetCollection);
     if( !HLTJetCollection.isValid() ){
-      edm::LogWarning("SUSY_HLT_SingleLepton")
+      edm::LogInfo("SUSY_HLT_SingleLepton")
 	<< "Invalid CaloJetCollection: " << theHLTJetCollectionTag_.label() << '\n';
     }
   }
@@ -321,7 +376,7 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
   if(theHLTJetTagCollectionTag_.label() != ""){
     e.getByToken(theHLTJetTagCollection_, HLTJetTagCollection);
     if( !HLTJetTagCollection.isValid() ){
-      edm::LogWarning("SUSY_HLT_SingleLepton")
+      edm::LogInfo("SUSY_HLT_SingleLepton")
 	<< "Invalid JetTagCollection: " << theHLTJetTagCollectionTag_.label() << '\n';
     }
   }
@@ -408,16 +463,20 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
   
   //Trigger
   edm::Handle<edm::TriggerResults> hltresults;
-  e.getByToken(theTriggerResults_, hltresults);
-  if(!hltresults.isValid()){
-    edm::LogWarning("SUSY_HLT_SingleLepton")
-      << "Invalid TriggerResults: " << theTriggerResultsTag_.label() << '\n';
+  if(theTriggerResultsTag_.label() != ""){
+    e.getByToken(theTriggerResults_, hltresults);
+    if( !hltresults.isValid() ){
+      edm::LogWarning("SUSY_HLT_SingleLepton")
+	<< "Invalid TriggerResults: " << theTriggerResultsTag_.label() << '\n';
+    }
   }
   edm::Handle<trigger::TriggerEvent> triggerSummary;
-  e.getByToken(theTrigSummary_, triggerSummary);
-  if(!triggerSummary.isValid()){
-    edm::LogWarning("SUSY_HLT_SingleLepton")
-      << "Invalid TriggerEvent: " << theTrigSummaryTag_.label() << '\n';
+  if(theTrigSummaryTag_.label() != ""){
+    e.getByToken(theTrigSummary_, triggerSummary);
+    if( !triggerSummary.isValid() ){
+      edm::LogWarning("SUSY_HLT_SingleLepton")
+	<< "Invalid TriggerEvent: " << theTrigSummaryTag_.label() << '\n';
+    }
   }
 
   //Get online leptons
@@ -440,200 +499,185 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
       }
     }
   }
-  const auto &it = std::max_element(ptLepton.begin(), ptLepton.end());
-  const float hlt_lep_pt = it==ptLepton.end()?0.0:*it;
 
   //Get online ht and met
-  const float hlt_ht = (HLTHT.isValid()?HLTHT->front().sumEt():0.0);
-  const float hlt_met = (HLTMET.isValid()?HLTMET->front().sumEt():0.0);
+  const float hlt_ht = ((HLTHT.isValid() && HLTHT->size())?HLTHT->front().sumEt():-1.0);
+  if(h_HT_) h_HT_->Fill(hlt_ht);
+  const float hlt_met = ((HLTMET.isValid() && HLTMET->size())?HLTMET->front().pt():-1.0);
+  if(h_MET_) h_MET_->Fill(hlt_met);
 
-  //Get online csv
+  //Get online csv and fill plot
   float hlt_csv = -1.0;
   if(HLTJetCollection.isValid() && HLTJetTagCollection.isValid()){
-    hlt_csv=0.0;
     for(const auto &jet: *HLTJetTagCollection){
       if(jet.second>hlt_csv) hlt_csv = jet.second;
     }
   }
+  if(h_maxCSV_) h_maxCSV_->Fill(hlt_csv);  
 
   //Test whether main and auxilliary triggers fired
   bool hasFired = false;
   bool hasFiredAuxiliary = false;
+  bool hasFiredLeptonAuxiliary = false;
   if(hltresults.isValid()){
     const edm::TriggerNames &trigNames = e.triggerNames(*hltresults);
     for( unsigned int hltIndex = 0; hltIndex < trigNames.size(); ++hltIndex ){
-      if(trigNames.triggerName(hltIndex)==triggerPath_
-	 && hltresults->wasrun(hltIndex)
-	 && hltresults->accept(hltIndex)){
-	hasFired = true;
-      }
-
-      if(trigNames.triggerName(hltIndex)==triggerPathAuxiliary_
-	 && hltresults->wasrun(hltIndex)
-	 && hltresults->accept(hltIndex)){
-	hasFiredAuxiliary = true;
+      if(hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)){
+	const std::string& name = trigNames.triggerName(hltIndex);
+	if(name == triggerPath_) hasFired=true;
+	if(name == triggerPathAuxiliary_) hasFiredAuxiliary=true;
+	if(name == triggerPathLeptonAuxiliary_) hasFiredLeptonAuxiliary=true;
       }
     }
   }
 
-  //Fill DQM plots if event is of interest
-  if(hasFiredAuxiliary || triggerPathAuxiliary_=="" || !e.isRealData()){
-
-    //Get offline HT
-    double pfHT = -1.0;
-    if(pfJetCollection.isValid()){
-      pfHT=0.0;
-      for(const auto &pfjet: *pfJetCollection){
-	if(pfjet.pt() < jetPtCut_) continue;
-	if(fabs(pfjet.eta()) > jetEtaCut_) continue;
-	pfHT += pfjet.pt();
-      }
+  //Get offline HT
+  double pfHT = -1.0;
+  if(pfJetCollection.isValid()){
+    pfHT=0.0;
+    for(const auto &pfjet: *pfJetCollection){
+      if(pfjet.pt() < jetPtCut_) continue;
+      if(fabs(pfjet.eta()) > jetEtaCut_) continue;
+      pfHT += pfjet.pt();
     }
+  }
 
-    //Get offline MET
-    double pfMET = -1.0;
-    if(pfMETCollection.isValid() && pfMETCollection->size()){
-      pfMET = pfMETCollection->front().et();
-    }
+  //Get offline MET
+  double pfMET = -1.0;
+  if(pfMETCollection.isValid() && pfMETCollection->size()){
+    pfMET = pfMETCollection->front().et();
+  }
 
-    //Get offline b-tagging info
-    float maxCSV = -1.0;
-    unsigned num_csvl = 0;
-    unsigned num_csvm = 0;
-    unsigned num_csvt = 0;
-    if(jetTagCollection.isValid()){
-      for(const auto &jet: *jetTagCollection){
-	const float CSV = jet.second;
-	if(jet.first->pt()>jetPtCut_){
-	  if(CSV>maxCSV){
-	    maxCSV=CSV;
-	  }
-	  if(CSV>0.244){
-	    ++num_csvl;
-	    if(CSV>0.679){
-	      ++num_csvm;
-	      if(CSV>0.898){
-		++num_csvt;
-	      }
+  //Get offline b-tagging info
+  float maxCSV = -1.0;
+  unsigned num_csvl = 0;
+  unsigned num_csvm = 0;
+  unsigned num_csvt = 0;
+  if(jetTagCollection.isValid()){
+    for(const auto &jet: *jetTagCollection){
+      const float CSV = jet.second;
+      if(jet.first->pt()>jetPtCut_){
+	if(CSV>maxCSV){
+	  maxCSV=CSV;
+	}
+	if(CSV>0.244){
+	  ++num_csvl;
+	  if(CSV>0.679){
+	    ++num_csvm;
+	    if(CSV>0.898){
+	      ++num_csvt;
 	    }
 	  }
 	}
       }
     }
+  }
+  if(h_maxCSV_) h_maxCSV_->Fill(maxCSV);
 
-    const bool lep_plateau = hlt_lep_pt>lep_pt_threshold_;
-    const bool ht_plateau = hlt_ht>ht_threshold_;
-    const bool met_plateau = hlt_met>met_threshold_;
-    const bool csv_plateau = hlt_csv>csv_threshold_;
-
-    //Fill lepton pt efficiency plot
-    if(ht_plateau && met_plateau && csv_plateau //other legs on plateau
-       && pfMET > metCut_ //improve lepton purity
-       && h_leptonPtTurnOn_den_ && h_leptonPtTurnOn_num_ //have valid pt histos
-       && h_leptonIsoTurnOn_den_ && h_leptonIsoTurnOn_num_ //have valid iso histos
-       && VertexCollection.isValid() && VertexCollection->size()){//for quality checks
-      double maxpt = -1.0, maxpt_iso = -1.0;
-
-      //Try to find a reco electron
-      if(ElectronCollection.isValid()
-	 && ConversionCollection.isValid()
-	 && BeamSpot.isValid()){
-	for(const auto &electron: *ElectronCollection){
-	  if(IsGood(electron, VertexCollection->front().position(),
-		    BeamSpot->position(), ConversionCollection)){
-	    if(electron.pt()>lep_pt_threshold_ && electron.pt()>maxpt){
-	      maxpt=electron.pt();
-	      const auto &iso = electron.pfIsolationVariables();
-	      const float absiso = iso.sumChargedHadronPt
-		+ std::max(0.0, iso.sumNeutralHadronEt+iso.sumPhotonEt-0.5*iso.sumPUPt);
-	      maxpt_iso = absiso/electron.pt();
-	    }
-	  }
+  //Fill lepton pt efficiency plot
+  double lep_max_pt = -1.0;
+  if(VertexCollection.isValid() && VertexCollection->size()){//for quality checks
+    //Try to find a reco electron
+    if(ElectronCollection.isValid()
+       && ConversionCollection.isValid()
+       && BeamSpot.isValid()){
+      for(const auto &electron: *ElectronCollection){
+	if(IsGood(electron, VertexCollection->front().position(),
+		  BeamSpot->position(), ConversionCollection)){
+	  if(electron.pt()>lep_max_pt) lep_max_pt=electron.pt();
 	}
       }
+    }
       
-      //Try to find a reco muon
-      if(MuonCollection.isValid()){
-	for(const auto &muon: *MuonCollection){
-	  if(IsGood(muon, VertexCollection->front().position())){
-	    if(muon.pt()>lep_pt_threshold_ && muon.pt()>maxpt){
-	      maxpt=muon.pt();
-	      const auto &iso = muon.pfIsolationR03();//QQQ change this?
-	      const float absiso = iso.sumChargedHadronPt
-		+ std::max(0.0, iso.sumNeutralHadronEt+iso.sumPhotonEt-0.5*iso.sumPUPt);
-	      maxpt_iso = absiso/muon.pt();
-	    }
+    //Try to find a reco muon
+    if(MuonCollection.isValid()){
+      for(const auto &muon: *MuonCollection){
+	if(IsGood(muon, VertexCollection->front().position())){
+	  if(muon.pt()>lep_max_pt){
+	    lep_max_pt=muon.pt();
 	  }
 	}
       }
-
-      //Fill histograms using highest pt reco lepton
-      if(maxpt>0.0){
-	if(h_leptonPtTurnOn_den_) h_leptonPtTurnOn_den_->Fill(maxpt);
-	if(h_leptonPtTurnOn_num_ && hasFired) h_leptonPtTurnOn_num_->Fill(maxpt);
-	if(h_leptonIsoTurnOn_den_) h_leptonIsoTurnOn_den_->Fill(maxpt_iso);
-	if(h_leptonIsoTurnOn_num_ && hasFired) h_leptonIsoTurnOn_num_->Fill(maxpt_iso);
-      }
     }
+  }
 
+  const bool lep_plateau = lep_max_pt>lep_pt_threshold_ || lep_pt_threshold_<0.0;
+  const bool ht_plateau = pfHT>ht_threshold_ || ht_threshold_<0.0;
+  const bool met_plateau = pfMET>met_threshold_ || met_threshold_<0.0;
+  const bool csv_plateau = maxCSV>csv_threshold_ || csv_threshold_<0.0;
+    
+  //Fill lepton turn-on histograms
+  if(hasFiredLeptonAuxiliary || triggerPathLeptonAuxiliary_=="" || !e.isRealData()){
+    //Fill histograms using highest pt reco lepton
+    if(ht_plateau && met_plateau && csv_plateau
+       && (pfMET>metCut_ || metCut_<0.0)){
+      if(h_leptonTurnOn_den_) h_leptonTurnOn_den_->Fill(lep_max_pt);
+      if(h_leptonTurnOn_num_ && hasFired) h_leptonTurnOn_num_->Fill(lep_max_pt);
+    }
+  }
+
+  //Fill remaining turn-on histograms
+  if(hasFiredAuxiliary || triggerPathAuxiliary_=="" || !e.isRealData()){
     //Fill HT efficiency plot
-    if(lep_plateau && met_plateau && csv_plateau
-       && h_pfHTTurnOn_den_ && h_pfHTTurnOn_num_){
+    if(lep_plateau && met_plateau && csv_plateau){
       if(h_pfHTTurnOn_den_) h_pfHTTurnOn_den_->Fill(pfHT);
       if(h_pfHTTurnOn_num_ && hasFired) h_pfHTTurnOn_num_->Fill(pfHT);
     }
 
     //Fill MET efficiency plot
-    if(lep_plateau && ht_plateau && csv_plateau
-       && h_pfMetTurnOn_den_ && h_pfMetTurnOn_num_){
+    if(lep_plateau && ht_plateau && csv_plateau){
       if(h_pfMetTurnOn_den_) h_pfMetTurnOn_den_->Fill(pfMET);
       if(h_pfMetTurnOn_num_ && hasFired) h_pfMetTurnOn_num_->Fill(pfMET);
     }
 
     //Fill CSV efficiency plot
-    if(lep_plateau && ht_plateau && met_plateau
-       && h_CSVTurnOn_den_ && h_CSVTurnOn_num_){
-      switch(num_csvl){
-      default: h_CSVTurnOn_den_->Fill(4);
-      case 3 : h_CSVTurnOn_den_->Fill(3);
-      case 2 : h_CSVTurnOn_den_->Fill(2);
-      case 1 : h_CSVTurnOn_den_->Fill(1);
-      case 0 : h_CSVTurnOn_den_->Fill(0);
-      }
-      switch(num_csvm){
-      default: h_CSVTurnOn_den_->Fill(8);
-      case 3 : h_CSVTurnOn_den_->Fill(7);
-      case 2 : h_CSVTurnOn_den_->Fill(6);
-      case 1 : h_CSVTurnOn_den_->Fill(5);
-      case 0 : break;//Don't double count in the no tag bin
-      }
-      switch(num_csvt){
-      default: h_CSVTurnOn_den_->Fill(12);
-      case 3 : h_CSVTurnOn_den_->Fill(11);
-      case 2 : h_CSVTurnOn_den_->Fill(10);
-      case 1 : h_CSVTurnOn_den_->Fill(9);
-      case 0 : break;//Don't double count in the no tag bin
-      }
-      if(hasFired){
+    if(lep_plateau && ht_plateau && met_plateau){
+      if(h_CSVTurnOn_den_) h_CSVTurnOn_den_->Fill(maxCSV);
+      if(h_CSVTurnOn_num_ && hasFired) h_CSVTurnOn_num_->Fill(maxCSV);
+
+      if(h_btagTurnOn_den_){
 	switch(num_csvl){
-	default: h_CSVTurnOn_num_->Fill(4);
-	case 3 : h_CSVTurnOn_num_->Fill(3);
-	case 2 : h_CSVTurnOn_num_->Fill(2);
-	case 1 : h_CSVTurnOn_num_->Fill(1);
-	case 0 : h_CSVTurnOn_num_->Fill(0);
+	default: h_btagTurnOn_den_->Fill(4);
+	case 3 : h_btagTurnOn_den_->Fill(3);
+	case 2 : h_btagTurnOn_den_->Fill(2);
+	case 1 : h_btagTurnOn_den_->Fill(1);
+	case 0 : h_btagTurnOn_den_->Fill(0);
 	}
 	switch(num_csvm){
-	default: h_CSVTurnOn_num_->Fill(8);
-	case 3 : h_CSVTurnOn_num_->Fill(7);
-	case 2 : h_CSVTurnOn_num_->Fill(6);
-	case 1 : h_CSVTurnOn_num_->Fill(5);
+	default: h_btagTurnOn_den_->Fill(8);
+	case 3 : h_btagTurnOn_den_->Fill(7);
+	case 2 : h_btagTurnOn_den_->Fill(6);
+	case 1 : h_btagTurnOn_den_->Fill(5);
 	case 0 : break;//Don't double count in the no tag bin
 	}
 	switch(num_csvt){
-	default: h_CSVTurnOn_num_->Fill(12);
-	case 3 : h_CSVTurnOn_num_->Fill(11);
-	case 2 : h_CSVTurnOn_num_->Fill(10);
-	case 1 : h_CSVTurnOn_num_->Fill(9);
+	default: h_btagTurnOn_den_->Fill(12);
+	case 3 : h_btagTurnOn_den_->Fill(11);
+	case 2 : h_btagTurnOn_den_->Fill(10);
+	case 1 : h_btagTurnOn_den_->Fill(9);
+	case 0 : break;//Don't double count in the no tag bin
+	}
+      }
+      if(h_btagTurnOn_num_ && hasFired){
+	switch(num_csvl){
+	default: h_btagTurnOn_num_->Fill(4);
+	case 3 : h_btagTurnOn_num_->Fill(3);
+	case 2 : h_btagTurnOn_num_->Fill(2);
+	case 1 : h_btagTurnOn_num_->Fill(1);
+	case 0 : h_btagTurnOn_num_->Fill(0);
+	}
+	switch(num_csvm){
+	default: h_btagTurnOn_num_->Fill(8);
+	case 3 : h_btagTurnOn_num_->Fill(7);
+	case 2 : h_btagTurnOn_num_->Fill(6);
+	case 1 : h_btagTurnOn_num_->Fill(5);
+	case 0 : break;//Don't double count in the no tag bin
+	}
+	switch(num_csvt){
+	default: h_btagTurnOn_num_->Fill(12);
+	case 3 : h_btagTurnOn_num_->Fill(11);
+	case 2 : h_btagTurnOn_num_->Fill(10);
+	case 1 : h_btagTurnOn_num_->Fill(9);
 	case 0 : break;//Don't double count in the no tag bin
 	}
       }

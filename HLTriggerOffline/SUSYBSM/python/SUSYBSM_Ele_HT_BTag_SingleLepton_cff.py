@@ -6,44 +6,45 @@ SUSY_HLT_Ele_HT_BTag_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                                    muonCollection = cms.InputTag(''),
                                                    pfMetCollection = cms.InputTag(''),
                                                    pfJetCollection = cms.InputTag('ak4PFJets'),
-                                                   jetTagCollection = cms.InputTag('pfCombinedSeondaryVertexBJetTags'),
+                                                   jetTagCollection = cms.InputTag('pfCombinedSecondaryVertexBJetTags'),
 
                                                    vertexCollection = cms.InputTag('goodOfflinePrimaryVertices'),
                                                    conversionCollection = cms.InputTag('conversions'),
                                                    beamSpot = cms.InputTag('offlineBeamSpot'),
 
                                                    leptonFilter = cms.InputTag('hltEle15IsoVVVLGsfTrackIsoFilter','','reHLT'),
-                                                   hltHt = cms.InputTag('hltPFHT'),
+                                                   hltHt = cms.InputTag('hltPFHT','','reHLT'),
                                                    hltMet = cms.InputTag(''),
-                                                   hltJets = cms.InputTag('hltSelector4CentralJetsL1FastJet'),
-                                                   hltJetTags = cms.InputTag('hltL3CombinedSecondaryVertexBJetTags'),
+                                                   hltJets = cms.InputTag('hltSelector4CentralJetsL1FastJet','','reHLT'),
+                                                   hltJetTags = cms.InputTag('hltL3CombinedSecondaryVertexBJetTags','','reHLT'),
                                                    
                                                    triggerResults = cms.InputTag('TriggerResults','','reHLT'),
                                                    trigSummary = cms.InputTag('hltTriggerSummaryAOD','','reHLT'),
 
                                                    hltProcess = cms.string('reHLT'),
 
-                                                   triggerPath = cms.string('HLT_Ele15_IsoVVVL_PFHT400_PFMET70_v1'),
+                                                   triggerPath = cms.string('HLT_Ele15_IsoVVVL_BTagtop8CSV07_PFHT400_v1'),
                                                    triggerPathAuxiliary = cms.string('HLT_Ele32_eta2p1_WP85_Gsf_v1'),
+                                                   triggerPathLeptonAuxiliary = cms.string('HLT_PFMET170_NoiseCleaned_v1'),
 
                                                    jetPtCut = cms.untracked.double(40.0),
                                                    jetEtaCut = cms.untracked.double(3.0),
-                                                   metCut = cms.untracked.double(150.0),
+                                                   metCut = cms.untracked.double(350.0),
 
                                                    leptonPtThreshold = cms.untracked.double(15.0),
-                                                   htThreshold = cms.untracked.double(400.0),
-                                                   metThreshold = cms.untracked.double(70.0),
-                                                   csvThreshold = cms.untracked.double(-1.0)
+                                                   htThreshold = cms.untracked.double(500.0),
+                                                   metThreshold = cms.untracked.double(-1.0),
+                                                   csvThreshold = cms.untracked.double(0.898)
                                                    )
 
 
 SUSY_HLT_Ele_HT_BTag_SingleLepton_POSTPROCESSING = cms.EDAnalyzer('DQMGenericClient',
                                                                   subDirs = cms.untracked.vstring('HLT/SUSYBSM/HLT_Ele15_IsoVVVL_BTagtop8CSV07_PFHT400_v1'),
                                                                   efficiency = cms.vstring(
-        "leptonPtTurnOn_eff ';Offline lepton p_{T} [GeV];#epsilon' leptonPtTurnOn_num leptonPtTurnOn_den"
-        "leptonIsoTurnOn_eff ';Offline lepton rel. iso.;#epsilon' leptonIsoTurnOn_num leptonIsoTurnOn_den"
+        "leptonTurnOn_eff ';Offline Electron p_{T} [GeV];#epsilon' leptonTurnOn_num leptonTurnOn_den",
         "pfHTTurnOn_eff ';Offline PF H_{T} [GeV];#epsilon' pfHTTurnOn_num pfHTTurnOn_den",
-        "CSVTurnOn_eff ';Offline b-tag requirements;#epsilon' CSVTurnOn_num CSVTurnOn_den",
+        "CSVTurnOn_eff ';Offline Max CSV Discriminant;#epsilon' CSVTurnOn_num CSVTurnOn_den"
+        "btagTurnOn_eff ';Offline CSV requirements;#epsilon' btagTurnOn_num btagTurnOn_den"
         ),
                                                                   resolution = cms.vstring('')
                                                                   )

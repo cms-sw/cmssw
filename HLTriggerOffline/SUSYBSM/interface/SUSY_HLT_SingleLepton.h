@@ -102,6 +102,7 @@ class SUSY_HLT_SingleLepton: public DQMEDAnalyzer{
 
   std::string triggerPath_;
   std::string triggerPathAuxiliary_;
+  std::string triggerPathLeptonAuxiliary_;
 
   double jetPtCut_;
   double jetEtaCut_;
@@ -116,16 +117,19 @@ class SUSY_HLT_SingleLepton: public DQMEDAnalyzer{
   MonitorElement* h_triggerLepPt_;
   MonitorElement* h_triggerLepEta_;
   MonitorElement* h_triggerLepPhi_;
-  MonitorElement* h_CSVTurnOn_num_;
-  MonitorElement* h_CSVTurnOn_den_;
-  MonitorElement* h_pfMetTurnOn_num_;
-  MonitorElement* h_pfMetTurnOn_den_;
+  MonitorElement* h_HT_;
+  MonitorElement* h_MET_;
+  MonitorElement* h_maxCSV_;
+  MonitorElement* h_leptonTurnOn_num_;
+  MonitorElement* h_leptonTurnOn_den_;
   MonitorElement* h_pfHTTurnOn_num_;
   MonitorElement* h_pfHTTurnOn_den_;
-  MonitorElement* h_leptonPtTurnOn_num_;
-  MonitorElement* h_leptonPtTurnOn_den_;
-  MonitorElement* h_leptonIsoTurnOn_num_;
-  MonitorElement* h_leptonIsoTurnOn_den_;
+  MonitorElement* h_pfMetTurnOn_num_;
+  MonitorElement* h_pfMetTurnOn_den_;
+  MonitorElement* h_CSVTurnOn_num_;
+  MonitorElement* h_CSVTurnOn_den_;
+  MonitorElement* h_btagTurnOn_num_;
+  MonitorElement* h_btagTurnOn_den_;
 };
 
 #endif

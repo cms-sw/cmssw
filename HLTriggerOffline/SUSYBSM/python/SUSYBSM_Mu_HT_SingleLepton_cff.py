@@ -13,7 +13,7 @@ SUSY_HLT_Mu_HT_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                              beamSpot = cms.InputTag(''),
 
                                              leptonFilter = cms.InputTag('hltL3crVVVVLIsoL1sMu5L1f0L2f0QL3f15QL3crVVVVLIsoRhoFiltered1p0IterTrk02','','reHLT'),
-                                             hltHt = cms.InputTag('hltPFHT'),
+                                             hltHt = cms.InputTag('hltPFHT','','reHLT'),
                                              hltMet = cms.InputTag(''),
                                              hltJets = cms.InputTag(''),
                                              hltJetTags = cms.InputTag(''),
@@ -25,13 +25,14 @@ SUSY_HLT_Mu_HT_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
 
                                              triggerPath = cms.string('HLT_Mu15_IterTrk02_IsoVVVL_PFHT600_v1'),
                                              triggerPathAuxiliary = cms.string('HLT_IsoMu24_IterTrk02_v1'),
+                                             triggerPathLeptonAuxiliary = cms.string('HLT_PFMET170_NoiseCleaned_v1'),
 
                                              jetPtCut = cms.untracked.double(40.0),
                                              jetEtaCut = cms.untracked.double(3.0),
-                                             metCut = cms.untracked.double(150.0),
+                                             metCut = cms.untracked.double(350.0),
 
                                              leptonPtThreshold = cms.untracked.double(15.0),
-                                             htThreshold = cms.untracked.double(600.0),
+                                             htThreshold = cms.untracked.double(750.0),
                                              metThreshold = cms.untracked.double(-1.0),
                                              csvThreshold = cms.untracked.double(-1.0)
                                              )
@@ -40,9 +41,8 @@ SUSY_HLT_Mu_HT_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
 SUSY_HLT_Mu_HT_SingleLepton_POSTPROCESSING = cms.EDAnalyzer('DQMGenericClient',
                                                             subDirs = cms.untracked.vstring('HLT/SUSYBSM/HLT_Mu15_IterTrk02_IsoVVVL_PFHT600_v1'),
                                                             efficiency = cms.vstring(
-        "leptonPtTurnOn_eff ';Offline muon p_{T} [GeV];#epsilon' leptonPtTurnOn_num leptonPtTurnOn_den"
-        "leptonIsoTurnOn_eff ';Offline muon rel. iso.;#epsilon' leptonIsoTurnOn_num leptonIsoTurnOn_den"
-        "pfHTTurnOn_eff ';Offline PF H_{T} [GeV];#epsilon' pfHTTurnOn_num pfHTTurnOn_den",
+        "leptonTurnOn_eff ';Offline Muon p_{T} [GeV];#epsilon' leptonTurnOn_num leptonTurnOn_den",
+        "pfHTTurnOn_eff ';Offline PF H_{T} [GeV];#epsilon' pfHTTurnOn_num pfHTTurnOn_den"
         ),
                                                             resolution = cms.vstring('')
                                                             )
