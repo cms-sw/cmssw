@@ -11,11 +11,13 @@ def getPTAveVPSet():
             ptBinLow  = t/2
             ptBinHigh = max(100, t*2)
             ptBins = min(100, ptBinHigh-ptBinLow)
+
+        
             hltCalo =  cms.PSet(
                 handlerType = cms.string("FromHLT"),
                 partialPathName = cms.string(partialPathName),
                 partialFilterName  = cms.string("ForHFJECBase"), # note: this matches to hltSingleCaloJetXXXForHFJECBase
-                dqmhistolabel  = cms.string("hltcalo"),
+                dqmhistolabel  = cms.string("hltCaloJets"),
                 mainDQMDirname = cms.untracked.string(fsqdirname),
                 singleObjectsPreselection = cms.string("abs(eta)<1.4 || abs(eta) > 2.7 "),
                 combinedObjectSelection =  cms.string("1==1"),
@@ -45,6 +47,7 @@ def getPTAveVPSet():
             )
             ret.append(l1)
 
+            '''
             hltPFSingle  =  cms.PSet(
                 handlerType = cms.string("FromHLT"),
                 partialPathName = cms.string(partialPathName),
@@ -61,29 +64,40 @@ def getPTAveVPSet():
                 )
             )
             ret.append(hltPFSingle)
+            '''
 
 
             hltPFtopology  =  cms.PSet(
                 handlerType = cms.string("FromHLT"),
                 partialPathName = cms.string(partialPathName),
                 partialFilterName  = cms.string("hltDiPFJetAve"),
-                dqmhistolabel  = cms.string("hltpftopology"),
+                dqmhistolabel  = cms.string("hltPFJetsTopology"),
                 mainDQMDirname = cms.untracked.string(fsqdirname),
                 singleObjectsPreselection = cms.string("abs(eta)<1.4 || abs(eta) > 2.7 "),
                 combinedObjectSelection =  cms.string("abs(at(0).eta())< 1.4 && abs(at(1).eta()) > 2.7 && abs(deltaPhi(at(0).phi, at(1).phi)) > 2.5"),
                 combinedObjectSortCriteria = cms.string("(at(0).pt+at(1).pt)/2"),
                 combinedObjectDimension = cms.int32(2),
                 drawables =  cms.VPSet(
-                    cms.PSet (name = cms.string("deltaEta"), expression = cms.string("abs(at(0).eta-at(1).eta)"), bins = cms.int32(70), min = cms.double(0), max = cms.double(7)),
-                    cms.PSet (name = cms.string("deltaPhi"), expression = cms.string("abs(deltaPhi(at(0).phi, at(1).phi))"), bins = cms.int32(100), min = cms.double(0), max = cms.double(3.2))
+                    cms.PSet (name = cms.string("deltaEta"), expression = cms.string("abs(at(0).eta-at(1).eta)"), 
+                             bins = cms.int32(70), min = cms.double(0), max = cms.double(7)),
+                    cms.PSet (name = cms.string("deltaPhi"), expression = cms.string("abs(deltaPhi(at(0).phi, at(1).phi))"), 
+                             bins = cms.int32(100), min = cms.double(0), max = cms.double(3.2)),
+                    cms.PSet (name = cms.string("ptAve"), expression = cms.string("(at(0).pt+at(1).pt)/2"), 
+                             bins = cms.int32(ptBins), min = cms.double(ptBinLow), max = cms.double(ptBinHigh)),
+                    cms.PSet (name = cms.string("ptTag"), expression = cms.string("? abs(at(0).eta) < 2 ? at(0).pt : at(1).pt "), 
+                             bins = cms.int32(ptBins), min = cms.double(ptBinLow), max = cms.double(ptBinHigh)  ),
+                    cms.PSet (name = cms.string("ptProbe"), expression = cms.string("? abs(at(0).eta) > 2 ? at(0).pt : at(1).pt "), 
+                             bins = cms.int32(ptBins), min = cms.double(ptBinLow), max = cms.double(ptBinHigh)  )
+
                 )
             )
             ret.append(hltPFtopology)
 
+            '''
             # FromJet
             recoThr = t
             recoPF  =  cms.PSet(
-                handlerType = cms.string("RecoPFJet"),
+                handlerType = cms.string("FromRecoCandidate"),
                 inputCol = cms.InputTag("ak4PFJetsCHS"),
                 partialPathName = cms.string(partialPathName),
                 partialFilterName  = cms.string("hltDiPFJetAve"),
@@ -95,10 +109,38 @@ def getPTAveVPSet():
                 combinedObjectDimension = cms.int32(1),
                 drawables =  cms.VPSet(
                     cms.PSet (name = cms.string("pt"), expression = cms.string("at(0).pt"), bins = cms.int32(ptBins), min = cms.double(ptBinLow), max = cms.double(ptBinHigh)),
-                    cms.PSet (name = cms.string("area"), expression = cms.string("at(0).jetArea"), bins = cms.int32(50), min = cms.double(0), max = cms.double(1))
+                    cms.PSet (name = cms.string("eta"), expression = cms.string("at(0).eta"), bins = cms.int32(52), min = cms.double(0), max = cms.double(5.2))
                 )
             )
             ret.append(recoPF) 
+            '''
+            recoThr = t/2
+            hltPFtopology  =  cms.PSet(
+                handlerType = cms.string("FromRecoCandidate"),
+                inputCol = cms.InputTag("ak4PFJetsCHS"),
+                partialPathName = cms.string(partialPathName),
+                partialFilterName  = cms.string("hltDiPFJetAve"),
+                dqmhistolabel  = cms.string("recoPFJetsTopology"),
+                mainDQMDirname = cms.untracked.string(fsqdirname),
+                singleObjectsPreselection = cms.string("pt > + "+str(recoThr) +" && abs(eta)<1.4 || abs(eta) > 2.7 "),
+                combinedObjectSelection =  cms.string("abs(at(0).eta())< 1.3 && abs(at(1).eta()) > 2.8 && abs(deltaPhi(at(0).phi, at(1).phi)) > 2.5"),
+                combinedObjectSortCriteria = cms.string("(at(0).pt+at(1).pt)/2"),
+                combinedObjectDimension = cms.int32(2),
+                drawables =  cms.VPSet(
+                    cms.PSet (name = cms.string("deltaEta"), expression = cms.string("abs(at(0).eta-at(1).eta)"), 
+                             bins = cms.int32(70), min = cms.double(0), max = cms.double(7)),
+                    cms.PSet (name = cms.string("deltaPhi"), expression = cms.string("abs(deltaPhi(at(0).phi, at(1).phi))"), 
+                             bins = cms.int32(100), min = cms.double(0), max = cms.double(3.2)),
+                    cms.PSet (name = cms.string("ptAve"), expression = cms.string("(at(0).pt+at(1).pt)/2"), 
+                             bins = cms.int32(ptBins), min = cms.double(ptBinLow), max = cms.double(ptBinHigh)),
+                    cms.PSet (name = cms.string("ptTag"), expression = cms.string("? abs(at(0).eta) < 2 ? at(0).pt : at(1).pt "), 
+                             bins = cms.int32(ptBins), min = cms.double(ptBinLow), max = cms.double(ptBinHigh)  ),
+                    cms.PSet (name = cms.string("ptProbe"), expression = cms.string("? abs(at(0).eta) > 2 ? at(0).pt : at(1).pt "), 
+                             bins = cms.int32(ptBins), min = cms.double(ptBinLow), max = cms.double(ptBinHigh)  )
+
+                )
+            )
+            ret.append(hltPFtopology)
 
 
 
