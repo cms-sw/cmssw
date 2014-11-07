@@ -93,6 +93,8 @@
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h" 
 #endif 
 
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
+
 using namespace std;
 
 #define HISTOS
@@ -1915,7 +1917,7 @@ void TestClusters::analyze(const edm::Event& e,
   //const int MAX_CUT = 1000000; unused
   const int selectEvent = -1;
   //bool select = false; unused
-  static int runNumberOld=-1;
+  static RunNumber_t runNumberOld=-1;
   static int countRuns=0;
   //static double pixsum = 0., clussum=0.;
   //static int nsum = 0, lsold=-999, lumiold=0.;
@@ -1927,10 +1929,10 @@ void TestClusters::analyze(const edm::Event& e,
   const TrackerGeometry& theTracker(*geom);
 
   countAllEvents++;
-  int run       = e.id().run();
-  int event     = e.id().event();
+  RunNumber_t const run       = e.id().run();
+  EventNumber_t const event     = e.id().event();
+  LuminosityBlockNumber_t const lumiBlock = e.luminosityBlock();
 
-  int lumiBlock = e.luminosityBlock();
   int bx        = e.bunchCrossing();
   int orbit     = e.orbitNumber();
 
