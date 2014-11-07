@@ -21,10 +21,8 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
   isPFJet   = (std::string("pf")  ==JetType);
   isMiniAODJet = (std::string("miniaod")  ==JetType);
 
-  if(!isMiniAODJet){
-    mInputGenCollection            =iConfig.getParameter<edm::InputTag>("srcGen");
-    genJetsToken_ = consumes<reco::GenJetCollection>(edm::InputTag(mInputGenCollection));
-  }
+  mInputGenCollection            =iConfig.getParameter<edm::InputTag>("srcGen");
+  genJetsToken_ = consumes<reco::GenJetCollection>(edm::InputTag(mInputGenCollection));
 
   //consumes
   pvToken_ = consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("primVertex"));
@@ -796,92 +794,84 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
       }
       // Gen jets
       //------------------------------------------------------------------------
-      if(!isMiniAODJet){
-	edm::Handle<GenJetCollection> genJets;
-	mEvent.getByToken(genJetsToken_, genJets);
-	
-	if (!genJets.isValid()) return;
-	
-	for (GenJetCollection::const_iterator gjet=genJets->begin();  gjet!=genJets->end(); gjet++)	{
-	  //for MiniAOD we have here intrinsic thresholds, introduce also threshold for RECO
-	  if(gjet->pt() > mMatchGenPtThreshold){
-	    if (mGenEta) mGenEta->Fill(gjet->eta());
-	    if (mGenPhi) mGenPhi->Fill(gjet->phi());
-	    if (mGenPt)  mGenPt ->Fill(gjet->pt());
-	    if (gjet == genJets->begin()) {
-	      if (mGenEtaFirst) mGenEtaFirst->Fill(gjet->eta());
-	      if (mGenPhiFirst) mGenPhiFirst->Fill(gjet->phi());
-	    }
-	  }
-	}
 
-	if (!(mInputGenCollection.label().empty())) {
-	  for (GenJetCollection::const_iterator gjet=genJets->begin(); gjet!=genJets->end(); gjet++) {
-	    if (fabs(gjet->eta()) > 6.) continue;  // Out of the detector 
-	    if (gjet->pt() < mMatchGenPtThreshold) continue;
-	    if (recoJets.size() <= 0) continue;
-	    // pt response
-	    //------------------------------------------------------------
-	    if (jetCorr.isValid()) {
-	      int iMatch    =   -1;
-	      double CorrdeltaRBest = 999;
-	      double CorrJetPtBest  =   0;
-	      for (unsigned ijet=0; ijet<recoJets.size(); ++ijet) {
-		Jet correctedJet = recoJets[ijet];
-		if(jetCorr.isValid()){
-		  if (isCaloJet) scale = jetCorr->correction((*caloJets)[ijet]); 
-		  if (isPFJet)   scale = jetCorr->correction((*pfJets)[ijet]); 
-		  correctedJet.scaleEnergy(scale);
-		}
-		double CorrJetPt = correctedJet.pt();
-		if (CorrJetPt > 10) {
-		  double CorrdR = deltaR(gjet->eta(), gjet->phi(), correctedJet.eta(), correctedJet.phi());
-		  if (CorrdR < CorrdeltaRBest) {
-		    CorrdeltaRBest = CorrdR;
-		    CorrJetPtBest  = CorrJetPt;
-		    iMatch = ijet;
-		  }
+      edm::Handle<GenJetCollection> genJets;
+      mEvent.getByToken(genJetsToken_, genJets);
+      
+      if (!genJets.isValid()){
+	return;
+      }
+      for (GenJetCollection::const_iterator gjet=genJets->begin();  gjet!=genJets->end(); gjet++)	{
+	//for MiniAOD we have here intrinsic thresholds, introduce also threshold for RECO
+	if(gjet->pt() > mMatchGenPtThreshold){
+	  if (mGenEta) mGenEta->Fill(gjet->eta());
+	  if (mGenPhi) mGenPhi->Fill(gjet->phi());
+	  if (mGenPt)  mGenPt ->Fill(gjet->pt());
+	  if (gjet == genJets->begin()) {
+	    if (mGenEtaFirst) mGenEtaFirst->Fill(gjet->eta());
+	    if (mGenPhiFirst) mGenPhiFirst->Fill(gjet->phi());
+	  }
+	}
+      }
+      if (!(mInputGenCollection.label().empty())) {
+	for (GenJetCollection::const_iterator gjet=genJets->begin(); gjet!=genJets->end(); gjet++) {
+	  if (fabs(gjet->eta()) > 6.) continue;  // Out of the detector 
+	  if (gjet->pt() < mMatchGenPtThreshold) continue;
+	  if (recoJets.size() <= 0) continue;
+	  // pt response
+	  //------------------------------------------------------------
+	  if (pass_correction_flag) {
+	    int iMatch    =   -1;
+	    double CorrdeltaRBest = 999;
+	    double CorrJetPtBest  =   0;
+	    for (unsigned ijet=0; ijet<recoJets.size(); ++ijet) {
+	      Jet correctedJet = recoJets[ijet];
+	      if(pass_correction_flag && !isMiniAODJet){
+		if (isCaloJet) scale = jetCorr->correction((*caloJets)[ijet]); 
+		if (isPFJet)   scale = jetCorr->correction((*pfJets)[ijet]); 
+		correctedJet.scaleEnergy(scale);
+	      }
+	      double CorrJetPt = correctedJet.pt();
+	      if (CorrJetPt > 10) {
+		double CorrdR = deltaR(gjet->eta(), gjet->phi(), correctedJet.eta(), correctedJet.phi());
+		if (CorrdR < CorrdeltaRBest) {
+		  CorrdeltaRBest = CorrdR;
+		  CorrJetPtBest  = CorrJetPt;
+		  iMatch = ijet;
 		}
 	      }
-	      if (iMatch<0) continue;
+	    }
+	    if (iMatch<0) continue;
+	    if(!isMiniAODJet){
 	      fillMatchHists(gjet->eta(),  gjet->phi(),  gjet->pt(), recoJets[iMatch].eta(), recoJets[iMatch].phi(),  recoJets[iMatch].pt());
+	    }else{
+	      fillMatchHists(gjet->eta(),  gjet->phi(),  gjet->pt(), (*patJets)[iMatch].eta(), (*patJets)[iMatch].phi(),(*patJets)[iMatch].pt()*(*patJets)[iMatch].jecFactor("Uncorrected"));
+	    }
+	    if (CorrdeltaRBest < mRThreshold) {
+	      double response = CorrJetPtBest / gjet->pt();
+	      if      (fabs(gjet->eta()) < 1.5) mPtCorrOverGen_GenPt_B->Fill(log10(gjet->pt()), response);
+	      else if (fabs(gjet->eta()) < 3.0) mPtCorrOverGen_GenPt_E->Fill(log10(gjet->pt()), response);   
+	      else if (fabs(gjet->eta()) < 6.0) mPtCorrOverGen_GenPt_F->Fill(log10(gjet->pt()), response);
 	      
-	      if (CorrdeltaRBest < mRThreshold) {
-		double response = CorrJetPtBest / gjet->pt();
-		if      (fabs(gjet->eta()) < 1.5) mPtCorrOverGen_GenPt_B->Fill(log10(gjet->pt()), response);
-		else if (fabs(gjet->eta()) < 3.0) mPtCorrOverGen_GenPt_E->Fill(log10(gjet->pt()), response);   
-		else if (fabs(gjet->eta()) < 6.0) mPtCorrOverGen_GenPt_F->Fill(log10(gjet->pt()), response);
-		
-		if (gjet->pt() > 20) {
-		  if      (gjet->pt() <  40) mPtCorrOverGen_GenEta_20_40   ->Fill(gjet->eta(), response);
-		  else if (gjet->pt() <  200) mPtCorrOverGen_GenEta_40_200   ->Fill(gjet->eta(), response);
-		  else if (gjet->pt() <  600) mPtCorrOverGen_GenEta_200_600  ->Fill(gjet->eta(), response);
-		  else if (gjet->pt() < 1500) mPtCorrOverGen_GenEta_600_1500 ->Fill(gjet->eta(), response);
-		  else if (gjet->pt() < 3500) mPtCorrOverGen_GenEta_1500_3500->Fill(gjet->eta(), response);
-		}
+	      if (gjet->pt() > 20) {
+		if      (gjet->pt() <  40) mPtCorrOverGen_GenEta_20_40   ->Fill(gjet->eta(), response);
+		else if (gjet->pt() <  200) mPtCorrOverGen_GenEta_40_200   ->Fill(gjet->eta(), response);
+		else if (gjet->pt() <  600) mPtCorrOverGen_GenEta_200_600  ->Fill(gjet->eta(), response);
+		else if (gjet->pt() < 1500) mPtCorrOverGen_GenEta_600_1500 ->Fill(gjet->eta(), response);
+		else if (gjet->pt() < 3500) mPtCorrOverGen_GenEta_1500_3500->Fill(gjet->eta(), response);
 	      }
 	    }
 	  }
 	}
-      }//for RECO
-      if(isMiniAODJet){
-	double eta_first=-10;
-	double phi_first=-10;
-	double pt_first=-1;
+      }
+      //}//for RECO
+    /*     if(isMiniAODJet){
 	for (unsigned int i=0;i<(*patJets).size();i++)	{
 	  //call GenJet, is supposed to be matched already in PAT
 	  const reco::GenJet* gjet=(*patJets)[i].genJet();
 	  if(gjet==NULL) continue;
 	  if (fabs(gjet->eta()) > 6.) continue;  // Out of the detector 
 	  if (gjet->pt() < mMatchGenPtThreshold) continue;
-	  if (mGenEta) mGenEta->Fill(gjet->eta());
-	  if (mGenPhi) mGenPhi->Fill(gjet->phi());
-	  if (mGenPt)  mGenPt ->Fill(gjet->pt());
-	  if(gjet->pt()>pt_first){
-	    pt_first=gjet->pt();
-	    phi_first=gjet->phi();
-	    eta_first=gjet->eta();
-	  }
 	  if ((*patJets)[i].pt() > 10) {
 	    fillMatchHists(gjet->eta(),  gjet->phi(),  gjet->pt(), (*patJets)[i].eta(), (*patJets)[i].phi(),(*patJets)[i].pt()*(*patJets)[i].jecFactor("Uncorrected"));
 	    double CorrdR = deltaR(gjet->eta(),gjet->phi(),(*patJets)[i].eta(),(*patJets)[i].phi());
@@ -901,12 +891,8 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
 	    }
 	  }
 	}
-	if(pt_first>0){
-	  if (mGenEtaFirst) mGenEtaFirst->Fill(eta_first);
-	  if (mGenPhiFirst) mGenPhiFirst->Fill(phi_first);
-	}
       }//is MiniAOD 
-      
+    */
     }//for MC only
 }
 
