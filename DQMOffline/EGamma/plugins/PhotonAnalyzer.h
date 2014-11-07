@@ -175,7 +175,6 @@ class PhotonAnalyzer : public DQMEDAnalyzer
 
   std::stringstream currentFolder_;
 
-  // These indexes are used to count the different types of booked elements
   int histo_index_photons_;
   int histo_index_conversions_;
   int histo_index_efficiency_;
@@ -261,6 +260,11 @@ class PhotonAnalyzer : public DQMEDAnalyzer
   int reducedEtaBin_;
   int reducedR9Bin_;
   int reducedSumBin_;
+
+  MonitorElement* totalNumberOfHistos_efficiencyFolder;
+  MonitorElement* totalNumberOfHistos_invMassFolder;
+  MonitorElement* totalNumberOfHistos_photonsFolder;
+  MonitorElement* totalNumberOfHistos_conversionsFolder;
 
   MonitorElement* h_nRecoVtx_;
 
