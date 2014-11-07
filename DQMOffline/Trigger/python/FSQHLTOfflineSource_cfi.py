@@ -148,8 +148,8 @@ def getPTAveVPSet():
 
 
 fsqdirname = "HLT/FSQ/"
-processName = "TTT"
-#processName = "HLT"
+#processName = "TTT"
+processName = "HLT"
 fsqHLTOfflineSource = cms.EDAnalyzer("FSQDiJetAve",
     dirname = cms.untracked.string("HLT/FSQ/DiJETAve/"),
     triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","", processName),
