@@ -176,8 +176,8 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   std::shared_ptr<l1t::LUT> tauCalibrationLUT( new l1t::LUT(tauCalibrationLUTStream) );
   m_params.setTauCalibrationLUT(tauCalibrationLUT);
 
-  m_params.setIsoTauThresholds(conf.getParameter<std::vector<double> >("isoTauThresholds"));
-  m_params.setDiIsoTauThresholds(conf.getParameter<std::vector<double> >("diIsoTauThresholds"));
+  m_params.setIsoTauEtaMin(conf.getParameter<int> ("isoTauEtaMin"));
+  m_params.setIsoTauEtaMax(conf.getParameter<int> ("isoTauEtaMax"));
 
   // jets
   m_params.setJetLsb(conf.getParameter<double>("jetLsb"));

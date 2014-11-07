@@ -200,9 +200,9 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
 
 int l1t::Stage1Layer2EtSumAlgorithmImpPP::DiJetPhi(const std::vector<l1t::Jet> * jets)  const {
 
-  bool Debug=true;
+  bool Debug=false;
 
-  // if (Debug) cout << "Number of jets: " << jets->size() << endl;
+  if (Debug) cout << "Number of jets: " << jets->size() << endl;
   int dphi = 0;
   if (jets->size()<2) return dphi; // size() not really reliable as we pad the size to 8 (4cen+4for) in the sorter
   if ((*jets).at(0).hwPt() == 0) return 0;
@@ -219,14 +219,6 @@ int l1t::Stage1Layer2EtSumAlgorithmImpPP::DiJetPhi(const std::vector<l1t::Jet> *
     difference = -difference/std::abs(difference);
     if (Debug) cout << "PHI1: " << phi1 << " PHI2: " << phi2 << " dphi: " << dphi << " difference" << difference<< endl;
   }
-
-  // if (Debug) cout << "PHI1: " << phi1 << " PHI2: " << phi2 << " dphi: " << dphi << endl;
-  // for(JetBxCollection::const_iterator itJet = jets->begin();
-  //     itJet != jets->end(); ++itJet){
-  // 
-  //   int phi = itJet->hwPhi();
-  //   if (Debug) cout << "PHI: " << phi << endl;
-  // }
 
   // set output
   return abs(difference);
