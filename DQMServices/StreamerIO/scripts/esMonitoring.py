@@ -19,6 +19,7 @@ class ElasticReport(object):
     def __init__(self, pid, history, json, args):
         self.s_history = history
         self.s_json = json
+        self.s_path = "/tmp/dqm_monitoring/"
 
         self.last_make_report = None
         self.make_report_timer = 30
@@ -107,9 +108,13 @@ class ElasticReport(object):
     def make_report(self):
         self.last_make_report = time.time()
         self.doc["report_timestamp"] = time.time()
-
         self.update_from_json()
         self.make_id()
+
+        if not os.path.isdir(self.s_path):
+            # don't make a report if the directory is not available
+            return
+
         self.update_ps_status()
         self.update_stderr()
 
@@ -119,8 +124,8 @@ class ElasticReport(object):
             tm = "%.06f+" % time.time()
             fn_id = tm + fn_id
 
-        fn = os.path.join("/tmp/dqm_monitoring/", fn_id) 
-        fn_tmp = os.path.join("/tmp/dqm_monitoring/", fn_id + ".tmp") 
+        fn = os.path.join(self.s_path, fn_id) 
+        fn_tmp = os.path.join(self.s_path, fn_id + ".tmp") 
 
         with open(fn_tmp, "w") as f:
             json.dump(self.doc, f, indent=True)
