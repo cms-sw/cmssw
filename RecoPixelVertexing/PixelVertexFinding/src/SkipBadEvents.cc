@@ -11,8 +11,8 @@ SkipBadEvents::SkipBadEvents(const edm::ParameterSet& config) {
 SkipBadEvents::~SkipBadEvents(){}
 
 bool SkipBadEvents::filter(edm::Event& e, const edm::EventSetup& s) {
-  int run = e.id().run();
-  int evt = e.id().event();
+  edm::RunNumber_t run = e.id().run();
+  edm::EventNumber_t evt = e.id().event();
 
   bool pass = ( skip_[run].find(evt) == skip_[run].end() );
 
