@@ -41,7 +41,7 @@
 using namespace reco;
 using namespace edm;
 
-class HLTBTagPerformanceAnalyzer : public DQMEDAnalyzer { 
+class HLTBTagPerformanceAnalyzer : public thread_unsafe::DQMEDAnalyzer { 
 		public:
 			explicit HLTBTagPerformanceAnalyzer(const edm::ParameterSet&);
 			~HLTBTagPerformanceAnalyzer();
