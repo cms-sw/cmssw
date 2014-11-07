@@ -48,22 +48,15 @@ process.RECOSIMoutput = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
     outputCommands = process.RECOSIMEventContent.outputCommands,
-<<<<<<< HEAD
     fileName = cms.untracked.string('output_workflowD_step3_4.root'),
-=======
-    fileName = cms.untracked.string('output_workflowD_step3_1.root'),
->>>>>>> digi and reco cfgs
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('GEN-SIM-RECO')
     )
 )
 
-<<<<<<< HEAD
 process.RECOSIMoutput.outputCommands.extend(["keep *_mixGen_*_*"])
 
-=======
->>>>>>> digi and reco cfgs
 # Additional output definition
 
 # Other statements
