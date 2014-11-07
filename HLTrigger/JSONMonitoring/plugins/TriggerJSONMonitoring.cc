@@ -293,6 +293,8 @@ TriggerJSONMonitoring::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
   if (edm::Service<evf::EvFDaqDirector>().isAvailable()) baseRunDir_ = edm::Service<evf::EvFDaqDirector>()->baseRunDir();
   else                                                   baseRunDir_ = ".";
 
+  std::string monPath = baseRunDir_ + "/";
+
   //Get/update the L1 trigger menu from the EventSetup                                                                                             
   edm::ESHandle<L1GtTriggerMenu> l1GtMenu;           //DS                                                                                          
   iSetup.get<L1GtTriggerMenuRcd>().get(l1GtMenu);    //DS                                                                                          
@@ -308,23 +310,86 @@ TriggerJSONMonitoring::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
     return;
   }
 
-  unsigned int nRun = iRun.run();
+  //Write the once-per-run files if not already written
+  if (not runCache()->wroteFiles){
+    runCache()->wroteFiles = true;
 
-  //Create definition file for HLT Rates                                                                                                               
-  std::stringstream ssHltJsd;
-  ssHltJsd << "run" << nRun << "_ls0000";
-  ssHltJsd << "_streamHLTRates_pid" << std::setfill('0') << std::setw(5) << getpid() << ".jsd";
-  stHltJsd_ = ssHltJsd.str();
+    unsigned int nRun = iRun.run();
+    
+    //Create definition file for HLT Rates                                                                                                               
+    std::stringstream ssHltJsd;
+    ssHltJsd << "run" << nRun << "_ls0000";
+    ssHltJsd << "_streamHLTRates_pid" << std::setfill('0') << std::setw(5) << getpid() << ".jsd";
+    stHltJsd_ = ssHltJsd.str();
 
-  writeDefJson(baseRunDir_ + "/" + stHltJsd_);
+    writeDefJson(baseRunDir_ + "/" + stHltJsd_);
+    
+    //Create definition file for L1 Rates - //DS                                                                                                     
+    std::stringstream ssL1Jsd;
+    ssL1Jsd << "run" << nRun << "_ls0000";
+    ssL1Jsd << "_streamL1Rates_pid" << std::setfill('0') << std::setw(5) << getpid() << ".jsd";
+    stL1Jsd_ = ssL1Jsd.str();
 
-  //Create definition file for L1 Rates - //DS                                                                                                     
-  std::stringstream ssL1Jsd;
-  ssL1Jsd << "run" << nRun << "_ls0000";
-  ssL1Jsd << "_streamL1Rates_pid" << std::setfill('0') << std::setw(5) << getpid() << ".jsd";
-  stL1Jsd_ = ssL1Jsd.str();
+    writeL1DefJson(baseRunDir_ + "/" + stL1Jsd_);
+    
+    //Write ini files
+    //HLT
+    Json::Value hltIni;
+    Json::StyledWriter writer;
 
-  writeL1DefJson(baseRunDir_ + "/" + stL1Jsd_);
+    Json::Value hltNamesVal(Json::arrayValue);
+    for (unsigned int ui = 0; ui < hltNames_.size(); ui++){
+      hltNamesVal.append(hltNames_.at(ui));
+    }
+
+    Json::Value datasetNamesVal(Json::arrayValue);
+    for (unsigned int ui = 0; ui < datasetNames_.size(); ui++){
+      datasetNamesVal.append(datasetNames_.at(ui));
+    }
+
+    hltIni["Path-Names"]    = hltNamesVal;
+    hltIni["Dataset-Names"] = datasetNamesVal;
+    
+    std::string && result = writer.write(hltIni);
+  
+    std::stringstream ssHltIni;
+    ssHltIni << "run" << nRun << "_ls0000_streamHLTRates_pid" << std::setfill('0') << std::setw(5) << getpid() << ".ini";
+    
+    std::ofstream outHltIni( monPath + ssHltIni.str() );
+    outHltIni<<result;
+    outHltIni.close();
+    
+    //L1
+    Json::Value l1Ini;
+
+    Json::Value l1AlgoNamesVal(Json::arrayValue);
+    for (unsigned int ui = 0; ui < L1Names_.size(); ui++){
+      l1AlgoNamesVal.append(L1Names_.at(ui));
+    }
+
+    Json::Value l1TechNamesVal(Json::arrayValue);
+    for (unsigned int ui = 0; ui < L1TechNames_.size(); ui++){
+      l1TechNamesVal.append(L1TechNames_.at(ui));
+    }
+
+    Json::Value eventTypeVal(Json::arrayValue);
+    for (unsigned int ui = 0; ui < L1GlobalType_.size(); ui++){
+      eventTypeVal.append(L1GlobalType_.at(ui));
+    }
+
+    l1Ini["L1-Algo-Names"] = l1AlgoNamesVal;
+    l1Ini["L1-Tech-Names"] = l1TechNamesVal;
+    l1Ini["Event-Type"]    = eventTypeVal;
+    
+    result = writer.write(l1Ini);
+  
+    std::stringstream ssL1Ini;
+    ssL1Ini << "run" << nRun << "_ls0000_streamL1Rates_pid" << std::setfill('0') << std::setw(5) << getpid() << ".ini";
+    
+    std::ofstream outL1Ini( monPath + ssL1Ini.str() );
+    outL1Ini<<result;
+    outL1Ini.close();
+  }
 
 }//End beginRun function                                                                                                                           
 
@@ -348,15 +413,9 @@ TriggerJSONMonitoring::globalBeginLuminosityBlockSummary(const edm::LuminosityBl
 
   iSummary->hltDatasets = new HistoJ<unsigned int>(1, MAXPATHS);
 
-  iSummary->hltNames     = new HistoJ<std::string>(1, MAXPATHS);
-  iSummary->datasetNames = new HistoJ<std::string>(1, MAXPATHS);
-
-  iSummary->L1Accept     = new HistoJ<unsigned int>(1, MAXPATHS); //DS                                                                                                     
-  iSummary->L1Names      = new HistoJ<std::string>(1, MAXPATHS);  //DS                                                                                                     
-  iSummary->L1TechAccept = new HistoJ<unsigned int>(1, MAXPATHS); //DS                                                                                                     
-  iSummary->L1TechNames  = new HistoJ<std::string>(1, MAXPATHS);  //DS                                                                                                     
-  iSummary->L1Global     = new HistoJ<unsigned int>(1, MAXPATHS); //DS                                                                                                     
-  iSummary->L1GlobalType = new HistoJ<std::string>(1, MAXPATHS);  //DS                                                                                                     
+  iSummary->L1Accept     = new HistoJ<unsigned int>(1, MAXPATHS); //DS                                                                                                                    
+  iSummary->L1TechAccept = new HistoJ<unsigned int>(1, MAXPATHS); //DS                                                                                                                    
+  iSummary->L1Global     = new HistoJ<unsigned int>(1, MAXPATHS); //DS                                                                                                                    
 
   return iSummary;
 }//End globalBeginLuminosityBlockSummary function                                                                                                                          
@@ -365,46 +424,39 @@ void
 TriggerJSONMonitoring::endLuminosityBlockSummary(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iEventSetup, hltJson::lumiVars* iSummary) const{
 
   //Whichever stream gets there first does the initialiazation                                                                                                             
-  if (iSummary->hltNames->value().size() == 0){
+  if (iSummary->hltWasRun->value().size() == 0){
     iSummary->processed->update(processed_);
 
-    for (unsigned int ui = 0; ui < hltNames_.size(); ui++){
+    for (unsigned int ui = 0; ui < hltWasRun_.size(); ui++){
       iSummary->hltWasRun->update(hltWasRun_.at(ui));
       iSummary->hltL1s   ->update(hltL1s_   .at(ui));
       iSummary->hltPre   ->update(hltPre_   .at(ui));
       iSummary->hltAccept->update(hltAccept_.at(ui));
       iSummary->hltReject->update(hltReject_.at(ui));
       iSummary->hltErrors->update(hltErrors_.at(ui));
-
-      iSummary->hltNames->update(hltNames_.at(ui));
     }
-    for (unsigned int ui = 0; ui < datasetNames_.size(); ui++){
+    for (unsigned int ui = 0; ui < hltDatasets_.size(); ui++){
       iSummary->hltDatasets->update(hltDatasets_.at(ui));
-
-      iSummary->datasetNames->update(datasetNames_.at(ui));
     }
     iSummary->stHltJsd   = stHltJsd_;
     iSummary->baseRunDir = baseRunDir_;
-
-    for (unsigned int ui = 0; ui < L1Names_.size(); ui++){  //DS                                                                                                           
+    
+    for (unsigned int ui = 0; ui < L1Accept_.size(); ui++){  //DS                                                                                          
       iSummary->L1Accept->update(L1Accept_.at(ui));
-      iSummary->L1Names ->update(L1Names_ .at(ui));
     }
-    for (unsigned int ui = 0; ui < L1TechNames_.size(); ui++){  //DS                                                                                                       
+    for (unsigned int ui = 0; ui < L1TechAccept_.size(); ui++){  //DS       
       iSummary->L1TechAccept->update(L1TechAccept_.at(ui));
-      iSummary->L1TechNames ->update(L1TechNames_ .at(ui));
     }
-    for (unsigned int ui = 0; ui < L1GlobalType_.size(); ui++){  //DS                                                                                                      
+    for (unsigned int ui = 0; ui < L1GlobalType_.size(); ui++){  //DS                    
       iSummary->L1Global    ->update(L1Global_.at(ui));
-      iSummary->L1GlobalType->update(L1GlobalType_.at(ui));
     }
     iSummary->stL1Jsd = stL1Jsd_;    //DS                                                                                                            
-
   }
+
   else{
     iSummary->processed->value().at(0) += processed_;
 
-    for (unsigned int ui = 0; ui < hltNames_.size(); ui++){
+    for (unsigned int ui = 0; ui < hltWasRun_.size(); ui++){
       iSummary->hltWasRun->value().at(ui) += hltWasRun_.at(ui);
       iSummary->hltL1s   ->value().at(ui) += hltL1s_   .at(ui);
       iSummary->hltPre   ->value().at(ui) += hltPre_   .at(ui);
@@ -412,22 +464,22 @@ TriggerJSONMonitoring::endLuminosityBlockSummary(const edm::LuminosityBlock& iLu
       iSummary->hltReject->value().at(ui) += hltReject_.at(ui);
       iSummary->hltErrors->value().at(ui) += hltErrors_.at(ui);
     }
-    for (unsigned int ui = 0; ui < datasetNames_.size(); ui++){
+    for (unsigned int ui = 0; ui < hltDatasets_.size(); ui++){
       iSummary->hltDatasets->value().at(ui) += hltDatasets_.at(ui);
     }
-    for (unsigned int ui = 0; ui < L1Names_.size(); ui++){  //DS                                                                                                           
+    for (unsigned int ui = 0; ui < L1Accept_.size(); ui++){  //DS                           
       iSummary->L1Accept->value().at(ui) += L1Accept_.at(ui);
     }
-    for (unsigned int ui = 0; ui < L1TechNames_.size(); ui++){  //DS                                                                                                       
+    for (unsigned int ui = 0; ui < L1TechAccept_.size(); ui++){  //DS                              
       iSummary->L1TechAccept->value().at(ui) += L1TechAccept_.at(ui);
     }
-    for (unsigned int ui = 0; ui < L1GlobalType_.size(); ui++){  //DS                                                                                                      
+    for (unsigned int ui = 0; ui < L1Global_.size(); ui++){  //DS                             
       iSummary->L1Global->value().at(ui) += L1Global_.at(ui);
     }
 
   }
 
-}//End endLuminosityBlockSummary function                                                                                                                                  
+}//End endLuminosityBlockSummary function                                             
 
 
 void
@@ -439,7 +491,7 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
   gethostname(hostname,32);
   std::string sourceHost(hostname);
 
-  //Get the output directory                                                                                                                                           
+  //Get the output directory                                        
   std::string monPath = iSummary->baseRunDir + "/";
 
   std::stringstream sOutDef;
@@ -492,69 +544,6 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
   std::ofstream outL1JsnData( monPath + "/" + ssL1JsnData.str() );
   outL1JsnData<<result;
   outL1JsnData.close();
-
-  //HLT and L1 .ini files. They are only written once per run, but must be
-  //at the end of a lumi section because it needs the path and dataset names 
-
-  bool writeIni= ( iLs==1 ? true:false);
-  if (edm::Service<evf::EvFDaqDirector>().isAvailable()) writeIni = !(edm::Service<evf::EvFDaqDirector>()->registerStreamProducer("TriggerJSONMonitoring"));
-  if (writeIni) {
-    //HLT
-    Json::Value hltIni;
-
-    Json::Value hltNamesVal(Json::arrayValue);
-    for (unsigned int ui = 0; ui < iSummary->hltNames->value().size(); ui++){
-      hltNamesVal.append(iSummary->hltNames->value().at(ui));
-    }
-
-    Json::Value datasetNamesVal(Json::arrayValue);
-    for (unsigned int ui = 0; ui < iSummary->datasetNames->value().size(); ui++){
-      datasetNamesVal.append(iSummary->datasetNames->value().at(ui));
-    }
-
-    hltIni["Path-Names"]    = hltNamesVal;
-    hltIni["Dataset-Names"] = datasetNamesVal;
-    
-    result = writer.write(hltIni);
-  
-    std::stringstream ssHltIni;
-    ssHltIni << "run" << iRun << "_ls0000_streamHLTRates_pid" << std::setfill('0') << std::setw(5) << getpid() << ".ini";
-    
-    std::ofstream outHltIni( monPath + ssHltIni.str() );
-    outHltIni<<result;
-    outHltIni.close();
-    
-    //L1
-    Json::Value l1Ini;
-
-    Json::Value l1AlgoNamesVal(Json::arrayValue);
-    for (unsigned int ui = 0; ui < iSummary->L1Names->value().size(); ui++){
-      l1AlgoNamesVal.append(iSummary->L1Names->value().at(ui));
-    }
-
-    Json::Value l1TechNamesVal(Json::arrayValue);
-    for (unsigned int ui = 0; ui < iSummary->L1TechNames->value().size(); ui++){
-      l1TechNamesVal.append(iSummary->L1TechNames->value().at(ui));
-    }
-
-    Json::Value eventTypeVal(Json::arrayValue);
-    for (unsigned int ui = 0; ui < iSummary->L1GlobalType->value().size(); ui++){
-      eventTypeVal.append(iSummary->L1GlobalType->value().at(ui));
-    }
-
-    l1Ini["L1-Algo-Names"] = l1AlgoNamesVal;
-    l1Ini["L1-Tech-Names"] = l1TechNamesVal;
-    l1Ini["Event-Type"]    = eventTypeVal;
-    
-    result = writer.write(l1Ini);
-  
-    std::stringstream ssL1Ini;
-    ssL1Ini << "run" << iRun << "_ls0000_streamL1Rates_pid" << std::setfill('0') << std::setw(5) << getpid() << ".ini";
-    
-    std::ofstream outL1Ini( monPath + ssL1Ini.str() );
-    outL1Ini<<result;
-    outL1Ini.close();
-  }
 
   //Create special DAQ JSON file for L1 and HLT rates pseudo-streams
   //Only three variables are different between the files: 
@@ -648,15 +637,9 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
 
   delete iSummary->hltDatasets;
 
-  delete iSummary->hltNames;
-  delete iSummary->datasetNames;
-
   delete iSummary->L1Accept;     //DS                                                                                                                                      
-  delete iSummary->L1Names;      //DS                                                                                                                                      
   delete iSummary->L1TechAccept; //DS                                                                                                                                      
-  delete iSummary->L1TechNames;  //DS                                                                                                                                      
-  delete iSummary->L1Global;     //DS                                                                                                                                      
-  delete iSummary->L1GlobalType; //DS                                                                                                                                      
+  delete iSummary->L1Global;     //DS                                                                                                                                                     
 
   //Note: Do not delete the iSummary pointer. The framework does something with it later on                                                                                
   //      and deleting it results in a segmentation fault.                                                                                                                 

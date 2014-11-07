@@ -48,6 +48,11 @@ namespace edmplugin {
       static const boost::filesystem::path s_path(".edmplugincache");
       return s_path;
     }
+
+    const boost::filesystem::path& poisonedCachefileName() {
+      static const boost::filesystem::path s_path(".poisonededmplugincache");
+      return s_path;
+    }
     
     
     const std::string& pluginPrefix() {
