@@ -293,6 +293,7 @@ XrdFile::readv (IOPosBuffer *into, IOSize n)
   cl->reserve(n > adjust ? adjust : n);
   IOSize idx = 0, last_idx = 0;
   IOSize final_result = 0;
+  std::vector<std::pair<std::future<IOSize>, IOSize>> readv_futures;
   while (idx < n)
   {
     cl->clear();
@@ -332,30 +333,51 @@ XrdFile::readv (IOPosBuffer *into, IOSize n)
         idx++;
       }
     }
-    edm::CPUTimer timer;
-    timer.start();
-    IOSize result;
+    try
+    {
+      readv_futures.emplace_back(m_requestmanager->handle(cl), size);
+    }
+    catch (edm::Exception& ex)
+    {
+      ex.addContext("Calling XrdFile::readv()");
+      throw;
+    }
+
+    // Assure that we have made some progress.
+    assert(last_idx < idx);
+    last_idx = idx;
+
+  }
+  edm::CPUTimer timer;
+  timer.start();
+  for (auto & readv_result : readv_futures)
+  {
+    IOSize result = 0;
     try
     {
       const int retry_count = 5;
       for (int retries=0; retries<retry_count; retries++)
       {
-      try
-      {
-        result = m_requestmanager->handle(cl).get();
-      }
-      catch (XrootdException& ex)
-      {
-        if ((retries != retry_count-1) && (ex.getCode() == XrdCl::errInvalidResponse))
+        try
         {
-          edm::LogWarning("XrdAdaptorInternal") << "Got an invalid response from Xrootd server; retrying" << std::endl;
-          result = m_requestmanager->handle(cl).get();
+          if (readv_result.first.valid())
+          {
+            result = readv_result.first.get();
+          }
         }
-        else
+        catch (XrootdException& ex)
         {
-          throw;
+          if ((retries != retry_count-1) && (ex.getCode() == XrdCl::errInvalidResponse))
+          {
+            edm::LogWarning("XrdAdaptorInternal") << "Got an invalid response from Xrootd server; retrying" << std::endl;
+            result = m_requestmanager->handle(cl).get();
+          }
+          else
+          {
+            throw;
+          }
         }
-      }
+        assert(result == readv_result.second);
       }
     }
     catch (edm::Exception& ex)
@@ -363,16 +385,16 @@ XrdFile::readv (IOPosBuffer *into, IOSize n)
       ex.addContext("Calling XrdFile::readv()");
       throw;
     }
-    timer.stop();
-    assert(result == size);
-    edm::LogVerbatim("XrdAdaptorInternal") << "[" << m_op_count.fetch_add(1) << "] Time for readv: " << static_cast<int>(1000*timer.realTime()) << std::endl;
-
-    // Assure that we have made some progress.
-    assert(last_idx < idx);
-    last_idx = idx;
-
+    catch (std::exception& ex)
+    {
+      edm::LogWarning("XrdFile") << "Exception thrown when processing xrootd request: " << ex.what();
+      throw;
+    }
     final_result += result;
   }
+  timer.stop();
+  edm::LogVerbatim("XrdAdaptorInternal") << "[" << m_op_count.fetch_add(1) << "] Time for readv: " << static_cast<int>(1000*timer.realTime()) << " (sub-readv requests: " << readv_futures.size() << ")" << std::endl;
+
   return final_result;
 }
 
