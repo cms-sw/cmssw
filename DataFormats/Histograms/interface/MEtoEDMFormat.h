@@ -113,10 +113,15 @@ class MEtoEDM
            MEtoEdmObject[j].object.GetYaxis()->GetXmax() == newMEtoEDMObject[i].object.GetYaxis()->GetXmax() &&
            MEtoEdmObject[j].object.GetNbinsZ()           == newMEtoEDMObject[i].object.GetNbinsZ()           &&
            MEtoEdmObject[j].object.GetZaxis()->GetXmin() == newMEtoEDMObject[i].object.GetZaxis()->GetXmin() &&
-           MEtoEdmObject[j].object.GetZaxis()->GetXmax() == newMEtoEDMObject[i].object.GetZaxis()->GetXmax()) {
+           MEtoEdmObject[j].object.GetZaxis()->GetXmax() == newMEtoEDMObject[i].object.GetZaxis()->GetXmax() &&
+           // Also check that the min is less than the max. Root allows this to be booked but then
+           // crashes when it adds them.
+           (MEtoEdmObject[j].object.GetXaxis()->GetXmin() < MEtoEdmObject[j].object.GetXaxis()->GetXmax())   &&
+           (MEtoEdmObject[j].object.GetYaxis()->GetXmin() < MEtoEdmObject[j].object.GetYaxis()->GetXmax())   &&
+           (MEtoEdmObject[j].object.GetZaxis()->GetXmin() < MEtoEdmObject[j].object.GetZaxis()->GetXmax())) {
          MEtoEdmObject[j].object.Add(&newMEtoEDMObject[i].object);
        } else {
-          std::cout << "ERROR MEtoEDM::mergeProducts(): found histograms with different axis limits, '" << name << "' not merged" <<  std::endl;
+          std::cout << "ERROR MEtoEDM::mergeProducts(): found histograms with different or invalid axis limits, '" << name << "' not merged" <<  std::endl;
 #if debug
           std::cout << MEtoEdmObject[j].name                         << " " << newMEtoEDMObject[i].name                         << std::endl;
           std::cout << MEtoEdmObject[j].object.GetNbinsX()           << " " << newMEtoEDMObject[i].object.GetNbinsX()           << std::endl;

@@ -6,41 +6,21 @@
 </ConstantsSection>
   
 <SolidSection label="eregalgo.xml">
-  <Polycone name="ECAL_Bulk" startPhi="0*deg" deltaPhi="360*deg">
+  <Polycone name="ECAL" startPhi="0*deg" deltaPhi="360*deg">
     <ZSection z="-[ectkcable:z4CabEC]" rMin="[ectkcable:rMin2Cab]" rMax="[eecon:EBRMax]"/>
     <ZSection z="-[escon:ESRearZ]"     rMin="[ectkcable:rMin2Cab]" rMax="[eecon:EBRMax]"/>
     <ZSection z="-[escon:ESRearZ]"     rMin="[eecon:EEIRECR]"      rMax="[eecon:EBRMax]"/>
     <ZSection z="-[escon:ESFrontZ]"    rMin="[eecon:EEIRECR]"      rMax="[eecon:EBRMax]"/>
     <ZSection z="-[escon:ESFrontZ]"    rMin="[eecon:EBRMin]"       rMax="[eecon:EBRMax]"/>
     <ZSection z=" [escon:ESFrontZ]"    rMin="[eecon:EBRMin]"       rMax="[eecon:EBRMax]"/>
-    <ZSection z=" [escon:ESFrontZ]"    rMin="[eecon:EEIRECR]"      rMax="[eecon:EBRMax]"/>
-    <ZSection z=" [escon:ESRearZ]"     rMin="[eecon:EEIRECR]"      rMax="[eecon:EBRMax]"/>
+    <ZSection z=" [escon:ESFrontZ]"    rMin="[escon:R_MIN]"      rMax="[eecon:EBRMax]"/>
+    <ZSection z=" [escon:ESRearZ]"     rMin="[escon:R_MIN]"      rMax="[eecon:EBRMax]"/>
     <ZSection z=" [escon:ESRearZ]"     rMin="[ectkcable:rMin2Cab]" rMax="[eecon:EBRMax]"/>
     <ZSection z=" [ectkcable:z4CabEC]" rMin="[ectkcable:rMin2Cab]" rMax="[eecon:EBRMax]"/>
   </Polycone>
-  <Polycone name="ECAL_Leg1" startPhi="0*deg" deltaPhi="360*deg">
-    <ZSection z=" [escon:ESRearZ]"     rMin="[eecon:EEIRECR]"      rMax="[escon:InnerNM2_RMax]"/>
-    <ZSection z=" [InnerNM_Z]"         rMin="[eecon:EEIRECR]"      rMax="[escon:InnerNM2_RMax]"/>
-  </Polycone>
-  <Polycone name="ECAL_Leg2" startPhi="0*deg" deltaPhi="360*deg">
-    <ZSection z="-[InnerNM_Z]"         rMin="[eecon:EEIRECR]"      rMax="[escon:InnerNM2_RMax]"/>
-    <ZSection z="-[escon:ESRearZ]"     rMin="[eecon:EEIRECR]"      rMax="[escon:InnerNM2_RMax]"/>
-  </Polycone>
-  <UnionSolid name="ECAL_Union">
-    <rSolid name="eregalgo:ECAL_Bulk"/>
-    <rSolid name="eregalgo:ECAL_Leg1"/>
-    <Translation x="0*fm" y="0*fm" z="0*mm"/>
-  </UnionSolid>
-  <UnionSolid name="ECAL">
-    <rSolid name="eregalgo:ECAL_Union"/>
-    <rSolid name="eregalgo:ECAL_Leg2"/>
-    <Translation x="0*fm" y="0*fm" z="0*mm"/>
-  </UnionSolid>
   <Polycone name="EREG" startPhi="0*deg" deltaPhi="360*deg">
-    <ZSection z=" [escon:ESFrontZ]"    rMin="[eecon:EEIRECR]"      rMax="[escon:Front_window_Al]"/>
-    <ZSection z=" [escon:ESRearZ]"     rMin="[eecon:EEIRECR]"      rMax="[escon:R_MAX]"/>
-    <ZSection z=" [escon:ESRearZ]"     rMin="[eecon:EEIRECR]"      rMax="[escon:InnerNM2_RMax]"/>
-    <ZSection z=" [InnerNM_Z]"         rMin="[eecon:EEIRECR]"      rMax="[escon:InnerNM2_RMax]"/>
+    <ZSection z=" [escon:ESFrontZ]"    rMin="[escon:R_MIN]"      rMax="[escon:Front_window_Al]"/>
+    <ZSection z=" [escon:ESRearZ]"     rMin="[escon:R_MIN]"      rMax="[escon:R_MAX]"/>
   </Polycone>
 </SolidSection>
 

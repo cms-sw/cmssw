@@ -85,12 +85,12 @@ public:
 
   // set the energy for out of time events
   // (only energy >= 0 will be stored)
-  float outOfTimeEnergy() const;
+  float energyError() const;
   float timeError() const;
 
   void setChi2( float chi2 );
   void setOutOfTimeChi2( float chi2 );
-  void setOutOfTimeEnergy( float energy );
+  void setEnergyError( float energy );
 
   void setTimeError( uint8_t timeErrBits );
 

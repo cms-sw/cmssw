@@ -70,7 +70,7 @@ namespace ecaldqm {
 
       if(isPhysicsRun_ && hitItr->checkFlagMask(mask)) continue;
 
-      float energy(isPhysicsRun_ ? hitItr->energy() : hitItr->outOfTimeEnergy());
+      float energy = hitItr->energy();
 
       if ( energy < 0. ) energy = 0.0;
 
@@ -91,7 +91,7 @@ namespace ecaldqm {
       for(std::vector<DetId>::iterator idItr(window.begin()); idItr != window.end(); ++idItr){
 	if((neighborItr = _hits.find(*idItr)) == _hits.end()) continue;
 	if(isPhysicsRun_ && neighborItr->checkFlagMask(mask)) continue;
-	neighborE = isPhysicsRun_ ? neighborItr->energy() : neighborItr->outOfTimeEnergy();
+	neighborE = neighborItr->energy();
 	if(neighborE > energy){
 	  isSeed = false;
 	  break;

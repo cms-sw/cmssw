@@ -268,7 +268,6 @@ DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
   if(pset.getUntrackedParameter<bool>("forceResetOnBeginRun",false)) {
     ar.watchPostSourceRun(this,&DQMStore::forceReset);
   }
-  std::cout << __LINE__ << " DQMStore::DQMStore " << std::endl;
 }
 
 DQMStore::DQMStore(const edm::ParameterSet &pset)
@@ -1269,7 +1268,10 @@ DQMStore::checkBinningMatches(MonitorElement *me, TH1 *h)
       || me->getTH1()->GetZaxis()->GetXmin() != h->GetZaxis()->GetXmin()
       || me->getTH1()->GetXaxis()->GetXmax() != h->GetXaxis()->GetXmax()
       || me->getTH1()->GetYaxis()->GetXmax() != h->GetYaxis()->GetXmax()
-      || me->getTH1()->GetZaxis()->GetXmax() != h->GetZaxis()->GetXmax())
+      || me->getTH1()->GetZaxis()->GetXmax() != h->GetZaxis()->GetXmax()
+      || !MonitorElement::CheckBinLabels((TAxis*)me->getTH1()->GetXaxis(),(TAxis*)h->GetXaxis())
+      || !MonitorElement::CheckBinLabels((TAxis*)me->getTH1()->GetYaxis(),(TAxis*)h->GetYaxis())
+      || !MonitorElement::CheckBinLabels((TAxis*)me->getTH1()->GetZaxis(),(TAxis*)h->GetZaxis()) )
   {
     //  edm::LogWarning ("DQMStore")
     std::cout << "*** DQMStore: WARNING:"

@@ -1,0 +1,38 @@
+<lcgdict>
+
+  <class name="DTTrigData" />
+
+  <class name="DTBtiTrigData" />
+  <class name="DTBtiTrigger" />
+  <class name="edm::Wrapper<DTBtiTrigger>" />
+  <class name="std::vector<DTBtiTrigger>" />
+  <class name="edm::Wrapper<std::vector<DTBtiTrigger>>" />
+
+  <class name="DTChambPhSegm" />
+  <class name="DTTSPhiTrigger" />
+  <class name="edm::Wrapper<DTTSPhiTrigger>" />
+  <class name="std::vector<DTTSPhiTrigger>" />
+  <class name="edm::Wrapper<std::vector<DTTSPhiTrigger>>" />
+
+  <class name="DTTracoTrigData" />
+
+  <class name="DTMatch" />
+  <class name="std::vector<DTMatch>" />
+  <class name="edm::Wrapper<DTMatch>" />
+  <class name="edm::Wrapper<std::vector<DTMatch>>" />
+  <class name="DTMatchBase" />
+  <class name="DTMatchBasePtMethods" />
+ <class name="edm::Ptr<DTMatch>"  />
+
+  <class name="std::string" />
+  <class name="edm::Wrapper<std::string>" />
+
+  <class name="DTMatchPt" />
+  <class name="std::map<std::string,DTMatchPt>" />
+  <class name="edm::Wrapper<DTMatchPt>" />
+  <class name="edm::Wrapper<std::map<std::string,DTMatchPt>>" />
+  <class name="std::pair<std::string,DTMatchPt>" />
+  <class name="edm::Wrapper<std::pair<std::string,DTMatchPt>>" />
+
+</lcgdict>
+

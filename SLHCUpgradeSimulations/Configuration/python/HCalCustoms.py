@@ -7,6 +7,7 @@ def customise_HcalPhase0(process):
         process.mix.digitizers.hcal.HcalReLabel.RelabelHits=cms.untracked.bool(True)
 
     process.es_hardcode.HEreCalibCutoff = cms.double(20.) #for aging
+    process.es_hardcode.HBreCalibCutoff = cms.double(20.) #for aging
 
     process.es_hardcode.toGet = cms.untracked.vstring(
         'GainWidths',
@@ -47,6 +48,7 @@ def customise_HcalPhase1(process):
     # Special Upgrade trick (if absent - regular case assumed)
     process.es_hardcode.GainWidthsForTrigPrims = cms.bool(True)
     process.es_hardcode.HEreCalibCutoff = cms.double(100.) #for aging
+    process.es_hardcode.HBreCalibCutoff = cms.double(100.) #for aging
     
     if hasattr(process,'g4SimHits'):
         process=customise_Sim(process)
@@ -148,8 +150,8 @@ def customise_Reco(process):
     process.towerMaker.HcalPhase = cms.int32(1)
     process.towerMakerPF.HcalPhase = cms.int32(1)
     process.towerMakerWithHO.HcalPhase = cms.int32(1)
-    process.particleFlowRecHitHCAL.hcalRecHitsHBHE = cms.InputTag("hbheUpgradeReco")
-    process.particleFlowRecHitHCAL.hcalRecHitsHF = cms.InputTag("hfUpgradeReco")
+    process.particleFlowRecHitHBHE.producers[0].src = cms.InputTag("hbheUpgradeReco")
+    process.particleFlowRecHitHF.producers[0].src = cms.InputTag("hfUpgradeReco")
     process.ak5JetID.hfRecHitsColl = cms.InputTag("hfUpgradeReco")
     process.ak5JetID.hbheRecHitsColl = cms.InputTag("hbheUpgradeReco")
     process.ak7JetID.hfRecHitsColl = cms.InputTag("hfUpgradeReco")

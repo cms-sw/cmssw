@@ -59,11 +59,10 @@
    <ZSection z="89.9*cm" rMin="[cms:TrackBeamR1]" rMax="21.6*cm"/>
    <ZSection z="99.00*cm" rMin="[cms:TrackBeamR1]" rMax="21.6*cm"/>
    <ZSection z="99.00*cm" rMin="[cms:TrackBeamR1]" rMax="111.105*cm"/>
-   <ZSection z="[RootMidZ1]"   rMin="[cms:TrackBeamR1]" rMax="111.105*cm"/>
+   <ZSection z="[RootMidZ1]"   rMin="[cms:TrackLumiR1Min]" rMax="111.105*cm"/>
    <ZSection z="[RootMidZ1]"   rMin="[cms:TrackLumiR1]" rMax="111.105*cm"/>
    <ZSection z="[RootMidZ2]"   rMin="[cms:TrackLumiR1]" rMax="111.105*cm"/>
-   <ZSection z="[RootMidZ2]"   rMin="[cms:TrackBeamR1]" rMax="111.105*cm"/>
-   <ZSection z="[RootMidZ3]"   rMin="[cms:TrackBeamR1]" rMax="111.105*cm"/>
+   <ZSection z="[RootMidZ2]"   rMin="[cms:TrackLumiR2Min]" rMax="111.105*cm"/>
    <ZSection z="[RootEndZ]"    rMin="[cms:TrackBeamR2]" rMax="111.105*cm"/>
    <ZSection z="[RootEndZ]+[ZextensionCables]"    rMin="[cms:TrackBeamR2]" rMax="111.105*cm"/>
 </Polycone>

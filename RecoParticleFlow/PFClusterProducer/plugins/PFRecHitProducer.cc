@@ -7,7 +7,8 @@ namespace {
   }
 }
 
- PFRecHitProducer:: PFRecHitProducer(const edm::ParameterSet& iConfig)
+PFRecHitProducer:: PFRecHitProducer(const edm::ParameterSet& iConfig):
+  _useHitMap(iConfig.getUntrackedParameter<bool>("useHitMap",false))
 {
 
   produces<reco::PFRecHitCollection>();
@@ -52,14 +53,26 @@ void
      creators_.at(i)->importRecHits(out,cleaned,iEvent,iSetup);
    }
 
-   std::sort(out->begin(),out->end(),sortByDetId);
+   if(!_useHitMap) std::sort(out->begin(),out->end(),sortByDetId);
+
+   reco::PFRecHitCollection& outprod = *out;
+   PFRecHitNavigatorBase::DetIdToHitIdx hitmap(outprod.size());
+   if( _useHitMap ) {
+     for( unsigned i = 0 ; i < outprod.size(); ++i ) {
+       hitmap[outprod[i].detId()] = i;
+     }
+   }
 
    //create a refprod here
    edm::RefProd<reco::PFRecHitCollection> refProd = 
      iEvent.getRefBeforePut<reco::PFRecHitCollection>();
 
-   for( unsigned int i=0;i<out->size();++i) {
-     navigator_->associateNeighbours(out->at(i),out,refProd);
+   for( unsigned int i=0;i<outprod.size();++i) {
+     if( _useHitMap ) {
+       navigator_->associateNeighbours(outprod[i],out,hitmap,refProd);
+     } else {
+       navigator_->associateNeighbours(outprod[i],out,refProd);
+     }
    }
 
    iEvent.put(out,"");

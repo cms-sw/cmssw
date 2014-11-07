@@ -74,7 +74,7 @@ def ageHcal(process,lumi):
 	
     if hasattr(process,'mix') and hasattr(process.mix,'digitizers') and hasattr(process.mix.digitizers,'hcal'):  
         process.mix.digitizers.hcal.DelivLuminosity = cms.double(float(lumi))  # integrated lumi in fb-1
-        process.mix.digitizers.hcal.HEDarkening     = cms.bool(True)
+        process.mix.digitizers.hcal.HEDarkening     = cms.uint32(1)
         process.mix.digitizers.hcal.HFDarkening     = cms.bool(True)
 
     #these lines need to be further activated by tuning on 'complete' aging for HF 
@@ -84,7 +84,7 @@ def ageHcal(process,lumi):
 
     #recalibration and darkening always together
     if hasattr(process,'es_hardcode'):
-        process.es_hardcode.HERecalibration = cms.bool(True)
+        process.es_hardcode.HERecalibration = cms.uint32(1)
         process.es_hardcode.HFRecalibration = cms.bool(True)
         process.es_hardcode.iLumi = cms.double(float(lumi))
 
@@ -225,12 +225,30 @@ def ecal_complete_aging(process):
 
 def turn_off_HE_aging(process):
     if hasattr(process,'mix') and hasattr(process.mix,'digitizers') and hasattr(process.mix.digitizers,'hcal'):    
-        process.mix.digitizers.hcal.HEDarkening = cms.bool(False)
+        process.mix.digitizers.hcal.HEDarkening = cms.uint32(0)
     if hasattr(process,'es_hardcode'):
-        process.es_hardcode.HERecalibration = cms.bool(False)		
-    if hasattr(process,'simHcalDigis'):
-        process.simHcalDigis.HBlevel=cms.int32(16)
-        process.simHcalDigis.HElevel=cms.int32(16)
+        process.es_hardcode.HERecalibration = cms.uint32(0)
+    return process
+
+def set_HE_aging_scenario(process,scenario):
+    if hasattr(process,'mix') and hasattr(process.mix,'digitizers') and hasattr(process.mix.digitizers,'hcal'):
+        process.mix.digitizers.hcal.HEDarkening = cms.uint32(scenario)
+    if hasattr(process,'es_hardcode'):
+        process.es_hardcode.HERecalibration = cms.uint32(scenario)
+    return process
+
+def turn_off_HB_aging(process):
+    if hasattr(process,'mix') and hasattr(process.mix,'digitizers') and hasattr(process.mix.digitizers,'hcal'):    
+        process.mix.digitizers.hcal.HBDarkening = cms.uint32(0)
+    if hasattr(process,'es_hardcode'):
+        process.es_hardcode.HBRecalibration = cms.uint32(0)
+    return process
+
+def set_HB_aging_scenario(process,scenario):
+    if hasattr(process,'mix') and hasattr(process.mix,'digitizers') and hasattr(process.mix.digitizers,'hcal'):
+        process.mix.digitizers.hcal.HBDarkening = cms.uint32(scenario)
+    if hasattr(process,'es_hardcode'):
+        process.es_hardcode.HBRecalibration = cms.uint32(scenario)
     return process
 
 def turn_off_HF_aging(process):

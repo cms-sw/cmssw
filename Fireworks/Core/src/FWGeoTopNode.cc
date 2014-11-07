@@ -380,13 +380,15 @@ FWPopupMenu* FWGeoTopNode::setPopupMenu(int iX, int iY, TGLViewer* v, bool overl
    FWPopupMenu* nodePopup = new FWPopupMenu();
    
    nodePopup->AddEntry("Set As Top Node", kSetTopNode);
-   nodePopup->AddEntry("Set As Top Node And Reset Camera", kSetTopNodeCam);
+   nodePopup->AddEntry("Set As Top Node and Reset Camera", kSetTopNodeCam);
    nodePopup->AddSeparator();
    if (v) { 
        nodePopup->AddEntry("Rnr Off", kVisSelfOff);
    }
-   nodePopup->AddEntry("Rnr Off For All Children", kVisChldOff);
-   nodePopup->AddEntry("Rnr On For All Children", kVisChldOn);      
+   nodePopup->AddEntry("Turn Render On For Children", kVisChldOn);      
+   nodePopup->AddEntry("Turn Render Off For Children", kVisChldOff);
+   nodePopup->AddEntry("Apply Color To Children", kApplyChldCol);      
+   nodePopup->AddEntry("Apply Color Recursively", kApplyChldColRec);      
    nodePopup->AddSeparator();
    
    if (overlap)

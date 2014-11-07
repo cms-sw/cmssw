@@ -40,7 +40,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
          p.getParameter<edm::ParameterSet>("HCalSD").getParameter<bool>("IgnoreTrackID")), 
   numberingFromDDD(0), numberingScheme(0), showerLibrary(0), hfshower(0), 
   showerParam(0), showerPMT(0), showerBundle(0), m_HEDarkening(0),
-  m_HFDarkening(0) {
+  m_HBDarkening(0), m_HFDarkening(0) {
 
   //static SimpleConfigurable<bool>   on1(false, "HCalSD:UseBirkLaw");
   //static SimpleConfigurable<double> bk1(0.013, "HCalSD:BirkC1");
@@ -64,7 +64,8 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   eminHitHF        = m_HC.getParameter<double>("EminHitHF")*MeV;
   useFibreBundle   = m_HC.getParameter<bool>("UseFibreBundleHits");
   deliveredLumi    = m_HC.getParameter<double>("DelivLuminosity");
-  bool ageingFlagHE= m_HC.getParameter<bool>("HEDarkening");
+  unsigned int ageingFlagHE= m_HC.getParameter<unsigned>("HEDarkening");
+  unsigned int ageingFlagHB= m_HC.getParameter<unsigned>("HBDarkening");
   bool ageingFlagHF= m_HC.getParameter<bool>("HFDarkening");
   useHF            = m_HC.getUntrackedParameter<bool>("UseHF",true);
   bool forTBH2     = m_HC.getUntrackedParameter<bool>("ForTBH2",false);
@@ -101,6 +102,9 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
                           << eminHitHO << " HF: " << eminHitHF << "\n"
 			  << "Delivered luminosity for Darkening " 
 			  << deliveredLumi << " Flag (HE) " << ageingFlagHE
+			  << " (" << HEDarkening::scenarioDescription(ageingFlagHE) << ")"
+			  << " Flag (HB) " << ageingFlagHB
+			  << " (" << HBDarkening::scenarioDescription(ageingFlagHB) << ")"
 			  << " Flag (HF) " << ageingFlagHF << "\n"
 			  << "Application of Fiducial Cut " << applyFidCut;
 
@@ -323,7 +327,8 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   for (int i=0;  i<9; ++i) hit_[i] = time_[i]= dist_[i] = 0;
   hzvem = hzvhad = 0;
 
-  if (ageingFlagHE) m_HEDarkening = new HEDarkening();
+  if (ageingFlagHE) m_HEDarkening = new HEDarkening(ageingFlagHE);
+  if (ageingFlagHB) m_HBDarkening = new HBDarkening(ageingFlagHB);
   if (ageingFlagHF) m_HFDarkening = new HFDarkening();
 #ifdef plotDebug
   edm::Service<TFileService> tfile;
@@ -374,6 +379,7 @@ HCalSD::~HCalSD() {
   if (showerPMT)        delete showerPMT;
   if (showerBundle)     delete showerBundle;
   if (m_HEDarkening)    delete m_HEDarkening;
+  if (m_HBDarkening)    delete m_HBDarkening;
   if (m_HFDarkening)    delete m_HFDarkening;
 }
 
@@ -511,6 +517,28 @@ double HCalSD::getEnergyDeposit(G4Step* aStep) {
 			<< "    lay: " << lay-2;
 #endif 
     float dweight = m_HEDarkening->degradation(deliveredLumi,ieta,lay-2);//NB:diff. layer count
+    weight *= dweight;
+#ifdef DebugLog
+    edm::LogInfo("HcalSimDark") << "HCalSD:         >>> Lumi: " << deliveredLumi
+			<< "    coefficient = " << dweight;
+#endif  
+  }
+  
+  else if (m_HBDarkening !=0 && det == 0) {
+    int lay = (touch->GetReplicaNumber(0)/10)%100 + 1;
+	int ieta;
+	uint32_t detid = setDetUnitId(aStep);
+	if(testNumber) {
+	  int det, z, depth, eta, phi, lay;
+	  HcalTestNumbering::unpackHcalIndex(detid,det,z,depth,eta,phi,lay);
+	  ieta = eta;
+	}
+	else ieta = HcalDetId(detid).ietaAbs();
+#ifdef DebugLog
+    edm::LogInfo("HcalSimDark") << "HCalSD:HB_Darkening >>>  ieta: "<< ieta //<< " vs. ietaAbs(): " << HcalDetId(detid).ietaAbs()
+			<< "    lay: " << lay-1;
+#endif 
+    float dweight = m_HBDarkening->degradation(deliveredLumi,ieta,lay-1);//NB:diff. layer count
     weight *= dweight;
 #ifdef DebugLog
     edm::LogInfo("HcalSimDark") << "HCalSD:         >>> Lumi: " << deliveredLumi

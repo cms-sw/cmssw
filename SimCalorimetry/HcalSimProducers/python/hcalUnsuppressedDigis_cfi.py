@@ -38,7 +38,8 @@ hcalSimBlock = cms.PSet(
     CorrFactorFile = cms.FileInPath("SimCalorimetry/HcalSimProducers/data/calor_corr01.txt"),
     HcalReLabel = HcalReLabel,
     DelivLuminosity = cms.double(0),
-    HEDarkening = cms.bool(False),
+    HEDarkening = cms.uint32(0),
+    HBDarkening = cms.uint32(0),
     HFDarkening = cms.bool(False)
 )
 

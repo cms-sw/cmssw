@@ -21,19 +21,23 @@ public:
   /**
      @short CTOR
   */
-  HGCDataFrame() : id_(0), maxSampleSize_(1)                      { data_.resize(maxSampleSize_); }
-  explicit HGCDataFrame(const D& id) : id_(id), maxSampleSize_(1) { data_.resize(maxSampleSize_); }
-    
+  HGCDataFrame() : id_(0), maxSampleSize_(6)                      { data_.resize(maxSampleSize_); }
+  explicit HGCDataFrame(const D& id) : id_(id), maxSampleSize_(6) { data_.resize(maxSampleSize_); }
 
   /**
-     @short det id
+    @short det id
   */
   const D& id() const { return id_; }
-  
+    
   /** 
-      @short total number of samples in the digi 
+    @short total number of samples in the digi 
   */
   int size() const { return data_.size() & 0xf; }
+
+  /**
+     @short allow to set size
+   */
+  void resize(size_t s) { data_.resize(s); }
 
   /**
      @short assess/set specific samples

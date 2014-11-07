@@ -363,7 +363,6 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
                 }
 		// do not propagate the default chi2 = -1 value to the calib rechit (mapped to 64), set it to 0 when saturation
                 uncalibRecHit.setChi2(0);
-		uncalibRecHit.setOutOfTimeChi2(0);
         } else {
                 // weights method
                 EcalTBWeights::EcalTDCId tdcid(1);
@@ -405,7 +404,6 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
 				if(doEEtimeCorrection_) theTimeCorrectionEE = timeCorrectionEE( uncalibRecHit.amplitude() );
                                 uncalibRecHit.setJitter( crh.timeMax - 5 + theTimeCorrectionEE);
                                 uncalibRecHit.setJitterError( std::sqrt(pow(crh.timeError,2) + std::pow(EEtimeConstantTerm_,2)/std::pow(clockToNsConstant,2)) );
-                                uncalibRecHit.setOutOfTimeEnergy( crh.amplitudeMax );
 				// consider flagging as kOutOfTime only if above noise
 				if (uncalibRecHit.amplitude() > pedRMSVec[0] * amplitudeThreshEE_){
 				  float outOfTimeThreshP = outOfTimeThreshG12pEE_;
@@ -440,7 +438,7 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
 				if(doEKtimeCorrection_) theTimeCorrectionEK = timeCorrectionEK( uncalibRecHit.amplitude() );
                                 uncalibRecHit.setJitter( crh.timeMax - 5 + theTimeCorrectionEK);
                                 uncalibRecHit.setJitterError( std::sqrt(pow(crh.timeError,2) + std::pow(EKtimeConstantTerm_,2)/std::pow(clockToNsConstant,2)) );
-                                uncalibRecHit.setOutOfTimeEnergy( crh.amplitudeMax );
+                                //uncalibRecHit.setOutOfTimeEnergy( crh.amplitudeMax );
 				// consider flagging as kOutOfTime only if above noise
 				if (uncalibRecHit.amplitude() > pedRMSVec[0] * amplitudeThreshEK_){
 				  float outOfTimeThreshP = outOfTimeThreshG12pEK_;
@@ -478,7 +476,6 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
 				uncalibRecHit.setJitter( crh.timeMax - 5 + theTimeCorrectionEB);
 
                                 uncalibRecHit.setJitterError( std::sqrt(std::pow(crh.timeError,2) + std::pow(EBtimeConstantTerm_,2)/std::pow(clockToNsConstant,2)) );
-                                uncalibRecHit.setOutOfTimeEnergy( crh.amplitudeMax );
 				// consider flagging as kOutOfTime only if above noise
 				if (uncalibRecHit.amplitude() > pedRMSVec[0] * amplitudeThreshEB_){
 				  float outOfTimeThreshP = outOfTimeThreshG12pEB_;
@@ -509,7 +506,7 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
 		if (detid.subdetId()==EcalEndcap) {
 		      
 		    double amplitude = uncalibRecHit.amplitude();
-		    double amplitudeOutOfTime = uncalibRecHit.outOfTimeEnergy();
+		    double amplitudeOutOfTime = 0.;
                     double jitter= uncalibRecHit.jitter();
 
 
@@ -528,8 +525,6 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
 		    );
 		    double chi2 = chi2expressEE_.chi2();
 		    uncalibRecHit.setChi2(chi2);
-		    double chi2OutOfTime = chi2expressEE_.chi2OutOfTime();
-		    uncalibRecHit.setOutOfTimeChi2(chi2OutOfTime);
 
                     if(kPoorRecoFlagEE_)
 		    {
@@ -551,7 +546,7 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
 		    }				
 		} else if (detid.subdetId()==EcalShashlik) {
 		    double amplitude = uncalibRecHit.amplitude();
-		    double amplitudeOutOfTime = uncalibRecHit.outOfTimeEnergy();
+		    double amplitudeOutOfTime = 0.;
                     double jitter= uncalibRecHit.jitter();
 
 		    EcalUncalibRecHitRecChi2Algo<EKDataFrame>chi2expressEK_(
@@ -568,8 +563,6 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
 		    );
 		    double chi2 = chi2expressEK_.chi2();
 		    uncalibRecHit.setChi2(chi2);
-		    double chi2OutOfTime = chi2expressEK_.chi2OutOfTime();
-		    uncalibRecHit.setOutOfTimeChi2(chi2OutOfTime);
 
                     if(kPoorRecoFlagEK_)
 		    {
@@ -591,7 +584,7 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
 		    }				
 		} else {
 		    double amplitude = uncalibRecHit.amplitude();
-		    double amplitudeOutOfTime = uncalibRecHit.outOfTimeEnergy();
+		    double amplitudeOutOfTime = 0.;
                     double jitter= uncalibRecHit.jitter();
 		  
 		    EcalUncalibRecHitRecChi2Algo<EBDataFrame>chi2expressEB_(
@@ -608,8 +601,6 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
 		    );
 		    double chi2 = chi2expressEB_.chi2();
 		    uncalibRecHit.setChi2(chi2);
-		    double chi2OutOfTime = chi2expressEB_.chi2OutOfTime();
-		    uncalibRecHit.setOutOfTimeChi2(chi2OutOfTime);
 
                     if(kPoorRecoFlagEB_)
 		    {

@@ -11,14 +11,13 @@
 #include"DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-//#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
-//#include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
 
 HGCalSimHitsClient::HGCalSimHitsClient(const edm::ParameterSet& iConfig) {
 
   dbe_ = edm::Service<DQMStore>().operator->();
   outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile", "myfile.root");
   nameDetector_  = iConfig.getParameter<std::string>("DetectorName");
+  verbosity_     = iConfig.getUntrackedParameter<int>("Verbosity",0);
 
   if (!dbe_) {
     edm::LogError("HGCalSimHitsClient") << "unable to get DQMStore service, upshot is no client histograms will be made";
@@ -27,16 +26,16 @@ HGCalSimHitsClient::HGCalSimHitsClient(const edm::ParameterSet& iConfig) {
     if (dbe_) dbe_->setVerbose(0);
   }
 
-  debug_ = false;
-  verbose_ = true;
-
   //dirName_= iConfig.getParameter<std::string>("DQMDirName");
   if (dbe_) dbe_->setCurrentFolder("/");
 }
 
 HGCalSimHitsClient::~HGCalSimHitsClient() { }
 
-void HGCalSimHitsClient::beginJob() { }
+void HGCalSimHitsClient::beginJob() { 
+  geometrydefined_ = false;
+  symmDet_         = true;
+}
 
 void HGCalSimHitsClient::endJob() {
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
@@ -61,29 +60,30 @@ void HGCalSimHitsClient::endLuminosityBlock(const edm::LuminosityBlock&, const e
 void HGCalSimHitsClient::runClient_() {
   if (!dbe_) return; 
   dbe_->setCurrentFolder("/"); 
-  if (verbose_) std::cout << "\nrunClient" << std::endl;
+  if (verbosity_>0) std::cout << "\nrunClient" << std::endl;
   std::vector<MonitorElement*> hgcalMEs;
   std::vector<std::string> fullDirPath = dbe_->getSubdirs();
 
   for (unsigned int i=0; i<fullDirPath.size(); i++) {
-    if (verbose_) std::cout << "\nfullPath: " << fullDirPath.at(i) << std::endl;
+    if (verbosity_>0) std::cout << "\nfullPath: " << fullDirPath.at(i) << std::endl;
     dbe_->setCurrentFolder(fullDirPath.at(i));
     std::vector<std::string> fullSubDirPath = dbe_->getSubdirs();
 
     for (unsigned int j=0; j<fullSubDirPath.size(); j++) {
-      if (verbose_) std::cout << "fullSubPath: " << fullSubDirPath.at(j) << std::endl;
+      if (verbosity_>0) std::cout << "fullSubPath: " << fullSubDirPath.at(j) << std::endl;
       std::string nameDirectory = "HGCalSimHitsV/"+nameDetector_;
+
       if (strcmp(fullSubDirPath.at(j).c_str(), nameDirectory.c_str()) == 0) {
         hgcalMEs = dbe_->getContents(fullSubDirPath.at(j));
-        if (verbose_) std::cout << "hgcalMES size : " << hgcalMEs.size() <<std::endl;
+	if (verbosity_>0) std::cout << "hgcalMES size : " << hgcalMEs.size() <<std::endl;
         if( !SimHitsEndjob(hgcalMEs) ) std::cout<< "\nError in SimhitsEndjob!" << std::endl <<std::endl;
       }
     }
-
   }
 }
 
 int HGCalSimHitsClient::SimHitsEndjob(const std::vector<MonitorElement*>& hgcalMEs) {
+  if(!geometrydefined_) return 0;
   std::vector<MonitorElement*> energy_[6];
   std::vector<MonitorElement*> EtaPhi_Plus_;
   std::vector<MonitorElement*> EtaPhi_Minus_;
@@ -95,8 +95,7 @@ int HGCalSimHitsClient::SimHitsEndjob(const std::vector<MonitorElement*>& hgcalM
   std::ostringstream name;
   double nevent;
   int nbinsx, nbinsy;
-
-  layers_ = hgcons_->layers(false);
+  unsigned int layers_ = hgcons_->layers(false);
   for (unsigned int ilayer = 0; ilayer < layers_; ilayer++ ){ 
     for (int itimeslice = 0; itimeslice < 6 ; itimeslice++ ) {
       //Energy
@@ -114,7 +113,7 @@ int HGCalSimHitsClient::SimHitsEndjob(const std::vector<MonitorElement*>& hgcalM
 	energy_[itimeslice].at(ilayer)->setBinContent(i,binValue);
       }
     }///loop over timeslice
-     
+    
     //EtaPhi 2d plots
     name.str(""); name << "EtaPhi_Plus_" << "layer_" << ilayer;
     for(unsigned int ih=0; ih<hgcalMEs.size(); ih++){
@@ -205,13 +204,12 @@ int HGCalSimHitsClient::SimHitsEndjob(const std::vector<MonitorElement*>& hgcalM
 }
 
 bool HGCalSimHitsClient::defineGeometry(edm::ESTransientHandle<DDCompactView> &ddViewH){
-
   const DDCompactView & cview = *ddViewH;
   hgcons_ = new HGCalDDDConstants(cview, nameDetector_);
-  if (verbose_>0) std::cout << "Initialize HGCalDDDConstants for "
+  if (verbosity_>0) std::cout << "Initialize HGCalDDDConstants for " 
                               << nameDetector_ << " : " << hgcons_ <<std::endl;
 
-  std::string attribute = "Volume";
+  std::string attribute = "Volume"; 
   std::string value     = nameDetector_;
   DDValue val(attribute, value, 0);
 
@@ -239,22 +237,20 @@ bool HGCalSimHitsClient::defineGeometry(edm::ESTransientHandle<DDCompactView> &d
       DD3Vector x, y, z;
       fv.rotation().GetComponents( x, y, z ) ;
       const CLHEP::HepRep3x3 rotation ( x.X(), y.X(), z.X(),
-					x.Y(), y.Y(), z.Y(),
-					x.Z(), y.Z(), z.Z() );
-
+                                        x.Y(), y.Y(), z.Y(),
+                                        x.Z(), y.Z(), z.Z() );
       const CLHEP::HepRotation hr ( rotation );
       const CLHEP::Hep3Vector h3v ( fv.translation().X(),
                                     fv.translation().Y(),
                                     fv.translation().Z()  ) ;
       const HepGeom::Transform3D ht3d (hr, h3v);
       transMap_.insert(std::make_pair(id,ht3d));
-      if (verbose_>1) std::cout << HGCalDetId(id) << " Transform using "
+      if (verbosity_>2) std::cout << HGCalDetId(id) << " Transform using " 
                                   << h3v << " and " << hr;
     }
     dodet = fv.next();
   }
-
-  if (verbose_>0) std::cout << "Finds " << transMap_.size() << " elements"
+  if (verbosity_>0) std::cout << "Finds " << transMap_.size() << " elements" 
                               << " and SymmDet_ = " << symmDet_ << std::endl;
   return true;
 }

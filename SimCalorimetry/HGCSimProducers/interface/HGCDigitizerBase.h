@@ -13,7 +13,7 @@
 #include "CLHEP/Random/RandGauss.h"
 
 typedef float HGCSimEn_t;
-typedef std::array<HGCSimEn_t,10> HGCSimHitData;
+typedef std::array<HGCSimEn_t,6> HGCSimHitData;
 typedef std::unordered_map<uint32_t, HGCSimHitData> HGCSimHitDataAccumulator;
 
 template <class D>
@@ -28,11 +28,14 @@ class HGCDigitizerBase {
   HGCDigitizerBase(const edm::ParameterSet &ps) : simpleNoiseGen_(0)
     {
       myCfg_         = ps.getParameter<edm::ParameterSet>("digiCfg"); 
+      bxTime_        = ps.getParameter<int32_t>("bxTime");
+      doTimeSamples_ = myCfg_.getParameter< bool >("doTimeSamples");
       mipInKeV_      = myCfg_.getParameter<double>("mipInKeV");
       lsbInMIP_      = myCfg_.getParameter<double>("lsbInMIP");
       mip2noise_     = myCfg_.getParameter<double>("mip2noise");
       adcThreshold_  = myCfg_.getParameter< uint32_t >("adcThreshold");
-      doTimeSamples_ = myCfg_.getParameter< bool >("doTimeSamples");
+      shaperN_       = myCfg_.getParameter< double >("shaperN");
+      shaperTau_     = myCfg_.getParameter< double >("shaperTau");
     }
 
   /**
@@ -62,36 +65,91 @@ class HGCDigitizerBase {
 	it!=simData.end();
 	it++)
       {
-	//convert total energy GeV->keV->ADC counts
-	double totalEn(0);
-	size_t maxSampleToInteg(doTimeSamples_ ? 1 : it->second.size());
-	for(size_t i=0; i<maxSampleToInteg; i++) {
-	  totalEn+= (it->second)[i];
-	}
-	totalEn*=1e6;
 
-	//add noise (in keV)
-	double noiseEn=simpleNoiseGen_->fire();
-	totalEn += noiseEn;
-	if(totalEn<0) totalEn=0;
+	//create a new data frame
+	D rawDataFrame( it->first );
+
+	for(size_t i=0; i<it->second.size(); i++) 
+	  {
+	    //convert total energy GeV->keV->ADC counts
+	    double totalEn=(it->second)[i]*1e6;
+
+	    //add noise (in keV)
+	    double noiseEn=simpleNoiseGen_->fire();
+	    totalEn += noiseEn;
+	    if(totalEn<0) totalEn=0;
 	
-	//round to integer (sample will saturate the value according to available bits)
-	uint16_t totalEnInt = floor( (totalEn/mipInKeV_) / lsbInMIP_ );
+	    //round to integer (sample will saturate the value according to available bits)
+	    uint16_t totalEnInt = floor( (totalEn/mipInKeV_) / lsbInMIP_ );
 
-	//0 gain for the moment
-	HGCSample singleSample;
-	singleSample.set(0, totalEnInt );
-
-	if(singleSample.adc()<adcThreshold_) continue;
+	    //0 gain for the moment
+	    HGCSample singleSample;
+	    singleSample.set(0, totalEnInt);
+	    
+	    rawDataFrame.setSample(i, singleSample);
+	  }
 	
-	//no time information
-	D newDataFrame( it->first );
-	newDataFrame.setSample(0, singleSample);
+	//run the shaper
+	runShaper(rawDataFrame);
 
-	//add to collection to produce
-	coll->push_back(newDataFrame);
+	//update the output according to the final shape
+	updateOutput(coll,rawDataFrame);
       }
   }
+
+  /**
+     @short prepares the output according to the number of time samples to produce
+   */
+  void updateOutput(std::auto_ptr<DColl> &coll,D rawDataFrame)
+  {
+    size_t itIdx(4); //index to the in-time digi - this could be configurable in a future version
+
+    //check if in-time sample is above threshold and put result into the event
+    if(doTimeSamples_)
+      {
+	if(rawDataFrame[itIdx].adc() < adcThreshold_ ) return;
+	coll->push_back(rawDataFrame);
+      }
+    else
+      {
+	//create a new data frame containing only the in-time digi
+	D singleRawDataFrame( rawDataFrame.id() );
+	singleRawDataFrame.resize(1);
+
+	HGCSample singleSample;
+	singleSample.set(rawDataFrame[itIdx].gain(),rawDataFrame[itIdx].adc());
+	singleRawDataFrame.setSample(0, singleSample);
+	if(singleRawDataFrame[0].adc() < adcThreshold_ ) return;
+	coll->push_back(singleRawDataFrame);
+      }
+  }
+
+  /**
+     @short applies a shape to each time sample and propagates the tails to the subsequent time samples
+   */
+  void runShaper(D &dataFrame)
+  {
+    std::vector<uint16_t> oldADC(dataFrame.size());
+    for(int it=0; it<dataFrame.size(); it++)
+      {
+	uint16_t gain=dataFrame[it].gain();
+	oldADC[it]=dataFrame[it].adc();
+	uint16_t newADC(oldADC[it]);
+	
+	if(shaperN_*shaperTau_>0){
+	  for(int jt=0; jt<it; jt++)
+	    {
+	      float relTime(bxTime_*(it-jt)+shaperN_*shaperTau_);	
+	      newADC += uint16_t(oldADC[jt]*pow(relTime/(shaperN_*shaperTau_),shaperN_)*exp(-(relTime-shaperN_*shaperTau_)/shaperTau_));	      
+	    }
+	}
+
+	HGCSample newSample;
+	newSample.set(gain,newADC);
+	dataFrame.setSample(it,newSample);
+      }
+  }
+
 
   /**
      @short to be specialized by top class
@@ -115,15 +173,21 @@ class HGCDigitizerBase {
   //minimum ADC counts to produce DIGIs
   uint32_t adcThreshold_;
 
-  //flag to apply or not time sampling (if false digitize the full energy from SimHit)
-  bool doTimeSamples_;
-
   //a simple noise generator
   mutable CLHEP::RandGauss *simpleNoiseGen_;
   
   //parameters for the trivial digitization scheme
   double mipInKeV_, lsbInMIP_, mip2noise_;
   
+  //parameters for trivial shaping
+  double shaperN_, shaperTau_;
+
+  //bunch time
+  int bxTime_;
+  
+  //if true will put both in time and out-of-time samples in the event
+  bool doTimeSamples_;
+
  private:
 
 };

@@ -43,53 +43,55 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::auto_ptr<HGCHEDigiCollectio
       it!=simData.end();
       it++)
     {
-	//convert total energy GeV->keV->ADC counts
-	double totalEn(0);
-	size_t maxSampleToInteg(doTimeSamples_ ? 1 : it->second.size());
-	for(size_t i=0; i<maxSampleToInteg; i++) totalEn+= (it->second)[i];
-	totalEn*=1e6;
+      //init a new data frame
+      HGCHEDataFrame newDataFrame( it->first );
 
-	//convert energy to MIP
-	double totalMIPs = totalEn/mipInKeV_;
+      for(size_t i=0; i<it->second.size(); i++)
+	{
+	  //convert total energy GeV->keV->ADC counts
+	  float totalEn( (it->second)[i]*1e6 );
+	  
+	  //convert energy to MIP
+	  float totalIniMIPs = totalEn/mipInKeV_;
+	  
+	  //generate random number of photon electrons
+	  uint32_t npe = (uint32_t)peGen_->fire(totalIniMIPs*nPEperMIP_);
+	  
+	  //number of pixels	
+	  float x=exp(-(float)(npe)/(float)(nTotalPE_));
+	  uint32_t nPixel(0);
+	  if(xTalk_*x!=1) nPixel=(uint32_t) std::max( float(nTotalPE_*(1-x)/(1-xTalk_*x)), float(0.) );
+	  
+	  //update signal
+	  nPixel=(uint32_t)std::max( float(sigGen_->fire((float)nPixel,(float)sdPixels_)), float(0.) );
+	  
+	  //convert to MIP again and saturate
+	  float totalMIPs(totalIniMIPs);
+	  if(nTotalPE_!=nPixel && (nTotalPE_-xTalk_*nPixel)/(nTotalPE_-nPixel)>0 )
+	    totalMIPs = (nTotalPE_/nPEperMIP_)*log((nTotalPE_-xTalk_*nPixel)/(nTotalPE_-nPixel));
+	  else
+	    totalMIPs = 0;
+	  
+	  //add noise (in MIPs)
+	  double noiseMIPs=simpleNoiseGen_->fire(0.,1./mip2noise_);
+	  totalMIPs=std::max(float(totalMIPs+noiseMIPs),float(0.));
+	  
+	  //round to integer (sample will saturate the value according to available bits)
+	  uint16_t totalEnInt = floor( totalMIPs / lsbInMIP_ );
+	 	  
+	  //0 gain for the moment
+	  HGCSample singleSample;
+	  singleSample.set(0, totalEnInt );
+	  newDataFrame.setSample(i, singleSample);
 
-	//generate random number of photon electrons
-	float npe = peGen_->fire(totalMIPs*nPEperMIP_);
+	}	
+      
+      //run shaper
+      runShaper(newDataFrame);
 
-	//number of pixels	
-	float x=exp(-npe/nTotalPE_);
-	float nPixel(0);
-	if(xTalk_*x!=1) nPixel=std::max( float(nTotalPE_*(1-x)/(1-xTalk_*x)), float(0.) );
-	
-	//update signal
-	nPixel=std::max( float(sigGen_->fire(nPixel,sdPixels_)), float(0.) );
-	
-	//convert to MIP again
-	if(nTotalPE_!=nPixel && (nTotalPE_-xTalk_*nPixel)/(nTotalPE_-nPixel)>0 )
-	  totalMIPs = (nTotalPE_/nPEperMIP_)*log((nTotalPE_-xTalk_*nPixel)/(nTotalPE_-nPixel));
-	else
-	  totalMIPs = 0;
-	
-	//add noise (in MIPs)
-	double noiseMIPs=simpleNoiseGen_->fire(0.,1./mip2noise_);
-	totalMIPs=std::max(float(totalMIPs+noiseMIPs),float(0.));
-	
-	//round to integer (sample will saturate the value according to available bits)
-	uint16_t totalEnInt = floor( totalMIPs / lsbInMIP_ );
-	
-	//0 gain for the moment
-	HGCSample singleSample;
-	singleSample.set(0, totalEnInt );
-
-	if(singleSample.adc()<adcThreshold_) continue;
-	
-	//no time information
-	HGCHEDataFrame newDataFrame( it->first );
-	newDataFrame.setSample(0, singleSample);
-	
-	//add to collection to produce
-	digiColl->push_back(newDataFrame);
-      }
-
+      //prepare the output
+      updateOutput(digiColl,newDataFrame);
+    } 
 }
 
 //

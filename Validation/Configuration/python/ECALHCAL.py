@@ -38,8 +38,8 @@ def customise(process):
     process.schedule.append(process.generation_step)
     process.schedule.append(process.simulation_step)
 
-    process.ecalGlobalUncalibRecHit.EBdigiCollection = cms.InputTag("simEcalDigis","ebDigis")
-    process.ecalGlobalUncalibRecHit.EEdigiCollection = cms.InputTag("simEcalDigis","eeDigis")
+    process.ecalMultiFitUncalibRecHit.EBdigiCollection = cms.InputTag("simEcalDigis","ebDigis")
+    process.ecalMultiFitUncalibRecHit.EEdigiCollection = cms.InputTag("simEcalDigis","eeDigis")
     process.ecalPreshowerRecHit.ESdigiCollection = cms.InputTag("simEcalPreshowerDigis") 
 
     delattr(process,"hbhereco")

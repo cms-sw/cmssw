@@ -1,5 +1,4 @@
-
- // -*- C++ -*-
+// -*- C++ -*-
 //
 // Package:    DigiValidation
 // Class:      DigiValidation
@@ -41,10 +40,13 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 
+#include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerDetUnit.h"
+#include "Geometry/Records/interface/StackedTrackerGeometryRecord.h"
+
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
@@ -55,6 +57,7 @@
 #include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 // For the big pixel recongnition
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
@@ -113,6 +116,8 @@ public:
 private:
   // ----------member data ---------------------------
   bool PRINT;
+  double phi_min; 
+  double phi_max; 
 
   TH1F* nSimTracks_;  
 
@@ -127,6 +132,7 @@ private:
   TH1F* simTrackPtPEC_;  
   TH1F* simTrackEtaP_;  
   TH1F* simTrackPhiP_;  
+  TH1F* simTrackVxP_;  
 
   TH1F* simTrackPtS_;
   TH1F* simTrackPtSBar_;  
@@ -196,6 +202,19 @@ private:
     TH1F* matchedSimTrackEtaS_;  
     TH1F* matchedSimTrackPhiS_;  
 
+    TH1F* PositionOfCluster;
+    TH1F* PositionOfClusterP;
+    TH1F* PositionOfClusterS;
+
+    TH1F* DeltaPhi;
+    TProfile* ClusterWidthDeltaPhiP;
+
+    TH1F* ELossSimHit;
+    TH1F* PathLengthSimHit;
+    TH1F* EntryZSimHit;
+    TH1F* ExitZSimHit;
+    TH2F* ExitZVsEntryZSimHit;
+
     int  totNDigis;
     int  totNClusters; 
 
@@ -207,6 +226,7 @@ private:
     int totMatchedSimHitsP; 
     int totMatchedSimHitsS; 
 
+
     std::set<int> simTkIndx;
   };
 
@@ -214,9 +234,11 @@ private:
   struct MyCluster {	
     float charge;
     int   width;
+    int   position;
     bool  trkType;      
     float trkPt;
     float trkEta;
+    float delPhi;
     std::vector<float> strip_charges;
   };
   
@@ -233,13 +255,14 @@ public:
   int matchedSimTrack(edm::Handle<edm::SimTrackContainer>& SimTk, unsigned int simTrkId);
   void initializeVariables();
   unsigned int getMaxPosition(std::vector<float>& charge_vec);
-  unsigned int getLayerNumber(const TrackerGeometry* tkgeom, unsigned int& detid);
-  unsigned int getLayerNumber(unsigned int& detid);
+  unsigned int getLayerNumber(const TrackerGeometry* tkgeom, unsigned int& detid, const TrackerTopology* topo);
+  unsigned int getLayerNumber(unsigned int& detid, const TrackerTopology* topo);
   int isPrimary(const SimTrack& simTrk, edm::Handle<edm::PSimHitContainer>& simHits);
   int isPrimary(const SimTrack& simTrk, const PSimHit& simHit);
   void fillMatchedSimTrackHistos(DigiHistos& digiHistos, const SimTrack& simTk, int ptype, unsigned int layer);
+  float getELoss(unsigned int trkId, unsigned int rawId, edm::Handle<edm::PSimHitContainer>& simHits, Local3DPoint& entry, Local3DPoint& exit);
+  unsigned int getStackId(const StackedTrackerGeometry* stkgeom, DetId& detid);
 };
-
 //
 // constructors and destructor
 //
@@ -247,6 +270,8 @@ DigiValidation::DigiValidation(const edm::ParameterSet& iConfig) {
   PRINT = iConfig.getUntrackedParameter<bool>("Verbosity",false);
   src_ =  iConfig.getParameter<edm::InputTag>("src");
   simG4_ = iConfig.getParameter<edm::InputTag>("simG4");
+  phi_min = iConfig.getParameter<double>("PhiMin");
+  phi_max = iConfig.getParameter<double>("PhiMax");
   if (PRINT) std::cout << ">>> Construct DigiValidation " << std::endl;
 }
 DigiValidation::~DigiValidation() {
@@ -291,6 +316,16 @@ void DigiValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   iSetup.get<TrackerDigiGeometryRecord>().get( geomHandle );
   const TrackerGeometry*  tkGeom = &(*geomHandle);
 
+  // Stacked Tracker Geometry
+  //  edm::ESHandle<StackedTrackerGeometry>           stackedGeometryHandle;
+  //  iSetup.get<StackedTrackerGeometryRecord>().get(stackedGeometryHandle);
+  //  const StackedTrackerGeometry* theStackedGeometry = stackedGeometryHandle.product();
+
+  // Tracker Topology 
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* tTopo = tTopoHandle.product();
+
   // Get PSimHits
   edm::Handle<edm::PSimHitContainer> simHits;
   iEvent.getByLabel("g4SimHits","TrackerHitsPixelBarrelLowTof" ,simHits);
@@ -301,7 +336,12 @@ void DigiValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   // SimVertex
   edm::Handle<edm::SimVertexContainer> simVertices;
   iEvent.getByLabel("g4SimHits", simVertices);
-  
+
+     
+  //  for (edm::SimVertexContainer::const_iterator simVtxItr = simVertices->begin();
+  //       simVtxItr != simVertices->end(); simVtxItr++) {
+    //    std::cout << " Vertex Index " << simVtxItr->vertexId() << " Parent index " << simVtxItr->parentIndex() << " Position : X " << simVtxItr->position().x() << " Y " << simVtxItr->position().y() << " Z " << simVtxItr->position().z() << " r " << sqrt(simVtxItr->position().x()*simVtxItr->position().x() + simVtxItr->position().y()*simVtxItr->position().y()) << std::endl;
+  //}
   initializeVariables();   
 
   std::vector<int> processTypes; 
@@ -309,16 +349,27 @@ void DigiValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   int nTracks = 0;
   for (edm::SimTrackContainer::const_iterator simTrkItr = simTracks->begin();
                                             simTrkItr != simTracks->end(); ++simTrkItr) {
-    int type = isPrimary((*simTrkItr), simHits);
+    int vtxIndex = simTrkItr->vertIndex();   
+    int vtxParent = -1;
+    if (vtxIndex > 0) {
+      SimVertex vtx = (*simVertices)[vtxIndex];
+      if (!vtx.noParent()) {
+	int trkId = vtx.parentIndex();
+        vtxParent = (*simTracks)[matchedSimTrack(simTracks, trkId)].vertIndex();
+      } 
+    } 
+    int type = -1;
+    if (vtxIndex == 0 || vtxParent == 0) type = isPrimary((*simTrkItr), simHits);
+
     processTypes.push_back(type);    
+    //    std::cout << " SimTrack Id " << simTrkItr->trackId() << " HEP PDT Id " << simTrkItr->type() << " Pt " << simTrkItr->momentum().pt() << " Vertex Index " << simTrkItr->vertIndex() << " Parent Vertex Index " << vtxParent  << " Process Type " << type << std::endl;
+     
     // remove neutrinos
     if (simTrkItr->charge() == 0) continue;
     nTracks++; 
     float simTk_pt =  simTrkItr->momentum().pt();
     float simTk_eta = simTrkItr->momentum().eta();
-    float simTk_phi = simTrkItr->momentum().eta();
-
-    
+    float simTk_phi = simTrkItr->momentum().phi();
     simTrackPt_->Fill(simTk_pt);
     simTrackEta_->Fill(simTk_eta);
     simTrackPhi_->Fill(simTk_phi);
@@ -345,14 +396,16 @@ void DigiValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   for(DSViter = pixelDigis->begin(); DSViter != pixelDigis->end(); DSViter++) {
     unsigned int rawid = DSViter->id; 
     DetId detId(rawid);
-    unsigned int layer = getLayerNumber(rawid);
+    unsigned int layer = getLayerNumber(rawid, tTopo);
     std::map<unsigned int, DigiHistos>::iterator iPos = layerHistoMap.find(layer);
     if (iPos == layerHistoMap.end()) {
       createLayerHistograms(layer);
       iPos = layerHistoMap.find(layer);
     }
     const GeomDetUnit* geomDetUnit = tkGeom->idToDetUnit(detId);
+    if (!geomDetUnit) std::cout << " Id " << " Layer " << layer << std::endl;
     //    const PixelGeomDetUnit* pixdet = (PixelGeomDetUnit*) geomDetUnit;
+    //    if (pixdet) std::cout << " Layer " << layer << " Thickness " << pixdet->specificSurface().bounds().thickness() << " Pitch " << pixdet->specificTopology().pitch().first <<std::endl;
     edm::DetSet<PixelDigi>::const_iterator di;
     int col_last  = -1;
     int row_last  = -1;
@@ -375,65 +428,89 @@ void DigiValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       unsigned int simTkId = getSimTrackId(pixelSimLinks, detId, channel);
       MeasurementPoint mp(row+0.5, col+0.5 );
 
+      int iSimTrk = matchedSimTrack(simTracks, simTkId);
+      float dPhi = 9999.9;
+      float xpos = 9999.9;
+      float ypos = 9999.9;
       if (geomDetUnit) {
 	GlobalPoint pdPos = geomDetUnit->surface().toGlobal( geomDetUnit->topology().localPosition( mp ) ) ;
-	iPos->second.YposVsXpos->Fill(pdPos.y(), pdPos.x());
+        xpos = pdPos.x();
+        ypos = pdPos.y();
+	iPos->second.YposVsXpos->Fill(ypos, xpos);
 	iPos->second.RVsZpos->Fill(pdPos.z(), pdPos.perp());
+        dPhi = reco::deltaPhi((*simTracks)[iSimTrk].momentum().phi(), geomDetUnit->position().phi());
       }
-      int iSimTrk = matchedSimTrack(simTracks, simTkId);
-
-
+      iPos->second.DeltaPhi->Fill(dPhi);
       int primaryTrk = -1; 
       if (iSimTrk != -1) {
 	primaryTrk = processTypes[iSimTrk]; 
 	iPos->second.simTkIndx.insert(iSimTrk);
       }
       iPos->second.DigiCharge->Fill(adc); 
-
       if (primaryTrk == 1) {
-	iPos->second.DigiChargeP->Fill(adc); 
-
-        nDigiP++;
+	iPos->second.DigiChargeP->Fill(adc);
+        Local3DPoint entry;
+        Local3DPoint exit; 
+	float path_length;  
+        float eloss = getELoss(simTkId, rawid, simHits, entry, exit);  
+	iPos->second.ELossSimHit->Fill(eloss*1000000);
+        path_length = (exit-entry).mag(); 
+	iPos->second.PathLengthSimHit->Fill(path_length*10000);
+        iPos->second.EntryZSimHit->Fill(entry.z()*10000);
+	iPos->second.ExitZSimHit->Fill(exit.z()*10000);
+	iPos->second.ExitZVsEntryZSimHit->Fill(entry.z()*10000, exit.z()*10000);          
+	//	std::cout << layer << " rawid " <<   rawid <<  " YPosition " << ypos << " Radius " << sqrt(xpos*xpos + ypos*ypos) << " Delta Phi " << dPhi << " Stack Id " << getStackId(theStackedGeometry, detId) << " Eloss " << eloss*1000000 << " Path Length " << path_length*10000 << " Entry Z " << entry.z() << " Exit Z " << exit.z() << std::endl;
+	nDigiP++;
       } else if (primaryTrk == 0){
 	iPos->second.DigiChargeS->Fill(adc);
 	nDigiS++;
       }
       if (row_last == -1 ) {
-        cluster.charge = adc;
-        cluster.width  = 1;
-        cluster.trkType = primaryTrk;  
+	cluster.charge = adc;
+	cluster.width  = 1;
+	cluster.position = row+1;  
+	cluster.trkType = primaryTrk;  
 	cluster.trkPt = (*simTracks)[iSimTrk].momentum().pt();
 	cluster.trkEta = (*simTracks)[iSimTrk].momentum().eta();
-        cluster.strip_charges.clear();
-        cluster.strip_charges.push_back(adc);
+	cluster.delPhi = dPhi;
+	cluster.strip_charges.clear();
+	cluster.strip_charges.push_back(adc);
       } else {
-
+	
 	if (abs(row - row_last) == 1 && col == col_last) {
 	  cluster.charge += adc;
 	  cluster.width++;
+	  cluster.position += row+1;  
 	  cluster.strip_charges.push_back(adc);
 	} else {
+	  cluster.position /= cluster.width;
 	  cluster_vec.push_back(cluster);
 	  cluster.charge = adc;
 	  cluster.width  = 1;
+	  cluster.position = row+1;  
 	  cluster.trkType = primaryTrk;  
-          cluster.trkPt = (*simTracks)[iSimTrk].momentum().pt();
+	  cluster.trkPt = (*simTracks)[iSimTrk].momentum().pt();
 	  cluster.trkEta = (*simTracks)[iSimTrk].momentum().eta();
+	  cluster.delPhi = dPhi;
 	  cluster.strip_charges.clear();
 	  cluster.strip_charges.push_back(adc);
 	}
       }
       if (PRINT) std::cout << ">>> PType " << primaryTrk 
-                           << " SimTkPt " << (*simTracks)[iSimTrk].momentum().pt() 
-                           << " column " << col 
-                           << " row " << row 
-                           << " column_last " << col_last 
-                           << " row_last " << row_last 
-                           << " nDigi " << nDigiS 
-                           << " " << nDigiP  
-                           << " nCluster " << cluster_vec.size() 
-                           << " Cluster Charge " << cluster.charge 
-                           << " Cluster Width " << cluster.width << std::endl;
+			   << " SimTk : Id " << simTkId
+			   << " Index " << iSimTrk
+			   << " Pt " << (*simTracks)[iSimTrk].momentum().pt() 
+			   << " Detector : Id "<< DSViter->id
+			   << " column " << col 
+			   << " row " << row 
+			   << " column_last " << col_last 
+			   << " row_last " << row_last 
+			   << " nDigi " << nDigiS 
+			   << " " << nDigiP  
+			   << " nCluster " << cluster_vec.size() 
+			   << " Cluster Charge " << cluster.charge 
+			   << " Cluster Width " << cluster.width
+			   << " Cluster Position " << cluster.position <<std::endl;
       col_last = col;
       row_last = row;
     }
@@ -443,16 +520,17 @@ void DigiValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     iPos->second.NumberOfDigisS->Fill(nDigiS);
     iPos->second.NumberOfDigis->Fill(nDigiP+nDigiS);
     iPos->second.totNDigis += nDigiP + nDigiS;
-
+    
     int nClusterP = 0;
     int nClusterS = 0;
-  
+    
     for (vector<MyCluster>::iterator ic = cluster_vec.begin(); ic != cluster_vec.end(); ++ic) {
       float cl_charge = ic->charge;
       int  cl_width = ic->width;
       int  cl_type = ic->trkType; 
       float trk_pt = ic->trkPt;
       float trk_eta = ic->trkEta;
+      int pos = ic->position;
       std::vector<float> str_charges = ic->strip_charges;
       unsigned int max_pos = getMaxPosition(str_charges);
       if (max_pos != 999) {
@@ -465,17 +543,21 @@ void DigiValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       }
       iPos->second.ClusterCharge->Fill(cl_charge);           
       iPos->second.ClusterWidth->Fill(cl_width);           
+      iPos->second.PositionOfCluster->Fill(pos); 
       iPos->second.ClusterWidthVsSimTrkPt->Fill(trk_pt, cl_width);            
       iPos->second.ClusterWidthVsSimTrkEta->Fill(trk_eta, cl_width);            
       if (cl_type == 1) {
 	iPos->second.ClusterChargeP->Fill(cl_charge);           
-	iPos->second.ClusterWidthP->Fill(cl_width); 
+	iPos->second.ClusterWidthP->Fill(cl_width);
+	iPos->second.PositionOfClusterP->Fill(pos);  
         iPos->second.ClusterWidthVsSimTrkPtP->Fill(trk_pt, cl_width);
 	iPos->second.ClusterWidthVsSimTrkEtaP->Fill(trk_eta, cl_width);                        
+        iPos->second.ClusterWidthDeltaPhiP->Fill(ic->delPhi, cl_width);
 	nClusterP++; 
       } else if (cl_type == 0) {
 	iPos->second.ClusterChargeS->Fill(cl_charge);           
 	iPos->second.ClusterWidthS->Fill(cl_width);           
+	iPos->second.PositionOfClusterS->Fill(pos); 
         iPos->second.ClusterWidthVsSimTrkPtS->Fill(trk_pt, cl_width);            
         iPos->second.ClusterWidthVsSimTrkEtaS->Fill(trk_eta, cl_width);            
 	nClusterS++; 
@@ -488,7 +570,7 @@ void DigiValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
   // Fill Layer Level Histograms
   for (std::map<unsigned int, DigiHistos>::iterator iPos  = layerHistoMap.begin(); 
-                                                    iPos != layerHistoMap.end(); iPos++) {
+       iPos != layerHistoMap.end(); iPos++) {
     DigiHistos local_histos = iPos->second;
     local_histos.TotalNumberOfClusters->Fill(local_histos.totNClusters);
     local_histos.TotalNumberOfDigis->Fill(local_histos.totNDigis);
@@ -496,7 +578,7 @@ void DigiValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     local_histos.NumberOfMatchedSimHits->Fill(local_histos.totMatchedSimHits);
     local_histos.NumberOfMatchedSimHitsP->Fill(local_histos.totMatchedSimHitsP);
     local_histos.NumberOfMatchedSimHitsS->Fill(local_histos.totMatchedSimHitsS);
-
+    
     if (local_histos.totSimHits) {
       float eff;
       eff  = local_histos.totMatchedSimHits*1.0/local_histos.totSimHits; 
@@ -699,6 +781,44 @@ void DigiValidation::createLayerHistograms(unsigned int ival) {
   htit18 << "MatchedSimTrackPhiS" << tag.c_str() <<  id;   
   local_histos.matchedSimTrackPhiS_  = td.make<TH1F>(htit18.str().c_str(),  htit18.str().c_str(), 160, -3.2, 3.2);
 
+  std::ostringstream htit19;
+  htit19 << "PositionOfCluster" << tag.c_str() <<  id;   
+  local_histos.PositionOfCluster  = td.make<TH1F>(htit19.str().c_str(),  htit19.str().c_str(), 1051, -0.5, 1050.5);
+  htit19.str("");
+  htit19 << "PositionOfClusterP" << tag.c_str() <<  id;   
+  local_histos.PositionOfClusterP  = td.make<TH1F>(htit19.str().c_str(),  htit19.str().c_str(), 1051, -0.5, 1050.5);
+  htit19.str("");
+  htit19 << "PositionOfClusterS" << tag.c_str() <<  id;   
+  local_histos.PositionOfClusterS  = td.make<TH1F>(htit19.str().c_str(),  htit19.str().c_str(), 1051, -0.5, 1050.5);
+
+  std::ostringstream htit20;
+  htit20 << "DeltaPhi" << tag.c_str() <<  id;
+  local_histos.DeltaPhi  = td.make<TH1F>(htit20.str().c_str(),  htit20.str().c_str(), 200, 0.0, 3.2);
+ 
+  std::ostringstream htit21;
+  htit21 << "ClusterWidthDeltaPhiP" << tag.c_str() <<  id;
+  local_histos.ClusterWidthDeltaPhiP  = td.make<TProfile>(htit21.str().c_str(),  htit21.str().c_str(), 200, 0.0, 3.2, 0.0, 10.0);
+
+  std::ostringstream htit22;
+  htit22 << "ELossFromSimHit" << tag.c_str() <<  id;
+  local_histos.ELossSimHit  = td.make<TH1F>(htit22.str().c_str(),  htit22.str().c_str(), 100, 0.0, 500.0);
+
+  std::ostringstream htit23;
+  htit23 << "PathLengthFromSimHit" << tag.c_str() <<  id;
+  local_histos.PathLengthSimHit  = td.make<TH1F>(htit23.str().c_str(),  htit23.str().c_str(), 100, 100.0, 500.0);
+
+  std::ostringstream htit24;
+  htit24 << "EntryZFromSimHit" << tag.c_str() <<  id;
+  local_histos.EntryZSimHit  = td.make<TH1F>(htit24.str().c_str(),  htit24.str().c_str(), 300, -150.0, 150.0);
+
+  std::ostringstream htit25;
+  htit25 << "ExitZFromSimHit" << tag.c_str() <<  id;
+  local_histos.ExitZSimHit  = td.make<TH1F>(htit25.str().c_str(),  htit25.str().c_str(), 300, -150.0, 150.0);
+
+  std::ostringstream htit26;
+  htit26 << "ExitZVsEntryZFromSimHit" << tag.c_str() <<  id;
+  local_histos.ExitZVsEntryZSimHit  = td.make<TH2F>(htit26.str().c_str(),  htit26.str().c_str(), 300, -150., 150., 300, -150., 150.);
+
   layerHistoMap.insert( std::make_pair(ival, local_histos));
 
   fs->file().cd("/");
@@ -792,7 +912,7 @@ void DigiValidation::initializeVariables() {
 //
 // -- Get Layer Number
 //
-unsigned int DigiValidation::getLayerNumber(const TrackerGeometry* tkgeom,unsigned int& detid) {
+unsigned int DigiValidation::getLayerNumber(const TrackerGeometry* tkgeom,unsigned int& detid, const TrackerTopology* topo) {
   unsigned int layer = 999;
   DetId theDetId(detid);
   if (theDetId.subdetId() != 1) 
@@ -810,11 +930,9 @@ unsigned int DigiValidation::getLayerNumber(const TrackerGeometry* tkgeom,unsign
 
   if (it && it->type().isTracker()) {
     if (it->type().isBarrel()) {
-      PXBDetId pb_detId = PXBDetId(detid);
-      layer = pb_detId.layer();
+      layer = topo->pxbLayer(detid);
     } else if (it->type().isEndcap()) {
-      PXFDetId pf_detId = PXFDetId(detid);
-      layer = 100*pf_detId.side() + pf_detId.disk();
+      layer = 100 * topo->pxfSide(detid)  + topo->pxfDisk(detid);
     }
   }
   return layer;
@@ -822,16 +940,15 @@ unsigned int DigiValidation::getLayerNumber(const TrackerGeometry* tkgeom,unsign
 //
 // -- Get Layer Number
 //
-unsigned int DigiValidation::getLayerNumber(unsigned int& detid) {
+unsigned int DigiValidation::getLayerNumber(unsigned int& detid, const TrackerTopology* topo) {
   unsigned int layer = 999;
   DetId theDetId(detid);
+
   if (theDetId.det() == DetId::Tracker) {
     if (theDetId.subdetId() == PixelSubdetector::PixelBarrel) {
-      PXBDetId pb_detId = PXBDetId(detid);
-      layer = pb_detId.layer();
+      layer = topo->pxbLayer(detid);
     } else if (theDetId.subdetId() == PixelSubdetector::PixelEndcap) {
-      PXFDetId pf_detId = PXFDetId(detid);
-      layer = 100*pf_detId.side() + pf_detId.disk();
+      layer = 100 * topo->pxfSide(detid)  + topo->pxfDisk(detid);
     } else {
       std::cout << ">>> Invalid subdetId() = " << theDetId.subdetId() << std::endl;
     }
@@ -858,20 +975,39 @@ unsigned int DigiValidation::getMaxPosition(std::vector<float>& charge_vec) {
 int DigiValidation::isPrimary(const SimTrack& simTrk, edm::Handle<edm::PSimHitContainer>& simHits) {
   int result = -1;
   unsigned int trkId = simTrk.trackId();
+  int vtxIndx = simTrk.vertIndex();
   if (trkId > 0) {
-    int vtxIndx = simTrk.vertIndex();
+    //    int vtxIndx = simTrk.vertIndex();
     for (edm::PSimHitContainer::const_iterator iHit = simHits->begin(); iHit != simHits->end(); ++iHit) {
       if (trkId == iHit->trackId()) {
 	int ptype = iHit->processType();
-
- 
-	if ( (vtxIndx == 0 ) && (ptype == 2 || ptype == 7 || ptype == 9 || ptype == 11 || ptype == 15)) result = 1;
+	if (  (vtxIndx == 0 ) && (ptype == 2 || ptype == 7 || ptype == 9 || ptype == 11 || ptype == 13 ||ptype == 15) ) result = 1;
         else result = 0; 
 	break;
       }
     }
   }
   return result;
+}
+float DigiValidation::getELoss(unsigned int trkId, unsigned int rawId, edm::Handle<edm::PSimHitContainer>& simHits, Local3DPoint & entry, Local3DPoint& exit) {
+  float eloss = 0.0; 
+  for (edm::PSimHitContainer::const_iterator iHit = simHits->begin(); iHit != simHits->end(); ++iHit) {
+    if (trkId == iHit->trackId() && rawId == iHit->detUnitId()) {
+      eloss = iHit->energyLoss(); 
+      entry = iHit->entryPoint();
+      exit = iHit->exitPoint();
+      //      segment =(iHit->exitPoint()-iHit->entryPoint()).mag();
+      //      if (fabs(iHit->entryPoint().z()) != fabs(iHit->exitPoint().z())) std::cout << " ====> entry " << iHit->exitPoint().x() 
+      //										 << " " << iHit->exitPoint().y() << " " 
+      //										 << iHit->exitPoint().z() 
+      //										 << " exit " << iHit->entryPoint().x() << " " 
+      //										 << iHit->entryPoint().y() << " " 
+      //										 << iHit->entryPoint().z()
+      //										 << " Length " << segment << std::endl;
+      break;
+    }
+  }	
+  return eloss;
 }
 //
 //  -- Check if the SimTrack is _Primary or not 
@@ -912,5 +1048,23 @@ void DigiValidation::fillMatchedSimTrackHistos(DigiHistos& digiHistos, const Sim
   digiHistos.matchedSimTrackEta_->Fill(eta);  
   digiHistos.matchedSimTrackPhi_->Fill(phi);  
 }
+unsigned int DigiValidation::getStackId(const StackedTrackerGeometry* stkgeom, DetId& detid){
+  unsigned int id = 9999;
+  for ( StackedTrackerGeometry::StackContainerIterator stk = stkgeom->stacks().begin(); stk != stkgeom->stacks().end();
+        ++stk ) {
+    StackedTrackerDetUnit* stackDetUnit = *stk;
+    StackedTrackerDetId stackDetId = stackDetUnit->Id();
+    assert(stackDetUnit == stkgeom->idToStack(stackDetId));
+    if (detid == stackDetUnit->stackMember(0)) {
+      id = 0;
+      break;
+    } else if (detid == stackDetUnit->stackMember(1)) {
+      id = 1;
+      break;
+    }  
+  }
+  return id;
+}
+
 //define this as a plug-in
 DEFINE_FWK_MODULE(DigiValidation);

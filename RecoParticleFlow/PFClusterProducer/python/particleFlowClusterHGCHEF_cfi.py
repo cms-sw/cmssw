@@ -23,17 +23,20 @@ _arborTopoClusterizer_HGCHEF = cms.PSet(
 _manqiArborClusterizer_HGCHEF = cms.PSet(
     algoName = cms.string("SimpleArborClusterizer"), 
     # use basic pad sizes in HGCEE
-    cellSize = cms.double(10.0),
-    layerThickness = cms.double(45.0),
-    distSeedForMerge = cms.double(20.0),
+    cellSize = cms.double(15.0),
+    layerThickness = cms.double(55.0),
+    distSeedForMerge = cms.double(30.0),
     killNoiseClusters = cms.bool(True),
     maxNoiseClusterSize = cms.uint32(3),
+    allowSameLayerSeedMerge = cms.bool(True),
     thresholdsByDetector = cms.VPSet( )
 )
 
-#weights for layers from P.Silva (26 June 2014)
-weight_vec = [0.0902 for x in range(12)]
-weight_vec.extend([0.1051 for x in range(10)])
+#weights for layers from P.Silva (24 October 2014)
+# this is for V5!!!!!
+weight_vec = [0.0464]
+weight_vec.extend([0.0474 for x in range(10)])
+weight_vec.extend([0.1215 for x in range(11)])
 
 # MIP effective to 1.0/GeV (from fit to data of P. Silva) for HEF
 #f(x) = a/(1-exp(-bx - c))

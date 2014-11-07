@@ -5,11 +5,11 @@ from RecoLocalCalo.EcalRecAlgos.ecalCleaningAlgo import cleaningAlgoConfig
 # rechit producer
 ecalRecHit = cms.EDProducer("EcalRecHitProducer",
     EErechitCollection = cms.string('EcalRecHitsEE'),
-    EEuncalibRecHitCollection = cms.InputTag("ecalGlobalUncalibRecHit","EcalUncalibRecHitsEE"),
-    EBuncalibRecHitCollection = cms.InputTag("ecalGlobalUncalibRecHit","EcalUncalibRecHitsEB"),
+    EEuncalibRecHitCollection = cms.InputTag("ecalMultiFitUncalibRecHit","EcalUncalibRecHitsEE"),
+    EBuncalibRecHitCollection = cms.InputTag("ecalMultiFitUncalibRecHit","EcalUncalibRecHitsEB"),
     EBrechitCollection = cms.string('EcalRecHitsEB'),
     EKrechitCollection = cms.string('EcalRecHitsEK'),
-    EKuncalibRecHitCollection = cms.InputTag("ecalGlobalUncalibRecHit","EcalUncalibRecHitsEK"),
+    EKuncalibRecHitCollection = cms.InputTag("ecalMultiFitUncalibRecHit","EcalUncalibRecHitsEK"),
 
     # channel flags to be exluded from reconstruction, e.g { 1, 2 }
     ChannelStatusToBeExcluded = cms.vint32(),

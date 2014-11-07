@@ -22,7 +22,7 @@ HGCNumberingScheme::~HGCNumberingScheme() {
 }
 
 //
-uint32_t HGCNumberingScheme::getUnitID(ForwardSubdetector &subdet, int &layer, int &sector, int &iz, G4ThreeVector &pos) {
+uint32_t HGCNumberingScheme::getUnitID(ForwardSubdetector subdet, int layer, int sector, int iz, const G4ThreeVector &pos) {
   
   std::pair<int,int> phicell = hgcons->assignCell(pos.x(),pos.y(),layer,0,false);
   int phiSector = phicell.first;
@@ -35,7 +35,7 @@ uint32_t HGCNumberingScheme::getUnitID(ForwardSubdetector &subdet, int &layer, i
   if ((!HGCalDetId::isValid(subdet,iz,layer,sector,phiSector,icell)) ||
       (!hgcons->isValid(layer,sector,icell,false))) {
     index = 0;
-    if (check_) {
+    if (check_ && icell != -1) {
       edm::LogError("HGCSim") << "[HGCNumberingScheme] ID out of bounds :"
 			      << " Subdet= " << subdet << " Zside= " << iz
 			      << " Layer= " << layer << " Sector= " << sector
