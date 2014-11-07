@@ -3,10 +3,10 @@
 
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 
-#include "RecoBTag/SecondaryVertex/interface/CombinedSVComputerV2.h"
+#include "RecoBTag/SecondaryVertex/interface/CombinedSVComputer.h"
 
 
-class CombinedSVSoftLeptonComputer : public CombinedSVComputerV2 {
+class CombinedSVSoftLeptonComputer : public CombinedSVComputer {
     public:
 	explicit CombinedSVSoftLeptonComputer(const edm::ParameterSet &params);
 	
@@ -25,7 +25,7 @@ reco::TaggingVariableList CombinedSVSoftLeptonComputer::operator () (const IPTI 
 	using namespace reco;
 	
 	// call the inherited operator()
-	TaggingVariableList vars = CombinedSVComputerV2::operator()(ipInfo,svInfo);
+	TaggingVariableList vars = CombinedSVComputer::operator()(ipInfo,svInfo);
 	
 	// the following is specific to soft leptons
 	int leptonCategory = 0; // 0 = no lepton, 1 = muon, 2 = electron
