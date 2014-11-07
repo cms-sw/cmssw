@@ -9,14 +9,16 @@ generalV0Candidates = cms.EDProducer("V0Producer",
    doKShorts = cms.bool(True),
    doLambdas = cms.bool(True),
 
-   # which vertex fitting algorithm to use (we recommend using the KalmanVertexFitter)
-   vertexFitter = cms.InputTag('KalmanVertexFitter'),
+   # which vertex fitting algorithm to use
+   # True -> KalmanVertexFitter (recommended)
+   # False -> AdaptiveVertexFitter (not recommended)
+   vertexFitter = cms.bool(True),
 
-   # if set to True, uses tracks refit by the KVF for V0Candidate kinematics
-   # this is automatically set to FALSE if using the AdaptiveVertexFitter (which is not recommended)
-   useSmoothing = cms.bool(True),
+   # use the refitted tracks returned from the KVF for V0Candidate kinematics
+   # this is automatically set to False if using the AdaptiveVertexFitter
+   useRefTracks = cms.bool(True),
 
-   # -- cuts on initial track collection
+   # -- cuts on initial track collection --
    # Track normalized Chi2 <
    tkChi2Cut = cms.double(10.0),
    # Number of valid hits on track >=
@@ -35,11 +37,15 @@ generalV0Candidates = cms.EDProducer("V0Producer",
    # -- miscellaneous cuts --
    # POCA distance between tracks <
    tkDCACut = cms.double(2.0),
+   # invariant mass of track pair - assuming both tracks are charged pions <
+   mPiPiCut = cms.double(0.6),
    # check if either track has a hit radially inside the vertex position minus this number times the sigma of the vertex fit
    # note: Set this to -1 to disable this cut, which MUST be done if you want to run V0Producer on the AOD track collection!
    innerHitPosCut = cms.double(4.0),
    # cos(angle) between x and p of V0 candidate >
    v0CosThetaCut = cms.double(0.9998),
+
+   # -- cuts on the V0 candidate mass --
    # V0 mass window +- pdg value
    kShortMassCut = cms.double(0.07),
    lambdaMassCut = cms.double(0.05)

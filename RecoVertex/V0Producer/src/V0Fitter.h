@@ -59,11 +59,13 @@ class dso_hidden V0Fitter {
    public:
       V0Fitter(const edm::ParameterSet& theParams, edm::ConsumesCollector && iC);
       // Switching to L. Lista's reco::Candidate infrastructure for V0 storage
-      void fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup, reco::VertexCompositeCandidateCollection & k, reco::VertexCompositeCandidateCollection & l);
+      void fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
+         reco::VertexCompositeCandidateCollection & k, reco::VertexCompositeCandidateCollection & l);
 
    private:
 
-      bool useRefTrax;
+      bool vertexFitter_;
+      bool useRefTracks_;
       bool doKShorts_;
       bool doLambdas_;
 
@@ -75,17 +77,17 @@ class dso_hidden V0Fitter {
       // cuts on the vertex
       double vtxChi2Cut_;
       double vtxDecayRSigCut_;
-      // cuts post-vertexing
+      // miscellaneous cuts
       double tkDCACut_;
+      double mPiPiCut_;
       double innerHitPosCut_;
       double v0CosThetaCut_;
+      // cuts on the V0 candidate mass
       double kShortMassCut_;
       double lambdaMassCut_;
 
       edm::EDGetTokenT<reco::TrackCollection> token_tracks;
       edm::EDGetTokenT<reco::BeamSpot> token_beamSpot;
-      edm::InputTag vertexFitter_;
-
 };
 
 #endif

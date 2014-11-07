@@ -53,28 +53,30 @@ V0Fitter::V0Fitter(const edm::ParameterSet& theParameters, edm::ConsumesCollecto
    token_beamSpot = iC.consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"));
    token_tracks = iC.consumes<reco::TrackCollection>(theParameters.getParameter<edm::InputTag>("trackRecoAlgorithm"));
 
-   useRefTrax = theParameters.getParameter<bool>(string("useSmoothing"));
-   vertexFitter_ = theParameters.getParameter<edm::InputTag>("vertexFitter");
-
+   vertexFitter_ = theParameters.getParameter<bool>("vertexFitter");
+   useRefTracks_ = theParameters.getParameter<bool>("useRefTracks");
+   
    // whether to reconstruct KShorts
-   doKShorts_ = theParameters.getParameter<bool>(string("doKShorts"));
+   doKShorts_ = theParameters.getParameter<bool>("doKShorts");
    // whether to reconstruct Lambdas
-   doLambdas_ = theParameters.getParameter<bool>(string("doLambdas"));
+   doLambdas_ = theParameters.getParameter<bool>("doLambdas");
 
    // cuts on initial track selection
-   tkChi2Cut_ = theParameters.getParameter<double>(string("tkChi2Cut"));
-   tkNHitsCut_ = theParameters.getParameter<int>(string("tkNHitsCut"));
-   tkPtCut_ = theParameters.getParameter<double>(string("tkPtCut"));
-   tkIPSigCut_ = theParameters.getParameter<double>(string("tkIPSigCut"));
+   tkChi2Cut_ = theParameters.getParameter<double>("tkChi2Cut");
+   tkNHitsCut_ = theParameters.getParameter<int>("tkNHitsCut");
+   tkPtCut_ = theParameters.getParameter<double>("tkPtCut");
+   tkIPSigCut_ = theParameters.getParameter<double>("tkIPSigCut");
    // cuts on vertex
-   vtxChi2Cut_ = theParameters.getParameter<double>(string("vtxChi2Cut"));
-   vtxDecayRSigCut_ = theParameters.getParameter<double>(string("vtxDecayRSigCut"));
+   vtxChi2Cut_ = theParameters.getParameter<double>("vtxChi2Cut");
+   vtxDecayRSigCut_ = theParameters.getParameter<double>("vtxDecayRSigCut");
    // miscellaneous cuts
-   tkDCACut_ = theParameters.getParameter<double>(string("tkDCACut"));
-   innerHitPosCut_ = theParameters.getParameter<double>(string("innerHitPosCut"));
-   v0CosThetaCut_ = theParameters.getParameter<double>(string("v0CosThetaCut"));
-   kShortMassCut_ = theParameters.getParameter<double>(string("kShortMassCut"));
-   lambdaMassCut_ = theParameters.getParameter<double>(string("lambdaMassCut"));
+   tkDCACut_ = theParameters.getParameter<double>("tkDCACut");
+   mPiPiCut_ = theParameters.getParameter<double>("mPiPiCut");
+   innerHitPosCut_ = theParameters.getParameter<double>("innerHitPosCut");
+   v0CosThetaCut_ = theParameters.getParameter<double>("v0CosThetaCut");
+   // cuts on the V0 candidate mass
+   kShortMassCut_ = theParameters.getParameter<double>("kShortMassCut");
+   lambdaMassCut_ = theParameters.getParameter<double>("lambdaMassCut");
 }
 
 // method containing the algorithm for vertex reconstruction
@@ -148,12 +150,23 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
       if (!cApp.status()) continue;
       float dca = std::abs(cApp.distance());
       if (dca > tkDCACut_) continue;
+
       // the POCA should at least be in the sensitive volume
       GlobalPoint cxPt = cApp.crossingPoint();
       if (sqrt(cxPt.x()*cxPt.x() + cxPt.y()*cxPt.y()) > 120. || std::abs(cxPt.z()) > 300.) continue;
+
       // the tracks should at least point in the same quadrant
-      std::pair<GlobalTrajectoryParameters, GlobalTrajectoryParameters> gtp = cApp.trajectoryParameters();
-      if ((gtp.first.momentum()).dot(gtp.second.momentum()) < 0) continue;
+      TrajectoryStateClosestToPoint const & posTSCP = posTransTkPtr->trajectoryStateClosestToPoint(cxPt);
+      TrajectoryStateClosestToPoint const & negTSCP = negTransTkPtr->trajectoryStateClosestToPoint(cxPt);
+      if (!posTSCP.isValid() || !negTSCP.isValid()) continue;
+      if (posTSCP.momentum().dot(negTSCP.momentum())  < 0) continue;
+     
+      // calculate mPiPi
+      double totalE = sqrt(posTSCP.momentum().mag2() + piMassSquared) + sqrt(negTSCP.momentum().mag2() + piMassSquared);
+      double totalESq = totalE*totalE;
+      double totalPSq = (posTSCP.momentum() + negTSCP.momentum()).mag2();
+      double mass = sqrt(totalESq - totalPSq);
+      if (mass > mPiPiCut_) continue;
 
       // Fill the vector of TransientTracks to send to KVF
       std::vector<TransientTrack> transTracks;
@@ -163,11 +176,11 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
 
       // Create the vertex fitter object and vertex the tracks
       TransientVertex theRecoVertex;
-      if (vertexFitter_ == std::string("KalmanVertexFitter")) {
-         KalmanVertexFitter theKalmanFitter(useRefTrax == 0 ? false : true);
+      if (vertexFitter_) {
+         KalmanVertexFitter theKalmanFitter(useRefTracks_ == 0 ? false : true);
          theRecoVertex = theKalmanFitter.vertex(transTracks);
-      } else if (vertexFitter_ == std::string("AdaptiveVertexFitter")) {
-         useRefTrax = false;
+      } else if (!vertexFitter_) {
+         useRefTracks_ = false;
          AdaptiveVertexFitter theAdaptiveFitter;
          theRecoVertex = theAdaptiveFitter.vertex(transTracks);
       }
@@ -198,15 +211,15 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
       
       std::auto_ptr<TrajectoryStateClosestToPoint> trajPlus;
       std::auto_ptr<TrajectoryStateClosestToPoint> trajMins;
-      std::vector<TransientTrack> refittedTrax;
+      std::vector<TransientTrack> theRefTracks;
       if (theRecoVertex.hasRefittedTracks()) {
-         refittedTrax = theRecoVertex.refittedTracks();
+         theRefTracks = theRecoVertex.refittedTracks();
       }
 
-      if (useRefTrax && refittedTrax.size() > 1) {
+      if (useRefTracks_ && theRefTracks.size() > 1) {
          TransientTrack* thePositiveRefTrack = 0;
          TransientTrack* theNegativeRefTrack = 0;
-         for (std::vector<TransientTrack>::iterator iTrack = refittedTrax.begin(); iTrack != refittedTrax.end(); ++iTrack) {
+         for (std::vector<TransientTrack>::iterator iTrack = theRefTracks.begin(); iTrack != theRefTracks.end(); ++iTrack) {
             if (iTrack->track().charge() > 0.) {
                thePositiveRefTrack = &*iTrack;
             } else if (iTrack->track().charge() < 0.) {
