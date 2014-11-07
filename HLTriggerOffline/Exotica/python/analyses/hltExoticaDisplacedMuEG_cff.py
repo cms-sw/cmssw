@@ -13,19 +13,22 @@ DisplacedMuEGPSet = cms.PSet(
         #"HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v", # Run1
         #"HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v"  # Run1
         ),
-    recElecLabel  = cms.InputTag("gedGsfElectrons"),
+    #recElecLabel  = cms.InputTag("gedGsfElectrons"),
+    recPhotonLabel  = cms.InputTag("gedPhotons"),
     recMuonLabel  = cms.InputTag("muons"),
     # -- Analysis specific cuts
     minCandidates = cms.uint32(1),
     # -- Analysis specific binnings
-    parametersTurnOn = cms.vdouble( 0, 5, 10, 15, 20,
-                                    25, 30, 35, 40,
-                                    45, 50, 55, 60,
-                                    65, 70, 75, 80,
-                                    85, 90, 95, 100,
-                                    105, 110, 115, 120,
-                                    125, 130, 135, 140,
-                                    145, 150, 155, 160,
-                                    165, 170, 175, 180,
-                                    185, 190, 195, 200),
+    parametersTurnOn = cms.vdouble( #0, 5, 10, 15, 20,
+                                    #25, 30, 35, 40,
+                                    #45, 50, 55, 60,
+                                    #65, 70, 75, 80,
+                                    #85, 90, 95, 100,
+                                    #105, 110, 115, 120,
+                                    #125, 130, 135, 140,
+                                    #145, 150, 155, 160,
+                                    #165, 170, 175, 180,
+                                    #185, 190, 195, 200),
+                                    0, 10, 20, 30, 40, 50,
+                                    100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600
     )
