@@ -55,7 +55,7 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 #    critical = cms.untracked.PSet(
 #        threshold = cms.untracked.string('ERROR')
 #    ),
-#    debugModules = cms.untracked.vstring('hltResults','hltFourVectorClient'),
+#    debugModules = cms.untracked.vstring('hltResults'),
 ##debugModules = cms.untracked.vstring('*'),
 #    cout = cms.untracked.PSet(
 #        threshold = cms.untracked.string('WARNING'),
