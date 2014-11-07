@@ -5,15 +5,13 @@ mp7BufferDumpToRaw = cms.EDProducer(
     rxFile           = cms.untracked.string("rx_summary.txt"),
     txFile           = cms.untracked.string("tx_summary.txt"),
 
-    # buffer dump file input parameters
-    nTextHeaderLines = cms.untracked.int32(3),
+    # input file type
     packetisedData   = cms.untracked.bool(True),
+
+    # parameters for non-packetised data
     nFramesPerEvent  = cms.untracked.int32(41),
-    txLatency        = cms.untracked.int32(54),
-    nRxLinks         = cms.untracked.int32(72),
-    nTxLinks         = cms.untracked.int32(72),
-    nRxEventHeaders  = cms.untracked.int32(0),
-    nTxEventHeaders  = cms.untracked.int32(0),
+    nFramesOffset    = cms.untracked.int32(0),
+    nFramesLatency   = cms.untracked.int32(0),
 
     # DAQ parameters
     fedId            = cms.untracked.int32(2),

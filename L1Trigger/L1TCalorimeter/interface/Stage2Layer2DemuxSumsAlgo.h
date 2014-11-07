@@ -25,6 +25,7 @@ namespace l1t {
 			      std::vector<l1t::EtSum> & outputSums) = 0;    
 
     virtual ~Stage2Layer2DemuxSumsAlgo(){};
+
   }; 
   
 } 

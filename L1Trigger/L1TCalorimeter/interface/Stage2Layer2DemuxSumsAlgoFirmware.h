@@ -15,6 +15,7 @@
 
 #include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2DemuxSumsAlgo.h"
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
+#include "L1Trigger/L1TCalorimeter/interface/Cordic.h"
 
 namespace l1t {
 
@@ -28,6 +29,8 @@ namespace l1t {
   private:
 
     CaloParams* params_;
+
+    Cordic cordic_;
 
   };
   
