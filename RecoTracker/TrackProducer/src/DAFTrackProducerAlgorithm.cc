@@ -101,7 +101,6 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
       } //end of annealing program
 
       LogDebug("DAFTrackProducerAlgorithm") << "Ended annealing program with " << (1.*checkHits(*ivtraj, currentTraj))/(1.*(*ivtraj).measurements().size())*100. << " unchanged." << std::endl;
-      std::cout << "Ended annealing program with " << (1.*checkHits(*ivtraj, currentTraj))/(1.*(*ivtraj).measurements().size())*100. << " unchanged." << std::endl;
 
       //computing the ndof keeping into account the weights
       ndof = calculateNdof(currentTraj);
@@ -408,8 +407,7 @@ int DAFTrackProducerAlgorithm::checkHits( Trajectory iInitTraj, const Trajectory
   }
 
   if( initmeasurements.size() != finalmeasurements.size() ) {
-    LogDebug("DAFTrackProducerAlgorithm") << "Initial and Final Trajectory have different size.";
-    std::cout << "Initial Trajectory size(" << initmeasurements.size() << " hits) different to final traj size (" << finalmeasurements.size() << ")! No checkHits possible! " << std::endl;
+    LogDebug("DAFTrackProducerAlgorithm") << "Initial Trajectory size(" << initmeasurements.size() << " hits) different to final traj size (" << finalmeasurements.size() << ")! No checkHits possible! ";
     return 0;
   }
           
@@ -448,10 +446,11 @@ int DAFTrackProducerAlgorithm::checkHits( Trajectory iInitTraj, const Trajectory
         if( myref1 == myref2 ){
           nSame++; 	
         } else {
+	  LogDebug("DAFTrackProducerAlgorithm") << "diverso hit!" << std::endl;
 	  TrajectoryStateOnSurface dummState;
-	  std::cout << "  This hit was:\n ";
+	  LogDebug("DAFTrackProducerAlgorithm") << "  This hit was:\n ";
 	  PrintHit(initHit, dummState);
-	  std::cout << "  instead now is:\n ";
+	  LogDebug("DAFTrackProducerAlgorithm") << "  instead now is:\n ";
 	  PrintHit(MaxWeightHit, dummState);
 	}
       }
