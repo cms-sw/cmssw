@@ -84,9 +84,9 @@ OuterTrackerMonitorStub::~OuterTrackerMonitorStub()
 void
 OuterTrackerMonitorStub::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   //using namespace edm;
-   
-   /// Geometry handles etc
+  //using namespace edm;
+  
+  /// Geometry handles etc
   edm::ESHandle< TrackerGeometry > GeometryHandle;
   edm::ESHandle< StackedTrackerGeometry > StackedGeometryHandle;
   const StackedTrackerGeometry* theStackedGeometry;
@@ -100,74 +100,69 @@ OuterTrackerMonitorStub::analyze(const edm::Event& iEvent, const edm::EventSetup
   theStackedGeometry = StackedGeometryHandle.product(); /// Note this is different
                                                        /// from the "global" geometry
    
-   /// Track Trigger Stubs
-   edm::Handle< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > > PixelDigiTTStubHandle;
-   iEvent.getByLabel( "TTStubsFromPixelDigis", "StubAccepted", PixelDigiTTStubHandle );
+  /// Track Trigger Stubs
+  edm::Handle< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > > PixelDigiTTStubHandle;
+  iEvent.getByLabel( "TTStubsFromPixelDigis", "StubAccepted", PixelDigiTTStubHandle );
    
    
 
-   //loop over input Stubs
-   typename edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >::const_iterator otherInputIter;
-   typename edmNew::DetSet< TTStub< Ref_PixelDigi_ > >::const_iterator otherContentIter;
-   for ( otherInputIter = PixelDigiTTStubHandle->begin();otherInputIter != PixelDigiTTStubHandle->end();++otherInputIter )
-   {
+  //loop over input Stubs
+  typename edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >::const_iterator otherInputIter;
+  typename edmNew::DetSet< TTStub< Ref_PixelDigi_ > >::const_iterator otherContentIter;
+  for ( otherInputIter = PixelDigiTTStubHandle->begin();otherInputIter != PixelDigiTTStubHandle->end();++otherInputIter )
+  {
    
-      for ( otherContentIter = otherInputIter->begin();otherContentIter != otherInputIter->end();++otherContentIter )
-      {
-          //Make reference stub
-          edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > tempStubRef = edmNew::makeRefTo( PixelDigiTTStubHandle, otherContentIter );
+    for ( otherContentIter = otherInputIter->begin();otherContentIter != otherInputIter->end();++otherContentIter )
+    {
+      //Make reference stub
+      edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > tempStubRef = edmNew::makeRefTo( PixelDigiTTStubHandle, otherContentIter );
 
-          //define position stub 
-          GlobalPoint posStub = theStackedGeometry->findGlobalPosition( &(*tempStubRef) );
+      //define position stub 
+      GlobalPoint posStub = theStackedGeometry->findGlobalPosition( &(*tempStubRef) );
+      double eta = posStub.eta();
 
-          // get det ID (place of the stub)
-          StackedTrackerDetId detIdStub( tempStubRef->getDetId() );
+      // get det ID (place of the stub)
+      StackedTrackerDetId detIdStub( tempStubRef->getDetId() );
           
-	  // Get trigger displacement/offset
-	  double displStub = tempStubRef->getTriggerDisplacement();
-	  double offsetStub = tempStubRef->getTriggerOffset();
-	  
-	  
+      // Get trigger displacement/offset
+      double displStub = tempStubRef->getTriggerDisplacement();
+      double offsetStub = tempStubRef->getTriggerOffset();
 
-          hStub_RZ->Fill( posStub.z(), posStub.perp() );
+      hStub_RZ->Fill( posStub.z(), posStub.perp() );
+      hStub_Eta->Fill(eta);
 
+      if ( detIdStub.isBarrel() ) //if the stub is in the barrel
+      {
+        hStub_Barrel->Fill(detIdStub.iLayer() ); 
 
-          if ( detIdStub.isBarrel() ) //if the stub is in the barrel
-          {
-	     hStub_Barrel->Fill(detIdStub.iLayer() ); 
-
-             hStub_Barrel_XY->Fill( posStub.x(), posStub.y() );
-             hStub_Barrel_XY_Zoom->Fill( posStub.x(), posStub.y() );
+        hStub_Barrel_XY->Fill( posStub.x(), posStub.y() );
+        hStub_Barrel_XY_Zoom->Fill( posStub.x(), posStub.y() );
 	     
-	     hStub_Barrel_W->Fill(detIdStub.iLayer(), displStub - offsetStub);
-	     hStub_Barrel_O->Fill(detIdStub.iLayer(), offsetStub);
+        hStub_Barrel_W->Fill(detIdStub.iLayer(), displStub - offsetStub);
+        hStub_Barrel_O->Fill(detIdStub.iLayer(), offsetStub);
 
-          }
-          else if ( detIdStub.isEndcap() )
-          {
-             hStub_Endcap->Fill(detIdStub.iDisk() );  
-	     hStub_Endcap_W->Fill(detIdStub.iLayer(), displStub - offsetStub);
-	     hStub_Endcap_O->Fill(detIdStub.iLayer(), offsetStub);
-
-	     
-	     if ( posStub.z() > 0 )
-             {
-        	hStub_Endcap_Fw_XY->Fill( posStub.x(), posStub.y() );
-        	hStub_Endcap_Fw_RZ_Zoom->Fill( posStub.z(), posStub.perp() );
-		hStub_Endcap_Fw->Fill(detIdStub.iDisk() );
-             }
-             else
-             {
-        	hStub_Endcap_Bw_XY->Fill( posStub.x(), posStub.y() );
-        	hStub_Endcap_Bw_RZ_Zoom->Fill( posStub.z(), posStub.perp() );
-		hStub_Endcap_Bw->Fill(detIdStub.iDisk() );
-             }
-          }
-   
       }
-   }
-   
-   
+      else if ( detIdStub.isEndcap() )
+      {
+        hStub_Endcap->Fill(detIdStub.iDisk() );  
+        hStub_Endcap_W->Fill(detIdStub.iDisk(), displStub - offsetStub);
+        hStub_Endcap_O->Fill(detIdStub.iDisk(), offsetStub);
+
+        if ( posStub.z() > 0 )
+        {
+          hStub_Endcap_Fw_XY->Fill( posStub.x(), posStub.y() );
+          hStub_Endcap_Fw_RZ_Zoom->Fill( posStub.z(), posStub.perp() );
+          hStub_Endcap_Fw->Fill(detIdStub.iDisk() );
+        }
+        else
+        {
+          hStub_Endcap_Bw_XY->Fill( posStub.x(), posStub.y() );
+          hStub_Endcap_Bw_RZ_Zoom->Fill( posStub.z(), posStub.perp() );
+          hStub_Endcap_Bw->Fill(detIdStub.iDisk() );
+        }
+      }
+    }
+  }
 }
 
 
@@ -289,8 +284,18 @@ OuterTrackerMonitorStub::beginRun(edm::Run const&, edm::EventSetup const&)
   psTTStub_Endcap_Bw_RZ_Zoom.getParameter<double>("ymax"));
   //set titles
   hStub_Endcap_Bw_RZ_Zoom->setAxisTitle("TTStub Backward Endcap z ", 1);
-  hStub_Endcap_Bw_RZ_Zoom->setAxisTitle("TTStub Backward Endcap #rho", 2);
+  hStub_Endcap_Bw_RZ_Zoom->setAxisTitle("TTStub Backward Endcap #rho", 2);  
   
+  //TTStub eta 
+  edm::ParameterSet psTTStub_Eta =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Eta");
+  HistoName = "Stub_Eta"; 
+  hStub_Eta = dqmStore_ ->book1D(HistoName,HistoName, 
+  psTTStub_Eta.getParameter<int32_t>("Nbinsx"), 
+  psTTStub_Eta.getParameter<double>("xmin"), 
+  psTTStub_Eta.getParameter<double>("xmax")); 
+  //SetTitle
+  hStub_Eta->setAxisTitle("TTStub eta",1); 
+  hStub_Eta->setAxisTitle("# TTStubs ",2);
   
   //TTStub barrel stack
   edm::ParameterSet psTTStub_Barrel =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Stack");
