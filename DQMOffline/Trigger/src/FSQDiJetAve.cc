@@ -530,7 +530,8 @@ FSQDiJetAve::beginRun(edm::Run const& run, edm::EventSetup const& c)
 {
 
     bool changed(true);
-    if (m_hltConfig.init(run, c, "TTT", changed)) {
+    std::string processName = triggerResultsLabel_.process();
+    if (m_hltConfig.init(run, c, processName, changed)) {
         LogDebug("FSQDiJetAve") << "HLTConfigProvider failed to initialize.";
     }
 
