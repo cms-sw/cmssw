@@ -13,6 +13,7 @@
 #include "Utilities/StorageFactory/interface/StatisticsSenderService.h"
 
 #include "Utilities/XrdAdaptor/src/XrdRequestManager.h"
+#include "Utilities/XrdAdaptor/src/XrdHostHandler.hh"
 
 #define XRD_CL_MAX_CHUNK 512*1024
 
@@ -82,21 +83,17 @@ SendMonitoringInfoHandler nullHandler;
 static void
 SendMonitoringInfo(XrdCl::File &file)
 {
+        // Do not send this to a dCache data server as they return an error.
+        // In some versions of dCache, sending the monitoring information causes
+        // the server to close the connection - resulting in failures.
+    if (Source::isDCachePool(file)) {return;}
+
     // Send the monitoring info, if available.
     const char * jobId = edm::storage::StatisticsSenderService::getJobID();
     std::string lastUrl;
     file.GetProperty("LastURL", lastUrl);
     if (jobId && lastUrl.size())
     {
-        XrdCl::URL url(lastUrl);
-        XrdCl::URL::ParamsMap map = url.GetParams();
-        // Do not send this to a dCache data server as they return an error.
-        // In some versions of dCache, sending the monitoring information causes
-        // the server to close the connection - resulting in failures.
-        if (map.find("org.dcache.uuid") != map.end())
-        {
-            return;
-        }
         XrdCl::FileSystem fs = XrdCl::FileSystem(XrdCl::URL(lastUrl));
         fs.SendInfo(jobId, &nullHandler, 30);
         edm::LogInfo("XrdAdaptorInternal") << "Set monitoring ID to " << jobId << ".";
@@ -131,13 +128,20 @@ RequestManager::RequestManager(const std::string &filename, XrdCl::OpenFlags::Fl
   edm::Exception ex(edm::errors::FileOpenError);
   bool validFile = false;
   const int retries = 5;
+  std::string excludeString;
   for (int idx=0; idx<retries; idx++)
   {
     file.reset(new XrdCl::File());
-    XrdCl::XRootDStatus status;
     auto opaque = prepareOpaqueString();
     std::string new_filename = m_name + (opaque.size() ? ((m_name.find("?") == m_name.npos) ? "?" : "&") + opaque : "");
-    if ((status = file->Open(new_filename, flags, perms)).IsOK())
+    SyncHostResponseHandler handler;
+    file->Open(new_filename, flags, perms, &handler);
+    handler.WaitForResponse();
+    std::unique_ptr<XrdCl::XRootDStatus> status = handler.GetStatus();
+    std::unique_ptr<XrdCl::HostList> hostList = handler.GetHosts();
+    Source::determineHostExcludeString(*file, hostList.get(), excludeString);
+    assert(status);
+    if (status->IsOK())
     {
       validFile = true;
       break;
@@ -150,8 +154,8 @@ RequestManager::RequestManager(const std::string &filename, XrdCl::OpenFlags::Fl
       ex << "XrdCl::File::Open(name='" << filename
          << "', flags=0x" << std::hex << flags
          << ", permissions=0" << std::oct << perms << std::dec
-         << ") => error '" << status.ToStr()
-         << "' (errno=" << status.errNo << ", code=" << status.code << ")";
+         << ") => error '" << status->ToStr()
+         << "' (errno=" << status->errNo << ", code=" << status->code << ")";
       ex.addContext("Calling XrdFile::open()");
       addConnections(ex);
       std::string dataServer, lastUrl;
@@ -171,7 +175,11 @@ RequestManager::RequestManager(const std::string &filename, XrdCl::OpenFlags::Fl
         ex << ". No additional data servers were found.";
         throw ex;
       }
-      if (dataServer.size()) { m_disabledSourceStrings.insert(dataServer); }
+      if (dataServer.size())
+      {
+        m_disabledSourceStrings.insert(dataServer);
+        m_disabledExcludeStrings.insert(excludeString);
+      }
       // In this case, we didn't go anywhere - we stayed at the redirector and it gave us a file-not-found.
       if (lastUrl == new_filename)
       {
@@ -189,7 +197,7 @@ RequestManager::RequestManager(const std::string &filename, XrdCl::OpenFlags::Fl
   timespec ts;
   GET_CLOCK_MONOTONIC(ts);
 
-  std::shared_ptr<Source> source(new Source(ts, std::move(file)));
+  std::shared_ptr<Source> source(new Source(ts, std::move(file), excludeString));
   {
     std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);
     m_activeSources.push_back(source);
@@ -473,14 +481,14 @@ RequestManager::prepareOpaqueString()
     for ( const auto & it : m_activeSources )
     {
         count++;
-        ss << it->ID().substr(0, it->ID().find(":")) << ",";
+        ss << it->ExcludeID().substr(0, it->ExcludeID().find(":")) << ",";
     }
     for ( const auto & it : m_inactiveSources )
     {
         count++;
-        ss << it->ID().substr(0, it->ID().find(":")) << ",";
+        ss << it->ExcludeID().substr(0, it->ExcludeID().find(":")) << ",";
     }
-    for ( const auto & it : m_disabledSourceStrings )
+    for ( const auto & it : m_disabledExcludeStrings )
     {
         count++;
         ss << it.substr(0, it.find(":")) << ",";
@@ -634,6 +642,7 @@ RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr,
     // function may be called from within XrdCl::ResponseHandler::HandleResponseWithHosts
     // In such a case, if you close a file in the handler, it will deadlock
     m_disabledSourceStrings.insert(source_ptr->ID());
+    m_disabledExcludeStrings.insert(source_ptr->ExcludeID());
     m_disabledSources.insert(source_ptr);
 
     if ((m_activeSources.size() > 0) && (m_activeSources[0].get() == source_ptr.get()))
@@ -904,7 +913,11 @@ XrdAdaptor::RequestManager::OpenHandler::HandleResponseWithHosts(XrdCl::XRootDSt
         SendMonitoringInfo(*m_file);
         timespec now;
         GET_CLOCK_MONOTONIC(now);
-        source = std::shared_ptr<Source>(new Source(now, std::move(m_file)));
+
+        std::string excludeString;
+        Source::determineHostExcludeString(*m_file, hostList, excludeString);
+
+        source = std::shared_ptr<Source>(new Source(now, std::move(m_file), excludeString));
         m_promise.set_value(source);
     }
     else

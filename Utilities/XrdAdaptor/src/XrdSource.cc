@@ -29,9 +29,10 @@ int g_delayCount = 0;
 
 using namespace XrdAdaptor;
 
-Source::Source(timespec now, std::unique_ptr<XrdCl::File> fh)
+Source::Source(timespec now, std::unique_ptr<XrdCl::File> fh, const std::string &exclude)
     : m_lastDowngrade({0, 0}),
       m_id("(unknown)"),
+      m_exclude(exclude),
       m_fh(std::move(fh)),
       m_qm(QualityMetricFactory::get(now, m_id))
 #ifdef XRD_FAKE_SLOW
@@ -47,6 +48,7 @@ Source::Source(timespec now, std::unique_ptr<XrdCl::File> fh)
         edm::LogWarning("XrdFileWarning")
           << "Source::Source() failed to determine data server name.'";
       }
+      if (!m_exclude.size()) {m_exclude = m_id;}
     }
     m_prettyid = m_id + " (unknown site)";
     std::string domain_id;
@@ -95,20 +97,64 @@ bool Source::getDomain(const std::string &host, std::string &domain)
     return domain.size();
 }
 
+
+bool
+Source::isDCachePool(XrdCl::File &file)
+{
+    std::string lastUrl;
+    file.GetProperty("LastURL", lastUrl);
+    if (lastUrl.size())
+    {
+        return isDCachePool(lastUrl);
+    }
+    return false;
+}
+
+bool
+Source::isDCachePool(const std::string &lastUrl)
+{
+    XrdCl::URL url(lastUrl);
+    XrdCl::URL::ParamsMap map = url.GetParams();
+    // dCache pools always utilize this opaque identifier.
+    if (map.find("org.dcache.uuid") != map.end())
+    {
+        return true;
+    }
+    return false;
+}
+
+
+void
+Source::determineHostExcludeString(XrdCl::File &file, const XrdCl::HostList *hostList, std::string &exclude)
+{
+    // Detect a dCache pool and, if we are in the federation context, give a custom
+    // exclude parameter.
+    // We assume this is a federation context if there's at least a regional, dCache door,
+    // and dCache pool server (so, more than 2 servers!).
+
+    exclude = "";
+    if (hostList && (hostList->size() > 3) && isDCachePool(file))
+    {
+        const XrdCl::HostInfo &info = (*hostList)[hostList->size()-3];
+        exclude = info.url.GetHostName();
+        std::string lastUrl; file.GetProperty("LastURL", lastUrl);
+        edm::LogVerbatim("XrdAdaptorInternal") << "Changing exclude list for URL " << lastUrl << " to " << exclude;
+    }
+}
+
+
 bool
 Source::getXrootdSite(XrdCl::File &fh, std::string &site)
 {
     std::string lastUrl;
     fh.GetProperty("LastURL", lastUrl);
-    if (!lastUrl.size())
+    if (!lastUrl.size() || isDCachePool(lastUrl))
     {
-        std::string id;
-        if (!fh.GetProperty("DataServer", id)) {id = "(unknown)";}
-        edm::LogWarning("XrdFileWarning")
-          << "Unable to determine the URL associated with server " << id;
+        std::string server, id;
+        if (!fh.GetProperty("DataServer", server)) {id = "(unknown)";}
+        else {id = server;}
+        if (!lastUrl.size()) {edm::LogWarning("XrdFileWarning") << "Unable to determine the URL associated with server " << id;}
         site = "Unknown";
-        std::string server;
-        fh.GetProperty("DataServer", server);
         if (server.size()) {getDomain(server, site);}
         return false;
     }

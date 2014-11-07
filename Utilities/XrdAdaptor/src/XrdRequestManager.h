@@ -162,6 +162,7 @@ private:
     std::vector<std::shared_ptr<Source> > m_activeSources;
     std::vector<std::shared_ptr<Source> > m_inactiveSources;
     std::set<std::string> m_disabledSourceStrings;
+    std::set<std::string> m_disabledExcludeStrings;
     std::set<std::shared_ptr<Source> > m_disabledSources;
     std::string m_activeSites;
 
