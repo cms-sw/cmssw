@@ -115,5 +115,19 @@ hbheprereco = cms.EDProducer(
                                           win_gain   = cms.double(3.0),
                                           ignorelowest=cms.bool(True),
                                           ignorehighest=cms.bool(False)
-                                          )
+                                          ),
+    applyPedConstraint   = cms.bool(True),
+    applyTimeConstraint  = cms.bool(True),
+    applyPulseJitter     = cms.bool(False),
+    pulseJitter          = cms.double(1.),  #GeV/bin
+    meanTime             = cms.double(-2.5),  #ns
+    timeSigma            = cms.double(5.),  #ns
+    meanPed              = cms.double(0.),  #GeV
+    pedSigma             = cms.double(0.5), #GeV
+    noise                = cms.double(1),   #fC
+    timeMin              = cms.double(-18), #ns
+    timeMax              = cms.double(  7),  #ns
+    ts3chi2              = cms.double(5.),  
+    ts4chi2              = cms.double(25.),
+    ts345chi2            = cms.double(100.)
     )

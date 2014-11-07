@@ -252,6 +252,24 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   }
 
   reco_.setpuCorrMethod(puCorrMethod_);
+  if(puCorrMethod_ == 2) { 
+    reco_.setpuCorrParams(
+			  conf.getParameter<bool>("applyPedConstraint"),
+			  conf.getParameter<bool>("applyTimeConstraint"),
+			  conf.getParameter<bool>("applyPulseJitter"),
+			  conf.getParameter<double>("pulseJitter"),
+			  conf.getParameter<double>("meanTime"),
+			  conf.getParameter<double>("timeSigma"),
+			  conf.getParameter<double>("meanPed"),
+			  conf.getParameter<double>("pedSigma"),
+			  conf.getParameter<double>("noise"),
+			  conf.getParameter<double>("timeMin"),
+			  conf.getParameter<double>("timeMax"),
+			  conf.getParameter<double>("ts3chi2"),
+			  conf.getParameter<double>("ts4chi2"),
+			  conf.getParameter<double>("ts345chi2")
+			  );
+  }
   if(conf.existsAs<double>("pufitChargeThreshold")) reco_.setpufitChrgThr(conf.getParameter<double>("pufitChargeThreshold"));
 }
 

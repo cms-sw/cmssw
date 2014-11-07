@@ -21,7 +21,7 @@ HcalSimpleRecAlgo::HcalSimpleRecAlgo(bool correctForTimeslew, bool correctForPul
 { 
   
   pulseCorr_ = std::auto_ptr<HcalPulseContainmentManager>(
-	       new HcalPulseContainmentManager(MaximumFractionalError)
+							  new HcalPulseContainmentManager(MaximumFractionalError)
 							  );
 }
   
@@ -55,7 +55,16 @@ void HcalSimpleRecAlgo::setRecoParams(bool correctForTimeslew, bool correctForPu
    pileupCleaningID_=pileupCleaningID;
 }
 
-void HcalSimpleRecAlgo::setForData (int runnum) {
+void HcalSimpleRecAlgo::setpuCorrParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,
+					double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean,double iPedSig,
+					double iNoise,double iTMin,double iTMax,
+					double its3Chi2,double its4Chi2,double its345Chi2) { 
+  psFitOOTpuCorr_->setPUParams(iPedestalConstraint,iTimeConstraint,iAddPulseJitter,
+			       iPulseJitter,iTimeMean,iTimeSig,iPedMean,iPedSig,iNoise,iTMin,iTMax,its3Chi2,its4Chi2,its345Chi2,HcalTimeSlew::Medium);
+
+}
+
+void HcalSimpleRecAlgo::setForData (int runnum) { 
    runnum_ = runnum;
    if( puCorrMethod_ ==2 ){
       int shapeNum = HPDShapev3MCNum;
@@ -303,7 +312,7 @@ namespace HcalSimpleRecAlgoImpl {
 		     const HcalTimeSlew::BiasSetting slewFlavor,
                      const int runnum, const bool useLeak,
                      const AbsOOTPileupCorrection* pileupCorrection,
-                     const BunchXParameter* bxInfo, const unsigned lenInfo, const int puCorrMethod, const PulseShapeFitOOTPileupCorrection * psFitOOTpuCorr)
+                     const BunchXParameter* bxInfo, const unsigned lenInfo, const int puCorrMethod, const PulseShapeFitOOTPileupCorrection * psFitOOTpuCorr)// const on end
   {
     double fc_ampl =0, ampl =0, uncorr_ampl =0, maxA = -1.e300;
     int nRead = 0, maxI = -1;
@@ -344,7 +353,6 @@ namespace HcalSimpleRecAlgoImpl {
           const int capid = digi[ip].capid();
           capidvec.push_back(capid);
        }
-       
        psFitOOTpuCorr->apply(cs, capidvec, calibs, correctedOutput);
        if( correctedOutput.back() == 0 && correctedOutput.size() >1 ){
           time = correctedOutput[1]; ampl = correctedOutput[0];
