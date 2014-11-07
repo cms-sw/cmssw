@@ -31,6 +31,10 @@ namespace l1t {
     
     void sort(std::vector<Jet> & jets);
 
+    void calibrate(std::vector<Jet> & jets);
+
+    double calibFit(double*, double*);
+
     int donutPUEstimate(int jetEta, int jetPhi, int size, 
                         const std::vector<l1t::CaloTower> & towers);
     
