@@ -24,6 +24,9 @@ from SimMuon.Configuration.SimMuon_cff import *
 # it is no longer run here.
 #
 from SimGeneral.Configuration.SimGeneral_cff import *
+
+from RecoLuminosity.LumiProducer.lumiInfoRunHeaderMC_cff import *
+
 doAllDigi = cms.Sequence(calDigi+muonDigi)
-pdigi = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")*cms.SequencePlaceholder("mix")*doAllDigi*addPileupInfo)
+pdigi = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")*lumiInfoRunHeaderMC*cms.SequencePlaceholder("mix")*doAllDigi*addPileupInfo)
 pdigi_valid = cms.Sequence(pdigi)

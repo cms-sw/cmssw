@@ -1,7 +1,7 @@
 
 import FWCore.ParameterSet.Config as cms
-lumiInfoRunHeader=cms.EDProducer("LumiInfoRunHeaderProducer",
-                                 MCFillSchemeFromConfig = cms.bool(False),
+lumiInfoRunHeaderMC=cms.EDProducer("LumiInfoRunHeaderProducer",
+                                 MCFillSchemeFromConfig = cms.bool(True),
                                  MCFillSchemeFromDB = cms.bool(False),
                                  MCBunchSpacing = cms.int32(450),
                             )

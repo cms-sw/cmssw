@@ -98,7 +98,7 @@
   <use name="FWCore/PluginManager"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
-<library file="FillSchemeInfoProducer.cc" name="FillSchemeInfoProducer">
+<library file="LumiInfoRunHeaderProducer.cc" name="LumiInfoRunHeaderProducer">
   <use name="RecoLuminosity/LumiProducer"/>
   <use name="FWCore/PluginManager"/>
   <use name="DataFormats/Provenance"/>

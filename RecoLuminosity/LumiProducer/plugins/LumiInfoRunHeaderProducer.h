@@ -7,21 +7,25 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "DataFormats/Luminosity/interface/LumiInfoRunHeader.h"
 #include <vector>
 
 
-class LumiInfoRunHeaderProducer : public edm::one::EDProducer<> {
+class LumiInfoRunHeaderProducer : public edm::one::EDProducer<edm::BeginRunProducer> {
   public:
   
   LumiInfoRunHeaderProducer(const edm::ParameterSet&);  
   ~LumiInfoRunHeaderProducer() {}
     
-  //virtual void produce(edm::Event &, edm::EventSetup const&) override;
-  virtual void endRunProduce(edm::Run &, edm::EventSetup const&) override;
+  virtual void beginRunProduce(edm::Run &, edm::EventSetup const&) override;
+  virtual void produce(edm::Event &, edm::EventSetup const&) override {}
     
   private:
-    bool fillSchemeFromConfig_;
-    int bunchSpacingFromConfig_;
+    bool mcFillSchemeFromConfig_;
+    bool mcFillSchemeFromDB_;
+    int mcBunchSpacing_;
+    
+    edm::EDGetTokenT<LumiInfoRunHeader> lumiInfoRunHeaderMC_;
     
 };
 #endif

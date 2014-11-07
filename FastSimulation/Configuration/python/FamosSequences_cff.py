@@ -19,8 +19,9 @@ from FastSimulation.TrackingRecHitProducer.SiTrackerGaussianSmearingRecHitConver
 # Rec Hit Tranlator to the Full map with DeTId'
 from FastSimulation.TrackingRecHitProducer.TrackingRecHitTranslator_cfi import *
 
-#FillSchemeInfoProducer
-from RecoLuminosity.LumiProducer.fillSchemeInfoProducer_cfi import *
+#LumiInfoRunHeaderProducer
+from RecoLuminosity.LumiProducer.lumiInfoRunHeaderProducer_cfi import *
+from RecoLuminosity.LumiProducer.lumiInfoRunHeaderMC_cff import *
 
 # CTF and Iterative tracking (contains pixelTracks and pixelVertices)
 
@@ -360,6 +361,7 @@ elif(CaloMode==3):
             MuonSimHits
             )
         digitizationSequence = cms.Sequence(
+            lumiInfoRunHeaderMC+
             cms.SequencePlaceholder("mix")+
             muonDigi+
             caloDigis
@@ -381,6 +383,7 @@ elif(CaloMode==3):
             iterativeTracking
             )
         digitizationSequence = cms.Sequence(
+            lumiInfoRunHeaderMC+
             cms.SequencePlaceholder("mixHitsAndTracks")+
             muonDigi+
             caloDigis
@@ -426,7 +429,7 @@ if(CaloMode==3):
     if(MixingMode=='GenMixing'):
         reconstructionWithFamos = cms.Sequence(
             digitizationSequence+ # temporary; repetition!
-            fillSchemeInfo+
+            lumiInfoRunHeader+
             trackVertexReco+
             caloTowersSequence+
             particleFlowCluster+
@@ -454,7 +457,7 @@ if(CaloMode==3):
             )
     elif(MixingMode=='DigiRecoMixing'):
         reconstructionWithFamos = cms.Sequence(
-            fillSchemeInfo+
+            lumiInfoRunHeader+
             caloTowersSequence+
             particleFlowCluster+
             ecalClusters+
@@ -483,7 +486,7 @@ if(CaloMode==3):
         print 'unsupported MixingMode label'
 else:
     reconstructionWithFamos = cms.Sequence(
-        fillSchemeInfo+
+        lumiInfoRunHeader+
         trackVertexReco+
         caloTowersSequence+
         particleFlowCluster+
@@ -735,7 +738,7 @@ simulationWithFamos = cms.Sequence(
 
 
 reconstructionWithFamosNoTk = cms.Sequence(
-    fillSchemeInfo+
+    lumiInfoRunHeader+
     vertexreco+
     caloTowersSequence+
     particleFlowCluster+

@@ -2,6 +2,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -39,7 +40,7 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
   useLumiInfoRunHeader_ = ps.getParameter<bool>("useLumiInfoRunHeader");
   
   if (useLumiInfoRunHeader_) {
-    lumiInfoRunHeader_ = c.consumes<LumiInfoRunHeader>(edm::InputTag("lumiInfoRunHeader"));
+    lumiInfoRunHeader_ = c.consumes<LumiInfoRunHeader,edm::InRun>(edm::InputTag("lumiInfoRunHeader"));
   }
 
   // algorithm to be used for timing
@@ -138,7 +139,7 @@ EcalUncalibRecHitWorkerMultiFit::set(const edm::Event& evt)
 
   if (useLumiInfoRunHeader_) {
     edm::Handle<LumiInfoRunHeader> lumiInfoRunHeaderH;
-    evt.getByToken(lumiInfoRunHeader_,lumiInfoRunHeaderH);
+    evt.getRun().getByToken(lumiInfoRunHeader_,lumiInfoRunHeaderH);
     int bunchspacing = lumiInfoRunHeaderH->getBunchSpacing();
     
     if (bunchspacing == 25) {
@@ -151,7 +152,7 @@ EcalUncalibRecHitWorkerMultiFit::set(const edm::Event& evt)
       activeBX << -4,-2,0,2,4;
     }
   }
-  
+    
 }
 
 /**
