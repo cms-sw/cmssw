@@ -101,6 +101,7 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
       } //end of annealing program
 
       LogDebug("DAFTrackProducerAlgorithm") << "Ended annealing program with " << (1.*checkHits(*ivtraj, currentTraj))/(1.*(*ivtraj).measurements().size())*100. << " unchanged." << std::endl;
+      std::cout << "Ended annealing program with " << (1.*checkHits(*ivtraj, currentTraj))/(1.*(*ivtraj).measurements().size())*100. << " unchanged." << std::endl;
 
       //computing the ndof keeping into account the weights
       ndof = calculateNdof(currentTraj);
@@ -397,7 +398,6 @@ int DAFTrackProducerAlgorithm::checkHits( Trajectory iInitTraj, const Trajectory
 
   std::vector<TrajectoryMeasurement> initmeasurements = iInitTraj.measurements();
   std::vector<TrajectoryMeasurement> finalmeasurements = iFinalTraj.measurements();
-  std::vector<TrajectoryMeasurement>::iterator imeas;
   std::vector<TrajectoryMeasurement>::iterator jmeas;
   int nSame = 0;
   int ihit = 0;
@@ -409,13 +409,13 @@ int DAFTrackProducerAlgorithm::checkHits( Trajectory iInitTraj, const Trajectory
 
   if( initmeasurements.size() != finalmeasurements.size() ) {
     LogDebug("DAFTrackProducerAlgorithm") << "Initial and Final Trajectory have different size.";
+    std::cout << "Initial Trajectory size(" << initmeasurements.size() << " hits) different to final traj size (" << finalmeasurements.size() << ")! No checkHits possible! " << std::endl;
     return 0;
   }
           
   for(jmeas = initmeasurements.begin(); jmeas != initmeasurements.end(); jmeas++){
 
     const TrackingRecHit* initHit = jmeas->recHit()->hit();
-
     if(!initHit->isValid() && ihit == 0 ) continue;
 
     if(initHit->isValid()){
@@ -447,7 +447,13 @@ int DAFTrackProducerAlgorithm::checkHits( Trajectory iInitTraj, const Trajectory
 
         if( myref1 == myref2 ){
           nSame++; 	
-        }
+        } else {
+	  TrajectoryStateOnSurface dummState;
+	  std::cout << "  This hit was:\n ";
+	  PrintHit(initHit, dummState);
+	  std::cout << "  instead now is:\n ";
+	  PrintHit(MaxWeightHit, dummState);
+	}
       }
     } else {
 
@@ -457,7 +463,7 @@ int DAFTrackProducerAlgorithm::checkHits( Trajectory iInitTraj, const Trajectory
         nSame++;
       }
     }
-    
+  
       ihit++;
   }
 
