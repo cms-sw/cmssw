@@ -30,10 +30,13 @@
 #include <stdlib.h>
 
 // Data Formats
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameWrapper.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapNameWrapper.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
+#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 //
 // Constructors
 //
@@ -61,13 +64,17 @@ SiPixelClusterModule::~SiPixelClusterModule() {}
 //
 // Book histograms
 //
-void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, DQMStore::IBooker & iBooker, int type, bool twoD, bool reducedSet, bool isUpgrade) {
+void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, const edm::EventSetup& iSetup, DQMStore::IBooker & iBooker, int type, bool twoD, bool reducedSet, bool isUpgrade) {
   
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology *pTT = tTopoHandle.product();
+
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
   bool isHalfModule = false;
   if(barrel){
-    isHalfModule = PixelBarrelNameWrapper(iConfig, DetId(id_)).isHalfModule();
+    isHalfModule = PixelBarrelName(DetId(id_),pTT,isUpgrade).isHalfModule();
   }
   int nbinx = ncols_/2;
   int nbiny = nrows_/2;
@@ -138,7 +145,7 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, DQMStore::IBoo
   }
   if(type==1 && barrel){
     uint32_t DBladder;
-    DBladder = PixelBarrelNameWrapper(iConfig, DetId(id_)).ladderName();
+    DBladder = PixelBarrelName(DetId(id_),pTT,isUpgrade).ladderName();
     char sladder[80]; sprintf(sladder,"Ladder_%02i",DBladder);
     hid = src.label() + "_" + sladder;
     if(isHalfModule) hid += "H";
@@ -195,7 +202,7 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, DQMStore::IBoo
   if(type==2 && barrel){
     
     uint32_t DBlayer;
-    DBlayer = PixelBarrelNameWrapper(iConfig, DetId(id_)).layerName();
+    DBlayer = PixelBarrelName(DetId(id_),pTT,isUpgrade).layerName();
     char slayer[80]; sprintf(slayer,"Layer_%i",DBlayer);
     hid = src.label() + "_" + slayer;
     // Number of clusters
@@ -256,7 +263,7 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, DQMStore::IBoo
   }
   if(type==3 && barrel){
     uint32_t DBmodule;
-    DBmodule = PixelBarrelNameWrapper(iConfig, DetId(id_)).moduleName();
+    DBmodule = PixelBarrelName(DetId(id_),pTT,isUpgrade).moduleName();
     char smodule[80]; sprintf(smodule,"Ring_%i",DBmodule);
     hid = src.label() + "_" + smodule;
     // Number of clusters
@@ -318,7 +325,7 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, DQMStore::IBoo
 
   if(type==4 && endcap){
     uint32_t blade;
-    blade = PixelEndcapNameWrapper(iConfig, DetId(id_)).bladeName();
+    blade = PixelEndcapName(DetId(id_),pTT,isUpgrade).bladeName();
     
     char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
     hid = src.label() + "_" + sblade;
@@ -360,7 +367,7 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, DQMStore::IBoo
   }
   if(type==5 && endcap){
     uint32_t disk;
-    disk = PixelEndcapNameWrapper(iConfig, DetId(id_)).diskName();
+    disk = PixelEndcapName(DetId(id_),pTT,isUpgrade).diskName();
     
     char sdisk[80]; sprintf(sdisk, "Disk_%i",disk);
     hid = src.label() + "_" + sdisk;
@@ -404,8 +411,8 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, DQMStore::IBoo
   if(type==6 && endcap){
     uint32_t panel;
     uint32_t module;
-    panel= PixelEndcapNameWrapper(iConfig, DetId(id_)).pannelName();
-    module= PixelEndcapNameWrapper(iConfig, DetId(id_)).plaquetteName();
+    panel= PixelEndcapName(DetId(id_),pTT,isUpgrade).pannelName();
+    module= PixelEndcapName(DetId(id_),pTT,isUpgrade).plaquetteName();
     
     char slab[80]; sprintf(slab, "Panel_%i_Ring_%i",panel, module);
     hid = src.label() + "_" + slab;
