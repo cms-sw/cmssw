@@ -181,6 +181,8 @@ private:
     std::mt19937 m_generator;
     std::uniform_real_distribution<float> m_distribution;
 
+    std::atomic<unsigned> m_excluded_active_count;
+
     class OpenHandler : boost::noncopyable, public XrdCl::ResponseHandler {
 
     public:

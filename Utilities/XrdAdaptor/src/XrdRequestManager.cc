@@ -111,6 +111,7 @@ RequestManager::RequestManager(const std::string &filename, XrdCl::OpenFlags::Fl
       m_flags(flags),
       m_perms(perms),
       m_distribution(0,100),
+      m_excluded_active_count(0),
       m_open_handler(new OpenHandler(*this))
 {
   XrdCl::Env *env = XrdCl::DefaultEnv::GetEnv();
@@ -119,11 +120,10 @@ RequestManager::RequestManager(const std::string &filename, XrdCl::OpenFlags::Fl
   std::string orig_site;
   if (!Source::getXrootdSiteFromURL(m_name, orig_site) && (orig_site.find(".") == std::string::npos))
   {
-    struct hostent *host_info = gethostbyname(orig_site.c_str());
-    if (host_info)
+    std::string hostname;
+    if (Source::getHostname(orig_site, hostname))
     {
-        std::string host = host_info->h_name;
-        Source::getDomain(host, orig_site);
+      Source::getDomain(hostname, orig_site);
     }
   }
 
@@ -245,9 +245,17 @@ RequestManager::checkSources(timespec &now, IOSize requestSize)
     << timeDiffMS(now, m_lastSourceCheck) << "; last check "
     << m_lastSourceCheck.tv_sec << "; now " <<now.tv_sec
     << "; next check " << m_nextActiveSourceCheck.tv_sec << std::endl;  
-  if (timeDiffMS(now, m_lastSourceCheck) > 1000 && timeDiffMS(now, m_nextActiveSourceCheck) > 0)
-  {   
-    checkSourcesImpl(now, requestSize);
+  if (timeDiffMS(now, m_lastSourceCheck) > 1000)
+  {
+    { // Be more aggressive about getting rid of very bad sources.
+      std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);   
+      compareSources(now, 0, 1);
+      compareSources(now, 1, 0);
+    }
+    if (timeDiffMS(now, m_nextActiveSourceCheck) > 0)
+    {
+      checkSourcesImpl(now, requestSize);
+    }
   }
 }
 
@@ -307,7 +315,9 @@ RequestManager::checkSourcesImpl(timespec &now, IOSize requestSize)
     }
     edm::LogVerbatim("XrdAdaptorInternal") << "Worst active source: " <<(*worstActiveSource)->PrettyID() 
         << ", quality " << (*worstActiveSource)->getQuality();
-    if ((bestInactiveSource != eligibleInactiveSources.end()) && m_activeSources.size() == 1)
+        // Only upgrade the source if we only have one source and the best inactive one isn't too horrible.
+        // Regardless, we will want to re-evaluate the new source quickly (within 5s).
+    if ((bestInactiveSource != eligibleInactiveSources.end()) && m_activeSources.size() == 1 && ((*bestInactiveSource)->getQuality() < 4*m_activeSources[0]->getQuality()))
     {
         m_activeSources.push_back(*bestInactiveSource);
         updateSiteInfo();
@@ -496,7 +506,9 @@ XrdAdaptor::RequestManager::handleOpen(XrdCl::XRootDStatus &status, std::shared_
             {
                 edm::LogVerbatim("XrdAdaptorInternal") << "Xrootd server returned excluded source " << source->PrettyID()
                     << "; ignoring" << std::endl;
-                m_nextActiveSourceCheck.tv_sec += XRD_ADAPTOR_LONG_OPEN_DELAY - XRD_ADAPTOR_SHORT_OPEN_DELAY;
+                unsigned returned_count = ++m_excluded_active_count;
+                m_nextActiveSourceCheck.tv_sec += XRD_ADAPTOR_SHORT_OPEN_DELAY;
+                if (returned_count >= 3) {m_nextActiveSourceCheck.tv_sec += XRD_ADAPTOR_LONG_OPEN_DELAY - 2*XRD_ADAPTOR_SHORT_OPEN_DELAY;}
                 return;
             }
         }
@@ -822,8 +834,8 @@ XrdAdaptor::RequestManager::splitClientRequest(const std::vector<IOPosBuffer> &i
     float q1 = static_cast<float>(m_activeSources[0]->getQuality());
     float q2 = static_cast<float>(m_activeSources[1]->getQuality());
     IOSize chunk1, chunk2;
-    chunk1 = static_cast<float>(XRD_CL_MAX_CHUNK)*(q2/(q1+q2));
-    chunk2 = static_cast<float>(XRD_CL_MAX_CHUNK)*(q1/(q1+q2));
+    chunk1 = static_cast<float>(XRD_CL_MAX_CHUNK)*(q2*q2/(q1*q1+q2*q2));
+    chunk2 = static_cast<float>(XRD_CL_MAX_CHUNK)*(q1*q1/(q1*q1+q2*q2));
 
     while (tmp_iolist.size()-front > 0)
     {

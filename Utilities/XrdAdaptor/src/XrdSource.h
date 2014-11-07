@@ -43,6 +43,9 @@ public:
     static bool getXrootdSite(XrdCl::File &file, std::string &site);
     static bool getXrootdSiteFromURL(std::string url, std::string &site);
 
+    // Given an Xrootd server ID, determine the hostname to the best of our ability.
+    static bool getHostname(const std::string & id, std::string &hostname);
+
 private:
     void requestCallback(/* TODO: type? */);
 

@@ -5,6 +5,7 @@
 #include <chrono>
 #include <iostream>
 #include <assert.h>
+#include <netdb.h>
 
 #include "XrdCl/XrdClFile.hh"
 
@@ -56,12 +57,39 @@ Source::Source(timespec now, std::unique_ptr<XrdCl::File> fh)
     assert(m_fh.get());
 }
 
+
+bool Source::getHostname(const std::string &id, std::string &hostname)
+{
+    size_t pos = id.find(":");
+    hostname = id;
+    if ((pos != std::string::npos) && (pos > 0)) {hostname = id.substr(0, pos);}
+
+    bool retval = true;
+    if (hostname.size() && ((hostname[0] == '[') || isdigit(hostname[0])))
+    {
+        retval = false;
+        struct addrinfo hints; memset(&hints, 0, sizeof(struct addrinfo));
+        hints.ai_family = AF_UNSPEC;
+        struct addrinfo *result;
+        if (!getaddrinfo(hostname.c_str(), NULL, &hints, &result))
+        {
+            std::vector<char> host; host.reserve(256);
+            if (!getnameinfo(result->ai_addr, result->ai_addrlen, &host[0], 255, NULL, 0, NI_NAMEREQD))
+            {
+                hostname = &host[0];
+                retval = true;
+            }
+            freeaddrinfo(result);
+        }
+    }
+    return retval;
+}
+
+
 bool Source::getDomain(const std::string &host, std::string &domain)
 {
-    size_t pos = host.find(":");
-    domain = host;
-    if ((pos != std::string::npos) && (pos > 0)) {domain = host.substr(0, pos);}
-    pos = domain.find(".");
+    getHostname(host, domain);
+    size_t pos = domain.find(".");
     if (pos != std::string::npos && (pos < domain.size())) {domain = domain.substr(pos+1);}
 
     return domain.size();
