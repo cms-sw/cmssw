@@ -333,10 +333,6 @@ class AddJetCollection(ConfigToolBase):
             import RecoBTag.Configuration.RecoBTag_cff as btag
             import RecoJets.JetProducers.caTopTaggers_cff as toptag
 
-            ## prepare setups for simple secondary vertex infos
-            setattr(process, "simpleSecondaryVertex2Trk", simpleSecondaryVertex2Trk)
-            ## prepare setups for transient tracks
-            setattr(process, "TransientTrackBuilderESProducer", TransientTrackBuilderESProducer)
             ## setup all required btagInfos : we give a dedicated treatment for all five different
             ## types of tagINfos here. A common treatment is possible but might require a more
             ## general approach anyway in coordination with the btaggin POG.
@@ -348,7 +344,7 @@ class AddJetCollection(ConfigToolBase):
                     if btagInfo == 'pfSecondaryVertexTagInfos':
                         setattr(process, btagInfo+_labelName+postfix, btag.pfSecondaryVertexTagInfos.clone(trackIPTagInfos = cms.InputTag('pfImpactParameterTagInfos'+_labelName+postfix)))
                     if btagInfo == 'impactParameterTagInfos':
-                        setattr(process, btagInfo+_labelName+postfix, btag.impactParameterTagInfos.clone(jetTracks = cms.InputTag('jetTracksAssociatorAtVertex'+_labelName+postfix),primaryVertex=pvSource))
+                        setattr(process, btagInfo+_labelName+postfix, btag.impactParameterTagInfos.clone(jetTracks = cms.InputTag('jetTracksAssociatorAtVertex'+_labelName+postfix), primaryVertex=pvSource))
                     if btagInfo == 'secondaryVertexTagInfos':
                         setattr(process, btagInfo+_labelName+postfix, btag.secondaryVertexTagInfos.clone(trackIPTagInfos = cms.InputTag('impactParameterTagInfos'+_labelName+postfix)))
                     if btagInfo == 'inclusiveSecondaryVertexFinderTagInfos':
@@ -358,13 +354,15 @@ class AddJetCollection(ConfigToolBase):
                     if btagInfo == 'secondaryVertexNegativeTagInfos':
                         setattr(process, btagInfo+_labelName+postfix, btag.secondaryVertexNegativeTagInfos.clone(trackIPTagInfos = cms.InputTag('impactParameterTagInfos'+_labelName+postfix)))
                     if btagInfo == 'inclusiveSecondaryVertexFinderNegativeTagInfos':
-                        setattr(process, btagInfo+_labelName+postfix, btag.inclusiveSecondaryVertexFinderNegativeTagInfos.clone(trackIPTagInfos = cms.InputTag('impactParameterTagInfos'+_labelName+postfix)))
+                        setattr(process, btagInfo+_labelName+postfix, btag.inclusiveSecondaryVertexFinderNegativeTagInfos.clone(trackIPTagInfos = cms.InputTag('impactParameterTagInfos'+_labelName+postfix), extSVCollection=svSource))
+                    if btagInfo == 'inclusiveSecondaryVertexFinderFilteredNegativeTagInfos':
+                        setattr(process, btagInfo+_labelName+postfix, btag.inclusiveSecondaryVertexFinderFilteredNegativeTagInfos.clone(trackIPTagInfos = cms.InputTag('impactParameterTagInfos'+_labelName+postfix)))
                     if btagInfo == 'softMuonTagInfos':
-                        setattr(process, btagInfo+_labelName+postfix, btag.softMuonTagInfos.clone(jets = jetSource))
+                        setattr(process, btagInfo+_labelName+postfix, btag.softMuonTagInfos.clone(jets = jetSource, primaryVertex=pvSource))
                     if btagInfo == 'softPFMuonsTagInfos':
-                        setattr(process, btagInfo+_labelName+postfix, btag.softPFMuonsTagInfos.clone(jets = jetSource))
+                        setattr(process, btagInfo+_labelName+postfix, btag.softPFMuonsTagInfos.clone(jets = jetSource, primaryVertex=pvSource))
                     if btagInfo == 'softPFElectronsTagInfos':
-                        setattr(process, btagInfo+_labelName+postfix, btag.softPFElectronsTagInfos.clone(jets = jetSource))
+                        setattr(process, btagInfo+_labelName+postfix, btag.softPFElectronsTagInfos.clone(jets = jetSource, primaryVertex=pvSource))
                     acceptedTagInfos.append(btagInfo)
                 elif hasattr(toptag, btagInfo) :
                     acceptedTagInfos.append(btagInfo)

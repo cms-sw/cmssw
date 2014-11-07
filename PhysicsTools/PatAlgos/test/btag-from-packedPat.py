@@ -42,7 +42,6 @@ process.unpackTV = cms.EDProducer('PATTrackAndVertexUnpacker',
 process.ak4JetTracksAssociatorAtVertexPF.jets = cms.InputTag("slimmedJets")
 process.ak4JetTracksAssociatorAtVertexPF.tracks = cms.InputTag("unpackTV")
 process.impactParameterTagInfos.primaryVertex = cms.InputTag("unpackTV")
-process.combinedSecondaryVertex.trackMultiplicityMin = 1 #silly sv, uses un filtered tracks.. i.e. any pt
 process.p = cms.Path(process.unpackTV*process.ak4JetTracksAssociatorAtVertexPF*process.impactParameterTagInfos*process.secondaryVertexTagInfos*process.combinedSecondaryVertexBJetTags)
 process.endpath= cms.EndPath(process.AOD1)
 
