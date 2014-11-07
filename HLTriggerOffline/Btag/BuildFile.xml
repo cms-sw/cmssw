@@ -1,0 +1,3 @@
+<use name="DQMOffline/RecoB"/>
+<use name="HLTrigger/HLTcore"/>
+<flags EDM_PLUGIN="1"/>
