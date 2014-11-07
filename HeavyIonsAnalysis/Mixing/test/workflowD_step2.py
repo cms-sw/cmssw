@@ -31,7 +31,7 @@ process.maxEvents = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
-    fileNames = cms.untracked.vstring('file:output_workflowD_step1_2.root'),
+    fileNames = cms.untracked.vstring('file:output_workflowD_step1_3.root'),
     inputCommands = cms.untracked.vstring('keep *', 
         'drop *_simEcalPreshowerDigis_*_*'),
     dropDescendantsOfDroppedBranches = cms.untracked.bool(False)
@@ -54,7 +54,7 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize = cms.untracked.int32(1048576),
     outputCommands = process.FEVTDEBUGHLTEventContent.outputCommands,
-    fileName = cms.untracked.string('output_workflowD_step2_2.root'),
+    fileName = cms.untracked.string('output_workflowD_step2_3.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('GEN-SIM-DIGI-RAW-HLTDEBUG')
