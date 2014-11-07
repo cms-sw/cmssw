@@ -300,7 +300,11 @@ linkClustersInLayer(const reco::PFClusterCollection& input_clusters,
     for( auto connected = clusrange.first; 
 	 connected != clusrange.second; ++connected ) {
       const auto& pos_connected = input_clusters[connected->second].position();
-      const float angle = (pos_connected - pos).theta() + 1e-3;
+      float angle = (pos_connected - pos).theta();
+      if( pos.z() < 0.0f ) angle += M_PI;
+      while( angle > M_PI )  angle -= 2*M_PI;
+      while( angle < -M_PI ) angle += 2*M_PI;
+      angle = std::abs(angle) + 0.001f;
       const float dist2  = (pos_connected - pos).Mag2();
       const float parm  =  dist2*angle*angle;
       if( parm < min_parameter ) {

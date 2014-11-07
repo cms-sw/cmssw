@@ -9,7 +9,7 @@ _localmaxseeds_HGCEE = cms.PSet(
     algoName = cms.string("LocalMaximumSeedFinder"),
     thresholdsByDetector = cms.VPSet(
     cms.PSet( detector = cms.string("HGC_ECAL"),
-              seedingThreshold = cms.double(1e-6*0.70), #in KeV
+              seedingThreshold = cms.double(1e-6*1.75*55.1), #seeding threshold converted to GeV from keV
               seedingThresholdPt = cms.double(0.0)
               )
     ),
