@@ -15,13 +15,13 @@ BTagCalibration::BTagCalibration(const std::string &taggr,
   ifs.close();
 }
 
-void BTagCalibration::addEntry(BTagEntry entry)
+void BTagCalibration::addEntry(const BTagEntry &entry)
 {
   data_[token(entry.params)].push_back(entry);
 }
 
 const std::vector<BTagEntry>& BTagCalibration::getEntries(
-  BTagEntry::Parameters par) const
+  const BTagEntry::Parameters &par) const
 {
   auto tok = token(par);
   if (!data_.count(tok)) {

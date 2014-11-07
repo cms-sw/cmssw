@@ -115,8 +115,8 @@ public:
 
   std::string tagger() const {return tagger_;}
 
-  void addEntry(BTagEntry entry);
-  const std::vector<BTagEntry>& getEntries(BTagEntry::Parameters par) const;
+  void addEntry(const BTagEntry &entry);
+  const std::vector<BTagEntry>& getEntries(const BTagEntry::Parameters &par) const;
 
   void readCSV(istream &s);
   void readCSV(const std::string &s);
