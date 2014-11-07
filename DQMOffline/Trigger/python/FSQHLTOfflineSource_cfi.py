@@ -6,6 +6,7 @@ def getPTAveVPSet():
     ret=cms.VPSet()
     # note: always give integer values (!)
     thresholds = [30, 60, 80, 100, 160, 220, 300]
+    #thresholds = [30,]
     for t in thresholds:
             partialPathName = "HLT_DiPFJetAve"+ str(t) +"_HFJEC_"
             ptBinLow  = t/2
@@ -115,7 +116,7 @@ def getPTAveVPSet():
             ret.append(recoPF) 
             '''
             recoThr = t/2
-            hltPFtopology  =  cms.PSet(
+            recoPFtopology  =  cms.PSet(
                 handlerType = cms.string("FromRecoCandidate"),
                 inputCol = cms.InputTag("ak4PFJetsCHS"),
                 partialPathName = cms.string(partialPathName),
@@ -140,9 +141,28 @@ def getPTAveVPSet():
 
                 )
             )
-            ret.append(hltPFtopology)
-
-
+            ret.append(recoPFtopology)
+            # RecoCandidateCounter
+            ''' example on how to count objects
+            recoThr = t/2
+            recoPFJetCnt  =  cms.PSet(
+                handlerType = cms.string("RecoCandidateCounter"),
+                inputCol = cms.InputTag("ak4PFJetsCHS"),
+                partialPathName = cms.string(partialPathName),
+                partialFilterName  = cms.string("hltDiPFJetAve"),
+                dqmhistolabel  = cms.string("recoPFJetsCnt"),
+                mainDQMDirname = cms.untracked.string(fsqdirname),
+                singleObjectsPreselection = cms.string("pt > + "+str(recoThr) +" && abs(eta)<1.4 || abs(eta) > 2.7 "),
+                combinedObjectSelection =  cms.string("1==1"),
+                combinedObjectSortCriteria = cms.string('size()'),
+                combinedObjectDimension = cms.int32(1),
+                drawables =  cms.VPSet(
+                    cms.PSet (name = cms.string("count"), expression = cms.string('at(0)'), 
+                             bins = cms.int32(30), min = cms.double(0), max = cms.double(30))
+                )
+            )
+            ret.append(recoPFJetCnt)
+            '''
 
     return ret
 
