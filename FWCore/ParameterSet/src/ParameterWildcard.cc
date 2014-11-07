@@ -5,8 +5,6 @@
 #include "FWCore/ParameterSet/interface/VParameterSetEntry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 
-#include "boost/ref.hpp"
-
 #include <cassert>
 #include <iomanip>
 #include <ostream>
@@ -64,7 +62,7 @@ namespace edm {
     if(psetDesc_) {
       for_all(parameterNames,
               std::bind(&ParameterWildcard<ParameterSetDescription>::validateDescription,
-                          boost::cref(this),
+                          this,
                           std::placeholders::_1,
                           std::ref(pset)));
     }
@@ -181,7 +179,7 @@ namespace edm {
     if(psetDesc_) {
       for_all(parameterNames,
               std::bind(&ParameterWildcard<std::vector<ParameterSet> >::validatePSetVector,
-                          boost::cref(this),
+                          this,
                           std::placeholders::_1,
                           std::ref(pset)));
     }
