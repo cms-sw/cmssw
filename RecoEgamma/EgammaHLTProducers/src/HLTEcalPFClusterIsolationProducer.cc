@@ -2,7 +2,7 @@
 #include <vector>
 #include <memory>
 
-#include "RecoMuon/L3MuonIsolationProducer/src/MuonHLTEcalPFClusterIsolationProducer.h"
+#include "RecoEgamma/EgammaHLTProducers/interface/HLTEcalPFClusterIsolationProducer.h"
 
 // Framework
 #include "FWCore/Framework/interface/Event.h"
@@ -14,8 +14,8 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateIsolation.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
@@ -26,9 +26,10 @@
 
 #include <DataFormats/Math/interface/deltaR.h>
 
-MuonHLTEcalPFClusterIsolationProducer::MuonHLTEcalPFClusterIsolationProducer(const edm::ParameterSet& config) {
+template<typename T1>
+HLTEcalPFClusterIsolationProducer<T1>::HLTEcalPFClusterIsolationProducer(const edm::ParameterSet& config) {
 
-  recoChargedCandidateProducer_ = consumes<reco::RecoChargedCandidateCollection>(config.getParameter<edm::InputTag>("recoChargedCandidateProducer"));
+  recoCandidateProducer_ = consumes<T1Collection>(config.getParameter<edm::InputTag>("recoCandidateProducer"));
   pfClusterProducer_         = consumes<reco::PFClusterCollection>(config.getParameter<edm::InputTag>("pfClusterProducer"));
 
   drMax_          = config.getParameter<double>("drMax");
@@ -48,16 +49,18 @@ MuonHLTEcalPFClusterIsolationProducer::MuonHLTEcalPFClusterIsolationProducer(con
   effectiveAreaBarrel_            = config.getParameter<double>("effectiveAreaBarrel");
   effectiveAreaEndcap_            = config.getParameter<double>("effectiveAreaEndcap");
 
-  produces < reco::RecoChargedCandidateIsolationMap >();
+  produces <T1IsolationMap>();
 
 }
 
-MuonHLTEcalPFClusterIsolationProducer::~MuonHLTEcalPFClusterIsolationProducer()
+template<typename T1>
+HLTEcalPFClusterIsolationProducer<T1>::~HLTEcalPFClusterIsolationProducer()
 {}
 
-void MuonHLTEcalPFClusterIsolationProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+template<typename T1>
+void HLTEcalPFClusterIsolationProducer<T1>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("recoChargedCandidateProducer", edm::InputTag("hltL1SeededRecoChargedCandidatePF"));
+  desc.add<edm::InputTag>("recoCandidateProducer", edm::InputTag("hltL1SeededRecoEcalCandidatePF"));
   desc.add<edm::InputTag>("pfClusterProducer", edm::InputTag("hltParticleFlowClusterECAL")); 
   desc.add<edm::InputTag>("rhoProducer", edm::InputTag("fixedGridRhoFastjetAllCalo"));
   desc.add<bool>("doRhoCorrection", false);
@@ -72,10 +75,40 @@ void MuonHLTEcalPFClusterIsolationProducer::fillDescriptions(edm::ConfigurationD
   desc.add<double>("etaStripEndcap", 0.0);
   desc.add<double>("energyBarrel", 0.0);
   desc.add<double>("energyEndcap", 0.0);
-  descriptions.add(("hltMuonHLTEcalPFClusterIsolationProducer"), desc);
+  descriptions.add(std::string("hlt")+std::string(typeid(HLTEcalPFClusterIsolationProducer<T1>).name()), desc);
 }
 
-void MuonHLTEcalPFClusterIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
+template<>
+bool HLTEcalPFClusterIsolationProducer<reco::RecoEcalCandidate>::computedRVeto(T1Ref candRef, reco::PFClusterRef pfclu) {
+
+  float dR = deltaR(candRef->eta(), candRef->phi(), pfclu->eta(), pfclu->phi());
+  if(dR < drVeto_)
+    return false;
+
+  if (candRef->superCluster().isNonnull()) {
+    // Exclude clusters that are part of the candidate
+    for (reco::CaloCluster_iterator it = candRef->superCluster()->clustersBegin(); it != candRef->superCluster()->clustersEnd(); ++it) {
+      if ((*it)->seed() == pfclu->seed()) {
+	return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+template<typename T1>
+bool HLTEcalPFClusterIsolationProducer<T1>::computedRVeto(T1Ref candRef, reco::PFClusterRef pfclu) {
+
+  float dR = deltaR(candRef->eta(), candRef->phi(), pfclu->eta(), pfclu->phi());
+  if(dR > drMax_ || dR < drVeto_)
+    return false;
+  else
+    return true;
+}
+
+template<typename T1>
+void HLTEcalPFClusterIsolationProducer<T1>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
 
   edm::Handle<double> rhoHandle;
   double rho = 0.0;
@@ -89,25 +122,25 @@ void MuonHLTEcalPFClusterIsolationProducer::produce(edm::Event& iEvent, const ed
   
   rho = rho*rhoScale_;
 
-  edm::Handle<reco::RecoChargedCandidateCollection> recochargedcandHandle;
+  edm::Handle<T1Collection> recoCandHandle;
   edm::Handle<reco::PFClusterCollection> clusterHandle;
 
-  iEvent.getByToken(recoChargedCandidateProducer_,recochargedcandHandle);
+  iEvent.getByToken(recoCandidateProducer_,recoCandHandle);
   iEvent.getByToken(pfClusterProducer_, clusterHandle);
 
-  reco::RecoChargedCandidateIsolationMap recoChargedCandMap;
+  T1IsolationMap recoCandMap;
   
-  float dRVeto = -1.;
+  drVeto_ = -1.;
   float etaStrip = -1;
   
-  for (unsigned int iReco = 0; iReco < recochargedcandHandle->size(); iReco++) {
-    reco::RecoChargedCandidateRef candRef(recochargedcandHandle, iReco);
+  for (unsigned int iReco = 0; iReco < recoCandHandle->size(); iReco++) {
+    T1Ref candRef(recoCandHandle, iReco);
     
     if (fabs(candRef->eta()) < 1.479) {
-      dRVeto = drVetoBarrel_;
+      drVeto_ = drVetoBarrel_;
       etaStrip = etaStripBarrel_;
     } else {
-      dRVeto = drVetoEndcap_;
+      drVeto_ = drVetoEndcap_;
       etaStrip = etaStripEndcap_;
     }
     
@@ -125,20 +158,9 @@ void MuonHLTEcalPFClusterIsolationProducer::produce(edm::Event& iEvent, const ed
 
       float dEta = fabs(candRef->eta() - pfclu->eta());
       if(dEta < etaStrip) continue;
-      
-      float dR = deltaR(candRef->eta(), candRef->phi(), pfclu->eta(), pfclu->phi());
-      if(dR > drMax_ || dR < dRVeto) continue;
-      
-      // Exclude clusters that are part of the candidate
-   /*   bool isCandCluster = false;
-      for (reco::CaloCluster_iterator it = candRef->superCluster()->clustersBegin(); it != candRef->superCluster()->clustersEnd(); ++it) {
-	if ((*it)->seed() == pfclu->seed()) {
-	  isCandCluster = true;
-	  break;
-      	}
-      }
-      if(isCandCluster)	continue;*/
-      
+      if (not computedRVeto(candRef, pfclu))
+	continue;
+
       sum += pfclu->pt();
     }
      
@@ -149,10 +171,15 @@ void MuonHLTEcalPFClusterIsolationProducer::produce(edm::Event& iEvent, const ed
 	sum = sum - rho*effectiveAreaEndcap_;
     }
 
-    recoChargedCandMap.insert(candRef, sum);
+    recoCandMap.insert(candRef, sum);
   }
   
-  std::auto_ptr<reco::RecoChargedCandidateIsolationMap> mapForEvent(new reco::RecoChargedCandidateIsolationMap(recoChargedCandMap));
+  std::auto_ptr<T1IsolationMap> mapForEvent(new T1IsolationMap(recoCandMap));
   iEvent.put(mapForEvent);
-
 }
+
+typedef HLTEcalPFClusterIsolationProducer<reco::RecoEcalCandidate> EgammaHLTEcalPFClusterIsolationProducer;
+typedef HLTEcalPFClusterIsolationProducer<reco::RecoChargedCandidate> MuonHLTEcalPFClusterIsolationProducer;
+
+DEFINE_FWK_MODULE(EgammaHLTEcalPFClusterIsolationProducer);
+DEFINE_FWK_MODULE(MuonHLTEcalPFClusterIsolationProducer);

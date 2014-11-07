@@ -1,5 +1,5 @@
-#ifndef L3MuonIsolationProducer_MuonHLTEcalPFClusterIsolationProducer_h
-#define L3MuonIsolationProducer_MuonHLTEcalPFClusterIsolationProducer_h
+#ifndef EgammaHLTProducers_EgammaHLTEcalPFClusterIsolationProducer_h
+#define EgammaHLTProducers_EgammaHLTEcalPFClusterIsolationProducer_h
 
 #include <memory>
 
@@ -11,6 +11,9 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
+
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateIsolation.h"
 
@@ -21,20 +24,29 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class MuonHLTEcalPFClusterIsolationProducer : public edm::EDProducer {
+template<typename T1>
+class HLTEcalPFClusterIsolationProducer : public edm::EDProducer {
+
+  typedef std::vector<T1> T1Collection;
+  typedef edm::Ref<T1Collection> T1Ref;
+  typedef edm::AssociationMap<edm::OneToValue<std::vector<T1>, float > > T1IsolationMap;
+  
  public:
-  explicit MuonHLTEcalPFClusterIsolationProducer(const edm::ParameterSet&);
-  ~MuonHLTEcalPFClusterIsolationProducer();    
+  explicit HLTEcalPFClusterIsolationProducer(const edm::ParameterSet&);
+  ~HLTEcalPFClusterIsolationProducer();    
       
   virtual void produce(edm::Event&, const edm::EventSetup&);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
- 
+  
  private:
 
-  edm::EDGetTokenT<reco::RecoChargedCandidateCollection> recoChargedCandidateProducer_;
+  bool computedRVeto(T1Ref candRef, reco::PFClusterRef pfclu);
+
+  edm::EDGetTokenT<T1Collection> recoCandidateProducer_;
   edm::EDGetTokenT<reco::PFClusterCollection> pfClusterProducer_;
   edm::EDGetTokenT<double> rhoProducer_;
 
+  double drVeto_;
   double drMax_;
   double drVetoBarrel_;
   double drVetoEndcap_;
