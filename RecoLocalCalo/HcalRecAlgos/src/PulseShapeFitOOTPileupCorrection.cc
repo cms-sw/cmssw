@@ -3,11 +3,40 @@
 
 namespace FitterFuncs{
 
-   int cntNANinfit;
-   double psFit_x[10], psFit_y[10], psFit_erry[10]; 
+   PulseShapeFunctor::PulseShapeFunctor(const HcalPulseShapes::Shape& pulse) : 
+      cntNANinfit(0),
+      acc25nsVec(256), diff25nsItvlVec(256),
+      accVarLenIdxZEROVec(25), diffVarItvlIdxZEROVec(25), 
+      accVarLenIdxMinusOneVec(25), diffVarItvlIdxMinusOneVec(25) {
 
-   std::array<float,10> funcHPDShape(const std::vector<double>& pars,
-                                     const std::array<float,256>& h1_single, const std::vector<float> &acc25nsVec, const std::vector<float> &diff25nsItvlVec, const std::vector<float> &accVarLenIdxZEROVec, const std::vector<float> &diffVarItvlIdxZEROVec, const std::vector<float> &accVarLenIdxMinusOneVec, const std::vector<float>&diffVarItvlIdxMinusOneVec) {
+      for(int i=0;i<256;++i) {
+         pulse_hist[i] = pulse(i);
+      }
+// Accumulate 25ns for each starting point of 0, 1, 2, 3...
+      for(int i=0; i<256; ++i){
+         for(int j=i; j<i+25; ++j){
+            acc25nsVec[i] += ( j < 256? pulse_hist[j] : pulse_hist[255]);
+         }
+         diff25nsItvlVec[i] = ( i+25 < 256? pulse_hist[i+25] - pulse_hist[i] : pulse_hist[255] - pulse_hist[i]);
+      }
+// Accumulate different ns for starting point of index either 0 or -1
+      for(int i=0; i<25; ++i){
+         if( i==0 ){
+            accVarLenIdxZEROVec[0] = pulse_hist[0];
+            accVarLenIdxMinusOneVec[i] = pulse_hist[0];
+         } else{
+            accVarLenIdxZEROVec[i] = accVarLenIdxZEROVec[i-1] + pulse_hist[i];
+            accVarLenIdxMinusOneVec[i] = accVarLenIdxMinusOneVec[i-1] + pulse_hist[i-1];
+         }
+         diffVarItvlIdxZEROVec[i] = pulse_hist[i+1] - pulse_hist[0];
+         diffVarItvlIdxMinusOneVec[i] = pulse_hist[i] - pulse_hist[0];
+      }
+   }
+  
+   PulseShapeFunctor::~PulseShapeFunctor() {
+   }
+  
+   std::array<float,10> PulseShapeFunctor::funcHPDShape(const std::vector<double>& pars) {
     // pulse shape components over a range of time 0 ns to 255 ns in 1 ns steps
       constexpr int ns_per_bx = 25;
       constexpr int num_ns = 250;
@@ -44,8 +73,7 @@ namespace FitterFuncs{
       return ntmpbin;
    }
 
-   std::array<float,10> func_DoublePulse_HPDShape(const std::vector<double>& pars,
-                                                  const std::array<float,256>& h1_double, const std::vector<float> &acc25nsVec, const std::vector<float> &diff25nsItvlVec, const std::vector<float> &accVarLenIdxZEROVec, const std::vector<float> &diffVarItvlIdxZEROVec, const std::vector<float> &accVarLenIdxMinusOneVec, const std::vector<float>&diffVarItvlIdxMinusOneVec) {
+   std::array<float,10> PulseShapeFunctor::func_DoublePulse_HPDShape(const std::vector<double>& pars) {
     // pulse shape components over a range of time 0 ns to 255 ns in 1 ns steps
       constexpr int ns_per_bx = 25;
       constexpr int num_ns = 250;
@@ -106,46 +134,14 @@ namespace FitterFuncs{
       return ntmpbin;
    }
 
-   PulseShapeFunctor::PulseShapeFunctor(const HcalPulseShapes::Shape& pulse) : 
-      acc25nsVec(256), diff25nsItvlVec(256),
-      accVarLenIdxZEROVec(25), diffVarItvlIdxZEROVec(25), 
-      accVarLenIdxMinusOneVec(25), diffVarItvlIdxMinusOneVec(25) {
-
-      for(int i=0;i<256;++i) {
-         pulse_hist[i] = pulse(i);
-      }
-// Accumulate 25ns for each starting point of 0, 1, 2, 3...
-      for(int i=0; i<256; ++i){
-         for(int j=i; j<i+25; ++j){
-            acc25nsVec[i] += ( j < 256? pulse_hist[j] : pulse_hist[255]);
-         }
-         diff25nsItvlVec[i] = ( i+25 < 256? pulse_hist[i+25] - pulse_hist[i] : pulse_hist[255] - pulse_hist[i]);
-      }
-// Accumulate different ns for starting point of index either 0 or -1
-      for(int i=0; i<25; ++i){
-         if( i==0 ){
-            accVarLenIdxZEROVec[0] = pulse_hist[0];
-            accVarLenIdxMinusOneVec[i] = pulse_hist[0];
-         } else{
-            accVarLenIdxZEROVec[i] = accVarLenIdxZEROVec[i-1] + pulse_hist[i];
-            accVarLenIdxMinusOneVec[i] = accVarLenIdxMinusOneVec[i-1] + pulse_hist[i-1];
-         }
-         diffVarItvlIdxZEROVec[i] = pulse_hist[i+1] - pulse_hist[0];
-         diffVarItvlIdxMinusOneVec[i] = pulse_hist[i] - pulse_hist[0];
-      }
-   }
-  
-   PulseShapeFunctor::~PulseShapeFunctor() {
-   }
-  
-   double PulseShapeFunctor::EvalSinglePulse(const std::vector<double>& pars) const {
+   double PulseShapeFunctor::EvalSinglePulse(const std::vector<double>& pars) {
       constexpr unsigned nbins = 10;
       unsigned i =0;
 
       //calculate chisquare
       double chisq = 0;
       double delta =0;
-      std::array<float,nbins> pulse_shape = std::move(funcHPDShape(pars,pulse_hist, acc25nsVec, diff25nsItvlVec, accVarLenIdxZEROVec, diffVarItvlIdxZEROVec, accVarLenIdxMinusOneVec, diffVarItvlIdxMinusOneVec));
+      std::array<float,nbins> pulse_shape = std::move(funcHPDShape(pars));
       for (i=0;i<nbins; ++i) {
          delta = (psFit_y[i]- pulse_shape[i])/psFit_erry[i];
          chisq += delta*delta;
@@ -153,7 +149,7 @@ namespace FitterFuncs{
       return chisq;
    }
 
-   double PulseShapeFunctor::EvalDoublePulse(const std::vector<double>& pars) const {
+   double PulseShapeFunctor::EvalDoublePulse(const std::vector<double>& pars) {
       constexpr unsigned nbins = 10;
       unsigned i =0;
 
@@ -161,7 +157,7 @@ namespace FitterFuncs{
       double chisq = 0;
       double delta = 0;
       //double val[1];
-      std::array<float,nbins> pulse_shape = std::move(func_DoublePulse_HPDShape(pars,pulse_hist, acc25nsVec, diff25nsItvlVec, accVarLenIdxZEROVec, diffVarItvlIdxZEROVec, accVarLenIdxMinusOneVec, diffVarItvlIdxMinusOneVec));
+      std::array<float,nbins> pulse_shape = std::move(func_DoublePulse_HPDShape(pars));
       for (i=0;i<nbins; ++i) {
          delta = (psFit_y[i]- pulse_shape[i])/psFit_erry[i];
          chisq += delta*delta;
@@ -169,17 +165,16 @@ namespace FitterFuncs{
       return chisq;
    }
  
-   std::auto_ptr<PulseShapeFunctor> psfPtr_;
-
-   double singlePulseShapeFunc( const double *x ) {
+   double PulseShapeFunctor::singlePulseShapeFunc( const double *x ) {
       std::vector<double> pars(x, x+3);
-      return psfPtr_->EvalSinglePulse(pars);
+      return EvalSinglePulse(pars);
    }
 
-   double doublePulseShapeFunc( const double *x ) {
+   double PulseShapeFunctor::doublePulseShapeFunc( const double *x ) {
       std::vector<double> pars(x, x+5);
-      return psfPtr_->EvalDoublePulse(pars);
+      return EvalDoublePulse(pars);
    }
+
 }
 
 PulseShapeFitOOTPileupCorrection::PulseShapeFitOOTPileupCorrection() : cntsetPulseShape(0), chargeThreshold_(6.)
@@ -196,17 +191,17 @@ PulseShapeFitOOTPileupCorrection::~PulseShapeFitOOTPileupCorrection()
 void PulseShapeFitOOTPileupCorrection::setPulseShapeTemplate(const HcalPulseShapes::Shape& ps) {
    if( cntsetPulseShape ) return;
    ++ cntsetPulseShape;
-   FitterFuncs::psfPtr_.reset(new FitterFuncs::PulseShapeFunctor(ps));
+   psfPtr_.reset(new FitterFuncs::PulseShapeFunctor(ps));
 }
 
 void PulseShapeFitOOTPileupCorrection::resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps) {
    ++ cntsetPulseShape;
-   FitterFuncs::psfPtr_.reset(new FitterFuncs::PulseShapeFunctor(ps));
+   psfPtr_.reset(new FitterFuncs::PulseShapeFunctor(ps));
 }
 
 void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs, const std::vector<int> & capidvec, const HcalCalibrations & calibs, std::vector<double> & correctedOutput) const
 {
-   FitterFuncs::cntNANinfit = 0;
+   psfPtr_->setDefaultcntNANinfit();
 
    const unsigned int cssize = cs.size();
    double chargeArr[cssize], pedArr[cssize];
@@ -236,7 +231,7 @@ void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs, const std::
       pulseShapeFit(energyArr, pedenArr, chargeArr, pedArr, tsTOTen, fitParsVec);
 //      double time = fitParsVec[1], ampl = fitParsVec[0], uncorr_ampl = fitParsVec[0];
    }
-   correctedOutput.swap(fitParsVec); correctedOutput.push_back(FitterFuncs::cntNANinfit);
+   correctedOutput.swap(fitParsVec); correctedOutput.push_back(psfPtr_->getcntNANinfit());
 }
 
 constexpr char const* sp_varNames[] = {"time", "energy", "ped"};
@@ -266,11 +261,15 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
    }
 
    double error = 1.;
+   double tmpx[10], tmpy[10], tmperry[10];
    for(int i=0;i<10;++i){
-      FitterFuncs::psFit_x[i]=i;
-      FitterFuncs::psFit_y[i]=energyArr[i];
-      FitterFuncs::psFit_erry[i]=error;
+      tmpx[i] = i;
+      tmpy[i] = energyArr[i];
+      tmperry[i] = error;
    }
+   psfPtr_->setpsFitx(tmpx);
+   psfPtr_->setpsFity(tmpy);
+   psfPtr_->setpsFiterry(tmperry);
 
    for(int i=0;i!=10;++i){
       if((chargeArr[i])>chargeThreshold_){
@@ -316,7 +315,7 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
          double vstart[3] = {iniTimesArr[i_tsmax], tsMAX_NOPED, 0};
          double step[3] = {0.1, 0.1, 0.1};
 
-         ROOT::Math::Functor spfunctor(&FitterFuncs::singlePulseShapeFunc, 3);
+         ROOT::Math::Functor spfunctor(psfPtr_.get(), &FitterFuncs::PulseShapeFunctor::singlePulseShapeFunc, 3);
 
          hybridfitter->SetFunction(spfunctor);
          hybridfitter->Clear();
@@ -348,7 +347,7 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
 
       } else {
 
-         ROOT::Math::Functor dpfunctor(&FitterFuncs::doublePulseShapeFunc, 5);
+         ROOT::Math::Functor dpfunctor(psfPtr_.get(), &FitterFuncs::PulseShapeFunctor::doublePulseShapeFunc, 5);
 
          hybridfitter->SetFunction(dpfunctor);
 

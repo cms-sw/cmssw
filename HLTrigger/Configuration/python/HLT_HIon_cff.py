@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_2_1/HIon/V33 (CMSSW_7_2_1_patch1)
+# /dev/CMSSW_7_2_1/HIon/V37 (CMSSW_7_2_1_patch1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_2_1/HIon/V33')
+  tableName = cms.string('/dev/CMSSW_7_2_1/HIon/V37')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -3739,7 +3739,7 @@ hltDt1DRecHits = cms.EDProducer( "DTRecHitProducer",
       tTrigMode = cms.string( "DTTTrigSyncFromDB" ),
       minTime = cms.double( -3.0 ),
       stepTwoFromDigi = cms.bool( False ),
-      doVdriftCorr = cms.bool( False ),
+      doVdriftCorr = cms.bool( True ),
       debug = cms.untracked.bool( False ),
       maxTime = cms.double( 420.0 ),
       tTrigModeConfig = cms.PSet( 
@@ -3769,7 +3769,7 @@ hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
         tTrigMode = cms.string( "DTTTrigSyncFromDB" ),
         minTime = cms.double( -3.0 ),
         stepTwoFromDigi = cms.bool( False ),
-        doVdriftCorr = cms.bool( False ),
+        doVdriftCorr = cms.bool( True ),
         debug = cms.untracked.bool( False ),
         maxTime = cms.double( 420.0 ),
         tTrigModeConfig = cms.PSet( 
@@ -3792,7 +3792,7 @@ hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
           tTrigMode = cms.string( "DTTTrigSyncFromDB" ),
           minTime = cms.double( -3.0 ),
           stepTwoFromDigi = cms.bool( False ),
-          doVdriftCorr = cms.bool( False ),
+          doVdriftCorr = cms.bool( True ),
           debug = cms.untracked.bool( False ),
           maxTime = cms.double( 420.0 ),
           tTrigModeConfig = cms.PSet( 
