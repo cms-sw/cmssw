@@ -5,16 +5,15 @@
  * Module name (as in PixelDatabase) in barrel
  */
 
-#include "DataFormats/SiPixelDetId/interface/PixelModuleName.h"
 #include <string>
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameBase.h"
+
 class DetId; 
 
-class PixelBarrelNameUpgrade : public PixelModuleName {
+class PixelBarrelNameUpgrade : public PixelModuleName, public PixelBarrelNameBase {
 public:
-
-  enum Shell { mO = 1, mI = 2 , pO =3 , pI =4 };
 
   /// ctor from DetId
   PixelBarrelNameUpgrade(const DetId &);
@@ -22,7 +21,7 @@ public:
   /// ctor for defined name with dummy parameters
   PixelBarrelNameUpgrade(Shell shell=mO, int layer=0, int module=0, int ladder=0)
     : PixelModuleName(true), 
-      thePart(shell), theLayer(layer), theModule(module), theLadder(ladder) 
+      PixelBarrelNameBase(shell, layer, module, ladder) 
   { }
 
   /// ctor from name string
@@ -32,17 +31,6 @@ public:
 
   /// from base class
   virtual std::string name() const;
-
-  Shell shell() const { return thePart; }
-
-  /// layer id 
-  int layerName() const { return theLayer; }   
-
-  /// module id (index in z) 
-  int moduleName() const { return theModule; }  
-
-  /// ladder id (index in phi) 
-  int ladderName() const { return theLadder; } 
 
   /// sector id
   int sectorName() const;
@@ -58,11 +46,6 @@ public:
 
   /// check equality of modules from datamemebers
   virtual bool operator== (const PixelModuleName &) const;
-
-private:
-  Shell thePart;
-  int theLayer, theModule, theLadder;
 };
 
-std::ostream & operator<<( std::ostream& out, const PixelBarrelNameUpgrade::Shell& t);
 #endif

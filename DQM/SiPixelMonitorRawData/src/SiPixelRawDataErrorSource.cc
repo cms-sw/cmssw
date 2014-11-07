@@ -39,10 +39,8 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameWrapper.h"
+#include "DataFormats/SiPixelDetId/interface/PixelEndcapNameWrapper.h"
 //
 #include <string>
 #include <stdlib.h>
@@ -181,11 +179,11 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup& iSetup){
 	uint32_t id = detId();
 	SiPixelRawDataErrorModule* theModule = new SiPixelRawDataErrorModule(id, ncols, nrows);
 	
-        PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(id)).halfCylinder();
-        int disk   = PixelEndcapName(DetId(id)).diskName();
-        int blade  = PixelEndcapName(DetId(id)).bladeName();
-        int panel  = PixelEndcapName(DetId(id)).pannelName();
-        int module = PixelEndcapName(DetId(id)).plaquetteName();
+        PixelEndcapNameBase::HalfCylinder side = PixelEndcapNameWrapper(conf_, DetId(id)).halfCylinder();
+        int disk   = PixelEndcapNameWrapper(conf_, DetId(id)).diskName();
+        int blade  = PixelEndcapNameWrapper(conf_, DetId(id)).bladeName();
+        int panel  = PixelEndcapNameWrapper(conf_, DetId(id)).pannelName();
+        int module = PixelEndcapNameWrapper(conf_, DetId(id)).plaquetteName();
 
         char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
         char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);
@@ -203,16 +201,16 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup& iSetup){
 	if(isPIB && mask) continue;
 		
 	thePixelStructure.insert(pair<uint32_t,SiPixelRawDataErrorModule*> (id,theModule));
-      }	else if( (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) && (isUpgrade)) {
+      }	else if( detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap) ) {
 	LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
 	uint32_t id = detId();
 	SiPixelRawDataErrorModule* theModule = new SiPixelRawDataErrorModule(id, ncols, nrows);
 	
-        PixelEndcapNameUpgrade::HalfCylinder side = PixelEndcapNameUpgrade(DetId(id)).halfCylinder();
-        int disk   = PixelEndcapNameUpgrade(DetId(id)).diskName();
-        int blade  = PixelEndcapNameUpgrade(DetId(id)).bladeName();
-        int panel  = PixelEndcapNameUpgrade(DetId(id)).pannelName();
-        int module = PixelEndcapNameUpgrade(DetId(id)).plaquetteName();
+        PixelEndcapNameBase::HalfCylinder side = PixelEndcapNameWrapper(conf_, DetId(id)).halfCylinder();
+        int disk   = PixelEndcapNameWrapper(conf_, DetId(id)).diskName();
+        int blade  = PixelEndcapNameWrapper(conf_, DetId(id)).bladeName();
+        int panel  = PixelEndcapNameWrapper(conf_, DetId(id)).pannelName();
+        int module = PixelEndcapNameWrapper(conf_, DetId(id)).plaquetteName();
 
         char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
         char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);

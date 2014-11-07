@@ -67,8 +67,7 @@ PixelBarrelNameUpgrade::PixelBarrelNameUpgrade(const DetId & id)
 
 // constructor from name string
 PixelBarrelNameUpgrade::PixelBarrelNameUpgrade(std::string name) 
-  : PixelModuleName(true), thePart(mO), theLayer(0),
-    theModule(0), theLadder(0) {
+  : PixelModuleName(true), PixelBarrelNameBase(mO, 0, 0, 0) {
   std::cout<<"NAME="<<name<<std::endl;
   // parse the name string
   // first, check to make sure this is an BPix name, should start with "BPix_"
@@ -314,19 +313,4 @@ PXBDetId PixelBarrelNameUpgrade::getDetId() {
   return PXBDetId(layer, ladder, module);
 
 } // PXBDetId PixelBarrelNameUpgrade::getDetId()
-
-
-
-std::ostream & operator<<( std::ostream& out, const PixelBarrelNameUpgrade::Shell& t)
-{
-  switch (t) {
-    case(PixelBarrelNameUpgrade::pI) : {out << "pI"; break;}
-    case(PixelBarrelNameUpgrade::pO) : {out << "pO"; break;}
-    case(PixelBarrelNameUpgrade::mI) : {out << "mI"; break;}
-    case(PixelBarrelNameUpgrade::mO) : {out << "mO"; break;}
-    default: out << "unknown";
-  };
-  return out;
-}
-
 
