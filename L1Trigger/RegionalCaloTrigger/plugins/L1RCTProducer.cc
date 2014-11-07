@@ -46,7 +46,7 @@ L1RCTProducer::L1RCTProducer(const edm::ParameterSet& conf) :
   getFedsFromOmds(conf.getParameter<bool>("getFedsFromOmds")),
   queryDelayInLS(conf.getParameter<unsigned int>("queryDelayInLS")),
   queryIntervalInLS(conf.getParameter<unsigned int>("queryIntervalInLS")),
-  conditionsLabel(conf.getUntrackedParameter<std::string>("conditionsLabel", "")),
+  conditionsLabel(conf.getParameter<std::string>("conditionsLabel")),
   fedUpdatedMask(0)
 {
   produces<L1CaloEmCollection>();
