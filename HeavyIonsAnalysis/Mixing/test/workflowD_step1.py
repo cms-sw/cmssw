@@ -12,7 +12,7 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContentHeavyIons_cff')
-process.load('HeavyIonsAnalysis.Mixing.HiMix_cff')
+process.load('HeavyIonsAnalysis.Mixing.HiMixGEN_cff')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.Geometry.GeometrySimDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
@@ -47,7 +47,7 @@ process.RAWSIMoutput = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
     outputCommands = process.RAWSIMEventContent.outputCommands,
-    fileName = cms.untracked.string('output_workflowD_step1_0.root'),
+    fileName = cms.untracked.string('output_workflowD_step1_2.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('GEN-SIM')
@@ -80,4 +80,4 @@ process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary
 for path in process.paths:
 	getattr(process,path)._seq = process.generator * getattr(process,path)._seq 
 
-
+for a in process.aliases: delattr(process, a)
