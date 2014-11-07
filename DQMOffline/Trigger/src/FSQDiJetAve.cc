@@ -40,6 +40,10 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 
+#include <DataFormats/TrackReco/interface/Track.h>
+#include <DataFormats/EgammaCandidates/interface/Photon.h>
+#include <DataFormats/MuonReco/interface/Muon.h>
+
 using namespace edm;
 using namespace std;
 
@@ -398,7 +402,12 @@ void HandlerTemplate<trigger::TriggerObject, trigger::TriggerObject>::getFiltere
 
 typedef HandlerTemplate<trigger::TriggerObject, trigger::TriggerObject> HLTHandler;
 typedef HandlerTemplate<reco::Candidate::LorentzVector, reco::Candidate::LorentzVector> RecoCandidateHandler;// in fact reco::Candidate, reco::Candidate::LorentzVector
-typedef HandlerTemplate<reco::PFJet, reco::PFJet> JetTestHandler;
+typedef HandlerTemplate<reco::PFJet, reco::PFJet> RecoPFJetHandler;
+typedef HandlerTemplate<reco::Track, reco::Track> RecoTrackHandler;
+typedef HandlerTemplate<reco::Photon, reco::Photon> RecoPhotonHandler;
+typedef HandlerTemplate<reco::Muon, reco::Muon> RecoMuonHandler;
+
+// muon, genPart
 }
 
 //################################################################################################
@@ -429,13 +438,22 @@ FSQDiJetAve::FSQDiJetAve(const edm::ParameterSet& iConfig):
         else if (type == "FromRecoCandidate") {
             m_handlers.push_back(std::shared_ptr<FSQ::RecoCandidateHandler>(new FSQ::RecoCandidateHandler(pset)));
         }
-        else if (type == "FromJet") {
-            m_handlers.push_back(std::shared_ptr<FSQ::JetTestHandler>(new FSQ::JetTestHandler(pset)));
-        } else {
+        else if (type == "RecoPFJet") {
+            m_handlers.push_back(std::shared_ptr<FSQ::RecoPFJetHandler>(new FSQ::RecoPFJetHandler(pset)));
+        }
+        else if (type == "RecoTrack") {
+            m_handlers.push_back(std::shared_ptr<FSQ::RecoTrackHandler>(new FSQ::RecoTrackHandler(pset)));
+        } 
+        else if (type == "RecoPhoton") {
+            m_handlers.push_back(std::shared_ptr<FSQ::RecoPhotonHandler>(new FSQ::RecoPhotonHandler(pset)));
+        } 
+        else if (type == "RecoMuon") {
+            m_handlers.push_back(std::shared_ptr<FSQ::RecoMuonHandler>(new FSQ::RecoMuonHandler(pset)));
+        } 
+        else {
             throw cms::Exception("FSQ DQM handler not know: "+ type);
         }
   }
-
 }
 
 
@@ -458,10 +476,7 @@ FSQDiJetAve::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   
   //---------- triggerResults ----------
-  //int npath;
   if(&m_triggerResults) {  
-    // Check how many HLT triggers are in triggerResults
-    //npath = m_triggerResults->size();
     m_triggerNames = iEvent.triggerNames(*m_triggerResults);
   } 
   else {
@@ -518,7 +533,6 @@ FSQDiJetAve::beginRun(edm::Run const& run, edm::EventSetup const& c)
     if (m_hltConfig.init(run, c, "TTT", changed)) {
         LogDebug("FSQDiJetAve") << "HLTConfigProvider failed to initialize.";
     }
-
 
     for (unsigned int i = 0; i < m_handlers.size(); ++i) {
         m_handlers.at(i)->beginRun();

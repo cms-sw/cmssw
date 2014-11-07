@@ -83,7 +83,7 @@ def getPTAveVPSet():
             # FromJet
             recoThr = t
             recoPF  =  cms.PSet(
-                handlerType = cms.string("FromJet"),
+                handlerType = cms.string("RecoPFJet"),
                 inputCol = cms.InputTag("ak4PFJetsCHS"),
                 partialPathName = cms.string(partialPathName),
                 partialFilterName  = cms.string("hltDiPFJetAve"),
