@@ -21,6 +21,7 @@ namespace l1t {
                etsums_(new EtSumBxCollection()),
                jets_(new JetBxCollection()),
                taus_(new TauBxCollection()),
+               isotaus_(new TauBxCollection()),
                calospareHFBitCounts_(new CaloSpareBxCollection()),
                calospareHFRingSums_(new CaloSpareBxCollection()) {};
 
@@ -31,6 +32,7 @@ namespace l1t {
             inline EtSumBxCollection* getEtSums() { return etsums_.get(); };
             inline JetBxCollection* getJets() { return jets_.get(); };
             inline TauBxCollection* getTaus() { return taus_.get(); };
+            inline TauBxCollection* getIsoTaus() { return isotaus_.get(); };
             inline CaloSpareBxCollection* getCaloSpareHFBitCounts() { return calospareHFBitCounts_.get(); };
             inline CaloSpareBxCollection* getCaloSpareHFRingSums() { return calospareHFRingSums_.get(); };
             
@@ -41,6 +43,7 @@ namespace l1t {
             std::auto_ptr<EtSumBxCollection> etsums_;
             std::auto_ptr<JetBxCollection> jets_;
             std::auto_ptr<TauBxCollection> taus_;
+            std::auto_ptr<TauBxCollection> isotaus_;
             std::auto_ptr<CaloSpareBxCollection> calospareHFBitCounts_;
             std::auto_ptr<CaloSpareBxCollection> calospareHFRingSums_;
       };

@@ -55,7 +55,9 @@ namespace l1t {
           for (auto j = calosparesHFBitCounts->begin(i); j != calosparesHFBitCounts->end(i) && n < 2; ++j, ++n) {
               hfbitcount=std::min(j->hwPt(),0xFFF);
           } 
-          
+                    
+          n=0;
+
           for (auto j = calosparesHFRingSums->begin(i); j != calosparesHFRingSums->end(i) && n < 2; ++j, ++n) {
               hfringsum=std::min(j->hwPt(),0xFFF);
           } 

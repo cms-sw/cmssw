@@ -49,6 +49,8 @@ public:
         
     MP7PacketReader( const std::string& path, uint32_t striphdr = 0, uint32_t stripftr = 0);
 
+    //    MP7PacketReader( MP7FileReader rdr, uint32_t striphdr = 0, uint32_t stripftr = 0);
+
     virtual ~MP7PacketReader();
 
     bool valid() const { return reader_.valid(); }
