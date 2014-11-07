@@ -38,6 +38,11 @@
 #include <string>
 #include <iomanip>
 #include <boost/algorithm/string.hpp>
+
+#include "EventFilter/L1TRawToDigi/interface/MP7FileReader.h"
+#include "EventFilter/L1TRawToDigi/interface/MP7PacketReader.h"
+#include "EventFilter/L1TRawToDigi/interface/Block.h"
+
 //
 // class declaration
 //
@@ -57,8 +62,9 @@ private:
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;
 
-  void findNextEvent();
-  std::vector<std::string> readLine(std::ifstream& file, int nLinks, int rxtx);
+  void fillBlocks(int iAmc);
+
+  void formatRaw(FEDRawData& feddata, int bx, int evtId, int orbit);
   
   //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
@@ -67,25 +73,25 @@ private:
   
   // ----------member data ---------------------------
 
-  // input files
-  std::string rxFilename_;
-  std::string txFilename_;
-  std::ifstream rxFile_;
-  std::ifstream txFile_;
-  int rxLine_;
-  int txLine_;
+  // file readers
+  MP7FileReader rxFileReader_;
+  MP7FileReader txFileReader_;
+  unsigned rxIndex_;
+  unsigned txIndex_;
 
-  // input file parameters
-  int nTextHeaderLines_;
+
+  // packet reader (if needed)
+  //  MP7PacketReader rxPacketReader_;
+  //  MP7PacketReader txPacketReader_;
+
+  // formatting parameters
   bool packetisedData_;
-  int nFramesPerEvent_;
-  int txLatency_;
-  int nRxLinks_;
-  int nTxLinks_;
-  int nRxEventHeaders_;
-  int nTxEventHeaders_;
-  bool doRx_;
-  bool doTx_;
+ 
+  // non packetised data parameters
+  unsigned nFramesPerEvent_;
+
+  // packetised data parameters
+
 
   // DAQ parameters
   int fedId_;
@@ -97,9 +103,12 @@ private:
   int lenAMC13Trailer_;
   int lenAMCHeader_;   
   int lenAMCTrailer_;   
-
   std::vector<int> rxBlockLength_;
   std::vector<int> txBlockLength_;  
+
+
+  // the data
+  std::vector<Block> blocks_;
 
 };
 
@@ -114,63 +123,36 @@ private:
 //
 // constructors and destructor
 //
-MP7BufferDumpToRaw::MP7BufferDumpToRaw(const edm::ParameterSet& iConfig)
+  MP7BufferDumpToRaw::MP7BufferDumpToRaw(const edm::ParameterSet& iConfig) :
+    rxFileReader_(iConfig.getUntrackedParameter<std::string>("rxFile", "rx_summar\
+y.txt")),
+    txFileReader_(iConfig.getUntrackedParameter<std::string>("txFile", "tx_summar\
+y.txt")),
+    rxIndex_(0),
+    txIndex_(0),
+    packetisedData_(iConfig.getUntrackedParameter<bool>("packetisedData", true)),
+    nFramesPerEvent_(iConfig.getUntrackedParameter<unsigned>("nFramesPerEvent", 6)),
+    fedId_(iConfig.getUntrackedParameter<int>("fedId", 1)),
+    evType_(iConfig.getUntrackedParameter<int>("eventType", 1)),
+    fwVer_(iConfig.getUntrackedParameter<int>("fwVersion", 1)),
+    lenSlinkHeader_(iConfig.getUntrackedParameter<int>("lenSlinkHeader", 16)),
+    lenSlinkTrailer_(iConfig.getUntrackedParameter<int>("lenSlinkTrailer", 16)),
+    lenAMC13Header_(iConfig.getUntrackedParameter<int>("lenAMC13Header", 0)),
+    lenAMC13Trailer_(iConfig.getUntrackedParameter<int>("lenAMC13Trailer", 0)),
+    lenAMCHeader_(iConfig.getUntrackedParameter<int>("lenAMCHeader", 12)),
+    lenAMCTrailer_(iConfig.getUntrackedParameter<int>("lenAMCTrailer", 8)),
+    rxBlockLength_(iConfig.getUntrackedParameter< std::vector<int> >("rxBlockLength")),
+    txBlockLength_(iConfig.getUntrackedParameter< std::vector<int> >("txBlockLength"))
 {
 
   produces<FEDRawDataCollection>();
 
-  //now do what ever initialization is needed
-  rxFilename_ = iConfig.getUntrackedParameter<std::string>("rxFile", "rx_summary.txt");
-  txFilename_ = iConfig.getUntrackedParameter<std::string>("txFile", "tx_summary.txt");
-
-  rxLine_ = 0;
-  txLine_ = 0;
-
-  nTextHeaderLines_ = iConfig.getUntrackedParameter<int>("nTextHeaderLines", 3);
-  packetisedData_ = iConfig.getUntrackedParameter<bool>("packetisedData", true);
-  nFramesPerEvent_ = iConfig.getUntrackedParameter<int>("nFramesPerEvent", 41);
-  txLatency_= iConfig.getUntrackedParameter<int>("txLatency", 61);
-
-  nRxLinks_ = iConfig.getUntrackedParameter<int>("nRxLinks", 72);
-  nTxLinks_ = iConfig.getUntrackedParameter<int>("nTxLinks", 72);
-
-  nRxEventHeaders_ = iConfig.getUntrackedParameter<int>("nRxEventHeaders", 0);
-  nTxEventHeaders_ = iConfig.getUntrackedParameter<int>("nTxEventHeaders", 0);
-
-  if (nRxEventHeaders_>1) {
-    edm::LogError("mp7") << "Invalid config : nRxEventHeaders can be 0 or 1" << std::endl;
+  // advance pointers for non packetised data
+  if (!packetisedData_) {
+    rxIndex_ += iConfig.getUntrackedParameter<int>("nFramesOffset", 0);
+    txIndex_ += rxIndex_;
+    txIndex_ += iConfig.getUntrackedParameter<int>("nFramesLatency", 0);
   }
-  if (nTxEventHeaders_>1) {
-    edm::LogError("mp7") << "Invalid config : nTxEventHeaders can be 0 or 1" << std::endl;
-  }
-
-  doRx_ = (nRxLinks_>0 && rxFilename_.size()>0);
-  doTx_ = (nTxLinks_>0 && txFilename_.size()>0);
-
-  // DAQ parameters
-  fedId_ = iConfig.getUntrackedParameter<int>("fedId", 1);
-  evType_ = iConfig.getUntrackedParameter<int>("eventType", 1);
-  fwVer_ = iConfig.getUntrackedParameter<int>("fwVersion", 1);
-  lenSlinkHeader_ = iConfig.getUntrackedParameter<int>("lenSlinkHeader", 16);
-  lenSlinkTrailer_ = iConfig.getUntrackedParameter<int>("lenSlinkTrailer", 16);
-  lenAMC13Header_ = iConfig.getUntrackedParameter<int>("lenAMC13Header", 0);
-  lenAMC13Trailer_ = iConfig.getUntrackedParameter<int>("lenAMC13Trailer", 0);
-  lenAMCHeader_   = iConfig.getUntrackedParameter<int>("lenAMCHeader", 12);
-  lenAMCTrailer_   = iConfig.getUntrackedParameter<int>("lenAMCTrailer", 8);
-
-  rxBlockLength_ = iConfig.getUntrackedParameter< std::vector<int> >("rxBlockLength");
-  txBlockLength_ = iConfig.getUntrackedParameter< std::vector<int> >("txBlockLength");
-
-  if (rxBlockLength_.size() != (unsigned) nRxLinks_) {
-    edm::LogError("mp7") << "Inconsistent configuration : N block lengths=" << rxBlockLength_.size() << " for " << nRxLinks_ << " Rx links" << std::endl;
-  }
-
-  if (txBlockLength_.size() != (unsigned) nTxLinks_) {
-    edm::LogError("mp7") << "Inconsistent configuration : N block lengths=" << txBlockLength_.size() << " for " << nTxLinks_ << " Tx links" << std::endl;
-  }
-
-
-  edm::LogInfo("mp7") << "nRxLinks = " << nRxLinks_ << " nTxLinks=" << nTxLinks_ << std::endl;
 
 }
 
@@ -194,96 +176,95 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
 
-  // read forward to next valid event
-  findNextEvent();
-  
-  // array of data (frame, link)
-  std::vector< std::vector< int > > rxData(nRxLinks_, std::vector<int>(0));
-  std::vector< std::vector< int > > txData(nTxLinks_, std::vector<int>(0));
+  // fill the block structure
+  blocks_.clear();
 
-  // read lines from file
-  int nFramesRead = 0;
-  while (nFramesRead < nFramesPerEvent_) {
+  int iAmc=0;
+  fillBlocks(iAmc);
+
+  // create the collection
+  std::auto_ptr<FEDRawDataCollection> rawColl(new FEDRawDataCollection()); 
+  
+  // retrieve the target buffer
+  FEDRawData& feddata=rawColl->FEDData(fedId_);
+
+  // fill the RAW data
+  int bx = iEvent.bunchCrossing();
+  int evtId = iEvent.id().event();
+  long int orbit = iEvent.orbitNumber();
+  
+  formatRaw(feddata, bx, evtId, orbit);
+
+  // put the collection in the event
+  iEvent.put(rawColl);  
+
+}
+
+
+
+void
+MP7BufferDumpToRaw::fillBlocks(int iAmc)
+{
+
+  // Rx blocks first
+  for (unsigned i=0; i<rxBlockLength_.size(); ++i) {
     
-    std::vector<std::string> rxStrData;
-    std::vector<std::string> txStrData;
-    if (doRx_) rxStrData = readLine(rxFile_, nRxLinks_, 0);
-    if (doTx_) txStrData = readLine(txFile_, nTxLinks_, 1);
+    unsigned id   = i*2;
+    unsigned size = rxBlockLength_.at(i);
 
-    // store data
-    int nRxValidLinks(0), nTxValidLinks(0);
-    for (int iLink=0; iLink<nRxLinks_; ++iLink) {
-
-      // check data is valid
-      int dataValid = std::stoul(rxStrData.at(iLink+1).substr(0,1));
-      if (dataValid==1) {
-	rxStrData.at(iLink+1).erase(0,2);  // remove 1v from start of word
-	rxData.at(iLink).push_back( std::stoul(rxStrData.at(iLink+1), nullptr, 16) );
-	nRxValidLinks++;
+    std::vector<uint32_t> data;
+    for (unsigned iFrame=rxIndex_; iFrame<size; ++iFrame) {
+      if (!packetisedData_) {
+	data.push_back( rxFileReader_.get(iAmc).link(i).at(iFrame) );
       }
-
     }
-
-    // store data
-    for (int iLink=0; iLink<nTxLinks_; ++iLink) {
-      // check data is valid
-      int dataValid = std::stoul(txStrData.at(iLink+1).substr(0,1));
-      if (dataValid==1) {
-	txStrData.at(iLink+1).erase(0,2);  // remove 1v from start of word
-	txData.at(iLink).push_back( std::stoul(txStrData.at(iLink+1), nullptr, 16) );
-	nTxValidLinks++;
-      }
-
-    }
-
-    LogDebug("mp7") << "Rx Frame " << rxStrData.at(0) << " " << nRxValidLinks << ", Tx Frame " << txStrData.at(0) << " " << nTxValidLinks << std::endl;
     
-    nFramesRead++;
-
+    Block block(id, data);
+    blocks_.push_back(block);
+    
   }
-
-  edm::LogInfo("mp7") << "Finished reading event at Rx line " << rxLine_ << ", Tx line " << txLine_ << std::endl;
-
-  // check size of vectors
-  int maxRxFrames=0;
-  int totalRxWord32s=0;
-  std::ostringstream rxInfo;
-  rxInfo << "Rx data : ";
-  for (int iLink=0; iLink<nRxLinks_; iLink++) {
-    int nf = (int) rxData.at(iLink).size();
-    if (nf > maxRxFrames) maxRxFrames = nf;
-    totalRxWord32s+= nf;
-    rxInfo << nf << " ";
-  }
-  edm::LogInfo("mp7") << rxInfo.str() << std::endl;
-
-  int maxTxFrames=0;
-  int totalTxWord32s=0;
-  std::ostringstream txInfo;
-  txInfo << "Tx data : ";
-  for (int iLink=0; iLink<nTxLinks_; iLink++) {
-    int nf = (int) txData.at(iLink).size();
-    if (nf > maxTxFrames) maxTxFrames = nf;
-    totalTxWord32s += nf;
-    txInfo << nf << " ";
-  }
-  edm::LogInfo("mp7") << txInfo.str() << std::endl;
   
-  edm::LogInfo("mp7") << "Rx summary : Max frames=" << maxRxFrames << " total word32s=" << totalRxWord32s << std::endl;
-  edm::LogInfo("mp7") << "Tx summary : Max frames=" << maxTxFrames << " total word32s=" << totalTxWord32s << std::endl;
+  // then Tx blocks
+  for (unsigned i=0; i<txBlockLength_.size(); ++i) {
+    
+    unsigned id   = (i*2)+1;
+    unsigned size = txBlockLength_.at(i);
 
-  // captured data size
+    std::vector<uint32_t> data(size);
+    for (unsigned iFrame=txIndex_; iFrame<size; ++iFrame) {
+      if (!packetisedData_) {
+	data.push_back( txFileReader_.get(iAmc).link(i).at(iFrame) );
+      }
+    }
+    
+    Block block(id, data);
+
+    blocks_.push_back(block);
+
+  }
+
+  // advance pointers to next event
+  if (!packetisedData_) {
+    rxIndex_ += nFramesPerEvent_;
+    txIndex_ += nFramesPerEvent_;
+  }
   
-
-
-  if (maxRxFrames==0 || maxTxFrames==0) return;
+}    
+  
+  
+void
+MP7BufferDumpToRaw::formatRaw(FEDRawData& feddata, int bx, int evtId, int orbit)
+{
 
   // now create the raw data array
-  int capEvtSize = (totalRxWord32s+totalTxWord32s)*4;
+  int capEvtSize = 0;
+  for (std::vector<Block>::const_iterator itr=blocks_.begin(); itr!=blocks_.end(); ++itr) {
+    capEvtSize += itr->getSize() + 1;
+  }
 
   int amcSize = 0;
-  for (int i=0; i<nRxLinks_; ++i) amcSize += 4 * (rxBlockLength_.at(i) + 1);
-  for (int i=0; i<nTxLinks_; ++i) amcSize += 4 * (txBlockLength_.at(i) + 1);
+  for (unsigned i=0; i<rxBlockLength_.size(); ++i) amcSize += 4 * (rxBlockLength_.at(i) + 1);
+  for (unsigned i=0; i<txBlockLength_.size(); ++i) amcSize += 4 * (txBlockLength_.at(i) + 1);
 
   int fedSize = amcSize;
   fedSize += lenSlinkHeader_;
@@ -297,19 +278,9 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::LogInfo("mp7") << "Captured event size=" << capEvtSize << ", AMCsize=" << amcSize << ", FED size=" << fedSize << std::endl;
 
   // event info for headers
-  int bx = iEvent.bunchCrossing();
-  int evtId = iEvent.id().event();
-  long int orbit = iEvent.orbitNumber();
-  
   edm::LogInfo("mp7") << "Event : " << evtId << " orbit=" << orbit << " bx=" << bx << std::endl;
 
 
-  // create the collection
-  std::auto_ptr<FEDRawDataCollection> rawColl(new FEDRawDataCollection()); 
-  
-  // retrieve the target buffer
-  FEDRawData& feddata=rawColl->FEDData(fedId_);
-  
   // Allocate space for header+trailer+payload
   feddata.resize(fedSize);
 
@@ -362,89 +333,89 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iWord += lenAMCHeader_;
   std::ostringstream payloadInfo;
 
-  for (int iBlock=0; iBlock<nRxLinks_ && iWord<fedSize; ++iBlock) {
+  //  for (int iBlock=0; iBlock<nRxLinks_ && iWord<fedSize; ++iBlock) {
 
-    int blockId     = 2*iBlock;
-    int blockLength = rxBlockLength_.at(iBlock);
+  //    int blockId     = 2*iBlock;
+  //    int blockLength = rxBlockLength_.at(iBlock);
 
     // write block header
-    feddata.data()[iWord+2] = blockLength & 0xff;
-    feddata.data()[iWord+3] = blockId & 0xff;
-    iWord+=4;
+  //    feddata.data()[iWord+2] = blockLength & 0xff;
+  //    feddata.data()[iWord+3] = blockId & 0xff;
+  //    iWord+=4;
 
-    if (blockLength!=0) {
-      payloadInfo << ", " << (blockId&0xff) << " (" << (blockLength&0xff) << ")";
-    }
+  //    if (blockLength!=0) {
+  //      payloadInfo << ", " << (blockId&0xff) << " (" << (blockLength&0xff) << ")";
+  //    }
 
-    if (blockLength>(int)rxData.at(iBlock).size()) {
-      edm::LogError("mp7") << "Read insufficient data for block " << blockId <<". Expected " << rxBlockLength_.at(iBlock) << " read " << rxData.at(iBlock).size() << " from Rx link " << iBlock << std::endl;
-      continue;
-    }
+  //    if (blockLength>(int)rxData.at(iBlock).size()) {
+  //      edm::LogError("mp7") << "Read insufficient data for block " << blockId <<". Expected " << rxBlockLength_.at(iBlock) << " read " << rxData.at(iBlock).size() << " from Rx link " << iBlock << std::endl;
+  //      continue;
+  //    }
 
-    for (int i=0; i<blockLength; ++i) {
-      if(i < (int)rxData.at(iBlock).size()) {
-	feddata.data()[iWord]   = rxData.at(iBlock).at(i) & 0xff;
-	feddata.data()[iWord+1] = (rxData.at(iBlock).at(i) >> 8) & 0xff;
-	feddata.data()[iWord+2] = (rxData.at(iBlock).at(i) >> 16) & 0xff;
-	feddata.data()[iWord+3] = (rxData.at(iBlock).at(i) >> 24) & 0xff;
-	iWord+=4;
-      }
-      else {
-	feddata.data()[iWord]   = 0;
-	feddata.data()[iWord+1] = 0;
-	feddata.data()[iWord+2] = 0;
-	feddata.data()[iWord+3] = 0;
-	iWord+=4;
-      }
-    }
+  //    for (int i=0; i<blockLength; ++i) {
+  //      if(i < (int)rxData.at(iBlock).size()) {
+  //	feddata.data()[iWord]   = rxData.at(iBlock).at(i) & 0xff;
+  //	feddata.data()[iWord+1] = (rxData.at(iBlock).at(i) >> 8) & 0xff;
+  //	feddata.data()[iWord+2] = (rxData.at(iBlock).at(i) >> 16) & 0xff;
+  //	feddata.data()[iWord+3] = (rxData.at(iBlock).at(i) >> 24) & 0xff;
+  //	iWord+=4;
+  //      }
+  //      else {
+  //	feddata.data()[iWord]   = 0;
+  //	feddata.data()[iWord+1] = 0;
+  //	feddata.data()[iWord+2] = 0;
+  //	feddata.data()[iWord+3] = 0;
+  //	iWord+=4;
+  //      }
+  //    }
 
-  }
+  //  }
 
-  edm::LogInfo("mp7") << "Rx blocks : " << payloadInfo.str() << std::endl;
+  //  edm::LogInfo("mp7") << "Rx blocks : " << payloadInfo.str() << std::endl;
 
   // now do Tx links
   // strictly these will appear in the wrong place
   // they should be interspersed with Rx channels, not appended
 
-  payloadInfo.str("");
+  //  payloadInfo.str("");
 
-  for (int iBlock=0; iBlock<nTxLinks_ && iWord<fedSize; ++iBlock) {
+  //  for (int iBlock=0; iBlock<nTxLinks_ && iWord<fedSize; ++iBlock) {
 
-    int blockId     = (2*iBlock)+1;
-    int blockLength = txBlockLength_.at(iBlock);
+  //    int blockId     = (2*iBlock)+1;
+  //    int blockLength = txBlockLength_.at(iBlock);
 
-    // write block header
-    feddata.data()[iWord+2] = blockLength & 0xff;
-    feddata.data()[iWord+3] = blockId & 0xff;
-    iWord+=4;
+  //    // write block header
+  //    feddata.data()[iWord+2] = blockLength & 0xff;
+  //    feddata.data()[iWord+3] = blockId & 0xff;
+  //    iWord+=4;
 
-    payloadInfo << ", " << (blockId&0xff) << "(" << (blockLength&0xff) << ")";
+  //    payloadInfo << ", " << (blockId&0xff) << "(" << (blockLength&0xff) << ")";
 
-    if (blockLength>(int)txData.at(iBlock).size()) {
-      edm::LogError("mp7") << "Read insufficient data for block " << blockId <<". Expected " << blockLength << " read " << txData.at(iBlock).size() << " from Tx link " << iBlock << std::endl;
-      continue;
-    }
+  //    if (blockLength>(int)txData.at(iBlock).size()) {
+  //      edm::LogError("mp7") << "Read insufficient data for block " << blockId <<". Expected " << blockLength << " read " << txData.at(iBlock).size() << " from Tx link " << iBlock << std::endl;
+  //      continue;
+  //    }
 
-    for (int i=0; i<blockLength; ++i) {
-      if (i<(int)txData.at(iBlock).size()) {
-	feddata.data()[iWord]   = txData.at(iBlock).at(i) & 0xff;
-	feddata.data()[iWord+1] = (txData.at(iBlock).at(i) >> 8) & 0xff;
-	feddata.data()[iWord+2] = (txData.at(iBlock).at(i) >> 16) & 0xff;
-	feddata.data()[iWord+3] = (txData.at(iBlock).at(i) >> 24) & 0xff;
-	iWord+=4;
-      }
-      else {
-	feddata.data()[iWord]   = 0;
-	feddata.data()[iWord+1] = 0;
-	feddata.data()[iWord+2] = 0;
-	feddata.data()[iWord+3] = 0;
-	iWord+=4;
-      }
-    }
+  //    for (int i=0; i<blockLength; ++i) {
+  //      if (i<(int)txData.at(iBlock).size()) {
+  //	feddata.data()[iWord]   = txData.at(iBlock).at(i) & 0xff;
+  //	feddata.data()[iWord+1] = (txData.at(iBlock).at(i) >> 8) & 0xff;
+  //	feddata.data()[iWord+2] = (txData.at(iBlock).at(i) >> 16) & 0xff;
+  //	feddata.data()[iWord+3] = (txData.at(iBlock).at(i) >> 24) & 0xff;
+  //	iWord+=4;
+  //      }
+  //      else {
+  //	feddata.data()[iWord]   = 0;
+  //	feddata.data()[iWord+1] = 0;
+  //	feddata.data()[iWord+2] = 0;
+  //	feddata.data()[iWord+3] = 0;
+  //	iWord+=4;
+  //      }
+  //    }
 
-  }
+  //  }
 
-  edm::LogInfo("mp7") << "Tx blocks : " << payloadInfo.str() << std::endl;
+  //  edm::LogInfo("mp7") << "Tx blocks : " << payloadInfo.str() << std::endl;
 
   // write AMC trailer
   feddata.data()[iWord]   = evtId & 0xff;
@@ -464,8 +435,6 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   edm::LogInfo("mp7") << "End of packet after " << iWord+8 << " bytes  of " << fedSize << std::endl;
 
-  // put the collection in the event
-  iEvent.put(rawColl);
 
 }
 
@@ -475,25 +444,7 @@ void
 MP7BufferDumpToRaw::beginJob()
 {
 
-  // open files and read headers
-  if (doRx_) rxFile_.open(rxFilename_.c_str());
-  if (doTx_) txFile_.open(txFilename_.c_str());
 
-  std::string line;
-  for (int i=0; doRx_ && i<nTextHeaderLines_; ++i) {
-    std::getline(rxFile_, line);
-    rxLine_++;
-  }
-
-  edm::LogInfo("mp7") << "Skipped Rx file to line " << rxLine_ << std::endl;
-
-
-  for (int i=0; doTx_ && i<nTextHeaderLines_+txLatency_-1; ++i) {
-    std::getline(txFile_, line);
-    txLine_++;
-  }
-
-  edm::LogInfo("mp7") << "Skipped Tx file to line " << txLine_ << std::endl;
 
 }
 
@@ -503,9 +454,6 @@ void
 MP7BufferDumpToRaw::endJob() 
 {
 
-  // close files
-  if (doRx_) rxFile_.close();
-  if (doTx_) txFile_.close();
 
 }
 
@@ -549,109 +497,6 @@ MP7BufferDumpToRaw::fillDescriptions(edm::ConfigurationDescriptions& description
   edm::ParameterSetDescription desc;
   desc.setUnknown();
   descriptions.addDefault(desc);
-}
-
-void
-MP7BufferDumpToRaw::findNextEvent() {
-
-  // find the first event
-  edm::LogInfo("mp7") << "Search for Rx event" << std::endl;
-
-  if (!packetisedData_) return;
-
-  int lastFlag=1;
-  bool dataValid = false;
-  while (!dataValid && doRx_) {
-
-    std::streampos pos = rxFile_.tellg();
-
-    std::vector<std::string> rxData = readLine(rxFile_, nRxLinks_, 0);
-
-    int iFrame = std::stoul(rxData.at(0));
-
-    // check for data valid in first link
-    int newFlag = std::stoul(rxData.at(1).substr(0,1));
-    if (newFlag==1 && lastFlag==0) {
-      dataValid = true;
-      edm::LogInfo("mp7") << "Found Rx event at frame " << iFrame << " line " << rxLine_ << std::endl;
-      if (nRxEventHeaders_ == 0) 
-	rxFile_.seekg(pos);
-    }
-    else {
-      lastFlag = newFlag;
-    }
-
-  }
-
-  // same again for Tx
-  edm::LogInfo("mp7") << "Search for Tx event" << std::endl;
-
-  lastFlag = 1;
-  dataValid = false;
-  while (!dataValid && doTx_) {
-
-    std::streampos pos = txFile_.tellg();
-
-    std::vector<std::string> txData = readLine(txFile_, nTxLinks_, 1);
-
-    int iFrame = std::stoul(txData.at(0));
-
-    // check for data valid in first link
-    int newFlag = std::stoul(txData.at(1).substr(0,1));
-    if (newFlag==1 && lastFlag==0) {
-      dataValid = true;
-      edm::LogInfo("mp7") << "Found Tx event at frame " << iFrame << " line " << txLine_ << std::endl;
-      if (nTxEventHeaders_ == 0) 
-	txFile_.seekg(pos);
-    }
-    else {
-      lastFlag = newFlag;
-    }
-
-  }
-  
-
-}
-
-std::vector<std::string>
-MP7BufferDumpToRaw::readLine(std::ifstream& file, int nLinks, int rxtx) {
-
-  // input buffers
-  std::string line;
-  if (file.eof()) {
-    edm::LogError("mp7") << "End of input file! " << file << std::endl;
-    throw cms::Exception("FileReader") << "End of file, bailing out" << file << std::endl;
-  }
-  else {
-    std::getline(file, line);
-    if (rxtx==0) rxLine_++;
-    else txLine_++;
-  }
-  
-  // split line into tokens
-  std::vector<std::string> data;
-  boost::split(data, line, boost::is_any_of("\t "),boost::token_compress_on);
-  
-  // check we have read the right number of link words
-  if ((int)data.size()-3 != nLinks) {
-    if (rxtx==0) {
-      edm::LogError("mp7") << "Read " << data.size() << " links, expected " << nLinks << " in Rx file at line " << rxLine_ << std::endl;
-      throw cms::Exception("FileReader") << "Wrong number of links in file" << std::endl;
-    }
-    else {
-      edm::LogError("mp7") << "Read " << data.size() << " links, expected " << nLinks << " in Tx file at line " << txLine_ << std::endl;
-      throw cms::Exception("FileReader") << "Wrong number of links in file" << std::endl;
-    }
-  }
-  
-  // remove "Frame" and ":"
-  std::vector<std::string>::iterator itr = data.begin();
-  data.erase(itr);
-  itr++;
-  data.erase(itr);
-
-  return data;
-  
 }
 
 }
