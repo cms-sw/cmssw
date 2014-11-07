@@ -1906,3 +1906,58 @@ TrackerCRAFTScenario = copy.deepcopy(Tracker10pbScenario)
 TrackerCRAFTScenario.TIBHalfBarrels = copy.deepcopy(Tracker100pbScenario.TIBHalfBarrels)
 TrackerCRAFTScenario.TOBHalfBarrels = copy.deepcopy(Tracker100pbScenario.TOBHalfBarrels)
 TrackerCRAFTScenario.TPEEndcaps = copy.deepcopy(TrackerSurveyLASOnlyScenario.TPEEndcaps)
+
+# -----------------------------------------------------------------------
+# LS1BPixRepairScenario
+# ---------------------
+# This scenario mimics the shifts introduced by the BPix repair work
+# during LS1. It contains only the aditional movements. It is intended
+# for use in realignment studies.
+# Object presented in the TkAlignment meeting of Oct 30, 2014
+# https://indico.cern.ch/event/337181/, talk by Ekaterina Avdeeva
+# -----------------------------------------------------------------------
+LS1BPixRepairScenario = cms.PSet(
+    MisalignmentScenarioSettings,
+    TPBHalfBarrel2=cms.PSet(
+        TPBLayers=cms.PSet(
+            dX= cms.double(0.01),
+            dY= cms.double(0.01),
+            dZ= cms.double(0.02),
+            TPBLadders=cms.PSet(
+                DetUnit1=cms.PSet(
+                    dXlocal = cms.double(0.006),
+                    phiXlocal = cms.double(0.00027),
+                    dYlocal = cms.double(0.006),
+                    phiYlocal = cms.double(0.00027),
+                    dZlocal = cms.double(0.006),
+                    phiZlocal = cms.double(0.00027)
+                ),#DetUnit1
+                DetUnit2=cms.PSet(
+                    dXlocal = cms.double(0.006),
+                    phiXlocal = cms.double(0.00027),
+                    dYlocal = cms.double(0.006),
+                    phiYlocal = cms.double(0.00027),
+                    dZlocal = cms.double(0.006),
+                    phiZlocal = cms.double(0.00027)
+                ),#DetUnit2
+                DetUnit3=cms.PSet(
+                    dXlocal = cms.double(0.006),
+                    phiXlocal = cms.double(0.00027),
+                    dYlocal = cms.double(0.006),
+                    phiYlocal = cms.double(0.00027),
+                    dZlocal = cms.double(0.006),
+                    phiZlocal = cms.double(0.00027)
+                ),#DetUnit3
+                DetUnit4=cms.PSet(
+                    dXlocal = cms.double(0.006),
+                    phiXlocal = cms.double(0.00027),
+                    dYlocal = cms.double(0.006),
+                    phiYlocal = cms.double(0.00027),
+                    dZlocal = cms.double(0.006),
+                    phiZlocal = cms.double(0.00027)
+                )#DetUnit4
+            )#TPBLadders
+        )#TPBLayers
+    )#TPBHalfBarrel2
+)
+
