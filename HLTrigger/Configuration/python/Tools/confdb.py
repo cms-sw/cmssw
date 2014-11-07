@@ -54,8 +54,8 @@ class HLTProcess(object):
     "HLT_DoubleMu23NoFiltersNoVtxDisplaced_v*",
     "HLT_DoubleMu28NoFiltersNoVtxDisplaced_v*",
     "HLT_Mu28NoFiltersNoVtxDisplaced_Photon28_CaloIdL_v*",
-    "HLT_Mu33NoFiltersNoVtxDisplaced_Photon33_CaloIdL_v*"
-    "HLT_HT350_DisplacedDijet80_Tight_DisplacedTrack_v*"
+    "HLT_Mu33NoFiltersNoVtxDisplaced_Photon33_CaloIdL_v*",
+    "HLT_HT350_DisplacedDijet80_Tight_DisplacedTrack_v*",
     "HLT_HT350_DisplacedDijet80_DisplacedTrack_v*"
   )
 
