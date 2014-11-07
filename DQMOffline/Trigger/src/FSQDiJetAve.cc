@@ -139,7 +139,8 @@ class HandlerTemplate: public BaseHandler {
                     double rangeHigh =  m_drawables.at(i).getParameter<double>("max");
 
                     m_histos[histoName] =  m_dbe->book1D(histoName, histoName, bins, rangeLow, rangeHigh);
-                    StringObjectFunction<std::vector<TInputCandidateType> > * func = new StringObjectFunction<std::vector<TInputCandidateType> >(expression);
+                    StringObjectFunction<std::vector<TOutputCandidateType> > * func 
+                            = new StringObjectFunction<std::vector<TOutputCandidateType> >(expression);
                     m_plotters[histoName] =  std::shared_ptr<StringObjectFunction<std::vector<TOutputCandidateType> > >(func);
                 }   
             }
@@ -237,6 +238,7 @@ class HandlerTemplate: public BaseHandler {
             getFilteredCands((TInputCandidateType *)0, cands, iEvent, iSetup, hltConfig, trgEvent);
 
             if (cands.size()==0) return;
+
             std::vector<TOutputCandidateType> bestCombinationFromCands = getBestCombination(cands);
             if (bestCombinationFromCands.size()==0) return;
 
@@ -263,6 +265,8 @@ class HandlerTemplate: public BaseHandler {
                 cnt += 1;
                 maxCombinations *= columnSize;
             }
+
+            cnt = 0;
             float bestCombinedCandVal = -1;
             while ( cnt < maxCombinations){
                 cnt += 1;
@@ -319,7 +323,8 @@ class HandlerTemplate: public BaseHandler {
                 }
             } // combinations loop ends
 
-            std::vector<TInputCandidateType > bestCombinationFromCands;
+            //XXX
+            std::vector<TOutputCandidateType > bestCombinationFromCands;
             if (bestCombination.size()!=0 && bestCombination.at(0)>=0){
                 for (int i = 0; i<m_combinedObjectDimension;++i){
                           bestCombinationFromCands.push_back( cands.at(bestCombination.at(i)));
@@ -349,6 +354,32 @@ void HandlerTemplate<reco::Candidate::LorentzVector, reco::Candidate::LorentzVec
         bool preselection = m_singleObjectSelection(hIn->at(i).p4());
         if (preselection){
             cands.push_back(hIn->at(i).p4());
+        }
+   }
+}
+//#############################################################################
+//
+// Count any object inheriting from reco::Candidate. Save into std::vector<int>
+//
+//#############################################################################
+template<>
+void HandlerTemplate<reco::Candidate::LorentzVector, int >::getFilteredCands(
+             reco::Candidate::LorentzVector *, // pass a dummy pointer, makes possible to select correct getFilteredCands
+             std::vector<int > & cands, // output collection
+             const edm::Event& iEvent,  
+             const edm::EventSetup& iSetup,
+             const HLTConfigProvider&  hltConfig,
+             const trigger::TriggerEvent& trgEvent)
+{  
+   cands.clear();
+   cands.push_back(0);
+
+   Handle<View<reco::Candidate> > hIn;
+   iEvent.getByLabel(InputTag(m_input), hIn);
+   for (unsigned int i = 0; i<hIn->size(); ++i) {
+        bool preselection = m_singleObjectSelection(hIn->at(i).p4());
+        if (preselection){
+            cands.at(0)+=1;
         }
    }
 }
@@ -407,6 +438,8 @@ typedef HandlerTemplate<reco::Track, reco::Track> RecoTrackHandler;
 typedef HandlerTemplate<reco::Photon, reco::Photon> RecoPhotonHandler;
 typedef HandlerTemplate<reco::Muon, reco::Muon> RecoMuonHandler;
 
+typedef HandlerTemplate<reco::Candidate::LorentzVector, int > RecoCandidateCounter;
+
 // muon, genPart
 }
 
@@ -434,6 +467,9 @@ FSQDiJetAve::FSQDiJetAve(const edm::ParameterSet& iConfig):
         std::string type = pset.getParameter<std::string>("handlerType");
         if (type == "FromHLT") {
             m_handlers.push_back(std::shared_ptr<FSQ::HLTHandler>(new FSQ::HLTHandler(pset)));
+        }
+        else if (type == "RecoCandidateCounter") {
+            m_handlers.push_back(std::shared_ptr<FSQ::RecoCandidateCounter>(new FSQ::RecoCandidateCounter(pset)));
         }
         else if (type == "FromRecoCandidate") {
             m_handlers.push_back(std::shared_ptr<FSQ::RecoCandidateHandler>(new FSQ::RecoCandidateHandler(pset)));
