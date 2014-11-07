@@ -1,7 +1,74 @@
 import FWCore.ParameterSet.Config as cms
 import math
-
+#
 # see https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuidePhysicsCutParser
+#
+def getHighMultVPSet():
+    ret=cms.VPSet()
+    thresholds = [60, 85, 110, 135, 160]
+    for t in thresholds:
+        partialPathName = "HLT_PixelTracks_Multiplicity"+str(t)+"_v"
+        tracksCount  =  cms.PSet(
+                handlerType = cms.string("RecoTrackCounter"),
+                inputCol = cms.InputTag("hltPixelTracksForHighMult"),
+                partialPathName = cms.string(partialPathName),
+                partialFilterName  = cms.string("hltL1sETT"),
+                dqmhistolabel  = cms.string("hltPixelTracks"),
+                mainDQMDirname = cms.untracked.string(fsqdirname),
+                singleObjectsPreselection = cms.string("1==1"),
+                combinedObjectSelection =  cms.string("1==1"),
+                combinedObjectSortCriteria = cms.string('size()'),
+                combinedObjectDimension = cms.int32(1),
+                drawables =  cms.VPSet(
+                    cms.PSet (name = cms.string("count"), expression = cms.string('at(0)'), 
+                             bins = cms.int32(30), min = cms.double(t), max = cms.double(t+t/2))
+                )
+        )
+        ret.append(tracksCount)				
+
+        ptEtaHardest  =  cms.PSet(
+                handlerType = cms.string("RecoTrack"),
+                inputCol = cms.InputTag("hltPixelTracksForHighMult"),
+                partialPathName = cms.string(partialPathName),
+                partialFilterName  = cms.string("hltL1sETT"),
+                dqmhistolabel  = cms.string("hltPixelTracksPtEtaHardest"),
+                mainDQMDirname = cms.untracked.string(fsqdirname),
+                singleObjectsPreselection = cms.string(""),
+                combinedObjectSelection =  cms.string("1==1"),
+                combinedObjectSortCriteria = cms.string("at(0).pt"),
+                combinedObjectDimension = cms.int32(1),
+                drawables =  cms.VPSet(
+                    cms.PSet (name = cms.string("pt"), expression = cms.string("at(0).pt"), 
+                            bins = cms.int32(50), min = cms.double(0), max = cms.double(50)),
+                    cms.PSet (name = cms.string("eta"), expression = cms.string("at(0).eta"), 
+                            bins = cms.int32(50), min = cms.double(-2.5), max = cms.double(2.5))
+                )
+        )
+        ret.append(ptEtaHardest) 
+
+        # FIXME: what variables it makes sense to plot in case of ETT seeds?
+        l1 =  cms.PSet(
+                handlerType = cms.string("FromHLT"),
+                partialPathName = cms.string(partialPathName),
+                partialFilterName  = cms.string("hltL1sETT"),
+                dqmhistolabel  = cms.string("l1"),
+                mainDQMDirname = cms.untracked.string(fsqdirname),
+                singleObjectsPreselection = cms.string("1==1"),
+                combinedObjectSelection =  cms.string("1==1"),
+                combinedObjectSortCriteria = cms.string("at(0).pt"),
+                combinedObjectDimension = cms.int32(1),
+                drawables =  cms.VPSet(
+                    cms.PSet (name = cms.string("pt"), expression = cms.string("at(0).pt"), bins = cms.int32(256/4), min = cms.double(0), max = cms.double(256)),
+                    cms.PSet (name = cms.string("eta"), expression = cms.string("at(0).eta"), bins = cms.int32(104/4), min = cms.double(-5.2), max = cms.double(5.2))
+                )
+        )
+        ret.append(l1) 
+
+
+
+    return ret
+
+
 def getPTAveVPSet():
     ret=cms.VPSet()
     # note: always give integer values (!)
@@ -110,7 +177,7 @@ def getPTAveVPSet():
                 combinedObjectDimension = cms.int32(1),
                 drawables =  cms.VPSet(
                     cms.PSet (name = cms.string("pt"), expression = cms.string("at(0).pt"), bins = cms.int32(ptBins), min = cms.double(ptBinLow), max = cms.double(ptBinHigh)),
-                    cms.PSet (name = cms.string("eta"), expression = cms.string("at(0).eta"), bins = cms.int32(52), min = cms.double(0), max = cms.double(5.2))
+                    cms.PSet (name = cms.string("eta"), expression = cms.string("at(0).eta"), bins = cms.int32(52), min = cms.double(-5.2), max = cms.double(5.2))
                 )
             )
             ret.append(recoPF) 
@@ -167,15 +234,23 @@ def getPTAveVPSet():
     return ret
 
 
+def getFSQAll():
+    ret = cms.VPSet()
+    ret.extend(getHighMultVPSet())
+    ret.extend(getPTAveVPSet())
+    return ret
+
+
 fsqdirname = "HLT/FSQ/"
 #processName = "TTT"
 processName = "HLT"
+#processName = "TEST"
 fsqHLTOfflineSource = cms.EDAnalyzer("FSQDiJetAve",
-    dirname = cms.untracked.string("HLT/FSQ/DiJETAve/"),
+    #dirname = cms.untracked.string("HLT/FSQ/DiJETAve/"),
     triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","", processName),
     triggerResultsLabel = cms.InputTag("TriggerResults","", processName),
     useGenWeight = cms.bool(False),
     #useGenWeight = cms.bool(True),
-    todo = cms.VPSet(getPTAveVPSet())
+    todo = cms.VPSet(getFSQAll())
 )
 
