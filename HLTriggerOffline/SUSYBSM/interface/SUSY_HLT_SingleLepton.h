@@ -83,9 +83,9 @@ class SUSY_HLT_SingleLepton: public DQMEDAnalyzer{
 
   edm::InputTag theLeptonFilterTag_;
   edm::InputTag theHLTHTTag_;
-  edm::EDGetTokenT<reco::MET> theHLTHT_;
+  edm::EDGetTokenT<reco::METCollection> theHLTHT_;
   edm::InputTag theHLTMETTag_;
-  edm::EDGetTokenT<reco::MET> theHLTMET_;
+  edm::EDGetTokenT<reco::METCollection> theHLTMET_;
   edm::InputTag theHLTJetCollectionTag_;
   edm::EDGetTokenT<reco::CaloJetCollection> theHLTJetCollection_;
   edm::InputTag theHLTJetTagCollectionTag_;

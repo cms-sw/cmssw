@@ -2,6 +2,7 @@
 
 #include <limits>
 #include <algorithm>
+#include <iostream>//QQQ
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -127,9 +128,9 @@ SUSY_HLT_SingleLepton::SUSY_HLT_SingleLepton(const edm::ParameterSet &ps):
 
   theLeptonFilterTag_(ps.getParameter<edm::InputTag>("leptonFilter")),
   theHLTHTTag_(ps.getParameter<edm::InputTag>("hltHt")),
-  theHLTHT_(consumes<reco::MET>(theHLTHTTag_)),
+  theHLTHT_(consumes<reco::METCollection>(theHLTHTTag_)),
   theHLTMETTag_(ps.getParameter<edm::InputTag>("hltMet")),
-  theHLTMET_(consumes<reco::MET>(theHLTMETTag_)),
+  theHLTMET_(consumes<reco::METCollection>(theHLTMETTag_)),
   theHLTJetCollectionTag_(ps.getParameter<edm::InputTag>("hltJets")),
   theHLTJetCollection_(consumes<reco::CaloJetCollection>(theHLTJetCollectionTag_)),
   theHLTJetTagCollectionTag_(ps.getParameter<edm::InputTag>("hltJetTags")),
@@ -236,17 +237,17 @@ void SUSY_HLT_SingleLepton::bookHistograms(DQMStore::IBooker &ibooker,
 
   //num and den hists to be divided in harvesting step to make turn on curves
   h_leptonPtTurnOn_num_ = ibooker.book1D("leptonPtTurnOn_num",
-				       ("Numerator;Offline "+lepton+" p_{T} [GeV]").c_str(),
-				       30, 0.0, 150);
+					 ("Numerator;Offline "+lepton+" p_{T} [GeV]").c_str(),
+					 30, 0.0, 150);
   h_leptonPtTurnOn_den_ = ibooker.book1D("leptonPtTurnOn_den",
-				       ("Denominator;Offline "+lepton+" p_{T} [GeV]").c_str(),
-				       30, 0.0, 150.0);
+					 ("Denominator;Offline "+lepton+" p_{T} [GeV]").c_str(),
+					 30, 0.0, 150.0);
   h_leptonIsoTurnOn_num_ = ibooker.book1D("leptonIsoTurnOn_num",
-				       ("Numerator;Offline "+lepton+" rel. iso.").c_str(),
-				       30, 0.0, 3.0);
+					  ("Numerator;Offline "+lepton+" rel. iso.").c_str(),
+					  30, 0.0, 3.0);
   h_leptonIsoTurnOn_den_ = ibooker.book1D("leptonIsoTurnOn_den",
-				       ("Denominator;Offline "+lepton+" rel. iso.").c_str(),
-				       30, 0.0, 3.0);
+					  ("Denominator;Offline "+lepton+" rel. iso.").c_str(),
+					  30, 0.0, 3.0);
   h_pfHTTurnOn_num_ = ibooker.book1D("pfHTTurnOn_num",
 				     "Numerator;Offline H_{T} [GeV]",
 				     30, 0.0, 1500.0 );
@@ -427,11 +428,11 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
     trigger::TriggerObjectCollection triggerObjects = triggerSummary->getObjects();
     if( !(filterIndex >= triggerSummary->sizeFilters()) ){
       for(const auto &key: triggerSummary->filterKeys(filterIndex)){
-	trigger::TriggerObject foundObject = triggerObjects[key];
+	const trigger::TriggerObject &foundObject = triggerObjects[key];
 	
-	h_triggerLepPt_->Fill(foundObject.pt());
-	h_triggerLepEta_->Fill(foundObject.eta());
-	h_triggerLepPhi_->Fill(foundObject.phi());
+	if(h_triggerLepPt_) h_triggerLepPt_->Fill(foundObject.pt());
+	if(h_triggerLepEta_) h_triggerLepEta_->Fill(foundObject.eta());
+	if(h_triggerLepPhi_) h_triggerLepPhi_->Fill(foundObject.phi());
 	
 	ptLepton.push_back(foundObject.pt());
 	etaLepton.push_back(foundObject.eta());
@@ -439,7 +440,8 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
       }
     }
   }
-  const float hlt_lep_pt = *std::max_element(ptLepton.begin(), ptLepton.end());
+  const auto &it = std::max_element(ptLepton.begin(), ptLepton.end());
+  const float hlt_lep_pt = it==ptLepton.end()?0.0:*it;
 
   //Get online ht and met
   const float hlt_ht = (HLTHT.isValid()?HLTHT->front().sumEt():0.0);
@@ -461,14 +463,14 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
     const edm::TriggerNames &trigNames = e.triggerNames(*hltresults);
     for( unsigned int hltIndex = 0; hltIndex < trigNames.size(); ++hltIndex ){
       if(trigNames.triggerName(hltIndex)==triggerPath_
-	  && hltresults->wasrun(hltIndex)
-	  && hltresults->accept(hltIndex)){
+	 && hltresults->wasrun(hltIndex)
+	 && hltresults->accept(hltIndex)){
 	hasFired = true;
       }
 
       if(trigNames.triggerName(hltIndex)==triggerPathAuxiliary_
-	  && hltresults->wasrun(hltIndex)
-	  && hltresults->accept(hltIndex)){
+	 && hltresults->wasrun(hltIndex)
+	 && hltresults->accept(hltIndex)){
 	hasFiredAuxiliary = true;
       }
     }
@@ -567,25 +569,25 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
 
       //Fill histograms using highest pt reco lepton
       if(maxpt>0.0){
-	h_leptonPtTurnOn_den_->Fill(maxpt);
-	if(hasFired) h_leptonPtTurnOn_num_->Fill(maxpt);
-	h_leptonIsoTurnOn_den_->Fill(maxpt_iso);
-	if(hasFired) h_leptonIsoTurnOn_num_->Fill(maxpt_iso);
+	if(h_leptonPtTurnOn_den_) h_leptonPtTurnOn_den_->Fill(maxpt);
+	if(h_leptonPtTurnOn_num_ && hasFired) h_leptonPtTurnOn_num_->Fill(maxpt);
+	if(h_leptonIsoTurnOn_den_) h_leptonIsoTurnOn_den_->Fill(maxpt_iso);
+	if(h_leptonIsoTurnOn_num_ && hasFired) h_leptonIsoTurnOn_num_->Fill(maxpt_iso);
       }
     }
 
     //Fill HT efficiency plot
     if(lep_plateau && met_plateau && csv_plateau
        && h_pfHTTurnOn_den_ && h_pfHTTurnOn_num_){
-      h_pfHTTurnOn_den_->Fill(pfHT);
-      if(hasFired) h_pfHTTurnOn_num_->Fill(pfHT);
+      if(h_pfHTTurnOn_den_) h_pfHTTurnOn_den_->Fill(pfHT);
+      if(h_pfHTTurnOn_num_ && hasFired) h_pfHTTurnOn_num_->Fill(pfHT);
     }
 
     //Fill MET efficiency plot
     if(lep_plateau && ht_plateau && csv_plateau
        && h_pfMetTurnOn_den_ && h_pfMetTurnOn_num_){
-      h_pfMetTurnOn_den_->Fill(pfMET);
-      if(hasFired) h_pfMetTurnOn_num_->Fill(pfMET);
+      if(h_pfMetTurnOn_den_) h_pfMetTurnOn_den_->Fill(pfMET);
+      if(h_pfMetTurnOn_num_ && hasFired) h_pfMetTurnOn_num_->Fill(pfMET);
     }
 
     //Fill CSV efficiency plot

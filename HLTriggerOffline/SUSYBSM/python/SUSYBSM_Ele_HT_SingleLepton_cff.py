@@ -1,9 +1,10 @@
 import FWCore.ParameterSet.Config as cms
+from copy import deepcopy
 
 SUSY_HLT_Ele_HT_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                               electronCollection = cms.InputTag('gedGsfElectrons'),
                                               muonCollection = cms.InputTag(''),
-                                              pfMETCollection = cms.InputTag(''),
+                                              pfMetCollection = cms.InputTag(''),
                                               pfJetCollection = cms.InputTag('ak4PFJets'),
                                               jetTagCollection = cms.InputTag(''),
 
@@ -46,6 +47,6 @@ SUSY_HLT_Ele_HT_SingleLepton_POSTPROCESSING = cms.EDAnalyzer('DQMGenericClient',
                                                              resolution = cms.vstring('')
                                                              )
 
-SUSY_HLT_Ele_HT_SingleLepton_FASTSIM = SUSY_HLT_Ele_HT_SingleLepton
+SUSY_HLT_Ele_HT_SingleLepton_FASTSIM = deepcopy(SUSY_HLT_Ele_HT_SingleLepton)
 
-SUSY_HLT_Ele_HT_SingleLepton_FASTSIM_POSTPROCESSING = SUSY_HLT_Ele_HT_SingleLepton_POSTPROCESSING
+SUSY_HLT_Ele_HT_SingleLepton_FASTSIM_POSTPROCESSING = deepcopy(SUSY_HLT_Ele_HT_SingleLepton_POSTPROCESSING)
