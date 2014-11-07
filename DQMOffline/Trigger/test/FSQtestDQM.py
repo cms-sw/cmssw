@@ -21,8 +21,9 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load( "Configuration.StandardSequences.FrontierConditions_GlobalTag_cff" )
 process.GlobalTag.globaltag = 'MCRUN2_72_V1::All'
 
-f='/nfs/dust/cms/user/fruboest/2014.11.HLTJec721p1/CMSSW_7_2_1_patch1/src/outputFULL.root'
-f='/nfs/dust/cms/user/fruboest/2014.11.HLTJec721p1/CMSSW_7_2_1_patch1/src/outputFULL_big.root'
+#f='/nfs/dust/cms/user/fruboest/2014.11.HLTJec721p1/CMSSW_7_2_1_patch1/src/outputFULL.root'
+#f='/nfs/dust/cms/user/fruboest/2014.11.HLTJec721p1/CMSSW_7_2_1_patch1/src/outputFULL_big.root'
+f='fromMaxim/events.root'
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         'file:'+f
