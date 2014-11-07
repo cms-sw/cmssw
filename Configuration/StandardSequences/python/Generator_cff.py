@@ -62,7 +62,7 @@ hiGenJets = cms.Sequence(hiGenParticlesForJets*hiRecoGenJets)
 from PhysicsTools.HepMCCandAlgos.HiGenParticles_cfi import *
 
 pgen_hi = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+VertexSmearing+hiGenParticles+hiGenJets)
-pgen_himix = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+cms.SequencePlaceholder("mixGen")+VertexSmearing+hiGenParticles+hiGenJets)
+pgen_himix = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+cms.SequencePlaceholder("mix")+VertexSmearing+hiGenParticles+hiGenJets)
 
 fixGenInfo = cms.Sequence(GeneInfo * genJetMET)
 
