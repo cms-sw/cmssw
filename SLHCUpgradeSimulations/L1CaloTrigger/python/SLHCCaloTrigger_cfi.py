@@ -1,6 +1,30 @@
 import FWCore.ParameterSet.Config as cms
 
 
+#----------------------------------------------------------------------------------------------------
+# Global variables
+#----------------------------------------------------------------------------------------------------
+#
+# Info: These are variables that are required by several modules.
+#
+#----------------------------------------------------------------------------------------------------
+
+
+# Specify the boundaries of the eta regions in which to apply local PU subtraction
+gLocalRhoEtaDivisions = cms.vdouble( -3.0, -1.3, 0.0, 1.3, 3.0 )
+
+# Run on Asymmetry filtered jets
+#gPrePUSJets = "L1TowerJetFilter2D"
+# Run on Centrality filtered jets
+gPrePUSJets = "L1TowerJetCentralityFilter"
+
+
+
+gJetDiameter = cms.uint32(9) # default to 9x9 ~ deltaR 0.4 Jets
+
+
+#====================================================================================================
+
 L1CaloTriggerSetupSource = cms.ESSource("EmptyESSource",
                                         recordName = cms.string('L1CaloTriggerSetupRcd'),
                                         firstValid = cms.vuint32(1),
@@ -92,7 +116,8 @@ L1CaloProtoClusterFilter = cms.EDProducer("L1CaloProtoClusterFilter",
 # Share towers for overlapping clusters
 # The e/g identification bit is computed here
 L1CaloProtoClusterSharing = cms.EDProducer("L1CaloProtoClusterSharing",
-    src = cms.InputTag("L1CaloProtoClusterFilter")
+    src = cms.InputTag("L1CaloProtoClusterFilter"),
+    hoeCutMode = cms.int32(0) # 0 = seed tower H/E, 1 = 3x3 cluster H/E
 )
 
 # Trim the 3x3 cluster for e/g clusters
@@ -133,59 +158,136 @@ L1CaloJetExpander = cms.EDProducer("L1CaloJetExpander",
     src = cms.InputTag("L1CaloJetFilter")
 )
 
+
 L1TowerJetProducer = cms.EDProducer("L1TowerJetProducer",
+
+    # UNCOMMENT TO RUN ON RINGSUBTRACTED CALOTOWERS
+    #src = cms.InputTag("L1RingSubtractionProducer"),
+    # UNCOMMENT TO RUN ON UN-RINGSUBTRACTED CALOTOWERS
     src = cms.InputTag("L1CaloTowerProducer"),
-	JetDiameter = cms.uint32(8),
-	JetShape = cms.string("circle") # "circle" or "square"
+
+
+        JetDiameter = gJetDiameter,
+        JetShape    = cms.string("circle"), # "circle" or "square"
+
+        # Jet Pt (GeV) threshold and the seed threshold requirement (require that at least one TT
+        # posses E greater than threshold) for the constructed jets to be retained 
+        JetPtThreshold       = cms.double(0.1),
+        SeedEnergyThreshold  = cms.double(0),
+        #SeedEnergyThreshold  = cms.double(5),
+)
+
+# Centrality filtering
+L1TowerJetCentralityFilter = cms.EDProducer("L1TowerJetCentralityFilter",
+    PreFilteredJets = cms.InputTag("L1TowerJetProducer"),
+    # Limit on number of jets that can be retained                                        
+    NumOfOutputJets = cms.uint32(999)
 )
 
      
 L1TowerJetFilter1D = cms.EDProducer("L1TowerJetFilter1D",
     src = cms.InputTag("L1TowerJetProducer"),
-	ComparisonDirection = cms.string("eta"), # "eta" or "phi"
-	NumOfOutputJets = cms.uint32(4)
+        ComparisonDirection = cms.string("eta"), # "eta" or "phi"
+        # Old arbitrary jet 1D limit 
+        #NumOfOutputJets = cms.uint32(4)
+        NumOfOutputJets = cms.uint32(999)
 )
 
 L1TowerJetFilter2D = cms.EDProducer("L1TowerJetFilter2D",
     src = cms.InputTag("L1TowerJetFilter1D"),
-	ComparisonDirection = cms.string("phi"), # "eta" or "phi"
-	NumOfOutputJets = cms.uint32(12)
+        ComparisonDirection = cms.string("phi"), # "eta" or "phi"
+        # Old arbitrary jet event limit 
+        #NumOfOutputJets = cms.uint32(12)
+        NumOfOutputJets = cms.uint32(999)
 )
+
+
 L1TowerJetPUEstimator = cms.EDProducer("L1TowerJetPUEstimator",
-    inRhodata_file = cms.FileInPath('SLHCUpgradeSimulations/L1CaloTrigger/data/rho_lookup.txt'),
-    FilteredCircle8 = cms.InputTag("L1TowerJetFilter2D"),
+    inRhodata_file  = cms.FileInPath('SLHCUpgradeSimulations/L1CaloTrigger/data/rho_lookup.txt'),
+#    FilteredCircle8 = cms.InputTag("L1TowerJetFilter2D"),
+     FilteredCircle8 = cms.InputTag(gPrePUSJets),
+    # Choose whether to calibrate rho to offline rho                                   
+    UseRhoCalibration  = cms.bool(False),
+    # number of jets, from the start of the ordered jet collection, to exclude from the median calculation of rho
+    # numberOfSkippedJets = 1    =>   Skip leading jet only
+    numberOfSkippedJets = cms.uint32(1),
+   # Specify the boundaries of the eta regions in which to apply local PU subtraction
+   LocalRhoEtaDivisions = cms.vdouble( gLocalRhoEtaDivisions ),
+   # Specify the minimum number of jets in each eta region before a local rho is calculated.
+   # If threshold is not met, zero is subtracted.
+   LocalRhoMinJetsInRegion = cms.uint32(2)
 )
+
 
 L1TowerJetPUSubtractedProducer =  cms.EDProducer("L1TowerJetPUSubtractedProducer",
-    FilteredCircle8 = cms.InputTag("L1TowerJetFilter2D"),
+
+    FilteredCircle8 = cms.InputTag(gPrePUSJets),
     CalibratedL1Rho = cms.InputTag("L1TowerJetPUEstimator", "Rho"),
+
+    # Local PU subtraction
+    LocalRho           = cms.InputTag("L1TowerJetPUEstimator", "LocalRho"),
+#    LocalRhoBoundaries = cms.InputTag("L1TowerJetPUEstimator", "LocalRhoEtaBoundaries"),
+    # Specify the boundaries of the eta regions in which to apply local PU subtraction
+    LocalRhoEtaDivisions = cms.vdouble( gLocalRhoEtaDivisions ),
+
+    # Energy (GeV) threshold of the jets that are to be retained after PU subtraction
+    JetPtPUSubThreshold  = cms.double(0.1),
 )
+
 
 L1CalibFilterTowerJetProducer = cms.EDProducer("L1CalibFilterTowerJetProducer",
-    inMVA_weights_file = cms.FileInPath('SLHCUpgradeSimulations/L1CaloTrigger/data/TMVARegression_BDT.weights.xml'),
-    PUSubtractedCentralJets = cms.InputTag("L1TowerJetPUSubtractedProducer","PUSubCenJets"),
+
+ 
+ # Energy (GeV) threshold of jets to be used in the calculation jet energy sums
+ EnergySumsJetPtThreshold          = cms.double(15),
+ 
+ # Calibration parameters
+ # ------------------------------
+ 
+ # Input uncalibrated jet collection
+ UncalibratedTowerJets = cms.InputTag("L1TowerJetPUSubtractedProducer","LocalPUSubCenJets"),
+ 
+ # L1 pT calibration threshold, minimum L1 jet pT (GeV) to apply correction
+ pTCalibrationThreshold = cms.double( 10 ),
+
+ # Calibration eta-binning
+ EtaRegionSlice = cms.vdouble( -3.0, -2.172, -1.74, -1.392, -1.044, -0.695, -0.348, 0.0,
+ 0.348, 0.695, 1.044, 1.392, 1.74, 2.172, 3.0),
+
+ # Number of calibration parameters used in LUT
+ CalibrationParameters = cms.uint32( 6 ),
+
+ # Location of LUT
+ CalibrationLUTFile = cms.FileInPath('SLHCUpgradeSimulations/L1CaloTrigger/data/pu140.LUT'),
+
 )
 
+L1EnergySumProducer = cms.EDProducer("L1EnergySumProducer",
 
+      CalorimeterTowers   = cms.InputTag("L1CaloTowerProducer:","EVENT_DATA"),
 
+)
 
 
 L1TowerFwdJetProducer = cms.EDProducer("L1TowerFwdJetProducer",
     src = cms.InputTag("L1CaloTowerProducer"),
-	JetDiameter = cms.uint32(8),
-	JetShape = cms.string("circle") # "circle" or "square"
-)    
+        
+        JetDiameter = gJetDiameter,
+        JetShape = cms.string("circle") # "circle" or "square"
+)
+
+
    
 L1TowerFwdJetFilter1D = cms.EDProducer("L1TowerJetFilter1D",
     src = cms.InputTag("L1TowerFwdJetProducer"),
 	ComparisonDirection = cms.string("eta"), # "eta" or "phi"
-	NumOfOutputJets = cms.uint32(4)
+        NumOfOutputJets = cms.uint32(999)
 )
 
 L1TowerFwdJetFilter2D = cms.EDProducer("L1TowerJetFilter2D",
     src = cms.InputTag("L1TowerFwdJetFilter1D"),
 	ComparisonDirection = cms.string("phi"), # "eta" or "phi"
-	NumOfOutputJets = cms.uint32(12)
+        NumOfOutputJets = cms.uint32(999)
 )
 
 
