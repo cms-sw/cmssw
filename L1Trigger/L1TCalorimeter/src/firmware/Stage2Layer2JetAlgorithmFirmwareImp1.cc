@@ -16,19 +16,13 @@
 #include <algorithm>
 #include <math.h>
 
-//bool operator > ( l1t::Jet& a, l1t::Jet& b )
-//{
-//  if ( a.hwPt() > b.hwPt() ){ 
-//    return true;
-//  } else {
-//
-//    return false;
-//  }
-//}
-
-namespace{
-  bool sortbypt(const l1t::Jet &a, const l1t::Jet &b) { return a.hwPt() > b.hwPt(); };
-  bool sortbyeta(const l1t::Jet &a, const l1t::Jet &b) { return a.hwEta() < b.hwEta(); };
+bool operator > ( l1t::Jet& a, l1t::Jet& b )
+{
+  if ( a.hwPt() > b.hwPt() ){ 
+    return true;
+  } else {
+    return false;
+  }
 }
 
 l1t::Stage2Layer2JetAlgorithmFirmwareImp1::Stage2Layer2JetAlgorithmFirmwareImp1(CaloParams* params) :
@@ -355,6 +349,7 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(int jetEta,
 void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::sort(std::vector<l1t::Jet> & jets) {
 
 
+  // Split jets into positive and negative eta
   std::vector<l1t::Jet> posEta, negEta;
 
   for(std::vector<l1t::Jet>::const_iterator lIt = jets.begin() ; lIt != jets.end() ; ++lIt )
@@ -366,29 +361,30 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::sort(std::vector<l1t::Jet> & jet
       }
     }
   
-  std::sort(posEta.begin(), posEta.end(), sortbypt);
-  std::sort(negEta.begin(), negEta.end(), sortbypt);    
+  // Sort by pT
+  std::vector<l1t::Jet>::iterator start(posEta.begin());                                                                                                                                  
+  std::vector<l1t::Jet>::iterator end(posEta.end());                                                                                                                                      
+  BitonicSort< l1t::Jet >(down,start,end); 
 
-  if (posEta.size()>6) posEta.resize(6); // truncate to top 12 jets for now   
-  if (negEta.size()>6) negEta.resize(6); // truncate to top 12 jets for now     
+  // Sort by pT
+  start = negEta.begin();
+  end = negEta.end();                                                                                                                                      
+  BitonicSort< l1t::Jet >(down,start,end);
 
+  if (posEta.size()>6) posEta.resize(6); // truncate to top 6 jets per eta half
+  if (negEta.size()>6) negEta.resize(6); // truncate to top 6 jets per eta half
+
+  // Merge into output collection
   jets.resize(0);
   jets.reserve(posEta.size()+negEta.size());
   
   jets.insert(jets.end(), posEta.begin(), posEta.end());
   jets.insert(jets.end(), negEta.begin(), negEta.end());
 
-  std::sort(jets.begin(), jets.end(), sortbypt);
+  // Sort the jets by pT - this should move to the demux class but I can't make the > operator in both for some reason                                                                    
+  start = jets.begin();                                                                                                                           
+  end = jets.end();
+  BitonicSort< l1t::Jet >(down,start,end);
 
-  //std::vector<l1t::Jet>::iterator start(jets.begin());
-  //std::vector<l1t::Jet>::iterator end(jets.end());	
-
-  //BitonicSort< l1t::Jet >(down,start,end);
-
-  // sort the jets first eta then pT and return only the top 6 from each hemisphere
-  //  std::sort(jets.begin(), jets.end(), sortbyeta);
-  //  std::sort(jets.begin(), jets.end(), sortbypt);
-
-  //  if (jets.size()>12) jets.resize(12); // truncate to top 12 jets for now   
 }
 

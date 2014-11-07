@@ -30,7 +30,7 @@ namespace l1t {
 
     CaloParams* params_;
 
-    //    Cordic cordic_;
+    Cordic cordic_;
 
   };
   
