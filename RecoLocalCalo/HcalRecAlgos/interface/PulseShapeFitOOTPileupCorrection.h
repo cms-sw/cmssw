@@ -23,13 +23,32 @@ namespace FitterFuncs{
       public:
          PulseShapeFunctor(const HcalPulseShapes::Shape& pulse);
          ~PulseShapeFunctor();
-         double EvalSinglePulse(const std::vector<double>& pars) const;
-         double EvalDoublePulse(const std::vector<double>& pars) const;
+
+         double EvalSinglePulse(const std::vector<double>& pars);
+         double EvalDoublePulse(const std::vector<double>& pars);
+
+         void setDefaultcntNANinfit(){ cntNANinfit =0; }
+         int getcntNANinfit(){ return cntNANinfit; }
+
+         void setpsFitx(double *x ){ for(int i=0; i<10; ++i) psFit_x[i] = x[i]; }
+         void setpsFity(double *y ){ for(int i=0; i<10; ++i) psFit_y[i] = y[i]; }
+         void setpsFiterry(double *erry ){ for(int i=0; i<10; ++i) psFit_erry[i] = erry[i]; }
+
+         double singlePulseShapeFunc( const double *x );
+         double doublePulseShapeFunc( const double *x );
       private:
          std::array<float,256> pulse_hist;
+
+         int cntNANinfit;
+
          std::vector<float> acc25nsVec, diff25nsItvlVec;
          std::vector<float> accVarLenIdxZEROVec, diffVarItvlIdxZEROVec;
          std::vector<float> accVarLenIdxMinusOneVec, diffVarItvlIdxMinusOneVec;
+
+         std::array<float,10> funcHPDShape(const std::vector<double>& pars);
+         std::array<float,10> func_DoublePulse_HPDShape(const std::vector<double>& pars);
+
+         double psFit_x[10], psFit_y[10], psFit_erry[10];
    };
    
 }
@@ -57,6 +76,9 @@ private:
     std::array<double,10> iniTimesArr;
 
     double chargeThreshold_;
+
+    std::auto_ptr<FitterFuncs::PulseShapeFunctor> psfPtr_;
+
 };
 
 #endif // PulseShapeFitOOTPileupCorrection_h
