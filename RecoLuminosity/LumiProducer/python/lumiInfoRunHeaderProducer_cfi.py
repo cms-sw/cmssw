@@ -1,4 +1,4 @@
 
 import FWCore.ParameterSet.Config as cms
-fillSchemeInfo=cms.EDProducer("FillSchemeInfoProducer",
+fillSchemeInfo=cms.EDProducer("LumiInfoRunHeaderProducer",
                             )

@@ -36,10 +36,10 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
 
   // uncertainty calculation (CPU intensive)
   ampErrorCalculation_ = ps.getParameter<bool>("ampErrorCalculation");
-  useFillSchemeInfo_ = ps.getParameter<bool>("useFillSchemeInfo");
+  useLumiInfoRunHeader_ = ps.getParameter<bool>("useLumiInfoRunHeader");
   
-  if (useFillSchemeInfo_) {
-    fillSchemeInfo_ = c.consumes<FillSchemeInfo>(edm::InputTag("fillSchemeInfo"));
+  if (useLumiInfoRunHeader_) {
+    lumiInfoRunHeader_ = c.consumes<LumiInfoRunHeader>(edm::InputTag("lumiInfoRunHeader"));
   }
 
   // algorithm to be used for timing
@@ -136,10 +136,10 @@ void
 EcalUncalibRecHitWorkerMultiFit::set(const edm::Event& evt)
 {
 
-  if (useFillSchemeInfo_) {
-    edm::Handle<FillSchemeInfo> fillSchemeInfoH;
-    evt.getByToken(fillSchemeInfo_,fillSchemeInfoH);
-    int bunchspacing = fillSchemeInfoH->bunchSpacing();
+  if (useLumiInfoRunHeader_) {
+    edm::Handle<LumiInfoRunHeader> lumiInfoRunHeaderH;
+    evt.getByToken(lumiInfoRunHeader_,lumiInfoRunHeaderH);
+    int bunchspacing = lumiInfoRunHeaderH->getBunchSpacing();
     
     if (bunchspacing == 25) {
       activeBX.resize(10);

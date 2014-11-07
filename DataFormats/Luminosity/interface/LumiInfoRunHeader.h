@@ -63,6 +63,9 @@ public:
 
   /// Get bunch spacing (in ns).
   int getBunchSpacing() const { return bunchSpacing_; }
+  
+  //set hardcoded bunchspacing (in case no filling scheme is available in MC)
+  void setBunchSpacing(int bunchSpacing) { bunchSpacing_ = bunchSpacing; }
 
   //----------------------------------------------------------------
 

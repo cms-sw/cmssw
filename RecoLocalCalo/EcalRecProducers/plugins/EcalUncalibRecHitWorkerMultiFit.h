@@ -26,7 +26,7 @@
 #include "CondFormats/EcalObjects/interface/EcalSampleMask.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EigenMatrixTypes.h"
-#include "DataFormats/Luminosity/interface/FillSchemeInfo.h"
+#include "DataFormats/Luminosity/interface/LumiInfoRunHeader.h"
 
 namespace edm {
         class Event;
@@ -74,10 +74,10 @@ class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass 
                 FullSampleMatrix fullpulsecovEE;
                 BXVector activeBX;
                 bool ampErrorCalculation_;
-                bool useFillSchemeInfo_;
+                bool useLumiInfoRunHeader_;
                 EcalUncalibRecHitMultiFitAlgo multiFitMethod_;
                 
-                edm::EDGetTokenT<FillSchemeInfo> fillSchemeInfo_; 
+                edm::EDGetTokenT<LumiInfoRunHeader> lumiInfoRunHeader_; 
 
                 // determine which of the samples must actually be used by ECAL local reco
                 edm::ESHandle<EcalSampleMask> sampleMaskHand_;                
