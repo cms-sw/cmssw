@@ -4,6 +4,11 @@
         <Constant name="castLength" value="1583.3*mm" />
         <Constant name="CASTFarTiltAngle" value="0*deg" />
         <Constant name="CASTNearTiltAngle" value="0*deg" />
+	<Constant name="LGAngleBegin" value="11.6287*deg"/>
+	<Constant name="LGAngleDelta" value="21.74255*deg"/>
+	<Constant name="LGrShift" value="1*mm/tan([castor:LGAngleDelta]/2)"/>
+	<Constant name="LGxShift" value="[castor:LGrShift] * cos([castor:LGAngleBegin]+[castor:LGAngleDelta]/2)"/>
+	<Constant name="LGyShift" value="[castor:LGrShift] * sin([castor:LGAngleBegin]+[castor:LGAngleDelta]/2)"/>
     </ConstantsSection>
     <RotationSection label="castor.xml">
         <Rotation name="CASTFarTilt"  thetaX="90*deg+[CASTFarTiltAngle]" phiX="0*deg" thetaY="90*deg" phiY="90*deg" thetaZ="0*deg+[CASTFarTiltAngle]" phiZ="0*deg" />
@@ -300,8 +305,6 @@
             <ZSection rMin="303.20*mm" rMax="303.20*mm" z="314.7*mm"/>
         </Polyhedra>
         <!-- compartment with Air lightguide (1 mm wall strength) (external part)  1 copy -->
-	<Constant name="LGAngleBegin" value="11.6287*deg"/>
-	<Constant name="LGAngleDelta" value="21.74255*deg"/>
         <Polyhedra name="CEAL" numSide="1" startPhi="[castor:LGAngleBegin]" deltaPhi="[castor:LGAngleDelta]">
             <ZSection rMin="67.6913*mm" rMax="67.6913*mm" z="13.50*mm"/>
             <ZSection rMin="67.6913*mm" rMax="98.829*mm" z="39.5*mm"/>
@@ -1009,12 +1012,6 @@
             <Translation x="260.5945*mm" y="140.33465*mm" z="239.2853*mm"/>
         </PosPart>
 	<!-- shift back by rShift in direction of axis -->
-	<Constant name="LGrShift"
-		  value="1*mm/tan([castor:LGAngleDelta]/2)"/>
-	<Constant name="LGxShift"
-		  value="[castor:LGrShift] * cos([castor:LGAngleBegin]+[castor:LGAngleDelta]/2)"/>
-	<Constant name="LGyShift"
-		  value="[castor:LGrShift] * sin([castor:LGAngleBegin]+[castor:LGAngleDelta]/2)"/>
         <PosPart copyNumber="1">
             <rParent name="castor:CEAL"/>
             <rChild name="castor:CEAI"/>
