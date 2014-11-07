@@ -106,10 +106,12 @@ def getPTAveVPSet():
 
 
 fsqdirname = "HLT/FSQ/"
+processName = "TTT"
+#processName = "HLT"
 fsqHLTOfflineSource = cms.EDAnalyzer("FSQDiJetAve",
     dirname = cms.untracked.string("HLT/FSQ/DiJETAve/"),
-    triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","","TTT"),
-    triggerResultsLabel = cms.InputTag("TriggerResults","","TTT"),
+    triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","", processName),
+    triggerResultsLabel = cms.InputTag("TriggerResults","", processName),
     useGenWeight = cms.bool(False),
     #useGenWeight = cms.bool(True),
     todo = cms.VPSet(getPTAveVPSet())
