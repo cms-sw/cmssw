@@ -20,16 +20,13 @@ from RecoTracker.IterativeTracking.DetachedTripletStep_cff import *
 
 # NEW CLUSTERS (remove previously used clusters)
 hiRegitMuDetachedTripletStepClusters = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepClusters.clone(
-    # oldClusterRemovalInfo = cms.InputTag("hiRegitMuInitialStepClusters"),
     trajectories          = cms.InputTag("hiRegitMuInitialStepTracks"),
     overrideTrkQuals      = cms.InputTag('hiRegitMuInitialStepSelector','hiRegitMuInitialStep'),
     TrackQuality          = cms.string('tight')
 )
 
 # SEEDING LAYERS
-hiRegitMuDetachedTripletStepSeedLayers =  RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSeedLayers.clone(
-    # ComponentName = 'hiRegitMuDetachedTripletStepSeedLayers'
-    )
+hiRegitMuDetachedTripletStepSeedLayers =  RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSeedLayers.clone()
 hiRegitMuDetachedTripletStepSeedLayers.BPix.skipClusters = cms.InputTag('hiRegitMuDetachedTripletStepClusters')
 hiRegitMuDetachedTripletStepSeedLayers.FPix.skipClusters = cms.InputTag('hiRegitMuDetachedTripletStepClusters')
 
@@ -43,7 +40,7 @@ hiRegitMuDetachedTripletStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.De
 hiRegitMuDetachedTripletStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.Rescale_Dz      = 4. # max(DeltaZ_Region,Rescale_Dz*vtx->zError())
 hiRegitMuDetachedTripletStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'hiRegitMuDetachedTripletStepSeedLayers'
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
-#hiRegitMuDetachedTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet.ComponentName = 'LowPtClusterShapeSeedComparitor'
+
 
 # building: feed the new-named seeds
 hiRegitMuDetachedTripletStepTrajectoryFilterBase = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepTrajectoryFilterBase.clone()
@@ -55,8 +52,6 @@ hiRegitMuDetachedTripletStepTrajectoryFilter.filters = cms.VPSet(
       cms.PSet( refToPSet_ = cms.string('detachedTripletStepTrajectoryFilterShape')))
 
 hiRegitMuDetachedTripletStepTrajectoryBuilder = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepTrajectoryBuilder.clone(
-    # ComponentName        = 'hiRegitMuDetachedTripletStepTrajectoryBuilder',
-    # trajectoryFilterName = 'hiRegitMuDetachedTripletStepTrajectoryFilter',
     clustersToSkip       = cms.InputTag('hiRegitMuDetachedTripletStepClusters')
 )
 
