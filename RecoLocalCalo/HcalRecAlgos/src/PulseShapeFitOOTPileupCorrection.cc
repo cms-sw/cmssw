@@ -424,7 +424,8 @@ void PulseShapeFitOOTPileupCorrection::fit(int iFit,float &timevalfit,float &cha
    float pedMax =  iTSMax;   //=> max timeslice
    float tMin   =  TSMin_;   //Fitting Time Min
    float tMax   =  TSMax_;   //Fitting Time Max
-   
+   //Checks to make sure fitting happens
+   if(pedMax   < 1.) pedMax = 1.;
    // Set starting values andf step sizes for parameters
    double vstart[n];
    for(int i = 0; i < int((n-1)/2); i++) { 
@@ -447,7 +448,7 @@ void PulseShapeFitOOTPileupCorrection::fit(int iFit,float &timevalfit,float &cha
    }
    //Pedestal
    if(vstart[n-1] > fabs(pedMax)) vstart[n-1] = pedMax;
-   hybridfitter->SetLimitedVariable(n-1, varNames[n-1], vstart[n-1], step[n-1],    -pedMax, pedMax);
+   hybridfitter->SetLimitedVariable(n-1, varNames[n-1], vstart[n-1], step[n-1],-pedMax,pedMax);
    chi2=9999.;
    //3 fits why?!
    const double *results = 0;
