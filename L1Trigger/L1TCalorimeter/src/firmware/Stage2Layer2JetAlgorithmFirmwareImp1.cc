@@ -400,7 +400,8 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
     //So first 6 entries are very negative eta, next 6 are the next bin etc.
 
     if( params_->jetCalibrationParams().size() != 132){
-      edm::LogError("l1t|stage 2") << "Invalid input vector to calo params. Not calibrating Stage 2 Jets" << std::endl;
+      edm::LogError("l1t|stage 2") << "Invalid input vector to calo params. Input vector of size: " <<
+           params_->jetCalibrationParams().size() << "  Require size: 132  Not calibrating Stage 2 Jets" << std::endl;
       return;
     }
 
@@ -457,8 +458,9 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
 
   } else if( params_->jetCalibrationType() == "function6PtParams80EtaBins" ) { // If we want TT level calibration
 
-    if( params_->jetCalibrationParams().size() != 48){
-      edm::LogError("l1t|stage 2") << "Invalid input vector to calo params. Not calibrating Stage 2 Jets" << std::endl;
+    if( params_->jetCalibrationParams().size() != 480){
+      edm::LogError("l1t|stage 2") << "Invalid input vector to calo params. Input vector of size: " <<
+           params_->jetCalibrationParams().size() << "  Require size: 480  Not calibrating Stage 2 Jets" << std::endl;
       return;
     }
 
