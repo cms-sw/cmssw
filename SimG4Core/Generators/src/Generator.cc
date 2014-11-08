@@ -124,7 +124,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
                                      (*(evt->vertices_begin()))->position().t());
 
   if(verbose > 0) {
-    evt->print();
+    evt->print(G4cout);
     LogDebug("SimG4CoreGenerator") << "Primary Vertex = (" 
 				   << vtx_->x() << "," 
 				   << vtx_->y() << ","

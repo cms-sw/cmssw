@@ -16,6 +16,9 @@ class CustomUIsession : public G4UIsession
 
   G4int ReceiveG4cout(const G4String& coutString) override;
   G4int ReceiveG4cerr(const G4String& cerrString) override;
+
+protected:
+  std::string trim(const std::string& str);
 };
 
 #endif

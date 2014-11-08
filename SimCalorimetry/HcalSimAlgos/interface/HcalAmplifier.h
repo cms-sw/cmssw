@@ -62,6 +62,8 @@ private:
   const HcalDbService * theDbService;
   const CaloVSimParameterMap * theParameterMap;
   const CaloVNoiseSignalGenerator * theNoiseSignalGenerator;
+  const HcalCholeskyMatrices * myCholeskys;
+  const HcalPedestals * myADCPeds;
   HPDIonFeedbackSim * theIonFeedbackSim;
   HcalTimeSlewSim * theTimeSlewSim;
   unsigned theStartingCapId;
@@ -77,8 +79,6 @@ private:
   double HE_ff;
   double HF_ff;
   double HO_ff;
-  const HcalCholeskyMatrices * myCholeskys;
-  const HcalPedestals * myADCPeds;
 };
 
 #endif

@@ -53,7 +53,7 @@ pixelDigitizer = cms.PSet(
     killModules = cms.bool(True),
     NumPixelBarrel = cms.int32(3),
     NumPixelEndcap = cms.int32(2),
-    theInstLumiScaleFactor = cms.double(261.9),
+    theInstLumiScaleFactor = cms.double(221.95),
     bunchScaleAt25 = cms.double(1.0), #for 25ns case
     thePixelColEfficiency_BPix1 = cms.double(1.0), 	# Only used when AddPixelInefficiency = true
     thePixelColEfficiency_BPix2 = cms.double(1.0),
@@ -176,19 +176,19 @@ pixelDigitizer = cms.PSet(
         1.00361,
         0.999371,
         0.961242,
-        0.952364
+	0.953582 
         ),
     theModuleEfficiency_BPix2 = cms.vdouble(
         1.00069,
         0.999792,
         0.99562,
-        0.955627
+	1.00341
         ),
     theModuleEfficiency_BPix3 = cms.vdouble(
         1.00006,
         0.999744,
         0.998147,
-        1.00314
+        1.00039
         ),
     thePUEfficiency_BPix1 = cms.vdouble(
         1.0181,
