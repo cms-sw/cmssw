@@ -1,6 +1,7 @@
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/PluginManager/interface/SharedLibrary.h"
+#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 //
@@ -30,6 +31,10 @@ int main (int argc, char** argv)
 
   std::string connectionString("frontier://FrontierProd/CMS_COND_31X_RUN_INFO");
   std::cout <<"# Connecting with db in "<<connectionString<<std::endl;
+
+  // Enable Autoloading
+  edm::RootAutoLibraryLoader::enable();
+
   try{
     //*************
     ConnectionPool connPool;
