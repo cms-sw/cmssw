@@ -10,8 +10,7 @@ from RecoHI.HiMuonAlgos.HiRegitMuonTobTecStep_cff import *
 
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 hiGeneralAndRegitMuTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
-    TrackProducers = (#cms.InputTag('hiGlobalPrimTracks'),
-                      cms.InputTag('hiRegitMuInitialStepTracks'),
+    TrackProducers = (cms.InputTag('hiRegitMuInitialStepTracks'),
                       cms.InputTag('hiRegitMuLowPtTripletStepTracks'),
                       cms.InputTag('hiRegitMuPixelPairStepTracks'),
                       cms.InputTag('hiRegitMuDetachedTripletStepTracks'),
@@ -19,8 +18,7 @@ hiGeneralAndRegitMuTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.
                       cms.InputTag('hiRegitMuPixelLessStepTracks'),
                       cms.InputTag('hiRegitMuTobTecStepTracks')
                       ),
-    selectedTrackQuals = cms.VInputTag(#cms.InputTag("hiInitialStepSelector","hiInitialStepLoose"),
-                                       cms.InputTag("hiRegitMuInitialStepSelector","hiRegitMuInitialStepLoose"),
+    selectedTrackQuals = cms.VInputTag(cms.InputTag("hiRegitMuInitialStepSelector","hiRegitMuInitialStepLoose"),
                                        cms.InputTag("hiRegitMuLowPtTripletStepSelector","hiRegitMuLowPtTripletStepLoose"),
                                        cms.InputTag("hiRegitMuPixelPairStepSelector","hiRegitMuPixelPairStep"),
                                        cms.InputTag("hiRegitMuDetachedTripletStepSelector","hiRegitMuDetachedTripletStep"),
