@@ -28,9 +28,7 @@ hiRegitMuPixelPairStepClusters = RecoTracker.IterativeTracking.PixelPairStep_cff
 
 
 # SEEDING LAYERS
-hiRegitMuPixelPairStepSeedLayers =  RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSeedLayers.clone(
-    # ComponentName = 'hiRegitMuPixelPairStepSeedLayers'
-    )
+hiRegitMuPixelPairStepSeedLayers =  RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSeedLayers.clone()
 hiRegitMuPixelPairStepSeedLayers.BPix.skipClusters = cms.InputTag('hiRegitMuPixelPairStepClusters')
 hiRegitMuPixelPairStepSeedLayers.FPix.skipClusters = cms.InputTag('hiRegitMuPixelPairStepClusters')
 
@@ -60,11 +58,9 @@ hiRegitMuPixelPairStepTrajectoryFilter.filters = cms.VPSet(
 
 
 hiRegitMuPixelPairStepTrajectoryBuilder = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTrajectoryBuilder.clone(
-    # ComponentName        = 'hiRegitMuPixelPairStepTrajectoryBuilder',
     trajectoryFilter = cms.PSet(
        refToPSet_ = cms.string('hiRegitMuPixelPairStepTrajectoryFilter')
        ),
-    # clustersToSkip       = cms.InputTag('hiRegitMuPixelPairStepClusters'), # now this parameter is set later in pixelPairStepTracks (see below)
     minNrOfHitsForRebuild = 6 #change from default 4
 )
 
