@@ -62,7 +62,7 @@ caloStage2Params.jetCalibrationType    = cms.string("None")
 #Vector with 6 parameters for eta bin, from low eta to high
 # 1,0,1,0,1,1 gives no correction
 # must be in this form as may require > 255 arguments
-jetCalibParamsVector = cms.vdouble()
+jetCalibParamsVector = cms.vdouble() #Currently contains factors for function6PtParams80EtaBins 
 jetCalibParamsVector.extend([
                                         1,0,1,0,1,1, 1,0,1,0,1,1, #eta1 eta2
                                         1,0,1,0,1,1, 1,0,1,0,1,1, #eta3 eta4
