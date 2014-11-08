@@ -21,7 +21,7 @@ workflows[503]=['',['MinBias_13TeV_pythia8','HARVESTGEN']]
 workflows[504]=['',['QCD_Pt-30_13TeV_pythia8','HARVESTGEN']]
 workflows[505]=['',['DYToLL_M-50_13TeV_pythia8','HARVESTGEN']]
 workflows[506]=['',['WToLNu_13TeV_pythia8','HARVESTGEN']]
-workflows[511]=['',['QCD_Pt-30_13TeV_herwigpp','HARVESTGEN']]
+workflows[511]=['',['QCD_Pt-30_8TeV_herwigpp','HARVESTGEN']]
 
 # Matrix Element Generations (LHE Generation)
 
