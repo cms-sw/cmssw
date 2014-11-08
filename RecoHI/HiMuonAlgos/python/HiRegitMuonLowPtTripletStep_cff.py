@@ -24,9 +24,7 @@ hiRegitMuLowPtTripletStepClusters = RecoTracker.IterativeTracking.LowPtTripletSt
 )
 
 # SEEDING LAYERS
-hiRegitMuLowPtTripletStepSeedLayers =  RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepSeedLayers.clone(
-    # ComponentName = 'hiRegitMuLowPtTripletStepSeedLayers'
-    )
+hiRegitMuLowPtTripletStepSeedLayers =  RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepSeedLayers.clone()
 hiRegitMuLowPtTripletStepSeedLayers.BPix.skipClusters = cms.InputTag('hiRegitMuLowPtTripletStepClusters')
 hiRegitMuLowPtTripletStepSeedLayers.FPix.skipClusters = cms.InputTag('hiRegitMuLowPtTripletStepClusters')
 
@@ -39,8 +37,7 @@ hiRegitMuLowPtTripletStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.Delta
 hiRegitMuLowPtTripletStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaZ_Region   = 1. # this give you the length 
 hiRegitMuLowPtTripletStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.Rescale_Dz      = 4. # max(DeltaZ_Region,Rescale_Dz*vtx->zError())
 hiRegitMuLowPtTripletStepSeeds.OrderedHitsFactoryPSet.SeedingLayers                                  = 'hiRegitMuLowPtTripletStepSeedLayers'
-# from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
-# hiRegitMuLowPtTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet.ComponentName = 'LowPtClusterShapeSeedComparitor'
+
 
 
 # building: feed the new-named seeds
@@ -60,7 +57,6 @@ hiRegitMuLowPtTripletStepTrajectoryFilter = cms.PSet(
 
 
 hiRegitMuLowPtTripletStepTrajectoryBuilder = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepTrajectoryBuilder.clone(
-    # ComponentName        = 'hiRegitMuLowPtTripletStepTrajectoryBuilder',
     trajectoryFilter = cms.PSet(
        refToPSet_ = cms.string('hiRegitMuLowPtTripletStepTrajectoryFilter',)
        ),
