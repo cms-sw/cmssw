@@ -23,12 +23,14 @@
 #include <math.h>
 
 HcalAmplifier::HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNoise, bool PreMix1, bool PreMix2) :
-  theDbService(0), 
+  theDbService(nullptr),
   theParameterMap(parameters),
-  theNoiseSignalGenerator(0),
-  theIonFeedbackSim(0),
-  theTimeSlewSim(0),
-  theStartingCapId(0), 
+  theNoiseSignalGenerator(nullptr),
+  myCholeskys(nullptr),
+  myADCPeds(nullptr),
+  theIonFeedbackSim(nullptr),
+  theTimeSlewSim(nullptr),
+  theStartingCapId(0),
   addNoise_(addNoise),
   preMixDigi_(PreMix1),
   preMixAdd_(PreMix2),
