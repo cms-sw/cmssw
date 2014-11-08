@@ -66,8 +66,8 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) {
       << " Found a cluster with no seed: " << cluster;
   }  				
   double cl_energy = 0;  
-  double cl_time = 0;  
-  double cl_timeweight=0.0;
+  //double cl_time = 0;  
+  //double cl_timeweight=0.0;
   double max_e = 0.0;  
   PFLayer::Layer max_e_layer = PFLayer::NONE;
   reco::PFRecHitRef refseed;  
@@ -77,7 +77,7 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) {
   //so the weight should be fraction*E^2
   //calculate a simplistic depth now. The log weighted will be done
   //in different stage  
-  std::array<double,3> pcavars;
+  double pcavars[3];
   for( const reco::PFRecHitFraction& rhf : cluster.recHitFractions() ) {
     const reco::PFRecHitRef& refhit = rhf.recHitRef();
     if( refhit->detId() == cluster.seed() ) refseed = refhit;
@@ -93,8 +93,8 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) {
     pcavars[0] = refhit->position().x();
     pcavars[1] = refhit->position().y();
     pcavars[2] = refhit->position().z();
-    for( unsigned i = 0; i < unsigned(rh_energy/_logWeightDenom); ++i ) {
-      _pca.AddRow(pcavars.data());
+    for( int i = 0; i < int(rh_energy/_logWeightDenom); ++i ) {
+      _pca->AddRow(pcavars);
     }
     if( rh_energy > max_e ) {
       max_e = rh_energy;
@@ -106,9 +106,9 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) {
   cluster.setLayer(max_e_layer);
   // calculate the position
 
-  _pca.MakePrincipals();
-  const TVectorD& means = *(_pca.GetMeanValues());
-  const TMatrixD& eigens = *(_pca.GetEigenVectors());
+  _pca->MakePrincipals();
+  const TVectorD& means = *(_pca->GetMeanValues());
+  const TMatrixD& eigens = *(_pca->GetEigenVectors());
   /*
   std::cout << "*** Principal component analysis (PFlow) ****" << std::endl;
   std::cout << "shower average (x,y,z) = " << "(" 

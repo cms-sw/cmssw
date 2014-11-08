@@ -31,7 +31,7 @@ _positionCalcHGCEE_pca = cms.PSet(
     ##
     minFractionInCalc = cms.double(1e-9),
     posCalcNCrystals = cms.int32(-1),
-    logWeightDenominator = cms.double(1e-6*0.50*55.1), # use cut value 0.50*MIP
+    logWeightDenominator = cms.double(1e-6*1.0*55.1), # use 1 MIP
     minAllowedNormalization = cms.double(1e-9)
     )
 
