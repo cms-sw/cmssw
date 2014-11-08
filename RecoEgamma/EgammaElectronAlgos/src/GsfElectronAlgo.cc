@@ -1525,6 +1525,11 @@ void GsfElectronAlgo::createElectron()
   //====================================================
 
   setCutBasedPreselectionFlag(ele,*eventData_->beamspot) ;
+  
+  //====================================================
+  // Pixel match variables
+  //====================================================
+  setPixelMatchInfomation(ele) ;
 
   LogTrace("GsfElectronAlgo")<<"Constructed new electron with energy  "<< ele->p4().e() ;
 
@@ -1676,3 +1681,31 @@ void GsfElectronAlgo::removeAmbiguousElectrons()
  }
 
 
+// Pixel match variables
+void GsfElectronAlgo::setPixelMatchInfomation(reco::GsfElectron* ele){
+  int sd1     = 0 ;
+  int sd2     = 0 ;
+  float dPhi1 = 0 ;
+  float dPhi2 = 0 ;
+  float dRz1  = 0 ;
+  float dRz2  = 0 ;
+  edm::RefToBase<TrajectorySeed> seed = ele->gsfTrack()->extra()->seedRef();
+  ElectronSeedRef elseed = seed.castTo<ElectronSeedRef>();
+  if(seed.isNull()){}
+  else{
+    if(elseed.isNull()){}
+    else{
+      sd1     = elseed->subDet1() ;
+      sd2     = elseed->subDet2() ;
+      dPhi1 = elseed->dPhi1() ;
+      dPhi2 = elseed->dPhi2() ;
+      dRz1  = elseed->dRz1 () ;
+      dRz2  = elseed->dRz2 () ;
+    }
+  }
+  ele->setPixelMatchSubdetectors(sd1,sd2) ;
+  ele->setPixelMatchDPhi1(dPhi1) ;
+  ele->setPixelMatchDPhi2(dPhi2) ;
+  ele->setPixelMatchDRz1 (dRz1 ) ;
+  ele->setPixelMatchDRz2 (dRz2 ) ;
+}
