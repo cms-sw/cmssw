@@ -41,83 +41,92 @@ def compare_bx_vector(xs, ys):
 
             yield x, y
 
-        for j in range(min(x_size, 0), min(x_size, y_size)):
-            x = xs.at(bx, j)
-            y = ys.at(bx, j)
-            print ">>>> ({0} @ {1}, {2} : {3}, {4} - {5}) vs ({6} @ {7}, {8} : {9}, {10} - {11})".format(
-                    x.hwPt(), x.hwEta(), x.hwPhi(), ((x.hwQual()>>0)&0x1), ((x.hwQual()>>1)&0x1), x.hwIso(),
-                    y.hwPt(), y.hwEta(), y.hwPhi(), ((y.hwQual()>>0)&0x1), ((y.hwQual()>>1)&0x1), y.hwIso())
+        # for j in range(min(x_size, 0), min(x_size, y_size)):
+        #     x = xs.at(bx, j)
+        #     y = ys.at(bx, j)
+        #     print ">>>> ({0} @ {1}, {2} : {3}, {4} - {5}) vs ({6} @ {7}, {8} : {9}, {10} - {11})".format(
+        #             x.hwPt(), x.hwEta(), x.hwPhi(), ((x.hwQual()>>0)&0x1), ((x.hwQual()>>1)&0x1), x.hwIso(),
+        #             y.hwPt(), y.hwEta(), y.hwPhi(), ((y.hwQual()>>0)&0x1), ((y.hwQual()>>1)&0x1), y.hwIso())
 
         print "<< Compared", x_size, "quantities"
 
+class Test(object):
+    def __init__(self, msg, type, inlabel, outlabel, tests):
+        self.msg = msg
+        self.inhandle = Handle(type)
+        self.outhandle = Handle(type)
+        self.inlabel = inlabel
+        self.outlabel = outlabel,
+        self.tests = tests or []
+
+    def __call__(self, event):
+        event.getByLabel(*(list(self.inlabel) + [self.inhandle]))
+        event.getByLabel(*(list(self.outlabel) + [self.outhandle]))
+
+        print self.msg
+        for a, b in compare_bx_vector(self.inhandle.product(), self.outhandle.product()):
+            for t in self.tests:
+                t(a, b)
+
+def test_type(a, b):
+    if a.getType() != b.getType():
+        print ">>> Type different:", a.getType(), "vs", b.getType()
+
 events = Events(sys.argv[1])
 
-spares_in = Handle('BXVector<l1t::CaloSpare>')
-spares_out = Handle('BXVector<l1t::CaloSpare>')
-
-egammas_in = Handle('BXVector<l1t::EGamma>')
-egammas_out = Handle('BXVector<l1t::EGamma>')
-
-etsums_in = Handle('BXVector<l1t::EtSum>')
-etsums_out = Handle('BXVector<l1t::EtSum>')
-
-jets_in = Handle('BXVector<l1t::Jet>')
-jets_out = Handle('BXVector<l1t::Jet>')
-
-taus_in = Handle('BXVector<l1t::Tau>')
-taus_out = Handle('BXVector<l1t::Tau>')
-
-# in_label = "Layer2Phys"
-in_label = ("caloStage1FinalDigis", "")
-tau_label = ("caloStage1FinalDigis", "isoTaus")
-out_label = "l1tRawToDigi"
-
-in_ring_label = ("caloStage1FinalDigis", "HFRingSums")
-out_ring_label = ("l1tRawToDigi", "HFRingSums")
-
-in_bit_label = ("caloStage1FinalDigis", "HFBitCounts")
-out_bit_label = ("l1tRawToDigi", "HFBitCounts")
+run = [
+        Test(
+            'Checking spare rings',
+            'BXVector<l1t::CaloSpare>',
+            ('caloStage1FinalDigis', 'HFRingSums'),
+            ('l1tRawToDigi', 'HFRingSums'),
+            [test_type]
+        ),
+        Test(
+            'Checking spare bits',
+            'BXVector<l1t::CaloSpare>',
+            ('caloStage1FinalDigis', 'HFBitCounts'),
+            ('l1tRawToDigi', 'HFBitCounts'),
+            [test_type]
+        ),
+        Test(
+            'Checking EG',
+            'BXVector<l1t::EGamma>',
+            ('caloStage1FinalDigis',),
+            ('l1tRawToDigi',),
+            []
+        ),
+        Test(
+            'Checking EtSum',
+            'BXVector<l1t::EtSum>',
+            ('caloStage1FinalDigis',),
+            ('l1tRawToDigi',),
+            []
+        ),
+        Test(
+            'Checking Jets',
+            'BXVector<l1t::Jet>',
+            ('caloStage1FinalDigis',),
+            ('l1tRawToDigi',),
+            []
+        ),
+        Test(
+            'Checking Taus',
+            'BXVector<l1t::Tau>',
+            ('caloStage1FinalDigis', 'rlxTaus'),
+            ('l1tRawToDigi', 'rlxTaus'),
+            []
+        ),
+        Test(
+            'Checking Iso Taus',
+            'BXVector<l1t::Tau>',
+            ('caloStage1FinalDigis', 'isoTaus'),
+            ('l1tRawToDigi', 'isoTaus'),
+            []
+        )
+]
 
 for event in events:
     print "< New event"
-    event.getByLabel(in_ring_label, spares_in)
-    event.getByLabel(in_label, egammas_in)
-    event.getByLabel(in_label, etsums_in)
-    event.getByLabel(in_label, jets_in)
-    event.getByLabel(tau_label, taus_in)
-
-    event.getByLabel(out_ring_label, spares_out)
-    event.getByLabel(out_label, egammas_out)
-    event.getByLabel(out_label, etsums_out)
-    event.getByLabel(out_label, jets_out)
-    event.getByLabel(out_label, taus_out)
-
-    print "Checking egammas"
-    for a, b in compare_bx_vector(egammas_in.product(), egammas_out.product()):
-        pass
-
-    print "Checking spare ring"
-    for a, b in compare_bx_vector(spares_in.product(), spares_out.product()):
-        if a.getType() != b.getType():
-            print ">>> Type different:", a.getType(), "vs", b.getType()
-
-    event.getByLabel(in_bit_label, spares_in)
-    event.getByLabel(out_bit_label, spares_out)
-
-    print "Checking spare bits"
-    for a, b in compare_bx_vector(spares_in.product(), spares_out.product()):
-        if a.getType() != b.getType():
-            print ">>> Type different:", a.getType(), "vs", b.getType()
-
-    print "Checking etsums"
-    for a, b in compare_bx_vector(etsums_in.product(), etsums_out.product()):
-        if a.getType() != b.getType():
-            print ">>> Type different:", a.getType(), "vs", b.getType()
-
-    print "Checking jets"
-    for a, b in compare_bx_vector(jets_in.product(), jets_out.product()):
-        pass
-
-    print "Checking taus"
-    for a, b in compare_bx_vector(taus_in.product(), taus_out.product()):
-        pass
+    for test in run:
+        test(event)

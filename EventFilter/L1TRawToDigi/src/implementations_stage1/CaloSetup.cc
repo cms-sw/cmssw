@@ -27,6 +27,7 @@ namespace l1t {
                      PackerFactory::get()->make("stage1::CentralJetPacker"),
                      PackerFactory::get()->make("stage1::ForwardJetPacker"),
                      PackerFactory::get()->make("stage1::TauPacker"),
+                     PackerFactory::get()->make("stage1::IsoTauPacker"),
                      PackerFactory::get()->make("stage1::EtSumPacker"),
                      PackerFactory::get()->make("stage1::HFRingPacker"),
                   };
@@ -42,7 +43,8 @@ namespace l1t {
                prod.produces<EGammaBxCollection>();
                prod.produces<EtSumBxCollection>();
                prod.produces<JetBxCollection>();
-               prod.produces<TauBxCollection>();
+               prod.produces<TauBxCollection>("rlxTaus");
+               prod.produces<TauBxCollection>("isoTaus");
             };
 
             virtual std::unique_ptr<UnpackerCollections> getCollections(edm::Event& e) override {
@@ -55,19 +57,19 @@ namespace l1t {
                auto cjet_unp = UnpackerFactory::get()->make("stage1::CentralJetUnpacker");
                auto fjet_unp = UnpackerFactory::get()->make("stage1::ForwardJetUnpacker");
                auto tau_unp = UnpackerFactory::get()->make("stage1::TauUnpacker");
+               auto isotau_unp = UnpackerFactory::get()->make("stage1::IsoTauUnpacker");
                auto etsum_unp = UnpackerFactory::get()->make("stage1::EtSumUnpacker");
                auto ring_unp = UnpackerFactory::get()->make("stage1::HFRingUnpacker");
 
                UnpackerMap res;
-               if (fed == 1) {
-                  res[1] = iegamma_unp;
-                  res[2] = niegamma_unp;
-                  res[3] = cjet_unp;
-                  res[4] = fjet_unp;
-                  res[5] = tau_unp;
-                  res[6] = etsum_unp;
-                  res[7] = ring_unp;
-               }
+               res[1] = iegamma_unp;
+               res[2] = niegamma_unp;
+               res[3] = cjet_unp;
+               res[4] = fjet_unp;
+               res[5] = tau_unp;
+               res[6] = etsum_unp;
+               res[7] = ring_unp;
+               res[8] = isotau_unp;
 
                return res;
             };

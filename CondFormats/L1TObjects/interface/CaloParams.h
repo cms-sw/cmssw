@@ -134,12 +134,12 @@ namespace l1t {
     double switchOffTauIso() const { return switchOffTauIso_;}
     double tauRelativeJetIsolationLimit() const { return tauRelativeJetIsolationLimit_; }
     double tauRelativeJetIsolationCut() const { return tauRelativeJetIsolationCut_; }
+    int    isoTauEtaMin() const { return isoTauEtaMin_; }
+    int    isoTauEtaMax() const { return isoTauEtaMax_; }
     std::string tauIsoPUSType() const { return tauIsoPUSType_; }
     l1t::LUT* tauIsolationLUT() { return tauIsolationLUT_.get(); }
     std::string tauCalibrationType() const { return tauCalibrationType_; }
     std::vector<double> tauCalibrationParams() { return tauCalibrationParams_; }
-    std::vector<double> isoTauThresholds() { return isoTauThresholds_; }
-    std::vector<double> diIsoTauThresholds() { return diIsoTauThresholds_; }
     l1t::LUT* tauCalibrationLUT() { return tauCalibrationLUT_.get(); }
 
     void setTauLsb(double lsb) { tauLsb_ = lsb; }
@@ -149,14 +149,14 @@ namespace l1t {
     void setSwitchOffTauIso(double limit) { switchOffTauIso_ = limit; }
     void setTauRelativeJetIsolationLimit(double limit) { tauRelativeJetIsolationLimit_ = limit; }
     void setTauRelativeJetIsolationCut(double cutValue) { tauRelativeJetIsolationCut_ = cutValue; }
+    void setIsoTauEtaMin(int value) { isoTauEtaMin_ = value; }
+    void setIsoTauEtaMax(int value) { isoTauEtaMax_ = value; }
     void setTauIsoPUSType(std::string type) { tauIsoPUSType_ = type; }
     void setTauIsolationLUT(std::shared_ptr<LUT> lut) { tauIsolationLUT_ = lut; }
     void setTauCalibrationType(std::string type) { tauCalibrationType_ = type; }
     void setTauCalibrationParams(std::vector<double> params) { tauCalibrationParams_ = params; }
     void setTauCalibrationLUT(std::shared_ptr<LUT> lut) { tauCalibrationLUT_ = lut; }
 
-    void setIsoTauThresholds(std::vector<double> params) { isoTauThresholds_ = params; }
-    void setDiIsoTauThresholds(std::vector<double> params) { diIsoTauThresholds_ = params; }
     // jets
     double jetLsb() const { return jetLsb_; }
     double jetSeedThreshold() const { return jetSeedThreshold_; }
@@ -355,6 +355,10 @@ namespace l1t {
     // Relative jet isolation cut for Taus (Stage1Layer2)
     double tauRelativeJetIsolationCut_;
 
+    // Eta min and max for Iso-Tau collections (Stage1Layer2)
+    int isoTauEtaMin_;
+    int isoTauEtaMax_;
+
     // Tau isolation PUS
     std::string tauIsoPUSType_;
 
@@ -370,9 +374,6 @@ namespace l1t {
     // Tau calibration lookup table
     std::shared_ptr<l1t::LUT> tauCalibrationLUT_;
 
-    // thesholds for iso and di-iso tau triggers (HF ET Ring Sum repurposing)
-    std::vector<double> isoTauThresholds_;
-    std::vector<double> diIsoTauThresholds_;
 
     /* Jets */
 
