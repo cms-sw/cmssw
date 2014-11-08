@@ -284,7 +284,7 @@ std::pair<int,int> HGCalDDDConstants::newCell(int cell, int lay, int subsector,
 					      int incrz, bool half) const {
  
   int layer = lay + incrz;
-  if (layer <= 0 || layer < (int)(layers(true))) return std::pair<int,int>(cell,0);
+  if (layer <= 0 || layer > (int)(layers(true))) return std::pair<int,int>(cell,0);
   int subSec = half ? subsector : 0;
   std::pair<float,float> xy = locateCell(cell, lay, subSec, true);
   std::pair<int,int>     kcell = assignCell(xy.first, xy.second, layer, subSec,

@@ -13,7 +13,7 @@ using namespace std;
 
 typedef std::unordered_multimap<unsigned,unsigned> HitLinkMap;
 
-std::vector<TVector3> cleanedHits;
+std::vector<std::pair<TVector3,float> > cleanedHits;
   
 std::vector<int> LeafHitsIndex; 
 std::vector<int> JointHitsIndex; 
@@ -74,7 +74,7 @@ void init( float CellSize, float LayerThickness ) {
 
 }
 
-void HitsCleaning(std::vector<TVector3> inputHits )
+void HitsCleaning(std::vector<std::pair<TVector3,float> > inputHits )
 {
   cleanedHits = std::move(inputHits);        //Cannot Really do much things here. Mapping before calling
   NHits = cleanedHits.size();
@@ -155,7 +155,7 @@ void HitsClassification( linkcoll inputLinks )
 	edm::LogVerbatim("ArborInfo") <<"TotalHits: "<<NHits<<endl; 
 }
 
-linkcoll LinkClean(const std::vector<TVector3>& allhits, linkcoll alllinks )
+linkcoll LinkClean(const std::vector<std::pair<TVector3,float> >& allhits, linkcoll alllinks )
 {
   linkcoll cleanedlinks; 
   
@@ -196,7 +196,7 @@ linkcoll LinkClean(const std::vector<TVector3>& allhits, linkcoll alllinks )
   edm::LogInfo("ArborInfo") <<"Initialized LinkHits!";
   
   for(int i1 = 0; i1 < NHits; i1++) {
-    PosB = cleanedHits[i1];
+    PosB = cleanedHits[i1].first;
     MinAngleIndex = -10;
     MinAngle = 1E6;
     
@@ -206,7 +206,7 @@ linkcoll LinkClean(const std::vector<TVector3>& allhits, linkcoll alllinks )
     
     for(int k1 = 0; k1 < Ncurrhitlinks; k1++)
       {
-	PosA = cleanedHits[ currhitlink[k1] ];
+	PosA = cleanedHits[ currhitlink[k1] ].first;
 	DirAngle = (PosA + PosB).Angle(PosB - PosA);		//Replace PosA + PosB with other order parameter ~ reference direction
 	const float paddedAngle = (DirAngle + 0.1);
 	tmpOrder = (PosB - PosA).Mag2() * paddedAngle * paddedAngle;
@@ -244,7 +244,7 @@ void BuildInitLink()
   std::vector<KDTreeNodeInfo> nodes, found;
   
   for(int i0 = 0; i0 < NHits; ++i0 ) {     
-    const auto& hit = cleanedHits[i0];
+    const auto& hit = cleanedHits[i0].first;
     nodes.emplace_back(i0,(float)hit.X(),(float)hit.Y(),(float)hit.Z());
     if( i0 == 0 ) {
       minpos[0] = hit.X(); minpos[1] = hit.Y(); minpos[2] = hit.Z();
@@ -268,7 +268,7 @@ void BuildInitLink()
   for(int i0 = 0; i0 < NHits; ++i0)
     {
       found.clear();
-      const auto& PosA = cleanedHits[i0];
+      const auto& PosA = cleanedHits[i0].first;
       const float side = InitLinkThreshold;
       const float xplus(PosA.X() + side), xminus(PosA.X() - side);
       const float yplus(PosA.Y() + side), yminus(PosA.Y() - side);
@@ -283,7 +283,7 @@ void BuildInitLink()
       for(unsigned j0 = 0; j0 < found.size(); ++j0)
 	{
 	  if( found[j0].data <= (unsigned)i0 ) continue;
-	  const auto& PosB = cleanedHits[found[j0].data];
+	  const auto& PosB = cleanedHits[found[j0].data].first;
 	  PosDiffAB = PosA - PosB;
 	  
 	  if( std::abs(PosDiffAB.Z()) > 1e-3 && PosDiffAB.Mag2() < InitLinkThreshold2 ) // || ( PosDiffAB.Mag() < 1.6*InitLinkThreshold && PosDiffAB.Dot(PosB) < 0.9*PosDiffAB.Mag()*PosB.Mag() )  )	//Distance threshold to be optimized - should also depends on Geometry
@@ -334,7 +334,7 @@ void EndPointLinkIteration()
 	for(int i0 = 0; i0 < NLeaves; i0++)
 	{
 		LeafIndex = LeafHitsIndex[i0];
-		PosLeaf = cleanedHits[ LeafIndex ];	//Depth??
+		PosLeaf = cleanedHits[ LeafIndex ].first;	//Depth??
 
 		for(int j0 = 0; j0 < NSimpleSeeds + NStarSeeds; j0++)
 		{
@@ -346,7 +346,7 @@ void EndPointLinkIteration()
 			{
 				OldSeedIndex = StarSeedHitsIndex[j0 - NSimpleSeeds];
 			}
-			PosOldSeed = cleanedHits[ OldSeedIndex ];
+			PosOldSeed = cleanedHits[ OldSeedIndex ].first;
 		
 			Diff_Leaf_OldSeed = PosLeaf - PosOldSeed; 
 
@@ -400,10 +400,13 @@ void LinkIteration()	//Energy corrections, semi-local correction
   std::pair<int, int> currlink; 
   
   TVector3 RefDir[NHits];
+  float    RefDirNorm[NHits];
+  memset(RefDirNorm,0,NHits*sizeof(float));
   
   for(int i = 0; i < NHits; i++) {
-    const auto& hit = cleanedHits[i];
-    RefDir[i] = 1.0/hit.Mag() * hit;
+    const auto& hit = cleanedHits[i].first;
+    RefDir[i] = 0.0;//1.0*hit.Unit();
+    RefDirNorm[i] = 0.0;//1.0;
     
     nodes.emplace_back(i,(float)hit.X(),(float)hit.Y(),(float)hit.Z());
     if( i == 0 ) {
@@ -428,12 +431,14 @@ void LinkIteration()	//Energy corrections, semi-local correction
 
   for(unsigned j = 0; j < (unsigned)NInitLinks; j++) {
     currlink = InitLinks[j];
-    PosA = cleanedHits[ currlink.first ];
-    PosB = cleanedHits[ currlink.second ];
-    linkDir = (PosA - PosB);		//Links are always from first point to second - verify
-    linkDir *= 1.0/linkDir.Mag(); 
-    RefDir[currlink.first] += 2*linkDir; 	//Weights... might be optimized...
-    RefDir[currlink.second] += 4*linkDir; 
+    const auto& hit1 = cleanedHits[ currlink.first ];
+    const auto& hit2 = cleanedHits[ currlink.second ];
+    linkDir = (hit1.first - hit2.first).Unit();		//Links are always from first point to second - verify
+    //linkDir *= 1.0/linkDir.Mag(); 
+    RefDir[currlink.first] += hit1.second*linkDir; //(hit1.second)	
+    RefDirNorm[currlink.first] += hit1.second;
+    RefDir[currlink.second] += hit2.second*linkDir; //(hit2.second)
+    RefDirNorm[currlink.second] += hit2.second;
   }
   
   const float IterLinkThreshold2 = std::pow(IterLinkThreshold,2.0);
@@ -441,8 +446,8 @@ void LinkIteration()	//Energy corrections, semi-local correction
 
   for(unsigned i1 = 0; i1 < (unsigned)NHits; i1++) {
     found.clear();
-    RefDir[i1] *= 1.0/RefDir[i1].Mag();
-    PosA = cleanedHits[i1];
+    //RefDir[i1] *= 1.0/RefDir[i1].Mag();//1.0/RefDirNorm[i1];
+    PosA = cleanedHits[i1].first;
     
     const float side = IterLinkThreshold;
     const float xplus(PosA.X() + side), xminus(PosA.X() - side);
@@ -458,7 +463,7 @@ void LinkIteration()	//Energy corrections, semi-local correction
     
     for(unsigned j1 = 0; j1 < found.size(); j1++) {
       if( found[j1].data <= i1 ) continue;
-      PosB = cleanedHits[found[j1].data];
+      PosB = cleanedHits[found[j1].data].first;
       DiffPosAB = PosB - PosA; 
       
       if( std::abs(DiffPosAB.Z()) > 1e-3 &&
@@ -477,6 +482,11 @@ void LinkIteration()	//Energy corrections, semi-local correction
 	    currlink.second = found[j1].data;
 	  }
 	
+	RefDir[currlink.first] += cleanedHits[currlink.first].second*DiffPosAB; //(hit1.second)	
+	RefDirNorm[currlink.first] += cleanedHits[currlink.first].second;
+	RefDir[currlink.second] += cleanedHits[currlink.second].second*DiffPosAB; //(hit2.second)
+	RefDirNorm[currlink.second] += cleanedHits[currlink.second].second;
+
 	alliterBackLinksMap.emplace(currlink.second,currlink.first);
 	alliterlinks.push_back(currlink);
       } 
@@ -508,7 +518,8 @@ void LinkIteration()	//Energy corrections, semi-local correction
 
   for(int i2 = 0; i2 < NHits; i2++)
     {
-      PosB = cleanedHits[i2];
+      PosB = cleanedHits[i2].first;
+      //float energyB = cleanedHits[i2].second;
       MinAngleIndex = -10;
       MinAngle = 1E6;
 
@@ -518,7 +529,8 @@ void LinkIteration()	//Energy corrections, semi-local correction
       
       for(int j2 = 0; j2 < Ncurrhitlinks; j2++)
 	{
-	  PosA = cleanedHits[ currhitlink[j2] ];
+	  PosA = cleanedHits[ currhitlink[j2] ].first;
+	  //float energyA = cleanedHits[ currhitlink[j2] ].second;
 	  DirAngle = (RefDir[i2]).Angle(PosA - PosB);
 	  const float paddedAngle = (DirAngle + 1.0);
 	  tmpOrder = (PosB - PosA).Mag2() * paddedAngle * paddedAngle;
@@ -681,7 +693,7 @@ void BranchBuilding(const float distSeedForMerge,
       seedToBranchesMap.emplace(theseed,SortedBranchIndex[i4]); // map seed to branches
       if( !seedHitsMap[theseed] ) {
 	seedHitsMap[theseed] = true;
-	const auto& hit = cleanedHits[theseed];
+	const auto& hit = cleanedHits[theseed].first;
 	nodes.emplace_back(theseed,(float)hit.X(),(float)hit.Y(),(float)hit.Z());
 	if( needInitPosMinMax ) {
 	  needInitPosMinMax = false;
@@ -753,7 +765,7 @@ void BranchBuilding(const float distSeedForMerge,
       }
       
       // do a kd tree search for seeds to merge together based on distance
-      const auto& seedpos = cleanedHits[SeedIndex_A];
+      const auto& seedpos = cleanedHits[SeedIndex_A].first;
       const float side = distSeedForMerge;
       const float xplus(seedpos.X() + side), xminus(seedpos.X() - side);
       const float yplus(seedpos.Y() + side), yminus(seedpos.Y() - side);
@@ -767,7 +779,7 @@ void BranchBuilding(const float distSeedForMerge,
       found.clear();
       kdtree.search(searchcube,found);
       for(unsigned j7 = 0; j7 < found.size(); j7++) {	
-	DisSeed = seedpos - cleanedHits[ found[j7].data ];
+	DisSeed = seedpos - cleanedHits[ found[j7].data ].first;
 	if( ( allowSameLayerSeedMerge || std::abs(DisSeed.Z()) > 1e-3 ) &&
 	    DisSeed.Mag2() < distSeedForMerge2 ) {
 	  auto seed_branches = seedToBranchesMap.equal_range(found[j7].data);
@@ -859,16 +871,16 @@ void MakingCMSCluster() // edm::Event& Event, const edm::EventSetup& Setup )
 		{
 			edm::LogVerbatim("ArborInfo") <<currBranch[j0]<<", ";
 
-			currHit = cleanedHits[currBranch[j0]];
+			currHit = cleanedHits[currBranch[j0]].first;
 		}
 	}
 }	
 
-  std::vector< std::vector<int> > Arbor(std::vector<TVector3> inputHits, 
-					const float CellSize, 
-					const float LayerThickness, 
-					const float distSeedForMerge,
-					const bool allowSameLayerSeedMerge) {
+std::vector< std::vector<int> > Arbor(std::vector<std::pair<TVector3,float> > inputHits, 
+				      const float CellSize, 
+				      const float LayerThickness, 
+				      const float distSeedForMerge,
+				      const bool allowSameLayerSeedMerge) {
 	init(CellSize, LayerThickness);
 
 	HitsCleaning( std::move(inputHits) );
