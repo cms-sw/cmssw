@@ -36,7 +36,7 @@ private:
   std::vector<KDNode> _nodes, _found;
   KDTree _kdtree;
 
-  std::unique_ptr<PosCalc> _posCalc;
+  std::unique_ptr<PosCalc> _logWeightPosCalc,_pcaPosCalc;
 
   std::array<float,3> _moliere_radii;
 
@@ -122,12 +122,19 @@ HGCClusterizer::HGCClusterizer(const edm::ParameterSet& conf) :
     InitialClusteringStepBase(conf) { 
   // clean initial state for searching
   _nodes.clear(); _found.clear(); _kdtree.clear();
-   // setup 2D position calculator for per-layer clusters
-  _posCalc.reset(nullptr); 
+  // setup 2D position calculator for per-layer clusters
+  _logWeightPosCalc.reset(nullptr); 
   const edm::ParameterSet& pconf = conf.getParameterSet("positionCalcInLayer");
   const std::string& algo = pconf.getParameter<std::string>("algoName");
   PosCalc* calc = PFCPositionCalculatorFactory::get()->create(algo,pconf);
-  _posCalc.reset(calc);
+  _logWeightPosCalc.reset(calc);
+  // setup PCA position calculator for full cluster
+  _pcaPosCalc.reset(nullptr); 
+  const edm::ParameterSet& pcaconf = conf.getParameterSet("positionCalcPCA");
+  const std::string& pcaalgo = pconf.getParameter<std::string>("algoName");
+  PosCalc* pcacalc = 
+    PFCPositionCalculatorFactory::get()->create(pcaalgo,pcaconf);
+  _pcaPosCalc.reset(pcacalc);
   // get moliere radius and nuclear interaction 90% width
   _moliere_radii.fill(0.0f);
   const edm::ParameterSet& mconf = conf.getParameterSet("moliereRadii");
@@ -164,7 +171,7 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
       
       layer_cluster.setLayer(hit.layer());
       layer_cluster.setSeed(hit.detId());
-      _posCalc->calculateAndSetPosition(layer_cluster);
+      _logWeightPosCalc->calculateAndSetPosition(layer_cluster);
       
       if( layer_cluster.hitsAndFractions().size() > 1 ) {
 	/*
@@ -341,7 +348,7 @@ linkClustersInLayer(const reco::PFClusterCollection& input_clusters,
     }
     merged_cluster.setSeed(seed_hit->detId());
     merged_cluster.setLayer(seed_hit->layer());
-    _posCalc->calculateAndSetPosition(merged_cluster);
+    _pcaPosCalc->calculateAndSetPosition(merged_cluster);
     output.push_back(merged_cluster);
   }
   _found.clear();

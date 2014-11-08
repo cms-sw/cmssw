@@ -27,11 +27,11 @@ _positionCalcHGCEE_onelayer = cms.PSet(
     )
 
 _positionCalcHGCEE_pca = cms.PSet(
-    algoName = cms.string("3DClusterPCACalculator"),
+    algoName = cms.string("Cluster3DPCACalculator"),
     ##
     minFractionInCalc = cms.double(1e-9),
     posCalcNCrystals = cms.int32(-1),
-    logWeightDenominator = cms.double(1e-6*0.25*55.1), # use ADC value 0.25*MIP
+    logWeightDenominator = cms.double(1e-6*0.50*55.1), # use cut value 0.50*MIP
     minAllowedNormalization = cms.double(1e-9)
     )
 
@@ -39,7 +39,7 @@ _fromScratchHGCClusterizer_HGCEE = cms.PSet(
     algoName = cms.string("HGCClusterizer"), 
     thresholdsByDetector = cms.VPSet( ),
     positionCalcInLayer = _positionCalcHGCEE_onelayer,
-    clusterPCACalculator3D = _positionCalcHGCEE_pca,
+    positionCalcPCA = _positionCalcHGCEE_pca,
     moliereRadii = cms.PSet( HGC_ECAL = cms.double(2.9)  ) #cm
 )
 
