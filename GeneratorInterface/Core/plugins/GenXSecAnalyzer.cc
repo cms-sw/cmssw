@@ -377,7 +377,7 @@ GenXSecAnalyzer::endJob() {
 
   const int sizeOfInfos= theProcesses_size+1;
   const int last = sizeOfInfos-1;
-  std::string title[sizeOfInfos];
+  std::string * title = new std::string[sizeOfInfos];
 
   for(int i=0; i < sizeOfInfos; i++){
 
@@ -425,6 +425,7 @@ GenXSecAnalyzer::endJob() {
 
 
   }
+  delete [] title;
 
   edm::LogPrint("GenXSecAnalyzer") 
     << "--------------------------------------------------------------------------------------------------------------------------------------------------------------------------";
