@@ -18,20 +18,6 @@ hiGeneralTracksNoRegitMu = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.t
     makeReKeyedSeeds = cms.untracked.bool(False)
     )
 
-#Emilien
-# hiGeneralTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
-#     ShareFrac = cms.double(0.99),
-#     TrackProducers = (cms.InputTag('hiGeneralTracksNoRegitMu'),
-#                       cms.InputTag('hiGeneralAndRegitMuTracks')
-#                      ),
-#     hasSelector=cms.vint32(0,0),
-#     selectedTrackQuals = cms.VInputTag(cms.InputTag(""),cms.InputTag("")),
-#     setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1), pQual=cms.bool(True)),  # should this be False?
-#                              ),
-#     copyExtras = True,
-#     # makeReKeyedSeeds = cms.untracked.bool(False)
-#     )
-
 hiGeneralTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
     TrackProducers = (cms.InputTag('hiGlobalPrimTracks'),
                       cms.InputTag('hiSecondPixelTripletGlobalPrimTracks'),
