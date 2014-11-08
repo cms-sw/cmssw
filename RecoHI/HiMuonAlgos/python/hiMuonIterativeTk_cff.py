@@ -41,10 +41,8 @@ hiRegitMuTracking = cms.Sequence(hiRegitMuonInitialStep
                                  *hiRegitMuonMixedTripletStep
                                  *hiRegitMuonPixelLessStep
                                  *hiRegitMuonTobTecStep
-                                 # *hiGeneralAndRegitMuTracks
                                  )
 
-# Emilien
 # Seed generator
 from RecoMuon.MuonSeedGenerator.standAloneMuonSeeds_cff import *
 
