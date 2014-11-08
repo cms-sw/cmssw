@@ -40,7 +40,6 @@ hiRegitMuInitialStepTrajectoryFilter.filters = cms.VPSet(
 
 
 hiRegitMuInitialStepTrajectoryBuilder = RecoTracker.IterativeTracking.InitialStep_cff.initialStepTrajectoryBuilder.clone(
-    # ComponentName        = 'hiRegitMuInitialStepTrajectoryBuilder',
     trajectoryFilter = cms.PSet(
        refToPSet_ = cms.string('hiRegitMuInitialStepTrajectoryFilter')
        ),
