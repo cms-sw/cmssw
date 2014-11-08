@@ -57,7 +57,8 @@ caloStage2Params.jetNeighbourThreshold = cms.double(0.)
 caloStage2Params.jetPUSType            = cms.string("None")
 #Calibration options 
 # e.g. function6PtParams22EtaBins function6PtParams80EtaBins
-caloStage2Params.jetCalibrationType    = cms.string("function6PtParams80EtaBins")
+#caloStage2Params.jetCalibrationType    = cms.string("function6PtParams80EtaBins")
+caloStage2Params.jetCalibrationType    = cms.string("None")
 #Vector with 6 parameters for eta bin, from low eta to high
 # 1,0,1,0,1,1 gives no correction
 # must be in this form as may require > 255 arguments
