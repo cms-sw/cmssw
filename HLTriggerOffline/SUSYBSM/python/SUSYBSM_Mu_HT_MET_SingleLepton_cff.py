@@ -12,7 +12,7 @@ SUSY_HLT_Mu_HT_MET_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                                  conversionCollection = cms.InputTag(''),
                                                  beamSpot = cms.InputTag(''),
 
-                                                 leptonFilter = cms.InputTag('hltL3crVVVVLIsoL1sMu5L1f0L2f0QL3f15QL3crVVVVLIsoRhoFiltered1p0IterTrk02','','reHLT'),
+                                                 leptonFilter = cms.InputTag('hltL3crIsoL1sMu5L1f0L2f3QL3f15QL3crIsoRhoFiltered0p15IterTrk02','','reHLT'),
                                                  hltHt = cms.InputTag('hltPFHT','','reHLT'),
                                                  hltMet = cms.InputTag('hltPFMETProducer','','reHLT'),
                                                  hltJets = cms.InputTag(''),
@@ -25,13 +25,14 @@ SUSY_HLT_Mu_HT_MET_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
 
                                                  triggerPath = cms.string('HLT_Mu15_IterTrk02_IsoVVVL_PFHT400_PFMET70_v1'),
                                                  triggerPathAuxiliary = cms.string('HLT_IsoMu24_IterTrk02_v1'),
-                                                 triggerPathLeptonAuxiliary = cms.string('HLT_PFMET170_NoiseCleaned_v1'),
+                                                 triggerPathLeptonAuxiliary = cms.string('HLT_PFHT350_PFMET120_NoiseCleaned_v1'),
 
                                                  jetPtCut = cms.untracked.double(40.0),
                                                  jetEtaCut = cms.untracked.double(3.0),
-                                                 metCut = cms.untracked.double(350.0),
+                                                 metCut = cms.untracked.double(250.0),
+                                                 htCut = cms.untracked.double(450.0),
 
-                                                 leptonPtThreshold = cms.untracked.double(15.0),
+                                                 leptonPtThreshold = cms.untracked.double(25.0),
                                                  htThreshold = cms.untracked.double(500.0),
                                                  metThreshold = cms.untracked.double(250.0),
                                                  csvThreshold = cms.untracked.double(-1.0)

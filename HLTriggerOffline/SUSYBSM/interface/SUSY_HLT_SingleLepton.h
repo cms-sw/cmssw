@@ -49,11 +49,11 @@
 
 class SUSY_HLT_SingleLepton: public DQMEDAnalyzer{
 
- public:
+public:
   SUSY_HLT_SingleLepton(const edm::ParameterSet& ps);
   virtual ~SUSY_HLT_SingleLepton();
 
- protected:
+protected:
   void dqmBeginRun(const edm::Run &run, const edm::EventSetup &e) override;
   void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &, const edm::EventSetup &) override;
   void beginLuminosityBlock(const edm::LuminosityBlock &lumi, const edm::EventSetup &eSetup) ;
@@ -61,7 +61,7 @@ class SUSY_HLT_SingleLepton: public DQMEDAnalyzer{
   void endLuminosityBlock(const edm::LuminosityBlock &lumi, const edm::EventSetup &eSetup);
   void endRun(const edm::Run &run, const edm::EventSetup &eSetup);
 
- private:
+private:
   //variables from config file
   edm::InputTag theElectronTag_;
   edm::EDGetTokenT<reco::GsfElectronCollection> theElectronCollection_;
@@ -107,6 +107,7 @@ class SUSY_HLT_SingleLepton: public DQMEDAnalyzer{
   double jetPtCut_;
   double jetEtaCut_;
   double metCut_;
+  double htCut_;
 
   double lep_pt_threshold_;
   double ht_threshold_;
