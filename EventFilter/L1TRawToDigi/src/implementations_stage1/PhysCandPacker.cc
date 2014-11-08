@@ -61,6 +61,11 @@ namespace l1t {
       public:
         virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
     };
+
+    class IsoTauPacker : public Packer {
+      public:
+        virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
+    };
   }
 }
 
@@ -112,6 +117,15 @@ namespace l1t {
 
        return process(5, *taus, [](const l1t::Tau& tau) -> bool { return true; });
     }
+
+    Blocks
+    IsoTauPacker::pack(const edm::Event& event, const PackerTokens* toks)
+    {
+       edm::Handle<TauBxCollection> taus;
+       event.getByToken(static_cast<const CaloTokens*>(toks)->getIsoTauToken(), taus);
+
+       return process(8, *taus, [](const l1t::Tau& tau) -> bool { return true; });
+    }
   }
 }
 
@@ -120,3 +134,4 @@ DEFINE_L1T_PACKER(l1t::stage1::NonIsoEGammaPacker);
 DEFINE_L1T_PACKER(l1t::stage1::CentralJetPacker);
 DEFINE_L1T_PACKER(l1t::stage1::ForwardJetPacker);
 DEFINE_L1T_PACKER(l1t::stage1::TauPacker);
+DEFINE_L1T_PACKER(l1t::stage1::IsoTauPacker);

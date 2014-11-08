@@ -242,7 +242,15 @@ Stage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
       if (tau->hwIso()==1)isoTaus->push_back(i, *tau);
     }
     taus->resize(i,4); //FIXME proper tau handling with hardware sorting
-    isoTaus->resize(i,4); //FIXME proper tau handling with hardware sorting
+    //isoTaus->resize(i,4); //FIXME proper tau handling with hardware sorting
+    int itsize=isoTaus->size(i);
+    while (itsize < 4){
+	ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > tauLorentz(0,0,0,0);
+	l1t::Tau theTau(*&tauLorentz, 0, 0, 0, 1, 1); // set hwIso=1 
+	isoTaus->push_back(i,theTau);
+	itsize++;
+    }
+
     for(std::vector<l1t::Jet>::const_iterator jet = localJets->begin(); jet != localJets->end(); ++jet)
       jets->push_back(i, *jet);
     for(std::vector<l1t::Jet>::const_iterator jet = localPreGtJets->begin(); jet != localPreGtJets->end(); ++jet)

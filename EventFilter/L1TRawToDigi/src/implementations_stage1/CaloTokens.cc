@@ -10,6 +10,7 @@ namespace l1t {
       {
          auto tag = cfg.getParameter<edm::InputTag>("InputLabel");
          auto tautag = cfg.getParameter<edm::InputTag>("TauInputLabel");
+         auto isotautag = cfg.getParameter<edm::InputTag>("IsoTauInputLabel");
          auto tagHFBitCounts = cfg.getParameter<edm::InputTag>("HFBitCountsInputLabel");
          auto tagHFRingSums = cfg.getParameter<edm::InputTag>("HFRingSumsInputLabel");
 
@@ -18,6 +19,7 @@ namespace l1t {
          etSumToken_ = cc.consumes<EtSumBxCollection>(tag);
          jetToken_ = cc.consumes<JetBxCollection>(tag);
          tauToken_ = cc.consumes<TauBxCollection>(tautag);
+         isotauToken_ = cc.consumes<TauBxCollection>(isotautag);
          calospareHFBitCountsToken_ = cc.consumes<CaloSpareBxCollection>(tagHFBitCounts);
          calospareHFRingSumsToken_ = cc.consumes<CaloSpareBxCollection>(tagHFRingSums);
       }

@@ -65,8 +65,8 @@ caloParams = cms.ESProducer(
     tauRelativeJetIsolationCut    = cms.double(0.1),
     tauIsoPUSType                 = cms.string("None"),
     tauIsoLUTFile                 = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauIsoLUT.txt"),
-    isoTauThresholds              = cms.vdouble(44,56,64,72,80,88),
-    diIsoTauThresholds            = cms.vdouble(56,68,80,96,112,120),  ## number of iso+diIso threholds must be <= 12
+    isoTauEtaMin                  = cms.int32(0),
+    isoTauEtaMax                  = cms.int32(17),
     tauCalibrationLUTFileBarrelA  = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTBarrelA.txt"),
     tauCalibrationLUTFileBarrelB  = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTBarrelB.txt"),
     tauCalibrationLUTFileBarrelC  = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTBarrelC.txt"),

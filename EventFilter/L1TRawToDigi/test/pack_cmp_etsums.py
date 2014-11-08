@@ -31,12 +31,15 @@ def compare_bx_vector(xs, ys):
                     print ">>> Pt :", x.hwPt(), "vs", y.hwPt()
                     print ">>> eta :", x.hwPhi(), "vs", y.hwPhi()
                     print ">>> overflow :", (x.hwQual()&0x1), "vs", (y.hwQual()&0x1)
+                    print ">>> type :", x.getType(), "vs", y.getType()
                     
                     if x.hwPt() != y.hwPt(): print ">>> Pt mismatch", x.hwPt(), "vs", y.hwPt()
                     if x.hwPhi() != y.hwPhi(): print ">>> Phi mismatch", x.hwPhi(), "vs", y.hwPhi()
                     if (x.hwQual()&0x1) != (y.hwQual()&0x1): print ">>> Qual mismatch",(x.hwQual()&0x1), "vs", (y.hwQual()&0x1)
-                      
+                    if x.getType() != y.getType(): print ">>> Type mismatch", x.hwPt(), "vs", y.hwPt()
                     yield x,y
+                    
+                
 
 events = Events(sys.argv[1])
 
