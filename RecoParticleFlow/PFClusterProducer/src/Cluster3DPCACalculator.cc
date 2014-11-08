@@ -21,7 +21,7 @@ class Cluster3DPCACalculator : public PFCPositionCalculatorBase {
     _posCalcNCrystals(conf.getParameter<int>("posCalcNCrystals")),
     _logWeightDenom(conf.getParameter<double>("logWeightDenominator")),
     _minAllowedNorm(conf.getParameter<double>("minAllowedNormalization")),
-    _pca(3,"D"){ }
+    _pca(new TPrincipal(3,"D")){ }
   Cluster3DPCACalculator(const Cluster3DPCACalculator&) = delete;
   Cluster3DPCACalculator& operator=(const Cluster3DPCACalculator&) = delete;
 
@@ -33,7 +33,7 @@ class Cluster3DPCACalculator : public PFCPositionCalculatorBase {
   const double _logWeightDenom;
   const double _minAllowedNorm;
   
-  TPrincipal _pca;
+  std::unique_ptr<TPrincipal> _pca;
 
   void showerParameters(const reco::PFCluster&, math::XYZPoint&, 
 			math::XYZVector& );
@@ -47,14 +47,14 @@ DEFINE_EDM_PLUGIN(PFCPositionCalculatorFactory,
 
 void Cluster3DPCACalculator::
 calculateAndSetPosition(reco::PFCluster& cluster) {
-  _pca.Clear();
+  _pca.reset(new TPrincipal(3,"D"));
   calculateAndSetPositionActual(cluster);
 }
 
 void Cluster3DPCACalculator::
 calculateAndSetPositions(reco::PFClusterCollection& clusters) {
   for( reco::PFCluster& cluster : clusters ) {
-    _pca.Clear();
+    _pca.reset(new TPrincipal(3,"D"));
     calculateAndSetPositionActual(cluster);
   }
 }
@@ -91,8 +91,8 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) {
     }
     cl_energy += rh_energy;
     pcavars[0] = refhit->position().x();
-    pcavars[1] = refhit->position().x();
-    pcavars[2] = refhit->position().x();
+    pcavars[1] = refhit->position().y();
+    pcavars[2] = refhit->position().z();
     for( unsigned i = 0; i < unsigned(rh_energy/_logWeightDenom); ++i ) {
       _pca.AddRow(pcavars.data());
     }
@@ -102,13 +102,14 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) {
     }    
   }
   cluster.setEnergy(cl_energy);
-  cluster.setTime(cl_time/cl_timeweight);
+  //cluster.setTime(cl_time/cl_timeweight);
   cluster.setLayer(max_e_layer);
   // calculate the position
 
   _pca.MakePrincipals();
   const TVectorD& means = *(_pca.GetMeanValues());
   const TMatrixD& eigens = *(_pca.GetEigenVectors());
+  /*
   std::cout << "*** Principal component analysis (PFlow) ****" << std::endl;
   std::cout << "shower average (x,y,z) = " << "(" 
 	    << means[0] << ", " 
@@ -118,11 +119,14 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) {
 	    << eigens(0,0) << ", " 
 	    << eigens(1,0) << ", " 
 	    << eigens(2,0) << ")" << std::endl;
+  */
   
   math::XYZPoint  barycenter(means[0],means[1],means[2]);
   math::XYZVector axis(eigens(0,0),eigens(1,0),eigens(2,0));
 
-  if( axis.z()*barycenter.z() < 0.0 ) axis *= -1;
+  if( axis.z()*barycenter.z() < 0.0 ) {
+    axis = math::XYZVector(-eigens(0,0),-eigens(1,0),-eigens(2,0));
+  }
   
   cluster.setPosition(barycenter);
   cluster.setAxis(axis);

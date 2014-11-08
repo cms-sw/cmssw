@@ -131,7 +131,7 @@ HGCClusterizer::HGCClusterizer(const edm::ParameterSet& conf) :
   // setup PCA position calculator for full cluster
   _pcaPosCalc.reset(nullptr); 
   const edm::ParameterSet& pcaconf = conf.getParameterSet("positionCalcPCA");
-  const std::string& pcaalgo = pconf.getParameter<std::string>("algoName");
+  const std::string& pcaalgo = pcaconf.getParameter<std::string>("algoName");
   PosCalc* pcacalc = 
     PFCPositionCalculatorFactory::get()->create(pcaalgo,pcaconf);
   _pcaPosCalc.reset(pcacalc);
