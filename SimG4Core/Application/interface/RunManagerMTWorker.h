@@ -82,6 +82,7 @@ private:
   edm::ParameterSet m_pStackingAction;
   edm::ParameterSet m_pTrackingAction;
   edm::ParameterSet m_pSteppingAction;
+  edm::ParameterSet m_pCustomUIsession;
   edm::ParameterSet m_p;
 
   struct TLSData;
