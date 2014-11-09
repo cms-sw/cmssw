@@ -133,7 +133,6 @@ process.allPath = cms.Path( process.triggerCosmicOfflineDQMSource * process.trig
 #process.allPath = cms.Path( process.triggerCosmicOfflineDQMSource*process.hltOfflineDQMClient)
 #process.allPath = cms.Path( process.DQMOfflineCosmics)
 #process.psource = cms.Path(process.hltResults)
-#process.psource = cms.Path(process.hltResults*process.hltFourVectorClient)
 
 process.p = cms.EndPath(process.dqmSaver)
 process.DQMStore.verbose = 0

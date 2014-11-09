@@ -54,14 +54,12 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
 
 ###############################
-# Only FV
+# Only hltResults
 #
 ##############################
 #
 # Offline
-process.load("DQMOffline.Trigger.FourVectorHLTOffline_cfi")
-process.load("DQMOffline.Trigger.FourVectorHLTOfflineClient_cfi")
-process.pHLT = cms.Path(process.hltResults*process.hltFourVectorClient )
+process.pHLT = cms.Path(process.hltResults)
 
 
 
