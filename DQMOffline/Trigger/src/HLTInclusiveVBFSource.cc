@@ -118,7 +118,7 @@ HLTInclusiveVBFSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   if(!triggerResults_.isValid()) {
     iEvent.getByToken(triggerResultsFUToken,triggerResults_);
     if(!triggerResults_.isValid()) {
-      edm::LogInfo("FourVectorHLTOffline") << "TriggerResults not found, "
+      edm::LogInfo("HLTInclusiveVBFSource") << "TriggerResults not found, "
 	"skipping event";
       return;
     }
@@ -141,7 +141,7 @@ HLTInclusiveVBFSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   if(!triggerObj_.isValid()) {
     iEvent.getByToken(triggerSummaryFUToken,triggerObj_);
     if(!triggerObj_.isValid()) {
-      edm::LogInfo("FourVectorHLTOffline") << "TriggerEvent not found, "
+      edm::LogInfo("HLTInclusiveVBFSource") << "TriggerEvent not found, "
 	"skipping event";
       return;
     }
