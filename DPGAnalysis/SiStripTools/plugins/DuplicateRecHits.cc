@@ -75,7 +75,7 @@ private:
   
       // ----------member data ---------------------------
 
-  edm::InputTag m_trkcollection;
+  edm::EDGetTokenT<reco::TrackCollection> m_trkcollToken;
   std::string m_buildername;
   const TransientTrackingRecHitBuilder* m_builder;
 
@@ -96,7 +96,7 @@ private:
 // constructors and destructor
 //
 DuplicateRecHits::DuplicateRecHits(const edm::ParameterSet& iConfig):
-  m_trkcollection(iConfig.getParameter<edm::InputTag>("trackCollection")),
+  m_trkcollToken(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("trackCollection"))),
   m_buildername(iConfig.getParameter<std::string>("TTRHBuilder"))
   
 {
@@ -104,7 +104,7 @@ DuplicateRecHits::DuplicateRecHits(const edm::ParameterSet& iConfig):
 
   // histogram parameters
 
-  edm::LogInfo("TrackCollection") << "Using collection " << m_trkcollection.label().c_str() ;
+  edm::LogInfo("TrackCollection") << "Using collection " << iConfig.getParameter<edm::InputTag>("trackCollection").label().c_str() ;
 
 
   edm::Service<TFileService> tfserv;
@@ -136,7 +136,7 @@ DuplicateRecHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    edm::Service<TFileService> tfserv;
 
    Handle<reco::TrackCollection> tracks;
-   iEvent.getByLabel(m_trkcollection,tracks);
+   iEvent.getByToken(m_trkcollToken,tracks);
 
 
    for(reco::TrackCollection::const_iterator it = tracks->begin();it!=tracks->end();it++) {
