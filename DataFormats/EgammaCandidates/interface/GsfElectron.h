@@ -250,6 +250,9 @@ class GsfElectron : public RecoCandidate
     float deltaPhiSuperClusterTrackAtVtx() const { return trackClusterMatching_.deltaPhiSuperClusterAtVtx ; }
     float deltaPhiSeedClusterTrackAtCalo() const { return trackClusterMatching_.deltaPhiSeedClusterAtCalo ; }
     float deltaPhiEleClusterTrackAtCalo() const { return trackClusterMatching_.deltaPhiEleClusterAtCalo ; }
+    float deltaEtaSeedClusterTrackAtVtx() const { return superCluster().isNonnull() && superCluster()->seed().isNonnull() ? 
+	trackClusterMatching_.deltaEtaSuperClusterAtVtx - superCluster()->eta() + superCluster()->seed()->eta() : std::numeric_limits<float>::max();
+    }
     const TrackClusterMatching & trackClusterMatching() const { return trackClusterMatching_ ; }
 
     // for backward compatibility, usefull ?
