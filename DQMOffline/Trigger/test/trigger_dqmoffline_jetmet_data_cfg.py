@@ -12,8 +12,6 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 # DQM Sources
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 # DQMOffline/Trigger
-process.load("DQMOffline.Trigger.FourVectorHLTOffline_cfi")
-process.load("DQMOffline.Trigger.FourVectorHLTOfflineClient_cfi")
 #process.load("DQMOffline.Trigger.JetMETHLTOfflineSource_cfi")
 process.load("DQMOffline.Trigger.JetMETHLTOfflineAnalyzer_cff")
 process.load("DQMOffline.Trigger.JetMETHLTOfflineClient_cfi")
@@ -41,13 +39,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:com10_GRun', '')
 
 
 ##-- DQMOffline/Trigger
-from DQMOffline.Trigger.FourVectorHLTOfflineClient_cfi import *
 from DQMOffline.Trigger.JetMETHLTOfflineClient_cfi import *
 process.load("DQMServices.Components.DQMStoreStats_cfi")
-process.hltclient = cms.Sequence(hltFourVectorClient)
-hltFourVectorClient.prescaleLS = cms.untracked.int32(-1)
-hltFourVectorClient.monitorDir = cms.untracked.string('')
-hltFourVectorClient.prescaleEvt = cms.untracked.int32(1)
 
 
 ##-- Source
