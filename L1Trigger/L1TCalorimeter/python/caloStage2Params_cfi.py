@@ -23,20 +23,24 @@ caloStage2Params.regionPUSParams  = cms.vdouble()
 caloStage2Params.egLsb                      = cms.double(0.5)
 caloStage2Params.egSeedThreshold            = cms.double(2.)
 caloStage2Params.egNeighbourThreshold       = cms.double(1.)
-caloStage2Params.egHcalThreshold            = cms.double(1.)
+caloStage2Params.egHcalThreshold            = cms.double(0.)
+caloStage2Params.egTrimmingLUTFile          = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egTrimmingLUT_5.txt")
 caloStage2Params.egMaxHcalEt                = cms.double(0.)
 caloStage2Params.egEtToRemoveHECut          = cms.double(128.)
-caloStage2Params.egMaxHOverELUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egMaxHOverELUT.txt")
-caloStage2Params.egShapeIdLUTFile           = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egShapeIdLUT.txt")
-caloStage2Params.egIsoPUSType               = cms.string("None")
-caloStage2Params.egIsoLUTFile               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egIsoLUT_PU40bx25.txt")
+caloStage2Params.egMaxHOverELUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egMaxHOverELUT_995eff.txt")
+caloStage2Params.egCompressShapesLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egCompressShapesLUT.txt")
+caloStage2Params.egShapeIdLUTFile           = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egShapeIdLUT_995eff.txt")
+caloStage2Params.egPUSType               = cms.string("None")
+caloStage2Params.egIsoLUTFile               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egIsoLUTPU40bx25NrRings4Eff95.txt")
 caloStage2Params.egIsoAreaNrTowersEta       = cms.uint32(2)
 caloStage2Params.egIsoAreaNrTowersPhi       = cms.uint32(4)
 caloStage2Params.egIsoVetoNrTowersPhi       = cms.uint32(3)
-caloStage2Params.egIsoPUEstTowerGranularity = cms.uint32(1)
-caloStage2Params.egIsoMaxEtaAbsForTowerSum  = cms.uint32(4)
-caloStage2Params.egIsoMaxEtaAbsForIsoSum    = cms.uint32(27)
-caloStage2Params.egCalibrationLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egCalibrationLUT.txt")
+#caloStage2Params.egIsoPUEstTowerGranularity = cms.uint32(1)
+#caloStage2Params.egIsoMaxEtaAbsForTowerSum  = cms.uint32(4)
+#caloStage2Params.egIsoMaxEtaAbsForIsoSum    = cms.uint32(27)
+caloStage2Params.egPUSParams                = cms.vdouble(1,4,27)
+
+caloStage2Params.egCalibrationLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egCalibrationLUT_Trimming5.txt")
 
 # Tau
 caloStage2Params.tauLsb                        = cms.double(0.5)
@@ -44,21 +48,96 @@ caloStage2Params.tauSeedThreshold              = cms.double(0.)
 caloStage2Params.tauNeighbourThreshold         = cms.double(0.)
 caloStage2Params.tauIsoPUSType                 = cms.string("None")
 caloStage2Params.tauIsoLUTFile                 = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauIsoLUT.txt")
-caloStage2Params.tauCalibrationLUTFileBarrelA  = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTBarrelA.txt")
-caloStage2Params.tauCalibrationLUTFileBarrelB  = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTBarrelB.txt")
-caloStage2Params.tauCalibrationLUTFileBarrelC  = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTBarrelC.txt")
-caloStage2Params.tauCalibrationLUTFileEndcapsA = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTEndcapsA.txt")
-caloStage2Params.tauCalibrationLUTFileEndcapsB = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTEndcapsB.txt")
-caloStage2Params.tauCalibrationLUTFileEndcapsC = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTEndcapsC.txt")
-caloStage2Params.tauCalibrationLUTFileEta      = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTEta.txt")
+caloStage2Params.tauCalibrationLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUT.txt")
 
 # jets
 caloStage2Params.jetLsb                = cms.double(0.5)
 caloStage2Params.jetSeedThreshold      = cms.double(0.)
 caloStage2Params.jetNeighbourThreshold = cms.double(0.)
 caloStage2Params.jetPUSType            = cms.string("None")
+#Calibration options 
+# e.g. function6PtParams22EtaBins function6PtParams80EtaBins
+#caloStage2Params.jetCalibrationType    = cms.string("function6PtParams80EtaBins")
 caloStage2Params.jetCalibrationType    = cms.string("None")
-caloStage2Params.jetCalibrationParams  = cms.vdouble()
+#Vector with 6 parameters for eta bin, from low eta to high
+# 1,0,1,0,1,1 gives no correction
+# must be in this form as may require > 255 arguments
+jetCalibParamsVector = cms.vdouble() #Currently contains factors for function6PtParams80EtaBins 
+jetCalibParamsVector.extend([
+                                        1,0,1,0,1,1, 1,0,1,0,1,1, #eta1 eta2
+                                        1,0,1,0,1,1, 1,0,1,0,1,1, #eta3 eta4
+                                        1,0,1,0,1,1, 1,0,1,0,1,1, #eta5 eta6
+                                        1,0,1,0,1,1, 1,0,1,0,1,1, #eta7 eta8
+                                        1,0,1,0,1,1, 1,0,1,0,1,1, #eta9 eta2
+                                        1,0,1,0,1,1, 1,0,1,0,1,1, #eta11 eta12
+    1.117222,	0.115154,	1.910615,	1.013722,	0.141106,	0.932544,
+    1.117222,	0.115154,	1.910615,	1.013722,	0.141106,	0.932544,
+    1.117222,	0.115154,	1.910615,	1.013722,	0.141106,	0.932544,
+    1.117222,	0.115154,	1.910615,	1.013722,	0.141106,	0.932544,
+    1.117222,	0.115154,	1.910615,	1.013722,	0.141106,	0.932544,
+    1.117222,	0.115154,	1.910615,	1.013722,	0.141106,	0.932544,
+    1.117222,	0.115154,	1.910615,	1.013722,	0.141106,	0.932544,
+      1.097168,	3.065602,	-1.000000,	0.769128,	0.237118,	2.149065,
+      1.097168,	3.065602,	-1.000000,	0.769128,	0.237118,	2.149065,
+      1.097168,	3.065602,	-1.000000,	0.769128,	0.237118,	2.149065,
+      1.097168,	3.065602,	-1.000000,	0.769128,	0.237118,	2.149065,
+      1.097168,	3.065602,	-1.000000,	0.769128,	0.237118,	2.149065,
+      1.097168,	3.065602,	-1.000000,	0.769128,	0.237118,	2.149065,
+      1.097168,	3.065602,	-1.000000,	0.769128,	0.237118,	2.149065,
+      1.136084,	4.306006,	-1.000000,	0.560253,	0.387929,	2.712581,
+      1.136084,	4.306006,	-1.000000,	0.560253,	0.387929,	2.712581,
+      1.136084,	4.306006,	-1.000000,	0.560253,	0.387929,	2.712581,
+      1.136084,	4.306006,	-1.000000,	0.560253,	0.387929,	2.712581,
+      1.136084,	4.306006,	-1.000000,	0.560253,	0.387929,	2.712581,
+      1.136084,	4.306006,	-1.000000,	0.560253,	0.387929,	2.712581,
+      1.136084,	4.306006,	-1.000000,	0.560253,	0.387929,	2.712581,
+      1.120055,	1.720310,	-1.000000,	0.701081,	0.236731,	2.260849,
+      1.120055,	1.720310,	-1.000000,	0.701081,	0.236731,	2.260849,
+      1.120055,	1.720310,	-1.000000,	0.701081,	0.236731,	2.260849,
+      1.120055,	1.720310,	-1.000000,	0.701081,	0.236731,	2.260849,
+      1.120055,	1.720310,	-1.000000,	0.701081,	0.236731,	2.260849,
+      1.120055,	1.720310,	-1.000000,	0.701081,	0.236731,	2.260849,
+      1.120055,	1.720310,	-1.000000,	0.701081,	0.236731,	2.260849,
+
+                                        ])
+
+jetCalibParamsVector.extend([
+      1.147088,	0.000000,	2.021120,	1.163963,	0.157996,	1.465768,
+      1.147088,	0.000000,	2.021120,	1.163963,	0.157996,	1.465768,
+      1.147088,	0.000000,	2.021120,	1.163963,	0.157996,	1.465768,
+      1.147088,	0.000000,	2.021120,	1.163963,	0.157996,	1.465768,
+      1.147088,	0.000000,	2.021120,	1.163963,	0.157996,	1.465768,
+      1.147088,	0.000000,	2.021120,	1.163963,	0.157996,	1.465768,
+      1.147088,	0.000000,	2.021120,	1.163963,	0.157996,	1.465768,
+      1.126069,	4.677360,	-1.000000,	0.507453,	0.411144,	2.794454,
+      1.126069,	4.677360,	-1.000000,	0.507453,	0.411144,	2.794454,
+      1.126069,	4.677360,	-1.000000,	0.507453,	0.411144,	2.794454,
+      1.126069,	4.677360,	-1.000000,	0.507453,	0.411144,	2.794454,
+      1.126069,	4.677360,	-1.000000,	0.507453,	0.411144,	2.794454,
+      1.126069,	4.677360,	-1.000000,	0.507453,	0.411144,	2.794454,
+      1.126069,	4.677360,	-1.000000,	0.507453,	0.411144,	2.794454,
+      1.089151,	3.979116,	-1.000000,	0.595467,	0.288850,	2.478056,
+      1.089151,	3.979116,	-1.000000,	0.595467,	0.288850,	2.478056,
+      1.089151,	3.979116,	-1.000000,	0.595467,	0.288850,	2.478056,
+      1.089151,	3.979116,	-1.000000,	0.595467,	0.288850,	2.478056,
+      1.089151,	3.979116,	-1.000000,	0.595467,	0.288850,	2.478056,
+      1.089151,	3.979116,	-1.000000,	0.595467,	0.288850,	2.478056,
+      1.089151,	3.979116,	-1.000000,	0.595467,	0.288850,	2.478056,
+      1.135149,	0.010747,	7.372626,	0.961446,	0.153867,	1.104507,
+      1.135149,	0.010747,	7.372626,	0.961446,	0.153867,	1.104507,
+      1.135149,	0.010747,	7.372626,	0.961446,	0.153867,	1.104507,
+      1.135149,	0.010747,	7.372626,	0.961446,	0.153867,	1.104507,
+      1.135149,	0.010747,	7.372626,	0.961446,	0.153867,	1.104507,
+      1.135149,	0.010747,	7.372626,	0.961446,	0.153867,	1.104507,
+      1.135149,	0.010747,	7.372626,	0.961446,	0.153867,	1.104507,
+                                        1,0,1,0,1,1, 1,0,1,0,1,1, 
+                                        1,0,1,0,1,1, 1,0,1,0,1,1, 
+                                        1,0,1,0,1,1, 1,0,1,0,1,1, 
+                                        1,0,1,0,1,1, 1,0,1,0,1,1, 
+                                        1,0,1,0,1,1, 1,0,1,0,1,1, 
+                                        1,0,1,0,1,1, 1,0,1,0,1,1, 
+                                       ] )
+caloStage2Params.jetCalibrationParams  = jetCalibParamsVector 
 
 # sums
 caloStage2Params.etSumLsb                = cms.double(0.5)
