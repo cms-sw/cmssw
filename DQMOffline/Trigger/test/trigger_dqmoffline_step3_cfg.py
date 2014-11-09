@@ -9,7 +9,6 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 #  DQMOffline
 #
 process.load("DQMOffline.Configuration.DQMOffline_SecondStep_cff")
-#process.load("DQMOffline.Trigger.FourVectorHLTOfflineClient_cfi")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -37,7 +36,6 @@ process.DQMStore.collateHistograms = False
 process.EDMtoMEConverter.convertOnEndLumi = True
 process.EDMtoMEConverter.convertOnEndRun = False
 
-#process.p1 = cms.Path(process.EDMtoMEConverter*process.hltFourVectorClient*process.dqmSaver)
 process.p1 = cms.Path(process.EDMtoMEConverter*process.triggerOfflineDQMClient * process.hltOfflineDQMClient * process.dqmSaver)
 #process.p1 = cms.Path(process.EDMtoMEConverter*process.dqmSaver)
 
