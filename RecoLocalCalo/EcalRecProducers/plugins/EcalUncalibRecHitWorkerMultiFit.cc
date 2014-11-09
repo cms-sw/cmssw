@@ -2,6 +2,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -36,6 +37,11 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
 
   // uncertainty calculation (CPU intensive)
   ampErrorCalculation_ = ps.getParameter<bool>("ampErrorCalculation");
+  useLumiInfoRunHeader_ = ps.getParameter<bool>("useLumiInfoRunHeader");
+  
+  if (useLumiInfoRunHeader_) {
+    pileupSummaryInfos_ = c.consumes<std::vector<PileupSummaryInfo> >(edm::InputTag("addPileupInfo"));
+  }
 
   // algorithm to be used for timing
   timealgo_ = ps.getParameter<std::string>("timealgo");
@@ -125,6 +131,49 @@ EcalUncalibRecHitWorkerMultiFit::set(const edm::EventSetup& es)
 
         // for the time correction methods
         es.get<EcalTimeBiasCorrectionsRcd>().get(timeCorrBias_);
+}
+
+void
+EcalUncalibRecHitWorkerMultiFit::set(const edm::Event& evt)
+{
+
+  if (useLumiInfoRunHeader_) {
+
+    int bunchspacing = 450;
+    
+    if (evt.isRealData()) {
+      edm::RunNumber_t run = evt.run();
+      if (run == 178003 ||
+          run == 178004 ||
+          run == 209089 ||
+          run == 209106 ||
+          run == 209109 ||
+          run == 209146 ||
+          run == 209148 ||
+          run == 209151) {
+        bunchspacing = 25;
+      }
+      else {
+        bunchspacing = 50;
+      }
+    }
+    else {
+      edm::Handle<std::vector<PileupSummaryInfo> > pileupSummaryInfosH;
+      evt.getByToken(pileupSummaryInfos_,pileupSummaryInfosH);
+      bunchspacing = pileupSummaryInfosH->front().getBunchSpacing();
+    }
+    
+    if (bunchspacing == 25) {
+      activeBX.resize(10);
+      activeBX << -5,-4,-3,-2,-1,0,1,2,3,4;
+    }
+    else {
+      //50ns configuration otherwise (also for no pileup)
+      activeBX.resize(5);
+      activeBX << -4,-2,0,2,4;
+    }
+  }
+    
 }
 
 /**
