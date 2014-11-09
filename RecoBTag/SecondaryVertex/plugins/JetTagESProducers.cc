@@ -9,7 +9,6 @@
 #include "RecoBTau/JetTagComputer/interface/GenericMVAJetTagComputerWrapper.h"
 
 #include "RecoBTag/SecondaryVertex/interface/CombinedSVComputer.h"
-#include "RecoBTag/SecondaryVertex/interface/CombinedSVComputerV2.h"
 #include "RecoBTag/SecondaryVertex/interface/CombinedSVSoftLeptonComputer.h"
 #include "RecoBTag/SecondaryVertex/interface/GhostTrackComputer.h"
 #include "RecoBTag/SecondaryVertex/interface/SimpleSecondaryVertexComputer.h"
