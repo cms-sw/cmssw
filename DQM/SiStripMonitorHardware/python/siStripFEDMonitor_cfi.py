@@ -14,10 +14,7 @@ siStripFEDMonitor = cms.EDAnalyzer("SiStripFEDMonitorPlugin",
   #Whether to dump buffer info and raw data if any error is found: 
   #1=errors, 2=minimum info, 3=full debug with printing of the data buffer of each FED per event.
   PrintDebugMessages = cms.untracked.uint32(1),
-  #PrintDebugMessages = cms.untracked.bool(False),
-  #Whether to write the DQM store to a file at the end of the run and the file name
-  WriteDQMStore = cms.untracked.bool(False),
-  DQMStoreFileName = cms.untracked.string('DQMStore.root'),
+  FullDebugMode = cms.untracked.bool(False),                                   
   #Histogram configuration
   #lumi histogram
   ErrorFractionByLumiBlockHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(False) ),          
