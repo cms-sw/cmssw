@@ -132,7 +132,7 @@ class Process(object):
         self.__isStrict = False
         self.__dict__['_Process__modifiers'] = Mods
         for m in self.__modifiers:
-            m._Modifier__setChosen()
+            m._setChosen()
 
     def setStrict(self, value):
         self.__isStrict = value
@@ -553,7 +553,7 @@ class Process(object):
         self.__dict__['_Process__InExtendCall'] = False
         # apply any newly acquired process modifiers
         for m in self.__modifiers:
-            m._Modifier__applyNewProcessModifiers(self)
+            m._applyNewProcessModifiers(self)
 
     def _dumpConfigNamedList(self,items,typeName,options):
         returnValue = ''
@@ -1082,17 +1082,37 @@ class Modifier(object):
     else:
       temp =_ParameterModifier(kw)
       temp(obj)
-  def __applyNewProcessModifiers(self,process):
+  def _applyNewProcessModifiers(self,process):
     """Should only be called by cms.Process instances
         applies list of accumulated changes to the process"""
     for m in self.__processModifiers:
         m(process)
     self.__processModifiers = list()
-  def __setChosen(self):
+  def _setChosen(self):
     """Should only be called by cms.Process instances"""
-    self.__chosen = True;
+    self.__chosen = True
   def isChosen(self):
     return self.__chosen
+
+class ModifierChain(object):
+    """A Modifier made up of a list of Modifiers
+    """
+    def __init__(self, *chainedModifiers):
+        self.__chosen = False
+        self.__chain = chainedModifiers
+    def _applyNewProcessModifiers(self,process):
+        """Should only be called by cms.Process instances
+        applies list of accumulated changes to the process"""
+        for m in self.__chain:
+            m._applyNewProcessModifiers(process)
+    def _setChosen(self):
+        """Should only be called by cms.Process instances"""
+        self.__chosen = True
+        for m in self.__chain:
+            m._setChosen()
+    def isChosen(self):
+        return self.__chosen
+
 
 if __name__=="__main__":
     import unittest
@@ -1845,6 +1865,17 @@ process.subProcess = cms.SubProcess( process = childProcess, SelectEvents = cms.
             m1.toModifyProcess(_rem_a)
             p.extend(testMod)
             self.assert_(not hasattr(p,"a"))
-            
+            #test ModifierChain
+            m1 = Modifier()
+            mc = ModifierChain(m1)
+            p = Process("test",mc)
+            testMod = DummyMod()
+            m1.toModifyProcess(_rem_a)
+            p.b = EDAnalyzer("Dummy2", fred = int32(1))
+            m1.toModify(p.b, fred = int32(3))
+            p.extend(testMod)
+            self.assert_(not hasattr(p,"a"))
+            self.assertEqual(p.b.fred.value(),3)
+
 
     unittest.main()
