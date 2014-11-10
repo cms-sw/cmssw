@@ -8,7 +8,7 @@ hltBtagTriggerSelection = cms.EDFilter( "TriggerResultsFilter",
     hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
 #    l1tResults = cms.InputTag( "simGtDigis" ),
     l1tResults = cms.InputTag( "gtDigis" ),
-    throw = cms.bool( True )
+    throw = cms.bool( False )
 )
 
 #correct the jet used for the matching
