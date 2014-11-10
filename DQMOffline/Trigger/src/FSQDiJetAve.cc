@@ -201,6 +201,12 @@ class HandlerTemplate: public BaseHandler {
         {
                Handle<std::vector<TInputCandidateType> > hIn;
                iEvent.getByLabel(InputTag(m_input), hIn);
+               if(!hIn.isValid()) {
+                  edm::LogError("FSQDiJetAve") << "product not found: "<<  m_input.encode();
+                  return;  
+               }
+
+
                for (unsigned int i = 0; i<hIn->size(); ++i) {
                     bool preselection = m_singleObjectSelection(hIn->at(i));
                     if (preselection){
@@ -397,6 +403,10 @@ void HandlerTemplate<reco::Candidate::LorentzVector, reco::Candidate::LorentzVec
 {  
    Handle<View<reco::Candidate> > hIn;
    iEvent.getByLabel(InputTag(m_input), hIn);
+   if(!hIn.isValid()) {
+      edm::LogError("FSQDiJetAve") << "product not found: "<<  m_input.encode();
+      return;
+   }
    for (unsigned int i = 0; i<hIn->size(); ++i) {
         bool preselection = m_singleObjectSelection(hIn->at(i).p4());
         if (preselection){
@@ -425,6 +435,10 @@ void HandlerTemplate<reco::Track, int >::getFilteredCands(
 
    Handle<std::vector<reco::Track > > hIn;
    iEvent.getByLabel(InputTag(m_input), hIn);
+   if(!hIn.isValid()) {
+      edm::LogError("FSQDiJetAve") << "product not found: "<<  m_input.encode();
+      return;
+   }
    for (unsigned int i = 0; i<hIn->size(); ++i) {
         bool preselection = m_singleObjectSelection(hIn->at(i));
         if (preselection){
@@ -451,6 +465,10 @@ void HandlerTemplate<reco::Candidate::LorentzVector, int >::getFilteredCands(
 
    Handle<View<reco::Candidate> > hIn;
    iEvent.getByLabel(InputTag(m_input), hIn);
+   if(!hIn.isValid()) {
+      edm::LogError("FSQDiJetAve") << "product not found: "<<  m_input.encode();
+      return;
+   }
    for (unsigned int i = 0; i<hIn->size(); ++i) {
         bool preselection = m_singleObjectSelection(hIn->at(i).p4());
         if (preselection){
