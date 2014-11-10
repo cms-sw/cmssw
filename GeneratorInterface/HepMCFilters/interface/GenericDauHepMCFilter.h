@@ -53,8 +53,4 @@ class GenericDauHepMCFilter : public BaseHepMCFilter {
     double minetacut;
     double maxetacut;
     };
-  #define PYCOMP pycomp_
-  extern "C" {
-  int PYCOMP(int& ip);
-}
 #endif

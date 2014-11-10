@@ -3,7 +3,6 @@
 
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "HepMC/PythiaWrapper6_4.h"
 #include <iostream>
 
 using namespace edm;
@@ -115,10 +114,8 @@ bool GenericDauHepMCFilter::filter(const HepMC::GenEvent* evt)
                                           ++des ) {
                                   ++ndau;
                                   for( unsigned int i=0; i<dauIDs.size(); ++i) {
-                                          int IDanti = -dauIDs[i];
-                                          int pythiaCode = PYCOMP(dauIDs[i]);
-                                          int has_antipart = pydat2.kchg[3-1][pythiaCode-1];
-                                          if( has_antipart == 0 ) IDanti = dauIDs[i];
+                                          bool has_antipart = !(dauIDs[i]==22 || dauIDs[i]==23);
+                                          int IDanti = has_antipart ? -dauIDs[i] : dauIDs[i];
                                           if( (*des)->pdg_id() != IDanti ) continue ;
                                           if(   (*des)->momentum().perp() >  minptcut  &&
                                                           (*des)->momentum().perp() <  maxptcut  &&
