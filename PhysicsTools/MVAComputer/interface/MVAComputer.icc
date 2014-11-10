@@ -56,6 +56,7 @@ double MVAComputer::eval(Iterator_t first, Iterator_t last) const
 	unsigned int max = nVars;
 	for(Iterator_t cur = first; cur < last; ++cur) {
 		int id = getVariableId(cur->getName());
+		if(id<0) continue;
 		conf[id + 1]++;
 		max += inputVariables[id].multiplicity + 1;
 		n++;
@@ -74,6 +75,7 @@ double MVAComputer::eval(Iterator_t first, Iterator_t last) const
 	values[0] = 0.0;
 	for(Iterator_t cur = first; cur < last; ++cur) {
 		int id = getVariableId(cur->getName());
+		if(id<0) continue;
 		values[conf[id + 1]++] = cur->getValue();
 	}
 
@@ -99,6 +101,7 @@ double MVAComputer::deriv(Iterator_t first, Iterator_t last) const
 	unsigned int max = nVars;
 	for(Iterator_t cur = first; cur < last; ++cur) {
 		int id = getVariableId(cur->getName());
+		if(id<0) continue;
 		ctx.conf_[id + 1]++;
 		max += inputVariables[id].multiplicity + 1;
 		ctx.n_++;
@@ -117,6 +120,7 @@ double MVAComputer::deriv(Iterator_t first, Iterator_t last) const
 	ctx.deriv_.reserve((max - size + 1) * ctx.n_);
 	for(Iterator_t cur = first; cur < last; ++cur) {
 		int id = getVariableId(cur->getName());
+		if(id<0) continue;
 		ctx.values_[ctx.conf_[id + 1]++] = cur->getValue();
 	}
 
@@ -127,6 +131,7 @@ double MVAComputer::deriv(Iterator_t first, Iterator_t last) const
 
 	for(Iterator_t cur = first; cur < last; ++cur) {
 		int id = getVariableId(cur->getName());
+		if(id<0) continue;
 		cur->setValue(deriv[ctx.conf_[id]++]);
 	}
 

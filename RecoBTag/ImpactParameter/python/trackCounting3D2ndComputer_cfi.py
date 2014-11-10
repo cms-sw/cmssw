@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoBTag.ImpactParameter.variableJTA_cfi import *
+from RecoBTag.ImpactParameter.variableJTA_cff import *
 
 # trackCounting3D2nd btag computer
-trackCounting3D2nd = cms.ESProducer("TrackCountingESProducer",
+trackCounting3D2ndComputer = cms.ESProducer("TrackCountingESProducer",
                                     variableJTAPars,
                                     minimumImpactParameter = cms.double(-1),
                                     useSignedImpactParameterSig = cms.bool(True),
@@ -14,7 +14,6 @@ trackCounting3D2nd = cms.ESProducer("TrackCountingESProducer",
                                     nthTrack = cms.int32(2),
                                     trackQualityClass = cms.string("any"),
                                     useVariableJTA = cms.bool(False)                                    
-                                    
                                     )
 
 
