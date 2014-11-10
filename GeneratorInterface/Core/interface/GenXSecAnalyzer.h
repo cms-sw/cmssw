@@ -49,10 +49,16 @@ private:
 
   int hepidwtup_;
   unsigned int theProcesses_size;
+  bool           hasHepMCFilterInfo_;
+
   // final cross sections
   GenLumiInfoProduct::XSec xsec_;
   // statistics from additional generator filter
   GenFilterInfo  filterOnlyEffStat_;     
+
+  // statistics from HepMC filter
+  GenFilterInfo  hepMCFilterEffStat_;   
+
   // statistics for event level efficiency, the size is the number of processes + 1 
   std::vector<GenFilterInfo>  eventEffStat_; 
   // statistics from jet matching, the size is the number of processes + 1 
