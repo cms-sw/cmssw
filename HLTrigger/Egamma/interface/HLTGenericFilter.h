@@ -45,6 +45,9 @@ class HLTGenericFilter : public HLTFilter {
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:
+    
+      float getEnergy(T1Ref) const;
+    
       edm::InputTag candTag_; // input tag identifying product that contains filtered photons
       edm::InputTag isoTag_; // input tag identifying product that contains isolated map
       edm::InputTag nonIsoTag_; // input tag identifying product that contains non-isolated map
