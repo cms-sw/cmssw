@@ -6,7 +6,6 @@ November. 2, 2005
 
 */
 #include <iostream>
-#include <TError.h>
 #include <TMath.h>
 
 #include "GeneratorInterface/Hydjet2Interface/interface/GrandCanonical.h"

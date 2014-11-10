@@ -28,6 +28,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+
 const int kMaxParticles = 1000;
 
 class DatabasePDG {

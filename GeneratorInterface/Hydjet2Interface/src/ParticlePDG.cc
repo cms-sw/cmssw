@@ -53,7 +53,7 @@ double ParticlePDG::GetFullBranching() {
 
 void ParticlePDG::AddChannel(DecayChannel &channel) {
   if(channel.GetMotherPDG() != fPDG) {
-    cout << "ERROR in ParticlePDG::AddChannel() : You try to add a channel which has a different mother PDG" << endl;
+    edm::LogError("ParticlePDG") <<" AddChannel() : You try to add a channel which has a different mother PDG";
     return;
   }
   fDecayChannels[fNDecayChannels]->SetMotherPDG(channel.GetMotherPDG());
