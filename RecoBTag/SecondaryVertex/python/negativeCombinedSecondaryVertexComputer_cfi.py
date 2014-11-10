@@ -1,0 +1,11 @@
+import FWCore.ParameterSet.Config as cms
+
+from RecoBTag.SecondaryVertex.combinedSecondaryVertexComputer_cfi import *
+
+negativeCombinedSecondaryVertexComputer = combinedSecondaryVertexComputer.clone()
+negativeCombinedSecondaryVertexComputer.vertexFlip = True
+negativeCombinedSecondaryVertexComputer.trackFlip = True
+negativeCombinedSecondaryVertexComputer.trackSelection.sip3dSigMax = 0
+negativeCombinedSecondaryVertexComputer.trackPseudoSelection.sip3dSigMax = 0
+negativeCombinedSecondaryVertexComputer.trackPseudoSelection.sip2dSigMin = -99999.9
+negativeCombinedSecondaryVertexComputer.trackPseudoSelection.sip2dSigMax = -2.0

@@ -3,8 +3,9 @@ from Validation.EventGenerator.BasicGenValidation_cff import *
 from FastSimulation.Validation.globalValidation_cff import *
 from HLTriggerOffline.Common.HLTValidation_cff import *
 from DQM.Physics.DQMPhysics_cff import *
+from Validation.RecoMET.METRelValForDQM_cff import metPreValidSeq
 
-prevalidation = cms.Sequence(globalAssociation+hltassociation_fastsim)
+prevalidation = cms.Sequence(globalAssociation+hltassociation_fastsim+metPreValidSeq)
 prevalidation_preprod = cms.Sequence(globalAssociation)
 prevalidation_prod = cms.Sequence(globalAssociation)
 validation = cms.Sequence(basicGenTest_seq+globalValidation+hltvalidation_fastsim+dqmPhysics) 
