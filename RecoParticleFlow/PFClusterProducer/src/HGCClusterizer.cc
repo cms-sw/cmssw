@@ -4,72 +4,35 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorBase.h"
 
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "DataFormats/TrackReco/interface/Track.h"
+
+// for track propagation through HGC
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
+#include "DataFormats/GeometrySurface/interface/BoundDisk.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "Geometry/FCalGeometry/interface/HGCalGeometry.h"
+
+//geometry records
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+
+#include "FWCore/Framework/interface/Event.h"
+
+#include<unordered_map>
 
 // helpful tools
 #include "KDTreeLinkerAlgoT.h"
 #include <unordered_map>
 #include <unordered_set>
 
-// point here is that we find EM-like clusters first and build those
-// then remove rechits from the pool and find the Had-like 
-// clusters in some way
-
-class HGCClusterizer : public InitialClusteringStepBase {
-  typedef HGCClusterizer B2DGT;
-  typedef KDTreeLinkerAlgo<unsigned,3> KDTree;
-  typedef KDTreeNodeInfoT<unsigned,3> KDNode;
-  typedef PFCPositionCalculatorBase PosCalc;
-  typedef std::pair<unsigned,unsigned> HitLink;
-  typedef std::unordered_multimap<unsigned,unsigned> LinkMap;
-  typedef std::unordered_set<unsigned> UniqueIndices;
- public:
-  HGCClusterizer(const edm::ParameterSet& conf,
-		 edm::ConsumesCollector& sumes);
-  virtual ~HGCClusterizer() {}
-  HGCClusterizer(const B2DGT&) = delete;
-  B2DGT& operator=(const B2DGT&) = delete;
-
-  virtual void update(const edm::EventSetup& es) override final {}
-  
-  virtual void updateEvent(const edm::Event& ev) override final {}
-
-  void buildClusters(const edm::Handle<reco::PFRecHitCollection>&,
-		     const std::vector<bool>&,
-		     const std::vector<bool>&, 
-		     reco::PFClusterCollection&);
-  
-private:
-  // used for rechit searching 
-  std::vector<KDNode> _nodes, _found;
-  KDTree _kdtree;
-
-  std::unique_ptr<PosCalc> _logWeightPosCalc,_pcaPosCalc;
-
-  std::array<float,3> _moliere_radii;
-
-  // helper functions for various steps in the clustering
-  void build2DCluster(const reco::PFRecHitCollection&,
-		      const std::vector<bool>&,
-		      const std::vector<bool>&,		     
-		      const reco::PFRecHitRef&,
-		      std::vector<bool>&,
-		      reco::PFCluster&);  
-
-  // linking in Z for clusters
-  void linkClustersInLayer(const reco::PFClusterCollection& input_clusters,
-			   reco::PFClusterCollection& output);
-
-  // utility
-  reco::PFRecHitRef makeRefhit( const edm::Handle<reco::PFRecHitCollection>& h,
-                                const unsigned i ) const {
-    return reco::PFRecHitRef(h,i);
-  }
-};
-
-DEFINE_EDM_PLUGIN(InitialClusteringStepFactory,
-		  HGCClusterizer,
-		  "HGCClusterizer");
-
+//local tools
 namespace {
   std::pair<float,float> minmax(const float a, const float b) {
     return ( b < a ? 
@@ -125,6 +88,89 @@ namespace {
   };
 }
 
+//class def
+// point here is that we find EM-like clusters first and build those
+// then remove rechits from the pool and find the Had-like 
+// clusters in some way
+class HGCClusterizer : public InitialClusteringStepBase {
+  typedef HGCClusterizer B2DGT;
+  typedef KDTreeLinkerAlgo<unsigned,3> KDTree;
+  typedef KDTreeNodeInfoT<unsigned,3> KDNode;
+  typedef PFCPositionCalculatorBase PosCalc;
+  typedef std::pair<unsigned,unsigned> HitLink;
+  typedef std::unordered_multimap<unsigned,unsigned> LinkMap;
+  typedef std::unordered_set<unsigned> UniqueIndices;
+ public:
+  HGCClusterizer(const edm::ParameterSet& conf,
+		 edm::ConsumesCollector& sumes);
+  virtual ~HGCClusterizer() {}
+  HGCClusterizer(const B2DGT&) = delete;
+  B2DGT& operator=(const B2DGT&) = delete;
+
+  virtual void update(const edm::EventSetup& es) override final;
+  
+  virtual void updateEvent(const edm::Event& ev) override final;
+
+  void buildClusters(const edm::Handle<reco::PFRecHitCollection>&,
+		     const std::vector<bool>&,
+		     const std::vector<bool>&, 
+		     reco::PFClusterCollection&);
+  
+private:
+  // used for rechit searching 
+  std::vector<KDNode> _nodes, _found;
+  KDTree _kdtree;
+
+  std::unique_ptr<PosCalc> _logWeightPosCalc,_pcaPosCalc;
+
+  std::array<float,3> _moliere_radii;
+
+  // for track assisted clustering
+  edm::ESHandle<MagneticField> _bField;
+  edm::ESHandle<TrackerGeometry> _tkGeom;
+  
+  edm::EDGetTokenT<reco::TrackCollection> _tracksToken;
+  edm::Handle<reco::TrackCollection> _tracks;
+  std::vector<unsigned> _usable_tracks;
+
+  std::array<std::string,3> _hgc_names;
+  std::array<edm::ESHandle<HGCalGeometry>,3> _hgcGeometries;
+  std::array<std::vector<ReferenceCountingPointer<BoundDisk> >,3> _plusSurface,_minusSurface;
+  std::unique_ptr<PropagatorWithMaterial> _mat_prop;
+  
+
+  // helper functions for various steps in the clustering
+  void build2DCluster(const reco::PFRecHitCollection&,
+		      const std::vector<bool>&,
+		      const std::vector<bool>&,		     
+		      const reco::PFRecHitRef&,
+		      std::vector<bool>&,
+		      reco::PFCluster&);  
+
+  // linking in Z for clusters
+  void linkClustersInLayer(const reco::PFClusterCollection& input_clusters,
+			   
+			   reco::PFClusterCollection& output);
+
+  // use tracks to collect free rechits or associate to clusters after
+  // initial EM clustering step (output contains cluster result so far!)
+  void trackAssistedClustering(const reco::PFRecHitCollection& hits,
+			       std::vector<bool>& rechit_usable,
+			       std::vector<bool>& cluster_usable,
+			       reco::PFClusterCollection& output);
+
+
+  // utility
+  reco::PFRecHitRef makeRefhit( const edm::Handle<reco::PFRecHitCollection>& h,
+                                const unsigned i ) const {
+    return reco::PFRecHitRef(h,i);
+  }
+};
+
+DEFINE_EDM_PLUGIN(InitialClusteringStepFactory,
+		  HGCClusterizer,
+		  "HGCClusterizer");
+
 HGCClusterizer::HGCClusterizer(const edm::ParameterSet& conf,
 			       edm::ConsumesCollector& sumes) :
   InitialClusteringStepBase(conf,sumes) { 
@@ -143,11 +189,23 @@ HGCClusterizer::HGCClusterizer(const edm::ParameterSet& conf,
   PosCalc* pcacalc = 
     PFCPositionCalculatorFactory::get()->create(pcaalgo,pcaconf);
   _pcaPosCalc.reset(pcacalc);
-  // get moliere radius and nuclear interaction 90% width
+  
+  // get moliere radius, nuclear interaction 90% width, geometry names
   _moliere_radii.fill(0.0f);
   const edm::ParameterSet& mconf = conf.getParameterSet("moliereRadii");
   _moliere_radii[0] = mconf.getParameter<double>("HGC_ECAL");  
   _moliere_radii[1] = mconf.getParameter<double>("HGC_HCALF");
+  const edm::ParameterSet& geoconf = conf.getParameterSet("hgcalGeometryNames");
+  _hgc_names[0] = geoconf.getParameter<std::string>("HGC_ECAL");
+  _hgc_names[1] = geoconf.getParameter<std::string>("HGC_HCALF");
+  _hgc_names[2] = geoconf.getParameter<std::string>("HGC_HCALB");
+
+  // track assisted clustering
+  const edm::ParameterSet& tkConf = 
+    conf.getParameterSet("trackAssistedClustering");
+  // consumes information
+  _tracksToken = sumes.consumes<reco::TrackCollection>( tkConf.getParameter<edm::InputTag>("inputTracks") );
+  
 }
 
 void HGCClusterizer::
@@ -155,7 +213,7 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
 	      const std::vector<bool>& rechitMask,
 	      const std::vector<bool>& seedable,
 	      reco::PFClusterCollection& output) {
-  std::vector<bool> usable2d(input->size(),true);
+  std::vector<bool> usable_rechits(input->size(),true);
   std::unordered_set<double> unique_depths;
   const reco::PFRecHitCollection& rechits = *input;
 
@@ -169,7 +227,7 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
     if(seedable[i] && hit.neighbours().size() > 0 ) {
       reco::PFCluster layer_cluster;
       build2DCluster(rechits, rechitMask, seedable,
-		     makeRefhit(input,i),usable2d, 
+		     makeRefhit(input,i),usable_rechits, 
 		     layer_cluster);
       unique_depths.insert(std::abs(hit.position().z()));
       
@@ -184,6 +242,61 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
   }
   // use topo clusters to link in z
   linkClustersInLayer(clusters_per_layer,output); 
+
+  // use tracking to clean up unclustered rechits
+  std::vector<bool> usable_clusters(output.size(),true);
+  trackAssistedClustering(rechits,usable_rechits,
+			  usable_clusters,output);
+}
+
+void HGCClusterizer::update(const edm::EventSetup& es) {
+  constexpr float m_pion = 0.1396;
+  // get dependencies for setting up propagator  
+  es.get<IdealMagneticFieldRecord>().get(_bField);
+  es.get<TrackerDigiGeometryRecord>().get(_tkGeom);
+  // get HGC geometries (assume that layers are ordered in Z!)
+  for( unsigned i = 0; i < _hgcGeometries.size(); ++i ) {
+    es.get<IdealGeometryRecord>().get(_hgc_names[i],_hgcGeometries[i]);
+  }
+
+  // make propagator
+  _mat_prop.reset( new PropagatorWithMaterial(alongMomentum, m_pion, _bField.product()) );
+  // setup HGC layers for track propagation
+  Surface::RotationType rot; //unit rotation matrix
+  for( unsigned i = 0; i < _hgcGeometries.size(); ++i ) {
+    _minusSurface[i].clear();
+    _plusSurface[i].clear();
+    const HGCalDDDConstants &dddCons=_hgcGeometries[i]->topology().dddConstants();
+    std::map<float,float> zrhoCoord;
+    auto firstLayerIt = dddCons.getFirstTrForm();
+    auto lastLayerIt = dddCons.getLastTrForm();
+    for(auto layerIt=firstLayerIt; layerIt !=lastLayerIt; layerIt++) {
+      float Z(fabs(layerIt->h3v.z()));
+      float Radius(dddCons.getLastModule(true)->tl+layerIt->h3v.perp());
+      zrhoCoord[Z]=Radius;
+    }
+    for(auto it=zrhoCoord.begin(); it != zrhoCoord.end(); it++) {
+      float Z(it->first);
+      float Radius(it->second);
+      _minusSurface[i].push_back(ReferenceCountingPointer<BoundDisk> ( new BoundDisk( Surface::PositionType(0,0,-Z), rot, new SimpleDiskBounds( 0, Radius, -0.001, 0.001))));
+      _plusSurface[i].push_back(ReferenceCountingPointer<BoundDisk> ( new BoundDisk( Surface::PositionType(0,0,+Z), rot, new SimpleDiskBounds( 0, Radius, -0.001, 0.001))));
+    }    
+  }  
+}
+  
+void HGCClusterizer::updateEvent(const edm::Event& ev) {
+  _usable_tracks.clear();
+  ev.getByToken(_tracksToken,_tracks);
+  const reco::TrackCollection tracks = *_tracks;  
+  _usable_tracks.reserve(tracks.size());
+  for( unsigned i = 0; i < tracks.size(); ++i ) {
+    const reco::Track& tk = tracks[i];
+    const double tk_abs_eta = std::abs(tk.eta());
+    // require track eta within fiducial HGC volume
+    bool usable = ( tk_abs_eta > 1.45 && tk_abs_eta < 3.0 ); ;
+    if( usable ) _usable_tracks.push_back(i);
+  }
+  _usable_tracks.shrink_to_fit();
 }
 
 void HGCClusterizer::build2DCluster(const reco::PFRecHitCollection& input,
@@ -340,4 +453,16 @@ linkClustersInLayer(const reco::PFClusterCollection& input_clusters,
   }
   _found.clear();
   _kdtree.clear();
+}
+
+void HGCClusterizer::
+trackAssistedClustering(const reco::PFRecHitCollection& hits,
+			std::vector<bool>& rechit_usable,
+			std::vector<bool>& cluster_usable,
+			reco::PFClusterCollection& output) {
+  const reco::TrackCollection& tracks = *_tracks;
+  for( const unsigned i : _usable_tracks ) {
+    const reco::Track& tk = tracks[i];
+    std::cout << tk.pt() << ' ' << tk.eta() << ' ' << tk.phi() << std::endl;
+  }  
 }

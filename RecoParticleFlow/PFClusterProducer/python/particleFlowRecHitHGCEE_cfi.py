@@ -4,7 +4,7 @@ particleFlowRecHitHGCEE = cms.EDProducer("PFRecHitProducer",
     useHitMap = cms.untracked.bool(True),
     navigator = cms.PSet(
         name = cms.string("PFRecHitHGCEENavigator"),
-        topologySource = cms.string("HGCalEESensitive"),
+        topologySource = cms.string("HGCalEESensitive")        
     ),
     producers = cms.VPSet(
            cms.PSet(
@@ -20,6 +20,6 @@ particleFlowRecHitHGCEE = cms.EDProducer("PFRecHitProducer",
                   recHitEnergyMultiplier = cms.double(1.0)
                   ),
                 )
-           )          
+           )           
     )          
 )

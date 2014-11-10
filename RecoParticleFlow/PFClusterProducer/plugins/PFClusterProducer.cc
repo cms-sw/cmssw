@@ -83,6 +83,7 @@ void PFClusterProducer::beginLuminosityBlock(const edm::LuminosityBlock& lumi,
 
 void PFClusterProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   _initialClustering->reset();
+  _initialClustering->updateEvent(e);
   if( _pfClusterBuilder ) _pfClusterBuilder->reset();
 
   edm::Handle<reco::PFRecHitCollection> rechits;

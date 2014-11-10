@@ -12,7 +12,12 @@ _localmaxseeds_HGCEE = cms.PSet(
               #seeding threshold converted to GeV from keV
               seedingThreshold = cms.double(1e-6*1.75*55.1),
               seedingThresholdPt = cms.double(0.0)
-              )
+              ),
+     cms.PSet( detector = cms.string("HGC_HCALF"),
+              #seeding threshold converted to GeV from keV
+              seedingThreshold = cms.double(1e-6*1.0*85.0),
+              seedingThresholdPt = cms.double(0.0)
+              ),
     ),
     nNeighbours = cms.int32(8)
 )
@@ -40,7 +45,23 @@ _fromScratchHGCClusterizer_HGCEE = cms.PSet(
     thresholdsByDetector = cms.VPSet( ),
     positionCalcInLayer = _positionCalcHGCEE_onelayer,
     positionCalcPCA = _positionCalcHGCEE_pca,
-    moliereRadii = cms.PSet( HGC_ECAL = cms.double(2.9)  ) #cm
+    hgcalGeometryNames = cms.PSet( HGC_ECAL  = cms.string('HGCalEESensitive'),
+                                   HGC_HCALF = cms.string('HGCalHESiliconSensitive'),
+                                   HGC_HCALB = cms.string('HGCalHEScintillatorSensitive') ),
+    moliereRadii = cms.PSet( HGC_ECAL = cms.double(2.9),
+                             HGC_HCALF = cms.double(30.0) ), #cm
+    radiationLengths = cms.PSet( HGC_ECAL = cms.vdouble(1.0),
+                                 HGC_HCAL = cms.vdouble(1.0) ),
+    interactionLengths = cms.PSet( HGC_ECAL = cms.vdouble(1.0),
+                                   HGC_HCAL = cms.vdouble(1.0) ), 
+    trackAssistedClustering = cms.PSet( 
+        inputTracks = cms.InputTag("generalTracks"),
+        cleaningCriteriaPerIter = cms.vdouble(1.0),
+        stoppingTolerance = cms.double(1.0), #Nsigma to stop cluster growth
+        stopAtFirstClusterEncountered = cms.bool(True),
+        expectedHadronicResolution = cms.PSet( stochastic = cms.double(70.0),
+                                               noise = cms.double(0.0),
+                                               constant = cms.double(1.0) ) )
 )
 
 #weights for layers from P.Silva (24 October 2014)
@@ -68,7 +89,7 @@ _HGCEE_ElectronEnergy = cms.PSet(
 
 particleFlowClusterHGCEE = cms.EDProducer(
     "PFClusterProducer",
-    recHitsSource = cms.InputTag("particleFlowRecHitHGCEE"),
+    recHitsSource = cms.InputTag("particleFlowRecHitHGCAll"),
     recHitCleaners = cms.VPSet(),
     seedFinder = _localmaxseeds_HGCEE,
     initialClusteringStep = _fromScratchHGCClusterizer_HGCEE,
