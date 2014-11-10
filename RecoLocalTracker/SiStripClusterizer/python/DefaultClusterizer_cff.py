@@ -10,9 +10,10 @@ DefaultClusterizer = cms.PSet(
     MaxAdjacentBad = cms.uint32(0),
     QualityLabel = cms.string(""),
     RemoveApvShots     = cms.bool(True),
-    doRefineCluster = cms.bool(True),
-    occupancyThreshold = cms.double(0.08),
-    useMCtruth = cms.bool(True),
+    doRefineCluster = cms.bool(False),
+    occupancyThreshold = cms.double(0.05),
+    widthThreshold = cms.uint32(4),
+    useMCtruth = cms.bool(False),
 #  For TrackerHitAssociator
 #  If pileup and crossing frames available:
     # ROUList = cms.vstring('g4SimHitsTrackerHitsTIBLowTof',

@@ -21,6 +21,10 @@ public:
 private:
 
   edm::ParameterSet confClusterizer_;
+  bool doRefineCluster_;
+  float occupancyThreshold_;
+  unsigned widthThreshold_;
+  bool useAssociator_;
   template<class T> bool findInput(const edm::EDGetTokenT<T>&, edm::Handle<T>&, const edm::Event&);
   const std::vector<edm::InputTag> inputTags;
   std::auto_ptr<StripClusterizerAlgorithm> algorithm;
@@ -28,8 +32,7 @@ private:
 		     std::auto_ptr< edmNew::DetSetVector<SiStripCluster> >& output,
 		     SiStripDetInfoFileReader* reader,
 		     edm::ESHandle<SiStripQuality> quality,
-		     std::shared_ptr<TrackerHitAssociator> associator,
-		     const float& occupancyThreshold);
+		     std::shared_ptr<TrackerHitAssociator> associator);
   typedef edm::EDGetTokenT< edm::DetSetVector<SiStripDigi> > token_t;
   typedef std::vector<token_t> token_v;
   token_v inputTokens;

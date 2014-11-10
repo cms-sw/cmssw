@@ -32,7 +32,7 @@ public:
 
   /** The number of the first strip in the cluster
    */
-  uint16_t firstStrip() const {return firstStrip_;}
+  uint16_t firstStrip() const {return firstStrip_ & 0x7FFF;}
 
   /** The amplitudes of the strips forming the cluster.
    *  The amplitudes are on consecutive strips; if a strip is missing
@@ -51,6 +51,9 @@ public:
    *  should not be used as position estimate for tracking.
    */
   float barycenter() const;
+
+  bool isMerged() const {return (firstStrip_ & 0x8000) != 0;}
+  void setMerged(bool mergedState) {mergedState ? firstStrip_ |= 0x8000 : firstStrip_ &= 0x7FFF;}
 
   float getSplitClusterError () const    {  return error_x;  }
   void  setSplitClusterError ( float errx ) { error_x = errx; }

@@ -11,6 +11,10 @@
 SiStripClusterizer::
 SiStripClusterizer(const edm::ParameterSet& conf) 
   : confClusterizer_(conf.getParameter<edm::ParameterSet>("Clusterizer")),
+    doRefineCluster_(confClusterizer_.getParameter<bool>("doRefineCluster")),
+    occupancyThreshold_(confClusterizer_.getParameter<double>("occupancyThreshold")),
+    widthThreshold_(confClusterizer_.getParameter<unsigned>("widthThreshold")),
+    useAssociator_(confClusterizer_.getParameter<bool>("useMCtruth")),
     inputTags( conf.getParameter<std::vector<edm::InputTag> >("DigiProducersList") ),
     algorithm( StripClusterizerAlgorithmFactory::create(conf.getParameter<edm::ParameterSet>("Clusterizer")) ) {
   produces< edmNew::DetSetVector<SiStripCluster> > ();
@@ -28,23 +32,19 @@ produce(edm::Event& event, const edm::EventSetup& es)  {
 
   algorithm->initialize(es);  
 
-  bool doRefineCluster = confClusterizer_.getParameter<bool>("doRefineCluster");
-  float occupancyThreshold = confClusterizer_.getParameter<double>("occupancyThreshold");
-  bool useAssociator = confClusterizer_.getParameter<bool>("useMCtruth");
-
   edm::ESHandle<SiStripQuality> quality = 0;
   SiStripDetInfoFileReader* reader = 0;
   std::shared_ptr<TrackerHitAssociator> associator;
-  if (doRefineCluster) {
+  if (doRefineCluster_) {
     es.get<SiStripQualityRcd>().get("", quality);
     reader = edm::Service<SiStripDetInfoFileReader>().operator->();
-    if (useAssociator) associator.reset(new TrackerHitAssociator(event, confClusterizer_));
+    if (useAssociator_) associator.reset(new TrackerHitAssociator(event, confClusterizer_));
   }
 
   BOOST_FOREACH( const edm::EDGetTokenT< edm::DetSetVector<SiStripDigi> >& token, inputTokens) {
     if(      findInput( token, inputOld, event) ) {
       algorithm->clusterize(*inputOld, *output);
-      if (doRefineCluster) refineCluster(inputOld, output, reader, quality, associator, occupancyThreshold);
+      if (doRefineCluster_) refineCluster(inputOld, output, reader, quality, associator);
     } 
 //     else if( findInput( tag, inputNew, event) ) algorithm->clusterize(*inputNew, *output);
     else edm::LogError("Input Not Found") << "[SiStripClusterizer::produce] ";// << tag;
@@ -69,8 +69,7 @@ refineCluster(const edm::Handle< edm::DetSetVector<SiStripDigi> >& input,
 	      std::auto_ptr< edmNew::DetSetVector<SiStripCluster> >& output,
 	      SiStripDetInfoFileReader* reader,
 	      edm::ESHandle<SiStripQuality> quality,
-	      std::shared_ptr<TrackerHitAssociator> associator,
-	      const float& occupancyThreshold) {
+	      std::shared_ptr<TrackerHitAssociator> associator) {
   if (input->size() == 0) return;
 
   // Flag merge-prone clusters for relaxed CPE errors
@@ -95,14 +94,15 @@ refineCluster(const edm::Handle< edm::DetSetVector<SiStripDigi> >& input,
 	  associator->associateSimpleRecHitCluster(clust, DetId(detId), simtrackid);
 	  if (simtrackid.size() > 1) {
 	    nmergedclust++;
-	    clust->setSplitClusterError(-1.0);
+	    clust->setMerged(true);
 	  } else {
-	    clust->setSplitClusterError(-99999.9);
+	    clust->setMerged(false);
 	  }
 	} else {
-	  if (ndigi > occupancyThreshold*nchannreal) clust->setSplitClusterError(-1.0);
-	  else clust->setSplitClusterError(-99999.9);
+	  if (ndigi > occupancyThreshold_*nchannreal && clust->amplitudes().size() >= widthThreshold_) clust->setMerged(true);
+	  else clust->setMerged(false);
 	}
+	// std::cout << "Cluster_merged_width " << clust->isMerged() << " " << clust->amplitudes().size() << std::endl;
       }
       // std::cout << "Sensor:strips_occStrips_clust_merged " << nchannreal << " " << ndigi << " " << det->size() << " " << nmergedclust << std::endl;
     }
