@@ -17,6 +17,7 @@ toGet = cms.untracked.vstring('GainWidths'),
     HBRecalibration = cms.uint32(0),         # 1 for Upgrade (default aging scenario)
     HBreCalibCutoff = cms.double(20.),       # if above is True
     HFRecalibration = cms.bool(False),       # True for Upgrade
+    SipmAging       = cms.bool(False),       # True for Upgrade
     GainWidthsForTrigPrims = cms.bool(False) # True Upgrade    
 )
 

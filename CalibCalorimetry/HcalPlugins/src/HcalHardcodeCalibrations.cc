@@ -108,7 +108,8 @@ namespace {
 
 }
 
-HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iConfig ): he_recalibration(0), hb_recalibration(0), hf_recalibration(0), setHEdsegm(false), setHBdsegm(false)
+HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iConfig ): 
+he_recalibration(0), hb_recalibration(0), hf_recalibration(0), setHEdsegm(false), setHBdsegm(false), SipmLumi(0.0)
 {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::HcalHardcodeCalibrations->...";
 
@@ -136,6 +137,10 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
     }
     if(hf_recalib)  hf_recalibration = new HFRecalibration();
     
+	SipmLumi = iLumi;
+	bool doSipmAging = iConfig.getParameter<bool>("SipmAging");
+	if(!doSipmAging) SipmLumi = 0.0;
+	
     //     std::cout << " HcalHardcodeCalibrations:  iLumi = " <<  iLumi << std::endl;
   }
 
@@ -263,7 +268,7 @@ std::auto_ptr<HcalPedestals> HcalHardcodeCalibrations::producePedestals (const H
   std::auto_ptr<HcalPedestals> result (new HcalPedestals (topo,false));
   std::vector <HcalGenericDetId> cells = allCells(*topo);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
-    HcalPedestal item = HcalDbHardcode::makePedestal (*cell, false, iLumi);
+    HcalPedestal item = HcalDbHardcode::makePedestal (*cell, false, SipmLumi);
     result->addValues(item);
   }
   return result;
@@ -278,7 +283,7 @@ std::auto_ptr<HcalPedestalWidths> HcalHardcodeCalibrations::producePedestalWidth
   std::auto_ptr<HcalPedestalWidths> result (new HcalPedestalWidths (topo,false));
   std::vector <HcalGenericDetId> cells = allCells(*htopo);
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
-    HcalPedestalWidth item = HcalDbHardcode::makePedestalWidth (*cell, iLumi);
+    HcalPedestalWidth item = HcalDbHardcode::makePedestalWidth (*cell, SipmLumi);
     result->addValues(item);
   }
   return result;

@@ -95,5 +95,6 @@ private:
   bool switchGainWidthsForTrigPrims; 
   bool setHEdsegm;
   bool setHBdsegm;
+  double SipmLumi;
 };
 
