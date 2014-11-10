@@ -186,7 +186,7 @@ bool Hydjet2Hadronizer::readSettings( int )  {
   pythia6Service_->setGeneralParams();
 
   SERVICE.iseed_fromC=hjRandomEngine->CLHEP::HepRandomEngine::getSeed(); 
-  std::cout<<"Seed for random number generation= "<<hjRandomEngine->CLHEP::HepRandomEngine::getSeed()<<std::endl; 
+  LogInfo("Hydjet2Hadronizer|GenSeed") << "Seed for random number generation: "<<hjRandomEngine->CLHEP::HepRandomEngine::getSeed(); 
 
   fNPartTypes = 0;         //counter of hadron species
    
@@ -200,7 +200,7 @@ bool Hydjet2Hadronizer::initializeForInternalPartons(){
 
   // the input impact parameter (bxx_) is in [fm]; transform in [fm/RA] for hydjet usage
   const float ra = nuclear_radius();
-  LogInfo("RAScaling")<<"Nuclear radius(RA) =  "<<ra;
+  LogInfo("Hydjet2Hadronizer|RAScaling")<<"Nuclear radius(RA) =  "<<ra;
   fBmin     /= ra;
   fBmax     /= ra;
   fBfix   /= ra;
@@ -209,7 +209,7 @@ bool Hydjet2Hadronizer::initializeForInternalPartons(){
   if(fTMuType>0 &&  fSqrtS > 2.24) {
 
     if(fSqrtS < 2.24){
-      Error("InitialStateHydjet::MultIni", "SqrtS<2.24 not allowed with fTMuType>0");
+      LogError("Hydjet2Hadronizer|sqrtS") << "SqrtS<2.24 not allowed with fTMuType>0";
       return 0;
     }
     
@@ -227,32 +227,31 @@ bool Hydjet2Hadronizer::initializeForInternalPartons(){
 
     //compute strangeness potential
     if(fMuB > 0.01) fMuS = psp->CalculateStrangePotential();
-    cout << "fMuS = " << fMuS << endl;  
+    LogInfo("Hydjet2Hadronizer|Strange") << "fMuS = " << fMuS;  
 
     //if user choose fYlmax larger then allowed by kinematics at the specified beam energy sqrt(s)     
     if(fYlmax > TMath::Log(fSqrtS/0.94)){
-      Error("InitialStateHydjet::MultIni", "fYlmax > TMath::Log(fSqrtS/0.94)!!! ");
+      LogError("Hydjet2Hadronizer|Ylmax") << "fYlmax more then TMath::Log(fSqrtS vs 0.94)!!! ";
       return 0;
     }
       
     if(fCorrS <= 0.) {
       //see F. Becattini, J. Mannien, M. Gazdzicki, Phys Rev. C73 044905 (2006)
       fCorrS = 1. - 0.386* TMath::Exp(-1.23*fT/fMuB);
-      std::cout<<"The phenomenological f-la F. Becattini et al. PRC73 044905 (2006) for CorrS was used." << std::endl;
-      std::cout<<"Strangeness suppression parameter = "<<fCorrS << std::endl;
+      LogInfo("Hydjet2Hadronizer|Strange") << "The phenomenological f-la F. Becattini et al. PRC73 044905 (2006) for CorrS was used."<<endl
+      <<"Strangeness suppression parameter = "<<fCorrS;
     }
-    std::cout<<"The phenomenological f-la J. Cleymans et al. PRC73 034905 (2006) for Tch mu_B was used." << std::endl;
-    std::cout<<"The simulation will be done with the calculated parameters:" << std::endl;
-    std::cout<<"Baryon chemical potential = "<<fMuB<< " [GeV]" << std::endl;
-    std::cout<<"Strangeness chemical potential = "<<fMuS<< " [GeV]" << std::endl;
-    std::cout<<"Isospin chemical potential = "<<fMuI3<< " [GeV]" << std::endl;
-    std::cout<<"Strangeness suppression parameter = "<<fCorrS << std::endl;
-    std::cout<<"Eta_max = "<<fYlmax<<  std::endl;
-    std::cout << std::endl;
+    LogInfo("Hydjet2Hadronizer|Strange") << "The phenomenological f-la J. Cleymans et al. PRC73 034905 (2006) for Tch mu_B was used." << endl
+    <<"The simulation will be done with the calculated parameters:" << endl
+    <<"Baryon chemical potential = "<<fMuB<< " [GeV]" << endl
+    <<"Strangeness chemical potential = "<<fMuS<< " [GeV]" << endl
+    <<"Isospin chemical potential = "<<fMuI3<< " [GeV]" << endl
+    <<"Strangeness suppression parameter = "<<fCorrS << endl
+    <<"Eta_max = "<<fYlmax;
   }
   
-  std::cout<<"Used eta_max = "<<fYlmax<<  std::endl;
-  std::cout<<"maximal allowed eta_max TMath::Log(fSqrtS/0.94)=  "<<TMath::Log(fSqrtS/0.94)<<std::endl;
+  LogInfo("Hydjet2Hadronizer|Param") << "Used eta_max = "<<fYlmax<<  endl
+  <<"maximal allowed eta_max TMath::Log(fSqrtS/0.94)=  "<<TMath::Log(fSqrtS/0.94);
 
   //initialisation of high-pt part                                                                                                     
   HYJPAR.nhsel = fNhsel;
@@ -292,7 +291,7 @@ bool Hydjet2Hadronizer::initializeForInternalPartons(){
   if (fEtaType >0) dYl = TMath::Sqrt(2 * TMath::Pi()) * fYlmax ;  //Gaussian distr.                                                                            
   fVolEff = 2 * TMath::Pi() * fTau * dYl * (fR * fR)/TMath::Power((fUmax),2) * 
     ((fUmax)*TMath::SinH((fUmax))-TMath::CosH((fUmax))+ 1);
-  std::cout <<"central Effective volume = " << fVolEff << " [fm^3]" << std::endl;
+  LogInfo("Hydjet2Hadronizer|Param") << "central Effective volume = " << fVolEff << " [fm^3]";
   
   double particleDensity_pi_ch=0;
   double particleDensity_pi_th=0;
@@ -389,7 +388,7 @@ bool Hydjet2Hadronizer::initializeForInternalPartons(){
         {
           if(abs(encoding)!=443){ //only open charm
             Nocth=Nocth+particleDensity*fVolEff/dYl;       
-            //      cout<<encoding<<" Nochth "<<Nocth<<endl;
+            LogInfo("Hydjet2Hadronizer|Charam") << encoding<<" Nochth "<<Nocth;
             //      particleDensity=particleDensity*fCorrC;
             //      if(abs(encoding)==443)particleDensity=particleDensity*fCorrC;
           }
@@ -418,7 +417,7 @@ bool Hydjet2Hadronizer::initializeForInternalPartons(){
       fPartMu[2 * fNPartTypes] = mu;
       ++fNPartTypes;
       if(fNPartTypes > 1000)
-	Error("in bool MultIni:", "fNPartTypes is too large %d", fNPartTypes);
+	LogError("Hydjet2Hadronizer") << "fNPartTypes is too large" << fNPartTypes;
 
       //outMult<<encoding<<" "<<particleDensity*fVolEff/dYl <<" "<<mu<<std::endl;
 
@@ -478,7 +477,7 @@ bool Hydjet2Hadronizer::generatePartonsAndHadronize(){
   int ntry = 0;
   while(nsoft_ == 0 && nhard_ == 0){
     if(ntry > 100){
-      edm::LogError("Hydjet2EmptyEvent") << "##### HYDJET2: No Particles generated, Number of tries ="<<ntry;
+      LogError("Hydjet2EmptyEvent") << "##### HYDJET2: No Particles generated, Number of tries ="<<ntry;
       // Throw an exception. Use the EventCorruption exception since it maps onto SkipEvent
       // which is what we want to do here.
       std::ostringstream sstr;
@@ -531,9 +530,9 @@ bool Hydjet2Hadronizer::generatePartonsAndHadronize(){
             Particle particle(partDef, partJPos, partJMom, 0, 0, type, motherPdg, zeroVec, zeroVec);
             int index = particle.SetIndex();
             if(index!=i) {
-              cout << "InitialStateHydjet::Initialize(): Allocated HYDJET++ index is not synchronized with the PYTHIA index!" << endl
-                   << "                              Collision history information is destroyed! It happens when a PYTHIA code is not" << endl
-                   << "                              implemented in HYDJET++ particle list particles.data! Check it out!" << endl;
+              LogWarning("Hydjet2Hadronizer") << " Allocated HYDJET++ index is not synchronized with the PYTHIA index!" << endl
+                   << " Collision history information is destroyed! It happens when a PYTHIA code is not" << endl
+                   << " implemented in HYDJET++ particle list particles.data! Check it out!";
             }
             particle.SetPythiaStatusCode(pythiaStatus);
             particle.SetMother(mother_index);
@@ -543,8 +542,8 @@ bool Hydjet2Hadronizer::generatePartonsAndHadronize(){
             allocator.AddParticle(particle, source);
           }
           else {
-            cout << "InitialStateHydjet::Initialize(): PYTHIA particle of specie " << pdg << " is not in HYDJET++ particle list" << endl
-                 <<"Please define it in particles.data, otherwise the history information will be de-synchronized and lost!" << endl;
+            LogWarning("Hydjet2Hadronizer") << " PYTHIA particle of specie " << pdg << " is not in HYDJET++ particle list" << endl
+                 <<" Please define it in particles.data, otherwise the history information will be de-synchronized and lost!";
           }
         }
       } //nhsel !=0 not only hydro!        
@@ -620,7 +619,7 @@ bool Hydjet2Hadronizer::generatePartonsAndHadronize(){
           gammaC=fCorrC;
         }
 
-        //cout<<" --- in InitialStateHydjet gammaC --- " <<gammaC<<endl;
+        LogInfo("Hydjet2Hadronizer|Param") <<" gammaC = " <<gammaC;
 
         for(int i = 0; i < fNPartTypes; ++i) {
           double Mparam = fPartMult[2 * i] * Veff;
@@ -635,26 +634,26 @@ bool Hydjet2Hadronizer::generatePartonsAndHadronize(){
           if(partDef0->GetCharmQNumber()!=0 || partDef0->GetCharmAQNumber()!=0)Mparam = Mparam * gammaC;
           if(abs(encoding)==443)Mparam = Mparam * gammaC;  
 
-          //cout<<encoding<<" "<<Mparam/dYl <<std::endl;
+          LogInfo("Hydjet2Hadronizer|Param") <<encoding<<" "<<Mparam/dYl;
 
           int multiplicity = CLHEP::RandPoisson::shoot(hjRandomEngine, Mparam);
 
-          //cout << "specie: " << encoding << "; average mult: = " << Mparam << "; multiplicity = " << multiplicity << endl;
+          LogInfo("Hydjet2Hadronizer|Param") <<"specie: " << encoding << "; average mult: = " << Mparam << "; multiplicity = " << multiplicity;
 
           if (multiplicity > 0) {
             ParticlePDG *partDef = fDatabase->GetPDGParticle(encoding);
             if(!partDef) {
-              Error("InitialStateHydjet::Initialize", "No particle with encoding %d", encoding);
+              LogError("Hydjet2Hadronizer") << "No particle with encoding "<< encoding;
               continue;
             }
 
             
               if(fCharmProd<=0 && (partDef->GetCharmQNumber()!=0 || partDef->GetCharmAQNumber()!=0)){
-              //cout<<"statistical charmed particle not allowed ! "<<encoding<<endl;
+              LogInfo("Hydjet2Hadronizer|Param") <<"statistical charmed particle not allowed ! "<<encoding;
               continue;
               }
-              //if(partDef->GetCharmQNumber()!=0 || partDef->GetCharmAQNumber()!=0)
-              //std::cout<<" charm pdg generated "<< encoding <<std::endl;
+              if(partDef->GetCharmQNumber()!=0 || partDef->GetCharmAQNumber()!=0)
+              LogInfo("Hydjet2Hadronizer|Param") <<" charm pdg generated "<< encoding;
             
 
             //compute chemical potential for single f.o. mu==mu_ch
@@ -766,7 +765,7 @@ bool Hydjet2Hadronizer::generatePartonsAndHadronize(){
 
               } while(yy >= weight); 
 
-              //if(abs(z0)>1000 || abs(x0)>1000)std::cout<<"====== etaF==== "<<etaF<<std::endl;
+              if(abs(z0)>1000 || abs(x0)>1000) LogInfo("Hydjet2Hadronizer|Param") <<" etaF = "<<etaF<<std::endl;
 
               partMom.SetXYZT(px0, py0, pz0, e);
               partPos.SetXYZT(x0, y0, z0, t0);
@@ -789,7 +788,7 @@ bool Hydjet2Hadronizer::generatePartonsAndHadronize(){
       Nbcol = (int)HYFPAR.nbcol;
 
       if(source.empty()) {
-        Error("Hydjet2Hadronizer::generatePartonsAndHadronize", "Source is not initialized!!");
+        LogError("Hydjet2Hadronizer") << "Source is not initialized!!";
         //return ;
       }
       //Run the decays
@@ -842,7 +841,7 @@ bool Hydjet2Hadronizer::generatePartonsAndHadronize(){
 
         Ntot++;
         if(Ntot > kMax)
-          Error("in main:", "Ntot is too large %d", Ntot);
+          LogError("Hydjet2Hadronizer") << "Ntot is too large" << Ntot;
       }
 
       nsoft_    = Nhyd;
@@ -922,7 +921,7 @@ const char* Hydjet2Hadronizer::classname() const
 //______________________________________________________________________________________________
 //f2=f(phi,r)
 double Hydjet2Hadronizer::f2(double x, double y, double Delta) {
-  //std::cout<<"in f2: "<<"delta"<<Delta<<std::endl; 
+  LogDebug("f2") <<"in f2: "<<"delta"<<Delta; 
   double RsB = fR; //test: podstavit' *coefff_RB
   double rhou =  fUmax * y / RsB;
   double ff = y*TMath::CosH(rhou)*
@@ -933,7 +932,7 @@ double Hydjet2Hadronizer::f2(double x, double y, double Delta) {
 
 //____________________________________________________________________________________________
 double Hydjet2Hadronizer::SimpsonIntegrator(double a, double b, double phi, double Delta) {
-  //std::cout<<"in SimpsonIntegrator"<<"delta"<<Delta<<std::endl; 
+  LogDebug("SimpsonIntegrator") <<"in SimpsonIntegrator"<<"delta - "<<Delta; 
   int nsubIntervals=100;
   double h = (b - a)/nsubIntervals;
   double s = f2(phi,a + 0.5*h,Delta);
@@ -953,7 +952,7 @@ double Hydjet2Hadronizer::SimpsonIntegrator(double a, double b, double phi, doub
 //______________________________________________________________________________________________
 double Hydjet2Hadronizer::SimpsonIntegrator2(double a, double b, double Epsilon, double Delta) {
 
-  // std::cout<<"in SimpsonIntegrator2: epsilon"<<Epsilon<<"delta"<<Delta<<std::endl; 
+  LogInfo("SimpsonIntegrator2") <<"in SimpsonIntegrator2: epsilon - "<<Epsilon<<" delta - "<<Delta; 
   int nsubIntervals=10000;
   double h = (b - a)/nsubIntervals; //-1-pi, phi
   double s=0;
@@ -1008,11 +1007,11 @@ double Hydjet2Hadronizer::CharmEnhancementFactor(double Ncc, double Ndth, double
   double gammaC=100.;
   double x1 = gammaC*Ndth; 
   double var1 = Ncc-0.5*gammaC*Ndth*TMath::BesselI1(x1)/TMath::BesselI0(x1)-gammaC*gammaC*NJPsith;
-  // cout<<"gammaC 20"<<" var "<<var1<<endl;
+  LogInfo("Charam") << "gammaC 20"<<" var "<<var1<<endl;
   gammaC=1.;
   double x0 = gammaC*Ndth;
   double var0 = Ncc-0.5*gammaC*Ndth*TMath::BesselI1(x0)/TMath::BesselI0(x0)-gammaC*gammaC*NJPsith;
-  // cout<<"gammaC 1"<<" var "<<var0<<endl;
+  LogInfo("Charam") << "gammaC 1"<<" var "<<var0;
   
   for(int i=1; i<1000; i++){ 
     if(var1 * var0<0){
@@ -1022,12 +1021,12 @@ double Hydjet2Hadronizer::CharmEnhancementFactor(double Ncc, double Ndth, double
     }
     else
       {
-        //      cout<<"gammaC "<<gammaC<<" var0 "<<var0<<endl;
+        LogInfo("Charam") << "gammaC "<<gammaC<<" var0 "<<var0;
         return gammaC;
       } 
 
   }
-  //      cout<<"gammaC not found ? "<<gammaC<<" var0 "<<var0<<endl;
+  LogInfo("Charam") << "gammaC not found ? "<<gammaC<<" var0 "<<var0;
   return -100;
 }
 //----------------------------------------------------------------------------------------------

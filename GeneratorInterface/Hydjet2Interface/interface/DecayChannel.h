@@ -14,6 +14,7 @@
 #define DECAY_CHANNEL
 
 #include "Rtypes.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 const int kMaxDaughters = 3;
 const int kNonsensePDG = 1000000000;

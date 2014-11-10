@@ -39,8 +39,7 @@ DecayChannel::DecayChannel(int mother, double branching, int nDaughters, int *da
   fNDaughters = 0;
   for(int i=0; i<nDaughters; i++) {
     if(i >= kMaxDaughters) {
-      cout << "ERROR in DecayChannel explicit constructor: " << endl;
-      cout << "Number of daughters bigger than the maximum allowed one (" << kMaxDaughters << ") !!" << endl;
+      edm::LogError("DecayChannel")<<"From explicit constructor: Number of daughters bigger than the maximum allowed one (" << kMaxDaughters << ") !!";
     }
     fDaughtersPDG[fNDaughters++] = *(daughters+i);
   }
@@ -49,8 +48,7 @@ DecayChannel::DecayChannel(int mother, double branching, int nDaughters, int *da
 void DecayChannel::SetDaughters(int *daughters, int n) {
   for(int i=0; i<n; i++) {
     if(i >= kMaxDaughters) {
-      cout << "ERROR in DecayChannel::SetDaughters() :" << endl;
-      cout << "Number of daughters bigger than the maximum allowed one (" << kMaxDaughters << ") !!" << endl;
+      edm::LogError("DecayChannel")<<"From SetDaughters(): Number of daughters bigger than the maximum allowed one (" << kMaxDaughters << ") !!";
     }
     fDaughtersPDG[fNDaughters++] = *(daughters+i);
   }
@@ -58,16 +56,14 @@ void DecayChannel::SetDaughters(int *daughters, int n) {
                                   
 void DecayChannel::AddDaughter(int pdg) {
   if(fNDaughters >= kMaxDaughters) {
-    cout << "ERROR in DecayChannel::AddDaughter() :" << endl;
-    cout << "Number of daughters is already >= than the maximum allowed one (" << kMaxDaughters << ") !!" << endl;
+    edm::LogError("DecayChannel")<<"From AddDaughter(): Number of daughters is already >= than the maximum allowed one (" << kMaxDaughters << ") !!";
   }
   fDaughtersPDG[fNDaughters++] = pdg;
 }
                                         
 int DecayChannel::GetDaughterPDG(int i) {
   if((i >= fNDaughters) || (i<0)) {
-    cout << "ERROR in DecayChannel::GetDaughterPDG() :" << endl;
-    cout << "Daughter index required is too big or less than zero!! There are only " << fNDaughters << " secondaries in this channel !!" << endl;
+    edm::LogError("DecayChannel")<<"From GetDaughterPDG(): Daughter index required is too big or less than zero!! There are only " << fNDaughters << " secondaries in this channel !!";
     return kNonsensePDG;
   }
   return fDaughtersPDG[i];

@@ -339,7 +339,7 @@ c-ml
 * fill array 'ppart' 
      
       do ih=1,nhj
-        if(i.le.150000)then 
+        if(ih.le.150000)then 
         ppart(1,ih)= khj(ih,1) ! status code
         ppart(2,ih)= khj(ih,2) ! pdg         
         ppart(3,ih)=phj(ih,1) ! px
