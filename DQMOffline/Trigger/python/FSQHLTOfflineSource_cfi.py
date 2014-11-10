@@ -3,12 +3,23 @@ import math
 #
 # see https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuidePhysicsCutParser
 #
+#   trigger condition - check if trigger matching this pattern string was fired
+#                       empty string - dont check anything
+#
+#
+#   handler of type "fromHLT" fetches products of filter with name matching 
+#    the  partialFilterName string,  that was run inside path with name matching 
+#    the  partialPathName 
+#  
+#   other handlers read data from collection pointed by inputCol parameter
+#
 def getHighMultVPSet():
     ret=cms.VPSet()
     thresholds = [60, 85, 110, 135, 160]
     for t in thresholds:
         partialPathName = "HLT_PixelTracks_Multiplicity"+str(t)+"_v"
         tracksCount  =  cms.PSet(
+                triggerSelection = cms.string(partialPathName+"*"),
                 handlerType = cms.string("RecoTrackCounter"),
                 inputCol = cms.InputTag("hltPixelTracksForHighMult"),
                 partialPathName = cms.string(partialPathName),
@@ -27,6 +38,7 @@ def getHighMultVPSet():
         ret.append(tracksCount)				
 
         ptEtaHardest  =  cms.PSet(
+                triggerSelection = cms.string(partialPathName+"*"),
                 handlerType = cms.string("RecoTrack"),
                 inputCol = cms.InputTag("hltPixelTracksForHighMult"),
                 partialPathName = cms.string(partialPathName),
@@ -48,6 +60,7 @@ def getHighMultVPSet():
 
         # FIXME: what variables it makes sense to plot in case of ETT seeds?
         l1 =  cms.PSet(
+                triggerSelection = cms.string(partialPathName+"*"),
                 handlerType = cms.string("FromHLT"),
                 partialPathName = cms.string(partialPathName),
                 partialFilterName  = cms.string("hltL1sETT"),
@@ -82,6 +95,7 @@ def getPTAveVPSet():
 
         
             hltCalo =  cms.PSet(
+                triggerSelection = cms.string(partialPathName+"*"),
                 handlerType = cms.string("FromHLT"),
                 partialPathName = cms.string(partialPathName),
                 partialFilterName  = cms.string("ForHFJECBase"), # note: this matches to hltSingleCaloJetXXXForHFJECBase
@@ -99,6 +113,7 @@ def getPTAveVPSet():
             ret.append(hltCalo)
 
             l1 =  cms.PSet(
+                triggerSelection = cms.string(partialPathName+"*"),
                 handlerType = cms.string("FromHLT"),
                 partialPathName = cms.string(partialPathName),
                 partialFilterName  = cms.string("hltL1"),
@@ -117,6 +132,7 @@ def getPTAveVPSet():
 
             '''
             hltPFSingle  =  cms.PSet(
+                triggerSelection = cms.string(partialPathName+"*"),
                 handlerType = cms.string("FromHLT"),
                 partialPathName = cms.string(partialPathName),
                 partialFilterName  = cms.string("hltDiPFJetAve"),
@@ -136,6 +152,7 @@ def getPTAveVPSet():
 
 
             hltPFtopology  =  cms.PSet(
+                triggerSelection = cms.string(partialPathName+"*"),
                 handlerType = cms.string("FromHLT"),
                 partialPathName = cms.string(partialPathName),
                 partialFilterName  = cms.string("hltDiPFJetAve"),
@@ -161,10 +178,14 @@ def getPTAveVPSet():
             )
             ret.append(hltPFtopology)
 
+
+
+
             '''
             # FromJet
             recoThr = t
             recoPF  =  cms.PSet(
+                triggerSelection = cms.string(partialPathName+"*"),
                 handlerType = cms.string("FromRecoCandidate"),
                 inputCol = cms.InputTag("ak4PFJetsCHS"),
                 partialPathName = cms.string(partialPathName),
@@ -184,6 +205,7 @@ def getPTAveVPSet():
             '''
             recoThr = t/2
             recoPFtopology  =  cms.PSet(
+                triggerSelection = cms.string(partialPathName+"*"),
                 handlerType = cms.string("FromRecoCandidate"),
                 inputCol = cms.InputTag("ak4PFJetsCHS"),
                 partialPathName = cms.string(partialPathName),
@@ -204,15 +226,28 @@ def getPTAveVPSet():
                     cms.PSet (name = cms.string("ptTag"), expression = cms.string("? abs(at(0).eta) < 2 ? at(0).pt : at(1).pt "), 
                              bins = cms.int32(ptBins), min = cms.double(ptBinLow), max = cms.double(ptBinHigh)  ),
                     cms.PSet (name = cms.string("ptProbe"), expression = cms.string("? abs(at(0).eta) > 2 ? at(0).pt : at(1).pt "), 
-                             bins = cms.int32(ptBins), min = cms.double(ptBinLow), max = cms.double(ptBinHigh)  )
-
+                             bins = cms.int32(ptBins), min = cms.double(ptBinLow), max = cms.double(ptBinHigh)  ),
+                    cms.PSet (name = cms.string("ptAve_nominator"), expression = cms.string("(at(0).pt+at(1).pt)/2"),
+                             bins = cms.int32(ptBins), min = cms.double(ptBinLow), max = cms.double(ptBinHigh)  ),
                 )
             )
             ret.append(recoPFtopology)
+            recoPFtopologyDenom = recoPFtopology.clone()
+            #recoPFtopologyDenom.triggerSelection = cms.string("HLTriggerFirstPath*")
+            alwaysTrue = partialPathName+"*" + " OR NOT " + partialPathName+"*"
+            #recoPFtopologyDenom.triggerSelection = cms.string(partialPathName+"*")
+            recoPFtopologyDenom.triggerSelection = cms.string(alwaysTrue)
+            recoPFtopologyDenom.drawables =  cms.VPSet(
+                cms.PSet (name = cms.string("ptAve_denominator"), expression = cms.string("(at(0).pt+at(1).pt)/2"),
+                             bins = cms.int32(ptBins), min = cms.double(ptBinLow), max = cms.double(ptBinHigh)  )
+            )
+            ret.append(recoPFtopologyDenom)
+
             # RecoCandidateCounter
             ''' example on how to count objects
             recoThr = t/2
             recoPFJetCnt  =  cms.PSet(
+                triggerSelection = cms.string(partialPathName+"*"),
                 handlerType = cms.string("RecoCandidateCounter"),
                 inputCol = cms.InputTag("ak4PFJetsCHS"),
                 partialPathName = cms.string(partialPathName),
@@ -246,6 +281,17 @@ fsqdirname = "HLT/FSQ/"
 processName = "HLT"
 #processName = "TEST"
 fsqHLTOfflineSource = cms.EDAnalyzer("FSQDiJetAve",
+
+    triggerConfiguration =  cms.PSet(
+      hltResults = cms.InputTag('TriggerResults','',processName),
+      l1tResults = cms.InputTag(''),
+      #l1tResults = cms.InputTag('gtDigis'),
+      daqPartitions = cms.uint32(1),
+      l1tIgnoreMask = cms.bool( False ),
+      l1techIgnorePrescales = cms.bool( False ),
+      throw  = cms.bool( True )
+    ),
+
     #dirname = cms.untracked.string("HLT/FSQ/DiJETAve/"),
     triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","", processName),
     triggerResultsLabel = cms.InputTag("TriggerResults","", processName),
