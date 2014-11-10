@@ -2,7 +2,7 @@
 #define RANDARRAYFUNCTION_INCLUDED
 
 #include <vector>
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandFlat.h"
 extern CLHEP::HepRandomEngine* hjRandomEngine;

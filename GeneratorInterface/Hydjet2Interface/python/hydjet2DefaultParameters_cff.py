@@ -14,6 +14,17 @@ collisionParameters2760GeV = cms.PSet(
 	fR 	= cms.double(13.45), 	# Maximal transverse radius at thermal freeze-out for central collisions, fR [fm]
 )
 
+collisionParameters5100GeV = cms.PSet(
+	fAw = cms.double(208.0), ## beam/target atomic number
+	fSqrtS = cms.double(5100.0),
+	fUmax 	= cms.double(1.35), 	# Maximal transverse flow rapidity at thermal freeze-out for central collisions, fUmax
+	fPtmin 	= cms.double(10.), 	# Minimal pt of parton-parton scattering in PYTHIA event, fPtmin [GeV/c] 
+	fT0 = cms.double(1.1), 		# Initial QGP temperature for central Pb+Pb collisions in mid-rapidity, fT0 [GeV]; allowed range [0.2,2.0]GeV;
+
+	### Volume parameters at thermal freeze-out ###
+	fTau 	= cms.double(13.2), 	# Proper time proper at thermal freeze-out for central collisions, fTau [fm/c]
+	fR 	= cms.double(13.9), 	# Maximal transverse radius at thermal freeze-out for central collisions, fR [fm]
+)
 
 qgpParameters = cms.PSet(
 	fTau0 	= cms.double(0.1), 	# Proper QGP formation time in fm/c, fTau0 (0.01<fTau0<10)
@@ -60,12 +71,12 @@ hydjet2Parameters = cms.PSet(
 
 	fEtaType 	= cms.double(1.), 	# Flag to choose longitudinal flow rapidity distribution, fEtaType (=0 uniform, >0 Gaussian with the dispersion Ylmax)
 	fIshad 	= cms.int32(1), 	# Flag to switch on/off nuclear shadowing, fIshad (0 shadowing off, 1 shadowing on)	
-	fPyhist 	= cms.int32(1), 	# Flag to suppress the output of particle history from PYTHIA, fPyhist (=1 only final state particles; =0 full particle history from PYTHIA)
+	fPyhist 	= cms.int32(0), 	# Flag to suppress the output of particle history from PYTHIA, fPyhist (=1 only final state particles; =0 full particle history from PYTHIA)
 	fIenglu 	= cms.int32(0), 	# Flag to fix type of partonic energy loss, fIenglu (0 radiative and collisional loss, 1 radiative loss only, 2 collisional loss only)
 	fIanglu 	= cms.int32(1), 	# Flag to fix type of angular distribution of in-medium emitted gluons, fIanglu (0 small-angular, 1 wide-angular, 2 collinear).
 	embeddingMode = cms.bool(False),
 	rotateEventPlane = cms.bool(True)
-	#fSeed	= cms.int32(0) 	# Parameter to set random number seed, fSeed (=0 the current time is used, >0 the value fSeed is used) 
+	 
 )
 
 PythiaDefaultBlock = cms.PSet(
