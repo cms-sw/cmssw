@@ -39,6 +39,33 @@ namespace {
 	     std::pair<float,float>(b, a) : 
 	     std::pair<float,float>(a, b)   );
   }
+  
+  template<typename T>
+  KDTreeCube fill_and_bound_kd_tree(const std::vector<T>& points,
+				    const std::vector<bool>& usable,
+				    std::vector<KDTreeNodeInfoT<unsigned,3> >& nodes) {
+    std::array<float,3> minpos{ {0.0f,0.0f,0.0f} }, maxpos{ {0.0f,0.0f,0.0f} };
+    for( unsigned i = 0 ; i < points.size(); ++i ) {
+      if( !usable[i] ) continue;
+      const auto& pos = points[i].position();
+      nodes.emplace_back(i, (float)pos.X(), (float)pos.Y(), (float)pos.Z());
+      if( i == 0 ) {
+	minpos[0] = pos.X(); minpos[1] = pos.Y(); minpos[2] = pos.Z();
+	maxpos[0] = pos.X(); maxpos[1] = pos.Y(); maxpos[2] = pos.Z();
+      } else {
+	minpos[0] = std::min((float)pos.X(),minpos[0]);
+	minpos[1] = std::min((float)pos.Y(),minpos[1]);
+	minpos[2] = std::min((float)pos.Z(),minpos[2]);
+	maxpos[0] = std::max((float)pos.X(),maxpos[0]);
+	maxpos[1] = std::max((float)pos.Y(),maxpos[1]);
+	maxpos[2] = std::max((float)pos.Z(),maxpos[2]);
+      }
+    }
+    return KDTreeCube(minpos[0],maxpos[0],
+		      minpos[1],maxpos[1],
+		      minpos[2],maxpos[2]);
+  }
+
 
   bool greaterByEnergy(const std::pair<unsigned,double>& a,
 		       const std::pair<unsigned,double>& b) {
@@ -118,8 +145,8 @@ class HGCClusterizer : public InitialClusteringStepBase {
   
 private:
   // used for rechit searching 
-  std::vector<KDNode> _nodes, _found;
-  KDTree _kdtree;
+  std::vector<KDNode> _cluster_nodes, _hit_nodes, _found;
+  KDTree _cluster_kdtree,_hit_kdtree;
 
   std::unique_ptr<PosCalc> _logWeightPosCalc,_pcaPosCalc;
 
@@ -175,7 +202,8 @@ HGCClusterizer::HGCClusterizer(const edm::ParameterSet& conf,
 			       edm::ConsumesCollector& sumes) :
   InitialClusteringStepBase(conf,sumes) { 
   // clean initial state for searching
-  _nodes.clear(); _found.clear(); _kdtree.clear();
+  _cluster_nodes.clear(); _found.clear(); _cluster_kdtree.clear();
+  _hit_nodes.clear(); _hit_kdtree.clear();
   // setup 2D position calculator for per-layer clusters
   _logWeightPosCalc.reset(nullptr); 
   const edm::ParameterSet& pconf = conf.getParameterSet("positionCalcInLayer");
@@ -323,28 +351,12 @@ void HGCClusterizer::build2DCluster(const reco::PFRecHitCollection& input,
 
 void HGCClusterizer::
 linkClustersInLayer(const reco::PFClusterCollection& input_clusters,
-		    reco::PFClusterCollection& output) {  
-  std::array<float,3> minpos{ {0.0f,0.0f,0.0f} }, maxpos{ {0.0f,0.0f,0.0f} };
-  for( unsigned i = 0 ; i < input_clusters.size(); ++i ) {
-    const auto& pos = input_clusters[i].position();
-    _nodes.emplace_back(i, (float)pos.X(), (float)pos.Y(), (float)pos.Z());
-    if( i == 0 ) {
-       minpos[0] = pos.X(); minpos[1] = pos.Y(); minpos[2] = pos.Z();
-       maxpos[0] = pos.X(); maxpos[1] = pos.Y(); maxpos[2] = pos.Z();
-    } else {
-      minpos[0] = std::min((float)pos.X(),minpos[0]);
-      minpos[1] = std::min((float)pos.Y(),minpos[1]);
-      minpos[2] = std::min((float)pos.Z(),minpos[2]);
-      maxpos[0] = std::max((float)pos.X(),maxpos[0]);
-      maxpos[1] = std::max((float)pos.Y(),maxpos[1]);
-      maxpos[2] = std::max((float)pos.Z(),maxpos[2]);
-    }
-  }
-  KDTreeCube kd_boundingregion(minpos[0],maxpos[0],
-			       minpos[1],maxpos[1],
-			       minpos[2],maxpos[2]);
-  _kdtree.build(_nodes,kd_boundingregion);
-  _nodes.clear();
+		    reco::PFClusterCollection& output) {
+  std::vector<bool> dummy(input_clusters.size(),true);  
+  KDTreeCube kd_boundingregion = 
+    fill_and_bound_kd_tree(input_clusters,dummy,_cluster_nodes);
+  _cluster_kdtree.build(_cluster_nodes,kd_boundingregion);
+  _cluster_nodes.clear();
   
   //const float moliere_radius2 = std::pow(moliere_radius,2.0);
   LinkMap back_links;
@@ -370,7 +382,7 @@ linkClustersInLayer(const reco::PFClusterCollection& input_clusters,
     KDTreeCube kd_searchcube((float)x.first,(float)x.second,
 			     (float)y.first,(float)y.second,
 			     (float)z.first,(float)z.second);
-    _kdtree.search(kd_searchcube,_found);
+    _cluster_kdtree.search(kd_searchcube,_found);
     for( const auto& found_node : _found ) {
       const auto& found_clus = input_clusters[found_node.data];
       const auto& found_pos  = found_clus.position();
@@ -452,7 +464,7 @@ linkClustersInLayer(const reco::PFClusterCollection& input_clusters,
     output.push_back(merged_cluster);    
   }
   _found.clear();
-  _kdtree.clear();
+  _cluster_kdtree.clear();
 }
 
 void HGCClusterizer::
@@ -460,9 +472,44 @@ trackAssistedClustering(const reco::PFRecHitCollection& hits,
 			std::vector<bool>& rechit_usable,
 			std::vector<bool>& cluster_usable,
 			reco::PFClusterCollection& output) {
+  // setup kd tree searches for clusters and tracks
+  // setup clusters
+  KDTreeCube cluster_bounds = 
+    fill_and_bound_kd_tree(output,
+			   cluster_usable,
+			   _cluster_nodes);  
+  _cluster_kdtree.build(_cluster_nodes,cluster_bounds);
+  // setup rechits
+  KDTreeCube hit_bounds = 
+    fill_and_bound_kd_tree(hits,
+			   rechit_usable,
+			   _hit_nodes);
+  _hit_kdtree.build(_hit_nodes,hit_bounds);
+  
   const reco::TrackCollection& tracks = *_tracks;
   for( const unsigned i : _usable_tracks ) {
     const reco::Track& tk = tracks[i];
-    std::cout << tk.pt() << ' ' << tk.eta() << ' ' << tk.phi() << std::endl;
+    std::cout << "got track: " << tk.pt() << ' ' << tk.eta() << ' ' << tk.phi() << std::endl;
+    const TrajectoryStateOnSurface myTSOS = trajectoryStateTransform::outerStateOnSurface(tk, *(_tkGeom.product()),_bField.product());
+    auto detbegin = myTSOS.globalPosition().z() > 0 ? _plusSurface.begin() : _minusSurface.begin();
+    auto detend = myTSOS.globalPosition().z() > 0 ? _plusSurface.end() : _minusSurface.end();
+    for( auto det = detbegin; det != detend; ++det ) {      
+      for( const auto& layer : *det ) {
+	TrajectoryStateOnSurface piStateAtSurface = _mat_prop->propagate (myTSOS, *layer);
+	if( piStateAtSurface.isValid() ) {
+	  GlobalPoint pt = piStateAtSurface.globalPosition();
+	  GlobalError xyzerr = piStateAtSurface.cartesianError().position();
+	  // just take maximal error envelope
+	  const float xyerr = std::sqrt(xyzerr.cxx() + xyzerr.cyy() + std::abs(xyzerr.cyx()) ); 
+	  const float search_radius = std::max( xyerr, 1.5f ); // use 1.5 cm as minimum matching distance for now
+	  std::cout << "\ttrack successfully got to: " 
+		    << pt.x() << " +/- " <<  std::sqrt(xyzerr.cxx()) << ' ' 
+		    << pt.y() << " +/- "<< ' ' << std::sqrt(xyzerr.cyy()) << ' ' 
+		    << pt.z() << " +/- " << std::sqrt(xyzerr.czz()) << " searching in " << search_radius << std::endl;
+	  
+	  
+	}
+      }
+    }
   }  
 }
