@@ -11,7 +11,8 @@ import math
 #    the  partialFilterName string,  that was run inside path with name matching 
 #    the  partialPathName 
 #  
-#   other handlers read data from collection pointed by inputCol parameter
+#   other handlers read data from collection pointed by inputCol parameter 
+#       (partialFilterName, partialPathName params are ignored)
 #
 def getHighMultVPSet():
     ret=cms.VPSet()
@@ -21,21 +22,35 @@ def getHighMultVPSet():
         tracksCount  =  cms.PSet(
                 triggerSelection = cms.string(partialPathName+"*"),
                 handlerType = cms.string("RecoTrackCounter"),
-                inputCol = cms.InputTag("hltPixelTracksForHighMult"),
+                #inputCol = cms.InputTag("hltPixelTracksForHighMult"),
+                inputCol = cms.InputTag("generalTracks"),
                 partialPathName = cms.string(partialPathName),
                 partialFilterName  = cms.string("hltL1sETT"),
-                dqmhistolabel  = cms.string("hltPixelTracks"),
+                #dqmhistolabel  = cms.string("hltPixelTracks"),
+                dqmhistolabel  = cms.string("recoTracks"),
                 mainDQMDirname = cms.untracked.string(fsqdirname),
-                singleObjectsPreselection = cms.string("1==1"),
+                singleObjectsPreselection = cms.string("1==1"), # add reco::Tracks selection criteria
                 combinedObjectSelection =  cms.string("1==1"),
                 combinedObjectSortCriteria = cms.string('size()'),
                 combinedObjectDimension = cms.int32(1),
                 drawables =  cms.VPSet(
-                    cms.PSet (name = cms.string("count"), expression = cms.string('at(0)'), 
+                    cms.PSet (name = cms.string("count_nominator"), expression = cms.string('at(0)'), 
                              bins = cms.int32(30), min = cms.double(t), max = cms.double(t+t/2))
                 )
         )
         ret.append(tracksCount)				
+
+        tracksCountDenom = tracksCount.clone()
+        alwaysTrue = partialPathName+"*" + " OR NOT " + partialPathName+"*"
+        tracksCountDenom.triggerSelection = cms.string(alwaysTrue)
+        tracksCountDenom.drawables =  cms.VPSet(
+            cms.PSet (name = cms.string("count_denominator"), expression = cms.string("at(0)"),
+                             bins = cms.int32(30), min = cms.double(t), max = cms.double(t+t/2))
+        )
+        ret.append(tracksCountDenom)
+
+
+
 
         ptEtaHardest  =  cms.PSet(
                 triggerSelection = cms.string(partialPathName+"*"),
@@ -289,7 +304,7 @@ fsqHLTOfflineSource = cms.EDAnalyzer("FSQDiJetAve",
       daqPartitions = cms.uint32(1),
       l1tIgnoreMask = cms.bool( False ),
       l1techIgnorePrescales = cms.bool( False ),
-      throw  = cms.bool( True )
+      throw  = cms.bool( False )
     ),
 
     #dirname = cms.untracked.string("HLT/FSQ/DiJETAve/"),
