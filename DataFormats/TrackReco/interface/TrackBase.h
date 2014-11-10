@@ -114,7 +114,16 @@ public:
         bTagGhostTracks = 27,
         beamhalo = 28,
         gsf = 29,
-        algoSize = 30
+	// HLT algo name
+	// steps used by PF
+	hltIter0 = 30,
+	hltIter1 = 31,
+	hltIter2 = 32,
+	hltIter3 = 33,
+	hltIter4 = 34,
+	// steps used global muon isolation
+	hltIterX = 35,
+        algoSize = 36
     };
 
     static const std::string algoNames[];
@@ -482,6 +491,18 @@ inline std::string TrackBase::algoName() const
         return "bTagGhostTracks";
     case gsf:
         return "gsf";
+    case hltIter0 :
+      return "hltIter0";
+    case hltIter1 :
+      return "hltIter1";
+    case hltIter2 :
+      return "hltIter2";
+    case hltIter3 :
+      return "hltIter3";
+    case hltIter4 :
+      return "hltIter4";
+    case hltIterX :
+      return "hltIterX";
     }
     return "undefAlgorithm";
 }
