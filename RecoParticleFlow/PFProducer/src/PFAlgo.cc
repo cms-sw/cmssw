@@ -798,7 +798,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	PFBlockElement::Type type = elements[iEle].type();
 	if(type==PFBlockElement::TRACK)
 	  {
-	    if(elements[iEle].trackRef()->algo() == 12)
+	    if(elements[iEle].trackRef()->algo() == 12) // should not be reco::TrackBase::conversionStep ?
 	      active[iEle]=false;	
 	    if(elements[iEle].trackRef()->quality(reco::TrackBase::highPurity))continue;
 	    const reco::PFBlockElementTrack * trackRef = dynamic_cast<const reco::PFBlockElementTrack*>((&elements[iEle]));
@@ -1952,6 +1952,21 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       case TrackBase::tobTecStep:
 	blowError = factors45_[1];
 	break;
+      case reco::TrackBase::hltIter0:
+      case reco::TrackBase::hltIter1:
+      case reco::TrackBase::hltIter2:
+      case reco::TrackBase::hltIter3:
+	std::cout << "[PFAlgo::processBlock] trackRef->algo(): " << trackRef->algo() << " 0,1,2 or 3" << std::endl;
+	blowError = 1.;
+	break;
+      case reco::TrackBase::hltIter4:
+	std::cout << "[PFAlgo::processBlock] trackRef->algo(): " << trackRef->algo() << " 4" << std::endl;
+	blowError = factors45_[0];
+	break;
+      case reco::TrackBase::hltIterX:
+	std::cout << "[PFAlgo::processBlock] trackRef->algo(): " << trackRef->algo() << " X" << std::endl;
+	blowError = 1.;
+	break;
       default:
 	blowError = 1E9;
 	break;
@@ -2420,6 +2435,13 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 		      << " rejected (Dpt = " << -it->first 
 		      << " GeV/c, algo = " << trackref->algo() << ")" << std::endl;
 	  break;
+	case reco::TrackBase::hltIter0:
+	case reco::TrackBase::hltIter1:
+	case reco::TrackBase::hltIter2:
+	case reco::TrackBase::hltIter3:
+	case reco::TrackBase::hltIter4:
+	case reco::TrackBase::hltIterX:
+	  break;	  
 	default:
 	  break;
 	}
