@@ -295,9 +295,11 @@ PulseShapeFitOOTPileupCorrection::~PulseShapeFitOOTPileupCorrection()
    if(tpfunctor_)   delete tpfunctor_;
 }
 void PulseShapeFitOOTPileupCorrection::setPUParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,
+						   bool   iUnConstrainedFit,   bool iApplyTimeSlew,
 						   double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean,double iPedSig,
 						   double iNoise,double iTMin,double iTMax,
-						   double its3Chi2,double its4Chi2,double its345Chi2,HcalTimeSlew::BiasSetting slewFlavor) { 
+						   double its3Chi2,double its4Chi2,double its345Chi2,
+						   double iChargeThreshold,HcalTimeSlew::BiasSetting slewFlavor) { 
 
   TSMin_ = iTMin;
   TSMax_ = iTMax;
@@ -307,6 +309,8 @@ void PulseShapeFitOOTPileupCorrection::setPUParams(bool   iPedestalConstraint, b
   pedestalConstraint_ = iPedestalConstraint;
   timeConstraint_     = iTimeConstraint;
   addPulseJitter_     = iAddPulseJitter;
+  unConstrainedFit_   = iUnConstrainedFit;
+  applyTimeSlew_      = iApplyTimeSlew;
   pulseJitter_        = iPulseJitter;
   timeMean_           = iTimeMean;
   timeSig_            = iTimeSig;
@@ -314,6 +318,12 @@ void PulseShapeFitOOTPileupCorrection::setPUParams(bool   iPedestalConstraint, b
   pedSig_             = iPedSig;
   noise_              = iNoise;
   slewFlavor_         = slewFlavor;
+  if(unConstrainedFit_) { //Turn off all Constraints
+    //pedestalConstraint_ = false; => Leaving this as tunable
+    //timeConstraint_     = false;
+    TSMin_ = -100.;
+    TSMax_ =   75.;
+  }
 }
 void PulseShapeFitOOTPileupCorrection::setPulseShapeTemplate(const HcalPulseShapes::Shape& ps) {
 
@@ -367,17 +377,22 @@ constexpr char const* varNames[] = {"time", "energy","time1","energy1","time2","
 
 int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, const double * pedenArr, const double *chargeArr, const double *pedArr, const double tsTOTen, std::vector<double> &fitParsVec)  const {
    double tsMAX=0;
+   int    nAboveThreshold = 0;
+
    for(int i=0;i<10;++i){
       FitterFuncs::psFit_x[i]=i;
       FitterFuncs::psFit_y[i]=energyArr[i]-pedenArr[i];
-      //Add Time Slew
-      FitterFuncs::psFit_slew[i] = HcalTimeSlew::delay(std::max(1.0,chargeArr[i]),slewFlavor_); // !!! does this need to be pedestal subtracted
+      //Add Time Slew !!! does this need to be pedestal subtracted
+      FitterFuncs::psFit_slew[i] = 0;
+      if(applyTimeSlew_) FitterFuncs::psFit_slew[i] = HcalTimeSlew::delay(std::max(1.0,chargeArr[i]),slewFlavor_); 
       //Add Greg's channel discretization
       double sigmaBin =  FitterFuncs::sigma(chargeArr[i]);
       FitterFuncs::psFit_erry2[i]=noise_*noise_+ sigmaBin*sigmaBin; //Greg's Granularity
       //Propagate it through
       FitterFuncs::psFit_erry2[i]*=(energyArr[i]/chargeArr[i])*(energyArr[i]/chargeArr[i]); //Convert from fC to GeV
       FitterFuncs::psFit_erry [i]=sqrt(FitterFuncs::psFit_erry2[i]); //Formally, I should take a max of the above instead of quadrature right?
+      //Add the Uncosntrained Double Pulse Switch
+      if((chargeArr[i])>chargeThreshold_) nAboveThreshold++;
    }
    for(int i=0;i<10;++i){
      if(fabs(energyArr[i])>tsMAX){
@@ -394,20 +409,20 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
    int BX[3] = {4,5,3};
    fit(  1,timevalfit,chargevalfit,pedvalfit,chi2,fitStatus,tsMAX,tsTOTen,BX);
    if(FitterFuncs::psFit_y[2] > 3.*FitterFuncs::psFit_y[3]) BX[2] = 2;
-   if(chi2 > ts4Chi2_)   { //fails chi2 cut goes straight to 3 Pulse fit
+   if(chi2 > ts4Chi2_ && !unConstrainedFit_)   { //fails chi2 cut goes straight to 3 Pulse fit
      fit(3,timevalfit,chargevalfit,pedvalfit,chi2,fitStatus,tsMAX,tsTOTen,BX);
    }
-   /*
-   if(chi2 > ts345Chi2_) { //fails do two pulse chi2 for TS3
+   if(unConstrainedFit_ && nAboveThreshold > 5.) { //For the old method 2 do double pulse fit if values above a threshold
      fit(2,timevalfit,chargevalfit,pedvalfit,chi2,fitStatus,tsMAX,tsTOTen,BX); 
    }
+   /*
    if(chi2 > ts345Chi2_)   { //fails do two pulse chi2 for TS5 
      BX[1] = 5;
      fit(3,timevalfit,chargevalfit,pedvalfit,chi2,fitStatus,tsMAX,tsTOTen,BX);
    }
    */
    //Fix back the timeslew
-   timevalfit+=HcalTimeSlew::delay(std::max(1.0,chargeArr[4]),slewFlavor_);
+   if(applyTimeSlew_) timevalfit+=HcalTimeSlew::delay(std::max(1.0,chargeArr[4]),slewFlavor_);
    int outfitStatus = (fitStatus ? 1: 0 );
    fitParsVec.clear();
    fitParsVec.push_back(chargevalfit);
@@ -475,4 +490,17 @@ void PulseShapeFitOOTPileupCorrection::fit(int iFit,float &timevalfit,float &cha
    timevalfit   = results[0];
    chargevalfit = results[1];
    pedvalfit    = results[n-1];
+   if(!(unConstrainedFit_ && iFit == 2)) return;
+   float timeval2fit   = results[2];
+   float chargeval2fit = results[3];
+   if(fabs(timevalfit)>fabs(timeval2fit)) {// if timeval1fit and timeval2fit are differnt, choose the one which is closer to zero
+     timevalfit=timeval2fit;
+     chargevalfit=chargeval2fit;
+   } else if(timevalfit==timeval2fit) { // if the two times are the same, then for charge we just sum the two  
+     timevalfit=(timevalfit+timeval2fit)/2;
+     chargevalfit=chargevalfit+chargeval2fit;
+   } else {
+     timevalfit=-999.;
+     chargevalfit=-999.;
+   }
 }

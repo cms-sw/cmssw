@@ -42,6 +42,7 @@ namespace FitterFuncs{
 	 bool pedestalConstraint_;
 	 bool timeConstraint_;
 	 bool addPulseJitter_;
+	 bool unConstrainedFit_;
 	 double pulseJitter_;
 	 double timeMean_;
 	 double timeSig_;
@@ -59,10 +60,10 @@ public:
     ~PulseShapeFitOOTPileupCorrection();
 
     void apply(const CaloSamples & cs, const std::vector<int> & capidvec, const HcalCalibrations & calibs, std::vector<double> & correctedOutput) const;
-    void setPUParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,
+    void setPUParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iUnConstrainedFit,bool iApplyTimeSlew,
 		     double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean,double iPedSig,
 		     double iNoise,double iTMin,double iTMax,
-		     double its3Chi2,double its4Chi2,double its345Chi2,HcalTimeSlew::BiasSetting slewFlavor);
+		     double its3Chi2,double its4Chi2,double its345Chi2,double iChargeThreshold,HcalTimeSlew::BiasSetting slewFlavor);
     
     void setPulseShapeTemplate  (const HcalPulseShapes::Shape& ps);
     void resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps);
@@ -87,6 +88,8 @@ private:
     bool pedestalConstraint_;
     bool timeConstraint_;
     bool addPulseJitter_;
+    bool unConstrainedFit_;
+    bool applyTimeSlew_;
     double pulseJitter_;
     double timeMean_;
     double timeSig_;

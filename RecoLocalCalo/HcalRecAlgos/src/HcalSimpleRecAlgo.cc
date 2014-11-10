@@ -56,11 +56,13 @@ void HcalSimpleRecAlgo::setRecoParams(bool correctForTimeslew, bool correctForPu
 }
 
 void HcalSimpleRecAlgo::setpuCorrParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,
+					bool iUnConstrainedFit,     bool iApplyTimeSlew,
 					double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean,double iPedSig,
 					double iNoise,double iTMin,double iTMax,
-					double its3Chi2,double its4Chi2,double its345Chi2) { 
-  psFitOOTpuCorr_->setPUParams(iPedestalConstraint,iTimeConstraint,iAddPulseJitter,
-			       iPulseJitter,iTimeMean,iTimeSig,iPedMean,iPedSig,iNoise,iTMin,iTMax,its3Chi2,its4Chi2,its345Chi2,HcalTimeSlew::Medium);
+					double its3Chi2,double its4Chi2,double its345Chi2,double iChargeThreshold) { 
+  psFitOOTpuCorr_->setPUParams(iPedestalConstraint,iTimeConstraint,iAddPulseJitter,iUnConstrainedFit,iApplyTimeSlew,
+			       iPulseJitter,iTimeMean,iTimeSig,iPedMean,iPedSig,iNoise,iTMin,iTMax,its3Chi2,its4Chi2,its345Chi2,
+			       iChargeThreshold,HcalTimeSlew::Medium);
 
 }
 

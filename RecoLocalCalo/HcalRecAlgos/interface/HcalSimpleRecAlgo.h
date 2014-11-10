@@ -77,10 +77,10 @@ public:
   HcalCalibRecHit reconstruct(const HcalCalibDataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
 
   void setpuCorrMethod(int method){ puCorrMethod_ = method; if( puCorrMethod_ ==2 ) psFitOOTpuCorr_ = std::auto_ptr<PulseShapeFitOOTPileupCorrection>(new PulseShapeFitOOTPileupCorrection()); }
-  void setpuCorrParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,
+  void setpuCorrParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iUnConstrainedFit,bool iApplyTimeSlew,
 		       double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean,double iPedSig,
 		       double iNoise,double iTMin,double iTMax,
-		       double its3Chi2,double its4Chi2,double its345Chi2); 
+		       double its3Chi2,double its4Chi2,double its345Chi2,double iChargeThreshold); 
   
   void setpufitChrgThr(double chrgThrInput){ if( puCorrMethod_ ==2 ) psFitOOTpuCorr_->setChargeThreshold(chrgThrInput); }
 
