@@ -1,14 +1,11 @@
 <lcgdict>
-
-	<class name="BTagEntry"/>
-	<class name="BTagEntry::Parameters"/>
-	<class name="std::vector<BTagEntry>"/>
-	<class name="std::map<std::string, std::vector<BTagEntry> >"/>
+    <class name="BTagEntry" class_version="0"/>
+    <class name="BTagEntry::Parameters" class_version="0"/>
+    <class name="std::vector<BTagEntry>" class_version="0"/>
+    <class name="std::map<std::string, std::vector<BTagEntry> >" class_version="0"/>
     <class name="BTagCalibration" class_version="0">
-    <!-- TODO: How does this stuff exactly work? -->
-           <field name="tagger_" mapping="string"/>
-           <field name="data_" mapping="blob"/>
+        <field name="tagger_" mapping="string"/>
+        <field name="data_" mapping="blob"/>
     </class>
     <class name="BTagCalibrationReader" class_version="0"/>
-
 </lcgdict>
