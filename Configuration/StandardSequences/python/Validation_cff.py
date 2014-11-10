@@ -25,7 +25,7 @@ from Validation.MuonIdentification.muonIdVal_cff import *
 from Validation.RecoMuon.muonValidationHLT_cff import *
 from Validation.EventGenerator.BasicGenValidation_cff import *
 
-prevalidation = cms.Sequence( globalPrevalidation * hltassociation )
+prevalidation = cms.Sequence( globalPrevalidation * hltassociation * metPreValidSeq )
 prevalidationLiteTracking = cms.Sequence( prevalidation )
 prevalidationLiteTracking.replace(globalPrevalidation,globalPrevalidationLiteTracking)
 

@@ -42,7 +42,6 @@ process.patJetCorrFactorsAK5PFCHS.primaryVertices = "offlineSlimmedPrimaryVertic
 
 #recreate tracks and pv for btagging
 process.load('PhysicsTools.PatAlgos.slimming.unpackedTracksAndVertices_cfi')
-process.combinedSecondaryVertex.trackMultiplicityMin = 1 #silly sv, uses un filtered tracks.. i.e. any pt
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )

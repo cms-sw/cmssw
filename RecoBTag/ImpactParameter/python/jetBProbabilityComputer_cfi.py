@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoBTag.ImpactParameter.variableJTA_cfi import *
+from RecoBTag.ImpactParameter.variableJTA_cff import *
 
 # jetBProbability btag computer
-jetBProbability = cms.ESProducer("JetBProbabilityESProducer",
+jetBProbabilityComputer = cms.ESProducer("JetBProbabilityESProducer",
                                  variableJTAPars,
                                  impactParameterType = cms.int32(0), ## 0 = 3D, 1 = 2D
                                  
