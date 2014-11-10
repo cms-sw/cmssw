@@ -50,7 +50,7 @@ HLTDeDxFilter::HLTDeDxFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConf
   inputdedxTag_   = iConfig.getParameter< edm::InputTag > ("inputDeDxTag");
   caloTowersTag_ =  iConfig.getParameter<edm::InputTag>("caloTowersTag");
 
-  caloTowersToken_ = consumes<CaloTowerCollection> (iConfig.getParameter<edm::InputTag>("caloTowersTag"));
+  if(maxAssocCaloE_ >= 0) caloTowersToken_ = consumes<CaloTowerCollection> (iConfig.getParameter<edm::InputTag>("caloTowersTag"));
   inputTracksToken_ = consumes<reco::TrackCollection>(iConfig.getParameter< edm::InputTag > ("inputTracksTag"));
   inputdedxToken_   = consumes<edm::ValueMap<reco::DeDxData> >(iConfig.getParameter< edm::InputTag > ("inputDeDxTag"));
 
@@ -113,9 +113,7 @@ bool
   const edm::ValueMap<reco::DeDxData> &dEdxTrack = *dEdxTrackHandle.product();
 
   edm::Handle<CaloTowerCollection> caloTowersHandle;
-  iEvent.getByToken(caloTowersToken_, caloTowersHandle);
-  const CaloTowerCollection &caloTower = *caloTowersHandle.product();
-
+  if(maxAssocCaloE_ >= 0) iEvent.getByToken(caloTowersToken_, caloTowersHandle);
 
   bool accept=false;
   int  NTracks = 0;
@@ -164,6 +162,7 @@ bool
        //Access info about Calo Towers                                                                                       
        double caloEMDeltaRp5  = 0;
        double caloHadDeltaRp5 = 0;
+       const CaloTowerCollection &caloTower = *caloTowersHandle.product();
        for (CaloTowerCollection::const_iterator j=caloTower.begin(); j!=caloTower.end(); j++) {
 	 auto caloDeltaR2 = deltaR2(eta[i], phi[i], j->eta(), j->phi());
 	 double Eem  = j->emEnergy();
