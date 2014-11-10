@@ -1,5 +1,5 @@
-#include "GeneratorInterface/HepMCFilters/interface/HepMCFilterDriver.h"
-#include "GeneratorInterface/HepMCFilters/interface/GenericDauHepMCFilter.h"
+#include "GeneratorInterface/Core/interface/HepMCFilterDriver.h"
+#include "GeneratorInterface/Core/interface/GenericDauHepMCFilter.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

@@ -1,4 +1,4 @@
-#include "GeneratorInterface/HepMCFilters/interface/BaseHepMCFilter.h"
+#include "GeneratorInterface/Core/interface/BaseHepMCFilter.h"
 
 BaseHepMCFilter::BaseHepMCFilter() {
 

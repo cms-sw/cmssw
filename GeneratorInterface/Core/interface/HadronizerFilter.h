@@ -31,7 +31,7 @@
 
 // #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
-#include "GeneratorInterface/HepMCFilters/interface/HepMCFilterDriver.h"
+#include "GeneratorInterface/Core/interface/HepMCFilterDriver.h"
 
 // LHE Run
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"

@@ -24,7 +24,7 @@ Implementation:
 #include <memory>
 
 // user include files
-#include "GeneratorInterface/HepMCFilters/interface/BaseHepMCFilter.h"
+#include "GeneratorInterface/Core/interface/BaseHepMCFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 

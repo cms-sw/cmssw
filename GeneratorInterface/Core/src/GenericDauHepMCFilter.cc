@@ -1,5 +1,5 @@
 
-#include "GeneratorInterface/HepMCFilters/interface/GenericDauHepMCFilter.h"
+#include "GeneratorInterface/Core/interface/GenericDauHepMCFilter.h"
 
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
