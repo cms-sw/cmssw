@@ -9,22 +9,6 @@ using namespace edm;
 using namespace std;
 
 
-// GenericDauHepMCFilter::GenericDauHepMCFilter(const edm::ParameterSet& iConfig) :
-//         particleID(iConfig.getUntrackedParameter("ParticleID", 0)),
-//         chargeconju(iConfig.getUntrackedParameter("ChargeConjugation", true)),
-//         ndaughters(iConfig.getUntrackedParameter("NumberDaughters", 0)),
-//         minptcut(iConfig.getUntrackedParameter("MinPt", 0.)),
-//         maxptcut(iConfig.getUntrackedParameter("MaxPt", 14000.)),
-//         minetacut(iConfig.getUntrackedParameter("MinEta", -10.)),
-//         maxetacut(iConfig.getUntrackedParameter("MaxEta", 10.))
-// {
-//         //now do what ever initialization is needed
-//         vector<int> defdauID;
-//         defdauID.push_back(0);
-//         dauIDs = iConfig.getUntrackedParameter< vector<int> >("DaughterIDs",defdauID);
-// 
-// }
-
 GenericDauHepMCFilter::GenericDauHepMCFilter(const edm::ParameterSet& iConfig) :
         particleID(iConfig.getParameter<int>("ParticleID")),
         chargeconju(iConfig.getParameter<bool>("ChargeConjugation")),
@@ -57,18 +41,6 @@ bool GenericDauHepMCFilter::filter(const HepMC::GenEvent* evt)
                   p != evt->particles_end(); ++p ) {
 
           if( (*p)->pdg_id() != particleID ) continue ;
-
-          //     cout << "=> found a particle with : " << particleID << endl;
-          //
-          //     if ( (*p)->production_vertex() ) {
-          //       for ( HepMC::GenVertex::particle_iterator 
-          //             mother = (*p)->production_vertex()->particles_begin(HepMC::parents);
-          //                          mother != (*p)->production_vertex()->particles_end(HepMC::parents); 
-          //                          ++mother ) {
-          //                        std::cout << "\t";
-          //                        (*mother)->print();
-          //       }
-          // }
 
           int ndauac = 0;
           int ndau = 0;     
