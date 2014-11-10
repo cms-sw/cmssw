@@ -187,7 +187,6 @@ HLT_HT300_v*							# JIRA: CMSHLT-159
 HLT_HT350_v*							# JIRA: CMSHLT-159
 HLT_HT400_v*							# JIRA: CMSHLT-159
 
-
 HLT_PFHT350_v*                          			# JIRA: CMSHLT-127
 HLT_PFHT600_v*                          			# JIRA: CMSHLT-127
 HLT_PFHT900_v*                          			# JIRA: CMSHLT-105
@@ -322,6 +321,20 @@ HLT_HT750_DisplacedDijet80_Inclusive_v*				# JIRA: CMSHLT-168
 HLT_HT650_DisplacedDijet80_Inclusive_v*				# JIRA: CMSHLT-168
 HLT_HT350_DisplacedDijet80_Tight_DisplacedTrack_v*		# JIRA: CMSHLT-168
 HLT_HT350_DisplacedDijet80_DisplacedTrack_v*			# JIRA: CMSHLT-168
+
+HLT_MonoCentralPFJet140_PFMETNoMu100_PFMHTNoMu140_NoiseCleaned_v* 	# JIRA: CMSHLT-151
+HLT_MonoCentralPFJet140_PFMETNoMu140_PFMHTNoMu140_NoiseCleaned_v*	# JIRA: CMSHLT-151
+HLT_MonoCentralPFJet150_PFMETNoMu150_PFMHTNoMu150_NoiseCleaned_v*	# JIRA: CMSHLT-151
+
+#HLT_Ele27_eta2p1_WP85_Gsf_HT200_v* 				# JIRA: CMSHLT-161
+
+HLT_Photon90_CaloIdL_PFHT500_v*					# JIRA: CMSHLT-166
+
+#HLT_DoubleMu8_Mass8_PFHT300_v*					# JIRA: CMSHLT-167
+#HLT_Mu8_Ele8_CaloIdL_TrkIdVL_Mass8_PFHT300_v*			# JIRA: CMSHLT-167
+#HLT_DoubleEle8_CaloIdL_TrkIdVL_Mass8_PFHT300_v*			# JIRA: CMSHLT-167
+#HLT_Mu10_CentralPFJet40_BTagCSV_v*				# JIRA: CMSHLT-167
+#HLT_Ele10_CaloId_TrackIdVL_CentralPFJet40_BTagCSV_v*		# JIRA: CMSHLT-167
 
 HLT_ZeroBias_v*							# JIRA: CMSHLT-117
 
