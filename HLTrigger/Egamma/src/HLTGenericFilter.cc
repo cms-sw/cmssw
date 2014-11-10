@@ -72,6 +72,17 @@ HLTGenericFilter<T1>::fillDescriptions(edm::ConfigurationDescriptions& descripti
 template<typename T1>
 HLTGenericFilter<T1>::~HLTGenericFilter(){}
 
+template<typename T1>
+float HLTGenericFilter<T1>::getEnergy(T1Ref candRef) const{
+    return candRef->superCluster()->energy();
+}
+
+template<>
+float HLTGenericFilter<reco::RecoChargedCandidate>::getEnergy(T1Ref candRef) const{
+   return candRef->p();
+}
+
+
 
 // ------------ method called to produce the data  ------------
 template<typename T1>
@@ -84,8 +95,7 @@ HLTGenericFilter<T1>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetu
     if (not doIsolated_) filterproduct.addCollectionTag(L1NonIsoCollTag_);
   }
   
-  // Ref to Candidate object to be recorded in filter object
-  T1Ref ref;
+
   
   // Set output format
   int trigger_type = trigger::TriggerCluster;
@@ -97,7 +107,7 @@ HLTGenericFilter<T1>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetu
   std::vector<T1Ref> recoCands;
   PrevFilterOutput->getObjects(TriggerCluster, recoCands);
   if(recoCands.empty()) PrevFilterOutput->getObjects(TriggerPhoton,recoCands);  //we dont know if its type trigger cluster or trigger photon
-  else if(recoCands.empty()) {
+  if(recoCands.empty()) {
     PrevFilterOutput->getObjects(TriggerMuon,recoCands);  //if not a cluster and not a photon then assum it is a muon
     trigger_type = trigger::TriggerMuon;
   }
@@ -114,12 +124,14 @@ HLTGenericFilter<T1>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetu
   
   for (unsigned int i=0; i<recoCands.size(); i++) {
     
-    ref = recoCands[i];
+    
+    // Ref to Candidate object to be recorded in filter object
+    T1Ref ref = recoCands[i];
     typename T1IsolationMap::const_iterator mapi = (*depMap).find( ref );
     if (mapi==(*depMap).end() && !doIsolated_) mapi = (*depNonIsoMap).find( ref );
     
     float vali = mapi->val;
-    float energy = ref->superCluster()->energy();
+    float energy = getEnergy( ref );
     float EtaSC = ref->eta();
     if (useEt_) energy = energy * sin (2*atan(exp(-EtaSC)));
     
@@ -166,8 +178,11 @@ HLTGenericFilter<T1>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetu
   return accept;
 }
 
-typedef HLTGenericFilter<reco::RecoEcalCandidate> EgammaHLTGenericFilter;
-typedef HLTGenericFilter<reco::RecoChargedCandidate> MuonHLTGenericFilter;
-DEFINE_FWK_MODULE(EgammaHLTGenericFilter);
-DEFINE_FWK_MODULE(MuonHLTGenericFilter);
+
+
+
+typedef HLTGenericFilter<reco::RecoEcalCandidate> HLTEgammaGenericFilter;
+typedef HLTGenericFilter<reco::RecoChargedCandidate> HLTMuonGenericFilter;
+DEFINE_FWK_MODULE(HLTEgammaGenericFilter);
+DEFINE_FWK_MODULE(HLTMuonGenericFilter);
 
