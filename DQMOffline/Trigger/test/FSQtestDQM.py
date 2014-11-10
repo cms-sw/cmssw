@@ -22,8 +22,8 @@ process.load( "Configuration.StandardSequences.FrontierConditions_GlobalTag_cff"
 process.GlobalTag.globaltag = 'MCRUN2_72_V1::All'
 
 #f='/nfs/dust/cms/user/fruboest/2014.11.HLTJec721p1/CMSSW_7_2_1_patch1/src/outputFULL.root'
-#f='/nfs/dust/cms/user/fruboest/2014.11.HLTJec721p1/CMSSW_7_2_1_patch1/src/outputFULL_big.root'
-f='fromMaxim/events.root'
+f='/nfs/dust/cms/user/fruboest/2014.11.HLTJec721p1/CMSSW_7_2_1_patch1/src/outputFULL_big.root'
+#f='fromMaxim/events.root'
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         'file:'+f
@@ -32,7 +32,7 @@ process.source = cms.Source("PoolSource",
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-100)
+    input = cms.untracked.int32(-200)
 )
 
 process.load("DQMOffline.Trigger.FSQHLTOfflineSource_cfi")
@@ -43,4 +43,9 @@ process.dqmSaver.workflow = "/HLT/FSQ/All"
 process.p = cms.Path(process.fsqHLTOfflineSource *process.dqmEnv*process.dqmSaver)
 #process.MessageLogger.threshold = cms.untracked.string( "INFO" )
 #process.MessageLogger.categories.append("FSQDiJetAve")
+
+# TODO
+# - apply jet callibration to offline jets
+# - Fix efficiency histos - add a check, that both reference and tested path simultaneusly
+#    went beyond the hlt prescale module
 

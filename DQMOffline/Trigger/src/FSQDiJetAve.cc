@@ -28,6 +28,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 #include "DQMOffline/Trigger/interface/FSQDiJetAve.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -44,6 +47,8 @@
 #include <DataFormats/EgammaCandidates/interface/Photon.h>
 #include <DataFormats/MuonReco/interface/Muon.h>
 
+
+
 using namespace edm;
 using namespace std;
 
@@ -58,7 +63,13 @@ namespace FSQ {
 class BaseHandler {
     public:
         BaseHandler();
-        BaseHandler(const edm::ParameterSet& iConfig) {
+        ~BaseHandler(){
+            delete m_expression;
+        }
+        BaseHandler(const edm::ParameterSet& iConfig,  triggerExpression::Data & eventCache):
+            m_expression(triggerExpression::parse( iConfig.getParameter<std::string>("triggerSelection")))
+         {
+              m_eventCache = &eventCache;
               std::string pathPartialName  = iConfig.getParameter<std::string>("partialPathName");
               m_dirname = iConfig.getUntrackedParameter("mainDQMDirname",std::string("HLT/FSQ/"))+pathPartialName + "/";
               m_dbe = Service < DQMStore > ().operator->();
@@ -71,6 +82,34 @@ class BaseHandler {
                              const edm::TriggerNames  & triggerNames,
                              float weight) = 0;
         virtual void beginRun() = 0;
+        virtual void endLuminosityBlock() {
+            std::map<std::string,  MonitorElement*>::iterator it = m_histos.begin();
+            for (;it!= m_histos.end(); ++it){
+                std::string::size_type pos = it->first.find("_nominator");
+                if (pos==std::string::npos) continue;
+                std::string denomName(it->first);
+                denomName.erase(pos, std::string::npos);
+                std::string effName(denomName);
+                denomName+="_denominator";
+                effName += "_efficiency";
+                // we dont look for denom in m_histos, while it was filled with different handler (with different trg condition)
+                MonitorElement * denom = m_dbe->get(m_dirname + denomName); 
+                if (denom == 0) {
+                    edm::LogWarning("FSQDiJetAve") << "Problem: cannot find expected histo " << denomName;
+                    continue;
+                }
+                TH1F* tNumerator   = it->second->getTH1F();
+                TH1F* tDenominator = denom->getTH1F();
+                TH1F *teff = (TH1F*) tNumerator->Clone(effName.c_str());
+                teff->Divide(tNumerator,tDenominator,1,1);
+                m_dbe->setCurrentFolder(m_dirname);
+                m_dbe->book1D(effName, teff);
+                delete teff;
+            }
+        };
+
+        triggerExpression::Evaluator * m_expression;
+        triggerExpression::Data * m_eventCache;
 
         DQMStore * m_dbe;
         std::string m_dirname;
@@ -108,8 +147,8 @@ class HandlerTemplate: public BaseHandler {
         edm::InputTag m_input;
 
     public:
-        HandlerTemplate(const edm::ParameterSet& iConfig):
-            BaseHandler(iConfig),
+        HandlerTemplate(const edm::ParameterSet& iConfig, triggerExpression::Data & eventCache):
+            BaseHandler(iConfig, eventCache),
             m_singleObjectSelection(iConfig.getParameter<std::string>("singleObjectsPreselection")),
             m_combinedObjectSelection(iConfig.getParameter<std::string>("combinedObjectSelection")),
             m_combinedObjectSortFunction(iConfig.getParameter<std::string>("combinedObjectSortCriteria"))
@@ -222,6 +261,14 @@ class HandlerTemplate: public BaseHandler {
                      float weight)
         {
 
+            if (m_eventCache->configurationUpdated()) {
+                m_expression->init(*m_eventCache);
+            }
+
+           if (not (*m_expression)(*m_eventCache)) return;
+
+
+            /*
             std::vector<std::string> pathAndFilter = findPathAndFilter(hltConfig);
 
             std::string pathFullName = pathAndFilter[0];
@@ -232,7 +279,7 @@ class HandlerTemplate: public BaseHandler {
             if(indexNum >= triggerNames.size()){
                   edm::LogError("FSQDiJetAve") << "Problem determining trigger index for " << pathFullName << " " << m_pathPartialName;
             }
-            if (!triggerResults.accept(indexNum)) return;
+            if (!triggerResults.accept(indexNum)) return;*/
 
             std::vector<TOutputCandidateType> cands;
             getFilteredCands((TInputCandidateType *)0, cands, iEvent, iSetup, hltConfig, trgEvent);
@@ -478,6 +525,7 @@ typedef HandlerTemplate<reco::Track, int > RecoTrackCounter;
 //
 //################################################################################################
 FSQDiJetAve::FSQDiJetAve(const edm::ParameterSet& iConfig):
+  m_eventCache(iConfig.getParameterSet("triggerConfiguration") , consumesCollector()),
   m_isSetup(false)
 {
   m_useGenWeight = iConfig.getParameter<bool>("useGenWeight");
@@ -495,28 +543,28 @@ FSQDiJetAve::FSQDiJetAve(const edm::ParameterSet& iConfig):
         edm::ParameterSet pset = todo.at(i);
         std::string type = pset.getParameter<std::string>("handlerType");
         if (type == "FromHLT") {
-            m_handlers.push_back(std::shared_ptr<FSQ::HLTHandler>(new FSQ::HLTHandler(pset)));
+            m_handlers.push_back(std::shared_ptr<FSQ::HLTHandler>(new FSQ::HLTHandler(pset, m_eventCache)));
         }
         else if (type == "RecoCandidateCounter") {
-            m_handlers.push_back(std::shared_ptr<FSQ::RecoCandidateCounter>(new FSQ::RecoCandidateCounter(pset)));
+            m_handlers.push_back(std::shared_ptr<FSQ::RecoCandidateCounter>(new FSQ::RecoCandidateCounter(pset, m_eventCache)));
         }
         else if (type == "RecoTrackCounter") {
-            m_handlers.push_back(std::shared_ptr<FSQ::RecoTrackCounter>(new FSQ::RecoTrackCounter(pset)));
+            m_handlers.push_back(std::shared_ptr<FSQ::RecoTrackCounter>(new FSQ::RecoTrackCounter(pset, m_eventCache)));
         }
         else if (type == "FromRecoCandidate") {
-            m_handlers.push_back(std::shared_ptr<FSQ::RecoCandidateHandler>(new FSQ::RecoCandidateHandler(pset)));
+            m_handlers.push_back(std::shared_ptr<FSQ::RecoCandidateHandler>(new FSQ::RecoCandidateHandler(pset, m_eventCache)));
         }
         else if (type == "RecoPFJet") {
-            m_handlers.push_back(std::shared_ptr<FSQ::RecoPFJetHandler>(new FSQ::RecoPFJetHandler(pset)));
+            m_handlers.push_back(std::shared_ptr<FSQ::RecoPFJetHandler>(new FSQ::RecoPFJetHandler(pset, m_eventCache)));
         }
         else if (type == "RecoTrack") {
-            m_handlers.push_back(std::shared_ptr<FSQ::RecoTrackHandler>(new FSQ::RecoTrackHandler(pset)));
+            m_handlers.push_back(std::shared_ptr<FSQ::RecoTrackHandler>(new FSQ::RecoTrackHandler(pset, m_eventCache)));
         } 
         else if (type == "RecoPhoton") {
-            m_handlers.push_back(std::shared_ptr<FSQ::RecoPhotonHandler>(new FSQ::RecoPhotonHandler(pset)));
+            m_handlers.push_back(std::shared_ptr<FSQ::RecoPhotonHandler>(new FSQ::RecoPhotonHandler(pset, m_eventCache)));
         } 
         else if (type == "RecoMuon") {
-            m_handlers.push_back(std::shared_ptr<FSQ::RecoMuonHandler>(new FSQ::RecoMuonHandler(pset)));
+            m_handlers.push_back(std::shared_ptr<FSQ::RecoMuonHandler>(new FSQ::RecoMuonHandler(pset, m_eventCache)));
         } 
         else {
             throw cms::Exception("FSQ DQM handler not know: "+ type);
@@ -532,13 +580,16 @@ void
 FSQDiJetAve::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
+   if (not m_eventCache.setEvent(iEvent, iSetup)){
+      edm::LogError("FSQDiJetAve") << "Could not setup the filter";
+   }
 
   //---------- triggerResults ----------
   iEvent.getByToken(triggerResultsToken, m_triggerResults);
   if(!m_triggerResults.isValid()) {
     iEvent.getByToken(triggerResultsFUToken, m_triggerResults);
     if(!m_triggerResults.isValid()) {
-      edm::LogInfo("FSQDiJetAve") << "TriggerResults not found, skipping event";
+      edm::LogError("FSQDiJetAve") << "TriggerResults not valid, skippng event";
       return;
     }
   }
@@ -548,7 +599,7 @@ FSQDiJetAve::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     m_triggerNames = iEvent.triggerNames(*m_triggerResults);
   } 
   else {
-    edm::LogInfo("FSQDiJetAve") << "TriggerResults::HLT not found";
+    edm::LogError("FSQDiJetAve") << "TriggerResults not found";
     return;
   } 
   
@@ -628,12 +679,18 @@ FSQDiJetAve::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup c
 */
 
 // ------------ method called when ending the processing of a luminosity block  ------------
-/*
+//*
 void 
 FSQDiJetAve::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
+
+    for (unsigned int i = 0; i < m_handlers.size(); ++i) {
+        m_handlers.at(i)->endLuminosityBlock();
+    }
+
+
 }
-*/
+//*/
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
