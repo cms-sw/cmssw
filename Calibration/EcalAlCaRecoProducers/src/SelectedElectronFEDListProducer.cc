@@ -1,23 +1,37 @@
 #include "Calibration/EcalAlCaRecoProducers/interface/SelectedElectronFEDListProducer.h"
 
+/// Producer constructor
 template< typename TEle, typename TCand>
 SelectedElectronFEDListProducer<TEle,TCand>::SelectedElectronFEDListProducer(const edm::ParameterSet & iConfig){
- 
- // input electron collection
- if(iConfig.existsAs<std::vector<edm::InputTag> >("electronCollections")){
-   electronCollections_ = iConfig.getParameter<std::vector<edm::InputTag>>("electronCollections");
-   if(electronCollections_.empty())
+
+ // input electron collection Tag
+ if(iConfig.existsAs<std::vector<edm::InputTag> >("electronTags")){
+   electronTags_ = iConfig.getParameter<std::vector<edm::InputTag>>("electronTags");
+   if(electronTags_.empty())
       throw cms::Exception("Configuration")<<"[SelectedElectronFEDListProducer] empty electron collection is given --> at least one \n"; 
  }
  else throw cms::Exception("Configuration")<<"[SelectedElectronFEDListProducer] no electron collection are given --> need at least one \n";  
 
- // input RecoEcalCandidate collection
- if(iConfig.existsAs<std::vector<edm::InputTag> >("recoEcalCandidateCollections")){
-   recoEcalCandidateCollections_ = iConfig.getParameter<std::vector<edm::InputTag>>("recoEcalCandidateCollections");
-   if(recoEcalCandidateCollections_.empty())
+ // Consumes for the electron collection 
+ LogDebug("SelectedElectronFEDListProducer")<<" Electron Collections"<<std::endl;
+ for( std::vector<edm::InputTag>::const_iterator itEleTag = electronTags_.begin(); itEleTag != electronTags_.end(); ++itEleTag){
+   electronToken_.push_back(consumes<TEleColl>(*itEleTag));
+   LogDebug("SelectedElectronFEDListProducer")<<" Ele collection: "<<*(itEleTag)<<std::endl;
+ }
+
+ // input RecoEcalCandidate collection Tag
+ if(iConfig.existsAs<std::vector<edm::InputTag> >("recoEcalCandidateTags")){
+   recoEcalCandidateTags_ = iConfig.getParameter<std::vector<edm::InputTag>>("recoEcalCandidateTags");
+   if(recoEcalCandidateTags_.empty())
       throw cms::Exception("Configuration")<<"[SelectedElectronFEDListProducer] empty ecal candidate collections collection is given --> at least one \n"; 
  }
  else throw cms::Exception("Configuration")<<"[SelectedElectronFEDListProducer] no electron reco ecal candidate collection are given --> need at least one \n";  
+
+ // Consumes for the recoEcal candidate collection 
+ for( std::vector<edm::InputTag>::const_iterator itEcalCandTag = recoEcalCandidateTags_.begin(); itEcalCandTag != recoEcalCandidateTags_.end(); ++itEcalCandTag){
+   recoEcalCandidateToken_.push_back(consumes<trigger::TriggerFilterObjectWithRefs>(*itEcalCandTag));
+   LogDebug("SelectedElectronFEDListProducer")<<" Reco ecal candidate collection: "<<*(itEcalCandTag)<<std::endl;
+ }
 
  // list of gsf collections
  if(iConfig.existsAs<std::vector<int>>("isGsfElectronCollection")){
@@ -27,8 +41,34 @@ SelectedElectronFEDListProducer<TEle,TCand>::SelectedElectronFEDListProducer(con
  }
  else throw cms::Exception("Configuration")<<"[SelectedElectronFEDListProducer] no electron flag are given --> need at least one \n"; 
 
- if(isGsfElectronCollection_.size() < electronCollections_.size()) 
+ if(isGsfElectronCollection_.size() < electronTags_.size()) 
     throw cms::Exception("Configuration")<<"[SelectedElectronFEDListProducer] electron flag < electron collection  --> need at equal number to understand which are Gsf and which not \n";
+
+ // take the beam spot Tag 
+ if(iConfig.existsAs<edm::InputTag>("beamSpot"))
+   beamSpotTag_ = iConfig.getParameter<edm::InputTag>("beamSpot"); 
+ else beamSpotTag_ = edm::InputTag("hltOnlineBeamSpot"); 
+
+ if(!(beamSpotTag_ == edm::InputTag(""))) beamSpotToken_ = consumes<reco::BeamSpot>(beamSpotTag_);
+
+ LogDebug("SelectedElectronFEDListProducer")<<" Beam Spot Tag "<<beamSpotTag_<<std::endl;
+
+ // take the HBHE recHit Tag
+ if(iConfig.existsAs<edm::InputTag>("HBHERecHitTag"))
+   HBHERecHitTag_ = iConfig.getParameter<edm::InputTag>("HBHERecHitTag"); 
+ else HBHERecHitTag_ = edm::InputTag("hltHbhereco"); 
+
+ if(!(HBHERecHitTag_ == edm::InputTag(""))) hbheRecHitToken_ = consumes<HBHERecHitCollection>(HBHERecHitTag_);
+
+ // raw data collector label
+ if(iConfig.existsAs<edm::InputTag>("rawDataTag"))
+   rawDataTag_ = iConfig.getParameter<edm::InputTag>("rawDataTag"); 
+ else rawDataTag_ = edm::InputTag("rawDataCollector") ;
+
+ if(!(rawDataTag_ == edm::InputTag(""))) rawDataToken_ = consumes<FEDRawDataCollection>(rawDataTag_);
+
+ LogDebug("SelectedElectronFEDListProducer")<<" RawDataInput "<<rawDataTag_<<std::endl; 
+ 
 
  // add a set of selected feds
  if(iConfig.existsAs<std::vector<int>>("addThisSelectedFEDs")){
@@ -38,40 +78,29 @@ SelectedElectronFEDListProducer<TEle,TCand>::SelectedElectronFEDListProducer(con
  }
  else addThisSelectedFEDs_.push_back(-1); 
 
- // take the beam spot Tag 
- if(iConfig.existsAs<edm::InputTag>("beamSpot"))
-   beamSpotTag_ = iConfig.getParameter<edm::InputTag>("beamSpot"); 
- else beamSpotTag_ = edm::InputTag("hltOnlineBeamSpot"); 
+ std::vector<int>::const_iterator AddFed = addThisSelectedFEDs_.begin();
+ for( ; AddFed !=addThisSelectedFEDs_.end() ; ++AddFed)
+     LogDebug("SelectedElectronFEDListProducer")<<" Additional FED: "<<*(AddFed)<<std::endl;
+     
 
- // take the HBHE recHit Tag
- if(iConfig.existsAs<edm::InputTag>("HBHERecHitCollection"))
-   HBHERecHitCollection_ = iConfig.getParameter<edm::InputTag>("HBHERecHitCollection"); 
- else HBHERecHitCollection_ = edm::InputTag("hltHbhereco"); 
-   
  // ES look up table path
  if(iConfig.existsAs<std::string>("ESLookupTable"))
    ESLookupTable_    = iConfig.getParameter<edm::FileInPath>("ESLookupTable"); 
  else ESLookupTable_ = edm::FileInPath("EventFilter/ESDigiToRaw/data/ES_lookup_table.dat"); 
-
- // Hcal look up table path
- if(iConfig.existsAs<std::string>("HCALLookupTable"))
-   HCALLookupTable_    = iConfig.getParameter<edm::FileInPath>("HCALLookupTable"); 
- else HCALLookupTable_ = edm::FileInPath("Calibration/EcalAlCaRecoProducers/data/HcalElectronicsMap_v7.00_offline"); 
-
- // raw data collector label
- if(iConfig.existsAs<edm::InputTag>("rawDataLabel"))
-   rawDataLabel_ = iConfig.getParameter<edm::InputTag>("rawDataLabel"); 
- else rawDataLabel_ = edm::InputTag("rawDataCollector") ;
 
  // output model label
  if(iConfig.existsAs<std::string>("outputLabelModule"))
    outputLabelModule_ = iConfig.getParameter<std::string>("outputLabelModule"); 
  else outputLabelModule_ = "streamElectronRawData" ;
 
+ LogDebug("SelectedElectronFEDListProducer")<<" Output Label "<<outputLabelModule_<<std::endl; 
+
  // dR for the strip region
  if(iConfig.existsAs<double>("dRStripRegion"))
    dRStripRegion_ = iConfig.getParameter<double>("dRStripRegion"); 
  else dRStripRegion_ = 0.5 ;
+
+ LogDebug("SelectedElectronFEDListProducer")<<" dRStripRegion "<<dRStripRegion_<<std::endl;
 
  // dR for the hcal region 
  if(iConfig.existsAs<double>("dRHcalRegion"))
@@ -91,6 +120,8 @@ SelectedElectronFEDListProducer<TEle,TCand>::SelectedElectronFEDListProducer(con
    maxZPixelRegion_ = iConfig.getParameter<double>("maxZPixelRegion"); 
  else maxZPixelRegion_ = 24. ;
 
+ LogDebug("SelectedElectronFEDListProducer")<<" dPhiPixelRegion "<<dPhiPixelRegion_<<" dEtaPixelRegion "<<dEtaPixelRegion_<<" MaxZPixelRegion "<<maxZPixelRegion_<<std::endl;
+
  // bool
  if( iConfig.existsAs<bool>("dumpSelectedEcalFed"))
    dumpSelectedEcalFed_ = iConfig.getParameter< bool >("dumpSelectedEcalFed"); 
@@ -108,6 +139,8 @@ SelectedElectronFEDListProducer<TEle,TCand>::SelectedElectronFEDListProducer(con
     dumpSelectedHCALFed_ = iConfig.getParameter<bool>("dumpSelectedHCALFed"); 
  else dumpSelectedHCALFed_ = true ;
 
+ LogDebug("SelectedElectronFEDListProducer")<<" DumpEcalFedList set to "<<dumpSelectedEcalFed_<<" DumpSelectedSiStripFed "<<dumpSelectedSiStripFed_<<" DumpSelectedSiPixelFed "<<dumpSelectedSiPixelFed_<<std::endl;
+
  if(iConfig.existsAs<bool>("dumpAllEcalFed"))
      dumpAllEcalFed_ = iConfig.getParameter<bool>("dumpAllEcalFed"); 
  else dumpAllEcalFed_ = false ;
@@ -120,51 +153,17 @@ SelectedElectronFEDListProducer<TEle,TCand>::SelectedElectronFEDListProducer(con
      dumpAllHCALFed_ = iConfig.getParameter<bool>("dumpAllHCALFed"); 
  else dumpAllHCALFed_ = false ;
 
- if(iConfig.existsAs<bool>("debug"))
-   debug_ = iConfig.getParameter<bool>("debug");
- else debug_ = false ;
+ LogDebug("SelectedElectronFEDListProducer")<<" DumpAllEcalFed "<<dumpAllEcalFed_<<" DumpAllTrackerFed "<<dumpAllTrackerFed_<<" Dump all HCAL fed "<<dumpAllHCALFed_<<std::endl;
 
- // only in debugging mode
- if(debug_){
 
-  LogDebug("SelectedElectronFEDListProducer")<<"############################################################## ";
-  LogDebug("SelectedElectronFEDListProducer")<<"[selectedElectronFEDListProducer] output Label "<<outputLabelModule_; 
-  LogDebug("SelectedElectronFEDListProducer")<<"[selectedElectronFEDListProducer] beam spot Tag "<<beamSpotTag_;
-  LogDebug("SelectedElectronFEDListProducer")<<"[selectedElectronFEDListProducer] dumpEcalFedList set to "<<dumpSelectedEcalFed_<<" dumpSelectedSiStripFed "<<dumpSelectedSiStripFed_<<" dumpSelectedSiPixelFed "<<dumpSelectedSiPixelFed_;
-  LogDebug("SelectedElectronFEDListProducer")<<"[selectedElectronFEDListProducer] dumpAllEcalFed "<<dumpAllEcalFed_<<" dumpAllTrackerFed "<<dumpAllTrackerFed_<<" dump all HCAL fed "<<dumpAllHCALFed_;
-  LogDebug("SelectedElectronFEDListProducer")<<"[selectedElectronFEDListProducer] dRStripRegion "<<dRStripRegion_;
-  LogDebug("SelectedElectronFEDListProducer")<<"[selectedElectronFEDListProducer] dPhiPixelRegion "<<dPhiPixelRegion_<<" dEtaPixelRegion "<<dEtaPixelRegion_<<" maxZPixelRegion "<<maxZPixelRegion_;
-  LogDebug("SelectedElectronFEDListProducer")<<"[selectedElectronFEDListProducer] Electron Collections";
-
-  std::vector<edm::InputTag>::const_iterator Tag = electronCollections_.begin();
-  std::vector<int>::const_iterator Flag = isGsfElectronCollection_.begin();
-  for( ; Tag !=electronCollections_.end() && Flag!=isGsfElectronCollection_.end() ; ++Tag , ++Flag)
-     LogDebug("SelectedElectronFEDListProducer")<<"[selectedElectronFEDListProducer] ele collection: "<<*(Tag)<<" isGsf "<<*(Flag);
-
-  std::vector<edm::InputTag>::const_iterator Tag2 = recoEcalCandidateCollections_.begin();
-  for( ; Tag2 !=recoEcalCandidateCollections_.end() ; ++Tag2)
-     LogDebug("SelectedElectronFEDListProducer")<<"[selectedElectronFEDListProducer] reco ecal candidate collection: "<<*(Tag2);
-
-  std::vector<int>::const_iterator AddFed = addThisSelectedFEDs_.begin();
-  for( ; AddFed !=addThisSelectedFEDs_.end() ; ++AddFed)
-     LogDebug("SelectedElectronFEDListProducer")<<"[selectedElectronFEDListProducer] additional FED: "<<*(AddFed);
-     
-  LogDebug("SelectedElectronFEDListProducer")<<"[selectedElectronFEDListProducer] rawDataInput "<<rawDataLabel_; 
-
- }
- 
  // initialize pre-shower fed id --> look up table
- for (int i=0; i<2; ++i)
-  for (int j=0; j<2; ++j)
-   for (int k=0 ;k<40; ++k)
-    for (int m=0; m<40; m++)
-          ES_fedId_[i][j][k][m] = -1;
+ for (int i=0; i<2; ++i) for (int j=0; j<2; ++j) for (int k=0 ;k<40; ++k) for (int m=0; m<40; m++) ES_fedId_[i][j][k][m] = -1;
  
  // read in look-up table
  int nLines, iz, ip, ix, iy, fed, kchip, pace, bundle, fiber, optorx;
  std::ifstream ES_file;
  ES_file.open(ESLookupTable_.fullPath().c_str());
- if(debug_) LogDebug("SelectedElectronFEDListProducer")<<"[selectedElectronFEDListProducer] Look Up table for ES "<<ESLookupTable_.fullPath().c_str();
+ LogDebug("SelectedElectronFEDListProducer")<<" Look Up table for ES "<<ESLookupTable_.fullPath().c_str()<<std::endl;
  if( ES_file.is_open() ) {
      ES_file >> nLines;
      for (int i=0; i<nLines; ++i) {
@@ -172,39 +171,10 @@ SelectedElectronFEDListProducer<TEle,TCand>::SelectedElectronFEDListProducer(con
        ES_fedId_[(3-iz)/2-1][ip-1][ix-1][iy-1] = fed;
      }
  } 
- else LogDebug("SelectedElectronFEDListProducer")<<"[selectedElectronFEDListProducer] Look up table file can not be found in "<<ESLookupTable_.fullPath().c_str() ;
+ else LogDebug("SelectedElectronFEDListProducer")<<" Look up table file can not be found in "<<ESLookupTable_.fullPath().c_str() <<std::endl;
  ES_file.close();
  
- // make the hcal map in a similar way
- int idet, cr, sl, dcc, spigot, fibcha, ieta, iphi, depth, subdet; 
- std::string subdet_tmp, buffer, tb;
- std::ifstream HCAL_file;
- 
- HCAL_file.open(HCALLookupTable_.fullPath().c_str(),std::ios::in);
- if(debug_) LogDebug("SelectedElectronFEDListProducer")<<"[selectedElectronFEDListProducer] Look Up table for HCAL "<<HCALLookupTable_.fullPath().c_str();
- if( HCAL_file.is_open() ) {
-   while(!HCAL_file.eof()) {
-       getline(HCAL_file,buffer);     
-       if (buffer == "" || !buffer.find('#')) continue;
-       std::stringstream line( buffer );
-       line >> idet >> cr >> sl >> tb >> dcc >> spigot >> fiber >> fibcha >> subdet_tmp >> ieta >> iphi >> depth ;
-       if (subdet_tmp == "HB")  subdet  = 1;
-       else if (subdet_tmp == "HE") subdet  = 2;
-       else if (subdet_tmp == "HO") subdet  = 3;
-       else if (subdet_tmp == "HF") subdet  = 4;
-       else subdet = 0 ;
-
-       HCALFedId fedId (subdet,iphi,ieta,depth);
-       fedId.setDCCId(dcc);
-       HCAL_fedId_.push_back(fedId);
-     }
- } 
- else LogDebug("SelectedElectronFEDListProducer")<<"[selectedElectronFEDListProducer] Look up table file can not be found in"<<HCALLookupTable_.fullPath().c_str() ;
- HCAL_file.close();
- std::sort(HCAL_fedId_.begin(),HCAL_fedId_.end());
-
- if(debug_)  LogDebug("SelectedElectronFEDListProducer")<<"############################################################## ";
-
+ // produce the final collection
  produces<FEDRawDataCollection>(outputLabelModule_); // produce exit collection
 
 }
@@ -212,35 +182,39 @@ SelectedElectronFEDListProducer<TEle,TCand>::SelectedElectronFEDListProducer(con
 template< typename TEle, typename TCand>
 SelectedElectronFEDListProducer<TEle,TCand>::~SelectedElectronFEDListProducer(){
 
- if(!electronCollections_.empty()) electronCollections_.clear() ;
- if(!recoEcalCandidateCollections_.empty()) recoEcalCandidateCollections_.clear() ;
- if(!fedList_.empty()) fedList_.clear() ;
- if(!RawDataCollection_) delete RawDataCollection_ ;
+ if(!electronTags_.empty())            electronTags_.clear() ;
+ if(!recoEcalCandidateTags_.empty())   recoEcalCandidateTags_.clear() ;
+ if(!recoEcalCandidateToken_.empty())  recoEcalCandidateToken_.clear();
+ if(!electronToken_.empty())           electronToken_.clear();
+ if(!fedList_.empty())                 fedList_.clear() ;
+ if(!RawDataCollection_)               delete RawDataCollection_ ;
 }
 
 template< typename TEle, typename TCand>
 void SelectedElectronFEDListProducer<TEle,TCand>::beginJob(){ 
- 
-  if(debug_){ LogDebug("SelectedElectronFEDListProducer")<<"############################################################## ";
-              LogDebug("SelectedElectronFEDListProducer")<<"[selectedElectronFEDListProducer] Begin of the Job ----> ";
-              LogDebug("SelectedElectronFEDListProducer")<<"[selectedElectronFEDListProducer] event counter set to "<<eventCounter_;
-	      LogDebug("SelectedElectronFEDListProducer")<<"############################################################## ";
-  }
   eventCounter_ = 0 ; 
+  LogDebug("SelectedElectronFEDListProducer")<<" Begin of the Job : event counter set to"<<eventCounter_<<std::endl;
 } 
 
 template< typename TEle, typename TCand>
 void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, const edm::EventSetup & iSetup){
 
-  if(!fedList_.empty()) fedList_.clear(); 
+  if(!fedList_.empty())   fedList_.clear(); 
   if(!RawDataCollection_) delete RawDataCollection_ ;
 
   // Build FED strip map --> just one time
   // Retrieve FED ids from cabling map and iterate through 
+
   if(eventCounter_ ==0 ){
 
+   // get the hcal electronics map
+   edm::ESHandle<HcalDbService> pSetup;
+   iSetup.get<HcalDbRecord>().get(pSetup);
+   hcalReadoutMap_ = pSetup->getHcalMapping();
+
+    
    // get the ecal electronics map
-   edm::ESHandle<EcalElectronicsMapping > ecalmapping;
+   edm::ESHandle<EcalElectronicsMapping> ecalmapping;
    iSetup.get<EcalMappingRcd >().get(ecalmapping);
    TheMapping_ = ecalmapping.product();
  
@@ -250,7 +224,7 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
    geometry_ = caloGeometry.product();
 
    //ES geometry
-   geometryES_ = caloGeometry->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+   geometryES_ = caloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalPreshower);
 
    // pixel tracker cabling map
    edm::ESTransientHandle<SiPixelFedCablingMap> pixelCablingMap;
@@ -295,32 +269,20 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
 
   // Get event raw data
   edm::Handle<FEDRawDataCollection> rawdata;
-  iEvent.getByLabel(rawDataLabel_,rawdata);
+  if(!(rawDataTag_ == edm::InputTag(""))) iEvent.getByToken(rawDataToken_,rawdata);
 
   // take the beam spot position
   edm::Handle<reco::BeamSpot> beamSpot;
-  iEvent.getByLabel(beamSpotTag_, beamSpot); 
+  if(!(beamSpotTag_ == edm::InputTag(""))) iEvent.getByToken(beamSpotToken_, beamSpot); 
   if(!beamSpot.failedToGet()) beamSpotPosition_ = beamSpot->position();
   else beamSpotPosition_.SetXYZ(0,0,0);
  
   // take the calo tower collection
-  edm::Handle<reco::PFRecHitCollection> hbheRecHitHandle;
-  iEvent.getByLabel(HBHERecHitCollection_,hbheRecHitHandle);
-  const reco::PFRecHitCollection* hcalRecHitCollection = NULL ;
+  edm::Handle<HBHERecHitCollection> hbheRecHitHandle;
+  if(!(HBHERecHitTag_ == edm::InputTag("")))  iEvent.getByToken(hbheRecHitToken_,hbheRecHitHandle);
+  const HBHERecHitCollection* hcalRecHitCollection = NULL;
   if(!hbheRecHitHandle.failedToGet()) hcalRecHitCollection = hbheRecHitHandle.product();   
   
-  // loop on the input electron collection vector
-  edm::Handle<trigger::TriggerFilterObjectWithRefs> triggerRecoEcalCandidateCollection;
-  edm::Handle<TEleColl> electrons;
-  std::vector<edm::Ref<TCandColl>> recoEcalCandColl;
-  TEle  electron ;
-  edm::Ref<TCandColl> recoEcalCand ;
-  
-  // iterator to electron and ecal candidate collections
-  std::vector<edm::InputTag>::const_iterator itElectronColl     = electronCollections_.begin();
-  std::vector<int>::const_iterator itElectronCollFlag           = isGsfElectronCollection_.begin();
-  std::vector<edm::InputTag>::const_iterator itRecoEcalCandColl = recoEcalCandidateCollections_.begin();
-
   double radTodeg = 180. / Geom::pi();
 
   if(dumpAllEcalFed_){
@@ -342,17 +304,30 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
      fedList_.push_back(iHcalFed);
   } 
 
+
+  // loop on the input electron collection vector
+  TEle  electron ;
+  edm::Ref<TCandColl> recoEcalCand ;
+  edm::Handle<TEleColl> electrons;
+  edm::Handle<trigger::TriggerFilterObjectWithRefs> triggerRecoEcalCandidateCollection;
+  std::vector<edm::Ref<TCandColl>> recoEcalCandColl;
+  
+  // iterator to electron and ecal candidate collections
+  typename std::vector<edm::EDGetTokenT<TEleColl> >::const_iterator itElectronColl  = electronToken_.begin();
+  std::vector<int>::const_iterator itElectronCollFlag  = isGsfElectronCollection_.begin();
+  std::vector<edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> >::const_iterator itRecoEcalCandColl = recoEcalCandidateToken_.begin();
+
   // if you want to dump just FED related to the triggering electron/s
   if( !dumpAllTrackerFed_  || !dumpAllEcalFed_ ){
-   for( ; itRecoEcalCandColl != recoEcalCandidateCollections_.end(); ++itRecoEcalCandColl){  
+   for( ; itRecoEcalCandColl != recoEcalCandidateToken_.end(); ++itRecoEcalCandColl){  
 
-    try { iEvent.getByLabel(*itRecoEcalCandColl,triggerRecoEcalCandidateCollection);
+    try { iEvent.getByToken(*itRecoEcalCandColl,triggerRecoEcalCandidateCollection);
           if(triggerRecoEcalCandidateCollection.failedToGet()) continue ;
     }
     catch (cms::Exception &exception){ continue; }
  
     triggerRecoEcalCandidateCollection->getObjects(trigger::TriggerCluster, recoEcalCandColl);
-    if(recoEcalCandColl.empty()) triggerRecoEcalCandidateCollection->getObjects(trigger::TriggerPhoton, recoEcalCandColl);
+    if(recoEcalCandColl.empty()) triggerRecoEcalCandidateCollection->getObjects(trigger::TriggerPhoton,   recoEcalCandColl);
     if(recoEcalCandColl.empty()) triggerRecoEcalCandidateCollection->getObjects(trigger::TriggerElectron, recoEcalCandColl);
 
     typename std::vector<edm::Ref<TCandColl>>::const_iterator itRecoEcalCand = recoEcalCandColl.begin(); // loop on recoEcalCandidate objects
@@ -361,8 +336,8 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
        recoEcalCand = (*itRecoEcalCand); 
        reco::SuperClusterRef scRefRecoEcalCand = recoEcalCand->superCluster(); // take the supercluster in order to match with electron objects
                      
-       for( ; itElectronColl != electronCollections_.end() && itElectronCollFlag != isGsfElectronCollection_.end(); ++itElectronColl , ++itElectronCollFlag){ // loop on electron collections   
-        try { iEvent.getByLabel(*itElectronColl,electrons);
+       for( ; itElectronColl != electronToken_.end() && itElectronCollFlag != isGsfElectronCollection_.end(); ++itElectronColl , ++itElectronCollFlag){ // loop on electron collections   
+        try { iEvent.getByToken(*itElectronColl,electrons);
               if(electrons.failedToGet()) continue ;
         }
         catch (cms::Exception &exception){ continue; }
@@ -385,7 +360,7 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
             int hitFED = FEDNumbering::MINECALFEDID + TheMapping_->GetFED(double(point.eta()),double(point.phi())*radTodeg);
             if( hitFED < FEDNumbering::MINECALFEDID || hitFED > FEDNumbering::MAXECALFEDID ) continue;
 
-            if(debug_) LogDebug("SelectedElectronFEDListProducer")<<"[selectedElectronFEDListProducer] electron hit detID Barrel "<<(*itSChits).first.rawId()<<" eta "<<double(point.eta())<<" phi "<< double(point.phi())*radTodeg <<" FED "<<hitFED;
+            LogDebug("SelectedElectronFEDListProducer")<<" electron hit detID Barrel "<<(*itSChits).first.rawId()<<" eta "<<double(point.eta())<<" phi "<< double(point.phi())*radTodeg <<" FED "<<hitFED<<std::endl;
           
             if(dumpSelectedEcalFed_){
              if(!fedList_.empty()){ 
@@ -400,7 +375,7 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
              int hitFED = FEDNumbering::MINECALFEDID + TheMapping_->GetFED(double(point.eta()),double(point.phi())*radTodeg);
              if( hitFED < FEDNumbering::MINECALFEDID || hitFED > FEDNumbering::MAXECALFEDID ) continue;
 
-             if(debug_) LogDebug("SelectedElectronFEDListProducer")<<"[selectedElectronFEDListProducer] electron hit detID Endcap "<<(*itSChits).first.rawId()<<" eta "<<double(point.eta())<<" phi "<<double(point.phi())*radTodeg <<" FED "<<hitFED;
+             LogDebug("SelectedElectronFEDListProducer")<<" electron hit detID Endcap "<<(*itSChits).first.rawId()<<" eta "<<double(point.eta())<<" phi "<<double(point.phi())*radTodeg <<" FED "<<hitFED<<std::endl;
              if(dumpSelectedEcalFed_){
               if(!fedList_.empty()){ 
                if(std::find(fedList_.begin(),fedList_.end(),hitFED)==fedList_.end()) fedList_.push_back(hitFED);
@@ -411,7 +386,7 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
               DetId tmpX = (dynamic_cast<const EcalPreshowerGeometry*>(geometryES_))->getClosestCellInPlane(point,1);
               ESDetId stripX = (tmpX == DetId(0)) ? ESDetId(0) : ESDetId(tmpX);          
               int hitFED = ES_fedId_[(3-stripX.zside())/2-1][stripX.plane()-1][stripX.six()-1][stripX.siy()-1];
-              if(debug_) LogDebug("SelectedElectronFEDListProducer")<<"[selectedElectronFEDListProducer] ES hit plane X (deiID) "<<stripX.rawId()<<" six "<<stripX.six()<<" siy "<<stripX.siy()<<" plane "<<stripX.plane()<<" FED ID "<<hitFED;
+              LogDebug("SelectedElectronFEDListProducer")<<" ES hit plane X (deiID) "<<stripX.rawId()<<" six "<<stripX.six()<<" siy "<<stripX.siy()<<" plane "<<stripX.plane()<<" FED ID "<<hitFED<<std::endl;
               if(hitFED < FEDNumbering::MINPreShowerFEDID || hitFED > FEDNumbering::MAXPreShowerFEDID) continue;
               if(hitFED < 0) continue;
               if(!fedList_.empty()){ 
@@ -423,7 +398,7 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
               ESDetId stripY = (tmpY == DetId(0)) ? ESDetId(0) : ESDetId(tmpY);          
               hitFED = ES_fedId_[(3-stripY.zside())/2-1][stripY.plane()-1][stripY.six()-1][stripY.siy()-1];
               if(hitFED < FEDNumbering::MINPreShowerFEDID || hitFED > FEDNumbering::MAXPreShowerFEDID) continue;
-              if(debug_) LogDebug("SelectedElectronFEDListProducer")<<"[selectedElectronFEDListProducer] ES hit plane Y (deiID) "<<stripY.rawId()<<" six "<<stripY.six()<<" siy "<<stripY.siy()<<" plane "<<stripY.plane()<<" FED ID "<<hitFED;
+              LogDebug("SelectedElectronFEDListProducer")<<" ES hit plane Y (deiID) "<<stripY.rawId()<<" six "<<stripY.six()<<" siy "<<stripY.siy()<<" plane "<<stripY.plane()<<" FED ID "<<hitFED<<std::endl;
               if(hitFED < 0) continue;
               if(!fedList_.empty()){ 
                if(std::find(fedList_.begin(),fedList_.end(),hitFED)==fedList_.end()) fedList_.push_back(hitFED);
@@ -433,46 +408,31 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
 	   } // end endcap  
 	 } // end loop on SC hit   
 
-         // check HCAL behind each hit    
-         if(dumpSelectedHCALFed_){
-  	   reco::PFRecHitCollection::const_iterator itHcalRecHit = hcalRecHitCollection->begin();
-	   for( ; itHcalRecHit != hcalRecHitCollection->end() ; ++itHcalRecHit){
- 	    HcalDetId id  (itHcalRecHit->detId());
-            const CaloCellGeometry* cellGeometry = geometry_->getSubdetectorGeometry(id)->getGeometry(id);
-            float dR = reco::deltaR(scRef->eta(),scRef->phi(),cellGeometry->getPosition().eta(),cellGeometry->getPosition().phi());
-            if(dR <= dRHcalRegion_){
-	     HCALFedId fedId (id.subdet(),id.iphi(),id.ieta(),id.depth());
-             if(!HCAL_fedId_.empty()){ 
-  	      std::vector<HCALFedId>::iterator itHcalFed = std::find(HCAL_fedId_.begin(),HCAL_fedId_.end(),fedId);
-              int ishift = 1 ;
-              if((*itHcalFed).fed_ == 0){
-	       while((*itHcalFed).fed_ == 0 && ishift <= HBHERecHitShift_){
-               int i = -ishift ;
-               for( ; i <= ishift && i <= HBHERecHitShift_ ; i++){
-                int j = -ishift ;
-                for( ; j <= ishift && j <= HBHERecHitShift_ ; j++){                  
-		 HCALFedId fedIdshifted (id.subdet(),id.iphi()+i,id.ieta()+j,id.depth());        
-                 itHcalFed = std::find(HCAL_fedId_.begin(),HCAL_fedId_.end(),fedIdshifted);
-		 if((*itHcalFed).fed_ != 0){ j = HBHERecHitShift_+1; continue; }
-		}               
-	        if(j > HBHERecHitShift_)    { i = HBHERecHitShift_+1; continue; }
+	 // check HCAL behind each hit    
+	 if(dumpSelectedHCALFed_) {
+	   HBHERecHitCollection::const_iterator itHcalRecHit = hcalRecHitCollection->begin();
+	   for( ; itHcalRecHit != hcalRecHitCollection->end() ; ++itHcalRecHit) {
+	     HcalDetId recHitId(itHcalRecHit->id());
+	     const CaloCellGeometry* cellGeometry = geometry_->getSubdetectorGeometry(recHitId)->getGeometry(recHitId);
+	     float dR = reco::deltaR(scRef->eta(),scRef->phi(),cellGeometry->getPosition().eta(),cellGeometry->getPosition().phi());
+	     if(dR <= dRHcalRegion_) {
+	       const HcalElectronicsId electronicId = hcalReadoutMap_->lookup(recHitId);
+	       int hitFED = electronicId.dccid() + FEDNumbering::MINHCALFEDID;
+	       LogDebug("SelectedElectronFEDListProducer")<< " matched hcal recHit : HcalDetId "<<recHitId<<" HcalElectronicsId "<<electronicId<<" dcc id "<<electronicId.dccid()<<" spigot "<<electronicId.spigot()<<" fiber channel "<<electronicId.fiberChanId()<<" fiber index "<<electronicId.fiberIndex()<<std::endl;
+	       if(hitFED < FEDNumbering::MINHCALFEDID || hitFED > FEDNumbering::MAXHCALFEDID) 
+		 continue; //first eighteen feds are for HBHE
+	       if(hitFED < 0) 
+		 continue;
+	       if(!fedList_.empty()) { 
+		 if(std::find(fedList_.begin(), fedList_.end(), hitFED) == fedList_.end()) 
+		   fedList_.push_back(hitFED);
 	       }
-               ishift++ ;
-	       }
-	      }
- 	      int hitFED = (*itHcalFed).fed_;
-              if(hitFED < FEDNumbering::MINHCALFEDID || hitFED > FEDNumbering::MAXHCALFEDID) continue; //first eighteen feds are for HBHE
-              if(debug_) LogDebug("SelectedElectronFEDListProducer")<<"[selectedElectronFEDListProducer] Hcal FED ID "<<hitFED;
-              if(hitFED < 0) continue;
-              if(!fedList_.empty()){ 
-	      if(std::find(fedList_.begin(),fedList_.end(),hitFED)==fedList_.end()) fedList_.push_back(hitFED);
-	      }
-	      else fedList_.push_back(hitFED);      
+	       else 
+		 fedList_.push_back(hitFED);      
 	     }
-	    }
 	   }
-	 }
-        }// End Ecal
+	 } // End Hcal
+	}// End Ecal
      
         // get the electron track
         if( !dumpAllTrackerFed_ ){ 
@@ -508,7 +468,7 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
 		   for (uint32_t op=0; op<(itFedMap->second).size(); op++){
 		     int hitFED = (itFedMap->second)[op].fedId(); 
                      if(hitFED < FEDNumbering::MINSiStripFEDID || hitFED > FEDNumbering::MAXSiStripFEDID) continue;
-                     if(debug_) LogDebug("SelectedElectronFEDListProducer")<<"[selectedElectronFEDListProducer] SiStrip (FedID) "<<hitFED;
+                     LogDebug("SelectedElectronFEDListProducer")<<" SiStrip (FedID) "<<hitFED<<std::endl;
                      if(!fedList_.empty()){ 
                        if(std::find(fedList_.begin(),fedList_.end(),hitFED)==fedList_.end()) fedList_.push_back(hitFED);
                      }
@@ -561,20 +521,12 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
     fedList_.push_back(addThisSelectedFEDs_.at(iFed));
   }
 
-  if(debug_){
-   if(!fedList_.empty()){ 
-    LogDebug("SelectedElectronFEDListProducer")<<"[selectedElectronFEDListProducer] fed point ";
-    for( unsigned int i =0; i< fedList_.size(); i++) 
-      LogDebug("SelectedElectronFEDListProducer")<<fedList_.at(i)<<"  ";
-   }
-   LogDebug("SelectedElectronFEDListProducer")<<"  ";
-  }
-
   // make the final raw data collection
   RawDataCollection_ = new FEDRawDataCollection();
   std::sort(fedList_.begin(),fedList_.end());
   std::vector<uint32_t>::const_iterator itfedList = fedList_.begin();
   for( ; itfedList!=fedList_.end() ; ++itfedList){
+   LogDebug("SelectedElectronFEDListProducer")<<" fed point "<<*itfedList<<"  ";
    const FEDRawData& data = rawdata->FEDData(*itfedList);   
    if(data.size()>0){
            FEDRawData& fedData = RawDataCollection_->FEDData(*itfedList);
@@ -591,11 +543,7 @@ void SelectedElectronFEDListProducer<TEle,TCand>::produce(edm::Event & iEvent, c
 
 template< typename TEle, typename TCand>
 void SelectedElectronFEDListProducer<TEle,TCand>::endJob(){
-
- if(debug_){ LogDebug("SelectedElectronFEDListProducer")<<"[selectedElectronFEDListProducer] Counted Events "<<eventCounter_;
-             LogDebug("SelectedElectronFEDListProducer")<<"[selectedElectronFEDListProducer] End of the Job ----> ";
- }
-
+ LogDebug("SelectedElectronFEDListProducer")<<" End of the Job : Counted Events "<<eventCounter_<<std::endl;
 }
 
 template< typename TEle, typename TCand>
@@ -608,7 +556,7 @@ void SelectedElectronFEDListProducer<TEle,TCand>::pixelFedDump( std::vector<Pixe
     if ( std::abs(zmodule) > region.maxZ ) continue; 
     int hitFED = itDn->Fed;
     if(hitFED < FEDNumbering::MINSiPixelFEDID || hitFED > FEDNumbering::MAXSiPixelFEDID) continue;
-    if(debug_) LogDebug("SelectedElectronFEDListProducer")<<"[selectedElectronFEDListProducer] electron pixel hit "<<itDn->DetId<<" hitFED "<<hitFED;
+    LogDebug("SelectedElectronFEDListProducer")<<" electron pixel hit "<<itDn->DetId<<" hitFED "<<hitFED<<std::endl;
     if(!fedList_.empty()){ 
      if(std::find(fedList_.begin(),fedList_.end(),hitFED)==fedList_.end()) fedList_.push_back(hitFED);
     }
