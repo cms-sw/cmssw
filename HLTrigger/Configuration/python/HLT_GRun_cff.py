@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_2_1/GRun/V44 (CMSSW_7_2_1_patch2)
+# /dev/CMSSW_7_2_1/GRun/V46 (CMSSW_7_2_1_patch2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_2_1/GRun/V44')
+  tableName = cms.string('/dev/CMSSW_7_2_1/GRun/V46')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -26553,7 +26553,7 @@ hltPixelTracksForNoPU = cms.EDProducer( "PixelTrackProducer",
       SeedingLayers = cms.InputTag( "hltPixelLayerTripletsRegForBTag" )
     )
 )
-hltJetNoPU = cms.EDProducer( "PixelJetPuId",
+hltCaloJetFromPV = cms.EDProducer( "PixelJetPuId",
     MinEtaForwardJets = cms.double( 2.4 ),
     MinTrackPt = cms.double( 0.6 ),
     primaryVertex = cms.InputTag( "hltFastPVPixelVertices" ),
@@ -26571,7 +26571,7 @@ hltMHTNoPU = cms.EDProducer( "HLTHtMhtProducer",
     minPtJetHt = cms.double( 20.0 ),
     maxEtaJetMht = cms.double( 5.2 ),
     minNJetMht = cms.int32( 0 ),
-    jetsLabel = cms.InputTag( "hltJetNoPU" ),
+    jetsLabel = cms.InputTag( "hltCaloJetFromPV" ),
     maxEtaJetHt = cms.double( 5.2 ),
     minPtJetMht = cms.double( 20.0 ),
     minNJetHt = cms.int32( 0 ),
@@ -36716,7 +36716,7 @@ HLTIterativeTrackingForBTagIteration1 = cms.Sequence( hltIter1ClustersRefRemoval
 HLTIterativeTrackingForBTagIteration2 = cms.Sequence( hltIter2ClustersRefRemovalForBTag + hltIter2MaskedMeasurementTrackerEventForBTag + hltIter2PixelLayerPairsForBTag + hltIter2PFlowPixelSeedsForBTag + hltIter2PFlowCkfTrackCandidatesForBTag + hltIter2PFlowCtfWithMaterialTracksForBTag + hltIter2PFlowTrackSelectionHighPurityForBTag )
 HLTIterativeTrackingForBTagIter02 = cms.Sequence( HLTIterativeTrackingForBTagIteration0 + HLTIterativeTrackingForBTagIteration1 + hltIter1MergedForBTag + HLTIterativeTrackingForBTagIteration2 + hltIter2MergedForBTag )
 HLTBtagCSVSequenceL3 = cms.Sequence( hltSelectorJets30L1FastJet + hltSelectorCentralJets30L1FastJeta + hltSelector8CentralJetsL1FastJet + HLTDoLocalPixelSequenceRegForBTag + HLTDoLocalStripSequenceRegForBTag + HLTIterativeTrackingForBTagIter02 + hltVerticesL3 + hltFastPixelBLifetimeL3Associator + hltFastPixelBLifetimeL3TagInfos + hltL3SecondaryVertexTagInfos + hltL3CombinedSecondaryVertexBJetTags )
-HLTNoPUSequence = cms.Sequence( hltSelectorJets20L1FastJetForNoPU + HLTDoLocalPixelSequenceRegForBTag + hltPixelTracksForNoPU + hltJetNoPU )
+HLTNoPUSequence = cms.Sequence( hltSelectorJets20L1FastJetForNoPU + HLTDoLocalPixelSequenceRegForBTag + hltPixelTracksForNoPU + hltCaloJetFromPV )
 HLTBtagCSVSequencePFHbb = cms.Sequence( hltOnlinePrimaryVertices + hltFastPixelBLifetimeAssociatorHbbPF + hltFastPixelBLifetimeTagInfosHbbPF + hltSecondaryVertexTagInfosPF + hltCombinedSecondaryVertexBJetTagsPF )
 HLTSinglePhoton135Sequence = cms.Sequence( HLTDoFullUnpackingEgammaEcalSequence + HLTPFClusteringForEgamma + hltEgammaCandidates + hltEGL1SingleEG35Filter + hltEG135EtFilter + HLTDoLocalHcalWithTowerSequence + hltEgammaHoverE + hltEG135HEFilter )
 HLTRecoPixelVertexingForPhotonsSequence = cms.Sequence( hltPixelLayerTriplets + hltPixelTracks + hltPixelVerticesForPhotons )

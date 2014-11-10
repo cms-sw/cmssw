@@ -313,6 +313,8 @@ HLT_QuadMuon0_Dimuon0_Upsilon_v*				# JIRA: CMHSLT-155
 HLT_Mu17_Mu8_SameSign_v*					# JIRA: CMHSLT-163
 HLT_Mu17_Mu8_SameSign_DPhi_v*					# JIRA: CMHSLT-163
 
+#HLT_RsqMR260_Rsq0p09_MR200_v*					# JIRA: CMSHLT-164 (only for lower lumi)
+#HLT_RsqMR260_Rsq0p09_MR200_4jet_v*				# JIRA: CMSHLT-164 (only for lower lumi)
 HLT_RsqMR300_Rsq0p09_MR200_v*					# JIRA: CMSHLT-164
 HLT_RsqMR300_Rsq0p09_MR200_4jet_v*				# JIRA: CMSHLT-164
 HLT_Rsq0p36_v*							# JIRA: CMSHLT-164

@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_2_1/PIon/V44 (CMSSW_7_2_1_patch2)
+# /dev/CMSSW_7_2_1/PIon/V46 (CMSSW_7_2_1_patch2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_2_1/PIon/V44')
+  tableName = cms.string('/dev/CMSSW_7_2_1/PIon/V46')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -488,16 +488,6 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
     RefreshEachRun = cms.untracked.bool( True ),
     RefreshOpenIOVs = cms.untracked.bool( False ),
     toGet = cms.VPSet( 
-      cms.PSet(  record = cms.string( "JetCorrectionsRecord" ),
-        tag = cms.string( "JetCorrectorParametersCollection_HLT_V1_AK4Calo" ),
-        connect = cms.untracked.string( "frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS" ),
-        label = cms.untracked.string( "AK4CaloHLT" )
-      ),
-      cms.PSet(  record = cms.string( "JetCorrectionsRecord" ),
-        tag = cms.string( "JetCorrectorParametersCollection_HLT_trk1B_V1_AK4PF" ),
-        connect = cms.untracked.string( "frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS" ),
-        label = cms.untracked.string( "AK4PFHLT" )
-      )
     ),
     DBParameters = cms.PSet( 
       authenticationPath = cms.untracked.string( "." ),
