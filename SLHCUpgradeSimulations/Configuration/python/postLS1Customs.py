@@ -82,15 +82,15 @@ def customisePostLS1EraExtras(process):
                 getattr(process,b).outputCommands.append('keep *_simMuonRPCDigis_*_*')
                 getattr(process,b).outputCommands.append('keep *_simHcalUnsuppressedDigis_*_*')
         if hasattr(process,'mix') and hasattr(process.mix,'digitizers'):
-            if hasattr(process.mix.digitizers,'hcal') and hasattr(process.mix.digitizers.hcal,'ho'):
-                process.mix.digitizers.hcal.ho.photoelectronsToAnalog = cms.vdouble([4.0]*16)
-                process.mix.digitizers.hcal.ho.siPMCode = cms.int32(1)
-                process.mix.digitizers.hcal.ho.pixels = cms.int32(2500)
-                process.mix.digitizers.hcal.ho.doSiPMSmearing = cms.bool(False)
-            if hasattr(process.mix.digitizers,'hcal') and hasattr(process.mix.digitizers.hcal,'hf1'):
-                process.mix.digitizers.hcal.hf1.samplingFactor = cms.double(0.60)
-            if hasattr(process.mix.digitizers,'hcal') and hasattr(process.mix.digitizers.hcal,'hf2'):
-                process.mix.digitizers.hcal.hf2.samplingFactor = cms.double(0.60)
+#             if hasattr(process.mix.digitizers,'hcal') and hasattr(process.mix.digitizers.hcal,'ho'):
+#                 process.mix.digitizers.hcal.ho.photoelectronsToAnalog = cms.vdouble([4.0]*16)
+#                 process.mix.digitizers.hcal.ho.siPMCode = cms.int32(1)
+#                 process.mix.digitizers.hcal.ho.pixels = cms.int32(2500)
+#                 process.mix.digitizers.hcal.ho.doSiPMSmearing = cms.bool(False)
+#             if hasattr(process.mix.digitizers,'hcal') and hasattr(process.mix.digitizers.hcal,'hf1'):
+#                 process.mix.digitizers.hcal.hf1.samplingFactor = cms.double(0.60)
+#             if hasattr(process.mix.digitizers,'hcal') and hasattr(process.mix.digitizers.hcal,'hf2'):
+#                 process.mix.digitizers.hcal.hf2.samplingFactor = cms.double(0.60)
             if hasattr(process.mix.digitizers,'pixel'):
                 # DynamicInefficency - 13TeV - 50ns case
                 if process.mix.bunchspace == 50:
