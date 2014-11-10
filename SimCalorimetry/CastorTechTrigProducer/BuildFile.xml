@@ -1,0 +1,10 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/HcalDigi"/>
+<use   name="DataFormats/HcalDetId"/>
+<use   name="DataFormats/L1GlobalTrigger"/>
+<use   name="CalibFormats/CastorObjects"/>
+<flags EDM_PLUGIN="1"/>

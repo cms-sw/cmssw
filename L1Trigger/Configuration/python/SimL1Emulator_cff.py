@@ -104,6 +104,9 @@ simRpcTechTrigDigis.RPCDigiLabel = 'simMuonRPCDigis'
 import SimCalorimetry.HcalTrigPrimProducers.hcalTTPRecord_cfi
 simHcalTechTrigDigis = SimCalorimetry.HcalTrigPrimProducers.hcalTTPRecord_cfi.simHcalTTPRecord.clone()
 
+# CASTOR Techical Trigger
+import SimCalorimetry.CastorTechTrigProducer.castorTTRecord_cfi
+simCastorTechTrigDigis = SimCalorimetry.CastorTechTrigProducer.castorTTRecord_cfi.simCastorTTRecord.clone()
 
 # Global Trigger emulator
 import L1Trigger.GlobalTrigger.gtDigis_cfi
@@ -114,7 +117,8 @@ simGtDigis.GctInputTag = 'simGctDigis'
 simGtDigis.TechnicalTriggersInputTags = cms.VInputTag(
     cms.InputTag( 'simBscDigis' ), 
     cms.InputTag( 'simRpcTechTrigDigis' ),
-    cms.InputTag( 'simHcalTechTrigDigis' )
+    cms.InputTag( 'simHcalTechTrigDigis' ),
+    cms.InputTag( 'simCastorTechTrigDigis' )
     )
 
 
@@ -132,7 +136,8 @@ SimL1MuTrackFinders = cms.Sequence(
 SimL1TechnicalTriggers = cms.Sequence( 
     simBscDigis + 
     simRpcTechTrigDigis + 
-    simHcalTechTrigDigis )
+    simHcalTechTrigDigis +
+    simCastorTechTrigDigis )
 
 SimL1Emulator = cms.Sequence(
     simRctDigis + 
