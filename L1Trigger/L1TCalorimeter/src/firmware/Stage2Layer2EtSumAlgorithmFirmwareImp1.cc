@@ -17,14 +17,14 @@ l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::Stage2Layer2EtSumAlgorithmFirmwareI
 
   // Add some LogDebug for these settings
 
-  etSumEtThresholdHwEt_ = floor(params_->etSumEtThreshold(1)/params_->towerLsbSum());
-  etSumEtThresholdHwMet_ = floor(params_->etSumEtThreshold(3)/params_->towerLsbSum());
+  etSumEtThresholdHwEt_ = floor(params_->etSumEtThreshold(0)/params_->towerLsbSum());
+  etSumEtThresholdHwMet_ = floor(params_->etSumEtThreshold(2)/params_->towerLsbSum());
   
-  etSumEtaMinEt_ = params_->etSumEtaMin(1);
-  etSumEtaMaxEt_ = params_->etSumEtaMax(1);
+  etSumEtaMinEt_ = params_->etSumEtaMin(0);
+  etSumEtaMaxEt_ = params_->etSumEtaMax(0);
   
-  etSumEtaMinMet_ = params_->etSumEtaMin(3);
-  etSumEtaMaxMet_ = params_->etSumEtaMax(3);
+  etSumEtaMinMet_ = params_->etSumEtaMin(2);
+  etSumEtaMaxMet_ = params_->etSumEtaMax(2);
 }
 
 
@@ -62,16 +62,20 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
     //    ex += ( ringEx >> 2);
     //    ey += ( ringEy >> 2);
     //    et += ( ringEt >> 1);
+    //Hack before bit shifts are decided
+    et+=ringEt;
+    ex+=ringEx;
+    ey+=ringEy;
 
   }
- 
+
   // push output
   math::XYZTLorentzVector p4;
 
   l1t::EtSum etSumTotalEt(p4,l1t::EtSum::EtSumType::kTotalEt,et,0,0,0);
   l1t::EtSum etSumEx(p4,l1t::EtSum::EtSumType::kTotalEtx,ex,0,0,0);
   l1t::EtSum etSumEy(p4,l1t::EtSum::EtSumType::kTotalEty,ey,0,0,0);
-  
+
   etsums.push_back(etSumTotalEt);
   etsums.push_back(etSumEx);
   etsums.push_back(etSumEy);

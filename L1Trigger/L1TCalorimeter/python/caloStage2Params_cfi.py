@@ -148,7 +148,7 @@ caloStage2Params.jetCalibrationParams  = jetCalibParamsVector
 
 # sums
 caloStage2Params.etSumLsb                = cms.double(0.5)
-caloStage2Params.etSumEtaMin             = cms.vint32(-999, -999, -999, -999)
-caloStage2Params.etSumEtaMax             = cms.vint32(999,  999,  999,  999)
+caloStage2Params.etSumEtaMin             = cms.vint32(-999, -28, -999, -28)
+caloStage2Params.etSumEtaMax             = cms.vint32(999,  28,  999,  28)
 caloStage2Params.etSumEtThreshold        = cms.vdouble(0.,  30.,   0.,   30.)
 

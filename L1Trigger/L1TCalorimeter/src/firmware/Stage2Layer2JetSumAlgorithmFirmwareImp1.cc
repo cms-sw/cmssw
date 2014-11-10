@@ -11,14 +11,14 @@
 l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::Stage2Layer2JetSumAlgorithmFirmwareImp1(CaloParams* params) :
   params_(params)
 {
-  etSumEtThresholdHwEt_ = floor(params_->etSumEtThreshold(2)/params_->jetLsb());
-  etSumEtThresholdHwMet_ = floor(params_->etSumEtThreshold(4)/params_->jetLsb());
+  etSumEtThresholdHwEt_ = floor(params_->etSumEtThreshold(1)/params_->jetLsb());
+  etSumEtThresholdHwMet_ = floor(params_->etSumEtThreshold(3)/params_->jetLsb());
 
-  etSumEtaMinEt_ = params_->etSumEtaMin(2);
-  etSumEtaMaxEt_ = params_->etSumEtaMax(2);
-  
-  etSumEtaMinMet_ = params_->etSumEtaMin(4);
-  etSumEtaMaxMet_ = params_->etSumEtaMax(4);
+  etSumEtaMinEt_ = params_->etSumEtaMin(1);
+  etSumEtaMaxEt_ = params_->etSumEtaMax(1);
+ 
+  etSumEtaMinMet_ = params_->etSumEtaMin(3);
+  etSumEtaMaxMet_ = params_->etSumEtaMax(3);
 }
 
 
@@ -35,15 +35,15 @@ void l1t::Stage2Layer2JetSumAlgorithmFirmwareImp1::processEvent(const std::vecto
 
    for(std::vector<l1t::Jet>::const_iterator lIt = jets.begin() ; lIt != jets.end() ; ++lIt )
    {
-     if (lIt->hwPt()>etSumEtThresholdHwMet_){
+     if (lIt->hwPt()>etSumEtThresholdHwMet_ && lIt->hwEta() >= etSumEtaMinMet_ && lIt->hwEta() <= etSumEtaMaxMet_){
        hy += (int32_t) ( lIt->hwPt() * std::trunc ( 511. * cos ( 6.28318530717958647693 * (72 - ( lIt->hwPhi() - 1 )) / 72.0 ) )) >> 9;
        hx += (int32_t) ( lIt->hwPt() * std::trunc ( 511. * sin ( 6.28318530717958647693 * ( lIt->hwPhi() - 1 ) / 72.0 ) )) >> 9;
      }
-     if (lIt->hwPt()>etSumEtThresholdHwEt_){
-       ht += lIt->hwPt();
+     if (lIt->hwPt()>etSumEtThresholdHwEt_ && lIt->hwEta() >= etSumEtaMinEt_ && lIt->hwEta() <= etSumEtaMaxEt_){
+         ht += lIt->hwPt();
      }
    }
- 
+
    //   hx >>=5;
    //   hy >>=5;
    //   ht >>=5;

@@ -43,7 +43,7 @@ l1t::Stage2Layer2JetAlgorithmFirmwareImp1::Stage2Layer2JetAlgorithmFirmwareImp1(
       create(towers, jets, params_->jetPUSType());
 
       //Carry out jet energy corrections
-      calibrate(jets, 30); //Pass the jet collection and the hw threshold above which to calibrate 
+      calibrate(jets, 10/params_->jetLsb()); //Pass the jet collection and the hw threshold above which to calibrate 
 
       // sort
       sort(jets);
