@@ -448,9 +448,9 @@ int DAFTrackProducerAlgorithm::checkHits( Trajectory iInitTraj, const Trajectory
         } else {
 	  LogDebug("DAFTrackProducerAlgorithm") << "diverso hit!" << std::endl;
 	  TrajectoryStateOnSurface dummState;
-	  LogDebug("DAFTrackProducerAlgorithm") << "  This hit was:\n ";
+	  LogTrace("DAFTrackProducerAlgorithm") << "  This hit was:\n ";
 	  PrintHit(initHit, dummState);
-	  LogDebug("DAFTrackProducerAlgorithm") << "  instead now is:\n ";
+	  LogTrace("DAFTrackProducerAlgorithm") << "  instead now is:\n ";
 	  PrintHit(MaxWeightHit, dummState);
 	}
       }
