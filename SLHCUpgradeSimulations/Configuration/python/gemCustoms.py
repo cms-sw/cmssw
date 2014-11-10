@@ -17,6 +17,8 @@ def customise2019(process):
         process=customise_harvesting(process)
     if hasattr(process,'validation_step'):
         process=customise_Validation(process)
+    if hasattr(process,'HLTSchedule'):
+        process=customise_gem_hlt(process)
     return process
 
 def customise2023(process):
@@ -114,3 +116,8 @@ def outputCustoms(process):
     return process
 
     
+def customise_gem_hlt(process):
+    process.hltL2OfflineMuonSeeds.EnableGEMMeasurement = cms.bool( True )
+    process.hltL2Muons.L2TrajBuilderParameters.EnableGEMMeasurement = cms.bool( True )
+    process.hltL2Muons.BWFilterParameters.EnableGEMMeasurement = cms.bool( True )
+    return process
