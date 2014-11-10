@@ -93,6 +93,12 @@ namespace CondFormats_HcalObjects {
     DummyOOTPileupCorrection myDummyOOTPileupCorrection;
     OOTPileupCorrectionMapColl myOOTPileupCorrectionMapColl;
     OOTPileupCorrectionBuffer myOOTPileupCorrectionBuffer;
+
+    // HCAL pulse
+    HBHEChannelGroups myHBHEChannelGroups;
+    HcalInterpolatedPulse myHcalInterpolatedPulse;
+    std::vector<HcalInterpolatedPulse> myVectorOfHcalInterpolatedPulse;
+    HcalInterpolatedPulseColl myHcalInterpolatedPulseColl;
   };
 }
 

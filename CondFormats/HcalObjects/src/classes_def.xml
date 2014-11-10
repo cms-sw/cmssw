@@ -392,4 +392,16 @@
   <field name="m_buffer" mapping="blob" />
  </class>
 
+ <class name="HcalInterpolatedPulse" class_version="1">
+  <field name="pulse_" mapping="blob" />
+ </class>
+
+ <class name="HBHEChannelGroups" class_version="1">
+  <field name="group_" mapping="blob" />
+ </class>
+
+ <class name="std::vector<HcalInterpolatedPulse>"/>
+ <class name="HcalInterpolatedPulseColl" class_version="1">
+  <field name="pulses_" mapping="blob" />
+ </class>
 </lcgdict>   
