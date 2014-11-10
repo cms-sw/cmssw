@@ -43,7 +43,7 @@ l1t::Stage2Layer2JetAlgorithmFirmwareImp1::Stage2Layer2JetAlgorithmFirmwareImp1(
       create(towers, jets, params_->jetPUSType());
 
       //Carry out jet energy corrections
-      calibrate(jets);
+      calibrate(jets, 30); //Pass the jet collection and the hw threshold above which to calibrate 
 
       // sort
       sort(jets);
@@ -391,7 +391,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::sort(std::vector<l1t::Jet> & jet
 
 }
 
-void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> & jets) {
+void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> & jets, int calibThreshold) {
 
   if( params_->jetCalibrationType() == "function6PtParams22EtaBins" ){ //One eta bin per region
 
@@ -408,6 +408,8 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
     //Loop over jets and apply corrections
     for(std::vector<l1t::Jet>::iterator jet = jets.begin(); jet!=jets.end(); jet++){
 
+      //Check jet is above the calibration threshold, if not do nothing
+      if(jet->hwPt() < calibThreshold) continue;
 
       //Make a map for the trigger towers eta to the RCT region eta
       //80 TT to 22 RCT regions
