@@ -56,8 +56,8 @@ def customisePostLS1EraExtras(process):
     customiseSimL1EmulatorForPostLS1(process)
 
     # all the rest:
-    if hasattr(process,'g4SimHits'):
-        process.g4SimHits.HFShowerLibrary.FileName  = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en.root'
+#     if hasattr(process,'g4SimHits'):
+#         process.g4SimHits.HFShowerLibrary.FileName  = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en.root'
     if hasattr(process,'reconstruction'):
         #lowering HO threshold with SiPM
         for prod in process.particleFlowRecHitHO.producers:
