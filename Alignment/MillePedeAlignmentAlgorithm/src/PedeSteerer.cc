@@ -62,6 +62,7 @@ PedeSteerer::PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon, A
   myParameterSign(myConfig.getUntrackedParameter<int>("parameterSign")),
   theMinHieraConstrCoeff(myConfig.getParameter<double>("minHieraConstrCoeff")),
   theMinHieraParPerConstr(myConfig.getParameter<unsigned int>("minHieraParPerConstr")),
+  theConstrPrecision(myConfig.getParameter<unsigned int>("constrPrecision")),
   theCoordMaster(0)
 {
   if (myParameterSign != 1 && myParameterSign != -1) {
@@ -512,7 +513,10 @@ void PedeSteerer::hierarchyConstraint(const Alignable *ali,
       const unsigned int aliLabel = myLabels->alignableLabel(aliSubComp);
       const unsigned int paramLabel = myLabels->parameterLabel(aliLabel, compParNum);
       // FIXME: multiply by cmsToPedeFactor(subcomponent)/cmsToPedeFactor(mother) (or vice a versa?)
-      aConstr << paramLabel << "    " << factors[iParam];
+      if (theConstrPrecision > 0)
+        aConstr << paramLabel << "    " << std::setprecision(theConstrPrecision) << factors[iParam];
+      else
+        aConstr << paramLabel << "    " << factors[iParam];
       if (myIsSteerFileDebug) { // debug
 	aConstr << "   ! for param " << compParNum << " of a " 
 		<< AlignableObjectId::idToString(aliSubComp->alignableObjectId()) << " at " 

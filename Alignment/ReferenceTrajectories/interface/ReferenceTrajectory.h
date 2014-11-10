@@ -39,6 +39,11 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "TrackingTools/TrajectoryState/interface/SurfaceSideDefinition.h"
+#include "Alignment/ReferenceTrajectories/interface/GblTrajectory.h"
+
+#include <TMatrixDSym.h>
+#include <TMatrixD.h>
+#include <TVectorD.h>
 
 class TrajectoryStateOnSurface;
 class MagneticField;
@@ -147,6 +152,21 @@ protected:
 				     const std::vector<double> &allSteps,
 				     const GlobalTrajectoryParameters &gtp,   
 				     const double minStep = 1.0);
+  
+  /** internal methods to add material effects using broken lines (fine version, local system)
+   */
+  virtual bool addMaterialEffectsLocalGbl(const std::vector<AlgebraicMatrix> &allJacobians,
+                                     const std::vector<AlgebraicMatrix> &allProjections,
+                                     const std::vector<AlgebraicSymMatrix> &allCurvatureChanges,
+                                     const std::vector<AlgebraicSymMatrix> &allDeltaParameterCovs);
+
+  /** internal methods to add material effects using broken lines (fine version, curvilinear system)
+   */
+  virtual bool addMaterialEffectsCurvlinGbl(const std::vector<AlgebraicMatrix> &allJacobians,
+                                     const std::vector<AlgebraicMatrix> &allProjections,
+                                     const std::vector<AlgebraicSymMatrix> &allCurvChanges,
+                                     const std::vector<AlgebraicSymMatrix> &allDeltaParaCovs,
+                                     const std::vector<AlgebraicMatrix> &allLocalToCurv);
           
   /// Don't care for propagation direction 'anyDirection' - in that case the material effects
   /// are anyway not updated ...
@@ -167,6 +187,10 @@ protected:
   template <unsigned int N>
     AlgebraicMatrix
     getHitProjectionMatrixT(const TransientTrackingRecHit::ConstRecHitPointer &recHit) const;
+private:
+  void clhep2root(const AlgebraicVector& in, TVectorD& out);
+  void clhep2root(const AlgebraicMatrix& in, TMatrixD& out);
+  void clhep2root(const AlgebraicSymMatrix& in, TMatrixDSym& out);
 };
 
 #endif
