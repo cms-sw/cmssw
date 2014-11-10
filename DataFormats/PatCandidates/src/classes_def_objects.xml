@@ -18,7 +18,7 @@
   <!-- PAT Objects, and embedded data  -->
   <class name="pat::Electron"  ClassVersion="26">
    <field name="superClusterRelinked_" transient="true"/>
-   <version ClassVersion="26" checksum="3820731538"/>
+   <version ClassVersion="26" checksum="3903550452"/>
    <version ClassVersion="25" checksum="1488101799"/>
    <version ClassVersion="24" checksum="2646043873"/>
    <version ClassVersion="23" checksum="434577157"/>
