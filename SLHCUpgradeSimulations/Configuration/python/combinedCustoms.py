@@ -140,6 +140,7 @@ def cust_2023SHCal(process):
 
     if hasattr(process,'reconstruction_step'):
     	process.ecalRecHit.EEuncalibRecHitCollection = cms.InputTag("","")
+        process.reducedEcalRecHitsSequence.remove(process.reducedEcalRecHitsES)
         #remove the old EE pfrechit producer
         del process.particleFlowRecHitECAL.producers[1]
         process.particleFlowClusterEBEKMerger = cms.EDProducer('PFClusterCollectionMerger',
