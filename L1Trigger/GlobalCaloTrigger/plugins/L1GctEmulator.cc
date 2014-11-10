@@ -40,7 +40,7 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
   m_jetEtCalibLuts(),
   m_writeInternalData(ps.getParameter<bool>("writeInternalData")),
   m_verbose(ps.getUntrackedParameter<bool>("verbose", false)),
-  m_conditionsLabel(ps.getUntrackedParameter<std::string>("conditionsLabel", ""))
+  m_conditionsLabel(ps.getParameter<std::string>("conditionsLabel"))
  {
 
   // list of products
