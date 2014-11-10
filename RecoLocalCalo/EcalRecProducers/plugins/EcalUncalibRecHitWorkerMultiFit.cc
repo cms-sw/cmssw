@@ -40,7 +40,7 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
   useLumiInfoRunHeader_ = ps.getParameter<bool>("useLumiInfoRunHeader");
   
   if (useLumiInfoRunHeader_) {
-    pileupSummaryInfos_ = c.consumes<std::vector<PileupSummaryInfo> >(edm::InputTag("addPileupInfo"));
+    bunchSpacing_ = c.consumes<int>(edm::InputTag("addPileupInfo","bunchSpacing"));
   }
 
   // algorithm to be used for timing
@@ -158,9 +158,9 @@ EcalUncalibRecHitWorkerMultiFit::set(const edm::Event& evt)
       }
     }
     else {
-      edm::Handle<std::vector<PileupSummaryInfo> > pileupSummaryInfosH;
-      evt.getByToken(pileupSummaryInfos_,pileupSummaryInfosH);
-      bunchspacing = pileupSummaryInfosH->front().getBunchSpacing();
+      edm::Handle<int> bunchSpacingH;
+      evt.getByToken(bunchSpacing_,bunchSpacingH);
+      bunchspacing = *bunchSpacingH;
     }
     
     if (bunchspacing == 25) {
@@ -173,7 +173,7 @@ EcalUncalibRecHitWorkerMultiFit::set(const edm::Event& evt)
       activeBX << -4,-2,0,2,4;
     }
   }
-    
+ 
 }
 
 /**
