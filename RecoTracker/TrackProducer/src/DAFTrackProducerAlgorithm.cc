@@ -480,7 +480,7 @@ void DAFTrackProducerAlgorithm::PrintHit(const TrackingRecHit* const& hit, Traje
                         << " local position " << hit->localPosition()
                         << " global position " << hit->globalPosition()
                         << " and r " << hit->globalPosition().perp() ;
-      LogTrace("DAFTrackProducerAlgorithm") << "  TSOS combtsos " << tsos.localPosition() ;
+    if(tsos.isValid())  LogTrace("DAFTrackProducerAlgorithm") << "  TSOS combtsos " << tsos.localPosition() ;
 
     } else {
       LogTrace("DAFTrackProducerAlgorithm") << "  Invalid Hit with DetId " << hit->geographicalId().rawId();
