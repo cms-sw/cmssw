@@ -5,9 +5,12 @@ MonojetPSet = cms.PSet(
         #"HLT_PFJet260_v", # Run2
         #"HLT_PFJetCen80_PFMETNoMu100_v",
         #"HLT_PFJetCen80_PFMHTNoPuNoMu100_v",
-        "HLT_PFCenJet140_PFMETNoMu100_PFMHTNoMu140_v",
-        "HLT_PFCenJet140_PFMETNoMu140_PFMHTNoMu140_v",
-        "HLT_PFCenJet150_PFMETNoMu150_PFMHTNoMu150_v",
+        #"HLT_PFCenJet140_PFMETNoMu100_PFMHTNoMu140_v",
+        #"HLT_PFCenJet140_PFMETNoMu140_PFMHTNoMu140_v",
+        #"HLT_PFCenJet150_PFMETNoMu150_PFMHTNoMu150_v",
+        "HLT_MonoCentralPFJet140_PFMETNoMu100_PFMHTNoMu140_NoiseCleaned_v", 
+        "HLT_MonoCentralPFJet140_PFMETNoMu140_PFMHTNoMu140_NoiseCleaned_v",
+        "HLT_MonoCentralPFJet150_PFMETNoMu150_PFMHTNoMu150_NoiseCleaned_v",
         #"HLT_CaloJet500_NoID_v",
         #"HLT_CaloJet500_NoJetID_v",
         #"HLT_MonoCentralPFJet80_PFMETnoMu105_NHEF0p95_v" # Run1
