@@ -201,6 +201,9 @@ unsigned short L1RCTParameters::calcIAbsEta(unsigned short iCrate, unsigned shor
 
 float L1RCTParameters::JetMETTPGSum(const float& ecal, const float& hcal, const unsigned& iAbsEta) const
 {
+  // We never deal with HF in this function (see note below)
+  if ( iAbsEta < 1 || iAbsEta > 28 )
+    throw cms::Exception("L1RCTParameters invalid function call") << "Eta out of range in MET TPGSum: " << iAbsEta;
   float ecal_c = ecal*jetMETECalScaleFactors_.at(iAbsEta-1);
   float hcal_c = hcal*jetMETHCalScaleFactors_.at(iAbsEta-1);
 
@@ -216,8 +219,10 @@ float L1RCTParameters::JetMETTPGSum(const float& ecal, const float& hcal, const 
     if ( et_bin > 9 ) et_bin = 9;
     ecal_c = ecal*jetMETECalScaleFactors_.at(et_bin*28+iAbsEta-1);
   }
+
   // We may be interested in HF jets, in which case, there are four more scale factors
-  // for the 4 HF regions.
+  // for the 4 HF regions.  HOWEVER, we will never expect to see them accessed from
+  // this function.  HF scaling is done in L1Trigger/RegionalCaloTrigger/src/L1RCTLookupTables
   if ( jetMETHCalScaleFactors_.size() == 32*10 )
   {
     int ht_bin = ((int) floor(hcal)/5);
@@ -247,6 +252,9 @@ float L1RCTParameters::JetMETTPGSum(const float& ecal, const float& hcal, const 
 
 float L1RCTParameters::EGammaTPGSum(const float& ecal, const float& hcal, const unsigned& iAbsEta) const
 {
+  // We never deal with HF in this function (EG objects don't use hcal at all, really)
+  if ( iAbsEta < 1 || iAbsEta > 28 )
+    throw cms::Exception("L1RCTParameters invalid function call") << "Eta out of range in MET TPGSum: " << iAbsEta;
   float ecal_c = ecal*eGammaECalScaleFactors_.at(iAbsEta-1);
   float hcal_c = hcal*eGammaHCalScaleFactors_.at(iAbsEta-1);
 
