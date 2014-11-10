@@ -55,6 +55,7 @@
 #include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeDependentCorrections.h"
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "CondFormats/EgammaObjects/interface/GBRForestD.h"
 #include "CondFormats/HcalObjects/interface/AbsOOTPileupCorrection.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "CondFormats/HcalObjects/interface/OOTPileupCorrectionBuffer.h"
