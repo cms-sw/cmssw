@@ -58,21 +58,21 @@ def customisePostLS1EraExtras(process):
     # all the rest:
 #     if hasattr(process,'g4SimHits'):
 #         process.g4SimHits.HFShowerLibrary.FileName  = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en.root'
-    if hasattr(process,'reconstruction'):
-        #lowering HO threshold with SiPM
-        for prod in process.particleFlowRecHitHO.producers:
-            prod.qualityTests = cms.VPSet(
-                cms.PSet(
-                    name = cms.string("PFRecHitQTestThreshold"),
-                    threshold = cms.double(0.05) # new threshold for SiPM HO
-                ),
-                cms.PSet(
-                    name = cms.string("PFRecHitQTestHCALChannel"),
-                    maxSeverities      = cms.vint32(11),
-                    cleaningThresholds = cms.vdouble(0.0),
-                    flags              = cms.vstring('Standard')
-                )
-            )
+#     if hasattr(process,'reconstruction'):
+#         #lowering HO threshold with SiPM
+#         for prod in process.particleFlowRecHitHO.producers:
+#             prod.qualityTests = cms.VPSet(
+#                 cms.PSet(
+#                     name = cms.string("PFRecHitQTestThreshold"),
+#                     threshold = cms.double(0.05) # new threshold for SiPM HO
+#                 ),
+#                 cms.PSet(
+#                     name = cms.string("PFRecHitQTestHCALChannel"),
+#                     maxSeverities      = cms.vint32(11),
+#                     cleaningThresholds = cms.vdouble(0.0),
+#                     flags              = cms.vstring('Standard')
+#                 )
+#             )
     if hasattr(process,'digitisation_step'):
         alist=['RAWSIM','RAWDEBUG','FEVTDEBUG','FEVTDEBUGHLT','GENRAW','RAWSIMHLT','FEVT']
         for a in alist:
