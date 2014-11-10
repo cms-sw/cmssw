@@ -14,4 +14,7 @@
   </class>
   <class name="std::vector<GBRTree2D>"/>
   <class name="GBRTree2D"/>  
+  <class name="GBRForestD"/>
+  <class name="std::vector<GBRTreeD>"/>
+  <class name="GBRTreeD"/>    
 </lcgdict>   
