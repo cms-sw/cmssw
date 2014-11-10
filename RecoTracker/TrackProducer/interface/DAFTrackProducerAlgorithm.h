@@ -52,7 +52,9 @@ class DAFTrackProducerAlgorithm {
 			const reco::BeamSpot&,
 			AlgoProductCollection &,
 			TrajAnnealingCollection &,
-			bool ) const;
+			bool ,
+			AlgoProductCollection& , 
+			AlgoProductCollection&) const;
 
  private:
   /// Construct Tracks to be put in the event

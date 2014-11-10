@@ -41,10 +41,13 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
 						 const reco::BeamSpot& bs,
 					         AlgoProductCollection& algoResults,
 						 TrajAnnealingCollection& trajann,
-						 bool TrajAnnSaving_) const
+						 bool TrajAnnSaving_,
+						 AlgoProductCollection& algoResultsBeforeDAF, 
+						 AlgoProductCollection& algoResultsAfterDAF) const
 {
   LogDebug("DAFTrackProducerAlgorithm") << "Number of Trajectories: " << theTrajectoryCollection.size() << "\n";
   int cont = 0;
+  int nTracksChanged = 0;
 
   //running on src trajectory collection
   for (std::vector<Trajectory>::const_iterator ivtraj = theTrajectoryCollection.begin(); 
@@ -100,7 +103,8 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
 
       } //end of annealing program
 
-      LogDebug("DAFTrackProducerAlgorithm") << "Ended annealing program with " << (1.*checkHits(*ivtraj, currentTraj))/(1.*(*ivtraj).measurements().size())*100. << " unchanged." << std::endl;
+      int percOfHitsUnchangedAfterDAF = (1.*checkHits(*ivtraj, currentTraj)/(1.*(*ivtraj).measurements().size()))*100.; 
+      LogDebug("DAFTrackProducerAlgorithm") << "Ended annealing program with " << percOfHitsUnchangedAfterDAF << " unchanged." << std::endl;
 
       //computing the ndof keeping into account the weights
       ndof = calculateNdof(currentTraj);
@@ -116,6 +120,12 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
 	// or filtered?
         if(ok) cont++;
 
+ 	//saving tracks before and after DAF 
+ 	if( (100. - percOfHitsUnchangedAfterDAF) > 0.){
+  	  bool okBefore = buildTrack(*ivtraj, algoResultsBeforeDAF, ndof, bs) ;
+  	  bool okAfter  = buildTrack(currentTraj, algoResultsAfterDAF, ndof, bs) ;
+	  if( okBefore && okAfter ) nTracksChanged++;
+        }
       }
       else{
         LogDebug("DAFTrackProducerAlgorithm")  << "Rejecting trajectory with " 
@@ -127,7 +137,8 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
 
   } //end run on track collection
 
-  LogDebug("DAFTrackProducerAlgorithm") << "Number of Tracks found: " << cont << "\n";
+  LogDebug("DAFTrackProducerAlgorithm") << "Number of Tracks found:   " << cont << "\n";
+  LogDebug("DAFTrackProducerAlgorithm") << "Number of Tracks changed: " << nTracksChanged << "\n";
 
 }
 /*------------------------------------------------------------------------------------------------------*/

@@ -28,6 +28,10 @@ private:
   void getFromEvt(edm::Event&, edm::Handle<TrajectoryCollection>&, reco::BeamSpot&);
   void putInEvtTrajAnn(edm::Event& theEvent, TrajAnnealingCollection & trajannResults,
                 std::auto_ptr<TrajAnnealingCollection>& selTrajAnn);
+  void putInEvtTrackDAF(edm::Event& theEvent,
+                        std::auto_ptr<reco::TrackCollection>& outputTracks,
+//                        std::auto_ptr<reco::TrackExtraCollection>& outputTrackExtras,
+                        AlgoProductCollection& algoResults, bool before);
 
   bool TrajAnnSaving_;
   edm::EDGetToken src_;
