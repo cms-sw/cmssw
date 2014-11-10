@@ -7,8 +7,9 @@
 class SimpleArborClusterizer : public InitialClusteringStepBase {
   typedef SimpleArborClusterizer B2DGT;
  public:
-  SimpleArborClusterizer(const edm::ParameterSet& conf) :
-    InitialClusteringStepBase(conf),
+ SimpleArborClusterizer(const edm::ParameterSet& conf,
+			edm::ConsumesCollector& sumes) :
+  InitialClusteringStepBase(conf,sumes),
       _cellSize(conf.getParameter<double>("cellSize")),
       _layerThickness(conf.getParameter<double>("layerThickness")),
       _distSeedForMerge(conf.getParameter<double>("distSeedForMerge")),      

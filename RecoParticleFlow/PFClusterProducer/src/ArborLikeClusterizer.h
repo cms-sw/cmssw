@@ -18,7 +18,8 @@ class ArborLikeClusterizer : public InitialClusteringStepBase {
   enum navi_dir{ Bidirectional = 0, OnlyForward = 1, OnlyBackward = 2};
   
   
-  ArborLikeClusterizer(const edm::ParameterSet& conf);
+  ArborLikeClusterizer(const edm::ParameterSet& conf,
+		       edm::ConsumesCollector& sumes);
   virtual ~ArborLikeClusterizer() {}
   ArborLikeClusterizer(const B2DGT&) = delete;
   B2DGT& operator=(const B2DGT&) = delete;

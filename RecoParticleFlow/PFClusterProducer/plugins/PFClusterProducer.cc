@@ -15,6 +15,8 @@
 PFClusterProducer::PFClusterProducer(const edm::ParameterSet& conf) :
   _prodInitClusters(conf.getUntrackedParameter<bool>("prodInitialClusters",false))
 {
+  edm::ConsumesCollector sumes = consumesCollector();
+
   _rechitsLabel = consumes<reco::PFRecHitCollection>(conf.getParameter<edm::InputTag>("recHitsSource")); 
   //setup rechit cleaners
   const edm::VParameterSet& cleanerConfs = 
@@ -36,7 +38,8 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& conf) :
   const edm::ParameterSet& initConf = 
     conf.getParameterSet("initialClusteringStep");
   const std::string& initName = initConf.getParameter<std::string>("algoName");
-  ICSB* initb = InitialClusteringStepFactory::get()->create(initName,initConf);
+  ICSB* initb = 
+    InitialClusteringStepFactory::get()->create(initName,initConf,sumes);
   _initialClustering.reset(initb);
   //setup pf cluster builder if requested
   _pfClusterBuilder.reset(NULL);

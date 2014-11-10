@@ -3,6 +3,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorBase.h"
 
+#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
+
 // helpful tools
 #include "KDTreeLinkerAlgoT.h"
 #include <unordered_map>
@@ -21,10 +23,15 @@ class HGCClusterizer : public InitialClusteringStepBase {
   typedef std::unordered_multimap<unsigned,unsigned> LinkMap;
   typedef std::unordered_set<unsigned> UniqueIndices;
  public:
-  HGCClusterizer(const edm::ParameterSet& conf);
+  HGCClusterizer(const edm::ParameterSet& conf,
+		 edm::ConsumesCollector& sumes);
   virtual ~HGCClusterizer() {}
   HGCClusterizer(const B2DGT&) = delete;
   B2DGT& operator=(const B2DGT&) = delete;
+
+  virtual void update(const edm::EventSetup& es) override final {}
+  
+  virtual void updateEvent(const edm::Event& ev) override final {}
 
   void buildClusters(const edm::Handle<reco::PFRecHitCollection>&,
 		     const std::vector<bool>&,
@@ -50,7 +57,7 @@ private:
 
   // linking in Z for clusters
   void linkClustersInLayer(const reco::PFClusterCollection& input_clusters,
-		      reco::PFClusterCollection& output);
+			   reco::PFClusterCollection& output);
 
   // utility
   reco::PFRecHitRef makeRefhit( const edm::Handle<reco::PFRecHitCollection>& h,
@@ -118,8 +125,9 @@ namespace {
   };
 }
 
-HGCClusterizer::HGCClusterizer(const edm::ParameterSet& conf) :
-    InitialClusteringStepBase(conf) { 
+HGCClusterizer::HGCClusterizer(const edm::ParameterSet& conf,
+			       edm::ConsumesCollector& sumes) :
+  InitialClusteringStepBase(conf,sumes) { 
   // clean initial state for searching
   _nodes.clear(); _found.clear(); _kdtree.clear();
   // setup 2D position calculator for per-layer clusters
@@ -139,6 +147,7 @@ HGCClusterizer::HGCClusterizer(const edm::ParameterSet& conf) :
   _moliere_radii.fill(0.0f);
   const edm::ParameterSet& mconf = conf.getParameterSet("moliereRadii");
   _moliere_radii[0] = mconf.getParameter<double>("HGC_ECAL");  
+  _moliere_radii[1] = mconf.getParameter<double>("HGC_HCALF");
 }
 
 void HGCClusterizer::
@@ -149,20 +158,15 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
   std::vector<bool> usable2d(input->size(),true);
   std::unordered_set<double> unique_depths;
   const reco::PFRecHitCollection& rechits = *input;
-  unsigned nseed = 0;
 
   reco::PFClusterCollection clusters_per_layer;
 
+  // make topo-clusters that require that the energy goes
+  // down with respect to the last rechit encountered
+  // rechits clustered this way are locked from further use
   for( unsigned i = 0; i < rechits.size(); ++i  ) {
     const auto& hit = rechits[i];
     if(seedable[i] && hit.neighbours().size() > 0 ) {
-      ++nseed;     
-      /*
-      std::cout << "hit " << i << " is seedable with energy "
-		<< hit.energy() << "!" << std::endl;
-      std::cout << "\thit " << i << " has " << hit.neighbours().size() 
-		<< " total neighbours (3D)" << std::endl;
-      */
       reco::PFCluster layer_cluster;
       build2DCluster(rechits, rechitMask, seedable,
 		     makeRefhit(input,i),usable2d, 
@@ -174,45 +178,11 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
       _logWeightPosCalc->calculateAndSetPosition(layer_cluster);
       
       if( layer_cluster.hitsAndFractions().size() > 1 ) {
-	/*
-	std::cout << "\tmade cluster with " 
-		<< layer_cluster.hitsAndFractions().size() 
-		<< " hits in it!" << std::endl;
-	*/
 	 clusters_per_layer.push_back(std::move(layer_cluster));
-      }
-     
-      /*
-      for( const auto& nbour : hit.neighbours() ) {
-	if( nbour->position().z() != hit.position().z() ) {
-	  if( seedable[nbour.key()] ) {	    
-	    std::cout << "\t\thit " << i 
-		      << " seedable neighbour " << nbour.key() 
-		      << " in different layer! " 
-		      << nbour->position().z() - hit.position().z() 
-		      << std::endl;
-	    
-	  }
-	}
-      }
-      std::cout << "\thit " << i << " has " << hit.neighbours8().size() 
-		<< " neighbours in plane (2D)" << std::endl;
-      */
-      
-    } /*else if ( seedable[i] && 
-		hit.neighbours().size() == 0 ) {
-      std::cout << "hit " << i << " is seedable but has no neighbours "
-		<< "and has energy " << hit.energy() << std::endl;
-		}*/
+      }      
+    }
   }
-  /*
-  std::cout << " made " << clusters_per_layer.size() 
-	    << " single layer clusters" << std::endl;
-  std::cout << " encountered " << unique_depths.size() << " unique_depths." 
-	    << std::endl;
-  std::cout << " received " << nseed << " seeds!" << std::endl;
-  */
-
+  // use topo clusters to link in z
   linkClustersInLayer(clusters_per_layer,output); 
 }
 
@@ -262,16 +232,28 @@ linkClustersInLayer(const reco::PFClusterCollection& input_clusters,
 			       minpos[2],maxpos[2]);
   _kdtree.build(_nodes,kd_boundingregion);
   _nodes.clear();
-  const float moliere_radius = _moliere_radii[0];
+  
   //const float moliere_radius2 = std::pow(moliere_radius,2.0);
   LinkMap back_links;
-  // now link all clusters with in moliere radius for EE (maybe HEF later too)
+  // now link all clusters with in moliere radius for EE + HEF
   for( unsigned i = 0; i < input_clusters.size(); ++i ) {
+    float moliere_radius = -1.0;
+    switch( input_clusters[i].seed().subdetId() ) {
+    case HGCEE:
+      moliere_radius = _moliere_radii[0];
+      break;
+    case HGCHEF:
+    case HGCHEB:
+      moliere_radius = _moliere_radii[1];
+      break;
+    default: 
+      break;
+    }
     const auto& incluster = input_clusters[i];
     const auto& pos = incluster.position();
-    auto x = minmax(pos.X()+_moliere_radii[0],pos.X()-_moliere_radii[0]);
-    auto y = minmax(pos.Y()+_moliere_radii[0],pos.Y()-_moliere_radii[0]);
-    auto z = minmax(pos.Z()+5*_moliere_radii[0],pos.Z()-5*_moliere_radii[0]);
+    auto x = minmax(pos.X()+moliere_radius,pos.X()-moliere_radius);
+    auto y = minmax(pos.Y()+moliere_radius,pos.Y()-moliere_radius);
+    auto z = minmax(pos.Z()+2*moliere_radius,pos.Z()-2*moliere_radius);
     KDTreeCube kd_searchcube((float)x.first,(float)x.second,
 			     (float)y.first,(float)y.second,
 			     (float)z.first,(float)z.second);
@@ -296,12 +278,7 @@ linkClustersInLayer(const reco::PFClusterCollection& input_clusters,
   float min_parameter;
   for( unsigned i = 0; i < input_clusters.size(); ++i ) {
     const auto& pos = input_clusters[i].position();
-    const auto clusrange = back_links.equal_range(i);
-    /*
-    std::cout << "cluster " << i << " has " 
-	      << std::distance(clusrange.first,clusrange.second) 
-	      << " links!" << std::endl;
-    */
+    const auto clusrange = back_links.equal_range(i);    
     min_parameter = std::numeric_limits<float>::max();
     best_match = std::numeric_limits<unsigned>::max();
     for( auto connected = clusrange.first; 
@@ -348,8 +325,18 @@ linkClustersInLayer(const reco::PFClusterCollection& input_clusters,
     }
     merged_cluster.setSeed(seed_hit->detId());
     merged_cluster.setLayer(seed_hit->layer());
-    _pcaPosCalc->calculateAndSetPosition(merged_cluster);
-    output.push_back(merged_cluster);
+    // only use the PCA if there *is* z extent to the cluster
+    if( std::distance(range.first,range.second) > 1 ) {
+      _pcaPosCalc->calculateAndSetPosition(merged_cluster); 
+    } else { // give a reasonable axis guess.. point it at 0,0,0
+      _logWeightPosCalc->calculateAndSetPosition(merged_cluster);
+      const auto& pos = merged_cluster.position();
+      const auto& tempaxis = pos/pos.r();
+      math::XYZVector axis(tempaxis.x(),tempaxis.y(),tempaxis.z());
+      merged_cluster.setAxis(axis);
+      merged_cluster.calculatePositionREP();
+    }
+    output.push_back(merged_cluster);    
   }
   _found.clear();
   _kdtree.clear();

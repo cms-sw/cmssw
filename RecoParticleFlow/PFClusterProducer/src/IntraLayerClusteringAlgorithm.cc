@@ -60,8 +60,9 @@ class IntraLayerClusteringAlgorithm : public InitialClusteringStepBase {
   typedef IntraLayerClusteringAlgorithm B2DGT;
  public:
   typedef std::unordered_multimap<int,unsigned> layer_map;
-  IntraLayerClusteringAlgorithm(const edm::ParameterSet& conf) :
-    InitialClusteringStepBase(conf),
+  IntraLayerClusteringAlgorithm(const edm::ParameterSet& conf,
+				edm::ConsumesCollector& sumes) :
+    InitialClusteringStepBase(conf,sumes),
     m_intraLayerMaxDistance(std::pow(0.1*conf.getParameter<double>("IntraLayerMaxDistance"),2.0)), // mm to cm and save the square
     m_maximumSizeForClusterSplitting(conf.getParameter<unsigned>("MaximumSizeForClusterSplitting")),
     m_shouldSplitClusterInSingleCaloHitClusters(conf.getParameter<bool>("ShouldSplitClusterInSingleCaloHitClusters")){ }

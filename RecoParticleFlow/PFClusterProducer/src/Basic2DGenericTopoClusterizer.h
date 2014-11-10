@@ -7,8 +7,9 @@
 class Basic2DGenericTopoClusterizer : public InitialClusteringStepBase {
   typedef Basic2DGenericTopoClusterizer B2DGT;
  public:
-  Basic2DGenericTopoClusterizer(const edm::ParameterSet& conf) :
-    InitialClusteringStepBase(conf),
+ Basic2DGenericTopoClusterizer(const edm::ParameterSet& conf,
+			       edm::ConsumesCollector& sumes) :
+  InitialClusteringStepBase(conf,sumes),
     _useCornerCells(conf.getParameter<bool>("useCornerCells")) { }
   virtual ~Basic2DGenericTopoClusterizer() {}
   Basic2DGenericTopoClusterizer(const B2DGT&) = delete;
