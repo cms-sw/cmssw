@@ -429,7 +429,6 @@ inline std::string TrackBase::algoName() const
     // I'd like to do:
     // return TrackBase::algoName(algorithm_);
     // but I cannot define a const static function. Why???
-  std::cout << "[TrackBase::algoName] algorithm_: " << algorithm_ << std::endl;
     switch (algorithm_) {
     case undefAlgorithm:
       return "undefAlgorithm";
