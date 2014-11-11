@@ -11,12 +11,12 @@
 
 #include <string>
 
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameBase.h"
+
 class DetId; 
 
-class PixelBarrelName : public PixelModuleName {
+class PixelBarrelName : public PixelModuleName, public PixelBarrelNameBase {
 public:
-
-  enum Shell { mO = 1, mI = 2 , pO =3 , pI =4 };
 
   /// ctor from DetId
   PixelBarrelName(const DetId &, bool phase=false);
@@ -72,5 +72,5 @@ private:
   bool phase1;
 };
 
-std::ostream & operator<<( std::ostream& out, const PixelBarrelName::Shell& t);
+std::ostream & operator<<( std::ostream& out, const PixelBarrelNameBase::Shell& t);
 #endif
