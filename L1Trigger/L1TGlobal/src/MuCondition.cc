@@ -403,7 +403,8 @@ const bool l1t::MuCondition::checkObjectParameter(const int iCondition, const l1
       << "\n\t phiWindowVetoLower = " << objPar.phiWindowVetoLower
       << "\n\t phiWindowVetoLower = " << objPar.phiWindowVetoLower
       << "\n\t charge          = " << objPar.charge
-      << "\n\t qualityRange    = " << objPar.qualityRange
+      << "\n\t qualityLUT      = " << objPar.qualityLUT
+      << "\n\t isolationLUT    = " << objPar.isolationLUT
       << "\n\t enableMip       = " << objPar.enableMip
       << std::endl;
 
@@ -424,24 +425,8 @@ const bool l1t::MuCondition::checkObjectParameter(const int iCondition, const l1
 	LogDebug("l1t|Global") << "\t\t Muon Failed checkThreshold " << std::endl;
 	return false;
       }
-      else {
-	// check isolation
-	if ( !cand.hwIso() ) {
-	  if (objPar.requestIso || objPar.enableIso) {
-	    LogDebug("l1t|Global") << "\t\t Muon Failed hwIso " << std::endl;
-	    return false;
-	  }
-	}
-      }
     }
-    else {
-      if ( !cand.hwIso() ) {
-	if (objPar.requestIso) {
-	  LogDebug("l1t|Global") << "\t\t Muon Failed hwIso " << std::endl;
-	  return false;
-	}
-      }
-    }
+
 
     // check eta
     if( !checkRangeEta(cand.hwEta(), objPar.etaWindowLower, objPar.etaWindowUpper, objPar.etaWindowVetoLower, objPar.etaWindowVetoLower) ){
@@ -465,7 +450,30 @@ const bool l1t::MuCondition::checkObjectParameter(const int iCondition, const l1
 
 
 
-    // check quality ( bit check )
+    // check quality ( bit check ) with quality LUT
+    // sanity check on candidate quality
+    if( cand.hwQual()>16 ){
+      LogDebug("l1t|Global") << "\t\t l1t::Candidate has out of range hwQual = " << cand.hwQual() << std::endl;
+      return false;
+    }
+    bool passQualLUT = ( (objPar.qualityLUT >> cand.hwQual()) & 1 );
+    if( !passQualLUT ){
+      LogDebug("l1t|Global") << "\t\t l1t::Candidate failed quality requirement" << std::endl;
+      return false;
+    }
+
+
+    // check isolation ( bit check ) with isolation LUT
+    // sanity check on candidate isolation
+    if( cand.hwIso()>4 ){
+      LogDebug("l1t|Global") << "\t\t l1t::Candidate has out of range hwIso = " << cand.hwIso() << std::endl;
+      return false;
+    }
+    bool passIsoLUT = ( (objPar.isolationLUT >> cand.hwIso()) & 1 );
+    if( !passIsoLUT ){
+      LogDebug("l1t|Global") << "\t\t l1t::Candidate failed isolation requirement" << std::endl;
+      return false;
+    }
 
     // A number of values is required to trigger (at least one).
     // "Don’t care" means that all values are allowed.

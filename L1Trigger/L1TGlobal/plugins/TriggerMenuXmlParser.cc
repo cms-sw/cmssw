@@ -1581,9 +1581,6 @@ bool l1t::TriggerMenuXmlParser::parseMuon(l1t::MuonCondition condMu,
       objParameter[cnt].enableIso = false;//tmpEnableIso[i];
       objParameter[cnt].requestIso = false;//tmpRequestIso[i];
 
-      getXMLHexTextValue("f0", dst);
-      objParameter[cnt].qualityRange = dst;//tmpValues[i];
-
       std::string str_charge = l1t2string( objPar->requestedCharge() );
       int charge = 0;
       if( str_charge=="ig" )       charge = 0;
@@ -1592,11 +1589,50 @@ bool l1t::TriggerMenuXmlParser::parseMuon(l1t::MuonCondition condMu,
 
       objParameter[cnt].charge = charge;
 
+      int cntQual=0;
+      int qualityLUT = 0;
+      for( l1t::MuonQualityLUT::quality_const_iterator iQualFlag = objPar->qualityLut().quality().begin();
+	   iQualFlag != objPar->qualityLut().quality().end(); ++iQualFlag ){
+	
+	bool flag = (*iQualFlag);
+
+	qualityLUT |= (flag << cntQual);
+
+	LogDebug("l1t|Global")
+	  << "\n quality flag " << cntQual << " = " << flag
+	  << "\n qualityLUT = " << qualityLUT 
+	  << std::endl;
+
+	cntQual++;
+      }
+
+      objParameter[cnt].qualityLUT = qualityLUT;
+
+
+      int cntIso=0;
+      int isolationLUT = 0;
+      for( l1t::MuonIsolationLUT::isolation_const_iterator iIsoFlag = objPar->isolationLut().isolation().begin();
+	   iIsoFlag != objPar->isolationLut().isolation().end(); ++iIsoFlag ){
+	
+	bool flag = (*iIsoFlag);
+
+	isolationLUT |= (flag << cntIso);
+
+	LogDebug("l1t|Global")
+	  << "\n isolation flag " << cntIso << " = " << flag
+	  << "\n isolationLUT = " << isolationLUT 
+	  << std::endl;
+
+	cntIso++;
+      }
+
+      objParameter[cnt].isolationLUT = isolationLUT;
+
 
       int cntEta=0;
       unsigned int etaWindowLower=-1, etaWindowUpper=-1, etaWindowVetoLower=-1, etaWindowVetoUpper=-1;
       // Temporary before translation
-      for( l1t::CalorimeterObjectRequirement::etaWindow_const_iterator etaWindow =objPar->etaWindow().begin();
+      for( l1t::MuonObjectRequirement::etaWindow_const_iterator etaWindow =objPar->etaWindow().begin();
 	   etaWindow != objPar->etaWindow().end(); ++etaWindow ){
 	
 	LogDebug("l1t|Global")
@@ -1610,7 +1646,7 @@ bool l1t::TriggerMenuXmlParser::parseMuon(l1t::MuonCondition condMu,
 
       int cntPhi=0;
       unsigned int phiWindowLower=-1, phiWindowUpper=-1, phiWindowVetoLower=-1, phiWindowVetoUpper=-1;
-      for( l1t::CalorimeterObjectRequirement::phiWindow_const_iterator phiWindow =objPar->phiWindow().begin();
+      for( l1t::MuonObjectRequirement::phiWindow_const_iterator phiWindow =objPar->phiWindow().begin();
 	   phiWindow != objPar->phiWindow().end(); ++phiWindow ){
  
 	LogDebug("l1t|Global")
