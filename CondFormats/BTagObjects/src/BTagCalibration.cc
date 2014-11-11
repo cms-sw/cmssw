@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include "CondFormats/BTagObjects/interface/BTagCalibration.h"
 
 BTagCalibration::BTagCalibration(const std::string &taggr):
