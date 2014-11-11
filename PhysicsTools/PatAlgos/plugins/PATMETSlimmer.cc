@@ -54,6 +54,7 @@ void pat::PATMETSlimmer::maybeReadShifts(const edm::ParameterSet &basePSet, cons
         throw cms::Exception("Unsupported", "Reading PSets not supported, for now just use input tag");
     } else if (basePSet.existsAs<edm::InputTag>(name)) {
         const edm::InputTag & baseTag = basePSet.getParameter<edm::InputTag>(name);
+        shifts_.push_back(OneMETShift(pat::MET::NoShift,   level, baseTag, consumesCollector()));
         shifts_.push_back(OneMETShift(pat::MET::JetEnUp,   level, baseTag, consumesCollector()));
         shifts_.push_back(OneMETShift(pat::MET::JetEnDown, level, baseTag, consumesCollector()));
         shifts_.push_back(OneMETShift(pat::MET::JetResUp,   level, baseTag, consumesCollector()));
@@ -75,6 +76,7 @@ pat::PATMETSlimmer::OneMETShift::OneMETShift(pat::MET::METUncertainty shift_, pa
     std::string baseTagStr = baseTag.encode();
     char buff[1024];
     switch (shift) {
+        case pat::MET::NoShift  : snprintf(buff, 1023, baseTagStr.c_str(), "OriginalReserved");   break;
         case pat::MET::JetEnUp  : snprintf(buff, 1023, baseTagStr.c_str(), "JetEnUp");   break;
         case pat::MET::JetEnDown: snprintf(buff, 1023, baseTagStr.c_str(), "JetEnDown"); break;
         case pat::MET::JetResUp  : snprintf(buff, 1023, baseTagStr.c_str(), "JetResUp");   break;

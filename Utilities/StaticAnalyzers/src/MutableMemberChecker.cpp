@@ -30,9 +30,8 @@ void MutableMemberChecker::checkASTDecl(const clang::FieldDecl *D,
 	    std::string buf;
 	    llvm::raw_string_ostream os(buf);
 	    os << "Mutable member'" <<t.getAsString()<<" "<<*D << "' in class '"<<D->getParent()->getQualifiedNameAsString()<<"', might be thread-unsafe when accessing via a const handle.";
-	    BR.EmitBasicReport(D, "Possibly Thread-Unsafe: Mutable member",
-	    					"ThreadSafety",
-	                       os.str(), DLoc);
+	    BR.EmitBasicReport(D, this, "mutable member",
+	    					"ThreadSafety", os.str(), DLoc);
 	    return;
 	}
 

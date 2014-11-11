@@ -20,7 +20,7 @@ pfElectronValidation1 = pfElectronDQMAnalyzer.clone()
 pfElectronValidation1.InputCollection = cms.InputTag('pfAllElectrons') # for global Validation
 pfElectronValidation1.MatchCollection = cms.InputTag('gensource') # for global Validation
 pfElectronValidation1.BenchmarkLabel  = cms.string('PFElectronValidation/CompWithGenElectron')
-pfElectronValidationSequence = cms.Sequence( pfAllElectrons + gensource + pfElectronValidation1 )
+pfElectronValidationSequence = cms.Sequence( gensource + pfElectronValidation1 )
 
 
 # NoTracking

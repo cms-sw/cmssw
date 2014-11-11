@@ -11,6 +11,9 @@ process.load("DQMServices.Components.DQMFileSaver_cfi")
 
 from DQMServices.StreamerIO.DQMProtobufReader_cff import DQMProtobufReader
 process.source = DQMProtobufReader
+process.source.runNumber = cms.untracked.uint32(1)
+process.source.runInputDir = cms.untracked.string("./")
+
 
 elements = c.createElements()
 

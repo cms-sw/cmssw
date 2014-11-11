@@ -9,10 +9,10 @@ SusyExoPostVal_fastsim = cms.EDAnalyzer("HltSusyExoPostProcessor",
    )
 
 SusyExoPostVal = cms.EDAnalyzer("DQMGenericClient",
-  subDirs = cms.untracked.vstring("HLTriggerOffline/SUSYBSM/HLT_PFHT900_v1",
-                                  "HLTriggerOffline/SUSYBSM/HLT_PFHT350_PFMET120_NoiseCleaned_v1",
-                                  "HLTriggerOffline/SUSYBSM/HLT_PFMET170_NoiseCleaned_v1",
-                                  "HLTriggerOffline/SUSYBSM/HLT_PFMET120_NoiseCleaned_BTagCSV07_v1"
+  subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFHT900_v1",
+                                  "HLT/SUSYBSM/HLT_PFHT350_PFMET120_NoiseCleaned_v1",
+                                  "HLT/SUSYBSM/HLT_PFMET170_NoiseCleaned_v1",
+                                  "HLT/SUSYBSM/HLT_PFMET120_NoiseCleaned_BTagCSV07_v1"
                                  ),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",

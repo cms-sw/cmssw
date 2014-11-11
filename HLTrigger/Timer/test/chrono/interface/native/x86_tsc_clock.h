@@ -106,6 +106,29 @@ namespace native {
     }
   };
 
+
+  // TSC-based clock, determining at run-time the best strategy to serialise the reads from the TSC
+  struct clock_serialising_rdtsc
+  {
+    // std::chrono-like native interface
+    typedef native_duration<int64_t, tsc_tick>                          duration;
+    typedef duration::rep                                               rep;
+    typedef duration::period                                            period;
+    typedef native_time_point<clock_serialising_rdtsc, duration>        time_point;
+
+    static const bool is_steady;
+    static const bool is_available;
+
+    static time_point now() noexcept
+    {
+      rep        ticks = serialising_rdtsc();
+      duration   d(ticks);
+      time_point t(d);
+      return t;
+    }
+  };
+
+
 } // namespace native
 
 #endif // native_x86_tsc_clock_h

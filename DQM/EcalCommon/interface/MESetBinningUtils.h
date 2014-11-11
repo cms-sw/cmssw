@@ -72,8 +72,8 @@ namespace ecaldqm
 
     struct AxisSpecs {
       int nbins;
-      double low, high;
-      double* edges;
+      float low, high;
+      float* edges;
       std::string* labels;
       std::string title;
       AxisSpecs() : nbins(0), low(0.), high(0.), edges(0), labels(0), title("") {}
@@ -81,7 +81,7 @@ namespace ecaldqm
         nbins(_specs.nbins), low(_specs.low), high(_specs.high), edges(0), labels(0), title(_specs.title)
       {
         if(_specs.edges){
-          edges = new double[nbins + 1];
+          edges = new float[nbins + 1];
           for(int i(0); i <= nbins; i++) edges[i] = _specs.edges[i];
         }
         if(_specs.labels){
@@ -95,7 +95,7 @@ namespace ecaldqm
         if(labels){ delete [] labels; labels = 0; }
         nbins = _rhs.nbins; low = _rhs.low; high = _rhs.high; title = _rhs.title;
         if(_rhs.edges){
-          edges = new double[nbins + 1];
+          edges = new float[nbins + 1];
           for(int i(0); i <= nbins; i++) edges[i] = _rhs.edges[i];
         }
         if(_rhs.labels){

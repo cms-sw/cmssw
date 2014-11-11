@@ -1,4 +1,3 @@
-
 #include "DQM/TrackingMonitorClient/plugins/TrackingAnalyzer.h"
 
 
@@ -43,10 +42,12 @@
 //
 // -- Constructor
 //
-TrackingAnalyser::TrackingAnalyser(edm::ParameterSet const& ps) {
+TrackingAnalyser::TrackingAnalyser(edm::ParameterSet const& ps) :
+  verbose_(ps.getUntrackedParameter<bool>("verbose",false))
+{
   
   // Get TkMap ParameterSet 
-  tkMapPSet_ = ps.getParameter<edm::ParameterSet>("TkmapParameters");
+  //  tkMapPSet_ = ps.getParameter<edm::ParameterSet>("TkmapParameters");
 
   std::string localPath = std::string("DQM/TrackingMonitorClient/test/loader.html");
   std::ifstream fin(edm::FileInPath(localPath).fullPath().c_str(), std::ios::in);
@@ -101,7 +102,6 @@ void TrackingAnalyser::beginJob(){
 // -- Begin Run
 //
 void TrackingAnalyser::beginRun(edm::Run const& run, edm::EventSetup const& eSetup) {
-  std::cout << "[TrackingAnalyser::beginRun] .. starting" << std::endl;
   edm::LogInfo ("TrackingAnalyser") <<"TrackingAnalyser:: Begining of Run";
 
   // Check latest Fed cabling and create TrackerMapCreator
@@ -125,7 +125,6 @@ void TrackingAnalyser::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
 //  -- Analyze 
 //
 void TrackingAnalyser::analyze(edm::Event const& e, edm::EventSetup const& eSetup){
-  std::cout << "[TrackingAnalyser::analyze] .. starting" << std::endl;
   nEvents_++;  
   if (nEvents_ == 1 && globalStatusFilling_ > 0) {
     checkTrackerFEDs(e);
@@ -137,14 +136,13 @@ void TrackingAnalyser::analyze(edm::Event const& e, edm::EventSetup const& eSetu
       if (shiftReportFrequency_ != -1) actionExecutor_->createShiftReport(dqmStore_);
     }
   }
-
 }
 //
 // -- End Luminosity Block
 //
 void TrackingAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {
   edm::LogInfo ("TrackingAnalyser") <<"TrackingAnalyser:: End of LS transition, performing the DQM client operation";
-
+  if (verbose_) std::cout << "[TrackingAnalyser::endLuminosityBlock]" << std::endl;
   nLumiSecs_++;
 
   if (!trackerFEDsFound_) {
@@ -153,12 +151,12 @@ void TrackingAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
   }   
   endLumiAnalysisOn_ = true;
 
-  std::cout << "====================================================== " << std::endl;
-  std::cout << " ===> Iteration # " << nLumiSecs_ << " " << lumiSeg.luminosityBlock() << std::endl;
-  std::cout << "====================================================== " << std::endl;
+  if (verbose_) std::cout << "====================================================== " << std::endl;
+  if (verbose_) std::cout << " ===> Iteration # " << nLumiSecs_ << " " << lumiSeg.luminosityBlock() << std::endl;
+  if (verbose_) std::cout << "====================================================== " << std::endl;
   // Fill Global Status
   if (globalStatusFilling_ > 0) {
-    actionExecutor_->fillStatusAtLumi(dqmStore_);
+    actionExecutor_->fillGlobalStatus(dqmStore_);
   }
   endLumiAnalysisOn_ = false;
 }
@@ -202,7 +200,7 @@ void TrackingAnalyser::checkTrackerFEDs(edm::Event const& e) {
   }
 
   trackerFEDsFound_ = (nFed > 0);
-
+  
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

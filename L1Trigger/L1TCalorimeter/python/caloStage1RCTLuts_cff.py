@@ -31,7 +31,7 @@ RCTConfigProducers.hMinForHoECut = 5.0
 #RCTConfigProducers.hActivityCut = 0.5
 RCTConfigProducers.hActivityCut = 4.0
 RCTConfigProducers.eActivityCut = 4.0
-RCTConfigProducers.eicIsolationThreshold = 4
+RCTConfigProducers.eicIsolationThreshold = 100
 
 l1CaloScales.L1CaloEmEtScaleLSB = 0.5 # must be the same as egammaLSB
 

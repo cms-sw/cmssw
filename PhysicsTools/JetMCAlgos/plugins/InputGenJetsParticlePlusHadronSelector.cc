@@ -41,7 +41,7 @@
 using namespace std;
 
 InputGenJetsParticlePlusHadronSelector::InputGenJetsParticlePlusHadronSelector(const edm::ParameterSet &params ):
-  inTag(params.getParameter<edm::InputTag>("src")),
+  inToken(consumes<reco::GenParticleCollection>(params.getParameter<edm::InputTag>("src"))),
   flavours(params.getParameter<std::vector<int> >("injectHadronFlavours")),
   partonicFinalState(params.getParameter<bool>("partonicFinalState")),
   excludeResonances(params.getParameter<bool>("excludeResonances")),
@@ -228,8 +228,7 @@ void InputGenJetsParticlePlusHadronSelector::produce (edm::Event &evt, const edm
   std::auto_ptr<reco::GenParticleCollection> selected_ (new reco::GenParticleCollection);
 
   edm::Handle<reco::GenParticleCollection> genParticles;
-  //  evt.getByLabel("genParticles", genParticles );
-  evt.getByLabel(inTag, genParticles );
+  evt.getByToken(inToken, genParticles );
 
   ParticleVector particles;
   for (reco::GenParticleCollection::const_iterator iter=genParticles->begin();iter!=genParticles->end();++iter){

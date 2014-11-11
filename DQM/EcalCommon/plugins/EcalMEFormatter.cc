@@ -11,7 +11,7 @@
 #include <limits>
 
 EcalMEFormatter::EcalMEFormatter(edm::ParameterSet const& _ps) :
-  edm::EDAnalyzer(),
+  DQMEDHarvester(),
   ecaldqm::DQWorker()
 {
   initialize("EcalMEFormatter", _ps);
@@ -31,27 +31,26 @@ EcalMEFormatter::fillDescriptions(edm::ConfigurationDescriptions& _descs)
 }
 
 void
-EcalMEFormatter::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+EcalMEFormatter::dqmEndLuminosityBlock(DQMStore::IBooker&, DQMStore::IGetter& _igetter, edm::LuminosityBlock const&, edm::EventSetup const&)
 {
-  format_(true);
+  format_(_igetter, true);
 }
 
 void
-EcalMEFormatter::endRun(edm::Run const&, edm::EventSetup const&)
+EcalMEFormatter::dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter& _igetter)
 {
-  format_(false);
+  format_(_igetter, false);
 }
 
 void
-EcalMEFormatter::format_(bool _checkLumi)
+EcalMEFormatter::format_(DQMStore::IGetter& _igetter, bool _checkLumi)
 {
-  DQMStore& dqmStore(*edm::Service<DQMStore>());
   std::string failedPath;
     
   for(ecaldqm::MESetCollection::iterator mItr(MEs_.begin()); mItr != MEs_.end(); ++mItr){
     if(_checkLumi && !mItr->second->getLumiFlag()) continue;
     mItr->second->clear();
-    if(!mItr->second->retrieve(dqmStore, &failedPath)){
+    if(!mItr->second->retrieve(_igetter, &failedPath)){
       if(verbosity_ > 0) edm::LogWarning("EcalDQM") << "Could not find ME " << mItr->first << "@" << failedPath;
       continue;
     }

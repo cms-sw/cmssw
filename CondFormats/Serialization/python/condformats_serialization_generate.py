@@ -214,6 +214,8 @@ def get_serializable_classes_members(node, all_template_types=None, namespace=''
                 # Template non-type parameters (e.g. <int N>)
                 elif member.kind == clang.cindex.CursorKind.TEMPLATE_NON_TYPE_PARAMETER:
                     type_string = get_type_string(member)
+		    if not type_string: 
+		       type_string = get_basic_type_string(member)
                     logging.info('    Found template non-type parameter: %s %s', type_string, member.spelling)
                     template_types.append((type_string, member.spelling))
 

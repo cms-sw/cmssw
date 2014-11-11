@@ -10,6 +10,9 @@ GenXSecAnalyzer::GenXSecAnalyzer(const edm::ParameterSet& iConfig):
   totalEffStat_(0,0,0,0,0.,0.,0.,0.)
 {
   products_.clear();
+  
+  genFilterInfoToken_ = consumes<GenFilterInfo,edm::InLumi>(edm::InputTag("genFilterEfficiencyProducer",""));
+  genLumiInfoToken_ = consumes<GenLumiInfoProduct,edm::InLumi>(edm::InputTag("generator",""));
 }
 
 GenXSecAnalyzer::~GenXSecAnalyzer()
@@ -26,19 +29,24 @@ GenXSecAnalyzer::analyze(const edm::Event&, const edm::EventSetup&)
 {
 }
 
-// ------------ method called once each job just after ending the event loop  ------------
+
+void
+GenXSecAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::EventSetup const&) {
+}
 
 void
 GenXSecAnalyzer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::EventSetup const&) {
 
   edm::Handle<GenFilterInfo> genFilter;
-  if(iLumi.getByLabel("genFilterEfficiencyProducer", genFilter))
+  iLumi.getByToken(genFilterInfoToken_,genFilter);
+  if(genFilter.isValid())
     totalEffStat_.mergeProduct(*genFilter);
 
 
   edm::Handle<GenLumiInfoProduct> genLumiInfo;
-  iLumi.getByLabel("generator",genLumiInfo);
-
+  iLumi.getByToken(genLumiInfoToken_,genLumiInfo);
+  if (!genLumiInfo.isValid()) return;
+  
   hepidwtup_ = genLumiInfo->getHEPIDWTUP();
 
   std::vector<GenLumiInfoProduct::ProcessInfo> theProcesses = genLumiInfo->getProcessInfos();
@@ -101,7 +109,7 @@ void
 GenXSecAnalyzer::compute()
 {
   // for pure parton shower generator
-  
+
   if(hepidwtup_== -1)
     {
       double sigSum = 0.0;
@@ -137,13 +145,12 @@ GenXSecAnalyzer::compute()
 	double hepxsec_value = proc.lheXSec().value();
 	double hepxsec_error = proc.lheXSec().error();
 
-
 	if (!proc.killed().n())
 	  continue;
 
 	double sigma2Sum, sigma2Err;
-	sigma2Sum = proc.tried().sum2() * hepxsec_value * hepxsec_value;
-	sigma2Err = proc.tried().sum2() * hepxsec_error * hepxsec_error;
+	sigma2Sum = hepxsec_value * hepxsec_value;
+	sigma2Err = hepxsec_error * hepxsec_error;
 
 	double sigmaAvg = hepxsec_value;
 
@@ -168,11 +175,6 @@ GenXSecAnalyzer::compute()
 
 	double relErr = 1.0;
 	if (proc.killed().n() > 1) {
-	  double sigmaAvg2 = sigmaAvg * sigmaAvg;
-	  double delta2Sig =
-	    fabs(sigma2Sum / proc.tried().n() - sigmaAvg2) /
-	    (proc.tried().n() * sigmaAvg2);
-
 	  double efferr2=0;
 	  switch(hepidwtup_) {
 	  case 3: case -3:
@@ -209,7 +211,7 @@ GenXSecAnalyzer::compute()
 	    }
 	  }
 	  double delta2Veto = efferr2/fracAcc/fracAcc;
-	  double delta2Sum = delta2Sig + delta2Veto
+	  double delta2Sum = delta2Veto
 	    + sigma2Err / sigma2Sum;
 	  relErr = (delta2Sum > 0.0 ?
 		    std::sqrt(delta2Sum) : 0.0);
@@ -233,8 +235,8 @@ GenXSecAnalyzer::compute()
 
 
     } // end of loop over different samples
-    double final_value = sum_denominator > 1e-6? sum_numerator/sum_denominator : 0;
-    double final_error = sum_denominator > 1e-6? 1/sqrt(sum_denominator) : -1;
+    double final_value = sum_denominator > 0? sum_numerator/sum_denominator : 0;
+    double final_error = sum_denominator > 0? 1/sqrt(sum_denominator) : -1;
     xsec_ = GenLumiInfoProduct::XSec(final_value, final_error);
   }
   return;
@@ -244,41 +246,51 @@ GenXSecAnalyzer::compute()
 void
 GenXSecAnalyzer::endJob() {
 
-  if(products_.size()>0)
-    compute();
+  edm::LogPrint("GenXSecAnalyzer") << "\n"
+  << "------------------------------------" << "\n"
+  << "GenXsecAnalyzer:" << "\n"
+  << "------------------------------------";
+  
+  if(!products_.size()) {
+    edm::LogPrint("GenXSecAnalyzer") << "------------------------------------" << "\n"
+    << "Cross-section summary not available" << "\n"
+    << "------------------------------------";
+    return;
+  }
+  
+  
+  compute();
 
-  double total_eff = totalEffStat_.filterEfficiency(hepidwtup_);
-  double total_err = totalEffStat_.filterEfficiencyError(hepidwtup_);
-  std::cout << "total_eff = " << totalEffStat_.sumPassWeights() << "/" << totalEffStat_.sumWeights() 
-	    << " = " <<  total_eff << " +- " << total_err << std::endl;
+  double filterOnly_eff = totalEffStat_.filterEfficiency(hepidwtup_);
+  double filterOnly_err = totalEffStat_.filterEfficiencyError(hepidwtup_);
   
   double jetmatching_eff_total = jetMatchEffStat_.filterEfficiency(hepidwtup_);
   double jetmatching_err_total = jetMatchEffStat_.filterEfficiencyError(hepidwtup_);
 
-  std::cout << "jet matching efficiency = " << 
+  edm::LogPrint("GenXSecAnalyzer") << "------------------------------------" << "\n"
+  << "Overall cross-section summary:" << "\n"
+  << "------------------------------------";
+  
+  edm::LogPrint("GenXSecAnalyzer") << "jet matching efficiency = " << 
     jetMatchEffStat_.sumPassWeights() << "/" << 
     jetMatchEffStat_.sumWeights() << " = " 
-	    << jetmatching_eff_total << " +- " << jetmatching_err_total << std::endl;
-  double filterOnly_eff = jetmatching_eff_total > 1e-6? total_eff/jetmatching_eff_total : total_eff;
-  double filterOnly_err = total_eff>1e-6 && jetmatching_eff_total > 1e-6? 
-    filterOnly_eff*sqrt(total_err*total_err/total_eff/total_eff-jetmatching_err_total*jetmatching_err_total/jetmatching_eff_total/jetmatching_eff_total): total_err;
+	   << std::setprecision(6) << jetmatching_eff_total << " +- " << jetmatching_err_total << "\n";
 
-  std::cout << "Before filter: cross section = " << std::setprecision(6)  << xsec_.value() << " +- " << std::setprecision(6) << xsec_.error() <<  " pb" << std::endl;
+  edm::LogPrint("GenXSecAnalyzer") << "Before filter: cross section = " << std::setprecision(6)  << xsec_.value() << " +- " << std::setprecision(6) << xsec_.error() <<  " pb";
 
-  std::cout << "Filter efficiency = " << std::setprecision(6)  
-	    << filterOnly_eff << " +- " << filterOnly_err << std::endl;
+  edm::LogPrint("GenXSecAnalyzer") << "Filter efficiency = " << std::setprecision(6)  
+	    << filterOnly_eff << " +- " << filterOnly_err;
 
 
   double xsec_after  = xsec_.value()*filterOnly_eff ;
   double error_after = xsec_after*sqrt(xsec_.error()*xsec_.error()/xsec_.value()/xsec_.value()+
 				  filterOnly_err*filterOnly_err/filterOnly_eff/filterOnly_eff);
 
-  std::cout << "After filter: cross section = " 
+  edm::LogPrint("GenXSecAnalyzer") << "After filter: cross section = " 
 	    << std::setprecision(6) << xsec_after
 	    << " +- " 
 	    << std::setprecision(6) << error_after
-	    << " pb"
-	    << std::endl;
+	    << " pb";
 
 }
 

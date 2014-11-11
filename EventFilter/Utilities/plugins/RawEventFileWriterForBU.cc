@@ -272,12 +272,21 @@ void RawEventFileWriterForBU::endOfLS(int ls)
   perLumiTotalEventCount_ = 0;
 }
 
-//runs on SIGINT and terminates the process
-void RawEventFileWriterForBU::handler(int s){
+void RawEventFileWriterForBU::stop()
+{
+  // create EoR file
+  std::string path = destinationDir_ + "/" + runPrefix_ + "_ls0000_EoR.jsn";
+  runMon_->snap(0);
+  runMon_->outputFullJSON(path, 0);
+}
+
+// runs on SIGINT and terminates the process
+void RawEventFileWriterForBU::handler(int s)
+{
   printf("Caught signal %d. Writing EOR file!\n",s);
   if (destinationDir_.size() > 0)
     {
-      // CREATE EOR file
+      // create EoR file
       if (run_==-1) makeRunPrefix(destinationDir_);
       std::string path = destinationDir_ + "/" + runPrefix_ + "_ls0000_EoR.jsn";
       runMon_->snap(0);

@@ -20,7 +20,6 @@
 using namespace std;
 
 l1t::Stage2MainProcessorFirmwareImp1::Stage2MainProcessorFirmwareImp1(unsigned fwv, CaloParams* params) :
-  m_fwv(fwv),
   m_params(params)
 {
 

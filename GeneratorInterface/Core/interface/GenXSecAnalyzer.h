@@ -13,7 +13,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -27,7 +27,7 @@
 // class declaration
 //
 
-class GenXSecAnalyzer : public edm::EDAnalyzer {
+class GenXSecAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchLuminosityBlocks> {
 
 
 public:
@@ -40,10 +40,14 @@ private:
 
   virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   virtual void endJob() override;
   void compute();
 
+  edm::EDGetTokenT<GenFilterInfo> genFilterInfoToken_;
+  edm::EDGetTokenT<GenLumiInfoProduct> genLumiInfoToken_;
+  
   int hepidwtup_;
   GenLumiInfoProduct::XSec xsec_;
   GenFilterInfo  jetMatchEffStat_;

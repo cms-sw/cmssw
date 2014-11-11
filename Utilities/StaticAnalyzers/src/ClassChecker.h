@@ -10,7 +10,6 @@
 namespace clangcms {
 
 class ClassChecker : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::CXXRecordDecl> > {
-  mutable clang::OwningPtr< clang::ento::BugType> BT;
 
 
 public:

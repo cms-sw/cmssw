@@ -14,6 +14,7 @@ pfRecoTauDiscriminationByIsolation = cms.EDProducer("PFRecoTauDiscriminationByIs
     # Select which collections to use for isolation. You can select one or both
     ApplyDiscriminationByECALIsolation = cms.bool(True), # use PFGammas when isolating
     ApplyDiscriminationByTrackerIsolation = cms.bool(True), # use PFChargedHadr when isolating
+    ApplyDiscriminationByWeightedECALIsolation = cms.bool(False), #do not use pileup weighting of neutral deposits by default
 
     applyOccupancyCut = cms.bool(True), # apply a cut on number of isolation objects
     maximumOccupancy = cms.uint32(0), # no tracks > 1 GeV or gammas > 1.5 GeV allowed
@@ -50,5 +51,8 @@ pfRecoTauDiscriminationByIsolation = cms.EDProducer("PFRecoTauDiscriminationByIs
     applyRhoCorrection = cms.bool(False),
     rhoProducer = cms.InputTag("fixedGridRhoFastjetAll"),
     rhoConeSize = cms.double(0.5),
-    rhoUEOffsetCorrection = cms.double(1.0)
+    rhoUEOffsetCorrection = cms.double(1.0),
+    UseAllPFCandsForWeights = cms.bool(False),
+    verbosity = cms.int32(0)
+                                                   
 )

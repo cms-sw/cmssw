@@ -106,22 +106,21 @@ TopSingleLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::Event
   if (!iEvent.getByToken(tokTrigger_,triggerTable))
     edm::LogWarning("TopSingleLeptonHLTValidation") << "Trigger collection not found \n";
   const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerTable);
-  bool isInteresting = false;
+  unsigned int isInteresting = 0;
   for (unsigned int i=0; i<triggerNames.triggerNames().size(); ++i) {
 
     TString name = triggerNames.triggerNames()[i].c_str();
     for (unsigned int j=0; j<vsPaths_.size(); j++) {
       if (name.Contains(TString(vsPaths_[j]), TString::kIgnoreCase)) {
-        if (triggerTable->accept(j)){
-          isInteresting = true;   
-          break;
+        if (triggerTable->accept(i)){
+          isInteresting++;   
+          if (isAll_) hNumTriggerMon->Fill(j+0.5 ); 
         }
       }
     }
-    if (isInteresting) break;
   }
 
-  if (isAll_ && isInteresting) isSel_ = true;
+  if (isAll_ && isInteresting > 0) isSel_ = true;
   else isSel_ = false;
 
   //Histos
@@ -152,16 +151,6 @@ TopSingleLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::Event
     }
     hNumJetPt->Fill(jet_->pt());
     hNumJetEta->Fill(jet_->eta());
-    for (unsigned int i=0; i<triggerNames.triggerNames().size(); ++i) {
-      TString name = triggerNames.triggerNames()[i].c_str();
-      for (unsigned int j=0; j<vsPaths_.size(); j++) {
-        if (name.Contains(TString(vsPaths_[j]), TString::kIgnoreCase)) {
-          if (triggerTable->accept(j)){
-            hNumTriggerMon->Fill(j+0.5 );  
-          }
-        }
-      }
-    }
   }
 }
 

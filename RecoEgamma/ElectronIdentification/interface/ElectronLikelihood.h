@@ -85,8 +85,6 @@ class ElectronLikelihood {
   //! splitting rule for PDF's
   std::string m_signalWeightSplitting;
   std::string m_backgroundWeightSplitting;
-  bool m_splitSignalPdfs;
-  bool m_splitBackgroundPdfs;
 
 };
 

@@ -76,7 +76,7 @@ class InputGenJetsParticlePlusHadronSelector : public edm::EDProducer {
   //container selected_;  //container required by selector
   InputGenJetsParticlePlusHadronSelector(){} //should not be used!
   
-  edm::InputTag inTag;
+  edm::EDGetTokenT<reco::GenParticleCollection> inToken;
   int testPartonChildren(ParticleBitmap &invalid,
 			 const ParticleVector &p,
 			 const reco::GenParticle *particle) const;

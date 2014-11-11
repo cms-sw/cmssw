@@ -5,13 +5,10 @@ from DQMOffline.JetMET.jetMETDQMCleanup_cff import *  # parameters for event cle
 
 
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak4CaloL2L3,ak4CaloL2Relative,ak4CaloL3Absolute
-newAk4CaloL2L3 = ak4CaloL2L3.clone()
 
 from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import ak7CaloL2L3,ak7CaloL2Relative,ak7CaloL3Absolute
-newAk7CaloL2L3 = ak7CaloL2L3.clone()
 
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak4PFL1FastL2L3,ak4PFL1Fastjet,ak4PFL2Relative,ak4PFL3Absolute
-newAk4PFL1FastL2L3 = ak4PFL1FastL2L3.clone()
 
 #from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak4JPTL1FastL2L3,ak4JPTL1Fastjet,ak4JPTL2Relative,ak4JPTL3Absolute
 #newAk4JPTL1FastL2L3 = ak4JPTL1FastL2L3.clone()
@@ -20,7 +17,7 @@ jetDQMAnalyzerAk4CaloUncleaned = cms.EDAnalyzer("JetAnalyzer",
     OutputMEsInRootFile = cms.bool(False),
     OutputFile = cms.string('jetMETMonitoring.root'),
     JetType = cms.string('calo'),#pf, calo or jpt
-    JetCorrections = cms.string("newAk4CaloL2L3"),
+    JetCorrections = cms.string("ak4CaloL2L3"),
     jetsrc = cms.InputTag("ak4CaloJets"),
     filljetHighLevel =cms.bool(True),
     #
@@ -121,7 +118,7 @@ jetDQMAnalyzerAk4PFUncleaned=jetDQMAnalyzerAk4CaloUncleaned.clone(
     #for PFJets: FIRSTDATA
     JetIDVersion               = cms.string("FIRSTDATA"),
     JetType = cms.string('pf'),#pf, calo or jpt
-    JetCorrections = cms.string("newAk4PFL1FastL2L3"),
+    JetCorrections = cms.string("ak4PFL1FastL2L3"),
     jetsrc = cms.InputTag("ak4PFJets"),
     filljetHighLevel  = cms.bool(False),
     DCSFilterForJetMonitoring = cms.PSet(

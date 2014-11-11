@@ -19,11 +19,12 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "HLTrigger/JetMET/interface/HLTRFilter.h"
+#include "DataFormats/Common/interface/Ref.h"
 
 //
 // constructors and destructor
 //
-HLTRFilter::HLTRFilter(const edm::ParameterSet& iConfig) :
+HLTRFilter::HLTRFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
   inputTag_    (iConfig.getParameter<edm::InputTag>("inputTag")),
   inputMetTag_ (iConfig.getParameter<edm::InputTag>("inputMetTag")),
   doMuonCorrection_(iConfig.getParameter<bool>         ("doMuonCorrection" )),
@@ -35,10 +36,9 @@ HLTRFilter::HLTRFilter(const edm::ParameterSet& iConfig) :
   MR_offset_   ((iConfig.existsAs<double>("MROffset") ? iConfig.getParameter<double>("MROffset"):0)),
   R_MR_cut_    ((iConfig.existsAs<double>("RMRCut") ? iConfig.getParameter<double>("RMRCut"):-999999.))
   
-
 {
    m_theInputToken = consumes<std::vector<math::XYZTLorentzVector>>(inputTag_);
-   m_theMETToken = consumes<reco::CaloMETCollection>(inputMetTag_);
+   m_theMETToken = consumes<edm::View<reco::MET> >(inputMetTag_);
    LogDebug("") << "Inputs/minR/minMR/doRPrime/acceptNJ/R2Offset/MROffset/RMRCut : "
 		<< inputTag_.encode() << " "
 		<< inputMetTag_.encode() << " "
@@ -49,6 +49,10 @@ HLTRFilter::HLTRFilter(const edm::ParameterSet& iConfig) :
 		<< MR_offset_ << " "
 		<< R_MR_cut_
 		<< ".";
+
+  //put a dummy METCollection into the event, holding values for MR and Rsq
+  produces<reco::METCollection>();
+
 }
 
 HLTRFilter::~HLTRFilter()
@@ -58,6 +62,7 @@ HLTRFilter::~HLTRFilter()
 void
 HLTRFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("inputTag",edm::InputTag("hltRHemisphere"));
   desc.add<edm::InputTag>("inputMetTag",edm::InputTag("hltMet"));
   desc.add<bool>("doMuonCorrection",false);
@@ -77,7 +82,7 @@ HLTRFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
 // ------------ method called to produce the data  ------------
 bool 
-HLTRFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTRFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
    using namespace std;
    using namespace edm;
@@ -88,7 +93,7 @@ HLTRFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByToken (m_theInputToken,hemispheres);
 
    // get hold of the MET Collection
-   Handle<CaloMETCollection> inputMet;
+   edm::Handle<edm::View<reco::MET> > inputMet;
    iEvent.getByToken(m_theMETToken,inputMet);
 
    // check the the input collections are available
@@ -122,12 +127,16 @@ HLTRFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    double MR = CalcMR(ja,jb);
    double R  = CalcR(MR,ja,jb,inputMet,muonVec);
-
+   
    if(MR>=min_MR_ && R>=min_R_
-      && ( (R*R - R_offset_)*(MR-MR_offset_) )>=R_MR_cut_) return true;
-
-   if(nMuons==0) return false;  // if no muons and we get here, reject event
-
+      && ( (R*R - R_offset_)*(MR-MR_offset_) )>=R_MR_cut_) {
+     addObjects(iEvent, filterproduct, MR, R*R);
+     return true;
+   }
+   if(nMuons==0) {
+     addObjects(iEvent, filterproduct, MR, R*R); 
+     return false;  // if no muons and we get here, reject event
+   }
    //Lead Muon as Jet
    ja.SetXYZT(hemispheres->at(3).x(),hemispheres->at(3).y(),hemispheres->at(3).z(),hemispheres->at(3).t());
    jb.SetXYZT(hemispheres->at(4).x(),hemispheres->at(4).y(),hemispheres->at(4).z(),hemispheres->at(4).t());
@@ -135,11 +144,16 @@ HLTRFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    MR = CalcMR(ja,jb);
    R  = CalcR(MR,ja,jb,inputMet,muonVec);
-
    if(MR>=min_MR_ && R>=min_R_
-      && ( (R*R - R_offset_)*(MR-MR_offset_) )>=R_MR_cut_) return true;
+      && ( (R*R - R_offset_)*(MR-MR_offset_) )>=R_MR_cut_){
+       addObjects(iEvent, filterproduct, MR, R*R); 
+       return true;
+   }
    
-   if(nMuons==1) return false;  // if no muons and we get here, reject event
+   if(nMuons==1){
+       addObjects(iEvent, filterproduct, MR, R*R); 
+       return false;  // if no muons and we get here, reject event
+   }
 
    muonVec.pop_back();
    //Second Muon as Jet
@@ -149,9 +163,11 @@ HLTRFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    MR = CalcMR(ja,jb);
    R  = CalcR(MR,ja,jb,inputMet,muonVec);
-
    if(MR>=min_MR_ && R>=min_R_
-      && ( (R*R - R_offset_)*(MR-MR_offset_) )>=R_MR_cut_) return true;
+      && ( (R*R - R_offset_)*(MR-MR_offset_) )>=R_MR_cut_){
+       addObjects(iEvent, filterproduct, MR, R*R); 
+       return true;
+   }
 
    ja.SetXYZT(hemispheres->at(8).x(),hemispheres->at(8).y(),hemispheres->at(8).z(),hemispheres->at(8).t());
    jb.SetXYZT(hemispheres->at(9).x(),hemispheres->at(9).y(),hemispheres->at(9).z(),hemispheres->at(9).t());
@@ -159,12 +175,37 @@ HLTRFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    MR = CalcMR(ja,jb);
    R  = CalcR(MR,ja,jb,inputMet,muonVec);
-
    if(MR>=min_MR_ && R>=min_R_
-      && ( (R*R - R_offset_)*(MR-MR_offset_) )>=R_MR_cut_) return true;   
+      && ( (R*R - R_offset_)*(MR-MR_offset_) )>=R_MR_cut_){
+       addObjects(iEvent, filterproduct, MR, R*R); 
+       return true;   
+   }
 
-   // filter decision
+   // filter decision   
+   addObjects(iEvent, filterproduct, MR, R*R); 
    return false;
+}
+
+void HLTRFilter::addObjects(edm::Event& iEvent, trigger::TriggerFilterObjectWithRefs & filterproduct, double MR, double Rsq) const{
+    
+    //create METCollection for storing MR and Rsq results
+    std::auto_ptr<reco::METCollection> razorObject(new reco::METCollection());
+    
+    reco::MET::LorentzVector mrRsqP4(MR,Rsq,0,0);
+    reco::MET::Point vtx(0,0,0);
+
+    reco::MET mrRsq(mrRsqP4, vtx);
+    razorObject->push_back(mrRsq);
+
+    edm::RefProd<reco::METCollection > ref_before_put = iEvent.getRefBeforePut<reco::METCollection >();
+
+    //put the METCollection into the event (necessary because of how addCollectionTag works...)
+    iEvent.put(razorObject);
+    edm::Ref<reco::METCollection> mrRsqRef(ref_before_put, 0);
+
+    //add it to the trigger object collection
+    if (saveTags()) filterproduct.addCollectionTag(edm::InputTag( *moduleLabel()));
+    filterproduct.addObject(trigger::TriggerMET, mrRsqRef); //give it the ID of a MET object 
 }
 
 double 
@@ -202,7 +243,7 @@ HLTRFilter::CalcMR(TLorentzVector ja, TLorentzVector jb){
 }
 
 double 
-HLTRFilter::CalcR(double MR, TLorentzVector ja, TLorentzVector jb, edm::Handle<reco::CaloMETCollection> inputMet, const std::vector<math::XYZTLorentzVector>& muons){
+  HLTRFilter::CalcR(double MR, TLorentzVector ja, TLorentzVector jb, edm::Handle<edm::View<reco::MET> > inputMet, const std::vector<math::XYZTLorentzVector>& muons){
   //now we can calculate MTR
   TVector3 met;
   met.SetPtEtaPhi((inputMet->front()).pt(),0.0,(inputMet->front()).phi());

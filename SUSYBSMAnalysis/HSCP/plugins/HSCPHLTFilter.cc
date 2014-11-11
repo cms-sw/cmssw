@@ -105,7 +105,7 @@ bool HSCPHLTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //}fflush(stdout);
 
    edm::Handle< trigger::TriggerEvent > trEvHandle;
-   iEvent.getByLabel("hltTriggerSummaryAOD", trEvHandle);
+   iEvent.getByToken(trEvToken, trEvHandle);             
    trigger::TriggerEvent trEv = *trEvHandle;
 
    CountEvent++;

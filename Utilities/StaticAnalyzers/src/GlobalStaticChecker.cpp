@@ -37,9 +37,8 @@ void GlobalStaticChecker::checkASTDecl(const clang::VarDecl *D,
 	    llvm::raw_string_ostream os(buf);
 	    os << "Non-const variable '" << t.getAsString()<<" "<<*D << "' is static and might be thread-unsafe";
 
-	    BR.EmitBasicReport(D, "Possibly Thread-Unsafe: non-const static variable",
-	    					"ThreadSafety",
-	                       os.str(), DLoc);
+	    BR.EmitBasicReport(D, this, "non-const global static variable",
+	    					"ThreadSafety", os.str(), DLoc);
 	    return;
 	
 	}

@@ -100,7 +100,7 @@ class VersionedSelector : public Selector<T> {
     return this->operator()(ref, ret);
   }
   
-  using typename Selector<T>::operator();
+  using Selector<T>::operator();
   
   const unsigned char* md55Raw() const { return id_md5_; } 
   bool operator==(const VersionedSelector& other) const {
