@@ -18,11 +18,11 @@ $VERBOSE       = 0;
 
 # Must configure this for each use case:
 # (tauCalibrationLUT)
-# $NBITS         = 7;  # reserve this many bits for original address space
-# $HEADER        = "# <header> V1 10 9 </header>\n";
+$NBITS         = 7;  # reserve this many bits for original address space
+$HEADER        = "#<header> V1 10 9 </header>\n";
 # (egIsoLUT)
-$NBITS         = 15;  # reserve this many bits for original address space
-$HEADER        = "# <header> V1 16 1 </header>\n";
+# $NBITS         = 15;  # reserve this many bits for original address space
+# $HEADER        = "#<header> V1 16 1 </header>\n";
 
 @args = ();   
 # parse the command line arguments for options:
@@ -48,6 +48,7 @@ while ($file = shift @args){
     $foffset = $findex * (2**$NBITS);
     print "# LUT data extracted from file ", $file, ", will offset address by ";
     printf("0x%x\n", $foffset);
+    
 
     
     open(INPUT, $file);
@@ -57,7 +58,8 @@ while ($file = shift @args){
 	if ($line =~ /^\s*(\d+)\s*(\d+)/){
 	    # print "# orig line:  ", $line;
 	    # printf("# orig addr in hex:  0x%x\n", $1);
-	    printf("0x%x %d\n", $1+$foffset, $2);
+	    #printf("0x%x %d\n", $1+$foffset, $2);
+	    printf("%d %d\n", $1+$foffset, $2);
 	} else {
 	    print $line;
 	}

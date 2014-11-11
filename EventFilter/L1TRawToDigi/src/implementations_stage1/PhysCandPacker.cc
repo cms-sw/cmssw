@@ -17,8 +17,7 @@ process(unsigned int id, const BXVector<T>& coll, F filter)
          if (!filter(*j))
             continue;
          std::cout << j->hwPt() << " @ " << j->hwEta() << ", " << j->hwPhi() << " > " << j->hwQual() << " > " << j->hwIso() << std::endl;
-         jetbit[n++] = \
-                     std::min(j->hwPt(), 0x3F) |
+         jetbit[n++] = std::min(j->hwPt(), 0x3F) |
                      (abs(j->hwEta()) & 0x7) << 6 |
                      ((j->hwEta() >> 3) & 0x1) << 9 |
                      (j->hwPhi() & 0x1F) << 10;
@@ -59,6 +58,11 @@ namespace l1t {
     };
 
     class TauPacker : public Packer {
+      public:
+        virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
+    };
+
+    class IsoTauPacker : public Packer {
       public:
         virtual Blocks pack(const edm::Event&, const PackerTokens*) override;
     };
@@ -113,6 +117,15 @@ namespace l1t {
 
        return process(5, *taus, [](const l1t::Tau& tau) -> bool { return true; });
     }
+
+    Blocks
+    IsoTauPacker::pack(const edm::Event& event, const PackerTokens* toks)
+    {
+       edm::Handle<TauBxCollection> taus;
+       event.getByToken(static_cast<const CaloTokens*>(toks)->getIsoTauToken(), taus);
+
+       return process(8, *taus, [](const l1t::Tau& tau) -> bool { return true; });
+    }
   }
 }
 
@@ -121,3 +134,4 @@ DEFINE_L1T_PACKER(l1t::stage1::NonIsoEGammaPacker);
 DEFINE_L1T_PACKER(l1t::stage1::CentralJetPacker);
 DEFINE_L1T_PACKER(l1t::stage1::ForwardJetPacker);
 DEFINE_L1T_PACKER(l1t::stage1::TauPacker);
+DEFINE_L1T_PACKER(l1t::stage1::IsoTauPacker);

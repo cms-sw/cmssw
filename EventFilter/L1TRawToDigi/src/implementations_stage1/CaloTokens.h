@@ -22,6 +22,7 @@ namespace l1t {
             inline const edm::EDGetTokenT<EtSumBxCollection>& getEtSumToken() const { return etSumToken_; };
             inline const edm::EDGetTokenT<JetBxCollection>& getJetToken() const { return jetToken_; };
             inline const edm::EDGetTokenT<TauBxCollection>& getTauToken() const { return tauToken_; };
+            inline const edm::EDGetTokenT<TauBxCollection>& getIsoTauToken() const { return isotauToken_; };
             inline const edm::EDGetTokenT<CaloSpareBxCollection>& getCaloSpareHFBitCountsToken() const { return calospareHFBitCountsToken_; };
             inline const edm::EDGetTokenT<CaloSpareBxCollection>& getCaloSpareHFRingSumsToken() const { return calospareHFRingSumsToken_; };
 
@@ -31,6 +32,7 @@ namespace l1t {
             edm::EDGetTokenT<EtSumBxCollection> etSumToken_;
             edm::EDGetTokenT<JetBxCollection> jetToken_;
             edm::EDGetTokenT<TauBxCollection> tauToken_;
+            edm::EDGetTokenT<TauBxCollection> isotauToken_;
             edm::EDGetTokenT<CaloSpareBxCollection> calospareHFBitCountsToken_;
             edm::EDGetTokenT<CaloSpareBxCollection> calospareHFRingSumsToken_;
       };

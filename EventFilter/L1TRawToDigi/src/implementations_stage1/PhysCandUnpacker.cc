@@ -49,9 +49,9 @@ process(const l1t::Block& block, BXVector<T> * coll, F modify) {
          cand.setHwPt(candPt);
          cand.setHwEta((candEtasign << 3) | candEta);
          cand.setHwPhi(candPhi);
-         int qualflag=cand.hwQual();
-         qualflag|= (candPt == 0x3F);
-         cand.setHwQual(qualflag);
+         //int qualflag=cand.hwQual();
+         //qualflag|= (candPt == 0x3F);
+         //cand.setHwQual(qualflag);
 
          /* std::cout << "cand: eta " << cand.hwEta() << " phi " << cand.hwPhi() << " pT " << cand.hwPt() << " qual " << cand.hwQual() << std::endl; */
          std::cout << cand.hwPt() << " @ " << cand.hwEta() << ", " << cand.hwPhi() << " > " << cand.hwQual() << " > " << cand.hwIso() << std::endl;
@@ -85,6 +85,11 @@ namespace l1t {
     };
 
     class TauUnpacker : public Unpacker {
+       public:
+        virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
+    };
+
+    class IsoTauUnpacker : public Unpacker {
        public:
         virtual bool unpack(const Block& block, UnpackerCollections *coll) override;
     };
@@ -137,6 +142,13 @@ namespace l1t {
        auto res = static_cast<CaloCollections*>(coll)->getTaus();
        return process(block, res, [](const l1t::Tau& t) { return t; });
     }
+
+    bool
+    IsoTauUnpacker::unpack(const Block& block, UnpackerCollections *coll)
+    {
+       auto res = static_cast<CaloCollections*>(coll)->getIsoTaus();
+       return process(block, res, [](const l1t::Tau& t) { return t; });
+    }
   }
 }
 
@@ -145,3 +157,4 @@ DEFINE_L1T_UNPACKER(l1t::stage1::NonIsoEGammaUnpacker);
 DEFINE_L1T_UNPACKER(l1t::stage1::CentralJetUnpacker);
 DEFINE_L1T_UNPACKER(l1t::stage1::ForwardJetUnpacker);
 DEFINE_L1T_UNPACKER(l1t::stage1::TauUnpacker);
+DEFINE_L1T_UNPACKER(l1t::stage1::IsoTauUnpacker);

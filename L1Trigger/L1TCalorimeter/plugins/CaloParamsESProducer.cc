@@ -165,6 +165,9 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setTauIsoPUSType(conf.getParameter<std::string>("tauIsoPUSType"));
   m_params.setTauRelativeJetIsolationLimit(conf.getParameter<double>("tauRelativeJetIsolationLimit"));
   m_params.setTauRelativeJetIsolationCut(conf.getParameter<double>("tauRelativeJetIsolationCut"));
+  m_params.setTauIsoAreaNrTowersEta(conf.getParameter<unsigned int>("tauIsoAreaNrTowersEta"));
+  m_params.setTauIsoAreaNrTowersPhi(conf.getParameter<unsigned int>("tauIsoAreaNrTowersPhi"));
+  m_params.setTauIsoVetoNrTowersPhi(conf.getParameter<unsigned int>("tauIsoVetoNrTowersPhi"));
 
   edm::FileInPath tauIsoLUTFile = conf.getParameter<edm::FileInPath>("tauIsoLUTFile");
   std::ifstream tauIsoLUTStream(tauIsoLUTFile.fullPath());
@@ -176,8 +179,10 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   std::shared_ptr<l1t::LUT> tauCalibrationLUT( new l1t::LUT(tauCalibrationLUTStream) );
   m_params.setTauCalibrationLUT(tauCalibrationLUT);
 
-  m_params.setIsoTauThresholds(conf.getParameter<std::vector<double> >("isoTauThresholds"));
-  m_params.setDiIsoTauThresholds(conf.getParameter<std::vector<double> >("diIsoTauThresholds"));
+  m_params.setIsoTauEtaMin(conf.getParameter<int> ("isoTauEtaMin"));
+  m_params.setIsoTauEtaMax(conf.getParameter<int> ("isoTauEtaMax"));
+  
+  m_params.setTauPUSParams(conf.getParameter<std::vector<double>>("tauPUSParams"));
 
   // jets
   m_params.setJetLsb(conf.getParameter<double>("jetLsb"));

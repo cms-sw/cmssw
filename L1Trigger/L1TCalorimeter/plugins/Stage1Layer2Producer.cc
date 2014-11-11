@@ -91,6 +91,8 @@ namespace l1t {
 
     Stage1Layer2FirmwareFactory m_factory; // Factory to produce algorithms based on DB parameters
 
+    std::string m_conditionsLabel;
+
     // to be extended with other "consumes" stuff
     EDGetToken regionToken;
     EDGetToken candsToken;
@@ -117,6 +119,7 @@ namespace l1t {
     candsToken = consumes<BXVector<l1t::CaloEmCand>>(iConfig.getParameter<InputTag>("CaloEmCands"));
     int ifwv=iConfig.getParameter<unsigned>("FirmwareVersion");  // LenA  make configurable for now
 
+    m_conditionsLabel = iConfig.getParameter<std::string>("conditionsLabel");
 
     //m_fwv = boost::shared_ptr<FirmwareVersion>(new FirmwareVersion()); //not const during testing
 
@@ -239,7 +242,15 @@ Stage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
       if (tau->hwIso()==1)isoTaus->push_back(i, *tau);
     }
     taus->resize(i,4); //FIXME proper tau handling with hardware sorting
-    isoTaus->resize(i,4); //FIXME proper tau handling with hardware sorting
+    //isoTaus->resize(i,4); //FIXME proper tau handling with hardware sorting
+    int itsize=isoTaus->size(i);
+    while (itsize < 4){
+	ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > tauLorentz(0,0,0,0);
+	l1t::Tau theTau(*&tauLorentz, 0, 0, 0, 1, 1); // set hwIso=1 
+	isoTaus->push_back(i,theTau);
+	itsize++;
+    }
+
     for(std::vector<l1t::Jet>::const_iterator jet = localJets->begin(); jet != localJets->end(); ++jet)
       jets->push_back(i, *jet);
     for(std::vector<l1t::Jet>::const_iterator jet = localPreGtJets->begin(); jet != localPreGtJets->end(); ++jet)
@@ -297,7 +308,8 @@ void Stage1Layer2Producer::beginRun(Run const&iR, EventSetup const&iE){
     m_paramsCacheId = id;
 
     edm::ESHandle<CaloParams> paramsHandle;
-    iE.get<L1TCaloParamsRcd>().get(paramsHandle);
+
+    iE.get<L1TCaloParamsRcd>().get(m_conditionsLabel, paramsHandle);
 
     // replace our local copy of the parameters with a new one using placement new
     m_params->~CaloParamsStage1();
@@ -315,20 +327,20 @@ void Stage1Layer2Producer::beginRun(Run const&iR, EventSetup const&iE){
 
   //get the proper scales for conversion to physical et AND gt scales
   edm::ESHandle< L1CaloEtScale > emScale ;
-  iE.get< L1EmEtScaleRcd >().get( emScale ) ;
+  iE.get< L1EmEtScaleRcd >().get( m_conditionsLabel, emScale ) ;
   m_params->setEmScale(*emScale);
 
   edm::ESHandle< L1CaloEtScale > jetScale ;
-  iE.get< L1JetEtScaleRcd >().get( jetScale ) ;
+  iE.get< L1JetEtScaleRcd >().get( m_conditionsLabel, jetScale ) ;
   m_params->setJetScale(*jetScale);
 
   edm::ESHandle< L1CaloEtScale > HtMissScale;
-  iE.get< L1HtMissScaleRcd >().get( HtMissScale ) ;
+  iE.get< L1HtMissScaleRcd >().get( m_conditionsLabel, HtMissScale ) ;
   m_params->setHtMissScale(*HtMissScale);
 
   //not sure if I need this one
   edm::ESHandle< L1CaloEtScale > HfRingScale;
-  iE.get< L1HfRingEtScaleRcd >().get( HfRingScale );
+  iE.get< L1HfRingEtScaleRcd >().get( m_conditionsLabel, HfRingScale );
   m_params->setHfRingScale(*HfRingScale);
 
 
