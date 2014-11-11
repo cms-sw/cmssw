@@ -31,7 +31,7 @@ float SiStripCluster::barycenter() const{
   int suma = 0;
   size_t asize = amplitudes_.size();
   for (size_t i=0;i<asize;++i) {
-    sumx += (firstStrip_+i)*(amplitudes_[i]);
+    sumx += ((firstStrip_ & 0x7FFF) + i)*(amplitudes_[i]);
     suma += amplitudes_[i];
   }
   

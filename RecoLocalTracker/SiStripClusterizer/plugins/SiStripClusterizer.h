@@ -6,7 +6,6 @@
 #include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithm.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 
 #include <vector>
 #include <memory>
@@ -24,19 +23,16 @@ private:
   bool doRefineCluster_;
   float occupancyThreshold_;
   unsigned widthThreshold_;
-  bool useAssociator_;
   template<class T> bool findInput(const edm::EDGetTokenT<T>&, edm::Handle<T>&, const edm::Event&);
   const std::vector<edm::InputTag> inputTags;
   std::auto_ptr<StripClusterizerAlgorithm> algorithm;
   void refineCluster(const edm::Handle< edm::DetSetVector<SiStripDigi> >& input,
 		     std::auto_ptr< edmNew::DetSetVector<SiStripCluster> >& output,
 		     SiStripDetInfoFileReader* reader,
-		     edm::ESHandle<SiStripQuality> quality,
-		     std::shared_ptr<TrackerHitAssociator> associator);
+		     edm::ESHandle<SiStripQuality> quality);
   typedef edm::EDGetTokenT< edm::DetSetVector<SiStripDigi> > token_t;
   typedef std::vector<token_t> token_v;
   token_v inputTokens;
-  typedef std::vector<std::string> vstring;
 
 };
 

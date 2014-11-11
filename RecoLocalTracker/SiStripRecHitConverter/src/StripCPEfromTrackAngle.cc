@@ -38,7 +38,7 @@ localParameters( const SiStripCluster& cluster, const GeomDetUnit& det, const Lo
 
   const unsigned N = cluster.amplitudes().size();
   const float fullProjection = p.coveredStrips( track+p.drift, ltp.position());
-  // std::cout << cluster.getSplitClusterError() << ", legacyErr = " << legacyStripErrorSquared(N,std::abs(fullProjection))
+  // std::cout << cluster.firstStrip() << ", "<< cluster.isMerged() << ", legacyErr = " << legacyStripErrorSquared(N,std::abs(fullProjection))
   // << ", newErr = " << stripErrorSquared( N, std::abs(fullProjection),ssdid.subDetector() ) << std::endl;
   const float uerr2 = useLegacyError || cluster.isMerged() ? legacyStripErrorSquared(N,std::abs(fullProjection)) : stripErrorSquared( N, std::abs(fullProjection),ssdid.subDetector() );
   // std::cout << " uerr2 = " << uerr2 << std::endl;
