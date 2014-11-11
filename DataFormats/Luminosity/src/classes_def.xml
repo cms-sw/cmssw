@@ -13,6 +13,7 @@
   <class name="LumiInfoRunHeader"  ClassVersion="10">
    <version ClassVersion="10" checksum="3459250671"/>
   </class>
+  <class name="std::bitset<3564>"/>
   <class name="LumiInfo"  ClassVersion="10">
    <version ClassVersion="10" checksum="4234044727"/>
   </class>

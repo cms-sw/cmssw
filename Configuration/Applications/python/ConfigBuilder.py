@@ -672,7 +672,7 @@ class ConfigBuilder(object):
 
 			if self._options.fast and not 'SIM' in self.stepMap and not 'FASTSIM' in self.stepMap:
 				self.executeAndRemember('process.mix.playback= True')
-
+				
 
         # load the geometry file
         try:
@@ -1407,6 +1407,9 @@ class ConfigBuilder(object):
 
         if sequence == 'pdigi_valid':
             self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersValid)")
+
+        #configure LumiInfoRunHeader to match pileup mixing config
+        self.executeAndRemember('process.lumiInfoRunHeaderMC.MCBunchSpacing = process.mix.bunchspace')
 
 	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
         return

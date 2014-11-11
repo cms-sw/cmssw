@@ -2,6 +2,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -36,6 +37,11 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
 
   // uncertainty calculation (CPU intensive)
   ampErrorCalculation_ = ps.getParameter<bool>("ampErrorCalculation");
+  useLumiInfoRunHeader_ = ps.getParameter<bool>("useLumiInfoRunHeader");
+  
+  if (useLumiInfoRunHeader_) {
+    lumiInfoRunHeader_ = c.consumes<LumiInfoRunHeader,edm::InRun>(edm::InputTag("lumiInfoRunHeader"));
+  }
 
   // algorithm to be used for timing
   timealgo_ = ps.getParameter<std::string>("timealgo");
@@ -125,6 +131,28 @@ EcalUncalibRecHitWorkerMultiFit::set(const edm::EventSetup& es)
 
         // for the time correction methods
         es.get<EcalTimeBiasCorrectionsRcd>().get(timeCorrBias_);
+}
+
+void
+EcalUncalibRecHitWorkerMultiFit::set(const edm::Event& evt)
+{
+
+  if (useLumiInfoRunHeader_) {
+    edm::Handle<LumiInfoRunHeader> lumiInfoRunHeaderH;
+    evt.getRun().getByToken(lumiInfoRunHeader_,lumiInfoRunHeaderH);
+    int bunchspacing = lumiInfoRunHeaderH->getBunchSpacing();
+    
+    if (bunchspacing == 25) {
+      activeBX.resize(10);
+      activeBX << -5,-4,-3,-2,-1,0,1,2,3,4;
+    }
+    else {
+      //50ns configuration otherwise (also for no pileup)
+      activeBX.resize(5);
+      activeBX << -4,-2,0,2,4;
+    }
+  }
+    
 }
 
 /**
