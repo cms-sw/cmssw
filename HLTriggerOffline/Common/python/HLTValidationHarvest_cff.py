@@ -13,6 +13,7 @@ from Validation.RecoTrack.HLTpostProcessorTracker_cfi import *
 from Validation.RecoVertex.HLTpostProcessorVertex_cfi import *
 #from HLTriggerOffline.Common.PostProcessorExample_cfi import *
 from HLTriggerOffline.Common.HLTValidationQT_cff import *
+from HLTriggerOffline.Btag.HltBtagPostValidation_cff import *
 
 hltpostvalidation = cms.Sequence( 
     postProcessorHLTtracking
@@ -30,6 +31,7 @@ hltpostvalidation = cms.Sequence(
     +HLTHiggsPostVal
     +hltExoticaPostProcessors
     +b2gHLTriggerValidationHarvest
+    +HltBTagPostVal
     )
 
 hltpostvalidation_fastsim = cms.Sequence( 
@@ -43,7 +45,8 @@ hltpostvalidation_fastsim = cms.Sequence(
     +SusyExoPostVal_fastsim
     +HLTHiggsPostVal
     +b2gHLTriggerValidationHarvest
-    )
+    +HltBTagPostVal    
+)
 
 hltpostvalidation_preprod = cms.Sequence( 
     postProcessorHLTtracking
