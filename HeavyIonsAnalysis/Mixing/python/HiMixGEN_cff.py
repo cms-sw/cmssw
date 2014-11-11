@@ -27,7 +27,14 @@ mix = cms.EDProducer("MixingModule",
                           sequential = cms.untracked.bool(False),
         fileNames = FileNames
     ),
-    mixObjects = cms.PSet(theMixObjects)
+
+    mixObjects = cms.PSet(
+        mixHepMC = cms.PSet(
+            input = cms.VInputTag(cms.InputTag("generator")),
+            makeCrossingFrame = cms.untracked.bool(True),
+            type = cms.string('HepMCProduct')
+            )
+        ),
 )
 
 # How to??

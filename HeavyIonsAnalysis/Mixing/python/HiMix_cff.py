@@ -27,12 +27,23 @@ mixGen = cms.EDProducer("MixingModule",
                           sequential = cms.untracked.bool(False),
         fileNames = FileNames
     ),
-    mixObjects = cms.PSet(theMixObjects)
+
+    mixObjects = cms.PSet(
+        mixHepMC = cms.PSet(
+            input = cms.VInputTag(cms.InputTag("generator")),
+            makeCrossingFrame = cms.untracked.bool(True),
+            type = cms.string('HepMCProduct')
+            )
+        ),
 )
+
+# How to??
+#for a in self.aliases: delattr(self, a)
+# here??
 
 mix = cms.EDProducer("MixingModule",
     digitizers = cms.PSet(theDigitizers),
-    LabelPlayback = cms.string(''),
+    LabelPlayback = cms.string('mixGen'),
     maxBunch = cms.int32(0),
     minBunch = cms.int32(0), ## in terms of 25 nsec
 
