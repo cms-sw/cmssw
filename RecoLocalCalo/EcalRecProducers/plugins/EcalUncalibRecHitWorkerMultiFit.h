@@ -27,7 +27,6 @@
 #include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EigenMatrixTypes.h"
 
-
 namespace edm {
         class Event;
         class EventSetup;
@@ -41,8 +40,9 @@ class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass 
 				//EcalUncalibRecHitWorkerMultiFit(const edm::ParameterSet&);
                 virtual ~EcalUncalibRecHitWorkerMultiFit() {};
 
-                void set(const edm::EventSetup& es);
-                bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result);
+                void set(const edm::EventSetup& es) override;
+                void set(const edm::Event& evt) override;
+                bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result) override;
 
         protected:
 
@@ -73,8 +73,10 @@ class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass 
                 FullSampleMatrix fullpulsecovEE;
                 BXVector activeBX;
                 bool ampErrorCalculation_;
+                bool useLumiInfoRunHeader_;
                 EcalUncalibRecHitMultiFitAlgo multiFitMethod_;
                 
+                edm::EDGetTokenT<int> bunchSpacing_; 
 
                 // determine which of the samples must actually be used by ECAL local reco
                 edm::ESHandle<EcalSampleMask> sampleMaskHand_;                
