@@ -72,6 +72,7 @@ namespace evf{
 	uint16_t bxid;
 	uint16_t dummy0;
 	uint16_t dummy1;
+	unsigned char dummy2;
 	unsigned char ind0;
 	uint32_t orbitlow;
 	uint16_t orbithigh;
