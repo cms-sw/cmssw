@@ -13,7 +13,7 @@ mix = cms.EDProducer("MixingModule",
     maxBunch = cms.int32(3),
     minBunch = cms.int32(-5), ## in terms of 25 ns
 
-    bunchspace = cms.int32(25),
+    bunchspace = cms.int32(450),
     mixProdStep1 = cms.bool(False),
     mixProdStep2 = cms.bool(False),
 
