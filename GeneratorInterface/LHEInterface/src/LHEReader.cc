@@ -528,9 +528,8 @@ LHEReader::~LHEReader()
 	lheevent.reset(new LHEEvent(curRunInfo, data));
 	const XMLHandler::wgt_info& info = handler->weightsinevent;
 	for( size_t i=0; i< info.size(); ++i ) {
-	  std::string snum = info[i].second.substr(0,info[i].second.size()-1);
 	  double num = -1.0;
-	  sscanf(snum.c_str(),"%le",&num);	  
+	  sscanf(info[i].second.c_str(),"%le",&num);	  
 	  lheevent->addWeight(gen::WeightsInfo(info[i].first,num));
 	}
 	lheevent->setNpLO(handler->npLO);
