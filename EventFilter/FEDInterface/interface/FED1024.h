@@ -23,6 +23,26 @@ namespace evf{
       } size;
     };
 
+    class TCDSFEDHeader{
+    public:
+
+      union tcdsfedheader{
+        uint64_t word;
+        struct {
+          uint32_t sourceid; 
+          uint32_t eventid; 
+        } header;
+      };
+      TCDSFEDHeader(const unsigned char *p) : 
+	fh((tcdsfedheader*)(p))
+      {
+
+      }
+      const tcdsfedheader &getData(){return *fh;}
+    private:
+      tcdsfedheader *fh;
+    };
+
     class TCDSHeader{
     public:
 
@@ -118,6 +138,7 @@ namespace evf{
     class TCDSRecord{
     public:
       TCDSRecord(const unsigned char *p) : 
+	fh(p),
 	h(p+sizeof(fedh_t)),
 	l1h(p+sizeof(fedh_t)+(h.getSizes().size.headerSize+1)*8),
 	b(p+sizeof(fedh_t)+(h.getSizes().size.headerSize+1)*8+
@@ -125,10 +146,12 @@ namespace evf{
       {
 	
       }
+      TCDSFEDHeader &getFEDHeader(){return fh;} 
       TCDSHeader &getHeader(){return h;} 
       TCDSL1AHistory &getHistory(){return l1h;}
       TCDSBST &getBST(){return b;}
     private:
+      TCDSFEDHeader fh;
       TCDSHeader h;
       TCDSL1AHistory l1h;
       TCDSBST b;
