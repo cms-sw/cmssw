@@ -36,7 +36,7 @@ namespace lhef {
 LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
                    std::istream &in) :
   runInfo(runInfo), weights_(0), counted(false), 
-  readAttemptCounter(0)
+  readAttemptCounter(0), npLO_(-99), npNLO_(-99)
   
 {
 	hepeup.NUP = 0;
@@ -103,7 +103,7 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
 	      pdf.reset();
 	    } else
 	      continue;
-	  }
+	  }	  
 	  comments.push_back(line + "\n");
 	}
 	
@@ -115,7 +115,8 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
 
 LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
                    const HEPEUP &hepeup) :
-	runInfo(runInfo), hepeup(hepeup), counted(false), readAttemptCounter(0)
+	runInfo(runInfo), hepeup(hepeup), counted(false), readAttemptCounter(0),
+        npLO_(-99), npNLO_(-99)
 {
 }
 
@@ -124,7 +125,8 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
                    const LHEEventProduct::PDF *pdf,
                    const std::vector<std::string> &comments) :
 	runInfo(runInfo), hepeup(hepeup), pdf(pdf ? new PDF(*pdf) : 0),
-	comments(comments), counted(false), readAttemptCounter(0)
+	comments(comments), counted(false), readAttemptCounter(0),
+	npLO_(-99), npNLO_(-99)
 {
 }
 
@@ -134,7 +136,9 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
 	pdf(product.pdf() ? new PDF(*product.pdf()) : 0),
 	weights_(product.weights()),
 	comments(product.comments_begin(), product.comments_end()),
-	counted(false), readAttemptCounter(0)
+	counted(false), readAttemptCounter(0),
+	originalXWGTUP_(product.originalXWGTUP()), scales_(product.scales()),
+	npLO_(product.npLO()), npNLO_(product.npNLO())
 {
 }
 

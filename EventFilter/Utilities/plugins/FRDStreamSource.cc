@@ -8,6 +8,7 @@
 #include "EventFilter/FEDInterface/interface/GlobalEventNumber.h"
 #include "EventFilter/FEDInterface/interface/fed_header.h"
 #include "EventFilter/FEDInterface/interface/fed_trailer.h"
+#include "EventFilter/FEDInterface/interface/FED1024.h"
 
 #include "EventFilter/Utilities/plugins/FRDStreamSource.h"
 
@@ -15,7 +16,8 @@
 FRDStreamSource::FRDStreamSource(edm::ParameterSet const& pset,
                                           edm::InputSourceDescription const& desc)
   : ProducerSourceFromFiles(pset,desc,true),
-    verifyAdler32_(pset.getUntrackedParameter<bool> ("verifyAdler32", true))
+    verifyAdler32_(pset.getUntrackedParameter<bool> ("verifyAdler32", true)),
+    useL1EventID_(pset.getUntrackedParameter<bool> ("useL1EventID", false))
 {
   itFileName_=fileNames().begin();
   openFile(*itFileName_);
@@ -36,24 +38,34 @@ bool FRDStreamSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& the
     }
   }
 
-  const uint32_t headerSize = (4 + 1024) * sizeof(uint32_t); //minimal size to fit any version of FRDEventHeader
-  if ( buffer_.size() < headerSize )
-    buffer_.resize(headerSize);
-  fin_.read(&buffer_[0],headerSize);
-
-  // do we have to handle the case that a smaller header version + payload could fit into max headerSize?
-  assert( fin_.gcount() == headerSize );
+  const uint32_t headerSize[4]={0,2*sizeof(uint32),(4+1024)*sizeof(uint32_t),7*sizeof(uint32_t)};//FRD header size per version
+  if ( detectedFRDversion_==0) {
+    fin_.read((char*)&detectedFRDversion_,sizeof(uint32_t));
+    assert(detectedFRDversion_>0 && detectedFRDversion_<=3);
+    if ( buffer_.size() < headerSize[detectedFRDversion_] )
+      buffer_.resize(headerSize[detectedFRDversion_]);
+    *((uint32_t*)(&buffer_[0]))=detectedFRDversion_;
+    fin_.read(&buffer_[0] + sizeof(uint32_t),headerSize[detectedFRDversion_]-sizeof(uint32_t));
+    assert( fin_.gcount() == headerSize[detectedFRDversion_]-(unsigned int)(sizeof(uint32_t) ));
+  }
+  else {
+    if ( buffer_.size() < headerSize[detectedFRDversion_] )
+      buffer_.resize(headerSize[detectedFRDversion_]);
+    fin_.read(&buffer_[0],headerSize[detectedFRDversion_]);
+    assert( fin_.gcount() == headerSize[detectedFRDversion_] );
+  }
 
   std::unique_ptr<FRDEventMsgView> frdEventMsg(new FRDEventMsgView(&buffer_[0]));
-  id = edm::EventID(frdEventMsg->run(), frdEventMsg->lumi(), frdEventMsg->event());
+  if (useL1EventID_)
+    id = edm::EventID(frdEventMsg->run(), frdEventMsg->lumi(), frdEventMsg->event());
 
   const uint32_t totalSize = frdEventMsg->size();
   if ( totalSize > buffer_.size() ) {
     buffer_.resize(totalSize);
   }
-  if ( totalSize > headerSize ) {
-    fin_.read(&buffer_[0]+headerSize,totalSize-headerSize);
-    if ( fin_.gcount() != totalSize-headerSize ) {
+  if ( totalSize > headerSize[detectedFRDversion_] ) {
+    fin_.read(&buffer_[0]+headerSize[detectedFRDversion_],totalSize-headerSize[detectedFRDversion_]);
+    if ( fin_.gcount() != totalSize-headerSize[detectedFRDversion_] ) {
       throw cms::Exception("FRDStreamSource::setRunAndEventInfo") <<
         "premature end of file " << *itFileName_;
     }
@@ -76,6 +88,9 @@ bool FRDStreamSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& the
 
   uint32_t eventSize = frdEventMsg->eventSize();
   char* event = (char*)frdEventMsg->payload();
+  bool foundTCDSFED=false;
+  bool foundGTPFED=false;
+
 
   while (eventSize > 0) {
     eventSize -= sizeof(fedt_t);
@@ -84,11 +99,39 @@ bool FRDStreamSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& the
     eventSize -= (fedSize - sizeof(fedh_t));
     const fedh_t* fedHeader = (fedh_t *) (event + eventSize);
     const uint16_t fedId = FED_SOID_EXTRACT(fedHeader->sourceid);
-    if (fedId == FEDNumbering::MINTriggerGTPFEDID) {
-      evf::evtn::evm_board_setformat(fedSize);
+    if (fedId == FEDNumbering::MINTCDSuTCAFEDID) {
+      foundTCDSFED=true;
+      evf::evtn::TCDSRecord record((unsigned char *)(event + eventSize ));
+      id = edm::EventID(frdEventMsg->run(),record.getHeader().getData().header.lumiSection,
+			record.getHeader().getData().header.eventNumber);
+      //evf::evtn::evm_board_setformat(fedSize);
+      uint64_t gpsh = record.getBST().getBST().gpstimehigh;
+      uint32_t gpsl = record.getBST().getBST().gpstimelow;
+      theTime = static_cast<edm::TimeValue_t>((gpsh << 32) + gpsl);
+    }
+
+    if (fedId == FEDNumbering::MINTriggerGTPFEDID && !foundTCDSFED) {
+      foundGTPFED=true;
+      const bool GTPEvmBoardSense=evf::evtn::evm_board_sense((unsigned char*) fedHeader,fedSize);
+      if (!useL1EventID_) {
+        if (GTPEvmBoardSense)
+          id = edm::EventID(frdEventMsg->run(), frdEventMsg->lumi(), evf::evtn::get((unsigned char*) fedHeader,true));
+        else
+          id = edm::EventID(frdEventMsg->run(), frdEventMsg->lumi(), evf::evtn::get((unsigned char*) fedHeader,false));
+      }
+      //evf::evtn::evm_board_setformat(fedSize);
       const uint64_t gpsl = evf::evtn::getgpslow((unsigned char*) fedHeader);
       const uint64_t gpsh = evf::evtn::getgpshigh((unsigned char*) fedHeader);
       theTime = static_cast<edm::TimeValue_t>((gpsh << 32) + gpsl);
+    }
+
+
+
+    //take event ID from GTPE FED
+    if (fedId == FEDNumbering::MINTriggerEGTPFEDID && !foundGTPFED && !foundTCDSFED && !useL1EventID_) {
+      if (evf::evtn::gtpe_board_sense((unsigned char*)fedHeader)) {
+        id = edm::EventID(frdEventMsg->run(), frdEventMsg->lumi(), evf::evtn::gtpe_get((unsigned char*) fedHeader));
+      }
     }
     FEDRawData& fedData = rawData_->FEDData(fedId);
     fedData.resize(fedSize);
@@ -107,6 +150,7 @@ void FRDStreamSource::produce(edm::Event& e) {
 
 bool FRDStreamSource::openFile(const std::string& fileName)
 {
+  std::cout << " open file.. " << fileName << std::endl;
   fin_.close();
   fin_.clear();
   size_t pos = fileName.find(':');

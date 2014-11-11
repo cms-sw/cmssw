@@ -175,6 +175,9 @@ namespace cscdqm {
       uint32_t cntCFEBs;	/// Total Number of CFEBs per event from DMB DAV 
       uint32_t cntALCTs;	/// Total Number of ALCTs per event from DMB DAV 
       uint32_t cntTMBs;		/// Total Number of TMBs per event from DMB DAV
+
+      
+      uint16_t    theFormatVersion; /// Data Format version (2005, 2013)
       
 	
       // bool fFirstEvent;

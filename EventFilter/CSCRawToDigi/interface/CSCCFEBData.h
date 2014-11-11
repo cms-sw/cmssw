@@ -14,9 +14,9 @@ class CSCCFEBStatusDigi;
 class CSCCFEBData {
  public:
  /// read from an existing data stream. 
-  CSCCFEBData(unsigned boardNumber, unsigned short * buf);
+  CSCCFEBData(unsigned boardNumber, unsigned short * buf, uint16_t theFormatVersion = 2005, bool fDCFEB = false);
   /// create, 
-  CSCCFEBData(unsigned boardNumber, bool sixteenSamples);
+  CSCCFEBData(unsigned boardNumber, bool sixteenSamples, uint16_t theFormatVersion = 2005, bool fDCFEB = false);
   
   unsigned nTimeSamples() const { return theNumberOfSamples;}
 
@@ -47,13 +47,18 @@ class CSCCFEBData {
   unsigned sizeInWords() const {return theSize;} 
   unsigned boardNumber() const {return boardNumber_;}
   void setBoardNumber(int cfeb) {boardNumber_=cfeb;}
+  void setL1A(unsigned l1a);
+  void setL1A(unsigned sample, unsigned l1a);
   
   friend std::ostream & operator<<(std::ostream & os, const CSCCFEBData &);
   static void selfTest();
 
   /// makes sure each time slice has a trailer
   bool check() const;
-  
+
+  bool isDCFEB() const {return fDCFEB;}
+ 
+ 
  private:
   unsigned short theData[1600];
   /// Shows where in theData the words start.  A bad slice will 
@@ -64,6 +69,8 @@ class CSCCFEBData {
   unsigned boardNumber_;
   unsigned theNumberOfSamples;
   std::vector<uint16_t> bWords;
+  uint16_t theFormatVersion;
+  bool fDCFEB;
 };
 
 #endif

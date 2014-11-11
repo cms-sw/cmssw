@@ -11,11 +11,13 @@ class CSCDDUHeader {
 
  public:
   CSCDDUHeader();
-  CSCDDUHeader(unsigned bx, unsigned l1num, unsigned sourceId);
+  CSCDDUHeader(unsigned bx, unsigned l1num, unsigned sourceId, unsigned fmt_version = 0x6);
   CSCDDUHeader(const CSCDDUStatusDigi & digi)
     {
       memcpy(this, digi.header(), sizeInWords()*2);
     }
+
+  // Getters
   int s_link_status() const { return s_link_status_;}
   int format_version() const { return format_version_;}
   int source_id() const { return source_id_;}
@@ -25,11 +27,21 @@ class CSCDDUHeader {
   int ncsc() const { return ncsc_;}
   int dmb_dav() const { return dmb_dav_;}
   int dmb_full() const { return dmb_full_;}
-  void setDMBDAV(int dduInput);
   int live_cscs() const {return live_cscs_;}
   int output_path_status() const {return output_path_;}
   static unsigned sizeInWords() {return 12;}
+
+  // Setters
+  void setDMBDAV(int dduInput);
   void setSourceId(unsigned sourceId) {source_id_ = sourceId;}
+  void setFormatVersion(unsigned version) {format_version_ = version & 0xF;}
+  void setBXN(unsigned bxn) {bxnum_ = bxn & 0xFFF;}
+  void setL1A(unsigned l1a) {lvl1num_ = l1a & 0xFFFFFF;}
+  void setEventType(unsigned evt_type) {event_type_ = evt_type & 0xF;}
+  void setTTSStatus(unsigned status) {tts_status_ = status & 0xF;}
+  void setBOEStatus(unsigned status) {boe_status_ = status & 0x7F;}
+  void setOutputPathStatus(unsigned status) {output_path_ = status & 0xFF;}
+
   unsigned short * data() {return (unsigned short *) this;}
   bool check() const;
 

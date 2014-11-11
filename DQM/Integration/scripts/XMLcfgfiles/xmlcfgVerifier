@@ -1,0 +1,520 @@
+#!/usr/bin/env python
+"""Syntax:
+    xmlcfgVerifier [-fhv] XMLCfgFilename
+
+Description:
+	Check if XMLCfgFilename is a valid XML configuration file to use with the 
+	RCMS platform.
+Parameters:
+        -f             Full Check up, tests the listed servers to see if they 
+                       have Jobcontrol enabled.
+        -v             Verbose mode.
+        -h             This help message.
+    XMLCfgFilename     XML file to be verified 
+"""
+################################################################################
+import sys, os.path
+import getopt as gop
+import ExtractAppInfoFromXML as appinf
+from xml.dom import minidom
+################################################################################
+fullchk=False
+verbose=False
+DPservices={"hostname":{}}                      #"hostName_port":{hostname:count}
+DPapplications={}    #(hostname,port,instance):count
+DPexecutives={}      #(hostname,port,instance):count
+user = "dqmpro"			 #user that's configured oo t hte XML file
+################################################################################
+def normalize(head):
+	parent=head.parentNode
+	if parent:
+		firstText=None
+		for brother in parent.childNodes:
+			if brother.nodeType == 3:
+				if firstText:
+					firstText.nodeValue+=str(brother.nodeValue).strip()
+					brother=parent.removeChild(brother)
+					brother.unlink()
+				else:
+					firstText=brother
+					firstText.nodeValue=str(brother.nodeValue).strip()
+				
+	
+################################################################################
+def xmlTrim(head):
+	normalize(head)
+	if head.hasChildNodes():
+		for child in head.childNodes:
+			xmlTrim(child)
+	if head.nodeType == 8:   # Check if node is a comment
+		parent=head.parentNode
+		parent.removeChild(head)
+		head.unlink()
+	return
+################################################################################
+def userAutodetect(xmlTree):
+	global user
+	from EnviromentSettings import users
+	verbose and sys.stdout.write("Detecting user configuration...\n")	
+	xdaqE=xmlTree.getElementsByTagName("Configuration")
+	if not len(xdaqE):
+		print "No Configuration found to retrive user continuing tests with default user:'"+user+"'"
+		return
+	if not xdaqE[0].hasAttribute("user"):
+		print "No attribute 'user' found in Configuration continuing tests with default user:'"+user+"'"
+		return
+	if not xdaqE[0].hasAttribute("user") not in users:
+		print "The specified 'user' found in Configuration is not one of the expected users:'"+"','".join(users)+"'\nContinuing tests with default user:'"+user+"'"
+		return
+	user=xdaqE[0].attributes["user"].value
+	verbose and sys.stdout.write("Detected user name = '"+user+"'\n")
+	return
+################################################################################
+def chkService(server):
+	global fullchk,verbose
+	result=[]
+	if server.hasAttribute("hostname"):
+		if server.attributes["hostname"].value=="":
+			print "Attribute 'hostname' is empty"
+		else:
+			result=[server.attributes["hostname"].value]
+	else:
+		print "No 'hostname' Attribute in Service element"
+	if server.hasAttribute("name"):
+		if server.attributes["name"].value!="JobControl":
+			print "Attribute 'name' has an unexpected value of '"+server.attributes["name"].value+"', where the expected value is 'JobControl'"
+			result=[]
+	else:
+		print "No 'name' Attribute in Service element"
+		result=[]
+	if server.hasAttribute("port"):
+		if server.attributes["port"].value!="9999":
+			print "Warning!!! Attribute 'port' has an unexpected value of '"+server.attributes["port"].value+"', where the expected value is '9999'"
+	else:
+		print "No 'port' Attribute in Service element"
+		result=[]
+	if server.hasAttribute("urn"):
+		if server.attributes["urn"].value!="/urn:xdaq-application:lid=10":
+			print "Attribute 'urn' has an unexpected value of '"+server.attributes["urn"].value+"', where the expected value is '/urn:xdaq-application:lid=10'"
+			result=[]
+	else:
+		print "No 'urn' Attribute in Service element"
+		result=[]
+	if server.hasAttribute("qualifiedResourceType"):
+		if server.attributes["qualifiedResourceType"].value!="rcms.fm.resource.qualifiedresource.JobControl":
+			print "Attribute 'qualifiedResourceType' has an unexpected value of '"+server.attributes["qualifiedResourceType"].value+"', where the expected value is 'rcms.fm.resource.qualifiedresource.JobControl'"
+			result=[]
+	else:
+		print "No 'qualifiedResourceType' Attribute in Service element"	
+		result=[]
+	if server.hasAttribute("role"):
+		if server.attributes["role"].value!="DQM_TAGFILE":
+			print "Warning!!! Attribute 'role' has an unexpected value of '"+server.attributes["role"].value+"', where the expected value is 'DQM_TAGFILE'"
+	else:
+		print "Warning!!! No 'role' Attribute in Service element"
+	if result:
+		if server.attributes["hostname"].value in DPservices["hostname"]:
+			DPservices["hostname"][server.attributes["hostname"].value]+=1
+			print "There is already a service entry for server name: "+server.attributes["hostname"].value+" The count rises to:"+str(DPservices["hostname"][server.attributes["hostname"].value])
+			result=[]			
+		else:
+			DPservices["hostname"][server.attributes["hostname"].value]=1
+	#test if Job Control is actually running on server
+	if result:
+		if fullchk:
+			cmd="ssh "+server.attributes["hostname"].value+" ps -ef | grep xdaq |grep daemon| grep 'p "+server.attributes["port"].value+"' | wc -l 2>&1"
+			livetest=os.popen(cmd)
+			isprocrunning=int(livetest.readline() or "0")
+			livetest.close()
+			if isprocrunning:
+				verbose and sys.stdout.write( "Server is Running Xdaq process")
+			else:
+				print "Server is not running Xdaq daemon for Job Control no apps will be started on this server"
+				result=[]
+	return result
+################################################################################
+def chkConfigFile(cfgFile,executive):
+	global fullchk,verbose,user
+	result=True
+	#i2o:target
+	verbose and sys.stdout.write( "Checking ConfigFiles' i2o:targets")
+	i2otargets=cfgFile.getElementsByTagName("i2o:target")
+	if len(i2otargets) <= 1:
+		print "Insufficient i2o:targets please revise"
+		result=False
+	else:
+		for item in i2otargets:
+			if not item.hasAttribute("class"):
+				print "No 'class' attribute in i2o:target"
+				result=False
+				break
+			if not item.hasAttribute("instance"):
+				print "No 'instance' attribute in i2o:target"
+				result=False
+				break
+			if item.attributes["class"].value!="RCMSStateListener":
+				if item.attributes["instance"].value!=executive.attributes["instance"].value:
+					print "Insufficient i2o:targets please revise"
+					result=False
+	#Context
+	Contexts=cfgFile.getElementsByTagName("xc:Context")
+	if len(Contexts) < 2:
+		print "There are no enough contexts please revise"
+		result=False
+	else:
+		for item in Contexts:
+			if not item.hasAttribute("url"):
+				print "No 'url' attribute in xc:Context"
+				result=False
+				break
+			#Context:Application
+			Applications=cfgFile.getElementsByTagName("xc:Context")
+			if len(Applications) < 1 and len(Applications)>1:
+				print "Wrong number of applications in xc:Context with 'url' '"+item.attributes["url"].value+"' please revise"
+				result=False
+				break
+			#if Applications[0].attribute["class"].value!=
+			
+			expectedURL="http://"+executive.attributes["hostname"].value+":"+executive.attributes["port"].value
+			URLlist=[expectedURL]
+			if item.attributes["url"].value!=expectedURL:
+				print "Attribute 'url' has an unexpected value of '"+item.attributes["url"].value+"', where the expected value is '"+expectedURL+"'"
+				result=False
+	
+	
+	
+	
+	
+	return result
+################################################################################
+def chkExecutives(executive):
+	global fullchk,verbose,user
+	from EnviromentSettings import users,pathsToExecutive,logURLs,knownlogLevels,environmentString
+	pathToExecutive=str(pathsToExecutive[user])
+	logURL=str(logURLs[user])
+	result={}
+	if executive.hasAttribute("hostname"):
+		if executive.attributes["hostname"].value=="":
+			print "Attribute 'hostname' is empty"
+			return {}
+	else:
+		print "No 'hostname' Attribute in XdaqExecutive element"	
+		return {}
+	
+	if executive.hasAttribute("port"):
+		if executive.attributes["port"].value=="":
+			print "Attribute 'port' is empty"
+			return {}
+	else:
+		print "No 'port' Attribute in XdaqExecutive element"	
+		return {}
+	
+	if executive.hasAttribute("instance"):
+		if executive.attributes["instance"].value=="":
+			print "Attribute 'instance' is empty"
+			return {}
+	else:
+		print "No 'instance' Attribute in XdaqExecutive element"	
+		return {} 
+	result={"server":executive.attributes["hostname"].value,"port":executive.attributes["port"].value,"instance":executive.attributes["instance"].value}
+	uniqIndex=(executive.attributes["hostname"].value,executive.attributes["port"].value,executive.attributes["instance"].value)
+	if uniqIndex in DPapplications:
+		if uniqIndex in DPexecutives:
+			DPexecutives[uniqIndex]+=1
+			print "There is already a XdaqExecutive with the following attributes:\n\tInstance => "+executive.attributes["instance"].value+\
+					"\n\tHostname=>"+executive.attributes["hostname"].value +\
+					"\n\tPort=>"+executive.attributes["port"].value +\
+			"\nThe count rises to:"+str(executive[uniqIndex])
+			return {}
+		else:
+			DPexecutives[uniqIndex]=1
+	else:
+		print "There's no Application associated with this Executive: ("+",".join(uniqIndex)+") do not match those from any of the XdaqApplication elements processed"
+		return {}
+	if executive.hasAttribute("urn"):
+		if executive.attributes["urn"].value!="/urn:xdaq-application:lid=0" :
+			print "Attribute 'urn' has an unexpected value of '"+executive.attributes["urn"].value+"', where the expected value is '/urn:xdaq-application:lid=0'"
+			result={}
+	else:
+		print "No 'urn' Attribute in XdaqExecutive element"
+		result={}	
+	if executive.hasAttribute("qualifiedResourceType"):
+		if executive.attributes["qualifiedResourceType"].value!="rcms.fm.resource.qualifiedresource.XdaqExecutive":
+			print "Attribute 'qualifiedResourceType' has an unexpected value of '"+executive.attributes["qualifiedResourceType"].value+"', where the expected value is 'rcms.fm.resource.qualifiedresource.XdaqExecutive'"
+			result={}
+	else:
+		print "No 'qualifiedResourceType' Attribute in XdaqExecutive element"	
+		result={}
+	if executive.hasAttribute("pathToExecutive"):
+		if executive.attributes["pathToExecutive"].value!=pathToExecutive:
+			print "Attribute 'pathToExecutive' has an unexpected value of '"+executive.attributes["pathToExecutive"].value+"', where the expected value is '"+pathToExecutive+"'"
+			result={}
+	else:
+		print "No 'pathToExecutive' Attribute in XdaqExecutive element"	
+		result={}
+	if executive.hasAttribute("unixUser"):
+		if executive.attributes["unixUser"].value!=user:
+			print "Attribute 'unixUser' has an unexpected value of '"+executive.attributes["unixUser"].value+"', where the expected value is '"+user+"'"
+			result={}
+	else:
+		print "No 'unixUser' Attribute in XdaqExecutive element"	
+		result={}
+	if executive.hasAttribute("logURL"):
+		if executive.attributes["logURL"].value!=logURL:
+			print "Attribute 'logURL' has an unexpected value of '"+executive.attributes["logURL"].value+"', where the expected value is '"+logURL+"'"
+			result={}
+	else:
+		print "No 'logURL' Attribute in XdaqExecutive element"	
+		result={}
+	if executive.hasAttribute("logLevel"):
+		if executive.attributes["logLevel"].value not in knownlogLevels:
+			print "Attribute 'logLevel' has an unexpected value of '"+executive.attributes["logLevel"].value+"', where the expected value is one of the following loglevels:'"+"','".join(knownlogLevels)+ "'"
+			result={}
+	else:
+		print "No 'logURL' Attribute in XdaqExecutive element"	
+		result={}	  
+	cfgSection=executive.getElementsByTagName("configFile")
+	if len(cfgSection) > 1:
+		print "Warning!!! more than one configFile element in XdaqExecutive only the first one will be checked"
+	if len(cfgSection) == 0:
+		print "No configFile element in XdaqExecutive with the following attributes:\n\tInstance => "+executive.attributes["instance"].value+\
+					"\n\tHostname=>"+executive.attributes["hostname"].value +\
+					"\n\tPort=>"+executive.attributes["port"].value
+		return {}
+		
+	if not chkConfigFile(cfgSection[0],executive):
+		print "configFile element check of the XdaqExecutive  with the following attributes:\n\tInstance => "+executive.attributes["instance"].value+\
+					"\n\tHostname=>"+executive.attributes["hostname"].value +\
+					"\n\tPort=>"+executive.attributes["port"].value +\
+					"\nFAILED."
+		return {}   	
+	return result
+################################################################################
+# DPapplications={}    #instance:{(hostname,port):count,count:count}
+################################################################################
+def chkApplications(application,JCServers):
+	global fullchk,verbose,user
+	import EnviromentSettings
+	EnviromentSettings.user=user
+	knownclassNames=EnviromentSettings.knownclassNames()
+	result={}
+	if application.hasAttribute("hostname"):
+		if application.attributes["hostname"].value=="":
+			print "Attribute 'hostname' is empty"
+			return {}
+		elif application.attributes["hostname"].value not in JCServers :
+			print "Attribute 'hostname' doesn't point to a JobControlled server"
+			return {}
+	else:
+		print "No 'hostname' Attribute in XdaqApplication element"	
+		return {}
+	
+	if application.hasAttribute("port"):
+		if application.attributes["port"].value=="":
+			print "Attribute 'port' is empty"
+			return {}
+	else:
+		print "No 'port' Attribute in XdaqApplication element"	
+		return {}
+	
+	if application.hasAttribute("instance"):
+		if application.attributes["instance"].value=="":
+			print "Attribute 'instance' is empty"
+			return {}
+	else:
+		print "No 'instance' Attribute in XdaqApplication element"	
+		return {} 
+	result={"server":application.attributes["hostname"].value,"port":application.attributes["port"].value,"instance":application.attributes["instance"].value}
+	uniqIndex=(application.attributes["hostname"].value,application.attributes["port"].value,application.attributes["instance"].value)
+	if uniqIndex  in DPapplications:
+		DPapplications[uniqIndex]+=1
+		print "There is already a XdaqApplication with the following attributes:\n\tInstance => "+application.attributes["instance"].value+\
+				"\n\tHostname=>"+application.attributes["hostname"].value +\
+				"\n\tPort=>"+application.attributes["port"].value +\
+		"\nThe count rises to:"+str(DPapplications[uniqIndex])
+		return {}
+	else:
+		DPapplications[uniqIndex]=1
+	
+	
+	if application.hasAttribute("className"):
+		if application.attributes["className"].value not in knownclassNames:
+			print "Attribute 'urn' has an unexpected value of '"+application.attributes["className"].value+"', where the expected value is one of the following classNames:'"+"','".join(knownclassNames)+ "'"
+			result={}
+	else:
+		print "No 'urn' Attribute in XdaqApplication element"
+		result={}
+	
+	if application.hasAttribute("urn"):
+		if application.attributes["urn"].value!=knownclassNames[application.attributes["className"].value]["urn"]:
+			print "Attribute 'urn' has an unexpected value of '"+application.attributes["urn"].value+"', where the expected value is '"+knownclassNames[application.attributes["className"].value]["urn"]+"'"
+			result={}
+	else:
+		print "No 'urn' Attribute in XdaqApplication element"
+		result={}
+	if application.hasAttribute("qualifiedResourceType"):
+		if application.attributes["qualifiedResourceType"].value!="rcms.fm.resource.qualifiedresource.XdaqApplication":
+			print "Attribute 'qualifiedResourceType' has an unexpected value of '"+application.attributes["qualifiedResourceType"].value+"', where the expected value is 'rcms.fm.resource.qualifiedresource.XdaqApplication'"
+			result={}
+	else:
+		print "No 'qualifiedResourceType' Attribute in XdaqApplication element"	
+		result={}	
+	if application.hasAttribute("modulePath"):
+		if application.attributes["modulePath"].value!=knownclassNames[application.attributes["className"].value]["modulePath"]:
+			print "Attribute 'modulePath' has an unexpected value of '"+application.attributes["modulePath"].value+"', where the expected value is: '"+knownclassNames[application.attributes["className"].value]["modulePath"]+"'"
+			result={}
+	else:
+		print "No 'modulePath' Attribute in XdaqApplication element"	
+		result={}
+	if application.hasAttribute("xdaqPath"):
+		if application.attributes["xdaqPath"].value!="/opt/xdaq":
+			print "Attribute 'xdaqPath' has an unexpected value of '"+application.attributes["xdaqPath"].value+"', where the expected value is '/opt/xdaq'"
+			result={}
+	else:
+		print "No 'xdaqPath' Attribute in XdaqApplication element"	
+		result={}
+	return result
+################################################################################
+def verifyFile(filename):
+	global verbose,user
+	from EnviromentSettings import port,host,sourceURL
+	verbose and sys.stdout.write("Parsing XML file...\n")
+	xmldoc = minidom.parse(filename)
+	verbose and sys.stdout.write("Trimming XML tree...\n")
+	xmlTrim(xmldoc)
+	verbose and sys.stdout.write("Converting configFele Element Text node into Tree nodes...\n")
+	configfiles=xmldoc.getElementsByTagName("configFile")
+	for item in configfiles:
+		try:
+			appinf.appendDataXML(item)
+		except :
+			sys.stderr.write("Parser Error while trying to append:\n")
+			sys.stderr.write("\n")
+			sys.stderr.write( item.firstChild.nodeValue)
+	#Autodetect username
+	userAutodetect(xmldoc)
+	#Chk Configuration
+	verbose and sys.stdout.write("Checking configuration element...\n")
+	ConfigNode = xmldoc.getElementsByTagName("Configuration")
+	result=True
+	if len(ConfigNode) == 0:
+		print "No Configuration element in XMLfile"
+		return False
+	if not ConfigNode[0].hasAttribute("user") or ConfigNode[0].attributes["user"]=="":
+		print "No user attribute or blank in Configuration element"
+		result=False 
+	if not ConfigNode[0].hasAttribute("path") or \
+			ConfigNode[0].attributes["path"].value=="": 
+		print "No path attribute or blank in Configuration element"
+		result=False
+	if not ConfigNode[0].hasAttribute("path") or \
+			os.path.basename(ConfigNode[0].attributes["path"].value) !=filename[:len(filename)-4]:
+		print "WARNING!!!!! path attribute doesn't match filename"
+		print "\t"+filename[:len(filename)-4] + " <> " + ConfigNode[0].attributes["path"].value
+	#Chk ->Function Managers
+	verbose and sys.stdout.write("Checking Function Manager element...\n")
+	FmNode = ConfigNode[0].getElementsByTagName("FunctionManager")
+	if len(FmNode) == 0:
+		print "No FunctionManager element in Configuration node"
+		return False
+	message=[""]
+	message+=FmNode[0].hasAttribute("name") and (FmNode[0].attributes["name"].value=="DQMtest" and [""] or False) or \
+			"No 'name' Attribute or value is not what is expected( DQMtest )\n"
+	message+=FmNode[0].hasAttribute("hostname") and (FmNode[0].attributes["hostname"].value==host[user] and [""] or False) or \
+			"No 'hostname' Attribute or value is not what is expected( "+host[user]+" )\n"  
+	message+=FmNode[0].hasAttribute("port") and (FmNode[0].attributes["port"].value==port[user] and [""] or False) or \
+			"No 'port' Attribute or value is not what is expected( "+port[user]+" )\n"  
+	message+=FmNode[0].hasAttribute("qualifiedResourceType") and (FmNode[0].attributes["qualifiedResourceType"].value=="rcms.fm.resource.qualifiedresource.FunctionManager"  and [""] or False) or\
+			"No 'qualifiedResourceType' Attribute or value is not what is expected( rcms.fm.resource.qualifiedresource.FunctionManager )\n"  
+	message+=FmNode[0].hasAttribute("role") and (FmNode[0].attributes["role"].value=="DQM" and [""] or False) or \
+			"No 'role' Attribute or value is not what is expected( DQM )\n"   
+	message+=FmNode[0].hasAttribute("sourceURL") and (FmNode[0].attributes["sourceURL"].value==sourceURL[user] and [""] or False) or \
+			"No 'sourceURL' Attribute or value is not what is expected( "+sourceURL[user]+" )\n"   
+	message+=FmNode[0].hasAttribute("className") and (FmNode[0].attributes["className"].value=="rcms.fm.app.dqm.MyFunctionManager" and [""] or False) or \
+			"No 'className' Attribute or value is not what is expected( rcms.fm.app.dqm.MyFunctionManager )\n"
+	message="".join(message).strip()
+	if message:
+		print message
+		result=False
+	#Chk -->Services (JobControl)
+	verbose and sys.stdout.write("Checking service nodes...\n")
+	serviceNodes=FmNode[0].getElementsByTagName("Service")
+	if len(FmNode) == 0:
+		print "No Service elements in FunctionManager node"
+		return False
+	JCServers=[]
+	verbose and sys.stdout.write("processing "+str(len(serviceNodes))+" service nodes...\n")
+	for server in serviceNodes:
+		lastService=chkService(server)
+		if lastService:
+			JCServers+=lastService
+			verbose and sys.stdout.write("Service checked on server:"+JCServers[-1]+"...\n")
+		else:
+			verbose and sys.stdout.write("Service didn't pass the check\n")		
+			result=False
+	
+	#Chk -->Applications
+	verbose and sys.stdout.write("Checking application nodes...\n")
+	applicationNodes=FmNode[0].getElementsByTagName("XdaqApplication")
+	numapps=len(applicationNodes)
+	Apps=[]
+	verbose and sys.stdout.write("processing "+str(numapps)+" XdaqApplication nodes...\n")
+	for application in applicationNodes:
+		lastApp=chkApplications(application,JCServers) 
+		if lastApp:
+			Apps.append(lastApp)
+			verbose and sys.stdout.write("Application checked on server:"+lastApp["server"]+" port:"+lastApp["port"]+"...\n")
+		else:
+			verbose and sys.stdout.write("Application didn't pass the check\n")
+			result=False
+	#Chk -->Executives
+	verbose and sys.stdout.write("Checking Executive nodes...\n")
+	executiveNodes=FmNode[0].getElementsByTagName("XdaqExecutive")
+	numexec=len(executiveNodes)
+	if numexec != numapps:
+		print "Warning!!! the number of applications is diferent from the number of executives"
+	verbose and sys.stdout.write("processing "+str(numexec)+" XdaqExecutive nodes...\n")
+	for executive in executiveNodes:
+		lastExec=chkExecutives(executive)
+		if lastExec:
+			verbose and sys.stdout.write("Executive checked on server:"+lastExec["server"]+" port:"+lastExec["port"]+"...\n")
+		else:
+			verbose and sys.stdout.write("Executive didn't pass the check\n")		
+			result=False
+	#appinf.printXMLtree(xmldoc)
+	
+	return result
+################################################################################
+#Script operation                                                              #
+################################################################################
+if __name__ == "__main__":             
+	try:
+		(args,filename)=gop.getopt(sys.argv[1:],"fhsv")
+	except getopt.GetoptError:
+		sys.stderr.write(  "Sintax Error unrecognised option\n" )
+		sys.stderr.write( __doc__ )
+		sys.exit(2)
+	
+	for item in args:
+		if item[0]=="-h":
+			sys.stdout.write( __doc__ )
+			sys.exit()
+		elif item[0]=="-f":
+			fullchk=True
+		elif item[0]=="-v":
+			verbose=True
+	if len(filename)==0:
+		sys.stderr.write(  "\nERROR: xdaq XML config file name not present, please specify\n\n" )
+		sys.stdout.write(__doc__)
+	elif len(filename) > 1:
+		sys.stderr.write(  "\nERROR: Too many file names or other arguments, please specify only 1\n\n" )
+		sys.stdout.write(__doc__)
+		sys.exit(2)
+	elif not os.path.exists(filename[0]):
+		sys.stderr.write(  "\nERROR: xdaq XML config file does not exist please verify\n\n" )
+		sys.stdout.write(__doc__)
+		sys.exit(2)
+	if verifyFile(filename[0]):
+		print "Configuration file OK"
+	else:
+		print "Configuration file FAILED verification, plese check output for details"

@@ -60,12 +60,15 @@ class HLTmumutkVtxProducer : public edm::EDProducer {
   edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> previousCandToken_;
 
   const std::string mfName_;
-  const double thirdTrackMass_;
-  const double maxEta_;
-  const double minPt_;
-  const double minInvMass_;
-  const double maxInvMass_;
-  const double minD0Significance_;
+  
+  const double thirdTrackMass_    ;
+  const double maxEta_            ;
+  const double minPt_             ;
+  const double minInvMass_        ;
+  const double maxInvMass_        ;
+  const double minD0Significance_ ;
+  const double overlapDR_         ;
+  
   edm::InputTag                    beamSpotTag_;
   edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
 

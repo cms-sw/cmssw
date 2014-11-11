@@ -9,25 +9,20 @@ process.maxEvents = cms.untracked.PSet(
 process.options = cms.untracked.PSet(
     SkipEvent = cms.untracked.vstring('ProductNotFound')
     )
-process.source = cms.Source("NewEventStreamFileReader",
+process.source = cms.Source("FRDStreamSource",
     fileNames = cms.untracked.vstring(
-'file:/store/global/00/closed/Data.00134542.0001.A.storageManager.08.0000.dat'
-    )
+'file:/home/meschi/CMSSW_7_1_X_2014-09-12-0200/src/EventFilter/FEDInterface/data/fed1024data/run226295_ls0302_index000000.raw'    )
 )
 process.a = cms.EDAnalyzer("GlobalNumbersAnalysis");
 
 process.b = cms.EDAnalyzer("DumpFEDRawDataProduct",
 			   label = cms.untracked.string("source"),
-                           feds = cms.untracked.vint32(812,1023),
-                           dumpPayload = cms.untracked.bool(False)
+                           feds = cms.untracked.vint32(1024),
+                           dumpPayload = cms.untracked.bool(True)
                            )
-process.c = cms.EDAnalyzer("EvFRecordUnpacker",
-                           inputTag = cms.InputTag("source")
-                           )
-process.out = cms.OutputModule("PoolOutputModule",fileName=cms.untracked.string("file:pippo.root"))
 
 # path to be run
-process.p = cms.Path(process.b+process.c)
+process.p = cms.Path(process.a+process.b)
 
 #process.ep = cms.EndPath(process.out)
 

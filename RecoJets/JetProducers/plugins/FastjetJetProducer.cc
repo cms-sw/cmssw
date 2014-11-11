@@ -123,25 +123,25 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
     useExplicitGhosts_ = true;
 
     if ( iConfig.exists("useMassDropTagger") ) {
-      useMassDropTagger_ = true;
+      useMassDropTagger_ = iConfig.getParameter<bool>("useMassDropTagger");
       muCut_ = iConfig.getParameter<double>("muCut");
       yCut_ = iConfig.getParameter<double>("yCut");
     }
 
     if ( iConfig.exists("useFiltering") ) {
-      useFiltering_ = true;
+      useFiltering_ = iConfig.getParameter<bool>("useFiltering");
       rFilt_ = iConfig.getParameter<double>("rFilt");
       nFilt_ = iConfig.getParameter<int>("nFilt");
     }
   
     if ( iConfig.exists("useTrimming") ) {
-      useTrimming_ = true;
+      useTrimming_ = iConfig.getParameter<bool>("useTrimming");
       rFilt_ = iConfig.getParameter<double>("rFilt");
       trimPtFracMin_ = iConfig.getParameter<double>("trimPtFracMin");
     }
 
     if ( iConfig.exists("usePruning") ) {
-      usePruning_ = true;
+      usePruning_ = iConfig.getParameter<bool>("usePruning");
       zCut_ = iConfig.getParameter<double>("zcut");
       RcutFactor_ = iConfig.getParameter<double>("rcut_factor");
       nFilt_ = iConfig.getParameter<int>("nFilt");

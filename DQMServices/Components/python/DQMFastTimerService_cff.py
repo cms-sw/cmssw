@@ -1,35 +1,52 @@
 import FWCore.ParameterSet.Config as cms
 
-# instrument the menu with the modules and EndPath needed for timing studies
-FastTimerService = cms.Service('FastTimerService',
-    useRealTimeClock            = cms.untracked.bool( False ),
-    enableTimingPaths           = cms.untracked.bool( True ),
-    enableTimingModules         = cms.untracked.bool( False ),
-    enableTimingExclusive       = cms.untracked.bool( False ),
-    enableTimingSummary         = cms.untracked.bool( True ),
-    skipFirstPath               = cms.untracked.bool( False ),
-    enableDQM                   = cms.untracked.bool( True ),
-    enableDQMbyPathActive       = cms.untracked.bool( True ),
-    enableDQMbyPathTotal        = cms.untracked.bool( True ),
-    enableDQMbyPathOverhead     = cms.untracked.bool( False ),
-    enableDQMbyPathDetails      = cms.untracked.bool( True ),
-    enableDQMbyPathCounters     = cms.untracked.bool( True ),
-    enableDQMbyPathExclusive    = cms.untracked.bool( False ),
-    enableDQMbyModule           = cms.untracked.bool( False ),
-    enableDQMSummary            = cms.untracked.bool( True ),
-    enableDQMbyLuminosity       = cms.untracked.bool( True ),
-    enableDQMbyLumiSection      = cms.untracked.bool( True ),
-    enableDQMbyProcesses        = cms.untracked.bool( False ),
-    dqmTimeRange                = cms.untracked.double( 10000   ),
-    dqmTimeResolution           = cms.untracked.double(    10   ),
-    dqmPathTimeRange            = cms.untracked.double( 10000   ),
-    dqmPathTimeResolution       = cms.untracked.double(    10   ),
-    dqmModuleTimeRange          = cms.untracked.double(    40.  ),
-    dqmModuleTimeResolution     = cms.untracked.double(     0.2 ),
-    dqmLuminosityRange          = cms.untracked.double( 1e+34 ),
-    dqmLuminosityResolution     = cms.untracked.double( 1e+31 ),
-    dqmLumiSectionsRange        = cms.untracked.uint32(  2500 ),
-    dqmPath                     = cms.untracked.string( "DQM/TimerService" ),
-    luminosityProduct           = cms.untracked.InputTag( "scalersRawToDigi" ),
-    supportedProcesses          = cms.untracked.vuint32( )
-)
+# instrument the process with the FastTimerService
+from HLTrigger.Timer.FastTimerService_cfi import FastTimerService
+
+# this is currently ignored in 7.x, and always uses the real time clock
+FastTimerService.useRealTimeClock           = False
+
+# enable specific features
+FastTimerService.enableTimingPaths          = True
+FastTimerService.enableTimingModules        = False
+FastTimerService.enableTimingExclusive      = False
+
+# print a text summary at the end of the job
+FastTimerService.enableTimingSummary        = True
+
+# skip the first path (useful for HLT timing studies to disregard the time spent loading event and conditions data)
+FastTimerService.skipFirstPath              = False
+
+# enable per-event DQM plots
+FastTimerService.enableDQM                  = True
+
+# enable per-path DQM plots
+FastTimerService.enableDQMbyPathActive      = True
+FastTimerService.enableDQMbyPathTotal       = True
+FastTimerService.enableDQMbyPathOverhead    = False
+FastTimerService.enableDQMbyPathDetails     = True
+FastTimerService.enableDQMbyPathCounters    = True
+FastTimerService.enableDQMbyPathExclusive   = False
+
+# enable per-module DQM plots
+FastTimerService.enableDQMbyModule          = False
+FastTimerService.enableDQMbyModuleType      = False
+
+# enable per-event DQM sumary plots
+FastTimerService.enableDQMSummary           = True
+
+# enable per-event DQM plots by lumisection
+FastTimerService.enableDQMbyLumiSection     = True
+FastTimerService.dqmLumiSectionsRange       = 2500    # lumisections (23.31 s)
+
+# set the time resolution of the DQM plots
+FastTimerService.dqmTimeRange               = 10000.  # ms
+FastTimerService.dqmTimeResolution          =    10.  # ms
+FastTimerService.dqmPathTimeRange           = 10000.  # ms
+FastTimerService.dqmPathTimeResolution      =    10.  # ms
+FastTimerService.dqmModuleTimeRange         =   100.  # ms
+FastTimerService.dqmModuleTimeResolution    =     0.5 # ms
+
+# set the base DQM folder for the plots
+FastTimerService.dqmPath                    = "DQM/TimerService"
+FastTimerService.enableDQMbyProcesses       = False

@@ -208,16 +208,29 @@ def createOfflineJobsMergeScript(offlineValidationList, outFilePath):
     theFile.write( replaceByMap( configTemplates.mergeOfflineParJobsTemplate ,repMap ) )
     theFile.close()
 
-def createExtendedValidationScript(offlineValidationList, outFilePath):
+def createExtendedValidationScript(offlineValidationList, outFilePath, resultPlotFile):
     repMap = offlineValidationList[0].getRepMap() # bit ugly since some special features are filled
+    repMap[ "resultPlotFile" ] = resultPlotFile
     repMap[ "extendedInstantiation" ] = "" #give it a "" at first in order to get the initialisation back
 
     for validation in offlineValidationList:
         repMap[ "extendedInstantiation" ] = validation.appendToExtendedValidation( repMap[ "extendedInstantiation" ] )
-    
+
     theFile = open( outFilePath, "w" )
     # theFile.write( replaceByMap( configTemplates.extendedValidationTemplate ,repMap ) )
     theFile.write( replaceByMap( configTemplates.extendedValidationTemplate ,repMap ) )
+    theFile.close()
+    
+def createTrackSplitPlotScript(trackSplittingValidationList, outFilePath):
+    repMap = trackSplittingValidationList[0].getRepMap() # bit ugly since some special features are filled
+    repMap[ "trackSplitPlotInstantiation" ] = "" #give it a "" at first in order to get the initialisation back
+
+    for validation in trackSplittingValidationList:
+        repMap[ "trackSplitPlotInstantiation" ] = validation.appendToExtendedValidation( repMap[ "trackSplitPlotInstantiation" ] )
+    
+    theFile = open( outFilePath, "w" )
+    # theFile.write( replaceByMap( configTemplates.trackSplitPlotTemplate ,repMap ) )
+    theFile.write( replaceByMap( configTemplates.trackSplitPlotTemplate ,repMap ) )
     theFile.close()
     
 def createMergeScript( path, validations ):
@@ -229,10 +242,12 @@ def createMergeScript( path, validations ):
     repMap.update({
             "DownloadData":"",
             "CompareAlignments":"",
-            "RunExtendedOfflineValidation":""
+            "RunExtendedOfflineValidation":"",
+            "RunTrackSplitPlot":""
             })
 
     comparisonLists = {} # directory of lists containing the validations that are comparable
+    resultPlotFile = "" # string of a file name for createExtendedValidationScript
     for validation in validations:
         for referenceName in validation.filesToCompare:
             validationName = "%s.%s"%(validation.__class__.__name__, referenceName)
@@ -241,14 +256,25 @@ def createMergeScript( path, validations ):
                 comparisonLists[ validationName ].append( validation )
             else:
                 comparisonLists[ validationName ] = [ validation ]
+	    if validationName == "OfflineValidation":
+	        resultPlotFile = validationName
 
     if "OfflineValidation" in comparisonLists:
         repMap["extendeValScriptPath"] = \
             os.path.join(path, "TkAlExtendedOfflineValidation.C")
         createExtendedValidationScript(comparisonLists["OfflineValidation"],
-                                       repMap["extendeValScriptPath"] )
+                                       repMap["extendeValScriptPath"],
+                                       resultPlotFile)
         repMap["RunExtendedOfflineValidation"] = \
             replaceByMap(configTemplates.extendedValidationExecution, repMap)
+
+    if "TrackSplittingValidation" in comparisonLists:
+        repMap["trackSplitPlotScriptPath"] = \
+            os.path.join(path, "TkAlTrackSplitPlot.C")
+        createTrackSplitPlotScript(comparisonLists["TrackSplittingValidation"],
+                                       repMap["trackSplitPlotScriptPath"] )
+        repMap["RunTrackSplitPlot"] = \
+            replaceByMap(configTemplates.trackSplitPlotExecution, repMap)
 
     repMap["CompareAlignments"] = "#run comparisons"
     for validationId in comparisonLists:
@@ -280,6 +306,7 @@ def createParallelMergeScript( path, validations ):
             })
 
     comparisonLists = {} # directory of lists containing the validations that are comparable
+    resultPlotFile = "" # string of a file name for createExtendedValidationScript
     for validation in validations:
         for referenceName in validation.filesToCompare:    
             validationName = "%s.%s"%(validation.__class__.__name__, referenceName)
@@ -288,10 +315,12 @@ def createParallelMergeScript( path, validations ):
                 comparisonLists[ validationName ].append( validation )
             else:
                 comparisonLists[ validationName ] = [ validation ]
+	    if validationName == "OfflineValidationParallel":
+	        resultPlotFile = validationName
 
     if "OfflineValidationParallel" in comparisonLists:
         repMap["extendeValScriptPath"] = os.path.join(path, "TkAlExtendedOfflineValidation.C")
-        createExtendedValidationScript( comparisonLists["OfflineValidationParallel"], repMap["extendeValScriptPath"] )
+        createExtendedValidationScript( comparisonLists["OfflineValidationParallel"], repMap["extendeValScriptPath"], resultPlotFile )
         repMap["mergeOfflineParJobsScriptPath"] = os.path.join(path, "TkAlOfflineJobsMerge.C")
         createOfflineJobsMergeScript( comparisonLists["OfflineValidationParallel"],
                                       repMap["mergeOfflineParJobsScriptPath"] )

@@ -56,6 +56,7 @@ namespace edm {
     initialNumberOfEventsToSkip_(inputType == InputType::Primary ? pset.getUntrackedParameter<unsigned int>("skipEvents", 0U) : 0U),
     noEventSort_(inputType == InputType::Primary ? pset.getUntrackedParameter<bool>("noEventSort", true) : false),
     skipBadFiles_(pset.getUntrackedParameter<bool>("skipBadFiles", false)),
+    bypassVersionCheck_(pset.getUntrackedParameter<bool>("bypassVersionCheck", false)),
     treeCacheSize_(noEventSort_ ? pset.getUntrackedParameter<unsigned int>("cacheSize", roottree::defaultCacheSize) : 0U),
     treeMaxVirtualSize_(pset.getUntrackedParameter<int>("treeMaxVirtualSize", -1)),
     setRun_(pset.getUntrackedParameter<unsigned int>("setRunNumber", 0U)),
@@ -264,6 +265,7 @@ namespace edm {
           indexesIntoFiles_,
           currentIndexIntoFile,
           orderedProcessHistoryIDs_,
+          bypassVersionCheck_,
           labelRawDataLikeMC_,
           usingGoToEvent_,
           enablePrefetching_));
@@ -788,6 +790,9 @@ namespace edm {
     desc.addUntracked<bool>("skipBadFiles", false)
         ->setComment("True:  Ignore any missing or unopenable input file.\n"
                      "False: Throw exception if missing or unopenable input file.");
+    desc.addUntracked<bool>("bypassVersionCheck", false)
+        ->setComment("True:  Bypass release version check.\n"
+                     "False: Throw exception if reading file in a release prior to the release in which the file was written.");
     desc.addUntracked<unsigned int>("cacheSize", roottree::defaultCacheSize)
         ->setComment("Size of ROOT TTree prefetch cache.  Affects performance.");
     desc.addUntracked<int>("treeMaxVirtualSize", -1)

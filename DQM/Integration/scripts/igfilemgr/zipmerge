@@ -1,0 +1,159 @@
+#! /usr/bin/env python
+"""
+zipmerge [-sret] [-n size ] [--help] [-o name] file1 
+  file2 [filen...]
+  
+Options:  
+  -s      Sort file entries by file name in merged files.
+  -r      If s is  specifyed,  will  append to the filename the name of the last
+          file and the first file.
+  -e      Erase source files.If process interrupted in the midle it could render
+          the files useless. Always make backup copys of your files before using
+          this option.
+  -t      Test print out the inner structure but don't take any action.
+  -n size Specify  the  maximum file size in Kb. If the merge exeeds the maximum size, 
+          additional files will be created also not exeeding this size.
+  -o name Name to be used for resulting merged file(s).
+  file 1  list of files to be merged, the program accepts a minimum of 2  files, 
+  file 2  wild cards are accepted.
+  filen 
+ 
+"""
+
+
+import sys
+import os.path
+import getopt as gop
+import zipfile as zp
+
+SORTED=False
+RANGE=False
+KEEP=True
+TEST=False
+MFILENAME="merged.zip"
+CHUNKSIZE=2097152
+ZFHANDLES=[]
+OUTFILES=[]    
+MEMBERS=[]
+#FILETREE={}
+TOTALSIZE=0.0
+ALL=False
+def sortMembers():
+    MEMBERS.sort(key=lambda x:x[1].filename)
+def openOutputZipFile(filename):
+  global ALL,OUTFILES
+  try:
+    if os.path.exists(filename):
+      key="x"
+      while  key not in ["y","Y","n","N","a","A","all","All",""] and not ALL:
+        print "\nOutput file %s already exist and will be overwriten!!!" % filename
+        key=raw_input("Do you want to proceed? (y,n,[all])")
+        ALL=key in ["a","A","all","All",""]
+      if key in ["y","Y",""] or ALL: 
+        os.remove(filename)
+      else:
+        sys.exit()
+    zpout=zp.ZipFile(filename,"w")
+    zpout.close()
+    zpout=zp.ZipFile(filename,"a")
+    OUTFILES.append(zpout)
+    return zpout
+  except:
+    a,b,c=sys.exc_info()
+    b.code == None or sys.stderr.write("Could not create output file\n")
+    sys.exit(3)
+def cleanup():
+  global OUTFILES,ZFHANDLES
+  for handle in ZFHANDLES:
+      try:
+        handle.close()
+      except:
+        pass
+  for handle in OUTFILES:
+      try:
+        handle.close()
+      except:
+        pass
+
+if __name__ == "__main__": 
+  try:
+    (args,filenames)=gop.getopt(sys.argv[1:],"srn:o:",["help"])
+  except getopt.GetoptError:
+    sys.stderr.write(  "Sintax Error unrecognised option" )
+    sys.stderr.write( __doc__ )
+    sys.exit(2)
+  
+  for item in args:
+    if item[0]=="-s":
+      SORTED=True
+    elif item[0]=="-r":
+      RANGE=True
+    elif item[0]=="-e":
+      KEEP=False
+    elif item[0]=="-n":
+      CHUNKSIZE=long(item[1])
+    elif item[0]=="-o":
+      MFILENAME=item[1]
+    elif item[0]=="--help":
+      sys.stdout.write(__doc__)
+      sys.exit(1)
+
+  if len(filenames) < 2 :
+    sys.stdout.write(__doc__)
+    sys.exit(2)
+    
+  basename,extension=MFILENAME.rsplit(".",1)
+  for filename in filenames:
+    print "Opening %s" % filename
+    ZFHANDLES.append(zp.ZipFile(filename,"r"))
+  
+  print "gathering archived files statistics"
+  for handle in ZFHANDLES:
+    for info in handle.infolist():
+      MEMBERS.append([handle,info])
+      #FILETREE.setdefault(handle,[]).append(info)
+      TOTALSIZE+=info.compress_size/1024
+  print "found %d archived files in %d archives" % (len(MEMBERS),len(ZFHANDLES))
+  numfiles=TOTALSIZE/CHUNKSIZE
+  numfiles=long(round(numfiles) + (numfiles-round(numfiles)>0 and 1 or 0 ))
+  print "The Number of expected requiered files is: %d (could be more)" % numfiles  
+  
+  print "Starting Merging process..."
+  
+  print "Creating file structure"
+  print "\n".join([key[1].filename for key in MEMBERS[:10]])
+  not SORTED or sortMembers()
+  print "Sorted"
+  print "\n".join([key[1].filename for key in MEMBERS[:10]])
+  i=1
+  while len(MEMBERS) > 0:
+    filesize=0
+    m=0
+    filename="%s_%03d.%s" % (basename,i,extension)
+    print "opening file %s" % filename
+    outfile=openOutputZipFile(filename)
+    while len(MEMBERS) > 0 and  m < len(MEMBERS):
+      member=MEMBERS[m]
+      if (member[1].compress_size+filesize)/1024 < CHUNKSIZE:
+        try:
+          print member[1].filename
+          outfile.writestr(member[1],member[0].read(member[1].filename))
+        except zp.BadZipfile:
+          print member[1].filename
+          print "Problem with file member: %s skiping" % member[1].filename
+          del member
+          del MEMBERS[m]
+          continue
+        filesize+=member[1].compress_size
+        del member
+        del MEMBERS[m]
+      elif SORTED:
+        break
+      else:
+        m+=1
+    i+=1
+    print "Closing file %s" % filename 
+    outfile.close()
+  cleanup()
+  
+  

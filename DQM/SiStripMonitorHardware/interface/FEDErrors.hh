@@ -204,9 +204,9 @@ public:
 
   const unsigned int fedID();
 
-  static FEDCounters & getFEDErrorsCounters();
+  FEDCounters & getFEDErrorsCounters();
 
-  static ChannelCounters & getChannelErrorsCounters();
+  ChannelCounters & getChannelErrorsCounters();
 
   FECounters & getFEErrorsCounters();
 
@@ -268,6 +268,9 @@ private:
   
   FECounters feCounter_;
   FEDLevelErrors fedErrors_;
+  ChannelCounters lChCounter_;
+  FEDCounters lFedCounter_;
+
   std::vector<FELevelErrors> feErrors_;
   std::vector<ChannelLevelErrors> chErrorsDetailed_;
   std::vector<APVLevelErrors> apvErrors_;

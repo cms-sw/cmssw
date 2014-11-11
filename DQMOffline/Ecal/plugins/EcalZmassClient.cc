@@ -16,15 +16,10 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DQM/Physics/src/EwkDQM.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -32,198 +27,86 @@
 #include <string>
 #include <cmath>
 #include "TH1.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include <iostream>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-class DQMStore;
-class MonitorElement;
+Double_t mybw(Double_t*, Double_t*);
+Double_t mygauss(Double_t*, Double_t*);
 
-//
-// class declaration
-//
-
-class EcalZmassClient:public
-  edm::EDAnalyzer
-{
+class EcalZmassClient: public DQMEDHarvester {
 public:
-  explicit
-  EcalZmassClient (const edm::ParameterSet &);
-   ~
-  EcalZmassClient ();
-
-  static void
-  fillDescriptions (edm::ConfigurationDescriptions & descriptions);
-
+  explicit EcalZmassClient(const edm::ParameterSet&);
+  ~EcalZmassClient();
 
 private:
-  virtual void
-  beginJob () override;
-  virtual void
-  analyze (const edm::Event &, const edm::EventSetup &) override;
-  virtual void
-  endJob () override;
-
-  virtual void
-  beginRun (edm::Run const &, edm::EventSetup const &) override;
-  virtual void
-  endRun (edm::Run const &, edm::EventSetup const &) override;
-  virtual void
-  beginLuminosityBlock (edm::LuminosityBlock const &,
-			edm::EventSetup const &) override;
-  virtual void
-  endLuminosityBlock (edm::LuminosityBlock const &, edm::EventSetup const &) override;
+  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
 
   // ----------member data ---------------------------
 
   std::string prefixME_;
-
-  MonitorElement *
-    h_fitres1;
-  MonitorElement *
-    h_fitres1bis;
-  MonitorElement *
-    h_fitres1Chi2;
-  MonitorElement *
-    h_fitres2;
-  MonitorElement *
-    h_fitres2bis;
-  MonitorElement *
-    h_fitres2Chi2;
-  MonitorElement *
-    h_fitres3;
-  MonitorElement *
-    h_fitres3bis;
-  MonitorElement *
-    h_fitres3Chi2;
-
-
 };
 
-EcalZmassClient::EcalZmassClient (const edm::ParameterSet & iConfig)
+EcalZmassClient::EcalZmassClient (const edm::ParameterSet& iConfig) :
+  prefixME_(iConfig.getUntrackedParameter < std::string > ("prefixME", ""))
 {
-  prefixME_ = iConfig.getUntrackedParameter < std::string > ("prefixME", "");
-
 }
-
 
 EcalZmassClient::~EcalZmassClient ()
 {
-
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-
 }
 
-
-//
-// member functions
-//
-
-// ------------ method called for each event  ------------
 void
-EcalZmassClient::analyze (const edm::Event & iEvent,
-			  const edm::EventSetup & iSetup)
+EcalZmassClient::dqmEndJob(DQMStore::IBooker& _ibooker, DQMStore::IGetter& _igetter)
 {
+  MonitorElement* h_fitres1;
+  MonitorElement* h_fitres1bis;
+  MonitorElement* h_fitres1Chi2;
+  MonitorElement* h_fitres2;
+  MonitorElement* h_fitres2bis;
+  MonitorElement* h_fitres2Chi2;
+  MonitorElement* h_fitres3;
+  MonitorElement* h_fitres3bis;
+  MonitorElement* h_fitres3Chi2;
 
-}
-
-
-// ------------ method called once each job just before starting event loop  ------------
-void
-EcalZmassClient::beginJob ()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void
-EcalZmassClient::endJob ()
-{
-}
-
-// ------------ method called when starting to processes a run  ------------
-void
-EcalZmassClient::beginRun (edm::Run const &, edm::EventSetup const &)
-{
-  DQMStore *theDbe = edm::Service < DQMStore > ().operator-> ();
-
-  theDbe->setCurrentFolder (prefixME_ + "/Zmass");
+  _ibooker.setCurrentFolder (prefixME_ + "/Zmass");
   h_fitres1 =
-    theDbe->book1D ("Gaussian mean WP80 EB-EB",
+    _ibooker.book1D ("Gaussian mean WP80 EB-EB",
 		    "Gaussian mean WP80 EB-EB", 1, 0, 1);
   h_fitres1bis =
-    theDbe->book1D ("Gaussian sigma WP80 EB-EB",
+    _ibooker.book1D ("Gaussian sigma WP80 EB-EB",
 		    "Gaussian sigma WP80 EB-EB", 1, 0, 1);
   h_fitres1Chi2 =
-    theDbe->book1D ("Gaussian Chi2 result over NDF  WP80 EB-EB",
+    _ibooker.book1D ("Gaussian Chi2 result over NDF  WP80 EB-EB",
 		    "Gaussian Chi2 result over NDF  WP80 EB-EB", 1, 0, 1);
 
   h_fitres3 =
-    theDbe->book1D ("Gaussian mean WP80 EB-EE",
+    _ibooker.book1D ("Gaussian mean WP80 EB-EE",
 		    "Gaussian mean result WP80 EB-EE", 1, 0, 1);
   h_fitres3bis =
-    theDbe->book1D ("Gaussian sigma WP80 EB-EE",
+    _ibooker.book1D ("Gaussian sigma WP80 EB-EE",
 		    "Gaussian sigma WP80 EB-EE", 1, 0, 1);
   h_fitres3Chi2 =
-    theDbe->book1D ("Gaussian Chi2 result over NDF WP80 EB-EE",
+    _ibooker.book1D ("Gaussian Chi2 result over NDF WP80 EB-EE",
 		    "Gaussian Chi2 result over NDF WP80 EB-EE", 1, 0, 1);
 
   h_fitres2 =
-    theDbe->book1D ("Gaussian mean WP80 EE-EE",
+    _ibooker.book1D ("Gaussian mean WP80 EE-EE",
 		    "Gaussian mean WP80 EE-EE", 1, 0, 1);
   h_fitres2bis =
-    theDbe->book1D ("Gaussian sigma WP80 EE-EE",
+    _ibooker.book1D ("Gaussian sigma WP80 EE-EE",
 		    "Gaussian sigma WP80 EE-EE", 1, 0, 1);
   h_fitres2Chi2 =
-    theDbe->book1D ("Gaussian Chi2 result over NDF WP80 EE-EE",
+    _ibooker.book1D ("Gaussian Chi2 result over NDF WP80 EE-EE",
 		    "Gaussian Chi2 result over NDF WP80 EE-EE", 1, 0, 1);
-}
-
-
-//Breit-Wigner function
-Double_t
-mybw (Double_t * x, Double_t * par)
-{
-  Double_t arg1 = 14.0 / 22.0;	// 2 over pi
-  Double_t arg2 = par[1] * par[1] * par[2] * par[2];	//Gamma=par[2]  M=par[1]
-  Double_t arg3 =
-    ((x[0] * x[0]) - (par[1] * par[1])) * ((x[0] * x[0]) - (par[1] * par[1]));
-  Double_t arg4 =
-    x[0] * x[0] * x[0] * x[0] * ((par[2] * par[2]) / (par[1] * par[1]));
-  return par[0] * arg1 * arg2 / (arg3 + arg4);
-}
-
-//Gaussian
-Double_t
-mygauss (Double_t * x, Double_t * par)
-{
-  Double_t arg = 0;
-  if (par[2] < 0)
-    par[2] = -par[2];		// par[2]: sigma
-  if (par[2] != 0)
-    arg = (x[0] - par[1]) / par[2];	// par[1]: mean
-  return par[0] * TMath::Exp (-0.5 * arg * arg) / (TMath::Sqrt (2 * TMath::Pi ()) * par[2]);	// par[0] is constant
-
-}
-
-
-
-// ------------ method called when ending the processing of a run  ------------
-void
-EcalZmassClient::endRun (edm::Run const &, edm::EventSetup const &)
-{
-  DQMStore *theDbe = edm::Service < DQMStore > ().operator-> ();
 
   LogTrace ("EwkAnalyzer") << "Parameters initialization";
 
-  MonitorElement *me1 = theDbe->get (prefixME_ + "/Zmass/Z peak - WP80 EB-EB");
-  MonitorElement *me2 = theDbe->get (prefixME_ + "/Zmass/Z peak - WP80 EE-EE");
-  MonitorElement *me3 = theDbe->get (prefixME_ + "/Zmass/Z peak - WP80 EB-EE");
-
+  MonitorElement *me1 = _igetter.get (prefixME_ + "/Zmass/Z peak - WP80 EB-EB");
+  MonitorElement *me2 = _igetter.get (prefixME_ + "/Zmass/Z peak - WP80 EE-EE");
+  MonitorElement *me3 = _igetter.get (prefixME_ + "/Zmass/Z peak - WP80 EB-EE");
 
   if (me1 != 0)
     {
@@ -772,31 +655,30 @@ EcalZmassClient::endRun (edm::Run const &, edm::EventSetup const &)
     }
 }
 
-	// ------------ method called when starting to processes a luminosity block  ------------
-void
-EcalZmassClient::beginLuminosityBlock (edm::LuminosityBlock const &,
-				       edm::EventSetup const &)
+//Breit-Wigner function
+Double_t
+mybw (Double_t * x, Double_t * par)
 {
+  Double_t arg1 = 14.0 / 22.0;	// 2 over pi
+  Double_t arg2 = par[1] * par[1] * par[2] * par[2];	//Gamma=par[2]  M=par[1]
+  Double_t arg3 =
+    ((x[0] * x[0]) - (par[1] * par[1])) * ((x[0] * x[0]) - (par[1] * par[1]));
+  Double_t arg4 =
+    x[0] * x[0] * x[0] * x[0] * ((par[2] * par[2]) / (par[1] * par[1]));
+  return par[0] * arg1 * arg2 / (arg3 + arg4);
 }
 
-	// ------------ method called when ending the processing of a luminosity block  ------------
-void
-EcalZmassClient::endLuminosityBlock (edm::LuminosityBlock const &,
-				     edm::EventSetup const &)
+//Gaussian
+Double_t
+mygauss (Double_t * x, Double_t * par)
 {
+  Double_t arg = 0;
+  if (par[2] < 0)
+    par[2] = -par[2];		// par[2]: sigma
+  if (par[2] != 0)
+    arg = (x[0] - par[1]) / par[2];	// par[1]: mean
+  return par[0] * TMath::Exp (-0.5 * arg * arg) / (TMath::Sqrt (2 * TMath::Pi ()) * par[2]);	// par[0] is constant
+
 }
 
-	// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-EcalZmassClient::fillDescriptions (edm::
-				   ConfigurationDescriptions & descriptions)
-{
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
-  edm::ParameterSetDescription desc;
-  desc.setUnknown ();
-  descriptions.addDefault (desc);
-}
-
-	//define this as a plug-in
 DEFINE_FWK_MODULE (EcalZmassClient);

@@ -67,6 +67,9 @@ namespace edm
     template <typename T>
     void watchPostSourceRun(void*, T) {}
 
+    template <typename T>
+    void watchPostSourceLumi(void*, T) {}
+
     PreallocationSignal preallocateSignal_;
   };
   

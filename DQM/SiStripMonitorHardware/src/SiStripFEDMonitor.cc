@@ -379,13 +379,15 @@ SiStripFEDMonitorPlugin::analyze(const edm::Event& iEvent,
 
   }
 
-  FEDErrors::getFEDErrorsCounters().nTotalBadChannels = lNTotBadChannels;
-  FEDErrors::getFEDErrorsCounters().nTotalBadActiveChannels = lNTotBadActiveChannels;
+  //FEDErrors::getFEDErrorsCounters().nTotalBadChannels = lNTotBadChannels;
+  //FEDErrors::getFEDErrorsCounters().nTotalBadActiveChannels = lNTotBadActiveChannels;
+  fedErrors_.getFEDErrorsCounters().nTotalBadChannels = lNTotBadChannels;
+  fedErrors_.getFEDErrorsCounters().nTotalBadActiveChannels = lNTotBadActiveChannels;
 
   //fedHists_.fillCountersHistograms(FEDErrors::getFEDErrorsCounters(), nEvt_);
   //time in seconds since beginning of the run or event number
-  if (fillWithEvtNum_) fedHists_.fillCountersHistograms(FEDErrors::getFEDErrorsCounters(),FEDErrors::getChannelErrorsCounters(),maxFedBufferSize_,iEvent.id().event());
-  else fedHists_.fillCountersHistograms(FEDErrors::getFEDErrorsCounters(),FEDErrors::getChannelErrorsCounters(),maxFedBufferSize_,iEvent.orbitNumber()/11223.);
+  if (fillWithEvtNum_) fedHists_.fillCountersHistograms(fedErrors_.getFEDErrorsCounters(),fedErrors_.getChannelErrorsCounters(),maxFedBufferSize_,iEvent.id().event());
+  else fedHists_.fillCountersHistograms(fedErrors_.getFEDErrorsCounters(),fedErrors_.getChannelErrorsCounters(),maxFedBufferSize_,iEvent.orbitNumber()/11223.);
 
   nEvt_++;
 

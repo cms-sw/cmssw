@@ -53,13 +53,6 @@ DQMExample_Step1::~DQMExample_Step1()
 }
 
 //
-// -------------------------------------- beginJob --------------------------------------------
-//
-void DQMExample_Step1::beginJob()
-{
-  edm::LogInfo("DQMExample_Step1") <<  "DQMExample_Step1::beginJob " << std::endl;
-}
-//
 // -------------------------------------- beginRun --------------------------------------------
 //
 void DQMExample_Step1::dqmBeginRun(edm::Run const &, edm::EventSetup const &)
@@ -321,14 +314,6 @@ void DQMExample_Step1::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
 void DQMExample_Step1::endRun(edm::Run const& run, edm::EventSetup const& eSetup)
 {
   edm::LogInfo("DQMExample_Step1") <<  "DQMExample_Step1::endRun" << std::endl;
-}
-
-//
-// -------------------------------------- endJob --------------------------------------------
-//
-void DQMExample_Step1::endJob()
-{
-  edm::LogInfo("DQMExample_Step1") <<  "DQMExample_Step1::endJob" << std::endl;
 }
 
 

@@ -33,11 +33,14 @@ class CSCComparatorOutput;
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include <boost/dynamic_bitset.hpp>
 
+/// Maximum available CFEBs per chamber (for old system 5, for new ME11 should be 7)
+#define MAX_CFEB 7
+
 class CSCEventData {
  public:
-  explicit CSCEventData(int chamberType);
+  explicit CSCEventData(int chamberType, uint16_t format_version = 2005);
   /// should make const input soon
-  CSCEventData(unsigned short * buf);
+  CSCEventData(unsigned short * buf, uint16_t format_version = 2005);
   CSCEventData(){}
   /// since we need deep copies, need the Big Three
   /// (destructor, copy ctor, op=)
@@ -114,6 +117,7 @@ class CSCEventData {
   void add(const CSCStripDigi &, int layer);
   void add(const CSCWireDigi &, int layer);
   void add(const CSCComparatorDigi &, int layer);
+  void add(const CSCComparatorDigi &, const CSCDetId &);
   /// these go in as vectors, so they get sorted right away
   void add(const std::vector<CSCALCTDigi> &);
   void add(const std::vector<CSCCLCTDigi> &);
@@ -132,6 +136,10 @@ class CSCEventData {
 
   /// might not be set in real data
   int chamberType() const {return theChamberType;}
+
+  uint16_t getFormatVersion() const { return theFormatVersion; }
+
+  unsigned int calcALCTcrc(std::vector< std::pair<unsigned int, unsigned short*> > &vec);
 
 
   static bool debug;
@@ -164,8 +172,8 @@ private:
   CSCALCTTrailer * theALCTTrailer;
   CSCTMBData    * theTMBData;
 
-  /// for up to 5 CFEB boards
-  CSCCFEBData * theCFEBData[5];
+  /// for up to MAX_CFEB CFEB boards
+  CSCCFEBData * theCFEBData[MAX_CFEB];
 
   CSCDMBTrailer theDMBTrailer;
 
@@ -177,6 +185,9 @@ private:
   /// Auxiliary bufer to recove the ALCT raw payload from zero suppression 
   unsigned short * alctZSErecovered;
   int zseEnable; 
+
+  /// Output Format Version (2005, 2013)
+  uint16_t theFormatVersion;
 };
 
 std::ostream & operator<<(std::ostream & os, const CSCEventData & evt);

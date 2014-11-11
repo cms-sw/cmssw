@@ -6,13 +6,16 @@
 */
 
 #include <string.h> // memcpy
+#ifndef LOCAL_UNPACK
 #include <atomic>
+#endif
 #include "DataFormats/CSCDigi/interface/CSCALCTStatusDigi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 struct CSCALCTTrailer2006 {
   CSCALCTTrailer2006();
   void setSize(int size) {frameCount = size;}
+  void setCRC(unsigned int crc) {crc0 = crc&0x7FF; crc1 = (crc >> 11) & 0x7FF;}
   short unsigned int sizeInWords() const { ///size of ALCT Header
     return 4;
   }
@@ -25,6 +28,7 @@ struct CSCALCTTrailer2006 {
 struct CSCALCTTrailer2007 {
   CSCALCTTrailer2007();
   void setSize(int size) {frameCount = size;}
+  void setCRC(unsigned int crc) {crc0 = crc&0x7FF; crc1 = (crc >> 11) & 0x7FF;}
   short unsigned int sizeInWords() const { ///size of ALCT Header
     return 4;
   }
@@ -49,7 +53,11 @@ public:
   static void setDebug(bool debugValue) {debug = debugValue;}
 
   unsigned short * data() {
+#ifdef LOCAL_UNPACK
+    switch (firmwareVersion) {
+#else
     switch (firmwareVersion.load()) {
+#endif
     case 2006:
       memcpy(theOriginalBuffer, &trailer2006, trailer2006.sizeInWords()*2);
       break;
@@ -67,8 +75,32 @@ public:
   /// in 16-bit frames
   static int sizeInWords() {return 4;}
 
-  int getCRC() { 
+  void setCRC(unsigned int crc){
+#ifdef LOCAL_UNPACK
+    switch (firmwareVersion) {
+#else
     switch (firmwareVersion.load()) {
+#endif
+    case 2006:
+      trailer2006.setCRC(crc);
+      break;
+    case 2007:
+      trailer2007.setCRC(crc);
+      break;
+    default:
+      edm::LogError("CSCALCTTrailer|CSCRawToDigi")
+        <<"couldn't setCRC: ALCT firmware version is bad/not defined!";
+      break;
+    }
+  }
+   
+    
+  int getCRC() { 
+#ifdef LOCAL_UNPACK
+    switch (firmwareVersion) {
+#else
+    switch (firmwareVersion.load()) {
+#endif
     case 2006:
       return ((trailer2006.crc1&0x7ff)<<11) | (trailer2006.crc0&0x7ff);
     case 2007:
@@ -81,7 +113,11 @@ public:
   }
 
   bool check() const {
+#ifdef LOCAL_UNPACK
+    switch (firmwareVersion) {
+#else
     switch (firmwareVersion.load()) {
+#endif
     case 2006:
       return (trailer2006.e0dLine & 0xfff) == 0xe0d;
     case 2007:
@@ -94,7 +130,11 @@ public:
   }
   
   int wordCount() const {
+#ifdef LOCAL_UNPACK
+    switch (firmwareVersion) {
+#else
     switch (firmwareVersion.load()) {
+#endif
     case 2006:
       return trailer2006.frameCount;
     case 2007:
@@ -107,7 +147,11 @@ public:
   }
   
   unsigned alctCRCCheck() const { 
+#ifdef LOCAL_UNPACK
+    switch (firmwareVersion) {
+#else
     switch (firmwareVersion.load()) {
+#endif
     case 2006:
       return trailer2006.reserved_3;
     case 2007:
@@ -125,8 +169,15 @@ public:
   CSCALCTTrailer2007 alctTrailer2007() {return trailer2007;}
 
 private:
+
+#ifdef LOCAL_UNPACK
+  static bool debug;
+  static unsigned short int firmwareVersion;
+#else
   static std::atomic<bool> debug;
   static std::atomic<unsigned short int> firmwareVersion;
+#endif
+
   CSCALCTTrailer2006 trailer2006;
   CSCALCTTrailer2007 trailer2007;
   unsigned short int theOriginalBuffer[4];

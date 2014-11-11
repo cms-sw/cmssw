@@ -43,21 +43,21 @@
 
 #include "DQM/SiStripMonitorHardware/interface/FEDErrors.hh"
 
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 //
 // Class declaration
 //
 
-class SiStripFEDCheckPlugin : public edm::EDAnalyzer
+class SiStripFEDCheckPlugin : public DQMEDAnalyzer
 {
  public:
   explicit SiStripFEDCheckPlugin(const edm::ParameterSet&);
   ~SiStripFEDCheckPlugin();
  private:
-  virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
   virtual void endRun();
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   bool hasFatalError(const FEDRawData& fedData, unsigned int fedId) const;
   bool hasNonFatalError(const FEDRawData& fedData, unsigned int fedId) const;
@@ -75,10 +75,8 @@ class SiStripFEDCheckPlugin : public edm::EDAnalyzer
   edm::EDGetTokenT<FEDRawDataCollection> rawDataToken_;
   std::string dirName_;
   bool printDebug_;
-  bool writeDQMStore_;
   
   //Histograms
-  DQMStore* dqm_;
   MonitorElement* fedsPresent_;
   MonitorElement* fedFatalErrors_;
   MonitorElement* fedNonFatalErrors_;
@@ -108,7 +106,6 @@ SiStripFEDCheckPlugin::SiStripFEDCheckPlugin(const edm::ParameterSet& iConfig)
   : rawDataTag_(iConfig.getParameter<edm::InputTag>("RawDataTag")),
     dirName_(iConfig.getUntrackedParameter<std::string>("DirName","SiStrip/FEDIntegrity/")),
     printDebug_(iConfig.getUntrackedParameter<bool>("PrintDebugMessages",false)),
-    writeDQMStore_(iConfig.getUntrackedParameter<bool>("WriteDQMStore",false)),
     updateFrequency_(iConfig.getUntrackedParameter<unsigned int>("HistogramUpdateFrequency",0)),
     fedsPresentBinContents_(FEDNumbering::MAXSiStripFEDID+1,0),
     fedFatalErrorBinContents_(FEDNumbering::MAXSiStripFEDID+1,0),
@@ -250,27 +247,25 @@ SiStripFEDCheckPlugin::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
-SiStripFEDCheckPlugin::beginJob()
+void SiStripFEDCheckPlugin::bookHistograms(DQMStore::IBooker & ibooker , const edm::Run & run, const edm::EventSetup & eSetup)
 {
   //get FED IDs
   const unsigned int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
   const unsigned int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID;
   //get DQM store
-  dqm_ = &(*edm::Service<DQMStore>());
-  dqm_->setCurrentFolder(dirName_);
+  ibooker.setCurrentFolder(dirName_);
   //book histograms
-  fedsPresent_ = dqm_->book1D("FEDEntries",
+  fedsPresent_ = ibooker.book1D("FEDEntries",
                               "Number of times FED buffer is present in data",
                               siStripFedIdMax-siStripFedIdMin+1,
                               siStripFedIdMin-0.5,siStripFedIdMax+0.5);
   fedsPresent_->setAxisTitle("FED-ID",1);
-  fedFatalErrors_ = dqm_->book1D("FEDFatal",
+  fedFatalErrors_ = ibooker.book1D("FEDFatal",
                               "Number of fatal errors in FED buffer",
                               siStripFedIdMax-siStripFedIdMin+1,
                               siStripFedIdMin-0.5,siStripFedIdMax+0.5);
   fedFatalErrors_->setAxisTitle("FED-ID",1);
-  fedNonFatalErrors_ = dqm_->book1D("FEDNonFatal",
+  fedNonFatalErrors_ = ibooker.book1D("FEDNonFatal",
                               "Number of non fatal errors in FED buffer",
                               siStripFedIdMax-siStripFedIdMin+1,
                               siStripFedIdMin-0.5,siStripFedIdMax+0.5);
@@ -283,14 +278,6 @@ SiStripFEDCheckPlugin::endRun()
 {
   updateHistograms();
 }
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-SiStripFEDCheckPlugin::endJob()
-{
-  if (writeDQMStore_) dqm_->save("DQMStore.root");
-}
-
 
 void SiStripFEDCheckPlugin::updateCabling(const edm::EventSetup& eventSetup)
 {

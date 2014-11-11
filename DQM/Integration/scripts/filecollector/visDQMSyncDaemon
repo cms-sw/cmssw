@@ -1,0 +1,240 @@
+#!/usr/bin/env python
+"""Daemon to keep a root file repository with another directory (AFS) in sync under
+certain rules of size and subdirs  
+Usage: visDQMSyncDaemon [-fd][--dirs=..,..][--dirs_quotas=..,..] MAX_QUOTA ROOT_REPO DEST_DIR 
+   
+ ROOT_REPO       Location of the root repository to be synchronized
+   
+ DEST_DIR        Location with which the repository is going to be kept in sync
+    
+ MAX_QUOTA       Maximum size allowed for destiantion_dir
+   
+ -h , --help     This Text   
+   
+ --dirs          Comma (,)  separated  Subdirectories  to be synchronized. If  we 
+                 where  in  using  sh  it  would be equivalent to the expression 
+                 $root_repo/{$dirs} 
+
+ --dirs_quotas   Comma (,) separated sizes of quotas for specific  subdirector-
+                 ies, they have to be  in  the same  order as the --dirs option. 
+                 For ease of use, if fewer  quotas  than dirs are specified  the 
+                 remaining space will be used evenly among the remaining dirs. 
+                 This implies -f. Use B K M G T to specify units default B 
+                 i.e. (4G = 4*1024*1024*1024) 
+                 
+i.e. 
+
+visDQMSyncDaemon 150G /data/dqm/repo /MyAfsDir/rootrepo
+#Action /MyAfsDir/rootrepo will have latest 150G of files in /data/dqm/repo
+
+visDQMSyncDaemon --dirs=Express,Online 150G /data/dqm/repository /MyAfsDir/rootrepo
+#Action /MyAfsDir/rootrepo will have directories Express and  Online  each  with 
+#75G
+
+visDQMSyncDaemon --dirs=Express,Online 150G /data/dqm/repository /MyAfsDir/rootrepo
+#Action /MyAfsDir/rootrepo will have directories Express and  Online  each  with 
+#75G"""
+
+
+import os, time,  sys, shutil, re, subprocess as sp,tempfile
+from glob   import glob
+from getopt import getopt,GetoptError
+from traceback import print_exc
+from datetime import datetime
+from subprocess import call
+sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)
+
+# --------------------------------------------------------------------
+WAITTIME      = 60
+RENEWLIFETIME = 3600 * 24 * 365 
+WATCHDIRS     = []
+INDEPQUEUES   = []
+
+REPODIR     = ""
+DESTDIR     = ""
+MAXQUOTA    = long(0)
+SAFEFACTOR  = 0.01
+currTime    = time.time()
+unitsDic    = {"B":0,"K":1,"M":2,"G":3,"T":4}
+dirsQuotaDic= {}
+  
+# --------------------------------------------------------------------
+def logme(msg, *args):
+  procid = "[%s/%d]" % (__file__.rsplit("/", 1)[-1], os.getpid())
+  print datetime.now(), procid, msg % args
+  
+# Order input files so we process them in a sane order:
+# - descending by run
+# - ascending by version
+# - descending by dataset
+def orderFiles(a, b):
+  diff = b['runnr'] - a['runnr']
+  if diff: return diff
+  diff = a['version'] - b['version']
+  if diff: return diff
+  return cmp(b['dataset'], a['dataset'])  
+  
+def getFileList(path, quota = -1,all = True):
+  fileDict={}
+  finalFileDict={}
+  fileList=[]
+  aQuota=0
+  for dirPath,subDirs,files in os.walk(path):
+    for f in files:
+      fMatch=re.match(r"DQM_V(?P<ver>[0-9]{4})(?P<subs>_.*)?_R(?P<run>[0-9]{9})(?P<dats>__.*)?\.root$",f)
+      if fMatch:
+        fName=os.path.join(dirPath,f)
+        if not all and fMatch.group('run') in fileDict.keys():
+          j=None
+          for i in range(len(fileDict[fMatch.group('run')])):
+            if ((fMatch.group('subs') is not None and fMatch.group('subs') == fileDict[fMatch.group('run')][i][2])or \
+                (fMatch.group('dats') is not None and fMatch.group('dats') == fileDict[fMatch.group('run')][i][3])):
+              if int(fMatch.group('ver')) > fileDict[fMatch.group('run')][i][0]:
+                j=i
+              else:
+                j=-1
+          
+          if j is not None and j > -1 : 
+            fileDict[fMatch.group('run')].pop(j)
+            fileDict[fMatch.group('run')].append([int(fMatch.group('ver')),fName,fMatch.group('subs'),fMatch.group('dats')])
+          elif j==-1:
+            continue
+          else:
+            fileDict[fMatch.group('run')].append([int(fMatch.group('ver')),fName,fMatch.group('subs'),fMatch.group('dats')])
+        else:
+          fileDict.setdefault(fMatch.group('run'),[]).append([int(fMatch.group('ver')),fName,fMatch.group('subs'),fMatch.group('dats')])
+           
+  for run in fileDict.keys():
+    for f in fileDict[run]:
+      fileStats=os.lstat(f[1])
+      finalFileDict.setdefault(f[1],[fileStats.st_mtime,fileStats.st_size])
+      
+  if quota > -1:
+    for f in sorted(finalFileDict.keys(),key=lambda x:finalFileDict[x][0], reverse=True):
+      if aQuota+long(finalFileDict[f][1]) <= quota:
+        fileList.append(f)
+        aQuota=aQuota+long(finalFileDict[f][1])
+        continue
+      break
+  else:
+    fileList=finalFileDict.keys()
+  return fileList
+# --------------------------------------------------------------------
+# Creating temporary file so that it doesn't get erased under our feet and we can renew 
+# credentials as long as theprocess is running
+
+#os.putenv('KRB5CCNAME',"FILE:/tmp/krb5cc_visDQMSync")
+
+# Getting a new set of credentials to be sure we have renewable credentials
+#rc=os.system("klist -s")
+#if rc != 0:
+#  logme("Please run: kinit -c /tmp/krb5cc_visDQMSync -r 365 before running me!" )
+#  sys.exit(rc)
+
+#rValue = call(["kinit","-R"])
+#rValue += call(["aklog"])
+#if rValue != 0:
+# call(["klist"])
+# logme('ERROR: Could not renew kerberos or afs ticket')
+# sys.exit(1)
+ 
+# command line Argument parsing
+try:
+  opts, args = getopt(sys.argv[1:], "h", ["help", "dirs=","dirs_quotas="])
+  for opt,val in opts:
+    if opt in ("-h" , "--help"):
+      print __doc__
+      sys.exit(0)
+    elif opt == "--dirs":
+      WATCHDIRS=val.split(",")
+    elif "--dirs_quotas" == opt:
+      INDEPQUEUES=[ long(i[:-1])*pow(1024,unitsDic[i[-1]]) for i in val.split(",") if i!='' and len(i)>1]
+  if len(args) != 3:
+    print __doc__
+    logme('ERROR: Argument ')
+    sys.exit(0)
+  MAXQUOTA= long(args[0][:-1])*pow(1024,unitsDic[args[0][-1]])
+  REPODIR = args[1]
+  DESTDIR = args[2]      
+  if WATCHDIRS:
+    for i in range(len(WATCHDIRS)):
+      if not os.path.exists("%s/%s" %(REPODIR,WATCHDIRS[i])) or \
+         not os.path.isdir("%s/%s" %(REPODIR,WATCHDIRS[i])):
+        logme('ERROR: %s/%s Subdirectory does not exists' ,REPODIR,WATCHDIRS[i])
+        sys.exit(0)
+      dirsQuotaDic.setdefault("%s/%s" %(REPODIR,WATCHDIRS[i]),len(INDEPQUEUES)>i and INDEPQUEUES[i] or 0)
+  else:
+    dirsQuotaDic.setdefault(REPODIR,MAXQUOTA)
+  totalQuotaAlloc=sum(dirsQuotaDic.values())
+  totalDirs4Alloc=sum([1 for q in dirsQuotaDic.values() if q ==0])
+  quota = 0
+  if totalDirs4Alloc > 0: quota=long((MAXQUOTA-totalQuotaAlloc)/totalDirs4Alloc*(1-SAFEFACTOR))
+  if quota < 0 or totalQuotaAlloc+quota*totalDirs4Alloc > MAXQUOTA:
+    logme('ERROR: Auto quota set up error, quota for unallocated directories %d ,Total Individual Quotas Allocation %d - MAX_QUOTA %d. please revise ',quota,totalQuotaAlloc+quota*totalDirs4Alloc, MAXQUOTA )
+    sys.exit(0)   
+  for key in dirsQuotaDic.keys():
+    if dirsQuotaDic[key]==0:
+      dirsQuotaDic[key]=quota
+except (GetoptError, KeyError , ValueError ) ,e:
+  print __doc__
+  logme('ERROR: %s - Revise MAX_QUOTA , and additional options ', e)	
+  print_exc()
+  sys.exit(0)
+# --------------------------------------------------------------------
+# Process files forever.
+loopTimes = 0
+while loopTimes < 2:  
+  try:
+    loopTimes += 1
+    currentFileList=[]
+    currentFileList = getFileList(DESTDIR)
+    newFileList=[]
+    removeFileList=[]
+    addFileList=[]
+    for dir1 in dirsQuotaDic.keys():
+      quota=dirsQuotaDic[dir1]
+      newFileList     += getFileList(dir1,quota,False)  
+    removeFileList  = [ f for f in currentFileList if f.replace(DESTDIR,REPODIR,1) not in newFileList]
+    addFileList     = [ f for f in newFileList if f.replace(REPODIR,DESTDIR,1) not in currentFileList]
+    
+    for f in  removeFileList:
+      os.remove(f)
+    
+    for f in  addFileList:
+      destFileName = f.replace(REPODIR,DESTDIR,1)
+      destFileDir  = os.path.dirname(destFileName)
+      if not os.path.exists(destFileDir):
+        os.makedirs(destFileDir)
+      if os.path.islink(f):
+        os.symlink(f,destFileName)
+      else:
+        shutil.copy2(f,destFileName)
+      
+    for dirPath,subDirs,files in os.walk(DESTDIR,topdown=False):
+      if not len(subDirs) and not len(files):
+        try: 
+          os.rmdir(dirPath)
+        except:
+          pass
+    logme('INFO: Finished sync, added %d files and removed %d files', len(addFileList),len(removeFileList))
+    loopTimes += 1
+    continue
+          
+  except KeyboardInterrupt, e:
+    sys.exit(0)
+
+  except Exception, e:
+    logme('ERROR: %s', e)
+    print_exc()
+    
+    #call(["klist"])
+  
+#  if (currTime + 7 * 3600) < time.time():
+#    currTime = time.time()
+#    rValue = call(["kinit","-R"])
+#    rValue += call(["aklog"])
+#    if rValue != 0:
+#      call(["klist"])
+#      logme('ERROR: Could not renew kerberos or afs ticket')
+#      sys.exit(1)
+  time.sleep(WAITTIME)

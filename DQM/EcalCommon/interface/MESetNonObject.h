@@ -16,9 +16,8 @@ namespace ecaldqm
 
     MESet* clone(std::string const& = "") const override;
 
-    void book(DQMStore&) override;
     void book(DQMStore::IBooker&) override;
-    bool retrieve(DQMStore const&, std::string* = 0) const override;
+    bool retrieve(DQMStore::IGetter&, std::string* = 0) const override;
 
     void fill(double, double = 1., double = 1.) override;
 
@@ -42,9 +41,6 @@ namespace ecaldqm
     binning::AxisSpecs const* xaxis_;
     binning::AxisSpecs const* yaxis_;
     binning::AxisSpecs const* zaxis_;
-
-  private:
-    template<class Bookable> void doBook_(Bookable&);
   };
 }
 

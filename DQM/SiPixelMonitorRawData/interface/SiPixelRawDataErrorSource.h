@@ -32,6 +32,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "DQM/SiPixelMonitorRawData/interface/SiPixelRawDataErrorModule.h"
 
@@ -49,7 +50,7 @@
 
 #include <boost/cstdint.hpp>
 
- class SiPixelRawDataErrorSource : public edm::EDAnalyzer {
+ class SiPixelRawDataErrorSource : public DQMEDAnalyzer {
     public:
        explicit SiPixelRawDataErrorSource(const edm::ParameterSet& conf);
        ~SiPixelRawDataErrorSource();
@@ -57,12 +58,12 @@
        typedef edm::DetSet<SiPixelRawDataError>::const_iterator    ErrorIterator;
        
        virtual void analyze(const edm::Event&, const edm::EventSetup&);
-       virtual void beginJob() ;
-       virtual void endJob() ;
-       virtual void beginRun(const edm::Run&, edm::EventSetup const&) ;
+       virtual void dqmBeginRun(const edm::Run&, edm::EventSetup const&) ;
+       virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+
 
        virtual void buildStructure(edm::EventSetup const&);
-       virtual void bookMEs();
+       virtual void bookMEs(DQMStore::IBooker &);
 
     private:
        edm::ParameterSet conf_;
@@ -76,12 +77,25 @@
        bool bladeOn;
        bool isUpgrade;
        int eventNo;
-       DQMStore* theDMBE;
        std::map<uint32_t,SiPixelRawDataErrorModule*> thePixelStructure;
        std::map<uint32_t,SiPixelRawDataErrorModule*> theFEDStructure;
        bool firstRun;
        MonitorElement* byLumiErrors; 
        MonitorElement* errorRate;
+
+       MonitorElement* meErrorType_[40];
+       MonitorElement* meNErrors_[40];
+       MonitorElement* meFullType_[40];
+       MonitorElement* meTBMMessage_[40];
+       MonitorElement* meTBMType_[40];
+       MonitorElement* meEvtNbr_[40];
+       MonitorElement* meEvtSize_[40];
+
+       MonitorElement* meFedChNErrArray_[1480];
+       MonitorElement* meFedChLErrArray_[1480];
+       MonitorElement* meFedETypeNErrArray_[840];
+
+       std::map<std::string,MonitorElement**> meMapFEDs_;
        
  };
 

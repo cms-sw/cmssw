@@ -34,7 +34,7 @@ SiPixelRecHitModule::~SiPixelRecHitModule() {}
 //
 // Book histograms
 //
-void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type, 
+void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig,DQMStore::IBooker & iBooker, int type, 
                                bool twoD, bool reducedSet, bool isUpgrade) {
 
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
@@ -52,7 +52,6 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type,
   // Get collection name and instantiate Histo Id builder
   edm::InputTag src = iConfig.getParameter<edm::InputTag>( "src" );
   // Get DQM interface
-  DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
 
 
   if(type==0){
@@ -62,36 +61,36 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type,
     if(twoD){
       // XYPosition
       hid = theHistogramId->setHistoId("xypos",id_);
-      meXYPos_ = theDMBE->book2D(hid,"XY Position",100,-1.,1,100,-4,4);
+      meXYPos_ = iBooker.book2D(hid,"XY Position",100,-1.,1,100,-4,4);
       meXYPos_->setAxisTitle("X Position",1);
       meXYPos_->setAxisTitle("Y Position",2);
     }
     else{
       // projections of XYPosition
       hid = theHistogramId->setHistoId("xypos",id_);
-      meXYPos_px_ = theDMBE->book1D(hid+"_px","X Position",100,-1.,1);
+      meXYPos_px_ = iBooker.book1D(hid+"_px","X Position",100,-1.,1);
       meXYPos_px_->setAxisTitle("X Position",1);
-      meXYPos_py_ = theDMBE->book1D(hid+"_py","Y Position",100,-4,4);
+      meXYPos_py_ = iBooker.book1D(hid+"_py","Y Position",100,-4,4);
       meXYPos_py_->setAxisTitle("Y Position",1);
     }
 	}
     hid = theHistogramId->setHistoId("ClustX",id_);
-    meClustX_ = theDMBE->book1D(hid, "RecHit X size", 10, 0., 10.);
+    meClustX_ = iBooker.book1D(hid, "RecHit X size", 10, 0., 10.);
     meClustX_->setAxisTitle("RecHit size X dimension", 1);
     hid = theHistogramId->setHistoId("ClustY",id_);
-    meClustY_ = theDMBE->book1D(hid, "RecHit Y size", 15, 0., 15.);
+    meClustY_ = iBooker.book1D(hid, "RecHit Y size", 15, 0., 15.);
     meClustY_->setAxisTitle("RecHit size Y dimension", 1); 
 
     hid = theHistogramId->setHistoId("ErrorX",id_);
-    meErrorX_ = theDMBE->book1D(hid, "RecHit error X", 100,0.,0.02);
+    meErrorX_ = iBooker.book1D(hid, "RecHit error X", 100,0.,0.02);
     meErrorX_->setAxisTitle("RecHit error X", 1);
     hid = theHistogramId->setHistoId("ErrorY",id_);
-    meErrorY_ = theDMBE->book1D(hid, "RecHit error Y", 100,0.,0.02);
+    meErrorY_ = iBooker.book1D(hid, "RecHit error Y", 100,0.,0.02);
     meErrorY_->setAxisTitle("RecHit error Y", 1);
 
     //Removed to save offline memory
     //hid = theHistogramId->setHistoId("nRecHits",id_);
-    //menRecHits_ = theDMBE->book1D(hid, "# of rechits in this module", 8, 0, 8);
+    //menRecHits_ = iBooker.book1D(hid, "# of rechits in this module", 8, 0, 8);
     //menRecHits_->setAxisTitle("number of rechits",1);  
     delete theHistogramId;
   }
@@ -107,27 +106,27 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type,
 	if(!reducedSet)
 	{
     if(twoD){
-      meXYPosLad_ = theDMBE->book2D("xypos_" + hid,"XY Position",100,-1.,1,100,-4,4);
+      meXYPosLad_ = iBooker.book2D("xypos_" + hid,"XY Position",100,-1.,1,100,-4,4);
       meXYPosLad_->setAxisTitle("X Position",1);
       meXYPosLad_->setAxisTitle("Y Position",2);
     }
     else{
       // projections of XYPosition
-      meXYPosLad_px_ = theDMBE->book1D("xypos_"+hid+"_px","X Position",100,-1.,1);
+      meXYPosLad_px_ = iBooker.book1D("xypos_"+hid+"_px","X Position",100,-1.,1);
       meXYPosLad_px_->setAxisTitle("X Position",1);
-      meXYPosLad_py_ = theDMBE->book1D("xypos_"+hid+"_py","Y Position",100,-4,4);
+      meXYPosLad_py_ = iBooker.book1D("xypos_"+hid+"_py","Y Position",100,-4,4);
       meXYPosLad_py_->setAxisTitle("Y Position",1);
     }
 	}
-    meClustXLad_ = theDMBE->book1D("ClustX_" +hid, "RecHit X size", 10, 0., 10.);
+    meClustXLad_ = iBooker.book1D("ClustX_" +hid, "RecHit X size", 10, 0., 10.);
     meClustXLad_->setAxisTitle("RecHit size X dimension", 1);
-    meClustYLad_ = theDMBE->book1D("ClustY_" +hid,"RecHit Y size", 15, 0.,15.);
+    meClustYLad_ = iBooker.book1D("ClustY_" +hid,"RecHit Y size", 15, 0.,15.);
     meClustYLad_->setAxisTitle("RecHit size Y dimension", 1);
-    meErrorXLad_ = theDMBE->book1D("ErrorX_"+hid, "RecHit error X", 100,0.,0.02);
+    meErrorXLad_ = iBooker.book1D("ErrorX_"+hid, "RecHit error X", 100,0.,0.02);
     meErrorXLad_->setAxisTitle("RecHit error X", 1);
-    meErrorYLad_ = theDMBE->book1D("ErrorY_"+hid, "RecHit error Y", 100,0.,0.02);
+    meErrorYLad_ = iBooker.book1D("ErrorY_"+hid, "RecHit error Y", 100,0.,0.02);
     meErrorYLad_->setAxisTitle("RecHit error Y", 1);
-    menRecHitsLad_ = theDMBE->book1D("nRecHits_"+hid, "# of rechits in this module", 8, 0, 8);
+    menRecHitsLad_ = iBooker.book1D("nRecHits_"+hid, "# of rechits in this module", 8, 0, 8);
     menRecHitsLad_->setAxisTitle("number of rechits",1);
 
   }
@@ -143,28 +142,28 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type,
 	if(!reducedSet)
 	{
     if(twoD){
-      meXYPosLay_ = theDMBE->book2D("xypos_" + hid,"XY Position",100,-1.,1,100,-4,4);
+      meXYPosLay_ = iBooker.book2D("xypos_" + hid,"XY Position",100,-1.,1,100,-4,4);
       meXYPosLay_->setAxisTitle("X Position",1);
       meXYPosLay_->setAxisTitle("Y Position",2);
     }
     else{
       // projections of XYPosition
-      meXYPosLay_px_ = theDMBE->book1D("xypos_"+hid+"_px","X Position",100,-1.,1);
+      meXYPosLay_px_ = iBooker.book1D("xypos_"+hid+"_px","X Position",100,-1.,1);
       meXYPosLay_px_->setAxisTitle("X Position",1);
-      meXYPosLay_py_ = theDMBE->book1D("xypos_"+hid+"_py","Y Position",100,-4,4);
+      meXYPosLay_py_ = iBooker.book1D("xypos_"+hid+"_py","Y Position",100,-4,4);
       meXYPosLay_py_->setAxisTitle("Y Position",1);
     }
 	}
 
-    meClustXLay_ = theDMBE->book1D("ClustX_" +hid, "RecHit X size", 10, 0., 10.);
+    meClustXLay_ = iBooker.book1D("ClustX_" +hid, "RecHit X size", 10, 0., 10.);
     meClustXLay_->setAxisTitle("RecHit size X dimension", 1);
-    meClustYLay_ = theDMBE->book1D("ClustY_" +hid,"RecHit Y size", 15, 0.,15.);
+    meClustYLay_ = iBooker.book1D("ClustY_" +hid,"RecHit Y size", 15, 0.,15.);
     meClustYLay_->setAxisTitle("RecHit size Y dimension", 1);
-    meErrorXLay_ = theDMBE->book1D("ErrorX_"+hid, "RecHit error X", 100,0.,0.02);
+    meErrorXLay_ = iBooker.book1D("ErrorX_"+hid, "RecHit error X", 100,0.,0.02);
     meErrorXLay_->setAxisTitle("RecHit error X", 1);
-    meErrorYLay_ = theDMBE->book1D("ErrorY_"+hid, "RecHit error Y", 100,0.,0.02);
+    meErrorYLay_ = iBooker.book1D("ErrorY_"+hid, "RecHit error Y", 100,0.,0.02);
     meErrorYLay_->setAxisTitle("RecHit error Y", 1);
-    menRecHitsLay_ = theDMBE->book1D("nRecHits_"+hid, "# of rechits in this module", 8, 0, 8);
+    menRecHitsLay_ = iBooker.book1D("nRecHits_"+hid, "# of rechits in this module", 8, 0, 8);
     menRecHitsLay_->setAxisTitle("number of rechits",1);
 
   }
@@ -179,27 +178,27 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type,
 	if(!reducedSet)
 	{
     if(twoD){
-      meXYPosPhi_ = theDMBE->book2D("xypos_" + hid,"XY Position",100,-1.,1,100,-4,4);
+      meXYPosPhi_ = iBooker.book2D("xypos_" + hid,"XY Position",100,-1.,1,100,-4,4);
       meXYPosPhi_->setAxisTitle("X Position",1);
       meXYPosPhi_->setAxisTitle("Y Position",2);
     }
     else{
       // projections of XYPosition
-      meXYPosPhi_px_ = theDMBE->book1D("xypos_"+hid+"_px","X Position",100,-1.,1);
+      meXYPosPhi_px_ = iBooker.book1D("xypos_"+hid+"_px","X Position",100,-1.,1);
       meXYPosPhi_px_->setAxisTitle("X Position",1);
-      meXYPosPhi_py_ = theDMBE->book1D("xypos_"+hid+"_py","Y Position",100,-4,4);
+      meXYPosPhi_py_ = iBooker.book1D("xypos_"+hid+"_py","Y Position",100,-4,4);
       meXYPosPhi_py_->setAxisTitle("Y Position",1);
     }
 	}
-    meClustXPhi_ = theDMBE->book1D("ClustX_" +hid, "RecHit X size", 10, 0., 10.);
+    meClustXPhi_ = iBooker.book1D("ClustX_" +hid, "RecHit X size", 10, 0., 10.);
     meClustXPhi_->setAxisTitle("RecHit size X dimension", 1);
-    meClustYPhi_ = theDMBE->book1D("ClustY_" +hid,"RecHit Y size", 15, 0.,15.);
+    meClustYPhi_ = iBooker.book1D("ClustY_" +hid,"RecHit Y size", 15, 0.,15.);
     meClustYPhi_->setAxisTitle("RecHit size Y dimension", 1);
-    meErrorXPhi_ = theDMBE->book1D("ErrorX_"+hid, "RecHit error X", 100,0.,0.02);
+    meErrorXPhi_ = iBooker.book1D("ErrorX_"+hid, "RecHit error X", 100,0.,0.02);
     meErrorXPhi_->setAxisTitle("RecHit error X", 1);
-    meErrorYPhi_ = theDMBE->book1D("ErrorY_"+hid, "RecHit error Y", 100,0.,0.02);
+    meErrorYPhi_ = iBooker.book1D("ErrorY_"+hid, "RecHit error Y", 100,0.,0.02);
     meErrorYPhi_->setAxisTitle("RecHit error Y", 1);
-    menRecHitsPhi_ = theDMBE->book1D("nRecHits_"+hid, "# of rechits in this module", 8, 0, 8);
+    menRecHitsPhi_ = iBooker.book1D("nRecHits_"+hid, "# of rechits in this module", 8, 0, 8);
     menRecHitsPhi_->setAxisTitle("number of rechits",1);
 
   }
@@ -211,19 +210,19 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type,
     
     char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
     hid = src.label() + "_" + sblade;
-//     meXYPosBlade_ = theDMBE->book2D("xypos_" + hid,"XY Position",100,-1.,1,100,-4,4);
+//     meXYPosBlade_ = iBooker.book2D("xypos_" + hid,"XY Position",100,-1.,1,100,-4,4);
 //     meXYPosBlade_->setAxisTitle("X Position",1);
 //     meXYPosBlade_->setAxisTitle("Y Position",2);
 
-    meClustXBlade_ = theDMBE->book1D("ClustX_" +hid, "RecHit X size", 10, 0., 10.);
+    meClustXBlade_ = iBooker.book1D("ClustX_" +hid, "RecHit X size", 10, 0., 10.);
     meClustXBlade_->setAxisTitle("RecHit size X dimension", 1);
-    meClustYBlade_ = theDMBE->book1D("ClustY_" +hid,"RecHit Y size", 15, 0.,15.);
+    meClustYBlade_ = iBooker.book1D("ClustY_" +hid,"RecHit Y size", 15, 0.,15.);
     meClustYBlade_->setAxisTitle("RecHit size Y dimension", 1);
-    meErrorXBlade_ = theDMBE->book1D("ErrorX_"+hid, "RecHit error X", 100,0.,0.02);
+    meErrorXBlade_ = iBooker.book1D("ErrorX_"+hid, "RecHit error X", 100,0.,0.02);
     meErrorXBlade_->setAxisTitle("RecHit error X", 1);
-    meErrorYBlade_ = theDMBE->book1D("ErrorY_"+hid, "RecHit error Y", 100,0.,0.02);
+    meErrorYBlade_ = iBooker.book1D("ErrorY_"+hid, "RecHit error Y", 100,0.,0.02);
     meErrorYBlade_->setAxisTitle("RecHit error Y", 1);
-    menRecHitsBlade_ = theDMBE->book1D("nRecHits_"+hid, "# of rechits in this module", 8, 0, 8);
+    menRecHitsBlade_ = iBooker.book1D("nRecHits_"+hid, "# of rechits in this module", 8, 0, 8);
     menRecHitsBlade_->setAxisTitle("number of rechits",1);
 
   }
@@ -234,19 +233,19 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type,
     
     char sdisk[80]; sprintf(sdisk, "Disk_%i",disk);
     hid = src.label() + "_" + sdisk;
-//     meXYPosDisk_ = theDMBE->book2D("xypos_" + hid,"XY Position",100,-1.,1,100,-4,4);
+//     meXYPosDisk_ = iBooker.book2D("xypos_" + hid,"XY Position",100,-1.,1,100,-4,4);
 //     meXYPosDisk_->setAxisTitle("X Position",1);
 //     meXYPosDisk_->setAxisTitle("Y Position",2);
 
-    meClustXDisk_ = theDMBE->book1D("ClustX_" +hid, "RecHit X size", 10, 0., 10.);
+    meClustXDisk_ = iBooker.book1D("ClustX_" +hid, "RecHit X size", 10, 0., 10.);
     meClustXDisk_->setAxisTitle("RecHit size X dimension", 1);
-    meClustYDisk_ = theDMBE->book1D("ClustY_" +hid,"RecHit Y size", 15, 0.,15.);
+    meClustYDisk_ = iBooker.book1D("ClustY_" +hid,"RecHit Y size", 15, 0.,15.);
     meClustYDisk_->setAxisTitle("RecHit size Y dimension", 1);
-    meErrorXDisk_ = theDMBE->book1D("ErrorX_"+hid, "RecHit error X", 100,0.,0.02);
+    meErrorXDisk_ = iBooker.book1D("ErrorX_"+hid, "RecHit error X", 100,0.,0.02);
     meErrorXDisk_->setAxisTitle("RecHit error X", 1);
-    meErrorYDisk_ = theDMBE->book1D("ErrorY_"+hid, "RecHit error Y", 100,0.,0.02);
+    meErrorYDisk_ = iBooker.book1D("ErrorY_"+hid, "RecHit error Y", 100,0.,0.02);
     meErrorYDisk_->setAxisTitle("RecHit error Y", 1);
-    menRecHitsDisk_ = theDMBE->book1D("nRecHits_"+hid, "# of rechits in this module", 8, 0, 8);
+    menRecHitsDisk_ = iBooker.book1D("nRecHits_"+hid, "# of rechits in this module", 8, 0, 8);
     menRecHitsDisk_->setAxisTitle("number of rechits",1);
 
   }
@@ -268,27 +267,27 @@ void SiPixelRecHitModule::book(const edm::ParameterSet& iConfig, int type,
 	if(!reducedSet)
 	{
     if(twoD){
-      meXYPosRing_ = theDMBE->book2D("xypos_" + hid,"XY Position",100,-1.,1,100,-4,4);
+      meXYPosRing_ = iBooker.book2D("xypos_" + hid,"XY Position",100,-1.,1,100,-4,4);
       meXYPosRing_->setAxisTitle("X Position",1);
       meXYPosRing_->setAxisTitle("Y Position",2);
     }
     else{
       // projections of XYPosition
-      meXYPosRing_px_ = theDMBE->book1D("xypos_"+hid+"_px","X Position",100,-1.,1);
+      meXYPosRing_px_ = iBooker.book1D("xypos_"+hid+"_px","X Position",100,-1.,1);
       meXYPosRing_px_->setAxisTitle("X Position",1);
-      meXYPosRing_py_ = theDMBE->book1D("xypos_"+hid+"_py","Y Position",100,-4,4);
+      meXYPosRing_py_ = iBooker.book1D("xypos_"+hid+"_py","Y Position",100,-4,4);
       meXYPosRing_py_->setAxisTitle("Y Position",1);
     }
 	}
-    meClustXRing_ = theDMBE->book1D("ClustX_" +hid, "RecHit X size", 10, 0., 10.);
+    meClustXRing_ = iBooker.book1D("ClustX_" +hid, "RecHit X size", 10, 0., 10.);
     meClustXRing_->setAxisTitle("RecHit size X dimension", 1);
-    meClustYRing_ = theDMBE->book1D("ClustY_" +hid,"RecHit Y size", 15, 0.,15.);
+    meClustYRing_ = iBooker.book1D("ClustY_" +hid,"RecHit Y size", 15, 0.,15.);
     meClustYRing_->setAxisTitle("RecHit size Y dimension", 1);
-    meErrorXRing_ = theDMBE->book1D("ErrorX_"+hid, "RecHit error X", 100,0.,0.02);
+    meErrorXRing_ = iBooker.book1D("ErrorX_"+hid, "RecHit error X", 100,0.,0.02);
     meErrorXRing_->setAxisTitle("RecHit error X", 1);
-    meErrorYRing_ = theDMBE->book1D("ErrorY_"+hid, "RecHit error Y", 100,0.,0.02);
+    meErrorYRing_ = iBooker.book1D("ErrorY_"+hid, "RecHit error Y", 100,0.,0.02);
     meErrorYRing_->setAxisTitle("RecHit error Y", 1);
-    menRecHitsRing_ = theDMBE->book1D("nRecHits_"+hid, "# of rechits in this module", 8, 0, 8);
+    menRecHitsRing_ = iBooker.book1D("nRecHits_"+hid, "# of rechits in this module", 8, 0, 8);
     menRecHitsRing_->setAxisTitle("number of rechits",1);
 
   }

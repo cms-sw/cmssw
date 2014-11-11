@@ -46,7 +46,6 @@ protected:
 
 private:
 
-  std::string getShowTags(void);
   void makeProvInfo();  
   void makeHLTKeyInfo(const edm::Run& r, const edm::EventSetup &c);  
   void makeDcsInfo(const edm::Event& e);  

@@ -8,6 +8,8 @@
 #include "Api.h" // for G__ClassInfo
 
 #include "TROOT.h"
+#include "TInterpreter.h"
+#include "TVirtualMutex.h"
 
 #include "boost/algorithm/string.hpp"
 #include "boost/thread/tss.hpp"
@@ -160,10 +162,13 @@ namespace edm {
             checkType(m.typeOf());
           }
         }
-        TypeBases bases(t);
-        for(auto const& base : bases) {
-          BaseWithDict b(base);
-          checkType(b.typeOf());
+        {
+          R__LOCKGUARD(gCINTMutex);
+          TypeBases bases(t);
+          for(auto const& base : bases) {
+            BaseWithDict b(base);
+            checkType(b.typeOf());
+          }
         }
       }
     }
@@ -246,7 +251,7 @@ namespace edm {
 
     TypeWithDict type(typeID.typeInfo());
     if(type.isClass()) {
-
+      R__LOCKGUARD(gCINTMutex);
       TypeBases bases(type);
       for(auto const& basex : bases) {
         BaseWithDict base(basex);

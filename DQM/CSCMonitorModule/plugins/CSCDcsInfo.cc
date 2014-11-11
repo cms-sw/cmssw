@@ -25,38 +25,41 @@ CSCDcsInfo::CSCDcsInfo(const edm::ParameterSet& ps) {
    
 }
 
-void CSCDcsInfo::beginJob(){
 
-  dbe = Service<DQMStore>().operator->();
+void CSCDcsInfo::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter)
+{
 
-  dbe->setCurrentFolder("CSC/EventInfo/DCSContents");
-  mos.insert(std::make_pair("CSC_SideMinus", dbe->bookFloat("CSC_SideMinus")));
-  mos.insert(std::make_pair("CSC_SideMinus_Station01", dbe->bookFloat("CSC_SideMinus_Station01")));
-  mos.insert(std::make_pair("CSC_SideMinus_Station01_Ring01", dbe->bookFloat("CSC_SideMinus_Station01_Ring01")));
-  mos.insert(std::make_pair("CSC_SideMinus_Station01_Ring02", dbe->bookFloat("CSC_SideMinus_Station01_Ring02")));
-  mos.insert(std::make_pair("CSC_SideMinus_Station01_Ring03", dbe->bookFloat("CSC_SideMinus_Station01_Ring03")));
-  mos.insert(std::make_pair("CSC_SideMinus_Station02", dbe->bookFloat("CSC_SideMinus_Station02")));
-  mos.insert(std::make_pair("CSC_SideMinus_Station02_Ring01", dbe->bookFloat("CSC_SideMinus_Station02_Ring01")));
-  mos.insert(std::make_pair("CSC_SideMinus_Station02_Ring02", dbe->bookFloat("CSC_SideMinus_Station02_Ring02")));
-  mos.insert(std::make_pair("CSC_SideMinus_Station03", dbe->bookFloat("CSC_SideMinus_Station03")));
-  mos.insert(std::make_pair("CSC_SideMinus_Station03_Ring01", dbe->bookFloat("CSC_SideMinus_Station03_Ring01")));
-  mos.insert(std::make_pair("CSC_SideMinus_Station03_Ring02", dbe->bookFloat("CSC_SideMinus_Station03_Ring02")));
-  mos.insert(std::make_pair("CSC_SideMinus_Station04", dbe->bookFloat("CSC_SideMinus_Station04")));
-  mos.insert(std::make_pair("CSC_SidePlus", dbe->bookFloat("CSC_SidePlus")));
-  mos.insert(std::make_pair("CSC_SidePlus_Station01", dbe->bookFloat("CSC_SidePlus_Station01")));
-  mos.insert(std::make_pair("CSC_SidePlus_Station01_Ring01", dbe->bookFloat("CSC_SidePlus_Station01_Ring01")));
-  mos.insert(std::make_pair("CSC_SidePlus_Station01_Ring02", dbe->bookFloat("CSC_SidePlus_Station01_Ring02")));
-  mos.insert(std::make_pair("CSC_SidePlus_Station01_Ring03", dbe->bookFloat("CSC_SidePlus_Station01_Ring03")));
-  mos.insert(std::make_pair("CSC_SidePlus_Station02", dbe->bookFloat("CSC_SidePlus_Station02")));
-  mos.insert(std::make_pair("CSC_SidePlus_Station02_Ring01", dbe->bookFloat("CSC_SidePlus_Station02_Ring01")));
-  mos.insert(std::make_pair("CSC_SidePlus_Station02_Ring02", dbe->bookFloat("CSC_SidePlus_Station02_Ring02")));
-  mos.insert(std::make_pair("CSC_SidePlus_Station03", dbe->bookFloat("CSC_SidePlus_Station03")));
-  mos.insert(std::make_pair("CSC_SidePlus_Station03_Ring01", dbe->bookFloat("CSC_SidePlus_Station03_Ring01")));
-  mos.insert(std::make_pair("CSC_SidePlus_Station03_Ring02", dbe->bookFloat("CSC_SidePlus_Station03_Ring02")));
-  mos.insert(std::make_pair("CSC_SidePlus_Station04", dbe->bookFloat("CSC_SidePlus_Station04")));
+  
+  ibooker.cd();
+  ibooker.setCurrentFolder("CSC/EventInfo/DCSContents");
 
-  dbe->setCurrentFolder("CSC/EventInfo");
-  mos.insert(std::make_pair("DCSSummary", dbe->bookFloat("DCSSummary")));
+  mos.insert(std::make_pair("CSC_SideMinus", ibooker.bookFloat("CSC_SideMinus")));
+  mos.insert(std::make_pair("CSC_SideMinus_Station01", ibooker.bookFloat("CSC_SideMinus_Station01")));
+  mos.insert(std::make_pair("CSC_SideMinus_Station01_Ring01", ibooker.bookFloat("CSC_SideMinus_Station01_Ring01")));
+  mos.insert(std::make_pair("CSC_SideMinus_Station01_Ring02", ibooker.bookFloat("CSC_SideMinus_Station01_Ring02")));
+  mos.insert(std::make_pair("CSC_SideMinus_Station01_Ring03", ibooker.bookFloat("CSC_SideMinus_Station01_Ring03")));
+  mos.insert(std::make_pair("CSC_SideMinus_Station02", ibooker.bookFloat("CSC_SideMinus_Station02")));
+  mos.insert(std::make_pair("CSC_SideMinus_Station02_Ring01", ibooker.bookFloat("CSC_SideMinus_Station02_Ring01")));
+  mos.insert(std::make_pair("CSC_SideMinus_Station02_Ring02", ibooker.bookFloat("CSC_SideMinus_Station02_Ring02")));
+  mos.insert(std::make_pair("CSC_SideMinus_Station03", ibooker.bookFloat("CSC_SideMinus_Station03")));
+  mos.insert(std::make_pair("CSC_SideMinus_Station03_Ring01", ibooker.bookFloat("CSC_SideMinus_Station03_Ring01")));
+  mos.insert(std::make_pair("CSC_SideMinus_Station03_Ring02", ibooker.bookFloat("CSC_SideMinus_Station03_Ring02")));
+  mos.insert(std::make_pair("CSC_SideMinus_Station04", ibooker.bookFloat("CSC_SideMinus_Station04")));
+  mos.insert(std::make_pair("CSC_SidePlus", ibooker.bookFloat("CSC_SidePlus")));
+  mos.insert(std::make_pair("CSC_SidePlus_Station01", ibooker.bookFloat("CSC_SidePlus_Station01")));
+  mos.insert(std::make_pair("CSC_SidePlus_Station01_Ring01", ibooker.bookFloat("CSC_SidePlus_Station01_Ring01")));
+  mos.insert(std::make_pair("CSC_SidePlus_Station01_Ring02", ibooker.bookFloat("CSC_SidePlus_Station01_Ring02")));
+  mos.insert(std::make_pair("CSC_SidePlus_Station01_Ring03", ibooker.bookFloat("CSC_SidePlus_Station01_Ring03")));
+  mos.insert(std::make_pair("CSC_SidePlus_Station02", ibooker.bookFloat("CSC_SidePlus_Station02")));
+  mos.insert(std::make_pair("CSC_SidePlus_Station02_Ring01", ibooker.bookFloat("CSC_SidePlus_Station02_Ring01")));
+  mos.insert(std::make_pair("CSC_SidePlus_Station02_Ring02", ibooker.bookFloat("CSC_SidePlus_Station02_Ring02")));
+  mos.insert(std::make_pair("CSC_SidePlus_Station03", ibooker.bookFloat("CSC_SidePlus_Station03")));
+  mos.insert(std::make_pair("CSC_SidePlus_Station03_Ring01", ibooker.bookFloat("CSC_SidePlus_Station03_Ring01")));
+  mos.insert(std::make_pair("CSC_SidePlus_Station03_Ring02", ibooker.bookFloat("CSC_SidePlus_Station03_Ring02")));
+  mos.insert(std::make_pair("CSC_SidePlus_Station04", ibooker.bookFloat("CSC_SidePlus_Station04")));
+
+  ibooker.setCurrentFolder("CSC/EventInfo");
+  mos.insert(std::make_pair("DCSSummary", ibooker.bookFloat("DCSSummary")));
 
   for (std::map<std::string, MonitorElement*>::iterator it = mos.begin(); it != mos.end(); it++) { 
     it->second->Fill(-1);

@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from RecoTauTag.TauTagTools.PFTauSelector_cfi.py import pfTauSelector
+from RecoTauTag.TauTagTools.PFTauSelector_cfi import pfTauSelector
 hltPFTauSelector = pfTauSelector.clone(
     src = cms.InputTag("fixedConePFTauProducer"),
     discriminators = cms.VPSet(

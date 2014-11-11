@@ -13,6 +13,8 @@ using namespace pat;
 /// default constructor
 Muon::Muon() :
     Lepton<reco::Muon>(),
+    embeddedMuonBestTrack_(false),
+    embeddedTunePMuonBestTrack_(false),
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
@@ -37,6 +39,8 @@ Muon::Muon() :
 /// constructor from reco::Muon
 Muon::Muon(const reco::Muon & aMuon) :
     Lepton<reco::Muon>(aMuon),
+    embeddedMuonBestTrack_(false),
+    embeddedTunePMuonBestTrack_(false),
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
@@ -61,6 +65,8 @@ Muon::Muon(const reco::Muon & aMuon) :
 /// constructor from ref to reco::Muon
 Muon::Muon(const edm::RefToBase<reco::Muon> & aMuonRef) :
     Lepton<reco::Muon>(aMuonRef),
+    embeddedMuonBestTrack_(false),
+    embeddedTunePMuonBestTrack_(false),
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
@@ -85,6 +91,8 @@ Muon::Muon(const edm::RefToBase<reco::Muon> & aMuonRef) :
 /// constructor from ref to reco::Muon
 Muon::Muon(const edm::Ptr<reco::Muon> & aMuonRef) :
     Lepton<reco::Muon>(aMuonRef),
+    embeddedMuonBestTrack_(false),
+    embeddedTunePMuonBestTrack_(false),
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
@@ -195,7 +203,7 @@ reco::TrackRef Muon::dytTrack() const {
 
 /// reference to Track giving best momentum (global PFlow algo) 
 reco::TrackRef Muon::muonBestTrack() const {
-  if (embeddedMuonBestTrack_) {
+  if (!muonBestTrack_.empty()) {
     return reco::TrackRef(&muonBestTrack_, 0);
   } else {
     return reco::Muon::muonBestTrack();
@@ -204,7 +212,7 @@ reco::TrackRef Muon::muonBestTrack() const {
 
 /// reference to Track giving best momentum (muon only) 
 reco::TrackRef Muon::tunePMuonBestTrack() const {
-  if (embeddedTunePMuonBestTrack_) {
+  if (!tunePMuonBestTrack_.empty()) {
     return reco::TrackRef(&tunePMuonBestTrack_, 0);
   } else if (muonBestTrackType() == tunePMuonBestTrackType()) {
     return muonBestTrack();
@@ -236,6 +244,7 @@ reco::CandidatePtr Muon::sourceCandidatePtr( size_type i ) const {
 /// embed the Track selected to be the best measurement of the muon parameters
 void Muon::embedMuonBestTrack(bool force) {
   muonBestTrack_.clear();
+  embeddedMuonBestTrack_ = false;
   bool alreadyEmbedded = force;
   if (!force) {
       switch (muonBestTrackType()) {
@@ -258,6 +267,7 @@ void Muon::embedMuonBestTrack(bool force) {
 void Muon::embedTunePMuonBestTrack(bool force) {
   tunePMuonBestTrack_.clear();
   bool alreadyEmbedded = force;
+  embeddedTunePMuonBestTrack_ = false;
   if (!force) {
       switch (muonBestTrackType()) {
           case None: alreadyEmbedded = true; break;

@@ -17,8 +17,7 @@ using namespace edm;
 using namespace TauSpinner;
 
 CLHEP::HepRandomEngine* TauSpinnerCMS::fRandomEngine= nullptr;
-bool                    TauSpinnerCMS::isTauSpinnerConfigure=false;
-
+bool TauSpinnerCMS::isTauSpinnerConfigure=false;
 bool TauSpinnerCMS::fInitialized=false;
 
 TauSpinnerCMS::TauSpinnerCMS( const ParameterSet& pset ) :
@@ -52,10 +51,13 @@ TauSpinnerCMS::TauSpinnerCMS( const ParameterSet& pset ) :
   }
 }
 
+void TauSpinnerCMS::beginJob(){};
+void TauSpinnerCMS::endJob(){};
+
 void TauSpinnerCMS::initialize(){
   // Now for Tauola and TauSpinner
+  Tauolapp::Tauola::setRandomGenerator(TauSpinnerCMS::flat);
   if(!isTauolaConfigured_){
-    Tauolapp::Tauola::setRandomGenerator(TauSpinnerCMS::flat);
     Tauolapp::Tauola::initialize();
   }
   if(!isLHPDFConfigured_){
@@ -63,7 +65,7 @@ void TauSpinnerCMS::initialize(){
   }
   if(!isTauSpinnerConfigure){
     isTauSpinnerConfigure=true;
-    bool Ipp = true;  // for pp collisions
+    bool Ipp = true; // for pp collisions
     // Initialize TauSpinner
     //Ipol - polarization of input sample
     //nonSM2 - nonstandard model calculations
@@ -73,18 +75,13 @@ void TauSpinnerCMS::initialize(){
   fInitialized=true;
 }
 
-void TauSpinnerCMS::endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup){}
-
-void TauSpinnerCMS::beginJob(){
-
-}
 
 void TauSpinnerCMS::produce( edm::Event& e, const edm::EventSetup& iSetup){
   RandomEngineSentry<TauSpinnerCMS> randomEngineSentry(this, e.streamID());
   if(!fInitialized) initialize();
 
-  Tauolapp::Tauola::setRandomGenerator(TauSpinnerCMS::flat);  // rest tauola++ random number incase other modules use tauola++
-
+  Tauolapp::Tauola::setRandomGenerator(TauSpinnerCMS::flat); // rest tauola++ random number incase other modules use tauola++
+  Tauolapp::jaki_.ktom = 1; // rest for when you run after tauola
   double WT=1.0;
   double WTFlip=1.0;
   double polSM=-999; //range [-1,1]
@@ -100,11 +97,11 @@ void TauSpinnerCMS::produce( edm::Event& e, const edm::EventSetup& iSetup){
     //Get EVENT
     HepMC::GenEvent *Evt = new HepMC::GenEvent(*(evt->GetEvent()));
     stat=readParticlesFromHepMC(Evt,X,tau,tau2,tau_daughters,tau_daughters2);
-  }  
+  }
   if(MotherPDGID_<0 || abs(X.pdgid())==MotherPDGID_){
     if(stat!=1){
-      // Determine the weight      
-      if( abs(X.pdgid())==24 ||  abs(X.pdgid())==37 ){
+      // Determine the weight
+      if( abs(X.pdgid())==24 || abs(X.pdgid())==37 ){
         TLorentzVector tau_1r(0,0,0,0);
         TLorentzVector tau_1(tau.px(),tau.py(),tau.pz(),tau.e());
         for(unsigned int i=0; i<tau_daughters.size();i++){
@@ -152,8 +149,8 @@ void TauSpinnerCMS::produce( edm::Event& e, const edm::EventSetup& iSetup){
 
   // regular weight
   std::auto_ptr<double> TauSpinnerWeight(new double);
-  *TauSpinnerWeight =WT;    
-  e.put(TauSpinnerWeight,"TauSpinnerWT");  
+  *TauSpinnerWeight =WT;
+  e.put(TauSpinnerWeight,"TauSpinnerWT");
   
   // flipped weight (ie Z->H or H->Z)
   std::auto_ptr<double> TauSpinnerWeightFlip(new double);
@@ -162,7 +159,7 @@ void TauSpinnerCMS::produce( edm::Event& e, const edm::EventSetup& iSetup){
   
   // h+ polarization
   double WThplus=WT;
-  if(polSM<0.0 && polSM!=-999 && isValid) WThplus=0; 
+  if(polSM<0.0 && polSM!=-999 && isValid) WThplus=0;
   std::auto_ptr<double> TauSpinnerWeighthplus(new double);
   *TauSpinnerWeighthplus = WThplus;
   e.put(TauSpinnerWeighthplus,"TauSpinnerWThplus");
@@ -174,13 +171,9 @@ void TauSpinnerCMS::produce( edm::Event& e, const edm::EventSetup& iSetup){
   *TauSpinnerWeighthminus = WThminus;
   e.put(TauSpinnerWeighthminus,"TauSpinnerWThminus");
   return ;
-}  
+}
 
-void TauSpinnerCMS::endRun( const edm::Run& r, const edm::EventSetup& ){}
-
-void TauSpinnerCMS::endJob(){}
-
-int TauSpinnerCMS::readParticlesfromReco(edm::Event& e,SimpleParticle &X,SimpleParticle &tau,SimpleParticle &tau2, 
+int TauSpinnerCMS::readParticlesfromReco(edm::Event& e,SimpleParticle &X,SimpleParticle &tau,SimpleParticle &tau2,
 					 std::vector<SimpleParticle> &tau_daughters,std::vector<SimpleParticle> &tau2_daughters){
   edm::Handle<reco::GenParticleCollection> genParticles;
   e.getByToken(GenParticleCollectionToken_, genParticles);
@@ -240,7 +233,7 @@ void TauSpinnerCMS::GetLastSelf(const reco::GenParticle *Particle){
     const reco::GenParticle *dau=static_cast<const reco::GenParticle*>(Particle->daughter(i));
     if(Particle->pdgId()==dau->pdgId()){
       Particle=dau;
-      GetLastSelf(Particle);  
+      GetLastSelf(Particle);
     }
   }
 }
@@ -277,6 +270,5 @@ double TauSpinnerCMS::flat()
   }
   return fRandomEngine->flat();
 }
-
 
 DEFINE_FWK_MODULE(TauSpinnerCMS);

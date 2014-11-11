@@ -51,9 +51,8 @@ SiPixelHitEfficiencyModule::~SiPixelHitEfficiencyModule() {
 }
 
 
-void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, int type, bool isUpgrade) {
-  DQMStore* dbe = edm::Service<DQMStore>().operator->();
-
+void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, DQMStore::IBooker & iBooker,int type, bool isUpgrade) {
+  
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
   bool isHalfModule = false;
@@ -80,67 +79,35 @@ void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, int type
     if(updateEfficiencies){
       //EFFICIENCY
       hisID = theHistogramId->setHistoId("efficiency",id_);
-      meEfficiency_ = dbe->book1D(hisID,"Hit efficiency",1,0,1.);
+      meEfficiency_ = iBooker.book1D(hisID,"Hit efficiency",1,0,1.);
       meEfficiency_->setAxisTitle("Hit efficiency",1);
     
       hisID = theHistogramId->setHistoId("efficiencyX",id_);
-      meEfficiencyX_ = dbe->book1D(hisID,"Hit efficiency in X",nbinX,-1.5,1.5);
+      meEfficiencyX_ = iBooker.book1D(hisID,"Hit efficiency in X",nbinX,-1.5,1.5);
       meEfficiencyX_->setAxisTitle("Hit efficiency in X",1);
     
       hisID = theHistogramId->setHistoId("efficiencyY",id_);
-      meEfficiencyY_ = dbe->book1D(hisID,"Hit efficiency in Y",nbinY,-4.,4.);
+      meEfficiencyY_ = iBooker.book1D(hisID,"Hit efficiency in Y",nbinY,-4.,4.);
       meEfficiencyY_->setAxisTitle("Hit efficiency in Y",1);
     
       hisID = theHistogramId->setHistoId("efficiencyAlpha",id_);
-      meEfficiencyAlpha_ = dbe->book1D(hisID,"Hit efficiency in Alpha",nbinangle,-3.5,3.5);
+      meEfficiencyAlpha_ = iBooker.book1D(hisID,"Hit efficiency in Alpha",nbinangle,-3.5,3.5);
       meEfficiencyAlpha_->setAxisTitle("Hit efficiency in Alpha",1);
     
       hisID = theHistogramId->setHistoId("efficiencyBeta",id_);
-      meEfficiencyBeta_ = dbe->book1D(hisID,"Hit efficiency in Beta",nbinangle,-3.5,3.5);
+      meEfficiencyBeta_ = iBooker.book1D(hisID,"Hit efficiency in Beta",nbinangle,-3.5,3.5);
       meEfficiencyBeta_->setAxisTitle("Hit efficiency in Beta",1);
     }
 
     //VALID
     hisID = theHistogramId->setHistoId("valid",id_);
-    meValid_ = dbe->book1D(hisID,"# Valid hits",1,0,1.);
+    meValid_ = iBooker.book1D(hisID,"# Valid hits",1,0,1.);
     meValid_->setAxisTitle("# Valid hits",1);
     
-    /*hisID = theHistogramId->setHistoId("validX",id_);
-    meValidX_ = dbe->book1D(hisID,"# Valid hits in X",nbinX,-1.5,1.5);
-    meValidX_->setAxisTitle("# Valid hits in X",1);
-    
-    hisID = theHistogramId->setHistoId("validY",id_);
-    meValidY_ = dbe->book1D(hisID,"# Valid hits in Y",nbinY,-4.,4.);
-    meValidY_->setAxisTitle("# Valid hits in Y",1);
-    
-    hisID = theHistogramId->setHistoId("validAlpha",id_);
-    meValidAlpha_ = dbe->book1D(hisID,"# Valid hits in Alpha",nbinangle,-3.5,3.5);
-    meValidAlpha_->setAxisTitle("# Valid hits in Alpha",1);
-    
-    hisID = theHistogramId->setHistoId("validBeta",id_);
-    meValidBeta_ = dbe->book1D(hisID,"# Valid hits in Beta",nbinangle,-3.5,3.5);
-    meValidBeta_->setAxisTitle("# Valid hits in Beta",1);*/
-
     //MISSING
     hisID = theHistogramId->setHistoId("missing",id_);
-    meMissing_ = dbe->book1D(hisID,"# Missing hits",1,0,1.);
+    meMissing_ = iBooker.book1D(hisID,"# Missing hits",1,0,1.);
     meMissing_->setAxisTitle("# Missing hits",1);
-    
-    /*hisID = theHistogramId->setHistoId("missingX",id_);
-    meMissingX_ = dbe->book1D(hisID,"# Missing hits in X",nbinX,-1.5,1.5);
-    meMissingX_->setAxisTitle("# Missing hits in X",1);
-    
-    hisID = theHistogramId->setHistoId("missingY",id_);
-    meMissingY_ = dbe->book1D(hisID,"# Missing hits in Y",nbinY,-4.,4.);
-    meMissingY_->setAxisTitle("# Missing hits in Y",1);
-    
-    hisID = theHistogramId->setHistoId("missingAlpha",id_);
-    meMissingAlpha_ = dbe->book1D(hisID,"# Missing hits in Alpha",nbinangle,-3.5,3.5);
-    meMissingAlpha_->setAxisTitle("# Missing hits in Alpha",1);
-    
-    hisID = theHistogramId->setHistoId("missingBeta",id_);
-    meMissingBeta_ = dbe->book1D(hisID,"# Missing hits in Beta",nbinangle,-3.5,3.5);
-    meMissingBeta_->setAxisTitle("# Missing hits in Beta",1);*/
     
     delete theHistogramId;
   }
@@ -156,58 +123,58 @@ void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, int type
     
     if(updateEfficiencies){
       //EFFICIENCY
-      meEfficiencyLad_ = dbe->book1D("efficiency_"+hisID,"Hit efficiency",1,0,1.);
+      meEfficiencyLad_ = iBooker.book1D("efficiency_"+hisID,"Hit efficiency",1,0,1.);
       meEfficiencyLad_->setAxisTitle("Hit efficiency",1);
     
-      meEfficiencyXLad_ = dbe->book1D("efficiencyX_"+hisID,"Hit efficiency in X",nbinX,-1.5,1.5);
+      meEfficiencyXLad_ = iBooker.book1D("efficiencyX_"+hisID,"Hit efficiency in X",nbinX,-1.5,1.5);
       meEfficiencyXLad_->setAxisTitle("Hit efficiency in X",1);
     
-      meEfficiencyYLad_ = dbe->book1D("efficiencyY_"+hisID,"Hit efficiency in Y",nbinY,-4.,4.);
+      meEfficiencyYLad_ = iBooker.book1D("efficiencyY_"+hisID,"Hit efficiency in Y",nbinY,-4.,4.);
       meEfficiencyYLad_->setAxisTitle("Hit efficiency in Y",1);
     
-      meEfficiencyAlphaLad_ = dbe->book1D("efficiencyAlpha_"+hisID,"Hit efficiency in Alpha",nbinangle,-3.5,3.5);
+      meEfficiencyAlphaLad_ = iBooker.book1D("efficiencyAlpha_"+hisID,"Hit efficiency in Alpha",nbinangle,-3.5,3.5);
       meEfficiencyAlphaLad_->setAxisTitle("Hit efficiency in Alpha",1);
     
-      meEfficiencyBetaLad_ = dbe->book1D("efficiencyBeta_"+hisID,"Hit efficiency in Beta",nbinangle,-3.5,3.5);
+      meEfficiencyBetaLad_ = iBooker.book1D("efficiencyBeta_"+hisID,"Hit efficiency in Beta",nbinangle,-3.5,3.5);
       meEfficiencyBetaLad_->setAxisTitle("Hit efficiency in Beta",1);
     }
     
     //VALID
-    meValidLad_ = dbe->book1D("valid_"+hisID,"# Valid hits",1,0,1.);
+    meValidLad_ = iBooker.book1D("valid_"+hisID,"# Valid hits",1,0,1.);
     meValidLad_->setAxisTitle("# Valid hits",1);
     
-    meValidXLad_ = dbe->book1D("validX_"+hisID,"# Valid hits in X",nbinX,-1.5,1.5);
+    meValidXLad_ = iBooker.book1D("validX_"+hisID,"# Valid hits in X",nbinX,-1.5,1.5);
     meValidXLad_->setAxisTitle("# Valid hits in X",1);
     
-    meValidYLad_ = dbe->book1D("validY_"+hisID,"# Valid hits in Y",nbinY,-4.,4.);
+    meValidYLad_ = iBooker.book1D("validY_"+hisID,"# Valid hits in Y",nbinY,-4.,4.);
     meValidYLad_->setAxisTitle("# Valid hits in Y",1);
 
-    meValidModLad_ = dbe->book1D("validMod_"+hisID,"# Valid hits on Module",20,1,21.);
+    meValidModLad_ = iBooker.book1D("validMod_"+hisID,"# Valid hits on Module",20,1,21.);
     meValidModLad_->setAxisTitle("# Valid hits on Module",1);    
 
-    meValidAlphaLad_ = dbe->book1D("validAlpha_"+hisID,"# Valid hits in Alpha",nbinangle,-3.5,3.5);
+    meValidAlphaLad_ = iBooker.book1D("validAlpha_"+hisID,"# Valid hits in Alpha",nbinangle,-3.5,3.5);
     meValidAlphaLad_->setAxisTitle("# Valid hits in Alpha",1);
     
-    meValidBetaLad_ = dbe->book1D("validBeta_"+hisID,"# Valid hits in Beta",nbinangle,-3.5,3.5);
+    meValidBetaLad_ = iBooker.book1D("validBeta_"+hisID,"# Valid hits in Beta",nbinangle,-3.5,3.5);
     meValidBetaLad_->setAxisTitle("# Valid hits in Beta",1);
 
     //MISSING
-    meMissingLad_ = dbe->book1D("missing_"+hisID,"# Missing hits",1,0,1.);
+    meMissingLad_ = iBooker.book1D("missing_"+hisID,"# Missing hits",1,0,1.);
     meMissingLad_->setAxisTitle("# Missing hits",1);
     
-    meMissingXLad_ = dbe->book1D("missingX_"+hisID,"# Missing hits in X",nbinX,-1.5,1.5);
+    meMissingXLad_ = iBooker.book1D("missingX_"+hisID,"# Missing hits in X",nbinX,-1.5,1.5);
     meMissingXLad_->setAxisTitle("# Missing hits in X",1);
     
-    meMissingYLad_ = dbe->book1D("missingY_"+hisID,"# Missing hits in Y",nbinY,-4.,4.);
+    meMissingYLad_ = iBooker.book1D("missingY_"+hisID,"# Missing hits in Y",nbinY,-4.,4.);
     meMissingYLad_->setAxisTitle("# Missing hits in Y",1);
     
-    meMissingModLad_ = dbe->book1D("missingMod_"+hisID,"# Missing hits on Module",20,1,21.);
+    meMissingModLad_ = iBooker.book1D("missingMod_"+hisID,"# Missing hits on Module",20,1,21.);
     meMissingModLad_->setAxisTitle("# Missing hits on Module",1);
 
-    meMissingAlphaLad_ = dbe->book1D("missingAlpha_"+hisID,"# Missing hits in Alpha",nbinangle,-3.5,3.5);
+    meMissingAlphaLad_ = iBooker.book1D("missingAlpha_"+hisID,"# Missing hits in Alpha",nbinangle,-3.5,3.5);
     meMissingAlphaLad_->setAxisTitle("# Missing hits in Alpha",1);
     
-    meMissingBetaLad_ = dbe->book1D("missingBeta_"+hisID,"# Missing hits in Beta",nbinangle,-3.5,3.5);
+    meMissingBetaLad_ = iBooker.book1D("missingBeta_"+hisID,"# Missing hits in Beta",nbinangle,-3.5,3.5);
     meMissingBetaLad_->setAxisTitle("# Missing hits in Beta",1);
   }
   
@@ -221,52 +188,52 @@ void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, int type
 
     if(updateEfficiencies){
       //EFFICIENCY
-      meEfficiencyLay_ = dbe->book1D("efficiency_"+hisID,"Hit efficiency",1,0,1.);
+      meEfficiencyLay_ = iBooker.book1D("efficiency_"+hisID,"Hit efficiency",1,0,1.);
       meEfficiencyLay_->setAxisTitle("Hit efficiency",1);
     
-      meEfficiencyXLay_ = dbe->book1D("efficiencyX_"+hisID,"Hit efficiency in X",nbinX,-1.5,1.5);
+      meEfficiencyXLay_ = iBooker.book1D("efficiencyX_"+hisID,"Hit efficiency in X",nbinX,-1.5,1.5);
       meEfficiencyXLay_->setAxisTitle("Hit efficiency in X",1);
     
-      meEfficiencyYLay_ = dbe->book1D("efficiencyY_"+hisID,"Hit efficiency in Y",nbinY,-4.,4.);
+      meEfficiencyYLay_ = iBooker.book1D("efficiencyY_"+hisID,"Hit efficiency in Y",nbinY,-4.,4.);
       meEfficiencyYLay_->setAxisTitle("Hit efficiency in Y",1);
     
-      meEfficiencyAlphaLay_ = dbe->book1D("efficiencyAlpha_"+hisID,"Hit efficiency in Alpha",nbinangle,-3.5,3.5);
+      meEfficiencyAlphaLay_ = iBooker.book1D("efficiencyAlpha_"+hisID,"Hit efficiency in Alpha",nbinangle,-3.5,3.5);
       meEfficiencyAlphaLay_->setAxisTitle("Hit efficiency in Alpha",1);
     
-      meEfficiencyBetaLay_ = dbe->book1D("efficiencyBeta_"+hisID,"Hit efficiency in Beta",nbinangle,-3.5,3.5);
+      meEfficiencyBetaLay_ = iBooker.book1D("efficiencyBeta_"+hisID,"Hit efficiency in Beta",nbinangle,-3.5,3.5);
       meEfficiencyBetaLay_->setAxisTitle("Hit efficiency in Beta",1);
     }
     
     //VALID
-    meValidLay_ = dbe->book1D("valid_"+hisID,"# Valid hits",1,0,1.);
+    meValidLay_ = iBooker.book1D("valid_"+hisID,"# Valid hits",1,0,1.);
     meValidLay_->setAxisTitle("# Valid hits",1);
     
-    meValidXLay_ = dbe->book1D("validX_"+hisID,"# Valid hits in X",nbinX,-1.5,1.5);
+    meValidXLay_ = iBooker.book1D("validX_"+hisID,"# Valid hits in X",nbinX,-1.5,1.5);
     meValidXLay_->setAxisTitle("# Valid hits in X",1);
     
-    meValidYLay_ = dbe->book1D("validY_"+hisID,"# Valid hits in Y",nbinY,-4.,4.);
+    meValidYLay_ = iBooker.book1D("validY_"+hisID,"# Valid hits in Y",nbinY,-4.,4.);
     meValidYLay_->setAxisTitle("# Valid hits in Y",1);
     
-    meValidAlphaLay_ = dbe->book1D("validAlpha_"+hisID,"# Valid hits in Alpha",nbinangle,-3.5,3.5);
+    meValidAlphaLay_ = iBooker.book1D("validAlpha_"+hisID,"# Valid hits in Alpha",nbinangle,-3.5,3.5);
     meValidAlphaLay_->setAxisTitle("# Valid hits in Alpha",1);
     
-    meValidBetaLay_ = dbe->book1D("validBeta_"+hisID,"# Valid hits in Beta",nbinangle,-3.5,3.5);
+    meValidBetaLay_ = iBooker.book1D("validBeta_"+hisID,"# Valid hits in Beta",nbinangle,-3.5,3.5);
     meValidBetaLay_->setAxisTitle("# Valid hits in Beta",1);
 
     //MISSING
-    meMissingLay_ = dbe->book1D("missing_"+hisID,"# Missing hits",1,0,1.);
+    meMissingLay_ = iBooker.book1D("missing_"+hisID,"# Missing hits",1,0,1.);
     meMissingLay_->setAxisTitle("# Missing hits",1);
     
-    meMissingXLay_ = dbe->book1D("missingX_"+hisID,"# Missing hits in X",nbinX,-1.5,1.5);
+    meMissingXLay_ = iBooker.book1D("missingX_"+hisID,"# Missing hits in X",nbinX,-1.5,1.5);
     meMissingXLay_->setAxisTitle("# Missing hits in X",1);
     
-    meMissingYLay_ = dbe->book1D("missingY_"+hisID,"# Missing hits in Y",nbinY,-4.,4.);
+    meMissingYLay_ = iBooker.book1D("missingY_"+hisID,"# Missing hits in Y",nbinY,-4.,4.);
     meMissingYLay_->setAxisTitle("# Missing hits in Y",1);
     
-    meMissingAlphaLay_ = dbe->book1D("missingAlpha_"+hisID,"# Missing hits in Alpha",nbinangle,-3.5,3.5);
+    meMissingAlphaLay_ = iBooker.book1D("missingAlpha_"+hisID,"# Missing hits in Alpha",nbinangle,-3.5,3.5);
     meMissingAlphaLay_->setAxisTitle("# Missing hits in Alpha",1);
     
-    meMissingBetaLay_ = dbe->book1D("missingBeta_"+hisID,"# Missing hits in Beta",nbinangle,-3.5,3.5);
+    meMissingBetaLay_ = iBooker.book1D("missingBeta_"+hisID,"# Missing hits in Beta",nbinangle,-3.5,3.5);
     meMissingBetaLay_->setAxisTitle("# Missing hits in Beta",1);
   }
   
@@ -279,52 +246,52 @@ void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, int type
     
     if(updateEfficiencies){
       //EFFICIENCY
-      meEfficiencyPhi_ = dbe->book1D("efficiency_"+hisID,"Hit efficiency",1,0,1.);
+      meEfficiencyPhi_ = iBooker.book1D("efficiency_"+hisID,"Hit efficiency",1,0,1.);
       meEfficiencyPhi_->setAxisTitle("Hit efficiency",1);
     
-      meEfficiencyXPhi_ = dbe->book1D("efficiencyX_"+hisID,"Hit efficiency in X",nbinX,-1.5,1.5);
+      meEfficiencyXPhi_ = iBooker.book1D("efficiencyX_"+hisID,"Hit efficiency in X",nbinX,-1.5,1.5);
       meEfficiencyXPhi_->setAxisTitle("Hit efficiency in X",1);
     
-      meEfficiencyYPhi_ = dbe->book1D("efficiencyY_"+hisID,"Hit efficiency in Y",nbinY,-4.,4.);
+      meEfficiencyYPhi_ = iBooker.book1D("efficiencyY_"+hisID,"Hit efficiency in Y",nbinY,-4.,4.);
       meEfficiencyYPhi_->setAxisTitle("Hit efficiency in Y",1);
     
-      meEfficiencyAlphaPhi_ = dbe->book1D("efficiencyAlpha_"+hisID,"Hit efficiency in Alpha",nbinangle,-3.5,3.5);
+      meEfficiencyAlphaPhi_ = iBooker.book1D("efficiencyAlpha_"+hisID,"Hit efficiency in Alpha",nbinangle,-3.5,3.5);
       meEfficiencyAlphaPhi_->setAxisTitle("Hit efficiency in Alpha",1);
     
-      meEfficiencyBetaPhi_ = dbe->book1D("efficiencyBeta_"+hisID,"Hit efficiency in Beta",nbinangle,-3.5,3.5);
+      meEfficiencyBetaPhi_ = iBooker.book1D("efficiencyBeta_"+hisID,"Hit efficiency in Beta",nbinangle,-3.5,3.5);
       meEfficiencyBetaPhi_->setAxisTitle("Hit efficiency in Beta",1);
     }
     
     //VALID
-    meValidPhi_ = dbe->book1D("valid_"+hisID,"# Valid hits",1,0,1.);
+    meValidPhi_ = iBooker.book1D("valid_"+hisID,"# Valid hits",1,0,1.);
     meValidPhi_->setAxisTitle("# Valid hits",1);
     
-    meValidXPhi_ = dbe->book1D("validX_"+hisID,"# Valid hits in X",nbinX,-1.5,1.5);
+    meValidXPhi_ = iBooker.book1D("validX_"+hisID,"# Valid hits in X",nbinX,-1.5,1.5);
     meValidXPhi_->setAxisTitle("# Valid hits in X",1);
     
-    meValidYPhi_ = dbe->book1D("validY_"+hisID,"# Valid hits in Y",nbinY,-4.,4.);
+    meValidYPhi_ = iBooker.book1D("validY_"+hisID,"# Valid hits in Y",nbinY,-4.,4.);
     meValidYPhi_->setAxisTitle("# Valid hits in Y",1);
     
-    meValidAlphaPhi_ = dbe->book1D("validAlpha_"+hisID,"# Valid hits in Alpha",nbinangle,-3.5,3.5);
+    meValidAlphaPhi_ = iBooker.book1D("validAlpha_"+hisID,"# Valid hits in Alpha",nbinangle,-3.5,3.5);
     meValidAlphaPhi_->setAxisTitle("# Valid hits in Alpha",1);
     
-    meValidBetaPhi_ = dbe->book1D("validBeta_"+hisID,"# Valid hits in Beta",nbinangle,-3.5,3.5);
+    meValidBetaPhi_ = iBooker.book1D("validBeta_"+hisID,"# Valid hits in Beta",nbinangle,-3.5,3.5);
     meValidBetaPhi_->setAxisTitle("# Valid hits in Beta",1);
 
     //MISSING
-    meMissingPhi_ = dbe->book1D("missing_"+hisID,"# Missing hits",1,0,1.);
+    meMissingPhi_ = iBooker.book1D("missing_"+hisID,"# Missing hits",1,0,1.);
     meMissingPhi_->setAxisTitle("# Missing hits",1);
     
-    meMissingXPhi_ = dbe->book1D("missingX_"+hisID,"# Missing hits in X",nbinX,-1.5,1.5);
+    meMissingXPhi_ = iBooker.book1D("missingX_"+hisID,"# Missing hits in X",nbinX,-1.5,1.5);
     meMissingXPhi_->setAxisTitle("# Missing hits in X",1);
     
-    meMissingYPhi_ = dbe->book1D("missingY_"+hisID,"# Missing hits in Y",nbinY,-4.,4.);
+    meMissingYPhi_ = iBooker.book1D("missingY_"+hisID,"# Missing hits in Y",nbinY,-4.,4.);
     meMissingYPhi_->setAxisTitle("# Missing hits in Y",1);
     
-    meMissingAlphaPhi_ = dbe->book1D("missingAlpha_"+hisID,"# Missing hits in Alpha",nbinangle,-3.5,3.5);
+    meMissingAlphaPhi_ = iBooker.book1D("missingAlpha_"+hisID,"# Missing hits in Alpha",nbinangle,-3.5,3.5);
     meMissingAlphaPhi_->setAxisTitle("# Missing hits in Alpha",1);
     
-    meMissingBetaPhi_ = dbe->book1D("missingBeta_"+hisID,"# Missing hits in Beta",nbinangle,-3.5,3.5);
+    meMissingBetaPhi_ = iBooker.book1D("missingBeta_"+hisID,"# Missing hits in Beta",nbinangle,-3.5,3.5);
     meMissingBetaPhi_->setAxisTitle("# Missing hits in Beta",1); 
   }
   
@@ -338,52 +305,52 @@ void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, int type
     
     if(updateEfficiencies){
       //EFFICIENCY
-      meEfficiencyBlade_ = dbe->book1D("efficiency_"+hisID,"Hit efficiency",1,0,1.);
+      meEfficiencyBlade_ = iBooker.book1D("efficiency_"+hisID,"Hit efficiency",1,0,1.);
       meEfficiencyBlade_->setAxisTitle("Hit efficiency",1);
     
-      meEfficiencyXBlade_ = dbe->book1D("efficiencyX_"+hisID,"Hit efficiency in X",nbinX,-1.5,1.5);
+      meEfficiencyXBlade_ = iBooker.book1D("efficiencyX_"+hisID,"Hit efficiency in X",nbinX,-1.5,1.5);
       meEfficiencyXBlade_->setAxisTitle("Hit efficiency in X",1);
     
-      meEfficiencyYBlade_ = dbe->book1D("efficiencyY_"+hisID,"Hit efficiency in Y",nbinY,-4.,4.);
+      meEfficiencyYBlade_ = iBooker.book1D("efficiencyY_"+hisID,"Hit efficiency in Y",nbinY,-4.,4.);
       meEfficiencyYBlade_->setAxisTitle("Hit efficiency in Y",1);
     
-      meEfficiencyAlphaBlade_ = dbe->book1D("efficiencyAlpha_"+hisID,"Hit efficiency in Alpha",nbinangle,-3.5,3.5);
+      meEfficiencyAlphaBlade_ = iBooker.book1D("efficiencyAlpha_"+hisID,"Hit efficiency in Alpha",nbinangle,-3.5,3.5);
       meEfficiencyAlphaBlade_->setAxisTitle("Hit efficiency in Alpha",1);
     
-      meEfficiencyBetaBlade_ = dbe->book1D("efficiencyBeta_"+hisID,"Hit efficiency in Beta",nbinangle,-3.5,3.5);
+      meEfficiencyBetaBlade_ = iBooker.book1D("efficiencyBeta_"+hisID,"Hit efficiency in Beta",nbinangle,-3.5,3.5);
       meEfficiencyBetaBlade_->setAxisTitle("Hit efficiency in Beta",1);
     }
     
     //VALID
-    meValidBlade_ = dbe->book1D("valid_"+hisID,"# Valid hits",1,0,1.);
+    meValidBlade_ = iBooker.book1D("valid_"+hisID,"# Valid hits",1,0,1.);
     meValidBlade_->setAxisTitle("# Valid hits",1);
     
-    meValidXBlade_ = dbe->book1D("validX_"+hisID,"# Valid hits in X",nbinX,-1.5,1.5);
+    meValidXBlade_ = iBooker.book1D("validX_"+hisID,"# Valid hits in X",nbinX,-1.5,1.5);
     meValidXBlade_->setAxisTitle("# Valid hits in X",1);
     
-    meValidYBlade_ = dbe->book1D("validY_"+hisID,"# Valid hits in Y",nbinY,-4.,4.);
+    meValidYBlade_ = iBooker.book1D("validY_"+hisID,"# Valid hits in Y",nbinY,-4.,4.);
     meValidYBlade_->setAxisTitle("# Valid hits in Y",1);
     
-    meValidAlphaBlade_ = dbe->book1D("validAlpha_"+hisID,"# Valid hits in Alpha",nbinangle,-3.5,3.5);
+    meValidAlphaBlade_ = iBooker.book1D("validAlpha_"+hisID,"# Valid hits in Alpha",nbinangle,-3.5,3.5);
     meValidAlphaBlade_->setAxisTitle("# Valid hits in Alpha",1);
     
-    meValidBetaBlade_ = dbe->book1D("validBeta_"+hisID,"# Valid hits in Beta",nbinangle,-3.5,3.5);
+    meValidBetaBlade_ = iBooker.book1D("validBeta_"+hisID,"# Valid hits in Beta",nbinangle,-3.5,3.5);
     meValidBetaBlade_->setAxisTitle("# Valid hits in Beta",1);
 
     //MISSING
-    meMissingBlade_ = dbe->book1D("missing_"+hisID,"# Missing hits",1,0,1.);
+    meMissingBlade_ = iBooker.book1D("missing_"+hisID,"# Missing hits",1,0,1.);
     meMissingBlade_->setAxisTitle("# Missing hits",1);
     
-    meMissingXBlade_ = dbe->book1D("missingX_"+hisID,"# Missing hits in X",nbinX,-1.5,1.5);
+    meMissingXBlade_ = iBooker.book1D("missingX_"+hisID,"# Missing hits in X",nbinX,-1.5,1.5);
     meMissingXBlade_->setAxisTitle("# Missing hits in X",1);
     
-    meMissingYBlade_ = dbe->book1D("missingY_"+hisID,"# Missing hits in Y",nbinY,-4.,4.);
+    meMissingYBlade_ = iBooker.book1D("missingY_"+hisID,"# Missing hits in Y",nbinY,-4.,4.);
     meMissingYBlade_->setAxisTitle("# Missing hits in Y",1);
     
-    meMissingAlphaBlade_ = dbe->book1D("missingAlpha_"+hisID,"# Missing hits in Alpha",nbinangle,-3.5,3.5);
+    meMissingAlphaBlade_ = iBooker.book1D("missingAlpha_"+hisID,"# Missing hits in Alpha",nbinangle,-3.5,3.5);
     meMissingAlphaBlade_->setAxisTitle("# Missing hits in Alpha",1);
     
-    meMissingBetaBlade_ = dbe->book1D("missingBeta_"+hisID,"# Missing hits in Beta",nbinangle,-3.5,3.5);
+    meMissingBetaBlade_ = iBooker.book1D("missingBeta_"+hisID,"# Missing hits in Beta",nbinangle,-3.5,3.5);
     meMissingBetaBlade_->setAxisTitle("# Missing hits in Beta",1); 
   }
   
@@ -397,52 +364,52 @@ void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, int type
     
     if(updateEfficiencies){
       //EFFICIENCY
-      meEfficiencyDisk_ = dbe->book1D("efficiency_"+hisID,"Hit efficiency",1,0,1.);
+      meEfficiencyDisk_ = iBooker.book1D("efficiency_"+hisID,"Hit efficiency",1,0,1.);
       meEfficiencyDisk_->setAxisTitle("Hit efficiency",1);
     
-      meEfficiencyXDisk_ = dbe->book1D("efficiencyX_"+hisID,"Hit efficiency in X",nbinX,-1.5,1.5);
+      meEfficiencyXDisk_ = iBooker.book1D("efficiencyX_"+hisID,"Hit efficiency in X",nbinX,-1.5,1.5);
       meEfficiencyXDisk_->setAxisTitle("Hit efficiency in X",1);
     
-      meEfficiencyYDisk_ = dbe->book1D("efficiencyY_"+hisID,"Hit efficiency in Y",nbinY,-4.,4.);
+      meEfficiencyYDisk_ = iBooker.book1D("efficiencyY_"+hisID,"Hit efficiency in Y",nbinY,-4.,4.);
       meEfficiencyYDisk_->setAxisTitle("Hit efficiency in Y",1);
     
-      meEfficiencyAlphaDisk_ = dbe->book1D("efficiencyAlpha_"+hisID,"Hit efficiency in Alpha",nbinangle,-3.5,3.5);
+      meEfficiencyAlphaDisk_ = iBooker.book1D("efficiencyAlpha_"+hisID,"Hit efficiency in Alpha",nbinangle,-3.5,3.5);
       meEfficiencyAlphaDisk_->setAxisTitle("Hit efficiency in Alpha",1);
     
-      meEfficiencyBetaDisk_ = dbe->book1D("efficiencyBeta_"+hisID,"Hit efficiency in Beta",nbinangle,-3.5,3.5);
+      meEfficiencyBetaDisk_ = iBooker.book1D("efficiencyBeta_"+hisID,"Hit efficiency in Beta",nbinangle,-3.5,3.5);
       meEfficiencyBetaDisk_->setAxisTitle("Hit efficiency in Beta",1);
     }
     
     //VALID
-    meValidDisk_ = dbe->book1D("valid_"+hisID,"# Valid hits",1,0,1.);
+    meValidDisk_ = iBooker.book1D("valid_"+hisID,"# Valid hits",1,0,1.);
     meValidDisk_->setAxisTitle("# Valid hits",1);
     
-    meValidXDisk_ = dbe->book1D("validX_"+hisID,"# Valid hits in X",nbinX,-1.5,1.5);
+    meValidXDisk_ = iBooker.book1D("validX_"+hisID,"# Valid hits in X",nbinX,-1.5,1.5);
     meValidXDisk_->setAxisTitle("# Valid hits in X",1);
     
-    meValidYDisk_ = dbe->book1D("validY_"+hisID,"# Valid hits in Y",nbinY,-4.,4.);
+    meValidYDisk_ = iBooker.book1D("validY_"+hisID,"# Valid hits in Y",nbinY,-4.,4.);
     meValidYDisk_->setAxisTitle("# Valid hits in Y",1);
     
-    meValidAlphaDisk_ = dbe->book1D("validAlpha_"+hisID,"# Valid hits in Alpha",nbinangle,-3.5,3.5);
+    meValidAlphaDisk_ = iBooker.book1D("validAlpha_"+hisID,"# Valid hits in Alpha",nbinangle,-3.5,3.5);
     meValidAlphaDisk_->setAxisTitle("# Valid hits in Alpha",1);
     
-    meValidBetaDisk_ = dbe->book1D("validBeta_"+hisID,"# Valid hits in Beta",nbinangle,-3.5,3.5);
+    meValidBetaDisk_ = iBooker.book1D("validBeta_"+hisID,"# Valid hits in Beta",nbinangle,-3.5,3.5);
     meValidBetaDisk_->setAxisTitle("# Valid hits in Beta",1);
 
     //MISSING
-    meMissingDisk_ = dbe->book1D("missing_"+hisID,"# Missing hits",1,0,1.);
+    meMissingDisk_ = iBooker.book1D("missing_"+hisID,"# Missing hits",1,0,1.);
     meMissingDisk_->setAxisTitle("# Missing hits",1);
     
-    meMissingXDisk_ = dbe->book1D("missingX_"+hisID,"# Missing hits in X",nbinX,-1.5,1.5);
+    meMissingXDisk_ = iBooker.book1D("missingX_"+hisID,"# Missing hits in X",nbinX,-1.5,1.5);
     meMissingXDisk_->setAxisTitle("# Missing hits in X",1);
     
-    meMissingYDisk_ = dbe->book1D("missingY_"+hisID,"# Missing hits in Y",nbinY,-4.,4.);
+    meMissingYDisk_ = iBooker.book1D("missingY_"+hisID,"# Missing hits in Y",nbinY,-4.,4.);
     meMissingYDisk_->setAxisTitle("# Missing hits in Y",1);
     
-    meMissingAlphaDisk_ = dbe->book1D("missingAlpha_"+hisID,"# Missing hits in Alpha",nbinangle,-3.5,3.5);
+    meMissingAlphaDisk_ = iBooker.book1D("missingAlpha_"+hisID,"# Missing hits in Alpha",nbinangle,-3.5,3.5);
     meMissingAlphaDisk_->setAxisTitle("# Missing hits in Alpha",1);
     
-    meMissingBetaDisk_ = dbe->book1D("missingBeta_"+hisID,"# Missing hits in Beta",nbinangle,-3.5,3.5);
+    meMissingBetaDisk_ = iBooker.book1D("missingBeta_"+hisID,"# Missing hits in Beta",nbinangle,-3.5,3.5);
     meMissingBetaDisk_->setAxisTitle("# Missing hits in Beta",1);
   }
     
@@ -463,52 +430,52 @@ void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, int type
     
     if(updateEfficiencies){
       //EFFICIENCY
-      meEfficiencyRing_ = dbe->book1D("efficiency_"+hisID,"Hit efficiency",1,0,1.);
+      meEfficiencyRing_ = iBooker.book1D("efficiency_"+hisID,"Hit efficiency",1,0,1.);
       meEfficiencyRing_->setAxisTitle("Hit efficiency",1);
     
-      meEfficiencyXRing_ = dbe->book1D("efficiencyX_"+hisID,"Hit efficiency in X",nbinX,-1.5,1.5);
+      meEfficiencyXRing_ = iBooker.book1D("efficiencyX_"+hisID,"Hit efficiency in X",nbinX,-1.5,1.5);
       meEfficiencyXRing_->setAxisTitle("Hit efficiency in X",1);
     
-      meEfficiencyYRing_ = dbe->book1D("efficiencyY_"+hisID,"Hit efficiency in Y",nbinY,-4.,4.);
+      meEfficiencyYRing_ = iBooker.book1D("efficiencyY_"+hisID,"Hit efficiency in Y",nbinY,-4.,4.);
       meEfficiencyYRing_->setAxisTitle("Hit efficiency in Y",1);
     
-      meEfficiencyAlphaRing_ = dbe->book1D("efficiencyAlpha_"+hisID,"Hit efficiency in Alpha",nbinangle,-3.5,3.5);
+      meEfficiencyAlphaRing_ = iBooker.book1D("efficiencyAlpha_"+hisID,"Hit efficiency in Alpha",nbinangle,-3.5,3.5);
       meEfficiencyAlphaRing_->setAxisTitle("Hit efficiency in Alpha",1);
     
-      meEfficiencyBetaRing_ = dbe->book1D("efficiencyBeta_"+hisID,"Hit efficiency in Beta",nbinangle,-3.5,3.5);
+      meEfficiencyBetaRing_ = iBooker.book1D("efficiencyBeta_"+hisID,"Hit efficiency in Beta",nbinangle,-3.5,3.5);
       meEfficiencyBetaRing_->setAxisTitle("Hit efficiency in Beta",1);
     }
     
     //VALID
-    meValidRing_ = dbe->book1D("valid_"+hisID,"# Valid hits",1,0,1.);
+    meValidRing_ = iBooker.book1D("valid_"+hisID,"# Valid hits",1,0,1.);
     meValidRing_->setAxisTitle("# Valid hits",1);
     
-    meValidXRing_ = dbe->book1D("validX_"+hisID,"# Valid hits in X",nbinX,-1.5,1.5);
+    meValidXRing_ = iBooker.book1D("validX_"+hisID,"# Valid hits in X",nbinX,-1.5,1.5);
     meValidXRing_->setAxisTitle("# Valid hits in X",1);
     
-    meValidYRing_ = dbe->book1D("validY_"+hisID,"# Valid hits in Y",nbinY,-4.,4.);
+    meValidYRing_ = iBooker.book1D("validY_"+hisID,"# Valid hits in Y",nbinY,-4.,4.);
     meValidYRing_->setAxisTitle("# Valid hits in Y",1);
     
-    meValidAlphaRing_ = dbe->book1D("validAlpha_"+hisID,"# Valid hits in Alpha",nbinangle,-3.5,3.5);
+    meValidAlphaRing_ = iBooker.book1D("validAlpha_"+hisID,"# Valid hits in Alpha",nbinangle,-3.5,3.5);
     meValidAlphaRing_->setAxisTitle("# Valid hits in Alpha",1);
     
-    meValidBetaRing_ = dbe->book1D("validBeta_"+hisID,"# Valid hits in Beta",nbinangle,-3.5,3.5);
+    meValidBetaRing_ = iBooker.book1D("validBeta_"+hisID,"# Valid hits in Beta",nbinangle,-3.5,3.5);
     meValidBetaRing_->setAxisTitle("# Valid hits in Beta",1);
 
     //MISSING
-    meMissingRing_ = dbe->book1D("missing_"+hisID,"# Missing hits",1,0,1.);
+    meMissingRing_ = iBooker.book1D("missing_"+hisID,"# Missing hits",1,0,1.);
     meMissingRing_->setAxisTitle("# Missing hits",1);
     
-    meMissingXRing_ = dbe->book1D("missingX_"+hisID,"# Missing hits in X",nbinX,-1.5,1.5);
+    meMissingXRing_ = iBooker.book1D("missingX_"+hisID,"# Missing hits in X",nbinX,-1.5,1.5);
     meMissingXRing_->setAxisTitle("# Missing hits in X",1);
     
-    meMissingYRing_ = dbe->book1D("missingY_"+hisID,"# Missing hits in Y",nbinY,-4.,4.);
+    meMissingYRing_ = iBooker.book1D("missingY_"+hisID,"# Missing hits in Y",nbinY,-4.,4.);
     meMissingYRing_->setAxisTitle("# Missing hits in Y",1);
     
-    meMissingAlphaRing_ = dbe->book1D("missingAlpha_"+hisID,"# Missing hits in Alpha",nbinangle,-3.5,3.5);
+    meMissingAlphaRing_ = iBooker.book1D("missingAlpha_"+hisID,"# Missing hits in Alpha",nbinangle,-3.5,3.5);
     meMissingAlphaRing_->setAxisTitle("# Missing hits in Alpha",1);
     
-    meMissingBetaRing_ = dbe->book1D("missingBeta_"+hisID,"# Missing hits in Beta",nbinangle,-3.5,3.5);
+    meMissingBetaRing_ = iBooker.book1D("missingBeta_"+hisID,"# Missing hits in Beta",nbinangle,-3.5,3.5);
     meMissingBetaRing_->setAxisTitle("# Missing hits in Beta",1);
   }
 }
@@ -530,10 +497,6 @@ void SiPixelHitEfficiencyModule::fill(const LocalTrajectoryParameters& ltp, bool
   if(isHitValid){
     if(modon){
       meValid_->Fill(0.5);
-      /*meValidX_->Fill(prediction_x);
-      meValidY_->Fill(prediction_y);
-      meValidAlpha_->Fill(prediction_alpha);
-      meValidBeta_->Fill(prediction_beta);*/
     }
     if(barrel && ladon){
       meValidLad_->Fill(0.5);
@@ -582,10 +545,6 @@ void SiPixelHitEfficiencyModule::fill(const LocalTrajectoryParameters& ltp, bool
   else {
     if(modon){
       meMissing_->Fill(0.5);
-      /*meMissingX_->Fill(prediction_x);
-      meMissingY_->Fill(prediction_y);
-      meMissingAlpha_->Fill(prediction_alpha);
-      meMissingBeta_->Fill(prediction_beta);*/
     }
     if(barrel && ladon){
       meMissingLad_->Fill(0.5);
@@ -647,22 +606,6 @@ void SiPixelHitEfficiencyModule::computeEfficiencies(bool modon, bool ladon, boo
   if(modon){
     meEfficiency_->setBinContent(1,(eff(meValid_->getBinContent(1),meMissing_->getBinContent(1))).first);
     meEfficiency_->setBinError(1,(eff(meValid_->getBinContent(1),meMissing_->getBinContent(1))).second);
-    /*for(int i=1;i<=meValidX_->getNbinsX();++i){
-      meEfficiencyX_->setBinContent(i,(eff(meValidX_->getBinContent(i),meMissingX_->getBinContent(i))).first);
-      meEfficiencyX_->setBinError(i,(eff(meValidX_->getBinContent(i),meMissingX_->getBinContent(i))).second);
-    }
-    for(int i=1;i<=meValidY_->getNbinsX();++i){
-      meEfficiencyY_->setBinContent(i,(eff(meValidY_->getBinContent(i),meMissingY_->getBinContent(i))).first);
-      meEfficiencyY_->setBinError(i,(eff(meValidY_->getBinContent(i),meMissingY_->getBinContent(i))).second);
-    }
-    for(int i=1;i<=meValidAlpha_->getNbinsX();++i){
-      meEfficiencyAlpha_->setBinContent(i,(eff(meValidAlpha_->getBinContent(i),meMissingAlpha_->getBinContent(i))).first);
-      meEfficiencyAlpha_->setBinError(i,(eff(meValidAlpha_->getBinContent(i),meMissingAlpha_->getBinContent(i))).second);
-    }
-    for(int i=1;i<=meValidBeta_->getNbinsX();++i){
-      meEfficiencyBeta_->setBinContent(i,(eff(meValidBeta_->getBinContent(i),meMissingBeta_->getBinContent(i))).first);
-      meEfficiencyBeta_->setBinError(i,(eff(meValidBeta_->getBinContent(i),meMissingBeta_->getBinContent(i))).second);
-    }*/
   }
   if(ladon && barrel){
     meEfficiencyLad_->setBinContent(1,(eff(meValidLad_->getBinContent(1),meMissingLad_->getBinContent(1))).first);

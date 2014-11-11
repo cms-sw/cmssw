@@ -28,7 +28,8 @@ ecalLedClient = cms.untracked.PSet(
         tolerancePNRMSRatio = cms.untracked.double(tolerancePNRMSRatio),
         expectedTiming = cms.untracked.vdouble(expectedTiming),
         toleranceTiming = cms.untracked.double(toleranceTiming),    
-        toleranceTimRMS = cms.untracked.double(toleranceTimRMS)
+        toleranceTimRMS = cms.untracked.double(toleranceTimRMS),
+        ledWavelengths = ecaldqmLedWavelengths
     ),
     sources = cms.untracked.PSet(
         Timing = ecalLedTask.MEs.Timing,

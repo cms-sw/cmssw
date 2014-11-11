@@ -33,7 +33,9 @@ ecalLedTask = cms.untracked.PSet(
             otype = cms.untracked.string('EE'),
             btype = cms.untracked.string('DCC'),
             description = cms.untracked.string('Fraction of laser events with measurable led pulse.'),
-            multi = cms.untracked.int32(2)
+            multi = cms.untracked.PSet(
+                wl = ecaldqmLedWavelengths
+            )
         ),
         Shape = cms.untracked.PSet(
             multi = cms.untracked.PSet(
@@ -83,7 +85,9 @@ ecalLedTask = cms.untracked.PSet(
         AmplitudeSummary = cms.untracked.PSet(
             path = cms.untracked.string('EcalEndcap/EELedTask/Led%(wl)s/EELDT amplitude map L%(wl)s%(suffix)s'),
             otype = cms.untracked.string('EE2P'),
-            multi = cms.untracked.int32(4),
+            multi = cms.untracked.PSet(
+                wl = ecaldqmLedWavelengths
+            ),
             kind = cms.untracked.string('TProfile2D'),
             btype = cms.untracked.string('SuperCrystal'),
             description = cms.untracked.string('2D distribution of the mean led amplitude. In general, a channel is filled only when a led pulse was observed in it. When no led signal was observed for longer than ' + str(emptyLSLimit) + ' lumi sections, the channels start to get filled with 0 amplitude, causing the mean to drop.')

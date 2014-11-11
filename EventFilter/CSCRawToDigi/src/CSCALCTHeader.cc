@@ -4,10 +4,20 @@
 #include "EventFilter/CSCRawToDigi/src/bitset_append.h"
 #include "EventFilter/CSCRawToDigi/src/cscPackerCompare.h"
 #include <iomanip>
+
+#ifdef LOCAL_UNPACK
+
+bool CSCALCTHeader::debug=false;
+short unsigned int CSCALCTHeader::firmwareVersion=2007;
+
+#else
+
 #include <atomic>
 
 std::atomic<bool> CSCALCTHeader::debug{false};
 std::atomic<short unsigned int> CSCALCTHeader::firmwareVersion{2007}; 
+
+#endif
 
 CSCALCTHeader::CSCALCTHeader(int chamberType)
 : header2006(chamberType),
@@ -53,8 +63,12 @@ CSCALCTHeader::CSCALCTHeader(const unsigned short * buf) {
 
   LogTrace("CSCALCTHeader|CSCRawToDigi") << "firmware version - " << firmwareVersion;
 
-  ///Now fill data 
+  ///Now fill data
+#ifdef LOCAL_UNPACK
+  switch (firmwareVersion) {
+#else
   switch (firmwareVersion.load()) {
+#endif 
   case 2006:
     memcpy(&header2006, buf, header2006.sizeInWords()*2);///the header part
     buf +=header2006.sizeInWords();
@@ -118,7 +132,26 @@ CSCALCTHeader::CSCALCTHeader(const CSCALCTStatusDigi & digi){
 }
 
 void CSCALCTHeader::setEventInformation(const CSCDMBHeader & dmb) {
-  header2006.setEventInformation(dmb);
+#ifdef LOCAL_UNPACK
+ switch (firmwareVersion) {
+#else
+ switch (firmwareVersion.load()) {
+#endif
+ case 2006:
+    {
+	header2006.setEventInformation(dmb);
+	break;
+    }
+  case 2007:
+    {
+	header2007.setEventInformation(dmb);
+        break;
+    }
+  default:
+    edm::LogError("CSCALCTHeader|CSCRawToDigi")
+      <<"setEventInformation: ALCT firmware version is bad/not defined!" << firmwareVersion;
+    break;
+  }
 }
 
 
@@ -140,7 +173,11 @@ std::vector<CSCALCTDigi> CSCALCTHeader::ALCTDigis() const
 { 
   std::vector<CSCALCTDigi> result;
 
+#ifdef LOCAL_UNPACK
+  switch (firmwareVersion) {
+#else
   switch (firmwareVersion.load()) {
+#endif
   case 2006:
     {
       result = alcts2006.ALCTDigis();
@@ -221,6 +258,8 @@ boost::dynamic_bitset<> CSCALCTHeader::pack()
        = bitset_utilities::ushortToBitset(alcts2006.sizeInWords()*16,
                                           (unsigned short *) &alcts2006);
      result = bitset_utilities::append(header, alcts);
+
+     bitset_utilities::bitsetToChar(result, (unsigned char *) data());
   }
 
   else if(firmwareVersion == 2007)
@@ -235,6 +274,9 @@ boost::dynamic_bitset<> CSCALCTHeader::pack()
                                           (unsigned short *) &theALCTs[i]);
        result = bitset_utilities::append(result, alct);
     }
+
+    bitset_utilities::bitsetToChar(result, (unsigned char *) data());
+
   }
   return result;
 }

@@ -90,6 +90,53 @@ class Reco(Scenario):
         return process
 
 
+    def visualizationProcessing(self, globalTag, **args):
+        """
+        _visualizationProcessing_
+
+        """
+
+        options = Options()
+        options.__dict__.update(defaultOptions.__dict__)
+        options.scenario = self.cbSc
+        # FIXME: do we need L1Reco here?
+        options.step =''
+        if 'preFilter' in args:
+            options.step +='FILTER:'+args['preFilter']+','
+
+        options.step += 'RAW2DIGI,L1Reco,RECO,ENDJOB'
+
+
+        dictIO(options,args)
+        options.conditions = globalTag
+        options.timeoutOutput = True
+        # FIXME: maybe can go...maybe not
+        options.filein = 'tobeoverwritten.xyz'
+
+        if 'inputSource' in args:
+            options.filetype = args['inputSource']
+        else:
+            # this is the default as this is what is needed on the OnlineCluster
+            options.filetype = 'DQMDAQ'
+
+        print "Using %s source"%options.filetype            
+
+        process = cms.Process('RECO')
+        cb = ConfigBuilder(options, process = process, with_output = True, with_input = True)
+
+        cb.prepare()
+
+
+        
+
+        # FIXME: not sure abou this one...drop for the moment
+        # addMonitoring(process)
+                
+        return process
+
+
+
+
     def alcaSkim(self, skims, **args):
         """
         _alcaSkim_

@@ -9,6 +9,3 @@ hltHiggsPostProcessor  = cms.EDAnalyzer("DQMGenericClient",
     efficiencyProfile = cms.untracked.vstring(),
 )
 
-overallEffPlotter = cms.EDAnalyzer("HiggsHarvesting",
-    analysisName = cms.untracked.string("HWW")
-)

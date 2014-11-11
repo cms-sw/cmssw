@@ -20,15 +20,24 @@ process.maxEvents = cms.untracked.PSet(
 process.load("Configuration.EventContent.EventContentCosmics_cff")
 
 
-
-
 #--------------------------------------------------
 #   Pick a range of events
 #     (includes the first and last ones specified)
 #--------------------------------------------------
 process.pickEvents = cms.EDFilter(
     "PickEvents",
-    RunEventList = cms.untracked.string("listrunev")
+
+    # the original format to input run/event -based selection is described in :
+    # DPGAnalysis/Skims/data/listrunev
+    # and kept as default, for historical reasons
+    RunEventList = cms.untracked.string("DPGAnalysis/Skims/data/listrunev"),
+
+    # run/lumiSection @json -based input of selection can be toggled (but not used in THIS example)
+    IsRunLsBased  = cms.bool(False),
+
+    # json is not used in this example -> list of LS left empty
+    LuminositySectionsBlockRange = cms.untracked.VLuminosityBlockRange( () )
+
     )
 
 process.PickEventsPath  = cms.Path( process.pickEvents )

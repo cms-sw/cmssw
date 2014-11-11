@@ -48,32 +48,34 @@ void CustomPhysicsList::ConstructProcess() {
 }
  
 void CustomPhysicsList::addCustomPhysics(){
-  LogDebug("CustomPhysics") << " CustomPhysicsList: adding CustomPhysics processes";
+
+  edm::LogInfo("CustomPhysics") << " CustomPhysicsList: adding CustomPhysics processes "
+				<< "for the list of particles: \n";
   aParticleIterator->reset();
 
   while((*aParticleIterator)()) {
     G4ParticleDefinition* particle = aParticleIterator->value();
-    CustomParticle* cp = dynamic_cast<CustomParticle*>(particle);
     if(CustomParticleFactory::isCustomParticle(particle)) {
-      LogDebug("CustomPhysics") << particle->GetParticleName()
-				<<", "<<particle->GetPDGEncoding()
-				<< " is Custom. Mass is "
-				<<particle->GetPDGMass()/GeV  <<" GeV.";
+      CustomParticle* cp = dynamic_cast<CustomParticle*>(particle);
+      edm::LogInfo("CustomPhysics") << particle->GetParticleName()
+				    <<"  PDGcode= "<<particle->GetPDGEncoding()
+				    << "  Mass= "
+				    <<particle->GetPDGMass()/GeV  <<" GeV.";
       if(cp->GetCloud()!=0) {
-	LogDebug("CustomPhysics")
-	  <<"Cloud mass is "
-	  <<cp->GetCloud()->GetPDGMass()/GeV
-	  <<" GeV. Spectator mass is "
-	  <<static_cast<CustomParticle*>(particle)->GetSpectator()->GetPDGMass()/GeV
-	  <<" GeV.";
+	edm::LogInfo("CustomPhysics") << particle->GetParticleName()
+				      <<" CloudMass= "
+				      <<cp->GetCloud()->GetPDGMass()/GeV
+				      <<" GeV; SpectatorMass= "
+				      << cp->GetSpectator()->GetPDGMass()/GeV
+				      <<" GeV.";
       }
       G4ProcessManager* pmanager = particle->GetProcessManager();
       if(pmanager) {
-	if(particle->GetPDGCharge()/eplus != 0) {
+	if(particle->GetPDGCharge() != 0.0) {
 	  pmanager->AddProcess(new G4hMultipleScattering,-1, 1, 1);
 	  pmanager->AddProcess(new G4hIonisation,        -1, 2, 2);
 	}
-	if(cp!=0) {
+	if(cp != 0) {
 	  if(particle->GetParticleType()=="rhadron" || 
 	     particle->GetParticleType()=="mesonino" || 
 	     particle->GetParticleType() == "sbaryon"){

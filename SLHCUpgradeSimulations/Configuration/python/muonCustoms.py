@@ -297,8 +297,10 @@ def customise_csc_hlt(process):
     process.CSCGeometryESModule.useGangedStripsInME1a = False
     
     process.hltCsc2DRecHits.readBadChannels = cms.bool(False)
-    process.hltCsc2DRecHits.CSCUseGasGainCorrection = cms.bool(False)
+    process.hltCsc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
     
+    process = customise_csc_Indexing(process)
+
     # Switch input for CSCRecHitD to  s i m u l a t e d  digis
     
     process.hltCsc2DRecHits.wireDigiTag  = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi")
