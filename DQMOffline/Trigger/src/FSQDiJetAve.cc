@@ -47,6 +47,7 @@
 #include <DataFormats/EgammaCandidates/interface/Photon.h>
 #include <DataFormats/MuonReco/interface/Muon.h>
 
+#include <boost/algorithm/string.hpp>
 
 
 using namespace edm;
@@ -67,8 +68,18 @@ class BaseHandler {
             delete m_expression;
         }
         BaseHandler(const edm::ParameterSet& iConfig,  triggerExpression::Data & eventCache):
-            m_expression(triggerExpression::parse( iConfig.getParameter<std::string>("triggerSelection")))
+              m_expression(triggerExpression::parse( iConfig.getParameter<std::string>("triggerSelection")))
          {
+              // extract list of used paths
+              std::vector<std::string> strs;
+              std::string triggerSelection = iConfig.getParameter<std::string>("triggerSelection");
+              boost::split(strs, triggerSelection, boost::is_any_of("\t ,`!@#$%^&*()~/\\"));
+              for (unsigned int iToken = 0; iToken < strs.size();++iToken ){
+                    if (strs.at(iToken).find("HLT_")==0){
+                        m_usedPaths.insert(strs.at(iToken));
+                    }
+              }
+
               m_eventCache = &eventCache;
               std::string pathPartialName  = iConfig.getParameter<std::string>("partialPathName");
               m_dirname = iConfig.getUntrackedParameter("mainDQMDirname",std::string("HLT/FSQ/"))+pathPartialName + "/";
@@ -115,6 +126,7 @@ class BaseHandler {
         std::string m_dirname;
 
         std::map<std::string,  MonitorElement*> m_histos;
+         std::set<std::string> m_usedPaths;
 
         
 };
@@ -127,8 +139,6 @@ class BaseHandler {
 template <class TInputCandidateType, class TOutputCandidateType>
 class HandlerTemplate: public BaseHandler {
     private:
-        //typedef trigger::TriggerObject TInputCandidateType;
-
         std::string m_dqmhistolabel;
         std::string m_pathPartialName; //#("HLT_DiPFJetAve30_HFJEC_");
         std::string m_filterPartialName; //#("ForHFJECBase"); // Calo jet preFilter
@@ -266,12 +276,27 @@ class HandlerTemplate: public BaseHandler {
                      const edm::TriggerNames  & triggerNames,
                      float weight)
         {
+            int found = 0;
+            for (unsigned int i = 0; i<triggerNames.size(); ++i){
+                std::set<std::string>::iterator itUsedPaths = m_usedPaths.begin();
+                for(; itUsedPaths != m_usedPaths.end(); ++itUsedPaths){ 
+                    if (triggerNames.triggerName(i).find(*itUsedPaths)!= std::string::npos ){
+                        ++found;
+                        break;
+                    }
+                }
+
+                if (found == m_usedPaths.size()) break;
+            }
+            if (found != m_usedPaths.size()){
+                    edm::LogInfo("FSQDiJetAve") << "One of requested paths not found, skipping event";
+                    return;
+            }
 
             if (m_eventCache->configurationUpdated()) {
                 m_expression->init(*m_eventCache);
             }
-
-           if (not (*m_expression)(*m_eventCache)) return;
+            if (not (*m_expression)(*m_eventCache)) return;
 
 
             /*
