@@ -69,7 +69,7 @@ refineCluster(const edm::Handle< edm::DetSetVector<SiStripDigi> >& input,
   if (input->size() == 0) return;
 
   // Flag merge-prone clusters for relaxed CPE errors
-  // Criterion is sensor occupancy exceeding threshold
+  // Criterion is sensor occupancy and cluster width exceeding thresholds
 
   for (edmNew::DetSetVector<SiStripCluster>::const_iterator det=output->begin(); det!=output->end(); det++) {
     uint32_t detId = det->id();
