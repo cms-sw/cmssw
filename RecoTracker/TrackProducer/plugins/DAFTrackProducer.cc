@@ -35,7 +35,9 @@ DAFTrackProducer::DAFTrackProducer(const edm::ParameterSet& iConfig):
   produces<TrajTrackAssociationCollection>();
   produces<TrajAnnealingCollection>().setBranchAlias( alias_ + "TrajectoryAnnealing" );
   produces<reco::TrackCollection>("beforeDAF").setBranchAlias( alias_ + "TracksBeforeDAF" );
+  produces<reco::TrackExtraCollection>("beforeDAF").setBranchAlias( alias_ + "TrackExtrasBeforeDAF" );
   produces<reco::TrackCollection>("afterDAF").setBranchAlias( alias_ + "TracksAfterDAF" );
+  produces<reco::TrackExtraCollection>("afterDAF").setBranchAlias( alias_ + "TrackExtrasAfterDAF" );
 
   TrajAnnSaving_ = iConfig.getParameter<bool>("TrajAnnealingSaving");
 }
@@ -53,8 +55,15 @@ void DAFTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
   std::auto_ptr<TrajAnnealingCollection>     outputTrajAnnColl(new TrajAnnealingCollection);
  
   //new tracks collections (changes before and after DAF)
-  std::auto_ptr<reco::TrackCollection>       outputTCollbeforeDAF(new reco::TrackCollection);
-  std::auto_ptr<reco::TrackCollection>       outputTCollafterDAF(new reco::TrackCollection);
+  std::auto_ptr<TrackingRecHitCollection>    outputRHCollBeforeDAF (new TrackingRecHitCollection);
+  std::auto_ptr<reco::TrackCollection>       outputTCollBeforeDAF(new reco::TrackCollection);
+  std::auto_ptr<reco::TrackExtraCollection>  outputTECollBeforeDAF(new reco::TrackExtraCollection);
+  std::auto_ptr<std::vector<Trajectory> >    outputTrajectoryCollBeforeDAF(new std::vector<Trajectory>);
+  //----
+  std::auto_ptr<TrackingRecHitCollection>    outputRHCollAfterDAF (new TrackingRecHitCollection);
+  std::auto_ptr<reco::TrackCollection>       outputTCollAfterDAF(new reco::TrackCollection);
+  std::auto_ptr<reco::TrackExtraCollection>  outputTECollAfterDAF(new reco::TrackExtraCollection);
+  std::auto_ptr<std::vector<Trajectory> >    outputTrajectoryCollAfterDAF(new std::vector<Trajectory>);
 
   //declare and get stuff to be retrieved from ES
   edm::ESHandle<TrackerGeometry> theG;
@@ -109,10 +118,17 @@ void DAFTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
            outputRHColl, outputTColl, outputTEColl, 
            outputTrajectoryColl, algoResults, theBuilder.product());
   putInEvtTrajAnn(theEvent, trajannResults, outputTrajAnnColl);
-  putInEvtTrackDAF(theEvent, outputTCollbeforeDAF, algoResultsBeforeDAF, true);
-  putInEvtTrackDAF(theEvent, outputTCollafterDAF, algoResultsAfterDAF, false);
 
+  //put in theEvent before and after DAF tracks collections
+  putInEvt(theEvent, thePropagator.product(),theMeasTk.product(), 
+           outputRHCollBeforeDAF, outputTCollBeforeDAF, outputTECollBeforeDAF, 
+           outputTrajectoryCollBeforeDAF, algoResultsBeforeDAF, theBuilder.product(), 1);
+  putInEvt(theEvent, thePropagator.product(),theMeasTk.product(), 
+           outputRHCollAfterDAF, outputTCollAfterDAF, outputTECollAfterDAF, 
+           outputTrajectoryCollAfterDAF, algoResultsAfterDAF, theBuilder.product(), 2);
 
+//std::cout << "outputTCollBeforeDAF.size()" << outputTCollBeforeDAF->size() << std::endl;
+//std::cout << "outputTCollAfterDAF.size()" << outputTCollAfterDAF->size() << std::endl;
   LogDebug("DAFTrackProducer") << "end the DAF algorithm." << "\n";
 }
 //----------------------------------------------------------------------------------------------------------//
@@ -144,9 +160,11 @@ void DAFTrackProducer::putInEvtTrajAnn(edm::Event& theEvent, TrajAnnealingCollec
 //----------------------------------------------------------------------------------------------------------//
 void DAFTrackProducer::putInEvtTrackDAF(edm::Event& theEvent,
 					std::auto_ptr<reco::TrackCollection>& selTracks,
+                                   	std::auto_ptr<reco::TrackExtraCollection>& selTrackExtras,
 					AlgoProductCollection& algoResults,
 					bool before	){
-  selTracks->reserve(algoResults.size());
+/*  selTracks->reserve(algoResults.size());
+  selTrackExtras->reserve(algoResults.size());
   for(AlgoProductCollection::iterator i=algoResults.begin(); i!=algoResults.end();i++){
 
     //put the Track
@@ -154,12 +172,29 @@ void DAFTrackProducer::putInEvtTrackDAF(edm::Event& theEvent,
     selTracks->push_back(std::move(*theTrack));
     delete theTrack;
 
+    //build the TrackExtra
+    GlobalPoint v = outertsos.globalParameters().position();
+    GlobalVector p = outertsos.globalParameters().momentum();
+    math::XYZVector outmom( p.x(), p.y(), p.z() );
+    math::XYZPoint  outpos( v.x(), v.y(), v.z() );
+    v = innertsos.globalParameters().position();
+    p = innertsos.globalParameters().momentum();
+    math::XYZVector inmom( p.x(), p.y(), p.z() );
+    math::XYZPoint  inpos( v.x(), v.y(), v.z() );
+
   }
 
   //ERICA :: why?
   selTracks->shrink_to_fit();
+  selTrackExtras->shrink_to_fit();
 
-  if( before == true ) { theEvent.put( selTracks , "beforeDAF"); }
-  else { theEvent.put( selTracks , "afterDAF"); }
-
+  if( before == true ) { 
+    theEvent.put( selTracks , "beforeDAF"); 
+    theEvent.put( selTrackExtras , "beforeDAF");
+  }
+  else { 
+    theEvent.put( selTracks , "afterDAF"); 
+    theEvent.put( selTrackExtras , "afterDAF");
+  }
+*/
 }
