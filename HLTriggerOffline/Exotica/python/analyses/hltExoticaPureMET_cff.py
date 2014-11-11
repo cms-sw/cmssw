@@ -7,7 +7,7 @@ PureMETPSet = cms.PSet(
         #"HLT_MET120_HBHENoiseCleaned_v" # Run1
         ),
     recPFMETLabel  = cms.InputTag("pfMet"),
-    recCaloMetLable = cms.InputTag("caloMet"),
+    recCaloMETLabel = cms.InputTag("caloMet"),
     # -- Analysis specific cuts
     minCandidates = cms.uint32(1),
     # -- Analysis specific binnings
