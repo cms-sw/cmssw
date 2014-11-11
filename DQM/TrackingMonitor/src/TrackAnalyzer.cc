@@ -347,10 +347,10 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
       // See DataFormats/TrackReco/interface/TrackBase.h for track algorithm enum definition
       // http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/DataFormats/TrackReco/interface/TrackBase.h?view=log
       histname = "algorithm_";
-      algorithm = ibooker.book1D(histname+CategoryName, histname+CategoryName, reco::TrackBase::algoSize, 0., double(reco::TrackBase::algoSize));
+      algorithm = ibooker.book1D(histname+CategoryName, histname+CategoryName, reco::TrackBase::algoSize-1, 0., double(reco::TrackBase::algoSize-1));
       algorithm->setAxisTitle("Tracking algorithm",1);
       algorithm->setAxisTitle("Number of Tracks",2);
-      for (size_t ibin=0; ibin<reco::TrackBase::algoSize; ibin++)
+      for (size_t ibin=0; ibin<reco::TrackBase::algoSize-1; ibin++)
 	algorithm->setBinLabel(ibin+1,reco::TrackBase::algoNames[ibin]);
     }
 
@@ -652,7 +652,6 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     }
 
     // algorithm
-    std::cout << "[TrackAnalyzer::analyze] track: " << track.algo() << " --> " << track.algoName() << std::endl;
     algorithm->Fill(static_cast<double>(track.algo()));
   }
 
