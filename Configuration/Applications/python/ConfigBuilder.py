@@ -2092,7 +2092,11 @@ class ConfigBuilder(object):
         self.pythonCfgCode += "# using: \n# "+__version__[1:-1]+"\n# "+__source__[1:-1]+'\n'
         self.pythonCfgCode += "# with command line options: "+self._options.arguments+'\n'
         self.pythonCfgCode += "import FWCore.ParameterSet.Config as cms\n\n"
-        self.pythonCfgCode += "process = cms.Process('"+self.process.name_()+"')\n\n"
+        if self._options.era :
+            self.pythonCfgCode += "from Configuration.StandardSequences.Eras import eras\n\n"
+            self.pythonCfgCode += "process = cms.Process('"+self.process.name_()+"',eras."+self._options.era+")\n\n"
+        else :
+            self.pythonCfgCode += "process = cms.Process('"+self.process.name_()+"')\n\n"
 
         self.pythonCfgCode += "# import of standard configurations\n"
         for module in self.imports:
