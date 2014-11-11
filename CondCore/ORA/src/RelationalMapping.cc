@@ -436,15 +436,17 @@ void ora::ArrayMapping::process( MappingElement& parentElement,
   }
   RelationalMappingFactory mappingFactory( m_tableRegister );
   if ( keyType ) {
-    std::string keyTypeName = keyType.name();
     std::string keyTypeNameForSchema = MappingRules::variableNameForContainerKey();
     std::auto_ptr<IRelationalMapping> keyProcessor( mappingFactory.newProcessor( keyType ) );
-    keyProcessor->process( me, keyTypeName, keyTypeNameForSchema, arrayScopeNameForSchema  );
+    keyProcessor->process( me, "key_type", keyTypeNameForSchema, arrayScopeNameForSchema  );
   }
-  std::string contentTypeName = contentType.name();
   std::string contentTypeNameForSchema = MappingRules::variableNameForContainerValue();
   std::auto_ptr<IRelationalMapping> contentProcessor( mappingFactory.newProcessor( contentType ) );
-  contentProcessor->process( me, contentTypeName, contentTypeNameForSchema, arrayScopeNameForSchema );
+  if ( keyType ) {
+    contentProcessor->process( me, "mapped_type", contentTypeNameForSchema, arrayScopeNameForSchema );
+  } else {
+    contentProcessor->process( me, "value_type", contentTypeNameForSchema, arrayScopeNameForSchema );
+  }
 }
 
 ora::CArrayMapping::CArrayMapping( const edm::TypeWithDict& attributeType, TableRegister& tableRegister ):
