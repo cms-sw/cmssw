@@ -1,10 +1,9 @@
 #ifndef CondFormats_HcalObjects_HcalInterpolatedPulseColl_h_
 #define CondFormats_HcalObjects_HcalInterpolatedPulseColl_h_
 
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "CondFormats/HcalObjects/interface/HcalInterpolatedPulse.h"
 #include "CondFormats/HcalObjects/interface/HBHEChannelGroups.h"
-
-class HcalDetId;
 
 class HcalInterpolatedPulseColl
 {

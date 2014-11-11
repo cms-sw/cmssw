@@ -1,5 +1,5 @@
 #include "CondFormats/HcalObjects/interface/HcalInterpolatedPulseColl.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "CondFormats/HcalObjects/interface/HBHELinearMap.h"
 
 HcalInterpolatedPulseColl::HcalInterpolatedPulseColl(
     const std::vector<HcalInterpolatedPulse>& pulses,

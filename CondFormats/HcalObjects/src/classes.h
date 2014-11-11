@@ -94,10 +94,10 @@ namespace CondFormats_HcalObjects {
     OOTPileupCorrectionMapColl myOOTPileupCorrectionMapColl;
     OOTPileupCorrectionBuffer myOOTPileupCorrectionBuffer;
 
-    // HCAL pulse
-    HBHEChannelGroups myHBHEChannelGroups;
+    // QIE8 input pulse representation objects
     HcalInterpolatedPulse myHcalInterpolatedPulse;
-    std::vector<HcalInterpolatedPulse> myVectorOfHcalInterpolatedPulse;
+    std::vector<HcalInterpolatedPulse> myHcalInterpolatedPulseVec;
+    HBHEChannelGroups myHBHEChannelGroups;
     HcalInterpolatedPulseColl myHcalInterpolatedPulseColl;
   };
 }
