@@ -124,8 +124,8 @@ def customisePostLS1EraExtras(process):
 #                         1.00005,-6.59249e-07,2.75277e-11,-1.62683e-15)
     if hasattr(process,'HLTSchedule'):
         process=customise_csc_hlt(process)
-    if hasattr(process,'dqmoffline_step'):
-        process.l1tCsctf.gangedME11a = cms.untracked.bool(False)
+#     if hasattr(process,'dqmoffline_step'):
+#         process.l1tCsctf.gangedME11a = cms.untracked.bool(False)
 
     return process
 

@@ -15,3 +15,8 @@ l1tCsctf = cms.EDAnalyzer("L1TCSCTF",
 )
 
 
+#
+# Modify for post LS1 running
+#
+from Configuration.StandardSequences.Eras import eras
+eras.postLS1.toModify( l1tCsctf, gangedME11a=False )
