@@ -48,6 +48,7 @@ PileupInformation::PileupInformation(const edm::ParameterSet & config)
 
 
     produces< std::vector<PileupSummaryInfo> >();
+    produces<int>("bunchSpacing");
     //produces<PileupSummaryInfo>();
 }
 
@@ -337,6 +338,9 @@ void PileupInformation::produce(edm::Event &event, const edm::EventSetup & setup
 
   event.put(PSIVector);
 
+  //add bunch spacing to the event as a seperate integer for use by downstream modules
+  std::auto_ptr<int> bunchSpacingP(new int(bunchSpacing));
+  event.put(bunchSpacingP,"bunchSpacing");
 
 }
 

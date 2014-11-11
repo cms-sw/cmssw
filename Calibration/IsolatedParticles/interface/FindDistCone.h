@@ -32,31 +32,31 @@
 namespace spr {
 
   // Cone clustering core
-  double getDistInPlaneTrackDir(const GlobalPoint& caloPoint, const GlobalVector& caloVector, const GlobalPoint& rechitPoint);
+  double getDistInPlaneTrackDir(const GlobalPoint& caloPoint, const GlobalVector& caloVector, const GlobalPoint& rechitPoint, bool debug=false);
 
   // Not used, but here for reference
-  double getDistInCMatEcal(double eta1, double phi1, double eta2, double phi2);
-  double getDistInCMatHcal(double eta1, double phi1, double eta2, double phi2);
+  double getDistInCMatEcal(double eta1, double phi1, double eta2, double phi2, bool debug=false);
+  double getDistInCMatHcal(double eta1, double phi1, double eta2, double phi2, bool debug=false);
 
   // get eta, phi, energy of rechits in collection
-  void getEtaPhi(HBHERecHitCollection::const_iterator hit, std::vector<int>& RH_ieta, std::vector<int>& RH_iphi, std::vector<double>& RH_ene);
+  void getEtaPhi(HBHERecHitCollection::const_iterator hit, std::vector<int>& RH_ieta, std::vector<int>& RH_iphi, std::vector<double>& RH_ene, bool debug=false);
 
-  void getEtaPhi(edm::PCaloHitContainer::const_iterator hit, std::vector<int>& RH_ieta, std::vector<int>& RH_iphi, std::vector<double>& RH_ene);
+  void getEtaPhi(edm::PCaloHitContainer::const_iterator hit, std::vector<int>& RH_ieta, std::vector<int>& RH_iphi, std::vector<double>& RH_ene, bool debug=false);
 
-  void getEtaPhi(EcalRecHitCollection::const_iterator hit, std::vector<int>& RH_ieta, std::vector<int>& RH_iphi, std::vector<double>& RH_ene);
+  void getEtaPhi(EcalRecHitCollection::const_iterator hit, std::vector<int>& RH_ieta, std::vector<int>& RH_iphi, std::vector<double>& RH_ene, bool debug=false);
 
   // get eta, phi of rechits in collection
-  void getEtaPhi(HBHERecHitCollection::const_iterator hit,int& ieta,int& iphi);
-  void getEtaPhi(edm::PCaloHitContainer::const_iterator hit,int& ieta,int& iphi);
-  void getEtaPhi(EcalRecHitCollection::const_iterator hit,int& ieta,int& iphi);
+  void getEtaPhi(HBHERecHitCollection::const_iterator hit,int& ieta,int& iphi, bool debug=false);
+  void getEtaPhi(edm::PCaloHitContainer::const_iterator hit,int& ieta,int& iphi, bool debug=false);
+  void getEtaPhi(EcalRecHitCollection::const_iterator hit,int& ieta,int& iphi, bool debug=false);
 
-  double getEnergy(HBHERecHitCollection::const_iterator hit);
-  double getEnergy(edm::PCaloHitContainer::const_iterator hit);
-  double getEnergy(EcalRecHitCollection::const_iterator hit);
+  double getEnergy(HBHERecHitCollection::const_iterator hit, bool debug=false);
+  double getEnergy(edm::PCaloHitContainer::const_iterator hit, bool debug=false);
+  double getEnergy(EcalRecHitCollection::const_iterator hit, bool debug=false);
 
-  GlobalPoint getGpos(const CaloGeometry* geo, HBHERecHitCollection::const_iterator hit);
-  GlobalPoint getGpos(const CaloGeometry* geo, edm::PCaloHitContainer::const_iterator hit);
-  GlobalPoint getGpos(const CaloGeometry* geo, EcalRecHitCollection::const_iterator hit);
+  GlobalPoint getGpos(const CaloGeometry* geo, HBHERecHitCollection::const_iterator hit, bool debug=false);
+  GlobalPoint getGpos(const CaloGeometry* geo, edm::PCaloHitContainer::const_iterator hit, bool debug=false);
+  GlobalPoint getGpos(const CaloGeometry* geo, EcalRecHitCollection::const_iterator hit, bool debug=false);
   
 }
 
