@@ -10,6 +10,10 @@ hltSMPValidator = cms.EDAnalyzer("HLTHiggsValidator",
     # -- The instance name of the reco::GenParticles collection
     genParticleLabel = cms.string("genParticles"),
 
+    # -- The instance name of the reco::GenJets collection
+    # (not used but required to be set)
+    genJetLabel = cms.string("ak5GenJets"),
+
     # -- The nomber of interactions in the event
     pileUpInfoLabel  = cms.string("addPileupInfo"),
 
