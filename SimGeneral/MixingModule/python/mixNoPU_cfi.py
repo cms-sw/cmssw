@@ -25,12 +25,12 @@ mix = cms.EDProducer("MixingModule",
 #
 # Need to modify the pixel dynamic inefficiency if this is post LS1
 #
-from Configuration.StandardSequences.Eras import Eras
+from Configuration.StandardSequences.Eras import eras
 
 # The modifyMixForPostLS1 function is defined in SimGeneral.MixingModule.digitizers_cfi
-Eras['PostLS1'].toModify( mix, func=modifyMixForPostLS1 )
+eras.postLS1.toModify( mix, func=modifyMixForPostLS1 )
 # Also need to modify theDigitizersValid, because if validation is on
 # process.mix.digitizers will be set to that later, which overwrites the
 # above customisation.
 from functools import partial
-Eras['PostLS1'].toModify( mix, func=partial(modifyMixForPostLS1,digitizers=theDigitizersValid) )
+eras.postLS1.toModify( mix, func=partial(modifyMixForPostLS1,digitizers=theDigitizersValid) )

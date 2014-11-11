@@ -32,7 +32,7 @@ particleFlowRecHitHO = cms.EDProducer("PFRecHitProducer",
 #
 # Need to change the quality tests for post LS1 running
 #
-from Configuration.StandardSequences.Eras import Eras
+from Configuration.StandardSequences.Eras import eras
 
 def _modifyParticleFlowRecHitHOForPostLS1( object ) :
     """
@@ -53,4 +53,4 @@ def _modifyParticleFlowRecHitHOForPostLS1( object ) :
             )
         )
 
-Eras['PostLS1'].toModify( particleFlowRecHitHO, func=_modifyParticleFlowRecHitHOForPostLS1 )
+eras.postLS1.toModify( particleFlowRecHitHO, func=_modifyParticleFlowRecHitHOForPostLS1 )

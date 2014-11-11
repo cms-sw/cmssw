@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from SimG4Core.Application.hectorParameter_cfi import *
 
 ## This object is used to customise g4SimHits for different running scenarios
-from Configuration.StandardSequences.Eras import Eras
+from Configuration.StandardSequences.Eras import eras
 
 common_heavy_suppression = cms.PSet(
     NeutronThreshold = cms.double(30.0),
@@ -415,7 +415,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
 ##
 ## Change the HFShowerLibrary file used for post LS1 running
 ##
-Eras['PostLS1'].toModify( g4SimHits, func=lambda g4SimHitsForPostLS1:
+eras.postLS1.toModify( g4SimHits, func=lambda g4SimHitsForPostLS1:
         g4SimHitsForPostLS1.HFShowerLibrary.FileName.setValue('SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en.root')
     )
 

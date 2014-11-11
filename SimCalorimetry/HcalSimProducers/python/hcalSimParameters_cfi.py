@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # This object modifies hcalSimParameters for different scenarios
-from Configuration.StandardSequences.Eras import Eras
+from Configuration.StandardSequences.Eras import eras
 
 hcalSimParameters = cms.PSet(
     #  In HF, the SimHits energy is actually
@@ -115,4 +115,4 @@ def _modifyHcalSimParametersForPostLS1( object ) :
     object.hf1.samplingFactor = cms.double(0.60)
     object.hf2.samplingFactor = cms.double(0.60)
 
-Eras['PostLS1'].toModify( hcalSimParameters, func=_modifyHcalSimParametersForPostLS1 )
+eras.postLS1.toModify( hcalSimParameters, func=_modifyHcalSimParametersForPostLS1 )

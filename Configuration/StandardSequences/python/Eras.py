@@ -1,4 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-Eras={}
-Eras['PostLS1'] = cms.Modifier()
+class Eras (object):
+    def __init__(self):
+        self.postLS1 = cms.Modifier()
+
+eras=Eras()
