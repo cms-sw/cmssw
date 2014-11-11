@@ -33,6 +33,8 @@
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixModFactory.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
+#include <iostream>
+
 namespace edm {
 
   // Constructor
@@ -130,6 +132,8 @@ namespace edm {
             branchesActivate(TypeID(typeid(HepMCProduct)).friendlyClassName(),std::string(""),tag,label);
             bool makeCrossingFrame = pset.getUntrackedParameter<bool>("makeCrossingFrame", false);
             if(makeCrossingFrame) {
+	       std::cout<<"Making HepMCProduct CrossingFrame"<<std::endl; //YY
+	       std::cout<<"Label : "<<label.data()<<std::endl;
               workersObjects_.push_back(new MixingWorker<HepMCProduct>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,tagCF));
               produces<CrossingFrame<HepMCProduct> >(label);
             }
