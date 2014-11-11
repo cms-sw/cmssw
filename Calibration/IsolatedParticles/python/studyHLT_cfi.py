@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 StudyHLT = cms.EDAnalyzer("StudyHLT",
                            Verbosity       = cms.untracked.int32( 0 ),
-                           Triggers        = cms.untracked.vstring("HLT_PixelTracks_Multiplicity70"),
+                           Triggers        = cms.untracked.vstring([]),
                            TrackQuality    = cms.untracked.string("highPurity"),
                            MinTrackPt      = cms.untracked.double(10.0),
                            MaxDxyPV        = cms.untracked.double(0.02),
@@ -19,4 +19,5 @@ StudyHLT = cms.EDAnalyzer("StudyHLT",
                            TimeMaxCutECAL  = cms.untracked.double(500.0),
                            TimeMinCutHCAL  = cms.untracked.double(-500.0),
                            TimeMaxCutHCAL  = cms.untracked.double(500.0),
+                           IsItAOD         = cms.untracked.bool(False),
 )
