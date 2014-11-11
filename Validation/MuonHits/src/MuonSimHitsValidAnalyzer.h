@@ -2,7 +2,6 @@
 #define MuonSimHitsValidAnalyzer_h
 
 /// framework & common header files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -17,8 +16,9 @@
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include <DQMServices/Core/interface/DQMStore.h>
+#include <DQMServices/Core/interface/MonitorElement.h>
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 /// muon CSC, DT and RPC geometry info
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -56,7 +56,7 @@ class TFile;
 namespace edm {
   class ParameterSet; class Event; class EventSetup;}
 
-class MuonSimHitsValidAnalyzer : public edm::EDAnalyzer
+class MuonSimHitsValidAnalyzer : public DQMEDAnalyzer
 {
 
  public:
@@ -68,23 +68,11 @@ class MuonSimHitsValidAnalyzer : public edm::EDAnalyzer
 
   explicit MuonSimHitsValidAnalyzer(const edm::ParameterSet&);
   virtual ~MuonSimHitsValidAnalyzer();
-
-  virtual void beginJob();
-  virtual void endJob();
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
  private:
-
-  void fillCSC(const edm::Event&, const edm::EventSetup&);
   void fillDT(const edm::Event&, const edm::EventSetup&);
-  void fillRPC(const edm::Event&, const edm::EventSetup&);
-
-  void bookHistos_DT();
-  void bookHistos_CSC();
-  void bookHistos_RPC();
-  void saveHistos_DT();
-  void saveHistos_CSC();
-  void saveHistos_RPC();
 
  private:
 
@@ -94,15 +82,6 @@ class MuonSimHitsValidAnalyzer : public edm::EDAnalyzer
   std::string label;
   bool getAllProvenances;
   bool printProvenanceInfo;
-
-  std::string DToutputFile_;
-  std::string CSCoutputFile_;
-  std::string RPCoutputFile_;
-
-  TFile *theDTFile;
-  TFile *theCSCFile;
-  TFile *theRPCFile;
-
 
   /// G4MC info
   int nRawGenPart;
@@ -120,16 +99,7 @@ class MuonSimHitsValidAnalyzer : public edm::EDAnalyzer
   Float_t globposphi, globposeta;
 
   /// Input tags
-
-  edm::EDGetTokenT<edm::PSimHitContainer> CSCHitsToken_;
   edm::EDGetTokenT<edm::PSimHitContainer> DTHitsToken_;
-  edm::EDGetTokenT<edm::PSimHitContainer> RPCHitsToken_;
-
-  // DaqMonitor element
-  DQMStore* dbeDT_;
-  DQMStore* dbeCSC_;
-  DQMStore* dbeRPC_;
-
 
   // Monitor elements
   // DT
@@ -166,83 +136,6 @@ class MuonSimHitsValidAnalyzer : public edm::EDAnalyzer
   MonitorElement* meCosTheta;
   MonitorElement* meGlobalEta;
   MonitorElement* meGlobalPhi;
-
-  //CSC
-  MonitorElement* meAllCSCHits;
-  MonitorElement* meMuCSCHits;
-  MonitorElement* meEnergyLoss_111;
-  MonitorElement* meToF_311;
-  MonitorElement* meEnergyLoss_112;
-  MonitorElement* meToF_312;
-  MonitorElement* meEnergyLoss_113;
-  MonitorElement* meToF_313;
-  MonitorElement* meEnergyLoss_114;
-  MonitorElement* meToF_314;
-  MonitorElement* meEnergyLoss_121;
-  MonitorElement* meToF_321;
-  MonitorElement* meEnergyLoss_122;
-  MonitorElement* meToF_322;
-  MonitorElement* meEnergyLoss_131;
-  MonitorElement* meToF_331;
-  MonitorElement* meEnergyLoss_132;
-  MonitorElement* meToF_332;
-  MonitorElement* meEnergyLoss_141;
-  MonitorElement* meToF_341;
-  MonitorElement* meEnergyLoss_211;
-  MonitorElement* meToF_411;
-  MonitorElement* meEnergyLoss_212;
-  MonitorElement* meToF_412;
-  MonitorElement* meEnergyLoss_213;
-  MonitorElement* meToF_413;
-  MonitorElement* meEnergyLoss_214;
-  MonitorElement* meToF_414;
-  MonitorElement* meEnergyLoss_221;
-  MonitorElement* meToF_421;
-  MonitorElement* meEnergyLoss_222;
-  MonitorElement* meToF_422;
-  MonitorElement* meEnergyLoss_231;
-  MonitorElement* meToF_431;
-  MonitorElement* meEnergyLoss_232;
-  MonitorElement* meToF_432;
-  MonitorElement* meEnergyLoss_241;
-  MonitorElement* meToF_441;
-
-  //RPC
-  MonitorElement* meAllRPCHits;
-  MonitorElement* meMuRPCHits;
-  MonitorElement* meRegionOccup;
-  MonitorElement* meRingOccBar;
-  MonitorElement* meRingOccEndc;
-  MonitorElement* meStatOccBar;
-  MonitorElement* meStatOccEndc;
-  MonitorElement* meSectorOccBar;
-  MonitorElement* meSectorOccEndc;
-  MonitorElement* meLayerOccBar;
-  MonitorElement* meLayerOccEndc;
-  MonitorElement* meSubSectOccBar;
-  MonitorElement* meSubSectOccEndc;
-  MonitorElement* meRollOccBar;
-  MonitorElement* meRollOccEndc;
-  MonitorElement* meElossBar;
-  MonitorElement* meElossEndc;
-  MonitorElement* mepathRPC;
-  MonitorElement* meMomRB1;
-  MonitorElement* meMomRB4;
-  MonitorElement* meLossMomBar;
-  MonitorElement* meMomRE1;
-  MonitorElement* meMomRE4;
-  MonitorElement* meLossMomEndc;
-  MonitorElement* meLocalXvsYBar;
-  MonitorElement* meGlobalXvsZBar;
-  MonitorElement* meGlobalXvsYBar;
-  MonitorElement* meLocalXvsYEndc;
-  MonitorElement* meGlobalXvsZEndc;
-  MonitorElement* meGlobalXvsYEndc;
-  MonitorElement* meHitRadiusBar;
-  MonitorElement* meCosThetaBar;
-  MonitorElement* meHitRadiusEndc;
-  MonitorElement* meCosThetaEndc;
-
 
   /// private statistics information
   unsigned int count;

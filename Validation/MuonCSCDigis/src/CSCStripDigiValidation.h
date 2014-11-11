@@ -12,15 +12,12 @@
 class CSCStripDigiValidation : public CSCBaseValidation
 {
 public:
-  CSCStripDigiValidation(DQMStore* dbe,
-                         const edm::InputTag & inputTag,
-                         edm::ConsumesCollector && iC,
-                         bool doSim);
+  CSCStripDigiValidation(const edm::InputTag & inputTag,
+                         edm::ConsumesCollector && iC);
   ~CSCStripDigiValidation();
+  void bookHistograms(DQMStore::IBooker &, bool doSim);
   void analyze(const edm::Event& e, const edm::EventSetup&);
-
   void setGeometry(const CSCGeometry * geom) {theCSCGeometry = geom;}
-
   void plotResolution(const PSimHit & hit, int strip,
                       const CSCLayer * layer, int chamberType);
 
@@ -32,7 +29,6 @@ private:
   float thePedestalSum;
   float thePedestalCovarianceSum;
   int thePedestalCount;
-  bool theDoSimFlag;
   MonitorElement* thePedestalPlot;
   MonitorElement* thePedestalTimeCorrelationPlot;
   MonitorElement* thePedestalNeighborCorrelationPlot;
