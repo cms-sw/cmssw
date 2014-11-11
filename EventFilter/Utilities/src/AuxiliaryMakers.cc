@@ -27,7 +27,7 @@ namespace evf{
 				   processGUID,
 				   edm::Timestamp(time),
 				   true,
-				   (edm::EventAuxiliary::ExperimentType)record->getHistory().history().hist[0].eventtype,
+                                   (edm::EventAuxiliary::ExperimentType)(FED_EVTY_EXTRACT(record->getFEDHeader().getData().header.eventid)),
 				   (int)record->getHeader().getData().header.bcid,
 				   edm::EventAuxiliary::invalidStoreNumber,
 				   record->getHeader().getData().header.orbitLow);
