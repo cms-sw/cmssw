@@ -102,7 +102,6 @@ public:
   int nGenTrk;
   int nMatchedTracks;
   int cluster;
-  //int event;
   EncodedEventId eventId;
   double nclutrk;
   std::vector<int> finalstateParticles;
@@ -119,7 +118,6 @@ class SimEvent {
 public:
   
   SimEvent(){
-    //event=-1;
     nrecTrack=0;
     z=-99;
     zfit=-99;
@@ -134,7 +132,6 @@ public:
   double x,y,z;
   double xfit,yfit,zfit;
   int nrecTrack;
-  //int event;
   EncodedEventId eventId;
   std::vector<const TrackingParticle*> tp;
   std::vector<reco::TransientTrack> tk;
@@ -156,7 +153,6 @@ public:
   ~PrimaryVertexAnalyzer4PU();
   
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  //virtual void beginJob(edm::EventSetup const&);
   virtual void beginJob();
   virtual void endJob();
 
@@ -176,7 +172,6 @@ private:
   void add(std::map<std::string, TH1*>& h, TH1* hist){  h[hist->GetName()]=hist; hist->StatOverflows(kTRUE);}
 
   void Fill(std::map<std::string, TH1*>& h, std::string s, double x){
-    //    cout << "Fill1 " << s << endl;
     if(h.count(s)==0){
       std::cout << "Trying to fill non-exiting Histogram named " << s << std::endl;
       return;
@@ -185,7 +180,6 @@ private:
   }
 
   void Fill(std::map<std::string, TH1*>& h, std::string s, double x, double y){
-    //    cout << "Fill2 " << s << endl;
     if(h.count(s)==0){
       std::cout << "Trying to fill non-exiting Histogram named " << s << std::endl;
       return;
@@ -372,4 +366,3 @@ private:
   edm::EDGetTokenT<TrackingVertexCollection> trackingVertexCollectionToken_;
   edm::EDGetTokenT<edm::HepMCProduct> edmHepMCProductToken_;
 };
-

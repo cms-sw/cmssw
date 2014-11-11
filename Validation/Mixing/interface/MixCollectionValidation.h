@@ -3,11 +3,12 @@
 
 // system include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
@@ -20,11 +21,9 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
 //DQM services for histogram
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-
-#include "FWCore/Utilities/interface/InputTag.h"
+#include <DQMServices/Core/interface/DQMStore.h>
+#include <DQMServices/Core/interface/MonitorElement.h>
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 #include <string>
 
@@ -32,17 +31,16 @@
 // class declaration
 //
 
-class MixCollectionValidation : public edm::EDAnalyzer {
+class MixCollectionValidation : public DQMEDAnalyzer {
 public:
   explicit MixCollectionValidation(const edm::ParameterSet&);
   ~MixCollectionValidation();
-
-  void beginJob();
-  void endJob();
-
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
 private:
+  
+  edm::ParameterSet mixObjextsSet_;
 
   template<class T1, class T2> void fillMultiplicity(T1 & theItr_, T2 & theColl_, MonitorElement * theProfile_);
 
@@ -81,9 +79,6 @@ private:
   std::map<std::string,MonitorElement *> CaloHitNrmap_;
   std::map<std::string,MonitorElement *> CaloHitTimemap_;
 
-  DQMStore* dbe_;
-
-  std::vector<std::string> names_;
   std::vector<edm::InputTag> HepMCProductTags_;
   std::vector<edm::InputTag> SimTrackTags_;
   std::vector<edm::InputTag> SimVertexTags_;
