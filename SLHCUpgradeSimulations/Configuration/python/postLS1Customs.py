@@ -73,14 +73,14 @@ def customisePostLS1EraExtras(process):
 #                     flags              = cms.vstring('Standard')
 #                 )
 #             )
-    if hasattr(process,'digitisation_step'):
-        alist=['RAWSIM','RAWDEBUG','FEVTDEBUG','FEVTDEBUGHLT','GENRAW','RAWSIMHLT','FEVT']
-        for a in alist:
-            b=a+'output'
-            if hasattr(process,b):
-                getattr(process,b).outputCommands.append('keep *_simMuonCSCDigis_*_*')
-                getattr(process,b).outputCommands.append('keep *_simMuonRPCDigis_*_*')
-                getattr(process,b).outputCommands.append('keep *_simHcalUnsuppressedDigis_*_*')
+#     if hasattr(process,'digitisation_step'):
+#         alist=['RAWSIM','RAWDEBUG','FEVTDEBUG','FEVTDEBUGHLT','GENRAW','RAWSIMHLT','FEVT']
+#         for a in alist:
+#             b=a+'output'
+#             if hasattr(process,b):
+#                 getattr(process,b).outputCommands.append('keep *_simMuonCSCDigis_*_*')
+#                 getattr(process,b).outputCommands.append('keep *_simMuonRPCDigis_*_*')
+#                 getattr(process,b).outputCommands.append('keep *_simHcalUnsuppressedDigis_*_*')
 #         if hasattr(process,'mix') and hasattr(process.mix,'digitizers'):
 #             if hasattr(process.mix.digitizers,'hcal') and hasattr(process.mix.digitizers.hcal,'ho'):
 #                 process.mix.digitizers.hcal.ho.photoelectronsToAnalog = cms.vdouble([4.0]*16)
