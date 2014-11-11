@@ -125,17 +125,18 @@ private:
   edm::EDGetTokenT<l1extra::L1JetParticleCollection> tok_L1extCenJet_;
   edm::EDGetTokenT<l1extra::L1JetParticleCollection> tok_L1extFwdJet_;
 
-  edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
-  edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
+  edm::EDGetTokenT<EcalRecHitCollection>    tok_EB_;
+  edm::EDGetTokenT<EcalRecHitCollection>    tok_EE_;
+  edm::EDGetTokenT<HBHERecHitCollection>    tok_hbhe_;
 
-  edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
-  edm::EDGetTokenT<reco::TrackCollection> tok_genTrack_;
-  edm::EDGetTokenT<edm::SimTrackContainer> tok_simTk_;
+  edm::EDGetTokenT<reco::TrackCollection>   tok_genTrack_;
+  edm::EDGetTokenT<edm::SimTrackContainer>  tok_simTk_;
   edm::EDGetTokenT<edm::SimVertexContainer> tok_simVtx_;
-  edm::EDGetTokenT<edm::PCaloHitContainer> tok_caloEB_;
-  edm::EDGetTokenT<edm::PCaloHitContainer> tok_caloEE_;
-  edm::EDGetTokenT<edm::PCaloHitContainer> tok_caloHH_;
-  edm::EDGetTokenT<edm::TriggerResults> tok_trigger_;
+
+  edm::EDGetTokenT<edm::PCaloHitContainer>  tok_caloEB_;
+  edm::EDGetTokenT<edm::PCaloHitContainer>  tok_caloEE_;
+  edm::EDGetTokenT<edm::PCaloHitContainer>  tok_caloHH_;
+  edm::EDGetTokenT<edm::TriggerResults>     tok_trigger_;
 
   double minTrackP_, maxTrackEta_, maxNearTrackP_;
   
@@ -163,8 +164,6 @@ private:
   int nEVT;
   int nEVT_failL1;
   int nTRK;
-//   double hbScale;
-//   double heScale;
   double leadL1JetPT;
   double leadL1JetEta;
   double leadL1JetPhi;
@@ -181,7 +180,6 @@ private:
   std::vector<std::vector<double> >* t_v_cone_hmaxNearP_goodTrk;
   std::vector<std::vector<double> >* t_v_cone_hmaxNearP        ;    
 
-  //  std::vector<double>* t_hScale           ;
   std::vector<double>* t_trkNOuterHits    ;
   std::vector<double>* t_trkNLayersCrossed;
   std::vector<double>* t_dtFromLeadJet    ;
@@ -303,12 +301,8 @@ private:
   std::vector<unsigned int>* t_ievt;
   std::vector<unsigned int>* t_ilum;
   
-
   edm::Service<TFileService> fs;
 
-  
-
 };
-
 
 #endif
