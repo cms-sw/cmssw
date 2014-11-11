@@ -176,19 +176,15 @@ goodPtResolution( const reco::TrackRef& trackref) const {
   case reco::TrackBase::hltIter0:
   case reco::TrackBase::hltIter1:
   case reco::TrackBase::hltIter2:
-    std::cout << "[GeneralTracksImporter::goodPtResolution] trackref->algo(): " << trackref->algo() << " 0,1 or 2" << std::endl;
     Algo = _useIterTracking ? 0 : 0;
     break;
   case reco::TrackBase::hltIter3:
-    std::cout << "[GeneralTracksImporter::goodPtResolution] trackref->algo(): " << trackref->algo() << " 3" << std::endl;
     Algo = _useIterTracking ? 1 : 0;
     break;
   case reco::TrackBase::hltIter4:
-    std::cout << "[GeneralTracksImporter::goodPtResolution] trackref->algo(): " << trackref->algo() << " 4" << std::endl;
     Algo = _useIterTracking ? 2 : 0;
     break;
   case reco::TrackBase::hltIterX:
-    std::cout << "[GeneralTracksImporter::goodPtResolution] trackref->algo(): " << trackref->algo() << " X" << std::endl;
     Algo = _useIterTracking ? 0 : 0;
     break;
   default:

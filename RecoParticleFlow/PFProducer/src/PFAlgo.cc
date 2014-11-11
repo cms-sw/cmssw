@@ -1956,15 +1956,12 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       case reco::TrackBase::hltIter1:
       case reco::TrackBase::hltIter2:
       case reco::TrackBase::hltIter3:
-	std::cout << "[PFAlgo::processBlock] trackRef->algo(): " << trackRef->algo() << " 0,1,2 or 3" << std::endl;
 	blowError = 1.;
 	break;
       case reco::TrackBase::hltIter4:
-	std::cout << "[PFAlgo::processBlock] trackRef->algo(): " << trackRef->algo() << " 4" << std::endl;
 	blowError = factors45_[0];
 	break;
       case reco::TrackBase::hltIterX:
-	std::cout << "[PFAlgo::processBlock] trackRef->algo(): " << trackRef->algo() << " X" << std::endl;
 	blowError = 1.;
 	break;
       default:
