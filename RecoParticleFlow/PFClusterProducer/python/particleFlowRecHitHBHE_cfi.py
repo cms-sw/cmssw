@@ -15,11 +15,9 @@ particleFlowRecHitHBHE = cms.EDProducer("PFRecHitProducer",
              name = cms.string("PFHBHERecHitCreator"),
              src  = cms.InputTag("hbhereco",""),
              vertexSrc  = cms.InputTag("offlinePrimaryVertices"),
-#             offset_32 = cms.vdouble(1.6867*0.000843334685337,1.6867*0.00713160993668,1.6867*0.00323316695425,1.6867*0.00354196399691,1.6867*0.00243885183959),
-#             offset_33 = cms.vdouble(1.6867*0.00169328273214,1.6867*0.0190872288871,1.6867*0.00624810899398,1.6867*0.0111491101175,1.6867*0.0128686529102),
 
-             offset_32 = cms.vdouble(0.0237403833509,0.0422340301179,0.0262227205911,0.0190938508586,0.00955999701118),
-             offset_33 = cms.vdouble(0.022447840761,0.0568700144634,0.029836140596,0.0347490310546,0.0322507475063),
+             offset_before_last = cms.vdouble(0.020,0.048,0.038,0.024,0.017),
+             offset_last = cms.vdouble(0.013,0.069,0.043,0.040,0.037),
 
              qualityTests = cms.VPSet(
                   cms.PSet(

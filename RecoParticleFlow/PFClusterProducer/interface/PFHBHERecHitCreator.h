@@ -15,7 +15,7 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
-
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 class PFHBHERecHitCreator :  public  PFRecHitCreatorBase {
 
@@ -25,11 +25,16 @@ class PFHBHERecHitCreator :  public  PFRecHitCreatorBase {
     {
       recHitToken_ = iC.consumes<edm::SortedCollection<HBHERecHit> >(iConfig.getParameter<edm::InputTag>("src"));
       vertexToken_ = iC.consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexSrc"));
-      offset_32_ = iConfig.getParameter<std::vector<double> >("offset_32");
-      offset_33_ = iConfig.getParameter<std::vector<double> >("offset_33");
+      offset_last_ = iConfig.getParameter<std::vector<double> >("offset_last");
+      offset_prelast_ = iConfig.getParameter<std::vector<double> >("offset_before_last");
     }
 
     void importRecHits(std::auto_ptr<reco::PFRecHitCollection>&out,std::auto_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) {
+
+
+      edm::ESHandle<HcalDDDRecConstants> hDRCons;
+      iSetup.get<HcalRecNumberingRecord>().get(hDRCons);
+      int iEtaHEMax=hDRCons->getEtaRange(1).second;
 
       for (unsigned int i=0;i<qualityTests_.size();++i) {
 	qualityTests_.at(i)->beginEvent(iEvent,iSetup);
@@ -93,12 +98,12 @@ class PFHBHERecHitCreator :  public  PFRecHitCreatorBase {
 
 
 	//Decalibration for side effcet
-	if (offset_32_.size()>0 && abs(detid.ieta()) ==32) {
-	  energy = energy - offset_32_[depth-1]*vertices;
+	if (offset_prelast_.size()>0 && abs(detid.ieta()) ==iEtaHEMax-1) {
+	  energy = energy - offset_prelast_[depth-1]*vertices;
 
 	}
-	if (offset_33_.size()>0 && abs(detid.ieta()) ==33) {
-	  energy = energy - offset_33_[depth-1]*vertices;
+	if (offset_last_.size()>0 && abs(detid.ieta()) ==iEtaHEMax) {
+	  energy = energy - offset_last_[depth-1]*vertices;
 	}
   
 	reco::PFRecHit rh( detid.rawId(),layer,
@@ -146,8 +151,8 @@ class PFHBHERecHitCreator :  public  PFRecHitCreatorBase {
  protected:
     edm::EDGetTokenT<edm::SortedCollection<HBHERecHit> > recHitToken_;
     edm::EDGetTokenT<reco::VertexCollection > vertexToken_;
-    std::vector<double> offset_32_;
-    std::vector<double> offset_33_;
+    std::vector<double> offset_last_;
+    std::vector<double> offset_prelast_;
 
 };
 
