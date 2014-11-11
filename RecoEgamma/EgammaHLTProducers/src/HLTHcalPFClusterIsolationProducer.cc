@@ -18,9 +18,11 @@
 
 template<typename T1>
 HLTHcalPFClusterIsolationProducer<T1>::HLTHcalPFClusterIsolationProducer(const edm::ParameterSet& config) {
-
+    
+  std::string recoCandidateProducerName = "recoCandidateProducer";
+  if ((typeid(HLTHcalPFClusterIsolationProducer<T1>) == typeid(HLTHcalPFClusterIsolationProducer<reco::RecoEcalCandidate>))) recoCandidateProducerName = "recoEcalCandidateProducer";
   
-  recoCandidateProducer_ = consumes<T1Collection>(config.getParameter<edm::InputTag>("recoCandidateProducer"));
+  recoCandidateProducer_ = consumes<T1Collection>(config.getParameter<edm::InputTag>(recoCandidateProducerName));
   pfClusterProducerHCAL_     = consumes<reco::PFClusterCollection>(config.getParameter<edm::InputTag>("pfClusterProducerHCAL"));
   useHF_                     = config.getParameter<bool>("useHF");  
   if (useHF_) {
@@ -54,8 +56,12 @@ HLTHcalPFClusterIsolationProducer<T1>::~HLTHcalPFClusterIsolationProducer()
 
 template<typename T1>
 void HLTHcalPFClusterIsolationProducer<T1>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+ 
+  std::string recoCandidateProducerName = "recoCandidateProducer";
+  if ((typeid(HLTHcalPFClusterIsolationProducer<T1>) == typeid(HLTHcalPFClusterIsolationProducer<reco::RecoEcalCandidate>))) recoCandidateProducerName = "recoEcalCandidateProducer";
+
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("recoCandidateProducer", edm::InputTag("hltL1SeededRecoEcalCandidatePF"));
+  desc.add<edm::InputTag>(recoCandidateProducerName, edm::InputTag("hltL1SeededRecoEcalCandidatePF"));
   desc.add<edm::InputTag>("pfClusterProducerHCAL", edm::InputTag("hltParticleFlowClusterHCAL"));
   desc.ifValue(edm::ParameterDescription<bool>("useHF", false, true),
 	       true >> (edm::ParameterDescription<edm::InputTag>("pfClusterProducerHFEM", edm::InputTag("hltParticleFlowClusterHFEM"), true) and

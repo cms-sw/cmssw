@@ -28,8 +28,10 @@
 
 template<typename T1>
 HLTEcalPFClusterIsolationProducer<T1>::HLTEcalPFClusterIsolationProducer(const edm::ParameterSet& config) {
-
-  recoCandidateProducer_ = consumes<T1Collection>(config.getParameter<edm::InputTag>("recoCandidateProducer"));
+  std::string recoCandidateProducerName = "recoCandidateProducer";
+  if ((typeid(HLTEcalPFClusterIsolationProducer<T1>) == typeid(HLTEcalPFClusterIsolationProducer<reco::RecoEcalCandidate>))) recoCandidateProducerName = "recoEcalCandidateProducer";
+    
+  recoCandidateProducer_ = consumes<T1Collection>(config.getParameter<edm::InputTag>(recoCandidateProducerName));
   pfClusterProducer_         = consumes<reco::PFClusterCollection>(config.getParameter<edm::InputTag>("pfClusterProducer"));
 
   drMax_          = config.getParameter<double>("drMax");
@@ -59,8 +61,12 @@ HLTEcalPFClusterIsolationProducer<T1>::~HLTEcalPFClusterIsolationProducer()
 
 template<typename T1>
 void HLTEcalPFClusterIsolationProducer<T1>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  std::string recoCandidateProducerName = "recoCandidateProducer";
+  if ((typeid(HLTEcalPFClusterIsolationProducer<T1>) == typeid(HLTEcalPFClusterIsolationProducer<reco::RecoEcalCandidate>))) recoCandidateProducerName = "recoEcalCandidateProducer";
+  
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("recoCandidateProducer", edm::InputTag("hltL1SeededRecoEcalCandidatePF"));
+  desc.add<edm::InputTag>(recoCandidateProducerName, edm::InputTag("hltL1SeededRecoEcalCandidatePF"));
   desc.add<edm::InputTag>("pfClusterProducer", edm::InputTag("hltParticleFlowClusterECAL")); 
   desc.add<edm::InputTag>("rhoProducer", edm::InputTag("fixedGridRhoFastjetAllCalo"));
   desc.add<bool>("doRhoCorrection", false);
