@@ -231,7 +231,6 @@ void ls_cert_type(string iDir, float threshold, string filename, vector <string>
     lsd[i] = templs;
     TDirectory *tempDir = dynamic_cast<TDirectory*>( file->Get(lsdir.str().c_str()));
     tempDir->cd();
-    int j = 0;      
     TIter nextTemp(tempDir->GetListOfKeys());
     TKey *keyTemp;
     while  ( (keyTemp = dynamic_cast<TKey*>(nextTemp())) ) {
@@ -247,12 +246,11 @@ void ls_cert_type(string iDir, float threshold, string filename, vector <string>
 	if (debug) std::cout << typecert.c_str() << std::endl;
 	tempvalue = atof(detvalue.c_str());
 	
-	for (j=0; j<smax; j++){
+	for (int j=0; j<smax; j++){
 	  if ( strstr(typecert.c_str(),certflag[j].c_str())!=NULL)
 	    v[j][i] = tempvalue;
 	  if (debug) std::cout << "Entering value " << tempvalue << " " << v[j][i] << " for " << certflag[j].c_str() << std::endl;
 	}
-	j = j + 1;
       }
     }
   }

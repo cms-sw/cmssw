@@ -2,7 +2,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
@@ -30,26 +29,13 @@
 // -- Contructor
 //
 SiStripDcsInfo::SiStripDcsInfo(edm::ParameterSet const& pSet) : 
-    dqmStore_(edm::Service<DQMStore>().operator->()), 
     m_cacheIDCabling_(0),
     m_cacheIDDcs_(0),
-    bookedStatus_(false),
-    nLumiAnalysed_(0)
+    bookedStatus_(false)
 { 
   // Create MessageSender
   LogDebug( "SiStripDcsInfo") << "SiStripDcsInfo::Deleting SiStripDcsInfo ";
-}
-//
-// -- Destructor
-//
-SiStripDcsInfo::~SiStripDcsInfo() {
-  LogDebug("SiStripDcsInfo") << "SiStripDcsInfo::Deleting SiStripDcsInfo ";
 
-}
-//
-// -- Begin Job
-//
-void SiStripDcsInfo::beginJob() {
   std::string tag;
   SubDetMEs local_mes;
   
@@ -96,9 +82,22 @@ void SiStripDcsInfo::beginJob() {
   SubDetMEsMap.insert(std::pair<std::string, SubDetMEs >(tag, local_mes));
 }
 //
+// -- Destructor
+//
+SiStripDcsInfo::~SiStripDcsInfo() {
+  LogDebug("SiStripDcsInfo") << "SiStripDcsInfo::Deleting SiStripDcsInfo ";
+
+}
+//
 // -- Begin Run
 //
 void SiStripDcsInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup) {
+
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  tTopo = tTopoHandle.product();
+
   LogDebug ("SiStripDcsInfo") <<"SiStripDcsInfo:: Begining of Run";
   nFEDConnected_ = 0;
   const int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
@@ -121,40 +120,38 @@ void SiStripDcsInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup
     }
   } 
 
-  bookStatus();
-  fillDummyStatus();
   if (nFEDConnected_ > 0) readCabling(eSetup);
-}
-//
-// -- Analyze
-//
-void SiStripDcsInfo::analyze(edm::Event const& event, edm::EventSetup const& eSetup) {
 }
 //
 // -- Begin Luminosity Block
 //
-void SiStripDcsInfo::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {
+void SiStripDcsInfo::dqmBeginLuminosityBlock(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter , edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {
   LogDebug( "SiStripDcsInfo") << "SiStripDcsInfo::beginLuminosityBlock";
   
   if (nFEDConnected_ == 0) return;
+
+  if (!bookedStatus_) 
+    {
+      bookStatus(ibooker , igetter);
+      fillDummyStatus(ibooker , igetter);
+    }
 
   // initialise BadModule list 
   for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
     it->second.FaultyDetectors.clear();
   }
   readStatus(eSetup);
-  nLumiAnalysed_++;   
 }
 
 //
 // -- End Luminosity Block
 //
-void SiStripDcsInfo::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {
+void SiStripDcsInfo::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter , edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {
   LogDebug( "SiStripDcsInfo") << "SiStripDcsInfo::endLuminosityBlock";
 
   if (nFEDConnected_ == 0) return;
   readStatus(eSetup);
-  fillStatus();
+  fillStatus(ibooker , igetter);
 }
 //
 // -- End Run
@@ -168,46 +165,49 @@ void SiStripDcsInfo::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
     it->second.FaultyDetectors.clear();
   }
   readStatus(eSetup); 
-  fillStatus();
-  addBadModules();
 } 
+
+void SiStripDcsInfo::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter){
+
+  if (nFEDConnected_ == 0) 
+    fillDummyStatus(ibooker , igetter);
+  
+  addBadModules(ibooker , igetter);
+  fillStatus(ibooker , igetter);
+}
+
 //
 // -- Book MEs for SiStrip Dcs Fraction
 //
-void SiStripDcsInfo::bookStatus() {
+void SiStripDcsInfo::bookStatus(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
   if (!bookedStatus_) {
     std::string strip_dir = "";
-    SiStripUtility::getTopFolderPath(dqmStore_, "SiStrip", strip_dir); 
-    if (strip_dir.size() > 0) dqmStore_->setCurrentFolder(strip_dir+"/EventInfo");
-    else dqmStore_->setCurrentFolder("SiStrip/EventInfo");
+    SiStripUtility::getTopFolderPath(ibooker , igetter , "SiStrip", strip_dir); 
+    if (strip_dir.size() > 0) ibooker.setCurrentFolder(strip_dir+"/EventInfo");
+    else ibooker.setCurrentFolder("SiStrip/EventInfo");
        
-    DcsFraction_= dqmStore_->bookFloat("DCSSummary");  
+    DcsFraction_= ibooker.bookFloat("DCSSummary");  
     
     DcsFraction_->setLumiFlag();
     
-    dqmStore_->cd();
-    if (strip_dir.size() > 0)  dqmStore_->setCurrentFolder(strip_dir+"/EventInfo/DCSContents");
-    else dqmStore_->setCurrentFolder("SiStrip/EventInfo/DCSContents"); 
+    ibooker.cd();
+    if (strip_dir.size() > 0)  ibooker.setCurrentFolder(strip_dir+"/EventInfo/DCSContents");
+    else ibooker.setCurrentFolder("SiStrip/EventInfo/DCSContents"); 
     for (std::map<std::string,SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
       SubDetMEs local_mes;	
       std::string me_name;
       me_name = "SiStrip_" + it->first;
-      it->second.DcsFractionME = dqmStore_->bookFloat(me_name);  
+      it->second.DcsFractionME = ibooker.bookFloat(me_name);  
       it->second.DcsFractionME->setLumiFlag();	
     } 
     bookedStatus_ = true;
-    dqmStore_->cd();
+    ibooker.cd();
   }
 }
 //
 // -- Read Cabling
 // 
 void SiStripDcsInfo::readCabling(edm::EventSetup const& eSetup) {
-
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
 
   unsigned long long cacheID = eSetup.get<SiStripFedCablingRcd>().cacheIdentifier();
   if (m_cacheIDCabling_ != cacheID) {
@@ -245,11 +245,6 @@ void SiStripDcsInfo::readCabling(edm::EventSetup const& eSetup) {
 //
 void SiStripDcsInfo::readStatus(edm::EventSetup const& eSetup) {
 
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-
   eSetup.get<SiStripDetVOffRcd>().get(siStripDetVOff_);
   std::vector <uint32_t> FaultyDetIds;
   siStripDetVOff_->getDetIds(FaultyDetIds);
@@ -272,8 +267,8 @@ void SiStripDcsInfo::readStatus(edm::EventSetup const& eSetup) {
 //
 // -- Fill Status
 //
-void SiStripDcsInfo::fillStatus(){
-  if (!bookedStatus_) bookStatus();
+void SiStripDcsInfo::fillStatus(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter){
+  if (!bookedStatus_) bookStatus(ibooker , igetter);
   if (bookedStatus_) {
     float total_det = 0.0;
     float faulty_det = 0.0;
@@ -300,8 +295,8 @@ void SiStripDcsInfo::fillStatus(){
 //
 // -- Fill with Dummy values
 //
-void SiStripDcsInfo::fillDummyStatus() {
-  if (!bookedStatus_) bookStatus();
+void SiStripDcsInfo::fillDummyStatus(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
+  if (!bookedStatus_) bookStatus(ibooker , igetter);
   if (bookedStatus_) {
     for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
       it->second.DcsFractionME->Reset();
@@ -314,14 +309,14 @@ void SiStripDcsInfo::fillDummyStatus() {
 //
 // -- Add Bad Modules
 //
-void SiStripDcsInfo::addBadModules() {
+void SiStripDcsInfo::addBadModules(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
     
-  dqmStore_->cd();
+  ibooker.cd();
   std::string mdir = "MechanicalView";
-  if (!SiStripUtility::goToDir(dqmStore_, mdir)) {
-    dqmStore_->setCurrentFolder("SiStrip/"+mdir);
+  if (!SiStripUtility::goToDir(ibooker , igetter , mdir)) {
+    ibooker.setCurrentFolder("SiStrip/"+mdir);
   }
-  std::string mechanical_dir = dqmStore_->pwd();
+  std::string mechanical_dir = ibooker.pwd();
   std::string tag = "DCSError";
 
   for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
@@ -332,22 +327,22 @@ void SiStripDcsInfo::addBadModules() {
       std::string bad_module_folder = mechanical_dir + "/" +
                                       it->second.folder_name + "/"     
                                       "BadModuleList";      
-      dqmStore_->setCurrentFolder(bad_module_folder);
+      ibooker.setCurrentFolder(bad_module_folder);
 
       std::ostringstream detid_str;
       detid_str << (*ibad);
       std::string full_path = bad_module_folder + "/" + detid_str.str();
-      MonitorElement* me = dqmStore_->get(full_path);
+      MonitorElement* me = igetter.get(full_path);
       uint16_t flag = 0; 
       if (me) {
 	flag = me->getIntValue();
 	me->Reset();
-      } else me = dqmStore_->bookInt(detid_str.str());
+      } else me = ibooker.bookInt(detid_str.str());
       SiStripUtility::setBadModuleFlag(tag, flag);
       me->Fill(flag);
     }
   }   
-  dqmStore_->cd();
+  ibooker.cd();
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

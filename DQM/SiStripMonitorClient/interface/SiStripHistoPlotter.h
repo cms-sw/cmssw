@@ -10,7 +10,8 @@
 
 #include "TCanvas.h"
 
-class DQMStore;
+#include "DQMServices/Core/interface/DQMStore.h"
+
 class MonitorElement;
 class TH1;
 
@@ -22,11 +23,11 @@ class SiStripHistoPlotter {
  ~SiStripHistoPlotter();
 
   void getNamedImageBuffer(const std::string& path, std::string& image);
-  void createPlots(DQMStore* dqm_store);
+  void createPlots(DQMStore::IGetter &);
   void setNewPlot(std::string& path,  std::string& option, 
                   int width, int height);
   void createStaticPlot(MonitorElement* me, const std::string& file_name);
-  void createCondDBPlots(DQMStore* dqm_store);
+  void createCondDBPlots(DQMStore::IGetter &);
   void setNewCondDBPlot(std::string& path,  std::string& option, 
                   int width, int height);
   bool plotsToMake() { return  ((plotList_.size() > 0) ? true : false);}
@@ -45,8 +46,8 @@ class SiStripHistoPlotter {
   };
 
   void fillNamedImageBuffer(TCanvas * c1, const std::string& name);
-  void makePlot(DQMStore* dqm_store, const PlotParameter& par);
-  void makeCondDBPlots(DQMStore* dqm_store, const PlotParameter& par);
+  void makePlot(DQMStore::IGetter &, const PlotParameter& par);
+  void makeCondDBPlots(DQMStore::IGetter &, const PlotParameter& par);
   bool hasNamedImage(const std::string & name);
   void createDummyImage(const std::string& name);
   void getDummyImage(std::string & image);

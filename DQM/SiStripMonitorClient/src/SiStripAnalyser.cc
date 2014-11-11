@@ -53,7 +53,9 @@
 //
 // -- Constructor
 //
-SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps) {
+SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps) :
+  verbose_(ps.getUntrackedParameter<bool>("verbose",false))
+{
   
   // Get TkMap ParameterSet 
   tkMapPSet_ = ps.getParameter<edm::ParameterSet>("TkmapParameters");
@@ -82,17 +84,23 @@ SiStripAnalyser::SiStripAnalyser(edm::ParameterSet const& ps) {
   shiftReportFrequency_  = ps.getUntrackedParameter<int>("ShiftReportFrequency", 1);   
   rawDataTag_            = ps.getUntrackedParameter<edm::InputTag>("RawDataTag"); 
   printFaultyModuleList_ = ps.getUntrackedParameter<bool>("PrintFaultyModuleList", true);
+  nFEDinfoDir_           = ps.getUntrackedParameter<std::string>("nFEDinfoDir");
+  nFEDinVsLSname_        = ps.getUntrackedParameter<std::string>("nFEDinVsLSname");
 
   rawDataToken_ = consumes<FEDRawDataCollection>(ps.getUntrackedParameter<edm::InputTag>("RawDataTag") );
-  // get back-end interface
-  dqmStore_ = edm::Service<DQMStore>().operator->();
-
 
   // instantiate web interface
   actionExecutor_ = new SiStripActionExecutor(ps);
   condDataMon_    = new SiStripClassToMonitorCondData(ps);
   trackerFEDsFound_ = false;
   endLumiAnalysisOn_ = false;
+
+  // Read the summary configuration file
+  if (!actionExecutor_->readConfiguration()) {
+    edm::LogInfo ("SiStripAnalyser") <<"SiStripAnalyser:: Error to read configuration file!! Summary will not be produced!!!";
+    summaryFrequency_ = -1;
+  }
+  nLumiSecs_ = 0;
 }
 //
 // -- Destructor
@@ -109,19 +117,6 @@ SiStripAnalyser::~SiStripAnalyser(){
 //    trackerMapCreator_ = 0;
 //  }
 
-}
-//
-// -- Begin Job
-//
-void SiStripAnalyser::beginJob(){
-
-  // Read the summary configuration file
-  if (!actionExecutor_->readConfiguration()) {
-     edm::LogInfo ("SiStripAnalyser") <<"SiStripAnalyser:: Error to read configuration file!! Summary will not be produced!!!";
-     summaryFrequency_ = -1;
-  }
-  nLumiSecs_ = 0;
-  nEvents_   = 0;
 }
 //
 // -- Begin Run
@@ -144,98 +139,68 @@ void SiStripAnalyser::beginRun(edm::Run const& run, edm::EventSetup const& eSetu
     eSetup.get<SiStripDetCablingRcd>().get(detCabling_);
   } 
   if (condDataMon_) condDataMon_->beginRun(eSetup);
-  if (globalStatusFilling_) actionExecutor_->createStatus(dqmStore_);
 }
 //
 // -- Begin Luminosity Block
 //
-void SiStripAnalyser::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {
+void SiStripAnalyser::dqmBeginLuminosityBlock(DQMStore::IBooker & ibooker , DQMStore::IGetter & igetter , edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {
   edm::LogInfo("SiStripAnalyser") <<"SiStripAnalyser:: Begin of LS transition";
-}
-//
-//  -- Analyze 
-//
-void SiStripAnalyser::analyze(edm::Event const& e, edm::EventSetup const& eSetup){
-  nEvents_++;  
-  if (nEvents_ == 1 && globalStatusFilling_ > 0) {
-    checkTrackerFEDs(e);
-    if (!trackerFEDsFound_) {
-      actionExecutor_->fillDummyStatus();
-      actionExecutor_->createDummyShiftReport();
-    } else {
-      actionExecutor_->fillStatus(dqmStore_, detCabling_, eSetup);
-      if (shiftReportFrequency_ != -1) actionExecutor_->createShiftReport(dqmStore_);
-    }
-  }
-  /* removing xdaq deps
-  unsigned int nval = sistripWebInterface_->getNumberOfConDBPlotRequest();
-  if (nval > 0) {
-    for (unsigned int ival = 0; ival < nval; ival++) {
-      uint32_t det_id;
-      std::string   subdet_type;
-      uint32_t subdet_side;
-      uint32_t layer_number;
-      sistripWebInterface_->getConDBPlotParameters(ival, det_id, subdet_type, subdet_side, layer_number);
-      if (condDataMon_) {
-        if (det_id == 999) condDataMon_->getLayerMEsOnDemand(eSetup,subdet_type, subdet_side,layer_number);
-        else if (layer_number == 999 && subdet_side == 999) condDataMon_->getModMEsOnDemand(eSetup,det_id);
-      }
-    }
-    sistripWebInterface_->clearConDBPlotRequests();
-  }
-  sistripWebInterface_->setActionFlag(SiStripWebInterface::CreatePlots);
-  sistripWebInterface_->performAction();
-  */
 }
 //
 // -- End Luminosity Block
 //
-void SiStripAnalyser::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {
+void SiStripAnalyser::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker , DQMStore::IGetter & igetter , edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {
   edm::LogInfo ("SiStripAnalyser") <<"SiStripAnalyser:: End of LS transition, performing the DQM client operation";
 
   nLumiSecs_++;
 
+  if (globalStatusFilling_) actionExecutor_->createStatus( ibooker , igetter );
+
+
+  //------ FROM ANALYZE - what to do?
+  if (globalStatusFilling_ > 0) {
+    checkTrackerFEDsInLS( igetter , lumiSeg.id().luminosityBlock() );
+    if (!trackerFEDsFound_) {
+      actionExecutor_->fillDummyStatus();
+      actionExecutor_->createDummyShiftReport();
+    } else {
+      edm::ESHandle<TrackerTopology> tTopoHandle;
+      eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+      const TrackerTopology* const tTopo = tTopoHandle.product();
+      actionExecutor_->fillStatus(ibooker , igetter , detCabling_, tTopo);
+      if (shiftReportFrequency_ != -1) actionExecutor_->createShiftReport(ibooker , igetter);
+    }
+  }
+  //------ END FROM ANALYZE
+
+  /* //not needed?
   if (!trackerFEDsFound_) {
     actionExecutor_->fillDummyStatus();
     return;
-  }   
+  } 
+  */
+  
   endLumiAnalysisOn_ = true;
 
-  //  sistripWebInterface_->setCabling(detCabling_);
- 
-  std::cout << "====================================================== " << std::endl;
-  std::cout << " ===> Iteration # " << nLumiSecs_ << " " 
-	    << lumiSeg.luminosityBlock() << std::endl;
-  std::cout << "====================================================== " << std::endl;
-  // Create predefined plots
-  /*removing xdaq dep
-  if (staticUpdateFrequency_ != -1 && nLumiSecs_ > 0 && nLumiSecs_%staticUpdateFrequency_  == 0) {
-    std::cout << " Creating predefined plots " << std::endl;
-    sistripWebInterface_->setActionFlag(SiStripWebInterface::PlotHistogramFromLayout);
-    sistripWebInterface_->performAction();
-  }
-  */
+  if (verbose_)
+    {  
+      std::cout << "====================================================== " << std::endl;
+      std::cout << " ===> Iteration # " << nLumiSecs_ << " " 
+		<< lumiSeg.luminosityBlock() << std::endl;
+      std::cout << "====================================================== " << std::endl;
+    }
   // Fill Global Status
   if (globalStatusFilling_ > 0) {
-    actionExecutor_->fillStatus(dqmStore_, detCabling_, eSetup);
+    edm::ESHandle<TrackerTopology> tTopoHandle;
+    eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+    const TrackerTopology* const tTopo = tTopoHandle.product();
+    actionExecutor_->fillStatus(ibooker , igetter , detCabling_, tTopo);
   }
   // -- Create summary monitor elements according to the frequency
   if (summaryFrequency_ != -1 && nLumiSecs_ > 0 && nLumiSecs_%summaryFrequency_ == 0) {
-    std::cout << " Creating Summary " << std::endl;
-    actionExecutor_->createSummary(dqmStore_);
+    if (verbose_) std::cout << " Creating Summary " << std::endl;
+    actionExecutor_->createSummary(ibooker , igetter);
   }
-  // -- Create TrackerMap  according to the frequency
-  /* removing xdaq deps
-  if (tkMapFrequency_ != -1 && nLumiSecs_ > 0 && nLumiSecs_%tkMapFrequency_ == 0) {
-    std::cout << " Creating Tracker Map " << std::endl;
-    std::string tkmap_type =  sistripWebInterface_->getTkMapType();
-    actionExecutor_->createTkMap(tkMapPSet_, dqmStore_, tkmap_type, eSetup);
-  }
-  */
-  // Create Shift Report
-  //  if (shiftReportFrequency_ != -1 && trackerFEDsFound_ && nLumiSecs_%shiftReportFrequency_  == 0) {
-  //    actionExecutor_->createShiftReport(dqmStore_);
-  //  }
   endLumiAnalysisOn_ = false;
 }
 
@@ -248,61 +213,27 @@ void SiStripAnalyser::endRun(edm::Run const& run, edm::EventSetup const& eSetup)
 //
 // -- End Job
 //
-void SiStripAnalyser::endJob(){
+void SiStripAnalyser::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter){
   edm::LogInfo("SiStripAnalyser") <<"SiStripAnalyser:: endjob called!";
   if (printFaultyModuleList_) {
     std::ostringstream str_val;
-    actionExecutor_->printFaultyModuleList(dqmStore_, str_val);
-    std::cout << str_val.str() << std::endl;
+    actionExecutor_->printFaultyModuleList(ibooker , igetter, str_val);
+    if (verbose_) std::cout << str_val.str() << std::endl;
   }
 }
 //
 // Check Tracker FEDs
 //
-void SiStripAnalyser::checkTrackerFEDs(edm::Event const& e) {
-  edm::Handle<FEDRawDataCollection> rawDataHandle;
-  e.getByToken( rawDataToken_, rawDataHandle );
-  if ( !rawDataHandle.isValid() ) return;
-  
-  const FEDRawDataCollection& rawDataCollection = *rawDataHandle;
-  const int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
-  const int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID; 
-    
-  unsigned int nFed = 0;
-  for (int i=siStripFedIdMin; i <= siStripFedIdMax; i++) {
-    if (rawDataCollection.FEDData(i).size() && rawDataCollection.FEDData(i).data()) {
-      nFed++;
-    }
+void SiStripAnalyser::checkTrackerFEDsInLS(DQMStore::IGetter & igetter, double iLS) {
+
+  double nFEDinLS = 0.;
+  MonitorElement* tmpME = igetter.get(nFEDinfoDir_+"/"+nFEDinVsLSname_);
+  if (tmpME) {
+    TProfile* tmpP = tmpME->getTProfile();
+    nFEDinLS = tmpME->getBinContent( tmpP->GetXaxis()->FindBin(iLS) );
   }
-  if (nFed > 0) trackerFEDsFound_ = true;
+
+  trackerFEDsFound_ = (nFEDinLS>0);
 }
-//
-// -- Create default web page
-//
-/* removing xdaq deps
-void SiStripAnalyser::defaultWebPage(xgi::Input *in, xgi::Output *out)
-{
-  bool isRequest = false;
-  cgicc::Cgicc cgi(in);
-  cgicc::CgiEnvironment cgie(in);
-  //  edm::LogInfo("SiStripAnalyser") <<"SiStripAnalyser:: defaultWebPage "
-  //             << " query string : " << cgie.getQueryString();
-  //  if ( xgi::Utils::hasFormElement(cgi,"ClientRequest") ) isRequest = true;
-  std::string q_string = cgie.getQueryString();
-  if (q_string.find("RequestID") != std::string::npos) isRequest = true;
-  if (!isRequest) {    
-    *out << html_out_.str() << std::endl;
-  }  else {
-    // Handles all HTTP requests of the form
-    int iter = -1;
-    if (endLumiAnalysisOn_) {
-      sistripWebInterface_->handleAnalyserRequest(in, out, detCabling_, iter); 
-    } else {
-      iter = nEvents_/10;
-      sistripWebInterface_->handleAnalyserRequest(in, out, detCabling_, iter);
-    } 
-  }
-}
-*/
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiStripAnalyser);

@@ -57,43 +57,43 @@ SiStripQualityChecker::~SiStripQualityChecker() {
 //
 // -- create reportSummary MEs
 //
-void SiStripQualityChecker::bookStatus(DQMStore* dqm_store) {
+void SiStripQualityChecker::bookStatus(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
 
   if (!bookedStripStatus_) {
-    dqm_store->cd();
+    ibooker.cd();
     std::string strip_dir = "";
-    SiStripUtility::getTopFolderPath(dqm_store, "SiStrip", strip_dir); 
+    SiStripUtility::getTopFolderPath(ibooker, igetter, "SiStrip", strip_dir); 
     if (strip_dir.size() == 0) strip_dir = "SiStrip";
 
     // Non Standard Plots and should be put outside EventInfo folder
 
-    dqm_store->setCurrentFolder(strip_dir+"/MechanicalView"); 
+    ibooker.setCurrentFolder(strip_dir+"/MechanicalView"); 
       
     std::string hname, htitle;
     hname  = "detFractionReportMap";
     htitle = "SiStrip Report for Good Detector Fraction";
-    DetFractionReportMap  = dqm_store->book2D(hname, htitle, 6,0.5,6.5,9,0.5,9.5);
+    DetFractionReportMap  = ibooker.book2D(hname, htitle, 6,0.5,6.5,9,0.5,9.5);
     DetFractionReportMap->setAxisTitle("Sub Detector Type", 1);
     DetFractionReportMap->setAxisTitle("Layer/Disc Number", 2);
     hname  = "sToNReportMap";
     htitle = "SiStrip Report for Signal-to-Noise";
-    SToNReportMap         = dqm_store->book2D(hname, htitle, 6,0.5,6.5,9,0.5,9.5);
+    SToNReportMap         = ibooker.book2D(hname, htitle, 6,0.5,6.5,9,0.5,9.5);
     SToNReportMap->setAxisTitle("Sub Detector Type", 1);
     SToNReportMap->setAxisTitle("Layer/Disc Number", 2);
 
     // this is the main reportSummary 2D plot and should be in EventInfo    
-    dqm_store->setCurrentFolder(strip_dir+"/EventInfo"); 
+    ibooker.setCurrentFolder(strip_dir+"/EventInfo"); 
 
     hname  = "reportSummaryMap";
     htitle = "SiStrip Report Summary Map";
-    SummaryReportMap      = dqm_store->book2D(hname, htitle, 6,0.5,6.5,9,0.5,9.5);
+    SummaryReportMap      = ibooker.book2D(hname, htitle, 6,0.5,6.5,9,0.5,9.5);
     SummaryReportMap->setAxisTitle("Sub Detector Type", 1);
     SummaryReportMap->setAxisTitle("Layer/Disc Number", 2);
     
-    SummaryReportGlobal = dqm_store->bookFloat("reportSummary");
+    SummaryReportGlobal = ibooker.bookFloat("reportSummary");
     int ibin = 0;
     
-    dqm_store->setCurrentFolder(strip_dir+"/EventInfo/reportSummaryContents");      
+    ibooker.setCurrentFolder(strip_dir+"/EventInfo/reportSummaryContents");      
     for (std::map<std::string, std::string>::const_iterator it = SubDetFolderMap.begin(); 
 	 it != SubDetFolderMap.end(); it++) {
       ibin++;
@@ -112,13 +112,13 @@ void SiStripQualityChecker::bookStatus(DQMStore* dqm_store) {
       
       std::string me_name;
       me_name = "SiStrip_" + det;
-      local_mes.SummaryFlag = dqm_store->bookFloat(me_name);
+      local_mes.SummaryFlag = ibooker.bookFloat(me_name);
       
       me_name = "SiStrip_DetFraction_" + det;
-      local_mes.DetFraction = dqm_store->bookFloat(me_name);
+      local_mes.DetFraction = ibooker.bookFloat(me_name);
       
       me_name = "SiStrip_SToNFlag_" + det;
-      local_mes.SToNFlag    = dqm_store->bookFloat(me_name);
+      local_mes.SToNFlag    = ibooker.bookFloat(me_name);
       SubDetMEsMap.insert(std::pair<std::string, SubDetMEs>(det, local_mes));
     }
     bookedStripStatus_ = true;
@@ -171,25 +171,25 @@ void SiStripQualityChecker::resetStatus() {
 //
 // -- Fill Status
 //
-void SiStripQualityChecker::fillStatus(DQMStore* dqm_store, const edm::ESHandle< SiStripDetCabling >& cabling, const edm::EventSetup& eSetup) {
-  if (!bookedStripStatus_) bookStatus(dqm_store);
+void SiStripQualityChecker::fillStatus(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, const edm::ESHandle< SiStripDetCabling >& cabling, const TrackerTopology *tTopo) {
+  if (!bookedStripStatus_) bookStatus(ibooker, igetter);
 
   fillDummyStatus();
-  fillDetectorStatus(dqm_store, cabling);
+  fillDetectorStatus(ibooker, igetter , cabling);
 
   int faulty_moduleflag  = pSet_.getUntrackedParameter<bool>("PrintFaultyModuleList", false);
-  if (faulty_moduleflag) fillFaultyModuleStatus(dqm_store, eSetup);   
+  if (faulty_moduleflag) fillFaultyModuleStatus(ibooker, igetter , tTopo);   
 }
 //
 // Fill Detector Status
 //
-void SiStripQualityChecker::fillDetectorStatus(DQMStore* dqm_store, const edm::ESHandle< SiStripDetCabling >& cabling) {
+void SiStripQualityChecker::fillDetectorStatus(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, const edm::ESHandle< SiStripDetCabling >& cabling) {
   unsigned int xbin = 0;
   float global_flag = 0;
-  dqm_store->cd();
+  ibooker.cd();
   std::string mdir = "MechanicalView"; 
-  if (!SiStripUtility::goToDir(dqm_store, mdir)) return;
-  std::string mechanicalview_dir = dqm_store->pwd();
+  if (!SiStripUtility::goToDir(ibooker, igetter , mdir)) return;
+  std::string mechanicalview_dir = ibooker.pwd();
 
   initialiseBadModuleList();
   for (std::map<std::string, SubDetMEs>::const_iterator it = SubDetMEsMap.begin(); 
@@ -198,29 +198,29 @@ void SiStripQualityChecker::fillDetectorStatus(DQMStore* dqm_store, const edm::E
     std::map<std::string, std::string>::const_iterator cPos = SubDetFolderMap.find(det);
     if (cPos == SubDetFolderMap.end()) continue; 
     std::string dname = mechanicalview_dir + "/" + cPos->second;
-    if (!dqm_store->dirExists(dname)) continue;
-    dqm_store->cd(dname);
+    if (!igetter.dirExists(dname)) continue;
+    ibooker.cd(dname);
     SubDetMEs local_mes = it->second;
     xbin++;
-    float flag;
-    fillSubDetStatus(dqm_store, cabling, local_mes, xbin,flag);
+    float flag = 0;
+    fillSubDetStatus(ibooker, igetter, cabling, local_mes, xbin,flag);
     global_flag += flag; 
   }
   global_flag = global_flag/xbin*1.0;
   if (SummaryReportGlobal) SummaryReportGlobal->Fill(global_flag);
-  dqm_store->cd();
+  ibooker.cd();
 }
 //
 // -- Fill Sub detector Reports
 //
-void SiStripQualityChecker::fillSubDetStatus(DQMStore* dqm_store, 
+void SiStripQualityChecker::fillSubDetStatus(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, 
 					     const edm::ESHandle< SiStripDetCabling >& cabling,
 					     SubDetMEs& mes, unsigned int xbin, float& gflag) {
 
   int status_flag  = pSet_.getUntrackedParameter<int>("GlobalStatusFilling", 1);
   if (status_flag < 1) return;
 
-  std::vector<std::string> subDirVec = dqm_store->getSubdirs();
+  std::vector<std::string> subDirVec = igetter.getSubdirs();
 
   unsigned int ybin   = 0;
   int tot_ndet        = 0;
@@ -233,8 +233,8 @@ void SiStripQualityChecker::fillSubDetStatus(DQMStore* dqm_store,
     if (dname.find("BadModuleList") != std::string::npos) continue;
     std::vector<MonitorElement*> meVec;
     ybin++;
-    dqm_store->cd((*ic));
-    meVec = dqm_store->getContents((*ic));
+    ibooker.cd((*ic));
+    meVec = igetter.getContents((*ic));
     uint16_t ndet = 100;
     int errdet = 0;       
 
@@ -242,7 +242,7 @@ void SiStripQualityChecker::fillSubDetStatus(DQMStore* dqm_store,
     int lnum = atoi(dname.substr(dname.find_last_of("_")+1).c_str());
     ndet = cabling->connectedNumber(mes.detectorTag, lnum);
      
-    getModuleStatus(dqm_store, meVec, errdet);
+    getModuleStatus(ibooker, igetter, meVec, errdet);
 
     for (std::vector<MonitorElement*>::const_iterator it = meVec.begin();
 	 it != meVec.end(); it++) {
@@ -274,7 +274,7 @@ void SiStripQualityChecker::fillSubDetStatus(DQMStore* dqm_store,
       tot_errdet    += errdet;
       tot_ston_stat += ston_stat;  
     }
-    dqm_store->cd((*ic));
+    ibooker.cd((*ic));
   }
   if (tot_ndet > 0) { 
     float tot_eff_fac = 1 - (tot_errdet*1.0/tot_ndet);
@@ -323,7 +323,7 @@ void SiStripQualityChecker::printStatusReport() {
 //
 // -- Get Module Status from Layer Level Histograms
 //
-void SiStripQualityChecker::getModuleStatus(DQMStore* dqm_store, std::vector<MonitorElement*>& layer_mes,int& errdet) { 
+void SiStripQualityChecker::getModuleStatus(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, std::vector<MonitorElement*>& layer_mes,int& errdet) { 
   
   std::string lname;
   std::map<uint32_t,uint16_t> bad_modules;
@@ -361,10 +361,10 @@ void SiStripQualityChecker::getModuleStatus(DQMStore* dqm_store, std::vector<Mon
 	std::ostringstream detid_str;  
 	detid_str << detId;  
 	//now in the layer/wheel dir  
-	std::string currentdir = dqm_store->pwd();  
+	std::string currentdir = ibooker.pwd();  
 	std::string thisMEpath = currentdir.substr( 0 , currentdir.rfind( "/" ) ) + "/BadModuleList/" + detid_str.str() ;  
 	
-	MonitorElement *meBadModule = dqm_store->get ( thisMEpath );  
+	MonitorElement *meBadModule = igetter.get ( thisMEpath );  
 	if ( meBadModule )  
 	  {  
 	    std::string val_str;  
@@ -404,40 +404,35 @@ void SiStripQualityChecker::getModuleStatus(DQMStore* dqm_store, std::vector<Mon
 //
 // -- Create Monitor Elements for Modules
 //
-void SiStripQualityChecker::fillFaultyModuleStatus(DQMStore* dqm_store, const edm::EventSetup& eSetup) {
+void SiStripQualityChecker::fillFaultyModuleStatus(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, const TrackerTopology *tTopo) {
   if (badModuleList.size() == 0) return;
 
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-
-  dqm_store->cd();
+  ibooker.cd();
   std::string mdir = "MechanicalView";
-  if (!SiStripUtility::goToDir(dqm_store, mdir)) return;
-  std::string mechanical_dir = dqm_store->pwd();
+  if (!SiStripUtility::goToDir(ibooker, igetter , mdir)) return;
+  std::string mechanical_dir = ibooker.pwd();
 
   SiStripFolderOrganizer folder_organizer;
   for (std::map<uint32_t,uint16_t>::const_iterator it =  badModuleList.begin() ; it != badModuleList.end(); it++) {
     uint32_t detId =  it->first;
     std::string subdet_folder ;
     folder_organizer.getSubDetFolder(detId,tTopo,subdet_folder);
-    if (!dqm_store->dirExists(subdet_folder)) {
+    if (!igetter.dirExists(subdet_folder)) {
       subdet_folder = mechanical_dir + subdet_folder.substr(subdet_folder.find("MechanicalView")+14);
-      if (!dqm_store->dirExists(subdet_folder)) continue;
+      if (!igetter.dirExists(subdet_folder)) continue;
     }
     std::string bad_module_folder = subdet_folder + "/" + "BadModuleList";
-    dqm_store->setCurrentFolder(bad_module_folder);
+    ibooker.setCurrentFolder(bad_module_folder);
 
     std::ostringstream detid_str;
     detid_str << detId;
     std::string full_path = bad_module_folder + "/" + detid_str.str();
-    MonitorElement* me = dqm_store->get(full_path);
+    MonitorElement* me =igetter.get(full_path);
     if (me) me->Reset();
-    else me = dqm_store->bookInt(detid_str.str());
+    else me = ibooker.bookInt(detid_str.str());
     me->Fill(it->second);
   }
-  dqm_store->cd();
+  ibooker.cd();
 }
 //
 // -- Initialise Bad Module List
@@ -450,26 +445,26 @@ void SiStripQualityChecker::initialiseBadModuleList() {
 //
 // -- Fill Status information and the lumi block
 //
-void SiStripQualityChecker::fillStatusAtLumi(DQMStore* dqm_store){
-  if (!bookedStripStatus_) bookStatus(dqm_store);
+void SiStripQualityChecker::fillStatusAtLumi(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter){
+  if (!bookedStripStatus_) bookStatus(ibooker , igetter);
   fillDummyStatus();
-  fillDetectorStatusAtLumi(dqm_store);
+  fillDetectorStatusAtLumi(ibooker , igetter);
 }
 //
 // Fill Detector Status MEs at the Lumi block
 // 
-void SiStripQualityChecker::fillDetectorStatusAtLumi(DQMStore* dqm_store){
+void SiStripQualityChecker::fillDetectorStatusAtLumi(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter){
   
   
 
-  dqm_store->cd();
+  ibooker.cd();
   std::string rdir = "ReadoutView"; 
-  if (!SiStripUtility::goToDir(dqm_store, rdir)) return;
-  std::string fullpath = dqm_store->pwd() 
+  if (!SiStripUtility::goToDir(ibooker, igetter ,  rdir)) return;
+  std::string fullpath = ibooker.pwd() 
     //                          + "/FedSummary/PerLumiSection/"
                           + "/PerLumiSection/"
                           + "lumiErrorFraction";  
-  MonitorElement* me = dqm_store->get(fullpath);
+  MonitorElement* me = igetter.get(fullpath);
   if (me && me->kind() == MonitorElement::DQM_KIND_TH1F) {
     TH1F* th1 = me->getTH1F(); 
     float global_fraction = 0.0;
@@ -489,5 +484,5 @@ void SiStripQualityChecker::fillDetectorStatusAtLumi(DQMStore* dqm_store){
     global_fraction = global_fraction/dets;
     if (SummaryReportGlobal) SummaryReportGlobal->Fill(global_fraction);    
   }
-  dqm_store->cd();
+  ibooker.cd();
 }
