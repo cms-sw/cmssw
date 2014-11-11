@@ -48,6 +48,24 @@ theDigitizersValid = cms.PSet(
   )
 )
 
+def modifyMixForPostLS1( mixInstance, digitizers=None ):
+    """
+    Modifies the MixingModule for running in post LS1 scenario.
+    Currently just changes the dynamic inefficiency in the pixel
+    digitiser by calling a function defined where the pixel
+    digitiser is.
+    
+    First parameter is the mixing module object.
+    
+    Second optional parameter is the digitizers object. If not
+    supplied it is taken from "mixInstance.digitizers" (required
+    so that theDigitizersValid can also be modified).
+    """
+    if digitizers==None :
+        digitizers=mixInstance.digitizers
+    if hasattr( digitizers, 'pixel' ):
+        from SimGeneral.MixingModule.pixelDigitizer_cfi import modifyPixelDigitizerForPostLS1
+        modifyPixelDigitizerForPostLS1( digitizers.pixel, mixInstance.bunchspace )
 
 
 
