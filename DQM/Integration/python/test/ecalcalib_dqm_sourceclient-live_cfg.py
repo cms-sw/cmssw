@@ -85,7 +85,7 @@ process.ecalPedestalFilter = cms.EDFilter("EcalMonitorPrescaler",
 
 process.ecalTestPulseFilter = cms.EDFilter("EcalMonitorPrescaler",
     EcalRawDataCollection = cms.InputTag("ecalDigis"),
-    testpulse = cms.untracked.uint32(1)
+    testPulse = cms.untracked.uint32(1)
 )
 
 process.ecalDigis = cms.EDProducer("EcalRawToDigi",
@@ -137,14 +137,6 @@ process.ecalDigis = cms.EDProducer("EcalRawToDigi",
     forceToKeepFRData = cms.bool(False),
     headerUnpacking = cms.bool(True),
     memUnpacking = cms.bool(True)
-)
-
-process.ecalCalibrationFilter = cms.EDFilter("EcalMonitorPrescaler",
-    laser = cms.untracked.uint32(1),
-    pedestal = cms.untracked.uint32(1),
-    led = cms.untracked.uint32(1),
-    EcalRawDataCollection = cms.InputTag("ecalDigis"),
-    testpulse = cms.untracked.uint32(1)
 )
 
 process.ecalTestPulseUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
@@ -206,7 +198,7 @@ process.ecalPreRecoSequence = cms.Sequence(process.ecalDigis)
 process.ecalLaserLedPath = cms.Path(process.preScaler+process.ecalPreRecoSequence+process.ecalLaserLedFilter+process.ecalRecoSequence+process.ecalLaserLedUncalibRecHit+process.ecalLaserLedMonitorTask+process.ecalPNDiodeMonitorTask)
 process.ecalTestPulsePath = cms.Path(process.preScaler+process.ecalPreRecoSequence+process.ecalTestPulseFilter+process.ecalRecoSequence+process.ecalTestPulseUncalibRecHit+process.ecalTestPulseMonitorTask+process.ecalPNDiodeMonitorTask)
 process.ecalPedestalPath = cms.Path(process.preScaler+process.ecalPreRecoSequence+process.ecalPedestalFilter+process.ecalRecoSequence+process.ecalPedestalMonitorTask+process.ecalPNDiodeMonitorTask)
-process.ecalClientPath = cms.Path(process.preScaler+process.ecalPreRecoSequence+process.ecalCalibrationFilter+process.ecalCalibMonitorClient)
+process.ecalClientPath = cms.Path(process.ecalCalibMonitorClient)
 
 process.dqmEndPath = cms.EndPath(process.dqmEnv)
 process.dqmOutputPath = cms.EndPath(process.dqmSaver)
