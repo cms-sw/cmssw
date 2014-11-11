@@ -4,15 +4,28 @@
 
 
 
-CSCRecHit2DValidation::CSCRecHit2DValidation(DQMStore* dbe, const edm::InputTag & inputTag, edm::ConsumesCollector && iC)
-: CSCBaseValidation(dbe, inputTag),
-  theNPerEventPlot( dbe_->book1D("CSCRecHitsPerEvent", "Number of CSC Rec Hits per event", 100, 0, 500) )
+CSCRecHit2DValidation::CSCRecHit2DValidation(
+                                const edm::InputTag & inputTag,
+                                edm::ConsumesCollector && iC)
+: CSCBaseValidation(inputTag),
+  theNPerEventPlot(0)
 {
-   rechits_Token_ = iC.consumes<CSCRecHit2DCollection>(inputTag);
+  rechits_Token_ = iC.consumes<CSCRecHit2DCollection>(inputTag);
+}
 
-   dbe_->setCurrentFolder("CSCRecHitsV/CSCRecHitTask");
+CSCRecHit2DValidation::~CSCRecHit2DValidation()
+{
+  for(int i = 0; i < 10; ++i)
+  {
+    edm::LogInfo("CSCRecHitValidation") << "Resolution of " << theResolutionPlots[i]->getName() << " is " << theResolutionPlots[i]->getRMS();
+    edm::LogInfo("CSCRecHitValidation") << "Peak Time is " << theTPeaks[i]->getMean();
+  }
+}
 
-   for(int i = 0; i < 10; ++i)
+void CSCRecHit2DValidation::bookHistograms(DQMStore::IBooker & iBooker)
+{
+  theNPerEventPlot = iBooker.book1D("CSCRecHitsPerEvent", "Number of CSC Rec Hits per event", 100, 0, 500);
+  for(int i = 0; i < 10; ++i)
   {
     char title1[200], title2[200], title3[200], title4[200], title5[200], title6[200], title7[200], title8[200], title9[200];
     sprintf(title1, "CSCRecHitResolution%d", i+1);
@@ -25,29 +38,17 @@ CSCRecHit2DValidation::CSCRecHit2DValidation(DQMStore* dbe, const edm::InputTag 
     sprintf(title8, "CSCSimHit%d", i+1);
     sprintf(title9, "CSCTPeak%d", i+1);
 
-
-    theResolutionPlots[i] = dbe_->book1D(title1, title1, 100, -0.2, 0.2);
-    thePullPlots[i] = dbe_->book1D(title2, title2, 100, -3, 3);
-    theYResolutionPlots[i] = dbe_->book1D(title3, title3, 100, -5, 5);
-    theYPullPlots[i] = dbe_->book1D(title4, title4, 100, -3, 3);
-    theRecHitPosInStrip[i] = dbe_->book1D(title5, title5, 100, -2, 2);
-    theSimHitPosInStrip[i] = dbe_->book1D(title6, title6, 100, -2, 2);
-    theScatterPlots[i] = dbe->book2D(title7, title7, 200, -20, 20, 200, -250, 250);
-    theSimHitScatterPlots[i] = dbe->book2D(title8, title8, 200, -20, 20, 200, -250, 250);
-    theTPeaks[i] =  dbe->book1D(title9, title9, 200, 0, 400);
-  }
-
-}
-
-CSCRecHit2DValidation::~CSCRecHit2DValidation()
-{
-  for(int i = 0; i < 10; ++i)
-  {
-    edm::LogInfo("CSCRecHitValidation") << "Resolution of " << theResolutionPlots[i]->getName() << " is " << theResolutionPlots[i]->getRMS();
-    edm::LogInfo("CSCRecHitValidation") << "Peak Time is " << theTPeaks[i]->getMean();
+    theResolutionPlots[i] =    iBooker.book1D(title1, title1, 100, -0.2, 0.2);
+    thePullPlots[i] =          iBooker.book1D(title2, title2, 100, -3, 3);
+    theYResolutionPlots[i] =   iBooker.book1D(title3, title3, 100, -5, 5);
+    theYPullPlots[i] =         iBooker.book1D(title4, title4, 100, -3, 3);
+    theRecHitPosInStrip[i] =   iBooker.book1D(title5, title5, 100, -2, 2);
+    theSimHitPosInStrip[i] =   iBooker.book1D(title6, title6, 100, -2, 2);
+    theScatterPlots[i] =       iBooker.book2D(title7, title7, 200, -20, 20, 200, -250, 250);
+    theSimHitScatterPlots[i] = iBooker.book2D(title8, title8, 200, -20, 20, 200, -250, 250);
+    theTPeaks[i] =             iBooker.book1D(title9, title9, 200, 0, 400);
   }
 }
-
 
 void CSCRecHit2DValidation::analyze(const edm::Event&e, const edm::EventSetup& eventSetup)
 {
@@ -105,7 +106,6 @@ return;
   }
 
 }
-
 
 void CSCRecHit2DValidation::plotResolution(const PSimHit & simHit, const CSCRecHit2D & recHit,
                                          const CSCLayer * layer, int chamberType)
