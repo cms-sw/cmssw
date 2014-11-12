@@ -1,4 +1,4 @@
 autoValidation = { 'liteTracking' : ['prevalidationLiteTracking','validationLiteTracking','validationHarvesting'],
-		   'miniAODValidation' : ['prevalidationMiniAOD','validationMiniAOD','validationHarvesting']
+		   'miniAODValidation' : ['prevalidationMiniAOD','validationMiniAOD','validationHarvestingMiniAOD']
 			}
 
