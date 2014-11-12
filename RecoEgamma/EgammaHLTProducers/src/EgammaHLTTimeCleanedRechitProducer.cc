@@ -53,15 +53,10 @@ void EgammaHLTTimeCleanedRechitProducer::fillDescriptions(edm::ConfigurationDesc
 void EgammaHLTTimeCleanedRechitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
   edm::Handle<EcalRecHitCollection> rhcH[2];
-    if (!(hitLabels.size() == 2)) {
-        edm::LogError("EgammaHLTTimeCleanedRechitProducer") << "ecalhitLabels should contain 2 labels: one for RecHits in barrel, the other for RecHits in endcaps" << std::endl;
-        exit(-1);
-    }
-    if (!(productLabels.size() == 2)) {
-        edm::LogError("EgammaHLTTimeCleanedRechitProducer") << "productLabels should contain 2 labels: one for RecHits in barrel, the other for RecHits in endcaps" << std::endl;
-        exit(-1);
-    }
     
+  if (!(hitLabels.size() == 2)) throw cms::Exception("ConfigError","ecalhitLabels should contain 2 labels: one for RecHits in barrel, the other for RecHits in endcaps");
+  if (!(productLabels.size() == 2)) throw cms::Exception("ConfigError","productLabels should contain 2 labels: one for RecHits in barrel, the other for RecHits in endcaps");
+
   for (unsigned int i=0; i<hitLabels.size(); i++) {
     std::auto_ptr<EcalRecHitCollection> hits(new EcalRecHitCollection);
     
