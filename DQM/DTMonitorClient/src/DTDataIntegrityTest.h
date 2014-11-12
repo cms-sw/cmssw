@@ -6,6 +6,9 @@
  *  DQM Client to check the data integrity
  *
  *  \author S. Bolognesi - INFN TO
+ *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah ncpp-um-my
+ *
  *   
  */
 #include <FWCore/Framework/interface/EDAnalyzer.h>
@@ -15,11 +18,14 @@
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 
+#include <DQMServices/Core/interface/DQMEDHarvester.h>
+
 class DQMStore;
 class MonitorElement;
 class DTReadOutMapping;
 
-class DTDataIntegrityTest: public edm::EDAnalyzer{
+//-class DTDataIntegrityTest: public edm::EDAnalyzer{
+class DTDataIntegrityTest: public DQMEDHarvester{
 
 public:
 
@@ -32,26 +38,29 @@ public:
 protected:
 
   /// BeginJob
-  void beginJob();
+//-  void beginJob();
 
   /// BeginRun
-  void beginRun(const edm::Run& run, const edm::EventSetup& c);
+//-  void beginRun(const edm::Run& run, const edm::EventSetup& c);
  
   /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+//-  void analyze(const edm::Event& e, const edm::EventSetup& c);
 
   /// Endjob
-  void endJob();
+//-  void endJob();
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
   /// Get the ME name
   std::string getMEName(std::string histoType, int FEDId);
   /// Book the MEs
-  void bookHistos(std::string histoType, int dduId);
+//-  void bookHistos(std::string histoType, int dduId);
+  void bookHistos(DQMStore::IBooker &, std::string histoType, int dduId);
 
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
+//-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
 
   /// DQM Client Diagnostic
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
+//-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
+  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &);
 
 private:
   int readOutToGeometry(int dduId, int rosNumber, int& wheel, int& sector);
@@ -73,6 +82,7 @@ private:
 
   int run;
 
+  bool bookingdone;
 
   DQMStore* dbe;
   edm::ESHandle<DTReadOutMapping> mapping;

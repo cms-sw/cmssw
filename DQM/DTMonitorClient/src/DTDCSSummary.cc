@@ -3,6 +3,9 @@
  *  See header file for a description of this class.
  *
  *  \author G. Cerminara - INFN Torino
+ *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah ncpp-um-my
+ *
  */
 
 
@@ -22,7 +25,11 @@ using namespace edm;
 
 
 
-DTDCSSummary::DTDCSSummary(const ParameterSet& pset) {}
+DTDCSSummary::DTDCSSummary(const ParameterSet& pset) {
+
+  bookingdone = 0;
+
+}
 
 
 
@@ -31,14 +38,31 @@ DTDCSSummary::~DTDCSSummary() {}
 
 
 
-void DTDCSSummary::beginJob(){
+//-void DTDCSSummary::beginJob(){}
+
+
+
+//-void DTDCSSummary::beginLuminosityBlock(const LuminosityBlock& lumi, const  EventSetup& setup) {
+//-}
+
+
+
+
+//-void DTDCSSummary::endLuminosityBlock(const LuminosityBlock&  lumi, const  EventSetup& setup){}
+void DTDCSSummary::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,
+                         edm::LuminosityBlock const & lumiSeg, edm::EventSetup const & context) {
+
+  if (bookingdone) return;
+
   // get the DQMStore
-  theDbe = Service<DQMStore>().operator->();
+//-  theDbe = Service<DQMStore>().operator->();
   
   // book the ME
-  theDbe->setCurrentFolder("DT/EventInfo/DCSContents");
+//-  theDbe->setCurrentFolder("DT/EventInfo/DCSContents");
+  ibooker.setCurrentFolder("DT/EventInfo/DCSContents");
   // global fraction
-  totalDCSFraction = theDbe->bookFloat("DTDCSSummary");  
+//-  totalDCSFraction = theDbe->bookFloat("DTDCSSummary");  
+  totalDCSFraction = ibooker.bookFloat("DTDCSSummary");  
   totalDCSFraction->Fill(-1);
   // Wheel "fractions" -> will be 0 or 1
   for(int wheel = -2; wheel != 3; ++wheel) {
@@ -47,26 +71,16 @@ void DTDCSSummary::beginJob(){
     dcsFractions[wheel] = theDbe->bookFloat(streams.str());
     dcsFractions[wheel]->Fill(-1);
   }
-
+  
+  bookingdone = 1; 
 }
 
 
-
-void DTDCSSummary::beginLuminosityBlock(const LuminosityBlock& lumi, const  EventSetup& setup) {
-}
-
+//-void DTDCSSummary::endJob() {}
+void DTDCSSummary::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {}
 
 
-
-void DTDCSSummary::endLuminosityBlock(const LuminosityBlock&  lumi, const  EventSetup& setup){}
-
-
-
-void DTDCSSummary::endJob() {}
-
-
-
-void DTDCSSummary::analyze(const Event& event, const EventSetup& setup){}
+//-void DTDCSSummary::analyze(const Event& event, const EventSetup& setup){}
 
 
 

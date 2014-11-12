@@ -4,6 +4,9 @@
  *  See header file for a description of this class.
  *
  *  \author G. Mila - INFN Torino
+ *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah -ncpp-um-my
+ *
  */
 
 
@@ -45,15 +48,21 @@ DTResolutionTest::DTResolutionTest(const edm::ParameterSet& ps){
   edm::LogVerbatim ("resolution") << "[DTResolutionTest]: Constructor";
   parameters = ps;
 
-  dbe = edm::Service<DQMStore>().operator->();
-  if(ps.getUntrackedParameter<bool>("readFile", false))	 
-     dbe->open(ps.getUntrackedParameter<string>("inputFile", "residuals.root"));
+//-  dbe = edm::Service<DQMStore>().operator->();
+
+//FR: no idea if this input file needs to be used! comment it for now
+//-  if(ps.getUntrackedParameter<bool>("readFile", false))	 
+//-   dbe->open(ps.getUntrackedParameter<string>("inputFile", "residuals.root"));
 
   prescaleFactor = parameters.getUntrackedParameter<int>("diagnosticPrescale", 1);
 
   percentual = parameters.getUntrackedParameter<int>("BadSLpercentual", 10);
 
   //debug = parameters.getUntrackedParameter<bool>("debug", false);
+
+  nevents = 0;
+
+  bookingdone = 0;
 
 }
 
@@ -65,46 +74,34 @@ DTResolutionTest::~DTResolutionTest(){
 }
 
 
-void DTResolutionTest::beginRun(const edm::Run& run, const edm::EventSetup& context){
-
-  edm::LogVerbatim ("resolution") <<"[DTResolutionTest]: BeginRun";
-
-  nevents = 0;
-  // Get the geometry
-  context.get<MuonGeometryRecord>().get(muonGeom);
-
-  // book the histos
-  for(int wheel=-2; wheel<3; wheel++){
-    bookHistos(wheel);
-  }
-  vector<const DTChamber*> chambers = muonGeom->chambers();
-  for(vector<const DTChamber*>::const_iterator chamber = chambers.begin();
-      chamber != chambers.end(); ++chamber) {
-    bookHistos((*chamber)->id());
-  }
-
-}
+//-void DTResolutionTest::beginRun(const edm::Run& run, const edm::EventSetup& context){
+//-
+//-  edm::LogVerbatim ("resolution") <<"[DTResolutionTest]: BeginRun";
+//-
+//-}
 
 
-void DTResolutionTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
+//-void DTResolutionTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
+//-
+//-  edm::LogVerbatim ("resolution") <<"[DTResolutionTest]: Begin of LS transition";
+//-
+//-  // Get the run number
+//-  run = lumiSeg.run();
+//-}
 
-  edm::LogVerbatim ("resolution") <<"[DTResolutionTest]: Begin of LS transition";
 
-  // Get the run number
-  run = lumiSeg.run();
-}
-
-
-void DTResolutionTest::analyze(const edm::Event& e, const edm::EventSetup& context){
-
-  nevents++;
-  edm::LogVerbatim ("resolution") << "[DTResolutionTest]: "<<nevents<<" events";
-
-}
+//-void DTResolutionTest::analyze(const edm::Event& e, const edm::EventSetup& context){
+//-
+//-  nevents++;
+//-  edm::LogVerbatim ("resolution") << "[DTResolutionTest]: "<<nevents<<" events";
+//-
+//-}
 
 
 
-void DTResolutionTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
+//-void DTResolutionTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
+  void DTResolutionTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,
+                         edm::LuminosityBlock const & lumiSeg, edm::EventSetup const & context) {
   
   // counts number of updats (online mode) or number of events (standalone mode)
   //nevents++;
@@ -112,6 +109,28 @@ void DTResolutionTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
   //if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) && 
   //   nevents%parameters.getUntrackedParameter<int>("diagnosticPrescale", 1000) != 0 ) return;
   //edm::LogVerbatim ("resolution") << "[DTResolutionTest]: "<<nevents<<" updates";
+
+
+  if (!bookingdone) {
+
+  // Get the geometry
+  context.get<MuonGeometryRecord>().get(muonGeom);
+
+  // book the histos
+  for(int wheel=-2; wheel<3; wheel++){
+//-    bookHistos(wheel);
+    bookHistos(ibooker,wheel);
+    }
+  vector<const DTChamber*> chambers = muonGeom->chambers();
+  for(vector<const DTChamber*>::const_iterator chamber = chambers.begin();
+      chamber != chambers.end(); ++chamber) {
+//-    bookHistos((*chamber)->id());
+    bookHistos(ibooker,(*chamber)->id());
+    }
+
+  }
+  bookingdone = 1; 
+
 
   edm::LogVerbatim ("resolution") <<"[DTResolutionTest]: End of LS transition, performing the DQM client operation";
 
@@ -227,7 +246,7 @@ void DTResolutionTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
       string HistoName = "W" + wheel.str() + "_Sec" + sector.str(); 
       string supLayer = "W" + wheel.str() + "_St" + station.str() + "_Sec" + sector.str() + "_SL" + superLayer.str(); 
 
-      MonitorElement * res_histo = dbe->get(getMEName(slID));
+      MonitorElement * res_histo = igetter.get(getMEName(slID));
       if (res_histo) {
 	// gaussian test
 	string GaussianCriterionName = 
@@ -235,8 +254,9 @@ void DTResolutionTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
 						   "ResidualsDistributionGaussianTest");
 	const QReport * GaussianReport = res_histo->getQReport(GaussianCriterionName);
 	if(GaussianReport){
-	  // FIXE ME: if the quality test fails this cout return a null pointer
-	  //edm::LogWarning ("resolution") << "-------- SuperLayer : "<<supLayer<<"  "<<GaussianReport->getMessage()<<" ------- "<<GaussianReport->getStatus();
+	  // FIXE ME: if the quality test fails this cout returns a null pointer
+	  //edm::LogWarning ("resolution") << "-------- SuperLayer : "<<supLayer<<"  "
+          //                               <<GaussianReport->getMessage()<<" ------- "<<GaussianReport->getStatus();
 	}
 	int BinNumber = entry+slID.superLayer();
 	if(BinNumber == 12) BinNumber=11;
@@ -248,7 +268,8 @@ void DTResolutionTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
       }
 
       if(parameters.getUntrackedParameter<bool>("slopeTest")){
-	MonitorElement * res_histo_2D = dbe->get(getMEName2D(slID));
+
+	MonitorElement * res_histo_2D = igetter.get(getMEName2D(slID));
 	if (res_histo_2D) {
 	  TH2F * res_histo_2D_root = res_histo_2D->getTH2F();
 	  int BinNumber = entry+slID.superLayer();
@@ -412,19 +433,20 @@ void DTResolutionTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
 
 
 
-void DTResolutionTest::endJob(){
+//-void DTResolutionTest::endJob(){
+void DTResolutionTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
 
   edm::LogVerbatim ("resolution") << "[DTResolutionTest] endjob called!";
   //dbe->rmdir("DT/DTCalibValidation");
   //dbe->rmdir("DT/Tests/DTResolution");
-  bool outputMEsInRootFile = parameters.getParameter<bool>("OutputMEsInRootFile");
-  if(outputMEsInRootFile){
-	std::string outputFileName = parameters.getParameter<std::string>("OutputFileName");
-	dbe->save(outputFileName,"DT/CalibrationSummary");	
-  }	
 
-}
-
+  //FR: no idea if this output file needs to be written!! comment it for now
+  //bool outputMEsInRootFile = parameters.getParameter<bool>("OutputMEsInRootFile");
+  //if(outputMEsInRootFile){
+  //	std::string outputFileName = parameters.getParameter<std::string>("OutputFileName");
+  //	dbe->save(outputFileName,"DT/CalibrationSummary");
+  //}	
+}	
 
 
 string DTResolutionTest::getMEName(const DTSuperLayerId & slID) {
@@ -500,7 +522,8 @@ string DTResolutionTest::getMEName2D(const DTSuperLayerId & slID) {
 
 
 
-void DTResolutionTest::bookHistos(const DTChamberId & ch) {
+//-void DTResolutionTest::bookHistos(const DTChamberId & ch) {
+void DTResolutionTest::bookHistos(DQMStore::IBooker & ibooker, const DTChamberId & ch) {
 
   stringstream wheel; wheel << ch.wheel();		
   stringstream sector; sector << ch.sector();	
@@ -510,10 +533,12 @@ void DTResolutionTest::bookHistos(const DTChamberId & ch) {
   string SigmaHistoName =  "SigmaTest_" + parameters.getUntrackedParameter<string>("STEP", "STEP3") + "_W" + wheel.str() + "_Sec" + sector.str(); 
   string SlopeHistoName =  "SlopeTest_" + parameters.getUntrackedParameter<string>("STEP", "STEP3") + "_W" + wheel.str() + "_Sec" + sector.str(); 
 
-  dbe->setCurrentFolder("DT/Tests/DTResolution");
+
+  ibooker.setCurrentFolder("DT/Tests/DTResolution");
 
   // Book the histo for the mean value and set the axis labels
-  MeanHistos[make_pair(ch.wheel(),ch.sector())] = dbe->book1D(MeanHistoName.c_str(),MeanHistoName.c_str(),11,0,11);
+
+  MeanHistos[make_pair(ch.wheel(),ch.sector())] = ibooker.book1D(MeanHistoName.c_str(),MeanHistoName.c_str(),11,0,11);
   (MeanHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(1,"MB1_SL1",1);
   (MeanHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(2,"MB1_SL2",1);
   (MeanHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(3,"MB1_SL3",1);
@@ -529,7 +554,8 @@ void DTResolutionTest::bookHistos(const DTChamberId & ch) {
 
   // Book the histo for the sigma value and set the axis labels
   if(parameters.getUntrackedParameter<bool>("sigmaTest")){
-    SigmaHistos[make_pair(ch.wheel(),ch.sector())] = dbe->book1D(SigmaHistoName.c_str(),SigmaHistoName.c_str(),11,0,11);
+
+    SigmaHistos[make_pair(ch.wheel(),ch.sector())] = ibooker.book1D(SigmaHistoName.c_str(),SigmaHistoName.c_str(),11,0,11);
     (SigmaHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(1,"MB1_SL1",1);  
     (SigmaHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(2,"MB1_SL2",1);
     (SigmaHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(3,"MB1_SL3",1);
@@ -545,7 +571,8 @@ void DTResolutionTest::bookHistos(const DTChamberId & ch) {
 
   // Book the histo for the slope value and set the axis labels
   if(parameters.getUntrackedParameter<bool>("slopeTest")){
-    SlopeHistos[make_pair(ch.wheel(),ch.sector())] = dbe->book1D(SlopeHistoName.c_str(),SlopeHistoName.c_str(),11,0,11);
+
+    SlopeHistos[make_pair(ch.wheel(),ch.sector())] = ibooker.book1D(SlopeHistoName.c_str(),SlopeHistoName.c_str(),11,0,11);
     (SlopeHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(1,"MB1_SL1",1);  
     (SlopeHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(2,"MB1_SL2",1);
     (SlopeHistos[make_pair(ch.wheel(),ch.sector())])->setBinLabel(3,"MB1_SL3",1);
@@ -562,36 +589,50 @@ void DTResolutionTest::bookHistos(const DTChamberId & ch) {
   string HistoName = "W" + wheel.str() + "_Sec" + sector.str(); 
 
   if(parameters.getUntrackedParameter<bool>("meanWrongHisto")){
-    string MeanHistoNameSetRange = "MeanWrong_" + parameters.getUntrackedParameter<string>("STEP", "STEP3") + "_W" + wheel.str() + "_Sec" + sector.str() + "_SetRange";
-    MeanHistosSetRange[HistoName] = dbe->book1D(MeanHistoNameSetRange.c_str(),MeanHistoNameSetRange.c_str(),11,0.5,11.5);
-    string MeanHistoNameSetRange2D = "MeanWrong_" + parameters.getUntrackedParameter<string>("STEP", "STEP3") + "_W" + wheel.str() + "_Sec" + sector.str() + "_SetRange" + "_2D";
-    MeanHistosSetRange2D[HistoName] = dbe->book2D(MeanHistoNameSetRange2D.c_str(),MeanHistoNameSetRange2D.c_str(),11, 0.5, 11.5, 100, -0.05, 0.05);
+    string MeanHistoNameSetRange = "MeanWrong_" + parameters.getUntrackedParameter<string>("STEP", "STEP3") + "_W" 
+                                                + wheel.str() + "_Sec" + sector.str() + "_SetRange";
+
+    MeanHistosSetRange[HistoName] = ibooker.book1D(MeanHistoNameSetRange.c_str(),MeanHistoNameSetRange.c_str(),11,0.5,11.5);
+    string MeanHistoNameSetRange2D = "MeanWrong_" + parameters.getUntrackedParameter<string>("STEP", "STEP3") + "_W" 
+                                                  + wheel.str() + "_Sec" + sector.str() + "_SetRange" + "_2D";
+    MeanHistosSetRange2D[HistoName] = ibooker.book2D(MeanHistoNameSetRange2D.c_str(),MeanHistoNameSetRange2D.c_str(),
+                                                     11, 0.5, 11.5, 100, -0.05, 0.05);
   }
   
   if(parameters.getUntrackedParameter<bool>("sigmaTest")){
-    string SigmaHistoNameSetRange =  "SigmaWrong_" + parameters.getUntrackedParameter<string>("STEP", "STEP3") + "_W" + wheel.str() + "_Sec" + sector.str()  + "_SetRange";
-    SigmaHistosSetRange[HistoName] = dbe->book1D(SigmaHistoNameSetRange.c_str(),SigmaHistoNameSetRange.c_str(),11,0.5,11.5);
-    string SigmaHistoNameSetRange2D =  "SigmaWrong_" + parameters.getUntrackedParameter<string>("STEP", "STEP3") + "_W" + wheel.str() + "_Sec" + sector.str()  + "_SetRange" + "_2D";
-    SigmaHistosSetRange2D[HistoName] = dbe->book2D(SigmaHistoNameSetRange2D.c_str(),SigmaHistoNameSetRange2D.c_str(),11, 0.5, 11.5, 500, 0, 0.5);
+    string SigmaHistoNameSetRange =  "SigmaWrong_" + parameters.getUntrackedParameter<string>("STEP", "STEP3") + "_W" 
+                                                   + wheel.str() + "_Sec" + sector.str()  + "_SetRange";
+
+    SigmaHistosSetRange[HistoName] = ibooker.book1D(SigmaHistoNameSetRange.c_str(),SigmaHistoNameSetRange.c_str(),11,0.5,11.5);
+    string SigmaHistoNameSetRange2D =  "SigmaWrong_" + parameters.getUntrackedParameter<string>("STEP", "STEP3") 
+                                                     + "_W" + wheel.str() + "_Sec" + sector.str()  + "_SetRange" + "_2D";
+
+    SigmaHistosSetRange2D[HistoName] = ibooker.book2D(SigmaHistoNameSetRange2D.c_str(),SigmaHistoNameSetRange2D.c_str(),
+                                                      11, 0.5, 11.5, 500, 0, 0.5);
   }
 
   if(parameters.getUntrackedParameter<bool>("slopeTest")){
-    string SlopeHistoNameSetRange =  "SlopeWrong_" + parameters.getUntrackedParameter<string>("STEP", "STEP3") + "_W" + wheel.str() + "_Sec" + sector.str()  + "_SetRange";
-    SlopeHistosSetRange[HistoName] = dbe->book1D(SlopeHistoNameSetRange.c_str(),SlopeHistoNameSetRange.c_str(),11,0.5,11.5);
-    string SlopeHistoNameSetRange2D =  "SlopeWrong_" + parameters.getUntrackedParameter<string>("STEP", "STEP3") + "_W" + wheel.str() + "_Sec" + sector.str()  + "_SetRange" + "_2D";
-    SlopeHistosSetRange2D[HistoName] = dbe->book2D(SlopeHistoNameSetRange2D.c_str(),SlopeHistoNameSetRange2D.c_str(),11, 0.5, 11.5, 200, -0.1, 0.1);
-  }
+    string SlopeHistoNameSetRange =  "SlopeWrong_" + parameters.getUntrackedParameter<string>("STEP", "STEP3") 
+                                                   + "_W" + wheel.str() + "_Sec" + sector.str()  + "_SetRange";
 
+    SlopeHistosSetRange[HistoName] = ibooker.book1D(SlopeHistoNameSetRange.c_str(),SlopeHistoNameSetRange.c_str(),11,0.5,11.5);
+    string SlopeHistoNameSetRange2D =  "SlopeWrong_" + parameters.getUntrackedParameter<string>("STEP", "STEP3") + "_W" 
+                                                     + wheel.str() + "_Sec" + sector.str()  + "_SetRange" + "_2D";
+
+    SlopeHistosSetRange2D[HistoName] = ibooker.book2D(SlopeHistoNameSetRange2D.c_str(),SlopeHistoNameSetRange2D.c_str(),
+                                                       11, 0.5, 11.5, 200, -0.1, 0.1);
+  }
 }
 
-
-void DTResolutionTest::bookHistos(int wh) {
+void DTResolutionTest::bookHistos(DQMStore::IBooker & ibooker, int wh) {
   
-  dbe->setCurrentFolder("DT/CalibrationSummary");
+
+  ibooker.setCurrentFolder("DT/CalibrationSummary");
 
   if(wheelMeanHistos.find(3) == wheelMeanHistos.end()){
     string histoName =  "MeanSummaryRes_testFailedByAtLeastBadSL_" + parameters.getUntrackedParameter<string>("STEP", "STEP3");
-    wheelMeanHistos[3] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,5,-2,3);
+
+    wheelMeanHistos[3] = ibooker.book2D(histoName.c_str(),histoName.c_str(),14,0,14,5,-2,3);
     wheelMeanHistos[3]->setBinLabel(1,"Sector1",1);
     wheelMeanHistos[3]->setBinLabel(1,"Sector1",1);
     wheelMeanHistos[3]->setBinLabel(2,"Sector2",1);
@@ -617,7 +658,8 @@ void DTResolutionTest::bookHistos(int wh) {
   if(parameters.getUntrackedParameter<bool>("sigmaTest")){
     if(wheelSigmaHistos.find(3) == wheelSigmaHistos.end()){
       string histoName =  "SigmaSummaryRes_testFailedByAtLeastBadSL_" + parameters.getUntrackedParameter<string>("STEP", "STEP3");
-      wheelSigmaHistos[3] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,5,-2,3);
+
+      wheelSigmaHistos[3] = ibooker.book2D(histoName.c_str(),histoName.c_str(),14,0,14,5,-2,3);
       wheelSigmaHistos[3]->setBinLabel(1,"Sector1",1);
       wheelSigmaHistos[3]->setBinLabel(1,"Sector1",1);
       wheelSigmaHistos[3]->setBinLabel(2,"Sector2",1);
@@ -644,7 +686,8 @@ void DTResolutionTest::bookHistos(int wh) {
   if(parameters.getUntrackedParameter<bool>("slopeTest")){
     if(wheelSlopeHistos.find(3) == wheelSlopeHistos.end()){
       string histoName =  "SlopeSummaryRes_testFailedByAtLeastBadSL_" + parameters.getUntrackedParameter<string>("STEP", "STEP3");
-      wheelSlopeHistos[3] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,5,-2,3);
+
+      wheelSlopeHistos[3] = ibooker.book2D(histoName.c_str(),histoName.c_str(),14,0,14,5,-2,3);
       wheelSlopeHistos[3]->setBinLabel(1,"Sector1",1);
       wheelSlopeHistos[3]->setBinLabel(1,"Sector1",1);
       wheelSlopeHistos[3]->setBinLabel(2,"Sector2",1);
@@ -671,8 +714,10 @@ void DTResolutionTest::bookHistos(int wh) {
   stringstream wheel; wheel <<wh;
   
   if(wheelMeanHistos.find(wh) == wheelMeanHistos.end()){
-    string histoName =  "MeanSummaryRes_testFailed_" + parameters.getUntrackedParameter<string>("STEP", "STEP3") + "_W" + wheel.str();
-    wheelMeanHistos[wh] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,11,0,11);
+    string histoName =  "MeanSummaryRes_testFailed_" + parameters.getUntrackedParameter<string>("STEP", "STEP3") 
+                                                     + "_W" + wheel.str();
+
+    wheelMeanHistos[wh] = ibooker.book2D(histoName.c_str(),histoName.c_str(),14,0,14,11,0,11);
     wheelMeanHistos[wh]->setBinLabel(1,"Sector1",1);
     wheelMeanHistos[wh]->setBinLabel(2,"Sector2",1);
     wheelMeanHistos[wh]->setBinLabel(3,"Sector3",1);
@@ -702,8 +747,10 @@ void DTResolutionTest::bookHistos(int wh) {
 
   if(parameters.getUntrackedParameter<bool>("sigmaTest")){
     if(wheelSigmaHistos.find(wh) == wheelSigmaHistos.end()){
-      string histoName =  "SigmaSummaryRes_testFailed_" + parameters.getUntrackedParameter<string>("STEP", "STEP3") + "_W" + wheel.str();
-      wheelSigmaHistos[wh] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,11,0,11);
+      string histoName =  "SigmaSummaryRes_testFailed_" + parameters.getUntrackedParameter<string>("STEP", "STEP3") 
+                                                        + "_W" + wheel.str();
+
+      wheelSigmaHistos[wh] = ibooker.book2D(histoName.c_str(),histoName.c_str(),14,0,14,11,0,11);
       wheelSigmaHistos[wh]->setBinLabel(1,"Sector1",1);
       wheelSigmaHistos[wh]->setBinLabel(2,"Sector2",1);
       wheelSigmaHistos[wh]->setBinLabel(3,"Sector3",1);
@@ -734,8 +781,10 @@ void DTResolutionTest::bookHistos(int wh) {
 
   if(parameters.getUntrackedParameter<bool>("slopeTest")){
     if(wheelSlopeHistos.find(wh) == wheelSlopeHistos.end()){
-      string histoName =  "SlopeSummaryRes_testFailed_" + parameters.getUntrackedParameter<string>("STEP", "STEP3") + "_W" + wheel.str();
-      wheelSlopeHistos[wh] = dbe->book2D(histoName.c_str(),histoName.c_str(),14,0,14,11,0,11);
+      string histoName =  "SlopeSummaryRes_testFailed_" + parameters.getUntrackedParameter<string>("STEP", "STEP3") 
+                                                        + "_W" + wheel.str();
+
+      wheelSlopeHistos[wh] = ibooker.book2D(histoName.c_str(),histoName.c_str(),14,0,14,11,0,11);
       wheelSlopeHistos[wh]->setBinLabel(1,"Sector1",1);
       wheelSlopeHistos[wh]->setBinLabel(2,"Sector2",1);
       wheelSlopeHistos[wh]->setBinLabel(3,"Sector3",1);
