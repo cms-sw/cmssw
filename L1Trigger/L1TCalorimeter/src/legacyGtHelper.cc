@@ -22,8 +22,8 @@ namespace l1t {
       // to the max value
       if((itJet->hwQual() & 0x10) == 0x10)
       {
-	newEta = 0xf;
-	newPhi = 0x1f;
+	newEta = 0x0;
+	newPhi = 0x0;
       }
 
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
@@ -64,8 +64,8 @@ namespace l1t {
       //hwQual &10 == 10 means that the object came from a sort and is padding
       if((itEGamma->hwQual() & 0x10) == 0x10)
       {
-	newEta = 0;
-	newPhi = 0;
+	newEta = 0x0;
+	newPhi = 0x0;
       }
 
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
