@@ -114,7 +114,7 @@ UInt_t SoftElectronMVAEstimator::GetMVABin(int pu, double eta, double pt) const 
 double SoftElectronMVAEstimator::mva(const reco::GsfElectron& myElectron,const edm::Event & evt)  {
 
  edm::Handle<reco::VertexCollection> FullprimaryVertexCollection;
- evt.getByLabel(cfg_.fullPrimaryVertexTag_, FullprimaryVertexCollection);
+ evt.getByToken(cfg_.vtxCollection, FullprimaryVertexCollection);
  const reco::VertexCollection pvc = *(FullprimaryVertexCollection.product());
  
   fbrem                 	=myElectron.fbrem();

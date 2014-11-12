@@ -13,7 +13,7 @@ class SoftElectronMVAEstimator {
  public:
   struct Configuration{
     std::vector<std::string> vweightsfiles;
-    edm::InputTag fullPrimaryVertexTag_;
+    edm::EDGetTokenT<reco::VertexCollection> vtxCollection;
   };
   SoftElectronMVAEstimator(const Configuration & );
   ~SoftElectronMVAEstimator() ;
