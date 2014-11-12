@@ -6,8 +6,6 @@ from TrackingTools.GsfTracking.GsfElectronTracking_cff import *
 ecalDrivenElectronSeeds.SeedConfiguration.initialSeeds = "hiPixelTrackSeeds"
 electronCkfTrackCandidates.src = "ecalDrivenElectronSeeds"
 
-ecalDrivenElectronSeeds.barrelSuperClusters = cms.InputTag("correctedIslandBarrelSuperClusters")
-
 ecalDrivenElectronSeeds.SeedConfiguration.maxHOverEBarrel = cms.double(0.25)
 ecalDrivenElectronSeeds.SeedConfiguration.maxHOverEEndcaps = cms.double(0.25)
 
