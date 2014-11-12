@@ -42,6 +42,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
@@ -227,7 +228,9 @@ BigEventsDebugger<T>::endJob() {
 
 typedef BigEventsDebugger<edmNew::DetSetVector<SiStripCluster> > ClusterBigEventsDebugger;
 typedef BigEventsDebugger<edm::DetSetVector<SiStripDigi> > DigiBigEventsDebugger;
+typedef BigEventsDebugger<edm::DetSetVector<SiStripRawDigi> > RawDigiBigEventsDebugger;
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(ClusterBigEventsDebugger);
 DEFINE_FWK_MODULE(DigiBigEventsDebugger);
+DEFINE_FWK_MODULE(RawDigiBigEventsDebugger);
