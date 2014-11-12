@@ -164,6 +164,6 @@ particleFlowClusterHGCEE = cms.EDProducer(
     initialClusteringStep = _fromScratchHGCClusterizer_HGCEE,
     pfClusterBuilder = cms.PSet( ), #_arborClusterizer_HGCEE,
     positionReCalc = cms.PSet( ), #_simplePosCalcHGCEE,
-    energyCorrector = _HGCEE_EMEnergyCalibrator#_HGCEE_ElectronEnergy
+    energyCorrector = _HGCEE_HADEnergyCalibrator#_HGCEE_ElectronEnergy
 )
 
