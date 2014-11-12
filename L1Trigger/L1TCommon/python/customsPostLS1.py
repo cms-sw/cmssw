@@ -1,6 +1,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
+
 # customize to use upgrade L1 emulation 
 
 from L1Trigger.Configuration.L1Trigger_custom import customiseL1Menu
@@ -13,6 +14,11 @@ def customiseSimL1EmulatorForPostLS1(process):
     process=customiseL1Menu(process)
     #print "INFO:  loading RCT LUTs"
     process.load("L1Trigger.L1TCalorimeter.caloStage1RCTLuts_cff")
+
+    process.load("L1Trigger.L1TCommon.l1tRawToDigi_cfi")
+    process.load("L1Trigger.L1TCommon.caloStage1LegacyFormatDigis_cfi")
+
+
     if hasattr(process,'L1simulation_step'):
         #print "INFO:  Removing GCT from simulation and adding new Stage 1"
         process.load('L1Trigger.L1TCalorimeter.caloStage1Params_cfi')
@@ -41,15 +47,71 @@ def customiseSimL1EmulatorForPostLS1(process):
     if hasattr(process, 'RawToDigi'):
         print "INFO:  customizing L1RawToDigi for Stage 1"
         print process.RawToDigi
-        process.load("L1Trigger.L1TCommon.l1tRawToDigi_cfi")
-        #process.l1tRawToDigi.Setup = cms.string("stage1::CaloSetup")
-        process.load("L1Trigger.L1TCommon.caloStage1LegacyFormatDigis_cfi")
         process.L1RawToDigiSeq = cms.Sequence(process.gctDigis+process.TESTcaloStage1Digis+process.caloStage1LegacyFormatDigis)
         process.RawToDigi.replace(process.gctDigis, process.L1RawToDigiSeq)
         print process.RawToDigi
 
-    blist=['l1extraParticles','recoL1ExtraParticles','hltL1ExtraParticles','dqmL1ExtraParticles']
+
+#hltGtDigis+hltGctDigis+hltL1GtObjectMap+hltL1extraParticles
+#csctfDigis+dttfDigis+gctDigis+TESTcaloStage1Digis+caloStage1LegacyFormatDigis+gtDigis+gtEvmDigis+siPixelDigis+siStripDigis+ecalDigis+ecalPreshowerDigis+hcalDigis+muonCSCDigis+muonDTDigis+muonRPCDigis+castorDigis+scalersRawToDigi+hltL1extraParticles
+    if hasattr(process, 'HLTL1UnpackerSequence'):
+        print "INFO: customizing HLTL1UnpackerSequence for Stage 1"
+        print process.HLTL1UnpackerSequence
+
+        # extend sequence to add Layer 1 unpacking and conversion back to legacy format
+        process.hltCaloStage1Digis = process.TESTcaloStage1Digis.clone()
+        process.hltCaloStage1LegacyFormatDigis = process.caloStage1LegacyFormatDigis.clone()
+        process.hltCaloStage1LegacyFormatDigis.InputCollection = cms.InputTag("hltCaloStage1Digis")
+        process.hltCaloStage1LegacyFormatDigis.InputRlxTauCollection = cms.InputTag("hltCaloStage1Digis:rlxTaus")
+        process.hltCaloStage1LegacyFormatDigis.InputIsoTauCollection = cms.InputTag("hltCaloStage1Digis:isoTaus")
+        process.hltCaloStage1LegacyFormatDigis.InputHFSumsCollection = cms.InputTag("hltCaloStage1Digis:HFRingSums")
+        process.hltCaloStage1LegacyFormatDigis.InputHFCountsCollection = cms.InputTag("hltCaloStage1Digis:HFBitCounts")
+        #process.hltL1RawToDigiSeq = cms.Sequence(process.hltGctDigis+process.hltCaloStage1 + process.hltCaloStage1LegacyFormatDigis)
+        process.hltL1RawToDigiSeq = cms.Sequence(process.hltCaloStage1Digis + process.hltCaloStage1LegacyFormatDigis)
+        process.HLTL1UnpackerSequence.replace(process.hltGctDigis, process.hltL1RawToDigiSeq)
+
+
+        # Alternate (possibly necessary approach) not yet debugged...
+        # redefine the HLTL1UnpackerSequence
+        #HLTL1UnpackerSequence = cms.Sequence( process.hltGtDigis+process.hltGctDigis+process.hltL1GtObjectMap+process.hltL1extraParticles + process.hltL1extraParticles )
+        #HLTL1UnpackerSequence = cms.Sequence( process.hltGtDigis++process.hltL1GtObjectMap+process.hltL1extraParticles + process.hltL1extraParticles )
+        #process.load("L1Trigger.L1TCommon.l1tRawToDigi_cfi")
+        #process.l1tRawToDigi.Setup = cms.string("stage1::CaloSetup")
+        #process.load("L1Trigger.L1TCommon.caloStage1LegacyFormatDigis_cfi")
+        #process.L1RawToDigiSeq = cms.Sequence(process.gctDigis+process.TESTcaloStage1Digis+process.caloStage1LegacyFormatDigis)
+        #for iterable in process.sequences.itervalues():
+        #    iterable.replace( process.HLTL1UnpackerSequence, HLTL1UnpackerSequence)
+
+        #for iterable in process.paths.itervalues():
+        #    iterable.replace( process.HLTL1UnpackerSequence, HLTL1UnpackerSequence)
+
+        #for iterable in process.endpaths.itervalues():
+        #    iterable.replace( process.HLTL1UnpackerSequence, HLTL1UnpackerSequence)
+
+        #process.HLTL1UnpackerSequence = HLTL1UnpackerSequence
+        print process.HLTL1UnpackerSequence
+
+    alist=['hltL1extraParticles']
+    for a in alist:
+        print "INFO: checking for", a, "in process."
+        if hasattr(process,a):
+            print "INFO:  customizing ", a, "to use new calo Stage 1 digis converted to legacy format"
+            getattr(process, a).etTotalSource = cms.InputTag("hltCaloStage1LegacyFormatDigis")
+            getattr(process, a).nonIsolatedEmSource = cms.InputTag("hltCaloStage1LegacyFormatDigis","nonIsoEm")
+            getattr(process, a).etMissSource = cms.InputTag("hltCaloStage1LegacyFormatDigis")
+            getattr(process, a).htMissSource = cms.InputTag("hltCaloStage1LegacyFormatDigis")
+            getattr(process, a).forwardJetSource = cms.InputTag("hltCaloStage1LegacyFormatDigis","forJets")
+            getattr(process, a).centralJetSource = cms.InputTag("hltCaloStage1LegacyFormatDigis","cenJets")
+            getattr(process, a).tauJetSource = cms.InputTag("hltCaloStage1LegacyFormatDigis","tauJets")
+            getattr(process, a).isoTauJetSource = cms.InputTag("hltCaloStage1LegacyFormatDigis","isoTauJets")
+            getattr(process, a).isolatedEmSource = cms.InputTag("hltCaloStage1LegacyFormatDigis","isoEm")
+            getattr(process, a).etHadSource = cms.InputTag("hltCaloStage1LegacyFormatDigis")
+            getattr(process, a).hfRingEtSumsSource = cms.InputTag("hltCaloStage1LegacyFormatDigis")
+            getattr(process, a).hfRingBitCountsSource = cms.InputTag("hltCaloStage1LegacyFormatDigis")
+
+    blist=['l1extraParticles','recoL1extraParticles','dqmL1extraParticles']
     for b in blist:
+        print "INFO: checking for", b, "in process."
         if hasattr(process,b):
             print "INFO:  customizing ", b, "to use new calo Stage 1 digis converted to legacy format"
             getattr(process, b).etTotalSource = cms.InputTag("caloStage1LegacyFormatDigis")
@@ -59,10 +121,14 @@ def customiseSimL1EmulatorForPostLS1(process):
             getattr(process, b).forwardJetSource = cms.InputTag("caloStage1LegacyFormatDigis","forJets")
             getattr(process, b).centralJetSource = cms.InputTag("caloStage1LegacyFormatDigis","cenJets")
             getattr(process, b).tauJetSource = cms.InputTag("caloStage1LegacyFormatDigis","tauJets")
+            getattr(process, b).isoTauJetSource = cms.InputTag("caloStage1LegacyFormatDigis","isoTauJets")
             getattr(process, b).isolatedEmSource = cms.InputTag("caloStage1LegacyFormatDigis","isoEm")
             getattr(process, b).etHadSource = cms.InputTag("caloStage1LegacyFormatDigis")
             getattr(process, b).hfRingEtSumsSource = cms.InputTag("caloStage1LegacyFormatDigis")
             getattr(process, b).hfRingBitCountsSource = cms.InputTag("caloStage1LegacyFormatDigis")
+
+
+
 
 
 #    process.MessageLogger = cms.Service(
@@ -78,7 +144,7 @@ def customiseSimL1EmulatorForPostLS1(process):
 #            'l1tDigiToRaw', 'l1tRawToDigi'
 #            )
 #        )
-
+#    print process.HLTSchedule
     return process
 
 #    #
