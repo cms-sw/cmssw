@@ -384,30 +384,41 @@ L1RCTParameters::print(std::ostream& s)  const {
     s << "\nWhen set to TRUE, HCAL energy is ignored if no ECAL energy is present in corresponding trigger tower for RCT Endcap- \n  "
             << "noiseVetoHEminus = " << noiseVetoHEminus_ << endl ;
 
+    auto printScalefactors = [&s](const std::vector<double> &sf) {
+        if ( sf.size() == 10*28 )
+        {
+            s << "et bin  ieta  ScaleFactor" <<endl;
+            for(unsigned i = 0 ; i<sf.size(); i++)
+                s << setw(6) << i/28 << "  " << setw(4) << i%28+1 << "  " << sf.at(i) <<endl;
+        }
+        else if ( sf.size() == 10*32 ) // jet HCAL (HF regions are 29-32)
+        {
+            s << "et bin  ieta  ScaleFactor" <<endl;
+            for(unsigned i = 0 ; i<sf.size(); i++)
+                s << setw(6) << i/32 << "  " << setw(4) << i%32+1 << "  " << sf.at(i) <<endl;
+        }
+        else {
+            s << "ieta  ScaleFactor" <<endl;
+            for(unsigned i = 0 ; i<sf.size(); i++)
+                s << setw(4) << i+1 << "  " << sf.at(i) <<endl;
+        }
+    };
+
     s << "\n\neta-dependent multiplicative factors for ECAL Et before summation \n  "
             << "eGammaECal Scale Factors " << endl;
-    s << "ieta  ScaleFactor" <<endl;
-    for(int i = 0 ; i<28; i++)
-        s << setw(4) << i+1 << "  " << eGammaECalScaleFactors_.at(i) <<endl;
+    printScalefactors(eGammaECalScaleFactors_);
 
     s << "\n\neta-dependent multiplicative factors for HCAL Et before summation \n  "
             <<"eGammaHCal Scale Factors "<<endl;
-    s << "ieta  ScaleFactor" <<endl;
-    for(int i = 0 ; i<28; i++)
-        s << setw(4) << i+1 << "  " << eGammaHCalScaleFactors_.at(i) <<endl;
-     
+    printScalefactors(eGammaHCalScaleFactors_);
+
     s << "\n\neta-dependent multiplicative factors for ECAL Et before summation \n  "
             <<"jetMETECal Scale Factors "<<endl;
-    s << "ieta  ScaleFactor" <<endl;
-    for(int i = 0 ; i<28; i++)
-        s<< setw(4) << i+1 << "  " << jetMETECalScaleFactors_.at(i) <<endl;
+    printScalefactors(jetMETECalScaleFactors_);
      
     s << "\n\neta-dependent multiplicative factors for HCAL Et before summation \n"
             <<"jetMETHCal Scale Factors "<<endl;
-    s << "ieta  ScaleFactor" <<endl;
-    for(int i = 0 ; i<28; i++)
-        s << setw(4) <<i+1 << "  " << jetMETHCalScaleFactors_.at(i) <<endl;
-
+    printScalefactors(jetMETHCalScaleFactors_);
 
     if(useCorrections_) {
         s<< "\n\nUSING calibration variables " <<endl;
