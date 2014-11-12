@@ -67,7 +67,7 @@ hltvalidation_fastsim = cms.Sequence(
     +HLTSusyExoValSeq_FastSim
     +HiggsValidationSequence
     +b2gHLTriggerValidation
-    + hltbtagValidationSequenceFastSim
+    +hltbtagValidationSequenceFastSim
     )
 
 hltvalidation_preprod = cms.Sequence(
