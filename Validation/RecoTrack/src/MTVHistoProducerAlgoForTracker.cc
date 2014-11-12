@@ -189,8 +189,9 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook){
   h_nmisslayers_inner.push_back( ibook.book1D("missing_inner_layers", "number of missing inner layers", nintLayers,minLayers,maxLayers ) );
   h_nmisslayers_outer.push_back( ibook.book1D("missing_outer_layers", "number of missing outer layers", nintLayers,minLayers,maxLayers ) );
 
-  h_algo.push_back( ibook.book1D("h_algo","Tracks by algo",reco::TrackBase::algoSize-1, 0., double(reco::TrackBase::algoSize-1) ) );
-  //  for (size_t ibin=0; ibin<reco::TrackBase::algoSize-1; ibin++)
+  h_algo.push_back( ibook.book1D("h_algo","Tracks by algo",reco::TrackBase::algoSize, 0., double(reco::TrackBase::algoSize) ) );
+  for (size_t ibin=0; ibin<reco::TrackBase::algoSize-1; ibin++)
+    h_algo.back()->setBinLabel(ibin+1,reco::TrackBase::algoNames[ibin]);
   //    h_algo.setBinLabel(ibin+1,reco::TrackBase::algoNames[ibin]);
 
   /// these are needed to calculate efficiency during the harvesting for the automated validation
