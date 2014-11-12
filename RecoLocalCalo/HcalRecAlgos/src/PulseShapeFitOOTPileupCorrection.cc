@@ -333,7 +333,7 @@ void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs, const std::
       }
    }
    std::vector<double> fitParsVec;
-   if( tstrig >= 4 && tsTOT >= 10 ){
+   if( tstrig >= 3) { //Two sigma from 0 
      pulseShapeFit(energyArr, pedenArr, chargeArr, pedArr, tsTOTen, fitParsVec);
      //      double time = fitParsVec[1], ampl = fitParsVec[0], uncorr_ampl = fitParsVec[0];
    }
