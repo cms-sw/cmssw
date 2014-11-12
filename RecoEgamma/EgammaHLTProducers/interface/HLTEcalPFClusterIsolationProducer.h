@@ -46,7 +46,7 @@ class HLTEcalPFClusterIsolationProducer : public edm::EDProducer {
   edm::EDGetTokenT<reco::PFClusterCollection> pfClusterProducer_;
   edm::EDGetTokenT<double> rhoProducer_;
 
-  double drVeto_;
+  double drVeto2_;
   double drMax_;
   double drVetoBarrel_;
   double drVetoEndcap_;
