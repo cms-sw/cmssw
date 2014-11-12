@@ -1584,6 +1584,7 @@ hltL1GtObjectMap = cms.EDProducer( "L1GlobalTrigger",
 )
 hltL1extraParticles = cms.EDProducer( "L1ExtraParticlesProd",
     tauJetSource = cms.InputTag( 'hltGctDigis','tauJets' ),
+    isoTauJetSource = cms.InputTag('hltCctDigis','isoTauJets'),
     etHadSource = cms.InputTag( "hltGctDigis" ),
     etTotalSource = cms.InputTag( "hltGctDigis" ),
     centralBxOnly = cms.bool( True ),
