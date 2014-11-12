@@ -122,6 +122,7 @@ public:
    void unsetPlayLoop();
 
    void setAutoSaveAllViewsFormat(const std::string& fmt) { m_autoSaveAllViewsFormat = fmt; }
+   void setAutoSaveAllViewsHeight(int x) { m_autoSaveAllViewsHeight = x; }
 
    class SignalTimer : public TTimer {
    public:
@@ -163,6 +164,7 @@ private:
    void unsetPlayLoopImp();
    
    std::string                           m_autoSaveAllViewsFormat;
+   int                                   m_autoSaveAllViewsHeight;
    bool                                  m_autoLoadTimerRunning;             
    bool                                  m_forward;
    bool                                  m_isPlaying;
