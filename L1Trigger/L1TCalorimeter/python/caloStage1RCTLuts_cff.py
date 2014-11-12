@@ -93,7 +93,7 @@ RCTConfigProducers.eGammaECalScaleFactors = (
 )
 
 # In principle, HCal can have a similar et-dependance,
-# but for now we zero it for EG
+# but we zero it for EG (EG energy is in ECal!)
 RCTConfigProducers.eGammaHCalScaleFactors = [0., 0., 0., 0., 0.,
                                                  0., 0., 0., 0., 0.,
                                                  0., 0., 0., 0., 0.,
@@ -106,7 +106,8 @@ RCTConfigProducers.jetMETECalScaleFactors = RCTConfigProducers.eGammaECalScaleFa
 # Note this was == 1 in 2012!
 
 
-# HCal has 4 HF regions, they are zeroed currently.
+# HCal has 4 HF regions, they are not used in MET but we leave the factors in
+# to possibly correct forward jets if necessary.
 # We also have the ability to use ET-dependence, but will not for now.
 HCalScaleFactorsEta = [
     1., 1., 1., 1.,
@@ -116,7 +117,7 @@ HCalScaleFactorsEta = [
     1., 1., 1., 1.,
     1., 1., 1., 1.,
     1., 1., 1., 1.,
-    0., 0., 0., 0. # HF
+    1., 1., 1., 1. # HF
 ]
 RCTConfigProducers.jetMETHCalScaleFactors = (
     HCalScaleFactorsEta  # fallback legacy values
