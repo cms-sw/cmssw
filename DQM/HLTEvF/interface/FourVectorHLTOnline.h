@@ -691,7 +691,7 @@ bool objMonData<T>::isL1TriggerType(int t)
   for(std::vector<int>::const_iterator it = l1triggerType_.begin(); it != l1triggerType_.end(); ++it)
   {
 
-   if(fabs(t) == fabs(*it)) { rc = true; break; }
+   if(std::abs(t) == std::abs(*it)) { rc = true; break; }
 
   } // end for
 
