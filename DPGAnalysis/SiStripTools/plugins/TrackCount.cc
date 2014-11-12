@@ -139,7 +139,7 @@ TrackCount::TrackCount(const edm::ParameterSet& iConfig):
   m_runHisto(iConfig.getUntrackedParameter<bool>("runHisto",false)),
   m_dump(iConfig.getUntrackedParameter<bool>("dumpTracks",false)),
   m_trkcollToken(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("trackCollection"))),
-  m_lumiProducerToken(consumes<LumiDetails>(edm::InputTag("lumiProducer"))),
+  m_lumiProducerToken(consumes<LumiDetails,edm::InLumi>(edm::InputTag("lumiProducer"))),
   m_nptbin(iConfig.getUntrackedParameter<unsigned int>("numberPtBins",200)),
   m_ptmin(iConfig.getUntrackedParameter<double>("ptMin",0.)),
   m_ptmax(iConfig.getUntrackedParameter<double>("ptMax",20.))
