@@ -148,7 +148,6 @@ void IsolatedTracksHcalScale::analyze(const edm::Event& iEvent, const edm::Event
   edm::Handle<edm::SimTrackContainer> SimTk;
   edm::SimTrackContainer::const_iterator simTrkItr;
   edm::Handle<edm::SimVertexContainer> SimVtx;
-  edm::SimVertexContainer::const_iterator vtxItr = SimVtx->begin();
 
   //get Handles to PCaloHitContainers of eb/ee/hbhe
   edm::Handle<edm::PCaloHitContainer> pcaloeb;
