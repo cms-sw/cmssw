@@ -87,8 +87,8 @@ void HLTEcalPFClusterIsolationProducer<T1>::fillDescriptions(edm::ConfigurationD
 template<>
 bool HLTEcalPFClusterIsolationProducer<reco::RecoEcalCandidate>::computedRVeto(T1Ref candRef, reco::PFClusterRef pfclu) {
 
-  float dR = deltaR(candRef->eta(), candRef->phi(), pfclu->eta(), pfclu->phi());
-  if(dR < drVeto_)
+  float dR2 = deltaR2(candRef->eta(), candRef->phi(), pfclu->eta(), pfclu->phi());
+  if(dR2 < (drVeto_*drVeto_))
     return false;
 
   if (candRef->superCluster().isNonnull()) {
@@ -106,8 +106,8 @@ bool HLTEcalPFClusterIsolationProducer<reco::RecoEcalCandidate>::computedRVeto(T
 template<typename T1>
 bool HLTEcalPFClusterIsolationProducer<T1>::computedRVeto(T1Ref candRef, reco::PFClusterRef pfclu) {
 
-  float dR = deltaR(candRef->eta(), candRef->phi(), pfclu->eta(), pfclu->phi());
-  if(dR > drMax_ || dR < drVeto_)
+  float dR2 = deltaR2(candRef->eta(), candRef->phi(), pfclu->eta(), pfclu->phi());
+  if(dR2 > (drMax_*drMax_) || dR2 < (drVeto_*drVeto_))
     return false;
   else
     return true;
