@@ -4,7 +4,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-//#include <boost/bind.hpp>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Sources/interface/VectorInputSource.h"
 #include "DataFormats/Provenance/interface/EventID.h"
@@ -195,22 +194,9 @@ namespace edm {
         read = input_->loopRandomWithID(*eventPrincipal_, lumi, pileEventCnt, recorder, randomEngine(streamID));
     } else {
       if (sequential_) {
-        // boost::bind creates a functor from recordEventForPlayback
-        // so that recordEventForPlayback can insert itself before
-        // the original eventOperator.
-
         read = input_->loopSequential(*eventPrincipal_, pileEventCnt, recorder);
-        //boost::bind(&PileUp::recordEventForPlayback<T>,
-        //                    boost::ref(*this), _1, boost::ref(ids),
-        //                             boost::ref(eventOperator))
-        //  );
-          
       } else  {
         read = input_->loopRandom(*eventPrincipal_, pileEventCnt, recorder, randomEngine(streamID));
-        //               boost::bind(&PileUp::recordEventForPlayback<T>,
-        //                             boost::ref(*this), _1, boost::ref(ids),
-        //                             boost::ref(eventOperator))
-        //                 );
       }
     }
     if (read != pileEventCnt)
