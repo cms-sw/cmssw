@@ -99,14 +99,26 @@ class PatternTree{
    **/
   bool checkPattern(Pattern* lp, Pattern* hp);
 
+  /**
+     \brief Replace the internal map of patterns with a vector of patterns (reduces memory consumption).
+     \brief If a method searching for a pattern is called, we will automatically switch back to a map.
+   **/
+  void switchToVector();
+
  private:
   map<string, PatternTrunk*> patterns;
+  vector<PatternTrunk*> v_patterns;
 
   /**
      \brief Add a pattern and update de DC bits if necessary
      \param ldp The pattern to add
   **/
   void addPatternForMerging(GradedPattern* ldp);
+
+  /**
+     \brief Update the internal map and clear the internal vector
+  **/
+  void switchToMap();
 
   friend class boost::serialization::access;
  

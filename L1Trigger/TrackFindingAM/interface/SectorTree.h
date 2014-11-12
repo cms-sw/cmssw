@@ -34,6 +34,7 @@ class SectorTree{
 
  private:
   multimap<string, Sector*> sectors;
+  bool mapNeedsUpdate;
   vector<Sector*> sector_list;
   /**
      \brief used to know the superstrip size used for the patterns contained in this sectorTree.
@@ -53,7 +54,6 @@ class SectorTree{
   template<class Archive> void load(Archive & ar, const unsigned int version){
     ar >> sector_list;
     ar >> superStripSize;
-    updateSectorMap();
   }
   
   BOOST_SERIALIZATION_SPLIT_MEMBER()

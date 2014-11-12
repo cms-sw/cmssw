@@ -15,6 +15,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/HcalCalibObjects/interface/HEDarkening.h"
+#include "DataFormats/HcalCalibObjects/interface/HBDarkening.h"
 #include "DataFormats/HcalCalibObjects/interface/HFRecalibration.h"
 
 #include <vector>
@@ -140,6 +141,7 @@ private:
   
   double deliveredLumi;
   HEDarkening* m_HEDarkening;
+  HBDarkening* m_HBDarkening;
   HFRecalibration* m_HFRecalibration;
 };
 
