@@ -1,3 +1,4 @@
+
 #ifndef DTCalibValidation_H
 #define DTCalibValidation_H
 
@@ -13,6 +14,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/LuminosityBlock.h>
+
+#include <DQMServices/Core/interface/DQMStore.h>
+#include <DQMServices/Core/interface/MonitorElement.h>
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
@@ -34,8 +39,9 @@ class MonitorElement;
 class DTGeometry;
 class DTChamber;
 
+// FR class DTCalibValidation: public edm::EDAnalyzer{
+class DTCalibValidation: public DQMEDAnalyzer{
 
-class DTCalibValidation: public edm::EDAnalyzer{
  public:
   /// Constructor
   DTCalibValidation(const edm::ParameterSet& pset);
@@ -47,7 +53,8 @@ class DTCalibValidation: public edm::EDAnalyzer{
   void beginJob();
 
   /// BeginRun
-  void beginRun(const edm::Run&, const edm::EventSetup&);
+  void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) ;
+  //void beginRun(const edm::Run&, const edm::EventSetup&);
 
   /// Endjob
   void endJob();
@@ -57,6 +64,8 @@ class DTCalibValidation: public edm::EDAnalyzer{
 
 
  protected:
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
+
 
  private:
 

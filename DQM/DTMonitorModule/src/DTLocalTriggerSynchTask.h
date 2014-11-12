@@ -19,6 +19,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -44,7 +45,8 @@ class L1MuDTChambPhDigi;
 class L1MuDTChambThDigi;
 
 
-class DTLocalTriggerSynchTask: public edm::EDAnalyzer{
+//-class DTLocalTriggerSynchTask: public edm::EDAnalyzer{
+class DTLocalTriggerSynchTask: public DQMEDAnalyzer{
 
   friend class DTMonitorModule;
 
@@ -56,22 +58,26 @@ class DTLocalTriggerSynchTask: public edm::EDAnalyzer{
   /// Destructor
   virtual ~DTLocalTriggerSynchTask();
 
+  /// bookHistograms
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+
  protected:
 
   // BeginJob
-  void beginJob();
+//-  void beginJob();
 
   /// Book the histograms
-  void bookHistos(const DTChamberId& dtCh );
+//-  void bookHistos(const DTChamberId& dtCh );
+  void bookHistos(DQMStore::IBooker &,const DTChamberId& dtCh );
 
   /// Analyze
   void analyze(const edm::Event& event, const edm::EventSetup& context);
 
   /// Begin Run
-  void beginRun(const edm::Run& run, const edm::EventSetup& context);
+//-  void beginRun(const edm::Run& run, const edm::EventSetup& context);
 
   /// EndJob
-  void endJob(void);
+//-  void endJob(void);
 
   std::string & baseDir() { return baseDirectory; }
 

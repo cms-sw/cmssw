@@ -51,6 +51,15 @@ DTLocalTriggerSynchTask::DTLocalTriggerSynchTask(const edm::ParameterSet& ps) : 
       parameters.getParameter<edm::InputTag>("DDUInputTag"));
   seg_Token_  = consumes<DTRecSegment4DCollection>(
       parameters.getParameter<edm::InputTag>("SEGInputTag"));
+
+  bxTime        = parameters.getParameter<double>("bxTimeInterval");   // CB move this to static const or DB
+  rangeInBX     = parameters.getParameter<bool>("rangeWithinBX");
+  nBXLow        = parameters.getParameter<int>("nBXLow");
+  nBXHigh       = parameters.getParameter<int>("nBXHigh");
+  angleRange    = parameters.getParameter<double>("angleRange");
+  minHitsPhi    = parameters.getParameter<int>("minHitsPhi");
+  baseDirectory = parameters.getParameter<string>("baseDir");
+
 }
 
 
@@ -61,27 +70,18 @@ DTLocalTriggerSynchTask::~DTLocalTriggerSynchTask() {
 }
 
 
-void DTLocalTriggerSynchTask::beginJob(){
+void DTLocalTriggerSynchTask::bookHistograms(DQMStore::IBooker & ibooker,
+                                             edm::Run const & run,
+                                             edm::EventSetup const & context){
 
-  edm::LogVerbatim ("DTLocalTriggerSynchTask") << "[DTLocalTriggerSynchTask]: BeginJob" << endl;
+  edm::LogVerbatim ("DTLocalTriggerSynchTask") << "[DTLocalTriggerSynchTask]: bookHistograms" << endl;
 
-  bxTime        = parameters.getParameter<double>("bxTimeInterval");   // CB move this to static const or DB
-  rangeInBX     = parameters.getParameter<bool>("rangeWithinBX");
-  nBXLow        = parameters.getParameter<int>("nBXLow");
-  nBXHigh       = parameters.getParameter<int>("nBXHigh");
-  angleRange    = parameters.getParameter<double>("angleRange");
-  minHitsPhi    = parameters.getParameter<int>("minHitsPhi");
-  baseDirectory = parameters.getParameter<string>("baseDir");
+//-  dbe = edm::Service<DQMStore>().operator->();
+  ibooker.setCurrentFolder(baseDir());
+  ibooker.bookFloat("BXTimeSpacing")->Fill(bxTime);
 
-  dbe = edm::Service<DQMStore>().operator->();
-  dbe->setCurrentFolder(baseDir());
-  dbe->bookFloat("BXTimeSpacing")->Fill(bxTime);
-
-}
-
-void DTLocalTriggerSynchTask::beginRun(const Run& run, const EventSetup& context) {
-
-  edm::LogVerbatim ("DTLocalTriggerSynchTask") <<"[DTLocalTriggerSynchTask]: Begin Run"<<endl;
+//-void DTLocalTriggerSynchTask::beginRun(const Run& run, const EventSetup& context) {
+//-  edm::LogVerbatim ("DTLocalTriggerSynchTask") <<"[DTLocalTriggerSynchTask]: Begin Run"<<endl;
 
   context.get<MuonGeometryRecord>().get(muonGeom);
   tTrigSync = DTTTrigSyncFactory::get()->create(parameters.getParameter<std::string>("tTrigMode"),
@@ -93,20 +93,13 @@ void DTLocalTriggerSynchTask::beginRun(const Run& run, const EventSetup& context
   std::vector<const DTChamber*>::const_iterator chambEnd = muonGeom->chambers().end();
 
   for (; chambIt!=chambEnd; ++chambIt) {
-    bookHistos((*chambIt)->id());
+    bookHistos(ibooker,(*chambIt)->id());
     triggerHistos[(*chambIt)->id().rawId()]["tTrig_SL1"]->Fill(tTrigSync->offset(DTWireId((*chambIt)->id(),1,1,2)));
     triggerHistos[(*chambIt)->id().rawId()]["tTrig_SL3"]->Fill(tTrigSync->offset(DTWireId((*chambIt)->id(),3,1,2)));
   }
 
 }
 
-
-void DTLocalTriggerSynchTask::endJob() {
-
-  edm::LogVerbatim ("DTLocalTriggerSynchTask")  << "[DTLocalTriggerSynchTask]: analyzed " << nevents << " events" << endl;
-  dbe->rmdir(baseDir());
-
-}
 
 
 void DTLocalTriggerSynchTask::analyze(const edm::Event& event, const edm::EventSetup& context){
@@ -241,7 +234,7 @@ void DTLocalTriggerSynchTask::analyze(const edm::Event& event, const edm::EventS
 
 }
 
-void DTLocalTriggerSynchTask::bookHistos(const DTChamberId& dtChId) {
+void DTLocalTriggerSynchTask::bookHistos(DQMStore::IBooker & ibooker,const DTChamberId& dtChId) {
 
   stringstream wheel; wheel << dtChId.wheel();
   stringstream station; station << dtChId.station();
@@ -265,14 +258,14 @@ void DTLocalTriggerSynchTask::bookHistos(const DTChamberId& dtChId) {
 					    << "/Station"<< station.str()
 					    << "/" << histoName << endl;
 
-    triggerHistos[chRawId][histoTag[iHisto]] = dbe->book1D(histoName.c_str(),"Track time distribution",nbins,min,max);
+    triggerHistos[chRawId][histoTag[iHisto]] = ibooker.book1D(histoName.c_str(),"Track time distribution",nbins,min,max);
   }
 
   string floatTag[2] = { "tTrig_SL1", "tTrig_SL3" };
 
   for (int iFloat=0;iFloat<2;++iFloat) {
     string floatName = floatTag[iFloat] + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
-    triggerHistos[chRawId][floatTag[iFloat]] = dbe->bookFloat(floatName);
+    triggerHistos[chRawId][floatTag[iFloat]] = ibooker.bookFloat(floatName);
   }
 
 }

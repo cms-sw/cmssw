@@ -19,6 +19,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -37,7 +38,8 @@ class DTChamberId;
 class L1MuDTChambPhDigi;
 
 
-class DTLocalTriggerLutTask: public edm::EDAnalyzer{
+//-class DTLocalTriggerLutTask: public edm::EDAnalyzer{
+class DTLocalTriggerLutTask: public DQMEDAnalyzer{
 
   friend class DTMonitorModule;
 
@@ -49,13 +51,16 @@ class DTLocalTriggerLutTask: public edm::EDAnalyzer{
   /// Destructor
   virtual ~DTLocalTriggerLutTask();
 
+  /// bookHistograms
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+
  protected:
 
   // BeginJob
-  void beginJob();
+//-  void beginJob();
 
   ///BeginRun
-  void beginRun(const edm::Run& , const edm::EventSetup&);
+//-  void beginRun(const edm::Run& , const edm::EventSetup&);
 
   /// Find best (highest qual) DCC trigger segments
   void searchDccBest(std::vector<L1MuDTChambPhDigi> const* trigs);
@@ -67,7 +72,7 @@ class DTLocalTriggerLutTask: public edm::EDAnalyzer{
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) ;
 
   /// EndJob
-  void endJob(void);
+//-  void endJob(void);
 
  private:
 
@@ -75,7 +80,8 @@ class DTLocalTriggerLutTask: public edm::EDAnalyzer{
   std::string& topFolder() { return  baseFolder; }
 
   /// Book histos
-  void bookHistos(DTChamberId chId);
+//-  void bookHistos(DTChamberId chId);
+  void bookHistos(DQMStore::IBooker & ibooker,DTChamberId chId);
 
  private :
 

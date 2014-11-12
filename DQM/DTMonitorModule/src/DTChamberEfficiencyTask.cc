@@ -1,5 +1,3 @@
-
-
 /*
  *  See header file for a description of this class.
  *
@@ -38,22 +36,9 @@ DTChamberEfficiencyTask::DTChamberEfficiencyTask(const ParameterSet& pset) {
   edm::LogVerbatim ("DTDQM|DTMonitorModule|DTChamberEfficiencyTask") << "[DTChamberEfficiencyTask] Constructor called!";
 
   // Get the DQM needed services
-  theDbe = edm::Service<DQMStore>().operator->();
-
-  theDbe->setCurrentFolder("DT/DTChamberEfficiencyTask");
+  //theDbe = edm::Service<DQMStore>().operator->();
 
   parameters = pset;
-
-}
-
-
-DTChamberEfficiencyTask::~DTChamberEfficiencyTask(){
-
-  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTChamberEfficiencyTask") << "[DTChamberEfficiencyTask] Destructor called!";
-}
-
-
-void DTChamberEfficiencyTask::beginJob(){
 
   // the name of the 4D rec hits collection
   recHits4DToken_ = consumes<DTRecSegment4DCollection>(
@@ -70,6 +55,17 @@ void DTChamberEfficiencyTask::beginJob(){
 
   // the analysis mode
   detailedAnalysis = parameters.getUntrackedParameter<bool>("detailedAnalysis");
+
+}
+
+
+DTChamberEfficiencyTask::~DTChamberEfficiencyTask(){
+
+  edm::LogVerbatim ("DTDQM|DTMonitorModule|DTChamberEfficiencyTask") << "[DTChamberEfficiencyTask] Destructor called!";
+}
+
+
+void DTChamberEfficiencyTask::beginJob(){
 
 }
 
@@ -92,21 +88,26 @@ void DTChamberEfficiencyTask::beginLuminosityBlock(LuminosityBlock const& lumiSe
 }
 
 
-void DTChamberEfficiencyTask::beginRun(const edm::Run& run, const edm::EventSetup& setup){
+void DTChamberEfficiencyTask::dqmBeginRun(const edm::Run& run, const edm::EventSetup& setup){
+
+}
+
+void DTChamberEfficiencyTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun, edm::EventSetup const & context) {
 
   // Get the DT Geometry
-  setup.get<MuonGeometryRecord>().get(dtGeom);
+  context.get<MuonGeometryRecord>().get(dtGeom);
+
+  ibooker.setCurrentFolder("DT/DTChamberEfficiencyTask");
 
   // Loop over all the chambers
   vector<const DTChamber*>::const_iterator ch_it = dtGeom->chambers().begin();
   vector<const DTChamber*>::const_iterator ch_end = dtGeom->chambers().end();
   for (; ch_it != ch_end; ++ch_it) {
     // histo booking
-    bookHistos((*ch_it)->id());
+    bookHistos(ibooker, (*ch_it)->id());
   }
 
 }
-
 
 
 void DTChamberEfficiencyTask::endJob(){
@@ -117,7 +118,7 @@ void DTChamberEfficiencyTask::endJob(){
 
 
 // Book a set of histograms for a given Layer
-void DTChamberEfficiencyTask::bookHistos(DTChamberId chId) {
+void DTChamberEfficiencyTask::bookHistos(DQMStore::IBooker & ibooker, DTChamberId chId) {
 
   edm::LogVerbatim ("DTDQM|DTMonitorModule|DTChamberEfficiencyTask") << "   Booking histos for CH : " << chId;
 
@@ -131,7 +132,7 @@ void DTChamberEfficiencyTask::bookHistos(DTChamberId chId) {
     "_St" + station.str() +
     "_Sec" + sector.str();
 
-  theDbe->setCurrentFolder("DT/01-DTChamberEfficiency/Task/Wheel" + wheel.str() +
+  ibooker.setCurrentFolder("DT/01-DTChamberEfficiency/Task/Wheel" + wheel.str() +
 			   "/Sector" + sector.str() +
                            "/Station" + station.str());
 
@@ -148,19 +149,19 @@ void DTChamberEfficiencyTask::bookHistos(DTChamberId chId) {
 
 
   // histo for efficiency with cuts a-/c-/d-
-  histos.push_back(theDbe->book2D("hEffGoodSegVsPosDen"+HistoName,"Eff vs local position (good) ",25,-250.,250., 25,-250.,250.));
+  histos.push_back(ibooker.book2D("hEffGoodSegVsPosDen"+HistoName,"Eff vs local position (good) ",25,-250.,250., 25,-250.,250.));
   // histo for efficiency with cuts a-/b-/c-/d-/e-/f-
-  histos.push_back(theDbe->book2D("hEffGoodCloseSegVsPosNum"+HistoName, "Eff vs local position (good and close segs) ", 25,-250.,250., 25,-250.,250.));
+  histos.push_back(ibooker.book2D("hEffGoodCloseSegVsPosNum"+HistoName, "Eff vs local position (good and close segs) ", 25,-250.,250., 25,-250.,250.));
   if(detailedAnalysis){
-    histos.push_back(theDbe->book1D("hDistSegFromExtrap"+HistoName, "Distance segments from extrap position ",200,0.,200.));
+    histos.push_back(ibooker.book1D("hDistSegFromExtrap"+HistoName, "Distance segments from extrap position ",200,0.,200.));
     // histo for efficiency from segment counting
-    histos.push_back(theDbe->book1D("hNaiveEffSeg"+HistoName, "Naive eff ",10,0.,10.));
+    histos.push_back(ibooker.book1D("hNaiveEffSeg"+HistoName, "Naive eff ",10,0.,10.));
     // histo for efficiency with cuts a-/c-
-  histos.push_back(theDbe->book2D("hEffSegVsPosDen"+HistoName,"Eff vs local position (all) ",25,-250.,250., 25,-250.,250.));
+  histos.push_back(ibooker.book2D("hEffSegVsPosDen"+HistoName,"Eff vs local position (all) ",25,-250.,250., 25,-250.,250.));
     // histo for efficiency with cuts a-/b-/c-/d-
-    histos.push_back(theDbe->book2D("hEffSegVsPosNum"+HistoName, "Eff vs local position ",25,-250.,250., 25,-250.,250.));
+    histos.push_back(ibooker.book2D("hEffSegVsPosNum"+HistoName, "Eff vs local position ",25,-250.,250., 25,-250.,250.));
     // histo for efficiency with cuts a-/b-/c-/d-/e-
-    histos.push_back(theDbe->book2D("hEffGoodSegVsPosNum"+HistoName, "Eff vs local position (good segs) ", 25,-250.,250., 25,-250.,250.));
+    histos.push_back(ibooker.book2D("hEffGoodSegVsPosNum"+HistoName, "Eff vs local position (good segs) ", 25,-250.,250., 25,-250.,250.));
   }
   histosPerCh[chId] = histos;
 }

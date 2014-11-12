@@ -50,13 +50,10 @@ void DTScalerInfoTask::beginJob() {
 }
 
 
-void DTScalerInfoTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
+void DTScalerInfoTask::dqmBeginRun(const edm::Run& run, const edm::EventSetup& context) {
 
   LogTrace("DTDQM|DTMonitorModule|DTScalerInfoTask")
     << "[DTScalerInfoTask]: BeginRun" << endl;
-
-  bookHistos();
-
 }
 
 
@@ -119,17 +116,16 @@ void DTScalerInfoTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
 }
 
+void DTScalerInfoTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun, edm::EventSetup const & context) {
 
-void DTScalerInfoTask::bookHistos() {
+  ibooker.setCurrentFolder("DT/EventInfo/Counters");
+  nEventMonitor = ibooker.bookFloat("nProcessedEventsScalerInfo");
 
-  theDQMStore->setCurrentFolder("DT/EventInfo/Counters");
-  nEventMonitor = theDQMStore->bookFloat("nProcessedEventsScalerInfo");
-
-  theDQMStore->setCurrentFolder("DT/00-DataIntegrity/ScalerInfo");
+  ibooker.setCurrentFolder("DT/00-DataIntegrity/ScalerInfo");
 
   string histoName = "AvgLumivsLumiSec";
   string histoTitle = "Average Lumi vs LumiSec";
-  trendHistos[histoName] = new DTTimeEvolutionHisto(theDQMStore,histoName,histoTitle,200,10,true,0);
+  trendHistos[histoName] = new DTTimeEvolutionHisto(ibooker,histoName,histoTitle,200,10,true,0);
 
 }
 
