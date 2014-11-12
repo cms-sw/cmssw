@@ -153,6 +153,7 @@ private:
   std::array<float,3> _moliere_radii;
 
   // for track assisted clustering
+  const bool _useTrackAssistedClustering;
   edm::ESHandle<MagneticField> _bField;
   edm::ESHandle<TrackerGeometry> _tkGeom;
   
@@ -203,7 +204,8 @@ DEFINE_EDM_PLUGIN(InitialClusteringStepFactory,
 
 HGCClusterizer::HGCClusterizer(const edm::ParameterSet& conf,
 			       edm::ConsumesCollector& sumes) :
-  InitialClusteringStepBase(conf,sumes) { 
+  InitialClusteringStepBase(conf,sumes),
+  _useTrackAssistedClustering(conf.getParameter<bool>("useTrackAssistedClustering")) { 
   // clean initial state for searching
   _cluster_nodes.clear(); _found.clear(); _cluster_kdtree.clear();
   _hit_nodes.clear(); _hit_kdtree.clear();
@@ -299,9 +301,11 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
 
   // use tracking to clean up unclustered rechits
   std::vector<bool> usable_clusters(z_linked_clusters.size(),true);
-  trackAssistedClustering(input,rechits,usable_rechits,
-			  usable_clusters,z_linked_clusters);
-
+  if( _useTrackAssistedClustering ) {
+    trackAssistedClustering(input,rechits,usable_rechits,
+			    usable_clusters,z_linked_clusters);
+  }
+  
   // stuff usable clusters into the output list
   for( unsigned i = 0; i < z_linked_clusters.size(); ++i ) {
     if( i >= usable_clusters.size() ) {
@@ -562,7 +566,7 @@ trackAssistedClustering(const edm::Handle<reco::PFRecHitCollection>& hits_handle
   for( const unsigned i : _usable_tracks ) {
     reco::PFCluster temp;
     const reco::Track& tk = tracks[i];
-    std::cout << "got track: " << tk.pt() << ' ' << tk.eta() << ' ' << tk.phi() << std::endl;
+    //std::cout << "got track: " << tk.pt() << ' ' << tk.eta() << ' ' << tk.phi() << std::endl;
     const TrajectoryStateOnSurface myTSOS = trajectoryStateTransform::outerStateOnSurface(tk, *(_tkGeom.product()),_bField.product());
     auto detbegin = myTSOS.globalPosition().z() > 0 ? _plusSurface.begin() : _minusSurface.begin();
     auto detend = myTSOS.globalPosition().z() > 0 ? _plusSurface.end() : _minusSurface.end();
@@ -604,19 +608,19 @@ trackAssistedClustering(const edm::Handle<reco::PFRecHitCollection>& hits_handle
 	  if( least_distance != std::numeric_limits<double>::max() ) {
 	    if( rechit_usable[best_index] ) {
 	      rechit_usable[best_index] = false; // do not allow other tracks to grab this
-	      const auto& pos = hits[best_index].position();
+	      //const auto& pos = hits[best_index].position();
 	      temp.addRecHitFraction(reco::PFRecHitFraction(makeRefhit(hits_handle,best_index),1.0));
-	      std::cout << "adding hit at: (" << pos.x() << ',' << pos.y() << ',' << pos.z() << ") to cluster! (least distance = " << least_distance << " cm)" << std::endl;	    
+	      //std::cout << "adding hit at: (" << pos.x() << ',' << pos.y() << ',' << pos.z() << ") to cluster! (least distance = " << least_distance << " cm)" << std::endl;	    
 	    } else if ( !rechit_usable[best_index] ) { // rechit is in a cluster or masked
 	      auto cluster_match = _rechits_to_clusters.find(best_index);
 	      if( cluster_match != _rechits_to_clusters.end() ) {
 		if( cluster_usable[cluster_match->second] ) {
-		  const auto& pos = output[cluster_match->second].position();
+		  //const auto& pos = output[cluster_match->second].position();
 		  cluster_usable[cluster_match->second] = false;
 		  for( const auto& hAndF : output[cluster_match->second].recHitFractions() ) {
 		    temp.addRecHitFraction(hAndF);
 		  }
-		  std::cout << "adding cluster at: (" << pos.x() << ',' << pos.y() << ',' << pos.z() << ") to cluster!" << std::endl;
+		  //std::cout << "adding cluster at: (" << pos.x() << ',' << pos.y() << ',' << pos.z() << ") to cluster!" << std::endl;
 		}
 	      }
 	    }

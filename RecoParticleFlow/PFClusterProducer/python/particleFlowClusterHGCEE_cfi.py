@@ -111,6 +111,7 @@ _fromScratchHGCClusterizer_HGCEE = cms.PSet(
                                  HGC_HCAL = cms.vdouble(1.0) ),
     interactionLengths = cms.PSet( HGC_ECAL = cms.vdouble(1.0),
                                    HGC_HCAL = cms.vdouble(1.0) ), 
+    useTrackAssistedClustering = cms.bool(False),
     trackAssistedClustering = cms.PSet( 
         inputTracks = cms.InputTag("generalTracks"),
         cleaningCriteriaPerIter = cms.vdouble(1.0),
@@ -155,6 +156,6 @@ particleFlowClusterHGCEE = cms.EDProducer(
     initialClusteringStep = _fromScratchHGCClusterizer_HGCEE,
     pfClusterBuilder = cms.PSet( ), #_arborClusterizer_HGCEE,
     positionReCalc = cms.PSet( ), #_simplePosCalcHGCEE,
-    energyCorrector = _HGCEE_HADEnergyCalibrator#_HGCEE_ElectronEnergy
+    energyCorrector = _HGCEE_EMEnergyCalibrator#_HGCEE_ElectronEnergy
 )
 
