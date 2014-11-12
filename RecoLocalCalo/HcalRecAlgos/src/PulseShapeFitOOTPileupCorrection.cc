@@ -376,7 +376,7 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
    float timevalfit  = 0;
    float chargevalfit= 0;
    float pedvalfit   = 0;
-   float chi2        = 0;
+   float chi2        = 999; //cannot be zero
    bool  fitStatus   = false;
 
    int BX[3] = {4,5,3};
