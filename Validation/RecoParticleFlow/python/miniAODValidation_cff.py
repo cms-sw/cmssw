@@ -16,5 +16,5 @@ genParticlesValidation.InputCollection = cms.InputTag('packedGenParticles')
 genParticlesValidation.MatchCollection = cms.InputTag('genParticles1')
 
 miniAODValidationSequence = cms.Sequence(
-                                        genParticles1 * genParticlesValidation
+                                        genParticlesValidation
 					)
