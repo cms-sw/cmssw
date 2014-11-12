@@ -11,6 +11,7 @@ from HLTriggerOffline.Higgs.HiggsValidation_cff import *
 from HLTriggerOffline.Top.topHLTValidation_cff import *
 from HLTriggerOffline.B2G.b2gHLTValidation_cff import *
 from HLTriggerOffline.Exotica.ExoticaValidation_cff import *
+from HLTriggerOffline.SMP.SMPValidation_cff import *
 
 # offline dqm:
 # from DQMOffline.Trigger.DQMOffline_Trigger_cff.py import *
@@ -41,6 +42,7 @@ hltvalidation = cms.Sequence(
     +HiggsValidationSequence
     +ExoticaValidationSequence
     +b2gHLTriggerValidation
+    +SMPValidationSequence
     )
 
 
@@ -64,6 +66,7 @@ hltvalidation_fastsim = cms.Sequence(
     +HLTSusyExoValSeq_FastSim
     +HiggsValidationSequence
     +b2gHLTriggerValidation
+    +SMPValidationSequence
     )
 
 hltvalidation_preprod = cms.Sequence(
