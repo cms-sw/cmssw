@@ -15,6 +15,7 @@ def customiseSimL1EmulatorForPostLS1(process):
     #print "INFO:  loading RCT LUTs"
     process.load("L1Trigger.L1TCalorimeter.caloStage1RCTLuts_cff")
 
+    process.load("L1Trigger.L1TCommon.l1tDigiToRaw_cfi")
     process.load("L1Trigger.L1TCommon.l1tRawToDigi_cfi")
     process.load("L1Trigger.L1TCommon.caloStage1LegacyFormatDigis_cfi")
 
@@ -34,7 +35,6 @@ def customiseSimL1EmulatorForPostLS1(process):
     if hasattr(process, 'DigiToRaw'):
         print "INFO:  customizing DigiToRaw for Stage 1"
         print process.DigiToRaw
-        process.load("EventFilter.L1TRawToDigi.l1tDigiToRaw_cfi")
         process.l1tDigiToRaw.Setup = cms.string("stage1::CaloSetup")
         process.l1tDigiToRaw.InputLabel = cms.InputTag("simCaloStage1FinalDigis", "")
         process.l1tDigiToRaw.TauInputLabel = cms.InputTag("simCaloStage1FinalDigis", "rlxTaus")
@@ -126,6 +126,8 @@ def customiseSimL1EmulatorForPostLS1(process):
             getattr(process, b).etHadSource = cms.InputTag("caloStage1LegacyFormatDigis")
             getattr(process, b).hfRingEtSumsSource = cms.InputTag("caloStage1LegacyFormatDigis")
             getattr(process, b).hfRingBitCountsSource = cms.InputTag("caloStage1LegacyFormatDigis")
+
+
 
 
 
