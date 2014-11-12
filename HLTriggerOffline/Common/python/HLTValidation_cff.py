@@ -53,7 +53,6 @@ hltassociation_fastsim = cms.Sequence(
     HLTMuonAss_FastSim
   + egammaSelectors
   + hltTauRef
-  + hltbtagValidationSequenceFastSim
 )
 
 hltvalidation_fastsim = cms.Sequence(
@@ -68,6 +67,7 @@ hltvalidation_fastsim = cms.Sequence(
     +HLTSusyExoValSeq_FastSim
     +HiggsValidationSequence
     +b2gHLTriggerValidation
+    + hltbtagValidationSequenceFastSim
     )
 
 hltvalidation_preprod = cms.Sequence(
