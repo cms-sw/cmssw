@@ -261,6 +261,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 			  conf.getParameter<bool>  ("applyPulseJitter"),
 			  conf.getParameter<bool>  ("applyUnconstrainedFit"),
 			  conf.getParameter<bool>  ("applyTimeSlew"),
+			  conf.getParameter<double>("fitThreshold"),
 			  conf.getParameter<double>("pulseJitter"),
 			  conf.getParameter<double>("meanTime"),
 			  conf.getParameter<double>("timeSigma"),

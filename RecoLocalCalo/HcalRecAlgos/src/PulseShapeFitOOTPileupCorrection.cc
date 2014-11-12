@@ -254,7 +254,7 @@ PulseShapeFitOOTPileupCorrection::~PulseShapeFitOOTPileupCorrection() {
    if(tpfunctor_)   delete tpfunctor_;
 }
 void PulseShapeFitOOTPileupCorrection::setPUParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,
-						   bool   iUnConstrainedFit,   bool iApplyTimeSlew,
+						   bool   iUnConstrainedFit,   bool iApplyTimeSlew,double iTS4Min,
 						   double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean,double iPedSig,
 						   double iNoise,double iTMin,double iTMax,
 						   double its3Chi2,double its4Chi2,double its345Chi2,
@@ -270,6 +270,7 @@ void PulseShapeFitOOTPileupCorrection::setPUParams(bool   iPedestalConstraint, b
   addPulseJitter_     = iAddPulseJitter;
   unConstrainedFit_   = iUnConstrainedFit;
   applyTimeSlew_      = iApplyTimeSlew;
+  ts4Min_             = iTS4Min;
   pulseJitter_        = iPulseJitter;
   timeMean_           = iTimeMean;
   timeSig_            = iTimeSig;
@@ -288,11 +289,11 @@ void PulseShapeFitOOTPileupCorrection::setPulseShapeTemplate(const HcalPulseShap
 
    if( cntsetPulseShape ) return;
    ++ cntsetPulseShape;
+   //if(spfunctor_)   delete spfunctor_;
+   //if(dpfunctor_)   delete dpfunctor_;
+   //if(tpfunctor_)   delete tpfunctor_;
    psfPtr_.reset(new FitterFuncs::PulseShapeFunctor(ps,pedestalConstraint_,timeConstraint_,addPulseJitter_,applyTimeSlew_,
 								 pulseJitter_,timeMean_,timeSig_,pedMean_,pedSig_,noise_));
-   delete spfunctor_;
-   delete dpfunctor_;
-   delete tpfunctor_;
    spfunctor_    = new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::singlePulseShapeFunc, 3);
    dpfunctor_    = new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::doublePulseShapeFunc, 5);
    tpfunctor_    = new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::triplePulseShapeFunc, 7);
@@ -301,9 +302,12 @@ void PulseShapeFitOOTPileupCorrection::resetPulseShapeTemplate(const HcalPulseSh
    ++ cntsetPulseShape;
    psfPtr_.reset(new FitterFuncs::PulseShapeFunctor(ps,pedestalConstraint_,timeConstraint_,addPulseJitter_,applyTimeSlew_,
 								 pulseJitter_,timeMean_,timeSig_,pedMean_,pedSig_,noise_));
-   delete spfunctor_;
-   delete dpfunctor_;
-   delete tpfunctor_;
+   //if(spfunctor_)   delete spfunctor_;
+   //if(dpfunctor_)   delete dpfunctor_;
+   //if(tpfunctor_)   delete tpfunctor_;
+   spfunctor_    = new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::singlePulseShapeFunc, 3);
+   dpfunctor_    = new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::doublePulseShapeFunc, 5);
+   tpfunctor_    = new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::triplePulseShapeFunc, 7);
 }
 void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs, const std::vector<int> & capidvec, const HcalCalibrations & calibs, std::vector<double> & correctedOutput) const
 {
@@ -333,7 +337,7 @@ void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs, const std::
       }
    }
    std::vector<double> fitParsVec;
-   if( tstrig >= 3) { //Two sigma from 0 
+   if( tstrig >= ts4Min_) { //Two sigma from 0 
      pulseShapeFit(energyArr, pedenArr, chargeArr, pedArr, tsTOTen, fitParsVec);
      //      double time = fitParsVec[1], ampl = fitParsVec[0], uncorr_ampl = fitParsVec[0];
    }
@@ -376,7 +380,7 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
    bool  fitStatus   = false;
 
    int BX[3] = {4,5,3};
-   fit(  1,timevalfit,chargevalfit,pedvalfit,chi2,fitStatus,tsMAX,tsTOTen,tmpy,BX);
+   if(ts4Chi2_ != 0) fit(  1,timevalfit,chargevalfit,pedvalfit,chi2,fitStatus,tsMAX,tsTOTen,tmpy,BX);
    if(tmpy[2] > 3.*tmpy[3]) BX[2] = 2;
    if(chi2 > ts4Chi2_ && !unConstrainedFit_)   { //fails chi2 cut goes straight to 3 Pulse fit
      fit(3,timevalfit,chargevalfit,pedvalfit,chi2,fitStatus,tsMAX,tsTOTen,tmpy,BX);

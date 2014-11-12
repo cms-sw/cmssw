@@ -56,14 +56,15 @@ void HcalSimpleRecAlgo::setRecoParams(bool correctForTimeslew, bool correctForPu
 }
 
 void HcalSimpleRecAlgo::setpuCorrParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,
-					bool iUnConstrainedFit,     bool iApplyTimeSlew,
+					bool   iUnConstrainedFit,   bool iApplyTimeSlew,double iTS4Min,
 					double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean,double iPedSig,
 					double iNoise,double iTMin,double iTMax,
 					double its3Chi2,double its4Chi2,double its345Chi2,double iChargeThreshold) { 
   psFitOOTpuCorr_->setPUParams(iPedestalConstraint,iTimeConstraint,iAddPulseJitter,iUnConstrainedFit,iApplyTimeSlew,
-			       iPulseJitter,iTimeMean,iTimeSig,iPedMean,iPedSig,iNoise,iTMin,iTMax,its3Chi2,its4Chi2,its345Chi2,
+			       iTS4Min,iPulseJitter,iTimeMean,iTimeSig,iPedMean,iPedSig,iNoise,iTMin,iTMax,its3Chi2,its4Chi2,its345Chi2,
 			       iChargeThreshold,HcalTimeSlew::Medium);
-
+  int shapeNum = HPDShapev3MCNum;
+  psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(shapeNum));
 }
 
 void HcalSimpleRecAlgo::setForData (int runnum) { 

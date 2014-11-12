@@ -80,7 +80,7 @@ public:
 
     void apply(const CaloSamples & cs, const std::vector<int> & capidvec, const HcalCalibrations & calibs, std::vector<double> & correctedOutput) const;
     void setPUParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iUnConstrainedFit,bool iApplyTimeSlew,
-		     double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean,double iPedSig,
+		     double iTS4Min,double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean,double iPedSig,
 		     double iNoise,double iTMin,double iTMax,
 		     double its3Chi2,double its4Chi2,double its345Chi2,double iChargeThreshold,HcalTimeSlew::BiasSetting slewFlavor);
     
@@ -113,6 +113,7 @@ private:
     bool addPulseJitter_;
     bool unConstrainedFit_;
     bool applyTimeSlew_;
+    double ts4Min_;
     double pulseJitter_;
     double timeMean_;
     double timeSig_;
