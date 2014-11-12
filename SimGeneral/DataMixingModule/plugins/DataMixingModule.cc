@@ -6,7 +6,9 @@
 
 #include <map>
 #include <iostream>
-#include <boost/bind.hpp>
+#include <memory>
+#include <functional>
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
@@ -463,6 +465,8 @@ namespace edm
   
   void DataMixingModule::doPileUp(edm::Event &e, const edm::EventSetup& ES)
   {
+    using namespace std::placeholders;
+
     std::vector<edm::EventID> recordEventID;
     std::vector<int> PileupList;
     PileupList.clear();
@@ -472,7 +476,7 @@ namespace edm
 
     for (int bunchCrossing=minBunch_;bunchCrossing<=maxBunch_;++bunchCrossing) {
       for (unsigned int isource=0;isource<maxNbSources_;++isource) {
-        boost::shared_ptr<PileUp> source = inputSources_[isource];
+        std::shared_ptr<PileUp> source = inputSources_[isource];
         if (not source or not source->doPileUp()) 
           continue;
 
@@ -490,8 +494,8 @@ namespace edm
         source->readPileUp(
                 e.id(),
                 recordEventID,
-                boost::bind(&DataMixingModule::pileWorker, boost::ref(*this),
-                            _1, bunchCrossing, _2, boost::cref(ES), mcc),
+                std::bind(&DataMixingModule::pileWorker, std::ref(*this),
+                            _1, bunchCrossing, _2, std::cref(ES), mcc),
 		NumPU_Events,
                 e.streamID()
                 );
