@@ -19,7 +19,7 @@
 
 // system include files
 #include <memory>
-#include <boost/bind.hpp>
+#include <functional>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -93,6 +93,7 @@ SecSourceAnalyzer::~SecSourceAnalyzer()
 void
 SecSourceAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+   using namespace std::placeholders;
    vectorEventIDs_.resize(maxBunch_-minBunch_+1);
 
    int nevt = 0 ;
@@ -102,7 +103,7 @@ SecSourceAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	 {
 	   input_->readPileUp( iEvent.id(),
                                vectorEventIDs_[ ibx-minBunch_ ],
-                               boost::bind(&SecSourceAnalyzer::getBranches,
+                               std::bind(&SecSourceAnalyzer::getBranches,
                                            this, _1, iEvent.moduleCallingContext()), ibx,
                                iEvent.streamID());
 	 }
@@ -110,7 +111,7 @@ SecSourceAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	 {
 	   input_->readPileUp( iEvent.id(),
                                vectorEventIDs_[ ibx-minBunch_ ],
-                               boost::bind(&SecSourceAnalyzer::dummyFunction,
+                               std::bind(&SecSourceAnalyzer::dummyFunction,
                                            this, _1),
                                ibx,
                                iEvent.streamID());
