@@ -268,7 +268,6 @@ DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
   if(pset.getUntrackedParameter<bool>("forceResetOnBeginRun",false)) {
     ar.watchPostSourceRun(this,&DQMStore::forceReset);
   }
-  std::cout << __LINE__ << " DQMStore::DQMStore " << std::endl;
 }
 
 DQMStore::DQMStore(const edm::ParameterSet &pset)

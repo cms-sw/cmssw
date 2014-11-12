@@ -215,8 +215,8 @@ int HcalTrigTowerGeometry::firstHFRingInTower(int ietaTower) const {
 void HcalTrigTowerGeometry::towerEtaBounds(int ieta, double & eta1, double & eta2) const {
   int ietaAbs = abs(ieta);
   std::pair<double,double> etas = 
-    (ietaAbs < firstHFTower()) ? theTopology->etaRange(HcalBarrel,ieta) : 
-    theTopology->etaRange(HcalForward,ieta);
+    (ietaAbs < firstHFTower()) ? theTopology->etaRange(HcalBarrel,ietaAbs) : 
+    theTopology->etaRange(HcalForward,ietaAbs);
   eta1 = etas.first;
   eta2 = etas.second;
   

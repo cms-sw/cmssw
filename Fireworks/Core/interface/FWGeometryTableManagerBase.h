@@ -79,6 +79,8 @@ public:
       bool testBitAny(UChar_t f) const  { return (m_flags & f) != 0; }
 
       void switchBit(UChar_t f) { testBit(f) ? resetBit(f) : setBit(f); }
+
+      void copyColorTransparency(const NodeInfo& x) { m_color = x.m_color; m_transparency = x.m_transparency; }
    };
 
 
@@ -161,6 +163,8 @@ public:
 
    virtual bool getVisibilityChld(const NodeInfo& nodeInfo) const;
    virtual bool getVisibility (const NodeInfo& nodeInfo) const;
+
+   virtual void applyColorTranspToDaughters(int selectedIdx, bool recurse);
 
    bool isNodeRendered(int idx, int top_node_idx) const;
 

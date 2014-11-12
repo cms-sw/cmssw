@@ -147,12 +147,14 @@ class PatternTrunk{
   friend class boost::serialization::access;
   
   template<class Archive> void save(Archive & ar, const unsigned int version) const{
-    ar << lowDefPattern;;
+    ar << lowDefPattern;
     ar << fullDefPatterns;
   }
   
   template<class Archive> void load(Archive & ar, const unsigned int version){
-    ar >> lowDefPattern;;
+    if(lowDefPattern!=NULL)
+      delete lowDefPattern;
+    ar >> lowDefPattern;
     ar >> fullDefPatterns;
   }
   

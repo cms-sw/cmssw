@@ -39,6 +39,7 @@ hcalSimBlock = cms.PSet(
     HcalReLabel = HcalReLabel,
     DelivLuminosity = cms.double(0),
     HEDarkening = cms.uint32(0),
+    HBDarkening = cms.uint32(0),
     HFDarkening = cms.bool(False)
 )
 

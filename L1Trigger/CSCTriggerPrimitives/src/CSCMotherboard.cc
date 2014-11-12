@@ -120,7 +120,7 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
       alctParams = conf.getParameter<edm::ParameterSet>("alctSLHCME21");
       clctParams = conf.getParameter<edm::ParameterSet>("clctSLHCME21");
     }
-    else if ((theStation == 3 or theStation == 4) and theEndcap==2 and runME3141ILT) {
+    else if ((theStation == 3 or theStation == 4) and runME3141ILT) {
       tmbParams = me3141tmbRpcParams;
       alctParams = conf.getParameter<edm::ParameterSet>("alctSLHCME3141");
       clctParams = conf.getParameter<edm::ParameterSet>("clctSLHCME3141");

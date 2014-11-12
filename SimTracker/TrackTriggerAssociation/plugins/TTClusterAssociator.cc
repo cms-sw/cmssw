@@ -135,6 +135,26 @@ void TTClusterAssociator< Ref_PixelDigi_ >::produce( edm::Event& iEvent, const e
         const DetId detId = theStackedTrackers->idToDet( tempCluRef->getDetId(), tempCluRef->getStackMember() )->geographicalId();
 
         /// Get the PixelDigiSimLink
+        /// Safety check added after new digitizer (Oct 2014)
+        if ( thePixelDigiSimLinkHandle->find(detId.rawId()) == thePixelDigiSimLinkHandle->end() )
+        {
+          /// Sensor is not found in DigiSimLink.
+          /// Set MC truth to NULL for all hits in this sensor. Period.
+
+          /// Get the Digis and loop over them
+          std::vector< Ref_PixelDigi_ > theseHits = tempCluRef->getHits();
+          for ( unsigned int i = 0; i < theseHits.size(); i++ )
+          {
+            /// No SimLink is found by definition
+            /// Then store NULL MC truth for all the digis
+            edm::Ptr< TrackingParticle > tempTPPtr; // = new edm::Ptr< TrackingParticle >();
+            clusterToTrackingParticleVectorMap.find( tempCluRef )->second.push_back( tempTPPtr );
+          }
+
+          /// Go to the next sensor
+          continue;
+        }
+
         edm::DetSet<PixelDigiSimLink> thisDigiSimLink = (*(thePixelDigiSimLinkHandle) )[detId.rawId()];
         edm::DetSet<PixelDigiSimLink>::const_iterator iterSimLink;
 
