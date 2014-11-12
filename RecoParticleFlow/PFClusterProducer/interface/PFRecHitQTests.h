@@ -2,9 +2,6 @@
 #define RecoParticleFlow_PFClusterProducer_PFEcalRecHitQTests_h
 
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitQTestBase.h"
-
-
-
 //
 //  Quality test that checks threshold
 //
