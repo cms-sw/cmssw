@@ -47,9 +47,9 @@ class PFJet : public Jet {
        mNeutralEmEnergy (0),
        
        mChargedMultiplicity (0),
-       mNeutralMultiplicity (0)
+       mNeutralMultiplicity (0),
 
-       mHOEnergy (0),
+       mHOEnergy (0)
     {}
     float mChargedHadronEnergy;
     float mNeutralHadronEnergy;
