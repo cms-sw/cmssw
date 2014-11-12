@@ -193,10 +193,10 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
 
   /// fill indices
   if(doSubEvent_ || useCF_){
-     for(size_t i = 0; i < npiles; ++i){
+     for(size_t ipile = 0; ipile < npiles; ++ipile){
 	barcodes_.clear();
-	if(useCF_) mc = cfhepmcprod->getObject(i).GetEvent();
-	else mc = heps[i]->GetEvent();
+	if(useCF_) mc = cfhepmcprod->getObject(ipile).GetEvent();
+	else mc = heps[ipile]->GetEvent();
 
 	//Look whether heavy ion/signal event
 	bool isHI = false;
@@ -205,10 +205,10 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
 	size_t num_particles = mc->particles_size();
 	fillIndices(mc, particles, *barCodeVector, offset);
 	// fill output collection and save association
-	for( size_t i = offset; i < offset + num_particles; ++ i ) {
+	for( size_t ipar = offset; ipar < offset + num_particles; ++ ipar ) {
 
-	   const HepMC::GenParticle * part = particles[ i ];
-	   reco::GenParticle & cand = cands[ i ];
+	   const HepMC::GenParticle * part = particles[ ipar ];
+	   reco::GenParticle & cand = cands[ ipar ];
 	   // convert HepMC::GenParticle to new reco::GenParticle
 	   convertParticle(cand, part);
 	   cand.resetDaughters( ref_.id() );
