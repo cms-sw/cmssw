@@ -87,7 +87,7 @@ class HLTHiggsSubAnalysis
         void initAndInsertJets(const edm::Event & iEvent, EVTColContainer * cols, 
                                std::vector<MatchStruct> * matches);
         void passJetCuts(std::vector<MatchStruct> * matches, std::map<std::string,bool> & jetCutResult,
-                         float & dEtaqq, float & mqq, float & dPhibb, float & CSV1); 
+                         float & dEtaqq, float & mqq, float & dPhibb, float & CSV1, float & CSV2, float & CSV3); 
         void passOtherCuts(const std::vector<MatchStruct> & matches, std::map<std::string,bool> & jetCutResult); 
         void insertcandidates(const unsigned int & objtype, const EVTColContainer * col,
                               std::vector<MatchStruct> * matches);
