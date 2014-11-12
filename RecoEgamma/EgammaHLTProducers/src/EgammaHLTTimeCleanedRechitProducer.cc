@@ -25,6 +25,10 @@ EgammaHLTTimeCleanedRechitProducer::EgammaHLTTimeCleanedRechitProducer(const edm
   hitLabels     = ps.getParameter<std::vector<edm::InputTag>>("ecalhitLabels");
   productLabels = ps.getParameter<std::vector<std::string>>("productLabels");
 
+   if (!(hitLabels.size() == 2)) throw cms::Exception("ConfigError","ecalhitLabels should contain 2 labels: one for RecHits in barrel, the other for RecHits in endcaps");
+   if (!(productLabels.size() == 2)) throw cms::Exception("ConfigError","productLabels should contain 2 labels: one for RecHits in barrel, the other for RecHits in endcaps");
+
+    
   for (unsigned int i=0; i<hitLabels.size(); i++) { 
     hitTokens.push_back(consumes<EcalRecHitCollection>(hitLabels[i]));
     produces<EcalRecHitCollection> (productLabels[i]);
@@ -54,8 +58,6 @@ void EgammaHLTTimeCleanedRechitProducer::produce(edm::Event& evt, const edm::Eve
 
   edm::Handle<EcalRecHitCollection> rhcH[2];
     
-  if (!(hitLabels.size() == 2)) throw cms::Exception("ConfigError","ecalhitLabels should contain 2 labels: one for RecHits in barrel, the other for RecHits in endcaps");
-  if (!(productLabels.size() == 2)) throw cms::Exception("ConfigError","productLabels should contain 2 labels: one for RecHits in barrel, the other for RecHits in endcaps");
 
   for (unsigned int i=0; i<hitLabels.size(); i++) {
     std::auto_ptr<EcalRecHitCollection> hits(new EcalRecHitCollection);
