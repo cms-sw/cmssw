@@ -59,7 +59,7 @@ class HLTHiggsPlotter
         void analyze(const bool & isPassTrigger,const std::string & source,
         const std::vector<MatchStruct> & matches, const unsigned int & minCandidates);
         void analyze(const bool & isPassTrigger, const std::string & source, const std::vector<MatchStruct> & matches, std::map<std::string,bool> & nMinOne,
-                     const float & dEtaqq, const float & mqq, const float & dPhibb, const float & CSV1, const bool & passAllCuts);
+                     const float & dEtaqq, const float & mqq, const float & dPhibb, const float & CSV1, const float & CSV2, const float & CSV3, const bool & passAllCuts);
 
         inline const std::string gethltpath() const { return _hltPath; }
 
