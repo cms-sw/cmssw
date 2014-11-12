@@ -5,6 +5,6 @@ TESTcaloStage1Digis = cms.EDProducer(
     Setup = cms.string("stage1::CaloSetup"),
     InputLabel = cms.InputTag("l1tDigiToRaw"),
     #InputLabel = cms.InputTag("rawDataCollector"),
-    FedId = cms.int32(1),
+    FedId = cms.int32(1300),
     FWId = cms.untracked.int32(2)
 )
