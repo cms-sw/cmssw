@@ -24,7 +24,7 @@ ora::STLContainerIteratorHandler::STLContainerIteratorHandler( void* address,
   } else {
     m_Iterators = new TVirtualCollectionIterators(&m_collProxy);
   }
-  m_Next = m_collProxy.GetFunctionNext();
+  m_Next = m_collProxy.GetFunctionNext(false);
 
   if (m_collProxy.HasPointers()) {
     m_PtrIterators->CreateIterators(address, &m_collProxy);
