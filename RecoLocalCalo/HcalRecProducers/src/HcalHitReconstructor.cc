@@ -90,8 +90,10 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 
   if (!strcasecmp(subd.c_str(),"HBHE")) {
     subdet_=HcalBarrel;
-    setPileupCorrection_ = &HcalSimpleRecAlgo::setHBHEPileupCorrection;
+    setPileupCorrection_ = &HcalSimpleRecAlgo::setHBHEPileupCorrection;    
+    if(puCorrMethod_ == 0) setPileupCorrection_ = 0;
     setPileupCorrectionForNegative_ = &HBHENegativeFlagSetter::setHBHEPileupCorrection;
+    if(puCorrMethod_ == 0) setPileupCorrectionForNegative_ = 0;
     bool timingShapedCutsFlags = conf.getParameter<bool>("setTimingShapedCutsFlags");
     if (timingShapedCutsFlags)
       {
