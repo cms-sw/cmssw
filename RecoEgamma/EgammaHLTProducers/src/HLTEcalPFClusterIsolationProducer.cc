@@ -88,7 +88,7 @@ template<>
 bool HLTEcalPFClusterIsolationProducer<reco::RecoEcalCandidate>::computedRVeto(T1Ref candRef, reco::PFClusterRef pfclu) {
 
   float dR2 = deltaR2(candRef->eta(), candRef->phi(), pfclu->eta(), pfclu->phi());
-  if(dR2 < (drVeto_*drVeto_))
+  if(dR2 < drVeto2_)
     return false;
 
   if (candRef->superCluster().isNonnull()) {
@@ -107,7 +107,7 @@ template<typename T1>
 bool HLTEcalPFClusterIsolationProducer<T1>::computedRVeto(T1Ref candRef, reco::PFClusterRef pfclu) {
 
   float dR2 = deltaR2(candRef->eta(), candRef->phi(), pfclu->eta(), pfclu->phi());
-  if(dR2 > (drMax_*drMax_) || dR2 < (drVeto_*drVeto_))
+  if(dR2 > (drMax_*drMax_) || dR2 < drVeto2_)
     return false;
   else
     return true;
@@ -136,17 +136,17 @@ void HLTEcalPFClusterIsolationProducer<T1>::produce(edm::Event& iEvent, const ed
 
   T1IsolationMap recoCandMap;
   
-  drVeto_ = -1.;
+  drVeto2_ = -1.;
   float etaStrip = -1;
   
   for (unsigned int iReco = 0; iReco < recoCandHandle->size(); iReco++) {
     T1Ref candRef(recoCandHandle, iReco);
     
     if (fabs(candRef->eta()) < 1.479) {
-      drVeto_ = drVetoBarrel_;
+      drVeto2_ = drVetoBarrel_*drVetoBarrel_;
       etaStrip = etaStripBarrel_;
     } else {
-      drVeto_ = drVetoEndcap_;
+      drVeto2_ = drVetoEndcap_*drVetoEndcap_;
       etaStrip = etaStripEndcap_;
     }
     
