@@ -148,8 +148,6 @@ class FourVectorHLTOnline : public edm::EDAnalyzer {
       unsigned int Nbx_; 
 
       bool plotAll_;
-      bool resetMe_;
-      int currentRun_;
       
       unsigned int nBins_; 
       unsigned int nBinsOneOverEt_; 
@@ -200,8 +198,6 @@ class FourVectorHLTOnline : public edm::EDAnalyzer {
       std::string dirname_;
       std::string processname_;
       std::string muonRecoCollectionName_;
-      bool monitorDaemon_;
-      int theHLTOutputType;
       edm::InputTag triggerSummaryLabel_;
       edm::InputTag triggerResultsLabel_;
       HLTConfigProvider hltConfig_;
