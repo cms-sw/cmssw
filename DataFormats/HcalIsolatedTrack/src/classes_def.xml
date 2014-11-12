@@ -4,7 +4,6 @@
 
   <class name="reco::IsolatedPixelTrackCandidate" ClassVersion="12">
    <version ClassVersion="12" checksum="2817631301"/>
-   <version ClassVersion="11" checksum="2075674867"/>
    <version ClassVersion="10" checksum="3865088611"/>
    <version ClassVersion="11" checksum="264617237"/>
   </class>
