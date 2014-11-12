@@ -115,15 +115,16 @@ public:
         beamhalo = 28,
         gsf = 29,
 	// HLT algo name
+	hltPixel = 30,
 	// steps used by PF
-	hltIter0 = 30,
-	hltIter1 = 31,
-	hltIter2 = 32,
-	hltIter3 = 33,
-	hltIter4 = 34,
+	hltIter0 = 31,
+	hltIter1 = 32,
+	hltIter2 = 33,
+	hltIter3 = 34,
+	hltIter4 = 35,
 	// steps used by all other objects @HLT
-	hltIterX = 35,
-        algoSize = 36
+	hltIterX = 36,
+        algoSize = 37
     };
 
     static const std::string algoNames[];
@@ -519,6 +520,9 @@ inline std::string TrackBase::algoName() const
       break;
     case gsf:
       return "gsf";
+      break;
+    case hltPixel :
+      return "hltPixel";
       break;
     case hltIter0 :
       return "hltIter0";

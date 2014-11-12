@@ -37,6 +37,7 @@ std::string const TrackBase::algoNames[] = {
     "bTagGhostTracks",
     "beamhalo" ,
     "gsf",
+    "hltPixel",
     "hltIter0",
     "hltIter1",
     "hltIter2",
