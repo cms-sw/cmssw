@@ -30,7 +30,7 @@ namespace edm {
   private:
     virtual bool checkNextEvent();
     virtual void skip(int toSkip);
-    virtual void closeFile_();
+    virtual void genuineCloseFile() override;
     virtual void reset_();
 
     std::vector<std::string> streamerNames_; // names of Streamer files
