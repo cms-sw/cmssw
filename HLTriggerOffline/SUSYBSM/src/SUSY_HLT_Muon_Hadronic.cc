@@ -16,7 +16,6 @@ SUSY_HLT_Muon_Hadronic::SUSY_HLT_Muon_Hadronic(const edm::ParameterSet& ps)
   theTrigSummary_ = consumes<trigger::TriggerEvent>(ps.getParameter<edm::InputTag>("trigSummary"));
   theMuonCollection_ = consumes<reco::MuonCollection>(ps.getParameter<edm::InputTag>("MuonCollection")); 
   thePfMETCollection_ = consumes<reco::PFMETCollection>(ps.getParameter<edm::InputTag>("pfMETCollection"));
-  theCaloMETCollection_ = consumes<reco::CaloMETCollection>(ps.getParameter<edm::InputTag>("caloMETCollection"));
   thePfJetCollection_ = consumes<reco::PFJetCollection>(ps.getParameter<edm::InputTag>("pfJetCollection"));
   theCaloJetCollection_ = consumes<reco::CaloJetCollection>(ps.getParameter<edm::InputTag>("caloJetCollection"));
   triggerResults_ = consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>("TriggerResults"));
@@ -94,12 +93,6 @@ void SUSY_HLT_Muon_Hadronic::analyze(edm::Event const& e, edm::EventSetup const&
   if ( !pfMETCollection.isValid() ){
     edm::LogError ("SUSY_HLT_Muon_Hadronic") << "invalid collection: PFMET" << "\n";
    return;
-  }
-  edm::Handle<reco::CaloMETCollection> caloMETCollection;
-  e.getByToken(theCaloMETCollection_, caloMETCollection);
-  if ( !caloMETCollection.isValid() ){
-    edm::LogError ("SUSY_HLT_Muon_Hadronic") << "invalid collection: CaloMET" << "\n";
-    return;
   }
   //-------------------------------
   //--- Jets

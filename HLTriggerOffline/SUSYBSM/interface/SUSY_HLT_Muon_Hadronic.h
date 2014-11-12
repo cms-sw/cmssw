@@ -57,7 +57,6 @@ class SUSY_HLT_Muon_Hadronic: public DQMEDAnalyzer{
   //variables from config file
   edm::EDGetTokenT<reco::MuonCollection> theMuonCollection_;
   edm::EDGetTokenT<reco::PFMETCollection> thePfMETCollection_;
-  edm::EDGetTokenT<reco::CaloMETCollection> theCaloMETCollection_;
   edm::EDGetTokenT<reco::PFJetCollection> thePfJetCollection_;
   edm::EDGetTokenT<reco::CaloJetCollection> theCaloJetCollection_;
   edm::EDGetTokenT<edm::TriggerResults> triggerResults_;

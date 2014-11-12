@@ -1,20 +1,20 @@
 import FWCore.ParameterSet.Config as cms
 
 SUSY_HLT_DiJet_MET = cms.EDAnalyzer("SUSY_HLT_DiJet_MET",
-  trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'reHLT'), #to use with test sample
+  trigSummary = cms.InputTag("hltTriggerSummaryAOD",'', 'HLT'), #to use with test sample
   #trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
   caloMETCollection = cms.InputTag("caloMet"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
   caloJetCollection = cms.InputTag("ak4CaloJets"),
-  TriggerResults = cms.InputTag('TriggerResults','','reHLT'), #to use with test sample
+  TriggerResults = cms.InputTag('TriggerResults','','HLT'), #to use with test sample
   #TriggerResults = cms.InputTag('TriggerResults','','HLT'),
-  HLTProcess = cms.string('reHLT'),
+  HLTProcess = cms.string('HLT'),
   #HLTProcess = cms.string('HLT'),
   TriggerPath = cms.string('HLT_DiCentralPFJet70_PFMET120_NoiseCleaned_v1'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoMu24_eta2p1_IterTrk02_v1'),
-  TriggerFilter = cms.InputTag('hltPFMET120Filter', '', 'reHLT'), #the last filter in the path
-  TriggerJetFilter = cms.InputTag('hltDiCentralPFJet70', '', 'reHLT'), #the last filter in the path
+  TriggerFilter = cms.InputTag('hltPFMET120Filter', '', 'HLT'), #the last filter in the path
+  TriggerJetFilter = cms.InputTag('hltDiCentralPFJet70', '', 'HLT'), #the last filter in the path
   PtThrJetTrig = cms.untracked.double(70.0),
   EtaThrJetTrig = cms.untracked.double(2.6),
   PtThrJet = cms.untracked.double(30.0),
