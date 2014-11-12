@@ -11,13 +11,13 @@
 SiStripClusterizer::
 SiStripClusterizer(const edm::ParameterSet& conf) 
   : confClusterizer_(conf.getParameter<edm::ParameterSet>("Clusterizer")),
-    doRefineCluster_(confClusterizer_.getParameter<bool>("doRefineCluster")),
-    occupancyThreshold_(confClusterizer_.getParameter<double>("occupancyThreshold")),
-    widthThreshold_(confClusterizer_.getParameter<unsigned>("widthThreshold")),
     inputTags( conf.getParameter<std::vector<edm::InputTag> >("DigiProducersList") ),
     algorithm( StripClusterizerAlgorithmFactory::create(conf.getParameter<edm::ParameterSet>("Clusterizer")) ) {
   produces< edmNew::DetSetVector<SiStripCluster> > ();
   inputTokens = edm::vector_transform( inputTags, [this](edm::InputTag const & tag) { return consumes< edm::DetSetVector<SiStripDigi> >(tag);} );
+  doRefineCluster_ = confClusterizer_.existsAs<bool>("doRefineCluster") ? confClusterizer_.getParameter<bool>("doRefineCluster") : false;
+  occupancyThreshold_ = confClusterizer_.existsAs<double>("occupancyThreshold") ? confClusterizer_.getParameter<double>("occupancyThreshold") : 0.05;
+  widthThreshold_ = confClusterizer_.existsAs<unsigned>("widthThreshold") ? confClusterizer_.getParameter<unsigned>("widthThreshold") : 4;
 }
 
 void SiStripClusterizer::
@@ -91,7 +91,7 @@ refineCluster(const edm::Handle< edm::DetSetVector<SiStripDigi> >& input,
 	// 	      << ", " << nchannideal << ", " << clust->isMerged() << std::endl;
 	// std::cout << "Cluster_merged_width " << clust->isMerged() << " " << clust->amplitudes().size() << std::endl;
       }
-      // std::cout << "Sensor:strips_occStrips_clust_merged " << nchannreal << " " << ndigi << " " << det->size() << " " << nmergedclust << std::endl;
+      // std::cout << "Sensor:strips_occStrips_clust_merged " << nchannreal << " " << ndigi << " " << det->size() << std::endl;
     }
   }  // traverse sensors
 }
