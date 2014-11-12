@@ -52,15 +52,14 @@ correctEnergyActual(reco::PFCluster& cluster) const {
     DetId id(hit.detId());
     if( id.det() != DetId::Forward ) continue;    
     switch( id.subdetId() ) {
-    case HGCEE:
-    case HGCHEF:
+    case HGCEE:    
       {
 	const std::pair<int,int> zside_layer = 
 	  getlayer<HGCEEDetId>(hit.detId());
 	const int layer = zside_layer.second;
 	//const double eta = hit.positionREP().eta();
 	const double energy_MIP = hit.energy()/_mipValueInGeV;
-	eCorr += _weights[layer]*energy_MIP;//std::cosh(eta);
+	eCorr += _weights[layer-1]*energy_MIP;//std::cosh(eta);
       }
       break;
     default:

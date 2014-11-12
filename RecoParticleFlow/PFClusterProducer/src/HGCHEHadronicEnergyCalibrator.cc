@@ -75,7 +75,7 @@ correctEnergyActual(reco::PFCluster& cluster) const {
 	<< "This module only accepts HGC HEF or HEB hits" << std::endl;
     }
     const double energy_MIP = hit.energy()/mip_value; 
-    eCorr += _weights[layer]*energy_MIP/mip2gev;
+    eCorr += _weights[layer-1]*energy_MIP/mip2gev;
   }  
 
   cluster.setEnergy(eCorr);
