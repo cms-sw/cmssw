@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 OuterTrackerMCTruth = cms.EDAnalyzer('OuterTrackerMCTruth',
     
-    TopFolderName = cms.string('OuterTrackerValidation'),
+    TopFolderName = cms.string('Phase2OuterTrackerV'),
     
 
 # TPart Pt

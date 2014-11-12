@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    OuterTrackerStub
-// Class:      OuterTrackerStub
+// Package:    Phase2OuterTracker
+// Class:      Phase2OuterTracker
 // 
-/**\class OuterTrackerStub OuterTrackerStub.cc Validation/OuterTrackerStub/plugins/OuterTrackerStub.cc
+/**\class Phase2OuterTracker OuterTrackerStub.cc Validation/Phase2OuterTracker/plugins/OuterTrackerStub.cc
 
  Description: [one line class summary]
 
@@ -31,7 +31,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
-#include "Validation/OuterTrackerStub/interface/OuterTrackerStub.h"
+#include "Validation/Phase2OuterTracker/interface/OuterTrackerStub.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 

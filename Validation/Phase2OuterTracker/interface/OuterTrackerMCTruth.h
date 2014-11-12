@@ -1,12 +1,12 @@
-#ifndef OuterTrackerMCTruth_OuterTrackerMCTruth_h
-#define OuterTrackerMCTruth_OuterTrackerMCTruth_h
+#ifndef Phase2OuterTracker_OuterTrackerMCTruth_h
+#define Phase2OuterTracker_OuterTrackerMCTruth_h
 
 #include <vector>
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include <DQMServices/Core/interface/DQMStore.h>
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

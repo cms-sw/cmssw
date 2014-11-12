@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    OuterTrackerMCTruth
-// Class:      OuterTrackerMCTruth
+// Package:    Phase2OuterTracker
+// Class:      Phase2OuterTracker
 // 
-/**\class OuterTrackerMCTruth OuterTrackerMCTruth.cc Validation/OuterTrackerMCTruth/plugins/OuterTrackerMCTruth.cc
+/**\class Phase2OuterTracker OuterTrackerMCTruth.cc Validation/Phase2OuterTracker/plugins/OuterTrackerMCTruth.cc
 
  Description: [one line class summary]
 
@@ -30,7 +30,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
-#include "Validation/OuterTrackerMCTruth/interface/OuterTrackerMCTruth.h"
+#include "Validation/Phase2OuterTracker/interface/OuterTrackerMCTruth.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"

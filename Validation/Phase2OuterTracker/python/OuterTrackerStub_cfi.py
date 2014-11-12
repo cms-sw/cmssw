@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 OuterTrackerStub = cms.EDAnalyzer('OuterTrackerStub',
     
-    TopFolderName = cms.string('OuterTrackerValidation'),
+    TopFolderName = cms.string('Phase2OuterTrackerV'),
     
 # Stub Stacks
     TH1TTStub_Stack = cms.PSet(
