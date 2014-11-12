@@ -15,15 +15,14 @@ class HcalTrigPrimMonitor: public HcalBaseDQMonitor {
       HcalTrigPrimMonitor(const edm::ParameterSet& ps);
       ~HcalTrigPrimMonitor(); 
   
-      void setup();
+      void setup(DQMStore::IBooker &);
       void analyze(const edm::Event& e, const edm::EventSetup& c);
       void processEvent(const edm::Handle<HcalTrigPrimDigiCollection>& data_tp_col,
                         const edm::Handle<HcalTrigPrimDigiCollection>& emul_tp_col);
       void reset();
-      void beginRun(const edm::Run& run, const edm::EventSetup& c);
+      void bookHistograms(DQMStore::IBooker &ib, const edm::Run& run, const edm::EventSetup& c);
       void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) ;
       void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
-      void cleanup();
       void endJob();
 
    private:
@@ -36,12 +35,12 @@ class HcalTrigPrimMonitor: public HcalBaseDQMonitor {
       std::vector<int> ZSBadTPThreshold_;
       std::vector<int> ZSAlarmThreshold_;
 
-      MonitorElement* create_summary(const std::string& folder, const std::string& name);
-      MonitorElement* create_errorflag(const std::string& folder, const std::string& name);
-      MonitorElement* create_tp_correlation(const std::string& folder, const std::string& name);
-      MonitorElement* create_fg_correlation(const std::string& folder, const std::string& name);
-      MonitorElement* create_map(const std::string& folder, const std::string& name);
-      MonitorElement* create_et_histogram(const std::string& folder, const std::string& name);
+      MonitorElement* create_summary(DQMStore::IBooker &ib, const std::string& folder, const std::string& name);
+      MonitorElement* create_errorflag(DQMStore::IBooker &ib, const std::string& folder, const std::string& name);
+      MonitorElement* create_tp_correlation(DQMStore::IBooker &ib, const std::string& folder, const std::string& name);
+      MonitorElement* create_fg_correlation(DQMStore::IBooker &ib, const std::string& folder, const std::string& name);
+      MonitorElement* create_map(DQMStore::IBooker &ib, const std::string& folder, const std::string& name);
+      MonitorElement* create_et_histogram(DQMStore::IBooker &ib, const std::string& folder, const std::string& name);
 
       enum ErrorFlag{
          kZeroTP=-1,

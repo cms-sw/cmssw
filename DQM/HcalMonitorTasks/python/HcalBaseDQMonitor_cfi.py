@@ -10,4 +10,5 @@ hcalBaseDQMonitor=cms.EDAnalyzer("HcalBaseDQMonitor",
                                  TaskFolder             = cms.untracked.string("Test/"),
                                  skipOutOfOrderLS       = cms.untracked.bool(False),
                                  NLumiBlocks            = cms.untracked.int32(4000),
+                             	 FEDRawDataCollection=cms.untracked.InputTag("rawDataCollector")
                                  )

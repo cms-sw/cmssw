@@ -43,5 +43,6 @@ hcalHotCellMonitor=cms.EDAnalyzer("HcalHotCellMonitor",
 
                                   persistentETThreshold    = cms.untracked.double(3.),
                                   persistentETThreshold_HF = cms.untracked.double(3.),
+                             	  FEDRawDataCollection=cms.untracked.InputTag("rawDataCollector")
 
                                   )
