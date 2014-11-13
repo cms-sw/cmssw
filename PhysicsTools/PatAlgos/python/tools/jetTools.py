@@ -343,6 +343,8 @@ class AddJetCollection(ConfigToolBase):
                         setattr(process, btagInfo+_labelName+postfix, btag.pfImpactParameterTagInfos.clone(jets = jetSource,primaryVertex=pvSource,candidates=pfCandidates))
                     if btagInfo == 'pfSecondaryVertexTagInfos':
                         setattr(process, btagInfo+_labelName+postfix, btag.pfSecondaryVertexTagInfos.clone(trackIPTagInfos = cms.InputTag('pfImpactParameterTagInfos'+_labelName+postfix)))
+                    if btagInfo == 'pfInclusiveSecondaryVertexFinderTagInfos':
+                        setattr(process, btagInfo+_labelName+postfix, btag.pfInclusiveSecondaryVertexFinderTagInfos.clone(trackIPTagInfos = cms.InputTag('pfImpactParameterTagInfos'+_labelName+postfix)))
                     if btagInfo == 'impactParameterTagInfos':
                         setattr(process, btagInfo+_labelName+postfix, btag.impactParameterTagInfos.clone(jetTracks = cms.InputTag('jetTracksAssociatorAtVertex'+_labelName+postfix), primaryVertex=pvSource))
                     if btagInfo == 'secondaryVertexTagInfos':
@@ -381,6 +383,9 @@ class AddJetCollection(ConfigToolBase):
             _newPatJets.discriminatorSources = cms.VInputTag( *[ cms.InputTag(x+_labelName+postfix) for x in acceptedBtagDiscriminators ] )
             if len(acceptedBtagDiscriminators) > 0 :
                 _newPatJets.addBTagInfo = True
+            if 'pfInclusiveSecondaryVertexFinderTagInfos' in acceptedTagInfos:
+                if not hasattr( process, 'inclusiveCandidateVertexing' ):
+                    process.load( 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff' )
             if 'inclusiveSecondaryVertexFinderTagInfos' in acceptedTagInfos:
                 if not hasattr( process, 'inclusiveVertexing' ):
                     process.load( 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff' )
