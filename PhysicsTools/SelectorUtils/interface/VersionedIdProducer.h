@@ -124,7 +124,8 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     std::vector<bool> passfail;
     std::vector<float> passfailf;
     std::vector<unsigned> howfar;
-    for(const auto& po : physicsobjects.ptrVector()) {
+    for(size_t i = 0; i < physicsobjects.size(); ++i) {
+      auto po = physicsobjects.ptrAt(i);
       passfail.push_back((*id)(po,iEvent));
       passfailf.push_back(passfail.back());
       howfar.push_back(id->howFarInCutFlow());
