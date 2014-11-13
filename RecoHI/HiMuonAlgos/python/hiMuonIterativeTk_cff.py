@@ -41,13 +41,10 @@ hiRegitMuTracking = cms.Sequence(hiRegitMuonInitialStep
                                  *hiRegitMuonTobTecStep
                                  )
 
-# Seed generator
-from RecoMuon.MuonSeedGenerator.standAloneMuonSeeds_cff import *
+# Standalone muons
+from RecoMuon.Configuration.RecoMuonPPonly_cff import *
 
-# Stand alone muon track producer
-from RecoMuon.StandAloneMuonProducer.standAloneMuons_cff import *
 
-hiRegitMuTrackingAndSta = cms.Sequence(standAloneMuonSeeds
-      *standAloneMuons
+hiRegitMuTrackingAndSta = cms.Sequence(standalonemuontracking
       *hiRegitMuTracking)
 
