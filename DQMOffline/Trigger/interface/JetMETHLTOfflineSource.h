@@ -181,7 +181,6 @@ class JetMETHLTOfflineSource : public thread_unsafe::DQMEDAnalyzer {
 
   class PathInfo {
     PathInfo():
-      pathIndex_(-1),
       prescaleUsed_(-1),
       denomPathName_("unset"),
       pathName_("unset"),
@@ -776,7 +775,6 @@ class JetMETHLTOfflineSource : public thread_unsafe::DQMEDAnalyzer {
       }
 
   private:
-      int pathIndex_;
       int prescaleUsed_;
       std::string denomPathName_;
       std::string pathName_;
@@ -811,8 +809,6 @@ class JetMETHLTOfflineSource : public thread_unsafe::DQMEDAnalyzer {
       MonitorElement*  Eta_HLT_;
       MonitorElement*  Phi_HLT_;
       MonitorElement*  EtaPhi_HLT_;
-      MonitorElement*  DeltaR_HLT_;
-      MonitorElement*  DeltaPhi_HLT_;
 
       MonitorElement*  PtResolution_L1HLT_;
       MonitorElement*  EtaResolution_L1HLT_;
