@@ -11,8 +11,7 @@ using namespace edm;
 using namespace trigger;
 using namespace std;
 
-FourVectorHLTOnline::FourVectorHLTOnline(const edm::ParameterSet& iConfig):
-  resetMe_(true),  currentRun_(-99)
+FourVectorHLTOnline::FourVectorHLTOnline(const edm::ParameterSet& iConfig)
 {
 
   LogDebug("FourVectorHLTOnline") << "constructor...." ;

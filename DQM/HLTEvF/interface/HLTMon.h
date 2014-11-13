@@ -85,9 +85,7 @@ class HLTMon : public edm::EDAnalyzer {
       unsigned int theNbins ;
       
       std::string dirname_;
-      bool monitorDaemon_;
       std::ofstream logFile_;
-      int theHLTOutputType;
       std::string outputFile_;
 
       std::string histoTitle;
