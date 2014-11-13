@@ -9,8 +9,8 @@
   <class name="reco::CaloJet" ClassVersion="10">
    <version ClassVersion="10" checksum="715843310"/>
   </class>
-  <class name="reco::CaloJet::Specific" ClassVersion="11">
-   <version ClassVersion="10" checksum="3865393003"/>
+  <class name="reco::CaloJet::Specific" ClassVersion="10">
+   <version ClassVersion="10" checksum="2617452651"/>
   </class>
   <class name="std::vector<reco::CaloJet>"/>
   <class name="edm::RefProd<std::vector<reco::CaloJet> >"/>
@@ -57,8 +57,8 @@
   <class name="reco::PFJet" ClassVersion="10">
    <version ClassVersion="10" checksum="3657319332"/>
   </class>
-  <class name="reco::PFJet::Specific" ClassVersion="10">
-   <version ClassVersion="10" checksum="3345092571"/>
+  <class name="reco::PFJet::Specific" ClassVersion="11">
+   <version ClassVersion="11" checksum="3865393003"/>
   </class>
   <class name="std::vector<reco::PFJet>"/>
   <class name="edm::RefVector<std::vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFJet>,reco::PFJet> >"/>
