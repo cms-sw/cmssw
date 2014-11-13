@@ -213,16 +213,16 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 	itEtSum != EtSum->end(itBX); ++itEtSum){
 
       if (EtSum::EtSumType::kMissingEt == itEtSum->getType()){
-	L1GctEtMiss Cand(itEtSum->hwPt(), itEtSum->hwPhi(), 0, itBX);
+	L1GctEtMiss Cand(itEtSum->hwPt(), itEtSum->hwPhi(), itEtSum->hwQual()&0x1, itBX);
 	etMissResult->push_back(Cand);
       }else if (EtSum::EtSumType::kMissingHt == itEtSum->getType()){
-	L1GctHtMiss Cand(itEtSum->hwPt(), itEtSum->hwPhi(), 0, itBX);
+	L1GctHtMiss Cand(itEtSum->hwPt(), itEtSum->hwPhi(), itEtSum->hwQual()&0x1, itBX);
 	htMissResult->push_back(Cand);
       }else if (EtSum::EtSumType::kTotalEt == itEtSum->getType()){
-	L1GctEtTotal Cand(itEtSum->hwPt(), 0, itBX);
+	L1GctEtTotal Cand(itEtSum->hwPt(), itEtSum->hwQual()&0x1, itBX);
 	etTotResult->push_back(Cand);
       }else if (EtSum::EtSumType::kTotalHt == itEtSum->getType()){
-	L1GctEtHad Cand(itEtSum->hwPt(), 0, itBX);
+	L1GctEtHad Cand(itEtSum->hwPt(), itEtSum->hwQual()&0x1, itBX);
 	etHadResult->push_back(Cand);
       }else {
 	LogError("l1t|stage 1 Converter") <<" Unknown EtSumType --- EtSum collection will not be saved...\n ";

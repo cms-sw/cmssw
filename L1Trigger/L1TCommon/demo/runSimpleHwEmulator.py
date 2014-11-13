@@ -47,7 +47,7 @@ process.GlobalTag.globaltag = cms.string('POSTLS161_V12::All')
 
 process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_PPFromRaw_cff')
 #process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_HIFromRaw_cff')
-process.caloStage1Digis.FirmwareVersion = cms.uint32(3)
+process.simCaloStage1Digis.FirmwareVersion = cms.uint32(3)
 #process.simRctDigis.hcalDigis = cms.VInputTag( cms.InputTag( 'hcalDigis' ) )
 
 process.p1 = cms.Path(

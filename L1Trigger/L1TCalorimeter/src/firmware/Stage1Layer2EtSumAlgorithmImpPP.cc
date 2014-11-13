@@ -141,16 +141,14 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
   double mtmp = ((double) MHT / (double) sumHT);
   int rank=params_->HtMissScale().rank(mtmp);
 
-  // std::cout << " MHT: " << MHT << " sumHT " << sumHT << " rat: " << mtmp << " rank " << rank << std::endl;
-  // if (mtmp>.95)std::cout << " MHT: " << MHT << " sumHT " << sumHT << " rat: " << mtmp << std::endl;
+  //std::cout << "CCLA  MHT: " << MHT << " sumHT " << sumHT << " rat: " << mtmp << " rank " << rank << std::endl;
+  // if (mtmp>.95)std::cout << " MHT: " << MHT << " sumHT " << sumHT << " rat: " << mtmp << " rank " << rank << std::endl;
 
   MHT=rank;
   iPhiHT=dijet_phi;
-  int MHTqual = 0;
-  if ( 0 == iPhiHT) MHTqual = 1;  // set the quality bit to one if dphi=0 (corresponds to less then 2 jets in event)
 
   l1t::EtSum etMiss(*&etLorentz,EtSum::EtSumType::kMissingEt,MET,0,iPhiET,0);
-  l1t::EtSum htMiss(*&etLorentz,EtSum::EtSumType::kMissingHt,MHT,0,iPhiHT,MHTqual);
+  l1t::EtSum htMiss(*&etLorentz,EtSum::EtSumType::kMissingHt,MHT&0xfff,0,iPhiHT,HTTqual);
   l1t::EtSum etTot (*&etLorentz,EtSum::EtSumType::kTotalEt,sumET&0xfff,0,0,ETTqual);
   l1t::EtSum htTot (*&etLorentz,EtSum::EtSumType::kTotalHt,sumHT&0xfff,0,0,HTTqual);
 

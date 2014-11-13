@@ -201,6 +201,9 @@ unsigned short L1RCTParameters::calcIAbsEta(unsigned short iCrate, unsigned shor
 
 float L1RCTParameters::JetMETTPGSum(const float& ecal, const float& hcal, const unsigned& iAbsEta) const
 {
+  // We never deal with HF in this function (see note below)
+  if ( iAbsEta < 1 || iAbsEta > 28 )
+    throw cms::Exception("L1RCTParameters invalid function call") << "Eta out of range in MET TPGSum: " << iAbsEta;
   float ecal_c = ecal*jetMETECalScaleFactors_.at(iAbsEta-1);
   float hcal_c = hcal*jetMETHCalScaleFactors_.at(iAbsEta-1);
 
@@ -216,8 +219,10 @@ float L1RCTParameters::JetMETTPGSum(const float& ecal, const float& hcal, const 
     if ( et_bin > 9 ) et_bin = 9;
     ecal_c = ecal*jetMETECalScaleFactors_.at(et_bin*28+iAbsEta-1);
   }
+
   // We may be interested in HF jets, in which case, there are four more scale factors
-  // for the 4 HF regions.
+  // for the 4 HF regions.  HOWEVER, we will never expect to see them accessed from
+  // this function.  HF scaling is done in L1Trigger/RegionalCaloTrigger/src/L1RCTLookupTables
   if ( jetMETHCalScaleFactors_.size() == 32*10 )
   {
     int ht_bin = ((int) floor(hcal)/5);
@@ -247,6 +252,9 @@ float L1RCTParameters::JetMETTPGSum(const float& ecal, const float& hcal, const 
 
 float L1RCTParameters::EGammaTPGSum(const float& ecal, const float& hcal, const unsigned& iAbsEta) const
 {
+  // We never deal with HF in this function (EG objects don't use hcal at all, really)
+  if ( iAbsEta < 1 || iAbsEta > 28 )
+    throw cms::Exception("L1RCTParameters invalid function call") << "Eta out of range in MET TPGSum: " << iAbsEta;
   float ecal_c = ecal*eGammaECalScaleFactors_.at(iAbsEta-1);
   float hcal_c = hcal*eGammaHCalScaleFactors_.at(iAbsEta-1);
 
@@ -376,30 +384,41 @@ L1RCTParameters::print(std::ostream& s)  const {
     s << "\nWhen set to TRUE, HCAL energy is ignored if no ECAL energy is present in corresponding trigger tower for RCT Endcap- \n  "
             << "noiseVetoHEminus = " << noiseVetoHEminus_ << endl ;
 
+    auto printScalefactors = [&s](const std::vector<double> &sf) {
+        if ( sf.size() == 10*28 )
+        {
+            s << "et bin  ieta  ScaleFactor" <<endl;
+            for(unsigned i = 0 ; i<sf.size(); i++)
+                s << setw(6) << i/28 << "  " << setw(4) << i%28+1 << "  " << sf.at(i) <<endl;
+        }
+        else if ( sf.size() == 10*32 ) // jet HCAL (HF regions are 29-32)
+        {
+            s << "et bin  ieta  ScaleFactor" <<endl;
+            for(unsigned i = 0 ; i<sf.size(); i++)
+                s << setw(6) << i/32 << "  " << setw(4) << i%32+1 << "  " << sf.at(i) <<endl;
+        }
+        else {
+            s << "ieta  ScaleFactor" <<endl;
+            for(unsigned i = 0 ; i<sf.size(); i++)
+                s << setw(4) << i+1 << "  " << sf.at(i) <<endl;
+        }
+    };
+
     s << "\n\neta-dependent multiplicative factors for ECAL Et before summation \n  "
             << "eGammaECal Scale Factors " << endl;
-    s << "ieta  ScaleFactor" <<endl;
-    for(int i = 0 ; i<28; i++)
-        s << setw(4) << i+1 << "  " << eGammaECalScaleFactors_.at(i) <<endl;
+    printScalefactors(eGammaECalScaleFactors_);
 
     s << "\n\neta-dependent multiplicative factors for HCAL Et before summation \n  "
             <<"eGammaHCal Scale Factors "<<endl;
-    s << "ieta  ScaleFactor" <<endl;
-    for(int i = 0 ; i<28; i++)
-        s << setw(4) << i+1 << "  " << eGammaHCalScaleFactors_.at(i) <<endl;
-     
+    printScalefactors(eGammaHCalScaleFactors_);
+
     s << "\n\neta-dependent multiplicative factors for ECAL Et before summation \n  "
             <<"jetMETECal Scale Factors "<<endl;
-    s << "ieta  ScaleFactor" <<endl;
-    for(int i = 0 ; i<28; i++)
-        s<< setw(4) << i+1 << "  " << jetMETECalScaleFactors_.at(i) <<endl;
+    printScalefactors(jetMETECalScaleFactors_);
      
     s << "\n\neta-dependent multiplicative factors for HCAL Et before summation \n"
             <<"jetMETHCal Scale Factors "<<endl;
-    s << "ieta  ScaleFactor" <<endl;
-    for(int i = 0 ; i<28; i++)
-        s << setw(4) <<i+1 << "  " << jetMETHCalScaleFactors_.at(i) <<endl;
-
+    printScalefactors(jetMETHCalScaleFactors_);
 
     if(useCorrections_) {
         s<< "\n\nUSING calibration variables " <<endl;

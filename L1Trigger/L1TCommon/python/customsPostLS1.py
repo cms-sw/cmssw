@@ -44,6 +44,9 @@ def customiseSimL1EmulatorForPostLS1(process):
         process.l1tDigiToRawSeq = cms.Sequence(process.gctDigiToRaw + process.l1tDigiToRaw);
         process.DigiToRaw.replace(process.gctDigiToRaw, process.l1tDigiToRawSeq)
         print process.DigiToRaw
+        if hasattr(process, 'rawDataCollector'):
+            print "INFO:  customizing rawDataCollector for Stage 1"
+            process.rawDataCollector.RawCollectionList.append(cms.InputTag("l1tDigiToRaw"))
     if hasattr(process, 'RawToDigi'):
         print "INFO:  customizing L1RawToDigi for Stage 1"
         print process.RawToDigi

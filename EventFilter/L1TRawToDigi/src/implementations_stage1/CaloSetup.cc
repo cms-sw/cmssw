@@ -19,19 +19,17 @@ namespace l1t {
             virtual PackerMap getPackers(int fed, int fw) override {
                PackerMap res;
 
-               if (fed == 1) {
-                  // Use amc id 1 for packing
-                  res[1] = {
-                     PackerFactory::get()->make("stage1::IsoEGammaPacker"),
-                     PackerFactory::get()->make("stage1::NonIsoEGammaPacker"),
-                     PackerFactory::get()->make("stage1::CentralJetPacker"),
-                     PackerFactory::get()->make("stage1::ForwardJetPacker"),
-                     PackerFactory::get()->make("stage1::TauPacker"),
-                     PackerFactory::get()->make("stage1::IsoTauPacker"),
-                     PackerFactory::get()->make("stage1::EtSumPacker"),
-                     PackerFactory::get()->make("stage1::HFRingPacker"),
-                  };
-               }
+               // Use amc id 1 for packing
+               res[1] = {
+                  PackerFactory::get()->make("stage1::IsoEGammaPacker"),
+                  PackerFactory::get()->make("stage1::NonIsoEGammaPacker"),
+                  PackerFactory::get()->make("stage1::CentralJetPacker"),
+                  PackerFactory::get()->make("stage1::ForwardJetPacker"),
+                  PackerFactory::get()->make("stage1::TauPacker"),
+                  PackerFactory::get()->make("stage1::IsoTauPacker"),
+                  PackerFactory::get()->make("stage1::EtSumPacker"),
+                  PackerFactory::get()->make("stage1::HFRingPacker"),
+               };
 
                return res;
             };
