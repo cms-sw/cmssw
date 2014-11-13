@@ -59,6 +59,7 @@
   </class>
   <class name="reco::PFJet::Specific" ClassVersion="11">
    <version ClassVersion="11" checksum="3865393003"/>
+   <version ClassVersion="10" checksum="3345092571"/>
   </class>
   <class name="std::vector<reco::PFJet>"/>
   <class name="edm::RefVector<std::vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFJet>,reco::PFJet> >"/>
