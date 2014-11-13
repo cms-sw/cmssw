@@ -16,7 +16,8 @@ namespace edm {
     InputSource(pset, desc),
     // The default value for the following parameter get defined in at least one derived class
     // where it has a different default value.
-    inputFileTransitionsEachEvent_(pset.getUntrackedParameter<bool>("inputFileTransitionsEachEvent", false)) {
+    inputFileTransitionsEachEvent_(pset.getUntrackedParameter<bool>("inputFileTransitionsEachEvent", false)),
+    fakeInputFileTransition_(false) {
       setTimestamp(Timestamp::beginOfTime());
   }
 
@@ -81,6 +82,7 @@ namespace edm {
     if(!another || (!newLumi() && !eventCached())) {
       return IsStop;
     } else if(inputFileTransitionsEachEvent_) {
+      fakeInputFileTransition_ = true;
       return IsFile;
     }
     if(newRun()) {
@@ -109,5 +111,20 @@ namespace edm {
     // The default value for "inputFileTransitionsEachEvent" gets defined in the derived class
     // as it depends on the derived class. So, we cannot redefine it here.
     InputSource::fillDescription(description);
+  }
+
+  void
+  RawInputSource::closeFile_() {
+    if(!fakeInputFileTransition_) {
+      genuineCloseFile();
+    } else {
+      // Do nothing because we returned a fake input file transition
+      // value from getNextItemType which resulted in this call
+      // to closeFile_.
+
+      // Reset the flag because the next call to closeFile_ might
+      // be real.
+      fakeInputFileTransition_ = false;
+    }
   }
 }
