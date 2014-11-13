@@ -124,17 +124,7 @@ JetMETHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
   }
   
   //---------- triggerResults ----------
-  //int npath;
-  if(&triggerResults_) {  
-    // Check how many HLT triggers are in triggerResults
-    //npath = triggerResults_->size();
-    triggerNames_ = iEvent.triggerNames(*triggerResults_);
-  } 
-  else {
-    edm::LogInfo("JetMETHLTOfflineSource") << "TriggerResults::HLT not found, "
-      "automatically select events";
-    return;
-  } 
+  triggerNames_ = iEvent.triggerNames(*triggerResults_);
   
   //---------- triggerSummary ----------
   iEvent.getByToken(triggerSummaryToken,triggerObj_);
@@ -383,9 +373,7 @@ JetMETHLTOfflineSource::fillMEforMonTriggerSummary(const Event & iEvent, const e
 void 
 JetMETHLTOfflineSource::fillMEforTriggerNTfired()
 {
-  //int npath;
-  if(&triggerResults_) { /*npath = triggerResults_->size();*/ } 
-  else { return; }
+  if(!triggerResults_.isValid()) return;
   
   //
   for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v ){
@@ -445,9 +433,7 @@ JetMETHLTOfflineSource::fillMEforTriggerNTfired()
 void 
 JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::EventSetup& iSetup)
 {
-  //int npath;
-  if(&triggerResults_) { /*npath = triggerResults_->size();*/ } 
-  else { return; }
+  if(!triggerResults_.isValid()) return;
   
   const trigger::TriggerObjectCollection & toc(triggerObj_->getObjects());
   PathInfoCollection::iterator v = hltPathsAll_.begin();
@@ -736,9 +722,7 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
 void 
 JetMETHLTOfflineSource::fillMEforEffAllTrigger(const Event & iEvent, const edm::EventSetup& iSetup)
 {
-  //int npath;
-  if(&triggerResults_){ /*npath = triggerResults_->size();*/ } 
-  else return;
+  if (!triggerResults_.isValid()) return;
   
   int  num         = -1;
   int  denom       = -1;
@@ -1590,8 +1574,8 @@ JetMETHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
     if(plotAll_){
       //
       int Nbins_       = 10;
-      int Nmin_        = -0.5;
-      int Nmax_        = 9.5;
+      double Nmin_        = -0.5;
+      double Nmax_        = 9.5;
       //
       int Ptbins_      = 100;
       if(runStandalone_) Ptbins_ = 1000;
@@ -2964,7 +2948,7 @@ bool JetMETHLTOfflineSource::validPathHLT(std::string pathname){
 bool JetMETHLTOfflineSource::isHLTPathAccepted(std::string pathName){
   // triggerResults_, triggerNames_ has to be defined first before calling this method
   bool output=false;
-  if(&triggerResults_) {
+  if(triggerResults_.isValid()) {
     unsigned index = triggerNames_.triggerIndex(pathName);
     if(index < triggerNames_.size() && triggerResults_->accept(index)) output = true;
   }
