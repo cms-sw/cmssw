@@ -1574,8 +1574,8 @@ JetMETHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
     if(plotAll_){
       //
       int Nbins_       = 10;
-      int Nmin_        = -0.5;
-      int Nmax_        = 9.5;
+      double Nmin_        = -0.5;
+      double Nmax_        = 9.5;
       //
       int Ptbins_      = 100;
       if(runStandalone_) Ptbins_ = 1000;
