@@ -1,7 +1,7 @@
-#ifndef HLTEgammaGenericFilter_h
-#define HLTEgammaGenericFilter_h
+#ifndef HLTGenericFilter_h
+#define HLTGenericFilter_h
 
-/** \class HLTEgammaGenericFilter
+/** \class HLTGenericFilter
  *
  *  \author Roberto Covarelli (CERN)
  *
@@ -9,8 +9,19 @@
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
+
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateIsolation.h"
+
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 namespace edm {
   class ConfigurationDescriptions;
@@ -20,11 +31,16 @@ namespace edm {
 // class declaration
 //
 
-class HLTEgammaGenericFilter : public HLTFilter {
+template<typename T1>
+class HLTGenericFilter : public HLTFilter {
+    
+    typedef std::vector<T1> T1Collection;
+    typedef edm::Ref<T1Collection> T1Ref;
+    typedef edm::AssociationMap<edm::OneToValue<std::vector<T1>, float > > T1IsolationMap;
 
    public:
-      explicit HLTEgammaGenericFilter(const edm::ParameterSet&);
-      ~HLTEgammaGenericFilter();
+      explicit HLTGenericFilter(const edm::ParameterSet&);
+      ~HLTGenericFilter();
       virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
@@ -33,8 +49,8 @@ class HLTEgammaGenericFilter : public HLTFilter {
       edm::InputTag isoTag_; // input tag identifying product that contains isolated map
       edm::InputTag nonIsoTag_; // input tag identifying product that contains non-isolated map
       edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> candToken_;
-      edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap> isoToken_;
-      edm::EDGetTokenT<reco::RecoEcalCandidateIsolationMap> nonIsoToken_;
+      edm::EDGetTokenT<T1IsolationMap> isoToken_;
+      edm::EDGetTokenT<T1IsolationMap> nonIsoToken_;
       bool lessThan_;           // the cut is "<" or ">" ?
       bool useEt_;              // use E or Et in relative isolation cuts
       double thrRegularEB_;     // threshold for regular cut (x < thr) - ECAL barrel
@@ -50,6 +66,6 @@ class HLTEgammaGenericFilter : public HLTFilter {
       edm::InputTag L1NonIsoCollTag_;
 };
 
-#endif //HLTEgammaGenericFilter_h
+#endif //HLTGenericFilter_h
 
 
