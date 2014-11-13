@@ -73,10 +73,10 @@ OuterTrackerMCTruth = cms.EDAnalyzer('OuterTrackerMCTruth',
 ## Stub InvPt vs. TPart InvPt
 #    TH2Stub_InvPt = cms.PSet(
 #        Nbinsx = cms.int32(200),
-#        xmax = cms.double(0.8),                      
+#        xmax = cms.double(10.0),  #0.8                    
 #        xmin = cms.double(0.0),
 #        Nbinsy = cms.int32(200),
-#        ymax = cms.double(0.8),                      
+#        ymax = cms.double(10.0),  #0.8                    
 #        ymin = cms.double(0.0)
 #        ),
 #
@@ -89,27 +89,27 @@ OuterTrackerMCTruth = cms.EDAnalyzer('OuterTrackerMCTruth',
 #        ymax = cms.double(50.0),                      
 #        ymin = cms.double(0.0)
 #        ),
-#
-## Stub Eta vs. TPart Eta
-#    TH2Stub_Eta = cms.PSet(
-#        Nbinsx = cms.int32(180),
-#        xmax = cms.double(3.1416),                      
-#        xmin = cms.double(-3.1416),
-#        Nbinsy = cms.int32(180),
-#        ymax = cms.double(3.1416),                      
-#        ymin = cms.double(-3.1416)
-#        ),
-#
-## Stub Phi vs. TPart Phi
-#    TH2Stub_Phi = cms.PSet(
-#        Nbinsx = cms.int32(180),
-#        xmax = cms.double(3.1416),                      
-#        xmin = cms.double(-3.1416),
-#        Nbinsy = cms.int32(180),
-#        ymax = cms.double(3.1416),                      
-#        ymin = cms.double(-3.1416)
-#        ),
-#
+
+# Stub Eta vs. TPart Eta
+    TH2Stub_Eta = cms.PSet(
+        Nbinsx = cms.int32(180),
+        xmax = cms.double(3.1416),                      
+        xmin = cms.double(-3.1416),
+        Nbinsy = cms.int32(180),
+        ymax = cms.double(3.1416),                      
+        ymin = cms.double(-3.1416)
+        ),
+
+# Stub Phi vs. TPart Phi
+    TH2Stub_Phi = cms.PSet(
+        Nbinsx = cms.int32(180),
+        xmax = cms.double(3.1416),                      
+        xmin = cms.double(-3.1416),
+        Nbinsy = cms.int32(180),
+        ymax = cms.double(3.1416),                      
+        ymin = cms.double(-3.1416)
+        ),
+
 ## Stub InvPtRes vs. TPart Eta
 #    TH2Stub_InvPtRes = cms.PSet(
 #        Nbinsx = cms.int32(180),
@@ -129,49 +129,45 @@ OuterTrackerMCTruth = cms.EDAnalyzer('OuterTrackerMCTruth',
 #        ymax = cms.double(40.0),                      
 #        ymin = cms.double(-40.0)
 #        ),
-#
-## Stub EtaRes vs. TPart Eta
-#    TH2Stub_EtaRes = cms.PSet(
-#        Nbinsx = cms.int32(180),
-#        xmax = cms.double(3.1416),                      
-#        xmin = cms.double(-3.1416),
-#        Nbinsy = cms.int32(100),
-#        ymax = cms.double(2.0),                      
-#        ymin = cms.double(-2.0)
-#        ),
-#
-## Stub PhiRes vs. TPart Eta
-#    TH2Stub_PhiRes = cms.PSet(
-#        Nbinsx = cms.int32(180),
-#        xmax = cms.double(3.1416),                      
-#        xmin = cms.double(-3.1416),
-#        Nbinsy = cms.int32(100),
-#        ymax = cms.double(0.5),                      
-#        ymin = cms.double(-0.5)
-#        ),
-#
-## Stub Width vs. TPart InvPt
-#    TH2Stub_InvPt = cms.PSet(
-#        Nbinsx = cms.int32(200),
-#        xmax = cms.double(0.8),                      
-#        xmin = cms.double(0.0),
-#        Nbinsy = cms.int32(41),
-#        ymax = cms.double(10.25),                      
-#        ymin = cms.double(-10.25)
-#        ),
-#
-## Stub Width vs. TPart Pt
-#    TH2Stub_Pt = cms.PSet(
-#        Nbinsx = cms.int32(200),
-#        xmax = cms.double(50.0),                      
-#        xmin = cms.double(0.0),
-#        Nbinsy = cms.int32(41),
-#        ymax = cms.double(10.25),                      
-#        ymin = cms.double(-10.25)
-#        ),
 
+# Stub EtaRes vs. TPart Eta
+    TH2Stub_EtaRes = cms.PSet(
+        Nbinsx = cms.int32(180),
+        xmax = cms.double(3.1416),                      
+        xmin = cms.double(-3.1416),
+        Nbinsy = cms.int32(100),
+        ymax = cms.double(2.0),                      
+        ymin = cms.double(-2.0)
+        ),
 
+# Stub PhiRes vs. TPart Eta
+    TH2Stub_PhiRes = cms.PSet(
+        Nbinsx = cms.int32(180),
+        xmax = cms.double(3.1416),                      
+        xmin = cms.double(-3.1416),
+        Nbinsy = cms.int32(100),
+        ymax = cms.double(0.5),                      
+        ymin = cms.double(-0.5)
+        ),
 
+# Stub Width vs. TPart InvPt
+    TH2Stub_W_InvPt = cms.PSet(
+        Nbinsx = cms.int32(200),
+        xmax = cms.double(10.0),  #0.8                    
+        xmin = cms.double(0.0),
+        Nbinsy = cms.int32(41),
+        ymax = cms.double(10.25),                      
+        ymin = cms.double(-10.25)
+        ),
 
+# Stub Width vs. TPart Pt
+    TH2Stub_W_Pt = cms.PSet(
+        Nbinsx = cms.int32(200),
+        xmax = cms.double(50.0),                      
+        xmin = cms.double(0.0),
+        Nbinsy = cms.int32(41),
+        ymax = cms.double(10.25),                      
+        ymin = cms.double(-10.25)
+        ),
 
 )
