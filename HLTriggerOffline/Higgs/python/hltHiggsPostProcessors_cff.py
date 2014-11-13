@@ -159,6 +159,20 @@ hltHiggsPostHtaunu = hltHiggsPostProcessor.clone()
 hltHiggsPostHtaunu.subDirs = ['HLT/Higgs/Htaunu']
 hltHiggsPostHtaunu.efficiencyProfile = efficiency_strings
 
+
+efficiency_strings_TTHbbej = list(efficiency_strings)
+#add the summary plots
+for an in _config.analysis:
+    for trig in triggers:
+        efficiency_strings_TTHbbej.append("Eff_HtDist_"+an+"_gen_"+trig+" ' Efficiency of "+trig+" vs sum pT of jets ; sum pT of jets ' HtDist_"+an+"_gen_"+trig+" trueVtxDist_"+an+"_gen")
+
+efficiency_strings_TTHbbej.extend(get_reco_strings(efficiency_strings_TTHbbej))
+
+hltHiggsPostTTHbbej = hltHiggsPostProcessor.clone()
+hltHiggsPostTTHbbej.subDirs = ['HLT/Higgs/TTHbbej']
+hltHiggsPostTTHbbej.efficiencyProfile = efficiency_strings_TTHbbej
+
+
 #Specific plots for VBFHbb  
 #dEtaqq, mqq, dPhibb, CVS1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
 NminOneCutNames = ("EffdEtaqq", "Effmqq", "EffdPhibb", "EffCSV1", "EffCSV2", "EffCSV3",  "EffmaxCSV", "", "", "TurnOn1", "TurnOn2", "TurnOn3", "TurnOn4")
@@ -245,6 +259,7 @@ hltHiggsPostProcessors = cms.Sequence(
         hltHiggsPostHgg+
         hltHiggsPostHtaunu+
         hltHiggsPostH2tau+
+        hltHiggsPostTTHbbej+
         hltHiggsPostVBFHbb+
         hltHiggsPostZnnHbb+
         hltHiggsPostDoubleHinTaus+

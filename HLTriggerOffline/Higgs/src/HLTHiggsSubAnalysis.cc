@@ -34,12 +34,16 @@ HLTHiggsSubAnalysis::HLTHiggsSubAnalysis(const edm::ParameterSet & pset,
     _pset(pset),
     _analysisname(analysisname),
     _minCandidates(0),
+    _HtJetPtMin(0),
+    _HtJetEtaMax(0),
     _hltProcessName(pset.getParameter<std::string>("hltProcessName")),
     _genParticleLabel(iC.consumes<reco::GenParticleCollection>(pset.getParameter<std::string>("genParticleLabel"))),
     _genJetLabel(iC.consumes<reco::GenJetCollection>(pset.getParameter<std::string>("genJetLabel"))),
+    _recoHtJetLabel(iC.consumes<reco::PFJetCollection>(pset.getParameter<std::string>("recoHtJetLabel"))),
     _parametersEta(pset.getParameter<std::vector<double> >("parametersEta")),
     _parametersPhi(pset.getParameter<std::vector<double> >("parametersPhi")),
     _parametersPu(pset.getParameter<std::vector<double> >("parametersPu")),
+    _parametersHt(pset.getParameter<std::vector<double> >("parametersHt")),
     _parametersTurnOn(pset.getParameter<std::vector<double> >("parametersTurnOn")),
     _trigResultsTag(iC.consumes<edm::TriggerResults>(edm::InputTag("TriggerResults","",_hltProcessName))),
     _genJetSelector(0),
@@ -93,7 +97,12 @@ HLTHiggsSubAnalysis::HLTHiggsSubAnalysis(const edm::ParameterSet & pset,
     }
     _hltPathsToCheck = anpset.getParameter<std::vector<std::string> >("hltPathsToCheck");
     _minCandidates = anpset.getParameter<unsigned int>("minCandidates");
-    
+    _HtJetPtMin = anpset.getUntrackedParameter<double>("HtJetPtMin", -1);
+    _HtJetEtaMax = anpset.getUntrackedParameter<double>("HtJetEtaMax", -1);
+
+    if( _HtJetPtMin>0 && _HtJetEtaMax>0 ) _bookHtPlots = true;
+    else _bookHtPlots = false;
+
     if( pset.exists("pileUpInfoLabel") )
     {
         _puSummaryInfo = iC.consumes<std::vector< PileupSummaryInfo > >(pset.getParameter<std::string>("pileUpInfoLabel"));
@@ -303,15 +312,23 @@ void HLTHiggsSubAnalysis::bookHistograms(DQMStore::IBooker &ibooker)
         
         std::string nameGlobalEfficiencyPassing= nameGlobalEfficiency+"_passingHLT";
         _elements[nameGlobalEfficiencyPassing] = ibooker.book1D(nameGlobalEfficiencyPassing.c_str(),nameGlobalEfficiencyPassing.c_str(),_hltPathsToCheck.size(), 0, _hltPathsToCheck.size());
-        
-        std::string title = "nb of interations in the event";
-        std::string nameVtxPlot = "trueVtxDist_"+_analysisname+"_"+sources[i];
-        std::vector<double> params = _parametersPu;
-        int    nBins = (int)params[0];
-        double min   = params[1];
-        double max   = params[2];
 
-        _elements[nameVtxPlot] = ibooker.book1D(nameVtxPlot.c_str(), title.c_str(), nBins, min, max);
+        std::string titlePu = "nb of interations in the event";
+        std::string nameVtxPlot = "trueVtxDist_"+_analysisname+"_"+sources[i];
+        std::vector<double> paramsPu = _parametersPu;
+        int    nBinsPu = (int)paramsPu[0];
+        double minPu   = paramsPu[1];
+        double maxPu   = paramsPu[2];
+
+        std::string titleHt = "sum of jet pT in the event";
+        std::string nameHtPlot = "HtDist_"+_analysisname+"_"+sources[i];
+        std::vector<double> paramsHt = _parametersHt;
+        int    nBinsHt = (int)paramsHt[0];
+        double minHt   = paramsHt[1];
+        double maxHt   = paramsHt[2];
+
+        _elements[nameVtxPlot] = ibooker.book1D(nameVtxPlot.c_str(), titlePu.c_str(), nBinsPu, minPu, maxPu);
+        if( _bookHtPlots ) _elements[nameHtPlot] = ibooker.book1D(nameHtPlot.c_str(), titleHt.c_str(), nBinsHt, minHt, maxHt);
         for (size_t j = 0 ; j < _hltPathsToCheck.size() ; j++){
                 //declare the efficiency vs interaction plots
                 std::string path = _hltPathsToCheck[j];
@@ -320,9 +337,12 @@ void HLTHiggsSubAnalysis::bookHistograms(DQMStore::IBooker &ibooker)
                 {
                         shortpath = path.substr(0, path.rfind("_v"));
                 }
-            std::string titlePassing = "nb of interations in the event passing path " + shortpath;
-            _elements[nameVtxPlot+"_"+shortpath] = ibooker.book1D(nameVtxPlot+"_"+shortpath, titlePassing.c_str(), nBins, min, max);
-            
+            std::string titlePassingPu = "nb of interations in the event passing path " + shortpath;
+            _elements[nameVtxPlot+"_"+shortpath] = ibooker.book1D(nameVtxPlot+"_"+shortpath, titlePassingPu.c_str(), nBinsPu, minPu, maxPu);
+
+            std::string titlePassingHt = "sum of jet pT in the event passing path " + shortpath;
+            if( _bookHtPlots ) _elements[nameHtPlot+"_"+shortpath] = ibooker.book1D(nameHtPlot+"_"+shortpath, titlePassingHt.c_str(), nBinsHt, minHt, maxHt);
+
             //fill the bin labels of the summary plot
             _elements[nameGlobalEfficiency]->setBinLabel(j+1,shortpath);
             _elements[nameGlobalEfficiencyPassing]->setBinLabel(j+1,shortpath);
@@ -341,7 +361,11 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
     std::map<unsigned int,std::string> u2str;
     u2str[GEN]="gen";
     u2str[RECO]="rec";
-    
+
+    std::map<unsigned int,double> Htmap;
+    Htmap[GEN]=0.;
+    Htmap[RECO]=0.;
+
     edm::Handle<std::vector< PileupSummaryInfo > > puInfo;
     iEvent.getByToken(_puSummaryInfo,puInfo);
     int nbMCvtx = -1;
@@ -354,6 +378,7 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
             }
         }
     }
+
 
     // Extract the match structure containing the gen/reco candidates (electron, muons,...)
     // common to all the SubAnalysis
@@ -505,6 +530,32 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
     // -- Trigger Results
     const edm::TriggerNames trigNames = iEvent.triggerNames(*(cols->triggerResults));
 
+    if( _bookHtPlots ){
+      edm::Handle<reco::PFJetCollection> recoJet;
+      iEvent.getByToken(_recoHtJetLabel,recoJet);
+      if( recoJet.isValid() ){
+	for( reco::PFJetCollection::const_iterator iJet = recoJet->begin(); iJet != recoJet->end(); iJet++ ){ 
+	  double pt = iJet->pt();
+	  double eta = iJet->eta();
+	  if( pt > _HtJetPtMin && fabs(eta) < _HtJetEtaMax ){
+	    Htmap[RECO] += pt;
+	  }
+	}
+      }
+
+      edm::Handle<reco::GenJetCollection> genJet;
+      iEvent.getByToken(_genJetLabel,genJet);
+      if( genJet.isValid() ){
+	for( reco::GenJetCollection::const_iterator iJet = genJet->begin(); iJet != genJet->end(); iJet++ ){ 
+	  double pt = iJet->pt();
+	  double eta = iJet->eta();
+	  if( pt > _HtJetPtMin && fabs(eta) < _HtJetEtaMax ){
+	    Htmap[GEN] += pt;
+	  }
+	}
+      }
+    }
+
     // Filling the histograms if pass the minimum amount of candidates needed by the analysis:
     // GEN + RECO CASE in the same loop
     for(std::map<unsigned int,std::vector<MatchStruct> >::iterator it = sourceMatchMap.begin(); 
@@ -614,7 +665,12 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
         //fill the efficiency vs nb of interactions
         std::string nameVtxPlot = "trueVtxDist_"+_analysisname+"_"+u2str[it->first];
         _elements[nameVtxPlot]->Fill(nbMCvtx);
-    
+
+        //fill the efficiency vs sum pT of jets
+        std::string nameHtPlot = "HtDist_"+_analysisname+"_"+u2str[it->first];
+        if( _bookHtPlots ) _elements[nameHtPlot]->Fill(Htmap[it->first]);
+
+
         // Calling to the plotters analysis (where the evaluation of the different trigger paths are done)
         std::string SummaryName = "SummaryPaths_"+_analysisname+"_"+u2str[it->first];
         const std::string source = u2str[it->first];
@@ -624,7 +680,7 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
             const std::string hltPath = _shortpath2long[an->gethltpath()];
             const std::string fillShortPath = an->gethltpath();
             const bool ispassTrigger =  cols->triggerResults->accept(trigNames.triggerIndex(hltPath));
-            
+
             if( _useNminOneCuts ) {
                 an->analyze(ispassTrigger,source,it->second, nMinOne, dEtaqq, mqq, dPhibb, CSV1, CSV2, CSV3, passAllCuts);
             }
@@ -641,6 +697,7 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
             if (ispassTrigger) {
                 _elements[SummaryName+"_passingHLT"]->Fill(refOfThePath,1);
                 _elements[nameVtxPlot+"_"+fillShortPath.c_str()]->Fill(nbMCvtx);
+                if( _bookHtPlots ) _elements[nameHtPlot+"_"+fillShortPath.c_str()]->Fill(Htmap[it->first]);
             }
             else {
                 _elements[SummaryName+"_passingHLT"]->Fill(refOfThePath,0);
