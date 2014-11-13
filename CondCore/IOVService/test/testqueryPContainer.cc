@@ -16,7 +16,7 @@ int main(){
     std::cout<<"#0 "<<std::endl;
     connection.configure();
     cond::DbSession pooldb = connection.createSession();
-    pooldb.open("sqlite_file:mytest.db"); 
+    pooldb.open("sqlite_file:testqueryPContainer.db"); 
     testPayloadObj* myobj=new testPayloadObj;
     myobj->data.push_back(1);
     myobj->data.push_back(10);
