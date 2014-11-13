@@ -1,8 +1,8 @@
 #include <algorithm>
-#include <iostream>
 #include <sstream>
 
 #include "CondFormats/BTagObjects/interface/BTagEntry.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 BTagEntry::Parameters::Parameters(
   OperatingPoint op,
@@ -42,8 +42,9 @@ BTagEntry::BTagEntry(const std::string &csvLine)
     vec.push_back(token);
   }
   if (vec.size() != 11) {
-    std::cerr << "BTagEntry::BTagEntry: Invalid csv line; num tokens != 11" << std::endl;
-    throw std::exception();  // TODO: is there a cmssw exception??
+    throw cms::Exception("BTagCalibration")
+          << "Invalid csv line; num tokens != 11: "
+          << csvLine;
   }
 
   // clean string values
@@ -58,21 +59,21 @@ BTagEntry::BTagEntry(const std::string &csvLine)
   formula = vec[10];
   TF1 f1("", formula.c_str());  // compile formula to check validity
   if (f1.IsZombie()) {
-    std::cerr << "BTagEntry::BTagEntry: Invalid csv line; formula does not compile"
-         << std::endl;
-    throw std::exception();  // TODO: is there a cmssw exception??
+    throw cms::Exception("BTagCalibration")
+          << "Invalid csv line; formula does not compile: "
+          << csvLine;
   }
 
   // make parameters
   if (stoi(vec[0]) > 3) {
-    std::cerr << "BTagEntry::BTagEntry: Invalid csv line; OperatingPoint > 3"
-         << std::endl;
-    throw std::exception();  // TODO: is there a cmssw exception??
+    throw cms::Exception("BTagCalibration")
+          << "Invalid csv line; OperatingPoint > 3: "
+          << csvLine;
   }
   if (stoi(vec[3]) > 2) {
-    std::cerr << "BTagEntry::BTagEntry: Invalid csv line; JetFlavor > 2"
-         << std::endl;
-    throw std::exception();  // TODO: is there a cmssw exception??
+    throw cms::Exception("BTagCalibration")
+          << "Invalid csv line; JetFlavor > 2: "
+          << csvLine;
   }
   params = BTagEntry::Parameters(
     BTagEntry::OperatingPoint(stoi(vec[0])),

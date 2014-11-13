@@ -1,7 +1,9 @@
-#include <iostream>
 #include <fstream>
 #include <sstream>
+
 #include "CondFormats/BTagObjects/interface/BTagCalibration.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
 
 BTagCalibration::BTagCalibration(const std::string &taggr):
   tagger_(taggr)
@@ -26,8 +28,9 @@ const std::vector<BTagEntry>& BTagCalibration::getEntries(
 {
   auto tok = token(par);
   if (!data_.count(tok)) {
-    std::cerr << "(OperatingPoint, measurementType, sysType) not available: "
-              << tok << std::endl;
+    throw cms::Exception("BTagCalibration")
+          << "(OperatingPoint, measurementType, sysType) not available: "
+          << tok;
   }
   return data_.at(tok);
 }

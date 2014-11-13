@@ -39,7 +39,6 @@ double BTagCalibrationReader::eval(BTagEntry::JetFlavor jf,
     }
   }
 
-  // TODO: print warning message.
   return 0.;  // default value
 }
 
