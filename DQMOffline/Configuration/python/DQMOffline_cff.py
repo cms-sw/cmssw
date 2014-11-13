@@ -7,7 +7,7 @@ from DQMServices.Components.DQMFastTimerService_cff import *
 from DQMOffline.Ecal.ecal_dqm_source_offline_cff import *
 from DQM.HcalMonitorModule.hcal_dqm_source_fileT0_cff import *
 from DQM.SiStripMonitorClient.SiStripSourceConfigTier0_cff import *
-from DQM.OuterTrackerMonitorClient.OuterTrackerSourceConfig_cff import *
+from DQM.Phase2OuterTracker.OuterTrackerSourceConfig_cff import *
 from DQM.SiPixelCommon.SiPixelOfflineDQM_source_cff import *
 from DQM.DTMonitorModule.dtDQMOfflineSources_cff import *
 from DQM.RPCMonitorClient.RPCTier0Source_cff import *

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 OuterTrackerMonitorCluster = cms.EDAnalyzer('OuterTrackerMonitorCluster',
     
-    TopFolderName = cms.string('OuterTracker'),
+    TopFolderName = cms.string('Phase2OuterTracker'),
 
 # Number of clusters per layer
     TH1TTCluster_Stack = cms.PSet(
