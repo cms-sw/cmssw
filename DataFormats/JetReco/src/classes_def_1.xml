@@ -9,8 +9,8 @@
   <class name="reco::CaloJet" ClassVersion="10">
    <version ClassVersion="10" checksum="715843310"/>
   </class>
-  <class name="reco::CaloJet::Specific" ClassVersion="10">
-   <version ClassVersion="10" checksum="2617452651"/>
+  <class name="reco::CaloJet::Specific" ClassVersion="11">
+   <version ClassVersion="10" checksum="3865393003"/>
   </class>
   <class name="std::vector<reco::CaloJet>"/>
   <class name="edm::RefProd<std::vector<reco::CaloJet> >"/>
