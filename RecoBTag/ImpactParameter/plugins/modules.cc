@@ -4,6 +4,8 @@
 #include "RecoBTau/JetTagComputer/interface/JetTagComputerESProducer.h"
 #include "RecoBTag/ImpactParameter/interface/JetProbabilityComputer.h"
 #include "RecoBTag/ImpactParameter/interface/JetBProbabilityComputer.h"
+#include "RecoBTag/ImpactParameter/interface/CandidateJetProbabilityComputer.h"
+#include "RecoBTag/ImpactParameter/interface/CandidateJetBProbabilityComputer.h"
 #include "RecoBTag/ImpactParameter/plugins/IPProducer.h"
 #include "RecoBTag/ImpactParameter/interface/NegativeTrackCountingComputer.h"
 #include "RecoBTag/ImpactParameter/interface/TrackCountingComputer.h"
@@ -34,6 +36,10 @@ DEFINE_FWK_EVENTSETUP_MODULE(JetProbabilityESProducer);
 typedef JetTagComputerESProducer<JetBProbabilityComputer>       JetBProbabilityESProducer;
 DEFINE_FWK_EVENTSETUP_MODULE(JetBProbabilityESProducer);
 
+typedef JetTagComputerESProducer<CandidateJetProbabilityComputer>       CandidateJetProbabilityESProducer;
+DEFINE_FWK_EVENTSETUP_MODULE(CandidateJetProbabilityESProducer);
+typedef JetTagComputerESProducer<CandidateJetBProbabilityComputer>       CandidateJetBProbabilityESProducer;
+DEFINE_FWK_EVENTSETUP_MODULE(CandidateJetBProbabilityESProducer);
 
 typedef JetTagComputerESProducer<PromptTrackCountingComputer>  PromptTrackCountingESProducer;
 DEFINE_FWK_EVENTSETUP_MODULE(PromptTrackCountingESProducer);
