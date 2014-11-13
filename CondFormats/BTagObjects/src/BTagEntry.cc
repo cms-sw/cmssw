@@ -30,13 +30,11 @@ BTagEntry::Parameters::Parameters(
 
 BTagEntry::BTagEntry(const std::string &csvLine)
 {
-  using namespace std;
-
   // make tokens
-  stringstream buff(csvLine);
-  vector<string> vec;
-  string token;
-  while (getline(buff, token, ","[0])) {
+  std::stringstream buff(csvLine);
+  std::vector<std::string> vec;
+  std::string token;
+  while (std::getline(buff, token, ","[0])) {
     token = BTagEntry::trimStr(token);
     if (token.empty()) {
       continue;
@@ -44,8 +42,8 @@ BTagEntry::BTagEntry(const std::string &csvLine)
     vec.push_back(token);
   }
   if (vec.size() != 11) {
-    cerr << "BTagEntry::BTagEntry: Invalid csv line; num tokens != 11" << endl;
-    throw exception();  // TODO: is there a cmssw exception??
+    std::cerr << "BTagEntry::BTagEntry: Invalid csv line; num tokens != 11" << std::endl;
+    throw std::exception();  // TODO: is there a cmssw exception??
   }
 
   // clean string values
@@ -60,21 +58,21 @@ BTagEntry::BTagEntry(const std::string &csvLine)
   formula = vec[10];
   TF1 f1("", formula.c_str());  // compile formula to check validity
   if (f1.IsZombie()) {
-    cerr << "BTagEntry::BTagEntry: Invalid csv line; formula does not compile"
-         << endl;
-    throw exception();  // TODO: is there a cmssw exception??
+    std::cerr << "BTagEntry::BTagEntry: Invalid csv line; formula does not compile"
+         << std::endl;
+    throw std::exception();  // TODO: is there a cmssw exception??
   }
 
   // make parameters
   if (stoi(vec[0]) > 3) {
-    cerr << "BTagEntry::BTagEntry: Invalid csv line; OperatingPoint > 3"
-         << endl;
-    throw exception();  // TODO: is there a cmssw exception??
+    std::cerr << "BTagEntry::BTagEntry: Invalid csv line; OperatingPoint > 3"
+         << std::endl;
+    throw std::exception();  // TODO: is there a cmssw exception??
   }
   if (stoi(vec[3]) > 2) {
-    cerr << "BTagEntry::BTagEntry: Invalid csv line; JetFlavor > 2"
-         << endl;
-    throw exception();  // TODO: is there a cmssw exception??
+    std::cerr << "BTagEntry::BTagEntry: Invalid csv line; JetFlavor > 2"
+         << std::endl;
+    throw std::exception();  // TODO: is there a cmssw exception??
   }
   params = BTagEntry::Parameters(
     BTagEntry::OperatingPoint(stoi(vec[0])),
