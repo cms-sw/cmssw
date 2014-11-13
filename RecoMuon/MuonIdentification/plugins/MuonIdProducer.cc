@@ -461,7 +461,7 @@ bool MuonIdProducer::isGoodTrack( const reco::Track& track )
 
    // Eta requirement
    const double trackEta = track.eta();
-   if ( trackEta > maxAbsEta_ ){
+   if ( fabs(trackEta) > maxAbsEta_ ){
       LogTrace("MuonIdentification") << "Skipped track with large pseudo rapidity (Eta: " << track.eta() << " )";
       return false;
    }
