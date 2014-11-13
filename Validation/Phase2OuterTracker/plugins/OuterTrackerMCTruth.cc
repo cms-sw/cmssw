@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    OuterTrackerMCTruth
-// Class:      OuterTrackerMCTruth
+// Package:    Phase2OuterTracker
+// Class:      Phase2OuterTracker
 // 
-/**\class OuterTrackerMCTruth OuterTrackerMCTruth.cc Validation/OuterTrackerMCTruth/plugins/OuterTrackerMCTruth.cc
+/**\class Phase2OuterTracker OuterTrackerMCTruth.cc Validation/Phase2OuterTracker/plugins/OuterTrackerMCTruth.cc
 
  Description: [one line class summary]
 
@@ -30,7 +30,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
-#include "Validation/OuterTrackerMCTruth/interface/OuterTrackerMCTruth.h"
+#include "Validation/Phase2OuterTracker/interface/OuterTrackerMCTruth.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
@@ -362,7 +362,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
 	TPart_Phi_Pt10->setAxisTitle("TPart_Phi_Pt10", 1);
 	TPart_Phi_Pt10->setAxisTitle("# TParticles", 2);
 	
-	edm::ParameterSet psSimVtx_XY =  conf_.getParameter<edm::ParameterSet>("TH1SimVtx_XY");
+	edm::ParameterSet psSimVtx_XY =  conf_.getParameter<edm::ParameterSet>("TH2SimVtx_XY");
 	HistoName = "SimVtx_XY";
 	SimVtx_XY = dqmStore_->book2D(HistoName, HistoName,
 																			psSimVtx_XY.getParameter<int32_t>("Nbinsx"),
@@ -374,7 +374,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
 	SimVtx_XY->setAxisTitle("SimVtx x", 1);
 	SimVtx_XY->setAxisTitle("SimVtx y", 2);
 	
-	edm::ParameterSet psSimVtx_RZ =  conf_.getParameter<edm::ParameterSet>("TH1SimVtx_RZ");
+	edm::ParameterSet psSimVtx_RZ =  conf_.getParameter<edm::ParameterSet>("TH2SimVtx_RZ");
 	HistoName = "SimVtx_RZ";
 	SimVtx_RZ = dqmStore_->book2D(HistoName, HistoName,
 																			psSimVtx_RZ.getParameter<int32_t>("Nbinsx"),
@@ -486,7 +486,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
 	
 	
 	/// PID
-	edm::ParameterSet psCluster_PID =  conf_.getParameter<edm::ParameterSet>("TH1Cluster_PID");
+	edm::ParameterSet psCluster_PID =  conf_.getParameter<edm::ParameterSet>("TH2Cluster_PID");
 	HistoName = "Cluster_PID";
 	Cluster_PID = dqmStore_->book2D(HistoName, HistoName,
 																psCluster_PID.getParameter<int32_t>("Nbinsx"),
@@ -506,6 +506,8 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
 																	psStub_PID.getParameter<double>("xmax"));
 	Stub_PID->setAxisTitle("TTStub pdgID", 1);
 	Stub_PID->setAxisTitle("# TTStubs", 2);
+	
+	
 	
 }//end of method
 
