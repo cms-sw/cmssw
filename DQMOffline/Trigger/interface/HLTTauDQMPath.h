@@ -17,7 +17,7 @@ namespace trigger {
   class TriggerEvent;
   class TriggerObject;
 }
-class HLTTauDQMOfflineObjects;
+struct HLTTauDQMOfflineObjects;
 
 class HLTTauDQMPath {
 public:
