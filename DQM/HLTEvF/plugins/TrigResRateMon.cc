@@ -13,7 +13,7 @@ using namespace edm;
 using namespace trigger;
 using namespace std;
 
-TrigResRateMon::TrigResRateMon(const edm::ParameterSet& iConfig): currentRun_(-99)
+TrigResRateMon::TrigResRateMon(const edm::ParameterSet& iConfig)
 {
 
   LogDebug("TrigResRateMon") << "constructor...." ;

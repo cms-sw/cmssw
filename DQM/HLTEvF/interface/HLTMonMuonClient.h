@@ -49,8 +49,6 @@ private:
 
   static const int NTRIG = 20;
 
-  int nTriggers_;
-
   DQMStore* dbe_;
   std::string indir_, outdir_;
 

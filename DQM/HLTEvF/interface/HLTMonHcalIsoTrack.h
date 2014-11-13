@@ -28,8 +28,6 @@ public:
 
 private:
 
-  int evtBuf;
-
   DQMStore* dbe_;
 
   virtual void beginJob() ;
