@@ -33,8 +33,8 @@ namespace trigger{
 }
 
 namespace egHLT {
-  class BinData;
-  class CutMasks;
+  struct BinData;
+  struct CutMasks;
 
   class PhoHLTFilterMon {
     
