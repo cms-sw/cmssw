@@ -21,7 +21,7 @@ HcalSimpleRecAlgo::HcalSimpleRecAlgo(bool correctForTimeslew, bool correctForPul
 { 
   
   pulseCorr_ = std::auto_ptr<HcalPulseContainmentManager>(
-	       new HcalPulseContainmentManager(MaximumFractionalError)
+							  new HcalPulseContainmentManager(MaximumFractionalError)
 							  );
 }
   
@@ -55,7 +55,19 @@ void HcalSimpleRecAlgo::setRecoParams(bool correctForTimeslew, bool correctForPu
    pileupCleaningID_=pileupCleaningID;
 }
 
-void HcalSimpleRecAlgo::setForData (int runnum) {
+void HcalSimpleRecAlgo::setpuCorrParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,
+					bool   iUnConstrainedFit,   bool iApplyTimeSlew,double iTS4Min,
+					double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean,double iPedSig,
+					double iNoise,double iTMin,double iTMax,
+					double its3Chi2,double its4Chi2,double its345Chi2,double iChargeThreshold) { 
+  psFitOOTpuCorr_->setPUParams(iPedestalConstraint,iTimeConstraint,iAddPulseJitter,iUnConstrainedFit,iApplyTimeSlew,
+			       iTS4Min,iPulseJitter,iTimeMean,iTimeSig,iPedMean,iPedSig,iNoise,iTMin,iTMax,its3Chi2,its4Chi2,its345Chi2,
+			       iChargeThreshold,HcalTimeSlew::Medium);
+  int shapeNum = HPDShapev3MCNum;
+  psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(shapeNum));
+}
+
+void HcalSimpleRecAlgo::setForData (int runnum) { 
    runnum_ = runnum;
    if( puCorrMethod_ ==2 ){
       int shapeNum = HPDShapev3MCNum;
@@ -303,37 +315,37 @@ namespace HcalSimpleRecAlgoImpl {
 		     const HcalTimeSlew::BiasSetting slewFlavor,
                      const int runnum, const bool useLeak,
                      const AbsOOTPileupCorrection* pileupCorrection,
-                     const BunchXParameter* bxInfo, const unsigned lenInfo, const int puCorrMethod, const PulseShapeFitOOTPileupCorrection * psFitOOTpuCorr)
+                     const BunchXParameter* bxInfo, const unsigned lenInfo, const int puCorrMethod, const PulseShapeFitOOTPileupCorrection * psFitOOTpuCorr)// const on end
   {
     double fc_ampl =0, ampl =0, uncorr_ampl =0, maxA = -1.e300;
     int nRead = 0, maxI = -1;
     bool leakCorrApplied = false;
     float t0 =0, t2 =0;
-
-    removePileup(digi, coder, calibs, ifirst, n,
-                 pulseCorrect, corr, pileupCorrection,
-                 bxInfo, lenInfo, &maxA, &ampl,
-                 &uncorr_ampl, &fc_ampl, &nRead, &maxI,
-                 &leakCorrApplied, &t0, &t2);
-
     float time = -9999;
-    if (maxI > 0 && maxI < (nRead - 1))
-    {
-      // Handle negative excursions by moving "zero":
-      float minA=t0;
-      if (maxA<minA) minA=maxA;
-      if (t2<minA)   minA=t2;
-      if (minA<0) { maxA-=minA; t0-=minA; t2-=minA; } // positivizes all samples
-
-      float wpksamp = (t0 + maxA + t2);
-      if (wpksamp!=0) wpksamp=(maxA + 2.0*t2) / wpksamp; 
-      time = (maxI - digi.presamples())*25.0 + timeshift_ns_hbheho(wpksamp);
-
-      if (slewCorrect) time-=HcalTimeSlew::delay(std::max(1.0,fc_ampl),slewFlavor);
-
-      time=time-calibs.timecorr(); // time calibration
+    if(puCorrMethod != 2) { 
+      removePileup(digi, coder, calibs, ifirst, n,
+		   pulseCorrect, corr, pileupCorrection,
+		   bxInfo, lenInfo, &maxA, &ampl,
+		   &uncorr_ampl, &fc_ampl, &nRead, &maxI,
+		   &leakCorrApplied, &t0, &t2);
+      
+      if (maxI > 0 && maxI < (nRead - 1))
+	{
+	  // Handle negative excursions by moving "zero":
+	  float minA=t0;
+	  if (maxA<minA) minA=maxA;
+	  if (t2<minA)   minA=t2;
+	  if (minA<0) { maxA-=minA; t0-=minA; t2-=minA; } // positivizes all samples
+	  
+	  float wpksamp = (t0 + maxA + t2);
+	  if (wpksamp!=0) wpksamp=(maxA + 2.0*t2) / wpksamp; 
+	  time = (maxI - digi.presamples())*25.0 + timeshift_ns_hbheho(wpksamp);
+	  
+	  if (slewCorrect) time-=HcalTimeSlew::delay(std::max(1.0,fc_ampl),slewFlavor);
+	  
+	  time=time-calibs.timecorr(); // time calibration
+	}
     }
-
     if( puCorrMethod == 2 ){
        std::vector<double> correctedOutput;
 
@@ -344,7 +356,6 @@ namespace HcalSimpleRecAlgoImpl {
           const int capid = digi[ip].capid();
           capidvec.push_back(capid);
        }
-       
        psFitOOTpuCorr->apply(cs, capidvec, calibs, correctedOutput);
        if( correctedOutput.back() == 0 && correctedOutput.size() >1 ){
           time = correctedOutput[1]; ampl = correctedOutput[0];
