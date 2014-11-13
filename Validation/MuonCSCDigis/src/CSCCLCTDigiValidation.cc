@@ -6,42 +6,31 @@
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-
-
-CSCCLCTDigiValidation::CSCCLCTDigiValidation(DQMStore* dbe,
-                                             const edm::InputTag & inputTag,
-                                             edm::ConsumesCollector && iC)
-: CSCBaseValidation(dbe, inputTag),
+CSCCLCTDigiValidation::CSCCLCTDigiValidation(const edm::InputTag & inputTag,
+                                             edm::ConsumesCollector && iC):
+  CSCBaseValidation(inputTag),
   theTimeBinPlots(),
-  theNDigisPerLayerPlots(),
-  theNDigisPerEventPlot( dbe_->book1D("CSCCLCTDigisPerEvent", "CSC CLCT Digis per event", 100, 0, 100) )
+  theNDigisPerLayerPlots()
 {
   clcts_Token_ = iC.consumes<CSCCLCTDigiCollection> (inputTag);
+}
 
+CSCCLCTDigiValidation::~CSCCLCTDigiValidation()
+{
+}
+
+void CSCCLCTDigiValidation::bookHistograms(DQMStore::IBooker & iBooker)
+{
+  theNDigisPerEventPlot = iBooker.book1D("CSCCLCTDigisPerEvent", "CSC CLCT Digis per event", 100, 0, 100);
   for(int i = 0; i < 10; ++i)
   {
     char title1[200], title2[200];
     sprintf(title1, "CSCCLCTDigiTimeType%d", i+1);
     sprintf(title2, "CSCCLCTDigisPerLayerType%d", i+1);
-    theTimeBinPlots[i] = dbe_->book1D(title1, title1, 20, 0, 20);
-    theNDigisPerLayerPlots[i] = dbe_->book1D(title2, title2, 100, 0, 20);
+    theTimeBinPlots[i] = iBooker.book1D(title1, title1, 20, 0, 20);
+    theNDigisPerLayerPlots[i] = iBooker.book1D(title2, title2, 100, 0, 20);
   }
 }
-
-
-
-CSCCLCTDigiValidation::~CSCCLCTDigiValidation()
-{
-
-//   for(int i = 0; i < 10; ++i)
-//   {
-//     edm::LogInfo("CSCDigiValidation") << "Mean of " << theTimeBinPlots[i]->getName()
-//       << " is " << theTimeBinPlots[i]->getMean()
-//       << " +/- " << theTimeBinPlots[i]->getRMS();
-//   }
-
-}
-
 
 void CSCCLCTDigiValidation::analyze(const edm::Event&e, const edm::EventSetup&)
 {

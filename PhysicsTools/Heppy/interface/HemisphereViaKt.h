@@ -24,6 +24,7 @@ class HemisphereViaKt {
     
  public:
 
+  HemisphereViaKt(){};
   HemisphereViaKt(std::vector<float> Px_vector, 
 		  std::vector<float> Py_vector, 
 		  std::vector<float> Pz_vector, 
