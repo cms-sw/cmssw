@@ -75,6 +75,10 @@ namespace edm {
       return IsEvent;
     }
     if (inputFileTransitionsEachEvent_) {
+      // The following two lines are here because after a source
+      // tells the state machine the next ItemType is IsFile,
+      // the source should then always follow that with IsRun
+      // and then IsLumi. These two lines will cause that to happen.
       resetRunAuxiliary(newRun());
       resetLuminosityBlockAuxiliary(newLumi());
     }
