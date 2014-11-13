@@ -426,7 +426,7 @@ namespace edm {
   std::string
   TypeWithDict::name() const {
     if(enum_ != nullptr && *ti_ == typeid(int)) {
-      return std::string(enum_->GetClass()->GetName()) + "::" + enum_->GetName();
+      return enum_->GetQualifiedName();
     }
     return TypeID(*ti_).className();
   }
