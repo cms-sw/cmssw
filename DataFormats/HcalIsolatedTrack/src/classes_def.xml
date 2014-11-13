@@ -2,8 +2,8 @@
 
   <class name="edm::Wrapper<std::map <int,std::pair<double,double> > >"/> 
 
-  <class name="reco::IsolatedPixelTrackCandidate" ClassVersion="11">
-   <version ClassVersion="11" checksum="2075674867"/>
+  <class name="reco::IsolatedPixelTrackCandidate" ClassVersion="12">
+   <version ClassVersion="12" checksum="2817631301"/>
    <version ClassVersion="10" checksum="3865088611"/>
    <version ClassVersion="11" checksum="264617237"/>
   </class>
