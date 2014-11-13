@@ -20,7 +20,7 @@ int main(){
     connection.configuration().setPoolAutomaticCleanUp( false );
     connection.configure();
     cond::DbSession pooldb = connection.createSession();
-    pooldb.open("sqlite_file:test.db");
+    pooldb.open("sqlite_file:testIOVEditor.db");
     std::string token;
     {
       cond::IOVEditor editor(pooldb);
@@ -196,7 +196,10 @@ int main(){
 
   }catch(const cond::Exception& er){
     std::cout<<"error "<<er.what()<<std::endl;
+    return -1;
   }catch(const std::exception& er){
     std::cout<<"std error "<<er.what()<<std::endl;
+    return -1;
   }
+  return 0;
 }

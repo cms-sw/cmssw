@@ -16,7 +16,7 @@ int main(){
     std::cout<<"#0 "<<std::endl;
     connection.configure();
     cond::DbSession pooldb = connection.createSession();
-    pooldb.open("sqlite_file:mytest.db"); 
+    pooldb.open("sqlite_file:testqueryPContainer.db"); 
     testPayloadObj* myobj=new testPayloadObj;
     myobj->data.push_back(1);
     myobj->data.push_back(10);
@@ -40,7 +40,10 @@ int main(){
     }
   }catch(const cond::Exception& er){
     std::cout<<"error "<<er.what()<<std::endl;
+    return -1;
   }catch(const std::exception& er){
     std::cout<<"std error "<<er.what()<<std::endl;
+    return -1;
   }
+  return 0;
 }
