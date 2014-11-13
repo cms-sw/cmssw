@@ -109,7 +109,7 @@ def customiseSimL1EmulatorForPostLS1(process):
             getattr(process, a).hfRingEtSumsSource = cms.InputTag("hltCaloStage1LegacyFormatDigis")
             getattr(process, a).hfRingBitCountsSource = cms.InputTag("hltCaloStage1LegacyFormatDigis")
 
-    blist=['l1extraParticles','recoL1extraParticles','dqmL1extraParticles']
+    blist=['l1extraParticles','recoL1extraParticles','dqmL1ExtraParticles']
     for b in blist:
         print "INFO: checking for", b, "in process."
         if hasattr(process,b):
@@ -128,9 +128,13 @@ def customiseSimL1EmulatorForPostLS1(process):
             getattr(process, b).hfRingBitCountsSource = cms.InputTag("caloStage1LegacyFormatDigis")
 
 
-
-
-
+    # THIS IS A HACK FOR NOW, WHILE WE SORT OUT FED ID:
+    clist=['RAWSIM','RAWDEBUG','FEVTDEBUG','FEVTDEBUGHLT','GENRAW','RAWSIMHLT','FEVT']
+    for c in clist:
+        b=c+'output'
+        if hasattr(process,b):
+            getattr(process,b).outputCommands.append('keep *_l1tDigiToRaw_*_*')
+            print "INFO:  keeping l1tDigiToRaw output in the event."
 
 
 #    process.MessageLogger = cms.Service(
