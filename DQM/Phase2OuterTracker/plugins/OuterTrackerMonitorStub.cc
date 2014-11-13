@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    OuterTrackerMonitorStub
-// Class:      OuterTrackerMonitorStub
+// Package:    Phase2OuterTracker
+// Class:      Phase2OuterTracker
 // 
-/**\class OuterTrackerMonitorStub OuterTrackerMonitorStub.cc DQM/OuterTrackerMonitorStub/plugins/OuterTrackerMonitorStub.cc
+/**\class Phase2OuterTracker OuterTrackerMonitorStub.cc DQM/Phase2OuterTracker/plugins/OuterTrackerMonitorStub.cc
 
  Description: [one line class summary]
 
@@ -45,7 +45,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
-#include "DQM/OuterTrackerMonitorStub/interface/OuterTrackerMonitorStub.h"
+#include "DQM/Phase2OuterTracker/interface/OuterTrackerMonitorStub.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
@@ -128,37 +128,37 @@ OuterTrackerMonitorStub::analyze(const edm::Event& iEvent, const edm::EventSetup
       double displStub = tempStubRef->getTriggerDisplacement();
       double offsetStub = tempStubRef->getTriggerOffset();
 
-      hStub_RZ->Fill( posStub.z(), posStub.perp() );
-      hStub_Eta->Fill(eta);
+      Stub_RZ->Fill( posStub.z(), posStub.perp() );
+      Stub_Eta->Fill(eta);
 
       if ( detIdStub.isBarrel() ) //if the stub is in the barrel
       {
-        hStub_Barrel->Fill(detIdStub.iLayer() ); 
+        Stub_Barrel->Fill(detIdStub.iLayer() ); 
 
-        hStub_Barrel_XY->Fill( posStub.x(), posStub.y() );
-        hStub_Barrel_XY_Zoom->Fill( posStub.x(), posStub.y() );
+        Stub_Barrel_XY->Fill( posStub.x(), posStub.y() );
+        Stub_Barrel_XY_Zoom->Fill( posStub.x(), posStub.y() );
 	     
-        hStub_Barrel_W->Fill(detIdStub.iLayer(), displStub - offsetStub);
-        hStub_Barrel_O->Fill(detIdStub.iLayer(), offsetStub);
+        Stub_Barrel_W->Fill(detIdStub.iLayer(), displStub - offsetStub);
+        Stub_Barrel_O->Fill(detIdStub.iLayer(), offsetStub);
 
       }
       else if ( detIdStub.isEndcap() )
       {
-        hStub_Endcap->Fill(detIdStub.iDisk() );  
-        hStub_Endcap_W->Fill(detIdStub.iDisk(), displStub - offsetStub);
-        hStub_Endcap_O->Fill(detIdStub.iDisk(), offsetStub);
+        Stub_Endcap->Fill(detIdStub.iDisk() );  
+        Stub_Endcap_W->Fill(detIdStub.iDisk(), displStub - offsetStub);
+        Stub_Endcap_O->Fill(detIdStub.iDisk(), offsetStub);
 
         if ( posStub.z() > 0 )
         {
-          hStub_Endcap_Fw_XY->Fill( posStub.x(), posStub.y() );
-          hStub_Endcap_Fw_RZ_Zoom->Fill( posStub.z(), posStub.perp() );
-          hStub_Endcap_Fw->Fill(detIdStub.iDisk() );
+          Stub_Endcap_Fw_XY->Fill( posStub.x(), posStub.y() );
+          Stub_Endcap_Fw_RZ_Zoom->Fill( posStub.z(), posStub.perp() );
+          Stub_Endcap_Fw->Fill(detIdStub.iDisk() );
         }
         else
         {
-          hStub_Endcap_Bw_XY->Fill( posStub.x(), posStub.y() );
-          hStub_Endcap_Bw_RZ_Zoom->Fill( posStub.z(), posStub.perp() );
-          hStub_Endcap_Bw->Fill(detIdStub.iDisk() );
+          Stub_Endcap_Bw_XY->Fill( posStub.x(), posStub.y() );
+          Stub_Endcap_Bw_RZ_Zoom->Fill( posStub.z(), posStub.perp() );
+          Stub_Endcap_Bw->Fill(detIdStub.iDisk() );
         }
       }
     }
@@ -184,9 +184,9 @@ OuterTrackerMonitorStub::beginRun(edm::Run const&, edm::EventSetup const&)
   ///// GLOBAL POSITION OF THE STUB //////
   ////////////////////////////////////////
   edm::ParameterSet psTTStub_Barrel_XY =  conf_.getParameter<edm::ParameterSet>("TH2TTStub_Position");
-  HistoName = "hStub_Barrel_XY";
+  HistoName = "Stub_Barrel_XY";
   //book the histogram
-  hStub_Barrel_XY = dqmStore_->book2D(HistoName, HistoName,
+  Stub_Barrel_XY = dqmStore_->book2D(HistoName, HistoName,
   psTTStub_Barrel_XY.getParameter<int32_t>("Nbinsx"),
   psTTStub_Barrel_XY.getParameter<double>("xmin"),
   psTTStub_Barrel_XY.getParameter<double>("xmax"),
@@ -194,13 +194,13 @@ OuterTrackerMonitorStub::beginRun(edm::Run const&, edm::EventSetup const&)
   psTTStub_Barrel_XY.getParameter<double>("ymin"),
   psTTStub_Barrel_XY.getParameter<double>("ymax"));
   //set titles
-  hStub_Barrel_XY->setAxisTitle("TTStub Barrel position x ", 1);
-  hStub_Barrel_XY->setAxisTitle("TTStub Barrel position y", 2);
+  Stub_Barrel_XY->setAxisTitle("TTStub Barrel position x ", 1);
+  Stub_Barrel_XY->setAxisTitle("TTStub Barrel position y", 2);
   
   edm::ParameterSet psTTStub_Barrel_XY_Zoom =  conf_.getParameter<edm::ParameterSet>("TH2TTStub_Barrel_XY_Zoom");
-  HistoName = "hStub_Barrel_XY_Zoom";
+  HistoName = "Stub_Barrel_XY_Zoom";
   //book the histogram
-  hStub_Barrel_XY_Zoom = dqmStore_->book2D(HistoName, HistoName,
+  Stub_Barrel_XY_Zoom = dqmStore_->book2D(HistoName, HistoName,
   psTTStub_Barrel_XY_Zoom.getParameter<int32_t>("Nbinsx"),
   psTTStub_Barrel_XY_Zoom.getParameter<double>("xmin"),
   psTTStub_Barrel_XY_Zoom.getParameter<double>("xmax"),
@@ -208,14 +208,14 @@ OuterTrackerMonitorStub::beginRun(edm::Run const&, edm::EventSetup const&)
   psTTStub_Barrel_XY_Zoom.getParameter<double>("ymin"),
   psTTStub_Barrel_XY_Zoom.getParameter<double>("ymax"));
   //set titles
-  hStub_Barrel_XY_Zoom->setAxisTitle("TTStub Barrel position x ", 1);
-  hStub_Barrel_XY_Zoom->setAxisTitle("TTStub Barrel position y", 2);
+  Stub_Barrel_XY_Zoom->setAxisTitle("TTStub Barrel position x ", 1);
+  Stub_Barrel_XY_Zoom->setAxisTitle("TTStub Barrel position y", 2);
   
   
   edm::ParameterSet psTTStub_Endcap_Fw_XY =  conf_.getParameter<edm::ParameterSet>("TH2TTStub_Position");
-  HistoName = "hStub_Endcap_Fw_XY";
+  HistoName = "Stub_Endcap_Fw_XY";
   //book the histogram
-  hStub_Endcap_Fw_XY = dqmStore_->book2D(HistoName, HistoName,
+  Stub_Endcap_Fw_XY = dqmStore_->book2D(HistoName, HistoName,
   psTTStub_Endcap_Fw_XY.getParameter<int32_t>("Nbinsx"),
   psTTStub_Endcap_Fw_XY.getParameter<double>("xmin"),
   psTTStub_Endcap_Fw_XY.getParameter<double>("xmax"),
@@ -223,14 +223,14 @@ OuterTrackerMonitorStub::beginRun(edm::Run const&, edm::EventSetup const&)
   psTTStub_Endcap_Fw_XY.getParameter<double>("ymin"),
   psTTStub_Endcap_Fw_XY.getParameter<double>("ymax"));
   //set titles
-  hStub_Endcap_Fw_XY->setAxisTitle("TTStub Forward Endcap position x ", 1);
-  hStub_Endcap_Fw_XY->setAxisTitle("TTStub Forward Endcap y", 2);
+  Stub_Endcap_Fw_XY->setAxisTitle("TTStub Forward Endcap position x ", 1);
+  Stub_Endcap_Fw_XY->setAxisTitle("TTStub Forward Endcap y", 2);
   
   
   edm::ParameterSet psTTStub_Endcap_Bw_XY =  conf_.getParameter<edm::ParameterSet>("TH2TTStub_Position");
-  HistoName = "hStub_Endcap_Bw_XY";
+  HistoName = "Stub_Endcap_Bw_XY";
   //book the histogram
-  hStub_Endcap_Bw_XY = dqmStore_->book2D(HistoName, HistoName,
+  Stub_Endcap_Bw_XY = dqmStore_->book2D(HistoName, HistoName,
   psTTStub_Endcap_Bw_XY.getParameter<int32_t>("Nbinsx"),
   psTTStub_Endcap_Bw_XY.getParameter<double>("xmin"),
   psTTStub_Endcap_Bw_XY.getParameter<double>("xmax"),
@@ -238,14 +238,14 @@ OuterTrackerMonitorStub::beginRun(edm::Run const&, edm::EventSetup const&)
   psTTStub_Endcap_Bw_XY.getParameter<double>("ymin"),
   psTTStub_Endcap_Bw_XY.getParameter<double>("ymax"));
   //set titles
-  hStub_Endcap_Bw_XY->setAxisTitle("TTStub Backward Endcap position x ", 1);
-  hStub_Endcap_Bw_XY->setAxisTitle("TTStub Backward Endcap y", 2);
+  Stub_Endcap_Bw_XY->setAxisTitle("TTStub Backward Endcap position x ", 1);
+  Stub_Endcap_Bw_XY->setAxisTitle("TTStub Backward Endcap y", 2);
   
   //TTStub #rho vs. z
   edm::ParameterSet psTTStub_RZ =  conf_.getParameter<edm::ParameterSet>("TH2TTStub_RZ");
-  HistoName = "hStub_RZ";
+  HistoName = "Stub_RZ";
   //book the histogram
-  hStub_RZ = dqmStore_->book2D(HistoName, HistoName,
+  Stub_RZ = dqmStore_->book2D(HistoName, HistoName,
   psTTStub_RZ.getParameter<int32_t>("Nbinsx"),
   psTTStub_RZ.getParameter<double>("xmin"),
   psTTStub_RZ.getParameter<double>("xmax"),
@@ -253,14 +253,14 @@ OuterTrackerMonitorStub::beginRun(edm::Run const&, edm::EventSetup const&)
   psTTStub_RZ.getParameter<double>("ymin"),
   psTTStub_RZ.getParameter<double>("ymax"));
   //set titles
-  hStub_RZ->setAxisTitle("TTStub z ", 1);
-  hStub_RZ->setAxisTitle("TTStub #rho", 2);
+  Stub_RZ->setAxisTitle("TTStub z ", 1);
+  Stub_RZ->setAxisTitle("TTStub #rho", 2);
   
   //TTStub Forward Endcap #rho vs. z
   edm::ParameterSet psTTStub_Endcap_Fw_RZ_Zoom =  conf_.getParameter<edm::ParameterSet>("TH2TTStub_Endcap_Fw_RZ_Zoom");
-  HistoName = "hStub_Endcap_Fw_RZ_Zoom";
+  HistoName = "Stub_Endcap_Fw_RZ_Zoom";
   //book the histogram
-  hStub_Endcap_Fw_RZ_Zoom = dqmStore_->book2D(HistoName, HistoName,
+  Stub_Endcap_Fw_RZ_Zoom = dqmStore_->book2D(HistoName, HistoName,
   psTTStub_Endcap_Fw_RZ_Zoom.getParameter<int32_t>("Nbinsx"),
   psTTStub_Endcap_Fw_RZ_Zoom.getParameter<double>("xmin"),
   psTTStub_Endcap_Fw_RZ_Zoom.getParameter<double>("xmax"),
@@ -268,14 +268,14 @@ OuterTrackerMonitorStub::beginRun(edm::Run const&, edm::EventSetup const&)
   psTTStub_Endcap_Fw_RZ_Zoom.getParameter<double>("ymin"),
   psTTStub_Endcap_Fw_RZ_Zoom.getParameter<double>("ymax"));
   //set titles
-  hStub_Endcap_Fw_RZ_Zoom->setAxisTitle("TTStub Forward Endcap z ", 1);
-  hStub_Endcap_Fw_RZ_Zoom->setAxisTitle("TTStub Forward Endcap #rho", 2);
+  Stub_Endcap_Fw_RZ_Zoom->setAxisTitle("TTStub Forward Endcap z ", 1);
+  Stub_Endcap_Fw_RZ_Zoom->setAxisTitle("TTStub Forward Endcap #rho", 2);
   
   //TTStub Backward Endcap #rho vs. z
   edm::ParameterSet psTTStub_Endcap_Bw_RZ_Zoom =  conf_.getParameter<edm::ParameterSet>("TH2TTStub_Endcap_Bw_RZ_Zoom");
-  HistoName = "hStub_Endcap_Bw_RZ_Zoom";
+  HistoName = "Stub_Endcap_Bw_RZ_Zoom";
   //book the histogram
-  hStub_Endcap_Bw_RZ_Zoom = dqmStore_->book2D(HistoName, HistoName,
+  Stub_Endcap_Bw_RZ_Zoom = dqmStore_->book2D(HistoName, HistoName,
   psTTStub_Endcap_Bw_RZ_Zoom.getParameter<int32_t>("Nbinsx"),
   psTTStub_Endcap_Bw_RZ_Zoom.getParameter<double>("xmin"),
   psTTStub_Endcap_Bw_RZ_Zoom.getParameter<double>("xmax"),
@@ -283,69 +283,69 @@ OuterTrackerMonitorStub::beginRun(edm::Run const&, edm::EventSetup const&)
   psTTStub_Endcap_Bw_RZ_Zoom.getParameter<double>("ymin"),
   psTTStub_Endcap_Bw_RZ_Zoom.getParameter<double>("ymax"));
   //set titles
-  hStub_Endcap_Bw_RZ_Zoom->setAxisTitle("TTStub Backward Endcap z ", 1);
-  hStub_Endcap_Bw_RZ_Zoom->setAxisTitle("TTStub Backward Endcap #rho", 2);  
+  Stub_Endcap_Bw_RZ_Zoom->setAxisTitle("TTStub Backward Endcap z ", 1);
+  Stub_Endcap_Bw_RZ_Zoom->setAxisTitle("TTStub Backward Endcap #rho", 2);  
   
   //TTStub eta 
   edm::ParameterSet psTTStub_Eta =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Eta");
   HistoName = "Stub_Eta"; 
-  hStub_Eta = dqmStore_ ->book1D(HistoName,HistoName, 
+  Stub_Eta = dqmStore_ ->book1D(HistoName,HistoName, 
   psTTStub_Eta.getParameter<int32_t>("Nbinsx"), 
   psTTStub_Eta.getParameter<double>("xmin"), 
   psTTStub_Eta.getParameter<double>("xmax")); 
   //SetTitle
-  hStub_Eta->setAxisTitle("TTStub eta",1); 
-  hStub_Eta->setAxisTitle("# TTStubs ",2);
+  Stub_Eta->setAxisTitle("TTStub eta",1); 
+  Stub_Eta->setAxisTitle("# TTStubs ",2);
   
   //TTStub barrel stack
   edm::ParameterSet psTTStub_Barrel =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Stack");
   HistoName = "NStubs_Barrel"; 
-  hStub_Barrel = dqmStore_ ->book1D(HistoName,HistoName, 
+  Stub_Barrel = dqmStore_ ->book1D(HistoName,HistoName, 
   psTTStub_Barrel.getParameter<int32_t>("Nbinsx"), 
   psTTStub_Barrel.getParameter<double>("xmin"), 
   psTTStub_Barrel.getParameter<double>("xmax")); 
   //SetTitle
-  hStub_Barrel->setAxisTitle("Barrel Layer",1); 
-  hStub_Barrel->setAxisTitle("# TTStubs ",2);
+  Stub_Barrel->setAxisTitle("Barrel Layer",1); 
+  Stub_Barrel->setAxisTitle("# TTStubs ",2);
   
   //TTStub Endcap stack
   edm::ParameterSet psTTStub_Endcap =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Stack");
   HistoName = "NStubs_Endcap"; 
-  hStub_Endcap = dqmStore_ ->book1D(HistoName,HistoName, 
+  Stub_Endcap = dqmStore_ ->book1D(HistoName,HistoName, 
   psTTStub_Endcap.getParameter<int32_t>("Nbinsx"), 
   psTTStub_Endcap.getParameter<double>("xmin"), 
   psTTStub_Endcap.getParameter<double>("xmax")); 
   //SetTitle
-  hStub_Endcap->setAxisTitle("Endcap disk",1); 
-  hStub_Endcap->setAxisTitle("# TTStubs ",2);
+  Stub_Endcap->setAxisTitle("Endcap disk",1); 
+  Stub_Endcap->setAxisTitle("# TTStubs ",2);
   
   //TTStub Endcap stack
   edm::ParameterSet psTTStub_Endcap_Fw =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Stack");
   HistoName = "NStubs_Endcap_Fw"; 
-  hStub_Endcap_Fw = dqmStore_ ->book1D(HistoName,HistoName, 
+  Stub_Endcap_Fw = dqmStore_ ->book1D(HistoName,HistoName, 
   psTTStub_Endcap_Fw.getParameter<int32_t>("Nbinsx"), 
   psTTStub_Endcap_Fw.getParameter<double>("xmin"), 
   psTTStub_Endcap_Fw.getParameter<double>("xmax")); 
   //SetTitle
-  hStub_Endcap_Fw->setAxisTitle("Forward Endcap disk",1); 
-  hStub_Endcap_Fw->setAxisTitle("# TTStubs ",2);
+  Stub_Endcap_Fw->setAxisTitle("Forward Endcap disk",1); 
+  Stub_Endcap_Fw->setAxisTitle("# TTStubs ",2);
   
   //TTStub Endcap stack
   edm::ParameterSet psTTStub_Endcap_Bw =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Stack");
   HistoName = "NStubs_Endcap_Bw"; 
-  hStub_Endcap_Bw = dqmStore_ ->book1D(HistoName,HistoName, 
+  Stub_Endcap_Bw = dqmStore_ ->book1D(HistoName,HistoName, 
   psTTStub_Endcap_Bw.getParameter<int32_t>("Nbinsx"), 
   psTTStub_Endcap_Bw.getParameter<double>("xmin"), 
   psTTStub_Endcap_Bw.getParameter<double>("xmax")); 
   //SetTitle
-  hStub_Endcap_Bw->setAxisTitle("Backward Endcap disk",1); 
-  hStub_Endcap_Bw->setAxisTitle("# TTStubs ",2);
+  Stub_Endcap_Bw->setAxisTitle("Backward Endcap disk",1); 
+  Stub_Endcap_Bw->setAxisTitle("# TTStubs ",2);
   
   //TTStub displ/offset
   edm::ParameterSet psTTStub_Barrel_W =  conf_.getParameter<edm::ParameterSet>("TH2TTStub_DisOf");
   HistoName = "Stub_Width_Barrel";
   //book the histogram
-  hStub_Barrel_W = dqmStore_->book2D(HistoName, HistoName,
+  Stub_Barrel_W = dqmStore_->book2D(HistoName, HistoName,
   psTTStub_Barrel_W.getParameter<int32_t>("Nbinsx"),
   psTTStub_Barrel_W.getParameter<double>("xmin"),
   psTTStub_Barrel_W.getParameter<double>("xmax"),
@@ -353,13 +353,13 @@ OuterTrackerMonitorStub::beginRun(edm::Run const&, edm::EventSetup const&)
   psTTStub_Barrel_W.getParameter<double>("ymin"),
   psTTStub_Barrel_W.getParameter<double>("ymax"));
   //set titles
-  hStub_Barrel_W->setAxisTitle("Layer",1); 
-  hStub_Barrel_W->setAxisTitle("Displacement - Offset",2);
+  Stub_Barrel_W->setAxisTitle("Layer",1); 
+  Stub_Barrel_W->setAxisTitle("Displacement - Offset",2);
   
   edm::ParameterSet psTTStub_Barrel_O =  conf_.getParameter<edm::ParameterSet>("TH2TTStub_DisOf");
   HistoName = "Stub_Offset_Barrel";
   //book the histogram
-  hStub_Barrel_O = dqmStore_->book2D(HistoName, HistoName,
+  Stub_Barrel_O = dqmStore_->book2D(HistoName, HistoName,
   psTTStub_Barrel_O.getParameter<int32_t>("Nbinsx"),
   psTTStub_Barrel_O.getParameter<double>("xmin"),
   psTTStub_Barrel_O.getParameter<double>("xmax"),
@@ -367,13 +367,13 @@ OuterTrackerMonitorStub::beginRun(edm::Run const&, edm::EventSetup const&)
   psTTStub_Barrel_O.getParameter<double>("ymin"),
   psTTStub_Barrel_O.getParameter<double>("ymax"));
   //set titles
-  hStub_Barrel_O->setAxisTitle("Layer",1); 
-  hStub_Barrel_O->setAxisTitle("Trigger Offset",2);
+  Stub_Barrel_O->setAxisTitle("Layer",1); 
+  Stub_Barrel_O->setAxisTitle("Trigger Offset",2);
   
   edm::ParameterSet psTTStub_Endcap_W =  conf_.getParameter<edm::ParameterSet>("TH2TTStub_DisOf");
   HistoName = "Stub_Width_Endcap";
   //book the histogram
-  hStub_Endcap_W = dqmStore_->book2D(HistoName, HistoName,
+  Stub_Endcap_W = dqmStore_->book2D(HistoName, HistoName,
   psTTStub_Endcap_W.getParameter<int32_t>("Nbinsx"),
   psTTStub_Endcap_W.getParameter<double>("xmin"),
   psTTStub_Endcap_W.getParameter<double>("xmax"),
@@ -381,13 +381,13 @@ OuterTrackerMonitorStub::beginRun(edm::Run const&, edm::EventSetup const&)
   psTTStub_Endcap_W.getParameter<double>("ymin"),
   psTTStub_Endcap_W.getParameter<double>("ymax"));
   //set titles
-  hStub_Endcap_W->setAxisTitle("Layer",1); 
-  hStub_Endcap_W->setAxisTitle("Displacement - Offset",2);
+  Stub_Endcap_W->setAxisTitle("Layer",1); 
+  Stub_Endcap_W->setAxisTitle("Displacement - Offset",2);
   
   edm::ParameterSet psTTStub_Endcap_O =  conf_.getParameter<edm::ParameterSet>("TH2TTStub_DisOf");
   HistoName = "Stub_Offset_Endcap";
   //book the histogram
-  hStub_Endcap_O = dqmStore_->book2D(HistoName, HistoName,
+  Stub_Endcap_O = dqmStore_->book2D(HistoName, HistoName,
   psTTStub_Endcap_O.getParameter<int32_t>("Nbinsx"),
   psTTStub_Endcap_O.getParameter<double>("xmin"),
   psTTStub_Endcap_O.getParameter<double>("xmax"),
@@ -395,8 +395,8 @@ OuterTrackerMonitorStub::beginRun(edm::Run const&, edm::EventSetup const&)
   psTTStub_Endcap_O.getParameter<double>("ymin"),
   psTTStub_Endcap_O.getParameter<double>("ymax"));
   //Set titles
-  hStub_Endcap_O->setAxisTitle("Layer",1); 
-  hStub_Endcap_O->setAxisTitle("Trigger Offset",2);
+  Stub_Endcap_O->setAxisTitle("Layer",1); 
+  Stub_Endcap_O->setAxisTitle("Trigger Offset",2);
 
 
 }

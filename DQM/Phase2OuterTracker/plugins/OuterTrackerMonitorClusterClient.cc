@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    OuterTrackerMonitorClusterClient
-// Class:      OuterTrackerMonitorClusterClient
+// Package:    Phase2OuterTracker
+// Class:      Phase2OuterTracker
 // 
-/**\class OuterTrackerMonitorCluster OuterTrackerMonitorClusterClient.cc DQM/OuterTrackerMonitorCluster/plugins/OuterTrackerMonitorClusterClient.cc
+/**\class Phase2OuterTracker OuterTrackerMonitorClusterClient.cc DQM/Phase2OuterTracker/plugins/OuterTrackerMonitorClusterClient.cc
 
  Description: [one line class summary]
 
@@ -28,7 +28,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
-#include "DQM/OuterTrackerMonitorClient/interface/OuterTrackerMonitorClusterClient.h"
+#include "DQM/Phase2OuterTracker/interface/OuterTrackerMonitorClusterClient.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
