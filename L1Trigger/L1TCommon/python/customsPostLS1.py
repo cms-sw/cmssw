@@ -35,7 +35,6 @@ def customiseSimL1EmulatorForPostLS1(process):
     if hasattr(process, 'DigiToRaw'):
         print "INFO:  customizing DigiToRaw for Stage 1"
         print process.DigiToRaw
-        process.l1tDigiToRaw.Setup = cms.string("stage1::CaloSetup")
         process.l1tDigiToRaw.InputLabel = cms.InputTag("simCaloStage1FinalDigis", "")
         process.l1tDigiToRaw.TauInputLabel = cms.InputTag("simCaloStage1FinalDigis", "rlxTaus")
         process.l1tDigiToRaw.IsoTauInputLabel = cms.InputTag("simCaloStage1FinalDigis", "isoTaus")
@@ -50,19 +49,19 @@ def customiseSimL1EmulatorForPostLS1(process):
     if hasattr(process, 'RawToDigi'):
         print "INFO:  customizing L1RawToDigi for Stage 1"
         print process.RawToDigi
-        process.L1RawToDigiSeq = cms.Sequence(process.gctDigis+process.TESTcaloStage1Digis+process.caloStage1LegacyFormatDigis)
+        process.L1RawToDigiSeq = cms.Sequence(process.gctDigis+process.caloStage1Digis+process.caloStage1LegacyFormatDigis)
         process.RawToDigi.replace(process.gctDigis, process.L1RawToDigiSeq)
         print process.RawToDigi
 
 
 #hltGtDigis+hltGctDigis+hltL1GtObjectMap+hltL1extraParticles
-#csctfDigis+dttfDigis+gctDigis+TESTcaloStage1Digis+caloStage1LegacyFormatDigis+gtDigis+gtEvmDigis+siPixelDigis+siStripDigis+ecalDigis+ecalPreshowerDigis+hcalDigis+muonCSCDigis+muonDTDigis+muonRPCDigis+castorDigis+scalersRawToDigi+hltL1extraParticles
+#csctfDigis+dttfDigis+gctDigis+caloStage1Digis+caloStage1LegacyFormatDigis+gtDigis+gtEvmDigis+siPixelDigis+siStripDigis+ecalDigis+ecalPreshowerDigis+hcalDigis+muonCSCDigis+muonDTDigis+muonRPCDigis+castorDigis+scalersRawToDigi+hltL1extraParticles
     if hasattr(process, 'HLTL1UnpackerSequence'):
         print "INFO: customizing HLTL1UnpackerSequence for Stage 1"
         print process.HLTL1UnpackerSequence
 
         # extend sequence to add Layer 1 unpacking and conversion back to legacy format
-        process.hltCaloStage1Digis = process.TESTcaloStage1Digis.clone()
+        process.hltCaloStage1Digis = process.caloStage1Digis.clone()
         process.hltCaloStage1LegacyFormatDigis = process.caloStage1LegacyFormatDigis.clone()
         process.hltCaloStage1LegacyFormatDigis.InputCollection = cms.InputTag("hltCaloStage1Digis")
         process.hltCaloStage1LegacyFormatDigis.InputRlxTauCollection = cms.InputTag("hltCaloStage1Digis:rlxTaus")
@@ -81,7 +80,7 @@ def customiseSimL1EmulatorForPostLS1(process):
         #process.load("L1Trigger.L1TCommon.l1tRawToDigi_cfi")
         #process.l1tRawToDigi.Setup = cms.string("stage1::CaloSetup")
         #process.load("L1Trigger.L1TCommon.caloStage1LegacyFormatDigis_cfi")
-        #process.L1RawToDigiSeq = cms.Sequence(process.gctDigis+process.TESTcaloStage1Digis+process.caloStage1LegacyFormatDigis)
+        #process.L1RawToDigiSeq = cms.Sequence(process.gctDigis+process.caloStage1Digis+process.caloStage1LegacyFormatDigis)
         #for iterable in process.sequences.itervalues():
         #    iterable.replace( process.HLTL1UnpackerSequence, HLTL1UnpackerSequence)
 
@@ -131,13 +130,13 @@ def customiseSimL1EmulatorForPostLS1(process):
             getattr(process, b).hfRingBitCountsSource = cms.InputTag("caloStage1LegacyFormatDigis")
 
 
-    # THIS IS A HACK FOR NOW, WHILE WE SORT OUT FED ID:
-    clist=['RAWSIM','RAWDEBUG','FEVTDEBUG','FEVTDEBUGHLT','GENRAW','RAWSIMHLT','FEVT']
-    for c in clist:
-        b=c+'output'
-        if hasattr(process,b):
-            getattr(process,b).outputCommands.append('keep *_l1tDigiToRaw_*_*')
-            print "INFO:  keeping l1tDigiToRaw output in the event."
+#    # THIS IS A HACK FOR NOW, WHILE WE SORT OUT FED ID:
+#    clist=['RAWSIM','RAWDEBUG','FEVTDEBUG','FEVTDEBUGHLT','GENRAW','RAWSIMHLT','FEVT']
+#    for c in clist:
+#        b=c+'output'
+#        if hasattr(process,b):
+#            getattr(process,b).outputCommands.append('keep *_l1tDigiToRaw_*_*')
+#            print "INFO:  keeping l1tDigiToRaw output in the event."
 
 
 #    process.MessageLogger = cms.Service(
