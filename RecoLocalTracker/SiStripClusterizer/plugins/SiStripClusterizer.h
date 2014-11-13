@@ -20,6 +20,7 @@ public:
 private:
 
   edm::ParameterSet confClusterizer_;
+  bool useLegacyError_;
   bool doRefineCluster_;
   float occupancyThreshold_;
   unsigned widthThreshold_;

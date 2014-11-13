@@ -15,6 +15,7 @@ SiStripClusterizer(const edm::ParameterSet& conf)
     algorithm( StripClusterizerAlgorithmFactory::create(conf.getParameter<edm::ParameterSet>("Clusterizer")) ) {
   produces< edmNew::DetSetVector<SiStripCluster> > ();
   inputTokens = edm::vector_transform( inputTags, [this](edm::InputTag const & tag) { return consumes< edm::DetSetVector<SiStripDigi> >(tag);} );
+  useLegacyError_ =  confClusterizer_.existsAs<bool>("useLegacyError") ? confClusterizer_.getParameter<bool>("useLegacyError") : false;
   doRefineCluster_ = confClusterizer_.existsAs<bool>("doRefineCluster") ? confClusterizer_.getParameter<bool>("doRefineCluster") : false;
   occupancyThreshold_ = confClusterizer_.existsAs<double>("occupancyThreshold") ? confClusterizer_.getParameter<double>("occupancyThreshold") : 0.05;
   widthThreshold_ = confClusterizer_.existsAs<unsigned>("widthThreshold") ? confClusterizer_.getParameter<unsigned>("widthThreshold") : 4;
@@ -33,7 +34,7 @@ produce(edm::Event& event, const edm::EventSetup& es)  {
 
   edm::ESHandle<SiStripQuality> quality = 0;
   SiStripDetInfoFileReader* reader = 0;
-  if (doRefineCluster_) {
+  if (doRefineCluster_ &! useLegacyError_) {
     es.get<SiStripQualityRcd>().get("", quality);
     reader = edm::Service<SiStripDetInfoFileReader>().operator->();
   }
@@ -41,7 +42,7 @@ produce(edm::Event& event, const edm::EventSetup& es)  {
   BOOST_FOREACH( const edm::EDGetTokenT< edm::DetSetVector<SiStripDigi> >& token, inputTokens) {
     if(      findInput( token, inputOld, event) ) {
       algorithm->clusterize(*inputOld, *output);
-      if (doRefineCluster_) refineCluster(inputOld, output, reader, quality);
+      if (doRefineCluster_ &! useLegacyError_) refineCluster(inputOld, output, reader, quality);
     } 
 //     else if( findInput( tag, inputNew, event) ) algorithm->clusterize(*inputNew, *output);
     else edm::LogError("Input Not Found") << "[SiStripClusterizer::produce] ";// << tag;
