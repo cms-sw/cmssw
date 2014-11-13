@@ -1,11 +1,11 @@
-/** \class HLTEgammaGenericFilter
+/** \class HLTGenericFilter
  *
  *
  *  \author Roberto Covarelli (CERN)
  *
  */
 
-#include "HLTrigger/Egamma/interface/HLTEgammaGenericFilter.h"
+#include "HLTrigger/Egamma/interface/HLTGenericFilter.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -22,7 +22,8 @@
 //
 // constructors and destructor
 //
-HLTEgammaGenericFilter::HLTEgammaGenericFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) {
+template<typename T1>
+HLTGenericFilter<T1>::HLTGenericFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) {
   candTag_ = iConfig.getParameter< edm::InputTag > ("candTag");
   isoTag_ = iConfig.getParameter< edm::InputTag > ("isoTag");
   nonIsoTag_ = iConfig.getParameter< edm::InputTag > ("nonIsoTag");
@@ -40,13 +41,14 @@ HLTEgammaGenericFilter::HLTEgammaGenericFilter(const edm::ParameterSet& iConfig)
   L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 	
   L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand");
 
-  candToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(candTag_);
-  isoToken_ = consumes<reco::RecoEcalCandidateIsolationMap>(isoTag_);
-  if(!doIsolated_) nonIsoToken_ = consumes<reco::RecoEcalCandidateIsolationMap>(nonIsoTag_);
+  candToken_ = consumes<T1IsolationMap>(candTag_);
+  isoToken_ = consumes<T1IsolationMap>(isoTag_);
+  if(!doIsolated_) nonIsoToken_ = consumes<T1IsolationMap>(nonIsoTag_);
 }
 
+template<typename T1>
 void
-HLTEgammaGenericFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+HLTGenericFilter<T1>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("candTag",edm::InputTag("hltSingleEgammaEtFilter"));
@@ -64,15 +66,17 @@ HLTEgammaGenericFilter::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<bool>("doIsolated",true);
   desc.add<edm::InputTag>("L1IsoCand",edm::InputTag("hltL1IsoRecoEcalCandidate"));
   desc.add<edm::InputTag>("L1NonIsoCand",edm::InputTag("hltL1NonIsoRecoEcalCandidate"));
-  descriptions.add("hltEgammaGenericFilter",desc);
+  descriptions.add("HLTGenericFilter",desc);
 }
 
-HLTEgammaGenericFilter::~HLTEgammaGenericFilter(){}
+template<typename T1>
+HLTGenericFilter<T1>::~HLTGenericFilter(){}
 
 
 // ------------ method called to produce the data  ------------
+template<typename T1>
 bool
-HLTEgammaGenericFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
+HLTGenericFilter<T1>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace trigger;
   if (saveTags()) {
@@ -81,7 +85,7 @@ HLTEgammaGenericFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
   }
 
   // Ref to Candidate object to be recorded in filter object
-  edm::Ref<reco::RecoEcalCandidateCollection> ref;
+  T1Ref ref;
 
   // Set output format
   int trigger_type = trigger::TriggerCluster;
@@ -90,25 +94,28 @@ HLTEgammaGenericFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
   edm::Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
   iEvent.getByToken (candToken_,PrevFilterOutput);
 
-  std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > recoecalcands;
-  PrevFilterOutput->getObjects(TriggerCluster, recoecalcands);
-  if(recoecalcands.empty()) PrevFilterOutput->getObjects(TriggerPhoton,recoecalcands);  //we dont know if its type trigger cluster or trigger photon
-
+  std::vector<T1Ref> recoCands;
+  PrevFilterOutput->getObjects(TriggerCluster, recoCands);
+    if(recoCands.empty()) PrevFilterOutput->getObjects(TriggerPhoton,recoCands);  //we dont know if its type trigger cluster or trigger photon
+    else if(recoCands.empty()) {
+        PrevFilterOutput->getObjects(TriggerMuon,recoCands);  //if not a cluster and not a photon then assum it is a muon
+        trigger_type = trigger::TriggerMuon;
+    }
   //get hold of isolated association map
-  edm::Handle<reco::RecoEcalCandidateIsolationMap> depMap;
+  edm::Handle<T1IsolationMap> depMap;
   iEvent.getByToken (isoToken_,depMap);
 
   //get hold of non-isolated association map
-  edm::Handle<reco::RecoEcalCandidateIsolationMap> depNonIsoMap;
+  edm::Handle<T1IsolationMap> depNonIsoMap;
   if(!doIsolated_) iEvent.getByToken (nonIsoToken_,depNonIsoMap);
 
   // look at all photons, check cuts and add to filter object
   int n = 0;
 
-  for (unsigned int i=0; i<recoecalcands.size(); i++) {
+  for (unsigned int i=0; i<recoCands.size(); i++) {
 
-    ref = recoecalcands[i];
-    reco::RecoEcalCandidateIsolationMap::const_iterator mapi = (*depMap).find( ref );
+    ref = recoCands[i];
+    typename T1IsolationMap::const_iterator mapi = (*depMap).find( ref );
     if (mapi==(*depMap).end() && !doIsolated_) mapi = (*depNonIsoMap).find( ref );
 
     float vali = mapi->val;
@@ -158,4 +165,10 @@ HLTEgammaGenericFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
 
   return accept;
 }
+
+
+typedef HLTGenericFilter<reco::RecoEcalCandidate> EgammaHLTGenericFilter;
+
+DEFINE_FWK_MODULE(EgammaHLTGenericFilter);
+
 
