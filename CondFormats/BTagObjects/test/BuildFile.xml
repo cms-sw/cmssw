@@ -1,0 +1,17 @@
+<use name="CondFormats/PhysicsToolsObjects"/>
+
+<bin file="testSerializationBTagObjects.cpp">
+    <use name="CondFormats/BTagObjects"/>
+</bin>
+
+<bin file="testBTagEntry.cpp">
+    <use name="CondFormats/BTagObjects"/>
+</bin>
+
+<bin file="testBTagCalibration.cpp">
+    <use name="CondFormats/BTagObjects"/>
+</bin>
+
+<bin file="testBTagCalibrationReader.cpp">
+    <use name="CondFormats/BTagObjects"/>
+</bin>
