@@ -164,7 +164,7 @@ efficiency_strings_TTHbbej = list(efficiency_strings)
 #add the summary plots
 for an in _config.analysis:
     for trig in triggers:
-        efficiency_strings_TTHbbej.append("Eff_HtDist_"+an+"_gen_"+trig+" ' Efficiency of "+trig+" vs sum pT of jets ; sum pT of jets ' HtDist_"+an+"_gen_"+trig+" trueVtxDist_"+an+"_gen")
+        efficiency_strings_TTHbbej.append("Eff_HtDist_"+an+"_gen_"+trig+" ' Efficiency of "+trig+" vs sum pT of jets ; sum pT of jets ' HtDist_"+an+"_gen_"+trig+" HtDist_"+an+"_gen")
 
 efficiency_strings_TTHbbej.extend(get_reco_strings(efficiency_strings_TTHbbej))
 
