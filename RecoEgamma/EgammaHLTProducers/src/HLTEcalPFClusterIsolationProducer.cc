@@ -88,7 +88,7 @@ template<>
 bool HLTEcalPFClusterIsolationProducer<reco::RecoEcalCandidate>::computedRVeto(T1Ref candRef, reco::PFClusterRef pfclu) {
 
   float dR2 = deltaR2(candRef->eta(), candRef->phi(), pfclu->eta(), pfclu->phi());
-  if(dR2 < drVeto2_)
+  if(dR2 > (drMax_*drMax_))
     return false;
 
   if (candRef->superCluster().isNonnull()) {
