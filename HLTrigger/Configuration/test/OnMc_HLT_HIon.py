@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_2_1/HIon/V48 (CMSSW_7_2_1_patch2)
+# /dev/CMSSW_7_2_1/HIon/V52 (CMSSW_7_2_1_patch2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_2_1/HIon/V48')
+  tableName = cms.string('/dev/CMSSW_7_2_1/HIon/V52')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -516,7 +516,7 @@ process.CSCChannelMapperESSource = cms.ESSource( "EmptyESSource",
     firstValid = cms.vuint32( 1 )
 )
 
-process.DisplacedDijethltESPTrackCounting2D1st = cms.ESProducer( "TrackCountingESProducer",
+process.hltDisplacedDijethltESPTrackCounting2D1st = cms.ESProducer( "TrackCountingESProducer",
   b_pT = cms.double( 0.3684 ),
   deltaR = cms.double( -1.0 ),
   minimumImpactParameter = cms.double( 0.05 ),
@@ -536,7 +536,7 @@ process.DisplacedDijethltESPTrackCounting2D1st = cms.ESProducer( "TrackCountingE
   nthTrack = cms.int32( 1 ),
   useSignedImpactParameterSig = cms.bool( False )
 )
-process.DisplacedDijethltESPPromptTrackCountingESProducer = cms.ESProducer( "PromptTrackCountingESProducer",
+process.hltDisplacedDijethltESPPromptTrackCountingESProducer = cms.ESProducer( "PromptTrackCountingESProducer",
   maxImpactParameterSig = cms.double( 999999.0 ),
   deltaR = cms.double( -1.0 ),
   minimumImpactParameter = cms.double( -1.0 ),

@@ -68,9 +68,7 @@ class HLTMonPhotonSource : public edm::EDAnalyzer {
 
       
       std::string dirname_;
-      bool monitorDaemon_;
       std::ofstream logFile_;
-      int theHLTOutputType;
       std::string outputFile_;
       
 };
