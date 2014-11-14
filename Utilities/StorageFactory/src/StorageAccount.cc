@@ -1,9 +1,9 @@
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
-#include <boost/thread/mutex.hpp>
+#include <mutex>
 #include <sstream>
 #include <unistd.h>
 
-boost::mutex                 s_mutex;
+static std::mutex            s_mutex;
 StorageAccount::StorageStats s_stats;
 
 static double timeRealNanoSecs (void) {
@@ -94,7 +94,7 @@ StorageAccount::summary (void)
 
 StorageAccount::Counter&
 StorageAccount::counter (const std::string &storageClass, const std::string &operation) {
-  boost::mutex::scoped_lock lock (s_mutex);
+  std::lock_guard<std::mutex> lock (s_mutex);
   boost::shared_ptr<OperationStats> &opstats = s_stats [storageClass];
   if (!opstats) opstats.reset(new OperationStats);
 
@@ -111,14 +111,14 @@ StorageAccount::Stamp::Stamp (Counter &counter)
   : m_counter (counter),
     m_start (timeRealNanoSecs ())
 {
-  boost::mutex::scoped_lock lock (s_mutex);
+  std::lock_guard<std::mutex> lock (s_mutex);
   m_counter.attempts++;
 }
 
 void
 StorageAccount::Stamp::tick (double amount, int64_t count) const
 {
-  boost::mutex::scoped_lock lock (s_mutex);
+  std::lock_guard<std::mutex> lock (s_mutex);
   double elapsed = timeRealNanoSecs () - m_start;
   m_counter.successes++;
 
