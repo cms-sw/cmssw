@@ -1,20 +1,19 @@
-#ifndef Geometry_TrackerNumberingBuilder_CmsTrackerBuilder_H
-# define Geometry_TrackerNumberingBuilder_CmsTrackerBuilder_H
+#ifndef Geometry_TrackerNumberingBuilder_CmsTrackerPixelPhase2EndcapBuilder_H
+# define Geometry_TrackerNumberingBuilder_CmsTrackerPixelPhase2EndcapBuilder_H
 
 # include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerLevelBuilder.h"
 # include "FWCore/ParameterSet/interface/types.h"
 # include <string>
 
 /**
- * Abstract Class to construct a Level in the hierarchy
+ * Class which builds the pixel phase 1 endcap
  */
-class CmsTrackerBuilder : public CmsTrackerLevelBuilder
+class CmsTrackerPixelPhase2EndcapBuilder : public CmsTrackerLevelBuilder
 {
 public:
-  CmsTrackerBuilder();
-
+  CmsTrackerPixelPhase2EndcapBuilder();
+  
 private:
-
   virtual void sortNS( DDFilteredView& , GeometricDet* );
   virtual void buildComponent( DDFilteredView& , GeometricDet*, std::string );
 };

@@ -11,8 +11,7 @@
 
 #include <bitset>
 
-CmsTrackerSubStrctBuilder::CmsTrackerSubStrctBuilder( unsigned int totalBlade )
-  : m_totalBlade( totalBlade )
+CmsTrackerSubStrctBuilder::CmsTrackerSubStrctBuilder()
 {}
 
 void
@@ -20,12 +19,15 @@ CmsTrackerSubStrctBuilder::buildComponent( DDFilteredView& fv, GeometricDet* g, 
 {
   CmsTrackerLayerBuilder theCmsTrackerLayerBuilder;
   CmsTrackerWheelBuilder theCmsTrackerWheelBuilder;
-  CmsTrackerDiskBuilder  theCmsTrackerDiskBuilder( m_totalBlade );   
+  CmsTrackerDiskBuilder  theCmsTrackerDiskBuilder;   
 
   GeometricDet * subdet = new GeometricDet( &fv, theCmsTrackerStringToEnum.type( ExtractStringFromDDD::getString( s, &fv )));
   switch( theCmsTrackerStringToEnum.type( ExtractStringFromDDD::getString( s, &fv )))
   {
   case GeometricDet::layer:
+    theCmsTrackerLayerBuilder.build(fv,subdet,s);      
+    break;
+  case GeometricDet::OTPhase2Layer:
     theCmsTrackerLayerBuilder.build(fv,subdet,s);      
     break;
   case GeometricDet::wheel:
@@ -59,6 +61,8 @@ CmsTrackerSubStrctBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
   case GeometricDet::disk:
     std::sort( comp.begin(), comp.end(), LessModZ());
     break;
+    // the case GeometricDet::OTPhase2Layer is not considered because so far they come together with the GeomtricDet::layer of the
+    // inner pixel. It will be solved when they are decoupled. Otherwise we can envisage a CmsTrackerPixelPhase2BarrelBuilder
   default:
     edm::LogError( "CmsTrackerSubStrctBuilder" ) << "ERROR - wrong SubDet to sort..... " << det->components().front()->type(); 
   }

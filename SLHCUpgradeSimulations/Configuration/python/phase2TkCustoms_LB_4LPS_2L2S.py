@@ -188,7 +188,6 @@ def customise_Reco(process):
 
 def customise_condOverRides(process):
     process.load('SLHCUpgradeSimulations.Geometry.fakeConditions_LongBarrel4LPS_2L2S_cff')
-    process.trackerNumberingSLHCGeometry.layerNumberPXB = cms.uint32(20)
     process.trackerTopologyConstants.pxb_layerStartBit = cms.uint32(20)
     process.trackerTopologyConstants.pxb_ladderStartBit = cms.uint32(12)
     process.trackerTopologyConstants.pxb_moduleStartBit = cms.uint32(2)

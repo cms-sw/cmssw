@@ -7,6 +7,8 @@
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDetExtra.h"
 
+#include <vector>
+
 namespace edm {
   class ConfigurationDescriptions;
 }
@@ -22,8 +24,7 @@ public:
   
 private:
   bool fromDDD_;
-  unsigned int layerNumberPXB_; // default 16; 18 for SLHC
-  unsigned int totalBlade_;     // default 24; 56 for SLHC
+  std::vector<int> detidShifts_; // default 16; 18 for SLHC
 };
 
 

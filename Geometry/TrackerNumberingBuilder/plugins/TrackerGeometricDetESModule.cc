@@ -24,9 +24,30 @@ using namespace edm;
 
 TrackerGeometricDetESModule::TrackerGeometricDetESModule( const edm::ParameterSet & p ) 
   : fromDDD_( p.getParameter<bool>( "fromDDD" )),
-    layerNumberPXB_( p.exists( "layerNumberPXB" ) ? p.getParameter<unsigned int>( "layerNumberPXB" ) : 16U ),// 16 for current, 18 for SLHC 
-    totalBlade_( p.exists( "totalBlade" ) ? p.getParameter<unsigned int>( "totalBlade" ) : 24U )             // 24 for current, 56 for SLHC 
+    detidShifts_( p.exists( "detidShifts" ) ? p.getParameter<std::vector<int> >( "detidShifts" ) : std::vector<int>() )
 {
+  // if the vector of detid shifts in not configured, fill it with the default values
+  if(detidShifts_.size()==0) {
+    // level 0
+    detidShifts_.push_back(-1); detidShifts_.push_back(23); detidShifts_.push_back(-1); 
+    detidShifts_.push_back(13); detidShifts_.push_back(-1); detidShifts_.push_back(18);
+    // level 1
+    detidShifts_.push_back(16); detidShifts_.push_back(16); detidShifts_.push_back(14); 
+    detidShifts_.push_back(11); detidShifts_.push_back(14); detidShifts_.push_back(14);
+    // level 2
+    detidShifts_.push_back(8) ; detidShifts_.push_back(8) ; detidShifts_.push_back(4); 
+    detidShifts_.push_back(9) ; detidShifts_.push_back(5) ; detidShifts_.push_back(8);
+    // level 3
+    detidShifts_.push_back(2) ; detidShifts_.push_back(2) ; detidShifts_.push_back(2); 
+    detidShifts_.push_back(2) ; detidShifts_.push_back(2) ; detidShifts_.push_back(5);
+    // level 4
+    detidShifts_.push_back(0) ; detidShifts_.push_back(0) ; detidShifts_.push_back(0); 
+    detidShifts_.push_back(0) ; detidShifts_.push_back(0) ; detidShifts_.push_back(2);
+    // level 5
+    detidShifts_.push_back(-1); detidShifts_.push_back(-1); detidShifts_.push_back(-1); 
+    detidShifts_.push_back(-1); detidShifts_.push_back(-1); detidShifts_.push_back(0);
+  }
+
   setWhatProduced( this );
 }
 
@@ -35,28 +56,64 @@ TrackerGeometricDetESModule::~TrackerGeometricDetESModule( void ) {}
 void
 TrackerGeometricDetESModule::fillDescriptions( edm::ConfigurationDescriptions & descriptions )
 {
+  std::vector<int> presentDet;
+    // level 0
+  presentDet.push_back(-1); presentDet.push_back(23); presentDet.push_back(-1); 
+  presentDet.push_back(13); presentDet.push_back(-1); presentDet.push_back(18);
+  // level 1
+  presentDet.push_back(16); presentDet.push_back(16); presentDet.push_back(14); 
+  presentDet.push_back(11); presentDet.push_back(14); presentDet.push_back(14);
+  // level 2
+  presentDet.push_back(8) ; presentDet.push_back(8) ; presentDet.push_back(4); 
+  presentDet.push_back(9) ; presentDet.push_back(5) ; presentDet.push_back(8);
+  // level 3
+  presentDet.push_back(2) ; presentDet.push_back(2) ; presentDet.push_back(2); 
+  presentDet.push_back(2) ; presentDet.push_back(2) ; presentDet.push_back(5);
+  // level 4
+  presentDet.push_back(0) ; presentDet.push_back(0) ; presentDet.push_back(0); 
+  presentDet.push_back(0) ; presentDet.push_back(0) ; presentDet.push_back(2);
+  // level 5
+  presentDet.push_back(-1); presentDet.push_back(-1); presentDet.push_back(-1); 
+  presentDet.push_back(-1); presentDet.push_back(-1); presentDet.push_back(0);
+
+  std::vector<int> slhcDet;
+    // level 0
+  slhcDet.push_back(-1); slhcDet.push_back(23); slhcDet.push_back(-1); 
+  slhcDet.push_back(13); slhcDet.push_back(-1); slhcDet.push_back(18);
+  // level 1
+  slhcDet.push_back(20); slhcDet.push_back(18); slhcDet.push_back(14); 
+  slhcDet.push_back(11); slhcDet.push_back(14); slhcDet.push_back(14);
+  // level 2
+  slhcDet.push_back(12); slhcDet.push_back(10); slhcDet.push_back(4); 
+  slhcDet.push_back(9) ; slhcDet.push_back(5) ; slhcDet.push_back(8);
+  // level 3
+  slhcDet.push_back(2) ; slhcDet.push_back(2) ; slhcDet.push_back(2); 
+  slhcDet.push_back(2) ; slhcDet.push_back(2) ; slhcDet.push_back(5);
+  // level 4
+  slhcDet.push_back(0) ; slhcDet.push_back(0) ; slhcDet.push_back(0); 
+  slhcDet.push_back(0) ; slhcDet.push_back(0) ; slhcDet.push_back(2);
+  // level 5
+  slhcDet.push_back(-1); slhcDet.push_back(-1); slhcDet.push_back(-1); 
+  slhcDet.push_back(-1); slhcDet.push_back(-1); slhcDet.push_back(0);
+  
   edm::ParameterSetDescription descDB;
   descDB.add<bool>( "fromDDD", false );
-  descDB.addOptional<unsigned int>( "layerNumberPXB", 16U );
-  descDB.addOptional<unsigned int>( "totalBlade", 24U );
+  descDB.addOptional<std::vector<int> >( "detidShifts", presentDet );
   descriptions.add( "trackerNumberingGeometryDB", descDB );
 
   edm::ParameterSetDescription descSLHCDB;
   descSLHCDB.add<bool>( "fromDDD", false );
-  descSLHCDB.addOptional<unsigned int>( "layerNumberPXB", 18U );
-  descSLHCDB.addOptional<unsigned int>( "totalBlade", 56U );
+  descSLHCDB.addOptional<std::vector<int> >( "detidShifts", slhcDet );
   descriptions.add( "trackerNumberingSLHCGeometryDB", descSLHCDB );
 
   edm::ParameterSetDescription desc;
   desc.add<bool>( "fromDDD", true );
-  desc.addOptional<unsigned int>( "layerNumberPXB", 16U );
-  desc.addOptional<unsigned int>( "totalBlade", 24U );
+  desc.addOptional<std::vector<int> >( "detidShifts", presentDet );
   descriptions.add( "trackerNumberingGeometry", desc );
 
   edm::ParameterSetDescription descSLHC;
   descSLHC.add<bool>( "fromDDD", true );
-  descSLHC.addOptional<unsigned int>( "layerNumberPXB", 18U );
-  descSLHC.addOptional<unsigned int>( "totalBlade", 56U );
+  descSLHC.addOptional<std::vector<int> >( "detidShifts", slhcDet );
   descriptions.add( "trackerNumberingSLHCGeometry", descSLHC );
 }
 
@@ -69,7 +126,7 @@ TrackerGeometricDetESModule::produce( const IdealGeometryRecord & iRecord )
     iRecord.get( cpv );
     
     DDDCmsTrackerContruction theDDDCmsTrackerContruction;
-    return std::auto_ptr<GeometricDet> (const_cast<GeometricDet*>( theDDDCmsTrackerContruction.construct(&(*cpv), layerNumberPXB_, totalBlade_ )));
+    return std::auto_ptr<GeometricDet> (const_cast<GeometricDet*>( theDDDCmsTrackerContruction.construct(&(*cpv), detidShifts_)));
   }
   else
   {
