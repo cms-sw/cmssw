@@ -16,7 +16,7 @@ int main(){
     connection.configuration().setPoolAutomaticCleanUp( false );
     connection.configure();
     cond::DbSession pooldb = connection.createSession();
-    pooldb.open("sqlite_file:mytest.db"); 
+    pooldb.open("sqlite_file:testIOVDelete.db"); 
     cond::IOVEditor editor( pooldb );
     pooldb.transaction().start(false);
     editor.createIOVContainerIfNecessary();

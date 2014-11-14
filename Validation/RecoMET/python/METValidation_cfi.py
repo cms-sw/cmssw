@@ -7,9 +7,9 @@ import FWCore.ParameterSet.Config as cms
 # Fill validation histograms for MET
 metAnalyzer = cms.EDAnalyzer(
     "METTester",
+    OutputFile = cms.untracked.string(''),
     InputMETLabel = cms.InputTag("caloMet"),
-    METType = cms.untracked.string("calo"),
-    PrimaryVertices = cms.InputTag("offlinePrimaryVertices")
+    METType = cms.untracked.string("calo")
     )
 
 #metHOAnalyzer = cms.EDAnalyzer(
@@ -56,9 +56,9 @@ metAnalyzer = cms.EDAnalyzer(
 
 pfMetAnalyzer = cms.EDAnalyzer(
    "METTester",
+   OutputFile = cms.untracked.string(''),
    InputMETLabel = cms.InputTag("pfMet"),
-   METType = cms.untracked.string("pf"),
-   PrimaryVertices = cms.InputTag("offlinePrimaryVertices")
+    METType = cms.untracked.string("pf")
    ) 
 
 #tcMetAnalyzer = cms.EDAnalyzer(
@@ -98,9 +98,9 @@ pfMetAnalyzer = cms.EDAnalyzer(
 
 genMetTrueAnalyzer = cms.EDAnalyzer(
     "METTester",
+    OutputFile = cms.untracked.string(''),
     InputMETLabel = cms.InputTag("genMetTrue"),
-    METType = cms.untracked.string("gen"),
-    PrimaryVertices = cms.InputTag("offlinePrimaryVertices")
+    METType = cms.untracked.string("gen")
     )
 
 #genMetCaloAnalyzer = cms.EDAnalyzer(
@@ -123,26 +123,21 @@ genMetTrueAnalyzer = cms.EDAnalyzer(
 #    )
 pfType0CorrectedMetAnalyzer = cms.EDAnalyzer(
    "METTester",
+   OutputFile = cms.untracked.string(''),
    InputMETLabel = cms.InputTag("pfMetT0pc"),
-   METType = cms.untracked.string("pf"),
-   PrimaryVertices = cms.InputTag("offlinePrimaryVertices")
+    METType = cms.untracked.string("pf")
    )
 pfType1CorrectedMetAnalyzer = cms.EDAnalyzer(
    "METTester",
+   OutputFile = cms.untracked.string(''),
    InputMETLabel = cms.InputTag("pfMetT1"),
-   METType = cms.untracked.string("pf"),
-   PrimaryVertices = cms.InputTag("offlinePrimaryVertices")
+    METType = cms.untracked.string("pf")
    )
 pfType01CorrectedMetAnalyzer = cms.EDAnalyzer(
    "METTester",
+   OutputFile = cms.untracked.string(''),
    InputMETLabel = cms.InputTag("pfMetT0pcT1"),
-    METType = cms.untracked.string("pf"),
-   PrimaryVertices = cms.InputTag("offlinePrimaryVertices")
+    METType = cms.untracked.string("pf")
    )
-pfType1CorrectedMetAnalyzerMiniAOD = cms.EDAnalyzer(
-   "METTester",
-   InputMETLabel = cms.InputTag("slimmedMETs"),
-   METType = cms.untracked.string("miniaod"),
-   PrimaryVertices = cms.InputTag("offlineSlimmedPrimaryVertices")
-   )
+
 
