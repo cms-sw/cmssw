@@ -6656,7 +6656,6 @@ hltMuons = cms.EDProducer( "MuonIdProducer",
     ),
     maxAbsEta = cms.double( 3.0 ),
     fillGlobalTrackRefits = cms.bool( False ),
-    muonTrackDeltaEta = cms.double( 999.0 ),
     arbitrationCleanerOptions = cms.PSet( 
       Clustering = cms.bool( True ),
       ME1a = cms.bool( True ),
