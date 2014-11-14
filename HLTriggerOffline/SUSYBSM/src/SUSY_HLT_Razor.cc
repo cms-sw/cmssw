@@ -260,7 +260,7 @@ void SUSY_HLT_Razor::endRun(edm::Run const& run, edm::EventSetup const& eSetup)
 void SUSY_HLT_Razor::bookHistos(DQMStore::IBooker & ibooker_)
 {
   ibooker_.cd();
-  ibooker_.setCurrentFolder("HLTriggerOffline/SUSYBSM/" + triggerPath_);
+  ibooker_.setCurrentFolder("HLT/SUSYBSM/" + triggerPath_);
 
   h_mr = ibooker_.book1D("mr", "M_{R} (R^{2} > 0.15) ; GeV", 100, 0.0, 4000);
   h_rsq = ibooker_.book1D("rsq", "R^{2} (M_{R} > 300)", 100, 0.0, 1.5);
