@@ -27,7 +27,6 @@ class HltSusyExoPostProcessor : public edm::EDAnalyzer {
   std::vector<edm::ParameterSet> mc_parametersets;
   std::vector<std::string> reco_dirs;
   std::vector<std::string> mc_dirs;
-  
 };
 
 #endif
