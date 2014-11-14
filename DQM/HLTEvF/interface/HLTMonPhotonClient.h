@@ -56,7 +56,6 @@ class HLTMonPhotonClient : public edm::EDAnalyzer {
 
       std::string dirname_;
       std::string sourcedirname_;
-      bool monitorDaemon_;
       std::ofstream logFile_;
       std::string outputFile_;
       std::vector<edm::InputTag> theHLTCollectionLabels;

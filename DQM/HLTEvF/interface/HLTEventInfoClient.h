@@ -70,7 +70,6 @@ private:
   int counterEvt_;     ///counter
   int prescaleLS_;     ///units of lumi sections
   int prescaleEvt_;    ///prescale on number of events
-  int nChannels;
   Float_t reportSummary;
   Float_t summarySum;
   Float_t summaryContent[20];

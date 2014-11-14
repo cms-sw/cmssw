@@ -7,7 +7,6 @@
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 
-#include "HLTrigger/Egamma/interface/HLTEgammaGenericFilter.h"
 #include "HLTrigger/Egamma/interface/HLTEgammaGenericQuadraticFilter.h"
 #include "HLTrigger/Egamma/interface/HLTEgammaGenericQuadraticEtaFilter.h"
 #include "HLTrigger/Egamma/interface/HLTElectronGenericFilter.h"
@@ -41,7 +40,6 @@
 #include "HLTrigger/Egamma/interface/HLTElectronPFMTFilter.h"
 #include "HLTrigger/Egamma/src/HLTElectronPFMTFilter.cc"
 
-DEFINE_FWK_MODULE(HLTEgammaGenericFilter);
 DEFINE_FWK_MODULE(HLTEgammaGenericQuadraticFilter);
 DEFINE_FWK_MODULE(HLTEgammaGenericQuadraticEtaFilter);
 DEFINE_FWK_MODULE(HLTEgammaEtFilter);
