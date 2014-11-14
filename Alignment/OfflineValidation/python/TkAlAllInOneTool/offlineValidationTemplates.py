@@ -163,7 +163,7 @@ process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
  ##
  ## Geometry
  ##
-process.load("Configuration.Geometry.GeometryIdeal_cff")
+process.load("Configuration.Geometry.GeometryDB_cff")
 
  
  ##
@@ -365,7 +365,7 @@ process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
  ##
  ## Geometry
  ##
-process.load("Configuration.Geometry.GeometryIdeal_cff")
+process.load("Configuration.Geometry.GeometryDB_cff")
  
  ##
  ## Magnetic Field

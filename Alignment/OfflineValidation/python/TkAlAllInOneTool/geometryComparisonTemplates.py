@@ -9,7 +9,7 @@ process = cms.Process("ValidationIntoNTuples")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = ".oO[GlobalTag]Oo." 
 
-process.load("Configuration.Geometry.GeometryIdeal_cff")
+process.load("Configuration.Geometry.GeometryDB_cff")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 
@@ -50,7 +50,7 @@ process = cms.Process("validation")
 # global tag
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = ".oO[GlobalTag]Oo." 
-process.load("Configuration.Geometry.GeometryIdeal_cff")
+process.load("Configuration.Geometry.GeometryDB_cff")
 
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 

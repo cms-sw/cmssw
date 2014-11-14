@@ -35,7 +35,7 @@ process.GlobalTag.globaltag = "MC_31X_V9::All"
 ##################################################################
 ## Geometry
 ##################################################################
-process.load("Configuration.Geometry.GeometryIdeal_cff")
+process.load("Configuration.Geometry.GeometryDB_cff")
 
 
 ###############################################################
