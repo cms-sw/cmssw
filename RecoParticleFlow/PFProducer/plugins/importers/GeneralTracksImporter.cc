@@ -173,6 +173,20 @@ goodPtResolution( const reco::TrackRef& trackref) const {
   case reco::TrackBase::tobTecStep:
     Algo = 4;
     break;
+  case reco::TrackBase::hltIter0:
+  case reco::TrackBase::hltIter1:
+  case reco::TrackBase::hltIter2:
+    Algo = _useIterTracking ? 0 : 0;
+    break;
+  case reco::TrackBase::hltIter3:
+    Algo = _useIterTracking ? 1 : 0;
+    break;
+  case reco::TrackBase::hltIter4:
+    Algo = _useIterTracking ? 2 : 0;
+    break;
+  case reco::TrackBase::hltIterX:
+    Algo = _useIterTracking ? 0 : 0;
+    break;
   default:
     Algo = _useIterTracking ? 5 : 0;
     break;
