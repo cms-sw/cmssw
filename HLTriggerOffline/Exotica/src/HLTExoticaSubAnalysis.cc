@@ -190,6 +190,7 @@ void HLTExoticaSubAnalysis::subAnalysisBookHistos(DQMStore::IBooker &iBooker,
 	
         for (size_t i = 0; i < sources.size(); i++) {
             std::string source = sources[i];
+            if (objStr == "GenMET" && source == "gen") continue; // genGenMET doesn't make sense. 
             if (objStr.find("MET") > objStr.size()) { 
               bookHist(iBooker, source, objStr, "Eta");
               bookHist(iBooker, source, objStr, "Phi");
@@ -460,6 +461,14 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 	    const unsigned int objType = matchesGen[j].pdgId();
 	    //std::cout << "(4) Gonna call with " << objType << std::endl;
 	    const std::string objTypeStr = EVTColContainer::getTypeString(objType);
+
+            if (objTypeStr == "GenMET") { // genGenMET doesn't make sense. 
+              size_t max_size = matchesGen.size();
+              for ( size_t jj = j; jj < max_size; jj++ ) {
+                 matchesGen.erase(matchesGen.end());
+              }
+              break;
+            }
 	
 	    float pt  = matchesGen[j].pt();
 

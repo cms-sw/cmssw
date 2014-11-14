@@ -56,8 +56,11 @@ void HLTExoticaPlotter::plotterBookHistos(DQMStore::IBooker & iBooker,
 
         for (size_t i = 0; i < sources.size(); i++) {
             std::string source = sources[i];
-            bookHist(iBooker, source, objTypeStr, "Eta");
-            bookHist(iBooker, source, objTypeStr, "Phi");
+            if (objTypeStr == "GenMET" && source == "gen") continue; // genGenMET doesn't make sense. 
+            if (objTypeStr.find("MET") > objTypeStr.size()) { 
+              bookHist(iBooker, source, objTypeStr, "Eta");
+              bookHist(iBooker, source, objTypeStr, "Phi");
+            }
             bookHist(iBooker, source, objTypeStr, "MaxPt1");
             bookHist(iBooker, source, objTypeStr, "MaxPt2");
             //bookHist(iBooker, source, objTypeStr, "SumEt");
@@ -97,8 +100,10 @@ void HLTExoticaPlotter::analyze(const bool & isPassTrigger,
         float eta =   matches[j].eta();
         float phi =   matches[j].phi();
 	//float sumEt = 0;//matches[j].sumEt;
-        this->fillHist(isPassTrigger, source, objTypeStr, "Eta", eta);
-        this->fillHist(isPassTrigger, source, objTypeStr, "Phi", phi);
+        if (objTypeStr.find("MET") > objTypeStr.size()) { 
+          this->fillHist(isPassTrigger, source, objTypeStr, "Eta", eta);
+          this->fillHist(isPassTrigger, source, objTypeStr, "Phi", phi);
+        }
 	//this->fillHist(isPassTrigger, source, objTypeStr, "SumEt", sumEt);
 
         if (countobjects[objType] == 0) {
