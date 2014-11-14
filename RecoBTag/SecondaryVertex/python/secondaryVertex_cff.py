@@ -56,9 +56,13 @@ from RecoBTag.SecondaryVertex.positiveCombinedInclusiveSecondaryVertexBJetTags_c
 from RecoBTag.SecondaryVertex.positiveCombinedInclusiveSecondaryVertexV2BJetTags_cfi import *
 
 # New candidate based fwk
+from RecoBTag.SecondaryVertex.candidateSimpleSecondaryVertex2TrkComputer_cfi import *
+from RecoBTag.SecondaryVertex.candidateSimpleSecondaryVertex3TrkComputer_cfi import *
 from RecoBTag.SecondaryVertex.candidateCombinedSecondaryVertexComputer_cfi import *
 from RecoBTag.SecondaryVertex.candidateCombinedSecondaryVertexV2Computer_cfi import *
 from RecoBTag.SecondaryVertex.pfSecondaryVertexTagInfos_cfi import *
+from RecoBTag.SecondaryVertex.pfSimpleSecondaryVertexHighEffBJetTags_cfi import *
+from RecoBTag.SecondaryVertex.pfSimpleSecondaryVertexHighPurBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.pfCombinedSecondaryVertexBJetTags_cfi import *
 from RecoBTag.SecondaryVertex.pfInclusiveSecondaryVertexFinderTagInfos_cfi import *
 from RecoBTag.SecondaryVertex.pfCombinedInclusiveSecondaryVertexV2BJetTags_cfi import *

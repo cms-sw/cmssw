@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoBTag.ImpactParameter.variableJTA_cff import *
 
 # jetProbability btag computer
-jetProbabilityComputer = cms.ESProducer("JetProbabilityESProducer",
+candidateJetProbabilityComputer = cms.ESProducer("CandidateJetProbabilityESProducer",
     variableJTAPars,
     impactParameterType = cms.int32(0), ## 0 = 3D, 1 = 2D
     deltaR = cms.double(0.3),
