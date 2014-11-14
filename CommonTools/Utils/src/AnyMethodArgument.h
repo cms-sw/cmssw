@@ -94,7 +94,6 @@ namespace reco {
             }
 
             std::pair<AnyMethodArgument,int> operator()(const std::string &t) const { 
-                if (type_ == typeid(std::string)) { return std::pair<AnyMethodArgument,int>(t,0); }
                 if (dataType_.isEnum()) {
                     if (dataType_.dataMemberSize() == 0) {
                         throw parser::Exception(t.c_str()) << "Enumerator '" << dataType_.name() << "' has no keys.\nPerhaps the dictionary is missing?\n";
@@ -103,6 +102,7 @@ namespace reco {
                     // std::cerr << "  value is = " << dataType_.stringToEnumValue(t) << std::endl;
                     return std::pair<AnyMethodArgument,int>(ival,1);
                 }
+                if (type_ == typeid(std::string)) { return std::pair<AnyMethodArgument,int>(t,0); }
                 return std::pair<AnyMethodArgument,int>(t,-1);
             }
 
