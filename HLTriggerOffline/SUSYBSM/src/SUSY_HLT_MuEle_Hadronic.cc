@@ -195,9 +195,9 @@ void SUSY_HLT_MuEle_Hadronic::analyze(edm::Event const& e, edm::EventSetup const
     const edm::TriggerNames& trigNames = e.triggerNames(*hltresults);
     unsigned int numTriggers = trigNames.size();
     for( unsigned int hltIndex=0; hltIndex<numTriggers; ++hltIndex ){
-        if (trigNames.triggerName(hltIndex)==triggerPath_ && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) hasFired = true;
-        if (trigNames.triggerName(hltIndex)==triggerPathAuxiliaryForMuEle_ && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) hasFiredAuxiliaryForMuEleLeg = true;
-        if (trigNames.triggerName(hltIndex)==triggerPathAuxiliaryForHadronic_ && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) hasFiredAuxiliaryForHadronicLeg = true;
+        if (trigNames.triggerName(hltIndex).find(triggerPath_) != std::string::npos && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) hasFired = true;
+        if (trigNames.triggerName(hltIndex).find(triggerPathAuxiliaryForMuEle_) != std::string::npos && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) hasFiredAuxiliaryForMuEleLeg = true;
+        if (trigNames.triggerName(hltIndex).find(triggerPathAuxiliaryForHadronic_) != std::string::npos && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) hasFiredAuxiliaryForHadronicLeg = true;
     }
     
     

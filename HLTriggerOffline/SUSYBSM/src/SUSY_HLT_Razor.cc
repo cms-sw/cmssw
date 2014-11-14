@@ -122,8 +122,8 @@ void SUSY_HLT_Razor::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
   const edm::TriggerNames& trigNames = e.triggerNames(*hltresults);
   unsigned int numTriggers = trigNames.size();
   for( unsigned int hltIndex=0; hltIndex<numTriggers; ++hltIndex ){
-      if (trigNames.triggerName(hltIndex)==triggerPath_ && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) hasFired = true;
-      if (trigNames.triggerName(hltIndex)==denomPath && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) denomFired = true;
+      if (trigNames.triggerName(hltIndex).find(triggerPath_) != std::string::npos && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) hasFired = true;
+      if (trigNames.triggerName(hltIndex).find(denomPath) != std::string::npos && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) denomFired = true;
   }
 
   float pfHT = 0.0;
@@ -139,7 +139,8 @@ void SUSY_HLT_Razor::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
 
   // check that the input collections are available
   if (not hemispheres.isValid()){
-      edm::LogError("SUSY_HLT_Razor") << "Hemisphere object is invalid!" << "\n";
+      //This is happening many times (which is normal) and it's noisy for the output, we removed the error message
+      //edm::LogError("SUSY_HLT_Razor") << "Hemisphere object is invalid!" << "\n";
       return;
   }
 
