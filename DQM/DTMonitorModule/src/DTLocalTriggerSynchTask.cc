@@ -59,7 +59,6 @@ DTLocalTriggerSynchTask::DTLocalTriggerSynchTask(const edm::ParameterSet& ps) : 
   angleRange    = parameters.getParameter<double>("angleRange");
   minHitsPhi    = parameters.getParameter<int>("minHitsPhi");
   baseDirectory = parameters.getParameter<string>("baseDir");
-
 }
 
 
@@ -69,19 +68,12 @@ DTLocalTriggerSynchTask::~DTLocalTriggerSynchTask() {
 
 }
 
+void DTLocalTriggerSynchTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun, edm::EventSetup const & context) {
 
-void DTLocalTriggerSynchTask::bookHistograms(DQMStore::IBooker & ibooker,
-                                             edm::Run const & run,
-                                             edm::EventSetup const & context){
-
-  edm::LogVerbatim ("DTLocalTriggerSynchTask") << "[DTLocalTriggerSynchTask]: bookHistograms" << endl;
-
-//-  dbe = edm::Service<DQMStore>().operator->();
   ibooker.setCurrentFolder(baseDir());
   ibooker.bookFloat("BXTimeSpacing")->Fill(bxTime);
 
-//-void DTLocalTriggerSynchTask::beginRun(const Run& run, const EventSetup& context) {
-//-  edm::LogVerbatim ("DTLocalTriggerSynchTask") <<"[DTLocalTriggerSynchTask]: Begin Run"<<endl;
+  edm::LogVerbatim ("DTLocalTriggerSynchTask") <<"[DTLocalTriggerSynchTask]: Book Histograms"<<endl;
 
   context.get<MuonGeometryRecord>().get(muonGeom);
   tTrigSync = DTTTrigSyncFactory::get()->create(parameters.getParameter<std::string>("tTrigMode"),
@@ -98,8 +90,13 @@ void DTLocalTriggerSynchTask::bookHistograms(DQMStore::IBooker & ibooker,
     triggerHistos[(*chambIt)->id().rawId()]["tTrig_SL3"]->Fill(tTrigSync->offset(DTWireId((*chambIt)->id(),3,1,2)));
   }
 
+
 }
 
+
+void DTLocalTriggerSynchTask::dqmBeginRun(const Run& run, const EventSetup& context) {
+
+}
 
 
 void DTLocalTriggerSynchTask::analyze(const edm::Event& event, const edm::EventSetup& context){
@@ -234,14 +231,14 @@ void DTLocalTriggerSynchTask::analyze(const edm::Event& event, const edm::EventS
 
 }
 
-void DTLocalTriggerSynchTask::bookHistos(DQMStore::IBooker & ibooker,const DTChamberId& dtChId) {
+void DTLocalTriggerSynchTask::bookHistos(DQMStore::IBooker & ibooker, const DTChamberId& dtChId) {
 
   stringstream wheel; wheel << dtChId.wheel();
   stringstream station; station << dtChId.station();
   stringstream sector; sector << dtChId.sector();
   uint32_t chRawId = dtChId.rawId();
 
-  dbe->setCurrentFolder(baseDir() + "/Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str() );
+  ibooker.setCurrentFolder(baseDir() + "/Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str() );
 
 
   string histoTag[5] = { "SEG_TrackCrossingTime", "DCC_TrackCrossingTimeAll", "DCC_TrackCrossingTimeHH", "DDU_TrackCrossingTimeAll", "DDU_TrackCrossingTimeHH" };

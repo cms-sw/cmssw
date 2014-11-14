@@ -35,10 +35,10 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps) : nevents(
 
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
   << "[DTDataIntegrityTask]: Constructor" <<endl;
-  
+
   dduToken = consumes<DTDDUCollection>(ps.getParameter<InputTag>("dtDDULabel"));
   ros25Token = consumes<DTROS25Collection>(ps.getParameter<InputTag>("dtROS25Label"));
-  
+
   neventsDDU = 0;
   neventsROS25 = 0;
 
@@ -91,7 +91,7 @@ void DTDataIntegrityTask::endJob(){
 }
 
 void DTDataIntegrityTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun, edm::EventSetup const & iSetup) {
- 
+
  LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask") << "[DTDataIntegrityTask]: postBeginJob" <<endl;
   // get the DQMStore service if needed
   //dbe = edm::Service<DQMStore>().operator->();
@@ -559,7 +559,7 @@ void DTDataIntegrityTask::bookHistosROS25(DQMStore::IBooker & ibooker, DTROChain
 
 
 void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
-  
+
   neventsROS25++; // FIXME: implement a counter which makes sense
 
 //   if (neventsROS25%1000 == 0)
