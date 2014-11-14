@@ -64,7 +64,8 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
    produces<reco::MuonTimeExtraMap>("dt");
    produces<reco::MuonTimeExtraMap>("csc");
 
-   muonTrackDeltaEta_         = iConfig.getParameter<double>("muonTrackDeltaEta");
+   if ( !iConfig.existsAs<double>("muonTrackDeltaEta") ) muonTrackDeltaEta_ = -999;
+   else muonTrackDeltaEta_ = iConfig.getParameter<double>("muonTrackDeltaEta");
 
    minPt_                   = iConfig.getParameter<double>("minPt");
    minP_                    = iConfig.getParameter<double>("minP");
@@ -385,6 +386,7 @@ reco::Muon MuonIdProducer::makeMuon( const reco::MuonTrackLinks& links )
 
 void MuonIdProducer::calculateMuonHitEtaRanges(const edm::EventSetup& eventSetup)
 {
+   if ( muonTrackDeltaEta_ <= 0 ) return;
    muonEtaRanges_.clear();
 
    // Collect eta values from DT, CSC, segments and RPC hits
@@ -467,8 +469,10 @@ bool MuonIdProducer::isGoodTrack( const reco::Track& track )
    }
 
    // Additional Eta requirements
-   if ( !muonEtaRanges_.empty() )
+   if ( muonTrackDeltaEta_ > 0 )
    {
+      if ( muonEtaRanges_.empty() ) return false; // track selection by muon hit eta is enabled but no muon segments in the event
+
       bool isInRange = false;
       for ( auto x : muonEtaRanges_ )
       {
@@ -482,7 +486,6 @@ bool MuonIdProducer::isGoodTrack( const reco::Track& track )
       }
       if ( !isInRange ) return false;
    }
-   else if ( muonTrackDeltaEta_ > 0 ) return false; // track selection by muon hit eta is enabled but no muon segments in the event
 
    return true;
 }
