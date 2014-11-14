@@ -14,6 +14,9 @@
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
 
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateIsolation.h"
+
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 
@@ -21,20 +24,29 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class EgammaHLTEcalPFClusterIsolationProducer : public edm::EDProducer {
+template<typename T1>
+class HLTEcalPFClusterIsolationProducer : public edm::EDProducer {
+
+  typedef std::vector<T1> T1Collection;
+  typedef edm::Ref<T1Collection> T1Ref;
+  typedef edm::AssociationMap<edm::OneToValue<std::vector<T1>, float > > T1IsolationMap;
+  
  public:
-  explicit EgammaHLTEcalPFClusterIsolationProducer(const edm::ParameterSet&);
-  ~EgammaHLTEcalPFClusterIsolationProducer();    
+  explicit HLTEcalPFClusterIsolationProducer(const edm::ParameterSet&);
+  ~HLTEcalPFClusterIsolationProducer();    
       
   virtual void produce(edm::Event&, const edm::EventSetup&);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
- 
+  
  private:
 
-  edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
+  bool computedRVeto(T1Ref candRef, reco::PFClusterRef pfclu);
+
+  edm::EDGetTokenT<T1Collection> recoCandidateProducer_;
   edm::EDGetTokenT<reco::PFClusterCollection> pfClusterProducer_;
   edm::EDGetTokenT<double> rhoProducer_;
 
+  double drVeto2_;
   double drMax_;
   double drVetoBarrel_;
   double drVetoEndcap_;

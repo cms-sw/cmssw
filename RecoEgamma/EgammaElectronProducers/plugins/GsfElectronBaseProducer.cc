@@ -365,8 +365,9 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
    }
 
 
-   mva_NIso_Cfg_.vweightsfiles=cfg.getParameter<std::vector<std::string>>("SoftElecMVAFilesString");
-   mva_Iso_Cfg_.vweightsfiles=cfg.getParameter<std::vector<std::string>>("ElecMVAFilesString");
+   mva_NIso_Cfg_.vweightsfiles = cfg.getParameter<std::vector<std::string>>("SoftElecMVAFilesString");
+   mva_NIso_Cfg_.vtxCollection = consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vtxTag"));
+   mva_Iso_Cfg_.vweightsfiles  = cfg.getParameter<std::vector<std::string>>("ElecMVAFilesString");
   // create algo
   algo_ = new GsfElectronAlgo
    ( inputCfg_, strategyCfg_,
