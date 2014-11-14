@@ -68,8 +68,6 @@ private:
 
   bool bookingdone;
 
-  DQMStore* dbe;
-
   edm::ESHandle<DTGeometry> muonGeom;
 
   //an histogram of efficiency for each wheel, for each quality scenario
