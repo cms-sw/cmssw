@@ -10,8 +10,8 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = ".oO[GlobalTag]Oo." 
 
 process.load("Configuration.Geometry.GeometryDB_cff")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
+#process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+#process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 
 #process.load("Alignment.CommonAlignmentProducer.GlobalPosition_Frontier_cff")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
@@ -52,9 +52,9 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = ".oO[GlobalTag]Oo." 
 process.load("Configuration.Geometry.GeometryDB_cff")
 
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+#process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 
-process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
+#process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 
 #process.load("Alignment.CommonAlignmentProducer.GlobalPosition_Frontier_cff")
 # the input .GlobalPosition_Frontier_cff is providing the frontier://FrontierProd/CMS_COND_31X_ALIGNMENT in the release which does not provide the ideal geometry
