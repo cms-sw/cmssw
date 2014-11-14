@@ -28,9 +28,9 @@ mix = cms.EDProducer("MixingModule",
 from Configuration.StandardSequences.Eras import eras
 
 # The modifyMixForPostLS1 function is defined in SimGeneral.MixingModule.digitizers_cfi
-eras.postLS1.toModify( mix, func=modifyMixForPostLS1 )
+eras.run2.toModify( mix, func=modifyMixForPostLS1 )
 # Also need to modify theDigitizersValid, because if validation is on
 # process.mix.digitizers will be set to that later, which overwrites the
 # above customisation.
 from functools import partial
-eras.postLS1.toModify( mix, func=partial(modifyMixForPostLS1,digitizers=theDigitizersValid) )
+eras.run2.toModify( mix, func=partial(modifyMixForPostLS1,digitizers=theDigitizersValid) )

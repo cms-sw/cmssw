@@ -115,4 +115,4 @@ def _modifyHcalSimParametersForPostLS1( object ) :
     object.hf1.samplingFactor = cms.double(0.60)
     object.hf2.samplingFactor = cms.double(0.60)
 
-eras.postLS1.toModify( hcalSimParameters, func=_modifyHcalSimParametersForPostLS1 )
+eras.run2.toModify( hcalSimParameters, func=_modifyHcalSimParametersForPostLS1 )

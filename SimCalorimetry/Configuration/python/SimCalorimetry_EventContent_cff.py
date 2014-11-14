@@ -10,13 +10,13 @@ SimCalorimetryFEVTDEBUG = cms.PSet(
         'drop ZDCDataFramesSorted_mix_simHcalUnsuppressedDigis*_*',
         'keep *_simHcalTriggerPrimitiveDigis_*_*')
 )
-eras.postLS1.toModify( SimCalorimetryFEVTDEBUG.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_simHcalUnsuppressedDigis_*_*') )
+eras.run2.toModify( SimCalorimetryFEVTDEBUG.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_simHcalUnsuppressedDigis_*_*') )
 
 SimCalorimetryRAW = cms.PSet(
     outputCommands = cms.untracked.vstring('keep EBSrFlagsSorted_simEcalDigis_*_*', 
         'keep EESrFlagsSorted_simEcalDigis_*_*')
 )
-eras.postLS1.toModify( SimCalorimetryRAW.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_simHcalUnsuppressedDigis_*_*') )
+eras.run2.toModify( SimCalorimetryRAW.outputCommands, func=lambda outputCommands: outputCommands.append('keep *_simHcalUnsuppressedDigis_*_*') )
 
 SimCalorimetryRECO = cms.PSet(
     outputCommands = cms.untracked.vstring()

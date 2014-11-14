@@ -53,4 +53,4 @@ def _modifyParticleFlowRecHitHOForPostLS1( object ) :
             )
         )
 
-eras.postLS1.toModify( particleFlowRecHitHO, func=_modifyParticleFlowRecHitHOForPostLS1 )
+eras.run2.toModify( particleFlowRecHitHO, func=_modifyParticleFlowRecHitHOForPostLS1 )
