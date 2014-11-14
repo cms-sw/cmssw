@@ -41,6 +41,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Math/interface/deltaR.h"
+
 #include "TH1D.h"
 #include "TH2D.h"
 
@@ -129,7 +130,6 @@ class HiMixValidation : public edm::EDAnalyzer {
 
    double rMatch;
    double rMatch2;
-
    bool useCF_;
    edm::Service<TFileService> f;
 
@@ -230,7 +230,6 @@ HiMixValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
    hGenVertices->Fill(zgen[0],zgen[1]);
    cout<<"x4"<<endl;
 
-
    edm::Handle<reco::GenJetCollection> genjets;
    iEvent.getByLabel(genJetSrc_,genjets);
    edm::Handle<reco::JetView> jets;
@@ -266,9 +265,7 @@ HiMixValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       }
       hGenJetEtaMixed->Fill(eta);
       hJetResponseMixed->Fill(pt,ptmatch);
-
    }
-
    cout<<"x6"<<endl;
 
    // Gen-Vertices from CrossingFrame
@@ -316,6 +313,12 @@ HiMixValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
    }
 
    hGenVerticesCF->Fill(zcf[0],zcf[1]);
+
+
+
+
+
+
 
 
    // RECO INFO
