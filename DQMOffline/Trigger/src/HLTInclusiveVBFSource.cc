@@ -123,19 +123,10 @@ HLTInclusiveVBFSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       return;
     }
   }
-  //
-  //int npath;
-  if(&triggerResults_) {
-    // Check how many HLT triggers are in triggerResults
-    //npath = triggerResults_->size();
-    triggerNames_ = iEvent.triggerNames(*triggerResults_);
-  } 
-  else {
-    edm::LogInfo("CaloMETHLTOfflineSource") << "TriggerResults::HLT not found, "
-      "automatically select events";
-    return;
-  }
-  //
+
+  // Check how many HLT triggers are in triggerResults
+  triggerNames_ = iEvent.triggerNames(*triggerResults_);
+
   //---------- triggerSummary ----------
   iEvent.getByToken(triggerSummaryToken,triggerObj_);
   if(!triggerObj_.isValid()) {
@@ -763,9 +754,8 @@ bool HLTInclusiveVBFSource::validPathHLT(std::string pathname){
 bool HLTInclusiveVBFSource::isHLTPathAccepted(std::string pathName){
   // triggerResults_, triggerNames_ has to be defined first before calling this method
   bool output=false;
-  if(&triggerResults_) {
+  if(triggerResults_.isValid()) {
     unsigned index = triggerNames_.triggerIndex(pathName);
-    //std::cout<<" -index = "<<index<<endl;
     if(index < triggerNames_.size() && triggerResults_->accept(index)) output = true;
   }
   return output;

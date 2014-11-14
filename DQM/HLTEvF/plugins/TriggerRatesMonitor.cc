@@ -40,9 +40,6 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-// length of a lumisections, corresponding to 2**18 LHC orbits, or 23.31 seconds
-static const double SECS_PER_LUMI = 23.31040958083832;
-
 // helper functions
 template <typename T>
 static

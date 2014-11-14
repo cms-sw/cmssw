@@ -76,19 +76,12 @@ private:
   int refresheff_;
   DQMStore * dbe_;
 
-  MonitorElement* total_;
-
-  bool resetMe_;
-  int currentRun_;
- 
   unsigned int nBins_; 
   double ptMin_ ;
   double ptMax_ ;
   double dRTrigObjMatch_;
       
   std::string dirname_;
-  bool monitorDaemon_;
-  int theHLTOutputType;
   edm::InputTag triggerSummaryLabel_;
   edm::InputTag triggerResultLabel_;
 
