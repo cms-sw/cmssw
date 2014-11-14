@@ -12,7 +12,7 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContentHeavyIons_cff')
-process.load('HeavyIonsAnalysis.Mixing.HiMixSIM_cff')
+process.load('HeavyIonsAnalysis.Mixing.HiMix_cff')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Digi_cff')
@@ -31,7 +31,7 @@ process.maxEvents = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
-    fileNames = cms.untracked.vstring('file:output_workflowD_step1_3.root'),
+    fileNames = cms.untracked.vstring('file:output_workflowD_step1_4.root'),
     inputCommands = cms.untracked.vstring('keep *', 
         'drop *_simEcalPreshowerDigis_*_*'),
     dropDescendantsOfDroppedBranches = cms.untracked.bool(False)
@@ -54,7 +54,7 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize = cms.untracked.int32(1048576),
     outputCommands = process.FEVTDEBUGHLTEventContent.outputCommands,
-    fileName = cms.untracked.string('output_workflowD_step2_3.root'),
+    fileName = cms.untracked.string('output_workflowD_step2_4.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('GEN-SIM-DIGI-RAW-HLTDEBUG')

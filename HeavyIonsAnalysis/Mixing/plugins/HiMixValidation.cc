@@ -31,9 +31,14 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
+#include "DataFormats/JetReco/interface/JetCollection.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 #include "TH1D.h"
 #include "TH2D.h"
@@ -66,6 +71,8 @@ class HiMixValidation : public edm::EDAnalyzer {
    edm::InputTag genParticleSrc_;
    edm::InputTag genHIsrc_;
    edm::InputTag vertexSrc_;
+   edm::InputTag genJetSrc_;
+   edm::InputTag jetSrc_;
 
    TH1D *hGenParticleEtaSignal, 
       *hGenParticleEtaBkg, 
@@ -93,7 +100,29 @@ class HiMixValidation : public edm::EDAnalyzer {
       *hZrecoVertex1;
 
    TH2D *hZrecoVertices,
-      *hNtrackHF;
+      *hNtrackHF,
+      *hJetResponseSignal,
+      *hPhotonResponseSignal,
+      *hMuonResponseSignal,
+      *hElectronResponseSignal,
+      *hJetResponseBkg,
+      *hPhotonResponseBkg,
+      *hMuonResponseBkg,
+      *hElectronResponseBkg,
+      *hJetResponseMixed,
+      *hPhotonResponseMixed,
+      *hMuonResponseMixed,
+      *hElectronResponseMixed;
+
+   double particlePtMin;
+   double jetPtMin;
+   double photonPtMin;
+   double muonPtMin;
+   double electronPtMin;
+
+   double rMatch;
+   double rMatch2;
+
 
    edm::Service<TFileService> f;
 
@@ -103,9 +132,19 @@ class HiMixValidation : public edm::EDAnalyzer {
 HiMixValidation::HiMixValidation(const edm::ParameterSet& iConfig)
 {
    genParticleSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("genpSrc",edm::InputTag("hiGenParticles"));
+   genJetSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("genJetSrc",edm::InputTag("ak3HiGenJets"));
    genHIsrc_ = iConfig.getUntrackedParameter<edm::InputTag>("genHiSrc",edm::InputTag("heavyIon"));
-   vertexSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("vertexSrc",edm::InputTag("hiSelectedVertex"));
+   jetSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("jetSrc",edm::InputTag("akPu3PFJets"));
 
+   vertexSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("vertexSrc",edm::InputTag("hiSelectedVertex"));
+   particlePtMin = iConfig.getUntrackedParameter<double>("particlePtMin",0.);
+   jetPtMin = iConfig.getUntrackedParameter<double>("jetPtMin",50.);
+   photonPtMin = iConfig.getUntrackedParameter<double>("photonPtMin",30.);
+   muonPtMin = iConfig.getUntrackedParameter<double>("muonPtMin",3.);
+   electronPtMin = iConfig.getUntrackedParameter<double>("electronPtMin",3.);
+
+   rMatch = iConfig.getUntrackedParameter<double>("rMatch",0.1);
+   rMatch2 = rMatch*rMatch;
 }
 
 
@@ -126,37 +165,89 @@ HiMixValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
    edm::Handle<reco::GenParticleCollection> parts;
    iEvent.getByLabel(genParticleSrc_,parts);
+
    for(UInt_t i = 0; i < parts->size(); ++i){
       const reco::GenParticle& p = (*parts)[i];
       if (p.status()!=1) continue;
       int sube = p.collisionId();
       int pdg = abs(p.pdgId());
       double eta = p.eta();
+      double pt = p.pt();
       if(sube == 0){
-	 if(p.charge() != 0) hGenParticleEtaSignal->Fill(eta);
-	 if(pdg == 22) hGenPhotonEtaSignal->Fill(eta);	 
-	 if(pdg == 11) hGenElectronEtaSignal->Fill(eta);	 
-	 if(pdg == 13) hGenMuonEtaSignal->Fill(eta);
-
+	 if(p.charge() != 0 && pt > particlePtMin) hGenParticleEtaSignal->Fill(eta);
+	 if(pdg == 22 && pt > photonPtMin) hGenPhotonEtaSignal->Fill(eta);	 
+	 if(pdg == 11 && pt > electronPtMin) hGenElectronEtaSignal->Fill(eta);	 
+	 if(pdg == 13 && pt > muonPtMin){
+	    /*
+	    for(UInt_t j = 0; j < muons->size(); ++j){
+	       if(rMatch2 > reco::deltaR2(p,(*muons)[j])){
+		  double recopt = (*muons)[j].pt();
+		  if(recopt>ptmatch) ptmatch = recopt;
+	       }	       
+	       hMuonResponseSignal->Fill(pt,recopt);
+	    */
+	       hGenMuonEtaSignal->Fill(eta);
+	 }
       }else{
-	 if(p.charge() != 0) hGenParticleEtaBkg->Fill(eta);
-         if(pdg == 22) hGenPhotonEtaBkg->Fill(eta);
-         if(pdg == 11) hGenElectronEtaBkg->Fill(eta);
-         if(pdg == 13) hGenMuonEtaBkg->Fill(eta);
+	 if(p.charge() != 0 && pt > particlePtMin) hGenParticleEtaBkg->Fill(eta);
+         if(pdg == 22 && pt > photonPtMin) hGenPhotonEtaBkg->Fill(eta);
+         if(pdg == 11 && pt > electronPtMin) hGenElectronEtaBkg->Fill(eta);
+         if(pdg == 13 && pt > muonPtMin) hGenMuonEtaBkg->Fill(eta);
+
 	 if(npart == 2){
-	    if(p.charge() != 0) hGenParticleEtaBkgNpart2->Fill(eta);
-	    if(pdg == 22) hGenPhotonEtaBkgNpart2->Fill(eta);
-	    if(pdg == 11) hGenElectronEtaBkgNpart2->Fill(eta);
-	    if(pdg == 13) hGenMuonEtaBkgNpart2->Fill(eta);
+	    if(p.charge() != 0 && pt > particlePtMin) hGenParticleEtaBkgNpart2->Fill(eta);
+	    if(pdg == 22 && pt > photonPtMin) hGenPhotonEtaBkgNpart2->Fill(eta);
+	    if(pdg == 11 && pt > electronPtMin) hGenElectronEtaBkgNpart2->Fill(eta);
+	    if(pdg == 13 && pt > muonPtMin) hGenMuonEtaBkgNpart2->Fill(eta);
+	 }
+      }     
+      if(p.charge() != 0 && pt > particlePtMin) hGenParticleEtaMixed->Fill(eta);
+      if(pdg == 22 && pt > photonPtMin) hGenPhotonEtaMixed->Fill(eta);
+      if(pdg == 11 && pt > electronPtMin) hGenElectronEtaMixed->Fill(eta);
+      if(pdg == 13 && pt > muonPtMin) hGenMuonEtaMixed->Fill(eta);
+   }
+
+
+   edm::Handle<reco::GenJetCollection> genjets;
+   iEvent.getByLabel(genJetSrc_,genjets);
+   edm::Handle<reco::JetView> jets;
+   iEvent.getByLabel(jetSrc_,jets);
+
+   for(UInt_t i = 0; i < genjets->size(); ++i){
+      const reco::GenJet& p = (*genjets)[i];
+      double pt = p.pt();
+      double ptmatch = 0;
+      if(pt < jetPtMin) continue;
+
+      for(UInt_t j = 0; j < jets->size(); ++j){
+	 if(rMatch2 > reco::deltaR2((*genjets)[i],(*jets)[j])){
+	    double recopt = (*jets)[j].pt();
+	    if(recopt>ptmatch) ptmatch = recopt; 
 	 }
       }
+
+      int sube = p.getGenConstituent(0)->collisionId();
+      double eta = p.eta();
       
-      if(p.charge() != 0) hGenParticleEtaMixed->Fill(eta);
-      if(pdg == 22) hGenPhotonEtaMixed->Fill(eta);
-      if(pdg == 11) hGenElectronEtaMixed->Fill(eta);
-      if(pdg == 13) hGenMuonEtaMixed->Fill(eta);
+      if(sube == 0){ 
+	 hGenJetEtaSignal->Fill(eta);
+	 hJetResponseSignal->Fill(pt,ptmatch);
+      }else{
+	 hGenJetEtaBkg->Fill(eta);
+	 if(npart == 2){
+	    hGenJetEtaBkgNpart2->Fill(eta);
+	 }
+      }
+      hGenJetEtaMixed->Fill(eta);
+      hJetResponseMixed->Fill(pt,ptmatch);
 
    }
+
+
+
+
+
+
 
 
    // RECO INFO
@@ -217,6 +308,14 @@ HiMixValidation::beginJob()
 
    hZrecoVertices = f->make<TH2D>("hZrecoVertices",";z-position of first vertex;z-position of second vertex;Events",60,-30,30,60,-30,30);
    hNtrackHF = f->make<TH2D>("hNtrackHF",";E_{T}^{HF};N_{tracks};Events",50,0,5000,50,0,5000);
+
+   hJetResponseSignal = f->make<TH2D>("hJetResponseSignal","",100,0,200,100,0,200);
+   hPhotonResponseSignal = f->make<TH2D>("hPhotonResponseSignal","",100,0,100,100,0,100);
+   hMuonResponseSignal = f->make<TH2D>("hMuonResponseSignal","",100,0,20,100,0,20);
+   hElectronResponseSignal = f->make<TH2D>("hElectronResponseSignal","",100,0,20,100,0,20);
+
+
+
 }
 
 void 
