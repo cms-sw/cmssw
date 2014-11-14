@@ -115,7 +115,8 @@ bool support::isSafeClassName(const std::string &cname) {
     "boost::<anonymous namespace>::extents",
     "cout", "cerr",
     "std::cout","std::cerr",
-    "edm::RunningAverage","class edm::RunningAverage"
+    "edm::RunningAverage","class edm::RunningAverage",
+    "TVirtualMutex", "class TVirtualMutex"
   };
   
   for (auto& name: names)
