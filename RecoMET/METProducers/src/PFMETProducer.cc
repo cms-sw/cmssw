@@ -71,7 +71,7 @@ namespace cms
 	edm::Handle<edm::View<reco::PFJet> > jets;
 	event.getByToken(jetToken_, jets);
 	pfsignalgo.addPFJets(jets.product());
-	pfmet.setSignificanceMatrix(pfsignalgo.mkSignifMatrix(input));
+	//pfmet.setSignificanceMatrix(pfsignalgo.mkSignifMatrix(input));
       }
 
     std::auto_ptr<reco::PFMETCollection> pfmetcoll;
