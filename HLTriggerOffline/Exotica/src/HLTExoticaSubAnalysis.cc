@@ -190,8 +190,10 @@ void HLTExoticaSubAnalysis::subAnalysisBookHistos(DQMStore::IBooker &iBooker,
 	
         for (size_t i = 0; i < sources.size(); i++) {
             std::string source = sources[i];
-            bookHist(iBooker, source, objStr, "Eta");
-            bookHist(iBooker, source, objStr, "Phi");
+            if (objStr.find("MET") > objStr.size()) { 
+              bookHist(iBooker, source, objStr, "Eta");
+              bookHist(iBooker, source, objStr, "Phi");
+            }
             bookHist(iBooker, source, objStr, "MaxPt1");
             bookHist(iBooker, source, objStr, "MaxPt2");
             //bookHist(iBooker, source, objStr, "SumEt");
@@ -501,8 +503,10 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 	    float phi = matchesGen[j].phi();
 	    //float sumEt = 0;//matchesGen[j].sumEt;
 
-	    this->fillHist("gen", objTypeStr, "Eta", eta);
-	    this->fillHist("gen", objTypeStr, "Phi", phi);
+            if (objTypeStr.find("MET") > objTypeStr.size()) { 
+	      this->fillHist("gen", objTypeStr, "Eta", eta);
+	      this->fillHist("gen", objTypeStr, "Phi", phi);
+            }
 	    //this->fillHist("gen", objTypeStr, "SumEt", sumEt);
 
 	} // Closes loop in gen
@@ -600,8 +604,10 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
 	    float phi = matchesReco[j].phi();
 	    //float sumEt = 0;//matchesReco[j].sumEt;
 	
-	    this->fillHist("rec", objTypeStr, "Eta", eta);
-	    this->fillHist("rec", objTypeStr, "Phi", phi);
+            if (objTypeStr.find("MET") > objTypeStr.size()) { 
+	      this->fillHist("rec", objTypeStr, "Eta", eta);
+	      this->fillHist("rec", objTypeStr, "Phi", phi);
+            }
 	    //this->fillHist("rec", objTypeStr, "SumEt", sumEt);
 	} // Closes loop in reco
 
