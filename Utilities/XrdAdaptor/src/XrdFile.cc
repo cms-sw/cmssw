@@ -1,9 +1,9 @@
 #include "Utilities/XrdAdaptor/src/XrdFile.h"
 #include "Utilities/XrdAdaptor/src/XrdRequestManager.h"
+#include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Likely.h"
-#include "FWCore/Utilities/interface/CPUTimer.h"
 #include <vector>
 #include <sstream>
 #include <iostream>
@@ -348,8 +348,9 @@ XrdFile::readv (IOPosBuffer *into, IOSize n)
     last_idx = idx;
 
   }
-  edm::CPUTimer timer;
-  timer.start();
+  std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
+  start = std::chrono::high_resolution_clock::now();
+
   for (auto & readv_result : readv_futures)
   {
     IOSize result = 0;
@@ -388,12 +389,13 @@ XrdFile::readv (IOPosBuffer *into, IOSize n)
     catch (std::exception& ex)
     {
       edm::LogWarning("XrdFile") << "Exception thrown when processing xrootd request: " << ex.what();
-      throw;
+      edm::convertException::stdToEDM(ex);
     }
     final_result += result;
   }
-  timer.stop();
-  edm::LogVerbatim("XrdAdaptorInternal") << "[" << m_op_count.fetch_add(1) << "] Time for readv: " << static_cast<int>(1000*timer.realTime()) << " (sub-readv requests: " << readv_futures.size() << ")" << std::endl;
+  end = std::chrono::high_resolution_clock::now();
+
+  edm::LogVerbatim("XrdAdaptorInternal") << "[" << m_op_count.fetch_add(1) << "] Time for readv: " << static_cast<int>(std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count()) << " (sub-readv requests: " << readv_futures.size() << ")" << std::endl;
 
   return final_result;
 }
