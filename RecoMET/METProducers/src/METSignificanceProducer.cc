@@ -121,7 +121,7 @@ namespace cms
    // compute the significance
    //
 
-   METSignificance metsig;
+   metsig::METSignificance metsig;
 
    metsig.addMET( met );
    metsig.addJets( jets );

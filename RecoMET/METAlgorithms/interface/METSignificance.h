@@ -22,42 +22,45 @@ Implementation:
 #include "TMatrixD.h"
 
 //____________________________________________________________________________||
-class METSignificance {
-   public:
-      explicit METSignificance() {  };
-      ~METSignificance() {  };
+namespace metsig {
 
-      TMatrixD getCovariance();
-      double getSignificance(TMatrixD&);
+   class METSignificance {
+      public:
+         explicit METSignificance() {  };
+         ~METSignificance() {  };
 
-      void addJets( const std::vector<reco::Jet>& );
-      void addLeptons( const std::vector<reco::Candidate::LorentzVector>& );
-      void addCandidates( const std::vector<reco::Candidate::LorentzVector>& );
-      void addMET( const reco::MET& );
+         TMatrixD getCovariance();
+         double getSignificance(TMatrixD&);
 
-      void setThreshold( const double& );
-      void setJetEtaBins( const std::vector<double>& );
-      void setJetParams( const std::vector<double>& );
-      void setPJetParams( const std::vector<double>& );
-      void setResFiles( const std::string&, const std::string& );
+         void addJets( const std::vector<reco::Jet>& );
+         void addLeptons( const std::vector<reco::Candidate::LorentzVector>& );
+         void addCandidates( const std::vector<reco::Candidate::LorentzVector>& );
+         void addMET( const reco::MET& );
 
-   private:
-      std::vector<reco::Jet> cleanJets(double, double);
+         void setThreshold( const double& );
+         void setJetEtaBins( const std::vector<double>& );
+         void setJetParams( const std::vector<double>& );
+         void setPJetParams( const std::vector<double>& );
+         void setResFiles( const std::string&, const std::string& );
 
-      std::vector<reco::Jet> jets;
-      std::vector<reco::Candidate::LorentzVector> leptons;
-      std::vector<reco::Candidate::LorentzVector> candidates;
-      reco::MET met;
+      private:
+         std::vector<reco::Jet> cleanJets(double, double);
 
-      double jetThreshold;
-      std::vector<double> jetetas;
-      std::vector<double> jetparams;
-      std::vector<double> pjetparams;
+         std::vector<reco::Jet> jets;
+         std::vector<reco::Candidate::LorentzVector> leptons;
+         std::vector<reco::Candidate::LorentzVector> candidates;
+         reco::MET met;
 
-      std::string ptResFileName;
-      std::string phiResFileName;
+         double jetThreshold;
+         std::vector<double> jetetas;
+         std::vector<double> jetparams;
+         std::vector<double> pjetparams;
 
-};
+         std::string ptResFileName;
+         std::string phiResFileName;
+   };
+
+}
 
 //____________________________________________________________________________||
 #endif // METAlgorithms_METSignificance_h

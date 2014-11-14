@@ -51,7 +51,7 @@ Implementation:
 #include "RecoMET/METAlgorithms/interface/METSignificance.h"
 
 TMatrixD
-METSignificance::getCovariance()
+metsig::METSignificance::getCovariance()
 {
 
    edm::FileInPath fpt(ptResFileName);
@@ -161,7 +161,7 @@ METSignificance::getCovariance()
 }
 
 double
-METSignificance::getSignificance(TMatrixD& cov)
+metsig::METSignificance::getSignificance(TMatrixD& cov)
 {
    // covariance matrix determinant
    double det = cov(0,0)*cov(1,1) - cov(0,1)*cov(1,0);
@@ -178,7 +178,7 @@ METSignificance::getSignificance(TMatrixD& cov)
 }
 
 std::vector<reco::Jet>
-METSignificance::cleanJets(double ptThreshold, double dRmatch)
+metsig::METSignificance::cleanJets(double ptThreshold, double dRmatch)
 {
    double dR2match = dRmatch*dRmatch;
    std::vector<reco::Jet> retVal;
@@ -201,47 +201,47 @@ METSignificance::cleanJets(double ptThreshold, double dRmatch)
 }
 
 void
-METSignificance::addJets(const std::vector<reco::Jet>& inputJets){
+metsig::METSignificance::addJets(const std::vector<reco::Jet>& inputJets){
    jets = inputJets;
 }
 
 void
-METSignificance::addLeptons(const std::vector<reco::Candidate::LorentzVector>& inputLeptons){
+metsig::METSignificance::addLeptons(const std::vector<reco::Candidate::LorentzVector>& inputLeptons){
    leptons = inputLeptons;
 }
 
 void
-METSignificance::addCandidates(const std::vector<reco::Candidate::LorentzVector>& inputCandidates){
+metsig::METSignificance::addCandidates(const std::vector<reco::Candidate::LorentzVector>& inputCandidates){
    candidates = inputCandidates;
 }
 
 void
-METSignificance::addMET(const reco::MET& inputMET){
+metsig::METSignificance::addMET(const reco::MET& inputMET){
    met = inputMET;
 }
 
 void
-METSignificance::setThreshold(const double& inputThreshold){
+metsig::METSignificance::setThreshold(const double& inputThreshold){
    jetThreshold = inputThreshold;
 }
 
 void
-METSignificance::setJetEtaBins(const std::vector<double>& inputEtaBins){
+metsig::METSignificance::setJetEtaBins(const std::vector<double>& inputEtaBins){
    jetetas = inputEtaBins;
 }
 
 void
-METSignificance::setJetParams(const std::vector<double>& inputParams){
+metsig::METSignificance::setJetParams(const std::vector<double>& inputParams){
    jetparams = inputParams;
 }
 
 void
-METSignificance::setPJetParams(const std::vector<double>& inputParams){
+metsig::METSignificance::setPJetParams(const std::vector<double>& inputParams){
    pjetparams = inputParams;
 }
 
 void
-METSignificance::setResFiles(const std::string& inputPtFile, const std::string& inputPhiFile){
+metsig::METSignificance::setResFiles(const std::string& inputPtFile, const std::string& inputPhiFile){
    ptResFileName = inputPtFile;
    phiResFileName = inputPhiFile;
 }

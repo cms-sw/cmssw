@@ -8,13 +8,14 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 ##____________________________________________________________________________||
 process.load("RecoMET/METProducers.PFMET_cfi")
-process.load("RecoMET/METProducers.METSigParams_cfi")
+process.load("RecoMET/METProducers.METSignificanceParams_cfi")
+process.load("RecoMET/METProducers.METSignificanceObjects_cfi")
 
 ##____________________________________________________________________________||
-from RecoMET.METProducers.testInputFiles_cff import recoMETtestInputFiles
+#from RecoMET.METProducers.testInputFiles_cff import recoMETtestInputFiles
 process.source = cms.Source(
     "PoolSource",
-    fileNames = cms.untracked.vstring(recoMETtestInputFiles)
+    fileNames = cms.untracked.vstring("/store/relval/CMSSW_7_3_0_pre1/RelValTTbar_13/GEN-SIM-RECO/PRE_LS172_V15-v1/00000/CE7E8152-FE59-E411-91D5-0025905A60F2.root")
     )
 
 ##____________________________________________________________________________||
@@ -35,13 +36,15 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 
 ##____________________________________________________________________________||
 process.pfMetWithSignificance = process.pfMet.clone(
-    process.METSignificance_params,
+    process.METSignificanceParams,
     calculateSignificance = cms.bool(True),
-    jets = cms.InputTag("ak5PFJets")
+    jets = cms.InputTag("ak4PFJets"),
+    leptons = cms.VInputTag("selectedElectrons", "selectedMuons", "selectedPhotons")
     )
 
 ##____________________________________________________________________________||
 process.p = cms.Path(
+    process.selectionSequenceForMETSig *
     process.pfMetWithSignificance *
     process.pfMet
     )

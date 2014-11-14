@@ -51,11 +51,19 @@ namespace cms
       edm::EDGetTokenT<edm::View<reco::Candidate> > inputToken_;
 
       bool calculateSignificance_;
-      metsig::SignAlgoResolutions *resolutions_;
+      //metsig::SignAlgoResolutions *resolutions_;
 
       double globalThreshold_;
+      double jetThreshold_;
 
-      edm::EDGetTokenT<edm::View<reco::PFJet> > jetToken_;
+      edm::EDGetTokenT<edm::View<reco::Jet> > jetToken_;
+      std::vector< edm::EDGetTokenT<edm::View<reco::Candidate> > > lepTokens_;
+      std::string resAlg_;
+      std::string resEra_;
+
+      std::vector<double> jetEtas_;
+      std::vector<double> jetParams_;
+      std::vector<double> pjetParams_;
 
     };
 }
