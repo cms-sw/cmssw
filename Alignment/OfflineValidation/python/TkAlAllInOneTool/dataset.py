@@ -172,7 +172,10 @@ class Dataset:
     def __getData( self, dasQuery, dasLimit = 0 ):
         dasData = das_client.get_data( 'https://cmsweb.cern.ch',
                                        dasQuery, 0, dasLimit, False )
-        jsondict = json.loads( dasData )
+        try:
+            jsondict = json.loads( dasData )
+        except TypeError:
+            jsondict = dasData
         # Check, if the DAS query fails
         if jsondict["status"] != 'ok':
             msg = "Status not 'ok', but:", jsondict["status"]
@@ -183,7 +186,11 @@ class Dataset:
         dasQuery_type = ( 'dataset dataset=%s | grep dataset.datatype,'
                           'dataset.name'%( self.__name ) )
         data = self.__getData( dasQuery_type )
-        return data[0]["dataset"][0]["datatype"]
+        for a in  data[0]["dataset"]:
+            try:
+                return a["datatype"]
+            except KeyError:
+                pass
 
     def __getFileInfoList( self, dasLimit ):
         if self.__fileInfoList:
