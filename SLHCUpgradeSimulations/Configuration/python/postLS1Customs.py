@@ -71,12 +71,12 @@ def customisePostLS1EraExtras(process):
         process.simGtDigis.TechnicalTriggersInputTags = cms.VInputTag( )
         process.gctDigiToRaw.gctInputLabel = 'caloStage1LegacyFormatDigis'
 
-    if hasattr(process,'HLTSchedule'):
-        process.CSCGeometryESModule.useGangedStripsInME1a = False
-        process.hltCsc2DRecHits.readBadChannels = cms.bool(False)
-        process.hltCsc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
-        process.CSCIndexerESProducer.AlgoName=cms.string("CSCIndexerPostls1")
-        process.CSCChannelMapperESProducer.AlgoName=cms.string("CSCChannelMapperPostls1")
+#     if hasattr(process,'HLTSchedule'):
+#         process.CSCGeometryESModule.useGangedStripsInME1a = False
+#         process.hltCsc2DRecHits.readBadChannels = cms.bool(False)
+#         process.hltCsc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
+#         process.CSCIndexerESProducer.AlgoName=cms.string("CSCIndexerPostls1")
+#         process.CSCChannelMapperESProducer.AlgoName=cms.string("CSCChannelMapperPostls1")
 
     return process
 
