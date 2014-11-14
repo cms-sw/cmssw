@@ -2,9 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from SimGeneral.TrackingAnalysis.simHitTPAssociation_cfi import *
 from Validation.TrackerHits.trackerHitsValidation_cff import *
-from Validation.Phase2OuterTracker.OuterTrackerMCTruth_cfi import *
-from Validation.Phase2OuterTracker.OuterTrackerCluster_cfi import *
-from Validation.Phase2OuterTracker.OuterTrackerStub_cfi import *
+from Validation.Phase2OuterTracker.OuterTrackerSourceConfig_cff import *
 from Validation.TrackerDigis.trackerDigisValidation_cff import *
 from Validation.TrackerRecHits.trackerRecHitsValidation_cff import *
 from Validation.TrackingMCTruth.trackingTruthValidation_cfi import *
@@ -55,9 +53,7 @@ preprodPrevalidation = cms.Sequence(
 
 globalValidation = cms.Sequence(   trackerHitsValidation 
                                  + trackerDigisValidation 
-                                 + OuterTrackerMCTruth
-                                 + OuterTrackerCluster
-                                 + OuterTrackerStub
+                                 + OuterTrackerSource
                                  + trackerRecHitsValidation 
                                  + trackingTruthValid 
                                  + trackingRecHitsValid 

@@ -153,7 +153,7 @@ OuterTrackerMCTruth = cms.EDAnalyzer('OuterTrackerMCTruth',
 # Stub Width vs. TPart InvPt
     TH2Stub_W_InvPt = cms.PSet(
         Nbinsx = cms.int32(200),
-        xmax = cms.double(10.0),  #0.8                    
+        xmax = cms.double(0.8),                      
         xmin = cms.double(0.0),
         Nbinsy = cms.int32(41),
         ymax = cms.double(10.25),                      

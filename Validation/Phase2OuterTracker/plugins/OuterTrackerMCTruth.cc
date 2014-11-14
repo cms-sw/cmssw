@@ -583,7 +583,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
 	
 	
 	/// Stub properties compared to TParticles
-	dqmStore_->setCurrentFolder(topFolderName_+"/StubVSTPart/");
+	dqmStore_->setCurrentFolder(topFolderName_+"/TStubVSTPart/");
 // 	// Prepare for LogXY Plots
 // 	int NumBins = 200;
 // 	double MinPt = 0.0;
@@ -707,7 +707,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
 // 																											 psStub_InvPtRes.getParameter<double>("ymin"),
 // 																											 psStub_InvPtRes.getParameter<double>("ymax"));
 // 	Stub_InvPtRes_TPart_Eta_AllLayers->setAxisTitle("TPart Eta", 1);
-// 	Stub_InvPtRes_TPart_Eta_AllLayers->setAxisTitle("Stub 1/Pt", 2);
+// 	Stub_InvPtRes_TPart_Eta_AllLayers->setAxisTitle("Stub 1/Pt - TPart 1/Pt", 2);
 // 
 // 	HistoName = "Stub_InvPtRes_TPart_Eta_AllDisks";
 // 	Stub_InvPtRes_TPart_Eta_AllDisks = dqmStore_->book2D(HistoName, HistoName,
@@ -718,7 +718,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
 // 																											psStub_InvPtRes.getParameter<double>("ymin"),
 // 																											psStub_InvPtRes.getParameter<double>("ymax"));
 // 	Stub_InvPtRes_TPart_Eta_AllDisks->setAxisTitle("TPart Eta", 1);
-// 	Stub_InvPtRes_TPart_Eta_AllDisks->setAxisTitle("Stub 1/Pt", 2);
+// 	Stub_InvPtRes_TPart_Eta_AllDisks->setAxisTitle("Stub 1/Pt - TPart 1/Pt", 2);
 // 
 // 	// PtRes
 // 	edm::ParameterSet psStub_PtRes =  conf_.getParameter<edm::ParameterSet>("TH2Stub_PtRes");
@@ -731,7 +731,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
 // 																								 psStub_PtRes.getParameter<double>("ymin"),
 // 																								 psStub_PtRes.getParameter<double>("ymax"));
 // 	Stub_PtRes_TPart_Eta_AllLayers->setAxisTitle("TPart Eta", 1);
-// 	Stub_PtRes_TPart_Eta_AllLayers->setAxisTitle("Stub Pt", 2);
+// 	Stub_PtRes_TPart_Eta_AllLayers->setAxisTitle("Stub Pt - TPart Pt", 2);
 // 
 // 	HistoName = "Stub_PtRes_TPart_Eta_AllDisks";
 // 	Stub_PtRes_TPart_Eta_AllDisks = dqmStore_->book2D(HistoName, HistoName,
@@ -742,7 +742,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
 // 																								psStub_PtRes.getParameter<double>("ymin"),
 // 																								psStub_PtRes.getParameter<double>("ymax"));
 // 	Stub_PtRes_TPart_Eta_AllDisks->setAxisTitle("TPart Eta", 1);
-// 	Stub_PtRes_TPart_Eta_AllDisks->setAxisTitle("Stub Pt", 2);
+// 	Stub_PtRes_TPart_Eta_AllDisks->setAxisTitle("Stub Pt - TPart Pt", 2);
 
 	// EtaRes
 	edm::ParameterSet psStub_EtaRes =  conf_.getParameter<edm::ParameterSet>("TH2Stub_EtaRes");
@@ -755,7 +755,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
 																									 psStub_EtaRes.getParameter<double>("ymin"),
 																									 psStub_EtaRes.getParameter<double>("ymax"));
 	Stub_EtaRes_TPart_Eta_AllLayers->setAxisTitle("TPart Eta", 1);
-	Stub_EtaRes_TPart_Eta_AllLayers->setAxisTitle("Stub Eta", 2);
+	Stub_EtaRes_TPart_Eta_AllLayers->setAxisTitle("Stub Eta - TPart Eta", 2);
 
 	HistoName = "Stub_EtaRes_TPart_Eta_AllDisks";
 	Stub_EtaRes_TPart_Eta_AllDisks = dqmStore_->book2D(HistoName, HistoName,
@@ -766,7 +766,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
 																									psStub_EtaRes.getParameter<double>("ymin"),
 																									psStub_EtaRes.getParameter<double>("ymax"));
 	Stub_EtaRes_TPart_Eta_AllDisks->setAxisTitle("TPart Eta", 1);
-	Stub_EtaRes_TPart_Eta_AllDisks->setAxisTitle("Stub Eta", 2);
+	Stub_EtaRes_TPart_Eta_AllDisks->setAxisTitle("Stub Eta - TPart Eta", 2);
 
 	// PhiRes
 	edm::ParameterSet psStub_PhiRes =  conf_.getParameter<edm::ParameterSet>("TH2Stub_PhiRes");
@@ -779,7 +779,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
 																									 psStub_PhiRes.getParameter<double>("ymin"),
 																									 psStub_PhiRes.getParameter<double>("ymax"));
 	Stub_PhiRes_TPart_Eta_AllLayers->setAxisTitle("TPart Eta", 1);
-	Stub_PhiRes_TPart_Eta_AllLayers->setAxisTitle("Stub Phi", 2);
+	Stub_PhiRes_TPart_Eta_AllLayers->setAxisTitle("Stub Phi - TPart Phi", 2);
 
 	HistoName = "Stub_PhiRes_TPart_Eta_AllDisks";
 	Stub_PhiRes_TPart_Eta_AllDisks = dqmStore_->book2D(HistoName, HistoName,
@@ -790,7 +790,7 @@ OuterTrackerMCTruth::beginRun(const edm::Run& run, const edm::EventSetup& es)
 																									psStub_PhiRes.getParameter<double>("ymin"),
 																									psStub_PhiRes.getParameter<double>("ymax"));
 	Stub_PhiRes_TPart_Eta_AllDisks->setAxisTitle("TPart Eta", 1);
-	Stub_PhiRes_TPart_Eta_AllDisks->setAxisTitle("Stub Phi", 2);
+	Stub_PhiRes_TPart_Eta_AllDisks->setAxisTitle("Stub Phi - TPart Phi", 2);
 
 	// Width vs. InvPt
 	edm::ParameterSet psStub_W_InvPt =  conf_.getParameter<edm::ParameterSet>("TH2Stub_W_InvPt");

@@ -3,7 +3,7 @@
 // Package:    Phase2OuterTracker
 // Class:      Phase2OuterTracker
 // 
-/**\class Phase2OuterTracker OuterTrackerClient.cc Validation/Phase2OuterTracker/plugins/OuterTrackerClient.cc
+/**\class Phase2OuterTracker OuterTrackerMCTruthClient.cc Validation/Phase2OuterTracker/plugins/OuterTrackerMCTruthClient.cc
 
  Description: [one line class summary]
 
@@ -12,7 +12,7 @@
 */
 //
 // Original Author:  Lieselotte Moreels
-//         Created:  Fri, 13 Jun 2014 09:57:34 GMT
+//         Created:  Fri, 14 Nov 2014 11:14:45 GMT
 // 
 
 // system include files
@@ -25,12 +25,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
-#include "DQM/SiStripCommon/interface/SiStripHistoId.h"
-#include "Validation/Phase2OuterTracker/interface/OuterTrackerClient.h"
+#include "Validation/Phase2OuterTracker/interface/OuterTrackerMCTruthClient.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
@@ -43,13 +41,13 @@
 //
 // constructors and destructor
 //
-OuterTrackerClient::OuterTrackerClient(const edm::ParameterSet& iConfig)
+OuterTrackerMCTruthClient::OuterTrackerMCTruthClient(const edm::ParameterSet& iConfig)
 {
  
 }
 
 
-OuterTrackerClient::~OuterTrackerClient()
+OuterTrackerMCTruthClient::~OuterTrackerMCTruthClient()
 {
  
 
@@ -62,7 +60,7 @@ OuterTrackerClient::~OuterTrackerClient()
 
 // ------------ method called for each event  ------------
 void
-OuterTrackerClient::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+OuterTrackerMCTruthClient::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   
 }
@@ -70,7 +68,7 @@ OuterTrackerClient::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-OuterTrackerClient::beginRun(const edm::Run& run, const edm::EventSetup& es)
+OuterTrackerMCTruthClient::beginRun(const edm::Run& run, const edm::EventSetup& es)
 {
 
 
@@ -79,9 +77,9 @@ OuterTrackerClient::beginRun(const edm::Run& run, const edm::EventSetup& es)
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-OuterTrackerClient::endJob(void) 
+OuterTrackerMCTruthClient::endJob(void) 
 {
 
 }
 
-DEFINE_FWK_MODULE(OuterTrackerClient);
+DEFINE_FWK_MODULE(OuterTrackerMCTruthClient);

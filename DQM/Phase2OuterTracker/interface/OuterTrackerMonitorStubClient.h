@@ -1,5 +1,6 @@
-#ifndef Phase2OuterTracker_OuterTrackerClient_h
-#define Phase2OuterTracker_OuterTrackerClient_h
+#ifndef Phase2OuterTracker_OuterTrackerMonitorStubClient_h
+#define Phase2OuterTracker_OuterTrackerMonitorStubClient_h
+
 
 #include <vector>
 #include <memory>
@@ -12,14 +13,15 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DQM/SiStripCommon/interface/TkHistoMap.h"
 
 class DQMStore;
 
-class OuterTrackerClient : public edm::EDAnalyzer {
+class OuterTrackerMonitorStubClient : public edm::EDAnalyzer {
 
 public:
-  explicit OuterTrackerClient(const edm::ParameterSet&);
-  ~OuterTrackerClient();
+  explicit OuterTrackerMonitorStubClient(const edm::ParameterSet&);
+  ~OuterTrackerMonitorStubClient();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   //virtual void beginJob() ;
   virtual void endJob() ;
