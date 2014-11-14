@@ -8,6 +8,7 @@
 #include <sstream>
 #include <iostream>
 #include <assert.h>
+#include <chrono>
 
 using namespace XrdAdaptor;
 
