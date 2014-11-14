@@ -170,12 +170,16 @@ void init_timers(std::vector<BenchmarkBase *> & timers)
 
 #endif // defined __x86_64__ or defined __i386__
 
+#ifdef HAVE_BOOST_TIMER
   // boost timer clock
   timers.push_back(new Benchmark<clock_boost_timer_realtime>("boost::timer (wall-clock time)"));
   timers.push_back(new Benchmark<clock_boost_timer_cputime>("boost::timer (cpu time)"));
+#endif // HAVE_BOOST_TIMER
 
+#ifdef HAVE_TBB
   // TBB tick_count (this interface does not expose the underlying type, so it cannot easily be used to build a "native" clock interface)
   timers.push_back(new Benchmark<clock_tbb_tick_count>("tbb::tick_count"));
+#endif // HAVE_TBB
 
 #ifndef __clang__
   // OpenMP timer
