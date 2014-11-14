@@ -1,5 +1,5 @@
-#ifndef EgammaHLTProducers_EgammaHLTHcalPFClusterIsolationProducer_h
-#define EgammaHLTProducers_EgammaHLTHcalPFClusterIsolationProducer_h
+#ifndef EgammaHLTProducers_HLTHcalPFClusterIsolationProducer_h
+#define EgammaHLTProducers_HLTHcalPFClusterIsolationProducer_h
 
 #include <memory>
 
@@ -14,6 +14,9 @@
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
 
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateIsolation.h"
+
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 
@@ -22,17 +25,23 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class EgammaHLTHcalPFClusterIsolationProducer : public edm::EDProducer {
+template<typename T1>
+class HLTHcalPFClusterIsolationProducer : public edm::EDProducer {
+
+  typedef std::vector<T1> T1Collection;
+  typedef edm::Ref<T1Collection> T1Ref;
+  typedef edm::AssociationMap<edm::OneToValue<std::vector<T1>, float > > T1IsolationMap;
+
  public:
-  explicit EgammaHLTHcalPFClusterIsolationProducer(const edm::ParameterSet&);
-  ~EgammaHLTHcalPFClusterIsolationProducer();    
+  explicit HLTHcalPFClusterIsolationProducer(const edm::ParameterSet&);
+  ~HLTHcalPFClusterIsolationProducer();    
       
   virtual void produce(edm::Event&, const edm::EventSetup&);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
  
  private:
 
-  edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
+  edm::EDGetTokenT<T1Collection> recoCandidateProducer_;
   edm::EDGetTokenT<reco::PFClusterCollection> pfClusterProducerHCAL_;
   edm::EDGetTokenT<reco::PFClusterCollection> pfClusterProducerHFEM_;
   edm::EDGetTokenT<reco::PFClusterCollection> pfClusterProducerHFHAD_;
