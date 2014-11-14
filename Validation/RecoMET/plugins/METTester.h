@@ -44,8 +44,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DataFormats/PatCandidates/interface/MET.h"
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 #include "TMath.h"
 
 
@@ -67,7 +66,7 @@ public:
   // Inputs from Configuration File
 
   edm::InputTag mInputCollection_;
-
+  std::string mOutputFile;
   std::string sample_;
   edm::InputTag inputMETLabel_;
   std::string METType_;
@@ -86,7 +85,6 @@ public:
   edm::EDGetTokenT<reco::GenMETCollection> genMETsToken_;
   edm::EDGetTokenT<reco::GenMETCollection> genMETsTrueToken_;
   edm::EDGetTokenT<reco::GenMETCollection> genMETsCaloToken_;
-  edm::EDGetTokenT<pat::METCollection> patMETToken_;
   //for tcmet
   edm::EDGetTokenT<reco::MuonCollection> muonToken_;
   edm::EDGetTokenT<reco::TrackCollection> trackToken_;
@@ -218,7 +216,6 @@ public:
 //  bool isTcMET;
   bool isPFMET;
   bool isGenMET;
-  bool isMiniAODMET;
 
 };
 
