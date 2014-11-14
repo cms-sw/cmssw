@@ -12,6 +12,7 @@ class testView: public CppUnit::TestFixture
   CPPUNIT_TEST(iterateForward);
   CPPUNIT_TEST(iterateBackward);
   CPPUNIT_TEST(cloning);
+  CPPUNIT_TEST(ptrs);
   CPPUNIT_TEST_SUITE_END();
 
  public:
@@ -26,6 +27,7 @@ class testView: public CppUnit::TestFixture
   void iterateForward();
   void iterateBackward();
   void cloning();
+  void ptrs();
 
  private:
   typedef int  value_type;
@@ -128,3 +130,18 @@ void testView::cloning()
     CPPUNIT_ASSERT(*view == v1);
   }
 }
+
+void testView::ptrs()
+{
+  value_type vals[] = { 1, 2, 3, 4, 5 };
+  size_t sz = sizeof(vals)/sizeof(value_type);
+  
+  View v1;
+  edm::View<int>::fill_from_range(vals, vals+sz, v1);
+  size_t i=0;
+  for(auto ptr : v1.ptrs())
+  {
+    CPPUNIT_ASSERT(*ptr == vals[i++]);
+  }
+}
+

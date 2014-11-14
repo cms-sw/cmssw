@@ -130,7 +130,7 @@ namespace DataFormats_EgammaCandidates {
     reco::GsfElectron::MvaInput gemi ;
     reco::GsfElectron::MvaOutput gemo ;
     reco::GsfElectron::ClassificationVariables gecv ;
-
+    reco::GsfElectron::PixelMatchVariables gepmv ;
 
     edm::RefToBase<reco::GsfElectron> rtbg;
     edm::reftobase::IndirectHolder<reco::GsfElectron> ihg;
@@ -143,6 +143,7 @@ namespace DataFormats_EgammaCandidates {
     edm::Ref<reco::GsfElectronCollection> r4;
     edm::RefProd<reco::GsfElectronCollection> rp4;
     edm::Wrapper<edm::RefVector<reco::GsfElectronCollection> > rv4;
+    
 
     reco::SiStripElectronCollection v5;
     edm::Wrapper<reco::SiStripElectronCollection> w5;

@@ -112,7 +112,10 @@ bool support::isSafeClassName(const std::string &cname) {
     "class edm::AtomicPtrCache"
     "std::once_flag",
     "struct std::once_flag",
-    "boost::<anonymous namespace>::extents"
+    "boost::<anonymous namespace>::extents",
+    "cout", "cerr",
+    "std::cout","std::cerr",
+    "edm::RunningAverage","class edm::RunningAverage"
   };
   
   for (auto& name: names)

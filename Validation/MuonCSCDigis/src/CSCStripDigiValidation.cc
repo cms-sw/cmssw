@@ -4,47 +4,41 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 
-CSCStripDigiValidation::CSCStripDigiValidation(DQMStore* dbe,
-                                               const edm::InputTag & inputTag,
-                                               edm::ConsumesCollector && iC,
-                                               bool doSim)
-: CSCBaseValidation(dbe, inputTag),
+CSCStripDigiValidation::CSCStripDigiValidation(const edm::InputTag & inputTag,
+                                               edm::ConsumesCollector && iC):
+  CSCBaseValidation(inputTag),
   thePedestalSum(0),
   thePedestalCovarianceSum(0),
   thePedestalCount(0),
-  theDoSimFlag(doSim),
-  thePedestalPlot( dbe_->book1D("CSCPedestal", "CSC Pedestal ", 400, 550, 650) ),
   thePedestalTimeCorrelationPlot(0),
   thePedestalNeighborCorrelationPlot(0),
-  theAmplitudePlot( dbe_->book1D("CSCStripAmplitude", "CSC Strip Amplitude", 200, 0, 2000) ),
-  theRatio4to5Plot( dbe_->book1D("CSCStrip4to5", "CSC Strip Ratio tbin 4 to tbin 5", 100, 0, 1) ),
-  theRatio6to5Plot( dbe_->book1D("CSCStrip6to5", "CSC Strip Ratio tbin 6 to tbin 5", 120, 0, 1.2) ),
-  theNDigisPerLayerPlot( dbe_->book1D("CSCStripDigisPerLayer", "Number of CSC Strip Digis per layer", 48, 0, 48) ),
-  theNDigisPerChamberPlot(0),
-  theNDigisPerEventPlot( dbe_->book1D("CSCStripDigisPerEvent", "Number of CSC Strip Digis per event", 100, 0, 500) )
+  theNDigisPerChamberPlot(0)
 {
   strips_Token_ = iC.consumes<CSCStripDigiCollection>(inputTag);
+}
 
+CSCStripDigiValidation::~CSCStripDigiValidation()
+{
+}
+
+void CSCStripDigiValidation::bookHistograms(DQMStore::IBooker & iBooker,
+                                            bool doSim)
+{
+  thePedestalPlot = iBooker.book1D("CSCPedestal", "CSC Pedestal ", 400, 550, 650);
+  theAmplitudePlot = iBooker.book1D("CSCStripAmplitude", "CSC Strip Amplitude", 200, 0, 2000);
+  theRatio4to5Plot = iBooker.book1D("CSCStrip4to5", "CSC Strip Ratio tbin 4 to tbin 5", 100, 0, 1);
+  theRatio6to5Plot = iBooker.book1D("CSCStrip6to5", "CSC Strip Ratio tbin 6 to tbin 5", 120, 0, 1.2);
+  theNDigisPerLayerPlot = iBooker.book1D("CSCStripDigisPerLayer", "Number of CSC Strip Digis per layer", 48, 0, 48);
+  theNDigisPerEventPlot = iBooker.book1D("CSCStripDigisPerEvent", "Number of CSC Strip Digis per event", 100, 0, 500); 
   if(doSim) {
     for(int i = 0; i < 10; ++i)
     {
       char title1[200];
       sprintf(title1, "CSCStripDigiResolution%d", i+1);
-      theResolutionPlots[i] = dbe_->book1D(title1, title1, 100, -5, 5);
+      theResolutionPlots[i] = iBooker.book1D(title1, title1, 100, -5, 5);
     }
   }
-
 }
-
-
-CSCStripDigiValidation::~CSCStripDigiValidation() {
-
-//   edm::LogInfo("CSCDigiValidation") << "RATIO for strips 4 to 5 : " << theRatio4to5Plot->getMean();
-//   edm::LogInfo("CSCDigiValidation") << "RATIO for strips 6 to 5 : " << theRatio6to5Plot->getMean();
-//   edm::LogInfo("CSCDigiValidation") << "NDIGIS per event : " << theNDigisPerEventPlot->getMean();
-
-}
-
 
 void CSCStripDigiValidation::analyze(const edm::Event& e,
                                      const edm::EventSetup&)
@@ -93,19 +87,6 @@ void CSCStripDigiValidation::analyze(const edm::Event& e,
         }
       }
     }
-
-/*
-    int detId = (*j).first.rawId();
-
-    edm::PSimHitContainer simHits = theSimHitMap->hits(detId);
-
-    if(simHits.size() == 1)
-    {
-      const CSCLayer * layer = findLayer(detId);
-      int chamberType = layer->chamber()->specs()->chamberType();
-      plotResolution(simHits[0], maxStrip, layer, chamberType);
-    }
-*/
   } // loop over digis
 
   theNDigisPerEventPlot->Fill(nDigisPerEvent);

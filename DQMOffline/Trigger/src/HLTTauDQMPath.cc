@@ -142,14 +142,24 @@ namespace {
     TauLeptonMultiplicity n;
 
     if(moduleType == "HLTLevel1GTSeed") {
-      if(filterName.find("SingleMu") != std::string::npos) {
-        n.muon = 1;
+      if(filterName.find("Single") != std::string::npos) {
+	if(filterName.find("Mu") != std::string::npos) {
+	  n.muon = 1;
+	}
+	else if(filterName.find("EG") != std::string::npos) {
+	  n.electron = 1;
+	}
       }
-      else if(filterName.find("SingleEG") != std::string::npos) {
-        n.electron = 1;
-      }
-      else if(filterName.find("DoubleTau") != std::string::npos) {
+      else if(filterName.find("Double") != std::string::npos && filterName.find("Tau") != std::string::npos) {
         n.tau = 2;
+      }
+      else if(filterName.find("Mu") != std::string::npos && filterName.find("Tau") != std::string::npos) { 
+	n.muon = 1;
+	//n.tau = 1;
+      }
+      else if(filterName.find("EG") != std::string::npos && filterName.find("Tau") != std::string::npos) { 
+	n.electron = 1;
+	//n.tau = 1;
       }
     }
     else if(moduleType == "HLT1CaloJet" || moduleType == "HLT1PFJet") {
@@ -180,7 +190,8 @@ namespace {
       n.electron = getParameterSafe(HLTCP, filterName, "ncandcut");
     }
     else if(moduleType == "HLTMuonIsoFilter" || moduleType == "HLTMuonL3PreFilter") {
-      n.muon = HLTCP.modulePSet(filterName).getParameter<int>("MinN");
+      //n.muon = HLTCP.modulePSet(filterName).getParameter<int>("MinN");
+      n.muon = getParameterSafe(HLTCP, filterName, "MinN");
     }
     else if(moduleType == "HLT2ElectronTau" || moduleType == "HLT2ElectronPFTau" || moduleType == "HLT2PhotonTau" || moduleType == "HLT2PhotonPFTau") {
       //int num = HLTCP.modulePSet(filterName).getParameter<int>("MinN");
@@ -392,7 +403,7 @@ bool HLTTauDQMPath::offlineMatching(size_t i, const std::vector<Object>& trigger
     for(const Object& trgObj: triggerObjects) {
       //std::cout << "trigger object id " << trgObj.id << std::endl;
       if(! ((isL1 && (trgObj.id == trigger::TriggerL1NoIsoEG || trgObj.id == trigger::TriggerL1IsoEG))
-            || trgObj.id == trigger::TriggerElectron) )
+            || trgObj.id == trigger::TriggerElectron || trgObj.id == trigger::TriggerPhoton) )
         continue;
       if(deltaRmatch(trgObj.object, offlineObjects.electrons, dR, offlineMask, matchedOfflineObjects.electrons)) {
         ++matchedObjects;

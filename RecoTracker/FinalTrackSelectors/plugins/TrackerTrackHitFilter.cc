@@ -42,6 +42,8 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
+
 #include <boost/regex.hpp>
 #include <map>
 //#include <math>
@@ -107,8 +109,8 @@ namespace reco {
 
     edm::InputTag src_;
 
-    int iRun;
-    int iEvt;
+    edm::RunNumber_t iRun;
+    edm::EventNumber_t iEvt;
 
     size_t minimumHits_;
 

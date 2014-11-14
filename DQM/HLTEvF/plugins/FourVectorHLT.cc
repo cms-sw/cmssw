@@ -14,8 +14,7 @@
 
 using namespace edm;
 
-FourVectorHLT::FourVectorHLT(const edm::ParameterSet& iConfig):
-  resetMe_(true),  currentRun_(-99)
+FourVectorHLT::FourVectorHLT(const edm::ParameterSet& iConfig)
 {
   LogDebug("FourVectorHLT") << "constructor...." ;
 

@@ -143,17 +143,15 @@ MVAComputer::~MVAComputer()
 {
 }
 
-unsigned int MVAComputer::getVariableId(AtomicId name) const
+int MVAComputer::getVariableId(AtomicId name) const
 {
 
 	std::vector<InputVar>::const_iterator pos = std::lower_bound(inputVariables.begin(), inputVariables.end(), name);
 
 	if (pos == inputVariables.end() || pos->var.getName() != name)
-		throw cms::Exception("InvalidVariable")
-			<< "Input variable " << (const char*)name
-			<< " not found."  << std::endl;
-
-	return pos->index;
+		return -1;
+	else
+		return pos->index;
 }
 
 template<class T>

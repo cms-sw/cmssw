@@ -71,8 +71,7 @@ bool DatabasePDG::LoadParticles() {
   ifstream particleFile;
   particleFile.open(fParticleFilename);
   if(!particleFile) {
-    cout << "ERROR in DatabasePDG::LoadParticles() : The ASCII file containing the PDG particle list (\""
-         << fParticleFilename << "\") was not found !! Aborting..." << endl;
+    edm::LogError("DatabasePDG")<< "The ASCII file containing the PDG particle list " << fParticleFilename << " was not found";
     return kFALSE;
   }
   
@@ -81,10 +80,10 @@ bool DatabasePDG::LoadParticles() {
   int pdg;
   int goodStatusParticles = 0;
 
-  cout << "Info in DatabasePDG::LoadParticles() : Start loading particles with the following criteria:" << endl
-       << "       Use particles containing charm quarks (1-yes;0-no) : " << fUseCharmParticles << endl
+  edm::LogInfo("DatabasePDG")<< "Start loading particles with the following criteria:" << endl
+       << "       Use particles containing charm quarks (1:yes;0:no) : " << fUseCharmParticles << endl
        << "       Mass range                                         : (" << fMinimumMass << "; " << fMaximumMass << ")" << endl
-       << "       Width range                                        : (" << fMinimumWidth << "; " << fMaximumWidth << ")" << endl;
+       << "       Width range                                        : (" << fMinimumWidth << "; " << fMaximumWidth << ")";
   
   particleFile.exceptions(ios::failbit);
   while(!particleFile.eof()) {
@@ -92,7 +91,7 @@ bool DatabasePDG::LoadParticles() {
       particleFile >> name >> mass >> width >> spin >> isospin >> isospinZ >> q >> s >> aq >> as >> c >> ac >> pdg;
     }
     catch (ios::failure const &problem) {
-      cout << problem.what() << endl;
+      LogDebug("DatabasePDG")<<" ios:failure in particle file "<< problem.what();
       break;
     }
         
@@ -131,12 +130,12 @@ bool DatabasePDG::LoadParticles() {
   }
   particleFile.close();
   if(fNParticles==0) {
-    cout << "Warning in DatabasePDG::LoadParticles(): No particles were found in the file specified!!" << endl;
+
+    LogWarning("DatabasePDG")<<" No particles were found in the file specified!!";
     return kFALSE;
   }
   SortParticles();
-  cout << "Info in DatabasePDG::LoadParticles(): Particle definitions found = " << fNParticles << endl
-       << "                                      Good status particles      = " << goodStatusParticles << endl;
+  edm::LogInfo("DatabasePDG")<< " Particle definitions found: " << fNParticles << ". Good status particles: " << goodStatusParticles;
   return kTRUE;
 }
 
@@ -144,8 +143,7 @@ bool DatabasePDG::LoadDecays() {
   ifstream decayFile;
   decayFile.open(fDecayFilename);
   if(!decayFile) {
-    cout << "ERROR in DatabasePDG::LoadDecays() : The ASCII file containing the decays list (\""
-         << fDecayFilename << "\") was not found !! Aborting..." << endl;
+    edm::LogError("DatabasePDG")<< "The ASCII file containing the decays list " << fDecayFilename << " was not found";
     return kFALSE;
   }
   
@@ -164,7 +162,7 @@ bool DatabasePDG::LoadDecays() {
       decayFile >> branching;
     }
     catch (ios::failure const &problem) {
-      cout << problem.what() << endl;
+      LogDebug("DatabasePDG")<<" ios:failure in decay file "<< problem.what();
       break;
     }
     if((mother_pdg!=0) && (daughter_pdg[0]!=0) && (branching>=0)) {
@@ -174,20 +172,18 @@ bool DatabasePDG::LoadDecays() {
           nDaughters++;
       ParticlePDG* particle = GetPDGParticle(mother_pdg);
       if(!particle) {
-	cout << "DatabasePDG::LoadDecays(): WARNING!!! Mother particle PDG ("
-	     << mother_pdg << ") not found in the particle definition list: " << mother_pdg << "--> ";
+	LogWarning("DatabasePDG")<<" Mother particle PDG (" << mother_pdg 
+		<< ") not found in the particle definition list:"<< mother_pdg << " >>> ";
 	for(int kk=0; kk<nDaughters; kk++) 
-	  cout << daughter_pdg[kk] << "  ";
-	cout << endl;
+	  LogWarning("DatabasePDG")<< daughter_pdg[kk] << "  ";
 	return kFALSE;
       }
       for(int kk=0; kk<nDaughters; kk++) {
 	if(!GetPDGParticle(daughter_pdg[kk])) {
-	  cout << "DatabasePDG::LoadDecays(): WARNING!!! Daughter particle PDG ("
-	       << daughter_pdg[kk] << ") not found in the particle definition list: " << mother_pdg << "--> ";
+	  LogWarning("DatabasePDG")<<"Daughter particle PDG (" << daughter_pdg[kk] 
+		<< ") not found in the particle definition list: " << mother_pdg << ">>> ";
 	  for(int kkk=0; kkk<nDaughters; kkk++) 
-	    cout << daughter_pdg[kkk] << "  ";
-	  cout << endl;
+	    LogWarning("DatabasePDG")<< daughter_pdg[kkk] << "  ";
 	}
       }
       DecayChannel decay(mother_pdg, branching, nDaughters, daughter_pdg);
@@ -199,15 +195,15 @@ bool DatabasePDG::LoadDecays() {
   for(int i=0; i<fNParticles; i++) {
     nDecayChannels += fParticles[i]->GetNDecayChannels();
   }
-  cout << "Info in DatabasePDG::LoadDecays(): Number of decays found in the database is " << nDecayChannels << endl;
+  edm::LogInfo("DatabasePDG")<< "Number of decays found in the database is " << nDecayChannels;
   return kTRUE;
 }
 
 ParticlePDG* DatabasePDG::GetPDGParticleByIndex(int index) {
   if(index<0 || index>fNParticles) {
-    cout << "Warning in DatabasePDG::GetPDGParticleByIndex(int): Particle index is negative or too big !!" << endl
-         << " It must be inside this range: [0, " << fNParticles-1 << "]" << endl
-         << " Returning null pointer!!" << endl;
+    edm::LogWarning("DatabasePDG")<< "Particle index is negative or too big !!" << endl
+         << " It must be inside this range: (0, " << fNParticles-1 << ")" << endl
+         << " Returning null pointer!!";
     return 0x0;
   }
   return fParticles[index];
@@ -215,9 +211,9 @@ ParticlePDG* DatabasePDG::GetPDGParticleByIndex(int index) {
 
 bool DatabasePDG::GetPDGParticleStatusByIndex(int index) {
   if(index<0 || index>fNParticles) {
-    cout << "Warning in DatabasePDG::GetPDGParticleStatusByIndex(int): Particle index is negative or too big !!" << endl
-         << " It must be inside this range: [0, " << fNParticles-1 << "]" << endl
-         << " Returning null pointer!!" << endl;
+    edm::LogWarning("DatabasePDG")<< "Particle index is negative or too big !!" << endl
+         << " It must be inside this range: (0, " << fNParticles-1 << ")" << endl
+         << " Returning null pointer!!";
     return kFALSE;
   }
   return fStatus[index];
@@ -234,14 +230,14 @@ ParticlePDG* DatabasePDG::GetPDGParticle(int pdg) {
   }
   if(nFindings == 1) return fParticles[firstTimeIndex];
   if(nFindings == 0) {
-    cout << "Warning in DatabasePDG::GetPDGParticle(int): The particle required with PDG = " << pdg
-         << " was not found in the database!!" << endl;
+    edm::LogWarning("DatabasePDG")<< "The particle required with PDG: " << pdg
+         << " was not found in the database!!";
     return 0x0;
   }
   if(nFindings >= 2) {
-    cout << "Warning in DatabasePDG::GetPDGParticle(int): The particle required with PDG = " << pdg
+    edm::LogWarning("DatabasePDG")<< "The particle required with PDG: " << pdg
          << " was found with " << nFindings << " entries in the database. Check it out !!" << endl
-	 << "Returning the first instance found" << endl;
+	 << "Returning the first instance found";
     return fParticles[firstTimeIndex];
   }
   return 0x0;
@@ -258,14 +254,14 @@ bool DatabasePDG::GetPDGParticleStatus(int pdg) {
   }
   if(nFindings == 1) return fStatus[firstTimeIndex];
   if(nFindings == 0) {
-    cout << "Warning in DatabasePDG::GetPDGParticleStatus(int): The particle required with PDG = " << pdg
-         << " was not found in the database!!" << endl;
+    edm::LogWarning("DatabasePDG")<< "The particle required with PDG: " << pdg
+         << " was not found in the database!!";
     return kFALSE;
   }
   if(nFindings >= 2) {
-    cout << "Warning in DatabasePDG::GetPDGParticleStatus(int): The particle status required for PDG = " << pdg
+    edm::LogWarning("DatabasePDG")<< "The particle status required for PDG: " << pdg
          << " was found with " << nFindings << " entries in the database. Check it out !!" << endl
-	 << "Returning the status of first instance found" << endl;
+	 << "Returning the status of first instance found";
     return fStatus[firstTimeIndex];
   }
   return kFALSE;
@@ -282,14 +278,14 @@ ParticlePDG* DatabasePDG::GetPDGParticle(char* name) {
   }
   if(nFindings == 1) return fParticles[firstTimeIndex];
   if(nFindings == 0) {
-    cout << "Warning in DatabasePDG::GetPDGParticle(char*): The particle required with name \"" << name
-         << "\" was not found in the database!!" << endl;
+    edm::LogWarning("DatabasePDG")<< "The particle required with name (" << name
+         << ") was not found in the database!!";
     return 0x0;
   }
   if(nFindings >= 2) {
-    cout << "Warning in DatabasePDG::GetPDGParticle(char*): The particle required with name \"" << name
-         << "\" was found with " << nFindings << " entries in the database. Check it out !!" << endl
-	 << "Returning the first instance found" << endl;
+    edm::LogWarning("DatabasePDG")<< "The particle required with name (" << name
+         << ") was found with " << nFindings << " entries in the database. Check it out !!" << endl
+	 << "Returning the first instance found";
     return fParticles[firstTimeIndex];
   }
   return 0x0;
@@ -306,14 +302,14 @@ bool DatabasePDG::GetPDGParticleStatus(char* name) {
   }
   if(nFindings == 1) return fStatus[firstTimeIndex];
   if(nFindings == 0) {
-    cout << "Warning in DatabasePDG::GetPDGParticleStatus(char*): The particle required with name \"" << name
-         << "\" was not found in the database!!" << endl;
+    edm::LogWarning("DatabasePDG")<< "The particle required with name (" << name
+         << ") was not found in the database!!";
     return kFALSE;
   }
   if(nFindings >= 2) {
-    cout << "Warning in DatabasePDG::GetPDGParticleStatus(char*): The particle status required for name \"" << name
-         << "\" was found with " << nFindings << " entries in the database. Check it out !!" << endl
-	 << "Returning the first instance found" << endl;
+    edm::LogWarning("DatabasePDG")<< "The particle status required for name (" << name
+         << ") was found with " << nFindings << " entries in the database. Check it out !!" << endl
+	 << "Returning the first instance found";
     return fStatus[firstTimeIndex];
   }
   return kFALSE;
@@ -542,7 +538,7 @@ void DatabasePDG::SortParticles() {
 
 
   if(fNParticles<2) {
-    cout << "Warning in DatabasePDG::SortParticles() : No particles to sort. Load data first!!" << endl;
+    edm::LogWarning("DatabasePDG")<< "No particles to sort. Load data first!!";
     return;
   }
 
@@ -587,15 +583,15 @@ int DatabasePDG::GetNParticles(bool all) {
 
 void DatabasePDG::UseThisListOfParticles(char *filename, bool exclusive) {
   if(fNParticles<1) {
-    cout << "Error in DatabasePDG::UseThisListOfParticles(char*, bool) : You must load the data before calling this function!!" << endl;
+    edm::LogError("DatabasePDG")<< "You must load the data before calling this function!!";
     return;
   }
 
   ifstream listFile;
   listFile.open(filename);
   if(!listFile) {
-    cout << "ERROR in DatabasePDG::UseThisListOfParticles(char*, bool) : The ASCII file containing the PDG codes list (\""
-         << filename << "\") was not found !! Aborting..." << endl;
+    edm::LogError("DatabasePDG")<< "The ASCII file containing the PDG codes list ("
+         << filename << ") was not found !!";
     return;
   }
 
@@ -609,7 +605,7 @@ void DatabasePDG::UseThisListOfParticles(char *filename, bool exclusive) {
       listFile >> pdg;
     }
     catch (ios::failure const &problem) {
-      cout << problem.what() << endl;
+      LogDebug("DatabasePDG")<< "ios:failure in list file"<<  problem.what();
       break;
     }
     int found = 0;
@@ -620,12 +616,12 @@ void DatabasePDG::UseThisListOfParticles(char *filename, bool exclusive) {
       }
     }
     if(!found) {
-      cout << "Warning in DatabasePDG::UseThisListOfParticles(char*, bool) : The particle with PDG code "
-	   << pdg << " was asked but not found in the database!!" << endl;
+      edm::LogWarning("DatabasePDG")<< "The particle with PDG code "
+	   << pdg << " was asked but not found in the database!!";
     }
     if(found>1) {
-      cout << "Warning in DatabasePDG::UseThisListOfParticles(char*, bool) : The particle with PDG code "
-	   << pdg << " was found more than once in the database!!" << endl;
+      edm::LogWarning("DatabasePDG")<< "The particle with PDG code "
+	   << pdg << " was found more than once in the database!!";
     }
   }
 

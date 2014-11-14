@@ -28,6 +28,81 @@ hiSecondPixelTripletSeedLayers.BPix.skipClusters = cms.InputTag('hiSecondPixelTr
 hiSecondPixelTripletSeedLayers.FPix.skipClusters = cms.InputTag('hiSecondPixelTripletClusters')
 
 # SEEDS
+from RecoPixelVertexing.PixelTriplets.PixelTripletHLTGenerator_cfi import *
+from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
+from RecoHI.HiTracking.HIPixelTrackFilter_cfi import *
+from RecoHI.HiTracking.HITrackingRegionProducer_cfi import *
+hiSecondPixelTracks = cms.EDProducer("PixelTrackProducer",
+
+    passLabel  = cms.string('Pixel primary tracks with vertex constraint'),
+
+    # Region
+    RegionFactoryPSet = cms.PSet(
+	  ComponentName = cms.string("GlobalTrackingRegionWithVerticesProducer"),
+	  RegionPSet = cms.PSet(
+            precise = cms.bool(True),
+            beamSpot = cms.InputTag("offlineBeamSpot"),
+            useFixedError = cms.bool(False),
+            nSigmaZ = cms.double(4.0),
+            sigmaZVertex = cms.double(4.0),
+            fixedError = cms.double(0.2),
+            VertexCollection = cms.InputTag("hiSelectedVertex"),
+            ptMin = cms.double(0.4),
+            useFoundVertices = cms.bool(True),
+            originRadius = cms.double(0.02)
+	  )
+    ),
+     
+    # Ordered Hits
+    OrderedHitsFactoryPSet = cms.PSet( 
+          ComponentName = cms.string( "StandardHitTripletGenerator" ),
+	  SeedingLayers = cms.InputTag( "PixelLayerTriplets" ),
+          GeneratorPSet = cms.PSet( 
+		PixelTripletHLTGenerator
+          )
+    ),
+	
+    # Fitter
+    FitterPSet = cms.PSet( 
+	  ComponentName = cms.string('PixelFitterByHelixProjections'),
+	  TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelTriplets')
+    ),
+	
+    # Filter
+    useFilterWithES = cms.bool( True ),
+    FilterPSet = cms.PSet( 
+        nSigmaLipMaxTolerance = cms.double(4.0),
+        chi2 = cms.double(1000.0),
+        ComponentName = cms.string('HIPixelTrackFilter'),
+        nSigmaTipMaxTolerance = cms.double(4.0),
+        clusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache"),
+        VertexCollection = cms.InputTag("hiSelectedVertex"),
+        useClusterShape = cms.bool(False),
+        lipMax = cms.double(0),
+        tipMax = cms.double(0),
+        ptMin = cms.double(0.4)
+    ),
+	
+    # Cleaner
+    CleanerPSet = cms.PSet(  
+          ComponentName = cms.string( "TrackCleaner" )
+    )
+)
+
+hiSecondPixelTracks.OrderedHitsFactoryPSet.GeneratorPSet.maxElement = cms.uint32(5000000)
+hiSecondPixelTracks.OrderedHitsFactoryPSet.SeedingLayers = cms.InputTag('hiSecondPixelTripletSeedLayers')
+
+hiSecondPixelTracks.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor
+
+
+
+import RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi
+hiSecondPixelTrackSeeds = RecoPixelVertexing.PixelLowPtUtilities.TrackSeeds_cfi.pixelTrackSeeds.clone(
+        InputCollection = 'hiSecondPixelTracks'
+  )
+
+
+
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
 from RecoTracker.TkTrackingRegions.GlobalTrackingRegionFromBeamSpot_cfi import RegionPsetFomBeamSpotBlock
 hiSecondPixelTripletSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone(
@@ -89,7 +164,7 @@ hiSecondPixelTripletTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTraject
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 hiSecondPixelTripletTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
-    src = cms.InputTag('hiSecondPixelTripletSeeds'),
+    src = cms.InputTag('hiSecondPixelTrackSeeds'),
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     numHitsForSeedCleaner = cms.int32(50),
     onlyPixelHitsForSeedCleaner = cms.bool(True),
@@ -144,7 +219,7 @@ hiSecondQual = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerg
 
 hiSecondPixelTripletStep = cms.Sequence(hiSecondPixelTripletClusters*
                                         hiSecondPixelTripletSeedLayers*
-                                        hiSecondPixelTripletSeeds*
+                                        hiSecondPixelTracks*hiSecondPixelTrackSeeds*
                                         hiSecondPixelTripletTrackCandidates*
                                         hiSecondPixelTripletGlobalPrimTracks*
                                         hiSecondPixelTripletStepSelector

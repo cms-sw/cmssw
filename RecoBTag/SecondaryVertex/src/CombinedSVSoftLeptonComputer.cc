@@ -5,6 +5,6 @@ using namespace std;
 
 
 CombinedSVSoftLeptonComputer::CombinedSVSoftLeptonComputer(const edm::ParameterSet &params) :
-	CombinedSVComputerV2(params)
+	CombinedSVComputer(params)
 {
 }

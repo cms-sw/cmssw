@@ -7,7 +7,6 @@ November. 2, 2005
 */
 //This class is taken from the GEANT4 tool kit  and changed!!!!!
 
-#include <TError.h>
 #include "GeneratorInterface/Hydjet2Interface/interface/RandArrayFunction.h"
 
 RandArrayFunction::RandArrayFunction(const double *aProbFunc, int theProbSize, int intType)
@@ -25,8 +24,7 @@ RandArrayFunction::RandArrayFunction(int theProbSize, int intType)
 void RandArrayFunction::PrepareTable(const double* aProbFunc) {
   //Prepares fIntegralPdf.
   if(fNBins < 1) {
-    Error("RandArrayFunction::PrepareTable",
-	  "RandArrayFunction constructed with no bins - will use flat distribution.");
+    edm::LogError("RandArrayFunction") << "RandArrayFunction constructed with no bins - will use flat distribution";
     UseFlatDistribution();
     return;
   }
@@ -39,17 +37,14 @@ void RandArrayFunction::PrepareTable(const double* aProbFunc) {
     if (weight < 0.) {
       // We can't stomach negative bin contents, they invalidate the 
       // search algorithm when the distribution is fired.
-      Warning("RandArrayFunction::PrepareTable",
-	      "RandArrayFunction constructed with negative-weight bin %d == %f -- will substitute 0 weight",
-	      ptn, weight);
+      edm::LogWarning("RandArrayFunction") << "RandArrayFunction constructed with negative-weight bin "<< ptn << " == " << weight << " -- will substitute 0 weight";
       weight = 0.;
     }
     fIntegralPdf[ptn + 1] = fIntegralPdf[ptn] + weight;
   }
 
   if (fIntegralPdf[fNBins] <= 0.) {
-    Warning("RandArrayFunction::PrepareTable",
-	    "RandArrayFunction constructed with nothing in bins - will use flat distribution");
+    edm::LogWarning("RandArrayFunction") << "RandArrayFunction constructed with nothing in bins - will use flat distribution";
     UseFlatDistribution();
     return;
   }
@@ -61,9 +56,7 @@ void RandArrayFunction::PrepareTable(const double* aProbFunc) {
   fOneOverNbins = 1.0 / fNBins;
   // One last chore:
   if (fInterpolationType && fInterpolationType != 1) {
-    Info("RandArrayFunction::PrepareTable",
-	 "RandArrayFunction does not recognize fInterpolationType %d \n"
-	 "Will use type 0 (continuous linear interpolation)", fInterpolationType);
+    edm::LogInfo("RandArrayFunction") << "RandArrayFunction does not recognize fInterpolationType "<< fInterpolationType << " Will use type 0 (continuous linear interpolation)";
     fInterpolationType = 0;
   }
 } 
