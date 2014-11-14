@@ -1,8 +1,9 @@
 #ifndef RecoBTag_SoftLepton_MuonTaggerNoIP_h
 #define RecoBTag_SoftLepton_MuonTaggerNoIP_h
 
-#include "TVector3.h"
-#include "RecoBTag/SoftLepton/src/LeptonTaggerBase.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
+#include "RecoBTag/SoftLepton/interface/LeptonSelector.h"
 #include "RecoBTag/SoftLepton/src/MuonTaggerNoIPMLP.h"
 
 /**  \class MuonTagger
@@ -13,24 +14,25 @@
  *   \author Andrea 'fwyzard' Bocci, Universita' di Firenze
  */
 
-class MuonTaggerNoIP : public LeptonTaggerBase {
+class MuonTaggerNoIP : public JetTagComputer {
 public:
-  MuonTaggerNoIP (void) : {}
-  virtual ~MuonTaggerNoIP (void) {}
 
-  /// b-tag a jet based on track-to-jet parameters:
-  virtual double discriminant (
-      const TVector3 & axis,
-      const TVector3 & lepton,
-      const reco::SoftLeptonProperties & properties
-  ) const 
-  {
-    MuonTaggerNoIPMLP theNet{};
-    return theNet.value( 0, properties.ptRel, properties.ratioRel, properties.deltaR, axis.Mag(), axis.Eta() ) +
-           theNet.value( 1, properties.ptRel, properties.ratioRel, properties.deltaR, axis.Mag(), axis.Eta() );
+  /// explicit ctor
+  explicit MuonTaggerNoIP(const edm::ParameterSet & configuration) : 
+    m_selector(configuration)
+  { 
+    uses("slTagInfos"); 
   }
 
+  /// dtor
+  virtual ~MuonTaggerNoIP() { }
+
+  /// b-tag a jet based on track-to-jet parameters in the extened info collection
+  virtual float discriminator(const TagInfoHelper & tagInfo) const;
+
 private:
+
+  btag::LeptonSelector m_selector;
 
 };
 
