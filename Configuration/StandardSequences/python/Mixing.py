@@ -58,6 +58,7 @@ addMixingScenario("LowLumiPileUp4Sources",{'file': 'SimGeneral.MixingModule.mixL
 addMixingScenario("LowLumiPileUp4Sources_ProdStep1",{'file': 'SimGeneral.MixingModule.mixLowLumPU_4sources_mixProdStep1_cfi'})
 addMixingScenario("LowLumiPileUp_ProdStep1",{'file': 'SimGeneral.MixingModule.mixLowLumPU_mixProdStep1_cfi'})
 addMixingScenario("NoPileUp",{'file': 'SimGeneral.MixingModule.mixNoPU_cfi'})
+addMixingScenario("Cosmics",{'file': 'SimGeneral.MixingModule.mixCosmics_cfi'})
 addMixingScenario("E7TeV_ProbDist_2010Data_BX156",{'file': 'SimGeneral.MixingModule.mix_E7TeV_ProbDist_2010Data_BX156_cfi'})
 addMixingScenario("E8TeV_ProbDist_2011EarlyData_50ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_ProbDist_2011EarlyData_50ns_cfi'})
 addMixingScenario("E8TeV_FlatDist_2011EarlyData_50ns",{'file': 'SimGeneral.MixingModule.mix_E8TeV_FlatDist_2011EarlyData_50ns_cfi'})
