@@ -110,6 +110,8 @@ namespace {
       return;
     }
 
+    std::string const & baseType = (filler->extendedBaseType().empty() ? filler->baseType() : filler->extendedBaseType());
+
     if (printOnlyPlugins) {
 
       os << std::setfill(' ');
@@ -126,13 +128,13 @@ namespace {
       }
       os << std::setw(6) << iPlugin << " ";
       os << std::setw(50) << pluginInfo.name_;
-      os << std::setw(24) << filler->baseType();
+      os << std::setw(24) << baseType;
       os << pluginInfo.loadable_.leaf() << "\n";
       os.flags(oldFlags);
       return;
     }
 
-    os << std::left << iPlugin << "  " << pluginInfo.name_ << "  (" << filler->baseType() << ")  " << pluginInfo.loadable_.leaf() << "\n";
+    os << std::left << iPlugin << "  " << pluginInfo.name_ << "  (" << baseType << ")  " << pluginInfo.loadable_.leaf() << "\n";
     os.flags(oldFlags);
 
     edm::ConfigurationDescriptions descriptions(filler->baseType());
