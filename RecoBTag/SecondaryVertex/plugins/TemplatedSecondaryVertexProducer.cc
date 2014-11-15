@@ -111,12 +111,11 @@ class TemplatedSecondaryVertexProducer : public edm::stream::EDProducer<> {
 	virtual void produce(edm::Event &event, const edm::EventSetup &es) override;
 
     private:
-	void matchReclusteredJets(const edm::Handle<std::vector<IPTI> >& jets,
+        template<class CONTAINER>
+	void matchReclusteredJets(const edm::Handle<CONTAINER>& jets,
 				  const std::vector<fastjet::PseudoJet>& matchedJets,
-				  std::vector<int>& matchedIndices);
-	void matchReclusteredFatJets(const edm::Handle<edm::View<reco::Jet> >& jets,
-				     const std::vector<fastjet::PseudoJet>& matchedJets,
-				     std::vector<int>& matchedIndices);
+				  std::vector<int>& matchedIndices,
+				  const std::string& jetType="");
 	void matchGroomedJets(const edm::Handle<edm::View<reco::Jet> >& jets,
 			      const edm::Handle<edm::View<reco::Jet> >& matchedJets,
 			      std::vector<int>& matchedIndices);
@@ -124,6 +123,9 @@ class TemplatedSecondaryVertexProducer : public edm::stream::EDProducer<> {
 			  const edm::Handle<edm::View<reco::Jet> >& groomedJets,
 			  const edm::Handle<std::vector<IPTI> >& subjets,
 			  std::vector<std::vector<int> >& matchedIndices);
+	
+	const reco::Jet * toJet(const reco::Jet & j) { return &j; }
+	const reco::Jet * toJet(const IPTI & j) { return &(*(j.jet())); }
 
 	enum ConstraintType {
 		CONSTRAINT_NONE	= 0,
@@ -439,7 +441,7 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 
 	    // match reclustered and original fat jets
 	    std::vector<int> reclusteredIndices;
-	    matchReclusteredFatJets(fatJetsHandle,inclusiveJets,reclusteredIndices);
+	    matchReclusteredJets<edm::View<reco::Jet> >(fatJetsHandle,inclusiveJets,reclusteredIndices,"fat");
 
 	    // match groomed and original fat jets
 	    std::vector<int> groomedIndices;
@@ -518,7 +520,7 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 	
 	    // match reclustered and original jets
 	    std::vector<int> reclusteredIndices;
-	    matchReclusteredJets(trackIPTagInfos,inclusiveJets,reclusteredIndices);
+	    matchReclusteredJets<std::vector<IPTI> >(trackIPTagInfos,inclusiveJets,reclusteredIndices);
 	
 	    // collect clustered SVs
 	    for(size_t i=0; i<trackIPTagInfos->size(); ++i)
@@ -935,10 +937,14 @@ TemplatedSecondaryVertexProducer<CandIPTagInfo,reco::VertexCompositePtrCandidate
 
 // ------------ method that matches reclustered and original jets based on minimum dR ------------
 template<class IPTI,class VTX>
-void TemplatedSecondaryVertexProducer<IPTI,VTX>::matchReclusteredJets(const edm::Handle<std::vector<IPTI> >& jets,
+template<class CONTAINER>
+void TemplatedSecondaryVertexProducer<IPTI,VTX>::matchReclusteredJets(const edm::Handle<CONTAINER>& jets,
                                                                       const std::vector<fastjet::PseudoJet>& reclusteredJets,
-                                                                      std::vector<int>& matchedIndices)
+                                                                      std::vector<int>& matchedIndices,
+                                                                      const std::string& jetType)
 {
+   std::string type = ( jetType!="" ? jetType + " " : jetType );
+
    std::vector<bool> matchedLocks(reclusteredJets.size(),false);
 
    for(size_t j=0; j<jets->size(); ++j)
@@ -950,7 +956,7 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::matchReclusteredJets(const edm:
      {
        if( matchedLocks.at(rj) ) continue; // skip jets that have already been matched
 
-       double tempDR2 = Geom::deltaR2( jets->at(j).jet()->rapidity(), jets->at(j).jet()->phi(), reclusteredJets.at(rj).rapidity(), reclusteredJets.at(rj).phi_std() );
+       double tempDR2 = Geom::deltaR2( toJet(jets->at(j))->rapidity(), toJet(jets->at(j))->phi(), reclusteredJets.at(rj).rapidity(), reclusteredJets.at(rj).phi_std() );
        if( tempDR2 < matchedDR2 )
        {
          matchedDR2 = tempDR2;
@@ -962,56 +968,14 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::matchReclusteredJets(const edm:
      {
        if ( matchedDR2 > rParam*rParam )
        {
-         edm::LogError("JetMatchingFailed") << "Matched reclustered jet " << matchedIdx << " and original jet " << j <<" are separated by dR=" << sqrt(matchedDR2) << " which is greater than the jet size R=" << rParam << ".\n"
-                                            << "This is not expected so please check that the jet algorithm and jet size match those used for the original jet collection.";
+         edm::LogError("JetMatchingFailed") << "Matched reclustered jet " << matchedIdx << " and original " << type << "jet " << j <<" are separated by dR=" << sqrt(matchedDR2) << " which is greater than the jet size R=" << rParam << ".\n"
+                                            << "This is not expected so please check that the jet algorithm and jet size match those used for the original " << type << "jet collection.";
        }
        else
          matchedLocks.at(matchedIdx) = true;
      }
      else
-       edm::LogError("JetMatchingFailed") << "Matching reclustered to original jets failed. Please check that the jet algorithm and jet size match those used for the original jet collection.";
-
-     matchedIndices.push_back(matchedIdx);
-   }
-}
-
-// ------------ method that matches reclustered and original fat jets based on minimum dR ------------
-template<class IPTI,class VTX>
-void TemplatedSecondaryVertexProducer<IPTI,VTX>::matchReclusteredFatJets(const edm::Handle<edm::View<reco::Jet> >& jets,
-                                                                         const std::vector<fastjet::PseudoJet>& reclusteredJets,
-                                                                         std::vector<int>& matchedIndices)
-{
-   std::vector<bool> matchedLocks(reclusteredJets.size(),false);
-
-   for(size_t j=0; j<jets->size(); ++j)
-   {
-     double matchedDR2 = 1e9;
-     int matchedIdx = -1;
-
-     for(size_t rj=0; rj<reclusteredJets.size(); ++rj)
-     {
-       if( matchedLocks.at(rj) ) continue; // skip jets that have already been matched
-
-       double tempDR2 = Geom::deltaR2( jets->at(j).rapidity(), jets->at(j).phi(), reclusteredJets.at(rj).rapidity(), reclusteredJets.at(rj).phi_std() );
-       if( tempDR2 < matchedDR2 )
-       {
-         matchedDR2 = tempDR2;
-         matchedIdx = rj;
-       }
-     }
-
-     if( matchedIdx>=0 )
-     {
-       if ( matchedDR2 > rParam*rParam )
-       {
-         edm::LogError("JetMatchingFailed") << "Matched reclustered jet " << matchedIdx << " and original jet " << j <<" are separated by dR=" << sqrt(matchedDR2) << " which is greater than the jet size R=" << rParam << ".\n"
-                                            << "This is not expected so please check that the jet algorithm and jet size match those used for the original jet collection.";
-       }
-       else
-         matchedLocks.at(matchedIdx) = true;
-     }
-     else
-       edm::LogError("JetMatchingFailed") << "Matching reclustered to original fat jets failed. Please check that the jet algorithm and jet size match those used for the original fat jet collection.";
+       edm::LogError("JetMatchingFailed") << "Matching reclustered to original " << type << "jets failed. Please check that the jet algorithm and jet size match those used for the original " << type << "jet collection.";
 
      matchedIndices.push_back(matchedIdx);
    }
