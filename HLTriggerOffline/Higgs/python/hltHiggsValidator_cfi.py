@@ -4,9 +4,7 @@ import FWCore.ParameterSet.Config as cms
 hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         
     hltProcessName = cms.string("HLT"),
-
     analysis       = cms.vstring("HWW", "HZZ", "Hgg", "Htaunu", "H2tau", "VBFHbb", "ZnnHbb","DoubleHinTaus","HiggsDalitz","X4b","TTHbbej"), 
-    histDirectory  = cms.string("HLT/Higgs"),
     
     # -- The instance name of the reco::GenParticles collection
     genParticleLabel = cms.string("genParticles"),
@@ -15,7 +13,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
     genJetLabel = cms.string("ak5GenJets"),
 
     # -- The instance name of the reco::PFJetCollection collection
-    recoHtJetLabel = cms.string("ak4PFJetsCHS"),
+    recoHtJetLabel = cms.untracked.string("ak4PFJetsCHS"),
 
     # -- The number of interactions in the event
     pileUpInfoLabel  = cms.string("addPileupInfo"),
@@ -33,7 +31,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
     parametersEta      = cms.vdouble(48, -2.400, 2.400),
     parametersPhi      = cms.vdouble(50, -3.142, 3.142),
     parametersPu       = cms.vdouble(10, 0, 20),
-    parametersHt       = cms.vdouble(100, 0, 1000),
+    parametersHt       = cms.untracked.vdouble(100, 0, 1000),
 
     # TO BE DEPRECATED --------------------------------------------
     cutsDr = cms.vdouble(0.4, 0.4, 0.015), # TO BE DEPRECATED

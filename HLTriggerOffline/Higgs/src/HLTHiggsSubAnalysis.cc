@@ -37,14 +37,13 @@ HLTHiggsSubAnalysis::HLTHiggsSubAnalysis(const edm::ParameterSet & pset,
     _HtJetPtMin(0),
     _HtJetEtaMax(0),
     _hltProcessName(pset.getParameter<std::string>("hltProcessName")),
-    _histDirectory(pset.getParameter<std::string>("histDirectory")),
     _genParticleLabel(iC.consumes<reco::GenParticleCollection>(pset.getParameter<std::string>("genParticleLabel"))),
     _genJetLabel(iC.consumes<reco::GenJetCollection>(pset.getParameter<std::string>("genJetLabel"))),
-    _recoHtJetLabel(iC.consumes<reco::PFJetCollection>(pset.getParameter<std::string>("recoHtJetLabel"))),
+    _recoHtJetLabel(iC.consumes<reco::PFJetCollection>(pset.getUntrackedParameter<std::string>("recoHtJetLabel","ak4PFJetsCHS"))),
     _parametersEta(pset.getParameter<std::vector<double> >("parametersEta")),
     _parametersPhi(pset.getParameter<std::vector<double> >("parametersPhi")),
     _parametersPu(pset.getParameter<std::vector<double> >("parametersPu")),
-    _parametersHt(pset.getParameter<std::vector<double> >("parametersHt")),
+    _parametersHt(0),
     _parametersTurnOn(pset.getParameter<std::vector<double> >("parametersTurnOn")),
     _trigResultsTag(iC.consumes<edm::TriggerResults>(edm::InputTag("TriggerResults","",_hltProcessName))),
     _genJetSelector(0),
@@ -98,6 +97,13 @@ HLTHiggsSubAnalysis::HLTHiggsSubAnalysis(const edm::ParameterSet & pset,
     }
     _hltPathsToCheck = anpset.getParameter<std::vector<std::string> >("hltPathsToCheck");
     _minCandidates = anpset.getParameter<unsigned int>("minCandidates");
+
+    std::vector<double> default_parametersHt;
+    default_parametersHt.push_back(100);
+    default_parametersHt.push_back(0);
+    default_parametersHt.push_back(1000);
+    _parametersHt = pset.getUntrackedParameter<std::vector<double> >("parametersHt",default_parametersHt);
+
     _HtJetPtMin = anpset.getUntrackedParameter<double>("HtJetPtMin", -1);
     _HtJetEtaMax = anpset.getUntrackedParameter<double>("HtJetEtaMax", -1);
 
@@ -255,7 +261,7 @@ void HLTHiggsSubAnalysis::beginRun(const edm::Run & iRun, const edm::EventSetup 
 
 void HLTHiggsSubAnalysis::bookHistograms(DQMStore::IBooker &ibooker)
 {
-    std::string baseDir = _histDirectory+"/"+_analysisname+"/";
+    std::string baseDir = "HLT/Higgs/"+_analysisname+"/";
     ibooker.setCurrentFolder(baseDir);
     // Book the gen/reco analysis-dependent histograms (denominators)
     std::vector<std::string> sources(2);
