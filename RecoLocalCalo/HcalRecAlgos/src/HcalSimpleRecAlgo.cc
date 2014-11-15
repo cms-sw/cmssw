@@ -56,12 +56,12 @@ void HcalSimpleRecAlgo::setRecoParams(bool correctForTimeslew, bool correctForPu
 }
 
 void HcalSimpleRecAlgo::setpuCorrParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,
-					bool   iUnConstrainedFit,   bool iApplyTimeSlew,double iTS4Min,
+					bool   iUnConstrainedFit,   bool iApplyTimeSlew,double iTS4Min, double iTS4Max,
 					double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean,double iPedSig,
 					double iNoise,double iTMin,double iTMax,
 					double its3Chi2,double its4Chi2,double its345Chi2,double iChargeThreshold, int iFitTimes) { 
   psFitOOTpuCorr_->setPUParams(iPedestalConstraint,iTimeConstraint,iAddPulseJitter,iUnConstrainedFit,iApplyTimeSlew,
-			       iTS4Min,iPulseJitter,iTimeMean,iTimeSig,iPedMean,iPedSig,iNoise,iTMin,iTMax,its3Chi2,its4Chi2,its345Chi2,
+			       iTS4Min, iTS4Max, iPulseJitter,iTimeMean,iTimeSig,iPedMean,iPedSig,iNoise,iTMin,iTMax,its3Chi2,its4Chi2,its345Chi2,
 			       iChargeThreshold,HcalTimeSlew::Medium, iFitTimes);
 //  int shapeNum = HPDShapev3MCNum;
 //  psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(shapeNum));
@@ -366,8 +366,9 @@ namespace HcalSimpleRecAlgoImpl {
           time = correctedOutput[1]; ampl = correctedOutput[0];
        }else{
 // Use default for time and ampl if fit fails to find results, e.g. due to NAN or cuts within the psFitOOTpuCorr:
-// e.g., the "tstrig >= ts4Min_" condition
-          time = -9999; ampl = 0.0;      
+// e.g., the "tstrig >= ts4Min_" condition.
+// New: fall back to method 0 results
+//          time = -9999; ampl = 0.0;      
        }
     }
 

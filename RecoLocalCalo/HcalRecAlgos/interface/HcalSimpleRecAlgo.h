@@ -78,7 +78,7 @@ public:
 
   void setpuCorrMethod(int method){ puCorrMethod_ = method; if( puCorrMethod_ ==2 ) psFitOOTpuCorr_ = std::auto_ptr<PulseShapeFitOOTPileupCorrection>(new PulseShapeFitOOTPileupCorrection()); }
   void setpuCorrParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iUnConstrainedFit,bool iApplyTimeSlew,
-		       double iTS4Min,double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean,double iPedSig,
+		       double iTS4Min, double iTS4Max, double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean,double iPedSig,
 		       double iNoise,double iTMin,double iTMax,
 		       double its3Chi2,double its4Chi2,double its345Chi2,double iChargeThreshold, int iFitTimes); 
   

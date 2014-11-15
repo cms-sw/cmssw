@@ -262,7 +262,7 @@ PulseShapeFitOOTPileupCorrection::~PulseShapeFitOOTPileupCorrection() {
 }
 
 void PulseShapeFitOOTPileupCorrection::setPUParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,
-						   bool   iUnConstrainedFit,   bool iApplyTimeSlew,double iTS4Min,
+						   bool   iUnConstrainedFit,   bool iApplyTimeSlew,double iTS4Min, double iTS4Max,
 						   double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean,double iPedSig,
 						   double iNoise,double iTMin,double iTMax,
 						   double its3Chi2,double its4Chi2,double its345Chi2,
@@ -279,6 +279,7 @@ void PulseShapeFitOOTPileupCorrection::setPUParams(bool   iPedestalConstraint, b
   unConstrainedFit_   = iUnConstrainedFit;
   applyTimeSlew_      = iApplyTimeSlew;
   ts4Min_             = iTS4Min;
+  ts4Max_             = iTS4Max;
   pulseJitter_        = iPulseJitter;
   timeMean_           = iTimeMean;
   timeSig_            = iTimeSig;
@@ -345,13 +346,13 @@ void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs, const std::
       
       tsTOT += charge - ped;
       tsTOTen += energy - peden;
-      if( ip ==4 ){
-         tstrig = charge - ped;
+      if( ip ==4 || ip==5 ){
+         tstrig += charge - ped;
       }
    }
    if( tsTOTen < 0. ) tsTOTen = pedSig_;
    std::vector<double> fitParsVec;
-   if( tstrig >= ts4Min_) { //Two sigma from 0 
+   if( tstrig >= ts4Min_ && tstrig <ts4Max_ ) { //Two sigma from 0 
      pulseShapeFit(energyArr, pedenArr, chargeArr, pedArr, tsTOTen, fitParsVec);
      //      double time = fitParsVec[1], ampl = fitParsVec[0], uncorr_ampl = fitParsVec[0];
    }
