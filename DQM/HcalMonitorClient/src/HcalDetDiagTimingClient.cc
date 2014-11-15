@@ -270,4 +270,6 @@ void HcalDetDiagTimingClient::updateChannelStatus(std::map<HcalDetId, unsigned i
 } //void HcalDetDiagTimingClient::updateChannelStatus
 
 HcalDetDiagTimingClient::~HcalDetDiagTimingClient()
-{}
+{
+  if ( ProblemCellsByDepth ) delete ProblemCellsByDepth;
+}

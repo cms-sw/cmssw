@@ -62,7 +62,20 @@ HcalBaseDQMonitor::HcalBaseDQMonitor(const edm::ParameterSet& ps)
   ProblemsCurrentLB=0;
 
   eMap_ = 0;
+
+  ievt_=0;
+  levt_=0;
+  tevt_=0;
+  currenttype_=-1;
+  HBpresent_=false;
+  HEpresent_=false;
+  HOpresent_=false;
+  HFpresent_=false;
+
+
 } //HcalBaseDQMonitor::HcalBaseDQMonitor(const ParameterSet& ps)
+
+
 
 
 // destructor
@@ -89,28 +102,7 @@ void HcalBaseDQMonitor::dqmBeginRun(const edm::Run &run, const edm::EventSetup &
 
 }
 
-void HcalBaseDQMonitor::beginJob(void)
-{
 
-  if (debug_>0) std::cout <<"HcalBaseDQMonitor::beginJob():  task =  '"<<subdir_<<"'"<<std::endl;
-
-  ievt_=0;
-  levt_=0;
-  tevt_=0;
-  currenttype_=-1;
-  HBpresent_=false;
-  HEpresent_=false;
-  HOpresent_=false;
-  HFpresent_=false;
-
-
-} // beginJob()
-
-void HcalBaseDQMonitor::endJob(void)
-{
-  if (enableCleanup_)
-    cleanup();
-} // endJob()
 
 void HcalBaseDQMonitor::bookHistograms(DQMStore::IBooker &ib, const edm::Run& run, const edm::EventSetup& c)
 {

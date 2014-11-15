@@ -267,4 +267,6 @@ void HcalDetDiagNoiseMonitorClient::updateChannelStatus(std::map<HcalDetId, unsi
 } //void HcalDetDiagNoiseMonitorClient::updateChannelStatus
 
 HcalDetDiagNoiseMonitorClient::~HcalDetDiagNoiseMonitorClient()
-{}
+{
+  if ( ProblemCellsByDepth ) delete ProblemCellsByDepth;
+}

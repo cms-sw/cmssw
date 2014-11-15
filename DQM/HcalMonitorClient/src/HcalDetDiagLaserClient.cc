@@ -1103,10 +1103,13 @@ void HcalDetDiagLaserClient::htmlOutput(DQMStore::IBooker &ib, DQMStore::IGetter
   htmlFile << "</body> " << endl;
   htmlFile << "</html> " << endl;
   can->Close();
+  delete can;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   htmlFile.close();
   return;
 }
 
 HcalDetDiagLaserClient::~HcalDetDiagLaserClient()
-{}
+{
+  if ( ProblemCellsByDepth ) delete ProblemCellsByDepth;
+}

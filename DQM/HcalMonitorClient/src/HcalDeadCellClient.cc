@@ -434,4 +434,6 @@ void HcalDeadCellClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& 
 } //void HcalDeadCellClient::updateChannelStatus
 
 HcalDeadCellClient::~HcalDeadCellClient()
-{}
+{
+  if ( ProblemCellsByDepth ) delete ProblemCellsByDepth;
+}

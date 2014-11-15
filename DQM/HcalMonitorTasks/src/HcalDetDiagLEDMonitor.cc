@@ -283,10 +283,34 @@ HcalDetDiagLEDMonitor::HcalDetDiagLEDMonitor(const edm::ParameterSet& ps):
   tok_hf_ = consumes<HFDigiCollection>(digiLabel_);
   tok_calib_ = consumes<HcalCalibDigiCollection>(ps.getUntrackedParameter<edm::InputTag>("calibDigiLabel",edm::InputTag("hcalDigis")));
   
+  ChannelsLEDEnergy=0;
+  ChannelsLEDEnergyRef=0;
+  ChannelStatusMissingChannels=0;
+  ChannelStatusUnstableChannels=0;
+  ChannelStatusUnstableLEDsignal=0;
+  ChannelStatusLEDMean=0;
+  ChannelStatusLEDRMS=0;
+  ChannelStatusTimeMean=0;
+  ChannelStatusTimeRMS=0;
 
 }
 
-HcalDetDiagLEDMonitor::~HcalDetDiagLEDMonitor(){}
+HcalDetDiagLEDMonitor::~HcalDetDiagLEDMonitor()
+{
+
+  if ( ChannelsLEDEnergy ) delete ChannelsLEDEnergy;
+  if ( ChannelsLEDEnergyRef ) delete ChannelsLEDEnergyRef;
+  if ( ChannelStatusMissingChannels ) delete ChannelStatusMissingChannels;
+  if ( ChannelStatusUnstableChannels ) delete ChannelStatusUnstableChannels;
+  if ( ChannelStatusUnstableLEDsignal ) delete ChannelStatusUnstableLEDsignal;
+  if ( ChannelStatusLEDMean ) delete ChannelStatusLEDMean;
+  if ( ChannelStatusLEDRMS ) delete ChannelStatusLEDRMS;
+  if ( ChannelStatusTimeMean ) delete ChannelStatusTimeMean;
+  if ( ChannelStatusTimeRMS ) delete ChannelStatusTimeRMS;
+
+  if ( emap ) delete emap;
+  
+}
 
 void HcalDetDiagLEDMonitor::reset(){}
 
@@ -808,7 +832,7 @@ char   Subdet[10],str[500];
        } 
        theFile->Write();
        theFile->Close();
-
+       theFile->Delete();
 
    if(XmlFilePath.size()>0){
       //create XML file
@@ -1051,6 +1075,7 @@ TFile *f;
      if(strcmp(subdet,"CALIB_HF")==0) calib_data[4][Eta+2][Phi-1].set_reference(led,rms);
    }
    f->Close();
+   f->Delete();
    IsReference=true;
 } 
 void HcalDetDiagLEDMonitor::CheckStatus(){

@@ -49,6 +49,13 @@ HcalRecHitClient::HcalRecHitClient(std::string myname, const edm::ParameterSet& 
   ProblemCells=0;
   ProblemCellsByDepth=0;
 
+  meEnergyByDepth=0;
+  meEnergyThreshByDepth=0;
+  meTimeByDepth=0;
+  meTimeThreshByDepth=0;
+  meSqrtSumEnergy2ByDepth=0;
+  meSqrtSumEnergy2ThreshByDepth=0;
+
   doProblemCellSetup_ = true;
 }
 
@@ -496,4 +503,13 @@ void HcalRecHitClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& my
 } //void HcalRecHitClient::updateChannelStatus
 
 HcalRecHitClient::~HcalRecHitClient()
-{}
+{
+  if ( ProblemCellsByDepth ) delete ProblemCellsByDepth;
+  if ( meEnergyByDepth ) delete meEnergyByDepth;
+  if ( meEnergyThreshByDepth ) delete meEnergyThreshByDepth;
+  if ( meTimeByDepth ) delete meTimeByDepth;
+  if ( meTimeThreshByDepth ) delete meTimeThreshByDepth;
+  if ( meSqrtSumEnergy2ByDepth ) delete meSqrtSumEnergy2ByDepth;
+  if ( meSqrtSumEnergy2ThreshByDepth ) delete meSqrtSumEnergy2ThreshByDepth;
+
+}

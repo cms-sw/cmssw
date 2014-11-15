@@ -47,6 +47,7 @@ HcalCoarsePedestalClient::HcalCoarsePedestalClient(std::string myname, const edm
   minevents_    = ps.getUntrackedParameter<int>("CoarsePedestal_minevents",
 						ps.getUntrackedParameter<int>("minevents",1));
 
+  CoarsePedestalsByDepth=0;
   ProblemCellsByDepth=0;
 
   doCoarseSetup_ = true;
@@ -339,4 +340,9 @@ void HcalCoarsePedestalClient::updateChannelStatus(std::map<HcalDetId, unsigned 
 } //void HcalCoarsePedestalClient::updateChannelStatus
 
 HcalCoarsePedestalClient::~HcalCoarsePedestalClient()
-{}
+{
+
+  if ( CoarsePedestalsByDepth ) delete CoarsePedestalsByDepth;
+  if ( ProblemCellsByDepth ) delete ProblemCellsByDepth;
+
+}

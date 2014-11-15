@@ -286,9 +286,32 @@ HcalDetDiagPedestalMonitor::HcalDetDiagPedestalMonitor(const edm::ParameterSet& 
   tok_raw_ = consumes<FEDRawDataCollection>(iConfig.getUntrackedParameter<edm::InputTag>("rawDataLabel"));
   tok_tb_ = consumes<HcalTBTriggerData>(iConfig.getParameter<edm::InputTag>("hcalTBTriggerDataTag"));
 
+
+  ProblemCellsByDepth_missing=0;
+  ProblemCellsByDepth_unstable=0;
+  ProblemCellsByDepth_badped=0;
+  ProblemCellsByDepth_badrms=0;
+
+  ProblemCellsByDepth_missing_val=0;
+  ProblemCellsByDepth_unstable_val=0;
+  ProblemCellsByDepth_badped_val=0;
+  ProblemCellsByDepth_badrms_val=0;
+
 }
 
-HcalDetDiagPedestalMonitor::~HcalDetDiagPedestalMonitor(){}
+HcalDetDiagPedestalMonitor::~HcalDetDiagPedestalMonitor()
+{
+
+  if ( ProblemCellsByDepth_missing ) delete ProblemCellsByDepth_missing;
+  if ( ProblemCellsByDepth_unstable ) delete ProblemCellsByDepth_unstable;
+  if ( ProblemCellsByDepth_badped ) delete ProblemCellsByDepth_badped;
+  if ( ProblemCellsByDepth_badrms ) delete ProblemCellsByDepth_badrms;
+  if ( ProblemCellsByDepth_missing_val ) delete ProblemCellsByDepth_missing_val;
+  if ( ProblemCellsByDepth_unstable_val ) delete ProblemCellsByDepth_unstable_val;
+  if ( ProblemCellsByDepth_badped_val ) delete ProblemCellsByDepth_badped_val;
+  if ( ProblemCellsByDepth_badrms_val ) delete ProblemCellsByDepth_badrms_val;
+
+}
 
 void HcalDetDiagPedestalMonitor::bookHistograms(DQMStore::IBooker &ib, const edm::Run& run, const edm::EventSetup& c){
   edm::ESHandle<HcalDbService> conditions_;
@@ -1025,6 +1048,7 @@ char   Subdet[10],str[500];
       }
       theFile->Write();
       theFile->Close();
+      theFile->Delete();
    }
 
    if(XmlFilePath.size()>0){
@@ -1221,6 +1245,7 @@ void HcalDetDiagPedestalMonitor::LoadReference(){
     }
   }
   f->Close();
+  f->Delete();
   IsReference=true;
 } 
 
@@ -1305,6 +1330,7 @@ void HcalDetDiagPedestalMonitor::LoadDataset(){
   if(STR3){ int ds; sscanf(STR3->String(),"%i",&ds); dataset_seq_number=ds;}
 
   f->Close();
+  f->Delete();
 } 
 void HcalDetDiagPedestalMonitor::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c){}
 void HcalDetDiagPedestalMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c){}

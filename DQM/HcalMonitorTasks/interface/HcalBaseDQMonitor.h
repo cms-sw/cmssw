@@ -45,9 +45,6 @@ protected:
 
   void getLogicalMap(const edm::EventSetup& c);
  
- // BeginJob
-  virtual void beginJob();
-
   // BeginRun
   virtual void dqmBeginRun(const edm::Run& run, const edm::EventSetup& c);
 
@@ -58,9 +55,6 @@ protected:
   // End LumiBlock
   virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
                           const edm::EventSetup& c);
-
- // EndJob
-  virtual void endJob(void);
 
   // EndRun
   virtual void endRun(const edm::Run& run, const edm::EventSetup& c);

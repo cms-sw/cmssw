@@ -253,4 +253,6 @@ void HcalNZSClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& myqua
 } //void HcalNZSClient::updateChannelStatus
 
 HcalNZSClient::~HcalNZSClient()
-{}
+{
+  if ( ProblemCellsByDepth ) delete ProblemCellsByDepth;
+}

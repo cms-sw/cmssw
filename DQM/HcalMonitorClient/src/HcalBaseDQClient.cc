@@ -39,7 +39,9 @@ HcalBaseDQClient::HcalBaseDQClient(std::string s, const edm::ParameterSet& ps)
 }
 
 HcalBaseDQClient::~HcalBaseDQClient()
-{}
+{
+  if ( logicalMap_ ) delete logicalMap_;
+}
 
 void HcalBaseDQClient::setStatusMap(std::map<HcalDetId, unsigned int>& map)
   {

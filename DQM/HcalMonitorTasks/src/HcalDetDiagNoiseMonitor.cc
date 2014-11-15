@@ -616,6 +616,7 @@ char str[500];
        }
        theFile->Write();
        theFile->Close();
+       theFile->Delete();
        dataset_seq_number++;
 
    }
@@ -624,6 +625,11 @@ char str[500];
 
 void HcalDetDiagNoiseMonitor::done(){}
  
-HcalDetDiagNoiseMonitor::~HcalDetDiagNoiseMonitor(){if(LocalRun) UpdateHistos(); SaveRates(); }
+HcalDetDiagNoiseMonitor::~HcalDetDiagNoiseMonitor()
+{
+  if(LocalRun) UpdateHistos(); SaveRates(); 
+
+  if ( RMSummary ) delete RMSummary;
+}
 
 DEFINE_FWK_MODULE (HcalDetDiagNoiseMonitor);

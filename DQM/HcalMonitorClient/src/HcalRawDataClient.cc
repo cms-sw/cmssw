@@ -704,4 +704,6 @@ void HcalRawDataClient::normalizeHardwareSpaceHistos(void){
 }
 
 HcalRawDataClient::~HcalRawDataClient()
-{}
+{
+  if ( ProblemCellsByDepth ) delete ProblemCellsByDepth;
+}

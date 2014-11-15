@@ -424,6 +424,12 @@ HcalDetDiagLaserMonitor::HcalDetDiagLaserMonitor(const edm::ParameterSet& iConfi
   tok_ho_  = consumes<HODigiCollection>(inputLabelDigi_);
   tok_hf_ = consumes<HFDigiCollection>(inputLabelDigi_);
 
+
+  ProblemCellsByDepth_timing=0;
+  ProblemCellsByDepth_energy=0;
+  ProblemCellsByDepth_timing_val=0;
+  ProblemCellsByDepth_energy_val=0;
+
 }
 
 
@@ -562,6 +568,11 @@ void HcalDetDiagLaserMonitor::bookHistograms(DQMStore::IBooker &ib, const edm::R
 
 
 HcalDetDiagLaserMonitor::~HcalDetDiagLaserMonitor(){
+
+  if ( ProblemCellsByDepth_timing ) delete ProblemCellsByDepth_timing;
+  if ( ProblemCellsByDepth_energy ) delete ProblemCellsByDepth_energy;
+  if ( ProblemCellsByDepth_timing_val ) delete ProblemCellsByDepth_timing_val;
+  if ( ProblemCellsByDepth_energy_val ) delete ProblemCellsByDepth_energy_val;
 
 }
 
@@ -1543,6 +1554,7 @@ char   Subdet[10],str[500];
        } 
        theFile->Write();
        theFile->Close();
+       theFile->Delete();
    }
    if(XmlFilePath.size()>0){
       char TIME[40];
@@ -1797,6 +1809,7 @@ TFile *f;
          if(strcmp(subdet,"CALIB_HF")==0) calib_data[4][Eta+2][Phi-1].set_reference(amp,rms,time,time_rms);
      }
       f->Close();
+      f->Delete();
       IsReference=true;
 } 
 void HcalDetDiagLaserMonitor::LoadDataset(){
@@ -1875,6 +1888,7 @@ TFile *f;
       TObjString *STR3=(TObjString *)f->Get("Dataset number");
       if(STR3){ int ds; sscanf(STR3->String(),"%i",&ds); dataset_seq_number=ds;}
       f->Close(); 
+      f->Delete();
 } 
 
 void HcalDetDiagLaserMonitor::SaveRaddamData(){
@@ -2021,6 +2035,7 @@ char str[100];
          }
          theFile->Write();
          theFile->Close();
+	 theFile->Delete();
       } 
 }
 

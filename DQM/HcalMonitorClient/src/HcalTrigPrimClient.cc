@@ -46,6 +46,8 @@ HcalTrigPrimClient::HcalTrigPrimClient(std::string myname, const edm::ParameterS
 
   ProblemCells=0;
   ProblemCellsByDepth=0;
+  ProblemsByDepthZS_  = 0;
+  ProblemsByDepthNZS_ = 0;
 
   doProblemCellSetup_ = true;
 }
@@ -398,4 +400,8 @@ void HcalTrigPrimClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& 
 } //void HcalTrigPrimClient::updateChannelStatus
 
 HcalTrigPrimClient::~HcalTrigPrimClient()
-{}
+{
+  if ( ProblemCellsByDepth ) delete ProblemCellsByDepth;
+  if ( ProblemsByDepthZS_ ) delete ProblemsByDepthZS_;
+  if ( ProblemsByDepthNZS_ ) delete ProblemsByDepthNZS_;
+}

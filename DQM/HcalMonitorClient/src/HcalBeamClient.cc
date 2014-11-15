@@ -271,4 +271,6 @@ void HcalBeamClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& myqu
 } //void HcalBeamClient::updateChannelStatus
 
 HcalBeamClient::~HcalBeamClient()
-{}
+{
+  if ( ProblemCellsByDepth ) delete ProblemCellsByDepth;
+}

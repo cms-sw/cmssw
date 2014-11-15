@@ -41,6 +41,8 @@ HcalDetDiagLEDClient::HcalDetDiagLEDClient(std::string myname, const edm::Parame
   needLogicalMap_=true;
 
   doProblemCellSetup_ = true;
+
+  ProblemCellsByDepth = 0;
 }
 
 void HcalDetDiagLEDClient::analyze(DQMStore::IBooker &ib, DQMStore::IGetter &ig){
@@ -868,7 +870,10 @@ std::string subdet[4]={"HB","HE","HO","HF"};
   htmlFile << "</html> " << std::endl;
   htmlFile.close();
   can->Close();
+  delete can;
 }
 
 HcalDetDiagLEDClient::~HcalDetDiagLEDClient()
-{}
+{
+  if ( ProblemCellsByDepth ) delete ProblemCellsByDepth;
+}

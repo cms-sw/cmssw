@@ -297,4 +297,6 @@ void HcalDigiClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& myqu
 } //void HcalDigiClient::updateChannelStatus
 
 HcalDigiClient::~HcalDigiClient()
-{}
+{
+  if ( ProblemCellsByDepth ) delete ProblemCellsByDepth;
+}

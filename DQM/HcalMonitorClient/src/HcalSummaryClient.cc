@@ -1016,4 +1016,6 @@ void HcalSummaryClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& m
 
 
 HcalSummaryClient::~HcalSummaryClient()
-{}
+{
+  if ( SummaryMapByDepth ) delete SummaryMapByDepth;
+}

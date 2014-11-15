@@ -372,4 +372,6 @@ void HcalHotCellClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& m
 } //void HcalHotCellClient::updateChannelStatus
 
 HcalHotCellClient::~HcalHotCellClient()
-{}
+{
+  if ( ProblemCellsByDepth ) delete ProblemCellsByDepth;
+}
