@@ -80,10 +80,8 @@ public:
   void setpuCorrParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iUnConstrainedFit,bool iApplyTimeSlew,
 		       double iTS4Min,double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean,double iPedSig,
 		       double iNoise,double iTMin,double iTMax,
-		       double its3Chi2,double its4Chi2,double its345Chi2,double iChargeThreshold); 
+		       double its3Chi2,double its4Chi2,double its345Chi2,double iChargeThreshold, int iFitTimes); 
   
-  void setpufitChrgThr(double chrgThrInput){ if( puCorrMethod_ ==2 ) psFitOOTpuCorr_->setChargeThreshold(chrgThrInput); }
-
 private:
   bool correctForTimeslew_;
   bool correctForPulse_;

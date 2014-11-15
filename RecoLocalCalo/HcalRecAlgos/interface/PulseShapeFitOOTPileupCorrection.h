@@ -82,11 +82,10 @@ public:
     void setPUParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iUnConstrainedFit,bool iApplyTimeSlew,
 		     double iTS4Min,double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean,double iPedSig,
 		     double iNoise,double iTMin,double iTMax,
-		     double its3Chi2,double its4Chi2,double its345Chi2,double iChargeThreshold,HcalTimeSlew::BiasSetting slewFlavor);
+		     double its3Chi2,double its4Chi2,double its345Chi2,double iChargeThreshold,HcalTimeSlew::BiasSetting slewFlavor, int iFitTimes);
     
     void setPulseShapeTemplate  (const HcalPulseShapes::Shape& ps);
     void resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps);
-    void setChargeThreshold(double chargeThrInput){ chargeThreshold_ = chargeThrInput; }
 
 private:
     int pulseShapeFit(const double * energyArr, const double * pedenArr, const double *chargeArr, 
@@ -98,6 +97,7 @@ private:
     int cntsetPulseShape;
     std::array<double,10> iniTimesArr;
     double chargeThreshold_;
+    int fitTimes_;
 
     std::auto_ptr<FitterFuncs::PulseShapeFunctor> psfPtr_;
     ROOT::Math::Functor *spfunctor_;

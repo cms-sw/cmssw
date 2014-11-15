@@ -12,7 +12,7 @@
 
 constexpr double MaximumFractionalError = 0.002; // 0.2% error allowed from this source
 constexpr int HPDShapev3DataNum = 105;
-constexpr int HPDShapev3MCNum = 125;
+constexpr int HPDShapev3MCNum = 105;
 
 HcalSimpleRecAlgo::HcalSimpleRecAlgo(bool correctForTimeslew, bool correctForPulse, float phaseNS) : 
   correctForTimeslew_(correctForTimeslew),
@@ -59,12 +59,12 @@ void HcalSimpleRecAlgo::setpuCorrParams(bool   iPedestalConstraint, bool iTimeCo
 					bool   iUnConstrainedFit,   bool iApplyTimeSlew,double iTS4Min,
 					double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean,double iPedSig,
 					double iNoise,double iTMin,double iTMax,
-					double its3Chi2,double its4Chi2,double its345Chi2,double iChargeThreshold) { 
+					double its3Chi2,double its4Chi2,double its345Chi2,double iChargeThreshold, int iFitTimes) { 
   psFitOOTpuCorr_->setPUParams(iPedestalConstraint,iTimeConstraint,iAddPulseJitter,iUnConstrainedFit,iApplyTimeSlew,
 			       iTS4Min,iPulseJitter,iTimeMean,iTimeSig,iPedMean,iPedSig,iNoise,iTMin,iTMax,its3Chi2,its4Chi2,its345Chi2,
-			       iChargeThreshold,HcalTimeSlew::Medium);
-  int shapeNum = HPDShapev3MCNum;
-  psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(shapeNum));
+			       iChargeThreshold,HcalTimeSlew::Medium, iFitTimes);
+//  int shapeNum = HPDShapev3MCNum;
+//  psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(shapeNum));
 }
 
 void HcalSimpleRecAlgo::setForData (int runnum) { 
@@ -322,30 +322,35 @@ namespace HcalSimpleRecAlgoImpl {
     bool leakCorrApplied = false;
     float t0 =0, t2 =0;
     float time = -9999;
-    if(puCorrMethod != 2) { 
-      removePileup(digi, coder, calibs, ifirst, n,
-		   pulseCorrect, corr, pileupCorrection,
-		   bxInfo, lenInfo, &maxA, &ampl,
-		   &uncorr_ampl, &fc_ampl, &nRead, &maxI,
-		   &leakCorrApplied, &t0, &t2);
+
+// Disable method 1 inside the removePileup function this way!
+// Some code in removePileup does NOT do pileup correction & to make sure maximum share of code
+    const AbsOOTPileupCorrection * inputAbsOOTpuCorr = ( puCorrMethod == 1 ? pileupCorrection: 0 );
+
+    removePileup(digi, coder, calibs, ifirst, n,
+		pulseCorrect, corr, inputAbsOOTpuCorr,
+		bxInfo, lenInfo, &maxA, &ampl,
+		&uncorr_ampl, &fc_ampl, &nRead, &maxI,
+		&leakCorrApplied, &t0, &t2);
       
-      if (maxI > 0 && maxI < (nRead - 1))
-	{
-	  // Handle negative excursions by moving "zero":
-	  float minA=t0;
-	  if (maxA<minA) minA=maxA;
-	  if (t2<minA)   minA=t2;
-	  if (minA<0) { maxA-=minA; t0-=minA; t2-=minA; } // positivizes all samples
+    if (maxI > 0 && maxI < (nRead - 1))
+    {
+      // Handle negative excursions by moving "zero":
+      float minA=t0;
+      if (maxA<minA) minA=maxA;
+      if (t2<minA)   minA=t2;
+      if (minA<0) { maxA-=minA; t0-=minA; t2-=minA; } // positivizes all samples
 	  
-	  float wpksamp = (t0 + maxA + t2);
-	  if (wpksamp!=0) wpksamp=(maxA + 2.0*t2) / wpksamp; 
-	  time = (maxI - digi.presamples())*25.0 + timeshift_ns_hbheho(wpksamp);
+      float wpksamp = (t0 + maxA + t2);
+      if (wpksamp!=0) wpksamp=(maxA + 2.0*t2) / wpksamp; 
+      time = (maxI - digi.presamples())*25.0 + timeshift_ns_hbheho(wpksamp);
 	  
-	  if (slewCorrect) time-=HcalTimeSlew::delay(std::max(1.0,fc_ampl),slewFlavor);
+      if (slewCorrect) time-=HcalTimeSlew::delay(std::max(1.0,fc_ampl),slewFlavor);
 	  
-	  time=time-calibs.timecorr(); // time calibration
-	}
+      time=time-calibs.timecorr(); // time calibration
     }
+
+// Note that uncorr_ampl is always set from outside of method 2!
     if( puCorrMethod == 2 ){
        std::vector<double> correctedOutput;
 
@@ -359,6 +364,10 @@ namespace HcalSimpleRecAlgoImpl {
        psFitOOTpuCorr->apply(cs, capidvec, calibs, correctedOutput);
        if( correctedOutput.back() == 0 && correctedOutput.size() >1 ){
           time = correctedOutput[1]; ampl = correctedOutput[0];
+       }else{
+// Use default for time and ampl if fit fails to find results, e.g. due to NAN or cuts within the psFitOOTpuCorr:
+// e.g., the "tstrig >= ts4Min_" condition
+          time = -9999; ampl = 0.0;      
        }
     }
 

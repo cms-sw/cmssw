@@ -55,6 +55,7 @@ namespace FitterFuncs{
     timeShift_          = 100.;
     if(iAddTimeSlew) timeShift_ += 13.;
   }
+
   std::array<float,10> PulseShapeFunctor::funcHPDShape(const double &pulseTime, const double &pulseHeight,const double &slew) { 
     // pulse shape components over a range of time 0 ns to 255 ns in 1 ns steps
     constexpr int ns_per_bx = 25;
@@ -91,8 +92,10 @@ namespace FitterFuncs{
     }
     return ntmpbin;
   }
+
   PulseShapeFunctor::~PulseShapeFunctor() {
   }
+
   double PulseShapeFunctor::EvalSinglePulse(const std::vector<double>& pars) {
       constexpr unsigned nbins = 10;
       unsigned i =0;
@@ -131,7 +134,8 @@ namespace FitterFuncs{
       }
       return chisq;
    }
-  double PulseShapeFunctor::EvalDoublePulse(const std::vector<double>& pars)  {
+
+   double PulseShapeFunctor::EvalDoublePulse(const std::vector<double>& pars)  {
       constexpr unsigned nbins = 10;
       unsigned i =0;
       //Stop crashes
@@ -174,6 +178,7 @@ namespace FitterFuncs{
       }
       return chisq;
    }
+
    double PulseShapeFunctor::EvalTriplePulse(const std::vector<double>& pars) {
      constexpr unsigned nbins = 10;
      unsigned i =0;
@@ -243,22 +248,25 @@ namespace FitterFuncs{
   }
   
 }
+
 PulseShapeFitOOTPileupCorrection::PulseShapeFitOOTPileupCorrection() : cntsetPulseShape(0), chargeThreshold_(6.) {
    hybridfitter = new PSFitter::HybridMinimizer(PSFitter::HybridMinimizer::kMigrad);
    iniTimesArr = { {-100,-75,-50,-25,0,25,50,75,100,125} };
 }
+
 PulseShapeFitOOTPileupCorrection::~PulseShapeFitOOTPileupCorrection() { 
-  if(hybridfitter) delete hybridfitter;
+   if(hybridfitter) delete hybridfitter;
    if(spfunctor_)   delete spfunctor_;
    if(dpfunctor_)   delete dpfunctor_;
    if(tpfunctor_)   delete tpfunctor_;
 }
+
 void PulseShapeFitOOTPileupCorrection::setPUParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,
 						   bool   iUnConstrainedFit,   bool iApplyTimeSlew,double iTS4Min,
 						   double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean,double iPedSig,
 						   double iNoise,double iTMin,double iTMax,
 						   double its3Chi2,double its4Chi2,double its345Chi2,
-						   double iChargeThreshold,HcalTimeSlew::BiasSetting slewFlavor) { 
+						   double iChargeThreshold,HcalTimeSlew::BiasSetting slewFlavor, int iFitTimes) { 
 
   TSMin_ = iTMin;
   TSMax_ = iTMax;
@@ -278,6 +286,8 @@ void PulseShapeFitOOTPileupCorrection::setPUParams(bool   iPedestalConstraint, b
   pedSig_             = iPedSig;
   noise_              = iNoise;
   slewFlavor_         = slewFlavor;
+  chargeThreshold_    = iChargeThreshold;
+  fitTimes_           = iFitTimes;
   if(unConstrainedFit_) { //Turn off all Constraints
     //pedestalConstraint_ = false; => Leaving this as tunable
     //timeConstraint_     = false;
@@ -285,6 +295,7 @@ void PulseShapeFitOOTPileupCorrection::setPUParams(bool   iPedestalConstraint, b
     TSMax_ =   75.;
   }
 }
+
 void PulseShapeFitOOTPileupCorrection::setPulseShapeTemplate(const HcalPulseShapes::Shape& ps) {
 
    if( cntsetPulseShape ) return;
@@ -298,6 +309,7 @@ void PulseShapeFitOOTPileupCorrection::setPulseShapeTemplate(const HcalPulseShap
    dpfunctor_    = new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::doublePulseShapeFunc, 5);
    tpfunctor_    = new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::triplePulseShapeFunc, 7);
 }
+
 void PulseShapeFitOOTPileupCorrection::resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps) { 
    ++ cntsetPulseShape;
    psfPtr_.reset(new FitterFuncs::PulseShapeFunctor(ps,pedestalConstraint_,timeConstraint_,addPulseJitter_,applyTimeSlew_,
@@ -309,6 +321,7 @@ void PulseShapeFitOOTPileupCorrection::resetPulseShapeTemplate(const HcalPulseSh
    dpfunctor_    = new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::doublePulseShapeFunc, 5);
    tpfunctor_    = new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::triplePulseShapeFunc, 7);
 }
+
 void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs, const std::vector<int> & capidvec, const HcalCalibrations & calibs, std::vector<double> & correctedOutput) const
 {
    psfPtr_->setDefaultcntNANinfit();
@@ -336,6 +349,7 @@ void PulseShapeFitOOTPileupCorrection::apply(const CaloSamples & cs, const std::
          tstrig = charge - ped;
       }
    }
+   if( tsTOTen < 0. ) tsTOTen = pedSig_;
    std::vector<double> fitParsVec;
    if( tstrig >= ts4Min_) { //Two sigma from 0 
      pulseShapeFit(energyArr, pedenArr, chargeArr, pedArr, tsTOTen, fitParsVec);
@@ -380,7 +394,7 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
    bool  fitStatus   = false;
 
    int BX[3] = {4,5,3};
-   if(ts4Chi2_ != 0) fit(  1,timevalfit,chargevalfit,pedvalfit,chi2,fitStatus,tsMAX,tsTOTen,tmpy,BX);
+   if(ts4Chi2_ != 0) fit(1,timevalfit,chargevalfit,pedvalfit,chi2,fitStatus,tsMAX,tsTOTen,tmpy,BX);
    if(tmpy[2] > 3.*tmpy[3]) BX[2] = 2;
    if(chi2 > ts4Chi2_ && !unConstrainedFit_)   { //fails chi2 cut goes straight to 3 Pulse fit
      fit(3,timevalfit,chargevalfit,pedvalfit,chi2,fitStatus,tsMAX,tsTOTen,tmpy,BX);
@@ -404,6 +418,7 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
    fitParsVec.push_back(chi2);
    return outfitStatus;
 }
+
 void PulseShapeFitOOTPileupCorrection::fit(int iFit,float &timevalfit,float &chargevalfit,float &pedvalfit,float &chi2,bool &fitStatus,double &iTSMax,const double &iTSTOTEn,double *iEnArr,int (&iBX)[3]) const { 
   int n = 3;
   if(iFit == 2) n = 5; //Two   Pulse Fit 
@@ -417,7 +432,7 @@ void PulseShapeFitOOTPileupCorrection::fit(int iFit,float &timevalfit,float &cha
    // Set starting values andf step sizes for parameters
    double vstart[n];
    for(int i = 0; i < int((n-1)/2); i++) { 
-     vstart[2*i+0] = iniTimesArr[iBX[i] ]+timeMean_;
+     vstart[2*i+0] = iniTimesArr[iBX[i]]+timeMean_;
      vstart[2*i+1] = iEnArr[iBX[i]];
    }
    vstart[n-1] = pedMean_;
@@ -446,18 +461,24 @@ void PulseShapeFitOOTPileupCorrection::fit(int iFit,float &timevalfit,float &cha
    //3 fits why?!
    const double *results = 0;
    for(int tries=0; tries<=3;++tries){
-     hybridfitter->SetMinimizerType(PSFitter::HybridMinimizer::kMigrad);
-     fitStatus = hybridfitter->Minimize();
+     if( fitTimes_ != 2 || tries !=1 ){
+        hybridfitter->SetMinimizerType(PSFitter::HybridMinimizer::kMigrad);
+        fitStatus = hybridfitter->Minimize();
+     }
      double chi2valfit = hybridfitter->MinValue();
      const double *newresults = hybridfitter->X();
      if(chi2>chi2valfit+0.01) {
        results=newresults;
        chi2=chi2valfit;
+       if( tries == 0 && fitTimes_ == 1 ) break;
+       if( tries == 1 && (fitTimes_ == 2 || fitTimes_ ==3 ) ) break;
+       if( tries == 2 && fitTimes_ == 4 ) break;
+       if( tries == 3 && fitTimes_ == 5 ) break; 
        //Secret option to speed up the fit => perhaps we should drop this
        if(timeSig_ < 0 || pedSig_ < 0) break;
        if(tries==0){
 	 hybridfitter->SetMinimizerType(PSFitter::HybridMinimizer::kScan);
-	 hybridfitter->Minimize();
+	 fitStatus = hybridfitter->Minimize();
        } else if(tries==1){
 	 hybridfitter->SetStrategy(1);
        } else if(tries==2){

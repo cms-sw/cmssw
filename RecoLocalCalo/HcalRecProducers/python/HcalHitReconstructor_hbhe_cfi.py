@@ -18,7 +18,6 @@ hbheprereco = cms.EDProducer(
     mcOOTCorrectionName = cms.string("HBHE"),
     mcOOTCorrectionCategory = cms.string("MC"),
     puCorrMethod = cms.int32(2),
-    pufitChargeThreshold = cms.double(6),
 
     # Set time slice for first digi to be stored in aux word
     # (HBHE uses time slices 4-7 for reco)
@@ -133,5 +132,6 @@ hbheprereco = cms.EDProducer(
     ts3chi2               = cms.double(5.),   #chi2 (not used)
     ts4chi2               = cms.double(0.),   #chi2 for triple pulse 
     ts345chi2             = cms.double(100.), #chi2 (not used)
-    chargeMax             = cms.double(6.)    #Charge cut (fC) for uncstrianed Fit 
+    chargeMax             = cms.double(6.),    #Charge cut (fC) for uncstrianed Fit 
+    fitTimes              = cms.int32(-1)       # -1 means no constraint on number of fits per channel
     )
