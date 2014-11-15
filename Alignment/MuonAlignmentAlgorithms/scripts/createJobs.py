@@ -78,7 +78,7 @@ parser.add_option("--trackerAPEconnect",
 parser.add_option("--trackerAPE",
                   help="name of TrackerAlignmentErrorRcd tag (tracker APEs)",
                   type="string",
-                  default="AlignmentErrors",
+                  default="AlignmentErrorsExtended",
                   dest="trackerAPE")
 parser.add_option("--trackerBowsconnect",
                   help="connect string for tracker Surface Deformations (frontier://... or sqlite_file:...)",

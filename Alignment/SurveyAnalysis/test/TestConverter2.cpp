@@ -33,7 +33,7 @@
 
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include <boost/cstdint.hpp> 
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CLHEP/Vector/RotationInterfaces.h" 
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
@@ -135,7 +135,7 @@ TestConverter2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
   // Retrieve alignment[Error]s from DBase
   edm::ESHandle<Alignments> alignments;
   iSetup.get<TrackerAlignmentRcd>().get( alignments );
-  edm::ESHandle<AlignmentErrors> alignmentErrors;
+  edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
   iSetup.get<TrackerAlignmentErrorRcd>().get( alignmentErrors );
   
   auto alignErrors = alignmentErrors->m_alignError;

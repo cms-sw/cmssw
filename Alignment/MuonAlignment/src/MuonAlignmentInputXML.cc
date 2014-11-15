@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Mon Mar 10 16:37:40 CDT 2008
-// $Id: MuonAlignmentInputXML.cc,v 1.16 2011/03/22 09:49:50 innocent Exp $
+//$Id: MuonAlignmentInputXML.cc,v 1.16 2011/03/22 09:49:50 innocent Exp $
 //
 
 // system include files
@@ -913,28 +913,73 @@ void MuonAlignmentInputXML::do_setape(const XERCES_CPP_NAMESPACE::DOMElement *no
    DOMAttr *node_xx = node->getAttributeNode(str_xx);
    DOMAttr *node_xy = node->getAttributeNode(str_xy);
    DOMAttr *node_xz = node->getAttributeNode(str_xz);
+   DOMAttr *node_xa = node->getAttributeNode(str_xa);
+   DOMAttr *node_xb = node->getAttributeNode(str_xb);
+   DOMAttr *node_xc = node->getAttributeNode(str_xc);
    DOMAttr *node_yy = node->getAttributeNode(str_yy);
    DOMAttr *node_yz = node->getAttributeNode(str_yz);
+   DOMAttr *node_ya = node->getAttributeNode(str_ya);
+   DOMAttr *node_yb = node->getAttributeNode(str_yb);
+   DOMAttr *node_yc = node->getAttributeNode(str_yc);
    DOMAttr *node_zz = node->getAttributeNode(str_zz);
+   DOMAttr *node_za = node->getAttributeNode(str_za);
+   DOMAttr *node_zb = node->getAttributeNode(str_zb);
+   DOMAttr *node_zc = node->getAttributeNode(str_zc);
+   DOMAttr *node_aa = node->getAttributeNode(str_aa);
+   DOMAttr *node_ab = node->getAttributeNode(str_ab);
+   DOMAttr *node_ac = node->getAttributeNode(str_ac);
+   DOMAttr *node_bb = node->getAttributeNode(str_bb);
+   DOMAttr *node_bc = node->getAttributeNode(str_bc);
+   DOMAttr *node_cc = node->getAttributeNode(str_cc);
 
    if (node_xx == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"xx\" attribute" << std::endl;
    if (node_xy == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"xy\" attribute" << std::endl;
    if (node_xz == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"xz\" attribute" << std::endl;
+   if (node_xa == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"xa\" attribute" << std::endl;
+   if (node_xb == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"xb\" attribute" << std::endl;
+   if (node_xc == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"xc\" attribute" << std::endl;
    if (node_yy == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"yy\" attribute" << std::endl;
    if (node_yz == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"yz\" attribute" << std::endl;
+   if (node_ya == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"ya\" attribute" << std::endl;
+   if (node_yb == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"yb\" attribute" << std::endl;
+   if (node_yc == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"yc\" attribute" << std::endl;
    if (node_zz == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"zz\" attribute" << std::endl;
+   if (node_za == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"za\" attribute" << std::endl;
+   if (node_zb == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"zb\" attribute" << std::endl;
+   if (node_zc == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"zc\" attribute" << std::endl;
+   if (node_aa == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"aa\" attribute" << std::endl;
+   if (node_ab == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"ab\" attribute" << std::endl;
+   if (node_ac == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"ac\" attribute" << std::endl;
+   if (node_bb == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"bb\" attribute" << std::endl;
+   if (node_bc == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"bc\" attribute" << std::endl;
+   if (node_cc == NULL) throw cms::Exception("XMLException") << "<setape> is missing required \"cc\" attribute" << std::endl;
 
-   AlgebraicSymMatrix33 matrix3x3;
-   matrix3x3(0,0) = parseDouble(node_xx->getValue(), "xx");
-   matrix3x3(0,1) = parseDouble(node_xy->getValue(), "xy");
-   matrix3x3(0,2) = parseDouble(node_xz->getValue(), "xz");
-   matrix3x3(1,1) = parseDouble(node_yy->getValue(), "yy");
-   matrix3x3(1,2) = parseDouble(node_yz->getValue(), "yz");
-   matrix3x3(2,2) = parseDouble(node_zz->getValue(), "zz");
+   align::ErrorMatrix matrix6x6;
+   matrix6x6(0,0) = parseDouble(node_xx->getValue(), "xx");
+   matrix6x6(0,1) = parseDouble(node_xy->getValue(), "xy");
+   matrix6x6(0,2) = parseDouble(node_xz->getValue(), "xz");
+   matrix6x6(0,3) = parseDouble(node_xa->getValue(), "xa");
+   matrix6x6(0,4) = parseDouble(node_xb->getValue(), "xb");
+   matrix6x6(0,5) = parseDouble(node_xc->getValue(), "xc");
+   matrix6x6(1,1) = parseDouble(node_yy->getValue(), "yy");
+   matrix6x6(1,2) = parseDouble(node_yz->getValue(), "yz");
+   matrix6x6(1,3) = parseDouble(node_ya->getValue(), "ya");
+   matrix6x6(1,4) = parseDouble(node_yb->getValue(), "yb");
+   matrix6x6(1,5) = parseDouble(node_yc->getValue(), "yc");
+   matrix6x6(2,2) = parseDouble(node_zz->getValue(), "zz");
+   matrix6x6(2,3) = parseDouble(node_za->getValue(), "za");
+   matrix6x6(2,4) = parseDouble(node_zb->getValue(), "zb");
+   matrix6x6(2,5) = parseDouble(node_zc->getValue(), "zc");
+   matrix6x6(3,3) = parseDouble(node_aa->getValue(), "aa");
+   matrix6x6(3,4) = parseDouble(node_ab->getValue(), "ab");
+   matrix6x6(3,5) = parseDouble(node_ac->getValue(), "ac");
+   matrix6x6(4,4) = parseDouble(node_bb->getValue(), "bb");
+   matrix6x6(4,5) = parseDouble(node_bc->getValue(), "bc");
+   matrix6x6(5,5) = parseDouble(node_cc->getValue(), "cc");
 
    for (std::map<Alignable*, bool>::const_iterator aliiter = aliset.begin();  aliiter != aliset.end();  ++aliiter) {
      // this sets APEs at this level and (since 2nd argument is true) all lower levels
-     aliiter->first->setAlignmentPositionError(AlignmentPositionError(matrix3x3), true);
+     aliiter->first->setAlignmentPositionError(AlignmentPositionError(matrix6x6), true);
    }
 }
 

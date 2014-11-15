@@ -29,7 +29,7 @@ process.trackerGeom = cms.ESSource("PoolDBESSource",
 								), 
 								cms.PSet(
 										record = cms.string('TrackerAlignmentErrorRcd'),
-										tag = cms.string('AlignmentErrors')
+										tag = cms.string('AlignmentErrorsExtended')
 								)),
 				connect = cms.string('sqlite_file:inputdbfile.db')
 )
@@ -65,7 +65,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 																	 ), 
 															cms.PSet(
 																	 record = cms.string('TrackerAlignmentErrorRcd'),
-																	 tag = cms.string('AlignmentErrors')
+																	 tag = cms.string('AlignmentErrorsExtended')
 																	 )),
 										  connect = cms.string('sqlite_file:outputdbfile.db')
 )

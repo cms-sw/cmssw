@@ -411,7 +411,7 @@ void AlignmentProducer::startingNewLoop(unsigned int iLoop )
   GeometryAligner aligner;
   if ( doTracker_ ) {
     std::auto_ptr<Alignments> alignments(theAlignableTracker->alignments());
-    std::auto_ptr<AlignmentErrors> alignmentErrors(theAlignableTracker->alignmentErrors());
+    std::auto_ptr<AlignmentErrorsExtended> alignmentErrors(theAlignableTracker->alignmentErrors());
     aligner.applyAlignments<TrackerGeometry>( &(*theTracker),&(*alignments),&(*alignmentErrors), AlignTransform() ); // don't apply global a second time!
     std::auto_ptr<AlignmentSurfaceDeformations> aliDeforms(theAlignableTracker->surfaceDeformations());
     aligner.attachSurfaceDeformations<TrackerGeometry>(&(*theTracker), &(*aliDeforms));
@@ -419,12 +419,12 @@ void AlignmentProducer::startingNewLoop(unsigned int iLoop )
   }
   if ( doMuon_ ) {
     std::auto_ptr<Alignments>      dtAlignments(       theAlignableMuon->dtAlignments());
-    std::auto_ptr<AlignmentErrors> dtAlignmentErrors(  theAlignableMuon->dtAlignmentErrors());
+    std::auto_ptr<AlignmentErrorsExtended> dtAlignmentErrorsExtended(  theAlignableMuon->dtAlignmentErrorsExtended());
     std::auto_ptr<Alignments>      cscAlignments(      theAlignableMuon->cscAlignments());
-    std::auto_ptr<AlignmentErrors> cscAlignmentErrors( theAlignableMuon->cscAlignmentErrors());
+    std::auto_ptr<AlignmentErrorsExtended> cscAlignmentErrorsExtended( theAlignableMuon->cscAlignmentErrorsExtended());
 
-    aligner.applyAlignments<DTGeometry>( &(*theMuonDT), &(*dtAlignments), &(*dtAlignmentErrors), AlignTransform() ); // don't apply global a second time!
-    aligner.applyAlignments<CSCGeometry>( &(*theMuonCSC), &(*cscAlignments), &(*cscAlignmentErrors), AlignTransform() ); // nope!
+    aligner.applyAlignments<DTGeometry>( &(*theMuonDT), &(*dtAlignments), &(*dtAlignmentErrorsExtended), AlignTransform() ); // don't apply global a second time!
+    aligner.applyAlignments<CSCGeometry>( &(*theMuonCSC), &(*cscAlignments), &(*cscAlignmentErrorsExtended), AlignTransform() ); // nope!
   }
 }
 
@@ -766,7 +766,7 @@ void AlignmentProducer::applyDB(G* geometry, const edm::EventSetup &iSetup,
 {
   // 'G' is the geometry class for that DB should be applied,
   // 'Rcd' is the record class for its Alignments 
-  // 'ErrRcd' is the record class for its AlignmentErrors
+  // 'ErrRcd' is the record class for its AlignmentErrorsExtended
   // 'globalCoordinates' are global transformation for this geometry
 
   const Rcd & record = iSetup.get<Rcd>();
@@ -789,7 +789,7 @@ void AlignmentProducer::applyDB(G* geometry, const edm::EventSetup &iSetup,
   edm::ESHandle<Alignments> alignments;
   record.get(alignments);
 
-  edm::ESHandle<AlignmentErrors> alignmentErrors;
+  edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
   iSetup.get<ErrRcd>().get(alignmentErrors);
 
   GeometryAligner aligner;
@@ -841,7 +841,7 @@ void AlignmentProducer::writeForRunRange(cond::Time_t time)
     }
 	
     Alignments *alignments = theAlignableTracker->alignments();
-    AlignmentErrors *alignmentErrors = theAlignableTracker->alignmentErrors();
+    AlignmentErrorsExtended *alignmentErrors = theAlignableTracker->alignmentErrors();
     this->writeDB(alignments, "TrackerAlignmentRcd",
 		  alignmentErrors, "TrackerAlignmentErrorRcd", trackerGlobal,
 		  time);	
@@ -855,14 +855,14 @@ void AlignmentProducer::writeForRunRange(cond::Time_t time)
     }
     // Get alignments+errors, first DT - ownership taken over by writeDB(..), so no delete
     Alignments      *alignments       = theAlignableMuon->dtAlignments();
-    AlignmentErrors *alignmentErrors  = theAlignableMuon->dtAlignmentErrors();
+    AlignmentErrorsExtended *alignmentErrors  = theAlignableMuon->dtAlignmentErrorsExtended();
     this->writeDB(alignments, "DTAlignmentRcd",
 		  alignmentErrors, "DTAlignmentErrorRcd", muonGlobal,
 		  time);
     
     // Get alignments+errors, now CSC - ownership taken over by writeDB(..), so no delete
     alignments       = theAlignableMuon->cscAlignments();
-    alignmentErrors  = theAlignableMuon->cscAlignmentErrors();
+    alignmentErrors  = theAlignableMuon->cscAlignmentErrorsExtended();
     this->writeDB(alignments, "CSCAlignmentRcd",
 		  alignmentErrors, "CSCAlignmentErrorRcd", muonGlobal,
 		  time);
@@ -878,19 +878,19 @@ void AlignmentProducer::writeForRunRange(cond::Time_t time)
 //////////////////////////////////////////////////
 void AlignmentProducer::writeDB(Alignments *alignments,
 				const std::string &alignRcd,
-				AlignmentErrors *alignmentErrors,
+				AlignmentErrorsExtended *alignmentErrors,
 				const std::string &errRcd,
 				const AlignTransform *globalCoordinates,
 				cond::Time_t time) const
 {
   Alignments * tempAlignments = alignments;
-  AlignmentErrors * tempAlignmentErrors = alignmentErrors;
+  AlignmentErrorsExtended * tempAlignmentErrorsExtended = alignmentErrors;
 
   // Call service
   edm::Service<cond::service::PoolDBOutputService> poolDb;
   if (!poolDb.isAvailable()) { // Die if not available
     delete tempAlignments;      // promised to take over ownership...
-    delete tempAlignmentErrors; // dito
+    delete tempAlignmentErrorsExtended; // dito
     throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
   }
 
@@ -898,12 +898,12 @@ void AlignmentProducer::writeDB(Alignments *alignments,
       && globalCoordinates->transform() != AlignTransform::Transform::Identity) {
 
     tempAlignments = new Alignments();            // temporary storage for
-    tempAlignmentErrors = new AlignmentErrors();  // final alignments and errors
+    tempAlignmentErrorsExtended = new AlignmentErrorsExtended();  // final alignments and errors
 
     GeometryAligner aligner;
     aligner.removeGlobalTransform(alignments, alignmentErrors,
                                   *globalCoordinates,
-                                  tempAlignments, tempAlignmentErrors);
+                                  tempAlignments, tempAlignmentErrorsExtended);
     
     delete alignments;       // have to delete original alignments
     delete alignmentErrors;  // same thing for the errors
@@ -922,11 +922,11 @@ void AlignmentProducer::writeDB(Alignments *alignments,
   }
 
   if (saveApeToDB_) {
-    edm::LogInfo("Alignment") << "Writing AlignmentErrors for run " << time
+    edm::LogInfo("Alignment") << "Writing AlignmentErrorsExtended for run " << time
                               << " to " << errRcd << ".";
-    poolDb->writeOne<AlignmentErrors>(tempAlignmentErrors, time, errRcd);
+    poolDb->writeOne<AlignmentErrorsExtended>(tempAlignmentErrorsExtended, time, errRcd);
   } else { // poolDb->writeOne(..) takes over 'alignmentErrors' ownership,...
-    delete tempAlignmentErrors; // ...otherwise we have to delete, as promised!
+    delete tempAlignmentErrorsExtended; // ...otherwise we have to delete, as promised!
   }
 }
 
