@@ -23,6 +23,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerSurfaceDeformationRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "boost/mpl/vector.hpp"
@@ -33,6 +34,7 @@ class TrackerDigiGeometryRecord :
                 boost::mpl::vector<IdealGeometryRecord,
                 TrackerAlignmentRcd, 
                 TrackerAlignmentErrorRcd,
+                TrackerAlignmentErrorExtendedRcd,
                 TrackerSurfaceDeformationRcd,
                 GlobalPositionRcd> > {};
 
