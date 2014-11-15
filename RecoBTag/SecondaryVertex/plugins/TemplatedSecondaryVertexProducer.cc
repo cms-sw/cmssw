@@ -452,6 +452,10 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 	    // collect clustered SVs
 	    for(size_t i=0; i<fatJetsHandle->size(); ++i)
 	    {
+	      if( reclusteredIndices.at(i) < 0 ) continue; // continue if matching reclustered to original jets failed
+	
+	      if( subjetIndices.at(i).size()==0 ) continue; // continue if the original jet does not have subjets assigned
+		
 	      // since the "ghosts" are extremely soft, the configuration and ordering of the reclustered and original fat jets should in principle stay the same
 	      if( ( fabs( inclusiveJets.at(reclusteredIndices.at(i)).pt() - fatJetsHandle->at(i).pt() ) / fatJetsHandle->at(i).pt() ) > relPtTolerance )
 	      {
@@ -477,8 +481,6 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 		 
 		 svIndices.push_back( it->user_info<VertexInfo>().vertexIndex() );
 	      }
-
-	      if( subjetIndices.at(i).size()==0 ) continue; // continue if the original jet does not have subjets assigned
 	
 	      // loop over clustered SVs and assign them to different subjets based on smallest dR
 	      for(size_t sv=0; sv<svIndices.size(); ++sv)
@@ -515,6 +517,8 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 	    // collect clustered SVs
 	    for(size_t i=0; i<trackIPTagInfos->size(); ++i)
 	    {
+	      if( reclusteredIndices.at(i) < 0 ) continue; // continue if matching reclustered to original jets failed
+	
 	      // since the "ghosts" are extremely soft, the configuration and ordering of the reclustered and original jets should in principle stay the same
 	      if( ( fabs( inclusiveJets.at(reclusteredIndices.at(i)).pt() - trackIPTagInfos->at(i).jet()->pt() ) / trackIPTagInfos->at(i).jet()->pt() ) > 1e-3 ) // 0.1% difference in Pt should be sufficient to detect possible misconfigurations
 	      {
@@ -1015,7 +1019,7 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::matchGroomedJets(const edm::Han
      double matchedDR2 = 1e9;
      int matchedIdx = -1;
 
-     if( groomedJets->at(gj).pt()>0. ) // skips pathological cases of groomed jets with Pt=0
+     if( groomedJets->at(gj).pt()>0. ) // skip pathological cases of groomed jets with Pt=0
      {
        for(size_t j=0; j<jets->size(); ++j)
        {
