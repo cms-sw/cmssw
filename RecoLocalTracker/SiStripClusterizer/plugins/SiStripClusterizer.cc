@@ -5,8 +5,7 @@
 #include "FWCore/Utilities/interface/transform.h"
 #include "boost/foreach.hpp"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
-#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
 SiStripClusterizer::
 SiStripClusterizer(const edm::ParameterSet& conf) 
@@ -15,7 +14,6 @@ SiStripClusterizer(const edm::ParameterSet& conf)
     algorithm( StripClusterizerAlgorithmFactory::create(conf.getParameter<edm::ParameterSet>("Clusterizer")) ) {
   produces< edmNew::DetSetVector<SiStripCluster> > ();
   inputTokens = edm::vector_transform( inputTags, [this](edm::InputTag const & tag) { return consumes< edm::DetSetVector<SiStripDigi> >(tag);} );
-  useLegacyError_ =  confClusterizer_.existsAs<bool>("useLegacyError") ? confClusterizer_.getParameter<bool>("useLegacyError") : false;
   doRefineCluster_ = confClusterizer_.existsAs<bool>("doRefineCluster") ? confClusterizer_.getParameter<bool>("doRefineCluster") : false;
   occupancyThreshold_ = confClusterizer_.existsAs<double>("occupancyThreshold") ? confClusterizer_.getParameter<double>("occupancyThreshold") : 0.05;
   widthThreshold_ = confClusterizer_.existsAs<unsigned>("widthThreshold") ? confClusterizer_.getParameter<unsigned>("widthThreshold") : 4;
@@ -32,17 +30,10 @@ produce(edm::Event& event, const edm::EventSetup& es)  {
 
   algorithm->initialize(es);  
 
-  edm::ESHandle<SiStripQuality> quality = 0;
-  SiStripDetInfoFileReader* reader = 0;
-  if (doRefineCluster_ &! useLegacyError_) {
-    es.get<SiStripQualityRcd>().get("", quality);
-    reader = edm::Service<SiStripDetInfoFileReader>().operator->();
-  }
-
   BOOST_FOREACH( const edm::EDGetTokenT< edm::DetSetVector<SiStripDigi> >& token, inputTokens) {
     if(      findInput( token, inputOld, event) ) {
       algorithm->clusterize(*inputOld, *output);
-      if (doRefineCluster_ &! useLegacyError_) refineCluster(inputOld, output, reader, quality);
+      if (doRefineCluster_) refineCluster(inputOld, output);
     } 
 //     else if( findInput( tag, inputNew, event) ) algorithm->clusterize(*inputNew, *output);
     else edm::LogError("Input Not Found") << "[SiStripClusterizer::produce] ";// << tag;
@@ -64,9 +55,7 @@ findInput(const edm::EDGetTokenT<T>& tag, edm::Handle<T>& handle, const edm::Eve
 
 void SiStripClusterizer::
 refineCluster(const edm::Handle< edm::DetSetVector<SiStripDigi> >& input,
-	      std::auto_ptr< edmNew::DetSetVector<SiStripCluster> >& output,
-	      SiStripDetInfoFileReader* reader,
-	      edm::ESHandle<SiStripQuality> quality) {
+	      std::auto_ptr< edmNew::DetSetVector<SiStripCluster> >& output) {
   if (input->size() == 0) return;
 
   // Flag merge-prone clusters for relaxed CPE errors
@@ -75,11 +64,10 @@ refineCluster(const edm::Handle< edm::DetSetVector<SiStripDigi> >& input,
   for (edmNew::DetSetVector<SiStripCluster>::const_iterator det=output->begin(); det!=output->end(); det++) {
     uint32_t detId = det->id();
     // Find the number of good strips in this sensor
-    //   (from DPGAnalysis/SiStripTools/OccupancyPlots)
-    int nchannideal = reader->getNumberOfApvsAndStripLength(detId).first*128;
+    int nchannideal = SiStripDetCabling_->nApvPairs(detId) * 2 * 128;
     int nchannreal = 0;
     for(int strip = 0; strip < nchannideal; ++strip)
-      if(!quality->IsStripBad(detId,strip)) ++nchannreal;
+      if(!quality_->IsStripBad(detId,strip)) ++nchannreal;
 
     edm::DetSetVector<SiStripDigi>::const_iterator digis = input->find(detId);
     if (digis != input->end()) {
@@ -87,12 +75,15 @@ refineCluster(const edm::Handle< edm::DetSetVector<SiStripDigi> >& input,
       for (edmNew::DetSet<SiStripCluster>::iterator clust = det->begin(); clust != det->end(); clust++) {
 	if (ndigi > occupancyThreshold_*nchannreal && clust->amplitudes().size() >= widthThreshold_) clust->setMerged(true);
 	else clust->setMerged(false);
-	// if (clust->firstStrip() > nchannreal)
-	//   std::cout << "firstStrip out_of_range " << clust->firstStrip() << ", " << nchannreal
-	// 	      << ", " << nchannideal << ", " << clust->isMerged() << std::endl;
-	// std::cout << "Cluster_merged_width " << clust->isMerged() << " " << clust->amplitudes().size() << std::endl;
       }
-      // std::cout << "Sensor:strips_occStrips_clust_merged " << nchannreal << " " << ndigi << " " << det->size() << std::endl;
+      // std::cout << "Sensor:strips_occStrips_clust " << nchannreal << " " << ndigi << " " << det->size() << std::endl;
     }
   }  // traverse sensors
+}
+
+void SiStripClusterizer::beginRun(const edm::Run& run, const edm::EventSetup& es ) {
+  if (doRefineCluster_) {
+    es.get<SiStripDetCablingRcd>().get( SiStripDetCabling_);
+    es.get<SiStripQualityRcd>().get("", quality_);
+  }
 }
