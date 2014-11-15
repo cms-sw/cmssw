@@ -9,11 +9,11 @@ from HLTriggerOffline.Exotica.hltExoticaValidator_cfi import *
 
 # We create a basic HT variable here
 recoExoticaValidationHT = cms.EDProducer("PFMETProducer",
-                                         src = cms.InputTag("ak5PFJetsCHS"),
+                                         src = cms.InputTag("ak4PFJetsCHS"),
                                          alias = cms.string('PFMHT'),
                                          globalThreshold = cms.double(30.0),
                                          calculateSignificance = cms.bool(False),
-                                         jets = cms.InputTag("ak5PFJetsCHS") # for significance calculation
+                                         jets = cms.InputTag("ak4PFJetsCHS") # for significance calculation
                                          )
 
 ExoticaValidationProdSeq = cms.Sequence(
