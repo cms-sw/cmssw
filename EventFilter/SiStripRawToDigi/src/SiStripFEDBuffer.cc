@@ -73,15 +73,16 @@ namespace sistrip {
     //set min length to 2 for ZSLite, 7 for ZS and 3 for raw
     uint16_t minLength;
     switch (readoutMode()) {
-      case READOUT_MODE_ZERO_SUPPRESSED:
-        minLength = 7;
-        break;
-      case READOUT_MODE_ZERO_SUPPRESSED_LITE:
-        minLength = 2;
-        break;
-      default:
-        minLength = 3;
-        break;
+    case READOUT_MODE_ZERO_SUPPRESSED:
+      minLength = 7;
+      break;
+    case READOUT_MODE_ZERO_SUPPRESSED_LITE:
+    case READOUT_MODE_PREMIX_RAW:
+      minLength = 2;
+      break;
+    default:
+      minLength = 3;
+      break;
     }
     size_t offsetBeginningOfChannel = 0;
     for (size_t i = 0; i < FEDCH_PER_FED; i++) {
@@ -394,6 +395,7 @@ namespace sistrip {
       return PACKET_CODE_ZERO_SUPPRESSED;
       break;
     case READOUT_MODE_ZERO_SUPPRESSED_LITE:
+    case READOUT_MODE_PREMIX_RAW:
     case READOUT_MODE_SPY:
     case READOUT_MODE_INVALID:
     default:
