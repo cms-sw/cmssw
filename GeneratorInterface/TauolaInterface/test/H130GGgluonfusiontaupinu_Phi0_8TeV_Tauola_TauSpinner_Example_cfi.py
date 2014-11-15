@@ -80,8 +80,8 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
 	UseTauolaPolarization = cms.bool(False),
 	InputCards = cms.PSet(
 	mdtau = cms.int32(0),
-	pjak2 = cms.int32(4),
-	pjak1 = cms.int32(4)
+	pjak2 = cms.int32(3),
+	pjak1 = cms.int32(3)
 	)
         ),
         parameterSets = cms.vstring('Tauola')
@@ -148,7 +148,7 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
 
 
 process.TauSpinnerGen.parameterSets=cms.vstring("HTSpinCorr")
-process.TauSpinnerGen.HTSpinCorr = cms.vdouble(0.75)
+process.TauSpinnerGen.HTSpinCorr = cms.vdouble(0.0)
 
 process.ProductionFilterSequence = cms.Sequence(process.generator)
 

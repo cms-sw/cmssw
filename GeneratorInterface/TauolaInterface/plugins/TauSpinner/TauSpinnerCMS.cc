@@ -12,6 +12,10 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/RandomEngineSentry.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <stdlib.h>
+#include <cstdlib> 
 
 using namespace edm;
 using namespace TauSpinner;
@@ -33,8 +37,16 @@ TauSpinnerCMS::TauSpinnerCMS( const ParameterSet& pset ) :
   ,nonSM2_(pset.getUntrackedParameter("nonSM2",(int)(0)))
   ,nonSMN_(pset.getUntrackedParameter("nonSMN",(int)(0)))
   ,roundOff_(pset.getUntrackedParameter("roundOff",(double)(0.01)))
+  ,doH0T(false), doZ0T(false)
+  ,H0Rxx(0)
+  ,H0Ryy(0)
+  ,H0Rxy(0)
+  ,H0Ryx(0)
+  ,Z0Rxx(0)
+  ,Z0Ryy(0)
+  ,Z0Rxy(0)
+  ,Z0Ryx(0)
 {
-  //usesResource(edm::uniqueSharedResourceName());
   usesResource(edm::SharedResourceNames::kTauola);
 
   produces<bool>("TauSpinnerWTisValid").setBranchAlias("TauSpinnerWTisValid");
@@ -49,6 +61,64 @@ TauSpinnerCMS::TauSpinnerCMS( const ParameterSet& pset ) :
   else{
     hepmcCollectionToken_=consumes<HepMCProduct>(gensrc_);
   }
+
+  ///////////////////////////////
+  // define dynamic parameters
+  //
+  if(pset.exists("parameterSets")){
+    std::vector<std::string> par = pset.getParameter< std::vector<std::string> >("parameterSets");
+    for (unsigned int ip=0; ip<par.size(); ++ip ){
+      std::string curSet = par[ip];
+      if(curSet=="ZTSpinCorr") {
+	std::vector<double> v = pset.getParameter< std::vector<double> >(curSet);
+	if(v.size()==0){
+	  doZ0T=true;
+	  Z0Rxx=1.0;
+	  Z0Ryy=1.0;
+	  Z0Rxy=1.0;
+	  Z0Ryx=1.0;
+	}
+	else if(v.size()==4){
+	  doZ0T=true;
+          Z0Rxx=v.at(0);
+          Z0Ryy=v.at(1);
+          Z0Rxy=v.at(2);
+          Z0Ryx=v.at(3);
+	}
+	else{
+	  edm::LogError("TauSpinnerCMS") << "Invalid size for ZTSpinCorr!!!! Please read instruction manual... ";
+	}
+      }
+      if(curSet=="HTSpinCorr") {
+	std::vector<double> v = pset.getParameter< std::vector<double> >(curSet);
+	if(v.size()==4){
+	  doH0T=true;
+	  H0Rxx=v.at(0);
+	  H0Ryy=v.at(1);
+	  H0Rxy=v.at(2);
+	  H0Ryx=v.at(3);
+	}
+	else if(v.size()==1){
+	  doH0T=true;
+	  double phi=v.at(0);
+	  H0Rxx=-cos(2*phi);
+          H0Ryy=cos(2*phi);
+          H0Rxy=-sin(2*phi);
+          H0Ryx=-sin(2*phi);
+	}
+	else{
+	  edm::LogError("TauSpinnerCMS") << "Invalid size for HTSpinCorr!!!! Please read instruction manual... ";
+	}
+      }
+    }
+  }
+
+  std::string Base= getenv ("TAUOLAPPDATA");
+  std::string cmd="cp ";
+  cmd+=Base;
+  cmd+="/* .";
+  system(cmd.data());
+
 }
 
 void TauSpinnerCMS::beginJob(){};
@@ -70,7 +140,11 @@ void TauSpinnerCMS::initialize(){
     //Ipol - polarization of input sample
     //nonSM2 - nonstandard model calculations
     //nonSMN
+   
     TauSpinner::initialize_spinner(Ipp,Ipol_,nonSM2_,nonSMN_,CMSEnergy_);
+
+    if(doH0T)TauSpinner::setHiggsParametersTR(H0Rxx,H0Ryy,H0Rxy,H0Ryx);
+    if(doZ0T)TauSpinner::setZgamMultipliersTR(Z0Rxx,Z0Ryy,Z0Rxy,Z0Ryx);
   }
   fInitialized=true;
 }
@@ -130,9 +204,11 @@ void TauSpinnerCMS::produce( edm::Event& e, const edm::EventSetup& iSetup){
           if(X.pdgid()==25 || X.pdgid()==22 || X.pdgid()==23 ){
             if(X.pdgid()==25) X.setPdgid(23);
             if( X.pdgid()==22 || X.pdgid()==23 ) X.setPdgid(25);
-
             double WTother=TauSpinner::calculateWeightFromParticlesH(X, tau, tau2, tau_daughters,tau_daughters2);
             WTFlip=WTother/WT;
+	    double Rxx(0),Ryy(0),Rxy(0),Ryx(0);
+	    TauSpinner::getZgamParametersTR(Rxx,Ryy,Rxy,Ryx);
+	    //std::cout << "Z R " << Rxx << " " << Ryy << " " << Rxy << " " << Ryx << std::endl;
           }
         }
       }
@@ -147,6 +223,7 @@ void TauSpinnerCMS::produce( edm::Event& e, const edm::EventSetup& iSetup){
   *TauSpinnerWeightisValid =isValid;
   e.put(TauSpinnerWeightisValid,"TauSpinnerWTisValid");
 
+  std::cout << WT << std::endl;
   // regular weight
   std::auto_ptr<double> TauSpinnerWeight(new double);
   *TauSpinnerWeight =WT;
