@@ -80,8 +80,8 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
 	UseTauolaPolarization = cms.bool(False),
 	InputCards = cms.PSet(
 	mdtau = cms.int32(0),
-	pjak2 = cms.int32(3),
-	pjak1 = cms.int32(3)
+	pjak2 = cms.int32(0),
+	pjak1 = cms.int32(0)
 	)
         ),
         parameterSets = cms.vstring('Tauola')

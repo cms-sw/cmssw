@@ -223,7 +223,6 @@ void TauSpinnerCMS::produce( edm::Event& e, const edm::EventSetup& iSetup){
   *TauSpinnerWeightisValid =isValid;
   e.put(TauSpinnerWeightisValid,"TauSpinnerWTisValid");
 
-  std::cout << WT << std::endl;
   // regular weight
   std::auto_ptr<double> TauSpinnerWeight(new double);
   *TauSpinnerWeight =WT;
