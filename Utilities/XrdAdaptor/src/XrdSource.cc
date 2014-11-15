@@ -99,13 +99,28 @@ bool Source::getDomain(const std::string &host, std::string &domain)
 
 
 bool
-Source::isDCachePool(XrdCl::File &file)
+Source::isDCachePool(XrdCl::File &file, const XrdCl::HostList *hostList)
 {
+    // WORKAROUND: On open-file recovery in the Xrootd client, it'll carry around the
+    // dCache opaque information to other sites, causing isDCachePool to erroneously return
+    // true.  We are working with the upstream developers to solve this.
+    //
+    // For now, we see if the previous server also looks like a dCache pool - something that
+    // wouldn't happen at a real site, as the previous server should look like a dCache door.
     std::string lastUrl;
     file.GetProperty("LastURL", lastUrl);
     if (lastUrl.size())
     {
-        return isDCachePool(lastUrl);
+        bool result = isDCachePool(lastUrl);
+        if (result && hostList && (hostList->size() > 1))
+        {
+		if (isDCachePool((*hostList)[hostList->size()-2].url.GetURL()))
+		{
+			return false;
+		}
+		return true;
+        }
+	return result;
     }
     return false;
 }
@@ -133,7 +148,7 @@ Source::determineHostExcludeString(XrdCl::File &file, const XrdCl::HostList *hos
     // and dCache pool server (so, more than 2 servers!).
 
     exclude = "";
-    if (hostList && (hostList->size() > 3) && isDCachePool(file))
+    if (hostList && (hostList->size() > 3) && isDCachePool(file, hostList))
     {
         const XrdCl::HostInfo &info = (*hostList)[hostList->size()-3];
         exclude = info.url.GetHostName();

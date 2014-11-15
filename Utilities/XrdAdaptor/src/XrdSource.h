@@ -50,7 +50,7 @@ public:
     // Given a connected File object, determine whether we believe this to be a 
     // dCache pool (dCache is a separate implementation and sometimes benefits from
     // implementation-specific behaviors.
-    static bool isDCachePool(XrdCl::File &file);
+    static bool isDCachePool(XrdCl::File &file, const XrdCl::HostList *hostList=nullptr);
     static bool isDCachePool(const std::string &url);
 
     // Given an Xrootd server ID, determine the hostname to the best of our ability.

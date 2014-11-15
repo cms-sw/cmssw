@@ -1,6 +1,5 @@
 #include "Utilities/XrdAdaptor/src/XrdFile.h"
 #include "Utilities/XrdAdaptor/src/XrdRequestManager.h"
-#include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Likely.h"
@@ -389,8 +388,10 @@ XrdFile::readv (IOPosBuffer *into, IOSize n)
     }
     catch (std::exception& ex)
     {
-      edm::LogWarning("XrdFile") << "Exception thrown when processing xrootd request: " << ex.what();
-      edm::convertException::stdToEDM(ex);
+      edm::Exception newex(edm::errors::StdException);
+      newex << "A std::exception was thrown when processing an xrootd request: " << ex.what();
+      newex.addContext("Calling XrdFile::readv()");
+      throw newex;
     }
     final_result += result;
   }
