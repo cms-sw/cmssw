@@ -532,7 +532,7 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 	      }
 	
 	      // since the "ghosts" are extremely soft, the configuration and ordering of the reclustered and original jets should in principle stay the same
-	      if( ( fabs( inclusiveJets.at(reclusteredIndices.at(i)).pt() - trackIPTagInfos->at(i).jet()->pt() ) / trackIPTagInfos->at(i).jet()->pt() ) > 1e-3 ) // 0.1% difference in Pt should be sufficient to detect possible misconfigurations
+	      if( ( fabs( inclusiveJets.at(reclusteredIndices.at(i)).pt() - trackIPTagInfos->at(i).jet()->pt() ) / trackIPTagInfos->at(i).jet()->pt() ) > relPtTolerance )
 	      {
 		 if( trackIPTagInfos->at(i).jet()->pt() < 10. )  // special handling for low-Pt jets (Pt<10 GeV)
 		   edm::LogWarning("JetPtMismatchAtLowPt") << "The reclustered and original jet " << i << " have different Pt's (" << inclusiveJets.at(reclusteredIndices.at(i)).pt() << " vs " << trackIPTagInfos->at(i).jet()->pt() << " GeV, respectively).\n"
