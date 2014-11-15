@@ -56,11 +56,14 @@ void HLTExoticaPlotter::plotterBookHistos(DQMStore::IBooker & iBooker,
 
         for (size_t i = 0; i < sources.size(); i++) {
             std::string source = sources[i];
-            bookHist(iBooker, source, objTypeStr, "Eta");
-            bookHist(iBooker, source, objTypeStr, "Phi");
+            if (objTypeStr == "GenMET" && source == "gen") continue; // genGenMET doesn't make sense. 
+            if (objTypeStr.find("MET") > objTypeStr.size()) { 
+              bookHist(iBooker, source, objTypeStr, "Eta");
+              bookHist(iBooker, source, objTypeStr, "Phi");
+            }
             bookHist(iBooker, source, objTypeStr, "MaxPt1");
             bookHist(iBooker, source, objTypeStr, "MaxPt2");
-            bookHist(iBooker, source, objTypeStr, "SumEt");
+            //bookHist(iBooker, source, objTypeStr, "SumEt");
         }
     }
 }
@@ -96,10 +99,12 @@ void HLTExoticaPlotter::analyze(const bool & isPassTrigger,
         float pt  =   matches[j].pt();
         float eta =   matches[j].eta();
         float phi =   matches[j].phi();
-	float sumEt = 0;//matches[j].sumEt;
-        this->fillHist(isPassTrigger, source, objTypeStr, "Eta", eta);
-        this->fillHist(isPassTrigger, source, objTypeStr, "Phi", phi);
-	this->fillHist(isPassTrigger, source, objTypeStr, "SumEt", sumEt);
+	//float sumEt = 0;//matches[j].sumEt;
+        if (objTypeStr.find("MET") > objTypeStr.size()) { 
+          this->fillHist(isPassTrigger, source, objTypeStr, "Eta", eta);
+          this->fillHist(isPassTrigger, source, objTypeStr, "Phi", phi);
+        }
+	//this->fillHist(isPassTrigger, source, objTypeStr, "SumEt", sumEt);
 
         if (countobjects[objType] == 0) {
             this->fillHist(isPassTrigger, source, objTypeStr, "MaxPt1", pt);
@@ -131,6 +136,7 @@ void HLTExoticaPlotter::bookHist(DQMStore::IBooker & iBooker,
     std::string name = source + objType + variable + "_" + _hltPath;
     TH1F * h = 0;
 
+#if 0 // temporary commented out
     if (variable.find("SumEt") != std::string::npos) {
         std::string title = "Sum ET of " + sourceUpper + " " + objType;
         const size_t nBins = _parametersTurnOn.size() - 1;
@@ -142,6 +148,9 @@ void HLTExoticaPlotter::bookHist(DQMStore::IBooker & iBooker,
         delete[] edges;
     }
     else if (variable.find("MaxPt") != std::string::npos) {
+#else
+    if (variable.find("MaxPt") != std::string::npos) {
+#endif
         std::string desc = (variable == "MaxPt1") ? "Leading" : "Next-to-Leading";
         std::string title = "pT of " + desc + " " + sourceUpper + " " + objType + " "
                             "where event pass the " + _hltPath;
