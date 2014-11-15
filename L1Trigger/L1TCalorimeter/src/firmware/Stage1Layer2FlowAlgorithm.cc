@@ -11,7 +11,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"
 #include "L1Trigger/L1TCalorimeter/interface/legacyGtHelper.h"
 
-l1t::Stage1Layer2FlowAlgorithm::Stage1Layer2FlowAlgorithm(CaloParamsStage1* )
+l1t::Stage1Layer2FlowAlgorithm::Stage1Layer2FlowAlgorithm(CaloParamsStage1* params) : params_(params)
 {
  //now do what ever initialization is needed
  //Converting phi to be as it is define at GCT (-pi to pi instead of 0 to 2*pi)
@@ -34,7 +34,7 @@ l1t::Stage1Layer2FlowAlgorithm::~Stage1Layer2FlowAlgorithm() {}
 void l1t::Stage1Layer2FlowAlgorithm::processEvent(const std::vector<l1t::CaloRegion> & regions,
 						  const std::vector<l1t::CaloEmCand> & EMCands,
 						  const std::vector<l1t::Tau> * taus,
-						  std::vector<l1t::CaloSpare> * spares) {
+						  l1t::CaloSpare * spare) {
   double q2x = 0;
   double q2y = 0;
   double regionET=0.;
@@ -52,12 +52,13 @@ void l1t::Stage1Layer2FlowAlgorithm::processEvent(const std::vector<l1t::CaloReg
     q2x+= regionET * cosPhi[iphi];
     q2y+= regionET * sinPhi[iphi];
   }
-  double HFq2 = q2x*q2x+q2y*q2y;
+  int HFq2 = q2x*q2x+q2y*q2y;
   //double psi2 = 0.5 * atan(q2y/q2x);
 
-  ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > dummy(0,0,0,0);
+  // ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > dummy(0,0,0,0);
 
-  l1t::CaloSpare V2 (*&dummy,CaloSpare::CaloSpareType::V2,(int)HFq2,0,0,0);
+  // l1t::CaloSpare V2 (*&dummy,CaloSpare::CaloSpareType::V2,(int)HFq2,0,0,0);
 
-  spares->push_back(V2);
+  // spares->push_back(V2);
+  spare->SetRing(1, HFq2&0x7);
 }
