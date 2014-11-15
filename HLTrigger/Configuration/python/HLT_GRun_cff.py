@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_2_1/GRun/V58 (CMSSW_7_2_1_patch2)
+# /dev/CMSSW_7_2_1/GRun/V59 (CMSSW_7_2_1_patch2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_2_1/GRun/V58')
+  tableName = cms.string('/dev/CMSSW_7_2_1/GRun/V59')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -36302,7 +36302,7 @@ hltDisplacedhltIter4PFlowPixelLessSeeds = cms.EDProducer( "SeedGeneratorFromRegi
         vertexSrc = cms.InputTag( "hltDisplacedhltTrimmedPixelVertices" ),
         searchOpt = cms.bool( True ),
         ptMin = cms.double( 0.8 ),
-        measurementTrackerName = cms.string( "displacedhltIter4MaskedMeasurementTrackerEvent" ),
+        measurementTrackerName = cms.string( "hltDisplacedhltIter4MaskedMeasurementTrackerEvent" ),
         mode = cms.string( "VerticesFixed" ),
         maxNRegions = cms.int32( 100 ),
         maxNVertices = cms.int32( 10 ),
@@ -36457,7 +36457,7 @@ hltIter4MergedWithIter012DisplacedJets = cms.EDProducer( "SimpleTrackListMerger"
     MaxNormalizedChisq = cms.double( 1000.0 ),
     TrackProducer1 = cms.string( "hltIter2MergedForBTag" ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "displacedhltIter4PFlowTrackSelectionHighPurity" ),
+    TrackProducer2 = cms.string( "hltDisplacedhltIter4PFlowTrackSelectionHighPurity" ),
     LostHitPenalty = cms.double( 20.0 ),
     FoundHitBonus = cms.double( 5.0 )
 )
