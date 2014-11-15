@@ -2,7 +2,7 @@
 
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 #include "RecoBTag/SoftLepton/interface/LeptonSelector.h"
-#include "RecoBTag/SoftLepton/src/MuonTaggerNoIP.h"
+#include "RecoBTag/SoftLepton/interface/MuonTaggerNoIP.h"
 
 /// b-tag a jet based on track-to-jet parameters in the extened info collection
 float MuonTaggerNoIP::discriminator(const TagInfoHelper & tagInfo) const {

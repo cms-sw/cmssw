@@ -1,5 +1,5 @@
-#ifndef ElectronTaggerMLP_h
-#define ElectronTaggerMLP_h
+#ifndef RecoBTag_SoftLepton_ElectronTaggerMLP_h
+#define RecoBTag_SoftLepton_ElectronTaggerMLP_h
 
 class ElectronTaggerMLP { 
 public:

@@ -1,5 +1,5 @@
-#ifndef MuonTaggerMLP_h
-#define MuonTaggerMLP_h
+#ifndef RecoBTag_SoftLepton_MuonTaggerMLP_h
+#define RecoBTag_SoftLepton_MuonTaggerMLP_h
 
 class MuonTaggerMLP { 
 public:
