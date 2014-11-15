@@ -1,5 +1,5 @@
-#ifndef SUSY_HLT_Muon_Hadronic_H
-#define SUSY_HLT_Muon_Hadronic_H
+#ifndef SUSY_HLT_DiJet_MET_H
+#define SUSY_HLT_DiJet_MET_H
 
 //event
 #include "FWCore/Framework/interface/Event.h"
@@ -36,11 +36,11 @@
 
 
 
-class SUSY_HLT_Muon_Hadronic: public DQMEDAnalyzer{
+class SUSY_HLT_DiJet_MET: public DQMEDAnalyzer{
 
   public:
-  SUSY_HLT_Muon_Hadronic(const edm::ParameterSet& ps);
-  virtual ~SUSY_HLT_Muon_Hadronic();
+  SUSY_HLT_DiJet_MET(const edm::ParameterSet& ps);
+  virtual ~SUSY_HLT_DiJet_MET();
 
   protected:
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
@@ -55,8 +55,8 @@ class SUSY_HLT_Muon_Hadronic: public DQMEDAnalyzer{
   void bookHistos(DQMStore::IBooker &);
   
   //variables from config file
-  edm::EDGetTokenT<reco::MuonCollection> theMuonCollection_;
   edm::EDGetTokenT<reco::PFMETCollection> thePfMETCollection_;
+  edm::EDGetTokenT<reco::CaloMETCollection> theCaloMETCollection_;
   edm::EDGetTokenT<reco::PFJetCollection> thePfJetCollection_;
   edm::EDGetTokenT<reco::CaloJetCollection> theCaloJetCollection_;
   edm::EDGetTokenT<edm::TriggerResults> triggerResults_;
@@ -67,32 +67,32 @@ class SUSY_HLT_Muon_Hadronic: public DQMEDAnalyzer{
 
   std::string HLTProcess_;
   std::string triggerPath_;
-  std::string triggerPathAuxiliaryForMuon_;
   std::string triggerPathAuxiliaryForHadronic_;
   edm::InputTag triggerFilter_;
-  double ptMuonOffline_;
-  double etaMuonOffline_;
-  double HTOffline_;
-  double METOffline_;
+  edm::InputTag triggerJetFilter_;
+  double ptThrJetTrig_;
+  double etaThrJetTrig_;
   double ptThrJet_;
   double etaThrJet_;
- 
+  double metCut_;
+  
   // Histograms
-  MonitorElement* h_triggerMuPt;
-  MonitorElement* h_triggerMuEta;
-  MonitorElement* h_triggerMuPhi;
+  MonitorElement* h_pfMetPhi;
+  MonitorElement* h_pfJetPt;
+  MonitorElement* h_pfJetEta;
+  MonitorElement* h_pfJetPhi;
+  MonitorElement* h_pfJet1Jet2DPhi;
+  MonitorElement* h_caloMetvsPFMet;
+  MonitorElement* h_triggerMet;
+  MonitorElement* h_triggerMetPhi;
+  MonitorElement* h_triggerJetPt;
+  MonitorElement* h_triggerJetEta;
+  MonitorElement* h_triggerJetPhi;
   MonitorElement* h_pfMetTurnOn_num;
   MonitorElement* h_pfMetTurnOn_den;
-  MonitorElement* h_pfHTTurnOn_num;
-  MonitorElement* h_pfHTTurnOn_den;
-  MonitorElement* h_MuTurnOn_num;
-  MonitorElement* h_MuTurnOn_den;
+  MonitorElement* h_pfJet2PtTurnOn_num;
+  MonitorElement* h_pfJet2PtTurnOn_den;
 
 };
-
-
-struct Lepton {
-  float pt, phi, eta;
-};  
 
 #endif
