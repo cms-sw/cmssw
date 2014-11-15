@@ -212,6 +212,10 @@ def customise_csc_LocalReco(process):
     process.csc2DRecHits.readBadChannels = cms.bool(False)
     process.csc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
 
+    # Switch input for CSCRecHitD to  s i m u l a t e d (and Mixed!)  digis
+    process.csc2DRecHits.wireDigiTag  = cms.InputTag("mixData", "MuonCSCWireDigisDM")
+    process.csc2DRecHits.stripDigiTag = cms.InputTag("mixData", "MuonCSCStripDigisDM")
+
     return process
 
 
@@ -279,8 +283,14 @@ def customise_csc_hlt(process):
     process.CSCGeometryESModule.useGangedStripsInME1a = False
     
     process.hltCsc2DRecHits.readBadChannels = cms.bool(False)
+
     process.hltCsc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
     
     process = customise_csc_Indexing(process)
+    
+    # Switch input for CSCRecHitD to  s i m u l a t e d (and Mixed!) digis
+    
+    process.hltCsc2DRecHits.wireDigiTag  = cms.InputTag("mixData","MuonCSCWireDigisDM")
+    process.hltCsc2DRecHits.stripDigiTag = cms.InputTag("mixData","MuonCSCStripDigisDM")
     
     return process
