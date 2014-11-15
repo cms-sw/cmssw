@@ -37,9 +37,9 @@ reconstruction Geometry should notice that and not pass to GeometryAligner.
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
-#include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorRcd.h"
-#include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
+#include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorExtendedRcd.h"
+#include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerSurfaceDeformationRcd.h"
 
@@ -52,7 +52,7 @@ public:
   std::auto_ptr<Alignments> produceTkAli(const TrackerAlignmentRcd&) {
     return std::auto_ptr<Alignments>(new Alignments);
   }
-  std::auto_ptr<AlignmentErrorsExtended> produceTkAliErr(const TrackerAlignmentErrorRcd&) { 
+  std::auto_ptr<AlignmentErrorsExtended> produceTkAliErr(const TrackerAlignmentErrorExtendedRcd&) { 
     return std::auto_ptr<AlignmentErrorsExtended>(new AlignmentErrorsExtended);
   }
 
@@ -60,7 +60,7 @@ public:
   std::auto_ptr<Alignments> produceDTAli(const DTAlignmentRcd&) {
     return std::auto_ptr<Alignments>(new Alignments);
   }
-  std::auto_ptr<AlignmentErrorsExtended> produceDTAliErr(const DTAlignmentErrorRcd&) {
+  std::auto_ptr<AlignmentErrorsExtended> produceDTAliErr(const DTAlignmentErrorExtendedRcd&) {
     return std::auto_ptr<AlignmentErrorsExtended>(new AlignmentErrorsExtended);
   }
 
@@ -68,7 +68,7 @@ public:
   std::auto_ptr<Alignments> produceCSCAli(const CSCAlignmentRcd&) {
     return std::auto_ptr<Alignments>(new Alignments);
   }
-  std::auto_ptr<AlignmentErrorsExtended> produceCSCAliErr(const CSCAlignmentErrorRcd&) {
+  std::auto_ptr<AlignmentErrorsExtended> produceCSCAliErr(const CSCAlignmentErrorExtendedRcd&) {
     return std::auto_ptr<AlignmentErrorsExtended>(new AlignmentErrorsExtended);
   }
 
@@ -139,15 +139,15 @@ FakeAlignmentSource::FakeAlignmentSource(const edm::ParameterSet& iConfig)
   // Tell framework to provide IOV for the above data:
   if (produceTracker_) {
     this->findingRecord<TrackerAlignmentRcd>();
-    this->findingRecord<TrackerAlignmentErrorRcd>();
+    this->findingRecord<TrackerAlignmentErrorExtendedRcd>();
   }
   if (produceDT_) {
     this->findingRecord<DTAlignmentRcd>();
-    this->findingRecord<DTAlignmentErrorRcd>();
+    this->findingRecord<DTAlignmentErrorExtendedRcd>();
   }
   if (produceCSC_) {
     this->findingRecord<CSCAlignmentRcd>();
-    this->findingRecord<CSCAlignmentErrorRcd>();
+    this->findingRecord<CSCAlignmentErrorExtendedRcd>();
   }
   if (produceGlobalPosition_) {
     this->findingRecord<GlobalPositionRcd>();

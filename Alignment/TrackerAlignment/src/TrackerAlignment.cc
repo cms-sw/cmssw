@@ -18,7 +18,7 @@
 //
 TrackerAlignment::TrackerAlignment( const edm::EventSetup& setup ):
   theAlignRecordName( "TrackerAlignmentRcd" ),
-  theErrorRecordName( "TrackerAlignmentErrorRcd" )
+  theErrorRecordName( "TrackerAlignmentErrorExtendedRcd" )
 {
 
   //Retrieve tracker topology from geometry

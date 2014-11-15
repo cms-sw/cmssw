@@ -24,7 +24,7 @@
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
 
 //
 //
@@ -57,7 +57,7 @@ TestTrackerReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
   edm::ESHandle<Alignments> alignments;
   iSetup.get<TrackerAlignmentRcd>().get( alignments );
   edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
-  iSetup.get<TrackerAlignmentErrorRcd>().get( alignmentErrors );
+  iSetup.get<TrackerAlignmentErrorExtendedRcd>().get( alignmentErrors );
 
   edm::LogVerbatim("DumpAlignments")  << "\n----------------------\n";
   for ( std::vector<AlignTransform>::const_iterator it = alignments->m_align.begin();

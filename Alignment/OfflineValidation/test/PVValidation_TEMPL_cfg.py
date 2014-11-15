@@ -79,7 +79,7 @@ process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource", "trackerAlig
 process.setAPE = cms.ESSource("PoolDBESSource",CondDBSetup,
                                         connect = cms.string('APEOBJTEMPLATE'),
                                         timetype = cms.string("runnumber"),
-                                        toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentErrorRcd'),
+                                        toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentErrorExtendedRcd'),
                                                                    tag = cms.string('ERRORTAGTEMPLATE')
                                                                    ))
                                         )

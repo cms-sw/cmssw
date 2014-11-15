@@ -10,7 +10,7 @@ PoolDBESSource = cms.ESSource("PoolDBESSource",
         tag = cms.string('TibTidTecAllSurvey_v2')
     ), 
         cms.PSet(
-            record = cms.string('TrackerAlignmentErrorRcd'),
+            record = cms.string('TrackerAlignmentErrorExtendedRcd'),
             tag = cms.string('TibTidTecAllSurveyAPE_v2')
         ))
 )

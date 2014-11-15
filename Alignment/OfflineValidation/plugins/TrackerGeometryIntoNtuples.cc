@@ -43,7 +43,7 @@
 
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerSurfaceDeformationRcd.h" 
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -180,7 +180,7 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
 	edm::ESHandle<AlignmentSurfaceDeformations> surfaceDeformations;
 	
 	iSetup.get<TrackerAlignmentRcd>().get(alignments);
-	iSetup.get<TrackerAlignmentErrorRcd>().get(alignmentErrors);
+	iSetup.get<TrackerAlignmentErrorExtendedRcd>().get(alignmentErrors);
 	iSetup.get<TrackerSurfaceDeformationRcd>().get(surfaceDeformations);
 	
 	//apply the latest alignments

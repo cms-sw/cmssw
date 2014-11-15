@@ -30,7 +30,7 @@
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -150,7 +150,7 @@ TestIdealGeometry2::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
   edm::ESHandle<Alignments> alignments;
   iSetup.get<TrackerAlignmentRcd>().get( alignments );
   edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
-  iSetup.get<TrackerAlignmentErrorRcd>().get( alignmentErrors );
+  iSetup.get<TrackerAlignmentErrorExtendedRcd>().get( alignmentErrors );
   int countDet = 0;
 
   // Now loop on detector units, and store difference position and orientation w.r.t. survey

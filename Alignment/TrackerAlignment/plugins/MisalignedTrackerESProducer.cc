@@ -70,7 +70,7 @@ MisalignedTrackerESProducer::MisalignedTrackerESProducer(const edm::ParameterSet
   theScenario(p.getParameter<edm::ParameterSet>("scenario")),
   thePSet(p),
   theAlignRecordName("TrackerAlignmentRcd"),
-  theErrorRecordName("TrackerAlignmentErrorRcd")
+  theErrorRecordName("TrackerAlignmentErrorExtendedRcd")
 {
   setWhatProduced(this);
 

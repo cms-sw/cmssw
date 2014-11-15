@@ -31,13 +31,13 @@
 void MuonAlignment::init()
 {
    theDTAlignRecordName = "DTAlignmentRcd";
-   theDTErrorRecordName = "DTAlignmentErrorRcd";
+   theDTErrorRecordName = "DTAlignmentErrorExtendedRcd";
    theCSCAlignRecordName = "CSCAlignmentRcd";
-   theCSCErrorRecordName = "CSCAlignmentErrorRcd";
+   theCSCErrorRecordName = "CSCAlignmentErrorExtendedRcd";
    theDTSurveyRecordName = "DTSurveyRcd";
-   theDTSurveyErrorRecordName = "DTSurveyErrorRcd";
+   theDTSurveyErrorRecordName = "DTSurveyErrorExtendedRcd";
    theCSCSurveyRecordName = "CSCSurveyRcd";
-   theCSCSurveyErrorRecordName = "CSCSurveyErrorRcd";
+   theCSCSurveyErrorRecordName = "CSCSurveyErrorExtendedRcd";
    theAlignableMuon = NULL;
    theAlignableNavigator = NULL;
 }

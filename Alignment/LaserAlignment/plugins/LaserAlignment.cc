@@ -38,7 +38,7 @@ LaserAlignment::LaserAlignment( edm::ParameterSet const& theConf ) :
   theFile(),
   theAlignableTracker(),
   theAlignRecordName( "TrackerAlignmentRcd" ),
-  theErrorRecordName( "TrackerAlignmentErrorRcd" ),
+  theErrorRecordName( "TrackerAlignmentErrorExtendedRcd" ),
   firstEvent_(true),
   theParameterSet( theConf )
 {

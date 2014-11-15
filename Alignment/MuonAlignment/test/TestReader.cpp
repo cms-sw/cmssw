@@ -27,8 +27,8 @@
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
 #include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CondFormats/Alignment/interface/AlignTransformErrorExtended.h"
-#include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorRcd.h"
-#include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorExtendedRcd.h"
+#include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorExtendedRcd.h"
 
 #include "Geometry/Records/interface/MuonNumberingRecord.h"
 #include "Geometry/DTGeometryBuilder/src/DTGeometryBuilderFromDDD.h"
@@ -144,7 +144,7 @@ TestMuonReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
   edm::ESHandle<Alignments> dtAlignments;
   iSetup.get<DTAlignmentRcd>().get( dtAlignments );
   edm::ESHandle<AlignmentErrorsExtended> dtAlignmentErrorsExtended;
-  iSetup.get<DTAlignmentErrorRcd>().get( dtAlignmentErrorsExtended );
+  iSetup.get<DTAlignmentErrorExtendedRcd>().get( dtAlignmentErrorsExtended );
 
   for ( std::vector<AlignTransform>::const_iterator it = dtAlignments->m_align.begin();
 		it != dtAlignments->m_align.end(); it++ )
@@ -183,7 +183,7 @@ TestMuonReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
   edm::ESHandle<Alignments> cscAlignments;
   iSetup.get<CSCAlignmentRcd>().get( cscAlignments );
   //edm::ESHandle<AlignmentErrorsExtended> cscAlignmentErrorsExtended;
-  //iSetup.get<CSCAlignmentErrorRcd>().get( cscAlignmentErrorsExtended );
+  //iSetup.get<CSCAlignmentErrorExtendedRcd>().get( cscAlignmentErrorsExtended );
 
   //std::vector<Alignable*>::const_iterator csc_ideal = ideal_endcaps.begin();
   std::cout<<std::setprecision(3)<<std::fixed;

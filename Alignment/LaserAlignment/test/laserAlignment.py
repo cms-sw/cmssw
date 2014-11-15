@@ -45,7 +45,7 @@ process.trackerAlignment = cms.ESSource( "PoolDBESSource",
       tag = cms.string( 'Alignments' )
     ), 
     cms.PSet(
-      record = cms.string( 'TrackerAlignmentErrorRcd' ),
+      record = cms.string( 'TrackerAlignmentErrorExtendedRcd' ),
       tag = cms.string( 'AlignmentErrorsExtended' )
     )
   ),
@@ -72,7 +72,7 @@ process.PoolDBOutputService = cms.Service( "PoolDBOutputService",
       tag = cms.string( 'Alignments' )
     ), 
     cms.PSet(
-      record = cms.string( 'TrackerAlignmentErrorRcd' ),
+      record = cms.string( 'TrackerAlignmentErrorExtendedRcd' ),
       tag = cms.string( 'AlignmentErrorsExtended' )
     )
   )

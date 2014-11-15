@@ -17,7 +17,7 @@
 #include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorExtendedRcd.h"
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
 
 #include <FWCore/Framework/interface/ESHandle.h>
@@ -66,7 +66,7 @@ DTGeometryESModule::produce(const MuonGeometryRecord & record) {
     edm::ESHandle<Alignments> alignments;
     record.getRecord<DTAlignmentRcd>().get(alignmentsLabel_, alignments);
     edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
-    record.getRecord<DTAlignmentErrorRcd>().get(alignmentsLabel_, alignmentErrors);
+    record.getRecord<DTAlignmentErrorExtendedRcd>().get(alignmentsLabel_, alignmentErrors);
     // Only apply alignment if values exist
     if (alignments->empty() && alignmentErrors->empty() && globalPosition->empty()) {
       edm::LogInfo("Config") << "@SUB=DTGeometryRecord::produce"

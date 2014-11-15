@@ -75,7 +75,7 @@ process.trackerAlignment = cms.ESSource("PoolDBESSource",
                                         connect = cms.string("frontier://FrontierProd/CMS_COND_31X_FROM21X"),
                                         toGet = cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentRcd"),
                                                                    tag = cms.string("TrackerGeometry_v5_offline")), #"Alignments"
-                                                          cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"),
+                                                          cms.PSet(record = cms.string("TrackerAlignmentErrorExtendedRcd"),
                                                                    tag = cms.string("TrackerGeometryErrors_v5_offline")) #"AlignmentErrorsExtended"
                                                           )
                                         )
@@ -327,7 +327,7 @@ process.p = cms.Path(process.offlineBeamSpot
 #      tag = cms.string('testTag')
 #    )#,
 #    #                  cms.PSet(
-#    #  record = cms.string('TrackerAlignmentErrorRcd'),
+#    #  record = cms.string('TrackerAlignmentErrorExtendedRcd'),
 #    #  tag = cms.string('testTagAPE') # needed is saveApeToDB = True
 #    #)
 #                      )

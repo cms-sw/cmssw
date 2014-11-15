@@ -12,7 +12,7 @@
 #include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerSurfaceDeformationRcd.h"
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
 
@@ -119,7 +119,7 @@ TrackerDigiGeometryESModule::produce(const TrackerDigiGeometryRecord & iRecord)
     edm::ESHandle<Alignments> alignments;
     iRecord.getRecord<TrackerAlignmentRcd>().get(alignmentsLabel_, alignments);
     edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
-    iRecord.getRecord<TrackerAlignmentErrorRcd>().get(alignmentsLabel_, alignmentErrors);
+    iRecord.getRecord<TrackerAlignmentErrorExtendedRcd>().get(alignmentsLabel_, alignmentErrors);
     // apply if not empty:
     if (alignments->empty() && alignmentErrors->empty() && globalPosition->empty()) {
       edm::LogInfo("Config") << "@SUB=TrackerDigiGeometryRecord::produce"

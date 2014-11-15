@@ -17,9 +17,9 @@
 // user include files
 #include "Alignment/MuonAlignment/interface/MuonAlignmentInputDB.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorExtendedRcd.h"
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
 #include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -79,8 +79,8 @@ AlignableMuon *MuonAlignmentInputDB::newAlignableMuon(const edm::EventSetup& iSe
    iSetup.get<GlobalPositionRcd>().get(globalPositionRcd);
 
    if (m_getAPEs) {
-      iSetup.get<DTAlignmentErrorRcd>().get(m_dtLabel, dtAlignmentErrorsExtended);
-      iSetup.get<CSCAlignmentErrorRcd>().get(m_cscLabel, cscAlignmentErrorsExtended);
+      iSetup.get<DTAlignmentErrorExtendedRcd>().get(m_dtLabel, dtAlignmentErrorsExtended);
+      iSetup.get<CSCAlignmentErrorExtendedRcd>().get(m_cscLabel, cscAlignmentErrorsExtended);
 
       GeometryAligner aligner;
       aligner.applyAlignments<DTGeometry>(&(*dtGeometry), &(*dtAlignments), &(*dtAlignmentErrorsExtended),

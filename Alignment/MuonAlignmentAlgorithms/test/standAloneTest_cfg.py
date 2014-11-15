@@ -56,8 +56,8 @@ process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.MuonAlignmentErrorsExtended = cms.ESSource("PoolDBESSource",
                                      process.CondDBSetup,
                                      connect = cms.string("sqlite_file:APE1000cm.db"),
-                                     toGet = cms.VPSet(cms.PSet(record = cms.string("DTAlignmentErrorRcd"), tag = cms.string("DTAlignmentErrorRcd")),
-                                                       cms.PSet(record = cms.string("CSCAlignmentErrorRcd"), tag = cms.string("CSCAlignmentErrorRcd"))))
+                                     toGet = cms.VPSet(cms.PSet(record = cms.string("DTAlignmentErrorExtendedRcd"), tag = cms.string("DTAlignmentErrorExtendedRcd")),
+                                                       cms.PSet(record = cms.string("CSCAlignmentErrorExtendedRcd"), tag = cms.string("CSCAlignmentErrorExtendedRcd"))))
 process.es_prefer_MuonAlignmentErrorsExtended = cms.ESPrefer("PoolDBESSource", "MuonAlignmentErrorsExtended")
 
 process.TFileService = cms.Service("TFileService", fileName = cms.string("standAloneTest.root"))

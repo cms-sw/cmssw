@@ -40,18 +40,18 @@
 #include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilderFromDDD.h"
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerSurfaceDeformationRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerSurveyRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerSurveyErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerSurveyErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTSurveyRcd.h"
-#include "CondFormats/AlignmentRecord/interface/DTSurveyErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/DTSurveyErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCSurveyRcd.h"
-#include "CondFormats/AlignmentRecord/interface/CSCSurveyErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/CSCSurveyErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
 
@@ -214,17 +214,17 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
     globalPositions_ = new Alignments(*globalPositionRcd);
 
     if ( doTracker_ ) {     // apply to tracker
-      this->applyDB<TrackerGeometry,TrackerAlignmentRcd,TrackerAlignmentErrorRcd>
+      this->applyDB<TrackerGeometry,TrackerAlignmentRcd,TrackerAlignmentErrorExtendedRcd>
 	(&(*theTracker), iSetup,  
 	 align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Tracker)));
       this->applyDB<TrackerGeometry,TrackerSurfaceDeformationRcd>(&(*theTracker), iSetup);
     }
     
     if ( doMuon_ ) { // apply to tracker
-      this->applyDB<DTGeometry,DTAlignmentRcd,DTAlignmentErrorRcd>
+      this->applyDB<DTGeometry,DTAlignmentRcd,DTAlignmentErrorExtendedRcd>
 	(&(*theMuonDT), iSetup,
 	 align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Muon)));
-      this->applyDB<CSCGeometry,CSCAlignmentRcd,CSCAlignmentErrorRcd>
+      this->applyDB<CSCGeometry,CSCAlignmentRcd,CSCAlignmentErrorExtendedRcd>
 	(&(*theMuonCSC), iSetup,
 	 align::DetectorGlobalPosition(*globalPositions_, DetId(DetId::Muon)));
     }
@@ -710,7 +710,7 @@ void AlignmentProducer::readInSurveyRcds( const edm::EventSetup& iSetup ){
       edm::ESHandle<SurveyErrors> surveyErrors;
       
       iSetup.get<TrackerSurveyRcd>().get(surveys);
-      iSetup.get<TrackerSurveyErrorRcd>().get(surveyErrors);
+      iSetup.get<TrackerSurveyErrorExtendedRcd>().get(surveyErrors);
       
       theSurveyIndex  = 0;
       theSurveyValues = &*surveys;
@@ -732,9 +732,9 @@ void AlignmentProducer::readInSurveyRcds( const edm::EventSetup& iSetup ){
       edm::ESHandle<SurveyErrors> cscSurveyErrors;
       
       iSetup.get<DTSurveyRcd>().get(dtSurveys);
-      iSetup.get<DTSurveyErrorRcd>().get(dtSurveyErrors);
+      iSetup.get<DTSurveyErrorExtendedRcd>().get(dtSurveyErrors);
       iSetup.get<CSCSurveyRcd>().get(cscSurveys);
-      iSetup.get<CSCSurveyErrorRcd>().get(cscSurveyErrors);
+      iSetup.get<CSCSurveyErrorExtendedRcd>().get(cscSurveyErrors);
       
       theSurveyIndex  = 0;
       theSurveyValues = &*dtSurveys;
@@ -843,7 +843,7 @@ void AlignmentProducer::writeForRunRange(cond::Time_t time)
     Alignments *alignments = theAlignableTracker->alignments();
     AlignmentErrorsExtended *alignmentErrors = theAlignableTracker->alignmentErrors();
     this->writeDB(alignments, "TrackerAlignmentRcd",
-		  alignmentErrors, "TrackerAlignmentErrorRcd", trackerGlobal,
+		  alignmentErrors, "TrackerAlignmentErrorExtendedRcd", trackerGlobal,
 		  time);	
   }
       
@@ -857,14 +857,14 @@ void AlignmentProducer::writeForRunRange(cond::Time_t time)
     Alignments      *alignments       = theAlignableMuon->dtAlignments();
     AlignmentErrorsExtended *alignmentErrors  = theAlignableMuon->dtAlignmentErrorsExtended();
     this->writeDB(alignments, "DTAlignmentRcd",
-		  alignmentErrors, "DTAlignmentErrorRcd", muonGlobal,
+		  alignmentErrors, "DTAlignmentErrorExtendedRcd", muonGlobal,
 		  time);
     
     // Get alignments+errors, now CSC - ownership taken over by writeDB(..), so no delete
     alignments       = theAlignableMuon->cscAlignments();
     alignmentErrors  = theAlignableMuon->cscAlignmentErrorsExtended();
     this->writeDB(alignments, "CSCAlignmentRcd",
-		  alignmentErrors, "CSCAlignmentErrorRcd", muonGlobal,
+		  alignmentErrors, "CSCAlignmentErrorExtendedRcd", muonGlobal,
 		  time);
   }
       

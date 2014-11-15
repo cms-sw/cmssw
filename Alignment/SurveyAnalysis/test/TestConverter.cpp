@@ -32,7 +32,7 @@
 #include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CLHEP/Vector/RotationInterfaces.h" 
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -155,7 +155,7 @@ TestConverter::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
   edm::ESHandle<Alignments> alignments;
   iSetup.get<TrackerAlignmentRcd>().get( alignments );
   edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
-  iSetup.get<TrackerAlignmentErrorRcd>().get( alignmentErrors );
+  iSetup.get<TrackerAlignmentErrorExtendedRcd>().get( alignmentErrors );
   
   std::vector<AlignTransformErrorExtended> alignErrors = alignmentErrors->m_alignError;
   // int countDet = 0;

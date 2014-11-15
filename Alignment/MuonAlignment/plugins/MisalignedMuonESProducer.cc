@@ -83,9 +83,9 @@ MisalignedMuonESProducer::MisalignedMuonESProducer(const edm::ParameterSet& p) :
   theSaveToDB(p.getUntrackedParameter<bool>("saveToDbase")),
   theScenario(p.getParameter<edm::ParameterSet>("scenario")),
   theDTAlignRecordName( "DTAlignmentRcd" ),
-  theDTErrorRecordName( "DTAlignmentErrorRcd" ),
+  theDTErrorRecordName( "DTAlignmentErrorExtendedRcd" ),
   theCSCAlignRecordName( "CSCAlignmentRcd" ),
-  theCSCErrorRecordName( "CSCAlignmentErrorRcd" )
+  theCSCErrorRecordName( "CSCAlignmentErrorExtendedRcd" )
 {
   
   setWhatProduced(this);

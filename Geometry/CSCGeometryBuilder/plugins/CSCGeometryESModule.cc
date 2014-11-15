@@ -21,7 +21,7 @@
 #include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorExtendedRcd.h"
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -103,13 +103,13 @@ boost::shared_ptr<CSCGeometry> CSCGeometryESModule::produce(const MuonGeometryRe
     record.getRecord<CSCAlignmentRcd>().get(alignmentsLabel_, alignments);
     edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
 // <<<<<<< CSCGeometryESModule.cc
-//     record.getRecord<CSCAlignmentErrorRcd>().get( alignmentErrors );
+//     record.getRecord<CSCAlignmentErrorExtendedRcd>().get( alignmentErrors );
 //     GeometryAligner aligner;
 //     aligner.applyAlignments<CSCGeometry>( &(*_cscGeometry),
 // 					  &(*alignments), &(*alignmentErrors),
 // 	 align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)));
 // =======
-    record.getRecord<CSCAlignmentErrorRcd>().get(alignmentsLabel_,  alignmentErrors);
+    record.getRecord<CSCAlignmentErrorExtendedRcd>().get(alignmentsLabel_,  alignmentErrors);
     // Only apply alignment if values exist
     if (alignments->empty() && alignmentErrors->empty() && globalPosition->empty()) {
       edm::LogInfo("Config") << "@SUB=CSCGeometryRecord::produce"

@@ -28,7 +28,7 @@
 
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 #include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
 #include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -55,7 +55,7 @@ private:
 };
 
 ApeAdder::ApeAdder( const edm::ParameterSet& iConfig )  :
-  theErrorRecordName( "TrackerAlignmentErrorRcd" )
+  theErrorRecordName( "TrackerAlignmentErrorExtendedRcd" )
 { 
 
   // The APE to set to all GeomDets

@@ -10,7 +10,7 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 
@@ -58,7 +58,7 @@ void SurveyInputTrackerFromDB::analyze(const edm::Event&, const edm::EventSetup&
 		throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
 	
 	poolDbService->writeOne<Alignments>( myAlignments, poolDbService->beginOfTime(), "TrackerAlignmentRcd" );
-	poolDbService->writeOne<AlignmentErrorsExtended>( myAlignmentErrorsExtended, poolDbService->beginOfTime(), "TrackerAlignmentErrorRcd" );
+	poolDbService->writeOne<AlignmentErrorsExtended>( myAlignmentErrorsExtended, poolDbService->beginOfTime(), "TrackerAlignmentErrorExtendedRcd" );
 	
 	theFirstEvent = false;
   }
