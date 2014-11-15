@@ -210,6 +210,6 @@ private:
    edm::EDGetTokenT<DTRecSegment4DCollection> dtSegmentToken_;
    edm::EDGetTokenT<CSCSegmentCollection> cscSegmentToken_;
    void calculateMuonHitEtaRanges(const edm::EventSetup& eventSetup);
-   std::vector<std::pair<double, double> > muonEtaRanges_;
+   std::vector<double> muonHitsEta_;
 };
 #endif
