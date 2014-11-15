@@ -454,6 +454,12 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 	    {
 	      if( reclusteredIndices.at(i) < 0 ) continue; // continue if matching reclustered to original jets failed
 	
+	      if( fatJetsHandle->at(i).pt() == 0 ) // continue if the original jet has Pt=0
+	      {
+	        edm::LogWarning("NullTransverseMomentum") << "The original fat jet " << i << " has Pt=0. This is not expected so the jet will be skipped.";
+	        continue;
+	      }
+	
 	      if( subjetIndices.at(i).size()==0 ) continue; // continue if the original jet does not have subjets assigned
 		
 	      // since the "ghosts" are extremely soft, the configuration and ordering of the reclustered and original fat jets should in principle stay the same
@@ -518,6 +524,12 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 	    for(size_t i=0; i<trackIPTagInfos->size(); ++i)
 	    {
 	      if( reclusteredIndices.at(i) < 0 ) continue; // continue if matching reclustered to original jets failed
+	
+	      if( trackIPTagInfos->at(i).jet()->pt() == 0 ) // continue if the original jet has Pt=0
+	      {
+	        edm::LogWarning("NullTransverseMomentum") << "The original jet " << i << " has Pt=0. This is not expected so the jet will be skipped.";
+	        continue;
+	      }
 	
 	      // since the "ghosts" are extremely soft, the configuration and ordering of the reclustered and original jets should in principle stay the same
 	      if( ( fabs( inclusiveJets.at(reclusteredIndices.at(i)).pt() - trackIPTagInfos->at(i).jet()->pt() ) / trackIPTagInfos->at(i).jet()->pt() ) > 1e-3 ) // 0.1% difference in Pt should be sufficient to detect possible misconfigurations

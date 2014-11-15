@@ -362,6 +362,24 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        // set an empty JetFlavourInfo for this jet
        (*jetFlavourInfos)[jets->refAt(i)] = reco::JetFlavourInfo(clusteredbHadrons, clusteredcHadrons, clusteredPartons, clusteredLeptons, 0, 0);
      }
+     else if( jets->at(i).pt() == 0 )
+     {
+       edm::LogWarning("NullTransverseMomentum") << "The original jet " << i << " has Pt=0. This is not expected so the jet will be skipped.";
+
+       // set an empty JetFlavourInfo for this jet
+       (*jetFlavourInfos)[jets->refAt(i)] = reco::JetFlavourInfo(clusteredbHadrons, clusteredcHadrons, clusteredPartons, clusteredLeptons, 0, 0);
+
+       // if subjets are used
+       if( useSubjets_ && subjetIndices.at(i).size()>0 )
+       {
+         // loop over subjets
+         for(size_t sj=0; sj<subjetIndices.at(i).size(); ++sj)
+         {
+           // set an empty JetFlavourInfo for this subjet
+           (*subjetFlavourInfos)[subjets->refAt(subjetIndices.at(i).at(sj))] = reco::JetFlavourInfo(reco::GenParticleRefVector(), reco::GenParticleRefVector(), reco::GenParticleRefVector(), reco::GenParticleRefVector(), 0, 0);
+         }
+       }
+     }
      else
      {
        // since the "ghosts" are extremely soft, the configuration and ordering of the reclustered and original jets should in principle stay the same
