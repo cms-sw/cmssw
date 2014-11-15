@@ -494,7 +494,7 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 		std::vector<double> dR2toSubjets;
 		
 		for(size_t sj=0; sj<subjetIndices.at(i).size(); ++sj)
-		  dR2toSubjets.push_back( reco::deltaR2( p.rapidity(), p.phi_std(), trackIPTagInfos->at(subjetIndices.at(i).at(sj)).jet()->rapidity(), trackIPTagInfos->at(subjetIndices.at(i).at(sj)).jet()->phi() ) );
+		  dR2toSubjets.push_back( Geom::deltaR2( p.rapidity(), p.phi_std(), trackIPTagInfos->at(subjetIndices.at(i).at(sj)).jet()->rapidity(), trackIPTagInfos->at(subjetIndices.at(i).at(sj)).jet()->phi() ) );
 
 		// find the closest subjet
 		int closestSubjetIdx = std::distance( dR2toSubjets.begin(), std::min_element(dR2toSubjets.begin(), dR2toSubjets.end()) );
@@ -754,12 +754,8 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 		  if( !useSVClustering ) {
 		      for(size_t iExtSv = 0; iExtSv < extSecVertex->size(); iExtSv++){
 			 const VTX & extVertex = (*extSecVertex)[iExtSv];
-// 			 GlobalVector vtxDir = GlobalVector(extVertex.p4().X(),extVertex.p4().Y(),extVertex.p4().Z());
-// 			 if(Geom::deltaR(extVertex.position() - pv.position(), vtxDir)>0.2) continue; //pointing angle
-// 			 std::cout << " dR " << iExtSv << " " << Geom::deltaR( ( extVertex.position() - pv.position() ), jetDir ) << "eta: " << ( extVertex.position() - pv.position()).eta() << " vs " << jetDir.eta() << " phi: "  << ( extVertex.position() - pv.position()).phi() << " vs  " << jetDir.phi() <<  std::endl; 
-			 if( Geom::deltaR( ( position(extVertex) - pv.position() ), jetDir ) >  extSVDeltaRToJet || extVertex.p4().M() < 0.3 )
+			 if( Geom::deltaR2( ( position(extVertex) - pv.position() ), jetDir ) > extSVDeltaRToJet*extSVDeltaRToJet || extVertex.p4().M() < 0.3 )
 			   continue;
-// 			 std::cout << " SV added " << iExtSv << std::endl; 
 			 extAssoCollection.push_back( extVertex );
 		      }
 
@@ -781,7 +777,6 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 				    std::back_inserter(SVs),
 				    SVFilter(vertexFilter, pv, jetDir));
                 }
-//		std::cout << "size: " << SVs.size() << std::endl;
 		// clean up now unneeded collections
 		gtPred.reset();
 		ghostTrack.reset();
