@@ -9,7 +9,7 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetInitialPD_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetInitialPD_selector.l1tResults = cms.InputTag('')
 streamA_datasetInitialPD_selector.throw      = cms.bool(False)
-streamA_datasetInitialPD_selector.triggerConditions = cms.vstring('HLT_AK8DiPFJet280_200_TrimMass30_BTagCSV0p3_v1', 
+streamA_datasetInitialPD_selector.triggerConditions = cms.vstring( ('HLT_AK8DiPFJet280_200_TrimMass30_BTagCSV0p3_v1', 
     'HLT_AK8PFHT850_TrimR0p1PT0p03Mass50_v1', 
     'HLT_AK8PFJet360TrimMod_Mass30_v1', 
     'HLT_BTagMu_DiJet110_Mu5_v1', 
@@ -42,6 +42,7 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring('HLT_AK8DiPFJe
     'HLT_DoubleEle24_22_eta2p1_WP85_Gsf_v1', 
     'HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_MW_v1', 
     'HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v1', 
+    'HLT_DoubleEle8_CaloIdL_TrkIdVL_Mass8_PFHT300_v1', 
     'HLT_DoubleIsoMu17_eta2p1_v1', 
     'HLT_DoubleJet90_Double30_DoubleCSV0p5_v1', 
     'HLT_DoubleJet90_Double30_TripleCSV0p5_v1', 
@@ -55,7 +56,9 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring('HLT_AK8DiPFJe
     'HLT_DoubleMu4_JpsiTrk_Displaced_v1', 
     'HLT_DoubleMu4_LowMassNonResonantTrk_Displaced_v1', 
     'HLT_DoubleMu4_PsiPrimeTrk_Displaced_v1', 
+    'HLT_DoubleMu8_Mass8_PFHT300_v1', 
     'HLT_DoublePhoton85_v1', 
+    'HLT_Ele10_CaloId_TrackIdVL_CentralPFJet40_BTagCSV_v1', 
     'HLT_Ele12_CaloIdL_TrackIdL_IsoVL_v1', 
     'HLT_Ele12_CaloId_TrackId_Iso_PFJet30_v1', 
     'HLT_Ele15_IsoVVVL_BTagtop8CSV07_PFHT400_v1', 
@@ -74,6 +77,7 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring('HLT_AK8DiPFJe
     'HLT_Ele25WP60_SC4_Mass55_v1', 
     'HLT_Ele25_eta2p1_WP85_Gsf_PFMET80_boostedW_v1', 
     'HLT_Ele27_eta2p1_WP85_Gsf_CentralPFJet30_BTagCSV_v1', 
+    'HLT_Ele27_eta2p1_WP85_Gsf_HT200_v1', 
     'HLT_Ele27_eta2p1_WP85_Gsf_TriCentralPFJet40_v1', 
     'HLT_Ele27_eta2p1_WP85_Gsf_TriCentralPFJet60_50_35_v1', 
     'HLT_Ele27_eta2p1_WP85_Gsf_v1', 
@@ -139,6 +143,7 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring('HLT_AK8DiPFJe
     'HLT_MonoCentralPFJet140_PFMETNoMu100_PFMHTNoMu140_NoiseCleaned_v1', 
     'HLT_MonoCentralPFJet140_PFMETNoMu140_PFMHTNoMu140_NoiseCleaned_v1', 
     'HLT_MonoCentralPFJet150_PFMETNoMu150_PFMHTNoMu150_NoiseCleaned_v1', 
+    'HLT_Mu10_CentralPFJet40_BTagCSV_v1', 
     'HLT_Mu12_Photon25_CaloIdL_L1ISO_v1', 
     'HLT_Mu12_Photon25_CaloIdL_L1OR_v1', 
     'HLT_Mu14er_PFMET120_NoiseCleaned_v1', 
@@ -182,6 +187,7 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring('HLT_AK8DiPFJe
     'HLT_Mu7p5_Track7_Jpsi_v1', 
     'HLT_Mu7p5_Track7_Upsilon_v1', 
     'HLT_Mu8_DiEle12_CaloIdL_TrackIdL_v1', 
+    'HLT_Mu8_Ele8_CaloIdL_TrkIdVL_Mass8_PFHT300_v1', 
     'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v1', 
     'HLT_Mu8_TrkIsoVVL_v1', 
     'HLT_PFHT350_PFMET120_NoiseCleaned_v1', 
@@ -262,7 +268,7 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring('HLT_AK8DiPFJe
     'HLT_TkMu24_eta2p1_v1', 
     'HLT_TkMu27_v1', 
     'HLT_TripleMu_12_10_5_v1', 
-    'HLT_ZeroBias_v1')
+    'HLT_ZeroBias_v1' ) )
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTemplates_selector
 streamA_datasetTemplates_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
