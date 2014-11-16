@@ -7,55 +7,41 @@
  *
  */
 
-#include "HLTrigger/HLTanalyzers/interface/HLTGetRaw.h"
-
-#include "DataFormats/Common/interface/Handle.h"
-
-// system include files
-#include <memory>
-#include <vector>
-#include <map>
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
-
-// using namespace edm;
-// using namespace std;
+#include "DataFormats/Common/interface/Handle.h"
+#include "HLTrigger/HLTanalyzers/interface/HLTGetRaw.h"
 
 //
 // constructors and destructor
 //
-HLTGetRaw::HLTGetRaw(const edm::ParameterSet& ps)
+HLTGetRaw::HLTGetRaw(const edm::ParameterSet& ps) :
+  rawDataCollection_( ps.getParameter<edm::InputTag>("RawDataCollection") ),
+  rawDataToken_(      consumes<FEDRawDataCollection>(rawDataCollection_) )
 {
-  RawDataCollection_ = ps.getParameter<edm::InputTag>("RawDataCollection");
-  RawDataToken_ = consumes<FEDRawDataCollection>(RawDataCollection_);
 }
 
 HLTGetRaw::~HLTGetRaw()
-{ }
+{
+}
 
 void
 HLTGetRaw::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("RawDataCollection",edm::InputTag("rawDataCollector"));
-  descriptions.add("hltgetRaw",desc);
+  desc.add<edm::InputTag>("RawDataCollection", edm::InputTag("rawDataCollector"));
+  descriptions.add("hltGetRaw", desc);
 }
 
 //
 // member functions
 //
 
-// ------------ method called to produce the data  ------------
+// ------------ method called to analyze the data  ------------
 void
-HLTGetRaw::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+HLTGetRaw::analyze(edm::StreamID sid, edm::Event const & event, edm::EventSetup const & setup) const
 {
-//    using namespace edm;
+  edm::Handle<FEDRawDataCollection> rawDataHandle ;
+  event.getByToken(rawDataToken_, rawDataHandle );
 
-    edm::Handle<FEDRawDataCollection> RawDataHandle ; 
-    iEvent.getByToken(RawDataToken_, RawDataHandle );
-
-    LogDebug("DigiInfo") << "Loaded Raw Data Collection: " << RawDataCollection_ ; 
-
-    
+  LogDebug("DigiInfo") << "Loaded Raw Data Collection: " << rawDataCollection_;
 }

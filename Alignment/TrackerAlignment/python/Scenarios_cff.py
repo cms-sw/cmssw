@@ -1906,3 +1906,133 @@ TrackerCRAFTScenario = copy.deepcopy(Tracker10pbScenario)
 TrackerCRAFTScenario.TIBHalfBarrels = copy.deepcopy(Tracker100pbScenario.TIBHalfBarrels)
 TrackerCRAFTScenario.TOBHalfBarrels = copy.deepcopy(Tracker100pbScenario.TOBHalfBarrels)
 TrackerCRAFTScenario.TPEEndcaps = copy.deepcopy(TrackerSurveyLASOnlyScenario.TPEEndcaps)
+
+# -----------------------------------------------------------------------
+# CSA14 scenario
+# See https://twiki.cern.ch/twiki/bin/viewauth/CMS/TkAl1402 for a
+# justification of these values. This scenario has to be applied on top
+# of an existing MC object, not on top of IDEAL.
+# This scenario has been used to produce the CSA14 50ns scenario
+#
+TrackerCSA14Scenario = cms.PSet(
+    MisalignmentScenarioSettings,
+    TPBBarrels = cms.PSet(distribution = cms.string('gaussian'), scale = cms.double(1.0), scaleError = cms.double(1.0),
+	TPBHalfBarrels = cms.PSet( distribution = cms.string('flat'), dX = cms.double(0.0005), dY = cms.double(0.0010), dZ = cms.double(0.0050), phiX = cms.double(30e-6), phiY = cms.double(30e-06), phiZ = cms.double(30e-06),),
+        DetUnits =     cms.PSet( dXlocal = cms.double(0.0001), dYlocal = cms.double(0.0001), dZlocal = cms.double(0.0001), phiXlocal = cms.double(0.5e-04), phiYlocal = cms.double(0.5e-04), phiZlocal = cms.double(0.5e-04),),
+		TPBHalfBarrel1 = cms.PSet(
+			TPBLayer3 = cms.PSet( 
+				TPBLadder1 = cms.PSet(
+					DetUnit1 = cms.PSet( dXlocal = cms.double(0.0050), dYlocal = cms.double(0.0050), dZlocal = cms.double(0.0050), phiXlocal = cms.double(10e-06), phiYlocal = cms.double(10e-06), phiZlocal = cms.double(10e-06) ),
+					DetUnit2 = cms.PSet( dXlocal = cms.double(0.0050), dYlocal = cms.double(0.0050), dZlocal = cms.double(0.0050), phiXlocal = cms.double(10e-06), phiYlocal = cms.double(10e-06), phiZlocal = cms.double(10e-06) ),
+					DetUnit3 = cms.PSet( dXlocal = cms.double(0.0050), dYlocal = cms.double(0.0050), dZlocal = cms.double(0.0050), phiXlocal = cms.double(10e-06), phiYlocal = cms.double(10e-06), phiZlocal = cms.double(10e-06) ),
+					DetUnit4 = cms.PSet( dXlocal = cms.double(0.0050), dYlocal = cms.double(0.0050), dZlocal = cms.double(0.0050), phiXlocal = cms.double(10e-06), phiYlocal = cms.double(10e-06), phiZlocal = cms.double(10e-06) ),
+					DetUnit5 = cms.PSet( dXlocal = cms.double(0.0050), dYlocal = cms.double(0.0050), dZlocal = cms.double(0.0050), phiXlocal = cms.double(10e-06), phiYlocal = cms.double(10e-06), phiZlocal = cms.double(10e-06) ),
+					DetUnit6 = cms.PSet( dXlocal = cms.double(0.0050), dYlocal = cms.double(0.0050), dZlocal = cms.double(0.0050), phiXlocal = cms.double(10e-06), phiYlocal = cms.double(10e-06), phiZlocal = cms.double(10e-06) ),
+					DetUnit7 = cms.PSet( dXlocal = cms.double(0.0050), dYlocal = cms.double(0.0050), dZlocal = cms.double(0.0050), phiXlocal = cms.double(10e-06), phiYlocal = cms.double(10e-06), phiZlocal = cms.double(10e-06) ),
+					DetUnit8 = cms.PSet( dXlocal = cms.double(0.0050), dYlocal = cms.double(0.0050), dZlocal = cms.double(0.0050), phiXlocal = cms.double(10e-06), phiYlocal = cms.double(10e-06), phiZlocal = cms.double(10e-06) ),
+				),
+				TPBLadder3 = cms.PSet(
+					DetUnit1 = cms.PSet( dXlocal = cms.double(0.0050), dYlocal = cms.double(0.0050), dZlocal = cms.double(0.0050), phiXlocal = cms.double(10e-06), phiYlocal = cms.double(10e-06), phiZlocal = cms.double(10e-06) ),
+					DetUnit2 = cms.PSet( dXlocal = cms.double(0.0050), dYlocal = cms.double(0.0050), dZlocal = cms.double(0.0050), phiXlocal = cms.double(10e-06), phiYlocal = cms.double(10e-06), phiZlocal = cms.double(10e-06) ),
+					DetUnit3 = cms.PSet( dXlocal = cms.double(0.0050), dYlocal = cms.double(0.0050), dZlocal = cms.double(0.0050), phiXlocal = cms.double(10e-06), phiYlocal = cms.double(10e-06), phiZlocal = cms.double(10e-06) ),
+					DetUnit4 = cms.PSet( dXlocal = cms.double(0.0050), dYlocal = cms.double(0.0050), dZlocal = cms.double(0.0050), phiXlocal = cms.double(10e-06), phiYlocal = cms.double(10e-06), phiZlocal = cms.double(10e-06) ),
+				),
+				TPBLadder9 = cms.PSet(
+					DetUnit6 = cms.PSet( dXlocal = cms.double(0.0050), dYlocal = cms.double(0.0050), dZlocal = cms.double(0.0050), phiXlocal = cms.double(10e-06), phiYlocal = cms.double(10e-06), phiZlocal = cms.double(10e-06) ),
+					DetUnit7 = cms.PSet( dXlocal = cms.double(0.0050), dYlocal = cms.double(0.0050), dZlocal = cms.double(0.0050), phiXlocal = cms.double(10e-06), phiYlocal = cms.double(10e-06), phiZlocal = cms.double(10e-06) ),
+					DetUnit8 = cms.PSet( dXlocal = cms.double(0.0050), dYlocal = cms.double(0.0050), dZlocal = cms.double(0.0050), phiXlocal = cms.double(10e-06), phiYlocal = cms.double(10e-06), phiZlocal = cms.double(10e-06) ),
+				),
+				TPBLadder21 = cms.PSet(
+					DetUnit1 = cms.PSet( dXlocal = cms.double(0.0050), dYlocal = cms.double(0.0050), dZlocal = cms.double(0.0050), phiXlocal = cms.double(10e-06), phiYlocal = cms.double(10e-06), phiZlocal = cms.double(10e-06) ),
+					DetUnit2 = cms.PSet( dXlocal = cms.double(0.0050), dYlocal = cms.double(0.0050), dZlocal = cms.double(0.0050), phiXlocal = cms.double(10e-06), phiYlocal = cms.double(10e-06), phiZlocal = cms.double(10e-06) ),
+					DetUnit3 = cms.PSet( dXlocal = cms.double(0.0050), dYlocal = cms.double(0.0050), dZlocal = cms.double(0.0050), phiXlocal = cms.double(10e-06), phiYlocal = cms.double(10e-06), phiZlocal = cms.double(10e-06) ),
+				)
+			)
+		)
+    ),
+	TPEEndcap1 = cms.PSet(distribution = cms.string('gaussian'), scale = cms.double(1.0), scaleError = cms.double(1.0),
+			dX = cms.double(0.01), dY = cms.double(0.01), dZ = cms.double(0.01), phiX = cms.double(10e-06), phiY = cms.double(10e-06), phiZ = cms.double(10e-06)),
+	TPEEndcap2 = cms.PSet(distribution = cms.string('gaussian'), scale = cms.double(1.0), scaleError = cms.double(1.0),
+		TPEPanels = cms.PSet ( dXlocal = cms.double(0.01), dYlocal = cms.double(0.01), dZlocal = cms.double(0.01), phiXlocal = cms.double(10e-06), phiYlocal = cms.double(10e-06), phiZlocal = cms.double(10e-06)),
+		TPEHalfCylinder1 = cms.PSet( TPEHalfDisk1 = cms.PSet(
+			TPEBlade1 = cms.PSet( TPEPanel1 = cms.PSet( DetUnits = cms.PSet( dXlocal = cms.double(0.01), dYlocal = cms.double(0.01), dZlocal = cms.double(0.01), phiXlocal = cms.double(10e-06), phiYlocal = cms.double(10e-06), phiZlocal = cms.double(10e-06) ))),
+			TPEBlade8 = cms.PSet( TPEPanel2 = cms.PSet( DetUnits = cms.PSet( dXlocal = cms.double(0.01), dYlocal = cms.double(0.01), dZlocal = cms.double(0.01), phiXlocal = cms.double(10e-06), phiYlocal = cms.double(10e-06), phiZlocal = cms.double(10e-06) ))),
+			)),
+		TPEHalfCylinder2 = cms.PSet( TPEHalfDisk1 = cms.PSet(
+			TPEBlade9 = cms.PSet( TPEPanel2 = cms.PSet( DetUnits = cms.PSet( dXlocal = cms.double(0.01), dYlocal = cms.double(0.01), dZlocal = cms.double(0.01), phiXlocal = cms.double(10e-06), phiYlocal = cms.double(10e-06), phiZlocal = cms.double(10e-06) ))),
+			)),
+    ),
+    TIBHalfBarrels = cms.PSet(distribution = cms.string('gaussian'), scale = cms.double(1.0), scaleError = cms.double(1.0),
+        DetUnits =     cms.PSet( dXlocal = cms.double(0.0002), dYlocal = cms.double(0.0002), dZlocal = cms.double(0.0002), phiXlocal = cms.double(0.5e-04), phiYlocal = cms.double(0.5e-04), phiZlocal = cms.double(0.5e-04),),
+    ),
+    TOBHalfBarrels = cms.PSet(distribution = cms.string('gaussian'), scale = cms.double(1.0), scaleError = cms.double(1.0),
+        DetUnits =     cms.PSet( dXlocal = cms.double(0.0005), dYlocal = cms.double(0.0005), dZlocal = cms.double(0.0005), phiXlocal = cms.double(0.5e-04), phiYlocal = cms.double(0.5e-04), phiZlocal = cms.double(0.5e-04),),
+    ),
+    TIDEndcaps = cms.PSet(distribution = cms.string('gaussian'), scale = cms.double(1.0), scaleError = cms.double(1.0),
+        DetUnits =     cms.PSet( dXlocal = cms.double(0.0002), dYlocal = cms.double(0.0002), dZlocal = cms.double(0.0002), phiXlocal = cms.double(0.5e-04), phiYlocal = cms.double(0.5e-04), phiZlocal = cms.double(0.5e-04),),
+    ),
+    TECEndcaps = cms.PSet(distribution = cms.string('gaussian'), scale = cms.double(1.0), scaleError = cms.double(1.0),
+        DetUnits =     cms.PSet( dXlocal = cms.double(0.0002), dYlocal = cms.double(0.0002), dZlocal = cms.double(0.0002), phiXlocal = cms.double(0.5e-04), phiYlocal = cms.double(0.5e-04), phiZlocal = cms.double(0.5e-04),),
+    ),
+)
+
+BPixHalfBarrelsMvmtScenario = cms.PSet(
+    MisalignmentScenarioSettings,
+	TPBHalfBarrel1 = cms.PSet( distribution = cms.string('fixed'), 
+		DetUnits = cms.PSet(dX = cms.double(0.0004), dY = cms.double(0.0007), dZ = cms.double(0.0010), phiX = cms.double(3e-6), phiY = cms.double(3e-06), phiZ = cms.double(3e-06),)
+	)
+)
+# -----------------------------------------------------------------------
+# LS1BPixRepairScenario
+# ---------------------
+# This scenario mimics the shifts introduced by the BPix repair work
+# during LS1. It contains only the aditional movements. It is intended
+# for use in realignment studies.
+# Object presented in the TkAlignment meeting of Oct 30, 2014
+# https://indico.cern.ch/event/337181/, talk by Ekaterina Avdeeva
+# -----------------------------------------------------------------------
+LS1BPixRepairScenario = cms.PSet(
+    MisalignmentScenarioSettings,
+    TPBHalfBarrel2=cms.PSet(
+        TPBLayers=cms.PSet(
+            dX= cms.double(0.01),
+            dY= cms.double(0.01),
+            dZ= cms.double(0.02),
+            TPBLadders=cms.PSet(
+                DetUnit1=cms.PSet(
+                    dXlocal = cms.double(0.006),
+                    phiXlocal = cms.double(0.00027),
+                    dYlocal = cms.double(0.006),
+                    phiYlocal = cms.double(0.00027),
+                    dZlocal = cms.double(0.006),
+                    phiZlocal = cms.double(0.00027)
+                ),#DetUnit1
+                DetUnit2=cms.PSet(
+                    dXlocal = cms.double(0.006),
+                    phiXlocal = cms.double(0.00027),
+                    dYlocal = cms.double(0.006),
+                    phiYlocal = cms.double(0.00027),
+                    dZlocal = cms.double(0.006),
+                    phiZlocal = cms.double(0.00027)
+                ),#DetUnit2
+                DetUnit3=cms.PSet(
+                    dXlocal = cms.double(0.006),
+                    phiXlocal = cms.double(0.00027),
+                    dYlocal = cms.double(0.006),
+                    phiYlocal = cms.double(0.00027),
+                    dZlocal = cms.double(0.006),
+                    phiZlocal = cms.double(0.00027)
+                ),#DetUnit3
+                DetUnit4=cms.PSet(
+                    dXlocal = cms.double(0.006),
+                    phiXlocal = cms.double(0.00027),
+                    dYlocal = cms.double(0.006),
+                    phiYlocal = cms.double(0.00027),
+                    dZlocal = cms.double(0.006),
+                    phiZlocal = cms.double(0.00027)
+                )#DetUnit4
+            )#TPBLadders
+        )#TPBLayers
+    )#TPBHalfBarrel2
+)
+

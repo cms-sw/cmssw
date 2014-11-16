@@ -25,11 +25,16 @@ from HLTriggerOffline.Exotica.analyses.hltExoticaDiPhoton_cff          import Di
 from HLTriggerOffline.Exotica.analyses.hltExoticaHT_cff                import HTPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaJetNoBptx_cff         import JetNoBptxPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaMuonNoBptx_cff        import MuonNoBptxPSet
-from HLTriggerOffline.Exotica.analyses.hltExoticaDisplacedEleMu_cff    import DisplacedEleMuPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaDisplacedMuEG_cff     import DisplacedMuEGPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaDisplacedDimuon_cff   import DisplacedDimuonPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaDisplacedL2Dimuon_cff import DisplacedL2DimuonPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaPureMET_cff           import PureMETPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaMETplusTrack_cff      import METplusTrackPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaMonojet_cff           import MonojetPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaMonojetBackup_cff     import MonojetBackupPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaDisplacedDimuonDijet_cff import DisplacedDimuonDijetPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaEleMu_cff             import EleMuPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaHTDisplacedJets_cff   import HTDisplacedJetsPSet
 
 hltExoticaValidator = cms.EDAnalyzer(
 
@@ -51,11 +56,16 @@ hltExoticaValidator = cms.EDAnalyzer(
                                  "JetNoBptx",
                                  "MuonNoBptx",
                                  "HT",
-                                 "DisplacedEleMu",
+                                 "DisplacedMuEG",
                                  "DisplacedDimuon",
                                  "DisplacedL2Dimuon",
                                  "PureMET",
-                                 "Monojet"
+                                 "METplusTrack",
+                                 "Monojet",
+                                 "MonojetBackup",
+                                 "DisplacedDimuonDijet",
+                                 "EleMu",
+                                 "HTDisplacedJets"
                                  ),
     
     # -- The instance name of the reco::GenParticles collection
@@ -125,9 +135,27 @@ hltExoticaValidator = cms.EDAnalyzer(
     CaloJet_genCut      = cms.string("pt > 30 && abs(eta) < 2.4"),
     CaloJet_recCut      = cms.string("pt > 30 && abs(eta) < 2.4"), # find realistic cuts
    
-    # --- MET (PF)    
-    PFMET_genCut      = cms.string("pt > 75"),
-    PFMET_recCut      = cms.string("pt > 75"),  
+    # --- MET 
+    MET_genCut      = cms.string("pt > 75"),
+    MET_recCut      = cms.string("pt > 75"),  
+   
+    PFMET_genCut    = cms.string("pt > 75"),
+    PFMET_recCut    = cms.string("pt > 75"),  
+   
+    GenMET_genCut   = cms.string("pt > 75"),
+    GenMET_recCut   = cms.string("pt > 75"),  
+   
+    Track_genCut      = cms.string("pt > 50"),
+    Track_recCut      = cms.string("pt > 50"),
+    
+    CaloMET_genCut  = cms.string("pt > 75"),
+    CaloMET_recCut  = cms.string("pt > 75"),
+
+    hltMET_genCut   = cms.string("pt > 75"),
+    hltMET_recCut   = cms.string("pt > 75"),  
+   
+    l1MET_genCut    = cms.string("pt > 75"),
+    l1MET_recCut    = cms.string("pt > 75"),  
    
     # The specific parameters per analysis: the name of the parameter set has to be 
     # the same as the defined ones in the 'analysis' datamember. Each analysis is a PSet
@@ -154,10 +182,15 @@ hltExoticaValidator = cms.EDAnalyzer(
     DiPhoton         = DiPhotonPSet,                                 
     JetNoBptx        = JetNoBptxPSet,
     MuonNoBptx       = MuonNoBptxPSet,
-    DisplacedEleMu   = DisplacedEleMuPSet,
+    DisplacedMuEG    = DisplacedMuEGPSet,
     DisplacedDimuon  = DisplacedDimuonPSet,
     DisplacedL2Dimuon = DisplacedL2DimuonPSet,
     PureMET          = PureMETPSet,                                 
+    METplusTrack     = METplusTrackPSet,                                 
     Monojet          = MonojetPSet,
-    HT               = HTPSet
+    MonojetBackup    = MonojetBackupPSet,
+    HT               = HTPSet,
+    DisplacedDimuonDijet = DisplacedDimuonDijetPSet,
+    EleMu            = EleMuPSet,
+    HTDisplacedJets  = HTDisplacedJetsPSet 
 )

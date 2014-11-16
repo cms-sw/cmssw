@@ -20,7 +20,6 @@
 
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -54,11 +53,13 @@
 
 #include "DQM/SiStripMonitorHardware/interface/CMHistograms.hh"
 
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 //
 // Class declaration
 //
 
-class SiStripCMMonitorPlugin : public edm::EDAnalyzer
+class SiStripCMMonitorPlugin : public DQMEDAnalyzer
 {
  public:
 
@@ -67,14 +68,14 @@ class SiStripCMMonitorPlugin : public edm::EDAnalyzer
  private:
 
   struct Statistics {
-    double Mean;
-    double Rms;
-    double Counter;
+    float Mean;
+    float Rms;
+    float Counter;
   };
 
-  virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void dqmBeginRun(const edm::Run& , const edm::EventSetup& ) ;
 
   //update the cabling if necessary
   void updateCabling(const edm::EventSetup& eventSetup);
@@ -96,11 +97,6 @@ class SiStripCMMonitorPlugin : public edm::EDAnalyzer
   bool fillWithLocalEvtNum_;
   //print debug messages when problems are found: 1=error debug, 2=light debug, 3=full debug
   unsigned int printDebug_;
-  //write the DQMStore to a root file at the end of the job
-  bool writeDQMStore_;
-  std::string dqmStoreFileName_;
-  //the DQMStore
-  DQMStore* dqm_;
   //FED cabling
   uint32_t cablingCacheId_;
   const SiStripFedCabling* cabling_;
@@ -132,9 +128,6 @@ SiStripCMMonitorPlugin::SiStripCMMonitorPlugin(const edm::ParameterSet& iConfig)
     fillWithEvtNum_(iConfig.getUntrackedParameter<bool>("FillWithEventNumber",false)),
     fillWithLocalEvtNum_(iConfig.getUntrackedParameter<bool>("FillWithLocalEventNumber",false)),
     printDebug_(iConfig.getUntrackedParameter<unsigned int>("PrintDebugMessages",1)),
-    writeDQMStore_(iConfig.getUntrackedParameter<bool>("WriteDQMStore",false)),
-    dqmStoreFileName_(iConfig.getUntrackedParameter<std::string>("DQMStoreFileName","DQMStore.root")),
-    dqm_(0),
     cablingCacheId_(0)
     
 {
@@ -147,9 +140,7 @@ SiStripCMMonitorPlugin::SiStripCMMonitorPlugin(const edm::ParameterSet& iConfig)
                 << "[SiStripCMMonitorPlugin]\tHistogramFolderName: " << folderName_ << std::endl
                 << "[SiStripCMMonitorPlugin]\tFillAllDetailedHistograms? " << (fillAllDetailedHistograms_ ? "yes" : "no") << std::endl
 		<< "[SiStripCMMonitorPlugin]\tFillWithEventNumber?" << (fillWithEvtNum_ ? "yes" : "no") << std::endl
-                << "[SiStripCMMonitorPlugin]\tPrintDebugMessages? " << (printDebug_ ? "yes" : "no") << std::endl
-                << "[SiStripCMMonitorPlugin]\tWriteDQMStore? " << (writeDQMStore_ ? "yes" : "no") << std::endl;
-    if (writeDQMStore_) debugStream << "[SiStripCMMonitorPlugin]\tDQMStoreFileName: " << dqmStoreFileName_ << std::endl;
+                << "[SiStripCMMonitorPlugin]\tPrintDebugMessages? " << (printDebug_ ? "yes" : "no") << std::endl;
   }
     
  std::ostringstream* pDebugStream = (printDebug_>1 ? &debugStream : NULL);
@@ -168,9 +159,8 @@ SiStripCMMonitorPlugin::SiStripCMMonitorPlugin(const edm::ParameterSet& iConfig)
  }
 
 
- if (printDebug_) {
+ if (printDebug_)
    LogTrace("SiStripMonitorHardware") << debugStream.str();
- }
 
  evt_ = 0;
 
@@ -184,6 +174,21 @@ SiStripCMMonitorPlugin::~SiStripCMMonitorPlugin()
 //
 // Member functions
 //
+
+
+void SiStripCMMonitorPlugin::bookHistograms(DQMStore::IBooker & ibooker , const edm::Run & run, const edm::EventSetup & eSetup)
+{
+  ibooker.setCurrentFolder(folderName_);
+
+  cmHists_.bookTopLevelHistograms(ibooker);
+
+  if (fillAllDetailedHistograms_) cmHists_.bookAllFEDHistograms(ibooker);
+}
+
+void SiStripCMMonitorPlugin::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) 
+{
+
+}
 
 // ------------ method called to for each event  ------------
 void
@@ -303,14 +308,9 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
 
       std::ostringstream lMode;
       lMode << buffer->readoutMode();
-      if (printDebug_ > 1) {
-	static bool lFirst = true;
-	if (lFirst) {
-	  std::cout << "Readout mode: " << lMode.str() << std::endl;
-	  lFirst = false;
-	}
-
-      }
+      if (evt_ == 0 && printDebug_ > 1) 
+	std::cout << "Readout mode: " << lMode.str() << std::endl;
+      
 
       const sistrip::FEDChannel & lChannel = buffer->channel(iCh);
       std::pair<uint16_t,uint16_t> medians = std::pair<uint16_t,uint16_t>(0,0);
@@ -375,21 +375,8 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
 
 }//analyze method
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-SiStripCMMonitorPlugin::beginJob()
-{
-  //get DQM store
-  dqm_ = &(*edm::Service<DQMStore>());
-  dqm_->setCurrentFolder(folderName_);
-
-  cmHists_.bookTopLevelHistograms(dqm_);
-
-  if (fillAllDetailedHistograms_) cmHists_.bookAllFEDHistograms();
-
-}
-
 // ------------ method called once each job just after ending the event loop  ------------
+/* //to be moved to harvesting step
 void 
 SiStripCMMonitorPlugin::endJob()
 {
@@ -447,9 +434,8 @@ SiStripCMMonitorPlugin::endJob()
 
   }//if TkHistoMap is enabled
 
-  if (writeDQMStore_) dqm_->save(dqmStoreFileName_);
 }
-
+*/
 void SiStripCMMonitorPlugin::updateCabling(const edm::EventSetup& eventSetup)
 {
   uint32_t currentCacheId = eventSetup.get<SiStripFedCablingRcd>().cacheIdentifier();

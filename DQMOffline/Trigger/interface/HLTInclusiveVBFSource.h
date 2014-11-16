@@ -71,12 +71,9 @@ class HLTInclusiveVBFSource : public edm::EDAnalyzer {
   //virtual double TriggerPosition(std::string trigName);
   
   // ----------member data --------------------------- 
-  int nev_;
   int nCount_;
   DQMStore * dbe;
       
-  MonitorElement* total_;
-
   std::vector<int>  prescUsed_;
   
   std::string dirname_;
@@ -185,13 +182,10 @@ class HLTInclusiveVBFSource : public edm::EDAnalyzer {
   double hlt_deltaphijet;
   double hlt_invmassjet;
   
-  // data across paths
-  MonitorElement* scalersSelect;
   // helper class to store the data path
   
   class PathInfo {
     PathInfo():
-      pathIndex_(-1), 
       prescaleUsed_(-1), 
       pathName_("unset"), 
       filterName_("unset"), 
@@ -293,7 +287,6 @@ class HLTInclusiveVBFSource : public edm::EDAnalyzer {
       }
       
   private:
-      int pathIndex_;
       int prescaleUsed_;
       std::string pathName_;
       std::string filterName_;

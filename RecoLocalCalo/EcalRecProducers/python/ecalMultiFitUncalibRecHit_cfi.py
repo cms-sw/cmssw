@@ -12,6 +12,7 @@ ecalMultiFitUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
     EcalPulseShapeParameters = cms.PSet( ecal_pulse_shape_parameters ),
     activeBXs = cms.vint32(-5,-4,-3,-2,-1,0,1,2,3,4),
     ampErrorCalculation = cms.bool(True),
+    useLumiInfoRunHeader = cms.bool(True),
 
     # decide which algorithm to be use to calculate the jitter
     timealgo = cms.string("RatioMethod"),

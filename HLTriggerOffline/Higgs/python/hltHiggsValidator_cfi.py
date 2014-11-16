@@ -4,13 +4,17 @@ import FWCore.ParameterSet.Config as cms
 hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         
     hltProcessName = cms.string("HLT"),
-    analysis       = cms.vstring("HWW", "HZZ", "Hgg", "Htaunu", "H2tau", "VBFHbb", "ZnnHbb","DoubleHinTaus","HiggsDalitz"),
+    analysis       = cms.vstring("HWW", "HZZ", "Hgg", "Htaunu", "H2tau", "VBFHbb", "ZnnHbb","DoubleHinTaus","HiggsDalitz","X4b","TTHbbej"), 
+    histDirectory  = cms.string("HLT/Higgs"),
     
     # -- The instance name of the reco::GenParticles collection
     genParticleLabel = cms.string("genParticles"),
     
     # -- The instance name of the reco::GenJets collection
     genJetLabel = cms.string("ak5GenJets"),
+
+    # -- The instance name of the reco::PFJetCollection collection
+    recoHtJetLabel = cms.untracked.string("ak4PFJetsCHS"),
 
     # -- The number of interactions in the event
     pileUpInfoLabel  = cms.string("addPileupInfo"),
@@ -28,6 +32,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
     parametersEta      = cms.vdouble(48, -2.400, 2.400),
     parametersPhi      = cms.vdouble(50, -3.142, 3.142),
     parametersPu       = cms.vdouble(10, 0, 20),
+    parametersHt       = cms.untracked.vdouble(100, 0, 1000),
 
     # TO BE DEPRECATED --------------------------------------------
     cutsDr = cms.vdouble(0.4, 0.4, 0.015), # TO BE DEPRECATED
@@ -232,7 +237,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         jetTagLabel  = cms.string("pfCombinedSecondaryVertexBJetTags"),
         # -- Analysis specific cuts
         minCandidates = cms.uint32(4), 
-        NminOneCuts = cms.untracked.vdouble(2.6, 350, 2.6, 0.8, 0, 0, 0, 95, 85, 70, 40), #dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
+        NminOneCuts = cms.untracked.vdouble(2.6, 350, 2.6, 0.8, 0, 0, 0, 0, 0, 95, 85, 70, 40), #dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
         ),
     ZnnHbb = cms.PSet( 
         hltPathsToCheck = cms.vstring(
@@ -246,6 +251,31 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         recPFMETLabel = cms.string("pfMet"),  
         # -- Analysis specific cuts
         minCandidates = cms.uint32(1), 
-        NminOneCuts = cms.untracked.vdouble(0, 0, 0, 0.9, 8, 30, 100, 70), #dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, MET, pt1
+        NminOneCuts = cms.untracked.vdouble(0, 0, 0, 0.9, 0, 0, 8, 30, 100, 70), #dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, MET, pt1
+        ),
+    X4b  = cms.PSet( 
+        hltPathsToCheck = cms.vstring(
+            "HLT_DoubleJet90_Double30_TripleCSV0p5_v",
+            "HLT_DoubleJet90_Double30_DoubleCSV0p5_v",
+            "HLT_QuadJet45_TripleCSV0p5_v",
+            "HLT_QuadJet45_DoubleCSV0p5_v",
+            ),
+        recJetLabel  = cms.string("ak4PFJetsCHS"),
+        jetTagLabel  = cms.string("pfCombinedSecondaryVertexBJetTags"),
+        # -- Analysis specific cuts
+        minCandidates = cms.uint32(4), 
+        NminOneCuts = cms.untracked.vdouble(0, 0, 0, 0.5, 0.5 , 0.5, 0, 0, 0, 0, 90, 0, 45), #dEtaqq, mqq, dPhibb, CSV1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
+        ),
+    TTHbbej  = cms.PSet( 
+        hltPathsToCheck = cms.vstring(
+            "HLT_Ele27_eta2p1_WP85_Gsf_HT200_v"
+            ),
+        recElecLabel   = cms.string("gedGsfElectrons"),
+        #recJetLabel  = cms.string("ak4PFJetsCHS"),
+        #jetTagLabel  = cms.string("pfCombinedSecondaryVertexBJetTags"),
+        ## -- Analysis specific cuts
+        minCandidates = cms.uint32(1),
+        HtJetPtMin = cms.untracked.double(30),
+        HtJetEtaMax = cms.untracked.double(3.0),
         ),
 )

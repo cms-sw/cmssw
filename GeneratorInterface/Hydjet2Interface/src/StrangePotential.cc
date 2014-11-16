@@ -25,7 +25,7 @@ double NAStrangePotential::CalculateStrangePotential() {
   }
 	
   if(minFunction*maxFunction > 0.0) {
-    Error("StrangePotential::CalculateStrangePotential", "minFunction*maxFunction is positive!\n");
+    edm::LogError("StrangePotential") << "CalculateStrangePotential: minFunction*maxFunction is positive!";
     return 0.;
   }
 
@@ -35,7 +35,7 @@ double NAStrangePotential::CalculateStrangePotential() {
   theSolver->SetIntervalLimits(fMinStrangePotential, fMaxStrangePotential);
   
   if (!theSolver->Brent(*this))
-    Error("StrangePotential::CalculateStrangePotential", "the root is not found!\n");
+    edm::LogError("StrangePotential") << "CalculateStrangePotential: the root is not found!";
   
   double strangePotential = theSolver->GetRoot();
   delete theSolver;

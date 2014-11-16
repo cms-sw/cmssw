@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoBTag.ImpactParameter.variableJTA_cfi import *
+from RecoBTag.ImpactParameter.variableJTA_cff import *
 
 # negativeTrackCounting3D3rd btag computer
-negativeTrackCounting3D3rd = cms.ESProducer("NegativeTrackCountingESProducer",
+negativeTrackCounting3D3rdComputer = cms.ESProducer("NegativeTrackCountingESProducer",
     variableJTAPars,
     impactParameterType = cms.int32(0), ## 0 = 3D, 1 = 2D
 

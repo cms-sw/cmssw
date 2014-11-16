@@ -22,7 +22,6 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -33,6 +32,8 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -83,7 +84,7 @@
 #include "TH1I.h"
 #include "TH2F.h"
 
-class V0Validator : public edm::EDAnalyzer {
+class V0Validator : public DQMEDAnalyzer {
 
 public:
   explicit V0Validator(const edm::ParameterSet&);
@@ -91,11 +92,8 @@ public:
 
 
 private:
-  //virtual void beginJob(const edm::EventSetup&) ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  //virtual void endJob() ;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   //Quantities that are to be histogrammed
   float K0sGenEta, LamGenEta, K0sGenpT, LamGenpT, K0sGenR, LamGenR;
@@ -108,74 +106,7 @@ private:
   int genLam, genK0s, realLamFound, realK0sFound, realLamFoundEff, realK0sFoundEff;
   int lamTracksFound, k0sTracksFound, lamCandFound, k0sCandFound, noTPforK0sCand, noTPforLamCand;
 
-  //Temporary histograms so that we can divide them for efficiencies.
-  //  They are turned into MonitorElements in endJob()
-  /*  TH1F* ksEffVsRHist;
-  TH1F* ksEffVsEtaHist;
-  TH1F* ksEffVsPtHist;
-  TH1F* ksTkEffVsRHist;
-  TH1F* ksTkEffVsEtaHist;
-  TH1F* ksTkEffVsPtHist;
-  TH1F* ksFakeVsRHist;
-  TH1F* ksFakeVsEtaHist;
-  TH1F* ksFakeVsPtHist;
-  TH1F* ksTkFakeVsRHist;
-  TH1F* ksTkFakeVsEtaHist;
-  TH1F* ksTkFakeVsPtHist;
-
-  TH1F* ksEffVsRHist_denom;
-  TH1F* ksEffVsEtaHist_denom;
-  TH1F* ksEffVsPtHist_denom;
-  TH1F* ksFakeVsRHist_denom;
-  TH1F* ksFakeVsEtaHist_denom;
-  TH1F* ksFakeVsPtHist_denom;
-
-  TH1F* ksXResolutionHist;
-  TH1F* ksYResolutionHist;
-  TH1F* ksZResolutionHist;
-  TH1F* ksAbsoluteDistResolutionHist;
-  TH1F* lamXResolutionHist;
-  TH1F* lamYResolutionHist;
-  TH1F* lamZResolutionHist;
-  TH1F* lamAbsoluteDistResolutionHist;
-
-  TH1F* lamEffVsRHist;
-  TH1F* lamEffVsEtaHist;
-  TH1F* lamEffVsPtHist;
-  TH1F* lamTkEffVsRHist;
-  TH1F* lamTkEffVsEtaHist;
-  TH1F* lamTkEffVsPtHist;
-  TH1F* lamFakeVsRHist;
-  TH1F* lamFakeVsEtaHist;
-  TH1F* lamFakeVsPtHist;
-  TH1F* lamTkFakeVsRHist;
-  TH1F* lamTkFakeVsEtaHist;
-  TH1F* lamTkFakeVsPtHist;
-
-  TH1F* lamEffVsRHist_denom;
-  TH1F* lamEffVsEtaHist_denom;
-  TH1F* lamEffVsPtHist_denom;
-  TH1F* lamFakeVsRHist_denom;
-  TH1F* lamFakeVsEtaHist_denom;
-  TH1F* lamFakeVsPtHist_denom;
-
-  TH1F* nKsHist;
-  TH1F* nLamHist;
-
-  TH1F* lamCandStatusHist;
-  TH1F* ksCandStatusHist;
-
-  TH1F* fakeKsMassHisto;
-  TH1F* goodKsMassHisto;
-  TH1F* fakeLamMassHisto;
-  TH1F* goodLamMassHisto;
-
-  TH1F* ksFakeDauRadDistHisto;
-  TH1F* lamFakeDauRadDistHisto;*/
-
-  // DQMStore and MonitorElements for final histograms
-  DQMStore* theDQMstore;
-
+  // MonitorElements for final histograms
   MonitorElement* ksEffVsR;
   MonitorElement* ksEffVsEta;
   MonitorElement* ksEffVsPt;

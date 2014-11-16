@@ -54,8 +54,9 @@ class HLTProcess(object):
     "HLT_DoubleMu23NoFiltersNoVtxDisplaced_v*",
     "HLT_DoubleMu28NoFiltersNoVtxDisplaced_v*",
     "HLT_Mu28NoFiltersNoVtxDisplaced_Photon28_CaloIdL_v*",
-    "HLT_Mu33NoFiltersNoVtxDisplaced_Photon33_CaloIdL_v*"
-    
+    "HLT_Mu33NoFiltersNoVtxDisplaced_Photon33_CaloIdL_v*",
+    "HLT_HT350_DisplacedDijet80_Tight_DisplacedTrack_v*",
+    "HLT_HT350_DisplacedDijet80_DisplacedTrack_v*"
   )
 
   def __init__(self, configuration):
@@ -1214,11 +1215,14 @@ if 'GlobalTag' in %%(dict)s:
       self.options['sequences'].append( "-HLTIterativeTrackingHighPtTkMu" )
       self.options['sequences'].append( "-HLTIterativeTrackingHighPtTkMuIsoIter02" )
       self.options['sequences'].append( "-HLTIterativeTrackingForBTagIter02" )
+      self.options['sequences'].append( "-HLTIterativeTrackingForBTagIter12" )
       self.options['sequences'].append( "-HLTIterativeTrackingForTauIter04" )
       self.options['sequences'].append( "-HLTIterativeTrackingForTauIter02" )
       self.options['sequences'].append( "-HLTIterativeTrackingDisplacedJpsiIter02" )
       self.options['sequences'].append( "-HLTIterativeTrackingDisplacedPsiPrimeIter02" )
       self.options['sequences'].append( "-HLTIterativeTrackingDisplacedNRMuMuIter02" )
+      self.options['sequences'].append( "-HLTIterativeTrackingForBTagIteration0" )
+      self.options['sequences'].append( "-HLTIterativeTrackingIteration4DisplacedJets" )
       self.options['sequences'].append( "-HLTRegionalCKFTracksForL3Isolation" )
       self.options['sequences'].append( "-HLTHBHENoiseCleanerSequence" )
 

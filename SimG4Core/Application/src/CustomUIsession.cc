@@ -16,14 +16,6 @@ CustomUIsession::~CustomUIsession()
 
 }
 
-namespace {
-  std::string trim(const std::string& str) {
-    if(!str.empty() && str.back() == '\n')
-      return str.substr(0, str.length()-1);
-    return str;
-  }
-}
-
 G4int CustomUIsession::ReceiveG4cout(const G4String& coutString)
 {
   //std::cout << coutString << std::flush;
@@ -36,4 +28,10 @@ G4int CustomUIsession::ReceiveG4cerr(const G4String& cerrString)
   //std::cerr << cerrString << std::flush;
   edm::LogWarning("G4cerr") << trim(cerrString);
   return 0;
+}
+
+std::string CustomUIsession::trim(const std::string& str) {
+  if(!str.empty() && str.back() == '\n')
+    return str.substr(0, str.length()-1);
+  return str;
 }
