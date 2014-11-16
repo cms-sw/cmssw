@@ -29,6 +29,52 @@ int g_delayCount = 0;
 
 using namespace XrdAdaptor;
 
+// File::Close() can take awhile - slow servers (which are probably
+// inactive anyway!) can even timeout.  Rather than wait around for
+// a few minutes in the main thread, this class asynchronously closes
+// and deletes the XrdCl::File
+class DelayedClose : boost::noncopyable, public XrdCl::ResponseHandler
+{
+public:
+
+    DelayedClose(std::shared_ptr<XrdCl::File> fh, const std::string &id, const std::string &site)
+        : m_fh(std::move(fh)),
+          m_id(id),
+          m_site(site)
+    {
+        if (m_fh && m_fh->IsOpen())
+        {
+            if (!m_fh->Close(this).IsOK())
+            {
+                delete this;
+            }
+        }
+    }
+
+
+    virtual ~DelayedClose() = default;
+
+
+    virtual void HandleResponseWithHosts(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response, XrdCl::HostList *hostList) override
+    {
+        if (!status->IsOK())
+        {
+            
+            edm::LogWarning("XrdFileWarning") << "Source delayed close failed with error '" << status->ToStr()
+                << "' (errno=" << status->errNo << ", code=" << status->code << ", server=" << m_id << ", site=" << m_site << ")";
+        }
+        delete status;
+        delete hostList;
+        delete this;
+    }
+
+
+private:
+    std::shared_ptr<XrdCl::File> m_fh;
+    std::string m_id;
+    std::string m_site;
+};
+
 Source::Source(timespec now, std::unique_ptr<XrdCl::File> fh, const std::string &exclude)
     : m_lastDowngrade({0, 0}),
       m_id("(unknown)"),
@@ -229,14 +275,7 @@ Source::setXrootdSite()
 
 Source::~Source()
 {
-  XrdCl::XRootDStatus status;
-  if (! (status = m_fh->Close()).IsOK())
-  {
-    edm::LogWarning("XrdFileWarning")
-      << "Source::~Source() failed with error '" << status.ToStr()
-      << "' (errno=" << status.errNo << ", code=" << status.code << ")";
-  }
-  m_fh.reset();
+  new DelayedClose(m_fh, m_id, m_site);
 }
 
 std::shared_ptr<XrdCl::File>
