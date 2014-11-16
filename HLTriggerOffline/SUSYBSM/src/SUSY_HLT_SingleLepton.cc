@@ -19,6 +19,11 @@
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 
 namespace{
+  bool Contains(const std::string &text,
+		const std::string &pattern){
+    return text.find(pattern)!=std::string::npos;
+  }
+
   void SetBinLabels(MonitorElement * const me){
     if(!me) return;
     me->setBinLabel(1, "No CSV Reqs.");
@@ -526,9 +531,9 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
     for( unsigned int hltIndex = 0; hltIndex < trigNames.size(); ++hltIndex ){
       if(hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)){
         const std::string& name = trigNames.triggerName(hltIndex);
-        if(name == triggerPath_) hasFired=true;
-        if(name == triggerPathAuxiliary_) hasFiredAuxiliary=true;
-        if(name == triggerPathLeptonAuxiliary_) hasFiredLeptonAuxiliary=true;
+        if(Contains(name, triggerPath_)) hasFired=true;
+        if(Contains(name, triggerPathAuxiliary_)) hasFiredAuxiliary=true;
+	if(Contains(name, triggerPathLeptonAuxiliary_)) hasFiredLeptonAuxiliary=true;
       }
     }
   }

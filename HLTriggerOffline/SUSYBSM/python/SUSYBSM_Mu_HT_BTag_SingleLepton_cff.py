@@ -17,15 +17,15 @@ SUSY_HLT_Mu_HT_BTag_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                                   hltMet = cms.InputTag(''),
                                                   hltJets = cms.InputTag('hltSelector4CentralJetsL1FastJet','','reHLT'),
                                                   hltJetTags = cms.InputTag('hltL3CombinedSecondaryVertexBJetTags','','reHLT'),
-                                                  
+
                                                   triggerResults = cms.InputTag('TriggerResults','','reHLT'),
                                                   trigSummary = cms.InputTag('hltTriggerSummaryAOD','','reHLT'),
 
                                                   hltProcess = cms.string('reHLT'),
 
-                                                  triggerPath = cms.string('HLT_Mu15_IterTrk02_IsoVVVL_BTagCSV07_PFHT400_v1'),
-                                                  triggerPathAuxiliary = cms.string('HLT_IsoMu24_IterTrk02_v1'),
-                                                  triggerPathLeptonAuxiliary = cms.string('HLT_PFHT350_PFMET120_NoiseCleaned_v1'),
+                                                  triggerPath = cms.string('HLT_Mu15_IterTrk02_IsoVVVL_BTagCSV07_PFHT400'),
+                                                  triggerPathAuxiliary = cms.string('HLT_IsoMu24_IterTrk02'),
+                                                  triggerPathLeptonAuxiliary = cms.string('HLT_PFHT350_PFMET120_NoiseCleaned'),
 
                                                   jetPtCut = cms.untracked.double(40.0),
                                                   jetEtaCut = cms.untracked.double(3.0),
@@ -39,7 +39,7 @@ SUSY_HLT_Mu_HT_BTag_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                                   )
 
 SUSY_HLT_Mu_HT_BTag_SingleLepton_POSTPROCESSING = cms.EDAnalyzer('DQMGenericClient',
-                                                                 subDirs = cms.untracked.vstring('HLT/SUSYBSM/HLT_Mu15_IterTrk02_IsoVVVL_BTagCSV07_PFHT400_v1'),
+                                                                 subDirs = cms.untracked.vstring('HLT/SUSYBSM/HLT_Mu15_IterTrk02_IsoVVVL_BTagCSV07_PFHT400'),
                                                                  efficiency = cms.vstring(
         "leptonTurnOn_eff ';Offline Muon p_{T} [GeV];#epsilon' leptonTurnOn_num leptonTurnOn_den",
         "pfHTTurnOn_eff ';Offline PF H_{T} [GeV];#epsilon' pfHTTurnOn_num pfHTTurnOn_den",
