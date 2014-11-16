@@ -141,7 +141,6 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
   double mtmp = ((double) MHT / (double) sumHT);
   int rank=params_->HtMissScale().rank(mtmp);
 
-  //std::cout << "CCLA  MHT: " << MHT << " sumHT " << sumHT << " rat: " << mtmp << " rank " << rank << std::endl;
   // if (mtmp>.95)std::cout << " MHT: " << MHT << " sumHT " << sumHT << " rat: " << mtmp << " rank " << rank << std::endl;
 
   MHT=rank;
@@ -198,26 +197,19 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
 
 int l1t::Stage1Layer2EtSumAlgorithmImpPP::DiJetPhi(const std::vector<l1t::Jet> * jets)  const {
 
-  bool Debug=false;
+  // cout << "Number of jets: " << jets->size() << endl;
 
-  if (Debug) cout << "Number of jets: " << jets->size() << endl;
-  int dphi = 0;
+  int dphi = 10; // initialize to negative physical dphi value
   if (jets->size()<2) return dphi; // size() not really reliable as we pad the size to 8 (4cen+4for) in the sorter
-  if ((*jets).at(0).hwPt() == 0) return 0;
-  if ((*jets).at(1).hwPt() == 0) return 0;
+  if ((*jets).at(0).hwPt() == 0) return dphi;
+  if ((*jets).at(1).hwPt() == 0) return dphi;
 
 
-  int phi1 = (*jets).at(0).hwPhi();
-  int phi2 = (*jets).at(1).hwPhi();
-  dphi=std::abs(phi1-phi2);
+  int iphi1 = (*jets).at(0).hwPhi();
+  int iphi2 = (*jets).at(1).hwPhi();
 
-  int difference=phi1-phi2;
+  int difference=abs(iphi1-iphi2);
 
-  if (std::abs(phi1 - phi2) == L1CaloRegionDetId::N_PHI-1) {
-    difference = -difference/std::abs(difference);
-    if (Debug) cout << "PHI1: " << phi1 << " PHI2: " << phi2 << " dphi: " << dphi << " difference" << difference<< endl;
-  }
-
-  // set output
-  return abs(difference);
+  if ( difference > 8 ) difference= L1CaloRegionDetId::N_PHI - difference - 1; // make Physical dphi always positive 
+  return difference;
 }

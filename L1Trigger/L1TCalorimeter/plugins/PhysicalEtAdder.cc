@@ -228,11 +228,15 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       //hack while we figure out the right scales
       //double et = emScale->et( itEtSum->hwPt() );
       const l1t::EtSum::EtSumType sumType = itEtSum->getType();
-      if(sumType == EtSum::EtSumType::kMissingHt)
-	et = htMissScale->et( itEtSum->hwPt() );
 
       const double eta = getPhysicalEta(itEtSum->hwEta());
-      const double phi = getPhysicalPhi(itEtSum->hwPhi());
+      double phi = getPhysicalPhi(itEtSum->hwPhi());
+      if(sumType == EtSum::EtSumType::kMissingHt){
+	et = htMissScale->et( itEtSum->hwPt() );
+	double regionPhiWidth=2. * 3.1415927 / L1CaloRegionDetId::N_PHI;
+	phi=phi+(regionPhiWidth/2.); // add the region half-width to match L1Extra MHT phi
+      }
+
 
       math::PtEtaPhiMLorentzVector p4(et, eta, phi, 0);
 
