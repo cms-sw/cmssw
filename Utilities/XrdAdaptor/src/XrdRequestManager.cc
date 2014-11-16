@@ -599,6 +599,12 @@ XrdAdaptor::RequestManager::handle(std::shared_ptr<std::vector<IOPosBuffer> > io
     {
         std::future<IOSize> task = std::async(std::launch::deferred,
             [](std::future<IOSize> a, std::future<IOSize> b){
+                // Wait until *both* results are available.  This is essential
+                // as the callback may try referencing the RequestManager.  If one
+                // throws an exception (causing the RequestManager to be destroyed by
+                // XrdFile) and the other has a failure, then the recovery code will
+                // reference the destroyed RequestManager.
+                b.wait(); a.wait();
                 return b.get() + a.get();
             },
             std::move(future1),
