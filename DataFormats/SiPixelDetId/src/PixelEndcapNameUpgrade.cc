@@ -59,7 +59,8 @@ PixelEndcapNameUpgrade::PixelEndcapNameUpgrade(const DetId & id)
 
 // constructor from name string
 PixelEndcapNameUpgrade::PixelEndcapNameUpgrade(std::string name)
-  : PixelModuleName(false), PixelEndcapNameBase(mO, 0, 0, 0, 0) {
+  : PixelModuleName(false), thePart(mO), theDisk(0), 
+    theBlade(0), thePannel(0), thePlaquette(0) {
   // parse the name string
   // first, check to make sure this is an FPix name, should start with "FPix_"
   // also check to make sure the needed parts are present
@@ -176,6 +177,19 @@ string PixelEndcapNameUpgrade::name() const
   stm <<"FPix_B"<<thePart<<"_D"<<theDisk<<"_BLD"<<theBlade<<"_PNL"<<thePannel<<"_PLQ"<<thePlaquette;
   return stm.str();
 }
+
+std::ostream & operator<<( std::ostream& out, const PixelEndcapNameUpgrade::HalfCylinder& t)
+{
+  switch (t) {
+    case(PixelEndcapNameUpgrade::pI) : {out << "pI"; break;}
+    case(PixelEndcapNameUpgrade::pO) : {out << "pO"; break;}
+    case(PixelEndcapNameUpgrade::mI) : {out << "mI"; break;}
+    case(PixelEndcapNameUpgrade::mO) : {out << "mO"; break;}
+    default: out << "unknown";
+  };
+  return out;
+}
+
 
 // return the DetId
 PXFDetId PixelEndcapNameUpgrade::getDetId() {

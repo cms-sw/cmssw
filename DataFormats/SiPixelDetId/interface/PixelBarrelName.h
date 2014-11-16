@@ -5,17 +5,18 @@
  * Module name (as in PixelDatabase) in barrel
  */
 
+#include "DataFormats/SiPixelDetId/interface/PixelModuleName.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include <string>
 
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameBase.h"
-
 class DetId; 
 
-class PixelBarrelName : public PixelModuleName, public PixelBarrelNameBase {
+class PixelBarrelName : public PixelModuleName {
 public:
+
+  enum Shell { mO = 1, mI = 2 , pO =3 , pI =4 };
 
   /// ctor from DetId
   PixelBarrelName(const DetId &, bool phase=false);
@@ -25,7 +26,7 @@ public:
   /// ctor for defined name with dummy parameters
  PixelBarrelName(Shell shell=mO, int layer=0, int module=0, int ladder=0, bool phase=false)
    : PixelModuleName(true), 
-     PixelBarrelNameBase(shell, layer, module, ladder, phase) 
+    thePart(shell), theLayer(layer), theModule(module), theLadder(ladder), phase1(phase) 
   { }
 
   /// ctor from name string
@@ -37,6 +38,17 @@ public:
 
   /// from base class
   virtual std::string name() const;
+
+  Shell shell() const { return thePart; }
+
+  /// layer id 
+  int layerName() const { return theLayer; }   
+
+  /// module id (index in z) 
+  int moduleName() const { return theModule; }  
+
+  /// ladder id (index in phi) 
+  int ladderName() const { return theLadder; } 
 
   /// sector id
   int sectorName() const;
@@ -55,7 +67,10 @@ public:
   virtual bool operator== (const PixelModuleName &) const;
 
 private:
+  Shell thePart;
+  int theLayer, theModule, theLadder;
   bool phase1;
 };
 
+std::ostream & operator<<( std::ostream& out, const PixelBarrelName::Shell& t);
 #endif

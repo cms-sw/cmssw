@@ -178,7 +178,8 @@ int PixelBarrelName::convertLadderNumber(int oldLadder) {
 
 // constructor from name string
 PixelBarrelName::PixelBarrelName(std::string name) 
-  : PixelModuleName(true), PixelBarrelNameBase(mO, 0, 0, 0) {
+  : PixelModuleName(true), thePart(mO), theLayer(0),
+    theModule(0), theLadder(0) {
 
   // parse the name string
   // first, check to make sure this is an BPix name, should start with "BPix_"
@@ -565,3 +566,15 @@ PXBDetId PixelBarrelName::getDetId() {
 
   return PXBDetId(layer, ladder, module);
 } 
+
+std::ostream & operator<<( std::ostream& out, const PixelBarrelName::Shell& t)
+{
+  switch (t) {
+    case(PixelBarrelName::pI) : {out << "pI"; break;}
+    case(PixelBarrelName::pO) : {out << "pO"; break;}
+    case(PixelBarrelName::mI) : {out << "mI"; break;}
+    case(PixelBarrelName::mO) : {out << "mO"; break;}
+    default: out << "unknown";
+  };
+  return out;
+}

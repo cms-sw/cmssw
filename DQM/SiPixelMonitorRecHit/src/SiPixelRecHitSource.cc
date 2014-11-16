@@ -35,8 +35,10 @@
 // DataFormats
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameWrapper.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapNameWrapper.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
+#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 
 //
 #include <string>
@@ -194,11 +196,11 @@ void SiPixelRecHitSource::buildStructure(const edm::EventSetup& iSetup){
 		
 	}	else if( (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) && (!isUpgrade)) {
 	  LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
-	  PixelEndcapNameBase::HalfCylinder side = PixelEndcapNameWrapper(conf_, DetId(id)).halfCylinder();
-	  int disk   = PixelEndcapNameWrapper(conf_, DetId(id)).diskName();
-	  int blade  = PixelEndcapNameWrapper(conf_, DetId(id)).bladeName();
-	  int panel  = PixelEndcapNameWrapper(conf_, DetId(id)).pannelName();
-	  int module = PixelEndcapNameWrapper(conf_, DetId(id)).plaquetteName();
+	  PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(id)).halfCylinder();
+	  int disk   = PixelEndcapName(DetId(id)).diskName();
+	  int blade  = PixelEndcapName(DetId(id)).bladeName();
+	  int panel  = PixelEndcapName(DetId(id)).pannelName();
+	  int module = PixelEndcapName(DetId(id)).plaquetteName();
 
 	  char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
 	  char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);
@@ -216,11 +218,11 @@ void SiPixelRecHitSource::buildStructure(const edm::EventSetup& iSetup){
 	  thePixelStructure.insert(pair<uint32_t,SiPixelRecHitModule*> (id,theModule));
 	}	else if( (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) && (isUpgrade)) {
 	  LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
-	  PixelEndcapNameBase::HalfCylinder side = PixelEndcapNameWrapper(conf_, DetId(id)).halfCylinder();
-	  int disk   = PixelEndcapNameWrapper(conf_, DetId(id)).diskName();
-	  int blade  = PixelEndcapNameWrapper(conf_, DetId(id)).bladeName();
-	  int panel  = PixelEndcapNameWrapper(conf_, DetId(id)).pannelName();
-	  int module = PixelEndcapNameWrapper(conf_, DetId(id)).plaquetteName();
+	  PixelEndcapNameUpgrade::HalfCylinder side = PixelEndcapNameUpgrade(DetId(id)).halfCylinder();
+	  int disk   = PixelEndcapNameUpgrade(DetId(id)).diskName();
+	  int blade  = PixelEndcapNameUpgrade(DetId(id)).bladeName();
+	  int panel  = PixelEndcapNameUpgrade(DetId(id)).pannelName();
+	  int module = PixelEndcapNameUpgrade(DetId(id)).plaquetteName();
 
 	  char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
 	  char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);

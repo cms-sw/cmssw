@@ -141,7 +141,8 @@ PixelEndcapName::PixelEndcapName(const DetId & id, bool phase)
 
 // constructor from name string
 PixelEndcapName::PixelEndcapName(std::string name)
-  : PixelModuleName(false), PixelEndcapNameBase(mO, 0, 0, 0, 0) {
+  : PixelModuleName(false), thePart(mO), theDisk(0), 
+    theBlade(0), thePannel(0), thePlaquette(0) {
 
   // parse the name string
   // first, check to make sure this is an FPix name, should start with "FPix_"
@@ -302,6 +303,18 @@ string PixelEndcapName::name() const
   return stm.str();
 }
 
+std::ostream & operator<<( std::ostream& out, const PixelEndcapName::HalfCylinder& t)
+{
+  switch (t) {
+    case(PixelEndcapName::pI) : {out << "pI"; break;}
+    case(PixelEndcapName::pO) : {out << "pO"; break;}
+    case(PixelEndcapName::mI) : {out << "mI"; break;}
+    case(PixelEndcapName::mO) : {out << "mO"; break;}
+    default: out << "unknown";
+  };
+  return out;
+}
+
 // return the DetId
 DetId PixelEndcapName::getDetId(const TrackerTopology* tt) {
   
@@ -337,7 +350,7 @@ DetId PixelEndcapName::getDetId(const TrackerTopology* tt) {
       else if     (tmpBlade>=49 && tmpBlade<=56)   theBlade = 77-tmpBlade;
     }
 
-    module = static_cast<uint32_t>(pannelName());
+    module = static_cast<uint32_t>(ringName());
   
   } else { // phase 0
  
@@ -403,7 +416,7 @@ PXFDetId PixelEndcapName::getDetId() {
       else if     (tmpBlade>=49 && tmpBlade<=56)   theBlade = 77-tmpBlade;
     }
 
-    module = static_cast<uint32_t>(pannelName());
+    module = static_cast<uint32_t>(ringName());
   
   } else { // phase 0
     if (outer) {

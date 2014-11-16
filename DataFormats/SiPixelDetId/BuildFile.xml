@@ -1,4 +1,3 @@
-<use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="rootrflx"/>
 <export>

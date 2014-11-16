@@ -27,8 +27,10 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameWrapper.h"
-#include "DataFormats/SiPixelDetId/interface/PixelEndcapNameWrapper.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameUpgrade.h"
+#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -277,7 +279,11 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::Ev
       
       if(testSubDetID==PixelSubdetector::PixelBarrel){
         isBpixtrack = true;
-	hit_layer = PixelBarrelNameWrapper(pSet_, hit_detId).layerName();
+	if (!isUpgrade) {
+          hit_layer = PixelBarrelName(hit_detId).layerName();
+	} else if (isUpgrade) {
+	  hit_layer = PixelBarrelNameUpgrade(hit_detId).layerName();
+	}
 	
 	hit_ladder = PXBDetId(hit_detId).ladder();
 	hit_mod = PXBDetId(hit_detId).module();
@@ -289,7 +295,8 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::Ev
       }
       if(testSubDetID==PixelSubdetector::PixelEndcap){
         isFpixtrack = true;
-        hit_disk = PixelEndcapNameWrapper(pSet_, hit_detId).diskName();
+        if (!isUpgrade) { hit_disk = PixelEndcapName(hit_detId).diskName(); }
+        else if (isUpgrade) { hit_disk = PixelEndcapNameUpgrade(hit_detId).diskName(); }
         
 	if(hit_disk==1) D1hits++;
 	if(hit_disk==2) D2hits++;
@@ -311,7 +318,7 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::Ev
 	    tmeasIt++;
 	    TransientTrackingRecHit::ConstRecHitPointer nextRecHit = tmeasIt->recHit();
 	    uint nextSubDetID = (nextRecHit->geographicalId().subdetId()); 
-	    int nextlayer = PixelBarrelNameWrapper(pSet_, nextRecHit->geographicalId()).layerName();
+	    int nextlayer = PixelBarrelName(nextRecHit->geographicalId()).layerName();
 	    if (nextSubDetID == PixelSubdetector::PixelBarrel && nextlayer==extrapolateTo_ ) {
 	      lastValidL2=true; //&& !nextRecHit->isValid()) lastValidL2=true;
 	    }
@@ -451,12 +458,23 @@ float y=predTrajState.globalPosition().y();
 	  
 	  int disk=0; int layer=0; int panel=0; int module=0; bool isHalfModule=false;
 	  if(IntSubDetID==PixelSubdetector::PixelBarrel){ // it's a BPIX hit
-	    layer = PixelBarrelNameWrapper(pSet_, hit_detId).layerName();
-	    isHalfModule = PixelBarrelNameWrapper(pSet_, hit_detId).isHalfModule();
+            if (!isUpgrade) {
+            layer = PixelBarrelName(hit_detId).layerName();
+	    isHalfModule = PixelBarrelName(hit_detId).isHalfModule();
+	    } else if (isUpgrade) {
+	      layer = PixelBarrelNameUpgrade(hit_detId).layerName();
+	      isHalfModule = PixelBarrelNameUpgrade(hit_detId).isHalfModule();
+	    }
 	  }else if(IntSubDetID==PixelSubdetector::PixelEndcap){ // it's an FPIX hit
-	    disk = PixelEndcapNameWrapper(pSet_, hit_detId).diskName();
-	    panel = PixelEndcapNameWrapper(pSet_, hit_detId).pannelName();
-	    module = PixelEndcapNameWrapper(pSet_, hit_detId).plaquetteName();
+	    if (!isUpgrade) {
+	    disk = PixelEndcapName(hit_detId).diskName();
+	    panel = PixelEndcapName(hit_detId).pannelName();
+	    module = PixelEndcapName(hit_detId).plaquetteName();
+	    } else if (isUpgrade) {
+              disk = PixelEndcapNameUpgrade(hit_detId).diskName();
+	      panel = PixelEndcapNameUpgrade(hit_detId).pannelName();
+	      module = PixelEndcapNameUpgrade(hit_detId).plaquetteName();
+	  }
           }
           
 	  if (!isUpgrade) {
