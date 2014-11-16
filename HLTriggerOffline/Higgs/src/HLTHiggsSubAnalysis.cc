@@ -37,6 +37,7 @@ HLTHiggsSubAnalysis::HLTHiggsSubAnalysis(const edm::ParameterSet & pset,
     _HtJetPtMin(0),
     _HtJetEtaMax(0),
     _hltProcessName(pset.getParameter<std::string>("hltProcessName")),
+    _histDirectory(pset.getParameter<std::string>("histDirectory")),
     _genParticleLabel(iC.consumes<reco::GenParticleCollection>(pset.getParameter<std::string>("genParticleLabel"))),
     _genJetLabel(iC.consumes<reco::GenJetCollection>(pset.getParameter<std::string>("genJetLabel"))),
     _recoHtJetLabel(iC.consumes<reco::PFJetCollection>(pset.getUntrackedParameter<std::string>("recoHtJetLabel","ak4PFJetsCHS"))),
@@ -261,7 +262,7 @@ void HLTHiggsSubAnalysis::beginRun(const edm::Run & iRun, const edm::EventSetup 
 
 void HLTHiggsSubAnalysis::bookHistograms(DQMStore::IBooker &ibooker)
 {
-    std::string baseDir = "HLT/Higgs/"+_analysisname+"/";
+    std::string baseDir = _histDirectory+"/"+_analysisname+"/";
     ibooker.setCurrentFolder(baseDir);
     // Book the gen/reco analysis-dependent histograms (denominators)
     std::vector<std::string> sources(2);

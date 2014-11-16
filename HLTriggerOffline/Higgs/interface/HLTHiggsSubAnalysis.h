@@ -110,7 +110,7 @@ class HLTHiggsSubAnalysis
 	bool _bookHtPlots;
 
         std::string _hltProcessName;
-        std::string _histDirectory;
+	std::string _histDirectory;
         
         //! the hlt paths with regular expressions
         std::vector<std::string> _hltPathsToCheck;
