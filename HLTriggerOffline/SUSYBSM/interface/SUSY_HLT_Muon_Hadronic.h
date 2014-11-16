@@ -57,7 +57,6 @@ class SUSY_HLT_Muon_Hadronic: public DQMEDAnalyzer{
   //variables from config file
   edm::EDGetTokenT<reco::MuonCollection> theMuonCollection_;
   edm::EDGetTokenT<reco::PFMETCollection> thePfMETCollection_;
-  edm::EDGetTokenT<reco::CaloMETCollection> theCaloMETCollection_;
   edm::EDGetTokenT<reco::PFJetCollection> thePfJetCollection_;
   edm::EDGetTokenT<reco::CaloJetCollection> theCaloJetCollection_;
   edm::EDGetTokenT<edm::TriggerResults> triggerResults_;
@@ -71,9 +70,13 @@ class SUSY_HLT_Muon_Hadronic: public DQMEDAnalyzer{
   std::string triggerPathAuxiliaryForMuon_;
   std::string triggerPathAuxiliaryForHadronic_;
   edm::InputTag triggerFilter_;
+  double ptMuonOffline_;
+  double etaMuonOffline_;
+  double HTOffline_;
+  double METOffline_;
   double ptThrJet_;
   double etaThrJet_;
-  
+ 
   // Histograms
   MonitorElement* h_triggerMuPt;
   MonitorElement* h_triggerMuEta;
@@ -86,5 +89,10 @@ class SUSY_HLT_Muon_Hadronic: public DQMEDAnalyzer{
   MonitorElement* h_MuTurnOn_den;
 
 };
+
+
+struct Lepton {
+  float pt, phi, eta;
+};  
 
 #endif
