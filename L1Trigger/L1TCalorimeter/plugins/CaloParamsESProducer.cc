@@ -101,13 +101,11 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setEgTrimmingLUT(egTrimmingLUT);
 
   m_params.setEgMaxHcalEt(conf.getParameter<double>("egMaxHcalEt"));
-  m_params.setEgEtToRemoveHECut(conf.getParameter<double>("egEtToRemoveHECut"));
-  m_params.setEgRelativeJetIsolationBarrelCut(conf.getParameter<double>("egRelativeJetIsolationBarrelCut"));
-  m_params.setEgRelativeJetIsolationEndcapCut(conf.getParameter<double>("egRelativeJetIsolationEndcapCut"));
+  m_params.setEgMaxPtHOverE(conf.getParameter<double>("egMaxPtHOverE"));
   m_params.setEgMinPtRelativeJetIsolation(conf.getParameter<int>("egMinPtRelativeJetIsolation"));
   m_params.setEgMaxPtRelativeJetIsolation(conf.getParameter<int>("egMaxPtRelativeJetIsolation"));
-  m_params.setEgMinPt3x3HoE(conf.getParameter<int>("egMinPt3x3HoE"));
-  m_params.setEgMaxPt3x3HoE(conf.getParameter<int>("egMaxPt3x3HoE"));
+  m_params.setEgMinPtHOverEIsolation(conf.getParameter<int>("egMinPtHOverEIsolation"));
+  m_params.setEgMaxPtHOverEIsolation(conf.getParameter<int>("egMaxPtHOverEIsolation"));
 
 
   edm::FileInPath egMaxHOverELUTFile = conf.getParameter<edm::FileInPath>("egMaxHOverELUTFile");
@@ -160,11 +158,11 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setTauLsb(conf.getParameter<double>("tauLsb"));
   m_params.setTauSeedThreshold(conf.getParameter<double>("tauSeedThreshold"));
   m_params.setTauNeighbourThreshold(conf.getParameter<double>("tauNeighbourThreshold"));
-  m_params.setSwitchOffTauVeto(conf.getParameter<double>("switchOffTauVeto"));
-  m_params.setSwitchOffTauIso(conf.getParameter<double>("switchOffTauIso"));
+  m_params.setTauMaxPtTauVeto(conf.getParameter<double>("tauMaxPtTauVeto"));
+  m_params.setTauMinPtJetIsolationB(conf.getParameter<double>("tauMinPtJetIsolationB"));
   m_params.setTauIsoPUSType(conf.getParameter<std::string>("tauIsoPUSType"));
-  m_params.setTauRelativeJetIsolationLimit(conf.getParameter<double>("tauRelativeJetIsolationLimit"));
-  m_params.setTauRelativeJetIsolationCut(conf.getParameter<double>("tauRelativeJetIsolationCut"));
+  m_params.setTauMaxJetIsolationB(conf.getParameter<double>("tauMaxJetIsolationB"));
+  m_params.setTauMaxJetIsolationA(conf.getParameter<double>("tauMaxJetIsolationA"));
   m_params.setTauIsoAreaNrTowersEta(conf.getParameter<unsigned int>("tauIsoAreaNrTowersEta"));
   m_params.setTauIsoAreaNrTowersPhi(conf.getParameter<unsigned int>("tauIsoAreaNrTowersPhi"));
   m_params.setTauIsoVetoNrTowersPhi(conf.getParameter<unsigned int>("tauIsoVetoNrTowersPhi"));

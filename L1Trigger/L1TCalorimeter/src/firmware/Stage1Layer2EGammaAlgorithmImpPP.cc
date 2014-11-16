@@ -35,14 +35,10 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
   double jetLsb=params_->jetLsb();
   int egSeedThreshold= floor( params_->egSeedThreshold()/egLsb + 0.5);
   int jetSeedThreshold= floor( params_->jetSeedThreshold()/jetLsb + 0.5);
-  // double egRelativeJetIsolationBarrelCut = params_->egRelativeJetIsolationBarrelCut();
-  // double egRelativeJetIsolationEndcapCut = params_->egRelativeJetIsolationEndcapCut();
-  // unsigned int egRelativeJetIsolationBarrelCut = floor( params_->egRelativeJetIsolationBarrelCut()*100 +0.5);
-  // unsigned int egRelativeJetIsolationEndcapCut = floor( params_->egRelativeJetIsolationEndcapCut()*100 +0.5);
   int egMinPtRelativeJetIsolation = params_->egMinPtRelativeJetIsolation();
   int egMaxPtRelativeJetIsolation = params_->egMaxPtRelativeJetIsolation();
-  int egMinPt3x3HoE = params_->egMinPt3x3HoE();
-  int egMaxPt3x3HoE = params_->egMaxPt3x3HoE();
+  int egMinPtHOverEIsolation = params_->egMinPtHOverEIsolation();
+  int egMaxPtHOverEIsolation = params_->egMaxPtHOverEIsolation();
 
   std::string regionPUSType = params_->regionPUSType();
   std::vector<double> regionPUSParams = params_->regionPUSParams();
@@ -81,7 +77,7 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
     int isoFlagRct = 0;
 
     // 3x3 HoE, computed in 3x3
-    if(eg_et>=egMinPt3x3HoE && eg_et < egMaxPt3x3HoE ) {
+    if(eg_et>=egMinPtHOverEIsolation && eg_et < egMaxPtHOverEIsolation ) {
                  if(egCand->hwIso()) isoFlagRct =1;
     }
     else {isoFlagRct =1;}   

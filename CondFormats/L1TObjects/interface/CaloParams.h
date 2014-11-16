@@ -70,16 +70,14 @@ namespace l1t {
     double egHcalThreshold() const { return egHcalThreshold_; }
     l1t::LUT* egTrimmingLUT() { return egTrimmingLUT_.get(); }
     double egMaxHcalEt() const { return egMaxHcalEt_; }
-    double egEtToRemoveHECut() const {return egEtToRemoveHECut_;}
+    double egMaxPtHOverE() const {return egMaxPtHOverE_;}
     l1t::LUT* egMaxHOverELUT() { return egMaxHOverELUT_.get(); }
     l1t::LUT* egCompressShapesLUT() { return egCompressShapesLUT_.get(); }
     l1t::LUT* egShapeIdLUT() { return egShapeIdLUT_.get(); }
-    double egRelativeJetIsolationBarrelCut() const { return egRelativeJetIsolationBarrelCut_; }
-    double egRelativeJetIsolationEndcapCut() const { return egRelativeJetIsolationEndcapCut_; }
     int egMinPtRelativeJetIsolation() const { return egMinPtRelativeJetIsolation_; }
     int egMaxPtRelativeJetIsolation() const { return egMaxPtRelativeJetIsolation_; }
-    int egMinPt3x3HoE() const { return egMinPt3x3HoE_; }
-    int egMaxPt3x3HoE() const { return egMaxPt3x3HoE_; }
+    int egMinPtHOverEIsolation() const { return egMinPtHOverEIsolation_; }
+    int egMaxPtHOverEIsolation() const { return egMaxPtHOverEIsolation_; }
 
     unsigned egIsoAreaNrTowersEta()const{return egIsoAreaNrTowersEta_;}
     unsigned egIsoAreaNrTowersPhi()const{return egIsoAreaNrTowersPhi_;}
@@ -106,16 +104,14 @@ namespace l1t {
     void setEgHcalThreshold(double thresh) { egHcalThreshold_ = thresh; }
     void setEgTrimmingLUT(std::shared_ptr<LUT> lut) { egTrimmingLUT_ = lut; }
     void setEgMaxHcalEt(double cut) { egMaxHcalEt_ = cut; }
-    void setEgEtToRemoveHECut(double thresh) { egEtToRemoveHECut_ = thresh;}
+    void setEgMaxPtHOverE(double thresh) { egMaxPtHOverE_ = thresh;}
     void setEgMaxHOverELUT(std::shared_ptr<LUT> lut) { egMaxHOverELUT_ = lut; }
     void setEgCompressShapesLUT(std::shared_ptr<LUT> lut) { egCompressShapesLUT_ = lut; }
     void setEgShapeIdLUT(std::shared_ptr<LUT> lut) { egShapeIdLUT_ = lut; }
-    void setEgRelativeJetIsolationBarrelCut(double cutValue) { egRelativeJetIsolationBarrelCut_ = cutValue; }
-    void setEgRelativeJetIsolationEndcapCut(double cutValue) { egRelativeJetIsolationEndcapCut_ = cutValue; }
     void setEgMinPtRelativeJetIsolation(int cutValue) { egMinPtRelativeJetIsolation_ = cutValue; }
     void setEgMaxPtRelativeJetIsolation(int cutValue) { egMaxPtRelativeJetIsolation_ = cutValue; }
-    void setEgMinPt3x3HoE(int cutValue) { egMinPt3x3HoE_ = cutValue; }
-    void setEgMaxPt3x3HoE(int cutValue) { egMaxPt3x3HoE_ = cutValue; }
+    void setEgMinPtHOverEIsolation(int cutValue) { egMinPtHOverEIsolation_ = cutValue; }
+    void setEgMaxPtHOverEIsolation(int cutValue) { egMaxPtHOverEIsolation_ = cutValue; }
 
     void setEgIsoAreaNrTowersEta(unsigned iEgIsoAreaNrTowersEta){egIsoAreaNrTowersEta_=iEgIsoAreaNrTowersEta;}
     void setEgIsoAreaNrTowersPhi(unsigned iEgIsoAreaNrTowersPhi){egIsoAreaNrTowersPhi_=iEgIsoAreaNrTowersPhi;}
@@ -135,10 +131,10 @@ namespace l1t {
     double tauLsb() const { return tauLsb_; }
     double tauSeedThreshold() const { return tauSeedThreshold_; }
     double tauNeighbourThreshold() const { return tauNeighbourThreshold_; }
-    double switchOffTauVeto() const { return switchOffTauVeto_;}
-    double switchOffTauIso() const { return switchOffTauIso_;}
-    double tauRelativeJetIsolationLimit() const { return tauRelativeJetIsolationLimit_; }
-    double tauRelativeJetIsolationCut() const { return tauRelativeJetIsolationCut_; }
+    double tauMaxPtTauVeto() const { return tauMaxPtTauVeto_;}
+    double tauMinPtJetIsolationB() const { return tauMinPtJetIsolationB_;}
+    double tauMaxJetIsolationB() const { return tauMaxJetIsolationB_; }
+    double tauMaxJetIsolationA() const { return tauMaxJetIsolationA_; }
     int    isoTauEtaMin() const { return isoTauEtaMin_; }
     int    isoTauEtaMax() const { return isoTauEtaMax_; }
     std::string tauIsoPUSType() const { return tauIsoPUSType_; }
@@ -159,10 +155,10 @@ namespace l1t {
     void setTauLsb(double lsb) { tauLsb_ = lsb; }
     void setTauSeedThreshold(double thresh) { tauSeedThreshold_ = thresh; }
     void setTauNeighbourThreshold(double thresh) { tauNeighbourThreshold_ = thresh; }
-    void setSwitchOffTauVeto(double limit) { switchOffTauVeto_ = limit; }
-    void setSwitchOffTauIso(double limit) { switchOffTauIso_ = limit; }
-    void setTauRelativeJetIsolationLimit(double limit) { tauRelativeJetIsolationLimit_ = limit; }
-    void setTauRelativeJetIsolationCut(double cutValue) { tauRelativeJetIsolationCut_ = cutValue; }
+    void setTauMaxPtTauVeto(double limit) { tauMaxPtTauVeto_ = limit; }
+    void setTauMinPtJetIsolationB(double limit) { tauMinPtJetIsolationB_ = limit; }
+    void setTauMaxJetIsolationB(double limit) { tauMaxJetIsolationB_ = limit; }
+    void setTauMaxJetIsolationA(double cutValue) { tauMaxJetIsolationA_ = cutValue; }
     void setIsoTauEtaMin(int value) { isoTauEtaMin_ = value; }
     void setIsoTauEtaMax(int value) { isoTauEtaMax_ = value; }
     void setTauIsoPUSType(std::string type) { tauIsoPUSType_ = type; }
@@ -296,7 +292,7 @@ namespace l1t {
     double egMaxHcalEt_;
 
     // Et threshold to remove the H/E cut from the EGammas
-    double egEtToRemoveHECut_;
+    double egMaxPtHOverE_;
 
     // EG maximum values of H/E (indexed by |ieta|, ??)
     std::shared_ptr<l1t::LUT> egMaxHOverELUT_;
@@ -307,19 +303,13 @@ namespace l1t {
     // Shape identification bits (indexed by |ieta|, shape)
     std::shared_ptr<l1t::LUT> egShapeIdLUT_;
 
-    // Relative jet isolation cut for EG in the barrel (Stage1Layer2)
-    double egRelativeJetIsolationBarrelCut_;
-
-    // Relative jet isolation cut for EG in the endcap (Stage1Layer2)
-    double egRelativeJetIsolationEndcapCut_;
-
     // Range of jet isolation for EG (in rank!) (Stage1Layer2)
     int egMinPtRelativeJetIsolation_;
     int egMaxPtRelativeJetIsolation_;
 
     // Range of 3x3 HoE isolation for EG (in rank!) (Stage1Layer2)
-    int egMinPt3x3HoE_;
-    int egMaxPt3x3HoE_;
+    int egMinPtHOverEIsolation_;
+    int egMaxPtHOverEIsolation_;
 
     // isolation area in eta is seed tower +/- <=egIsoAreaNrTowersPhi
     unsigned egIsoAreaNrTowersEta_;
@@ -365,16 +355,16 @@ namespace l1t {
     double tauNeighbourThreshold_;
 
     // Et limit when to switch off tau veto requirement
-    double switchOffTauVeto_;
+    double tauMaxPtTauVeto_;
 
     // Et limit when to switch off tau isolation requirement
-    double switchOffTauIso_;
+    double tauMinPtJetIsolationB_;
 
     // Et jet isolation limit for Taus (Stage1Layer2)
-    double tauRelativeJetIsolationLimit_;
+    double tauMaxJetIsolationB_;
 
     // Relative jet isolation cut for Taus (Stage1Layer2)
-    double tauRelativeJetIsolationCut_;
+    double tauMaxJetIsolationA_;
 
     // Eta min and max for Iso-Tau collections (Stage1Layer2)
     int isoTauEtaMin_;

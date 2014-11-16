@@ -42,12 +42,12 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
   int tauSeedThreshold= floor( params_->tauSeedThreshold()/towerLsb + 0.5); // convert GeV to HW units
   int tauNeighbourThreshold= floor( params_->tauNeighbourThreshold()/towerLsb + 0.5); // convert GeV to HW units
   int jetSeedThreshold= floor( params_->jetSeedThreshold()/towerLsb + 0.5); // convert GeV to HW units
-  int switchOffTauVeto = floor( params_->switchOffTauVeto()/towerLsb + 0.5);
-  int switchOffTauIso = floor( params_->switchOffTauIso()/towerLsb + 0.5);
+  int tauMaxPtTauVeto = floor( params_->tauMaxPtTauVeto()/towerLsb + 0.5);
+  int tauMinPtJetIsolationB = floor( params_->tauMinPtJetIsolationB()/towerLsb + 0.5);
   int isoTauEtaMin = params_->isoTauEtaMin();
   int isoTauEtaMax = params_->isoTauEtaMax();
-  double tauRelativeJetIsolationLimit = params_->tauRelativeJetIsolationLimit();
-  double tauRelativeJetIsolationCut = params_->tauRelativeJetIsolationCut();
+  double tauMaxJetIsolationB = params_->tauMaxJetIsolationB();
+  double tauMaxJetIsolationA = params_->tauMaxJetIsolationA();
 
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
 
@@ -128,8 +128,8 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
 
 	double jetIsolation = JetIsolation(tauEt, region->hwEta(), region->hwPhi(), *unCorrJets);
 	if (region->hwEta() >= isoTauEtaMin && region->hwEta() <= isoTauEtaMax ){
-	  if ((highestNeighborTauVeto == 0 && regionTauVeto == 0) || tauEt > switchOffTauVeto) {
-	    if (jetIsolation < tauRelativeJetIsolationCut || (tauEt >= switchOffTauIso && jetIsolation < tauRelativeJetIsolationLimit)
+	  if ((highestNeighborTauVeto == 0 && regionTauVeto == 0) || tauEt > tauMaxPtTauVeto) {
+	    if (jetIsolation < tauMaxJetIsolationA || (tauEt >= tauMinPtJetIsolationB && jetIsolation < tauMaxJetIsolationB)
 		|| (std::abs(jetIsolation - 999.) < 0.1) ) isoFlag=1;
 	  }
 	}
