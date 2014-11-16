@@ -2,6 +2,7 @@
 #include <cmath>
 #include <climits>
 #include "RecoLocalCalo/HcalRecAlgos/interface/PulseShapeFitOOTPileupCorrection.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 namespace FitterFuncs{
 
@@ -73,8 +74,8 @@ namespace FitterFuncs{
     const int distTo25ns_start = 24 - i_start%ns_per_bx;    //Delta ns 
     const double factor = offset_start - bin_0_start - 0.5; //Small correction?
     
-    if( offset_start != offset_start){ //Check for nan
-      cntNANinfit ++;
+    if( edm::isNotFinite(offset_start) ){ //Check for nan
+      ++ cntNANinfit;
     }else{
       //Build the new pulse
       ntmpbin[iTS_start] = (bin_0_start == -1 ? // Initial bin (I'm assuming this is ok)
@@ -100,7 +101,7 @@ namespace FitterFuncs{
       constexpr unsigned nbins = 10;
       unsigned i =0;
       //Stop crashes
-      if(std::isnan(pars[0]) || std::isnan(pars[1]) || std::isnan(pars[2]) ) return 1e10;
+      if(edm::isNotFinite(pars[0]) || edm::isNotFinite(pars[1]) || edm::isNotFinite(pars[2]) ){ ++ cntNANinfit; return 1e10; }
       
       //calculate chisquare
       double chisq  = 0;
@@ -139,7 +140,7 @@ namespace FitterFuncs{
       constexpr unsigned nbins = 10;
       unsigned i =0;
       //Stop crashes
-      if(std::isnan(pars[0]) || std::isnan(pars[1]) || std::isnan(pars[2]) ||  std::isnan(pars[3]) ||  std::isnan(pars[4])) return 1e10;
+      if(edm::isNotFinite(pars[0]) || edm::isNotFinite(pars[1]) || edm::isNotFinite(pars[2]) ||  edm::isNotFinite(pars[3]) ||  edm::isNotFinite(pars[4])){ ++ cntNANinfit; return 1e10; }
       //calculate chisquare
       double chisq  = 0;
       double delta2 = 0;
@@ -182,8 +183,8 @@ namespace FitterFuncs{
    double PulseShapeFunctor::EvalTriplePulse(const std::vector<double>& pars) {
      constexpr unsigned nbins = 10;
      unsigned i =0;
-     if(std::isnan(pars[0]) || std::isnan(pars[1]) || std::isnan(pars[2]) ||  
-	std::isnan(pars[3]) || std::isnan(pars[4]) || std::isnan(pars[5]) ||  std::isnan(pars[6])   ) return 1e10;
+     if(edm::isNotFinite(pars[0]) || edm::isNotFinite(pars[1]) || edm::isNotFinite(pars[2]) ||  
+	edm::isNotFinite(pars[3]) || edm::isNotFinite(pars[4]) || edm::isNotFinite(pars[5]) ||  edm::isNotFinite(pars[6])   ){ ++ cntNANinfit; return 1e10; }
      //calculate chisquare
      double chisq  = 0;
      double delta2 = 0;
