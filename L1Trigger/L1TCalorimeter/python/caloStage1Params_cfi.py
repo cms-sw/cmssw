@@ -15,8 +15,8 @@ caloStage1Params.regionPUSParams  = regionSubtraction_PU40_MC13TeV
 caloStage1Params.egLsb                = cms.double(1.)
 caloStage1Params.egSeedThreshold      = cms.double(1.)
 
-caloStage1Params.egMinPtRelativeJetIsolation = cms.int32(25)
-caloStage1Params.egMaxPtRelativeJetIsolation = cms.int32(63)
+caloStage1Params.egMinPtJetIsolation = cms.int32(25)
+caloStage1Params.egMaxPtJetIsolation = cms.int32(63)
 caloStage1Params.egMinPtHOverEIsolation = cms.int32(1)
 caloStage1Params.egMaxPtHOverEIsolation = cms.int32(40)
 

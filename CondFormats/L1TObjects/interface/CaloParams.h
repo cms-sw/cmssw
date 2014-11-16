@@ -74,8 +74,8 @@ namespace l1t {
     l1t::LUT* egMaxHOverELUT() { return egMaxHOverELUT_.get(); }
     l1t::LUT* egCompressShapesLUT() { return egCompressShapesLUT_.get(); }
     l1t::LUT* egShapeIdLUT() { return egShapeIdLUT_.get(); }
-    int egMinPtRelativeJetIsolation() const { return egMinPtRelativeJetIsolation_; }
-    int egMaxPtRelativeJetIsolation() const { return egMaxPtRelativeJetIsolation_; }
+    int egMinPtJetIsolation() const { return egMinPtJetIsolation_; }
+    int egMaxPtJetIsolation() const { return egMaxPtJetIsolation_; }
     int egMinPtHOverEIsolation() const { return egMinPtHOverEIsolation_; }
     int egMaxPtHOverEIsolation() const { return egMaxPtHOverEIsolation_; }
 
@@ -108,8 +108,8 @@ namespace l1t {
     void setEgMaxHOverELUT(std::shared_ptr<LUT> lut) { egMaxHOverELUT_ = lut; }
     void setEgCompressShapesLUT(std::shared_ptr<LUT> lut) { egCompressShapesLUT_ = lut; }
     void setEgShapeIdLUT(std::shared_ptr<LUT> lut) { egShapeIdLUT_ = lut; }
-    void setEgMinPtRelativeJetIsolation(int cutValue) { egMinPtRelativeJetIsolation_ = cutValue; }
-    void setEgMaxPtRelativeJetIsolation(int cutValue) { egMaxPtRelativeJetIsolation_ = cutValue; }
+    void setEgMinPtJetIsolation(int cutValue) { egMinPtJetIsolation_ = cutValue; }
+    void setEgMaxPtJetIsolation(int cutValue) { egMaxPtJetIsolation_ = cutValue; }
     void setEgMinPtHOverEIsolation(int cutValue) { egMinPtHOverEIsolation_ = cutValue; }
     void setEgMaxPtHOverEIsolation(int cutValue) { egMaxPtHOverEIsolation_ = cutValue; }
 
@@ -137,7 +137,7 @@ namespace l1t {
     double tauMaxJetIsolationA() const { return tauMaxJetIsolationA_; }
     int    isoTauEtaMin() const { return isoTauEtaMin_; }
     int    isoTauEtaMax() const { return isoTauEtaMax_; }
-    std::string tauIsoPUSType() const { return tauIsoPUSType_; }
+    std::string tauPUSType() const { return tauPUSType_; }
     const  std::vector<double> & tauPUSParams() const { return tauPUSParams_; }
 	double tauPUSParam(int ipar) const { return tauPUSParams_.at(ipar); }
 
@@ -161,7 +161,7 @@ namespace l1t {
     void setTauMaxJetIsolationA(double cutValue) { tauMaxJetIsolationA_ = cutValue; }
     void setIsoTauEtaMin(int value) { isoTauEtaMin_ = value; }
     void setIsoTauEtaMax(int value) { isoTauEtaMax_ = value; }
-    void setTauIsoPUSType(std::string type) { tauIsoPUSType_ = type; }
+    void setTauPUSType(std::string type) { tauPUSType_ = type; }
     void setTauIsolationLUT(std::shared_ptr<LUT> lut) { tauIsolationLUT_ = lut; }
 
     void setTauCalibrationType(std::string type) { tauCalibrationType_ = type; }
@@ -304,8 +304,8 @@ namespace l1t {
     std::shared_ptr<l1t::LUT> egShapeIdLUT_;
 
     // Range of jet isolation for EG (in rank!) (Stage1Layer2)
-    int egMinPtRelativeJetIsolation_;
-    int egMaxPtRelativeJetIsolation_;
+    int egMinPtJetIsolation_;
+    int egMaxPtJetIsolation_;
 
     // Range of 3x3 HoE isolation for EG (in rank!) (Stage1Layer2)
     int egMinPtHOverEIsolation_;
@@ -371,7 +371,7 @@ namespace l1t {
     int isoTauEtaMax_;
 
     // Tau isolation PUS
-    std::string tauIsoPUSType_;
+    std::string tauPUSType_;
     
     // isolation area in eta is seed tower +/- <=tauIsoAreaNrTowersEta
     unsigned tauIsoAreaNrTowersEta_;

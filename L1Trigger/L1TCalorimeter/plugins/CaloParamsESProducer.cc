@@ -102,8 +102,8 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
 
   m_params.setEgMaxHcalEt(conf.getParameter<double>("egMaxHcalEt"));
   m_params.setEgMaxPtHOverE(conf.getParameter<double>("egMaxPtHOverE"));
-  m_params.setEgMinPtRelativeJetIsolation(conf.getParameter<int>("egMinPtRelativeJetIsolation"));
-  m_params.setEgMaxPtRelativeJetIsolation(conf.getParameter<int>("egMaxPtRelativeJetIsolation"));
+  m_params.setEgMinPtJetIsolation(conf.getParameter<int>("egMinPtJetIsolation"));
+  m_params.setEgMaxPtJetIsolation(conf.getParameter<int>("egMaxPtJetIsolation"));
   m_params.setEgMinPtHOverEIsolation(conf.getParameter<int>("egMinPtHOverEIsolation"));
   m_params.setEgMaxPtHOverEIsolation(conf.getParameter<int>("egMaxPtHOverEIsolation"));
 
@@ -160,7 +160,7 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setTauNeighbourThreshold(conf.getParameter<double>("tauNeighbourThreshold"));
   m_params.setTauMaxPtTauVeto(conf.getParameter<double>("tauMaxPtTauVeto"));
   m_params.setTauMinPtJetIsolationB(conf.getParameter<double>("tauMinPtJetIsolationB"));
-  m_params.setTauIsoPUSType(conf.getParameter<std::string>("tauIsoPUSType"));
+  m_params.setTauPUSType(conf.getParameter<std::string>("tauPUSType"));
   m_params.setTauMaxJetIsolationB(conf.getParameter<double>("tauMaxJetIsolationB"));
   m_params.setTauMaxJetIsolationA(conf.getParameter<double>("tauMaxJetIsolationA"));
   m_params.setTauIsoAreaNrTowersEta(conf.getParameter<unsigned int>("tauIsoAreaNrTowersEta"));

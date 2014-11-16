@@ -35,8 +35,8 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
   double jetLsb=params_->jetLsb();
   int egSeedThreshold= floor( params_->egSeedThreshold()/egLsb + 0.5);
   int jetSeedThreshold= floor( params_->jetSeedThreshold()/jetLsb + 0.5);
-  int egMinPtRelativeJetIsolation = params_->egMinPtRelativeJetIsolation();
-  int egMaxPtRelativeJetIsolation = params_->egMaxPtRelativeJetIsolation();
+  int egMinPtJetIsolation = params_->egMinPtJetIsolation();
+  int egMaxPtJetIsolation = params_->egMaxPtJetIsolation();
   int egMinPtHOverEIsolation = params_->egMinPtHOverEIsolation();
   int egMaxPtHOverEIsolation = params_->egMaxPtHOverEIsolation();
 
@@ -85,7 +85,7 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
     int ijet_pt=AssociatedJetPt(eg_eta,eg_phi,unCorrJets);
     // double jet_pt=ijet_pt*jetLsb;
     bool isinBarrel = (eg_eta>=7 && eg_eta<=14);
-    if (ijet_pt>0 && eg_et>=egMinPtRelativeJetIsolation && eg_et<egMaxPtRelativeJetIsolation){
+    if (ijet_pt>0 && eg_et>=egMinPtJetIsolation && eg_et<egMaxPtJetIsolation){
 
       // Combined Barrel/Endcap LUT uses upper bit to indicate Barrel / Endcap:
       enum {MAX_LUT_ADDRESS = 0x7fff}; 
