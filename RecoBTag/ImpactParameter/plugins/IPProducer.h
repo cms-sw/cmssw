@@ -99,7 +99,8 @@ namespace IPProducerHelpers {
                               edm::Handle<edm::View<reco::Candidate> > cands;
                               iEvent.getByToken(token_cands, cands);
 			      m_map.clear();
-			      m_map.resize(jets->size());	
+			      m_map.resize(jets->size());
+			      double maxDeltaR2 = maxDeltaR*maxDeltaR;
                               size_t i = 0;
                               for(edm::View<reco::Jet>::const_iterator it = jets->begin();
                                               it != jets->end(); it++, i++) {
@@ -116,7 +117,7 @@ namespace IPProducerHelpers {
 				      else
 				      {
 					  for(size_t j=0;j<cands->size();++j) {
-						  if( (*cands)[j].bestTrack()!=0 && Geom::deltaR2((*cands)[j].p4(),(*jets)[i].p4()) < maxDeltaR*maxDeltaR && (*cands)[j].charge() !=0 ){
+						  if( (*cands)[j].bestTrack()!=0 && Geom::deltaR2((*cands)[j].p4(),(*jets)[i].p4()) < maxDeltaR2 && (*cands)[j].charge() !=0 ){
 							  m_map[i].push_back(cands->ptrAt(j));
 						  }
 					  }
