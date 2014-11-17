@@ -351,6 +351,24 @@ XrdFile::readv (IOPosBuffer *into, IOSize n)
   std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
   start = std::chrono::high_resolution_clock::now();
 
+    // If there are multiple readv calls, wait until all return until looking
+    // at the results of any.  This guarantees that all readv's have finished
+    // by time we call .get() for the first time (in case one of the readv's
+    // result in an exception).
+    //
+    // We cannot have outstanding readv's on function exit as the XrdCl may
+    // write into the corresponding buffer at the same time as ROOT.
+  if (readv_futures.size() > 1)
+  {
+    for (auto & readv_result : readv_futures)
+    {
+      if (readv_result.first.valid())
+      {
+        readv_result.first.wait();
+      }
+    }
+  }
+
   for (auto & readv_result : readv_futures)
   {
     IOSize result = 0;
