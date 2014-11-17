@@ -680,7 +680,9 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
   const TrackingParticleCollection::size_type nSim = simColl.size();
 
   edm::RefToBaseVector<reco::Muon> Muons;
-  Muons = muonHandle->refVector();
+  for (size_t i = 0; i < muonHandle->size(); ++i) {
+      Muons.push_back(muonHandle->refAt(i));
+  }
 
   edm::RefVector<TrackingParticleCollection> allTPs;
   for (size_t i = 0; i < nSim; ++i) {
