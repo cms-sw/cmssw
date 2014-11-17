@@ -24,8 +24,8 @@ SUSY_HLT_Ele_HT_BTag_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                                    hltProcess = cms.string('reHLT'),
 
                                                    triggerPath = cms.string('HLT_Ele15_IsoVVVL_BTagtop8CSV07_PFHT400'),
-                                                   triggerPathAuxiliary = cms.string('HLT_Ele32_eta2p1_WP85_Gsf'),
-                                                   triggerPathLeptonAuxiliary = cms.string('HLT_PFHT350_PFMET120_NoiseCleaned'),
+                                                   triggerPathAuxiliary = cms.string('HLT_Ele32_eta2p1_WP85_Gsf_v'),
+                                                   triggerPathLeptonAuxiliary = cms.string('HLT_PFHT350_PFMET120_NoiseCleaned_v'),
 
                                                    jetPtCut = cms.untracked.double(40.0),
                                                    jetEtaCut = cms.untracked.double(3.0),

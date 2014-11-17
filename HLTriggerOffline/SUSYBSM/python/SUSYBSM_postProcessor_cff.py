@@ -8,9 +8,11 @@ from HLTriggerOffline.SUSYBSM.SUSYBSM_inclusiveHT_aux600_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_Mu_HT_SingleLepton_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_Mu_HT_MET_SingleLepton_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_Mu_HT_BTag_SingleLepton_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_Mu_HT_Control_SingleLepton_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_Ele_HT_SingleLepton_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_Ele_HT_MET_SingleLepton_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_Ele_HT_BTag_SingleLepton_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_Ele_HT_Control_SingleLepton_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_MET_MUON_ER_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_MET_HT_MUON_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_MET_HT_MUON_ER_cff import *
@@ -46,9 +48,11 @@ SusyExoPostVal = cms.Sequence(SUSY_HLT_HT_MET_POSTPROCESSING +
                               SUSY_HLT_Mu_HT_SingleLepton_POSTPROCESSING +
                               SUSY_HLT_Mu_HT_MET_SingleLepton_POSTPROCESSING +
                               SUSY_HLT_Mu_HT_BTag_SingleLepton_POSTPROCESSING +
+                              SUSY_HLT_Mu_HT_Control_SingleLepton_POSTPROCESSING +
                               SUSY_HLT_Ele_HT_SingleLepton_POSTPROCESSING +
                               SUSY_HLT_Ele_HT_MET_SingleLepton_POSTPROCESSING +
-                              SUSY_HLT_Ele_HT_BTag_SingleLepton_POSTPROCESSING)
+                              SUSY_HLT_Ele_HT_BTag_SingleLepton_POSTPROCESSING +
+                              SUSY_HLT_Ele_HT_Control_SingleLepton_POSTPROCESSING)
 
 SusyExoPostVal_fastsim = cms.Sequence(SUSY_HLT_HT_MET_FASTSIM_POSTPROCESSING +
                                       SUSY_HLT_InclusiveHT_FASTSIM_POSTPROCESSING +
@@ -58,9 +62,11 @@ SusyExoPostVal_fastsim = cms.Sequence(SUSY_HLT_HT_MET_FASTSIM_POSTPROCESSING +
                                       SUSY_HLT_Mu_HT_SingleLepton_FASTSIM_POSTPROCESSING +
                                       SUSY_HLT_Mu_HT_MET_SingleLepton_FASTSIM_POSTPROCESSING +
                                       SUSY_HLT_Mu_HT_BTag_SingleLepton_FASTSIM_POSTPROCESSING +
+                                      SUSY_HLT_Mu_HT_Control_SingleLepton_FASTSIM_POSTPROCESSING +
                                       SUSY_HLT_Ele_HT_SingleLepton_FASTSIM_POSTPROCESSING +
                                       SUSY_HLT_Ele_HT_MET_SingleLepton_FASTSIM_POSTPROCESSING +
                                       SUSY_HLT_Ele_HT_BTag_SingleLepton_FASTSIM_POSTPROCESSING +
+                                      SUSY_HLT_Ele_HT_Control_SingleLepton_FASTSIM_POSTPROCESSING +
                                       SUSY_HLT_InclusiveHT_aux350_FASTSIM_POSTPROCESSING +
                                       SUSY_HLT_InclusiveHT_aux600_FASTSIM_POSTPROCESSING +
                                       SUSY_HLT_MET_MUON_ER_FASTSIM_POSTPROCESSING +

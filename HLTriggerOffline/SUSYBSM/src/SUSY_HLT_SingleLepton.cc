@@ -2,7 +2,6 @@
 
 #include <limits>
 #include <algorithm>
-#include <iostream>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -232,7 +231,7 @@ void SUSY_HLT_SingleLepton::dqmBeginRun(const edm::Run &run, const edm::EventSet
 
   bool pathFound = false;
   for(const auto &trig_name: fHltConfig_.triggerNames()){
-    if(trig_name.find(triggerPath_) != std::string::npos) pathFound = true;
+    if(Contains(trig_name, triggerPath_)) pathFound = true;
   }
 
   if(!pathFound){
