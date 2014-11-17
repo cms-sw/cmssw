@@ -98,7 +98,7 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   edm::FileInPath egTrimmingLUTFile = conf.getParameter<edm::FileInPath>("egTrimmingLUTFile");
   std::ifstream egTrimmingLUTStream(egTrimmingLUTFile.fullPath());
   std::shared_ptr<l1t::LUT> egTrimmingLUT( new l1t::LUT(egTrimmingLUTStream) );
-  m_params.setEgTrimmingLUT(egTrimmingLUT);
+  m_params.setEgTrimmingLUT(*egTrimmingLUT);
 
   m_params.setEgMaxHcalEt(conf.getParameter<double>("egMaxHcalEt"));
   m_params.setEgMaxPtHOverE(conf.getParameter<double>("egMaxPtHOverE"));
@@ -111,24 +111,24 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   edm::FileInPath egMaxHOverELUTFile = conf.getParameter<edm::FileInPath>("egMaxHOverELUTFile");
   std::ifstream egMaxHOverELUTStream(egMaxHOverELUTFile.fullPath());
   std::shared_ptr<l1t::LUT> egMaxHOverELUT( new l1t::LUT(egMaxHOverELUTStream) );
-  m_params.setEgMaxHOverELUT(egMaxHOverELUT);
+  m_params.setEgMaxHOverELUT(*egMaxHOverELUT);
 
   edm::FileInPath egCompressShapesLUTFile = conf.getParameter<edm::FileInPath>("egCompressShapesLUTFile");
   std::ifstream egCompressShapesLUTStream(egCompressShapesLUTFile.fullPath());
   std::shared_ptr<l1t::LUT> egCompressShapesLUT( new l1t::LUT(egCompressShapesLUTStream) );
-  m_params.setEgCompressShapesLUT(egCompressShapesLUT);
+  m_params.setEgCompressShapesLUT(*egCompressShapesLUT);
 
   edm::FileInPath egShapeIdLUTFile = conf.getParameter<edm::FileInPath>("egShapeIdLUTFile");
   std::ifstream egShapeIdLUTStream(egShapeIdLUTFile.fullPath());
   std::shared_ptr<l1t::LUT> egShapeIdLUT( new l1t::LUT(egShapeIdLUTStream) );
-  m_params.setEgShapeIdLUT(egShapeIdLUT);
+  m_params.setEgShapeIdLUT(*egShapeIdLUT);
 
   m_params.setEgPUSType(conf.getParameter<std::string>("egPUSType"));
 
   edm::FileInPath egIsoLUTFile = conf.getParameter<edm::FileInPath>("egIsoLUTFile");
   std::ifstream egIsoLUTStream(egIsoLUTFile.fullPath());
   std::shared_ptr<l1t::LUT> egIsoLUT( new l1t::LUT(egIsoLUTStream) );
-  m_params.setEgIsolationLUT(egIsoLUT);
+  m_params.setEgIsolationLUT(*egIsoLUT);
 
   //edm::FileInPath egIsoLUTFileBarrel = conf.getParameter<edm::FileInPath>("egIsoLUTFileBarrel");
   //std::ifstream egIsoLUTBarrelStream(egIsoLUTFileBarrel.fullPath());
@@ -152,7 +152,7 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   edm::FileInPath egCalibrationLUTFile = conf.getParameter<edm::FileInPath>("egCalibrationLUTFile");
   std::ifstream egCalibrationLUTStream(egCalibrationLUTFile.fullPath());
   std::shared_ptr<l1t::LUT> egCalibrationLUT( new l1t::LUT(egCalibrationLUTStream) );
-  m_params.setEgCalibrationLUT(egCalibrationLUT);
+  m_params.setEgCalibrationLUT(*egCalibrationLUT);
 
   // tau
   m_params.setTauLsb(conf.getParameter<double>("tauLsb"));
@@ -170,12 +170,12 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   edm::FileInPath tauIsoLUTFile = conf.getParameter<edm::FileInPath>("tauIsoLUTFile");
   std::ifstream tauIsoLUTStream(tauIsoLUTFile.fullPath());
   std::shared_ptr<l1t::LUT> tauIsoLUT( new l1t::LUT(tauIsoLUTStream) );
-  m_params.setTauIsolationLUT(tauIsoLUT);
+  m_params.setTauIsolationLUT(*tauIsoLUT);
 
   edm::FileInPath tauCalibrationLUTFile = conf.getParameter<edm::FileInPath>("tauCalibrationLUTFile");
   std::ifstream tauCalibrationLUTStream(tauCalibrationLUTFile.fullPath());
   std::shared_ptr<l1t::LUT> tauCalibrationLUT( new l1t::LUT(tauCalibrationLUTStream) );
-  m_params.setTauCalibrationLUT(tauCalibrationLUT);
+  m_params.setTauCalibrationLUT(*tauCalibrationLUT);
 
   m_params.setIsoTauEtaMin(conf.getParameter<int> ("isoTauEtaMin"));
   m_params.setIsoTauEtaMax(conf.getParameter<int> ("isoTauEtaMax"));
@@ -212,13 +212,13 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   edm::FileInPath centralityLUTFile = conf.getParameter<edm::FileInPath>("centralityLUTFile");
   std::ifstream centralityLUTStream(centralityLUTFile.fullPath());
   std::shared_ptr<l1t::LUT> centralityLUT( new l1t::LUT(centralityLUTStream) );
-  m_params.setCentralityLUT(centralityLUT);
+  m_params.setCentralityLUT(*centralityLUT);
 
   // HI Q2 trigger
   edm::FileInPath q2LUTFile = conf.getParameter<edm::FileInPath>("q2LUTFile");
   std::ifstream q2LUTStream(q2LUTFile.fullPath());
   std::shared_ptr<l1t::LUT> q2LUT( new l1t::LUT(q2LUTStream) );
-  m_params.setQ2LUT(q2LUT);
+  m_params.setQ2LUT(*q2LUT);
 
 
 }
