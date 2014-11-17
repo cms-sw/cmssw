@@ -478,7 +478,10 @@ G4Event * RunManagerMTWorker::generateEvent(const edm::Event& inpevt) {
   m_currentEvent.reset();
   m_simEvent.reset();
 
-  G4Event * evt = new G4Event(inpevt.id().event());
+  // 64 bits event ID in CMSSW converted into Geant4 event ID
+  G4int evtid = (G4int)inpevt.id().event();
+  G4Event * evt = new G4Event(evtid);
+
   edm::Handle<edm::HepMCProduct> HepMCEvt;
 
   inpevt.getByToken(m_InToken, HepMCEvt);
