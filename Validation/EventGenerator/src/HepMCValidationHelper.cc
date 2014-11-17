@@ -186,7 +186,7 @@ namespace HepMCValidationHelper {
       findDescendents(taus[i], taudaughters);
       if ( taudaughters.size()<=0 ) {
 	edm::LogError("HepMCValidationHelper") << "Tau with no daughters. This is a bug. Fix it";
-	//comment out for now to be safe abort();
+	abort();
       }
       const HepMC::FourVector& taumom = taus[i]->momentum();
       //remove the daughters from the list of particles to compute isolation
