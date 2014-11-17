@@ -108,8 +108,6 @@ private:
     /// switches to choose the running of various methods
     bool m_runInEventLoop;
     bool m_runInEndLumi;
-    bool m_runInEndRun;
-    bool m_runInEndJob;
 
     /// verbosity switch
     bool verbose_;

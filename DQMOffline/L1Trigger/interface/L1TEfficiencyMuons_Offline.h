@@ -135,6 +135,7 @@ protected:
    // Luminosity Block
   virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
   virtual void dqmEndLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
+  virtual void dqmBeginRun(const edm::Run& run, const edm::EventSetup& iSetup);
   virtual void bookControlHistos(DQMStore::IBooker &);
   virtual void bookEfficiencyHistos(DQMStore::IBooker &ibooker, int ptCut);
   virtual void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& run, const edm::EventSetup& iSetup) override;

@@ -235,9 +235,10 @@ void L1TEventInfoClient::initialize() {
 
 void L1TEventInfoClient::dqmEndLuminosityBlock(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& evSetup) {
 
-  book(ibooker, igetter);
+  
   if (m_runInEndLumi) {
-
+    
+    book(ibooker, igetter);
     readQtResults(ibooker, igetter);
 
     if (m_verbose) {

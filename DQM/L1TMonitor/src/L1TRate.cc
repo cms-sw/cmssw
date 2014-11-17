@@ -80,7 +80,6 @@ L1TRate::~L1TRate(){}
 //_____________________________________________________________________
 void L1TRate::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup& iSetup){
 
-  if (m_verbose) {cout << "[L1TRate:] Called beginRun." << endl;}
 
   ESHandle<L1GtTriggerMenu>     menuRcd;
   ESHandle<L1GtPrescaleFactors> l1GtPfAlgo;
@@ -196,6 +195,7 @@ void L1TRate::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const 
 
 void L1TRate::dqmBeginRun(edm::Run const&, edm::EventSetup const&){
   //
+  if (m_verbose) {cout << "[L1TRate:] Called beginRun." << endl;}
 }
 //_____________________________________________________________________
 void L1TRate::beginLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) {

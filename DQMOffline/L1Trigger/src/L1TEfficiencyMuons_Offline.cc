@@ -162,27 +162,29 @@ L1TEfficiencyMuons_Offline::L1TEfficiencyMuons_Offline(const ParameterSet & ps){
  
 //_____________________________________________________________________
 L1TEfficiencyMuons_Offline::~L1TEfficiencyMuons_Offline(){ }
- 
-//_____________________________________________________________________
-void L1TEfficiencyMuons_Offline::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& run, const edm::EventSetup& iSetup){
+//----------------------------------------------------------------------
+void L1TEfficiencyMuons_Offline::dqmBeginRun(const edm::Run& run, const edm::EventSetup& iSetup){
 
   if (m_verbose) {cout << "[L1TEfficiencyMuons_Offline:] Called beginRun." << endl;}
+  
+  bool changed = true;
+  
+  m_hltConfig.init(run,iSetup,m_trigProcess,changed);
+
+}  
+//_____________________________________________________________________
+void L1TEfficiencyMuons_Offline::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& run, const edm::EventSetup& iSetup){
 
   //book histos
   bookControlHistos(ibooker);
   
   vector<int>::const_iterator gmtPtCutsIt  = m_GmtPtCuts.begin();
   vector<int>::const_iterator gmtPtCutsEnd = m_GmtPtCuts.end();
-  
+
   for (; gmtPtCutsIt!=gmtPtCutsEnd; ++ gmtPtCutsIt) {
     bookEfficiencyHistos(ibooker, (*gmtPtCutsIt));
   } 
-  
-  
-  bool changed = true;
-  
-  m_hltConfig.init(run,iSetup,m_trigProcess,changed);
-  
+ 
   vector<string>::const_iterator trigNamesIt  = m_trigNames.begin();
   vector<string>::const_iterator trigNamesEnd = m_trigNames.end();
 
@@ -199,16 +201,15 @@ void L1TEfficiencyMuons_Offline::bookHistograms(DQMStore::IBooker &ibooker, cons
 	tIndex = int(ipath);
 	m_trigIndices.push_back(tIndex);
       }
-
     }
     
     if (tIndex < 0 && m_verbose) {
       cout << "[L1TEfficiencyMuons_Offline:] Warning: Could not find trigger " 
 	   << (*trigNamesIt) << endl;
-    }
-    
+    }    
   }
   
+   
 }  
 
 //_____________________________________________________________________

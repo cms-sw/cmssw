@@ -160,6 +160,7 @@ L1GtHwValidation::~L1GtHwValidation() {
 
 void L1GtHwValidation::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& evSetup){
   //runId_->Fill(iRun.id().run());
+  std::cout << "beginRun" << std::endl;
 }
 
 void L1GtHwValidation::beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& evSetup){
@@ -730,14 +731,10 @@ void L1GtHwValidation::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run
 
 
             if (iRec == 0) {
-	      //if (m_dbe) {
                 ibooker.setCurrentFolder(m_dirName + "/DAQ/");
-                //}
 
             } else {
-	  //if (m_dbe) {
                 ibooker.setCurrentFolder(m_dirName + "/EVM/");
-                //}
             }
 
 
