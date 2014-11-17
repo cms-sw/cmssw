@@ -26,11 +26,12 @@
 #include <fstream>
 #include <vector>
 
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 //
 // class declaration
 //
 
-class L1TRate_Harvest : public edm::EDAnalyzer {
+class L1TRate_Harvest : public DQMEDAnalyzer {
 
  public:
 
@@ -48,13 +49,11 @@ class L1TRate_Harvest : public edm::EDAnalyzer {
 
     void analyze (const edm::Event& e, const edm::EventSetup& c) {
     };      // Analyze
-    void beginJob();                                                   // BeginJob
-    void endJob  ();                                                   // EndJob
-    void beginRun(const edm::Run& run, const edm::EventSetup& iSetup);
-    void endRun  (const edm::Run& run, const edm::EventSetup& iSetup);
+    virtual void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& run, const edm::EventSetup& iSetup)override ;
 
     virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
     virtual void endLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
+    virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&);
 
   // Private methods
   private:
@@ -107,10 +106,6 @@ class L1TRate_Harvest : public edm::EDAnalyzer {
     
     // MonitorElement
     MonitorElement* m_ErrorMonitor;
-    
-    // Others
-    DQMStore* dbe;  // The DQM Service Handle
-
 };
 
 #endif

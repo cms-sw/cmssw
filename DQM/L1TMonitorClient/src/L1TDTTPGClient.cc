@@ -37,7 +37,7 @@ void L1TDTTPGClient::initialize(){
   counterEvt_=0; 
   
   // get back-end interface
-  dbe_ = Service<DQMStore>().operator->();
+  //dbe_ = Service<DQMStore>().operator->();
   
   // base folder for the contents of this job
   monitorName_ = parameters_.getUntrackedParameter<string>("monitorName","");
@@ -51,32 +51,25 @@ void L1TDTTPGClient::initialize(){
   input_dir_ = parameters_.getUntrackedParameter<string>("input_dir","");
 //  cout << "DQM input dir = " << input_dir_ << endl;
   
-  LogInfo( "TriggerDQM");
-
-      
+  LogInfo( "TriggerDQM");      
 }
-
+	  
 //--------------------------------------------------------
-void L1TDTTPGClient::beginJob(void){
+void L1TDTTPGClient::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter){
 
-  LogInfo("TriggerDQM")<<"[TriggerDQM]: Begin Job";
-
-  // get backendinterface
-  dbe_ = Service<DQMStore>().operator->();  
-
-  dbe_->setCurrentFolder(output_dir_);
+  ibooker.setCurrentFolder(output_dir_);
 
   // booking
   
-  dttpgphmapcorrf = dbe_->book2D("DT_TPG_phi_map_corr_frac",
+  dttpgphmapcorrf = ibooker.book2D("DT_TPG_phi_map_corr_frac",
 				 "Fraction of correlated best triggers per station",20,1,21,12,0,12);
-  dttpgphmap2ndf = dbe_->book2D("DT_TPG_phi_map_2nd_frac",
+  dttpgphmap2ndf = ibooker.book2D("DT_TPG_phi_map_2nd_frac",
 				"Fraction of second tracks per station",20,1,21,12,0,12);
-  dttpgphmapbxf[0] = dbe_->book2D("DT_TPG_phi_map_bx-1_frac",
+  dttpgphmapbxf[0] = ibooker.book2D("DT_TPG_phi_map_bx-1_frac",
 				  "Fraction of triggers per station (BX=-1)",20,1,21,12,0,12);
-  dttpgphmapbxf[1] = dbe_->book2D("DT_TPG_phi_map_bx0_frac",
+  dttpgphmapbxf[1] = ibooker.book2D("DT_TPG_phi_map_bx0_frac",
 				  "Fraction of triggers per station (BX=0)",20,1,21,12,0,12);
-  dttpgphmapbxf[2] = dbe_->book2D("DT_TPG_phi_map_bx+1_frac",
+  dttpgphmapbxf[2] = ibooker.book2D("DT_TPG_phi_map_bx+1_frac",
 				  "Fraction of triggers per station (BX=1)",20,1,21,12,0,12);
   setMapPhLabel(dttpgphmapcorrf);
   setMapPhLabel(dttpgphmap2ndf);
@@ -84,40 +77,19 @@ void L1TDTTPGClient::beginJob(void){
   setMapPhLabel(dttpgphmapbxf[1]);
   setMapPhLabel(dttpgphmapbxf[2]);
 
-  dttpgthmaphf = dbe_->book2D("DT_TPG_theta_map_corr_frac",
+  dttpgthmaphf = ibooker.book2D("DT_TPG_theta_map_corr_frac",
 				 "Fraction of H quality best triggers per station",15,1,16,12,0,12);
-  dttpgthmapbxf[0] = dbe_->book2D("DT_TPG_theta_map_bx-1_frac",
+  dttpgthmapbxf[0] = ibooker.book2D("DT_TPG_theta_map_bx-1_frac",
 				  "Fraction of triggers per station (BX=-1)",15,1,16,12,0,12);
-  dttpgthmapbxf[1] = dbe_->book2D("DT_TPG_theta_map_bx0_frac",
+  dttpgthmapbxf[1] = ibooker.book2D("DT_TPG_theta_map_bx0_frac",
 				  "Fraction of triggers per station (BX=0)",15,1,16,12,0,12);
-  dttpgthmapbxf[2] = dbe_->book2D("DT_TPG_theta_map_bx+1_frac",
+  dttpgthmapbxf[2] = ibooker.book2D("DT_TPG_theta_map_bx+1_frac",
 				  "Fraction of triggers per station (BX=1)",15,1,16,12,0,12);
   setMapThLabel(dttpgthmaphf);
   setMapThLabel(dttpgthmapbxf[0]);
   setMapThLabel(dttpgthmapbxf[1]);
   setMapThLabel(dttpgthmapbxf[2]);
-
   
-
-}
-
-//--------------------------------------------------------
-void L1TDTTPGClient::beginRun(const Run& r, const EventSetup& context) {
-}
-
-//--------------------------------------------------------
-void L1TDTTPGClient::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& context) {
-   // optionally reset histograms here
-   // clientHisto->Reset();
-}
-//--------------------------------------------------------
-
-void L1TDTTPGClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                          const edm::EventSetup& c){
-			  
-}			  
-//--------------------------------------------------------
-void L1TDTTPGClient::analyze(const Event& e, const EventSetup& context){
 //   cout << "L1TDTTPGClient::analyze" << endl;
    counterEvt_++;
    if (prescaleEvt_<1) return;
@@ -125,47 +97,37 @@ void L1TDTTPGClient::analyze(const Event& e, const EventSetup& context){
 
    string nName = "DT_TPG_phi_best_map_corr";
    string dName = "DT_TPG_phi_best_map";
-   makeRatioHisto(dttpgphmapcorrf,nName,dName);
+   makeRatioHisto(igetter,dttpgphmapcorrf,nName,dName);
    dName = "DT_TPG_phi_map";
    nName = "DT_TPG_phi_map_2nd";
-   makeRatioHisto(dttpgphmap2ndf,nName,dName);
+   makeRatioHisto(igetter,dttpgphmap2ndf,nName,dName);
    nName = "DT_TPG_phi_map_bx-1";
-   makeRatioHisto(dttpgphmapbxf[0],nName,dName);
+   makeRatioHisto(igetter,dttpgphmapbxf[0],nName,dName);
    nName = "DT_TPG_phi_map_bx0";
-   makeRatioHisto(dttpgphmapbxf[1],nName,dName);
+   makeRatioHisto(igetter,dttpgphmapbxf[1],nName,dName);
    nName = "DT_TPG_phi_map_bx+1";
-   makeRatioHisto(dttpgphmapbxf[2],nName,dName);
+   makeRatioHisto(igetter,dttpgphmapbxf[2],nName,dName);
 
    nName = "DT_TPG_theta_best_map_h";
    dName = "DT_TPG_theta_best_map";
-   makeRatioHisto(dttpgthmaphf,nName,dName);
+   makeRatioHisto(igetter,dttpgthmaphf,nName,dName);
    dName = "DT_TPG_theta_map";
    nName = "DT_TPG_theta_map_bx-1";
-   makeRatioHisto(dttpgthmapbxf[0],nName,dName);
+   makeRatioHisto(igetter,dttpgthmapbxf[0],nName,dName);
    nName = "DT_TPG_theta_map_bx0";
-   makeRatioHisto(dttpgthmapbxf[1],nName,dName);
+   makeRatioHisto(igetter,dttpgthmapbxf[1],nName,dName);
    nName = "DT_TPG_theta_map_bx+1";
-   makeRatioHisto(dttpgthmapbxf[2],nName,dName);
-
-
+   makeRatioHisto(igetter,dttpgthmapbxf[2],nName,dName);
 }
 
-//--------------------------------------------------------
-void L1TDTTPGClient::endRun(const Run& r, const EventSetup& context){
-}
-
-//--------------------------------------------------------
-void L1TDTTPGClient::endJob(){
-}
-
-void L1TDTTPGClient::makeRatioHisto(MonitorElement *ratioME, string &nName, string &dName)
+void L1TDTTPGClient::makeRatioHisto(DQMStore::IGetter &igetter, MonitorElement *ratioME, string &nName, string &dName)
 {
 
    TH2F *numerator;
    TH2F *denominator;
 
-   denominator = this->get2DHisto(input_dir_+"/"+dName,dbe_);
-   numerator   = this->get2DHisto(input_dir_+"/"+nName,dbe_);
+   denominator = this->get2DHisto(input_dir_+"/"+dName,igetter);
+   numerator   = this->get2DHisto(input_dir_+"/"+nName,igetter);
 
    if (numerator && denominator) {
 
@@ -186,10 +148,10 @@ void L1TDTTPGClient::makeRatioHisto(MonitorElement *ratioME, string &nName, stri
 
 }
 
-TH1F * L1TDTTPGClient::get1DHisto(string meName, DQMStore * dbi)
+TH1F * L1TDTTPGClient::get1DHisto(string meName, DQMStore::IGetter &igetter)
 {
 
-  MonitorElement * me_ = dbi->get(meName);
+  MonitorElement * me_ = igetter.get(meName);
 
   if (!me_) { 
     LogInfo("TriggerDQM") << "ME NOT FOUND.";
@@ -199,11 +161,11 @@ TH1F * L1TDTTPGClient::get1DHisto(string meName, DQMStore * dbi)
   return me_->getTH1F();
 }
 
-TH2F * L1TDTTPGClient::get2DHisto(string meName, DQMStore * dbi)
+TH2F * L1TDTTPGClient::get2DHisto(string meName, DQMStore::IGetter &igetter)
 {
 
 
-  MonitorElement * me_ = dbi->get(meName);
+  MonitorElement * me_ = igetter.get(meName);
 
   if (!me_) { 
     LogInfo("TriggerDQM") << "ME NOT FOUND.";
@@ -215,11 +177,11 @@ TH2F * L1TDTTPGClient::get2DHisto(string meName, DQMStore * dbi)
 
 
 
-TProfile2D * L1TDTTPGClient::get2DProfile(string meName, DQMStore * dbi)
+TProfile2D * L1TDTTPGClient::get2DProfile(string meName, DQMStore::IGetter &igetter)
 {
 
 
-  MonitorElement * me_ = dbi->get(meName);
+  MonitorElement * me_ = igetter.get(meName);
 
   if (!me_) { 
     LogInfo("TriggerDQM") << "ME NOT FOUND.";
@@ -230,11 +192,11 @@ TProfile2D * L1TDTTPGClient::get2DProfile(string meName, DQMStore * dbi)
 }
 
 
-TProfile * L1TDTTPGClient::get1DProfile(string meName, DQMStore * dbi)
+TProfile * L1TDTTPGClient::get1DProfile(string meName, DQMStore::IGetter &igetter)
 {
 
 
-  MonitorElement * me_ = dbi->get(meName);
+  MonitorElement * me_ = igetter.get(meName);
 
   if (!me_) { 
     LogInfo("TriggerDQM") << "ME NOT FOUND.";

@@ -33,6 +33,8 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+
 #include <TString.h>
 
 #include <iostream>
@@ -40,7 +42,7 @@
 #include <string>
 #include <vector>
 
-class L1TSync : public edm::EDAnalyzer {
+class L1TSync : public DQMEDAnalyzer {
 
   public:
 
@@ -87,13 +89,11 @@ class L1TSync : public edm::EDAnalyzer {
   protected:
 
     void analyze (const edm::Event& e, const edm::EventSetup& c);  // Analyze
-    void beginJob();                                               // BeginJob
-    void endJob  (void);                                           // EndJob
-    void beginRun(const edm::Run& run, const edm::EventSetup& iSetup);
-    void endRun  (const edm::Run& run, const edm::EventSetup& iSetup);
 
     virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
     virtual void endLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
+    virtual void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
+    virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&);
 
 
   // Private Methods
@@ -105,8 +105,6 @@ class L1TSync : public edm::EDAnalyzer {
 
   // Variables
   private:
-
-    DQMStore * dbe; // The DQM Service Handle
 
     edm::ParameterSet                      m_parameters;
 
