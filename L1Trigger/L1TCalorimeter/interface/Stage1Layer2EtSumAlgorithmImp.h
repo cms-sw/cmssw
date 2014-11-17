@@ -42,6 +42,23 @@ namespace l1t {
 
   };
 
+  class Stage1Layer2EtSumAlgorithmImpHW : public Stage1Layer2EtSumAlgorithm {
+  public:
+    Stage1Layer2EtSumAlgorithmImpHW(CaloParamsStage1* params);
+    virtual ~Stage1Layer2EtSumAlgorithmImpHW();
+    virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
+			      const std::vector<l1t::CaloEmCand> & EMCands,
+			      std::vector<l1t::EtSum> * sums);
+
+  private:
+    CaloParamsStage1* const params_;
+
+    int DiJetPhi(const std::vector<l1t::Jet> * jets) const;
+    std::vector<double> sinPhi;
+    std::vector<double> cosPhi;
+
+  };
+
   /* class Stage1Layer2CentralityAlgorithm : public Stage1Layer2EtSumAlgorithm { */
   /* public: */
   /*   Stage1Layer2CentralityAlgorithm(CaloParamsStage1* params); */
