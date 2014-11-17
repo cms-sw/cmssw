@@ -64,11 +64,11 @@ def customisePostLS1EraExtras(process):
 #     if hasattr(process, 'simMuonCSCDigis'):
 #         process.simMuonCSCDigis.strips.bunchTimingOffsets = cms.vdouble(0.0, 37.53, 37.66, 55.4, 48.2, 54.45, 53.78, 53.38, 54.12, 51.98, 51.28)
 #         process.simMuonCSCDigis.wires.bunchTimingOffsets = cms.vdouble(0.0, 22.88, 22.55, 29.28, 30.0, 30.0, 30.5, 31.0, 29.5, 29.1, 29.88)
-    if hasattr(process, 'simCscTriggerPrimitiveDigis'):
-        from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigisPostLS1_cfi import cscTriggerPrimitiveDigisPostLS1
-        process.simCscTriggerPrimitiveDigis = cscTriggerPrimitiveDigisPostLS1
-        process.simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag( 'simMuonCSCDigis', 'MuonCSCComparatorDigi')
-        process.simCscTriggerPrimitiveDigis.CSCWireDigiProducer = cms.InputTag( 'simMuonCSCDigis', 'MuonCSCWireDigi')
+#     if hasattr(process, 'simCscTriggerPrimitiveDigis'):
+#         from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigisPostLS1_cfi import cscTriggerPrimitiveDigisPostLS1
+#         process.simCscTriggerPrimitiveDigis = cscTriggerPrimitiveDigisPostLS1
+#         process.simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag( 'simMuonCSCDigis', 'MuonCSCComparatorDigi')
+#         process.simCscTriggerPrimitiveDigis.CSCWireDigiProducer = cms.InputTag( 'simMuonCSCDigis', 'MuonCSCWireDigi')
     if hasattr(process, 'simCsctfTrackDigis'):
         from L1Trigger.CSCTrackFinder.csctfTrackDigisUngangedME1a_cfi import csctfTrackDigisUngangedME1a
         process.simCsctfTrackDigis = csctfTrackDigisUngangedME1a
