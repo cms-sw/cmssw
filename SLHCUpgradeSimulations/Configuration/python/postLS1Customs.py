@@ -49,9 +49,38 @@ def customisePostLS1EraExtras(process):
     what I have to modify next.
     """
     from L1Trigger.Configuration.L1Trigger_custom import customiseL1Menu
+    from SLHCUpgradeSimulations.Configuration.muonCustoms import csc_PathVsModule_SanityCheck
 
     # deal with CSC separately:
-    process = customise_csc_PostLS1(process)
+    csc_PathVsModule_SanityCheck(process)
+    if hasattr(process,"CSCGeometryESModule"):
+        process.CSCGeometryESModule.useGangedStripsInME1a = False # NB, already changed
+    if hasattr(process,"idealForDigiCSCGeometry"):
+        process.idealForDigiCSCGeometry.useGangedStripsInME1a = False
+
+    if hasattr(process, 'simMuonCSCDigis') or hasattr(process, 'simCscTriggerPrimitiveDigis') or hasattr(process, 'csc2DRecHits'):
+        process.CSCIndexerESProducer.AlgoName=cms.string("CSCIndexerPostls1")
+        process.CSCChannelMapperESProducer.AlgoName=cms.string("CSCChannelMapperPostls1")
+    if hasattr(process, 'simMuonCSCDigis'):
+        process.simMuonCSCDigis.strips.bunchTimingOffsets = cms.vdouble(0.0, 37.53, 37.66, 55.4, 48.2, 54.45, 53.78, 53.38, 54.12, 51.98, 51.28)
+        process.simMuonCSCDigis.wires.bunchTimingOffsets = cms.vdouble(0.0, 22.88, 22.55, 29.28, 30.0, 30.0, 30.5, 31.0, 29.5, 29.1, 29.88)
+    if hasattr(process, 'simCscTriggerPrimitiveDigis'):
+        from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigisPostLS1_cfi import cscTriggerPrimitiveDigisPostLS1
+        process.simCscTriggerPrimitiveDigis = cscTriggerPrimitiveDigisPostLS1
+        process.simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag( 'simMuonCSCDigis', 'MuonCSCComparatorDigi')
+        process.simCscTriggerPrimitiveDigis.CSCWireDigiProducer = cms.InputTag( 'simMuonCSCDigis', 'MuonCSCWireDigi')
+    if hasattr(process, 'simCsctfTrackDigis'):
+        from L1Trigger.CSCTrackFinder.csctfTrackDigisUngangedME1a_cfi import csctfTrackDigisUngangedME1a
+        process.simCsctfTrackDigis = csctfTrackDigisUngangedME1a
+        process.simCsctfTrackDigis.DTproducer = cms.untracked.InputTag("simDtTriggerPrimitiveDigis")
+        process.simCsctfTrackDigis.SectorReceiverInput = cms.untracked.InputTag("simCscTriggerPrimitiveDigis", "MPCSORTED")
+    if hasattr(process, 'cscpacker') or hasattr(process, 'csctfpacker'):
+        process.cscpacker.useFormatVersion = cms.uint32(2013)
+        process.cscpacker.usePreTriggers = cms.bool(False)
+        process.cscpacker.packEverything = cms.bool(True)
+    if hasattr(process, 'csc2DRecHits'):
+        process.csc2DRecHits.readBadChannels = cms.bool(False)
+        process.csc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
 
     # deal with L1 Emulation separately:
         # the following line will break HLT if HLT menu is not updated with the corresponding menu
