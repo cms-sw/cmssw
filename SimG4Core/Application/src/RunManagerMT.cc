@@ -69,6 +69,7 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const & p):
       m_G4Commands(p.getParameter<std::vector<std::string> >("G4Commands")),
       m_fieldBuilder(nullptr)
 {    
+  m_currentRun = 0;
   G4RunManagerKernel *kernel = G4MTRunManagerKernel::GetRunManagerKernel();
   if(!kernel) m_kernel = new G4MTRunManagerKernel();
   else {
@@ -183,13 +184,16 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
   //
   //  G4cout << "Output of G4ParticleTable DumpTable:" << G4endl;
   //  G4ParticleTable::GetParticleTable()->DumpTable("ALL");
+  G4StateManager::GetStateManager()->SetNewState(G4State_GeomClosed);
+  m_currentRun = new G4Run(); 
+  m_userRunAction->BeginOfRunAction(m_currentRun); 
 }
 
 void RunManagerMT::initializeUserActions() {
   m_runInterface.reset(new SimRunInterface(this, true));
 
-  m_userRunAction.reset(new RunAction(m_pRunAction, m_runInterface.get()));
-  Connect(m_userRunAction.get());
+  m_userRunAction = new RunAction(m_pRunAction, m_runInterface.get());
+  Connect(m_userRunAction);
 }
 
 void  RunManagerMT::Connect(RunAction* runAction)
@@ -205,7 +209,11 @@ void RunManagerMT::stopG4()
 }
 
 void RunManagerMT::terminateRun() {
-  m_userRunAction.reset();
+  m_userRunAction->EndOfRunAction(m_currentRun);
+  delete m_userRunAction;
+  m_userRunAction = 0;
+  // delete m_currentRun;
+  //m_currentRun = 0;
   if(m_kernel && !m_runTerminated) {
     m_kernel->RunTermination();
     m_runTerminated = true;
