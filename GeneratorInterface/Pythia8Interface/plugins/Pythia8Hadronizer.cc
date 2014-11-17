@@ -292,13 +292,16 @@ Pythia8Hadronizer::~Pythia8Hadronizer()
 
 bool Pythia8Hadronizer::initializeForInternalPartons()
 {
+  
+  bool status = true;
+  
   if ( fInitialState == PP ) // default
   {
     //fMasterGen->init(2212, 2212, comEnergy);
     fMasterGen->settings.mode("Beams:idA", 2212);
     fMasterGen->settings.mode("Beams:idB", 2212);
     fMasterGen->settings.parm("Beams:eCM", comEnergy);
-    fMasterGen->init();
+    status &= fMasterGen->init();
   }
   else if ( fInitialState == PPbar )
   {
@@ -306,7 +309,7 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
     fMasterGen->settings.mode("Beams:idA", 2212);
     fMasterGen->settings.mode("Beams:idB", -2212);
     fMasterGen->settings.parm("Beams:eCM", comEnergy);
-    fMasterGen->init();
+    status &= fMasterGen->init();
   }
   else if ( fInitialState == ElectronPositron )
   {
@@ -314,7 +317,7 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
     fMasterGen->settings.mode("Beams:idA", 11);
     fMasterGen->settings.mode("Beams:idB", -11);
     fMasterGen->settings.parm("Beams:eCM", comEnergy);
-    fMasterGen->init();
+    status &= fMasterGen->init();
   }    
   else 
   {
@@ -338,9 +341,9 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
   //fDecayer->readString("ProcessLevel::resonanceDecays=on");
   fDecayer->settings.flag("ProcessLevel:all", false ); // trick
   fDecayer->settings.flag("ProcessLevel:resonanceDecays", true );
-  fDecayer->init();
+  status &= fDecayer->init();
 
-  return true;
+  return status;
 }
 
 
@@ -349,6 +352,8 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
 
   edm::LogInfo("Pythia8Interface") << "Initializing for external partons";
 
+  bool status = true;
+  
   if((fMasterGen->settings.mode("POWHEG:veto") > 0 || fMasterGen->settings.mode("POWHEG:MPIveto") > 0) && !fEmissionVetoHook) {
 
     if(fJetMatchingHook || fEmissionVetoHook1)
@@ -399,7 +404,7 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
     //fMasterGen->init(LHEInputFileName);
     fMasterGen->settings.mode("Beams:frameType", 4);
     fMasterGen->settings.word("Beams:LHEF", LHEInputFileName);
-    fMasterGen->init();
+    status &= fMasterGen->init();
 
   } else {
 
@@ -414,7 +419,7 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
     //fMasterGen->init(lhaUP.get());
     fMasterGen->settings.mode("Beams:frameType", 5);
     fMasterGen->setLHAupPtr(lhaUP.get());
-    fMasterGen->init();
+    status &= fMasterGen->init();
   }
   
   if ( pythiaPylistVerbosity > 10 )
@@ -430,9 +435,9 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
   //fDecayer->readString("ProcessLevel::resonanceDecays=on");
   fDecayer->settings.flag("ProcessLevel:all", false ); // trick
   fDecayer->settings.flag("ProcessLevel:resonanceDecays", true );
-  fDecayer->init();
+  status &= fDecayer->init();
 
-  return true;
+  return status;
 }
 
 
