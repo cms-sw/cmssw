@@ -91,6 +91,8 @@ namespace l1t {
 
     Stage1Layer2FirmwareFactory m_factory; // Factory to produce algorithms based on DB parameters
 
+    std::string m_conditionsLabel;
+
     // to be extended with other "consumes" stuff
     EDGetToken regionToken;
     EDGetToken candsToken;
@@ -104,16 +106,20 @@ namespace l1t {
   {
     // register what you produce
     produces<BXVector<l1t::EGamma>>();
-    produces<BXVector<l1t::Tau>>();
+    produces<BXVector<l1t::Tau>>("rlxTaus");
+    produces<BXVector<l1t::Tau>>("isoTaus");
     produces<BXVector<l1t::Jet>>();
+    produces<BXVector<l1t::Jet>>("preGtJets");
     produces<BXVector<l1t::EtSum>>();
-    produces<BXVector<l1t::CaloSpare>>();
+    produces<BXVector<l1t::CaloSpare>>("HFRingSums");
+    produces<BXVector<l1t::CaloSpare>>("HFBitCounts");
 
     // register what you consume and keep token for later access:
     regionToken = consumes<BXVector<l1t::CaloRegion>>(iConfig.getParameter<InputTag>("CaloRegions"));
     candsToken = consumes<BXVector<l1t::CaloEmCand>>(iConfig.getParameter<InputTag>("CaloEmCands"));
     int ifwv=iConfig.getParameter<unsigned>("FirmwareVersion");  // LenA  make configurable for now
 
+    m_conditionsLabel = iConfig.getParameter<std::string>("conditionsLabel");
 
     //m_fwv = boost::shared_ptr<FirmwareVersion>(new FirmwareVersion()); //not const during testing
 
@@ -180,15 +186,21 @@ Stage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
   //outputs
   std::auto_ptr<l1t::EGammaBxCollection> egammas (new l1t::EGammaBxCollection);
   std::auto_ptr<l1t::TauBxCollection> taus (new l1t::TauBxCollection);
+  std::auto_ptr<l1t::TauBxCollection> isoTaus (new l1t::TauBxCollection);
   std::auto_ptr<l1t::JetBxCollection> jets (new l1t::JetBxCollection);
+  std::auto_ptr<l1t::JetBxCollection> preGtJets (new l1t::JetBxCollection);
   std::auto_ptr<l1t::EtSumBxCollection> etsums (new l1t::EtSumBxCollection);
-  std::auto_ptr<l1t::CaloSpareBxCollection> calospares (new l1t::CaloSpareBxCollection);
+  std::auto_ptr<l1t::CaloSpareBxCollection> hfSums (new l1t::CaloSpareBxCollection);
+  std::auto_ptr<l1t::CaloSpareBxCollection> hfCounts (new l1t::CaloSpareBxCollection);
 
   egammas->setBXRange(bxFirst, bxLast);
   taus->setBXRange(bxFirst, bxLast);
+  isoTaus->setBXRange(bxFirst, bxLast);
   jets->setBXRange(bxFirst, bxLast);
+  preGtJets->setBXRange(bxFirst, bxLast);
   etsums->setBXRange(bxFirst, bxLast);
-  calospares->setBXRange(bxFirst, bxLast);
+  hfSums->setBXRange(bxFirst, bxLast);
+  hfCounts->setBXRange(bxFirst, bxLast);
 
   //producer is responsible for splitting the BXVector into pieces for
   //the firmware to handle
@@ -202,8 +214,12 @@ Stage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
     std::vector<l1t::EGamma> *localEGammas = new std::vector<l1t::EGamma>();
     std::vector<l1t::Tau> *localTaus = new std::vector<l1t::Tau>();
     std::vector<l1t::Jet> *localJets = new std::vector<l1t::Jet>();
+    std::vector<l1t::Jet> *localPreGtJets = new std::vector<l1t::Jet>();
     std::vector<l1t::EtSum> *localEtSums = new std::vector<l1t::EtSum>();
-    std::vector<l1t::CaloSpare> *localCaloSpares = new std::vector<l1t::CaloSpare>();
+    l1t::CaloSpare *localHfSums = new l1t::CaloSpare();
+    localHfSums->setType(l1t::CaloSpare::HFRingSum);
+    l1t::CaloSpare *localHfCounts = new l1t::CaloSpare();
+    localHfCounts->setType(l1t::CaloSpare::HFBitCount);
 
     // copy over the inputs -> there must be a better way to do this
     for(std::vector<l1t::CaloRegion>::const_iterator region = caloRegions->begin(i);
@@ -215,37 +231,59 @@ Stage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
 
     //run the firmware on one event
     m_fw->processEvent(*localEmCands, *localRegions,
-		       localEGammas, localTaus, localJets, localEtSums,
-		       localCaloSpares);
+		       localEGammas, localTaus, localJets, localPreGtJets, localEtSums,
+		       localHfSums, localHfCounts);
 
     // copy the output into the BXVector -> there must be a better way
     for(std::vector<l1t::EGamma>::const_iterator eg = localEGammas->begin(); eg != localEGammas->end(); ++eg)
       egammas->push_back(i, *eg);
-    for(std::vector<l1t::Tau>::const_iterator tau = localTaus->begin(); tau != localTaus->end(); ++tau)
+    for(std::vector<l1t::Tau>::const_iterator tau = localTaus->begin(); tau != localTaus->end(); ++tau){
       taus->push_back(i, *tau);
+      if (tau->hwIso()==1)isoTaus->push_back(i, *tau);
+    }
+    taus->resize(i,4); //FIXME proper tau handling with hardware sorting
+    //isoTaus->resize(i,4); //FIXME proper tau handling with hardware sorting
+    int itsize=isoTaus->size(i);
+    while (itsize < 4){
+	ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > tauLorentz(0,0,0,0);
+	l1t::Tau theTau(*&tauLorentz, 0, 0, 0, 1, 1); // set hwIso=1 
+	isoTaus->push_back(i,theTau);
+	itsize++;
+    }
+
     for(std::vector<l1t::Jet>::const_iterator jet = localJets->begin(); jet != localJets->end(); ++jet)
       jets->push_back(i, *jet);
+    for(std::vector<l1t::Jet>::const_iterator jet = localPreGtJets->begin(); jet != localPreGtJets->end(); ++jet)
+      preGtJets->push_back(i, *jet);
     for(std::vector<l1t::EtSum>::const_iterator etsum = localEtSums->begin(); etsum != localEtSums->end(); ++etsum)
       etsums->push_back(i, *etsum);
-    for(std::vector<l1t::CaloSpare>::const_iterator calospare = localCaloSpares->begin(); calospare != localCaloSpares->end(); ++calospare)
-      calospares->push_back(i, *calospare);
-
+    // for(std::vector<l1t::CaloSpare>::const_iterator calospare = localCaloSpares->begin(); calospare != localCaloSpares->end(); ++calospare)
+    //   calospares->push_back(i, *calospare);
+    hfSums->push_back(i, *localHfSums);
+    hfCounts->push_back(i, *localHfCounts);
 
     delete localRegions;
     delete localEmCands;
     delete localEGammas;
     delete localTaus;
     delete localJets;
+    delete localPreGtJets;
     delete localEtSums;
-    delete localCaloSpares;
+    //delete localCaloSpares;
+    delete localHfSums;
+    delete localHfCounts;
   }
 
 
   iEvent.put(egammas);
-  iEvent.put(taus);
+  iEvent.put(taus,"rlxTaus");
+  iEvent.put(isoTaus,"isoTaus");
   iEvent.put(jets);
+  iEvent.put(preGtJets,"preGtJets");
   iEvent.put(etsums);
-  iEvent.put(calospares);
+  // iEvent.put(calospares);
+  iEvent.put(hfSums,"HFRingSums");
+  iEvent.put(hfCounts,"HFBitCounts");
 }
 
 // ------------ method called once each job just before starting event loop ------------
@@ -270,7 +308,8 @@ void Stage1Layer2Producer::beginRun(Run const&iR, EventSetup const&iE){
     m_paramsCacheId = id;
 
     edm::ESHandle<CaloParams> paramsHandle;
-    iE.get<L1TCaloParamsRcd>().get(paramsHandle);
+
+    iE.get<L1TCaloParamsRcd>().get(m_conditionsLabel, paramsHandle);
 
     // replace our local copy of the parameters with a new one using placement new
     m_params->~CaloParamsStage1();
@@ -288,20 +327,20 @@ void Stage1Layer2Producer::beginRun(Run const&iR, EventSetup const&iE){
 
   //get the proper scales for conversion to physical et AND gt scales
   edm::ESHandle< L1CaloEtScale > emScale ;
-  iE.get< L1EmEtScaleRcd >().get( emScale ) ;
+  iE.get< L1EmEtScaleRcd >().get( m_conditionsLabel, emScale ) ;
   m_params->setEmScale(*emScale);
 
   edm::ESHandle< L1CaloEtScale > jetScale ;
-  iE.get< L1JetEtScaleRcd >().get( jetScale ) ;
+  iE.get< L1JetEtScaleRcd >().get( m_conditionsLabel, jetScale ) ;
   m_params->setJetScale(*jetScale);
 
   edm::ESHandle< L1CaloEtScale > HtMissScale;
-  iE.get< L1HtMissScaleRcd >().get( HtMissScale ) ;
+  iE.get< L1HtMissScaleRcd >().get( m_conditionsLabel, HtMissScale ) ;
   m_params->setHtMissScale(*HtMissScale);
 
   //not sure if I need this one
   edm::ESHandle< L1CaloEtScale > HfRingScale;
-  iE.get< L1HfRingEtScaleRcd >().get( HfRingScale );
+  iE.get< L1HfRingEtScaleRcd >().get( m_conditionsLabel, HfRingScale );
   m_params->setHfRingScale(*HfRingScale);
 
 

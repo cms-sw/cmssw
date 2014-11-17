@@ -9,7 +9,8 @@ rctDigis = cms.EDProducer("L1RCTProducer",
     getFedsFromOmds = cms.bool(False),
 #    getFedsFromOmds = cms.bool(True), # ONLY for online DQM!
     queryDelayInLS = cms.uint32(10),
-    queryIntervalInLS = cms.uint32(100)#,
+    queryIntervalInLS = cms.uint32(100),
+    conditionsLabel = cms.string("")
 )
 
 

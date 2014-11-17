@@ -26,7 +26,6 @@ namespace l1t {
   public:
 
     CaloParams() {}
-
     ~CaloParams() {}
 
     // towers
@@ -55,12 +54,12 @@ namespace l1t {
 
     // regions
     double regionLsb() const { return regionLsb_; }
-    std::string regionPUSType() const { return regionPUSType_; }
-    std::vector<double> regionPUSParams() { return regionPUSParams_; }
+    std::string regionPUSType() const { return regionPUS_.type_; }
+    std::vector<double> regionPUSParams() { return regionPUS_.dparams_; }
 
     void setRegionLsb(double lsb) { regionLsb_ = lsb; }
-    void setRegionPUSType(std::string type) { regionPUSType_ = type; }
-    void setRegionPUSParams(std::vector<double> params) { regionPUSParams_ = params; }
+    void setRegionPUSType(std::string type) { regionPUS_.type_ = type; }
+    void setRegionPUSParams(std::vector<double> params) { regionPUS_.dparams_ = params; }
 
 
     // EG
@@ -68,103 +67,127 @@ namespace l1t {
     double egSeedThreshold() const { return egSeedThreshold_; }
     double egNeighbourThreshold() const { return egNeighbourThreshold_; }
     double egHcalThreshold() const { return egHcalThreshold_; }
+    l1t::LUT* egTrimmingLUT() { return egTrimming_.LUT_.get(); }
     double egMaxHcalEt() const { return egMaxHcalEt_; }
-    double egEtToRemoveHECut() const {return egEtToRemoveHECut_;}
-    l1t::LUT* egMaxHOverELUT() { return egMaxHOverELUT_.get(); }
-    l1t::LUT* egShapeIdLUT() { return egShapeIdLUT_.get(); }
-    double egRelativeJetIsolationBarrelCut() const { return egRelativeJetIsolationBarrelCut_; }
-    double egRelativeJetIsolationEndcapCut() const { return egRelativeJetIsolationEndcapCut_; }
+    double egMaxPtHOverE() const {return egMaxPtHOverE_;}
+    l1t::LUT* egMaxHOverELUT() { return egMaxHOverE_.LUT_.get(); }
+    l1t::LUT* egCompressShapesLUT() { return egCompressShapes_.LUT_.get(); }
+    l1t::LUT* egShapeIdLUT() { return egShapeId_.LUT_.get(); }
+    int egMinPtJetIsolation() const { return egMinPtJetIsolation_; }
+    int egMaxPtJetIsolation() const { return egMaxPtJetIsolation_; }
+    int egMinPtHOverEIsolation() const { return egMinPtHOverEIsolation_; }
+    int egMaxPtHOverEIsolation() const { return egMaxPtHOverEIsolation_; }
+
     unsigned egIsoAreaNrTowersEta()const{return egIsoAreaNrTowersEta_;}
     unsigned egIsoAreaNrTowersPhi()const{return egIsoAreaNrTowersPhi_;}
     unsigned egIsoVetoNrTowersPhi()const{return egIsoVetoNrTowersPhi_;}
-    unsigned egIsoPUEstTowerGranularity()const{return egIsoPUEstTowerGranularity_;}
-    unsigned egIsoMaxEtaAbsForTowerSum()const{return egIsoMaxEtaAbsForTowerSum_;}
-    unsigned egIsoMaxEtaAbsForIsoSum()const{return egIsoMaxEtaAbsForIsoSum_;}
-    std::string egIsoPUSType() const { return egIsoPUSType_; }
-    l1t::LUT* egIsolationLUT() { return egIsolationLUT_.get(); }
-    std::string egCalibrationType() const { return egCalibrationType_; }
-    std::vector<double> egCalibrationParams() { return egCalibrationParams_; }
-    l1t::LUT* egCalibrationLUT() { return egCalibrationLUT_.get(); }
+    //unsigned egIsoPUEstTowerGranularity()const{return egIsoPUEstTowerGranularity_;}
+    //unsigned egIsoMaxEtaAbsForTowerSum()const{return egIsoMaxEtaAbsForTowerSum_;}
+    //unsigned egIsoMaxEtaAbsForIsoSum()const{return egIsoMaxEtaAbsForIsoSum_;}
+    
+    const std::string & egPUSType() const { return egPUS_.type_; }    
+    const std::vector<double> & egPUSParams() const { return egPUS_.dparams_; }
+    double egPUSParam(int ipar) const { return egPUS_.dparams_.at(ipar); }
+    
+    
+    
+    l1t::LUT* egIsolationLUT() { return egIsolation_.LUT_.get(); }
+    std::string egCalibrationType() const { return egCalibration_.type_; }
+    std::vector<double> egCalibrationParams() { return egCalibration_.dparams_; }
+    l1t::LUT* egCalibrationLUT() { return egCalibration_.LUT_.get(); }
 
     void setEgLsb(double lsb) { egLsb_ = lsb; }
     void setEgSeedThreshold(double thresh) { egSeedThreshold_ = thresh; }
     void setEgNeighbourThreshold(double thresh) { egNeighbourThreshold_ = thresh; }
     void setEgHcalThreshold(double thresh) { egHcalThreshold_ = thresh; }
+    void setEgTrimmingLUT(std::shared_ptr<LUT> lut) { egTrimming_.LUT_ = lut; }
     void setEgMaxHcalEt(double cut) { egMaxHcalEt_ = cut; }
-    void setEgEtToRemoveHECut(double thresh) { egEtToRemoveHECut_ = thresh;}
-    void setEgMaxHOverELUT(std::shared_ptr<LUT> lut) { egMaxHOverELUT_ = lut; }
-    void setEgShapeIdLUT(std::shared_ptr<LUT> lut) { egShapeIdLUT_ = lut; }
-    void setEgRelativeJetIsolationBarrelCut(double cutValue) { egRelativeJetIsolationBarrelCut_ = cutValue; }
-    void setEgRelativeJetIsolationEndcapCut(double cutValue) { egRelativeJetIsolationEndcapCut_ = cutValue; }
+    void setEgMaxPtHOverE(double thresh) { egMaxPtHOverE_ = thresh;}
+    void setEgMaxHOverELUT(std::shared_ptr<LUT> lut) { egMaxHOverE_.LUT_ = lut; }
+    void setEgCompressShapesLUT(std::shared_ptr<LUT> lut) { egCompressShapes_.LUT_ = lut; }
+    void setEgShapeIdLUT(std::shared_ptr<LUT> lut) { egShapeId_.LUT_ = lut; }
+    void setEgMinPtJetIsolation(int cutValue) { egMinPtJetIsolation_ = cutValue; }
+    void setEgMaxPtJetIsolation(int cutValue) { egMaxPtJetIsolation_ = cutValue; }
+    void setEgMinPtHOverEIsolation(int cutValue) { egMinPtHOverEIsolation_ = cutValue; }
+    void setEgMaxPtHOverEIsolation(int cutValue) { egMaxPtHOverEIsolation_ = cutValue; }
 
     void setEgIsoAreaNrTowersEta(unsigned iEgIsoAreaNrTowersEta){egIsoAreaNrTowersEta_=iEgIsoAreaNrTowersEta;}
     void setEgIsoAreaNrTowersPhi(unsigned iEgIsoAreaNrTowersPhi){egIsoAreaNrTowersPhi_=iEgIsoAreaNrTowersPhi;}
     void setEgIsoVetoNrTowersPhi(unsigned iEgIsoVetoNrTowersPhi){egIsoVetoNrTowersPhi_=iEgIsoVetoNrTowersPhi;}
-    void setEgIsoPUEstTowerGranularity(unsigned iEgIsoPUEstTowerGranularity){egIsoPUEstTowerGranularity_=iEgIsoPUEstTowerGranularity;}
-    void setEgIsoMaxEtaAbsForTowerSum(unsigned iEgIsoMaxEtaAbsForTowerSum){egIsoMaxEtaAbsForTowerSum_=iEgIsoMaxEtaAbsForTowerSum;}
-    void setEgIsoMaxEtaAbsForIsoSum(unsigned iEgIsoMaxEtaAbsForIsoSum){egIsoMaxEtaAbsForIsoSum_=iEgIsoMaxEtaAbsForIsoSum;}
-    void setEgIsoPUSType(std::string type) { egIsoPUSType_ = type; }
-    void setEgIsolationLUT(std::shared_ptr<LUT> lut) { egIsolationLUT_ = lut; }
-    void setEgCalibrationType(std::string type) { egCalibrationType_ = type; }
-    void setEgCalibrationParams(std::vector<double> params) { egCalibrationParams_ = params; }
-    void setEgCalibrationLUT(std::shared_ptr<LUT> lut) { egCalibrationLUT_ = lut; }
+    //void setEgIsoPUEstTowerGranularity(unsigned iEgIsoPUEstTowerGranularity){egIsoPUEstTowerGranularity_=iEgIsoPUEstTowerGranularity;}
+    //void setEgIsoMaxEtaAbsForTowerSum(unsigned iEgIsoMaxEtaAbsForTowerSum){egIsoMaxEtaAbsForTowerSum_=iEgIsoMaxEtaAbsForTowerSum;}
+    //void setEgIsoMaxEtaAbsForIsoSum(unsigned iEgIsoMaxEtaAbsForIsoSum){egIsoMaxEtaAbsForIsoSum_=iEgIsoMaxEtaAbsForIsoSum;}
+    void setEgPUSType(std::string type) { egPUS_.type_ = type; }
+    void setEgPUSParams(const std::vector<double> & params) { egPUS_.dparams_ = params; }
+    void setEgIsolationLUT(std::shared_ptr<LUT> lut) { egIsolation_.LUT_ = lut; }
+    void setEgCalibrationType(std::string type) { egCalibration_.type_ = type; }
+    void setEgCalibrationParams(std::vector<double> params) { egCalibration_.dparams_ = params; }
+    void setEgCalibrationLUT(std::shared_ptr<LUT> lut) { egCalibration_.LUT_ = lut; }
 
 
     // tau
     double tauLsb() const { return tauLsb_; }
     double tauSeedThreshold() const { return tauSeedThreshold_; }
     double tauNeighbourThreshold() const { return tauNeighbourThreshold_; }
-    double switchOffTauVeto() const { return switchOffTauVeto_;}
-    double switchOffTauIso() const { return switchOffTauIso_;}
-    double tauRelativeJetIsolationLimit() const { return tauRelativeJetIsolationLimit_; }
-    double tauRelativeJetIsolationCut() const { return tauRelativeJetIsolationCut_; }
-    std::string tauIsoPUSType() const { return tauIsoPUSType_; }
-    l1t::LUT* tauIsolationLUT() { return tauIsolationLUT_.get(); }
-    std::string tauCalibrationType() const { return tauCalibrationType_; }
-    std::vector<double> tauCalibrationParams() { return tauCalibrationParams_; }
-    l1t::LUT* tauCalibrationLUTBarrelA() { return tauCalibrationLUTBarrelA_.get(); }
-    l1t::LUT* tauCalibrationLUTBarrelB() { return tauCalibrationLUTBarrelB_.get(); }
-    l1t::LUT* tauCalibrationLUTBarrelC() { return tauCalibrationLUTBarrelC_.get(); }
-    l1t::LUT* tauCalibrationLUTEndcapsA() { return tauCalibrationLUTEndcapsA_.get(); }
-    l1t::LUT* tauCalibrationLUTEndcapsB() { return tauCalibrationLUTEndcapsB_.get(); }
-    l1t::LUT* tauCalibrationLUTEndcapsC() { return tauCalibrationLUTEndcapsC_.get(); }
-    l1t::LUT* tauCalibrationLUTEta() { return tauCalibrationLUTEta_.get(); }
+    double tauMaxPtTauVeto() const { return tauMaxPtTauVeto_;}
+    double tauMinPtJetIsolationB() const { return tauMinPtJetIsolationB_;}
+    double tauMaxJetIsolationB() const { return tauMaxJetIsolationB_; }
+    double tauMaxJetIsolationA() const { return tauMaxJetIsolationA_; }
+    int    isoTauEtaMin() const { return isoTauEtaMin_; }
+    int    isoTauEtaMax() const { return isoTauEtaMax_; }
+    std::string tauPUSType() const { return tauPUS_.type_; }
+    const  std::vector<double> & tauPUSParams() const { return tauPUS_.dparams_; }
+	double tauPUSParam(int ipar) const { return tauPUS_.dparams_.at(ipar); }
+
+    l1t::LUT* tauIsolationLUT() { return tauIsolation_.LUT_.get(); }
+
+    std::string tauCalibrationType() const { return tauCalibration_.type_; }
+    std::vector<double> tauCalibrationParams() { return tauCalibration_.dparams_; }
+    l1t::LUT* tauCalibrationLUT() { return tauCalibration_.LUT_.get(); }
+
+    unsigned tauIsoAreaNrTowersEta()const{return tauIsoAreaNrTowersEta_;}
+    unsigned tauIsoAreaNrTowersPhi()const{return tauIsoAreaNrTowersPhi_;}
+    unsigned tauIsoVetoNrTowersPhi()const{return tauIsoVetoNrTowersPhi_;}
+
 
     void setTauLsb(double lsb) { tauLsb_ = lsb; }
     void setTauSeedThreshold(double thresh) { tauSeedThreshold_ = thresh; }
     void setTauNeighbourThreshold(double thresh) { tauNeighbourThreshold_ = thresh; }
-    void setSwitchOffTauVeto(double limit) { switchOffTauVeto_ = limit; }
-    void setSwitchOffTauIso(double limit) { switchOffTauIso_ = limit; }
-    void setTauRelativeJetIsolationLimit(double limit) { tauRelativeJetIsolationLimit_ = limit; }
-    void setTauRelativeJetIsolationCut(double cutValue) { tauRelativeJetIsolationCut_ = cutValue; }
-    void setTauIsoPUSType(std::string type) { tauIsoPUSType_ = type; }
-    void setTauIsolationLUT(std::shared_ptr<LUT> lut) { tauIsolationLUT_ = lut; }
-    void setTauCalibrationType(std::string type) { tauCalibrationType_ = type; }
-    void setTauCalibrationParams(std::vector<double> params) { tauCalibrationParams_ = params; }
-    void setTauCalibrationLUTBarrelA(std::shared_ptr<LUT> lut) { tauCalibrationLUTBarrelA_ = lut; }
-    void setTauCalibrationLUTBarrelB(std::shared_ptr<LUT> lut) { tauCalibrationLUTBarrelB_ = lut; }
-    void setTauCalibrationLUTBarrelC(std::shared_ptr<LUT> lut) { tauCalibrationLUTBarrelC_ = lut; }
-    void setTauCalibrationLUTEndcapsA(std::shared_ptr<LUT> lut) { tauCalibrationLUTEndcapsA_ = lut; }
-    void setTauCalibrationLUTEndcapsB(std::shared_ptr<LUT> lut) { tauCalibrationLUTEndcapsB_ = lut; }
-    void setTauCalibrationLUTEndcapsC(std::shared_ptr<LUT> lut) { tauCalibrationLUTEndcapsC_ = lut; }
-    void setTauCalibrationLUTEta(std::shared_ptr<LUT> lut) { tauCalibrationLUTEta_ = lut; }
+    void setTauMaxPtTauVeto(double limit) { tauMaxPtTauVeto_ = limit; }
+    void setTauMinPtJetIsolationB(double limit) { tauMinPtJetIsolationB_ = limit; }
+    void setTauMaxJetIsolationB(double limit) { tauMaxJetIsolationB_ = limit; }
+    void setTauMaxJetIsolationA(double cutValue) { tauMaxJetIsolationA_ = cutValue; }
+    void setIsoTauEtaMin(int value) { isoTauEtaMin_ = value; }
+    void setIsoTauEtaMax(int value) { isoTauEtaMax_ = value; }
+    void setTauPUSType(std::string type) { tauPUS_.type_ = type; }
+    void setTauIsolationLUT(std::shared_ptr<LUT> lut) { tauIsolation_.LUT_ = lut; }
+
+    void setTauCalibrationType(std::string type) { tauCalibration_.type_ = type; }
+    void setTauIsoAreaNrTowersEta(unsigned iTauIsoAreaNrTowersEta){tauIsoAreaNrTowersEta_=iTauIsoAreaNrTowersEta;}
+    void setTauIsoAreaNrTowersPhi(unsigned iTauIsoAreaNrTowersPhi){tauIsoAreaNrTowersPhi_=iTauIsoAreaNrTowersPhi;}
+    void setTauIsoVetoNrTowersPhi(unsigned iTauIsoVetoNrTowersPhi){tauIsoVetoNrTowersPhi_=iTauIsoVetoNrTowersPhi;}
+
+    void setTauCalibrationParams(std::vector<double> params) { tauCalibration_.dparams_ = params; }
+    void setTauCalibrationLUT(std::shared_ptr<LUT> lut) { tauCalibration_.LUT_ = lut; }
+    
+	void setTauPUSParams(const std::vector<double> & params) { tauPUS_.dparams_ = params; }
 
     // jets
     double jetLsb() const { return jetLsb_; }
     double jetSeedThreshold() const { return jetSeedThreshold_; }
     double jetNeighbourThreshold() const { return jetNeighbourThreshold_; }
-    std::string jetPUSType() const { return jetPUSType_; }
-    std::vector<double> jetPUSParams() { return jetPUSParams_; }
-    std::string jetCalibrationType() const { return jetCalibrationType_; }
-    std::vector<double> jetCalibrationParams() { return jetCalibrationParams_; }
+    std::string jetPUSType() const { return jetPUS_.type_; }
+    std::vector<double> jetPUSParams() { return jetPUS_.dparams_; }
+    std::string jetCalibrationType() const { return jetCalibration_.type_; }
+    std::vector<double> jetCalibrationParams() { return jetCalibration_.dparams_; }
 
     void setJetLsb(double lsb) { jetLsb_ = lsb; }
     void setJetSeedThreshold(double thresh) { jetSeedThreshold_ = thresh; }
     void setJetNeighbourThreshold(double thresh) { jetNeighbourThreshold_ = thresh; }
-    void setJetPUSType(std::string type) { jetPUSType_ = type; }
-    void setJetPUSParams(std::vector<double> params) { jetPUSParams_ = params; }
-    void setJetCalibrationType(std::string type) { jetCalibrationType_ = type; }
-    void setJetCalibrationParams(std::vector<double> params) { jetCalibrationParams_ = params; }
+    void setJetPUSType(std::string type) { jetPUS_.type_ = type; }
+    void setJetPUSParams(std::vector<double> params) { jetPUS_.dparams_ = params; }
+    void setJetCalibrationType(std::string type) { jetCalibration_.type_ = type; }
+    void setJetCalibrationParams(std::vector<double> params) { jetCalibration_.dparams_ = params; }
 
 
     // sums
@@ -178,12 +201,33 @@ namespace l1t {
     void setEtSumEtaMax(unsigned isum, int eta);
     void setEtSumEtThreshold(unsigned isum, double thresh);
 
+    // HI centrality
+    l1t::LUT* centralityLUT() { return centrality_.LUT_.get(); }
+    void setCentralityLUT(std::shared_ptr<LUT> lut) { centrality_.LUT_ = lut; }
+
+    // HI Q2
+    l1t::LUT* q2LUT() { return q2_.LUT_.get(); }
+    void setQ2LUT(std::shared_ptr<LUT> lut) { q2_.LUT_ = lut; }
+
     // print parameters to stream:
     void print(std::ostream&) const;
     friend std::ostream& operator<<(std::ostream& o, const CaloParams & p) { p.print(o); return o; }
 
 
   private:
+
+    // AlgParams:  generic container for algorithm parameters,
+    // including type name, LUTs, and vectors of various types.
+    struct AlgParams {    
+      std::string type_;
+      unsigned version_;
+      std::shared_ptr<l1t::LUT> LUT_;
+      std::vector<double> dparams_;
+      std::vector<unsigned> uparams_;
+      std::vector<int> iparams_;
+      std::vector<std::string> sparams_;
+      AlgParams(){ type_="unspecified"; version_=0; }
+    };
 
     /* Towers */
 
@@ -223,20 +267,19 @@ namespace l1t {
     // turn encoding on/off
     bool towerDoEncoding_;
 
-
+    // Unspecified Tower Algorithms:  
+    std::vector<AlgParams> towerAlgs_; 
 
     /* Regions */
 
     // Region LSB
     double regionLsb_;
 
-    // PUS scheme
-    std::string regionPUSType_;
+    // PUS scheme, parameters, and LUT
+    AlgParams regionPUS_;
 
-    // PUS parameters
-    std::vector<double> regionPUSParams_;
-
-
+    // Unspecified Region Alogithms:  type, params, LUT
+    std::vector<AlgParams> regionAlgs_;
 
     /* EG */
 
@@ -252,23 +295,31 @@ namespace l1t {
     // Et threshold on HCAL for H/E computation
     double egHcalThreshold_;
 
+    // EG Trimmed shapes (indexed by |ieta|, shape)
+    AlgParams egTrimming_;
+
     // EG maximum value of HCAL Et
     double egMaxHcalEt_;
 
     // Et threshold to remove the H/E cut from the EGammas
-    double egEtToRemoveHECut_;
+    double egMaxPtHOverE_;
 
     // EG maximum values of H/E (indexed by |ieta|, ??)
-    std::shared_ptr<l1t::LUT> egMaxHOverELUT_;
+    AlgParams egMaxHOverE_;
+
+    // Compress shapes
+    AlgParams egCompressShapes_;
 
     // Shape identification bits (indexed by |ieta|, shape)
-    std::shared_ptr<l1t::LUT> egShapeIdLUT_;
+    AlgParams egShapeId_;
 
-    // Relative jet isolation cut for EG in the barrel (Stage1Layer2)
-    double egRelativeJetIsolationBarrelCut_;
+    // Range of jet isolation for EG (in rank!) (Stage1Layer2)
+    int egMinPtJetIsolation_;
+    int egMaxPtJetIsolation_;
 
-    // Relative jet isolation cut for EG in the endcap (Stage1Layer2)
-    double egRelativeJetIsolationEndcapCut_;
+    // Range of 3x3 HoE isolation for EG (in rank!) (Stage1Layer2)
+    int egMinPtHOverEIsolation_;
+    int egMaxPtHOverEIsolation_;
 
     // isolation area in eta is seed tower +/- <=egIsoAreaNrTowersPhi
     unsigned egIsoAreaNrTowersEta_;
@@ -279,30 +330,17 @@ namespace l1t {
     // veto region is seed tower +/- <=egIsoVetoNrTowersPhi
     unsigned egIsoVetoNrTowersPhi_;
 
-    // for # towers based PU estimator, estimator is #towers/egIsoPUEstTowerGranularity_
-    unsigned egIsoPUEstTowerGranularity_;
+    // EG calibration: type, parameters, and LUT
+    AlgParams egCalibration_;
 
-    // eta range over which # towers is estimated
-    unsigned egIsoMaxEtaAbsForTowerSum_;
+    // EG isolation PUS:  type, params, and LUT
+    AlgParams egPUS_;
 
-    // max abs eta for which a tower is included in the isolation sum
-    unsigned egIsoMaxEtaAbsForIsoSum_;
+    // EG isolation:  type, params, and LUT (indexed by eta, Et ?)
+    AlgParams egIsolation_;
 
-    // EG calibration
-    std::string egCalibrationType_;
-
-    // EG calibration coefficients
-    std::vector<double> egCalibrationParams_;
-    std::shared_ptr<l1t::LUT> egCalibrationLUT_;
-
-    // EG isolation PUS
-    std::string egIsoPUSType_;
-
-    // EG isolation LUT (indexed by eta, Et ?)
-    std::shared_ptr<l1t::LUT> egIsolationLUT_;
-
-
-
+    // Unspecified EG Algorithms:  type, params, LUT
+    std::vector<AlgParams> egAlgs_;
 
     /* Tau */
 
@@ -316,37 +354,41 @@ namespace l1t {
     double tauNeighbourThreshold_;
 
     // Et limit when to switch off tau veto requirement
-    double switchOffTauVeto_;
+    double tauMaxPtTauVeto_;
 
     // Et limit when to switch off tau isolation requirement
-    double switchOffTauIso_;
+    double tauMinPtJetIsolationB_;
 
     // Et jet isolation limit for Taus (Stage1Layer2)
-    double tauRelativeJetIsolationLimit_;
+    double tauMaxJetIsolationB_;
 
     // Relative jet isolation cut for Taus (Stage1Layer2)
-    double tauRelativeJetIsolationCut_;
+    double tauMaxJetIsolationA_;
 
-    // Tau isolation PUS
-    std::string tauIsoPUSType_;
+    // Eta min and max for Iso-Tau collections (Stage1Layer2)
+    int isoTauEtaMin_;
+    int isoTauEtaMax_;
+    
+    // isolation area in eta is seed tower +/- <=tauIsoAreaNrTowersEta
+    unsigned tauIsoAreaNrTowersEta_;
+
+    // isolation area in phi is seed tower +/- <=tauIsoAreaNrTowersPhi
+    unsigned tauIsoAreaNrTowersPhi_;
+
+    // veto region is seed tower +/- <=tauIsoVetoNrTowersPhi
+    unsigned tauIsoVetoNrTowersPhi_;
+    
+    // Tau PUS (currently applied to isolated taus only)
+    AlgParams tauPUS_;
 
     // Tau isolation LUT (indexed by eta, Et ?)
-     std::shared_ptr<l1t::LUT> tauIsolationLUT_;
+    AlgParams tauIsolation_;
 
-    // Tau calibration
-    std::string tauCalibrationType_;
+    // Tau calibration:  type, params, and LUT
+    AlgParams tauCalibration_;
 
-    // Tau calibration coefficients
-    std::vector<double> tauCalibrationParams_;
-    std::shared_ptr<l1t::LUT> tauCalibrationLUTBarrelA_;
-    std::shared_ptr<l1t::LUT> tauCalibrationLUTBarrelB_;
-    std::shared_ptr<l1t::LUT> tauCalibrationLUTBarrelC_;
-    std::shared_ptr<l1t::LUT> tauCalibrationLUTEndcapsA_;
-    std::shared_ptr<l1t::LUT> tauCalibrationLUTEndcapsB_;
-    std::shared_ptr<l1t::LUT> tauCalibrationLUTEndcapsC_;
-    std::shared_ptr<l1t::LUT> tauCalibrationLUTEta_;
-
-
+    // Unspecified Tau Algorithms:
+    std::vector<AlgParams> tauAlgs_;
 
     /* Jets */
 
@@ -359,20 +401,16 @@ namespace l1t {
     // Et threshold on neighbouring towers/regions
     double jetNeighbourThreshold_;
 
-    // jet PUS scheme ("None" means no PU)
-    std::string jetPUSType_;
+    // jet PUS type, params, and LUT 
+    // (type "None" means no PU)
+    AlgParams jetPUS_;
 
-    // jet PU params
-    std::vector<double> jetPUSParams_;
+    // jet calibration scheme 
+    // (type "None" means no JEC)
+    AlgParams jetCalibration_;
 
-    // jet calibration scheme ("None" means no JEC)
-    std::string jetCalibrationType_;
-
-    // jet calibration coefficients
-    std::vector<double> jetCalibrationParams_;
-
-
-
+    // Unspecified Jet Algorithms:
+    std::vector<AlgParams> jetAlgs_;
 
     /* Sums */
 
@@ -388,8 +426,25 @@ namespace l1t {
     // minimum eta for EtSums (index is particular EtSum.  ETT=1, HTT=2, MET=3, MHT=4, other values reserved).
     std::vector<double> etSumEtThreshold_;
 
+    // Unspecified ET Sum Algorithms:
+    std::vector<AlgParams> etSumAlgs_;
 
+    /* HI */
 
+    // centrality LUT
+    AlgParams centrality_;
+
+    // Q2 LUT
+    AlgParams q2_;
+
+    // Unspecified HI algorithms:
+    std::vector<AlgParams> hiAlgs_;
+
+    /* Attic:  Reserved for future use */
+
+    // Attic variables of last resort:
+    unsigned atticVersion;  // UNUSED:  Reserved for future use 
+    std::vector<AlgParams> atticAlgs_;
   };
 
 }// namespace
