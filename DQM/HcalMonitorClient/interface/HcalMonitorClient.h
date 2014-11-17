@@ -11,7 +11,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 
 #include "DQM/HcalMonitorClient/interface/HcalBaseDQClient.h"
@@ -19,11 +19,10 @@
 
 #include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 
-class DQMStore;
 class HcalChannelQuality;
 class HcalSummaryClient;
 
-class HcalMonitorClient: public edm::EDAnalyzer
+class HcalMonitorClient: public DQMEDHarvester
 {
 
 public:
@@ -35,28 +34,23 @@ public:
   virtual ~HcalMonitorClient();
 
  /// Analyze
-  void analyze(int LS=-1);
-  void analyze(const edm::Event & e, const edm::EventSetup & c);
-  
-  /// BeginJob
-  void beginJob(void);
+  void analyze(DQMStore::IBooker &ib, DQMStore::IGetter &, int LS=-1);
+  //void analyze(const edm::Event & e, const edm::EventSetup & c);
   
   /// EndJob
-  void endJob(void);
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
   
   /// BeginRun
-  void beginRun();
+  //void beginRun();
   void beginRun(const edm::Run & r, const edm::EventSetup & c);
   
   /// EndRun
-  void endRun();
+  void endRun(DQMStore::IBooker &, DQMStore::IGetter &);
   void endRun(const edm::Run & r, const edm::EventSetup & c);
   
-  /// BeginLumiBlock
-  void beginLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
   
   /// EndLumiBlock
-  void endLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
+  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, const edm::LuminosityBlock & l, const edm::EventSetup & c);
   
   /// Reset
   void reset(void);
@@ -74,7 +68,7 @@ public:
   void writeChannelStatus();
   
   // Write html output
-  void writeHtml();
+  void writeHtml(DQMStore::IBooker &, DQMStore::IGetter &);
 
   void PlotPedestalValues(const HcalDbService& cond);
 
@@ -118,7 +112,6 @@ private:
 
   std::vector<HcalBaseDQClient*> clients_;  
 
-  DQMStore* dqmStore_;
   const HcalChannelQuality* chanquality_;
 
   HcalSummaryClient* summaryClient_;
@@ -127,6 +120,18 @@ private:
   EtaPhiHists* ADC_WidthFromDBByDepth;
   EtaPhiHists* fC_PedestalFromDBByDepth;
   EtaPhiHists* fC_WidthFromDBByDepth;
+
+  // -- 
+  bool doPedSetup_;
+  // This function creates the EtaPhiHists for pedestal monitoring
+  // The doPedSetup_ flag is set to false during the execution of the function.
+  void setupPedestalMon(DQMStore::IBooker &);
+
+  bool doChanStatSetup_;
+  // The setupChannelStatusMon function creates the EtaPhiHists to record ChannelStatus.
+  // It will be retrieved by the HcalSummaryClient in the analysis(LS) method.
+  // The doChanStatSetup_ flag is set to false during the xectuion of the function.
+  void setupChannelStatusMon(DQMStore::IBooker &);
 
 };
 
