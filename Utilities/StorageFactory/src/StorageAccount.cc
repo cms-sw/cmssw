@@ -2,12 +2,13 @@
 #include <mutex>
 #include <sstream>
 #include <unistd.h>
+#include <sys/time.h>
 
 static std::mutex            s_mutex;
 StorageAccount::StorageStats s_stats;
 
 static double timeRealNanoSecs (void) {
-#if _POSIX_TIMERS > 0
+#if defined(_POSIX_TIMERS) && (_POSIX_TIMERS > 0)
   struct timespec tm;
   if (clock_gettime(CLOCK_REALTIME, &tm) == 0)
     return tm.tv_sec * 1e9 + tm.tv_nsec;
