@@ -1,4 +1,4 @@
-#include "L1Trigger/L1TCalorimeter/plugins/PhysicalEtAdder.h"
+#include "L1Trigger/L1TCalorimeter/plugins/L1TPhysicalEtAdder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
@@ -24,53 +24,55 @@
 double getPhysicalEta(int etaIndex, bool forward = false);
 double getPhysicalPhi(int phiIndex);
 
-l1t::PhysicalEtAdder::PhysicalEtAdder(const edm::ParameterSet& ps) {
+using namespace l1t;
 
-  produces<l1t::EGammaBxCollection>();
-  produces<l1t::TauBxCollection>("rlxTaus");
-  produces<l1t::TauBxCollection>("isoTaus");
-  produces<l1t::JetBxCollection>();
-  produces<l1t::JetBxCollection>("preGtJets");
-  produces<l1t::EtSumBxCollection>();
-  produces<l1t::CaloSpareBxCollection>("HFRingSums");
-  produces<l1t::CaloSpareBxCollection>("HFBitCounts");
+L1TPhysicalEtAdder::L1TPhysicalEtAdder(const edm::ParameterSet& ps) {
 
-  EGammaToken_ = consumes<l1t::EGammaBxCollection>(ps.getParameter<edm::InputTag>("InputCollection"));
-  RlxTauToken_ = consumes<l1t::TauBxCollection>(ps.getParameter<edm::InputTag>("InputRlxTauCollection"));
-  IsoTauToken_ = consumes<l1t::TauBxCollection>(ps.getParameter<edm::InputTag>("InputIsoTauCollection"));
-  JetToken_ = consumes<l1t::JetBxCollection>(ps.getParameter<edm::InputTag>("InputCollection"));
-  preGtJetToken_ = consumes<l1t::JetBxCollection>(ps.getParameter<edm::InputTag>("InputPreGtJetCollection"));
-  EtSumToken_ = consumes<l1t::EtSumBxCollection>(ps.getParameter<edm::InputTag>("InputCollection"));
-  HfSumsToken_ = consumes<l1t::CaloSpareBxCollection>(ps.getParameter<edm::InputTag>("InputHFSumsCollection"));
-  HfCountsToken_ = consumes<l1t::CaloSpareBxCollection>(ps.getParameter<edm::InputTag>("InputHFCountsCollection"));
+  produces<EGammaBxCollection>();
+  produces<TauBxCollection>("rlxTaus");
+  produces<TauBxCollection>("isoTaus");
+  produces<JetBxCollection>();
+  produces<JetBxCollection>("preGtJets");
+  produces<EtSumBxCollection>();
+  produces<CaloSpareBxCollection>("HFRingSums");
+  produces<CaloSpareBxCollection>("HFBitCounts");
+
+  EGammaToken_ = consumes<EGammaBxCollection>(ps.getParameter<edm::InputTag>("InputCollection"));
+  RlxTauToken_ = consumes<TauBxCollection>(ps.getParameter<edm::InputTag>("InputRlxTauCollection"));
+  IsoTauToken_ = consumes<TauBxCollection>(ps.getParameter<edm::InputTag>("InputIsoTauCollection"));
+  JetToken_ = consumes<JetBxCollection>(ps.getParameter<edm::InputTag>("InputCollection"));
+  preGtJetToken_ = consumes<JetBxCollection>(ps.getParameter<edm::InputTag>("InputPreGtJetCollection"));
+  EtSumToken_ = consumes<EtSumBxCollection>(ps.getParameter<edm::InputTag>("InputCollection"));
+  HfSumsToken_ = consumes<CaloSpareBxCollection>(ps.getParameter<edm::InputTag>("InputHFSumsCollection"));
+  HfCountsToken_ = consumes<CaloSpareBxCollection>(ps.getParameter<edm::InputTag>("InputHFCountsCollection"));
 }
 
-l1t::PhysicalEtAdder::~PhysicalEtAdder() {
+L1TPhysicalEtAdder::~L1TPhysicalEtAdder() {
 
 }
 
 // ------------ method called to produce the data  ------------
 void
-l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+L1TPhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   // store new collections which include physical quantities
-  std::auto_ptr<l1t::EGammaBxCollection> new_egammas (new l1t::EGammaBxCollection);
-  std::auto_ptr<l1t::TauBxCollection> new_rlxtaus (new l1t::TauBxCollection);
-  std::auto_ptr<l1t::TauBxCollection> new_isotaus (new l1t::TauBxCollection);
-  std::auto_ptr<l1t::JetBxCollection> new_jets (new l1t::JetBxCollection);
-  std::auto_ptr<l1t::JetBxCollection> new_preGtJets (new l1t::JetBxCollection);
-  std::auto_ptr<l1t::EtSumBxCollection> new_etsums (new l1t::EtSumBxCollection);
-  std::auto_ptr<l1t::CaloSpareBxCollection> new_hfsums (new l1t::CaloSpareBxCollection);
-  std::auto_ptr<l1t::CaloSpareBxCollection> new_hfcounts (new l1t::CaloSpareBxCollection);
+  std::auto_ptr<EGammaBxCollection> new_egammas (new EGammaBxCollection);
+  std::auto_ptr<TauBxCollection> new_rlxtaus (new TauBxCollection);
+  std::auto_ptr<TauBxCollection> new_isotaus (new TauBxCollection);
+  std::auto_ptr<JetBxCollection> new_jets (new JetBxCollection);
+  std::auto_ptr<JetBxCollection> new_preGtJets (new JetBxCollection);
+  std::auto_ptr<EtSumBxCollection> new_etsums (new EtSumBxCollection);
+  std::auto_ptr<CaloSpareBxCollection> new_hfsums (new CaloSpareBxCollection);
+  std::auto_ptr<CaloSpareBxCollection> new_hfcounts (new CaloSpareBxCollection);
 
-  edm::Handle<l1t::EGammaBxCollection> old_egammas;
-  edm::Handle<l1t::TauBxCollection> old_rlxtaus;
-  edm::Handle<l1t::TauBxCollection> old_isotaus;
-  edm::Handle<l1t::JetBxCollection> old_jets;
-  edm::Handle<l1t::JetBxCollection> old_preGtJets;
-  edm::Handle<l1t::EtSumBxCollection> old_etsums;
-  edm::Handle<l1t::CaloSpareBxCollection> old_hfsums;
-  edm::Handle<l1t::CaloSpareBxCollection> old_hfcounts;
+  edm::Handle<EGammaBxCollection> old_egammas;
+  edm::Handle<TauBxCollection> old_rlxtaus;
+  edm::Handle<TauBxCollection> old_isotaus;
+  edm::Handle<JetBxCollection> old_jets;
+  edm::Handle<JetBxCollection> old_preGtJets;
+  edm::Handle<EtSumBxCollection> old_etsums;
+  edm::Handle<CaloSpareBxCollection> old_hfsums;
+  edm::Handle<CaloSpareBxCollection> old_hfcounts;
 
   iEvent.getByToken(EGammaToken_, old_egammas);
   iEvent.getByToken(RlxTauToken_, old_rlxtaus);
@@ -105,7 +107,7 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   for(int bx = firstBX; bx <= lastBX; ++bx)
   {
-    for(l1t::EGammaBxCollection::const_iterator itEGamma = old_egammas->begin(bx);
+    for(EGammaBxCollection::const_iterator itEGamma = old_egammas->begin(bx);
 	itEGamma != old_egammas->end(bx); ++itEGamma)
     {
       //const double pt = itEGamma->hwPt() * emScale->linearLsb();
@@ -114,7 +116,7 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       const double phi = getPhysicalPhi(itEGamma->hwPhi());
       math::PtEtaPhiMLorentzVector p4(et, eta, phi, 0);
 
-      l1t::EGamma eg(*&p4, itEGamma->hwPt(),
+      EGamma eg(*&p4, itEGamma->hwPt(),
 		     itEGamma->hwEta(), itEGamma->hwPhi(),
 		     itEGamma->hwQual(), itEGamma->hwIso());
       new_egammas->push_back(bx, *&eg);
@@ -122,7 +124,7 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     }
 
-    for(l1t::TauBxCollection::const_iterator itTau = old_rlxtaus->begin(bx);
+    for(TauBxCollection::const_iterator itTau = old_rlxtaus->begin(bx);
 	itTau != old_rlxtaus->end(bx); ++itTau)
     {
       // use the full-circle conversion to match l1extra, accounts for linearLsb and max value automatically
@@ -139,14 +141,14 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       const double phi = getPhysicalPhi(itTau->hwPhi());
       math::PtEtaPhiMLorentzVector p4(et, eta, phi, 0);
 
-      l1t::Tau tau(*&p4, itTau->hwPt(),
+      Tau tau(*&p4, itTau->hwPt(),
 		   itTau->hwEta(), itTau->hwPhi(),
 		   itTau->hwQual(), itTau->hwIso());
       new_rlxtaus->push_back(bx, *&tau);
 
     }
 
-    for(l1t::TauBxCollection::const_iterator itTau = old_isotaus->begin(bx);
+    for(TauBxCollection::const_iterator itTau = old_isotaus->begin(bx);
 	itTau != old_isotaus->end(bx); ++itTau)
     {
       // use the full-circle conversion to match l1extra, accounts for linearLsb and max value automatically
@@ -163,14 +165,14 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       const double phi = getPhysicalPhi(itTau->hwPhi());
       math::PtEtaPhiMLorentzVector p4(et, eta, phi, 0);
 
-      l1t::Tau tau(*&p4, itTau->hwPt(),
+      Tau tau(*&p4, itTau->hwPt(),
 		   itTau->hwEta(), itTau->hwPhi(),
 		   itTau->hwQual(), itTau->hwIso());
       new_isotaus->push_back(bx, *&tau);
 
     }
 
-    for(l1t::JetBxCollection::const_iterator itJet = old_jets->begin(bx);
+    for(JetBxCollection::const_iterator itJet = old_jets->begin(bx);
 	itJet != old_jets->end(bx); ++itJet)
     {
       // use the full-circle conversion to match l1extra, accounts for linearLsb and max value automatically
@@ -188,14 +190,14 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       const double phi = getPhysicalPhi(itJet->hwPhi());
       math::PtEtaPhiMLorentzVector p4(et, eta, phi, 0);
 
-      l1t::Jet jet(*&p4, itJet->hwPt(),
+      Jet jet(*&p4, itJet->hwPt(),
 		   itJet->hwEta(), itJet->hwPhi(),
 		   itJet->hwQual());
       new_jets->push_back(bx, *&jet);
 
     }
 
-    for(l1t::JetBxCollection::const_iterator itJet = old_preGtJets->begin(bx);
+    for(JetBxCollection::const_iterator itJet = old_preGtJets->begin(bx);
 	itJet != old_preGtJets->end(bx); ++itJet)
     {
       // use the full-circle conversion to match l1extra, accounts for linearLsb and max value automatically
@@ -213,7 +215,7 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       const double phi = getPhysicalPhi(itJet->hwPhi());
       math::PtEtaPhiMLorentzVector p4(et, eta, phi, 0);
 
-      l1t::Jet jet(*&p4, itJet->hwPt(),
+      Jet jet(*&p4, itJet->hwPt(),
 		   itJet->hwEta(), itJet->hwPhi(),
 		   itJet->hwQual());
       new_preGtJets->push_back(bx, *&jet);
@@ -221,13 +223,13 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
 
 
-    for(l1t::EtSumBxCollection::const_iterator itEtSum = old_etsums->begin(bx);
+    for(EtSumBxCollection::const_iterator itEtSum = old_etsums->begin(bx);
 	itEtSum != old_etsums->end(bx); ++itEtSum)
     {
       double et = itEtSum->hwPt() * emScale->linearLsb();
       //hack while we figure out the right scales
       //double et = emScale->et( itEtSum->hwPt() );
-      const l1t::EtSum::EtSumType sumType = itEtSum->getType();
+      const EtSum::EtSumType sumType = itEtSum->getType();
 
       const double eta = getPhysicalEta(itEtSum->hwEta());
       double phi = getPhysicalPhi(itEtSum->hwPhi());
@@ -240,7 +242,7 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       math::PtEtaPhiMLorentzVector p4(et, eta, phi, 0);
 
-      l1t::EtSum eg(*&p4, sumType, itEtSum->hwPt(),
+      EtSum eg(*&p4, sumType, itEtSum->hwPt(),
 		    itEtSum->hwEta(), itEtSum->hwPhi(),
 		    itEtSum->hwQual());
       new_etsums->push_back(bx, *&eg);
@@ -248,7 +250,7 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     }
 
-    for(l1t::CaloSpareBxCollection::const_iterator itCaloSpare = old_hfsums->begin(bx);
+    for(CaloSpareBxCollection::const_iterator itCaloSpare = old_hfsums->begin(bx);
 	itCaloSpare != old_hfsums->end(bx); ++itCaloSpare)
     {
       //just pass through for now
@@ -256,7 +258,7 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       new_hfsums->push_back(bx, *itCaloSpare);
     }
 
-    for(l1t::CaloSpareBxCollection::const_iterator itCaloSpare = old_hfcounts->begin(bx);
+    for(CaloSpareBxCollection::const_iterator itCaloSpare = old_hfcounts->begin(bx);
 	itCaloSpare != old_hfcounts->end(bx); ++itCaloSpare)
     {
       //just pass through for now
@@ -278,19 +280,19 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void
-l1t::PhysicalEtAdder::beginJob()
+L1TPhysicalEtAdder::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void
-l1t::PhysicalEtAdder::endJob() {
+L1TPhysicalEtAdder::endJob() {
 }
 
 // ------------ method called when starting to processes a run  ------------
 /*
   void
-  l1t::PhysicalEtAdder::beginRun(edm::Run const&, edm::EventSetup const&)
+  L1TPhysicalEtAdder::beginRun(edm::Run const&, edm::EventSetup const&)
   {
   }
 */
@@ -298,7 +300,7 @@ l1t::PhysicalEtAdder::endJob() {
 // ------------ method called when ending the processing of a run  ------------
 /*
   void
-  l1t::PhysicalEtAdder::endRun(edm::Run const&, edm::EventSetup const&)
+  L1TPhysicalEtAdder::endRun(edm::Run const&, edm::EventSetup const&)
   {
   }
 */
@@ -306,7 +308,7 @@ l1t::PhysicalEtAdder::endJob() {
 // ------------ method called when starting to processes a luminosity block  ------------
 /*
   void
-  l1t::PhysicalEtAdder::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup cons
+  L1TPhysicalEtAdder::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup cons
   t&)
   {
   }
@@ -315,7 +317,7 @@ l1t::PhysicalEtAdder::endJob() {
 // ------------ method called when ending the processing of a luminosity block  ------------
 /*
   void
-  l1t::PhysicalEtAdder::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&
+  L1TPhysicalEtAdder::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&
   )
   {
   }
@@ -323,7 +325,7 @@ l1t::PhysicalEtAdder::endJob() {
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-l1t::PhysicalEtAdder::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+L1TPhysicalEtAdder::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -332,7 +334,7 @@ l1t::PhysicalEtAdder::fillDescriptions(edm::ConfigurationDescriptions& descripti
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(l1t::PhysicalEtAdder);
+DEFINE_FWK_MODULE(L1TPhysicalEtAdder);
 
 int getRegionEta(int gtEta, bool forward)
 {
@@ -354,7 +356,7 @@ int getRegionEta(int gtEta, bool forward)
 
   if(regionEta == -100)
     edm::LogError("EtaIndexError")
-      << "Bad eta index passed to PhysicalEtAdder::getRegionEta, " << gtEta << std::endl;
+      << "Bad eta index passed to L1TPhysicalEtAdder::getRegionEta, " << gtEta << std::endl;
 
   return regionEta;
 }

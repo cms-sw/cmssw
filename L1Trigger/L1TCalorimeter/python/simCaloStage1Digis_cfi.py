@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 simCaloStage1Digis = cms.EDProducer(
-    "l1t::Stage1Layer2Producer",
+    "L1TStage1Layer2Producer",
     CaloRegions = cms.InputTag("simRctUpgradeFormatDigis"),
     CaloEmCands = cms.InputTag("simRctUpgradeFormatDigis"),
     FirmwareVersion = cms.uint32(2),  ## 1=HI algo, 2= pp algo

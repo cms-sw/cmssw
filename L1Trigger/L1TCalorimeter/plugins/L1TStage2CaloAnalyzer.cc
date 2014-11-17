@@ -51,10 +51,10 @@
 
 namespace l1t {
 
-class Stage2CaloAnalyzer : public edm::EDAnalyzer {
+class L1TStage2CaloAnalyzer : public edm::EDAnalyzer {
 public:
-  explicit Stage2CaloAnalyzer(const edm::ParameterSet&);
-  ~Stage2CaloAnalyzer();
+  explicit L1TStage2CaloAnalyzer(const edm::ParameterSet&);
+  ~L1TStage2CaloAnalyzer();
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
@@ -117,7 +117,7 @@ private:
 //
 // constructors and destructor
 //
-Stage2CaloAnalyzer::Stage2CaloAnalyzer(const edm::ParameterSet& iConfig)
+L1TStage2CaloAnalyzer::L1TStage2CaloAnalyzer(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
 
@@ -165,7 +165,7 @@ Stage2CaloAnalyzer::Stage2CaloAnalyzer(const edm::ParameterSet& iConfig)
 }
 
 
-Stage2CaloAnalyzer::~Stage2CaloAnalyzer()
+L1TStage2CaloAnalyzer::~L1TStage2CaloAnalyzer()
 {
  
    // do anything here that needs to be done at desctruction time
@@ -180,7 +180,7 @@ Stage2CaloAnalyzer::~Stage2CaloAnalyzer()
 
 // ------------ method called for each event  ------------
 void
-Stage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+L1TStage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
   
@@ -328,7 +328,7 @@ Stage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-Stage2CaloAnalyzer::beginJob()
+L1TStage2CaloAnalyzer::beginJob()
 {
 
   edm::Service<TFileService> fs;
@@ -358,14 +358,14 @@ Stage2CaloAnalyzer::beginJob()
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-Stage2CaloAnalyzer::endJob() 
+L1TStage2CaloAnalyzer::endJob() 
 {
 }
 
 // ------------ method called when starting to processes a run  ------------
 /*
 void 
-Stage2CaloAnalyzer::beginRun(edm::Run const&, edm::EventSetup const&)
+L1TStage2CaloAnalyzer::beginRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 */
@@ -373,7 +373,7 @@ Stage2CaloAnalyzer::beginRun(edm::Run const&, edm::EventSetup const&)
 // ------------ method called when ending the processing of a run  ------------
 /*
 void 
-Stage2CaloAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
+L1TStage2CaloAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 */
@@ -381,7 +381,7 @@ Stage2CaloAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
 // ------------ method called when starting to processes a luminosity block  ------------
 /*
 void 
-Stage2CaloAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+L1TStage2CaloAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
 */
@@ -389,14 +389,14 @@ Stage2CaloAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::Event
 // ------------ method called when ending the processing of a luminosity block  ------------
 /*
 void 
-Stage2CaloAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+L1TStage2CaloAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
 */
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-Stage2CaloAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+L1TStage2CaloAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -406,5 +406,7 @@ Stage2CaloAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& description
 
 }
 
+using namespace l1t;
+
 //define this as a plug-in
-DEFINE_FWK_MODULE(l1t::Stage2CaloAnalyzer);
+DEFINE_FWK_MODULE(L1TStage2CaloAnalyzer);

@@ -501,5 +501,6 @@ MP7BufferDumpToRaw::fillDescriptions(edm::ConfigurationDescriptions& description
 
 }
 
+using namespace l1t;
 //define this as a plug-in
-DEFINE_FWK_MODULE(l1t::MP7BufferDumpToRaw);
+DEFINE_FWK_MODULE(MP7BufferDumpToRaw);

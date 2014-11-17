@@ -56,12 +56,13 @@
 // class declaration
 //
 
-namespace l1t {
+using namespace l1t;
+
   
-  class Stage2Layer1Producer : public edm::EDProducer { 
+  class L1TStage2Layer1Producer : public edm::EDProducer { 
   public:
-    explicit Stage2Layer1Producer(const edm::ParameterSet& ps);
-    ~Stage2Layer1Producer();
+    explicit L1TStage2Layer1Producer(const edm::ParameterSet& ps);
+    ~L1TStage2Layer1Producer();
     
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions)
       ;
@@ -92,14 +93,14 @@ namespace l1t {
     CaloParams* params_;
 
     // the processor
-    l1t::Stage2Layer1FirmwareFactory factory_;
+    Stage2Layer1FirmwareFactory factory_;
     boost::shared_ptr<Stage2PreProcessor> processor_;
      
   }; 
   
-}
 
-l1t::Stage2Layer1Producer::Stage2Layer1Producer(const edm::ParameterSet& ps) :
+
+L1TStage2Layer1Producer::L1TStage2Layer1Producer(const edm::ParameterSet& ps) :
   verbosity_(ps.getParameter<int>("verbosity")),
   bxFirst_(ps.getParameter<int>("bxFirst")),
   bxLast_(ps.getParameter<int>("bxLast")),
@@ -114,7 +115,7 @@ l1t::Stage2Layer1Producer::Stage2Layer1Producer(const edm::ParameterSet& ps) :
 {
 
   // register what you produce
-  produces<l1t::CaloTowerBxCollection> ();
+  produces<CaloTowerBxCollection> ();
   
   // register what you consume and keep token for later access:
   for (int ibx=0; ibx<bxLast_+1-bxFirst_; ibx++) {
@@ -130,7 +131,7 @@ l1t::Stage2Layer1Producer::Stage2Layer1Producer(const edm::ParameterSet& ps) :
 
 }
 
-l1t::Stage2Layer1Producer::~Stage2Layer1Producer() {
+L1TStage2Layer1Producer::~L1TStage2Layer1Producer() {
   
   delete params_;
 
@@ -138,10 +139,10 @@ l1t::Stage2Layer1Producer::~Stage2Layer1Producer() {
 
 // ------------ method called to produce the data  ------------
 void
-l1t::Stage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+L1TStage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-  LogDebug("l1t|stage 2") << "Stage2Layer1Producer::produce function called..." << std::endl;
+  LogDebug("l1t|stage 2") << "L1TStage2Layer1Producer::produce function called..." << std::endl;
 
   // do event setup
   // get RCT input scale objects
@@ -157,7 +158,7 @@ l1t::Stage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
 
   // output collection
-  std::auto_ptr<l1t::CaloTowerBxCollection> towersColl (new l1t::CaloTowerBxCollection);
+  std::auto_ptr<CaloTowerBxCollection> towersColl (new CaloTowerBxCollection);
 
 
   // loop over crossings
@@ -172,8 +173,8 @@ l1t::Stage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     iEvent.getByToken(ecalToken_[ibx], ecalTPs);
 
     // create input and output tower vectors for this BX
-    std::auto_ptr< std::vector<l1t::CaloTower> > localInTowers (new std::vector<l1t::CaloTower>(l1t::CaloTools::caloTowerHashMax()));
-    std::auto_ptr< std::vector<l1t::CaloTower> > localOutTowers (new std::vector<l1t::CaloTower>()); //this is later filled to the same size as localInTowers
+    std::auto_ptr< std::vector<CaloTower> > localInTowers (new std::vector<CaloTower>(CaloTools::caloTowerHashMax()));
+    std::auto_ptr< std::vector<CaloTower> > localOutTowers (new std::vector<CaloTower>()); //this is later filled to the same size as localInTowers
     
     // loop over ECAL TPs
     EcalTrigPrimDigiCollection::const_iterator ecalItr;
@@ -254,7 +255,7 @@ l1t::Stage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     processor_->processEvent(*localInTowers, *localOutTowers);
     
     // copy towers to output collection
-    for(std::vector<l1t::CaloTower>::const_iterator tower = localOutTowers->begin(); 
+    for(std::vector<CaloTower>::const_iterator tower = localOutTowers->begin(); 
 	tower != localOutTowers->end(); 
 	++tower) 
       towersColl->push_back(ibx, *tower);
@@ -269,18 +270,18 @@ l1t::Stage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-l1t::Stage2Layer1Producer::beginJob()
+L1TStage2Layer1Producer::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-l1t::Stage2Layer1Producer::endJob() {
+L1TStage2Layer1Producer::endJob() {
 }
 
 // ------------ method called when starting to processes a run  ------------
 void
-l1t::Stage2Layer1Producer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
+L1TStage2Layer1Producer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 {
 
   // update parameters and algorithms at run start, if they have changed
@@ -333,14 +334,14 @@ l1t::Stage2Layer1Producer::beginRun(edm::Run const& iRun, edm::EventSetup const&
 
 // ------------ method called when ending the processing of a run  ------------
 void
-l1t::Stage2Layer1Producer::endRun(edm::Run const&, edm::EventSetup const&)
+L1TStage2Layer1Producer::endRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 
 // ------------ method called when starting to processes a luminosity block  ------------
 /*
 void
-l1t::Stage2Layer1Producer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup cons
+L1TStage2Layer1Producer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup cons
 t&)
 {
 }
@@ -349,7 +350,7 @@ t&)
 // ------------ method called when ending the processing of a luminosity block  ------------
 /*
 void
-l1t::Stage2Layer1Producer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&
+L1TStage2Layer1Producer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&
 )
 {
 }
@@ -357,7 +358,7 @@ l1t::Stage2Layer1Producer::endLuminosityBlock(edm::LuminosityBlock const&, edm::
  
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-l1t::Stage2Layer1Producer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+L1TStage2Layer1Producer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -366,4 +367,4 @@ l1t::Stage2Layer1Producer::fillDescriptions(edm::ConfigurationDescriptions& desc
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(l1t::Stage2Layer1Producer);
+DEFINE_FWK_MODULE(L1TStage2Layer1Producer);

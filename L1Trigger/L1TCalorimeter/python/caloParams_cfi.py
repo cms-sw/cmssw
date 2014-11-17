@@ -8,7 +8,7 @@ caloParamsSource = cms.ESSource(
 )
 
 caloParams = cms.ESProducer(
-    "l1t::CaloParamsESProducer",
+    "L1TCaloParamsESProducer",
 
     # towers
     towerLsbH        = cms.double(0.5),

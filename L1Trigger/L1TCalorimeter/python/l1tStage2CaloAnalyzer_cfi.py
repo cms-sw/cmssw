@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-l1tStage2CaloAnalyzer = cms.EDAnalyzer('l1t::Stage2CaloAnalyzer',
+l1tStage2CaloAnalyzer = cms.EDAnalyzer('L1TStage2CaloAnalyzer',
     towerToken = cms.InputTag("caloStage2Digis", "MP"), #After Compression
     towerPreCompressionToken = cms.InputTag("caloStage2Layer1Digis"), #Before Compression
     clusterToken = cms.InputTag("caloStage2Digis", "MP"),

@@ -45,7 +45,6 @@
 using namespace std;
 using namespace edm;
 
-namespace l1t {
 
 //
 // class declaration
@@ -73,5 +72,5 @@ namespace l1t {
     EDGetToken HfSumsToken_;
     EDGetToken HfCountsToken_;
   };
-}
+
 #endif

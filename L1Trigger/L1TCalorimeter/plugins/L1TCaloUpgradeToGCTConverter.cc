@@ -19,7 +19,9 @@
 #include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-l1t::L1TCaloUpgradeToGCTConverter::L1TCaloUpgradeToGCTConverter(const ParameterSet& iConfig)
+using namespace l1t;
+
+L1TCaloUpgradeToGCTConverter::L1TCaloUpgradeToGCTConverter(const ParameterSet& iConfig)
 {
   produces<L1GctEmCandCollection>("isoEm");
   produces<L1GctEmCandCollection>("nonIsoEm");
@@ -38,17 +40,17 @@ l1t::L1TCaloUpgradeToGCTConverter::L1TCaloUpgradeToGCTConverter(const ParameterS
   produces<L1GctHFRingEtSumsCollection>();
 
   // register what you consume and keep token for later access:
-  EGammaToken_ = consumes<l1t::EGammaBxCollection>(iConfig.getParameter<InputTag>("InputCollection"));
-  RlxTauToken_ = consumes<l1t::TauBxCollection>(iConfig.getParameter<InputTag>("InputRlxTauCollection"));
-  IsoTauToken_ = consumes<l1t::TauBxCollection>(iConfig.getParameter<InputTag>("InputIsoTauCollection"));
-  JetToken_ = consumes<l1t::JetBxCollection>(iConfig.getParameter<InputTag>("InputCollection"));
-  EtSumToken_ = consumes<l1t::EtSumBxCollection>(iConfig.getParameter<InputTag>("InputCollection"));
-  HfSumsToken_ = consumes<l1t::CaloSpareBxCollection>(iConfig.getParameter<edm::InputTag>("InputHFSumsCollection"));
-  HfCountsToken_ = consumes<l1t::CaloSpareBxCollection>(iConfig.getParameter<edm::InputTag>("InputHFCountsCollection"));
+  EGammaToken_ = consumes<EGammaBxCollection>(iConfig.getParameter<InputTag>("InputCollection"));
+  RlxTauToken_ = consumes<TauBxCollection>(iConfig.getParameter<InputTag>("InputRlxTauCollection"));
+  IsoTauToken_ = consumes<TauBxCollection>(iConfig.getParameter<InputTag>("InputIsoTauCollection"));
+  JetToken_ = consumes<JetBxCollection>(iConfig.getParameter<InputTag>("InputCollection"));
+  EtSumToken_ = consumes<EtSumBxCollection>(iConfig.getParameter<InputTag>("InputCollection"));
+  HfSumsToken_ = consumes<CaloSpareBxCollection>(iConfig.getParameter<edm::InputTag>("InputHFSumsCollection"));
+  HfCountsToken_ = consumes<CaloSpareBxCollection>(iConfig.getParameter<edm::InputTag>("InputHFCountsCollection"));
 }
 
 
-l1t::L1TCaloUpgradeToGCTConverter::~L1TCaloUpgradeToGCTConverter()
+L1TCaloUpgradeToGCTConverter::~L1TCaloUpgradeToGCTConverter()
 {
 }
 
@@ -57,30 +59,30 @@ l1t::L1TCaloUpgradeToGCTConverter::~L1TCaloUpgradeToGCTConverter()
 
 // ------------ method called to produce the data ------------
 void
-l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
+L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 {
   LogDebug("l1t|stage 1 Converter") << "L1TCaloUpgradeToGCTConverter::produce function called...\n";
 
   //inputs
-  Handle<l1t::EGammaBxCollection> EGamma;
+  Handle<EGammaBxCollection> EGamma;
   e.getByToken(EGammaToken_,EGamma);
 
-  Handle<l1t::TauBxCollection> RlxTau;
+  Handle<TauBxCollection> RlxTau;
   e.getByToken(RlxTauToken_,RlxTau);
 
-  Handle<l1t::TauBxCollection> IsoTau;
+  Handle<TauBxCollection> IsoTau;
   e.getByToken(IsoTauToken_,IsoTau);
 
-  Handle<l1t::JetBxCollection> Jet;
+  Handle<JetBxCollection> Jet;
   e.getByToken(JetToken_,Jet);
 
-  Handle<l1t::EtSumBxCollection> EtSum;
+  Handle<EtSumBxCollection> EtSum;
   e.getByToken(EtSumToken_,EtSum);
 
-  Handle<l1t::CaloSpareBxCollection> HfSums;
+  Handle<CaloSpareBxCollection> HfSums;
   e.getByToken(HfSumsToken_, HfSums);
 
-  Handle<l1t::CaloSpareBxCollection> HfCounts;
+  Handle<CaloSpareBxCollection> HfCounts;
   e.getByToken(HfCountsToken_, HfCounts);
 
   // create the em and jet collections
@@ -116,7 +118,7 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
     //looping over EGamma elments with a specific BX
     int nonIsoCount = 0;
     int isoCount = 0;
-    for(l1t::EGammaBxCollection::const_iterator itEGamma = EGamma->begin(itBX);
+    for(EGammaBxCollection::const_iterator itEGamma = EGamma->begin(itBX);
 	itEGamma != EGamma->end(itBX); ++itEGamma){
       bool iso = itEGamma->hwIso();
 
@@ -145,7 +147,7 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 
     //looping over Tau elments with a specific BX
     int tauCount = 0; //max 4
-    for(l1t::TauBxCollection::const_iterator itTau = RlxTau->begin(itBX);
+    for(TauBxCollection::const_iterator itTau = RlxTau->begin(itBX);
 	itTau != RlxTau->end(itBX); ++itTau){
       // taus are not allowed to be forward
       const bool forward= false;
@@ -164,7 +166,7 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 
     //looping over Iso Tau elments with a specific BX
     int isoTauCount = 0; //max 4
-    for(l1t::TauBxCollection::const_iterator itTau = IsoTau->begin(itBX);
+    for(TauBxCollection::const_iterator itTau = IsoTau->begin(itBX);
 	itTau != IsoTau->end(itBX); ++itTau){
       // taus are not allowed to be forward
       const bool forward= false;
@@ -184,7 +186,7 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
     //looping over Jet elments with a specific BX
     int forCount = 0; //max 4
     int cenCount = 0; //max 4
-    for(l1t::JetBxCollection::const_iterator itJet = Jet->begin(itBX);
+    for(JetBxCollection::const_iterator itJet = Jet->begin(itBX);
 	itJet != Jet->end(itBX); ++itJet){
       // use 2nd quality bit to define forward
       const bool forward = ((itJet->hwQual() & 0x2) != 0);
@@ -209,7 +211,7 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
     cenJetResult->resize(4);
 
     //looping over EtSum elments with a specific BX
-    for (l1t::EtSumBxCollection::const_iterator itEtSum = EtSum->begin(itBX);
+    for (EtSumBxCollection::const_iterator itEtSum = EtSum->begin(itBX);
 	itEtSum != EtSum->end(itBX); ++itEtSum){
 
       if (EtSum::EtSumType::kMissingEt == itEtSum->getType()){
@@ -238,7 +240,7 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 							       0,
 							       0,
 							       0);
-    for (l1t::CaloSpareBxCollection::const_iterator itCaloSpare = HfSums->begin(itBX);
+    for (CaloSpareBxCollection::const_iterator itCaloSpare = HfSums->begin(itBX);
 	 itCaloSpare != HfSums->end(itBX); ++itCaloSpare){
       // if (CaloSpare::CaloSpareType::V2 == itCaloSpare->getType())
       // {
@@ -285,32 +287,32 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 
 // ------------ method called once each job just before starting event loop ------------
 void
-l1t::L1TCaloUpgradeToGCTConverter::beginJob()
+L1TCaloUpgradeToGCTConverter::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop ------------
 void
-l1t::L1TCaloUpgradeToGCTConverter::endJob() {
+L1TCaloUpgradeToGCTConverter::endJob() {
 }
 
 // ------------ method called when starting to processes a run ------------
 
 void
-l1t::L1TCaloUpgradeToGCTConverter::beginRun(Run const&iR, EventSetup const&iE){
+L1TCaloUpgradeToGCTConverter::beginRun(Run const&iR, EventSetup const&iE){
 
 }
 
 // ------------ method called when ending the processing of a run ------------
 void
-l1t::L1TCaloUpgradeToGCTConverter::endRun(Run const& iR, EventSetup const& iE){
+L1TCaloUpgradeToGCTConverter::endRun(Run const& iR, EventSetup const& iE){
 
 }
 
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module ------------
 void
-l1t::L1TCaloUpgradeToGCTConverter::fillDescriptions(ConfigurationDescriptions& descriptions) {
+L1TCaloUpgradeToGCTConverter::fillDescriptions(ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   ParameterSetDescription desc;
@@ -319,4 +321,4 @@ l1t::L1TCaloUpgradeToGCTConverter::fillDescriptions(ConfigurationDescriptions& d
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(l1t::L1TCaloUpgradeToGCTConverter);
+DEFINE_FWK_MODULE(L1TCaloUpgradeToGCTConverter);

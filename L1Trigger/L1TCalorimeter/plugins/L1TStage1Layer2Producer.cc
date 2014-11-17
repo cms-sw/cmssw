@@ -1,5 +1,5 @@
 ///
-/// \class l1t::Stage1Layer2Producer
+/// \class l1t::L1TStage1Layer2Producer
 ///
 /// Description: Emulator for the stage 1 jet algorithms.
 ///
@@ -57,17 +57,17 @@
 
 using namespace std;
 using namespace edm;
+using namespace l1t;
 
-namespace l1t {
 
 //
 // class declaration
 //
 
-  class Stage1Layer2Producer : public EDProducer {
+  class L1TStage1Layer2Producer : public EDProducer {
   public:
-    explicit Stage1Layer2Producer(const ParameterSet&);
-    ~Stage1Layer2Producer();
+    explicit L1TStage1Layer2Producer(const ParameterSet&);
+    ~L1TStage1Layer2Producer();
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
@@ -102,21 +102,21 @@ namespace l1t {
   //
   // constructors and destructor
   //
-  Stage1Layer2Producer::Stage1Layer2Producer(const ParameterSet& iConfig)
+  L1TStage1Layer2Producer::L1TStage1Layer2Producer(const ParameterSet& iConfig)
   {
     // register what you produce
-    produces<BXVector<l1t::EGamma>>();
-    produces<BXVector<l1t::Tau>>("rlxTaus");
-    produces<BXVector<l1t::Tau>>("isoTaus");
-    produces<BXVector<l1t::Jet>>();
-    produces<BXVector<l1t::Jet>>("preGtJets");
-    produces<BXVector<l1t::EtSum>>();
-    produces<BXVector<l1t::CaloSpare>>("HFRingSums");
-    produces<BXVector<l1t::CaloSpare>>("HFBitCounts");
+    produces<BXVector<EGamma>>();
+    produces<BXVector<Tau>>("rlxTaus");
+    produces<BXVector<Tau>>("isoTaus");
+    produces<BXVector<Jet>>();
+    produces<BXVector<Jet>>("preGtJets");
+    produces<BXVector<EtSum>>();
+    produces<BXVector<CaloSpare>>("HFRingSums");
+    produces<BXVector<CaloSpare>>("HFBitCounts");
 
     // register what you consume and keep token for later access:
-    regionToken = consumes<BXVector<l1t::CaloRegion>>(iConfig.getParameter<InputTag>("CaloRegions"));
-    candsToken = consumes<BXVector<l1t::CaloEmCand>>(iConfig.getParameter<InputTag>("CaloEmCands"));
+    regionToken = consumes<BXVector<CaloRegion>>(iConfig.getParameter<InputTag>("CaloRegions"));
+    candsToken = consumes<BXVector<CaloEmCand>>(iConfig.getParameter<InputTag>("CaloEmCands"));
     int ifwv=iConfig.getParameter<unsigned>("FirmwareVersion");  // LenA  make configurable for now
 
     m_conditionsLabel = iConfig.getParameter<std::string>("conditionsLabel");
@@ -124,17 +124,17 @@ namespace l1t {
     //m_fwv = boost::shared_ptr<FirmwareVersion>(new FirmwareVersion()); //not const during testing
 
     if (ifwv == 1){
-      LogDebug("l1t|stage1firmware") << "Stage1Layer2Producer -- Running HI implementation\n";
-      std::cout << "Stage1Layer2Producer -- Running HI implementation\n";
+      LogDebug("l1t|stage1firmware") << "L1TStage1Layer2Producer -- Running HI implementation\n";
+      std::cout << "L1TStage1Layer2Producer -- Running HI implementation\n";
     }else if (ifwv == 2){
-      LogDebug("l1t|stage1firmware") << "Stage1Layer2Producer -- Running pp implementation\n";
-      std::cout << "Stage1Layer2Producer -- Running pp implementation\n";
+      LogDebug("l1t|stage1firmware") << "L1TStage1Layer2Producer -- Running pp implementation\n";
+      std::cout << "L1TStage1Layer2Producer -- Running pp implementation\n";
     } else if (ifwv == 3){
-      LogDebug("l1t|stage1firmware") << "Stage1Layer2Producer -- Running SimpleHW implementation\n";
-      std::cout << "Stage1Layer2Producer -- Running SimpleHW implementation -- for testing only\n";
+      LogDebug("l1t|stage1firmware") << "L1TStage1Layer2Producer -- Running SimpleHW implementation\n";
+      std::cout << "L1TStage1Layer2Producer -- Running SimpleHW implementation -- for testing only\n";
     }else{
-      LogError("l1t|stage1firmware") << "Stage1Layer2Producer -- Unknown implementation.\n";
-      std::cout << "Stage1Layer2Producer -- Unknown implementation.\n";
+      LogError("l1t|stage1firmware") << "L1TStage1Layer2Producer -- Unknown implementation.\n";
+      std::cout << "L1TStage1Layer2Producer -- Unknown implementation.\n";
     }
     //m_fwv->setFirmwareVersion(ifwv); // =1 HI, =2 PP
     // m_fw = m_factory.create(*m_fwv /*,*m_params*/);
@@ -146,7 +146,7 @@ namespace l1t {
     //printf("Success create.\n");
     if (! m_fw) {
       // we complain here once per job
-      LogError("l1t|stage1firmware") << "Stage1Layer2Producer: firmware could not be configured.\n";
+      LogError("l1t|stage1firmware") << "L1TStage1Layer2Producer: firmware could not be configured.\n";
     }
 
     // set cache id to zero, will be set at first beginRun:
@@ -154,7 +154,7 @@ namespace l1t {
   }
 
 
-  Stage1Layer2Producer::~Stage1Layer2Producer()
+  L1TStage1Layer2Producer::~L1TStage1Layer2Producer()
   {
   }
 
@@ -166,32 +166,32 @@ namespace l1t {
 
 // ------------ method called to produce the data ------------
 void
-Stage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
+L1TStage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
 {
 
-  LogDebug("l1t|stage 1 jets") << "Stage1Layer2Producer::produce function called...\n";
+  LogDebug("l1t|stage 1 jets") << "L1TStage1Layer2Producer::produce function called...\n";
 
   //return;
 
   //inputs
-  Handle<BXVector<l1t::CaloRegion>> caloRegions;
+  Handle<BXVector<CaloRegion>> caloRegions;
   iEvent.getByToken(regionToken,caloRegions);
 
-  Handle<BXVector<l1t::CaloEmCand>> caloEmCands;
+  Handle<BXVector<CaloEmCand>> caloEmCands;
   iEvent.getByToken(candsToken, caloEmCands);
 
   int bxFirst = caloRegions->getFirstBX();
   int bxLast = caloRegions->getLastBX();
 
   //outputs
-  std::auto_ptr<l1t::EGammaBxCollection> egammas (new l1t::EGammaBxCollection);
-  std::auto_ptr<l1t::TauBxCollection> taus (new l1t::TauBxCollection);
-  std::auto_ptr<l1t::TauBxCollection> isoTaus (new l1t::TauBxCollection);
-  std::auto_ptr<l1t::JetBxCollection> jets (new l1t::JetBxCollection);
-  std::auto_ptr<l1t::JetBxCollection> preGtJets (new l1t::JetBxCollection);
-  std::auto_ptr<l1t::EtSumBxCollection> etsums (new l1t::EtSumBxCollection);
-  std::auto_ptr<l1t::CaloSpareBxCollection> hfSums (new l1t::CaloSpareBxCollection);
-  std::auto_ptr<l1t::CaloSpareBxCollection> hfCounts (new l1t::CaloSpareBxCollection);
+  std::auto_ptr<EGammaBxCollection> egammas (new EGammaBxCollection);
+  std::auto_ptr<TauBxCollection> taus (new TauBxCollection);
+  std::auto_ptr<TauBxCollection> isoTaus (new TauBxCollection);
+  std::auto_ptr<JetBxCollection> jets (new JetBxCollection);
+  std::auto_ptr<JetBxCollection> preGtJets (new JetBxCollection);
+  std::auto_ptr<EtSumBxCollection> etsums (new EtSumBxCollection);
+  std::auto_ptr<CaloSpareBxCollection> hfSums (new CaloSpareBxCollection);
+  std::auto_ptr<CaloSpareBxCollection> hfCounts (new CaloSpareBxCollection);
 
   egammas->setBXRange(bxFirst, bxLast);
   taus->setBXRange(bxFirst, bxLast);
@@ -207,25 +207,25 @@ Stage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
   for(int i = bxFirst; i <= bxLast; ++i)
   {
     //make local inputs
-    std::vector<l1t::CaloRegion> *localRegions = new std::vector<l1t::CaloRegion>();
-    std::vector<l1t::CaloEmCand> *localEmCands = new std::vector<l1t::CaloEmCand>();
+    std::vector<CaloRegion> *localRegions = new std::vector<CaloRegion>();
+    std::vector<CaloEmCand> *localEmCands = new std::vector<CaloEmCand>();
 
     //make local outputs
-    std::vector<l1t::EGamma> *localEGammas = new std::vector<l1t::EGamma>();
-    std::vector<l1t::Tau> *localTaus = new std::vector<l1t::Tau>();
-    std::vector<l1t::Jet> *localJets = new std::vector<l1t::Jet>();
-    std::vector<l1t::Jet> *localPreGtJets = new std::vector<l1t::Jet>();
-    std::vector<l1t::EtSum> *localEtSums = new std::vector<l1t::EtSum>();
-    l1t::CaloSpare *localHfSums = new l1t::CaloSpare();
-    localHfSums->setType(l1t::CaloSpare::HFRingSum);
-    l1t::CaloSpare *localHfCounts = new l1t::CaloSpare();
-    localHfCounts->setType(l1t::CaloSpare::HFBitCount);
+    std::vector<EGamma> *localEGammas = new std::vector<EGamma>();
+    std::vector<Tau> *localTaus = new std::vector<Tau>();
+    std::vector<Jet> *localJets = new std::vector<Jet>();
+    std::vector<Jet> *localPreGtJets = new std::vector<Jet>();
+    std::vector<EtSum> *localEtSums = new std::vector<EtSum>();
+    CaloSpare *localHfSums = new CaloSpare();
+    localHfSums->setType(CaloSpare::HFRingSum);
+    CaloSpare *localHfCounts = new CaloSpare();
+    localHfCounts->setType(CaloSpare::HFBitCount);
 
     // copy over the inputs -> there must be a better way to do this
-    for(std::vector<l1t::CaloRegion>::const_iterator region = caloRegions->begin(i);
+    for(std::vector<CaloRegion>::const_iterator region = caloRegions->begin(i);
 	region != caloRegions->end(i); ++region)
       localRegions->push_back(*region);
-    for(std::vector<l1t::CaloEmCand>::const_iterator emcand = caloEmCands->begin(i);
+    for(std::vector<CaloEmCand>::const_iterator emcand = caloEmCands->begin(i);
 	emcand != caloEmCands->end(i); ++emcand)
       localEmCands->push_back(*emcand);
 
@@ -235,9 +235,9 @@ Stage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
 		       localHfSums, localHfCounts);
 
     // copy the output into the BXVector -> there must be a better way
-    for(std::vector<l1t::EGamma>::const_iterator eg = localEGammas->begin(); eg != localEGammas->end(); ++eg)
+    for(std::vector<EGamma>::const_iterator eg = localEGammas->begin(); eg != localEGammas->end(); ++eg)
       egammas->push_back(i, *eg);
-    for(std::vector<l1t::Tau>::const_iterator tau = localTaus->begin(); tau != localTaus->end(); ++tau){
+    for(std::vector<Tau>::const_iterator tau = localTaus->begin(); tau != localTaus->end(); ++tau){
       taus->push_back(i, *tau);
       if (tau->hwIso()==1)isoTaus->push_back(i, *tau);
     }
@@ -246,18 +246,18 @@ Stage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
     int itsize=isoTaus->size(i);
     while (itsize < 4){
 	ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > tauLorentz(0,0,0,0);
-	l1t::Tau theTau(*&tauLorentz, 0, 0, 0, 1, 1); // set hwIso=1 
+	Tau theTau(*&tauLorentz, 0, 0, 0, 1, 1); // set hwIso=1 
 	isoTaus->push_back(i,theTau);
 	itsize++;
     }
 
-    for(std::vector<l1t::Jet>::const_iterator jet = localJets->begin(); jet != localJets->end(); ++jet)
+    for(std::vector<Jet>::const_iterator jet = localJets->begin(); jet != localJets->end(); ++jet)
       jets->push_back(i, *jet);
-    for(std::vector<l1t::Jet>::const_iterator jet = localPreGtJets->begin(); jet != localPreGtJets->end(); ++jet)
+    for(std::vector<Jet>::const_iterator jet = localPreGtJets->begin(); jet != localPreGtJets->end(); ++jet)
       preGtJets->push_back(i, *jet);
-    for(std::vector<l1t::EtSum>::const_iterator etsum = localEtSums->begin(); etsum != localEtSums->end(); ++etsum)
+    for(std::vector<EtSum>::const_iterator etsum = localEtSums->begin(); etsum != localEtSums->end(); ++etsum)
       etsums->push_back(i, *etsum);
-    // for(std::vector<l1t::CaloSpare>::const_iterator calospare = localCaloSpares->begin(); calospare != localCaloSpares->end(); ++calospare)
+    // for(std::vector<CaloSpare>::const_iterator calospare = localCaloSpares->begin(); calospare != localCaloSpares->end(); ++calospare)
     //   calospares->push_back(i, *calospare);
     hfSums->push_back(i, *localHfSums);
     hfCounts->push_back(i, *localHfCounts);
@@ -288,18 +288,18 @@ Stage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop ------------
 void
-Stage1Layer2Producer::beginJob()
+L1TStage1Layer2Producer::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop ------------
 void
-Stage1Layer2Producer::endJob() {
+L1TStage1Layer2Producer::endJob() {
 }
 
 // ------------ method called when starting to processes a run ------------
 
-void Stage1Layer2Producer::beginRun(Run const&iR, EventSetup const&iE){
+void L1TStage1Layer2Producer::beginRun(Run const&iR, EventSetup const&iE){
 
   unsigned long long id = iE.get<L1TCaloParamsRcd>().cacheIdentifier();
 
@@ -323,7 +323,7 @@ void Stage1Layer2Producer::beginRun(Run const&iR, EventSetup const&iE){
 
   }
 
-  LogDebug("l1t|stage 1 jets") << "Stage1Layer2Producer::beginRun function called...\n";
+  LogDebug("l1t|stage 1 jets") << "L1TStage1Layer2Producer::beginRun function called...\n";
 
   //get the proper scales for conversion to physical et AND gt scales
   edm::ESHandle< L1CaloEtScale > emScale ;
@@ -353,7 +353,7 @@ void Stage1Layer2Producer::beginRun(Run const&iR, EventSetup const&iE){
     //ESHandle<CaloParams> parameters;
     //iE.get<CaloParamsRcd>().get(parameters);
 
-    // LenA move the setting of the firmware version to the Stage1Layer2Producer constructor
+    // LenA move the setting of the firmware version to the L1TStage1Layer2Producer constructor
 
     //m_params = boost::shared_ptr<const CaloParams>(parameters.product());
     //m_fwv = boost::shared_ptr<const FirmwareVersion>(new FirmwareVersion());
@@ -364,7 +364,7 @@ void Stage1Layer2Producer::beginRun(Run const&iR, EventSetup const&iE){
     //printf("Success m_fwv version set.\n");
 
     // if (! m_params){
-    //   LogError("l1t|stage 1 jets") << "Stage1Layer2Producer: could not retreive DB params from Event Setup\n";
+    //   LogError("l1t|stage 1 jets") << "L1TStage1Layer2Producer: could not retreive DB params from Event Setup\n";
     // }
 
     // Set the current algorithm version based on DB pars from database:
@@ -373,7 +373,7 @@ void Stage1Layer2Producer::beginRun(Run const&iR, EventSetup const&iE){
 
     //if (! m_fw) {
     //  // we complain here once per run
-    //  LogError("l1t|stage 1 jets") << "Stage1Layer2Producer: firmware could not be configured.\n";
+    //  LogError("l1t|stage 1 jets") << "L1TStage1Layer2Producer: firmware could not be configured.\n";
     //}
   }
 
@@ -381,14 +381,14 @@ void Stage1Layer2Producer::beginRun(Run const&iR, EventSetup const&iE){
 }
 
 // ------------ method called when ending the processing of a run ------------
-void Stage1Layer2Producer::endRun(Run const& iR, EventSetup const& iE){
+void L1TStage1Layer2Producer::endRun(Run const& iR, EventSetup const& iE){
 
 }
 
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module ------------
 void
-Stage1Layer2Producer::fillDescriptions(ConfigurationDescriptions& descriptions) {
+L1TStage1Layer2Producer::fillDescriptions(ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   ParameterSetDescription desc;
@@ -396,7 +396,5 @@ Stage1Layer2Producer::fillDescriptions(ConfigurationDescriptions& descriptions) 
   descriptions.addDefault(desc);
 }
 
-} // namespace
-
 //define this as a plug-in
-DEFINE_FWK_MODULE(l1t::Stage1Layer2Producer);
+DEFINE_FWK_MODULE(L1TStage1Layer2Producer);

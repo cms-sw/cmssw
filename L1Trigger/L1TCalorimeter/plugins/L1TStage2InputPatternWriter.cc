@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
 // Package:    L1Trigger/L1TCalorimeter
-// Class:      Stage2InputPatternWriter
+// Class:      L1TStage2InputPatternWriter
 // 
-/**\class Stage2InputPatternWriter Stage2InputPatternWriter.cc L1Trigger/L1TCalorimeter/plugins/Stage2InputPatternWriter.cc
+/**\class L1TStage2InputPatternWriter L1TStage2InputPatternWriter.cc L1Trigger/L1TCalorimeter/plugins/L1TStage2InputPatternWriter.cc
 
  Description: [one line class summary]
 
@@ -47,10 +47,10 @@
 // class declaration
 //
 
-class Stage2InputPatternWriter : public edm::EDAnalyzer {
+class L1TStage2InputPatternWriter : public edm::EDAnalyzer {
 public:
-  explicit Stage2InputPatternWriter(const edm::ParameterSet&);
-  ~Stage2InputPatternWriter();
+  explicit L1TStage2InputPatternWriter(const edm::ParameterSet&);
+  ~L1TStage2InputPatternWriter();
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
@@ -100,7 +100,7 @@ private:
 //
 // constructors and destructor
 //
-Stage2InputPatternWriter::Stage2InputPatternWriter(const edm::ParameterSet& iConfig)
+L1TStage2InputPatternWriter::L1TStage2InputPatternWriter(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
 
@@ -123,7 +123,7 @@ Stage2InputPatternWriter::Stage2InputPatternWriter(const edm::ParameterSet& iCon
 }
 
 
-Stage2InputPatternWriter::~Stage2InputPatternWriter()
+L1TStage2InputPatternWriter::~L1TStage2InputPatternWriter()
 {
  
    // do anything here that needs to be done at desctruction time
@@ -138,7 +138,7 @@ Stage2InputPatternWriter::~Stage2InputPatternWriter()
 
 // ------------ method called for each event  ------------
 void
-Stage2InputPatternWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+L1TStage2InputPatternWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
   
@@ -228,7 +228,7 @@ Stage2InputPatternWriter::analyze(const edm::Event& iEvent, const edm::EventSetu
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-Stage2InputPatternWriter::beginJob()
+L1TStage2InputPatternWriter::beginJob()
 {
 
 
@@ -236,7 +236,7 @@ Stage2InputPatternWriter::beginJob()
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-Stage2InputPatternWriter::endJob() 
+L1TStage2InputPatternWriter::endJob() 
 {
 
   LogDebug("L1TDebug") << "Read " << nFrame_ << " frames" << std::endl;
@@ -289,7 +289,7 @@ Stage2InputPatternWriter::endJob()
 // ------------ method called when starting to processes a run  ------------
 /*
 void 
-Stage2InputPatternWriter::beginRun(edm::Run const&, edm::EventSetup const&)
+L1TStage2InputPatternWriter::beginRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 */
@@ -297,7 +297,7 @@ Stage2InputPatternWriter::beginRun(edm::Run const&, edm::EventSetup const&)
 // ------------ method called when ending the processing of a run  ------------
 /*
 void 
-Stage2InputPatternWriter::endRun(edm::Run const&, edm::EventSetup const&)
+L1TStage2InputPatternWriter::endRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 */
@@ -305,7 +305,7 @@ Stage2InputPatternWriter::endRun(edm::Run const&, edm::EventSetup const&)
 // ------------ method called when starting to processes a luminosity block  ------------
 /*
 void 
-Stage2InputPatternWriter::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+L1TStage2InputPatternWriter::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
 */
@@ -313,14 +313,14 @@ Stage2InputPatternWriter::beginLuminosityBlock(edm::LuminosityBlock const&, edm:
 // ------------ method called when ending the processing of a luminosity block  ------------
 /*
 void 
-Stage2InputPatternWriter::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+L1TStage2InputPatternWriter::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
 */
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-Stage2InputPatternWriter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+L1TStage2InputPatternWriter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -329,4 +329,4 @@ Stage2InputPatternWriter::fillDescriptions(edm::ConfigurationDescriptions& descr
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(Stage2InputPatternWriter);
+DEFINE_FWK_MODULE(L1TStage2InputPatternWriter);

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 simCaloStage1LegacyFormatDigis = cms.EDProducer(
-    "l1t::L1TCaloUpgradeToGCTConverter",
+    "L1TCaloUpgradeToGCTConverter",
     InputCollection = cms.InputTag("simCaloStage1FinalDigis"),
     InputRlxTauCollection = cms.InputTag("simCaloStage1Digis:rlxTaus"),
     InputIsoTauCollection = cms.InputTag("simCaloStage1Digis:isoTaus"),

@@ -227,5 +227,6 @@ namespace l1t {
    }
 }
 
+using namespace l1t;
 //define this as a plug-in
-DEFINE_FWK_MODULE(l1t::L1TRawToDigi);
+DEFINE_FWK_MODULE(L1TRawToDigi);

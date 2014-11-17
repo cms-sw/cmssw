@@ -1,5 +1,5 @@
 ///
-/// \class l1t::CaloParamsESProducer
+/// \class L1TCaloParamsESProducer
 ///
 /// Description: Produces configuration parameters for the fictitious Yellow trigger.
 ///
@@ -39,12 +39,12 @@ using namespace std;
 // class declaration
 //
 
-namespace l1t {
+using namespace l1t;
 
-class CaloParamsESProducer : public edm::ESProducer {
+class L1TCaloParamsESProducer : public edm::ESProducer {
 public:
-  CaloParamsESProducer(const edm::ParameterSet&);
-  ~CaloParamsESProducer();
+  L1TCaloParamsESProducer(const edm::ParameterSet&);
+  ~L1TCaloParamsESProducer();
 
   typedef boost::shared_ptr<CaloParams> ReturnType;
 
@@ -66,7 +66,7 @@ private:
 //
 // constructors and destructor
 //
-CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
+L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
 {
 
   //the following line is needed to tell the framework what
@@ -97,7 +97,7 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
 
   edm::FileInPath egTrimmingLUTFile = conf.getParameter<edm::FileInPath>("egTrimmingLUTFile");
   std::ifstream egTrimmingLUTStream(egTrimmingLUTFile.fullPath());
-  std::shared_ptr<l1t::LUT> egTrimmingLUT( new l1t::LUT(egTrimmingLUTStream) );
+  std::shared_ptr<LUT> egTrimmingLUT( new LUT(egTrimmingLUTStream) );
   m_params.setEgTrimmingLUT(*egTrimmingLUT);
 
   m_params.setEgMaxHcalEt(conf.getParameter<double>("egMaxHcalEt"));
@@ -110,34 +110,34 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
 
   edm::FileInPath egMaxHOverELUTFile = conf.getParameter<edm::FileInPath>("egMaxHOverELUTFile");
   std::ifstream egMaxHOverELUTStream(egMaxHOverELUTFile.fullPath());
-  std::shared_ptr<l1t::LUT> egMaxHOverELUT( new l1t::LUT(egMaxHOverELUTStream) );
+  std::shared_ptr<LUT> egMaxHOverELUT( new LUT(egMaxHOverELUTStream) );
   m_params.setEgMaxHOverELUT(*egMaxHOverELUT);
 
   edm::FileInPath egCompressShapesLUTFile = conf.getParameter<edm::FileInPath>("egCompressShapesLUTFile");
   std::ifstream egCompressShapesLUTStream(egCompressShapesLUTFile.fullPath());
-  std::shared_ptr<l1t::LUT> egCompressShapesLUT( new l1t::LUT(egCompressShapesLUTStream) );
+  std::shared_ptr<LUT> egCompressShapesLUT( new LUT(egCompressShapesLUTStream) );
   m_params.setEgCompressShapesLUT(*egCompressShapesLUT);
 
   edm::FileInPath egShapeIdLUTFile = conf.getParameter<edm::FileInPath>("egShapeIdLUTFile");
   std::ifstream egShapeIdLUTStream(egShapeIdLUTFile.fullPath());
-  std::shared_ptr<l1t::LUT> egShapeIdLUT( new l1t::LUT(egShapeIdLUTStream) );
+  std::shared_ptr<LUT> egShapeIdLUT( new LUT(egShapeIdLUTStream) );
   m_params.setEgShapeIdLUT(*egShapeIdLUT);
 
   m_params.setEgPUSType(conf.getParameter<std::string>("egPUSType"));
 
   edm::FileInPath egIsoLUTFile = conf.getParameter<edm::FileInPath>("egIsoLUTFile");
   std::ifstream egIsoLUTStream(egIsoLUTFile.fullPath());
-  std::shared_ptr<l1t::LUT> egIsoLUT( new l1t::LUT(egIsoLUTStream) );
+  std::shared_ptr<LUT> egIsoLUT( new LUT(egIsoLUTStream) );
   m_params.setEgIsolationLUT(*egIsoLUT);
 
   //edm::FileInPath egIsoLUTFileBarrel = conf.getParameter<edm::FileInPath>("egIsoLUTFileBarrel");
   //std::ifstream egIsoLUTBarrelStream(egIsoLUTFileBarrel.fullPath());
-  //std::shared_ptr<l1t::LUT> egIsoLUTBarrel( new l1t::LUT(egIsoLUTBarrelStream) );
+  //std::shared_ptr<LUT> egIsoLUTBarrel( new LUT(egIsoLUTBarrelStream) );
   //m_params.setEgIsolationLUTBarrel(egIsoLUTBarrel);
 
   //edm::FileInPath egIsoLUTFileEndcaps = conf.getParameter<edm::FileInPath>("egIsoLUTFileEndcaps");
   //std::ifstream egIsoLUTEndcapsStream(egIsoLUTFileEndcaps.fullPath());
-  //std::shared_ptr<l1t::LUT> egIsoLUTEndcaps( new l1t::LUT(egIsoLUTEndcapsStream) );
+  //std::shared_ptr<LUT> egIsoLUTEndcaps( new LUT(egIsoLUTEndcapsStream) );
   //m_params.setEgIsolationLUTEndcaps(egIsoLUTEndcaps);
 
 
@@ -151,7 +151,7 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
 
   edm::FileInPath egCalibrationLUTFile = conf.getParameter<edm::FileInPath>("egCalibrationLUTFile");
   std::ifstream egCalibrationLUTStream(egCalibrationLUTFile.fullPath());
-  std::shared_ptr<l1t::LUT> egCalibrationLUT( new l1t::LUT(egCalibrationLUTStream) );
+  std::shared_ptr<LUT> egCalibrationLUT( new LUT(egCalibrationLUTStream) );
   m_params.setEgCalibrationLUT(*egCalibrationLUT);
 
   // tau
@@ -169,12 +169,12 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
 
   edm::FileInPath tauIsoLUTFile = conf.getParameter<edm::FileInPath>("tauIsoLUTFile");
   std::ifstream tauIsoLUTStream(tauIsoLUTFile.fullPath());
-  std::shared_ptr<l1t::LUT> tauIsoLUT( new l1t::LUT(tauIsoLUTStream) );
+  std::shared_ptr<LUT> tauIsoLUT( new LUT(tauIsoLUTStream) );
   m_params.setTauIsolationLUT(*tauIsoLUT);
 
   edm::FileInPath tauCalibrationLUTFile = conf.getParameter<edm::FileInPath>("tauCalibrationLUTFile");
   std::ifstream tauCalibrationLUTStream(tauCalibrationLUTFile.fullPath());
-  std::shared_ptr<l1t::LUT> tauCalibrationLUT( new l1t::LUT(tauCalibrationLUTStream) );
+  std::shared_ptr<LUT> tauCalibrationLUT( new LUT(tauCalibrationLUTStream) );
   m_params.setTauCalibrationLUT(*tauCalibrationLUT);
 
   m_params.setIsoTauEtaMin(conf.getParameter<int> ("isoTauEtaMin"));
@@ -211,20 +211,20 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   // HI centrality trigger
   edm::FileInPath centralityLUTFile = conf.getParameter<edm::FileInPath>("centralityLUTFile");
   std::ifstream centralityLUTStream(centralityLUTFile.fullPath());
-  std::shared_ptr<l1t::LUT> centralityLUT( new l1t::LUT(centralityLUTStream) );
+  std::shared_ptr<LUT> centralityLUT( new LUT(centralityLUTStream) );
   m_params.setCentralityLUT(*centralityLUT);
 
   // HI Q2 trigger
   edm::FileInPath q2LUTFile = conf.getParameter<edm::FileInPath>("q2LUTFile");
   std::ifstream q2LUTStream(q2LUTFile.fullPath());
-  std::shared_ptr<l1t::LUT> q2LUT( new l1t::LUT(q2LUTStream) );
+  std::shared_ptr<LUT> q2LUT( new LUT(q2LUTStream) );
   m_params.setQ2LUT(*q2LUT);
 
 
 }
 
 
-CaloParamsESProducer::~CaloParamsESProducer()
+L1TCaloParamsESProducer::~L1TCaloParamsESProducer()
 {
 
    // do anything here that needs to be done at desctruction time
@@ -238,8 +238,8 @@ CaloParamsESProducer::~CaloParamsESProducer()
 //
 
 // ------------ method called to produce the data  ------------
-CaloParamsESProducer::ReturnType
-CaloParamsESProducer::produce(const L1TCaloParamsRcd& iRecord)
+L1TCaloParamsESProducer::ReturnType
+L1TCaloParamsESProducer::produce(const L1TCaloParamsRcd& iRecord)
 {
    using namespace edm::es;
    boost::shared_ptr<CaloParams> pCaloParams ;
@@ -248,7 +248,7 @@ CaloParamsESProducer::produce(const L1TCaloParamsRcd& iRecord)
    return pCaloParams;
 }
 
-}
+
 
 //define this as a plug-in
-DEFINE_FWK_EVENTSETUP_MODULE(l1t::CaloParamsESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(L1TCaloParamsESProducer);

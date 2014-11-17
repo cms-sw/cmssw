@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 mp7BufferDumpToRaw = cms.EDProducer(
-    "l1t::MP7BufferDumpToRaw",
+    "MP7BufferDumpToRaw",
     rxFile           = cms.untracked.string("rx_summary.txt"),
     txFile           = cms.untracked.string("tx_summary.txt"),
 

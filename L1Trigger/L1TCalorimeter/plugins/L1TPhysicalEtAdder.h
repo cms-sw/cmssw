@@ -1,5 +1,5 @@
-#ifndef PhysicalEtAdder_h
-#define PhysicalEtAdder_h
+#ifndef L1TPhysicalEtAdder_h
+#define L1TPhysicalEtAdder_h
 
 // Original Author:  Alex Barbieri
 //
@@ -35,12 +35,11 @@
 // class declaration
 //
 
-namespace l1t {
 
-  class PhysicalEtAdder : public edm::EDProducer {
+  class L1TPhysicalEtAdder : public edm::EDProducer {
   public:
-    explicit PhysicalEtAdder(const edm::ParameterSet& ps);
-    ~PhysicalEtAdder();
+    explicit L1TPhysicalEtAdder(const edm::ParameterSet& ps);
+    ~L1TPhysicalEtAdder();
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -66,6 +65,5 @@ namespace l1t {
       edm::EDGetToken HfCountsToken_;
   };
 
-}
 
 #endif
