@@ -14,7 +14,7 @@ TauDecay_CMSSW::~TauDecay_CMSSW(){
 
 } 
                             
-bool TauDecay_CMSSW::AnalyzeTau(HepMC::GenParticle *Tau,unsigned int &JAK_ID,unsigned int &TauBitMask,bool dores, bool dopi0){
+bool TauDecay_CMSSW::AnalyzeTau(HepMC::GenParticle *Tau,unsigned int &MODE_ID,unsigned int &TauBitMask,bool dores, bool dopi0){
   Reset();
   MotherIdx.clear();
   TauDecayProducts.clear();
@@ -26,7 +26,7 @@ bool TauDecay_CMSSW::AnalyzeTau(HepMC::GenParticle *Tau,unsigned int &JAK_ID,uns
 	  des!= Tau->end_vertex()->particles_end(HepMC::children);++des ) {
 	Analyze((*des),Tauidx,dores,dopi0);
       }
-      ClassifyDecayMode(JAK_ID,TauBitMask);
+      ClassifyDecayMode(MODE_ID,TauBitMask);
       return true;
     }
   }
