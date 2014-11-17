@@ -76,6 +76,10 @@ HcalMonitorClient::HcalMonitorClient(const edm::ParameterSet& ps)
   Online_                = ps.getUntrackedParameter<bool>("online",false);
 
 
+  doPedSetup_ = true;
+  doChanStatSetup_ = true;
+
+
   if (debug_>0)
     {
       std::cout <<"HcalMonitorClient:: The following clients are enabled:"<<std::endl;
@@ -127,6 +131,19 @@ HcalMonitorClient::HcalMonitorClient(const edm::ParameterSet& ps)
 
   if (find(enabledClients_.begin(), enabledClients_.end(),"Summary")!=enabledClients_.end())
     summaryClient_ = new HcalSummaryClient((std::string)"ReportSummaryClient",ps);
+
+  // Contents of the beginJob(void) method (this was moved here during the MT migration
+  begin_run_ = false;
+  end_run_   = false;
+
+  run_ = edm::invalidRunNumber;
+  ievt_ = 0;
+  jevt_ =0;
+
+  current_time_ = time(NULL);
+  last_time_html_ = 0; 
+  last_time_db_ = 0;   
+
   
 } // HcalMonitorClient constructor
 
@@ -139,37 +156,6 @@ HcalMonitorClient::~HcalMonitorClient()
   //if (summaryClient_) delete summaryClient_;
 
 }
-
-void HcalMonitorClient::beginJob(void)
-{
-
-  begin_run_ = false;
-  end_run_   = false;
-
-  run_ = edm::invalidRunNumber;
-  ievt_ = 0;
-  jevt_ =0;
-
-  current_time_ = time(NULL);
-  last_time_html_ = 0; 
-  last_time_db_ = 0;   
-
-  // get hold of back-end interface
-
-  dqmStore_ = edm::Service<DQMStore>().operator->();
-
-  if ( inputFile_.size() != 0 ) 
-    {
-      if ( dqmStore_ )    dqmStore_->open(inputFile_);
-    }
-
-  for ( unsigned int i=0; i<clients_.size();++i ) 
-    clients_[i]->beginJob();
-
-  if ( summaryClient_ ) summaryClient_->beginJob();
-  
-
-} // void HcalMonitorClient::beginJob(void)
 
 
 void HcalMonitorClient::beginRun(const edm::Run& r, const edm::EventSetup& c) 
@@ -194,50 +180,6 @@ void HcalMonitorClient::beginRun(const edm::Run& r, const edm::EventSetup& c)
   c.get<HcalChannelQualityRcd>().get("withTopo",p);
   chanquality_= p.product();
  
-  if (dqmStore_ && ChannelStatus==0)
-    {
-      dqmStore_->setCurrentFolder(prefixME_+"HcalInfo/ChannelStatus");
-      ChannelStatus=new EtaPhiHists;
-      ChannelStatus->setup(dqmStore_,"ChannelStatus");
-      std::stringstream x;
-      for (unsigned int d=0;d<ChannelStatus->depth.size();++d)
-	{
-	  ChannelStatus->depth[d]->Reset();
-	  x<<"1+log2(status) for HCAL depth "<<d+1;
-	  if (ChannelStatus->depth[d]) ChannelStatus->depth[d]->setTitle(x.str().c_str());
-	  x.str("");
-	}
-    }
-
-  edm::ESHandle<HcalDbService> conditions;
-  c.get<HcalDbRecord>().get(conditions);
-  // Now let's setup pedestals
-  if (dqmStore_ )
-    {
-      dqmStore_->setCurrentFolder(prefixME_+"HcalInfo/PedestalsFromCondDB");
-      if (ADC_PedestalFromDBByDepth==0)
-	{
-	  ADC_PedestalFromDBByDepth = new EtaPhiHists;
-	  ADC_PedestalFromDBByDepth->setup(dqmStore_,"ADC Pedestals From Conditions DB");
-	}
-      if (ADC_WidthFromDBByDepth==0)
-	{
-	  ADC_WidthFromDBByDepth = new EtaPhiHists;
-	  ADC_WidthFromDBByDepth->setup(dqmStore_,"ADC Widths From Conditions DB");
-	}
-      if (fC_PedestalFromDBByDepth==0)
-	{
-	  fC_PedestalFromDBByDepth = new EtaPhiHists;
-	  fC_PedestalFromDBByDepth->setup(dqmStore_,"fC Pedestals From Conditions DB");
-	}
-      if (fC_WidthFromDBByDepth==0)
-	{
-	  fC_WidthFromDBByDepth = new EtaPhiHists;
-	  fC_WidthFromDBByDepth->setup(dqmStore_,"fC Widths From Conditions DB");
-	}
-      PlotPedestalValues(*conditions);
-    }
-
   // Find only channels with non-zero quality, and add them to badchannelmap
   std::vector<DetId> mydetids = chanquality_->getAllChannels();
   for (std::vector<DetId>::const_iterator i = mydetids.begin();i!=mydetids.end();++i)
@@ -251,7 +193,6 @@ void HcalMonitorClient::beginRun(const edm::Run& r, const edm::EventSetup& c)
       badchannelmap[id]=status;
 
       // Fill Channel Status histogram
-      if (dqmStore_==0) continue;
       int depth=id.depth();
       if (depth<1 || depth>4) continue;
       int ieta=id.ieta();
@@ -265,7 +206,7 @@ void HcalMonitorClient::beginRun(const edm::Run& r, const edm::EventSetup& c)
 	logstatus=-1*(log2(-1.*status)+1);
       else
 	logstatus=log2(1.*status)+1;
-      if (ChannelStatus->depth[depth-1]) ChannelStatus->depth[depth-1]->Fill(ieta,iphi,logstatus);
+      if (ChannelStatus && ChannelStatus->depth[depth-1]) ChannelStatus->depth[depth-1]->Fill(ieta,iphi,logstatus);
     }
     
   for (unsigned int i=0;i<clients_.size();++i)
@@ -283,78 +224,40 @@ void HcalMonitorClient::beginRun(const edm::Run& r, const edm::EventSetup& c)
 
 } // void HcalMonitorClient::beginRun(const Run& r, const EventSetup& c)
 
-void HcalMonitorClient::beginRun()
-{
-  // What is the difference between this and beginRun above?
-  // When would this be called?
-  begin_run_ = true;
-  end_run_   = false;
-  jevt_ = 0;
-  htmlcounter_=0;
-
-  if (dqmStore_==0 || ChannelStatus!=0) return;
-  dqmStore_->setCurrentFolder(prefixME_+"HcalInfo");
-  ChannelStatus=new EtaPhiHists;
-  ChannelStatus->setup(dqmStore_,"ChannelStatus");
-  std::stringstream x;
-  for (unsigned int d=0;d<ChannelStatus->depth.size();++d)
-    {
-      x<<"1+log2(status) for HCAL depth "<<d+1;
-      if (ChannelStatus->depth[d]) ChannelStatus->depth[d]->setTitle(x.str().c_str());
-      x.str("");
-    }
-} // void HcalMonitorClient::beginRun()
 
 void HcalMonitorClient::setup(void)
 {
   // no setup required
 }
 
-void HcalMonitorClient::beginLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &c) 
-{
-  if (debug_>0) std::cout <<"<HcalMonitorClient::beginLuminosityBlock>"<<std::endl;
-} // void HcalMonitorClient::beginLuminosityBlock
 
-void HcalMonitorClient::analyze(const edm::Event & e, const edm::EventSetup & c)
-{
-  if (debug_>4) 
-    std::cout <<"HcalMonitorClient::analyze(const edm::Event&, const edm::EventSetup&) ievt_ = "<<ievt_<<std::endl;
-  ievt_++;
-  jevt_++;
 
-  run_=e.id().run();
-  if (prescaleFactor_>0 && jevt_%prescaleFactor_==0) {
-
-    for (unsigned int i=0;i<clients_.size();++i)
-      clients_[i]->getLogicalMap(c); // actually runs just once internally
-
-    this->analyze(e.luminosityBlock());
-  }
-
-} // void HcalMonitorClient::analyze(const edm::Event & e, const edm::EventSetup & c)
-
-void HcalMonitorClient::analyze(int LS)
+void HcalMonitorClient::analyze(DQMStore::IBooker &ib, DQMStore::IGetter &ig, int LS)
 {
   if (debug_>0)
     std::cout <<"HcalMonitorClient::analyze() "<<std::endl;
   current_time_ = time(NULL);
   // no ievt_, jevt_ counters needed here:  this function gets called at endlumiblock, after default analyze function runs
   for (unsigned int i=0;i<clients_.size();++i)
-    clients_[i]->analyze();
+    clients_[i]->analyze(ib,ig);
   if (summaryClient_!=0)
     {
       // Always call basic analyze to form histograms for each task
-      summaryClient_->analyze(LS);
+      summaryClient_->analyze(ib,ig,LS);
       // Call this if LS-by-LS enabling is set to true
       if (saveByLumiSection_==true)
-	summaryClient_->fillReportSummaryLSbyLS(LS);
+	summaryClient_->fillReportSummaryLSbyLS(ib,ig,LS);
     }
 } // void HcalMonitorClient::analyze()
 
 
-void HcalMonitorClient::endLuminosityBlock(const edm::LuminosityBlock &l, const edm::EventSetup &c) 
+void HcalMonitorClient::dqmEndLuminosityBlock(DQMStore::IBooker &ib, DQMStore::IGetter &ig, const edm::LuminosityBlock &l, const edm::EventSetup &c) 
 {
-  if (debug_>0) std::cout <<"<HcalMonitorClient::endLuminosityBlock>"<<std::endl;
+
+  if ( doChanStatSetup_ ) setupChannelStatusMon(ib);
+  if ( doPedSetup_ ) setupPedestalMon(ib);
+
+  if (debug_>0) std::cout <<"<HcalMonitorClient::dqmEndLuminosityBlock>"<<std::endl;
   current_time_ = time(NULL);
   if (updateTime_>0)
     {
@@ -362,7 +265,7 @@ void HcalMonitorClient::endLuminosityBlock(const edm::LuminosityBlock &l, const 
 	return;
       last_time_update_ = current_time_;
     }
-  this->analyze(l.luminosityBlock());
+  this->analyze(ib,ig,l.luminosityBlock());
 
   if (databaseUpdateTime_>0)
     {
@@ -387,14 +290,15 @@ void HcalMonitorClient::endLuminosityBlock(const edm::LuminosityBlock &l, const 
 	  ||((current_time_-last_time_html_)>=60*htmlUpdateTime_)
 	  ) // htmlUpdateTime_ in minutes
 	{
-	  this->writeHtml();
+	  this->writeHtml(ib,ig);
 	  last_time_html_=current_time_;
 	}
     }
 
+
 } // void HcalMonitorClient::endLuminosityBlock
 
-void HcalMonitorClient::endRun(void)
+void HcalMonitorClient::endRun(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 {
   begin_run_ = false;
   end_run_   = true;
@@ -402,14 +306,14 @@ void HcalMonitorClient::endRun(void)
   // Always fill summaryClient at end of run (as opposed to the end-lumi fills, which may just contain info for a single LS)
   // At the end of this run, set LS=-1  (LS-based plotting in doesn't work yet anyway)
   if (summaryClient_)
-    summaryClient_->analyze(-1);
+    summaryClient_->analyze(ib,ig,-1);
 
   if (databasedir_.size()>0)
     this->writeChannelStatus();
   // writeHtml takes longer; run it last 
   // Also, don't run it if htmlUpdateTime_>0 -- it should have already been run
   if (baseHtmlDir_.size()>0 && htmlUpdateTime_==0)
-    this->writeHtml();
+    this->writeHtml(ib,ig);
 }
 
 void HcalMonitorClient::endRun(const edm::Run& r, const edm::EventSetup& c) 
@@ -420,11 +324,16 @@ void HcalMonitorClient::endRun(const edm::Run& r, const edm::EventSetup& c)
   begin_run_ = false;
   end_run_   = true;
 
-  this->analyze();
-  this->endRun();
+  // pedestal values
+  if ( !doPedSetup_ ) {
+    edm::ESHandle<HcalDbService> conditions;
+    c.get<HcalDbRecord>().get(conditions);
+    PlotPedestalValues(*conditions);
+  }
+
 }
 
-void HcalMonitorClient::endJob(void)
+void HcalMonitorClient::dqmEndJob(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 {
   // Temporary fix for crash of April 2011 in online DQM
   if (Online_==true)
@@ -432,8 +341,8 @@ void HcalMonitorClient::endJob(void)
 
   if (! end_run_)
     {
-      this->analyze();
-      this->endRun();
+      this->analyze(ib,ig);
+      this->endRun(ib,ig);
     }
   this->cleanup(); // currently does nothing
 
@@ -450,7 +359,7 @@ void HcalMonitorClient::cleanup(void)
 } // void HcalMonitorClient::cleanup(void)
 
 
-void HcalMonitorClient::writeHtml()
+void HcalMonitorClient::writeHtml(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 {
   if (debug_>0) std::cout << "Preparing HcalMonitorClient html output ..." << std::endl;
   
@@ -500,9 +409,9 @@ void HcalMonitorClient::writeHtml()
 
   for (unsigned int i=0;i<clients_.size();++i)
     {
-      if (clients_[i]->validHtmlOutput()==true)
+      if (clients_[i]->validHtmlOutput(ib,ig)==true)
 	{
-	  clients_[i]->htmlOutput(htmlDir);
+	  clients_[i]->htmlOutput(ib,ig,htmlDir);
 	  // Always print this out?  Or only when validHtmlOutput is true? 
 	  htmlFile << "<table border=0 WIDTH=\"50%\"><tr>" << std::endl;
 	  htmlFile << "<td WIDTH=\"35%\"><a href=\"" << clients_[i]->name_ << ".html"<<"\">"<<clients_[i]->name_<<"</a></td>" << std::endl;
@@ -517,7 +426,7 @@ void HcalMonitorClient::writeHtml()
   // Add call to reportSummary html output
   if (summaryClient_)
     {
-      summaryClient_->htmlOutput(htmlDir);
+      summaryClient_->htmlOutput(ib,ig,htmlDir);
       htmlFile << "<table border=0 WIDTH=\"50%\"><tr>" << std::endl;
       htmlFile << "<td WIDTH=\"35%\"><a href=\"" << summaryClient_->name_ << ".html"<<"\">"<<summaryClient_->name_<<"</a></td>" << std::endl;
       if(summaryClient_->hasErrors_Temp()) htmlFile << "<td bgcolor=red align=center>This monitor task has errors.</td>" << std::endl;
@@ -706,6 +615,64 @@ void HcalMonitorClient::PlotPedestalValues(const HcalDbService& cond)
     if (ADC_WidthFromDBByDepth->depth[i]->getTH2F()->GetMaximum()<2)
       ADC_WidthFromDBByDepth->depth[i]->getTH2F()->SetMaximum(2);
   }
+
+}
+
+
+//
+// setupPedestalMon
+//
+void HcalMonitorClient::setupPedestalMon(DQMStore::IBooker &ib) 
+{
+
+  // Now let's setup pedestals
+      ib.setCurrentFolder(prefixME_+"HcalInfo/PedestalsFromCondDB");
+      if (ADC_PedestalFromDBByDepth==0)
+	{
+	  ADC_PedestalFromDBByDepth = new EtaPhiHists;
+	  ADC_PedestalFromDBByDepth->setup(ib,"ADC Pedestals From Conditions DB");
+	}
+      if (ADC_WidthFromDBByDepth==0)
+	{
+	  ADC_WidthFromDBByDepth = new EtaPhiHists;
+	  ADC_WidthFromDBByDepth->setup(ib,"ADC Widths From Conditions DB");
+	}
+      if (fC_PedestalFromDBByDepth==0)
+	{
+	  fC_PedestalFromDBByDepth = new EtaPhiHists;
+	  fC_PedestalFromDBByDepth->setup(ib,"fC Pedestals From Conditions DB");
+	}
+      if (fC_WidthFromDBByDepth==0)
+	{
+	  fC_WidthFromDBByDepth = new EtaPhiHists;
+	  fC_WidthFromDBByDepth->setup(ib,"fC Widths From Conditions DB");
+	}
+
+    doPedSetup_ = false;
+}
+
+//
+// setupChannelStatus
+//
+void HcalMonitorClient::setupChannelStatusMon(DQMStore::IBooker &ib) 
+{
+
+  if (ChannelStatus==0)
+    {
+      ib.setCurrentFolder(prefixME_+"HcalInfo/ChannelStatus");
+      ChannelStatus=new EtaPhiHists;
+      ChannelStatus->setup(ib,"ChannelStatus");
+      std::stringstream x;
+      for (unsigned int d=0;d<ChannelStatus->depth.size();++d)
+	{
+	  ChannelStatus->depth[d]->Reset();
+	  x<<"1+log2(status) for HCAL depth "<<d+1;
+	  if (ChannelStatus->depth[d]) ChannelStatus->depth[d]->setTitle(x.str().c_str());
+	  x.str("");
+	}
+    }
+
+  doChanStatSetup_ = false;
 
 }
 
