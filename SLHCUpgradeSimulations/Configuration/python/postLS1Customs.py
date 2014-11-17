@@ -69,11 +69,11 @@ def customisePostLS1EraExtras(process):
 #         process.simCscTriggerPrimitiveDigis = cscTriggerPrimitiveDigisPostLS1
 #         process.simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag( 'simMuonCSCDigis', 'MuonCSCComparatorDigi')
 #         process.simCscTriggerPrimitiveDigis.CSCWireDigiProducer = cms.InputTag( 'simMuonCSCDigis', 'MuonCSCWireDigi')
-    if hasattr(process, 'simCsctfTrackDigis'):
-        from L1Trigger.CSCTrackFinder.csctfTrackDigisUngangedME1a_cfi import csctfTrackDigisUngangedME1a
-        process.simCsctfTrackDigis = csctfTrackDigisUngangedME1a
-        process.simCsctfTrackDigis.DTproducer = cms.untracked.InputTag("simDtTriggerPrimitiveDigis")
-        process.simCsctfTrackDigis.SectorReceiverInput = cms.untracked.InputTag("simCscTriggerPrimitiveDigis", "MPCSORTED")
+#     if hasattr(process, 'simCsctfTrackDigis'):
+#         from L1Trigger.CSCTrackFinder.csctfTrackDigisUngangedME1a_cfi import csctfTrackDigisUngangedME1a
+#         process.simCsctfTrackDigis = csctfTrackDigisUngangedME1a
+#         process.simCsctfTrackDigis.DTproducer = cms.untracked.InputTag("simDtTriggerPrimitiveDigis")
+#         process.simCsctfTrackDigis.SectorReceiverInput = cms.untracked.InputTag("simCscTriggerPrimitiveDigis", "MPCSORTED")
     if hasattr(process, 'cscpacker') or hasattr(process, 'csctfpacker'):
         process.cscpacker.useFormatVersion = cms.uint32(2013)
         process.cscpacker.usePreTriggers = cms.bool(False)
