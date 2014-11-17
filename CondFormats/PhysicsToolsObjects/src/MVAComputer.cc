@@ -21,7 +21,7 @@
 #include <cstring>
 #include <cstddef>
 
-#include <boost/thread.hpp>
+#include <atomic>
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/TypeID.h"
@@ -127,10 +127,8 @@ std::string ProcExternal::getInstanceName() const
 
 static MVAComputer::CacheId getNextMVAComputerCacheId()
 {
-	static boost::mutex mutex;
-	static MVAComputer::CacheId nextCacheId = 0;
+	static std::atomic<MVAComputer::CacheId> nextCacheId{0};
 
-	boost::mutex::scoped_lock scoped_lock(mutex);
 	return ++nextCacheId;
 }
 
