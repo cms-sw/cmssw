@@ -14,7 +14,6 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 namespace CLHEP {
   class HepJamesRandom;
@@ -46,7 +45,6 @@ class G4Field;
 class RunAction;
 
 class SimRunInterface;
-//class ExceptionHandler;
 
 namespace HepPDT {
   class ParticleDataTable;
@@ -70,7 +68,7 @@ public:
 
   void stopG4();
 
-  void             Connect(RunAction*);
+  void Connect(RunAction*);
 
   // Keep this to keep ExceptionHandler to compile, probably removed
   // later (or functionality moved to RunManagerMTWorker)
@@ -115,7 +113,8 @@ private:
   bool m_managerInitialized;
   bool m_runTerminated;
   const bool m_pUseMagneticField;
-  std::unique_ptr<RunAction> m_userRunAction;
+  RunAction* m_userRunAction;
+  G4Run* m_currentRun;
   std::unique_ptr<SimRunInterface> m_runInterface;
 
   const std::string m_PhysicsTablesDir;
@@ -126,7 +125,6 @@ private:
   edm::ParameterSet m_pPhysics; 
   edm::ParameterSet m_pRunAction;      
   std::vector<std::string> m_G4Commands;
-  //ExceptionHandler* m_CustomExceptionHandler ;
 
   std::unique_ptr<DDDWorld> m_world;
   SimActivityRegistry m_registry;
