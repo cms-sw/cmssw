@@ -390,6 +390,12 @@ namespace evf {
     int retval = -1;
     int lock_attempts = 0;
 
+    struct stat buf;
+    if (stat(run_dir_+"/CMSSW_STOP",&buf)==0) {
+        edm::LogWarning("EvFDaqDirector") << "Detected stop request from hltd. Ending run for this process";
+        return runEnded;
+    }
+
     while (retval==-1) {
       retval = fcntl(fu_readwritelock_fd_, F_SETLK, &fu_rw_flk);
       if (retval==-1) usleep(50000);
@@ -402,7 +408,6 @@ namespace evf {
         else
           edm::LogWarning("EvFDaqDirector") << "Unable to obtain a lock for 5 seconds. Checking if run directory and fu.lock file are present -: errno "<< errno <<":"<< strerror(errno) << std::endl;
 
-        struct stat buf;
         if (stat(bu_run_dir_.c_str(), &buf)!=0) return runEnded;
         if (stat((bu_run_dir_+"/fu.lock").c_str(), &buf)!=0) return runEnded;
         lock_attempts=0;
