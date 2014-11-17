@@ -82,9 +82,5 @@ simMuonCSCDigis = cms.EDProducer("CSCDigiProducer",
 ##
 ## Change the the bunch timing offsets if running in Run 2
 ##
-eras.run2.toModify( simMuonCSCDigis, func=lambda simMuonCSCDigisForRun2:
-        simMuonCSCDigisForRun2.strips.bunchTimingOffsets.setValue([0.0, 37.53, 37.66, 55.4, 48.2, 54.45, 53.78, 53.38, 54.12, 51.98, 51.28])
-    )
-eras.run2.toModify( simMuonCSCDigis, func=lambda simMuonCSCDigisForRun2:
-        simMuonCSCDigisForRun2.wires.bunchTimingOffsets.setValue([0.0, 22.88, 22.55, 29.28, 30.0, 30.0, 30.5, 31.0, 29.5, 29.1, 29.88])
-    )
+eras.run2.toModify( simMuonCSCDigis.strips, bunchTimingOffsets=[0.0, 37.53, 37.66, 55.4, 48.2, 54.45, 53.78, 53.38, 54.12, 51.98, 51.28] )
+eras.run2.toModify( simMuonCSCDigis.wires, bunchTimingOffsets=[0.0, 22.88, 22.55, 29.28, 30.0, 30.0, 30.5, 31.0, 29.5, 29.1, 29.88] )
