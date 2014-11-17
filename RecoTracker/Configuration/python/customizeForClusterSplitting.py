@@ -43,8 +43,8 @@ def customizeForClusterSplitting(process):
      process.firstStepPrimaryVerticesPreSplitting = process.firstStepPrimaryVertices.clone()
      process.firstStepPrimaryVerticesPreSplitting.TrackLabel = 'initialStepTracksPreSplitting'
  
-     process.iter0TrackRefsForJetsPreSplitting = process.iter0TrackRefsForJets.clone()
-     process.iter0TrackRefsForJetsPreSplitting.src = 'initialStepTracksPreSplitting'
+     process.initialStepTrackRefsForJetsPreSplitting = process.initialStepTrackRefsForJets.clone()
+     process.initialStepTrackRefsForJetsPreSplitting.src = 'initialStepTracksPreSplitting'
      process.caloTowerForTrkPreSplitting = process.caloTowerForTrk.clone()
      process.ak4CaloJetsForTrkPreSplitting = process.ak4CaloJetsForTrk.clone()
      process.ak4CaloJetsForTrkPreSplitting.src = 'caloTowerForTrkPreSplitting'
@@ -64,7 +64,7 @@ def customizeForClusterSplitting(process):
                                                     process.initialStepTrackCandidatesPreSplitting +
                                                     process.initialStepTracksPreSplitting +
                                                     process.firstStepPrimaryVerticesPreSplitting +
-                                                    process.iter0TrackRefsForJetsPreSplitting +
+                                                    process.initialStepTrackRefsForJetsPreSplitting +
                                                     process.caloTowerForTrkPreSplitting +
                                                     process.ak4CaloJetsForTrkPreSplitting +
                                                     process.jetsForCoreTrackingPreSplitting +
