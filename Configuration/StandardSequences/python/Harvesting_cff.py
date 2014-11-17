@@ -31,3 +31,4 @@ genHarvesting = cms.Path(postValidation_gen)
 
 alcaHarvesting = cms.Path()
 
+validationHarvestingMiniAOD = cms.Path()
