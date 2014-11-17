@@ -8,7 +8,6 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelUtility.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelEDAClient.h"
 #include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
-#include "DQM/SiPixelMonitorClient/interface/SiPixelHistoPlotter.h"
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"

@@ -36,8 +36,6 @@
 #include <boost/cstdint.hpp>
 
 class SiPixelEDAClient;
-class SiPixelWebInterface;
-class SiPixelHistoPlotter;
 class SiPixelDataQuality {
 
  public:
