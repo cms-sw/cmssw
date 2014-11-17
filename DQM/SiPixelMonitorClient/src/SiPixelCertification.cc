@@ -22,7 +22,7 @@ using namespace std;
 using namespace edm;
 SiPixelCertification::SiPixelCertification(const edm::ParameterSet& ps) {
   edm::LogInfo( "SiPixelCertification") << "SiPixelCertification::Creating SiPixelCertification ";
-  firstRun = true;
+  firstLumi = true;
 }
 
 SiPixelCertification::~SiPixelCertification(){
@@ -33,7 +33,7 @@ void SiPixelCertification::dqmEndLuminosityBlock(DQMStore::IBooker & iBooker, DQ
 //cout<<"Entering SiPixelCertification::endLuminosityBlock: "<<endl;
 
   //If first run, book some histograms
-  if (firstRun){
+  if (firstLumi){
     iBooker.setCurrentFolder("Pixel/EventInfo");
     CertificationPixel= iBooker.bookFloat("CertificationSummary");  
     iBooker.setCurrentFolder("Pixel/EventInfo/CertificationContents");
@@ -44,7 +44,7 @@ void SiPixelCertification::dqmEndLuminosityBlock(DQMStore::IBooker & iBooker, DQ
     CertificationBarrel->Fill(1.);  
     CertificationEndcap->Fill(1.);  
     
-    firstRun = false;
+    firstLumi = false;
   }
 
   edm::LogInfo( "SiPixelCertification") << "SiPixelCertification::endLuminosityBlock ";
@@ -89,7 +89,6 @@ void SiPixelCertification::dqmEndJob(DQMStore::IBooker & iBooker, DQMStore::IGet
   float pixel_all = std::min(dcsFrac,daqFrac);
   pixel_all = std::min(pixel_all,dqmFrac);
 //std::cout<<"Pixel numbers: "<<dcsFrac<<" , "<<daqFrac<<" , "<<dqmFrac<<" , "<<pixel_all<<std::endl;
-  CertificationPixel = iGetter.get("Pixel/EventInfo/CertificationSummary");
   if(CertificationPixel) CertificationPixel->Fill(pixel_all);
 
   dcsFrac = (iGetter.get("Pixel/EventInfo/DCSContents/PixelBarrelFraction"))->getFloatValue();
@@ -98,7 +97,6 @@ void SiPixelCertification::dqmEndJob(DQMStore::IBooker & iBooker, DQMStore::IGet
   float pixel_barrel = std::min(dcsFrac,daqFrac);
   pixel_barrel = std::min(pixel_barrel,dqmFrac);
 //std::cout<<"Barrel numbers: "<<dcsFrac<<" , "<<daqFrac<<" , "<<dqmFrac<<" , "<<pixel_barrel<<std::endl;
-  CertificationBarrel = iGetter.get("Pixel/EventInfo/CertificationContents/PixelBarrelFraction");
   if(CertificationBarrel) CertificationBarrel->Fill(pixel_barrel);
 
   dcsFrac = (iGetter.get("Pixel/EventInfo/DCSContents/PixelEndcapFraction"))->getFloatValue();
@@ -107,7 +105,6 @@ void SiPixelCertification::dqmEndJob(DQMStore::IBooker & iBooker, DQMStore::IGet
   float pixel_endcap = std::min(dcsFrac,daqFrac);
   pixel_endcap = std::min(pixel_endcap,dqmFrac);
 //std::cout<<"Endcap numbers: "<<dcsFrac<<" , "<<daqFrac<<" , "<<dqmFrac<<" , "<<pixel_endcap<<std::endl;
-  CertificationEndcap = iGetter.get("Pixel/EventInfo/CertificationContents/PixelEndcapFraction");
   if(CertificationEndcap) CertificationEndcap->Fill(pixel_endcap);
 
 }

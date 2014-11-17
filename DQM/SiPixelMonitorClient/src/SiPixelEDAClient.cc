@@ -87,7 +87,7 @@ SiPixelEDAClient::SiPixelEDAClient(const edm::ParameterSet& ps) {
 
   }
 
-  firstRun = true;
+  firstLumi = true;
   
    //instantiate the three work horses of the client:
   sipixelInformationExtractor_ = new SiPixelInformationExtractor(offlineXMLfile_);
@@ -128,7 +128,7 @@ void SiPixelEDAClient::beginRun(Run const& run, edm::EventSetup const& eSetup) {
   edm::LogInfo ("SiPixelEDAClient") <<"[SiPixelEDAClient]: Begining of Run";
 //  cout<<"Entering SiPixelEDAClient::beginRun: "<<endl;
 
-  if(firstRun){
+  if(firstLumi){
     
     summaryFrequency_ = -1;
     tkMapFrequency_ = -1;
@@ -169,7 +169,7 @@ void SiPixelEDAClient::dqmEndLuminosityBlock(DQMStore::IBooker & iBooker, DQMSto
   }
 
 
-  if (firstRun){
+  if (firstLumi){
     iBooker.setCurrentFolder("Pixel/");
     iGetter.setCurrentFolder("Pixel/");
     // Creating Summary Histos:
@@ -206,7 +206,7 @@ void SiPixelEDAClient::dqmEndLuminosityBlock(DQMStore::IBooker & iBooker, DQMSto
 
     eSetup.get<SiPixelFedCablingMapRcd>().get(theCablingMap);
 
-    firstRun = false;
+    firstLumi = false;
   }
 
   edm::LogInfo ("SiPixelEDAClient") <<"[SiPixelEDAClient]: End of LS transition, performing the DQM client operation";

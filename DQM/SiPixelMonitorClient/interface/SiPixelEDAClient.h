@@ -68,7 +68,7 @@ private:
   bool offlineXMLfile_;
   int nFEDs_;
   bool Tier0Flag_;
-  bool firstRun;
+  bool firstLumi;
   bool doHitEfficiency_;
   bool isUpgrade_;
   std::string inputSource_;

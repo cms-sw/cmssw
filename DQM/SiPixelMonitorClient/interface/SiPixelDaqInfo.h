@@ -48,7 +48,7 @@ private:
   std::string daqSource_;
   int FEDs_[40];
 
-  bool firstRun;
+  bool firstLumi;
 
   //define Token(-s)
   edm::EDGetTokenT<FEDRawDataCollection> daqSourceToken_;

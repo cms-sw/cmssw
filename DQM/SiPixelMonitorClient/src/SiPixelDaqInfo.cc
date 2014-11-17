@@ -19,7 +19,7 @@ SiPixelDaqInfo::SiPixelDaqInfo(const edm::ParameterSet& ps) {
   NEvents_ = 0;
   for(int i=0; i!=40; i++) FEDs_[i] = 0;
 
-  firstRun = true;
+  firstLumi = true;
 
   //set Token(-s)
   daqSourceToken_ = consumes<FEDRawDataCollection>(ps.getUntrackedParameter<string>("daqSource", "source"));
@@ -30,14 +30,14 @@ SiPixelDaqInfo::~SiPixelDaqInfo(){}
 void SiPixelDaqInfo::dqmEndLuminosityBlock(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup){
 
   //Book somethings first time around
-  if (firstRun){
+  if (firstLumi){
     iBooker.setCurrentFolder("Pixel/EventInfo");
     Fraction_= iBooker.bookFloat("DAQSummary");  
     iBooker.setCurrentFolder("Pixel/EventInfo/DAQContents");
     FractionBarrel_= iBooker.bookFloat("PixelBarrelFraction");  
     FractionEndcap_= iBooker.bookFloat("PixelEndcapFraction");  
     
-    firstRun = false;
+    firstLumi = false;
   }
 
   edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
