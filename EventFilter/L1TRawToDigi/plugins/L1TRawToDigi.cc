@@ -125,8 +125,8 @@ namespace l1t {
       LogDebug("L1T") << "Found FEDRawDataCollection with ID " << fedId_ << " and size " << l1tRcd.size();
 
       if ((int) l1tRcd.size() < slinkHeaderSize_ + slinkTrailerSize_ + amc13HeaderSize_ + amc13TrailerSize_ + amcHeaderSize_ + amcTrailerSize_) {
-         LogError("L1T") << "Cannot unpack: empty/invalid L1T raw data (size = "
-            << l1tRcd.size() << ") for ID " << fedId_ << ". Returning empty collections!";
+	//LogError("L1T") << "Cannot unpack: empty/invalid L1T raw data (size = "
+	//   << l1tRcd.size() << ") for ID " << fedId_ << ". Returning empty collections!";
          return;
       }
 
@@ -187,7 +187,7 @@ namespace l1t {
             BlockHeader block_hdr(payload++);
 
             /* LogDebug("L1T") << "Found " << block_hdr; */
-            LogWarning("L1T") << "Found block " << block_hdr.getID() << " with size " << block_hdr.getSize();
+            //LogDebug("L1T") << "Found block " << block_hdr.getID() << " with size " << block_hdr.getSize();
 
             if (end - payload < block_hdr.getSize()) {
                LogError("L1T")
@@ -200,9 +200,9 @@ namespace l1t {
 
             auto unpacker = unpackers.find(block_hdr.getID());
             if (unpacker == unpackers.end()) {
-               LogWarning("L1T") << "Cannot find an unpacker for block ID "
-                  << block_hdr.getID() << ", FED ID " << fedId_ << ", and FW ID "
-                  << fw << "!";
+	      //LogWarning("L1T") << "Cannot find an unpacker for block ID "
+	      //  << block_hdr.getID() << ", FED ID " << fedId_ << ", and FW ID "
+	      //  << fw << "!";
                // TODO Handle error
             } else if (!unpacker->second->unpack(block, coll.get())) {
                LogWarning("L1T") << "Error unpacking data for block ID "
