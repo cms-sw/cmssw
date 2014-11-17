@@ -24,6 +24,7 @@ public:
 
    void  GeoPopupMenu(Int_t gx, Int_t gy, TGLViewer*);
 
+   using TGLScenePad::ResolveSelectRecord;
    virtual Bool_t ResolveSelectRecord(TGLSelectRecord& rec, Int_t curIdx);
 
    bool OpenCompositeWithPhyID(UInt_t phyID, const TBuffer3D& buffer);
@@ -32,9 +33,12 @@ public:
    // There: if selected => gEve->GetSelection()->Remove(this) or sth
    //        if highlighted .... "" .....
 
+   using TGLScenePad::DestroyPhysicals;
    virtual Int_t DestroyPhysicals();
+   using TGLScenePad::DestroyPhysical;
    virtual Bool_t DestroyPhysical(Int_t);
 
+   using TGLScenePad::AddObject;
    virtual Int_t  AddObject(const TBuffer3D& buffer, Bool_t* addChildren = 0);
 };
 

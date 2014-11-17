@@ -78,6 +78,7 @@ public:
 
 FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type, unsigned int version) :
    FWViewBase(type, version),
+   m_context(0),
    m_viewer(0),
    m_eventScene(0),
    m_ownedProducts(0),
@@ -86,7 +87,6 @@ FWEveView::FWEveView(TEveWindowSlot* iParent, FWViewType::EType type, unsigned i
    m_overlayLogo(0),
    m_energyMaxValAnnotation(0),
    m_cameraGuide(0),
-   m_context(0),
    // style
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
    m_imageScale(this, "Image Scale", 1.0, 1.0, 6.0),
@@ -386,15 +386,20 @@ FWEveView::setFrom(const FWConfiguration& iFrom)
 
 
    // selection clors
-   UChar_t* ca = 0;
-   ca = gEve->GetDefaultGLViewer()->RefLightColorSet().Selection(1).Arr();
-   viewerGL()->RefLightColorSet().Selection(1).SetColor(ca[0], ca[1], ca[2]);
-   ca = gEve->GetDefaultGLViewer()->RefLightColorSet().Selection(3).Arr();
-   viewerGL()->RefLightColorSet().Selection(3).SetColor(ca[0], ca[1], ca[2]);
-   ca = gEve->GetDefaultGLViewer()->RefDarkColorSet().Selection(1).Arr();
-   viewerGL()->RefDarkColorSet().Selection(1).SetColor(ca[0], ca[1], ca[2]);
-   ca = gEve->GetDefaultGLViewer()->RefDarkColorSet().Selection(3).Arr();
-   viewerGL()->RefDarkColorSet().Selection(3).SetColor(ca[0], ca[1], ca[2]);
+   {
+      const TGLColorSet& lcs = context().commonPrefs()->getLightColorSet();
+      const TGLColorSet& dcs = context().commonPrefs()->getDarkColorSet();
+      const UChar_t* ca = 0;
+
+      ca = lcs.Selection(1).CArr();
+      viewerGL()->RefLightColorSet().Selection(1).SetColor(ca[0], ca[1], ca[2]);
+      ca = lcs.Selection(3).CArr();
+      viewerGL()->RefLightColorSet().Selection(3).SetColor(ca[0], ca[1], ca[2]);
+      ca = dcs.Selection(1).CArr();
+      viewerGL()->RefDarkColorSet().Selection(1).SetColor(ca[0], ca[1], ca[2]);
+      ca = dcs.Selection(3).CArr();
+      viewerGL()->RefDarkColorSet().Selection(3).SetColor(ca[0], ca[1], ca[2]);
+   }
 }
 
 //______________________________________________________________________________
