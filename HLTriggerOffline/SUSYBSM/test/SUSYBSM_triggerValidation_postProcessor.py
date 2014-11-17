@@ -9,17 +9,15 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.load('HLTriggerOffline.SUSYBSM.SUSYBSM_postProcessor_cff')
 
-
 ## global tag
 process.GlobalTag.globaltag = 'GR_R_52_V7::All'
-
-
 
 ##process.GlobalTag.globaltag = 'GR_R_38X_V13::All'
 #process.GlobalTag.globaltag = 'GR10_P_V10::All'
 ## input file (adapt input file name correspondingly)
 process.source = cms.Source("PoolSource",
-fileNames = cms.untracked.vstring("file:/tmp/pablom/OutputOwen.root"),
+fileNames = cms.untracked.vstring("file:/home/users/ald77/CMSSW_7_2_0_pre6/src/HLTriggerOffline/SUSYBSM/OutputAdam.root"),
+#fileNames = cms.untracked.vstring("file:/tmp/pablom/OutputOwen.root"),
 #fileNames = cms.untracked.vstring("file:/tmp/pablom/OutputJason.root"),
 processingMode = cms.untracked.string('RunsAndLumis')
 )
@@ -41,7 +39,6 @@ process.dqmSaver.saveByRun = cms.untracked.int32( -1)
 process.dqmSaver.saveAtJobEnd = cms.untracked.bool(True)
 process.dqmSaver.forceRunNumber = cms.untracked.int32( 1)
 
-
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout'),
     categories = cms.untracked.vstring('HLTMuonVal'),
@@ -53,17 +50,14 @@ process.MessageLogger = cms.Service("MessageLogger",
     ),
 )
 
-
 #process.endpath = cms.EndPath(process.dqmSaver)
-
-
 
 ## path definitions
 process.edmtome = cms.Path(
 process.EDMtoME
 )
 
-process.SusyExoPostVal = cms.Sequence(process.SUSY_HLT_MET_MUON_POSTPROCESSING)
+#process.SusyExoPostVal = cms.Sequence(process.SUSY_HLT_MET_MUON_POSTPROCESSING)
 #process.SusyExoPostVal = cms.Sequence(process.SUSY_HLT_InclusiveHT_aux350_POSTPROCESSING + process.SUSY_HLT_InclusiveHT_aux600_POSTPROCESSING)
 
 process.susypost = cms.Path(
