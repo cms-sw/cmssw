@@ -134,7 +134,7 @@ public:
     virtual TaggingVariableList taggingVariables(void) const;
 
     // Used by ROOT storage
-    CMS_CLASS_VERSION(11)
+    CMS_CLASS_VERSION(2)
 
 private:
     LeptonMap m_leptons;
