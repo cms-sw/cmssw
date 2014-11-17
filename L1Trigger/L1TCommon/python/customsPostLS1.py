@@ -33,8 +33,8 @@ def customiseSimL1EmulatorForPostLS1(process):
         process.simGtDigis.TechnicalTriggersInputTags = cms.VInputTag( )
         process.gctDigiToRaw.gctInputLabel = 'simCaloStage1LegacyFormatDigis'
     if hasattr(process, 'DigiToRaw'):
-        print "INFO:  customizing DigiToRaw for Stage 1"
-        print process.DigiToRaw
+        #print "INFO:  customizing DigiToRaw for Stage 1"
+        #print process.DigiToRaw
         process.l1tDigiToRaw.InputLabel = cms.InputTag("simCaloStage1FinalDigis", "")
         process.l1tDigiToRaw.TauInputLabel = cms.InputTag("simCaloStage1FinalDigis", "rlxTaus")
         process.l1tDigiToRaw.IsoTauInputLabel = cms.InputTag("simCaloStage1FinalDigis", "isoTaus")
@@ -42,23 +42,23 @@ def customiseSimL1EmulatorForPostLS1(process):
         process.l1tDigiToRaw.HFRingSumsInputLabel = cms.InputTag("simCaloStage1FinalDigis", "HFRingSums")
         process.l1tDigiToRawSeq = cms.Sequence(process.gctDigiToRaw + process.l1tDigiToRaw);
         process.DigiToRaw.replace(process.gctDigiToRaw, process.l1tDigiToRawSeq)
-        print process.DigiToRaw
+        #print process.DigiToRaw
         if hasattr(process, 'rawDataCollector'):
-            print "INFO:  customizing rawDataCollector for Stage 1"
+            #print "INFO:  customizing rawDataCollector for Stage 1"
             process.rawDataCollector.RawCollectionList.append(cms.InputTag("l1tDigiToRaw"))
     if hasattr(process, 'RawToDigi'):
-        print "INFO:  customizing L1RawToDigi for Stage 1"
-        print process.RawToDigi
+        #print "INFO:  customizing L1RawToDigi for Stage 1"
+        #print process.RawToDigi
         process.L1RawToDigiSeq = cms.Sequence(process.gctDigis+process.caloStage1Digis+process.caloStage1LegacyFormatDigis)
         process.RawToDigi.replace(process.gctDigis, process.L1RawToDigiSeq)
-        print process.RawToDigi
+        #print process.RawToDigi
 
 
 #hltGtDigis+hltGctDigis+hltL1GtObjectMap+hltL1extraParticles
 #csctfDigis+dttfDigis+gctDigis+caloStage1Digis+caloStage1LegacyFormatDigis+gtDigis+gtEvmDigis+siPixelDigis+siStripDigis+ecalDigis+ecalPreshowerDigis+hcalDigis+muonCSCDigis+muonDTDigis+muonRPCDigis+castorDigis+scalersRawToDigi+hltL1extraParticles
     if hasattr(process, 'HLTL1UnpackerSequence'):
-        print "INFO: customizing HLTL1UnpackerSequence for Stage 1"
-        print process.HLTL1UnpackerSequence
+        #print "INFO: customizing HLTL1UnpackerSequence for Stage 1"
+        #print process.HLTL1UnpackerSequence
 
         # extend sequence to add Layer 1 unpacking and conversion back to legacy format
         process.hltCaloStage1Digis = process.caloStage1Digis.clone()
@@ -91,13 +91,13 @@ def customiseSimL1EmulatorForPostLS1(process):
         #    iterable.replace( process.HLTL1UnpackerSequence, HLTL1UnpackerSequence)
 
         #process.HLTL1UnpackerSequence = HLTL1UnpackerSequence
-        print process.HLTL1UnpackerSequence
+        #print process.HLTL1UnpackerSequence
 
     alist=['hltL1extraParticles']
     for a in alist:
-        print "INFO: checking for", a, "in process."
+        #print "INFO: checking for", a, "in process."
         if hasattr(process,a):
-            print "INFO:  customizing ", a, "to use new calo Stage 1 digis converted to legacy format"
+            #print "INFO:  customizing ", a, "to use new calo Stage 1 digis converted to legacy format"
             getattr(process, a).etTotalSource = cms.InputTag("hltCaloStage1LegacyFormatDigis")
             getattr(process, a).nonIsolatedEmSource = cms.InputTag("hltCaloStage1LegacyFormatDigis","nonIsoEm")
             getattr(process, a).etMissSource = cms.InputTag("hltCaloStage1LegacyFormatDigis")
@@ -113,9 +113,9 @@ def customiseSimL1EmulatorForPostLS1(process):
 
     blist=['l1extraParticles','recoL1extraParticles','dqmL1ExtraParticles']
     for b in blist:
-        print "INFO: checking for", b, "in process."
+        #print "INFO: checking for", b, "in process."
         if hasattr(process,b):
-            print "INFO:  customizing ", b, "to use new calo Stage 1 digis converted to legacy format"
+            #print "INFO:  customizing ", b, "to use new calo Stage 1 digis converted to legacy format"
             getattr(process, b).etTotalSource = cms.InputTag("caloStage1LegacyFormatDigis")
             getattr(process, b).nonIsolatedEmSource = cms.InputTag("caloStage1LegacyFormatDigis","nonIsoEm")
             getattr(process, b).etMissSource = cms.InputTag("caloStage1LegacyFormatDigis")

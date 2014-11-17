@@ -40,7 +40,7 @@ MP7PacketReader::load() {
             std::vector<PacketRange > ranges = findPackets(raw.link(0)); 
             rangeSet.insert(ranges);
         }
-        cout << "Number of different patterns: " << rangeSet.size() << endl;
+        //cout << "Number of different patterns: " << rangeSet.size() << endl;
         if ( rangeSet.size() != 1 )
             throw std::runtime_error("Links are not aligned!");
         
@@ -58,7 +58,7 @@ MP7PacketReader::load() {
             // Check if the header/footer zeroed the packet
             if ( p.second-p.first-header_-footer_<= 0 ) {
                 // Turn this into an error message
-                cout << "Error: packet length is zero (or less) after header/footer stripping. Skipping." << endl;
+                //cout << "Error: packet length is zero (or less) after header/footer stripping. Skipping." << endl;
                 continue;
             }
             

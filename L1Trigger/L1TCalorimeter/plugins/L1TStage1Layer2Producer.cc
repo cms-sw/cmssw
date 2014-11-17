@@ -125,16 +125,16 @@ using namespace l1t;
 
     if (ifwv == 1){
       LogDebug("l1t|stage1firmware") << "L1TStage1Layer2Producer -- Running HI implementation\n";
-      std::cout << "L1TStage1Layer2Producer -- Running HI implementation\n";
+      //std::cout << "L1TStage1Layer2Producer -- Running HI implementation\n";
     }else if (ifwv == 2){
       LogDebug("l1t|stage1firmware") << "L1TStage1Layer2Producer -- Running pp implementation\n";
-      std::cout << "L1TStage1Layer2Producer -- Running pp implementation\n";
+      //std::cout << "L1TStage1Layer2Producer -- Running pp implementation\n";
     } else if (ifwv == 3){
       LogDebug("l1t|stage1firmware") << "L1TStage1Layer2Producer -- Running SimpleHW implementation\n";
-      std::cout << "L1TStage1Layer2Producer -- Running SimpleHW implementation -- for testing only\n";
+      //std::cout << "L1TStage1Layer2Producer -- Running SimpleHW implementation -- for testing only\n";
     }else{
       LogError("l1t|stage1firmware") << "L1TStage1Layer2Producer -- Unknown implementation.\n";
-      std::cout << "L1TStage1Layer2Producer -- Unknown implementation.\n";
+      //std::cout << "L1TStage1Layer2Producer -- Unknown implementation.\n";
     }
     //m_fwv->setFirmwareVersion(ifwv); // =1 HI, =2 PP
     // m_fw = m_factory.create(*m_fwv /*,*m_params*/);

@@ -34,7 +34,7 @@ FileData::link(uint32_t i) const {
 //____________________________________________________________________________//
 MP7FileReader::MP7FileReader(const std::string& path) : valid_(false), path_(path), file_(path) {
     if (!file_.is_open()) {
-        cout << "File " << path << " not found" << endl;
+        //cout << "File " << path << " not found" << endl;
         valid_ = false;
         return;
     }
@@ -71,18 +71,18 @@ MP7FileReader::load() {
     // Data, to be stored in a BufferSnapshot object
     while (file_.good()) {
         std::string id = searchBoard();
-        cout << "Id: " << id << endl;
+        //cout << "Id: " << id << endl;
         std::vector<uint32_t> links = searchLinks();
 
-        cout << "Links (" << links.size() << ") : ";
+        //cout << "Links (" << links.size() << ") : ";
 
-        BOOST_FOREACH(uint32_t l, links) {
-            cout << l << ",";
-        }
-        cout << endl;
+        //BOOST_FOREACH(uint32_t l, links) {
+            //cout << l << ",";
+        //}
+        //cout << endl;
 
         std::vector< std::vector<uint64_t> > data = readRows();
-        cout << "Data loaded (" << data.size() << ")" << endl;
+        //cout << "Data loaded (" << data.size() << ")" << endl;
 
         // Id, Link # and Data Loaded
 
@@ -130,7 +130,7 @@ MP7FileReader::searchBoard() {
             id = what[1];
             return id;
         } else {
-            cout << "Here '" << line << "'" << endl;
+            //cout << "Here '" << line << "'" << endl;
             throw std::logic_error("Unexpected line found!");
         }
     }
