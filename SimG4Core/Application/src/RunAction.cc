@@ -4,8 +4,7 @@
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
 #include "SimG4Core/Notification/interface/EndOfRun.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
- 
+#include "FWCore/MessageLogger/interface/MessageLogger.h" 
 #include <iostream>
 #include <fstream>
  

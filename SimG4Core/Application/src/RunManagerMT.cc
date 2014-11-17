@@ -56,8 +56,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//#include "SimG4Core/Application/interface/ExceptionHandler.h"
-
 RunManagerMT::RunManagerMT(edm::ParameterSet const & p):
       m_managerInitialized(false), 
       m_runTerminated(false),
@@ -91,7 +89,8 @@ RunManagerMT::~RunManagerMT()
   G4GeometryManager::GetInstance()->OpenGeometry();
 }
 
-void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF, const HepPDT::ParticleDataTable *fPDGTable)
+void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF, 
+			  const HepPDT::ParticleDataTable *fPDGTable)
 {
   if (m_managerInitialized) return;
   
