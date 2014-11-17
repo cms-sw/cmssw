@@ -52,6 +52,7 @@ JetAnalyzerAk4PFCHSMiniAOD = cms.EDAnalyzer("JetTester",
                                   JetType = cms.untracked.string('miniaod'),
                                   src            = cms.InputTag("slimmedJets"),
                                   srcGen         = cms.InputTag("slimmedGenJets"),
+                                  JetCorrections = cms.InputTag(""),#not called for MiniAOD
                                   primVertex     = cms.InputTag("offlineSlimmedPrimaryVertices"),
                                   recoJetPtThreshold = cms.double(40),
                                   matchGenPtThreshold                 = cms.double(20.0),

@@ -20,7 +20,9 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
   isCaloJet = (std::string("calo")==JetType);
   isPFJet   = (std::string("pf")  ==JetType);
   isMiniAODJet = (std::string("miniaod")  ==JetType);
-
+  if(!isMiniAODJet){
+    mJetCorrector                  =iConfig.getParameter<edm::InputTag>("JetCorrections"); 
+  } 
   mInputGenCollection            =iConfig.getParameter<edm::InputTag>("srcGen");
   genJetsToken_ = consumes<reco::GenJetCollection>(edm::InputTag(mInputGenCollection));
 
@@ -30,8 +32,8 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
    if (isPFJet)   pfJetsToken_    = consumes<reco::PFJetCollection>(mInputCollection);
    if(isMiniAODJet)patJetsToken_ = consumes<pat::JetCollection>(mInputCollection);
    evtToken_ = consumes<GenEventInfoProduct>(edm::InputTag("generator"));
-   if(!isMiniAODJet){
-     jetCorrectorToken_ = consumes<reco::JetCorrector>(iConfig.getParameter<edm::InputTag>("JetCorrections"));
+   if(!isMiniAODJet && !mJetCorrector.label().empty()){
+     jetCorrectorToken_ = consumes<reco::JetCorrector>(mJetCorrector);
    }
 
   // Events variables
@@ -725,18 +727,20 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
   double scale = -999;
 
   edm::Handle<reco::JetCorrector> jetCorr;
-  bool pass_correction_flag =true;
-  if(!isMiniAODJet){
+  bool pass_correction_flag =false;
+  if(!isMiniAODJet && !mJetCorrector.label().empty()){
     mEvent.getByToken(jetCorrectorToken_, jetCorr);
-    if (!jetCorr.isValid()){
-      pass_correction_flag=false;
+    if (jetCorr.isValid()){
+      pass_correction_flag=true;
     }
   }
-  if(pass_correction_flag)
-    {
-      for (unsigned ijet=0; ijet<recoJets.size(); ijet++) {
-        Jet correctedJet = recoJets[ijet];
-
+  if(isMiniAODJet){
+    pass_correction_flag =true;
+  }
+  for (unsigned ijet=0; ijet<recoJets.size(); ijet++) {
+    Jet correctedJet = recoJets[ijet];
+    if(pass_correction_flag)
+      {
         if (isCaloJet) scale = jetCorr->correction((*caloJets)[ijet]); 
         if (isPFJet)   scale = jetCorr->correction((*pfJets)[ijet]); 
         //if (isJPTJet)  scale = jetCorr->correction((*jptJets)[ijet]);

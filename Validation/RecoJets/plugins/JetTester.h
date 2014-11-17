@@ -57,6 +57,7 @@ class JetTester : public DQMEDAnalyzer {
   
   edm::InputTag   mInputCollection;
   edm::InputTag   mInputGenCollection;
+  edm::InputTag   mJetCorrector;
   std::string     mOutputFile;
   std::string     JetType;
 
