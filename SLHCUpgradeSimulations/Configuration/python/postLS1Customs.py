@@ -74,13 +74,13 @@ def customisePostLS1EraExtras(process):
 #         process.simCsctfTrackDigis = csctfTrackDigisUngangedME1a
 #         process.simCsctfTrackDigis.DTproducer = cms.untracked.InputTag("simDtTriggerPrimitiveDigis")
 #         process.simCsctfTrackDigis.SectorReceiverInput = cms.untracked.InputTag("simCscTriggerPrimitiveDigis", "MPCSORTED")
-    if hasattr(process, 'cscpacker') or hasattr(process, 'csctfpacker'):
-        process.cscpacker.useFormatVersion = cms.uint32(2013)
-        process.cscpacker.usePreTriggers = cms.bool(False)
-        process.cscpacker.packEverything = cms.bool(True)
-    if hasattr(process, 'csc2DRecHits'):
-        process.csc2DRecHits.readBadChannels = cms.bool(False)
-        process.csc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
+#     if hasattr(process, 'cscpacker') or hasattr(process, 'csctfpacker'):
+#         process.cscpacker.useFormatVersion = cms.uint32(2013)
+#         process.cscpacker.usePreTriggers = cms.bool(False)
+#         process.cscpacker.packEverything = cms.bool(True)
+#     if hasattr(process, 'csc2DRecHits'):
+#         process.csc2DRecHits.readBadChannels = cms.bool(False)
+#         process.csc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
 
     # deal with L1 Emulation separately:
         # the following line will break HLT if HLT menu is not updated with the corresponding menu
