@@ -53,17 +53,17 @@ def customisePostLS1EraExtras(process):
 
     # deal with CSC separately:
     csc_PathVsModule_SanityCheck(process)
-    if hasattr(process,"CSCGeometryESModule"):
-        process.CSCGeometryESModule.useGangedStripsInME1a = False # NB, already changed
-    if hasattr(process,"idealForDigiCSCGeometry"):
-        process.idealForDigiCSCGeometry.useGangedStripsInME1a = False
-
-    if hasattr(process, 'simMuonCSCDigis') or hasattr(process, 'simCscTriggerPrimitiveDigis') or hasattr(process, 'csc2DRecHits'):
-        process.CSCIndexerESProducer.AlgoName=cms.string("CSCIndexerPostls1")
-        process.CSCChannelMapperESProducer.AlgoName=cms.string("CSCChannelMapperPostls1")
-    if hasattr(process, 'simMuonCSCDigis'):
-        process.simMuonCSCDigis.strips.bunchTimingOffsets = cms.vdouble(0.0, 37.53, 37.66, 55.4, 48.2, 54.45, 53.78, 53.38, 54.12, 51.98, 51.28)
-        process.simMuonCSCDigis.wires.bunchTimingOffsets = cms.vdouble(0.0, 22.88, 22.55, 29.28, 30.0, 30.0, 30.5, 31.0, 29.5, 29.1, 29.88)
+    # NB, these next bits already changed
+#     if hasattr(process,"CSCGeometryESModule"):
+#         process.CSCGeometryESModule.useGangedStripsInME1a = False
+#     if hasattr(process,"idealForDigiCSCGeometry"):
+#         process.idealForDigiCSCGeometry.useGangedStripsInME1a = False
+#    if hasattr(process, 'simMuonCSCDigis') or hasattr(process, 'simCscTriggerPrimitiveDigis') or hasattr(process, 'csc2DRecHits'):
+#        process.CSCIndexerESProducer.AlgoName=cms.string("CSCIndexerPostls1")
+#        process.CSCChannelMapperESProducer.AlgoName=cms.string("CSCChannelMapperPostls1")
+#     if hasattr(process, 'simMuonCSCDigis'):
+#         process.simMuonCSCDigis.strips.bunchTimingOffsets = cms.vdouble(0.0, 37.53, 37.66, 55.4, 48.2, 54.45, 53.78, 53.38, 54.12, 51.98, 51.28)
+#         process.simMuonCSCDigis.wires.bunchTimingOffsets = cms.vdouble(0.0, 22.88, 22.55, 29.28, 30.0, 30.0, 30.5, 31.0, 29.5, 29.1, 29.88)
     if hasattr(process, 'simCscTriggerPrimitiveDigis'):
         from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigisPostLS1_cfi import cscTriggerPrimitiveDigisPostLS1
         process.simCscTriggerPrimitiveDigis = cscTriggerPrimitiveDigisPostLS1
