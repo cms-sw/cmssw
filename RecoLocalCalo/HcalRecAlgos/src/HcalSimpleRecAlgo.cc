@@ -60,6 +60,8 @@ void HcalSimpleRecAlgo::setpuCorrParams(bool   iPedestalConstraint, bool iTimeCo
 					double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean,double iPedSig,
 					double iNoise,double iTMin,double iTMax,
 					double its3Chi2,double its4Chi2,double its345Chi2,double iChargeThreshold, int iFitTimes) { 
+  if( iPedestalConstraint ) assert ( iPedSig );
+  if( iTimeConstraint ) assert( iTimeSig );
   psFitOOTpuCorr_->setPUParams(iPedestalConstraint,iTimeConstraint,iAddPulseJitter,iUnConstrainedFit,iApplyTimeSlew,
 			       iTS4Min, iTS4Max, iPulseJitter,iTimeMean,iTimeSig,iPedMean,iPedSig,iNoise,iTMin,iTMax,its3Chi2,its4Chi2,its345Chi2,
 			       iChargeThreshold,HcalTimeSlew::Medium, iFitTimes);
@@ -364,11 +366,6 @@ namespace HcalSimpleRecAlgoImpl {
        psFitOOTpuCorr->apply(cs, capidvec, calibs, correctedOutput);
        if( correctedOutput.back() == 0 && correctedOutput.size() >1 ){
           time = correctedOutput[1]; ampl = correctedOutput[0];
-       }else{
-// Use default for time and ampl if fit fails to find results, e.g. due to NAN or cuts within the psFitOOTpuCorr:
-// e.g., the "tstrig >= ts4Min_" condition.
-// New: fall back to method 0 results
-//          time = -9999; ampl = 0.0;      
        }
     }
 
