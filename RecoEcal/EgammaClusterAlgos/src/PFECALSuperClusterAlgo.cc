@@ -232,9 +232,9 @@ loadAndSortPFClusters(const edm::Event &iEvent) {
   _clustersEE.clear();  
   EEtoPS_ = &psclusters;
 
-  auto clusterPtrs = clusters.ptrVector(); 
   //Select PF clusters available for the clustering
-  for ( auto& cluster : clusterPtrs ){
+  for ( size_t i = 0; i < clusters.size(); ++i ){
+    auto cluster = clusters.ptrAt(i);
     LogDebug("PFClustering") 
       << "Loading PFCluster i="<<cluster.key()
       <<" energy="<<cluster->energy()<<std::endl;
