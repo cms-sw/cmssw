@@ -69,10 +69,7 @@ class SendMonitoringInfoHandler : boost::noncopyable, public XrdCl::ResponseHand
         {
             XrdCl::Buffer *buffer = nullptr;
             response->Get(buffer);
-            if (buffer)
-            {
-                delete buffer;
-            }
+            delete buffer;
         }
     }
 };
@@ -108,9 +105,16 @@ RequestManager::RequestManager(const std::string &filename, XrdCl::OpenFlags::Fl
       m_flags(flags),
       m_perms(perms),
       m_distribution(0,100),
-      m_excluded_active_count(0),
-      m_open_handler(new OpenHandler(*this))
+      m_excluded_active_count(0)
 {
+}
+
+
+void
+RequestManager::initialize(std::weak_ptr<RequestManager> self)
+{
+  m_open_handler = OpenHandler::getInstance(self);
+
   XrdCl::Env *env = XrdCl::DefaultEnv::GetEnv();
   if (env) {env->GetInt("StreamErrorWindow", m_timeout);}
 
@@ -135,7 +139,7 @@ RequestManager::RequestManager(const std::string &filename, XrdCl::OpenFlags::Fl
     auto opaque = prepareOpaqueString();
     std::string new_filename = m_name + (opaque.size() ? ((m_name.find("?") == m_name.npos) ? "?" : "&") + opaque : "");
     SyncHostResponseHandler handler;
-    file->Open(new_filename, flags, perms, &handler);
+    file->Open(new_filename, m_flags, m_perms, &handler);
     handler.WaitForResponse();
     std::unique_ptr<XrdCl::XRootDStatus> status = handler.GetStatus();
     std::unique_ptr<XrdCl::HostList> hostList = handler.GetHosts();
@@ -151,9 +155,9 @@ RequestManager::RequestManager(const std::string &filename, XrdCl::OpenFlags::Fl
       ex.clearMessage();
       ex.clearContext();
       ex.clearAdditionalInfo();
-      ex << "XrdCl::File::Open(name='" << filename
-         << "', flags=0x" << std::hex << flags
-         << ", permissions=0" << std::oct << perms << std::dec
+      ex << "XrdCl::File::Open(name='" << m_name
+         << "', flags=0x" << std::hex << m_flags
+         << ", permissions=0" << std::oct << m_perms << std::dec
          << ") => error '" << status->ToStr()
          << "' (errno=" << status->errNo << ", code=" << status->code << ")";
       ex.addContext("Calling XrdFile::open()");
@@ -209,21 +213,6 @@ RequestManager::RequestManager(const std::string &filename, XrdCl::OpenFlags::Fl
   m_nextActiveSourceCheck = ts;
 }
 
-
-RequestManager::~RequestManager()
-{
-  // This will cause the open handler to delete itself once
-  // the final open comes through.
-  if (m_open_handler)
-  {
-    // Note that this is invalid:
-    //   m_open_handler->GiftSelf(std::move(m_open_handler));
-    // in gcc 4.8, the std::move is evaluated first, meaning
-    // m_open_handler->GiftSelf is a null-pointer dereference.
-    OpenHandler *handler = m_open_handler.get();
-    handler->GiftSelf(std::move(m_open_handler));
-  }
-}
 
 void
 RequestManager::updateSiteInfo(std::string orig_site)
@@ -604,6 +593,12 @@ XrdAdaptor::RequestManager::handle(std::shared_ptr<std::vector<IOPosBuffer> > io
                 // throws an exception (causing the RequestManager to be destroyed by
                 // XrdFile) and the other has a failure, then the recovery code will
                 // reference the destroyed RequestManager.
+                //
+                // Unlike other places where we use shared/weak ptrs to maintain object
+                // lifetime and destruction asynchronously, we *cannot* destroy the request
+                // asynchronously as it is associated with a ROOT buffer.  We must wait until we
+                // are guaranteed that XrdCl will not write into the ROOT buffer before we
+                // can return.
                 b.wait(); a.wait();
                 return b.get() + a.get();
             },
@@ -870,50 +865,40 @@ XrdAdaptor::RequestManager::splitClientRequest(const std::vector<IOPosBuffer> &i
     edm::LogVerbatim("XrdAdaptorInternal") << "Original request size " << iolist.size() << " (" << size_orig << " bytes) split into requests size " << req1.size() << " (" << size1 << " bytes) and " << req2.size() << " (" << size2 << " bytes)" << std::endl;
 }
 
-XrdAdaptor::RequestManager::OpenHandler::OpenHandler(RequestManager & manager)
+XrdAdaptor::RequestManager::OpenHandler::OpenHandler(std::weak_ptr<RequestManager> manager)
   : m_manager(manager)
 {
-    m_ignore_response.clear();
 }
 
+
+    // Cannot use ~OpenHandler=default as XrdCl::File is not fully
+    // defined in the header.
 XrdAdaptor::RequestManager::OpenHandler::~OpenHandler()
 {
 }
 
 
 void
-XrdAdaptor::RequestManager::OpenHandler::GiftSelf(std::unique_ptr<OpenHandler> me)
-{
-    std::shared_ptr<OpenHandler> myself(std::move(me));
-    m_self = myself;
-    m_ignore_response.test_and_set();
-    // The test and set indicates to the open handler it should throw away the results.  However,
-    // if the open handler fired between the time we set m_self and m_ignore_response, we must
-    // make sure to delete ourself.
-    if (!m_shared_future.valid() || (m_shared_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready))
-    {
-        m_self.reset();
-    }
-}
-
-void
-XrdAdaptor::RequestManager::OpenHandler::HandleResponseWithHosts(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response, XrdCl::HostList *hostList)
+XrdAdaptor::RequestManager::OpenHandler::HandleResponseWithHosts(XrdCl::XRootDStatus *status_ptr, XrdCl::AnyObject *, XrdCl::HostList *hostList_ptr)
 {
   std::shared_ptr<Source> source;
+  std::unique_ptr<XrdCl::XRootDStatus> status(status_ptr);
+  std::unique_ptr<XrdCl::HostList> hostList(hostList_ptr);
+
+    // Make sure we get rid of the strong self-reference when the callback finishes.
+  std::shared_ptr<OpenHandler> self = m_self;
+  m_self.reset();
+
+  auto manager = m_manager.lock();
+    // Manager object has already been deleted.  Cleanup the
+    // response objects, remove our self-reference, and ignore the response.
+  if (!manager)
+  {
+    return;
+  }
   {
     std::lock_guard<std::recursive_mutex> sentry(m_mutex);
-    // Do not call any handlers of the manager - another thread is calling this object's destructor.
-    if (m_ignore_response.test_and_set())
-    {
-        delete status;
-        if (hostList)
-        {
-            delete hostList;
-        }
-        m_self.reset();
-        return;
-    }
-    m_ignore_response.clear();
+
     if (status->IsOK())
     {
         SendMonitoringInfo(*m_file);
@@ -921,33 +906,27 @@ XrdAdaptor::RequestManager::OpenHandler::HandleResponseWithHosts(XrdCl::XRootDSt
         GET_CLOCK_MONOTONIC(now);
 
         std::string excludeString;
-        Source::determineHostExcludeString(*m_file, hostList, excludeString);
+        Source::determineHostExcludeString(*m_file, hostList.get(), excludeString);
 
-        source = std::shared_ptr<Source>(new Source(now, std::move(m_file), excludeString));
+        source.reset(new Source(now, std::move(m_file), excludeString));
         m_promise.set_value(source);
     }
     else
     {
         m_file.reset();
-        source = std::shared_ptr<Source>();
         edm::Exception ex(edm::errors::FileOpenError);
-        ex << "XrdCl::File::Open(name='" << m_manager.m_name
-           << "', flags=0x" << std::hex << m_manager.m_flags
-           << ", permissions=0" << std::oct << m_manager.m_perms << std::dec
+        ex << "XrdCl::File::Open(name='" << manager->m_name
+           << "', flags=0x" << std::hex << manager->m_flags
+           << ", permissions=0" << std::oct << manager->m_perms << std::dec
            << ") => error '" << status->ToStr()
            << "' (errno=" << status->errNo << ", code=" << status->code << ")";
         ex.addContext("In XrdAdaptor::RequestManager::OpenHandler::HandleResponseWithHosts()");
-        m_manager.addConnections(ex);
+        manager->addConnections(ex);
 
         m_promise.set_exception(std::make_exception_ptr(ex));
     }
   }
-  m_manager.handleOpen(*status, source);
-  delete status;
-  if (hostList)
-  {
-    delete hostList;
-  }
+  manager->handleOpen(*status, source);
 }
 
 std::string
@@ -969,6 +948,27 @@ std::shared_future<std::shared_ptr<Source> >
 XrdAdaptor::RequestManager::OpenHandler::open()
 {
     std::lock_guard<std::recursive_mutex> sentry(m_mutex);
+    auto manager_ptr = m_manager.lock();
+    if (!manager_ptr)
+    {
+      edm::Exception ex(edm::errors::LogicError);
+      ex << "XrdCl::File::Open() =>"
+         << " error: OpenHandler called within an invalid RequestManager context."
+         << "  This is a logic error and should be reported to the CMSSW developers.";
+      ex.addContext("Calling XrdAdaptor::RequestManager::OpenHandler::open()");
+      throw ex;
+    }
+    RequestManager &manager = *manager_ptr;
+    auto self_ptr = m_self_weak.lock();
+    if (!self_ptr)
+    {
+      edm::Exception ex(edm::errors::LogicError);
+      ex << "XrdCl::File::Open() => error: "
+         << "OpenHandler called after it was deleted.  This is a logic error "
+         << "and should be reported to the CMSSW developers.";
+      ex.addContext("Calling XrdAdapter::RequestManager::OpenHandler::open()");
+      throw ex;
+    }
 
     if (m_file.get())
     {
@@ -978,23 +978,25 @@ XrdAdaptor::RequestManager::OpenHandler::open()
     m_promise.swap(new_promise);
     m_shared_future = m_promise.get_future().share();
 
-    auto opaque = m_manager.prepareOpaqueString();
-    std::string new_name = m_manager.m_name + ((m_manager.m_name.find("?") == m_manager.m_name.npos) ? "?" : "&") + opaque;
+    auto opaque = manager.prepareOpaqueString();
+    std::string new_name = manager.m_name + ((manager.m_name.find("?") == manager.m_name.npos) ? "?" : "&") + opaque;
     edm::LogVerbatim("XrdAdaptorInternal") << "Trying to open URL: " << new_name;
     m_file.reset(new XrdCl::File());
     XrdCl::XRootDStatus status;
-    if (!(status = m_file->Open(new_name, m_manager.m_flags, m_manager.m_perms, this)).IsOK())
+    if (!(status = m_file->Open(new_name, manager.m_flags, manager.m_perms, this)).IsOK())
     {
       edm::Exception ex(edm::errors::FileOpenError);
       ex << "XrdCl::File::Open(name='" << new_name
-         << "', flags=0x" << std::hex << m_manager.m_flags
-         << ", permissions=0" << std::oct << m_manager.m_perms << std::dec
+         << "', flags=0x" << std::hex << manager.m_flags
+         << ", permissions=0" << std::oct << manager.m_perms << std::dec
          << ") => error '" << status.ToStr()
          << "' (errno=" << status.errNo << ", code=" << status.code << ")";
       ex.addContext("Calling XrdAdaptor::RequestManager::OpenHandler::open()");
-      m_manager.addConnections(ex);
+      manager.addConnections(ex);
       throw ex;
     }
+      // Have a strong self-reference for as long as the callback is in-progress.
+    m_self = self_ptr;
     return m_shared_future;
 }
 

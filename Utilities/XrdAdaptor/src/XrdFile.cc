@@ -144,7 +144,7 @@ XrdFile::open (const char *name,
   modeflags |= (perms & S_IWOTH) ? XrdCl::Access::GW : XrdCl::Access::None;
   modeflags |= (perms & S_IXOTH) ? XrdCl::Access::GX : XrdCl::Access::None;
 
-  m_requestmanager.reset(new RequestManager(name, openflags, modeflags));
+  m_requestmanager = RequestManager::getInstance(name, openflags, modeflags);
   m_name = name;
 
   // Stat the file so we can keep track of the offset better.
@@ -213,7 +213,7 @@ XrdFile::close (void)
 void
 XrdFile::abort (void)
 {
-  m_requestmanager.reset(nullptr);
+  m_requestmanager.reset();
   m_close = false;
   m_offset = 0;
   m_size = -1;

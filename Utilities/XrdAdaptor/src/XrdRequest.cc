@@ -24,6 +24,8 @@ XrdAdaptor::ClientRequest::HandleResponse(XrdCl::XRootDStatus *stat, XrdCl::AnyO
 {
     std::unique_ptr<XrdCl::AnyObject> response(resp);
     std::unique_ptr<XrdCl::XRootDStatus> status(stat);
+    std::shared_ptr<ClientRequest> self_ref = m_self_reference;
+    m_self_reference.reset();
     {
         QualityMetricWatch qmw;
         m_qmw.swap(qmw);
@@ -56,7 +58,7 @@ XrdAdaptor::ClientRequest::HandleResponse(XrdCl::XRootDStatus *stat, XrdCl::AnyO
         {
             try
             {
-                m_manager.requestFailure(m_self_reference, *status);
+                m_manager.requestFailure(self_ref, *status);
                 return;
             }
             catch (XrootdException& ex)
@@ -93,6 +95,5 @@ XrdAdaptor::ClientRequest::HandleResponse(XrdCl::XRootDStatus *stat, XrdCl::AnyO
             edm::LogWarning("XrdAdaptorInternal") << "Caught a new exception when running connection recovery.";
         }
     }
-    m_self_reference = nullptr;
 }
 

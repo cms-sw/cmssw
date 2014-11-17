@@ -64,7 +64,7 @@ private:
    */
   std::shared_ptr<XrdCl::File>   getActiveFile();
 
-  std::unique_ptr<XrdAdaptor::RequestManager> m_requestmanager;
+  std::shared_ptr<XrdAdaptor::RequestManager> m_requestmanager;
   IOOffset	 	         m_offset;
   IOOffset                       m_size;
   bool			         m_close;

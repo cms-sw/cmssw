@@ -45,9 +45,7 @@ class RequestManager : boost::noncopyable {
 public:
     static const unsigned int XRD_DEFAULT_TIMEOUT = 3*60;
 
-    RequestManager(const std::string & filename, XrdCl::OpenFlags::Flags flags, XrdCl::Access::Mode perms);
-
-    ~RequestManager();
+    ~RequestManager() = default;
 
     /**
      * Interface for handling a client request.
@@ -102,7 +100,33 @@ public:
      */
     const std::string & getFilename() const {return m_name;}
 
+    /**
+     * Some of the callback handlers need a weak_ptr reference to the RequestManager.
+     * This allows the callback handler to know when it is OK to invoke RequestManager
+     * methods.
+     *
+     * Hence, all instances need to be created through this factory function.
+     */
+    static std::shared_ptr<RequestManager>
+    getInstance(const std::string &filename, XrdCl::OpenFlags::Flags flags, XrdCl::Access::Mode perms)
+    {
+        std::shared_ptr<RequestManager> instance(new RequestManager(filename, flags, perms));
+        instance->initialize(instance);
+        return instance;
+    }
+
 private:
+
+    RequestManager(const std::string & filename, XrdCl::OpenFlags::Flags flags, XrdCl::Access::Mode perms);
+
+    /**
+     * Some of the callback handlers (particularly, file-open one) will want to call back into
+     * the RequestManager.  However, the XrdFile may have already thrown away the reference.  Hence,
+     * we need a weak_ptr to the original object before we can initialize.  This way, callback knows
+     * to not reference the RequestManager.
+     */
+    void initialize(std::weak_ptr<RequestManager> selfref);
+
     /**
      * Handle the file-open response
      */
@@ -187,7 +211,15 @@ private:
     class OpenHandler : boost::noncopyable, public XrdCl::ResponseHandler {
 
     public:
-        OpenHandler(RequestManager & manager);
+
+        static std::shared_ptr<OpenHandler> getInstance(std::weak_ptr<RequestManager> manager)
+        {
+            OpenHandler *instance_ptr = new OpenHandler(manager);
+            std::shared_ptr<OpenHandler> instance(instance_ptr);
+            instance_ptr->m_self_weak = instance;
+            return instance;
+        }
+
         ~OpenHandler();
 
         /**
@@ -207,30 +239,25 @@ private:
          */
         std::string current_source();
 
-        /**
-         * Turn lifetime management of the open handler to itself.
-         * The post conditions are one of the following:
-         *   - The OpenHandler deletes itself, OR
-         *   - The OpenHandler will delete itself when the callback fires.
-         * In the latter case, the OpenHandler will not attempt to call
-         * back to the RequestManager - it is assumed to have already been deleted.
-         */
-        void GiftSelf(std::unique_ptr<OpenHandler> me);
-
     private:
-        RequestManager & m_manager;
+
+        OpenHandler(std::weak_ptr<RequestManager> manager);
         std::shared_future<std::shared_ptr<Source> > m_shared_future;
         std::promise<std::shared_ptr<Source> > m_promise;
         // When this is not null, there is a file-open in process
         // Can only be touched when m_mutex is held.
         std::unique_ptr<XrdCl::File> m_file;
         std::recursive_mutex m_mutex;
-        std::atomic_flag m_ignore_response;
-
         std::shared_ptr<OpenHandler> m_self;
+
+        // Always maintain a weak self-reference; when the open is in-progress,
+        // this is upgraded to a strong reference to prevent this object from
+        // deletion as long as XrdCl has not performed the callback.
+        std::weak_ptr<OpenHandler> m_self_weak;
+        std::weak_ptr<RequestManager> m_manager;
     };
 
-    std::unique_ptr<OpenHandler> m_open_handler;
+    std::shared_ptr<OpenHandler> m_open_handler;
 };
 
 }
