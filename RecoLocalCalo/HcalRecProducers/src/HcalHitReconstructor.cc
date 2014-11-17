@@ -90,8 +90,10 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 
   if (!strcasecmp(subd.c_str(),"HBHE")) {
     subdet_=HcalBarrel;
-    setPileupCorrection_ = &HcalSimpleRecAlgo::setHBHEPileupCorrection;
+    setPileupCorrection_ = &HcalSimpleRecAlgo::setHBHEPileupCorrection;    
+    if(puCorrMethod_ == 0) setPileupCorrection_ = 0;
     setPileupCorrectionForNegative_ = &HBHENegativeFlagSetter::setHBHEPileupCorrection;
+    if(puCorrMethod_ == 0) setPileupCorrectionForNegative_ = 0;
     bool timingShapedCutsFlags = conf.getParameter<bool>("setTimingShapedCutsFlags");
     if (timingShapedCutsFlags)
       {
@@ -252,6 +254,28 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   }
 
   reco_.setpuCorrMethod(puCorrMethod_);
+  if(puCorrMethod_ == 2) { 
+    reco_.setpuCorrParams(
+			  conf.getParameter<bool>  ("applyPedConstraint"),
+			  conf.getParameter<bool>  ("applyTimeConstraint"),
+			  conf.getParameter<bool>  ("applyPulseJitter"),
+			  conf.getParameter<bool>  ("applyUnconstrainedFit"),
+			  conf.getParameter<bool>  ("applyTimeSlew"),
+			  conf.getParameter<double>("fitThreshold"),
+			  conf.getParameter<double>("pulseJitter"),
+			  conf.getParameter<double>("meanTime"),
+			  conf.getParameter<double>("timeSigma"),
+			  conf.getParameter<double>("meanPed"),
+			  conf.getParameter<double>("pedSigma"),
+			  conf.getParameter<double>("noise"),
+			  conf.getParameter<double>("timeMin"),
+			  conf.getParameter<double>("timeMax"),
+			  conf.getParameter<double>("ts3chi2"),
+			  conf.getParameter<double>("ts4chi2"),
+			  conf.getParameter<double>("ts345chi2"),
+			  conf.getParameter<double>("chargeMax") //For the unconstrained Fit
+			  );
+  }
   if(conf.existsAs<double>("pufitChargeThreshold")) reco_.setpufitChrgThr(conf.getParameter<double>("pufitChargeThreshold"));
 }
 
