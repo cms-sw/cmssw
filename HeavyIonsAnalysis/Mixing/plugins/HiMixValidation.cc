@@ -301,6 +301,18 @@ HiMixValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	 genvtx = inev->signal_process_vertex();
          cout<<"c"<<endl;
 
+	 if(!genvtx){
+	    //cout<<"No Signal Process Vertex!"<<endl;
+	    HepMC::GenEvent::particle_const_iterator pt=inev->particles_begin();
+	    HepMC::GenEvent::particle_const_iterator ptend=inev->particles_end();
+	    while(!genvtx || ( genvtx->particles_in_size() == 1 && pt != ptend ) ){
+	       //if(!genvtx) cout<<"No Gen Vertex!"<<endl;
+	       if(pt == ptend) cout<<"End reached, No Gen Vertex!"<<endl;
+	       genvtx = (*pt)->production_vertex();
+	       ++pt;
+	    }
+
+	 }
 	 zcf[i] = genvtx->position().z();
          cout<<"d"<<endl;
       }
