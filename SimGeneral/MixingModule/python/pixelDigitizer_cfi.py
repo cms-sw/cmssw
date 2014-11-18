@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-def modifyPixelDigitizerForPostLS1( digitizer, bunchspacing ) :
+def modifyPixelDigitizerForRun2Bunchspacing25( digitizer, bunchspacing ) :
     """
-    Function that modifies the pixel digitiser for post LS1 running.
+    Function that modifies the pixel digitiser for Run 2 with 25ns bunchspacing.
     
     This is used further along the configuration chain when the 
     bunch spacing is known. Specifically the point where "process.mix"
@@ -11,42 +11,49 @@ def modifyPixelDigitizerForPostLS1( digitizer, bunchspacing ) :
     
     First argument is the pixelDigitizer object (generally
     "process.mix.digitizers.pixel" when this function is called).
-    
-    Second argument is the bunch spacing in ns, i.e. 50 or 25
     """
-    if bunchspacing == 50 :
-        # DynamicInefficency - 13TeV - 50ns case
-        digitizer.theInstLumiScaleFactor = cms.double(246.4)
-        digitizer.theLadderEfficiency_BPix1 = cms.vdouble(
-            0.979259,0.976677,0.979259,0.976677,0.979259,0.976677,0.979259,0.976677,
-            0.979259,0.976677,0.979259,0.976677,0.979259,0.976677,0.979259,0.976677,
-            0.979259,0.976677,0.979259,0.976677)
-        digitizer.theLadderEfficiency_BPix2 = cms.vdouble(
-            0.994321,0.993944,0.994321,0.993944,0.994321,0.993944,0.994321,0.993944,
-            0.994321,0.993944,0.994321,0.993944,0.994321,0.993944,0.994321,0.993944,
-            0.994321,0.993944,0.994321,0.993944,0.994321,0.993944,0.994321,0.993944,
-            0.994321,0.993944,0.994321,0.993944,0.994321,0.993944,0.994321,0.993944)
-        digitizer.theLadderEfficiency_BPix3 = cms.vdouble(
-            0.996787,0.996945,0.996787,0.996945,0.996787,0.996945,0.996787,0.996945,
-            0.996787,0.996945,0.996787,0.996945,0.996787,0.996945,0.996787,0.996945,
-            0.996787,0.996945,0.996787,0.996945,0.996787,0.996945,0.996787,0.996945,
-            0.996787,0.996945,0.996787,0.996945,0.996787,0.996945,0.996787,0.996945,
-            0.996787,0.996945,0.996787,0.996945,0.996787,0.996945,0.996787,0.996945,
-            0.996787,0.996945,0.996787,0.996945)
-    elif bunchspacing == 25 :
-        # DynamicInefficency - 13TeV - 25ns case
-        digitizer.theInstLumiScaleFactor = cms.double(364)
-        digitizer.theLadderEfficiency_BPix1 = cms.vdouble( [1]*20 ) # this syntax makes an array with 20 copies of "1"
-        digitizer.theLadderEfficiency_BPix2 = cms.vdouble( [1]*32 )
-        digitizer.theLadderEfficiency_BPix3 = cms.vdouble( [1]*44 )
-        digitizer.theModuleEfficiency_BPix1 = cms.vdouble(1,1,1,1)
-        digitizer.theModuleEfficiency_BPix2 = cms.vdouble(1,1,1,1)
-        digitizer.theModuleEfficiency_BPix3 = cms.vdouble(1,1,1,1)
-        digitizer.thePUEfficiency_BPix1 = cms.vdouble(1.00023,-3.18350e-06,5.08503e-10,-6.79785e-14)
-        digitizer.thePUEfficiency_BPix2 = cms.vdouble(9.99974e-01,-8.91313e-07,5.29196e-12,-2.28725e-15)
-        digitizer.thePUEfficiency_BPix3 = cms.vdouble(1.00005,-6.59249e-07,2.75277e-11,-1.62683e-15)
-    else :
-        raise ValueError("The modifyPixelDigitizerForPostLS1 function was supplied a bunch spacing that isn't 25 or 50")
+    # DynamicInefficency - 13TeV - 25ns case
+    digitizer.theInstLumiScaleFactor = cms.double(364)
+    digitizer.theLadderEfficiency_BPix1 = cms.vdouble( [1]*20 ) # this syntax makes an array with 20 copies of "1"
+    digitizer.theLadderEfficiency_BPix2 = cms.vdouble( [1]*32 )
+    digitizer.theLadderEfficiency_BPix3 = cms.vdouble( [1]*44 )
+    digitizer.theModuleEfficiency_BPix1 = cms.vdouble(1,1,1,1)
+    digitizer.theModuleEfficiency_BPix2 = cms.vdouble(1,1,1,1)
+    digitizer.theModuleEfficiency_BPix3 = cms.vdouble(1,1,1,1)
+    digitizer.thePUEfficiency_BPix1 = cms.vdouble(1.00023,-3.18350e-06,5.08503e-10,-6.79785e-14)
+    digitizer.thePUEfficiency_BPix2 = cms.vdouble(9.99974e-01,-8.91313e-07,5.29196e-12,-2.28725e-15)
+    digitizer.thePUEfficiency_BPix3 = cms.vdouble(1.00005,-6.59249e-07,2.75277e-11,-1.62683e-15)
+
+def modifyPixelDigitizerForRun2Bunchspacing50( digitizer ) :
+    """
+    Function that modifies the pixel digitiser for Run 2 with 50ns bunchspacing.
+    
+    This is used further along the configuration chain when the 
+    bunch spacing is known. Specifically the point where "process.mix"
+    is declared in the various pileup scenarios (e.g. "mixNoPU_cfi.py"
+    etcetera calls this function).
+    
+    First argument is the pixelDigitizer object (generally
+    "process.mix.digitizers.pixel" when this function is called).
+    """
+    # DynamicInefficency - 13TeV - 50ns case
+    digitizer.theInstLumiScaleFactor = cms.double(246.4)
+    digitizer.theLadderEfficiency_BPix1 = cms.vdouble(
+        0.979259,0.976677,0.979259,0.976677,0.979259,0.976677,0.979259,0.976677,
+        0.979259,0.976677,0.979259,0.976677,0.979259,0.976677,0.979259,0.976677,
+        0.979259,0.976677,0.979259,0.976677)
+    digitizer.theLadderEfficiency_BPix2 = cms.vdouble(
+        0.994321,0.993944,0.994321,0.993944,0.994321,0.993944,0.994321,0.993944,
+        0.994321,0.993944,0.994321,0.993944,0.994321,0.993944,0.994321,0.993944,
+        0.994321,0.993944,0.994321,0.993944,0.994321,0.993944,0.994321,0.993944,
+        0.994321,0.993944,0.994321,0.993944,0.994321,0.993944,0.994321,0.993944)
+    digitizer.theLadderEfficiency_BPix3 = cms.vdouble(
+        0.996787,0.996945,0.996787,0.996945,0.996787,0.996945,0.996787,0.996945,
+        0.996787,0.996945,0.996787,0.996945,0.996787,0.996945,0.996787,0.996945,
+        0.996787,0.996945,0.996787,0.996945,0.996787,0.996945,0.996787,0.996945,
+        0.996787,0.996945,0.996787,0.996945,0.996787,0.996945,0.996787,0.996945,
+        0.996787,0.996945,0.996787,0.996945,0.996787,0.996945,0.996787,0.996945,
+        0.996787,0.996945,0.996787,0.996945)
 
 pixelDigitizer = cms.PSet(
     DoPixelAging = cms.bool(False),
