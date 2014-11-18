@@ -244,7 +244,7 @@ def OptionsFromItems(items):
         if not hasattr( eras, options.era ) :
             validOptions="" # Create a stringified list of valid options to print to the user
             for key in eras.__dict__ :
-                if isinstance( eras.postLS1, Modifier ) or isinstance( eras.postLS1, ModifierChain ) :
+                if isinstance( eras.__dict__[key], Modifier ) or isinstance( eras.__dict__[key], ModifierChain ) :
                     if validOptions!="" : validOptions+=", " 
                     validOptions+="'"+key+"'"
             raise Exception( "'%s' is not a valid option for '--era'. Valid options are %s." % (options.era, validOptions) )
