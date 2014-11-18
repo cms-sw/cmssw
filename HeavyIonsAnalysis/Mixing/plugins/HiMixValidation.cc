@@ -176,6 +176,8 @@ HiMixValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
    double zgen[2]={-29,-29};
    cout<<"x2"<<endl;
 
+   double zgen[2]={-29,-29};
+
    for(UInt_t i = 0; i < parts->size(); ++i){
       const reco::GenParticle& p = (*parts)[i];
       int sube = p.collisionId();
@@ -315,10 +317,26 @@ HiMixValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
    hGenVerticesCF->Fill(zcf[0],zcf[1]);
 
 
+   // Gen-Vertices from CrossingFrame
 
+   Handle<CrossingFrame<edm::HepMCProduct> > cf;
+   iEvent.getByToken(cfLabel,cf);
+   MixCollection<edm::HepMCProduct> mix(cf.product());
+   HepMC::GenVertex* genvtx = 0;
+   const HepMC::GenEvent* inev = 0;
+   double zcf[2]={-29,-29};
+   if(mix.size() != 2){
+      cout<<"More or less than 2 sub-events, mixing seems to have failed!"<<endl;
+   }else{
+      for(int i = 0; i < 2; ++i){
+	 const edm::HepMCProduct& bkg = mix.getObject(0);
+	 inev = bkg.GetEvent();
+	 genvtx = inev->signal_process_vertex();
+	 zcf[i] = genvtx->position().z();
+      }
+   }
 
-
-
+   hGenVerticesCF->Fill(zcf[0],zcf[1]);
 
 
    // RECO INFO
@@ -395,7 +413,6 @@ HiMixValidation::beginJob()
    hPhotonResponseMixed = f->make<TH2D>("hPhotonResponseMixed","",100,0,100,100,0,100);
    hMuonResponseMixed = f->make<TH2D>("hMuonResponseMixed","",100,0,20,100,0,20);
    hElectronResponseMixed = f->make<TH2D>("hElectronResponseMixed","",100,0,20,100,0,20);
-
 
    hGenVertices = f->make<TH2D>("hGenVertices","",60,-30,30,60,-30,30);
    hGenVerticesCF = f->make<TH2D>("hGenVerticesCF","",60,-30,30,60,-30,30);
