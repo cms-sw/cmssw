@@ -577,10 +577,9 @@ void ElectronMcSignalValidator::bookHistograms( DQMStore::IBooker & iBooker, edm
   iBooker.setCurrentFolder(outputInternalPath_) ;
 
   //  prepareStore() ;
-//  setStoreFolder("EgammaV/ElectronMcSignalValidator") ;
   setBookIndex(-1) ;
   setBookPrefix("h") ;
-//  std::cout << "appel setBookStatOverflowFlag : " << set_StatOverflowFlag << std::endl;
+  setBookEfficiencyFlag(set_EfficiencyFlag);
   setBookStatOverflowFlag( set_StatOverflowFlag ) ;
 
   // mc truth collections sizes
