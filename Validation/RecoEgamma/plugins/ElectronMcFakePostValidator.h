@@ -9,7 +9,7 @@ class ElectronMcFakePostValidator : public ElectronDqmHarvesterBase
   public:
     explicit ElectronMcFakePostValidator( const edm::ParameterSet & conf ) ; 
     virtual ~ElectronMcFakePostValidator() ;
-    virtual void book() ;
+//    virtual void book() ;
     virtual void finalize( DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter ) ; // 
 
   private:
@@ -19,7 +19,6 @@ class ElectronMcFakePostValidator : public ElectronDqmHarvesterBase
     std::string outputInternalPath_ ;
 
     // histos limits and binning
-
     bool set_EfficiencyFlag ; bool set_StatOverflowFlag ;
 
     // histos
