@@ -7,7 +7,7 @@
 
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -123,7 +123,7 @@ void TrackerSystematicMisalignments::analyze(const edm::Event& event, const edm:
 	if (m_fromDBGeom){
 		//build the tracker
 		edm::ESHandle<Alignments> alignments;
-		edm::ESHandle<AlignmentErrors> alignmentErrors;
+		edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
 		
 		setup.get<TrackerAlignmentRcd>().get(alignments);
 		setup.get<TrackerAlignmentErrorRcd>().get(alignmentErrors);
@@ -140,7 +140,7 @@ void TrackerSystematicMisalignments::analyze(const edm::Event& event, const edm:
 	
 	// -------------- writing out to alignment record --------------
 	Alignments* myAlignments = theAlignableTracker->alignments() ;
-	AlignmentErrors* myAlignmentErrors = theAlignableTracker->alignmentErrors() ;
+	AlignmentErrorsExtended* myAlignmentErrorsExtended = theAlignableTracker->alignmentErrors() ;
 	
 	// Store alignment[Error]s to DB
 	edm::Service<cond::service::PoolDBOutputService> poolDbService;
@@ -152,7 +152,7 @@ void TrackerSystematicMisalignments::analyze(const edm::Event& event, const edm:
 		throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
 	
 	poolDbService->writeOne<Alignments>(&(*myAlignments), poolDbService->beginOfTime(), theAlignRecordName);
-	poolDbService->writeOne<AlignmentErrors>(&(*myAlignmentErrors), poolDbService->beginOfTime(), theErrorRecordName);
+	poolDbService->writeOne<AlignmentErrorsExtended>(&(*myAlignmentErrorsExtended), poolDbService->beginOfTime(), theErrorRecordName);
 }
 
 void TrackerSystematicMisalignments::applySystematicMisalignment(Alignable* ali)

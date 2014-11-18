@@ -32,7 +32,7 @@ reconstruction Geometry should notice that and not pass to GeometryAligner.
 
 // Alignment
 #include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
@@ -55,14 +55,14 @@ public:
   std::auto_ptr<Alignments>
   produceGlobals(const GlobalPositionRcd&) {return std::auto_ptr<Alignments>(new Alignments);}
 
-  std::auto_ptr<AlignmentErrors> produceTkAliErr(const TrackerAlignmentErrorRcd&) {
-    return std::auto_ptr<AlignmentErrors>(new AlignmentErrors);
+  std::auto_ptr<AlignmentErrorsExtended> produceTkAliErr(const TrackerAlignmentErrorRcd&) {
+    return std::auto_ptr<AlignmentErrorsExtended>(new AlignmentErrorsExtended);
   }
-  std::auto_ptr<AlignmentErrors> produceDTAliErr(const DTAlignmentErrorRcd&) {
-    return std::auto_ptr<AlignmentErrors>(new AlignmentErrors);
+  std::auto_ptr<AlignmentErrorsExtended> produceDTAliErr(const DTAlignmentErrorRcd&) {
+    return std::auto_ptr<AlignmentErrorsExtended>(new AlignmentErrorsExtended);
   }
-  std::auto_ptr<AlignmentErrors> produceCSCAliErr(const CSCAlignmentErrorRcd&) {
-    return std::auto_ptr<AlignmentErrors>(new AlignmentErrors);
+  std::auto_ptr<AlignmentErrorsExtended> produceCSCAliErr(const CSCAlignmentErrorRcd&) {
+    return std::auto_ptr<AlignmentErrorsExtended>(new AlignmentErrorsExtended);
   }
 
 };

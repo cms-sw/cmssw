@@ -39,7 +39,7 @@ process.trackerAlignment = cms.ESSource("PoolDBESSource",
 												), 
 									   cms.PSet(
 												record = cms.string('TrackerAlignmentErrorRcd'),
-												tag = cms.string('AlignmentErrors')
+												tag = cms.string('AlignmentErrorsExtended')
 												)),
 					 connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/HIP/alignmentRcds/AllSurveyButTIBTIDGlobal_FPixBPix_wErrs_v2.db')
 )

@@ -162,23 +162,23 @@ AlignmentMonitorAsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
       
       edm::ESHandle<Alignments> alignments;
       iSetup.get<TrackerAlignmentRcd>().get( alignments );
-      edm::ESHandle<AlignmentErrors> alignmentErrors;
+      edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
       iSetup.get<TrackerAlignmentErrorRcd>().get( alignmentErrors );
       aligner.applyAlignments<TrackerGeometry>( &(*theTracker), &(*alignments), &(*alignmentErrors),
 						align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Tracker)) );
       
       edm::ESHandle<Alignments> dtAlignments;
       iSetup.get<DTAlignmentRcd>().get( dtAlignments );
-      edm::ESHandle<AlignmentErrors> dtAlignmentErrors;
-      iSetup.get<DTAlignmentErrorRcd>().get( dtAlignmentErrors );
-      aligner.applyAlignments<DTGeometry>( &(*theMuonDT), &(*dtAlignments), &(*dtAlignmentErrors),
+      edm::ESHandle<AlignmentErrorsExtended> dtAlignmentErrorsExtended;
+      iSetup.get<DTAlignmentErrorRcd>().get( dtAlignmentErrorsExtended );
+      aligner.applyAlignments<DTGeometry>( &(*theMuonDT), &(*dtAlignments), &(*dtAlignmentErrorsExtended),
 					   align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)) );
       
       edm::ESHandle<Alignments> cscAlignments;
       iSetup.get<CSCAlignmentRcd>().get( cscAlignments );
-      edm::ESHandle<AlignmentErrors> cscAlignmentErrors;
-      iSetup.get<CSCAlignmentErrorRcd>().get( cscAlignmentErrors );
-      aligner.applyAlignments<CSCGeometry>( &(*theMuonCSC), &(*cscAlignments), &(*cscAlignmentErrors),
+      edm::ESHandle<AlignmentErrorsExtended> cscAlignmentErrorsExtended;
+      iSetup.get<CSCAlignmentErrorRcd>().get( cscAlignmentErrorsExtended );
+      aligner.applyAlignments<CSCGeometry>( &(*theMuonCSC), &(*cscAlignments), &(*cscAlignmentErrorsExtended),
 					    align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)) );
       
       // within an analyzer, modules can't expect to see any selected alignables!

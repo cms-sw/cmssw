@@ -2,8 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("APE")
 # we need conditions
-#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = 'IDEAL_V11::All'
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:mc', '')
 
 # include "Configuration/StandardSequences/data/FakeConditions.cff"
 # initialize magnetic field
@@ -13,6 +15,17 @@ process = cms.Process("APE")
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 # for Muon: include "Geometry/MuonNumbering/data/muonNumberingInitialization.cfi"
+
+# Choose Tracker Geometry
+#process.load("Configuration.Geometry.GeometryReco_cff")
+
+#process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
+#process.load("Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff")
+#process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+
+process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
+process.load("Geometry.TrackerNumberingBuilder.trackerTopologyConstants_cfi")
+
 
 # track selection for alignment
 #process.load("Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi")
@@ -67,7 +80,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 process.source = cms.Source("EmptySource")
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(0) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
 from CondCore.DBCommon.CondDBSetup_cfi import *
 process.PoolDBOutputService = cms.Service(

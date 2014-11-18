@@ -59,7 +59,7 @@ process.TFileService = cms.Service("TFileService",
 #                                        toGet = cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentRcd"),
 #                                                                   tag = cms.string("Alignments"))#, #"Alignments"
 #                                                          cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"),
-#                                                                   tag = cms.string("")) #"AlignmentErrors"
+#                                                                   tag = cms.string("")) #"AlignmentErrorsExtended"
 #                                        )
 #)
 #process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","trackerAlignment")

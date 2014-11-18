@@ -142,7 +142,7 @@ process.CondDBSetup.DBParameters.messageLevel = 2
 #connect = cms.string("sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/PayLoads/CRAFT09/TrackerAlignment_2009_v1_prompt/131020-infty/TrackerAlignment_2009_v1_prompt.db"),
 #DBParameters = CondCore.DBCommon.CondDBSetup_cfi.CondDBSetup.DBParameters,
 #toGet = cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentRcd"), tag = cms.string("Alignments")),
-#                  cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"), tag = cms.string("AlignmentErrors"))
+#                  cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"), tag = cms.string("AlignmentErrorsExtended"))
 #      ))
 #process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource", "trackerAlignment")
 

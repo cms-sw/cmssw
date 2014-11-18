@@ -10,7 +10,7 @@ process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     process.CondDBSetup,
-    connect = cms.string("sqlite_file:REPLACEME.db"),
+    connect = cms.string("sqlite_file:NEW.db"),
     toGet = cms.VPSet(
         cms.PSet(record = cms.string("DTAlignmentRcd"), tag = cms.string("DTAlignmentRcd")),
         cms.PSet(record = cms.string("DTAlignmentErrorRcd"), tag = cms.string("DTAlignmentErrorRcd")),
