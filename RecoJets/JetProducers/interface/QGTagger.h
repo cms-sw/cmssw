@@ -29,7 +29,7 @@ class QGTagger : public edm::EDProducer{
       edm::EDGetTokenT<double> rho_token;
       edm::InputTag jetCorrector_inputTag;
       std::string jetsLabel, systLabel;
-      bool useJetCorr, produceSyst;
+      bool useQC, useJetCorr, produceSyst;
       QGLikelihoodCalculator *qgLikelihood;
       float pt, axis2, ptD;
       int mult;

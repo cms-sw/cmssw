@@ -33,7 +33,8 @@ QGTagger::QGTagger(const edm::ParameterSet& iConfig) :
   rho_token(		consumes<double>(			iConfig.getParameter<edm::InputTag>("srcRho"))),
   jetCorrector_inputTag(					iConfig.getParameter<edm::InputTag>("jec")),
   jetsLabel(							iConfig.getParameter<std::string>("jetsLabel")),
-  systLabel(							iConfig.getParameter<std::string>("systematicsLabel"))
+  systLabel(							iConfig.getParameter<std::string>("systematicsLabel")),
+  useQC(							iConfig.getUntrackedParameter<bool>("useQualityCuts", false))
 {
   useJetCorr = !jetCorrector_inputTag.label().empty();
   produceSyst = (systLabel != "");
@@ -119,50 +120,46 @@ template <class jetClass> void QGTagger::calcVariables(const jetClass *jet, edm:
   reco::VertexCollection::const_iterator vtxLead = vC->begin();
 
   float sum_weight = 0., sum_deta = 0., sum_dphi = 0., sum_deta2 = 0., sum_dphi2 = 0., sum_detadphi = 0., sum_pt = 0.;
-  int nChg_QC = 0, nNeutral_ptCut = 0;
+  mult = 0;
 
   //Loop over the jet constituents
   for(auto part : jet->getPFConstituents()){
     if(!part.isNonnull()) continue;
-    reco::TrackRef itrk = part->trackRef();;
 
-    bool usePart = false;
+    reco::TrackRef itrk = part->trackRef();
     if(itrk.isNonnull()){												//Track exists --> charged particle
       reco::VertexCollection::const_iterator vtxClose = vC->begin();							//Search for closest vertex to track
       for(auto vtx = vC->begin(); vtx != vC->end(); ++vtx){
         if(fabs(itrk->dz(vtx->position())) < fabs(itrk->dz(vtxClose->position()))) vtxClose = vtx;
       }
+      if(vtxClose != vtxLead) continue;
+      if(!itrk->quality(reco::TrackBase::qualityByName("highPurity"))) continue;
 
-      if(vtxClose == vtxLead){
+      if(useQC){													//If useQC, require dz and d0 cuts
         float dz = itrk->dz(vtxClose->position());
+        float d0 = itrk->dxy(vtxClose->position());
         float dz_sigma = sqrt(pow(itrk->dzError(),2) + pow(vtxClose->zError(),2));
-	      
-        if(itrk->quality(reco::TrackBase::qualityByName("highPurity")) && fabs(dz/dz_sigma) < 5.){
-          usePart = true;												//Use charged particles if high purity track
-          float d0 = itrk->dxy(vtxClose->position());
-          float d0_sigma = sqrt(pow(itrk->d0Error(),2) + pow(vtxClose->xError(),2) + pow(vtxClose->yError(),2));
-          if(fabs(d0/d0_sigma) < 5.) nChg_QC++;
-        }
-      }
+        float d0_sigma = sqrt(pow(itrk->d0Error(),2) + pow(vtxClose->xError(),2) + pow(vtxClose->yError(),2));
+        if(fabs(dz/dz_sigma) > 5.) continue;
+        if(fabs(d0/d0_sigma) < 5.) ++mult;
+      } else ++mult;
     } else {														//No track --> neutral particle
-      if(part->pt() > 1.0) nNeutral_ptCut++;
-      usePart = true;													//Use all neutral particles
+      if(part->pt() < 1.0) continue;											//Only use neutrals with pt > 1 GeV
+      ++mult;
     }
-	  
-    if(usePart){
-      float deta = part->eta() - jet->eta();
-      float dphi = reco::deltaPhi(part->phi(), jet->phi());
-      float partPt = part->pt(); 
-      float weight = partPt*partPt;
 
-      sum_weight += weight;
-      sum_pt += partPt;
-      sum_deta += deta*weight;                  
-      sum_dphi += dphi*weight;                                                                                             
-      sum_deta2 += deta*deta*weight;                    
-      sum_detadphi += deta*dphi*weight;                               
-      sum_dphi2 += dphi*dphi*weight;
-    }	
+    float deta = part->eta() - jet->eta();
+    float dphi = reco::deltaPhi(part->phi(), jet->phi());
+    float partPt = part->pt();
+    float weight = partPt*partPt;
+
+    sum_weight += weight;
+    sum_pt += partPt;
+    sum_deta += deta*weight;
+    sum_dphi += dphi*weight;
+    sum_deta2 += deta*deta*weight;
+    sum_detadphi += deta*dphi*weight;
+    sum_dphi2 += dphi*dphi*weight;
   }
 
   //Calculate axis2 and ptD
@@ -182,7 +179,7 @@ template <class jetClass> void QGTagger::calcVariables(const jetClass *jet, edm:
   if(a+b-delta > 0) axis2 = sqrt(0.5*(a+b-delta));
   else axis2 = 0.;
 
-  mult = (nChg_QC + nNeutral_ptCut);
+  std::cout << axis2 << "\t" << mult << "\t" << ptD << std::endl;
 }
 
 
@@ -195,6 +192,7 @@ void QGTagger::fillDescriptions(edm::ConfigurationDescriptions& descriptions){
   desc.add<edm::InputTag>("srcVertexCollection");
   desc.add<std::string>("jetsLabel");
   desc.add<std::string>("systematicsLabel");
+  desc.addUntracked<bool>("useQualityCuts", false);
   descriptions.add("QGTagger", desc);
 }
 
