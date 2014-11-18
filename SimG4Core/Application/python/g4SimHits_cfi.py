@@ -413,10 +413,8 @@ g4SimHits = cms.EDProducer("OscarProducer",
 )
 
 ##
-## Change the HFShowerLibrary file used for post LS1 running
+## Change the HFShowerLibrary file used for Run 2
 ##
-eras.run2.toModify( g4SimHits, func=lambda g4SimHitsForPostLS1:
-        g4SimHitsForPostLS1.HFShowerLibrary.FileName.setValue('SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en.root')
-    )
+eras.run2.toModify( g4SimHits.HFShowerLibrary, FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en.root' )
 
 
