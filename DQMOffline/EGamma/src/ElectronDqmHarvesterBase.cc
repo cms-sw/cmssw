@@ -63,6 +63,7 @@ const std::string * ElectronDqmHarvesterBase::find( DQMStore::IGetter & iGetter,
    { histoNamesReady = true ; histoNames_ = iGetter.getMEs() ; }
   HistoNamesItr histoName ;
   std::vector<HistoNamesItr> res ;
+
   for ( histoName = histoNames_.begin() ; histoName != histoNames_.end() ; ++histoName )
    {
     std::size_t nsize = name.size(), lsize = histoName->size() ;
@@ -101,10 +102,6 @@ const std::string * ElectronDqmHarvesterBase::find( DQMStore::IGetter & iGetter,
 
 void ElectronDqmHarvesterBase::beginJob()
  {
-//  book() ;
-  if (inputFile_!="")
-   { edm::Service<DQMStore>().operator->()->open(inputFile_) ; }
-  edm::Service<DQMStore>().operator->()->setCurrentFolder(outputInternalPath_) ;/**/
  }
 
 void ElectronDqmHarvesterBase::dqmEndLuminosityBlock( DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, edm::LuminosityBlock const &, edm::EventSetup const& )
@@ -117,10 +114,6 @@ void ElectronDqmHarvesterBase::dqmEndLuminosityBlock( DQMStore::IBooker & iBooke
      }
     iBooker.setCurrentFolder(outputInternalPath_) ;
     finalDone_ = true ;
-   }
-   else 
-   {
-//    go here but not over
    }
 
  }
@@ -135,16 +128,8 @@ void ElectronDqmHarvesterBase::dqmEndJob(DQMStore::IBooker & iBooker, DQMStore::
     iBooker.setCurrentFolder(outputInternalPath_) ;
     finalDone_ = true ;
    }
-  if (outputFile_!="")
-   {
    iBooker.setCurrentFolder(outputInternalPath_) ;
    finalize( iBooker, iGetter ) ; 
-//   edm::Service<DQMStore>().operator->()->save(outputFile_) ; 
-   }
-/*  else {
-   iBooker.setCurrentFolder(outputInternalPath_) ;
-   finalize( iBooker, iGetter ) ; 
-   }*/
 
  }
 
@@ -153,7 +138,6 @@ MonitorElement * ElectronDqmHarvesterBase::get( DQMStore::IGetter & iGetter, con
   const std::string * fullName = find(iGetter, name) ;
   if (fullName)
    { return iGetter.get(inputInternalPath_+"/"+*fullName) ; }
-//   { return iGetter.get(*fullName) ; }
   else
   { return 0 ; }
  }
@@ -258,8 +242,8 @@ MonitorElement * ElectronDqmHarvesterBase::bookH2withSumw2
    const std::string & titleX, const std::string & titleY,
    Option_t * option )
  {
-   iBooker.setCurrentFolder(outputInternalPath_);
- MonitorElement * me = iBooker.book2D(newName(name),title,nchX,lowX,highX,nchY,lowY,highY) ;
+  iBooker.setCurrentFolder(outputInternalPath_);
+  MonitorElement * me = iBooker.book2D(newName(name),title,nchX,lowX,highX,nchY,lowY,highY) ;
   me->getTH2F()->Sumw2() ;
   if (titleX!="") { me->getTH2F()->GetXaxis()->SetTitle(titleX.c_str()) ; }
   if (titleY!="") { me->getTH2F()->GetYaxis()->SetTitle(titleY.c_str()) ; }
