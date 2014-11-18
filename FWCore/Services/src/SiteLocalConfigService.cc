@@ -118,6 +118,8 @@ namespace edm {
           m_cacheMinFreePtr(nullptr),
           m_cacheHint(),
           m_cacheHintPtr(nullptr),
+          m_cloneCacheHint(),
+          m_cloneCacheHintPtr(nullptr),
           m_readHint(),
           m_readHintPtr(nullptr),
           m_ttreeCacheSize(0U),
@@ -145,6 +147,7 @@ namespace edm {
         overrideFromPSet("overrideSourceCacheTempDir", pset, m_cacheTempDir, m_cacheTempDirPtr);
         overrideFromPSet("overrideSourceCacheMinFree", pset, m_cacheMinFree, m_cacheMinFreePtr);
         overrideFromPSet("overrideSourceCacheHintDir", pset, m_cacheHint, m_cacheHintPtr);
+        overrideFromPSet("overrideSourceCloneCacheHintDir", pset, m_cloneCacheHint, m_cloneCacheHintPtr);
         overrideFromPSet("overrideSourceReadHint", pset, m_readHint, m_readHintPtr);
         overrideFromPSet("overrideSourceNativeProtocols", pset, m_nativeProtocols, m_nativeProtocolsPtr);
         overrideFromPSet("overrideSourceTTreeCacheSize", pset, m_ttreeCacheSize, m_ttreeCacheSizePtr);
@@ -285,6 +288,11 @@ namespace edm {
     std::string const*
     SiteLocalConfigService::sourceCacheHint() const {
        return m_cacheHintPtr;
+    }
+
+    std::string const*
+    SiteLocalConfigService::sourceCloneCacheHint() const {
+       return m_cloneCacheHintPtr;
     }
 
     std::string const*
@@ -448,6 +456,14 @@ namespace edm {
                 m_cacheHintPtr = &m_cacheHint;
               }
 
+              DOMNodeList *cloneCacheHintList = sourceConfig->getElementsByTagName(_toDOMS("clone-cache-hint"));
+
+              if (cloneCacheHintList->getLength() > 0) {
+                DOMElement *cloneCacheHint = static_cast<DOMElement *>(cloneCacheHintList->item(0));
+                m_cloneCacheHint = _toString(cloneCacheHint->getAttribute(_toDOMS("value")));
+                m_cloneCacheHintPtr = &m_cloneCacheHint;
+              }
+
               DOMNodeList *readHintList = sourceConfig->getElementsByTagName(_toDOMS("read-hint"));
 
               if (readHintList->getLength() > 0) {
@@ -542,6 +558,8 @@ namespace edm {
       desc.addOptionalUntracked<std::string>("overrideSourceCacheTempDir");
       desc.addOptionalUntracked<double>("overrideSourceCacheMinFree");
       desc.addOptionalUntracked<std::string>("overrideSourceCacheHintDir");
+      desc.addOptionalUntracked<std::string>("overrideSourceCloneCacheHintDir")
+        ->setComment("Provide an alternate cache hint for fast cloning.");
       desc.addOptionalUntracked<std::string>("overrideSourceReadHint");
       desc.addOptionalUntracked<std::vector<std::string> >("overrideSourceNativeProtocols");
       desc.addOptionalUntracked<unsigned int>("overrideSourceTTreeCacheSize");
