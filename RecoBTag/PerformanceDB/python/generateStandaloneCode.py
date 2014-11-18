@@ -1,15 +1,17 @@
 import os
 from os.path import join
 
+
 def main():
     path_formats = join(os.environ['CMSSW_BASE'],
-                        'src/CondFormats/BTagObjects')
+                        'src/CondFormats/BTauObjects')
     path_tools = join(os.environ['CMSSW_BASE'],
-                      'src/CondTools/BTag/test')
+                      'src/RecoBTag/PerformanceDB/test')
 
     #  headers
-    print 'Creating CondTools/BTag/test/BTagCalibrationStandalone.h'
-    with open(join(path_tools, 'BTagCalibrationStandalone.h'), 'w') as fout:
+    file_h = join(path_tools, 'BTagCalibrationStandalone.h')
+    print 'Creating', file_h
+    with open(file_h, 'w') as fout:
         for fname in ['BTagEntry.h',
                       'BTagCalibration.h',
                       'BTagCalibrationReader.h']:
@@ -22,8 +24,9 @@ def main():
             fout.write('\n\n')
 
     # implementation
-    print 'Creating CondTools/BTag/test/BTagCalibrationStandalone.cc'
-    with open(join(path_tools, 'BTagCalibrationStandalone.cc'), 'w') as fout:
+    file_cc = join(path_tools, 'BTagCalibrationStandalone.cc')
+    print 'Creating', file_cc
+    with open(file_cc, 'w') as fout:
         fout.write('#include "BTagCalibrationStandalone.h"\n')
         fout.write('#include <iostream>\n')
         fout.write('#include <exception>\n')
