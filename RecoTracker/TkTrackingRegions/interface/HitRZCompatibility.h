@@ -7,6 +7,8 @@
 class HitRZCompatibility {
 public:
   typedef PixelRecoRange<float> Range;
+
+  virtual ~HitRZCompatibility() {}
   virtual bool operator() (const float & r, const float & z) const = 0;
   virtual Range range(const float & rORz) const = 0; 
   virtual HitRZCompatibility * clone() const = 0;
