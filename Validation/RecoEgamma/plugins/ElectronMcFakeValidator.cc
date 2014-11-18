@@ -474,6 +474,7 @@ void ElectronMcFakeValidator::bookHistograms( DQMStore::IBooker & iBooker, edm::
 
   setBookIndex(-1) ;
   setBookPrefix("h") ;
+  setBookEfficiencyFlag(set_EfficiencyFlag);
   setBookStatOverflowFlag( set_StatOverflowFlag ) ;
   
   // matching object type
