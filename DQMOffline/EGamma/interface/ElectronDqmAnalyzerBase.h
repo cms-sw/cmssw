@@ -97,7 +97,6 @@ class ElectronDqmAnalyzerBase : public DQMEDAnalyzer
     std::string outputFile_ ;
     std::string inputInternalPath_ ;
     std::string outputInternalPath_ ;
-//    DQMStore::IBooker * iBooker ;
     bool finalDone_ ;
 
     // utility methods
