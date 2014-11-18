@@ -30,7 +30,6 @@ class ElectronDqmHarvesterBase : public DQMEDHarvester
     void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
 
     // interface to implement in derived classes
-//    virtual void book() {} ;
     virtual void finalize( DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter ) {} ; //  override ;, const edm::Event& e, const edm::EventSetup & c
 
     // utility methods
