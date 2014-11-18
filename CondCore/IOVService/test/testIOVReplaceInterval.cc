@@ -11,7 +11,7 @@ int main(){
   try{
     cond::DBSession* session=new cond::DBSession;
     session->open();
-    cond::Connection myconnection("sqlite_file:test.db",0);  
+    cond::Connection myconnection("sqlite_file:testIOVReplaceInterval.db",0);  
     myconnection.connect(session);
     cond::PoolTransaction& pooldb=myconnection.poolTransaction();
     cond::IOVService iovmanager(pooldb);  
@@ -88,7 +88,10 @@ int main(){
     delete session;
   }catch(const cond::Exception& er){
     std::cout<<"error "<<er.what()<<std::endl;
+    return -1;
   }catch(const std::exception& er){
     std::cout<<"std error "<<er.what()<<std::endl;
+    return -1;
   }
+  return 0;
 }
