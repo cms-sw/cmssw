@@ -1583,9 +1583,9 @@ bool l1t::TriggerMenuXmlParser::parseMuon(l1t::MuonCondition condMu,
 
       std::string str_charge = l1t2string( objPar->requestedCharge() );
       int charge = 0;
-      if( str_charge=="ig" )       charge = 0;
-      else if( str_charge=="pos" ) charge = 1;
-      else if( str_charge=="neg" ) charge = -1;
+      if( str_charge=="ign" )       charge = -1;
+      else if( str_charge=="pos" ) charge = 0;
+      else if( str_charge=="neg" ) charge = 1;
 
       objParameter[cnt].charge = charge;
 
