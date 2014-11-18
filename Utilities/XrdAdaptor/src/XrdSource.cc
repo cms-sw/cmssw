@@ -5,6 +5,7 @@
 #include <chrono>
 #include <iostream>
 #include <assert.h>
+#include <netdb.h>
 
 #include "XrdCl/XrdClFile.hh"
 
@@ -28,9 +29,10 @@ int g_delayCount = 0;
 
 using namespace XrdAdaptor;
 
-Source::Source(timespec now, std::unique_ptr<XrdCl::File> fh)
+Source::Source(timespec now, std::unique_ptr<XrdCl::File> fh, const std::string &exclude)
     : m_lastDowngrade({0, 0}),
       m_id("(unknown)"),
+      m_exclude(exclude),
       m_fh(std::move(fh)),
       m_qm(QualityMetricFactory::get(now, m_id))
 #ifdef XRD_FAKE_SLOW
@@ -46,6 +48,7 @@ Source::Source(timespec now, std::unique_ptr<XrdCl::File> fh)
         edm::LogWarning("XrdFileWarning")
           << "Source::Source() failed to determine data server name.'";
       }
+      if (!m_exclude.size()) {m_exclude = m_id;}
     }
     m_prettyid = m_id + " (unknown site)";
     std::string domain_id;
@@ -56,31 +59,117 @@ Source::Source(timespec now, std::unique_ptr<XrdCl::File> fh)
     assert(m_fh.get());
 }
 
+
+bool Source::getHostname(const std::string &id, std::string &hostname)
+{
+    size_t pos = id.find(":");
+    hostname = id;
+    if ((pos != std::string::npos) && (pos > 0)) {hostname = id.substr(0, pos);}
+
+    bool retval = true;
+    if (hostname.size() && ((hostname[0] == '[') || isdigit(hostname[0])))
+    {
+        retval = false;
+        struct addrinfo hints; memset(&hints, 0, sizeof(struct addrinfo));
+        hints.ai_family = AF_UNSPEC;
+        struct addrinfo *result;
+        if (!getaddrinfo(hostname.c_str(), NULL, &hints, &result))
+        {
+            std::vector<char> host; host.reserve(256);
+            if (!getnameinfo(result->ai_addr, result->ai_addrlen, &host[0], 255, NULL, 0, NI_NAMEREQD))
+            {
+                hostname = &host[0];
+                retval = true;
+            }
+            freeaddrinfo(result);
+        }
+    }
+    return retval;
+}
+
+
 bool Source::getDomain(const std::string &host, std::string &domain)
 {
-    size_t pos = host.find(":");
-    domain = host;
-    if ((pos != std::string::npos) && (pos > 0)) {domain = host.substr(0, pos);}
-    pos = domain.find(".");
+    getHostname(host, domain);
+    size_t pos = domain.find(".");
     if (pos != std::string::npos && (pos < domain.size())) {domain = domain.substr(pos+1);}
 
     return domain.size();
 }
+
+
+bool
+Source::isDCachePool(XrdCl::File &file, const XrdCl::HostList *hostList)
+{
+    // WORKAROUND: On open-file recovery in the Xrootd client, it'll carry around the
+    // dCache opaque information to other sites, causing isDCachePool to erroneously return
+    // true.  We are working with the upstream developers to solve this.
+    //
+    // For now, we see if the previous server also looks like a dCache pool - something that
+    // wouldn't happen at a real site, as the previous server should look like a dCache door.
+    std::string lastUrl;
+    file.GetProperty("LastURL", lastUrl);
+    if (lastUrl.size())
+    {
+        bool result = isDCachePool(lastUrl);
+        if (result && hostList && (hostList->size() > 1))
+        {
+		if (isDCachePool((*hostList)[hostList->size()-2].url.GetURL()))
+		{
+			return false;
+		}
+		return true;
+        }
+	return result;
+    }
+    return false;
+}
+
+bool
+Source::isDCachePool(const std::string &lastUrl)
+{
+    XrdCl::URL url(lastUrl);
+    XrdCl::URL::ParamsMap map = url.GetParams();
+    // dCache pools always utilize this opaque identifier.
+    if (map.find("org.dcache.uuid") != map.end())
+    {
+        return true;
+    }
+    return false;
+}
+
+
+void
+Source::determineHostExcludeString(XrdCl::File &file, const XrdCl::HostList *hostList, std::string &exclude)
+{
+    // Detect a dCache pool and, if we are in the federation context, give a custom
+    // exclude parameter.
+    // We assume this is a federation context if there's at least a regional, dCache door,
+    // and dCache pool server (so, more than 2 servers!).
+
+    exclude = "";
+    if (hostList && (hostList->size() > 3) && isDCachePool(file, hostList))
+    {
+        const XrdCl::HostInfo &info = (*hostList)[hostList->size()-3];
+        exclude = info.url.GetHostName();
+        std::string lastUrl; file.GetProperty("LastURL", lastUrl);
+        edm::LogVerbatim("XrdAdaptorInternal") << "Changing exclude list for URL " << lastUrl << " to " << exclude;
+    }
+}
+
 
 bool
 Source::getXrootdSite(XrdCl::File &fh, std::string &site)
 {
     std::string lastUrl;
     fh.GetProperty("LastURL", lastUrl);
-    if (!lastUrl.size())
+    if (!lastUrl.size() || isDCachePool(lastUrl))
     {
-        std::string id;
-        if (!fh.GetProperty("DataServer", id)) {id = "(unknown)";}
-        edm::LogWarning("XrdFileWarning")
-          << "Unable to determine the URL associated with server " << id;
+        std::string server, id;
+        if (!fh.GetProperty("DataServer", server)) {id = "(unknown)";}
+        else {id = server;}
+        if (!lastUrl.size()) {edm::LogWarning("XrdFileWarning") << "Unable to determine the URL associated with server " << id;}
         site = "Unknown";
-        std::string server;
-        fh.GetProperty("DataServer", server);
         if (server.size()) {getDomain(server, site);}
         return false;
     }
