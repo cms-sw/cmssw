@@ -30,6 +30,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/HiGenData/interface/GenHIEvent.h"
 #include "DataFormats/JetReco/interface/JetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
@@ -43,6 +45,9 @@
 #include "TH1D.h"
 #include "TH2D.h"
 
+#include <iostream>
+using namespace std;
+using namespace edm;
 
 //
 // class declaration
@@ -73,6 +78,7 @@ class HiMixValidation : public edm::EDAnalyzer {
    edm::InputTag vertexSrc_;
    edm::InputTag genJetSrc_;
    edm::InputTag jetSrc_;
+   edm::EDGetTokenT<CrossingFrame<HepMCProduct> >   cfLabel;
 
    TH1D *hGenParticleEtaSignal, 
       *hGenParticleEtaBkg, 
@@ -112,7 +118,9 @@ class HiMixValidation : public edm::EDAnalyzer {
       *hJetResponseMixed,
       *hPhotonResponseMixed,
       *hMuonResponseMixed,
-      *hElectronResponseMixed;
+      *hElectronResponseMixed,
+      *hGenVertices,
+      *hGenVerticesCF;
 
    double particlePtMin;
    double jetPtMin;
@@ -123,6 +131,7 @@ class HiMixValidation : public edm::EDAnalyzer {
    double rMatch;
    double rMatch2;
 
+   bool useCF_;
 
    edm::Service<TFileService> f;
 
@@ -142,6 +151,9 @@ HiMixValidation::HiMixValidation(const edm::ParameterSet& iConfig)
    photonPtMin = iConfig.getUntrackedParameter<double>("photonPtMin",30.);
    muonPtMin = iConfig.getUntrackedParameter<double>("muonPtMin",3.);
    electronPtMin = iConfig.getUntrackedParameter<double>("electronPtMin",3.);
+   
+   useCF_ = iConfig.getUntrackedParameter<bool>("useCF",true);
+   if(useCF_) cfLabel = consumes<CrossingFrame<edm::HepMCProduct> >(iConfig.getUntrackedParameter<edm::InputTag>("mixLabel",edm::InputTag("mix","generator")));
 
    rMatch = iConfig.getUntrackedParameter<double>("rMatch",0.1);
    rMatch2 = rMatch*rMatch;
@@ -166,10 +178,21 @@ HiMixValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
    edm::Handle<reco::GenParticleCollection> parts;
    iEvent.getByLabel(genParticleSrc_,parts);
 
+   double zgen[2]={-29,-29};
+
    for(UInt_t i = 0; i < parts->size(); ++i){
       const reco::GenParticle& p = (*parts)[i];
-      if (p.status()!=1) continue;
       int sube = p.collisionId();
+
+      if(p.status() == 3){
+	 if(sube == 0){
+	    zgen[0] = p.vz();
+	 }else{
+            zgen[1] = p.vz();
+	 }
+      }
+
+      if (p.status()!=1) continue;
       int pdg = abs(p.pdgId());
       double eta = p.eta();
       double pt = p.pt();
@@ -206,6 +229,8 @@ HiMixValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       if(pdg == 11 && pt > electronPtMin) hGenElectronEtaMixed->Fill(eta);
       if(pdg == 13 && pt > muonPtMin) hGenMuonEtaMixed->Fill(eta);
    }
+
+   hGenVertices->Fill(zgen[0],zgen[1]);
 
 
    edm::Handle<reco::GenJetCollection> genjets;
@@ -244,10 +269,26 @@ HiMixValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
    }
 
 
+   // Gen-Vertices from CrossingFrame
 
+   Handle<CrossingFrame<edm::HepMCProduct> > cf;
+   iEvent.getByToken(cfLabel,cf);
+   MixCollection<edm::HepMCProduct> mix(cf.product());
+   HepMC::GenVertex* genvtx = 0;
+   const HepMC::GenEvent* inev = 0;
+   double zcf[2]={-29,-29};
+   if(mix.size() != 2){
+      cout<<"More or less than 2 sub-events, mixing seems to have failed!"<<endl;
+   }else{
+      for(int i = 0; i < 2; ++i){
+	 const edm::HepMCProduct& bkg = mix.getObject(0);
+	 inev = bkg.GetEvent();
+	 genvtx = inev->signal_process_vertex();
+	 zcf[i] = genvtx->position().z();
+      }
+   }
 
-
-
+   hGenVerticesCF->Fill(zcf[0],zcf[1]);
 
 
    // RECO INFO
@@ -314,7 +355,8 @@ HiMixValidation::beginJob()
    hMuonResponseSignal = f->make<TH2D>("hMuonResponseSignal","",100,0,20,100,0,20);
    hElectronResponseSignal = f->make<TH2D>("hElectronResponseSignal","",100,0,20,100,0,20);
 
-
+   hGenVertices = f->make<TH2D>("hGenVertices","",60,-30,30,60,-30,30);
+   hGenVerticesCF = f->make<TH2D>("hGenVerticesCF","",60,-30,30,60,-30,30);
 
 }
 

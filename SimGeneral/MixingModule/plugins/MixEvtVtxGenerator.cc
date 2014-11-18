@@ -21,6 +21,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "TMatrixD.h"
+#include <iostream>
 
 using namespace edm;
 using namespace std;
@@ -139,7 +140,7 @@ HepMC::FourVector* MixEvtVtxGenerator::getVertex( Event& evt){
     fVertex = new HepMC::FourVector();
     //cout<<" creating new vertex "<<endl;
   }
-  //cout<<" setting vertex "<<" aX "<<aX<<" aY "<<aY<<" aZ "<<aZ<<" aT "<<aT<<endl;
+  cout<<" setting vertex "<<" aX "<<aX<<" aY "<<aY<<" aZ "<<aZ<<" aT "<<aT<<endl;
   fVertex->set(aX,aY,aZ,aT);
   
 
