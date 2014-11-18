@@ -1,8 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Demo")
-
+process.load('Configuration.StandardSequences.Services_cff')
 process.load("FWCore.MessageService.MessageLogger_cfi")
+process.load('HeavyIonsAnalysis.Mixing.HiMix_cff')
+process.mix = process.mixVal.clone()
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
@@ -18,4 +20,6 @@ process.TFileService = cms.Service("TFileService",
 process.load("GeneratorInterface.HiGenCommon.HeavyIon_cff")
 process.demo = cms.EDAnalyzer('HiMixValidation')
 
-process.p = cms.Path(process.heavyIon*process.demo)
+process.p = cms.Path(process.mix*process.heavyIon*process.demo)
+
+for a in process.aliases: delattr(process, a)
