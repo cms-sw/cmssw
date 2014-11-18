@@ -12,25 +12,18 @@ ElectronMcSignalPostValidator::ElectronMcSignalPostValidator( const edm::Paramet
 
   set_EfficiencyFlag=histosSet.getParameter<bool>("EfficiencyFlag");
   set_StatOverflowFlag=histosSet.getParameter<bool>("StatOverflowFlag");
-//  std::cout << "appel setBookStatOverflowFlag : " << set_StatOverflowFlag << std::endl;
  }
 
 ElectronMcSignalPostValidator::~ElectronMcSignalPostValidator()
  {}
 
-/*void ElectronMcSignalPostValidator::book()
- { setBookIndex(-1) ; }*/
-
 void ElectronMcSignalPostValidator::finalize( DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter )
  {
 
-//  iBooker.setCurrentFolder(outputInternalPath_) ; // A enlever !!
   setBookIndex(-1) ;
-//  setBookPrefix("h_ele") ;
-  std::cout << "ElectronMcSignalPostValidator::finalize : " << std::endl;
+  setBookPrefix("h_ele") ;
   setBookEfficiencyFlag(set_EfficiencyFlag);
   setBookStatOverflowFlag( set_StatOverflowFlag ) ;
-  setBookPrefix("h") ;
   
   edm::LogInfo("ElectronMcSignalPostValidator::finalize") << "efficiency calculation" ;
   bookH1andDivide(iBooker,iGetter, "etaEff","mc_Eta_matched","mc_Eta","#eta","Efficiency",""); 
@@ -146,6 +139,8 @@ void ElectronMcSignalPostValidator::finalize( DQMStore::IBooker & iBooker, DQMSt
 //  std::cout<<"H2   outside : "<<nb<<std::endl ;
 //  std::cout<<"PFX  entries : "<<h2->ProfileX()->GetEntries()<<std::endl ;
 //  std::cout<<"PFX effective entries : "<<h2->ProfileX()->GetEffectiveEntries()<<std::endl ;
+
+
 }
 
 
