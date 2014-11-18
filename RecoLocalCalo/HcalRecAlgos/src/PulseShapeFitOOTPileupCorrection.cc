@@ -55,15 +55,20 @@ namespace FitterFuncs{
     noise_              = iNoise;
     timeShift_          = 100.;
     if(iAddTimeSlew) timeShift_ += 13.;//Please note 13 is approximation for the time slew => we are trying to get BX 
+
+    inverttimeSig_ = 1./timeSig_;
+    inverttimeSig2_ = inverttimeSig_*inverttimeSig_;
+    invertpedSig_ = 1./pedSig_;
+    invertpedSig2_ = invertpedSig_*invertpedSig_;
   }
 
-  std::array<float,HcalConst::maxSamples> PulseShapeFunctor::funcHPDShape(const double &pulseTime, const double &pulseHeight,const double &slew) { 
+  void PulseShapeFunctor::funcHPDShape(std::array<float,HcalConst::maxSamples> & ntmpbin, const double &pulseTime, const double &pulseHeight,const double &slew) { 
     // pulse shape components over a range of time 0 ns to 255 ns in 1 ns steps
     constexpr int ns_per_bx = HcalConst::nsPerBX;
     constexpr int num_ns = HcalConst::nsPerBX*HcalConst::maxSamples;
     constexpr int num_bx = num_ns/ns_per_bx;
     // zeroing output binned pulse shape
-    std::array<float,num_bx> ntmpbin{ {0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f} };
+    ntmpbin = { {0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f} };
     //Get the starting time
     int i_start         = ( -HcalConst::iniTimeShift - pulseTime - slew >0 ? 0 : (int)std::abs(-HcalConst::iniTimeShift-pulseTime-slew) + 1);
     double offset_start = i_start - HcalConst::iniTimeShift - pulseTime - slew; //-199-2*pars[0]-2.*slew (for pars[0] > 98.5) or just -98.5-pars[0]-slew;
@@ -91,7 +96,7 @@ namespace FitterFuncs{
     for(int i=0; i < num_bx; ++i) {
       ntmpbin[i]     *= pulseHeight;
     }
-    return ntmpbin;
+    return;
   }
 
   PulseShapeFunctor::~PulseShapeFunctor() {
@@ -108,9 +113,10 @@ namespace FitterFuncs{
       double delta2 =0;
       std::array<float,HcalConst::maxSamples> pulse_shape_sum;
       for(i=0; i < (pars.size()-1)/2; ++i ){
-         int time = (pars[i*2]+timeShift_)/(double)HcalConst::nsPerBX;
+         int time = (pars[i*2]+timeShift_)*HcalConst::invertnsPerBx;
          //Interpolate the fit (Quickly)
-         std::array<float,HcalConst::maxSamples> pulse_shape = std::move(funcHPDShape(pars[i*2],pars[i*2+1],psFit_slew[time]));
+         std::array<float,HcalConst::maxSamples> pulse_shape;
+         funcHPDShape(pulse_shape, pars[i*2],pars[i*2+1],psFit_slew[time]);
          // add an uncertainty from the pulse (currently noise * pulse height =>Ecal uses full cov)
          if(addPulseJitter_) {
             for (j=0; j<nbins; ++j) {
@@ -128,14 +134,14 @@ namespace FitterFuncs{
         chisq += delta2;
         //Add the pedestal Constraint to chi2
         if(pedestalConstraint_) {
-          chisq += ((pars.back() - pedMean_)/pedSig_)*((pars.back()- pedMean_)/pedSig_);
+          chisq += invertpedSig2_*(pars.back() - pedMean_)*(pars.back()- pedMean_);
         }
         //Add the time Constraint to chi2
         if(timeConstraint_) {
           for(j=0; j< (pars.size()-1)/2; ++j ){
              int time = (pars[j*2]+timeShift_)/(double)HcalConst::nsPerBX;
              double time1 = -100.+time*HcalConst::nsPerBX;
-             chisq += ((pars[j*2] - timeMean_ - time1)/timeSig_)*((pars[j*2] - timeMean_ - time1)/timeSig_);
+             chisq += inverttimeSig2_*(pars[j*2] - timeMean_ - time1)*(pars[j*2] - timeMean_ - time1);
           }
         }
       }
@@ -156,7 +162,7 @@ namespace FitterFuncs{
       std::vector<double> pars(x, x+7);
       return EvalPulse(pars);
    }
-  //Greg's Hcal Binning => here to keep the const correctness below
+  //Greg's Hcal Binning => here to keep the const correctness below (channel discretization)
    double PulseShapeFunctor::sigma(double ifC) { 
       if(ifC < 75) return (0.577 + 0.0686*ifC)/3.; 
       return (2.75  + 0.0373*ifC + 3e-6*ifC*ifC)/3.; 
@@ -287,7 +293,7 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
       tmperry2[i]=noise_*noise_+ sigmaBin*sigmaBin; //Greg's Granularity
       //Propagate it through
       tmperry2[i]*=(gainArr[i]*gainArr[i]); //Convert from fC to GeV
-      tmperry [i]=sqrt(tmperry2[i]); //Formally, I should take a max of the above instead of quadrature right?
+      tmperry [i]=sqrt(tmperry2[i]);
       //Add the Uncosntrained Double Pulse Switch
       if((chargeArr[i])>chargeThreshold_) nAboveThreshold++;
       if(std::abs(energyArr[i])>tsMAX) tsMAX=std::abs(tmpy[i]);
@@ -307,6 +313,7 @@ int PulseShapeFitOOTPileupCorrection::pulseShapeFit(const double * energyArr, co
 
    int BX[3] = {4,5,3};
    if(ts4Chi2_ != 0) fit(1,timevalfit,chargevalfit,pedvalfit,chi2,fitStatus,tsMAX,tsTOTen,tmpy,BX);
+// Based on the pulse shape ( 2. likely gives the same performance )
    if(tmpy[2] > 3.*tmpy[3]) BX[2] = 2;
    if(chi2 > ts4Chi2_ && !unConstrainedFit_)   { //fails chi2 cut goes straight to 3 Pulse fit
      fit(3,timevalfit,chargevalfit,pedvalfit,chi2,fitStatus,tsMAX,tsTOTen,tmpy,BX);

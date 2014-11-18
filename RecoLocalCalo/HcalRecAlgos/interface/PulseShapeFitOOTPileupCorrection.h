@@ -9,9 +9,6 @@
 #include "CalibFormats/HcalObjects/interface/HcalCoder.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 
-#include "TFile.h"
-#include "TTree.h"
-
 #include <TMinuit.h>
 
 #include <TH1F.h>
@@ -27,6 +24,7 @@ namespace HcalConst{
    constexpr int maxPSshapeBin = 256;
    constexpr int nsPerBX = 25;
    constexpr float iniTimeShift = 98.5f;
+   constexpr double invertnsPerBx = 0.04;
 
 }
 
@@ -61,7 +59,7 @@ namespace FitterFuncs{
      std::vector<float> acc25nsVec, diff25nsItvlVec;
      std::vector<float> accVarLenIdxZEROVec, diffVarItvlIdxZEROVec;
      std::vector<float> accVarLenIdxMinusOneVec, diffVarItvlIdxMinusOneVec;
-     std::array<float,HcalConst::maxSamples> funcHPDShape(const double &pulseTime, const double &pulseHeight,const double &slew);
+     void funcHPDShape(std::array<float,HcalConst::maxSamples> & ntmpbin, const double &pulseTime, const double &pulseHeight,const double &slew);
      double psFit_x[HcalConst::maxSamples], psFit_y[HcalConst::maxSamples], psFit_erry[HcalConst::maxSamples], psFit_erry2[HcalConst::maxSamples], psFit_slew[HcalConst::maxSamples];
      
      bool pedestalConstraint_;
@@ -75,6 +73,9 @@ namespace FitterFuncs{
      double pedSig_;
      double noise_;
      double timeShift_;
+
+     double inverttimeSig_, inverttimeSig2_;
+     double invertpedSig_, invertpedSig2_;
    };
    
 }
