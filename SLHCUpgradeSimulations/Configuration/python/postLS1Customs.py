@@ -48,43 +48,15 @@ def customisePostLS1EraExtras(process):
     except that I've expanded out some of the functions to make it easier to see
     what I have to modify next.
     """
-    from L1Trigger.Configuration.L1Trigger_custom import customiseL1Menu
-    from SLHCUpgradeSimulations.Configuration.muonCustoms import csc_PathVsModule_SanityCheck
 
-    # deal with CSC separately:
-    csc_PathVsModule_SanityCheck(process)
-    # NB, these next bits already changed
-#     if hasattr(process,"CSCGeometryESModule"):
-#         process.CSCGeometryESModule.useGangedStripsInME1a = False
-#     if hasattr(process,"idealForDigiCSCGeometry"):
-#         process.idealForDigiCSCGeometry.useGangedStripsInME1a = False
-#    if hasattr(process, 'simMuonCSCDigis') or hasattr(process, 'simCscTriggerPrimitiveDigis') or hasattr(process, 'csc2DRecHits'):
-#        process.CSCIndexerESProducer.AlgoName=cms.string("CSCIndexerPostls1")
-#        process.CSCChannelMapperESProducer.AlgoName=cms.string("CSCChannelMapperPostls1")
-#     if hasattr(process, 'simMuonCSCDigis'):
-#         process.simMuonCSCDigis.strips.bunchTimingOffsets = cms.vdouble(0.0, 37.53, 37.66, 55.4, 48.2, 54.45, 53.78, 53.38, 54.12, 51.98, 51.28)
-#         process.simMuonCSCDigis.wires.bunchTimingOffsets = cms.vdouble(0.0, 22.88, 22.55, 29.28, 30.0, 30.0, 30.5, 31.0, 29.5, 29.1, 29.88)
-#     if hasattr(process, 'simCscTriggerPrimitiveDigis'):
-#         from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigisPostLS1_cfi import cscTriggerPrimitiveDigisPostLS1
-#         process.simCscTriggerPrimitiveDigis = cscTriggerPrimitiveDigisPostLS1
-#         process.simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag( 'simMuonCSCDigis', 'MuonCSCComparatorDigi')
-#         process.simCscTriggerPrimitiveDigis.CSCWireDigiProducer = cms.InputTag( 'simMuonCSCDigis', 'MuonCSCWireDigi')
-#     if hasattr(process, 'simCsctfTrackDigis'):
-#         from L1Trigger.CSCTrackFinder.csctfTrackDigisUngangedME1a_cfi import csctfTrackDigisUngangedME1a
-#         process.simCsctfTrackDigis = csctfTrackDigisUngangedME1a
-#         process.simCsctfTrackDigis.DTproducer = cms.untracked.InputTag("simDtTriggerPrimitiveDigis")
-#         process.simCsctfTrackDigis.SectorReceiverInput = cms.untracked.InputTag("simCscTriggerPrimitiveDigis", "MPCSORTED")
-#     if hasattr(process, 'cscpacker') or hasattr(process, 'csctfpacker'):
-#         process.cscpacker.useFormatVersion = cms.uint32(2013)
-#         process.cscpacker.usePreTriggers = cms.bool(False)
-#         process.cscpacker.packEverything = cms.bool(True)
-#     if hasattr(process, 'csc2DRecHits'):
-#         process.csc2DRecHits.readBadChannels = cms.bool(False)
-#         process.csc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
+    # These next 5 lines should be equivalent to calling L1Trigger.Configuration.L1Trigger_custom.customiseL1Menu
+    process.load('L1TriggerConfig.L1GtConfigProducers.l1GtTriggerMenuXml_cfi')
+    process.l1GtTriggerMenuXml.TriggerMenuLuminosity = "startup"
+    process.l1GtTriggerMenuXml.DefXmlFile = 'L1Menu_Collisions2015_25ns_v1_L1T_Scales_20101224_Imp0_0x102f.xml'
 
-    # deal with L1 Emulation separately:
-        # the following line will break HLT if HLT menu is not updated with the corresponding menu
-    process=customiseL1Menu(process)
+    process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMenuConfig_cff')
+    process.es_prefer_l1GtParameters = cms.ESPrefer('L1GtTriggerMenuXmlProducer','l1GtTriggerMenuXml')
+
     #print "INFO:  loading RCT LUTs"
     process.load("L1Trigger.L1TCalorimeter.caloStage1RCTLuts_cff")
     if hasattr(process,'L1simulation_step'):
@@ -99,13 +71,6 @@ def customisePostLS1EraExtras(process):
         process.simGtDigis.GctInputTag = 'caloStage1LegacyFormatDigis'
         process.simGtDigis.TechnicalTriggersInputTags = cms.VInputTag( )
         process.gctDigiToRaw.gctInputLabel = 'caloStage1LegacyFormatDigis'
-
-#     if hasattr(process,'HLTSchedule'):
-#         process.CSCGeometryESModule.useGangedStripsInME1a = False
-#         process.hltCsc2DRecHits.readBadChannels = cms.bool(False)
-#         process.hltCsc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
-#         process.CSCIndexerESProducer.AlgoName=cms.string("CSCIndexerPostls1")
-#         process.CSCChannelMapperESProducer.AlgoName=cms.string("CSCChannelMapperPostls1")
 
     return process
 
