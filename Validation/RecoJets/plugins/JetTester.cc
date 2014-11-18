@@ -25,15 +25,17 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
 
   isCaloJet = (std::string("calo")==JetType);
   isPFJet   = (std::string("pf")  ==JetType);
-
-  //consumes
-   pvToken_ = consumes<std::vector<reco::Vertex> >(edm::InputTag("offlinePrimaryVertices"));
-   caloTowersToken_ = consumes<CaloTowerCollection>(edm::InputTag("towerMaker"));
-   if (isCaloJet) caloJetsToken_  = consumes<reco::CaloJetCollection>(mInputCollection);
-   if (isPFJet)   pfJetsToken_    = consumes<reco::PFJetCollection>(mInputCollection);
-   genJetsToken_ = consumes<reco::GenJetCollection>(edm::InputTag(mInputGenCollection));
-   evtToken_ = consumes<edm::HepMCProduct>(edm::InputTag("generator"));
-
+  isMiniAODJet = (std::string("miniaod")  ==JetType);
+  if(!isMiniAODJet){
+    mJetCorrector                  =iConfig.getParameter<edm::InputTag>("JetCorrections"); 
+  } 
+  mInputGenCollection            =iConfig.getParameter<edm::InputTag>("srcGen");
+  genJetsToken_ = consumes<reco::GenJetCollection>(edm::InputTag(mInputGenCollection));
+   if(isMiniAODJet)patJetsToken_ = consumes<pat::JetCollection>(mInputCollection);
+   evtToken_ = consumes<GenEventInfoProduct>(edm::InputTag("generator"));
+   if(!isMiniAODJet && !mJetCorrector.label().empty()){
+     jetCorrectorToken_ = consumes<reco::JetCorrector>(mJetCorrector);
+   }
 
   // Events variables
   mNvtx           = 0;
@@ -663,6 +665,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
   //----------------------------------------------------------------------------
   double scale = -999;
 
+<<<<<<< HEAD
   if (!JetCorrectionService.empty())
     {
       const JetCorrector* corrector = JetCorrector::getJetCorrector(JetCorrectionService, mSetup);
@@ -675,6 +678,29 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
 
         correctedJet.scaleEnergy(scale); 
         
+=======
+  edm::Handle<reco::JetCorrector> jetCorr;
+  bool pass_correction_flag =false;
+  if(!isMiniAODJet && !mJetCorrector.label().empty()){
+    mEvent.getByToken(jetCorrectorToken_, jetCorr);
+    if (jetCorr.isValid()){
+      pass_correction_flag=true;
+    }
+  }
+  if(isMiniAODJet){
+    pass_correction_flag =true;
+  }
+  for (unsigned ijet=0; ijet<recoJets.size(); ijet++) {
+    Jet correctedJet = recoJets[ijet];
+    if(pass_correction_flag)
+      {
+        if (isCaloJet) scale = jetCorr->correction((*caloJets)[ijet]); 
+        if (isPFJet)   scale = jetCorr->correction((*pfJets)[ijet]); 
+        //if (isJPTJet)  scale = jetCorr->correction((*jptJets)[ijet]);
+	if(!isMiniAODJet){
+	  correctedJet.scaleEnergy(scale); 
+        }
+>>>>>>> modifications of JetValidation modules to enable HI Jet Validation
         if (correctedJet.pt() < 20) continue;
 
         mCorrJetEta->Fill(correctedJet.eta());
