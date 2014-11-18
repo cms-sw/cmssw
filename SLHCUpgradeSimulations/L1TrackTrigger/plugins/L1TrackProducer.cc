@@ -165,6 +165,9 @@ private:
   string geometry_;
   double phiWindowSF_;
 
+  string asciiEventOutName_;
+  std::ofstream asciiEventOut_;
+
   /// ///////////////// ///
   /// MANDATORY METHODS ///
   virtual void beginRun( const edm::Run& run, const edm::EventSetup& iSetup );
@@ -182,6 +185,9 @@ L1TrackProducer::L1TrackProducer(edm::ParameterSet const& iConfig) // :   config
 
   geometry_ = iConfig.getUntrackedParameter<string>("geometry","");
   phiWindowSF_ = iConfig.getUntrackedParameter<double>("phiWindowSF",1.0);
+
+  asciiEventOutName_ = iConfig.getUntrackedParameter<string>("asciiFileName","");
+
 }
 
 /////////////
@@ -196,6 +202,11 @@ L1TrackProducer::~L1TrackProducer()
 // END JOB
 void L1TrackProducer::endRun(const edm::Run& run, const edm::EventSetup& iSetup)
 {
+
+  if (asciiEventOutName_!="") {
+    asciiEventOut_.close();
+  }
+
   /// Things to be done at the exit of the event Loop 
 
 }
@@ -205,6 +216,9 @@ void L1TrackProducer::endRun(const edm::Run& run, const edm::EventSetup& iSetup)
 void L1TrackProducer::beginRun(const edm::Run& run, const edm::EventSetup& iSetup )
 {
   eventnum=0;
+  if (asciiEventOutName_!="") {
+    asciiEventOut_.open(asciiEventOutName_.c_str());
+  }
 }
 
 //////////
@@ -452,9 +466,13 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   assert(mode==1||mode==2||mode==3||mode==4);
 
+  if (asciiEventOutName_!="") {
+    ev.write(asciiEventOut_);
+  }
+
 #include "L1Tracking.icc"  
 
-
+  
   
   for (unsigned itrack=0; itrack<purgedTracks.size(); itrack++) {
     L1TTrack track=purgedTracks.get(itrack);
