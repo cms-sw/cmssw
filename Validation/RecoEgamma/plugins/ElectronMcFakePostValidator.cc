@@ -17,13 +17,9 @@ ElectronMcFakePostValidator::ElectronMcFakePostValidator( const edm::ParameterSe
 ElectronMcFakePostValidator::~ElectronMcFakePostValidator()
  {}
 
-void ElectronMcFakePostValidator::book()
- { setBookIndex(-1) ; }
-/**/
-
 void ElectronMcFakePostValidator::finalize( DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter )
  {
-  iBooker.setCurrentFolder(outputInternalPath_) ;
+
   setBookIndex(-1) ;
   setBookPrefix("h_ele") ;
   setBookEfficiencyFlag(set_EfficiencyFlag);
