@@ -26,14 +26,13 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -56,7 +55,7 @@ namespace FSQ {
     class BaseHandler;
 }
 
-class FSQDiJetAve : public edm::EDAnalyzer {
+class FSQDiJetAve : public DQMEDAnalyzer {
    public:
       explicit FSQDiJetAve(const edm::ParameterSet&);
       ~FSQDiJetAve();
@@ -65,21 +64,18 @@ class FSQDiJetAve : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob() override;
       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override;
 
-      virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-      //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-      //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-      virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+      virtual void bookHistograms(DQMStore::IBooker &, edm::Run const & run, edm::EventSetup const & c) override;
+      virtual void dqmBeginRun(edm::Run const& run, edm::EventSetup const& c) override;
+      //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+      //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
       // ----------member data ---------------------------
       //
       triggerExpression::Data m_eventCache;
       bool m_isSetup;
       bool m_useGenWeight;
-      DQMStore * m_dbe;
       HLTConfigProvider m_hltConfig;
 
 

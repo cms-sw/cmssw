@@ -83,7 +83,6 @@ class BaseHandler {
               m_eventCache = &eventCache;
               std::string pathPartialName  = iConfig.getParameter<std::string>("partialPathName");
               m_dirname = iConfig.getUntrackedParameter("mainDQMDirname",std::string("HLT/FSQ/"))+pathPartialName + "/";
-              m_dbe = Service < DQMStore > ().operator->();
 
         };
         virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, 
@@ -92,37 +91,11 @@ class BaseHandler {
                              const edm::TriggerResults & triggerResults, 
                              const edm::TriggerNames  & triggerNames,
                              float weight) = 0;
-        virtual void beginRun() = 0;
-        virtual void endLuminosityBlock() {
-            std::map<std::string,  MonitorElement*>::iterator it = m_histos.begin();
-            for (;it!= m_histos.end(); ++it){
-                std::string::size_type pos = it->first.find("_nominator");
-                if (pos==std::string::npos) continue;
-                std::string denomName(it->first);
-                denomName.erase(pos, std::string::npos);
-                std::string effName(denomName);
-                denomName+="_denominator";
-                effName += "_efficiency";
-                // we dont look for denom in m_histos, while it was filled with different handler (with different trg condition)
-                MonitorElement * denom = m_dbe->get(m_dirname + denomName); 
-                if (denom == 0) {
-                    edm::LogWarning("FSQDiJetAve") << "Problem: cannot find expected histo " << denomName;
-                    continue;
-                }
-                TH1F* tNumerator   = it->second->getTH1F();
-                TH1F* tDenominator = denom->getTH1F();
-                TH1F *teff = (TH1F*) tNumerator->Clone(effName.c_str());
-                teff->Divide(tNumerator,tDenominator,1,1);
-                m_dbe->setCurrentFolder(m_dirname);
-                m_dbe->book1D(effName, teff);
-                delete teff;
-            }
-        };
+        virtual void book(DQMStore::IBooker & booker) = 0;
 
         triggerExpression::Evaluator * m_expression;
         triggerExpression::Data * m_eventCache;
 
-        DQMStore * m_dbe;
         std::string m_dirname;
 
         std::map<std::string,  MonitorElement*> m_histos;
@@ -176,9 +149,9 @@ class HandlerTemplate: public BaseHandler {
              m_isSetup = false;
         }
 
-        void beginRun(){
+        void book(DQMStore::IBooker & booker){
             if(!m_isSetup){
-                m_dbe->setCurrentFolder(m_dirname);
+                booker.setCurrentFolder(m_dirname);
                 m_isSetup = true;
                 for (unsigned int i = 0; i < m_drawables.size(); ++i){
                     std::string histoName = m_dqmhistolabel + "_" +m_drawables.at(i).getParameter<std::string>("name");
@@ -187,10 +160,11 @@ class HandlerTemplate: public BaseHandler {
                     double rangeLow  =  m_drawables.at(i).getParameter<double>("min");
                     double rangeHigh =  m_drawables.at(i).getParameter<double>("max");
 
-                    m_histos[histoName] =  m_dbe->book1D(histoName, histoName, bins, rangeLow, rangeHigh);
+                    m_histos[histoName] =  booker.book1D(histoName, histoName, bins, rangeLow, rangeHigh);
                     StringObjectFunction<std::vector<TOutputCandidateType> > * func 
                             = new StringObjectFunction<std::vector<TOutputCandidateType> >(expression);
                     m_plotters[histoName] =  std::shared_ptr<StringObjectFunction<std::vector<TOutputCandidateType> > >(func);
+
                 }   
             }
         }
@@ -672,23 +646,10 @@ FSQDiJetAve::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 }
 
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-FSQDiJetAve::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-FSQDiJetAve::endJob() 
-{
-}
-
 // ------------ method called when starting to processes a run  ------------
 //*
 void 
-FSQDiJetAve::beginRun(edm::Run const& run, edm::EventSetup const& c)
+FSQDiJetAve::dqmBeginRun(edm::Run const& run, edm::EventSetup const& c)
 {
 
     bool changed(true);
@@ -697,12 +658,21 @@ FSQDiJetAve::beginRun(edm::Run const& run, edm::EventSetup const& c)
         LogDebug("FSQDiJetAve") << "HLTConfigProvider failed to initialize.";
     }
 
-    for (unsigned int i = 0; i < m_handlers.size(); ++i) {
-        m_handlers.at(i)->beginRun();
-    }
 
 
 }
+void FSQDiJetAve::bookHistograms(DQMStore::IBooker & booker, edm::Run const & run, edm::EventSetup const & c){
+    for (unsigned int i = 0; i < m_handlers.size(); ++i) {
+        m_handlers.at(i)->book(booker);
+    }
+
+
+
+}
+
+
+
+
 //*/
 
 // ------------ method called when ending the processing of a run  ------------
@@ -722,18 +692,11 @@ FSQDiJetAve::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup c
 */
 
 // ------------ method called when ending the processing of a luminosity block  ------------
-//*
+/*
 void 
 FSQDiJetAve::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-
-    for (unsigned int i = 0; i < m_handlers.size(); ++i) {
-        m_handlers.at(i)->endLuminosityBlock();
-    }
-
-
-}
-//*/
+{}
+// */
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
