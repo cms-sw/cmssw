@@ -173,12 +173,6 @@ GsfElectron * GsfElectron::clone
 
 bool GsfElectron::ecalDriven() const
  {
-  if (!passingCutBasedPreselection()&&!passingMvaPreselection())
-   {
-    edm::LogWarning("GsfElectronAlgo|UndefinedPreselectionInfo")
-      <<"All preselection flags are false,"
-      <<" either the data is too old or electrons were not preselected." ;
-   }
   return (ecalDrivenSeed()&&passingCutBasedPreselection()) ;
  }
 
