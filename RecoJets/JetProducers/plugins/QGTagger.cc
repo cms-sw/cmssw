@@ -27,14 +27,15 @@
  * Authors: andrea.carlo.marini@cern.ch, tom.cornelis@cern.ch, cms-qg-workinggroup@cern.ch
  */
 QGTagger::QGTagger(const edm::ParameterSet& iConfig) :
-  srcJets        ( iConfig.getParameter<edm::InputTag>("srcJets")),
-  srcRho         ( iConfig.getParameter<edm::InputTag>("srcRho")),
-  srcVertexC     ( iConfig.getParameter<edm::InputTag>("srcVertexCollection")),
-  jetsLabel	 ( iConfig.getParameter<std::string>("jetsLabel")),
-  jecService     ( iConfig.getParameter<std::string>("jec")),
-  systLabel	 ( iConfig.getParameter<std::string>("systematicsLabel"))
+  jets_token(		consumes<reco::PFJetCollection>(	iConfig.getParameter<edm::InputTag>("srcJets"))),
+  jetCorrector_token(	consumes<reco::JetCorrector>(		iConfig.getParameter<edm::InputTag>("jec"))),
+  vertex_token(		consumes<reco::VertexCollection>(	iConfig.getParameter<edm::InputTag>("srcVertexCollection"))),
+  rho_token(		consumes<double>(			iConfig.getParameter<edm::InputTag>("srcRho"))),
+  jetCorrector_inputTag(					iConfig.getParameter<edm::InputTag>("jec")),
+  jetsLabel(							iConfig.getParameter<std::string>("jetsLabel")),
+  systLabel(							iConfig.getParameter<std::string>("systematicsLabel"))
 {
-  useJEC = (jecService != "");
+  useJetCorr = !jetCorrector_inputTag.label().empty();
   produceSyst = (systLabel != "");
 
   produces<edm::ValueMap<float>>("qgLikelihood");
@@ -46,11 +47,6 @@ QGTagger::QGTagger(const edm::ParameterSet& iConfig) :
     produces<edm::ValueMap<float>>("qgLikelihoodSmearedGluon");
     produces<edm::ValueMap<float>>("qgLikelihoodSmearedAll");
   }
-
-  jets_token	= consumes<reco::PFJetCollection>(srcJets);
-  rho_token	= consumes<double>(srcRho);
-  vertex_token	= consumes<reco::VertexCollection>(srcVertexC);
-
   qgLikelihood 	= new QGLikelihoodCalculator();
 }
 
@@ -65,16 +61,10 @@ void QGTagger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
   std::vector<float>* smearedGluonProduct = new std::vector<float>;
   std::vector<float>* smearedAllProduct = new std::vector<float>;
 
-  if(useJEC) JEC = JetCorrector::getJetCorrector(jecService, iSetup);
-
-  edm::Handle<double> rho;
-  iEvent.getByToken(rho_token, rho);
-
-  edm::Handle<reco::VertexCollection> vertexCollection;
-  iEvent.getByToken(vertex_token, vertexCollection);
-
-  edm::Handle<reco::PFJetCollection> pfJets;
-  iEvent.getByToken(jets_token, pfJets);
+  edm::Handle<reco::PFJetCollection> pfJets;					iEvent.getByToken(jets_token, pfJets);
+  edm::Handle<reco::JetCorrector> jetCorr;			if(useJetCorr)	iEvent.getByToken(jetCorrector_token, jetCorr);
+  edm::Handle<reco::VertexCollection> vertexCollection;				iEvent.getByToken(vertex_token, vertexCollection);
+  edm::Handle<double> rho;							iEvent.getByToken(rho_token, rho);
 
   edm::ESHandle<QGLikelihoodObject> QGLParamsColl;
   QGLikelihoodRcd const & rcdhandle = iSetup.get<QGLikelihoodRcd>();
@@ -87,7 +77,7 @@ void QGTagger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
   }
 
   for(auto pfJet = pfJets->begin(); pfJet != pfJets->end(); ++pfJet){
-    if(useJEC) pt = pfJet->pt()*JEC->correction(*pfJet, iEvent, iSetup);
+    if(useJetCorr) pt = pfJet->pt()*jetCorr->correction(*pfJet);
     else pt = pfJet->pt();
     calcVariables(&*pfJet, vertexCollection);
     float qgValue = qgLikelihood->computeQGLikelihood(QGLParamsColl, pt, pfJet->eta(), *rho, {(float)mult, ptD, -std::log(axis2)});
@@ -200,10 +190,10 @@ template <class jetClass> void QGTagger::calcVariables(const jetClass *jet, edm:
 void QGTagger::fillDescriptions(edm::ConfigurationDescriptions& descriptions){
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("srcJets");
+  desc.add<edm::InputTag>("jec");
   desc.add<edm::InputTag>("srcRho");
   desc.add<edm::InputTag>("srcVertexCollection");
   desc.add<std::string>("jetsLabel");
-  desc.add<std::string>("jec");
   desc.add<std::string>("systematicsLabel");
   descriptions.add("QGTagger", desc);
 }

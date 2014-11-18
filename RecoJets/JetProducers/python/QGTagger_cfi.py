@@ -34,6 +34,6 @@ QGPoolDBESSource = cms.ESSource("PoolDBESSource",
 QGTagger = cms.EDProducer('QGTagger',
   srcRho 		= cms.InputTag('fixedGridRhoFastjetAll'),		
   srcVertexCollection	= cms.InputTag('offlinePrimaryVerticesWithBS'),
-  jec			= cms.string(''),
+  jec			= cms.InputTag(''),
   systematicsLabel	= cms.string('')
 )
