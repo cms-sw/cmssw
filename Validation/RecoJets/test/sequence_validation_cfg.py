@@ -44,10 +44,6 @@ process.load("Validation.RecoJets.JetValidation_cff")
 process.maxEvents = cms.untracked.PSet(
        input = cms.untracked.int32(-1)
 )
-
-process.maxEvents = cms.untracked.PSet(
-       input = cms.untracked.int32(-1)
-)
                        
 process.load('Configuration/StandardSequences/EDMtoMEAtJobEnd_cff')
 process.dqmSaver.referenceHandling = cms.untracked.string('all')

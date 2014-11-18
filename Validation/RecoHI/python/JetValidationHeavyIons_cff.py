@@ -15,39 +15,33 @@ ak7HiCleanedGenJets = heavyIonCleanedGenJets.clone( src = cms.InputTag('ak7HiGen
 
 JetAnalyzerICPU5Calo = cms.EDAnalyzer("JetTester",
     JetType = cms.untracked.string('calo'),
-    OutputFile = cms.untracked.string(''),
     src = cms.InputTag("iterativeConePu5CaloJets"),
     srcGen = cms.InputTag("iterativeCone5HiCleanedGenJets"),
     primVertex     = cms.InputTag("hiSelectedVertex"),
     JetCorrections = cms.InputTag(""),
     recoJetPtThreshold = cms.double(40),
-    genEnergyFractionThreshold     = cms.double(0.05),
     matchGenPtThreshold                 = cms.double(20.0),
     RThreshold                     = cms.double(0.3)
 )
 
 JetAnalyzerICPU7Calo = cms.EDAnalyzer("JetTester",
     JetType = cms.untracked.string('calo'),
-    OutputFile = cms.untracked.string(''),
     src = cms.InputTag("iterativeConePu7CaloJets"),
     srcGen = cms.InputTag("iterativeCone7HiCleanedGenJets"),
     primVertex     = cms.InputTag("hiSelectedVertex"),
     JetCorrections = cms.InputTag(""),
     recoJetPtThreshold = cms.double(40),
-    genEnergyFractionThreshold     = cms.double(0.05),
     matchGenPtThreshold                 = cms.double(20.0),
     RThreshold                     = cms.double(0.3)
 )
 
 JetAnalyzerAkPU5Calo = cms.EDAnalyzer("JetTester",
     JetType = cms.untracked.string('calo'),
-    OutputFile = cms.untracked.string(''),
     src = cms.InputTag("akPu5CaloJets"),
     srcGen = cms.InputTag("ak4HiCleanedGenJets"),
     primVertex     = cms.InputTag("hiSelectedVertex"),
     JetCorrections = cms.InputTag(""),
     recoJetPtThreshold = cms.double(40),
-    genEnergyFractionThreshold     = cms.double(0.05),
     matchGenPtThreshold                 = cms.double(20.0),
     RThreshold                     = cms.double(0.3)
 )
@@ -60,33 +54,28 @@ JetAnalyzerAkPU7Calo = cms.EDAnalyzer("JetTester",
     primVertex     = cms.InputTag("hiSelectedVertex"),
     JetCorrections = cms.InputTag(""),
     recoJetPtThreshold = cms.double(40),
-    genEnergyFractionThreshold     = cms.double(0.05),
     matchGenPtThreshold                 = cms.double(20.0),
     RThreshold                     = cms.double(0.3)
 )
 
 JetAnalyzerAkFastPU5Calo = cms.EDAnalyzer("JetTester",
     JetType = cms.untracked.string('calo'),
-    OutputFile = cms.untracked.string(''),
     src = cms.InputTag("akFastPu5CaloJets"),
     srcGen = cms.InputTag("ak4HiCleanedGenJets"),
     primVertex     = cms.InputTag("hiSelectedVertex"),
     JetCorrections = cms.InputTag(""),
     recoJetPtThreshold = cms.double(40),
-    genEnergyFractionThreshold     = cms.double(0.05),
     matchGenPtThreshold                 = cms.double(20.0),
     RThreshold                     = cms.double(0.3)
 )
 
 JetAnalyzerAkFastPU7Calo = cms.EDAnalyzer("JetTester",
     JetType = cms.untracked.string('calo'),
-    OutputFile = cms.untracked.string(''),
     src = cms.InputTag("akFastPu7CaloJets"),
     srcGen = cms.InputTag("ak7HiCleanedGenJets"),
     primVertex     = cms.InputTag("hiSelectedVertex"),
     JetCorrections = cms.InputTag(""),
     recoJetPtThreshold = cms.double(40),
-    genEnergyFractionThreshold     = cms.double(0.05),
     matchGenPtThreshold                 = cms.double(20.0),
     RThreshold                     = cms.double(0.3)
 )
