@@ -38,47 +38,20 @@ L1TEfficiencyJets_Offline::L1TEfficiencyJets_Offline(const ParameterSet & ps){
     cout << "[L1TEfficiencyJets_Offline:] ____________ Storage inicialization ____________ " << endl;
     cout << "[L1TEfficiencyJets_Offline:] Setting up dbe folder: L1T/Efficiency/Jets" << endl;
   }
-  
-  dbe = Service < DQMStore > ().operator->();
-  dbe->setVerbose(0);
-  dbe->setCurrentFolder("L1T/Efficiency/Jets");
-  
-  // Inicializing Variables
-  if (m_verbose) {cout << "[L1TEfficiencyJets_Offline:] Pointer for DQM Store: " << dbe << endl;}
 }
 
 //_____________________________________________________________________
 L1TEfficiencyJets_Offline::~L1TEfficiencyJets_Offline(){}
 
 //_____________________________________________________________________
-void L1TEfficiencyJets_Offline::beginJob(void){
-  
-  if (m_verbose) {cout << "[L1TEfficiencyJets_Offline:] Called beginJob." << endl;}
-
-}
-
-//_____________________________________________________________________
-void L1TEfficiencyJets_Offline::endJob(void){
-  
-  if (m_verbose) {cout << "[L1TEfficiencyJets_Offline:] Called endJob." << endl;}
-
-}
-
-//_____________________________________________________________________
 // BeginRun: as input you get filtered events...
 //_____________________________________________________________________
-void L1TEfficiencyJets_Offline::beginRun(const edm::Run& run, const edm::EventSetup& iSetup){
-  
+void L1TEfficiencyJets_Offline::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& run, const edm::EventSetup& iSetup){
+
+  ibooker.setCurrentFolder("L1T/Efficiency/Jets");
   if (m_verbose) {cout << "[L1TEfficiencyJets_Offline:] Called endRun." << endl;}
   
 }  
-
-//_____________________________________________________________________
-void L1TEfficiencyJets_Offline::endRun(const edm::Run& run, const edm::EventSetup& iSetup){
-  
-  if (m_verbose) {cout << "[L1TEfficiencyJets_Offline:] Called endRun." << endl;}
-  
-}
 
 //_____________________________________________________________________
 void L1TEfficiencyJets_Offline::beginLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) {

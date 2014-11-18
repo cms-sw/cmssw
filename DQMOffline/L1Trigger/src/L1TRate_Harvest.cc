@@ -54,14 +54,6 @@ L1TRate_Harvest::L1TRate_Harvest(const ParameterSet & ps){
   m_inputCategories["ETT"]    = Categories.getUntrackedParameter<bool>("ETT"); 
   m_inputCategories["HTT"]    = Categories.getUntrackedParameter<bool>("HTT"); 
   m_inputCategories["HTM"]    = Categories.getUntrackedParameter<bool>("HTM"); 
-
-  // Inicializing Variables
-  dbe = NULL;
-
-  if (ps.getUntrackedParameter < bool > ("dqmStore", false)) {
-    dbe = Service < DQMStore > ().operator->();
-    dbe->setVerbose(0);
-  }
   
   // What to do if we want our output to be saved to a external file
   m_outputFile = ps.getUntrackedParameter < string > ("outputFile", "");
@@ -73,45 +65,18 @@ L1TRate_Harvest::L1TRate_Harvest(const ParameterSet & ps){
   bool disable = ps.getUntrackedParameter < bool > ("disableROOToutput", false);
   if (disable) {m_outputFile = "";}
   
-  if (dbe != NULL) {dbe->setCurrentFolder("L1T/L1TRate");}
-  
 }
 
 //_____________________________________________________________________
 L1TRate_Harvest::~L1TRate_Harvest(){}
 
-//_____________________________________________________________________
-void L1TRate_Harvest::beginJob(void){
-
-  if (m_verbose) {cout << "[L1TRate_Harvest:] Called beginJob." << endl;}
-
-  // get hold of back-end interface
-  DQMStore *dbe = 0;
-  dbe = Service < DQMStore > ().operator->();
-
-  if (dbe) {
-    dbe->setCurrentFolder("L1T/L1TRate");
-    dbe->rmdir("L1T/L1TRate");
-  }
- 
+void L1TRate_Harvest::dqmBeginRun(edm::Run const&, edm::EventSetup const&){
+  
 }
-
-//_____________________________________________________________________
-void L1TRate_Harvest::endJob(void){
-
-  if (m_verbose) {cout << "[L1TRate_Harvest:] Called endJob." << endl;}
-
-  if (m_outputFile.size() != 0 && dbe)
-    dbe->save(m_outputFile);
-
-  return;
-
-}
-
 //_____________________________________________________________________
 // BeginRun: as input you get filtered events...
 //_____________________________________________________________________
-void L1TRate_Harvest::beginRun(const edm::Run& run, const edm::EventSetup& iSetup){
+void L1TRate_Harvest::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& run, const edm::EventSetup& iSetup){
 
   if (m_verbose) {cout << "[L1TRate_Harvest:] Called beginRun." << endl;}
 
@@ -125,8 +90,8 @@ void L1TRate_Harvest::beginRun(const edm::Run& run, const edm::EventSetup& iSetu
 //   const L1GtPrescaleFactors* m_l1GtPfAlgo = l1GtPfAlgo.product();
 
 //   // Initializing DQM Monitor Elements
-//   dbe->setCurrentFolder("L1T/L1TRate");
-//   m_ErrorMonitor = dbe->book1D("ErrorMonitor", "ErrorMonitor",2,0,2);
+//   ibooker.setCurrentFolder("L1T/L1TRate");
+//   m_ErrorMonitor = ibooker.book1D("ErrorMonitor", "ErrorMonitor",2,0,2);
 //   m_ErrorMonitor->setBinLabel(UNKNOWN               ,"UNKNOWN");
 //   m_ErrorMonitor->setBinLabel(WARNING_PY_MISSING_FIT,"WARNING_PY_MISSING_FIT");
 
@@ -202,8 +167,8 @@ void L1TRate_Harvest::beginRun(const edm::Run& run, const edm::EventSetup& iSetu
 
 //     }
 
-//     dbe->setCurrentFolder("L1T/L1TRate/TriggerCounts"); // trigger counts...
-//     m_CountsVsLS[tTrigger] = dbe->bookProfile(tCategory,
+//     ibooker.setCurrentFolder("L1T/L1TRate/TriggerCounts"); // trigger counts...
+//     m_CountsVsLS[tTrigger] = ibooker.bookProfile(tCategory,
 //                                                   "Cross Sec. vs Inst. Lumi Algo: "+tTrigger+tErrorMessage,
 //                                                   m_maxNbins,
 //                                                   minInstantLuminosity,
@@ -215,8 +180,8 @@ void L1TRate_Harvest::beginRun(const edm::Run& run, const edm::EventSetup& iSetu
 
 //     m_algoFit[tTrigger] = (TF1*) tTestFunction->Clone("Fit_"+tTrigger); // NOTE: Workaround
 
-//     dbe->setCurrentFolder("L1T/L1TRate/Ratio");
-//     m_xSecObservedToExpected[tTrigger] = dbe->book1D(tCategory, "Algo: "+tTrigger+tErrorMessage,m_maxNbins,-0.5,double(m_maxNbins)-0.5);
+//     ibooker.setCurrentFolder("L1T/L1TRate/Ratio");
+//     m_xSecObservedToExpected[tTrigger] = ibooker.book1D(tCategory, "Algo: "+tTrigger+tErrorMessage,m_maxNbins,-0.5,double(m_maxNbins)-0.5);
 //     m_xSecObservedToExpected[tTrigger] ->setAxisTitle("Lumi Section" ,1);
 //     m_xSecObservedToExpected[tTrigger] ->setAxisTitle("#sigma_{obs} / #sigma_{exp}" ,2);
 
@@ -224,15 +189,6 @@ void L1TRate_Harvest::beginRun(const edm::Run& run, const edm::EventSetup& iSetu
 //   }
 
 }
-
-
-//_____________________________________________________________________
-void L1TRate_Harvest::endRun(const edm::Run& run, const edm::EventSetup& iSetup){
-
-  if (m_verbose) {cout << "[L1TRate_Harvest:] Called endRun." << endl;}
-}
-
-
 
 
 //_____________________________________________________________________
@@ -335,13 +291,6 @@ void L1TRate_Harvest::endLuminosityBlock(LuminosityBlock const& lumiBlock, Event
 //     }
 //   }
 }
-
-
-
-//_____________________________________________________________________
-//void L1TRate_Harvest::analyze(const Event & iEvent, const EventSetup & eventSetup){
-//
-//}
 
     
 //_____________________________________________________________________

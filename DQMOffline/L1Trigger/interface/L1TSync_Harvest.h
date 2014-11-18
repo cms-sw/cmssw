@@ -44,6 +44,8 @@
 #include "DQMOffline/L1Trigger/interface/L1TLSBlock.h"
 #include "DQMOffline/L1Trigger/interface/L1TBeamConfiguration.h"
 
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+
 #include <TString.h>
 
 #include <iostream>
@@ -54,7 +56,7 @@
 // Forward declarations
 
 // Class declaration
-class L1TSync_Harvest : public edm::EDAnalyzer {
+class L1TSync_Harvest : public DQMEDAnalyzer {
 
   public:
 
@@ -102,13 +104,11 @@ class L1TSync_Harvest : public edm::EDAnalyzer {
   protected:
 
     void analyze (const edm::Event& e, const edm::EventSetup& c);  // Analyze
-    void beginJob();                                               // BeginJob
-    void endJob  (void);                                           // EndJob
-    void beginRun(const edm::Run& run, const edm::EventSetup& iSetup);
-    void endRun  (const edm::Run& run, const edm::EventSetup& iSetup);
+    virtual void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
 
     virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
     virtual void endLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
+     virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
 
 
   // Private Methods
@@ -120,8 +120,6 @@ class L1TSync_Harvest : public edm::EDAnalyzer {
 
   // Variables
   private:
-
-    DQMStore * dbe; // The DQM Service Handle
 
     // Input parameters
     edm::ParameterSet                      m_parameters;

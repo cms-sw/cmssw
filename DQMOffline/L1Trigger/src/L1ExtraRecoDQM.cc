@@ -37,7 +37,7 @@ L1ExtraRecoDQM::L1ExtraRecoDQM(const edm::ParameterSet& paramSet) :
             m_nrBxInEventGmt(paramSet.getParameter<int> ("NrBxInEventGmt")),
             m_nrBxInEventGct(paramSet.getParameter<int> ("NrBxInEventGct")),
             //
-            m_dbe(0), m_resetModule(true), m_currentRun(-99),
+	    m_resetModule(true), m_currentRun(-99),
             //
             m_nrEvJob(0), m_nrEvRun(0)
 
@@ -64,19 +64,6 @@ L1ExtraRecoDQM::L1ExtraRecoDQM(const edm::ParameterSet& paramSet) :
                 << std::endl;
     }
 
-    m_dbe = edm::Service<DQMStore>().operator->();
-    if (m_dbe == 0) {
-        edm::LogInfo("L1ExtraRecoDQM") << "\n Unable to get DQMStore service.";
-    } else {
-
-        if (paramSet.getUntrackedParameter<bool> ("DQMStore", false)) {
-            m_dbe->setVerbose(0);
-        }
-
-        m_dbe->setCurrentFolder(m_dirName);
-
-    }
-
 }
 
 // destructor
@@ -86,27 +73,11 @@ L1ExtraRecoDQM::~L1ExtraRecoDQM() {
 
 }
 
-//
-void L1ExtraRecoDQM::beginJob() {
 
-}
-
-void L1ExtraRecoDQM::beginRun(const edm::Run& iRun,
-        const edm::EventSetup& evSetup) {
+void L1ExtraRecoDQM::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& iRun, const edm::EventSetup& evSetup) {
 
     m_nrEvRun = 0;
-
-    DQMStore* dbe = 0;
-    dbe = edm::Service<DQMStore>().operator->();
-
-    // clean up directory
-    if (dbe) {
-        dbe->setCurrentFolder(m_dirName);
-        if (dbe->dirExists(m_dirName)) {
-            dbe->rmdir(m_dirName);
-        }
-        dbe->setCurrentFolder(m_dirName);
-    }
+    ibooker.setCurrentFolder(m_dirName);
 
 }
 
@@ -114,10 +85,12 @@ void L1ExtraRecoDQM::beginLuminosityBlock(const edm::LuminosityBlock& iLumi,
         const edm::EventSetup& evSetup) {
 
     //
-
-
 }
 
+void L1ExtraRecoDQM::dqmBeginRun(const edm::Run&, const edm::EventSetup&){
+
+  
+}
 
 //
 void L1ExtraRecoDQM::analyze(const edm::Event& iEvent,
@@ -131,28 +104,4 @@ void L1ExtraRecoDQM::analyze(const edm::Event& iEvent,
 
 }
 
-// end section
-void L1ExtraRecoDQM::endLuminosityBlock(const edm::LuminosityBlock& iLumi,
-        const edm::EventSetup& evSetup) {
-
-    // empty
-
-}
-
-void L1ExtraRecoDQM::endRun(const edm::Run& run, const edm::EventSetup& evSetup) {
-
-    //
-
-}
-
-void L1ExtraRecoDQM::endJob() {
-
-    edm::LogInfo("L1ExtraRecoDQM")
-            << "\n\nTotal number of events analyzed in this job: " << m_nrEvJob
-            << "\n" << std::endl;
-
-    return;
-}
-
-//define this as a plug-in
 DEFINE_FWK_MODULE( L1ExtraRecoDQM);

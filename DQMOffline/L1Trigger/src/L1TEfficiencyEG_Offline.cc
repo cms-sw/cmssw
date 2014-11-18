@@ -39,46 +39,27 @@ L1TEfficiencyEG_Offline::L1TEfficiencyEG_Offline(const ParameterSet & ps){
     cout << "[L1TEfficiencyEG_Offline:] Setting up dbe folder: L1T/Efficiency/" << endl;
   }
   
-  dbe = Service < DQMStore > ().operator->();
-  dbe->setVerbose(0);
-  dbe->setCurrentFolder("L1T/Efficiency/EG");
+  //dbe = Service < DQMStore > ().operator->();
+  //dbe->setVerbose(0);
+  //dbe->setCurrentFolder("L1T/Efficiency/EG");
   
   // Inicializing Variables
-  if (m_verbose) {cout << "[L1TEfficiencyEG_Offline:] Pointer for DQM Store: " << dbe << endl;}
+  //if (m_verbose) {cout << "[L1TEfficiencyEG_Offline:] Pointer for DQM Store: " << dbe << endl;}
 }
 
 //_____________________________________________________________________
 L1TEfficiencyEG_Offline::~L1TEfficiencyEG_Offline(){}
 
 //_____________________________________________________________________
-void L1TEfficiencyEG_Offline::beginJob(void){
-  
+void L1TEfficiencyEG_Offline::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& run, const edm::EventSetup& iSetup){
+
+  ibooker.setCurrentFolder("L1T/Efficiency/EG");
   if (m_verbose) {cout << "[L1TEfficiencyEG_Offline:] Called beginJob." << endl;}
 
 }
-
-//_____________________________________________________________________
-void L1TEfficiencyEG_Offline::endJob(void){
-  
-  if (m_verbose) {cout << "[L1TEfficiencyEG_Offline:] Called endJob." << endl;}
-
-}
-
 //_____________________________________________________________________
 // BeginRun: as input you get filtered events...
 //_____________________________________________________________________
-void L1TEfficiencyEG_Offline::beginRun(const edm::Run& run, const edm::EventSetup& iSetup){
-  
-  if (m_verbose) {cout << "[L1TEfficiencyEG_Offline:] Called endRun." << endl;}
-  
-}  
-
-//_____________________________________________________________________
-void L1TEfficiencyEG_Offline::endRun(const edm::Run& run, const edm::EventSetup& iSetup){
-  
-  if (m_verbose) {cout << "[L1TEfficiencyEG_Offline:] Called endRun." << endl;}
-  
-}
 
 //_____________________________________________________________________
 void L1TEfficiencyEG_Offline::beginLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) {
