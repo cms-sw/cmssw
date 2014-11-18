@@ -201,12 +201,11 @@ L1TSync::~L1TSync(){}
 /// BeginRun
 void L1TSync::dqmBeginRun(edm::Run const&, edm::EventSetup const&){
   //
+  if (m_verbose){cout << "[L1TSync] Called beginRun." << endl;}
 }
 //-------------------------------------------------------------------------------------
 void L1TSync::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup& iSetup){
-
-  if (m_verbose){cout << "[L1TSync] Called beginRun." << endl;}
-
+  
   // Initializing variables
   int maxNbins = 2501;
 
@@ -230,7 +229,7 @@ void L1TSync::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const 
   //Handle<ConditionsInRunBlock> runConditions;
   //iRun.getByType(runConditions);
   //int lhcFillNumber = runConditions->lhcFillNumber;
-  //
+
   //ESHandle<L1GtPrescaleFactors> l1GtPfAlgo;
   //iSetup.get<L1GtPrescaleFactorsAlgoTrigRcd>().get(l1GtPfAlgo);
   //const L1GtPrescaleFactors* m_l1GtPfAlgo = l1GtPfAlgo.product();

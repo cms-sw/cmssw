@@ -281,29 +281,6 @@ void L1TDEMON::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::
         std::cout << "L1TDEMON::bookHistograms()  end.\n" << std::flush;
 }
 
-void L1TDEMON::endJob() {
-
-    if (verbose())
-        std::cout << "L1TDEMON::endJob Nevents: " << nEvt_ << "\n"
-                << std::flush;
-
-    if (verbose()) {
-        std::cout << "[L1TDEMON] systems disagreement rate:\n\t";
-        for (int i = 0; i < DEnsys; i++)
-            printf("%4.2f ", sysrates->getBinContent(i));
-        std::cout << std::endl;
-    }
-
-    if (verbose()) {
-        std::cout << "[L1TDEMON] verbose fill histo: ";
-        for (int i = 0; i < DEnsys; i++)
-            std::cout << deSysCount[i] << " ";
-        std::cout << std::endl;
-    }
-    
-    if (verbose())
-        std::cout << "L1TDEMON::endJob()  end.\n" << std::flush;
-}
 
 void L1TDEMON::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c){
 }

@@ -459,7 +459,9 @@ void L1ExtraDQM::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm
         ss << std::uppercase << std::hex << bxInEventHex;
         ss >> bxInEventHexString;
 
+        //if (m_dbe) {
         ibooker.setCurrentFolder(m_dirName + "/BxInEvent_" + bxInEventHexString);
+        //}
 
         (m_meAnalysisL1ExtraNoIsoEG.at(iBxInEvent))->bookhistograms(evSetup, ibooker, "L1_NoIsoEG", l1Obj);
     }

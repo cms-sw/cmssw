@@ -409,29 +409,6 @@ void L1TDTTFClient::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &ige
   //Processing by run ID
   book(ibooker);
   makeSummary(igetter);
-}
-
-//--------------------------------------------------------
-void L1TDTTFClient::beginLuminosityBlock( DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context)
-{
-  book(ibooker);
-  ///  optionally reset histograms here
-  ++counterLS_;
-   
-  if ( online_ && !( counterLS_ % resetafterlumi_ ) ) {
-    char hname[60];
-    sprintf( hname, "%s/dttf_04_tracks_occupancy_by_lumi",
-	     inclusivepath_.c_str() );
-
-    occupancy_r_ = getTH2F(igetter, hname);
-    if ( ! occupancy_r_ ) {
-      edm::LogError("L1TDTTFClient::beginLuminosityBlock:ME")
-	<< "Failed to get TH2D " << std::string(hname);
-    } else {
-      edm::LogInfo("L1TDTTFClient::beginLuminosityBlock:RESET") << "Reseting plots by lumi!";
-      occupancy_r_->Reset();
-    }
-  }
 
 }
 
@@ -440,6 +417,21 @@ void L1TDTTFClient::dqmEndLuminosityBlock(DQMStore::IBooker &ibooker, DQMStore::
 {
   book(ibooker);
   /// Processing by Luminosity Block
+  if ( online_ && !( counterLS_ % resetafterlumi_ ) ) {
+    char hname[60];
+    sprintf( hname, "%s/dttf_04_tracks_occupancy_by_lumi",
+	     inclusivepath_.c_str() );
+
+    occupancy_r_ = getTH2F(igetter, hname);
+    if ( ! occupancy_r_ ) {
+      edm::LogError("L1TDTTFClient::beginLuminosityBlock:ME")
+          << "Failed to get TH2D " << std::string(hname);
+    } else {
+      edm::LogInfo("L1TDTTFClient::beginLuminosityBlock:RESET") << "Reseting plots by lumi!";
+      occupancy_r_->Reset();
+    }
+  }
+  
   if (  online_  ) {
     makeSummary(igetter);
     if ( occupancy_r_ ) normalize( occupancy_r_ );

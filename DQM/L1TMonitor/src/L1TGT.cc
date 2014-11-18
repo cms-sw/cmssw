@@ -21,11 +21,7 @@ L1TGT::L1TGT(const edm::ParameterSet& ps) :
             gtEvmSource_(consumes<L1GlobalTriggerEvmReadoutRecord>(ps.getParameter<edm::InputTag> ("gtEvmSource"))),
             m_runInEventLoop(ps.getUntrackedParameter<bool>("runInEventLoop", false)),
             m_runInEndLumi(ps.getUntrackedParameter<bool>("runInEndLumi", false)),
-            m_runInEndRun(ps.getUntrackedParameter<bool>("runInEndRun", false)),
-            m_runInEndJob(ps.getUntrackedParameter<bool>("runInEndJob", false)),
             verbose_(ps.getUntrackedParameter<bool> ("verbose", false)),
-            //m_dbe(0),
-            //
             m_nrEvJob(0), m_nrEvRun(0),
             preGps_(0ULL), preOrb_(0ULL)
 {
@@ -42,8 +38,6 @@ L1TGT::~L1TGT() {
 
 
 void L1TGT::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) {
-
-    m_nrEvRun = 0;
 
     runId_=ibooker.bookInt("iRun");
     runId_->Fill(-1);
@@ -268,6 +262,7 @@ void L1TGT::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::Eve
 
 void L1TGT::dqmBeginRun(edm::Run const& iRrun, edm::EventSetup const& evSetup) {
   //runId_->Fill(iRrun.id().run());
+  m_nrEvRun = 0;
 }
 
 
