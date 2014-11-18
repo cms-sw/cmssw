@@ -178,8 +178,6 @@ template <class jetClass> void QGTagger::calcVariables(const jetClass *jet, edm:
   float delta = sqrt(fabs((a-b)*(a-b)+4*c*c));
   if(a+b-delta > 0) axis2 = sqrt(0.5*(a+b-delta));
   else axis2 = 0.;
-
-  std::cout << axis2 << "\t" << mult << "\t" << ptD << std::endl;
 }
 
 
