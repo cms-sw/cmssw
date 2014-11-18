@@ -353,7 +353,7 @@ expertSettings.add_option("--slhc",
                           dest="slhc")
 
 expertSettings.add_option("--era",
-                          help="Specify which era to use (e.g. \"postLS1\")",
+                          help="Specify which era to use (e.g. \"run2\")",
                           default=None,
                           dest="era")
 
