@@ -23,7 +23,7 @@
 
 // Emission Veto Hooks
 //
-#include "GeneratorInterface/Pythia8Interface/plugins/EmissionVetoHook.h"
+#include "Pythia8Plugins/PowhegHooks.h"
 #include "GeneratorInterface/Pythia8Interface/plugins/EmissionVetoHook1.h"
 
 #include "FWCore/Concurrency/interface/SharedResourceNames.h"
@@ -104,9 +104,9 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
     
     // Emission Veto Hooks
     //
-    EmissionVetoHook* fEmissionVetoHook;
+    PowhegHooks* fEmissionVetoHook;
     EmissionVetoHook1* fEmissionVetoHook1;
-
+    
     int  EV1_nFinal;
     bool EV1_vetoOn;
     int  EV1_maxVetoCount;
@@ -114,7 +114,7 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
     int  EV1_pTempMode;
     int  EV1_emittedMode;
     int  EV1_pTdefMode;
-    bool EV1_MPIvetoOn;
+    bool EV1_MPIvetoOn;   
 
     static const std::vector<std::string> p8SharedResources;
     
@@ -123,6 +123,11 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
     vector<float> DJR;
     int nME;
     int nMEFiltered;
+
+    int nISRveto;
+    int nFSRveto;
+
+    int NHooks;
 };
 
 const std::vector<std::string> Pythia8Hadronizer::p8SharedResources = { edm::SharedResourceNames::kPythia8 };
@@ -134,7 +139,8 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   fInitialState(PP),
   fReweightUserHook(0),fReweightRapUserHook(0),fReweightPtHatRapUserHook(0),
   fJetMatchingHook(0),fJetMatchingPy8InternalHook(0), fMergingHook(0),
-  fEmissionVetoHook(0),fEmissionVetoHook1(0), nME(-1), nMEFiltered(-1)
+  fEmissionVetoHook(0), fEmissionVetoHook1(0), nME(-1), nMEFiltered(-1), nISRveto(0), nFSRveto(0),
+  NHooks(0)
 {
 
   // J.Y.: the following 3 parameters are hacked "for a reason"
@@ -241,13 +247,8 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
       }
   }
 
-  // Emission vetos
+  // Pythia8Interface emission veto
   //
-  if ( params.exists("emissionVeto") )
-  {   
-    fEmissionVetoHook = new EmissionVetoHook(0);
-  }
-
   if ( params.exists("emissionVeto1") )
   {
     EV1_nFinal = -1;
@@ -269,52 +270,50 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
     if(params.exists("EV1_pTdefMode")) EV1_pTdefMode = params.getParameter<int>("EV1_pTdefMode");
     EV1_MPIvetoOn = false;
     if(params.exists("EV1_MPIvetoOn")) EV1_MPIvetoOn = params.getParameter<bool>("EV1_MPIvetoOn");
-    fEmissionVetoHook1 = new EmissionVetoHook1(EV1_nFinal, EV1_vetoOn, 
+    fEmissionVetoHook1 = new EmissionVetoHook1(EV1_nFinal, EV1_vetoOn,
                                EV1_maxVetoCount, EV1_pThardMode, EV1_pTempMode,
                                EV1_emittedMode, EV1_pTdefMode, EV1_MPIvetoOn, 0);
   }
 
-  int NHooks=0;
   if(fReweightUserHook) NHooks++;
   if(fReweightRapUserHook) NHooks++;
   if(fReweightPtHatRapUserHook) NHooks++;
   if(fJetMatchingHook) NHooks++;
-  if(fEmissionVetoHook) NHooks++;
   if(fEmissionVetoHook1) NHooks++;
   if(NHooks > 1)
     throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
-      <<" Too many User Hooks. \n Please choose one from: reweightGen, reweightGenRap, reweightGenPtHatRap, jetMatching, emissionVeto, emissionVeto1 \n";
+      <<" Too many User Hooks. \n Please choose one from: reweightGen, reweightGenRap, reweightGenPtHatRap, jetMatching, emissionVeto1 \n";
   if(fReweightUserHook) fMasterGen->setUserHooksPtr(fReweightUserHook);
   if(fReweightRapUserHook) fMasterGen->setUserHooksPtr(fReweightRapUserHook);
   if(fReweightPtHatRapUserHook) fMasterGen->setUserHooksPtr(fReweightPtHatRapUserHook);
   if(fJetMatchingHook) fMasterGen->setUserHooksPtr(fJetMatchingHook);
-  if(fEmissionVetoHook || fEmissionVetoHook1) {
-    std::cout << "Turning on Emission Veto Hook";
-    if(fEmissionVetoHook1) std::cout << " 1";
-    std::cout << std::endl;
-    if(fEmissionVetoHook) fMasterGen->setUserHooksPtr(fEmissionVetoHook);
-    if(fEmissionVetoHook1) fMasterGen->setUserHooksPtr(fEmissionVetoHook1);
+  if(fEmissionVetoHook1) { 
+    edm::LogInfo("Pythia8Interface") << "Turning on Emission Veto Hook 1 from CMSSW Pythia8Interface";
+    fMasterGen->setUserHooksPtr(fEmissionVetoHook1);
   }
+
 }
 
 
 Pythia8Hadronizer::~Pythia8Hadronizer()
 {
 // do we need to delete UserHooks/JetMatchingHook here ???
-
   if(fEmissionVetoHook) {delete fEmissionVetoHook; fEmissionVetoHook=0;}
   if(fEmissionVetoHook1) {delete fEmissionVetoHook1; fEmissionVetoHook1=0;}
 }
 
 bool Pythia8Hadronizer::initializeForInternalPartons()
 {
+  
+  bool status = true;
+  
   if ( fInitialState == PP ) // default
   {
     //fMasterGen->init(2212, 2212, comEnergy);
     fMasterGen->settings.mode("Beams:idA", 2212);
     fMasterGen->settings.mode("Beams:idB", 2212);
     fMasterGen->settings.parm("Beams:eCM", comEnergy);
-    fMasterGen->init();
+    status &= fMasterGen->init();
   }
   else if ( fInitialState == PPbar )
   {
@@ -322,7 +321,7 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
     fMasterGen->settings.mode("Beams:idA", 2212);
     fMasterGen->settings.mode("Beams:idB", -2212);
     fMasterGen->settings.parm("Beams:eCM", comEnergy);
-    fMasterGen->init();
+    status &= fMasterGen->init();
   }
   else if ( fInitialState == ElectronPositron )
   {
@@ -330,7 +329,7 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
     fMasterGen->settings.mode("Beams:idA", 11);
     fMasterGen->settings.mode("Beams:idB", -11);
     fMasterGen->settings.parm("Beams:eCM", comEnergy);
-    fMasterGen->init();
+    status &= fMasterGen->init();
   }    
   else 
   {
@@ -354,16 +353,31 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
   //fDecayer->readString("ProcessLevel::resonanceDecays=on");
   fDecayer->settings.flag("ProcessLevel:all", false ); // trick
   fDecayer->settings.flag("ProcessLevel:resonanceDecays", true );
-  fDecayer->init();
+  status &= fDecayer->init();
 
-  return true;
+  return status;
 }
 
 
 bool Pythia8Hadronizer::initializeForExternalPartons()
 {
 
-  std::cout << "Initializing for external partons" << std::endl;
+  edm::LogInfo("Pythia8Interface") << "Initializing for external partons";
+
+  bool status = true;
+  
+  if((fMasterGen->settings.mode("POWHEG:veto") > 0 || fMasterGen->settings.mode("POWHEG:MPIveto") > 0) && !fEmissionVetoHook) {
+
+    if(fJetMatchingHook || fEmissionVetoHook1)
+      throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
+      <<" Attempt to turn on PowhegHooks by pythia8 settings but there are incompatible hooks on \n Incompatible are : jetMatching, emissionVeto1 \n";
+
+    fEmissionVetoHook = new PowhegHooks();
+
+    edm::LogInfo("Pythia8Interface") << "Turning on Emission Veto Hook from pythia8 code";
+    fMasterGen->setUserHooksPtr(fEmissionVetoHook);
+
+  }
 
   //adapted from main89.cc in pythia8 examples
   bool internalMatching = fMasterGen->settings.flag("JetMatching:merge");
@@ -402,7 +416,7 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
     //fMasterGen->init(LHEInputFileName);
     fMasterGen->settings.mode("Beams:frameType", 4);
     fMasterGen->settings.word("Beams:LHEF", LHEInputFileName);
-    fMasterGen->init();
+    status &= fMasterGen->init();
 
   } else {
 
@@ -417,7 +431,7 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
     //fMasterGen->init(lhaUP.get());
     fMasterGen->settings.mode("Beams:frameType", 5);
     fMasterGen->setLHAupPtr(lhaUP.get());
-    fMasterGen->init();
+    status &= fMasterGen->init();
   }
   
   if ( pythiaPylistVerbosity > 10 )
@@ -433,15 +447,22 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
   //fDecayer->readString("ProcessLevel::resonanceDecays=on");
   fDecayer->settings.flag("ProcessLevel:all", false ); // trick
   fDecayer->settings.flag("ProcessLevel:resonanceDecays", true );
-  fDecayer->init();
+  status &= fDecayer->init();
 
-  return true;
+  return status;
 }
 
 
 void Pythia8Hadronizer::statistics()
 {
   fMasterGen->stat();
+
+  if(fEmissionVetoHook) {
+    edm::LogPrint("Pythia8Interface") << "\n"
+      << "Number of ISR vetoed = " << nISRveto;
+    edm::LogPrint("Pythia8Interface")
+      << "Number of FSR vetoed = " << nFSRveto;
+  }
 
   double xsec = fMasterGen->info.sigmaGen(); // cross section in mb
   xsec *= 1.0e9; // translate to pb (CMS/Gen "convention" as of May 2009)
@@ -512,6 +533,11 @@ bool Pythia8Hadronizer::hadronize()
     event()->weights().push_back(mergeweight);
   }
   
+  if (fEmissionVetoHook) {
+    nISRveto += fEmissionVetoHook->getNISRveto();
+    nFSRveto += fEmissionVetoHook->getNFSRveto();  
+  }
+
   return true;
   
   

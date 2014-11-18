@@ -307,7 +307,7 @@ namespace edm
       throw edm::Exception(errors::Configuration) 
 	<< "Failed to initialize hadronizer "
 	<< hadronizer_.classname()
-	<< " for internal parton generation\n";
+	<< " for external parton generation\n";
   }
 
   template <class HAD, class DEC>
