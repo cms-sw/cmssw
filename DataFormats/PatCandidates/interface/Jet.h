@@ -403,10 +403,10 @@ namespace pat {
       /// neutralMultiplicity
       int neutralMultiplicity () const {return pfSpecific().mNeutralMultiplicity;}
 
-      /// HOEnergy
-      float HOEnergy () const {return pfSpecific().mHOEnergy;}
-      /// HOEnergyFraction (relative to corrected jet energy)
-      float HOEnergyFraction () const {return HOEnergy()/((jecSetsAvailable() ? jecFactor(0) : 1.)*energy());}
+      /// hoEnergy
+      float hoEnergy () const {return pfSpecific().mHOEnergy;}
+      /// hoEnergyFraction (relative to corrected jet energy)
+      float hoEnergyFraction () const {return hoEnergy()/((jecSetsAvailable() ? jecFactor(0) : 1.)*energy());}
       /// convert generic constituent to specific type
 
       //  static CaloTowerPtr caloTower (const reco::Candidate* fConstituent);

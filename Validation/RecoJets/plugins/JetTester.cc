@@ -617,8 +617,8 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
         chargedMuEnergy ->Fill((*pfJets)[ijet].chargedMuEnergy());
         chargedMuEnergyFraction ->Fill((*pfJets)[ijet].chargedMuEnergyFraction());
         neutralMultiplicity ->Fill((*pfJets)[ijet].neutralMultiplicity()); 
-        HOEnergy ->Fill((*pfJets)[ijet].HOEnergy());
-        HOEnergyFraction ->Fill((*pfJets)[ijet].HOEnergyFraction());
+        HOEnergy ->Fill((*pfJets)[ijet].hoEnergy());
+        HOEnergyFraction ->Fill((*pfJets)[ijet].hoEnergyFraction());
      }
       // ---- JPT Jet specific information ----
      /* if (isJPTJet) {

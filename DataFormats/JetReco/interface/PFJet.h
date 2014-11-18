@@ -156,10 +156,10 @@ class PFJet : public Jet {
   /// neutralMultiplicity
   int neutralMultiplicity () const {return m_specific.mNeutralMultiplicity;}
 
-  /// HOEnergy 
-  float HOEnergy () const {return m_specific.mHOEnergy;}
-  /// HOEnergyFraction
-  float HOEnergyFraction () const {return HOEnergy () / energy ();}
+  /// hoEnergy 
+  float hoEnergy () const {return m_specific.mHOEnergy;}
+  /// hoEnergyFraction
+  float hoEnergyFraction () const {return hoEnergy () / energy ();}
 
   /// get specific constituent
   virtual reco::PFCandidatePtr getPFConstituent (unsigned fIndex) const;
