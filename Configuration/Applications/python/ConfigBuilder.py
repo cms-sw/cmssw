@@ -2094,7 +2094,11 @@ class ConfigBuilder(object):
         self.pythonCfgCode += "import FWCore.ParameterSet.Config as cms\n\n"
         if self._options.era :
             self.pythonCfgCode += "from Configuration.StandardSequences.Eras import eras\n\n"
-            self.pythonCfgCode += "process = cms.Process('"+self.process.name_()+"',eras."+self._options.era+")\n\n"
+            self.pythonCfgCode += "process = cms.Process('"+self.process.name_()+"'" # Start of the line, finished after the loop
+            # Multiple eras can be specified in a comma seperated list
+            for requestedEra in self._options.era.split(",") :
+                self.pythonCfgCode += ",eras."+requestedEra
+            self.pythonCfgCode += ")\n\n" # end of the line
         else :
             self.pythonCfgCode += "process = cms.Process('"+self.process.name_()+"')\n\n"
 

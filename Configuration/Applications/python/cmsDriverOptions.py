@@ -241,13 +241,15 @@ def OptionsFromItems(items):
     if options.era :
         from Configuration.StandardSequences.Eras import eras
         from FWCore.ParameterSet.Config import Modifier, ModifierChain
-        if not hasattr( eras, options.era ) :
-            validOptions="" # Create a stringified list of valid options to print to the user
-            for key in eras.__dict__ :
-                if isinstance( eras.__dict__[key], Modifier ) or isinstance( eras.__dict__[key], ModifierChain ) :
-                    if validOptions!="" : validOptions+=", " 
-                    validOptions+="'"+key+"'"
-            raise Exception( "'%s' is not a valid option for '--era'. Valid options are %s." % (options.era, validOptions) )
+        # Split the string by commas to check individual eras
+        for requestedEra in options.era.split(",") :
+            if not hasattr( eras, requestedEra ) :
+                validOptions="" # Create a stringified list of valid options to print to the user
+                for key in eras.__dict__ :
+                    if isinstance( eras.__dict__[key], Modifier ) or isinstance( eras.__dict__[key], ModifierChain ) :
+                        if validOptions!="" : validOptions+=", " 
+                        validOptions+="'"+key+"'"
+                raise Exception( "'%s' is not a valid option for '--era'. Valid options are %s." % (requestedEra, validOptions) )
         
     return options
 
