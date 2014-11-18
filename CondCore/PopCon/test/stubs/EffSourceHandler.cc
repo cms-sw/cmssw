@@ -73,16 +73,16 @@ void popcon::ExEffSource::getNewObjects() {
     edm::LogInfo   ("ExEffsSource")<<" unable to build "<< m_type << std::endl; 
     return;
   }
+   
+  if( (unsigned long long)m_since > tagInfo().lastInterval.first ) {
+    m_to_transfer.push_back(std::make_pair(p0,(unsigned long long)m_since));
   
-  m_to_transfer.push_back(std::make_pair(p0,(unsigned long long)m_since));
+    std::ostringstream ss;
+    ss << "type=" << m_type 
+       << ",since=" << m_since; 
   
-  
-  std::ostringstream ss;
-  ss << "type=" << m_type 
-         << ",since=" << m_since; 
-  
-  m_userTextLog = ss.str()+ ";" ;
-  
+    m_userTextLog = ss.str()+ ";" ;
+  }
   
   
   edm::LogInfo   ("ExEffsSource") << "------- " << m_name << " - > getNewObjects" << std::endl;
