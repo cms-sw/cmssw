@@ -15,7 +15,6 @@ from SimCalorimetry.EcalSimProducers.esElectronicsSim_cff import *
 from SimCalorimetry.EcalSimProducers.ecalNotContainmentSim_cff import *
 from SimCalorimetry.EcalSimProducers.ecalCosmicsSim_cff import *
 
-
 import EventFilter.EcalRawToDigi.EcalUnpackerData_cfi
 import EventFilter.ESRawToDigi.esRawToDigi_cfi
 import EventFilter.HcalRawToDigi.HcalRawToDigi_cfi
@@ -38,7 +37,6 @@ hcalDigis = EventFilter.HcalRawToDigi.HcalRawToDigi_cfi.hcalDigis.clone()
 muonDTDigis = EventFilter.DTRawToDigi.dtunpacker_cfi.muonDTDigis.clone()
 
 #muonRPCDigis = EventFilter.RPCRawToDigi.rpcUnpacker_cfi.rpcunpacker.clone()
-
 #castorDigis = EventFilter.CastorRawToDigi.CastorRawToDigi_cfi.castorDigis.clone( FEDs = cms.untracked.vint32(690,691,692) )
 
 siStripDigis = EventFilter.SiStripRawToDigi.SiStripDigis_cfi.siStripDigis.clone()
@@ -157,6 +155,7 @@ mixData = cms.EDProducer("DataMixingModule",
     EBPileInputTag = cms.InputTag("ecalDigis","ebDigis","@MIXING"),
     EEPileInputTag = cms.InputTag("ecalDigis","eeDigis","@MIXING"),
     ESPileInputTag = cms.InputTag("ecalPreshowerDigis","","@MIXING"),
+    #ESPileInputTag = cms.InputTag("esRawToDigi","","@MIXING"),
     HBHEPileInputTag = cms.InputTag("hcalDigis","","@MIXING"),
     HOPileInputTag   = cms.InputTag("hcalDigis","","@MIXING"),
     HFPileInputTag   = cms.InputTag("hcalDigis","","@MIXING"),
@@ -182,7 +181,6 @@ mixData = cms.EDProducer("DataMixingModule",
 #    CSCWirePileInputTag   = cms.InputTag("muonCSCDigis","MuonCSCWireDigi","@MIXING"),
 #    CSCStripPileInputTag  = cms.InputTag("muonCSCDigis","MuonCSCStripDigi","@MIXING"),
 #    CSCCompPileInputTag   = cms.InputTag("muonCSCDigis","MuonCSCComparatorDigi","@MIXING"),
-
                    #
     #
     #  Outputs

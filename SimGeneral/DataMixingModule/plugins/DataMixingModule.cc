@@ -70,8 +70,6 @@ namespace edm
 
     addMCDigiNoise_ = ps.getUntrackedParameter<bool>("addMCDigiNoise");  // for Sim on Sim mixing
 
-    
-
     // Put Fast Sim Sequences here for Simplification: Fewer options!
 
     if(DoFastSim_) {
@@ -243,7 +241,6 @@ namespace edm
     } else {
 
       produces< edm::DetSetVector<SiStripDigi> > (SiStripDigiCollectionDM_);
-      SiStripWorker_ = new DataMixingSiStripWorker(ps, consumesCollector());
 
       if( addMCDigiNoise_ ) {
 	SiStripMCDigiWorker_ = new DataMixingSiStripMCDigiWorker(ps, consumesCollector());
@@ -332,6 +329,7 @@ namespace edm
     }
   }
 
+
   // Virtual destructor needed.
   DataMixingModule::~DataMixingModule() { 
     if(MergeEMDigis_){ 
@@ -351,7 +349,6 @@ namespace edm
 	delete SiStripRawWorker_;
       else if(addMCDigiNoise_ ) delete SiStripMCDigiWorker_;
       else delete SiStripWorker_;
-
       delete SiPixelWorker_;
     }
     if(MergePileup_) { delete PUWorker_;}
@@ -546,6 +543,11 @@ namespace edm
 
 
   }
+
+  void DataMixingModule::beginLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) {
+    EcalDigiWorkerProd_->beginLuminosityBlock(l1,c);
+  }
+
 
 
 } //edm
