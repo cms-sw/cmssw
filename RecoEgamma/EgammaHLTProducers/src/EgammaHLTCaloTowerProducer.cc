@@ -48,8 +48,8 @@ void EgammaHLTCaloTowerProducer::fillDescriptions(edm::ConfigurationDescriptions
 }
 
 
-void EgammaHLTCaloTowerProducer::produce( Event& evt, const EventSetup& ) {
-
+void EgammaHLTCaloTowerProducer::produce(edm::StreamID, edm::Event & evt, edm::EventSetup const &) const
+{
   edm::Handle<CaloTowerCollection> caloTowers;
   evt.getByToken(towers_, caloTowers);
 
