@@ -177,8 +177,9 @@ HiMixValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
    edm::Handle<reco::GenParticleCollection> parts;
    iEvent.getByLabel(genParticleSrc_,parts);
-
+   cout<<"x1"<<endl;
    double zgen[2]={-29,-29};
+   cout<<"x2"<<endl;
 
    for(UInt_t i = 0; i < parts->size(); ++i){
       const reco::GenParticle& p = (*parts)[i];
@@ -229,14 +230,17 @@ HiMixValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       if(pdg == 11 && pt > electronPtMin) hGenElectronEtaMixed->Fill(eta);
       if(pdg == 13 && pt > muonPtMin) hGenMuonEtaMixed->Fill(eta);
    }
+   cout<<"x3"<<endl;
 
    hGenVertices->Fill(zgen[0],zgen[1]);
+   cout<<"x4"<<endl;
 
 
    edm::Handle<reco::GenJetCollection> genjets;
    iEvent.getByLabel(genJetSrc_,genjets);
    edm::Handle<reco::JetView> jets;
    iEvent.getByLabel(jetSrc_,jets);
+   cout<<"x5"<<endl;
 
    for(UInt_t i = 0; i < genjets->size(); ++i){
       const reco::GenJet& p = (*genjets)[i];
@@ -268,23 +272,37 @@ HiMixValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
    }
 
+   cout<<"x6"<<endl;
 
    // Gen-Vertices from CrossingFrame
 
    Handle<CrossingFrame<edm::HepMCProduct> > cf;
+   cout<<"x7"<<endl;
+
    iEvent.getByToken(cfLabel,cf);
+   cout<<"x8"<<endl;
+
    MixCollection<edm::HepMCProduct> mix(cf.product());
+   cout<<"x9"<<endl;
    HepMC::GenVertex* genvtx = 0;
    const HepMC::GenEvent* inev = 0;
+   cout<<"x10"<<endl;
    double zcf[2]={-29,-29};
    if(mix.size() != 2){
       cout<<"More or less than 2 sub-events, mixing seems to have failed!"<<endl;
    }else{
       for(int i = 0; i < 2; ++i){
+	 cout<<"i "<<i<<endl;
 	 const edm::HepMCProduct& bkg = mix.getObject(0);
+	 cout<<"a"<<endl;
 	 inev = bkg.GetEvent();
+         cout<<"b"<<endl;
+
 	 genvtx = inev->signal_process_vertex();
+         cout<<"c"<<endl;
+
 	 zcf[i] = genvtx->position().z();
+         cout<<"d"<<endl;
       }
    }
 
@@ -354,6 +372,12 @@ HiMixValidation::beginJob()
    hPhotonResponseSignal = f->make<TH2D>("hPhotonResponseSignal","",100,0,100,100,0,100);
    hMuonResponseSignal = f->make<TH2D>("hMuonResponseSignal","",100,0,20,100,0,20);
    hElectronResponseSignal = f->make<TH2D>("hElectronResponseSignal","",100,0,20,100,0,20);
+
+   hJetResponseMixed = f->make<TH2D>("hJetResponseMixed","",100,0,200,100,0,200);
+   hPhotonResponseMixed = f->make<TH2D>("hPhotonResponseMixed","",100,0,100,100,0,100);
+   hMuonResponseMixed = f->make<TH2D>("hMuonResponseMixed","",100,0,20,100,0,20);
+   hElectronResponseMixed = f->make<TH2D>("hElectronResponseMixed","",100,0,20,100,0,20);
+
 
    hGenVertices = f->make<TH2D>("hGenVertices","",60,-30,30,60,-30,30);
    hGenVerticesCF = f->make<TH2D>("hGenVerticesCF","",60,-30,30,60,-30,30);

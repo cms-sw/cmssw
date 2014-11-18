@@ -55,6 +55,8 @@ process.RECOSIMoutput = cms.OutputModule("PoolOutputModule",
     )
 )
 
+process.RECOSIMoutput.outputCommands.extend(["keep *_mixGen_*_*"])
+
 # Additional output definition
 
 # Other statements
