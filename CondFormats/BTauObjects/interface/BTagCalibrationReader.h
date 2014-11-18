@@ -14,8 +14,8 @@
 #include <vector>
 #include <TF1.h>
 
-#include "CondFormats/BTagObjects/interface/BTagEntry.h"
-#include "CondFormats/BTagObjects/interface/BTagCalibration.h"
+#include "CondFormats/BTauObjects/interface/BTagEntry.h"
+#include "CondFormats/BTauObjects/interface/BTagCalibration.h"
 
 class BTagCalibrationReader
 {

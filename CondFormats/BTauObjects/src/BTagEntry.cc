@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <sstream>
 
-#include "CondFormats/BTagObjects/interface/BTagEntry.h"
+#include "CondFormats/BTauObjects/interface/BTagEntry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 BTagEntry::Parameters::Parameters(

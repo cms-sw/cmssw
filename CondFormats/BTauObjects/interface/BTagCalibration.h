@@ -22,7 +22,7 @@
 #include <ostream>
 
 #include "CondFormats/Serialization/interface/Serializable.h"
-#include "CondFormats/BTagObjects/interface/BTagEntry.h"
+#include "CondFormats/BTauObjects/interface/BTagEntry.h"
 
 class BTagCalibration
 {

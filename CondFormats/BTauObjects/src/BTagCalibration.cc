@@ -1,7 +1,7 @@
 #include <fstream>
 #include <sstream>
 
-#include "CondFormats/BTagObjects/interface/BTagCalibration.h"
+#include "CondFormats/BTauObjects/interface/BTagCalibration.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 
