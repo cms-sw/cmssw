@@ -18,6 +18,7 @@ cd ${OUTDIR}
 
 cmsRun --parameter-set NewStreamOut_cfg.py > out 2>&1 || die "cmsRun NewStreamOut_cfg.py" $?
 cmsRun --parameter-set NewStreamIn_cfg.py  > in  2>&1 || die "cmsRun NewStreamIn_cfg.py" $?
+cmsRun --parameter-set NewStreamIn2_cfg.py  > in2  2>&1 || die "cmsRun NewStreamIn2_cfg.py" $?
 cmsRun --parameter-set NewStreamCopy_cfg.py  > copy  2>&1 || die "cmsRun NewStreamCopy_cfg.py" $?
 
 # echo "CHECKSUM = 1" > out
@@ -26,6 +27,7 @@ cmsRun --parameter-set NewStreamCopy_cfg.py  > copy  2>&1 || die "cmsRun NewStre
 ANS_OUT_SIZE=`grep -c CHECKSUM out`
 ANS_OUT=`grep CHECKSUM out`
 ANS_IN=`grep CHECKSUM in`
+ANS_IN2=`grep CHECKSUM in2`
 ANS_COPY=`grep CHECKSUM copy`
 
 if [ "${ANS_OUT_SIZE}" == "0" ]
@@ -37,6 +39,12 @@ fi
 if [ "${ANS_OUT}" != "${ANS_IN}" ]
 then
     echo "New Stream Test Failed (out!=in)"
+    RC=1
+fi
+
+if [ "${ANS_OUT}" != "${ANS_IN2}" ]
+then
+    echo "New Stream Test Failed (out!=in2)"
     RC=1
 fi
 
