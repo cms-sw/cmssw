@@ -39,6 +39,7 @@ class ESElectronicsSimFast
       void newEvent() {}
 
 
+
    private :
 
       bool m_addNoise ;
