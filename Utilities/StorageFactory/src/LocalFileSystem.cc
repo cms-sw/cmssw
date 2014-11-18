@@ -423,6 +423,9 @@ LocalFileSystem::findCachePath(const std::vector<std::string> &paths,
 {
   struct stat s;
   struct statfs sfs;
+  std::ostringstream warningst;
+  warningst << "Cannot use lazy-download because:\n";
+
   for (size_t i = 0, e = paths.size(); i < e; ++i)
   {
     char *fullpath;
@@ -491,11 +494,42 @@ LocalFileSystem::findCachePath(const std::vector<std::string> &paths,
       free(fullpath);
       return result;
     }
+    else if (m)
+    {
+      if (!m->local)
+      {
+        warningst << "- The mount " << fullpath << " is not local.\n";
+      }
+      else if (m->freespc < minFreeSpace)
+      {
+        warningst << " - The mount at " << fullpath << " has only " << m->freespc << " GB free; a minumum of " << minFreeSpace << " GB is required.\n";
+      }
+      else if (access(fullpath, W_OK))
+      {
+        warningst << " - The process has no permission to write into " << fullpath << "\n";
+      }
+    }
 
     free(fullpath);
   }
 
+  std::string warning_str = warningst.str();
+  if (warning_str.size())
+  {
+    warning_str = warning_str.substr(0, warning_str.size()-2);
+  }
+  unusable_dir_warnings_ = std::move(warning_str);
+    
   return std::string();
+}
+
+void
+LocalFileSystem::issueWarning()
+{
+  if (unusable_dir_warnings_.size())
+  {
+    edm::LogWarning("LocalFileSystem::findCachePath()") << unusable_dir_warnings_;
+  }
 }
 
 /** Initialise local file system status.  */
