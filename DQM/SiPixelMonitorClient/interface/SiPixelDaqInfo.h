@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -23,21 +24,15 @@
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
-class SiPixelDaqInfo : public edm::EDAnalyzer {
+class SiPixelDaqInfo : public DQMEDHarvester {
 public:
   explicit SiPixelDaqInfo(const edm::ParameterSet&);
   ~SiPixelDaqInfo();
   
 
 private:
-  virtual void beginJob() ;
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock& , const  edm::EventSetup&);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endLuminosityBlock(const edm::LuminosityBlock& , const  edm::EventSetup&);
-  virtual void endRun(const edm::Run& , const  edm::EventSetup&);
-  virtual void endJob() ;
-  
-  DQMStore *dbe_;  
+  virtual void dqmEndLuminosityBlock(DQMStore::IBooker&, DQMStore::IGetter&, const edm::LuminosityBlock& , const  edm::EventSetup&);
+  virtual void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) ;
   
   MonitorElement*  Fraction_;
   MonitorElement*  FractionBarrel_;
@@ -52,6 +47,8 @@ private:
   int nFEDsEndcap_;
   std::string daqSource_;
   int FEDs_[40];
+
+  bool firstLumi;
 
   //define Token(-s)
   edm::EDGetTokenT<FEDRawDataCollection> daqSourceToken_;
