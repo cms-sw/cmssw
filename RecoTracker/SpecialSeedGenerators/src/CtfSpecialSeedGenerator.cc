@@ -1,5 +1,4 @@
 #include "RecoTracker/SpecialSeedGenerators/interface/CtfSpecialSeedGenerator.h"
-//#include "RecoTracker/SpecialSeedGenerators/interface/CosmicLayerTriplets.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
@@ -43,11 +42,11 @@ CtfSpecialSeedGenerator::CtfSpecialSeedGenerator(const edm::ParameterSet& conf):
 }
 
 CtfSpecialSeedGenerator::~CtfSpecialSeedGenerator(){
+    if (theRegionProducer) { delete theRegionProducer; theRegionProducer = 0; }
 }
 
 void CtfSpecialSeedGenerator::endRun(edm::Run const&, edm::EventSetup const&){
     if (theSeedBuilder)    { delete theSeedBuilder;    theSeedBuilder = 0; }
-    if (theRegionProducer) { delete theRegionProducer; theRegionProducer = 0; }
 }
 
 void CtfSpecialSeedGenerator::beginRun(edm::Run const&, const edm::EventSetup& iSetup){
@@ -89,27 +88,7 @@ void CtfSpecialSeedGenerator::beginRun(edm::Run const&, const edm::EventSetup& i
 	edm::ESHandle<Propagator>  propagatorOppositeHandle;
         iSetup.get<TrackingComponentsRecord>().get("PropagatorWithMaterialOpposite",propagatorOppositeHandle);
 
-/*  	edm::ParameterSet hitsfactoryOutInPSet = conf_.getParameter<edm::ParameterSet>("OrderedHitsFactoryOutInPSet");
-  	std::string hitsfactoryOutInName = hitsfactoryOutInPSet.getParameter<std::string>("ComponentName");
-  	hitsGeneratorOutIn = OrderedHitsGeneratorFactory::get()->create( hitsfactoryOutInName, hitsfactoryOutInPSet);
-	std::string propagationDirection = hitsfactoryOutInPSet.getUntrackedParameter<std::string>("PropagationDirection", 
-											            "alongMomentum");
-	if (propagationDirection == "alongMomentum") outInPropagationDirection = alongMomentum;
-	else outInPropagationDirection = oppositeToMomentum;
-	edm::LogVerbatim("CtfSpecialSeedGenerator") << "hitsGeneratorOutIn done";
 
-	edm::ParameterSet hitsfactoryInOutPSet = conf_.getParameter<edm::ParameterSet>("OrderedHitsFactoryInOutPSet");
-        std::string hitsfactoryInOutName = hitsfactoryInOutPSet.getParameter<std::string>("ComponentName");
-        hitsGeneratorInOut = OrderedHitsGeneratorFactory::get()->create( hitsfactoryInOutName, hitsfactoryInOutPSet);
-
-	propagationDirection = hitsfactoryInOutPSet.getUntrackedParameter<std::string>("PropagationDirection",
-                                                                                        "alongMomentum");
-	if (propagationDirection == "alongMomentum") inOutPropagationDirection = alongMomentum;
-        else inOutPropagationDirection = oppositeToMomentum;
-	edm::LogVerbatim("CtfSpecialSeedGenerator") << "hitsGeneratorInOut done";
-	if (!hitsGeneratorOutIn || !hitsGeneratorInOut) 
-		throw cms::Exception("CtfSpecialSeedGenerator") << "Only corcrete implementation GenericPairOrTripletGenerator of OrderedHitsGenerator is allowed ";
-*/
 	std::vector<edm::ParameterSet> pSets = conf_.getParameter<std::vector<edm::ParameterSet> >("OrderedHitsFactoryPSets");
 	std::vector<edm::ParameterSet>::const_iterator iPSet;
 	for (iPSet = pSets.begin(); iPSet != pSets.end(); iPSet++){

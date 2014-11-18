@@ -158,7 +158,6 @@ class TrigResRateMon : public edm::EDAnalyzer {
 
   bool jmsDebug;
   bool jmsFakeZBCounts;
-  unsigned int zbIndex;
   bool found_zbIndex;
 
       MonitorElement* ME_HLTAll_LS;
@@ -236,7 +235,6 @@ class TrigResRateMon : public edm::EDAnalyzer {
       bool plotAll_;
       bool doCombineRuns_;
       bool doVBTFMuon_;
-      int currentRun_;
       
       unsigned int nBins_; 
       unsigned int nBins2D_; 
@@ -247,42 +245,6 @@ class TrigResRateMon : public edm::EDAnalyzer {
       double dRMax_ ;
       double dRMaxElectronMuon_ ;
       
-      double electronEtaMax_;
-      double electronEtMin_;
-      double electronDRMatch_;
-      double electronL1DRMatch_;
-      double muonEtaMax_;
-      double muonEtMin_;
-      double muonDRMatch_;
-      double muonL1DRMatch_;
-      double tauEtaMax_;
-      double tauEtMin_;
-      double tauDRMatch_;
-      double tauL1DRMatch_;
-      double jetEtaMax_;
-      double jetEtMin_;
-      double jetDRMatch_;
-      double jetL1DRMatch_;
-      double bjetEtaMax_;
-      double bjetEtMin_;
-      double bjetDRMatch_;
-      double bjetL1DRMatch_;
-      double photonEtaMax_;
-      double photonEtMin_;
-      double photonDRMatch_;
-      double photonL1DRMatch_;
-      double trackEtaMax_;
-      double trackEtMin_;
-      double trackDRMatch_;
-      double trackL1DRMatch_;
-      double metEtaMax_;
-      double metMin_;
-      double metDRMatch_;
-      double metL1DRMatch_;
-      double htEtaMax_;
-      double htMin_;
-      double htDRMatch_;
-      double htL1DRMatch_;
       double sumEtMin_;
 
       // Muon quality cuts
@@ -313,8 +275,6 @@ class TrigResRateMon : public edm::EDAnalyzer {
       std::string dirname_;
       std::string processname_;
       std::string muonRecoCollectionName_;
-      bool monitorDaemon_;
-      int theHLTOutputType;
       edm::InputTag triggerSummaryLabel_;
       edm::InputTag triggerResultsLabel_;
       edm::InputTag recHitsEBTag_, recHitsEETag_;

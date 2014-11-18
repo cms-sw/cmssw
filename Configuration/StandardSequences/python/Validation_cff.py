@@ -24,11 +24,13 @@ from Validation.MuonIsolation.MuIsoVal_cff import *
 from Validation.MuonIdentification.muonIdVal_cff import *
 from Validation.RecoMuon.muonValidationHLT_cff import *
 from Validation.EventGenerator.BasicGenValidation_cff import *
+# miniAOD
+from Validation.RecoParticleFlow.miniAODValidation_cff import *
 
-prevalidation = cms.Sequence( globalPrevalidation * hltassociation )
+prevalidation = cms.Sequence( globalPrevalidation * hltassociation * metPreValidSeq )
 prevalidationLiteTracking = cms.Sequence( prevalidation )
 prevalidationLiteTracking.replace(globalPrevalidation,globalPrevalidationLiteTracking)
-
+prevalidationMiniAOD = cms.Sequence( genParticles1 * miniAODValidationSequence )
 
 
 validation = cms.Sequence(cms.SequencePlaceholder("mix")
@@ -42,6 +44,8 @@ validation = cms.Sequence(cms.SequencePlaceholder("mix")
 validationLiteTracking = cms.Sequence( validation )
 validationLiteTracking.replace(globalValidation,globalValidationLiteTracking)
 validationLiteTracking.remove(condDataValidation)
+
+validationMiniAOD = cms.Sequence( )
 
 prevalidation_preprod = cms.Sequence( preprodPrevalidation )
 

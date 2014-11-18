@@ -7,7 +7,7 @@ import FWCore.ParameterSet.Config as cms
 # If you also wish to apply a cut on the maximum allowed impact parameter,
 # you can do this in the TagInfoProducer.
 
-promptTrackCounting = cms.ESProducer("PromptTrackCountingESProducer",
+promptTrackCountingComputer = cms.ESProducer("PromptTrackCountingESProducer",
     impactParameterType = cms.int32(0), ## 0 = 3D, 1 = 2D
     minimumImpactParameter = cms.double(-1),                                     
     useSignedImpactParameterSig = cms.bool(True), 

@@ -129,7 +129,7 @@ ConversionTrackProducer::ConversionTrackProducer(edm::ParameterSet const& conf) 
    
  
     // Simple conversion of tracks to conversion tracks, setting appropriate flags from configuration
-    for (edm::RefToBaseVector<reco::Track>::const_iterator it = hTrks->refVector().begin(); it != hTrks->refVector().end(); ++it) {
+    for (size_t i = 0; i < hTrks->size(); ++i) {
  
       //--------------------------------------------------
       //Added by D. Giordano
@@ -137,12 +137,12 @@ ConversionTrackProducer::ConversionTrackProducer(edm::ParameterSet const& conf) 
       // Reduction of the track sample based on geometric hypothesis for conversion tracks
       
       math::XYZVector beamSpot=  math::XYZVector(beamSpotHandle->position());
-
-      if( filterOnConvTrackHyp && ConvTrackPreSelector.isTangentPointDistanceLessThan( minConvRadius, it->get(), beamSpot )  )
+      edm::RefToBase<reco::Track> trackBaseRef = hTrks->refAt(i);
+      if( filterOnConvTrackHyp && ConvTrackPreSelector.isTangentPointDistanceLessThan( minConvRadius, trackBaseRef.get(), beamSpot )  )
 	continue;
       //--------------------------------------------------
 
-      reco::ConversionTrack convTrack(*it);
+      reco::ConversionTrack convTrack(trackBaseRef);
       convTrack.setIsTrackerOnly(setTrackerOnly);
       convTrack.setIsArbitratedEcalSeeded(setArbitratedEcalSeeded);
       convTrack.setIsArbitratedMerged(setArbitratedMerged);
@@ -151,10 +151,10 @@ ConversionTrackProducer::ConversionTrackProducer(edm::ParameterSet const& conf) 
       //fill trajectory association if configured, using correct map depending on track type
       if (useTrajectory) {
         if (gsftracktrajmap.size()) {
-          convTrack.setTrajRef(gsftracktrajmap.find(it->castTo<reco::GsfTrackRef>())->second);
+          convTrack.setTrajRef(gsftracktrajmap.find(trackBaseRef.castTo<reco::GsfTrackRef>())->second);
         }
         else {
-          convTrack.setTrajRef(tracktrajmap.find(it->castTo<reco::TrackRef>())->second);
+          convTrack.setTrajRef(tracktrajmap.find(trackBaseRef.castTo<reco::TrackRef>())->second);
         }
       }
       

@@ -64,14 +64,14 @@ class SPYHistograms: public HistogramBase {
 		  );
 
   //book the top level histograms
-  void bookTopLevelHistograms(DQMStore* dqm);
+  void bookTopLevelHistograms(DQMStore::IBooker &);
 
   //book individual FED histograms or book all FED level histograms at once
-  void bookFEDHistograms(const unsigned int fedId,
+  void bookFEDHistograms(DQMStore::IBooker & , const unsigned int fedId,
 			 const Errors & aErr,
 			 bool doAll = false);
 
-  void bookAllFEDHistograms();
+  void bookAllFEDHistograms(DQMStore::IBooker &);
 
   void fillCountersHistograms(const ErrorCounters & aCounter, const double aTime);
 

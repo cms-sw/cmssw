@@ -29,18 +29,11 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
-process.load("DQMOffline.Trigger.FourVectorHLTOffline_cfi")
-process.load("DQMOffline.Trigger.FourVectorHLTOfflineClient_cfi")
 #process.load("DQMOffline.Trigger.L1TMonitor_dqmoffline_cff")
 #process.load("DQMOffline.Trigger.Tau.HLTTauDQMOffline_cff")
 #process.load("DQMOffline.Trigger.EgammaHLTOffline_cfi")
 #process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 
-from DQMOffline.Trigger.FourVectorHLTOfflineClient_cfi import *
-process.hltclient = cms.Sequence(hltFourVectorClient)
-hltFourVectorClient.prescaleLS = cms.untracked.int32(-1)
-hltFourVectorClient.monitorDir = cms.untracked.string('')
-hltFourVectorClient.prescaleEvt = cms.untracked.int32(1)
 
 
 

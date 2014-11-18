@@ -250,6 +250,9 @@ class GsfElectron : public RecoCandidate
     float deltaPhiSuperClusterTrackAtVtx() const { return trackClusterMatching_.deltaPhiSuperClusterAtVtx ; }
     float deltaPhiSeedClusterTrackAtCalo() const { return trackClusterMatching_.deltaPhiSeedClusterAtCalo ; }
     float deltaPhiEleClusterTrackAtCalo() const { return trackClusterMatching_.deltaPhiEleClusterAtCalo ; }
+    float deltaEtaSeedClusterTrackAtVtx() const { return superCluster().isNonnull() && superCluster()->seed().isNonnull() ? 
+	trackClusterMatching_.deltaEtaSuperClusterAtVtx - superCluster()->eta() + superCluster()->seed()->eta() : std::numeric_limits<float>::max();
+    }
     const TrackClusterMatching & trackClusterMatching() const { return trackClusterMatching_ ; }
 
     // for backward compatibility, usefull ?
@@ -789,7 +792,42 @@ class GsfElectron : public RecoCandidate
 
     // attributes
     Corrections corrections_ ;
-
+  
+  public:
+    struct PixelMatchVariables{
+      //! Pixel match variable: deltaPhi for innermost hit
+      float dPhi1 ;
+      //! Pixel match variable: deltaPhi for second hit
+      float dPhi2 ;
+      //! Pixel match variable: deltaRz for innermost hit
+      float dRz1  ;
+      //! Pixel match variable: deltaRz for second hit
+      float dRz2  ;
+      //! Subdetectors for first and second pixel hit
+      unsigned char subdetectors ;
+      PixelMatchVariables():
+        dPhi1(-999),
+        dPhi2(-999),
+        dRz1(-999),
+        dRz2(-999),
+        subdetectors(0)
+      {}
+      ~PixelMatchVariables(){}
+    };
+  void setPixelMatchSubdetectors(int sd1, int sd2){ pixelMatchVariables_.subdetectors = 10*sd1+sd2 ; }
+  void setPixelMatchDPhi1(float dPhi1){ pixelMatchVariables_.dPhi1 = dPhi1 ; }
+  void setPixelMatchDPhi2(float dPhi2){ pixelMatchVariables_.dPhi2 = dPhi2 ; }
+  void setPixelMatchDRz1 (float dRz1 ){ pixelMatchVariables_.dRz1  = dRz1  ; }
+  void setPixelMatchDRz2 (float dRz2 ){ pixelMatchVariables_.dRz2  = dRz2  ; }
+  
+  int pixelMatchSubdetector1() const { return pixelMatchVariables_.subdetectors/10 ; }
+  int pixelMatchSubdetector2() const { return pixelMatchVariables_.subdetectors%10 ; }
+  float pixelMatchDPhi1() const { return pixelMatchVariables_.dPhi1 ; }
+  float pixelMatchDPhi2() const { return pixelMatchVariables_.dPhi2 ; }
+  float pixelMatchDRz1 () const { return pixelMatchVariables_.dRz1  ; }
+  float pixelMatchDRz2 () const { return pixelMatchVariables_.dRz2  ; }
+  private:
+    PixelMatchVariables pixelMatchVariables_ ;
  } ;
 
  } // namespace reco

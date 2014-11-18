@@ -33,6 +33,7 @@ EgammaHLTR9IDProducer::EgammaHLTR9IDProducer(const edm::ParameterSet& config) : 
 
   //register your products
   produces < reco::RecoEcalCandidateIsolationMap >();
+  produces < reco::RecoEcalCandidateIsolationMap >("r95x5");
 }
 
 EgammaHLTR9IDProducer::~EgammaHLTR9IDProducer(){}
@@ -55,26 +56,35 @@ void EgammaHLTR9IDProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   iEvent.getByToken(recoEcalCandidateProducer_, recoecalcandHandle);
 
   EcalClusterLazyTools lazyTools( iEvent, iSetup, ecalRechitEBToken_, ecalRechitEEToken_ );
-  
+  noZS::EcalClusterLazyTools lazyTools5x5(iEvent, iSetup, ecalRechitEBToken_, ecalRechitEEToken_ );
   reco::RecoEcalCandidateIsolationMap r9Map;
-   
+  reco::RecoEcalCandidateIsolationMap r95x5Map; 
   for(unsigned  int iRecoEcalCand=0; iRecoEcalCand<recoecalcandHandle->size(); iRecoEcalCand++) {
     
     reco::RecoEcalCandidateRef recoecalcandref(recoecalcandHandle, iRecoEcalCand);//-recoecalcandHandle->begin());
 
     float r9 = -1;
+    float r95x5 = -1;
 
     float e9 = lazyTools.e3x3( *(recoecalcandref->superCluster()->seed()) );
+    float e95x5 = lazyTools5x5.e3x3( *(recoecalcandref->superCluster()->seed()) );
+
     float eraw = recoecalcandref->superCluster()->rawEnergy();
-    if (eraw > 0. ) {r9 = e9/eraw;}
+    if (eraw > 0. ) {
+      r9 = e9/eraw;
+      r95x5 = e95x5/eraw;
+    }
 
     r9Map.insert(recoecalcandref, r9);
+    r95x5Map.insert(recoecalcandref,r95x5);
     
   }
 
   std::auto_ptr<reco::RecoEcalCandidateIsolationMap> R9Map(new reco::RecoEcalCandidateIsolationMap(r9Map));
   iEvent.put(R9Map);
 
+  std::auto_ptr<reco::RecoEcalCandidateIsolationMap> R95x5Map(new reco::RecoEcalCandidateIsolationMap(r95x5Map));
+  iEvent.put(R95x5Map,"r95x5");
 }
 
 //define this as a plug-in

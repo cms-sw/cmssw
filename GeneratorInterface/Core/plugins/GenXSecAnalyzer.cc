@@ -6,8 +6,10 @@
 GenXSecAnalyzer::GenXSecAnalyzer(const edm::ParameterSet& iConfig):
   hepidwtup_(-1),
   theProcesses_size(0),
+  hasHepMCFilterInfo_(false),
   xsec_(0,0),
-  filterOnlyEffStat_(0,0,0,0,0.,0.,0.,0.)
+  filterOnlyEffStat_(0,0,0,0,0.,0.,0.,0.),
+  hepMCFilterEffStat_(0,0,0,0,0.,0.,0.,0.)
 {
   eventEffStat_.clear();
   jetMatchEffStat_.clear();
@@ -15,6 +17,7 @@ GenXSecAnalyzer::GenXSecAnalyzer(const edm::ParameterSet& iConfig):
   xsecAfterMatching_.clear();
   products_.clear();
   genFilterInfoToken_ = consumes<GenFilterInfo,edm::InLumi>(edm::InputTag("genFilterEfficiencyProducer",""));
+  hepMCFilterInfoToken_ = consumes<GenFilterInfo,edm::InLumi>(edm::InputTag("generator",""));
   genLumiInfoToken_ = consumes<GenLumiInfoProduct,edm::InLumi>(edm::InputTag("generator",""));
 }
 
@@ -48,6 +51,14 @@ GenXSecAnalyzer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::Even
   iLumi.getByToken(genFilterInfoToken_,genFilter);
   if(genFilter.isValid())
     filterOnlyEffStat_.mergeProduct(*genFilter);
+
+
+  edm::Handle<GenFilterInfo> hepMCFilter;
+  iLumi.getByToken(hepMCFilterInfoToken_,hepMCFilter);
+  hasHepMCFilterInfo_ = hepMCFilter.isValid();
+  if(hasHepMCFilterInfo_)
+    hepMCFilterEffStat_.mergeProduct(*hepMCFilter);
+
 
   edm::Handle<GenLumiInfoProduct> genLumiInfo;
   iLumi.getByToken(genLumiInfoToken_,genLumiInfo);
@@ -377,7 +388,7 @@ GenXSecAnalyzer::endJob() {
 
   const int sizeOfInfos= theProcesses_size+1;
   const int last = sizeOfInfos-1;
-  std::string title[sizeOfInfos];
+  std::string * title = new std::string[sizeOfInfos];
 
   for(int i=0; i < sizeOfInfos; i++){
 
@@ -425,6 +436,7 @@ GenXSecAnalyzer::endJob() {
 
 
   }
+  delete [] title;
 
   edm::LogPrint("GenXSecAnalyzer") 
     << "--------------------------------------------------------------------------------------------------------------------------------------------------------------------------";
@@ -442,6 +454,39 @@ GenXSecAnalyzer::endJob() {
     << std::scientific << std::setprecision(3)  
     << xsec_match << " +- " << error_match <<  " pb";
 
+
+  // hepMC filter efficiency
+  double hepMCFilter_eff = 1.0;
+  double hepMCFilter_err = 0.0;
+  if( hasHepMCFilterInfo_){
+    hepMCFilter_eff = hepMCFilterEffStat_.filterEfficiency(hepidwtup_);
+    hepMCFilter_err = hepMCFilterEffStat_.filterEfficiencyError(hepidwtup_);
+
+    edm::LogPrint("GenXSecAnalyzer") 
+      << "HepMC filter efficiency (taking into account weights)= "
+      << "(" << hepMCFilterEffStat_.sumPassWeights() << ")"
+      << " / "
+      << "(" << hepMCFilterEffStat_.sumWeights() << ")"
+      << " = " 
+      <<  std::scientific << std::setprecision(3) 
+      << hepMCFilter_eff << " +- " << hepMCFilter_err;
+
+    double hepMCFilter_event_total = hepMCFilterEffStat_.numTotalPositiveEvents() + hepMCFilterEffStat_.numTotalNegativeEvents();
+    double hepMCFilter_event_pass  = hepMCFilterEffStat_.numPassPositiveEvents() +  hepMCFilterEffStat_.numPassNegativeEvents();
+    double hepMCFilter_event_eff   =  hepMCFilter_event_total > 0 ? hepMCFilter_event_pass/ hepMCFilter_event_total : 0;
+    double hepMCFilter_event_err   = hepMCFilter_event_total > 0 ? 
+      sqrt((1-hepMCFilter_event_eff)*hepMCFilter_event_eff/hepMCFilter_event_total): -1;
+    edm::LogPrint("GenXSecAnalyzer") 
+      << "HepMC filter efficiency (event-level)= " 
+      << "(" << hepMCFilter_event_pass << ")"
+      << " / "
+      << "(" << hepMCFilter_event_total << ")"
+      << " = " 
+      <<  std::scientific << std::setprecision(3) 
+      << hepMCFilter_event_eff << " +- " <<  hepMCFilter_event_err;
+  }
+
+  // gen-particle filter efficiency
   double filterOnly_eff = filterOnlyEffStat_.filterEfficiency(hepidwtup_);
   double filterOnly_err = filterOnlyEffStat_.filterEfficiencyError(hepidwtup_);
 
@@ -455,18 +500,25 @@ GenXSecAnalyzer::endJob() {
     << filterOnly_eff << " +- " << filterOnly_err;
 
   double filterOnly_event_total = filterOnlyEffStat_.numTotalPositiveEvents() + filterOnlyEffStat_.numTotalNegativeEvents();
-  double filterOnly_event_eff = filterOnly_event_total > 0 ? 
-    (filterOnlyEffStat_.numPassPositiveEvents() + filterOnlyEffStat_.numPassNegativeEvents())/filterOnly_event_total : 0;
-  double filterOnly_event_err = sqrt((1-filterOnly_event_eff)*filterOnly_event_eff/filterOnly_event_total);
+  double filterOnly_event_pass  = filterOnlyEffStat_.numPassPositiveEvents() + filterOnlyEffStat_.numPassNegativeEvents();
+  double filterOnly_event_eff   = filterOnly_event_total > 0 ? filterOnly_event_pass/filterOnly_event_total : 0;
+  double filterOnly_event_err   = filterOnly_event_total > 0 ?  
+    sqrt((1-filterOnly_event_eff)*filterOnly_event_eff/filterOnly_event_total): -1;
   edm::LogPrint("GenXSecAnalyzer") 
     << "Filter efficiency (event-level)= " 
+    << "(" << filterOnly_event_pass << ")"
+    << " / "
+    << "(" << filterOnly_event_total << ")"
+    << " = " 
     <<  std::scientific << std::setprecision(3) 
     << filterOnly_event_eff << " +- " << filterOnly_event_err;
 
 
-  double xsec_final  = xsec_match*filterOnly_eff ;
+  double xsec_final  = xsec_match*filterOnly_eff*hepMCFilter_eff;
   double error_final = xsec_final*sqrt(error_match*error_match/xsec_match/xsec_match+
-				       filterOnly_err*filterOnly_err/filterOnly_eff/filterOnly_eff);
+				       filterOnly_err*filterOnly_err/filterOnly_eff/filterOnly_eff + 
+				       hepMCFilter_err*hepMCFilter_err/hepMCFilter_eff/hepMCFilter_eff
+				       );
 
   edm::LogPrint("GenXSecAnalyzer") 
     << "After filter: final cross section = " 

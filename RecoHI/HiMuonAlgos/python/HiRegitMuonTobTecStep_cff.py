@@ -20,78 +20,109 @@ from RecoTracker.IterativeTracking.TobTecStep_cff import *
 hiRegitMuTobTecStepClusters = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepClusters.clone(
     oldClusterRemovalInfo = cms.InputTag("hiRegitMuPixelLessStepClusters"),
     trajectories     = cms.InputTag("hiRegitMuPixelLessStepTracks"),
-    overrideTrkQuals = cms.InputTag('hiRegitMuPixelLessStepSelector','hiRegitMuPixelLessStep')
+    overrideTrkQuals = cms.InputTag('hiRegitMuPixelLessStepSelector','hiRegitMuPixelLessStep'),
+    TrackQuality          = cms.string('tight')
 )
 
 # SEEDING LAYERS
-hiRegitMuTobTecStepSeedLayers = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedLayersPair.clone()
-hiRegitMuTobTecStepSeedLayers.layerList.append('TOB1+TOB2')
-hiRegitMuTobTecStepSeedLayers.TOB.skipClusters = cms.InputTag('hiRegitMuTobTecStepClusters')
-hiRegitMuTobTecStepSeedLayers.TEC.skipClusters = cms.InputTag('hiRegitMuTobTecStepClusters')
+hiRegitMuTobTecStepSeedLayersPair =  RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedLayersPair.clone()
+hiRegitMuTobTecStepSeedLayersPair.TOB.skipClusters = cms.InputTag('hiRegitMuTobTecStepClusters')
+hiRegitMuTobTecStepSeedLayersPair.TEC.skipClusters = cms.InputTag('hiRegitMuTobTecStepClusters')
 
+hiRegitMuTobTecStepSeedLayersTripl =  RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedLayersTripl.clone()
+hiRegitMuTobTecStepSeedLayersTripl.TOB.skipClusters = cms.InputTag('hiRegitMuTobTecStepClusters')
+hiRegitMuTobTecStepSeedLayersTripl.MTOB.skipClusters = cms.InputTag('hiRegitMuTobTecStepClusters')
+hiRegitMuTobTecStepSeedLayersTripl.MTEC.skipClusters = cms.InputTag('hiRegitMuTobTecStepClusters')
 
 # seeding
-hiRegitMuTobTecStepSeeds = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedsPair.clone()
-hiRegitMuTobTecStepSeeds.RegionFactoryPSet                                           = HiTrackingRegionFactoryFromSTAMuonsBlock.clone()
-hiRegitMuTobTecStepSeeds.ClusterCheckPSet.doClusterCheck                             = False # do not check for max number of clusters pixel or strips
-hiRegitMuTobTecStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.EscapePt        = 2.0
-hiRegitMuTobTecStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaR          = 0.2 # default = 0.2
-hiRegitMuTobTecStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaZ_Region   = 0.2 # this give you the length 
-hiRegitMuTobTecStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.Rescale_Dz      = 4. # max(DeltaZ_Region,Rescale_Dz*vtx->zError())
-hiRegitMuTobTecStepSeeds.OrderedHitsFactoryPSet.SeedingLayers                        = 'hiRegitMuTobTecStepSeedLayers'
+hiRegitMuTobTecStepSeeds     = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeeds.clone(
+      seedCollections = cms.VInputTag(cms.InputTag("hiRegitMuTobTecStepSeedsTripl"), cms.InputTag("hiRegitMuTobTecStepSeedsPair"))
+      )
 
+# For now, keep the same parameters for triplets and pairs
+hiRegitMuTobTecStepSeedsTripl     = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedsTripl.clone()
+hiRegitMuTobTecStepSeedsTripl.RegionFactoryPSet                                           = HiTrackingRegionFactoryFromSTAMuonsBlock.clone()
+hiRegitMuTobTecStepSeedsTripl.ClusterCheckPSet.doClusterCheck                             = False # do not check for max number of clusters pixel or strips
+hiRegitMuTobTecStepSeedsTripl.RegionFactoryPSet.MuonTrackingRegionBuilder.EscapePt        = 2.0
+hiRegitMuTobTecStepSeedsTripl.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaR          = 0.2 # default = 0.2
+hiRegitMuTobTecStepSeedsTripl.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaZ_Region   = 0.2 # this give you the length 
+hiRegitMuTobTecStepSeedsTripl.RegionFactoryPSet.MuonTrackingRegionBuilder.Rescale_Dz      = 4. # max(DeltaZ_Region,Rescale_Dz*vtx->zError())
+hiRegitMuTobTecStepSeedsTripl.OrderedHitsFactoryPSet.SeedingLayers                        = 'hiRegitMuTobTecStepSeedLayersTripl'
+
+hiRegitMuTobTecStepSeedsPair     = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedsPair.clone()
+hiRegitMuTobTecStepSeedsPair.RegionFactoryPSet                                           = HiTrackingRegionFactoryFromSTAMuonsBlock.clone()
+hiRegitMuTobTecStepSeedsPair.ClusterCheckPSet.doClusterCheck                             = False # do not check for max number of clusters pixel or strips
+hiRegitMuTobTecStepSeedsPair.RegionFactoryPSet.MuonTrackingRegionBuilder.EscapePt        = 2.0
+hiRegitMuTobTecStepSeedsPair.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaR          = 0.2 # default = 0.2
+hiRegitMuTobTecStepSeedsPair.RegionFactoryPSet.MuonTrackingRegionBuilder.DeltaZ_Region   = 0.2 # this give you the length 
+hiRegitMuTobTecStepSeedsPair.RegionFactoryPSet.MuonTrackingRegionBuilder.Rescale_Dz      = 4. # max(DeltaZ_Region,Rescale_Dz*vtx->zError())
+hiRegitMuTobTecStepSeedsPair.OrderedHitsFactoryPSet.SeedingLayers                        = 'hiRegitMuTobTecStepSeedLayersPair'
 
 # building: feed the new-named seeds
 hiRegitMuTobTecStepInOutTrajectoryFilter = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepInOutTrajectoryFilter.clone()
 hiRegitMuTobTecStepInOutTrajectoryFilter.minPt = 1.7
 hiRegitMuTobTecStepInOutTrajectoryFilter.minimumNumberOfHits = 6
-hiRegitMuTobTecStepInOutTrajectoryFilter.minHitsMinPt = 4
+hiRegitMuTobTecStepInOutTrajectoryFilter.minHitsMinPt        = 4
 
 
 hiRegitMuTobTecStepTrajectoryFilter = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepTrajectoryFilter.clone()
-hiRegitMuTobTecStepTrajectoryFilter.minPt = 1.7
+hiRegitMuTobTecStepTrajectoryFilter.minPt               = 1.7
 hiRegitMuTobTecStepTrajectoryFilter.minimumNumberOfHits = 6
-hiRegitMuTobTecStepTrajectoryFilter.minHitsMinPt = 4 
+hiRegitMuTobTecStepTrajectoryFilter.minHitsMinPt        = 4   
 
 hiRegitMuTobTecStepTrajectoryBuilder = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepTrajectoryBuilder.clone(
-    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('hiRegitMuTobTecStepTrajectoryFilter')),
-    inOutTrajectoryFilter = cms.PSet(refToPSet_ = cms.string('hiRegitMuTobTecStepInOutTrajectoryFilter')),
-    clustersToSkip            = cms.InputTag('hiRegitMuTobTecStepClusters'),
+    trajectoryFilter      = cms.PSet(
+       refToPSet_ = cms.string('hiRegitMuTobTecStepTrajectoryFilter')
+       ),
+    inOutTrajectoryFilter = cms.PSet(
+       refToPSet_ = cms.string('hiRegitMuTobTecStepInOutTrajectoryFilter')
+       ),
 )
 
 hiRegitMuTobTecStepTrackCandidates        =  RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepTrackCandidates.clone(
     src               = cms.InputTag('hiRegitMuTobTecStepSeeds'),
-    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiRegitMuTobTecStepTrajectoryBuilder')),
+    TrajectoryBuilderPSet = cms.PSet(
+       refToPSet_ = cms.string('hiRegitMuTobTecStepTrajectoryBuilder')
+       ),
+    clustersToSkip            = cms.InputTag('hiRegitMuTobTecStepClusters'),
     maxNSeeds         = cms.uint32(1000000)
     )
 
 # fitting: feed new-names
 hiRegitMuTobTecStepTracks                 = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepTracks.clone(
+    AlgorithmName = cms.string('iter9'),
     src                 = 'hiRegitMuTobTecStepTrackCandidates'
 )
 
-import RecoHI.HiTracking.hiMultiTrackSelector_cfi
+# import RecoHI.HiTracking.hiMultiTrackSelector_cfi
+import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 hiRegitMuTobTecStepSelector               = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSelector.clone( 
     src                 ='hiRegitMuTobTecStepTracks',
     vertices            = cms.InputTag("hiSelectedVertex"),
     trackSelectors= cms.VPSet(
-        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
-            name = 'hiRegitMuTobTecStepLoose',
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+           name = 'hiRegitMuTobTecStepLoose',
+           qualityBit = cms.string('loose'),
             ),
-        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
             name = 'hiRegitMuTobTecStepTight',
             preFilterName = 'hiRegitMuTobTecStepLoose',
+            qualityBit = cms.string('loose'),
             ),
-        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'hiRegitMuTobTecStep',
             preFilterName = 'hiRegitMuTobTecStepTight',
+            qualityBit = cms.string('tight'),
             ),
         ) #end of vpset
   
 )
 
 hiRegitMuonTobTecStep = cms.Sequence(hiRegitMuTobTecStepClusters*
-                                     hiRegitMuTobTecStepSeedLayers*
+                                     hiRegitMuTobTecStepSeedLayersTripl*
+                                     hiRegitMuTobTecStepSeedsTripl*
+                                     hiRegitMuTobTecStepSeedLayersPair*
+                                     hiRegitMuTobTecStepSeedsPair*
                                      hiRegitMuTobTecStepSeeds*
                                      hiRegitMuTobTecStepTrackCandidates*
                                      hiRegitMuTobTecStepTracks*

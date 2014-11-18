@@ -1,20 +1,11 @@
-import copy
 import FWCore.ParameterSet.Config as cms
 
 from RecoBTag.SecondaryVertex.inclusiveSecondaryVertexFinderTagInfos_cfi import *
 
-inclusiveSecondaryVertexFinderNegativeTagInfos = copy.deepcopy(inclusiveSecondaryVertexFinderTagInfos)
+inclusiveSecondaryVertexFinderNegativeTagInfos = inclusiveSecondaryVertexFinderTagInfos.clone()
 inclusiveSecondaryVertexFinderNegativeTagInfos.extSVDeltaRToJet = cms.double(-0.3)
 inclusiveSecondaryVertexFinderNegativeTagInfos.vertexCuts.distVal2dMin = -2.5
 inclusiveSecondaryVertexFinderNegativeTagInfos.vertexCuts.distVal2dMax = -0.01
 inclusiveSecondaryVertexFinderNegativeTagInfos.vertexCuts.distSig2dMin = -99999.9
 inclusiveSecondaryVertexFinderNegativeTagInfos.vertexCuts.distSig2dMax = -2.0
 inclusiveSecondaryVertexFinderNegativeTagInfos.vertexCuts.maxDeltaRToJetAxis = -0.5
-
-inclusiveSecondaryVertexFinderFilteredNegativeTagInfos = copy.deepcopy(inclusiveSecondaryVertexFinderFilteredTagInfos)
-inclusiveSecondaryVertexFinderFilteredNegativeTagInfos.extSVDeltaRToJet = cms.double(-0.5)
-inclusiveSecondaryVertexFinderFilteredNegativeTagInfos.vertexCuts.distVal2dMin = -2.5
-inclusiveSecondaryVertexFinderFilteredNegativeTagInfos.vertexCuts.distVal2dMax = -0.01
-inclusiveSecondaryVertexFinderFilteredNegativeTagInfos.vertexCuts.distSig2dMin = -99999.9
-inclusiveSecondaryVertexFinderFilteredNegativeTagInfos.vertexCuts.distSig2dMax = -2.0
-inclusiveSecondaryVertexFinderFilteredNegativeTagInfos.vertexCuts.maxDeltaRToJetAxis = -0.5

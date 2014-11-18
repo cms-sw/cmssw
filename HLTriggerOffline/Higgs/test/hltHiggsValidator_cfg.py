@@ -37,12 +37,12 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         #'file:/afs/cern.ch/user/d/duarte/scratch0/step2_RAW2DIGI_RECO.root',
-        'file:/afs/cern.ch/work/j/jlauwers/hlt/CMSSW_7_2_0_pre1/src/RECO/0090828A-AC71-E311-A488-7845C4FC36D7.root'
+        'file:/afs/cern.ch/user/s/sdonato/AFSwork/public/TTbar-GEN-SIM-RECO-new.root'
         #'file:/afs/cern.ch/user/s/sdonato/AFSwork/public/forJasper/ZnnHbb_GEN_SIM_RECO_trigger.root'
     ),
     secondaryFileNames = cms.untracked.vstring(
         #'file:/afs/cern.ch/user/d/duarte/scratch0/H130GGgluonfusion_cfi_py_GEN_SIM_DIGI_L1_DIGI2RAW_HLT.root',
-        'file:/afs/cern.ch/work/j/jlauwers/hlt/CMSSW_7_2_0_pre1/src/GEN-SIM-RAW/0090828A-AC71-E311-A488-7845C4FC36D7.root'
+        #'file:/afs/cern.ch/work/j/jlauwers/hlt/CMSSW_7_2_0_pre1/src/GEN-SIM-RAW/0090828A-AC71-E311-A488-7845C4FC36D7.root'
     )
 )
 
@@ -75,6 +75,5 @@ process.analyzerpath = cms.Path(
     process.hltHiggsValidator *
     process.MEtoEDMConverter
 )
-
 
 process.outpath = cms.EndPath(process.out)
