@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_2_1/GRun/V63 (CMSSW_7_2_1_patch2)
+# /dev/CMSSW_7_2_1/GRun/V64 (CMSSW_7_2_1_patch2_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_2_1/GRun/V63')
+  tableName = cms.string('/dev/CMSSW_7_2_1/GRun/V64')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -1880,6 +1880,7 @@ hltL1GtObjectMap = cms.EDProducer( "L1GlobalTrigger",
 hltL1extraParticles = cms.EDProducer( "L1ExtraParticlesProd",
     tauJetSource = cms.InputTag( 'hltGctDigis','tauJets' ),
     etHadSource = cms.InputTag( "hltGctDigis" ),
+    isoTauJetSource = cms.InputTag( 'hltGctDigis','isoTauJets' ),
     etTotalSource = cms.InputTag( "hltGctDigis" ),
     centralBxOnly = cms.bool( True ),
     centralJetSource = cms.InputTag( 'hltGctDigis','cenJets' ),
