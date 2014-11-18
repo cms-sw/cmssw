@@ -387,15 +387,20 @@ FWEveView::setFrom(const FWConfiguration& iFrom)
 
 
    // selection clors
-   UChar_t* ca = 0;
-   ca = gEve->GetDefaultGLViewer()->RefLightColorSet().Selection(1).Arr();
-   viewerGL()->RefLightColorSet().Selection(1).SetColor(ca[0], ca[1], ca[2]);
-   ca = gEve->GetDefaultGLViewer()->RefLightColorSet().Selection(3).Arr();
-   viewerGL()->RefLightColorSet().Selection(3).SetColor(ca[0], ca[1], ca[2]);
-   ca = gEve->GetDefaultGLViewer()->RefDarkColorSet().Selection(1).Arr();
-   viewerGL()->RefDarkColorSet().Selection(1).SetColor(ca[0], ca[1], ca[2]);
-   ca = gEve->GetDefaultGLViewer()->RefDarkColorSet().Selection(3).Arr();
-   viewerGL()->RefDarkColorSet().Selection(3).SetColor(ca[0], ca[1], ca[2]);
+   {
+      const TGLColorSet& lcs = context().commonPrefs()->getLightColorSet();
+      const TGLColorSet& dcs = context().commonPrefs()->getDarkColorSet();
+      const UChar_t* ca = 0;
+
+      ca = lcs.Selection(1).CArr();
+      viewerGL()->RefLightColorSet().Selection(1).SetColor(ca[0], ca[1], ca[2]);
+      ca = lcs.Selection(3).CArr();
+      viewerGL()->RefLightColorSet().Selection(3).SetColor(ca[0], ca[1], ca[2]);
+      ca = dcs.Selection(1).CArr();
+      viewerGL()->RefDarkColorSet().Selection(1).SetColor(ca[0], ca[1], ca[2]);
+      ca = dcs.Selection(3).CArr();
+      viewerGL()->RefDarkColorSet().Selection(3).SetColor(ca[0], ca[1], ca[2]);
+   }
 }
 
 //______________________________________________________________________________

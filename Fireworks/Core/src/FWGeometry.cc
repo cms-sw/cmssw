@@ -52,7 +52,8 @@ FWGeometry::findFile( const char* fileName )
    {
       TObjString* path = (TObjString*)tokens->At( i );
       TString fullFileName( path->GetString());
-      fullFileName += "/Fireworks/Geometry/data/";
+      if (gSystem->Getenv("CMSSW_VERSION"))
+         fullFileName += "/Fireworks/Geometry/data/";
       fullFileName += fileName;
       if( !gSystem->AccessPathName( fullFileName.Data()))
          return TFile::Open( fullFileName.Data());
