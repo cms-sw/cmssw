@@ -264,14 +264,25 @@ StorageFactory::wrapNonLocalFile (Storage *s,
 				  int mode)
 {
   StorageFactory::CacheHint hint = cacheHint();
-  if (((hint == StorageFactory::CACHE_HINT_LAZY_DOWNLOAD) || (mode & IOFlags::OpenWrap))
-      && ! (mode & IOFlags::OpenWrite)
-      && ! m_tempdir.empty()
-      && (path.empty() || ! m_lfs.isLocalPath(path)))
+  if ((hint == StorageFactory::CACHE_HINT_LAZY_DOWNLOAD) || (mode & IOFlags::OpenWrap))
   {
-    if (accounting())
-      s = new StorageAccountProxy(proto, s);
-    s = new LocalCacheFile(s, m_tempdir);
+      if (mode & IOFlags::OpenWrite)
+      {
+        // For now, issue no warning - otherwise, we'd always warn on output files.
+      }
+      else if (m_tempdir.empty())
+      {
+        m_lfs.issueWarning();
+      }
+      else if (path.empty() || m_lfs.isLocalPath(path))
+      {
+        // For now, issue no warning - otherwise, we'd always warn on local input files.
+      }
+      else
+      {
+        if (accounting()) {s = new StorageAccountProxy(proto, s);}
+        s = new LocalCacheFile(s, m_tempdir);
+      }
   }
 
   return s;
