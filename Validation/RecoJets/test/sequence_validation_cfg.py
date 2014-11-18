@@ -32,10 +32,14 @@ readFiles.extend( [
        #for MINIAODtests 
        #'/store/relval/CMSSW_7_2_0_pre8/RelValTTbar_13/MINIAODSIM/PU25ns_PRE_LS172_V15-v1/00000/1A860BD4-2150-E411-BB97-0025905A60D0.root',
        #'/store/relval/CMSSW_7_2_0_pre8/RelValTTbar_13/MINIAODSIM/PU25ns_PRE_LS172_V15-v1/00000/72286AD5-2150-E411-A2B3-0025905B8572.root' 
+       #test HI sequence for jets
+       #'/store/relval/CMSSW_7_3_0_pre1/RelValQCD_Pt_80_120_13_HI/GEN-SIM-RECO/PRE_LS172_V15-v1/00000/5C15CC80-0B5A-E411-AF4B-02163E00ECD2.root',
+       #'/store/relval/CMSSW_7_3_0_pre1/RelValQCD_Pt_80_120_13_HI/GEN-SIM-RECO/PRE_LS172_V15-v1/00000/FC51FED6-B559-E411-9131-02163E006D72.root' 
 ] );
 
 # Validation module
 process.load("Validation.RecoJets.JetValidation_cff")
+#process.load("Validation.RecoHI.JetValidationHeavyIons_cff")
 
 process.maxEvents = cms.untracked.PSet(
        input = cms.untracked.int32(-1)
@@ -55,6 +59,7 @@ process.dqmSaver.workflow = Workflow
 
 process.p1 = cms.Path(
                       #--- Standard sequence
+                      #process.hiJetValidation
                       process.JetValidation
                       #for MiniAOD
                       #process.JetValidationMiniAOD

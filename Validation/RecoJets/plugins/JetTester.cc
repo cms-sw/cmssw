@@ -812,33 +812,33 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
         if (recoJets.size() <= 0) continue;
         // pt response
         //------------------------------------------------------------
-        if (pass_correction_flag) {//false if NO label is given
-          int iMatch    =   -1;
-          double CorrdeltaRBest = 999;
-          double CorrJetPtBest  =   0;
-          for (unsigned ijet=0; ijet<recoJets.size(); ++ijet) {
-            Jet correctedJet = recoJets[ijet];
-	    if(pass_correction_flag && !isMiniAODJet){
-	      if (isCaloJet) scale = jetCorr->correction((*caloJets)[ijet]); 
-	      if (isPFJet)   scale = jetCorr->correction((*pfJets)[ijet]); 
-	      correctedJet.scaleEnergy(scale);
-	    }
-            double CorrJetPt = correctedJet.pt();
-            if (CorrJetPt > 10) {
-              double CorrdR = deltaR(gjet->eta(), gjet->phi(), correctedJet.eta(), correctedJet.phi());
-              if (CorrdR < CorrdeltaRBest) {
-                CorrdeltaRBest = CorrdR;
-                CorrJetPtBest  = CorrJetPt;
-                iMatch = ijet;
-              }
-            }
-          }
-          if (iMatch<0) continue;
-	  if(!isMiniAODJet){
-	    fillMatchHists(gjet->eta(),  gjet->phi(),  gjet->pt(), recoJets[iMatch].eta(), recoJets[iMatch].phi(),  recoJets[iMatch].pt());
-	  }else{
-	    fillMatchHists(gjet->eta(),  gjet->phi(),  gjet->pt(), (*patJets)[iMatch].eta(), (*patJets)[iMatch].phi(),(*patJets)[iMatch].pt()*(*patJets)[iMatch].jecFactor("Uncorrected"));
+	int iMatch    =   -1;
+	double CorrdeltaRBest = 999;
+	double CorrJetPtBest  =   0;
+	for (unsigned ijet=0; ijet<recoJets.size(); ++ijet) {
+	  Jet correctedJet = recoJets[ijet];
+	  if(pass_correction_flag && !isMiniAODJet){
+	    if (isCaloJet) scale = jetCorr->correction((*caloJets)[ijet]); 
+	    if (isPFJet)   scale = jetCorr->correction((*pfJets)[ijet]); 
+	    correctedJet.scaleEnergy(scale);
 	  }
+	  double CorrJetPt = correctedJet.pt();
+	  if (CorrJetPt > 10) {
+	    double CorrdR = deltaR(gjet->eta(), gjet->phi(), correctedJet.eta(), correctedJet.phi());
+	    if (CorrdR < CorrdeltaRBest) {
+	      CorrdeltaRBest = CorrdR;
+	      CorrJetPtBest  = CorrJetPt;
+	      iMatch = ijet;
+	    }
+	  }
+	}
+	if (iMatch<0) continue;
+	if(!isMiniAODJet){
+	  fillMatchHists(gjet->eta(),  gjet->phi(),  gjet->pt(), recoJets[iMatch].eta(), recoJets[iMatch].phi(),  recoJets[iMatch].pt());
+	}else{
+	  fillMatchHists(gjet->eta(),  gjet->phi(),  gjet->pt(), (*patJets)[iMatch].eta(), (*patJets)[iMatch].phi(),(*patJets)[iMatch].pt()*(*patJets)[iMatch].jecFactor("Uncorrected"));
+	}
+	if (pass_correction_flag) {//false if NO label is given
           if (CorrdeltaRBest < mRThreshold) {
             double response = CorrJetPtBest / gjet->pt();
             
@@ -856,8 +856,8 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
           }
         }
       }
+      }
     }
-	}
 }
 
 
