@@ -132,7 +132,7 @@ class Process(object):
         self.__isStrict = False
         self.__dict__['_Process__modifiers'] = Mods
         for m in self.__modifiers:
-            m._setChosen()
+            m._setChosen(self)
 
     def setStrict(self, value):
         self.__isStrict = value
@@ -1062,6 +1062,9 @@ class Modifier(object):
   def __init__(self):
     self.__processModifiers = []
     self.__chosen = False
+    # The list of Process instances that this Modifier is to act on. Probably only ever
+    # have one, so no need for a list, but might as well retain flexibility.
+    self.__chosenProcesses = []
   def toModifyProcess(self,func):
     """This is used to register actions to be performed on the process as a whole.
     This takes as argument a callable object (e.g. function) which takes as its sole argument an instance of Process"""
@@ -1082,15 +1085,23 @@ class Modifier(object):
     else:
       temp =_ParameterModifier(kw)
       temp(obj)
+  def toLoadIntoProcess(self, moduleName):
+      """
+      This is used to invoke process.load(moduleName) on a process only if the Modifier
+      is active.
+      """
+      for process in self.__chosenProcesses :
+          process.load(moduleName)
   def _applyNewProcessModifiers(self,process):
     """Should only be called by cms.Process instances
         applies list of accumulated changes to the process"""
     for m in self.__processModifiers:
         m(process)
     self.__processModifiers = list()
-  def _setChosen(self):
+  def _setChosen(self,newProcess):
     """Should only be called by cms.Process instances"""
     self.__chosen = True
+    self.__chosenProcesses.append(newProcess)
   def isChosen(self):
     return self.__chosen
 
