@@ -196,6 +196,7 @@ namespace evf {
 
     pthread_mutex_init(&init_lock_,NULL);
 
+    stopFilePath_ = run_dir_+"/CMSSW_STOP";
   }
 
   EvFDaqDirector::~EvFDaqDirector()
@@ -391,9 +392,11 @@ namespace evf {
     int lock_attempts = 0;
 
     struct stat buf;
-    if (stat(run_dir_+"/CMSSW_STOP",&buf)==0) {
-        edm::LogWarning("EvFDaqDirector") << "Detected stop request from hltd. Ending run for this process";
-        return runEnded;
+    int stopFileLS = -1;
+    if (stat(stopFilePath_.c_str(),&buf)==0) {
+        stopFileLS = readLastLSEntry(stopFilePath_);
+        edm::LogWarning("EvFDaqDirector") << "Detected stop request from hltd. Ending run for this process after LS -: " << stopFileLS;
+        //return runEnded;
     }
 
     while (retval==-1) {
@@ -438,7 +441,7 @@ namespace evf {
         }
 
 	// try to bump
-	bool bumpedOk = bumpFile(readLs, readIndex, nextFile, fsize);
+	bool bumpedOk = bumpFile(readLs, readIndex, nextFile, fsize, stopFileLS);
 	ls = readLs;
 	// there is a new file to grab or lumisection ended
 	if (bumpedOk) {
@@ -510,6 +513,10 @@ namespace evf {
       //edm::LogInfo("EvFDaqDirector") << " looking for EoR file: " << getEoRFilePath().c_str();
       if ( stat(getEoRFilePath().c_str(), &buf) == 0 || stat(bu_run_dir_.c_str(), &buf)!=0)
         fileStatus = runEnded;
+      if (stopFileLS>=0 && ls > stopFileLS) {
+         edm::LogInfo("EvFDaqDirector") << "Reached maximum lumisection set by hltd";
+         fileStatus = runEnded;
+      }
     }
     return fileStatus;
   }
@@ -575,7 +582,7 @@ namespace evf {
     return boost::lexical_cast<int>(data);
   }
 
-  bool EvFDaqDirector::bumpFile(unsigned int& ls, unsigned int& index, std::string& nextFile, uint32_t& fsize) {
+  bool EvFDaqDirector::bumpFile(unsigned int& ls, unsigned int& index, std::string& nextFile, uint32_t& fsize, int maxLS) {
 
     if (previousFileSize_ != 0) {
       if (!fms_) {
@@ -632,6 +639,10 @@ namespace evf {
 	// this lumi ended, check for files
 	++ls;
         index = 0;
+
+        //reached limit
+        if (maxLS>=0 && ls > (unsigned int)maxLS) return false; 
+
 	nextFile = getInputJsonFilePath(ls,0);
 	if (stat(nextFile.c_str(), &buf) == 0) {
 	  // a new file was found at new lumisection, index 0
@@ -757,7 +768,7 @@ namespace evf {
   }
 
 
-  int EvFDaqDirector::readLastLSEntry(std::string file) {
+  int EvFDaqDirector::readLastLSEntry(std::string const& file) {
 
     boost::filesystem::ifstream ij(file);
     Json::Value deserializeRoot;
