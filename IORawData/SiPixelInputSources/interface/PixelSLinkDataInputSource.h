@@ -46,7 +46,7 @@ public:
 
 private:
 
-  virtual bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time);
+  virtual bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time, edm::EventAuxiliary::ExperimentType&);
   virtual void produce(edm::Event& event);
   uint32_t synchronizeEvents();
 
