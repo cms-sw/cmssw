@@ -138,10 +138,10 @@ template <class jetClass> void QGTagger::calcVariables(const jetClass *jet, edm:
       if(useQC){													//If useQC, require dz and d0 cuts
         float dz = itrk->dz(vtxClose->position());
         float d0 = itrk->dxy(vtxClose->position());
-        float dz_sigma = sqrt(pow(itrk->dzError(),2) + pow(vtxClose->zError(),2));
-        float d0_sigma = sqrt(pow(itrk->d0Error(),2) + pow(vtxClose->xError(),2) + pow(vtxClose->yError(),2));
-        if(fabs(dz/dz_sigma) > 5.) continue;
-        if(fabs(d0/d0_sigma) < 5.) ++mult;
+        float dz_sigma_square = pow(itrk->dzError(),2) + pow(vtxClose->zError(),2);
+        float d0_sigma_square = pow(itrk->d0Error(),2) + pow(vtxClose->xError(),2) + pow(vtxClose->yError(),2);
+        if(dz*dz/dz_sigma_square > 25.) continue;
+        if(d0*d0/d0_sigma_square < 25.) ++mult;
       } else ++mult;
     } else {														//No track --> neutral particle
       if(part->pt() < 1.0) continue;											//Only use neutrals with pt > 1 GeV
