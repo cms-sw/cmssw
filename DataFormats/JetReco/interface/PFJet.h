@@ -47,7 +47,9 @@ class PFJet : public Jet {
        mNeutralEmEnergy (0),
        
        mChargedMultiplicity (0),
-       mNeutralMultiplicity (0)
+       mNeutralMultiplicity (0),
+
+       mHOEnergy (0)
     {}
     float mChargedHadronEnergy;
     float mNeutralHadronEnergy;
@@ -72,6 +74,8 @@ class PFJet : public Jet {
     float mNeutralEmEnergy;
     int mChargedMultiplicity;
     int mNeutralMultiplicity;
+
+    float mHOEnergy;
  };
   
   /** Default constructor*/
@@ -152,6 +156,10 @@ class PFJet : public Jet {
   /// neutralMultiplicity
   int neutralMultiplicity () const {return m_specific.mNeutralMultiplicity;}
 
+  /// hoEnergy 
+  float hoEnergy () const {return m_specific.mHOEnergy;}
+  /// hoEnergyFraction
+  float hoEnergyFraction () const {return hoEnergy () / energy ();}
 
   /// get specific constituent
   virtual reco::PFCandidatePtr getPFConstituent (unsigned fIndex) const;
