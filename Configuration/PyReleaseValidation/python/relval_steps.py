@@ -312,8 +312,8 @@ steps['ZpTT_1500_13TeV_Tauola']=gen2015('ZpTT_1500_13TeV_Tauola_cfi',Kby(9,100))
 def identitySim(wf):
     return merge([{'--restoreRND':'SIM','--process':'SIM2', '--inputCommands':'"keep *","drop *TagInfo*_*_*_*"' },wf])
 
-steps['SingleMuPt10_ID']=identitySim(steps['SingleMuPt10_UP15'])
-steps['TTbar_ID']=identitySim(steps['TTbar_13'])
+steps['SingleMuPt10_UP15_ID']=identitySim(steps['SingleMuPt10_UP15'])
+steps['TTbar_13_ID']=identitySim(steps['TTbar_13'])
 
 baseDataSetRelease=[
     'CMSSW_7_1_0_pre7-PRE_STA71_V3-v1',        # run1 samples; keep GEN-SIM fixed to 710_pre7, for samples not routinely produced
@@ -327,7 +327,8 @@ baseDataSetRelease=[
     #'CMSSW_7_1_0_pre5-START71_V1-v1',         # 8 TeV , for the one sample which is part of the routine relval production (MinBias)   -- unused in 72_pre4
     'CMSSW_7_1_0_pre5-START71_V1-v2',          # 8 TeV , for the one sample which is part of the routine relval production (RelValZmumuJets_Pt_20_300, because of -v2)
                                                # this an previous should be unified, when -v2 will be gone
-    'CMSSW_7_3_0_pre1-PRE_LS172_V15-v1',        # 13 TeV samples with GEN-SIM from 720_p4;
+    'CMSSW_7_3_0_pre1-PRE_LS172_V15-v1',       # 13 TeV samples with GEN-SIM from 720_p4; also GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
+    'CMSSW_7_3_0_pre1-PRE_LS172_V15_FastSim-v1', #  fast sim GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
     ]
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available 
@@ -342,13 +343,13 @@ steps['SingleGammaPt10INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleGammaPt10
 steps['SingleGammaPt35INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleGammaPt35/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['SingleMuPt1INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt1/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['SingleMuPt10INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt10/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
-steps['SingleMuPt10IdINPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt10_UP15/CMSSW_7_3_0_pre1-PRE_LS172_V15-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',location='STD',split=1)}
-steps['SingleMuPt10FSIdINPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt10/CMSSW_7_3_0_pre1-PRE_LS172_V15_FastSim-v1/GEN-SIM-DIGI-RECO',location='STD',split=1)}
+steps['SingleMuPt10_UP15IDINPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt10_UP15/%s/GEN-SIM-DIGI-RAW-HLTDEBUG'%(baseDataSetRelease[4],),location='STD',split=1)}
+steps['SingleMuPt10_UP15FSIDINPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt10/%s/GEN-SIM-DIGI-RECO'%(baseDataSetRelease[5],),location='STD',split=1)}
 steps['SingleMuPt100INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt100/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['SingleMuPt1000INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt1000/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['TTbarINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
-steps['TTbarIdINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/CMSSW_7_3_0_pre1-PRE_LS172_V15-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',location='STD',split=1)}
-steps['TTbarFSIdINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/CMSSW_7_3_0_pre1-PRE_LS172_V15_FastSim-v1/GEN-SIM-DIGI-RECO',location='STD',split=1)}
+steps['TTbar_13IDINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/%s/GEN-SIM-DIGI-RAW-HLTDEBUG'%(baseDataSetRelease[4],),location='STD',split=1)}
+steps['TTbar_13FSIDINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/%s/GEN-SIM-DIGI-RECO'%(baseDataSetRelease[5],),location='STD',split=1)}
 steps['TTbarLeptonINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbarLepton/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 steps['OldTTbarINPUT']={'INPUT':InputInfo(dataSet='/RelValProdTTbar/CMSSW_5_0_0_pre6-START50_V5-v1/GEN-SIM-RECO',location='STD')}
 steps['OldGenSimINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar/CMSSW_4_4_2-START44_V7-v1/GEN-SIM-DIGI-RAW-HLTDEBUG',location='STD')}
@@ -379,9 +380,6 @@ steps['ZpEE_2250_13TeV_TauolaINPUT']={'INPUT':InputInfo(dataSet='/RelValZpEE_225
 steps['ZpTT_1500_13TeV_TauolaINPUT']={'INPUT':InputInfo(dataSet='/RelValZpTT_1500_13TeV_Tauola/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
 steps['MinBiasHS_13INPUT']={'INPUT':InputInfo(dataSet='/RelValMinBiasHS_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
 steps['Higgs200ChargedTaus_13INPUT']={'INPUT':InputInfo(dataSet='/RelValHiggs200ChargedTaus_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
-
-# remove JpsiMM_13 at the next round
-# steps['JpsiMM_13INPUT']={'INPUT':InputInfo(dataSet='/RelValJpsiMM_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
 
 # activate GEN-SIM recycling once we'll have the first set of gen-sim
 steps['Upsilon1SToMuMu_13INPUT']={'INPUT':InputInfo(dataSet='/Upsilon1SToMuMu_13/%s/GEN-SIM'%(baseDataSetRelease[4],),location='STD')}
@@ -660,8 +658,8 @@ steps['TTbarSFSA']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi',
 def identityFS(wf):
     return merge([{'--restoreRND':'HLT','--process':'HLT2','--hltProcess':'HLT2', '--inputCommands':'"keep *","drop *TagInfo*_*_*_*"'},wf])
 
-steps['SingleMuPt10FS_ID']=identityFS(steps['SingleMuPt10FS_UP15'])
-steps['TTbarFS_ID']=identityFS(steps['TTbarFS_13'])
+steps['SingleMuPt10FS_UP15_ID']=identityFS(steps['SingleMuPt10FS_UP15'])
+steps['TTbarFS_13_ID']=identityFS(steps['TTbarFS_13'])
 
 step1GenDefaults=merge([{'-s':'GEN,VALIDATION:genvalid',
                          '--relval':'250000,20000',
@@ -785,7 +783,7 @@ steps['DIGIPU1']=merge([PU,step2Defaults])
 steps['DIGIPU2']=merge([PU2,step2Defaults])
 steps['REDIGIPU']=merge([{'-s':'reGEN,reDIGI,L1,DIGI2RAW,HLT:@fake,RAW2DIGI,L1Reco'},steps['DIGIPU1']])
 
-steps['DIGI_ID']=merge([{'--restoreRND':'HLT','--process':'HLT2'},steps['DIGIUP15']])
+steps['DIGIUP15_ID']=merge([{'--restoreRND':'HLT','--process':'HLT2'},steps['DIGIUP15']])
 
 steps['RESIM']=merge([{'-s':'reGEN,reSIM','-n':10},steps['DIGI']])
 steps['RESIMDIGI']=merge([{'-s':'reGEN,reSIM,DIGI,L1,DIGI2RAW,HLT:@fake,RAW2DIGI,L1Reco','-n':10,'--restoreRNDSeeds':'','--process':'HLT'},steps['DIGI']])
@@ -994,7 +992,7 @@ steps['RECOPRMXUP15PROD_PU50']=merge([
 steps['RECOPUDBG']=merge([{'--eventcontent':'RECODEBUG,DQM'},steps['RECOPU1']])
 steps['RERECOPU1']=merge([{'--hltProcess':'REDIGI'},steps['RECOPU1']])
 
-steps['RECO_ID']=merge([{'--hltProcess':'HLT2'},steps['RECOUP15']])
+steps['RECOUP15_ID']=merge([{'--hltProcess':'HLT2'},steps['RECOUP15']])
 
 steps['RECOHI']=merge([hiDefaults,{'-s':'RAW2DIGI,L1Reco,RECO,VALIDATION,DQM'},step3Up2015Defaults])
 #wmsplit['RECOHI']=5
@@ -1154,10 +1152,6 @@ steps['HARVESTUP17']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--filetype':'DQM',
                    '--geometry' : 'Extended2017' #check geo
                    }
-
-
-steps['HARVEST_ID']=steps['HARVESTUP15']
-steps['HARVESTFS_ID']=steps['HARVESTUP15FS']
 
 steps['ALCASPLIT']={'-s':'ALCAOUTPUT:@allForPrompt',
                     '--conditions':'auto:run1_data',
