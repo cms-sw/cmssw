@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 ### CCLA include latest RCT calibrations from UCT
 from L1Trigger.L1TCalorimeter.caloStage1RCTLuts_cff import *
-RCTConfigProducers.hOeCut = cms.double(0.2)
+RCTConfigProducers.hOeCut = cms.double(999)
 
 from L1Trigger.L1TCalorimeter.caloStage1Params_cfi import *
 from Configuration.StandardSequences.RawToDigi_Repacked_cff import ecalDigis, hcalDigis
