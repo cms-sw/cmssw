@@ -49,29 +49,9 @@ def customisePostLS1EraExtras(process):
     what I have to modify next.
     """
 
-    # These next 5 lines should be equivalent to calling L1Trigger.Configuration.L1Trigger_custom.customiseL1Menu
-#     process.load('L1TriggerConfig.L1GtConfigProducers.l1GtTriggerMenuXml_cfi')
-#     process.l1GtTriggerMenuXml.TriggerMenuLuminosity = "startup"
-#     process.l1GtTriggerMenuXml.DefXmlFile = 'L1Menu_Collisions2015_25ns_v1_L1T_Scales_20101224_Imp0_0x102f.xml'
-
-#     process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMenuConfig_cff')
-#     process.es_prefer_l1GtParameters = cms.ESPrefer('L1GtTriggerMenuXmlProducer','l1GtTriggerMenuXml')
-# 
-#     #print "INFO:  loading RCT LUTs"
-#     process.load("L1Trigger.L1TCalorimeter.caloStage1RCTLuts_cff")
-
-#     if hasattr(process,'L1simulation_step'):
-        #print "INFO:  Removing GCT from simulation and adding new Stage 1"
-#         process.load('L1Trigger.L1TCalorimeter.caloStage1Params_cfi')
-#         process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_cff')
-#         process.L1simulation_step.replace(process.simGctDigis,process.L1TCaloStage1)
-#         process.rctUpgradeFormatDigis.regionTag = cms.InputTag("simRctDigis")
-#         process.rctUpgradeFormatDigis.emTag = cms.InputTag("simRctDigis")
-        #print "New L1 simulation step is:", process.L1simulation_step
-#         process.simGtDigis.GmtInputTag = 'simGmtDigis'
-#         process.simGtDigis.GctInputTag = 'caloStage1LegacyFormatDigis'
-#         process.simGtDigis.TechnicalTriggersInputTags = cms.VInputTag( )
-#         process.gctDigiToRaw.gctInputLabel = 'caloStage1LegacyFormatDigis'
+    if hasattr(process, "mix") :
+        from SimGeneral.MixingModule.digitizers_cfi import modifyMixForPostLS1
+        modifyMixForPostLS1( process.mix )
 
     return process
 
