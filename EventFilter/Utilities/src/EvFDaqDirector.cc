@@ -756,4 +756,21 @@ namespace evf {
     }
   }
 
+
+  int EvFDaqDirector::readLastLSEntry(std::string file) {
+
+    boost::filesystem::ifstream ij(file);
+    Json::Value deserializeRoot;
+    Json::Reader reader;
+
+    if (!reader.parse(ij, deserializeRoot)) {
+      edm::LogError("EvFDaqDirector") << "Cannot deserialize input JSON file -:" << file;
+      return -1;
+    }
+
+    int ret = deserializeRoot.get("lastLS","").asInteger()
+    return ret;
+
+  }
+
 }

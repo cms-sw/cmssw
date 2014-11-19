@@ -99,6 +99,7 @@ namespace evf{
       void lockFULocal2();
       void unlockFULocal2();
       void createRunOpendirMaybe();
+      int readLastLSEntry(std::string file);
       void setDeleteTracking( std::mutex* fileDeleteLock,std::list<std::pair<int,InputFile*>> *filesToDelete) {
         fileDeleteLockPtr_=fileDeleteLock;
         filesToDeletePtr_ = filesToDelete;
