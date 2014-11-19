@@ -19,10 +19,12 @@ def getHighMultVPSet():
     thresholds = [60, 85, 110, 135, 160]
     for t in thresholds:
         partialPathName = "HLT_PixelTracks_Multiplicity"+str(t)+"_v"
+        binL =  t/2
+        binH =  3*t
+        bins = (binH-binL)/5
         tracksCount  =  cms.PSet(
                 triggerSelection = cms.string(partialPathName+"*"),
                 handlerType = cms.string("RecoTrackCounter"),
-                #inputCol = cms.InputTag("hltPixelTracksForHighMult"),
                 inputCol = cms.InputTag("generalTracks"),
                 partialPathName = cms.string(partialPathName),
                 partialFilterName  = cms.string("hltL1sETT"),
@@ -35,7 +37,7 @@ def getHighMultVPSet():
                 combinedObjectDimension = cms.int32(1),
                 drawables =  cms.VPSet(
                     cms.PSet (name = cms.string("count_nominator"), expression = cms.string('at(0)'), 
-                             bins = cms.int32(30), min = cms.double(t), max = cms.double(t+t/2))
+                             bins = cms.int32(bins), min = cms.double(binL), max = cms.double(binH))
                 )
         )
         ret.append(tracksCount)				
