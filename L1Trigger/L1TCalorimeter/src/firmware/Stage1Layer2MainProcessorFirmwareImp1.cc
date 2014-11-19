@@ -44,7 +44,7 @@ Stage1Layer2MainProcessorFirmwareImp1::Stage1Layer2MainProcessorFirmwareImp1(con
     m_jetAlgo = new Stage1Layer2JetAlgorithmImpSimpleHW(m_db);
     m_egAlgo = new Stage1Layer2EGammaAlgorithmImpHW(m_db);
     m_sumAlgo = new Stage1Layer2EtSumAlgorithmImpHW(m_db);
-    m_tauAlgo = NULL;
+    m_tauAlgo = new Stage1Layer2TauAlgorithmImpHW(m_db);
     m_hfRingAlgo = NULL;
     m_hfBitAlgo = NULL;
   }

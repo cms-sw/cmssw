@@ -46,5 +46,26 @@ namespace l1t {
 			const std::vector<l1t::Jet> & jets) const;
 
   };
+
+  class Stage1Layer2TauAlgorithmImpHW : public Stage1Layer2TauAlgorithm {
+  public:
+    Stage1Layer2TauAlgorithmImpHW(CaloParamsStage1* params);
+    virtual ~Stage1Layer2TauAlgorithmImpHW();
+    virtual void processEvent(const std::vector<l1t::CaloEmCand> & EMCands,
+                              const std::vector<l1t::CaloRegion> & regions,
+			      const std::vector<l1t::Jet> * jets,
+                              std::vector<l1t::Tau> * taus);
+
+  private:
+
+    CaloParamsStage1* const params_;
+
+
+    string findNESW(int ieta, int iphi, int neta, int nphi) const;
+
+    double JetIsolation(int et, int ieta, int iphi,
+			const std::vector<l1t::Jet> & jets) const;
+
+  };
 }
 #endif
