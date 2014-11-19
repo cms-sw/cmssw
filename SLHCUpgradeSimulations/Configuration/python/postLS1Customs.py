@@ -36,25 +36,6 @@ def customisePostLS1(process):
 
     return process
 
-def customisePostLS1EraExtras(process):
-    """
-    This function is for testing the run2 era only. It is intended to do the
-    customisations the old fashioned way for bits that haven't been added to the
-    era yet. As commands are added to the era they will taken out from here. The
-    aim is to get everything into the era, i.e. this function will eventually be
-    empty (and then removed).
-    
-    This should be exactly the same as the customisePostLS1 function (initially)
-    except that I've expanded out some of the functions to make it easier to see
-    what I have to modify next.
-    """
-
-    if hasattr(process, "mix") :
-        from SimGeneral.MixingModule.digitizers_cfi import modifyMixForPostLS1
-        modifyMixForPostLS1( process.mix )
-
-    return process
-
 
 def digiEventContent(process):
     #extend the event content
