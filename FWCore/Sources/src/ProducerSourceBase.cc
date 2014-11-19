@@ -143,7 +143,7 @@ namespace edm {
     advanceToNext(eventID_, presentTime_);
     if (eventCreationDelay_ > 0) {usleep(eventCreationDelay_);}
     size_t index = fileIndex();
-    bool another = setRunAndEventInfo(eventID_, presentTime_);
+    bool another = setRunAndEventInfo(eventID_, presentTime_, eType_);
     if(!another) {
       return IsStop;
     }

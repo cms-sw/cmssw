@@ -232,6 +232,10 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
   /// neutralMultiplicity
   neutralMultiplicity = 0;
 
+  /// HOEnergy
+  HOEnergy = 0;
+  /// HOEnergyFraction (relative to corrected jet energy)
+  HOEnergyFraction = 0;
 }
 
 void JetTester::bookHistograms(DQMStore::IBooker & ibooker,
@@ -401,6 +405,8 @@ void JetTester::bookHistograms(DQMStore::IBooker & ibooker,
       chargedMuEnergy = ibooker.book1D("chargedMuEnergy", "chargedMuEnergy", 50,0,500);
       chargedMuEnergyFraction = ibooker.book1D("chargedMuEnergyFraction", "chargedMuEnergyFraction", 50,0,1);
       neutralMultiplicity = ibooker.book1D("neutralMultiplicity", "neutralMultiplicity", 50,0,50);
+      HOEnergy = ibooker.book1D("HOEnergy", "HOEnergy", 50,0,500);
+      HOEnergyFraction = ibooker.book1D("HOEnergyFraction", "HOEnergyFraction", 50,0,1);
     }
 
   if (mOutputFile.empty ())
@@ -611,6 +617,8 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
         chargedMuEnergy ->Fill((*pfJets)[ijet].chargedMuEnergy());
         chargedMuEnergyFraction ->Fill((*pfJets)[ijet].chargedMuEnergyFraction());
         neutralMultiplicity ->Fill((*pfJets)[ijet].neutralMultiplicity()); 
+        HOEnergy ->Fill((*pfJets)[ijet].hoEnergy());
+        HOEnergyFraction ->Fill((*pfJets)[ijet].hoEnergyFraction());
      }
       // ---- JPT Jet specific information ----
      /* if (isJPTJet) {

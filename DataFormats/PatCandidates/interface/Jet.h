@@ -30,6 +30,7 @@
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
 #include "DataFormats/BTauReco/interface/TrackProbabilityTagInfo.h"
 #include "DataFormats/BTauReco/interface/TrackCountingTagInfo.h"
+#include "DataFormats/BTauReco/interface/CandSoftLeptonTagInfo.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 #include "SimDataFormats/JetMatching/interface/JetFlavourInfo.h"
 
@@ -187,6 +188,7 @@ namespace pat {
       /// get a tagInfo with the given name and type or NULL if none is found.
       /// If the label is empty or not specified, it returns the first tagInfo of that type (if any one exists)
       /// you should omit the 'TagInfos' part from the label
+      const reco::CandSoftLeptonTagInfo  * tagInfoCandSoftLepton(const std::string &label="") const;
       const reco::SoftLeptonTagInfo      * tagInfoSoftLepton(const std::string &label="") const;
       /// get a tagInfo with the given name and type or NULL if none is found.
       /// If the label is empty or not specified, it returns the first tagInfo of that type (if any one exists)
@@ -407,7 +409,12 @@ namespace pat {
       /// neutralMultiplicity
       int neutralMultiplicity () const {return pfSpecific().mNeutralMultiplicity;}
 
+      /// hoEnergy
+      float hoEnergy () const {return pfSpecific().mHOEnergy;}
+      /// hoEnergyFraction (relative to corrected jet energy)
+      float hoEnergyFraction () const {return hoEnergy()/((jecSetsAvailable() ? jecFactor(0) : 1.)*energy());}
       /// convert generic constituent to specific type
+
       //  static CaloTowerPtr caloTower (const reco::Candidate* fConstituent);
       /// get specific constituent of the CaloJet.
       /// if the caloTowers were embedded, this reference is transient only and must not be persisted
