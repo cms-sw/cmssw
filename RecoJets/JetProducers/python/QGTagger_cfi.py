@@ -35,5 +35,6 @@ QGTagger = cms.EDProducer('QGTagger',
   srcRho 		= cms.InputTag('fixedGridRhoFastjetAll'),		
   srcVertexCollection	= cms.InputTag('offlinePrimaryVerticesWithBS'),
   jec			= cms.InputTag(''),
-  systematicsLabel	= cms.string('')
+  systematicsLabel	= cms.string(''),
+  useQualityCuts	= cms.bool(False)
 )

@@ -34,7 +34,7 @@ QGTagger::QGTagger(const edm::ParameterSet& iConfig) :
   jetCorrector_inputTag(					iConfig.getParameter<edm::InputTag>("jec")),
   jetsLabel(							iConfig.getParameter<std::string>("jetsLabel")),
   systLabel(							iConfig.getParameter<std::string>("systematicsLabel")),
-  useQC(							iConfig.getUntrackedParameter<bool>("useQualityCuts", false))
+  useQC(							iConfig.getParameter<bool>("useQualityCuts"))
 {
   useJetCorr = !jetCorrector_inputTag.label().empty();
   produceSyst = (systLabel != "");
@@ -190,7 +190,7 @@ void QGTagger::fillDescriptions(edm::ConfigurationDescriptions& descriptions){
   desc.add<edm::InputTag>("srcVertexCollection");
   desc.add<std::string>("jetsLabel");
   desc.add<std::string>("systematicsLabel");
-  desc.addUntracked<bool>("useQualityCuts", false);
+  desc.add<bool>("useQualityCuts");
   descriptions.add("QGTagger", desc);
 }
 
