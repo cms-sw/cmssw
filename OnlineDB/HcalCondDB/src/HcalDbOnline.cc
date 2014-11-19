@@ -11,7 +11,7 @@
 #include "OnlineDB/Oracle/interface/Oracle.h" 
 
 #include "FWCore/Utilities/interface/Exception.h"
-#include "CondTools/Hcal/interface/HcalDbOnline.h"
+#include "OnlineDB/HcalCondDB/interface/HcalDbOnline.h"
 
 namespace {
 
