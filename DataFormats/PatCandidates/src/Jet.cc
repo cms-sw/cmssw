@@ -368,6 +368,11 @@ Jet::tagInfoTrackIP(const std::string &label) const {
     return tagInfoByTypeOrLabel<reco::TrackIPTagInfo>(label);
 }
 
+const reco::CandSoftLeptonTagInfo *
+Jet::tagInfoCandSoftLepton(const std::string &label) const {
+    return tagInfoByTypeOrLabel<reco::CandSoftLeptonTagInfo>(label);
+}
+
 const reco::SoftLeptonTagInfo *
 Jet::tagInfoSoftLepton(const std::string &label) const {
     return tagInfoByTypeOrLabel<reco::SoftLeptonTagInfo>(label);

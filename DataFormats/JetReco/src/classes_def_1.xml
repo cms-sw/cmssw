@@ -57,7 +57,8 @@
   <class name="reco::PFJet" ClassVersion="10">
    <version ClassVersion="10" checksum="3657319332"/>
   </class>
-  <class name="reco::PFJet::Specific" ClassVersion="10">
+  <class name="reco::PFJet::Specific" ClassVersion="11">
+   <version ClassVersion="11" checksum="3865393003"/>
    <version ClassVersion="10" checksum="3345092571"/>
   </class>
   <class name="std::vector<reco::PFJet>"/>

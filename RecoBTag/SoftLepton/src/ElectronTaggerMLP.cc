@@ -1,4 +1,4 @@
-#include "ElectronTaggerMLP.h"
+#include "RecoBTag/SoftLepton/interface/ElectronTaggerMLP.h"
 #include <cmath>
 
 double ElectronTaggerMLP::Value(int index,double in0,double in1,double in2,double in3) {
