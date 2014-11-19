@@ -82,6 +82,7 @@ bool HcalTopology::validHT(const HcalTrigTowerDetId& id) const {
     if (triggerMode_==HcalTopologyMode::tm_LHC_RCT) return false;
     if (id.ietaAbs()<28 || id.ietaAbs()>41) return false;
     if (id.ietaAbs()>29 && ((id.iphi()%2)==0)) return false;
+    if (id.ietaAbs()>39 && ((id.iphi()%4)!=3)) return false;
   }
   return true;
 
