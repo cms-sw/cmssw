@@ -8,7 +8,7 @@ process.GlobalTag.globaltag = "GR_R_61_V7::All"
 #process.GlobalTag.globaltag = "FT_R_53_V6C::All" 
 
 #process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-process.load("Configuration.Geometry.GeometryIdeal_cff")
+process.load("Configuration.Geometry.GeometryDB_cff")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 

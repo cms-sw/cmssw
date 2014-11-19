@@ -21,7 +21,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 # magnetic field
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load('Configuration.StandardSequences.Services_cff')
-process.load('Configuration.StandardSequences.Geometry_cff')
+process.load("Configuration.Geometry.GeometryDB_cff")
 
 # including global tag
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_noesprefer_cff")
