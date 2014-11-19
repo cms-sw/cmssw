@@ -637,7 +637,7 @@ class SimpleValidation:
         #         theDir = d
         #     dirs.append(theDir)
 
-        self._plotter.create(openFiles, self._labels)
+        self._plotter.create(openFiles, self._labels, subdir=self._algoDirMap[quality][algo])
         fileList = self._plotter.draw(algo)
 
         for tf in openFiles:
