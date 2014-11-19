@@ -65,21 +65,21 @@ void l1t::Stage1Layer2EtSumAlgorithmImpHW::processEvent(const std::vector<l1t::C
   std::vector<double> regionPUSParams = params_->regionPUSParams();
   RegionCorrection(regions, subRegions, regionPUSParams, regionPUSType);
 
-  double towerLsb = params_->towerLsbSum();
-  int jetSeedThreshold = floor( params_->jetSeedThreshold()/towerLsb + 0.5);
-  // ----- cluster jets for repurposing of MHT phi (use if for angle between leading jet)
-  std::vector<l1t::Jet> *unCorrJets = new std::vector<l1t::Jet>();
-  std::vector<l1t::Jet> * unSortedJets = new std::vector<l1t::Jet>();
-  std::vector<l1t::Jet> * SortedJets = new std::vector<l1t::Jet>();
-  slidingWindowJetFinder(jetSeedThreshold, subRegions, unCorrJets);
+  // double towerLsb = params_->towerLsbSum();
+  // int jetSeedThreshold = floor( params_->jetSeedThreshold()/towerLsb + 0.5);
+  // // ----- cluster jets for repurposing of MHT phi (use if for angle between leading jet)
+  // std::vector<l1t::Jet> *unCorrJets = new std::vector<l1t::Jet>();
+  // std::vector<l1t::Jet> * unSortedJets = new std::vector<l1t::Jet>();
+  // std::vector<l1t::Jet> * SortedJets = new std::vector<l1t::Jet>();
+  // slidingWindowJetFinder(jetSeedThreshold, subRegions, unCorrJets);
 
   //if jetCalibrationType is set to None in the config
-  std::string jetCalibrationType = params_->jetCalibrationType();
-  std::vector<double> jetCalibrationParams = params_->jetCalibrationParams();
-  JetCalibration(unCorrJets, jetCalibrationParams, unSortedJets, jetCalibrationType, towerLsb);
+  // std::string jetCalibrationType = params_->jetCalibrationType();
+  // std::vector<double> jetCalibrationParams = params_->jetCalibrationParams();
+  // JetCalibration(unCorrJets, jetCalibrationParams, unSortedJets, jetCalibrationType, towerLsb);
 
-  SortJets(unSortedJets, SortedJets);
-  int dijet_phi=DiJetPhi(SortedJets);
+  // SortJets(unSortedJets, SortedJets);
+  // int dijet_phi=DiJetPhi(SortedJets);
 
   for(std::vector<CaloRegion>::const_iterator region = subRegions->begin(); region != subRegions->end(); region++) {
     if (region->hwEta() < etSumEtaMinEt || region->hwEta() > etSumEtaMaxEt) {
@@ -122,33 +122,30 @@ void l1t::Stage1Layer2EtSumAlgorithmImpHW::processEvent(const std::vector<l1t::C
   double physicalPhiHT = atan2(sumHy, sumHx) + 3.1415927;
   unsigned int iPhiHT = L1CaloRegionDetId::N_PHI * (physicalPhiHT) / (2 * 3.1415927);
 
-  //std::cout << "MET:" << MET << "\tHT: " << MHT << std::endl;
-  //std::cout << "sumMET:" << sumET << "\tsumHT: " << sumHT << std::endl;
-
   const ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > etLorentz(0,0,0,0);
 
   int METqual = 0;
+  int MHTqual = 0;
   int ETTqual = 0;
   int HTTqual = 0;
   if(MET >= 0xfff)
     METqual = 1;
+  if(MHT >= 0xfff)
+    MHTqual = 1;
   if(sumET >= 0xfff) //hardcoded 12 bit maximum
     ETTqual = 1;
   if(sumHT >= 0xfff)
     HTTqual = 1;
 
   // scale MHT by sumHT
-  // int mtmp = floor (((double) MHT / (double) sumHT)*100 + 0.5);
-  double mtmp = ((double) MHT / (double) sumHT);
-  int rank=params_->HtMissScale().rank(mtmp);
+  //double mtmp = ((double) MHT / (double) sumHT);
+  //int rank=params_->HtMissScale().rank(mtmp);
 
-  // if (mtmp>.95)std::cout << " MHT: " << MHT << " sumHT " << sumHT << " rat: " << mtmp << " rank " << rank << std::endl;
-
-  MHT=rank;
-  iPhiHT=dijet_phi;
+  //MHT=rank;
+  //iPhiHT=dijet_phi;
 
   l1t::EtSum etMiss(*&etLorentz,EtSum::EtSumType::kMissingEt,MET&0xfff,0,iPhiET,METqual);
-  l1t::EtSum htMiss(*&etLorentz,EtSum::EtSumType::kMissingHt,MHT&0xfff,0,iPhiHT,HTTqual);
+  l1t::EtSum htMiss(*&etLorentz,EtSum::EtSumType::kMissingHt,MHT&0xfff,0,iPhiHT,MHTqual);
   l1t::EtSum etTot (*&etLorentz,EtSum::EtSumType::kTotalEt,sumET&0xfff,0,0,ETTqual);
   l1t::EtSum htTot (*&etLorentz,EtSum::EtSumType::kTotalHt,sumHT&0xfff,0,0,HTTqual);
 
@@ -162,9 +159,9 @@ void l1t::Stage1Layer2EtSumAlgorithmImpHW::processEvent(const std::vector<l1t::C
   EtSumToGtScales(params_, preGtEtSums, etsums);
 
   delete subRegions;
-  delete unCorrJets;
-  delete unSortedJets;
-  delete SortedJets;
+  // delete unCorrJets;
+  // delete unSortedJets;
+  // delete SortedJets;
   delete preGtEtSums;
 
   const bool verbose = true;
