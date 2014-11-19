@@ -1116,11 +1116,11 @@ class ModifierChain(object):
         applies list of accumulated changes to the process"""
         for m in self.__chain:
             m._applyNewProcessModifiers(process)
-    def _setChosen(self):
+    def _setChosen(self,newProcess):
         """Should only be called by cms.Process instances"""
         self.__chosen = True
         for m in self.__chain:
-            m._setChosen()
+            m._setChosen(newProcess)
     def isChosen(self):
         return self.__chosen
 
