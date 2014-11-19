@@ -2,16 +2,16 @@
 import FWCore.ParameterSet.Config as cms
 
 
-# customize to use upgrade L1 emulation 
+# customize to use upgrade L1 emulation
 
 from L1Trigger.Configuration.L1Trigger_custom import customiseL1Menu
 
 # customization of run L1 emulator for 2015 run configuration
-def customiseSimL1EmulatorForPostLS1(process):
+def customiseSimL1EmulatorForPostLS1_nomenu(process):
     #print "INFO:  Customising L1T emulator for 2015 run configuration"
     #print "INFO:  Customize the L1 menu"
     # the following line will break HLT if HLT menu is not updated with the corresponding menu
-    process=customiseL1Menu(process)
+    #process=customiseL1Menu(process)
     #print "INFO:  loading RCT LUTs"
     process.load("L1Trigger.L1TCalorimeter.caloStage1RCTLuts_cff")
 
@@ -159,7 +159,7 @@ def customiseSimL1EmulatorForPostLS1(process):
 #    # Plan B:  (Not Needed if packing/unpacking of Stage 1 calo via legacy formats and GCT packer works)
 #    #
 #    process.digi2raw_step.remove(process.gctDigiToRaw)
-#   
+#
 #    # Carry forward legacy format digis for now (keep rest of workflow working)
 #    alist=['RAWSIM','RAWDEBUG','FEVTDEBUG','FEVTDEBUGHLT','GENRAW','RAWSIMHLT','FEVT']
 #    for a in alist:
@@ -167,7 +167,7 @@ def customiseSimL1EmulatorForPostLS1(process):
 #        if hasattr(process,b):
 #            getattr(process,b).outputCommands.append('keep *_caloStage1LegacyFormatDigis_*_*')
 #            print "INFO:  keeping L1T legacy format digis in event."
-#    
+#
 #
 #    # automatic replacements of "simGctDigis" instead of "hltGctDigis"
 #    for module in process.__dict__.itervalues():
@@ -177,3 +177,12 @@ def customiseSimL1EmulatorForPostLS1(process):
 #                    if parameter.moduleLabel == 'hltGctDigis':
 #                        parameter.moduleLabel = "simGctDigis"
 
+def customiseSimL1EmulatorForPostLS1(process):
+    process=customiseL1Menu(process)
+    process=customiseSimL1EmulatorForPostLS1_nomenu(process)
+    return process
+
+def customiseSimL1EmulatorForPostLS1_HI(process):
+    process=customiseL1Menu_HI(process)
+    process=customiseSimL1EmulatorForPostLS1_nomenu(process)
+    return process
