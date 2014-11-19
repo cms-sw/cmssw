@@ -160,6 +160,7 @@ void l1t::Stage1Layer2TauAlgorithmImpHW::processEvent(const std::vector<l1t::Cal
   const bool verbose = true;
   if(verbose)
   {
+    std::cout << "Taus" << std::endl;
     int count = 0;
     for(std::vector<l1t::Tau>::const_iterator iTau = taus->begin(); iTau != taus->end(); ++iTau)
     {
