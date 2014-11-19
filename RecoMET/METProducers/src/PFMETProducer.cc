@@ -23,6 +23,8 @@
 #include "RecoMET/METAlgorithms/interface/SignPFSpecificAlgo.h"
 #include "RecoMET/METAlgorithms/interface/METSignificance.h"
 
+#include "TVector.h"
+
 #include <string.h>
 
 //____________________________________________________________________________||

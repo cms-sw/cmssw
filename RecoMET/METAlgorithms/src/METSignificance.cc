@@ -68,11 +68,6 @@ metsig::METSignificance::getCovariance()
    double cov_xy = 0;
    double cov_yy = 0;
 
-   // pseudo-jet initialization
-   double pjet_px = 0;
-   double pjet_py = 0;
-   double pjet_scalpt = 0;
-
    // calculate sumPt
    double sumPt = 0;
    for( std::vector<reco::Candidate::LorentzVector>::const_iterator cand = candidates.begin();
@@ -94,20 +89,17 @@ metsig::METSignificance::getCovariance()
       double c = cos(jet->phi());
       double s = sin(jet->phi());
 
-      double jptL123 = jpt;
-      double jptT1 = jpt;
-
       // jet energy resolutions
       double jeta_res = (fabs(jeta) < 9.9) ? jeta : 9.89; // JetResolutions defined for |eta|<9.9
       TF1* fPtEta    = ptRes_ -> parameterEta("sigma",jeta_res);
       TF1* fPhiEta   = phiRes_-> parameterEta("sigma",jeta_res);
-      double sigmapt = fPtEta->Eval(jptL123);
-      double sigmaphi = fPhiEta->Eval(jptL123);
+      double sigmapt = fPtEta->Eval(jpt);
+      double sigmaphi = fPhiEta->Eval(jpt);
       delete fPtEta;
       delete fPhiEta;
 
       // split into high-pt and low-pt sector
-      if( jptL123 > jetThreshold ){
+      if( jpt > jetThreshold ){
          // high-pt jets enter into the covariance matrix via JER
 
          double scale = 0;
@@ -117,8 +109,8 @@ metsig::METSignificance::getCovariance()
          else if(feta<jetetas[3]) scale = jetparams[3];
          else scale = jetparams[4];
 
-         double dpt = scale*jptT1*sigmapt;
-         double dph = jptT1*sigmaphi;
+         double dpt = scale*jpt*sigmapt;
+         double dph = jpt*sigmaphi;
 
          cov_xx += dpt*dpt*c*c + dph*dph*s*s;
          cov_xy += (dpt*dpt-dph*dph)*c*s;
@@ -130,18 +122,13 @@ metsig::METSignificance::getCovariance()
          }
 
       }else{
-         // low-pt jets are lumped into the pseudo-jet
-
-         pjet_px += jptL123*c;
-         pjet_py += jptL123*s;
-         pjet_scalpt += jptL123;
 
          // subtract the pf constituents in each jet out of the sumPt
          for(unsigned int i=0; i < jet->numberOfDaughters(); i++){
             sumPt -= jet->daughter(i)->pt();
          }
          // add the (corrected) jet to the sumPt
-         sumPt += jptL123;
+         sumPt += jpt;
 
       }
 
@@ -168,7 +155,7 @@ metsig::METSignificance::getSignificance(TMatrixD& cov)
 
    // invert matrix
    double ncov_xx = cov(1,1) / det;
-   double ncov_xy = -cov(1,0) / det;
+   double ncov_xy = -cov(0,1) / det;
    double ncov_yy = cov(0,0) / det;
 
    // product of met and inverse of covariance
