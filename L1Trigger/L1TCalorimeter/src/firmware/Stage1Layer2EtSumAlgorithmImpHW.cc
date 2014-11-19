@@ -177,11 +177,11 @@ void l1t::Stage1Layer2EtSumAlgorithmImpHW::processEvent(const std::vector<l1t::C
       	cout << "Missing Et" << endl;
       	cout << bitset<7>(itetsum->hwPhi()).to_string() << bitset<1>(itetsum->hwQual()).to_string() << bitset<12>(itetsum->hwPt()).to_string() << endl;
       }
-      // if(EtSum::EtSumType::kMissingHt == itetsum->getType())
-      // {
-      // 	cout << "Missing Ht" << endl;
-      // 	cout << bitset<12>(itetsum->hwPt()).to_string() << endl;
-      // }
+      if(EtSum::EtSumType::kMissingHt == itetsum->getType())
+      {
+      	cout << "Missing Ht" << endl;
+      	cout << bitset<1>(itetsum->hwQual()).to_string() << bitset<7>(itetsum->hwPt()).to_string() << bitset<5>(itetsum->hwPhi()).to_string() << endl;
+      }
       if(EtSum::EtSumType::kTotalEt == itetsum->getType())
       {
 	cout << "Total Et" << endl;
