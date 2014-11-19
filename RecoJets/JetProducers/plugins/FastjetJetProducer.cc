@@ -33,6 +33,9 @@
 #include "fastjet/tools/Filter.hh"
 #include "fastjet/tools/Pruner.hh"
 #include "fastjet/tools/MassDropTagger.hh"
+#include "fastjet/contrib/SoftDrop.hh"
+#include "fastjet/tools/JetMedianBackgroundEstimator.hh"
+#include "fastjet/contrib/ConstituentSubtractor.hh"
 #include "RecoJets/JetAlgorithms/interface/CMSBoostedTauSeedingAlgorithm.h"
 
 #include <iostream>
@@ -60,6 +63,8 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
     usePruning_(false),
     useCMSBoostedTauSeedingAlgorithm_(false),
     useKtPruning_(false),
+    useConstituentSubtraction_(false),
+    useSoftDrop_(false),
     muCut_(-1.0),
     yCut_(-1.0),
     rFilt_(-1.0),
@@ -67,7 +72,10 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
     nFilt_(-1),
     trimPtFracMin_(-1.0),
     zCut_(-1.0),
-    RcutFactor_(-1.0)
+    RcutFactor_(-1.0),
+    csRho_EtaMax_(-1.0),
+    csRParam_(-1.0),
+    beta_(-1.0)
 {
 
   if ( iConfig.exists("UseOnlyVertexTracks") )
@@ -102,7 +110,10 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
        iConfig.exists("useTrimming") ||
        iConfig.exists("usePruning") ||
        iConfig.exists("useMassDropTagger") ||
-       iConfig.exists("useCMSBoostedTauSeedingAlgorithm") ) {
+       iConfig.exists("useCMSBoostedTauSeedingAlgorithm") ||
+       iConfig.exists("useConstituentSubtraction") ||
+       iConfig.exists("useSoftDrop")
+       ) {
     useMassDropTagger_=false;
     useFiltering_=false;
     useDynamicFiltering_=false;
@@ -110,6 +121,8 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
     usePruning_=false;
     useCMSBoostedTauSeedingAlgorithm_=false;
     useKtPruning_=false;
+    useConstituentSubtraction_=false;
+    useSoftDrop_ = false;
     rFilt_=-1.0;
     rFiltFactor_=-1.0;
     nFilt_=-1;
@@ -126,6 +139,9 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
     dRMin_ = -1.0;
     dRMax_ = -1.0;
     maxDepth_ = -1;
+    csRho_EtaMax_ = -1.0;
+    csRParam_ = -1.0;
+    beta_ = -1.0;
     useExplicitGhosts_ = true;
 
     if ( iConfig.exists("useMassDropTagger") ) {
@@ -171,6 +187,26 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
       dRMin_ = iConfig.getParameter<double>("dRMin");
       dRMax_ = iConfig.getParameter<double>("dRMax");
       maxDepth_ = iConfig.getParameter<int>("maxDepth");
+    }
+
+    if ( iConfig.exists("useConstituentSubtraction") ) {
+
+      if ( fjAreaDefinition_.get() == 0 ) {
+	throw cms::Exception("AreaMustBeSet") << "Logic error. The area definition must be set if you use constituent subtraction." << std::endl;
+      }
+
+      useConstituentSubtraction_ = iConfig.getParameter<bool>("useConstituentSubtraction");
+      csRho_EtaMax_ = iConfig.getParameter<double>("csRho_EtaMax");
+      csRParam_ = iConfig.getParameter<double>("csRParam");
+    }
+
+    if ( iConfig.exists("useSoftDrop") ) {
+      if ( usePruning_ ) {   /// Can't use these together
+	throw cms::Exception("PruningAndSoftDrop") << "Logic error. Soft drop is a generalized pruning, do not run them together." << std::endl;
+      }
+      useSoftDrop_ = iConfig.getParameter<bool>("useSoftDrop");
+      zCut_ = iConfig.getParameter<double>("zcut");
+      beta_ = iConfig.getParameter<double>("beta");
     }
 
   }
@@ -363,38 +399,64 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
     fjClusterSeq_ = ClusterSequencePtr( new fastjet::ClusterSequenceVoronoiArea( fjInputs_, *fjJetDefinition_ , fastjet::VoronoiAreaSpec(voronoiRfact_) ) );
   }
 
-  if ( !(useMassDropTagger_ || useCMSBoostedTauSeedingAlgorithm_ || useTrimming_ || useFiltering_ || usePruning_) ) {
+  if ( !(useMassDropTagger_ || useCMSBoostedTauSeedingAlgorithm_ || useTrimming_ || useFiltering_ || usePruning_ || useConstituentSubtraction_ ) ) {
     fjJets_ = fastjet::sorted_by_pt(fjClusterSeq_->inclusive_jets(jetPtMin_));
   } else {
     fjJets_.clear();
+
+
+    transformer_coll transformers;
+
+
     std::vector<fastjet::PseudoJet> tempJets = fastjet::sorted_by_pt(fjClusterSeq_->inclusive_jets(jetPtMin_));
 
-    fastjet::MassDropTagger md_tagger( muCut_, yCut_ );
-    fastjet::contrib::CMSBoostedTauSeedingAlgorithm tau_tagger( subjetPtMin_, muMin_, muMax_, yMin_, yMax_, dRMin_, dRMax_, maxDepth_, verbosity_ );
-    fastjet::Filter trimmer( fastjet::Filter(fastjet::JetDefinition(fastjet::kt_algorithm, rFilt_), fastjet::SelectorPtFractionMin(trimPtFracMin_)));
-    fastjet::Filter filter( fastjet::Filter(fastjet::JetDefinition(fastjet::cambridge_algorithm, rFilt_), fastjet::SelectorNHardest(nFilt_)));
-    if ( useDynamicFiltering_ )
-      filter = fastjet::Filter( fastjet::Filter(&*rFiltDynamic_, fastjet::SelectorNHardest(nFilt_)));
-    fastjet::Pruner pruner(fastjet::cambridge_algorithm, zCut_, RcutFactor_);
-    if ( useKtPruning_ )
-      pruner = fastjet::Pruner(fastjet::kt_algorithm, zCut_, RcutFactor_);
 
-    std::vector<fastjet::Transformer const *> transformers;
+    unique_ptr<fastjet::JetMedianBackgroundEstimator> bge_rho;
+    if ( useConstituentSubtraction_ ) {
+      fastjet::Selector rho_range =  fastjet::SelectorAbsRapMax(csRho_EtaMax_);
+      bge_rho = unique_ptr<fastjet::JetMedianBackgroundEstimator> (new  fastjet::JetMedianBackgroundEstimator(rho_range, fastjet::JetDefinition(fastjet::kt_algorithm, csRParam_), *fjAreaDefinition_) );
+      bge_rho->set_particles(fjInputs_);
+      fastjet::contrib::ConstituentSubtractor * constituentSubtractor = new fastjet::contrib::ConstituentSubtractor(bge_rho.get());
+      // this sets the same background estimator to be used for deltaMass density, rho_m, as for pt density, rho:
+      constituentSubtractor->use_common_bge_for_rho_and_rhom(true); // for massless input particles it does not make any difference (rho_m is always zero)
 
+      transformers.push_back( transformer_ptr(constituentSubtractor) );
+    };
     if ( useMassDropTagger_ ) {
-      transformers.push_back(&md_tagger);
+      fastjet::MassDropTagger * md_tagger = new fastjet::MassDropTagger ( muCut_, yCut_ );
+      transformers.push_back( transformer_ptr(md_tagger) );
     }
     if ( useCMSBoostedTauSeedingAlgorithm_ ) {
-      transformers.push_back(&tau_tagger);
+      fastjet::contrib::CMSBoostedTauSeedingAlgorithm * tau_tagger = 
+	new fastjet::contrib::CMSBoostedTauSeedingAlgorithm ( subjetPtMin_, muMin_, muMax_, yMin_, yMax_, dRMin_, dRMax_, maxDepth_, verbosity_ );
+      transformers.push_back( transformer_ptr(tau_tagger ));
     }
     if ( useTrimming_ ) {
-      transformers.push_back(&trimmer);
+      fastjet::Filter * trimmer = new fastjet::Filter(fastjet::JetDefinition(fastjet::kt_algorithm, rFilt_), fastjet::SelectorPtFractionMin(trimPtFracMin_));
+      transformers.push_back( transformer_ptr(trimmer) );
+    } 
+    if ( useFiltering_ ) {
+      fastjet::Filter * filter = new fastjet::Filter(fastjet::JetDefinition(fastjet::cambridge_algorithm, rFilt_), fastjet::SelectorNHardest(nFilt_));
+      transformers.push_back( transformer_ptr(filter));
     } 
     if ( usePruning_ ) {
-      transformers.push_back(&pruner);
+      fastjet::Pruner * pruner = new fastjet::Pruner(fastjet::cambridge_algorithm, zCut_, RcutFactor_);    
+      transformers.push_back( transformer_ptr(pruner ));
+    }
+    if ( useKtPruning_ ) {
+      fastjet::Pruner * pruner = new fastjet::Pruner(fastjet::kt_algorithm, zCut_, RcutFactor_);
+      transformers.push_back( transformer_ptr( pruner ) );
+    }
+    if ( useSoftDrop_ ) {
+      fastjet::contrib::SoftDrop * sd = new fastjet::contrib::SoftDrop(beta_, zCut_ );
+      transformers.push_back( transformer_ptr(sd) );
     }
     if ( useFiltering_ ) {
       transformers.push_back(&filter);
+    }
+    if ( useDynamicFiltering_ ) {
+      fastjet::Filter * filter = new fastjet::Filter( fastjet::Filter(&*rFiltDynamic_, fastjet::SelectorNHardest(nFilt_)));
+      transformers.push_back( transformer_ptr(filter) );
     }
 
     for ( std::vector<fastjet::PseudoJet>::const_iterator ijet = tempJets.begin(),
@@ -402,7 +464,7 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
 
       fastjet::PseudoJet transformedJet = *ijet;
       bool passed = true;
-      for ( std::vector<fastjet::Transformer const *>::const_iterator itransf = transformers.begin(),
+      for ( transformer_coll::const_iterator itransf = transformers.begin(),
 	      itransfEnd = transformers.end(); itransf != itransfEnd; ++itransf ) {
 	if ( transformedJet != 0 ) {
 	  transformedJet = (**itransf)(transformedJet);
@@ -410,6 +472,7 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
 	  passed=false;
 	}
       }
+
       if ( passed ) {
 	fjJets_.push_back( transformedJet );
       }

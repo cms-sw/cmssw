@@ -420,8 +420,9 @@ void VirtualJetProducer::inputTowers( )
     if (input->et()    <inputEtMin_)  continue;
     if (input->energy()<inputEMin_)   continue;
     if (isAnomalousTower(input))      continue;
-    if (input->pt() == 0) {
-      edm::LogError("NullTransverseMomentum") << "dropping input candidate with pt=0";
+    // Change by SRR : this is no longer an error nor warning, this can happen with PU mitigation algos.
+    // Also switch to something more numerically safe. 
+    if (input->pt() < 100 * std::numeric_limits<double>::epsilon() ) { 
       continue;
     }
     if (makeCaloJet(jetTypeE)&&doPVCorrection_) {
