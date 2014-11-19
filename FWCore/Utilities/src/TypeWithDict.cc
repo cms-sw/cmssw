@@ -80,6 +80,15 @@ namespace edm {
     if (it != typeMap.end()) {
       return TypeWithDict(it->second, property);
     }
+    TClass* theClass = TClass::GetClass(name.c_str());
+    if (theClass != nullptr && theClass->GetTypeInfo() != nullptr) {
+      return TypeWithDict(theClass, property);
+    }
+    TEnum* theEnum = TEnum::GetEnum(name.c_str(), TEnum::kAutoload);
+    if(theEnum) {
+      return TypeWithDict(theEnum, name, property);
+    } 
+
     TDataType* theDataType = gROOT->GetType(name.c_str()); 
     if(theDataType) {
       switch(theDataType->GetType()) {
@@ -123,15 +132,6 @@ namespace edm {
     if(name == "void") {
       return TypeWithDict(typeid(void), property);
     }
-
-    TClass* theClass = TClass::GetClass(name.c_str());
-    if (theClass != nullptr && theClass->GetTypeInfo() != nullptr) {
-      return TypeWithDict(theClass, property);
-    }
-    TEnum* theEnum = TEnum::GetEnum(name.c_str(), TEnum::kAutoload);
-    if(theEnum) {
-      return TypeWithDict(theEnum, name, property);
-    } 
 
     TType* type = gInterpreter->Type_Factory(name);
     if (!gInterpreter->Type_IsValid(type)) {
