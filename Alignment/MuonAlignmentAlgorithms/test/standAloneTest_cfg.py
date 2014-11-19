@@ -53,12 +53,12 @@ process.load("CondCore.DBCommon.CondDBSetup_cfi")
 # process.es_prefer_MuonAlignment = cms.ESPrefer("PoolDBESSource", "MuonAlignment")
 
 ### it is important to refit with zero weights ("infinite" APEs)
-process.MuonAlignmentErrors = cms.ESSource("PoolDBESSource",
+process.MuonAlignmentErrorsExtended = cms.ESSource("PoolDBESSource",
                                      process.CondDBSetup,
                                      connect = cms.string("sqlite_file:APE1000cm.db"),
-                                     toGet = cms.VPSet(cms.PSet(record = cms.string("DTAlignmentErrorRcd"), tag = cms.string("DTAlignmentErrorRcd")),
-                                                       cms.PSet(record = cms.string("CSCAlignmentErrorRcd"), tag = cms.string("CSCAlignmentErrorRcd"))))
-process.es_prefer_MuonAlignmentErrors = cms.ESPrefer("PoolDBESSource", "MuonAlignmentErrors")
+                                     toGet = cms.VPSet(cms.PSet(record = cms.string("DTAlignmentErrorExtendedRcd"), tag = cms.string("DTAlignmentErrorExtendedRcd")),
+                                                       cms.PSet(record = cms.string("CSCAlignmentErrorExtendedRcd"), tag = cms.string("CSCAlignmentErrorExtendedRcd"))))
+process.es_prefer_MuonAlignmentErrorsExtended = cms.ESPrefer("PoolDBESSource", "MuonAlignmentErrorsExtended")
 
 process.TFileService = cms.Service("TFileService", fileName = cms.string("standAloneTest.root"))
 process.Path = cms.Path(process.TrackRefitter * process.StandAloneTest)

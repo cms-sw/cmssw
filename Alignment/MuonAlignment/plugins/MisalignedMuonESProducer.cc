@@ -67,9 +67,9 @@ private:
   boost::shared_ptr<CSCGeometry> theCSCGeometry;
 
   Alignments*      dt_Alignments;
-  AlignmentErrors* dt_AlignmentErrors;
+  AlignmentErrorsExtended* dt_AlignmentErrorsExtended;
   Alignments*      csc_Alignments;
-  AlignmentErrors* csc_AlignmentErrors;
+  AlignmentErrorsExtended* csc_AlignmentErrorsExtended;
 
 };
 
@@ -83,9 +83,9 @@ MisalignedMuonESProducer::MisalignedMuonESProducer(const edm::ParameterSet& p) :
   theSaveToDB(p.getUntrackedParameter<bool>("saveToDbase")),
   theScenario(p.getParameter<edm::ParameterSet>("scenario")),
   theDTAlignRecordName( "DTAlignmentRcd" ),
-  theDTErrorRecordName( "DTAlignmentErrorRcd" ),
+  theDTErrorRecordName( "DTAlignmentErrorExtendedRcd" ),
   theCSCAlignRecordName( "CSCAlignmentRcd" ),
-  theCSCErrorRecordName( "CSCAlignmentErrorRcd" )
+  theCSCErrorRecordName( "CSCAlignmentErrorExtendedRcd" )
 {
   
   setWhatProduced(this);
@@ -130,9 +130,9 @@ MisalignedMuonESProducer::produce( const MuonGeometryRecord& iRecord )
   
   // Get alignments and errors
   dt_Alignments = theAlignableMuon->dtAlignments() ;
-  dt_AlignmentErrors = theAlignableMuon->dtAlignmentErrors();
+  dt_AlignmentErrorsExtended = theAlignableMuon->dtAlignmentErrorsExtended();
   csc_Alignments = theAlignableMuon->cscAlignments();
-  csc_AlignmentErrors = theAlignableMuon->cscAlignmentErrors();
+  csc_AlignmentErrorsExtended = theAlignableMuon->cscAlignmentErrorsExtended();
 
  
   // Misalign the EventSetup geometry
@@ -140,11 +140,11 @@ MisalignedMuonESProducer::produce( const MuonGeometryRecord& iRecord )
 
   aligner.applyAlignments<DTGeometry>( &(*theDTGeometry),
                                        dt_Alignments, 
-				       dt_AlignmentErrors,
+				       dt_AlignmentErrorsExtended,
 				       AlignTransform() );
   aligner.applyAlignments<CSCGeometry>( &(*theCSCGeometry ),
                                         csc_Alignments,
-					csc_AlignmentErrors,
+					csc_AlignmentErrorsExtended,
 					AlignTransform() );  
 
   // Write alignments to DB
@@ -168,11 +168,11 @@ void MisalignedMuonESProducer::saveToDB( void )
 
   // Store DT alignments and errors
   poolDbService->writeOne<Alignments>( &(*dt_Alignments), poolDbService->beginOfTime(), theDTAlignRecordName);
-  poolDbService->writeOne<AlignmentErrors>( &(*dt_AlignmentErrors), poolDbService->beginOfTime(), theDTErrorRecordName);
+  poolDbService->writeOne<AlignmentErrorsExtended>( &(*dt_AlignmentErrorsExtended), poolDbService->beginOfTime(), theDTErrorRecordName);
 
   // Store CSC alignments and errors
   poolDbService->writeOne<Alignments>( &(*csc_Alignments), poolDbService->beginOfTime(), theCSCAlignRecordName);
-  poolDbService->writeOne<AlignmentErrors>( &(*csc_AlignmentErrors), poolDbService->beginOfTime(), theCSCErrorRecordName);
+  poolDbService->writeOne<AlignmentErrorsExtended>( &(*csc_AlignmentErrorsExtended), poolDbService->beginOfTime(), theCSCErrorRecordName);
 
 }
 //__________________________________________________________________________________________________

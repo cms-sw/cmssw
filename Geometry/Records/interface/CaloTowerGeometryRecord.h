@@ -15,6 +15,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "CondFormats/AlignmentRecord/interface/CaloTowerAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CaloTowerAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/CaloTowerAlignmentErrorExtendedRcd.h"
 #include "Geometry/Records/interface/PCaloTowerRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "boost/mpl/vector.hpp"
@@ -27,6 +28,7 @@ class CaloTowerGeometryRecord :
                 IdealGeometryRecord,
 		CaloTowerAlignmentRcd, 
 		CaloTowerAlignmentErrorRcd,
+                CaloTowerAlignmentErrorExtendedRcd,
 		GlobalPositionRcd,
                 PCaloTowerRcd               > > {};
 

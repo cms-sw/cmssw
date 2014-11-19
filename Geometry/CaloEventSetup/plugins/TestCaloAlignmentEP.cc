@@ -39,23 +39,23 @@ The alignment objects are filled with fixed alignments.
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "CondFormats/AlignmentRecord/interface/EBAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/EBAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/EBAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/EEAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/EEAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/EEAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/ESAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/ESAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/ESAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/HBAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/HBAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/HBAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/HEAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/HEAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/HEAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/HOAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/HOAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/HOAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/HFAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/HFAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/HFAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/ZDCAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/ZDCAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/ZDCAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CastorAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/CastorAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/CastorAlignmentErrorExtendedRcd.h"
 
 class TestCaloAlignmentEP : public edm::ESProducer 
 {
@@ -110,7 +110,7 @@ class TestCaloAlignmentEP : public edm::ESProducer
 	 return ali ;
       }
 
-      ReturnAliErr produceEBAliErr( const EBAlignmentErrorRcd& /*iRecord*/ ) 
+      ReturnAliErr produceEBAliErr( const EBAlignmentErrorExtendedRcd& /*iRecord*/ ) 
       { 
 	 ReturnAliErr aliErr ( new AlignmentErrors ); 
 	 return aliErr ;
@@ -134,7 +134,7 @@ class TestCaloAlignmentEP : public edm::ESProducer
 	 return ali ;
       }
 
-      ReturnAliErr produceEEAliErr( const EEAlignmentErrorRcd& /*iRecord*/ ) 
+      ReturnAliErr produceEEAliErr( const EEAlignmentErrorExtendedRcd& /*iRecord*/ ) 
       { 
 	 ReturnAliErr aliErr ( new AlignmentErrors ); 
 	 return aliErr ;
@@ -158,7 +158,7 @@ class TestCaloAlignmentEP : public edm::ESProducer
 	 return ali ;
       }
 
-      ReturnAliErr produceESAliErr( const ESAlignmentErrorRcd& /*iRecord*/ ) 
+      ReturnAliErr produceESAliErr( const ESAlignmentErrorExtendedRcd& /*iRecord*/ ) 
       { 
 	 ReturnAliErr aliErr ( new AlignmentErrors ); 
 	 return aliErr ;
@@ -181,7 +181,7 @@ class TestCaloAlignmentEP : public edm::ESProducer
 	 return ali ;
       }
 
-      ReturnAliErr produceHBAliErr( const HBAlignmentErrorRcd& /*iRecord*/ ) 
+      ReturnAliErr produceHBAliErr( const HBAlignmentErrorExtendedRcd& /*iRecord*/ ) 
       { 
 	 ReturnAliErr aliErr ( new AlignmentErrors ); 
 	 return aliErr ;
@@ -204,7 +204,7 @@ class TestCaloAlignmentEP : public edm::ESProducer
 	 return ali ;
       }
 
-      ReturnAliErr produceHEAliErr( const HEAlignmentErrorRcd& /*iRecord*/ ) 
+      ReturnAliErr produceHEAliErr( const HEAlignmentErrorExtendedRcd& /*iRecord*/ ) 
       { 
 	 ReturnAliErr aliErr ( new AlignmentErrors ); 
 	 return aliErr ;
@@ -227,7 +227,7 @@ class TestCaloAlignmentEP : public edm::ESProducer
 	 return ali ;
       }
 
-      ReturnAliErr produceHOAliErr( const HOAlignmentErrorRcd& /*iRecord*/ ) 
+      ReturnAliErr produceHOAliErr( const HOAlignmentErrorExtendedRcd& /*iRecord*/ ) 
       { 
 	 ReturnAliErr aliErr ( new AlignmentErrors ); 
 	 return aliErr ;
@@ -250,7 +250,7 @@ class TestCaloAlignmentEP : public edm::ESProducer
 	 return ali ;
       }
 
-      ReturnAliErr produceHFAliErr( const HFAlignmentErrorRcd& /*iRecord*/ ) 
+      ReturnAliErr produceHFAliErr( const HFAlignmentErrorExtendedRcd& /*iRecord*/ ) 
       { 
 	 ReturnAliErr aliErr ( new AlignmentErrors ); 
 	 return aliErr ;
@@ -273,7 +273,7 @@ class TestCaloAlignmentEP : public edm::ESProducer
 	 return ali ;
       }
 
-      ReturnAliErr produceZdcAliErr( const ZDCAlignmentErrorRcd& /*iRecord*/ ) 
+      ReturnAliErr produceZdcAliErr( const ZDCAlignmentErrorExtendedRcd& /*iRecord*/ ) 
       { 
 	 ReturnAliErr aliErr ( new AlignmentErrors ); 
 	 return aliErr ;
@@ -296,7 +296,7 @@ class TestCaloAlignmentEP : public edm::ESProducer
 	 return ali ;
       }
 
-      ReturnAliErr produceCastorAliErr( const CastorAlignmentErrorRcd& /*iRecord*/ ) 
+      ReturnAliErr produceCastorAliErr( const CastorAlignmentErrorExtendedRcd& /*iRecord*/ ) 
       { 
 	 ReturnAliErr aliErr ( new AlignmentErrors ); 
 	 return aliErr ;
