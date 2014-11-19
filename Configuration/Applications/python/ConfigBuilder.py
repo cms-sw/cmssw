@@ -677,12 +677,13 @@ class ConfigBuilder(object):
 			# able to configure themselves properly. To do this enable an era (aka
 			# cms.Modifier) for the particular bunch spacing.
 			if hasattr(self.process,"mix") and hasattr(self.process.mix,"bunchspace") :
+				# Extend the comma seperated list, but take care not to add erroneous commas
 				if self.process.mix.bunchspace == 25 :
-					if len(self._options.era)>0 : self._options.era+=","
-					self._options.era+="bunchspacing25ns"
+					if self._options.era : self._options.era+=",bunchspacing25ns"
+					else : self._options.era="bunchspacing25ns"
 				elif self.process.mix.bunchspace == 50 :
-					if len(self._options.era)>0 : self._options.era+=","
-					self._options.era+="bunchspacing50ns"
+					if self._options.era : self._options.era+=",bunchspacing50ns"
+					else : self._options.era="bunchspacing50ns"
 
 
         # load the geometry file

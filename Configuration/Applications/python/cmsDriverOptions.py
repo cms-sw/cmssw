@@ -242,14 +242,23 @@ def OptionsFromItems(items):
         from Configuration.StandardSequences.Eras import eras
         from FWCore.ParameterSet.Config import Modifier, ModifierChain
         # Split the string by commas to check individual eras
-        for requestedEra in options.era.split(",") :
-            if not hasattr( eras, requestedEra ) :
+        requestedEras = options.era.split(",")
+        # Warn the user if they are explicitly setting an era that should be set automatically by the
+        # ConfigBuilder.
+        internalUseEras=["bunchspacing25ns","bunchspacing50ns"]
+        for era in internalUseEras :
+            if requestedEras.count(era) > 0 :
+                print "WARNING: You have explicitly set '"+era+"' with the '--era' command. It is advised that you let ConfigBuilder decide whether to add that or not."
+        # Check that the entry is a valid era
+        for era in requestedEras :
+            if not hasattr( eras, era ) : # Not valid, so print a helpful message
                 validOptions="" # Create a stringified list of valid options to print to the user
                 for key in eras.__dict__ :
+                    if internalUseEras.count(key) > 0 : continue # Don't tell the user about things they should leave alone
                     if isinstance( eras.__dict__[key], Modifier ) or isinstance( eras.__dict__[key], ModifierChain ) :
                         if validOptions!="" : validOptions+=", " 
                         validOptions+="'"+key+"'"
-                raise Exception( "'%s' is not a valid option for '--era'. Valid options are %s." % (requestedEra, validOptions) )
-        
+                raise Exception( "'%s' is not a valid option for '--era'. Valid options are %s." % (era, validOptions) )
+
     return options
 
