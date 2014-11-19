@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "EvFFEDSelector.h"
 
 namespace evf {
@@ -15,13 +17,13 @@ namespace evf {
     edm::Handle<FEDRawDataCollection> rawdata;
     event.getByToken(token_, rawdata);
 
-    std::auto_ptr<FEDRawDataCollection> fedcoll( new FEDRawDataCollection() );
+    std::unique_ptr<FEDRawDataCollection> fedcoll( new FEDRawDataCollection() );
 
     for (unsigned int i : fedlist_)
       if (rawdata->FEDData(i).size() > 0)
         fedcoll->FEDData(i) = rawdata->FEDData(i);
 
-    event.put(fedcoll);
+    event.put(std::move(fedcoll));
   }
 
 } // namespace evf
