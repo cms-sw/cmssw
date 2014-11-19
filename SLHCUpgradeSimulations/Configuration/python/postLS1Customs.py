@@ -53,11 +53,13 @@ def customisePostLS1EraExtras(process):
 #     process.load('L1TriggerConfig.L1GtConfigProducers.l1GtTriggerMenuXml_cfi')
 #     process.l1GtTriggerMenuXml.TriggerMenuLuminosity = "startup"
 #     process.l1GtTriggerMenuXml.DefXmlFile = 'L1Menu_Collisions2015_25ns_v1_L1T_Scales_20101224_Imp0_0x102f.xml'
-    process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMenuConfig_cff')
-    process.es_prefer_l1GtParameters = cms.ESPrefer('L1GtTriggerMenuXmlProducer','l1GtTriggerMenuXml')
 
-    #print "INFO:  loading RCT LUTs"
-    process.load("L1Trigger.L1TCalorimeter.caloStage1RCTLuts_cff")
+#     process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMenuConfig_cff')
+#     process.es_prefer_l1GtParameters = cms.ESPrefer('L1GtTriggerMenuXmlProducer','l1GtTriggerMenuXml')
+# 
+#     #print "INFO:  loading RCT LUTs"
+#     process.load("L1Trigger.L1TCalorimeter.caloStage1RCTLuts_cff")
+
 #     if hasattr(process,'L1simulation_step'):
         #print "INFO:  Removing GCT from simulation and adding new Stage 1"
 #         process.load('L1Trigger.L1TCalorimeter.caloStage1Params_cfi')

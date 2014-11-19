@@ -158,20 +158,27 @@ SimL1Emulator = cms.Sequence(
 ##
 ## Make changes for Run 2
 ##
-from L1Trigger.L1TCalorimeter.caloStage1Params_cfi import *
-from L1Trigger.L1TCalorimeter.L1TCaloStage1_cff import *
 def _modifySimL1EmulatorForRun2( emulatorSequence ) :
     """
     Loads extra config fragments and modifies the sim L1 emulator
     for Run 2 configurations.
     """
+    # Note that for this to work, you also require
+    # eras.run2.toLoadIntoProcess( 'L1Trigger.L1TCalorimeter.L1TCaloStage1_cff' )
+    # outside of this function. Otherwise the constituents of L1TCaloStage1 are
+    # not imported and given labels. Can't import the constituents here with
+    # "from ... import *" because that is only allowed at module level.
+    from L1Trigger.L1TCalorimeter.L1TCaloStage1_cff import rctUpgradeFormatDigis,L1TCaloStage1
     # rctUpgradeFormatDigis is one of the producers in the L1TCaloStage1
     # sequence imported above. Need to change from "<name>" to "sim<name>"
     # collections.
     rctUpgradeFormatDigis.regionTag = cms.InputTag("simRctDigis")
     rctUpgradeFormatDigis.emTag = cms.InputTag("simRctDigis")
     # then replace the old GCT digi sequence with the new Stage1 one.
-    emulatorSequence.replace( simGctDigis, L1TCaloStage1 )
+    emulatorSequence.replace( simGctDigis, L1TCaloStage1 )    
 
+eras.run2.toLoadIntoProcess( 'L1Trigger.L1TCalorimeter.caloStage1Params_cfi' )
+eras.run2.toLoadIntoProcess( 'L1Trigger.L1TCalorimeter.L1TCaloStage1_cff' )
 eras.run2.toModify( SimL1Emulator, func=_modifySimL1EmulatorForRun2 )
+eras.run2.toLoadIntoProcess( 'L1TriggerConfig.L1GtConfigProducers.l1GtTriggerMenuXml_cfi' )
 
