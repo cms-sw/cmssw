@@ -169,6 +169,11 @@ void l1t::Stage1Layer2TauAlgorithmImpHW::processEvent(const std::vector<l1t::Cal
       std::cout << bitset<15>(packed).to_string() << std::endl;
       if(count == 4) break;
     }
+    while(count != 4)
+    {
+      count++;
+      std::cout << "000000000000000" << std::endl;
+    }
   }
 }
 
