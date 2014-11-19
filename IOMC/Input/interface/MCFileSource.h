@@ -28,7 +28,7 @@ namespace edm {
     virtual ~MCFileSource();
 
   private:
-    virtual bool setRunAndEventInfo(EventID&, TimeValue_t& time);
+    virtual bool setRunAndEventInfo(EventID&, TimeValue_t& time, EventAuxiliary::ExperimentType& eType);
     virtual void produce(Event &e);
     void clear();
     

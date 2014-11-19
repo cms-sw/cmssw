@@ -207,7 +207,8 @@
     <![CDATA[mva_e_pi = onfile.mva;]]>
   </ioread>
 
-  <class name="reco::GsfElectron::ClassificationVariables" ClassVersion="11">
+  <class name="reco::GsfElectron::ClassificationVariables" ClassVersion="12">
+   <version ClassVersion="12" checksum="1990926670"/>
    <version ClassVersion="11" checksum="2094185381"/>
   </class>
   <class name="reco::GsfElectron::PixelMatchVariables" ClassVersion="2">

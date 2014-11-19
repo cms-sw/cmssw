@@ -280,7 +280,8 @@ reco::SoftLeptonTagInfo SoftLepton::tag (
 
     const GlobalVector jetAxis = refineJetAxis( jet, tracks, lepton->first );
     const math::XYZVector axis( jetAxis.x(), jetAxis.y(), jetAxis.z());
-    if (DeltaR(lepton_momentum, axis) > m_deltaRCut)
+    float deltaR = Geom::deltaR(lepton_momentum, axis);
+    if (deltaR > m_deltaRCut)
       continue;
 
     reco::SoftLeptonProperties properties;
@@ -288,7 +289,7 @@ reco::SoftLeptonTagInfo SoftLepton::tag (
     reco::TransientTrack transientTrack = m_transientTrackBuilder->build(*lepton->first);
     properties.sip2d    = IPTools::signedTransverseImpactParameter( transientTrack, jetAxis, primaryVertex ).second.significance();
     properties.sip3d    = IPTools::signedImpactParameter3D( transientTrack, jetAxis, primaryVertex ).second.significance();
-    properties.deltaR   = DeltaR( lepton_momentum, axis );
+    properties.deltaR   = deltaR;
     properties.ptRel    = Perp( lepton_momentum, axis );
     properties.p0Par    = boostedPPar( lepton_momentum, axis );
     properties.etaRel   = relativeEta( lepton_momentum, axis );

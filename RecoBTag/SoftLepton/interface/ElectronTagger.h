@@ -4,7 +4,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
 #include "RecoBTag/SoftLepton/interface/LeptonSelector.h"
-#include "RecoBTag/SoftLepton/src/ElectronTaggerMLP.h"
+#include "RecoBTag/SoftLepton/interface/ElectronTaggerMLP.h"
 
 /** \class ElectronTagger
  *
