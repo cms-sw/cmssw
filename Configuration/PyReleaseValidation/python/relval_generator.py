@@ -23,17 +23,13 @@ workflows[505]=['',['DYToLL_M-50_13TeV_pythia8','HARVESTGEN']]
 workflows[506]=['',['WToLNu_13TeV_pythia8','HARVESTGEN']]
 workflows[511]=['',['QCD_Pt-30_8TeV_herwigpp','HARVESTGEN']]
 
-# Matrix Element Generations (LHE Generation)
-
-workflows[550]=['',['DYToll0123Jets_5f_LO_MLM_Madgraph_LHE_13TeV']]
-
-# Hadronization (Hadronization of LHE)
-workflows[512]=['',['ZJetsLL_13TeV_madgraph-pythia8','HARVESTGEN']]
+# Matrix Element Generations & Hadronization (LHE Generation + Hadronization)
+workflows[512]=['',['DYToll0123Jets_5f_LO_MLM_Madgraph_LHE_13TeV','ZJetsLL_13TeV_madgraph-pythia8','HARVESTGEN']]
 workflows[513]=['',['WJetsLNu_13TeV_madgraph-pythia8','HARVESTGEN']]
 
 # External Decays
 workflows[521]=['',['TT_13TeV_pythia8-evtgen','HARVESTGEN']]
-workflows[522]=['',['DYToLL_M-50_13TeV_pythia8-tauola','HARVESTGEN']]
+workflows[522]=['',['DYToll0123Jets_5f_LO_MLM_Madgraph_LHE_13TeV','DYToLL_M-50_13TeV_pythia8-tauola','HARVESTGEN']]
 workflows[523]=['',['WToLNu_13TeV_pythia8-tauola','HARVESTGEN']]
 
 # Heavy Ion
