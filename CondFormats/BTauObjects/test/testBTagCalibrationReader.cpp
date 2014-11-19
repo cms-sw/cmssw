@@ -29,7 +29,7 @@ int main()
   bc1.readCSV(csv1Stream);
 
   // test pt-dependent function
-  BTagCalibrationReader bcr1(&bc1, BTagEntry::OP_TIGHT);
+  BTagCalibrationReader bcr1(&bc1, BTagEntry::OP_LOOSE);
   assert (eq(bcr1.eval(BTagEntry::FLAV_B, 3.0, 1.5), 0.));  // out of range
   assert (eq(bcr1.eval(BTagEntry::FLAV_B, 1.5, 3.0), 0.));  // out of range
   assert (eq(bcr1.eval(BTagEntry::FLAV_B, 0.5, 0.5), 1.));

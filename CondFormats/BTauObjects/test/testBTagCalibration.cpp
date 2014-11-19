@@ -24,11 +24,11 @@ int main()
 
   // assert correct length of vectors
   auto e1 = b1.getEntries(
-    BTagEntry::Parameters(BTagEntry::OP_TIGHT, "comb", "central")
+    BTagEntry::Parameters(BTagEntry::OP_LOOSE, "comb", "central")
   );
   assert (e1.size() == 2);
   auto e2 = b1.getEntries(
-    BTagEntry::Parameters(BTagEntry::OP_TIGHT, "comb", "up")
+    BTagEntry::Parameters(BTagEntry::OP_LOOSE, "comb", "up")
   );
   assert (e2.size() == 1);
   auto e3 = b1.getEntries(
