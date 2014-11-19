@@ -9,7 +9,7 @@
 
 #include "OnlineDB/Oracle/interface/Oracle.h" 
 
-#include "CondTools/Hcal/interface/HcalDbPoolOCCI.h"
+#include "OnlineDB/HcalCondDB/interface/HcalDbPoolOCCI.h"
 
 const bool debug = false;
 

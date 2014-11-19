@@ -17,7 +17,7 @@ MessageLogger = cms.Service("MessageLogger",
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 process.load('Configuration.StandardSequences.Services_cff')
-process.load('Configuration.StandardSequences.Geometry_cff')
+process.load("Configuration.Geometry.GeometryDB_cff")
 
 # including global tag
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
