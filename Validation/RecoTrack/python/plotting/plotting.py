@@ -567,7 +567,7 @@ class PlotGroup:
         for plot in self._plots:
             plot.create(tdirectories)
 
-    def draw(self, algo, legendLabels, prefix=None, separate=False):
+    def draw(self, algo, legendLabels, prefix=None, separate=False, saveFormat=".pdf"):
         """Draw the histograms using values for a given algorithm.
 
         Arguments:
@@ -575,9 +575,10 @@ class PlotGroup:
         legendLabels  -- List of strings for legend labels (corresponding to the tdirectories in create())
         prefix        -- Optional string for file name prefix (default None)
         separate      -- Save the plots of a group to separate files instead of a file per group (default False)
+        saveFormat   -- String specifying the plot format (default '.pdf')
         """
         if separate:
-            return self._drawSeparate(algo, legendLabels, prefix)
+            return self._drawSeparate(algo, legendLabels, prefix, saveFormat)
 
         self._canvas.Divide(2, int((len(self._plots)+1)/2)) # this should work also for odd n
 
@@ -611,9 +612,9 @@ class PlotGroup:
         plot = max(self._plots, key=lambda p: p.getNumberOfHistograms())
         legend = self._createLegend(plot, legendLabels, lx1, ly1, lx2, ly2)
 
-        return self._save(self._canvas, prefix)
+        return self._save(self._canvas, saveFormat, prefix=prefix)
 
-    def _drawSeparate(self, algo, legendLabels, prefix):
+    def _drawSeparate(self, algo, legendLabels, prefix, saveFormat):
         lx1def = 0.6
         lx2def = 0.95
         ly1def = 0.85
@@ -645,7 +646,7 @@ class PlotGroup:
 
             legend = self._createLegend(plot, legendLabels, lx1, ly1, lx2, ly2, textSize=0.03)
 
-            ret.extend(self._save(self._canvasSingle, prefix, postfix="_"+plot.getName()))
+            ret.extend(self._save(self._canvasSingle, saveFormat, prefix=prefix, postfix="_"+plot.getName()))
         return ret
 
     def _createLegend(self, plot, legendLabels, lx1, ly1, lx2, ly2, textSize=0.016):
@@ -661,34 +662,32 @@ class PlotGroup:
         l.Draw()
         return l
 
-    def _save(self, canvas, prefix=None, postfix=None):
+    def _save(self, canvas, saveFormat, prefix=None, postfix=None):
         # Save the canvas to file and clear
         name = self._name
         if prefix is not None:
             name = prefix+name
         if postfix is not None:
             name = name+postfix
-        canvas.SaveAs(name+".pdf")
-        #canvas.SaveAs(name+".png")
+        canvas.SaveAs(name+saveFormat)
         canvas.Clear()
 
-        return [
-            name+".pdf",
-            #name+".png"
-        ]
+        return [name+saveFormat]
 
 
 class Plotter:
     """Represent a collection of PlotGroups."""
-    def __init__(self, possibleDirs, plotGroups):
+    def __init__(self, possibleDirs, plotGroups, saveFormat=".pdf"):
         """Constructor.
 
         Arguments:
         possibleDirs -- List of strings for possible directories of histograms in TFiles
         plotGroups   -- List of PlotGroup objects
+        saveFormat   -- String specifying the plot format (default '.pdf')
         """
         self._possibleDirs = possibleDirs
         self._plotGroups = plotGroups
+        self._saveFormat = saveFormat
 
         ROOT.gROOT.SetStyle("Plain")
         ROOT.gStyle.SetPadRightMargin(0.07)
@@ -766,6 +765,6 @@ class Plotter:
         """
         ret = []
         for pg in self._plotGroups:
-            ret.extend(pg.draw(algo, self._labels, prefix, separate))
+            ret.extend(pg.draw(algo, self._labels, prefix=prefix, separate=separate, saveFormat=self._saveFormat))
         return ret
 
