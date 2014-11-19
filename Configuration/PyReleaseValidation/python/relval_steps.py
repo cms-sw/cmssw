@@ -666,8 +666,20 @@ steps['TTbarFS_ID']=identityFS(steps['TTbarFS'])
 step1GenDefaults=merge([{'-s':'GEN,VALIDATION:genvalid',
                          '--relval':'250000,20000',
                          '--eventcontent':'RAWSIM,DQM',
-                         '--datatier':'GEN,DQMIO'},
+                         '--datatier':'GEN,DQMIO',
+                         '--conditions':'auto:run2_mc_FULL'
+                         },
                         step1Defaults])
+
+step1LHEDefaults=merge([{'-s':'LHE',
+                         '--relval':'250000,20000',
+                         '--eventcontent':'LHE',
+                         '--datatier':'GEN',
+                         '--conditions':'auto:run2_mc_FULL'                         
+                         },
+                        step1Defaults])
+
+
 def genvalid(fragment,d,suffix='all',fi='',dataSet=''):
     import copy
     c=copy.copy(d)
@@ -680,6 +692,9 @@ def genvalid(fragment,d,suffix='all',fi='',dataSet=''):
     c['cfg']=fragment
     return c
 
+
+
+steps['DYToll0123Jets_5f_LO_MLM_Madgraph_LHE_13TeV']=genvalid('Configuration/Generator/python/DYToll0123Jets_5f_LO_MLM_Madgraph_LHE_13TeV_cff.py',step1LHEDefaults)
 
 steps['MinBias_TuneZ2star_13TeV_pythia6']=genvalid('MinBias_TuneZ2star_13TeV_pythia6_cff',step1GenDefaults)
 steps['QCD_Pt-30_TuneZ2star_13TeV_pythia6']=genvalid('QCD_Pt_30_TuneZ2star_13TeV_pythia6_cff',step1GenDefaults)

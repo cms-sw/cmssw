@@ -25,6 +25,8 @@ workflows[511]=['',['QCD_Pt-30_8TeV_herwigpp','HARVESTGEN']]
 
 # Matrix Element Generations (LHE Generation)
 
+workflows[550]=['',['DYToll0123Jets_5f_LO_MLM_Madgraph_LHE_13TeV']]
+
 # Hadronization (Hadronization of LHE)
 workflows[512]=['',['ZJetsLL_13TeV_madgraph-pythia8','HARVESTGEN']]
 workflows[513]=['',['WJetsLNu_13TeV_madgraph-pythia8','HARVESTGEN']]
