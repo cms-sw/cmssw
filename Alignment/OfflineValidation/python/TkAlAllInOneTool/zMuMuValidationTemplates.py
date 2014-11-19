@@ -23,7 +23,8 @@ process.load("RecoMuon.TrackingTools.MuonServiceProxy_cff")
 ########### standard includes ##############################
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.Geometry.GeometryDB_cff")
+
 
 ########### DATABASE conditions ############################
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")

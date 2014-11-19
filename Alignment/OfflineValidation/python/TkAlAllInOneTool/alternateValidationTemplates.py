@@ -152,7 +152,7 @@ process.es_prefer_SiStripLorentzAngle = cms.ESPrefer("PoolDBESSource","SiStripLo
  ##
  ## Geometry
  ##
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.Geometry.GeometryDB_cff")
  
  ##
  ## Magnetic Field
@@ -305,7 +305,7 @@ process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
 ##
 ## Geometry
 ##
-process.load("Configuration.StandardSequences.GeometryDB_cff")
+process.load("Configuration.Geometry.GeometryDB_cff")
 
 ##
 ## Magnetic Field
@@ -329,7 +329,8 @@ process.prefer_conditionsInTrackerAlignmentRcd = cms.ESPrefer("PoolDBESSource", 
  ##
  ## Geometry
  ##
-#process.load("Configuration.StandardSequences.Geometry_cff")
+#process.load("Configuration.Geometry.GeometryDB_cff")
+
  
 .oO[condLoad]Oo.
 
@@ -480,7 +481,7 @@ process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
  ##
  ## Geometry
  ##
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.Geometry.GeometryDB_cff")
  
  ##
  ## Magnetic Field
@@ -1070,7 +1071,7 @@ process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
  ##
  ## Geometry
  ##
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.Geometry.GeometryDB_cff")
  
  ##
  ## Magnetic Field

@@ -21,7 +21,7 @@ process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cf
  ## Get the Geometry
  ##
 from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *
-process.load("Configuration.Geometry.GeometryIdeal_cff")
+process.load("Configuration.Geometry.GeometryDB_cff")
 process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 

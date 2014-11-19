@@ -3,7 +3,7 @@ from RecoParticleFlow.PFClusterProducer.particleFlowCaloResolution_cfi import _t
 
 particleFlowRecHitHBHE = cms.EDProducer("PFRecHitProducer",
     navigator = cms.PSet(
-            name = cms.string("PFRecHitHCALNavigatorWithTime"),
+            name = cms.string("PFRecHitHCALNavigator"),
             sigmaCut = cms.double(4.0),
             timeResolutionCalc = _timeResolutionHCAL
     ),
