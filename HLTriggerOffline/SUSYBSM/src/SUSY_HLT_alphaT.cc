@@ -52,7 +52,7 @@ void SUSY_HLT_alphaT::dqmBeginRun(edm::Run const &run, edm::EventSetup const &e)
   }
 
   if(!pathFound) {
-    edm::LogError ("SUSY_HLT_alphaT") << "Path not found" << "\n";
+    edm::LogWarning ("SUSY_HLT_alphaT") << "Path not found" << "\n";
     return;
   }
   //std::vector<std::string> filtertags = fHltConfig.moduleLabels( triggerPath_ );
@@ -104,13 +104,13 @@ void SUSY_HLT_alphaT::analyze(edm::Event const& e, edm::EventSetup const& eSetup
   edm::Handle<edm::TriggerResults> hltresults;
   e.getByToken(triggerResults_,hltresults);
   if(!hltresults.isValid()){
-    edm::LogError ("SUSY_HLT_alphaT") << "invalid collection: TriggerResults" << "\n";
+    edm::LogWarning ("SUSY_HLT_alphaT") << "invalid collection: TriggerResults" << "\n";
     return;
   }
   edm::Handle<trigger::TriggerEvent> triggerSummary;
   e.getByToken(theTrigSummary_, triggerSummary);
   if(!triggerSummary.isValid()) {
-    edm::LogError ("SUSY_HLT_alphaT") << "invalid collection: TriggerSummary" << "\n";
+    edm::LogWarning ("SUSY_HLT_alphaT") << "invalid collection: TriggerSummary" << "\n";
     return;
   }
 
@@ -126,7 +126,7 @@ void SUSY_HLT_alphaT::analyze(edm::Event const& e, edm::EventSetup const& eSetup
   edm::Handle<reco::CaloJetCollection> caloJetCollection;
   e.getByToken (theCaloJetCollection_,caloJetCollection);
   if ( !caloJetCollection.isValid() ){
-      edm::LogError ("SUSY_HLT_alphaT") << "invalid collection: CaloJets" << "\n";
+      edm::LogWarning ("SUSY_HLT_alphaT") << "invalid collection: CaloJets" << "\n";
       return;
   }
 
