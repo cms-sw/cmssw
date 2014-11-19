@@ -673,6 +673,17 @@ class ConfigBuilder(object):
 			if self._options.fast and not 'SIM' in self.stepMap and not 'FASTSIM' in self.stepMap:
 				self.executeAndRemember('process.mix.playback= True')
 
+			# Some config components need to know what the bunch spacing is to be
+			# able to configure themselves properly. To do this enable an era (aka
+			# cms.Modifier) for the particular bunch spacing.
+			if hasattr(self.process,"mix") and hasattr(self.process.mix,"bunchspace") :
+				if self.process.mix.bunchspace == 25 :
+					if len(self._options.era)>0 : self._options.era+=","
+					self._options.era+="bunchspacing25ns"
+				elif self.process.mix.bunchspace == 50 :
+					if len(self._options.era)>0 : self._options.era+=","
+					self._options.era+="bunchspacing50ns"
+
 
         # load the geometry file
         try:
