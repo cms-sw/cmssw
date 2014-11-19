@@ -93,18 +93,26 @@
   <class name="reco::SoftLeptonProperties" ClassVersion="10">
    <version ClassVersion="10" checksum="3825121604"/>
   </class>
-  <class name="std::pair<edm::RefToBase<reco::Track>, reco::SoftLeptonProperties>"/>
-  <class name="reco::SoftLeptonTagInfo::LeptonMap"/>
 
-  <class name="reco::SoftLeptonTagInfo" ClassVersion="10">
-   <version ClassVersion="10" checksum="1042007752"/>
-  </class>
+  <class name="std::pair<edm::RefToBase<reco::Track>, reco::SoftLeptonProperties>"/>
+  <class name="reco::TemplatedSoftLeptonTagInfo<edm::RefToBase<reco::Track> >::LeptonMap"/>
+  <class name="reco::SoftLeptonTagInfo" />
   <class name="reco::SoftLeptonTagInfoCollection"/>
   <class name="reco::SoftLeptonTagInfoRef"/>
   <class name="reco::SoftLeptonTagInfoFwdRef"/>
   <class name="reco::SoftLeptonTagInfoRefProd"/>
   <class name="reco::SoftLeptonTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::SoftLeptonTagInfoCollection>"/>
+
+  <class name="std::pair<edm::Ptr<reco::Candidate>, reco::SoftLeptonProperties>"/>
+  <class name="reco::TemplatedSoftLeptonTagInfo<edm::Ptr<reco::Candidate> >::LeptonMap"/>
+  <class name="reco::CandSoftLeptonTagInfo" />
+  <class name="reco::CandSoftLeptonTagInfoCollection"/>
+  <class name="reco::CandSoftLeptonTagInfoRef"/>
+  <class name="reco::CandSoftLeptonTagInfoFwdRef"/>
+  <class name="reco::CandSoftLeptonTagInfoRefProd"/>
+  <class name="reco::CandSoftLeptonTagInfoRefVector"/>
+  <class name="edm::Wrapper<reco::CandSoftLeptonTagInfoCollection>"/>
 
   <class name="std::pair< reco::btau::TaggingVariableName, float >"/>
   <class name="std::vector<std::pair<reco::btau::TaggingVariableName,float> >"/>
@@ -266,6 +274,8 @@
   <class name="edm::reftobase::RefHolder<reco::IsolatedTauTagInfoRef>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::SoftLeptonTagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::SoftLeptonTagInfoRef>" />
+  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::CandSoftLeptonTagInfoRef>" />
+  <class name="edm::reftobase::RefHolder<reco::CandSoftLeptonTagInfoRef>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::TauMassTagInfoRef>" />
   <class name="edm::reftobase::RefHolder<reco::TauMassTagInfoRef>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackProbabilityTagInfoRef>" />
@@ -293,6 +303,8 @@
   <class name="edm::reftobase::RefHolder<reco::IsolatedTauTagInfoFwdRef>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::SoftLeptonTagInfoFwdRef>" />
   <class name="edm::reftobase::RefHolder<reco::SoftLeptonTagInfoFwdRef>" />
+  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::CandSoftLeptonTagInfoFwdRef>" />
+  <class name="edm::reftobase::RefHolder<reco::CandSoftLeptonTagInfoFwdRef>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::TauMassTagInfoFwdRef>" />
   <class name="edm::reftobase::RefHolder<reco::TauMassTagInfoFwdRef>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackProbabilityTagInfoFwdRef>" />

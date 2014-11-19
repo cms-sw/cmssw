@@ -4,7 +4,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
 #include "RecoBTag/SoftLepton/interface/LeptonSelector.h"
-#include "RecoBTag/SoftLepton/src/MuonTaggerNoIPMLP.h"
+#include "RecoBTag/SoftLepton/interface/MuonTaggerNoIPMLP.h"
 
 /**  \class MuonTagger
  *
