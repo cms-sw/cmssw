@@ -8,10 +8,10 @@ import Validation.RecoTrack.plotting.validation as validation
 ########### User Defined Variables (BEGIN) ##############
 
 ### Reference release
-RefRelease='CMSSW_7_2_0_pre8'
+RefRelease='CMSSW_7_3_0_pre1'
 
 ### Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_7_3_0_pre1'
+NewRelease='CMSSW_7_3_0_pre2'
 
 #import Validation.RecoTrack.plotting.plotting as plotting
 #plotting.missingOk = True

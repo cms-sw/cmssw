@@ -30,6 +30,8 @@ _globalTags = {
     "CMSSW_7_2_0_PHYS14": {"default": "PHYS14_25_V1_Phys14"},
 #    "CMSSW_7_3_0_pre1": {"default": "PRE_LS172_V15", "fullsim_25ns": "PRE_LS172_V15_OldPU", "fullsim_50ns": "PRE_LS172_V16_OldPU"},
     "CMSSW_7_3_0_pre1": {"default": "PRE_LS172_V15", "fullsim_50ns": "PRE_LS172_V16"},
+#    "CMSSW_7_3_0_pre2": {"default": "MCRUN2_73_V1_OldPU", "fullsim_50ns": "MCRUN2_73_V0_OldPU"},
+    "CMSSW_7_3_0_pre2": {"default": "MCRUN2_73_V1", "fullsim_50ns": "MCRUN2_73_V0"},
 }
 
 _releasePostfixes = ["_AlcaCSA14", "_PHYS14", "_TEST", "_Premix"]
