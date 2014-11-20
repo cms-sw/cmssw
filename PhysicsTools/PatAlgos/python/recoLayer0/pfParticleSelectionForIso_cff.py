@@ -1,14 +1,6 @@
-from RecoParticleFlow.PFProducer.pfLinker_cff import particleFlowPtrs
-from CommonTools.ParticleFlow.pfParticleSelection_cff import *
-pfPileUp.PFCandidates = 'particleFlowPtrs'
-pfNoPileUp.bottomCollection = 'particleFlowPtrs'
-pfPileUpIso.PFCandidates = 'particleFlowPtrs'
-pfNoPileUpIso.bottomCollection='particleFlowPtrs'
-pfPileUpJME.PFCandidates = 'particleFlowPtrs'
-pfNoPileUpJME.bottomCollection='particleFlowPtrs'
+from CommonTools.ParticleFlow.PFBRECO_cff import *
 
 pfParticleSelectionForIsoSequence = cms.Sequence(
     particleFlowPtrs +
-    pfNoPileUpIsoSequence +
-    pfParticleSelectionSequence
+    pfParticleSelectionPFBRECOSequence
     )
