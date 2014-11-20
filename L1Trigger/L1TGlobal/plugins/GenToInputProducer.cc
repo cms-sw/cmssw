@@ -276,8 +276,8 @@ GenToInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
     int pt   = convertPtToHW( mcParticle.pt(), MaxLepPt_, PtStep_ );
     int eta  = convertEtaToHW( mcParticle.eta(), -MaxMuonEta_, MaxMuonEta_, EtaStepMuon_);
     int phi  = convertPhiToHW( mcParticle.phi(), PhiStepMuon_ );
-    int qual = 4;
-    int iso  = 1;
+    int qual = 0;//4;
+    int iso  = 0;//1;
     int charge = ( mcParticle.charge()>0 ) ? 1 : 0;
     int chargeValid = 1;
     int mip = 1;
