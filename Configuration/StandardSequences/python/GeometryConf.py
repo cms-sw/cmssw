@@ -11,6 +11,8 @@ GeometryConf={
     'DBExtended2017'    : 'DB:Extended2017',
     'DBExtended2019'    : 'DB:Extended2019',
     'DBExtendedPhaseIPixel' : 'DB:ExtendedPhaseIPixel',
+    'DBIdeal2015'       : 'DB:Ideal2015',
+    'Ideal2015'       : 'Ideal2015,Ideal2015Reco',
     'Extended'       : 'Extended,ExtendedReco',
     'Extended2015'   : 'Extended2015,Extended2015Reco',
     'Extended2017'   : 'Extended2017,Extended2017Reco',
