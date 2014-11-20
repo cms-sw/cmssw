@@ -304,7 +304,7 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
                 *(m_gtCaloTemplate->correlationParameter());
 
 	      // check delta eta
-	      if( !checkRangeDeltaEta( (candVec->at(useBx,i))->hwEta(), (candVec->at(useBx,j))->hwEta(), corrPar.deltaEtaRangeLower, corrPar.deltaEtaRangeUpper) ){
+	      if( !checkRangeDeltaEta( (candVec->at(useBx,i))->hwEta(), (candVec->at(useBx,j))->hwEta(), corrPar.deltaEtaRangeLower, corrPar.deltaEtaRangeUpper, 7) ){
 		LogDebug("l1t|Global") << "\t\t l1t::Candidate failed checkRangeDeltaEta" << std::endl;
 		continue;
 	      }
@@ -546,7 +546,7 @@ const bool l1t::CaloCondition::checkObjectParameter(const int iCondition, const 
     }
 
     // check eta
-    if( !checkRangeEta(cand.hwEta(), objPar.etaWindowLower, objPar.etaWindowUpper, objPar.etaWindowVetoLower, objPar.etaWindowVetoLower) ){
+    if( !checkRangeEta(cand.hwEta(), objPar.etaWindowLower, objPar.etaWindowUpper, objPar.etaWindowVetoLower, objPar.etaWindowVetoLower, 7) ){
       LogDebug("l1t|Global") << "\t\t l1t::Candidate failed checkRange(eta)" << std::endl;
       return false;
     }

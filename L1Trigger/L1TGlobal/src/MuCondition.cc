@@ -300,7 +300,7 @@ const bool l1t::MuCondition::evaluateCondition(const int bxEval) const {
             }
 
 	    // check delta eta
-	    if( !checkRangeDeltaEta( (candVec->at(useBx,0))->hwEta(), (candVec->at(useBx,1))->hwEta(), corrPar.deltaEtaRangeLower, corrPar.deltaEtaRangeUpper) ){
+	    if( !checkRangeDeltaEta( (candVec->at(useBx,0))->hwEta(), (candVec->at(useBx,1))->hwEta(), corrPar.deltaEtaRangeLower, corrPar.deltaEtaRangeUpper, 8) ){
 	      LogDebug("l1t|Global") << "\t\t l1t::Candidate failed checkRangeDeltaEta" << std::endl;
 	      continue;
 	    }
@@ -428,7 +428,7 @@ const bool l1t::MuCondition::checkObjectParameter(const int iCondition, const l1
 
 
     // check eta
-    if( !checkRangeEta(cand.hwEta(), objPar.etaWindowLower, objPar.etaWindowUpper, objPar.etaWindowVetoLower, objPar.etaWindowVetoLower) ){
+    if( !checkRangeEta(cand.hwEta(), objPar.etaWindowLower, objPar.etaWindowUpper, objPar.etaWindowVetoLower, objPar.etaWindowVetoLower, 8) ){
       LogDebug("l1t|Global") << "\t\t l1t::Candidate failed checkRange(eta)" << std::endl;
       return false;
     }
