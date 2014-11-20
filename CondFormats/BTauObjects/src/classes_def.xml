@@ -1,23 +1,32 @@
-     <lcgdict>
-        <class name="TrackProbabilityCategoryData"/>      
+<lcgdict>
+    <class name="TrackProbabilityCategoryData"/>
 	<class name="TrackProbabilityCalibration::Entry"/>
 	<class name="std::vector<TrackProbabilityCalibration::Entry>"/>     
-        <class name="TrackProbabilityCalibration" class_version="0">
-           <field name="data" mapping="blob"/>
-        </class>
+    <class name="TrackProbabilityCalibration" class_version="0">
+        <field name="data" mapping="blob"/>
+    </class>
 
-        <class name="CombinedSVCategoryData"/>      
+    <class name="CombinedSVCategoryData"/>
 	<class name="CombinedSVCalibration::Entry"/>
 	<class name="std::vector<CombinedSVCalibration::Entry>"/>     
-        <class name="CombinedSVCalibration" class_version="0">
-           <field name="data" mapping="blob"/>
-        </class>
+    <class name="CombinedSVCalibration" class_version="0">
+       <field name="data" mapping="blob"/>
+    </class>
 
-        <class name="CombinedTauTagCategoryData"/>        
-        <class name="CombinedTauTagCalibration::Entry"/>
-        <class name="std::vector<CombinedTauTagCalibration::Entry>"/>      
-        <class name="CombinedTauTagCalibration" class_version="0">
-           <field name="data" mapping="blob"/>
-        </class>
+    <class name="CombinedTauTagCategoryData"/>
+    <class name="CombinedTauTagCalibration::Entry"/>
+    <class name="std::vector<CombinedTauTagCalibration::Entry>"/>
+    <class name="CombinedTauTagCalibration" class_version="0">
+       <field name="data" mapping="blob"/>
+    </class>
 
+    <class name="BTagEntry" class_version="0"/>
+    <class name="BTagEntry::Parameters" class_version="0"/>
+    <class name="std::vector<BTagEntry>" class_version="0"/>
+    <class name="std::map<std::string, std::vector<BTagEntry> >" class_version="0"/>
+    <class name="BTagCalibration" class_version="0">
+        <field name="tagger_" mapping="string"/>
+        <field name="data_" mapping="blob"/>
+    </class>
+    <class name="BTagCalibrationReader" class_version="0"/>
 </lcgdict>   
