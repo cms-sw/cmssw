@@ -1048,7 +1048,7 @@ steps['RECOHISt4']=steps['RECOHI']
 steps['ALCANZS']=merge([{'-s':'ALCA:HcalCalMinBias','--mc':''},step4Defaults])
 steps['HARVESTGEN']={'-s':'HARVESTING:genHarvesting',
                      '--harvesting':'AtJobEnd',
-                     '--conditions':'auto:run1_mc',
+                     '--conditions':'auto:run1_mc', # GT irrelevant for GEN; run1_mc is a placeholder
                      '--mc':'',
                      '--filetype':'DQM',
                      '--filein':'file:step1_inDQM.root'
@@ -1114,7 +1114,6 @@ steps['HARVESTHI']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                     '--filetype':'DQM',
                     '--scenario':'HeavyIons'}
 
-		   
 steps['HARVESTUP15']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting', # todo: remove UP from label
                    '--conditions':'auto:run2_mc', 
                    '--magField'    : '38T_PostLS1',

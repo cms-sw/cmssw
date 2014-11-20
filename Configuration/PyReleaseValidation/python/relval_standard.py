@@ -144,7 +144,6 @@ workflows[1306]  = ['', ['SingleMuPt1_UP15','DIGIUP15','RECOUP15','HARVESTUP15']
 workflows[1320] = ['', ['SingleMuPt10_UP15','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1321] = ['', ['SingleMuPt100_UP15','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1322] = ['', ['SingleMuPt1000_UP15','DIGIUP15','RECOUP15','HARVESTUP15']]
-#workflows[140.1] = ['',['HydjetQ_MinBias_2760GeV_UP15','DIGIHIUP15','RECOHIUP15','HARVESTHI']] # need new GEN-SIM for this one
 
 ## 8 TeV
 workflows[24] = ['', ['TTbarLepton','DIGI','RECO','HARVEST']]
