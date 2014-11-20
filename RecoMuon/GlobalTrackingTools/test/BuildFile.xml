@@ -6,3 +6,6 @@
 <library   file="DYTTuner.cc" name="DYTTuner">
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library   file="DYTParamsWriter.cc" name="DYTParamsWriter">
+  <flags   EDM_PLUGIN="1"/>
+</library>
