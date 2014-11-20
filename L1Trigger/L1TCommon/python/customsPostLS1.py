@@ -12,7 +12,7 @@ def customiseSimL1EmulatorForPostLS1(process):
     # the following line will break HLT if HLT menu is not updated with the corresponding menu
     process=customiseL1Menu(process)
     #print "INFO:  loading RCT LUTs"
-    process.load("L1Trigger.L1TCalorimeter.caloStage1RCTLuts_cff")
+    #process.load("L1Trigger.L1TCalorimeter.caloStage1RCTLuts_cff")
     if hasattr(process,'L1simulation_step'):
         #print "INFO:  Removing GCT from simulation and adding new Stage 1"
         process.load('L1Trigger.L1TCalorimeter.caloStage1Params_cfi')
