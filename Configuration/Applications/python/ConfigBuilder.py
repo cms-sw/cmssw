@@ -848,15 +848,16 @@ class ConfigBuilder(object):
 	if len(custMap)!=0:
 		final_snippet += '\n# End of customisation functions\n'
 
-	### now for a usuful command
-	if self._options.customise_commands:
-		import string
-		final_snippet +='\n# Customisation from command line'
-		for com in self._options.customise_commands.split('\\n'):
-			com=string.lstrip(com)
-			self.executeAndRemember(com)
-			final_snippet +='\n'+com
-
+	### now for a useful command
+	if unsch==1 or not self._options.runUnscheduled:
+		if self._options.customise_commands:
+			import string
+			final_snippet +='\n# Customisation from command line'
+			for com in self._options.customise_commands.split('\\n'):
+				com=string.lstrip(com)
+				self.executeAndRemember(com)
+				final_snippet +='\n'+com
+	
         return final_snippet
 
     #----------------------------------------------------------------------------
