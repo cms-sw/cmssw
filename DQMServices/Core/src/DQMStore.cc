@@ -1017,7 +1017,7 @@ DQMStore::book1DD(const std::string &name, const std::string &title,
 /// Book 1D variable bin histogram.
 MonitorElement *
 DQMStore::book1D(const char *name, const char *title,
-                 int nchX, float *xbinsize)
+                 int nchX, const float *xbinsize)
 {
   return book1D(pwd_, name, new TH1F(name, title, nchX, xbinsize));
 }
@@ -1025,7 +1025,7 @@ DQMStore::book1D(const char *name, const char *title,
 /// Book 1D variable bin histogram.
 MonitorElement *
 DQMStore::book1D(const std::string &name, const std::string &title,
-                 int nchX, float *xbinsize)
+                 int nchX, const float *xbinsize)
 {
   return book1D(pwd_, name, new TH1F(name.c_str(), title.c_str(), nchX, xbinsize));
 }
@@ -1163,7 +1163,7 @@ DQMStore::book2DD(const std::string &name, const std::string &title,
 /// Book 2D variable bin histogram.
 MonitorElement *
 DQMStore::book2D(const char *name, const char *title,
-                 int nchX, float *xbinsize, int nchY, float *ybinsize)
+                 int nchX, const float *xbinsize, int nchY, const float *ybinsize)
 {
   return book2D(pwd_, name, new TH2F(name, title,
                                      nchX, xbinsize, nchY, ybinsize));
@@ -1172,7 +1172,7 @@ DQMStore::book2D(const char *name, const char *title,
 /// Book 2D variable bin histogram.
 MonitorElement *
 DQMStore::book2D(const std::string &name, const std::string &title,
-                 int nchX, float *xbinsize, int nchY, float *ybinsize)
+                 int nchX, const float *xbinsize, int nchY, const float *ybinsize)
 {
   return book2D(pwd_, name, new TH2F(name.c_str(), title.c_str(),
                                      nchX, xbinsize, nchY, ybinsize));
@@ -1343,7 +1343,7 @@ DQMStore::bookProfile(const std::string &name, const std::string &title,
 /// disregarded in a profile plot.
 MonitorElement *
 DQMStore::bookProfile(const char *name, const char *title,
-                      int nchX, double *xbinsize,
+                      int nchX, const double *xbinsize,
                       int /* nchY */, double lowY, double highY,
                       const char *option /* = "s" */)
 {
@@ -1358,7 +1358,7 @@ DQMStore::bookProfile(const char *name, const char *title,
 /// disregarded in a profile plot.
 MonitorElement *
 DQMStore::bookProfile(const std::string &name, const std::string &title,
-                      int nchX, double *xbinsize,
+                      int nchX, const double *xbinsize,
                       int /* nchY */, double lowY, double highY,
                       const char *option /* = "s" */)
 {
@@ -1373,7 +1373,7 @@ DQMStore::bookProfile(const std::string &name, const std::string &title,
 /// disregarded in a profile plot.
 MonitorElement *
 DQMStore::bookProfile(const char *name, const char *title,
-                      int nchX, double *xbinsize,
+                      int nchX, const double *xbinsize,
                       double lowY, double highY,
                       const char *option /* = "s" */)
 {
@@ -1388,7 +1388,7 @@ DQMStore::bookProfile(const char *name, const char *title,
 /// disregarded in a profile plot.
 MonitorElement *
 DQMStore::bookProfile(const std::string &name, const std::string &title,
-                      int nchX, double *xbinsize,
+                      int nchX, const double *xbinsize,
                       double lowY, double highY,
                       const char *option /* = "s" */)
 {

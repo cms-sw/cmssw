@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_2_1/HLT/V117 (CMSSW_7_2_1_patch2_HLT1)
+# /dev/CMSSW_7_2_1/HLT/V118 (CMSSW_7_2_1_patch2_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFULL" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_2_1/HLT/V117')
+  tableName = cms.string('/dev/CMSSW_7_2_1/HLT/V118')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -30171,8 +30171,8 @@ process.hltDeDxEstimatorProducer = cms.EDProducer( "DeDxEstimatorProducer",
 )
 process.hltTrk50Filter = cms.EDFilter( "HLTDeDxFilter",
     saveTags = cms.bool( False ),
-    maxAssocCaloE = cms.double( -99.0 ),
-    caloTowersTag = cms.InputTag( "" ),
+    maxAssocCaloE = cms.double( 100.0 ),
+    caloTowersTag = cms.InputTag( "hltTowerMakerForAll" ),
     minNumValidHits = cms.double( 5.0 ),
     minPT = cms.double( 50.0 ),
     minDEDx = cms.double( -1.0 ),
