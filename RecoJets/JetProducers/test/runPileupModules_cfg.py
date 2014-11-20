@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("JETRECO")
+process = cms.Process("PURECO")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
@@ -33,7 +33,7 @@ process.output.outputCommands.append('drop *_*_*_RECO')
 #process.output.outputCommands.append('keep recoPFJets_*_*_*')
 #process.output.outputCommands.append('keep recoGenJets_*_*_*')
 #process.output.outputCommands.append('keep recoBasicJets_*_*_*')
-process.output.outputCommands.append('keep *_*_*_JETRECO')
+process.output.outputCommands.append('keep *_*_*_PURECO')
 process.output.outputCommands.append('keep recoPFCandidates_particleFlow_*_*')
 #process.output.outputCommands.append('keep *_trackRefsForJets_*_*')
 #process.output.outputCommands.append('keep *_generalTracks_*_*')
@@ -47,11 +47,14 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
-process.load("RecoJets/Configuration/RecoJetsGlobal_cff")
+process.load('CommonTools.ParticleFlow.pfNoPileUpJME_cff')
+process.load("RecoJets/JetProducers/ak8PFJetsCS_cfi")
+process.load("RecoJets/JetProducers/ak8PFJetsCHSCS_cfi")
+process.load('CommonTools.PileupModules.softKiller_cfi')
 
-process.recoJets = cms.Path(process.recoPFJetsWithSubstructure)
+process.recoPU = cms.Path(process.pfNoPileUpJMESequence*process.ak8PFJetsCS*process.ak8PFJetsCHSCS*process.particleFlowSKPtrs)
 
 process.out = cms.EndPath(process.output)
 
 # schedule
-process.schedule = cms.Schedule(process.recoJets,process.out)
+process.schedule = cms.Schedule(process.recoPU,process.out)
