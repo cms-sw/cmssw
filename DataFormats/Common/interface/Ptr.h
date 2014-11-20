@@ -273,7 +273,44 @@ namespace edm {
     /// a collection will be identical to the ordering of the referenced objects in the collection.
     return (lhs.refCore() == rhs.refCore() ? lhs.key() < rhs.key() : lhs.refCore() < rhs.refCore());
   }
+}
 
+//The following is needed to get RefToBase to work with an edm::Ptr
+#include "DataFormats/Common/interface/HolderToVectorTrait.h"
+#include "DataFormats/Common/interface/Holder.h"
+#include "DataFormats/Common/interface/VectorHolder.h"
+
+namespace edm {
+  template <typename T> class PtrVector;
+  namespace reftobase {
+    
+    template <typename T, typename U>
+    struct PtrHolderToVector {
+      static  std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() {
+        return std::auto_ptr<BaseVectorHolder<T> >(new VectorHolder<T, edm::PtrVector<U> >);
+      }
+      static  std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() {
+        return std::auto_ptr<RefVectorHolderBase>(new RefVectorHolder<edm::PtrVector<U> >);
+      }
+    };
+    
+    template<typename T, typename U>
+    struct HolderToVectorTrait<T, Ptr<U> > {
+      typedef PtrHolderToVector<T, U > type;
+    };
+    
+    template <typename T>
+    struct PtrRefHolderToRefVector {
+      static std::auto_ptr<RefVectorHolderBase> makeVectorHolder() {
+        return std::auto_ptr<RefVectorHolderBase>(new RefVectorHolder<edm::PtrVector<T> >);
+      }
+    };
+    
+    template<typename T>
+    struct RefHolderToRefVectorTrait<Ptr<T> > {
+      typedef PtrRefHolderToRefVector<T> type;
+    };
+  }
 }
 
 #endif

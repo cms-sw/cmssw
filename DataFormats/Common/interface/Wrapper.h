@@ -402,6 +402,8 @@ namespace edm {
 #include "DataFormats/Common/interface/RefToBaseVector.h"
 
 namespace edm {
+  template<typename T> class PtrVector;
+  
   namespace helpers {
     template<typename T>
     struct ViewFiller {
