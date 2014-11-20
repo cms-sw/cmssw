@@ -245,13 +245,4 @@ void testRef::getTest() {
    //std::cerr << ">>> checking View element #1" << std::endl;
    CPPUNIT_ASSERT(vw[1].value_ == ref1->value_);
    //std::cerr << ">>> RefToBaseProd from View" << std::endl;
-   RefToBaseProd<IntValue> refToBaseProd3(vw);
-   //std::cerr << ">>> checking ref. not empty" << std::endl;
-   CPPUNIT_ASSERT(! refToBaseProd3->empty());
-   //std::cerr << ">>> checking ref. size" << std::endl;
-   CPPUNIT_ASSERT(refToBaseProd3->size() == 2);
-   //std::cerr << ">>> checking ref. element #0" << std::endl;
-   CPPUNIT_ASSERT((*refToBaseProd3)[0].value_ == ref0->value_);
-   //std::cerr << ">>> checking ref. element #1" << std::endl;
-   CPPUNIT_ASSERT((*refToBaseProd3)[1].value_ == ref1->value_);
 }

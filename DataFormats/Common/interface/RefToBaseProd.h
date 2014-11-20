@@ -38,7 +38,6 @@ namespace edm {
     template<typename C, typename F>
     explicit RefToBaseProd(Ref<C, T, F> const& ref);
     explicit RefToBaseProd(RefToBase<T> const& ref);
-    explicit RefToBaseProd(const View<T>&);
     RefToBaseProd(const RefToBaseProd<T>&);
     template<typename C>
     RefToBaseProd(const RefProd<C>&);
@@ -130,16 +129,8 @@ namespace edm {
   template<typename T>
   inline
   RefToBaseProd<T>::RefToBaseProd(Handle<View<T> > const& handle) :
-    product_(handle->id(), 0, handle->productGetter(), false){
+    product_(handle.id(), 0, 0, false){
     product_.setProductPtr(new View<T>(* handle));
-    assert(handle->productGetter() == 0);
-  }
-
-  template<typename T>
-  inline
-  RefToBaseProd<T>::RefToBaseProd(const View<T>& view) :
-    product_(view.id(), 0, view.productGetter(), false) {
-      product_.setProductPtr(new View<T>(view));
   }
 
   template<typename T>
