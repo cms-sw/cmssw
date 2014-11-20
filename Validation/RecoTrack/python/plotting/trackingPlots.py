@@ -1,4 +1,4 @@
-from plotting import Efficiency, AggregateBins, Plot, PlotGroup, Plotter, AlgoOpt
+from plotting import FakeDuplicate, AggregateBins, Plot, PlotGroup, Plotter, AlgoOpt
 import validation
 
 _maxEff = [0.2, 0.5, 0.8, 1.025]
@@ -6,47 +6,41 @@ _maxFake = [0.2, 0.5, 0.8, 1.025]
 
 _effandfake1 = PlotGroup("effandfake1", [
     Plot("effic", xtitle="#eta", ytitle="efficiency vs #eta", ymax=_maxEff),
-    Plot(Efficiency("fakerate_vs_eta", numer="num_assoc(recoToSim)_eta", numer2="num_duplicate_eta", denom="num_reco_eta", title="fake+duplicates vs #eta", isEff=False),
+    Plot(FakeDuplicate("fakeduprate_vs_eta", assoc="num_assoc(recoToSim)_eta", dup="num_duplicate_eta", reco="num_reco_eta", title="fake+duplicates vs #eta"),
          xtitle="#eta", ytitle="fake+duplicates vs #eta", ymax=_maxFake),
     Plot("efficPt", title="", xtitle="p_{t}", ytitle="efficiency vs p_{t}", xmax=300, xlog=True),
-    Plot(Efficiency("fakerate_vs_pT", numer="num_assoc(recoToSim)_pT", numer2="num_duplicate_pT", denom="num_reco_pT", title="", isEff=False),
+    Plot(FakeDuplicate("fakeduprate_vs_pT", assoc="num_assoc(recoToSim)_pT", dup="num_duplicate_pT", reco="num_reco_pT", title=""),
          xtitle="p_{t}", ytitle="fake+duplicates rate vs p_{t}", ymax=_maxFake, xmin=0.2, xmax=300, xlog=True),
     Plot("effic_vs_hit", xtitle="hits", ytitle="efficiency vs hits"),
-    Plot(Efficiency("fakerate_vs_hit", numer="num_assoc(recoToSim)_hit", numer2="num_duplicate_hit", denom="num_reco_hit", title="fake+duplicates vs hit", isEff=False),
-         xtitle="hits", ytitle="fake+duplicates rate vs hits", ymax=_maxFake)
+    Plot(FakeDuplicate("fakeduprate_vs_hit", assoc="num_assoc(recoToSim)_hit", dup="num_duplicate_hit", reco="num_reco_hit", title="fake+duplicates vs hit"),
+         xtitle="hits", ytitle="fake+duplicates rate vs hits", ymax=_maxFake),
 ])
 _effandfake2 = PlotGroup("effandfake2", [
     Plot("effic_vs_phi", xtitle="#phi", ytitle="efficiency vs #phi", ymax=_maxEff),
-    Plot(Efficiency("fakerate_vs_phi", numer="num_assoc(recoToSim)_phi", numer2="num_duplicate_phi", denom="num_reco_phi", title="fake+duplicates vs #phi", isEff=False),
+    Plot(FakeDuplicate("fakeduprate_vs_phi", assoc="num_assoc(recoToSim)_phi", dup="num_duplicate_phi", reco="num_reco_phi", title="fake+duplicates vs #phi"),
          xtitle="#phi", ytitle="fake+duplicates rate vs #phi", ymax=_maxFake),
     Plot("effic_vs_dxy", title="", xtitle="dxy", ytitle="efficiency vs dxy", ymax=_maxEff),
-    Plot(Efficiency("fakerate_vs_dxy", numer="num_assoc(recoToSim)_dxy", numer2="num_duplicate_dxy", denom="num_reco_dxy", title="", isEff=False),
+    Plot(FakeDuplicate("fakeduprate_vs_dxy", assoc="num_assoc(recoToSim)_dxy", dup="num_duplicate_dxy", reco="num_reco_dxy", title=""),
          xtitle="dxy", ytitle="fake+duplicates rate vs dxy", ymax=_maxFake),
     Plot("effic_vs_dz", xtitle="dz", ytitle="efficiency vs dz", ymax=_maxEff),
-    Plot(Efficiency("fakerate_vs_dz", numer="num_assoc(recoToSim)_dz", numer2="num_duplicate_dz", denom="num_reco_dz", title="fake+duplicates vs dz", isEff=False),
+    Plot(FakeDuplicate("fakeduprate_vs_dz", assoc="num_assoc(recoToSim)_dz", dup="num_duplicate_dz", reco="num_reco_dz", title="fake+duplicates vs dz"),
          xtitle="dz", ytitle="fake+duplicates rate vs dz", ymax=_maxFake),
 ])
 
 _dupandfake1 = PlotGroup("dupandfake1", [
-    Plot(Efficiency("fakeduprate_vs_eta", numer="num_assoc(recoToSim)_eta", denom="num_reco_eta", title="fake vs #eta", isEff=False),
-         xtitle="#eta", ytitle="fakerate vs #eta", ymax=_maxFake),
+    Plot("fakerate", xtitle="#eta", ytitle="fakerate vs #eta", ymax=_maxFake),
     Plot("duplicatesRate", xtitle="#eta", ytitle="duplicates rate vs #eta", ymax=_maxFake),
-    Plot(Efficiency("fakeduprate_vs_pT", numer="num_assoc(recoToSim)_pT", denom="num_reco_pT", title="", isEff=False),
-         xtitle="p_{t}", ytitle="fakerate vs p_{t}", xmax=300, xlog=True, ymax=_maxFake),
+    Plot("fakeratePt", xtitle="p_{t}", ytitle="fakerate vs p_{t}", xmax=300, xlog=True, ymax=_maxFake),
     Plot("duplicatesRate_Pt", title="", xtitle="p_{t}", ytitle="duplicates rate vs p_{t}", xmin=0.2, xmax=300, ymax=_maxFake, xlog=True),
-    Plot(Efficiency("fakeduprate_vs_hit", numer="num_assoc(recoToSim)_hit", denom="num_reco_hit", title="fake vs hit", isEff=False),
-         xtitle="hits", ytitle="fakerate vs hits", ymax=_maxFake),
+    Plot("fakerate_vs_hit", xtitle="hits", ytitle="fakerate vs hits", ymax=_maxFake),
     Plot("duplicatesRate_hit", xtitle="hits", ytitle="duplicates rate vs hits", ymax=_maxFake)
 ])
 _dupandfake2 = PlotGroup("dupandfake2", [
-    Plot(Efficiency("fakerate_vs_phi", numer="num_assoc(recoToSim)_phi", denom="num_reco_phi", title="fake vs #phi", isEff=False),
-         xtitle="#phi", ytitle="fakerate vs #phi", ymax=_maxFake),
+    Plot("fakerate_vs_phi", xtitle="#phi", ytitle="fakerate vs #phi", ymax=_maxFake),
     Plot("duplicatesRate_phi", xtitle="#phi", ytitle="duplicates rate vs #phi", ymax=_maxFake),
-    Plot(Efficiency("fakerate_vs_dxy", numer="num_assoc(recoToSim)_dxy", denom="num_reco_dxy", title="", isEff=False),
-         xtitle="dxy", ytitle="fakerate vs dxy", ymax=_maxFake),
+    Plot("fakerate_vs_dxy", xtitle="dxy", ytitle="fakerate vs dxy", ymax=_maxFake),
     Plot("duplicatesRate_dxy", title="", xtitle="dxy", ytitle="duplicates rate vs dxy", ymax=_maxFake),
-    Plot(Efficiency("fakerate_vs_dz", numer="num_assoc(recoToSim)_dz", denom="num_reco_dz", title="fake vs dz", isEff=False),
-         xtitle="dz", ytitle="fakerate vs dz", ymax=_maxFake),
+    Plot("fakerate_vs_dz", xtitle="dz", ytitle="fakerate vs dz", ymax=_maxFake),
     Plot("duplicatesRate_dz", xtitle="dz", ytitle="duplicates rate vs dz", ymax=_maxFake),
 ])
 
@@ -103,23 +97,23 @@ _pulls = PlotGroup("pulls", [
 ],
                    legendDx=0.1, legendDw=-0.1, legendDh=-0.015
 )
-_common = {"fitSlicesY": True, "title": "", "ylog": True, "xtitle": "#eta"}
+_common = {"title": "", "ylog": True, "xtitle": "#eta"}
 _resolutionsEta = PlotGroup("resolutionsEta", [
-    Plot("phires_vs_eta", ytitle="#sigma(#delta #phi) [rad]", ymin=0.000009, ymax=0.01, **_common),
-    Plot("cotThetares_vs_eta", ytitle="#sigma(#delta cot(#theta))", ymin=0.00009, ymax=0.03, **_common),
-    Plot("dxyres_vs_eta", ytitle="#sigma(#delta d_{0}) [cm]", ymin=0.00009, ymax=0.05, **_common),
-    Plot("dzres_vs_eta", ytitle="#sigma(#delta z_{0}) [cm]", ymin=0.0009, ymax=0.1, **_common),
-    Plot("ptres_vs_eta", ytitle="#sigma(#delta p_{t}/p_{t})", ymin=0.0059, ymax=0.08, **_common),
+    Plot("phires_vs_eta_Sigma", ytitle="#sigma(#delta #phi) [rad]", ymin=0.000009, ymax=0.01, **_common),
+    Plot("cotThetares_vs_eta_Sigma", ytitle="#sigma(#delta cot(#theta))", ymin=0.00009, ymax=0.03, **_common),
+    Plot("dxyres_vs_eta_Sigma", ytitle="#sigma(#delta d_{0}) [cm]", ymin=0.00009, ymax=0.05, **_common),
+    Plot("dzres_vs_eta_Sigma", ytitle="#sigma(#delta z_{0}) [cm]", ymin=0.0009, ymax=0.1, **_common),
+    Plot("ptres_vs_eta_Sigma", ytitle="#sigma(#delta p_{t}/p_{t})", ymin=0.0059, ymax=0.08, **_common),
 ],
                             legendDy=-0.02, legendDh=-0.01
 )
-_common = {"fitSlicesY": True, "title": "", "ylog": True, "xlog": True, "xtitle": "p_{t}", "xmin": 0.1, "xmax": 1000}
+_common = {"title": "", "ylog": True, "xlog": True, "xtitle": "p_{t}", "xmin": 0.1, "xmax": 1000}
 _resolutionsPt = PlotGroup("resolutionsPt", [
-    Plot("phires_vs_pt", ytitle="#sigma(#delta #phi) [rad]", ymin=0.000009, ymax=0.01, **_common),
-    Plot("cotThetares_vs_pt", ytitle="#sigma(#delta cot(#theta))", ymin=0.00009, ymax=0.03, **_common),
-    Plot("dxyres_vs_pt", ytitle="#sigma(#delta d_{0}) [cm]", ymin=0.00009, ymax=0.05, **_common),
-    Plot("dzres_vs_pt", ytitle="#sigma(#delta z_{0}) [cm]", ymin=0.0009, ymax=0.1, **_common),
-    Plot("ptres_vs_pt", ytitle="#sigma(#delta p_{t}/p_{t})", ymin=0.003, ymax=2.2, **_common),
+    Plot("phires_vs_pt_Sigma", ytitle="#sigma(#delta #phi) [rad]", ymin=0.000009, ymax=0.01, **_common),
+    Plot("cotThetares_vs_pt_Sigma", ytitle="#sigma(#delta cot(#theta))", ymin=0.00009, ymax=0.03, **_common),
+    Plot("dxyres_vs_pt_Sigma", ytitle="#sigma(#delta d_{0}) [cm]", ymin=0.00009, ymax=0.05, **_common),
+    Plot("dzres_vs_pt_Sigma", ytitle="#sigma(#delta z_{0}) [cm]", ymin=0.0009, ymax=0.1, **_common),
+    Plot("ptres_vs_pt_Sigma", ytitle="#sigma(#delta p_{t}/p_{t})", ymin=0.003, ymax=2.2, **_common),
 ],
                             legendDy=-0.02, legendDh=-0.01
 )

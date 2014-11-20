@@ -76,32 +76,27 @@ def _findBounds(th1s, xmin=None, xmax=None, ymin=None, ymax=None):
     return (xmin, ymin, xmax, ymax)
 
 
-class Efficiency:
-    """Class to calculate efficiency from TH1s"""
-    def __init__(self, name, numer, denom, numer2=None, title="", isEff=True):
+class FakeDuplicate:
+    """Class to calculate the fake+duplicate rate"""
+    def __init__(self, name, assoc, dup, reco, title=""):
         """Constructor.
 
         Arguments:
         name  -- String for the name of the resulting efficiency histogram
-        numer -- String for the name of the numerator histogram
-        denom -- String for the name of the denominator histogram
+        assoc -- String for the name of the "associated" histogram
+        dup   -- String for the name of the "duplicates" histogram
+        reco  -- String for the name of the "reco" (denominator) histogram
 
         Keyword arguments:
-        numer2 -- String for the name of a second numerator histogram (default None).
         title  -- String for a title of the resulting histogram (default "")
-        isEff  -- Boolean denoting if the class should calculate efficiency (default True)
 
-
-        If numer2 is given, the numerator is (numer - numer2).
-
-        If isEff is False, the "efficiency" is (1 - numerator) / denominator
+        The result is calculated as 1 - (assoc - dup) / reco
         """
         self._name = name
-        self._numer = numer
-        self._numer2 = numer2
-        self._denom = denom
+        self._assoc = assoc
+        self._dup = dup
+        self._reco = reco
         self._title = title
-        self._isEff = isEff
 
     def __str__(self):
         """String representation, returns the name"""
@@ -110,58 +105,46 @@ class Efficiency:
     def create(self, tdirectory):
         """Create and return the efficiency histogram from a TDirectory"""
         # Get the numerator/denominator histograms
-        hnum = tdirectory.Get(self._numer)
-        hnum2 = tdirectory.Get(self._numer2) if self._numer2 is not None else None
-        hdenom = tdirectory.Get(self._denom)
+        hassoc = tdirectory.Get(self._assoc)
+        hdup = tdirectory.Get(self._dup)
+        hreco = tdirectory.Get(self._reco)
 
         # Check that they exist
         global missingOk
-        if not hnum:
-            print "Did not find {histo} from {dir}".format(histo=self._numer, dir=tdirectory.GetPath())
+        if not hassoc:
+            print "Did not find {histo} from {dir}".format(histo=self._assoc, dir=tdirectory.GetPath())
             if missingOk:
                 return None
             else:
                 sys.exit(1)
-        if self._numer2 and not hnum2:
-            print "Did not find {histo} from {dir}".format(histo=self._numer2, dir=tdirectory.GetPath())
+        if not hdup:
+            print "Did not find {histo} from {dir}".format(histo=self._dup, dir=tdirectory.GetPath())
             if missingOk:
                 return None
             else:
                 sys.exit(1)
-        if not hdenom:
-            print "Did not find {histo} from {dir}" .format(histo=self._denom, dir=tdirectory.GetPath())
+        if not hreco:
+            print "Did not find {histo} from {dir}" .format(histo=self._reco, dir=tdirectory.GetPath())
             if missingOk:
                 return None
             else:
                 sys.exit(1)
-                    
-        heff = hdenom.Clone(self._name)
-        heff.SetTitle(self._title)
 
-        # Function to calculate the efficiency
-        if self._isEff:
-            _effVal = lambda numerVal, denomVal: numerVal / denomVal if denomVal != 0.0 else 0.0
-        else:
-            _effVal = lambda numerVal, denomVal: (1 - numerVal / denomVal) if denomVal != 0.0 else 0.0
+        hfakedup = hreco.Clone(self._name)
+        hfakedup.SetTitle(self._title)
 
-        # Function to get the numerator
-        if self._numer2 is None:
-            _numerVal = lambda i, num, num2: num.GetBinContent(i)
-        else:
-            _numerVal = lambda i, num, num2: num.GetBinContent(i) - num2.GetBinContent(i)
+        for i in xrange(1, hassoc.GetNbinsX()+1):
+            numerVal = hassoc.GetBinContent(i) - hdup.GetBinContent(i)
+            denomVal = hreco.GetBinContent(i)
 
-        # Calculate efficiencies for each bin
-        for i in xrange(1, hdenom.GetNbinsX()+1):
-            numerVal = _numerVal(i, hnum, hnum2)
-            denomVal = hdenom.GetBinContent(i)
+            fakedupVal = (1 - numerVal / denomVal) if denomVal != 0.0 else 0.0
+            errVal = math.sqrt(fakedupVal*(1-fakedupVal)/denomVal) if (denomVal != 0.0 and fakedupVal <= 1) else 0.0
 
-            effVal = _effVal(numerVal, denomVal)
-            errVal = math.sqrt(effVal*(1-effVal)/denomVal) if (denomVal != 0.0 and effVal <= 1) else 0.0
+            hfakedup.SetBinContent(i, fakedupVal)
+            hfakedup.SetBinError(i, errVal)
 
-            heff.SetBinContent(i, effVal)
-            heff.SetBinError(i, errVal)
+        return hfakedup
 
-        return heff
 
 class AggregateBins:
     def __init__(self, name, histoName, mapping, normalizeTo=None):
