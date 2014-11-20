@@ -49,8 +49,7 @@
 namespace edm
 {
   class ModuleCallingContext;
-  class ConsumesCollector;
- 
+  class ConsumesCollector; 
   class DataMixingSiStripMCDigiWorker
     {
     public:
@@ -59,7 +58,6 @@ namespace edm
 
      /** standard constructor*/
       explicit DataMixingSiStripMCDigiWorker(const edm::ParameterSet& ps, edm::ConsumesCollector && iC);
-
       /**Default destructor*/
       virtual ~DataMixingSiStripMCDigiWorker();
 
@@ -121,7 +119,6 @@ namespace edm
       std::unique_ptr<SiGaussianTailNoiseAdder> theSiNoiseAdder;
       std::unique_ptr<SiStripFedZeroSuppression> theSiZeroSuppress;
       std::unique_ptr<SiTrivialDigitalConverter> theSiDigitalConverter;
-
 
       edm::ESHandle<TrackerGeometry> pDD;
 

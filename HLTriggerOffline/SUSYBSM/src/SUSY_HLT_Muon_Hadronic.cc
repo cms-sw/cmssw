@@ -218,23 +218,22 @@ void SUSY_HLT_Muon_Hadronic::analyze(edm::Event const& e, edm::EventSetup const&
       caloHT += i_calojet->pt();
     }
     //Need to apply the MET offline cut to be in the MET plateau
-    if((hasFiredAuxiliaryForMuonLeg || !e.isRealData()) && MuonCollection->size()>0 && pfMETCollection->begin()->et() > METOffline_ && pfHT > HTOffline_) {
+    if((hasFiredAuxiliaryForMuonLeg || !e.isRealData()) && offlineMuons.size()>0 && pfMETCollection->begin()->et() > METOffline_ && pfHT > HTOffline_) {
       if(hasFired && indexOfMatchedMuon >= 0) {
         h_MuTurnOn_num-> Fill(offlineMuons.at(indexOfMatchedMuon).pt);
         h_MuTurnOn_den-> Fill(offlineMuons.at(indexOfMatchedMuon).pt);
       } else {
         h_MuTurnOn_den-> Fill(offlineMuons.at(0).pt);
-      }
-       
+      } 
     }
     //Need to apply the pt offline cut to be in the muon pt plateau
-    if((hasFiredAuxiliaryForHadronicLeg || !e.isRealData()) && indexOfMatchedMuon >= 0 && MuonCollection->at(indexOfMatchedMuon).pt() > ptMuonOffline_ && pfHT > HTOffline_) {
+    if((hasFiredAuxiliaryForHadronicLeg || !e.isRealData()) && indexOfMatchedMuon >= 0 && offlineMuons.at(indexOfMatchedMuon).pt > ptMuonOffline_ && pfHT > HTOffline_) {
       if(hasFired) {
         h_pfMetTurnOn_num-> Fill(pfMETCollection->begin()->et());
       } 
       h_pfMetTurnOn_den-> Fill(pfMETCollection->begin()->et());
     }
-    if((hasFiredAuxiliaryForHadronicLeg || !e.isRealData()) && indexOfMatchedMuon >= 0 && MuonCollection->at(indexOfMatchedMuon).pt() > ptMuonOffline_ && pfMETCollection->begin()->et() > METOffline_) {
+    if((hasFiredAuxiliaryForHadronicLeg || !e.isRealData()) && indexOfMatchedMuon >= 0 && offlineMuons.at(indexOfMatchedMuon).pt > ptMuonOffline_ && pfMETCollection->begin()->et() > METOffline_) {
       if(hasFired) {
         h_pfHTTurnOn_num-> Fill(pfHT);
       } 

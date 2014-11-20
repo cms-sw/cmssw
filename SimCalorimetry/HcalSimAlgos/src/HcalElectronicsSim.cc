@@ -6,7 +6,6 @@
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
 #include "DataFormats/HcalDigi/interface/ZDCDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HcalUpgradeDataFrame.h"
-
 #include "CLHEP/Random/RandFlat.h"
 #include <math.h>
 

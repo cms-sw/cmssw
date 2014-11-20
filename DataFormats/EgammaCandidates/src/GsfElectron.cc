@@ -83,7 +83,6 @@ GsfElectron::GsfElectron
    showerShape_(electron.showerShape_),
    dr03_(electron.dr03_), dr04_(electron.dr04_),
    conversionRejection_(electron.conversionRejection_),
-   pfShowerShape_(electron.pfShowerShape_),
    pfIso_(electron.pfIso_),
    mvaInput_(electron.mvaInput_),
    mvaOutput_(electron.mvaOutput_),
@@ -119,7 +118,6 @@ GsfElectron::GsfElectron
    full5x5_showerShape_(electron.full5x5_showerShape_),
    dr03_(electron.dr03_), dr04_(electron.dr04_),
    conversionRejection_(electron.conversionRejection_),
-   pfShowerShape_(electron.pfShowerShape_),
    pfIso_(electron.pfIso_),
    mvaInput_(electron.mvaInput_),
    mvaOutput_(electron.mvaOutput_),
@@ -173,12 +171,6 @@ GsfElectron * GsfElectron::clone
 
 bool GsfElectron::ecalDriven() const
  {
-  if (!passingCutBasedPreselection()&&!passingMvaPreselection())
-   {
-    edm::LogWarning("GsfElectronAlgo|UndefinedPreselectionInfo")
-      <<"All preselection flags are false,"
-      <<" either the data is too old or electrons were not preselected." ;
-   }
   return (ecalDrivenSeed()&&passingCutBasedPreselection()) ;
  }
 

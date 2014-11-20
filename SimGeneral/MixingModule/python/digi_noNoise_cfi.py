@@ -38,6 +38,7 @@ theDigitizersNoNoise.ecal.doENoise = cms.bool(False)
 theDigitizersNoNoise.pixel.AddNoise = cms.bool(True)
 theDigitizersNoNoise.pixel.addNoisyPixels = cms.bool(False)
 theDigitizersNoNoise.strip.Noise = cms.bool(False)
+theDigitizersNoNoise.strip.PreMixingMode = cms.bool(True)
+theDigitizersNoNoise.strip.FedAlgorithm = cms.int32(5) # special ZS mode: accept adc>0
 theDigitizersNoNoise.ecal.EcalPreMixStage1 = cms.bool(True)
 theDigitizersNoNoise.hcal.HcalPreMixStage1 = cms.bool(True)
-#Need Hcal statement - change variable

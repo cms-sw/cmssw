@@ -135,9 +135,7 @@ void
 EcalHitResponse::add( const PCaloHit& hit, CLHEP::HepRandomEngine* engine )
 {
   if (!edm::isNotFinite( hit.time() ) && ( 0 == m_hitFilter || m_hitFilter->accepts( hit ) ) ) {
-
     putAnalogSignal( hit, engine ) ;
-
   }
 }
 

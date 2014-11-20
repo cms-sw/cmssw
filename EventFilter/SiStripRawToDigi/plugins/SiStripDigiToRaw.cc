@@ -80,6 +80,9 @@ namespace sistrip {
         
         auto conns = cabling->fedConnections(*ifed);
         
+	//for special mode premix raw, data is zero-suppressed but not converted to 8 bit
+	//zeroSuppressed here means converted to 8 bit...
+	if (mode_ == READOUT_MODE_PREMIX_RAW) zeroSuppressed=false;
         FEDStripData fedData(zeroSuppressed);
         
 	for (auto iconn = conns.begin() ; iconn != conns.end(); iconn++ ) {

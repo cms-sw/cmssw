@@ -43,7 +43,6 @@ namespace edm {
     // initialize EcalDigitizer here...
 
     myEcalDigitizer_ = new EcalDigiProducer( ps , iC);
-
     myEcalDigitizer_->setEBNoiseSignalGenerator( & theEBSignalGenerator );
     myEcalDigitizer_->setEENoiseSignalGenerator( & theEESignalGenerator );
     myEcalDigitizer_->setESNoiseSignalGenerator( & theESSignalGenerator );
@@ -56,8 +55,6 @@ namespace edm {
   }  
 
   void DataMixingEcalDigiWorkerProd::beginRun(const edm::EventSetup& ES) {
-
-    // myEcalDigitizer_->beginRun(ES); 
   }
 
   void DataMixingEcalDigiWorkerProd::initializeEvent(const edm::Event &e, const edm::EventSetup& ES) {
@@ -93,6 +90,11 @@ namespace edm {
     myEcalDigitizer_->finalizeEvent( e, ES );
 
   }
+
+  void DataMixingEcalDigiWorkerProd::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) {
+    myEcalDigitizer_->beginLuminosityBlock(lumi,setup);
+  }
+
 
 } //edm
 

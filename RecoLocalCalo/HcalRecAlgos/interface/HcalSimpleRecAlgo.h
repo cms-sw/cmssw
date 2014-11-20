@@ -52,7 +52,7 @@ public:
   void setRecoParams(bool correctForTimeslew, bool correctForPulse, bool setLeakCorrection, int pileupCleaningID, float phaseNS);
 
   // ugly hack related to HB- e-dependent corrections
-  void setForData(int runnum);
+  void setForData (int runnum);
 
   // usage of leak correction 
   void setLeakCorrection();
@@ -77,8 +77,11 @@ public:
   HcalCalibRecHit reconstruct(const HcalCalibDataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
 
   void setpuCorrMethod(int method){ puCorrMethod_ = method; if( puCorrMethod_ ==2 ) psFitOOTpuCorr_ = std::auto_ptr<PulseShapeFitOOTPileupCorrection>(new PulseShapeFitOOTPileupCorrection()); }
-  void setpufitChrgThr(double chrgThrInput){ if( puCorrMethod_ ==2 ) psFitOOTpuCorr_->setChargeThreshold(chrgThrInput); }
-
+  void setpuCorrParams(bool   iPedestalConstraint, bool iTimeConstraint,bool iAddPulseJitter,bool iUnConstrainedFit,bool iApplyTimeSlew,
+		       double iTS4Min, double iTS4Max, double iPulseJitter,double iTimeMean,double iTimeSig,double iPedMean,double iPedSig,
+		       double iNoise,double iTMin,double iTMax,
+		       double its3Chi2,double its4Chi2,double its345Chi2,double iChargeThreshold, int iFitTimes); 
+  
 private:
   bool correctForTimeslew_;
   bool correctForPulse_;
