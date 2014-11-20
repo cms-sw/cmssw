@@ -20,18 +20,24 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:mc', '')
 process.GlobalTag.toGet = cms.VPSet(
     # Geometries
     cms.PSet(record = cms.string("MFGeometryFileRcd"),
-             tag = cms.string("MagneticFieldGeometry_90322"),
-             connect = cms.untracked.string("sqlite_file:DB_Geom/mfGeometry_90322.db"),
+#             tag = cms.string("MagneticFieldGeometry_90322"),
+#             connect = cms.untracked.string("sqlite_file:DB_Geom/mfGeometry_90322.db"),
+             tag = cms.string("MFGeometry_90322"),
+             connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_GEOMETRY"),
              label = cms.untracked.string("90322")
              ),
     cms.PSet(record = cms.string("MFGeometryFileRcd"),
-             tag = cms.string("MagneticFieldGeometry_120812"),
-             connect = cms.untracked.string("sqlite_file:DB_Geom/mfGeometry_120812.db"),
+#             tag = cms.string("MagneticFieldGeometry_120812"),
+#             connect = cms.untracked.string("sqlite_file:DB_Geom/mfGeometry_120812.db"),
+             tag = cms.string("MFGeometry_120812"),
+             connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_GEOMETRY"),
              label = cms.untracked.string("120812")
              ),
     cms.PSet(record = cms.string("MFGeometryFileRcd"),
-             tag = cms.string("MagneticFieldGeometry_130503"),
-             connect = cms.untracked.string("sqlite_file:DB_Geom/mfGeometry_130503.db"),
+#             tag = cms.string("MagneticFieldGeometry_130503"),
+#             connect = cms.untracked.string("sqlite_file:DB_Geom/mfGeometry_130503.db"),
+             tag = cms.string("MFGeometry_130503"),
+             connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_GEOMETRY"),
              label = cms.untracked.string("130503")
              ),
 

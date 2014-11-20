@@ -62,7 +62,7 @@ def createMetadata(aTag,aComment):
     txtfile.write('{\n')
     txtfile.write('   "destinationDatabase": "oracle://cms_orcoff_prep/CMS_COND_GEOMETRY",\n')
     txtfile.write('   "destinationTags": {\n')
-    txtfile.write('      '+TAG+'": {\n')
+    txtfile.write('      "'+TAG+'": {\n')
     txtfile.write('         "dependencies": {},\n')
     txtfile.write('         "synchronizeTo": "offline"\n')
     txtfile.write('        }\n')
