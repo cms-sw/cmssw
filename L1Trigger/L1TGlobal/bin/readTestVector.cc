@@ -578,7 +578,7 @@ l1t::EtSum unpackEtSums( std::string ietsum, l1t::EtSum::EtSumType type ){
 
 // Conversion into physical coordinates from HW
 double convertPtFromHW( int hwPt, double max, double step ){
-  double pt = double(hwPt)/step;
+  double pt = double(hwPt) * step;
   if( pt>max ) pt = max;
   return pt;
 }
