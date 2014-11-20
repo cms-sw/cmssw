@@ -1,23 +1,12 @@
-# Copied from https://github.com/cms-sw/genproductions for RelVal June 5, 2014
 import FWCore.ParameterSet.Config as cms
-from GeneratorInterface.ExternalDecays.TauolaSettings_cff import *
-
 from Configuration.Generator.Pythia8CommonSettings_cfi import *
 from Configuration.Generator.Pythia8CUEP8M1Settings_cfi import *
-
+from GeneratorInterface.PhotosInterface.PhotosppPythia8TauSettings_cfi import *
 generator = cms.EDFilter("Pythia8HadronizerFilter",
                          ExternalDecays = cms.PSet(
-        Tauola = cms.untracked.PSet(
-            UseTauolaPolarization = cms.bool(True),
-            InputCards = cms.PSet(
-                mdtau = cms.int32(0),
-                pjak2 = cms.int32(3),
-                pjak1 = cms.int32(3)
-                )
-            ),
-        parameterSets = cms.vstring('Tauola')
+        Photospp = PhotosppPythia8TauSettings,
+        parameterSets = cms.vstring('Photospp')
         ),
-                         UseExternalGenerators = cms.untracked.bool(True),
                          maxEventsToPrint = cms.untracked.int32(1),
                          pythiaPylistVerbosity = cms.untracked.int32(1),
                          filterEfficiency = cms.untracked.double(1.0),
@@ -41,9 +30,8 @@ generator = cms.EDFilter("Pythia8HadronizerFilter",
         pythia8CommonSettingsBlock,
         pythia8CUEP8M1SettingsBlock,
         parameterSets = cms.vstring('pythia8CommonSettings',
-                                    'pythia8CUEP8M1Settings'
+                                    'pythia8CUEP8M1Settings',
                                     )
         )
                          )
-
 ProductionFilterSequence = cms.Sequence(generator)
