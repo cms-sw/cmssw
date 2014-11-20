@@ -86,6 +86,7 @@ REGISTER_PLUGIN(HFAlignmentRcd,Alignments);
 REGISTER_PLUGIN(HFAlignmentErrorRcd,AlignmentErrors);
 REGISTER_PLUGIN(ZDCAlignmentRcd,Alignments);
 REGISTER_PLUGIN(ZDCAlignmentErrorRcd,AlignmentErrors);
+REGISTER_PLUGIN(TrackerAlignmentErrorRcd,AlignmentErrors);
 REGISTER_PLUGIN(TrackerAlignmentErrorExtendedRcd,AlignmentErrorsExtended);
 REGISTER_PLUGIN(DTAlignmentErrorExtendedRcd,AlignmentErrorsExtended);
 REGISTER_PLUGIN(CSCAlignmentErrorExtendedRcd,AlignmentErrorsExtended);
