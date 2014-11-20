@@ -6,10 +6,12 @@
 #include<vector>
 
 RunInfoHandler::RunInfoHandler(const edm::ParameterSet& pset) :
-  m_name(pset.getUntrackedParameter<std::string>("name","RunInfoHandler"))
-  ,m_user(pset.getUntrackedParameter<std::string>("OnlineDBUser","CMS_RUNINFO_R")) 
-  ,m_pass(pset.getUntrackedParameter<std::string>("OnlineDBPass","PASSWORD")) {
-  m_connectionString= "oracle://cms_omds_adg/CMS_RUNINFO";
+   m_name( pset.getUntrackedParameter<std::string>( "name", "RunInfoHandler") )
+  ,m_since( pset.getParameter<unsigned long long>( "runNumber" ) )
+  ,m_connectionString( pset.getUntrackedParameter<std::string>( "connectionString", "oracle://cms_omds_adg/CMS_RUNINFO") )
+  ,m_authpath( pset.getUntrackedParameter<std::string>( "authenticationPath", "." ) )
+  ,m_user( pset.getUntrackedParameter<std::string>( "OnlineDBUser", "CMS_RUNINFO_R" ) )
+  ,m_pass( pset.getUntrackedParameter<std::string>( "OnlineDBPass", "PASSWORD") ) {
 }
 
 RunInfoHandler::~RunInfoHandler() {}
