@@ -33,19 +33,27 @@ namespace l1t {
 			      const std::vector<l1t::CaloEmCand> & EMCands,
 			      std::vector<l1t::EtSum> * sums);
 
-    int etSumEtaMinHt;
-    int etSumEtaMaxHt;
-    double etSumEtThresholdHt;
-  
-    int etSumEtaMinEt;
-    int etSumEtaMaxEt;
-    double etSumEtThresholdEt;
-
-    double jetLsb;
   private:
     CaloParamsStage1* const params_;
-    double regionPhysicalEt(const l1t::CaloRegion&) const;
 
+    int DiJetPhi(const std::vector<l1t::Jet> * jets) const;
+    std::vector<double> sinPhi;
+    std::vector<double> cosPhi;
+
+  };
+
+  class Stage1Layer2EtSumAlgorithmImpHW : public Stage1Layer2EtSumAlgorithm {
+  public:
+    Stage1Layer2EtSumAlgorithmImpHW(CaloParamsStage1* params);
+    virtual ~Stage1Layer2EtSumAlgorithmImpHW();
+    virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
+			      const std::vector<l1t::CaloEmCand> & EMCands,
+			      std::vector<l1t::EtSum> * sums);
+
+  private:
+    CaloParamsStage1* const params_;
+
+    int DiJetPhi(const std::vector<l1t::Jet> * jets) const;
     std::vector<double> sinPhi;
     std::vector<double> cosPhi;
 
