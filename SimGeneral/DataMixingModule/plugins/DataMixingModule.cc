@@ -329,6 +329,13 @@ namespace edm
     }
   }
 
+  void DataMixingModule::endRun(edm::Run const& run, const edm::EventSetup& ES) { 
+    //if( addMCDigiNoise_ ) {
+      // HcalDigiWorkerProd_->endRun( run, ES ); // FIXME not implemented
+      // EcalDigiWorkerProd_->endRun( ES );      // FIXME not implemented
+    //}
+    BMixingModule::endRun( run, ES);
+  }
 
   // Virtual destructor needed.
   DataMixingModule::~DataMixingModule() { 
@@ -545,9 +552,14 @@ namespace edm
   }
 
   void DataMixingModule::beginLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) {
+    BMixingModule::beginLuminosityBlock(l1, c);
     EcalDigiWorkerProd_->beginLuminosityBlock(l1,c);
   }
 
+  void DataMixingModule::endLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) {
+    // EcalDigiWorkerProd_->endLuminosityBlock(l1,c);  // FIXME Not implemented.
+    BMixingModule::endLuminosityBlock(l1, c);
+  }
 
 
 } //edm
