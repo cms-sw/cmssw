@@ -87,7 +87,7 @@ The Run 1 detector DetId schema profits of all the six available subdetectors (f
 
 A more detailed description of the SiStrip Tracker DetId schema can be found in this CMS Internal Note: [http://cms.cern.ch/iCMS/jsp/openfile.jsp?type=IN&year=2007&files=IN2007_020.pdf]
 
-The configuration names for this detid schema are `trackerNumberingGeometry` for `TrackerGeometricDetESModule` and `trackerTopologyConstants for` `TrackerTopology`
+The configuration names for this detid schema are `trackerNumberingGeometry_cfi` for `TrackerGeometricDetESModule` and `trackerTopologyConstants_cfi` for `TrackerTopology`
 
 ### Phase 1 Upgrade Detector DetId schema
 The phase 1 detector DetId schema differs from that of the Run 1 detector only in the first two subdetectors which
@@ -117,7 +117,7 @@ corresponds to the Pixel Barrel and Forward detector. Therefore only them will b
 
 Subdetectors 3 to 6 are as for the Run 1 detector since the SiStrip Tracker is the same in phase1.
 
-The configuration names for this detid schema are `trackerNumberingSLHCGeometry` for `TrackerGeometricDetESModule` and for `TrackerTopology`
+The configuration names for this detid schema are `trackerNumberingSLHCGeometry_cfi` for `TrackerGeometricDetESModule` and `trackerTopologySLHCConstants_cfi` for `TrackerTopology`
 
 ### Phase 2 Upgrade Detector DetId schema
 The phase 2 detector DetId schema is formally identical to the one of the phase 1 detector but only subdetectors 1 and 2
@@ -146,4 +146,4 @@ phase 2 OT detector
 | Module | 2 | 0xFF | 8 | inner pixel: always = 1; outer tracker: increasing phi and modules in the same pt module are sorted by increasing abs(z) |
 | _not used_ | 0 | 0x3 | 2 | |
 
-The configuration names for this detid schema are `trackerNumberingSLHCGeometry` for `TrackerGeometricDetESModule` and for `TrackerTopology`
+The configuration names for this detid schema are `trackerNumberingSLHCGeometry_cfi` for `TrackerGeometricDetESModule` and `trackerTopologySLHCConstants_cfi` for `TrackerTopology`
