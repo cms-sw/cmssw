@@ -78,7 +78,7 @@ metsig::METSignificance::getCovariance()
    // subtract leptons out of sumPt
    for ( std::vector<reco::Candidate::LorentzVector>::const_iterator lepton = leptons.begin();
          lepton != leptons.end(); ++lepton ) {
-      sumPt -= lepton->Pt();
+      //sumPt -= lepton->Pt();
    }
 
    // add jets to metsig covariance matrix and subtract them from sumPt
