@@ -129,16 +129,6 @@ def customise_harvesting(process):
     return (process)        
 
 def customise_condOverRides(process):
-    process.trackerTopologyConstants.pxb_layerStartBit = cms.uint32(20)
-    process.trackerTopologyConstants.pxb_ladderStartBit = cms.uint32(12)
-    process.trackerTopologyConstants.pxb_moduleStartBit = cms.uint32(2)
-    process.trackerTopologyConstants.pxb_layerMask = cms.uint32(15)
-    process.trackerTopologyConstants.pxb_ladderMask = cms.uint32(255)
-    process.trackerTopologyConstants.pxb_moduleMask = cms.uint32(1023)
-    process.trackerTopologyConstants.pxf_diskStartBit = cms.uint32(18)
-    process.trackerTopologyConstants.pxf_bladeStartBit = cms.uint32(12)
-    process.trackerTopologyConstants.pxf_panelStartBit = cms.uint32(10)
-    process.trackerTopologyConstants.pxf_moduleMask = cms.uint32(255)
     return process
 
 def add_detailed_pixel_dqm(process):
