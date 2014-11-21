@@ -43,6 +43,7 @@
 #include <DataFormats/MuonReco/interface/Muon.h>
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include <boost/algorithm/string.hpp>
 #include "FWCore/Utilities/interface/EDGetToken.h"
@@ -101,7 +102,7 @@ class BaseHandler {
 // Handle objects saved into hlt event by hlt filters
 //
 //################################################################################################
-enum SpecialFilters { None, BestVertexMatching  };
+enum SpecialFilters { None, BestVertexMatching };
 template <class TInputCandidateType, class TOutputCandidateType, SpecialFilters filter = None>
 class HandlerTemplate: public BaseHandler {
     private:
@@ -384,6 +385,9 @@ class HandlerTemplate: public BaseHandler {
 //
 // Read any object inheriting from reco::Candidate. Save p4
 //
+//  problem: for reco::Candidate there is no reflex dictionary, so selector
+//  wont work
+//
 //#############################################################################
 template<>
 void HandlerTemplate<reco::Candidate::LorentzVector, reco::Candidate::LorentzVector>::getAndStoreTokens(
@@ -416,6 +420,30 @@ void HandlerTemplate<reco::Candidate::LorentzVector, reco::Candidate::LorentzVec
 }
 //#############################################################################
 //
+// Count objects. To avoid code duplication we do it in a separate template -
+//  - partial specialization not easy...:
+// http://stackoverflow.com/questions/21182729/specializing-single-method-in-a-big-template-class
+//
+//#############################################################################
+template <class TInputClass>
+int count(const edm::Event& iEvent, InputTag &input, StringCutObjectSelector<TInputClass> & sel){
+   int ret = 0;
+   Handle<std::vector< TInputClass > > hIn;
+   iEvent.getByLabel(InputTag(input), hIn);
+   if(!hIn.isValid()) {
+      edm::LogError("FSQDiJetAve") << "product not found: "<<  input.encode();
+      return -1;  // return nonsense value
+   }
+   for (unsigned int i = 0; i<hIn->size(); ++i) {
+        bool preselection = sel(hIn->at(i));
+        if (preselection){
+            ret+=1;
+        }
+   }
+   return ret;
+}
+//#############################################################################
+//
 // Count any object inheriting from reco::Track. Save into std::vector<int>
 // note: this is similar to recoCand counter (code duplication is hard to 
 //       avoid in this case)
@@ -425,10 +453,8 @@ template<>
 void HandlerTemplate<reco::Track, int >::getFilteredCands(
              reco::Track *, // pass a dummy pointer, makes possible to select correct getFilteredCands
              std::vector<int > & cands, // output collection
-             const edm::Event& iEvent,  
-             const edm::EventSetup& iSetup,
-             const HLTConfigProvider&  hltConfig,
-             const trigger::TriggerEvent& trgEvent)
+             const edm::Event& iEvent, const edm::EventSetup& iSetup,
+             const HLTConfigProvider&  hltConfig,  const trigger::TriggerEvent& trgEvent)
 {  
    cands.clear();
    cands.push_back(0);
@@ -445,6 +471,17 @@ void HandlerTemplate<reco::Track, int >::getFilteredCands(
             cands.at(0)+=1;
         }
    }
+   cands.push_back(count<reco::Track>(iEvent, m_input, m_singleObjectSelection) );
+}
+template<>
+void HandlerTemplate<reco::GenParticle, int >::getFilteredCands(
+             reco::GenParticle *, // pass a dummy pointer, makes possible to select correct getFilteredCands
+             std::vector<int > & cands, // output collection
+             const edm::Event& iEvent, const edm::EventSetup& iSetup,
+             const HLTConfigProvider&  hltConfig, const trigger::TriggerEvent& trgEvent)
+{
+   cands.clear();
+   cands.push_back(count<reco::GenParticle>(iEvent, m_input, m_singleObjectSelection) );
 }
 //#############################################################################
 //
@@ -452,7 +489,6 @@ void HandlerTemplate<reco::Track, int >::getFilteredCands(
 // selected vertex. Save into std::vector<int>
 // note: this is similar to recoCand counter (code duplication is hard to 
 //       avoid in this case)
-//
 //
 //#############################################################################
 template<>
@@ -510,7 +546,6 @@ void HandlerTemplate<reco::Track, int, BestVertexMatching>::getFilteredCands(
 
    for (unsigned int i = 0; i<hIn->size(); ++i) {
         if (!m_singleObjectSelection(hIn->at(i))) continue;
-            
         dxy=0.0, dz=0.0, dxysigma=0.0, dzsigma=0.0;
         dxy = -1.*hIn->at(i).dxy(vtxPoint);
         dz = hIn->at(i).dz(vtxPoint);
@@ -523,13 +558,12 @@ void HandlerTemplate<reco::Track, int, BestVertexMatching>::getFilteredCands(
         if(fabs(dxy/dxysigma)>lMaxDXY2dxysigma)continue;
         
         cands.at(0)+=1;
-            
     }//loop over tracks
-
 }
 //#############################################################################
 //
 // Count any object inheriting from reco::Candidate. Save into std::vector<int>
+//  same problem as for reco::Candidate handler ()
 //
 //#############################################################################
 template<>
@@ -615,9 +649,11 @@ typedef HandlerTemplate<reco::PFJet, reco::PFJet> RecoPFJetHandler;
 typedef HandlerTemplate<reco::Track, reco::Track> RecoTrackHandler;
 typedef HandlerTemplate<reco::Photon, reco::Photon> RecoPhotonHandler;
 typedef HandlerTemplate<reco::Muon, reco::Muon> RecoMuonHandler;
+typedef HandlerTemplate<reco::GenParticle, reco::GenParticle > RecoGenParticleHandler;
 typedef HandlerTemplate<reco::Candidate::LorentzVector, int > RecoCandidateCounter;
 typedef HandlerTemplate<reco::Track, int > RecoTrackCounter;
 typedef HandlerTemplate<reco::Track, int, BestVertexMatching> RecoTrackCounterWithVertexConstraint;
+typedef HandlerTemplate<reco::GenParticle, int > RecoGenParticleCounter;
 }
 //################################################################################################
 //
@@ -672,6 +708,12 @@ FSQDiJetAve::FSQDiJetAve(const edm::ParameterSet& iConfig):
         else if (type == "RecoMuon") {
             m_handlers.push_back(std::shared_ptr<FSQ::RecoMuonHandler>(new FSQ::RecoMuonHandler(pset, m_eventCache)));
         } 
+        else if (type == "RecoGenParticleCounter") {
+            m_handlers.push_back(std::shared_ptr<FSQ::RecoGenParticleCounter>(new FSQ::RecoGenParticleCounter(pset, m_eventCache)));
+        }
+        else if (type == "RecoGenParticleHandler") {
+            m_handlers.push_back(std::shared_ptr<FSQ::RecoGenParticleHandler>(new FSQ::RecoGenParticleHandler(pset, m_eventCache)));
+        } 
         else {
             throw cms::Exception("FSQ DQM handler not know: "+ type);
         }
@@ -720,7 +762,6 @@ FSQDiJetAve::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       return;
     }
   } 
-  
 
   float weight = 1.;  
   if (m_useGenWeight){
@@ -751,7 +792,6 @@ void FSQDiJetAve::bookHistograms(DQMStore::IBooker & booker, edm::Run const & ru
         m_handlers.at(i)->book(booker);
     }
 }
-
 //*/
 // ------------ method called when ending the processing of a run  ------------
 /*
