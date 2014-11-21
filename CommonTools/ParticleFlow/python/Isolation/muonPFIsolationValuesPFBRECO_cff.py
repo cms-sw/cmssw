@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoMuon/MuonIsolation.muonPFIsolationValues_cff import *
+from RecoMuon.MuonIsolation.muonPFIsolationValues_cff import *
 
 muPFIsoValueCharged03PFBRECO = muPFIsoValueCharged03.clone()
 muPFIsoValueCharged03PFBRECO.deposits[0].src = 'muPFIsoDepositChargedPFBRECO'
