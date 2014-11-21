@@ -284,8 +284,6 @@ def getPTAveVPSet():
     return ret
 
 
-
-
 def getFSQAll():
     ret = cms.VPSet()
     ret.extend(getHighMultVPSet())
@@ -295,19 +293,8 @@ def getFSQAll():
 
 fsqdirname = "HLT/FSQ/"
 
-fsqDiJetEfficiencies = cms.EDAnalyzer("DQMGenericClient",
-    subDirs        = cms.untracked.vstring(fsqdirname+"HLT_DiPFJetAve*"),
-    verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
-    outputFileName = cms.untracked.string(''),
-    commands       = cms.vstring(),
-    resolution     = cms.vstring(),
-    efficiency     = cms.vstring(
-        "effVsRecoPtAve 'Trigger efficiency vs reco ptAve; average p_{T}^{reco}' recoPFJetsTopology_ptAve_nominator recoPFJetsTopology_ptAve_denominator"
-    ),
-)
-
-#processName = "TTT"
-processName = "HLT"
+processName = "TTT"
+#processName = "HLT"
 #processName = "TEST"
 
 fsqHLTOfflineSource = cms.EDAnalyzer("FSQDiJetAve",
