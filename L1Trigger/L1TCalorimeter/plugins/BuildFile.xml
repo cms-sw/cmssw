@@ -18,6 +18,7 @@
 <use   name="CondFormats/L1TObjects"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="L1Trigger/L1TCalorimeter"/>
+<use   name="CondTools/L1Trigger"/>
 <library   file="*.cc" name="L1TriggerL1TCalorimeterPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
