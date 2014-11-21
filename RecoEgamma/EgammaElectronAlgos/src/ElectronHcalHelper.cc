@@ -19,10 +19,9 @@ void ElectronHcalHelper::checkSetup( const edm::EventSetup & es )
    { return ; }
 
   if(hadTower_) delete hadTower_ ;
-  if(cfg_.hOverEMethod<=1)
-    {
-      hadTower_ = new EgammaHadTower(es,EgammaHadTower::SingleTower) ;
-      //      std::cout << "ElectronHcalHelper, mode " << cfg_.hOverEMethod << std::endl;
+  if(cfg_.hOverEMethod<=1) {
+     hadTower_ = new EgammaHadTower(es,EgammaHadTower::SingleTower) ;
+     //    std::cout << "ElectronHcalHelper, mode " << cfg_.hOverEMethod << std::endl;
     }
   if(cfg_.hOverEMethod==2) {
     hadTower_ = new EgammaHadTower(es,EgammaHadTower::TowersBehindCluster) ;
@@ -30,7 +29,6 @@ void ElectronHcalHelper::checkSetup( const edm::EventSetup & es )
   }
   if(cfg_.hOverEMethod==3) {
     hadTower_ = new EgammaHadTower(es,EgammaHadTower::HGCalHFCluster) ;
-    std::cout << "[DEBUG-ROB] ElectronHcalHelper, mode " << cfg_.hOverEMethod << std::endl;
   }
 
    
@@ -54,21 +52,10 @@ void ElectronHcalHelper::readEvent( const edm::Event & evt )
   if (cfg_.hOverEMethod==3) 
    {
      delete hgcalHFCluster_ ; hgcalHFCluster_ = 0 ;
-     std::cout << "[DEBUG-ROB] ElectronHcalHelper, readEvent " << cfg_.hOverEMethod << std::endl;
      hgcalHFCluster_ = new edm::Handle<reco::PFClusterCollection>() ;
      if (!evt.getByLabel(cfg_.hgcalHFClusters,*hgcalHFCluster_))
-     { edm::LogError("[DEBUG-ROB] ElectronHcalHelper::readEvent")<<"failed to get the HGCAL HF PF clusters "<<cfg_.hgcalHFClusters ; }
-     std::cout << "[DEBUG-ROB] ElectronHcalHelper, readEvent " << hgcalHFCluster_->product() << std::endl;     
+     { edm::LogError("ElectronHcalHelper::readEvent")<<"failed to get the HGCAL HF PF clusters "<<cfg_.hgcalHFClusters ; }
      if(hgcalHFCluster_) hadTower_->setPFClusterCollection(hgcalHFCluster_->product()); 
-   /*
-     const PFClusterCollection * pfClusterCollection_;
-     pfClusterCollection_ = hgcalHFCluster_->product();
-    PFClusterCollection::const_iterator trItr = pfClusterCollection_->begin();
-    PFClusterCollection::const_iterator trItrEnd = pfClusterCollection_->end();
-    for( ;  trItr != trItrEnd ; ++trItr){
-      std::cout << "[DEBUG-ROB] ElectronHcalHelper, readEvent: in the loop " << std::endl;
-    }
-   */
    }
   
   if (cfg_.useTowers)

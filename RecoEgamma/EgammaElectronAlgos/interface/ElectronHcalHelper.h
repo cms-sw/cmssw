@@ -67,7 +67,7 @@ class ElectronHcalHelper
     double hcalESumDepth1BehindClusters( const std::vector<CaloTowerDetId> & towers ) ;
     double hcalESumDepth2BehindClusters( const std::vector<CaloTowerDetId> & towers ) ;
     
-    //HCGAL
+    // HGCal using HCAL clusters
     double hgcalHFBehindClusters( const reco::SuperCluster & ) ;
      
   private:

@@ -6,7 +6,6 @@
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "Math/Vector3D.h"
 #include "Math/VectorUtil.h"
-//#include "RecoParticleFlow/PFClusterProducer/src/KDTreeLinkerAlgoT.h" 
 
 #include <algorithm>
 #include <iostream>
@@ -120,33 +119,18 @@ void EgammaHadTower::setTowerCollection(const CaloTowerCollection* towerCollecti
 
 void EgammaHadTower::setPFClusterCollection(const std::vector<reco::PFCluster>* pfClusterCollection) {
   pfClusterCollection_ = pfClusterCollection;
-  std::cout << "[DEBUG-ROB] EgammaHadTower, setPFClusterCollection" << std::endl;
 }
 
-//double EgammaHadTower::getHgcalHFE(float EtMin) const {
 double EgammaHadTower::getHgcalHFE(const reco::SuperCluster & sc, float EtMin, double hOverEConeSize) const {
-  
-  //KDTreeLinkerAlgo<unsigned,2> kdtree;
-  //typedef KDTreeNodeInfoT<unsigned,2> KDTreeNodeInfo;
-  
-  std::cout << "[DEBUG-ROB] EgammaHadTower, getHgcalHFE" << std::endl;
-  
-  //construct a cone 
-  
-  std::cout << "[DEBUG-ROB] EgammaHadTower, SuperCluster " << sc.position().x() << " " << sc.position().y()<< " " <<sc.position().z() << std::endl;
   math::XYZVector vectorSC(sc.position().x(),sc.position().y(),sc.position().Z());
   double totalEnergy = 0.;
   std::vector<reco::PFCluster>::const_iterator trItr = pfClusterCollection_->begin();
   std::vector<reco::PFCluster>::const_iterator trItrEnd = pfClusterCollection_->end();
   for( ;  trItr != trItrEnd ; ++trItr){
       math::XYZVector vectorHgcalHFECluster(trItr->position().x(),trItr->position().y(),trItr->position().Z());
-
-      std::cout << "[DEBUG-ROB] EgammaHadTower, getHgcalHFE: in the loop " << trItr->energy() <<  " " << ROOT::Math::VectorUtil::DeltaR(vectorSC,vectorHgcalHFECluster) << std::endl;
       double dR = ROOT::Math::VectorUtil::DeltaR(vectorSC,vectorHgcalHFECluster);
       if (dR<hOverEConeSize) totalEnergy += trItr->energy();
   }
-  
-  std::cout << "[DEBUG-ROB] EgammaHadTower, getHgcalHFE, totalEnergy " << totalEnergy << std::endl;
   return totalEnergy;
 }
 

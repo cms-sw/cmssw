@@ -18,17 +18,17 @@ ecalDrivenElectronSeedsParameters = cms.PSet(
     # SC filtering
     #SCEtCut = cms.double(4.0),
     SCEtCutBarrel = cms.double(4.0),
-    SCEtCutEndcap = cms.double(5.0), #ROB lower threshold for H/E studies 
+    SCEtCutEndcap = cms.double(9.0), 
 
     # H/E
     applyHOverECut = cms.bool(True),
     #hOverEMethod = cms.int32(0),  # 0 = cone #1 = single tower #2 = towersBehindCluster (max is 4)
     hOverEMethodBarrel = cms.int32(0),  # 0 = cone #1 = single tower #2 = towersBehindCluster (max is 4)
-    hOverEMethodEndcap = cms.int32(3),  # 0 = cone #1 = single tower #2 = towersBehindCluster (max is 4) #3 = HGCcal
+    hOverEMethodEndcap = cms.int32(1),  # 0 = cone #1 = single tower #2 = towersBehindCluster #3 = HGCal (max is 4)
     hOverEConeSize = cms.double(0.15),
     #maxHOverE = cms.double(0.1),
     maxHOverEBarrel = cms.double(0.15),
-    maxHOverEEndcaps = cms.double(0.2), #NEW ROB
+    maxHOverEEndcaps = cms.double(0.1), 
     maxHOverEOuterEndcaps = cms.double(0.2),
     maxHBarrel = cms.double(0.0),
     maxHEndcaps = cms.double(0.0),
@@ -45,10 +45,8 @@ ecalDrivenElectronSeedsParameters = cms.PSet(
     # r/z windows
     nSigmasDeltaZ1 = cms.double(5.), ## in case beam spot is used for the matching
     deltaZ1WithVertex = cms.double(25.), ## in case reco vertex is used for the matching
-    z2MinB = cms.double(-0.15), ## barrel NEW ROB
-    z2MaxB = cms.double(0.15), ## barrel NEW ROB
-    ##z2MinB = cms.double(-0.09), ## barrel
-    ##z2MaxB = cms.double(0.09), ## barrel
+    z2MinB = cms.double(-0.09), ## barrel
+    z2MaxB = cms.double(0.09), ## barrel
     
     r2MinF = cms.double(-0.15), ## forward
     r2MaxF = cms.double(0.15), ## forward

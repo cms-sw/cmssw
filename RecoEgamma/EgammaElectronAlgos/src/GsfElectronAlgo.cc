@@ -570,8 +570,6 @@ void GsfElectronAlgo::calculateShowerShape( const reco::SuperClusterRef & theClu
    }
   else
    {
-    //ROB -->Begin
-    //if (detector==Barrel) showerShape.hcalDepth1OverEcal = generalData_->hcalHelper->hgcalHFBehindClusters(*theClus)/theClus->energy() ; //ROB
     if (detector==EcalBarrel || detector==EcalShashlik) {
     showerShape.hcalDepth1OverEcal = generalData_->hcalHelperBarrel->hcalESumDepth1(*theClus)/theClus->energy() ; 
     showerShape.hcalDepth2OverEcal = generalData_->hcalHelperBarrel->hcalESumDepth2(*theClus)/theClus->energy() ;
@@ -579,10 +577,7 @@ void GsfElectronAlgo::calculateShowerShape( const reco::SuperClusterRef & theClu
     showerShape.hcalDepth1OverEcalBc = generalData_->hcalHelperBarrel->hcalESumDepth1BehindClusters(showerShape.hcalTowersBehindClusters)/theClus->energy() ;
     showerShape.hcalDepth2OverEcalBc = generalData_->hcalHelperBarrel->hcalESumDepth2BehindClusters(showerShape.hcalTowersBehindClusters)/theClus->energy() ;
     }
-    //if (detector==Barrel) showerShape.hcalDepth1OverEcal = generalData_->hcalHelper->hgcalHFBehindClusters(*theClus)/theClus->energy() ; //ROB
     if (detector==HGCEE ) {
-    cout << "[DEBUG - ROBALGO] : " << generalData_->hcalHelperEndcap->hgcalHFBehindClusters(*theClus) << " " << theClus->energy() << endl; 
-    
     showerShape.hcalDepth1OverEcal = generalData_->hcalHelperEndcap->hgcalHFBehindClusters(*theClus)/theClus->energy() ; 
     //showerShape.hcalDepth2OverEcal = generalData_->hcalHelperBarrel->hcalESumDepth2(*theClus)/theClus->energy() ;
     //showerShape.hcalTowersBehindClusters = generalData_->hcalHelperBarrel->hcalTowersBehindClusters(*theClus) ;

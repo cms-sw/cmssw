@@ -256,7 +256,6 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
   cutsCfgPflow_.seedFromTEC = true ; // not applied for pflow
 
   // hcal helpers
-  //ROB --> Begin     
   // barrel
   hcalCfgBarrel_.hOverEConeSize = cfg.getParameter<double>("hOverEConeSize") ;
   if (hcalCfgBarrel_.hOverEConeSize>0)
@@ -268,9 +267,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
   hcalCfgBarrel_.hOverEMethod = cfg.getParameter<int>("hOverEMethodBarrel") ; 
   if (hcalCfgBarrel_.hOverEMethod==3)
      { 
-        std::cout << "[DEBUG-ROB] GsfElectronProducer " << hcalCfgBarrel_.hOverEMethod << std::endl;
         hcalCfgBarrel_.hgcalHFClusters = cfg.getParameter<edm::InputTag>("hgcalHFClusters") ;
-        std::cout << "[DEBUG-ROB] GsfElectronProducer hgcalHFClusters " << hcalCfgBarrel_.hgcalHFClusters << std::endl;
      }
   // endcap
   hcalCfgEndcap_.hOverEConeSize = cfg.getParameter<double>("hOverEConeSize") ;
@@ -283,11 +280,8 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
   hcalCfgEndcap_.hOverEMethod = cfg.getParameter<int>("hOverEMethodEndcap") ; 
   if (hcalCfgEndcap_.hOverEMethod==3)
      { 
-        std::cout << "[DEBUG-ROB] GsfElectronProducer " << hcalCfgEndcap_.hOverEMethod << std::endl;
         hcalCfgEndcap_.hgcalHFClusters = cfg.getParameter<edm::InputTag>("hgcalHFClusters") ;
-        std::cout << "[DEBUG-ROB] GsfElectronProducer hgcalHFClusters " << hcalCfgEndcap_.hgcalHFClusters << std::endl;
      }
-  //ROB <--End     
   hcalCfgPflow_.hOverEConeSize = cfg.getParameter<double>("hOverEConeSizePflow") ;
   if (hcalCfgPflow_.hOverEConeSize>0)
    {
@@ -432,10 +426,6 @@ void GsfElectronBaseProducer::checkEcalSeedingParameters( edm::ParameterSetID co
 
   if (seedConfiguration.getParameter<bool>("applyHOverECut"))
    {
-    //Rob --> Begin
-    //if ((hcalCfg_.hOverEConeSize!=0)&&(hcalCfg_.hOverEConeSize!=seedConfiguration.getParameter<double>("hOverEConeSize")))
-    // { edm::LogWarning("GsfElectronAlgo|InconsistentParameters") <<"The H/E cone size ("<<hcalCfg_.hOverEConeSize<<") is different from ecal seeding ("<<seedConfiguration.getParameter<double>("hOverEConeSize")<<")." ; }
-    //Rob <-- End
     if (cutsCfg_.maxHOverEBarrel<seedConfiguration.getParameter<double>("maxHOverEBarrel"))
      { edm::LogWarning("GsfElectronAlgo|InconsistentParameters") <<"The max barrel H/E is lower than during ecal seeding." ; }
     if (cutsCfg_.maxHOverEEndcaps<seedConfiguration.getParameter<double>("maxHOverEEndcaps"))

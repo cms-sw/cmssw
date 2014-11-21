@@ -15,7 +15,6 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 
 class PFClusterCollection;
-//class PFCluster;
 
 class EgammaHadTower {
  public:
@@ -39,7 +38,6 @@ class EgammaHadTower {
   HoeMode mode_;
   const CaloTowerCollection * towerCollection_;
   unsigned int NMaxClusters_;
-  //const PFClusterCollection * pfClusterCollection_;
   const std::vector<reco::PFCluster>* pfClusterCollection_;
 
 };

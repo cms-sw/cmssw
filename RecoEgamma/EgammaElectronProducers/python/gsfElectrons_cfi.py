@@ -51,12 +51,9 @@ ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronEcalDrivenProducer",
     #useHcalRecHits = cms.bool(False),
     hOverEConeSize = cms.double(0.15),
     hOverEPtMin = cms.double(0.),
-    #ROB --> Begin
-    #hOverEMethod = cms.int32(1), 
-    hOverEMethodBarrel = cms.int32(0),  # 0 = cone #1 = single tower #2 = towersBehindCluster (max is 4) 
-    hOverEMethodEndcap = cms.int32(3),  
+    hOverEMethodBarrel = cms.int32(1),  # 0 = cone #1 = single tower #2 = towersBehindCluster (max is 4) 
+    hOverEMethodEndcap = cms.int32(1),  # 0 = cone #1 = single tower #2 = towersBehindCluster #3 = HGCal (max is 4)
     hgcalHFClusters = cms.InputTag("particleFlowClusterHGCHEF"),                 
-    #ROB <-- End
     #hOverEMethodBarrel = cms.int32(0),                                                                      
     #hOverEMethodEndcap = cms.int32(0),                                                                      
     #maxHOverEDepth1Barrel = cms.double(0.1),
@@ -186,7 +183,7 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     
     # preselection parameters (ecal driven electrons)
     minSCEtBarrel = cms.double(4.0),
-    minSCEtEndcaps = cms.double(4.0),
+    minSCEtEndcaps = cms.double(9.0),
     minEOverPBarrel = cms.double(0.0),
     maxEOverPBarrel = cms.double(999999999.),
     minEOverPEndcaps = cms.double(0.0),
@@ -199,12 +196,9 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
     #useHcalRecHits = cms.bool(False),
     hOverEConeSize = cms.double(0.15),
     hOverEPtMin = cms.double(0.),
-    #ROB --> Begin
-    hOverEMethod = cms.int32(3), 
-    hOverEMethodBarrel = cms.int32(0),  # 0 = cone #1 = single tower #2 = towersBehindCluster (max is 4) 
-    hOverEMethodEndcap = cms.int32(3),  
+    hOverEMethodBarrel = cms.int32(1),  # 0 = cone #1 = single tower #2 = towersBehindCluster (max is 4) 
+    hOverEMethodEndcap = cms.int32(1),  # 0 = cone #1 = single tower #2 = towersBehindCluster #3 = HGCal (max is 4)
     hgcalHFClusters = cms.InputTag("particleFlowClusterHGCHEF"),                 
-    #ROB <-- End
     #maxHOverEDepth1Barrel = cms.double(0.1),
     #maxHOverEDepth1Endcaps = cms.double(0.1),
     #maxHOverEDepth2 = cms.double(0.1),
