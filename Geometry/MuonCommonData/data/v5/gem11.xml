@@ -45,7 +45,7 @@
   <Constant name="dxBotGB11"  value="([dxTopGB11]-2*[slope]*[dzGB11])"/>
   <Constant name="dzTot"      value="([dxTop]/[slope]-[dzIn]-[dzGB11])"/>
   <Constant name="rPos"       value="([dzTot]+[dzGB11])"/>
-  <Constant name="dyGA11"     value="4.000*mm"/>
+  <Constant name="dyGA11"     value="9.250*mm"/>
   <Constant name="dzGA11"     value="52.292*cm"/>
   <Constant name="dxBotGA11"  value="8.504*cm"/>
   <Constant name="dxTopGA11"  value="14.572*cm"/>
@@ -897,7 +897,7 @@
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="1"/>
     <Numeric name="stepAngle"   value="20*deg"/>
-    <Numeric name="startAngle"  value="10*deg"/>
+    <Numeric name="startAngle"  value="0*deg"/>
     <Numeric name="rPosition"   value="[rPos]"/>
     <Numeric name="zoffset"     value="+28.70*mm"/>
 </Algorithm>
@@ -906,26 +906,13 @@
     <String name="ChildName" value="GEMBox11S"/>
     <String name="RotNameSpace" value="gemf"/>
     <Numeric name="n" value="18"/>
-    <Numeric name="startCopyNo" value="52"/>
+    <Numeric name="startCopyNo" value="1"/>
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="1"/>
     <Numeric name="stepAngle"   value="20*deg"/>
-    <Numeric name="startAngle"  value="10*deg"/>
-    <Numeric name="rPosition"   value="[rPos]"/>
-    <Numeric name="zoffset"     value=" -9.70*mm"/>
-</Algorithm>
-<Algorithm name="muon:DDGEMAngular">
-    <rParent name="gem11:GEMDisk11P"/>
-    <String name="ChildName" value="GEMBox11S"/>
-    <String name="RotNameSpace" value="gemf"/>
-    <Numeric name="n" value="18"/>
-    <Numeric name="startCopyNo" value="1"/>
-    <Numeric name="incrCopyNo"  value="2"/>
-    <Numeric name="invert"      value="0"/>
-    <Numeric name="stepAngle"   value="20*deg"/>
     <Numeric name="startAngle"  value="0*deg"/>
     <Numeric name="rPosition"   value="[rPos]"/>
-    <Numeric name="zoffset"     value=" +9.50*mm"/>
+    <Numeric name="zoffset"     value=" -9.70*mm"/>
 </Algorithm>
 <Algorithm name="muon:DDGEMAngular">
     <rParent name="gem11:GEMDisk11P"/>
@@ -936,7 +923,20 @@
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="0"/>
     <Numeric name="stepAngle"   value="20*deg"/>
-    <Numeric name="startAngle"  value="0*deg"/>
+    <Numeric name="startAngle"  value="10*deg"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="zoffset"     value=" +9.50*mm"/>
+</Algorithm>
+<Algorithm name="muon:DDGEMAngular">
+    <rParent name="gem11:GEMDisk11P"/>
+    <String name="ChildName" value="GEMBox11S"/>
+    <String name="RotNameSpace" value="gemf"/>
+    <Numeric name="n" value="18"/>
+    <Numeric name="startCopyNo" value="52"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="invert"      value="0"/>
+    <Numeric name="stepAngle"   value="20*deg"/>
+    <Numeric name="startAngle"  value="10*deg"/>
     <Numeric name="rPosition"   value="[rPos]"/>
     <Numeric name="zoffset"     value="-28.90*mm"/>
 </Algorithm>
@@ -949,7 +949,7 @@
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="1"/>
     <Numeric name="stepAngle"   value="-20*deg"/>
-    <Numeric name="startAngle"  value="170*deg"/>
+    <Numeric name="startAngle"  value="180*deg"/>
     <Numeric name="rPosition"   value="[rPos]"/>
     <Numeric name="zoffset"     value="+28.70*mm"/>
 </Algorithm>
@@ -958,26 +958,13 @@
     <String name="ChildName" value="GEMBox11S"/>
     <String name="RotNameSpace" value="gemf"/>
     <Numeric name="n" value="18"/>
-    <Numeric name="startCopyNo" value="52"/>
+    <Numeric name="startCopyNo" value="1"/>
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="1"/>
     <Numeric name="stepAngle"   value="-20*deg"/>
-    <Numeric name="startAngle"  value="170*deg"/>
-    <Numeric name="rPosition"   value="[rPos]"/>
-    <Numeric name="zoffset"     value=" -9.70*mm"/>
-</Algorithm>
-<Algorithm name="muon:DDGEMAngular">
-    <rParent name="gem11:GEMDisk11N"/>
-    <String name="ChildName" value="GEMBox11S"/>
-    <String name="RotNameSpace" value="gemf"/>
-    <Numeric name="n" value="18"/>
-    <Numeric name="startCopyNo" value="1"/>
-    <Numeric name="incrCopyNo"  value="2"/>
-    <Numeric name="invert"      value="0"/>
-    <Numeric name="stepAngle"   value="-20*deg"/>
     <Numeric name="startAngle"  value="180*deg"/>
     <Numeric name="rPosition"   value="[rPos]"/>
-    <Numeric name="zoffset"     value=" +9.50*mm"/>
+    <Numeric name="zoffset"     value=" -9.70*mm"/>
 </Algorithm>
 <Algorithm name="muon:DDGEMAngular">
     <rParent name="gem11:GEMDisk11N"/>
@@ -988,7 +975,20 @@
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="0"/>
     <Numeric name="stepAngle"   value="-20*deg"/>
-    <Numeric name="startAngle"  value="180*deg"/>
+    <Numeric name="startAngle"  value="170*deg"/>
+    <Numeric name="rPosition"   value="[rPos]"/>
+    <Numeric name="zoffset"     value=" +9.50*mm"/>
+</Algorithm>
+<Algorithm name="muon:DDGEMAngular">
+    <rParent name="gem11:GEMDisk11N"/>
+    <String name="ChildName" value="GEMBox11S"/>
+    <String name="RotNameSpace" value="gemf"/>
+    <Numeric name="n" value="18"/>
+    <Numeric name="startCopyNo" value="52"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="invert"      value="0"/>
+    <Numeric name="stepAngle"   value="-20*deg"/>
+    <Numeric name="startAngle"  value="170*deg"/>
     <Numeric name="rPosition"   value="[rPos]"/>
     <Numeric name="zoffset"     value="-28.90*mm"/>
 </Algorithm>
