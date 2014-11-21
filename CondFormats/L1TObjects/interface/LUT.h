@@ -22,6 +22,8 @@
 #include <vector>
 #include <limits>
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 namespace l1t{
 
   class LUT{
@@ -61,6 +63,7 @@ namespace l1t{
     unsigned int dataMask_;
    
     std::vector<int> data_;
+    COND_SERIALIZABLE;
   };
     
 }

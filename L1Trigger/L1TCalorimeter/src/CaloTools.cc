@@ -20,6 +20,12 @@ const l1t::CaloTower& l1t::CaloTools::getTower(const std::vector<l1t::CaloTower>
     }else return towers[towerIndex];
   
   }
+  else{// in case the vector of towers do not contain all the towers (towerIndex can be > towers.size())
+    for(size_t towerNr=0;towerNr<towers.size();towerNr++){
+	  if(towers[towerNr].hwEta()==iEta && towers[towerNr].hwPhi()==iPhi) return towers[towerNr];
+    }
+  }
+
   return nullTower_;
 }
 
