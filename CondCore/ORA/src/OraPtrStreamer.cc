@@ -196,11 +196,11 @@ void ora::OraPtrWriter::write( int oid,
   
   edm::ObjectWithDict ptrObject( m_objectType, m_dataElement->address( data ) );
   // first load if required
-  ptrObject.typeOf().functionMemberByName("load").invoke(ptrObject,0);
+  m_objectType.functionMemberByName("load").invoke(ptrObject,nullptr);
   // then get the data...
-  void* ptrAddress = 0;
-  edm::ObjectWithDict ptrAddrObj = edm::ObjectWithDict( edm::TypeWithDict(typeid(void*)), ptrAddress );
-  ptrObject.typeOf().functionMemberByName("address").invoke(ptrObject, &ptrAddrObj);
+  void* ptrAddress = nullptr;
+  edm::ObjectWithDict ptrAddrObj = edm::ObjectWithDict( edm::TypeWithDict(typeid(void*)), &ptrAddress );
+  m_objectType.functionMemberByName("address").invoke(ptrObject, &ptrAddrObj);
   m_writer->write( oid, ptrAddress );
 }
 
