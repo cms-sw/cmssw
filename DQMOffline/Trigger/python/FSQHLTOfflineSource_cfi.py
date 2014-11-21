@@ -14,6 +14,7 @@ import math
 #   other handlers read data from collection pointed by inputCol parameter 
 #       (partialFilterName, partialPathName params are ignored)
 #
+
 def getHighMultVPSet():
     ret=cms.VPSet()
     thresholds = [60, 85, 110, 135, 160]
@@ -26,6 +27,14 @@ def getHighMultVPSet():
                 triggerSelection = cms.string(partialPathName+"*"),
                 handlerType = cms.string("RecoTrackCounterWithVertexConstraint"),
                 inputCol = cms.InputTag("generalTracks"),
+                # l parameters
+                vtxCollection = cms.InputTag("offlinePrimaryVertices"),
+                minNDOF = cms.int32(7),
+                maxZ = cms.double(15),
+                maxDZ = cms.double(0.12),
+                maxDZ2dzsigma = cms.double(3),
+                maxDXY = cms.double(0.12),
+                maxDXY2dxysigma = cms.double(3),
                 partialPathName = cms.string(partialPathName),
                 partialFilterName  = cms.string("hltL1sETT"),
                 #dqmhistolabel  = cms.string("hltPixelTracks"),
