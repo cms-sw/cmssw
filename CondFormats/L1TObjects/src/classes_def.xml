@@ -1,4 +1,24 @@
 <lcgdict>
+  <class name="l1t::LUT">
+    <field name="data_" mapping="blob"/>  
+  </class>
+  <class name="std::vector<l1t::CaloParams::Node>"/>
+  <class name="l1t::CaloParams">
+    <field name="pnode_" mapping="blob"/>  
+    <field name="etSumEtaMin_" mapping="blob" />
+    <field name="etSumEtaMax_" mapping="blob" />
+    <field name="etSumEtThreshold_" mapping="blob" />
+  </class>
+  <class name="l1t::CaloParams::Node">
+    <field name="dparams_" mapping="blob"/>  
+    <field name="iparams_" mapping="blob"/>  
+    <field name="sparams_" mapping="blob"/>  
+    <field name="uparams_" mapping="blob"/>  
+  </class>
+  <class name="l1t::CaloParams::TowerParams"/>
+  <class name="l1t::CaloParams::EgParams"/>
+  <class name="l1t::CaloParams::JetParams"/>
+  <class name="l1t::CaloParams::TauParams"/>
   <class name="L1MuScale"/>
   <class name="L1MuBinnedScale">
     <field name="m_Scale" mapping="blob" />
