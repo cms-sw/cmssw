@@ -35,15 +35,15 @@ DeDxHitInfoProducer::DeDxHitInfoProducer(const edm::ParameterSet& iConfig)
 
    m_tracksTag = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
    m_trajTrackAssociationTag   = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("trajectoryTrackAssociation"));
-   useTrajectory = iConfig.getParameter<bool>("UseTrajectory");
+   useTrajectory = iConfig.getParameter<bool>("useTrajectory");
 
-   usePixel = iConfig.getParameter<bool>("UsePixel"); 
-   useStrip = iConfig.getParameter<bool>("UseStrip");
+   usePixel = iConfig.getParameter<bool>("usePixel"); 
+   useStrip = iConfig.getParameter<bool>("useStrip");
    meVperADCPixel = iConfig.getParameter<double>("MeVperADCPixel"); 
    meVperADCStrip = iConfig.getParameter<double>("MeVperADCStrip"); 
 
-   shapetest = iConfig.getParameter<bool>("ShapeTest");
-   useCalibration = iConfig.getParameter<bool>("UseCalibration");
+   shapetest = iConfig.getParameter<bool>("shapeTest");
+   useCalibration = iConfig.getParameter<bool>("useCalibration");
    m_calibrationPath = iConfig.getParameter<string>("calibrationPath");
 
    if(!usePixel && !useStrip)
@@ -151,11 +151,13 @@ void DeDxHitInfoProducer::processHit(const TrackingRecHit* recHit, float trackMo
           auto& detUnit     = *(recHit->detUnit());
           float pathLen     = detUnit.surface().bounds().thickness()/fabs(cosine);
           float chargeAbs   = clus.pixelCluster().charge();
-          hitDeDxInfo.charges.push_back(chargeAbs);
-          hitDeDxInfo.pathlengths.push_back(pathLen);
-          hitDeDxInfo.detIds.push_back(thit.geographicalId());
-          hitDeDxInfo.localPosXs.push_back(HitLocalPos.x());
-          hitDeDxInfo.localPosYs.push_back(HitLocalPos.y());
+          reco::DeDxHitInfo::DeDxHitInfoContainer info;
+          info.charge     = chargeAbs;
+          info.pathlength = pathLen;
+          info.detId      = thit.geographicalId();
+          info.localPosX  = HitLocalPos.x();
+          info.localPosY  = HitLocalPos.y();
+          hitDeDxInfo.infos.push_back(info);
           hitDeDxInfo.pixelClusters.push_back(clus.pixelCluster());
        }else if(clus.isStrip() && !thit.isMatched()){
           if(!useStrip) return;
@@ -164,11 +166,13 @@ void DeDxHitInfoProducer::processHit(const TrackingRecHit* recHit, float trackMo
           int   NSaturating = 0;
           float pathLen     = detUnit.surface().bounds().thickness()/fabs(cosine);
           float chargeAbs   = DeDxTools::getCharge(&(clus.stripCluster()),NSaturating, detUnit, calibGains, m_off);
-          hitDeDxInfo.charges.push_back(chargeAbs);
-          hitDeDxInfo.pathlengths.push_back(pathLen);
-          hitDeDxInfo.detIds.push_back(thit.geographicalId());
-          hitDeDxInfo.localPosXs.push_back(HitLocalPos.x());
-          hitDeDxInfo.localPosYs.push_back(HitLocalPos.y());
+          reco::DeDxHitInfo::DeDxHitInfoContainer info;
+          info.charge     = chargeAbs;
+          info.pathlength = pathLen;
+          info.detId      = thit.geographicalId();
+          info.localPosX  = HitLocalPos.x();
+          info.localPosY  = HitLocalPos.y();
+          hitDeDxInfo.infos.push_back(info);
           hitDeDxInfo.stripClusters.push_back(clus.stripCluster());
        }else if(clus.isStrip() && thit.isMatched()){
           if(!useStrip) return;
@@ -179,22 +183,25 @@ void DeDxHitInfoProducer::processHit(const TrackingRecHit* recHit, float trackMo
           int   NSaturating = 0;
           float pathLen     = detUnitM.surface().bounds().thickness()/fabs(cosine);
           float chargeAbs   = DeDxTools::getCharge(&(matchedHit->monoHit().stripCluster()),NSaturating, detUnitM, calibGains, m_off);
-          hitDeDxInfo.charges.push_back(chargeAbs);
-          hitDeDxInfo.pathlengths.push_back(pathLen);
-          hitDeDxInfo.detIds.push_back(thit.geographicalId());
-          hitDeDxInfo.localPosXs.push_back(HitLocalPos.x());
-          hitDeDxInfo.localPosYs.push_back(HitLocalPos.y());
+          reco::DeDxHitInfo::DeDxHitInfoContainer info;
+          info.charge     = chargeAbs;
+          info.pathlength = pathLen;
+          info.detId      = thit.geographicalId();
+          info.localPosX  = HitLocalPos.x();
+          info.localPosY  = HitLocalPos.y();
+          hitDeDxInfo.infos.push_back(info);
           hitDeDxInfo.stripClusters.push_back(matchedHit->monoHit().stripCluster());
 
           auto& detUnitS     = *(matchedHit->stereoHit().detUnit());
           NSaturating = 0;
           pathLen     = detUnitS.surface().bounds().thickness()/fabs(cosine);
           chargeAbs   = DeDxTools::getCharge(&(matchedHit->stereoHit().stripCluster()),NSaturating, detUnitS, calibGains, m_off);
-          hitDeDxInfo.charges.push_back(chargeAbs);
-          hitDeDxInfo.pathlengths.push_back(pathLen);
-          hitDeDxInfo.detIds.push_back(thit.geographicalId());
-          hitDeDxInfo.localPosXs.push_back(HitLocalPos.x());
-          hitDeDxInfo.localPosYs.push_back(HitLocalPos.y());
+          info.charge      = chargeAbs;
+          info.pathlength  = pathLen;
+          info.detId       = thit.geographicalId();
+          info.localPosX   = HitLocalPos.x();
+          info.localPosY   = HitLocalPos.y();
+          hitDeDxInfo.infos.push_back(info);
           hitDeDxInfo.stripClusters.push_back(matchedHit->stereoHit().stripCluster());
        }
 }

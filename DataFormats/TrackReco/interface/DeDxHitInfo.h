@@ -14,11 +14,14 @@ namespace reco {
  class DeDxHitInfo
   {
    public:
-     std::vector<float> charges;
-     std::vector<float> pathlengths;
-     std::vector<uint32_t> detIds;
-     std::vector<float> localPosXs;
-     std::vector<float> localPosYs;
+     struct DeDxHitInfoContainer{ float charge; float pathlength; uint32_t detId; float localPosX; float localPosY;};
+
+//     std::vector<float> charges;
+//     std::vector<float> pathlengths;
+//     std::vector<uint32_t> detIds;
+//     std::vector<float> localPosXs;
+//     std::vector<float> localPosYs;
+     std::vector<DeDxHitInfoContainer> infos;         
      std::vector<SiStripCluster> stripClusters;
      std::vector<SiPixelCluster> pixelClusters;
 

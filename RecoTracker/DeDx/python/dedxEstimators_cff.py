@@ -8,15 +8,15 @@ dedxHitInfo = cms.EDProducer("DeDxHitInfoProducer",
     minTrackPt         = cms.double(15),
     maxTrackEta        = cms.double(5.0),
 
-    UseTrajectory      = cms.bool(True),
-    UseStrip           = cms.bool(True),
-    UsePixel           = cms.bool(True),
+    useTrajectory      = cms.bool(True),
+    useStrip           = cms.bool(True),
+    usePixel           = cms.bool(True),
     MeVperADCStrip     = cms.double(3.61e-06*265),
     MeVperADCPixel     = cms.double(3.61e-06),
 
-    UseCalibration     = cms.bool(False),
+    useCalibration     = cms.bool(False),
     calibrationPath    = cms.string("file:Gains.root"),
-    ShapeTest          = cms.bool(True),
+    shapeTest          = cms.bool(True),
 )
 
 dedxHarmonic2 = cms.EDProducer("DeDxEstimatorProducer",
