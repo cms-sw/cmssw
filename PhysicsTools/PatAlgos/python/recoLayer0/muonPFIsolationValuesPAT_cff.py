@@ -1,574 +1,92 @@
 import FWCore.ParameterSet.Config as cms
 
-
-
-muPFIsoValueCharged03PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositChargedPAT"),
-            deltaR = cms.double(0.3),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.0001','Threshold(0.0)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sum')
-            )
-     )
-)
-
-
-muPFSumDRIsoValueCharged03PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositChargedPAT"),
-            deltaR = cms.double(0.3),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.0001','Threshold(0.0)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sumDR')
-            )
-     )
-)
-
-muPFMeanDRIsoValueCharged03PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositChargedPAT"),
-            deltaR = cms.double(0.3),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.0001','Threshold(0.0)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('meanDR')
-            )
-     )
-)
-
-
-muPFIsoValueChargedAll03PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositChargedAllPAT"),
-            deltaR = cms.double(0.3),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.0001','Threshold(0.0)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sum')
-     )
-   )
-)
-
-muPFSumDRIsoValueChargedAll03PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositChargedAllPAT"),
-            deltaR = cms.double(0.3),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.0001','Threshold(0.0)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sumDR')
-     )
-   )
-)
-
-muPFMeanDRIsoValueChargedAll03PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositChargedAllPAT"),
-            deltaR = cms.double(0.3),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.0001','Threshold(0.0)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('meanDR')
-     )
-   )
-)
-
-
-muPFIsoValueGamma03PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositGammaPAT"),
-            deltaR = cms.double(0.3),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.01','Threshold(0.5)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sum')
-      )
-   )
-)
-muPFSumDRIsoValueGamma03PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositGammaPAT"),
-            deltaR = cms.double(0.3),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.01','Threshold(0.5)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sumDR')
-      )
-   )
-)
-
-muPFMeanDRIsoValueGamma03PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositGammaPAT"),
-            deltaR = cms.double(0.3),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.01','Threshold(0.5)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('meanDR')
-      )
-   )
-)
-
-
-muPFIsoValueNeutral03PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositNeutralPAT"),
-            deltaR = cms.double(0.3),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.01','Threshold(0.5)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sum')
-    )
- )
-)
-muPFSumDRIsoValueNeutral03PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositNeutralPAT"),
-            deltaR = cms.double(0.3),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.01','Threshold(0.5)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sumDR')
-    )
- )
-)
-
-muPFMeanDRIsoValueNeutral03PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositNeutralPAT"),
-            deltaR = cms.double(0.3),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.01','Threshold(0.5)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('meanDR')
-    )
- )
-)
-
-
-
-muPFIsoValueGammaHighThreshold03PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositGammaPAT"),
-            deltaR = cms.double(0.3),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.01','Threshold(1.0)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sum')
-      )
-   )
-)
-muPFSumDRIsoValueGammaHighThreshold03PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositGammaPAT"),
-            deltaR = cms.double(0.3),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.01','Threshold(1.0)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sumDR')
-      )
-   )
-)
-
-muPFMeanDRIsoValueGammaHighThreshold03PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositGammaPAT"),
-            deltaR = cms.double(0.3),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.01','Threshold(1.0)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('meanDR')
-      )
-   )
-)
-
-
-muPFIsoValueNeutralHighThreshold03PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositNeutralPAT"),
-            deltaR = cms.double(0.3),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.01','Threshold(1.0)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sum')
-    )
- )
-)
-
-muPFMeanDRIsoValueNeutralHighThreshold03PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositNeutralPAT"),
-            deltaR = cms.double(0.3),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.01','Threshold(1.0)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('meanDR')
-    )
- )
-)
-
-muPFSumDRIsoValueNeutralHighThreshold03PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositNeutralPAT"),
-            deltaR = cms.double(0.3),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.01','Threshold(1.0)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sumDR')
-    )
- )
-)
-
-muPFIsoValuePU03PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositPUPAT"),
-            deltaR = cms.double(0.3),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.01','Threshold(0.5)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sum')
-      )
-   )
-)
-
-muPFSumDRIsoValuePU03PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositPUPAT"),
-            deltaR = cms.double(0.3),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.01','Threshold(0.5)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sumDR')
-      )
-   )
-)
-
-muPFMeanDRIsoValuePU03PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositPUPAT"),
-            deltaR = cms.double(0.3),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.01','Threshold(0.5)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('meanDR')
-      )
-   )
-)
-
-
-
-muPFIsoValueCharged04PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositChargedPAT"),
-            deltaR = cms.double(0.4),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.0001','Threshold(0.0)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sum')
-            )
-     )
-)
-
-muPFSumDRIsoValueCharged04PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositChargedPAT"),
-            deltaR = cms.double(0.4),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.0001','Threshold(0.0)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sumDR')
-            )
-     )
-)
-
-muPFMeanDRIsoValueCharged04PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositChargedPAT"),
-            deltaR = cms.double(0.4),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.0001','Threshold(0.0)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('meanDR')
-            )
-     )
-)
-
-
-
-
-muPFIsoValueChargedAll04PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositChargedAllPAT"),
-            deltaR = cms.double(0.4),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.0001','Threshold(0.0)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sum')
-     )
-   )
-)
-
-muPFSumDRIsoValueChargedAll04PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositChargedAllPAT"),
-            deltaR = cms.double(0.4),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.0001','Threshold(0.0)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sumDR')
-     )
-   )
-)
-
-muPFMeanDRIsoValueChargedAll04PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositChargedAllPAT"),
-            deltaR = cms.double(0.4),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.0001','Threshold(0.0)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('meanDR')
-     )
-   )
-)
-
-
-
-
-
-muPFIsoValueGamma04PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositGammaPAT"),
-            deltaR = cms.double(0.4),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.01','Threshold(0.5)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sum')
-      )
-   )
-)
-
-muPFSumDRIsoValueGamma04PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositGammaPAT"),
-            deltaR = cms.double(0.4),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.01','Threshold(0.5)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sumDR')
-      )
-   )
-)
-
-muPFMeanDRIsoValueGamma04PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositGammaPAT"),
-            deltaR = cms.double(0.4),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.01','Threshold(0.5)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('meanDR')
-      )
-   )
-)
-
-
-muPFIsoValueNeutral04PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositNeutralPAT"),
-            deltaR = cms.double(0.4),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.01','Threshold(0.5)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sum')
-    )
- )
-
-)
-
-muPFSumDRIsoValueNeutral04PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositNeutralPAT"),
-            deltaR = cms.double(0.4),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.01','Threshold(0.5)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sumDR')
-    )
- )
-
-)
-
-muPFMeanDRIsoValueNeutral04PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositNeutralPAT"),
-            deltaR = cms.double(0.4),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.01','Threshold(0.5)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('meanDR')
-    )
- )
-
-)
-
-
-muPFIsoValueGammaHighThreshold04PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositGammaPAT"),
-            deltaR = cms.double(0.4),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.01','Threshold(1.0)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sum')
-      )
-   )
-)
-
-muPFMeanDRIsoValueGammaHighThreshold04PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositGammaPAT"),
-            deltaR = cms.double(0.4),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.01','Threshold(1.0)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('meanDR')
-      )
-   )
-)
-
-muPFSumDRIsoValueGammaHighThreshold04PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositGammaPAT"),
-            deltaR = cms.double(0.4),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.01','Threshold(1.0)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sumDR')
-      )
-   )
-)
-
-
-muPFIsoValueNeutralHighThreshold04PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositNeutralPAT"),
-            deltaR = cms.double(0.4),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.01','Threshold(1.0)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sum')
-    )
- )
-
-)
-
-muPFMeanDRIsoValueNeutralHighThreshold04PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositNeutralPAT"),
-            deltaR = cms.double(0.4),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.01','Threshold(1.0)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('meanDR')
-    )
- )
-
-)
-
-muPFSumDRIsoValueNeutralHighThreshold04PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositNeutralPAT"),
-            deltaR = cms.double(0.4),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.01','Threshold(1.0)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sumDR')
-    )
- )
-
-)
-
-muPFIsoValuePU04PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositPUPAT"),
-            deltaR = cms.double(0.4),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.01','Threshold(0.5)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sum')
-      )
-   )
-)
-
-muPFMeanDRIsoValuePU04PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositPUPAT"),
-            deltaR = cms.double(0.4),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.01','Threshold(0.5)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('meanDR')
-      )
-   )
-)
-
-muPFSumDRIsoValuePU04PAT = cms.EDProducer("CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("muPFIsoDepositPUPAT"),
-            deltaR = cms.double(0.4),
-            weight = cms.string('1'),
-            vetos = cms.vstring('0.01','Threshold(0.5)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sumDR')
-      )
-   )
-)
+from CommonTools.ParticleFlow.Isolation.muonPFIsolationValuesPFBRECO_cff import *
+
+muPFIsoValueCharged03PAT = muPFIsoValueCharged03PFBRECO.clone()
+muPFIsoValueCharged03PAT.deposits[0].src = 'muPFIsoDepositChargedPAT'
+muPFMeanDRIsoValueCharged03PAT = muPFMeanDRIsoValueCharged03PFBRECO.clone()
+muPFMeanDRIsoValueCharged03PAT.deposits[0].src = 'muPFIsoDepositChargedPAT'
+muPFSumDRIsoValueCharged03PAT = muPFSumDRIsoValueCharged03PFBRECO.clone()
+muPFSumDRIsoValueCharged03PAT.deposits[0].src = 'muPFIsoDepositChargedPAT'
+muPFIsoValueChargedAll03PAT = muPFIsoValueChargedAll03PFBRECO.clone()
+muPFIsoValueChargedAll03PAT.deposits[0].src = 'muPFIsoDepositChargedAllPAT'
+muPFMeanDRIsoValueChargedAll03PAT = muPFMeanDRIsoValueChargedAll03PFBRECO.clone()
+muPFMeanDRIsoValueChargedAll03PAT.deposits[0].src = 'muPFIsoDepositChargedAllPAT'
+muPFSumDRIsoValueChargedAll03PAT = muPFSumDRIsoValueChargedAll03PFBRECO.clone()
+muPFSumDRIsoValueChargedAll03PAT.deposits[0].src = 'muPFIsoDepositChargedAllPAT'
+muPFIsoValueGamma03PAT = muPFIsoValueGamma03PFBRECO.clone()
+muPFIsoValueGamma03PAT.deposits[0].src = 'muPFIsoDepositGammaPAT'
+muPFMeanDRIsoValueGamma03PAT = muPFMeanDRIsoValueGamma03PFBRECO.clone()
+muPFMeanDRIsoValueGamma03PAT.deposits[0].src = 'muPFIsoDepositGammaPAT'
+muPFSumDRIsoValueGamma03PAT = muPFSumDRIsoValueGamma03PFBRECO.clone()
+muPFSumDRIsoValueGamma03PAT.deposits[0].src = 'muPFIsoDepositGammaPAT'
+muPFIsoValueNeutral03PAT = muPFIsoValueNeutral03PFBRECO.clone()
+muPFIsoValueNeutral03PAT.deposits[0].src = 'muPFIsoDepositNeutralPAT'
+muPFMeanDRIsoValueNeutral03PAT = muPFMeanDRIsoValueNeutral03PFBRECO.clone()
+muPFMeanDRIsoValueNeutral03PAT.deposits[0].src = 'muPFIsoDepositNeutralPAT'
+muPFSumDRIsoValueNeutral03PAT = muPFSumDRIsoValueNeutral03PFBRECO.clone()
+muPFSumDRIsoValueNeutral03PAT.deposits[0].src = 'muPFIsoDepositNeutralPAT'
+muPFIsoValueGammaHighThreshold03PAT = muPFIsoValueGammaHighThreshold03PFBRECO.clone()
+muPFIsoValueGammaHighThreshold03PAT.deposits[0].src = 'muPFIsoDepositGammaPAT'
+muPFMeanDRIsoValueGammaHighThreshold03PAT = muPFMeanDRIsoValueGammaHighThreshold03PFBRECO.clone()
+muPFMeanDRIsoValueGammaHighThreshold03PAT.deposits[0].src = 'muPFIsoDepositGammaPAT'
+muPFSumDRIsoValueGammaHighThreshold03PAT = muPFSumDRIsoValueGammaHighThreshold03PFBRECO.clone()
+muPFSumDRIsoValueGammaHighThreshold03PAT.deposits[0].src = 'muPFIsoDepositGammaPAT'
+muPFIsoValueNeutralHighThreshold03PAT = muPFIsoValueNeutralHighThreshold03PFBRECO.clone()
+muPFIsoValueNeutralHighThreshold03PAT.deposits[0].src = 'muPFIsoDepositNeutralPAT'
+muPFMeanDRIsoValueNeutralHighThreshold03PAT = muPFMeanDRIsoValueNeutralHighThreshold03PFBRECO.clone()
+muPFMeanDRIsoValueNeutralHighThreshold03PAT.deposits[0].src = 'muPFIsoDepositNeutralPAT'
+muPFSumDRIsoValueNeutralHighThreshold03PAT = muPFSumDRIsoValueNeutralHighThreshold03PFBRECO.clone()
+muPFSumDRIsoValueNeutralHighThreshold03PAT.deposits[0].src = 'muPFIsoDepositNeutralPAT'
+muPFIsoValuePU03PAT = muPFIsoValuePU03PFBRECO.clone()
+muPFIsoValuePU03PAT.deposits[0].src = 'muPFIsoDepositPUPAT'
+muPFMeanDRIsoValuePU03PAT = muPFMeanDRIsoValuePU03PFBRECO.clone()
+muPFMeanDRIsoValuePU03PAT.deposits[0].src = 'muPFIsoDepositPUPAT'
+muPFSumDRIsoValuePU03PAT = muPFSumDRIsoValuePU03PFBRECO.clone()
+muPFSumDRIsoValuePU03PAT.deposits[0].src = 'muPFIsoDepositPUPAT'
+##############################
+muPFIsoValueCharged04PAT = muPFIsoValueCharged04PFBRECO.clone()
+muPFIsoValueCharged04PAT.deposits[0].src = 'muPFIsoDepositChargedPAT'
+muPFMeanDRIsoValueCharged04PAT = muPFMeanDRIsoValueCharged04PFBRECO.clone()
+muPFMeanDRIsoValueCharged04PAT.deposits[0].src = 'muPFIsoDepositChargedPAT'
+muPFSumDRIsoValueCharged04PAT = muPFSumDRIsoValueCharged04PFBRECO.clone()
+muPFSumDRIsoValueCharged04PAT.deposits[0].src = 'muPFIsoDepositChargedPAT'
+muPFIsoValueChargedAll04PAT = muPFIsoValueChargedAll04PFBRECO.clone()
+muPFIsoValueChargedAll04PAT.deposits[0].src = 'muPFIsoDepositChargedAllPAT'
+muPFMeanDRIsoValueChargedAll04PAT = muPFMeanDRIsoValueChargedAll04PFBRECO.clone()
+muPFMeanDRIsoValueChargedAll04PAT.deposits[0].src = 'muPFIsoDepositChargedAllPAT'
+muPFSumDRIsoValueChargedAll04PAT = muPFSumDRIsoValueChargedAll04PFBRECO.clone()
+muPFSumDRIsoValueChargedAll04PAT.deposits[0].src = 'muPFIsoDepositChargedAllPAT'
+muPFIsoValueGamma04PAT = muPFIsoValueGamma04PFBRECO.clone()
+muPFIsoValueGamma04PAT.deposits[0].src = 'muPFIsoDepositGammaPAT'
+muPFMeanDRIsoValueGamma04PAT = muPFMeanDRIsoValueGamma04PFBRECO.clone()
+muPFMeanDRIsoValueGamma04PAT.deposits[0].src = 'muPFIsoDepositGammaPAT'
+muPFSumDRIsoValueGamma04PAT = muPFSumDRIsoValueGamma04PFBRECO.clone()
+muPFSumDRIsoValueGamma04PAT.deposits[0].src = 'muPFIsoDepositGammaPAT'
+muPFIsoValueNeutral04PAT = muPFIsoValueNeutral04PFBRECO.clone()
+muPFIsoValueNeutral04PAT.deposits[0].src = 'muPFIsoDepositNeutralPAT'
+muPFMeanDRIsoValueNeutral04PAT = muPFMeanDRIsoValueNeutral04PFBRECO.clone()
+muPFMeanDRIsoValueNeutral04PAT.deposits[0].src = 'muPFIsoDepositNeutralPAT'
+muPFSumDRIsoValueNeutral04PAT = muPFSumDRIsoValueNeutral04PFBRECO.clone()
+muPFSumDRIsoValueNeutral04PAT.deposits[0].src = 'muPFIsoDepositNeutralPAT'
+muPFIsoValueGammaHighThreshold04PAT = muPFIsoValueGammaHighThreshold04PFBRECO.clone()
+muPFIsoValueGammaHighThreshold04PAT.deposits[0].src = 'muPFIsoDepositGammaPAT'
+muPFMeanDRIsoValueGammaHighThreshold04PAT = muPFMeanDRIsoValueGammaHighThreshold04PFBRECO.clone()
+muPFMeanDRIsoValueGammaHighThreshold04PAT.deposits[0].src = 'muPFIsoDepositGammaPAT'
+muPFSumDRIsoValueGammaHighThreshold04PAT = muPFSumDRIsoValueGammaHighThreshold04PFBRECO.clone()
+muPFSumDRIsoValueGammaHighThreshold04PAT.deposits[0].src = 'muPFIsoDepositGammaPAT'
+muPFIsoValueNeutralHighThreshold04PAT = muPFIsoValueNeutralHighThreshold04PFBRECO.clone()
+muPFIsoValueNeutralHighThreshold04PAT.deposits[0].src = 'muPFIsoDepositNeutralPAT'
+muPFMeanDRIsoValueNeutralHighThreshold04PAT = muPFMeanDRIsoValueNeutralHighThreshold04PFBRECO.clone()
+muPFMeanDRIsoValueNeutralHighThreshold04PAT.deposits[0].src = 'muPFIsoDepositNeutralPAT'
+muPFSumDRIsoValueNeutralHighThreshold04PAT = muPFSumDRIsoValueNeutralHighThreshold04PFBRECO.clone()
+muPFSumDRIsoValueNeutralHighThreshold04PAT.deposits[0].src = 'muPFIsoDepositNeutralPAT'
+muPFIsoValuePU04PAT = muPFIsoValuePU04PFBRECO.clone()
+muPFIsoValuePU04PAT.deposits[0].src = 'muPFIsoDepositPUPAT'
+muPFMeanDRIsoValuePU04PAT = muPFMeanDRIsoValuePU04PFBRECO.clone()
+muPFMeanDRIsoValuePU04PAT.deposits[0].src = 'muPFIsoDepositPUPAT'
+muPFSumDRIsoValuePU04PAT = muPFSumDRIsoValuePU04PFBRECO.clone()
+muPFSumDRIsoValuePU04PAT.deposits[0].src = 'muPFIsoDepositPUPAT'
 
 muonPFIsolationValuesPATSequence = (
     muPFIsoValueCharged03PAT+

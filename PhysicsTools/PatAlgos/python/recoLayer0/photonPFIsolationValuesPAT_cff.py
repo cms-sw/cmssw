@@ -1,152 +1,36 @@
 import FWCore.ParameterSet.Config as cms
 
+from CommonTools.ParticleFlow.Isolation.photonPFIsolationValuesPFBRECO_cff import *
 
+phPFIsoValueCharged03PFIdPAT = phPFIsoValueCharged03PFIdPFBRECO.clone()
+phPFIsoValueCharged03PFIdPAT.deposits[0].src = 'phPFIsoDepositChargedPAT'
 
-phPFIsoValueCharged03PFIdPAT = cms.EDProducer("PFCandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("phPFIsoDepositChargedPAT"),
-            deltaR = cms.double(0.3),
-            weight = cms.string('1'),
-            vetos = cms.vstring(),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sum'),
-            PivotCoordinatesForEBEE = cms.bool(True)
-            )
-     )
-)
+phPFIsoValueChargedAll03PFIdPAT = phPFIsoValueChargedAll03PFIdPFBRECO.clone()
+phPFIsoValueChargedAll03PFIdPAT.deposits[0].src = 'phPFIsoDepositChargedAllPAT'
 
-phPFIsoValueChargedAll03PFIdPAT = cms.EDProducer("PFCandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("phPFIsoDepositChargedAllPAT"),
-            deltaR = cms.double(0.3),
-            weight = cms.string('1'),
-            vetos = cms.vstring(),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sum'),
-            PivotCoordinatesForEBEE = cms.bool(True)
-     )
-   )
-)
+phPFIsoValueGamma03PFIdPAT = phPFIsoValueGamma03PFIdPFBRECO.clone()
+phPFIsoValueGamma03PFIdPAT.deposits[0].src = 'phPFIsoDepositGammaPAT'
 
-phPFIsoValueGamma03PFIdPAT = cms.EDProducer("PFCandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("phPFIsoDepositGammaPAT"),
-            deltaR = cms.double(0.3),
-            weight = cms.string('1'),
-            vetos = cms.vstring('EcalEndcaps:ConeVeto(0.05)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sum'),
-            PivotCoordinatesForEBEE = cms.bool(True)
-      )
-   )
-)
+phPFIsoValueNeutral03PFIdPAT = phPFIsoValueNeutral03PFIdPFBRECO.clone()
+phPFIsoValueNeutral03PFIdPAT.deposits[0].src = 'phPFIsoDepositNeutralPAT'
 
-phPFIsoValueNeutral03PFIdPAT = cms.EDProducer("PFCandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("phPFIsoDepositNeutralPAT"),
-            deltaR = cms.double(0.3),
-            weight = cms.string('1'),
-            vetos = cms.vstring(),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sum'),
-            PivotCoordinatesForEBEE = cms.bool(True)
-        )
-    )
-)
+phPFIsoValuePU03PFIdPAT = phPFIsoValuePU03PFIdPFBRECO.clone()
+phPFIsoValuePU03PFIdPAT.deposits[0].src = 'phPFIsoDepositPUPAT'
 
-phPFIsoValuePU03PFIdPAT = cms.EDProducer("PFCandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("phPFIsoDepositPUPAT"),
-            deltaR = cms.double(0.3),
-            weight = cms.string('1'),
-            vetos = cms.vstring(),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sum'),
-            PivotCoordinatesForEBEE = cms.bool(True)
-      )
-   )
-)
+phPFIsoValueCharged04PFIdPAT = phPFIsoValueCharged04PFIdPFBRECO.clone()
+phPFIsoValueCharged04PFIdPAT.deposits[0]. src = 'phPFIsoDepositChargedPAT'
 
+phPFIsoValueChargedAll04PFIdPAT = phPFIsoValueChargedAll04PFIdPFBRECO.clone()
+phPFIsoValueChargedAll04PFIdPAT.deposits[0].src = 'phPFIsoDepositChargedAllPAT'
 
+phPFIsoValueGamma04PFIdPAT = phPFIsoValueGamma04PFIdPFBRECO.clone()
+phPFIsoValueGamma04PFIdPAT.deposits[0].src = 'phPFIsoDepositGammaPAT'
 
-phPFIsoValueCharged04PFIdPAT = cms.EDProducer("PFCandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("phPFIsoDepositChargedPAT"),
-            deltaR = cms.double(0.4),
-            weight = cms.string('1'),
-            vetos = cms.vstring(),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sum'),
-            PivotCoordinatesForEBEE = cms.bool(True)
-            )
-     )
-)
+phPFIsoValueNeutral04PFIdPAT = phPFIsoValueNeutral04PFIdPFBRECO.clone()
+phPFIsoValueNeutral04PFIdPAT.deposits[0].src = 'phPFIsoDepositNeutralPAT'
 
-
-
-
-phPFIsoValueChargedAll04PFIdPAT = cms.EDProducer("PFCandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("phPFIsoDepositChargedAllPAT"),
-            deltaR = cms.double(0.4),
-            weight = cms.string('1'),
-            vetos = cms.vstring(),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sum'),
-            PivotCoordinatesForEBEE = cms.bool(True)
-     )
-   )
-)
-
-phPFIsoValueGamma04PFIdPAT = cms.EDProducer("PFCandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("phPFIsoDepositGammaPAT"),
-            deltaR = cms.double(0.4),
-            weight = cms.string('1'),
-            vetos = cms.vstring('EcalEndcaps:ConeVeto(0.05)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sum'),
-            PivotCoordinatesForEBEE = cms.bool(True)
-      )
-   )
-)
-
-
-phPFIsoValueNeutral04PFIdPAT = cms.EDProducer("PFCandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("phPFIsoDepositNeutralPAT"),
-            deltaR = cms.double(0.4),
-            weight = cms.string('1'),
-            vetos = cms.vstring(),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sum'),
-            PivotCoordinatesForEBEE = cms.bool(True)
-    )
- )
-)
-
-phPFIsoValuePU04PFIdPAT = cms.EDProducer("PFCandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("phPFIsoDepositPUPAT"),
-            deltaR = cms.double(0.4),
-            weight = cms.string('1'),
-            vetos = cms.vstring(),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sum'),
-            PivotCoordinatesForEBEE = cms.bool(True)
-      )
-   )
-)
+phPFIsoValuePU04PFIdPAT = phPFIsoValuePU04PFIdPFBRECO.clone()
+phPFIsoValuePU04PFIdPAT.deposits[0].src = 'phPFIsoDepositPUPAT'
 
 photonPFIsolationValuesPATSequence = (
     phPFIsoValueCharged03PFIdPAT+

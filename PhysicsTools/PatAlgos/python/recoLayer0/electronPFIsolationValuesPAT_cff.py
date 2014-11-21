@@ -1,89 +1,30 @@
 import FWCore.ParameterSet.Config as cms
 
+from CommonTools.ParticleFlow.Isolation.electronPFIsolationValuesPFBRECO_cff import *
 
+elPFIsoValueCharged03PFIdPAT = elPFIsoValueCharged03PFIdPFBRECO.clone()
+elPFIsoValueCharged03PFIdPAT.deposits[0].src = 'elPFIsoDepositChargedPAT'
 
-elPFIsoValueCharged03PFIdPAT = cms.EDProducer("PFCandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("elPFIsoDepositChargedPAT"),
-            deltaR = cms.double(0.3),
-            weight = cms.string('1'),
-            vetos = cms.vstring('EcalEndcaps:ConeVeto(0.015)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sum'),
-            PivotCoordinatesForEBEE = cms.bool(True)
-            )
-     )
-)
+elPFIsoValueChargedAll03PFIdPAT = elPFIsoValueChargedAll03PFIdPFBRECO.clone()
+elPFIsoValueChargedAll03PFIdPAT.deposits[0].src = 'elPFIsoDepositChargedAllPAT'
 
-elPFIsoValueChargedAll03PFIdPAT = cms.EDProducer("PFCandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("elPFIsoDepositChargedAllPAT"),
-            deltaR = cms.double(0.3),
-            weight = cms.string('1'),
-            vetos = cms.vstring('EcalEndcaps:ConeVeto(0.015)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sum'),
-            PivotCoordinatesForEBEE = cms.bool(True)
-     )
-   )
-)
+elPFIsoValueGamma03PFIdPAT = elPFIsoValueGamma03PFIdPFBRECO.clone()
+elPFIsoValueGamma03PFIdPAT.deposits[0].src = 'elPFIsoDepositGammaPAT'
 
-elPFIsoValueGamma03PFIdPAT = cms.EDProducer("PFCandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("elPFIsoDepositGammaPAT"),
-            deltaR = cms.double(0.3),
-            weight = cms.string('1'),
-            vetos = cms.vstring('EcalEndcaps:ConeVeto(0.08)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sum'),
-            PivotCoordinatesForEBEE = cms.bool(True)
-      )
-   )
-)
+elPFIsoValueNeutral03PFIdPAT = elPFIsoValueNeutral03PFIdPFBRECO.clone()
+elPFIsoValueNeutral03PFIdPAT.deposits[0].src = 'elPFIsoDepositNeutralPAT'
 
-elPFIsoValueNeutral03PFIdPAT = cms.EDProducer("PFCandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("elPFIsoDepositNeutralPAT"),
-            deltaR = cms.double(0.3),
-            weight = cms.string('1'),
-            vetos = cms.vstring(),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sum'),
-            PivotCoordinatesForEBEE = cms.bool(True)
-            )
-        )
-    )
-
-elPFIsoValuePU03PFIdPAT = cms.EDProducer("PFCandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-            cms.PSet(
-            src = cms.InputTag("elPFIsoDepositPUPAT"),
-            deltaR = cms.double(0.3),
-            weight = cms.string('1'),
-            vetos = cms.vstring('EcalEndcaps:ConeVeto(0.015)'),
-            skipDefaultVeto = cms.bool(True),
-            mode = cms.string('sum'),
-            PivotCoordinatesForEBEE = cms.bool(True)
-            )
-   )
-)
-
-
+elPFIsoValuePU03PFIdPAT = elPFIsoValuePU03PFIdPFBRECO.clone()
+elPFIsoValuePU03PFIdPAT.deposits[0].src = 'elPFIsoDepositPUPAT'
 
 elPFIsoValueCharged04PFIdPAT = elPFIsoValueCharged03PFIdPAT.clone()
 elPFIsoValueCharged04PFIdPAT.deposits[0].deltaR = cms.double(0.4)
-
 
 elPFIsoValueChargedAll04PFIdPAT = elPFIsoValueChargedAll03PFIdPAT.clone()
 elPFIsoValueChargedAll04PFIdPAT.deposits[0].deltaR = cms.double(0.4)
 
 elPFIsoValueGamma04PFIdPAT = elPFIsoValueGamma03PFIdPAT.clone()
 elPFIsoValueGamma04PFIdPAT.deposits[0].deltaR = cms.double(0.4)
-
 
 elPFIsoValueNeutral04PFIdPAT = elPFIsoValueNeutral03PFIdPAT.clone()
 elPFIsoValueNeutral04PFIdPAT.deposits[0].deltaR = cms.double(0.4)
