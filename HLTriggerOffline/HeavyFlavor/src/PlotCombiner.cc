@@ -21,8 +21,8 @@ class PlotCombiner : public DQMEDHarvester{
     PlotCombiner(const edm::ParameterSet& pset);
     virtual ~PlotCombiner();
   private:
-    void makePlot(const ParameterSet& pset);
-    DQMStore * dqmStore;
+  void makePlot(const ParameterSet& pset, DQMStore::IBooker &, DQMStore::IGetter &);
+
     string myDQMrootFolder;
     const VParameterSet plots;
   protected:
@@ -37,17 +37,12 @@ PlotCombiner::PlotCombiner(const edm::ParameterSet& pset):
 }
 
 void PlotCombiner::dqmEndJob(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_){
-  dqmStore = Service<DQMStore>().operator->();
-  if( !dqmStore ){
-    LogError("HLTriggerOfflineHeavyFlavor") << "Could not find DQMStore service\n";
-    return;
-  }
   for(VParameterSet::const_iterator pset = plots.begin(); pset!=plots.end(); pset++){
-    makePlot(*pset);
+    makePlot(*pset, ibooker_, igetter_);
   }
 }
   
-void PlotCombiner::makePlot(const ParameterSet& pset){
+void PlotCombiner::makePlot(const ParameterSet& pset, DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_){
 //get hold of MEs
   vector<string> inputMEnames = pset.getUntrackedParameter<vector<string> >("InputMEnames");
   vector<string> inputLabels = pset.getUntrackedParameter<vector<string> >("InputLabels");
@@ -59,7 +54,7 @@ void PlotCombiner::makePlot(const ParameterSet& pset){
   vector<TString> labels;
   for(size_t i=0; i<inputMEnames.size(); i++){
     string MEname = myDQMrootFolder+"/"+inputMEnames[i];
-    MonitorElement *ME = dqmStore->get(MEname);
+    MonitorElement *ME = igetter_.get(MEname);
     if(ME==0){
       LogDebug("HLTriggerOfflineHeavyFlavor") << "Could not find ME: "<<MEname<<endl;
       continue;
@@ -78,7 +73,7 @@ void PlotCombiner::makePlot(const ParameterSet& pset){
     outputDir += "/"+outputMEname.substr(0, slashPos);
     outputMEname.erase(0, slashPos+1);
   }
-  dqmStore->setCurrentFolder(outputDir);
+  ibooker_.setCurrentFolder(outputDir);
   //create output ME
   TH2F * output;
   if(histos[0]->GetXaxis()->GetXbins()->GetSize()==0){
@@ -97,7 +92,7 @@ void PlotCombiner::makePlot(const ParameterSet& pset){
     }
     output->GetYaxis()->SetBinLabel(i+1,labels[i]);
   }
-  dqmStore->book2D(outputMEname,output);
+  ibooker_.book2D(outputMEname,output);
   delete output;
 }
 
