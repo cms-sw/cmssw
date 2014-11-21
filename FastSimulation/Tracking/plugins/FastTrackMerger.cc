@@ -104,13 +104,13 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
   // The track algorithm (only of merging after iterative tracking)
   reco::TrackBase::TrackAlgorithm algo;
   switch(trackAlgo)  {
-  case 4:  algo = reco::TrackBase::iter0; break;
-  case 5:  algo = reco::TrackBase::iter1; break;
-  case 6:  algo = reco::TrackBase::iter2; break;
-  case 7:  algo = reco::TrackBase::iter3; break;
-  case 8:  algo = reco::TrackBase::iter4; break;
-  case 9:  algo = reco::TrackBase::iter5; break;
-  case 10: algo = reco::TrackBase::iter6; break;
+  case 4:  algo = reco::TrackBase::initialStep; break;
+  case 5:  algo = reco::TrackBase::lowPtTripletStep; break;
+  case 6:  algo = reco::TrackBase::pixelPairStep; break;
+  case 7:  algo = reco::TrackBase::detachedTripletStep; break;
+  case 8:  algo = reco::TrackBase::mixedTripletStep; break;
+  case 9:  algo = reco::TrackBase::pixelLessStep; break;
+  case 10: algo = reco::TrackBase::tobTecStep; break;
   default: algo = reco::TrackBase::undefAlgorithm;
   }
 

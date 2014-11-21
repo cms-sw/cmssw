@@ -35,6 +35,8 @@ from DQMOffline.EGamma.egammaDQMOffline_cff import *
 from DQMOffline.Trigger.DQMOffline_Trigger_cff import *
 #from DQMOffline.RecoB.PrimaryVertexMonitor_cff import *
 from DQM.Physics.DQMPhysics_cff import *
+from DQM.TrackingMonitorSource.TrackingSourceConfig_Tier0_HeavyIons_cff import *
+
 
 egammaDQMOffline.remove(electronAnalyzerSequence)
 egammaDQMOffline.remove(zmumugammaAnalysis)
@@ -46,7 +48,15 @@ stdPhotonAnalysis.endcapRecHitProducer = cms.InputTag("ecalRecHit", "EcalRecHits
 hltResults.RecHitsEBTag = cms.untracked.InputTag("ecalRecHit", "EcalRecHitsEB")
 hltResults.RecHitsEETag = cms.untracked.InputTag("ecalRecHit", "EcalRecHitsEE")
 
+
+globalAnalyzer.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
+trackerAnalyzer.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
+tightAnalyzer.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
+looseAnalyzer.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
+
+
 DQMOfflineHeavyIonsPrePOG = cms.Sequence( muonMonitors 
+                                          * TrackMonDQMTier0_hi
                                           * jetMETDQMOfflineSource
                                           * egammaDQMOffline
                                           * triggerOfflineDQMSource

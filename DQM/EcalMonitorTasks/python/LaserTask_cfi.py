@@ -7,6 +7,7 @@ emptyLSLimit = 3
 ecalLaserTask = cms.untracked.PSet(
     params = cms.untracked.PSet(
         emptyLSLimit = cms.untracked.int32(emptyLSLimit),
+        maxPedestal = cms.untracked.int32(250),
         laserWavelengths = ecaldqmLaserWavelengths
     ),
     MEs = cms.untracked.PSet(

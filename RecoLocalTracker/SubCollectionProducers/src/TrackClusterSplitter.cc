@@ -613,7 +613,7 @@ void TrackClusterSplitter::splitCluster<SiStripCluster> (const SiStripClusterWit
 
       size_t splittableClusterSize = 0;
       splittableClusterSize = associatedIdpr.size();
-      std::vector<uint8_t> amp = clust->amplitudes();
+      auto const & amp = clust->amplitudes();
       int clusiz = amp.size();
       associatedIdpr.clear();
 

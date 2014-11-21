@@ -29,7 +29,7 @@ prunedGenParticles = cms.EDProducer("GenParticlePruner",
 	"keep (1000001 <= abs(pdgId) <= 1000039 ) || ( 2000001 <= abs(pdgId) <= 2000015)",
 # keep protons 
         "keep pdgId = 2212",
-        "keep status == 3 || status == 22 || status == 23 || ( 11 <= status <= 19)",  #keep event summary status3 (for pythia), 22,23 (pythia8)
+        "keep status == 3 || ( 21 <= status <= 29) || ( 11 <= status <= 19)",  #keep event summary (status=3 for pythia6, 21 <= status <= 29 for pythia8)
 
     )
 )

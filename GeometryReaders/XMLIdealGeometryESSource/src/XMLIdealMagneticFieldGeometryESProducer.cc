@@ -10,7 +10,6 @@
 #include "DetectorDescription/Core/interface/DDRoot.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "CondFormats/Common/interface/FileBlob.h"
-#include "Geometry/Records/interface/GeometryFileRcd.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "DetectorDescription/Core/interface/DDMaterial.h"
@@ -63,7 +62,7 @@ XMLIdealMagneticFieldGeometryESProducer::produce( const IdealMagneticFieldRecord
   using namespace edm::es;
 
   edm::ESTransientHandle<FileBlob> gdd;
-  iRecord.getRecord<GeometryFileRcd>().get( label_, gdd );
+  iRecord.getRecord<MFGeometryFileRcd>().get( label_, gdd );
 
   DDName ddName(rootDDName_);
   DDLogicalPart rootNode(ddName);

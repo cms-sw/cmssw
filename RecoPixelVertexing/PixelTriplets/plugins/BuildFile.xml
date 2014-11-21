@@ -5,4 +5,4 @@
   <flags   EDM_PLUGIN="1"/>
 </library>
 
-<flags   CXXFLAGS="-Ofast -ftree-loop-if-convert-stores -fno-math-errno"/>
+<flags   CXXFLAGS="-Ofast -fno-math-errno"/>

@@ -116,19 +116,6 @@ namespace
     }
   }
 
-  std::string getPFCandidateType(const reco::PFCandidate& pfCandidate)
-  {
-    reco::PFCandidate::ParticleType pfCandidateType = pfCandidate.particleId();
-    if      ( pfCandidateType == reco::PFCandidate::X         ) return "undefined";
-    else if ( pfCandidateType == reco::PFCandidate::h         ) return "PFChargedHadron";
-    else if ( pfCandidateType == reco::PFCandidate::e         ) return "PFElectron";
-    else if ( pfCandidateType == reco::PFCandidate::mu        ) return "PFMuon";
-    else if ( pfCandidateType == reco::PFCandidate::gamma     ) return "PFGamma";
-    else if ( pfCandidateType == reco::PFCandidate::h0        ) return "PFNeutralHadron";
-    else if ( pfCandidateType == reco::PFCandidate::h_HF      ) return "HF_had";
-    else if ( pfCandidateType == reco::PFCandidate::egamma_HF ) return "HF_em";
-    else assert(0);
-  }
 }
 
 void NoPileUpPFMEtDataProducer::produce(edm::Event& evt, const edm::EventSetup& es)

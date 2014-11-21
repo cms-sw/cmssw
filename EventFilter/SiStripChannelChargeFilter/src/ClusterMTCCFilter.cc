@@ -61,7 +61,7 @@ bool ClusterMTCCFilter::filter(edm::Event & e, edm::EventSetup const& c) {
     for(vector<SiStripCluster>::const_iterator vit=(it->data).begin(); vit!=(it->data).end(); vit++){
       // calculate sum of amplitudes
       unsigned int amplclus=0;
-      for(vector<uint8_t>::const_iterator ia=vit->amplitudes().begin(); ia!=vit->amplitudes().end(); ia++) {
+      for(auto ia=vit->amplitudes().begin(); ia!=vit->amplitudes().end(); ia++) {
         if ((*ia)>0) amplclus+=(*ia); // why should this be negative?
       }
       sum_of_cluster_charges += amplclus;

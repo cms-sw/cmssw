@@ -23,14 +23,13 @@ class PFJetMonitor : public Benchmark {
   virtual ~PFJetMonitor();
   
   /// set the parameters locally
-  void setParameters(float dRMax, bool matchCharge, 
-		     Benchmark::Mode mode,float ptmin, 
-		     float ptmax, float etamin, float etamax, 
-		     float phimin, float phimax, bool fracHistoFlag=true);
+  void setParameters(float dRMax, bool matchCharge, Benchmark::Mode mode,
+		     float ptmin, float ptmax, float etamin, float etamax, float phimin, float phimax,
+		     bool fracHistoFlag=true);
   
   void setParameters(float dRMax, bool onlyTwoJets, bool matchCharge, Benchmark::Mode mode,
-		     float ptmin, float ptmax, float etamin, float etamax,
-                     float phimin, float phimax, bool fracHistoFlag=true);
+		     float ptmin, float ptmax, float etamin, float etamax, float phimin, float phimax,
+		     bool fracHistoFlag=true);
   
   /// set the parameters accessing them from ParameterSet
   void setParameters( const edm::ParameterSet& parameterSet);
@@ -39,19 +38,17 @@ class PFJetMonitor : public Benchmark {
   void setDirectory(TDirectory* dir);
 
   /// book histograms
-  void setup();
-  
-  /// book histograms
-  void setup(const edm::ParameterSet & parameterSet);
+  void setup(DQMStore::IBooker& b);
+  void setup(DQMStore::IBooker& b, const edm::ParameterSet & parameterSet);
   
   /// fill histograms with all particle
   template< class T, class C>
-    void fill(const T& jetCollection,
-	      const C& matchedJetCollection, float& minVal, float& maxVal);
+    void fill(const T& jetCollection, const C& matchedJetCollection,
+	      float& minVal, float& maxVal);
   
   template< class T, class C>
-    void fill(const T& candidateCollection,
-	      const C& matchedCandCollection, float& minVal, float& maxVal, float& jetpT,
+    void fill(const T& candidateCollection, const C& matchedCandCollection,
+	      float& minVal, float& maxVal, float& jetpT,
 	      const edm::ParameterSet & parameterSet);
 
   void fillOne(const reco::Jet& jet,
@@ -93,7 +90,7 @@ template< class T, class C>
     int iMatch = matchIndices[i];
     assert(iMatch< static_cast<int>(matchedJetCollection.size()));
     
-    if( iMatch!=-1 ) {
+    if( iMatch != -1 ) {
       const reco::Candidate& matchedJet = matchedJetCollection[ iMatch ];
       if( !isInRange( matchedJet.pt(), matchedJet.eta(), matchedJet.phi() ) ) continue;
       float ptRes = (jet.pt() - matchedJet.pt())/matchedJet.pt();
