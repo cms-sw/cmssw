@@ -145,13 +145,13 @@ class FakeDuplicate:
 
         return hfakedup
 
-
 class AggregateBins:
-    def __init__(self, name, histoName, mapping, normalizeTo=None):
+    def __init__(self, name, histoName, mapping, normalizeTo=None, scale=None):
         self._name = name
         self._histoName = histoName
         self._mapping = mapping
         self._normalizeTo = normalizeTo
+        self._scale = scale
 
     def __str__(self):
         return self._name
@@ -169,14 +169,21 @@ class AggregateBins:
 
         result = ROOT.TH1F(self._name, self._name, len(self._mapping), 0, len(self._mapping))
 
-        for i, (key, labels) in enumerate(self._mapping.iteritems()):
-            sumTime = 0
-            for l in labels:
-                bin = th1.GetXaxis().FindBin(l)
+        if isinstance(self._mapping, list):
+            for i, label in enumerate(self._mapping):
+                bin = th1.GetXaxis().FindBin(label)
                 if bin > 0:
-                    sumTime += th1.GetBinContent(bin)
-            result.SetBinContent(i+1, sumTime)
-            result.GetXaxis().SetBinLabel(i+1, key)
+                    result.SetBinContent(i+1, th1.GetBinContent(bin))
+                result.GetXaxis().SetBinLabel(i+1, label)
+        else:
+            for i, (key, labels) in enumerate(self._mapping.iteritems()):
+                sumTime = 0
+                for l in labels:
+                    bin = th1.GetXaxis().FindBin(l)
+                    if bin > 0:
+                        sumTime += th1.GetBinContent(bin)
+                result.SetBinContent(i+1, sumTime)
+                result.GetXaxis().SetBinLabel(i+1, key)
 
         if self._normalizeTo is not None:
             bin = th1.GetXaxis().FindBin(self._normalizeTo)
@@ -187,8 +194,8 @@ class AggregateBins:
             if value != 0:
                 result.Scale(1/value)
 
-        for bin in xrange(1, result.GetNbinsX()+1):
-            print "%s %f" % (result.GetXaxis().GetBinLabel(bin), result.GetBinContent(bin))
+        if self._scale is not None:
+            result.Scale(self._scale)
 
         return result
 
@@ -526,8 +533,14 @@ class PlotGroup:
             self._canvas = ROOT.TCanvas(self._name, self._name, 1000, 500)
         elif len(self._plots) <= 4:
             self._canvas = ROOT.TCanvas(self._name, self._name, 1000, 1050)
-        else:
+        elif len(self._plots) <= 6:
             self._canvas = ROOT.TCanvas(self._name, self._name, 1000, 1400)
+        elif len(self._plots) <= 8:
+            self._canvas = ROOT.TCanvas(self._name, self._name, 1000, 1750)
+        elif len(self._plots) <= 10:
+            self._canvas = ROOT.TCanvas(self._name, self._name, 1000, 2100)
+        else:
+            self._canvas = ROOT.TCanvas(self._name, self._name, 1000, 2450)
 
         self._canvasSingle = ROOT.TCanvas(self._name+"Single", self._name, 500, 500)
         # from TDRStyle
