@@ -7,6 +7,7 @@
 #include "Utilities/XrdAdaptor/src/XrdFile.h"
 
 #include "XrdCl/XrdClDefaultEnv.hh"
+#include "XrdNet/XrdNetUtils.hh"
 
 class MakerResponseHandler : public XrdCl::ResponseHandler
 {
@@ -35,6 +36,7 @@ public:
     {
       env->PutString("NetworkStack", "IPAuto");
     }
+    XrdNetUtils::SetAuto(XrdNetUtils::prefAuto);
     setTimeout(XRD_DEFAULT_TIMEOUT);
   }
 
