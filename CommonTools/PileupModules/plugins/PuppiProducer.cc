@@ -94,8 +94,10 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       pDZ        = lPack->dz(); 
       pD0        = lPack->dxy(); 
       closestVtx = &(*(lPack->vertexRef()));
-      pVtxId     = (lPack->fromPV() !=  (pat::PackedCandidate::PVUsedInFit));
-      if( lPack->fromPV() & (pat::PackedCandidate::PVLoose || pat::PackedCandidate::PVTight) ) closestVtx = 0;
+      pVtxId = (lPack->fromPV() != (pat::PackedCandidate::PVUsedInFit)); 
+      if( (lPack->fromPV() == pat::PackedCandidate::PVLoose) || 
+	  (lPack->fromPV() == pat::PackedCandidate::PVTight) ) 
+	closestVtx = 0; 
     }
     pReco.dZ      = pDZ;
     pReco.d0      = pD0;
@@ -129,7 +131,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // This is a dummy to access the "translate" method which is a
   // non-static member function even though it doesn't need to be. 
   // Will fix in the future. 
-  reco::PFCandidate dummySinceTranslateIsNotStatic;
+  static const reco::PFCandidate dummySinceTranslateIsNotStatic;
 
   //Fill a new PF Candidate Collection and write out the ValueMap of the new p4s.
   // Since the size of the ValueMap must be equal to the input collection, we need
