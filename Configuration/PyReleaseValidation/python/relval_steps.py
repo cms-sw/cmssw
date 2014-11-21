@@ -1089,6 +1089,15 @@ steps['HARVESTGEN']={'-s':'HARVESTING:genHarvesting',
                      '--filein':'file:step1_inDQM.root'
                   }
 
+steps['HARVESTGEN2']={'-s':'HARVESTING:genHarvesting',
+                     '--harvesting':'AtJobEnd',
+                     '--conditions':'auto:run1_mc',
+                     '--mc':'',
+                     '--filetype':'DQM',
+                     '--filein':'file:step2_inDQM.root'
+                  }
+
+
 #data
 steps['HARVESTD']={'-s':'HARVESTING:dqmHarvesting',
                    '--conditions':'auto:run1_data',
