@@ -415,9 +415,9 @@ void L1TDTTFClient::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &ige
 //--------------------------------------------------------
 void L1TDTTFClient::dqmEndLuminosityBlock(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c)
 {
-  book(ibooker);
   /// Processing by Luminosity Block
   if ( online_ && !( counterLS_ % resetafterlumi_ ) ) {
+    book(ibooker);
     char hname[60];
     sprintf( hname, "%s/dttf_04_tracks_occupancy_by_lumi",
 	     inclusivepath_.c_str() );

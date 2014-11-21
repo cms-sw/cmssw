@@ -159,8 +159,6 @@ L1GtHwValidation::~L1GtHwValidation() {
 // member functions
 
 void L1GtHwValidation::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& evSetup){
-  //runId_->Fill(iRun.id().run());
-  std::cout << "beginRun" << std::endl;
 }
 
 void L1GtHwValidation::beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& evSetup){

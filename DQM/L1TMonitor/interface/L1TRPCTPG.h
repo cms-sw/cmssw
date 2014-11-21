@@ -65,9 +65,6 @@ public:
 // Destructor
  virtual ~L1TRPCTPG();
 
-// Booking of MonitoringElemnt for one RPCDetId (= roll)
- std::map<std::string, MonitorElement*> L1TRPCBookME(DQMStore::IBooker &ibooker, RPCDetId & detId);
-
 protected:
 // Analyze
  void analyze(const edm::Event& e, const edm::EventSetup& c);

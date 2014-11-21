@@ -179,26 +179,6 @@ void L1TRPCTPG::analyze(const Event& e, const EventSetup& c)
   RPCDigiCollection::DigiRangeIterator collectionItr;
   for(collectionItr=rpcdigis->begin(); collectionItr!=rpcdigis->end(); ++collectionItr){
 
-    /*RPCDetId detId=(*collectionItr ).first; 
-
-    
-    uint32_t id=detId();
-    char detUnitLabel[328];
-    RPCGeomServ RPCname(detId);
-    std::string nameRoll = RPCname.name();
-    sprintf(detUnitLabel ,"%s",nameRoll.c_str());
-    sprintf(layerLabel ,"%s",nameRoll.c_str());
-    std::map<uint32_t, std::map<std::string,MonitorElement*> >::iterator meItr = rpctpgmeCollection.find(id);
-    if (meItr == rpctpgmeCollection.end() || (rpctpgmeCollection.size()==0)) {
-      rpctpgmeCollection[id]=L1TRPCBookME(detId);
-    }
-    std::map<std::string, MonitorElement*> meMap=rpctpgmeCollection[id];*/
-    
-
-//      std::vector<int> strips;
-//      std::vector<int> bxs;
-//      strips.clear(); 
-//      bxs.clear();
   RPCDigiCollection::const_iterator digiItr; 
   for (digiItr = ((*collectionItr ).second).first;
        digiItr!=((*collectionItr).second).second; ++digiItr){
