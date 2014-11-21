@@ -24,14 +24,14 @@ def getHighMultVPSet():
         bins = (binH-binL)/5
         tracksCount  =  cms.PSet(
                 triggerSelection = cms.string(partialPathName+"*"),
-                handlerType = cms.string("RecoTrackCounter"),
+                handlerType = cms.string("RecoTrackCounterWithVertexConstraint"),
                 inputCol = cms.InputTag("generalTracks"),
                 partialPathName = cms.string(partialPathName),
                 partialFilterName  = cms.string("hltL1sETT"),
                 #dqmhistolabel  = cms.string("hltPixelTracks"),
                 dqmhistolabel  = cms.string("recoTracks"),
                 mainDQMDirname = cms.untracked.string(fsqdirname),
-                singleObjectsPreselection = cms.string("1==1"), # add reco::Tracks selection criteria
+                singleObjectsPreselection = cms.string("pt > 0.4 && abs(eta) < 2.4"), 
                 combinedObjectSelection =  cms.string("1==1"),
                 combinedObjectSortCriteria = cms.string('size()'),
                 combinedObjectDimension = cms.int32(1),
@@ -46,7 +46,7 @@ def getHighMultVPSet():
         tracksCountDenom.triggerSelection=cms.string("TRUE")
         tracksCountDenom.drawables =  cms.VPSet(
             cms.PSet (name = cms.string("count_denominator"), expression = cms.string("at(0)"),
-                             bins = cms.int32(30), min = cms.double(t), max = cms.double(t+t/2))
+                             bins = cms.int32(bins), min = cms.double(binL), max = cms.double(binH))
         )
         ret.append(tracksCountDenom)
 
@@ -292,7 +292,6 @@ def getFSQAll():
 
 fsqdirname = "HLT/FSQ/"
 
-#processName = "TTT"
 processName = "HLT"
 #processName = "TEST"
 
