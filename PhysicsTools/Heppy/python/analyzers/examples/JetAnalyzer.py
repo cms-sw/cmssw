@@ -8,7 +8,7 @@ from PhysicsTools.HeppyCore.utils.deltar import cleanObjectCollection, matchObje
 from PhysicsTools.HeppyCore.statistics.counter import Counter, Counters
 from PhysicsTools.HeppyCore.utils.deltar import deltaR2
 
-from PhysicsTools.Heppy.physicsutils.btagsf import BTagSF
+from PhysicsTools.Heppy.physicsutils.BTagSF import BTagSF
 from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import GenParticle
 from PhysicsTools.Heppy.utils.cmsswRelease import isNewerThan
 
