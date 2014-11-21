@@ -55,9 +55,7 @@
 using namespace edm;
 using namespace std;
 
-
 namespace FSQ {
-
 //################################################################################################
 //
 // Base Handler class
@@ -84,6 +82,7 @@ class BaseHandler {
               m_eventCache = &eventCache;
               std::string pathPartialName  = iConfig.getParameter<std::string>("partialPathName");
               m_dirname = iConfig.getUntrackedParameter("mainDQMDirname",std::string("HLT/FSQ/"))+pathPartialName + "/";
+              m_pset = iConfig;
 
         };
         virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, 
@@ -97,13 +96,10 @@ class BaseHandler {
 
         std::unique_ptr<triggerExpression::Evaluator>  m_expression;
         triggerExpression::Data * m_eventCache;
-
         std::string m_dirname;
-
         std::map<std::string,  MonitorElement*> m_histos;
         std::set<std::string> m_usedPaths;
-
-        
+        edm::ParameterSet m_pset;
 };
 //################################################################################################
 //
@@ -127,8 +123,6 @@ class HandlerTemplate: public BaseHandler {
         StringObjectFunction<std::vector<TOutputCandidateType> >     m_combinedObjectSortFunction;
         // TODO: auto ptr
         std::map<std::string, std::shared_ptr<StringObjectFunction<std::vector<TOutputCandidateType> > > > m_plotters;
-
-
         std::vector< edm::ParameterSet > m_drawables;
         bool m_isSetup;
         edm::InputTag m_input;
@@ -255,8 +249,6 @@ class HandlerTemplate: public BaseHandler {
             return ret;
         }
 
-
-        // xxx
         void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup,
                      const HLTConfigProvider&  hltConfig,
                      const trigger::TriggerEvent& trgEvent,
@@ -388,7 +380,6 @@ class HandlerTemplate: public BaseHandler {
                 }
             } // combinations loop ends
 
-            //XXX
             std::vector<TOutputCandidateType > bestCombinationFromCands;
             if (bestCombination.size()!=0 && bestCombination.at(0)>=0){
                 for (int i = 0; i<m_combinedObjectDimension;++i){
@@ -483,12 +474,20 @@ void HandlerTemplate<reco::Track, int, BestVertexMatching>::getFilteredCands(
              const HLTConfigProvider&  hltConfig,
              const trigger::TriggerEvent& trgEvent)
 {  
-   // TODO: select best vertex
+    // this is not elegant, but should be thread safe
+    static const edm::InputTag lVerticesTag = m_pset.getParameter<edm::InputTag>("vtxCollection");
+    static const int lMinNDOF = m_pset.getParameter<int>("minNDOF"); //7
+    static const double lMaxZ = m_pset.getParameter<double>("maxZ"); // 15
+    static const double lMaxDZ = m_pset.getParameter<double>("maxDZ"); // 0.12
+    static const double lMaxDZ2dzsigma = m_pset.getParameter<double>("maxDZ2dzsigma"); // 3
+    static const double lMaxDXY = m_pset.getParameter<double>("maxDXY"); // 0.12
+    static const double lMaxDXY2dxysigma = m_pset.getParameter<double>("maxDXY2dxysigma"); // 3
+
     cands.clear();
     cands.push_back(0);
 
     edm::Handle<reco::VertexCollection> vertices;
-    iEvent.getByLabel("offlinePrimaryVertices",vertices); // TODO: parameters for cfg file
+    iEvent.getByLabel(lVerticesTag, vertices); 
 
     //double bestvz=-999.9, bestvx=-999.9, bestvy=-999.9;
 
@@ -499,8 +498,8 @@ void HandlerTemplate<reco::Track, int, BestVertexMatching>::getFilteredCands(
     // take first vertex passing the criteria
     int bestVtx = -1;
     for (size_t i = 0; i < vertices->size(); ++i){
-        if (vertices->at(i).ndof()<=6) continue; // TODO: parameters for cfg file
-        if (fabs(vertices->at(i).z())> 15) continue; // TODO ...
+        if (vertices->at(i).ndof()<lMinNDOF) continue; 
+        if (fabs(vertices->at(i).z())> lMaxZ) continue;
 
         vtxPoint=vertices->at(i).position();
         vzErr=vertices->at(i).zError();
@@ -512,7 +511,6 @@ void HandlerTemplate<reco::Track, int, BestVertexMatching>::getFilteredCands(
     if (bestVtx < 0) return;
     // const reco::Vertex & vtx = vertices->at(bestVtx);
 
-
    Handle<std::vector<reco::Track > > hIn;
    iEvent.getByLabel(InputTag(m_input), hIn);
    if(!hIn.isValid()) {
@@ -520,8 +518,6 @@ void HandlerTemplate<reco::Track, int, BestVertexMatching>::getFilteredCands(
       return;
    }
 
-
-    //if(tracksItr->pt()>.4 && fabs(tracksItr->eta())<2.4){ // moved to pyhon cfg
    for (unsigned int i = 0; i<hIn->size(); ++i) {
         if (!m_singleObjectSelection(hIn->at(i))) continue;
             
@@ -531,17 +527,16 @@ void HandlerTemplate<reco::Track, int, BestVertexMatching>::getFilteredCands(
         dxysigma = sqrt(hIn->at(i).dxyError()*hIn->at(i).dxyError()+vxErr*vyErr);
         dzsigma = sqrt(hIn->at(i).dzError()*hIn->at(i).dzError()+vzErr*vzErr);
         
-        if(fabs(dz)>0.12)continue; // TODO...
-        if(fabs(dz/dzsigma)>3)continue;
-        if(fabs(dxy)>0.12)continue;
-        if(fabs(dxy/dxysigma)>3)continue;
+        if(fabs(dz)>lMaxDZ)continue; // TODO...
+        if(fabs(dz/dzsigma)>lMaxDZ2dzsigma)continue;
+        if(fabs(dxy)>lMaxDXY)continue;
+        if(fabs(dxy/dxysigma)>lMaxDXY2dxysigma)continue;
         
         cands.at(0)+=1;
             
     }//loop over tracks
 
 }
-
 //#############################################################################
 //
 // Count any object inheriting from reco::Candidate. Save into std::vector<int>
