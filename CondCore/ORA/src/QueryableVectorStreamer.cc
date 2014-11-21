@@ -420,10 +420,10 @@ void ora::QueryableVectorUpdater::update( int oid,
   }
   void* vectorAddress = m_offset->address( data );
   edm::ObjectWithDict vectorObj( m_objectType,const_cast<void*>(vectorAddress));
-  vectorObj.typeOf().functionMemberByName("load").invoke(vectorObj, 0);
-  void* storageAddress = 0;
-  edm::ObjectWithDict storAddObj = edm::ObjectWithDict( edm::TypeWithDict(typeid(void*)), storageAddress );
-  vectorObj.typeOf().functionMemberByName("storageAddress").invoke(vectorObj, &storAddObj);
+  m_objectType.functionMemberByName("load").invoke(vectorObj, nullptr);
+  void* storageAddress = nullptr;
+  edm::ObjectWithDict storAddObj = edm::ObjectWithDict( edm::TypeWithDict(typeid(void*)), &storageAddress );
+  m_objectType.functionMemberByName("storageAddress").invoke(vectorObj, &storAddObj);
   m_updater.update( oid, storageAddress );
 }  
   
