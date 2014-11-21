@@ -46,6 +46,9 @@
 #include <DataFormats/EgammaCandidates/interface/Photon.h>
 #include <DataFormats/MuonReco/interface/Muon.h>
 
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
 #include <boost/algorithm/string.hpp>
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
@@ -481,8 +484,34 @@ void HandlerTemplate<reco::Track, int, BestVertexMatching>::getFilteredCands(
              const trigger::TriggerEvent& trgEvent)
 {  
    // TODO: select best vertex
-   cands.clear();
-   cands.push_back(0);
+    cands.clear();
+    cands.push_back(0);
+
+    edm::Handle<reco::VertexCollection> vertices;
+    iEvent.getByLabel("offlinePrimaryVertices",vertices); // TODO: parameters for cfg file
+
+    //double bestvz=-999.9, bestvx=-999.9, bestvy=-999.9;
+
+    double dxy, dz, dzsigma, dxysigma;
+    math::XYZPoint vtxPoint(0.0,0.0,0.0);
+    double vzErr =0.0, vxErr=0.0, vyErr=0.0;
+
+    // take first vertex passing the criteria
+    int bestVtx = -1;
+    for (size_t i = 0; i < vertices->size(); ++i){
+        if (vertices->at(i).ndof()<=6) continue; // TODO: parameters for cfg file
+        if (fabs(vertices->at(i).z())> 15) continue; // TODO ...
+
+        vtxPoint=vertices->at(i).position();
+        vzErr=vertices->at(i).zError();
+        vxErr=vertices->at(i).xError();
+        vyErr=vertices->at(i).yError();
+        bestVtx = i;
+        break;
+    }
+    if (bestVtx < 0) return;
+    // const reco::Vertex & vtx = vertices->at(bestVtx);
+
 
    Handle<std::vector<reco::Track > > hIn;
    iEvent.getByLabel(InputTag(m_input), hIn);
@@ -490,12 +519,27 @@ void HandlerTemplate<reco::Track, int, BestVertexMatching>::getFilteredCands(
       edm::LogError("FSQDiJetAve") << "product not found: "<<  m_input.encode();
       return;
    }
+
+
+    //if(tracksItr->pt()>.4 && fabs(tracksItr->eta())<2.4){ // moved to pyhon cfg
    for (unsigned int i = 0; i<hIn->size(); ++i) {
-        bool preselection = m_singleObjectSelection(hIn->at(i));
-        if (preselection){
-            cands.at(0)+=1;
-        }
-   }
+        if (!m_singleObjectSelection(hIn->at(i))) continue;
+            
+        dxy=0.0, dz=0.0, dxysigma=0.0, dzsigma=0.0;
+        dxy = -1.*hIn->at(i).dxy(vtxPoint);
+        dz = hIn->at(i).dz(vtxPoint);
+        dxysigma = sqrt(hIn->at(i).dxyError()*hIn->at(i).dxyError()+vxErr*vyErr);
+        dzsigma = sqrt(hIn->at(i).dzError()*hIn->at(i).dzError()+vzErr*vzErr);
+        
+        if(fabs(dz)>0.12)continue; // TODO...
+        if(fabs(dz/dzsigma)>3)continue;
+        if(fabs(dxy)>0.12)continue;
+        if(fabs(dxy/dxysigma)>3)continue;
+        
+        cands.at(0)+=1;
+            
+    }//loop over tracks
+
 }
 
 //#############################################################################
