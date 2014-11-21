@@ -95,6 +95,13 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
      {
       hcalCfgEndcap.useTowers = true ;
       hcalCfgEndcap.hcalTowers = conf_.getParameter<edm::InputTag>("hcalTowers") ;
+      //here the HGCAL 
+      if (hcalCfgEndcap.hOverEMethod==3)
+       { 
+        std::cout << "[DEBUG-ROB] ElectronSeedProducer " << hcalCfgEndcap.hOverEMethod << std::endl;
+        hcalCfgEndcap.hgcalHFClusters = conf_.getParameter<edm::InputTag>("hgcalHFClusters") ;
+        std::cout << "[DEBUG-ROB] hgcalHFClusters " << hcalCfgEndcap.hgcalHFClusters << std::endl;
+       }
      }
     hcalCfgEndcap.hOverEPtMin = conf_.getParameter<double>("hOverEPtMin") ;
     hcalHelperEndcap_ = new ElectronHcalHelper(hcalCfgEndcap) ;
@@ -156,8 +163,11 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
 
   if (hcalHelperEndcap_)
    {
+    std::cout << "[DEBUG-ROB] ElectronSeedProducer produce checkSetup" << std::endl;
     hcalHelperEndcap_->checkSetup(iSetup) ;
+    std::cout << "[DEBUG-ROB] ElectronSeedProducer produce readEvent" << std::endl;
     hcalHelperEndcap_->readEvent(e) ;
+    std::cout << "[DEBUG-ROB] ElectronSeedProducer produce end" << std::endl;
    }
 
   // get calo geometry
@@ -256,20 +266,25 @@ void ElectronSeedProducer::filterClusters
 	  } else if (detector==EcalEndcap || detector==EcalShashlik) {
 	    had1 = hcalHelperEndcap_->hcalESumDepth1(scl);
 	    had2 = hcalHelperEndcap_->hcalESumDepth2(scl);
-	  }
+	  } else if (detector==EcalEndcap || detector==HGCEE) {
+        had1 = hcalHelperEndcap_->hgcalHFBehindClusters(scl);
+      }
          had = had1+had2 ;
          scle = scl.energy() ;
-	 int component = scl.seed()->hitsAndFractions()[0].first.det() ;
+	     int component = scl.seed()->hitsAndFractions()[0].first.det() ;
          //int detector = scl.seed()->hitsAndFractions()[0].first.subdetId() ;
          if (component==DetId::Ecal && detector==EcalBarrel && (had<maxHBarrel_ || had/scle<maxHOverEBarrel_)) HoeVeto=true;
          else if (component==DetId::Ecal && (detector==EcalEndcap || detector==EcalShashlik ) && fabs(sclEta) < 2.65 && (had<maxHEndcaps_ || had/scle<maxHOverEEndcaps_)) HoeVeto=true;
          else if (component==DetId::Ecal && (detector==EcalEndcap || detector==EcalShashlik ) && fabs(sclEta) > 2.65 && (had<maxHEndcaps_ || had/scle<maxHOverEOuterEndcaps_)) HoeVeto=true;
-	 else if (component==DetId::Forward && detector==HGCEE && (had<maxHEndcaps_ || had/scle<maxHOverEEndcaps_)) HoeVeto=true;
+	     else if (component==DetId::Forward && detector==HGCEE && (had<maxHEndcaps_ || had/scle<maxHOverEEndcaps_)) HoeVeto=true;
          if (HoeVeto)
           {
            sclRefs.push_back(edm::Ref<reco::SuperClusterCollection>(superClusters,i)) ;
            hoe1s.push_back(had1/scle) ;
            hoe2s.push_back(had2/scle) ;
+           std::cout << "[DEBUG-ROB] ElectronSeedProducer had1 " << had1 << std::endl;
+           std::cout << "[DEBUG-ROB] ElectronSeedProducer had2 " << had2 << std::endl;
+           std::cout << "[DEBUG-ROB] ElectronSeedProducer scle " << scle << std::endl;
           }
         }
        else
