@@ -108,7 +108,9 @@ class BaseHandler {
 //
 //################################################################################################
 //
-template <class TInputCandidateType, class TOutputCandidateType>
+//
+enum SpecialFilters { None, BestVertexMatching  };
+template <class TInputCandidateType, class TOutputCandidateType, SpecialFilters filter = None>
 class HandlerTemplate: public BaseHandler {
     private:
         std::string m_dqmhistolabel;
@@ -462,6 +464,42 @@ void HandlerTemplate<reco::Track, int >::getFilteredCands(
 }
 //#############################################################################
 //
+// Count any object inheriting from reco::Track that is not to distant from 
+// selected vertex. Save into std::vector<int>
+// note: this is similar to recoCand counter (code duplication is hard to 
+//       avoid in this case)
+//
+//
+//#############################################################################
+template<>
+void HandlerTemplate<reco::Track, int, BestVertexMatching>::getFilteredCands(
+             reco::Track *, // pass a dummy pointer, makes possible to select correct getFilteredCands
+             std::vector<int > & cands, // output collection
+             const edm::Event& iEvent,  
+             const edm::EventSetup& iSetup,
+             const HLTConfigProvider&  hltConfig,
+             const trigger::TriggerEvent& trgEvent)
+{  
+   // TODO: select best vertex
+   cands.clear();
+   cands.push_back(0);
+
+   Handle<std::vector<reco::Track > > hIn;
+   iEvent.getByLabel(InputTag(m_input), hIn);
+   if(!hIn.isValid()) {
+      edm::LogError("FSQDiJetAve") << "product not found: "<<  m_input.encode();
+      return;
+   }
+   for (unsigned int i = 0; i<hIn->size(); ++i) {
+        bool preselection = m_singleObjectSelection(hIn->at(i));
+        if (preselection){
+            cands.at(0)+=1;
+        }
+   }
+}
+
+//#############################################################################
+//
 // Count any object inheriting from reco::Candidate. Save into std::vector<int>
 //
 //#############################################################################
@@ -554,6 +592,7 @@ typedef HandlerTemplate<reco::Muon, reco::Muon> RecoMuonHandler;
 
 typedef HandlerTemplate<reco::Candidate::LorentzVector, int > RecoCandidateCounter;
 typedef HandlerTemplate<reco::Track, int > RecoTrackCounter;
+typedef HandlerTemplate<reco::Track, int, BestVertexMatching> RecoTrackCounterWithVertexConstraint;
 
 // muon, genPart
 }
@@ -591,6 +630,10 @@ FSQDiJetAve::FSQDiJetAve(const edm::ParameterSet& iConfig):
         }
         else if (type == "RecoTrackCounter") {
             m_handlers.push_back(std::shared_ptr<FSQ::RecoTrackCounter>(new FSQ::RecoTrackCounter(pset, m_eventCache)));
+        }
+        else if (type == "RecoTrackCounterWithVertexConstraint") {
+            m_handlers.push_back(std::shared_ptr<FSQ::RecoTrackCounterWithVertexConstraint>
+                    (new FSQ::RecoTrackCounterWithVertexConstraint(pset, m_eventCache)));
         }
         else if (type == "FromRecoCandidate") {
             m_handlers.push_back(std::shared_ptr<FSQ::RecoCandidateHandler>(new FSQ::RecoCandidateHandler(pset, m_eventCache)));
