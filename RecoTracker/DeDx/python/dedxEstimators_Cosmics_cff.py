@@ -37,9 +37,9 @@ dedxDiscrimASmiRS.tracks                                = cms.InputTag("rsWithMa
 dedxDiscrimASmiRS.trajectoryTrackAssociation            = cms.InputTag("rsWithMaterialTracksP5")
 
 #TF
-dedxHitInfoTF                                      = dedxHitInfo.clone()
-dedxHitInfoTF.tracks                               = cms.InputTag("cosmictrackfinderP5")
-dedxHitInfoTF.trajectoryTrackAssociation           = cms.InputTag("cosmictrackfinderP5")
+dedxHitInfoCosmicTF                                = dedxHitInfo.clone()
+dedxHitInfoCosmicTF.tracks                         = cms.InputTag("cosmictrackfinderP5")
+dedxHitInfoCosmicTF.trajectoryTrackAssociation     = cms.InputTag("cosmictrackfinderP5")
 
 dedxTruncated40CosmicTF                            = dedxTruncated40.clone()
 dedxTruncated40CosmicTF.tracks                     = cms.InputTag("cosmictrackfinderP5")
