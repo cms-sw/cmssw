@@ -6,7 +6,7 @@ dedxHitInfo = cms.EDProducer("DeDxHitInfoProducer",
 
     minTrackHits       = cms.uint32(0),
     minTrackPt         = cms.double(15),
-    minTrackEta        = cms.double(5.0),
+    maxTrackEta        = cms.double(5.0),
 
     UseTrajectory      = cms.bool(True),
     UseStrip           = cms.bool(True),
