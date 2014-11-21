@@ -66,12 +66,16 @@ pfParticleSelectionPFBRECOSequence = cms.Sequence(
 
 from CommonTools.ParticleFlow.ParticleSelectors.pfSelectedPhotons_cfi import *
 pfSelectedPhotonsPFBRECO = pfSelectedPhotons.clone( src = 'pfAllPhotonsPFBRECO' )
-from CommonTools.ParticleFlow.Isolation.pfPhotonIsolation_cff import *
+from CommonTools.ParticleFlow.Isolation.pfPhotonIsolationPFBRECO_cff import *
 from CommonTools.ParticleFlow.Isolation.pfIsolatedPhotons_cfi import *
-pfIsolatedPhotonsPFBRECO = pfIsolatedPhotons.clone( src = 'pfSelectedPhotonsPFBRECO' )
+pfIsolatedPhotonsPFBRECO = pfIsolatedPhotons.clone( src = 'pfSelectedPhotonsPFBRECO',
+                                                    isolationValueMapsCharged = cms.VInputTag( cms.InputTag("phPFIsoValueCharged04PFIdPFBRECO") ),
+                                                    isolationValueMapsNeutral = cms.VInputTag( cms.InputTag("phPFIsoValueNeutral04PFIdPFBRECO"),
+                                                                                               cms.InputTag("phPFIsoValueGamma04PFIdPFBRECO") ),
+                                                    deltaBetaIsolationValueMap = 'phPFIsoValuePU04PFIdPFBRECO' )
 pfPhotonPFBRECOSequence = cms.Sequence(
     pfSelectedPhotonsPFBRECO +
-    pfPhotonIsolationSequence +
+    pfPhotonIsolationPFBRECOSequence +
     # selecting isolated photons:
     pfIsolatedPhotonsPFBRECO
     )
@@ -84,7 +88,7 @@ pfMuonsPFBRECO = pfIsolatedMuonsPFBRECO.clone(cut = cms.string("pt > 5 & muonRef
 pfMuonPFBRECOSequence = cms.Sequence(
     pfAllMuonsPFBRECO +
     pfMuonsFromVertexPFBRECO +
-    pfIsolatedMuonPFBRECOs+
+    pfIsolatedMuonsPFBRECO+
     pfMuonsPFBRECO
     )
 
@@ -132,10 +136,10 @@ pfNoMuonPFBRECO = pfNoMuon.clone( topCollection = 'pfIsolatedMuonsPFBRECO',
                                   bottomCollection = 'pfNoPileUpPFBRECO' )
 pfNoMuonJMEPFBRECO = pfNoMuonJME.clone( topCollection = 'pfIsolatedMuonsPFBRECO' )
 from CommonTools.ParticleFlow.TopProjectors.pfNoElectron_cfi import *
-pfNoElectronPFBRECO = pfNoMuon.clone( topCollection = 'pfIsolatedElectronPFBRECO',
-                                      bottomCollection = 'pfNoMuonPFBRECO' )
-pfNoElectroJMEPFBRECO = pfNoMuonJME.clone( topCollection = 'pfIsolatedElectronPFBRECO',
-                                        bottomCollection = 'pfNoMuonJMEPFBRECO' )
+pfNoElectronPFBRECO = pfNoElectron.clone( topCollection = 'pfIsolatedElectronPFBRECO',
+                                          bottomCollection = 'pfNoMuonPFBRECO' )
+pfNoElectronJMEPFBRECO = pfNoElectronJME.clone( topCollection = 'pfIsolatedElectronPFBRECO',
+                                                bottomCollection = 'pfNoMuonJMEPFBRECO' )
 pfNoElectronJMEClonesPFBRECO = pfNoElectronJMEClones.clone( src = 'pfNoElectronJMEPFBRECO' )
 from CommonTools.ParticleFlow.TopProjectors.pfNoJet_cff import *
 pfNoJetPFBRECO = pfNoJet.clone( topCollection = 'pfJetsPtrsPFBRECO',
