@@ -95,7 +95,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       pD0        = lPack->dxy(); 
       closestVtx = &(*(lPack->vertexRef()));
       pVtxId     = (lPack->fromPV() !=  (pat::PackedCandidate::PVUsedInFit));
-      if( lPack->fromPV() &&  (pat::PackedCandidate::PVLoose || pat::PackedCandidate::PVTight) ) closestVtx = 0;
+      if( lPack->fromPV() & (pat::PackedCandidate::PVLoose || pat::PackedCandidate::PVTight) ) closestVtx = 0;
     }
     pReco.dZ      = pDZ;
     pReco.d0      = pD0;
