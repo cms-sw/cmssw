@@ -5,18 +5,15 @@
 // 
 /**\class FSQDiJetAve FSQDiJetAve.cc DQMOffline/FSQDiJetAve/plugins/FSQDiJetAve.cc
 
- Description: [one line class summary]
+ Description: DQM source for FSQ triggers
 
  Implementation:
-     [Notes on implementation]
 */
 //
 // Original Author:  Tomasz Fruboes
 //         Created:  Tue, 04 Nov 2014 11:36:27 GMT
 //
 //
-
-
 // system include files
 #include <memory>
 
@@ -41,11 +38,9 @@
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
-
 #include <DataFormats/TrackReco/interface/Track.h>
 #include <DataFormats/EgammaCandidates/interface/Photon.h>
 #include <DataFormats/MuonReco/interface/Muon.h>
-
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
@@ -106,8 +101,6 @@ class BaseHandler {
 // Handle objects saved into hlt event by hlt filters
 //
 //################################################################################################
-//
-//
 enum SpecialFilters { None, BestVertexMatching  };
 template <class TInputCandidateType, class TOutputCandidateType, SpecialFilters filter = None>
 class HandlerTemplate: public BaseHandler {
@@ -307,9 +300,7 @@ class HandlerTemplate: public BaseHandler {
                 float val = (*m_plotters[it->first])(bestCombinationFromCands);
                 it->second->Fill(val, weight);
             }
-
         }
-
 
         std::vector<TOutputCandidateType> getBestCombination(std::vector<TOutputCandidateType> & cands ){
             int columnSize = cands.size();
@@ -335,7 +326,6 @@ class HandlerTemplate: public BaseHandler {
                 it = std::unique(currentCombinationCopy.begin(), currentCombinationCopy.end());
                 currentCombinationCopy.resize( std::distance(currentCombinationCopy.begin(),it) );
                 bool duplicatesPresent = currentCombination.size() != currentCombinationCopy.size();
-
 
                 // 2. If no duplicates found - 
                 //          - check if current combination passes the cut
@@ -588,7 +578,6 @@ void HandlerTemplate<trigger::TriggerObject, trigger::TriggerObject>::getFiltere
              const HLTConfigProvider&  hltConfig,
              const trigger::TriggerEvent& trgEvent)
 {
-    
     // 1. Find matching path. Inside matchin path find matching filter
     std::string filterFullName = findPathAndFilter(hltConfig)[1];
     if (filterFullName == "") {
@@ -620,22 +609,16 @@ void HandlerTemplate<trigger::TriggerObject, trigger::TriggerObject>::getFiltere
 
 }
 
-
-
 typedef HandlerTemplate<trigger::TriggerObject, trigger::TriggerObject> HLTHandler;
 typedef HandlerTemplate<reco::Candidate::LorentzVector, reco::Candidate::LorentzVector> RecoCandidateHandler;// in fact reco::Candidate, reco::Candidate::LorentzVector
 typedef HandlerTemplate<reco::PFJet, reco::PFJet> RecoPFJetHandler;
 typedef HandlerTemplate<reco::Track, reco::Track> RecoTrackHandler;
 typedef HandlerTemplate<reco::Photon, reco::Photon> RecoPhotonHandler;
 typedef HandlerTemplate<reco::Muon, reco::Muon> RecoMuonHandler;
-
 typedef HandlerTemplate<reco::Candidate::LorentzVector, int > RecoCandidateCounter;
 typedef HandlerTemplate<reco::Track, int > RecoTrackCounter;
 typedef HandlerTemplate<reco::Track, int, BestVertexMatching> RecoTrackCounterWithVertexConstraint;
-
-// muon, genPart
 }
-
 //################################################################################################
 //
 // Plugin functions
@@ -699,7 +682,6 @@ FSQDiJetAve::FSQDiJetAve(const edm::ParameterSet& iConfig):
 
 }
 
-
 FSQDiJetAve::~FSQDiJetAve()
 {}
 
@@ -751,39 +733,26 @@ FSQDiJetAve::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         m_handlers.at(i)->analyze(iEvent, iSetup, m_hltConfig, *m_trgEvent.product(), *m_triggerResults.product(), m_triggerNames, weight);
   }
 
-
-
 }
-
 // ------------ method called when starting to processes a run  ------------
 //*
 void 
 FSQDiJetAve::dqmBeginRun(edm::Run const& run, edm::EventSetup const& c)
 {
-
     bool changed(true);
     std::string processName = triggerResultsLabel_.process();
     if (m_hltConfig.init(run, c, processName, changed)) {
         LogDebug("FSQDiJetAve") << "HLTConfigProvider failed to initialize.";
     }
 
-
-
 }
 void FSQDiJetAve::bookHistograms(DQMStore::IBooker & booker, edm::Run const & run, edm::EventSetup const & c){
     for (size_t i = 0; i < m_handlers.size(); ++i) {
         m_handlers.at(i)->book(booker);
     }
-
-
-
 }
 
-
-
-
 //*/
-
 // ------------ method called when ending the processing of a run  ------------
 /*
 void 
@@ -817,5 +786,3 @@ FSQDiJetAve::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   descriptions.addDefault(desc);
 }
 
-//define this as a plug-in
-//DEFINE_FWK_MODULE(FSQDiJetAve);
