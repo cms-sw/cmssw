@@ -14,13 +14,8 @@ using namespace std;
 
 /// Booking of MonitoringElemnt for one RPCDetId (= roll)
 
-
-
-
-
-
   std::map<std::string, MonitorElement*> 
-   L1TRPCTPG::L1TRPCBookME(RPCDetId & detId) {
+  L1TRPCTPG::L1TRPCBookME(DQMStore::IBooker &ibooker,RPCDetId & detId) {
     
     std::map<std::string, MonitorElement*> meMap;
 
@@ -41,7 +36,7 @@ using namespace std;
      regionName.c_str(),ringType.c_str(),
      detId.ring(),detId.station(),detId.sector());
     //cout << folder << endl;
-    dbe->setCurrentFolder(folder);
+    ibooker.setCurrentFolder(folder);
     
     /// Name components common to current RPDDetId  
     char detUnitLabel[328];
@@ -62,15 +57,15 @@ using namespace std;
      sprintf(meTitle,"Occupancy_for_%s",layerLabel);
      //   cout << meId << endl;
      //   cout << meTitle << endl; 
-     meMap[meId] = dbe->book1D(meId, meTitle, 100, 0.5, 100.5);
+     meMap[meId] = ibooker.book1D(meId, meTitle, 100, 0.5, 100.5);
       
      sprintf(meId,"BXN_%s",detUnitLabel);
      sprintf(meTitle,"BXN_for_%s",layerLabel);
-     meMap[meId] = dbe->book1D(meId, meTitle, 11, -10.5, 10.5);
+     meMap[meId] = ibooker.book1D(meId, meTitle, 11, -10.5, 10.5);
       
      sprintf(meId,"BXN_vs_strip_%s",detUnitLabel);
      sprintf(meTitle,"BXN_vs_strip_for_%s",layerLabel);
-     meMap[meId] = dbe->book2D(meId, meTitle,  100, 0.5, 100.5, 11, -10.5, 10.5);
+     meMap[meId] = ibooker.book2D(meId, meTitle,  100, 0.5, 100.5, 11, -10.5, 10.5);
       
     return meMap;
   }
