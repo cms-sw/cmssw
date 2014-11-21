@@ -108,7 +108,7 @@ void PuppiContainer::getRMSAvg(int iOpt,std::vector<fastjet::PseudoJet> const &i
     if( pCharged) pVal = goodVar(iConstits[i0],iChargedParticles,pAlgo,pCone);
     fVals.push_back(pVal);
     //if(std::isnan(pVal) || std::isinf(pVal)) cerr << "====> Value is Nan " << pVal << " == " << iConstits[i0].pt() << " -- " << iConstits[i0].eta() << endl;
-    if( edm::isFinite(pVal)) {
+    if( ! edm::isFinite(pVal)) {
       LogDebug( "NotFound" )  << "====> Value is Nan " << pVal << " == " << iConstits[i0].pt() << " -- " << iConstits[i0].eta() << endl;
       continue;
     }
@@ -181,8 +181,9 @@ std::vector<double> const & PuppiContainer::puppiWeights() {
     if(fRecoParticles[i0].id == 1 && fApplyCHS ) pWeight = 1;
     if(fRecoParticles[i0].id == 2 && fApplyCHS ) pWeight = 0;
       //Basic Weight Checks
-    if(std::isnan(pWeight)) { 
-      edm::LogError("PuppiWeightError") << "====> Weight is nan  : pt " << fRecoParticles[i0].pt << " -- eta : " << fRecoParticles[i0].eta << " -- Value" << fVals[i0] << " -- id :  " << fRecoParticles[i0].id << " --  NAlgos: " << lNAlgos << std::endl;
+    if( ! edm::isFinite(pWeight)) {
+      pWeight = 0.0;
+      LogDebug("PuppiWeightError") << "====> Weight is nan : " << pWeight << " : pt " << fRecoParticles[i0].pt << " -- eta : " << fRecoParticles[i0].eta << " -- Value" << fVals[i0] << " -- id :  " << fRecoParticles[i0].id << " --  NAlgos: " << lNAlgos << std::endl;
     }
     //Basic Cuts      
     if(pWeight                         < fPuppiWeightCut) pWeight = 0;  //==> Elminate the low Weight stuff
