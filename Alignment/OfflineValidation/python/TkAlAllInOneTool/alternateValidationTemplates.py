@@ -270,7 +270,7 @@ process.TrackerTrackHitFilter.stripAllInvalidHits = False
 process.TrackerTrackHitFilter.rejectBadStoNHits = True
 process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 18.0")
 process.TrackerTrackHitFilter.rejectLowAngleHits = True
-process.TrackerTrackHitFilter.TrackAngleCut = 0.35# in rads, starting from the module surface
+process.TrackerTrackHitFilter.TrackAngleCut = 0.1# in rads, starting from the module surface; small value since we have bows!
 process.TrackerTrackHitFilter.usePixelQualityFlag = True #False
 
 #-- TrackProducer
@@ -311,6 +311,17 @@ process.load("Configuration.StandardSequences.GeometryDB_cff")
 ## Magnetic Field
 ##
 process.load("Configuration/StandardSequences/MagneticField_38T_cff")
+
+import CalibTracker.Configuration.Common.PoolDBESSource_cfi
+
+process.conditionsInTrackerAlignmentRcd = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/MP/MPproduction/mp1193/jobData/jobm/alignments_MP.db'),
+          toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentRcd'),
+          tag = cms.string('Alignments')
+          )
+          )
+          )
+
+process.prefer_conditionsInTrackerAlignmentRcd = cms.ESPrefer("PoolDBESSource", "conditionsInTrackerAlignmentRcd")
 
           
 .oO[LorentzAngleTemplate]Oo.
