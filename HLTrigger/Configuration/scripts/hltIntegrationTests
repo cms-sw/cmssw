@@ -28,11 +28,9 @@ Usage:
   -n | --size     EVENTS      Run on EVENTS events (-1 for all, default is 100)
   -k | --skip     EVENTS      Skip the first EVENTS (default is 0)
   -e | --events   EVENTS      Run on a comma-separated list of EVENTS, a VEventRange
-  -j | --jobs     JOBS        Run JOBS single trigger jobs in parallel (default to the number of CPUs)
-       --streams  STEAMS      Run with STREAMS paralle streams (i.e. events) (default to the number of CPUs / 4)
-                              Use 0 to disable this option entirely.
-       --threads  THREADS     Run with THEADS threads when running the whole HLT (default to the number of CPUs)
-                              Use 0 to disable this option entirely.
+  -j | --jobs     JOBS        Run JOBS single trigger jobs in parallel (defaults to the number of CPUs)
+       --streams  STREAMS     Run with STREAMS parallel streams (i.e. events) (default 0 means as many streams as threads)
+       --threads  THREADS     Run with THREADS threads when running the whole HLT (defaults to the number of CPUs)
   -x | --extra    OPTIONS     Pass OPTIONS directly to hltGetConfiguration
        --mc                   Run over MC instead of data (the default)
   -h | --help                 Print this help message and exit.
@@ -93,7 +91,7 @@ SKIP=0
 EVENTS=""
 JOBS=$CPUS
 THREADS=$CPUS
-STREAMS=$((CPUS / 4))
+STREAMS=0
 WORKDIR="hltintegration"
 EXTRA=""
 DATA="--data"
@@ -253,13 +251,9 @@ process.source.skipEvents = cms.untracked.uint32( $SKIP )
 @EOF
 fi
 
-# if non-zero, set the number of threads and streams for the whole hlt job
-if ((THREADS > 0)); then
-  echo "process.options.numberOfThreads = cms.untracked.uint32( $THREADS )" >> hlt.py
-fi
-if ((STREAMS > 0)); then
-  echo "process.options.numberOfStreams = cms.untracked.uint32( $STREAMS )" >> hlt.py
-fi
+# set the number of threads and streams for the whole hlt job
+echo "process.options.numberOfThreads = cms.untracked.uint32( $THREADS )" >> hlt.py
+echo "process.options.numberOfStreams = cms.untracked.uint32( $STREAMS )" >> hlt.py
 
 # dump the menu name, and its release template
 log "HLT menu: $(head -n1 hlt.py | cut -c 3-)"
