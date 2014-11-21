@@ -6,7 +6,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
+#include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 #include "RecoJets/JetAlgorithms/interface/QGLikelihoodCalculator.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 
@@ -23,16 +23,16 @@ class QGTagger : public edm::EDProducer{
 
 
       // member data
-      edm::InputTag srcJets, srcRho, srcVertexC;
       edm::EDGetTokenT<reco::PFJetCollection> jets_token;
+      edm::EDGetTokenT<reco::JetCorrector> jetCorrector_token;
       edm::EDGetTokenT<reco::VertexCollection> vertex_token;
       edm::EDGetTokenT<double> rho_token;
-      std::string jetsLabel, jecService, systLabel;
-      bool useJEC, produceSyst;
+      edm::InputTag jetCorrector_inputTag;
+      std::string jetsLabel, systLabel;
+      bool useQC, useJetCorr, produceSyst;
       QGLikelihoodCalculator *qgLikelihood;
       float pt, axis2, ptD;
       int mult;
-      const JetCorrector *JEC;
 };
 
 #endif
