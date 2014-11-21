@@ -106,7 +106,7 @@ pfElectronPFBRECOSequence = cms.Sequence(
 
 from CommonTools.ParticleFlow.Tools.jetTools import jetAlgo
 pfJets = jetAlgo('AK4')
-pfJetsPFBRECO = pfJets.clone( src = 'pfNoElectroJMEPFBRECO' )
+pfJetsPFBRECO = pfJets.clone( src = 'pfNoElectronJMEPFBRECO' )
 pfJetsPtrsPFBRECO = cms.EDProducer("PFJetFwdPtrProducer",
                                    src=cms.InputTag("pfJetsPFBRECO")
                                    )
@@ -136,14 +136,14 @@ pfNoMuonPFBRECO = pfNoMuon.clone( topCollection = 'pfIsolatedMuonsPFBRECO',
                                   bottomCollection = 'pfNoPileUpPFBRECO' )
 pfNoMuonJMEPFBRECO = pfNoMuonJME.clone( topCollection = 'pfIsolatedMuonsPFBRECO' )
 from CommonTools.ParticleFlow.TopProjectors.pfNoElectron_cfi import *
-pfNoElectronPFBRECO = pfNoElectron.clone( topCollection = 'pfIsolatedElectronPFBRECO',
+pfNoElectronPFBRECO = pfNoElectron.clone( topCollection = 'pfIsolatedElectronsPFBRECO',
                                           bottomCollection = 'pfNoMuonPFBRECO' )
-pfNoElectronJMEPFBRECO = pfNoElectronJME.clone( topCollection = 'pfIsolatedElectronPFBRECO',
+pfNoElectronJMEPFBRECO = pfNoElectronJME.clone( topCollection = 'pfIsolatedElectronsPFBRECO',
                                                 bottomCollection = 'pfNoMuonJMEPFBRECO' )
 pfNoElectronJMEClonesPFBRECO = pfNoElectronJMEClones.clone( src = 'pfNoElectronJMEPFBRECO' )
 from CommonTools.ParticleFlow.TopProjectors.pfNoJet_cff import *
 pfNoJetPFBRECO = pfNoJet.clone( topCollection = 'pfJetsPtrsPFBRECO',
-                                bottomCollection = 'pfNoElectroJMEPFBRECO' )
+                                bottomCollection = 'pfNoElectronJMEPFBRECO' )
 from CommonTools.ParticleFlow.TopProjectors.pfNoTau_cff import *
 pfNoTauPFBRECO = pfNoTau.clone ( bottomCollection = 'pfJetsPtrsPFBRECO' )
 pfNoTauClonesPFBRECO = pfNoTauClones.clone ( src = 'pfNoTauPFBRECO' )
