@@ -22,7 +22,6 @@ Algos= ['ootb', 'iter0', 'iter1','iter2','iter3','iter4','iter5','iter6','iter7'
 #Algos= ['ootb']
 Qualities=['', 'highPurity']
 
-val = SimpleValidation([x[0] for x in filesLabels], [x[1] for x in filesLabels], outputDir,
-                       algoDirMap=trackingPlots._tracks_map)
-val.doPlots(Algos, Qualities, trackingPlots.plotter)
+val = SimpleValidation([x[0] for x in filesLabels], [x[1] for x in filesLabels], outputDir)
+val.doPlots(Algos, Qualities, trackingPlots.plotter, algoDirMap=trackingPlots._tracks_map)
 

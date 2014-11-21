@@ -310,7 +310,7 @@ class Validation:
         if not allFine:
             sys.exit(1)
 
-    def doPlots(self, algos, qualities, refRelease, refRepository, newRepository, plotter):
+    def doPlots(self, algos, qualities, refRelease, refRepository, newRepository, plotter, plotterDrawArgs={}):
         """Create validation plots.
 
         Arguments:
@@ -320,11 +320,15 @@ class Validation:
         refRepository -- String for directory where reference root files are
         newRepository -- String for directory whete to put new files
         plotter       -- plotting.Plotter object that does the plotting
+
+        Keyword arguments:
+        plotterDrawArgs -- Dictionary for additional arguments to Plotter.draw() (default: {})
         """
         self._refRelease = refRelease
         self._refRepository = refRepository
         self._newRepository = newRepository
         self._plotter = plotter
+        self._plotterDrawArgs = plotterDrawArgs
 
         if qualities is None:
             qualities = [None]
@@ -429,7 +433,7 @@ class Validation:
             "%s, %s %s" % (sample.name(), _stripRelease(self._newRelease), newSelection)
         ],
                              subdir = self._getDirectoryName(quality, algo))
-        fileList.extend(self._plotter.draw(algo))
+        fileList.extend(self._plotter.draw(algo, **self._plotterDrawArgs))
 
         newValFile.Close()
         if refValFile is not None:
@@ -480,7 +484,7 @@ class Validation:
             "FastSim %s, %s %s" % (fastSample.name(), self._newRelease, fastSelection),
         ],
                              subdir = self._getDirectoryName(quality, algo))
-        fileList = self._plotter.draw(algo)
+        fileList = self._plotter.draw(algo, **self._plotterDrawArgs)
 
         fullValFile.Close()
         fastValFile.Close()
@@ -528,7 +532,7 @@ class Validation:
             "35 BX %s, %s %s" % (sample.name(), self._newRelease, newSelection),
         ],
                              subdir = self._getDirectoryName(quality, algo))
-        fileList = self._plotter.draw(algo)
+        fileList = self._plotter.draw(algo, **self._plotterDrawArgs)
 
         newValFile.Close()
         refValFile.Close()
@@ -600,18 +604,25 @@ def _copyDir(src, dst):
             obj.Delete()
 
 class SimpleValidation:
-    def __init__(self, files, labels, newdir, algoDirMap=None):
+    def __init__(self, files, labels, newdir):
         self._files = files
         self._labels = labels
         self._newdir = newdir
-        self._algoDirMap = algoDirMap
 
-    def doPlots(self, algos, qualities, plotter):
+    def doPlots(self, algos, qualities, plotter, algoDirMap=None, newdirFunc=None, plotterDrawArgs={}):
         self._plotter = plotter
+        self._algoDirMap = algoDirMap
+        self._newdirFunc = newdirFunc
+        self._plotterDrawArgs = plotterDrawArgs
+
+        if qualities is None:
+            qualities = [None]
+        if algos is None:
+            algos = [None]
+
         for q in qualities:
             for a in algos:
                 self._doPlots(a, q)
-
 
     def _doPlots(self, algo, quality):
         openFiles = []
@@ -639,14 +650,21 @@ class SimpleValidation:
         #         theDir = d
         #     dirs.append(theDir)
 
-        self._plotter.create(openFiles, self._labels, subdir=self._algoDirMap[quality][algo])
-        fileList = self._plotter.draw(algo)
+        subdir = None
+        if self._algoDirMap is not None:
+            subdir = self._algoDirMap[quality][algo]
+        self._plotter.create(openFiles, self._labels, subdir=subdir)
+        fileList = self._plotter.draw(algo, **self._plotterDrawArgs)
 
         for tf in openFiles:
             tf.Close()
 
-        print "Moving plots to %s" % self._newdir
-        if not os.path.exists(self._newdir):
-            os.makedirs(self._newdir)
+        newdir = self._newdir
+        if self._newdirFunc is not None:
+            newdir = os.path.join(newdir, self._newdirFunc(algo, quality))
+
+        print "Moving plots to %s" % newdir
+        if not os.path.exists(newdir):
+            os.makedirs(newdir)
         for f in fileList:
-            shutil.move(f, os.path.join(self._newdir, f))
+            shutil.move(f, os.path.join(newdir, f))
