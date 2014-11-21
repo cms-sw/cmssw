@@ -95,7 +95,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       pD0        = lPack->dxy(); 
       closestVtx = &(*(lPack->vertexRef()));
       pVtxId     = (lPack->fromPV() !=  (pat::PackedCandidate::PVUsedInFit));
-      if(lPack->fromPV() ==  (pat::PackedCandidate::PVLoose || pat::PackedCandidate::PVTight)) closestVtx = 0;
+      if( lPack->fromPV() &&  (pat::PackedCandidate::PVLoose || pat::PackedCandidate::PVTight) ) closestVtx = 0;
     }
     pReco.dZ      = pDZ;
     pReco.d0      = pD0;
@@ -126,6 +126,11 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   lPupFiller.insert(hPFProduct,lWeights.begin(),lWeights.end());
   lPupFiller.fill();
 
+  // This is a dummy to access the "translate" method which is a
+  // non-static member function even though it doesn't need to be. 
+  // Will fix in the future. 
+  reco::PFCandidate dummySinceTranslateIsNotStatic;
+
   //Fill a new PF Candidate Collection and write out the ValueMap of the new p4s.
   // Since the size of the ValueMap must be equal to the input collection, we need
   // to search the "puppi" particles to find a match for each input. If none is found,
@@ -139,11 +144,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	  i0end = hPFProduct->end(); i0 != i0end; ++i0 ) {
     //for(unsigned int i0 = 0; i0 < lCandidates.size(); i0++) {
     //reco::PFCandidate pCand;
-    reco::PFCandidate const * tmpCandPF = dynamic_cast<reco::PFCandidate const *>( &*i0 );
-    if ( tmpCandPF == 0 ) {
-      throw cms::Exception("LogicError") << "Non-PFCandidates treated as PFCandidates in PuppiProducer." << std::endl;
-    }
-    auto id = (tmpCandPF != 0) ? tmpCandPF->translatePdgIdToType(i0->pdgId()) : reco::PFCandidate::X;
+    auto id = dummySinceTranslateIsNotStatic.translatePdgIdToType(i0->pdgId());
     reco::PFCandidate pCand( i0->charge(),
 			     i0->p4(),
 			     id );
