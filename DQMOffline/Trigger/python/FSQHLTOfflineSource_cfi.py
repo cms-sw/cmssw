@@ -293,8 +293,8 @@ def getFSQAll():
 
 fsqdirname = "HLT/FSQ/"
 
-processName = "TTT"
-#processName = "HLT"
+#processName = "TTT"
+processName = "HLT"
 #processName = "TEST"
 
 fsqHLTOfflineSource = cms.EDAnalyzer("FSQDiJetAve",
