@@ -119,14 +119,18 @@ MeasurementTrackerImpl::~MeasurementTrackerImpl()
 
 void MeasurementTrackerImpl::initialize()
 {  
-  addPixelDets( theTrackerGeom->detsPXB());
-  addPixelDets( theTrackerGeom->detsPXF());
-  addPixelDets( theTrackerGeom->detsTOB());
-
-  addStripDets( theTrackerGeom->detsTIB());
-  addStripDets( theTrackerGeom->detsTID());
-  //  addStripDets( theTrackerGeom->detsTOB());
-  addStripDets( theTrackerGeom->detsTEC());  
+  if(theTrackerGeom->detsPXB().size()!=0) {if(theTrackerGeom->idToDetUnit(theTrackerGeom->detsPXB().front()->geographicalId())->type().isTrackerPixel()) 
+      addPixelDets( theTrackerGeom->detsPXB()); else addStripDets( theTrackerGeom->detsPXB());} else addPixelDets( theTrackerGeom->detsPXB());
+  if(theTrackerGeom->detsPXF().size()!=0) {if(theTrackerGeom->idToDetUnit(theTrackerGeom->detsPXF().front()->geographicalId())->type().isTrackerPixel()) 
+      addPixelDets( theTrackerGeom->detsPXF()); else addStripDets( theTrackerGeom->detsPXF());} else addPixelDets( theTrackerGeom->detsPXF());
+  if(theTrackerGeom->detsTIB().size()!=0) {if(theTrackerGeom->idToDetUnit(theTrackerGeom->detsTIB().front()->geographicalId())->type().isTrackerPixel()) 
+      addPixelDets( theTrackerGeom->detsTIB()); else addStripDets( theTrackerGeom->detsTIB());} else addStripDets( theTrackerGeom->detsTIB());
+  if(theTrackerGeom->detsTID().size()!=0) {if(theTrackerGeom->idToDetUnit(theTrackerGeom->detsTID().front()->geographicalId())->type().isTrackerPixel()) 
+      addPixelDets( theTrackerGeom->detsTID()); else addStripDets( theTrackerGeom->detsTID());} else addStripDets( theTrackerGeom->detsTID());
+  if(theTrackerGeom->detsTOB().size()!=0) {if(theTrackerGeom->idToDetUnit(theTrackerGeom->detsTOB().front()->geographicalId())->type().isTrackerPixel()) 
+      addPixelDets( theTrackerGeom->detsTOB()); else addStripDets( theTrackerGeom->detsTOB());} else addStripDets( theTrackerGeom->detsTOB());
+  if(theTrackerGeom->detsTEC().size()!=0) {if(theTrackerGeom->idToDetUnit(theTrackerGeom->detsTEC().front()->geographicalId())->type().isTrackerPixel()) 
+      addPixelDets( theTrackerGeom->detsTEC()); else addStripDets( theTrackerGeom->detsTEC());} else addStripDets( theTrackerGeom->detsTEC());
 
   // fist all stripdets
   sortTKD(theStripDets);
