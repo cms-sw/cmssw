@@ -9,9 +9,7 @@ from TkAlExceptions import AllInOneError
 class ZMuMuValidation(GenericValidationData):
     def __init__(self, valName, alignment,config):
         defaults = {
-            "zmumureference": ("/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2"
-                               "/TMP_EM/ZMuMu/data/MC/BiasCheck_DYToMuMu_Summer"
-                               "11_TkAlZMuMu_IDEAL.root"),
+            "zmumureference": ("/store/caf/user/emiglior/Alignment/TkAlDiMuonValidation/Reference/BiasCheck_DYToMuMu_Summer12_TkAlZMuMu_IDEAL.root"),
             "resonance": "Z"
             }
         mandatories = ["dataset", "maxevents",
