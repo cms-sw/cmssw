@@ -13,13 +13,13 @@ namespace edm {
 
   void WrapperBase::fillView(ProductID const& id,
                            std::vector<void const*>& pointers,
-                           helper_vector_ptr& helpers) const {
+                           FillViewHelperVector& helpers) const {
     // This should never be called with non-empty arguments, or an
     // invalid ID; any attempt to do so is an indication of a coding
     // error.
     assert(id.isValid());
     assert(pointers.empty());
-    assert(helpers.get() == 0);
+    assert(helpers.empty());
 
     do_fillView(id, pointers, helpers);
   }

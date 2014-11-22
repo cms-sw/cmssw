@@ -94,7 +94,8 @@ namespace edm {
     // This function is dangerous, and should only be called from the
     // infrastructure code.
     View(std::vector<void const*> const& pointers,
-         helper_vector_ptr const& helpers);
+         FillViewHelperVector const& helpers,
+         EDProductGetter const* getter);
 
     virtual ~View();
 
@@ -157,9 +158,11 @@ namespace edm {
     vPtrs_() {
   }
 
+#ifndef __GCCXML__
   template<typename T>
   View<T>::View(std::vector<void const*> const& pointers,
-                helper_vector_ptr const& helpers) :
+                FillViewHelperVector const& helpers,
+                EDProductGetter const* getter) :
     items_(),
     vPtrs_() {
     size_type numElements = pointers.size();
@@ -167,24 +170,24 @@ namespace edm {
     // If the two input vectors are not of the same size, there is a
     // logic error in the framework code that called this.
     // constructor.
-    if(helpers.get() != 0) {
-      assert(numElements == helpers->size());
+    assert(numElements == helpers.size());
 
-      items_.reserve(numElements);
-      vPtrs_.reserve(pointers.size());
-      for(std::vector<void const*>::size_type i = 0; i < pointers.size(); ++i) {
-        void const* p = pointers[i];
-        items_.push_back(static_cast<pointer>(p));
-        if(0!=p) {
-           vPtrs_.push_back(Ptr<T>(helpers->id(), static_cast<T const*>(p), helpers->keyForIndex(i)));
-        } else if(helpers->productGetter() != 0) {
-           vPtrs_.push_back(Ptr<T>(helpers->id(), helpers->keyForIndex(i), helpers->productGetter()));
-        } else {
-           vPtrs_.push_back(Ptr<T>(helpers->id(), 0, helpers->keyForIndex(i)));
-        }
+    items_.reserve(numElements);
+    vPtrs_.reserve(pointers.size());
+    for(std::vector<void const*>::size_type i = 0; i < pointers.size(); ++i) {
+      void const* p = pointers[i];
+      auto const& h = helpers[i];
+      items_.push_back(static_cast<pointer>(p));
+      if(0!=p) {
+         vPtrs_.push_back(Ptr<T>(h.first, static_cast<T const*>(p), h.second));
+      } else if(getter != nullptr) {
+         vPtrs_.push_back(Ptr<T>(h.first, h.second, getter));
+      } else {
+         vPtrs_.push_back(Ptr<T>(h.first, nullptr, h.second));
       }
     }
   }
+#endif
 
   template<typename T>
   View<T>::~View() {

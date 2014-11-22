@@ -10,9 +10,8 @@ Wrapper: A template wrapper around EDProducts to hold the product ID.
 #include "DataFormats/Common/interface/WrapperBase.h"
 #include "DataFormats/Common/interface/fwd_fillPtrVector.h"
 #include "DataFormats/Common/interface/fwd_setPtr.h"
-#include "DataFormats/Common/interface/PtrVector.h"
-#include "DataFormats/Common/interface/RefVectorHolder.h"
 #include "DataFormats/Common/interface/traits.h"
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
@@ -23,6 +22,7 @@ Wrapper: A template wrapper around EDProducts to hold the product ID.
 #include <memory>
 #include <string>
 #include <typeinfo>
+#include <cassert>
 
 namespace edm {
   template <typename T>
@@ -64,7 +64,7 @@ private:
 
     virtual void do_fillView(ProductID const& id,
                              std::vector<void const*>& pointers,
-                             helper_vector_ptr& helpers) const GCC11_OVERRIDE;
+                             FillViewHelperVector& helpers) const GCC11_OVERRIDE;
     virtual void do_setPtr(std::type_info const& iToType,
                            unsigned long iIndex,
                            void const*& oPtr) const GCC11_OVERRIDE;
@@ -85,8 +85,6 @@ private:
 
 } //namespace edm
 
-#include "DataFormats/Common/interface/Ref.h"
-
 namespace edm {
 
   template <typename T>
@@ -94,7 +92,7 @@ namespace edm {
     void operator()(T const& obj,
                     ProductID const& id,
                     std::vector<void const*>& pointers,
-                    helper_vector_ptr & helpers) const;
+                    FillViewHelperVector & helpers) const;
   };
 
   template <typename T>
@@ -102,7 +100,7 @@ namespace edm {
     void operator()(T const&,
                     ProductID const&,
                     std::vector<void const*>&,
-                    helper_vector_ptr&) const {
+                    FillViewHelperVector&) const {
       Exception::throwThis(errors::ProductDoesNotSupportViews,
         "The product type ",
         typeid(T).name(),
@@ -114,7 +112,7 @@ namespace edm {
   inline
   void Wrapper<T>::do_fillView(ProductID const& id,
                                std::vector<void const*>& pointers,
-                               helper_vector_ptr& helpers) const {
+                               FillViewHelperVector& helpers) const {
     typename boost::mpl::if_c<has_fillView<T>::value,
     DoFillView<T>,
     DoNotFillView<T> >::type maybe_filler;
@@ -398,9 +396,6 @@ namespace edm {
 #endif
 }
 
-#include "DataFormats/Common/interface/RefVector.h"
-#include "DataFormats/Common/interface/RefToBaseVector.h"
-
 namespace edm {
   template<typename T> class PtrVector;
   
@@ -410,50 +405,10 @@ namespace edm {
       static void fill(T const& obj,
                        ProductID const& id,
                        std::vector<void const*>& pointers,
-                       helper_vector_ptr & helpers) {
-        /// the following shoudl work also if T is a RefVector<C>
-        typedef Ref<T> ref;
-        typedef RefVector<T, typename ref::value_type, typename ref::finder_type> ref_vector;
-        helpers = helper_vector_ptr(new reftobase::RefVectorHolder<ref_vector>);
-        // fillView is the name of an overload set; each concrete
-        // collection T should supply a fillView function, in the same
-        // namespace at that in which T is defined, or in the 'edm'
-        // namespace.
-        fillView(obj, id, pointers, * helpers);
-        assert(pointers.size() == helpers->size());
+                       FillViewHelperVector & helpers) {
+        fillView(obj, id, pointers, helpers);
+        assert(pointers.size() == helpers.size());
      }
-    };
-
-    template<typename T>
-    struct ViewFiller<RefToBaseVector<T> > {
-      static void fill(RefToBaseVector<T> const& obj,
-                       ProductID const&,
-                       std::vector<void const*>& pointers,
-                       helper_vector_ptr & helpers) {
-        std::auto_ptr<helper_vector> h = obj.vectorHolder();
-        if(h.get() != 0) {
-          pointers.reserve(h->size());
-          // NOTE: the following implementation has unusual signature!
-          fillView(obj, pointers);
-          helpers = helper_vector_ptr(h.release());
-        }
-      }
-    };
-
-    template<typename T>
-    struct ViewFiller<PtrVector<T> > {
-      static void fill(PtrVector<T> const& obj,
-                       ProductID const&,
-                       std::vector<void const*>& pointers,
-                       helper_vector_ptr & helpers) {
-        std::auto_ptr<helper_vector> h(new reftobase::RefVectorHolder<PtrVector<T> >(obj));
-        if(h.get() != 0) {
-          pointers.reserve(obj.size());
-          // NOTE: the following implementation has unusual signature!
-          fillView(obj, pointers);
-          helpers = helper_vector_ptr(h.release());
-        }
-      }
     };
 
     template<typename T>
@@ -487,7 +442,7 @@ namespace edm {
   void DoFillView<T>::operator()(T const& obj,
                                  ProductID const& id,
                                  std::vector<void const*>& pointers,
-                                 helper_vector_ptr& helpers) const {
+                                 FillViewHelperVector& helpers) const {
     helpers::ViewFiller<T>::fill(obj, id, pointers, helpers);
   }
 #endif

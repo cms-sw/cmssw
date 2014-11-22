@@ -168,14 +168,14 @@ namespace edm {
       }
       ProductID tId = product_.id();
       std::vector<void const*> pointers;
-      helper_vector_ptr helpers;
+      FillViewHelperVector helpers;
       WrapperBase const* prod = product_.productGetter()->getIt(tId);
       if(prod == nullptr) {
         Exception::throwThis(errors::InvalidReference,
                              "attempting to get view from an unavailable RefToBaseProd.");
       }
       prod->fillView(tId, pointers, helpers);
-      product_.setProductPtr((new View<T>(pointers, helpers)));
+      product_.setProductPtr((new View<T>(pointers, helpers,product_.productGetter())));
     }
     return viewPtr();
   }
@@ -222,13 +222,11 @@ namespace edm {
   RefToBaseProd<T>::RefToBaseProd(const RefProd<C>& ref) :
     product_(ref.refCore()) {
     std::vector<void const*> pointers;
-    typedef typename refhelper::RefToBaseProdTrait<C>::ref_vector_type ref_vector;
-    typedef reftobase::RefVectorHolder<ref_vector> holder_type;
-    helper_vector_ptr helpers(new holder_type);
+    FillViewHelperVector helpers;
 #ifndef __GCCXML__
-    detail::reallyFillView(* ref.product(), ref.id(), pointers, * helpers);
+    detail::reallyFillView(* ref.product(), ref.id(), pointers, helpers);
 #endif
-    product_.setProductPtr(new View<T>(pointers, helpers));
+    product_.setProductPtr(new View<T>(pointers, helpers, ref.refCore().productGetter()));
   }
 
   template<typename T>
@@ -237,11 +235,9 @@ namespace edm {
   RefToBaseProd<T>::RefToBaseProd(HandleC const& handle) :
     product_(handle.id(), handle.product(), 0, false) {
     std::vector<void const*> pointers;
-    typedef typename refhelper::RefToBaseProdTrait<typename HandleC::element_type>::ref_vector_type ref_vector;
-    typedef reftobase::RefVectorHolder<ref_vector> holder_type;
-    helper_vector_ptr helpers(new holder_type);
-    detail::reallyFillView(* handle, handle.id(), pointers, * helpers);
-    product_.setProductPtr(new View<T>(pointers, helpers));
+    FillViewHelperVector helpers;
+    detail::reallyFillView(* handle, handle.id(), pointers, helpers);
+    product_.setProductPtr(new View<T>(pointers, helpers,0));
   }
 
   /// Constructor from Ref.
@@ -254,14 +250,13 @@ namespace edm {
                ref.productGetter(),
                false) {
     std::vector<void const*> pointers;
-    typedef typename refhelper::RefToBaseProdTrait<C>::ref_vector_type ref_vector;
-    typedef reftobase::RefVectorHolder<ref_vector> holder_type;
-    helper_vector_ptr helpers(new holder_type);
-    detail::reallyFillView(* ref.product(), ref.id(), pointers, * helpers);
-    product_.setProductPtr(new View<T>(pointers, helpers));
+    FillViewHelperVector helpers;
+    detail::reallyFillView(* ref.product(), ref.id(), pointers, helpers);
+    product_.setProductPtr(new View<T>(pointers, helpers,ref.productGetter()));
   }
 
   /// Constructor from RefToBase.
+#ifndef __GCCXML__
   template<typename T>
   inline
   RefToBaseProd<T>::RefToBaseProd(RefToBase<T> const& ref) :
@@ -270,11 +265,12 @@ namespace edm {
              ref.productGetter(),
              false) {
     std::vector<void const*> pointers;
-    helper_vector_ptr helpers(ref.holder_->makeVectorBaseHolder().release());
-    helpers->reallyFillView(ref.product(), ref.id(), pointers);
-    product_.setProductPtr(new View<T>(pointers, helpers));
+    FillViewHelperVector helpers;
+    auto holder(ref.holder_->makeVectorBaseHolder().release());
+    holder->reallyFillView(ref.product(), ref.id(), pointers,helpers);
+    product_.setProductPtr(new View<T>(pointers, helpers,ref.productGetter()));
   }
-
+#endif
 }
 
 #endif
