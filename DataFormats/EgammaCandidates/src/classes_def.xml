@@ -214,8 +214,9 @@
   <class name="reco::GsfElectron::PixelMatchVariables" ClassVersion="2">
     <version ClassVersion="2" checksum="3522539867"/>
   </class>
-  <class name="reco::GsfElectron" ClassVersion="16">
-   <version ClassVersion="16" checksum="933254703"/>
+  <class name="reco::GsfElectron" ClassVersion="17">
+   <version ClassVersion="17" checksum="1861965703"/>
+   <version ClassVersion="16" checksum="1022265405"/>
    <version ClassVersion="15" checksum="515498629"/>
    <version ClassVersion="14" checksum="3918953183"/>
    <version ClassVersion="13" checksum="2991498573"/>
