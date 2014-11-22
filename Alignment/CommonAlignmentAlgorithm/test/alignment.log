@@ -1,0 +1,164 @@
+%MSG-i Alignment:  (NoModuleName) AlignmentProducer::AlignmentProducer() 22-Nov-2014 03:14:53 CET pre-events
+
+%MSG
+%MSG-i Alignment:  (NoModuleName) ApeSettingAlgorithm() 22-Nov-2014 03:14:53 CET pre-events
+Start.
+%MSG
+%MSG-i Alignment:  AfterSource AlignmentProducer::beginOfJob() 22-Nov-2014 03:14:56 CET BeforeEvents
+
+%MSG
+%MSG-i Alignment:  AfterSource AlignmentProducer::beginOfJob() 22-Nov-2014 03:15:01 CET BeforeEvents
+Creating AlignmentParameterBuilder
+%MSG
+%MSG-i Alignment:  AfterSource AlignmentParameterBuilder::addSelections() 22-Nov-2014 03:15:01 CET BeforeEvents
+ Added 1 set(s) of alignables with 6 alignables in total, of which 6 are higher level (using RigiBodyAlignmentParameters).
+%MSG
+%MSG-i Alignment:  AfterSource AlignmentProducer::beginOfJob() 22-Nov-2014 03:15:01 CET BeforeEvents
+got 6 alignables
+%MSG
+%MSG-i Alignment:  AfterSource AlignmentCorrelationsStore::AlignmentCorrelationsStore () 22-Nov-2014 03:15:01 CET BeforeEvents
+
+Created.
+%MSG
+%MSG-i Alignment:  AfterSource AlignmentParameterStore() 22-Nov-2014 03:15:01 CET BeforeEvents
+Created with 6 alignables.
+%MSG
+%MSG-w Alignment:  AfterSource AlignmentParameterStore() 22-Nov-2014 03:15:01 CET BeforeEvents
+Using approximate implementation of averaging constraints
+%MSG
+%MSG-i Alignment:  AfterSource AlignmentProducer::beginOfJob() 22-Nov-2014 03:15:01 CET BeforeEvents
+AlignmentParameterStore created!
+%MSG
+%MSG-i Alignment:  AfterSource AlignmentProducer::beginOfJob() 22-Nov-2014 03:15:01 CET BeforeEvents
+NOT applying misalignment scenario!
+%MSG
+%MSG-i Alignment:  AfterSource AlignmentProducer::simpleMisalignment_() 22-Nov-2014 03:15:01 CET BeforeEvents
+No simple misalignment added!
+%MSG
+%MSG-i Alignment:  AfterSource AlignableNavigator() 22-Nov-2014 03:15:01 CET BeforeEvents
+Created with map of size 19876.
+%MSG
+%MSG-i Alignment:  AfterSource initialize() 22-Nov-2014 03:15:01 CET BeforeEvents
+Set 16588 APE values.
+%MSG
+%MSG-i Alignment:  AfterSource AlignmentProducer::startingNewLoop() 22-Nov-2014 03:15:01 CET BeforeEvents
+Starting loop number 0
+%MSG
+%MSG-i Alignment:  AfterSource AlignmentProducer::startingNewLoop() 22-Nov-2014 03:15:01 CET BeforeEvents
+Now physically apply alignments to  geometry...
+%MSG
+%MSG-i Alignment:  AfterSource GeometryAligner::applyAlignments() 22-Nov-2014 03:15:01 CET BeforeEvents
+Starting to apply alignments.
+%MSG
+%MSG-i Alignment:  AfterSource GeometryAligner::applyAlignments() 22-Nov-2014 03:15:01 CET BeforeEvents
+Finished to apply 19876 alignments with 15856 non-zero APE.
+%MSG
+%MSG-i Alignment:  AfterSource GeometryAligner::attachSurfaceDeformations() 22-Nov-2014 03:15:01 CET BeforeEvents
+Starting to attach surface deformations.
+%MSG
+%MSG-i Alignment:  AfterSource GeometryAligner::attachSurfaceDeformations() 22-Nov-2014 03:15:01 CET BeforeEvents
+Finished to attach 0 surface deformations.
+%MSG
+%MSG-e Alignment:  PreEventProcessing AlignmentProducer::duringLoop() 22-Nov-2014 03:15:01 CET PostProcessEvent
+No track collection found: skipping event
+%MSG
+%MSG-i Alignment:  PostEndRun AlignmentProducer::endRun() 22-Nov-2014 03:15:01 CET PostEndRun
+No Tk LAS beams to forward to algorithm.
+%MSG
+%MSG-i Alignment:  PostEndRun AlignmentProducer::endOfLoop() 22-Nov-2014 03:15:01 CET PostEndRun
+Ending loop 0, terminating algorithm.
+%MSG
+%MSG-i Alignment:  PostEndRun AlignmentProducer::endOfJob() 22-Nov-2014 03:15:01 CET PostEndRun
+
+%MSG
+%MSG-i Alignment:  PostEndRun 22-Nov-2014 03:15:01 CET PostEndRun
+Writing AlignmentErrorsExtended for run 1 to TrackerAlignmentErrorExtendedRcd.
+%MSG
+
+=============================================
+
+MessageLogger Summary
+
+ type     category        sev    module        subroutine        count    total
+ ---- -------------------- -- ---------------- ----------------  -----    -----
+    1 Alignment            -i (NoModuleName)   AlignmentProduce      1        1
+    2 Alignment            -i (NoModuleName)   ApeSettingAlgori      1        1
+    3 Alignment            -i AfterSource      AlignableNavigat      1        1
+    4 Alignment            -i AfterSource      AlignmentCorrela      1        1
+    5 Alignment            -i AfterSource      AlignmentParamet      1        1
+    6 Alignment            -i AfterSource      AlignmentParamet      1        1
+    7 Alignment            -i AfterSource      AlignmentProduce      5        5
+    8 Alignment            -i AfterSource      AlignmentProduce      1        1
+    9 Alignment            -i AfterSource      AlignmentProduce      2        2
+   10 Alignment            -i AfterSource      GeometryAligner:      2        2
+   11 Alignment            -i AfterSource      GeometryAligner:      2        2
+   12 Alignment            -i AfterSource      initialize            1        1
+   13 Alignment            -i PostEndRun                             1        1
+   14 Alignment            -i PostEndRun       AlignmentProduce      1        1
+   15 Alignment            -i PostEndRun       AlignmentProduce      1        1
+   16 Alignment            -i PostEndRun       AlignmentProduce      1        1
+   17 CondDBESSource       -i AfterSource                         1148     1148
+   18 CondDBESSource       -i PostEndLumi                            2        2
+   19 CondDBESSource       -i PreEventProcessi                       2        2
+   20 DDCompactViewImpl    -i PostEndLumi                            1        1
+   21 DDLParser            -i AfterSource                            1        1
+   22 EventSetupDependency -i AfterSource                            5        5
+   23 FwkReport            -i AfterSource                            1        1
+   24 Geometry             -i (NoModuleName)   TrackerDigiGeome      1        1
+   25 HCAL                 -i (NoModuleName)                         1        1
+   26 HCAL                 -i AfterSource                            1        1
+   27 SiPixelQualityESProd -i (NoModuleName)                         1        1
+   28 SiStripBackPlaneCorr -i (NoModuleName)                         1        1
+   29 SiStripDetInfoFileRe -i (NoModuleName)                         1        1
+   30 SiStripDetInfoFileRe -i (NoModuleName)                         1        1
+   31 SiStripLorentzAngleD -i (NoModuleName)                         1        1
+   32 SiStripQualityESProd -i (NoModuleName)                         1        1
+   33 TRACKER              -i (NoModuleName)                         1        1
+   34 TrackerTopologyEP    -i AfterSource                            1        1
+   35 Alignment            -w AfterSource      AlignmentParamet      1        1
+   36 Alignment            -e PreEventProcessi AlignmentProduce      1        1
+
+ type    category    Examples: run/evt        run/evt          run/evt
+ ---- -------------------- ---------------- ---------------- ----------------
+    1 Alignment            pre-events                        
+    2 Alignment            pre-events                        
+    3 Alignment            BeforeEvents                      
+    4 Alignment            BeforeEvents                      
+    5 Alignment            BeforeEvents                      
+    6 Alignment            BeforeEvents                      
+    7 Alignment            BeforeEvents     BeforeEvents     BeforeEvents
+    8 Alignment            BeforeEvents                      
+    9 Alignment            BeforeEvents     BeforeEvents     
+   10 Alignment            BeforeEvents     BeforeEvents     
+   11 Alignment            BeforeEvents     BeforeEvents     
+   12 Alignment            BeforeEvents                      
+   13 Alignment            PostEndRun                        
+   14 Alignment            PostEndRun                        
+   15 Alignment            PostEndRun                        
+   16 Alignment            PostEndRun                        
+   17 CondDBESSource       BeforeEvents     BeforeEvents     PostBeginRun
+   18 CondDBESSource       PostEndLumi      PostEndLumi      
+   19 CondDBESSource       PostProcessEvent PostProcessEvent 
+   20 DDCompactViewImpl    PostEndLumi                       
+   21 DDLParser            BeforeEvents                      
+   22 EventSetupDependency BeforeEvents     BeforeEvents     BeforeEvents
+   23 FwkReport            PostBeginLumi                     
+   24 Geometry             pre-events                        
+   25 HCAL                 pre-events                        
+   26 HCAL                 BeforeEvents                      
+   27 SiPixelQualityESProducer::SiPixelQualityESProducer pre-events                        
+   28 SiStripBackPlaneCorrectionDepESProducer pre-events                        
+   29 SiStripDetInfoFileReader pre-events                        
+   30 SiStripDetInfoFileReader::SiStripDetInfoFileReader - END of file reached pre-events                        
+   31 SiStripLorentzAngleDepESProducer pre-events                        
+   32 SiStripQualityESProducer pre-events                        
+   33 TRACKER              pre-events                        
+   34 TrackerTopologyEP    BeforeEvents                      
+   35 Alignment            BeforeEvents                      
+   36 Alignment            PostProcessEvent                  
+
+Severity    # Occurrences   Total Occurrences
+--------    -------------   -----------------
+Info                 1194                1194
+Warning                 1                   1
+Error                   1                   1

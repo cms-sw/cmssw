@@ -14,10 +14,11 @@
 
 // Alignments
 #include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorExtendedRcd.h"
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
 
 #include <FWCore/Framework/interface/ESHandle.h>
@@ -65,8 +66,8 @@ DTGeometryESModule::produce(const MuonGeometryRecord & record) {
     record.getRecord<GlobalPositionRcd>().get(alignmentsLabel_, globalPosition);
     edm::ESHandle<Alignments> alignments;
     record.getRecord<DTAlignmentRcd>().get(alignmentsLabel_, alignments);
-    edm::ESHandle<AlignmentErrors> alignmentErrors;
-    record.getRecord<DTAlignmentErrorRcd>().get(alignmentsLabel_, alignmentErrors);
+    edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
+    record.getRecord<DTAlignmentErrorExtendedRcd>().get(alignmentsLabel_, alignmentErrors);
     // Only apply alignment if values exist
     if (alignments->empty() && alignmentErrors->empty() && globalPosition->empty()) {
       edm::LogInfo("Config") << "@SUB=DTGeometryRecord::produce"

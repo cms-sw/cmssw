@@ -37,7 +37,7 @@ public:
   virtual Alignments* alignments() const;
 
   /// Return vector of alignment errors
-  virtual AlignmentErrors* alignmentErrors() const;
+  virtual AlignmentErrorsExtended* alignmentErrors() const;
 
   /// alignment position error - for checking only, otherwise use alignmentErrors() above!  
   const AlignmentPositionError* alignmentPositionError() const { return theAlignmentPositionError;}

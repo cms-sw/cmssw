@@ -46,11 +46,11 @@
 #include "Geometry/CSCGeometryBuilder/src/CSCGeometryBuilderFromDDD.h"
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
-#include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
 //
@@ -162,23 +162,23 @@ AlignmentMonitorAsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
       
       edm::ESHandle<Alignments> alignments;
       iSetup.get<TrackerAlignmentRcd>().get( alignments );
-      edm::ESHandle<AlignmentErrors> alignmentErrors;
-      iSetup.get<TrackerAlignmentErrorRcd>().get( alignmentErrors );
+      edm::ESHandle<AlignmentErrorsExtended> alignmentErrors;
+      iSetup.get<TrackerAlignmentErrorExtendedRcd>().get( alignmentErrors );
       aligner.applyAlignments<TrackerGeometry>( &(*theTracker), &(*alignments), &(*alignmentErrors),
 						align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Tracker)) );
       
       edm::ESHandle<Alignments> dtAlignments;
       iSetup.get<DTAlignmentRcd>().get( dtAlignments );
-      edm::ESHandle<AlignmentErrors> dtAlignmentErrors;
-      iSetup.get<DTAlignmentErrorRcd>().get( dtAlignmentErrors );
-      aligner.applyAlignments<DTGeometry>( &(*theMuonDT), &(*dtAlignments), &(*dtAlignmentErrors),
+      edm::ESHandle<AlignmentErrorsExtended> dtAlignmentErrorsExtended;
+      iSetup.get<DTAlignmentErrorExtendedRcd>().get( dtAlignmentErrorsExtended );
+      aligner.applyAlignments<DTGeometry>( &(*theMuonDT), &(*dtAlignments), &(*dtAlignmentErrorsExtended),
 					   align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)) );
       
       edm::ESHandle<Alignments> cscAlignments;
       iSetup.get<CSCAlignmentRcd>().get( cscAlignments );
-      edm::ESHandle<AlignmentErrors> cscAlignmentErrors;
-      iSetup.get<CSCAlignmentErrorRcd>().get( cscAlignmentErrors );
-      aligner.applyAlignments<CSCGeometry>( &(*theMuonCSC), &(*cscAlignments), &(*cscAlignmentErrors),
+      edm::ESHandle<AlignmentErrorsExtended> cscAlignmentErrorsExtended;
+      iSetup.get<CSCAlignmentErrorExtendedRcd>().get( cscAlignmentErrorsExtended );
+      aligner.applyAlignments<CSCGeometry>( &(*theMuonCSC), &(*cscAlignments), &(*cscAlignmentErrorsExtended),
 					    align::DetectorGlobalPosition(*globalPositionRcd, DetId(DetId::Muon)) );
       
       // within an analyzer, modules can't expect to see any selected alignables!

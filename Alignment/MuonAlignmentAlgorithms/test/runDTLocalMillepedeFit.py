@@ -130,9 +130,9 @@ process.allPath = cms.Path(process.offlineBeamSpot*process.MuonMillepedeTrackRef
 ##connect = cms.string("sqlite_file:/afs/cern.ch/user/s/scodella/scratch0/SoftwareAlignment/CMSSW_2_2_9/src/Alignment/MuonAlignment/test/MisalignmentScenarioForInternalAlignment.db"),
 ##DBParameters = CondCore.DBCommon.CondDBSetup_cfi.CondDBSetup.DBParameters,
 ##toGet = cms.VPSet(cms.PSet(record = cms.string("DTAlignmentRcd"),       tag = cms.string("DTAlignmentRcd")),
-##                  cms.PSet(record = cms.string("DTAlignmentErrorRcd"),  tag = cms.string("DTAlignmentErrorRcd")),
+##                  cms.PSet(record = cms.string("DTAlignmentErrorExtendedRcd"),  tag = cms.string("DTAlignmentErrorExtendedRcd")),
 ##                  cms.PSet(record = cms.string("CSCAlignmentRcd"),      tag = cms.string("CSCAlignmentRcd")),
-##                  cms.PSet(record = cms.string("CSCAlignmentErrorRcd"), tag = cms.string("CSCAlignmentErrorRcd"))))
+##                  cms.PSet(record = cms.string("CSCAlignmentErrorExtendedRcd"), tag = cms.string("CSCAlignmentErrorExtendedRcd"))))
 ##process.es_prefer_muonAlignment = cms.ESPrefer("PoolDBESSource", "muonAlignment")
 
 
@@ -146,7 +146,7 @@ process.allPath = cms.Path(process.offlineBeamSpot*process.MuonMillepedeTrackRef
 #DBParameters = CondCore.DBCommon.CondDBSetup_cfi.CondDBSetup.DBParameters,
 #toGet = cms.VPSet(
 #cms.PSet(record = cms.string("TrackerAlignmentRcd"), tag = cms.string("Alignments")),
-#cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"), tag = cms.string("AlignmentErrors"))
+#cms.PSet(record = cms.string("TrackerAlignmentErrorExtendedRcd"), tag = cms.string("AlignmentErrorsExtended"))
 #))
 #
 #process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource", "trackerAlignment")

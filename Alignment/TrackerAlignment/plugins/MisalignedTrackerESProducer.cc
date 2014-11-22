@@ -17,7 +17,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 // Alignment
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/TrackerAlignment/interface/TrackerScenarioBuilder.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h" 
@@ -70,7 +70,7 @@ MisalignedTrackerESProducer::MisalignedTrackerESProducer(const edm::ParameterSet
   theScenario(p.getParameter<edm::ParameterSet>("scenario")),
   thePSet(p),
   theAlignRecordName("TrackerAlignmentRcd"),
-  theErrorRecordName("TrackerAlignmentErrorRcd")
+  theErrorRecordName("TrackerAlignmentErrorExtendedRcd")
 {
   setWhatProduced(this);
 
@@ -105,7 +105,7 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
   TrackerScenarioBuilder scenarioBuilder( &(*theAlignableTracker) );
   scenarioBuilder.applyScenario( theScenario );
   Alignments* alignments =  theAlignableTracker->alignments();
-  AlignmentErrors* alignmentErrors = theAlignableTracker->alignmentErrors();
+  AlignmentErrorsExtended* alignmentErrors = theAlignableTracker->alignmentErrors();
   
   // Store result to EventSetup
   GeometryAligner aligner;
@@ -125,7 +125,7 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
       }      
       poolDbService->writeOne<Alignments>(alignments, poolDbService->currentTime(),
                                           theAlignRecordName);
-      poolDbService->writeOne<AlignmentErrors>(alignmentErrors, poolDbService->currentTime(),
+      poolDbService->writeOne<AlignmentErrorsExtended>(alignmentErrors, poolDbService->currentTime(),
                                                theErrorRecordName);
   } else {
     // poolDbService::writeOne takes over ownership

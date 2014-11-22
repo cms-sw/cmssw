@@ -10,7 +10,7 @@
 
 // Alignment
 #include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+#include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 
 #include "Alignment/TrackerAlignment/interface/TrackerAlignment.h"
 
@@ -18,7 +18,7 @@
 //
 TrackerAlignment::TrackerAlignment( const edm::EventSetup& setup ):
   theAlignRecordName( "TrackerAlignmentRcd" ),
-  theErrorRecordName( "TrackerAlignmentErrorRcd" )
+  theErrorRecordName( "TrackerAlignmentErrorExtendedRcd" )
 {
 
   //Retrieve tracker topology from geometry
@@ -271,7 +271,7 @@ void TrackerAlignment::saveToDB(void){
 
   // Retrieve and store
   Alignments* alignments = theAlignableTracker->alignments();
-  AlignmentErrors* alignmentErrors = theAlignableTracker->alignmentErrors();
+  AlignmentErrorsExtended* alignmentErrors = theAlignableTracker->alignmentErrors();
 
 //   if ( poolDbService->isNewTagRequest(theAlignRecordName) )
 //     poolDbService->createNewIOV<Alignments>( alignments, poolDbService->endOfTime(), 
@@ -282,14 +282,14 @@ void TrackerAlignment::saveToDB(void){
   poolDbService->writeOne<Alignments>(alignments, poolDbService->currentTime(),
                                       theAlignRecordName);
 //   if ( poolDbService->isNewTagRequest(theErrorRecordName) )
-//     poolDbService->createNewIOV<AlignmentErrors>( alignmentErrors,
+//     poolDbService->createNewIOV<AlignmentErrorsExtended>( alignmentErrors,
 //                                                   poolDbService->endOfTime(), 
 //                                                   theErrorRecordName );
 //   else
-//     poolDbService->appendSinceTime<AlignmentErrors>( alignmentErrors,
+//     poolDbService->appendSinceTime<AlignmentErrorsExtended>( alignmentErrors,
 //                                                      poolDbService->currentTime(), 
 //                                                      theErrorRecordName );
-  poolDbService->writeOne<AlignmentErrors>(alignmentErrors, poolDbService->currentTime(),
+  poolDbService->writeOne<AlignmentErrorsExtended>(alignmentErrors, poolDbService->currentTime(),
                                            theErrorRecordName);
 }
 

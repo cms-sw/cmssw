@@ -92,7 +92,7 @@ public:
   virtual Alignments* alignments() const;
 
   /// Return vector of alignment errors
-  virtual AlignmentErrors* alignmentErrors() const;
+  virtual AlignmentErrorsExtended* alignmentErrors() const;
 
   /// Return surface deformations
   virtual int surfaceDeformationIdPairs(std::vector<std::pair<int,SurfaceDeformation*> > &) const;
