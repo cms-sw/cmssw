@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    CommonTools/PileupModules
+// Package:    CommonTools/PileupAlgos
 // Class:      SoftKillerProducer
 // 
-/**\class SoftKillerProducer SoftKillerProducer.cc CommonTools/PileupModules/plugins/SoftKillerProducer.cc
+/**\class SoftKillerProducer SoftKillerProducer.cc CommonTools/PileupAlgos/plugins/SoftKillerProducer.cc
 
  Description: [one line class summary]
 

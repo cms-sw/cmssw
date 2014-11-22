@@ -13,7 +13,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Math/interface/PtEtaPhiMass.h"
 
-#include "CommonTools/PileupModules/interface/PuppiContainer.h"
+#include "CommonTools/PileupAlgos/interface/PuppiContainer.h"
 
 // ------------------------------------------------------------------------------------------
 class PuppiProducer : public edm::stream::EDProducer<> {

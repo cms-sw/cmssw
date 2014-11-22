@@ -18,8 +18,8 @@ from RecoJets.JetProducers.fixedGridRhoProducerFastjet_cfi import fixedGridRhoFa
 from RecoJets.JetProducers.caTopTaggers_cff import *
 from RecoJets.JetProducers.ak8PFJetsCHS_groomingValueMaps_cfi import ak8PFJetsCHSPrunedLinks, ak8PFJetsCHSFilteredLinks, ak8PFJetsCHSTrimmedLinks, ak8PFJetsCHSSoftDropLinks
 from RecoJets.JetProducers.ca8PFJetsCHS_groomingValueMaps_cfi import ca8PFJetsCHSPrunedLinks, ca8PFJetsCHSFilteredLinks, ca8PFJetsCHSTrimmedLinks, ca8PFJetsCHSSoftDropLinks
-from CommonTools.PileupModules.Puppi_cff import puppi
-from CommonTools.PileupModules.softKiller_cfi import softKiller
+from CommonTools.PileupAlgos.Puppi_cff import puppi
+from CommonTools.PileupAlgos.softKiller_cfi import softKiller
 from RecoJets.JetProducers.ak4PFJetsPuppi_cfi import ak4PFJetsPuppi
 from RecoJets.JetProducers.ak4PFJetsSK_cfi import ak4PFJetsSK
 

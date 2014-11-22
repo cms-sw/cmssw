@@ -7,8 +7,8 @@ process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.MessageLogger.cerr.FwkReport.reportEvery = 10
 process.GlobalTag.globaltag = 'START53_V7G::All'
 
-process.load('CommonTools/PileupModules/Puppi_cff')
-process.load('CommonTools/PileupModules/softKiller_cfi')
+process.load('CommonTools/PileupAlgos/Puppi_cff')
+process.load('CommonTools/PileupAlgos/softKiller_cfi')
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(50) )
 process.source = cms.Source("PoolSource",

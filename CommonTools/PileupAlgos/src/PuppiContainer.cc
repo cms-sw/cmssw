@@ -1,4 +1,4 @@
-#include "CommonTools/PileupModules/interface/PuppiContainer.h"
+#include "CommonTools/PileupAlgos/interface/PuppiContainer.h"
 #include "fastjet/internal/base.hh"
 #include "fastjet/FunctionOfPseudoJet.hh"
 #include "Math/ProbFunc.h"

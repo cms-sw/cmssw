@@ -1,8 +1,8 @@
 #ifndef COMMONTOOLS_PUPPI_PUPPICONTAINER_H_
 #define COMMONTOOLS_PUPPI_PUPPICONTAINER_H_
 
-#include "CommonTools/PileupModules/interface/PuppiAlgo.h"
-#include "CommonTools/PileupModules/interface/RecoObj.h"
+#include "CommonTools/PileupAlgos/interface/PuppiAlgo.h"
+#include "CommonTools/PileupAlgos/interface/RecoObj.h"
 #include "fastjet/internal/base.hh"
 #include "fastjet/PseudoJet.hh"
 

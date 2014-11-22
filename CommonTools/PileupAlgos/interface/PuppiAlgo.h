@@ -1,5 +1,5 @@
-#ifndef CommonTools_PileupModules_PuppiAlgo_h
-#define CommonTools_PileupModules_PuppiAlgo_h
+#ifndef CommonTools_PileupAlgos_PuppiAlgo_h
+#define CommonTools_PileupAlgos_PuppiAlgo_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

@@ -50,7 +50,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 process.load('CommonTools.ParticleFlow.pfNoPileUpJME_cff')
 process.load("RecoJets/JetProducers/ak8PFJetsCS_cfi")
 process.load("RecoJets/JetProducers/ak8PFJetsCHSCS_cfi")
-process.load('CommonTools.PileupModules.softKiller_cfi')
+process.load('CommonTools.PileupAlgos.softKiller_cfi')
 
 process.recoPU = cms.Path(process.pfNoPileUpJMESequence*process.ak8PFJetsCS*process.ak8PFJetsCHSCS*process.particleFlowSKPtrs)
 

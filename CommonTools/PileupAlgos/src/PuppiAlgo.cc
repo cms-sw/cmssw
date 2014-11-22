@@ -1,5 +1,5 @@
-#include "CommonTools/PileupModules/interface/PuppiAlgo.h"
-#include "CommonTools/PileupModules/interface/PuppiContainer.h"
+#include "CommonTools/PileupAlgos/interface/PuppiAlgo.h"
+#include "CommonTools/PileupAlgos/interface/PuppiContainer.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "fastjet/internal/base.hh"
 #include "Math/QuantFuncMathCore.h"
