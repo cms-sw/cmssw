@@ -131,5 +131,8 @@ namespace DataFormats_TrackReco {
     edm::Wrapper<reco::DeDxHitInfoValueMap> hitInfoDEDXvmW;
     edm::Wrapper<reco::DeDxHitInfoAss> hitInfoDEDXamW;
 
+    reco::DeDxHitInfo::DeDxHitInfoContainer hitInfoContainerDEDX;
+    reco::DeDxHitInfo::DeDxHitInfoContainerCollection hitInfoContainerDEDXc;
+
   };
 }

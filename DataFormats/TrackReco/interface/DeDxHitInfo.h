@@ -14,7 +14,12 @@ namespace reco {
  class DeDxHitInfo
   {
    public:
-     struct DeDxHitInfoContainer{ float charge; float pathlength; uint32_t detId; float localPosX; float localPosY;};
+     class DeDxHitInfoContainer{
+        public:
+           DeDxHitInfoContainer(){}
+           float charge; float pathlength; uint32_t detId; float localPosX; float localPosY;
+     };
+     typedef  std::vector<DeDxHitInfo::DeDxHitInfoContainer>    DeDxHitInfoContainerCollection;
 
 //     std::vector<float> charges;
 //     std::vector<float> pathlengths;
