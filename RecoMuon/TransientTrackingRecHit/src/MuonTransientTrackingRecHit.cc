@@ -59,22 +59,22 @@ AlgebraicSymMatrix MuonTransientTrackingRecHit::parametersError() const {
 
   const AlignmentPositionError* APE = det()->alignmentPositionError();
   if (APE != NULL) {
-    AlgebraicVector shifts(2,0);
-    AlgebraicVector angles(2,0);
+    AlgebraicVector positions(2,0);
+    AlgebraicVector directions(2,0);
 
     if(err.num_row() == 1) {
-     shifts[0] = 0.;
-     shifts[1] = 0.;
-     angles[0] = 0.;
-     angles[1] = 0.;
-     LocalErrorExtended lape = ErrorFrameTransformer().transform46(APE->globalError(),shifts,angles);
+     positions[0] = 0.;
+     positions[1] = 0.;
+     directions[0] = 0.;
+     directions[1] = 0.;
+     LocalErrorExtended lape = ErrorFrameTransformer().transform46(APE->globalError(),positions,directions);
      err[0][0] += lape.cxx();
     } else if (err.num_row() == 2) {
-     shifts[0] = localPosition().x();
-     shifts[1] = 0.;
-     angles[0] = 0.;
-     angles[1] = 0.;
-     LocalErrorExtended lape = ErrorFrameTransformer().transform46(APE->globalError(),shifts,angles);
+     positions[0] = localPosition().x();
+     positions[1] = 0.;
+     directions[0] = 0.;
+     directions[1] = 0.;
+     LocalErrorExtended lape = ErrorFrameTransformer().transform46(APE->globalError(),positions,directions);
 
      AlgebraicSymMatrix lapeMatrix(2,0);
      lapeMatrix[1][1] = lape.cxx();
@@ -90,12 +90,12 @@ AlgebraicSymMatrix MuonTransientTrackingRecHit::parametersError() const {
 
      err += lapeMatrix;
     } else if (err.num_row() == 4) { 
-     shifts[0] = par[2];
-     shifts[1] = par[3];
-     angles[0] = par[0];
-     angles[1] = par[1];
+     positions[0] = par[2];
+     positions[1] = par[3];
+     directions[0] = par[0];
+     directions[1] = par[1];
 
-     LocalErrorExtended lape = ErrorFrameTransformer().transform46(APE->globalError(),shifts,angles);
+     LocalErrorExtended lape = ErrorFrameTransformer().transform46(APE->globalError(),positions,directions);
 
      AlgebraicSymMatrix lapeMatrix(4,0);
      lapeMatrix[2][2] = lape.cxx();
