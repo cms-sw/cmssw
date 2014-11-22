@@ -30,5 +30,5 @@ patJetCorrFactors = cms.EDProducer("JetCorrFactorsProducer",
     ## the corresponding jet collection (this variable is
     ## typically taken from kt6PFJets).
     useRho = cms.bool(True),
-    rho = cms.InputTag('kt6PFJets', 'rho'),
+    rho = cms.InputTag('kt6CaloJets', 'rho'),
 )
