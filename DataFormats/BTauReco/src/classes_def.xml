@@ -99,10 +99,9 @@
    <version ClassVersion="10" checksum="3825121604"/>
   </class>
 
-  <class name="reco::SoftLeptonTagInfo" ClassVersion="11">
-   <version ClassVersion="11" checksum="610843768"/>
-   <version ClassVersion="10" checksum="1042007752"/>
-  </class>
+  <class name="std::pair<edm::RefToBase<reco::Track>, reco::SoftLeptonProperties>"/>
+  <class name="reco::TemplatedSoftLeptonTagInfo<edm::RefToBase<reco::Track> >::LeptonMap"/>
+  <class name="reco::SoftLeptonTagInfo" />
   <class name="reco::SoftLeptonTagInfoCollection"/>
   <class name="reco::SoftLeptonTagInfoRef"/>
   <class name="reco::SoftLeptonTagInfoFwdRef"/>
