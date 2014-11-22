@@ -10,7 +10,7 @@
 class RunInfoHandler : public popcon::PopConSourceHandler<RunInfo>{
  public:
   void getNewObjects();
-  std::string id() const { return m_name;}
+  std::string id() const { return m_name; }
   ~RunInfoHandler();
   RunInfoHandler(const edm::ParameterSet& pset); 
   
@@ -18,16 +18,11 @@ class RunInfoHandler : public popcon::PopConSourceHandler<RunInfo>{
   std::string m_name;
   unsigned long long m_since;
   
-  // for reading from omds 
-  
-  std::string  m_connectionString;
-  
+  // for reading from omds
+  std::string m_connectionString;
   std::string m_authpath;
-  std::string m_host;
-  std::string m_sid;
   std::string m_user;
   std::string m_pass;
-  int m_port;
 };
 
 #endif 
