@@ -115,7 +115,6 @@ class PixelCPEGeneric : public PixelCPEBase
   bool TruncatePixelCharge_;
   bool IrradiationBiasCorrection_;
   bool isUpgrade_;
-  int Phase2BPixStart_;
   int Phase2FPixStart_;
 
   double EdgeClusterErrorX_;

@@ -55,7 +55,6 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
   DoCosmics_                 = conf.getParameter<bool>("DoCosmics");
   LoadTemplatesFromDB_       = conf.getParameter<bool>("LoadTemplatesFromDB");
   // First layer/disk number used in Phase2 Tracker
-  Phase2BPixStart_ = (conf.exists("Phase2BPixStart")?conf.getParameter<int>("Phase2BPixStart"):5);
   Phase2FPixStart_ = (conf.exists("Phase2FPixStart")?conf.getParameter<int>("Phase2FPixStart"):4);
   //std::cout <<"\n\nSetting up PixLocalReco with Phase2 trackers starting at Layer "<<Phase2BPixStart_<<" and Disk "<<Phase2FPixStart_<<"\n\n";
 
@@ -456,10 +455,13 @@ generic_position_formula( int size,                //!< Size of this projection.
 
   //--- Debugging output
   if (theVerboseLevel > 20) {
-    if ( thePart == GeomDetEnumerators::PixelBarrel ) {
+    if ( theDet->type().isTrackerPixel() && theDet->type().isBarrel()) {
+      //    if ( thePart == GeomDetEnumerators::PixelBarrel || thePart == GeomDetEnumerators::TOB) {
       cout << "\t >>> We are in the Barrel." ;
-    } else {
+    } else if(theDet->type().isTrackerPixel()) {
       cout << "\t >>> We are in the Forward." ;
+    } else {
+      cout << "\t >>> We are NOT in the Pixel." ;
     }
     cout 
       << "\n\t >>> cot(angle) = " << cot_angle << "  pitch = " << pitch << "  size = " << size
@@ -628,7 +630,7 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
 		else yerr=yerr_barrel_l1_def_;
 	      }
 	  }
-	  else if (layer<Phase2BPixStart_) {
+	  else  {
 	    if ( !edgex )
 	      {
 		if ( sizex<=xerr_barrel_ln_.size() ) xerr=xerr_barrel_ln_[sizex-1];
@@ -641,10 +643,11 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
 		else yerr=yerr_barrel_ln_def_;
 	      }
 	  }
-	  else {
-		xerr=thePitchX / sqrt( 12.0f );
-		yerr=thePitchY / sqrt( 12.0f );
-	  }
+	} 
+      else if ( thePart == GeomDetEnumerators::TOB ) // phase 2 OT Barrel
+	{
+	  xerr=thePitchX / sqrt( 12.0f );
+	  yerr=thePitchY / sqrt( 12.0f );
 	} 
       else // EndCap
 	{ 
