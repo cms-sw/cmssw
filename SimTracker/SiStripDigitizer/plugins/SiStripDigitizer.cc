@@ -202,7 +202,7 @@ void SiStripDigitizer::initializeEvent(edm::Event const& iEvent, edm::EventSetup
     unsigned int isub=idet.subdetId();
     if((isub == StripSubdetector::TIB) ||
        (isub == StripSubdetector::TID) ||
-       (isub == StripSubdetector::TOB) ||
+       //       (isub == StripSubdetector::TOB) ||
        (isub == StripSubdetector::TEC)) {
       StripGeomDetUnit* stripdet = dynamic_cast<StripGeomDetUnit*>((*iu));
       assert(stripdet != 0);

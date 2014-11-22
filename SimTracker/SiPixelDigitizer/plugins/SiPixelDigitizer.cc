@@ -51,6 +51,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -134,8 +135,9 @@ namespace cms
          if(detIds.insert(detId).second) {
            // The insert succeeded, so this detector element has not yet been processed.
            unsigned int isub = DetId(detId).subdetId();
-           if((isub == PixelSubdetector::PixelBarrel) || (isub == PixelSubdetector::PixelEndcap)) {
+           if((isub == PixelSubdetector::PixelBarrel) || (isub == PixelSubdetector::PixelEndcap) || (isub == StripSubdetector::TOB)) {
              PixelGeomDetUnit* pixdet = detectorUnits[detId];
+	     assert(pixdet !=0);
              //access to magnetic field in global coordinates
              GlobalVector bfield = pSetup->inTesla(pixdet->surface().position());
              LogDebug ("PixelDigitizer ") << "B-field(T) at " << pixdet->surface().position() << "(cm): " 
@@ -170,7 +172,7 @@ namespace cms
         unsigned int detId = (*iu)->geographicalId().rawId();
         DetId idet=DetId(detId);
         unsigned int isub=idet.subdetId();
-        if((isub == PixelSubdetector::PixelBarrel) || (isub == PixelSubdetector::PixelEndcap)) {  
+        if((isub == PixelSubdetector::PixelBarrel) || (isub == PixelSubdetector::PixelEndcap) || (isub == StripSubdetector::TOB)) {  
           PixelGeomDetUnit* pixdet = dynamic_cast<PixelGeomDetUnit*>((*iu));
           assert(pixdet != 0);
           detectorUnits.insert(std::make_pair(detId, pixdet));
@@ -251,7 +253,7 @@ namespace cms
       DetId idet=DetId((*iu)->geographicalId().rawId());
       unsigned int isub=idet.subdetId();
       
-      if((isub == PixelSubdetector::PixelBarrel) || (isub == PixelSubdetector::PixelEndcap)) {  
+      if((isub == PixelSubdetector::PixelBarrel) || (isub == PixelSubdetector::PixelEndcap) || (isub == StripSubdetector::TOB)) {  
         
         //
         

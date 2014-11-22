@@ -42,6 +42,9 @@ CmsTrackerBuilder::buildComponent( DDFilteredView& fv, GeometricDet* g, std::str
   case GeometricDet::TOB:
     theCmsTrackerSubStrctBuilder.build( fv, subdet, s );    
     break;
+  case GeometricDet::OTPhase2Barrel:
+    theCmsTrackerSubStrctBuilder.build( fv, subdet, s );    
+    break;
   case GeometricDet::TEC:
     theCmsTrackerSubStrctBuilder.build( fv, subdet, s );      
     break;

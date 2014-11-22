@@ -121,10 +121,11 @@ void MeasurementTrackerImpl::initialize()
 {  
   addPixelDets( theTrackerGeom->detsPXB());
   addPixelDets( theTrackerGeom->detsPXF());
+  addPixelDets( theTrackerGeom->detsTOB());
 
   addStripDets( theTrackerGeom->detsTIB());
   addStripDets( theTrackerGeom->detsTID());
-  addStripDets( theTrackerGeom->detsTOB());
+  //  addStripDets( theTrackerGeom->detsTOB());
   addStripDets( theTrackerGeom->detsTEC());  
 
   // fist all stripdets

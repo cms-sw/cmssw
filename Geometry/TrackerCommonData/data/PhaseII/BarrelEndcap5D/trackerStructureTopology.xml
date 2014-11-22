@@ -166,6 +166,11 @@
       <Parameter name="PixelROC_Y" value="8"/>
     </SpecPar>
 
+     <SpecPar name="Phase2OTBarrelSubDetPar">
+       <PartSelector path="//Phase2OTBarrel" />
+       <Parameter name="TkDDDStructure" value="Phase2OTBarrel"/>
+     </SpecPar>
+
 <SpecPar name="OuterTrackerPixelBarrelLayerPar">
 <PartSelector path="//Layer1"/>
 <PartSelector path="//Layer2"/>

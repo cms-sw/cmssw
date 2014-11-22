@@ -55,6 +55,9 @@ CmsTrackerSubStrctBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
   case GeometricDet::layer:
     std::sort( comp.begin(), comp.end(), LessR());
     break;	
+  case GeometricDet::OTPhase2Layer:
+    std::sort( comp.begin(), comp.end(), LessR());
+    break;	
   case GeometricDet::wheel:
     std::sort( comp.begin(), comp.end(), LessModZ());
     break;	

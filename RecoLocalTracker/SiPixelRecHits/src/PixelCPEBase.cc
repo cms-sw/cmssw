@@ -110,6 +110,9 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
     case GeomDetEnumerators::PixelEndcap:
       // A forward!  A forward!
       break;
+    case GeomDetEnumerators::TOB:
+      // A Phase 2 OT!  A Phase 2 OT
+      break;
     default:
       throw cms::Exception("PixelCPEBase::setTheDet :")
       	<< "PixelCPEBase: A non-pixel detector type in here?" ;
@@ -163,7 +166,7 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
   theLShiftY = lorentzShiftY();
 
   // testing 
-  if(thePart == GeomDetEnumerators::PixelBarrel) {
+  if(thePart == GeomDetEnumerators::PixelBarrel || thePart == GeomDetEnumerators::TOB) {
     //cout<<" lorentz shift "<<theLShiftX<<" "<<theLShiftY<<endl;
     theLShiftY=0.;
   }

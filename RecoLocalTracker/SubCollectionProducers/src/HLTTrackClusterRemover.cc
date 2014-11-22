@@ -233,7 +233,7 @@ void HLTTrackClusterRemover::process(const TrackingRecHit *hit, float chi2) {
     // chi2 cut
     if (chi2 > pblocks_[subdet-1].maxChi2_) return;
 
-    if ((subdet == PixelSubdetector::PixelBarrel) || (subdet == PixelSubdetector::PixelEndcap)) {
+    if ((subdet == PixelSubdetector::PixelBarrel) || (subdet == PixelSubdetector::PixelEndcap) |  (subdet == StripSubdetector::TOB)) {
       //      std::cout<<"process pxl hit"<<std::endl;
         if (!doPixel_) return;
         // this is a pixel, and i *know* it is

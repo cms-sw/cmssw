@@ -82,10 +82,10 @@ TrackerGeometricDetESModule::fillDescriptions( edm::ConfigurationDescriptions & 
   slhcDet.push_back(13); slhcDet.push_back(-1); slhcDet.push_back(18);
   // level 1
   slhcDet.push_back(20); slhcDet.push_back(18); slhcDet.push_back(14); 
-  slhcDet.push_back(11); slhcDet.push_back(14); slhcDet.push_back(14);
+  slhcDet.push_back(11); slhcDet.push_back(20); slhcDet.push_back(14);
   // level 2
   slhcDet.push_back(12); slhcDet.push_back(10); slhcDet.push_back(4); 
-  slhcDet.push_back(9) ; slhcDet.push_back(5) ; slhcDet.push_back(8);
+  slhcDet.push_back(9) ; slhcDet.push_back(12); slhcDet.push_back(8);
   // level 3
   slhcDet.push_back(2) ; slhcDet.push_back(2) ; slhcDet.push_back(2); 
   slhcDet.push_back(2) ; slhcDet.push_back(2) ; slhcDet.push_back(5);

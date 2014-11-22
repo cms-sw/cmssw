@@ -234,17 +234,17 @@ TrackerTopologyEP::fillDescriptions( edm::ConfigurationDescriptions & descriptio
   ttcslhc.add<unsigned int>("tid_moduleMask",0x1F);
   ttcslhc.add<unsigned int>("tid_sterMask",0x3);
   
-  ttcslhc.add<unsigned int>("tob_layerStartBit",14);
+  ttcslhc.add<unsigned int>("tob_layerStartBit",20);
   ttcslhc.add<unsigned int>("tob_rod_fw_bwStartBit",12);
-  ttcslhc.add<unsigned int>("tob_rodStartBit",5);  
+  ttcslhc.add<unsigned int>("tob_rodStartBit",12);  
   ttcslhc.add<unsigned int>("tob_moduleStartBit",2);
   ttcslhc.add<unsigned int>("tob_sterStartBit",0);
-  ttcslhc.add<unsigned int>("tob_layerMask",0x7);
-  ttcslhc.add<unsigned int>("tob_rod_fw_bwMask",0x3);
-  ttcslhc.add<unsigned int>("tob_rodMask",0x7F);
-  ttcslhc.add<unsigned int>("tob_moduleMask",0x7);
+  ttcslhc.add<unsigned int>("tob_layerMask",0xF);
+  ttcslhc.add<unsigned int>("tob_rod_fw_bwMask",0x0);
+  ttcslhc.add<unsigned int>("tob_rodMask",0xFF);
+  ttcslhc.add<unsigned int>("tob_moduleMask",0x3FF);
   ttcslhc.add<unsigned int>("tob_sterMask",0x3);
-  
+
   descriptions.add( "trackerTopologySLHCConstants", ttcslhc );
 }
 

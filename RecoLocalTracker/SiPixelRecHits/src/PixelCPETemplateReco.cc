@@ -351,7 +351,7 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
 	  // In the x case, apply a rough Lorentz drift average correction
 	  // To do: call PixelCPEGeneric whenever PixelTempReco2D fails
 	  float lorentz_drift = -999.9f;
-	  if ( thePart == GeomDetEnumerators::PixelBarrel )
+	  if ( thePart == GeomDetEnumerators::PixelBarrel || thePart == GeomDetEnumerators::TOB )
 	    lorentz_drift = 60.0f; // in microns
 	  else if ( thePart == GeomDetEnumerators::PixelEndcap )
 	    lorentz_drift = 10.0f; // in microns
@@ -515,7 +515,7 @@ PixelCPETemplateReco::localError( const SiPixelCluster& cluster,
 	  //yerr = 10.0 * (float)cluster.sizeX() * yerr;
 	  
 	  // Assign better errors based on the residuals for failed template cases
-	  if ( thePart == GeomDetEnumerators::PixelBarrel )
+	  if ( thePart == GeomDetEnumerators::PixelBarrel || thePart == GeomDetEnumerators::TOB )
 	    {
 	      xerr = 55.0f * micronsToCm;
 	      yerr = 36.0f * micronsToCm;

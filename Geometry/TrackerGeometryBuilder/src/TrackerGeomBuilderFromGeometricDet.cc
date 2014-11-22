@@ -22,7 +22,7 @@ namespace {
     void verifyDUinTG(TrackerGeometry const & tg, bool upgradeGeometry) {
     int off=0; int end=0;
     for ( int i=1; i!=7; i++) {
-      auto det = GeomDetEnumerators::tkDetEnum[i];
+      auto det = GeomDetEnumerators::tkDetEnum[i]; 
       off = tg.offsetDU(det);
       end = tg.endsetDU(det);
 
@@ -82,9 +82,13 @@ TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const edm::Pa
 	     upgradeGeometry,
 	     BIG_PIX_PER_ROC_X,
 	     BIG_PIX_PER_ROC_Y); //"PixelEndcap" 
+  buildPixel(tob,tracker,GeomDetEnumerators::SubDetector::TOB,
+	     upgradeGeometry,
+	     BIG_PIX_PER_ROC_X,
+	     BIG_PIX_PER_ROC_Y); //"Phase2OTBarrel"
   buildSilicon(tib,tracker,GeomDetEnumerators::SubDetector::TIB, "barrel");//"TIB"	
   buildSilicon(tid,tracker,GeomDetEnumerators::SubDetector::TID, "endcap");//"TID" 
-  buildSilicon(tob,tracker,GeomDetEnumerators::SubDetector::TOB, "barrel");//"TOB"	
+  //  buildSilicon(tob,tracker,GeomDetEnumerators::SubDetector::TOB, "barrel");//"TOB"	
   buildSilicon(tec,tracker,GeomDetEnumerators::SubDetector::TEC, "endcap");//"TEC"        
   buildGeomDet(tracker);//"GeomDet"
 
