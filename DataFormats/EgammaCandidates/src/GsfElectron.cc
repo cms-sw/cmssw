@@ -42,8 +42,8 @@ GsfElectron::GsfElectron
   setVertex(math::XYZPoint(te.positionAtVtx.x(),te.positionAtVtx.y(),te.positionAtVtx.z())) ;
   setPdgId(-11*charge) ;
   /*if (ecalDrivenSeed())*/ corrections_.correctedEcalEnergy = superCluster()->energy() ;
-  assert(ctfInfo.ctfTrack==(GsfElectron::core()->ctfTrack())) ;
-  assert(ctfInfo.shFracInnerHits==(GsfElectron::core()->ctfGsfOverlap())) ;
+  //  assert(ctfInfo.ctfTrack==(GsfElectron::core()->ctfTrack())) ;
+  //  assert(ctfInfo.shFracInnerHits==(GsfElectron::core()->ctfGsfOverlap())) ;
  }
 GsfElectron::GsfElectron
  ( int charge, const ChargeInfo & chargeInfo,
@@ -66,8 +66,8 @@ GsfElectron::GsfElectron
   setVertex(math::XYZPoint(te.positionAtVtx.x(),te.positionAtVtx.y(),te.positionAtVtx.z())) ;
   setPdgId(-11*charge) ;
   /*if (ecalDrivenSeed())*/ corrections_.correctedEcalEnergy = superCluster()->energy() ;
-  assert(ctfInfo.ctfTrack==(GsfElectron::core()->ctfTrack())) ;
-  assert(ctfInfo.shFracInnerHits==(GsfElectron::core()->ctfGsfOverlap())) ;
+  //assert(ctfInfo.ctfTrack==(GsfElectron::core()->ctfTrack())) ;
+  //assert(ctfInfo.shFracInnerHits==(GsfElectron::core()->ctfGsfOverlap())) ;
  }
 
 GsfElectron::GsfElectron
@@ -96,8 +96,8 @@ GsfElectron::GsfElectron
    corrections_(electron.corrections_),
    pixelMatchVariables_(electron.pixelMatchVariables_)
  {
-  assert(electron.core()->ctfTrack()==core->ctfTrack()) ;
-  assert(electron.core()->ctfGsfOverlap()==core->ctfGsfOverlap()) ;
+   //assert(electron.core()->ctfTrack()==core->ctfTrack()) ;
+   //assert(electron.core()->ctfGsfOverlap()==core->ctfGsfOverlap()) ;
  }
 
 GsfElectron::GsfElectron
@@ -135,8 +135,8 @@ GsfElectron::GsfElectron
   trackClusterMatching_.electronCluster = electronCluster ;
   //closestCtfTrack_.ctfTrack = closestCtfTrack ;
   conversionRejection_.partner = conversionPartner ;
-  assert(closestCtfTrack==core->ctfTrack()) ;
-  assert(electron.core()->ctfGsfOverlap()==core->ctfGsfOverlap()) ;
+  //assert(closestCtfTrack==core->ctfTrack()) ;
+  //assert(electron.core()->ctfGsfOverlap()==core->ctfGsfOverlap()) ;
   // TO BE DONE
   // Check that the new edm references are really
   // the clones of the former references, and therefore other attributes
