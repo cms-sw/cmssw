@@ -456,7 +456,6 @@ generic_position_formula( int size,                //!< Size of this projection.
   //--- Debugging output
   if (theVerboseLevel > 20) {
     if ( theDet->type().isTrackerPixel() && theDet->type().isBarrel()) {
-      //    if ( thePart == GeomDetEnumerators::PixelBarrel || thePart == GeomDetEnumerators::TOB) {
       cout << "\t >>> We are in the Barrel." ;
     } else if(theDet->type().isTrackerPixel()) {
       cout << "\t >>> We are in the Forward." ;
