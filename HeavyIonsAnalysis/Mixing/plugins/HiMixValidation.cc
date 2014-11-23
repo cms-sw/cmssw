@@ -155,7 +155,7 @@ HiMixValidation::HiMixValidation(const edm::ParameterSet& iConfig)
    useCF_ = iConfig.getUntrackedParameter<bool>("useCF",true);
    if(useCF_) cfLabel = consumes<CrossingFrame<edm::HepMCProduct> >(iConfig.getUntrackedParameter<edm::InputTag>("mixLabel",edm::InputTag("mix","generator")));
 
-   rMatch = iConfig.getUntrackedParameter<double>("rMatch",0.1);
+   rMatch = iConfig.getUntrackedParameter<double>("rMatch",0.3);
    rMatch2 = rMatch*rMatch;
 }
 
@@ -185,7 +185,7 @@ HiMixValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       const reco::GenParticle& p = (*parts)[i];
       int sube = p.collisionId();
 
-      if(p.status() == 3){
+      if(p.numberOfMothers() == 0){
 	 if(sube == 0){
 	    zgen[0] = p.vz();
 	 }else{
@@ -263,6 +263,8 @@ HiMixValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	 hJetResponseSignal->Fill(pt,ptmatch);
       }else{
 	 hGenJetEtaBkg->Fill(eta);
+         hJetResponseBkg->Fill(pt,ptmatch);
+
 	 if(npart == 2){
 	    hGenJetEtaBkgNpart2->Fill(eta);
 	 }
@@ -384,6 +386,11 @@ HiMixValidation::beginJob()
    hPhotonResponseSignal = f->make<TH2D>("hPhotonResponseSignal","",100,0,100,100,0,100);
    hMuonResponseSignal = f->make<TH2D>("hMuonResponseSignal","",100,0,20,100,0,20);
    hElectronResponseSignal = f->make<TH2D>("hElectronResponseSignal","",100,0,20,100,0,20);
+
+   hJetResponseBkg = f->make<TH2D>("hJetResponseBkg","",100,0,200,100,0,200);
+   hPhotonResponseBkg = f->make<TH2D>("hPhotonResponseBkg","",100,0,100,100,0,100);
+   hMuonResponseBkg = f->make<TH2D>("hMuonResponseBkg","",100,0,20,100,0,20);
+   hElectronResponseBkg = f->make<TH2D>("hElectronResponseBkg","",100,0,20,100,0,20);
 
    hJetResponseMixed = f->make<TH2D>("hJetResponseMixed","",100,0,200,100,0,200);
    hPhotonResponseMixed = f->make<TH2D>("hPhotonResponseMixed","",100,0,100,100,0,100);

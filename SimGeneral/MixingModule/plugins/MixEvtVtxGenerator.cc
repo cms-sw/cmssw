@@ -106,7 +106,7 @@ HepMC::FourVector* MixEvtVtxGenerator::getVertex( Event& evt){
     }
     const HepMCProduct& bkg = mix.getObject(1);
     if(!(bkg.isVtxGenApplied())){
-      cout<<"Input does not have smeared vertex!"<<endl;
+      cout<<"Input background does not have smeared vertex!"<<endl;
     }else{
       inev = bkg.GetEvent();
    } 
@@ -192,7 +192,9 @@ void MixEvtVtxGenerator::produce( Event& evt, const EventSetup& )
    
    // generate new vertex & apply the shift 
    //
-
+   if(HepMCEvt->isVtxGenApplied()) throw cms::Exception("MatchVtx")
+				      <<"Signal HepMCProduct is not compatible for embedding - it's vertex is already smeared."
+				      <<std::endl;
    HepMCEvt->applyVtxGen( useRecVertex ? getRecVertex(evt) : getVertex(evt) ) ;
 
    //   HepMCEvt->boostToLab( GetInvLorentzBoost(), "vertex" );
