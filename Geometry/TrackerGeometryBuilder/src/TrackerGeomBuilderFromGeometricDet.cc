@@ -33,7 +33,7 @@ namespace {
 
       for (int j=off; j!=end; ++j) {
 	assert(tg.detUnits()[j]->geographicalId().subdetId()==i);
-	assert(tg.detUnits()[j]->subDetector()==det);
+	assert(GeomDetEnumerators::subDetGeom[tg.detUnits()[j]->subDetector()]==det);
 	assert(tg.detUnits()[j]->index()==j);
       }
     }
@@ -73,7 +73,7 @@ TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const edm::Pa
   for(u_int32_t i = 0;i<comp.size();i++)
     dets[comp[i]->geographicalID().subdetId()-1].push_back(comp[i]);
   
-  // this order is VERY IMPORTANT!!!!!
+  // this order is VERY IMPORTANT!!!!! For the moment I understand that some pieces of code rely on pixel-like being before strip-like 
   buildPixel(pixB,tracker,GeomDetEnumerators::SubDetector::PixelBarrel,
 	     upgradeGeometry,
 	     BIG_PIX_PER_ROC_X,
@@ -82,7 +82,7 @@ TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const edm::Pa
 	     upgradeGeometry,
 	     BIG_PIX_PER_ROC_X,
 	     BIG_PIX_PER_ROC_Y); //"PixelEndcap" 
-  buildPixel(tob,tracker,GeomDetEnumerators::SubDetector::TOB,
+  buildPixel(tob,tracker,GeomDetEnumerators::SubDetector::P2OTB,
 	     upgradeGeometry,
 	     BIG_PIX_PER_ROC_X,
 	     BIG_PIX_PER_ROC_Y); //"Phase2OTBarrel"
@@ -104,7 +104,7 @@ void TrackerGeomBuilderFromGeometricDet::buildPixel(std::vector<const GeometricD
 						    int BIG_PIX_PER_ROC_X, // in x direction, rows. BIG_PIX_PER_ROC_X = 0 for SLHC
 						    int BIG_PIX_PER_ROC_Y) // in y direction, cols. BIG_PIX_PER_ROC_Y = 0 for SLHC
 {
-  tracker->setOffsetDU(det);
+  tracker->setOffsetDU(GeomDetEnumerators::subDetGeom[det]);
 
   for(u_int32_t i=0; i<gdv.size(); i++){
 
@@ -131,7 +131,7 @@ void TrackerGeomBuilderFromGeometricDet::buildPixel(std::vector<const GeometricD
     tracker->addDetUnit(temp);
     tracker->addDetUnitId(gdv[i]->geographicalID());
   }
-  tracker->setEndsetDU(det);
+  tracker->setEndsetDU(GeomDetEnumerators::subDetGeom[det]);
 
 }
 
@@ -140,7 +140,7 @@ void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const Geometri
 						      GeomDetType::SubDetector det,
 						      const std::string& part)
 { 
-  tracker->setOffsetDU(det);
+  tracker->setOffsetDU(GeomDetEnumerators::subDetGeom[det]);
 
   for(u_int32_t i=0;i<gdv.size();i++){
 
@@ -165,7 +165,7 @@ void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const Geometri
     tracker->addDetUnit(temp);
     tracker->addDetUnitId(gdv[i]->geographicalID());
   }  
-  tracker->setEndsetDU(det);
+  tracker->setEndsetDU(GeomDetEnumerators::subDetGeom[det]);
 
 }
 

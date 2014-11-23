@@ -20,6 +20,7 @@ std::ostream& operator<<( std::ostream& s, SubDetector m){
   else if ( m == RPCEndcap ) return s << "RPCEndcap";
   else if ( m == GEM) return s << "GEM";
   else if ( m == ME0 ) return s << "ME0";
+  else if ( m == P2OTB ) return s << "Phase2OTBarrel";
   else return s << "?";
 }
 

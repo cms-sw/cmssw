@@ -12,7 +12,7 @@ GeomDetType::~GeomDetType()
 
 bool GeomDetType::isBarrel() const
 {
-  return (theSubDet == PixelBarrel || theSubDet == TIB || theSubDet == TOB || isDT() || theSubDet == RPCBarrel);
+  return (theSubDet == PixelBarrel || theSubDet == TIB || theSubDet == TOB || theSubDet == P2OTB || isDT() || theSubDet == RPCBarrel);
 }
 
 bool GeomDetType::isEndcap() const
@@ -23,13 +23,13 @@ bool GeomDetType::isEndcap() const
 
 bool GeomDetType::isTrackerStrip() const
 {
-  return (theSubDet == TIB || theSubDet == TOB || 
+  return (theSubDet == TIB || theSubDet == TOB ||
 	  theSubDet == TID || theSubDet == TEC);
 }
 
 bool GeomDetType::isTrackerPixel() const
 {
-  return (theSubDet == PixelBarrel || theSubDet == PixelEndcap); 
+  return (theSubDet == PixelBarrel || theSubDet == PixelEndcap || theSubDet == P2OTB); 
 }
 
 bool GeomDetType::isTracker() const

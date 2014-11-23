@@ -643,7 +643,7 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
 	      }
 	  }
 	} 
-      else if ( thePart == GeomDetEnumerators::TOB ) // phase 2 OT Barrel
+      else if ( thePart == GeomDetEnumerators::P2OTB ) // phase 2 OT Barrel
 	{
 	  xerr=thePitchX / sqrt( 12.0f );
 	  yerr=thePitchY / sqrt( 12.0f );
