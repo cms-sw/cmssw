@@ -1,4 +1,5 @@
 <use   name="fastjet"/>
+<use   name="fastjet-contrib"/>
 <use   name="ktjet"/>
 <use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/Candidate"/>

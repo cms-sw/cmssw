@@ -41,7 +41,7 @@ void BTagCalibration::readCSV(const std::string &s)
   readCSV(buff);
 }
 
-void BTagCalibration::readCSV(istream &s)
+void BTagCalibration::readCSV(std::istream &s)
 {
   std::string line;
 
@@ -60,7 +60,7 @@ void BTagCalibration::readCSV(istream &s)
   }
 }
 
-void BTagCalibration::makeCSV(ostream &s) const
+void BTagCalibration::makeCSV(std::ostream &s) const
 {
   s << BTagEntry::makeCSVHeader();
   for (auto i = data_.cbegin(); i != data_.cend(); ++i) {

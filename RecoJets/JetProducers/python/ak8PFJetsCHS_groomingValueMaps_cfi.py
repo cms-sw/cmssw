@@ -23,3 +23,11 @@ ak8PFJetsCHSFilteredLinks = cms.EDProducer("RecoJetDeltaRValueMapProducer",
                                          distMax = cms.double(0.8),
                                          value = cms.string('mass')  
                         )
+
+
+ak8PFJetsCHSSoftDropLinks = cms.EDProducer("RecoJetDeltaRValueMapProducer",
+                                         src = cms.InputTag("ak8PFJetsCHS"),
+                                         matched = cms.InputTag("ak8PFJetsCHSSoftDrop"),                                         
+                                         distMax = cms.double(0.8),
+                                         value = cms.string('mass')  
+                        )

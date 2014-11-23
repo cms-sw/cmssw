@@ -13,7 +13,7 @@ NjettinessAdder::NjettinessAdder(const edm::ParameterSet& iConfig) :
   Rcutoff_(iConfig.getParameter<double>("Rcutoff")),
   axesDefinition_(iConfig.getParameter< unsigned >("axesDefinition")),
   nPass_(iConfig.getParameter<int>("nPass")),
-  akAxesR0_(iConfig.getParameter<int>("axAxesR0"))
+  akAxesR0_(iConfig.getParameter<double>("akAxesR0"))
 {
   for ( std::vector<unsigned>::const_iterator n = Njets_.begin(); n != Njets_.end(); ++n )
     {
