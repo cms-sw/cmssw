@@ -74,11 +74,8 @@ MixEvtVtxGenerator::MixEvtVtxGenerator( const ParameterSet& pset )
    if(useRecVertex) useCF_ = 0;
    else{
      useCF_ = pset.getUntrackedParameter<bool>("useCF",false);
-     cfLabel = consumes<CrossingFrame<HepMCProduct> >(pset.getUntrackedParameter<edm::InputTag>("mixLabel",edm::InputTag("mixGen","generator")));
+     cfLabel = consumes<CrossingFrame<HepMCProduct> >(pset.getParameter<edm::InputTag>("mixLabel"));
    }
-   signalLabel = consumes<HepMCProduct>(pset.getParameter<edm::InputTag>("signalLabel"));
-   hiLabel = consumes<reco::VertexCollection>(pset.getParameter<edm::InputTag>("heavyIonLabel"));
-
 
 }
 
