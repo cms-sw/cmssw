@@ -76,6 +76,7 @@ MixEvtVtxGenerator::MixEvtVtxGenerator( const ParameterSet& pset )
      useCF_ = pset.getUntrackedParameter<bool>("useCF",false);
      cfLabel = consumes<CrossingFrame<HepMCProduct> >(pset.getParameter<edm::InputTag>("mixLabel"));
    }
+   signalLabel = consumes<HepMCProduct>(pset.getParameter<edm::InputTag>("signalLabel"));
 
 }
 
