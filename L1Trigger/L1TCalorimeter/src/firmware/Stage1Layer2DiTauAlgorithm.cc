@@ -34,24 +34,33 @@ void l1t::Stage1Layer2DiTauAlgorithm::processEvent(const std::vector<l1t::CaloRe
 
   int isoPtMax=0;
   int diIsoPtMax=0;
+  int triIsoPtMax=0;
+  int quadIsoPtMax=0;
   if(isoTaus->size()>0) {
     isoPtMax= (*isoTaus).at(0).hwPt();
-    if (isoTaus->size()>1) diIsoPtMax= (*isoTaus).at(1).hwPt();
+    if (isoTaus->size()>1) diIsoPtMax  = (*isoTaus).at(1).hwPt();
+    if (isoTaus->size()>2) triIsoPtMax = (*isoTaus).at(2).hwPt();
+    if (isoTaus->size()>3) quadIsoPtMax= (*isoTaus).at(3).hwPt();
   }
 
   // encode the highest pt Iso and DiIso in the HF ET rings
-  double etIso   = params_->jetScale().et( isoPtMax );  // convert from hwPt to Physical pT
-  double etDiIso = params_->jetScale().et( diIsoPtMax );
-
-  int rankIso   = params_->HfRingScale().rank( etIso );  //convert to HfRingScale Rank
-  int rankDiIso = params_->HfRingScale().rank( etDiIso );
+  double etIso     = params_->jetScale().et( isoPtMax );  // convert from hwPt to Physical pT
+  double etDiIso   = params_->jetScale().et( diIsoPtMax );
+  double etTriIso  = params_->jetScale().et( triIsoPtMax );
+  double etQuadIso = params_->jetScale().et( quadIsoPtMax );
+  int rankIso     = params_->HfRingScale().rank( etIso );  //convert to HfRingScale Rank
+  int rankDiIso   = params_->HfRingScale().rank( etDiIso );
+  int rankTriIso  = params_->HfRingScale().rank( etTriIso );
+  int rankQuadIso = params_->HfRingScale().rank( etQuadIso );
 
 
   L1GctHFRingEtSums s;
-  s.setEtSum(0, rankDiIso);
-  s.setEtSum(1, rankIso);
-  s.setEtSum(2, 0.);
-  s.setEtSum(3, 0.);
+  s.setEtSum(0, rankIso);
+  s.setEtSum(1, rankDiIso);
+  s.setEtSum(2, rankTriIso);
+  s.setEtSum(3, rankQuadIso);
   uint16_t raw = s.raw();
   spares->setHwPt(raw);
+
+  delete isoTaus;
 }
