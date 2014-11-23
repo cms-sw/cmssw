@@ -176,9 +176,6 @@ HiMixValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
    double zgen[2]={-29,-29};
    cout<<"x2"<<endl;
 
-   double zgen[2]={-29,-29};
-   cout<<"x2"<<endl;
-
    for(UInt_t i = 0; i < parts->size(); ++i){
       const reco::GenParticle& p = (*parts)[i];
       int sube = p.collisionId();
@@ -290,53 +287,7 @@ HiMixValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
    }else{
       for(int i = 0; i < 2; ++i){
 	 cout<<"i "<<i<<endl;
-	 const edm::HepMCProduct& bkg = mix.getObject(0);
-	 cout<<"a"<<endl;
-	 inev = bkg.GetEvent();
-         cout<<"b"<<endl;
-
-	 genvtx = inev->signal_process_vertex();
-         cout<<"c"<<endl;
-
-	 if(!genvtx){
-	    //cout<<"No Signal Process Vertex!"<<endl;
-	    HepMC::GenEvent::particle_const_iterator pt=inev->particles_begin();
-	    HepMC::GenEvent::particle_const_iterator ptend=inev->particles_end();
-	    while(!genvtx || ( genvtx->particles_in_size() == 1 && pt != ptend ) ){
-	       //if(!genvtx) cout<<"No Gen Vertex!"<<endl;
-	       if(pt == ptend) cout<<"End reached, No Gen Vertex!"<<endl;
-	       genvtx = (*pt)->production_vertex();
-	       ++pt;
-	    }
-
-	 }
-	 zcf[i] = genvtx->position().z();
-         cout<<"d"<<endl;
-      }
-   }
-
-   hGenVerticesCF->Fill(zcf[0],zcf[1]);
-
-   // Gen-Vertices from CrossingFrame
-
-   Handle<CrossingFrame<edm::HepMCProduct> > cf;
-   cout<<"x7"<<endl;
-
-   iEvent.getByToken(cfLabel,cf);
-   cout<<"x8"<<endl;
-
-   MixCollection<edm::HepMCProduct> mix(cf.product());
-   cout<<"x9"<<endl;
-   HepMC::GenVertex* genvtx = 0;
-   const HepMC::GenEvent* inev = 0;
-   cout<<"x10"<<endl;
-   double zcf[2]={-29,-29};
-   if(mix.size() != 2){
-      cout<<"More or less than 2 sub-events, mixing seems to have failed!"<<endl;
-   }else{
-      for(int i = 0; i < 2; ++i){
-	 cout<<"i "<<i<<endl;
-	 const edm::HepMCProduct& bkg = mix.getObject(0);
+	 const edm::HepMCProduct& bkg = mix.getObject(i);
 	 cout<<"a"<<endl;
 	 inev = bkg.GetEvent();
          cout<<"b"<<endl;
