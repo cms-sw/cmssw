@@ -10,6 +10,8 @@ GenXSecAnalyzer::GenXSecAnalyzer(const edm::ParameterSet& iConfig):
   hepidwtup_(-9999),
   totalWeightPre_(0),
   thisRunWeightPre_(0),
+  totalWeight_(0),
+  thisRunWeight_(0),
   xsecPreFilter_(-1,-1),
   xsec_(-1,-1),
   product_(GenLumiInfoProduct(-9999)),
@@ -52,6 +54,7 @@ GenXSecAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const&)
   nMCs_++;
 
   thisRunWeightPre_ = 0;
+  thisRunWeight_ = 0;
 
 
   product_ = GenLumiInfoProduct(-9999);
@@ -125,6 +128,7 @@ GenXSecAnalyzer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::Even
     {
       filterOnlyEffStat_.mergeProduct(*genFilter);
       filterOnlyEffRun_.mergeProduct(*genFilter);
+      thisRunWeight_ += genFilter->sumPassWeights();
     }
 
 
@@ -270,12 +274,13 @@ GenXSecAnalyzer::endRun(edm::Run const& iRun, edm::EventSetup const&)
 	}
 
     }
-  double finalXsec = xsecPreFilter_.value() > 0 ? thisHepFilterEff*thisGenFilterEff*xsecPreFilter_.value() : 0;
-  double finalErr = xsecPreFilter_.value() > 0 ? finalXsec*
-    sqrt(pow(TMath::Max(xsecPreFilter_.error(),(double)0)/xsecPreFilter_.value(),2)+
+  double thisXsec = thisRunXSecPre.value() > 0 ? thisHepFilterEff*thisGenFilterEff*thisRunXSecPre.value() : 0;
+  double thisErr  = thisRunXSecPre.value() > 0 ? thisXsec*
+    sqrt(pow(TMath::Max(thisRunXSecPre.error(),(double)0)/thisRunXSecPre.value(),2)+
 	 pow(thisHepFilterErr/thisHepFilterEff,2)+
 	 pow(thisGenFilterErr/thisGenFilterEff,2)) : 0;
-  xsec_ = GenLumiInfoProduct::XSec(finalXsec,finalErr);
+  const GenLumiInfoProduct::XSec thisRunXSec= GenLumiInfoProduct::XSec(thisXsec,thisErr);
+  combine(xsec_, totalWeight_, thisRunXSec, thisRunWeight_);
 
 }
 

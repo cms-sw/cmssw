@@ -48,7 +48,7 @@ private:
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
   virtual void endJob() override;
-  // computation of cross section after matching (could be either before or after HepcFilter and GenFilter)
+  // computation of cross section after matching and before HepcFilter and GenFilter
   GenLumiInfoProduct::XSec compute(const GenLumiInfoProduct &);
   // combination of cross section from different MCs after matching (could be either before or after HepcFilter and GenFilter)
   void combine(GenLumiInfoProduct::XSec&, double&, const GenLumiInfoProduct::XSec&, const double&);
@@ -67,6 +67,10 @@ private:
   // for weight before GenFilter and HepMCFilter and before matching
   double totalWeightPre_;
   double thisRunWeightPre_;
+
+  // for weight after GenFilter and HepMCFilter and after matching
+  double totalWeight_;
+  double thisRunWeight_;
 
   // combined cross sections before HepMCFilter and GenFilter
   GenLumiInfoProduct::XSec xsecPreFilter_;
