@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.Generator.PyquenDefaultSettings_cff import *
 
-hiSignal = cms.EDFilter("PyquenGeneratorFilter",
+generator = cms.EDFilter("PyquenGeneratorFilter",
                          collisionParameters,
                          qgpParameters,
                          pyquenParameters,
@@ -22,7 +22,7 @@ hiSignal = cms.EDFilter("PyquenGeneratorFilter",
                          bMax = cms.double(0.0) ## max impact param (fm); valid only if cflag_!=0
                          )
 
-hiSignal.embeddingMode = True
+generator.embeddingMode = False
 
 configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.3 $'),
@@ -30,4 +30,4 @@ configurationMetadata = cms.untracked.PSet(
     annotation = cms.untracked.string('PYQUEN quenched gamma-jets (pt-hat > 20 GeV) at sqrt(s) = 2.76TeV')
     )
 
-ProductionFilterSequence = cms.Sequence(hiSignal)
+ProductionFilterSequence = cms.Sequence(generator)
