@@ -4,7 +4,8 @@ from RecoTauTag.Configuration.RecoPFTauTag_cff import *
 from RecoTauTag.TauTagTools.PFTauSelector_cfi  import pfTauSelector
 import RecoTauTag.RecoTau.RecoTauCleanerPlugins as cleaners
 #from CommonTools.ParticleFlow.pfJets_cff import pfJets
-from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
+#from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
+import RecoJets.JetProducers.ak4PFJets_cfi as jetConfig
 
 '''
 
@@ -40,7 +41,7 @@ pfTauPFJets08Region.pfSrc = cms.InputTag("particleFlow")
 pfTauPFJetsRecoTauChargedHadrons.jetRegionSrc = 'pfTauPFJets08Region'
 
 pfTauTagInfoProducer = pfRecoTauTagInfoProducer.clone()
-pfTauTagInfoProducer.PFCandidateProducer = ak4PFJets.src
+pfTauTagInfoProducer.PFCandidateProducer = jetConfig.ak4PFJets.src
 pfTauTagInfoProducer.PFJetTracksAssociatorProducer = 'pfJetTracksAssociatorAtVertex'
 
 # Clone tau producer
@@ -124,7 +125,7 @@ pfTauPileUpVertices = cms.EDFilter(
 
 
 pfTauTagInfoProducer = pfRecoTauTagInfoProducer.clone()
-pfTauTagInfoProducer.PFCandidateProducer = ak4PFJets.src
+pfTauTagInfoProducer.PFCandidateProducer = jetConfig.ak4PFJets.src
 pfTauTagInfoProducer.PFJetTracksAssociatorProducer = 'pfJetTracksAssociatorAtVertex'
 
 
