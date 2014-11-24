@@ -210,6 +210,16 @@ process.anaTrack.qualityStrings = cms.untracked.vstring('highPurity','highPurity
 process.pixelTrack.qualityStrings = cms.untracked.vstring('highPurity','highPuritySetWithPV')
 process.hiTracks.cut = cms.string('quality("highPurity")')
 
+process.load("SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi")
+process.quickTrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
+
+process.load("SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi")
+
+process.tpRecoAssocGeneralTracks = process.trackingParticleRecoTrackAsssociation.clone()
+process.tpRecoAssocGeneralTracks.label_tr = cms.InputTag("hiGeneralTracks")
+
+process.load("SimTracker.TrackerHitAssociation.clusterTpAssociationProducer_cfi")
+
 # set track collection to iterative tracking
 process.anaTrack.trackSrc = cms.InputTag("hiGeneralTracks")
 
@@ -249,6 +259,7 @@ process.ana_step = cms.Path(process.heavyIon*
                             process.hiEvtAnalyzer*
                             process.HiGenParticleAna*
                             process.hiGenJetsCleaned*
+                            process.tpRecoAssocGeneralTracks + #used in HiPFJetAnalyzer
                             process.jetSequences +
                             process.photonStep_withReco +
                             process.pfcandAnalyzer +

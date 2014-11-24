@@ -145,6 +145,10 @@ process.anaTrack.trackSrc = cms.InputTag("hiGeneralTracks")
 process.anaTrack.doPFMatching = False
 process.pixelTrack.doPFMatching = False
 
+# process.ppTrack.doSimVertex = True
+# process.ppTrack.doSimTrack = True
+# process.ppTrack.fillSimTrack = True
+
 process.load("SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi")
 process.quickTrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
 

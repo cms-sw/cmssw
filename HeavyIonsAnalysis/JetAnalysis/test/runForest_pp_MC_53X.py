@@ -191,6 +191,16 @@ process.hiTracks.cut = cms.string('quality("highPurity")')
 # clusters missing in recodebug - to be resolved
 process.anaTrack.doPFMatching = False
 
+process.load("SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi")
+process.quickTrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
+
+process.load("SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi")
+
+process.tpRecoAssocGeneralTracks = process.trackingParticleRecoTrackAsssociation.clone()
+process.tpRecoAssocGeneralTracks.label_tr = cms.InputTag("hiGeneralTracks")
+
+process.load("SimTracker.TrackerHitAssociation.clusterTpAssociationProducer_cfi")
+
 #####################
 # photons
 process.load('HeavyIonsAnalysis.JetAnalysis.EGammaAnalyzers_cff')
@@ -234,6 +244,7 @@ process.ana_step = cms.Path(process.hiCentrality +
                             process.hiEvtAnalyzer*
                             process.HiGenParticleAna*
                             process.hiGenJetsCleaned*
+                            process.tpRecoAssocGeneralTracks + #used in HiPFJetAnalyzer
                             process.jetSequences +
                             process.photonStep +
                             process.pfcandAnalyzer +

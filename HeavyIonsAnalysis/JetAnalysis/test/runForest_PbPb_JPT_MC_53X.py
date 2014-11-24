@@ -145,6 +145,16 @@ process.anaTrack.trackSrc = cms.InputTag("hiGeneralTracks")
 process.anaTrack.doPFMatching = False
 process.pixelTrack.doPFMatching = False
 
+process.load("SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi")
+process.quickTrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
+
+process.load("SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi")
+
+process.tpRecoAssocGeneralTracks = process.trackingParticleRecoTrackAsssociation.clone()
+process.tpRecoAssocGeneralTracks.label_tr = cms.InputTag("hiGeneralTracks")
+
+process.load("SimTracker.TrackerHitAssociation.clusterTpAssociationProducer_cfi")
+
 #####################
 # photons
 process.load('HeavyIonsAnalysis.JetAnalysis.EGammaAnalyzers_cff')
@@ -182,6 +192,7 @@ process.ana_step = cms.Path(process.heavyIon*
                             process.HiGenParticleAna*
 #                            process.hiGenJetsCleaned*
                             process.hiSelectGenJets*
+                            process.tpRecoAssocGeneralTracks + #used in HiPFJetAnalyzer
                             process.jetSequences +
                             process.photonStep_withReco +
                             process.pfcandAnalyzer +

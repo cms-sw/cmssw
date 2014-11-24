@@ -132,6 +132,7 @@ process.PFTowers.src = cms.InputTag("particleFlow")
 process.jetSequences = cms.Sequence(process.voronoiBackgroundCalo +
                                     process.voronoiBackgroundPF +
                                     process.PFTowers +
+                                    process.tpRecoAssocGeneralTracks + #used in HiPFJetAnalyzer
                                     process.hiReRecoCaloJets +
                                     process.hiReRecoPFJets +
 
@@ -186,6 +187,16 @@ process.hiTracks.cut = cms.string('quality("highPurity")')
 process.anaTrack.doPFMatching = False
 
 process.ppTrack.pfCandSrc = cms.InputTag("particleFlow")
+
+process.load("SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi")
+process.quickTrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
+
+process.load("SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi")
+
+process.tpRecoAssocGeneralTracks = process.trackingParticleRecoTrackAsssociation.clone()
+process.tpRecoAssocGeneralTracks.label_tr = cms.InputTag("hiGeneralTracks")
+
+process.load("SimTracker.TrackerHitAssociation.clusterTpAssociationProducer_cfi")
 
 # Disable this for now, causes problems.
 process.ppTrack.doPFMatching = cms.untracked.bool(False)
