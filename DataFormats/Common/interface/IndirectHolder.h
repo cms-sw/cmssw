@@ -29,6 +29,10 @@ namespace edm {
       // sure if use of auto_ptr here causes any troubles elsewhere.
       IndirectHolder() : BaseHolder<T>(), helper_( 0 ) { }
       IndirectHolder(std::shared_ptr<RefHolderBase> p);
+#ifndef __GCCXML__
+      template< typename U>
+      IndirectHolder(std::unique_ptr<U> p): helper_(p.release()) {}
+#endif
       IndirectHolder(IndirectHolder const& other);
       IndirectHolder& operator= (IndirectHolder const& rhs);
       void swap(IndirectHolder& other);
