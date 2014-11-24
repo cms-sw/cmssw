@@ -231,7 +231,7 @@ void GenParticleProducer::produce( Event& evt, const EventSetup& es ) {
 	   }
 	   if(sub_id < 0) sub_id = 0;
 	   int new_id = sub_id + suboffset;
-	   cout<<"new_id : "<<new_id<<endl;
+	   //	   cout<<"new_id : "<<new_id<<endl;
 	   GenParticleRef dref( ref_, d );
 	   //	   subs.insert(dref,new_id);   // For SubEventMap
 	   cands[d].setCollisionId(new_id); // For new GenParticle
