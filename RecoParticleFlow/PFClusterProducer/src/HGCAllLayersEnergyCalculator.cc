@@ -16,7 +16,8 @@ class HGCAllLayersEnergyCalibrator : public PFClusterEnergyCorrectorBase {
     _coef_b(conf.getParameter<double>("effMip_to_InverseGeV_b")),
     _coef_c(conf.getParameter<double>("effMip_to_InverseGeV_c")),     
     _weights_ee(conf.getParameter<std::vector<double> >("weights_ee")),
-    _weights_he(conf.getParameter<std::vector<double> >("weights_he"))
+    _weights_hef(conf.getParameter<std::vector<double> >("weights_hef")),
+    _weights_heb(conf.getParameter<std::vector<double> >("weights_heb"))
       { }
   HGCAllLayersEnergyCalibrator(const HGCAllLayersEnergyCalibrator&) = delete;
   HGCAllLayersEnergyCalibrator& operator=(const HGCAllLayersEnergyCalibrator&) = delete;
@@ -29,7 +30,7 @@ class HGCAllLayersEnergyCalibrator : public PFClusterEnergyCorrectorBase {
  private:  
   const double _mipValueInGeV_ee,_mipValueInGeV_hef,_mipValueInGeV_heb,
     _coef_a,_coef_b,_coef_c;
-  const std::vector<double> _weights_ee,_weights_he;
+  const std::vector<double> _weights_ee,_weights_hef,_weights_heb;
   
   void correctEnergyActual(reco::PFCluster&) const;
   
@@ -68,13 +69,13 @@ correctEnergyActual(reco::PFCluster& cluster) const {
       mip2gev = effMIP_to_InvGeV;
       break;
     case HGCHEF:
-      weights = &_weights_he;
+      weights = &_weights_hef;
       zside_layer = getlayer<HGCHEDetId>(hit.detId());
       mip_value = _mipValueInGeV_hef;
       mip2gev = effMIP_to_InvGeV;
       break;
     case HGCHEB:
-      weights = &_weights_he;
+      weights = &_weights_heb;
       zside_layer = getlayer<HGCHEDetId>(hit.detId());
       mip_value = _mipValueInGeV_heb;
       mip2gev = effMIP_to_InvGeV;

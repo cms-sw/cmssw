@@ -75,7 +75,8 @@ _HGCEE_EMEnergyCalibrator = cms.PSet(
     MipValueInGeV_heb = cms.double(1498.4*1e-6),
     #EM energy calibrations
     weights_ee = cms.vdouble(weight_vec_ee_electrons),
-    weights_he = cms.vdouble([0 for x in range(21)]),
+    weights_hef = cms.vdouble([0 for x in range(12)]),
+    weights_heb = cms.vdouble([0 for x in range(12)]),
     effMip_to_InverseGeV_a = cms.double(82.8),
     effMip_to_InverseGeV_b = cms.double(1e6),
     effMip_to_InverseGeV_c = cms.double(1e6)    
