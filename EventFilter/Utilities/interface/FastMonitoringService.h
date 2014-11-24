@@ -253,6 +253,7 @@ namespace evf{
 
       std::atomic<bool> monInit_;
       bool exception_detected_ = false;
+      std::vector<unsigned int> exceptionInLS_;
     };
 
 }
