@@ -3,8 +3,6 @@ import FWCore.ParameterSet.Config as cms
 from RecoTauTag.Configuration.RecoPFTauTag_cff import *
 from RecoTauTag.TauTagTools.PFTauSelector_cfi  import pfTauSelector
 import RecoTauTag.RecoTau.RecoTauCleanerPlugins as cleaners
-#from CommonTools.ParticleFlow.pfJets_cff import pfJets
-#from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
 import RecoJets.JetProducers.ak4PFJets_cfi as jetConfig
 
 '''
@@ -112,7 +110,6 @@ pfTausBaseSequence = cms.Sequence(
     )
 
 # Associate track to pfJets
-#from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import *
 pfJetTracksAssociatorAtVertex = ak4PFJetTracksAssociatorAtVertex.clone()
 pfJetTracksAssociatorAtVertex.jets= cms.InputTag("ak4PFJets")
 
