@@ -17,6 +17,7 @@ void wait ( int seconds )
   while (clock() < endwait) {}
 }
 int main(){
+  assert(0); //Fail deliberately to avoid invfinite loop.
   edmplugin::PluginManager::Config config;
   edmplugin::PluginManager::configure(edmplugin::standard::config());
   cond::DbConnection connection;
