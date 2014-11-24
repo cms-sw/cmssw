@@ -34,7 +34,7 @@ MicroEventContent = cms.PSet(
         'keep recoSuperClusters_reducedEgamma_*_*',
         'keep recoCaloClusters_reducedEgamma_*_*',
         'keep EcalRecHitsSorted_reducedEgamma_*_*',
-        
+
 
         'drop *_*_caloTowers_*',
         'drop *_*_pfCandidates_*',
@@ -44,7 +44,7 @@ MicroEventContent = cms.PSet(
         'keep *_offlineSlimmedPrimaryVertices_*_*',
         'keep patPackedCandidates_packedPFCandidates_*_*',
 
-        'keep double_fixedGridRho*__*', 
+        'keep double_fixedGridRho*__*',
 
         'keep *_selectedPatTrigger_*_*',
         'keep patPackedTriggerPrescales_patTrigger__*',
@@ -54,7 +54,7 @@ MicroEventContent = cms.PSet(
         'keep *_TriggerResults_*_PAT', # for MET filters
 	'keep patPackedCandidates_lostTracks_*_*',
         'keep HcalNoiseSummary_hcalnoise__*',
-        'keep *_caTopTagInfos_*_*'
+        'keep *_caTopTagInfosPAT_*_*'
     )
 )
 MicroEventContentMC = cms.PSet(
