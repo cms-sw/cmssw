@@ -14,6 +14,8 @@ class EgammaTowerIsolation ;
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 
 class EgammaHadTower;
 
@@ -40,6 +42,10 @@ class ElectronHcalHelper
       edm::InputTag hcalRecHits ;
       double hOverEHBMinE ;
       double hOverEHFMinE ;
+
+      // specific parameters if use hgcal HF Clusters
+      edm::InputTag hgcalHFClusters ;
+
      } ;
 
     ElectronHcalHelper( const Configuration & ) ;
@@ -60,7 +66,10 @@ class ElectronHcalHelper
     std::vector<CaloTowerDetId> hcalTowersBehindClusters( const reco::SuperCluster & sc ) ;
     double hcalESumDepth1BehindClusters( const std::vector<CaloTowerDetId> & towers ) ;
     double hcalESumDepth2BehindClusters( const std::vector<CaloTowerDetId> & towers ) ;
-
+    
+    // HGCal using HCAL clusters
+    double hgcalHFBehindClusters( const reco::SuperCluster & ) ;
+     
   private:
 
     const Configuration cfg_ ;
@@ -79,6 +88,10 @@ class ElectronHcalHelper
     EgammaTowerIsolation * towerIso1_ ;
     EgammaTowerIsolation * towerIso2_ ;
     EgammaHadTower * hadTower_;
+    
+    //hgcal HF Clusters
+    edm::Handle<reco::PFClusterCollection> * hgcalHFCluster_ ;
+ 
  } ;
 
 #endif

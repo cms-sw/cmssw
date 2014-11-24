@@ -3,6 +3,10 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
+#include "DataFormats/Math/interface/Vector3D.h"
+#include "Math/Vector3D.h"
+#include "Math/VectorUtil.h"
+
 #include <algorithm>
 #include <iostream>
 
@@ -113,6 +117,26 @@ void EgammaHadTower::setTowerCollection(const CaloTowerCollection* towerCollecti
   towerCollection_ = towerCollection;
 }
 
+void EgammaHadTower::setPFClusterCollection(const std::vector<reco::PFCluster>* pfClusterCollection) {
+  pfClusterCollection_ = pfClusterCollection;
+}
+
+double EgammaHadTower::getHgcalHFE(const reco::SuperCluster & sc, float EtMin, double hOverEConeSize) const {
+  math::XYZVector vectorSC(sc.position().x(),sc.position().y(),sc.position().z());
+  double totalEnergy = 0.;
+  std::vector<reco::PFCluster>::const_iterator trItr = pfClusterCollection_->begin();
+  std::vector<reco::PFCluster>::const_iterator trItrEnd = pfClusterCollection_->end();
+  for( ;  trItr != trItrEnd ; ++trItr){
+      math::XYZVector vectorHgcalHFECluster(trItr->position().x(),trItr->position().y(),trItr->position().z());
+      double dR = ROOT::Math::VectorUtil::DeltaR(vectorSC,vectorHgcalHFECluster);
+      if (dR<hOverEConeSize) totalEnergy += trItr->energy();
+  }
+  return totalEnergy;
+}
+
 bool ClusterGreaterThan(const reco::CaloClusterPtr& c1, const reco::CaloClusterPtr& c2)  {
   return (*c1 > *c2);
 }
+
+
+
