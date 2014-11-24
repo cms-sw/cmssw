@@ -694,9 +694,9 @@ def genvalid(fragment,d,suffix='all',fi='',dataSet=''):
 
 
 
-steps['DYToll0123Jets_5f_LO_MLM_Madgraph_LHE_13TeV']=genvalid('Configuration/Generator/python/DYToll0123Jets_5f_LO_MLM_Madgraph_LHE_13TeV_cff.py',step1LHEDefaults)
+steps['DYToll01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV']=genvalid('Configuration/Generator/python/DYToll0123Jets_5f_LO_MLM_Madgraph_LHE_13TeV_cff.py',step1LHEDefaults)
 
-steps['DYToll0123Jets_5f_LO_MLM_Madgraph_LHE_13TeVINPUT']={'INPUT':InputInfo(dataSet='/MinimumBias/Run2012B-v1/RAW',location='STD')}
+steps['DYToll01234Jets_5f_LO_MLM_Madgraph_LHE_13TeVINPUT']={'INPUT':InputInfo(dataSet='/MinimumBias/Run2012B-v1/RAW',location='STD')}
 
 steps['MinBias_TuneZ2star_13TeV_pythia6']=genvalid('MinBias_TuneZ2star_13TeV_pythia6_cff',step1GenDefaults)
 steps['QCD_Pt-30_TuneZ2star_13TeV_pythia6']=genvalid('QCD_Pt_30_TuneZ2star_13TeV_pythia6_cff',step1GenDefaults)
@@ -715,30 +715,30 @@ steps['QCD_Pt-30_8TeV_herwigpp']=genvalid('QCD_Pt_30_8TeV_herwigpp_cff',step1Gen
 
 # Generator Hadronization (Hadronization of LHE)
 steps['WJetsLNu_13TeV_madgraph-pythia8']=genvalid('Hadronizer_MgmMatchTuneCUETP8M1_13TeV_madgraph_pythia8_cff',step1GenDefaults,dataSet='/WJetsToLNu_13TeV-madgraph/Fall13wmLHE-START62_V1-v1/GEN')
-steps['ZJetsLL_13TeV_madgraph-pythia8']=genvalid('Hadronizer_MgmMatchTuneCUETP8M1JetMatching_13TeV_madgraph_pythia8_cff',step1GenDefaults)
+steps['Hadronizer_TuneCUETP8M1_8TeV_MLM_5f_max4j_LHE_pythia8']=genvalid('Hadronizer_TuneCUETP8M1_8TeV_MLM_5f_max4j_LHE_pythia8_cff',step1GenDefaults)
 steps['GGToH_13TeV_pythia8']=genvalid('GGToHtautau_13TeV_pythia8_cff',step1GenDefaults)
 
 steps['WJetsLNutaupinu_13TeV_madgraph-pythia8']=genvalid('Hadronizer_MgmMatchTuneCUETP8M1_13TeV_madgraph_pythia8_taupinu_cff',step1GenDefaults,dataSet='/WJetsToLNu_13TeV-madgraph/Fall13wmLHE-START62_V1-v1/GEN')
-steps['ZJetsLLtaupinu_13TeV_madgraph-pythia8']=genvalid('Hadronizer_MgmMatchTuneCUETP8M1JetMatching_13TeV_madgraph_pythia8_taupinu_cff',step1GenDefaults)
+steps['Hadronizer_TuneCUETP8M1_8TeV_MLM_5f_max4j_LHE_pythia8_taupinu']=genvalid('Hadronizer_TuneCUETP8M1_8TeV_MLM_5f_max4j_LHE_pythia8_taupinu_cff',step1GenDefaults)
 steps['GGToHtaupinu_13TeV_pythia8']=genvalid('GGToHtautau_13TeV_pythia8_taupinu_cff',step1GenDefaults)
 
 steps['WJetsLNutaurhonu_13TeV_madgraph-pythia8']=genvalid('Hadronizer_MgmMatchTuneCUETP8M1_13TeV_madgraph_pythia8_taurhonu_cff.py',step1GenDefaults,dataSet='/WJetsToLNu_13TeV-madgraph/Fall13wmLHE-START62_V1-v1/GEN')
-steps['ZJetsLLtaurhonu_13TeV_madgraph-pythia8']=genvalid('Hadronizer_MgmMatchTuneCUETP8M1JetMatching_13TeV_madgraph_pythia8_taurhonu_cff.py',step1GenDefaults)
+steps['Hadronizer_TuneCUETP8M1_8TeV_MLM_5f_max4j_LHE_pythia8_taurhonu']=genvalid('Hadronizer_TuneCUETP8M1_8TeV_MLM_5f_max4j_LHE_pythia8_taurhonu_cff.py',step1GenDefaults)
 steps['GGToHtaurhonu_13TeV_pythia8']=genvalid('GGToHtautau_13TeV_pythia8_taurhonu_cff',step1GenDefaults)
 
 # Generator External Decays
 steps['TT_13TeV_pythia8-evtgen']=genvalid('Hadronizer_MgmMatchTuneCUETP8M1_13TeV_madgraph_pythia8_EvtGen_cff',step1GenDefaults,dataSet='/TTJets_MSDecaysCKM_central_13TeV-madgraph/Fall13wmLHE-START62_V1-v1/GEN')
 
-steps['DYToLL_M-50_13TeV_pythia8-tauola']=genvalid('Hadronizer_MgmMatchTuneCUETP8M1JetMatching_13TeV_madgraph_pythia8_Tauola_cff',step1GenDefaults)
+steps['Hadronizer_TuneCUETP8M1_8TeV_MLM_5f_max4j_LHE_pythia8_Tauola']=genvalid('Hadronizer_TuneCUETP8M1_8TeV_MLM_5f_max4j_LHE_pythia8_Tauola_cff',step1GenDefaults)
 steps['WToLNu_13TeV_pythia8-tauola']=genvalid('Hadronizer_MgmMatchTuneCUETP8M1_13TeV_madgraph_pythia8_Tauola_cff',step1GenDefaults,dataSet='/WJetsToLNu_13TeV-madgraph/Fall13wmLHE-START62_V1-v1/GEN')
 steps['GGToH_13TeV_pythia8-tauola']=genvalid('GGToHtautau_13TeV_pythia8_Tauola_cff',step1GenDefaults)
 
 steps['WToLNutaupinu_13TeV_pythia8-tauola']=genvalid('Hadronizer_MgmMatchTuneCUETP8M1_13TeV_madgraph_pythia8_Tauola_taupinu_cff',step1GenDefaults,dataSet='/WJetsToLNu_13TeV-madgraph/Fall13wmLHE-START62_V1-v1/GEN')
-steps['DYToLLtaupinu_M-50_13TeV_pythia8-tauola']=genvalid('Hadronizer_MgmMatchTuneCUETP8M1JetMatching_13TeV_madgraph_pythia8_Tauola_taupinu_cff',step1GenDefaults)
+steps['Hadronizer_TuneCUETP8M1_8TeV_MLM_5f_max4j_LHE_pythia8_Tauola_taupinu']=genvalid('Hadronizer_TuneCUETP8M1_8TeV_MLM_5f_max4j_LHE_pythia8_Tauola_taupinu_cff',step1GenDefaults)
 steps['GGToHtaupinu_13TeV_pythia8-tauola']=genvalid('GGToHtautau_13TeV_pythia8_Tauola_taupinu_cff',step1GenDefaults)
 
 steps['WToLNutaurhonu_13TeV_pythia8-tauola']=genvalid('Hadronizer_MgmMatchTuneCUETP8M1_13TeV_madgraph_pythia8_Tauola_taurhonu_cff',step1GenDefaults,dataSet='/WJetsToLNu_13TeV-madgraph/Fall13wmLHE-START62_V1-v1/GEN')
-steps['DYToLLtaurhonu_M-50_13TeV_pythia8-tauola']=genvalid('Hadronizer_MgmMatchTuneCUETP8M1JetMatching_13TeV_madgraph_pythia8_Tauola_taurhonu_cff',step1GenDefaults)
+steps['Hadronizer_TuneCUETP8M1_8TeV_MLM_5f_max4j_LHE_pythia8_Tauola_taurhonu']=genvalid('Hadronizer_TuneCUETP8M1_8TeV_MLM_5f_max4j_LHE_pythia8_Tauola_taurhonu_cff',step1GenDefaults)
 steps['GGToHtaurhonu_13TeV_pythia8-tauola']=genvalid('GGToHtautau_13TeV_pythia8_Tauola_taurhonu_cff',step1GenDefaults)
 
 # Heavy Ion
