@@ -51,7 +51,7 @@ SiPixelHLTSource::SiPixelHLTSource(const edm::ParameterSet& iConfig) :
   rawin_( consumes<FEDRawDataCollection>( conf_.getParameter<edm::InputTag>( "RawInput" ) ) ),
   errin_( consumes<edm::DetSetVector<SiPixelRawDataError> >( conf_.getParameter<edm::InputTag>( "ErrorInput" ) ) ),
   saveFile( conf_.getUntrackedParameter<bool>("saveFile",false) ),
-  slowDown( conf_.getUntrackedParameter<bool>("slowDown",false) ),
+  slowDown( conf_.getUntrackedParameter<bool>("slowDown",false) )
 {
   firstRun = true;
   LogInfo ("PixelDQM") << "SiPixelHLTSource::SiPixelHLTSource: Got DQM BackEnd interface"<<endl;
