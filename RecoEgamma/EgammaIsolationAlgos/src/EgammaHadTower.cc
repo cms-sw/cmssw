@@ -122,12 +122,12 @@ void EgammaHadTower::setPFClusterCollection(const std::vector<reco::PFCluster>* 
 }
 
 double EgammaHadTower::getHgcalHFE(const reco::SuperCluster & sc, float EtMin, double hOverEConeSize) const {
-  math::XYZVector vectorSC(sc.position().x(),sc.position().y(),sc.position().Z());
+  math::XYZVector vectorSC(sc.position().x(),sc.position().y(),sc.position().z());
   double totalEnergy = 0.;
   std::vector<reco::PFCluster>::const_iterator trItr = pfClusterCollection_->begin();
   std::vector<reco::PFCluster>::const_iterator trItrEnd = pfClusterCollection_->end();
   for( ;  trItr != trItrEnd ; ++trItr){
-      math::XYZVector vectorHgcalHFECluster(trItr->position().x(),trItr->position().y(),trItr->position().Z());
+      math::XYZVector vectorHgcalHFECluster(trItr->position().x(),trItr->position().y(),trItr->position().z());
       double dR = ROOT::Math::VectorUtil::DeltaR(vectorSC,vectorHgcalHFECluster);
       if (dR<hOverEConeSize) totalEnergy += trItr->energy();
   }
