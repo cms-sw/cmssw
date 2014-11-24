@@ -216,7 +216,7 @@ void writeMessage(const dqmstorepb::ROOTFilePB &dqmstore_output_msg,
 
   // make sure we flush before close
   gzip_stream.Close();
-  out_stream.file_stream.Close();
+  out_stream.Close();
   ::close(out_fd);
 }
 
