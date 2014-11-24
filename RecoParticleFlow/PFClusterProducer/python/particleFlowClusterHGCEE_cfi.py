@@ -124,7 +124,7 @@ _fromScratchHGCClusterizer_HGCEE = cms.PSet(
         inputTracks = cms.InputTag("generalTracks"),
         cleaningCriteriaPerIter = cms.vdouble(1.0),
         stoppingTolerance = cms.double(1.0), #Nsigma to stop cluster growth
-        stopAtFirstClusterEncountered = cms.bool(True),
+        stopAtFirstClusterEncountered = cms.bool(False),
         expectedHadronicResolution = cms.PSet( stochastic = cms.double(70.0),
                                                noise = cms.double(0.0),
                                                constant = cms.double(1.0) ) ),
