@@ -1,0 +1,78 @@
+
+import FWCore.ParameterSet.Config as cms
+from PhysicsTools.PatAlgos.patHeavyIonSequences_cff import *
+from HeavyIonsAnalysis.JetAnalysis.inclusiveJetAnalyzer_cff import *
+
+ALGO_SUB_RADIUS_OBJECT_match = patJetGenJetMatch.clone(
+    src = cms.InputTag("ALGO_SUB_RADIUS_OBJECT_Jets"),
+    matched = cms.InputTag("ALGO_RADIUS_GENJETS")
+    )
+
+ALGO_SUB_RADIUS_OBJECT_parton = patJetPartonMatch.clone(src = cms.InputTag("ALGO_SUB_RADIUS_OBJECT_Jets"),
+                                                        matched = cms.InputTag("GENPARTICLES")
+                                                        )
+
+ALGO_SUB_RADIUS_OBJECT_corr = patJetCorrFactors.clone(
+    useNPV = False,
+#    primaryVertices = cms.InputTag("hiSelectedVertex"),
+    levels   = cms.vstring('L2Relative','L3Absolute'),                                                                
+    src = cms.InputTag("ALGO_SUB_RADIUS_OBJECT_Jets"),
+    payload = "CORRNAME_"
+    )
+
+ALGO_SUB_RADIUS_OBJECT_patJets = patJets.clone(jetSource = cms.InputTag("ALGO_SUB_RADIUS_OBJECT_Jets"),
+                                               jetCorrFactorsSource = cms.VInputTag(cms.InputTag("ALGO_SUB_RADIUS_OBJECT_corr")),
+                                               genJetMatch = cms.InputTag("ALGO_SUB_RADIUS_OBJECT_match"),
+                                               genPartonMatch = cms.InputTag("ALGO_SUB_RADIUS_OBJECT_parton"),
+                                               jetIDMap = cms.InputTag("ALGO_SUB_RADIUS_OBJECT_JetID"),
+                                               addBTagInfo         = False,
+                                               addTagInfos         = False,
+                                               addDiscriminators   = False,
+                                               addAssociatedTracks = False,
+                                               addJetCharge        = False,
+                                               addJetID            = False,
+                                               getJetMCFlavour     = False,
+                                               addGenPartonMatch   = ISMC,
+                                               addGenJetMatch      = ISMC,
+                                               embedGenJetMatch    = ISMC,
+                                               embedGenPartonMatch = ISMC,
+                                               embedCaloTowers     = False,
+                                               embedPFCandidates = False
+				            )
+
+ALGO_SUB_RADIUS_OBJECT_JetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ALGO_SUB_RADIUS_OBJECT_patJets"),
+                                                             genjetTag = 'ALGO_RADIUS_GENJETS',
+                                                             rParam = 0.RADIUS_,
+                                                             matchJets = cms.untracked.bool(DOMATCH),
+                                                             matchTag = 'MATCHED_patJets',
+                                                             pfCandidateLabel = cms.untracked.InputTag('PARTICLEFLOW'),
+                                                             trackTag = cms.InputTag("TRACKS"),
+                                                             fillGenJets = ISMC,
+                                                             isMC = ISMC,
+                                                             genParticles = cms.untracked.InputTag("GENPARTICLES"),
+							     eventInfoTag = cms.InputTag("EVENTINFOTAG")
+                                                             )
+
+ALGO_SUB_RADIUS_OBJECT_JetSequence_mc = cms.Sequence(
+						  ALGO_SUB_RADIUS_OBJECT_match
+                                                  *
+                                                  ALGO_SUB_RADIUS_OBJECT_parton
+                                                  *
+                                                  ALGO_SUB_RADIUS_OBJECT_corr
+                                                  *
+                                                  ALGO_SUB_RADIUS_OBJECT_patJets
+                                                  *
+                                                  ALGO_SUB_RADIUS_OBJECT_JetAnalyzer
+                                                  )
+
+ALGO_SUB_RADIUS_OBJECT_JetSequence_data = cms.Sequence(ALGO_SUB_RADIUS_OBJECT_corr
+                                                    *
+                                                    ALGO_SUB_RADIUS_OBJECT_patJets
+                                                    *
+                                                    ALGO_SUB_RADIUS_OBJECT_JetAnalyzer
+                                                    )
+
+ALGO_SUB_RADIUS_OBJECT_JetSequence_jec = ALGO_SUB_RADIUS_OBJECT_JetSequence_mc
+ALGO_SUB_RADIUS_OBJECT_JetSequence_mix = ALGO_SUB_RADIUS_OBJECT_JetSequence_mc
+
+ALGO_SUB_RADIUS_OBJECT_JetSequence = cms.Sequence(ALGO_SUB_RADIUS_OBJECT_JetSequence_SAMPLE_)

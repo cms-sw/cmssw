@@ -1,0 +1,221 @@
+
+import FWCore.ParameterSet.Config as cms
+from PhysicsTools.PatAlgos.patHeavyIonSequences_cff import *
+from HeavyIonsAnalysis.JetAnalysis.inclusiveJetAnalyzer_cff import *
+from HeavyIonsAnalysis.JetAnalysis.bTaggers_cff import *
+from RecoJets.JetProducers.JetIDParams_cfi import *
+
+ALGO_SUB_RADIUS_OBJECT_match = patJetGenJetMatch.clone(
+    src = cms.InputTag("ALGO_SUB_RADIUS_OBJECT_Jets"),
+    matched = cms.InputTag("ALGO_RADIUS_GENJETS")
+    )
+
+ALGO_SUB_RADIUS_OBJECT_parton = patJetPartonMatch.clone(src = cms.InputTag("ALGO_SUB_RADIUS_OBJECT_Jets")
+                                                        )
+
+ALGO_SUB_RADIUS_OBJECT_corr = patJetCorrFactors.clone(
+    useNPV = False,
+#    primaryVertices = cms.InputTag("hiSelectedVertex"),
+    levels   = cms.vstring('L2Relative','L3Absolute'),
+    src = cms.InputTag("ALGO_SUB_RADIUS_OBJECT_Jets"),
+    payload = "CORRNAME_"
+    )
+
+ALGO_SUB_RADIUS_OBJECT_JetID= cms.EDProducer('JetIDProducer', JetIDParams, src = cms.InputTag('ALGO_SUB_RADIUS_CaloJets'))
+
+ALGO_SUB_RADIUS_OBJECT_clean   = heavyIonCleanedGenJets.clone(src = cms.InputTag('ALGO_RADIUS_GENJETS'))
+
+ALGO_SUB_RADIUS_OBJECT_bTagger = bTaggers("ALGO_SUB_RADIUS_OBJECT_")
+
+#create objects locally since they dont load properly otherwise
+ALGO_SUB_RADIUS_OBJECT_match = ALGO_SUB_RADIUS_OBJECT_bTagger.match
+ALGO_SUB_RADIUS_OBJECT_parton = ALGO_SUB_RADIUS_OBJECT_bTagger.parton
+ALGO_SUB_RADIUS_OBJECT_PatJetFlavourAssociation = ALGO_SUB_RADIUS_OBJECT_bTagger.PatJetFlavourAssociation
+ALGO_SUB_RADIUS_OBJECT_JetTracksAssociatorAtVertex = ALGO_SUB_RADIUS_OBJECT_bTagger.JetTracksAssociatorAtVertex
+ALGO_SUB_RADIUS_OBJECT_SimpleSecondaryVertexHighEffBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.SimpleSecondaryVertexHighEffBJetTags
+ALGO_SUB_RADIUS_OBJECT_SimpleSecondaryVertexHighPurBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.SimpleSecondaryVertexHighPurBJetTags
+ALGO_SUB_RADIUS_OBJECT_CombinedSecondaryVertexBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.CombinedSecondaryVertexBJetTags
+ALGO_SUB_RADIUS_OBJECT_CombinedSecondaryVertexMVABJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.CombinedSecondaryVertexMVABJetTags
+ALGO_SUB_RADIUS_OBJECT_JetBProbabilityBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.JetBProbabilityBJetTags
+ALGO_SUB_RADIUS_OBJECT_SoftMuonByPtBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.SoftMuonByPtBJetTags
+ALGO_SUB_RADIUS_OBJECT_SoftMuonByIP3dBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.SoftMuonByIP3dBJetTags
+ALGO_SUB_RADIUS_OBJECT_TrackCountingHighEffBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.TrackCountingHighEffBJetTags
+ALGO_SUB_RADIUS_OBJECT_TrackCountingHighPurBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.TrackCountingHighPurBJetTags
+ALGO_SUB_RADIUS_OBJECT_PatJetPartonAssociation = ALGO_SUB_RADIUS_OBJECT_bTagger.PatJetPartonAssociation
+
+ALGO_SUB_RADIUS_OBJECT_ImpactParameterTagInfos = ALGO_SUB_RADIUS_OBJECT_bTagger.ImpactParameterTagInfos
+ALGO_SUB_RADIUS_OBJECT_JetProbabilityBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.JetProbabilityBJetTags
+ALGO_SUB_RADIUS_OBJECT_PositiveOnlyJetProbabilityJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.PositiveOnlyJetProbabilityJetTags
+ALGO_SUB_RADIUS_OBJECT_NegativeOnlyJetProbabilityJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.NegativeOnlyJetProbabilityJetTags
+ALGO_SUB_RADIUS_OBJECT_NegativeTrackCountingHighEffJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.NegativeTrackCountingHighEffJetTags
+ALGO_SUB_RADIUS_OBJECT_NegativeTrackCountingHighPur = ALGO_SUB_RADIUS_OBJECT_bTagger.NegativeTrackCountingHighPur
+ALGO_SUB_RADIUS_OBJECT_NegativeOnlyJetBProbabilityJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.NegativeOnlyJetBProbabilityJetTags
+ALGO_SUB_RADIUS_OBJECT_PositiveOnlyJetBProbabilityJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.PositiveOnlyJetBProbabilityJetTags
+
+ALGO_SUB_RADIUS_OBJECT_SecondaryVertexTagInfos = ALGO_SUB_RADIUS_OBJECT_bTagger.SecondaryVertexTagInfos
+ALGO_SUB_RADIUS_OBJECT_SimpleSecondaryVertexHighEffBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.SimpleSecondaryVertexHighEffBJetTags
+ALGO_SUB_RADIUS_OBJECT_SimpleSecondaryVertexHighPurBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.SimpleSecondaryVertexHighPurBJetTags
+ALGO_SUB_RADIUS_OBJECT_CombinedSecondaryVertexBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.CombinedSecondaryVertexBJetTags
+ALGO_SUB_RADIUS_OBJECT_CombinedSecondaryVertexMVABJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.CombinedSecondaryVertexMVABJetTags
+
+ALGO_SUB_RADIUS_OBJECT_SecondaryVertexNegativeTagInfos = ALGO_SUB_RADIUS_OBJECT_bTagger.SecondaryVertexNegativeTagInfos
+ALGO_SUB_RADIUS_OBJECT_SimpleSecondaryVertexNegativeHighEffBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.SimpleSecondaryVertexNegativeHighEffBJetTags
+ALGO_SUB_RADIUS_OBJECT_SimpleSecondaryVertexNegativeHighPurBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.SimpleSecondaryVertexNegativeHighPurBJetTags
+ALGO_SUB_RADIUS_OBJECT_CombinedSecondaryVertexNegativeBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.CombinedSecondaryVertexNegativeBJetTags
+ALGO_SUB_RADIUS_OBJECT_CombinedSecondaryVertexPositiveBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.CombinedSecondaryVertexPositiveBJetTags
+
+ALGO_SUB_RADIUS_OBJECT_SoftMuonTagInfos = ALGO_SUB_RADIUS_OBJECT_bTagger.SoftMuonTagInfos
+ALGO_SUB_RADIUS_OBJECT_SoftMuonBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.SoftMuonBJetTags
+ALGO_SUB_RADIUS_OBJECT_SoftMuonByIP3dBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.SoftMuonByIP3dBJetTags
+ALGO_SUB_RADIUS_OBJECT_SoftMuonByPtBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.SoftMuonByPtBJetTags
+ALGO_SUB_RADIUS_OBJECT_NegativeSoftMuonByPtBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.NegativeSoftMuonByPtBJetTags
+ALGO_SUB_RADIUS_OBJECT_PositiveSoftMuonByPtBJetTags = ALGO_SUB_RADIUS_OBJECT_bTagger.PositiveSoftMuonByPtBJetTags
+
+ALGO_SUB_RADIUS_OBJECT_PatJetFlavourId = cms.Sequence(ALGO_SUB_RADIUS_OBJECT_PatJetPartonAssociation*ALGO_SUB_RADIUS_OBJECT_PatJetFlavourAssociation)
+
+ALGO_SUB_RADIUS_OBJECT_JetBtaggingIP       = cms.Sequence(ALGO_SUB_RADIUS_OBJECT_ImpactParameterTagInfos *
+            (ALGO_SUB_RADIUS_OBJECT_TrackCountingHighEffBJetTags +
+             ALGO_SUB_RADIUS_OBJECT_TrackCountingHighPurBJetTags +
+             ALGO_SUB_RADIUS_OBJECT_JetProbabilityBJetTags +
+             ALGO_SUB_RADIUS_OBJECT_JetBProbabilityBJetTags +
+             ALGO_SUB_RADIUS_OBJECT_PositiveOnlyJetProbabilityJetTags +
+             ALGO_SUB_RADIUS_OBJECT_NegativeOnlyJetProbabilityJetTags +
+             ALGO_SUB_RADIUS_OBJECT_NegativeTrackCountingHighEffJetTags +
+             ALGO_SUB_RADIUS_OBJECT_NegativeTrackCountingHighPur +
+             ALGO_SUB_RADIUS_OBJECT_NegativeOnlyJetBProbabilityJetTags +
+             ALGO_SUB_RADIUS_OBJECT_PositiveOnlyJetBProbabilityJetTags
+            )
+            )
+
+ALGO_SUB_RADIUS_OBJECT_JetBtaggingSV = cms.Sequence(ALGO_SUB_RADIUS_OBJECT_ImpactParameterTagInfos
+            *
+            ALGO_SUB_RADIUS_OBJECT_SecondaryVertexTagInfos
+            * (ALGO_SUB_RADIUS_OBJECT_SimpleSecondaryVertexHighEffBJetTags
+                +
+                ALGO_SUB_RADIUS_OBJECT_SimpleSecondaryVertexHighPurBJetTags
+                +
+                ALGO_SUB_RADIUS_OBJECT_CombinedSecondaryVertexBJetTags
+                +
+                ALGO_SUB_RADIUS_OBJECT_CombinedSecondaryVertexMVABJetTags
+              )
+            )
+
+ALGO_SUB_RADIUS_OBJECT_JetBtaggingNegSV = cms.Sequence(ALGO_SUB_RADIUS_OBJECT_ImpactParameterTagInfos
+            *
+            ALGO_SUB_RADIUS_OBJECT_SecondaryVertexNegativeTagInfos
+            * (ALGO_SUB_RADIUS_OBJECT_SimpleSecondaryVertexNegativeHighEffBJetTags
+                +
+                ALGO_SUB_RADIUS_OBJECT_SimpleSecondaryVertexNegativeHighPurBJetTags
+                +
+                ALGO_SUB_RADIUS_OBJECT_CombinedSecondaryVertexNegativeBJetTags
+                +
+                ALGO_SUB_RADIUS_OBJECT_CombinedSecondaryVertexPositiveBJetTags
+              )
+            )
+
+ALGO_SUB_RADIUS_OBJECT_JetBtaggingMu = cms.Sequence(ALGO_SUB_RADIUS_OBJECT_SoftMuonTagInfos * (ALGO_SUB_RADIUS_OBJECT_SoftMuonBJetTags
+                +
+                ALGO_SUB_RADIUS_OBJECT_SoftMuonByIP3dBJetTags
+                +
+                ALGO_SUB_RADIUS_OBJECT_SoftMuonByPtBJetTags
+                +
+                ALGO_SUB_RADIUS_OBJECT_NegativeSoftMuonByPtBJetTags
+                +
+                ALGO_SUB_RADIUS_OBJECT_PositiveSoftMuonByPtBJetTags
+              )
+            )
+
+ALGO_SUB_RADIUS_OBJECT_JetBtagging = cms.Sequence(ALGO_SUB_RADIUS_OBJECT_JetBtaggingIP
+            *ALGO_SUB_RADIUS_OBJECT_JetBtaggingSV
+            *ALGO_SUB_RADIUS_OBJECT_JetBtaggingNegSV
+            *ALGO_SUB_RADIUS_OBJECT_JetBtaggingMu
+            )
+
+ALGO_SUB_RADIUS_OBJECT_patJetsWithBtagging = patJets.clone(jetSource = cms.InputTag("ALGO_SUB_RADIUS_OBJECT_Jets"),
+        genJetMatch          = cms.InputTag("ALGO_SUB_RADIUS_OBJECT_match"),
+        genPartonMatch       = cms.InputTag("ALGO_SUB_RADIUS_OBJECT_parton"),
+        jetCorrFactorsSource = cms.VInputTag(cms.InputTag("ALGO_SUB_RADIUS_OBJECT_corr")),
+        JetPartonMapSource   = cms.InputTag("ALGO_SUB_RADIUS_OBJECT_PatJetFlavourAssociation"),
+        trackAssociationSource = cms.InputTag("ALGO_SUB_RADIUS_OBJECT_JetTracksAssociatorAtVertex"),
+        discriminatorSources = cms.VInputTag(cms.InputTag("ALGO_SUB_RADIUS_OBJECT_SimpleSecondaryVertexHighEffBJetTags"),
+            cms.InputTag("ALGO_SUB_RADIUS_OBJECT_SimpleSecondaryVertexHighPurBJetTags"),
+            cms.InputTag("ALGO_SUB_RADIUS_OBJECT_CombinedSecondaryVertexBJetTags"),
+            cms.InputTag("ALGO_SUB_RADIUS_OBJECT_CombinedSecondaryVertexMVABJetTags"),
+            cms.InputTag("ALGO_SUB_RADIUS_OBJECT_JetBProbabilityBJetTags"),
+            cms.InputTag("ALGO_SUB_RADIUS_OBJECT_JetProbabilityBJetTags"),
+            cms.InputTag("ALGO_SUB_RADIUS_OBJECT_SoftMuonByPtBJetTags"),
+            cms.InputTag("ALGO_SUB_RADIUS_OBJECT_SoftMuonByIP3dBJetTags"),
+            cms.InputTag("ALGO_SUB_RADIUS_OBJECT_TrackCountingHighEffBJetTags"),
+            cms.InputTag("ALGO_SUB_RADIUS_OBJECT_TrackCountingHighPurBJetTags"),
+            ),
+        jetIDMap = cms.InputTag("ALGO_SUB_RADIUS_OBJECT_JetID"),
+        addBTagInfo = True,
+        addTagInfos = True,
+        addDiscriminators = True,
+        addAssociatedTracks = True,
+        addJetCharge = False,
+        addJetID = True,
+        getJetMCFlavour = ISMC,
+        addGenPartonMatch = ISMC,
+        addGenJetMatch = ISMC,
+        embedGenJetMatch = ISMC,
+        embedGenPartonMatch = ISMC,
+        embedCaloTowers = False,
+        embedPFCandidates = True
+        )
+
+ALGO_SUB_RADIUS_OBJECT_JetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ALGO_SUB_RADIUS_OBJECT_patJetsWithBtagging"),
+                                                             genjetTag = 'ALGO_RADIUS_GENJETS',
+                                                             rParam = 0.RADIUS_,
+                                                             matchJets = cms.untracked.bool(DOMATCH),
+                                                             matchTag = 'MATCHED_patJetsWithBtagging',
+                                                             pfCandidateLabel = cms.untracked.InputTag('PARTICLEFLOW'),
+                                                             trackTag = cms.InputTag("TRACKS"),
+                                                             fillGenJets = ISMC,
+                                                             isMC = ISMC,
+                                                             genParticles = cms.untracked.InputTag("GENPARTICLES"),
+							     eventInfoTag = cms.InputTag("EVENTINFOTAG"),
+                                                             doLifeTimeTagging = cms.untracked.bool(True),
+                                                             doLifeTimeTaggingExtras = cms.untracked.bool(True),
+                                                             bTagJetName = cms.untracked.string("ALGO_SUB_RADIUS_OBJECT_"),
+                                                             genPtMin = cms.untracked.double(15),
+                                                             hltTrgResults = cms.untracked.string('TriggerResults::'+'HISIGNAL')
+                                                             )
+
+ALGO_SUB_RADIUS_OBJECT_JetSequence_mc = cms.Sequence(
+                                                  ALGO_SUB_RADIUS_OBJECT_clean
+                                                  *
+                                                  ALGO_SUB_RADIUS_OBJECT_match
+                                                  *
+                                                  ALGO_SUB_RADIUS_OBJECT_parton
+                                                  *
+                                                  ALGO_SUB_RADIUS_OBJECT_corr
+                                                  *
+                                                  ALGO_SUB_RADIUS_OBJECT_JetID
+                                                  *
+                                                  ALGO_SUB_RADIUS_OBJECT_PatJetFlavourId
+                                                  *
+                                                  ALGO_SUB_RADIUS_OBJECT_JetTracksAssociatorAtVertex
+                                                  *
+                                                  ALGO_SUB_RADIUS_OBJECT_JetBtagging
+                                                  *
+                                                  ALGO_SUB_RADIUS_OBJECT_patJetsWithBtagging
+                                                  *
+                                                  ALGO_SUB_RADIUS_OBJECT_JetAnalyzer
+                                                  )
+
+ALGO_SUB_RADIUS_OBJECT_JetSequence_data = cms.Sequence(ALGO_SUB_RADIUS_OBJECT_corr
+                                                    *
+                                                    ALGO_SUB_RADIUS_OBJECT_JetTracksAssociatorAtVertex
+                                                    *
+                                                    ALGO_SUB_RADIUS_OBJECT_JetBtagging
+                                                    *
+                                                    ALGO_SUB_RADIUS_OBJECT_patJetsWithBtagging
+                                                    *
+                                                    ALGO_SUB_RADIUS_OBJECT_JetAnalyzer
+                                                    )
+
+ALGO_SUB_RADIUS_OBJECT_JetSequence_jec = ALGO_SUB_RADIUS_OBJECT_JetSequence_mc
+ALGO_SUB_RADIUS_OBJECT_JetSequence_mix = ALGO_SUB_RADIUS_OBJECT_JetSequence_mc
+
+ALGO_SUB_RADIUS_OBJECT_JetSequence = cms.Sequence(ALGO_SUB_RADIUS_OBJECT_JetSequence_SAMPLE_)

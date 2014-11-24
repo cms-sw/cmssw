@@ -1,0 +1,38 @@
+<use name="root"/>
+<use name="hepmc"/>
+<use name="boost"/>
+<use name="fastjet"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Framework"/>
+<use name="PhysicsTools/UtilAlgos"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="Geometry/CaloGeometry"/>
+<use name="Geometry/Records"/>
+<use name="SimGeneral/HepPDTRecord"/>
+<use name="SimDataFormats/GeneratorProducts"/>
+<use name="SimDataFormats/HiGenData"/>
+<use name="SimTracker/TrackAssociation"/>
+<use name="SimTracker/Records" />
+<use name="DataFormats/HepMCCandidate"/>
+<use name="DataFormats/EcalRecHit"/>
+<use name="DataFormats/HcalRecHit"/>
+<use name="DataFormats/HcalDigi"/>
+<use name="DataFormats/HcalDetId"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/GeometryVector"/>
+<use name="DataFormats/JetReco"/>
+<use name="DataFormats/METReco"/>
+<use name="DataFormats/PatCandidates"/>
+<use name="RecoJets/JetProducers"/>
+<use name="RecoHI/HiJetAlgos"/>
+<use name="DataFormats/HeavyIonEvent"/>
+<use name="CondFormats/JetMETObjects"/>
+<use name="CalibFormats/HcalObjects"/>
+<use name="RecoLocalCalo/HcalRecAlgos"/>
+<use name="RecoHI/HiCentralityAlgos"/>
+<flags EDM_PLUGIN="1"/>
+
+
+
