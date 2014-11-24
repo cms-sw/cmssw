@@ -85,7 +85,7 @@ double MET::significance() const {
   double signif = -1;
   double det=0;
   metmat.Det2(det);
-  if(std::fabs(det)>0.000001){
+  if(std::abs(det)>0.000001){
     metmat.Invert();
     signif = ROOT::Math::Dot(metvec, (metmat * metvec) );
   }
