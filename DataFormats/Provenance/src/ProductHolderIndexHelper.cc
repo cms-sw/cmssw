@@ -23,12 +23,15 @@ namespace edm {
       static std::string const refVector("edm::RefVector<");
       static std::string const refToBaseVector("edm::RefToBaseVector<");
       static std::string const ptrVector("edm::PtrVector<");
+      static std::string const vectorPtr("std::vector<edm::Ptr<");
       static size_t const rvsize = refVector.size();
       static size_t const rtbvsize = refToBaseVector.size();
       static size_t const pvsize = ptrVector.size();
+      static size_t const vpsize = vectorPtr.size();
       bool mayBeRefVector = (className.substr(0, rvsize) == refVector)
                          || (className.substr(0, rtbvsize) == refToBaseVector)
-                         || (className.substr(0, pvsize) == ptrVector);
+                         || (className.substr(0, pvsize) == ptrVector)
+                         || (className.substr(0, vpsize) == vectorPtr);
       TClass* cl = TClass::GetClass(wrappedTypeID.className().c_str());
       if(cl == nullptr) {
         return TypeID(typeid(void));
