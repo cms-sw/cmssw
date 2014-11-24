@@ -27,7 +27,7 @@ from Validation.EventGenerator.BasicGenValidation_cff import *
 # miniAOD
 from Validation.RecoParticleFlow.miniAODValidation_cff import *
 
-prevalidation = cms.Sequence( globalPrevalidation * hltassociation * metPreValidSeq )
+prevalidation = cms.Sequence( globalPrevalidation * hltassociation * metPreValidSeq * jetPreValidSeq )
 prevalidationLiteTracking = cms.Sequence( prevalidation )
 prevalidationLiteTracking.replace(globalPrevalidation,globalPrevalidationLiteTracking)
 prevalidationMiniAOD = cms.Sequence( genParticles1 * miniAODValidationSequence )
