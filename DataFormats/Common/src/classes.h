@@ -42,6 +42,7 @@ namespace DataFormats_Common {
     edm::Wrapper<edm::RefVector<std::vector<int> > > dummyx20;
     edm::Wrapper<edm::RefToBaseVector<int> > dummyx21;
     edm::Wrapper<edm::PtrVector<int> > dummyx21_3;
+    edm::Wrapper<std::vector<edm::Ptr<int> > > dummy_vPtrInt;
     edm::Ptr<int> dummyx21_4;
     edm::reftobase::RefVectorHolderBase * dummyx21_0;
     edm::reftobase::IndirectVectorHolder<int> dummyx21_1;
