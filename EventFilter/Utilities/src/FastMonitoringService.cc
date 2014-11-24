@@ -214,7 +214,9 @@ namespace evf{
     if (to==edm::TerminationOrigin::ExternalSignal) context = " FromExternalSignal";
     edm::LogInfo("FastMonitoringService") << " STREAM " << sc.streamID().value() << " earlyTermination -: ID:"<< sc.eventID() 
                                           << " LS:" << sc.eventID().luminosityBlock() << " " << context;
-    exception_detected_=true; 
+    std::lock_guard<std::mutex> lock(fmt_.monlock_);
+    exceptionInLS_.push_back(sc.eventID().luminosityBlock());
+    //exception_detected_=true; 
   }
 
   void FastMonitoringService::preGlobalEarlyTermination(edm::GlobalContext const& gc, edm::TerminationOrigin to)
@@ -225,7 +227,9 @@ namespace evf{
     if (to==edm::TerminationOrigin::ExternalSignal) context = " FromExternalSignal";
     edm::LogInfo("FastMonitoringService") << " GLOBAL " << "earlyTermination -: LS:"
                                           << gc.luminosityBlockID().luminosityBlock() << " " << context;
-    exception_detected_=true; 
+    std::lock_guard<std::mutex> lock(fmt_.monlock_);
+    exceptionInLS_.push_back(gc.luminosityBlockID().luminosityBlock());
+    //exception_detected_=true; 
   }
 
   void FastMonitoringService::preSourceEarlyTermination(edm::TerminationOrigin to)
@@ -235,6 +239,7 @@ namespace evf{
     if (to==edm::TerminationOrigin::ExceptionFromAnotherContext) context =  " FromAnotherContext";
     if (to==edm::TerminationOrigin::ExternalSignal) context = " FromExternalSignal";
     edm::LogInfo("FastMonitoringService") << " SOURCE " << "earlyTermination -: " << context;
+    std::lock_guard<std::mutex> lock(fmt_.monlock_);
     exception_detected_=true; 
   }
 
@@ -344,7 +349,10 @@ namespace evf{
 	  {
 	    auto itr = sourceEventsReport_.find(lumi);
 	    if (itr==sourceEventsReport_.end()) {
-              //do not throw exception in case of signal termination
+              //check if exception has been thrown (in case of Global/Stream early termination, for this LS)
+              for (ex : exceptionInLS_)
+                if (lumi == ex) exception_detected_=true;
+
               if (edm::shutdown_flag || exception_detected_) {
                 edm::LogInfo("FastMonitoringService") << "Run interrupted. Skip writing EoL information -: "
                                                       << processedEventsPerLumi_[lumi] << " events were processed in LUMI " << lumi;

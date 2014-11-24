@@ -39,7 +39,7 @@ namespace evf{
     {
     public:
 
-      enum FileStatus { noFile, sameFile, newFile, newLumi, runEnded };
+      enum FileStatus { noFile, sameFile, newFile, newLumi, runEnded, runAbort };
 
       explicit EvFDaqDirector( const edm::ParameterSet &pset, edm::ActivityRegistry& reg );
       ~EvFDaqDirector();
