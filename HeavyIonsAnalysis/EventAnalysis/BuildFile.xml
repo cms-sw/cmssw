@@ -1,0 +1,17 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="DataFormats/HeavyIonEvent"/>
+<use name="DataFormats/VertexReco"/>
+<use name="DataFormats/Common"/>
+<use name="SimDataFormats/HiGenData"/>
+<use name="SimDataFormats/GeneratorProducts"/>
+<use name="RecoHI/HiCentralityAlgos"/>
+<use name="FWCore/Common"/>
+<use name="DataFormats/HLTReco"/>
+<use name="HLTrigger/HLTcore"/>
+<use name="CondFormats/HLTObjects"/>
+<use name="CondFormats/DataRecord"/>
+<flags EDM_PLUGIN="1"/>
