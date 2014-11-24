@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # getting the ptrs
 from RecoParticleFlow.PFProducer.pfLinker_cff import particleFlowPtrs
 
-from CommonTools.ParticleFlow.pfPileUp_cfi  import *
+from CommonTools.ParticleFlow.pfPileUp_cfi import *
 from CommonTools.ParticleFlow.TopProjectors.pfNoPileUp_cfi import *
 pfPileUpIsoPFBRECO = pfPileUp.clone( PFCandidates = 'particleFlowPtrs' )
 pfNoPileUpIsoPFBRECO = pfNoPileUp.clone( topCollection = 'pfPileUpIsoPFBRECO',
@@ -13,7 +13,7 @@ pfNoPileUpIsoPFBRECOSequence = cms.Sequence(
     pfNoPileUpIsoPFBRECO
     )
 
-from CommonTools.ParticleFlow.pfNoPileUpJME_cff  import *
+from CommonTools.ParticleFlow.pfNoPileUpJME_cff import *
 
 pfPileUpPFBRECO = pfPileUp.clone( PFCandidates = 'particleFlowPtrs' )
 pfNoPileUpPFBRECO = pfNoPileUp.clone( topCollection = 'pfPileUpPFBRECO',
@@ -105,8 +105,8 @@ pfElectronPFBRECOSequence = cms.Sequence(
     )
 
 from CommonTools.ParticleFlow.Tools.jetTools import jetAlgo
-pfJets = jetAlgo('AK4')
-pfJetsPFBRECO = pfJets.clone( src = 'pfNoElectronJMEPFBRECO' )
+pfJetsPFBRECO = jetAlgo('AK4')
+pfJetsPFBRECO.src = 'pfNoElectronJMEPFBRECO'
 pfJetsPtrsPFBRECO = cms.EDProducer("PFJetFwdPtrProducer",
                                    src=cms.InputTag("pfJetsPFBRECO")
                                    )
@@ -117,7 +117,7 @@ pfJetPFBRECOSequence = cms.Sequence(
 
 from CommonTools.ParticleFlow.pfTaus_cff import *
 
-from CommonTools.ParticleFlow.pfMET_cfi  import *
+from CommonTools.ParticleFlow.pfMET_cfi import *
 pfMETPFBRECO = pfMET.clone( jets = 'pfJetsPFBRECO' )
 
 ##delta beta weighting
