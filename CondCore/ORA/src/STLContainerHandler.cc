@@ -33,9 +33,9 @@ ora::STLContainerIteratorHandler::STLContainerIteratorHandler( void* address,
   }
 
   if (m_collProxy.HasPointers()) {
-    m_currentElement = m_Next(m_PtrIterators->fBegin,m_PtrIterators->fEnd);
+    m_currentElement = m_Next(&m_PtrIterators->fBegin, &m_PtrIterators->fEnd);
   } else {
-    m_currentElement = m_Next(m_Iterators->fBegin,m_Iterators->fEnd); 
+    m_currentElement = m_Next(&m_Iterators->fBegin, &m_Iterators->fEnd); 
   }
   //m_currentElement = m_collProxy.first_func(&m_collEnv);
 }
@@ -45,9 +45,9 @@ ora::STLContainerIteratorHandler::~STLContainerIteratorHandler(){}
 void
 ora::STLContainerIteratorHandler::increment(){
   if (m_collProxy.HasPointers())  {
-    m_currentElement = m_Next(m_PtrIterators->fBegin,m_PtrIterators->fEnd);
+    m_currentElement = m_Next(&m_PtrIterators->fBegin, &m_PtrIterators->fEnd);
   } else {
-    m_currentElement = m_Next(m_Iterators->fBegin,m_Iterators->fEnd); 
+    m_currentElement = m_Next(&m_Iterators->fBegin, &m_Iterators->fEnd); 
   }
   //m_currentElement = m_collProxy.next_func(&m_collEnv);
 }
