@@ -15,6 +15,11 @@ def customiseSimL1EmulatorForPostLS1(process):
     #print "INFO:  loading RCT LUTs"
     #process.load("L1Trigger.L1TCalorimeter.caloStage1RCTLuts_cff")
 
+    if hasattr(process,'simulationWithFamos'):
+        print "INFO:  Fast Simulation Detected... no more L1 tigger post LS1 customizations will be made"
+        return(process)
+
+
     process.load("L1Trigger.L1TCommon.l1tDigiToRaw_cfi")
     process.load("L1Trigger.L1TCommon.l1tRawToDigi_cfi")
     process.load("L1Trigger.L1TCommon.caloStage1LegacyFormatDigis_cfi")
