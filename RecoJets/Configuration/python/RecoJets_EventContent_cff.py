@@ -63,8 +63,8 @@ RecoJetsRECO = cms.PSet(
                                            'keep *_ak4PFJetsCHS_*_*',
                                            'keep *_ak5PFJetsCHS_*_*',
                                            'keep *_ak8PFJetsCHS_*_*',
-                                           'keep *_ca8PFJetsCHS_*_*',
-                                           'keep *_ca8PFJetsCHSPruned_*_*',                                           
+                                           'keep *_ak8PFJetsCHS_*_*',
+                                           'keep *_ak8PFJetsCHSPruned_*_*',                                           
                                            'keep *_cmsTopTagPFJetsCHS_*_*',
                                            #'keep *_hepTopTagPFJetsCHS_*_*',
                                            #'keep *_ca15PFJetsCHSMassDropFiltered_*_*',
@@ -118,8 +118,8 @@ RecoJetsAOD = cms.PSet(
                                            'keep *_ak4PFJetsCHS_*_*',
                                            'keep *_ak5PFJetsCHS_*_*',
                                            'keep *_ak8PFJetsCHS_*_*',
-                                           'keep *_ca8PFJetsCHS_*_*',
-                                           'keep *_ca8PFJetsCHSPruned_*_*',
+                                           #'keep *_ca8PFJetsCHS_*_*',
+                                           'keep *_ak8PFJetsCHSPruned_*_*',
                                            'keep *_cmsTopTagPFJetsCHS_*_*',
                                            #'keep *_hepTopTagPFJetsCHS_*_*',
                                            #'keep *_ca15PFJetsCHSMassDropFiltered_*_*',
@@ -164,7 +164,7 @@ RecoJetsAOD = cms.PSet(
                                            'keep *_fixedGridRho*_*_*',
                                            'drop doubles_*Jets_rhos_*',
                                            'drop doubles_*Jets_sigmas_*',
-                                           'keep *_ca8PFJetsCHSPrunedLinks_*_*'                                           
+                                           'keep *_ak8PFJetsCHSPrunedLinks_*_*'                                           
                                            )
     )
 RecoGenJetsAOD = cms.PSet(
