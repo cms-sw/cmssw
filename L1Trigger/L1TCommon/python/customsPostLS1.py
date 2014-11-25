@@ -27,15 +27,15 @@ def customiseSimL1EmulatorForPostLS1(process):
     process.load('L1Trigger.L1TCalorimeter.caloStage1Params_cfi')
     process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_cff')
 
-    if hasattr(process, 'simGctDigis'):
-        process.L1TCaloStage1PlusGct = cms.Sequence(
-            process.simGctDigis +
-            process.L1TCaloStage1
-            )
-    else:
-        process.L1TCaloStage1PlusGct = cms.Sequence(
-            process.L1TCaloStage1
-            )
+    #if hasattr(process, 'simGctDigis'):
+    #    process.L1TCaloStage1PlusGct = cms.Sequence(
+    #        process.simGctDigis +
+    #        process.L1TCaloStage1
+    #        )
+    #else:
+    #    process.L1TCaloStage1PlusGct = cms.Sequence(
+    #        process.L1TCaloStage1
+    #        )
 
     if hasattr(process, 'simGtDigis'):
         process.simGtDigis.GmtInputTag = 'simGmtDigis'
@@ -47,7 +47,7 @@ def customiseSimL1EmulatorForPostLS1(process):
     for path in process.paths:
         #print "INFO:  checking path ", path
         #print "BEFORE:  ", getattr(process,path)
-        getattr(process,path).replace(process.simGctDigis,process.L1TCaloStage1PlusGct)
+        getattr(process,path).replace(process.simGctDigis,process.L1TCaloStage1)
         #print "AFTER:  ", getattr(process,path)
 
     if hasattr(process, 'DigiToRaw'):
