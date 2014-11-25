@@ -36,6 +36,8 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
   //Michalis : Even if we dont use timing in clustering here we should fill
   //the time information for the cluster. This should use the timing resolution(1/E)
   //so the weight should be fraction*E^2
+  //calculate a simplistic depth now. The log weighted will be done
+  //in different stage  
   for( const reco::PFRecHitFraction& rhf : cluster.recHitFractions() ) {
     const reco::PFRecHitRef& refhit = rhf.recHitRef();
     if( refhit->detId() == cluster.seed() ) refseed = refhit;
@@ -48,7 +50,6 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
 	<< "The input of the particle flow clustering seems to be corrupted.";
     }
     cl_energy += rh_energy;
-
     // If time resolution is given, calculated weighted average
     if (_timeResolutionCalcBarrel && _timeResolutionCalcEndcap) {
       double res2 = 10000.;
@@ -77,6 +78,8 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
   cluster.setTime(cl_time/cl_timeweight);
   cluster.setLayer(max_e_layer);
   // calculate the position
+
+  double depth = 0.0;  
   double position_norm = 0.0;
   double x(0.0),y(0.0),z(0.0);
   const reco::PFRecHitRefVector* seedNeighbours = NULL;
@@ -95,7 +98,7 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     const reco::PFRecHitRef& refhit = rhf.recHitRef();
 
     // since this is 2D position calc only use neighbours in the same layer
-    if( refhit->depth() != refseed->depth() ) continue;
+    //if( refhit->depth() != refseed->depth() ) continue;
     
     if( refhit != refseed && _posCalcNCrystals != -1 ) {
       auto pos = std::find(seedNeighbours->begin(),seedNeighbours->end(),
@@ -103,8 +106,6 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
       if( pos == seedNeighbours->end() ) continue;
     }
     
-
-
     const double rh_energy = refhit->energy() * ((float)rhf.fraction());
     const double norm = ( rhf.fraction() < _minFractionInCalc ? 
 			  0.0 : 
@@ -113,6 +114,8 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     x += rhpos_xyz.X() * norm;
     y += rhpos_xyz.Y() * norm;
     z += rhpos_xyz.Z() * norm;
+    depth += refhit->depth()*norm;
+    
     position_norm += norm;
   }
   if( position_norm < _minAllowedNorm ) {
@@ -125,7 +128,9 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     x *= norm_inverse;
     y *= norm_inverse;
     z *= norm_inverse;
+    depth *= norm_inverse;
     cluster.setPosition(math::XYZPoint(x,y,z));
+    cluster.setDepth(depth);
     cluster.calculatePositionREP();
   }
 }

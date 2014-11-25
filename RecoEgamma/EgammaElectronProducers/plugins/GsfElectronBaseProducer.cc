@@ -256,14 +256,32 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
   cutsCfgPflow_.seedFromTEC = true ; // not applied for pflow
 
   // hcal helpers
-  hcalCfg_.hOverEConeSize = cfg.getParameter<double>("hOverEConeSize") ;
-  if (hcalCfg_.hOverEConeSize>0)
+  // barrel
+  hcalCfgBarrel_.hOverEConeSize = cfg.getParameter<double>("hOverEConeSize") ;
+  if (hcalCfgBarrel_.hOverEConeSize>0)
    {
-    hcalCfg_.useTowers = true ;
-    hcalCfg_.hcalTowers = cfg.getParameter<edm::InputTag>("hcalTowers") ;
+    hcalCfgBarrel_.useTowers = true ;
+    hcalCfgBarrel_.hcalTowers = cfg.getParameter<edm::InputTag>("hcalTowers") ;
    }
-  hcalCfg_.hOverEPtMin = cfg.getParameter<double>("hOverEPtMin") ;
-  hcalCfg_.hOverEMethod = cfg.getParameter<int>("hOverEMethod") ;
+  hcalCfgBarrel_.hOverEPtMin = cfg.getParameter<double>("hOverEPtMin") ;
+  hcalCfgBarrel_.hOverEMethod = cfg.getParameter<int>("hOverEMethodBarrel") ; 
+  if (hcalCfgBarrel_.hOverEMethod==3)
+     { 
+        hcalCfgBarrel_.hgcalHFClusters = cfg.getParameter<edm::InputTag>("hgcalHFClusters") ;
+     }
+  // endcap
+  hcalCfgEndcap_.hOverEConeSize = cfg.getParameter<double>("hOverEConeSize") ;
+  if (hcalCfgEndcap_.hOverEConeSize>0)
+   {
+    hcalCfgEndcap_.useTowers = true ;
+    hcalCfgEndcap_.hcalTowers = cfg.getParameter<edm::InputTag>("hcalTowers") ;
+   }
+  hcalCfgEndcap_.hOverEPtMin = cfg.getParameter<double>("hOverEPtMin") ;
+  hcalCfgEndcap_.hOverEMethod = cfg.getParameter<int>("hOverEMethodEndcap") ; 
+  if (hcalCfgEndcap_.hOverEMethod==3)
+     { 
+        hcalCfgEndcap_.hgcalHFClusters = cfg.getParameter<edm::InputTag>("hgcalHFClusters") ;
+     }
   hcalCfgPflow_.hOverEConeSize = cfg.getParameter<double>("hOverEConeSizePflow") ;
   if (hcalCfgPflow_.hOverEConeSize>0)
    {
@@ -333,7 +351,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
   algo_ = new GsfElectronAlgo
    ( inputCfg_, strategyCfg_,
      cutsCfg_,cutsCfgPflow_,
-     hcalCfg_,hcalCfgPflow_,
+     hcalCfgBarrel_,hcalCfgEndcap_,hcalCfgPflow_,
      isoCfg,recHitsCfg,
      superClusterErrorFunction,
      crackCorrectionFunction ) ;
@@ -408,8 +426,6 @@ void GsfElectronBaseProducer::checkEcalSeedingParameters( edm::ParameterSetID co
 
   if (seedConfiguration.getParameter<bool>("applyHOverECut"))
    {
-    if ((hcalCfg_.hOverEConeSize!=0)&&(hcalCfg_.hOverEConeSize!=seedConfiguration.getParameter<double>("hOverEConeSize")))
-     { edm::LogWarning("GsfElectronAlgo|InconsistentParameters") <<"The H/E cone size ("<<hcalCfg_.hOverEConeSize<<") is different from ecal seeding ("<<seedConfiguration.getParameter<double>("hOverEConeSize")<<")." ; }
     if (cutsCfg_.maxHOverEBarrel<seedConfiguration.getParameter<double>("maxHOverEBarrel"))
      { edm::LogWarning("GsfElectronAlgo|InconsistentParameters") <<"The max barrel H/E is lower than during ecal seeding." ; }
     if (cutsCfg_.maxHOverEEndcaps<seedConfiguration.getParameter<double>("maxHOverEEndcaps"))

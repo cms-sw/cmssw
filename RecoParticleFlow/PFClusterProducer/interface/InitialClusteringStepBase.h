@@ -13,14 +13,18 @@
 #include <iostream>
 #include <unordered_map>
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 namespace edm {
   class EventSetup;
+  class Event;
 }
 
 class InitialClusteringStepBase {
   typedef InitialClusteringStepBase ICSB;
  public:
-  InitialClusteringStepBase(const edm::ParameterSet& conf):    
+ InitialClusteringStepBase(const edm::ParameterSet& conf,
+			   edm::ConsumesCollector& sumes):    
     _nSeeds(0), _nClustersFound(0),
     _layerMap({ {"PS2",(int)PFLayer::PS2},
 	        {"PS1",(int)PFLayer::PS1},
@@ -63,6 +67,8 @@ class InitialClusteringStepBase {
 
   virtual void update(const edm::EventSetup&) { }
 
+  virtual void updateEvent(const edm::Event&) { }
+
   virtual void buildClusters(const edm::Handle<reco::PFRecHitCollection>&,
 			     const std::vector<bool>& mask,  // mask flags
 			     const std::vector<bool>& seeds, // seed flags
@@ -93,6 +99,6 @@ class InitialClusteringStepBase {
 };
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-typedef edmplugin::PluginFactory< InitialClusteringStepBase* (const edm::ParameterSet&) > InitialClusteringStepFactory;
+typedef edmplugin::PluginFactory< InitialClusteringStepBase* (const edm::ParameterSet&, edm::ConsumesCollector&) > InitialClusteringStepFactory;
 
 #endif

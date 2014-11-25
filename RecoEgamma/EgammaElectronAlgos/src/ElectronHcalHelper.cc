@@ -9,7 +9,7 @@
 using namespace reco ;
 
 ElectronHcalHelper::ElectronHcalHelper( const Configuration & cfg  )
-  : cfg_(cfg), caloGeomCacheId_(0), hbhe_(0), mhbhe_(0), hcalIso_(0), towersH_(0), towerIso1_(0), towerIso2_(0),hadTower_(0)
+  : cfg_(cfg), caloGeomCacheId_(0), hbhe_(0), mhbhe_(0), hcalIso_(0), towersH_(0), towerIso1_(0), towerIso2_(0),hadTower_(0),hgcalHFCluster_(0)
  {}
 
 void ElectronHcalHelper::checkSetup( const edm::EventSetup & es )
@@ -19,15 +19,18 @@ void ElectronHcalHelper::checkSetup( const edm::EventSetup & es )
    { return ; }
 
   if(hadTower_) delete hadTower_ ;
-  if(cfg_.hOverEMethod<=1)
-    {
-      hadTower_ = new EgammaHadTower(es,EgammaHadTower::SingleTower) ;
-      //      std::cout << "ElectronHcalHelper, mode " << cfg_.hOverEMethod << std::endl;
+  if(cfg_.hOverEMethod<=1) {
+     hadTower_ = new EgammaHadTower(es,EgammaHadTower::SingleTower) ;
+     //    std::cout << "ElectronHcalHelper, mode " << cfg_.hOverEMethod << std::endl;
     }
   if(cfg_.hOverEMethod==2) {
     hadTower_ = new EgammaHadTower(es,EgammaHadTower::TowersBehindCluster) ;
     //    std::cout << "ElectronHcalHelper, mode " << cfg_.hOverEMethod << std::endl;
   }
+  if(cfg_.hOverEMethod==3) {
+    hadTower_ = new EgammaHadTower(es,EgammaHadTower::HGCalHFCluster) ;
+  }
+
    
   if (!cfg_.useTowers)
    {
@@ -46,6 +49,15 @@ void ElectronHcalHelper::readEvent( const edm::Event & evt )
   if (cfg_.hOverEConeSize==0)
    { return ; }
 
+  if (cfg_.hOverEMethod==3) 
+   {
+     delete hgcalHFCluster_ ; hgcalHFCluster_ = 0 ;
+     hgcalHFCluster_ = new edm::Handle<reco::PFClusterCollection>() ;
+     if (!evt.getByLabel(cfg_.hgcalHFClusters,*hgcalHFCluster_))
+     { edm::LogError("ElectronHcalHelper::readEvent")<<"failed to get the HGCAL HF PF clusters "<<cfg_.hgcalHFClusters ; }
+     if(hgcalHFCluster_) hadTower_->setPFClusterCollection(hgcalHFCluster_->product()); 
+   }
+  
   if (cfg_.useTowers)
    {
     delete towerIso1_ ; towerIso1_ = 0 ;
@@ -55,7 +67,7 @@ void ElectronHcalHelper::readEvent( const edm::Event & evt )
     towersH_ = new edm::Handle<CaloTowerCollection>() ;
     if (!evt.getByLabel(cfg_.hcalTowers,*towersH_))
      { edm::LogError("ElectronHcalHelper::readEvent")<<"failed to get the hcal towers of label "<<cfg_.hcalTowers ; }
-    if(hadTower_) hadTower_->setTowerCollection(towersH_->product());    
+    if(hadTower_) hadTower_->setTowerCollection(towersH_->product()); 
     //    towerIso1_ = new EgammaTowerIsolation(cfg_.hOverEConeSize,0.,cfg_.hOverEPtMin,1,towersH_->product()) ;
     //    towerIso2_ = new EgammaTowerIsolation(cfg_.hOverEConeSize,0.,cfg_.hOverEPtMin,2,towersH_->product()) ;
     // Set hOverETPtMin to 0 otherwise it will crash because of an assert
@@ -74,6 +86,7 @@ void ElectronHcalHelper::readEvent( const edm::Event & evt )
     mhbhe_=  new HBHERecHitMetaCollection(**hbhe_) ;
     hcalIso_ = new EgammaHcalIsolation(cfg_.hOverEConeSize,0.,cfg_.hOverEHBMinE,cfg_.hOverEHFMinE,0.,0.,caloGeom_,mhbhe_) ;
    }
+
  }
 
 std::vector<CaloTowerDetId> ElectronHcalHelper::hcalTowersBehindClusters( const reco::SuperCluster & sc )
@@ -146,6 +159,10 @@ double ElectronHcalHelper::hcalESumDepth2( const reco::SuperCluster & sc, const 
   // Et threshold is applied in this sum
   //  std::cout << "ElectronHcalHelper::hcalESumDepth2 - FB " << std::endl;
   return hcalESumDepth2BehindClusters(hcalTowersBehindClusters(sc));
+}
+
+double ElectronHcalHelper::hgcalHFBehindClusters( const reco::SuperCluster & sc ) {
+  return hadTower_->getHgcalHFE(sc, 0.,cfg_.hOverEConeSize);
 }
 
 ElectronHcalHelper::~ElectronHcalHelper()

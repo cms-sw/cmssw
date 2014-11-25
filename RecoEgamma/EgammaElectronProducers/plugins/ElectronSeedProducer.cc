@@ -95,6 +95,11 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
      {
       hcalCfgEndcap.useTowers = true ;
       hcalCfgEndcap.hcalTowers = conf_.getParameter<edm::InputTag>("hcalTowers") ;
+      //here the HGCAL 
+      if (hcalCfgEndcap.hOverEMethod==3)
+       { 
+        hcalCfgEndcap.hgcalHFClusters = conf_.getParameter<edm::InputTag>("hgcalHFClusters") ;
+       }
      }
     hcalCfgEndcap.hOverEPtMin = conf_.getParameter<double>("hOverEPtMin") ;
     hcalHelperEndcap_ = new ElectronHcalHelper(hcalCfgEndcap) ;
@@ -256,15 +261,17 @@ void ElectronSeedProducer::filterClusters
 	  } else if (detector==EcalEndcap || detector==EcalShashlik) {
 	    had1 = hcalHelperEndcap_->hcalESumDepth1(scl);
 	    had2 = hcalHelperEndcap_->hcalESumDepth2(scl);
-	  }
+	  } else if (detector==EcalEndcap || detector==HGCEE) {
+        had1 = hcalHelperEndcap_->hgcalHFBehindClusters(scl);
+      }
          had = had1+had2 ;
          scle = scl.energy() ;
-	 int component = scl.seed()->hitsAndFractions()[0].first.det() ;
+	     int component = scl.seed()->hitsAndFractions()[0].first.det() ;
          //int detector = scl.seed()->hitsAndFractions()[0].first.subdetId() ;
          if (component==DetId::Ecal && detector==EcalBarrel && (had<maxHBarrel_ || had/scle<maxHOverEBarrel_)) HoeVeto=true;
          else if (component==DetId::Ecal && (detector==EcalEndcap || detector==EcalShashlik ) && fabs(sclEta) < 2.65 && (had<maxHEndcaps_ || had/scle<maxHOverEEndcaps_)) HoeVeto=true;
          else if (component==DetId::Ecal && (detector==EcalEndcap || detector==EcalShashlik ) && fabs(sclEta) > 2.65 && (had<maxHEndcaps_ || had/scle<maxHOverEOuterEndcaps_)) HoeVeto=true;
-	 else if (component==DetId::Forward && detector==HGCEE && (had<maxHEndcaps_ || had/scle<maxHOverEEndcaps_)) HoeVeto=true;
+	     else if (component==DetId::Forward && detector==HGCEE && (had<maxHEndcaps_ || had/scle<maxHOverEEndcaps_)) HoeVeto=true;
          if (HoeVeto)
           {
            sclRefs.push_back(edm::Ref<reco::SuperClusterCollection>(superClusters,i)) ;

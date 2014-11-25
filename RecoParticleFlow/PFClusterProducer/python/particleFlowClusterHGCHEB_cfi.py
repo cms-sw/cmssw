@@ -34,9 +34,9 @@ _manqiArborClusterizer_HGCHEB = cms.PSet(
 
 #weights for layers from P.Silva (24 October 2014)                                                                 
 # this is for V5!!!!!                                                                                          
-weight_vec = [0.0464]
-weight_vec.extend([0.0474 for x in range(10)])
-weight_vec.extend([0.1215 for x in range(11)])
+weight_vec_hef = [0.0464]
+weight_vec_hef.extend([0.0474 for x in range(11)])
+weight_vec_heb = [0.1215 for x in range(12)]
 
 # MIP effective to 1.0/GeV (from fit to data of P. Silva) for HEF
 #f(x) = a/(1+exp(-bx - c))
@@ -52,7 +52,8 @@ weight_vec.extend([0.1215 for x in range(11)])
 
 _HGCHEB_HadronEnergy = cms.PSet(
     algoName = cms.string("HGCHEHadronicEnergyCalibrator"),
-    weights = cms.vdouble(weight_vec),
+    weights_hef = cms.vdouble(weight_vec_hef),
+    weights_heb = cms.vdouble(weight_vec_heb),
     effMip_to_InverseGeV_a_HEF = cms.double(1.0),
     effMip_to_InverseGeV_b_HEF = cms.double(1e6),
     effMip_to_InverseGeV_c_HEF = cms.double(1e6),
