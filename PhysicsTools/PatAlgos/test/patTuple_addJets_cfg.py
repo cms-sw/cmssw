@@ -47,12 +47,12 @@ switchJetCollection(
 process.out.outputCommands.append( 'drop *_selectedPatJets_caloTowers_*' )
 
 # uncomment the following lines to add ak4PFJets to your PAT output
-labelCA8PFCHSPruned = 'CA8PFCHSPruned'
+labelAK8PFCHSPruned = 'AK8PFCHSPruned'
 addJetCollection(
    process,
-   labelName = labelCA8PFCHSPruned,
-   jetSource = cms.InputTag('ca8PFJetsCHSPruned',''),
-   algo = 'CA8',
+   labelName = labelAK8PFCHSPruned,
+   jetSource = cms.InputTag('ak8PFJetsCHSPruned',''),
+   algo = 'AK8',
    rParam = 0.8,
    #genJetCollection = cms.InputTag('ak8GenJets'), # not in used SIM yet
    genJetCollection = cms.InputTag('ak4GenJets'),
@@ -61,8 +61,8 @@ addJetCollection(
        'combinedSecondaryVertexBJetTags'
      ],
    )
-process.out.outputCommands.append( 'keep *_selectedPatJets%s_pfCandidates_*'%( labelCA8PFCHSPruned ) )
-process.out.outputCommands.append( 'drop *_selectedPatJets%s_caloTowers_*'%( labelCA8PFCHSPruned ) )
+process.out.outputCommands.append( 'keep *_selectedPatJets%s_pfCandidates_*'%( labelAK8PFCHSPruned ) )
+process.out.outputCommands.append( 'drop *_selectedPatJets%s_caloTowers_*'%( labelAK8PFCHSPruned ) )
 
 # uncomment the following lines to switch to ak4CaloJets in your PAT output
 labelAK4Calo = 'AK4Calo'
