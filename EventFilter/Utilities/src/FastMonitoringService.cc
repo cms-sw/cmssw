@@ -353,10 +353,11 @@ namespace evf{
 	    auto itr = sourceEventsReport_.find(lumi);
 	    if (itr==sourceEventsReport_.end()) {
               //check if exception has been thrown (in case of Global/Stream early termination, for this LS)
+              bool exception_detected = exception_detected_;
               for (auto ex : exceptionInLS_)
-                if (lumi == ex) exception_detected_=true;
+                if (lumi == ex) exception_detected=true;
 
-              if (edm::shutdown_flag || exception_detected_) {
+              if (edm::shutdown_flag || exception_detected) {
                 edm::LogInfo("FastMonitoringService") << "Run interrupted. Skip writing EoL information -: "
                                                       << processedEventsPerLumi_[lumi] << " events were processed in LUMI " << lumi;
                 //this will prevent output modules from producing json file for possibly incomplete lumi
