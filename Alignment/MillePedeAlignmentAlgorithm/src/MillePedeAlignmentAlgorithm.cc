@@ -307,7 +307,7 @@ void MillePedeAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup)
 void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup, const EventInfo &eventInfo)
 {
   if (!this->isMode(myMilleBit)) return; // no theMille created...
-  const ConstTrajTrackPairCollection &tracks = eventInfo.trajTrackPairs_;
+  const ConstTrajTrackPairCollection &tracks = eventInfo.trajTrackPairs();
 
   if (theMonitor) { // monitor input tracks
     for (ConstTrajTrackPairCollection::const_iterator iTrajTrack = tracks.begin();
@@ -316,7 +316,7 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup, const EventI
     }
   }
 
-  const RefTrajColl trajectories(theTrajectoryFactory->trajectories(setup, tracks, eventInfo.beamSpot_));
+  const RefTrajColl trajectories(theTrajectoryFactory->trajectories(setup, tracks, eventInfo.beamSpot()));
 
   // Now loop over ReferenceTrajectoryCollection
   unsigned int refTrajCount = 0; // counter for track monitoring if 1 track per trajectory
@@ -422,9 +422,9 @@ MillePedeAlignmentAlgorithm::addHitCount(const std::vector<AlignmentParameters*>
 void MillePedeAlignmentAlgorithm::endRun(const EventInfo &eventInfo, const EndRunInfo &runInfo,
 					 const edm::EventSetup &setup)
 {
-  if(runInfo.tkLasBeams_ && runInfo.tkLasBeamTsoses_){
+  if(runInfo.tkLasBeams() && runInfo.tkLasBeamTsoses()){
     // LAS beam treatment
-    this->addLaserData(eventInfo, *(runInfo.tkLasBeams_), *(runInfo.tkLasBeamTsoses_));
+    this->addLaserData(eventInfo, *(runInfo.tkLasBeams()), *(runInfo.tkLasBeamTsoses()));
   }
 }
 
