@@ -513,7 +513,7 @@ namespace evf {
       //edm::LogInfo("EvFDaqDirector") << " looking for EoR file: " << getEoRFilePath().c_str();
       if ( stat(getEoRFilePath().c_str(), &buf) == 0 || stat(bu_run_dir_.c_str(), &buf)!=0)
         fileStatus = runEnded;
-      if (stopFileLS>=0 && ls > stopFileLS) {
+      if (stopFileLS>=0 && (int)ls > stopFileLS) {
          edm::LogInfo("EvFDaqDirector") << "Reached maximum lumisection set by hltd";
          fileStatus = runEnded;
       }
@@ -779,7 +779,7 @@ namespace evf {
       return -1;
     }
 
-    int ret = deserializeRoot.get("lastLS","").asInteger()
+    int ret = deserializeRoot.get("lastLS","").asInt();
     return ret;
 
   }
