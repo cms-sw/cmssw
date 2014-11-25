@@ -10,8 +10,8 @@
 
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 
-#include <DataFormats/MuonReco/interface/EmulatedME0Segment.h>
-#include <DataFormats/MuonReco/interface/EmulatedME0SegmentCollection.h>
+#include <DataFormats/GEMRecHit/interface/ME0Segment.h>
+#include <DataFormats/GEMRecHit/interface/ME0SegmentCollection.h>
 
 #include <DataFormats/MuonReco/interface/ME0Muon.h>
 #include <DataFormats/MuonReco/interface/ME0MuonCollection.h>
@@ -135,8 +135,8 @@ TestAnalyzer_Final::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   Handle <std::vector<RecoChargedCandidate> > OurCandidates;
   iEvent.getByLabel <std::vector<RecoChargedCandidate> > ("me0MuonConverter", OurCandidates);
 
-  Handle<std::vector<EmulatedME0Segment> > OurSegments;
-  iEvent.getByLabel<std::vector<EmulatedME0Segment> >("me0SegmentProducer", OurSegments);
+  Handle<std::vector<ME0Segment> > OurSegments;
+  iEvent.getByLabel<std::vector<ME0Segment> >("me0SegmentProducer", OurSegments);
 
   Handle<GenParticleCollection> genParticles;
   iEvent.getByLabel<GenParticleCollection>("genParticles", genParticles);
@@ -176,7 +176,7 @@ TestAnalyzer_Final::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     }
   }
   //unsigned int recosize=OurCandidates->size();
-  for (std::vector<EmulatedME0Segment>::const_iterator thisSegment = OurSegments->begin();
+  for (std::vector<ME0Segment>::const_iterator thisSegment = OurSegments->begin();
        thisSegment != OurSegments->end();++thisSegment){
     // double theta = atan(thisSegment->localDirection().y()/ thisSegment->localDirection().x());
     // double tempeta = -log(tan (theta/2.));
@@ -196,16 +196,16 @@ TestAnalyzer_Final::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   // std::vector<int> UniqueIdList;
   // std::vector<int> Ids;
   std::vector<Double_t> SegmentEta;
-  std::vector<const EmulatedME0Segment*> Ids;
-  std::vector<const EmulatedME0Segment*> UniqueIdList;
+  std::vector<const ME0Segment*> Ids;
+  std::vector<const ME0Segment*> UniqueIdList;
 
   for (std::vector<ME0Muon>::const_iterator thisMuon = OurMuons->begin();
        thisMuon != OurMuons->end(); ++thisMuon){
     TrackRef tkRef = thisMuon->innerTrack();
-    EmulatedME0SegmentRef segRef = thisMuon->me0segment();
+    ME0Segment segment = thisMuon->me0segment();
     //int SegId = thisMuon->segRefId();
     //int SegId = segRef.get();
-    const EmulatedME0Segment* SegId = segRef.get();
+    const ME0Segment* SegId = &segment;
     //PointersVector.push_back(segRef.get());
     bool IsNew = true;
     for (unsigned int i =0; i < Ids.size(); i++){
@@ -214,7 +214,7 @@ TestAnalyzer_Final::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     if (IsNew) {
       std::cout<<"Found: "<<SegId<<std::endl;
       UniqueIdList.push_back(SegId);
-      LocalVector TempVect(segRef->localDirection().x(),segRef->localDirection().y(),segRef->localDirection().z());
+      LocalVector TempVect(segment.localDirection().x(),segment.localDirection().y(),segment.localDirection().z());
       SegmentEta.push_back(TempVect.eta());
     }
     Ids.push_back(SegId);

@@ -3,6 +3,7 @@
 <use   name="DataFormats/GeometryVector"/>
 <use   name="DataFormats/GeometrySurface"/>
 <use   name="DataFormats/HepMCCandidate"/>
+<use   name="DataFormats/GEMRecHit"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
