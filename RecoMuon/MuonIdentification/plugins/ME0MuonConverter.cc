@@ -14,10 +14,11 @@
 
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 
-#include <DataFormats/MuonReco/interface/EmulatedME0Segment.h>
-#include <DataFormats/MuonReco/interface/EmulatedME0SegmentCollection.h>
+
+
 #include <DataFormats/MuonReco/interface/ME0Muon.h>
 #include <DataFormats/MuonReco/interface/ME0MuonCollection.h>
+
 
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -31,6 +32,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+
 
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
@@ -50,13 +52,11 @@ void ME0MuonConverter::produce(edm::Event& ev, const edm::EventSetup& setup) {
   using namespace reco;
 
   Handle <std::vector<ME0Muon> > OurMuons;
-  ev.getByLabel <std::vector<ME0Muon> > ("me0SegmentMatcher", OurMuons);
-  
+  ev.getByLabel <std::vector<ME0Muon> > ("me0SegmentMatching", OurMuons);
   std::auto_ptr<RecoChargedCandidateCollection> oc( new RecoChargedCandidateCollection());
 
   for (std::vector<ME0Muon>::const_iterator thisMuon = OurMuons->begin();
        thisMuon != OurMuons->end(); ++thisMuon){
-
     TrackRef tkRef = thisMuon->innerTrack();
     
     Particle::Charge q = tkRef->charge();
@@ -67,7 +67,6 @@ void ME0MuonConverter::produce(edm::Event& ev, const edm::EventSetup& setup) {
     if(abs(q)==1) pid = q < 0 ? 13 : -13;
     reco::RecoChargedCandidate cand(q, p4, vtx, pid);
     cand.setTrack(thisMuon->innerTrack());
-
     oc->push_back(cand);
   }
     

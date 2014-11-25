@@ -11,6 +11,9 @@
 <use   name="DataFormats/RecoCandidate"/>
 <use   name="PhysicsTools/UtilAlgos"/>
 <use   name="CommonTools/Utils"/>
+<use   name="SimTracker/TrackAssociation"/>
+<use   name="SimTracker/TrackerHitAssociation"/>
+<use   name="SimTracker/Records"/>
 <library   file="*.cc" name="TestMuonMuonIdentificationPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

@@ -1,10 +1,7 @@
-#ifndef EmulatedME0Segment_ME0SegmentMatcher_h
-#define EmulatedME0Segment_ME0SegmentMatcher_h
+#ifndef ME0Segment_ME0SegmentMatcher_h
+#define ME0Segment_ME0SegmentMatcher_h
 
 /** \class ME0SegmentMatcher 
- * Produces a collection of ME0Segment's in endcap muon ME0s. 
- *
- * $Date: 2010/03/11 23:48:11 $
  *
  * \author David Nash
  */
@@ -18,6 +15,27 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "Geometry/GEMGeometry/interface/ME0Geometry.h"
+#include <Geometry/GEMGeometry/interface/ME0EtaPartition.h>
+#include <Geometry/Records/interface/MuonGeometryRecord.h>
+#include <DataFormats/MuonDetId/interface/ME0DetId.h>
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include <DataFormats/GEMRecHit/interface/ME0SegmentCollection.h>
+#include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
+
+//For Debugging
+
+#include "TH1.h" 
+#include <TH2.h>
+#include "TFile.h"
+#include <TProfile.h>
+#include "TStyle.h"
+#include <TCanvas.h>
+
 
 class FreeTrajectoryState;
 class MagneticField;
@@ -29,6 +47,11 @@ public:
     ~ME0SegmentMatcher();
     /// Produce the ME0Segment collection
     virtual void produce(edm::Event&, const edm::EventSetup&);
+
+    
+    virtual void beginRun(edm::Run const&, edm::EventSetup const&);
+
+
 
     FreeTrajectoryState getFTS(const GlobalVector& , const GlobalVector& , 
 				   int , const AlgebraicSymMatrix66& ,
@@ -45,7 +68,10 @@ public:
 private:
 
     int iev; // events through
-    
+
+    edm::ESHandle<ME0Geometry> me0Geom;
+
+  
 };
 
 #endif

@@ -2,27 +2,22 @@
 #define MuonReco_ME0Muon_h
 /** \class reco::ME0Muon ME0Muon.h DataFormats/MuonReco/interface/ME0Muon.h
  *  
- * A lightweight reconstructed Muon to store low momentum muons without matches
- * in the muon detectors. Contains:
- *  - reference to a silicon tracker track
- *  - calorimeter energy deposition
- *  - calo compatibility variable
+ * \author David Nash NEU
  *
- * \author Dmytro Kovalskyi, UCSB
- *
- * \version $Id: ME0Muon.h,v 1.4 2009/03/15 03:33:32 dmytro Exp $
  *
  */
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include <DataFormats/MuonReco/interface/EmulatedME0SegmentCollection.h>
+
+#include <DataFormats/GEMRecHit/interface/ME0SegmentCollection.h>
 
 namespace reco {
  
   class ME0Muon {
   public:
     ME0Muon();
-    ME0Muon( const TrackRef & t, const EmulatedME0SegmentRef & s) { innerTrack_ = t; me0Segment_ = s;}
+    //ME0Muon( const TrackRef & t, const ME0Segment & s) { innerTrack_ = t; me0Segment_ = s;}
+    ME0Muon( const TrackRef & t, const ME0Segment & s, const int v) { innerTrack_ = t; me0Segment_ = s; me0segid_=v;}
     virtual ~ME0Muon(){}     
     
     /// reference to Track reconstructed in the tracker only
@@ -31,10 +26,14 @@ namespace reco {
     /// set reference to Track
     virtual void setInnerTrack( const TrackRef & t ) { innerTrack_ = t; }
     virtual void setTrack( const TrackRef & t ) { setInnerTrack(t); }
-    /// set reference to our new EmulatedME0Segment type
-    virtual void setEmulatedME0Segment( const EmulatedME0SegmentRef & s ) { me0Segment_ = s; }
+    /// set reference to our new ME0Segment type
+    virtual void setME0Segment( const ME0Segment & s ) { me0Segment_ = s; }
 
-    virtual EmulatedME0SegmentRef me0segment() const { return me0Segment_; }
+    virtual ME0Segment me0segment() const { return me0Segment_; }
+    
+    //Added for testing
+    virtual void setme0segid( const int v){me0segid_=v;}
+    virtual int me0segid() const {return me0segid_;}
 
     /// a bunch of useful accessors
     int charge() const { return innerTrack_.get()->charge(); }
@@ -58,7 +57,8 @@ namespace reco {
   private:
     /// reference to Track reconstructed in the tracker only
     TrackRef innerTrack_;
-    EmulatedME0SegmentRef me0Segment_;
+    ME0Segment me0Segment_;
+    int me0segid_;
   };
 
 }
