@@ -52,6 +52,7 @@ namespace edm {
 
     std::string const& currentFileName() const;
 
+    static void fillDescription(ParameterSetDescription& descriptions);
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
     using OutputModule::selectorConfig;
@@ -102,6 +103,10 @@ namespace edm {
     ///allow inheriting classes to override but still be able to call this method in the overridden version
     virtual bool shouldWeCloseFile() const override;
     virtual void write(EventPrincipal const& e, ModuleCallingContext const*) override;
+    virtual void reallyOpenFile() override;
+    virtual void reallyCloseFile() override;
+    void resetFile(RootOutputFile *);
+
   private:
     virtual void openFile(FileBlock const& fb) override;
     virtual void respondToOpenInputFile(FileBlock const& fb) override;
@@ -110,8 +115,6 @@ namespace edm {
     virtual void writeRun(RunPrincipal const& r, ModuleCallingContext const*) override;
     virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) override;
     virtual bool isFileOpen() const override;
-    virtual void reallyOpenFile() override;
-    virtual void reallyCloseFile() override;
     virtual void beginJob() override;
 
     void startEndFile();

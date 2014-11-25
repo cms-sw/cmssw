@@ -1,6 +1,6 @@
 #include "IOPool/Output/interface/PoolOutputModule.h"
 
-#include "IOPool/Output/src/RootOutputFile.h"
+#include "IOPool/Output/interface/RootOutputFile.h"
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
@@ -248,6 +248,10 @@ namespace edm {
       }
   }
 
+  void PoolOutputModule::resetFile(RootOutputFile *f) {
+    rootOutputFile_.reset(f);
+  }
+
   void PoolOutputModule::writeLuminosityBlock(LuminosityBlockPrincipal const& lb, ModuleCallingContext const* mcc) {
     rootOutputFile_->writeLuminosityBlock(lb, mcc);
   }
@@ -321,9 +325,9 @@ namespace edm {
   }
 
   void
-  PoolOutputModule::fillDescriptions(ConfigurationDescriptions & descriptions) {
+  PoolOutputModule::fillDescription(ParameterSetDescription& desc) {
     std::string defaultString;
-    ParameterSetDescription desc;
+
     desc.setComment("Writes runs, lumis, and events into EDM/ROOT files.");
     desc.addUntracked<std::string>("fileName")
         ->setComment("Name of output file.");
@@ -370,7 +374,12 @@ namespace edm {
      ->setComment("PSet is only used by Data Operations and not by this module.");
 
     OutputModule::fillDescription(desc);
+  }
 
+  void
+  PoolOutputModule::fillDescriptions(ConfigurationDescriptions & descriptions) {
+    ParameterSetDescription desc;
+    PoolOutputModule::fillDescription(desc);
     descriptions.add("edmOutput", desc);
   }
 }
