@@ -61,28 +61,41 @@ namespace {
 
 
   TrackClusterRemover::TrackClusterRemover(const edm::ParameterSet& iConfig) :
-    mergeOld_(iConfig.exists("oldClusterRemovalInfo")),
     maxChi2_(iConfig.getParameter<double>("maxChi2"))
   {
+
     produces<edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > >();
     produces<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > >();
 
 
-    if (iConfig.exists("overrideTrkQuals"))
-    overrideTrkQuals_.push_back(consumes<edm::ValueMap<int> >(iConfig.getParameter<edm::InputTag>("overrideTrkQuals")));
+    trajectories_  = consumes<TrajTrackAssociationCollection>       (iConfig.getParameter<edm::InputTag>("trajectories") );
+    pixelClusters_ = consumes<edmNew::DetSetVector<SiPixelCluster> >(iConfig.getParameter<edm::InputTag>("pixelClusters"));
+    stripClusters_ = consumes<edmNew::DetSetVector<SiStripCluster> >(iConfig.getParameter<edm::InputTag>("stripClusters"));
+
+
+    if (iConfig.exists("overrideTrkQuals")) {
+      edm::InputTag overrideTrkQuals = iConfig.getParameter<edm::InputTag>("overrideTrkQuals");
+      if ( !(overrideTrkQuals==edm::InputTag("")) ) 
+	overrideTrkQuals_.push_back( consumes<edm::ValueMap<int> >(overrideTrkQuals) );
+    }
 
     trackQuality_=reco::TrackBase::undefQuality;
     filterTracks_=false;
     if (iConfig.exists("TrackQuality")){
       filterTracks_=true;
-      trackQuality_=reco::TrackBase::qualityByName(iConfig.getParameter<std::string>("TrackQuality"));
-      minNumberOfLayersWithMeasBeforeFiltering_ = iConfig.existsAs<int>("minNumberOfLayersWithMeasBeforeFiltering") ? 
-	iConfig.getParameter<int>("minNumberOfLayersWithMeasBeforeFiltering") : 0;
+      std::string trackQuality = iConfig.getParameter<std::string>("TrackQuality");
+      if ( !trackQuality.empty() ) {
+	trackQuality_=reco::TrackBase::qualityByName( trackQuality );
+	minNumberOfLayersWithMeasBeforeFiltering_ = iConfig.existsAs<int>("minNumberOfLayersWithMeasBeforeFiltering") ? 
+	  iConfig.getParameter<int>("minNumberOfLayersWithMeasBeforeFiltering") : 0;
+      }
     }
 
-    trajectories_ = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("trajectories"));
-    pixelClusters_ = consumes<edmNew::DetSetVector<SiPixelCluster> >(iConfig.getParameter<edm::InputTag>("pixelClusters"));
-    stripClusters_ = consumes<edmNew::DetSetVector<SiStripCluster> >(iConfig.getParameter<edm::InputTag>("stripClusters"));
+    if ( iConfig.exists("oldClusterRemovalInfo") ) {
+      edm::InputTag oldClusterRemovalInfo = iConfig.getParameter<edm::InputTag>("oldClusterRemovalInfo");
+      mergeOld_ = ( (oldClusterRemovalInfo==edm::InputTag("")) ? false : true );
+    } else
+      mergeOld_ = false;
 
     if (mergeOld_) {
       oldPxlMaskToken_ = consumes<PixelMaskContainer>(iConfig.getParameter<edm::InputTag>("oldClusterRemovalInfo"));
