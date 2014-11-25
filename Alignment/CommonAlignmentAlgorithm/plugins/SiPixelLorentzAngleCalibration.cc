@@ -187,7 +187,7 @@ SiPixelLorentzAngleCalibration::derivatives(std::vector<ValuesIndexPair> &outDer
   if (hit.det()) { // otherwise 'constraint hit' or whatever
     
     const int index = moduleGroupSelector_->getParameterIndexFromDetId(hit.det()->geographicalId(),
-                                                                       eventInfo.eventId_.run());
+                                                                       eventInfo.eventId().run());
     if (index >= 0) { // otherwise not treated
       edm::ESHandle<MagneticField> magneticField;
       setup.get<IdealMagneticFieldRecord>().get(magneticField);
@@ -360,7 +360,7 @@ bool SiPixelLorentzAngleCalibration::checkLorentzAngleInput(const edm::EventSetu
 	// 'floating point comparison' problems (FIXME?)
 	throw cms::Exception("BadInput")
 	  << "SiPixelLorentzAngleCalibration::checkLorentzAngleInput:\n"
-	  << "Content of SiPixelLorentzAngle changed at run " << eventInfo.eventId_.run()
+	  << "Content of SiPixelLorentzAngle changed at run " << eventInfo.eventId().run()
 	  << ", but algorithm expects constant input!\n";
 	return false; // not reached...
       }
