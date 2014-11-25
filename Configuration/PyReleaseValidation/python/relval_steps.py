@@ -1120,7 +1120,7 @@ upgradeKeys=['2017',
              'Extended2023HGCalMuon4Eta',
              'Extended2023Muon4Eta',
              'Extended2023HGCalV4',
-             'Extended2023HGCalPU',
+             'Extended2023HGCalMuonPU',
              'Extended2023SHCalNoTaperPU'	     
 	     ]
 	     
@@ -1235,8 +1235,8 @@ upgradeFragments=['FourMuPt_1_200_cfi','SingleElectronPt10_cfi',
 
 # for each geometry define the GT and processing string here
 defaultDataSets={}
-defaultDataSets['Extended2023HGCal']='CMSSW_6_2_0_SLHC20-DES23_62_V1_UPGHGCalV5-v'
-defaultDataSets['Extended2023SHCalNoTaper']='CMSSW_6_2_0_SLHC20-DES23_62_V1_UPG2023SHNoTaper-v'
+defaultDataSets['Extended2023HGCalMuon']='CMSSW_6_2_0_SLHC20-DES23_62_V1_refHGCALV5-v'
+defaultDataSets['Extended2023SHCalNoTaper']='CMSSW_6_2_0_SLHC20-DES23_62_V1_refSHNoTaper-v'
 keys=defaultDataSets.keys()
 for key in keys:
   defaultDataSets[key+'PU']=defaultDataSets[key]
@@ -1296,7 +1296,7 @@ upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023HGCal':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023HGCalMuon4Eta':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023HGCalV4' : ['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
-                   'Extended2023HGCalPU' : ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullPU','HARVESTFullPU'],
+                   'Extended2023HGCalMuonPU' : ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullPU','HARVESTFullPU'],
                    'Extended2023SHCalNoTaperPU' : ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
                    }
 
