@@ -96,14 +96,14 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
     efficOptions_.push_back(opt);
   }
 
-  // Parse profiles
-  vstring profileCmds = pset.getUntrackedParameter<vstring>("efficiencyProfile", vstring());
-  for ( vstring::const_iterator profileCmd = profileCmds.begin();
-        profileCmd != profileCmds.end(); ++profileCmd )
+  // Parse efficiency profiles
+  vstring effProfileCmds = pset.getUntrackedParameter<vstring>("efficiencyProfile", vstring());
+  for ( vstring::const_iterator effProfileCmd = effProfileCmds.begin();
+        effProfileCmd != effProfileCmds.end(); ++effProfileCmd )
   {
-    if ( profileCmd->empty() ) continue;
+    if ( effProfileCmd->empty() ) continue;
 
-    boost::tokenizer<elsc> tokens(*profileCmd, commonEscapes);
+    boost::tokenizer<elsc> tokens(*effProfileCmd, commonEscapes);
 
     vector<string> args;
     for(boost::tokenizer<elsc>::const_iterator iToken = tokens.begin();
@@ -113,7 +113,7 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
     }
 
     if ( args.size() < 4 ) {
-      LogInfo("DQMGenericClient") << "Wrong input to profileCmds\n";
+      LogInfo("DQMGenericClient") << "Wrong input to effProfileCmds\n";
       continue;
     }
 
@@ -132,18 +132,18 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
     efficOptions_.push_back(opt);
   }
 
-  VPSet profileSets = pset.getUntrackedParameter<VPSet>("efficiencyProfileSets", VPSet());
-  for ( VPSet::const_iterator profileSet = profileSets.begin();
-        profileSet != profileSets.end(); ++profileSet )
+  VPSet effProfileSets = pset.getUntrackedParameter<VPSet>("efficiencyProfileSets", VPSet());
+  for ( VPSet::const_iterator effProfileSet = effProfileSets.begin();
+        effProfileSet != effProfileSets.end(); ++effProfileSet )
   {
     EfficOption opt;
-    opt.name = profileSet->getUntrackedParameter<string>("name");
-    opt.title = profileSet->getUntrackedParameter<string>("title");
-    opt.numerator = profileSet->getUntrackedParameter<string>("numerator");
-    opt.denominator = profileSet->getUntrackedParameter<string>("denominator");
+    opt.name = effProfileSet->getUntrackedParameter<string>("name");
+    opt.title = effProfileSet->getUntrackedParameter<string>("title");
+    opt.numerator = effProfileSet->getUntrackedParameter<string>("numerator");
+    opt.denominator = effProfileSet->getUntrackedParameter<string>("denominator");
     opt.isProfile = true;
 
-    const string typeName = profileSet->getUntrackedParameter<string>("typeName", "eff");
+    const string typeName = effProfileSet->getUntrackedParameter<string>("typeName", "eff");
     if ( typeName == "eff" ) opt.type = 1;
     else if ( typeName == "fake" ) opt.type = 2;
     else opt.type = 0;
