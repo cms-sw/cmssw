@@ -69,6 +69,9 @@ namespace evf{
     reg.watchPreModuleEvent(this,&FastMonitoringService::preModuleEvent);//should be stream
     reg.watchPostModuleEvent(this,&FastMonitoringService::postModuleEvent);//
 
+    reg.watchPreStreamEarlyTermination(this,&FastMonitoringService::preStreamEarlyTermination);
+    reg.watchPreGlobalEarlyTermination(this,&FastMonitoringService::preGlobalEarlyTermination);
+    reg.watchPreSourceEarlyTermination(this,&FastMonitoringService::preSourceEarlyTermination);
   }
 
 
@@ -350,7 +353,7 @@ namespace evf{
 	    auto itr = sourceEventsReport_.find(lumi);
 	    if (itr==sourceEventsReport_.end()) {
               //check if exception has been thrown (in case of Global/Stream early termination, for this LS)
-              for (ex : exceptionInLS_)
+              for (auto ex : exceptionInLS_)
                 if (lumi == ex) exception_detected_=true;
 
               if (edm::shutdown_flag || exception_detected_) {
