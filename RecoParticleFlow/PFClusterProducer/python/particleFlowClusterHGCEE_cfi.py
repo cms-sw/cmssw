@@ -92,7 +92,8 @@ _HGCEE_HADEnergyCalibrator = cms.PSet(
     MipValueInGeV_heb = cms.double(1498.4*1e-6),    
     # hadron energy calibrations
     weights_ee = cms.vdouble(weight_vec_ee_hadrons),
-    weights_he = cms.vdouble(weight_vec_hef+weight_vec_heb),
+    weights_hef = cms.vdouble(weight_vec_hef),
+    weights_heb = cms.vdouble(weight_vec_heb),
     effMip_to_InverseGeV_a = cms.double(1.0),
     effMip_to_InverseGeV_b = cms.double(1e6),
     effMip_to_InverseGeV_c = cms.double(1e6)
@@ -119,7 +120,7 @@ _fromScratchHGCClusterizer_HGCEE = cms.PSet(
                                  HGC_HCAL = cms.vdouble(1.0) ),
     interactionLengths = cms.PSet( HGC_ECAL = cms.vdouble(1.0),
                                    HGC_HCAL = cms.vdouble(1.0) ), 
-    useTrackAssistedClustering = cms.bool(True),
+    useTrackAssistedClustering = cms.bool(False),
     trackAssistedClustering = cms.PSet( 
         inputTracks = cms.InputTag("generalTracks"),
         cleaningCriteriaPerIter = cms.vdouble(1.0),
