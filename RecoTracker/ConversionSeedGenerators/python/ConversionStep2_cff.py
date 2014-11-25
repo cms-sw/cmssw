@@ -2,15 +2,16 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoTracker.ConversionSeedGenerators.PhotonConversionTrajectorySeedProducerFromQuadruplets_cfi import *
 
-conv2Clusters = cms.EDProducer("TrackClusterRemover",
-                              oldClusterRemovalInfo = cms.InputTag("convClusters"),
-                              trajectories = cms.InputTag("convStepTracks"),
-                              overrideTrkQuals = cms.InputTag('convStepSelector','convStep'),
-                              TrackQuality = cms.string('highPurity'),
-                              pixelClusters = cms.InputTag("siPixelClusters"),
-                              stripClusters = cms.InputTag("siStripClusters"),
-                              maxChi2 = cms.double(30.0)
-                              )
+from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import *
+conv2Clusters = trackClusterRemover.clone(
+  maxChi2               = cms.double(30.0),
+  trajectories          = cms.InputTag("convStepTracks"),
+  pixelClusters         = cms.InputTag("siPixelClusters"),
+  stripClusters         = cms.InputTag("siStripClusters"),
+  oldClusterRemovalInfo = cms.InputTag("convClusters"),
+  overrideTrkQuals      = cms.InputTag('convStepSelector','convStep'),
+  TrackQuality          = cms.string('highPurity'),
+)
 
 conv2LayerPairs = cms.EDProducer("SeedingLayersEDProducer",
                                 layerList = cms.vstring('BPix1+BPix2', 
