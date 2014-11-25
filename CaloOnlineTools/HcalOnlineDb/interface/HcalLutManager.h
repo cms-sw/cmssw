@@ -25,7 +25,7 @@
 #include "CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalAssistant.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalChannelIterator.h"
-
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 
 class XMLDOMBlock;
@@ -43,9 +43,8 @@ class HcalLutSet{
 class HcalLutManager{
  public:
   
-  HcalLutManager( );
-  HcalLutManager(std::vector<HcalGenericDetId> & map);
-  HcalLutManager(const HcalElectronicsMap * _emap,
+  HcalLutManager(const HcalTopology* _topo,
+		 const HcalElectronicsMap * _emap,
 		 const HcalChannelQuality * _cq = 0,
 		 uint32_t _status_word_to_mask = 0x0000);
   ~HcalLutManager( );
@@ -152,6 +151,7 @@ class HcalLutManager{
   LutXml * lut_xml;
   XMLDOMBlock * lut_checksums_xml;
   HCALConfigDB * db;
+  const HcalTopology* topo_;
   LMap * lmap;
   HcalChannelIterator _iter;
   HcalAssistant _ass;

@@ -22,7 +22,6 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-  bool useFullGranularityHF_;
   boost::shared_ptr<HcalTrigTowerGeometry> m_hcalTrigTowerGeom;
 };
 

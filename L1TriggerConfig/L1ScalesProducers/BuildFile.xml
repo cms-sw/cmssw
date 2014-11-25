@@ -9,4 +9,5 @@
 <use   name="CondTools/L1Trigger"/>
 <use   name="Geometry/EcalMapping"/>
 <use   name="Geometry/HcalTowerAlgo"/>
+<use   name="Geometry/Records"/>
 <flags   EDM_PLUGIN="1"/>

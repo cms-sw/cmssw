@@ -1,7 +1,7 @@
 #include "SimCalorimetry/HcalTrigPrimAlgos/interface/HcalTriggerPrimitiveAlgo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <iostream>
+
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
@@ -9,7 +9,8 @@
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalHTRData.h"
-
+#include "SimCalorimetry/HcalTrigPrimAlgos/interface/HcalFeatureHFEMBit.h"//cuts based on short and long energy deposited.
+#include <iostream>
 using namespace std;
 
 HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo( bool pf, const std::vector<double>& w, int latency,
@@ -45,7 +46,7 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
                                    const HFDigiCollection& hfDigis,
                                    HcalTrigPrimDigiCollection& result,
 				   const HcalTrigTowerGeometry* trigTowerGeometry,
-                                   float rctlsb) {
+                                   float rctlsb, const HcalFeatureBit* LongvrsShortCut) {
    theTrigTowerGeometry = trigTowerGeometry;
     
    incoder_=dynamic_cast<const HcaluLUTTPGCoder*>(incoder);
@@ -55,6 +56,7 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
    theTowerMapFGSum.clear();
    HF_Veto.clear();
    fgMap_.clear();
+   theHFDetailMap.clear();
 
    // do the HB/HE digis
    for(HBHEDigiCollection::const_iterator hbheItr = hbheDigis.begin();
@@ -69,18 +71,44 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
 
    }
 
+   // VME produces additional bits on the front used by lumi but not the
+   // trigger, this shift corrects those out by right shifting over them.
+   int hf_lumi_shift = 0;
+   if (0.2 <= rctlsb && rctlsb < 0.3) {
+      hf_lumi_shift = 2;
+   } else if (0.3 <= rctlsb) {
+      hf_lumi_shift = 3;
+   }
    for(SumMap::iterator mapItr = theSumMap.begin(); mapItr != theSumMap.end(); ++mapItr) {
       result.push_back(HcalTriggerPrimitiveDigi(mapItr->first));
       HcalTrigTowerDetId detId(mapItr->second.id());
-      if(detId.ietaAbs() >= theTrigTowerGeometry->firstHFTower())
-         { analyzeHF(mapItr->second, result.back(), rctlsb);}
-         else{analyze(mapItr->second, result.back());}
+      if(detId.ietaAbs() >= theTrigTowerGeometry->firstHFTower(detId.version())) { 
+         if (detId.version() == 0) {
+            analyzeHF(mapItr->second, result.back(), hf_lumi_shift);
+         } else if (detId.version() == 1) {
+            analyzeHFV1(mapItr->second, result.back(), hf_lumi_shift, LongvrsShortCut);
+         } else {
+            // Things are going to go poorly
+         }
+      }
+      else { 
+         analyze(mapItr->second, result.back());
+      }
    }
+
+   // Free up some memory
+   theSumMap.clear();
+   theTowerMapFGSum.clear();
+   HF_Veto.clear();
+   fgMap_.clear();
+   theHFDetailMap.clear();
+
    return;
 }
 
 
 void HcalTriggerPrimitiveAlgo::addSignal(const HBHEDataFrame & frame) {
+   // TODO: Need to add support for seperate 28, 29 in HE
    //Hack for 300_pre10, should be removed.
    if (frame.id().depth()==5) return;
 
@@ -111,53 +139,91 @@ void HcalTriggerPrimitiveAlgo::addSignal(const HBHEDataFrame & frame) {
 
 
 void HcalTriggerPrimitiveAlgo::addSignal(const HFDataFrame & frame) {
-
    if(frame.id().depth() == 1 || frame.id().depth() == 2) {
       std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry->towerIds(frame.id());
-      assert(ids.size() == 1);
-      IntegerCaloSamples samples(ids[0], frame.size());
-      samples.setPresamples(frame.presamples());
-      incoder_->adc2Linear(frame, samples);
+      std::vector<HcalTrigTowerDetId>::const_iterator it;
+      for (it = ids.begin(); it != ids.end(); ++it) {
+         HcalTrigTowerDetId trig_tower_id = *it;
+         IntegerCaloSamples samples(trig_tower_id, frame.size());
+         samples.setPresamples(frame.presamples());
+         incoder_->adc2Linear(frame, samples);
 
-      // Don't add to final collection yet
-      // HF PMT veto sum is calculated in analyzerHF()
-      IntegerCaloSamples zero_samples(ids[0], frame.size());
-      zero_samples.setPresamples(frame.presamples());
-      addSignal(zero_samples);
+         // Don't add to final collection yet
+         // HF PMT veto sum is calculated in analyzerHF()
+         IntegerCaloSamples zero_samples(trig_tower_id, frame.size());
+         zero_samples.setPresamples(frame.presamples());
+         addSignal(zero_samples);
 
-      // Mask off depths: fgid is the same for both depths
-      uint32_t fgid = (frame.id().rawId() | 0x1c000) ;
+         // Pre-LS1 Configuration
+         if (trig_tower_id.version() == 0) {
+            // Mask off depths: fgid is the same for both depths
+            const uint32_t FGID_MASK = 0x1c000;  // Binary: 11100000000000000
+            uint32_t fgid = (frame.id().rawId() | FGID_MASK);
 
-      if ( theTowerMapFGSum.find(ids[0]) == theTowerMapFGSum.end() ) {
-         SumFGContainer sumFG;
-         theTowerMapFGSum.insert(std::pair<HcalTrigTowerDetId, SumFGContainer >(ids[0], sumFG));
-      }
+            if ( theTowerMapFGSum.find(trig_tower_id) == theTowerMapFGSum.end() ) {
+               SumFGContainer sumFG;
+               theTowerMapFGSum.insert(std::pair<HcalTrigTowerDetId, SumFGContainer>(trig_tower_id, sumFG));
+            }
 
-      SumFGContainer& sumFG = theTowerMapFGSum[ids[0]];
-      SumFGContainer::iterator sumFGItr;
-      for ( sumFGItr = sumFG.begin(); sumFGItr != sumFG.end(); ++sumFGItr) {
-         if (sumFGItr->id() == fgid) break;
-      }
-      // If find
-      if (sumFGItr != sumFG.end()) {
-         for (int i=0; i<samples.size(); ++i) (*sumFGItr)[i] += samples[i];
-      }
-      else {
-         //Copy samples (change to fgid)
-         IntegerCaloSamples sumFGSamples(DetId(fgid), samples.size());
-         sumFGSamples.setPresamples(samples.presamples());
-         for (int i=0; i<samples.size(); ++i) sumFGSamples[i] = samples[i];
-         sumFG.push_back(sumFGSamples);
-      }
+            SumFGContainer& sumFG = theTowerMapFGSum[trig_tower_id];
+            SumFGContainer::iterator sumFGItr;
+            for ( sumFGItr = sumFG.begin(); sumFGItr != sumFG.end(); ++sumFGItr) {
+               if (sumFGItr->id() == fgid) { break; }
+            }
+            // If find
+            if (sumFGItr != sumFG.end()) {
+               for (int i=0; i<samples.size(); ++i) {
+                  (*sumFGItr)[i] += samples[i];
+               }
+            }
+            else {
+               //Copy samples (change to fgid)
+               IntegerCaloSamples sumFGSamples(DetId(fgid), samples.size());
+               sumFGSamples.setPresamples(samples.presamples());
+               for (int i=0; i<samples.size(); ++i) {
+                  sumFGSamples[i] = samples[i];
+               }
+               sumFG.push_back(sumFGSamples);
+            }
 
-      // set veto to true if Long or Short less than threshold
-      if (HF_Veto.find(fgid) == HF_Veto.end()) {
-         vector<bool> vetoBits(samples.size(), false);
-         HF_Veto[fgid] = vetoBits;
+            // set veto to true if Long or Short less than threshold
+            if (HF_Veto.find(fgid) == HF_Veto.end()) {
+               vector<bool> vetoBits(samples.size(), false);
+               HF_Veto[fgid] = vetoBits;
+            }
+            for (int i=0; i<samples.size(); ++i) {
+               if (samples[i] < minSignalThreshold_) {
+                  HF_Veto[fgid][i] = true;
+               }
+            }
+         }
+         // HF 1x1
+         else if (trig_tower_id.version() == 1) {
+            // Check if the entry exists, if not add
+            HFDetailMap::iterator dit = theHFDetailMap.find(trig_tower_id);
+            if ( dit == theHFDetailMap.end() ) {
+               HFDetails hf_detail;
+               theHFDetailMap.insert(std::make_pair(trig_tower_id, hf_detail));
+               dit = theHFDetailMap.find(trig_tower_id);
+            }
+
+            // Check the frame type to determine long vs short
+            if (frame.id().depth() == 1) { // Long
+               dit->second.long_fiber = samples;
+               dit->second.LongDigi = frame;
+            } else if (frame.id().depth() == 2) { // Short
+               dit->second.short_fiber = samples;
+               dit->second.ShortDigi = frame;
+            } else {
+                // Neither long nor short... So we have no idea what to do
+                return;
+            }
+         }
+         // Uh oh, we are in a bad/unknown state! Things will start crashing.
+         else {
+             return;
+         }
       }
-      for (int i=0; i<samples.size(); ++i)
-         if (samples[i] < minSignalThreshold_)
-            HF_Veto[fgid][i] = true;
    }
 }
 
@@ -243,12 +309,12 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples, HcalTrigger
          if (samples[idx] >= 0x3FF)
             output[ibin] = 0x3FF;
       }
-      outcoder_->compress(output, finegrain, result);
+      outcoder_->compress(output, finegrain, result, *theTrigTowerGeometry);
    }
 }
 
 
-void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result, float rctlsb) {
+void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result, const int hf_lumi_shift) {
    std::vector<bool> finegrain(numberOfSamples_, false);
    HcalTrigTowerDetId detId(samples.id());
 
@@ -280,10 +346,66 @@ void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples & samples, HcalTrigg
 
    for (int ibin = 0; ibin < numberOfSamples_; ++ibin) {
       int idx = ibin + shift;
-      output[ibin] = samples[idx] / (rctlsb == 0.25 ? 4 : 8);
-      if (output[ibin] > 0x3FF) output[ibin] = 0x3FF;
+      output[ibin] = samples[idx] >> hf_lumi_shift;
+      static const int MAX_OUTPUT = 0x3FF;  // 0x3FF = 1023
+      if (output[ibin] > MAX_OUTPUT) output[ibin] = MAX_OUTPUT;
    }
-   outcoder_->compress(output, finegrain, result);
+   outcoder_->compress(output, finegrain, result, *theTrigTowerGeometry);
+}
+
+void HcalTriggerPrimitiveAlgo::analyzeHFV1(
+        const IntegerCaloSamples& SAMPLES,
+        HcalTriggerPrimitiveDigi& result,
+        const int HF_LUMI_SHIFT,
+        const HcalFeatureBit* HCALFEM
+        ) {
+    // Align digis and TP
+    const int SHIFT = SAMPLES.presamples() - numberOfPresamples_;
+    assert(SHIFT >= 0);
+    assert((SHIFT + numberOfSamples_) <= SAMPLES.size());
+
+    // Try to find the HFDetails from the map corresponding to our samples
+    const HcalTrigTowerDetId detId(SAMPLES.id());
+    HFDetailMap::const_iterator it = theHFDetailMap.find(detId);
+    // Missing values will give an empty digi
+    if (it == theHFDetailMap.end()) {
+        return;
+    }
+    const HFDetails* HF_DETAILS = &(it->second);
+
+    std::vector<bool> finegrain(numberOfSamples_, false);
+
+    // Set up out output of IntergerCaloSamples
+    IntegerCaloSamples output(SAMPLES.id(), numberOfSamples_);
+    output.setPresamples(numberOfPresamples_);
+    for (int ibin = 0; ibin < numberOfSamples_; ++ibin) {
+        const int IDX = ibin + SHIFT;
+        int long_fiber_val = 0;
+        if (IDX < HF_DETAILS->long_fiber.size()) {
+            long_fiber_val = HF_DETAILS->long_fiber[IDX];
+        }
+        int short_fiber_val = 0;
+        if (IDX < HF_DETAILS->short_fiber.size()) {
+            short_fiber_val = HF_DETAILS->long_fiber[IDX];
+        }
+        output[ibin] = (long_fiber_val + short_fiber_val) >> HF_LUMI_SHIFT;
+        static const int MAX_OUTPUT = 0x3FF;  // 0x3FF = 1023
+        if (output[ibin] > MAX_OUTPUT) {
+            output[ibin] = MAX_OUTPUT;
+        }
+        // TODO: Do EM fine grain bit algo
+        int ADCLong = HF_DETAILS->LongDigi[ibin].adc();
+        int ADCShort = HF_DETAILS->ShortDigi[ibin].adc();
+
+
+
+        if(HCALFEM != 0)
+        {
+            finegrain[ibin] = HCALFEM->fineGrainbit(ADCShort, HF_DETAILS->ShortDigi.id(), HF_DETAILS->ShortDigi[ibin].capid(), ADCLong, HF_DETAILS->LongDigi.id(), HF_DETAILS->LongDigi[ibin].capid());
+        }
+    }
+    outcoder_->compress(output, finegrain, result, *theTrigTowerGeometry);
+    
 }
 
 void HcalTriggerPrimitiveAlgo::runZS(HcalTrigPrimDigiCollection & result){

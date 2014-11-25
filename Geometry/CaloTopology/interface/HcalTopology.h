@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloTopology/interface/HcalTopologyMode.h"
 
@@ -25,7 +26,7 @@
 class HcalTopology : public CaloSubdetectorTopology {
 public:
 
-  HcalTopology( HcalTopologyMode::Mode mode, int maxDepthHB, int maxDepthHE, HcalTopologyMode::TriggerMode tmode=HcalTopologyMode::tm_LHC_PreLS1);
+  HcalTopology( HcalTopologyMode::Mode mode, int maxDepthHB, int maxDepthHE, HcalTopologyMode::TriggerMode tmode=HcalTopologyMode::tm_LHC_RCT_and_1x1);
 	
   HcalTopologyMode::Mode mode() const {return mode_;}
   HcalTopologyMode::TriggerMode triggerMode() const { return triggerMode_; }
@@ -50,6 +51,8 @@ public:
   virtual bool valid(const DetId& id) const;
   /** Is this a valid cell id? */
   bool validHcal(const HcalDetId& id) const;
+  /** Is this a valid hcal trigger cell id? */
+  bool validHT(const HcalTrigTowerDetId& id) const;
   /** Get the neighbors of the given cell in east direction*/
   virtual std::vector<DetId> east(const DetId& id) const;
   /** Get the neighbors of the given cell in west direction*/
@@ -140,9 +143,9 @@ private:
   int decAIEta(const HcalDetId& id, HcalDetId neighbors[2]) const;
 
   /** Is this a valid cell id, ignoring the exclusion list */
-  bool validDetIdPreLS1(const HcalDetId& id) const;
+  bool validDetIdPhase0(const HcalDetId& id) const;
   bool validRaw(const HcalDetId& id) const;
-  unsigned int detId2denseIdPreLS1 (const DetId& id) const;
+  unsigned int detId2denseIdPhase0 (const DetId& id) const;
 
   std::vector<HcalDetId> exclusionList_;
   bool excludeHB_, excludeHE_, excludeHO_, excludeHF_;
@@ -185,19 +188,22 @@ private:
   enum { kHBhalf = 1296 ,
 	 kHEhalf = 1296 ,
 	 kHOhalf = 1080 ,
-	 kHFhalf = 864  ,
-	 kHThalf = 2088,
+	 kHFhalfPhase0 = 864,
+	 kHFhalfPhase1 = 1728,
+	 kHThalfPhase0 = 28*72+4*18,
+	 kHThalfPhase1 = kHThalfPhase0+2*72+12*36,
 	 kZDChalf = 11,
 	 kCASTORhalf = 224,
 	 kCALIBhalf = 693,
-	 kHcalhalf = kHBhalf + kHEhalf + kHOhalf + kHFhalf } ;
-  enum { kSizeForDenseIndexingPreLS1 = 2*kHcalhalf } ;
-  enum { kHBSizePreLS1 = 2*kHBhalf } ;
-  enum { kHESizePreLS1 = 2*kHEhalf } ;
-  enum { kHOSizePreLS1 = 2*kHOhalf } ;
-  enum { kHFSizePreLS1 = 2*kHFhalf } ;
-  enum { kHTSizePreLS1 = 2*kHThalf };
-  enum { kCALIBSizePreLS1 = 2*kCALIBhalf };
+	 kHcalhalf = kHBhalf + kHEhalf + kHOhalf + kHFhalfPhase0 } ;
+  enum { kSizeForDenseIndexingPhase0 = 2*kHcalhalf } ;
+  enum { kHBSizePhase0 = 2*kHBhalf } ;
+  enum { kHESizePhase0 = 2*kHEhalf } ;
+  enum { kHOSizePhase0 = 2*kHOhalf } ;
+  enum { kHFSizePhase0 = 2*kHFhalfPhase0 } ;
+  enum { kHTSizePhase0 = 2*kHThalfPhase0 };
+  enum { kHTSizePhase1 = 2*kHThalfPhase1 };
+  enum { kCALIBSizePhase0 = 2*kCALIBhalf };
 };
 
 

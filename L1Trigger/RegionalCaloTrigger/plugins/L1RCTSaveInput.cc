@@ -42,6 +42,9 @@ using std::endl;
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCT.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h" 
 
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
+
 L1RCTSaveInput::L1RCTSaveInput(const edm::ParameterSet& conf) :
   fileName(conf.getUntrackedParameter<std::string>("rctTestInputFile")),
   rctLookupTables(new L1RCTLookupTables),
@@ -142,12 +145,14 @@ L1RCTSaveInput::analyze(const edm::Event& event,
       std::cout << std::endl ;
 
       // HCAL
+      edm::ESHandle<HcalTrigTowerGeometry> theTrigTowerGeometry;
+      eventSetup.get<CaloGeometryRecord>().get(theTrigTowerGeometry);
       std::cout << "HCAL" << std::endl ;
       for( unsigned short ieta = 1 ; ieta <= L1CaloHcalScale::nBinEta; ++ieta )
         {
           for( unsigned short irank = 0 ; irank < L1CaloHcalScale::nBinRank; ++irank )
             {
-              double etGeV = h_tpg->hcaletValue( ieta, irank ) ;
+              double etGeV = h_tpg->hcaletValue( ieta, irank, *theTrigTowerGeometry ) ;
 
               hcalScale->setBin( irank, ieta, 1, etGeV ) ;
               hcalScale->setBin( irank, ieta, -1, etGeV ) ;

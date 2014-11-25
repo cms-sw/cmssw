@@ -94,9 +94,17 @@ bool HcalText2DetIdConverter::init (DetId fId) {
     }
     else {
       flavorName = "HT";
-      setField (1, triggerId.ieta());
-      setField (2, triggerId.iphi());
-      setField (3, 1);
+      if (triggerId.version() == 0) {
+        setField (1, triggerId.ieta());
+        setField (2, triggerId.iphi());
+        setField (3, 1);
+      } else if (triggerId.version() == 1) {
+        setField (1, triggerId.ieta());
+        setField (2, triggerId.iphi());
+        setField (3, 10);  // We use the tens digit to indicate version
+      } else {
+        // Unknown version
+      }
     }
   }
   else if (genId.isHcalZDCDetId ()) {
@@ -158,7 +166,24 @@ bool HcalText2DetIdConverter::init (const std::string& fFlavor, const std::strin
     mId = HcalDetId (sub, getField (1), getField (2), getField (3));
   }
   else if (flavorName == "HT") {
-    mId = HcalTrigTowerDetId (getField (1), getField (2));
+    // We use the depth to signal the "version" being used (RCT or 1x1 HF). RCT
+    // has a 0 in the 10s digit, whereas 1x1 has a 1. The ones digit is still
+    // used to indicate depth, although in the 1x1 case this must be 0, so we
+    // set it as such.
+    const int depth_field = getField(3);
+    const int ones = depth_field % 10;
+    const int tens = (depth_field - ones) / 10;
+    if (tens == 0) {
+      const int depth = ones;
+      const int version = 0;
+      mId = HcalTrigTowerDetId (getField (1), getField (2), depth, version);
+    } else if (tens == 1) {
+      const int depth = 0;
+      const int version = 1;
+      mId = HcalTrigTowerDetId(getField(1), getField(2), depth, version);
+    } else {
+      // Undefined version!
+    }
   }
   else if (flavorName.find ("ZDC_") == 0) {
     HcalZDCDetId::Section section = flavorName == "ZDC_EM" ? HcalZDCDetId::EM :
