@@ -15,27 +15,12 @@ def customiseSimL1EmulatorForPostLS1(process):
     #print "INFO:  loading RCT LUTs"
     #process.load("L1Trigger.L1TCalorimeter.caloStage1RCTLuts_cff")
 
-    #if hasattr(process,'simulationWithFamos'):
-    #    print "INFO:  Fast Simulation Detected... no more L1 tigger post LS1 customizations will be made"
-    #    return(process)
-
-
     process.load("L1Trigger.L1TCommon.l1tDigiToRaw_cfi")
     process.load("L1Trigger.L1TCommon.l1tRawToDigi_cfi")
     process.load("L1Trigger.L1TCommon.caloStage1LegacyFormatDigis_cfi")
 
     process.load('L1Trigger.L1TCalorimeter.caloStage1Params_cfi')
     process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_cff')
-
-    #if hasattr(process, 'simGctDigis'):
-    #    process.L1TCaloStage1PlusGct = cms.Sequence(
-    #        process.simGctDigis +
-    #        process.L1TCaloStage1
-    #        )
-    #else:
-    #    process.L1TCaloStage1PlusGct = cms.Sequence(
-    #        process.L1TCaloStage1
-    #        )
 
     if hasattr(process, 'simGtDigis'):
         process.simGtDigis.GmtInputTag = 'simGmtDigis'
