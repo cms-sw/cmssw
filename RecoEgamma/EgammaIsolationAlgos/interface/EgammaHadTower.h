@@ -11,12 +11,15 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "Geometry/CaloTopology/interface/CaloTowerConstituentsMap.h"
+#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 
+class PFClusterCollection;
 
 class EgammaHadTower {
  public:
 
-  enum HoeMode{SingleTower=0,TowersBehindCluster=1};
+  enum HoeMode{SingleTower=0,TowersBehindCluster=1,HGCalHFCluster=2};
 
   EgammaHadTower(const edm::EventSetup &es,HoeMode mode=SingleTower);
   ~EgammaHadTower(){;}
@@ -27,12 +30,16 @@ class EgammaHadTower {
   std::vector<CaloTowerDetId> towersOf(const reco::SuperCluster& sc) const ;
   CaloTowerDetId  towerOf(const reco::CaloCluster& cluster) const ;
   void setTowerCollection(const CaloTowerCollection* towercollection);
-
+  void setPFClusterCollection(const std::vector<reco::PFCluster>* pfClusterCollection);
+  double getHgcalHFE(const reco::SuperCluster & sc, float EtMin=0., double hOverEConeSize=0.15) const;
+  
  private:
   const CaloTowerConstituentsMap * towerMap_;
   HoeMode mode_;
   const CaloTowerCollection * towerCollection_;
   unsigned int NMaxClusters_;
+  const std::vector<reco::PFCluster>* pfClusterCollection_;
+
 };
 
 bool ClusterGreaterThan(const reco::CaloClusterPtr& c1, const reco::CaloClusterPtr& c2) ;

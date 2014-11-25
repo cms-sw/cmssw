@@ -48,12 +48,23 @@ correctEnergyActual(reco::PFCluster& cluster) const {
   double eCorr = 0.0;
   const double clus_eta = cluster.positionREP().eta();
   for( const auto& rhf : cluster.recHitFractions() ) {
-    const reco::PFRecHit& hit = *(rhf.recHitRef());
-    const std::pair<int,int> zside_layer = getlayer<HGCEEDetId>(hit.detId());
-    const int layer = zside_layer.second;
-    //const double eta = hit.positionREP().eta();
-    const double energy_MIP = hit.energy()/_mipValueInGeV;
-    eCorr += _weights[layer]*energy_MIP;//std::cosh(eta);
+    const reco::PFRecHit& hit = *(rhf.recHitRef());    
+    DetId id(hit.detId());
+    if( id.det() != DetId::Forward ) continue;    
+    switch( id.subdetId() ) {
+    case HGCEE:    
+      {
+	const std::pair<int,int> zside_layer = 
+	  getlayer<HGCEEDetId>(hit.detId());
+	const int layer = zside_layer.second;
+	//const double eta = hit.positionREP().eta();
+	const double energy_MIP = hit.energy()/_mipValueInGeV;
+	eCorr += _weights[layer-1]*energy_MIP;//std::cosh(eta);
+      }
+      break;
+    default:
+      break;
+    }
   }
   
   /*

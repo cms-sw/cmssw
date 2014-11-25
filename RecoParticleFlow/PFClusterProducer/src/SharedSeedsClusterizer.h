@@ -18,7 +18,8 @@ class SharedSeedsClusterizer : public InitialClusteringStepBase {
   enum navi_dir{ Bidirectional = 0, OnlyForward = 1, OnlyBackward = 2};
   
   
-  SharedSeedsClusterizer(const edm::ParameterSet& conf);
+  SharedSeedsClusterizer(const edm::ParameterSet& conf,
+			 edm::ConsumesCollector& sumes);
   virtual ~SharedSeedsClusterizer() {}
   SharedSeedsClusterizer(const B2DGT&) = delete;
   B2DGT& operator=(const B2DGT&) = delete;

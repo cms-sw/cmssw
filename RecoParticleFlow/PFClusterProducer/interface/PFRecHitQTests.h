@@ -116,7 +116,7 @@ class PFRecHitQTestThresholdInMIPs : public PFRecHitQTestBase {
     double threshold_,mip_,recHitEnergyMultiplier_;    
 
   bool pass(const reco::PFRecHit& hit) {
-    const double eta_correction = std::abs(std::tanh(hit.position().Eta()));
+    const double eta_correction = 1.0;//std::abs(std::tanh(hit.position().Eta()));
     // coth = 1/tanh && convert PF hit energy back in keV to compare to MIP
     const double hitValueInMIPs = 1e6*hit.energy()*eta_correction/mip_;
     //std::cout << "hit value in MIPs : " << hitValueInMIPs <<std::endl;

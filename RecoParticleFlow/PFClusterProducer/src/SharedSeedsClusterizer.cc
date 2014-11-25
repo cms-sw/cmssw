@@ -28,8 +28,9 @@ namespace {
 }
 
 SharedSeedsClusterizer::
-SharedSeedsClusterizer(const edm::ParameterSet& conf) :
-  InitialClusteringStepBase(conf),
+SharedSeedsClusterizer(const edm::ParameterSet& conf,
+		       edm::ConsumesCollector& sumes) :
+  InitialClusteringStepBase(conf,sumes),
   _useCornerCells(conf.getParameter<bool>("useCornerCells")),
   _showerSigma2(std::pow(conf.getParameter<double>("showerSigma"),2.0)),
   _stoppingTolerance(conf.getParameter<double>("stoppingTolerance")),

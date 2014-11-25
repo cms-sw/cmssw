@@ -46,7 +46,9 @@ class GsfElectronBaseProducer : public edm::EDProducer
     GsfElectronAlgo::StrategyConfiguration strategyCfg_ ;
     GsfElectronAlgo::CutsConfiguration cutsCfg_ ;
     GsfElectronAlgo::CutsConfiguration cutsCfgPflow_ ;
-    ElectronHcalHelper::Configuration hcalCfg_ ;
+    //ElectronHcalHelper::Configuration hcalCfg_ ;
+    ElectronHcalHelper::Configuration hcalCfgBarrel_ ;
+    ElectronHcalHelper::Configuration hcalCfgEndcap_ ;
     ElectronHcalHelper::Configuration hcalCfgPflow_ ;
 
   private :

@@ -205,6 +205,11 @@ public:
   }
 };
 
+typedef PFRecHitDualNavigator<PFLayer::HGC_ECAL,
+			      PFRecHitHGCEENavigator,
+			      PFLayer::HGC_HCALF,
+			      PFRecHitHGCHENavigator> PFRecHitHGCEEHEFNavigator;
+
 EDM_REGISTER_PLUGINFACTORY(PFRecHitNavigationFactory, "PFRecHitNavigationFactory");
 
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitEcalBarrelNavigator, "PFRecHitEcalBarrelNavigator");
@@ -212,6 +217,7 @@ DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitEcalEndcapNavigator, "PFRec
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitShashlikNavigator, "PFRecHitShashlikNavigator");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitHGCEENavigator, "PFRecHitHGCEENavigator");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitHGCHENavigator, "PFRecHitHGCHENavigator");
+DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitHGCEEHEFNavigator, "PFRecHitHGCEEHEFNavigator");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitEcalBarrelNavigatorWithTime, "PFRecHitEcalBarrelNavigatorWithTime");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitEcalEndcapNavigatorWithTime, "PFRecHitEcalEndcapNavigatorWithTime");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitShashlikNavigatorWithTime, "PFRecHitShashlikNavigatorWithTime");
