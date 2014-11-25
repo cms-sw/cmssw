@@ -307,5 +307,7 @@ def customise_csc_hlt(process):
     
     process.hltCsc2DRecHits.wireDigiTag  = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi")
     process.hltCsc2DRecHits.stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi")
-    
+
+    ## remove hltGetConditions for mc
+    process.HLTriggerFirstPath.remove(process.hltGetConditions)
     return process
