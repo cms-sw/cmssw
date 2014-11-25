@@ -44,11 +44,12 @@ def customiseSimL1EmulatorForPostLS1(process):
     if hasattr(process, 'gctDigiToRaw'):
         process.gctDigiToRaw.gctInputLabel = 'simCaloStage1LegacyFormatDigis'
 
-    for path in process.paths:
-        #print "INFO:  checking path ", path
-        #print "BEFORE:  ", getattr(process,path)
-        getattr(process,path).replace(process.simGctDigis,process.L1TCaloStage1)
-        #print "AFTER:  ", getattr(process,path)
+    if hasattr(process, 'simGctDigis'):
+        for path in process.paths:
+            #print "INFO:  checking path ", path
+            #print "BEFORE:  ", getattr(process,path)
+            getattr(process,path).replace(process.simGctDigis,process.L1TCaloStage1)
+            #print "AFTER:  ", getattr(process,path)
 
     if hasattr(process, 'DigiToRaw'):
         #print "INFO:  customizing DigiToRaw for Stage 1"
