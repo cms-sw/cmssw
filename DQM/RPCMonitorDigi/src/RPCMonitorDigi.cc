@@ -410,8 +410,8 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
 	os.str("");
 	os<<"1DOccupancy_Ring_"<<ring;
 	if ((meWheelDisk[os.str()])){
-	  if (wheelOrDiskNumber > 0 ) meWheelDisk[os.str()]->Fill(wheelOrDiskNumber +3, clusterSize);
-	  else meWheelDisk[os.str()]->Fill(wheelOrDiskNumber + 4, clusterSize);
+	  if (wheelOrDiskNumber > 0 ) {meWheelDisk[os.str()]->Fill(wheelOrDiskNumber + numberOfDisks_, clusterSize);}
+	  else {meWheelDisk[os.str()]->Fill(wheelOrDiskNumber +  numberOfDisks_ +1, clusterSize);}
 	}
 
 	os.str("");
@@ -471,9 +471,9 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
       if(meRegion[os.str()]) meRegion[os.str()]->Fill(sector, wheelOrDiskNumber, numDigi);
     }else {
       os<<"Occupancy_for_Endcap";
-      int xbin = wheelOrDiskNumber+3;
-      if (region==-1) xbin = wheelOrDiskNumber+4;
-      if(meRegion[os.str()]) meRegion[os.str()]->Fill(xbin,ring,numDigi);
+      int xbin = wheelOrDiskNumber+ numberOfDisks_;
+      if (region==-1) {xbin = wheelOrDiskNumber+ numberOfDisks_ +1;}
+      if(meRegion[os.str()]) {meRegion[os.str()]->Fill(xbin,ring,numDigi);}
     }
 
     os.str("");
