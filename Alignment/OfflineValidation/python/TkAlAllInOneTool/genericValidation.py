@@ -166,6 +166,12 @@ class GenericValidationData(GenericValidation):
             globalDictionaries.usedDatasets[self.general["dataset"]] = Dataset(
                 self.general["dataset"], tryPredefinedFirst = tryPredefinedFirst )
         self.dataset = globalDictionaries.usedDatasets[self.general["dataset"]]
+        self.general["magneticField"] = self.dataset.magneticField()
+        self.general["defaultMagneticField"] = "38T"
+        if self.general["magneticField"] == "unknown":
+            print "Could not get the magnetic field for this dataset."
+            print "Using the default: ", self.general["defaultMagneticField"]
+            self.general["magneticField"] = '.oO[defaultMagneticField]Oo.'
         
         if not self.jobmode.split( ',' )[0] == "crab":
             try:

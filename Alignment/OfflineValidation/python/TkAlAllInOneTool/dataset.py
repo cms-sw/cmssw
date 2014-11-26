@@ -65,6 +65,7 @@ class Dataset:
             self.__name = "Dataset" + self.__name.replace("/","_")
 
         self.__dataType = self.__getDataType()
+        self.__magneticField = self.__getMagneticField()
 
     def __chunks( self, theList, n ):
         """ Yield successive n-sized chunks from theList.
@@ -204,6 +205,7 @@ class Dataset:
         if self.__predefined:
             with open(self.__filename) as f:
                 f.readline()
+                f.readline()
                 datatype = f.readline().replace("\n",'')
                 if "#data type: " in datatype:
                     return datatype.replace("#data type: ","")
@@ -218,6 +220,37 @@ class Dataset:
                 return a["datatype"]
         msg = ("Cannot find the datatype of the dataset '%s'"%( self.name() ))
         raise AllInOneError( msg )
+
+    def __getMagneticField( self ):
+        if self.__predefined:
+            with open(self.__filename) as f:
+                f.readline()
+                f.readline()
+                datatype = f.readline().replace("\n",'')
+                Bfield = f.readline().replace("\n",'')
+                if "#magnetic field: " in Bfield:
+                    return Bfield.replace("#magnetic field: ","")
+                elif datatype == "#data type: data":
+                    return "AutoFromDBCurrent"           #this should be in the "#magnetic field" line, but just in case it got messed up
+                else:
+                    return "unknown"
+
+        if self.__dataType == "data":
+            return "AutoFromDBCurrent"
+
+        dasQuery_type = ( 'dataset dataset=%s'%( self.__name ) )             #try to find the magnetic field from DAS
+        data = self.__getData( dasQuery_type )                               #it seems to be there for the newer (7X) MC samples, except cosmics
+        for a in data[0]["dataset"]:
+            if "mcm" in a and "sequences" in a["mcm"]:
+                for b in a["mcm"]["sequences"]:
+                    if "magField" in b and b["magField"] != "":
+                        return b["magField"]
+
+        for possibleB in ["20T","30T","35T","38T_PostLS1","38T","40T","0T"]:
+            if possibleB in self.__name.replace("TkAlCosmics0T",""):         #for some reason all cosmics MC names contain this string
+                return possibleB
+
+        return "unknown"
 
     def __getFileInfoList( self, dasLimit ):
         if self.__fileInfoList:
@@ -326,6 +359,9 @@ class Dataset:
 
     def dataType( self ):
         return self.__dataType
+
+    def magneticField( self ):
+        return self.__magneticField
     
     def datasetSnippet( self, jsonPath = None, begin = None, end = None,
                         firstRun = None, lastRun = None, nEvents = None,
@@ -340,7 +376,7 @@ class Dataset:
                    "tab": " " * len( "process." ),
                    "nEvents": str( nEvents ),
                    "importCms": "",
-                   "header": "#%s\n#data type: %s\n"%(self.__name, self.__dataType)
+                   "header": ""
                    }
         datasetSnippet = self.__createSnippet( jsonPath = jsonPath,
                                                begin = begin,
@@ -377,7 +413,12 @@ class Dataset:
                    "tab": "",
                    "nEvents": str( -1 ),
                    "importCms": "import FWCore.ParameterSet.Config as cms\n",
-                   "header": "#%s\n#data type: %s\n"%(self.__name, self.__dataType) }
+                   "header": "#Do not change, delete, or put anything before these comments\n"
+                             "#%s\n"
+                             "#data type: %s\n"
+                             "#magnetic field: %s\n"
+                             %(self.__name, self.__dataType, self.__magneticField)
+                   }
         dataset_cff = self.__createSnippet( jsonPath = jsonPath,
                                             begin = begin,
                                             end = end,

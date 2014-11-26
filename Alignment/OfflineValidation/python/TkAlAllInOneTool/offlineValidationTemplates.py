@@ -169,7 +169,7 @@ process.load("Configuration.Geometry.GeometryDB_cff")
  ##
  ## Magnetic Field
  ##
-process.load("Configuration/StandardSequences/MagneticField_38T_cff")
+process.load("Configuration/StandardSequences/MagneticField_.oO[magneticField]Oo._cff")
 
 .oO[condLoad]Oo.
 
@@ -370,7 +370,7 @@ process.load("Configuration.Geometry.GeometryDB_cff")
  ##
  ## Magnetic Field
  ##
-process.load("Configuration/StandardSequences/MagneticField_38T_cff")
+process.load("Configuration/StandardSequences/MagneticField_.oO[magneticField]Oo._cff")
 
 .oO[condLoad]Oo.
 
