@@ -1,5 +1,5 @@
 
-#include "IOPool/Output/src/RootOutputFile.h"
+#include "IOPool/Output/interface/RootOutputFile.h"
 
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 
