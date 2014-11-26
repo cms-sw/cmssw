@@ -11,42 +11,60 @@ from TkAlExceptions import AllInOneError
 
 
 class Dataset:
-    def __init__( self, datasetName, dasLimit = 0 ):
+    def __init__( self, datasetName, dasLimit = 0, tryPredefinedFirst = True ):
         self.__name = datasetName
-        # check, if dataset name matches CMS dataset naming scheme
-        if re.match( r'/.+/.+/.+', self.__name ):
-            self.__dataType = self.__getDataType()
-            self.__predefined = False
-        else:
-            fileName = self.__name + "_cff.py"
-            searchPath1 = os.path.join( os.environ["CMSSW_BASE"], "python",
-                                        "Alignment", "OfflineValidation",
-                                        fileName )
-            searchPath2 = os.path.join( os.environ["CMSSW_BASE"], "src",
-                                        "Alignment", "OfflineValidation",
-                                        "python", fileName )
-            searchPath3 = os.path.join( os.environ["CMSSW_RELEASE_BASE"],
-                                        "python", "Alignment",
-                                        "OfflineValidation", fileName )
-            if os.path.exists( searchPath1 ):
-                pass
-            elif os.path.exists( searchPath2 ):
-                msg = ("The predefined dataset '%s' does exist in '%s', but "
-                       "you need to run 'scram b' first."
-                       %( self.__name, searchPath2 ))
-                raise AllInOneError( msg )
-            elif os.path.exists( searchPath3 ):
-                pass
-            else:
-                msg = ("The predefined dataset '%s' does not exist. Please "
-                       "create it first or check for typos."%( self.__name ))
-                raise AllInOneError( msg )
-            self.__dataType = "unknown"
-            self.__predefined = True
+
         self.__dasLimit = dasLimit
         self.__fileList = None
         self.__fileInfoList = None
         self.__runList = None
+        self.__alreadyStored = False
+
+        # check, if dataset name matches CMS dataset naming scheme
+        if re.match( r'/.+/.+/.+', self.__name ):
+            self.__official = True
+            fileName = "Dataset" + self.__name.replace("/","_") + "_cff.py"
+        else:
+            self.__official = False
+            fileName = self.__name + "_cff.py"
+
+        searchPath1 = os.path.join( os.environ["CMSSW_BASE"], "python",
+                                    "Alignment", "OfflineValidation",
+                                    fileName )
+        searchPath2 = os.path.join( os.environ["CMSSW_BASE"], "src",
+                                    "Alignment", "OfflineValidation",
+                                    "python", fileName )
+        searchPath3 = os.path.join( os.environ["CMSSW_RELEASE_BASE"],
+                                    "python", "Alignment",
+                                    "OfflineValidation", fileName )
+        if self.__official and not tryPredefinedFirst:
+            self.__predefined = False
+        elif os.path.exists( searchPath1 ):
+            self.__predefined = True
+            self.__filename = searchPath1
+        elif os.path.exists( searchPath2 ):
+            msg = ("The predefined dataset '%s' does exist in '%s', but "
+                   "you need to run 'scram b' first."
+                   %( self.__name, searchPath2 ))
+            if self.__official:
+                print msg
+                print "Getting the data from DAS again.  To go faster next time, run scram b."
+            else:
+                raise AllInOneError( msg )
+        elif os.path.exists( searchPath3 ):
+            self.__predefined = True
+            self.__filename = searchPath3
+        elif self.__official:
+            self.__predefined = False
+        else:
+            msg = ("The predefined dataset '%s' does not exist. Please "
+                   "create it first or check for typos."%( self.__name ))
+            raise AllInOneError( msg )
+
+        if self.__predefined and self.__official:
+            self.__name = "Dataset" + self.__name.replace("/","_")
+
+        self.__dataType = self.__getDataType()
 
     def __chunks( self, theList, n ):
         """ Yield successive n-sized chunks from theList.
@@ -183,6 +201,15 @@ class Dataset:
         return jsondict["data"]
 
     def __getDataType( self ):
+        if self.__predefined:
+            with open(self.__filename) as f:
+                f.readline()
+                datatype = f.readline().replace("\n",'')
+                if "#data type: " in datatype:
+                    return datatype.replace("#data type: ","")
+                else:
+                    return "unknown"
+
         dasQuery_type = ( 'dataset dataset=%s | grep dataset.datatype,'
                           'dataset.name'%( self.__name ) )
         data = self.__getData( dasQuery_type )
@@ -242,7 +269,8 @@ class Dataset:
         self.__runList = data
         return data
 
-    __source_template= ("%(importCms)s"
+    __source_template= ("%(header)s"
+                        "%(importCms)s"
                         "import FWCore.PythonUtilities.LumiList as LumiList\n\n"
                         "%(goodLumiSecStr)s"
                         "%(process)smaxEvents = cms.untracked.PSet( "
@@ -311,7 +339,8 @@ class Dataset:
         theMap = { "process": "process.",
                    "tab": " " * len( "process." ),
                    "nEvents": str( nEvents ),
-                   "importCms": ""
+                   "importCms": "",
+                   "header": "#%s\n#data type: %s\n"%(self.__name, self.__dataType)
                    }
         datasetSnippet = self.__createSnippet( jsonPath = jsonPath,
                                                begin = begin,
@@ -320,12 +349,22 @@ class Dataset:
                                                lastRun = lastRun,
                                                repMap = theMap,
                                                crab = crab )
+        if jsonPath == "" and begin == "" and end == "" and firstRun == "" and lastRun == "":
+            try:
+                self.dump_cff()
+            except AllInOneError, e:
+                print "Can't store the dataset as a cff:"
+                print e
+                print "This may be inconvenient in the future, but will not cause a problem for this validation."
         return datasetSnippet
 
     def dump_cff( self, outName = None, jsonPath = None, begin = None,
                   end = None, firstRun = None, lastRun = None ):
+        if self.__alreadyStored:
+            return     
+        self.__alreadyStored = True
         if outName == None:
-            outName = "Dataset"
+            outName = "Dataset" + self.__name.replace("/","_")
         packageName = os.path.join( "Alignment", "OfflineValidation" )
         if not os.path.exists( os.path.join(
             os.environ["CMSSW_BASE"], "src", packageName ) ):
@@ -337,7 +376,8 @@ class Dataset:
         theMap = { "process": "",
                    "tab": "",
                    "nEvents": str( -1 ),
-                   "importCms": "import FWCore.ParameterSet.Config as cms\n" }
+                   "importCms": "import FWCore.ParameterSet.Config as cms\n",
+                   "header": "#%s\n#data type: %s\n"%(self.__name, self.__dataType) }
         dataset_cff = self.__createSnippet( jsonPath = jsonPath,
                                             begin = begin,
                                             end = end,

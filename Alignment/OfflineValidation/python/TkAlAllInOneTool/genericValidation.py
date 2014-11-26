@@ -160,8 +160,11 @@ class GenericValidationData(GenericValidation):
                           ignoreOptions = ignoreOpts)
 
         if self.general["dataset"] not in globalDictionaries.usedDatasets:
+            tryPredefinedFirst = (not self.jobmode.split( ',' )[0] == "crab" and self.general["JSON"]    == ""
+                                  and self.general["firstRun"] == ""         and self.general["lastRun"] == ""
+                                  and self.general["begin"]    == ""         and self.general["end"]     == "")
             globalDictionaries.usedDatasets[self.general["dataset"]] = Dataset(
-                self.general["dataset"] )
+                self.general["dataset"], tryPredefinedFirst = tryPredefinedFirst )
         self.dataset = globalDictionaries.usedDatasets[self.general["dataset"]]
         
         if not self.jobmode.split( ',' )[0] == "crab":
