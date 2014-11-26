@@ -1083,19 +1083,13 @@ steps['RECOHISt4']=steps['RECOHI']
 steps['ALCANZS']=merge([{'-s':'ALCA:HcalCalMinBias','--mc':''},step4Defaults])
 steps['HARVESTGEN']={'-s':'HARVESTING:genHarvesting',
                      '--harvesting':'AtJobEnd',
-                     '--conditions':'auto:run1_mc',
+                     '--conditions':'auto:run2_mc_FULL',
                      '--mc':'',
                      '--filetype':'DQM',
                      '--filein':'file:step1_inDQM.root'
                   }
 
-steps['HARVESTGEN2']={'-s':'HARVESTING:genHarvesting',
-                     '--harvesting':'AtJobEnd',
-                     '--conditions':'auto:run1_mc',
-                     '--mc':'',
-                     '--filetype':'DQM',
-                     '--filein':'file:step2_inDQM.root'
-                  }
+steps['HARVESTGEN2']=merge([{'--filein':'file:step2_inDQM.root'},steps['HARVESTGEN']]) 
 
 
 #data
