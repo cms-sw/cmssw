@@ -5,7 +5,8 @@
  <class name="edmtest::IntProduct" ClassVersion="10">
   <version ClassVersion="10" checksum="4286676158"/>
  </class>
- <class name="edmtest::UInt64Product" ClassVersion="10">
+ <class name="edmtest::UInt64Product" ClassVersion="11">
+  <version ClassVersion="11" checksum="3240540910"/>
   <version ClassVersion="10" checksum="380152127"/>
  </class>
  <class name="edmtest::EnumProduct" ClassVersion="10">
@@ -24,20 +25,23 @@
  <class name="edmtest::StringProduct" ClassVersion="10">
   <version ClassVersion="10" checksum="2737503723"/>
  </class>
- <class name="edmtest::Prodigal" ClassVersion="10">
+ <class name="edmtest::Prodigal" ClassVersion="11">
   <version ClassVersion="10" checksum="3510691703"/>
+  <version ClassVersion="11" checksum="1159264709"/>
  </class>
  <class name="edmtest::Simple" ClassVersion="10">
   <version ClassVersion="10" checksum="2533881336"/>
  </class>
- <class name="edmtest::SimpleDerived" ClassVersion="10">
+ <class name="edmtest::SimpleDerived" ClassVersion="11">
   <version ClassVersion="10" checksum="3753531674"/>
+  <version ClassVersion="11" checksum="802041948"/>
  </class>
  <class name="edmtest::Sortable" ClassVersion="10">
   <version ClassVersion="10" checksum="1166695033"/>
  </class>
- <class name="edmtest::Unsortable" ClassVersion="10">
+ <class name="edmtest::Unsortable" ClassVersion="11">
   <version ClassVersion="10" checksum="2720085305"/>
+  <version ClassVersion="11" checksum="3812549796"/>
  </class>
  <class name="edm::SortedCollection<edmtest::Simple, edm::StrictWeakOrdering<edmtest::Simple> >"/>
  <class name="edm::OwnVector<edmtest::Simple, edm::ClonePolicy<edmtest::Simple> >"/>

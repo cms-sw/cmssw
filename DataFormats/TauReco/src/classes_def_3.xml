@@ -5,8 +5,9 @@
     <field name="transientVector_" transient="true"/>
   </class>
   -->
-  <class name="reco::CaloTauDiscriminatorAgainstElectron" ClassVersion="10">
+  <class name="reco::CaloTauDiscriminatorAgainstElectron" ClassVersion="11">
    <version ClassVersion="10" checksum="3692008801"/>
+   <version ClassVersion="11" checksum="212621489"/>
     <!-- <field name="transientVector_" transient="true"/> -->
   </class>
   <class name="reco::CaloTauDiscriminatorAgainstElectronRef"/>
@@ -23,8 +24,9 @@
   <class name="reco::PFTauDiscriminatorByIsolationBase">
     <field name="transientVector_" transient="true"/>
   </class>
-  <class name="reco::PFTauDiscriminatorByIsolation" ClassVersion="10">
+  <class name="reco::PFTauDiscriminatorByIsolation" ClassVersion="11">
    <version ClassVersion="10" checksum="1187112623"/>
+   <version ClassVersion="11" checksum="443644863"/>
     <!-- <field name="transientVector_" transient="true"/> -->
   </class>
   <class name="reco::PFTauDiscriminatorByIsolationRef"/>
@@ -42,8 +44,9 @@
     <field name="transientVector_" transient="true"/>
   </class>
 
-  <class name="reco::PFTauDiscriminator" ClassVersion="10">
+  <class name="reco::PFTauDiscriminator" ClassVersion="11">
    <version ClassVersion="10" checksum="4019319043"/>
+   <version ClassVersion="11" checksum="3738212815"/>
     <!-- <field name="transientVector_" transient="true"/> -->
   </class>
   <class name="reco::PFTauDiscriminatorRef"/>
@@ -55,8 +58,9 @@
     <field name="transientVector_" transient="true"/>
   </class>
 
-  <class name="reco::JetPiZeroAssociation" ClassVersion="10">
+  <class name="reco::JetPiZeroAssociation" ClassVersion="11">
    <version ClassVersion="10" checksum="3488813045"/>
+   <version ClassVersion="11" checksum="2107652063"/>
     <!-- <field name="transientVector_" transient="true"/> -->
   </class>
   <class name="reco::JetPiZeroAssociationRef"/>
@@ -71,8 +75,9 @@
     <field name="transientVector_" transient="true"/>
   </class>
 
-  <class name="reco::PFJetChargedHadronAssociation" ClassVersion="10">
+  <class name="reco::PFJetChargedHadronAssociation" ClassVersion="11">
    <version ClassVersion="10" checksum="3498827707"/>
+   <version ClassVersion="11" checksum="269001295"/>
 <!--     <field name="transientVector_" transient="true"/> -->
   </class>
   <class name="reco::PFJetChargedHadronAssociationRef"/>
