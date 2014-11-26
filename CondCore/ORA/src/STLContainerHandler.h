@@ -43,14 +43,9 @@ namespace ora {
       /// Current element object pointer
       void* m_currentElement;
 
-      // holds the iterators when the branch is of fType==4.
-      TVirtualCollectionIterators *m_Iterators;
+      // holds the iterator when the branch is of fType==4.
+      TGenericCollectionIterator *m_Iterators;
 
-      // holds the iterators when the branch is of fType==4 and it is a split collection of pointers.
-      TVirtualCollectionPtrIterators *m_PtrIterators;
-
-      // See TVirtualCollectionProxy::GetFunctionNext();
-      TVirtualCollectionProxy::Next_t m_Next;
     };
 
 

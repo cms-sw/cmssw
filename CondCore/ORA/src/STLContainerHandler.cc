@@ -13,43 +13,17 @@ ora::STLContainerIteratorHandler::STLContainerIteratorHandler( void* address,
                                                                const edm::TypeWithDict& iteratorReturnType ):
   m_returnType(iteratorReturnType),
   m_collProxy(collProxy),
-  m_currentElement(0),
-  m_Iterators(nullptr),
-  m_PtrIterators(nullptr),
-  m_Next()
+  m_currentElement(nullptr),
+  m_Iterators(TGenericCollectionIterator::New(address, &collProxy))
 {
-
-  if (m_collProxy.HasPointers()) {
-    m_PtrIterators = new TVirtualCollectionPtrIterators(&m_collProxy);
-  } else {
-    m_Iterators = new TVirtualCollectionIterators(&m_collProxy, false);
-  }
-  m_Next = m_collProxy.GetFunctionNext(false);
-
-  if (m_collProxy.HasPointers()) {
-    m_PtrIterators->CreateIterators(address, &m_collProxy);
-  } else {
-    m_Iterators->CreateIterators(address, &m_collProxy);
-  }
-
-  if (m_collProxy.HasPointers()) {
-    m_currentElement = m_Next(&m_PtrIterators->fBegin, &m_PtrIterators->fEnd);
-  } else {
-    m_currentElement = m_Next(&m_Iterators->fBegin, &m_Iterators->fEnd); 
-  }
-  //m_currentElement = m_collProxy.first_func(&m_collEnv);
+    m_currentElement = m_Iterators->Next();
 }
 
 ora::STLContainerIteratorHandler::~STLContainerIteratorHandler(){}
 
 void
 ora::STLContainerIteratorHandler::increment(){
-  if (m_collProxy.HasPointers())  {
-    m_currentElement = m_Next(&m_PtrIterators->fBegin, &m_PtrIterators->fEnd);
-  } else {
-    m_currentElement = m_Next(&m_Iterators->fBegin, &m_Iterators->fEnd); 
-  }
-  //m_currentElement = m_collProxy.next_func(&m_collEnv);
+  m_currentElement = m_Iterators->Next();
 }
 
 void*
