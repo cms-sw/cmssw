@@ -27,7 +27,8 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelNameWrapper.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
@@ -118,14 +119,18 @@ void SiPixelTrackResidualSource::dqmBeginRun(const edm::Run& r, edm::EventSetup 
   edm::ESHandle<TrackerGeometry> TG;
   iSetup.get<TrackerDigiGeometryRecord>().get(TG);
   if (debug_) LogVerbatim("PixelDQM") << "TrackerGeometry "<< &(*TG) <<" size is "<< TG->dets().size() << endl;
- 
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology *pTT = tTopoHandle.product();
+
   // build theSiPixelStructure with the pixel barrel and endcap dets from TrackerGeometry
   for (TrackerGeometry::DetContainer::const_iterator pxb = TG->detsPXB().begin();  
        pxb!=TG->detsPXB().end(); pxb++) {
     if (dynamic_cast<PixelGeomDetUnit const *>((*pxb))!=0) {
       SiPixelTrackResidualModule* module = new SiPixelTrackResidualModule((*pxb)->geographicalId().rawId());
       theSiPixelStructure.insert(pair<uint32_t, SiPixelTrackResidualModule*>((*pxb)->geographicalId().rawId(), module));
-      int DBlayer = PixelBarrelNameWrapper(pSet_, DetId((*pxb)->geographicalId())).layerName();
+      //int DBlayer = PixelBarrelNameWrapper(pSet_, DetId((*pxb)->geographicalId())).layerName();
+      int DBlayer = PixelBarrelName(DetId((*pxb)->geographicalId()),pTT,isUpgrade).layerName();
       if (noOfLayers < DBlayer) noOfLayers = DBlayer;
     }
   }
@@ -135,8 +140,7 @@ void SiPixelTrackResidualSource::dqmBeginRun(const edm::Run& r, edm::EventSetup 
       SiPixelTrackResidualModule* module = new SiPixelTrackResidualModule((*pxf)->geographicalId().rawId());
       theSiPixelStructure.insert(pair<uint32_t, SiPixelTrackResidualModule*>((*pxf)->geographicalId().rawId(), module));
       int DBdisk;
-      if (!isUpgrade) { DBdisk = PixelEndcapName(DetId((*pxf)->geographicalId())).diskName(); }
-                 else { DBdisk = PixelEndcapNameUpgrade(DetId((*pxf)->geographicalId())).diskName(); }
+      DBdisk = PixelEndcapName(DetId((*pxf)->geographicalId()),pTT,isUpgrade).diskName();
       if (noOfDisks < DBdisk) noOfDisks = DBdisk;
     }
   }
@@ -151,38 +155,37 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker & iBooker, edm
        pxd!=theSiPixelStructure.end(); pxd++) {
 
     if(modOn){
-      if (theSiPixelFolder.setModuleFolder(iBooker,(*pxd).first,0,isUpgrade)) (*pxd).second->book(pSet_,iBooker,reducedSet,0,isUpgrade);
+      if (theSiPixelFolder.setModuleFolder(iBooker,(*pxd).first,0,isUpgrade)) (*pxd).second->book(pSet_,iSetup,iBooker,reducedSet,0,isUpgrade);
       else throw cms::Exception("LogicError") << "SiPixelTrackResidualSource Folder Creation Failed! "; 
     }
     if(ladOn){
       if (theSiPixelFolder.setModuleFolder(iBooker,(*pxd).first,1,isUpgrade)) {
 	
-	(*pxd).second->book(pSet_,iBooker,reducedSet,1,isUpgrade);
+	(*pxd).second->book(pSet_,iSetup,iBooker,reducedSet,1,isUpgrade);
       }
       else throw cms::Exception("LogicError") << "SiPixelTrackResidualSource ladder Folder Creation Failed! "; 
     }
     if(layOn){
-      if (theSiPixelFolder.setModuleFolder(iBooker,(*pxd).first,2,isUpgrade)) (*pxd).second->book(pSet_,iBooker,reducedSet,2,isUpgrade);
+      if (theSiPixelFolder.setModuleFolder(iBooker,(*pxd).first,2,isUpgrade)) (*pxd).second->book(pSet_,iSetup,iBooker,reducedSet,2,isUpgrade);
       else throw cms::Exception("LogicError") << "SiPixelTrackResidualSource layer Folder Creation Failed! "; 
     }
     if(phiOn){
-      if (theSiPixelFolder.setModuleFolder(iBooker,(*pxd).first,3,isUpgrade)) (*pxd).second->book(pSet_,iBooker,reducedSet,3,isUpgrade);
+      if (theSiPixelFolder.setModuleFolder(iBooker,(*pxd).first,3,isUpgrade)) (*pxd).second->book(pSet_,iSetup,iBooker,reducedSet,3,isUpgrade);
       else throw cms::Exception("LogicError") << "SiPixelTrackResidualSource phi Folder Creation Failed! "; 
     }
     if(bladeOn){
-      if (theSiPixelFolder.setModuleFolder(iBooker,(*pxd).first,4,isUpgrade)) (*pxd).second->book(pSet_,iBooker,reducedSet,4,isUpgrade);
+      if (theSiPixelFolder.setModuleFolder(iBooker,(*pxd).first,4,isUpgrade)) (*pxd).second->book(pSet_,iSetup,iBooker,reducedSet,4,isUpgrade);
       else throw cms::Exception("LogicError") << "SiPixelTrackResidualSource Blade Folder Creation Failed! "; 
     }
     if(diskOn){
-      if (theSiPixelFolder.setModuleFolder(iBooker,(*pxd).first,5,isUpgrade)) (*pxd).second->book(pSet_,iBooker,reducedSet,5,isUpgrade);
+      if (theSiPixelFolder.setModuleFolder(iBooker,(*pxd).first,5,isUpgrade)) (*pxd).second->book(pSet_,iSetup,iBooker,reducedSet,5,isUpgrade);
       else throw cms::Exception("LogicError") << "SiPixelTrackResidualSource Disk Folder Creation Failed! "; 
     }
     if(ringOn){
-      if (theSiPixelFolder.setModuleFolder(iBooker,(*pxd).first,6,isUpgrade)) (*pxd).second->book(pSet_,iBooker,reducedSet,6,isUpgrade);
+      if (theSiPixelFolder.setModuleFolder(iBooker,(*pxd).first,6,isUpgrade)) (*pxd).second->book(pSet_,iSetup,iBooker,reducedSet,6,isUpgrade);
       else throw cms::Exception("LogicError") << "SiPixelTrackResidualSource Ring Folder Creation Failed! "; 
     }
   }
-
 
 //   edm::InputTag tracksrc = pSet_.getParameter<edm::InputTag>("trajectoryInput");
 //   edm::InputTag clustersrc = pSet_.getParameter<edm::InputTag>("clustersrc");
@@ -292,8 +295,8 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker & iBooker, edm
   {
     ss1.str(std::string()); ss1 << "size_" + clustersrc_.label() + "_Layer_" << i;
     ss2.str(std::string()); ss2 << "Size (on track, layer" << i << ")";
-    meClChargeNotOnTrack_layers.push_back(iBooker.book1D(ss1.str(),ss2.str(),500,0.,500.));
-    meClChargeNotOnTrack_layers.at(i-1)->setAxisTitle("Charge size (in ke)",1);
+    meClSizeOnTrack_layers.push_back(iBooker.book1D(ss1.str(),ss2.str(),500,0.,500.));
+    meClSizeOnTrack_layers.at(i-1)->setAxisTitle("Cluster size (in pixels)",1);
   }
   for (int i = 1; i <= noOfDisks; i++)
   {
@@ -558,8 +561,8 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker & iBooker, edm
     ss2.str(std::string()); ss2 << "Number of Clusters (off track, diskm" << i << ")";
     meNClustersNotOnTrack_diskms.push_back(iBooker.book1D(ss1.str(),ss2.str(),500,0.,500.));
     meNClustersNotOnTrack_diskms.at(i-1)->setAxisTitle("Number of Clusters",1);
+  
   }
-
   //HitProbability
   //on track
   iBooker.setCurrentFolder("Pixel/Clusters/OnTrack");
@@ -587,8 +590,6 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
   edm::ESHandle<TrackerTopology> tTopoHandle;
   iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
-
-
   
   // retrieve TrackerGeometry again and MagneticField for use in transforming 
   // a TrackCandidate's P(ersistent)TrajectoryStateoOnDet (PTSoD) to a TrajectoryStateOnSurface (TSoS)
@@ -927,7 +928,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 	  uint IntSubDetID = (hit_detId.subdetId());
 	  
  	  if(IntSubDetID == 0 ) continue; // don't look at SiStrip hits!	    
-
+	  
 	  // get the enclosed persistent hit
 	  const TrackingRecHit *persistentHit = hit->hit();
 	  // check if it's not null, and if it's a valid pixel hit
@@ -946,18 +947,20 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 	    
 	    // get the edm::Ref to the cluster
  	    edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> const& clust = (*pixhit).cluster();
+	    
 	    //  check if the ref is not null
 	    if (clust.isNonnull()) {
-
+	      
 	      //define tracker and pixel geometry and topology
 	      const TrackerGeometry& theTracker(*theTrackerGeometry);
 	      const PixelGeomDetUnit* theGeomDet = static_cast<const PixelGeomDetUnit*> (theTracker.idToDet(hit_detId) );
+	      
 	      //test if PixelGeomDetUnit exists
 	      if(theGeomDet == 0) {
 		if(debug_) std::cout << "NO THEGEOMDET\n";
 		continue;
 	      }
-
+	     
 	      const PixelTopology * topol = &(theGeomDet->specificTopology());
 	      //fill histograms for clusters on tracks
 	      //correct SiPixelTrackResidualModule
@@ -967,14 +970,14 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 	      // calculate alpha and beta from cluster position
 	      LocalTrajectoryParameters ltp = tsos.localParameters();
 	      LocalVector localDir = ltp.momentum()/ltp.momentum().mag();
-	      
+	     
 	      float clust_alpha = atan2(localDir.z(), localDir.x());
 	      float clust_beta = atan2(localDir.z(), localDir.y());
 	      double corrCharge = clust->charge() * sqrt( 1.0 / ( 1.0/pow( tan(clust_alpha), 2 ) + 
 								  1.0/pow( tan(clust_beta ), 2 ) + 
 								  1.0 )
 							  )/1000.;
-
+	      
 	      if (pxd!=theSiPixelStructure.end()) (*pxd).second->fill((*clust), true, corrCharge, reducedSet, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn); 	
 
 
@@ -985,7 +988,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 	      meClSizeXOnTrack_all->Fill((*clust).sizeX());
 	      meClSizeYOnTrack_all->Fill((*clust).sizeY());
 	      clusterSet.insert(*clust);
-
+	      
 	      //find cluster global position (rphi, z)
 	      // get cluster center of gravity (of charge)
 	      float xcenter = clust->x();
@@ -994,7 +997,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 	      LocalPoint clustlp = topol->localPosition( MeasurementPoint(xcenter, ycenter) );
 	      // get the cluster position in global coordinates (cm)
 	      GlobalPoint clustgp = theGeomDet->surface().toGlobal( clustlp );
-
+	      
 	      //find location of hit (barrel or endcap, same for cluster)
 	      bool barrel = DetId((*hit).geographicalId()).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
 	      bool endcap = DetId((*hit).geographicalId()).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
@@ -1007,14 +1010,14 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 		meClSizeYOnTrack_bpix->Fill((*clust).sizeY());
 		float phi = clustgp.phi(); 
 		float z = clustgp.z();
-      for (int i = 0; i < noOfLayers; i++)
-      {
-        meClPosLayersOnTrack.at(i)->Fill(z,phi);
-        meClChargeOnTrack_layers.at(i)->Fill(corrCharge);
-        meClSizeOnTrack_layers.at(i)->Fill((*clust).size());
-        meClSizeXOnTrack_layers.at(i)->Fill((*clust).sizeX());
-        meClSizeYOnTrack_layers.at(i)->Fill((*clust).sizeY());
-      }
+		for (int i = 0; i < noOfLayers; i++)
+		  {
+		    meClPosLayersOnTrack.at(i)->Fill(z,phi);
+		    meClChargeOnTrack_layers.at(i)->Fill(corrCharge);
+		    meClSizeOnTrack_layers.at(i)->Fill((*clust).size());
+		    meClSizeXOnTrack_layers.at(i)->Fill((*clust).sizeX());
+		    meClSizeYOnTrack_layers.at(i)->Fill((*clust).sizeY());
+		  }
 	      }
 	      if(endcap) {
 		endcaptrackclusters++;
@@ -1238,7 +1241,6 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 
     }//end if it's a Pixel module
   }//end for loop over tracker detector geometry modules
-
 
   if(trackclusters>0) (meNofClustersOnTrack_)->Fill(0,trackclusters);
   if(barreltrackclusters>0)(meNofClustersOnTrack_)->Fill(1,barreltrackclusters);
