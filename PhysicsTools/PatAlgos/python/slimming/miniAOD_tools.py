@@ -89,12 +89,13 @@ def miniAOD_customizeCommon(process):
     process.selectedPatJetsAK8.cut = cms.string("pt > 100")
     process.patJetGenJetMatchAK8.matched =  'slimmedGenJets'
     ## AK8 groomed masses
-    from RecoJets.Configuration.RecoPFJets_cff import ak8PFJetsCHSPruned, ak8PFJetsCHSFiltered, ak8PFJetsCHSTrimmed
+    from RecoJets.Configuration.RecoPFJets_cff import ak8PFJetsCHSPruned, ak8PFJetsCHSSoftDrop, ak8PFJetsCHSFiltered, ak8PFJetsCHSTrimmed 
     process.ak8PFJetsCHSPruned   = ak8PFJetsCHSPruned.clone()
+    process.ak8PFJetsCHSSoftDrop = ak8PFJetsCHSSoftDrop.clone()
     process.ak8PFJetsCHSTrimmed  = ak8PFJetsCHSTrimmed.clone()
     process.ak8PFJetsCHSFiltered = ak8PFJetsCHSFiltered.clone()
     process.load("RecoJets.JetProducers.ak8PFJetsCHS_groomingValueMaps_cfi")
-    process.patJetsAK8.userData.userFloats.src += ['ak8PFJetsCHSPrunedLinks','ak8PFJetsCHSTrimmedLinks','ak8PFJetsCHSFilteredLinks']
+    process.patJetsAK8.userData.userFloats.src += ['ak8PFJetsCHSPrunedMass','ak8PFJetsCHSSoftDropMass','ak8PFJetsCHSTrimmedMass','ak8PFJetsCHSFilteredMass']
 
     # Add AK8 top tagging variables
     process.patJetsAK8.tagInfoSources = cms.VInputTag(cms.InputTag("caTopTagInfosPAT"))
