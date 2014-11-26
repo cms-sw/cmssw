@@ -1,69 +1,125 @@
 import FWCore.ParameterSet.Config as cms
 
-from PhysicsTools.PatAlgos.patSequences_cff import *
-from TopQuarkAnalysis.Configuration.patRefSel_common_cfi import *
+# Step 1
 
-### Muons
+from PhysicsTools.PatAlgos.selectionLayer1.muonSelector_cfi import selectedPatMuons
 
-intermediatePatMuons = selectedPatMuons.clone(
-  src = cms.InputTag( 'selectedPatMuons' )
+selectedMuons = selectedPatMuons.clone(
+  src = cms.InputTag( 'patMuons' )
+, cut = '' # muonCut
+)
+
+preSignalMuons = selectedPatMuons.clone(
+  src = cms.InputTag( 'selectedMuons' )
 , cut = '' # signalMuonCut
 )
-goodPatMuons = cms.EDProducer(
+
+signalMuons = cms.EDProducer(
   "MuonSelectorVertex"
-, muonSource   = cms.InputTag( 'intermediatePatMuons' )
+, muonSource   = cms.InputTag( 'preSignalMuons' )
 , vertexSource = cms.InputTag( 'offlinePrimaryVertices' )
 , maxDZ        = cms.double( 999. ) # muonVertexMaxDZ
 )
 
-step1 = cms.EDFilter(
+standAloneSignalMuonFilter = cms.EDFilter(
   "PATCandViewCountFilter"
-, src = cms.InputTag( 'goodPatMuons' )
+, src       = cms.InputTag( 'signalMuons' )
 , minNumber = cms.uint32( 1 )
 , maxNumber = cms.uint32( 1 )
 )
 
-step2 = countPatMuons.clone(
-  maxNumber = 1 # includes the signal muon
+# Step 2
+
+standAloneLooseMuonVetoFilter = cms.EDFilter(
+  "PATCandViewCountFilter"
+, src       = cms.InputTag( 'selectedMuons' )
+, minNumber = cms.uint32( 0 )
+, maxNumber = cms.uint32( 1 )
 )
 
-### Jets
+# Step 3
 
-veryLoosePatJets = selectedPatJets.clone(
-  src = 'selectedPatJets'
-, cut = '' # veryLooseJetCut
+from EgammaAnalysis.ElectronTools.electronRegressionEnergyProducer_cfi import eleRegressionEnergy
+electronsWithRegression = eleRegressionEnergy.clone(
+  inputElectronsTag = cms.InputTag( 'patElectrons' )
+, rhoCollection     = cms.InputTag( 'fixedGridRhoFastjetAll' )
+, vertexCollection  = cms.InputTag( 'offlinePrimaryVertices' )
 )
-loosePatJets = selectedPatJets.clone(
-  src = 'veryLoosePatJets'
-, cut = '' # looseJetCut
+from EgammaAnalysis.ElectronTools.calibratedPatElectrons_cfi import calibratedPatElectrons
+calibratedElectrons = calibratedPatElectrons.clone(
+  inputPatElectronsTag = cms.InputTag( 'electronsWithRegression' )
+, inputDataset         = 'Summer12'
 )
-tightPatJets = selectedPatJets.clone(
-  src = 'loosePatJets'
+
+from PhysicsTools.PatAlgos.selectionLayer1.electronSelector_cfi import selectedPatElectrons
+
+selectedElectrons = selectedPatElectrons.clone(
+  src = cms.InputTag( 'calibratedElectrons' )
+, cut = '' # electronCut
+)
+
+standAloneElectronVetoFilter = cms.EDFilter(
+  "PATCandViewCountFilter"
+, src       = cms.InputTag( 'selectedElectrons' )
+, minNumber = cms.uint32( 0 )
+, maxNumber = cms.uint32( 0 )
+)
+
+# Step 4
+
+from PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi import selectedPatJets
+
+selectedJets = selectedPatJets.clone(
+  src = cms.InputTag( 'patJets' )
+, cut = '' # jetCut
+)
+
+signalVeryTightJets = selectedPatJets.clone(
+  src = cms.InputTag( 'selectedJets' )
+, cut = '' # veryTightJetCut
+)
+
+standAloneSignalVeryTightJetsFilter = cms.EDFilter(
+  "PATCandViewCountFilter"
+, src       = cms.InputTag( 'signalVeryTightJets' )
+, minNumber = cms.uint32( 1 )
+, maxNumber = cms.uint32( 99 )
+)
+
+signalTightJets = selectedPatJets.clone(
+  src = cms.InputTag( 'selectedJets' )
 , cut = '' # tightJetCut
 )
 
-step4a = cms.EDFilter(
+standAloneSignalTightJetsFilter = cms.EDFilter(
   "PATCandViewCountFilter"
-, src = cms.InputTag( 'tightPatJets' )
-, minNumber = cms.uint32( 1 )
-, maxNumber = cms.uint32( 999999 )
-)
-step4b = step4a.clone(
-  minNumber = 2
-)
-step4cTight = step4a.clone(
-  minNumber = 3
-)
-step4cLoose = step4a.clone(
-  src       = 'loosePatJets'
-, minNumber = 3
-)
-step5  = step4a.clone(
-  src       = 'veryLoosePatJets'
-, minNumber = 4
+, src       = cms.InputTag( 'signalTightJets' )
+, minNumber = cms.uint32( 2 )
+, maxNumber = cms.uint32( 99 )
 )
 
-### Electrons
+signalLooseJets = selectedPatJets.clone(
+  src = cms.InputTag( 'selectedJets' )
+, cut = '' # looseJetCut
+)
 
-step3 = countPatElectrons.clone( maxNumber = 0 )
+standAloneSignalLooseJetsFilter = cms.EDFilter(
+  "PATCandViewCountFilter"
+, src       = cms.InputTag( 'signalLooseJets' )
+, minNumber = cms.uint32( 3 )
+, maxNumber = cms.uint32( 99 )
+)
 
+# Step 5
+
+signalVeryLooseJets = selectedPatJets.clone(
+  src = cms.InputTag( 'selectedJets' )
+, cut = '' # veryLooseJetCut
+)
+
+standAloneSignalVeryLooseJetsFilter = cms.EDFilter(
+  "PATCandViewCountFilter"
+, src       = cms.InputTag( 'signalVeryLooseJets' )
+, minNumber = cms.uint32( 4 )
+, maxNumber = cms.uint32( 99 )
+)
