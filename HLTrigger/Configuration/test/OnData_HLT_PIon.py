@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_2_1/PIon/V66 (CMSSW_7_2_1_patch2_HLT2)
+# /dev/CMSSW_7_2_1/PIon/V67 (CMSSW_7_2_1_patch2_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_2_1/PIon/V66')
+  tableName = cms.string('/dev/CMSSW_7_2_1/PIon/V67')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -3756,15 +3756,15 @@ process.hltIter0ElectronsTrackSelectionHighPurity = cms.EDProducer( "AnalyticalT
     res_par = cms.vdouble( 0.003, 0.001 ),
     minHitsToBypassChecks = cms.uint32( 20 )
 )
-process.hltIter1ElectronsClustersRefRemoval = cms.EDProducer( "HLTTrackClusterRemoverNew",
-    doStrip = cms.bool( True ),
-    doStripChargeCheck = cms.bool( False ),
+process.hltIter1ElectronsClustersRefRemoval = cms.EDProducer( "TrackClusterRemover",
+    minNumberOfLayersWithMeasBeforeFiltering = cms.int32( 0 ),
+    maxChi2 = cms.double( 9.0 ),
     trajectories = cms.InputTag( "hltIter0ElectronsTrackSelectionHighPurity" ),
     oldClusterRemovalInfo = cms.InputTag( "" ),
     stripClusters = cms.InputTag( "hltSiStripRawToClustersFacility" ),
+    overrideTrkQuals = cms.InputTag( "" ),
     pixelClusters = cms.InputTag( "hltSiPixelClusters" ),
-    Common = cms.PSet(  maxChi2 = cms.double( 9.0 ) ),
-    doPixel = cms.bool( True )
+    TrackQuality = cms.string( "highPurity" )
 )
 process.hltIter1ElectronsMaskedMeasurementTrackerEvent = cms.EDProducer( "MaskedMeasurementTrackerEventProducer",
     clustersToSkip = cms.InputTag( "hltIter1ElectronsClustersRefRemoval" ),
@@ -4011,15 +4011,15 @@ process.hltIter1MergedForElectrons = cms.EDProducer( "TrackListMerger",
     LostHitPenalty = cms.double( 20.0 ),
     newQuality = cms.string( "confirmed" )
 )
-process.hltIter2ElectronsClustersRefRemoval = cms.EDProducer( "HLTTrackClusterRemoverNew",
-    doStrip = cms.bool( True ),
-    doStripChargeCheck = cms.bool( False ),
+process.hltIter2ElectronsClustersRefRemoval = cms.EDProducer( "TrackClusterRemover",
+    minNumberOfLayersWithMeasBeforeFiltering = cms.int32( 0 ),
+    maxChi2 = cms.double( 16.0 ),
     trajectories = cms.InputTag( "hltIter1ElectronsTrackSelectionHighPurity" ),
     oldClusterRemovalInfo = cms.InputTag( "hltIter1ElectronsClustersRefRemoval" ),
     stripClusters = cms.InputTag( "hltSiStripRawToClustersFacility" ),
+    overrideTrkQuals = cms.InputTag( "" ),
     pixelClusters = cms.InputTag( "hltSiPixelClusters" ),
-    Common = cms.PSet(  maxChi2 = cms.double( 16.0 ) ),
-    doPixel = cms.bool( True )
+    TrackQuality = cms.string( "highPurity" )
 )
 process.hltIter2ElectronsMaskedMeasurementTrackerEvent = cms.EDProducer( "MaskedMeasurementTrackerEventProducer",
     clustersToSkip = cms.InputTag( "hltIter2ElectronsClustersRefRemoval" ),
@@ -6031,15 +6031,15 @@ process.hltIter0TrackAndTauJets4Iter1 = cms.EDProducer( "TauJetSelectorForHLTTra
     ptMinCaloJet = cms.double( 5.0 ),
     inputTrackTag = cms.InputTag( "hltIter0PFlowTrackSelectionHighPurity" )
 )
-process.hltIter1ClustersRefRemoval = cms.EDProducer( "HLTTrackClusterRemoverNew",
-    doStrip = cms.bool( True ),
-    doStripChargeCheck = cms.bool( False ),
+process.hltIter1ClustersRefRemoval = cms.EDProducer( "TrackClusterRemover",
+    minNumberOfLayersWithMeasBeforeFiltering = cms.int32( 0 ),
+    maxChi2 = cms.double( 9.0 ),
     trajectories = cms.InputTag( "hltIter0PFlowTrackSelectionHighPurity" ),
     oldClusterRemovalInfo = cms.InputTag( "" ),
     stripClusters = cms.InputTag( "hltSiStripRawToClustersFacility" ),
+    overrideTrkQuals = cms.InputTag( "" ),
     pixelClusters = cms.InputTag( "hltSiPixelClusters" ),
-    Common = cms.PSet(  maxChi2 = cms.double( 9.0 ) ),
-    doPixel = cms.bool( True )
+    TrackQuality = cms.string( "highPurity" )
 )
 process.hltIter1MaskedMeasurementTrackerEvent = cms.EDProducer( "MaskedMeasurementTrackerEventProducer",
     clustersToSkip = cms.InputTag( "hltIter1ClustersRefRemoval" ),
@@ -6365,15 +6365,15 @@ process.hltIter1TrackAndTauJets4Iter2 = cms.EDProducer( "TauJetSelectorForHLTTra
     ptMinCaloJet = cms.double( 5.0 ),
     inputTrackTag = cms.InputTag( "hltIter1Merged" )
 )
-process.hltIter2ClustersRefRemoval = cms.EDProducer( "HLTTrackClusterRemoverNew",
-    doStrip = cms.bool( True ),
-    doStripChargeCheck = cms.bool( False ),
+process.hltIter2ClustersRefRemoval = cms.EDProducer( "TrackClusterRemover",
+    minNumberOfLayersWithMeasBeforeFiltering = cms.int32( 0 ),
+    maxChi2 = cms.double( 16.0 ),
     trajectories = cms.InputTag( "hltIter1PFlowTrackSelectionHighPurity" ),
     oldClusterRemovalInfo = cms.InputTag( "hltIter1ClustersRefRemoval" ),
     stripClusters = cms.InputTag( "hltSiStripRawToClustersFacility" ),
+    overrideTrkQuals = cms.InputTag( "" ),
     pixelClusters = cms.InputTag( "hltSiPixelClusters" ),
-    Common = cms.PSet(  maxChi2 = cms.double( 16.0 ) ),
-    doPixel = cms.bool( True )
+    TrackQuality = cms.string( "highPurity" )
 )
 process.hltIter2MaskedMeasurementTrackerEvent = cms.EDProducer( "MaskedMeasurementTrackerEventProducer",
     clustersToSkip = cms.InputTag( "hltIter2ClustersRefRemoval" ),
@@ -7813,15 +7813,15 @@ process.hltIter0PFlowTrackSelectionHighPurityForPhotons = cms.EDProducer( "Analy
     res_par = cms.vdouble( 0.003, 0.001 ),
     minHitsToBypassChecks = cms.uint32( 20 )
 )
-process.hltIter1ClustersRefRemovalForPhotons = cms.EDProducer( "HLTTrackClusterRemoverNew",
-    doStrip = cms.bool( True ),
-    doStripChargeCheck = cms.bool( False ),
+process.hltIter1ClustersRefRemovalForPhotons = cms.EDProducer( "TrackClusterRemover",
+    minNumberOfLayersWithMeasBeforeFiltering = cms.int32( 0 ),
+    maxChi2 = cms.double( 9.0 ),
     trajectories = cms.InputTag( "hltIter0PFlowTrackSelectionHighPurityForPhotons" ),
     oldClusterRemovalInfo = cms.InputTag( "" ),
     stripClusters = cms.InputTag( "hltSiStripRawToClustersFacility" ),
+    overrideTrkQuals = cms.InputTag( "" ),
     pixelClusters = cms.InputTag( "hltSiPixelClusters" ),
-    Common = cms.PSet(  maxChi2 = cms.double( 9.0 ) ),
-    doPixel = cms.bool( True )
+    TrackQuality = cms.string( "highPurity" )
 )
 process.hltIter1MaskedMeasurementTrackerEventForPhotons = cms.EDProducer( "MaskedMeasurementTrackerEventProducer",
     clustersToSkip = cms.InputTag( "hltIter1ClustersRefRemovalForPhotons" ),
@@ -8068,15 +8068,15 @@ process.hltIter1MergedForPhotons = cms.EDProducer( "TrackListMerger",
     LostHitPenalty = cms.double( 20.0 ),
     newQuality = cms.string( "confirmed" )
 )
-process.hltIter2ClustersRefRemovalForPhotons = cms.EDProducer( "HLTTrackClusterRemoverNew",
-    doStrip = cms.bool( True ),
-    doStripChargeCheck = cms.bool( False ),
+process.hltIter2ClustersRefRemovalForPhotons = cms.EDProducer( "TrackClusterRemover",
+    minNumberOfLayersWithMeasBeforeFiltering = cms.int32( 0 ),
+    maxChi2 = cms.double( 16.0 ),
     trajectories = cms.InputTag( "hltIter1PFlowTrackSelectionHighPurityForPhotons" ),
     oldClusterRemovalInfo = cms.InputTag( "hltIter1ClustersRefRemovalForPhotons" ),
     stripClusters = cms.InputTag( "hltSiStripRawToClustersFacility" ),
+    overrideTrkQuals = cms.InputTag( "" ),
     pixelClusters = cms.InputTag( "hltSiPixelClusters" ),
-    Common = cms.PSet(  maxChi2 = cms.double( 16.0 ) ),
-    doPixel = cms.bool( True )
+    TrackQuality = cms.string( "highPurity" )
 )
 process.hltIter2MaskedMeasurementTrackerEventForPhotons = cms.EDProducer( "MaskedMeasurementTrackerEventProducer",
     clustersToSkip = cms.InputTag( "hltIter2ClustersRefRemovalForPhotons" ),
