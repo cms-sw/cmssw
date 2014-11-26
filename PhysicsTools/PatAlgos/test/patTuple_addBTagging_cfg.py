@@ -89,21 +89,21 @@ addJetCollection(
 )
 process.patJetsAK4PF.addTagInfos = True
 
-# uncomment the following lines to add subjets of pruned ak8PFJetsCHS with new b-tags to your PAT output
+# uncomment the following lines to add subjets of pruned ca8PFJetsCHS with new b-tags to your PAT output
 addJetCollection(
    process,
-   labelName = 'AK8PFCHSPrunedSubjets',
-   jetSource = cms.InputTag('ak8PFJetsCHSPruned','SubJets'),
+   labelName = 'CA8PFCHSPrunedSubjets',
+   jetSource = cms.InputTag('ca8PFJetsCHSPruned','SubJets'),
    jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'), # FIXME: Use proper JECs, as soon as available
-   algo = 'AK',
+   algo = 'CA',
    rParam = 0.8,
    btagDiscriminators = btagDiscriminators,
    explicitJTA = True,
    svClustering = True,
-   fatJets = cms.InputTag("ak8PFJetsCHS"),
-   groomedFatJets = cms.InputTag("ak8PFJetsCHSPruned"),
+   fatJets = cms.InputTag("ca8PFJetsCHS"),
+   groomedFatJets = cms.InputTag("ca8PFJetsCHSPruned"),
 )
-process.patJetsAK8PFCHSPrunedSubjets.addTagInfos = True
+process.patJetsCA8PFCHSPrunedSubjets.addTagInfos = True
 
 ## JetID works only with RECO input for the CaloTowers (s. below for 'process.source.fileNames')
 #process.patJets.addJetID=True
