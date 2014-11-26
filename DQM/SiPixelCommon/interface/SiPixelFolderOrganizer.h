@@ -44,7 +44,7 @@ class SiPixelFolderOrganizer {
   
  private:
 
-  std::string rootFolder;
+  std::string topFolderName;
   DQMStore* dbe_;
 };
 #endif
