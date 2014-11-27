@@ -28,7 +28,12 @@ private:
 
     edm::ESHandle<HcalZDCLowGainFractions> objecthandle;
     esetup.get<HcalZDCLowGainFractionsRcd>().get(objecthandle);
+    
+    edm::ESHandle<HcalTopology> hcalTopology;
+    esetup.get<HcalZDCLowGainFractionsRcd>().get(hcalTopology);
+
     myDBObject = new HcalZDCLowGainFractions(*objecthandle.product() );
+    myDBObject->setTopo(hcalTopology);
   }
 
   void write() { m_populator.write(m_source); }
