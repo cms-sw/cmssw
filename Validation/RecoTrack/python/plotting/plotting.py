@@ -187,6 +187,40 @@ class AggregateBins:
 
         return result
 
+class AggregateHistos:
+    def __init__(self, name, mapping, normalizeTo=None):
+        self._name = name
+        self._mapping = mapping
+        self._normalizeTo = normalizeTo
+
+    def __str__(self):
+        return self._name
+
+    def create(self, tdirectory):
+        result = []
+        for key, histoName in self._mapping.iteritems():
+            th1 = _getObject(tdirectory, histoName)
+            if th1 is None:
+                continue
+            result.append( (key, th1.Integral(0, th1.GetNbinsX()+1)) ) # include under- and overflow bins
+        if len(result) == 0:
+            return None
+
+        res = ROOT.TH1F(self._name, self._name, len(result), 0, len(result))
+
+        for i, (name, count) in enumerate(result):
+            res.SetBinContent(i+1, count)
+            res.GetXaxis().SetBinLabel(i+1, name)
+
+        if self._normalizeTo is not None:
+            th1 = _getObject(tdirectory, self._normalizeTo)
+            if th1 is None:
+                return None
+            scale = th1.Integral(0, th1.GetNbinsX()+1)
+            res.Scale(1/scale)
+
+        return res
+
 # Plot styles
 _plotStylesColor = [4, 2, ROOT.kOrange+7, ROOT.kMagenta-3]
 _plotStylesMarker = [21, 20, 22, 34]
