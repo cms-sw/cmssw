@@ -32,7 +32,7 @@ signalMuonCut += ' && globalTrack.hitPattern.numberOfValidMuonHits > 0'         
 signalMuonCut += ' && abs(dB) < 0.2'                                                                          # 2-dim impact parameter with respect to beam spot (s. "PAT muon configuration" above)
 signalMuonCut += ' && innerTrack.hitPattern.numberOfValidPixelHits > 0'                                       # tracker reconstruction
 signalMuonCut += ' && numberOfMatchedStations > 1'                                                            # muon chamber reconstruction
-signalMuonCut += ' && (chargedHadronIso+max(0.,neutralHadronIso+photonIso-0.5*puChargedHadronIso))/pt < 0.12' # relative isolation w/ Delta beta corrections (factor 0.5)
+signalMuonCut += ' && (chargedHadronIso+max(0.,neutralHadronIso)+photonIso-0.5*puChargedHadronIso)/pt < 0.12' # relative isolation w/ Delta beta corrections (factor 0.5)
 
 muonVertexMaxDZ = 0.5 # DeltaZ between muon vertex and PV
 
