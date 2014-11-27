@@ -93,14 +93,26 @@ driftDirection(const StripGeomDetUnit* det) const {
 
 void 
 StripCPE::fillParams() {  
-  m_off = geom_.offsetDU(GeomDetEnumerators::TIB); // yes we know this
   auto const & dus = geom_.detUnits();
+  m_off = dus.size();
+  for(unsigned int i=1;i<7;++i) {
+    LogDebug("LookingForFirstStrip") << "Subdetector " << i 
+				     << " GeomDetEnumerator " << GeomDetEnumerators::tkDetEnum[i] 
+				     << " offset " << geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) 
+				     << " is it strip? " << (geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) != dus.size() ? dus[geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i])]->type().isTrackerStrip() : false);
+    if(geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) != dus.size() && 
+       dus[geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i])]->type().isTrackerStrip()) {
+      if(geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) < m_off) m_off = geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]);
+    }
+  } 
+  LogDebug("LookingForFirstStrip") << " Chosen offset: " << m_off;
   m_Params.resize(dus.size()-m_off);
   for (auto i=m_off; i!=dus.size();++i) {
     auto & p= m_Params[i-m_off];
     const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(dus[i]);
     assert(stripdet->index()==int(i));
-    assert(stripdet->geographicalId().subdetId()>1); // not pixel..
+    //    assert(stripdet->geographicalId().subdetId()>1); // not pixel..
+    assert(stripdet->type().isTrackerStrip()); // not pixel
 
     const Bounds& bounds = stripdet->specificSurface().bounds();
     p.maxLength = std::sqrt( std::pow(bounds.length(),2.f)+std::pow(bounds.width(),2.f) );
