@@ -29,6 +29,17 @@ class AlgoOpt:
             return self._values[algo]
         return self._default
 
+def _getObject(tdirectory, name):
+    obj = tdirectory.Get(name)
+    if not obj:
+        print "Did not find {obj} from {dir}".format(obj=name, dir=tdirectory.GetPath())
+        if missingOk:
+            return None
+        else:
+            sys.exit(1)
+    return obj
+
+
 def _getYmaxWithError(th1):
     return max([th1.GetBinContent(i)+th1.GetBinError(i) for i in xrange(1, th1.GetNbinsX()+1)])
 
@@ -105,30 +116,13 @@ class FakeDuplicate:
     def create(self, tdirectory):
         """Create and return the efficiency histogram from a TDirectory"""
         # Get the numerator/denominator histograms
-        hassoc = tdirectory.Get(self._assoc)
-        hdup = tdirectory.Get(self._dup)
-        hreco = tdirectory.Get(self._reco)
+        hassoc = _getObject(tdirectory, self._assoc)
+        hdup = _getObject(tdirectory, self._dup)
+        hreco = _getObject(tdirectory, self._reco)
 
-        # Check that they exist
-        global missingOk
-        if not hassoc:
-            print "Did not find {histo} from {dir}".format(histo=self._assoc, dir=tdirectory.GetPath())
-            if missingOk:
-                return None
-            else:
-                sys.exit(1)
-        if not hdup:
-            print "Did not find {histo} from {dir}".format(histo=self._dup, dir=tdirectory.GetPath())
-            if missingOk:
-                return None
-            else:
-                sys.exit(1)
-        if not hreco:
-            print "Did not find {histo} from {dir}" .format(histo=self._reco, dir=tdirectory.GetPath())
-            if missingOk:
-                return None
-            else:
-                sys.exit(1)
+        # Skip if any of them does not exist
+        if not hassoc or not hdup or not hreco:
+            return None
 
         hfakedup = hreco.Clone(self._name)
         hfakedup.SetTitle(self._title)
@@ -157,15 +151,9 @@ class AggregateBins:
         return self._name
 
     def create(self, tdirectory):
-        th1 = tdirectory.Get(self._histoName)
-
-        global missingOk
-        if not th1:
-            print "Did not find {histo} from {dir}".format(histo=self._histoName, dir=tdirectory.GetPath())
-            if missingOk:
-                return None
-            else:
-                sys.exit(1)
+        th1 = _getObject(tdirectory, self._histoName)
+        if th1 is None:
+            return None
 
         result = ROOT.TH1F(self._name, self._name, len(self._mapping), 0, len(self._mapping))
 
