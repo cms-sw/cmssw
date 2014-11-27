@@ -1,8 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-# Step 1
-
 from PhysicsTools.PatAlgos.selectionLayer1.muonSelector_cfi import selectedPatMuons
+from EgammaAnalysis.ElectronTools.electronRegressionEnergyProducer_cfi import eleRegressionEnergy
+from EgammaAnalysis.ElectronTools.calibratedPatElectrons_cfi import calibratedPatElectrons
+from PhysicsTools.PatAlgos.selectionLayer1.electronSelector_cfi import selectedPatElectrons
+from PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi import selectedPatJets
+
+# Step 1
 
 selectedMuons = selectedPatMuons.clone(
   src = cms.InputTag( 'patMuons' )
@@ -39,19 +43,15 @@ standAloneLooseMuonVetoFilter = cms.EDFilter(
 
 # Step 3
 
-from EgammaAnalysis.ElectronTools.electronRegressionEnergyProducer_cfi import eleRegressionEnergy
 electronsWithRegression = eleRegressionEnergy.clone(
   inputElectronsTag = cms.InputTag( 'patElectrons' )
 , rhoCollection     = cms.InputTag( 'fixedGridRhoFastjetAll' )
 , vertexCollection  = cms.InputTag( 'offlinePrimaryVertices' )
 )
-from EgammaAnalysis.ElectronTools.calibratedPatElectrons_cfi import calibratedPatElectrons
 calibratedElectrons = calibratedPatElectrons.clone(
   inputPatElectronsTag = cms.InputTag( 'electronsWithRegression' )
 , inputDataset         = 'Summer12'
 )
-
-from PhysicsTools.PatAlgos.selectionLayer1.electronSelector_cfi import selectedPatElectrons
 
 selectedElectrons = selectedPatElectrons.clone(
   src = cms.InputTag( 'patElectrons' )
@@ -66,8 +66,6 @@ standAloneElectronVetoFilter = cms.EDFilter(
 )
 
 # Step 4
-
-from PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi import selectedPatJets
 
 selectedJets = selectedPatJets.clone(
   src = cms.InputTag( 'patJets' )
@@ -121,5 +119,19 @@ standAloneSignalVeryLooseJetsFilter = cms.EDFilter(
   "PATCandViewCountFilter"
 , src       = cms.InputTag( 'signalVeryLooseJets' )
 , minNumber = cms.uint32( 4 )
+, maxNumber = cms.uint32( 99 )
+)
+
+# Step 6
+
+selectedBTagJets = selectedPatJets.clone(
+  src = cms.InputTag( 'selectedJets' )
+, cut = '' # btagCut
+)
+
+standAloneSignalBTagsFilter = cms.EDFilter(
+  "PATCandViewCountFilter"
+, src       = cms.InputTag( 'selectedBTagJets' )
+, minNumber = cms.uint32( 2 )
 , maxNumber = cms.uint32( 99 )
 )
