@@ -250,7 +250,7 @@ class HandlerTemplate: public BaseHandler {
                      const edm::TriggerNames  & triggerNames,
                      float weight)
         {
-            int found = 0;
+            unsigned int found = 0;
             for (unsigned int i = 0; i<triggerNames.size(); ++i){
                 std::set<std::string>::iterator itUsedPaths = m_usedPaths.begin();
                 for(; itUsedPaths != m_usedPaths.end(); ++itUsedPaths){ 
