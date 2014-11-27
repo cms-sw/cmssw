@@ -77,7 +77,7 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::auto_ptr<HGCHEDigiCollectio
 	  totalMIPs=std::max(float(totalMIPs+noiseMIPs),float(0.));
 	  
 	  //round to integer (sample will saturate the value according to available bits)
-	  uint16_t totalEnInt = floor( totalMIPs / lsbInMIP_ );
+	  uint16_t totalEnInt = floor( totalMIPs / myFEelectronics_->getLSB() );
 	 	  
 	  //0 gain for the moment
 	  HGCSample singleSample;
@@ -87,7 +87,7 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::auto_ptr<HGCHEDigiCollectio
 	}	
       
       //run shaper
-      runShaper(newDataFrame);
+      myFEelectronics_->runShaper(newDataFrame);
 
       //prepare the output
       updateOutput(digiColl,newDataFrame);

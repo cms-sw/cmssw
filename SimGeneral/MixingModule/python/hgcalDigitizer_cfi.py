@@ -13,13 +13,16 @@ hgceeDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer"),
                            makeDigiSimLinks  = cms.bool(False),
                            useAllChannels    = cms.bool(True),
                            verbosity         = cms.untracked.int32(0),
-                           digiCfg = cms.PSet( mipInKeV      = cms.double(55.1),
-                                               lsbInMIP      = cms.double(0.25),
-                                               mip2noise     = cms.double(7.0),
-                                               adcThreshold  = cms.uint32(2),
-                                               doTimeSamples = cms.bool(False),
-                                               shaperN       = cms.double(1.),
-                                               shaperTau     = cms.double(0.)
+                           digiCfg = cms.PSet( mipInKeV       = cms.double(55.1),                                               
+                                               mip2noise      = cms.double(7.0),
+                                               adcThreshold   = cms.uint32(2),
+                                               doTimeSamples  = cms.bool(False),                                         
+                                               feCfg   = cms.PSet( fwVersion      = cms.uint32(0),
+                                                                   lsbInMIP      = cms.double(0.25),
+                                                                   mipInfC        = cms.double(2.35),
+                                                                   gainChangeInfC = cms.double(80),
+                                                                   shaperN        = cms.double(1.),
+                                                                   shaperTau      = cms.double(0.) )
                                                )
                            )
 
@@ -35,15 +38,18 @@ hgchefrontDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer"
                                 useAllChannels    = cms.bool(True),
                                 verbosity         = cms.untracked.int32(0),
                                 digiCfg = cms.PSet( mipInKeV      = cms.double(85.0),
-                                                    lsbInMIP      = cms.double(0.25),
                                                     mip2noise     = cms.double(7.0),
                                                     adcThreshold  = cms.uint32(2),
                                                     doTimeSamples = cms.bool(False),
-                                                    shaperN       = cms.double(1.),
-                                                    shaperTau     = cms.double(0.)
+                                                    feCfg   = cms.PSet( fwVersion      = cms.uint32(0),
+                                                                        lsbInMIP       = cms.double(0.25),
+                                                                        mipInfC        = cms.double(3.52),
+                                                                        gainChangeInfC = cms.double(80),
+                                                                        shaperN        = cms.double(1.),
+                                                                        shaperTau      = cms.double(0.) )
                                                     )
                                 )
-                                                    
+
 
 # HCAL back
 hgchebackDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer"),
@@ -57,12 +63,13 @@ hgchebackDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer")
                                useAllChannels    = cms.bool(True),
                                verbosity         = cms.untracked.int32(0),
                                digiCfg = cms.PSet( mipInKeV = cms.double(1498.4),
-                                                   lsbInMIP = cms.double(0.25),
                                                    mip2noise = cms.double(5.0),
                                                    adcThreshold  = cms.uint32(4),
                                                    doTimeSamples = cms.bool(False),
-                                                   shaperN       = cms.double(1.),
-                                                   shaperTau     = cms.double(0.),
+                                                   feCfg   = cms.PSet( fwVersion      = cms.uint32(0),
+                                                                       lsbInMIP = cms.double(0.25),
+                                                                       shaperN       = cms.double(1.),
+                                                                       shaperTau     = cms.double(0.) ),
                                                    caliceSpecific = cms.PSet( nPEperMIP = cms.double(11.0),
                                                                               #1156 pixels => saturation ~600MIP
                                                                               nTotalPE  = cms.double(11560),

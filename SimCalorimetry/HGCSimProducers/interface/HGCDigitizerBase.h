@@ -12,6 +12,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CLHEP/Random/RandGauss.h"
 
+#include "SimCalorimetry/HGCSimProducers/src/HGCFEElectronics.cc"
+
 typedef float HGCSimEn_t;
 typedef std::array<HGCSimEn_t,6> HGCSimHitData;
 typedef std::unordered_map<uint32_t, HGCSimHitData> HGCSimHitDataAccumulator;
@@ -25,19 +27,19 @@ class HGCDigitizerBase {
   /**
      @short CTOR
    */
-  HGCDigitizerBase(const edm::ParameterSet &ps) : simpleNoiseGen_(0)
-    {
-      myCfg_         = ps.getParameter<edm::ParameterSet>("digiCfg"); 
-      bxTime_        = ps.getParameter<int32_t>("bxTime");
-      doTimeSamples_ = myCfg_.getParameter< bool >("doTimeSamples");
-      mipInKeV_      = myCfg_.getParameter<double>("mipInKeV");
-      lsbInMIP_      = myCfg_.getParameter<double>("lsbInMIP");
-      mip2noise_     = myCfg_.getParameter<double>("mip2noise");
-      adcThreshold_  = myCfg_.getParameter< uint32_t >("adcThreshold");
-      shaperN_       = myCfg_.getParameter< double >("shaperN");
-      shaperTau_     = myCfg_.getParameter< double >("shaperTau");
-    }
+ HGCDigitizerBase(const edm::ParameterSet &ps) : simpleNoiseGen_(0)
+  {
+    myCfg_         = ps.getParameter<edm::ParameterSet>("digiCfg"); 
+    bxTime_        = ps.getParameter<int32_t>("bxTime");
+    doTimeSamples_ = myCfg_.getParameter< bool >("doTimeSamples");
+    mipInKeV_      = myCfg_.getParameter<double>("mipInKeV");
+    mip2noise_     = myCfg_.getParameter<double>("mip2noise");
+    adcThreshold_  = myCfg_.getParameter< uint32_t >("adcThreshold");
 
+    edm::ParameterSet feCfg = myCfg_.getParameter<edm::ParameterSet>("feCfg");
+    myFEelectronics_ = std::unique_ptr<HGCFEElectronics<D> >( new HGCFEElectronics<D>(feCfg, bxTime_) );
+  }
+  
   /**
      @short init a random number generator for noise
    */
@@ -80,7 +82,7 @@ class HGCDigitizerBase {
 	    if(totalEn<0) totalEn=0;
 	
 	    //round to integer (sample will saturate the value according to available bits)
-	    uint16_t totalEnInt = floor( (totalEn/mipInKeV_) / lsbInMIP_ );
+	    uint16_t totalEnInt = floor( (totalEn*(myFEelectronics_->getLSB()))/mipInKeV_ );
 
 	    //0 gain for the moment
 	    HGCSample singleSample;
@@ -90,7 +92,7 @@ class HGCDigitizerBase {
 	  }
 	
 	//run the shaper
-	runShaper(rawDataFrame);
+	myFEelectronics_->runShaper(rawDataFrame);
 
 	//update the output according to the final shape
 	updateOutput(coll,rawDataFrame);
@@ -125,33 +127,6 @@ class HGCDigitizerBase {
   }
 
   /**
-     @short applies a shape to each time sample and propagates the tails to the subsequent time samples
-   */
-  void runShaper(D &dataFrame)
-  {
-    std::vector<uint16_t> oldADC(dataFrame.size());
-    for(int it=0; it<dataFrame.size(); it++)
-      {
-	uint16_t gain=dataFrame[it].gain();
-	oldADC[it]=dataFrame[it].adc();
-	uint16_t newADC(oldADC[it]);
-	
-	if(shaperN_*shaperTau_>0){
-	  for(int jt=0; jt<it; jt++)
-	    {
-	      float relTime(bxTime_*(it-jt)+shaperN_*shaperTau_);	
-	      newADC += uint16_t(oldADC[jt]*pow(relTime/(shaperN_*shaperTau_),shaperN_)*exp(-(relTime-shaperN_*shaperTau_)/shaperTau_));	      
-	    }
-	}
-
-	HGCSample newSample;
-	newSample.set(gain,newADC);
-	dataFrame.setSample(it,newSample);
-      }
-  }
-
-
-  /**
      @short to be specialized by top class
    */
   virtual void runDigitizer(std::auto_ptr<DColl> &coll,HGCSimHitDataAccumulator &simData,uint32_t digitizerType)
@@ -177,10 +152,10 @@ class HGCDigitizerBase {
   mutable CLHEP::RandGauss *simpleNoiseGen_;
   
   //parameters for the trivial digitization scheme
-  double mipInKeV_, lsbInMIP_, mip2noise_;
+  double mipInKeV_,  mip2noise_;
   
-  //parameters for trivial shaping
-  double shaperN_, shaperTau_;
+  //front-end electronics model
+  std::unique_ptr<HGCFEElectronics<D> > myFEelectronics_;
 
   //bunch time
   int bxTime_;
