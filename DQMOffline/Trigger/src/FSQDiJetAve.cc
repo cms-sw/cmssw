@@ -74,7 +74,7 @@ class BaseHandler {
               std::vector<std::string> strs;
               std::string triggerSelection = iConfig.getParameter<std::string>("triggerSelection");
               boost::split(strs, triggerSelection, boost::is_any_of("\t ,`!@#$%^&*()~/\\"));
-              for (unsigned int iToken = 0; iToken < strs.size();++iToken ){
+              for (size_t iToken = 0; iToken < strs.size();++iToken ){
                     if (strs.at(iToken).find("HLT_")==0){
                         m_usedPaths.insert(strs.at(iToken));
                     }
@@ -153,7 +153,7 @@ class HandlerTemplate: public BaseHandler {
             if(!m_isSetup){
                 booker.setCurrentFolder(m_dirname);
                 m_isSetup = true;
-                for (unsigned int i = 0; i < m_drawables.size(); ++i){
+                for (size_t i = 0; i < m_drawables.size(); ++i){
                     std::string histoName = m_dqmhistolabel + "_" +m_drawables.at(i).getParameter<std::string>("name");
                     std::string expression = m_drawables.at(i).getParameter<std::string>("expression");
                     int bins =  m_drawables.at(i).getParameter<int>("bins");
@@ -191,7 +191,7 @@ class HandlerTemplate: public BaseHandler {
                }
 
 
-               for (unsigned int i = 0; i<hIn->size(); ++i) {
+               for (size_t i = 0; i<hIn->size(); ++i) {
                     bool preselection = m_singleObjectSelection(hIn->at(i));
                     if (preselection){
                         cands.push_back(hIn->at(i));
@@ -207,13 +207,13 @@ class HandlerTemplate: public BaseHandler {
             //int pathIndex = -1;
             int numPathMatches = 0;
             int numFilterMatches = 0;
-            for (unsigned int i = 0; i < hltConfig.size(); ++i) {
+            for (size_t i = 0; i < hltConfig.size(); ++i) {
                 if (hltConfig.triggerName(i).find(m_pathPartialName) == std::string::npos) continue;
                 pathFullName = hltConfig.triggerName(i);
                 //pathIndex = i;
                 ++numPathMatches;
                 std::vector<std::string > moduleLabels = hltConfig.moduleLabels(i);
-                for (unsigned int iMod = 0; iMod <moduleLabels.size(); ++iMod){
+                for (size_t iMod = 0; iMod <moduleLabels.size(); ++iMod){
                     if ("EDFilter" ==  hltConfig.moduleEDMType(moduleLabels.at(iMod))) {
                         filtersForThisPath.push_back(moduleLabels.at(iMod));
                         if ( moduleLabels.at(iMod).find(m_filterPartialName)!= std::string::npos  ){
@@ -250,8 +250,8 @@ class HandlerTemplate: public BaseHandler {
                      const edm::TriggerNames  & triggerNames,
                      float weight)
         {
-            unsigned int found = 0;
-            for (unsigned int i = 0; i<triggerNames.size(); ++i){
+            size_t found = 0;
+            for (size_t i = 0; i<triggerNames.size(); ++i){
                 std::set<std::string>::iterator itUsedPaths = m_usedPaths.begin();
                 for(; itUsedPaths != m_usedPaths.end(); ++itUsedPaths){ 
                     if (triggerNames.triggerName(i).find(*itUsedPaths)!= std::string::npos ){
@@ -406,7 +406,7 @@ void HandlerTemplate<reco::Candidate::LorentzVector, reco::Candidate::LorentzVec
       edm::LogError("FSQDiJetAve") << "product not found: "<<  m_input.encode();
       return;
    }
-   for (unsigned int i = 0; i<hIn->size(); ++i) {
+   for (size_t i = 0; i<hIn->size(); ++i) {
         bool preselection = m_singleObjectSelection(hIn->at(i).p4());
         if (preselection){
             cands.push_back(hIn->at(i).p4());
@@ -438,7 +438,7 @@ void HandlerTemplate<reco::Track, int >::getFilteredCands(
       edm::LogError("FSQDiJetAve") << "product not found: "<<  m_input.encode();
       return;
    }
-   for (unsigned int i = 0; i<hIn->size(); ++i) {
+   for (size_t i = 0; i<hIn->size(); ++i) {
         bool preselection = m_singleObjectSelection(hIn->at(i));
         if (preselection){
             cands.at(0)+=1;
@@ -468,7 +468,7 @@ void HandlerTemplate<reco::Candidate::LorentzVector, int >::getFilteredCands(
       edm::LogError("FSQDiJetAve") << "product not found: "<<  m_input.encode();
       return;
    }
-   for (unsigned int i = 0; i<hIn->size(); ++i) {
+   for (size_t i = 0; i<hIn->size(); ++i) {
         bool preselection = m_singleObjectSelection(hIn->at(i).p4());
         if (preselection){
             cands.at(0)+=1;
@@ -556,7 +556,7 @@ FSQDiJetAve::FSQDiJetAve(const edm::ParameterSet& iConfig):
   triggerResultsFUToken= consumes <edm::TriggerResults>   (edm::InputTag(triggerResultsLabel_.label(),triggerResultsLabel_.instance(),std::string("FU")));
 
   std::vector< edm::ParameterSet > todo  = iConfig.getParameter<  std::vector< edm::ParameterSet > >("todo");
-  for (unsigned int i = 0; i < todo.size(); ++i) {
+  for (size_t i = 0; i < todo.size(); ++i) {
         edm::ParameterSet pset = todo.at(i);
         std::string type = pset.getParameter<std::string>("handlerType");
         if (type == "FromHLT") {
@@ -638,7 +638,7 @@ FSQDiJetAve::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     weight = hGW->weight();
   }
 
-  for (unsigned int i = 0; i < m_handlers.size(); ++i) {
+  for (size_t i = 0; i < m_handlers.size(); ++i) {
         m_handlers.at(i)->analyze(iEvent, iSetup, m_hltConfig, *m_trgEvent.product(), *m_triggerResults.product(), m_triggerNames, weight);
   }
 
@@ -662,7 +662,7 @@ FSQDiJetAve::dqmBeginRun(edm::Run const& run, edm::EventSetup const& c)
 
 }
 void FSQDiJetAve::bookHistograms(DQMStore::IBooker & booker, edm::Run const & run, edm::EventSetup const & c){
-    for (unsigned int i = 0; i < m_handlers.size(); ++i) {
+    for (size_t i = 0; i < m_handlers.size(); ++i) {
         m_handlers.at(i)->book(booker);
     }
 
