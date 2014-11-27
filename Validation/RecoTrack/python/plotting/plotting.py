@@ -249,6 +249,9 @@ class Plot:
         ygrid        -- Bool for y axis grid status (default True)
         stat         -- Draw stat box? (default False)
         fit          -- Do gaussian fit? (default False)
+        statx        -- Stat box x coordinate (default 0.65)
+        staty        -- Stat box y coordinate (default 0.8)
+        statyadjust  -- List of floats for stat box y coordinate adjustments (default None)
         normalizeToUnitArea -- Normalize histograms to unit area? (default False)
         profileX     -- Take histograms via ProfileX()? (default False)
         fitSlicesY   -- Take histograms via FitSlicesY() (default False)
@@ -289,6 +292,7 @@ class Plot:
 
         _set("statx", 0.65)
         _set("staty", 0.8)
+        _set("statyadjust", None)
 
         _set("normalizeToUnitArea", False)
         _set("profileX", False)
@@ -395,6 +399,9 @@ class Plot:
 
         dy = 0.0
         for i, h in enumerate(self._histograms):
+            if self._statyadjust is not None and i < len(self._statyadjust):
+                dy += self._statyadjust[i]
+
             _doStats(h, _plotStylesColor[i], dy)
             dy -= 0.19
 
