@@ -1,7 +1,6 @@
 #ifndef RecoTracker_TkSeedGenerator_SeedGeneratorFromProtoTracksEDProducer_H
 #define RecoTracker_TkSeedGenerator_SeedGeneratorFromProtoTracksEDProducer_H
 
-//#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -10,7 +9,6 @@
 namespace edm { class Event; class EventSetup; }
 
 
-//class dso_hidden SeedGeneratorFromProtoTracksEDProducer : public edm::EDProducer {
 class dso_hidden SeedGeneratorFromProtoTracksEDProducer : public edm::stream::EDProducer<> {
 public:
   SeedGeneratorFromProtoTracksEDProducer(const edm::ParameterSet& cfg);
