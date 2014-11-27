@@ -46,7 +46,7 @@ def _get_payload_full_hash(session, payload, check=True):
 
     return payloads[0].hash if len(payloads) == 1 else None
 
-def _dump_payload(session, payload, loadonly, outFormat):
+def _dump_payload(session, payload, loadonly):
 
     data = session.query(conddb.Payload.data).\
         filter(conddb.Payload.hash == payload).\
@@ -1232,7 +1232,7 @@ def dump(args):
        if args.format == 'xml':
           xmlProcessor.payload2xml(session, name)
        else:
-       	  _dump_payload(session, name, args.loadonly, args.format)
+       	  _dump_payload(session, name, args.loadonly)
 
     elif args.type == 'tag':
         for payload, in session.query(conddb.IOV.payload_hash).\
@@ -1241,7 +1241,7 @@ def dump(args):
 		if args.format == 'xml':
           	   xmlProcessor.payload2xml(session, payload)
        		else:
-            	   _dump_payload(session, payload, args.loadonly, args.format)
+            	   _dump_payload(session, payload, args.loadonly)
 
     elif args.type == 'gt':
         for payload, in session.query(conddb.IOV.payload_hash).\
@@ -1250,7 +1250,7 @@ def dump(args):
 		if args.format == 'xml':
           	   xmlProcessor.payload2xml(session, payload)
        		else:
-	   	   _dump_payload(session, payload, args.loadonly, args.format)
+	   	   _dump_payload(session, payload, args.loadonly)
 
     if xmlProcessor: del xmlProcessor
 
