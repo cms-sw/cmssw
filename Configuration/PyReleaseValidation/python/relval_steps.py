@@ -654,7 +654,7 @@ step1GenDefaults=merge([{'-s':'GEN,VALIDATION:genvalid',
                         step1Defaults])
 
 step1LHEDefaults=merge([{'-s':'LHE',
-                         '--relval':'250000,20000',
+                         '--relval':'200000,5000',
                          '--eventcontent':'LHE',
                          '--datatier':'GEN',
                          '--conditions':'auto:run2_mc_FULL'                         
