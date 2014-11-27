@@ -18,6 +18,7 @@ private:
   {
     m_source.initObject(myDBObject);
     write();
+    delete myDBObject;
   }
 
   virtual void analyze(const edm::Event& ev, const edm::EventSetup& esetup) override
