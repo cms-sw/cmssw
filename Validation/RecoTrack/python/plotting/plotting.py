@@ -578,6 +578,7 @@ class PlotGroup:
         legendDy -- Float for moving TLegend in y direction (default None)
         legendDw -- Float for changing TLegend width (default None)
         legendDh -- Float for changing TLegend height (default None)
+        overrideLegendLabels -- List of strings for legend labels, if given, these are used instead of the ones coming from Plotter (default None)
         """
         self._name = name
         self._plots = plots
@@ -611,6 +612,8 @@ class PlotGroup:
         _set("legendDw", None)
         _set("legendDh", None)
 
+        _set("overrideLegendLabels", None)
+
     def create(self, tdirectories):
         """Create histograms from a list of TDirectories."""
         for plot in self._plots:
@@ -626,6 +629,10 @@ class PlotGroup:
         separate      -- Save the plots of a group to separate files instead of a file per group (default False)
         saveFormat   -- String specifying the plot format (default '.pdf')
         """
+
+        if self._overrideLegendLabels is not None:
+            legendLabels = self._overrideLegendLabels
+
         if separate:
             return self._drawSeparate(algo, legendLabels, prefix, saveFormat)
 
