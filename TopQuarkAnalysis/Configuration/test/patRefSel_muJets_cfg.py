@@ -77,8 +77,7 @@ from TopQuarkAnalysis.Configuration.patRefSel_refMuJets import *
 selectEvents = 'pSignalMuon'
 
 # Step 0
-triggerSelectionData = 'HLT_*'
-#triggerSelectionMC   = 'HLT_*'
+triggerSelectionData = 'HLT_IsoMu24_eta2p1_v*'
 
 # Step 1
 #muonCut       = ''
@@ -95,10 +94,14 @@ useCalibElec     = options.useCalibElec
 electronCut = electronGsfCut
 
 # Step 4
+
 #jetCut = ''
-#looseJetCut     = ''
-#tightJetCut     = ''
+# Step4a
 #veryTightJetCut = ''
+# Step4b
+#tightJetCut     = ''
+# Step4c
+#looseJetCut     = ''
 
 # Step 5
 #veryLooseJetCut = ''
