@@ -5,22 +5,27 @@
 #
 # Command line arguments:
 # - standard command line arguments as defined in FWCore.ParameterSet.VarParsing.VarParsing( 'standard' )
-#   + 'maxEvent'   (int , default: -1)
-# - 'runOnMC'      (bool, default: True): decide if run on MC or real data
-# - 'runOnMiniAOD' (bool, default: True): decide if run on miniAOD or AOD input
+#   + 'maxEvent'       (int , default: -1)
+# - 'runOnMC'          (bool, default: True ): decide if run on MC or real data
+# - 'runOnMiniAOD'     (bool, default: True ): decide if run on miniAOD or AOD input
+# - 'useElecEAIsoCorr' (bool, default: True ): decide, if EA (rho) or Delta beta corrections are used for electron isolation is used
+# - 'useCalibElec'     (bool, default: False): decide, if electron re-calibration using regression energies is used
 #
+
 
 import sys
 
 import FWCore.ParameterSet.Config as cms
 
+
 # Command line parsing
 
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing ( 'standard' )
-options.register( 'runOnMC'     , True , VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, 'decide, if run on MC or real data' )
-options.register( 'runOnMiniAOD', True , VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, 'decide, if run on miniAOD or AOD input' )
-options.register( 'useCalibElec', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, 'decide, if elecztron re-calibration using regression energies is used' )
+options.register( 'runOnMC'         , True , VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, 'decide, if run on MC or real data' )
+options.register( 'runOnMiniAOD'    , True , VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, 'decide, if run on miniAOD or AOD input' )
+options.register( 'useElecEAIsoCorr', True , VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, 'decide, if EA (rho) or Delta beta corrections are used for electron isolation is used' )
+options.register( 'useCalibElec'    , False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, 'decide, if electron re-calibration using regression energies is used' )
 # parsing command line arguments
 if( hasattr( sys, 'argv' ) ):
   if( len( sys.argv ) > 2 ):
@@ -83,7 +88,8 @@ triggerSelectionData = 'HLT_*'
 # Step 2
 
 # Step 3
-useCalibElec = options.useCalibElec
+useElecEAIsoCorr = options.useElecEAIsoCorr
+useCalibElec     = options.useCalibElec
 #electronGsfCut   = ''
 #electronCalibCut = ''
 electronCut = electronGsfCut
@@ -277,11 +283,37 @@ if not runOnMiniAOD:
   for idmod in electron_ids:
     setupAllVIDIdsInModule( process, idmod, setupVIDElectronSelection )
 
+if useElecEAIsoCorr:
+  from EgammaAnalysis.ElectronTools.electronIsolatorFromEffectiveArea_cfi import elPFIsoValueEA03
+  if runOnMiniAOD:
+    process.patElPFIsoValueEA03 = elPFIsoValueEA03.clone( gsfElectrons = ''
+                                                        , pfElectrons  = ''
+                                                        , patElectrons = cms.InputTag( 'slimmedElectrons' )
+                                                        , rhoIso       = cms.InputTag( 'fixedGridRhoFastjetAll' )
+                                                        )
+    from EgammaAnalysis.ElectronTools.patElectronEAIsoCorrectionProducer_cfi import patElectronEAIso03CorrectionProducer
+    process.electronsWithEA03Iso = patElectronEAIso03CorrectionProducer.clone( patElectrons  = 'slimmedElectrons'
+                                                                             , eaIsolator    = 'patElPFIsoValueEA03'
+                                                                             )
+  else:
+    process.elPFIsoValueEA03 = elPFIsoValueEA03.clone( gsfElectrons = 'gedGsfElectrons'
+                                                     , pfElectrons  = ''
+                                                     , rhoIso       = cms.InputTag( 'fixedGridRhoFastjetAll' )
+                                                     )
+    process.patElectrons.isolationValues.user = cms.VInputTag( cms.InputTag( 'elPFIsoValueEA03' ) )
+else:
+  electronGsfCut.replace( '-1.0*userIsolation("User1Iso")', '-0.5*puChargedHadronIso' )
+  electronCalibCut.replace( '-1.0*userIsolation("User1Iso")', '-0.5*puChargedHadronIso' )
+  electronCut.replace( '-1.0*userIsolation("User1Iso")', '-0.5*puChargedHadronIso' )
+
 if useCalibElec:
   from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import electronsWithRegression, calibratedElectrons
   process.electronsWithRegression = electronsWithRegression.clone()
   if runOnMiniAOD:
-    process.electronsWithRegression.inputElectronsTag = 'slimmedElectrons'
+    if useElecEAIsoCorr:
+      process.electronsWithRegression.inputElectronsTag = 'electronsWithEA03Iso'
+    else:
+      process.electronsWithRegression.inputElectronsTag = 'slimmedElectrons'
     process.electronsWithRegression.vertexCollection  = 'offlineSlimmedPrimaryVertices'
   process.calibratedElectrons = calibratedElectrons.clone( isMC = runOnMC )
   if runOnMC:
@@ -294,10 +326,13 @@ if useCalibElec:
                                                                                     )
                                                     )
   electronCut = electronCalibCut
+
 from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import selectedElectrons, standAloneElectronVetoFilter
 process.selectedElectrons = selectedElectrons.clone( cut = electronCut )
 if useCalibElec:
   process.selectedElectrons.src = 'calibratedElectrons'
+elif useElecEAIsoCorr and runOnMiniAOD:
+  process.selectedElectrons.src = 'electronsWithEA03Iso'
 elif runOnMiniAOD:
   process.selectedElectrons.src = 'slimmedElectrons'
 
