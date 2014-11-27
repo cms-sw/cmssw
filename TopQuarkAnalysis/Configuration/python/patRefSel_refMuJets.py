@@ -32,7 +32,7 @@ signalMuonCut += ' && globalTrack.hitPattern.numberOfValidMuonHits > 0'         
 signalMuonCut += ' && abs(dB) < 0.2'                                                                          # 2-dim impact parameter with respect to beam spot (s. "PAT muon configuration" above)
 signalMuonCut += ' && innerTrack.hitPattern.numberOfValidPixelHits > 0'                                       # tracker reconstruction
 signalMuonCut += ' && numberOfMatchedStations > 1'                                                            # muon chamber reconstruction
-signalMuonCut += ' && (chargedHadronIso+max(0.,neutralHadronIso)+photonIso-0.5*puChargedHadronIso)/pt < 0.12' # relative isolation w/ Delta beta corrections (factor 0.5)
+signalMuonCut += ' && (chargedHadronIso+max(0.,neutralHadronIso+photonIso-0.5*puChargedHadronIso))/pt < 0.12' # relative isolation w/ Delta beta corrections (factor 0.5)
 
 muonVertexMaxDZ = 0.5 # DeltaZ between muon vertex and PV
 
@@ -59,7 +59,7 @@ veryTightJetCut = 'pt > 30.' # transverse momentum (leading jets)
 electronGsfCut  =     'ecalDrivenMomentum.pt > 20.'                                                           # transverse energy
 electronGsfCut += ' && abs(ecalDrivenMomentum.eta) < 2.5'                                                     # pseudo-rapisity range
 electronGsfCut += ' && electronID("cutBasedElectronID-CSA14-50ns-V1-standalone-veto")'                        # electrons ID
-electronGsfCut += ' && (chargedHadronIso+max(0.,neutralHadronIso)+photonIso-0.5*puChargedHadronIso)/et < 0.2' # relative isolation with Delta beta corrections
+electronGsfCut += ' && (chargedHadronIso+max(0.,neutralHadronIso+photonIso-0.5*puChargedHadronIso))/et < 0.2' # relative isolation with Delta beta corrections
 # ... using re-calibrated (with regression energy) kinematics
 electronCalibCut = electronGsfCut.replace( 'ecalDrivenMomentum.', '' )
 electronCut = electronGsfCut
