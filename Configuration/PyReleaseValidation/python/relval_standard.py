@@ -228,7 +228,8 @@ workflows[1345] = ['', ['ZpTT_1500_13TeV_Tauola','DIGIUP15','RECOUP15','HARVESTU
 workflows[140] = ['',['HydjetQ_MinBias_2760GeV','DIGIHI','RECOHI','HARVESTHI']]
 workflows[140.1] = ['',['QCD_Pt_80_120_13_HI','DIGIHI','RECOHI','HARVESTHI']]
 workflows[140.2] = ['',['PhotonJets_Pt_10_13_HI','DIGIHI','RECOHI','HARVESTHI']]
-workflows[140.3] = ['',['ZEEMM_13_HI','DIGIHI','RECOHI','HARVESTHI']]
+workflows[140.3] = ['',['ZMM_13_HI','DIGIHI','RECOHI','HARVESTHI']]
+workflows[140.4] = ['',['ZEEMM_13_HI','DIGIHI','RECOHI','HARVESTHI']]
 # legacy: 141 => B0; 143 => B3 ; 144 => B5
 #workflows[142] = ['',['HydjetQ_B8_2760GeV','DIGIHI','RECOHI','HARVESTHI']]
 
