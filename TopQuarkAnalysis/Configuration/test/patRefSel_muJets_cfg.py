@@ -96,14 +96,17 @@ electronCut = electronGsfCut
 
 # Step 4
 #jetCut = ''
-#veryLooseJetCut = ''
 #looseJetCut     = ''
 #tightJetCut     = ''
 #veryTightJetCut = ''
 
 # Step 5
+#veryLooseJetCut = ''
 
 # Step 6
+bTagSrc = 'selectedJets'
+#bTagCut = ''
+minBTags = 2
 
 
 ### Input
@@ -375,7 +378,12 @@ process.pStandAlone4Jets = cms.Path( process.sStandAlone4Jets )
 
 # Step 6
 
-process.sStandAloneBTags = cms.Sequence(  )
+from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import selectedBTagJets, standAloneSignalBTagsFilter
+process.selectedBTagJets = selectedBTagJets.clone( src = bTagSrc
+                                                 , cut = bTagCut
+                                                 )
+process.standAloneSignalBTagsFilter = standAloneSignalBTagsFilter.clone( minNumber = minBTags )
+process.sStandAloneBTags = cms.Sequence( process.standAloneSignalBTagsFilter )
 process.pStandAloneBTags = cms.Path( process.sStandAloneBTags )
 
 # Consecutive steps
