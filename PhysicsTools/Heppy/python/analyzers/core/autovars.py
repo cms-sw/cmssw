@@ -100,7 +100,8 @@ class NTupleCollection:
         for v in allvars:
             h = v.help
             if self.help: h = "%s for %s" % ( h if h else v.name, self.help )
-            treeNumpy.vector("%s_%s" % (self.name, v.name), "n"+self.name, self.maxlen, type=v.type, default=v.default, title=h, filler=v.filler)
+            name="%s_%s" % (self.name, v.name) if v.name != "" else self.name
+            treeNumpy.vector(name, "n"+self.name, self.maxlen, type=v.type, default=v.default, title=h, filler=v.filler)
     def fillBranchesScalar(self,treeNumpy,collection,isMC):
         if not isMC and self.objectType.mcOnly: return
         if self.filter != None: collection = [ o for o in collection if self.filter(o) ]
@@ -122,6 +123,7 @@ class NTupleCollection:
         treeNumpy.fill("n"+self.name, num)
         allvars = self.objectType.allVars(isMC)
         for v in allvars:
-            treeNumpy.vfill("%s_%s" % (self.name, v.name), [ v(collection[i]) for i in xrange(num) ])
+            name="%s_%s" % (self.name, v.name) if v.name != "" else self.name
+            treeNumpy.vfill(name, [ v(collection[i]) for i in xrange(num) ])
 
 

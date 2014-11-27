@@ -14,8 +14,17 @@ class AutoHandle( Handle, object ):
         self.type = type
         self.mayFail = mayFail
         Handle.__init__(self, self.type)
+    def product(self):
+	if not self.isLoaded :
+		self.ReallyLoad(self.event)
+		self.isLoaded=True
+	return super(AutoHandle,self).product()
 
-    def Load(self, event):
+    def Load(self, event):  #is actually a reset state
+	self.event=event
+ 	self.isLoaded=False
+
+    def ReallyLoad(self, event):
         '''Load self from a given event.
 
         Call this function, and then just call self.product() to get the collection'''

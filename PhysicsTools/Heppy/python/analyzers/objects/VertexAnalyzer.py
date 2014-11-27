@@ -125,7 +125,8 @@ class VertexAnalyzer( Analyzer ):
 
         if self.doHists:
             self.pileup.hist.Fill( len(event.goodVertices) )
-            self.pileup.mindist.Fill( self.mindist(event.goodVertices) )
+#A.R. mindist is one of the slowest functions, default commented
+#           self.pileup.mindist.Fill( self.mindist(event.goodVertices) )
 
         self.count.inc('Events With Good Vertex')
         return True

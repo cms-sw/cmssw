@@ -12,7 +12,7 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
     #-----------------------------------
     def __init__(self, cfg_ana, cfg_comp, looperName):
         super(AutoFillTreeProducer,self).__init__(cfg_ana, cfg_comp, looperName)
-
+	print "init"
         ## Read whether we want vectors or flat trees
         self.scalar = not self.cfg_ana.vectorTree
 
@@ -103,7 +103,7 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
 
         if isMC:
             ## PU weights, check if a PU analyzer actually filled it
-	    if event.hasattr("nPU"):
+	    if hasattr(event,"nPU"):
 	            tr.fill("nTrueInt", event.nPU)
 	            tr.fill("puWeight", event.eventWeight)
 	    else :
@@ -112,7 +112,7 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
 		
             tr.fill("genWeight", self.mchandles['GenInfo'].product().weight())
             ## PDF weights
-            if event.hasattr("pdfWeights") :
+            if hasattr(event,"pdfWeights") :
               for (pdf,nvals) in self.pdfWeights:
 		if len(event.pdfWeights[pdf]) != nvals:
                     raise RuntimeError, "PDF lenght mismatch for %s, declared %d but the event has %d" % (pdf,nvals,event.pdfWeights[pdf])

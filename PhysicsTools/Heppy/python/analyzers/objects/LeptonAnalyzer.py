@@ -208,8 +208,8 @@ class LeptonAnalyzer( Analyzer ):
         # Compute relIso with R=0.3 and R=0.4 cones
         for ele in allelectrons:
             if self.cfg_ana.ele_isoCorr=="rhoArea" :
-                 ele.absIso03 = (ele.chargedHadronIso(0.3) + max(ele.neutralHadronIso(0.3)+ele.photonIso(0.3)-ele.rho*ele.EffectiveArea,0))
-                 ele.absIso04 = (ele.chargedHadronIso(0.4) + max(ele.neutralHadronIso(0.4)+ele.photonIso(0.4)-ele.rho*ele.EffectiveArea,0))
+                 ele.absIso03 = (ele.chargedHadronIsoR(0.3) + max(ele.neutralHadronIsoR(0.3)+ele.photonIsoR(0.3)-ele.rho*ele.EffectiveArea,0))
+                 ele.absIso04 = (ele.chargedHadronIsoR(0.4) + max(ele.neutralHadronIsoR(0.4)+ele.photonIsoR(0.4)-ele.rho*ele.EffectiveArea,0))
             elif self.cfg_ana.ele_isoCorr=="deltaBeta" :
                  ele.absIso03 = (ele.pfIsolationVariables().sumChargedHadronPt + max( ele.pfIsolationVariables().sumNeutralHadronEt + ele.pfIsolationVariables().sumPhotonEt - ele.pfIsolationVariables().sumPUPt/2,0.0))
                  ele.absIso04 = 0.
