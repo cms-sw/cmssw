@@ -106,6 +106,7 @@ namespace evf{
         fileDeleteLockPtr_=fileDeleteLock;
         filesToDeletePtr_ = filesToDelete;
       }
+      void writeTransferSystemJsonMaybe();
 
 
     private:
@@ -127,6 +128,7 @@ namespace evf{
       bool directorBu_;
       unsigned int run_;
       bool outputAdler32Recheck_;
+      bool requireTSPSet_;
       std::string hltSourceDirectory_;
 
       std::string hostname_;
