@@ -60,6 +60,10 @@ class HcalODFCorrections {
             Item i = {e, p, l, h};
             odfCorrections.push_back(i);
         }
+        
+        const std::vector<Item>& getValues() const {
+            return odfCorrections;
+        }
 
     private:
         std::vector<Item> odfCorrections;
