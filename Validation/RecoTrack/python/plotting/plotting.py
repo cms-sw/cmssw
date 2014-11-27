@@ -765,6 +765,12 @@ class Plotter:
         """Return the list of possible directory names."""
         return self._possibleDirs
 
+    def append(self, plotGroup):
+        self._plotGroups.append(plotGroup)
+
+    def set(self, plotGroups):
+        self._plotGroups = plotGroups
+
     def _getDir(self, tfile, subdir):
         """Get TDirectory from TFile."""
         if tfile is None:
