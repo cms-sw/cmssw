@@ -89,12 +89,12 @@
 #include "HeavyIonsAnalysis/PhotonAnalysis/plugins/MultiPhotonAnalyzerTree.h"
 
 //Include Heavy Ion isolation variable calculator
-#include "RecoHI/HiEgammaAlgos/interface/CxCalculator.h"
-#include "RecoHI/HiEgammaAlgos/interface/RxCalculator.h"
-#include "RecoHI/HiEgammaAlgos/interface/TxCalculator.h"
-#include "RecoHI/HiEgammaAlgos/interface/TxyCalculator.h"
-#include "RecoHI/HiEgammaAlgos/interface/dRxyCalculator.h"
-#include "RecoHI/HiEgammaAlgos/interface/dRxyCalculator.h"
+#include "HeavyIonsAnalysis/PhotonAnalysis/plugins/CxCalculator.h"
+#include "HeavyIonsAnalysis/PhotonAnalysis/plugins/RxCalculator.h"
+#include "HeavyIonsAnalysis/PhotonAnalysis/plugins/TxCalculator.h"
+#include "HeavyIonsAnalysis/PhotonAnalysis/plugins/TxyCalculator.h"
+#include "HeavyIonsAnalysis/PhotonAnalysis/plugins/dRxyCalculator.h"
+#include "HeavyIonsAnalysis/PhotonAnalysis/plugins/dRxyCalculator.h"
 #include "HeavyIonsAnalysis/PhotonAnalysis/src/pfIsoCalculator.h"
 #include "HeavyIonsAnalysis/PhotonAnalysis/src/towerIsoCalculator.h"
 
