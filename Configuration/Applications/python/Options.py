@@ -352,6 +352,11 @@ expertSettings.add_option("--slhc",
                           default=None,
                           dest="slhc")
 
+expertSettings.add_option("--era",
+                          help="Specify which era to use (e.g. \"run2\")",
+                          default=None,
+                          dest="era")
+
 expertSettings.add_option("--evt_type",
                           help="specify the gen fragment",
                           default=None,

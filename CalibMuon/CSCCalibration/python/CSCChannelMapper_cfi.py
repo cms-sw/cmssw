@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
 CSCChannelMapperESSource = cms.ESSource("EmptyESSource",
  recordName = cms.string("CSCChannelMapperRecord"),
@@ -9,3 +10,7 @@ CSCChannelMapperESProducer = cms.ESProducer("CSCChannelMapperESProducer",
   AlgoName = cms.string("CSCChannelMapperStartup")
 )
 
+#
+# Modify for running in run 2
+#
+eras.run2.toModify( CSCChannelMapperESProducer, AlgoName=cms.string("CSCChannelMapperPostls1") )

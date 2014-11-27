@@ -2,6 +2,7 @@
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
+from Configuration.StandardSequences.Eras import eras
 
 
 HLTConfigVersion = cms.PSet(
@@ -560,6 +561,12 @@ CSCChannelMapperESProducer = cms.ESProducer( "CSCChannelMapperESProducer",
 CSCIndexerESProducer = cms.ESProducer( "CSCIndexerESProducer",
   AlgoName = cms.string( "CSCIndexerStartup" )
 )
+#
+# Modify for running in run 2
+#
+eras.run2.toModify( CSCIndexerESProducer, AlgoName=cms.string("CSCIndexerPostls1") )
+eras.run2.toModify( CSCChannelMapperESProducer, AlgoName=cms.string("CSCChannelMapperPostls1") )
+
 CaloTowerGeometryFromDBEP = cms.ESProducer( "CaloTowerGeometryFromDBEP",
   applyAlignment = cms.bool( False ),
   hcalTopologyConstants = cms.PSet( 
@@ -1699,6 +1706,12 @@ hltCsc2DRecHits = cms.EDProducer( "CSCRecHitDProducer",
     NoiseLevel_ME22 = cms.double( 9.0 ),
     NoiseLevel_ME41 = cms.double( 9.0 )
 )
+#
+# Modify for running in run 2
+#
+eras.run2.toModify( hltCsc2DRecHits, readBadChannels=False )
+eras.run2.toModify( hltCsc2DRecHits, CSCUseGasGainCorrections=False )
+
 hltCscSegments = cms.EDProducer( "CSCSegmentProducer",
     inputObjects = cms.InputTag( "hltCsc2DRecHits" ),
     algo_psets = cms.VPSet( 

@@ -10,3 +10,8 @@ gctDigiToRaw = cms.EDProducer("GctDigiToRaw",
 )
 
 
+##
+## Make changes for Run 2
+##
+from Configuration.StandardSequences.Eras import eras
+eras.run2.toModify( gctDigiToRaw, gctInputLabel = 'caloStage1LegacyFormatDigis' )

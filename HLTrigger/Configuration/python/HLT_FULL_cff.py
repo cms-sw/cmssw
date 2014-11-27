@@ -1,6 +1,7 @@
 # /dev/CMSSW_7_2_1/HLT/V122 (CMSSW_7_2_1_patch2_HLT2)
 
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
 
 HLTConfigVersion = cms.PSet(
@@ -2814,6 +2815,12 @@ hltCsc2DRecHits = cms.EDProducer( "CSCRecHitDProducer",
     NoiseLevel_ME22 = cms.double( 9.0 ),
     NoiseLevel_ME41 = cms.double( 9.0 )
 )
+#
+# Modify for running in run 2
+#
+eras.run2.toModify( hltCsc2DRecHits, readBadChannels=False )
+eras.run2.toModify( hltCsc2DRecHits, CSCUseGasGainCorrections=False )
+
 hltCscSegments = cms.EDProducer( "CSCSegmentProducer",
     inputObjects = cms.InputTag( "hltCsc2DRecHits" ),
     algo_psets = cms.VPSet( 

@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+from Configuration.StandardSequences.Eras import eras # Used to selectively modify parameters for Run 2
 from EventFilter.CSCTFRawToDigi.csctfpacker_cfi import *
 from EventFilter.DTTFRawToDigi.dttfpacker_cfi import *
 from EventFilter.GctRawToDigi.gctDigiToRaw_cfi import *
@@ -25,6 +26,7 @@ dttfpacker.DTDigi_Source = 'simDtTriggerPrimitiveDigis'
 dttfpacker.DTTracks_Source = "simDttfDigis:DTTF"
 gctDigiToRaw.rctInputLabel = 'simRctDigis'
 gctDigiToRaw.gctInputLabel = 'simGctDigis'
+eras.run2.toModify( gctDigiToRaw, gctInputLabel = 'caloStage1LegacyFormatDigis' ) # change only if Run 2 is active
 l1GtPack.DaqGtInputTag = 'simGtDigis'
 l1GtPack.MuGmtInputTag = 'simGmtDigis'
 l1GtEvmPack.EvmGtInputTag = 'simGtDigis'

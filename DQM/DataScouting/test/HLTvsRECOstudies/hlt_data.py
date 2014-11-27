@@ -1,6 +1,7 @@
 # /cdaq/physics/Run2012/7e33/v2.1/HLT/V12 (CMSSW_5_2_5_HLT5)
 
 import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
 
 process = cms.Process( "HLT" )
 
@@ -6146,6 +6147,12 @@ process.hltCsc2DRecHits = cms.EDProducer( "CSCRecHitDProducer",
     NoiseLevel_ME22 = cms.double( 9.0 ),
     NoiseLevel_ME41 = cms.double( 9.0 )
 )
+#
+# Modify for running in run 2
+#
+eras.run2.toModify( hltCsc2DRecHits, readBadChannels=False )
+eras.run2.toModify( hltCsc2DRecHits, CSCUseGasGainCorrections=False )
+
 process.hltCscSegments = cms.EDProducer( "CSCSegmentProducer",
     inputObjects = cms.InputTag( "hltCsc2DRecHits" ),
     algo_psets = cms.VPSet(
