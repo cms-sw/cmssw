@@ -3,6 +3,7 @@
 #include "FWCore/ServiceRegistry/interface/SystemBounds.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/Utilities/interface/StreamID.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "EventFilter/Utilities/interface/EvFDaqDirector.h"
@@ -52,6 +53,7 @@ namespace evf {
 		),
     run_(pset.getUntrackedParameter<unsigned int> ("runNumber",0)),
     outputAdler32Recheck_(pset.getUntrackedParameter<bool>("outputAdler32Recheck",false)),
+    requireTSPSet_(pset.getUntrackedParameter<bool>("requireTransfersPSet",false)),
     hltSourceDirectory_(pset.getUntrackedParameter<std::string>("hltSourceDirectory","")),
     hostname_(""),
     bu_readlock_fd_(-1),
@@ -257,7 +259,10 @@ namespace evf {
 
   void EvFDaqDirector::preBeginRun(edm::GlobalContext const& globalContext) {
 
-//    assert(run_ == id.run());
+    //assert(run_ == id.run());
+
+    //write out transfer system details
+    writeTransferSystemJsonMaybe();
 
     // check if the requested run is the latest one - issue a warning if it isn't
     if (dirManager_.findHighestRunDir() != run_dir_) {
@@ -441,7 +446,8 @@ namespace evf {
         if (errno==116)
           edm::LogWarning("EvFDaqDirector") << "Stale lock file handle. Checking if run directory and fu.lock file are present" << std::endl;
         else
-          edm::LogWarning("EvFDaqDirector") << "Unable to obtain a lock for 5 seconds. Checking if run directory and fu.lock file are present -: errno "<< errno <<":"<< strerror(errno) << std::endl;
+          edm::LogWarning("EvFDaqDirector") << "Unable to obtain a lock for 5 seconds. Checking if run directory and fu.lock file are present -: errno "
+                                            << errno <<":"<< strerror(errno) << std::endl;
 
         if (stat(bu_run_dir_.c_str(), &buf)!=0) return runEnded;
         if (stat((bu_run_dir_+"/fu.lock").c_str(), &buf)!=0) return runEnded;
@@ -814,6 +820,79 @@ namespace evf {
     int ret = deserializeRoot.get("lastLS","").asInt();
     return ret;
 
+  }
+
+
+  void EvFDaqDirector::writeTransferSystemJsonMaybe()
+  { 
+
+    std::stringstream transfersFileSS; 
+    transfersFileSS << baseRunDir() << "/" << "TRANSFER_PSET";
+    std::string transfersFile = transfersFileSS.str()+".jsn";
+    transfersFileSS << "_" << getpid();
+    std::string transfersFileTmp = transfersFileSS.str()+".temp";
+
+    struct stat   fstat;
+    //try to write the file if it is not already written by other process
+    if (stat (transfersFile.c_str(), &fstat) != 0) {
+ 
+      Json::Value outJson;
+      if (edm::getProcessParameterSet().existsAs<edm::ParameterSet>("transferSystem",true))
+      {
+        const edm::ParameterSet& tsPset(edm::getProcessParameterSet().getParameterSet("transferSystem"));
+
+        Json::Value destinationsVal(Json::arrayValue);
+        std::vector<std::string> destinations = tsPset.getParameter<std::vector<std::string>>("destinations");
+        for (auto & dest: destinations) destinationsVal.append(dest);
+        outJson["destinations"]=destinationsVal;
+
+        //TODO:finalize if we call it columns or modes
+        Json::Value columnsVal(Json::arrayValue);
+        std::vector<std::string> columns = tsPset.getParameter< std::vector<std::string> >("columns");
+        for (auto & col: columns) columnsVal.append(col);
+        outJson["columns"]=columnsVal;
+
+        for (auto psKeyItr =tsPset.psetTable().begin();psKeyItr!=tsPset.psetTable().end(); ++ psKeyItr) {
+          if (psKeyItr->first!="destinations" && psKeyItr->first!="columns") {
+               const edm::ParameterSet & streamDef = tsPset.getParameterSet(psKeyItr->first);
+               Json::Value streamVal;
+               for (auto & col : columns) {
+                 bool valid=false;
+                 //validation
+                 if (!streamDef.existsAs<std::string>(col,true))
+                   throw cms::Exception("EvFDaqDirector") << " Missing transfer system specification for -:" << psKeyItr->first << " (column " << col << ")";
+                 std::string val =  streamDef.getParameter<std::string>(col);
+                 streamVal[col]=val;
+                 for (auto & dest: destinations) if (dest==val) valid=true;
+                 if (!valid)
+                   throw cms::Exception("EvFDaqDirector") << " Invalid transter system destination specified for -: "<< psKeyItr->first;
+               }
+               outJson[psKeyItr->first] = streamVal;
+          }
+        }
+      }
+      else
+        if (requireTSPSet_)
+          throw cms::Exception("EvFDaqDirector") << "transferSystem PSet not found";
+
+      Json::StyledWriter writer;
+      std::string content = writer.write(outJson);
+
+      std::ofstream outputFile;
+      outputFile.open(transfersFileTmp);
+      if (!outputFile) throw cms::Exception("EvFDaqDirector") << "Unable to open file for writing -:" << transfersFileTmp;
+      outputFile << content;
+      outputFile.close();
+
+      try {
+        boost::filesystem::rename(transfersFileTmp,transfersFile);
+      }
+      catch (std::exception){
+          try {
+            remove(transfersFileTmp.c_str());
+          } catch (...) {}
+      }
+    }
   }
 
 }
