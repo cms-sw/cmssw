@@ -152,7 +152,13 @@ class WorkFlowRunner(Thread):
 
             
             self.retStep.append(retStep)
-            if (retStep!=0):
+            if retStep == 32000:
+                # A timeout occurred
+                self.npass.append(0)
+                self.nfail.append(1)
+                self.stat.append('TIMEOUT')
+                aborted = True
+            elif (retStep!=0):
                 #error occured
                 self.npass.append(0)
                 self.nfail.append(1)
