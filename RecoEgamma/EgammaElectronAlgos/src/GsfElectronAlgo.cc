@@ -1029,11 +1029,10 @@ void GsfElectronAlgo::addPflowInfo()
 
 bool GsfElectronAlgo::isPreselected( GsfElectron * ele )
  {
-	float mvaValue=generalData_->sElectronMVAEstimator->mva( *(ele),*(eventData_->event));
 	bool passCutBased=ele->passingCutBasedPreselection();
-	bool passPF=ele->passingPflowPreselection();
+	bool passPF=ele->passingPflowPreselection(); //it is worth nothing for gedGsfElectrons, this does nothing as its not set till GedGsfElectron finaliser, this is always false
 	if(generalData_->strategyCfg.gedElectronMode){
-		bool passmva=mvaValue>generalData_->strategyCfg.PreSelectMVA;
+         	bool passmva=ele->passingMvaPreselection();
 		if(!ele->ecalDrivenSeed()){
 		  if(ele->pt() > generalData_->strategyCfg.MaxElePtForOnlyMVA) 
 		    return passmva && passCutBased;
@@ -1472,7 +1471,13 @@ void GsfElectronAlgo::createElectron()
   //====================================================
 
   setCutBasedPreselectionFlag(ele,*eventData_->beamspot) ;
-  
+  //setting mva flag, currently GedGsfElectron and GsfElectron pre-selection flags have desynced
+  //this is for GedGsfElectrons, GsfElectrons (ie old pre 7X std reco) resets this later on
+  //in the function "addPfInfo"
+  //yes this is awful, we'll fix it once we work out how to...
+  float mvaValue=generalData_->sElectronMVAEstimator->mva( *(ele),*(eventData_->event));
+  ele->setPassMvaPreselection(mvaValue>generalData_->strategyCfg.PreSelectMVA);
+
   //====================================================
   // Pixel match variables
   //====================================================
