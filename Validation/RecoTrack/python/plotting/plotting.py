@@ -265,6 +265,7 @@ class Plot:
         legendDy     -- Float for moving TLegend in y direction for separate=True (default None)
         legendDw     -- Float for changing TLegend width for separate=True (default None)
         legendDh     -- Float for changing TLegend height for separate=True (default None)
+        histogramModifier -- Function to be called in create() to modify the histograms (default None)
         """
         self._name = name
 
@@ -310,6 +311,8 @@ class Plot:
         _set("legendDw", None)
         _set("legendDh", None)
 
+        _set("histogramModifier", None)
+
         self._histograms = []
 
     def getNumberOfHistograms(self):
@@ -338,37 +341,52 @@ class Plot:
             else:
                 sys.exit(1)
 
-        if self._profileX:
-            th1 = th1.ProfileX()
-
-        if self._fitSlicesY:
-            ROOT.TH1.AddDirectory(True)
-            th1.FitSlicesY()
-            th1 = ROOT.gDirectory.Get(th1.GetName()+"_2")
-            th1.SetDirectory(None)
-            #th1.SetName(th1.GetName()+"_ref")
-            ROOT.TH1.AddDirectory(False)
-
-        if self._title is not None:
-            th1.SetTitle(self._title)
-
-        if self._scale is not None:
-            th1.Scale(self._scale)
-
         return th1
 
     def create(self, tdirs):
         """Create histograms from list of TDirectories"""
-        if len(tdirs) > len(_plotStylesColor):
-            raise Exception("More TDirectories than there are plot styles defined. Please define more plot styles in this file")
-
         self._histograms = [self._createOne(tdir) for tdir in tdirs]
+
+        if self._histogramModifier is not None:
+            self._histograms = self._histogramModifier(self._histograms)
+
+        if len(self._histograms) > len(_plotStylesColor):
+            raise Exception("More histograms (%d) than there are plot styles (%d) defined. Please define more plot styles in this file" % (len(self._histograms), len(_plotStylesColor)))
+
+        # Modify histograms here in case self._name returns numbers
+        # and self._histogramModifier creates the histograms from
+        # these numbers
+        def _modifyHisto(th1):
+            if th1 is None:
+                return None
+
+            if self._profileX:
+                th1 = th1.ProfileX()
+
+            if self._fitSlicesY:
+                ROOT.TH1.AddDirectory(True)
+                th1.FitSlicesY()
+                th1 = ROOT.gDirectory.Get(th1.GetName()+"_2")
+                th1.SetDirectory(None)
+                #th1.SetName(th1.GetName()+"_ref")
+                ROOT.TH1.AddDirectory(False)
+
+            if self._title is not None:
+                th1.SetTitle(self._title)
+
+            if self._scale is not None:
+                th1.Scale(self._scale)
+
+            return th1
+
+        self._histograms = map(_modifyHisto, self._histograms)
+
 
     def _setStats(self, startingX, startingY):
         """Set stats box."""
         if not self._stat:
             for h in self._histograms:
-                if h is not None:
+                if h is not None and hasattr(h, "SetStats"):
                     h.SetStats(0)
             return
 
