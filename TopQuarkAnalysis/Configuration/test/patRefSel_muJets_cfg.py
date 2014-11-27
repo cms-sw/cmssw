@@ -18,8 +18,9 @@ import FWCore.ParameterSet.Config as cms
 
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing ( 'standard' )
-options.register( 'runOnMC'     , True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, 'decide if run on MC or real data' )
-options.register( 'runOnMiniAOD', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, 'decide if run on miniAOD or AOD input' )
+options.register( 'runOnMC'     , True , VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, 'decide, if run on MC or real data' )
+options.register( 'runOnMiniAOD', True , VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, 'decide, if run on miniAOD or AOD input' )
+options.register( 'useCalibElec', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, 'decide, if elecztron re-calibration using regression energies is used' )
 # parsing command line arguments
 if( hasattr( sys, 'argv' ) ):
   if( len( sys.argv ) > 2 ):
@@ -82,6 +83,7 @@ triggerSelectionData = 'HLT_*'
 # Step 2
 
 # Step 3
+useCalibElec = options.useCalibElec
 #electronCut = ''
 
 # Step 4
@@ -273,22 +275,31 @@ if not runOnMiniAOD:
   for idmod in electron_ids:
     setupAllVIDIdsInModule( process, idmod, setupVIDElectronSelection )
 
-from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import electronsWithRegression, calibratedElectrons, selectedElectrons, standAloneElectronVetoFilter
-process.electronsWithRegression = electronsWithRegression.clone()
-if runOnMiniAOD:
-  process.electronsWithRegression.inputElectronsTag = 'slimmedElectrons'
-  process.electronsWithRegression.vertexCollection  = 'offlineSlimmedPrimaryVertices'
-process.calibratedElectrons = calibratedElectrons.clone( isMC = runOnMC )
-if runOnMC:
-  process.calibratedElectrons.inputDataset = 'Summer12_LegacyPaper' # FIXME: Update as soon as available
-else:
-  process.calibratedElectrons.inputDataset = '22Jan2013ReReco' # FIXME: Update as soon as available
-process.RandomNumberGeneratorService = cms.Service( "RandomNumberGeneratorService"
-                                                  , calibratedElectrons = cms.PSet( initialSeed = cms.untracked.uint32( 1 )
-                                                                                  , engineName  = cms.untracked.string('TRandom3')
-                                                                                  )
-                                                  )
+if useCalibElec:
+  from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import electronsWithRegression, calibratedElectrons
+  process.electronsWithRegression = electronsWithRegression.clone()
+  if runOnMiniAOD:
+    process.electronsWithRegression.inputElectronsTag = 'slimmedElectrons'
+    process.electronsWithRegression.vertexCollection  = 'offlineSlimmedPrimaryVertices'
+  process.calibratedElectrons = calibratedElectrons.clone( isMC = runOnMC )
+  if runOnMC:
+    process.calibratedElectrons.inputDataset = 'Summer12_LegacyPaper' # FIXME: Update as soon as available
+  else:
+    process.calibratedElectrons.inputDataset = '22Jan2013ReReco' # FIXME: Update as soon as available
+  process.RandomNumberGeneratorService = cms.Service( "RandomNumberGeneratorService"
+                                                    , calibratedElectrons = cms.PSet( initialSeed = cms.untracked.uint32( 1 )
+                                                                                    , engineName  = cms.untracked.string('TRandom3')
+                                                                                    )
+                                                    )
+  electronCut = electronCalibCut
+from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import selectedElectrons, standAloneElectronVetoFilter
 process.selectedElectrons = selectedElectrons.clone( cut = electronCut )
+if useCalibElec:
+  process.selectedElectrons.src = 'calibratedElectrons'
+elif runOnMiniAOD:
+  process.selectedElectrons.src = 'slimmedElectrons'
+print 'DEBUG electronCut: ', electronCut
+
 process.standAloneElectronVetoFilter = standAloneElectronVetoFilter.clone()
 process.sStandAloneElectronVeto = cms.Sequence( process.standAloneElectronVetoFilter )
 process.pStandAloneElectronVeto = cms.Path( process.sStandAloneElectronVeto )
