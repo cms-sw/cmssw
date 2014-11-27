@@ -466,9 +466,7 @@ void Pythia8Hadronizer::statistics()
 
   double xsec = fMasterGen->info.sigmaGen(); // cross section in mb
   xsec *= 1.0e9; // translate to pb (CMS/Gen "convention" as of May 2009)
-  double err  = fMasterGen->info.sigmaErr(); // cross section err in mb
-  err  *= 1.0e9; // translate to pb (CMS/Gen "convention" as of May 2009)
-  runInfo().setInternalXSec(GenRunInfoProduct::XSec(xsec,err));
+  runInfo().setInternalXSec(xsec);
 }
 
 

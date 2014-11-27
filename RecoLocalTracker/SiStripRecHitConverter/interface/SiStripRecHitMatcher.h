@@ -135,11 +135,8 @@ public:
 #ifdef DOUBLE_MATCH
 
 #if defined(USE_SSEVECT)
-  using  mathSSE::Vec3F;
-  using  mathSSE::Vec2D;
-  using  mathSSE::Vec3D;
-  using  mathSSE::Rot3F;
-#endif 
+#include "SSEMatcher.h"
+#else // ext vect version
  
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/HelpertRecHit2DLocalPos.h"
@@ -349,6 +346,7 @@ void SiStripRecHitMatcher::doubleMatch(MonoIterator monoRHiter, MonoIterator mon
   } // loop on mono hit
   
 }
+#endif // SSE or EXT
 
 #endif //DOUBLE_MATCH
 

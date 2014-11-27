@@ -13,7 +13,6 @@
 #include "DQMOffline/Trigger/interface/HLTInclusiveVBFClient.h"
 #include "DQMOffline/Trigger/interface/TopDiLeptonHLTOfflineDQM.h"
 #include "DQMOffline/Trigger/interface/TopSingleLeptonHLTOfflineDQM.h"
-#include "DQMOffline/Trigger/interface/FSQDiJetAve.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(EgHLTOfflineSource);
@@ -30,5 +29,3 @@ DEFINE_FWK_MODULE(HLTInclusiveVBFSource);
 DEFINE_FWK_MODULE(HLTInclusiveVBFClient);
 DEFINE_FWK_MODULE(TopDiLeptonHLTOfflineDQM);
 DEFINE_FWK_MODULE(TopSingleLeptonHLTOfflineDQM);
-DEFINE_FWK_MODULE(FSQDiJetAve);
-

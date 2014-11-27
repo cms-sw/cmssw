@@ -7,15 +7,9 @@
  *  \author N. Amapane - INFN Torino
  */
 
-//#DEFINE MF_DEBUG
 
-// Old debug control switch, being phased out
 struct verbose {
-#ifdef MF_DEBUG
-  static constexpr bool debugOut = true;
-#else
   static constexpr bool debugOut = false;
-#endif
 };
 
 #endif

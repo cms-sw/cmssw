@@ -1,7 +1,6 @@
 <lcgdict>
   <class name="reco::CompositeRefCandidateT<reco::GenParticleRefVector>" />
-  <class name="reco::GenParticle"  ClassVersion="11">
-   <version ClassVersion="11" checksum="446025970"/>
+  <class name="reco::GenParticle"  ClassVersion="10">
    <version ClassVersion="10" checksum="2736964676"/>
   </class>
   <class name="std::vector<reco::GenParticle>" />

@@ -6,7 +6,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -16,18 +15,17 @@
 using namespace edm;
 using namespace std;
 
-class PlotCombiner : public DQMEDHarvester{
+class PlotCombiner : public edm::EDAnalyzer{
   public:
     PlotCombiner(const edm::ParameterSet& pset);
     virtual ~PlotCombiner();
+    virtual void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override {};
+    virtual void endRun(const edm::Run &, const edm::EventSetup &) override;
   private:
-  void makePlot(const ParameterSet& pset, DQMStore::IBooker &, DQMStore::IGetter &);
-
+    void makePlot(const ParameterSet& pset);
+    DQMStore * dqmStore;
     string myDQMrootFolder;
     const VParameterSet plots;
-  protected:
-    void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
-
 };
 
 PlotCombiner::PlotCombiner(const edm::ParameterSet& pset):
@@ -36,13 +34,18 @@ PlotCombiner::PlotCombiner(const edm::ParameterSet& pset):
 {
 }
 
-void PlotCombiner::dqmEndJob(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_){
+void PlotCombiner::endRun(const edm::Run &, const edm::EventSetup &){
+  dqmStore = Service<DQMStore>().operator->();
+  if( !dqmStore ){
+    LogError("HLTriggerOfflineHeavyFlavor") << "Could not find DQMStore service\n";
+    return;
+  }
   for(VParameterSet::const_iterator pset = plots.begin(); pset!=plots.end(); pset++){
-    makePlot(*pset, ibooker_, igetter_);
+    makePlot(*pset);
   }
 }
   
-void PlotCombiner::makePlot(const ParameterSet& pset, DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_){
+void PlotCombiner::makePlot(const ParameterSet& pset){
 //get hold of MEs
   vector<string> inputMEnames = pset.getUntrackedParameter<vector<string> >("InputMEnames");
   vector<string> inputLabels = pset.getUntrackedParameter<vector<string> >("InputLabels");
@@ -54,7 +57,7 @@ void PlotCombiner::makePlot(const ParameterSet& pset, DQMStore::IBooker & ibooke
   vector<TString> labels;
   for(size_t i=0; i<inputMEnames.size(); i++){
     string MEname = myDQMrootFolder+"/"+inputMEnames[i];
-    MonitorElement *ME = igetter_.get(MEname);
+    MonitorElement *ME = dqmStore->get(MEname);
     if(ME==0){
       LogDebug("HLTriggerOfflineHeavyFlavor") << "Could not find ME: "<<MEname<<endl;
       continue;
@@ -73,7 +76,7 @@ void PlotCombiner::makePlot(const ParameterSet& pset, DQMStore::IBooker & ibooke
     outputDir += "/"+outputMEname.substr(0, slashPos);
     outputMEname.erase(0, slashPos+1);
   }
-  ibooker_.setCurrentFolder(outputDir);
+  dqmStore->setCurrentFolder(outputDir);
   //create output ME
   TH2F * output;
   if(histos[0]->GetXaxis()->GetXbins()->GetSize()==0){
@@ -92,7 +95,7 @@ void PlotCombiner::makePlot(const ParameterSet& pset, DQMStore::IBooker & ibooke
     }
     output->GetYaxis()->SetBinLabel(i+1,labels[i]);
   }
-  ibooker_.book2D(outputMEname,output);
+  dqmStore->book2D(outputMEname,output);
   delete output;
 }
 

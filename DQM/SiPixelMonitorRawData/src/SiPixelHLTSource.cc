@@ -51,11 +51,11 @@ SiPixelHLTSource::SiPixelHLTSource(const edm::ParameterSet& iConfig) :
   rawin_( consumes<FEDRawDataCollection>( conf_.getParameter<edm::InputTag>( "RawInput" ) ) ),
   errin_( consumes<edm::DetSetVector<SiPixelRawDataError> >( conf_.getParameter<edm::InputTag>( "ErrorInput" ) ) ),
   saveFile( conf_.getUntrackedParameter<bool>("saveFile",false) ),
-  slowDown( conf_.getUntrackedParameter<bool>("slowDown",false) )
+  slowDown( conf_.getUntrackedParameter<bool>("slowDown",false) ),
+  dirName_( conf_.getUntrackedParameter<std::string>("DirName","Pixel/FEDIntegrity/") )
 {
   firstRun = true;
   LogInfo ("PixelDQM") << "SiPixelHLTSource::SiPixelHLTSource: Got DQM BackEnd interface"<<endl;
-  topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
 }
 
 
@@ -153,7 +153,7 @@ void SiPixelHLTSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 void SiPixelHLTSource::bookMEs(DQMStore::IBooker & iBooker){
 
   iBooker.cd();
-  iBooker.setCurrentFolder(topFolderName_+"/FEDIntegrity/");
+  iBooker.setCurrentFolder(dirName_);
 
   std::string rawhid;
   std::string errhid;

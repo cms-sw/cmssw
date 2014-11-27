@@ -1,6 +1,5 @@
 <lcgdict>
-  <class name="reco::TrackJet" ClassVersion="11">
-   <version ClassVersion="11" checksum="4018705754"/>
+  <class name="reco::TrackJet" ClassVersion="10">
    <version ClassVersion="10" checksum="3049495721"/>
   </class>
   <class name="std::vector<reco::TrackJet>"/>
@@ -18,8 +17,7 @@
   <class name="reco::TrackJetFwdPtrVector"/>
   <class name="edm::Wrapper<reco::TrackJetFwdPtrVector>"/>
 
-  <class name="reco::PFClusterJet" ClassVersion="11">
-   <version ClassVersion="11" checksum="3179889301"/>
+  <class name="reco::PFClusterJet" ClassVersion="10">
    <version ClassVersion="10" checksum="3410834730"/>
   </class>
   <class name="std::vector<reco::PFClusterJet>"/>

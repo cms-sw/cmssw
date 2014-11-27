@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 SiPixelClusterSource = cms.EDAnalyzer("SiPixelClusterSource",
-    TopFolderName = cms.string('Pixel'),
     src = cms.InputTag("siPixelClusters"),
     outputFile = cms.string('Pixel_DQM_Cluster.root'),
     saveFile = cms.untracked.bool(False),

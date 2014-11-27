@@ -93,8 +93,6 @@ SiPixelTrackResidualSource::SiPixelTrackResidualSource(const edm::ParameterSet& 
   LogInfo ("PixelDQM") << "Blade/Disk/Ring" << bladeOn << "/" << diskOn << "/" 
             << ringOn << std::endl;
 
-  topFolderName_ = pSet_.getParameter<std::string>("TopFolderName");
-
   firstRun = true;
   NTotal=0;
   NLowProb=0;
@@ -182,7 +180,7 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker & iBooker, edm
 //   edm::InputTag clustersrc = pSet_.getParameter<edm::InputTag>("clustersrc");
 
   //number of tracks
-  iBooker.setCurrentFolder(topFolderName_+"/Tracks");
+  iBooker.setCurrentFolder("Pixel/Tracks");
   meNofTracks_ = iBooker.book1D("ntracks_" + tracksrc_.label(),"Number of Tracks",4,0,4);
   meNofTracks_->setAxisTitle("Number of Tracks",1);
   meNofTracks_->setBinLabel(1,"All");
@@ -191,20 +189,20 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker & iBooker, edm
   meNofTracks_->setBinLabel(4,"FPix");
 
   //number of tracks in pixel fiducial volume
-  iBooker.setCurrentFolder(topFolderName_+"/Tracks");
+  iBooker.setCurrentFolder("Pixel/Tracks");
   meNofTracksInPixVol_ = iBooker.book1D("ntracksInPixVol_" + tracksrc_.label(),"Number of Tracks crossing Pixel fiducial Volume",2,0,2);
   meNofTracksInPixVol_->setAxisTitle("Number of Tracks",1);
   meNofTracksInPixVol_->setBinLabel(1,"With Hits");
   meNofTracksInPixVol_->setBinLabel(2,"Without Hits");
 
   //number of clusters (associated to track / not associated)
-  iBooker.setCurrentFolder(topFolderName_+"/Clusters/OnTrack");
+  iBooker.setCurrentFolder("Pixel/Clusters/OnTrack");
   meNofClustersOnTrack_ = iBooker.book1D("nclusters_" + clustersrc_.label() + "_tot","Number of Clusters (on track)",3,0,3);
   meNofClustersOnTrack_->setAxisTitle("Number of Clusters on Track",1);
   meNofClustersOnTrack_->setBinLabel(1,"All");
   meNofClustersOnTrack_->setBinLabel(2,"BPix");
   meNofClustersOnTrack_->setBinLabel(3,"FPix");
-  iBooker.setCurrentFolder(topFolderName_+"/Clusters/OffTrack");
+  iBooker.setCurrentFolder("Pixel/Clusters/OffTrack");
   meNofClustersNotOnTrack_ = iBooker.book1D("nclusters_" + clustersrc_.label() + "_tot","Number of Clusters (off track)",3,0,3);
   meNofClustersNotOnTrack_->setAxisTitle("Number of Clusters off Track",1);
   meNofClustersNotOnTrack_->setBinLabel(1,"All");
@@ -214,7 +212,7 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker & iBooker, edm
   //cluster charge and size
   //charge
   //on track
-  iBooker.setCurrentFolder(topFolderName_+"/Clusters/OnTrack");
+  iBooker.setCurrentFolder("Pixel/Clusters/OnTrack");
   meClChargeOnTrack_all = iBooker.book1D("charge_" + clustersrc_.label(),"Charge (on track)",500,0.,500.);
   meClChargeOnTrack_all->setAxisTitle("Charge size (in ke)",1);
   meClChargeOnTrack_bpix = iBooker.book1D("charge_" + clustersrc_.label() + "_Barrel","Charge (on track, barrel)",500,0.,500.);
@@ -248,7 +246,7 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker & iBooker, edm
     meClChargeOnTrack_diskm3->setAxisTitle("Charge size (in ke)",1);
   }
   //off track
-  iBooker.setCurrentFolder(topFolderName_+"/Clusters/OffTrack");
+  iBooker.setCurrentFolder("Pixel/Clusters/OffTrack");
   meClChargeNotOnTrack_all = iBooker.book1D("charge_" + clustersrc_.label(),"Charge (off track)",500,0.,500.);
   meClChargeNotOnTrack_all->setAxisTitle("Charge size (in ke)",1);
   meClChargeNotOnTrack_bpix = iBooker.book1D("charge_" + clustersrc_.label() + "_Barrel","Charge (off track, barrel)",500,0.,500.);
@@ -284,7 +282,7 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker & iBooker, edm
 
   //size
   //on track
-  iBooker.setCurrentFolder(topFolderName_+"/Clusters/OnTrack");
+  iBooker.setCurrentFolder("Pixel/Clusters/OnTrack");
   meClSizeOnTrack_all = iBooker.book1D("size_" + clustersrc_.label(),"Size (on track)",100,0.,100.);
   meClSizeOnTrack_all->setAxisTitle("Cluster size (in pixels)",1);
   meClSizeOnTrack_bpix = iBooker.book1D("size_" + clustersrc_.label() + "_Barrel","Size (on track, barrel)",100,0.,100.);
@@ -382,7 +380,7 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker & iBooker, edm
     meClSizeYOnTrack_diskm3->setAxisTitle("Cluster size (in pixels)",1);
   }
   //off track
-  iBooker.setCurrentFolder(topFolderName_+"/Clusters/OffTrack");
+  iBooker.setCurrentFolder("Pixel/Clusters/OffTrack");
   meClSizeNotOnTrack_all = iBooker.book1D("size_" + clustersrc_.label(),"Size (off track)",100,0.,100.);
   meClSizeNotOnTrack_all->setAxisTitle("Cluster size (in pixels)",1); 
   meClSizeNotOnTrack_bpix = iBooker.book1D("size_" + clustersrc_.label() + "_Barrel","Size (off track, barrel)",100,0.,100.);
@@ -482,7 +480,7 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker & iBooker, edm
 
   //cluster global position
   //on track
-  iBooker.setCurrentFolder(topFolderName_+"/Clusters/OnTrack");
+  iBooker.setCurrentFolder("Pixel/Clusters/OnTrack");
   //bpix
   meClPosLayer1OnTrack = iBooker.book2D("position_" + clustersrc_.label() + "_Layer_1","Clusters Layer1 (on track)",200,-30.,30.,128,-3.2,3.2);
   meClPosLayer1OnTrack->setAxisTitle("Global Z (cm)",1);
@@ -555,7 +553,7 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker & iBooker, edm
   }
 
   //not on track
-  iBooker.setCurrentFolder(topFolderName_+"/Clusters/OffTrack");
+  iBooker.setCurrentFolder("Pixel/Clusters/OffTrack");
   //bpix
   meClPosLayer1NotOnTrack = iBooker.book2D("position_" + clustersrc_.label() + "_Layer_1","Clusters Layer1 (off track)",200,-30.,30.,128,-3.2,3.2);
   meClPosLayer1NotOnTrack->setAxisTitle("Global Z (cm)",1);
@@ -629,7 +627,7 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker & iBooker, edm
 
   //HitProbability
   //on track
-  iBooker.setCurrentFolder(topFolderName_+"/Clusters/OnTrack");
+  iBooker.setCurrentFolder("Pixel/Clusters/OnTrack");
   meHitProbability = iBooker.book1D("FractionLowProb","Fraction of hits with low probability;FractionLowProb;#HitsOnTrack",100,0.,1.);
 
   if (debug_) {

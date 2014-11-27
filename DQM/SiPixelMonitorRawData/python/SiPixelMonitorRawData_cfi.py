@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 SiPixelRawDataErrorSource = cms.EDAnalyzer("SiPixelRawDataErrorSource",
-    TopFolderName = cms.string('Pixel'),
     src = cms.InputTag("siPixelDigis"),
     outputFile = cms.string('Pixel_DQM_Error.root'),
     saveFile = cms.untracked.bool(False),

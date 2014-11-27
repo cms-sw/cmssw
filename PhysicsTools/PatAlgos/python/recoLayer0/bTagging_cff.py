@@ -16,8 +16,6 @@ supportedBtagInfos = [
   , 'inclusiveSecondaryVertexFinderFilteredNegativeTagInfos'
   , 'caTopTagInfos'
   ]
-# extend for "internal use" in PAT/MINIAOD (renaming)
-supportedBtagInfos.append( 'caTopTagInfosPAT' )
 
 ## dictionary with all available btag discriminators and the btagInfos that they require
 supportedBtagDiscr = {
