@@ -164,20 +164,20 @@
       <ZSection z="291.0*cm" rMin="117.99*cm" rMax="120.0*cm"/>
     </Polycone>
     <Polycone name="PixelBarrel" startPhi="0*deg" deltaPhi="360*deg">
-      <ZSection z="-[Zv4]"         rMin="[RinSupTubCab]"  rMax="[Rout2]" />
-      <ZSection z="-[ZvSupTubCab]" rMin="[RinSupTubCab]"  rMax="[Rout2]" />
-      <ZSection z="-[ZvSupTubCab]" rMin="[Rin2]"          rMax="[Rout2]" />
-      <ZSection z="-[Zv3]"         rMin="[Rin2]"          rMax="[Rout2]" />
-      <ZSection z="-[Zv3]"         rMin="[Rin2]"          rMax="[Rout1]" />
+      <ZSection z="-119.0*cm" rMin="19.0*cm" rMax="[Rout2]"/>
+      <ZSection z="-[Zv3]"          rMin="19.0*cm"          rMax="[Rout2]" />
+      <ZSection z="-[Zv3]"          rMin="19.0*cm"          rMax="[Rout1]" />
+      <ZSection z="-29.12*cm" rMin="19.0*cm" rMax="[Rout1]"/>
+      <ZSection z="-29.12*cm" rMin="[Rin2]" rMax="[Rout1]"/>
       <ZSection z="-[Zv1]"         rMin="[Rin2]"          rMax="[Rout1]" />
       <ZSection z="-[Zv1]"         rMin="[Rin1]"          rMax="[Rout1]" />
       <ZSection z="[Zv1]"          rMin="[Rin1]"          rMax="[Rout1]" />
       <ZSection z="[Zv1]"          rMin="[Rin2]"          rMax="[Rout1]" />
-      <ZSection z="[Zv3]"          rMin="[Rin2]"          rMax="[Rout1]" />
-      <ZSection z="[Zv3]"          rMin="[Rin2]"          rMax="[Rout2]" />
-      <ZSection z="[ZvSupTubCab]"  rMin="[Rin2]"          rMax="[Rout2]" />
-      <ZSection z="[ZvSupTubCab]"  rMin="[RinSupTubCab]"  rMax="[Rout2]" />
-      <ZSection z="[Zv4]"          rMin="[RinSupTubCab]"  rMax="[Rout2]" />
+      <ZSection z="29.12*cm" rMin="[Rin2]" rMax="[Rout1]"/>
+      <ZSection z="29.12*cm" rMin="19.0*cm" rMax="[Rout1]"/>
+      <ZSection z="[Zv3]"          rMin="19.0*cm"          rMax="[Rout1]" />
+      <ZSection z="[Zv3]"          rMin="19.0*cm"          rMax="[Rout2]" />
+      <ZSection z="119.0*cm" rMin="19.0*cm" rMax="[Rout2]"/>
     </Polycone> 
     <SubtractionSolid name="Phase2OTBarrel">
       <rSolid name="Barrel"/>
