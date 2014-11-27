@@ -6,6 +6,9 @@
  *  Class to calculate corrections to the fine delays loaded in DT MiniCrates
  *
  *  \author  M. Giunta, C. Battilana
+ *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah -ncpp-um-my
+ *
  *   
  */
 
@@ -34,17 +37,15 @@ public:
   virtual ~DTFineDelayCorr();
 
 protected:
-  /// Begin Job
-  void beginJob();
 
   /// Begin Run
   void beginRun(const edm::Run& run, const edm::EventSetup& evSU);
 
-  /// End Job
-  void endJob();
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
  
   /// DQM Client Diagnostic
-  void runClientDiagnostic();
+
+  void runClientDiagnostic(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter);
   
   // Write the new delays to a file 
   void writeConsts(const std::string& outputFileName) const;

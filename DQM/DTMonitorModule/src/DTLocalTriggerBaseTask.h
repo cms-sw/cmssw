@@ -23,6 +23,8 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 #include "DataFormats/DTDigi/interface/DTLocalTriggerCollection.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
@@ -40,7 +42,7 @@ class L1MuDTChambThDigi;
 class DTTPGCompareUnit;
 class DTTimeEvolutionHisto;
 
-class DTLocalTriggerBaseTask: public edm::EDAnalyzer{
+class DTLocalTriggerBaseTask: public DQMEDAnalyzer{
 
   friend class DTMonitorModule;
 
@@ -58,7 +60,7 @@ class DTLocalTriggerBaseTask: public edm::EDAnalyzer{
   void beginJob();
 
   ///Beginrun
-  void beginRun(const edm::Run& , const edm::EventSetup&);
+  void dqmBeginRun(const edm::Run& , const edm::EventSetup&);
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
@@ -86,11 +88,13 @@ class DTLocalTriggerBaseTask: public edm::EDAnalyzer{
   /// Get the Top folder (different between Physics and TP and DCC/DDU)
   std::string& topFolder(std::string const& type) { return baseFolder[type == "DCC"]; }
 
-  /// Book the histograms
-  void bookHistos(const DTChamberId& chamb);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   /// Book the histograms
-  void bookHistos(int wh);
+  void bookHistos(DQMStore::IBooker &, const DTChamberId& chamb);
+
+  /// Book the histograms
+  void bookHistos(DQMStore::IBooker &, int wh);
 
   /// Set Quality labels
   void setQLabels(MonitorElement* me, short int iaxis);

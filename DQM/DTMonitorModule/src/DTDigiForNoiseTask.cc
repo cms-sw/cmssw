@@ -42,7 +42,9 @@ DTDigiForNoiseTask::DTDigiForNoiseTask(const edm::ParameterSet& ps){
 
   parameters = ps;
 
-  dbe = edm::Service<DQMStore>().operator->();
+  nevents = 0;
+
+//-  dbe = edm::Service<DQMStore>().operator->();
 
 }
 
@@ -55,29 +57,13 @@ DTDigiForNoiseTask::~DTDigiForNoiseTask(){
 }
 
 
-void DTDigiForNoiseTask::endJob(){
+//-void DTDigiForNoiseTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
+void DTDigiForNoiseTask::bookHistograms(DQMStore::IBooker & ibooker,
+                                             edm::Run const & run,
+                                             edm::EventSetup const & context) {
 
   if(debug)
-    cout<<"[DTDigiForNoiseTask] endjob called!"<<endl;
-
-  dbe->rmdir("DT/DTDigiForNoiseTask");
-
-}
-
-
-void DTDigiForNoiseTask::beginJob(){
-
-  if(debug)
-    cout<<"[DTDigiForNoiseTask]: BeginJob"<<endl;
-
-  nevents = 0;
-
-}
-
-void DTDigiForNoiseTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
-
-  if(debug)
-    cout<<"[DTDigiForNoiseTask]: BeginRun"<<endl;
+    cout<<"[DTDigiForNoiseTask]: boojHistograms"<<endl;
 
   // Get the geometry
   context.get<MuonGeometryRecord>().get(muonGeom);
@@ -100,7 +86,8 @@ void DTDigiForNoiseTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, Ev
 }
 
 
-void DTDigiForNoiseTask::bookHistos(const DTLayerId& lId) {
+//-void DTDigiForNoiseTask::bookHistos(const DTLayerId& lId) {
+void DTDigiForNoiseTask::bookHistos(DQMStore::IBooker & ibooker,const DTLayerId& lId) {
 
   if (debug) cout<<"[DTDigiForNoiseTask]: booking"<<endl;
 
@@ -112,7 +99,8 @@ void DTDigiForNoiseTask::bookHistos(const DTLayerId& lId) {
   stringstream station; station << dtChId.station();
   stringstream sector; sector << dtChId.sector();
 
-  dbe->setCurrentFolder("DT/DTDigiForNoiseTask/Wheel" + wheel.str() +
+//-  dbe->setCurrentFolder("DT/DTDigiForNoiseTask/Wheel" + wheel.str() +
+  ibooker.setCurrentFolder("DT/DTDigiForNoiseTask/Wheel" + wheel.str() +
 			"/Station" + station.str() +
 			"/Sector" + sector.str() + "/DigiPerEvent");
 
@@ -136,7 +124,32 @@ void DTDigiForNoiseTask::bookHistos(const DTLayerId& lId) {
   const int lastWire = dtTopo.lastChannel();
   int nWires = lastWire-firstWire+1;
 
-  digiHistos[lId] = dbe->book2D(histoName,histoName,nWires,firstWire,lastWire,10,-0.5,9.5);
+//-  digiHistos[lId] = dbe->book2D(histoName,histoName,nWires,firstWire,lastWire,10,-0.5,9.5);
+  digiHistos[lId] = ibooker.book2D(histoName,histoName,nWires,firstWire,lastWire,10,-0.5,9.5);
+
+// dynamic bookings staticized
+  // Loop over all the chambers
+  auto ch_it = muonGeom->chambers().begin();
+  auto ch_end = muonGeom->chambers().end();
+  // Loop over the SLs
+  for (; ch_it != ch_end; ++ch_it) {
+    //    DTChamberId ch = (*ch_it)->id();
+    vector<const DTSuperLayer*>::const_iterator sl_it = (*ch_it)->superLayers().begin();
+    vector<const DTSuperLayer*>::const_iterator sl_end = (*ch_it)->superLayers().end();
+    // Loop over the SLs
+    for(; sl_it != sl_end; ++sl_it) {
+      vector<const DTLayer*>::const_iterator l_it = (*sl_it)->layers().begin();
+      vector<const DTLayer*>::const_iterator l_end = (*sl_it)->layers().end();
+      // Loop over the Ls
+      for(; l_it != l_end; ++l_it) {
+	DTLayerId layerId = (*l_it)->id();
+
+//-	  if (digiHistos.find(layerId) == digiHistos.end())
+//-	    bookHistos(layerId);
+	    bookHistos(ibooker,layerId);
+      }
+    }
+  }
 
 }
 
@@ -175,8 +188,9 @@ void DTDigiForNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 	  const int firstWire = dtTopo.firstChannel();
 	  const int lastWire = dtTopo.lastChannel();
 
-	  if (digiHistos.find(layerId) == digiHistos.end())
-	    bookHistos(layerId);
+//-	  if (digiHistos.find(layerId) == digiHistos.end())
+//-	    bookHistos(layerId);
+//-	    bookHistos(ibooker,layerId);
 
 	  if (digiHistos.find(layerId) != digiHistos.end()){
 	    for (int wire=firstWire; wire-lastWire <= 0; wire++) {

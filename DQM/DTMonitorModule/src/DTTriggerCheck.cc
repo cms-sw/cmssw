@@ -24,27 +24,37 @@ DTTriggerCheck::DTTriggerCheck(const ParameterSet& pset) :
         pset.getParameter<edm::InputTag>("ltcDigiCollectionTag"));
   }
 
- theDbe = edm::Service<DQMStore>().operator->();
+// theDbe = edm::Service<DQMStore>().operator->();
 
  debug = pset.getUntrackedParameter<bool>("debug",false);
 
-  theDbe->setCurrentFolder("DT/DTTriggerTask");
-  histo = theDbe->book1D("hNTriggerPerType",
-			 "# of trigger per type",21, -1, 20);
+//  theDbe->setCurrentFolder("DT/DTTriggerTask");
+//  histo = theDbe->book1D("hNTriggerPerType",
+//			 "# of trigger per type",21, -1, 20);
 }
 
 DTTriggerCheck::~DTTriggerCheck(){
 }
+
+void DTTriggerCheck::bookHistograms(DQMStore::IBooker & ibooker,
+                                    edm::Run const & iRun,
+                                    edm::EventSetup const & /* iSetup */) {
+  ibooker.setCurrentFolder("DT/DTTriggerTask");
+
+  histo = ibooker.book1D("hNTriggerPerType",
+                        "# of trigger per type",21,-1,20);
+}
+
 
 void DTTriggerCheck::beginJob(){
 }
 
 void DTTriggerCheck::endJob(){
 
-  if(debug)
-    cout<<"[DTTriggerCheck] endjob called!"<<endl;
-
-  theDbe->rmdir("DT/DTTriggerTask");
+//  if(debug)
+//    cout<<"[DTTriggerCheck] endjob called!"<<endl;
+//
+//  theDbe->rmdir("DT/DTTriggerTask");
 }
 
 void DTTriggerCheck::analyze(const Event& event, const EventSetup& setup) {

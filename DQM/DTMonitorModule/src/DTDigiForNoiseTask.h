@@ -18,6 +18,7 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 
@@ -37,7 +38,8 @@ class DTLayerId;
 class DTChamberId;
 
 
-class DTDigiForNoiseTask: public edm::EDAnalyzer{
+//-class DTDigiForNoiseTask: public edm::EDAnalyzer{
+class DTDigiForNoiseTask: public DQMEDAnalyzer{
 
 public:
 
@@ -49,14 +51,18 @@ public:
 
 protected:
 
+  /// bookHistograms
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+
   /// BeginJob
-  void beginJob();
+//-  void beginJob();
 
   /// BeginRun
-  void beginRun(const edm::Run&, const edm::EventSetup&);
+//-  void beginRun(const edm::Run&, const edm::EventSetup&);
 
   /// Book the ME
-  void bookHistos(const DTLayerId& dtSL);
+//-  void bookHistos(const DTLayerId& dtSL);
+  void bookHistos(DQMStore::IBooker &, const DTLayerId& dtSL);
 
   /// To reset the MEs
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
@@ -65,7 +71,7 @@ protected:
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 
   /// Endjob
-  void endJob();
+//-  void endJob();
 
 private:
 

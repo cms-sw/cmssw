@@ -60,10 +60,10 @@ protected:
   void analyze(const edm::Event& e, const edm::EventSetup& c);
 
   /// Endjob
-  void endJob();
+  void endJob(){};
 
   /// book the new ME
-  void bookHistos(const DTLayerId & ch, int firstWire, int lastWire);
+  void bookHistos(DQMStore::IBooker &, const DTLayerId & ch, int firstWire, int lastWire);
 
   /// Get the ME name
   std::string getMEName(std::string histoTag, const DTChamberId & chId);
@@ -72,10 +72,7 @@ protected:
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
 
   /// DQM Client Diagnostic
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
-
-
-
+  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &);
 
 private:
 
@@ -83,8 +80,6 @@ private:
   unsigned int nLumiSegs;
   int prescaleFactor;
   int run;
-
-  DQMStore* dbe;
 
   edm::ParameterSet parameters;
   edm::ESHandle<DTGeometry> muonGeom;

@@ -57,14 +57,20 @@ DTResolutionAnalysisTask::~DTResolutionAnalysisTask(){
 
 }
 
-void DTResolutionAnalysisTask::beginRun(const Run& run, const EventSetup& setup) {
+void DTResolutionAnalysisTask::dqmBeginRun(const Run& run, const EventSetup& setup) {
 
   // Get the DQM needed services
-  theDbe = edm::Service<DQMStore>().operator->();
+  //-theDbe = edm::Service<DQMStore>().operator->();
   //   theDbe->setCurrentFolder("DT/02-Segments");
 
   // Get the DT Geometry
   setup.get<MuonGeometryRecord>().get(dtGeom);
+
+}
+
+void DTResolutionAnalysisTask::bookHistograms(DQMStore::IBooker & ibooker,
+                                             edm::Run const & iRun,
+                                             edm::EventSetup const & /* iSetup */) {
 
   // Book the histograms
   vector<const DTChamber*> chambers = dtGeom->chambers();
@@ -74,7 +80,8 @@ void DTResolutionAnalysisTask::beginRun(const Run& run, const EventSetup& setup)
     for(int sl = 1; sl <= 3; ++sl) { // Loop over SLs
       if(dtChId.station() == 4 && sl == 2) continue;
       const  DTSuperLayerId dtSLId(dtChId,sl);
-      bookHistos(dtSLId);
+//-     bookHistos(dtSLId);
+      bookHistos(ibooker,dtSLId);
     }
   }
 
@@ -101,11 +108,11 @@ void DTResolutionAnalysisTask::beginLuminosityBlock(const LuminosityBlock& lumiS
 }
 
 
-void DTResolutionAnalysisTask::endJob(){
-
- edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "[DTResolutionAnalysisTask] endjob called!"<<endl;
-
-}
+//-void DTResolutionAnalysisTask::endJob(){
+//-
+//- edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "[DTResolutionAnalysisTask] endjob called!"<<endl;
+//-
+//-}
 
 
 
@@ -242,7 +249,8 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
 
 
 // Book a set of histograms for a given SL
-void DTResolutionAnalysisTask::bookHistos(DTSuperLayerId slId) {
+//-void DTResolutionAnalysisTask::bookHistos(DTSuperLayerId slId) {
+void DTResolutionAnalysisTask::bookHistos(DQMStore::IBooker & ibooker, DTSuperLayerId slId) {
 
   edm::LogVerbatim ("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "   Booking histos for SL: " << slId << endl;
 
@@ -259,13 +267,15 @@ void DTResolutionAnalysisTask::bookHistos(DTSuperLayerId slId) {
     "_Sec" + sector.str() +
     "_SL" + superLayer.str();
 
-  theDbe->setCurrentFolder(topHistoFolder + "/Wheel" + wheel.str() +
+//  theDbe->setCurrentFolder(topHistoFolder + "/Wheel" + wheel.str() +
+  ibooker.setCurrentFolder(topHistoFolder + "/Wheel" + wheel.str() +
 			   "/Sector" + sector.str() +
 			   "/Station" + station.str());
   // Create the monitor elements
   vector<MonitorElement *> histos;
   // Note hte order matters
-  histos.push_back(theDbe->book1D("hResDist"+slHistoName,
+//-  histos.push_back(theDbe->book1D("hResDist"+slHistoName,
+  histos.push_back(ibooker.book1D("hResDist"+slHistoName,
 				  "Residuals on the distance from wire (rec_hit - segm_extr) (cm)",
 				  200, -0.4, 0.4));
   //FIXME: 2D plot removed to reduce the # of ME

@@ -1,9 +1,10 @@
-
-
 /*
  *  See header file for a description of this class.
  *
  *  \author G. Cerminara - University and INFN Torino
+ *
+ *  threadsafe version (//-) oct/nov 2014 - WATWanAbdullah -ncpp-um-my
+ *
  */
 
 
@@ -32,7 +33,6 @@ DTOccupancyTest::DTOccupancyTest(const edm::ParameterSet& ps){
   LogVerbatim ("DTDQM|DTMonitorClient|DTOccupancyTest") << "[DTOccupancyTest]: Constructor";
 
   // Get the DQM service
-  dbe = Service<DQMStore>().operator->();
 
   lsCounter = 0;
 
@@ -50,62 +50,16 @@ DTOccupancyTest::DTOccupancyTest(const edm::ParameterSet& ps){
   runOnInTimeOccupancies = ps.getUntrackedParameter<bool>("runOnInTimeOccupancies", false);
   nMinEvts  = ps.getUntrackedParameter<int>("nEventsCert", 5000);
 
-}
-
-
-
-
-DTOccupancyTest::~DTOccupancyTest(){
-  LogVerbatim ("DTDQM|DTMonitorClient|DTOccupancyTest") << " destructor called" << endl;
-
-
-}
-
-
-
-
-void DTOccupancyTest::beginJob(){
-  LogVerbatim ("DTDQM|DTMonitorClient|DTOccupancyTest") << "[DTOccupancyTest]: BeginJob";
+  bookingdone = 0;
 
   // Event counter
   nevents = 0;
 
-  // Book the summary histos
-  //   - one summary per wheel
-  for(int wh = -2; wh <= 2; ++wh) { // loop over wheels
-    bookHistos(wh, string("Occupancies"), "OccupancySummary");
-  }
-
-  dbe->setCurrentFolder(topFolder());
-  string title = "Occupancy Summary";
-  if(tpMode) {
-    title = "Test Pulse Occupancy Summary";
-  }
-  //   - global summary with alarms
-  summaryHisto = dbe->book2D("OccupancySummary",title.c_str(),12,1,13,5,-2,3);
-  summaryHisto->setAxisTitle("sector",1);
-  summaryHisto->setAxisTitle("wheel",2);
-  
-  //   - global summary with percentages
-  glbSummaryHisto = dbe->book2D("OccupancyGlbSummary",title.c_str(),12,1,13,5,-2,3);
-  glbSummaryHisto->setAxisTitle("sector",1);
-  glbSummaryHisto->setAxisTitle("wheel",2);
-
-
-  // assign the name of the input histogram
-  if(runOnAllHitsOccupancies) {
-    nameMonitoredHisto = "OccupancyAllHits_perCh";
-  } else if(runOnNoiseOccupancies) {
-    nameMonitoredHisto = "OccupancyNoise_perCh";
-  } else if(runOnInTimeOccupancies) {
-    nameMonitoredHisto = "OccupancyInTimeHits_perCh";
-  } else { // default is AllHits histo
-    nameMonitoredHisto = "OccupancyAllHits_perCh";
-  }
-
 }
 
-
+DTOccupancyTest::~DTOccupancyTest(){
+  LogVerbatim ("DTDQM|DTMonitorClient|DTOccupancyTest") << " destructor called" << endl;
+}
 
 
 void DTOccupancyTest::beginRun(const edm::Run& run, const EventSetup& context){
@@ -117,26 +71,47 @@ void DTOccupancyTest::beginRun(const edm::Run& run, const EventSetup& context){
 
 }
 
+  void DTOccupancyTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,
+                                edm::LuminosityBlock const & lumiSeg, edm::EventSetup const & context) {
+  if (!bookingdone) {
+
+  // Book the summary histos
+  //   - one summary per wheel
+  for(int wh = -2; wh <= 2; ++wh) { // loop over wheels
+    bookHistos(ibooker,wh, string("Occupancies"), "OccupancySummary");
+    }
+
+  ibooker.setCurrentFolder(topFolder());
+  string title = "Occupancy Summary";
+  if(tpMode) {
+    title = "Test Pulse Occupancy Summary";
+    }
+  //   - global summary with alarms
+  summaryHisto = ibooker.book2D("OccupancySummary",title.c_str(),12,1,13,5,-2,3);
+  summaryHisto->setAxisTitle("sector",1);
+  summaryHisto->setAxisTitle("wheel",2);
+  
+  //   - global summary with percentages
+  glbSummaryHisto = ibooker.book2D("OccupancyGlbSummary",title.c_str(),12,1,13,5,-2,3);
+  glbSummaryHisto->setAxisTitle("sector",1);
+  glbSummaryHisto->setAxisTitle("wheel",2);
 
 
+  // assign the name of the input histogram
+  if(runOnAllHitsOccupancies) {
+    nameMonitoredHisto = "OccupancyAllHits_perCh";
+    } else if(runOnNoiseOccupancies) {
+    nameMonitoredHisto = "OccupancyNoise_perCh";
+    } else if(runOnInTimeOccupancies) {
+    nameMonitoredHisto = "OccupancyInTimeHits_perCh";
+    } else { // default is AllHits histo
+    nameMonitoredHisto = "OccupancyAllHits_perCh";
+    }
 
-void DTOccupancyTest::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
-  LogVerbatim ("DTDQM|DTMonitorClient|DTOccupancyTest") <<"[DTOccupancyTest]: Begin of LS transition";
-}
-
-
-
-
-void DTOccupancyTest::analyze(const Event& e, const EventSetup& context) {
-  nevents++;
-//   if(nevents%1000)
-//     LogVerbatim ("DTDQM|DTMonitorClient|DTOccupancyTest") << "[DTOccupancyTest]: "<<nevents<<" events";
-}
-
-
+  }
+  bookingdone = 1; 
 
 
-void DTOccupancyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
   LogVerbatim ("DTDQM|DTMonitorClient|DTOccupancyTest")
     <<"[DTOccupancyTest]: End of LS transition, performing the DQM client operation";
   lsCounter++;
@@ -154,7 +129,7 @@ void DTOccupancyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
       chamber != chambers.end(); ++chamber) {  // Loop over all chambers
     DTChamberId chId = (*chamber)->id();
 
-    MonitorElement * chamberOccupancyHisto = dbe->get(getMEName(nameMonitoredHisto, chId));	
+    MonitorElement * chamberOccupancyHisto = igetter.get(getMEName(nameMonitoredHisto, chId));	
 
     // Run the tests on the plot for the various granularities
     if(chamberOccupancyHisto != 0) {
@@ -195,7 +170,8 @@ void DTOccupancyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
   }
 
   string nEvtsName = "DT/EventInfo/Counters/nProcessedEventsDigi";
-  MonitorElement * meProcEvts = dbe->get(nEvtsName);
+
+  MonitorElement * meProcEvts = igetter.get(nEvtsName);
 
   if (meProcEvts) {
     int nProcEvts = meProcEvts->getFloatValue();
@@ -217,7 +193,8 @@ void DTOccupancyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSe
 }
 
 
-void DTOccupancyTest::endJob(){
+//-void DTOccupancyTest::endJob(){
+void DTOccupancyTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
 
   LogVerbatim ("DTDQM|DTMonitorClient|DTOccupancyTest") << "[DTOccupancyTest] endjob called!";
   if(writeRootFile) {
@@ -230,10 +207,13 @@ void DTOccupancyTest::endJob(){
 
   
 // --------------------------------------------------
-void DTOccupancyTest::bookHistos(const int wheelId, string folder, string histoTag) {
+
+void DTOccupancyTest::bookHistos(DQMStore::IBooker & ibooker, const int wheelId, 
+                                                      string folder, string histoTag) {
   // Set the current folder
   stringstream wheel; wheel << wheelId;	
-  dbe->setCurrentFolder(topFolder());
+
+  ibooker.setCurrentFolder(topFolder());
 
   // build the histo name
   string histoName = histoTag + "_W" + wheel.str(); 
@@ -250,7 +230,8 @@ void DTOccupancyTest::bookHistos(const int wheelId, string folder, string histoT
   if(tpMode) {
     histoTitle = "TP Occupancy summary WHEEL: "+wheel.str();
   }
-  wheelHistos[wheelId] = dbe->book2D(histoName,histoTitle,12,1,13,4,1,5);
+
+  wheelHistos[wheelId] = ibooker.book2D(histoName,histoTitle,12,1,13,4,1,5);
   wheelHistos[wheelId]->setBinLabel(1,"MB1",2);
   wheelHistos[wheelId]->setBinLabel(2,"MB2",2);
   wheelHistos[wheelId]->setBinLabel(3,"MB3",2);
