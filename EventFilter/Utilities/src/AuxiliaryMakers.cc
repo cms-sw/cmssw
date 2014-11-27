@@ -1,4 +1,7 @@
+#include <sys/time.h>
+
 #include "EventFilter/Utilities/interface/AuxiliaryMakers.h"
+
 namespace evf{
   namespace evtn{
 
@@ -13,10 +16,16 @@ namespace evf{
 	
 	uint64_t gpsh = record->getBST().getBST().gpstimehigh;
 	uint32_t gpsl = record->getBST().getBST().gpstimelow;
-	edm::Timestamp tstamp = edm::Timestamp(static_cast<edm::TimeValue_t> ((gpsh << 32) + gpsl));
+        edm::TimeValue_t time = static_cast<edm::TimeValue_t> ((gpsh << 32) + gpsl);
+        if (time == 0) {
+          timeval stv;
+          gettimeofday(&stv,0);
+          time = stv.tv_sec;
+          time = (time << 32) + stv.tv_usec;
+        }
 	return edm::EventAuxiliary(eventId,
 				   processGUID,
-				   tstamp,
+				   edm::Timestamp(time),
 				   true,
                                    (edm::EventAuxiliary::ExperimentType)(FED_EVTY_EXTRACT(record->getFEDHeader().getData().header.eventid)),
 				   (int)record->getHeader().getData().header.bcid,
@@ -25,4 +34,3 @@ namespace evf{
       }
   }
 }
-
