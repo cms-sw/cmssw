@@ -9,7 +9,7 @@
 ### Trigger selection
 
 # HLT selection
-triggerSelectionData  = 'HLT_*'
+triggerSelectionData  = 'HLT_IsoMu24_eta2p1_v*'
 triggerSelectionMC    = 'HLT_*' # not recommended
 
 ### Muon selection
