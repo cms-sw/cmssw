@@ -9,7 +9,6 @@
 #include <string>
 #include <iostream>
 int main(){
-  assert(0); // Fail deliberately to avoid infinite loop.
   edmplugin::PluginManager::Config config;
   edmplugin::PluginManager::configure(edmplugin::standard::config());
   cond::DbConnection connection;
