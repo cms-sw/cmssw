@@ -254,7 +254,8 @@ void SeedClusterRemover::process(const TrackingRecHit *hit, float chi2, const Tr
     // chi2 cut
     if (chi2 > pblocks_[subdet-1].maxChi2_) return;
 
-    if(tg->idToDetUnit(detid)->type().isTrackerPixel()) {
+    const type_info &hitType = typeid(*hit);
+    if(!(hitType == typeid(SiStripRecHit2D)) && tg->idToDetUnit(detid)->type().isTrackerPixel()) {
         if (!doPixel_) return;
         // this is a pixel, and i *know* it is
         const SiPixelRecHit *pixelHit = static_cast<const SiPixelRecHit *>(hit);

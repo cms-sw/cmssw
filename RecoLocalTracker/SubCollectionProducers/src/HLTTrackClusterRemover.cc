@@ -238,7 +238,8 @@ void HLTTrackClusterRemover::process(const TrackingRecHit *hit, float chi2, cons
     // chi2 cut
     if (chi2 > pblocks_[subdet-1].maxChi2_) return;
 
-    if(tg->idToDetUnit(detid)->type().isTrackerPixel()) {
+    const type_info &hitType = typeid(*hit);
+    if(!(hitType == typeid(SiStripRecHit2D)) && tg->idToDetUnit(detid)->type().isTrackerPixel()) {
       //      std::cout<<"process pxl hit"<<std::endl;
         if (!doPixel_) return;
         // this is a pixel, and i *know* it is
