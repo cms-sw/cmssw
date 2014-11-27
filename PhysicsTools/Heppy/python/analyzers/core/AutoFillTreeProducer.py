@@ -12,7 +12,7 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
     #-----------------------------------
     def __init__(self, cfg_ana, cfg_comp, looperName):
         super(AutoFillTreeProducer,self).__init__(cfg_ana, cfg_comp, looperName)
-	print "init"
+
         ## Read whether we want vectors or flat trees
         self.scalar = not self.cfg_ana.vectorTree
 
