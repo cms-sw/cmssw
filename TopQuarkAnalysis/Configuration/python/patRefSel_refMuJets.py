@@ -61,10 +61,7 @@ electronGsfCut += ' && abs(ecalDrivenMomentum.eta) < 2.5'                       
 electronGsfCut += ' && electronID("cutBasedElectronID-CSA14-50ns-V1-standalone-veto")'                        # electrons ID
 electronGsfCut += ' && (chargedHadronIso+max(0.,neutralHadronIso)+photonIso-0.5*puChargedHadronIso)/et < 0.2' # relative isolation with Delta beta corrections
 # ... using re-calibrated (with regression energy) kinematics
-electronCalibCut  =     'pt > 20.'                                                                              # transverse energy
-electronCalibCut += ' && abs(eta) < 2.5'                                                                        # pseudo-rapisity range
-electronCalibCut += ' && electronID("cutBasedElectronID-CSA14-50ns-V1-standalone-veto")'                        # electrons ID
-electronCalibCut += ' && (chargedHadronIso+max(0.,neutralHadronIso)+photonIso-0.5*puChargedHadronIso)/et < 0.2' # relative isolation with Delta beta corrections
+electronCalibCut = electronGsfCut.replace( 'ecalDrivenMomentum.', '' )
 electronCut = electronGsfCut
 ### ------------------------------------------------------------------------ ###
 
