@@ -467,6 +467,9 @@ class Plot:
         if self._drawStyle is not None:
             if "hist" in self._drawStyle.lower():
                 style = _styleHist
+            if isinstance(self._histograms[0], ROOT.TGraph):
+                if "l" in self._drawStyle.lower():
+                    style = _styleHist
 
         # Apply style to histograms, filter out Nones
         histos = []
@@ -540,8 +543,11 @@ class Plot:
             frame.GetYaxis().SetTitleOffset(self._ytitleoffset)
 
         # Draw histograms
+        opt = "sames" # s for statbox or something?
+        if self._drawStyle is not None:
+            opt += " "+self._drawStyle
         for h in histos:
-            h.Draw("sames")
+            h.Draw(opt)
 
         ROOT.gPad.RedrawAxis()
         self._frame = frame # keep the frame in memory for sure
@@ -556,7 +562,7 @@ class Plot:
         for h, label in zip(self._histograms, legendLabels):
             if h is None:
                 continue
-            legend.AddEntry(h, label, "LPF")
+            legend.AddEntry(h, label, "LP")
 
 class PlotGroup:
     """Group of plots, results a TCanvas"""
