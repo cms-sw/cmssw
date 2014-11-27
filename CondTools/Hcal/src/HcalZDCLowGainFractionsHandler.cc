@@ -15,8 +15,7 @@ HcalZDCLowGainFractionsHandler::~HcalZDCLowGainFractionsHandler()
 
 void HcalZDCLowGainFractionsHandler::getNewObjects()
 {
-  //  edm::LogInfo   ("HcalZDCLowGainFractionsHandler") 
-  std::cout
+  edm::LogInfo("HcalZDCLowGainFractionsHandler")
     << "------- " << m_name 
     << " - > getNewObjects\n" << 
     //check whats already inside of database
@@ -33,7 +32,7 @@ void HcalZDCLowGainFractionsHandler::getNewObjects()
   //  IOV information
   cond::Time_t myTime = sinceTime;
 
-  std::cout << "Using IOV run " << sinceTime << std::endl;
+  edm::LogInfo("HcalZDCLowGainFractionsHandler") << "Using IOV run " << sinceTime << std::endl;
 
   // prepare for transfer:
   m_to_transfer.push_back(std::make_pair(myDBObject,myTime));
