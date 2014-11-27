@@ -38,7 +38,9 @@ namespace sistrip {
     uint32_t cacheId = es.get<SiStripFedCablingRcd>().cacheIdentifier();
     
     if ( cacheId_ != cacheId ) {
-      
+
+      cacheId_ = cacheId;
+
       edm::ESHandle<SiStripFedCabling> c;
       es.get<SiStripFedCablingRcd>().get( c );
       cabling_ = c.product();
