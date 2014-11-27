@@ -41,6 +41,7 @@
 
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/Timestamp.h"
 
 
 //JSON file reader
@@ -638,7 +639,13 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal)
 
 edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(FEDRawDataCollection& rawData)
 {
-  edm::Timestamp tstamp;
+  edm::TimeValue_t time;
+  timeval stv;
+  gettimeofday(&stv,0);
+  time = stv.tv_sec;
+  time = (time << 32) + stv.tv_usec;
+  edm::Timestamp tstamp(time);
+
   uint32_t eventSize = event_->eventSize();
   char* event = (char*)event_->payload();
   GTPEventID_=0;
@@ -1178,4 +1185,3 @@ void FedRawDataInputSource::readNextChunkIntoBuffer(InputFile *file)
 
 // define this class as an input source
 DEFINE_FWK_INPUT_SOURCE( FedRawDataInputSource);
-
