@@ -55,10 +55,10 @@ jetCut += ' && (chargedMultiplicity > 0 || abs(eta) >= 2.4)'          # PF jet I
 # Kinematics
 jetCut  +' && abs(eta) < 2.5'                                        # pseudo-rapisity range
 # varying jet pt thresholds
-veryLooseJetCut = 'pt > 30.' # transverse momentum (all jets)
-looseJetCut     = 'pt > 30.' # transverse momentum (3rd jet, optional)
-tightJetCut     = 'pt > 30.' # transverse momentum (leading jets)
-veryTightJetCut = 'pt > 30.' # transverse momentum (leading jets)
+veryLooseJetCut = 'pt > 30.' # transverse momentum (4 jets)
+looseJetCut     = 'pt > 30.' # transverse momentum (3 jets)
+tightJetCut     = 'pt > 30.' # transverse momentum (2 jets)
+veryTightJetCut = 'pt > 30.' # transverse momentum (leading jet)
 
 ### Electron selection
 
@@ -75,6 +75,11 @@ electronGsfCut += ' && (chargedHadronIso+max(0.,neutralHadronIso+photonIso-1.0*u
 electronCalibCut = electronGsfCut.replace( 'ecalDrivenMomentum.', '' )
 electronCut = electronGsfCut
 ### ------------------------------------------------------------------------ ###
+
+### Electron selection
+
+# Signal b-tagged jet selection
+bTagCut = 'bDiscriminator("combinedSecondaryVertexBJetTags") > 0.679'
 
 
 ### Trigger matching
