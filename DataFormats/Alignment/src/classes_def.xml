@@ -1,7 +1,6 @@
 <lcgdict>
   <!-- for LAS interface to track-based alignment !-->
-  <class name="SiStripLaserRecHit2D" ClassVersion="11">
-   <version ClassVersion="11" checksum="3638900806"/>
+  <class name="SiStripLaserRecHit2D" ClassVersion="10">
    <version ClassVersion="10" checksum="3516129645"/>
   </class>
   <class name="std::vector<SiStripLaserRecHit2D>"/>
@@ -11,8 +10,7 @@
   <class name="TkLasBeamCollection"/>
   <class name="edm::Wrapper<TkLasBeamCollection>"/>
 
-  <class name="TkFittedLasBeam" ClassVersion="11">
-   <version ClassVersion="11" checksum="4076174061"/>
+  <class name="TkFittedLasBeam" ClassVersion="10">
    <version ClassVersion="10" checksum="903692518"/>
   </class>
   <class name="TkFittedLasBeamCollection"/>

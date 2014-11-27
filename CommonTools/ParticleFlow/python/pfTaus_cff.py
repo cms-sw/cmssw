@@ -3,7 +3,8 @@ import FWCore.ParameterSet.Config as cms
 from RecoTauTag.Configuration.RecoPFTauTag_cff import *
 from RecoTauTag.TauTagTools.PFTauSelector_cfi  import pfTauSelector
 import RecoTauTag.RecoTau.RecoTauCleanerPlugins as cleaners
-import RecoJets.JetProducers.ak4PFJets_cfi as jetConfig
+#from CommonTools.ParticleFlow.pfJets_cff import pfJets
+from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
 
 '''
 
@@ -39,7 +40,7 @@ pfTauPFJets08Region.pfSrc = cms.InputTag("particleFlow")
 pfTauPFJetsRecoTauChargedHadrons.jetRegionSrc = 'pfTauPFJets08Region'
 
 pfTauTagInfoProducer = pfRecoTauTagInfoProducer.clone()
-pfTauTagInfoProducer.PFCandidateProducer = jetConfig.ak4PFJets.src
+pfTauTagInfoProducer.PFCandidateProducer = ak4PFJets.src
 pfTauTagInfoProducer.PFJetTracksAssociatorProducer = 'pfJetTracksAssociatorAtVertex'
 
 # Clone tau producer
@@ -110,6 +111,7 @@ pfTausBaseSequence = cms.Sequence(
     )
 
 # Associate track to pfJets
+#from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import *
 pfJetTracksAssociatorAtVertex = ak4PFJetTracksAssociatorAtVertex.clone()
 pfJetTracksAssociatorAtVertex.jets= cms.InputTag("ak4PFJets")
 
@@ -122,7 +124,7 @@ pfTauPileUpVertices = cms.EDFilter(
 
 
 pfTauTagInfoProducer = pfRecoTauTagInfoProducer.clone()
-pfTauTagInfoProducer.PFCandidateProducer = jetConfig.ak4PFJets.src
+pfTauTagInfoProducer.PFCandidateProducer = ak4PFJets.src
 pfTauTagInfoProducer.PFJetTracksAssociatorProducer = 'pfJetTracksAssociatorAtVertex'
 
 

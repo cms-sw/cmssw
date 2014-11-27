@@ -63,7 +63,7 @@ public:
 
   /// Just for debugging...
   static void printUniqueNames(handles::const_iterator begin,
-			       handles::const_iterator end, bool uniq=true);
+			       handles::const_iterator end);
 
 
   // Phi ranges: Used by: LessDPhiMax; bSector; bSlab::[min|max]Phi();

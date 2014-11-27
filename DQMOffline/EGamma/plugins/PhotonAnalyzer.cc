@@ -887,11 +887,8 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
   	//filling photon histograms
 	nPho[cut][0][0]++;
 	nPho[cut][0][part]++;
-	if(type != 0)
-	{
-	  nPho[cut][type][0]++;
-	  nPho[cut][type][part]++;
-	}
+	nPho[cut][type][0]++;
+	nPho[cut][type][part]++;
 
 	//energy variables
 

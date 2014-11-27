@@ -84,9 +84,7 @@ void DQMEventInfo::bookHistograms(DQMStore::IBooker & ibooker,
   gethostname(hostname,32);
   hostName_= ibooker.bookString("hostName",hostname);
   processName_= ibooker.bookString("processName",subsystemname_);
-  char pwd[1024];
-  getcwd(pwd,1023);
-  workingDir_= ibooker.bookString("workingDir",pwd);
+  workingDir_= ibooker.bookString("workingDir",get_current_dir_name());
   cmsswVer_= ibooker.bookString("CMSSW_Version",edm::getReleaseVersion());
 
   // Folder to be populated by sub-systems' code

@@ -59,8 +59,6 @@
        virtual void buildStructure(edm::EventSetup const&);
        virtual void bookMEs(DQMStore::IBooker &);
 
-       std::string topFolderName_;
-
     private:
        edm::ParameterSet conf_;
        edm::InputTag src_;
