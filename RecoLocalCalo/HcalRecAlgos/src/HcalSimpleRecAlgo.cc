@@ -62,6 +62,7 @@ void HcalSimpleRecAlgo::setpuCorrParams(bool   iPedestalConstraint, bool iTimeCo
 					double its3Chi2,double its4Chi2,double its345Chi2,double iChargeThreshold, int iFitTimes) { 
   if( iPedestalConstraint ) assert ( iPedSig );
   if( iTimeConstraint ) assert( iTimeSig );
+  std::cout << "ciao\n";
   psFitOOTpuCorr_->setPUParams(iPedestalConstraint,iTimeConstraint,iAddPulseJitter,iUnConstrainedFit,iApplyTimeSlew,
 			       iTS4Min, iTS4Max, iPulseJitter,iTimeMean,iTimeSig,iPedMean,iPedSig,iNoise,iTMin,iTMax,its3Chi2,its4Chi2,its345Chi2,
 			       iChargeThreshold,HcalTimeSlew::Medium, iFitTimes);
@@ -76,6 +77,7 @@ void HcalSimpleRecAlgo::setForData (int runnum) {
       if( runnum_ > 0 ){
          shapeNum = HPDShapev3DataNum;
       }
+      std::cout << "ciao2\n";
       psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(shapeNum));
    }
 }
@@ -386,6 +388,7 @@ namespace HcalSimpleRecAlgoImpl {
       uncorr_ampl *= leakCorr(uncorr_ampl); 
     }
 
+    //std::cout << "rec hit " << ampl <<  " " << time << std::endl;
     RecHit rh(digi.id(),ampl,time);
     setRawEnergy(rh, static_cast<float>(uncorr_ampl));
     return rh;

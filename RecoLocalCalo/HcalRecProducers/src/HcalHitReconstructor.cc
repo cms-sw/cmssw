@@ -48,7 +48,9 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   setPileupCorrectionForNegative_(0),
   paramTS(0),
   puCorrMethod_(conf.existsAs<int>("puCorrMethod") ? conf.getParameter<int>("puCorrMethod") : 0),
-  cntprtCorrMethod_(0)
+  cntprtCorrMethod_(0),
+  first_(true)
+
 {
   // register for data access
   tok_hbhe_ = consumes<HBHEDigiCollection>(inputLabel_);
@@ -351,8 +353,13 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
   eventSetup.get<HcalDbRecord>().get(conditions);
 
   // HACK related to HB- corrections
-  const bool isData = e.isRealData();
-  if (isData) reco_.setForData(e.run()); else reco_.setForData(0);
+  if ( first_ ) {
+    const bool isData = e.isRealData();
+    if (isData) reco_.setForData(e.run()); else reco_.setForData(0);
+    corrName_ = isData ? dataOOTCorrectionName_ : mcOOTCorrectionName_;
+    cat_ = isData ? dataOOTCorrectionCategory_ : mcOOTCorrectionCategory_;
+    first_=false;
+  }
   if (useLeakCorrection_) reco_.setLeakCorrection();
 
   edm::ESHandle<HcalChannelQuality> p;
@@ -365,8 +372,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 
   // Configure OOT pileup corrections
   bool isMethod1Set = false;
-  const std::string& corrName = isData ? dataOOTCorrectionName_ : mcOOTCorrectionName_;
-  if (!corrName.empty())
+  if (!corrName_.empty())
   {
       edm::ESHandle<OOTPileupCorrectionColl> pileupCorrections;
       if (eventSetup.find(edm::eventsetup::EventSetupRecordKey::makeKey<HcalOOTPileupCorrectionRcd>()))
@@ -374,15 +380,14 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
       else
           eventSetup.get<HcalOOTPileupCompatibilityRcd>().get(pileupCorrections);
 
-      const std::string& cat = isData ? dataOOTCorrectionCategory_ : mcOOTCorrectionCategory_;
       if( setPileupCorrection_ ){
-         const OOTPileupCorrData * testMethod1Ptr = dynamic_cast<OOTPileupCorrData*>((pileupCorrections->get(corrName, cat)).get());
+         const OOTPileupCorrData * testMethod1Ptr = dynamic_cast<OOTPileupCorrData*>((pileupCorrections->get(corrName_, cat_)).get());
          if( testMethod1Ptr ) isMethod1Set = true;
-         (reco_.*setPileupCorrection_)(pileupCorrections->get(corrName, cat));
+         (reco_.*setPileupCorrection_)(pileupCorrections->get(corrName_, cat_));
       }
 
       if(setPileupCorrectionForNegative_ && hbheNegativeFlagSetter_)
-        (hbheNegativeFlagSetter_->*setPileupCorrectionForNegative_)(pileupCorrections->get(corrName, cat));
+        (hbheNegativeFlagSetter_->*setPileupCorrectionForNegative_)(pileupCorrections->get(corrName_, cat_));
    }
 // Only for HBHE
    if( subdet_ == HcalBarrel ){
@@ -622,7 +627,6 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	// bits 28 and 29 are reserved for capid of the first time slice saved in aux
 	auxflag+=((i->sample(fTS).capid())<<28);
 	(rec->back()).setAux(auxflag);
-
 	(rec->back()).setFlags(0);
 	// Fill Presample ADC flag
 	if (fTS>0)
