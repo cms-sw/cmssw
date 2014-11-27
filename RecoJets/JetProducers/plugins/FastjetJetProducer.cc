@@ -399,7 +399,7 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
     fjClusterSeq_ = ClusterSequencePtr( new fastjet::ClusterSequenceVoronoiArea( fjInputs_, *fjJetDefinition_ , fastjet::VoronoiAreaSpec(voronoiRfact_) ) );
   }
 
-  if ( !(useMassDropTagger_ || useCMSBoostedTauSeedingAlgorithm_ || useTrimming_ || useFiltering_ || usePruning_ || useConstituentSubtraction_ ) ) {
+  if ( !(useMassDropTagger_ || useCMSBoostedTauSeedingAlgorithm_ || useTrimming_ || useFiltering_ || usePruning_ || useSoftDrop_ || useConstituentSubtraction_ ) ) {
     fjJets_ = fastjet::sorted_by_pt(fjClusterSeq_->inclusive_jets(jetPtMin_));
   } else {
     fjJets_.clear();
@@ -434,12 +434,12 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
       fastjet::Filter * trimmer = new fastjet::Filter(fastjet::JetDefinition(fastjet::kt_algorithm, rFilt_), fastjet::SelectorPtFractionMin(trimPtFracMin_));
       transformers.push_back( transformer_ptr(trimmer) );
     } 
-    if ( useFiltering_ ) {
+    if ( (useFiltering_) && (!useDynamicFiltering_) ) {
       fastjet::Filter * filter = new fastjet::Filter(fastjet::JetDefinition(fastjet::cambridge_algorithm, rFilt_), fastjet::SelectorNHardest(nFilt_));
       transformers.push_back( transformer_ptr(filter));
     } 
 
-    if ( usePruning_ ) {
+    if ( (usePruning_)  && (!useKtPruning_) ) {
       fastjet::Pruner * pruner = new fastjet::Pruner(fastjet::cambridge_algorithm, zCut_, RcutFactor_);
       transformers.push_back( transformer_ptr(pruner ));
     }
