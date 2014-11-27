@@ -54,7 +54,7 @@ calibratedElectrons = calibratedPatElectrons.clone(
 from PhysicsTools.PatAlgos.selectionLayer1.electronSelector_cfi import selectedPatElectrons
 
 selectedElectrons = selectedPatElectrons.clone(
-  src = cms.InputTag( 'calibratedElectrons' )
+  src = cms.InputTag( 'patElectrons' )
 , cut = '' # electronCut
 )
 
