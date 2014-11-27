@@ -31,6 +31,10 @@
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/FEDHeader.h"
+#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
+
+#include "FWCore/Utilities/interface/CRC16.h"
 
 #include <fstream>
 #include <iostream>
@@ -42,7 +46,8 @@
 #include "EventFilter/L1TRawToDigi/interface/MP7FileReader.h"
 #include "EventFilter/L1TRawToDigi/interface/MP7PacketReader.h"
 #include "EventFilter/L1TRawToDigi/interface/Block.h"
-
+#include "EventFilter/L1TRawToDigi/interface/AMCSpec.h"
+//#include "EventFilter/L1TRawToDigi/interface/PackingSetup.h"
 //
 // class declaration
 //
@@ -95,14 +100,15 @@ private:
 
   // DAQ parameters
   int fedId_;
+  int amcId_;
   int evType_;
   int fwVer_;
-  int lenSlinkHeader_;  // in 8-bit words
-  int lenSlinkTrailer_;
-  int lenAMC13Header_;
-  int lenAMC13Trailer_;
-  int lenAMCHeader_;   
-  int lenAMCTrailer_;   
+  int slinkHeaderSize_;  // in 8-bit words
+  int slinkTrailerSize_;
+  //  int lenAMC13Header_;
+  //  int lenAMC13Trailer_;
+  //  int lenAMCHeader_;   
+  //  int lenAMCTrailer_;   
   std::vector<int> rxBlockLength_;
   std::vector<int> txBlockLength_;  
 
@@ -131,16 +137,17 @@ y.txt")),
     rxIndex_(0),
     txIndex_(0),
     packetisedData_(iConfig.getUntrackedParameter<bool>("packetisedData", true)),
-    nFramesPerEvent_(iConfig.getUntrackedParameter<unsigned>("nFramesPerEvent", 6)),
+    nFramesPerEvent_(iConfig.getUntrackedParameter<int>("nFramesPerEvent", 6)),
     fedId_(iConfig.getUntrackedParameter<int>("fedId", 1)),
+    amcId_(iConfig.getUntrackedParameter<int>("amcId")),
     evType_(iConfig.getUntrackedParameter<int>("eventType", 1)),
     fwVer_(iConfig.getUntrackedParameter<int>("fwVersion", 1)),
-    lenSlinkHeader_(iConfig.getUntrackedParameter<int>("lenSlinkHeader", 16)),
-    lenSlinkTrailer_(iConfig.getUntrackedParameter<int>("lenSlinkTrailer", 16)),
-    lenAMC13Header_(iConfig.getUntrackedParameter<int>("lenAMC13Header", 0)),
-    lenAMC13Trailer_(iConfig.getUntrackedParameter<int>("lenAMC13Trailer", 0)),
-    lenAMCHeader_(iConfig.getUntrackedParameter<int>("lenAMCHeader", 12)),
-    lenAMCTrailer_(iConfig.getUntrackedParameter<int>("lenAMCTrailer", 8)),
+    slinkHeaderSize_(iConfig.getUntrackedParameter<int>("lenSlinkHeader", 16)),
+    slinkTrailerSize_(iConfig.getUntrackedParameter<int>("lenSlinkTrailer", 16)),
+    //    lenAMC13Header_(iConfig.getUntrackedParameter<int>("lenAMC13Header", 0)),
+    //    lenAMC13Trailer_(iConfig.getUntrackedParameter<int>("lenAMC13Trailer", 0)),
+    //    lenAMCHeader_(iConfig.getUntrackedParameter<int>("lenAMCHeader", 12)),
+    //    lenAMCTrailer_(iConfig.getUntrackedParameter<int>("lenAMCTrailer", 8)),
     rxBlockLength_(iConfig.getUntrackedParameter< std::vector<int> >("rxBlockLength")),
     txBlockLength_(iConfig.getUntrackedParameter< std::vector<int> >("txBlockLength"))
 {
@@ -176,27 +183,80 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
 
+  // AMC 13 packet
+  amc13::Packet amc13;
+    
+
   // fill the block structure
   blocks_.clear();
 
-  int iAmc=0;
-  fillBlocks(iAmc);
-
-  // create the collection
-  std::auto_ptr<FEDRawDataCollection> rawColl(new FEDRawDataCollection()); 
+  fillBlocks(amcId_);
+    
+  LogDebug("L1T") << "Concatenating blocks";
   
-  // retrieve the target buffer
-  FEDRawData& feddata=rawColl->FEDData(fedId_);
-
-  // fill the RAW data
-  int bx = iEvent.bunchCrossing();
-  int evtId = iEvent.id().event();
-  long int orbit = iEvent.orbitNumber();
+  std::vector<uint32_t> load32;
+  // TODO this is an empty word to be replaced with a proper MP7
+  // header containing at least the firmware version
+  load32.push_back(0);
+  for (const auto& block: blocks_) {
+    LogDebug("L1T") << "Adding block " << block.header().getID() << " with size " << block.payload().size();
+    auto load = block.payload();
+    
+#ifdef EDM_ML_DEBUG
+    std::stringstream s("");
+    s << "Block content:" << std::endl << std::hex << std::setfill('0');
+    for (const auto& word: load)
+      s << std::setw(8) << word << std::endl;
+    LogDebug("L1T") << s.str();
+#endif
+    
+    load32.push_back(block.header().raw());
+    load32.insert(load32.end(), load.begin(), load.end());
+  }
   
-  formatRaw(feddata, bx, evtId, orbit);
+  LogDebug("L1T") << "Converting payload";
+  
+  std::vector<uint64_t> load64;
+  for (unsigned int i = 0; i < load32.size(); i += 2) {
+    uint64_t word = load32[i];
+    if (i + 1 < load32.size())
+      word |= static_cast<uint64_t>(load32[i + 1]) << 32;
+    load64.push_back(word);
+  }
+  
+  LogDebug("L1T") << "Creating AMC packet";
+  
+  amc13.add(-amcId_, load64);
+
+  // prepare the raw data
+  LogDebug("L1T") << "Packing data with FED ID " << fedId_;
+  
+  std::auto_ptr<FEDRawDataCollection> raw_coll(new FEDRawDataCollection());
+  FEDRawData& fed_data = raw_coll->FEDData(fedId_);
+
+  unsigned int size = slinkHeaderSize_ + slinkTrailerSize_ + amc13.size() * 8;
+  fed_data.resize(size);
+  unsigned char * payload = fed_data.data();
+  unsigned char * payload_start = payload;
+
+  auto bxId = iEvent.bunchCrossing();
+  auto evtId = iEvent.id().event();
+
+  FEDHeader header(payload);
+  header.set(payload, evType_, evtId, bxId, fedId_);
+
+  payload += slinkHeaderSize_;
+
+  amc13.write(iEvent, payload, size - slinkHeaderSize_ - slinkTrailerSize_);
+
+  payload += amc13.size() * 8;
+
+  FEDTrailer trailer(payload);
+  trailer.set(payload, size / 8, evf::compute_crc(payload_start, size), 0, 0);
+
 
   // put the collection in the event
-  iEvent.put(rawColl);  
+  iEvent.put(raw_coll);  
 
 }
 
@@ -255,186 +315,6 @@ MP7BufferDumpToRaw::fillBlocks(int iAmc)
 void
 MP7BufferDumpToRaw::formatRaw(FEDRawData& feddata, int bx, int evtId, int orbit)
 {
-
-  // now create the raw data array
-  int capEvtSize = 0;
-  for (std::vector<Block>::const_iterator itr=blocks_.begin(); itr!=blocks_.end(); ++itr) {
-    capEvtSize += itr->getSize() + 1;
-  }
-
-  int amcSize = 0;
-  for (unsigned i=0; i<rxBlockLength_.size(); ++i) amcSize += 4 * (rxBlockLength_.at(i) + 1);
-  for (unsigned i=0; i<txBlockLength_.size(); ++i) amcSize += 4 * (txBlockLength_.at(i) + 1);
-
-  int fedSize = amcSize;
-  fedSize += lenSlinkHeader_;
-  fedSize += lenSlinkTrailer_;
-  fedSize += lenAMC13Header_;
-  fedSize += lenAMC13Trailer_;
-  fedSize += lenAMCHeader_;
-  fedSize += lenAMCTrailer_;
-  fedSize = (fedSize+7) & ~0x7;// round up to multiple of 8
-
-  edm::LogInfo("mp7") << "Captured event size=" << capEvtSize << ", AMCsize=" << amcSize << ", FED size=" << fedSize << std::endl;
-
-  // event info for headers
-  edm::LogInfo("mp7") << "Event : " << evtId << " orbit=" << orbit << " bx=" << bx << std::endl;
-
-
-  // Allocate space for header+trailer+payload
-  feddata.resize(fedSize);
-
-  int iWord = 0;
-
-  // write SLINK header
-  feddata.data()[iWord+1] |= fedId_ & 0xff;
-  feddata.data()[iWord+2] |= (fedId_>>8) & 0xf;
-
-  feddata.data()[iWord+2] |= (bx<<4) & 0xff;
-  feddata.data()[iWord+3] |= (bx>>4) & 0xff;
-
-  feddata.data()[iWord+4] = evtId & 0xff;
-  feddata.data()[iWord+5] = (evtId>>8) & 0xff;
-  feddata.data()[iWord+6] = (evtId>>16) & 0xff;
-
-  feddata.data()[iWord+7] |= evType_ & 0xf;
-  feddata.data()[iWord+7] |= 0x50;
-
-
-  // write AMC13 header
-  iWord += lenSlinkHeader_;
-
-  // do nothing for now
-
-  // write AMC header
-  iWord += lenAMC13Header_;
-
-  feddata.data()[iWord+0] = evtId & 0xff;
-  feddata.data()[iWord+1] = (evtId>>8) & 0xff;
-  feddata.data()[iWord+2] = (evtId>>16) & 0xff;
-
-  feddata.data()[iWord+4] |= (orbit<<4) & 0xff;
-  feddata.data()[iWord+5] |= (orbit>>4) & 0xff;
-  feddata.data()[iWord+6] |= (orbit>>12) & 0xff;
-
-  feddata.data()[iWord+6] |= (bx>>4) & 0xff;
-  feddata.data()[iWord+7] |= (bx>>12) & 0xff;
-
-  feddata.data()[iWord+8] = evType_ & 0xff;
-
-  feddata.data()[iWord+9]  = (amcSize/4) & 0xff;
-  feddata.data()[iWord+10] = ((amcSize/4) >> 8) & 0xff;
-
-  feddata.data()[iWord+11] = fwVer_ & 0xff;
-
-
-  // now add payload
-
-  iWord += lenAMCHeader_;
-  std::ostringstream payloadInfo;
-
-  //  for (int iBlock=0; iBlock<nRxLinks_ && iWord<fedSize; ++iBlock) {
-
-  //    int blockId     = 2*iBlock;
-  //    int blockLength = rxBlockLength_.at(iBlock);
-
-    // write block header
-  //    feddata.data()[iWord+2] = blockLength & 0xff;
-  //    feddata.data()[iWord+3] = blockId & 0xff;
-  //    iWord+=4;
-
-  //    if (blockLength!=0) {
-  //      payloadInfo << ", " << (blockId&0xff) << " (" << (blockLength&0xff) << ")";
-  //    }
-
-  //    if (blockLength>(int)rxData.at(iBlock).size()) {
-  //      edm::LogError("mp7") << "Read insufficient data for block " << blockId <<". Expected " << rxBlockLength_.at(iBlock) << " read " << rxData.at(iBlock).size() << " from Rx link " << iBlock << std::endl;
-  //      continue;
-  //    }
-
-  //    for (int i=0; i<blockLength; ++i) {
-  //      if(i < (int)rxData.at(iBlock).size()) {
-  //	feddata.data()[iWord]   = rxData.at(iBlock).at(i) & 0xff;
-  //	feddata.data()[iWord+1] = (rxData.at(iBlock).at(i) >> 8) & 0xff;
-  //	feddata.data()[iWord+2] = (rxData.at(iBlock).at(i) >> 16) & 0xff;
-  //	feddata.data()[iWord+3] = (rxData.at(iBlock).at(i) >> 24) & 0xff;
-  //	iWord+=4;
-  //      }
-  //      else {
-  //	feddata.data()[iWord]   = 0;
-  //	feddata.data()[iWord+1] = 0;
-  //	feddata.data()[iWord+2] = 0;
-  //	feddata.data()[iWord+3] = 0;
-  //	iWord+=4;
-  //      }
-  //    }
-
-  //  }
-
-  //  edm::LogInfo("mp7") << "Rx blocks : " << payloadInfo.str() << std::endl;
-
-  // now do Tx links
-  // strictly these will appear in the wrong place
-  // they should be interspersed with Rx channels, not appended
-
-  //  payloadInfo.str("");
-
-  //  for (int iBlock=0; iBlock<nTxLinks_ && iWord<fedSize; ++iBlock) {
-
-  //    int blockId     = (2*iBlock)+1;
-  //    int blockLength = txBlockLength_.at(iBlock);
-
-  //    // write block header
-  //    feddata.data()[iWord+2] = blockLength & 0xff;
-  //    feddata.data()[iWord+3] = blockId & 0xff;
-  //    iWord+=4;
-
-  //    payloadInfo << ", " << (blockId&0xff) << "(" << (blockLength&0xff) << ")";
-
-  //    if (blockLength>(int)txData.at(iBlock).size()) {
-  //      edm::LogError("mp7") << "Read insufficient data for block " << blockId <<". Expected " << blockLength << " read " << txData.at(iBlock).size() << " from Tx link " << iBlock << std::endl;
-  //      continue;
-  //    }
-
-  //    for (int i=0; i<blockLength; ++i) {
-  //      if (i<(int)txData.at(iBlock).size()) {
-  //	feddata.data()[iWord]   = txData.at(iBlock).at(i) & 0xff;
-  //	feddata.data()[iWord+1] = (txData.at(iBlock).at(i) >> 8) & 0xff;
-  //	feddata.data()[iWord+2] = (txData.at(iBlock).at(i) >> 16) & 0xff;
-  //	feddata.data()[iWord+3] = (txData.at(iBlock).at(i) >> 24) & 0xff;
-  //	iWord+=4;
-  //      }
-  //      else {
-  //	feddata.data()[iWord]   = 0;
-  //	feddata.data()[iWord+1] = 0;
-  //	feddata.data()[iWord+2] = 0;
-  //	feddata.data()[iWord+3] = 0;
-  //	iWord+=4;
-  //      }
-  //    }
-
-  //  }
-
-  //  edm::LogInfo("mp7") << "Tx blocks : " << payloadInfo.str() << std::endl;
-
-  // write AMC trailer
-  feddata.data()[iWord]   = evtId & 0xff;
-  feddata.data()[iWord+1] = (evtId>>8) & 0xff;
-
-  // write AMC13 trailer
-  iWord += lenAMCTrailer_;
-
-  // write SLINK trailer
-  iWord += lenAMC13Trailer_;
-  iWord = (iWord+7) & ~0x7;  // move to next 64 bit boundary
-  feddata.data()[iWord+4] = (fedSize/8) & 0xff;
-  feddata.data()[iWord+5] = ((fedSize/8)>>8) & 0xff;
-  feddata.data()[iWord+6] = ((fedSize/8)>>16) & 0xff;
-
-  feddata.data()[iWord+7] |= 0xa0;
-
-  edm::LogInfo("mp7") << "End of packet after " << iWord+8 << " bytes  of " << fedSize << std::endl;
-
 
 }
 

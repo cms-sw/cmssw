@@ -14,15 +14,12 @@ mp7BufferDumpToRaw = cms.EDProducer(
     nFramesLatency   = cms.untracked.int32(0),
 
     # DAQ parameters
+    amcId            = cms.untracked.int32(1),
     fedId            = cms.untracked.int32(2),
     eventType        = cms.untracked.int32(238),
     fwVersion        = cms.untracked.int32(255),
     lenSlinkHeader   = cms.untracked.int32(16),  # length in 8 bit words !
     lenSlinkTrailer  = cms.untracked.int32(8),
-    lenAMC13Header   = cms.untracked.int32(0),
-    lenAMC13Trailer  = cms.untracked.int32(0),
-    lenAMCHeader     = cms.untracked.int32(12),
-    lenAMCTrailer    = cms.untracked.int32(8),
 
     # these parameters specify the amount of data from each link to be
     # recorded in the FEDRawData object
