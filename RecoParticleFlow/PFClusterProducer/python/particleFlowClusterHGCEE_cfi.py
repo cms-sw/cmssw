@@ -107,8 +107,8 @@ _fromScratchHGCClusterizer_HGCEE = cms.PSet(
                                    HGC_HCALB = cms.string('HGCalHEScintillatorSensitive') ),
     # this parameterization gives a value for the radius in millimeters using e^(const. + slope*<layer>)
     emShowerParameterization = cms.PSet( HGC_ECAL_constant = cms.double(2.11873),
-                                         HGC_ECAL_slope = cms.double(0.0796206),                                         
-                                         HGC_ECAL_max_radius = cms.double(40) ),
+                                         HGC_ECAL_slope = cms.double(0.0796206),
+                                         HGC_ECAL_max_radius = cms.double(60.0) ),
     moliereRadii = cms.PSet( HGC_ECAL = cms.double(2.9),
                              HGC_HCALF = cms.double(6.0),
                              HGC_HCALB = cms.double(6.0) ), #cm

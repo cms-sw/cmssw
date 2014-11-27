@@ -402,9 +402,10 @@ void HGCClusterizer::build2DCluster(const edm::Handle<reco::PFRecHitCollection>&
   
   double moliere_radius = -1.0;
   const math::XYZPoint pos = current_cell.position();
+  DetId cellid = current_cell.detId();
   switch( current_cell.layer() ) {
   case PFLayer::HGC_ECAL:
-    moliere_radius = _em_profile(current_cell.layer());
+    moliere_radius = _em_profile(HGCEEDetId(cellid).layer());
     break;
   case PFLayer::HGC_HCALF:
     moliere_radius = _moliere_radii[1];
@@ -415,7 +416,7 @@ void HGCClusterizer::build2DCluster(const edm::Handle<reco::PFRecHitCollection>&
   default:
     break;
   }
-
+  
   auto x_rh = minmax(pos.x()+moliere_radius,pos.x()-moliere_radius);
   auto y_rh = minmax(pos.y()+moliere_radius,pos.y()-moliere_radius);
   auto z_rh = minmax(pos.z()+1e-3,pos.z()-1e-3);
@@ -429,7 +430,8 @@ void HGCClusterizer::build2DCluster(const edm::Handle<reco::PFRecHitCollection>&
     const reco::PFRecHit& nbour = input[nbourpoint.data];
     if( usable[nbourpoint.data] && !seedable[nbourpoint.data] && 
 	nbour.energy() <= current_cell.energy() && // <= takes care of MIP sea
-	rechitMask[nbourpoint.data]) {
+	rechitMask[nbourpoint.data] &&
+	(nbour.position() - current_cell.position()).mag2() < moliere_radius*moliere_radius) {
       build2DCluster(handle,input,rechitMask,seedable,nbourpoint.data,usable,cluster);
     }
   }
@@ -451,9 +453,10 @@ linkClustersInLayer(const reco::PFClusterCollection& input_clusters,
   // now link all clusters with in moliere radius for EE + HEF
   for( unsigned i = 0; i < input_clusters.size(); ++i ) {
     float moliere_radius = -1.0;
-    switch( input_clusters[i].seed().subdetId() ) {
+    DetId seedid = input_clusters[i].seed();
+    switch( seedid.subdetId() ) {
     case HGCEE:
-      moliere_radius = _moliere_radii[0];
+      moliere_radius = _em_profile(HGCEEDetId(seedid).layer());
       break;
     case HGCHEF:
       moliere_radius = _moliere_radii[1];
