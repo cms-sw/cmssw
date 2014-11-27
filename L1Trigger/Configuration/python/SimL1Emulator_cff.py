@@ -158,27 +158,20 @@ SimL1Emulator = cms.Sequence(
 ##
 ## Make changes for Run 2
 ##
-def _modifySimL1EmulatorForRun2( emulatorSequence ) :
+def _modifyLoadSimL1Trigger( theProcess ) :
     """
-    Loads extra config fragments and modifies the sim L1 emulator
-    for Run 2 configurations.
+    ProcessModifier that loads config fragments required for Run 2 into the process object.
+    Also switches the GCT digis for the Stage1 digis in the SimL1Emulator sequence
     """
-    # Note that for this to work, you also require
-    # eras.run2.toLoadIntoProcess( 'L1Trigger.L1TCalorimeter.L1TCaloStage1_cff' )
-    # outside of this function. Otherwise the constituents of L1TCaloStage1 are
-    # not imported and given labels. Can't import the constituents here with
-    # "from ... import *" because that is only allowed at module level.
-    from L1Trigger.L1TCalorimeter.L1TCaloStage1_cff import rctUpgradeFormatDigis,L1TCaloStage1
-    # rctUpgradeFormatDigis is one of the producers in the L1TCaloStage1
-    # sequence imported above. Need to change from "<name>" to "sim<name>"
-    # collections.
-    rctUpgradeFormatDigis.regionTag = cms.InputTag("simRctDigis")
-    rctUpgradeFormatDigis.emTag = cms.InputTag("simRctDigis")
-    # then replace the old GCT digi sequence with the new Stage1 one.
-    emulatorSequence.replace( simGctDigis, L1TCaloStage1 )    
+    theProcess.load('L1Trigger.L1TCalorimeter.caloStage1Params_cfi')
+    theProcess.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_cff')
+    theProcess.load('L1TriggerConfig.L1GtConfigProducers.l1GtTriggerMenuXml_cfi')
+    # Note that this function is applied before the objects in this file are added
+    # to the process. So things declared in this file should be used "bare", i.e.
+    # not with "theProcess." in front of them. L1TCaloStage1 is an exception because
+    # it is not declared in this file but loaded into the process in one of the "load"
+    # statements above.
+    SimL1Emulator.replace( simGctDigis, theProcess.L1TCaloStage1 )
 
-eras.run2.toLoadIntoProcess( 'L1Trigger.L1TCalorimeter.caloStage1Params_cfi' )
-eras.run2.toLoadIntoProcess( 'L1Trigger.L1TCalorimeter.L1TCaloStage1_cff' )
-eras.run2.toModify( SimL1Emulator, func=_modifySimL1EmulatorForRun2 )
-eras.run2.toLoadIntoProcess( 'L1TriggerConfig.L1GtConfigProducers.l1GtTriggerMenuXml_cfi' )
-
+# A unique name is required for this object, so I'll call it "modify<python filename>ForRun2_"
+modifyL1TriggerConfigurationSimL1EmulatorForRun2_ = eras.run2.makeProcessModifier( _modifyLoadSimL1Trigger )
