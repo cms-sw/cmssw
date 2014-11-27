@@ -84,7 +84,9 @@ triggerSelectionData = 'HLT_*'
 
 # Step 3
 useCalibElec = options.useCalibElec
-#electronCut = ''
+#electronGsfCut   = ''
+#electronCalibCut = ''
+electronCut = electronGsfCut
 
 # Step 4
 #jetCut = ''
@@ -298,7 +300,6 @@ if useCalibElec:
   process.selectedElectrons.src = 'calibratedElectrons'
 elif runOnMiniAOD:
   process.selectedElectrons.src = 'slimmedElectrons'
-print 'DEBUG electronCut: ', electronCut
 
 process.standAloneElectronVetoFilter = standAloneElectronVetoFilter.clone()
 process.sStandAloneElectronVeto = cms.Sequence( process.standAloneElectronVetoFilter )
