@@ -34,8 +34,8 @@ namespace sistrip {
     
   private:
     unsigned int runNumber_;
+    uint32_t cacheId_;
     const SiStripFedCabling * cabling_;
-    const uint32_t cacheId_;
     const edm::EDGetTokenT<FEDRawDataCollection> token_;
 
     DetIdCollection detids_;

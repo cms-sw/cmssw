@@ -21,8 +21,8 @@ namespace sistrip {
 
   ExcludedFEDListProducer::ExcludedFEDListProducer( const edm::ParameterSet& pset ) 
     : runNumber_(0)
-    , cabling_(0)
     , cacheId_(0)
+    , cabling_(0)
     , token_ ( consumes<FEDRawDataCollection>(pset.getParameter<edm::InputTag>("ProductLabel")) )
   {    
     produces<DetIdCollection>();
