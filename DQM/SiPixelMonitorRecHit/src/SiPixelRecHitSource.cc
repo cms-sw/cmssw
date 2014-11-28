@@ -66,6 +66,7 @@ SiPixelRecHitSource::SiPixelRecHitSource(const edm::ParameterSet& iConfig) :
 {
   firstRun = true;
   LogInfo ("PixelDQM") << "SiPixelRecHitSource::SiPixelRecHitSource: Got DQM BackEnd interface"<<endl;
+  topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
 }
 
 

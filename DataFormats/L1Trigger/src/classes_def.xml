@@ -7,7 +7,8 @@
    <version ClassVersion="11" checksum="9999999999"/>
    <version ClassVersion="10" checksum="2992828146"/>
   </class>
-  <class name="l1extra::L1MuonParticle" ClassVersion="10">
+  <class name="l1extra::L1MuonParticle" ClassVersion="11">
+   <version ClassVersion="11" checksum="3788189108"/>
    <version ClassVersion="10" checksum="404862417"/>
   </class>
   <class name="l1extra::L1EtMissParticle" ClassVersion="11">
@@ -78,7 +79,9 @@
    <version ClassVersion="10" checksum="634833762"/>
   </class>
   <class name="std::vector<L1DataEmulDigi>"/>
-  <class name="L1DataEmulRecord" ClassVersion="10">
+  <class name="L1DataEmulRecord" ClassVersion="12">
+   <version ClassVersion="12" checksum="3255820845"/>
+   <version ClassVersion="11" checksum="3617630969"/>
    <version ClassVersion="10" checksum="466303541"/>
   </class>
   <class name="edm::Wrapper<L1DataEmulRecord>"/>

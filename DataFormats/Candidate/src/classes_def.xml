@@ -33,29 +33,36 @@
   <ioread sourceClass = "reco::LeafCandidate" version="[1-]" targetClass="reco::LeafCandidate" source = "" target="cacheCartesianFixed_">
     <![CDATA[cacheCartesianFixed_ = false;]]>
   </ioread>
-  <class name="reco::CompositeCandidate" ClassVersion="10">
+  <class name="reco::CompositeCandidate" ClassVersion="11">
+   <version ClassVersion="11" checksum="1985736233"/>
    <version ClassVersion="10" checksum="2953566340"/>
   </class>
   <class name="reco::VertexCompositeCandidate" ClassVersion="11">
    <version ClassVersion="11" checksum="9999999999"/>
    <version ClassVersion="10" checksum="4177206274"/>
   </class>
-  <class name="reco::CompositeRefCandidate"  ClassVersion="10">
+  <class name="reco::CompositeRefCandidate"  ClassVersion="11">
+   <version ClassVersion="11" checksum="3325042432"/>
    <version ClassVersion="10" checksum="502055765"/>
   </class>
-  <class name="reco::CompositePtrCandidate"  ClassVersion="10">
+  <class name="reco::CompositePtrCandidate"  ClassVersion="11">
+   <version ClassVersion="11" checksum="900138073"/>
    <version ClassVersion="10" checksum="240358262"/>
   </class>
-  <class name="reco::CompositeRefBaseCandidate"  ClassVersion="10">
+  <class name="reco::CompositeRefBaseCandidate"  ClassVersion="11">
+   <version ClassVersion="11" checksum="2013084330"/>
    <version ClassVersion="10" checksum="382235387"/>
   </class>
-  <class name="reco::ShallowCloneCandidate"  ClassVersion="10">
+  <class name="reco::ShallowCloneCandidate"  ClassVersion="11">
+   <version ClassVersion="11" checksum="1059349113"/>
    <version ClassVersion="10" checksum="4127213986"/>
   </class>
-  <class name="reco::ShallowClonePtrCandidate"  ClassVersion="10">
+  <class name="reco::ShallowClonePtrCandidate"  ClassVersion="11">
+   <version ClassVersion="11" checksum="124560908"/>
    <version ClassVersion="10" checksum="2575892329"/>
   </class>
-  <class name="reco::NamedCompositeCandidate" ClassVersion="10">
+  <class name="reco::NamedCompositeCandidate" ClassVersion="11">
+   <version ClassVersion="11" checksum="1100712875"/>
    <version ClassVersion="10" checksum="604924170"/>
   </class>
   <class name="reco::candidate::iterator"  ClassVersion="10">

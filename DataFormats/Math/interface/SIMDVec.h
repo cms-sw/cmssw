@@ -2,9 +2,7 @@
 #define DataFormat_Math_SIMDVec_H
 
 #if ( defined(IN_DICTBUILD) || defined(__REFLEX__) || defined(__CINT__) || defined(__MIC__)) || (__BIGGEST_ALIGNMENT__<16)
-#elif (defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 7)) || defined(__clang__)
-#define USE_EXTVECT
-#elif (defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 4)) 
+#elif defined(__GNUC__) || defined(__clang__)
 #define USE_SSEVECT
 #endif
 

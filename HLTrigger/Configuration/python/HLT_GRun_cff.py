@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_2_1/GRun/V65 (CMSSW_7_2_1_patch2_HLT1)
+# /dev/CMSSW_7_2_1/GRun/V66 (CMSSW_7_2_1_patch2_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_2_1/GRun/V65')
+  tableName = cms.string('/dev/CMSSW_7_2_1/GRun/V66')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -4032,35 +4032,51 @@ hltL3TrajectorySeed = cms.EDProducer( "L3MuonTrajectorySeedCombiner",
 hltL3TrackCandidateFromL2 = cms.EDProducer( "L3TrackCandCombiner",
     labels = cms.VInputTag( 'hltL3TrackCandidateFromL2IOHit','hltL3TrackCandidateFromL2OIHit','hltL3TrackCandidateFromL2OIState' )
 )
-hltL3TkTracksMergeStep1 = cms.EDProducer( "SimpleTrackListMerger",
+hltL3TkTracksMergeStep1 = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltL3TkTracksFromL2OIState','hltL3TkTracksFromL2OIHit' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltL3TkTracksFromL2OIState" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 100.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltL3TkTracksFromL2OIHit" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltL3TkTracksFromL2OIState','hltL3TkTracksFromL2OIHit' ),
     LostHitPenalty = cms.double( 0.0 ),
-    FoundHitBonus = cms.double( 100.0 )
+    newQuality = cms.string( "confirmed" )
 )
-hltL3TkTracksFromL2 = cms.EDProducer( "SimpleTrackListMerger",
+hltL3TkTracksFromL2 = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltL3TkTracksMergeStep1','hltL3TkTracksFromL2IOHit' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltL3TkTracksMergeStep1" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 100.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltL3TkTracksFromL2IOHit" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltL3TkTracksMergeStep1','hltL3TkTracksFromL2IOHit' ),
     LostHitPenalty = cms.double( 0.0 ),
-    FoundHitBonus = cms.double( 100.0 )
+    newQuality = cms.string( "confirmed" )
 )
 hltL3MuonsLinksCombination = cms.EDProducer( "L3TrackLinksCombiner",
     labels = cms.VInputTag( 'hltL3MuonsOIState','hltL3MuonsOIHit','hltL3MuonsIOHit' )
@@ -4513,35 +4529,51 @@ hltIter1PFlowTrackSelectionHighPurityTight = cms.EDProducer( "AnalyticalTrackSel
     res_par = cms.vdouble( 0.003, 0.001 ),
     minHitsToBypassChecks = cms.uint32( 20 )
 )
-hltIter1PFlowTrackSelectionHighPurity = cms.EDProducer( "SimpleTrackListMerger",
+hltIter1PFlowTrackSelectionHighPurity = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltIter1PFlowTrackSelectionHighPurityLoose','hltIter1PFlowTrackSelectionHighPurityTight' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltIter1PFlowTrackSelectionHighPurityLoose" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltIter1PFlowTrackSelectionHighPurityTight" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltIter1PFlowTrackSelectionHighPurityLoose','hltIter1PFlowTrackSelectionHighPurityTight' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
-hltIter1Merged = cms.EDProducer( "SimpleTrackListMerger",
+hltIter1Merged = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltIter0PFlowTrackSelectionHighPurity','hltIter1PFlowTrackSelectionHighPurity' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltIter0PFlowTrackSelectionHighPurity" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltIter1PFlowTrackSelectionHighPurity" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltIter0PFlowTrackSelectionHighPurity','hltIter1PFlowTrackSelectionHighPurity' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
 hltIter1TrackRefsForJets4Iter2 = cms.EDProducer( "ChargedRefCandidateProducer",
     src = cms.InputTag( "hltIter1Merged" ),
@@ -4796,35 +4828,51 @@ hltIter2PFlowTrackSelectionHighPurity = cms.EDProducer( "AnalyticalTrackSelector
     res_par = cms.vdouble( 0.003, 0.001 ),
     minHitsToBypassChecks = cms.uint32( 20 )
 )
-hltIter2Merged = cms.EDProducer( "SimpleTrackListMerger",
+hltIter2Merged = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltIter1Merged','hltIter2PFlowTrackSelectionHighPurity' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltIter1Merged" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltIter2PFlowTrackSelectionHighPurity" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltIter1Merged','hltIter2PFlowTrackSelectionHighPurity' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
-hltPFMuonMerging = cms.EDProducer( "SimpleTrackListMerger",
+hltPFMuonMerging = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltL3TkTracksFromL2','hltIter2Merged' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltL3TkTracksFromL2" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltIter2Merged" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltL3TkTracksFromL2','hltIter2Merged' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
 hltMuonLinks = cms.EDProducer( "MuonLinksProducerForHLT",
     pMin = cms.double( 2.5 ),
@@ -7678,35 +7726,51 @@ hltIter1ElectronsTrackSelectionHighPurityTight = cms.EDProducer( "AnalyticalTrac
     res_par = cms.vdouble( 0.003, 0.001 ),
     minHitsToBypassChecks = cms.uint32( 20 )
 )
-hltIter1ElectronsTrackSelectionHighPurity = cms.EDProducer( "SimpleTrackListMerger",
+hltIter1ElectronsTrackSelectionHighPurity = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltIter1ElectronsTrackSelectionHighPurityLoose','hltIter1ElectronsTrackSelectionHighPurityTight' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltIter1ElectronsTrackSelectionHighPurityLoose" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltIter1ElectronsTrackSelectionHighPurityTight" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltIter1ElectronsTrackSelectionHighPurityLoose','hltIter1ElectronsTrackSelectionHighPurityTight' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
-hltIter1MergedForElectrons = cms.EDProducer( "SimpleTrackListMerger",
+hltIter1MergedForElectrons = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltIter0ElectronsTrackSelectionHighPurity','hltIter1ElectronsTrackSelectionHighPurity' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltIter0ElectronsTrackSelectionHighPurity" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltIter1ElectronsTrackSelectionHighPurity" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltIter0ElectronsTrackSelectionHighPurity','hltIter1ElectronsTrackSelectionHighPurity' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
 hltIter2ElectronsClustersRefRemoval = cms.EDProducer( "HLTTrackClusterRemoverNew",
     doStrip = cms.bool( True ),
@@ -7881,20 +7945,28 @@ hltIter2ElectronsTrackSelectionHighPurity = cms.EDProducer( "AnalyticalTrackSele
     res_par = cms.vdouble( 0.003, 0.001 ),
     minHitsToBypassChecks = cms.uint32( 20 )
 )
-hltIter2MergedForElectrons = cms.EDProducer( "SimpleTrackListMerger",
+hltIter2MergedForElectrons = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltIter1MergedForElectrons','hltIter2ElectronsTrackSelectionHighPurity' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltIter1MergedForElectrons" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltIter2ElectronsTrackSelectionHighPurity" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltIter1MergedForElectrons','hltIter2ElectronsTrackSelectionHighPurity' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
 hltEgammaEleGsfTrackIso = cms.EDProducer( "EgammaHLTElectronTrackIsolationProducers",
     egTrkIsoStripEndcap = cms.double( 0.03 ),
@@ -9345,35 +9417,51 @@ hltIter1PFlowTrackSelectionHighPurityTightForTau = cms.EDProducer( "AnalyticalTr
     res_par = cms.vdouble( 0.003, 0.001 ),
     minHitsToBypassChecks = cms.uint32( 20 )
 )
-hltIter1PFlowTrackSelectionHighPurityForTau = cms.EDProducer( "SimpleTrackListMerger",
+hltIter1PFlowTrackSelectionHighPurityForTau = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltIter1PFlowTrackSelectionHighPurityLooseForTau','hltIter1PFlowTrackSelectionHighPurityTightForTau' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltIter1PFlowTrackSelectionHighPurityLooseForTau" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltIter1PFlowTrackSelectionHighPurityTightForTau" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltIter1PFlowTrackSelectionHighPurityLooseForTau','hltIter1PFlowTrackSelectionHighPurityTightForTau' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
-hltIter1MergedForTau = cms.EDProducer( "SimpleTrackListMerger",
+hltIter1MergedForTau = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltIter0PFlowTrackSelectionHighPurityForTau','hltIter1PFlowTrackSelectionHighPurityForTau' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltIter0PFlowTrackSelectionHighPurityForTau" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltIter1PFlowTrackSelectionHighPurityForTau" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltIter0PFlowTrackSelectionHighPurityForTau','hltIter1PFlowTrackSelectionHighPurityForTau' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
 hltIter1TrackRefsForJets4Iter2ForTau = cms.EDProducer( "ChargedRefCandidateProducer",
     src = cms.InputTag( "hltIter1MergedForTau" ),
@@ -9627,35 +9715,51 @@ hltIter2PFlowTrackSelectionHighPurityForTau = cms.EDProducer( "AnalyticalTrackSe
     res_par = cms.vdouble( 0.003, 0.001 ),
     minHitsToBypassChecks = cms.uint32( 20 )
 )
-hltIter2MergedForTau = cms.EDProducer( "SimpleTrackListMerger",
+hltIter2MergedForTau = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltIter1MergedForTau','hltIter2PFlowTrackSelectionHighPurityForTau' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltIter1MergedForTau" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltIter2PFlowTrackSelectionHighPurityForTau" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltIter1MergedForTau','hltIter2PFlowTrackSelectionHighPurityForTau' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
-hltPFMuonForTauMerging = cms.EDProducer( "SimpleTrackListMerger",
+hltPFMuonForTauMerging = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltL3TkTracksFromL2','hltIter2MergedForTau' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltL3TkTracksFromL2" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltIter2MergedForTau" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltL3TkTracksFromL2','hltIter2MergedForTau' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
 hltMuonLinksReg = cms.EDProducer( "MuonLinksProducerForHLT",
     pMin = cms.double( 2.5 ),
@@ -11404,35 +11508,51 @@ hltL3NoFiltersNoVtxTrajectorySeed = cms.EDProducer( "L3MuonTrajectorySeedCombine
 hltL3NoFiltersTrackCandidateFromL2NoVtx = cms.EDProducer( "L3TrackCandCombiner",
     labels = cms.VInputTag( 'hltL3NoFiltersTrackCandidateFromL2IOHitNoVtx','hltL3NoFiltersTrackCandidateFromL2OIHitNoVtx','hltL3TrackCandidateFromL2OIStateNoVtx' )
 )
-hltL3NoFiltersNoVtxTkTracksMergeStep1 = cms.EDProducer( "SimpleTrackListMerger",
+hltL3NoFiltersNoVtxTkTracksMergeStep1 = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltL3TkTracksFromL2OIStateNoVtx','hltL3NoFiltersTkTracksFromL2OIHitNoVtx' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltL3TkTracksFromL2OIStateNoVtx" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 100.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltL3NoFiltersTkTracksFromL2OIHitNoVtx" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltL3TkTracksFromL2OIStateNoVtx','hltL3NoFiltersTkTracksFromL2OIHitNoVtx' ),
     LostHitPenalty = cms.double( 0.0 ),
-    FoundHitBonus = cms.double( 100.0 )
+    newQuality = cms.string( "confirmed" )
 )
-hltL3NoFiltersTkTracksFromL2Novtx = cms.EDProducer( "SimpleTrackListMerger",
+hltL3NoFiltersTkTracksFromL2Novtx = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltL3NoFiltersNoVtxTkTracksMergeStep1','hltL3NoFiltersTkTracksFromL2IOHitNoVtx' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltL3NoFiltersNoVtxTkTracksMergeStep1" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 100.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltL3NoFiltersTkTracksFromL2IOHitNoVtx" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltL3NoFiltersNoVtxTkTracksMergeStep1','hltL3NoFiltersTkTracksFromL2IOHitNoVtx' ),
     LostHitPenalty = cms.double( 0.0 ),
-    FoundHitBonus = cms.double( 100.0 )
+    newQuality = cms.string( "confirmed" )
 )
 hltL3NoFiltersNoVtxMuonsLinksCombination = cms.EDProducer( "L3TrackLinksCombiner",
     labels = cms.VInputTag( 'hltL3NoFiltersNoVtxMuonsOIState','hltL3NoFiltersNoVtxMuonsOIHit','hltL3NoFiltersNoVtxMuonsIOHit' )
@@ -12114,35 +12234,51 @@ hltIter1DisplacedJpsiTrackSelectionHighPurityTight = cms.EDProducer( "Analytical
     res_par = cms.vdouble( 0.003, 0.001 ),
     minHitsToBypassChecks = cms.uint32( 20 )
 )
-hltIter1DisplacedJpsiTrackSelectionHighPurity = cms.EDProducer( "SimpleTrackListMerger",
+hltIter1DisplacedJpsiTrackSelectionHighPurity = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltIter1DisplacedJpsiTrackSelectionHighPurityLoose','hltIter1DisplacedJpsiTrackSelectionHighPurityTight' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltIter1DisplacedJpsiTrackSelectionHighPurityLoose" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltIter1DisplacedJpsiTrackSelectionHighPurityTight" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltIter1DisplacedJpsiTrackSelectionHighPurityLoose','hltIter1DisplacedJpsiTrackSelectionHighPurityTight' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
-hltIter1DisplacedJpsiMerged = cms.EDProducer( "SimpleTrackListMerger",
+hltIter1DisplacedJpsiMerged = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltIter0DisplacedJpsiTrackSelectionHighPurity','hltIter1DisplacedJpsiTrackSelectionHighPurity' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltIter0DisplacedJpsiTrackSelectionHighPurity" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltIter1DisplacedJpsiTrackSelectionHighPurity" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltIter0DisplacedJpsiTrackSelectionHighPurity','hltIter1DisplacedJpsiTrackSelectionHighPurity' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
 hltIter2DisplacedJpsiClustersRefRemoval = cms.EDProducer( "HLTTrackClusterRemoverNew",
     doStrip = cms.bool( True ),
@@ -12318,20 +12454,28 @@ hltIter2DisplacedJpsiTrackSelectionHighPurity = cms.EDProducer( "AnalyticalTrack
     res_par = cms.vdouble( 0.003, 0.001 ),
     minHitsToBypassChecks = cms.uint32( 20 )
 )
-hltIter2DisplacedJpsiMerged = cms.EDProducer( "SimpleTrackListMerger",
+hltIter2DisplacedJpsiMerged = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltIter1DisplacedJpsiMerged','hltIter2DisplacedJpsiTrackSelectionHighPurity' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltIter1DisplacedJpsiMerged" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltIter2DisplacedJpsiTrackSelectionHighPurity" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltIter1DisplacedJpsiMerged','hltIter2DisplacedJpsiTrackSelectionHighPurity' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
 hltJpsiTkAllConeTracksIter = cms.EDProducer( "ConcreteChargedCandidateProducer",
     src = cms.InputTag( "hltIter2DisplacedJpsiMerged" ),
@@ -12768,35 +12912,51 @@ hltIter1DisplacedNRMuMuTrackSelectionHighPurityTight = cms.EDProducer( "Analytic
     res_par = cms.vdouble( 0.003, 0.001 ),
     minHitsToBypassChecks = cms.uint32( 20 )
 )
-hltIter1DisplacedNRMuMuTrackSelectionHighPurity = cms.EDProducer( "SimpleTrackListMerger",
+hltIter1DisplacedNRMuMuTrackSelectionHighPurity = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltIter1DisplacedNRMuMuTrackSelectionHighPurityLoose','hltIter1DisplacedNRMuMuTrackSelectionHighPurityTight' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltIter1DisplacedNRMuMuTrackSelectionHighPurityLoose" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltIter1DisplacedNRMuMuTrackSelectionHighPurityTight" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltIter1DisplacedNRMuMuTrackSelectionHighPurityLoose','hltIter1DisplacedNRMuMuTrackSelectionHighPurityTight' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
-hltIter1DisplacedNRMuMuMerged = cms.EDProducer( "SimpleTrackListMerger",
+hltIter1DisplacedNRMuMuMerged = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltIter0DisplacedNRMuMuTrackSelectionHighPurity','hltIter1DisplacedNRMuMuTrackSelectionHighPurity' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltIter0DisplacedNRMuMuTrackSelectionHighPurity" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltIter1DisplacedNRMuMuTrackSelectionHighPurity" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltIter0DisplacedNRMuMuTrackSelectionHighPurity','hltIter1DisplacedNRMuMuTrackSelectionHighPurity' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
 hltIter2DisplacedNRMuMuClustersRefRemoval = cms.EDProducer( "HLTTrackClusterRemoverNew",
     doStrip = cms.bool( True ),
@@ -12972,20 +13132,28 @@ hltIter2DisplacedNRMuMuTrackSelectionHighPurity = cms.EDProducer( "AnalyticalTra
     res_par = cms.vdouble( 0.003, 0.001 ),
     minHitsToBypassChecks = cms.uint32( 20 )
 )
-hltIter2DisplacedNRMuMuMerged = cms.EDProducer( "SimpleTrackListMerger",
+hltIter2DisplacedNRMuMuMerged = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltIter1DisplacedNRMuMuMerged','hltIter2DisplacedNRMuMuTrackSelectionHighPurity' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltIter1DisplacedNRMuMuMerged" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltIter2DisplacedNRMuMuTrackSelectionHighPurity" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltIter1DisplacedNRMuMuMerged','hltIter2DisplacedNRMuMuTrackSelectionHighPurity' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
 hltLowMassNonResonantTkAllConeTracksIter = cms.EDProducer( "ConcreteChargedCandidateProducer",
     src = cms.InputTag( "hltIter2DisplacedNRMuMuMerged" ),
@@ -13422,35 +13590,51 @@ hltIter1DisplacedPsiPrimeTrackSelectionHighPurityTight = cms.EDProducer( "Analyt
     res_par = cms.vdouble( 0.003, 0.001 ),
     minHitsToBypassChecks = cms.uint32( 20 )
 )
-hltIter1DisplacedPsiPrimeTrackSelectionHighPurity = cms.EDProducer( "SimpleTrackListMerger",
+hltIter1DisplacedPsiPrimeTrackSelectionHighPurity = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltIter1DisplacedPsiPrimeTrackSelectionHighPurityLoose','hltIter1DisplacedPsiPrimeTrackSelectionHighPurityTight' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltIter1DisplacedPsiPrimeTrackSelectionHighPurityLoose" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltIter1DisplacedPsiPrimeTrackSelectionHighPurityTight" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltIter1DisplacedPsiPrimeTrackSelectionHighPurityLoose','hltIter1DisplacedPsiPrimeTrackSelectionHighPurityTight' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
-hltIter1DisplacedPsiPrimeMerged = cms.EDProducer( "SimpleTrackListMerger",
+hltIter1DisplacedPsiPrimeMerged = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltIter0DisplacedPsiPrimeTrackSelectionHighPurity','hltIter1DisplacedPsiPrimeTrackSelectionHighPurity' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltIter0DisplacedPsiPrimeTrackSelectionHighPurity" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltIter1DisplacedPsiPrimeTrackSelectionHighPurity" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltIter0DisplacedPsiPrimeTrackSelectionHighPurity','hltIter1DisplacedPsiPrimeTrackSelectionHighPurity' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
 hltIter2DisplacedPsiPrimeClustersRefRemoval = cms.EDProducer( "HLTTrackClusterRemoverNew",
     doStrip = cms.bool( True ),
@@ -13626,20 +13810,28 @@ hltIter2DisplacedPsiPrimeTrackSelectionHighPurity = cms.EDProducer( "AnalyticalT
     res_par = cms.vdouble( 0.003, 0.001 ),
     minHitsToBypassChecks = cms.uint32( 20 )
 )
-hltIter2DisplacedPsiPrimeMerged = cms.EDProducer( "SimpleTrackListMerger",
+hltIter2DisplacedPsiPrimeMerged = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltIter1DisplacedPsiPrimeMerged','hltIter2DisplacedPsiPrimeTrackSelectionHighPurity' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltIter1DisplacedPsiPrimeMerged" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltIter2DisplacedPsiPrimeTrackSelectionHighPurity" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltIter1DisplacedPsiPrimeMerged','hltIter2DisplacedPsiPrimeTrackSelectionHighPurity' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
 hltPsiPrimeTkAllConeTracksIter = cms.EDProducer( "ConcreteChargedCandidateProducer",
     src = cms.InputTag( "hltIter2DisplacedPsiPrimeMerged" ),
@@ -14280,35 +14472,51 @@ hltIter1L3MuonTrackSelectionHighPurityTight = cms.EDProducer( "AnalyticalTrackSe
     res_par = cms.vdouble( 0.003, 0.001 ),
     minHitsToBypassChecks = cms.uint32( 20 )
 )
-hltIter1L3MuonTrackSelectionHighPurity = cms.EDProducer( "SimpleTrackListMerger",
+hltIter1L3MuonTrackSelectionHighPurity = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltIter1L3MuonTrackSelectionHighPurityLoose','hltIter1L3MuonTrackSelectionHighPurityTight' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltIter1L3MuonTrackSelectionHighPurityLoose" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltIter1L3MuonTrackSelectionHighPurityTight" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltIter1L3MuonTrackSelectionHighPurityLoose','hltIter1L3MuonTrackSelectionHighPurityTight' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
-hltIter1L3MuonMerged = cms.EDProducer( "SimpleTrackListMerger",
+hltIter1L3MuonMerged = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltIter0L3MuonTrackSelectionHighPurity','hltIter1L3MuonTrackSelectionHighPurity' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltIter0L3MuonTrackSelectionHighPurity" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltIter1L3MuonTrackSelectionHighPurity" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltIter0L3MuonTrackSelectionHighPurity','hltIter1L3MuonTrackSelectionHighPurity' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
 hltIter2L3MuonClustersRefRemoval = cms.EDProducer( "HLTTrackClusterRemoverNew",
     doStrip = cms.bool( True ),
@@ -14484,20 +14692,28 @@ hltIter2L3MuonTrackSelectionHighPurity = cms.EDProducer( "AnalyticalTrackSelecto
     res_par = cms.vdouble( 0.003, 0.001 ),
     minHitsToBypassChecks = cms.uint32( 20 )
 )
-hltIter2L3MuonMerged = cms.EDProducer( "SimpleTrackListMerger",
+hltIter2L3MuonMerged = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltIter1L3MuonMerged','hltIter2L3MuonTrackSelectionHighPurity' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltIter1L3MuonMerged" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltIter2L3MuonTrackSelectionHighPurity" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltIter1L3MuonMerged','hltIter2L3MuonTrackSelectionHighPurity' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
 hltTracksIter = cms.EDProducer( "ConcreteChargedCandidateProducer",
     src = cms.InputTag( "hltIter2L3MuonMerged" ),
@@ -20238,20 +20454,28 @@ hltIter2HighPtTkMuTrackSelectionHighPurity = cms.EDProducer( "AnalyticalTrackSel
     res_par = cms.vdouble( 0.003, 0.001 ),
     minHitsToBypassChecks = cms.uint32( 20 )
 )
-hltIter2HighPtTkMuMerged = cms.EDProducer( "SimpleTrackListMerger",
+hltIter2HighPtTkMuMerged = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltIter0HighPtTkMuTrackSelectionHighPurity','hltIter2HighPtTkMuTrackSelectionHighPurity' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltIter0HighPtTkMuTrackSelectionHighPurity" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltIter2HighPtTkMuTrackSelectionHighPurity" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltIter0HighPtTkMuTrackSelectionHighPurity','hltIter2HighPtTkMuTrackSelectionHighPurity' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
 hltHighPtTkMu20TkFilt = cms.EDFilter( "HLTTrackWithHits",
     saveTags = cms.bool( False ),
@@ -21009,35 +21233,51 @@ hltIter1HighPtTkMuIsoTrackSelectionHighPurityTight = cms.EDProducer( "Analytical
     res_par = cms.vdouble( 0.003, 0.001 ),
     minHitsToBypassChecks = cms.uint32( 20 )
 )
-hltIter1HighPtTkMuIsoTrackSelectionHighPurity = cms.EDProducer( "SimpleTrackListMerger",
+hltIter1HighPtTkMuIsoTrackSelectionHighPurity = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltIter1HighPtTkMuIsoTrackSelectionHighPurityLoose','hltIter1HighPtTkMuIsoTrackSelectionHighPurityTight' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltIter1HighPtTkMuIsoTrackSelectionHighPurityLoose" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltIter1HighPtTkMuIsoTrackSelectionHighPurityTight" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltIter1HighPtTkMuIsoTrackSelectionHighPurityLoose','hltIter1HighPtTkMuIsoTrackSelectionHighPurityTight' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
-hltIter1HighPtTkMuIsoMerged = cms.EDProducer( "SimpleTrackListMerger",
+hltIter1HighPtTkMuIsoMerged = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltIter0HighPtTkMuIsoTrackSelectionHighPurity','hltIter1HighPtTkMuIsoTrackSelectionHighPurity' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltIter0HighPtTkMuIsoTrackSelectionHighPurity" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltIter1HighPtTkMuIsoTrackSelectionHighPurity" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltIter0HighPtTkMuIsoTrackSelectionHighPurity','hltIter1HighPtTkMuIsoTrackSelectionHighPurity' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
 hltIter2HighPtTkMuIsoClustersRefRemoval = cms.EDProducer( "HLTTrackClusterRemoverNew",
     doStrip = cms.bool( True ),
@@ -21213,20 +21453,28 @@ hltIter2HighPtTkMuIsoTrackSelectionHighPurity = cms.EDProducer( "AnalyticalTrack
     res_par = cms.vdouble( 0.003, 0.001 ),
     minHitsToBypassChecks = cms.uint32( 20 )
 )
-hltIter2HighPtTkMuIsoMerged = cms.EDProducer( "SimpleTrackListMerger",
+hltIter2HighPtTkMuIsoMerged = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltIter1HighPtTkMuIsoMerged','hltIter2HighPtTkMuIsoTrackSelectionHighPurity' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltIter1HighPtTkMuIsoMerged" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltIter2HighPtTkMuIsoTrackSelectionHighPurity" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltIter1HighPtTkMuIsoMerged','hltIter2HighPtTkMuIsoTrackSelectionHighPurity' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
 hltHighPtTkMuCombRelIsolationsIterTrkRegIter02 = cms.EDProducer( "L3MuonCombinedRelativeIsolationProducer",
     printDebug = cms.bool( False ),
@@ -22201,20 +22449,28 @@ hltMuCtfTracks = cms.EDProducer( "TrackProducer",
     useSimpleMF = cms.bool( False ),
     Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" )
 )
-hltDiMuonMerging = cms.EDProducer( "SimpleTrackListMerger",
+hltDiMuonMerging = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltL3TkTracksFromL2','hltMuCtfTracks' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltL3TkTracksFromL2" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 100.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltMuCtfTracks" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltL3TkTracksFromL2','hltMuCtfTracks' ),
     LostHitPenalty = cms.double( 0.0 ),
-    FoundHitBonus = cms.double( 100.0 )
+    newQuality = cms.string( "confirmed" )
 )
 hltDiMuonLinks = cms.EDProducer( "MuonLinksProducerForHLT",
     pMin = cms.double( 2.5 ),
@@ -23034,35 +23290,51 @@ hltIter1GlbTrkMuonTrackSelectionHighPurityTight = cms.EDProducer( "AnalyticalTra
     res_par = cms.vdouble( 0.003, 0.001 ),
     minHitsToBypassChecks = cms.uint32( 20 )
 )
-hltIter1GlbTrkMuonTrackSelectionHighPurity = cms.EDProducer( "SimpleTrackListMerger",
+hltIter1GlbTrkMuonTrackSelectionHighPurity = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltIter1GlbTrkMuonTrackSelectionHighPurityLoose','hltIter1GlbTrkMuonTrackSelectionHighPurityTight' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltIter1GlbTrkMuonTrackSelectionHighPurityLoose" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltIter1GlbTrkMuonTrackSelectionHighPurityTight" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltIter1GlbTrkMuonTrackSelectionHighPurityLoose','hltIter1GlbTrkMuonTrackSelectionHighPurityTight' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
-hltIter1GlbTrkMuonMerged = cms.EDProducer( "SimpleTrackListMerger",
+hltIter1GlbTrkMuonMerged = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltIter0GlbTrkMuonTrackSelectionHighPurity','hltIter1GlbTrkMuonTrackSelectionHighPurity' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltIter0GlbTrkMuonTrackSelectionHighPurity" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltIter1GlbTrkMuonTrackSelectionHighPurity" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltIter0GlbTrkMuonTrackSelectionHighPurity','hltIter1GlbTrkMuonTrackSelectionHighPurity' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
 hltIter2GlbTrkMuonClustersRefRemoval = cms.EDProducer( "HLTTrackClusterRemoverNew",
     doStrip = cms.bool( True ),
@@ -23238,20 +23510,28 @@ hltIter2GlbTrkMuonTrackSelectionHighPurity = cms.EDProducer( "AnalyticalTrackSel
     res_par = cms.vdouble( 0.003, 0.001 ),
     minHitsToBypassChecks = cms.uint32( 20 )
 )
-hltIter2GlbTrkMuonMerged = cms.EDProducer( "SimpleTrackListMerger",
+hltIter2GlbTrkMuonMerged = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltIter1GlbTrkMuonMerged','hltIter2GlbTrkMuonTrackSelectionHighPurity' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltIter1GlbTrkMuonMerged" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltIter2GlbTrkMuonTrackSelectionHighPurity" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltIter1GlbTrkMuonMerged','hltIter2GlbTrkMuonTrackSelectionHighPurity' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
 hltGlbTrkMuonRelTrkIsolationVVL = cms.EDProducer( "L3MuonCombinedRelativeIsolationProducer",
     printDebug = cms.bool( False ),
@@ -25598,20 +25878,28 @@ hltFastPVPixelTracksRecover = cms.EDProducer( "PixelTrackProducer",
       SeedingLayers = cms.InputTag( "hltPixelLayerTripletsRegForBTag" )
     )
 )
-hltFastPVPixelTracksMerger = cms.EDProducer( "SimpleTrackListMerger",
+hltFastPVPixelTracksMerger = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( False ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( False ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltFastPVPixelTracks','hltFastPVPixelTracksRecover' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltFastPVPixelTracks" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltFastPVPixelTracksRecover" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltFastPVPixelTracks','hltFastPVPixelTracksRecover' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
 hltFastPVPixelVertices = cms.EDProducer( "PixelVertexProducer",
     WtAverage = cms.bool( True ),
@@ -25957,35 +26245,51 @@ hltIter1PFlowTrackSelectionHighPurityTightForBTag = cms.EDProducer( "AnalyticalT
     res_par = cms.vdouble( 0.003, 0.001 ),
     minHitsToBypassChecks = cms.uint32( 20 )
 )
-hltIter1PFlowTrackSelectionHighPurityForBTag = cms.EDProducer( "SimpleTrackListMerger",
+hltIter1PFlowTrackSelectionHighPurityForBTag = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltIter1PFlowTrackSelectionHighPurityLooseForBTag','hltIter1PFlowTrackSelectionHighPurityTightForBTag' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltIter1PFlowTrackSelectionHighPurityLooseForBTag" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltIter1PFlowTrackSelectionHighPurityTightForBTag" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltIter1PFlowTrackSelectionHighPurityLooseForBTag','hltIter1PFlowTrackSelectionHighPurityTightForBTag' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
-hltIter1MergedForBTag = cms.EDProducer( "SimpleTrackListMerger",
+hltIter1MergedForBTag = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltIter0PFlowTrackSelectionHighPurityForBTag','hltIter1PFlowTrackSelectionHighPurityForBTag' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltIter0PFlowTrackSelectionHighPurityForBTag" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltIter1PFlowTrackSelectionHighPurityForBTag" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltIter0PFlowTrackSelectionHighPurityForBTag','hltIter1PFlowTrackSelectionHighPurityForBTag' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
 hltIter2ClustersRefRemovalForBTag = cms.EDProducer( "HLTTrackClusterRemoverNew",
     doStrip = cms.bool( True ),
@@ -26161,20 +26465,28 @@ hltIter2PFlowTrackSelectionHighPurityForBTag = cms.EDProducer( "AnalyticalTrackS
     res_par = cms.vdouble( 0.003, 0.001 ),
     minHitsToBypassChecks = cms.uint32( 20 )
 )
-hltIter2MergedForBTag = cms.EDProducer( "SimpleTrackListMerger",
+hltIter2MergedForBTag = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltIter1MergedForBTag','hltIter2PFlowTrackSelectionHighPurityForBTag' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltIter1MergedForBTag" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltIter2PFlowTrackSelectionHighPurityForBTag" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltIter1MergedForBTag','hltIter2PFlowTrackSelectionHighPurityForBTag' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
 hltVerticesL3 = cms.EDProducer( "PrimaryVertexProducer",
     vertexCollections = cms.VPSet( 
@@ -27390,35 +27702,51 @@ hltIter1PFlowTrackSelectionHighPurityTightForPhotons = cms.EDProducer( "Analytic
     res_par = cms.vdouble( 0.003, 0.001 ),
     minHitsToBypassChecks = cms.uint32( 20 )
 )
-hltIter1PFlowTrackSelectionHighPurityForPhotons = cms.EDProducer( "SimpleTrackListMerger",
+hltIter1PFlowTrackSelectionHighPurityForPhotons = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltIter1PFlowTrackSelectionHighPurityLooseForPhotons','hltIter1PFlowTrackSelectionHighPurityTightForPhotons' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltIter1PFlowTrackSelectionHighPurityLooseForPhotons" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltIter1PFlowTrackSelectionHighPurityTightForPhotons" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltIter1PFlowTrackSelectionHighPurityLooseForPhotons','hltIter1PFlowTrackSelectionHighPurityTightForPhotons' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
-hltIter1MergedForPhotons = cms.EDProducer( "SimpleTrackListMerger",
+hltIter1MergedForPhotons = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltIter0PFlowTrackSelectionHighPurityForPhotons','hltIter1PFlowTrackSelectionHighPurityForPhotons' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltIter0PFlowTrackSelectionHighPurityForPhotons" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltIter1PFlowTrackSelectionHighPurityForPhotons" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltIter0PFlowTrackSelectionHighPurityForPhotons','hltIter1PFlowTrackSelectionHighPurityForPhotons' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
 hltIter2ClustersRefRemovalForPhotons = cms.EDProducer( "HLTTrackClusterRemoverNew",
     doStrip = cms.bool( True ),
@@ -27593,20 +27921,28 @@ hltIter2PFlowTrackSelectionHighPurityForPhotons = cms.EDProducer( "AnalyticalTra
     res_par = cms.vdouble( 0.003, 0.001 ),
     minHitsToBypassChecks = cms.uint32( 20 )
 )
-hltIter2MergedForPhotons = cms.EDProducer( "SimpleTrackListMerger",
+hltIter2MergedForPhotons = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltIter1MergedForPhotons','hltIter2PFlowTrackSelectionHighPurityForPhotons' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltIter1MergedForPhotons" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltIter2PFlowTrackSelectionHighPurityForPhotons" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltIter1MergedForPhotons','hltIter2PFlowTrackSelectionHighPurityForPhotons' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
 hltEgammaHollowTrackIso = cms.EDProducer( "EgammaHLTPhotonTrackIsolationProducersRegional",
     egTrkIsoStripEndcap = cms.double( 0.03 ),
@@ -36447,20 +36783,28 @@ hltDisplacedhltIter4PFlowTrackSelectionHighPurity = cms.EDProducer( "AnalyticalT
     res_par = cms.vdouble( 0.003, 0.001 ),
     minHitsToBypassChecks = cms.uint32( 20 )
 )
-hltIter4MergedWithIter012DisplacedJets = cms.EDProducer( "SimpleTrackListMerger",
+hltIter4MergedWithIter012DisplacedJets = cms.EDProducer( "TrackListMerger",
     ShareFrac = cms.double( 0.19 ),
-    promoteTrackQuality = cms.bool( True ),
+    writeOnlyTrkQuals = cms.bool( False ),
     MinPT = cms.double( 0.05 ),
+    allowFirstHitShare = cms.bool( True ),
     copyExtras = cms.untracked.bool( True ),
     Epsilon = cms.double( -0.001 ),
-    allowFirstHitShare = cms.bool( True ),
-    newQuality = cms.string( "confirmed" ),
+    selectedTrackQuals = cms.VInputTag( 'hltIter2MergedForBTag','hltDisplacedhltIter4PFlowTrackSelectionHighPurity' ),
+    indivShareFrac = cms.vdouble( 1.0, 1.0 ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltIter2MergedForBTag" ),
+    copyMVA = cms.bool( False ),
+    FoundHitBonus = cms.double( 5.0 ),
+    setsToMerge = cms.VPSet( 
+      cms.PSet(  pQual = cms.bool( False ),
+        tLists = cms.vint32( 0, 1 )
+      )
+    ),
     MinFound = cms.int32( 3 ),
-    TrackProducer2 = cms.string( "hltDisplacedhltIter4PFlowTrackSelectionHighPurity" ),
+    hasSelector = cms.vint32( 0, 0 ),
+    TrackProducers = cms.VInputTag( 'hltIter2MergedForBTag','hltDisplacedhltIter4PFlowTrackSelectionHighPurity' ),
     LostHitPenalty = cms.double( 20.0 ),
-    FoundHitBonus = cms.double( 5.0 )
+    newQuality = cms.string( "confirmed" )
 )
 hltL4DisplacedDijetFullTracksJetTracksAssociatorAtVertex = cms.EDProducer( "JetTracksAssociatorAtVertex",
     jets = cms.InputTag( "hltIter02DisplacedHLTCaloJetCollectionProducer" ),

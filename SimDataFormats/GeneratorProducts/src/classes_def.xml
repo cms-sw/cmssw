@@ -207,14 +207,14 @@
 	<class name="edm::Wrapper&lt;LHERunInfoProduct&gt;"/>
 	<class name="edm::Wrapper&lt;LHEEventProduct&gt;"/>
 
-<!--needed for backward compatibility between HepMC 2.06.xx and 2.05.yy-->
-<ioread sourceClass = "HepMC::Polarization" version="[1-10]" targetClass="HepMC::Polarization" source = "" target="m_defined">
+ <!--needed for backward compatibility between HepMC 2.06.xx and 2.05.yy-->
+ <ioread sourceClass = "HepMC::Polarization" version="[1-10]" targetClass="HepMC::Polarization" source = "" target="m_defined">
    <![CDATA[m_defined=true;
    ]]>
-</ioread>
-<ioread sourceClass = "HepMC::WeightContainer" source = "std::vector<double> m_weights" version="[1-10]" targetClass="HepMC::WeightContainer" target="m_names" include="iostream">
+ </ioread>
+ <ioread sourceClass = "HepMC::WeightContainer" source = "std::vector<double> m_weights" version="[1-10]" targetClass="HepMC::WeightContainer" target="m_names" include="iostream">
    <![CDATA[hepmc_rootio::weightcontainer_set_default_names(onfile.m_weights.size(),m_names);
    ]]>
-</ioread>        
+ </ioread>        
 
 </lcgdict>
