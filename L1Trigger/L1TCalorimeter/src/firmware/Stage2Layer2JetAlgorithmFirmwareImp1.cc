@@ -16,12 +16,14 @@
 #include <algorithm>
 #include <math.h>
 
-bool operator > ( l1t::Jet& a, l1t::Jet& b )
-{
-  if ( a.hwPt() > b.hwPt() ){ 
-    return true;
-  } else {
-    return false;
+namespace l1t {
+  bool operator > ( l1t::Jet& a, l1t::Jet& b )
+  {
+    if ( a.hwPt() > b.hwPt() ) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }
 

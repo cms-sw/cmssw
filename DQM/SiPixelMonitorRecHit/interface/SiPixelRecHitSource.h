@@ -65,6 +65,8 @@ class SiPixelRecHitSource : public thread_unsafe::DQMEDAnalyzer {
        virtual void buildStructure(edm::EventSetup const&);
        virtual void bookMEs(DQMStore::IBooker &);
 
+       std::string topFolderName_;
+
     private:
        edm::ParameterSet conf_;
        edm::EDGetTokenT<SiPixelRecHitCollection> src_;

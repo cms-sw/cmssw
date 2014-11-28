@@ -5,6 +5,7 @@ from Configuration.PyReleaseValidation import WorkFlow
 import os,time
 import shutil
 from subprocess import Popen 
+from os.path import exists, basename, join
 
 class WorkFlowRunner(Thread):
     def __init__(self, wf, noRun=False,dryRun=False,cafVeto=True,dasOptions="",jobReport=False):
@@ -79,6 +80,10 @@ class WorkFlowRunner(Thread):
         lumiRangeFile=None
         aborted=False
         for (istepmone,com) in enumerate(self.wf.cmds):
+            # isInputOk is used to keep track of the das result. In case this
+            # is False we use a different error message to indicate the failed
+            # das query.
+            isInputOk=True
             istep=istepmone+1
             cmd = preamble
             if aborted:
@@ -106,7 +111,19 @@ class WorkFlowRunner(Thread):
                 cmd+=closeCmd(istep,'dasquery')
                 retStep = self.doCmd(cmd)
                 #don't use the file list executed, but use the das command of cmsDriver for next step
-                inFile='filelist:step%d_dasquery.log'%(istep,)
+                # If the das output is not there or it's empty, consider it an
+                # issue of this step, not of the next one.
+                dasOutputPath = join(self.wfDir, 'step%d_dasquery.log'%(istep,))
+                if not exists(dasOutputPath):
+                  retStep = 1
+                  dasOutput = None
+                else:
+                  dasOutput = open(dasOutputPath).read().strip(" \n\t")
+                if not dasOutput:
+                  retStep = 1
+                  isInputOk = False
+                 
+                inFile = 'filelist:' + basename(dasOutputPath)
                 print "---"
             else:
                 #chaining IO , which should be done in WF object already and not using stepX.root but <stepName>.root
@@ -139,7 +156,10 @@ class WorkFlowRunner(Thread):
                 #error occured
                 self.npass.append(0)
                 self.nfail.append(1)
-                self.stat.append('FAILED')
+                if not isInputOk:
+                  self.stat.append("DAS_ERROR")
+                else:
+                  self.stat.append('FAILED')
                 #to skip processing
                 aborted=True
             else:
