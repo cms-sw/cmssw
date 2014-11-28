@@ -5,10 +5,10 @@
 #
 # Command line arguments:
 # - standard command line arguments as defined in FWCore.ParameterSet.VarParsing.VarParsing( 'standard' )
-#   + 'maxEvent'       (int , default: -1)
+#   + 'maxEvent' (int , default: -1)
 # - 'runOnMC'          (bool, default: True ): decide if run on MC or real data
 # - 'runOnMiniAOD'     (bool, default: True ): decide if run on miniAOD or AOD input
-# - 'useElecEAIsoCorr' (bool, default: True ): decide, if EA (rho) or Delta beta corrections are used for electron isolation is used
+# - 'useElecEAIsoCorr' (bool, default: True ): decide, if EA (rho) or Delta beta corrections are used for electron isolation
 # - 'useCalibElec'     (bool, default: False): decide, if electron re-calibration using regression energies is used
 # - 'addTriggerMatch'  (bool, default: True ): decide, if trigger objects are matched to signal muons
 #
@@ -189,15 +189,17 @@ inputFiles = [] # FIXME: Fill
 # DEBUG BEGIN
 if runOnMiniAOD:
   if runOnMC:
-    inputFiles = [ 'file:step5.root' ]
+    from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarPileUpMINIAODSIM
+    inputFiles = filesRelValProdTTbarPileUpMINIAODSIM
   else:
-    inputFiles = [ 'file:step5_data.root' ]
+    from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValSingleMuMINIAOD
+    inputFiles = filesRelValSingleMuMINIAOD
 else:
   if runOnMC:
     from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarAODSIM
     inputFiles = filesRelValProdTTbarAODSIM
   else:
-    from PhysicsTools.PatAlgos.patInputFiles_cff import filesSingleMuRECO
+    from PhysicsTools.PatAlgos.patInputFiles_cff import filesSingleMuRECO # not available at CERN
     inputFiles = filesSingleMuRECO
 # DEBUG END
 process.load( "TopQuarkAnalysis.Configuration.patRefSel_inputModule_cfi" )
