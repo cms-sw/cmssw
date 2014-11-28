@@ -20,21 +20,20 @@ using namespace l1extra ;
 CaloTowerCreatorForTauHLT::CaloTowerCreatorForTauHLT( const ParameterSet & p ) 
   :
   mVerbose (p.getUntrackedParameter<int> ("verbose", 0)),
+  mtowers_token (consumes<CaloTowerCollection>(p.getParameter<InputTag>("towers") ) ),
   mCone (p.getParameter<double> ("UseTowersInCone")),
+  mTauTrigger_token (consumes<L1JetParticleCollection>(p.getParameter<InputTag>("TauTrigger") ) ),
   mEtThreshold (p.getParameter<double> ("minimumEt")),
   mEThreshold (p.getParameter<double> ("minimumE")),
   mTauId (p.getParameter<int> ("TauId"))
 {
-  mtowers_token = consumes<CaloTowerCollection>(p.getParameter<InputTag>("towers") );
-  mTauTrigger_token = consumes<L1JetParticleCollection>(p.getParameter<InputTag>("TauTrigger") );
-
   produces<CaloTowerCollection>();
 }
 
 CaloTowerCreatorForTauHLT::~CaloTowerCreatorForTauHLT() {
 }
 
-void CaloTowerCreatorForTauHLT::produce( Event& evt, const EventSetup& ) {
+void CaloTowerCreatorForTauHLT::produce( StreamID sid, Event& evt, const EventSetup& stp ) const {
   edm::Handle<CaloTowerCollection> caloTowers;
   evt.getByToken( mtowers_token, caloTowers );
 
