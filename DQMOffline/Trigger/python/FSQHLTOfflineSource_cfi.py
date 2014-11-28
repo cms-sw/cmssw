@@ -78,7 +78,11 @@ def getHighMultVPSet():
             combinedObjectSelection =  cms.string("1==1"),
             combinedObjectSortCriteria = cms.string("at(0).pt"),
             combinedObjectDimension = cms.int32(1),
-            combinedObjectDrawables =  cms.VPSet()
+            combinedObjectDrawables =  cms.VPSet(
+                cms.PSet (name = cms.string("ptBest"), expression = cms.string("at(0).pt"), bins = cms.int32(20), min = cms.double(0), max = cms.double(10)),
+                cms.PSet (name = cms.string("etaBest"), expression = cms.string("at(0).eta"), bins = cms.int32(100), min = cms.double(-2.5), max = cms.double(2.5))
+
+            )
         )
         ret.append(hltPixelTracks)
 
