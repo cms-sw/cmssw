@@ -1,1 +1,1 @@
-from slow.Photon import Photon
+from classes.Photon import Photon

@@ -1,4 +1,4 @@
-from slow.Muon import Muon 
+from classes.Muon import Muon 
 #comment next three lines for old objects
 import ROOT
 import FastObjects

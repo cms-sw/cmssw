@@ -1,4 +1,4 @@
-from slow.Jet import Jet,GenJet
+from classes.Jet import Jet,GenJet
 
 #comment for old
 import ROOT
