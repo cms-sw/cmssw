@@ -14,17 +14,16 @@ using namespace std;
 using namespace edm;
 using namespace l1extra;
 
-L1HLTTauMatching::L1HLTTauMatching(const edm::ParameterSet& iConfig)
-{
-  jetSrc = consumes<PFTauCollection>(iConfig.getParameter<InputTag>("JetSrc") );
-  tauTrigger = consumes<trigger::TriggerFilterObjectWithRefs>(iConfig.getParameter<InputTag>("L1TauTrigger") );
-  mEt_Min = iConfig.getParameter<double>("EtMin");
-  
+L1HLTTauMatching::L1HLTTauMatching(const edm::ParameterSet& iConfig):
+  jetSrc( consumes<PFTauCollection>(iConfig.getParameter<InputTag>("JetSrc") ) ),
+  tauTrigger( consumes<trigger::TriggerFilterObjectWithRefs>(iConfig.getParameter<InputTag>("L1TauTrigger") ) ),
+  mEt_Min( iConfig.getParameter<double>("EtMin") )
+{  
   produces<PFTauCollection>();
 }
 L1HLTTauMatching::~L1HLTTauMatching(){ }
 
-void L1HLTTauMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES)
+void L1HLTTauMatching::produce(edm::StreamID iSId, edm::Event& iEvent, const edm::EventSetup& iES) const
 {
 	
   using namespace edm;
@@ -45,13 +44,12 @@ void L1HLTTauMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 		
   edm::Handle<trigger::TriggerFilterObjectWithRefs> l1TriggeredTaus;
   iEvent.getByToken(tauTrigger,l1TriggeredTaus);
-		
-		
-  tauCandRefVec.clear();
-  jetCandRefVec.clear();
-  
+				
+  vector<l1extra::L1JetParticleRef> tauCandRefVec;                                                
+  vector<l1extra::L1JetParticleRef> jetCandRefVec;
   l1TriggeredTaus->getObjects( trigger::TriggerL1TauJet,tauCandRefVec);
   l1TriggeredTaus->getObjects( trigger::TriggerL1CenJet,jetCandRefVec);
+
   math::XYZPoint a(0.,0.,0.);
   CaloJet::Specific f;
 		
@@ -92,7 +90,7 @@ void L1HLTTauMatching::produce(edm::Event& iEvent, const edm::EventSetup& iES)
             
 	    PFTau myPFTau(std::numeric_limits<int>::quiet_NaN(), myJet.p4(),a);
 	    if(myJet.pt() > mEt_Min) {
-	      //tauL2LC->push_back(myLC);
+	      //	      tauL2LC->push_back(myLC);
 	      tauL2jets->push_back(myPFTau);
 	    }
 	    break;
