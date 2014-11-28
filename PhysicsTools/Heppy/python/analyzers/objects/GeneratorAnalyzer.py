@@ -62,8 +62,8 @@ class GeneratorAnalyzer( Analyzer ):
         if self.doPDFWeights:
             self.mchandles['pdfstuff'] = AutoHandle( 'generator', 'GenEventInfoProduct' )
 
-    def beginLoop(self):
-        super(GeneratorAnalyzer,self).beginLoop()
+    def beginLoop(self, setup):
+        super(GeneratorAnalyzer,self).beginLoop(setup)
 
     def fillGenLeptons(self, event, particle, isTau=False, sourceId=25):
         """Get the gen level light leptons (prompt and/or from tau decays)"""

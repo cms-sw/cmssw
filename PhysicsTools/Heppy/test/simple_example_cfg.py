@@ -39,6 +39,7 @@ sequence = cfg.Sequence( [
 from PhysicsTools.HeppyCore.framework.eventsfwlite import Events
 config = cfg.Config( components = selectedComponents,
                      sequence = sequence, 
+                     services = [],
                      events_class = Events)
 
 print config

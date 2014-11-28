@@ -55,8 +55,8 @@ class JetAnalyzer( Analyzer ):
             self.mchandles['genJets'] = AutoHandle('slimmedGenJets',
                                                    'std::vector<reco::GenJet>')
 
-    def beginLoop(self):
-        super(JetAnalyzer,self).beginLoop()
+    def beginLoop(self, setup):
+        super(JetAnalyzer,self).beginLoop(setup)
         self.counters.addCounter('jets')
         count = self.counters.counter('jets')
         count.register('all events')

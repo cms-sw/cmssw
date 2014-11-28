@@ -10,9 +10,9 @@ class Analyzer(CoreAnalyzer):
         self.handles = {}
         self.mchandles = {}
 
-    def beginLoop(self):
+    def beginLoop(self, setup):
         '''Automatically called by Looper, for all analyzers.'''
-        super(Analyzer, self).beginLoop()
+        super(Analyzer, self).beginLoop(setup)
         self.declareHandles()
         
 
@@ -28,7 +28,7 @@ class Analyzer(CoreAnalyzer):
         function of your child analyzer.'''
         # if not self.beginLoopCalled:
         #    # necessary in case the user calls process to go straight to a given event, before looping
-        #    self.beginLoop()
+        #    self.beginLoop(setup)
         for str,handle in self.handles.iteritems():
             handle.Load( iEvent )
         if self.cfg_comp.isMC:

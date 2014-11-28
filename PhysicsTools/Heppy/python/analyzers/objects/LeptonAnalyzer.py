@@ -50,8 +50,8 @@ class LeptonAnalyzer( Analyzer ):
         #rho for electrons
         self.handles['rhoEle'] = AutoHandle( self.cfg_ana.rhoElectron, 'double')
 
-    def beginLoop(self):
-        super(LeptonAnalyzer,self).beginLoop()
+    def beginLoop(self, setup):
+        super(LeptonAnalyzer,self).beginLoop(setup)
         self.counters.addCounter('events')
         count = self.counters.counter('events')
         count.register('all events')

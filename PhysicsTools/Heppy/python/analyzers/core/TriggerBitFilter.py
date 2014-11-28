@@ -31,8 +31,8 @@ class TriggerBitFilter( Analyzer ):
         super(TriggerBitFilter, self).declareHandles()
         self.handles['TriggerResults'] = AutoHandle( ('TriggerResults','','HLT'), 'edm::TriggerResults' )
 
-    def beginLoop(self):
-        super(TriggerBitFilter,self).beginLoop()
+    def beginLoop(self, setup):
+        super(TriggerBitFilter,self).beginLoop(setup)
 
     def process(self, iEvent, event):
         if self.autoAccept: return True
