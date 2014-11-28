@@ -45,7 +45,7 @@ class CFG(object):
         all = [ header ]
         all.extend(varlines)
         return '\n'.join( all )
-
+    
 class Analyzer( CFG ):
     '''Base analyzer configuration, see constructor'''
     def __init__(self, class_object, instance_label='1', 
@@ -85,6 +85,24 @@ class Analyzer( CFG ):
                                self.class_object.__name__])
         name = '_'.join([class_name, self.instance_label])
         return name 
+
+    
+class Service( CFG ):
+    
+    def __init__(self, class_object, instance_label='1', 
+                 verbose=False, **kwargs):
+        self.class_object = class_object
+        self.instance_label = instance_label
+        self.name = self.build_name()
+        self.verbose = verbose
+        super(Service, self).__init__(**kwargs)
+
+    def build_name(self):
+        class_name = '.'.join([self.class_object.__module__, 
+                               self.class_object.__name__])
+        name = '_'.join([class_name, self.instance_label])
+        return name 
+   
 
 class Sequence( list ):
     '''A list with print functionalities.
@@ -164,15 +182,17 @@ class MCComponent( Component ):
 class Config( object ):
     '''Main configuration object, holds a sequence of analyzers, and
     a list of components.'''
-    def __init__(self, components, sequence, events_class):
+    def __init__(self, components, sequence, services, events_class):
         self.components = components
         self.sequence = sequence
+        self.services = services
         self.events_class = events_class
 
     def __str__(self):
-        comp = '\n'.join( map(str, self.components))
-        sequence = str( self.sequence)
-        return '\n'.join([comp, sequence])
+        comp = '\n'.join(map(str, self.components))
+        sequence = str(self.sequence)
+        services = '\n'.join( map(str, self.services))
+        return '\n'.join([comp, sequence, services])
 
 
 if __name__ == '__main__':

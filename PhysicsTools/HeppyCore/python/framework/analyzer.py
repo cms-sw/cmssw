@@ -39,14 +39,14 @@ class Analyzer(object):
         self.mainLogger = logging.getLogger( looperName )
         self.beginLoopCalled = False
 
-    def beginLoop(self):
+    def beginLoop(self, setup):
         """Automatically called by Looper, for all analyzers."""
         self.counters = Counters()
         self.averages = Averages()
         self.mainLogger.warning( 'beginLoop ' + self.cfg_ana.name )
         self.beginLoopCalled = True
 
-    def endLoop(self):
+    def endLoop(self, setup):
         """Automatically called by Looper, for all analyzers."""
         #print self.cfg_ana
         self.mainLogger.warning( '' )

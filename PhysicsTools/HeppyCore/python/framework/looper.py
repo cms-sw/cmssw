@@ -4,22 +4,54 @@
 import os
 import sys
 import imp
+import copy
 import logging
 import pprint
-# from chain import Chain as Events
-# if 'HEPPY_FCC' in os.environ:
-#    from eventsalbers import Events
-#elif 'CMSSW_BASE' in os.environ:
-#    from eventsfwlite import Events
 from platform import platform 
 from event import Event
 
 
+class Setup(object):
+    '''The Looper creates a Setup object to hold information relevant during 
+    the whole process, such as the process configuration obtained from 
+    the configuration file, or services that can be used by several analyzers.
+
+    The user may freely attach new information to the setup object, 
+    as long as this information is relevant during the whole process. 
+    If the information is event specific, it should be attached to the event 
+    object instead.
+    ''' 
+    def __init__(self, config, services):
+        '''
+        Create a Setup object. 
+        
+        parameters: 
+        
+        config: configuration object from the configuration file
+        
+        services: dictionary of services indexed by service name.
+        The service name has the form classObject_instanceLabel 
+        as in this example: 
+        <base_heppy_path>.framework.services.tfile.TFileService_myhists
+        To find out about the service name of a given service, 
+        load your configuration file in python, and print the service. 
+        '''
+        self.config = config
+        self.services = services
+        
+    def close(self):
+        '''Stop all services'''
+        for service in self.services.values():
+            service.stop()
+        
+
 class Looper(object):
     """Creates a set of analyzers, and schedules the event processing."""
 
-    def __init__( self, name, cfg_comp, sequence, events_class, nEvents=None,
-                  firstEvent=0, nPrint=0):
+    def __init__( self, name,
+                  config, 
+                  nEvents=None,
+                  firstEvent=0, nPrint=0 ):
         """Handles the processing of an event sample.
         An Analyzer is built for each Config.Analyzer present
         in sequence. The Looper can then be used to process an event,
@@ -27,8 +59,7 @@ class Looper(object):
 
         Parameters:
         name    : name of the Looper, will be used as the output directory name
-        cfg_comp: information for the input sample, see Config
-        sequence: an ordered list of Config.Analyzer
+        config  : process configuration information, see Config
         nEvents : number of events to process. Defaults to all.
         firstEvent : first event to process. Defaults to the first one.
         nPrint  : number of events to print at the beginning
@@ -41,9 +72,9 @@ class Looper(object):
                                                              'log.txt'])))
         self.logger.addHandler( logging.StreamHandler(sys.stdout) )
 
-        self.cfg_comp = cfg_comp
+        self.cfg_comp = config.components[0]
         self.classes = {}
-        self.analyzers = map( self._buildAnalyzer, sequence )
+        self.analyzers = map( self._build, config.sequence )
         self.nEvents = nEvents
         self.firstEvent = firstEvent
         self.nPrint = int(nPrint)
@@ -53,10 +84,20 @@ class Looper(object):
         if len(self.cfg_comp.files)==0:
             errmsg = 'please provide at least an input file in the files attribute of this component\n' + str(self.cfg_comp)
             raise ValueError( errmsg )
-        self.events = events_class(self.cfg_comp.files, tree_name)
+        self.events = config.events_class(self.cfg_comp.files, tree_name)
         # self.event is set in self.process
         self.event = None
+        services = dict()
+        for cfg_serv in config.services:
+            service = self._build(cfg_serv)
+            services[cfg_serv.name] = service
+        self.setup = Setup( copy.deepcopy(config), services)
 
+    def _build(self, cfg):
+        theClass = cfg.class_object
+        obj = theClass( cfg, self.cfg_comp, self.outDir )
+        return obj
+        
     def _prepareOutput(self, name):
         index = 0
         tmpname = name
@@ -70,10 +111,6 @@ class Looper(object):
                 tmpname = '%s_%d' % (name, index)
         return tmpname
 
-    def _buildAnalyzer(self, cfg_ana):
-        theClass = cfg_ana.class_object
-        obj = theClass( cfg_ana, self.cfg_comp, self.outDir )
-        return obj
 
     def loop(self):
         """Loop on a given number of events.
@@ -97,7 +134,7 @@ class Looper(object):
                                                         eventSize=eventSize))
         self.logger.warning( str( self.cfg_comp ) )
         for analyzer in self.analyzers:
-            analyzer.beginLoop()
+            analyzer.beginLoop(self.setup)
         try:
             for iEv in range(firstEvent, firstEvent+eventSize):
                 # if iEv == nEvents:
@@ -110,7 +147,7 @@ class Looper(object):
         except UserWarning:
             print 'Stopped loop following a UserWarning exception'
         for analyzer in self.analyzers:
-            analyzer.endLoop()
+            analyzer.endLoop(self.setup)
         warn = self.logger.warning
         warn('')
         warn( self.cfg_comp )
@@ -124,7 +161,7 @@ class Looper(object):
         but can also be called directly from
         the python interpreter, to jump to a given event.
         """
-        self.event = Event(iEv, self.events[iEv])
+        self.event = Event(iEv, self.events[iEv], self.setup)
         self.iEvent = iEv
         for analyzer in self.analyzers:
             if not analyzer.beginLoopCalled:
@@ -140,6 +177,7 @@ class Looper(object):
         """
         for analyzer in self.analyzers:
             analyzer.write()
+        self.setup.close() 
         pass
 
 
@@ -155,7 +193,8 @@ if __name__ == '__main__':
     comp = config.components[0]
     events_class = config.events_class
     looper = Looper( 'Loop', comp,
-                     config.sequence, 
+                     config.sequence,
+                     config.services,
                      events_class, 
                      nPrint = 5)
     looper.loop()
