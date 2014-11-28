@@ -15,6 +15,7 @@
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibErrors.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
+#include "CondFormats/EcalObjects/interface/EcalSamplesCorrelation.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeCalibErrors.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"
@@ -198,6 +199,8 @@ namespace CondFormats_EcalObjects {
     //    std::vector<float> ecalSRSettings_dccNormalizedWeights_1;
     //    float ecalSRSettings_dccNormalizedWeights_elt_2;
     
-	EcalTimeBiasCorrections timeBiasCorrections;
+    EcalTimeBiasCorrections timeBiasCorrections;
+
+    EcalSamplesCorrelation samplesCorrelation;
   };
 }
