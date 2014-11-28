@@ -20,14 +20,13 @@ phase2TrackerDigitizer = cms.PSet(
 #Pixel Digitizer Algorithm
     PixelDigitizerAlgorithm = cms.PSet(
       makeDigiSimLinks = cms.untracked.bool(True),
-#D.B.:the noise should be a function of strip capacitance, roughly: ReadoutNoiseInElec=500+(64*Cdet[pF]) ~= 500+(64*1.5[cm])
-      ReadoutNoiseInElec = cms.double(1000.0),#D.B.:Fill readout noise, including all readout chain, relevant for smearing
-      ThresholdInElectrons_Barrel = cms.double(5800.), #D.B.: this should correspond to a threshold of 530mV    
-      ThresholdInElectrons_Endcap = cms.double(5800.),
+      ReadoutNoiseInElec = cms.double(350.0),
+      ThresholdInElectrons_Barrel = cms.double(2000.0),
+      ThresholdInElectrons_Endcap = cms.double(2000.0),
       AddThresholdSmearing = cms.bool(True),
-      ThresholdSmearing_Barrel = cms.double(580.0),#D.B.: changed (~5mV peakToPeak --> 1.76mV rms) (was 210.0)
-      ThresholdSmearing_Endcap = cms.double(580.0),#D.B.: changed (~5mV peakToPeak --> 1.76mV rms) (was 245.0)
-      NoiseInElectrons = cms.double(300),	         # 30% of the readout noise (should be changed in future)
+      ThresholdSmearing_Barrel = cms.double(245.0),
+      ThresholdSmearing_Endcap = cms.double(210.0),
+      NoiseInElectrons = cms.double(175.0),
       DigitalReadout           = cms.bool(True), # Flag to decide analog or digital readout 
       TofUpperCut = cms.double(12.5),
       TofLowerCut = cms.double(-12.5),
@@ -40,8 +39,8 @@ phase2TrackerDigitizer = cms.PSet(
       SigmaCoeff = cms.double(1.80),  		#D.B.: to be confirmed with simulations in CMSSW_6.X
       ClusterWidth = cms.double(3),		#D.B.: this is used as number of sigmas for charge collection (3=+-3sigmas)
       LorentzAngle_DB = cms.bool(False),			
-      TanLorentzAnglePerTesla_Endcap = cms.double(0.106),	#D.B.:this I have not checked yet
-      TanLorentzAnglePerTesla_Barrel = cms.double(0.106),	#D.B.:this I have not checked yet
+      TanLorentzAnglePerTesla_Endcap = cms.double(0.106),
+      TanLorentzAnglePerTesla_Barrel = cms.double(0.106),
       KillModules = cms.bool(False),
       DeadModules_DB = cms.bool(False),
       DeadModules = cms.VPSet(),
@@ -74,8 +73,8 @@ phase2TrackerDigitizer = cms.PSet(
       SigmaCoeff = cms.double(1.80),  		#D.B.: to be confirmed with simulations in CMSSW_6.X
       ClusterWidth = cms.double(3),		#D.B.: this is used as number of sigmas for charge collection (3=+-3sigmas)
       LorentzAngle_DB = cms.bool(False),			
-      TanLorentzAnglePerTesla_Endcap = cms.double(0.106),	#D.B.:this I have not checked yet
-      TanLorentzAnglePerTesla_Barrel = cms.double(0.106),	#D.B.:this I have not checked yet
+      TanLorentzAnglePerTesla_Endcap = cms.double(0.07),
+      TanLorentzAnglePerTesla_Barrel = cms.double(0.07),
       KillModules = cms.bool(False),
       DeadModules_DB = cms.bool(False),
       DeadModules = cms.VPSet(),
@@ -108,8 +107,8 @@ phase2TrackerDigitizer = cms.PSet(
       SigmaCoeff = cms.double(1.80),  		#D.B.: to be confirmed with simulations in CMSSW_6.X
       ClusterWidth = cms.double(3),		#D.B.: this is used as number of sigmas for charge collection (3=+-3sigmas)
       LorentzAngle_DB = cms.bool(False),			
-      TanLorentzAnglePerTesla_Endcap = cms.double(0.106),	#D.B.:this I have not checked yet
-      TanLorentzAnglePerTesla_Barrel = cms.double(0.106),	#D.B.:this I have not checked yet
+      TanLorentzAnglePerTesla_Endcap = cms.double(0.07),
+      TanLorentzAnglePerTesla_Barrel = cms.double(0.07),
       KillModules = cms.bool(False),
       DeadModules_DB = cms.bool(False),
       DeadModules = cms.VPSet(),
@@ -142,8 +141,8 @@ phase2TrackerDigitizer = cms.PSet(
       SigmaCoeff = cms.double(1.80),  		#D.B.: to be confirmed with simulations in CMSSW_6.X
       ClusterWidth = cms.double(3),		#D.B.: this is used as number of sigmas for charge collection (3=+-3sigmas)
       LorentzAngle_DB = cms.bool(False),			
-      TanLorentzAnglePerTesla_Endcap = cms.double(0.106),	#D.B.:this I have not checked yet
-      TanLorentzAnglePerTesla_Barrel = cms.double(0.106),	#D.B.:this I have not checked yet
+      TanLorentzAnglePerTesla_Endcap = cms.double(0.07),
+      TanLorentzAnglePerTesla_Barrel = cms.double(0.07),
       KillModules = cms.bool(False),
       DeadModules_DB = cms.bool(False),
       DeadModules = cms.VPSet(),
