@@ -84,7 +84,6 @@ bTagCut = 'bDiscriminator("combinedSecondaryVertexBJetTags") > 0.679'
 
 ### Trigger matching
 
-## Trigger object selection
-#triggerObjectSelectionDataRelVals = 'type("TriggerMuon") && ( path("HLT_IsoMu17_eta2p1_TriCentralPFJet30_v*") )' # 2012A RelVals
-#triggerObjectSelectionData        = 'type("TriggerMuon") && ( path("HLT_IsoMu17_eta2p1_TriCentralPFNoPUJet30_30_20_v*") )'
-#triggerObjectSelectionMC          = 'type("TriggerMuon") && ( path("HLT_*") )' # not recommended
+# Trigger object selection
+triggerObjectSelectionData = 'type("TriggerMuon") && ( path("%s") )'%( triggerSelectionData )
+triggerObjectSelectionMC   = 'type("TriggerMuon") && ( path("%s") )'%( triggerSelectionMC )
