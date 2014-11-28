@@ -14,7 +14,9 @@ import math
 #   other handlers read data from collection pointed by inputCol parameter 
 #       (partialFilterName, partialPathName params are ignored)
 #
-
+#   note: be extra carefull when using singleObject and combinedObject drawables in same
+#          handler definition. Histo names may be the same, currently there is no protection against it
+#
 def getHighMultVPSet():
     ret=cms.VPSet()
     thresholds = [60, 85, 110, 135, 160]
@@ -65,18 +67,18 @@ def getHighMultVPSet():
             triggerSelection = cms.string(partialPathName+"*"),
             handlerType = cms.string("FromHLT"),
             partialPathName = cms.string(partialPathName),
-            partialFilterName  = cms.string("hlt1HighMult"), # note: this matches to hltSingleCaloJetXXXForHFJECBase
+            partialFilterName  = cms.string("hlt1HighMult"),
             dqmhistolabel  = cms.string("hltPixelTracks"),
             mainDQMDirname = cms.untracked.string(fsqdirname),
             singleObjectsPreselection = cms.string("1==1"),
-            singleObjectDrawables =  cms.VPSet(),
+            singleObjectDrawables =  cms.VPSet(
+                cms.PSet (name = cms.string("pt"), expression = cms.string("pt"), bins = cms.int32(20), min = cms.double(0), max = cms.double(10)),
+                cms.PSet (name = cms.string("eta"), expression = cms.string("eta"), bins = cms.int32(100), min = cms.double(-2.5), max = cms.double(2.5))
+            ),
             combinedObjectSelection =  cms.string("1==1"),
             combinedObjectSortCriteria = cms.string("at(0).pt"),
             combinedObjectDimension = cms.int32(1),
-            combinedObjectDrawables =  cms.VPSet(
-                cms.PSet (name = cms.string("pt"), expression = cms.string("at(0).pt"), bins = cms.int32(10), min = cms.double(0), max = cms.double(10)),
-                cms.PSet (name = cms.string("eta"), expression = cms.string("at(0).eta"), bins = cms.int32(104), min = cms.double(-5.2), max = cms.double(5.2))
-            )
+            combinedObjectDrawables =  cms.VPSet()
         )
         ret.append(hltPixelTracks)
 

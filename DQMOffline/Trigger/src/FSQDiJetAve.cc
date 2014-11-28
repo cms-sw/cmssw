@@ -190,7 +190,8 @@ class HandlerTemplate: public BaseHandler {
                      const edm::Event& iEvent,
                      const edm::EventSetup& iSetup,
                      const HLTConfigProvider&  hltConfig,
-                     const trigger::TriggerEvent& trgEvent)
+                     const trigger::TriggerEvent& trgEvent,
+                     float weight)
         {
                Handle<std::vector<TInputCandidateType> > hIn;
                iEvent.getByToken(m_tokens[m_input.encode()], hIn);
@@ -294,7 +295,7 @@ class HandlerTemplate: public BaseHandler {
             if (!triggerResults.accept(indexNum)) return;*/
 
             std::vector<TOutputCandidateType> cands;
-            getFilteredCands((TInputCandidateType *)0, cands, iEvent, iSetup, hltConfig, trgEvent);
+            getFilteredCands((TInputCandidateType *)0, cands, iEvent, iSetup, hltConfig, trgEvent, weight);
 
             if (cands.size()==0) return;
 
@@ -411,7 +412,8 @@ void HandlerTemplate<reco::Candidate::LorentzVector, reco::Candidate::LorentzVec
              const edm::Event& iEvent,  
              const edm::EventSetup& iSetup,
              const HLTConfigProvider&  hltConfig,
-             const trigger::TriggerEvent& trgEvent)
+             const trigger::TriggerEvent& trgEvent,
+             float weight)
 {  
    Handle<View<reco::Candidate> > hIn;
    iEvent.getByToken(m_tokens[m_input.encode()], hIn);
@@ -461,8 +463,11 @@ template<>
 void HandlerTemplate<reco::Track, int >::getFilteredCands(
              reco::Track *, // pass a dummy pointer, makes possible to select correct getFilteredCands
              std::vector<int > & cands, // output collection
-             const edm::Event& iEvent, const edm::EventSetup& iSetup,
-             const HLTConfigProvider&  hltConfig,  const trigger::TriggerEvent& trgEvent)
+             const edm::Event& iEvent,  
+             const edm::EventSetup& iSetup,
+             const HLTConfigProvider&  hltConfig,
+             const trigger::TriggerEvent& trgEvent,
+             float weight)
 {  
    cands.clear();
    cands.push_back(0);
@@ -588,7 +593,8 @@ void HandlerTemplate<reco::Candidate::LorentzVector, int >::getFilteredCands(
              const edm::Event& iEvent,  
              const edm::EventSetup& iSetup,
              const HLTConfigProvider&  hltConfig,
-             const trigger::TriggerEvent& trgEvent)
+             const trigger::TriggerEvent& trgEvent,
+             float weight)
 {  
    cands.clear();
    cands.push_back(0);
@@ -618,7 +624,8 @@ void HandlerTemplate<trigger::TriggerObject, trigger::TriggerObject>::getFiltere
              const edm::Event& iEvent,  
              const edm::EventSetup& iSetup,
              const HLTConfigProvider&  hltConfig,
-             const trigger::TriggerEvent& trgEvent)
+             const trigger::TriggerEvent& trgEvent,
+             float weight)
 {
     // 1. Find matching path. Inside matchin path find matching filter
     std::string filterFullName = findPathAndFilter(hltConfig)[1];
