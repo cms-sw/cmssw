@@ -67,12 +67,12 @@ void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame)
       oldADC[it]=dataFrame[it].adc();
       uint16_t newADC(oldADC[it]);      
       
-      //check if this bx has been already put in busy state 
-      //by ToT occuring in previous bunch(es)
-      //if so then nothing will be readout
+      //check if this bx has been already put in busy state by ToT occuring in previous bunch(es) 
+      //if so then nothing will be readout but gain will flag cell is busy
       if(busyFlags[it])
 	{
-	  gain=0;
+	  //std::cout << "Busy flag caught!" << std::endl;
+	  gain=1;
 	  newADC=0;
 	}
       //readout is enabled
@@ -101,11 +101,15 @@ void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame)
 	      
 	      //foward declare the next bunches as busy
 	      uint16_t busyBxs(floor(integTime/bxTime_)+1);
-	      //if(doDebug) cout << it <<  "bunch will raise busy for " << busyBxs 
+	      // if(doDebug) cout << it <<  "bunch will raise busy for " << busyBxs 
 	      //<< "(integTime=" << integTime << ")" << endl;
 	      
-	      for(int jt=it; jt<it+busyBxs || jt<dataFrame.size() ; jt++) 
-		busyFlags[jt]=true;
+	      for(int jt=it; jt<it+busyBxs && jt<dataFrame.size() ; jt++) 
+		{
+		  busyFlags[jt]=true;
+		  //  if(doDebug) cout << "\t" << jt << " ";
+		}
+	      //if(doDebug) cout << endl;
 	    }
 	}
       
@@ -114,7 +118,10 @@ void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame)
       dataFrame.setSample(it,newSample);
     }
 
-  //if(doDebug)
-  //  for(int it=0; it<dataFrame.size(); it++)
-  //    std::cout << oldADC[it] << " busy=" << busyFlags[it] << " ToT=" << totFlags[it] << " finalword gain=" << dataFrame[it].gain() << " adc=" << dataFrame[it].adc() << std::endl;
+  //  if(doDebug)
+  //    {
+  //      std::cout << "Final data frame" << std::endl;
+  //      for(int it=0; it<dataFrame.size(); it++)
+  //	std::cout << oldADC[it] << " busy=" << busyFlags[it] << " ToT=" << totFlags[it] << " finalword gain=" << dataFrame[it].gain() << " adc=" << dataFrame[it].adc() << std::endl;
+  //    }
 }
