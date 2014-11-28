@@ -165,15 +165,15 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, i
       float dist2center( geom->getPosition(id).mag() );
 
       //hit time: [time()]=ns  [centerDist]=cm [refSpeed_]=cm/ns + delay by 1ns
-      //accumulate in 6 buckets of 25ns (4 pre-samples, 1 in-time, 1 post-sample)
+      //accumulate in 10 buckets of 25ns (9 pre-samples, 1 in-time)
       float tof(hit_it->time()-dist2center/refSpeed_+tofDelay_);
       int itime=floor( tof/bxTime_ ) ;
       
       //no need to add bx crossing - tof comes already corrected from the mixing module
       //itime += bxCrossing;
-      itime += 4;
+      itime += 9;
       
-      if(itime<0 || itime>5) continue; 
+      if(itime<0 || itime>9) continue; 
       
       //energy deposited 
       HGCSimEn_t ien( hit_it->energy() );
