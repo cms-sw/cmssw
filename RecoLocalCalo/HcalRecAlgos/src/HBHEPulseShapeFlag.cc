@@ -538,7 +538,7 @@ double HBHEPulseShapeFlagSetter::DualNominalFitSingleTry(const std::vector<doubl
       if(OffsetTemp + 25 >= (int)cipSize)
 	C1 = CumulativeIdealPulse[cipSize-1];
       else
-	if( OffsetTemp  >= 25)
+	if( OffsetTemp  >= -25)
 	  C1 = CumulativeIdealPulse[OffsetTemp+25];
       if(OffsetTemp >= (int)cipSize)
 	C2 = CumulativeIdealPulse[cipSize-1];
