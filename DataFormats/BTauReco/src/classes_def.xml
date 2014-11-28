@@ -222,8 +222,8 @@
   <class name="reco::JetCrystalsAssociationRefVector"/>
   <class name="edm::Wrapper<reco::JetCrystalsAssociationCollection>"/>
 
-  <class name="reco::JetEisolAssociation"/>
   <!--commented out because the typedef resolves to a class with dictionary in DataFormats/JetReco-->
+  <!--class name="reco::JetEisolAssociation"/-->
   <!--class name="reco::JetEisolAssociationCollection"/-->
   <class name="reco::JetEisolAssociationRef"/>
   <class name="reco::JetEisolAssociationFwdRef"/>
