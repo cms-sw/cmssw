@@ -1,4 +1,4 @@
-from slow.Electron import Electron
+from classes.Electron import Electron
 #comment for old
 import ROOT
 import FastObjects
