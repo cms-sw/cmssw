@@ -118,7 +118,9 @@ class WorkFlowRunner(Thread):
                   retStep = 1
                   dasOutput = None
                 else:
-                  dasOutput = open(dasOutputPath).read().strip(" \n\t")
+                  # We consider only the files which have at least one logical filename
+                  # in it. This is because sometimes das fails and still prints out junk.
+                  dasOutput = [l for l in open(dasOutputPath).read().split("\n") if l.startswith("/")]
                 if not dasOutput:
                   retStep = 1
                   isInputOk = False
