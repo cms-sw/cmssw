@@ -10,6 +10,7 @@
 # - 'runOnMiniAOD'     (bool, default: True ): decide if run on miniAOD or AOD input
 # - 'useElecEAIsoCorr' (bool, default: True ): decide, if EA (rho) or Delta beta corrections are used for electron isolation is used
 # - 'useCalibElec'     (bool, default: False): decide, if electron re-calibration using regression energies is used
+# - 'addTriggerMatch'  (bool, default: True ): decide, if trigger objects are matched to signal muons
 #
 
 
@@ -26,6 +27,7 @@ options.register( 'runOnMC'         , True , VarParsing.VarParsing.multiplicity.
 options.register( 'runOnMiniAOD'    , True , VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, 'decide, if run on miniAOD or AOD input' )
 options.register( 'useElecEAIsoCorr', True , VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, 'decide, if EA (rho) or Delta beta corrections are used for electron isolation is used' )
 options.register( 'useCalibElec'    , False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, 'decide, if electron re-calibration using regression energies is used' )
+options.register( 'addTriggerMatch' , True , VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, 'decide, if trigger objects are matched to signal muons' )
 # parsing command line arguments
 if( hasattr( sys, 'argv' ) ):
   if( len( sys.argv ) > 2 ):
@@ -74,10 +76,11 @@ from TopQuarkAnalysis.Configuration.patRefSel_refMuJets import *
 # Each level includes the former ones, but also the corresponding stand-alone selection steps are available, adding a
 # 'StandAlone' after the prefix 'p' (e.g. 'pLooseMuonVeto' --> 'pStandAloneLooseMuonVeto').
 # All corresponding flags are available in the TriggerResults collection produced by this process later.
-selectEvents = 'pSignalMuon'
+selectEvents = 'pGoodVertex'
 
 # Step 0
-triggerSelectionData = 'HLT_IsoMu24_eta2p1_v*'
+#triggerSelectionData = ''
+#triggerSelectionMC   = ''
 
 # Step 1
 #muonCut       = ''
@@ -110,6 +113,11 @@ electronCut = electronGsfCut
 bTagSrc = 'selectedJets'
 #bTagCut = ''
 minBTags = 2
+
+# TriggerMatching
+addTriggerMatch = options.addTriggerMatch
+#triggerObjectSelectionData = 'type("TriggerMuon") && ( path("%s") )'%( triggerSelectionData )
+#triggerObjectSelectionMC   = 'type("TriggerMuon") && ( path("%s") )'%( triggerSelectionMC )
 
 
 ### Input
@@ -144,6 +152,13 @@ wantSummary = True
 ###                            (user job steering)                           ###
 ###                                                                          ###
 ### ======================================================================== ###
+
+
+triggerSelection       = triggerSelectionData
+triggerObjectSelection = triggerObjectSelectionData
+if runOnMC:
+  triggerSelection       = triggerSelectionMC
+  triggerObjectSelection = triggerObjectSelectionMC
 
 
 ###
@@ -206,8 +221,14 @@ if not runOnMiniAOD:
 process.load( "TopQuarkAnalysis.Configuration.patRefSel_outputModule_cff" )
 # output file name
 process.out.fileName = outputFile
-#from TopQuarkAnalysis.Configuration.patRefSel_eventContent.cff import patRefSel_eventContent # FIXME: To be defined
-#process.out.outputCommands += patRefSel_eventContent
+from TopQuarkAnalysis.Configuration.patRefSel_eventContent_cff import refMuJets_eventContent
+process.out.outputCommands += refMuJets_eventContent
+if runOnMiniAOD:
+  from TopQuarkAnalysis.Configuration.patRefSel_eventContent_cff import miniAod_eventContent
+  process.out.outputCommands += miniAod_eventContent
+else:
+  from TopQuarkAnalysis.Configuration.patRefSel_eventContent_cff import aod_eventContent
+  process.out.outputCommands += aod_eventContent
 # clear event selection
 process.out.SelectEvents.SelectEvents = cms.vstring( selectEvents )
 
@@ -221,11 +242,7 @@ process.out.SelectEvents.SelectEvents = cms.vstring( selectEvents )
 # Step 0
 
 from TopQuarkAnalysis.Configuration.patRefSel_triggerSelection_cff import triggerResults
-process.triggerSelection = triggerResults.clone()
-if runOnMC:
-  process.triggerSelection.triggerConditions = [ triggerSelectionMC ]
-else:
-  process.triggerSelection.triggerConditions = [ triggerSelectionData ]
+process.triggerSelection = triggerResults.clone( triggerConditions = [ triggerSelection ] )
 process.sStandAloneTrigger = cms.Sequence( process.triggerSelection
                                          )
 process.pStandAloneTrigger = cms.Path( process.sStandAloneTrigger )
@@ -435,3 +452,22 @@ process.p2Jets         = cms.Path( process.s2Jets )
 process.p3Jets         = cms.Path( process.s2Jets )
 process.p4Jets         = cms.Path( process.s4Jets )
 process.pBTags         = cms.Path( process.sBTags )
+
+# Trigger matching
+
+if addTriggerMatch:
+  from TopQuarkAnalysis.Configuration.patRefSel_triggerMatching_cff import muonTriggerMatch
+  process.muonTriggerMatch = muonTriggerMatch.clone( matchedCuts = triggerObjectSelection )
+  if not runOnMiniAOD:
+    from PhysicsTools.PatAlgos.tools.trigTools import switchOnTriggerMatchEmbedding
+    switchOnTriggerMatchEmbedding( process, triggerMatchers = [ 'muonTriggerMatch' ] )
+  else:
+    from TopQuarkAnalysis.Configuration.patRefSel_triggerMatching_cff import unpackedPatTrigger
+    process.selectedTriggerUnpacked = unpackedPatTrigger.clone()
+    process.muonTriggerMatch.matched = 'selectedTriggerUnpacked'
+    from TopQuarkAnalysis.Configuration.patRefSel_triggerMatching_cff import signalMuonsTriggerMatch
+    process.signalMuonsTriggerMatch = signalMuonsTriggerMatch.clone()
+    process.out.outputCommands += [ 'drop *_signalMuons_*_*'
+                                  , 'keep *_signalMuonsTriggerMatch_*_*'
+                                  ]
+
