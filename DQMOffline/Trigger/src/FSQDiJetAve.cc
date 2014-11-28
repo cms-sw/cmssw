@@ -98,7 +98,7 @@ class BaseHandler {
 
         std::string m_dirname;
 
-        std::map<std::string,  MonitorElement*> m_histos;
+         std::map<std::string,  MonitorElement*> m_histos;
          std::set<std::string> m_usedPaths;
 
         
@@ -123,6 +123,7 @@ class HandlerTemplate: public BaseHandler {
         StringObjectFunction<std::vector<TOutputCandidateType> >     m_combinedObjectSortFunction;
         // TODO: auto ptr
         std::map<std::string, std::shared_ptr<StringObjectFunction<std::vector<TOutputCandidateType> > > > m_plotters;
+        ///std::map<std::string,  > m_plotterType;
 
 
         std::vector< edm::ParameterSet > m_combinedObjectDrawables;
@@ -187,7 +188,8 @@ class HandlerTemplate: public BaseHandler {
                      const edm::Event& iEvent,
                      const edm::EventSetup& iSetup,
                      const HLTConfigProvider&  hltConfig,
-                     const trigger::TriggerEvent& trgEvent)
+                     const trigger::TriggerEvent& trgEvent,
+                     float weight)
         {
                Handle<std::vector<TInputCandidateType> > hIn;
                iEvent.getByLabel(InputTag(m_input), hIn);
@@ -293,7 +295,7 @@ class HandlerTemplate: public BaseHandler {
             if (!triggerResults.accept(indexNum)) return;*/
 
             std::vector<TOutputCandidateType> cands;
-            getFilteredCands((TInputCandidateType *)0, cands, iEvent, iSetup, hltConfig, trgEvent);
+            getFilteredCands((TInputCandidateType *)0, cands, iEvent, iSetup, hltConfig, trgEvent, weight);
 
             if (cands.size()==0) return;
 
@@ -404,7 +406,8 @@ void HandlerTemplate<reco::Candidate::LorentzVector, reco::Candidate::LorentzVec
              const edm::Event& iEvent,  
              const edm::EventSetup& iSetup,
              const HLTConfigProvider&  hltConfig,
-             const trigger::TriggerEvent& trgEvent)
+             const trigger::TriggerEvent& trgEvent,
+             float weight)
 {  
    Handle<View<reco::Candidate> > hIn;
    iEvent.getByLabel(InputTag(m_input), hIn);
@@ -433,7 +436,8 @@ void HandlerTemplate<reco::Track, int >::getFilteredCands(
              const edm::Event& iEvent,  
              const edm::EventSetup& iSetup,
              const HLTConfigProvider&  hltConfig,
-             const trigger::TriggerEvent& trgEvent)
+             const trigger::TriggerEvent& trgEvent,
+             float weight)
 {  
    cands.clear();
    cands.push_back(0);
@@ -463,7 +467,8 @@ void HandlerTemplate<reco::Candidate::LorentzVector, int >::getFilteredCands(
              const edm::Event& iEvent,  
              const edm::EventSetup& iSetup,
              const HLTConfigProvider&  hltConfig,
-             const trigger::TriggerEvent& trgEvent)
+             const trigger::TriggerEvent& trgEvent,
+             float weight)
 {  
    cands.clear();
    cands.push_back(0);
@@ -493,7 +498,8 @@ void HandlerTemplate<trigger::TriggerObject, trigger::TriggerObject>::getFiltere
              const edm::Event& iEvent,  
              const edm::EventSetup& iSetup,
              const HLTConfigProvider&  hltConfig,
-             const trigger::TriggerEvent& trgEvent)
+             const trigger::TriggerEvent& trgEvent,
+             float weight)
 {
     
     // 1. Find matching path. Inside matchin path find matching filter
