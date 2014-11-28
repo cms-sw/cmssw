@@ -3,32 +3,30 @@ import FWCore.ParameterSet.Config as cms
 #######################################################################
 # Very large impact parameter tracking using TOB + TEC ring 5 seeding #
 #######################################################################
-
-tobTecStepClusters = cms.EDProducer("TrackClusterRemover",
-    oldClusterRemovalInfo = cms.InputTag("pixelPairStepClusters"),
-    trajectories = cms.InputTag("pixelPairStepTracks"),
-    overrideTrkQuals = cms.InputTag('pixelPairStepSelector','pixelPairStep'),
-    TrackQuality = cms.string('highPurity'),
+from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import *
+tobTecStepClusters = trackClusterRemover.clone(
+    maxChi2                                  = cms.double(9.0),
+    trajectories                             = cms.InputTag("pixelPairStepTracks"),
+    pixelClusters                            = cms.InputTag("siPixelClusters"),
+    stripClusters                            = cms.InputTag("siStripClusters"),
+    oldClusterRemovalInfo                    = cms.InputTag("pixelPairStepClusters"),
+    overrideTrkQuals                         = cms.InputTag('pixelPairStepSelector','pixelPairStep'),
+    TrackQuality                             = cms.string('highPurity'),
     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
-    pixelClusters = cms.InputTag("siPixelClusters"),
-    stripClusters = cms.InputTag("siStripClusters"),
-    maxChi2 = cms.double(9.0)
 )
 
-tobTecStepSeedClusters = cms.EDProducer("TrackClusterRemover",
-    oldClusterRemovalInfo = cms.InputTag("mixedTripletStepClusters"),
-    trajectories = cms.InputTag("mixedTripletStepTracks"),
-    overrideTrkQuals = cms.InputTag('mixedTripletStep'),
-    TrackQuality = cms.string('highPurity'),
+### who is using this python file ?
+### I found it obsolete, at least in terms of the TrackClusterRemover setting
+### now, it is ok, but ....
+tobTecStepSeedClusters = trackClusterRemover.clone(
+    maxChi2                                  = cms.double(9.0),
+    trajectories                             = cms.InputTag("mixedTripletStepTracks"),
+    pixelClusters                            = cms.InputTag("siPixelClusters"),
+    stripClusters                            = cms.InputTag("siStripClusters"),
+    oldClusterRemovalInfo                    = cms.InputTag("mixedTripletStepClusters"),
+    overrideTrkQuals                         = cms.InputTag('mixedTripletStep'),
+    TrackQuality                             = cms.string('highPurity'),
     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
-    pixelClusters = cms.InputTag("siPixelClusters"),
-    stripClusters = cms.InputTag("siStripClusters"),
-    doStripChargeCheck = cms.bool(True),
-    stripRecHits = cms.string('siStripMatchedRecHits'),
-    Common = cms.PSet(
-        maxChi2 = cms.double(9.0),
-        minGoodStripCharge = cms.double(80.0)
-    )
 )
 
 # SEEDING LAYERS

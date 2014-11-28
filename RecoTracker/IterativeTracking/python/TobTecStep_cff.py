@@ -4,15 +4,16 @@ import FWCore.ParameterSet.Config as cms
 # Very large impact parameter tracking using TOB + TEC ring 5 seeding #
 #######################################################################
 
-tobTecStepClusters = cms.EDProducer("TrackClusterRemover",
-    oldClusterRemovalInfo = cms.InputTag("pixelLessStepClusters"),
-    trajectories = cms.InputTag("pixelLessStepTracks"),
-    overrideTrkQuals = cms.InputTag('pixelLessStep'),
-    TrackQuality = cms.string('highPurity'),
+from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import *
+tobTecStepClusters = trackClusterRemover.clone(
+    maxChi2                                  = cms.double(9.0),
+    trajectories                             = cms.InputTag("pixelLessStepTracks"),
+    pixelClusters                            = cms.InputTag("siPixelClusters"),
+    stripClusters                            = cms.InputTag("siStripClusters"),
+    oldClusterRemovalInfo                    = cms.InputTag("pixelLessStepClusters"),
+    overrideTrkQuals                         = cms.InputTag('pixelLessStep'),
+    TrackQuality                             = cms.string('highPurity'),
     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
-    pixelClusters = cms.InputTag("siPixelClusters"),
-    stripClusters = cms.InputTag("siStripClusters"),
-    maxChi2 = cms.double(9.0)
 )
 
 # TRIPLET SEEDING LAYERS
