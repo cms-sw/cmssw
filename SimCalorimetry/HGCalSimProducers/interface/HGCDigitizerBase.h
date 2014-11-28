@@ -15,7 +15,7 @@
 #include "SimCalorimetry/HGCSimProducers/src/HGCFEElectronics.cc"
 
 typedef float HGCSimEn_t;
-typedef std::array<HGCSimEn_t,6> HGCSimHitData;
+typedef std::array<HGCSimEn_t,10> HGCSimHitData;
 typedef std::unordered_map<uint32_t, HGCSimHitData> HGCSimHitDataAccumulator;
 
 template <class D>
@@ -104,7 +104,7 @@ class HGCDigitizerBase {
    */
   void updateOutput(std::auto_ptr<DColl> &coll,D rawDataFrame)
   {
-    size_t itIdx(4); //index to the in-time digi - this could be configurable in a future version
+    size_t itIdx(9);
 
     //check if in-time sample is above threshold and put result into the event
     if(doTimeSamples_)
@@ -163,6 +163,7 @@ class HGCDigitizerBase {
   //if true will put both in time and out-of-time samples in the event
   bool doTimeSamples_;
 
+ 
  private:
 
 };
