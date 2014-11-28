@@ -12,7 +12,6 @@ from multiprocessing import Pool
 from pprint import pprint
 
 from PhysicsTools.HeppyCore.framework.looper import Looper
-from PhysicsTools.HeppyCore.framework.anapath import analyzer_path
 
 # global, to be used interactively when only one component is processed.
 loop = None
@@ -28,7 +27,9 @@ def runLoopAsync(comp, outDir, config, options):
 def runLoop( comp, outDir, config, options):
     fullName = '/'.join( [outDir, comp.name ] )
     # import pdb; pdb.set_trace()
-    loop = Looper( fullName, comp, config.sequence, config.events_class,
+    config.components = [comp]
+    loop = Looper( fullName,
+                   config,
                    options.nevents, 0,
                    nPrint = options.nprint)
     print loop
@@ -114,8 +115,6 @@ def main( options, args ):
 
     file = open( cfgFileName, 'r' )
     cfg = imp.load_source( 'cfg', cfgFileName, file)
-
-    sys.path = analyzer_path + sys.path
 
     selComps = [comp for comp in cfg.config.components if len(comp.files)>0]
     selComps = split(selComps)
