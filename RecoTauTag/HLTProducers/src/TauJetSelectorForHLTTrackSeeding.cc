@@ -38,7 +38,7 @@ TauJetSelectorForHLTTrackSeeding::~TauJetSelectorForHLTTrackSeeding()
 
 // ------------ method called on each new Event  ------------
 void
-TauJetSelectorForHLTTrackSeeding::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+TauJetSelectorForHLTTrackSeeding::produce(edm::StreamID iStreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
    std::auto_ptr< reco::TrackJetCollection > augmentedTrackJets (new reco::TrackJetCollection);
 
