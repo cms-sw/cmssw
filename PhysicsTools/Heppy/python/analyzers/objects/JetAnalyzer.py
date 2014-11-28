@@ -48,8 +48,8 @@ class JetAnalyzer( Analyzer ):
         self.handles['jets4MVA'] = AutoHandle( self.cfg_ana.jetCol4MVA, 'std::vector<pat::Jet>' )
         self.handles['rho'] = AutoHandle( ('fixedGridRhoFastjetAll','',''), 'double' )
     
-    def beginLoop(self):
-        super(JetAnalyzer,self).beginLoop()
+    def beginLoop(self, setup):
+        super(JetAnalyzer,self).beginLoop(setup)
         
     def process(self, event):
         self.readCollections( event.input )

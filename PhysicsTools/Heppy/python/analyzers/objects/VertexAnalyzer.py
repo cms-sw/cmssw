@@ -78,8 +78,8 @@ class VertexAnalyzer( Analyzer ):
             'double' 
             )        
 
-    def beginLoop(self):
-        super(VertexAnalyzer,self).beginLoop()
+    def beginLoop(self, setup):
+        super(VertexAnalyzer,self).beginLoop(setup)
         self.averages.add('vertexWeight', Average('vertexWeight') )
         self.counters.addCounter('GoodVertex')
         self.count = self.counters.counter('GoodVertex')

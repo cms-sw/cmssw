@@ -3,8 +3,8 @@ from PhysicsTools.Heppy.analyzers.core.TreeAnalyzerNumpy import TreeAnalyzerNump
 
 class SimpleTreeAnalyzer(TreeAnalyzerNumpy):
     
-    def beginLoop(self):
-        super(SimpleTreeAnalyzer, self).beginLoop()
+    def beginLoop(self, setup):
+        super(SimpleTreeAnalyzer, self).beginLoop(setup)
         self.bookJet('jet1')
         self.bookJet('jet2')
         self.bookJet('jet1_gen')

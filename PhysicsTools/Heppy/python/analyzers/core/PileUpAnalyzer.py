@@ -89,8 +89,8 @@ class PileUpAnalyzer( Analyzer ):
         else:
             self.handles['vertices'] =  AutoHandle( self.allVertices, 'std::vector<reco::Vertex>' ) 
 
-    def beginLoop(self):
-        super(PileUpAnalyzer,self).beginLoop()
+    def beginLoop(self, setup):
+        super(PileUpAnalyzer,self).beginLoop(setup)
         self.averages.add('vertexWeight', Average('vertexWeight') )
 
 

@@ -21,8 +21,8 @@ class SkimAnalyzerCount( Analyzer ):
         self.counterHandle = Handle("edm::MergeableCounter")
         self.mchandles['GenInfo'] = AutoHandle( ('generator','',''), 'GenEventInfoProduct' )
         
-    def beginLoop(self):
-        super(SkimAnalyzerCount,self).beginLoop()
+    def beginLoop(self, setup):
+        super(SkimAnalyzerCount,self).beginLoop(setup)
 
         self.counters.addCounter('SkimReport')
         self.count = self.counters.counter('SkimReport')

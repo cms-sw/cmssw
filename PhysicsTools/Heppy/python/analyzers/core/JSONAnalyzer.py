@@ -38,8 +38,8 @@ class JSONAnalyzer( Analyzer ):
 
         self.rltInfo = RLTInfo()
 
-    def beginLoop(self):
-        super(JSONAnalyzer,self).beginLoop()
+    def beginLoop(self, setup):
+        super(JSONAnalyzer,self).beginLoop(setup)
         self.counters.addCounter('JSON')
         self.count = self.counters.counter('JSON')
         self.count.register('All Lumis')

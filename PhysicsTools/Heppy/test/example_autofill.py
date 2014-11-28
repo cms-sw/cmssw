@@ -61,12 +61,13 @@ sample = cfg.Component(
 selectedComponents = [sample]
 from PhysicsTools.HeppyCore.framework.eventsfwlite import Events
 config = cfg.Config( components = selectedComponents,
-                     sequence = sequence, 
+                     sequence = sequence,
+                     services = [],  
                      events_class = Events)
 
 # and the following runs the process directly 
 if __name__ == '__main__':
     from PhysicsTools.HeppyCore.framework.looper import Looper 
-    looper = Looper( 'Loop', sample, sequence, Events, nPrint = 5)
+    looper = Looper( 'Loop', config, nPrint = 5)
     looper.loop()
     looper.write()

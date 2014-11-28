@@ -32,8 +32,8 @@ class TauAnalyzer( Analyzer ):
         self.handles['taus'] = AutoHandle( ('slimmedTaus',''),'std::vector<pat::Tau>')
 
 
-    def beginLoop(self):
-        super(TauAnalyzer,self).beginLoop()
+    def beginLoop(self, setup):
+        super(TauAnalyzer,self).beginLoop(setup)
         self.counters.addCounter('events')
         count = self.counters.counter('events')
         count.register('all events')

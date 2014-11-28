@@ -4,7 +4,7 @@
 import os
 import sys
 import imp
-import copy
+# import copy
 import logging
 import pprint
 from platform import platform 
@@ -91,7 +91,10 @@ class Looper(object):
         for cfg_serv in config.services:
             service = self._build(cfg_serv)
             services[cfg_serv.name] = service
-        self.setup = Setup( copy.deepcopy(config), services)
+        # would like to provide a copy of the config to the setup,
+        # so that analyzers cannot modify the config of other analyzers. 
+        # but cannot copy the autofill config.
+        self.setup = Setup(config, services)
 
     def _build(self, cfg):
         theClass = cfg.class_object

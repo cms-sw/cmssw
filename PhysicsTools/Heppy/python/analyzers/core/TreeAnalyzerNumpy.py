@@ -20,8 +20,8 @@ class TreeAnalyzerNumpy( Analyzer ):
         self.file = TFile( fileName, 'recreate', '', isCompressed )
         self.tree = Tree('tree', self.name)
 
-    def beginLoop(self) :
-        super(TreeAnalyzerNumpy, self).beginLoop()
+    def beginLoop(self, setup) :
+        super(TreeAnalyzerNumpy, self).beginLoop(setup)
         self.declareVariables()
         
     def declareVariables(self):

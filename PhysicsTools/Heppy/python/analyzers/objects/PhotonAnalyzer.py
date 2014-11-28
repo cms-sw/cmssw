@@ -34,8 +34,8 @@ class PhotonAnalyzer( Analyzer ):
         #photons
         self.handles['photons'] = AutoHandle( self.cfg_ana.photons,'std::vector<pat::Photon>')
 
-    def beginLoop(self):
-        super(PhotonAnalyzer,self).beginLoop()
+    def beginLoop(self, setup):
+        super(PhotonAnalyzer,self).beginLoop(setup)
         self.counters.addCounter('events')
         count = self.counters.counter('events')
         count.register('all events')
