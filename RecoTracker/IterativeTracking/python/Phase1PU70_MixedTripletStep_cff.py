@@ -3,16 +3,16 @@ import FWCore.ParameterSet.Config as cms
 ###############################################################
 # Large impact parameter Tracking using mixed-triplet seeding #
 ###############################################################
-
-mixedTripletStepClusters = cms.EDProducer("TrackClusterRemover",
-    oldClusterRemovalInfo = cms.InputTag("detachedQuadStepClusters"),
-    trajectories = cms.InputTag("detachedQuadStepTracks"),
-    overrideTrkQuals = cms.InputTag('detachedQuadStep'),
-    TrackQuality = cms.string('highPurity'),
+from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import *
+mixedTripletStepClusters = trackClusterRemover.clone(
+    maxChi2                                  = cms.double(9.0),
+    trajectories                             = cms.InputTag("detachedQuadStepTracks"),
+    pixelClusters                            = cms.InputTag("siPixelClusters"),
+    stripClusters                            = cms.InputTag("siStripClusters"),
+    oldClusterRemovalInfo                    = cms.InputTag("detachedQuadStepClusters"),
+    overrideTrkQuals                         = cms.InputTag('detachedQuadStep'),
+    TrackQuality                             = cms.string('highPurity'),
     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
-    pixelClusters = cms.InputTag("siPixelClusters"),
-    stripClusters = cms.InputTag("siStripClusters"),
-    maxChi2 = cms.double(9.0)
 )
 
 # SEEDING LAYERS
