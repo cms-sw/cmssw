@@ -6,7 +6,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -21,7 +21,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-class TauJetSelectorForHLTTrackSeeding : public edm::EDProducer {
+class TauJetSelectorForHLTTrackSeeding : public edm::global::EDProducer<> {
 
 public:
   explicit TauJetSelectorForHLTTrackSeeding(const edm::ParameterSet&);
@@ -29,7 +29,7 @@ public:
 
 private:
   virtual void beginJob() ;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   virtual void endJob() ;
       
   // ----------member data ---------------------------
