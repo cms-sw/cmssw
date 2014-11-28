@@ -29,7 +29,7 @@ bool GeomDetType::isTrackerStrip() const
 
 bool GeomDetType::isTrackerPixel() const
 {
-  return (theSubDet == PixelBarrel || theSubDet == PixelEndcap || theSubDet == P2OTB); 
+  return (theSubDet == PixelBarrel || theSubDet == PixelEndcap || theSubDet == P2OTB || theSubDet == P2OTEC); 
 }
 
 bool GeomDetType::isTracker() const

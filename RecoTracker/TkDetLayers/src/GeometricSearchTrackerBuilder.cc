@@ -166,26 +166,12 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
       vector<const GeometricDet*> thePxlFwdGeometricDetLayers = (*it)->components();
       for(vector<const GeometricDet*>::const_iterator it2=thePxlFwdGeometricDetLayers.begin();
 	  it2!=thePxlFwdGeometricDetLayers.end(); it2++){
-	if((*it2)->type() == GeometricDet::PixelPhase2FullDisk || (*it2)->type() == GeometricDet::PixelPhase2ReducedDisk ){
-	  LogDebug("BuildingPixelPhase2Disk") << "I got  " << (*it2)->name() << " type " << (*it2)->type();
-	  if((*it2)->positionBounds().z() < 0)
-	    theNegPxlFwdLayers.push_back( aPhase1PixelForwardLayerBuilder.build(*it2,theGeomDetGeometry) );
-	  if((*it2)->positionBounds().z() > 0)
-	    thePosPxlFwdLayers.push_back( aPhase1PixelForwardLayerBuilder.build(*it2,theGeomDetGeometry) );
-	}
-	else if((*it2)->type() == GeometricDet::OTPhase2Wheel){
-	  LogDebug("BuildingPhase2OTECRingedLayer") << "I got " << (*it2)->name() << " type " << (*it2)->type();
-	  if((*it2)->positionBounds().z() < 0)
-	    theNegPxlFwdLayers.push_back( aPhase2OTECRingedLayerBuilder.build(*it2,theGeomDetGeometry) );
-	  if((*it2)->positionBounds().z() > 0)
-	    thePosPxlFwdLayers.push_back( aPhase2OTECRingedLayerBuilder.build(*it2,theGeomDetGeometry) );
-	}
-	else edm::LogError("WrongDiskType") <<" ERROR - I was expecting a PixelPhase2Disk or a OTPhase2Wheel... I got a "
-					    << (*it2)->name() << " type " << (*it2)->type();
+	if((*it2)->positionBounds().z() < 0)
+	  theNegPxlFwdLayers.push_back( aPhase1PixelForwardLayerBuilder.build(*it2,theGeomDetGeometry) );
+	if((*it2)->positionBounds().z() > 0)
+	  thePosPxlFwdLayers.push_back( aPhase1PixelForwardLayerBuilder.build(*it2,theGeomDetGeometry) );
       }
     }
-
-
 
     if( (*it)->type() == GeometricDet::TID){
       vector<const GeometricDet*> theTIDGeometricDetLayers = (*it)->components();
@@ -195,6 +181,17 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
 	  theNegTIDLayers.push_back( aTIDLayerBuilder.build(*it2,theGeomDetGeometry) );
 	if((*it2)->positionBounds().z() > 0)
 	  thePosTIDLayers.push_back( aTIDLayerBuilder.build(*it2,theGeomDetGeometry) );
+      }
+    }
+
+    if( (*it)->type() == GeometricDet::OTPhase2EndCap ){
+      vector<const GeometricDet*> thePxlFwdGeometricDetLayers = (*it)->components();
+      for(vector<const GeometricDet*>::const_iterator it2=thePxlFwdGeometricDetLayers.begin();
+	  it2!=thePxlFwdGeometricDetLayers.end(); it2++){
+	if((*it2)->positionBounds().z() < 0)
+	  theNegTIDLayers.push_back( aPhase2OTECRingedLayerBuilder.build(*it2,theGeomDetGeometry) );
+	if((*it2)->positionBounds().z() > 0)
+	  thePosTIDLayers.push_back( aPhase2OTECRingedLayerBuilder.build(*it2,theGeomDetGeometry) );
       }
     }
 

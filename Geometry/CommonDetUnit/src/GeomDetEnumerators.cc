@@ -21,6 +21,7 @@ std::ostream& operator<<( std::ostream& s, SubDetector m){
   else if ( m == GEM) return s << "GEM";
   else if ( m == ME0 ) return s << "ME0";
   else if ( m == P2OTB ) return s << "Phase2OTBarrel";
+  else if ( m == P2OTEC ) return s << "Phase2OTEndcap";
   else return s << "?";
 }
 

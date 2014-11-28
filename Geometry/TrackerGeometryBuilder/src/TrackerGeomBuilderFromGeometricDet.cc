@@ -18,7 +18,6 @@
 #include <cfloat>
 #include <cassert>
 using std::vector;
-using std::array;
 using std::string;
 
 namespace {
@@ -110,6 +109,11 @@ TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const edm::Pa
 		 BIG_PIX_PER_ROC_Y); 
     if(gdsubdetmap[i] == GeometricDet::OTPhase2Barrel) 
       buildPixel(dets[i],tracker,GeomDetEnumerators::SubDetector::P2OTB,
+		 upgradeGeometry,
+		 BIG_PIX_PER_ROC_X,
+		 BIG_PIX_PER_ROC_Y); 
+    if(gdsubdetmap[i] == GeometricDet::OTPhase2EndCap) 
+      buildPixel(dets[i],tracker,GeomDetEnumerators::SubDetector::P2OTEC,
 		 upgradeGeometry,
 		 BIG_PIX_PER_ROC_X,
 		 BIG_PIX_PER_ROC_Y); 

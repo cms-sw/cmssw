@@ -324,6 +324,12 @@
 <PartSelector path="//Rod6"/>
 <Parameter name="TkDDDStructure" value="PixelBarrelLadder"/>
 </SpecPar>
+
+<SpecPar name="Phase2OTEndcapSubDetPar">
+  <PartSelector path="//Phase2OTForward" />
+  <Parameter name="TkDDDStructure" value="Phase2OTEndcap"/>
+</SpecPar>
+
 <SpecPar name="OuterTrackerPixelEndcapDiskPar">
 <PartSelector path="//Disc6"/>
 <PartSelector path="//Disc7"/>

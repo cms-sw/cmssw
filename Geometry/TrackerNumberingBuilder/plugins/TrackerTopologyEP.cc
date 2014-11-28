@@ -294,17 +294,17 @@ TrackerTopologyEP::fillDescriptions( edm::ConfigurationDescriptions & descriptio
   ttcphase2.add<unsigned int>("tib_moduleMask",0x3);
   ttcphase2.add<unsigned int>("tib_sterMask",0x3);
   
-  ttcphase2.add<unsigned int>("tid_sideStartBit",13); 
-  ttcphase2.add<unsigned int>("tid_wheelStartBit",11);
-  ttcphase2.add<unsigned int>("tid_ringStartBit",9);
-  ttcphase2.add<unsigned int>("tid_module_fw_bwStartBit",7);
+  ttcphase2.add<unsigned int>("tid_sideStartBit",23); 
+  ttcphase2.add<unsigned int>("tid_wheelStartBit",18);
+  ttcphase2.add<unsigned int>("tid_ringStartBit",12);
+  ttcphase2.add<unsigned int>("tid_module_fw_bwStartBit",10);
   ttcphase2.add<unsigned int>("tid_moduleStartBit",2);
   ttcphase2.add<unsigned int>("tid_sterStartBit",0);
   ttcphase2.add<unsigned int>("tid_sideMask",0x3);
-  ttcphase2.add<unsigned int>("tid_wheelMask",0x3);
-  ttcphase2.add<unsigned int>("tid_ringMask",0x3);
+  ttcphase2.add<unsigned int>("tid_wheelMask",0xF);
+  ttcphase2.add<unsigned int>("tid_ringMask",0x3F);
   ttcphase2.add<unsigned int>("tid_module_fw_bwMask",0x3);
-  ttcphase2.add<unsigned int>("tid_moduleMask",0x1F);
+  ttcphase2.add<unsigned int>("tid_moduleMask",0xFF);
   ttcphase2.add<unsigned int>("tid_sterMask",0x3);
   
   ttcphase2.add<unsigned int>("tob_layerStartBit",20);
