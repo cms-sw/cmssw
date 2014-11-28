@@ -96,10 +96,10 @@ JetVertexChecker::JetVertexChecker(const edm::ParameterSet& iConfig)
  , m_maxNjets       ( iConfig.getParameter<int32_t>("maxNJetsToCheck") )
  , m_maxNjetsOutput ( iConfig.getParameter<int32_t>("maxNjetsOutput")  )
  , m_newMethod      ( iConfig.getParameter<bool>   ("newMethod")       )
- , m_maxETA         ( iConfig.getUntrackedParameter<double> ("maxETA",  2.4)    )
- , m_pvErr_x        ( iConfig.getUntrackedParameter<double> ("pvErr_x", 0.0015) )
- , m_pvErr_y        ( iConfig.getUntrackedParameter<double> ("pvErr_y", 0.0015) )
- , m_pvErr_z        ( iConfig.getUntrackedParameter<double> ("pvErr_z", 1.5)    )
+ , m_maxETA         ( iConfig.getParameter<double> ("maxETA")          )
+ , m_pvErr_x        ( iConfig.getParameter<double> ("pvErr_x")         )
+ , m_pvErr_y        ( iConfig.getParameter<double> ("pvErr_y")         )
+ , m_pvErr_z        ( iConfig.getParameter<double> ("pvErr_z")         )
 {
    //now do what ever initialization is needed
   produces<std::vector<reco::CaloJet> >(); 
@@ -190,6 +190,10 @@ JetVertexChecker::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
    desc.add<double> ("maxChi2",        20.0);
    desc.add<double> ("maxTrackPt",     20.0);
    desc.add<bool>   ("newMethod",      false);		// <---- newMethod 
+   desc.add<double> ("maxETA",         2.4   );
+   desc.add<double> ("pvErr_x",        0.0015);
+   desc.add<double> ("pvErr_y",        0.0015);
+   desc.add<double> ("pvErr_z",        1.5   );
    descriptions.add("jetVertexChecker",desc);
 }
 //define this as a plug-in
