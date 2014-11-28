@@ -51,7 +51,7 @@ class GenericValidation:
             if plain:
                 result[validationId]=repMap["file"]
             else:
-                result[validationId]= "%(file)s=%(name)s|%(color)s|%(style)s"%repMap
+                result[validationId]= "%(file)s=%(title)s|%(color)s|%(style)s"%repMap
         if requestId == None:
             return result
         else:
