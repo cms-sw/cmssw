@@ -42,7 +42,7 @@ class BeamSpotOnlineProducer: public edm::stream::EDProducer<> {
 	const edm::EDGetTokenT<BeamSpotOnlineCollection> scalerToken_;
 	const edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> l1GtEvmReadoutRecordToken_;
 
-	const boost::uint16_t theBeamShoutMode;
+	const unsigned int theBeamShoutMode;
 };
 
 #endif

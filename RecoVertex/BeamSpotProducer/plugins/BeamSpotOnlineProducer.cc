@@ -20,7 +20,7 @@ BeamSpotOnlineProducer::BeamSpotOnlineProducer(const ParameterSet& iconf)
   , theSetSigmaZ ( iconf.getParameter<double>("setSigmaZ")              )
   , scalerToken_               ( consumes<BeamSpotOnlineCollection>       ( iconf.getParameter<InputTag>("src")       ) )
   , l1GtEvmReadoutRecordToken_ ( consumes<L1GlobalTriggerEvmReadoutRecord>( iconf.getParameter<InputTag>("gtEvmLabel")) )
-  , theBeamShoutMode ( iconf.getUntrackedParameter<int> ("beamMode",11) )
+  , theBeamShoutMode ( iconf.getUntrackedParameter<unsigned int> ("beamMode",11) )
 {
 
   theMaxR2 = iconf.getParameter<double>("maxRadius");
@@ -39,8 +39,7 @@ BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup)
   bool shoutMODE=false;
   edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtEvmReadoutRecord;
   if (iEvent.getByToken(l1GtEvmReadoutRecordToken_, gtEvmReadoutRecord)){
-    const boost::uint16_t beamModeValue = (gtEvmReadoutRecord->gtfeWord()).beamMode();
-    if (beamModeValue == theBeamShoutMode) shoutMODE=true;
+    if (gtEvmReadoutRecord->gtfeWord().beamMode() == theBeamShoutMode) shoutMODE=true;
   }
   else{
     shoutMODE=true;
