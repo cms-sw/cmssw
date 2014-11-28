@@ -53,7 +53,10 @@ from CondCore.DBCommon.CondDBSetup_cfi import *
 
 # process.es_prefer_ZeroAPE = cms.ESPrefer("PoolDBESSource", "ZeroAPE")
 
-# for global tag geometry 
+# For global tag geometry 
+# !!!! Pass only  "unlimited Interval Of Validity (IOV)" DB objects for
+# conditions as described in https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideHIPAlgorithm#Run_HIP
+
 process.GlobalTag.toGet = cms.VPSet(
    cms.PSet(record = cms.string('TrackerAlignmentRcd'),
             tag = cms.string('TrackerAlignment_2015StartupPessimisticScenario_mc'),
