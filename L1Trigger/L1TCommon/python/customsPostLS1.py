@@ -73,7 +73,14 @@ def customiseSimL1EmulatorForPostLS1(process):
         process.hltL1RawToDigiSeq = cms.Sequence(process.hltCaloStage1Digis + process.hltCaloStage1LegacyFormatDigis)
         process.HLTL1UnpackerSequence.replace(process.hltGctDigis, process.hltL1RawToDigiSeq)
 
-    alist=['hltL1extraParticles']
+    alist=['hltL1GtObjectMap']
+    for a in alist:
+        #print "INFO: checking for", a, "in process."
+        if hasattr(process,a):
+            #print "INFO: customizing ", a, "to use new calo Stage 1 digis converted to legacy format"
+            getattr(process, a).GctInputTag = cms.InputTag("hltCaloStage1LegacyFormatDigis")
+            alist=['hltL1extraParticles']
+
     for a in alist:
         #print "INFO: checking for", a, "in process."
         if hasattr(process,a):
