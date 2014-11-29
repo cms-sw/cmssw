@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_3_0/HIon/V1 (CMSSW_7_2_2_patch2_HLT1)
+# /dev/CMSSW_7_3_0/HIon/V3 (CMSSW_7_2_2_patch2_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_3_0/HIon/V1')
+  tableName = cms.string('/dev/CMSSW_7_3_0/HIon/V3')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
