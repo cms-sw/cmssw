@@ -79,8 +79,8 @@ def customiseSimL1EmulatorForPostLS1(process):
         if hasattr(process,a):
             #print "INFO: customizing ", a, "to use new calo Stage 1 digis converted to legacy format"
             getattr(process, a).GctInputTag = cms.InputTag("hltCaloStage1LegacyFormatDigis")
-            alist=['hltL1extraParticles']
 
+    alist=['hltL1extraParticles']
     for a in alist:
         #print "INFO: checking for", a, "in process."
         if hasattr(process,a):
