@@ -118,7 +118,9 @@ class WorkFlowRunner(Thread):
                   retStep = 1
                   dasOutput = None
                 else:
-                  dasOutput = open(dasOutputPath).read().strip(" \n\t")
+                  # We consider only the files which have at least one logical filename
+                  # in it. This is because sometimes das fails and still prints out junk.
+                  dasOutput = [l for l in open(dasOutputPath).read().split("\n") if l.startswith("/")]
                 if not dasOutput:
                   retStep = 1
                   isInputOk = False
@@ -152,7 +154,13 @@ class WorkFlowRunner(Thread):
 
             
             self.retStep.append(retStep)
-            if (retStep!=0):
+            if retStep == 32000:
+                # A timeout occurred
+                self.npass.append(0)
+                self.nfail.append(1)
+                self.stat.append('TIMEOUT')
+                aborted = True
+            elif (retStep!=0):
                 #error occured
                 self.npass.append(0)
                 self.nfail.append(1)
