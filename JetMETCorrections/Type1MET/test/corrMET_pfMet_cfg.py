@@ -12,7 +12,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 ##____________________________________________________________________________||
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 ##____________________________________________________________________________||
 process.load("JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff")

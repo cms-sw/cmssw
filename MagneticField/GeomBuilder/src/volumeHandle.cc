@@ -461,19 +461,24 @@ MagGeoBuilderFromDDD::volumeHandle::sides() const{
   return result;
 }
 
-void MagGeoBuilderFromDDD::volumeHandle::printUniqueNames(handles::const_iterator begin, handles::const_iterator end ) {
+void MagGeoBuilderFromDDD::volumeHandle::printUniqueNames(handles::const_iterator begin, handles::const_iterator end, bool uniq) {
     std::vector<std::string> names;
     for (handles::const_iterator i = begin; 
 	 i != end; ++i){
-      names.push_back((*i)->name);
+      if (uniq) names.push_back((*i)->name);
+      else names.push_back((*i)->name+":"+boost::lexical_cast<string>((*i)->copyno));
     }
      
     sort(names.begin(),names.end());
-    std::vector<std::string>::iterator i = unique(names.begin(),names.end());
-    int nvols = int(i - names.begin());
-    cout << nvols << " ";
-    copy(names.begin(), i, ostream_iterator<std::string>(cout, " "));
-     
+    if (uniq) {
+      std::vector<std::string>::iterator i = unique(names.begin(),names.end());
+      int nvols = int(i - names.begin());
+      cout << nvols << " ";
+      copy(names.begin(), i, ostream_iterator<std::string>(cout, " "));
+    } else {
+      cout << names.size() << " ";
+      copy(names.begin(), names.end(), ostream_iterator<std::string>(cout, " "));
+    }
     cout << endl;
 }
 

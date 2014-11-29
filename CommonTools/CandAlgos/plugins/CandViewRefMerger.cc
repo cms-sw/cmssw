@@ -26,9 +26,8 @@ private:
     for(std::vector<edm::EDGetTokenT<reco::CandidateView> >::const_iterator i = srcTokens_.begin(); i != srcTokens_.end(); ++i) {
       edm::Handle<reco::CandidateView> src;
       evt.getByToken(*i, src);
-      reco::CandidateBaseRefVector refs = src->refVector();
-      for(reco::CandidateBaseRefVector::const_iterator j = refs.begin(); j != refs.end(); ++j)
-	out->push_back(*j);
+      for(size_t j = 0; j < src->size(); ++j)
+	out->push_back(src->refAt(j));
     }
     evt.put(out);
   }

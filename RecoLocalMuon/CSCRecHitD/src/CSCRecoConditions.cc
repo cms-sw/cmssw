@@ -13,6 +13,11 @@ void CSCRecoConditions::initializeEvent( const edm::EventSetup& es ) {
   theConditions.initializeEvent( es );
 }
 
+/// Fill badStrip word and badWire word for given CSC layer, id
+void CSCRecoConditions::fillBadChannelWords( const CSCDetId& id ) {
+  theConditions.fillBadChannelWords ( id );
+}
+
 /// gains & pedestals are requested by geometric channel (as in CSCStripDigi-
 /// e.g. 1-16 for ganged ME1a, and with any readout flips already removed)
 
@@ -124,32 +129,39 @@ void CSCRecoConditions::crossTalk( const CSCDetId& id, int geomStrip, std::vecto
 }
 
 ///  Is an immediate neighbour a bad strip?
-bool CSCRecoConditions::nearBadStrip( const CSCDetId& id, int geomStrip ) const {
-  bool nearBad = (badStrip(id,geomStrip-1) || badStrip(id,geomStrip+1));
+bool CSCRecoConditions::nearBadStrip( const CSCDetId& id, int geomStrip, int nstrips ) const {
+  bool nearBad = ( badStrip(id,geomStrip-1, nstrips) || badStrip(id,geomStrip+1, nstrips) );
   return nearBad;
 }
 
 /// Is strip itself a bad strip?
-bool CSCRecoConditions::badStrip( const CSCDetId& id, int geomStrip ) const {
-  //@@ NOT YET UPDATED FOR UNGANGED ME11A
+bool CSCRecoConditions::badStrip( const CSCDetId& id, int geomStrip, int nstrips ) const {
 
-  bool aBadS = false;
-  if(geomStrip>0 && geomStrip<81){
+  // input nstrips is no. of strips in the layer (could get this from CSCChamberSpecs or CSCLayerGeometry
+  // but then need a CSCLayer*)
+
+  bool bad = true; // if geomStrip out of range, call strip bad
+
+  if ( id != theConditions.idOfBadChannelWords() ) {
+    bad = false; // if bad channel words for this id not filled, call strip good
+    return bad;
+  }
+
+  if(geomStrip>0 && geomStrip<=nstrips){
+    bad = false;  // default to good
     int geomChan = theConditions.channelFromStrip( id, geomStrip );
-    const std::bitset<80>& badStrips = theConditions.badStripWord(id);
-
     int rawChan = theConditions.rawStripChannel( id, geomChan );
-    if( rawChan>0 && rawChan<81 ){
-      aBadS = badStrips.test(rawChan-1); // 80 bits max, labelled 0-79.
-
+    if( rawChan>0 && rawChan<113 ){
+      const std::bitset<112>& badStrips = theConditions.badStripWord();
+      bad = badStrips.test(rawChan-1); // 112 bits max, labelled 0-111.
     }
   }
-  return aBadS;
+  return bad;
 }
 
 /// Get bad wiregroup word
 const std::bitset<112>& CSCRecoConditions::badWireWord( const CSCDetId& id ) const {
-    return theConditions.badWireWord( id );
+    return theConditions.badWireWord();
 }
 
 float CSCRecoConditions::chamberTimingCorrection(const CSCDetId & id) const {

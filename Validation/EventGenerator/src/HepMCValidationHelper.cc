@@ -2,7 +2,6 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
-#include <cassert>
 #include <limits>
 #include "TLorentzVector.h"
 
@@ -185,10 +184,9 @@ namespace HepMCValidationHelper {
     for (unsigned int i = 0; i < taus.size(); ++i){
       std::vector<const HepMC::GenParticle*> taudaughters;
       findDescendents(taus[i], taudaughters);
-      //assert(taudaughters.size()>0);
-      if ( taudaughters.size()==0 ) {
+      if ( taudaughters.size()<=0 ) {
 	edm::LogError("HepMCValidationHelper") << "Tau with no daughters. This is a bug. Fix it";
-	continue;
+	abort();
       }
       const HepMC::FourVector& taumom = taus[i]->momentum();
       //remove the daughters from the list of particles to compute isolation

@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
 
     std::cout << "about to set configuration" << std::endl;
     //  std::string configfile("configuration.xml");
-    std::string configfile("DetectorDescription/RegressionTest/test/dddhtml/");
+    std::string configfile("DetectorDescription/RegressionTest/test/");
     if (argc==2) {
       configfile += argv[1];
     } else {

@@ -19,7 +19,6 @@
 namespace clangcms {
 
 class EDMPluginDumper : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::ClassTemplateDecl> > {
- mutable clang::OwningPtr< clang::ento::BugType> BT;
 
 public:
 

@@ -469,7 +469,7 @@ GsfGEDElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	      pf_EEcalEtrue_5->Fill(EpfEtrue);
 	    }
 	    const reco::GsfElectron::ShowerShape& pfshapes = 
-	      theGsfEle[j].pfShowerShape();
+	      theGsfEle[j].showerShape();
 	    
 	    pf_e1x5_all->Fill(pfshapes.e1x5);
 	    pf_sihih_all->Fill(pfshapes.sigmaIetaIeta);

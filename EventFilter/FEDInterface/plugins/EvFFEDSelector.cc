@@ -1,30 +1,29 @@
+#include <memory>
+
 #include "EvFFEDSelector.h"
 
-namespace evf{
+namespace evf {
 
-  EvFFEDSelector::EvFFEDSelector( const edm::ParameterSet& ps)
-    : label_(ps.getParameter<edm::InputTag>("inputTag"))
-    , fedlist_(ps.getParameter<std::vector<unsigned int> >("fedList")) 
+  EvFFEDSelector::EvFFEDSelector(edm::ParameterSet const & config) :
+    token_( consumes<FEDRawDataCollection>( config.getParameter<edm::InputTag>("inputTag")) ),
+    fedlist_( config.getParameter<std::vector<unsigned int> >("fedList") )
   {
-    token_ = consumes<FEDRawDataCollection>(label_);
     produces<FEDRawDataCollection>();
   }
-  void EvFFEDSelector::produce(edm::Event & e, const edm::EventSetup& c)
+
+
+  void EvFFEDSelector::produce(edm::StreamID sid, edm::Event & event, edm::EventSetup const & setup) const
   {
     edm::Handle<FEDRawDataCollection> rawdata;
-    FEDRawDataCollection *fedcoll = new FEDRawDataCollection();
-    e.getByToken(token_,rawdata);
-    std::vector<unsigned int>::iterator it = fedlist_.begin();
-    for(;it!=fedlist_.end();it++)
-      {
-	const FEDRawData& data = rawdata->FEDData(*it);
-	if(data.size()>0){
-	  FEDRawData& fedData=fedcoll->FEDData(*it);
-	  fedData.resize(data.size());
-	  memcpy(fedData.data(),data.data(),data.size());
-	} 
-      }
-    std::auto_ptr<FEDRawDataCollection> bare_product(fedcoll);
-    e.put(bare_product);
+    event.getByToken(token_, rawdata);
+
+    std::unique_ptr<FEDRawDataCollection> fedcoll( new FEDRawDataCollection() );
+
+    for (unsigned int i : fedlist_)
+      if (rawdata->FEDData(i).size() > 0)
+        fedcoll->FEDData(i) = rawdata->FEDData(i);
+
+    event.put(std::move(fedcoll));
   }
-}
+
+} // namespace evf

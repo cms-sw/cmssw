@@ -28,7 +28,7 @@ StripCPEESProducer::StripCPEESProducer(const edm::ParameterSet & p)
     throw cms::Exception("Unknown StripCPE type") << type;
 
   cpeNum = enumMap[type];
-  pset = p;
+  parametersPSet = (p.exists("parameters") ? p.getParameter<edm::ParameterSet>("parameters") : p);
   setWhatProduced(this,name);
 }
 
@@ -49,21 +49,20 @@ produce(const TkStripCPERecord & iRecord)
   switch(cpeNum) {
 
   case SIMPLE:     
-    cpe = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPE( pset, *magfield, *pDD, *lorentzAngle, *backPlaneCorrection, *confObj, *latency ));  
+    cpe = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPE( parametersPSet, *magfield, *pDD, *lorentzAngle, *backPlaneCorrection, *confObj, *latency ));  
     break;
     
   case TRACKANGLE: 
-    cpe = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPEfromTrackAngle( pset, *magfield, *pDD, *lorentzAngle, *backPlaneCorrection, *confObj, *latency )); 
+    cpe = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPEfromTrackAngle( parametersPSet, *magfield, *pDD, *lorentzAngle, *backPlaneCorrection, *confObj, *latency )); 
     break;
     
   case GEOMETRIC:  
-    cpe = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPEgeometric(pset, *magfield, *pDD, *lorentzAngle, *backPlaneCorrection, *confObj, *latency )); 
+    cpe = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPEgeometric(parametersPSet, *magfield, *pDD, *lorentzAngle, *backPlaneCorrection, *confObj, *latency )); 
     break;  
 
   case TEMPLATE: 
-    cpe = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPEfromTemplate( pset, *magfield, *pDD, *lorentzAngle, *backPlaneCorrection, *confObj, *latency )); 
+    cpe = boost::shared_ptr<StripClusterParameterEstimator>(new StripCPEfromTemplate( parametersPSet, *magfield, *pDD, *lorentzAngle, *backPlaneCorrection, *confObj, *latency )); 
     break;
-
 
   }
 

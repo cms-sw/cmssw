@@ -110,12 +110,11 @@ public:
   HcalDetDiagLEDMonitor(const edm::ParameterSet& ps); 
   ~HcalDetDiagLEDMonitor(); 
 
-  void beginRun(const edm::Run& run, const edm::EventSetup& c) override;
-  void setup() override;
+  void bookHistograms(DQMStore::IBooker &ib, const edm::Run& run, const edm::EventSetup& c) override;
+  void setup(DQMStore::IBooker &ib) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;// const HcalDbService& cond)
   void endRun(const edm::Run& run, const edm::EventSetup& c) override;
   void reset() override;
-  void cleanup() override; 
   void fillHistos();
   int  GetStatistics(){ return ievt_; }
 private:
@@ -239,7 +238,9 @@ static const float adc2fC[128]={-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5, 10
 
 
 
-HcalDetDiagLEDMonitor::HcalDetDiagLEDMonitor(const edm::ParameterSet& ps) {
+HcalDetDiagLEDMonitor::HcalDetDiagLEDMonitor(const edm::ParameterSet& ps):
+ HcalBaseDQMonitor(ps)
+ {
 
 
   ievt_=0;
@@ -282,31 +283,48 @@ HcalDetDiagLEDMonitor::HcalDetDiagLEDMonitor(const edm::ParameterSet& ps) {
   tok_hf_ = consumes<HFDigiCollection>(digiLabel_);
   tok_calib_ = consumes<HcalCalibDigiCollection>(ps.getUntrackedParameter<edm::InputTag>("calibDigiLabel",edm::InputTag("hcalDigis")));
   
+  ChannelsLEDEnergy=0;
+  ChannelsLEDEnergyRef=0;
+  ChannelStatusMissingChannels=0;
+  ChannelStatusUnstableChannels=0;
+  ChannelStatusUnstableLEDsignal=0;
+  ChannelStatusLEDMean=0;
+  ChannelStatusLEDRMS=0;
+  ChannelStatusTimeMean=0;
+  ChannelStatusTimeRMS=0;
 
 }
 
-HcalDetDiagLEDMonitor::~HcalDetDiagLEDMonitor(){}
+HcalDetDiagLEDMonitor::~HcalDetDiagLEDMonitor()
+{
 
-void HcalDetDiagLEDMonitor::cleanup(){
-  if(dbe_){
-    dbe_->setCurrentFolder(subdir_);
-    dbe_->removeContents();
-    dbe_ = 0;
-  }
-} 
+  if ( ChannelsLEDEnergy ) delete ChannelsLEDEnergy;
+  if ( ChannelsLEDEnergyRef ) delete ChannelsLEDEnergyRef;
+  if ( ChannelStatusMissingChannels ) delete ChannelStatusMissingChannels;
+  if ( ChannelStatusUnstableChannels ) delete ChannelStatusUnstableChannels;
+  if ( ChannelStatusUnstableLEDsignal ) delete ChannelStatusUnstableLEDsignal;
+  if ( ChannelStatusLEDMean ) delete ChannelStatusLEDMean;
+  if ( ChannelStatusLEDRMS ) delete ChannelStatusLEDRMS;
+  if ( ChannelStatusTimeMean ) delete ChannelStatusTimeMean;
+  if ( ChannelStatusTimeRMS ) delete ChannelStatusTimeRMS;
+
+  if ( emap ) delete emap;
+  
+}
+
 void HcalDetDiagLEDMonitor::reset(){}
 
-void HcalDetDiagLEDMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
+void HcalDetDiagLEDMonitor::bookHistograms(DQMStore::IBooker &ib, const edm::Run& run, const edm::EventSetup& c)
 {
-  if (debug_>1) std::cout <<"HcalDetDiagLEDMonitor::beginRun"<<std::endl;
-  HcalBaseDQMonitor::beginRun(run,c);
+  if (debug_>1) std::cout <<"HcalDetDiagLEDMonitor::bookHistograms"<<std::endl;
+  HcalBaseDQMonitor::bookHistograms(ib,run,c);
 
-  if (tevt_==0) this->setup(); // set up histograms if they have not been created before
+  if (tevt_==0) this->setup(ib); // set up histograms if they have not been created before
   if (mergeRuns_==false) this->reset();
 
   edm::ESHandle<HcalChannelQuality> p;
-  c.get<HcalChannelQualityRcd>().get(p);
-  HcalChannelQuality* chanquality= new HcalChannelQuality(*p.product());
+  c.get<HcalChannelQualityRcd>().get("withTopo",p);
+  const HcalChannelQuality* chanquality= p.product();
   std::vector<DetId> mydetids = chanquality->getAllChannels();
   KnownBadCells_.clear();
 
@@ -320,69 +338,68 @@ void HcalDetDiagLEDMonitor::beginRun(const edm::Run& run, const edm::EventSetup&
   } 
 
   return;
-} // void HcalNDetDiagLEDMonitor::beginRun(...)
+} // void HcalNDetDiagLEDMonitor::bookHistograms(...)
 
-void HcalDetDiagLEDMonitor::setup(){
+void HcalDetDiagLEDMonitor::setup(DQMStore::IBooker &ib){
      // Call base class setup
-     HcalBaseDQMonitor::setup();
-     if (!dbe_) return;
+     HcalBaseDQMonitor::setup(ib);
 
      std::string name;
-     dbe_->setCurrentFolder(subdir_);   
-     meEVT_ = dbe_->bookInt("HcalDetDiagLEDMonitor Event Number");
-     meRUN_ = dbe_->bookInt("HcalDetDiagLEDMonitor Run Number");
+     ib.setCurrentFolder(subdir_);   
+     meEVT_ = ib.bookInt("HcalDetDiagLEDMonitor Event Number");
+     meRUN_ = ib.bookInt("HcalDetDiagLEDMonitor Run Number");
      ReferenceRun="UNKNOWN";
      LoadReference();
-     dbe_->setCurrentFolder(subdir_);
-     RefRun_= dbe_->bookString("HcalDetDiagLEDMonitor Reference Run",ReferenceRun);
-     dbe_->setCurrentFolder(subdir_+"Summary Plots");
+     ib.setCurrentFolder(subdir_);
+     RefRun_= ib.bookString("HcalDetDiagLEDMonitor Reference Run",ReferenceRun);
+     ib.setCurrentFolder(subdir_+"Summary Plots");
      
-     name="HBHEHO LED Energy Distribution";               Energy         = dbe_->book1D(name,name,200,0,3000);
-     name="HBHEHO LED Timing Distribution";               Time           = dbe_->book1D(name,name,200,0,10);
-     name="HBHEHO LED Energy RMS_div_Energy Distribution";EnergyRMS      = dbe_->book1D(name,name,200,0,0.2);
-     name="HBHEHO LED Timing RMS Distribution";           TimeRMS        = dbe_->book1D(name,name,200,0,0.4);
-     name="HF LED Energy Distribution";                   EnergyHF       = dbe_->book1D(name,name,200,0,3000);
-     name="HF LED Timing Distribution";                   TimeHF         = dbe_->book1D(name,name,200,0,10);
-     name="HF LED Energy RMS_div_Energy Distribution";    EnergyRMSHF    = dbe_->book1D(name,name,200,0,0.5);
-     name="HF LED Timing RMS Distribution";               TimeRMSHF      = dbe_->book1D(name,name,200,0,0.4);
-     name="LED Energy Corr(PinDiod) Distribution";        EnergyCorr     = dbe_->book1D(name,name,200,0,10);
-     name="LED Timing HBHEHF";                            Time2Dhbhehf   = dbe_->book2D(name,name,87,-43,43,74,0,73);
-     name="LED Timing HO";                                Time2Dho       = dbe_->book2D(name,name,33,-16,16,74,0,73);
-     name="LED Energy HBHEHF";                            Energy2Dhbhehf = dbe_->book2D(name,name,87,-43,43,74,0,73);
-     name="LED Energy HO";                                Energy2Dho     = dbe_->book2D(name,name,33,-16,16,74,0,73);
+     name="HBHEHO LED Energy Distribution";               Energy         = ib.book1D(name,name,200,0,3000);
+     name="HBHEHO LED Timing Distribution";               Time           = ib.book1D(name,name,200,0,10);
+     name="HBHEHO LED Energy RMS_div_Energy Distribution";EnergyRMS      = ib.book1D(name,name,200,0,0.2);
+     name="HBHEHO LED Timing RMS Distribution";           TimeRMS        = ib.book1D(name,name,200,0,0.4);
+     name="HF LED Energy Distribution";                   EnergyHF       = ib.book1D(name,name,200,0,3000);
+     name="HF LED Timing Distribution";                   TimeHF         = ib.book1D(name,name,200,0,10);
+     name="HF LED Energy RMS_div_Energy Distribution";    EnergyRMSHF    = ib.book1D(name,name,200,0,0.5);
+     name="HF LED Timing RMS Distribution";               TimeRMSHF      = ib.book1D(name,name,200,0,0.4);
+     name="LED Energy Corr(PinDiod) Distribution";        EnergyCorr     = ib.book1D(name,name,200,0,10);
+     name="LED Timing HBHEHF";                            Time2Dhbhehf   = ib.book2D(name,name,87,-43,43,74,0,73);
+     name="LED Timing HO";                                Time2Dho       = ib.book2D(name,name,33,-16,16,74,0,73);
+     name="LED Energy HBHEHF";                            Energy2Dhbhehf = ib.book2D(name,name,87,-43,43,74,0,73);
+     name="LED Energy HO";                                Energy2Dho     = ib.book2D(name,name,33,-16,16,74,0,73);
 
-     name="HBP Average over HPD LED Ref";          HBPphi = dbe_->book2D(name,name,180,1,73,400,0,2);
-     name="HBM Average over HPD LED Ref";          HBMphi = dbe_->book2D(name,name,180,1,73,400,0,2);
-     name="HEP Average over HPD LED Ref";          HEPphi = dbe_->book2D(name,name,180,1,73,400,0,2);
-     name="HEM Average over HPD LED Ref";          HEMphi = dbe_->book2D(name,name,180,1,73,400,0,2);
-     name="HFP Average over RM LED Ref";           HFPphi = dbe_->book2D(name,name,180,1,37,400,0,2);
-     name="HFM Average over RM LED Ref";           HFMphi = dbe_->book2D(name,name,180,1,37,400,0,2);
-     name="HO0 Average over HPD LED Ref";          HO0phi = dbe_->book2D(name,name,180,1,49,400,0,2);
-     name="HO1P Average over HPD LED Ref";         HO1Pphi= dbe_->book2D(name,name,180,1,49,400,0,2);
-     name="HO2P Average over HPD LED Ref";         HO2Pphi= dbe_->book2D(name,name,180,1,49,400,0,2);
-     name="HO1M Average over HPD LED Ref";         HO1Mphi= dbe_->book2D(name,name,180,1,49,400,0,2);
-     name="HO2M Average over HPD LED Ref";         HO2Mphi= dbe_->book2D(name,name,180,1,49,400,0,2);
+     name="HBP Average over HPD LED Ref";          HBPphi = ib.book2D(name,name,180,1,73,400,0,2);
+     name="HBM Average over HPD LED Ref";          HBMphi = ib.book2D(name,name,180,1,73,400,0,2);
+     name="HEP Average over HPD LED Ref";          HEPphi = ib.book2D(name,name,180,1,73,400,0,2);
+     name="HEM Average over HPD LED Ref";          HEMphi = ib.book2D(name,name,180,1,73,400,0,2);
+     name="HFP Average over RM LED Ref";           HFPphi = ib.book2D(name,name,180,1,37,400,0,2);
+     name="HFM Average over RM LED Ref";           HFMphi = ib.book2D(name,name,180,1,37,400,0,2);
+     name="HO0 Average over HPD LED Ref";          HO0phi = ib.book2D(name,name,180,1,49,400,0,2);
+     name="HO1P Average over HPD LED Ref";         HO1Pphi= ib.book2D(name,name,180,1,49,400,0,2);
+     name="HO2P Average over HPD LED Ref";         HO2Pphi= ib.book2D(name,name,180,1,49,400,0,2);
+     name="HO1M Average over HPD LED Ref";         HO1Mphi= ib.book2D(name,name,180,1,49,400,0,2);
+     name="HO2M Average over HPD LED Ref";         HO2Mphi= ib.book2D(name,name,180,1,49,400,0,2);
 
      ChannelsLEDEnergy = new EtaPhiHists();
-     ChannelsLEDEnergy->setup(dbe_," Channel LED Energy");
+     ChannelsLEDEnergy->setup(ib," Channel LED Energy");
      ChannelsLEDEnergyRef = new EtaPhiHists();
-     ChannelsLEDEnergyRef->setup(dbe_," Channel LED Energy Reference");
+     ChannelsLEDEnergyRef->setup(ib," Channel LED Energy Reference");
      
-     dbe_->setCurrentFolder(subdir_+"channel status");
+     ib.setCurrentFolder(subdir_+"channel status");
      ChannelStatusMissingChannels = new EtaPhiHists();
-     ChannelStatusMissingChannels->setup(dbe_," Missing Channels");
+     ChannelStatusMissingChannels->setup(ib," Missing Channels");
      ChannelStatusUnstableChannels = new EtaPhiHists();
-     ChannelStatusUnstableChannels->setup(dbe_," Unstable Channels");
+     ChannelStatusUnstableChannels->setup(ib," Unstable Channels");
      ChannelStatusUnstableLEDsignal = new EtaPhiHists();
-     ChannelStatusUnstableLEDsignal->setup(dbe_," Unstable LED");
+     ChannelStatusUnstableLEDsignal->setup(ib," Unstable LED");
      ChannelStatusLEDMean = new EtaPhiHists();
-     ChannelStatusLEDMean->setup(dbe_," LED Mean");
+     ChannelStatusLEDMean->setup(ib," LED Mean");
      ChannelStatusLEDRMS = new EtaPhiHists();
-     ChannelStatusLEDRMS->setup(dbe_," LED RMS");
+     ChannelStatusLEDRMS->setup(ib," LED RMS");
      ChannelStatusTimeMean = new EtaPhiHists();
-     ChannelStatusTimeMean->setup(dbe_," Time Mean");
+     ChannelStatusTimeMean->setup(ib," Time Mean");
      ChannelStatusTimeRMS = new EtaPhiHists();
-     ChannelStatusTimeRMS->setup(dbe_," Time RMS");
+     ChannelStatusTimeRMS->setup(ib," Time RMS");
 
      
 } 
@@ -394,7 +411,6 @@ int  eta,phi,depth,nTS;
      emap=new HcalElectronicsMap(logicalMap_->generateHcalElectronicsMap());
    }
 
-   if(!dbe_) return; 
    bool LEDEvent=false;
    bool LocalRun=false;
    // for local runs 
@@ -816,7 +832,7 @@ char   Subdet[10],str[500];
        } 
        theFile->Write();
        theFile->Close();
-
+       theFile->Delete();
 
    if(XmlFilePath.size()>0){
       //create XML file
@@ -1059,6 +1075,7 @@ TFile *f;
      if(strcmp(subdet,"CALIB_HF")==0) calib_data[4][Eta+2][Phi-1].set_reference(led,rms);
    }
    f->Close();
+   f->Delete();
    IsReference=true;
 } 
 void HcalDetDiagLEDMonitor::CheckStatus(){

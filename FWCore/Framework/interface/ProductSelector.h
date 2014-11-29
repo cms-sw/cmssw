@@ -9,12 +9,17 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#include "DataFormats/Provenance/interface/BranchID.h"
+
 #include <iosfwd>
+#include <map>
 #include <string>
 #include <vector>
 
 namespace edm {
   class BranchDescription;
+  class BranchID;
+  class ProductRegistry;
   class ProductSelectorRules;
   class ParameterSet;
 
@@ -32,6 +37,13 @@ namespace edm {
     void print(std::ostream& os) const;
 
     bool initialized() const {return initialized_;}
+
+    static void checkForDuplicateKeptBranch(BranchDescription const& desc,
+                                            std::map<BranchID, BranchDescription const*>& trueBranchIDToKeptBranchDesc);
+
+    static void fillDroppedToKept(ProductRegistry const& preg,
+                                  std::map<BranchID, BranchDescription const*> const& trueBranchIDToKeptBranchDesc,
+                                  std::map<BranchID::value_type, BranchID::value_type>& droppedBranchIDToKeptBranchID_);
 
   private:
 

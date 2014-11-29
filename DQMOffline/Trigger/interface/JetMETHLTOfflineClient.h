@@ -7,15 +7,15 @@
 // Class:      JetMETHLTOffline
 // 
 /*
- Description: This is a DQM client meant to plot high-level HLT trigger 
- quantities as stored in the HLT results object TriggerResults for the JetMET triggers
+ Description: This is a DQM client meant to plot high-level HLT trigger quantities 
+ as stored in the HLT results object TriggerResults for the JetMET triggers
 */
 
 //
 // Originally create by:  Kenichi Hatakeyama
 //                        April 2009
-// Owned by:              Shabnam Jabeen
 //
+// Migrated to use DQMEDHarvester by: Jyothsna Rani Komaragiri, Oct 2014
 //
 
 #include <memory>
@@ -24,6 +24,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
+
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -48,11 +50,9 @@
 class DQMStore;
 class MonitorElement;
 
-class JetMETHLTOfflineClient : public edm::EDAnalyzer {
+class JetMETHLTOfflineClient : public DQMEDHarvester {
  
  private:
-  DQMStore* dbe_; //dbe seems to be the standard name for this, I dont know why. We of course dont own it
-
   edm::ParameterSet conf_;
 
   bool debug_;
@@ -65,15 +65,9 @@ class JetMETHLTOfflineClient : public edm::EDAnalyzer {
  public:
   explicit JetMETHLTOfflineClient(const edm::ParameterSet& );
   virtual ~JetMETHLTOfflineClient();
-  
-  virtual void beginJob();
-  virtual void endJob();
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
-  virtual void endRun(const edm::Run& run, const edm::EventSetup& c);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
-  virtual void runClient_();   
 
+  virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
+  
 };
  
 #endif

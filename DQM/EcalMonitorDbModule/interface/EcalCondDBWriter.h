@@ -1,20 +1,19 @@
 #ifndef EcalCondDBWriter_H
 #define EcalCondDBWriter_H
 
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
+
 #include "DBWriterWorkers.h"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "OnlineDB/EcalCondDB/interface/EcalCondDBInterface.h"
 
-class EcalCondDBWriter : public edm::EDAnalyzer {
+class EcalCondDBWriter : public DQMEDHarvester {
  public:
   EcalCondDBWriter(edm::ParameterSet const&);
   ~EcalCondDBWriter();
 
  private:
-  void analyze(edm::Event const&, edm::EventSetup const&);
+  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
 
   // DON'T CHANGE - ORDER MATTERS IN DB
   enum Tasks {
@@ -35,6 +34,7 @@ class EcalCondDBWriter : public edm::EDAnalyzer {
     nTasks = 14
   };
 
+  int runNumber_;
   EcalCondDBInterface* db_;
   std::string location_;
   std::string runType_;

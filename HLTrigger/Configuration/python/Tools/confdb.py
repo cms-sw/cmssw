@@ -51,7 +51,12 @@ class HLTProcess(object):
     "HLT_DoubleMu38NoFiltersNoVtx_v*",
     "HLT_Mu38NoFiltersNoVtx_Photon38_CaloIdL_v*",
     "HLT_Mu42NoFiltersNoVtx_Photon42_CaloIdL_v*",
- 
+    "HLT_DoubleMu23NoFiltersNoVtxDisplaced_v*",
+    "HLT_DoubleMu28NoFiltersNoVtxDisplaced_v*",
+    "HLT_Mu28NoFiltersNoVtxDisplaced_Photon28_CaloIdL_v*",
+    "HLT_Mu33NoFiltersNoVtxDisplaced_Photon33_CaloIdL_v*",
+    "HLT_HT350_DisplacedDijet80_Tight_DisplacedTrack_v*",
+    "HLT_HT350_DisplacedDijet80_DisplacedTrack_v*"
   )
 
   def __init__(self, configuration):
@@ -190,11 +195,13 @@ class HLTProcess(object):
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 
-# from CMSSW_7_2_0_pre6: Use Legacy Errors in "StripCPEESProducer" for HLT (PRs 5286/5151)
-if cmsswVersion >= "CMSSW_7_2":
-    if 'hltESPStripCPEfromTrackAngle' in %(dict)s:
-        %(process)shltESPStripCPEfromTrackAngle.useLegacyError = cms.bool(True)
+# none for now
 """
+
+# from CMSSW_7_2_0_pre6: Use Legacy Errors in "StripCPEESProducer" for HLT (PRs 5286/5151)
+#if cmsswVersion >= "CMSSW_7_2":
+#    if 'hltESPStripCPEfromTrackAngle' in %(dict)s:
+#        %(process)shltESPStripCPEfromTrackAngle.useLegacyError = cms.bool(True)
 
   # customize the configuration according to the options
   def customize(self):
@@ -204,6 +211,11 @@ if cmsswVersion >= "CMSSW_7_2":
       self.build_source()
 
     # manual override some parameters
+    if self.config.type in ('HIon', ):
+      if self.config.data:
+        if not self.config.fragment:
+          self._fix_parameter( type = 'InputTag', value = 'rawDataCollector',  replace = 'rawDataRepacker')
+
 #    if self.config.type in ('HIon', ):
 #      self.data += """
 ## Disable HF Noise filters in HIon menu
@@ -248,19 +260,26 @@ if cmsswVersion >= "CMSSW_7_2":
 
     if self.config.fragment:
       
-#      self.data += """
-## dummyfy hltGetConditions in cff's
-#if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
-#    %(process)shltDummyConditions = cms.EDFilter( "HLTBool",
-#        result = cms.bool( True )
-#    )
-#    %(process)sHLTriggerFirstPath.replace(%(process)shltGetConditions,%(process)shltDummyConditions)
-#"""
+      self.data += """
+# dummyfy hltGetConditions in cff's
+if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
+    %(process)shltDummyConditions = cms.EDFilter( "HLTBool",
+        result = cms.bool( True )
+    )
+    %(process)sHLTriggerFirstPath.replace(%(process)shltGetConditions,%(process)shltDummyConditions)
+"""
 
       # if requested, adapt the configuration for FastSim
       self.fixForFastSim()
 
     else:
+
+      if self.config.type not in ('2014','Fake',) :
+        self.data += """
+# load PostLS1 customisation
+from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1
+process = customisePostLS1(process)
+"""
 
       # override the process name and adapt the relevant filters
       self.overrideProcessName()
@@ -273,6 +292,9 @@ if cmsswVersion >= "CMSSW_7_2":
 
       # if requested or necessary, override the GlobalTag and connection strings (incl. L1!)
       self.overrideGlobalTag()
+
+      # if requested, add snippet to run on new L1 skim
+      self.switchToNewL1Skim()
 
       # if requested, run (part of) the L1 emulator
       self.runL1Emulator()
@@ -567,6 +589,9 @@ if 'GlobalTag' in %(dict)s:
       elif self.config.emulator in ('gmt,gct,gt', 'gct,gmt,gt', 'all'):
         emulator['CustomL1T'] = 'customiseL1EmulatorFromRaw'
         emulator['CustomHLT'] = 'switchToSimGmtGctGtDigis'
+      elif self.config.emulator in ('stage1,gt'):
+        emulator['CustomL1T'] = 'customiseL1EmulatorFromRaw'
+        emulator['CustomHLT'] = 'switchToSimStage1Digis'
       else:
         # unsupported argument, default to running the whole emulator
         emulator['CustomL1T'] = 'customiseL1EmulatorFromRaw'
@@ -577,15 +602,48 @@ if 'GlobalTag' in %(dict)s:
 process.load( 'Configuration.StandardSequences.%(RawToDigi)s' )
 process.load( 'Configuration.StandardSequences.SimL1Emulator_cff' )
 import L1Trigger.Configuration.L1Trigger_custom
-process = L1Trigger.Configuration.L1Trigger_custom.%(CustomL1T)s( process )
-process = L1Trigger.Configuration.L1Trigger_custom.customiseResetPrescalesAndMasks( process )
+#
+""" % emulator
 
+      if (self.config.emulator).find("stage1")>-1:
+        self.data += """
+# 2015 Run2 emulator
+import L1Trigger.L1TCalorimeter.L1TCaloStage1_customForHLT
+process = L1Trigger.L1TCalorimeter.L1TCaloStage1_customForHLT.%(CustomL1T)s( process )
+""" % emulator
+      else:
+        self.data += """
+# Run1 Emulator
+process = L1Trigger.Configuration.L1Trigger_custom.%(CustomL1T)s( process )
+""" % emulator
+
+      self.data += """
+#
+process = L1Trigger.Configuration.L1Trigger_custom.customiseResetPrescalesAndMasks( process )
 # customize the HLT to use the emulated results
 import HLTrigger.Configuration.customizeHLTforL1Emulator
 process = HLTrigger.Configuration.customizeHLTforL1Emulator.switchToL1Emulator( process )
 process = HLTrigger.Configuration.customizeHLTforL1Emulator.%(CustomHLT)s( process )
 """ % emulator
 
+  def switchToNewL1Skim(self):
+    # add snippet to switch to new L1 skim files
+    if self.config.l1skim:
+      self.data += """
+# Customize the menu to use information from new L1 emulator in the L1 skim files
+process.hltL2MuonSeeds.GMTReadoutCollection = cms.InputTag("simGmtDigis::L1SKIM" )
+process.hltL1extraParticles.muonSource = cms.InputTag("simGmtDigis::L1SKIM" )
+for module in process.__dict__.itervalues():
+  if isinstance(module, cms._Module):
+    for parameter in module.__dict__.itervalues():
+      if isinstance(parameter, cms.InputTag):
+        if parameter.moduleLabel == 'hltGtDigis':
+          parameter.moduleLabel = "gtDigisFromSkim"
+        elif parameter.moduleLabel == 'hltL1GtObjectMap':
+          parameter.moduleLabel = "gtDigisFromSkim"
+        elif parameter.moduleLabel == 'hltGctDigis':
+          parameter.moduleLabel ="caloStage1LegacyFormatDigis"
+"""
 
   def overrideOutput(self):
     # override the "online" ShmStreamConsumer output modules with "offline" PoolOutputModule's
@@ -1157,11 +1215,14 @@ if 'GlobalTag' in %%(dict)s:
       self.options['sequences'].append( "-HLTIterativeTrackingHighPtTkMu" )
       self.options['sequences'].append( "-HLTIterativeTrackingHighPtTkMuIsoIter02" )
       self.options['sequences'].append( "-HLTIterativeTrackingForBTagIter02" )
+      self.options['sequences'].append( "-HLTIterativeTrackingForBTagIter12" )
       self.options['sequences'].append( "-HLTIterativeTrackingForTauIter04" )
       self.options['sequences'].append( "-HLTIterativeTrackingForTauIter02" )
       self.options['sequences'].append( "-HLTIterativeTrackingDisplacedJpsiIter02" )
       self.options['sequences'].append( "-HLTIterativeTrackingDisplacedPsiPrimeIter02" )
       self.options['sequences'].append( "-HLTIterativeTrackingDisplacedNRMuMuIter02" )
+      self.options['sequences'].append( "-HLTIterativeTrackingForBTagIteration0" )
+      self.options['sequences'].append( "-HLTIterativeTrackingIteration4DisplacedJets" )
       self.options['sequences'].append( "-HLTRegionalCKFTracksForL3Isolation" )
       self.options['sequences'].append( "-HLTHBHENoiseCleanerSequence" )
 
@@ -1174,11 +1235,10 @@ if 'GlobalTag' in %%(dict)s:
     if self.config.input:
       # if a dataset or a list of input files was given, use it
       if self.config.input[0:8] == 'dataset:':
-        from dbsFileQuery import dbsFileQuery
-        # extract the dataset name, and use DBS to fine the list of LFNs
+        from dasFileQuery import dasFileQuery
+        # extract the dataset name, and use DAS to fine the list of LFNs
         dataset = self.config.input[8:]
-        query   = 'find file where dataset=' + dataset
-        files   = dbsFileQuery(query)
+        files   = dasFileQuery(dataset)
         self.source = files
       else:
         # assume a list of input files
@@ -1191,7 +1251,7 @@ if 'GlobalTag' in %%(dict)s:
       self.source = [ "file:RelVal_Raw_%s_DATA.root" % self.config.type ]
     else:
       # ...or on mc
-      self.source = [ "file:RelVal_Raw_%s_STARTUP.root" % self.config.type ]
+      self.source = [ "file:RelVal_Raw_%s_MC.root" % self.config.type ]
 
     self.data += """
 %(process)ssource = cms.Source( "PoolSource",

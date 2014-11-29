@@ -10,6 +10,8 @@ def customisePostLS1(process):
     process = customise_csc_PostLS1(process)
 
     # all the rest:
+    if hasattr(process,'g4SimHits'):
+        process=customise_Sim(process)
     if hasattr(process,'DigiToRaw'):
         process=customise_DigiToRaw(process)
     if hasattr(process,'RawToDigi'):
@@ -35,6 +37,7 @@ def customisePostLS1(process):
 def digiEventContent(process):
     #extend the event content
 
+
     alist=['RAWSIM','RAWDEBUG','FEVTDEBUG','FEVTDEBUGHLT','GENRAW','RAWSIMHLT','FEVT','PREMIX','PREMIXRAW']
     for a in alist:
         b=a+'output'
@@ -58,6 +61,10 @@ def customise_Validation(process):
     # We don't run the HLT
     #process.validation_step.remove(process.HLTSusyExoVal)
     #process.validation_step.remove(process.hltHiggsValidator)
+    return process
+
+def customise_Sim(process):
+    process.g4SimHits.HFShowerLibrary.FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en.root'
     return process
 
 def customise_Digi(process):

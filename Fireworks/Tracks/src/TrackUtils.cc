@@ -424,7 +424,7 @@ addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveEl
       const float* pars = geom->getParameters( rawid );
       
       // -- get phi from SiStripHit
-      TrackingRecHitRef rechitRef = *it;
+      auto rechitRef = *it;
       const TrackingRecHit *rechit = &( *rechitRef );
       const SiStripCluster *cluster = extractClusterFromTrackingRecHit( rechit );
 

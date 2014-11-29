@@ -396,14 +396,13 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
             const GlobalPoint monogposition = (monodet->surface()).toGlobal(monoposition);
 	    ClSize = (monocluster->amplitudes()).size();
 	    
-	    const std::vector<uint8_t> amplitudes = monocluster->amplitudes();
+	    const auto & amplitudes = monocluster->amplitudes();
 	    
 	    barycenter = monocluster->barycenter()- 0.5; 
 	    uint16_t FirstStrip = monocluster->firstStrip();
-	    std::vector<uint8_t>::const_iterator idigi;
-	    std::vector<uint8_t>::const_iterator begin=amplitudes.begin();
+	    auto begin=amplitudes.begin();
 	    nstrip=0;
-	    for(idigi=begin; idigi!=amplitudes.end(); idigi++){
+	    for(auto idigi=begin; idigi!=amplitudes.end(); idigi++){
 	      Amplitudes[nstrip]=*idigi;
 	      sumx+=pow(((FirstStrip+idigi-begin)-barycenter),2)*(*idigi);
 	      HitCharge+=*idigi;
@@ -493,14 +492,13 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
 	      
 	      ClSize = (stereocluster->amplitudes()).size();
 	      
-	      const std::vector<uint8_t> amplitudes = stereocluster->amplitudes();
+	      const auto &  amplitudes = stereocluster->amplitudes();
 	      
 	      barycenter = stereocluster->barycenter()- 0.5; 
 	      uint16_t FirstStrip = stereocluster->firstStrip();
-	      std::vector<uint8_t>::const_iterator idigi;
-	      std::vector<uint8_t>::const_iterator begin=amplitudes.begin();
+	      auto begin=amplitudes.begin();
 	      nstrip=0;
-	      for(idigi=begin; idigi!=amplitudes.end(); idigi++){
+	      for(auto idigi=begin; idigi!=amplitudes.end(); idigi++){
 		Amplitudes[nstrip]=*idigi;
 		sumx+=pow(((FirstStrip+idigi-begin)-barycenter),2)*(*idigi);
 		HitCharge+=*idigi;
@@ -590,14 +588,13 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
 	    
 	    ClSize = (cluster->amplitudes()).size();
 	    
-	    const std::vector<uint8_t> amplitudes = cluster->amplitudes();
+	    const auto &  amplitudes = cluster->amplitudes();
 	    
 	    barycenter = cluster->barycenter()- 0.5; 
 	    uint16_t FirstStrip = cluster->firstStrip();
-	    std::vector<uint8_t>::const_iterator idigi;
-	    std::vector<uint8_t>::const_iterator begin=amplitudes.begin();
 	    nstrip=0;
-	    for(idigi=begin; idigi!=amplitudes.end(); idigi++){
+            auto begin =amplitudes.begin();
+	    for(auto idigi=amplitudes.begin(); idigi!=amplitudes.end(); idigi++){
 	      Amplitudes[nstrip]=*idigi;
 	      sumx+=pow(((FirstStrip+idigi-begin)-barycenter),2)*(*idigi);
 	      HitCharge+=*idigi;

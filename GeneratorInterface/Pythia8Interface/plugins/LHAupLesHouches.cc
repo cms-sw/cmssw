@@ -31,6 +31,21 @@ bool LHAupLesHouches::setInit()
   //hadronisation->onInit().emit();
 
   //runInfo.reset();
+    
+  //fill SLHA header information if available
+  std::vector<std::string> slha = runInfo->findHeader("slha");
+  if (!slha.empty()) {
+    std::string slhaheader;
+    for(std::vector<std::string>::const_iterator iter = slha.begin(); iter != slha.end(); ++iter) {
+      slhaheader.append(*iter);
+    }
+    infoPtr->setHeader("slha",slhaheader);
+  }  
+  
+  //work around missing initialization inside pythia8
+  infoPtr->eventAttributes = new std::map<std::string, std::string >;
+  
+  
   return true;
 }
 
@@ -50,6 +65,8 @@ bool LHAupLesHouches::setEvent(int inProcId, double mRecalculate)
 
   const std::vector<float> &scales = event->scales();
   
+  bool doRecalculate = (mRecalculate > 0.);
+  
   unsigned int iscale = 0;
   for(int i = 0; i < hepeup.NUP; i++) {
     //retrieve scale corresponding to each particle
@@ -66,15 +83,47 @@ bool LHAupLesHouches::setEvent(int inProcId, double mRecalculate)
       scalein = scales[iscale];
       ++iscale;
     }
+    
+    double energy = hepeup.PUP[i][3];
+    double mass = hepeup.PUP[i][4];
+    
+    // Optionally recalculate mass from four-momentum.
+    if (doRecalculate && mass > mRecalculate) {
+      mass = sqrtpos( energy*energy - hepeup.PUP[i][0]*hepeup.PUP[i][0] - hepeup.PUP[i][1]*hepeup.PUP[i][1] - hepeup.PUP[i][2]*hepeup.PUP[i][2]);
+    }
+    // If not, recalculate energy from three-momentum and mass.
+    else {
+      energy = sqrt( hepeup.PUP[i][0]*hepeup.PUP[i][0] + hepeup.PUP[i][1]*hepeup.PUP[i][1] + hepeup.PUP[i][2]*hepeup.PUP[i][2] + mass*mass);
+    }
+    
     addParticle(hepeup.IDUP[i], hepeup.ISTUP[i],
                 hepeup.MOTHUP[i].first, hepeup.MOTHUP[i].second,
                 hepeup.ICOLUP[i].first, hepeup.ICOLUP[i].second,
                 hepeup.PUP[i][0], hepeup.PUP[i][1],
-                hepeup.PUP[i][2], hepeup.PUP[i][3],
-                hepeup.PUP[i][4], hepeup.VTIMUP[i],
+                hepeup.PUP[i][2], energy,
+                mass, hepeup.VTIMUP[i],
                 hepeup.SPINUP[i],scalein);
   }
+  
+  infoPtr->eventAttributes->clear();
+  
+  //fill parton multiplicities if available
+  int npLO = event->npLO();
+  int npNLO = event->npNLO();
 
+  //default value of -99 indicates tags were not present in the original LHE file
+  //don't pass to pythia in this case to emulate pythia internal lhe reader behaviour
+  if (npLO!=-99) {
+    char buffer [100];
+    snprintf( buffer, 100, "%i",npLO);    
+    (*infoPtr->eventAttributes)["npLO"] = buffer;
+  }
+  if (npNLO!=-99) {
+    char buffer [100];
+    snprintf( buffer, 100, "%i",npNLO);    
+    (*infoPtr->eventAttributes)["npNLO"] = buffer;
+  }
+  
   const lhef::LHEEvent::PDF *pdf = event->getPDF();
   if (pdf) {
     this->setPdf(pdf->id.first, pdf->id.second,

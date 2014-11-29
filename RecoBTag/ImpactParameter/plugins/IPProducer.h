@@ -84,7 +84,8 @@ namespace IPProducerHelpers {
       class FromJetAndCands{
               public:
 		      FromJetAndCands(const edm::ParameterSet& iConfig,  edm::ConsumesCollector && iC): token_jets(iC.consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("jets"))),          
-		      token_cands(iC.consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("candidates"))), maxDeltaR(iConfig.getParameter<double>("maxDeltaR")){}
+		      token_cands(iC.consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("candidates"))), maxDeltaR(iConfig.getParameter<double>("maxDeltaR")),
+		      explicitJTA(iConfig.existsAs<bool>("explicitJTA") ? iConfig.getParameter<bool>("explicitJTA") : false) {}
 
                       std::vector<reco::CandidatePtr> tracks(edm::Event&,const reco::JetTagInfo & it)
                       {
@@ -98,17 +99,28 @@ namespace IPProducerHelpers {
                               edm::Handle<edm::View<reco::Candidate> > cands;
                               iEvent.getByToken(token_cands, cands);
 			      m_map.clear();
-			      m_map.resize(jets->size());	
+			      m_map.resize(jets->size());
+			      double maxDeltaR2 = maxDeltaR*maxDeltaR;
                               size_t i = 0;
                               for(edm::View<reco::Jet>::const_iterator it = jets->begin();
                                               it != jets->end(); it++, i++) {
                                       edm::RefToBase<reco::Jet> jRef(jets, i);
-                                      bases.push_back(jRef);
-				      //FIXME: add deltaR or any other requirement here
-				      for(size_t j=0;j<cands->size();j++) {
-					      if((*cands)[j].bestTrack()!=0 &&  ROOT::Math::VectorUtil::DeltaR((*cands)[j].p4(),(*jets)[i].p4()) < maxDeltaR && (*cands)[j].charge() !=0 ){
-						      m_map[i].push_back(cands->ptrAt(j));	
-					      }
+                                      bases.push_back(reco::JetTagInfo(jRef));
+				      if( explicitJTA )
+				      {
+					  for(size_t j=0;j<it->numberOfDaughters();++j) {
+						  if( it->daughterPtr(j)->bestTrack()!=0 && it->daughterPtr(j)->charge() !=0 ){
+							  m_map[i].push_back(it->daughterPtr(j));
+						  }
+					  }
+				      }
+				      else
+				      {
+					  for(size_t j=0;j<cands->size();++j) {
+						  if( (*cands)[j].bestTrack()!=0 && Geom::deltaR2((*cands)[j].p4(),(*jets)[i].p4()) < maxDeltaR2 && (*cands)[j].charge() !=0 ){
+							  m_map[i].push_back(cands->ptrAt(j));
+						  }
+					  }
 				      }
                               }
                               return bases;
@@ -116,7 +128,8 @@ namespace IPProducerHelpers {
 		      std::vector<std::vector<reco::CandidatePtr> > m_map;	
                       edm::EDGetTokenT<edm::View<reco::Jet> > token_jets;
                       edm::EDGetTokenT<edm::View<reco::Candidate> >token_cands;
-		      double maxDeltaR;	
+		      double maxDeltaR;
+		      bool   explicitJTA;
       };
 }
 template <class Container, class Base, class Helper> 

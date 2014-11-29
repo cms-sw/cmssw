@@ -1,5 +1,4 @@
 <use   name="boost"/>
-<use   name="oracle"/>
 <use   name="FWCore/Framework"/>
 <use   name="DataFormats/HcalDetId"/>
 <use   name="CalibCalorimetry/HcalAlgos"/>

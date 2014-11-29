@@ -49,7 +49,7 @@ bTagCommonBlock = cms.PSet(
             ipTagInfos = cms.InputTag("impactParameterTagInfos"),
             type = cms.string('GenericMVA'),
             svTagInfos = cms.InputTag("secondaryVertexTagInfos"),
-            label = cms.InputTag("combinedSecondaryVertex"),
+            label = cms.InputTag("combinedSecondaryVertexComputer"),
             folder = cms.string("CSVTag")
 
         ),
@@ -90,8 +90,8 @@ bTagCommonBlock = cms.PSet(
         ),
         cms.PSet(
             bTagGenericAnalysisBlock,
-            label = cms.InputTag("combinedSecondaryVertexMVABJetTags"),
-            folder = cms.string("CSVMVA")
+            label = cms.InputTag("combinedInclusiveSecondaryVertexV2BJetTags"),
+            folder = cms.string("CSVv2")
         ),
         cms.PSet(
             bTagGenericAnalysisBlock,

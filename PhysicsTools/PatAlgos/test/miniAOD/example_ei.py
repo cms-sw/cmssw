@@ -80,9 +80,10 @@ process.patJetGenJetMatchAK4PF.matched = "slimmedGenJets"
 process.patJetGenJetMatchAK4PFCHS.matched = "slimmedGenJets"
 process.patJetPartonMatchAK4PFCHS.matched = "prunedGenParticles"
 process.patJetPartonMatchAK4PF.matched = "prunedGenParticles"
-process.patJetPartons.particles  = "prunedGenParticles"
-process.patJetPartons.skipFirstN = cms.uint32(0) # do not skip first 6 particles, we already pruned some!
-process.patJetPartons.acceptNoDaughters = cms.bool(True) # as we drop intermediate stuff, we need to accept quarks with no siblings
+process.patJetPartons.particles = "prunedGenParticles"
+process.patJetPartonsLegacy.src = "prunedGenParticles" # if using legacy jet flavour (not used by default)
+process.patJetPartonsLegacy.skipFirstN = cms.uint32(0) # do not skip first 6 particles, we already pruned some!
+process.patJetPartonsLegacy.acceptNoDaughters = cms.bool(True) # as we drop intermediate stuff, we need to accept quarks with no siblings
 
 #adjust PV
 process.patJetCorrFactorsAK4PFCHS.primaryVertices = "offlineSlimmedPrimaryVertices"
@@ -90,7 +91,6 @@ process.patJetCorrFactorsAK4PF.primaryVertices = "offlineSlimmedPrimaryVertices"
 
 #recreate tracks and pv for btagging
 process.load('PhysicsTools.PatAlgos.slimming.unpackedTracksAndVertices_cfi')
-process.combinedSecondaryVertex.trackMultiplicityMin = 1 #silly sv, uses un filtered tracks.. i.e. any pt
 
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")

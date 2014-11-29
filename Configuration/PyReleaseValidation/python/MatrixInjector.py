@@ -79,7 +79,9 @@ class MatrixInjector(object):
             print '\n\tFound wmclient\n'
             
         self.defaultChain={
-            "RequestType" :   "TaskChain",                    #this is how we handle relvals
+            "RequestType" :    "TaskChain",                    #this is how we handle relvals
+            "SubRequestType" : "RelVal",                       #this is how we handle relvals, now that TaskChain is also used for central MC production
+            "RequestPriority": 500000,
             "Requestor": self.user,                           #Person responsible
             "Group": self.group,                              #group for the request
             "CMSSWVersion": os.getenv('CMSSW_VERSION'),       #CMSSW Version (used for all tasks in chain)
@@ -162,10 +164,10 @@ class MatrixInjector(object):
             wmsplit['RECOUP15_PU25']=1
             wmsplit['DIGIHISt3']=5
             wmsplit['RECODSplit']=1
-            wmsplit['SingleMuPt10_ID']=1
-            wmsplit['DIGI_ID']=1
-            wmsplit['RECO_ID']=1
-            wmsplit['TTbar_ID']=1
+            wmsplit['SingleMuPt10_UP15_ID']=1
+            wmsplit['DIGIUP15_ID']=1
+            wmsplit['RECOUP15_ID']=1
+            wmsplit['TTbar_13_ID']=1
             wmsplit['SingleMuPt10FS_ID']=1
             wmsplit['TTbarFS_ID']=1
                                     
@@ -189,6 +191,8 @@ class MatrixInjector(object):
                     index=0
                     splitForThisWf=None
                     thisLabel=self.speciallabel
+                    if 'HARVESTGEN' in s[3]:
+                        thisLabel=thisLabel+"_gen"
                     processStrPrefix=''
                     setPrimaryDs=None
                     for step in s[3]:

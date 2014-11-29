@@ -11,13 +11,15 @@
   <class name="HcalTrigTowerDetId" ClassVersion="10">
    <version ClassVersion="10" checksum="3049681583"/>
   </class>
-  <class name="HcalCalibDetId" ClassVersion="10">
+  <class name="HcalCalibDetId" ClassVersion="11">
+   <version ClassVersion="11" checksum="324201917"/>
    <version ClassVersion="10" checksum="173148569"/>
   </class>
   <class name="HcalOtherDetId" ClassVersion="10">
    <version ClassVersion="10" checksum="4099723506"/>
   </class>
-  <class name="HcalDcsDetId" ClassVersion="10">
+  <class name="HcalDcsDetId" ClassVersion="11">
+   <version ClassVersion="11" checksum="3710487366"/>
    <version ClassVersion="10" checksum="4165221916"/>
   </class>
   <class name="HcalZDCDetId" ClassVersion="10">

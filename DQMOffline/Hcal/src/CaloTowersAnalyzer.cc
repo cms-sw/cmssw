@@ -221,10 +221,10 @@ CaloTowersAnalyzer::CaloTowersAnalyzer(edm::ParameterSet const& conf){
     //These are the five oldest CaloTower histos used: NTowers, E in HCAL/ECAL, MET and SET
     //-------------------------------------------------------------------------------------------
     sprintf (histo, "CaloTowersTask_energy_HCAL_HE" ) ;
-    meEnergyHcal_HE    = ibooker.book1D(histo, histo, 440, -200, 2000);  
+    meEnergyHcal_HE    = ibooker.book1D(histo, histo, 1240, -200, 6000);
     
     sprintf (histo, "CaloTowersTask_energy_ECAL_HE" ) ;
-    meEnergyEcal_HE    = ibooker.book1D(histo, histo, 440, -200, 2000); 
+    meEnergyEcal_HE    = ibooker.book1D(histo, histo, 1240, -200, 6000);
     
     sprintf (histo, "CaloTowersTask_number_of_fired_towers_HE" ) ;
     meNumFiredTowers_HE = ibooker.book1D(histo, histo, 1000, 0, 2000); 
@@ -314,10 +314,10 @@ CaloTowersAnalyzer::CaloTowersAnalyzer(edm::ParameterSet const& conf){
     //These are the five oldest CaloTower histos used: NTowers, E in HCAL/ECAL, MET and SET
     //-------------------------------------------------------------------------------------------
     sprintf (histo, "CaloTowersTask_energy_HCAL_HF" ) ;
-    meEnergyHcal_HF    = ibooker.book1D(histo, histo, 440, -200, 2000);  
+    meEnergyHcal_HF    = ibooker.book1D(histo, histo, 4040, -200, 20000);
     
     sprintf (histo, "CaloTowersTask_energy_ECAL_HF" ) ;
-    meEnergyEcal_HF    = ibooker.book1D(histo, histo, 440, -200, 2000); 
+    meEnergyEcal_HF    = ibooker.book1D(histo, histo, 2440, -200, 12000);
 
     sprintf (histo, "CaloTowersTask_number_of_fired_towers_HF" ) ;
     meNumFiredTowers_HF = ibooker.book1D(histo, histo, 1000, 0, 2000); 
@@ -326,7 +326,7 @@ CaloTowersAnalyzer::CaloTowersAnalyzer(edm::ParameterSet const& conf){
     MET_HF = ibooker.book1D(histo, histo, 500, 0. , 500. ) ;
     
     sprintf  (histo, "CaloTowersTask_SET_HF" ) ;
-    SET_HF = ibooker.book1D(histo, histo, 200, 0. , 200. ) ;
+    SET_HF = ibooker.book1D(histo, histo, 2000, 0. , 2000. ) ;
     //-------------------------------------------------------------------------------------------
 
     //Timing histos and profiles -- all six are necessary
@@ -421,7 +421,9 @@ void CaloTowersAnalyzer::analyze(edm::Event const& event, edm::EventSetup const&
   //double Hcone  = 0.;
   //double Ee1    = 0.;
   //double Eh1    = 0.;
-
+  double ieta_MC = 9999;
+  double iphi_MC = 9999;
+ 
   // HB   
   double sumEnergyHcal_HB = 0.;
   double sumEnergyEcal_HB = 0.;
@@ -666,6 +668,8 @@ void CaloTowersAnalyzer::analyze(edm::Event const& event, edm::EventSetup const&
   } // end of Towers cycle 
 
   //These are the six single pion histos; only the second set is used
+
+  mapEnergy_N  -> Fill(double(ieta_MC), double(iphi_MC), 1.); 
 
   if(isub == 0 || isub == 1) {
     met    = sqrt(metx_HB*metx_HB + mety_HB*mety_HB);

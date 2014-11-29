@@ -218,8 +218,8 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
       if(t1->outerPosition().Rho() > t2->innerPosition().Rho())deltaR3d *= -1.0;
       if(deltaR3d < minDeltaR3d_)continue;
       
-      FreeTrajectoryState fts1 = trajectoryStateTransform::outerFreeState(*t1, &*magfield_);
-      FreeTrajectoryState fts2 = trajectoryStateTransform::innerFreeState(*t2, &*magfield_);
+      FreeTrajectoryState fts1 = trajectoryStateTransform::outerFreeState(*t1, &*magfield_,false);
+      FreeTrajectoryState fts2 = trajectoryStateTransform::innerFreeState(*t2, &*magfield_,false);
       GlobalPoint avgPoint((t1->outerPosition().x()+t2->innerPosition().x())*0.5,(t1->outerPosition().y()+t2->innerPosition().y())*0.5,(t1->outerPosition().z()+t2->innerPosition().z())*0.5);
       TrajectoryStateClosestToPoint TSCP1 = tscpBuilder(fts1, avgPoint);
       TrajectoryStateClosestToPoint TSCP2 = tscpBuilder(fts2, avgPoint);

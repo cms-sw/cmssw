@@ -1,68 +1,36 @@
 #ifndef ESPedestalClient_H
 #define ESPedestalClient_H
 
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "DQM/EcalPreshowerMonitorClient/interface/ESClient.h"
 
 #include <TF1.h>
 
+#include <vector>
 
 //
 // class decleration
 //
 
-
-class MonitorElement;
-class DQMStore;
-
 class ESPedestalClient : public ESClient{
-
-   friend class ESSummaryClient;
-
    public:
-   ESPedestalClient(const edm::ParameterSet& ps);
-   virtual ~ESPedestalClient();
-   void analyze(void);
-   void beginJob(DQMStore* dqmStore);
-   void endJob(void);
-   void beginRun(void);
-   void endRun(void);
-   void setup(void);
-   void cleanup(void);
-   void endLumiAnalyze(void) {}
-
-   /// Get Functions
-   inline int getEvtPerJob() { return ievt_; }
-   inline int getEvtPerRun() { return jevt_; }
-
+   ESPedestalClient(const edm::ParameterSet&);
+   ~ESPedestalClient();
+   void endJobAnalyze(DQMStore::IGetter&) override;
 
    private:
+   void book(DQMStore::IBooker&) override;
 
-   int ievt_;
-   int jevt_;
-   bool enableCleanup_;
-   bool verbose_;
-   bool debug_;
    bool fitPedestal_;
-
-
-   edm::FileInPath lookup_;
-   std::string prefixME_;
-
-   DQMStore* dqmStore_;
 
    MonitorElement *hPed_[2][2][40][40];
    MonitorElement *hTotN_[2][2][40][40];
 
-   TF1 *fg;
+   TF1* fg_;
 
-   int nLines_;
-   //		int runNum_, runtype_, seqtype_, dac_, gain_, precision_;
-   //		int firstDAC_, nDAC_, isPed_, vDAC_[5], layer_;
-
-   int senZ_[4288], senP_[4288], senX_[4288], senY_[4288];
+   std::vector<int> senZ_;
+   std::vector<int> senP_;
+   std::vector<int> senX_;
+   std::vector<int> senY_;
 
 };
 

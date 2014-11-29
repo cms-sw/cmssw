@@ -207,6 +207,8 @@ class JetTester : public thread_unsafe::DQMEDAnalyzer {
   MonitorElement* chargedMuEnergy;
   MonitorElement* chargedMuEnergyFraction;
   MonitorElement* neutralMultiplicity;
+  MonitorElement* HOEnergy;
+  MonitorElement* HOEnergyFraction;
 
   // Parameters
   double          mRecoJetPtThreshold;

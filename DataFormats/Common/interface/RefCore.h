@@ -58,6 +58,12 @@ namespace edm {
 
     WrapperBase const* getProductPtr(std::type_info const& type) const;
 
+    WrapperBase const* tryToGetProductPtr(std::type_info const& type) const;
+
+    WrapperBase const* getThinnedProductPtr(std::type_info const& type, unsigned int& thinnedKey) const;
+
+    bool isThinnedAvailable(unsigned int thinnedKey) const;
+
     void productNotFoundException(std::type_info const& type) const;
 
     void wrongTypeException(std::type_info const& expectedType, std::type_info const& actualType) const;

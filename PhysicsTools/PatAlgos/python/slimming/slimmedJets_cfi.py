@@ -16,6 +16,6 @@ slimmedJetsAK8 = cms.EDProducer("PATJetSlimmer",
    dropDaughters = cms.string("0"),
    dropTrackRefs = cms.string("1"),
    dropSpecific = cms.string("0"),
-   dropTagInfos = cms.string("1"),
+   dropTagInfos = cms.string("0"),
 )
 

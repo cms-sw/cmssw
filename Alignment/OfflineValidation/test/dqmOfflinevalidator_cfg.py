@@ -39,7 +39,8 @@ process.GlobalTag.globaltag = 'CRAFT09_R_V4::All' #'DESIGN_31X_V7::All'
 ##
 ## Geometry
 ##
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.Geometry.GeometryDB_cff")
+
 
 
 ##

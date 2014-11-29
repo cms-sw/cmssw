@@ -47,6 +47,7 @@ int main(){
     }
   } catch ( const std::exception & er) {
     std::cout << "Error: " << er.what()<<std::endl;
+    return -1;
   } 
   return 0;
 }

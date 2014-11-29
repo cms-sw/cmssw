@@ -31,6 +31,9 @@
 // forward declarations
 namespace edm {
   template<typename T> class WorkerT;
+  class ProductRegistry;
+  class ThinnedAssociationsHelper;
+
   namespace stream {
     class EDProducerAdaptorBase;
     template<typename> class ProducingModuleAdaptorBase;
@@ -70,6 +73,8 @@ namespace edm {
 
       virtual void preForkReleaseResources() {}
       virtual void postForkReacquireResources(unsigned int /*iChildIndex*/, unsigned int /*iNumberOfChildren*/) {}
+      virtual void registerThinnedAssociations(ProductRegistry const&,
+                                               ThinnedAssociationsHelper&) { }
 
       void setModuleDescriptionPtr(ModuleDescription const* iDesc) {
         moduleDescriptionPtr_ = iDesc;

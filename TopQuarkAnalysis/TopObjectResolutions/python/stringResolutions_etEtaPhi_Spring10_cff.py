@@ -309,7 +309,7 @@ muonResolution = stringResolution.clone(parametrization = 'EtEtaPhi',
                                         constraints = cms.vdouble(0)
                                         )
 
-## light jet resolutions (AK5 calo)
+## light jet resolutions (AK4 calo)
 udscResolution = stringResolution.clone(parametrization = 'EtEtaPhi',
                                         functions = cms.VPSet(
     cms.PSet(
@@ -478,7 +478,7 @@ udscResolution = stringResolution.clone(parametrization = 'EtEtaPhi',
                                         constraints = cms.vdouble(0)
                                         )
 
-## light jet resolutions (AK5 particle flow)
+## light jet resolutions (AK4 particle flow)
 udscResolutionPF = stringResolution.clone(parametrization = 'EtEtaPhi',
                                           functions = cms.VPSet(
     cms.PSet(
@@ -647,7 +647,7 @@ udscResolutionPF = stringResolution.clone(parametrization = 'EtEtaPhi',
                                         constraints = cms.vdouble(0)
                                         )
 
-## b jet resolutions (AK5 calo)
+## b jet resolutions (AK4 calo)
 bjetResolution = stringResolution.clone(parametrization = 'EtEtaPhi',
                                         functions = cms.VPSet(
     cms.PSet(
@@ -816,7 +816,7 @@ bjetResolution = stringResolution.clone(parametrization = 'EtEtaPhi',
                                         constraints = cms.vdouble(0)
                                         )
 
-## b jet resolutions (AK5 particle flow)
+## b jet resolutions (AK4 particle flow)
 bjetResolutionPF = stringResolution.clone(parametrization = 'EtEtaPhi',
                                           functions = cms.VPSet(
     cms.PSet(

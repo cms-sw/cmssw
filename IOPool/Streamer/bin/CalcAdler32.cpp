@@ -1,5 +1,5 @@
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
-#include "IOPool/Streamer/interface/StreamerFileIO.h"
+#include "IOPool/Streamer/interface/MsgTools.h"
 
 #include "boost/shared_array.hpp"
 

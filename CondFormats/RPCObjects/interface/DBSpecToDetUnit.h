@@ -2,7 +2,7 @@
 #define CondFormatsRPCObjectsDBSpecToDetUnit_H
 
 #include "DataFormats/DetId/interface/DetId.h"
-class ChamberLocationSpec;
+struct ChamberLocationSpec;
 class FebLocationSpec;
 
 class DBSpecToDetUnit {

@@ -155,7 +155,7 @@ namespace edm {
 
     /// Checks if collection is in memory or available
     /// in the event. No type checking is done.
-    bool isAvailable() const {return core_.isAvailable();}
+    bool isAvailable() const;
 
     /// Checks if this Ptr is transient (i.e. not persistable).
     bool isTransient() const {return core_.isTransient();}
@@ -191,14 +191,22 @@ namespace edm {
     template<typename C>
     T const* getItem_(C const* product, key_type iKey);
 
-    void getData_() const {
-      if(!hasProductCache() && 0 != productGetter()) {
-        void const* ad = 0;
+    void getData_(bool throwIfNotFound = true) const {
+      if(!hasProductCache() && productGetter() != nullptr) {
         WrapperBase const* prod = productGetter()->getIt(core_.id());
+        unsigned int iKey = key_;
         if(prod == nullptr) {
-          core_.productNotFoundException(typeid(T));
+          prod = productGetter()->getThinnedProduct(core_.id(), iKey);
+          if(prod == nullptr) {
+            if(throwIfNotFound) {
+              core_.productNotFoundException(typeid(T));
+            } else {
+              return;
+            }
+          }
         }
-        prod->setPtr(typeid(T), key_, ad);
+        void const* ad = nullptr;
+        prod->setPtr(typeid(T), iKey, ad);
         core_.setProductPtr(ad);
       }
     }
@@ -233,6 +241,14 @@ namespace edm {
   Ptr<T>::operator->() const {
     getData_();
     return reinterpret_cast<T const*>(core_.productPtr());
+  }
+
+  template<typename T>
+  inline
+  bool
+  Ptr<T>::isAvailable() const {
+    getData_(false);
+    return hasProductCache();
   }
 
   template<typename T>

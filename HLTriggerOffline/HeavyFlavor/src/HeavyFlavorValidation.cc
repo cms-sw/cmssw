@@ -147,16 +147,18 @@ void HeavyFlavorValidation::dqmBeginRun(const edm::Run& iRun, const edm::EventSe
 			vector<string> moduleNames = hltConfig.moduleLabels( triggerNames[i] );
 			for( size_t j = 0; j < moduleNames.size(); j++) {
 				TString name = moduleNames[j];
-				if(name.Contains("Filter")){
+				if(name.Contains("Filter")){ 
 					int level = 0;
 					if(name.Contains("L1"))
 						level = 1;
-					else if(name.Contains("L2"))
+					if(name.Contains("L2"))
 						level = 2;
-					else if(name.Contains("L3"))
+					if(name.Contains("L3"))
 						level = 3;
-					else if(name.Contains("mumuFilter") || name.Contains("JpsiTrackMass"))
+					if(name.Contains("mumuFilter") || name.Contains("DiMuon") || name.Contains("MuonL3Filtered") || name.Contains("TrackMassFiltered"))
 						level = 4;
+					if(name.Contains("Vertex") || name.Contains("Dz"))
+						level = 5;
 					filterNamesLevels.push_back( pair<string,int>(moduleNames[j],level) );
 					os<<" "<<moduleNames[j];
 				}
@@ -274,9 +276,9 @@ void HeavyFlavorValidation::bookHistograms(DQMStore::IBooker & ibooker,
 }
 
 void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetup){
-  if(filterNamesLevels.size()==0){
+  if(filterNamesLevels.size()==0){ 
     return;
-  }
+  } 
 //access the containers and create LeafCandidate copies
   vector<LeafCandidate> genMuons;
   Handle<GenParticleCollection> genParticles;
@@ -402,7 +404,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
       match( ME[TString::Format("filt%dGlob_deltaEtaDeltaPhi",int(i+1))], globMuons_position, muonsAtFilter[i] ,globL1DeltaRMatchingCut, filt_glob[i] );
     }else if( filterNamesLevels[i].second == 2 ){
       match( ME[TString::Format("filt%dGlob_deltaEtaDeltaPhi",int(i+1))], globMuons_position, muonPositionsAtFilter[i] ,globL2DeltaRMatchingCut, filt_glob[i] );
-    }else if( filterNamesLevels[i].second == 3 || filterNamesLevels[i].second == 4){
+    }else if( filterNamesLevels[i].second > 2){
       match( ME[TString::Format("filt%dGlob_deltaEtaDeltaPhi",int(i+1))], globMuons, muonsAtFilter[i] ,globL3DeltaRMatchingCut, filt_glob[i] );
     }
   }
@@ -411,7 +413,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
     match( ME["pathGlob_deltaEtaDeltaPhi"], globMuons_position, pathMuons ,globL1DeltaRMatchingCut, path_glob );
   }else if( (filterNamesLevels.end()-1)->second == 2 ){
     match( ME["pathGlob_deltaEtaDeltaPhi"], globMuons, pathMuons ,globL2DeltaRMatchingCut, path_glob );
-  }else if( (filterNamesLevels.end()-1)->second == 3 || (filterNamesLevels.end()-1)->second == 4){
+  }else if( (filterNamesLevels.end()-1)->second > 2){
     match( ME["pathGlob_deltaEtaDeltaPhi"], globMuons, pathMuons ,globL3DeltaRMatchingCut, path_glob );
   }
     

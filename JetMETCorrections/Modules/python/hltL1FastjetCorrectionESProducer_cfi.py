@@ -6,6 +6,6 @@ import FWCore.ParameterSet.Config as cms
 hltL1FastjetCorrectionESProducer = cms.ESProducer('L1FastjetCorrectionESProducer',
     appendToDataLabel = cms.string( '' ),
     level     = cms.string( 'L1FastJet' ),
-    algorithm = cms.string( 'AK5Calo' ),
+    algorithm = cms.string( 'AK4Calo' ),
     srcRho    = cms.InputTag( 'fixedGridRhoFastjetAllCalo' )
 )

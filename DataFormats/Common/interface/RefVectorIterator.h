@@ -61,6 +61,8 @@ namespace edm {
     bool operator<=(iterator const& rhs) const {return this->iter_ <= rhs.iter_;}
     bool operator>=(iterator const& rhs) const {return this->iter_ >= rhs.iter_;}
 
+    key_type  key() const { return *iter_;}
+
   private:
     RefCore product_;
     keyIter iter_;

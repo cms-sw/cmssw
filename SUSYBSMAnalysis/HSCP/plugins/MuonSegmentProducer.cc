@@ -55,8 +55,8 @@ private:
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
-  edm::InputTag m_cscSegmentTag;
-  edm::InputTag m_dtSegmentTag;
+  edm::EDGetTokenT< CSCSegmentCollection > m_cscSegmentToken;
+  edm::EDGetTokenT< DTRecSegment4DCollection > m_dtSegmentToken;
 };
 
 using namespace susybsm;
@@ -65,8 +65,9 @@ MuonSegmentProducer::MuonSegmentProducer(const edm::ParameterSet& iConfig) {
   using namespace edm;
   using namespace std;
 
-  m_cscSegmentTag      = iConfig.getParameter<edm::InputTag>("CSCSegments");
-  m_dtSegmentTag      = iConfig.getParameter<edm::InputTag>("DTSegments");
+
+  m_cscSegmentToken = consumes< CSCSegmentCollection >( iConfig.getParameter<edm::InputTag>("CSCSegments" ) );
+  m_dtSegmentToken  = consumes< DTRecSegment4DCollection >(iConfig.getParameter<edm::InputTag>("DTSegments" ) );
 
   produces<susybsm::MuonSegmentCollection >();
 }
@@ -98,7 +99,7 @@ MuonSegmentProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   iSetup.get<MuonGeometryRecord>().get(cscGeom);
 
   edm::Handle<DTRecSegment4DCollection> dtSegments;
-  iEvent.getByLabel(m_dtSegmentTag, dtSegments);
+  iEvent.getByToken(m_dtSegmentToken, dtSegments);
 
   for (unsigned int d=0; d<dtSegments->size(); d++) {
     DTRecSegment4DRef SegRef  = DTRecSegment4DRef( dtSegments, d );
@@ -112,7 +113,7 @@ MuonSegmentProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   }
 
   edm::Handle<CSCSegmentCollection> cscSegments;
-  iEvent.getByLabel(m_cscSegmentTag, cscSegments);
+  iEvent.getByToken(m_cscSegmentToken, cscSegments);
 
   for (unsigned int c=0; c<cscSegments->size(); c++) {
     CSCSegmentRef SegRef  = CSCSegmentRef( cscSegments, c );

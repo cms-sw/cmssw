@@ -8,7 +8,8 @@
  <class name="edm::SendEvent" ClassVersion="10">
   <version ClassVersion="10" checksum="747121728"/>
  </class>
- <class name="edm::SendJobHeader" ClassVersion="10">
+ <class name="edm::SendJobHeader" ClassVersion="11">
+  <version ClassVersion="11" checksum="79372782"/>
   <version ClassVersion="10" checksum="1238072397"/>
  </class>
  <class name="std::vector<edm::BranchDescription>"/>

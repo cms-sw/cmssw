@@ -39,7 +39,7 @@ getExternals()
         expat fftw3 gdbm gsl hepmc\
    	libjpg libpng libtiff libungif \
    	openssl pcre \
-   	sigcpp  xrootd zlib xz freetype
+   	sigcpp  xrootd zlib xz freetype tbb
     do
         export i;
         ever=`grep $i $extt |  perl -ne 'if ($_ =~ /$ENV{i}\/(.*)\/lib\/(.*)/ ) {print "$1\n"; last;}'`

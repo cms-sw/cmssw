@@ -17,6 +17,7 @@ Test program for edm::Event.
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
+#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/TestObjects/interface/Thing.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
@@ -150,6 +151,7 @@ class testEvent: public CppUnit::TestFixture {
 
   std::shared_ptr<ProductRegistry>   availableProducts_;
   std::shared_ptr<BranchIDListHelper> branchIDListHelper_;
+  std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper_;
   std::shared_ptr<EventPrincipal>    principal_;
   std::shared_ptr<Event>             currentEvent_;
   std::shared_ptr<ModuleDescription> currentModuleDescription_;
@@ -234,6 +236,7 @@ testEvent::addProduct(std::unique_ptr<T> product,
 testEvent::testEvent() :
   availableProducts_(new ProductRegistry()),
   branchIDListHelper_(new BranchIDListHelper()),
+  thinnedAssociationsHelper_(new ThinnedAssociationsHelper()),
   principal_(),
   currentEvent_(),
   currentModuleDescription_(),
@@ -373,7 +376,7 @@ void testEvent::setUp() {
   lbp->setRunPrincipal(rp);
   EventAuxiliary eventAux(id, uuid, time, true);
   const_cast<ProcessHistoryID &>(eventAux.processHistoryID()) = processHistoryID;
-  principal_.reset(new edm::EventPrincipal(preg, branchIDListHelper_, pc, &historyAppender_,edm::StreamID::invalidStreamID()));
+  principal_.reset(new edm::EventPrincipal(preg, branchIDListHelper_, thinnedAssociationsHelper_, pc, &historyAppender_,edm::StreamID::invalidStreamID()));
   principal_->fillEventPrincipal(eventAux, processHistoryRegistry_);
   principal_->setLuminosityBlockPrincipal(lbp);
   ModuleCallingContext mcc(currentModuleDescription_.get());

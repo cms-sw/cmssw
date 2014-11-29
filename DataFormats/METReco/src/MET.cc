@@ -78,14 +78,16 @@ MET * MET::clone() const {
 double MET::significance() const {
   if(signif_dxx==0 && signif_dyy==0 && signif_dxy==0 && signif_dyx==0)
     return -1;
-  TMatrixD metmat = getSignificanceMatrix();
-  TVectorD metvec(2);
+  METCovMatrix metmat = getSignificanceMatrix();
+  ROOT::Math::SVector<double,2> metvec;
   metvec(0)=this->px();
   metvec(1)=this->py();
   double signif = -1;
-  if(std::fabs(metmat.Determinant())>0.000001){
+  double det=0;
+  metmat.Det2(det);
+  if(std::abs(det)>0.000001){
     metmat.Invert();
-    signif = metvec * (metmat * metvec);
+    signif = ROOT::Math::Dot(metvec, (metmat * metvec) );
   }
   return signif;
 }
@@ -134,9 +136,9 @@ std::vector<double> MET::dsumEt() const
 
 // returns the significance matrix
 //____________________________________________________________________________||
-TMatrixD MET::getSignificanceMatrix(void) const
+METCovMatrix MET::getSignificanceMatrix(void) const
 {
-  TMatrixD result(2,2);
+  METCovMatrix result;
   result(0,0)=signif_dxx;
   result(0,1)=signif_dxy;
   result(1,0)=signif_dyx;
@@ -152,7 +154,7 @@ bool MET::overlap( const Candidate & ) const
 }
 
 //____________________________________________________________________________||
-void MET::setSignificanceMatrix(const TMatrixD &inmatrix)
+void MET::setSignificanceMatrix(const METCovMatrix &inmatrix)
 {
   signif_dxx=inmatrix(0,0);
   signif_dxy=inmatrix(0,1);

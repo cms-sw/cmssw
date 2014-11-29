@@ -17,15 +17,20 @@
 //
 
 // user include files
-#include "DataFormats/Common/interface/WrapperBase.h"
-#include "DataFormats/Provenance/interface/ProductID.h"
 
 // system include files
+#include <string>
+#include <vector>
+
 #include "boost/utility.hpp"
 
 // forward declarations
 
 namespace edm {
+
+   class ProductID;
+   class WrapperBase;
+
    class EDProductGetter : private boost::noncopyable {
 
    public:
@@ -35,6 +40,30 @@ namespace edm {
 
      // ---------- const member functions ---------------------
      virtual WrapperBase const* getIt(ProductID const&) const = 0;
+
+     // getThinnedProduct assumes getIt was already called and failed to find
+     // the product. The input key is the index of the desired element in the
+     // container identified by ProductID (which cannot be found).
+     // If the return value is not null, then the desired element was found
+     // in a thinned container and key is modified to be the index into
+     // that thinned container. If the desired element is not found, then
+     // nullptr is returned.
+     virtual WrapperBase const* getThinnedProduct(ProductID const&, unsigned int& key) const = 0;
+
+     // getThinnedProducts assumes getIt was already called and failed to find
+     // the product. The input keys are the indexes into the container identified
+     // by ProductID (which cannot be found). On input the WrapperBase pointers
+     // must all be set to nullptr (except when the function calls itself
+     // recursively where non-null pointers mark already found elements).
+     // Thinned containers derived from the product are searched to see
+     // if they contain the desired elements. For each that is
+     // found, the corresponding WrapperBase pointer is set and the key
+     // is modified to be the key into the container where the element
+     // was found. The WrapperBase pointers might or might not all point
+     // to the same thinned container.
+     virtual void getThinnedProducts(ProductID const& pid,
+                                     std::vector<WrapperBase const*>& foundContainers,
+                                     std::vector<unsigned int>& keys) const = 0;
 
      unsigned int transitionIndex() const {
        return transitionIndex_();

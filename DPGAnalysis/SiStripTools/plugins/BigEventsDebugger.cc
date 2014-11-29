@@ -42,6 +42,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
@@ -175,7 +176,7 @@ BigEventsDebugger<T>::analyze(const edm::Event& iEvent, const edm::EventSetup& i
      m_hist.clear();     m_hprof.clear();     m_hist2d.clear();
 
      char dirname[500];
-     sprintf(dirname,"event_%u_%u",iEvent.run(),iEvent.id().event());
+     sprintf(dirname,"event_%u_%llu",iEvent.run(),iEvent.id().event());
      TFileDirectory subd = tfserv->mkdir(dirname);
 
      //book histos
@@ -227,7 +228,9 @@ BigEventsDebugger<T>::endJob() {
 
 typedef BigEventsDebugger<edmNew::DetSetVector<SiStripCluster> > ClusterBigEventsDebugger;
 typedef BigEventsDebugger<edm::DetSetVector<SiStripDigi> > DigiBigEventsDebugger;
+typedef BigEventsDebugger<edm::DetSetVector<SiStripRawDigi> > RawDigiBigEventsDebugger;
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(ClusterBigEventsDebugger);
 DEFINE_FWK_MODULE(DigiBigEventsDebugger);
+DEFINE_FWK_MODULE(RawDigiBigEventsDebugger);

@@ -1,3 +1,4 @@
+
 #include "CalibMuon/CSCCalibration/interface/CSCConditions.h"
 
 #include "CalibMuon/CSCCalibration/interface/CSCChannelMapperRecord.h"
@@ -39,16 +40,14 @@ CSCConditions::CSCConditions( const edm::ParameterSet& ps )
   theChipCorrections(), theChamberTimingCorrections(), theGasGainCorrections(),
   indexer_(0), mapper_(0),
   readBadChannels_(false), readBadChambers_(false),
-  useTimingCorrections_(false), useGasGainCorrections_(false), theAverageGain( -1.0 )
+  useTimingCorrections_(false), useGasGainCorrections_(false), 
+  idOfBadChannelWords_(CSCDetId()), badStripWord_(0), badWireWord_(0), theAverageGain( -1.0 )
 {
   readBadChannels_ = ps.getParameter<bool>("readBadChannels");
   readBadChambers_ = ps.getParameter<bool>("readBadChambers");
   useTimingCorrections_ = ps.getParameter<bool>("CSCUseTimingCorrections");
   useGasGainCorrections_ = ps.getParameter<bool>("CSCUseGasGainCorrections");
 
-  // set size to hold all layers, using enum defined in .h
-  badStripWords.resize( MAX_LAYERS, 0 );
-  badWireWords.resize( MAX_LAYERS, 0 );
 }
 
 
@@ -83,10 +82,10 @@ void CSCConditions::initializeEvent(const edm::EventSetup & es)
     es.get<CSCBadWiresRcd>().get( theBadWires );
 
     //@@    if( badStripsWatcher_.check( es ) ) {
-      fillBadStripWords();
+    //      fillBadStripWords();
     //@@    }
     //@@    if( badWiresWatcher_.check( es ) ) {
-      fillBadWireWords();
+    //      fillBadWireWords();
     //@    }
 
   }
@@ -108,13 +107,40 @@ void CSCConditions::initializeEvent(const edm::EventSetup & es)
 //  print();
 }
 
-void CSCConditions::fillBadStripWords(){
-  //@@ NOT YET THOUGHT THROUGH FOR UNGANGED ME11A
+void CSCConditions::fillBadChannelWords( const CSCDetId& id ) {
 
-  // reset existing values
-  badStripWords.assign( MAX_LAYERS, 0 );
-  if ( readBadChannels() ) {
-    // unpack what we've read from theBadStrips
+  // input CSCDetId is expected to be an offline value i.e. different for ME1/1A and ME1/1B
+
+  // Only update content if necessary
+  if ( id != idOfBadChannelWords() ) {
+
+  // store offline CSCDetId for the two bad channel words
+    setIdOfBadChannelWords( id );
+
+  // reset to all zeroes
+    badStripWord_.reset();
+    badWireWord_.reset();
+
+    if ( readBadChannels() ) {
+      // convert to online CSCDetId since that is how conditions data are stored
+      CSCDetId idraw  = mapper_->rawCSCDetId( id );
+      fillBadStripWord( idraw );
+      fillBadWireWord( idraw );
+    }
+  }
+}
+
+/// Next function private
+
+void CSCConditions::fillBadStripWord( const CSCDetId& id ){
+
+  // Input CSCDetId is expected to be a 'raw' value
+
+    // Find linear index of chamber for input CSCDetId
+    int inputIndex = indexer_->chamberIndex( id );
+    short inputLayer = id.layer();
+
+    // Does this chamber occur in bad channel list? If so, unpack its bad channels
 
     // chambers is a vector<BadChamber>
     // channels is a vector<BadChannel>
@@ -123,54 +149,61 @@ void CSCConditions::fillBadStripWords(){
 
     for ( size_t i=0; i<theBadStrips->chambers.size(); ++i ) { // loop over bad chambers
       int indexc = theBadStrips->chambers[i].chamber_index;
-      int start =  theBadStrips->chambers[i].pointer;  // where this chamber's bad channels start in vector<BadChannel>
-      int nbad  =  theBadStrips->chambers[i].bad_channels;
+      if (indexc != inputIndex ) continue;  // next iteration if not a match
 
-      CSCDetId id = indexer_->detIdFromChamberIndex( indexc ); // We need this to build layer index (1-2808)
+      int start =  theBadStrips->chambers[i].pointer;
+      int nbad  =  theBadStrips->chambers[i].bad_channels;
 
       for ( int j=start-1; j<start-1+nbad; ++j ) { // bad channels in this chamber
         short lay  = theBadStrips->channels[j].layer;    // value 1-6
-        short chan = theBadStrips->channels[j].channel;  // value 1-80
+	if ( lay != inputLayer ) continue;
+
+        short chan = theBadStrips->channels[j].channel;  // value 1-80 (->112 for unganged ME1/1A)
+    // Flags so far unused (and unset in conditins data)
     //    short f1 = theBadStrips->channels[j].flag1;
     //    short f2 = theBadStrips->channels[j].flag2;
     //    short f3 = theBadStrips->channels[j].flag3;
-        int indexl = indexer_->layerIndex( id.endcap(), id.station(), id.ring(), id.chamber(), lay );
-        badStripWords[indexl-1].set( chan-1, 1 ); // set bit 0-79 in 80-bit bitset representing this layer
+        badStripWord_.set( chan-1, 1 ); // set bit 0-79 (111) in 80 (112)-bit bitset representing this layer
       } // j
     } // i
 
-  }
 }
 
-void CSCConditions::fillBadWireWords(){
-  // reset existing values
-  badWireWords.assign( MAX_LAYERS, 0 );
-  if ( readBadChannels() ) {
+void CSCConditions::fillBadWireWord( const CSCDetId& id ){
+
+  // Input CSCDetId is expected to be a 'raw' value
+
+    // Find linear index of chamber for input CSCDetId
+    int inputIndex = indexer_->chamberIndex( id );
+    short inputLayer = id.layer();
+
     // unpack what we've read from theBadWires
 
     for ( size_t i=0; i<theBadWires->chambers.size(); ++i ) { // loop over bad chambers
       int indexc = theBadWires->chambers[i].chamber_index;
-      int start =  theBadWires->chambers[i].pointer;  // where this chamber's bad channels start in vector<BadChannel>
-      int nbad  =  theBadWires->chambers[i].bad_channels;
 
-      CSCDetId id = indexer_->detIdFromChamberIndex( indexc ); // We need this to build layer index (1-2808)
+      if (indexc != inputIndex ) continue;  // next iteration if not a match
+
+      int start =  theBadWires->chambers[i].pointer;
+      int nbad  =  theBadWires->chambers[i].bad_channels;
 
       for ( int j=start-1; j<start-1+nbad; ++j ) { // bad channels in this chamber
         short lay  = theBadWires->channels[j].layer;    // value 1-6
-        short chan = theBadWires->channels[j].channel;  // value 1-80
+	if ( lay != inputLayer ) continue;
+
+        short chan = theBadWires->channels[j].channel;  // value 1-112
     //    short f1 = theBadWires->channels[j].flag1;
     //    short f2 = theBadWires->channels[j].flag2;
     //    short f3 = theBadWires->channels[j].flag3;
-        int indexl = indexer_->layerIndex( id.endcap(), id.station(), id.ring(), id.chamber(), lay );
-        badWireWords[indexl-1].set( chan-1, 1 ); // set bit 0-111 in 112-bit bitset representing this layer
+        badWireWord_.set( chan-1, 1 ); // set bit 0-111 in 112-bit bitset representing this layer
       } // j
     } // i
 
-  }
 }
 
 bool CSCConditions::isInBadChamber( const CSCDetId& id ) const {
-  //@@ NOT YET THOUGHT THROUGH FOR UNGANGED ME11A
+  //@@ We do not consider the possibility of having ME1/1A & ME1/1B independently 'bad'.
+  //@@ To do that we would need to define separate chamber indexes for ME1/1A & ME1/1B.
 
   if ( readBadChambers() )  {
     CSCDetId idraw  = mapper_->rawCSCDetId( id );
@@ -234,7 +267,7 @@ float CSCConditions::crosstalkSlope(const CSCDetId& id, int geomChannel, bool le
 
 const CSCDBNoiseMatrix::Item & CSCConditions::noiseMatrix(const CSCDetId& id, int geomChannel) const
 {
-  //@@ BEWARE - THIS FUNCTION DOES NOT APPLy SCALE FACTOR USED IN PACKING VALUES IN CONDITIONS DATA
+  //@@ BEWARE - THIS FUNCTION DOES NOT APPLY SCALE FACTOR USED IN PACKING VALUES IN CONDITIONS DATA
   //@@ MAY BE AN ERROR? WHO WOULD WANT ACCESS WITHOUT IT?
 
   assert(theNoiseMatrix.isValid());
@@ -311,21 +344,6 @@ float CSCConditions::anodeBXoffset(const CSCDetId & id) const
   }
   else
     return 0;
-}
-
-const std::bitset<80>& CSCConditions::badStripWord( const CSCDetId& id ) const {
-  //@@ NOT YET THOUGHT THROUGH FOR UNGANGED ME11A
-
-  CSCDetId idraw  = mapper_->rawCSCDetId( id );
-  return badStripWords[indexer_->layerIndex(idraw) - 1];
-}
-
-const std::bitset<112>& CSCConditions::badWireWord( const CSCDetId& id ) const {
-  //@@ NEED TO THINK ABOUT THIS SINCE ME11A & ME11B SHARE A COMMON WIRE PLANE
-  //@@ SHOULD WE JUST USE ME11B?
-
-  CSCDetId idraw  = mapper_->rawCSCDetId( id );
-  return badWireWords[indexer_->layerIndex(idraw) - 1];
 }
 
 /// Return average strip gain for full CSC system. Lazy evaluation.

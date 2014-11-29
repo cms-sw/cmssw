@@ -10,7 +10,7 @@ from RecoHI.HiTracking.HITrackingRegionProducer_cfi import *
 from RecoTracker.IterativeTracking.DetachedTripletStep_cff import *
 
 # NEW CLUSTERS (remove previously used clusters)
-hiRegitDetachedTripletStepClusters = cms.EDProducer("TrackClusterRemover",
+hiRegitDetachedTripletStepClusters = cms.EDProducer("HITrackClusterRemover",
                                                 clusterLessSolution= cms.bool(True),
                                                 oldClusterRemovalInfo = cms.InputTag("hiRegitPixelPairStepClusters"),
                                                 trajectories = cms.InputTag("hiRegitPixelPairStepTracks"),
@@ -46,7 +46,7 @@ from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi 
 hiRegitDetachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 1.2
 
 # building: feed the new-named seeds
-hiRegitDetachedTripletStepTrajectoryFilter = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepTrajectoryFilter.clone()
+hiRegitDetachedTripletStepTrajectoryFilter = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepTrajectoryFilterBase.clone()
 
 hiRegitDetachedTripletStepTrajectoryBuilder = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepTrajectoryBuilder.clone(
     trajectoryFilter     = cms.PSet(refToPSet_ = cms.string('hiRegitDetachedTripletStepTrajectoryFilter')),
@@ -62,8 +62,8 @@ hiRegitDetachedTripletStepTrackCandidates        =  RecoTracker.IterativeTrackin
 # fitting: feed new-names
 hiRegitDetachedTripletStepTracks                 = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepTracks.clone(
     src                 = 'hiRegitDetachedTripletStepTrackCandidates',
-    #AlgorithmName = cms.string('iter7'),
-    AlgorithmName = cms.string('iter3'),
+    #AlgorithmName = cms.string('jetCoreRegionalStep'),
+    AlgorithmName = cms.string('detachedTripletStep'),
     )
 
 

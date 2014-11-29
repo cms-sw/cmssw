@@ -17,6 +17,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/isFinite.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -182,18 +183,15 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
   }
 
   if ( doPUOffsetCorr_ ) {
-    if ( jetTypeE != JetType::CaloJet && jetTypeE != JetType::BasicJet) {
-        throw cms::Exception("InvalidInput") << "Can only offset correct jets of type CaloJet or BasicJet";
-     }
-     
+
      if(iConfig.exists("subtractorName")) puSubtractorName_  =  iConfig.getParameter<string> ("subtractorName");
      else puSubtractorName_ = std::string();
      
      if(puSubtractorName_.empty()){
        edm::LogWarning("VirtualJetProducer") << "Pile Up correction on; however, pile up type is not specified. Using default... \n";
-       subtractor_ =  boost::shared_ptr<PileUpSubtractor>(new PileUpSubtractor(iConfig));
+       subtractor_ =  boost::shared_ptr<PileUpSubtractor>(new PileUpSubtractor(iConfig, consumesCollector()));
      }else{
-       subtractor_ =  boost::shared_ptr<PileUpSubtractor>(PileUpSubtractorFactory::get()->create( puSubtractorName_, iConfig));
+       subtractor_ =  boost::shared_ptr<PileUpSubtractor>(PileUpSubtractorFactory::get()->create( puSubtractorName_, iConfig, consumesCollector()));
      }
   }
 
@@ -309,8 +307,10 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
   if ( useDeterministicSeed_ ) {
     fastjet::GhostedAreaSpec gas;
     std::vector<int> seeds(2);
-    seeds[0] = std::max(iEvent.id().run(),minSeed_ + 3) + 3 * iEvent.id().event();
-    seeds[1] = std::max(iEvent.id().run(),minSeed_ + 5) + 5 * iEvent.id().event();
+    unsigned int runNum_uint = static_cast <unsigned int> (iEvent.id().run());
+    unsigned int evNum_uint = static_cast <unsigned int> (iEvent.id().event()); 
+    seeds[0] = std::max(runNum_uint,minSeed_ + 3) + 3 * evNum_uint;
+    seeds[1] = std::max(runNum_uint,minSeed_ + 5) + 5 * evNum_uint;
     gas.set_random_status(seeds);
   }
 
@@ -420,8 +420,9 @@ void VirtualJetProducer::inputTowers( )
     if (input->et()    <inputEtMin_)  continue;
     if (input->energy()<inputEMin_)   continue;
     if (isAnomalousTower(input))      continue;
-    if (input->pt() == 0) {
-      edm::LogError("NullTransverseMomentum") << "dropping input candidate with pt=0";
+    // Change by SRR : this is no longer an error nor warning, this can happen with PU mitigation algos.
+    // Also switch to something more numerically safe. 
+    if (input->pt() < 100 * std::numeric_limits<double>::epsilon() ) { 
       continue;
     }
     if (makeCaloJet(jetTypeE)&&doPVCorrection_) {

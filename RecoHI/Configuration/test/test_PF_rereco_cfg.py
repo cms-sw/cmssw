@@ -43,7 +43,7 @@ process.rechits = cms.Sequence(process.siPixelRecHits * process.siStripMatchedRe
 
 # Path and EndPath definitions
 process.trkreco_step = cms.Path(process.rechits * process.heavyIonTracking)
-process.pfreco_step = cms.Path(process.HiParticleFlowReco)
+process.pfreco_step = cms.Path(process.hiParticleFlowReco)
 process.out_step = cms.EndPath(process.output)
 
 # Schedule definition

@@ -5,7 +5,7 @@
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include <iostream>
 
-HcalDataIntegrityTask::HcalDataIntegrityTask(const edm::ParameterSet& ps) 
+HcalDataIntegrityTask::HcalDataIntegrityTask(const edm::ParameterSet& ps) :HcalBaseDQMonitor(ps)
 {
 
   Online_                = ps.getUntrackedParameter<bool>("online",false);
@@ -47,23 +47,13 @@ void HcalDataIntegrityTask::reset()
 
 }
 
-void HcalDataIntegrityTask::cleanup()
-{
-  if(dbe_)
-    {
-      dbe_->setCurrentFolder(subdir_);
-      dbe_->removeContents();
-    }
 
-} // void HcalDataIntegrityTask::cleanup()
-
-
-void HcalDataIntegrityTask::beginRun(const edm::Run& run, const edm::EventSetup& c)
+void HcalDataIntegrityTask::bookHistograms(DQMStore::IBooker &ib, const edm::Run& run, const edm::EventSetup& c)
 {
 
-  if (debug_>0) std::cout <<"HcalDataIntegrityTask::beginRun():  task =  '"<<subdir_<<"'"<<std::endl;
+  if (debug_>0) std::cout <<"HcalDataIntegrityTask::bookHistograms():  task =  '"<<subdir_<<"'"<<std::endl;
 
-  HcalBaseDQMonitor::beginRun(run, c);
+  HcalBaseDQMonitor::bookHistograms(ib,run, c);
   if (mergeRuns_ && tevt_>0) return;
 
   if (debug_>1)  std::cout<<"\t<HcalDataIntegrityTask::getting eMap..."<<std::endl;
@@ -72,22 +62,22 @@ void HcalDataIntegrityTask::beginRun(const edm::Run& run, const edm::EventSetup&
   readoutMap_=pSetup->getHcalMapping();
 
   if (tevt_==0) // create histograms, if they haven't been created already
-    this->setup();
+    this->setup(ib);
   // Clear histograms at the start of each run if not merging runs
   if (mergeRuns_==false)
   this->reset();
 
-} // beginRun(const edm::Run& run, const edm::EventSetup& c)
+} // bookHistograms(const edm::Run& run, const edm::EventSetup& c)
 
 
-void HcalDataIntegrityTask::setup()
+void HcalDataIntegrityTask::setup(DQMStore::IBooker &ib)
 {
   // Setup Creates all necessary histograms
-  HcalBaseDQMonitor::setup();
+  HcalBaseDQMonitor::setup(ib);
   
   //Initialize phatmap to a vector of vectors of uint64_t 0
-  static size_t iphirange = IPHIMAX - IPHIMIN;
-  static size_t ietarange = IETAMAX - IETAMIN;
+  const static size_t iphirange = IPHIMAX - IPHIMIN;
+  const static size_t ietarange = IETAMAX - IETAMIN;
   
   std::vector<uint64_t> phatv (iphirange + 1, 0);
   
@@ -133,18 +123,14 @@ void HcalDataIntegrityTask::setup()
       fedUnpackList_.push_back(i);
     }
 
-  if ( dbe_ ) 
-    {
-      
       if (debug_>1)
 	std::cout <<"\t<HcalDataIntegrityTask> Setting folder to "<<subdir_<<std::endl;
 
-      dbe_->setCurrentFolder(subdir_);
+      ib.setCurrentFolder(subdir_);
       
-      fedEntries_ = dbe_->book1D("FEDEntries","# entries per HCAL FED",32,700,732);
-      fedFatal_ = dbe_->book1D("FEDFatal","# fatal errors HCAL FED",32,700,732);
-      fedNonFatal_ = dbe_->book1D("FEDNonFatal","# non-fatal errors HCAL FED",32,700,732);
-    } // if (dbe_)
+      fedEntries_ = ib.book1D("FEDEntries","# entries per HCAL FED",32,700,732);
+      fedFatal_ = ib.book1D("FEDFatal","# fatal errors HCAL FED",32,700,732);
+      fedNonFatal_ = ib.book1D("FEDNonFatal","# non-fatal errors HCAL FED",32,700,732);
 
   this->reset(); // clear all histograms at start
   return;
@@ -184,12 +170,6 @@ void HcalDataIntegrityTask::processEvent(const FEDRawDataCollection& rawraw,
 					 const HcalUnpackerReport& report, 
 					 const HcalElectronicsMap& emap){
   
-  if(!dbe_) 
-    { 
-      std::cout<<"HcalDataIntegrityTask::processEvent DQMStore not instantiated!!!"<<std::endl;  
-      return;
-    }
-
   // Loop over all FEDs reporting the event, unpacking if good.
   for (std::vector<int>::const_iterator i=fedUnpackList_.begin();i!=fedUnpackList_.end(); i++) 
     {

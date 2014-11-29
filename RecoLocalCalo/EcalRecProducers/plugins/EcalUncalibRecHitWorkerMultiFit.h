@@ -25,7 +25,7 @@
 #include "CondFormats/EcalObjects/interface/EcalTBWeights.h"
 #include "CondFormats/EcalObjects/interface/EcalSampleMask.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
-
+#include "RecoLocalCalo/EcalRecAlgos/interface/EigenMatrixTypes.h"
 
 namespace edm {
         class Event;
@@ -40,8 +40,9 @@ class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass 
 				//EcalUncalibRecHitWorkerMultiFit(const edm::ParameterSet&);
                 virtual ~EcalUncalibRecHitWorkerMultiFit() {};
 
-                void set(const edm::EventSetup& es);
-                bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result);
+                void set(const edm::EventSetup& es) override;
+                void set(const edm::Event& evt) override;
+                bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result) override;
 
         protected:
 
@@ -57,23 +58,25 @@ class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass 
                 double timeCorrection(float ampli,
                     const std::vector<float>& amplitudeBins, const std::vector<float>& shiftBins);
 
-                const TMatrixDSym &noisecor(bool barrel, int gain) const;                
+                const SampleMatrix &noisecor(bool barrel, int gain) const;                
                 
                 // multifit method
-                TMatrixDSym noisecorEBg12;
-                TMatrixDSym noisecorEEg12;
-                TMatrixDSym noisecorEBg6;
-                TMatrixDSym noisecorEEg6;
-                TMatrixDSym noisecorEBg1;
-                TMatrixDSym noisecorEEg1;
-                TVectorD fullpulseEB;
-                TVectorD fullpulseEE;
-                TMatrixDSym fullpulsecovEB;
-                TMatrixDSym fullpulsecovEE;
-                std::set<int> activeBX;
+                SampleMatrix noisecorEBg12;
+                SampleMatrix noisecorEEg12;
+                SampleMatrix noisecorEBg6;
+                SampleMatrix noisecorEEg6;
+                SampleMatrix noisecorEBg1;
+                SampleMatrix noisecorEEg1;
+                FullSampleVector fullpulseEB;
+                FullSampleVector fullpulseEE;
+                FullSampleMatrix fullpulsecovEB;
+                FullSampleMatrix fullpulsecovEE;
+                BXVector activeBX;
                 bool ampErrorCalculation_;
+                bool useLumiInfoRunHeader_;
                 EcalUncalibRecHitMultiFitAlgo multiFitMethod_;
                 
+                edm::EDGetTokenT<int> bunchSpacing_; 
 
                 // determine which of the samples must actually be used by ECAL local reco
                 edm::ESHandle<EcalSampleMask> sampleMaskHand_;                

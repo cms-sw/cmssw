@@ -3,8 +3,8 @@
 
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include "boost/thread/condition.hpp"
-#include "boost/thread/mutex.hpp"
+#include <condition_variable>
+#include <mutex>
 
 namespace edm {
   class ParameterSet;
@@ -14,8 +14,8 @@ namespace edm {
 
   struct ConfigurationHandshake {
     void* p;
-    boost::mutex m;
-    boost::condition c;
+    std::mutex m;
+    std::condition_variable c;
     edm::Place_for_passing_exception_ptr epp;
     explicit ConfigurationHandshake 
       (void* p_in, Place_for_passing_exception_ptr epp_in) : 

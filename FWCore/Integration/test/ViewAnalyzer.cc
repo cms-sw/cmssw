@@ -39,6 +39,8 @@ namespace edmtest
     consumes<edm::View<SCSimpleProduct::value_type>>(edm::InputTag{"simple"});
     consumes<OVSimpleProduct>(edm::InputTag{"ovsimple"});
     consumes<edm::View<OVSimpleProduct::value_type>>(edm::InputTag{"ovsimple"});
+    consumes<AVSimpleProduct>(edm::InputTag{"avsimple"});
+    consumes<edm::View<AVSimpleProduct>::value_type>(edm::InputTag{"avsimple"});
     consumes<edmtest::DSVSimpleProduct>(edm::InputTag{"dsvsimple"});
     consumes<edm::View<edmtest::DSVSimpleProduct::value_type>>(edm::InputTag{"dsvsimple"});
 
@@ -85,7 +87,7 @@ namespace edmtest
     tester<OVSimpleProduct>::call(this, e, "ovsimple");
 
     // This is commented out because it causes a missing dictionary failure
-    //tester<AVSimpleProduct>::call(this, e, "avsimple");
+    tester<AVSimpleProduct>::call(this, e, "avsimple");
 
 
     testDSVProduct(e, "dsvsimple");

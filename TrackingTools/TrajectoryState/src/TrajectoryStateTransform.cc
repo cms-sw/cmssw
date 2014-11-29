@@ -17,6 +17,7 @@ namespace trajectoryStateTransform {
 		   unsigned int detid)
   {
     int surfaceSide = static_cast<int>(ts.surfaceSide());
+    auto pt = ts.globalMomentum().perp();
     
     if (ts.hasError()) {
       AlgebraicSymMatrix55 const & m = ts.localError().matrix();
@@ -30,11 +31,11 @@ namespace trajectoryStateTransform {
 	  localErrors[k++] = m(i,j);
 	}
       }
-    return PTrajectoryStateOnDet(ts.localParameters(),
+    return PTrajectoryStateOnDet(ts.localParameters(),pt,
 				 localErrors, detid,
 				 surfaceSide);
     }
-    return PTrajectoryStateOnDet(ts.localParameters(),
+    return PTrajectoryStateOnDet(ts.localParameters(),pt,
 				 detid,
 				 surfaceSide);
   }
@@ -66,38 +67,41 @@ namespace trajectoryStateTransform {
 }
   
   FreeTrajectoryState initialFreeState( const reco::Track& tk,
-					const MagneticField* field) 
+					const MagneticField* field, bool withErr) 
   {
     Basic3DVector<float> pos( tk.vertex());
     GlobalPoint gpos( pos);
     Basic3DVector<float> mom( tk.momentum());
-  GlobalVector gmom( mom);
-  GlobalTrajectoryParameters par( gpos, gmom, tk.charge(), field);
-  CurvilinearTrajectoryError err( tk.covariance());
-  return FreeTrajectoryState( par, err);
+    GlobalVector gmom( mom);
+    GlobalTrajectoryParameters par( gpos, gmom, tk.charge(), field);
+    if (!withErr) return FreeTrajectoryState(par);
+    CurvilinearTrajectoryError err( tk.covariance());
+    return FreeTrajectoryState( par, err);
   }
   
   FreeTrajectoryState innerFreeState( const reco::Track& tk,
-				      const MagneticField* field)
+				      const MagneticField* field, bool withErr)
   {
     Basic3DVector<float> pos( tk.innerPosition());
     GlobalPoint gpos( pos);
     Basic3DVector<float> mom( tk.innerMomentum());
     GlobalVector gmom( mom);
     GlobalTrajectoryParameters par( gpos, gmom, tk.charge(), field);
+    if (!withErr) return FreeTrajectoryState(par);
     CurvilinearTrajectoryError err( tk.extra()->innerStateCovariance());
     return FreeTrajectoryState( par, err);
   }
 
   
   FreeTrajectoryState outerFreeState( const reco::Track& tk,
-				      const MagneticField* field)
+				      const MagneticField* field, bool withErr)
   {
     Basic3DVector<float> pos( tk.outerPosition());
     GlobalPoint gpos( pos);
     Basic3DVector<float> mom( tk.outerMomentum());
     GlobalVector gmom( mom);
     GlobalTrajectoryParameters par( gpos, gmom, tk.charge(), field);
+    if (!withErr) return FreeTrajectoryState(par);
     CurvilinearTrajectoryError err( tk.extra()->outerStateCovariance());
     return FreeTrajectoryState( par, err);
   }
@@ -105,18 +109,18 @@ namespace trajectoryStateTransform {
   
   TrajectoryStateOnSurface innerStateOnSurface( const reco::Track& tk, 
 						const TrackingGeometry& geom,
-						const MagneticField* field)
+						const MagneticField* field, bool withErr)
   {
     const Surface& surface = geom.idToDet( DetId( tk.extra()->innerDetId()))->surface();
-    return TrajectoryStateOnSurface( innerFreeState( tk, field), surface);
+    return TrajectoryStateOnSurface( innerFreeState( tk, field, withErr), surface);
   }
   
   TrajectoryStateOnSurface outerStateOnSurface( const reco::Track& tk, 
 						const TrackingGeometry& geom,
-						const MagneticField* field)
+						const MagneticField* field, bool withErr)
   {
     const Surface& surface = geom.idToDet( DetId( tk.extra()->outerDetId()))->surface();
-    return TrajectoryStateOnSurface( outerFreeState( tk, field), surface);
+    return TrajectoryStateOnSurface( outerFreeState( tk, field, withErr), surface);
   }
   
 }

@@ -121,7 +121,7 @@ namespace edm {
 
     /// Checks if product collection is in memory or available
     /// in the Event. No type checking is done.
-    bool isAvailable() const {return refVector_.refCore().isAvailable();}
+  bool isAvailable() const;
 
     /// Checks if product collection is tansient (i.e. non persistable)
     bool isTransient() const {return refVector_.refCore().isTransient();}
@@ -248,6 +248,30 @@ namespace edm {
   template<typename C, typename T, typename F>
   typename RefVector<C, T, F>::const_iterator RefVector<C, T, F>::end() const {
     return iterator(refVector_.refCore(), refVector_.keys().end());
+  }
+
+  template<typename C, typename T, typename F>
+  bool
+  RefVector<C, T, F>::isAvailable() const {
+    if(refVector_.refCore().isAvailable()) {
+      return true;
+    } else if(empty()) {
+      return false;
+    }
+
+    // The following is the simplest implementation, but
+    // this is woefully inefficient and could be optimized
+    // to run much faster with some nontrivial effort. There
+    // is only 1 place in the code base where this function
+    // is used at all and I'm not sure whether it will ever
+    // be used with thinned collections, so for the moment I
+    // am not spending the time to optimize this.
+    for(size_type i = 0; i < size(); ++i) {
+      if(!(*this)[i].isAvailable()) {
+        return false;
+      }
+    }
+    return true;
   }
 
   template<typename C, typename T, typename F>

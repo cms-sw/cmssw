@@ -108,7 +108,10 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
       rwired = wiredc->get( compId );
     }
  
+    // Fill bad channel bitsets for this layer
+    recoConditions_->fillBadChannelWords( id );
     
+    // Build strip hits for this layer
     std::vector<CSCStripHit> const & cscStripHit = hitsFromStripOnly_->runStrip( id, layer, rstripd);
 
     if (cscStripHit.empty()) continue;
@@ -166,7 +169,8 @@ const CSCLayer* CSCRecHitDBuilder::getLayer( const CSCDetId& detId )  {
 }
 
 
-void CSCRecHitDBuilder::setConditions( const CSCRecoConditions* reco ) {
+void CSCRecHitDBuilder::setConditions( CSCRecoConditions* reco ) {
+  recoConditions_ = reco;
   hitsFromStripOnly_->setConditions( reco );
   hitsFromWireOnly_->setConditions( reco );
   make2DHits_->setConditions( reco );  

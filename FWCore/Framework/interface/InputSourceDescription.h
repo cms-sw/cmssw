@@ -15,6 +15,7 @@ namespace edm {
   class ActivityRegistry;
   class BranchIDListHelper;
   class PreallocationConfiguration;
+  class ThinnedAssociationsHelper;
 
   struct InputSourceDescription {
     InputSourceDescription() :
@@ -29,6 +30,7 @@ namespace edm {
     InputSourceDescription(ModuleDescription const& md,
                            ProductRegistry& preg,
                            std::shared_ptr<BranchIDListHelper> branchIDListHelper,
+                           std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper,
                            std::shared_ptr<ActivityRegistry> areg,
                            int maxEvents,
                            int maxLumis,
@@ -37,6 +39,7 @@ namespace edm {
       moduleDescription_(md),
       productRegistry_(&preg),
       branchIDListHelper_(branchIDListHelper),
+      thinnedAssociationsHelper_(thinnedAssociationsHelper),
       actReg_(areg),
       maxEvents_(maxEvents),
       maxLumis_(maxLumis),
@@ -47,6 +50,7 @@ namespace edm {
     ModuleDescription moduleDescription_;
     ProductRegistry* productRegistry_;
     std::shared_ptr<BranchIDListHelper> branchIDListHelper_;
+    std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper_;
     std::shared_ptr<ActivityRegistry> actReg_;
     int maxEvents_;
     int maxLumis_;

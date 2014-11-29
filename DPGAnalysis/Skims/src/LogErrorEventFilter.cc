@@ -59,6 +59,7 @@ class LogErrorEventFilter : public edm::one::EDFilter<edm::one::WatchRuns,
         typedef std::set<edm::ErrorSummaryEntry,ErrorSort>    ErrorSet;
 
         edm::InputTag src_;
+        edm::EDGetTokenT<ErrorList> srcT_;
         bool readSummaryMode_;
         size_t npassLumi_, nfailLumi_;
         size_t npassRun_, nfailRun_;
@@ -86,6 +87,7 @@ class LogErrorEventFilter : public edm::one::EDFilter<edm::one::WatchRuns,
 
 LogErrorEventFilter::LogErrorEventFilter(const edm::ParameterSet & iConfig) :
     src_(iConfig.getParameter<edm::InputTag>("src")),
+    srcT_(consumes<ErrorList>(iConfig.getParameter<edm::InputTag>("src"))),
     readSummaryMode_(iConfig.existsAs<bool>("readSummaryMode") ? iConfig.getParameter<bool>("readSummaryMode") : false),
     thresholdPerLumi_(iConfig.getParameter<double>("maxErrorFractionInLumi")),
     thresholdPerRun_(iConfig.getParameter<double>("maxErrorFractionInRun")),
@@ -225,7 +227,7 @@ LogErrorEventFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup)
     bool fail = false, save = false;
 
     edm::Handle<ErrorList> errors;
-    iEvent.getByLabel(src_, errors);
+    iEvent.getByToken(srcT_, errors);
 
    
     if (errors->empty()) { 

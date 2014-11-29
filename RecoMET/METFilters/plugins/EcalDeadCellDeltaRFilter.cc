@@ -88,6 +88,8 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
+
 #include "TFile.h"
 #include "TTree.h"
 #include "TH1.h"
@@ -123,7 +125,10 @@ private:
   void loadJets(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void loadMET(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-  unsigned int run, event, ls; bool isdata;
+  edm::RunNumber_t run;
+  edm::EventNumber_t event;
+  edm::LuminosityBlockNumber_t ls;
+  bool isdata;
 
   double calomet, calometPhi, tcmet, tcmetPhi, pfmet, pfmetPhi;
 
@@ -268,7 +273,7 @@ void EcalDeadCellDeltaRFilter::envSet(const edm::EventSetup& iSetup) {
   iSetup.get<IdealGeometryRecord>().get(ttMap_);
 
   iSetup.get<EcalChannelStatusRcd> ().get(ecalStatus);
-  iSetup.get<HcalChannelQualityRcd>().get(hcalStatus);
+  iSetup.get<HcalChannelQualityRcd>().get("withTopo",hcalStatus);
   iSetup.get<CaloGeometryRecord>   ().get(geometry);
 
   if( !ecalStatus.isValid() )  throw "Failed to get ECAL channel status!";
@@ -312,7 +317,7 @@ bool EcalDeadCellDeltaRFilter::filter(edm::Event& iEvent, const edm::EventSetup&
   int boundaryStatus = etaToBoundary(closeToMETjetsVec);
 
   if(debug_ ){
-     printf("\nrun : %8d  event : %12d  ls : %8d  dPhiToMETstatus : %d  deadCellStatus : %d  boundaryStatus : %d\n", run, event, ls, dPhiToMETstatus, deadCellStatus, boundaryStatus);
+     printf("\nrun : %8u  event : %12llu  ls : %8u  dPhiToMETstatus : %d  deadCellStatus : %d  boundaryStatus : %d\n", run, event, ls, dPhiToMETstatus, deadCellStatus, boundaryStatus);
      printf("met : %6.2f  metphi : % 6.3f  dPhiToMET : %5.3f  dRtoDeadCell : %5.3f\n", (*met)[0].pt(), (*met)[0].phi(), dPhiToMET, dRtoDeadCell);
   }
 

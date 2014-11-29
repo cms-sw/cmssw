@@ -10,7 +10,7 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -28,7 +28,7 @@
 #include <string>
 #include <vector>
 
-class ShiftedPFCandidateProducerByMatchedObject : public edm::EDProducer  
+class ShiftedPFCandidateProducerByMatchedObject : public edm::stream::EDProducer<>  
 {
  public:
 
@@ -39,9 +39,7 @@ class ShiftedPFCandidateProducerByMatchedObject : public edm::EDProducer
 
   void produce(edm::Event&, const edm::EventSetup&);
 
-  std::string moduleLabel_;
-
-  edm::EDGetTokenT<edm::Handle<reco::PFCandidateCollection> > srcPFCandidates_; 
+  edm::EDGetTokenT<reco::PFCandidateCollection > srcPFCandidates_; 
   edm::EDGetTokenT<edm::View<reco::Candidate> > srcUnshiftedObjects_; 
   edm::EDGetTokenT<edm::View<reco::Candidate> > srcShiftedObjects_; 
 

@@ -100,14 +100,16 @@ SiStripCalZeroBiasMonitorCluster.TH1ClusterCharge = cms.PSet(
     xmin           = cms.double(-0.5),        
     xmax           = cms.double(799.5),
     layerswitchon  = cms.bool(False),
-    moduleswitchon = cms.bool(False)
+    moduleswitchon = cms.bool(False),
+    subdetswitchon = cms.bool(True)
 )
 SiStripCalZeroBiasMonitorCluster.TH1ClusterWidth = cms.PSet(
-    Nbinx          = cms.int32(20),
+    Nbinx          = cms.int32(30),
     xmin           = cms.double(-0.5),
-    xmax           = cms.double(19.5),
+    xmax           = cms.double(29.5),
     layerswitchon  = cms.bool(False),        
-    moduleswitchon = cms.bool(False)
+    moduleswitchon = cms.bool(False),
+    subdetswitchon = cms.bool(True)
 )
 SiStripCalZeroBiasMonitorCluster.TProfNumberOfCluster = cms.PSet(
     Nbinx            = cms.int32(100),

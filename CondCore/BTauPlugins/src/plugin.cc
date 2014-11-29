@@ -10,6 +10,9 @@
 #include "CondFormats/DataRecord/interface/BTauGenericMVAJetTagComputerRcd.h"
 #include "CondFormats/DataRecord/interface/TauTagMVAComputerRcd.h"
 
+#include "CondFormats/BTauObjects/interface/BTagCalibration.h"
+#include "CondFormats/DataRecord/interface/BTagCalibrationRcd.h"
+
 using namespace PhysicsTools::Calibration;
 
 
@@ -19,3 +22,4 @@ REGISTER_PLUGIN(BTauGenericMVAJetTagComputerRcd, MVAComputerContainer);
 REGISTER_PLUGIN(TauTagMVAComputerRcd, MVAComputerContainer);
 REGISTER_PLUGIN(BTagTrackProbability2DRcd,TrackProbabilityCalibration);
 REGISTER_PLUGIN(BTagTrackProbability3DRcd,TrackProbabilityCalibration);
+REGISTER_PLUGIN(BTagCalibrationRcd, BTagCalibration);

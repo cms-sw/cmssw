@@ -82,8 +82,6 @@ QcdPhotonsDQM::QcdPhotonsDQM(const ParameterSet& parameters) {
       parameters.getParameter<InputTag>("barrelRecHitTag"));
   theEndcapRecHitToken_ = consumes<EcalRecHitCollection>(
       parameters.getParameter<InputTag>("endcapRecHitTag"));
-  // just to initialize
-  isValidHltConfig_ = false;
 
   // coverity says...
   h_deltaEt_photon_jet = 0;
@@ -115,19 +113,19 @@ QcdPhotonsDQM::QcdPhotonsDQM(const ParameterSet& parameters) {
   h_photon_eta = 0;
   h_triggers_passed = 0;
 
-  theDbe = Service<DQMStore>().operator->();
 }
 
 QcdPhotonsDQM::~QcdPhotonsDQM() {}
 
-void QcdPhotonsDQM::beginJob() {
+
+void QcdPhotonsDQM::bookHistograms(DQMStore::IBooker & ibooker,
+  edm::Run const &, edm::EventSetup const & ){
 
   logTraceName = "QcdPhotonAnalyzer";
 
   LogTrace(logTraceName) << "Parameters initialization";
 
-  theDbe->setCurrentFolder(
-      "Physics/QcdPhotons");  // Use folder with name of PAG
+  ibooker.setCurrentFolder("Physics/QcdPhotons");  // Use folder with name of PAG
 
   std::stringstream aStringStream;
   std::string aString;
@@ -136,176 +134,127 @@ void QcdPhotonsDQM::beginJob() {
 
   // Monitor of triggers passed
   int numOfTriggersToMonitor = thePlotTheseTriggersToo_.size();
-  h_triggers_passed =
-      theDbe->book1D("triggers_passed", "Events passing these trigger paths",
-                     numOfTriggersToMonitor, 0, numOfTriggersToMonitor);
+  h_triggers_passed = ibooker.book1D("triggers_passed",
+      "Events passing these trigger paths", numOfTriggersToMonitor,
+      0, numOfTriggersToMonitor);
   for (int i = 0; i < numOfTriggersToMonitor; i++) {
     h_triggers_passed->setBinLabel(i + 1, thePlotTheseTriggersToo_[i]);
   }
 
   // Keep the number of plots and number of bins to a minimum!
-  h_photon_et_beforeCuts = theDbe->book1D(
-      "photon_et_beforeCuts", "#gamma with highest E_{T};E_{T}(#gamma) (GeV)",
-      20, 0., thePlotPhotonMaxEt_);
-  h_photon_et = theDbe->book1D("photon_et",
-                               "#gamma with highest E_{T};E_{T}(#gamma) (GeV)",
-                               20, 0., thePlotPhotonMaxEt_);
-  h_photon_eta =
-      theDbe->book1D("photon_eta", "#gamma with highest E_{T};#eta(#gamma)", 40,
-                     -thePlotPhotonMaxEta_, thePlotPhotonMaxEta_);
-  h_photon_count_bar = theDbe->book1D(
-      "photon_count_bar",
+  h_photon_et_beforeCuts = ibooker.book1D("photon_et_beforeCuts",
+      "#gamma with highest E_{T};E_{T}(#gamma) (GeV)", 20, 0., thePlotPhotonMaxEt_);
+  h_photon_et = ibooker.book1D("photon_et",
+      "#gamma with highest E_{T};E_{T}(#gamma) (GeV)", 20, 0., thePlotPhotonMaxEt_);
+  h_photon_eta = ibooker.book1D("photon_eta",
+      "#gamma with highest E_{T};#eta(#gamma)", 40,
+      -thePlotPhotonMaxEta_, thePlotPhotonMaxEta_);
+  h_photon_count_bar = ibooker.book1D("photon_count_bar",
       "Number of #gamma's passing selection (Barrel);Number of #gamma's", 8,
       -0.5, 7.5);
-  h_photon_count_end = theDbe->book1D(
-      "photon_count_end",
+  h_photon_count_end = ibooker.book1D("photon_count_end",
       "Number of #gamma's passing selection (Endcap);Number of #gamma's", 8,
       -0.5, 7.5);
-
-  h_jet_pt = theDbe->book1D("jet_pt", "Jet with highest p_{T} (from " +
-                                          theJetCollectionLabel_.label() +
-                                          ");p_{T}(1^{st} jet) (GeV)",
-                            20, 0., thePlotPhotonMaxEt_);
-  h_jet_eta = theDbe->book1D("jet_eta", "Jet with highest p_{T} (from " +
-                                            theJetCollectionLabel_.label() +
-                                            ");#eta(1^{st} jet)",
-                             20, -thePlotJetMaxEta_, thePlotJetMaxEta_);
-  h_deltaPhi_photon_jet =
-      theDbe->book1D("deltaPhi_photon_jet",
-                     "#Delta#phi between Highest E_{T} #gamma and "
-                     "jet;#Delta#phi(#gamma,1^{st} jet)",
-                     20, 0, 3.1415926);
-  h_deltaPhi_jet_jet2 =
-      theDbe->book1D("deltaPhi_jet_jet2",
-                     "#Delta#phi between Highest E_{T} jet and 2^{nd} "
-                     "jet;#Delta#phi(1^{st} jet,2^{nd} jet)",
-                     20, 0, 3.1415926);
-  h_deltaEt_photon_jet = theDbe->book1D(
-      "deltaEt_photon_jet",
+  h_jet_pt = ibooker.book1D("jet_pt",
+      "Jet with highest p_{T} (from " + theJetCollectionLabel_.label() +
+      ");p_{T}(1^{st} jet) (GeV)", 20, 0., thePlotPhotonMaxEt_);
+  h_jet_eta = ibooker.book1D("jet_eta",
+      "Jet with highest p_{T} (from " + theJetCollectionLabel_.label() +
+      ");#eta(1^{st} jet)", 20, -thePlotJetMaxEta_, thePlotJetMaxEta_);
+  h_deltaPhi_photon_jet = ibooker.book1D("deltaPhi_photon_jet",
+      "#Delta#phi between Highest E_{T} #gamma and jet;#Delta#phi(#gamma,1^{st} jet)",
+      20, 0, 3.1415926);
+  h_deltaPhi_jet_jet2 = ibooker.book1D("deltaPhi_jet_jet2",
+      "#Delta#phi between Highest E_{T} jet and 2^{nd} "
+      "jet;#Delta#phi(1^{st} jet,2^{nd} jet)",
+      20, 0, 3.1415926);
+  h_deltaEt_photon_jet = ibooker.book1D("deltaEt_photon_jet",
       "(E_{T}(#gamma)-p_{T}(jet))/E_{T}(#gamma) when #Delta#phi(#gamma,1^{st} "
       "jet) > 2.8;#DeltaE_{T}(#gamma,1^{st} jet)/E_{T}(#gamma)",
       20, -1.0, 1.0);
-  h_jet_count = theDbe->book1D(
-      "jet_count", "Number of " + theJetCollectionLabel_.label() +
-                       " (p_{T} > " + aString + " GeV);Number of Jets",
-      8, -0.5, 7.5);
-  h_jet2_pt = theDbe->book1D("jet2_pt", "Jet with 2^{nd} highest p_{T} (from " +
-                                            theJetCollectionLabel_.label() +
-                                            ");p_{T}(2^{nd} jet) (GeV)",
-                             20, 0., thePlotPhotonMaxEt_);
-  h_jet2_eta = theDbe->book1D(
-      "jet2_eta", "Jet with 2^{nd} highest p_{T} (from " +
-                      theJetCollectionLabel_.label() + ");#eta(2^{nd} jet)",
-      20, -thePlotJetMaxEta_, thePlotJetMaxEta_);
-  h_jet2_ptOverPhotonEt =
-      theDbe->book1D("jet2_ptOverPhotonEt",
-                     "p_{T}(2^{nd} highest jet) / E_{T}(#gamma);p_{T}(2^{nd} "
-                     "Jet)/E_{T}(#gamma)",
-                     20, 0.0, 4.0);
-  h_deltaPhi_photon_jet2 =
-      theDbe->book1D("deltaPhi_photon_jet2",
-                     "#Delta#phi between Highest E_{T} #gamma and 2^{nd} "
-                     "highest jet;#Delta#phi(#gamma,2^{nd} jet)",
-                     20, 0, 3.1415926);
-  h_deltaR_jet_jet2 = theDbe->book1D("deltaR_jet_jet2",
-                                     "#DeltaR between Highest Jet and 2^{nd} "
-                                     "Highest;#DeltaR(1^{st} jet,2^{nd} jet)",
-                                     30, 0, 6.0);
-  h_deltaR_photon_jet2 =
-      theDbe->book1D("deltaR_photon_jet2",
-                     "#DeltaR between Highest E_{T} #gamma and 2^{nd} "
-                     "jet;#DeltaR(#gamma, 2^{nd} jet)",
-                     30, 0, 6.0);
+  h_jet_count = ibooker.book1D("jet_count",
+      "Number of " + theJetCollectionLabel_.label() + " (p_{T} > " + aString +
+      " GeV);Number of Jets", 8, -0.5, 7.5);
+  h_jet2_pt = ibooker.book1D("jet2_pt",
+      "Jet with 2^{nd} highest p_{T} (from " + theJetCollectionLabel_.label() +
+      ");p_{T}(2^{nd} jet) (GeV)", 20, 0., thePlotPhotonMaxEt_);
+  h_jet2_eta = ibooker.book1D("jet2_eta",
+      "Jet with 2^{nd} highest p_{T} (from " + theJetCollectionLabel_.label() +
+      ");#eta(2^{nd} jet)", 20, -thePlotJetMaxEta_, thePlotJetMaxEta_);
+  h_jet2_ptOverPhotonEt = ibooker.book1D("jet2_ptOverPhotonEt",
+      "p_{T}(2^{nd} highest jet) / E_{T}(#gamma);p_{T}(2^{nd} Jet)/E_{T}(#gamma)",
+      20, 0.0, 4.0);
+  h_deltaPhi_photon_jet2 = ibooker.book1D("deltaPhi_photon_jet2",
+      "#Delta#phi between Highest E_{T} #gamma and 2^{nd} "
+      "highest jet;#Delta#phi(#gamma,2^{nd} jet)", 20, 0, 3.1415926);
+  h_deltaR_jet_jet2 = ibooker.book1D("deltaR_jet_jet2",
+      "#DeltaR between Highest Jet and 2^{nd} Highest;#DeltaR(1^{st} jet,2^{nd} jet)",
+      30, 0, 6.0);
+  h_deltaR_photon_jet2 = ibooker.book1D("deltaR_photon_jet2",
+      "#DeltaR between Highest E_{T} #gamma and 2^{nd} "
+      "jet;#DeltaR(#gamma, 2^{nd} jet)", 30, 0, 6.0);
 
   // Photon Et for different jet configurations
   Float_t bins_et[] = {15, 20, 30, 50, 80};
   int num_bins_et = 4;
-  h_photon_et_jetcs =
-      theDbe->book1D("photon_et_jetcs",
-                     "#gamma with highest E_{T} (#eta(jet)<1.45, "
-                     "#eta(#gamma)#eta(jet)>0);E_{T}(#gamma) (GeV)",
-                     num_bins_et, bins_et);
-  h_photon_et_jetco =
-      theDbe->book1D("photon_et_jetco",
-                     "#gamma with highest E_{T} (#eta(jet)<1.45, "
-                     "#eta(#gamma)#eta(jet)<0);E_{T}(#gamma) (GeV)",
-                     num_bins_et, bins_et);
-  h_photon_et_jetfs =
-      theDbe->book1D("photon_et_jetfs",
-                     "#gamma with highest E_{T} (1.55<#eta(jet)<2.5, "
-                     "#eta(#gamma)#eta(jet)>0);E_{T}(#gamma) (GeV)",
-                     num_bins_et, bins_et);
-  h_photon_et_jetfo =
-      theDbe->book1D("photon_et_jetfo",
-                     "#gamma with highest E_{T} (1.55<#eta(jet)<2.5, "
-                     "#eta(#gamma)#eta(jet)<0);E_{T}(#gamma) (GeV)",
-                     num_bins_et, bins_et);
-  h_photon_et_jetcs->getTH1F()->Sumw2();
-  h_photon_et_jetco->getTH1F()->Sumw2();
-  h_photon_et_jetfs->getTH1F()->Sumw2();
-  h_photon_et_jetfo->getTH1F()->Sumw2();
+  h_photon_et_jetcs = ibooker.book1D("photon_et_jetcs",
+      "#gamma with highest E_{T} (#eta(jet)<1.45, "
+      "#eta(#gamma)#eta(jet)>0);E_{T}(#gamma) (GeV)", num_bins_et, bins_et);
+  h_photon_et_jetco = ibooker.book1D("photon_et_jetco",
+      "#gamma with highest E_{T} (#eta(jet)<1.45, "
+      "#eta(#gamma)#eta(jet)<0);E_{T}(#gamma) (GeV)", num_bins_et, bins_et);
+  h_photon_et_jetfs = ibooker.book1D("photon_et_jetfs",
+      "#gamma with highest E_{T} (1.55<#eta(jet)<2.5, "
+      "#eta(#gamma)#eta(jet)>0);E_{T}(#gamma) (GeV)", num_bins_et, bins_et);
+  h_photon_et_jetfo = ibooker.book1D("photon_et_jetfo",
+      "#gamma with highest E_{T} (1.55<#eta(jet)<2.5, "
+      "#eta(#gamma)#eta(jet)<0);E_{T}(#gamma) (GeV)", num_bins_et, bins_et);
+
+  auto setSumw2 = [](MonitorElement* me) {
+    if (me->getTH1F()->GetSumw2N() == 0) {
+      me->getTH1F()->Sumw2();
+    }
+  };
+
+  setSumw2(h_photon_et_jetcs);
+  setSumw2(h_photon_et_jetco);
+  setSumw2(h_photon_et_jetfs);
+  setSumw2(h_photon_et_jetfo);
+
   // Ratio of the above Photon Et distributions
-  h_photon_et_ratio_co_cs = theDbe->book1D(
-      "photon_et_ratio_00_co_cs",
+  h_photon_et_ratio_co_cs = ibooker.book1D("photon_et_ratio_00_co_cs",
       "D(|#eta(jet)|<1.45, #eta(jet)*#eta(#gamma)<0) / D(|#eta(jet)|<1.45, "
-      "#eta(jet)*#eta(#gamma)>0);E_{T}(#gamma) (GeV); ratio",
+      "#eta(jet)*#eta(#gamma)>0);E_{T}(#gamma) (GeV); ratio", num_bins_et, bins_et);
+  h_photon_et_ratio_fo_fs = ibooker.book1D("photon_et_ratio_01_fo_fs",
+      "D(1.55<|#eta(jet)|<2.6, #eta(jet)*#eta(#gamma)<0) / "
+      "D(1.55<|#eta(jet)|<2.6, #eta(jet)*#eta(#gamma)>0);E_{T}(#gamma) (GeV); ratio",
       num_bins_et, bins_et);
-  h_photon_et_ratio_fo_fs =
-      theDbe->book1D("photon_et_ratio_01_fo_fs",
-                     "D(1.55<|#eta(jet)|<2.6, #eta(jet)*#eta(#gamma)<0) / "
-                     "D(1.55<|#eta(jet)|<2.6, "
-                     "#eta(jet)*#eta(#gamma)>0);E_{T}(#gamma) (GeV); ratio",
-                     num_bins_et, bins_et);
-  h_photon_et_ratio_cs_fs = theDbe->book1D(
-      "photon_et_ratio_02_cs_fs",
+  h_photon_et_ratio_cs_fs = ibooker.book1D("photon_et_ratio_02_cs_fs",
       "D(|#eta(jet)|<1.45, #eta(jet)*#eta(#gamma)>0) / D(1.55<|#eta(jet)|<2.6, "
       "#eta(jet)*#eta(#gamma)>0);E_{T}(#gamma) (GeV); ratio",
       num_bins_et, bins_et);
-  h_photon_et_ratio_co_fs = theDbe->book1D(
-      "photon_et_ratio_03_co_fs",
+  h_photon_et_ratio_co_fs = ibooker.book1D("photon_et_ratio_03_co_fs",
       "D(|#eta(jet)|<1.45, #eta(jet)*#eta(#gamma)<0) / D(1.55<|#eta(jet)|<2.6, "
       "#eta(jet)*#eta(#gamma)>0);E_{T}(#gamma) (GeV); ratio",
       num_bins_et, bins_et);
-  h_photon_et_ratio_cs_fo = theDbe->book1D(
-      "photon_et_ratio_04_cs_fo",
+  h_photon_et_ratio_cs_fo = ibooker.book1D("photon_et_ratio_04_cs_fo",
       "D(|#eta(jet)|<1.45, #eta(jet)*#eta(#gamma)>0) / D(1.55<|#eta(jet)|<2.6, "
       "#eta(jet)*#eta(#gamma)<0);E_{T}(#gamma) (GeV); ratio",
       num_bins_et, bins_et);
-  h_photon_et_ratio_co_fo = theDbe->book1D(
-      "photon_et_ratio_05_co_fo",
+  h_photon_et_ratio_co_fo = ibooker.book1D("photon_et_ratio_05_co_fo",
       "D(|#eta(jet)|<1.45, #eta(jet)*#eta(#gamma)<0) / D(1.55<|#eta(jet)|<2.6, "
       "#eta(jet)*#eta(#gamma)<0);E_{T}(#gamma) (GeV); ratio",
       num_bins_et, bins_et);
-  h_photon_et_ratio_co_cs->getTH1F()->Sumw2();
-  h_photon_et_ratio_fo_fs->getTH1F()->Sumw2();
-  h_photon_et_ratio_cs_fs->getTH1F()->Sumw2();
-  h_photon_et_ratio_co_fs->getTH1F()->Sumw2();
-  h_photon_et_ratio_cs_fo->getTH1F()->Sumw2();
-  h_photon_et_ratio_co_fo->getTH1F()->Sumw2();
-}
-
-///
-///
-///
-void QcdPhotonsDQM::beginRun(const edm::Run& iRun,
-                             const edm::EventSetup& iSet) {
-
-  // passed as parameter to HLTConfigProvider::init(), not yet used
-  bool isConfigChanged = false;
-
-  // isValidHltConfig_ could be used to short-circuit analyze() in case of
-  // problems
-  isValidHltConfig_ =
-      hltConfigProvider_.init(iRun, iSet, "HLT", isConfigChanged);
-
-  num_events_in_run = 0;
+  setSumw2(h_photon_et_ratio_co_cs);
+  setSumw2(h_photon_et_ratio_fo_fs);
+  setSumw2(h_photon_et_ratio_cs_fs);
+  setSumw2(h_photon_et_ratio_co_fs);
+  setSumw2(h_photon_et_ratio_cs_fo);
+  setSumw2(h_photon_et_ratio_co_fo);
 }
 
 void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   num_events_in_run++;
-
-  //// short-circuit if hlt problems
-  // if( ! isValidHltConfig_ ) return;
 
   LogTrace(logTraceName) << "Analysis of event # ";
 
@@ -579,8 +528,6 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   // End of Filling histograms
   ////////////////////////////////////////////////////////////////////
 }
-
-void QcdPhotonsDQM::endJob(void) {}
 
 void QcdPhotonsDQM::endRun(const edm::Run& run, const edm::EventSetup& es) {
   if (num_events_in_run > 0) {

@@ -21,10 +21,10 @@ const unsigned int edm::BMixingModule::maxNbSources_ =4;
 
 namespace
 {
-  boost::shared_ptr<edm::PileUp>
+  std::shared_ptr<edm::PileUp>
   maybeMakePileUp(edm::ParameterSet const& ps,std::string sourceName, const int minb, const int maxb, const bool playback)
   { 
-    boost::shared_ptr<edm::PileUp> pileup; // value to be returned
+    std::shared_ptr<edm::PileUp> pileup; // value to be returned
     // Make sure we have a parameter named 'sourceName'
     if (ps.exists(sourceName))
       {
@@ -43,7 +43,7 @@ namespace
 	if (ps.exists("readDB") && ps.getParameter<bool>("readDB")){
 	  //in case of DB access, do not try to load anything from the PSet, but wait for beginRun.
  	  edm::LogError("BMixingModule")<<"Will read from DB: reset to a dummy PileUp object.";
-	  pileup.reset(new edm::PileUp(psin,0,0,playback));
+	  pileup.reset(new edm::PileUp(psin,sourceName,0,0,playback));
 	  return pileup;
 	}
 	if (type_!="none"){
@@ -52,7 +52,7 @@ namespace
 	    if (psin_average.exists("averageNumber"))
 	      {
 		averageNumber=psin_average.getParameter<double>("averageNumber");
-		pileup.reset(new edm::PileUp(psin,averageNumber,h,playback));
+		pileup.reset(new edm::PileUp(psin,sourceName,averageNumber,h,playback));
 		edm::LogInfo("MixingModule") <<" Created source "<<sourceName<<" with averageNumber "<<averageNumber;
 	      }
 	    else if (psin_average.exists("fileName") && psin_average.exists("histoName")) {
@@ -77,7 +77,7 @@ namespace
 		// Get the averageNumber from the histo 
 		averageNumber = h->GetMean();
 		
-		pileup.reset(new edm::PileUp(psin,averageNumber,h,playback));
+		pileup.reset(new edm::PileUp(psin,sourceName,averageNumber,h,playback));
 		edm::LogInfo("MixingModule") <<" Created source "<<sourceName<<" with averageNumber "<<averageNumber;
 	      
 	      }
@@ -141,7 +141,7 @@ namespace
 		outfile->Close();
 		outfile->Delete();		
 		
-		pileup.reset(new edm::PileUp(psin,averageNumber,hprob,playback));
+		pileup.reset(new edm::PileUp(psin,sourceName,averageNumber,hprob,playback));
 		edm::LogInfo("MixingModule") <<" Created source "<<sourceName<<" with averageNumber "<<averageNumber;
 		
 	      } 
@@ -149,7 +149,7 @@ namespace
 	    else if (sourceName=="input" && psin_average.exists("Lumi") && psin_average.exists("sigmaInel")) {
 	      averageNumber=psin_average.getParameter<double>("Lumi")*psin_average.getParameter<double>("sigmaInel")*ps.getParameter<int>("bunchspace")/1000*3564./2808.;  //FIXME
 	      pileup.reset(new
- 	      edm::PileUp(psin,averageNumber,h,playback));
+			   edm::PileUp(psin,sourceName,averageNumber,h,playback));
 	      edm::LogInfo("MixingModule") <<" Created source "<<sourceName<<" with minBunch,maxBunch "<<minb<<" "<<maxb;
 	      edm::LogInfo("MixingModule")<<" Luminosity configuration, average number used is "<<averageNumber;
 	    }

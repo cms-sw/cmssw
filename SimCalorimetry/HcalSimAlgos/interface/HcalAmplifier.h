@@ -23,6 +23,7 @@ namespace CLHEP {
 class HcalAmplifier {
 public:
   HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNoise, bool PreMix1, bool PreMix2);
+
   virtual ~HcalAmplifier() {}
 
   /// the Producer will probably update this every event
@@ -62,6 +63,8 @@ private:
   const HcalDbService * theDbService;
   const CaloVSimParameterMap * theParameterMap;
   const CaloVNoiseSignalGenerator * theNoiseSignalGenerator;
+  const HcalCholeskyMatrices * myCholeskys;
+  const HcalPedestals * myADCPeds;
   HPDIonFeedbackSim * theIonFeedbackSim;
   HcalTimeSlewSim * theTimeSlewSim;
   unsigned theStartingCapId;
@@ -77,8 +80,6 @@ private:
   double HE_ff;
   double HF_ff;
   double HO_ff;
-  const HcalCholeskyMatrices * myCholeskys;
-  const HcalPedestals * myADCPeds;
 };
 
 #endif

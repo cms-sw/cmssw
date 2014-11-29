@@ -2,12 +2,14 @@
 #define TrackingAnalyser_H
 
 #include "FWCore/Utilities/interface/EDGetToken.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <iostream>
 #include <fstream>
@@ -15,13 +17,13 @@
 #include <vector>
 #include <map>
 
-class DQMStore;
 class SiStripFedCabling;
 class SiStripDetCabling;
 class TrackingActionExecutor;
 class FEDRawDataCollection;
 
-class TrackingAnalyser: public edm::EDAnalyzer{
+class TrackingAnalyser: public DQMEDHarvester
+{
 
 public:
 
@@ -39,29 +41,23 @@ private:
   /// BeginRun
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
-  /// Analyze
-  void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
-
   /// Begin Luminosity Block
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) ;
+  void dqmBeginLuminosityBlock(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_,edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) ;
 
-  /// End Luminosity Block
-  
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup);
-
-  /// EndRun
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
+  /// End Luminosity Block  
+  void dqmEndLuminosityBlock(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_,edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup);
 
   /// Endjob
-  void endJob();
+  void dqmEndJob(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_);
 
 
 
 private:
 
-  void checkTrackerFEDs(edm::Event const& e);
+  bool verbose_;
 
-  DQMStore* dqmStore_;
+  void checkTrackerFEDsInLS     (DQMStore::IGetter & igetter, double iLS);
+  void checkTrackerFEDsWdataInLS(DQMStore::IGetter & igetter, double iLS);
 
   int fileSaveFrequency_;
   int staticUpdateFrequency_;
@@ -80,10 +76,13 @@ private:
 
   unsigned long long m_cacheID_;
   int nLumiSecs_;
-  int nEvents_;
   bool trackerFEDsFound_;
-  bool endLumiAnalysisOn_;
+  bool trackerFEDsWdataFound_;
   std::ostringstream html_out_;
+
+  std::string nFEDinfoDir_;
+  std::string nFEDinVsLSname_;
+  std::string nFEDinWdataVsLSname_;
 
 };
 

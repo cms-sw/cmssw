@@ -54,7 +54,7 @@ const std::vector<ME0Chamber*>& ME0Geometry::chambers() const {
 */
 
 
-const std::vector<ME0EtaPartition*>& ME0Geometry::etaPartitions() const{
+const std::vector<ME0EtaPartition const*>& ME0Geometry::etaPartitions() const{
   return allEtaPartitions;
 }
 

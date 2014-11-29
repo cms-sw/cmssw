@@ -3,7 +3,7 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-//
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -30,31 +30,28 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
-//
+
 #include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
 #include "TTree.h"
 #include "TVector3.h"
 #include "TProfile.h"
-//
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-//
-//DQM services
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
-//
+//DQM services
+#include <DQMServices/Core/interface/DQMStore.h>
+#include <DQMServices/Core/interface/MonitorElement.h>
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 #include <map>
 #include <vector>
 
@@ -68,7 +65,6 @@
  **     
  ***/
 
-
 // forward declarations
 class TFile;
 class TH1F;
@@ -78,52 +74,31 @@ class TTree;
 class SimVertex;
 class SimTrack;
 
-
-class PiZeroAnalyzer : public edm::EDAnalyzer
+class PiZeroAnalyzer : public DQMEDAnalyzer
 {
 
  public:
-   
-  //
   explicit PiZeroAnalyzer( const edm::ParameterSet& ) ;
   virtual ~PiZeroAnalyzer();
-                                   
-      
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
-  virtual void beginJob() ;
-  virtual void endJob() ;
  
  private:
-  //
-
   void makePizero(const edm::EventSetup& es, const edm::Handle<EcalRecHitCollection> eb, const edm::Handle<EcalRecHitCollection> ee ); 
 
   std::string fName_;
-  DQMStore *dbe_;
-  int verbosity_;
-
-  int nEvt_;
-  int nEntry_;
-
   unsigned int prescaleFactor_;
 
+  int nEvt_;
 
-  edm::ParameterSet parameters_;
+  edm::ParameterSet posCalcParameters_;
 
-  //  edm::InputTag barrelEcalHits_;
-  //edm::InputTag endcapEcalHits_;  
   edm::EDGetTokenT<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > barrelEcalHits_token_;
   edm::EDGetTokenT<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > endcapEcalHits_token_;
   double minPhoEtCut_;
 
   double cutStep_;
   int numberOfSteps_;
-
-
-
-  bool standAlone_;
-
-
 
   /// parameters needed for pizero finding
   double clusSeedThr_;
@@ -147,22 +122,14 @@ class PiZeroAnalyzer : public edm::EDAnalyzer
   double selePi0Iso_;
   double seleMinvMaxPi0_;
   double seleMinvMinPi0_;
- 
-
 
   std::stringstream currentFolder_;
-   
 
   MonitorElement*  hMinvPi0EB_;
   MonitorElement*  hPt1Pi0EB_;
   MonitorElement*  hPt2Pi0EB_;
   MonitorElement*  hIsoPi0EB_;
   MonitorElement*  hPtPi0EB_;
-
-
-  
-
-
 };
 
 
@@ -175,9 +142,4 @@ public:
   }
 };
 
-
 #endif
-
-
-
-

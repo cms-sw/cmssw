@@ -39,7 +39,7 @@ class GenericValidation:
                 })
         return result
 
-    def getCompareStrings( self, requestId = None ):
+    def getCompareStrings( self, requestId = None, plain = False ):
         result = {}
         repMap = self.alignmentToValidate.getRepMap()
         for validationId in self.filesToCompare:
@@ -48,7 +48,10 @@ class GenericValidation:
                 repMap["file"] = "rfio:%(file)s"%repMap
             elif repMap["file"].startswith( "/store/" ):
                 repMap["file"] = "root://eoscms.cern.ch//eos/cms%(file)s"%repMap
-            result[validationId]= "%(file)s=%(name)s|%(color)s|%(style)s"%repMap
+            if plain:
+                result[validationId]=repMap["file"]
+            else:
+                result[validationId]= "%(file)s=%(name)s|%(color)s|%(style)s"%repMap
         if requestId == None:
             return result
         else:

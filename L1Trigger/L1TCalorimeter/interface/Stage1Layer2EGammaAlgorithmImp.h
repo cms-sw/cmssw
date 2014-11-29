@@ -38,9 +38,48 @@ namespace l1t {
     		     const std::vector<l1t::CaloRegion> & regions)  const;
     double HoverE(int et, int ieta, int iphi,
     		  const std::vector<l1t::CaloRegion> & regions)  const;
-    double AssociatedJetPt(int ieta, int iphi,
+    int AssociatedJetPt(int ieta, int iphi,
 		           const std::vector<l1t::Jet> * jets) const;
+
+    unsigned isoLutIndex(unsigned int etaPt,unsigned int jetPt) const;
   };
+
+  class Stage1Layer2EGammaAlgorithmImpHI : public Stage1Layer2EGammaAlgorithm {
+  public:
+    Stage1Layer2EGammaAlgorithmImpHI(CaloParamsStage1* params);
+    virtual ~Stage1Layer2EGammaAlgorithmImpHI();
+    virtual void processEvent(const std::vector<l1t::CaloEmCand> & EMCands,
+			      const std::vector<l1t::CaloRegion> & regions,
+			      const std::vector<l1t::Jet> * jets,
+			      std::vector<l1t::EGamma>* egammas);
+  private:
+    CaloParamsStage1* const params_;
+    double Isolation(int ieta, int iphi,
+    		     const std::vector<l1t::CaloRegion> & regions)  const;
+    double HoverE(int et, int ieta, int iphi,
+    		  const std::vector<l1t::CaloRegion> & regions)  const;
+    int AssociatedJetPt(int ieta, int iphi,
+		           const std::vector<l1t::Jet> * jets) const;
+
+    unsigned isoLutIndex(unsigned int etaPt,unsigned int jetPt) const;
+  };
+
+  class Stage1Layer2EGammaAlgorithmImpHW : public Stage1Layer2EGammaAlgorithm {
+  public:
+    Stage1Layer2EGammaAlgorithmImpHW(CaloParamsStage1* params);
+    virtual ~Stage1Layer2EGammaAlgorithmImpHW();
+    virtual void processEvent(const std::vector<l1t::CaloEmCand> & EMCands,
+			      const std::vector<l1t::CaloRegion> & regions,
+			      const std::vector<l1t::Jet> * jets,
+			      std::vector<l1t::EGamma>* egammas);
+  private:
+    CaloParamsStage1* const params_;
+    int AssociatedJetPt(int ieta, int iphi,
+		           const std::vector<l1t::Jet> * jets) const;
+
+    unsigned isoLutIndex(unsigned int etaPt,unsigned int jetPt) const;
+  };
+
 }
 
 #endif

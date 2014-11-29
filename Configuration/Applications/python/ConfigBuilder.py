@@ -75,6 +75,7 @@ defaultOptions.fast=False
 defaultOptions.runsAndWeightsForMC = None
 defaultOptions.runsScenarioForMC = None
 defaultOptions.runUnscheduled = False
+defaultOptions.timeoutOutput = False
 
 # some helper routines
 def dumpPython(process,name):
@@ -396,6 +397,11 @@ class ConfigBuilder(object):
 		   self.process.source=cms.Source("DQMRootSource",
 						  fileNames = cms.untracked.vstring())
 		   filesFromOption(self)
+
+	   elif self._options.filetype == "DQMDAQ":
+		   # FIXME: how to configure it if there are no input files specified?
+		   self.process.source=cms.Source("DQMStreamerReader")
+		   
 			   
            if ('HARVESTING' in self.stepMap.keys() or 'ALCAHARVEST' in self.stepMap.keys()) and (not self._options.filetype == "DQM"):
                self.process.source.processingMode = cms.untracked.string("RunsAndLumis")
@@ -515,6 +521,8 @@ class ConfigBuilder(object):
 				theFilterName='StreamALCACombined'
 
 			CppType='PoolOutputModule'
+			if self._options.timeoutOutput:
+				CppType='TimeoutPoolOutputModule'
 			if theStreamType=='DQM' and theTier=='DQMIO': CppType='DQMRootOutputModule'
 			output = cms.OutputModule(CppType,			
 						  theEventContent.clone(),
@@ -576,6 +584,8 @@ class ConfigBuilder(object):
                         theFileName=self._options.outfile_name.replace('.root','_in'+streamType+'.root')
                         theFilterName=self._options.filtername
 		CppType='PoolOutputModule'
+		if self._options.timeoutOutput:
+			CppType='TimeoutPoolOutputModule'
 		if streamType=='DQM' and tier=='DQMIO': CppType='DQMRootOutputModule'
                 output = cms.OutputModule(CppType,
                                           theEventContent,
@@ -838,14 +848,15 @@ class ConfigBuilder(object):
 	if len(custMap)!=0:
 		final_snippet += '\n# End of customisation functions\n'
 
-	### now for a usuful command
-	if self._options.customise_commands:
-		import string
-		final_snippet +='\n# Customisation from command line'
-		for com in self._options.customise_commands.split('\\n'):
-			com=string.lstrip(com)
-			self.executeAndRemember(com)
-			final_snippet +='\n'+com
+	### now for a useful command
+	if unsch==1 or not self._options.runUnscheduled:
+		if self._options.customise_commands:
+			import string
+			final_snippet +='\n# Customisation from command line'
+			for com in self._options.customise_commands.split('\\n'):
+				com=string.lstrip(com)
+				self.executeAndRemember(com)
+				final_snippet +='\n'+com
 
         return final_snippet
 
@@ -960,6 +971,7 @@ class ConfigBuilder(object):
 		self.GENDefaultSeq='fixGenInfo'
 
         if self._options.scenario=='cosmics':
+	    self._options.pileup='Cosmics'	
             self.DIGIDefaultCFF="Configuration/StandardSequences/DigiCosmics_cff"
             self.RECODefaultCFF="Configuration/StandardSequences/ReconstructionCosmics_cff"
 	    self.SKIMDefaultCFF="Configuration/StandardSequences/SkimsCosmics_cff"
@@ -1454,7 +1466,7 @@ class ConfigBuilder(object):
 	    self.scheduleSequence(sequence.split('.')[-1],'digi2raw_step')
 	    if "DIGIPREMIX" in self.stepMap.keys():
 		    self.executeAndRemember("process.esDigiToRaw.Label = cms.string('mix')")  ##terrible hack - bypass zero suppression
-
+		    self.executeAndRemember("process.SiStripDigiToRaw.FedReadoutMode = cms.string('PREMIX_RAW')") ##special readout mode for StripTracker
             return
 
     def prepare_REPACK(self, sequence = None):

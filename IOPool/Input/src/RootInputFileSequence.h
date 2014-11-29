@@ -18,6 +18,7 @@ RootInputFileSequence: This is an InputSource
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 
 #include <memory>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -27,6 +28,7 @@ namespace CLHEP {
 
 namespace edm {
 
+  class BranchID;
   class DuplicateChecker;
   class FileCatalogItem;
   class InputFileCatalog;
@@ -76,6 +78,7 @@ namespace edm {
     static void fillDescription(ParameterSetDescription & desc);
     ProcessingController::ForwardState forwardState() const;
     ProcessingController::ReverseState reverseState() const;
+    void initAssociationsFromSecondary(std::set<BranchID> const&);
   private:
     void initFile(bool skipBadFiles);
     bool nextFile();
@@ -103,6 +106,7 @@ namespace edm {
 
     std::vector<std::shared_ptr<IndexIntoFile> > indexesIntoFiles_;
     std::vector<ProcessHistoryID> orderedProcessHistoryIDs_;
+    std::vector<BranchID> associationsFromSecondary_;
 
     unsigned int nStreams_; 
     std::shared_ptr<EventSkipperByID> eventSkipperByID_;

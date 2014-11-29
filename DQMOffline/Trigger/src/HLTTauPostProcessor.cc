@@ -63,7 +63,7 @@ void HLTTauPostProcessor::plotFilterEfficiencies(DQMStore::IBooker& iBooker, DQM
   efficiency->setAxisTitle("Efficiency", 2);
   const TAxis *xaxis = eventsPerFilter->getTH1F()->GetXaxis();
   for(int bin=1; bin < eventsPerFilter->getNbinsX(); ++bin) {
-    efficiency->setBinLabel(bin, xaxis->GetBinLabel(bin));
+    efficiency->setBinLabel(bin, xaxis->GetBinLabel(bin+1));
   }
 
   // Fill efficiency TProfile

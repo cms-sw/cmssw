@@ -53,6 +53,11 @@ g4SimHits = cms.EDProducer("OscarProducer",
     Watchers = cms.VPSet(),
     HepMCProductLabel = cms.InputTag("generator"),
     theLHCTlinkTag = cms.InputTag("LHCTransport"),
+    CustomUIsession = cms.untracked.PSet(
+        Type = cms.untracked.string("MessageLogger"), # MessageLoggerThreadPrefix, FilePerThread; the non-default ones are meant only for MT debugging
+        ThreadPrefix = cms.untracked.string("W"), # For MessageLoggerThreadPrefix
+        ThreadFile = cms.untracked.string("sim_output_thread"), # For FilePerThread
+    ),
     MagneticField = cms.PSet(
         UseLocalMagFieldManager = cms.bool(False),
         Verbosity = cms.untracked.bool(False),
@@ -146,6 +151,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
     EventAction = cms.PSet(
         debug = cms.untracked.bool(False),
         StopFile = cms.string('StopRun'),
+        PrintRandomSeed = cms.bool(False),
         CollapsePrimaryVertices = cms.bool(False)
     ),
     StackingAction = cms.PSet(

@@ -42,6 +42,8 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
+
 #include <boost/regex.hpp>
 #include <map>
 //#include <math>
@@ -107,8 +109,8 @@ namespace reco {
 
     edm::InputTag src_;
 
-    int iRun;
-    int iEvt;
+    edm::RunNumber_t iRun;
+    edm::EventNumber_t iEvt;
 
     size_t minimumHits_;
 
@@ -564,7 +566,7 @@ void TrackerTrackHitFilter::produceFromTrack(const edm::EventSetup &iSetup, cons
         hits.clear(); // extra safety
 
         for (trackingRecHit_iterator ith = itt->recHitsBegin(), edh = itt->recHitsEnd(); ith != edh; ++ith) {
-	  const TrackingRecHit * hit = ith->get(); // ith is an iterator on edm::Ref to rechit
+	  const TrackingRecHit * hit = (*ith); // ith is an iterator on edm::Ref to rechit
 
 	    DetId detid = hit->geographicalId();
 

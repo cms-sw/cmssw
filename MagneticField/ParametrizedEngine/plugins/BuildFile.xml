@@ -3,6 +3,7 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="MagneticField/Engine"/>
 <use   name="MagneticField/Records"/>
+<use   name="MagneticField/ParametrizedEngine"/>
 <library   file="*.cc" name="MagneticFieldParametrizedEnginePlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

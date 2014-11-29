@@ -36,7 +36,9 @@ namespace edm {
   class StreamID;
   class GlobalSchedule;
   class ActivityRegistry;
-  
+  class ProductRegistry;
+  class ThinnedAssociationsHelper;
+
   namespace maker {
     template<typename T> class ModuleHolderT;
   }
@@ -106,8 +108,9 @@ namespace edm {
       //For now, the following are just dummy implemenations with no ability for users to override
       void doRespondToOpenInputFile(FileBlock const& fb);
       void doRespondToCloseInputFile(FileBlock const& fb);
-      
-      
+      void doRegisterThinnedAssociations(ProductRegistry const&,
+                                         ThinnedAssociationsHelper&) { }
+
       void registerProductsAndCallbacks(EDProducerBase* module, ProductRegistry* reg) {
         registerProducts(module, reg, moduleDescription_);
       }

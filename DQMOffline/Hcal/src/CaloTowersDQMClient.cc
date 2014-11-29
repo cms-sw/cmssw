@@ -38,7 +38,7 @@ void CaloTowersDQMClient::beginRun(const edm::Run& run, const edm::EventSetup& c
 }
 
 
-// called after entering the CaloTowersV/CaloTowersTask directory
+// called after entering the CaloTowersD/CaloTowersTask directory
 // hcalMEs are within that directory
 int CaloTowersDQMClient::CaloTowersEndjob(const std::vector<MonitorElement*> &hcalMEs){
 
@@ -152,7 +152,7 @@ void CaloTowersDQMClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGett
   std::vector<MonitorElement*> hcalMEs;
 
   // Since out folders are fixed to three, we can just go over these three folders
-  // i.e., CaloTowersV/CaloTowersTask, HcalRecHitsV/HcalRecHitTask, NoiseRatesV/NoiseRatesTask.
+  // i.e., CaloTowersD/CaloTowersTask, HcalRecHitsD/HcalRecHitTask, NoiseRatesV/NoiseRatesTask.
   std::vector<std::string> fullPathHLTFolders = igetter.getSubdirs();
   for(unsigned int i=0;i<fullPathHLTFolders.size();i++) {
 
@@ -164,7 +164,7 @@ void CaloTowersDQMClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGett
 
       if (verbose_) std::cout <<"fullSub: "<<fullSubPathHLTFolders[j] << std::endl;
 
-      if( strcmp(fullSubPathHLTFolders[j].c_str(), "CaloTowersV/CaloTowersTask") ==0  ){
+      if( strcmp(fullSubPathHLTFolders[j].c_str(), "CaloTowersD/CaloTowersTask") ==0  ){
          hcalMEs = igetter.getContents(fullSubPathHLTFolders[j]);
          if (verbose_) std::cout <<"hltMES size : "<<hcalMEs.size()<<std::endl;
          if( !CaloTowersEndjob(hcalMEs) ) std::cout<<"\nError in CaloTowersEndjob!"<<std::endl<<std::endl;

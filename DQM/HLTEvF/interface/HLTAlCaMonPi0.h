@@ -32,9 +32,6 @@ public:
   }
 };
 
-
-
-
 class DQMStore;
 class MonitorElement;
 
@@ -245,9 +242,6 @@ private:
   edm::InputTag productMonitoredEEpi0_;
   edm::InputTag productMonitoredEEeta_;
 
-      int gammaCandEtaSize_;
-      int gammaCandPhiSize_;
-
       double seleXtalMinEnergy_;
       double seleXtalMinEnergyEndCap_;
 
@@ -304,12 +298,6 @@ private:
       double seleEtaBeltDetaEndCap_;
 
 
-  bool ParameterLogWeighted_;
-  double ParameterX0_;
-  double ParameterT0_barl_;
-  double ParameterT0_endc_;
-  double ParameterT0_endcPresh_;
-  double ParameterW0_;
 
 
 

@@ -20,6 +20,10 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "IOPool/Streamer/interface/FRDEventMessage.h"
 
+#include "EventFilter/FEDInterface/interface/FED1024.h"
+
+#include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
+
 class FEDRawDataCollection;
 class InputSourceDescription;
 class ParameterSet;
@@ -103,6 +107,7 @@ private:
   uint32_t eventRunNumber_=0;
   uint32_t GTPEventID_ = 0;
   uint32_t L1EventID_ = 0;
+  unsigned char *tcds_pointer_;
   unsigned int eventsThisLumi_;
   unsigned long eventsThisRun_ = 0;
 

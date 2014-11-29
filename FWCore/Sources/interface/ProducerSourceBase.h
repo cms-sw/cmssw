@@ -10,6 +10,7 @@
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/Provenance/interface/RunID.h"
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 
 #include <memory>
 
@@ -38,9 +39,9 @@ namespace edm {
   protected:
 
   private:
-    virtual ItemType getNextItemType() override;
+    virtual ItemType getNextItemType() override final;
     virtual void initialize(EventID& id, TimeValue_t& time, TimeValue_t& interval);
-    virtual bool setRunAndEventInfo(EventID& id, TimeValue_t& time) = 0;
+    virtual bool setRunAndEventInfo(EventID& id, TimeValue_t& time, EventAuxiliary::ExperimentType& etype) = 0;
     virtual void produce(Event& e) = 0;
     virtual bool noFiles() const;
     virtual size_t fileIndex() const;
@@ -67,7 +68,7 @@ namespace edm {
 
     unsigned int numberEventsInThisRun_;
     unsigned int numberEventsInThisLumi_;
-    unsigned int const zerothEvent_;
+    EventNumber_t const zerothEvent_;
     EventID eventID_;
     EventID origEventID_;
     bool isRealData_;

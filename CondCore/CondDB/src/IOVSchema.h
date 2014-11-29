@@ -165,7 +165,7 @@ namespace cond {
       
       column( SOURCE_ACCOUNT, std::string );
       column( SOURCE_TOKEN, std::string );
-      column( PAYLOAD_HASH, std::string );
+      column( PAYLOAD_HASH, std::string, PAYLOAD::PAYLOAD_HASH_SIZE );
       column( INSERTION_TIME, boost::posix_time::ptime );
       
       class Table : public IPayloadMigrationTable {

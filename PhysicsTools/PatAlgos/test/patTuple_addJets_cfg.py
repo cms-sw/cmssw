@@ -25,17 +25,15 @@ addJetCollection(
    postfix   = postfixAK4PFCHS,
    labelName = labelAK4PFCHS,
    jetSource = cms.InputTag('ak4PFJetsCHS'),
-   jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2') # FIXME: Use proper JECs, as soon as available
+   jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2')
    )
 process.out.outputCommands.append( 'drop *_selectedPatJets%s%s_caloTowers_*'%( labelAK4PFCHS, postfixAK4PFCHS ) )
 
 # uncomment the following lines to add ak4PFJets to your PAT output
-labelAK4PF = 'AK4PF'
-addJetCollection(
+switchJetCollection(
    process,
-   labelName = labelAK4PF,
    jetSource = cms.InputTag('ak4PFJets'),
-   jetCorrections = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1'), # FIXME: Use proper JECs, as soon as available
+   jetCorrections = ('AK4PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1'),
    btagDiscriminators = [
        'jetBProbabilityBJetTags'
      , 'jetProbabilityBJetTags'
@@ -46,7 +44,7 @@ addJetCollection(
      , 'combinedSecondaryVertexBJetTags'
      ],
    )
-process.out.outputCommands.append( 'drop *_selectedPatJets%s_caloTowers_*'%( labelAK4PF ) )
+process.out.outputCommands.append( 'drop *_selectedPatJets_caloTowers_*' )
 
 # uncomment the following lines to add ak4PFJets to your PAT output
 labelCA8PFCHSPruned = 'CA8PFCHSPruned'
@@ -57,19 +55,22 @@ addJetCollection(
    algo = 'CA8',
    rParam = 0.8,
    #genJetCollection = cms.InputTag('ak8GenJets'), # not in used SIM yet
-   genJetCollection = cms.InputTag('ak5GenJets'),
-   jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'), # FIXME: Use proper JECs, as soon as available
+   genJetCollection = cms.InputTag('ak4GenJets'),
+   jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'), # FIXME: Use proper JECs, as soon as available
    btagDiscriminators = [
        'combinedSecondaryVertexBJetTags'
      ],
    )
+process.out.outputCommands.append( 'keep *_selectedPatJets%s_pfCandidates_*'%( labelCA8PFCHSPruned ) )
 process.out.outputCommands.append( 'drop *_selectedPatJets%s_caloTowers_*'%( labelCA8PFCHSPruned ) )
 
 # uncomment the following lines to switch to ak4CaloJets in your PAT output
-switchJetCollection(
+labelAK4Calo = 'AK4Calo'
+addJetCollection(
    process,
+   labelName = labelAK4Calo,
    jetSource = cms.InputTag('ak4CaloJets'),
-   jetCorrections = ('AK5Calo', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1'), # FIXME: Use proper JECs, as soon as available
+   jetCorrections = ('AK7Calo', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1'), # FIXME: Use proper JECs, as soon as available
    btagDiscriminators = [
        'jetBProbabilityBJetTags'
      , 'jetProbabilityBJetTags'
@@ -80,13 +81,12 @@ switchJetCollection(
      , 'combinedSecondaryVertexBJetTags'
      ],
    )
+process.out.outputCommands.append( 'drop *_selectedPatJets%s_pfCandidates_*'%( labelAK4Calo ) )
 ## JetID works only with RECO input for the CaloTowers (s. below for 'process.source.fileNames')
 #process.patJets.addJetID=True
 #process.load("RecoJets.JetProducers.ak4JetID_cfi")
 #process.patJets.jetIDMap="ak4JetID"
-process.patJets.useLegacyJetMCFlavour=True # Need to use legacy flavour since the new flavour requires jet constituents which are dropped for CaloJets from AOD
-process.out.outputCommands.append( 'keep *_selectedPatJets_caloTowers_*' )
-process.out.outputCommands.append( 'drop *_selectedPatJets_pfCandidates_*' )
+process.patJetsAK4Calo.useLegacyJetMCFlavour=True # Need to use legacy flavour since the new flavour requires jet constituents which are dropped for CaloJets from AOD
 
 #print process.out.outputCommands
 

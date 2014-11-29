@@ -39,15 +39,71 @@ namespace ecaldqm
   }
 
   void
-  MESetDet1D::book(DQMStore& _dqmStore)
-  {
-    doBook_(_dqmStore);
-  }
-
-  void
   MESetDet1D::book(DQMStore::IBooker& _ibooker)
   {
-    doBook_(_ibooker);
+    MESetEcal::book(_ibooker);
+
+    if(btype_ == binning::kDCC){
+      for(unsigned iME(0); iME < mes_.size(); iME++){
+        MonitorElement* me(mes_[iME]);
+
+        binning::ObjectType actualObject(binning::getObject(otype_, iME));
+        if(actualObject == binning::kEB){
+          for(int iBin(1); iBin <= me->getNbinsX(); iBin++)
+            me->setBinLabel(iBin, binning::channelName(iBin + kEBmLow));
+        }
+        else if(actualObject == binning::kEE){
+          for(int iBin(1); iBin <= me->getNbinsX() / 2; iBin++){
+            me->setBinLabel(iBin, binning::channelName(iBin));
+            me->setBinLabel(iBin + me->getNbinsX() / 2, binning::channelName(iBin + 45));
+          }
+        }
+        else if(actualObject == binning::kEEm){
+          for(int iBin(1); iBin <= me->getNbinsX(); iBin++)
+            me->setBinLabel(iBin, binning::channelName(iBin));
+        }
+        else if(actualObject == binning::kEEp){
+          for(int iBin(1); iBin <= me->getNbinsX(); iBin++)
+            me->setBinLabel(iBin, binning::channelName(iBin + 45));
+        }
+      }
+    }
+    else if(btype_ == binning::kTriggerTower){
+      for(unsigned iME(0); iME < mes_.size(); iME++){
+        MonitorElement* me(mes_[iME]);
+
+        binning::ObjectType actualObject(binning::getObject(otype_, iME));
+        unsigned dccid(0);
+        if(actualObject == binning::kSM && (iME <= kEEmHigh || iME >= kEEpLow)) dccid = iME + 1;
+        else if(actualObject == binning::kEESM) dccid = iME <= kEEmHigh ? iME + 1 : iME + 37;
+
+        if(dccid > 0){
+          std::stringstream ss;
+          std::pair<unsigned, unsigned> inner(innerTCCs(iME + 1));
+          std::pair<unsigned, unsigned> outer(outerTCCs(iME + 1));
+          ss << "TCC" << inner.first << " TT1";
+          me->setBinLabel(1, ss.str());
+          ss.str("");
+          ss << "TCC" << inner.second << " TT1";
+          me->setBinLabel(25, ss.str());
+          ss.str("");
+          ss << "TCC" << outer.first << " TT1";
+          me->setBinLabel(49, ss.str());
+          ss.str("");
+          ss << "TCC" << outer.second << " TT1";
+          me->setBinLabel(65, ss.str());
+          int offset(0);
+          for(int iBin(4); iBin <= 80; iBin += 4){
+            if(iBin == 28) offset = 24;
+            else if(iBin == 52) offset = 48;
+            else if(iBin == 68) offset = 64;
+            ss.str("");
+            ss << iBin - offset;
+            me->setBinLabel(iBin, ss.str());
+          }
+        }
+      }
+    }
   }
 
   void
@@ -717,75 +773,6 @@ namespace ecaldqm
           me->setBinContent(bin, _content);
           me->setBinError(bin, _err);
           if(isProfile) me->setBinEntries(bin, _entries);
-        }
-      }
-    }
-  }
-
-  template<class Bookable>
-  void
-  MESetDet1D::doBook_(Bookable& _booker)
-  {
-    MESetEcal::book(_booker);
-
-    if(btype_ == binning::kDCC){
-      for(unsigned iME(0); iME < mes_.size(); iME++){
-        MonitorElement* me(mes_[iME]);
-
-        binning::ObjectType actualObject(binning::getObject(otype_, iME));
-        if(actualObject == binning::kEB){
-          for(int iBin(1); iBin <= me->getNbinsX(); iBin++)
-            me->setBinLabel(iBin, binning::channelName(iBin + kEBmLow));
-        }
-        else if(actualObject == binning::kEE){
-          for(int iBin(1); iBin <= me->getNbinsX() / 2; iBin++){
-            me->setBinLabel(iBin, binning::channelName(iBin));
-            me->setBinLabel(iBin + me->getNbinsX() / 2, binning::channelName(iBin + 45));
-          }
-        }
-        else if(actualObject == binning::kEEm){
-          for(int iBin(1); iBin <= me->getNbinsX(); iBin++)
-            me->setBinLabel(iBin, binning::channelName(iBin));
-        }
-        else if(actualObject == binning::kEEp){
-          for(int iBin(1); iBin <= me->getNbinsX(); iBin++)
-            me->setBinLabel(iBin, binning::channelName(iBin + 45));
-        }
-      }
-    }
-    else if(btype_ == binning::kTriggerTower){
-      for(unsigned iME(0); iME < mes_.size(); iME++){
-        MonitorElement* me(mes_[iME]);
-
-        binning::ObjectType actualObject(binning::getObject(otype_, iME));
-        unsigned dccid(0);
-        if(actualObject == binning::kSM && (iME <= kEEmHigh || iME >= kEEpLow)) dccid = iME + 1;
-        else if(actualObject == binning::kEESM) dccid = iME <= kEEmHigh ? iME + 1 : iME + 37;
-
-        if(dccid > 0){
-          std::stringstream ss;
-          std::pair<unsigned, unsigned> inner(innerTCCs(iME + 1));
-          std::pair<unsigned, unsigned> outer(outerTCCs(iME + 1));
-          ss << "TCC" << inner.first << " TT1";
-          me->setBinLabel(1, ss.str());
-          ss.str("");
-          ss << "TCC" << inner.second << " TT1";
-          me->setBinLabel(25, ss.str());
-          ss.str("");
-          ss << "TCC" << outer.first << " TT1";
-          me->setBinLabel(49, ss.str());
-          ss.str("");
-          ss << "TCC" << outer.second << " TT1";
-          me->setBinLabel(65, ss.str());
-          int offset(0);
-          for(int iBin(4); iBin <= 80; iBin += 4){
-            if(iBin == 28) offset = 24;
-            else if(iBin == 52) offset = 48;
-            else if(iBin == 68) offset = 64;
-            ss.str("");
-            ss << iBin - offset;
-            me->setBinLabel(iBin, ss.str());
-          }
         }
       }
     }

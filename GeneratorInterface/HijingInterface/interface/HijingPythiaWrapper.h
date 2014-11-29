@@ -21,16 +21,16 @@
     void   txgive_(const char*, int );
     void   txgive_init_(void);
     
-    static bool call_pygive(const std::string &line)
-    {
-       int numWarn = pydat1.mstu[26];    // # warnings
-       int numErr = pydat1.mstu[22];     // # errors
-       
-       pygive_(line.c_str(), line.length());
-       
-       return pydat1.mstu[26] == numWarn &&
-	  pydat1.mstu[22] == numErr;
-    }
+    // static bool call_pygive(const std::string &line)
+    // {
+    //    int numWarn = pydat1.mstu[26];    // # warnings
+    //    int numErr = pydat1.mstu[22];     // # errors
+    //   
+    //    pygive_(line.c_str(), line.length());
+    //   
+    //    return pydat1.mstu[26] == numWarn &&
+    //	  pydat1.mstu[22] == numErr;
+    // }
  }
  
 #define PYCOMP pycomp_

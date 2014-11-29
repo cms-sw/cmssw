@@ -148,15 +148,19 @@ def switchToCustomL1Digis(process, customGmt, customGct, customGt):
     process.hltL1GtObjectMap.GmtInputTag = cms.InputTag( customGmt )
     process.hltL1GtObjectMap.GctInputTag = cms.InputTag( customGct )
   if 'hltL1extraParticles' in process.__dict__:
-    process.hltL1extraParticles.muonSource          = cms.InputTag( customGmt )
-    process.hltL1extraParticles.isolatedEmSource    = cms.InputTag( customGct, 'isoEm' )
-    process.hltL1extraParticles.nonIsolatedEmSource = cms.InputTag( customGct, 'nonIsoEm' )
-    process.hltL1extraParticles.centralJetSource    = cms.InputTag( customGct, 'cenJets' )
-    process.hltL1extraParticles.forwardJetSource    = cms.InputTag( customGct, 'forJets' )
-    process.hltL1extraParticles.tauJetSource        = cms.InputTag( customGct, 'tauJets' )
-    process.hltL1extraParticles.etTotalSource       = cms.InputTag( customGct )
-    process.hltL1extraParticles.etHadSource         = cms.InputTag( customGct )
-    process.hltL1extraParticles.etMissSource        = cms.InputTag( customGct )
+    process.hltL1extraParticles.muonSource            = cms.InputTag( customGmt )
+    process.hltL1extraParticles.isolatedEmSource      = cms.InputTag( customGct, 'isoEm' )
+    process.hltL1extraParticles.nonIsolatedEmSource   = cms.InputTag( customGct, 'nonIsoEm' )
+    process.hltL1extraParticles.centralJetSource      = cms.InputTag( customGct, 'cenJets' )
+    process.hltL1extraParticles.forwardJetSource      = cms.InputTag( customGct, 'forJets' )
+    process.hltL1extraParticles.tauJetSource          = cms.InputTag( customGct, 'tauJets' )
+    process.hltL1extraParticles.isoTauJetSource       = cms.InputTag( customGct, 'isoTauJets' )
+    process.hltL1extraParticles.etTotalSource         = cms.InputTag( customGct )
+    process.hltL1extraParticles.etHadSource           = cms.InputTag( customGct )
+    process.hltL1extraParticles.etMissSource          = cms.InputTag( customGct )
+    process.hltL1extraParticles.htMissSource          = cms.InputTag( customGct )
+    process.hltL1extraParticles.hfRingEtSumsSource    = cms.InputTag( customGct )
+    process.hltL1extraParticles.hfRingBitCountsSource = cms.InputTag( customGct )
   if 'hltL2MuonSeeds' in process.__dict__:
     process.hltL2MuonSeeds.GMTReadoutCollection = cms.InputTag( customGmt )
 
@@ -197,6 +201,10 @@ def switchToSimGtDigis(process):
 def switchToSimGmtGctGtDigis(process):
   """patch the process to use newly emulated GMT, GCT and GT results"""
   return switchToCustomL1Digis(process, 'simGmtDigis', 'simGctDigis', 'simGtDigis')
+
+def switchToSimStage1Digis(process):
+  """patch the process to use newly emulated GMT, GCT and GT results"""
+  return switchToCustomL1Digis(process, 'gmtReEmulDigis', 'simCaloStage1LegacyFormatDigis', 'simGtDigis')
 
 def switchToSimGctGtDigis(process):
   """patch the process to use gtDigis for GMT results, and newly emulated GCT and GT results"""

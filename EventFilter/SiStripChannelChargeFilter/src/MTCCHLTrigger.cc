@@ -36,7 +36,7 @@ bool MTCCHLTrigger::filter(edm::Event & e, edm::EventSetup const& c) {
     unsigned int amplclus=0;
     for (edm::DetSetVector<SiStripCluster>::const_iterator it=h->begin();it!=h->end();it++) {
       for(std::vector<SiStripCluster>::const_iterator vit=(it->data).begin(); vit!=(it->data).end(); vit++){
-	for(std::vector<uint8_t>::const_iterator ia=vit->amplitudes().begin(); ia!=vit->amplitudes().end(); ia++) 
+	for(auto ia=vit->amplitudes().begin(); ia!=vit->amplitudes().end(); ia++) 
         {
             if  ((*ia)>0){ amplclus+=(*ia); }
         }

@@ -86,3 +86,11 @@ def HLTDropPrevious(process):
     process=Base(process)
     
     return(process)
+
+
+def MassReplaceInputTag(process,old="rawDataCollector",new="rawDataRepacker"):
+#   replace InputTag values (adapted from Configuration/Applications/python/ConfigBuilder.py)
+    from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag
+    for s in process.paths_().keys():
+        massSearchReplaceAnyInputTag(getattr(process,s),old,new)
+    return(process)

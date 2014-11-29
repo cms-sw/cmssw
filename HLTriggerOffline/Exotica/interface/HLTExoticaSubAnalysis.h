@@ -24,16 +24,25 @@
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
+#include "DataFormats/METReco/interface/GenMET.h"
+#include "DataFormats/METReco/interface/GenMETCollection.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
@@ -138,16 +147,26 @@ private:
     /// gen/rec objects cuts
     std::map<unsigned int, std::string> _genCut;
     std::map<unsigned int, std::string> _recCut;
+    /// gen/rec pt-leading objects cuts
+    std::map<unsigned int, std::string> _genCut_leading;
+    std::map<unsigned int, std::string> _recCut_leading;
 
     /// The concrete String selectors (use the string cuts introduced
     /// via the config python)
     std::map<unsigned int, StringCutObjectSelector<reco::GenParticle> *> _genSelectorMap;
     StringCutObjectSelector<reco::Muon>        * _recMuonSelector;
+    StringCutObjectSelector<reco::Track>       * _recMuonTrkSelector;
+    StringCutObjectSelector<reco::Track>       * _recTrackSelector;
     StringCutObjectSelector<reco::GsfElectron> * _recElecSelector;
+    StringCutObjectSelector<reco::MET>         * _recMETSelector;
     StringCutObjectSelector<reco::PFMET>       * _recPFMETSelector;
+    StringCutObjectSelector<reco::GenMET>      * _genMETSelector;
+    StringCutObjectSelector<reco::CaloMET>     * _recCaloMETSelector;
+    StringCutObjectSelector<l1extra::L1EtMissParticle> * _l1METSelector;
     StringCutObjectSelector<reco::PFTau>       * _recPFTauSelector;
     StringCutObjectSelector<reco::Photon>      * _recPhotonSelector;
-    StringCutObjectSelector<reco::PFJet>       * _recJetSelector;
+    StringCutObjectSelector<reco::PFJet>       * _recPFJetSelector;
+    StringCutObjectSelector<reco::CaloJet>     * _recCaloJetSelector;
 
     /// The plotters: managers of each hlt path where the plots are done
     std::vector<HLTExoticaPlotter> _plotters;

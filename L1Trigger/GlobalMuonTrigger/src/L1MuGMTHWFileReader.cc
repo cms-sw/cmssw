@@ -67,7 +67,7 @@ L1MuGMTHWFileReader::~L1MuGMTHWFileReader() {
 //--------------
 // Operations --
 //--------------
-bool L1MuGMTHWFileReader::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time) {
+bool L1MuGMTHWFileReader::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time, edm::EventAuxiliary::ExperimentType& eType) {
   readNextEvent();
   if(!m_evt.getRunNumber() && !m_evt.getEventNumber()) return false;
   id = edm::EventID(m_evt.getRunNumber(), id.luminosityBlock(), m_evt.getEventNumber());

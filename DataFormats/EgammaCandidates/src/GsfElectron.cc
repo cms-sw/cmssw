@@ -83,7 +83,6 @@ GsfElectron::GsfElectron
    showerShape_(electron.showerShape_),
    dr03_(electron.dr03_), dr04_(electron.dr04_),
    conversionRejection_(electron.conversionRejection_),
-   pfShowerShape_(electron.pfShowerShape_),
    pfIso_(electron.pfIso_),
    mvaInput_(electron.mvaInput_),
    mvaOutput_(electron.mvaOutput_),
@@ -94,7 +93,8 @@ GsfElectron::GsfElectron
    ambiguousGsfTracks_(electron.ambiguousGsfTracks_),
    classVariables_(electron.classVariables_),
    class_(electron.class_),
-   corrections_(electron.corrections_)
+   corrections_(electron.corrections_),
+   pixelMatchVariables_(electron.pixelMatchVariables_)
  {
   assert(electron.core()->ctfTrack()==core->ctfTrack()) ;
   assert(electron.core()->ctfGsfOverlap()==core->ctfGsfOverlap()) ;
@@ -118,7 +118,6 @@ GsfElectron::GsfElectron
    full5x5_showerShape_(electron.full5x5_showerShape_),
    dr03_(electron.dr03_), dr04_(electron.dr04_),
    conversionRejection_(electron.conversionRejection_),
-   pfShowerShape_(electron.pfShowerShape_),
    pfIso_(electron.pfIso_),
    mvaInput_(electron.mvaInput_),
    mvaOutput_(electron.mvaOutput_),
@@ -130,7 +129,8 @@ GsfElectron::GsfElectron
    //mva_(electron.mva_),
    classVariables_(electron.classVariables_),
    class_(electron.class_),
-   corrections_(electron.corrections_)
+   corrections_(electron.corrections_),
+   pixelMatchVariables_(electron.pixelMatchVariables_)
  {
   trackClusterMatching_.electronCluster = electronCluster ;
   //closestCtfTrack_.ctfTrack = closestCtfTrack ;
@@ -171,12 +171,6 @@ GsfElectron * GsfElectron::clone
 
 bool GsfElectron::ecalDriven() const
  {
-  if (!passingCutBasedPreselection()&&!passingMvaPreselection())
-   {
-    edm::LogWarning("GsfElectronAlgo|UndefinedPreselectionInfo")
-      <<"All preselection flags are false,"
-      <<" either the data is too old or electrons were not preselected." ;
-   }
   return (ecalDrivenSeed()&&passingCutBasedPreselection()) ;
  }
 

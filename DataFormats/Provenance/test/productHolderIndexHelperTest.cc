@@ -6,7 +6,6 @@
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 #include "TClass.h"
 
@@ -139,21 +138,16 @@ int main() {
     // most of the total time as well.
     TClass* clss = TClass::GetClass(n.className.c_str());
 
-    TypeWithDict typeWithDict;
-
     if (n.className == "bool") {
       n.typeID = TypeID(typeid(bool));
-      typeWithDict = TypeWithDict(typeid(bool));
     } else if (n.className == "double") {
       n.typeID = TypeID(typeid(double));
-      typeWithDict = TypeWithDict(typeid(double));
     } else {
       n.typeID = TypeID(*clss->GetTypeInfo());
-      typeWithDict = TypeWithDict(*clss->GetTypeInfo());
     }
 
     timer.start();
-    phih.insert(typeWithDict,
+    phih.insert(n.typeID,
                 n.label.c_str(),
                 n.instance.c_str(),
                 n.process.c_str());

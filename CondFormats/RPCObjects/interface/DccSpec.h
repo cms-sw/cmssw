@@ -12,7 +12,7 @@
 #include <boost/cstdint.hpp>
 #include  "CondFormats/RPCObjects/interface/TriggerBoardSpec.h"
 
-class ChamberLocationSpec;
+struct ChamberLocationSpec;
 
 class DccSpec {
 public:

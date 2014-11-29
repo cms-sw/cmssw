@@ -4,7 +4,7 @@
 #include <cstring>
 #include <set>
 
-#include <boost/thread.hpp>
+#include <mutex>
 
 #include "PhysicsTools/MVAComputer/interface/AtomicId.h"
 
@@ -25,7 +25,7 @@ namespace { // anonymous
 
 		IdSet				idSet;
 		static std::allocator<char>	stringAllocator;
-		mutable boost::mutex		mutex;
+		mutable std::mutex		mutex;
 	};
 } // anonymous namespace
 
@@ -41,7 +41,7 @@ IdCache::~IdCache()
 
 const char *IdCache::findOrInsert(const char *string) throw()
 {
-	boost::mutex::scoped_lock scoped_lock(mutex);
+	std::lock_guard<std::mutex> scoped_lock(mutex);
 
 	IdSet::iterator pos = idSet.lower_bound(string);
 	if (pos != idSet.end() && std::strcmp(*pos, string) == 0)
@@ -60,7 +60,7 @@ namespace PhysicsTools {
 
 static IdCache &getAtomicIdCache()
 {
-	static IdCache atomicIdCache;
+	[[cms::thread_safe]] static IdCache atomicIdCache;
 	return atomicIdCache;
 }
 

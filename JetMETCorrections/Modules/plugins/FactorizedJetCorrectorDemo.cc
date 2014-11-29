@@ -13,12 +13,12 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
+#include "DataFormats/Candidate/interface/Particle.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
-//TFile Service 
+//TFile Service
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
@@ -31,12 +31,12 @@ public:
   explicit FactorizedJetCorrectorDemo(const edm::ParameterSet&);
   ~FactorizedJetCorrectorDemo();
   typedef reco::Particle::LorentzVector LorentzVector;
-  
+
 private:
   virtual void beginJob() override ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override ;
- 
+
   std::string mJetCorService,mPayloadName,mUncertaintyTag,mUncertaintyFile;
   std::vector<std::string> mLevels;
   bool mDebug,mUseCondDB;
@@ -74,26 +74,26 @@ FactorizedJetCorrectorDemo::FactorizedJetCorrectorDemo(const edm::ParameterSet& 
 //---------------------------------------------------------------------------
 FactorizedJetCorrectorDemo::~FactorizedJetCorrectorDemo()
 {
-  
+
 }
 //---------------------------------------------------------------------------
 void FactorizedJetCorrectorDemo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-  if ( mDebug ) 
+  if ( mDebug )
     std::cout << "Hello from FactorizedJetCorrectorDemo" << std::endl;
-  // retreive parameters from the DB this still need a proper configurable 
+  // retreive parameters from the DB this still need a proper configurable
   // payloadName like: JetCorrectorParametersCollection_Spring10_AK5Calo.
   edm::ESHandle<JetCorrectorParametersCollection> parameters;
-  iSetup.get<JetCorrectionsRecord>().get(mPayloadName, parameters); 
+  iSetup.get<JetCorrectionsRecord>().get(mPayloadName, parameters);
 
   std::vector<JetCorrectorParameters> params;
-  for(std::vector<std::string>::const_iterator level=mLevels.begin(); level!=mLevels.end(); ++level){ 
+  for(std::vector<std::string>::const_iterator level=mLevels.begin(); level!=mLevels.end(); ++level){
     const JetCorrectorParameters& ip = (*parameters)[*level]; //ip.printScreen();
-    if ( mDebug ) 
+    if ( mDebug )
       std::cout << "Adding level " << *level << std::endl;
-    params.push_back(ip); 
-  } 
+    params.push_back(ip);
+  }
 
   boost::shared_ptr<FactorizedJetCorrector> corrector ( new FactorizedJetCorrector(params));
 
@@ -107,7 +107,7 @@ void FactorizedJetCorrectorDemo::analyze(const edm::Event& iEvent, const edm::Ev
     {
       rawPt  = mRandom->Uniform(mPtMin,mPtMax);
       eta = mRandom->Uniform(mEtaMin,mEtaMax);
-      P4.SetPtEtaPhiE(rawPt,eta,0,0); 
+      P4.SetPtEtaPhiE(rawPt,eta,0,0);
       corrector->setJetEta( eta );
       corrector->setJetPt( rawPt );
       corrector->setJetE( P4.E() );
@@ -121,12 +121,12 @@ void FactorizedJetCorrectorDemo::analyze(const edm::Event& iEvent, const edm::Ev
   for(unsigned ieta=0;ieta<mVEta.size();ieta++)
     {
       double rPt  = pow((3500./TMath::CosH(mVEta[ieta]))/mPtMin,1./mNGraphPoints);
-      for(int i=0;i<mNGraphPoints;i++) 
+      for(int i=0;i<mNGraphPoints;i++)
         {
           rawPt  = mPtMin*pow(rPt,i);
           eta = mVEta[ieta];
           vpt[ieta][i] = rawPt;
-          P4.SetPtEtaPhiE(rawPt,eta,0,0); 
+          P4.SetPtEtaPhiE(rawPt,eta,0,0);
 	  corrector->setJetEta( eta );
 	  corrector->setJetPt( rawPt );
 	  corrector->setJetE( P4.E() );
@@ -151,11 +151,11 @@ void FactorizedJetCorrectorDemo::analyze(const edm::Event& iEvent, const edm::Ev
           //---------- find the raw pt -----------
           double e = 1.0;
           int nLoop(0);
-          rawPt = corPt; 
-          while(e > 0.0001 && nLoop < 10) 
+          rawPt = corPt;
+          while(e > 0.0001 && nLoop < 10)
              {
-               P4.SetPtEtaPhiE(rawPt,eta,0,0); 
-               LorentzVector rawP4(P4.Px(),P4.Py(),P4.Pz(),P4.E()); 
+               P4.SetPtEtaPhiE(rawPt,eta,0,0);
+               LorentzVector rawP4(P4.Px(),P4.Py(),P4.Pz(),P4.E());
 	       corrector->setJetEta( eta );
 	       corrector->setJetPt( rawPt );
 	       corrector->setJetE( P4.E() );
@@ -165,9 +165,9 @@ void FactorizedJetCorrectorDemo::analyze(const edm::Event& iEvent, const edm::Ev
                if (jec > 0)
                  rawPt = corPt/jec;
                nLoop++;
-             } 
+             }
           //--------- calculate the jec for the rawPt --------
-          P4.SetPtEtaPhiE(rawPt,eta,0,0); 
+          P4.SetPtEtaPhiE(rawPt,eta,0,0);
           LorentzVector rawP4(P4.Px(),P4.Py(),P4.Pz(),P4.E());
 	  corrector->setJetEta( eta );
 	  corrector->setJetPt( rawPt );
@@ -197,7 +197,7 @@ void FactorizedJetCorrectorDemo::beginJob()
   mRandom->SetSeed(0);
 }
 //---------------------------------------------------------------------------
-void FactorizedJetCorrectorDemo::endJob() 
+void FactorizedJetCorrectorDemo::endJob()
 {
   char name[1000];
   for(unsigned ipt=0;ipt<mVPt.size();ipt++)

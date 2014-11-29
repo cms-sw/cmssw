@@ -62,8 +62,8 @@ HcalRealisticZS::HcalRealisticZS(edm::ParameterSet const& conf):
     //which means that channel-by-channel ZS thresholds from DB will NOT be used
     if ( conf.getParameter<int>("useConfigZSvalues") ) {
 
-      algo_=std::auto_ptr<HcalZSAlgoRealistic>
-	(new HcalZSAlgoRealistic (markAndPass,
+      algo_.reset(
+	 new HcalZSAlgoRealistic (markAndPass,
 				  conf.getParameter<int>("HBlevel"),
 				  conf.getParameter<int>("HElevel"),
 				  conf.getParameter<int>("HOlevel"),
@@ -76,8 +76,8 @@ HcalRealisticZS::HcalRealisticZS(edm::ParameterSet const& conf):
       
     } else {
 
-      algo_=std::auto_ptr<HcalZSAlgoRealistic>
-	(new HcalZSAlgoRealistic(markAndPass,				  
+      algo_.reset(
+	 new HcalZSAlgoRealistic(markAndPass,				  
 				 HBsearchTS,
 				 HEsearchTS,
 				 HOsearchTS,
