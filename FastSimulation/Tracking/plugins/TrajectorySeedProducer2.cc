@@ -239,36 +239,44 @@ const SeedingNode<TrackingLayer>* TrajectorySeedProducer2::insertHit(
     const unsigned int trackingAlgorithmId
 ) const
 {
-    if (hitIndicesInTree[node->getIndex()]<0)
+    if (!node->getParent() || hitIndicesInTree[node->getParent()->getIndex()]>=0)
     {
-        const TrajectorySeedHitCandidate& currentTrackerHit = trackerRecHits[trackerHit];
-        if (!isHitOnLayer(currentTrackerHit,node->getData()))
+        if (hitIndicesInTree[node->getIndex()]<0)
         {
-            return nullptr;
-        }
-        //std::cout<<"\t\tpassed layer"<<std::endl;
-        if (!passHitTuplesCuts(*node,trackerRecHits,hitIndicesInTree,currentTrackerHit,trackingAlgorithmId))
-        {
-            return nullptr;
-        }
-        //std::cout<<"\t\t\tpassed cuts"<<std::endl;
-        hitIndicesInTree[node->getIndex()]=trackerHit;
-        if (node->getChildrenSize()==0)
-        {
-            //std::cout<<"\t\t\t\tseed found"<<std::endl;
-            return node;
-        }
-        return nullptr;
-    }
-    else
-    {
-        //std::cout<<"\t\tprocess children"<<std::endl;
-        for (unsigned int ichild = 0; ichild<node->getChildrenSize(); ++ichild)
-        {
-            const SeedingNode<TrackingLayer>* seed = insertHit(trackerRecHits,hitIndicesInTree,node->getChild(ichild),trackerHit,trackingAlgorithmId);
-            if (seed)
+            const TrajectorySeedHitCandidate& currentTrackerHit = trackerRecHits[trackerHit];
+            std::cout<<"\t check hit: "<<trackerHit<<"; ";
+            if (!isHitOnLayer(currentTrackerHit,node->getData()))
             {
-                return seed;
+                std::cout<<" FAILED layer ("<<currentTrackerHit.getTrackingLayer().toString().c_str()<<")"<<std::endl;
+                return nullptr;
+                
+            }
+            std::cout<<" passed layer, ";
+            if (!passHitTuplesCuts(*node,trackerRecHits,hitIndicesInTree,currentTrackerHit,trackingAlgorithmId))
+            {
+                std::cout<<" FAILED Tuple cuts"<<std::endl;
+                return nullptr;
+            }
+            std::cout<<" passed cuts, ";
+            hitIndicesInTree[node->getIndex()]=trackerHit;
+            if (node->getChildrenSize()==0)
+            {
+                std::cout<<" seed found!"<<std::endl;
+                return node;
+            }
+            std::cout<<" depth "<<node->getDepth()<<std::endl;
+            return nullptr;
+        }
+        else
+        {
+            //std::cout<<"\t\tprocess children"<<std::endl;
+            for (unsigned int ichild = 0; ichild<node->getChildrenSize(); ++ichild)
+            {
+                const SeedingNode<TrackingLayer>* seed = insertHit(trackerRecHits,hitIndicesInTree,node->getChild(ichild),trackerHit,trackingAlgorithmId);
+                if (seed)
+                {
+                    return seed;
+                }
             }
         }
     }
@@ -405,8 +413,11 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es)
     std::cout<<"-----------------------------"<<std::endl;
 	for (SiTrackerGSMatchedRecHit2DCollection::id_iterator itSimTrackId=theGSRecHits->id_begin();  itSimTrackId!=theGSRecHits->id_end(); ++itSimTrackId )
 	{
+	    
 		const unsigned int currentSimTrackId = *itSimTrackId;
-		//if (currentSimTrackId!=286) continue;
+		
+		if (currentSimTrackId>12) continue;
+		std::cout<<"process simtrack: "<<currentSimTrackId<<std::endl;
 		//std::cout<<"processing simtrack with id: "<<currentSimTrackId<<std::endl;
 		const SimTrack& theSimTrack = (*theSimTracks)[currentSimTrackId];
 
@@ -420,7 +431,9 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es)
 
 		if (!this->passSimTrackQualityCuts(theSimTrack,theSimVertex,0))
 		{
+		    std::cout<<"\t failed sim track quality cuts!"<<std::endl;
 			continue;
+			
 		}
 		SiTrackerGSMatchedRecHit2DCollection::range recHitRange = theGSRecHits->get(currentSimTrackId);
 		//std::cout<<"\ttotal produced: "<<recHitRange.second-recHitRange.first<<" hits"<<std::endl;
@@ -430,6 +443,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es)
 		unsigned int numberOfNonEqualHits=0;
 
 		std::vector<TrajectorySeedHitCandidate> trackerRecHits;
+		std::cout<<"\thits: ";
 		for (SiTrackerGSMatchedRecHit2DCollection::const_iterator itRecHit = recHitRange.first; itRecHit!=recHitRange.second; ++itRecHit)
 		{
 			const SiTrackerGSMatchedRecHit2D& vec = *itRecHit;
@@ -442,14 +456,16 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es)
 			{
 				++numberOfNonEqualHits;
 			}
+			std::cout<<currentTrackerHit.getTrackingLayer().toString().c_str()<<", ";
 			trackerRecHits.push_back(std::move(currentTrackerHit));
 			/*
-			if (_seedingTree.getSingleSet().find(currentTrackerHit.getSeedingLayer())!=_seedingTree.getSingleSet().end())
+			if (_seedingTree.getSingleSet().find(currentTrackerHit.getTrackingLayer())!=_seedingTree.getSingleSet().end())
 			{
 			    
 			}
             */
 		}
+		std::cout<<std::endl;
 		if ( numberOfNonEqualHits < minRecHits) continue;
 
         std::vector<int> hitIndicesInTree(_seedingTree.numberOfNodes(),-1);
@@ -467,20 +483,23 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es)
 		*/
 		
 		
-		
+		std::cout<<"start iterations"<<std::endl;
 		std::vector<unsigned int> seedHitNumbers = iterateHits(0,trackerRecHits,hitIndicesInTree,true,0);
 
 		if (seedHitNumbers.size()>0)
 		{
             std::cout<<"accept: "<<currentSimTrackId<<std::endl;
+           
+            
 			edm::OwnVector<TrackingRecHit> recHits;
+			std::cout<<"\t hits=";
 			for ( unsigned ihit=0; ihit<seedHitNumbers.size(); ++ihit )
 			{
 				TrackingRecHit* aTrackingRecHit = trackerRecHits[seedHitNumbers[ihit]].hit()->clone();
 				recHits.push_back(aTrackingRecHit);
-				
+				std::cout<<seedHitNumbers[ihit]<<",";
 			}
-			
+			std::cout<<std::endl;
 			
 
 			GlobalPoint  position((*theSimVtx)[vertexIndex].position().x(),
