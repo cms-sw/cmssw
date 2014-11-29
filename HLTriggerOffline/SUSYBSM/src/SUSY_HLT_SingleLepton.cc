@@ -40,13 +40,6 @@ namespace{
     me->setBinLabel(13, "N_{CSVT} >= 4");
   }
 
-  double GetMass(const double E, const double px, const double py, const double pz){
-    const double rx=px/E;
-    const double ry=py/E;
-    const double rz=pz/E;
-    return E*sqrt(1.0-rx*rx-ry*ry-rz*rz);
-  }
-
   bool IsGood(const reco::GsfElectron &el, const reco::Vertex::Point &pv_position,
               const reco::BeamSpot::Point &bs_position,
               const edm::Handle<reco::ConversionCollection> &convs){
