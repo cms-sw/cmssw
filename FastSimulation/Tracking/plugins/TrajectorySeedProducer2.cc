@@ -54,10 +54,6 @@ TrajectorySeedProducer2::TrajectorySeedProducer2(const edm::ParameterSet& conf):
     {
         outputSeedCollectionName=conf.getParameter<std::string>("outputSeedCollectionName");
     }
-    if (conf.exists("seedingAlgo"))
-    {
-        std::vector<std::string> algoNames=conf.getParameter<std::vector<std::string>>("seedingAlgo");
-    }
     // The input tag for the beam spot
     theBeamSpot = conf.getParameter<edm::InputTag>("beamSpot");
 
@@ -116,6 +112,8 @@ TrajectorySeedProducer2::TrajectorySeedProducer2(const edm::ParameterSet& conf):
         _seedingTree.insert(trackingLayerList);
         seedingLayers.push_back(std::move(trackingLayerList));
     }
+    std::cerr<<outputSeedCollectionName<<std::endl;
+    _seedingTree.printRecursive();
 
     originRadius = conf.getParameter<double>("originRadius");
 
@@ -363,12 +361,6 @@ std::vector<unsigned int> TrajectorySeedProducer2::iterateHits(
 void 
 TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) 
 {        
-
-
-
-
-
-
 	//  unsigned nTrackCandidates = 0;
 	PTrajectoryStateOnDet initialState;
 
@@ -416,7 +408,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es)
 	    
 		const unsigned int currentSimTrackId = *itSimTrackId;
 		
-		if (currentSimTrackId>12) continue;
+		//if (currentSimTrackId>12) continue;
 		std::cout<<"process simtrack: "<<currentSimTrackId<<std::endl;
 		//std::cout<<"processing simtrack with id: "<<currentSimTrackId<<std::endl;
 		const SimTrack& theSimTrack = (*theSimTracks)[currentSimTrackId];
@@ -431,7 +423,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es)
 
 		if (!this->passSimTrackQualityCuts(theSimTrack,theSimVertex,0))
 		{
-		    std::cout<<"\t failed sim track quality cuts!"<<std::endl;
+		    //std::cout<<"\t failed sim track quality cuts!"<<std::endl;
 			continue;
 			
 		}
@@ -541,7 +533,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es)
 				}
 			}
 			int surfaceSide = static_cast<int>(initialTSOS.surfaceSide());
-			initialState = PTrajectoryStateOnDet( initialTSOS.localParameters(),localErrors, recHits.front().geographicalId().rawId(), surfaceSide);
+			initialState = PTrajectoryStateOnDet( initialTSOS.localParameters(),initialTSOS.globalMomentum().perp(),localErrors, recHits.back().geographicalId().rawId(), surfaceSide);
 			output->push_back(TrajectorySeed(initialState, recHits, PropagationDirection::alongMomentum));
 		
 		
