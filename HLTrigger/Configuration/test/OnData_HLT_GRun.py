@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_3_0/GRun/V1 (CMSSW_7_2_2_patch2_HLT1)
+# /dev/CMSSW_7_3_0/GRun/V3 (CMSSW_7_2_2_patch2_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_3_0/GRun/V1')
+  tableName = cms.string('/dev/CMSSW_7_3_0/GRun/V3')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -31832,7 +31832,7 @@ process.hltBDiJet20L1FastJetCentral = cms.EDFilter( "HLT1CaloJet",
     MinN = cms.int32( 2 ),
     MaxEta = cms.double( 3.0 ),
     MinMass = cms.double( -1.0 ),
-    inputTag = cms.InputTag( "hltAK4CaloJetsIDPassed" ),
+    inputTag = cms.InputTag( "hltAK4CaloJetsCorrectedIDPassed" ),
     MinE = cms.double( -1.0 ),
     triggerType = cms.int32( 86 )
 )
@@ -31922,7 +31922,7 @@ process.hltBDiJet40L1FastJetCentral = cms.EDFilter( "HLT1CaloJet",
     MinN = cms.int32( 2 ),
     MaxEta = cms.double( 3.0 ),
     MinMass = cms.double( -1.0 ),
-    inputTag = cms.InputTag( "hltAK4CaloJetsIDPassed" ),
+    inputTag = cms.InputTag( "hltAK4CaloJetsCorrectedIDPassed" ),
     MinE = cms.double( -1.0 ),
     triggerType = cms.int32( 86 )
 )
@@ -32010,7 +32010,7 @@ process.hltBDiJet70L1FastJetCentral = cms.EDFilter( "HLT1CaloJet",
     MinN = cms.int32( 2 ),
     MaxEta = cms.double( 3.0 ),
     MinMass = cms.double( -1.0 ),
-    inputTag = cms.InputTag( "hltAK4CaloJetsIDPassed" ),
+    inputTag = cms.InputTag( "hltAK4CaloJetsCorrectedIDPassed" ),
     MinE = cms.double( -1.0 ),
     triggerType = cms.int32( 86 )
 )
@@ -32086,7 +32086,7 @@ process.hltBDiJet110L1FastJetCentral = cms.EDFilter( "HLT1CaloJet",
     MinN = cms.int32( 2 ),
     MaxEta = cms.double( 3.0 ),
     MinMass = cms.double( -1.0 ),
-    inputTag = cms.InputTag( "hltAK4CaloJetsIDPassed" ),
+    inputTag = cms.InputTag( "hltAK4CaloJetsCorrectedIDPassed" ),
     MinE = cms.double( -1.0 ),
     triggerType = cms.int32( 86 )
 )
@@ -32162,7 +32162,7 @@ process.hltBJet300L1FastJetCentral = cms.EDFilter( "HLT1CaloJet",
     MinN = cms.int32( 1 ),
     MaxEta = cms.double( 3.0 ),
     MinMass = cms.double( -1.0 ),
-    inputTag = cms.InputTag( "hltAK4CaloJetsIDPassed" ),
+    inputTag = cms.InputTag( "hltAK4CaloJetsCorrectedIDPassed" ),
     MinE = cms.double( -1.0 ),
     triggerType = cms.int32( 86 )
 )
