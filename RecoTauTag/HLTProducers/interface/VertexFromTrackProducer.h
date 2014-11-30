@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -41,29 +41,29 @@
 // class declaration
 //
 
-class VertexFromTrackProducer : public edm::EDProducer {
+class VertexFromTrackProducer : public edm::global::EDProducer<> {
 public:
   explicit VertexFromTrackProducer(const edm::ParameterSet&);
   ~VertexFromTrackProducer();
   
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   // access to config
-  edm::ParameterSet config() const { return theConfig; }
-  edm::InputTag trackLabel;
-  edm::EDGetTokenT<edm::View<reco::Track> > trackToken;
-  edm::EDGetTokenT<edm::View<reco::RecoCandidate> > candidateToken;
-  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> triggerFilterElectronsSrc;
-  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> triggerFilterMuonsSrc;
-  edm::EDGetTokenT<edm::View<reco::Vertex> > vertexLabel;
-  edm::EDGetTokenT<reco::BeamSpot> beamSpotLabel;
+  const edm::ParameterSet config() const { return theConfig; }
+  // tokens
+  const edm::EDGetTokenT<edm::View<reco::Track> > trackToken;
+  const edm::EDGetTokenT<edm::View<reco::RecoCandidate> > candidateToken;
+  const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> triggerFilterElectronsSrc;
+  const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> triggerFilterMuonsSrc;
+  const edm::EDGetTokenT<edm::View<reco::Vertex> > vertexLabel;
+  const edm::EDGetTokenT<reco::BeamSpot> beamSpotLabel;
   
 private:
   // ----------member data ---------------------------
-  bool fIsRecoCandidate;
-  bool fUseBeamSpot;
-  bool fUseVertex;
-  bool fUseTriggerFilterElectrons, fUseTriggerFilterMuons;
-  edm::ParameterSet theConfig;
-  bool fVerbose;
+  const bool fIsRecoCandidate;
+  const bool fUseBeamSpot;
+  const bool fUseVertex;
+  const bool fUseTriggerFilterElectrons, fUseTriggerFilterMuons;
+  const edm::ParameterSet theConfig;
+  const bool fVerbose;
 };
