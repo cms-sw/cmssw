@@ -104,14 +104,19 @@ class HGCDigitizerBase {
    */
   void updateOutput(std::auto_ptr<DColl> &coll,D rawDataFrame)
   {
-    size_t itIdx(9);
+    int itIdx(rawDataFrame.size()-1);
+    if(itIdx<0) return;
 
-    //check if in-time sample is above threshold and put result into the event
+    //check if any of the samples is above threshold and save result
     if(doTimeSamples_)
       {
-	if(rawDataFrame[itIdx].adc() < adcThreshold_ ) return;
-	coll->push_back(rawDataFrame);
+	bool keep(false);
+	for(int it=0; it<rawDataFrame.size(); it++)	
+	  if(rawDataFrame[it].adc() >= adcThreshold_ ) 
+	    keep=true;
+	if(keep) coll->push_back(rawDataFrame);
       }
+    //check if in-time sample is above threshold and put result into the event
     else
       {
 	//create a new data frame containing only the in-time digi
