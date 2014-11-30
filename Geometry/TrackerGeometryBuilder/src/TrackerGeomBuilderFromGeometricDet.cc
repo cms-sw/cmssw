@@ -24,7 +24,7 @@ namespace {
     void verifyDUinTG(TrackerGeometry const & tg, bool upgradeGeometry) {
     int off=0; int end=0;
     for ( int i=1; i!=7; i++) {
-      auto det = GeomDetEnumerators::tkDetEnum[i]; 
+      auto det = GeomDetEnumerators::tkDetEnum[i];
       off = tg.offsetDU(det);
       end = tg.endsetDU(det);
 
@@ -65,10 +65,10 @@ TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const edm::Pa
   gd->deepComponents(comp);
 
   //define a vector which associate to the detid subdetector index -1 (from 0 to 5) the GeometridDet enumerator to be able to know which type of subdetector it is
-
+  
   std::vector<GeometricDet::GDEnumType> gdsubdetmap(6,GeometricDet::unknown); // hardcoded "6" should not be a surprise... 
   GeometricDet::ConstGeometricDetContainer subdetgd = gd->components();
-
+  
   LogDebug("SubDetectorGeometricDetType") << "GeometriDet enumerator values of the subdetectors";
   for(unsigned int i=0;i<subdetgd.size();++i) {
     assert(subdetgd[i]->geographicalId().subdetId()>0 && subdetgd[i]->geographicalId().subdetId()<7);
@@ -78,7 +78,7 @@ TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const edm::Pa
 					    << " detid " <<  subdetgd[i]->geographicalId()
 					    << " subdetid " <<  subdetgd[i]->geographicalId().subdetId();
   }
-
+  
   std::vector<const GeometricDet*> dets[6];
   std::vector<const GeometricDet*> & pixB = dets[0]; pixB.reserve(comp.size());
   std::vector<const GeometricDet*> & pixF = dets[1]; pixF.reserve(comp.size());
@@ -89,7 +89,7 @@ TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const edm::Pa
 
   for(u_int32_t i = 0;i<comp.size();i++)
     dets[comp[i]->geographicalID().subdetId()-1].push_back(comp[i]);
-
+  
   //loop on all the six elements of dets and firstly check if they are from pixel-like detector and call buildPixel, then loop again and check if they are strip and call buildSilicon. "unknown" can be filled either way but the vector of GeometricDet must be empty !!
   // this order is VERY IMPORTANT!!!!! For the moment I (AndreaV) understand that some pieces of code rely on pixel-like being before strip-like 
 
@@ -121,9 +121,9 @@ TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const edm::Pa
   //now building Strips
   for(unsigned int i=0;i<6;++i) {
     if(gdsubdetmap[i] == GeometricDet::TIB)   buildSilicon(dets[i],tracker,GeomDetEnumerators::SubDetector::TIB, "barrel");
-    if(gdsubdetmap[i] == GeometricDet::TID)   buildSilicon(dets[i],tracker,GeomDetEnumerators::SubDetector::TID, "barrel");
+    if(gdsubdetmap[i] == GeometricDet::TID)   buildSilicon(dets[i],tracker,GeomDetEnumerators::SubDetector::TID, "endcap");
     if(gdsubdetmap[i] == GeometricDet::TOB)   buildSilicon(dets[i],tracker,GeomDetEnumerators::SubDetector::TOB, "barrel");
-    if(gdsubdetmap[i] == GeometricDet::TEC)   buildSilicon(dets[i],tracker,GeomDetEnumerators::SubDetector::TEC, "barrel");
+    if(gdsubdetmap[i] == GeometricDet::TEC)   buildSilicon(dets[i],tracker,GeomDetEnumerators::SubDetector::TEC, "endcap");
   }  
   // and finally the "empty" subdetectors (maybe it is not needed)
   for(unsigned int i=0;i<6;++i) {
@@ -133,7 +133,6 @@ TrackerGeomBuilderFromGeometricDet::build( const GeometricDet* gd, const edm::Pa
     }
   }
   buildGeomDet(tracker);//"GeomDet"
-
 
   verifyDUinTG(*tracker, upgradeGeometry);
 
@@ -149,7 +148,9 @@ void TrackerGeomBuilderFromGeometricDet::buildPixel(std::vector<const GeometricD
 {
   LogDebug("BuildingGeomDetUnits") << " Pixel type. Size of vector: " << gdv.size() 
 				   << " GeomDetType subdetector: " << det 
-				   << " logical subdetector: " << GeomDetEnumerators::subDetGeom[det];
+				   << " logical subdetector: " << GeomDetEnumerators::subDetGeom[det]
+				   << " big pix per ROC x: " << BIG_PIX_PER_ROC_X << " y: " << BIG_PIX_PER_ROC_Y
+				   << " is upgrade: " << upgradeGeometry;
 
   tracker->setOffsetDU(GeomDetEnumerators::subDetGeom[det]);
 
@@ -189,7 +190,8 @@ void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const Geometri
 { 
   LogDebug("BuildingGeomDetUnits") << " Strip type. Size of vector: " << gdv.size() 
 				   << " GeomDetType subdetector: " << det 
-				   << " logical subdetector: " << GeomDetEnumerators::subDetGeom[det];
+				   << " logical subdetector: " << GeomDetEnumerators::subDetGeom[det]
+				   << " part " << part;
 
   tracker->setOffsetDU(GeomDetEnumerators::subDetGeom[det]);
 
