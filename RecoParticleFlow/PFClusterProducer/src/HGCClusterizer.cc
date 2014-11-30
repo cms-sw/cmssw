@@ -113,6 +113,23 @@ namespace {
     int _count;
     
   };
+
+  struct root_expo {
+    root_expo() : constant_(0.0), slope_(0.0), max_radius_(0.0) {}
+    root_expo(const double constant, 
+	      const double slope,
+	      const double max_radius): constant_(constant),
+					slope_(slope),
+					max_radius_(max_radius) {}
+    double  operator()(const int layer) { 
+      const double value = 0.1*std::min(std::exp(constant_ + slope_*layer),max_radius_);
+      // minimum radius is 1*sqrt(2+epsilon) to make sure first layer forms clusters
+      return std::max(1.0*std::sqrt(2.1), value); 
+    } 
+    double constant_;
+    double slope_;
+    double max_radius_;
+  };
 }
 
 //class def
@@ -151,6 +168,7 @@ private:
   std::unique_ptr<PosCalc> _logWeightPosCalc,_pcaPosCalc;
 
   std::array<float,3> _moliere_radii;
+  root_expo _em_profile;
 
   // for track assisted clustering
   const bool _useTrackAssistedClustering;
@@ -204,7 +222,7 @@ DEFINE_EDM_PLUGIN(InitialClusteringStepFactory,
 
 HGCClusterizer::HGCClusterizer(const edm::ParameterSet& conf,
 			       edm::ConsumesCollector& sumes) :
-  InitialClusteringStepBase(conf,sumes),
+  InitialClusteringStepBase(conf,sumes),  
   _useTrackAssistedClustering(conf.getParameter<bool>("useTrackAssistedClustering")) { 
   // clean initial state for searching
   _cluster_nodes.clear(); _found.clear(); _cluster_kdtree.clear();
@@ -233,6 +251,11 @@ HGCClusterizer::HGCClusterizer(const edm::ParameterSet& conf,
   _hgc_names[0] = geoconf.getParameter<std::string>("HGC_ECAL");
   _hgc_names[1] = geoconf.getParameter<std::string>("HGC_HCALF");
   _hgc_names[2] = geoconf.getParameter<std::string>("HGC_HCALB");
+  //
+  const edm::ParameterSet& profile_conf = conf.getParameterSet("emShowerParameterization");
+  _em_profile.constant_ = profile_conf.getParameter<double>("HGC_ECAL_constant");
+  _em_profile.slope_ = profile_conf.getParameter<double>("HGC_ECAL_slope");
+  _em_profile.max_radius_ = profile_conf.getParameter<double>("HGC_ECAL_max_radius");
 
   // track assisted clustering
   const edm::ParameterSet& tkConf = 
@@ -379,9 +402,10 @@ void HGCClusterizer::build2DCluster(const edm::Handle<reco::PFRecHitCollection>&
   
   double moliere_radius = -1.0;
   const math::XYZPoint pos = current_cell.position();
+  DetId cellid = current_cell.detId();
   switch( current_cell.layer() ) {
   case PFLayer::HGC_ECAL:
-    moliere_radius = _moliere_radii[0];
+    moliere_radius = _em_profile(HGCEEDetId(cellid).layer());
     break;
   case PFLayer::HGC_HCALF:
     moliere_radius = _moliere_radii[1];
@@ -392,7 +416,7 @@ void HGCClusterizer::build2DCluster(const edm::Handle<reco::PFRecHitCollection>&
   default:
     break;
   }
-
+  
   auto x_rh = minmax(pos.x()+moliere_radius,pos.x()-moliere_radius);
   auto y_rh = minmax(pos.y()+moliere_radius,pos.y()-moliere_radius);
   auto z_rh = minmax(pos.z()+1e-3,pos.z()-1e-3);
@@ -406,7 +430,8 @@ void HGCClusterizer::build2DCluster(const edm::Handle<reco::PFRecHitCollection>&
     const reco::PFRecHit& nbour = input[nbourpoint.data];
     if( usable[nbourpoint.data] && !seedable[nbourpoint.data] && 
 	nbour.energy() <= current_cell.energy() && // <= takes care of MIP sea
-	rechitMask[nbourpoint.data]) {
+	rechitMask[nbourpoint.data] &&
+	(nbour.position() - current_cell.position()).mag2() < moliere_radius*moliere_radius) {
       build2DCluster(handle,input,rechitMask,seedable,nbourpoint.data,usable,cluster);
     }
   }
@@ -428,9 +453,10 @@ linkClustersInLayer(const reco::PFClusterCollection& input_clusters,
   // now link all clusters with in moliere radius for EE + HEF
   for( unsigned i = 0; i < input_clusters.size(); ++i ) {
     float moliere_radius = -1.0;
-    switch( input_clusters[i].seed().subdetId() ) {
+    DetId seedid = input_clusters[i].seed();
+    switch( seedid.subdetId() ) {
     case HGCEE:
-      moliere_radius = _moliere_radii[0];
+      moliere_radius = _em_profile(HGCEEDetId(seedid).layer());
       break;
     case HGCHEF:
       moliere_radius = _moliere_radii[1];
@@ -454,7 +480,8 @@ linkClustersInLayer(const reco::PFClusterCollection& input_clusters,
       const auto& found_clus = input_clusters[found_node.data];
       const auto& found_pos  = found_clus.position();
       const auto& diff_pos = found_pos - pos;
-      if( diff_pos.rho() < moliere_radius && std::abs(diff_pos.Z()) > 1e-3 ) {
+      if( diff_pos.rho() < moliere_radius && 
+	  std::abs(diff_pos.Z()) > 1e-3 ) {
 	if( pos.mag2() > found_pos.mag2() ) {
 	  back_links.emplace(i,found_node.data);
 	} else {
