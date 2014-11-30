@@ -21,8 +21,8 @@ public:
   /**
      @short CTOR
   */
-  HGCDataFrame() : id_(0), maxSampleSize_(6)                      { data_.resize(maxSampleSize_); }
-  explicit HGCDataFrame(const D& id) : id_(id), maxSampleSize_(6) { data_.resize(maxSampleSize_); }
+  HGCDataFrame() : id_(0), maxSampleSize_(10)                      { data_.resize(maxSampleSize_); }
+  explicit HGCDataFrame(const D& id) : id_(id), maxSampleSize_(10) { data_.resize(maxSampleSize_); }
 
   /**
     @short det id

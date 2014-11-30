@@ -60,7 +60,7 @@ void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame)
 
   //bool doDebug(false);
   //for(int it=0; it<dataFrame.size(); it++) if (dataFrame[it].adc()>100) doDebug=true;
-
+  //cout << dataFrame.size() << endl;
   for(int it=0; it<dataFrame.size(); it++)
     {
       uint16_t gain=dataFrame[it].gain();
