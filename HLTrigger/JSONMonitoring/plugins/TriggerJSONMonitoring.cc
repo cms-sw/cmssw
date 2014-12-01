@@ -1,11 +1,11 @@
-/** \class TriggerJSONMonitoring                                                                                                                   
- *                                                                                                                                                 
- * See header file for documentation                                                                                                               
- *                                                                                                                                                 
- *                                                                                                                                                 
- *  \author Aram Avetisyan                                                                                                                         
- *  \author Daniel Salerno                                                                                                                         
- *                                                                                                                                                 
+/** \class TriggerJSONMonitoring
+ *  
+ * See header file for documentation
+ *
+ * 
+ *  \author Aram Avetisyan
+ *  \author Daniel Salerno 
+ * 
  */
 
 #include "HLTrigger/JSONMonitoring/interface/TriggerJSONMonitoring.h"
@@ -26,10 +26,11 @@ TriggerJSONMonitoring::TriggerJSONMonitoring(const edm::ParameterSet& ps)
 
   triggerResultsToken_ = consumes<edm::TriggerResults>(triggerResults_);
 
-  if (ps.exists("L1GtObjectMapTag")) m_l1GtObjectMapTag = ps.getParameter<edm::InputTag>("L1GtObjectMapTag"); //DS                                 
-  else                               m_l1GtObjectMapTag = edm::InputTag("hltL1GtObjectMap");  //DS                                                 
+  if (ps.exists("L1Results")) level1Results_ = ps.getParameter<edm::InputTag>("L1Results");  //DS 
+  else                        level1Results_ = edm::InputTag("hltGtDigis");                  //DS
 
-  m_l1GtObjectMapToken = consumes<L1GlobalTriggerObjectMapRecord>(m_l1GtObjectMapTag); //DS                                                        
+  m_l1t_results        = consumes<L1GlobalTriggerReadoutRecord>(level1Results_);             //DS
+                                                     
 }
 
 TriggerJSONMonitoring::~TriggerJSONMonitoring()
@@ -40,7 +41,7 @@ void
 TriggerJSONMonitoring::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("triggerResults",edm::InputTag("TriggerResults","","HLT"));
-  desc.add<edm::InputTag>("L1GtObjectMapTag",edm::InputTag("hltL1GtObjectMap"));              //DS                                                 
+  desc.add<edm::InputTag>("L1Results",edm::InputTag("hltGtDigis"));              //DS  
   descriptions.add("triggerJSONMonitoring", desc);
 }
 
@@ -54,88 +55,40 @@ TriggerJSONMonitoring::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   processed_++;
 
   int ex = iEvent.experimentType();
-  if (ex==1) L1Global_[0]++;       //need to change to make sure a trigger fired??                                                                 
-  else if (ex==2) L1Global_[1]++;
-  else if (ex==3) L1Global_[2]++;
+  if      (ex == 1) L1Global_[0]++; 
+  else if (ex == 2) L1Global_[1]++;
+  else if (ex == 3) L1Global_[2]++;
   else{
-    std::cout << "Not Physics, Calibration or Random. experimentType = " << ex << std::endl; //can delete                                          
     LogDebug("TriggerJSONMonitoring") << "Not Physics, Calibration or Random. experimentType = " << ex << std::endl;
+  }   
+
+  //Get hold of L1TResults 
+  edm::Handle<L1GlobalTriggerReadoutRecord> l1tResults;
+  iEvent.getByToken(m_l1t_results, l1tResults);
+
+  L1GlobalTriggerReadoutRecord L1TResults = * l1tResults.product();
+
+  const std::vector<bool> & algoword = L1TResults.decisionWord();  
+  if (algoword.size() == L1AlgoAccept_.size()){
+    for (unsigned int i = 0; i < algoword.size(); i++){
+      if (algoword[i]) L1AlgoAccept_[i]++;
+    }
   }
-  //got to here                                                                                                                                    
-
-  // get L1GlobalTriggerObjectMapRecord                                                                                                            
-  edm::Handle<L1GlobalTriggerObjectMapRecord> l1gtObjectMapRecord;  //DS                                                                           
-  iEvent.getByToken(m_l1GtObjectMapToken, l1gtObjectMapRecord);     //DS                                                                           
-
-  L1GlobalTriggerObjectMapRecord L1GTObjectMapRecord = *l1gtObjectMapRecord.product();
-
-  // get ObjectMaps from ObjectMapRecord - //DS                                                                                                    
-  const vector<L1GlobalTriggerObjectMap>& objMapVec = L1GTObjectMapRecord.gtObjectMap();
-  for (vector<L1GlobalTriggerObjectMap>::const_iterator itMap = objMapVec.begin(); itMap != objMapVec.end(); ++itMap) {
-
-    std::string algName = itMap->algoName();
-
-    bool algResult = false;
-    algResult = itMap->algoGtlResult();
-
-    int count = 0;
-    // add decision to counter for each L1 algorithm                                                                                               
-    for (unsigned int i=0; i<L1Names_.size(); i++) {
-      if (L1Names_[i] == algName){
-        count++;
-        if( algResult )  L1Accept_[i]++;
-      }
-    }
-    if (count == 0) {
-      LogDebug("TriggerJSONMonitoring") << "This algorithm not in list of L1Names " << algName << std::endl;
-      L1Names_.push_back( algName );
-      L1Accept_.push_back( algResult ? 1: 0 );
-    }
-    if (count > 1) LogDebug("TriggerJSONMonitoring" ) << "Algorithm repeated " << count << " times" << std::endl;
-
-    /*count = 0;
-    // add decision to counter for each L1 technical trigger - NOT SURE IF algoName() includes technical triggers!!!                               
-    for (unsigned int i=0; i<L1TechNames_.size(); i++) {
-      if (L1TechNames_[i] == algName){
-        count++;
-	if( algResult )  L1TechAccept_[i]++;
-      }
-    }
-    if (count == 0) {
-      std::cout << "This algorithm not in list of L1TechNames " << algName << std::endl; //can delete                                              
-      LogDebug("TriggerJSONMonitoring") << "This algorithm not in list of L1TechNames " << algName << std::endl;
-      L1TechNames_.push_back( algName );
-      L1TechAccept_.push_back( algResult ? 1: 0 );
-    }
-    if (count > 1) LogDebug("TriggerJSONMonitoring" ) << "Algoithm repeated " << count << " times" << std::endl;
-    if (count > 1) std::cout << "Algoithm repeated " << count << " times" << std::endl;  //can delete                     */
+  else {
+    LogWarning("TriggerJSONMonitoring")<<"L1 Algo Trigger Mask size does not match number of L1 Algo Triggers!";
   }
 
-  //Retrieve L1GtUtils                                                                                                        
-  L1GtUtils l1GtUtils;
-  l1GtUtils.retrieveL1EventSetup(iSetup);
-
-  //Get technical trigger info from l1GtUtils                                                                                 
-  for (CItAlgo algo = technicalMap.begin(); algo != technicalMap.end(); ++algo) {
-
-    std::string techName = (algo->second).algoName();
-
-    int iErrorCode = 0;
-    bool techResult = false;
-    techResult = l1GtUtils.decisionAfterMask(iEvent, techName, iErrorCode);
-
-    int count = 0;
-    for (unsigned int i=0; i<L1TechNames_.size(); i++) {
-      if (L1TechNames_[i] == techName){
-        count++;
-        if( techResult )  L1TechAccept_[i]++;
-      }
+  const std::vector<bool> & techword = L1TResults.technicalTriggerWord();
+  if (techword.size() == L1TechAccept_.size()){
+    for (unsigned int i = 0; i < techword.size(); i++){
+      if (techword[i]) L1TechAccept_[i]++;
     }
-    if (count == 0) std::cout << "This algorithm not in list of L1TechNames " << techName << std::endl; //can delete           
-    if (count > 1)  std::cout << "Algoithm repeated " << count << " times" << std::endl;  //can delete                         
   }
-
-  //Get hold of TriggerResults                                                                                                                     
+  else{
+    LogWarning("TriggerJSONMonitoring")<<"L1 Tech Trigger Mask size does not match number of L1 Tech Triggers!";
+  }
+  
+  //Get hold of TriggerResults  
   Handle<TriggerResults> HLTR;
   iEvent.getByToken(triggerResultsToken_, HLTR);
   if (!HLTR.isValid()) {
@@ -143,14 +96,14 @@ TriggerJSONMonitoring::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     return;
   }
 
-  //Decision for each HLT path                                                                                                                     
+  //Decision for each HLT path   
   const unsigned int n(hltNames_.size());
   for (unsigned int i=0; i<n; i++) {
     if (HLTR->wasrun(i))                     hltWasRun_[i]++;
     if (HLTR->accept(i))                     hltAccept_[i]++;
     if (HLTR->wasrun(i) && !HLTR->accept(i)) hltReject_[i]++;
     if (HLTR->error(i))                      hltErrors_[i]++;
-    //Count L1 seeds and Prescales                                                                                                                
+    //Count L1 seeds and Prescales   
     const int index(static_cast<int>(HLTR->index(i)));
     if (HLTR->accept(i)) {
       if (index >= posL1s_[i]) hltL1s_[i]++;
@@ -161,42 +114,51 @@ TriggerJSONMonitoring::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
   }
 
-  //Decision for each HLT dataset                                                                                                                  
+  //Decision for each HLT dataset     
   std::vector<bool> acceptedByDS(hltIndex_.size(), false);
-  for (unsigned int ds=0; ds < hltIndex_.size(); ds++) {  // ds = index of dataset                                                                
-    for (unsigned int p=0; p<hltIndex_[ds].size(); p++) {   // p = index of path with dataset ds                                                  
+  for (unsigned int ds=0; ds < hltIndex_.size(); ds++) {  // ds = index of dataset       
+    for (unsigned int p=0; p<hltIndex_[ds].size(); p++) {   // p = index of path with dataset ds       
       if (acceptedByDS[ds]>0 || HLTR->accept(hltIndex_[ds][p]) ) {
 	acceptedByDS[ds] = true;
       }
     }
     if (acceptedByDS[ds]) hltDatasets_[ds]++;
   }
-}//End analyze function                                                                                                                            
+}//End analyze function     
 
 void
 TriggerJSONMonitoring::resetRun(bool changed){
 
-  //Update trigger and dataset names, clear L1 names and counters                                                                                  
+  //Update trigger and dataset names, clear L1 names and counters   
   if (changed){
     hltNames_        = hltConfig_.triggerNames();
     datasetNames_    = hltConfig_.datasetNames();
     datasetContents_ = hltConfig_.datasetContents();
 
-    L1Names_.clear();   //DS                                                                                                                       
-    L1Accept_.clear();  //DS                                                                                                                       
-    //Get L1 algorithm trigger names - //DS                                                                                                        
+    L1AlgoNames_.resize(m_l1tAlgoMask->gtTriggerMask().size());         
+    for (unsigned int i = 0; i < L1AlgoNames_.size(); i++) {
+      L1AlgoNames_.at(i) = "";
+    }
+    //Get L1 algorithm trigger names - //DS     
     for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
-      L1Names_.push_back( itAlgo->first );
+      int bitNumber = (itAlgo->second).algoBitNumber();
+      L1AlgoNames_.at(bitNumber) = itAlgo->first;
     }
-    L1TechNames_.clear();  //DS                                                                                                                    
-    L1TechAccept_.clear(); //DS                                                                                                                    
-    //Get L1 technical trigger names - //DS                                                                                                        
+
+    L1TechNames_.resize(m_l1tTechMask->gtTriggerMask().size());    
+    for (unsigned int i = 0; i < L1TechNames_.size(); i++) {
+      L1TechNames_.at(i) = "";
+    }
+    //Get L1 technical trigger names - //DS          
     for (CItAlgo itAlgo = technicalMap.begin(); itAlgo != technicalMap.end(); itAlgo++) {
-      L1TechNames_.push_back( itAlgo->first );
+      int bitNumber = (itAlgo->second).algoBitNumber();
+      L1TechNames_.at(bitNumber) = itAlgo->first;
     }
-    L1GlobalType_.clear();  //DS                                                                                                                   
-    L1Global_.clear(); //DS                                                                                                                        
-    //Set the experimentType - //DS                                                                                                                
+
+    L1GlobalType_.clear();  //DS 
+    L1Global_.clear();     //DS
+    
+    //Set the experimentType - //DS         
     L1GlobalType_.push_back( "Physics" );
     L1GlobalType_.push_back( "Calibration" );
     L1GlobalType_.push_back( "Random" );
@@ -204,26 +166,26 @@ TriggerJSONMonitoring::resetRun(bool changed){
 
   const unsigned int n  = hltNames_.size();
   const unsigned int d  = datasetNames_.size();
-  const unsigned int ln = L1Names_.size();      //DS                                                                                               
-  const unsigned int lt = L1TechNames_.size();  //DS                                                                                               
-  const unsigned int lg = L1GlobalType_.size(); //DS                                                                                               
+  const unsigned int la = L1AlgoNames_.size();      //DS 
+  const unsigned int lt = L1TechNames_.size();  //DS   
+  const unsigned int lg = L1GlobalType_.size(); //DS     
 
   if (changed) {
-    //Resize per-path counters                                                                                                                    
+    //Resize per-path counters   
     hltWasRun_.resize(n);
     hltL1s_.resize(n);
     hltPre_.resize(n);
     hltAccept_.resize(n);
     hltReject_.resize(n);
     hltErrors_.resize(n);
-    L1Accept_.resize(ln);           //DS                                                                                                          
-    L1TechAccept_.resize(lt);       //DS                                                                                                          
-    L1Global_.resize(lg);           //DS                                                                                                          
-    //Resize per-dataset counter                                                                                                                  
+    L1AlgoAccept_.resize(la);         
+    L1TechAccept_.resize(lt);          
+    L1Global_.resize(lg);           //DS      
+    //Resize per-dataset counter    
     hltDatasets_.resize(d);
-    //Resize htlIndex                                                                                                                             
+    //Resize htlIndex     
     hltIndex_.resize(d);
-    //Set-up hltIndex                                                                                                                             
+    //Set-up hltIndex          
     for (unsigned int ds = 0; ds < d; ds++) {
       unsigned int size = datasetContents_[ds].size();
       hltIndex_[ds].reserve(size);
@@ -234,7 +196,7 @@ TriggerJSONMonitoring::resetRun(bool changed){
 	}
       }
     }
-    //Find the positions of seeding and prescaler modules                                                                                         
+    //Find the positions of seeding and prescaler modules     
     posL1s_.resize(n);
     posPre_.resize(n);
     for (unsigned int i = 0; i < n; ++i) {
@@ -251,58 +213,67 @@ TriggerJSONMonitoring::resetRun(bool changed){
     }
   }
   resetLumi();
-}//End resetRun function                                                                                                                           
+}//End resetRun function                  
 
 void
 TriggerJSONMonitoring::resetLumi(){
-  //Reset total number of events                                                                                                                   
+  //Reset total number of events     
   processed_ = 0;
 
-  //Reset per-path counters                                                                                                                        
+  //Reset per-path counters 
   for (unsigned int i = 0; i < hltWasRun_.size(); i++) {
     hltWasRun_[i] = 0;
-    hltL1s_[i]   = 0;
-    hltPre_[i]   = 0;
+    hltL1s_[i]    = 0;
+    hltPre_[i]    = 0;
     hltAccept_[i] = 0;
     hltReject_[i] = 0;
     hltErrors_[i] = 0;
   }
-  //Reset per-dataset counter                                                                                                                      
+  //Reset per-dataset counter         
   for (unsigned int i = 0; i < hltDatasets_.size(); i++) {
     hltDatasets_[i] = 0;
   }
-  //Reset L1 per-algo counters - //DS                                                                                                              
-  for (unsigned int i = 0; i < L1Names_.size(); i++) {
-    L1Accept_[i] = 0;
+  //Reset L1 per-algo counters - //DS    
+  for (unsigned int i = 0; i < L1AlgoAccept_.size(); i++) {
+    L1AlgoAccept_[i] = 0;
   }
-  //Reset L1 per-tech counters - //DS                                                                                                              
-  for (unsigned int i = 0; i < L1TechNames_.size(); i++) {
+  //Reset L1 per-tech counters - //DS   
+  for (unsigned int i = 0; i < L1TechAccept_.size(); i++) {
     L1TechAccept_[i] = 0;
   }
-  //Reset L1 global counters - //DS                                                                                                                
+  //Reset L1 global counters - //DS     
   for (unsigned int i = 0; i < L1GlobalType_.size(); i++) {
     L1Global_[i] = 0;
   }
 
-}//End resetLumi function                                                                                                                          
+}//End resetLumi function  
 
 void
 TriggerJSONMonitoring::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 {
-  //Get the run directory from the EvFDaqDirector                                                                                                  
+  //Get the run directory from the EvFDaqDirector                
   if (edm::Service<evf::EvFDaqDirector>().isAvailable()) baseRunDir_ = edm::Service<evf::EvFDaqDirector>()->baseRunDir();
   else                                                   baseRunDir_ = ".";
 
   std::string monPath = baseRunDir_ + "/";
 
-  //Get/update the L1 trigger menu from the EventSetup                                                                                             
-  edm::ESHandle<L1GtTriggerMenu> l1GtMenu;           //DS                                                                                          
-  iSetup.get<L1GtTriggerMenuRcd>().get(l1GtMenu);    //DS                                                                                          
-  m_l1GtMenu = l1GtMenu.product();                   //DS                                                                                          
-  algorithmMap = m_l1GtMenu->gtAlgorithmMap();       //DS                                                                                          
-  technicalMap = m_l1GtMenu->gtTechnicalTriggerMap();//DS                                                                                          
+  //Get/update the L1 trigger menu from the EventSetup
+  edm::ESHandle<L1GtTriggerMenu> l1GtMenu;           //DS
+  iSetup.get<L1GtTriggerMenuRcd>().get(l1GtMenu);    //DS
+  m_l1GtMenu = l1GtMenu.product();                   //DS
+  algorithmMap = m_l1GtMenu->gtAlgorithmMap();       //DS
+  technicalMap = m_l1GtMenu->gtTechnicalTriggerMap();//DS
 
-  //Initialize hltConfig_                                                                                                                          
+  //Get masks (for now, only use them to find the number of triggers)
+  edm::ESHandle<L1GtTriggerMask> l1GtAlgoMask;           
+  iSetup.get<L1GtTriggerMaskAlgoTrigRcd>().get(l1GtAlgoMask);    
+  m_l1tAlgoMask = l1GtAlgoMask.product();                   
+
+  edm::ESHandle<L1GtTriggerMask> l1GtTechMask;           
+  iSetup.get<L1GtTriggerMaskTechTrigRcd>().get(l1GtTechMask);    
+  m_l1tTechMask = l1GtTechMask.product();                   
+
+  //Initialize hltConfig_     
   bool changed = true;
   if (hltConfig_.init(iRun, iSetup, triggerResults_.process(), changed)) resetRun(changed);
   else{
@@ -311,12 +282,14 @@ TriggerJSONMonitoring::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
   }
 
   //Write the once-per-run files if not already written
-  if (not runCache()->wroteFiles){
+  //Eventually must rewrite this with proper multithreading (i.e. globalBeginRun)
+  bool expected = false;
+  if( runCache()->wroteFiles.compare_exchange_strong(expected, true) ){
     runCache()->wroteFiles = true;
 
     unsigned int nRun = iRun.run();
     
-    //Create definition file for HLT Rates                                                                                                               
+    //Create definition file for HLT Rates                 
     std::stringstream ssHltJsd;
     ssHltJsd << "run" << nRun << "_ls0000";
     ssHltJsd << "_streamHLTRates_pid" << std::setfill('0') << std::setw(5) << getpid() << ".jsd";
@@ -324,7 +297,7 @@ TriggerJSONMonitoring::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
 
     writeDefJson(baseRunDir_ + "/" + stHltJsd_);
     
-    //Create definition file for L1 Rates - //DS                                                                                                     
+    //Create definition file for L1 Rates - //DS 
     std::stringstream ssL1Jsd;
     ssL1Jsd << "run" << nRun << "_ls0000";
     ssL1Jsd << "_streamL1Rates_pid" << std::setfill('0') << std::setw(5) << getpid() << ".jsd";
@@ -363,8 +336,8 @@ TriggerJSONMonitoring::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
     Json::Value l1Ini;
 
     Json::Value l1AlgoNamesVal(Json::arrayValue);
-    for (unsigned int ui = 0; ui < L1Names_.size(); ui++){
-      l1AlgoNamesVal.append(L1Names_.at(ui));
+    for (unsigned int ui = 0; ui < L1AlgoNames_.size(); ui++){
+      l1AlgoNamesVal.append(L1AlgoNames_.at(ui));
     }
 
     Json::Value l1TechNamesVal(Json::arrayValue);
@@ -391,7 +364,7 @@ TriggerJSONMonitoring::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
     outL1Ini.close();
   }
 
-}//End beginRun function                                                                                                                           
+}//End beginRun function        
 
 void TriggerJSONMonitoring::beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup& iSetup){ resetLumi(); }
 
@@ -413,17 +386,17 @@ TriggerJSONMonitoring::globalBeginLuminosityBlockSummary(const edm::LuminosityBl
 
   iSummary->hltDatasets = new HistoJ<unsigned int>(1, MAXPATHS);
 
-  iSummary->L1Accept     = new HistoJ<unsigned int>(1, MAXPATHS); //DS                                                                                                                    
-  iSummary->L1TechAccept = new HistoJ<unsigned int>(1, MAXPATHS); //DS                                                                                                                    
-  iSummary->L1Global     = new HistoJ<unsigned int>(1, MAXPATHS); //DS                                                                                                                    
+  iSummary->L1Accept     = new HistoJ<unsigned int>(1, MAXPATHS); //DS                           
+  iSummary->L1TechAccept = new HistoJ<unsigned int>(1, MAXPATHS); //DS 
+  iSummary->L1Global     = new HistoJ<unsigned int>(1, MAXPATHS); //DS 
 
   return iSummary;
-}//End globalBeginLuminosityBlockSummary function                                                                                                                          
+}//End globalBeginLuminosityBlockSummary function  
 
 void
 TriggerJSONMonitoring::endLuminosityBlockSummary(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iEventSetup, hltJson::lumiVars* iSummary) const{
 
-  //Whichever stream gets there first does the initialiazation                                                                                                             
+  //Whichever stream gets there first does the initialiazation 
   if (iSummary->hltWasRun->value().size() == 0){
     iSummary->processed->update(processed_);
 
@@ -441,16 +414,16 @@ TriggerJSONMonitoring::endLuminosityBlockSummary(const edm::LuminosityBlock& iLu
     iSummary->stHltJsd   = stHltJsd_;
     iSummary->baseRunDir = baseRunDir_;
     
-    for (unsigned int ui = 0; ui < L1Accept_.size(); ui++){  //DS                                                                                          
-      iSummary->L1Accept->update(L1Accept_.at(ui));
+    for (unsigned int ui = 0; ui < L1AlgoAccept_.size(); ui++){  //DS  
+      iSummary->L1Accept->update(L1AlgoAccept_.at(ui));
     }
-    for (unsigned int ui = 0; ui < L1TechAccept_.size(); ui++){  //DS       
+    for (unsigned int ui = 0; ui < L1TechAccept_.size(); ui++){  //DS 
       iSummary->L1TechAccept->update(L1TechAccept_.at(ui));
     }
-    for (unsigned int ui = 0; ui < L1GlobalType_.size(); ui++){  //DS                    
+    for (unsigned int ui = 0; ui < L1GlobalType_.size(); ui++){  //DS  
       iSummary->L1Global    ->update(L1Global_.at(ui));
     }
-    iSummary->stL1Jsd = stL1Jsd_;    //DS                                                                                                            
+    iSummary->stL1Jsd = stL1Jsd_;    //DS  
   }
 
   else{
@@ -467,8 +440,8 @@ TriggerJSONMonitoring::endLuminosityBlockSummary(const edm::LuminosityBlock& iLu
     for (unsigned int ui = 0; ui < hltDatasets_.size(); ui++){
       iSummary->hltDatasets->value().at(ui) += hltDatasets_.at(ui);
     }
-    for (unsigned int ui = 0; ui < L1Accept_.size(); ui++){  //DS                           
-      iSummary->L1Accept->value().at(ui) += L1Accept_.at(ui);
+    for (unsigned int ui = 0; ui < L1AlgoAccept_.size(); ui++){  //DS                           
+      iSummary->L1Accept->value().at(ui) += L1AlgoAccept_.at(ui);
     }
     for (unsigned int ui = 0; ui < L1TechAccept_.size(); ui++){  //DS                              
       iSummary->L1TechAccept->value().at(ui) += L1TechAccept_.at(ui);
@@ -534,8 +507,8 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
 
     l1JsnData[DataPoint::DATA].append(iSummary->processed->toJsonValue());
     l1JsnData[DataPoint::DATA].append(iSummary->L1Accept ->toJsonValue());
-    l1JsnData[DataPoint::DATA].append(iSummary->L1TechAccept ->toJsonValue()); //DS                                                                                               
-    l1JsnData[DataPoint::DATA].append(iSummary->L1Global ->toJsonValue());     //DS                                                                                               
+    l1JsnData[DataPoint::DATA].append(iSummary->L1TechAccept ->toJsonValue()); //DS       
+    l1JsnData[DataPoint::DATA].append(iSummary->L1Global ->toJsonValue());     //DS 
     result = writer.write(l1JsnData);
 
     std::stringstream ssL1JsnData;
@@ -627,7 +600,7 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
     outL1DaqJsn.close();
   }
 
-  //Delete the individual HistoJ pointers                                                                                                                                  
+  //Delete the individual HistoJ pointers   
   delete iSummary->processed;
 
   delete iSummary->hltWasRun;
@@ -639,14 +612,14 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
 
   delete iSummary->hltDatasets;
 
-  delete iSummary->L1Accept;     //DS                                                                                                                                      
-  delete iSummary->L1TechAccept; //DS                                                                                                                                      
-  delete iSummary->L1Global;     //DS                                                                                                                                                     
+  delete iSummary->L1Accept;     //DS    
+  delete iSummary->L1TechAccept; //DS             
+  delete iSummary->L1Global;     //DS                  
 
-  //Note: Do not delete the iSummary pointer. The framework does something with it later on                                                                                
-  //      and deleting it results in a segmentation fault.                                                                                                                 
+  //Note: Do not delete the iSummary pointer. The framework does something with it later on    
+  //      and deleting it results in a segmentation fault.  
 
-}//End globalEndLuminosityBlockSummary function                                                                                                                            
+}//End globalEndLuminosityBlockSummary function     
 
 
 void
@@ -656,7 +629,7 @@ TriggerJSONMonitoring::writeDefJson(std::string path){
   outfile << "{" << std::endl;
   outfile << "   \"data\" : [" << std::endl;
   outfile << "      {" ;
-  outfile << " \"name\" : \"Processed\"," ;  //***                                                                                                                        
+  outfile << " \"name\" : \"Processed\"," ;  //***  
   outfile << " \"type\" : \"integer\"," ;
   outfile << " \"operation\" : \"histo\"}," << std::endl;
 
@@ -699,11 +672,11 @@ TriggerJSONMonitoring::writeDefJson(std::string path){
   outfile << "}" << std::endl;
 
   outfile.close();
-}//End writeDefJson function                                                                                                                                               
+}//End writeDefJson function                    
 
 
 void
-TriggerJSONMonitoring::writeL1DefJson(std::string path){  //DS                                                                                                             
+TriggerJSONMonitoring::writeL1DefJson(std::string path){  //DS            
 
   std::ofstream outfile( path );
   outfile << "{" << std::endl;
@@ -732,5 +705,5 @@ TriggerJSONMonitoring::writeL1DefJson(std::string path){  //DS
   outfile << "}" << std::endl;
 
   outfile.close();
-}//End writeL1DefJson function                                                                                                                                             
+}//End writeL1DefJson function            
 
