@@ -17,7 +17,9 @@ import textwrap
 import sqlalchemy
 
 import CondCore.Utilities.conddblib as conddb
+import CondCore.Utilities.cond2xml as cond2xml
 
+# -------------------------------------------------------------------------------------------------------
 
 # TODO: Diffs may look better in the -/+ mode, instead the 2 columns mode.
 # TODO: Colored diff! (green +, red -)
@@ -44,8 +46,8 @@ def _get_payload_full_hash(session, payload, check=True):
 
     return payloads[0].hash if len(payloads) == 1 else None
 
-
 def _dump_payload(session, payload, loadonly):
+
     data = session.query(conddb.Payload.data).\
         filter(conddb.Payload.hash == payload).\
         one()[0]
@@ -1222,21 +1224,35 @@ def dump(args):
 
     args.type, name = _identify_object(session, args.type, args.name)
 
+    xmlProcessor = None
+    if args.format == 'xml':
+       xmlProcessor = cond2xml.CondXmlProcessor(conddb)
+
     if args.type == 'payload':
-        _dump_payload(session, name, args.loadonly)
+       if args.format == 'xml':
+          xmlProcessor.payload2xml(session, name)
+       else:
+       	  _dump_payload(session, name, args.loadonly)
 
     elif args.type == 'tag':
         for payload, in session.query(conddb.IOV.payload_hash).\
             filter(conddb.IOV.tag_name == name).\
             distinct():
-            _dump_payload(session, payload, args.loadonly)
+		if args.format == 'xml':
+          	   xmlProcessor.payload2xml(session, payload)
+       		else:
+            	   _dump_payload(session, payload, args.loadonly)
 
     elif args.type == 'gt':
         for payload, in session.query(conddb.IOV.payload_hash).\
             filter(conddb.GlobalTagMap.global_tag_name == name, conddb.IOV.tag_name == conddb.GlobalTagMap.tag_name).\
             distinct():
-            _dump_payload(session, payload, args.loadonly)
+		if args.format == 'xml':
+          	   xmlProcessor.payload2xml(session, payload)
+       		else:
+	   	   _dump_payload(session, payload, args.loadonly)
 
+    if xmlProcessor: del xmlProcessor
 
 def main():
     '''Entry point.
@@ -1321,6 +1337,7 @@ def main():
     parser_dump.add_argument('name', help="Name of the object. This can be a payload's SHA1 hexadecimal hash (or a prefix if unique), a tag's name (all payloads referenced in the tag will be dumped) or a global tag's name (all payloads referenced in the global tag will be dumped).")
     parser_dump.add_argument('--loadonly', action='store_true', help='Load only: Do not dump, only load the (deserialize) payload in memory -- useful for testing the load of an entire global tag with the current CMSSW release.')
     parser_dump.add_argument('--type', default=None, choices=['payload', 'tag', 'gt'], help='Type of the object. Use it if there is ambiguity (should be really rare).')
+    parser_dump.add_argument('--format', default="xml", choices=['xml', 'raw'], help='Output format. Choice between XML and raw hexdump.')
     parser_dump.set_defaults(func=dump)
 
     args = parser.parse_args()
