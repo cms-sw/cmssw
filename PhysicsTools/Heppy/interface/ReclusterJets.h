@@ -1,5 +1,5 @@
-#ifndef ReclusterJets_h
-#define ReclusterJets_h
+#ifndef PhysicsTools_Heppy_ReclusterJets_h
+#define PhysicsTools_Heppy_ReclusterJets_h
 
 #include <vector>
 #include <iostream>
