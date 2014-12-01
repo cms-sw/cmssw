@@ -33,7 +33,6 @@ void L2TauJetsMerger::produce(edm::StreamID iSId, edm::Event& iEvent, const edm:
  //Getting the Collections of L2ReconstructedJets from L1Seeds
  //and removing the collinear jets
  CaloJetCollection myTmpJets;
- myTmpJets.clear();
 
  int iL1Jet = 0;
  for( vtoken_cjets::const_iterator s = jetSrc_token.begin(); s != jetSrc_token.end(); ++ s ) {
