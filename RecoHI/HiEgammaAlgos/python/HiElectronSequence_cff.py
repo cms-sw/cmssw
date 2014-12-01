@@ -22,6 +22,7 @@ pfElectronTranslator.emptyIsOk = cms.bool(True)
 
 ecalDrivenGsfElectrons.ctfTracksTag = cms.InputTag("hiGeneralTracks")
 ecalDrivenGsfElectronCores.ctfTracks = cms.InputTag("hiGeneralTracks")
+ecalDrivenGsfElectrons.vtxTag = cms.InputTag("hiSelectedVertex")
 
 ecalDrivenGsfElectrons.maxHOverEBarrel = cms.double(0.25)
 ecalDrivenGsfElectrons.maxHOverEEndcaps = cms.double(0.25)
