@@ -58,6 +58,7 @@ class JetAnalyzer( Analyzer ):
 
         ## Read jets, if necessary recalibrate and shift MET
         allJets = map(Jet, self.handles['jets'].product()) 
+
         event.deltaMetFromJEC = [0.,0.]
         if self.doJEC:
             #print "\nCalibrating jets %s for lumi %d, event %d" % (self.cfg_ana.jetCol, event.lumi, event.eventId)

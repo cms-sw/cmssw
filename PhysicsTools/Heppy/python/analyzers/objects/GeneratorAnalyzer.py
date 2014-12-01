@@ -34,7 +34,7 @@ class GeneratorAnalyzer( Analyzer ):
           event.gentauleps = [ gen electrons and muons from hard scattering not from tau decays ]
           event.gentaus    = [ gen taus from from hard scattering ]
           event.genleps    = [ gen electrons and muons from hard scattering not from tau decays ]
-          event.genbquarks  = [ gen b quarks from top quark decays ]
+          event.genbquarksFromTop  = [ gen b quarks from top quark decays ]
           event.genwzquarks = [ gen quarks from hadronic W,Z decays ]
 
        If filterHiggsDecays is set to a list of Higgs decay modes,
@@ -97,8 +97,17 @@ class GeneratorAnalyzer( Analyzer ):
             elif id in [22,23,24]:
                 self.fillWZQuarks(event, dau, True, sourceId)
 
+    def fillHiggsBQuarks(self, event,h):
+        """Get the b quarks from top decays into event.genbquarksFromTop"""
+        for i in xrange( h.numberOfDaughters() ):
+            dau = GenParticle(h.daughter(i))
+            if abs(dau.pdgId()) == 5:
+                    event.genbquarksFromH.append( dau )
+
+
+
     def fillTopQuarks(self, event):
-        """Get the b quarks from top decays into event.genbquarks"""
+        """Get the b quarks from top decays into event.genbquarksFromTop"""
 
         event.gentopquarks = [ p for p in event.genParticles if abs(p.pdgId()) == 6 and p.numberOfDaughters() > 0 and abs(p.daughter(0).pdgId()) != 6 ]
         #if len(event.gentopquarks) != 2:
@@ -109,13 +118,14 @@ class GeneratorAnalyzer( Analyzer ):
                 dau = GenParticle(tq.daughter(i))
                 if abs(dau.pdgId()) == 5:
                     dau.sourceId = 6
-                    event.genbquarks.append( dau )
+                    event.genbquarksFromTop.append( dau )
                 elif abs(dau.pdgId()) == 24:
                     self.fillGenLeptons( event, dau, sourceId=6 )
                     self.fillWZQuarks(   event, dau, True, sourceId=6 )
 
     def makeMCInfo(self, event):
-        event.genParticles = map( GenParticle, self.mchandles['genParticles'].product() )
+#       event.genParticles = map( GenParticle, self.mchandles['genParticles'].product() )
+        event.genParticles = list(self.mchandles['genParticles'].product() )
 
         if False:
             for i,p in enumerate(event.genParticles):
@@ -135,9 +145,12 @@ class GeneratorAnalyzer( Analyzer ):
         event.genleps    = []
         event.gentauleps = []
         event.gentaus    = []
-        event.genbquarks  = []
+        event.genbquarksFromTop  = []
+        event.genbquarksFromH  = []
+        event.genallbquarks = []
         event.genwzquarks = []
         event.gentopquarks  = []
+        event.genallcquarks = [ p for p in event.genParticles if abs(p.pdgId()) == 4 and ( p.numberOfDaughters() == 0 or abs(p.daughter(0).pdgId()) != 4) ]
 
         higgsBosons = [ p for p in event.genParticles if (p.pdgId() == 25) and p.numberOfDaughters() > 0 and abs(p.daughter(0).pdgId()) != 25 ]
 
@@ -178,13 +191,14 @@ class GeneratorAnalyzer( Analyzer ):
             self.fillTopQuarks( event )
             self.countBPartons( event )
             self.fillWZQuarks(   event, event.genHiggsBoson )
+            self.fillHiggsBQuarks(   event, event.genHiggsBoson )
             self.fillGenLeptons( event, event.genHiggsBoson, sourceId=25 )
             if self.cfg_ana.verbose:
                 print "Higgs boson decay mode: ", event.genHiggsDecayMode
                 print "Generator level prompt light leptons:\n", "\n".join(["\t%s" % p for p in event.genleps])
                 print "Generator level light leptons from taus:\n", "\n".join(["\t%s" % p for p in event.gentauleps])
                 print "Generator level prompt tau leptons:\n", "\n".join(["\t%s" % p for p in event.gentaus])
-                print "Generator level b quarks from top:\n", "\n".join(["\t%s" % p for p in event.genbquarks])
+                print "Generator level b quarks from top:\n", "\n".join(["\t%s" % p for p in event.genbquarksFromTop])
                 print "Generator level quarks from W, Z decays:\n", "\n".join(["\t%s" % p for p in event.genwzquarks])
         # make sure prompt leptons have a non-zero sourceId
         for p in event.genParticles:
@@ -221,8 +235,8 @@ class GeneratorAnalyzer( Analyzer ):
             event.pdfWeights[pdf] = [w for w in ws]
             #print "Produced %d weights for %s: %s" % (len(ws),pdf,event.pdfWeights[pdf])
 
-    def process(self, iEvent, event):
-        self.readCollections( iEvent )
+    def process(self, event):
+        self.readCollections( event.input )
 
         ## creating a "sub-event" for this analyzer
         #myEvent = Event(event.iEv)
