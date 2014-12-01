@@ -38,7 +38,7 @@ workflows[4.19] = ['', ['RunElectron2011A','RECOD','HARVESTD','MINIAODDATAs2']]
 workflows[4.20] = ['', ['RunPhoton2011A','RECOD','HARVESTD','MINIAODDATAs2']]
 workflows[4.21] = ['', ['RunJet2011A','RECOD','HARVESTD','MINIAODDATAs2']]
 
-workflows[4.22] = ['', ['RunCosmics2011A','RECOCOSD','ALCACOSD','SKIMCOSD','HARVESTDC','MINIAODDATAs2']]
+workflows[4.22] = ['', ['RunCosmics2011A','RECOCOSD','ALCACOSD','SKIMCOSD','HARVESTDC']]
 workflows[4.23] = ['',['ValSkim2011A','HLTDSKIM','RECODreHLT','HARVESTDreHLT','MINIAODDreHLT']]
 workflows[4.24] = ['',['WMuSkim2011A','HLTDSKIM','RECODreHLT','HARVESTDreHLT','MINIAODDreHLT']]
 workflows[4.25] = ['',['WElSkim2011A','HLTDSKIM','RECODreHLT','HARVESTDreHLT','MINIAODDreHLT']]
@@ -95,9 +95,9 @@ workflows[4.76] = ['',['ZMuSkim2012D','HLTDSKIM','RECODreHLT','HARVESTDreHLT','M
 workflows[4.77] = ['',['ZElSkim2012D','HLTDSKIM','RECODreHLT','HARVESTDreHLT','MINIAODDreHLT']]
 workflows[4.78] = ['',['WElSkim2012D','HLTDSKIM','RECODreHLT','HARVESTDreHLT','MINIAODDreHLT']]
 
-workflows[140.51] = ['',['RunHI2010','REPACKHID','RECOHID11St3','HARVESTDHI','MINIAODDreHLT']]
-workflows[140.52] = ['',['RunHI2010','RECOHID10','RECOHIR10D11','HARVESTDHI','MINIAODDreHLT']]
-workflows[140.53] = ['',['RunHI2011','RECOHID11','HARVESTDHI','MINIAODDATAs2']]
+workflows[140.51] = ['',['RunHI2010','REPACKHID','RECOHID11St3','HARVESTDHI']]
+workflows[140.52] = ['',['RunHI2010','RECOHID10','RECOHIR10D11','HARVESTDHI']]
+workflows[140.53] = ['',['RunHI2011','RECOHID11','HARVESTDHI']]
 
 ### fastsim ###
 workflows[5.1] = ['TTbar', ['TTbarFS','HARVESTFS']]
@@ -224,10 +224,10 @@ workflows[1344] = ['', ['ZpEE_2250_13TeV_Tauola','DIGIUP15','RECOUP15','HARVESTU
 workflows[1345] = ['', ['ZpTT_1500_13TeV_Tauola','DIGIUP15','RECOUP15','HARVESTUP15','MINIAODMCUP15']]
 
 ### HI test ###
-workflows[140] = ['',['HydjetQ_MinBias_2760GeV','DIGIHI','RECOHI','HARVESTHI','MINIAODMCUP15HI']]
-workflows[140.1] = ['',['QCD_Pt_80_120_13_HI','DIGIHI','RECOHI','HARVESTHI','MINIAODMCUP15HI']]
-workflows[140.2] = ['',['PhotonJets_Pt_10_13_HI','DIGIHI','RECOHI','HARVESTHI','MINIAODMCUP15HI']]
-workflows[140.3] = ['',['ZMM_13_HI','DIGIHI','RECOHI','HARVESTHI','MINIAODMCUP15HI']]
+workflows[140] = ['',['HydjetQ_MinBias_2760GeV','DIGIHI','RECOHI','HARVESTHI']]
+workflows[140.1] = ['',['QCD_Pt_80_120_13_HI','DIGIHI','RECOHI','HARVESTHI']]
+workflows[140.2] = ['',['PhotonJets_Pt_10_13_HI','DIGIHI','RECOHI','HARVESTHI']]
+workflows[140.3] = ['',['ZMM_13_HI','DIGIHI','RECOHI','HARVESTHI']]
 # legacy: 141 => B0; 143 => B3 ; 144 => B5
 #workflows[142] = ['',['HydjetQ_B8_2760GeV','DIGIHI','RECOHI','HARVESTHI','MINIAODMCUP15HI']]
 
