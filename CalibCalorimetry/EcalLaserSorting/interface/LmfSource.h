@@ -33,7 +33,7 @@ private:
    * (lumi block, run number, event number, timestamp)
    * Called by the framework before produce()
    */
-  virtual bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time);
+  virtual bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time, edm::EventAuxiliary::ExperimentType& eType);
 
   bool openFile(int iFile);
   

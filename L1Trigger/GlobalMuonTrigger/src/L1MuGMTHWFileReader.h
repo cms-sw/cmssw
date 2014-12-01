@@ -50,7 +50,7 @@ class L1MuGMTHWFileReader : public edm::ProducerSourceFromFiles {
 
 
  private:
-   virtual bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time);
+   virtual bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time, edm::EventAuxiliary::ExperimentType& eType);
    virtual void produce(edm::Event&);
 
    std::ifstream m_in;

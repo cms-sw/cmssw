@@ -221,7 +221,7 @@ bool LmfSource::readEvent(bool doSkip){
   return rcRead_;
 }
  
-bool LmfSource::setRunAndEventInfo(EventID& id, TimeValue_t& time){
+bool LmfSource::setRunAndEventInfo(EventID& id, TimeValue_t& time, edm::EventAuxiliary::ExperimentType& eType){
   //empties collection:
   if(fedId_>0){
     fedColl_.FEDData(fedId_).resize(0);
