@@ -28,21 +28,17 @@
   <Trd1 name="REF2" dz="37.95*cm " dy1="1*mm " dy2="1*mm " dx1="49.413*cm " dx2="56.053*cm "/>
   <Trd1 name="REF3" dz="30.2*cm " dy1="1*mm " dy2="1*mm " dx1="44.041*cm " dx2="49.325*cm "/>
   <Tubs name="RR3X" rMin="2.419*m  " rMax="6.99*m  " dz="4.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
-  <!-- RE3/1 staged volumes
-       <Tubs name="RT3G" rMin="2.419*m  " rMax="3.3*m  " dz="2*cm " startPhi="-13*deg" deltaPhi="26*deg"/>
-       <Trd1 name="RFGX" dz="39.1*cm " dy1="5.5*mm " dy2="5.5*mm " dx1="43.076*cm " dx2="56.847*cm " />
-       <Trd1 name="RHGX" dz="39.05*cm " dy1="5*mm " dy2="5*mm " dx1="43.026*cm " dx2="56.797*cm " />
-       <Trd1 name="REG1" dz="16.05*cm " dy1="1*mm " dy2="1*mm " dx1="51.134*cm " dx2="56.794*cm " />
-       <Trd1 name="REG2" dz="22.5*cm " dy1="1*mm " dy2="1*mm " dx1="43.023*cm " dx2="50.957*cm " />
-       RE3/1 stage volumes -->
+  <Tubs name="RT3G" rMin="2.419*m  " rMax="3.3*m  " dz="2*cm " startPhi="-13*deg" deltaPhi="26*deg"/>
+  <Trd1 name="RFGX" dz="39.1*cm " dy1="5.5*mm " dy2="5.5*mm " dx1="43.076*cm " dx2="56.847*cm " />
+  <Trd1 name="RHGX" dz="39.05*cm " dy1="5*mm " dy2="5*mm " dx1="43.026*cm " dx2="56.797*cm " />
+  <Trd1 name="REG1" dz="16.05*cm " dy1="1*mm " dy2="1*mm " dx1="51.134*cm " dx2="56.794*cm " />
+  <Trd1 name="REG2" dz="22.5*cm " dy1="1*mm " dy2="1*mm " dx1="43.023*cm " dx2="50.957*cm " />
   <Tubs name="RR4X" rMin="2.644*m  " rMax="6.99*m  " dz="4.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
-  <!-- RE4/1 staged volume
-       <Tubs name="RT4H" rMin="2.644*m  " rMax="3.3*m  " dz="2*cm " startPhi="-13*deg" deltaPhi="26*deg"/>
-       <Trd1 name="RFHX" dz="27.85*cm " dy1="5.5*mm " dy2="5.5*mm " dx1="47.044*cm " dx2="56.847*cm " />
-       <Trd1 name="RHHX" dz="27.8*cm " dy1="5*mm " dy2="5*mm " dx1="46.994*cm " dx2="56.797*cm " />
-       <Trd1 name="REH1" dz="16.05*cm " dy1="1*mm " dy2="1*mm " dx1="51.134*cm " dx2="56.794*cm " />
-       <Trd1 name="REH2" dz="11.25*cm " dy1="1*mm " dy2="1*mm " dx1="46.991*cm " dx2="50.957*cm " />
-       RE4/1 staged volumes -->
+  <Tubs name="RT4H" rMin="2.644*m  " rMax="3.3*m  " dz="2*cm " startPhi="-13*deg" deltaPhi="26*deg"/>
+  <Trd1 name="RFHX" dz="27.85*cm " dy1="5.5*mm " dy2="5.5*mm " dx1="47.044*cm " dx2="56.847*cm " />
+  <Trd1 name="RHHX" dz="27.8*cm " dy1="5*mm " dy2="5*mm " dx1="46.994*cm " dx2="56.797*cm " />
+  <Trd1 name="REH1" dz="16.05*cm " dy1="1*mm " dy2="1*mm " dx1="51.134*cm " dx2="56.794*cm " />
+  <Trd1 name="REH2" dz="11.25*cm " dy1="1*mm " dy2="1*mm " dx1="46.991*cm " dx2="50.957*cm " />
  </SolidSection>
 
  <LogicalPartSection label="rpcf.xml">
@@ -154,7 +150,7 @@
    <rSolid name="RR3X"/>
    <rMaterial name="materials:ME_free_space"/>
   </LogicalPart>
-  <!-- RE3/1 staged volumes 
+
   <LogicalPart name="RT3G" category="unspecified">
     <rSolid name="RT3G"/>
     <rMaterial name="materials:ME_free_space"/>
@@ -175,7 +171,11 @@
     <rSolid name="REG2"/>
     <rMaterial name="materials:M_RPC_Gas"/>
   </LogicalPart>
-      RE3/1 staged volumes -->
+
+  <LogicalPart name="RR4X" category="unspecified">
+    <rSolid name="RR4X"/>
+    <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
   <LogicalPart name="RR4XP" category="unspecified">
     <rSolid name="RR4X"/>
     <rMaterial name="materials:ME_free_space"/>
@@ -184,7 +184,7 @@
     <rSolid name="RR4X"/>
     <rMaterial name="materials:ME_free_space"/>
   </LogicalPart>
-  <!-- RE4/1 staged volume
+
   <LogicalPart name="RT4H" category="unspecified">
     <rSolid name="RT4H"/>
     <rMaterial name="materials:ME_free_space"/>
@@ -205,7 +205,7 @@
     <rSolid name="REH2"/>
     <rMaterial name="materials:M_RPC_Gas"/>
   </LogicalPart>
-       RE4/1 staged volumes -->
+
  </LogicalPartSection>
 
  <PosPartSection label="rpcf.xml">
@@ -377,7 +377,7 @@
    <rRotation name="rotations:R005"/>
    <Translation x="0*fm " y="0*fm " z="28.25*cm "/>
   </PosPart>
-  <!-- RE3/1 staged volumes
+ 
   <PosPart copyNumber="1">
    <rParent name="rpcf:RT3G"/>
    <rChild name="rpcf:RFGX"/>
@@ -398,8 +398,8 @@
    <rChild name="rpcf:REG2"/>
    <Translation x="0*fm " y="0*fm " z="-16.55*cm " />
   </PosPart>
-       RE3/1 staged volumes -->
-  <!-- -->
+
+
   <PosPart copyNumber="1">
    <rParent name="mf:ME4RingP"/>
    <rChild name="rpcf:RR4XP"/>
@@ -412,7 +412,7 @@
    <rRotation name="rotations:R005"/>
    <Translation x="0*fm " y="0*fm " z="29.175*cm " />
   </PosPart>
-  <!-- RE4/1 staged volume
+
   <PosPart copyNumber="1">
    <rParent name="rpcf:RT4H"/>
    <rChild name="rpcf:RFHX"/>
@@ -433,7 +433,7 @@
    <rChild name="rpcf:REH2"/>
    <Translation x="0*fm " y="0*fm " z="-16.55*cm " />
   </PosPart>
-       RE4/1 staged volumes -->
+
 </PosPartSection>
 
 <Algorithm name="muon:DDMuonAngular">
@@ -502,7 +502,7 @@
     <Numeric name="startAngle"  value="15*deg"/>
     <Numeric name="zoffset"     value="2.2*cm"/>
 </Algorithm>
-<!-- RE3/1 staged volumes
+
 <Algorithm name="muon:DDMuonAngular">
     <rParent name="rpcf:RR3X"/>
     <String name="ChildName" value="RT3G"/>
@@ -525,7 +525,7 @@
     <Numeric name="startAngle"  value="20*deg"/>
     <Numeric name="zoffset"     value="2.2*cm"/>
 </Algorithm>
-     RE3/1 staged volumes -->
+
 <Algorithm name="muon:DDMuonAngular">
     <rParent name="rpcf:RR4XP"/>
     <String name="ChildName" value="RTXU"/>
@@ -570,9 +570,9 @@
     <Numeric name="startAngle"  value="15*deg"/>
     <Numeric name="zoffset"     value="2.2*cm"/>
 </Algorithm>
-<!-- RE4/1 staged volume
+
 <Algorithm name="muon:DDMuonAngular">
-    <rParent name="rpcf:RR4X"/>
+    <rParent name="rpcf:RR4XP"/>
     <String name="ChildName" value="RT4H"/>
     <String name="RotNameSpace" value="rotations"/>
     <Numeric name="n" value="9"/>
@@ -583,7 +583,7 @@
     <Numeric name="zoffset"     value="-2.2*cm"/>
 </Algorithm>
 <Algorithm name="muon:DDMuonAngular">
-    <rParent name="rpcf:RR4X"/>
+    <rParent name="rpcf:RR4XP"/>
     <String name="ChildName" value="RT4H"/>
     <String name="RotNameSpace" value="rotations"/>
     <Numeric name="n" value="9"/>
@@ -593,6 +593,28 @@
     <Numeric name="startAngle"  value="20*deg"/>
     <Numeric name="zoffset"     value="2.2*cm"/>
 </Algorithm>
-     RE4/1 staged volumes -->
+<Algorithm name="muon:DDMuonAngular">
+    <rParent name="rpcf:RR4XN"/>
+    <String name="ChildName" value="RT4H"/>
+    <String name="RotNameSpace" value="rotations"/>
+    <Numeric name="n" value="9"/>
+    <Numeric name="startCopyNo" value="1"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="stepAngle"   value="40*deg"/>
+    <Numeric name="startAngle"  value="0*deg"/>
+    <Numeric name="zoffset"     value="-2.2*cm"/>
+</Algorithm>
+<Algorithm name="muon:DDMuonAngular">
+    <rParent name="rpcf:RR4XN"/>
+    <String name="ChildName" value="RT4H"/>
+    <String name="RotNameSpace" value="rotations"/>
+    <Numeric name="n" value="9"/>
+    <Numeric name="startCopyNo" value="2"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="stepAngle"   value="40*deg"/>
+    <Numeric name="startAngle"  value="20*deg"/>
+    <Numeric name="zoffset"     value="2.2*cm"/>
+</Algorithm>
+
 
 </DDDefinition>
