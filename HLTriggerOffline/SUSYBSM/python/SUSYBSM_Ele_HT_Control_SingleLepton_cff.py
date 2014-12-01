@@ -12,16 +12,16 @@ SUSY_HLT_Ele_HT_Control_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                                       conversionCollection = cms.InputTag('conversions'),
                                                       beamSpot = cms.InputTag('offlineBeamSpot'),
 
-                                                      leptonFilter = cms.InputTag('hltEle15GsfDphiFilter','','reHLT'),
-                                                      hltHt = cms.InputTag('hltPFHT','','reHLT'),
+                                                      leptonFilter = cms.InputTag('hltEle15GsfDphiFilter','','HLT'),
+                                                      hltHt = cms.InputTag('hltPFHT','','HLT'),
                                                       hltMet = cms.InputTag(''),
                                                       hltJets = cms.InputTag(''),
                                                       hltJetTags = cms.InputTag(''),
 
-                                                      triggerResults = cms.InputTag('TriggerResults','','reHLT'),
-                                                      trigSummary = cms.InputTag('hltTriggerSummaryAOD','','reHLT'),
+                                                      triggerResults = cms.InputTag('TriggerResults','','HLT'),
+                                                      trigSummary = cms.InputTag('hltTriggerSummaryAOD','','HLT'),
 
-                                                      hltProcess = cms.string('reHLT'),
+                                                      hltProcess = cms.string('HLT'),
 
                                                       triggerPath = cms.string('HLT_Ele15_PFHT300'),
                                                       triggerPathAuxiliary = cms.string('HLT_Ele32_eta2p1_WP85_Gsf_v'),
