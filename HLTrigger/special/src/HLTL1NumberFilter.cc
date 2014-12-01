@@ -37,6 +37,7 @@ HLTL1NumberFilter::HLTL1NumberFilter(const edm::ParameterSet& iConfig)
   input_  = iConfig.getParameter<edm::InputTag>("rawInput") ;   
   period_ = iConfig.getParameter<unsigned int>("period") ;
   invert_ = iConfig.getParameter<bool>("invert") ;
+  fedId_  = iConfig.getParameter<int>("fedId") ;
   inputToken_ = consumes<FEDRawDataCollection>(input_);
 }
 
@@ -56,6 +57,7 @@ HLTL1NumberFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions
   desc.add<edm::InputTag>("rawInput",edm::InputTag("source"));
   desc.add<unsigned int>("period",4096);
   desc.add<bool>("invert",true);
+  desc.add<int>("fedId",813);
   descriptions.add("hltL1NumberFilter",desc);
 }
 //
@@ -72,7 +74,7 @@ HLTL1NumberFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     bool accept(false);
     edm::Handle<FEDRawDataCollection> theRaw ;
     iEvent.getByToken(inputToken_,theRaw) ;
-    const FEDRawData& data = theRaw->FEDData(FEDNumbering::MINTriggerGTPFEDID) ;
+    const FEDRawData& data = theRaw->FEDData(fedId_) ;
     FEDHeader header(data.data()) ;
     if (period_!=0) accept = ( ( (header.lvl1ID())%period_ ) == 0 );
     if (invert_) accept = !accept;
