@@ -17,7 +17,7 @@ workflows[1302] = ['', ['ProdTTbar_13','DIGIUP15PROD1','RECOPRODUP15','MINIAODMC
 workflows[1303] = ['', ['ProdQCD_Pt_3000_3500_13','DIGIUP15PROD1','RECOPRODUP15','MINIAODMCUP15']]
 
 ### data ###
-workflows[4.5]  = ['', ['RunCosmicsA','RECOCOSD','ALCACOSD','HARVESTDC','MINIAODDATA']]
+workflows[4.5]  = ['', ['RunCosmicsA','RECOCOSD','ALCACOSD','HARVESTDC']]
 workflows[4.6]  = ['', ['MinimumBias2010A','RECOSKIM','HARVESTD','MINIAODDATAs2']]
 #workflows[4.7]  = ['', ['MinimumBias2010B','RECOSKIMALCA','HARVESTD','MINIAODDATAs2']]
 #workflows[4.8]  = ['', ['WZMuSkim2010A','RECOSKIM','HARVESTD','MINIAODDATAs2']]
