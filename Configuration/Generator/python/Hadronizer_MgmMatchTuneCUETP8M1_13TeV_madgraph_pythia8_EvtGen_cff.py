@@ -1,6 +1,8 @@
 # Copied from https://github.com/cms-sw/genproductions for RelVal June 5, 2014
 import FWCore.ParameterSet.Config as cms
-from GeneratorInterface.ExternalDecays.TauolaSettings_cff import *
+
+from Configuration.Generator.Pythia8CommonSettings_cfi import *
+from Configuration.Generator.Pythia8CUEP8M1Settings_cfi import *
 
 generator = cms.EDFilter("Pythia8HadronizerFilter",
                          ExternalDecays = cms.PSet(
@@ -35,12 +37,12 @@ generator = cms.EDFilter("Pythia8HadronizerFilter",
     outTree_flag = cms.int32(0) # 1=yes, write out the tree for future sanity check
     ),
                          PythiaParameters = cms.PSet(
-    processParameters = cms.vstring(
-    'Main:timesAllowErrors = 10000',
-    'ParticleDecays:limitTau0 = on',
-    'ParticleDecays:tauMax = 10',
-    'Tune:ee 3',
-    'Tune:pp 5'),
-    parameterSets = cms.vstring('processParameters')
-    )
+        pythia8CommonSettingsBlock,
+        pythia8CUEP8M1SettingsBlock,
+        parameterSets = cms.vstring('pythia8CommonSettings',
+                                    'pythia8CUEP8M1Settings',
+                                    )
+        )
                          )
+
+ProductionFilterSequence = cms.Sequence(generator)

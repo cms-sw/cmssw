@@ -17,13 +17,14 @@ electronMcFakeHistosCfg = cms.PSet(
   Nbinmee = cms.int32(100), Meemin = cms.double(0.0), Meemax = cms.double(150.),
   Nbinhoe = cms.int32(100), Hoemin = cms.double(0.0), Hoemax = cms.double(0.5),
   Nbinpopmatching = cms.int32(75), Popmatchingmin = cms.double(0.0), Popmatchingmax = cms.double(1.5),
-  Nbinerror = cms.int32(30), Energyerrormax = cms.double(30.0) 
+  Nbinerror = cms.int32(30), Energyerrormax = cms.double(30.0) ,
+  EfficiencyFlag = cms.bool(False), StatOverflowFlag = cms.bool(False)
 )
 
 electronMcFakeValidator = cms.EDAnalyzer("ElectronMcFakeValidator",
 
   Verbosity = cms.untracked.int32(0),
-  FinalStep = cms.string("AtRunEnd"),
+  FinalStep = cms.string("AtJobEnd"),
   InputFile = cms.string(""),
   OutputFile = cms.string(""),
   InputFolderName = cms.string("EgammaV/ElectronMcFakeValidator"),

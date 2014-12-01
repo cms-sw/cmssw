@@ -4,15 +4,28 @@
 
 #include "DQMOffline/EGamma/interface/ElectronDqmAnalyzerBase.h"
 
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronCore.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+ 
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
 class MagneticField ;
 
@@ -27,7 +40,8 @@ class ElectronAnalyzer : public ElectronDqmAnalyzerBase
     explicit ElectronAnalyzer(const edm::ParameterSet& conf);
     virtual ~ElectronAnalyzer();
 
-    virtual void book() ;
+//    virtual void book() ;
+    virtual void bookHistograms( DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) ;
     virtual void analyze( const edm::Event & e, const edm::EventSetup & c) ;
 
   private:
@@ -45,6 +59,11 @@ class ElectronAnalyzer : public ElectronDqmAnalyzerBase
     edm::EDGetTokenT<reco::VertexCollection> vertexCollection_;
     edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
     bool readAOD_; //NEW
+
+    std::string inputFile_ ;
+    std::string outputFile_ ;
+    std::string inputInternalPath_ ;
+    std::string outputInternalPath_ ;
 
     // matching
     std::string matchingCondition_; //NEW
@@ -109,6 +128,7 @@ class ElectronAnalyzer : public ElectronDqmAnalyzerBase
     int nbinpoptrue; double poptruemin; double poptruemax; //NEW
     int nbinmee; double meemin; double meemax; //NEW
     int nbinhoe; double hoemin; double hoemax; //NEW
+//    bool set_EfficiencyFlag ; bool set_StatOverflowFlag ;
 
     //=========================================
     // general attributes and utility methods

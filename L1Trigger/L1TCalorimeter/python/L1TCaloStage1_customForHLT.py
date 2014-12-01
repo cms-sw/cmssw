@@ -104,7 +104,7 @@ def customiseL1EmulatorFromRaw(process):
     # GT
     from L1Trigger.Configuration.SimL1Emulator_cff import simGtDigis
     simGtDigis.GmtInputTag = 'gmtReEmulDigis'
-    simGtDigis.GctInputTag = 'caloStage1LegacyFormatDigis'
+    simGtDigis.GctInputTag = 'simCaloStage1LegacyFormatDigis'
     simGtDigis.TechnicalTriggersInputTags = cms.VInputTag( )
 
     # run Calo TPGs, L1 GCT, technical triggers, L1 GT
