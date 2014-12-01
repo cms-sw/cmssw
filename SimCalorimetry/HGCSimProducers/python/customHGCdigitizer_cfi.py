@@ -18,7 +18,7 @@ def customHGCdigitizer(process, version='simple0', debug=False):
         process.mix.digitizers.hgchebackDigitizer.digiCfg.feCfg.shaperN = cms.double(1)
         process.mix.digitizers.hgchebackDigitizer.digiCfg.feCfg.shaperTau = cms.double(10)
     elif version.find('simple')>=0 :
-        tau=float(simple.replace('simple',''))
+        tau=float(version.replace('simple',''))
         print 'Adapting simple pulse shape with tau=%f'%tau
         process.mix.digitizers.hgceeDigitizer.digiCfg.feCfg.fwVersion = cms.uint32(0)
         process.mix.digitizers.hgceeDigitizer.digiCfg.feCfg.shaperTau = cms.double(tau)

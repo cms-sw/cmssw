@@ -82,7 +82,7 @@ class HGCDigitizerBase {
 	    if(totalEn<0) totalEn=0;
 	
 	    //round to integer (sample will saturate the value according to available bits)
-	    uint16_t totalEnInt = floor( (totalEn*(myFEelectronics_->getLSB()))/mipInKeV_ );
+	    uint16_t totalEnInt = floor( totalEn/(mipInKeV_*myFEelectronics_->getLSB()) );
 
 	    //0 gain for the moment
 	    HGCSample singleSample;
