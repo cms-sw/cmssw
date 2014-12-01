@@ -120,7 +120,7 @@ _fromScratchHGCClusterizer_HGCEE = cms.PSet(
                                  HGC_HCAL = cms.vdouble(1.0) ),
     interactionLengths = cms.PSet( HGC_ECAL = cms.vdouble(1.0),
                                    HGC_HCAL = cms.vdouble(1.0) ), 
-    useTrackAssistedClustering = cms.bool(False),
+    useTrackAssistedClustering = cms.bool(True),
     trackAssistedClustering = cms.PSet( 
         inputTracks = cms.InputTag("generalTracks"),
         cleaningCriteriaPerIter = cms.vdouble(1.0),
