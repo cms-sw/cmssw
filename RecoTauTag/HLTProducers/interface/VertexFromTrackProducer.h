@@ -48,8 +48,9 @@ public:
   
   virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
+private:
   // access to config
-  const edm::ParameterSet config() const { return theConfig; }
+  const edm::ParameterSet& config() const { return theConfig; }
   // tokens
   const edm::EDGetTokenT<edm::View<reco::Track> > trackToken;
   const edm::EDGetTokenT<edm::View<reco::RecoCandidate> > candidateToken;
@@ -58,7 +59,6 @@ public:
   const edm::EDGetTokenT<edm::View<reco::Vertex> > vertexLabel;
   const edm::EDGetTokenT<reco::BeamSpot> beamSpotLabel;
   
-private:
   // ----------member data ---------------------------
   const bool fIsRecoCandidate;
   const bool fUseBeamSpot;
