@@ -260,9 +260,7 @@ namespace evf {
   void EvFDaqDirector::preBeginRun(edm::GlobalContext const& globalContext) {
 
     //assert(run_ == id.run());
-
-    //write out transfer system details
-    writeTransferSystemJsonMaybe();
+    checkTransferSystemPSet();
 
     // check if the requested run is the latest one - issue a warning if it isn't
     if (dirManager_.findHighestRunDir() != run_dir_) {
@@ -364,6 +362,12 @@ namespace evf {
 
   std::string EvFDaqDirector::getInitFilePath(std::string const& stream) const {
     return run_dir_ + "/" + fffnaming::initFileNameWithPid(run_,0,stream);
+  }
+
+  std::string EvFDaqDirector::getTransferFilePath(std::string const& stream) const {
+    assert(stream.size() && stream.substr(0,6)=="stream");
+    std::string streamUpper = "Stream"+stream.substr(6,std::string::npos);
+    return run_dir_ + "/" + fffnaming::transferFileName(run_,0,streamUpper);
   }
 
   std::string EvFDaqDirector::getOpenProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const {
@@ -822,21 +826,11 @@ namespace evf {
 
   }
 
+  void EvFDaqDirector::checkTransferSystemPSet()
+  {
 
-  void EvFDaqDirector::writeTransferSystemJsonMaybe()
-  { 
-
-    std::stringstream transfersFileSS; 
-    transfersFileSS << baseRunDir() << "/" << "TRANSFER_PSET";
-    std::string transfersFile = transfersFileSS.str()+".jsn";
-    transfersFileSS << "_" << getpid();
-    std::string transfersFileTmp = transfersFileSS.str()+".temp";
-
-    struct stat   fstat;
-    //try to write the file if it is not already written by other process
-    if (stat (transfersFile.c_str(), &fstat) != 0) {
+      transferSystemJson_.reset(new Json::Value);
  
-      Json::Value outJson;
       if (edm::getProcessParameterSet().existsAs<edm::ParameterSet>("transferSystem",true))
       {
         const edm::ParameterSet& tsPset(edm::getProcessParameterSet().getParameterSet("transferSystem"));
@@ -844,30 +838,29 @@ namespace evf {
         Json::Value destinationsVal(Json::arrayValue);
         std::vector<std::string> destinations = tsPset.getParameter<std::vector<std::string>>("destinations");
         for (auto & dest: destinations) destinationsVal.append(dest);
-        outJson["destinations"]=destinationsVal;
+        (*transferSystemJson_)["destinations"]=destinationsVal;
 
-        //TODO:finalize if we call it columns or modes
-        Json::Value columnsVal(Json::arrayValue);
-        std::vector<std::string> columns = tsPset.getParameter< std::vector<std::string> >("columns");
-        for (auto & col: columns) columnsVal.append(col);
-        outJson["columns"]=columnsVal;
+        Json::Value modesVal(Json::arrayValue);
+        std::vector<std::string> modes = tsPset.getParameter< std::vector<std::string> >("transferModes");
+        for (auto & mode: modes) modesVal.append(mode);
+        (*transferSystemJson_)["transferModes"]=modesVal;
 
         for (auto psKeyItr =tsPset.psetTable().begin();psKeyItr!=tsPset.psetTable().end(); ++ psKeyItr) {
-          if (psKeyItr->first!="destinations" && psKeyItr->first!="columns") {
+          if (psKeyItr->first!="destinations" && psKeyItr->first!="transferModes") {
                const edm::ParameterSet & streamDef = tsPset.getParameterSet(psKeyItr->first);
                Json::Value streamVal;
-               for (auto & col : columns) {
+               for (auto & mode : modes) {
                  bool valid=false;
                  //validation
-                 if (!streamDef.existsAs<std::string>(col,true))
-                   throw cms::Exception("EvFDaqDirector") << " Missing transfer system specification for -:" << psKeyItr->first << " (column " << col << ")";
-                 std::string val =  streamDef.getParameter<std::string>(col);
-                 streamVal[col]=val;
+                 if (!streamDef.existsAs<std::string>(mode,true))
+                   throw cms::Exception("EvFDaqDirector") << " Missing transfer system specification for -:" << psKeyItr->first << " (transferMode " << mode << ")";
+                 std::string val =  streamDef.getParameter<std::string>(mode);
+                 streamVal[mode]=val;
                  for (auto & dest: destinations) if (dest==val) valid=true;
                  if (!valid)
                    throw cms::Exception("EvFDaqDirector") << " Invalid transter system destination specified for -: "<< psKeyItr->first;
                }
-               outJson[psKeyItr->first] = streamVal;
+               (*transferSystemJson_)[psKeyItr->first] = streamVal;
           }
         }
       }
@@ -875,24 +868,54 @@ namespace evf {
         if (requireTSPSet_)
           throw cms::Exception("EvFDaqDirector") << "transferSystem PSet not found";
 
+    }
+
+  void EvFDaqDirector::writeTransferSystemJsonMaybe(std::string const& stream) const
+  { 
+
+    const std::string outfile = EvFDaqDirector::getTransferFilePath(stream);
+    std::stringstream outfileTempStream;
+    outfileTempStream << outfile.substr(0,outfile.rfind("."))  << "_pid" << getpid() << ".temp";
+    const std::string outfileTemp = outfileTempStream.str();
+
+    Json::Value myValue;
+    if (transferSystemJson_->isMember(stream.c_str()))
+      myValue = transferSystemJson_->get(stream, "");
+    else { 
+      if (transferSystemJson_->isMember("default"))
+        myValue =  transferSystemJson_->get("default", "");
+      else {
+        if (requireTSPSet_)
+          throw cms::Exception("EvFDaqDirector") << "Transfer system mode definitions missing for -: " << stream << "!";
+        else 
+          edm::LogWarning("EvFDaqDirector") << "(PERMISSIVE) Transfer system mode definitions missing for -: " << stream << " !";
+          return;
+      }
+    }
+    struct stat   fstat;
+    //try to write the file if it is not already written by other process
+    if (stat (outfile.c_str(), &fstat) != 0) {
+ 
       Json::StyledWriter writer;
-      std::string content = writer.write(outJson);
+      std::string content = writer.write(myValue);
 
       std::ofstream outputFile;
-      outputFile.open(transfersFileTmp);
-      if (!outputFile) throw cms::Exception("EvFDaqDirector") << "Unable to open file for writing -:" << transfersFileTmp;
+      outputFile.open(outfileTemp);
+      if (!outputFile) throw cms::Exception("EvFDaqDirector") << "Unable to open file for writing -:" << outfileTemp;
       outputFile << content;
       outputFile.close();
 
+      //rename will fail if other process wrote it
       try {
-        boost::filesystem::rename(transfersFileTmp,transfersFile);
+        boost::filesystem::rename(outfileTemp,outfile);
       }
       catch (std::exception){
-          try {
-            remove(transfersFileTmp.c_str());
-          } catch (...) {}
+        try {
+          remove(outfileTemp.c_str());
+        } catch (...) {}
       }
     }
   }
+
 
 }

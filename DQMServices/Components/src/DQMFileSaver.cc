@@ -643,6 +643,7 @@ DQMFileSaver::globalBeginRun(const edm::Run &r, const edm::EventSetup &) const
   if ((convention_ == FilterUnit) && (!fakeFilterUnitMode_))
   {
     evf::EvFDaqDirector * daqDirector = (evf::EvFDaqDirector *) (edm::Service<evf::EvFDaqDirector>().operator->());
+    daqDirector->writeTransferSystemJsonMaybe(stream_label_);
     const std::string initFileName = daqDirector->getInitFilePath(stream_label_);
     std::ofstream file(initFileName);
     file.close();
