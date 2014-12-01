@@ -31,8 +31,8 @@ class METAnalyzer( Analyzer ):
         self.handles['cmgCand8'] = AutoHandle( self.cfg_ana.candidates, self.cfg_ana.candidatesTypes )
         self.handles['vertices'] =  AutoHandle( "offlineSlimmedPrimaryVertices", 'std::vector<reco::Vertex>', fallbackLabel="offlinePrimaryVertices" )
 
-    def beginLoop(self):
-        super(METAnalyzer,self).beginLoop()
+    def beginLoop(self, setup):
+        super(METAnalyzer,self).beginLoop(setup)
         self.counters.addCounter('events')
         count = self.counters.counter('events')
         count.register('all events')
