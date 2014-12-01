@@ -492,6 +492,10 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
     size_t filterIndex = triggerSummary->filterIndex(theLeptonFilterTag_);
     trigger::TriggerObjectCollection triggerObjects = triggerSummary->getObjects();
     if( !(filterIndex >= triggerSummary->sizeFilters()) ){
+      size_t ilep = 0, num_keys = triggerSummary->filterKeys(filterIndex).size();
+      ptLepton.resize(num_keys);
+      etaLepton.resize(num_keys);
+      phiLepton.resize(num_keys);
       for(const auto &key: triggerSummary->filterKeys(filterIndex)){
         const trigger::TriggerObject &foundObject = triggerObjects[key];
 
@@ -499,9 +503,10 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
         if(h_triggerLepEta_) h_triggerLepEta_->Fill(foundObject.eta());
         if(h_triggerLepPhi_) h_triggerLepPhi_->Fill(foundObject.phi());
 
-        ptLepton.push_back(foundObject.pt());
-        etaLepton.push_back(foundObject.eta());
-        phiLepton.push_back(foundObject.phi());
+        ptLepton.at(ilep)=foundObject.pt();
+        etaLepton.at(ilep)=foundObject.eta();
+        phiLepton.at(ilep)=foundObject.phi();
+	++ilep;
       }
     }
   }
