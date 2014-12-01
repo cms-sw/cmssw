@@ -69,7 +69,6 @@ void L2TauJetsMerger::produce(edm::StreamID iSId, edm::Event& iEvent, const edm:
        tmp.push_back(myTmpJets.at(i));
    }
    myTmpJets.swap(tmp);
-   tmp.clear();
  }
  
 
