@@ -27,6 +27,10 @@ SUSY_HLT_Mu_HT_MET_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                                  triggerPathAuxiliary = cms.string('HLT_IsoMu24_v'),
                                                  triggerPathLeptonAuxiliary = cms.string('HLT_PFHT350_PFMET120_NoiseCleaned_v'),
 
+                                                 csvlCut = cms.untracked.double(0.244),
+                                                 csvmCut = cms.untracked.double(0.679),
+                                                 csvtCut = cms.untracked.double(0.898),
+
                                                  jetPtCut = cms.untracked.double(40.0),
                                                  jetEtaCut = cms.untracked.double(3.0),
                                                  metCut = cms.untracked.double(250.0),

@@ -185,6 +185,10 @@ SUSY_HLT_SingleLepton::SUSY_HLT_SingleLepton(const edm::ParameterSet &ps):
   triggerPathAuxiliary_(ps.getParameter<std::string>("triggerPathAuxiliary")),
   triggerPathLeptonAuxiliary_(ps.getParameter<std::string>("triggerPathLeptonAuxiliary")),
 
+  csvlCut_(ps.getUntrackedParameter<double>("csvlCut")),
+  csvmCut_(ps.getUntrackedParameter<double>("csvmCut")),
+  csvtCut_(ps.getUntrackedParameter<double>("csvtCut")),
+
   jetPtCut_(ps.getUntrackedParameter<double>("jetPtCut")),
   jetEtaCut_(ps.getUntrackedParameter<double>("jetEtaCut")),
   metCut_(ps.getUntrackedParameter<double>("metCut")),
@@ -571,11 +575,11 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
         if(CSV>maxCSV){
           maxCSV=CSV;
         }
-        if(CSV>0.244){
+        if(CSV>csvlCut_){
           ++num_csvl;
-          if(CSV>0.679){
+          if(CSV>csvmCut_){
             ++num_csvm;
-            if(CSV>0.898){
+            if(CSV>csvtCut_){
               ++num_csvt;
             }
           }
