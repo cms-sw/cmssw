@@ -6,4 +6,8 @@ rawDataCollector = cms.EDProducer("RawDataCollectorByLabel",
                                        cms.InputTag('rawDataCollector'))
 )
 
-
+#
+# Make changes for Run 2
+#
+from Configuration.StandardSequences.Eras import eras
+eras.run2.toModify( rawDataCollector.RawCollectionList, func = lambda list: list.append(cms.InputTag("l1tDigiToRaw")) )

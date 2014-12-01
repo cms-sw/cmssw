@@ -38756,6 +38756,31 @@ hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
 )
 
 HLTL1UnpackerSequence = cms.Sequence( hltGtDigis + hltGctDigis + hltL1GtObjectMap + hltL1extraParticles )
+#
+# Modify for running in run 2
+#
+def _modifyHLTL1UnpackerSequenceForRun2( theProcess ) :
+    theProcess.load("L1Trigger.L1TCommon.caloStage1LegacyFormatDigis_cfi")
+    theProcess.load("L1Trigger.L1TCommon.l1tRawToDigi_cfi")
+    # Note that this function is applied before the objects in this file are added
+    # to the process. So things declared in this file should be used "bare", i.e.
+    # not with "theProcess." in front of them. Anything that is declared as a new
+    # module/sequence/whatever should be declared as part of theProcess, and anything
+    # that is loaded from the "load" commands above should be referenced by "theProcess.<object>"
+    theProcess.hltCaloStage1Digis = theProcess.caloStage1Digis.clone()
+    theProcess.hltCaloStage1LegacyFormatDigis = theProcess.caloStage1LegacyFormatDigis.clone(
+            InputCollection = cms.InputTag("hltCaloStage1Digis"),
+            InputRlxTauCollection = cms.InputTag("hltCaloStage1Digis:rlxTaus"),
+            InputIsoTauCollection = cms.InputTag("hltCaloStage1Digis:isoTaus"),
+            InputHFSumsCollection = cms.InputTag("hltCaloStage1Digis:HFRingSums"),
+            InputHFCountsCollection = cms.InputTag("hltCaloStage1Digis:HFBitCounts")
+        )
+    theProcess.hltL1RawToDigiSeq = cms.Sequence( theProcess.hltCaloStage1Digis + theProcess.hltCaloStage1LegacyFormatDigis )
+    HLTL1UnpackerSequence.replace( hltGctDigis, theProcess.hltL1RawToDigiSeq )
+
+# A unique name is required for this object, so I'll call it "modify<python filename>ForRun2_"
+modifyHLTriggerHLTanalyzersHLT_FULLForRun2_ = eras.run2.makeProcessModifier( _modifyHLTL1UnpackerSequenceForRun2 )
+
 HLTBeamSpot = cms.Sequence( hltScalersRawToDigi + hltOnlineBeamSpot + hltOfflineBeamSpot )
 HLTBeginSequence = cms.Sequence( hltTriggerType + HLTL1UnpackerSequence + HLTBeamSpot )
 HLTEcalActivitySequence = cms.Sequence( hltEcalRawToRecHitFacility + hltESRawToRecHitFacility + hltEcalRegionalRestFEDs + hltEcalRegionalESRestFEDs + hltEcalRecHitAll + hltESRecHitAll + hltHybridSuperClustersActivity + hltCorrectedHybridSuperClustersActivity + hltMulti5x5BasicClustersActivity + hltMulti5x5SuperClustersActivity + hltMulti5x5SuperClustersWithPreshowerActivity + hltCorrectedMulti5x5SuperClustersWithPreshowerActivity + hltRecoEcalSuperClusterActivityCandidate + hltEcalActivitySuperClusterWrapper )

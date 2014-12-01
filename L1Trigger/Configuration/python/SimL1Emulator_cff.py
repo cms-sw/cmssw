@@ -125,7 +125,7 @@ simGtDigis.TechnicalTriggersInputTags = cms.VInputTag(
     cms.InputTag( 'simCastorTechTrigDigis' )
     )
 # Changes for Run 2 (selectively applied if Run 2 is active)
-eras.run2.toModify( simGtDigis, GctInputTag = 'caloStage1LegacyFormatDigis' )
+eras.run2.toModify( simGtDigis, GctInputTag = 'simCaloStage1LegacyFormatDigis' )
 eras.run2.toModify( simGtDigis, TechnicalTriggersInputTags = cms.VInputTag() )
                     
 ### L1 Trigger sequences
