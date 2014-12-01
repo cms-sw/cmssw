@@ -197,7 +197,7 @@ class HandlerTemplate: public BaseHandler {
         int count(const edm::Event& iEvent, InputTag &input, StringCutObjectSelector<T> & sel, float weight){
            int ret = 0;
            Handle<std::vector< T > > hIn;
-           iEvent.getByLabel(InputTag(input), hIn);
+           iEvent.getByToken(m_tokens[input.encode()], hIn);
            if(!hIn.isValid()) {
               edm::LogError("FSQDiJetAve") << "product not found: "<<  input.encode();
               return -1;  // return nonsense value
@@ -210,6 +210,10 @@ class HandlerTemplate: public BaseHandler {
                 }
            }
            return ret;
+        }
+        void getAndStoreTokens(edm::ConsumesCollector && iC){
+                edm::EDGetTokenT<std::vector<TInputCandidateType>  > tok =  iC.consumes<std::vector<TInputCandidateType> > (m_input);
+                m_tokens[m_input.encode()] = edm::EDGetToken(tok);
         }
 
         // FIXME (?): code duplication
@@ -503,6 +507,18 @@ void HandlerTemplate<reco::GenParticle, int >::getFilteredCands(
 //
 //#############################################################################
 template<>
+void HandlerTemplate<reco::Track, int, BestVertexMatching>::getAndStoreTokens(
+                edm::ConsumesCollector && iC)
+{
+    edm::EDGetTokenT<std::vector<reco::Track>  > tok =  iC.consumes<std::vector<reco::Track> > (m_input);
+    m_tokens[m_input.encode()] = edm::EDGetToken(tok);
+
+    edm::InputTag lVerticesTag = m_pset.getParameter<edm::InputTag>("vtxCollection");
+    edm::EDGetTokenT<reco::VertexCollection > tok2 =  iC.consumes< reco::VertexCollection  > (lVerticesTag);
+    m_tokens[lVerticesTag.encode()] = edm::EDGetToken(tok2);
+}
+
+template<>
 void HandlerTemplate<reco::Track, int, BestVertexMatching>::getFilteredCands(
              reco::Track *, // pass a dummy pointer, makes possible to select correct getFilteredCands
              std::vector<int > & cands, // output collection
@@ -524,7 +540,7 @@ void HandlerTemplate<reco::Track, int, BestVertexMatching>::getFilteredCands(
     cands.push_back(0);
 
     edm::Handle<reco::VertexCollection> vertices;
-    iEvent.getByLabel(lVerticesTag, vertices); 
+    iEvent.getByToken(m_tokens[lVerticesTag.encode()], vertices);
 
     //double bestvz=-999.9, bestvx=-999.9, bestvy=-999.9;
 
@@ -549,7 +565,7 @@ void HandlerTemplate<reco::Track, int, BestVertexMatching>::getFilteredCands(
     // const reco::Vertex & vtx = vertices->at(bestVtx);
 
    Handle<std::vector<reco::Track > > hIn;
-   iEvent.getByLabel(InputTag(m_input), hIn);
+   iEvent.getByToken(m_tokens[m_input.encode()], hIn);
    if(!hIn.isValid()) {
       edm::LogError("FSQDiJetAve") << "product not found: "<<  m_input.encode();
       return;
