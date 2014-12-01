@@ -7,6 +7,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoTauTag/HLTProducers/interface/CaloTowerCreatorForTauHLT.h"
 // Math
 #include "Math/GenVector/VectorUtil.h"
@@ -55,8 +56,9 @@ void CaloTowerCreatorForTauHLT::produce( StreamID sid, Event& evt, const EventSe
 	  unsigned idx = 0;
 	  for (; idx < caloTowers->size(); idx++) {
 	    const CaloTower* cal = &((*caloTowers) [idx]);
+	    bool isAccepted = false;
 	    if (mVerbose == 2) {
-	      std::cout << "CaloTowerCreatorForTauHLT::produce-> " << idx << " tower et/eta/phi/e: " 
+	      edm::LogInfo("JetDebugInfo") << "CaloTowerCreatorForTauHLT::produce-> " << idx << " tower et/eta/phi/e: " 
 			<< cal->et() << '/' << cal->eta() << '/' << cal->phi() << '/' << cal->energy() << " is...";
 	    }
 	    if (cal->et() >= mEtThreshold && cal->energy() >= mEThreshold ) {
@@ -64,12 +66,14 @@ void CaloTowerCreatorForTauHLT::produce( StreamID sid, Event& evt, const EventSe
   	      double delta  = ROOT::Math::VectorUtil::DeltaR((*myL1Jet).p4().Vect(), p);
 	      
 	      if(delta < mCone) {
+		isAccepted = true;
 		Sum08 += cal->et(); 
 		cands->push_back( *cal );
 	      }
 	    }
-	    else {
-	      if (mVerbose == 2) std::cout << "rejected " << std::endl;
+	    if (mVerbose == 2){
+	      if (isAccepted) edm::LogInfo("JetDebugInfo") << "accepted \n";
+	      else edm::LogInfo("JetDebugInfo") << "rejected \n";
 	    }
 	  }
 
