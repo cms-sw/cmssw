@@ -326,7 +326,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
     {
       throw cms::Exception("FedRawDataInputSource::getNextEvent") << "Run has been aborted by the input source reader thread";
     }
-    else if (status == evf::EvFDaqDirector::newLumi) 
+    else if (status == evf::EvFDaqDirector::newLumi)
     {
       if (getLSFromFilename_) {
 	if (currentFile_->lumi_ > currentLumiSection_) {
