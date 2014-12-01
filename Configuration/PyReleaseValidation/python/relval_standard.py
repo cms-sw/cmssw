@@ -198,6 +198,11 @@ workflows[1349] = ['', ['BsToMuMu_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1350] = ['', ['JpsiMuMu_Pt-15','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1351] = ['', ['BuToKstarPsi2S_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 
+workflows[1352] = ['', ['RSGravitonToGammaGamma_kMpl01_M_3000_TuneCUETP8M1_13TeV','DIGIUP15','RECOUP15','HARVESTUP15']]
+workflows[1353] = ['', ['HSCPstop_M_200_TuneCUETP8M1_13TeV','DIGIUP15','RECOUP15','HARVESTUP15']]
+workflows[1354] = ['', ['WprimeToENu_M-2000_TuneCUETP8M1_13TeV','DIGIUP15','RECOUP15','HARVESTUP15']]
+
+
 workflows[1325] = ['', ['TTbar_13','DIGIUP15','RECOUP15','HARVESTUP15','ALCATT']]
 workflows[1326] = ['', ['WE_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1329] = ['', ['ZEE_13','DIGIUP15','RECOUP15','HARVESTUP15','ALCAELE']]
