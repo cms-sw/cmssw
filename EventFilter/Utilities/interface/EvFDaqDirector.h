@@ -31,6 +31,10 @@ class StreamID;
 class InputFile;
 class InputChunk;
 
+namespace Json{
+  class Value;
+}
+
 namespace evf{
 
   class FastMonitoringService;
@@ -65,6 +69,7 @@ namespace evf{
       std::string getMergedDatChecksumFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getOpenInitFilePath(std::string const& stream) const;
       std::string getInitFilePath(std::string const& stream) const;
+      std::string getTransferFilePath(std::string const& stream) const;
       std::string getOpenProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getMergedProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const;
@@ -106,7 +111,8 @@ namespace evf{
         fileDeleteLockPtr_=fileDeleteLock;
         filesToDeletePtr_ = filesToDelete;
       }
-      void writeTransferSystemJsonMaybe();
+      void checkTransferSystemPSet();
+      void writeTransferSystemJsonMaybe(std::string const& stream) const;
 
 
     private:
@@ -184,6 +190,8 @@ namespace evf{
       bool readEolsDefinition_ = true;
       unsigned int eolsNFilesIndex_ = 1;
       std::string stopFilePath_;
+
+      std::shared_ptr<Json::Value> transferSystemJson_;
   };
 }
 

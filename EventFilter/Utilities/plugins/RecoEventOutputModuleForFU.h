@@ -168,6 +168,7 @@ namespace evf {
   void
   RecoEventOutputModuleForFU<Consumer>::doOutputHeader(InitMsgBuilder const& init_message) const
   {
+    edm::Service<evf::EvFDaqDirector>()->writeTransferSystemJsonMaybe(stream_label_);
     c_->doOutputHeader(init_message);
 
     const std::string openIniFileName = edm::Service<evf::EvFDaqDirector>()->getOpenInitFilePath(stream_label_);

@@ -88,6 +88,10 @@ class TriggerJSONMonitoring : public edm::stream::EDAnalyzer <edm::RunCache<hltJ
   static std::shared_ptr<hltJson::runVars> globalBeginRun(edm::Run const&, edm::EventSetup const&, void const*){
     std::shared_ptr<hltJson::runVars> rv(new hltJson::runVars);
     rv->wroteFiles = false;
+    if (edm::Service<evf::EvFDaqDirector>().isAvailable()) {
+      edm::Service<evf::EvFDaqDirector>()->writeTransferSystemJsonMaybe("streamHLTRates");
+      edm::Service<evf::EvFDaqDirector>()->writeTransferSystemJsonMaybe("streamL1Rates");
+    }
     return rv;
   }
   
