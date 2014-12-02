@@ -3,6 +3,13 @@ import FWCore.ParameterSet.Config as cms
 #### PF CLUSTER HGCEE ####
 
 #cleaning 
+_densityBasedCleaner = cms.PSet(
+    algoName = cms.string("PandoraIsolatedSpikeKiller"),
+    hit_search_radius = cms.double(6.0),
+    hit_search_length = cms.double(20.0),
+    weight_power = cms.double(2.0),
+    weight_cut = cms.double(0.75)
+    )
 
 #seeding
 _localmaxseeds_HGCEE = cms.PSet(
@@ -75,8 +82,8 @@ _HGCEE_EMEnergyCalibrator = cms.PSet(
     MipValueInGeV_heb = cms.double(1498.4*1e-6),
     #EM energy calibrations
     weights_ee = cms.vdouble(weight_vec_ee_electrons),
-    weights_hef = cms.vdouble([0 for x in range(12)]),
-    weights_heb = cms.vdouble([0 for x in range(12)]),
+    weights_hef = cms.vdouble(weight_vec_hef),
+    weights_heb = cms.vdouble(weight_vec_heb),
     effMip_to_InverseGeV_a = cms.double(80.0837),
     effMip_to_InverseGeV_b = cms.double(-107.229),
     effMip_to_InverseGeV_c = cms.double(0.0472817),    
@@ -160,11 +167,11 @@ _HGCEE_ElectronEnergy = cms.PSet(
 particleFlowClusterHGCEE = cms.EDProducer(
     "PFClusterProducer",
     recHitsSource = cms.InputTag("particleFlowRecHitHGCEE"),
-    recHitCleaners = cms.VPSet(),
+    recHitCleaners = cms.VPSet(_densityBasedCleaner),
     seedFinder = _localmaxseeds_HGCEE,
     initialClusteringStep = _fromScratchHGCClusterizer_HGCEE,
     pfClusterBuilder = cms.PSet( ), #_arborClusterizer_HGCEE,
     positionReCalc = cms.PSet( ), #_simplePosCalcHGCEE,
-    energyCorrector = _HGCEE_HADEnergyCalibrator#_HGCEE_ElectronEnergy
+    energyCorrector = _HGCEE_EMEnergyCalibrator
 )
 
