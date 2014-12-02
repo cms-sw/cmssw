@@ -7,7 +7,7 @@
 
 namespace edm {
 
-  MemberWithDict::MemberWithDict() : dataMember_() {
+  MemberWithDict::MemberWithDict() : dataMember_(nullptr) {
   }
 
   MemberWithDict::MemberWithDict(TDataMember* dataMember) : dataMember_(dataMember) {

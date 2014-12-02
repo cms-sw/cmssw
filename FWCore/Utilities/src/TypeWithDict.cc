@@ -16,6 +16,7 @@
 #include "TEnumConstant.h"
 #include "TInterpreter.h"
 #include "TMethodArg.h"
+#include "TRealData.h"
 #include "TROOT.h"
 
 #include "boost/thread/tss.hpp"
@@ -535,7 +536,15 @@ namespace edm {
   MemberWithDict
   TypeWithDict::dataMemberByName(std::string const& member) const {
     if (class_ != nullptr) {
-      return MemberWithDict(class_->GetDataMember(member.c_str()));
+      TDataMember* dataMember = class_->GetDataMember(member.c_str());
+      if(dataMember == nullptr) {
+        // Look for indirect data members
+        TRealData* realDataMember = class_->GetRealData(member.c_str());
+        if(realDataMember != nullptr) {
+          dataMember = realDataMember->GetDataMember();
+        }
+      }
+      return MemberWithDict(dataMember);
     }
     if (enum_ != nullptr) {
       TClass* cl = enum_->GetClass();
