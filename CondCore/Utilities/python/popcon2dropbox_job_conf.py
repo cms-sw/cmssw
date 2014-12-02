@@ -1,10 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-#toPut = cms.VPSet( [ cms.PSet( record = k,
-#                               tag = v.get('destinationTag'),
-#                               timetype = v.get('timetype')
-#                               ) for k,v in md.outputRecords().items()] )
-
 import popcon2dropbox
 md = popcon2dropbox.CondMetaData()
 psetForRec = []
@@ -13,7 +8,6 @@ for k,v in md.records().items():
                                  tag = cms.string(str(v.get('destinationTag'))),
                                  ) 
                        )
-print '####  1'
     
 psetForOutRec = []
 for k,v in md.records().items():
@@ -49,12 +43,3 @@ process.source = cms.Source("EmptyIOVSource",
 
 print process.CondDB.connect
 
-process.essource = cms.ESSource("PoolDBESSource",
-                                #connect = cms.string('oracle://cms_orcon_prod/CMS_COND_31X_DT'),
-                                connect = cms.string( str(md.destinationDatabase()) ),
-                                DBParameters = cms.PSet( authenticationPath = cms.untracked.string( str(md.authPath()) ),
-                                                         authenticationSystem = cms.untracked.int32( int(md.authSys()) )
-                                                         ),
-                                DumpStat=cms.untracked.bool(True),
-                                toGet = cms.VPSet( psetForRec )
-)
