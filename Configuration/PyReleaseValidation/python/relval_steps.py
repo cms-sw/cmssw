@@ -1191,33 +1191,21 @@ stepMiniAODDefaults = { '-s'              : 'PAT',
 stepMiniAODData = merge([{'--conditions'   : 'auto:run1_data',
                           '--data'         : '',
                           '--datatier'     : 'MINIAOD',
-                          '--eventcontent' : 'MINIAOD'
+                          '--eventcontent' : 'MINIAOD',
+                          '--filein'       :'file:step3.root'
                           },stepMiniAODDefaults])
 stepMiniAODMC = merge([{'--conditions'   : 'auto:run2_mc',
                         '--mc'           : '',
                         '--datatier'     : 'MINIAODSIM',
-                        '--eventcontent' : 'MINIAODSIM'
+                        '--eventcontent' : 'MINIAODSIM',
+                        '--filein'       :'file:step3.root'
                         },stepMiniAODDefaults])
-stepMiniAODMC50ns = merge([{'--conditions'   : 'auto:run2_mc_50ns',
-                            '--mc'           : '',
-                            '--datatier'     : 'MINIAODSIM',
-                            '--eventcontent' : 'MINIAODSIM'
-                        },stepMiniAODDefaults])
-stepMiniAODMCFS = merge([{'--conditions'   : 'auto:run2_mc',
-                          '--mc'           : '',
-                          '--fast'         : '',
-                          '--datatier'     : 'MINIAODSIM',
-                          '--eventcontent' : 'MINIAODSIM'
-                          },stepMiniAODDefaults])
-stepMiniAODMCFS50ns = merge([{'--conditions'   : 'auto:run2_mc_50ns',
-                              '--mc'           : '',
-                              '--fast'         : '',
-                              '--datatier'     : 'MINIAODSIM',
-                              '--eventcontent' : 'MINIAODSIM'
-                              },stepMiniAODDefaults])
 
-steps['MINIAODDATA']=merge([{'--filein':'file:step3.root'},stepMiniAODData])
-steps['MINIAODMC']=merge([{'--filein':'file:step3.root'},stepMiniAODMC])
-steps['MINIAODMC50']=merge([{'--filein':'file:step3.root'},stepMiniAODMC50ns])
-steps['MINIAODMCFS']=merge([{'--filein':'file:step1.root'},stepMiniAODMCFS])
-steps['MINIAODMCFS50']=merge([{'--filein':'file:step1.root'},stepMiniAODMCFS50ns])
+steps['MINIAODDATA']       =merge([stepMiniAODData])
+steps['MINIAODDreHLT']     =merge([{'--conditions':'auto:run1_data_%s'%menu},stepMiniAODData])
+steps['MINIAODDATAs2']     =merge([{'--filein':'file:step2.root'},stepMiniAODData])
+steps['MINIAODMCUP15']     =merge([stepMiniAODMC])
+steps['MINIAODMCUP1550']   =merge([{'--conditions':'auto:run2_mc_50ns'},stepMiniAODMC])
+steps['MINIAODMCUP15HI']   =merge([{'--conditions':'auto:run2_mc_HIon'},stepMiniAODMC])
+steps['MINIAODMCUP15FS']   =merge([{'--filein':'file:step1.root','--fast':''},stepMiniAODMC])
+steps['MINIAODMCUP15FS50'] =merge([{'--conditions':'auto:run2_mc_50ns'},steps['MINIAODMCUP15FS']])
