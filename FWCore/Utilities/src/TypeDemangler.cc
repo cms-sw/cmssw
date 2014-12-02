@@ -50,27 +50,6 @@ namespace {
     } 
   }
 
-  bool isAlnumOrUnderscore(char c) {
-    return c == '_' || std::isalnum(c);
-  }
-
-  void
-  replaceDelimitedString(std::string& demangledName, std::string const& from, std::string const& to) {
-    // from must not be a substring of to.
-    std::string::size_type length = from.size(); 
-    std::string::size_type pos = 0;
-    while((pos = demangledName.find(from, pos)) != std::string::npos) {
-      // replace 'from', unless preceded or followed by a letter, digit, or unsderscore.
-      if(pos != 0 && isAlnumOrUnderscore(demangledName[pos - 1])) {
-        ++pos;
-      } else if(pos + length < demangledName.size() && isAlnumOrUnderscore(demangledName[pos + length])) {
-        ++pos;
-      } else {
-        demangledName.replace(pos, length, to); 
-      }
-    }
-  } 
-
   void
   constBeforeIdentifier(std::string& demangledName) {
     std::string const toBeMoved(" const");
