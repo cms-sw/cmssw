@@ -90,18 +90,16 @@ process.dumpRaw = cms.EDAnalyzer(
 
 # raw to digi
 process.load('EventFilter.L1TRawToDigi.caloStage1Digis_cfi')
-process.caloStage1Digis.FedId = cms.int32(1300)  # i'm guessing here
-process.caloStage1Digis.Setup = cms.string("stage1::CaloSetup")  # guessing again
 process.caloStage1Digis.InputLabel = cms.InputTag('stage1Raw')
 
 
 process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')
 process.l1tStage2CaloAnalyzer.towerToken = cms.InputTag("None")
 process.l1tStage2CaloAnalyzer.clusterToken = cms.InputTag("None")
-process.l1tStage2CaloAnalyzer.egToken = cms.InputTag("l1tDigis")
-process.l1tStage2CaloAnalyzer.tauToken = cms.InputTag("l1tDigis")
-process.l1tStage2CaloAnalyzer.jetToken = cms.InputTag("l1tDigis")
-process.l1tStage2CaloAnalyzer.etSumToken = cms.InputTag("l1tDigis")
+process.l1tStage2CaloAnalyzer.egToken = cms.InputTag("caloStage1Digis")
+process.l1tStage2CaloAnalyzer.tauToken = cms.InputTag("caloStage1Digis")
+process.l1tStage2CaloAnalyzer.jetToken = cms.InputTag("caloStage1Digis")
+process.l1tStage2CaloAnalyzer.etSumToken = cms.InputTag("caloStage1Digis")
 
 # Path and EndPath definitions
 process.path = cms.Path(
