@@ -189,7 +189,7 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
 
   // fill the block structure
-  std::vector<Block> blocks = getBlocks(0);    
+  std::vector<Block> blocks = getBlocks(0);
 
   // fill the AMC13 packet
   amc13::Packet amc13;

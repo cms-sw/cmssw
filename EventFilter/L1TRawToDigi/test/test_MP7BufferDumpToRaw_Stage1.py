@@ -97,7 +97,7 @@ process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')
 process.l1tStage2CaloAnalyzer.towerToken = cms.InputTag("None")
 process.l1tStage2CaloAnalyzer.clusterToken = cms.InputTag("None")
 process.l1tStage2CaloAnalyzer.egToken = cms.InputTag("caloStage1Digis")
-process.l1tStage2CaloAnalyzer.tauToken = cms.InputTag("caloStage1Digis")
+process.l1tStage2CaloAnalyzer.tauToken = cms.InputTag("caloStage1Digis:rlxTaus")
 process.l1tStage2CaloAnalyzer.jetToken = cms.InputTag("caloStage1Digis")
 process.l1tStage2CaloAnalyzer.etSumToken = cms.InputTag("caloStage1Digis")
 
