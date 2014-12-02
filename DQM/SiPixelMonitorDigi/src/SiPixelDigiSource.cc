@@ -63,7 +63,9 @@ SiPixelDigiSource::SiPixelDigiSource(const edm::ParameterSet& iConfig) :
   bladeOn( conf_.getUntrackedParameter<bool>("bladeOn",false) ), 
   diskOn( conf_.getUntrackedParameter<bool>("diskOn",false) ),
   bigEventSize( conf_.getUntrackedParameter<int>("bigEventSize",1000) ), 
-  isUpgrade( conf_.getUntrackedParameter<bool>("isUpgrade",false) )
+  isUpgrade( conf_.getUntrackedParameter<bool>("isUpgrade",false) ),
+  noOfLayers(0),
+  noOfDisks(0)
 {
    //set Token(-s)
    srcToken_ = consumes<edm::DetSetVector<PixelDigi> >(conf_.getParameter<edm::InputTag>( "src" ));
@@ -169,8 +171,8 @@ void SiPixelDigiSource::dqmBeginRun(const edm::Run& r, const edm::EventSetup& iS
   }
 }
 
-void SiPixelDigiSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const &, edm::EventSetup const &){
-  bookMEs(iBooker);
+void SiPixelDigiSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const &, const edm::EventSetup & iSetup){
+  bookMEs(iBooker, iSetup);
 }
 
 //------------------------------------------------------------------
@@ -178,6 +180,10 @@ void SiPixelDigiSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
 //------------------------------------------------------------------
 void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology *pTT = tTopoHandle.product();
+
   eventNo++;
 
   // get input data
@@ -215,8 +221,8 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
   int NzeroROCs[2]        = {0,-672};
   int NloEffROCs[2]       = {0,-672};
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
-    int numberOfDigisMod = (*struct_iter).second->fill(*input, 
-						       meNDigisCOMBBarrel_, meNDigisCHANBarrel_,meNDigisCHANBarrelL1_,meNDigisCHANBarrelL2_,meNDigisCHANBarrelL3_,meNDigisCHANBarrelL4_,meNDigisCOMBEndcap_,
+    int numberOfDigisMod = (*struct_iter).second->fill(*input, iSetup,
+						       meNDigisCOMBBarrel_, meNDigisCHANBarrel_,meNDigisCHANBarrelLs_,meNDigisCOMBEndcap_,
 						       modOn, ladOn, layOn, phiOn, 
 						       bladeOn, diskOn, ringOn, 
 						       twoDimOn, reducedSet, twoDimModOn, twoDimOnlyLayDisk,
@@ -252,11 +258,11 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
         }
       }else if(endcap && !isUpgrade){ // Endcap
         nFPIXDigis = nFPIXDigis + numberOfDigisMod;
-        PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId((*struct_iter).first)).halfCylinder();
-	int disk = PixelEndcapName(DetId((*struct_iter).first)).diskName();
-	int blade = PixelEndcapName(DetId((*struct_iter).first)).bladeName();
-        int panel = PixelEndcapName(DetId((*struct_iter).first)).pannelName();
-        int module = PixelEndcapName(DetId((*struct_iter).first)).plaquetteName();
+        PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId((*struct_iter).first),pTT,isUpgrade).halfCylinder();
+	int disk = PixelEndcapName(DetId((*struct_iter).first),pTT,isUpgrade).diskName();
+	int blade = PixelEndcapName(DetId((*struct_iter).first),pTT,isUpgrade).bladeName();
+        int panel = PixelEndcapName(DetId((*struct_iter).first),pTT,isUpgrade).pannelName();
+        int module = PixelEndcapName(DetId((*struct_iter).first),pTT,isUpgrade).plaquetteName();
 	int iter=0; int i=0;
 	if(side==PixelEndcapName::mI){
 	  if(disk==1){
@@ -358,14 +364,14 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
       } //endif Barrel/(Endcap && !isUpgrade)
       else if (endcap && isUpgrade) {
         nFPIXDigis = nFPIXDigis + numberOfDigisMod;
-        PixelEndcapNameUpgrade::HalfCylinder side = PixelEndcapNameUpgrade(DetId((*struct_iter).first)).halfCylinder();
-        int disk = PixelEndcapNameUpgrade(DetId((*struct_iter).first)).diskName();
-        int blade = PixelEndcapNameUpgrade(DetId((*struct_iter).first)).bladeName();
-        int panel = PixelEndcapNameUpgrade(DetId((*struct_iter).first)).pannelName();
-        int module = PixelEndcapNameUpgrade(DetId((*struct_iter).first)).plaquetteName();
+        PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId((*struct_iter).first),pTT,isUpgrade).halfCylinder();
+        int disk = PixelEndcapName(DetId((*struct_iter).first),pTT,isUpgrade).diskName();
+        int blade = PixelEndcapName(DetId((*struct_iter).first),pTT,isUpgrade).bladeName();
+        int panel = PixelEndcapName(DetId((*struct_iter).first),pTT,isUpgrade).pannelName();
+        int module = PixelEndcapName(DetId((*struct_iter).first),pTT,isUpgrade).plaquetteName();
         
         int iter=0; int i=0;
-        if(side==PixelEndcapNameUpgrade::mI){
+        if(side==PixelEndcapName::mI){
           if(disk==1){
             i=0;
             if(panel==1){ if(module==1) nDM1P1M1+=numberOfDigisMod; }
@@ -382,7 +388,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
             else if(panel==2){ if(module==1) nDM3P2M1+=numberOfDigisMod; }
 	    if(blade<12 && blade>0 && (panel==1 || panel==2)) iter = i+2*(blade-1)+(panel-1);
           }
-        }else if(side==PixelEndcapNameUpgrade::mO){
+        }else if(side==PixelEndcapName::mO){
           if(disk==1){
             i=66;
             if(panel==1){ if(module==1) nDM1P1M1+=numberOfDigisMod; }
@@ -399,7 +405,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
             else if(panel==2){ if(module==1) nDM3P2M1+=numberOfDigisMod; }
 	    if(blade<18 && blade>0 && (panel==1 || panel==2)) iter = i+2*(blade-1)+(panel-1);
           }
-        }else if(side==PixelEndcapNameUpgrade::pI){
+        }else if(side==PixelEndcapName::pI){
           if(disk==1){
             i=168;
             if(panel==1){ if(module==1) nDP1P1M1+=numberOfDigisMod; }
@@ -416,7 +422,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
             else if(panel==2){ if(module==1) nDP3P2M1+=numberOfDigisMod; }
 	    if(blade<12 && blade>0 && (panel==1 || panel==2)) iter = i+2*(blade-1)+(panel-1);
           }
-        }else if(side==PixelEndcapNameUpgrade::pO){
+        }else if(side==PixelEndcapName::pO){
           if(disk==1){
             i=234;
             if(panel==1){ if(module==1) nDP1P1M1+=numberOfDigisMod; }
@@ -464,20 +470,21 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
     if(loOccROCsEndcap) loOccROCsEndcap->setBinContent(1+lumiSection/10, NloEffROCs[1]);
   }
   
-  if (!isUpgrade) {
+  if (noOfDisks == 2) { // if (!isUpgrade)
     if(meNDigisCHANEndcap_){ for(int j=0; j!=192; j++) if(numberOfDigis[j]>0) meNDigisCHANEndcap_->Fill((float)numberOfDigis[j]);}
-    if(meNDigisCHANEndcapDm1_){ for(int j=0; j!=72; j++) if((j<24||j>47)&&numberOfDigis[j]>0) meNDigisCHANEndcapDm1_->Fill((float)numberOfDigis[j]);}
-    if(meNDigisCHANEndcapDm2_){ for(int j=24; j!=96; j++) if((j<48||j>71)&&numberOfDigis[j]>0) meNDigisCHANEndcapDm2_->Fill((float)numberOfDigis[j]);}
-    if(meNDigisCHANEndcapDp1_){ for(int j=96; j!=168; j++) if((j<120||j>143)&&numberOfDigis[j]>0) meNDigisCHANEndcapDp1_->Fill((float)numberOfDigis[j]);}
-    if(meNDigisCHANEndcapDp2_){ for(int j=120; j!=192; j++) if((j<144||j>167)&&numberOfDigis[j]>0) meNDigisCHANEndcapDp2_->Fill((float)numberOfDigis[j]);}
-  } else if (isUpgrade) {
+    if(meNDigisCHANEndcapDms_.at(0)){ for(int j=0; j!=72; j++) if((j<24||j>47)&&numberOfDigis[j]>0) meNDigisCHANEndcapDms_.at(0)->Fill((float)numberOfDigis[j]);}
+    if(meNDigisCHANEndcapDms_.at(1)){ for(int j=24; j!=96; j++) if((j<48||j>71)&&numberOfDigis[j]>0) meNDigisCHANEndcapDms_.at(1)->Fill((float)numberOfDigis[j]);}
+    if(meNDigisCHANEndcapDps_.at(0)){ for(int j=96; j!=168; j++) if((j<120||j>143)&&numberOfDigis[j]>0) meNDigisCHANEndcapDps_.at(0)->Fill((float)numberOfDigis[j]);}
+    if(meNDigisCHANEndcapDps_.at(1)){ for(int j=120; j!=192; j++) if((j<144||j>167)&&numberOfDigis[j]>0) meNDigisCHANEndcapDps_.at(1)->Fill((float)numberOfDigis[j]);}
+  }
+  else if (noOfDisks == 3) { // else if (isUpgrade)
     if(meNDigisCHANEndcap_){ for(int j=0; j!=336; j++) if(numberOfDigis[j]>0) meNDigisCHANEndcap_->Fill((float)numberOfDigis[j]);}
-    if(meNDigisCHANEndcapDm1_){ for(int j=0; j!=100; j++) if((j<22||j>65)&&numberOfDigis[j]>0) meNDigisCHANEndcapDm1_->Fill((float)numberOfDigis[j]);}
-    if(meNDigisCHANEndcapDm2_){ for(int j=22; j!=134; j++) if((j<44||j>99)&&numberOfDigis[j]>0) meNDigisCHANEndcapDm2_->Fill((float)numberOfDigis[j]);}
-    if(meNDigisCHANEndcapDm3_){ for(int j=44; j!=168; j++) if((j<66||j>133)&&numberOfDigis[j]>0) meNDigisCHANEndcapDm3_->Fill((float)numberOfDigis[j]);}
-    if(meNDigisCHANEndcapDp1_){ for(int j=168; j!=268; j++) if((j<190||j>233)&&numberOfDigis[j]>0) meNDigisCHANEndcapDp1_->Fill((float)numberOfDigis[j]);}
-    if(meNDigisCHANEndcapDp2_){ for(int j=190; j!=302; j++) if((j<212||j>267)&&numberOfDigis[j]>0) meNDigisCHANEndcapDp2_->Fill((float)numberOfDigis[j]);}
-    if(meNDigisCHANEndcapDp3_){ for(int j=212; j!=336; j++) if((j<234||j>301)&&numberOfDigis[j]>0) meNDigisCHANEndcapDp3_->Fill((float)numberOfDigis[j]);}
+    if(meNDigisCHANEndcapDms_.at(0)){ for(int j=0; j!=100; j++) if((j<22||j>65)&&numberOfDigis[j]>0) meNDigisCHANEndcapDms_.at(0)->Fill((float)numberOfDigis[j]);}
+    if(meNDigisCHANEndcapDms_.at(1)){ for(int j=22; j!=134; j++) if((j<44||j>99)&&numberOfDigis[j]>0) meNDigisCHANEndcapDms_.at(1)->Fill((float)numberOfDigis[j]);}
+    if(meNDigisCHANEndcapDms_.at(2)){ for(int j=44; j!=168; j++) if((j<66||j>133)&&numberOfDigis[j]>0) meNDigisCHANEndcapDms_.at(2)->Fill((float)numberOfDigis[j]);}
+    if(meNDigisCHANEndcapDps_.at(0)){ for(int j=168; j!=268; j++) if((j<190||j>233)&&numberOfDigis[j]>0) meNDigisCHANEndcapDps_.at(0)->Fill((float)numberOfDigis[j]);}
+    if(meNDigisCHANEndcapDps_.at(1)){ for(int j=190; j!=302; j++) if((j<212||j>267)&&numberOfDigis[j]>0) meNDigisCHANEndcapDps_.at(1)->Fill((float)numberOfDigis[j]);}
+    if(meNDigisCHANEndcapDps_.at(2)){ for(int j=212; j!=336; j++) if((j<234||j>301)&&numberOfDigis[j]>0) meNDigisCHANEndcapDps_.at(2)->Fill((float)numberOfDigis[j]);}
   }
   
   if(meNDigisCHANBarrelCh1_){ for(int i=0; i!=32; i++) if(nDigisPerChan[i*36+0]>0) meNDigisCHANBarrelCh1_->Fill((float)nDigisPerChan[i*36+0]);}
@@ -563,6 +570,10 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 //------------------------------------------------------------------
 void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup){
 
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology *pTT = tTopoHandle.product();
+
   LogInfo ("PixelDQM") <<" SiPixelDigiSource::buildStructure" ;
   edm::ESHandle<TrackerGeometry> pDD;
   iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
@@ -585,6 +596,8 @@ void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup){
         if(isPIB) continue;
 	LogDebug ("PixelDQM") << " ---> Adding Barrel Module " <<  detId.rawId() << endl;
 	uint32_t id = detId();
+	int layer = PixelBarrelName(DetId(id),pTT,isUpgrade).layerName();
+	if (layer > noOfLayers) noOfLayers = layer;
 	SiPixelDigiModule* theModule = new SiPixelDigiModule(id, ncols, nrows);
 	thePixelStructure.insert(pair<uint32_t,SiPixelDigiModule*> (id,theModule));
 
@@ -593,11 +606,12 @@ void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup){
 	uint32_t id = detId();
 	SiPixelDigiModule* theModule = new SiPixelDigiModule(id, ncols, nrows);
        
-        PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(id)).halfCylinder();
-        int disk   = PixelEndcapName(DetId(id)).diskName();
-        int blade  = PixelEndcapName(DetId(id)).bladeName();
-        int panel  = PixelEndcapName(DetId(id)).pannelName();
-        int module = PixelEndcapName(DetId(id)).plaquetteName();
+        PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(id),pTT,isUpgrade).halfCylinder();
+        int disk   = PixelEndcapName(DetId(id),pTT,isUpgrade).diskName();
+        if (disk > noOfDisks) noOfDisks = disk;
+        int blade  = PixelEndcapName(DetId(id),pTT,isUpgrade).bladeName();
+        int panel  = PixelEndcapName(DetId(id),pTT,isUpgrade).pannelName();
+        int module = PixelEndcapName(DetId(id),pTT,isUpgrade).plaquetteName();
 
         char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
         char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);
@@ -620,11 +634,12 @@ void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup){
 	uint32_t id = detId();
 	SiPixelDigiModule* theModule = new SiPixelDigiModule(id, ncols, nrows);
         
-        PixelEndcapNameUpgrade::HalfCylinder side = PixelEndcapNameUpgrade(DetId(id)).halfCylinder();
-        int disk   = PixelEndcapNameUpgrade(DetId(id)).diskName();
-        int blade  = PixelEndcapNameUpgrade(DetId(id)).bladeName();
-        int panel  = PixelEndcapNameUpgrade(DetId(id)).pannelName();
-        int module = PixelEndcapNameUpgrade(DetId(id)).plaquetteName();
+        PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(id),pTT,isUpgrade).halfCylinder();
+        int disk   = PixelEndcapName(DetId(id),pTT,isUpgrade).diskName();
+        if (disk > noOfDisks) noOfDisks = disk;
+        int blade  = PixelEndcapName(DetId(id),pTT,isUpgrade).bladeName();
+        int panel  = PixelEndcapName(DetId(id),pTT,isUpgrade).pannelName();
+        int module = PixelEndcapName(DetId(id),pTT,isUpgrade).plaquetteName();
 
         char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
         char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);
@@ -651,7 +666,7 @@ void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup){
 //------------------------------------------------------------------
 // Book MEs
 //------------------------------------------------------------------
-void SiPixelDigiSource::bookMEs(DQMStore::IBooker & iBooker){
+void SiPixelDigiSource::bookMEs(DQMStore::IBooker & iBooker, const edm::EventSetup& iSetup){
   
   // Get DQM interface
   iBooker.setCurrentFolder(topFolderName_);
@@ -684,7 +699,7 @@ void SiPixelDigiSource::bookMEs(DQMStore::IBooker & iBooker){
     /// Create folder tree and book histograms 
     if(modOn){
       if(theSiPixelFolder.setModuleFolder(iBooker,(*struct_iter).first,0,isUpgrade)){
-	(*struct_iter).second->book( conf_,iBooker,0,twoDimOn,hiRes, reducedSet, twoDimModOn, isUpgrade);
+	(*struct_iter).second->book( conf_,iSetup,iBooker,0,twoDimOn,hiRes, reducedSet, twoDimModOn, isUpgrade);
       } else {
 
 	if(!isPIB) throw cms::Exception("LogicError")
@@ -693,7 +708,7 @@ void SiPixelDigiSource::bookMEs(DQMStore::IBooker & iBooker){
     }
     if(ladOn){
       if(theSiPixelFolder.setModuleFolder(iBooker,(*struct_iter).first,1,isUpgrade)){
-	(*struct_iter).second->book( conf_,iBooker,1,twoDimOn,hiRes, reducedSet, isUpgrade);
+	(*struct_iter).second->book( conf_,iSetup,iBooker,1,twoDimOn,hiRes, reducedSet, isUpgrade);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH LADDER-FOLDER\n";
       }
@@ -701,7 +716,7 @@ void SiPixelDigiSource::bookMEs(DQMStore::IBooker & iBooker){
     }
     if(layOn || twoDimOnlyLayDisk){
       if(theSiPixelFolder.setModuleFolder(iBooker,(*struct_iter).first,2,isUpgrade)){
-	(*struct_iter).second->book( conf_,iBooker,2,twoDimOn,hiRes, reducedSet, twoDimOnlyLayDisk, isUpgrade);
+	(*struct_iter).second->book( conf_,iSetup,iBooker,2,twoDimOn,hiRes, reducedSet, twoDimOnlyLayDisk, isUpgrade);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH LAYER-FOLDER\n";
       }
@@ -709,28 +724,28 @@ void SiPixelDigiSource::bookMEs(DQMStore::IBooker & iBooker){
 
     if(phiOn){
       if(theSiPixelFolder.setModuleFolder(iBooker,(*struct_iter).first,3,isUpgrade)){
-	(*struct_iter).second->book( conf_,iBooker,3,twoDimOn,hiRes, reducedSet, isUpgrade);
+	(*struct_iter).second->book( conf_,iSetup,iBooker,3,twoDimOn,hiRes, reducedSet, isUpgrade);
 	} else {
         LogDebug ("PixelDQM") << "PROBLEM WITH PHI-FOLDER\n";
       }
     }
     if(bladeOn){
       if(theSiPixelFolder.setModuleFolder(iBooker,(*struct_iter).first,4,isUpgrade)){
-	(*struct_iter).second->book( conf_,iBooker,4,twoDimOn,hiRes, reducedSet, isUpgrade);
+	(*struct_iter).second->book( conf_,iSetup,iBooker,4,twoDimOn,hiRes, reducedSet, isUpgrade);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH BLADE-FOLDER\n";
       }
     }
     if(diskOn || twoDimOnlyLayDisk){
       if(theSiPixelFolder.setModuleFolder(iBooker,(*struct_iter).first,5,isUpgrade)){
-	(*struct_iter).second->book( conf_,iBooker,5,twoDimOn,hiRes, reducedSet, twoDimOnlyLayDisk, isUpgrade);
+	(*struct_iter).second->book( conf_,iSetup,iBooker,5,twoDimOn,hiRes, reducedSet, twoDimOnlyLayDisk, isUpgrade);
       } else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH DISK-FOLDER\n";
       }
     }
     if(ringOn){
       if(theSiPixelFolder.setModuleFolder(iBooker,(*struct_iter).first,6,isUpgrade)){
-	(*struct_iter).second->book( conf_,iBooker,6,twoDimOn,hiRes, reducedSet, isUpgrade);
+	(*struct_iter).second->book( conf_,iSetup,iBooker,6,twoDimOn,hiRes, reducedSet, isUpgrade);
       } else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH RING-FOLDER\n";
       }
@@ -741,18 +756,13 @@ void SiPixelDigiSource::bookMEs(DQMStore::IBooker & iBooker){
   meNDigisCOMBBarrel_->setAxisTitle("Number of digis per module per event",1);
   meNDigisCHANBarrel_ = iBooker.book1D("ALLMODS_ndigisCHAN_Barrel","Number of Digis",100,0.,1000.);
   meNDigisCHANBarrel_->setAxisTitle("Number of digis per FED channel per event",1);
-  meNDigisCHANBarrelL1_ = iBooker.book1D("ALLMODS_ndigisCHAN_BarrelL1","Number of Digis L1",100,0.,1000.);
-  meNDigisCHANBarrelL1_->setAxisTitle("Number of digis per FED channel per event",1);
-  meNDigisCHANBarrelL2_ = iBooker.book1D("ALLMODS_ndigisCHAN_BarrelL2","Number of Digis L2",100,0.,1000.);
-  meNDigisCHANBarrelL2_->setAxisTitle("Number of digis per FED channel per event",1);
-  meNDigisCHANBarrelL3_ = iBooker.book1D("ALLMODS_ndigisCHAN_BarrelL3","Number of Digis L3",100,0.,1000.);
-  meNDigisCHANBarrelL3_->setAxisTitle("Number of digis per FED channel per event",1);
-  if (isUpgrade) {
-    meNDigisCHANBarrelL4_ = iBooker.book1D("ALLMODS_ndigisCHAN_BarrelL4","Number of Digis L4",100,0.,1000.);
-    meNDigisCHANBarrelL4_->setAxisTitle("Number of digis per FED channel per event",1);
-  }
-  else{
-    meNDigisCHANBarrelL4_=0;
+  std::stringstream ss1, ss2;
+  for (int i = 1; i <= noOfLayers; i++)
+  {
+    ss1.str(std::string()); ss1 << "ALLMODS_ndigisCHAN_BarrelL" << i;
+    ss2.str(std::string()); ss2 << "Number of Digis L" << i;
+    meNDigisCHANBarrelLs_.push_back(iBooker.book1D(ss1.str(),ss2.str(),100,0.,1000.));
+    meNDigisCHANBarrelLs_.at(i-1)->setAxisTitle("Number of digis per FED channel per event",1);
   }
   meNDigisCHANBarrelCh1_ = iBooker.book1D("ALLMODS_ndigisCHAN_BarrelCh1","Number of Digis Ch1",100,0.,1000.);
   meNDigisCHANBarrelCh1_->setAxisTitle("Number of digis per FED channel per event",1);
@@ -831,21 +841,19 @@ void SiPixelDigiSource::bookMEs(DQMStore::IBooker & iBooker){
   meNDigisCOMBEndcap_->setAxisTitle("Number of digis per module per event",1);
   meNDigisCHANEndcap_ = iBooker.book1D("ALLMODS_ndigisCHAN_Endcap","Number of Digis",100,0.,1000.);
   meNDigisCHANEndcap_->setAxisTitle("Number of digis per FED channel per event",1);
-  meNDigisCHANEndcapDp1_ = iBooker.book1D("ALLMODS_ndigisCHAN_EndcapDp1","Number of Digis Disk p1",100,0.,1000.);
-  meNDigisCHANEndcapDp1_->setAxisTitle("Number of digis per FED channel per event",1);
-  meNDigisCHANEndcapDp2_ = iBooker.book1D("ALLMODS_ndigisCHAN_EndcapDp2","Number of Digis Disk p2",100,0.,1000.);
-  meNDigisCHANEndcapDp2_->setAxisTitle("Number of digis per FED channel per event",1);
-  if (isUpgrade) {
-    meNDigisCHANEndcapDp3_ = iBooker.book1D("ALLMODS_ndigisCHAN_EndcapDp3","Number of Digis Disk p3",100,0.,1000.);
-    meNDigisCHANEndcapDp3_->setAxisTitle("Number of digis per FED channel per event",1);
+  for (int i = 1; i <= noOfDisks; i++)
+  {
+    ss1.str(std::string()); ss1 << "ALLMODS_ndigisCHAN_EndcapDp" << i;
+    ss2.str(std::string()); ss2 << "Number of Digis Disk p" << i;
+    meNDigisCHANEndcapDps_.push_back(iBooker.book1D(ss1.str(),ss2.str(),100,0.,1000.));
+    meNDigisCHANEndcapDps_.at(i-1)->setAxisTitle("Number of digis per FED channel per event",1);
   }
-  meNDigisCHANEndcapDm1_ = iBooker.book1D("ALLMODS_ndigisCHAN_EndcapDm1","Number of Digis Disk m1",100,0.,1000.);
-  meNDigisCHANEndcapDm1_->setAxisTitle("Number of digis per FED channel per event",1);
-  meNDigisCHANEndcapDm2_ = iBooker.book1D("ALLMODS_ndigisCHAN_EndcapDm2","Number of Digis Disk m2",100,0.,1000.);
-  meNDigisCHANEndcapDm2_->setAxisTitle("Number of digis per FED channel per event",1);
-  if (isUpgrade) {
-    meNDigisCHANEndcapDm3_ = iBooker.book1D("ALLMODS_ndigisCHAN_EndcapDm3","Number of Digis Disk m3",100,0.,1000.);
-    meNDigisCHANEndcapDm3_->setAxisTitle("Number of digis per FED channel per event",1);
+  for (int i = 1; i <= noOfDisks; i++)
+  {
+    ss1.str(std::string()); ss1 << "ALLMODS_ndigisCHAN_EndcapDm" << i;
+    ss2.str(std::string()); ss2 << "Number of Digis Disk m" << i;
+    meNDigisCHANEndcapDms_.push_back(iBooker.book1D(ss1.str(),ss2.str(),100,0.,1000.));
+    meNDigisCHANEndcapDms_.at(i-1)->setAxisTitle("Number of digis per FED channel per event",1);
   }
   iBooker.cd(topFolderName_);
 }
