@@ -67,9 +67,11 @@ private:
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;
 
-  void fillBlocks(int iAmc);
+  std::vector<Block> getBlocks(int iAmc);
 
-  void formatRaw(FEDRawData& feddata, int bx, int evtId, int orbit);
+  void formatAMC13(amc13::Packet& amc13, const std::vector<Block>& blocks);
+
+  void formatRaw(edm::Event& iEvent, amc13::Packet& amc13, FEDRawData& fed_data);
   
   //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
@@ -112,10 +114,6 @@ private:
   std::vector<int> rxBlockLength_;
   std::vector<int> txBlockLength_;  
 
-
-  // the data
-  std::vector<Block> blocks_;
-
 };
 
 //
@@ -130,10 +128,8 @@ private:
 // constructors and destructor
 //
   MP7BufferDumpToRaw::MP7BufferDumpToRaw(const edm::ParameterSet& iConfig) :
-    rxFileReader_(iConfig.getUntrackedParameter<std::string>("rxFile", "rx_summar\
-y.txt")),
-    txFileReader_(iConfig.getUntrackedParameter<std::string>("txFile", "tx_summar\
-y.txt")),
+    rxFileReader_(iConfig.getUntrackedParameter<std::string>("rxFile", "rx_summary.txt")),
+    txFileReader_(iConfig.getUntrackedParameter<std::string>("txFile", "tx_summary.txt")),
     rxIndex_(0),
     txIndex_(0),
     packetisedData_(iConfig.getUntrackedParameter<bool>("packetisedData", true)),
@@ -161,6 +157,11 @@ y.txt")),
     txIndex_ += iConfig.getUntrackedParameter<int>("nFramesLatency", 0);
   }
 
+  LogDebug("L1T") << "FED ID : " << fedId_;
+  LogDebug("L1T") << "AMC ID : " << amcId_;
+  LogDebug("L1T") << "# Rx blocks : " << rxBlockLength_.size();
+  LogDebug("L1T") << "# Tx blocks " << txBlockLength_.size();
+
 }
 
 
@@ -184,21 +185,104 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
 
   // AMC 13 packet
-  amc13::Packet amc13;
+  //  amc13::Packet amc13;
     
 
   // fill the block structure
-  blocks_.clear();
+  std::vector<Block> blocks = getBlocks(0);    
 
-  fillBlocks(amcId_);
+  // fill the AMC13 packet
+  amc13::Packet amc13;
+  formatAMC13(amc13, blocks);
+
+  // prepare the raw data collection
+  LogDebug("L1T") << "Packing data with FED ID " << fedId_;  
+  std::auto_ptr<FEDRawDataCollection> raw_coll(new FEDRawDataCollection());
+  FEDRawData& fed_data = raw_coll->FEDData(fedId_);
+
+  formatRaw(iEvent, amc13, fed_data);
+  
+  // put the collection in the event
+  iEvent.put(raw_coll);  
+  
+}
+
+
+
+std::vector<Block>
+MP7BufferDumpToRaw::getBlocks(int iBoard)
+{
+
+  std::vector<Block> blocks;
+
+  // Rx blocks first
+  for (unsigned link=0; link<rxBlockLength_.size(); ++link) {
     
+    unsigned id   = link*2;
+    unsigned size = rxBlockLength_.at(link);
+
+    if (size==0) continue;
+
+    std::vector<uint32_t> data;
+    for (unsigned iFrame=rxIndex_; iFrame<size; ++iFrame) {
+      if (!packetisedData_) {
+	data.push_back( rxFileReader_.get(iBoard).link(link).at(iFrame) );
+      }
+    }
+    
+    LogDebug("L1T") << "Block " << id << ", data " << data.size();
+
+    Block block(id, data);
+    blocks.push_back(block);
+    
+  }
+  
+  // then Tx blocks
+  for (unsigned link=0; link<txBlockLength_.size(); ++link) {
+    
+    unsigned id   = (link*2)+1;
+    unsigned size = txBlockLength_.at(link);
+
+    if (size==0) continue;
+
+    std::vector<uint32_t> data(size);
+    for (unsigned iFrame=txIndex_; iFrame<size; ++iFrame) {
+      if (!packetisedData_) {
+	data.push_back( txFileReader_.get(iBoard).link(link).at(iFrame) );
+      }
+    }
+    
+    LogDebug("L1T") << "Block " << id << ", data " << data.size();
+
+    Block block(id, data);
+
+    blocks.push_back(block);
+
+  }
+
+  LogDebug("L1T") << "Read " << blocks.size() << " blocks";
+
+  // advance pointers to next event
+  if (!packetisedData_) {
+    rxIndex_ += nFramesPerEvent_;
+    txIndex_ += nFramesPerEvent_;
+  }
+
+  return blocks;
+  
+}    
+
+
+void
+MP7BufferDumpToRaw::formatAMC13(amc13::Packet& amc13, const std::vector<Block>& blocks) {
+
   LogDebug("L1T") << "Concatenating blocks";
   
   std::vector<uint32_t> load32;
   // TODO this is an empty word to be replaced with a proper MP7
   // header containing at least the firmware version
   load32.push_back(0);
-  for (const auto& block: blocks_) {
+  for (const auto& block: blocks) {
     LogDebug("L1T") << "Adding block " << block.header().getID() << " with size " << block.payload().size();
     auto load = block.payload();
     
@@ -226,13 +310,17 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   LogDebug("L1T") << "Creating AMC packet";
   
-  amc13.add(-amcId_, load64);
+  amc13.add(amcId_, load64);
 
-  // prepare the raw data
-  LogDebug("L1T") << "Packing data with FED ID " << fedId_;
+}
+
   
-  std::auto_ptr<FEDRawDataCollection> raw_coll(new FEDRawDataCollection());
-  FEDRawData& fed_data = raw_coll->FEDData(fedId_);
+  
+void
+MP7BufferDumpToRaw::formatRaw(edm::Event& iEvent, amc13::Packet& amc13, FEDRawData& fed_data)
+{
+
+  LogDebug("L1T") << "Creating FEDRawData";
 
   unsigned int size = slinkHeaderSize_ + slinkTrailerSize_ + amc13.size() * 8;
   fed_data.resize(size);
@@ -253,68 +341,6 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   FEDTrailer trailer(payload);
   trailer.set(payload, size / 8, evf::compute_crc(payload_start, size), 0, 0);
-
-
-  // put the collection in the event
-  iEvent.put(raw_coll);  
-
-}
-
-
-
-void
-MP7BufferDumpToRaw::fillBlocks(int iAmc)
-{
-
-  // Rx blocks first
-  for (unsigned i=0; i<rxBlockLength_.size(); ++i) {
-    
-    unsigned id   = i*2;
-    unsigned size = rxBlockLength_.at(i);
-
-    std::vector<uint32_t> data;
-    for (unsigned iFrame=rxIndex_; iFrame<size; ++iFrame) {
-      if (!packetisedData_) {
-	data.push_back( rxFileReader_.get(iAmc).link(i).at(iFrame) );
-      }
-    }
-    
-    Block block(id, data);
-    blocks_.push_back(block);
-    
-  }
-  
-  // then Tx blocks
-  for (unsigned i=0; i<txBlockLength_.size(); ++i) {
-    
-    unsigned id   = (i*2)+1;
-    unsigned size = txBlockLength_.at(i);
-
-    std::vector<uint32_t> data(size);
-    for (unsigned iFrame=txIndex_; iFrame<size; ++iFrame) {
-      if (!packetisedData_) {
-	data.push_back( txFileReader_.get(iAmc).link(i).at(iFrame) );
-      }
-    }
-    
-    Block block(id, data);
-
-    blocks_.push_back(block);
-
-  }
-
-  // advance pointers to next event
-  if (!packetisedData_) {
-    rxIndex_ += nFramesPerEvent_;
-    txIndex_ += nFramesPerEvent_;
-  }
-  
-}    
-  
-  
-void
-MP7BufferDumpToRaw::formatRaw(FEDRawData& feddata, int bx, int evtId, int orbit)
-{
 
 }
 
