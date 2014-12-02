@@ -200,12 +200,12 @@ namespace l1t {
 
             auto unpacker = unpackers.find(block_hdr.getID());
             if (unpacker == unpackers.end()) {
-	      //LogWarning("L1T") << "Cannot find an unpacker for block ID "
-	      //  << block_hdr.getID() << ", FED ID " << fedId_ << ", and FW ID "
-	      //  << fw << "!";
+               LogDebug("L1T") << "Cannot find an unpacker for block ID "
+                  << block_hdr.getID() << ", FED ID " << fedId_ << ", and FW ID "
+                  << fw << "!";
                // TODO Handle error
             } else if (!unpacker->second->unpack(block, coll.get())) {
-               LogWarning("L1T") << "Error unpacking data for block ID "
+               LogDebug("L1T") << "Error unpacking data for block ID "
                   << block_hdr.getID() << ", FED ID " << fedId_ << ", and FW ID "
                   << fw << "!";
                // TODO Handle error
