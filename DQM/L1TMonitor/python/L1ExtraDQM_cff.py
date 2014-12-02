@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from DQM.L1TMonitor.l1ExtraDQM_cfi import *
 
+from Configuration.StandardSequences.Eras import eras # Used to modify for Run 2
 
 # for DQM, unpack all BxInEvent available for GCT, GMT & GT (common unpacker for GMT and GT)
 # use clones dqmGctDigis and dqmGtDigis, to not interfere with RawToDigi from standard sequences
@@ -41,3 +42,20 @@ dqmL1ExtraParticles.hfRingEtSumsSource = 'dqmGctDigis'
 dqmL1ExtraParticles.hfRingBitCountsSource = 'dqmGctDigis'
 #
 dqmL1ExtraParticles.centralBxOnly = cms.bool(False)
+
+#
+# Modify for running in run 2
+#
+eras.run2.toModify( dqmL1ExtraParticles, etTotalSource = cms.InputTag("caloStage1LegacyFormatDigis") )
+eras.run2.toModify( dqmL1ExtraParticles, nonIsolatedEmSource = cms.InputTag("caloStage1LegacyFormatDigis","nonIsoEm") )
+eras.run2.toModify( dqmL1ExtraParticles, etMissSource = cms.InputTag("caloStage1LegacyFormatDigis") )
+eras.run2.toModify( dqmL1ExtraParticles, htMissSource = cms.InputTag("caloStage1LegacyFormatDigis") )
+eras.run2.toModify( dqmL1ExtraParticles, forwardJetSource = cms.InputTag("caloStage1LegacyFormatDigis","forJets") )
+eras.run2.toModify( dqmL1ExtraParticles, centralJetSource = cms.InputTag("caloStage1LegacyFormatDigis","cenJets") )
+eras.run2.toModify( dqmL1ExtraParticles, tauJetSource = cms.InputTag("caloStage1LegacyFormatDigis","tauJets") )
+eras.run2.toModify( dqmL1ExtraParticles, isoTauJetSource = cms.InputTag("caloStage1LegacyFormatDigis","isoTauJets") )
+eras.run2.toModify( dqmL1ExtraParticles, isolatedEmSource = cms.InputTag("caloStage1LegacyFormatDigis","isoEm") )
+eras.run2.toModify( dqmL1ExtraParticles, etHadSource = cms.InputTag("caloStage1LegacyFormatDigis") )
+eras.run2.toModify( dqmL1ExtraParticles, hfRingEtSumsSource = cms.InputTag("caloStage1LegacyFormatDigis") )
+eras.run2.toModify( dqmL1ExtraParticles, hfRingBitCountsSource = cms.InputTag("caloStage1LegacyFormatDigis") )
+
