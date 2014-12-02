@@ -11,13 +11,17 @@
 #include <cmath>
 
 PixelVertexProducer::PixelVertexProducer(const edm::ParameterSet& conf) 
-  : verbose_(0), dvf_(0), ptMin_(1.0)
+  : verbose_(conf.getParameter<int>("Verbosity") ) // 0 silent, 1 chatty, 2 loud
+  , ptMin_  (conf.getParameter<double>("PtMin")  ) // 1.0 GeV
+  , method2 ( conf.getParameter<bool>("Method2") )
+  , trackCollName  ( conf.getParameter<edm::InputTag>("TrackCollection") )
+  , token_Tracks   ( consumes<reco::TrackCollection>(trackCollName) )
+  , token_BeamSpot ( consumes<reco::BeamSpot>       (conf.getParameter<edm::InputTag>("beamSpot") ) )
 {
   // Register my product
   produces<reco::VertexCollection>();
 
   // Setup shop
-  verbose_           = conf.getParameter<int>("Verbosity"); // 0 silent, 1 chatty, 2 loud
   std::string finder = conf.getParameter<std::string>("Finder"); // DivisiveVertexFinder
   bool useError      = conf.getParameter<bool>("UseError"); // true
   bool wtAverage     = conf.getParameter<bool>("WtAverage"); // true
@@ -25,11 +29,7 @@ PixelVertexProducer::PixelVertexProducer(const edm::ParameterSet& conf)
   double zSeparation = conf.getParameter<double>("ZSeparation"); // 0.05 cm
   int ntrkMin        = conf.getParameter<int>("NTrkMin"); // 3
   // Tracking requirements before sending a track to be considered for vtx
-  ptMin_ = conf.getParameter<double>("PtMin"); // 1.0 GeV
-  trackCollName = conf.getParameter<edm::InputTag>("TrackCollection");
-  token_Tracks = consumes<reco::TrackCollection>(trackCollName);
-  token_BeamSpot = consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpot"));
-  method2 = conf.getParameter<bool>("Method2");
+  
 
   double track_pt_min   = ptMin_;
   double track_pt_max   = 10.;
