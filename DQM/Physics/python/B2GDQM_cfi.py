@@ -15,6 +15,7 @@ B2GDQM = cms.EDAnalyzer(
         'ak4PFJetsCHS',
         'ak8PFJetsCHS',
         'ak8PFJetsCHSPruned',
+        'ak8PFJetsCHSSoftDrop',
         'cmsTopTagPFJetsCHS'
         ),
     jetPtMins = cms.vdouble(
