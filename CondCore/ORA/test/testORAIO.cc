@@ -104,7 +104,6 @@ namespace ora {
 }
 
 int main(int argc, char** argv){
-  assert(0);  // Temporarily fail deliberately, as this test hogs memory.
   ora::TestORAIO test;
   test.run();
 }
