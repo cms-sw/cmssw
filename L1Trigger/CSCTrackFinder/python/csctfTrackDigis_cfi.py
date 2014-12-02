@@ -122,4 +122,3 @@ csctfTrackDigis = cms.EDProducer("CSCTFTrackProducer",
 eras.run2.toModify( csctfTrackDigis.SectorProcessor.PTLUT, PtMethod = 34 )
 eras.run2.toModify( csctfTrackDigis.SectorProcessor, gangedME1a = False )
 eras.run2.toModify( csctfTrackDigis.SectorProcessor, firmwareSP = 20140515 )
-eras.run2.toModify( csctfTrackDigis.SectorProcessor, initializeFromPSet = True )
