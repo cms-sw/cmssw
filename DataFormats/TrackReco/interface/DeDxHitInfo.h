@@ -21,11 +21,6 @@ namespace reco {
      };
      typedef  std::vector<DeDxHitInfo::DeDxHitInfoContainer>    DeDxHitInfoContainerCollection;
 
-//     std::vector<float> charges;
-//     std::vector<float> pathlengths;
-//     std::vector<uint32_t> detIds;
-//     std::vector<float> localPosXs;
-//     std::vector<float> localPosYs;
      std::vector<DeDxHitInfoContainer> infos;         
      std::vector<SiStripCluster> stripClusters;
      std::vector<SiPixelCluster> pixelClusters;
