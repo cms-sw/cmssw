@@ -43,6 +43,8 @@
 #include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
 #include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
 
+#include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
+
 using namespace edm;
 using namespace std;
 #include <iostream>
@@ -64,7 +66,7 @@ public:
 
 private:
   void writeoutlut1(HcalDetId id, HcalElectronicsId eid, const std::vector<unsigned short>& lut, std::ostream& os);
-  std::vector<unsigned char> extractOutputLut(const CaloTPGTranscoder& coder, HcalTrigTowerDetId chan);
+  std::vector<unsigned char> extractOutputLut(const CaloTPGTranscoder& coder, HcalTrigTowerDetId chan, HcalTrigTowerGeometry const& theTrigTowerGeometry);
   void writeoutlut2(HcalTrigTowerDetId id, HcalElectronicsId eid, const std::vector<unsigned char>& lut, std::ostream& os);
   bool filePerCrate_;
   std::string creationstamp_;
@@ -247,10 +249,10 @@ HcalLuttoDB::writeoutlut2(HcalTrigTowerDetId id, HcalElectronicsId eid, const st
        
 }
 
-std::vector<unsigned char> HcalLuttoDB::extractOutputLut(const CaloTPGTranscoder& coder, HcalTrigTowerDetId chan) {
+std::vector<unsigned char> HcalLuttoDB::extractOutputLut(const CaloTPGTranscoder& coder, HcalTrigTowerDetId chan, HcalTrigTowerGeometry const& theTrigTowerGeometry) {
   std::vector<unsigned char> lut;
   for (int i=0; i<1024; i++) {
-    HcalTriggerPrimitiveSample s=coder.hcalCompress(chan,i,false);
+    HcalTriggerPrimitiveSample s=coder.hcalCompress(chan,i,false, theTrigTowerGeometry);
     lut.push_back(s.compressedEt());
   }
   return lut;
@@ -280,6 +282,9 @@ HcalLuttoDB::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   std::ostream* pfile=0;
   oc_=openChecksums();
+
+  edm::ESHandle<HcalTrigTowerGeometry> theTrigTowerGeometry;
+  iSetup.get<CaloGeometryRecord>().get(theTrigTowerGeometry);
   
   for (int crate=0; crate<20; crate++) {
     edm::LogInfo("Hcal") << "Beginning crate " << crate;
@@ -293,7 +298,7 @@ HcalLuttoDB::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  if (filePerCrate_ && pfile==0) pfile=openPerCrate(crate);
 	  else if (pfile==0) pfile=openPerLut2(*itreid);
 
-	  std::vector<unsigned char> lut=extractOutputLut(*outTranscoder,tid);
+	  std::vector<unsigned char> lut=extractOutputLut(*outTranscoder,tid, *theTrigTowerGeometry);
 	  writeoutlut2(tid,*itreid,lut,*pfile);
 	  if (!filePerCrate_) { delete pfile; pfile=0; }	  
 	} else { // lut1

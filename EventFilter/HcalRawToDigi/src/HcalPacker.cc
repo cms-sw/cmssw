@@ -18,7 +18,7 @@ HcalPacker::Collections::Collections() {
 template <class Coll, class DetIdClass> 
 int process(const Coll* pt, const DetId& did, unsigned short* buffer, int& presamples,bool& isUS, bool& isMP) {
   isUS=false; isMP=false;
-  if (pt==0) return 0;
+  if (pt==0) { return 0; }
   int size=0;
   typename Coll::const_iterator i=pt->find(DetIdClass(did));
   if (i!=pt->end()) {
@@ -26,23 +26,24 @@ int process(const Coll* pt, const DetId& did, unsigned short* buffer, int& presa
     isMP=i->zsMarkAndPass();
     presamples=i->presamples();
     size=i->size();
-    for (int j=0; j<size; j++) 
+    for (int j=0; j<size; j++) {
       buffer[j]=(*i)[j].raw();
+    }
   }
   return size;
 }
 
 static unsigned char processTrig(const HcalTrigPrimDigiCollection* pt, const HcalTrigTowerDetId& tid, unsigned short* buffer) {
-  if (pt==0) return 0;
+  if (pt==0) { return 0; }
   int size=0;
   HcalTrigPrimDigiCollection::const_iterator i=pt->find(tid);
   if (i!=pt->end()) {
     int presamples=i->presamples();
-    int samples=i->size();
+    size=i->size();
 
-    for (int j=0; j<samples; j++) {
+    for (int j=0; j<size; j++) {
        buffer[j]=(*i)[j].raw();
-       if (j==presamples) buffer[j]|=0x0200;
+       if (j==presamples) { buffer[j]|=0x0200; }
     }
   }
   return size;
@@ -50,7 +51,7 @@ static unsigned char processTrig(const HcalTrigPrimDigiCollection* pt, const Hca
 
 int HcalPacker::findSamples(const DetId& did, const Collections& inputs,
 			    unsigned short* buffer, int &presamples, bool& isUS, bool& isMP) {
-  if (!(did.det()==DetId::Hcal || (did.det()== DetId::Calo && did.subdetId()==HcalZDCDetId::SubdetectorId)) ) return 0;
+  if (!(did.det()==DetId::Hcal || (did.det()== DetId::Calo && did.subdetId()==HcalZDCDetId::SubdetectorId)) ) { return 0; }
   int size=0;
   HcalGenericDetId genId(did);
   
@@ -96,7 +97,7 @@ void HcalPacker::pack(int fedid, int dccnumber,
     int npresent=0;
     int presamples=-1, samples=-1;
     bool haveUnsuppressed=false;
-    for (int fiber=1; fiber<=8; fiber++) 
+    for (int fiber=1; fiber<=8; fiber++) {
       for (int fiberchan=0; fiberchan<3; fiberchan++) {
 	int linear=(fiber-1)*3+fiberchan;
 	HcalQIESample chanSample(0,0,fiber,fiberchan,false,false);
@@ -120,7 +121,7 @@ void HcalPacker::pack(int fedid, int dccnumber,
 	channelIsMP[linear]=isMP;
 
 	if (mysamples>0) {
-	  if (samples<0) samples=mysamples;
+	  if (samples<0) { samples=mysamples; }
 	  else if (samples!=mysamples) {
 	    edm::LogError("HCAL") << "Mismatch of samples in a single HTR (unsupported) " << mysamples << " != " << samples;
 	    continue;
@@ -132,13 +133,15 @@ void HcalPacker::pack(int fedid, int dccnumber,
 	    edm::LogError("HCAL") << "Mismatch of presamples in a single HTR (unsupported) " << mypresamples << " != " << presamples;
 	    continue;	    
 	  }
-	  for (int ii=0; ii<samples; ii++)
+	  for (int ii=0; ii<samples; ii++) {
 	    database[ii]=(database[ii]&0x7FF)|chanid;
+      }
 	  preclen[linear]=(unsigned char)(samples);
 	  npresent++;
 	}	
       }
-    for (int slb=1; slb<=6; slb++) 
+    }
+    for (int slb=1; slb<=6; slb++) {
       for (int slbchan=0; slbchan<=3; slbchan++) {
 	int linear=(slb-1)*4+slbchan;
 	HcalTriggerPrimitiveSample idCvt(0,0,slb,slbchan);
@@ -156,13 +159,22 @@ void HcalPacker::pack(int fedid, int dccnumber,
           
 	// finally, what about a trigger channel?
 	if (!tid.null()) {
+      if (presamples < 0) {
+        exampleEId = fullEid;
+      }
 	  unsigned short* trigbase=&(trigdata[linear*HcalHTRData::MAXIMUM_SAMPLES_PER_CHANNEL]);
 	  triglen[linear]=processTrig(inputs.tpCont,tid,trigbase);
+      if (triglen[linear]) {
+        npresent++;
+      }
 	  
-	  for (unsigned char q=0; q<triglen[linear]; q++)
+	  for (unsigned char q=0; q<triglen[linear]; q++) {
 	    trigbase[q]=(trigbase[q]&0x7FF)|chanid;
+      }
+
 	}
       }
+    }
     /// pack into HcalHTRData
     if (npresent>0) {
       spigots[spigot].pack(&(preclen[0]),&(precdata[0]),
@@ -173,6 +185,14 @@ void HcalPacker::pack(int fedid, int dccnumber,
       int submodule=exampleEId.htrTopBottom()&0x1;
       submodule|=(exampleEId.htrSlot()&0x1F)<<1;
       submodule|=(exampleEId.readoutVMECrateId()&0x1f)<<6;
+      // Samples and Presamples can't be negative, or the HeaderTrailer will
+      // generate a large large number using them (unsigned int roll over)
+      if (samples < 0) {
+        samples = 0;
+      }
+      if (presamples < 0) {
+        presamples = 0;
+      }
       spigots[spigot].packHeaderTrailer(nl1a,
 					bcn,
 					submodule,
@@ -180,7 +200,8 @@ void HcalPacker::pack(int fedid, int dccnumber,
 					pipeline,
 					samples,
 					presamples,
-					firmwareRev);
+					firmwareRev,
+					1);  // need non-zero falvor
       if (haveUnsuppressed) {
 	spigots[spigot].packUnsuppressed(channelIsMP);
       }

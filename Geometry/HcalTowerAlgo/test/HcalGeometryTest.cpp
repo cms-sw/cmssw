@@ -15,10 +15,18 @@
 void testTriggerGeometry( HcalTopology& topology ) {
 
   HcalTrigTowerGeometry trigTowers( &topology );
-  std::cout << "HCAL trigger tower eta bounds " << std::endl;
+
+  std::cout << "HCAL trigger tower eta bounds (version 0)" << std::endl;
   for(int ieta = 1; ieta <= 32; ++ieta) {
     double eta1, eta2;
-    trigTowers.towerEtaBounds(ieta, eta1, eta2);
+    trigTowers.towerEtaBounds(ieta, 0, eta1, eta2);
+    std::cout << ieta << " "  << eta1 << " " << eta2 << std::endl;
+  }
+
+  std::cout << "HCAL trigger tower eta bounds (version 1)" << std::endl;
+  for(int ieta = 1; ieta <= 41; ++ieta) {
+    double eta1, eta2;
+    trigTowers.towerEtaBounds(ieta, 1, eta1, eta2);
     std::cout << ieta << " "  << eta1 << " " << eta2 << std::endl;
   }
 
@@ -36,11 +44,17 @@ void testTriggerGeometry( HcalTopology& topology ) {
   TowerDets forwardTowers2 = trigTowers.towerIds(forwardDet2);
   TowerDets forwardTowers3 = trigTowers.towerIds(forwardDet3);
 
+  // Each version of the HF Trigger Towers will add an additional item to the
+  // vector returned by trigTowers.towerIds() for forward towers.
+  size_t foward_det_count = 0;
+  if (trigTowers.useRCT()) { foward_det_count++; }
+  if (trigTowers.use1x1()) { foward_det_count++; }
+
   assert(barrelTowers.size() ==1);
   assert(endcapTowers.size() ==2);
-  assert(forwardTowers1.size() ==1);
-  assert(forwardTowers2.size() ==1);
-  assert(forwardTowers3.size() ==1);
+  assert(forwardTowers1.size() == foward_det_count);
+  assert(forwardTowers2.size() == foward_det_count);
+  assert(forwardTowers3.size() == foward_det_count);
 
   std::cout << barrelTowers[0] << std::endl;
   std::cout << endcapTowers[0] << std::endl;

@@ -40,23 +40,12 @@ using namespace hcal;
 
 */
 
-HcalLutManager::HcalLutManager( void )
-{    
-  init();
-}
-
-
-HcalLutManager::HcalLutManager(std::vector<HcalGenericDetId> & map)
-{
-  init();
-  _iter . init(map);
-}
-
-
-HcalLutManager::HcalLutManager(const HcalElectronicsMap * _emap,
+HcalLutManager::HcalLutManager(const HcalTopology* topo,
+			       const HcalElectronicsMap * _emap,
 			       const HcalChannelQuality * _cq,
 			       uint32_t _status_word_to_mask)
 {
+  topo_=topo;
   init();
   emap = _emap;
   cq   = _cq;
@@ -134,6 +123,8 @@ HcalSubdetector HcalLutManager::get_subdetector( std::string _det )
 
 int HcalLutManager_test::getLutSetFromFile_test( std::string _filename )
 {
+  /*
+    This code is now non-functional and should be replaced with something that understands topologies
   HcalLutManager _manager;
   HcalLutSet _set = _manager . getLutSetFromFile( _filename );
   std::cout << "===> Test of HcalLutSet HcalLutManager::getLutSetFromFile( std::string _filename )" << std::endl << std::endl;
@@ -158,6 +149,7 @@ int HcalLutManager_test::getLutSetFromFile_test( std::string _filename )
     }
     std::cout << "---> " << j << std::endl;
   }
+  */
   return 0;
 }
 
@@ -533,7 +525,6 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFr
   std::map<int, boost::shared_ptr<LutXml> > _xml; // index - crate number
 
   std::cout << "instantiating CaloTPGTranscoderULUT in order to check the validity of (ieta,iphi)..." << std::endl;
-  CaloTPGTranscoderULUT _coder;
 
   //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.03_080817.txt");
   //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.04_080905.txt");
@@ -555,13 +546,15 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFr
     // higher LUT numbers have priority in case of overlapping
     int lut_index=-1;
     for ( int i=0; i<lut_set_size; i++ ){
+      const int detid_version = 0;  // 0 is pre-2013, 1 is post
+      HcalTrigTowerDetId detid(row->ieta,row->iphi,0,detid_version);
       if ( row->subdet . find("HT") != std::string::npos &&
 	   (row->crate == _crate || _crate == -1) && // -1 stands for all crates
 	   _set.eta_min[i] <= row->ieta &&
 	   _set.eta_max[i] >= row->ieta &&
 	   _set.phi_min[i] <= row->iphi &&
 	   _set.phi_max[i] >= row->iphi &&
-	   _coder.HTvalid(row->ieta, row->iphi) ){
+	   topo_->validHT(detid)) {
 	lut_index=i;
       }
     }
@@ -806,7 +799,9 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFr
 
     // only trigger tower channels
     // and valid (ieta,iphi)
-    if ( row->subdet . find("HT") != std::string::npos && _coder.HTvalid(row->ieta, row->iphi) ){
+    const int detid_version = 0;  // 0 is pre-2013, 1 is post
+    HcalTrigTowerDetId detid(row->ieta, row->iphi, 0, detid_version);
+    if ( row->subdet . find("HT") != std::string::npos && topo_->validHT(detid) ){
       if ( _xml.count(row->crate) == 0 && split_by_crate ){
 	_xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(row->crate,boost::shared_ptr<LutXml>(new LutXml())) );
       }
@@ -839,7 +834,7 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFr
       //HcalTrigTowerDetId _detid(row->rawId);
       HcalTrigTowerDetId _detid(row->ieta, row->iphi);
       
-      std::vector<unsigned char> coder_lut = _coder.getCompressionLUT(_detid);
+      std::vector<unsigned char> coder_lut = _coder.getCompressionLUT(_detid, *topo_);
       for (std::vector<unsigned char>::const_iterator _i=coder_lut.begin(); _i!=coder_lut.end();_i++){
 	unsigned int _temp = (unsigned int)(*_i);
 	//if (_temp!=0) std::cout << "DEBUG non-zero LUT!!!!!!!!!!!!!!!" << (*_i) << "     " << _temp << std::endl;
@@ -882,8 +877,6 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFr
   //HcalLutSet _set = getLutSetFromFile( _filename, 2 );
   //int lut_set_size = _set.lut.size(); // number of different luts
 
-  CaloTPGTranscoderULUT _coder;
-
   //loop over all EMap channels
   RooGKCounter _counter;
   for( std::vector<EMap::EMapRow>::const_iterator row=_map.begin(); row!=_map.end(); row++ ){
@@ -891,7 +884,9 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFr
 
     // only trigger tower channels
     // and valid (ieta,iphi)
-    if ( row->subdet . find("HT") != std::string::npos && _coder.HTvalid(row->ieta, row->iphi) ){
+    const int detid_version = 0;  // 0 is pre-2013, 1 is post
+    HcalTrigTowerDetId detid(row->ieta,row->iphi,0,detid_version);
+    if ( row->subdet . find("HT") != std::string::npos && topo_->validHT(detid)) {
       if ( _xml.count(row->crate) == 0 && split_by_crate ){
 	_xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(row->crate,boost::shared_ptr<LutXml>(new LutXml())) );
       }
@@ -923,8 +918,9 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFr
       // FIXME: work around bug in emap v6: rawId wasn't filled
       //HcalTrigTowerDetId _detid(row->rawId);
       HcalTrigTowerDetId _detid(row->ieta, row->iphi);
-      
-      std::vector<unsigned char> coder_lut = _coder.getCompressionLUT(_detid);
+
+     
+      std::vector<unsigned char> coder_lut(1024,0);// = _coder.getCompressionLUT(_detid);
       for (std::vector<unsigned char>::const_iterator _i=coder_lut.begin(); _i!=coder_lut.end();_i++){
 	unsigned int _temp = (unsigned int)(*_i);
 	//if (_temp!=0) std::cout << "DEBUG non-zero LUT!!!!!!!!!!!!!!!" << (*_i) << "     " << _temp << std::endl;

@@ -12,23 +12,37 @@ public:
 
   HcalTrigTowerGeometry( const HcalTopology* topology );
 
-  void setupHF(bool useShortFibers, bool useQuadRings);
-  
   /// the mapping to and from DetIds
   std::vector<HcalTrigTowerDetId> towerIds(const HcalDetId & cellId) const;
   std::vector<HcalDetId> detIds(const HcalTrigTowerDetId &) const;
 
-  /// an interface for CaloSubdetectorGeometry
-  //std::vector<DetId> getValidDetIds(DetId::Detector det, int subdet) const;
-
-  /// the number of phi bins in this eta ring
-  int nPhiBins(int ieta) const {
-    int nPhiBinsHF = ( useUpgradeConfigurationHFTowers_ ? 36 : 18 );   
-    return (abs(ieta) < firstHFTower()) ? 72 : nPhiBinsHF;
+  void setupHFTowers(bool enableRCT, bool enable1x1) {
+    useRCT_=enableRCT;
+    use1x1_=enable1x1;
   }
 
-  int firstHFTower() const {return 29;} 
-  int nTowers() const {return 32;}
+  int firstHFTower(int version) const {return (version==0)?(29):(30);} 
+
+  /// where this tower begins and ends in eta
+  void towerEtaBounds(int ieta, int version, double & eta1, double & eta2) const;
+
+  /// number of towers (version dependent)
+  int nTowers(int version) const {return (version==0)?(32):(41);}
+
+  // get the topology pointer
+  const HcalTopology& topology() const { return *theTopology; }
+
+  // Get the useRCT and use1x1 values
+  bool useRCT() const { return useRCT_; }
+  bool use1x1() const { return use1x1_; }
+
+ private:
+
+  /// the number of phi bins in this eta ring
+  int nPhiBins(int ieta, int version) const {
+    int nPhiBinsHF = ( 18 );   
+    return (abs(ieta) < firstHFTower(version)) ? 72 : nPhiBinsHF;
+  }
 
   /// the number of HF eta rings in this trigger tower
   /// ieta starts at firstHFTower()
@@ -37,18 +51,10 @@ public:
   /// since the towers are irregular in eta in HF
   int firstHFRingInTower(int ietaTower) const;
 
-  /// where this tower begins and ends in eta
-  void towerEtaBounds(int ieta, double & eta1, double & eta2) const;
-
-  void setUpgradeConfigurationHFTowers(bool value) {
-    useUpgradeConfigurationHFTowers_ = value;
-  }
-
-private:
+ private:
   const HcalTopology* theTopology;
-  bool useShortFibers_;
-  bool useHFQuadPhiRings_;
-  bool useUpgradeConfigurationHFTowers_;
+  bool useRCT_;
+  bool use1x1_;
 };
 
 #endif

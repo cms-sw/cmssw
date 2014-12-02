@@ -26,6 +26,8 @@ using std::setprecision;
 #include "CondFormats/DataRecord/interface/L1CaloHcalScaleRcd.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
 
 //
 // constants, enums and typedefs
@@ -189,14 +191,17 @@ L1CaloInputScaleTester::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
    // compare the hcal scales
 
+
+   edm::ESHandle<HcalTrigTowerGeometry> theTrigTowerGeometry;
+   iSetup.get<CaloGeometryRecord>().get(theTrigTowerGeometry);
    for (unsigned short input = 0; input <= 0xFF; input++)
      {
        // loop over ietas
        for (unsigned short absIeta = 1; absIeta <= 32; absIeta++)
 	 {
-	   hcal1 = caloTPGTranscoder->hcaletValue(absIeta, input); // no eta-
+	   hcal1 = caloTPGTranscoder->hcaletValue(absIeta, input, *theTrigTowerGeometry); // no eta-
 	   hcal2 = caloHcalScale->et(input, absIeta, 1); // sign in transcoder
-	   hcal3 = caloTPGTranscoder->hcaletValue(-absIeta, input); // no eta-
+	   hcal3 = caloTPGTranscoder->hcaletValue(-absIeta, input, *theTrigTowerGeometry); // no eta-
 	   hcal4 = caloHcalScale->et(input, absIeta,-1); // sign in transcoder
 
 

@@ -29,7 +29,7 @@ using namespace cms;
 
 namespace {
 
-  std::vector<HcalGenericDetId> allCells (const HcalTopology& hcaltopology) {
+std::vector<HcalGenericDetId> allCells (const HcalTopology& hcaltopology) {
   static std::vector<HcalGenericDetId> result;
   int maxDepthHB=hcaltopology.maxDepthHB();
   int maxDepthHE=hcaltopology.maxDepthHE();
@@ -81,31 +81,25 @@ namespace {
       if(zdctopology.valid(zcell)) result.push_back(zcell);     
     }
 
-    // HcalGenTriggerTower (HcalGenericSubdetector = 5) 
-    // NASTY HACK !!!
-    // - As no valid(cell) check found for HcalTrigTowerDetId 
-    // to create HT cells (ieta=1-28, iphi=1-72)&(ieta=29-32, iphi=1,5,... 69)
-
-    for (int eta = -32; eta <= 32; eta++) {
-      if(abs(eta) <= 28 && (eta != 0)) {
-	for (int phi = 1; phi <= 72; phi++) {
-	  HcalTrigTowerDetId cell(eta, phi);       
-	  result.push_back (cell);
-	}
-      }
-      else if (abs(eta) > 28) {
- 	for (int phi = 1; phi <= 69;) {
-	  HcalTrigTowerDetId cell(eta, phi);       
-	  result.push_back (cell);
-          phi += 4;
-	}
+    // We loop over all possible ieta, iphi, and versions and let validHT
+    // protect us from the cases that do not correspond to a part of the
+    // detector.
+    for (int version = 0; version <= 1; ++version) {
+      for (int ieta = -41; ieta <= 41; ++ieta) {
+        for (int iphi = 1; iphi <= 72; ++iphi) {
+          const int depth = 0;
+          HcalTrigTowerDetId cell(ieta, iphi, depth, version);
+          if (hcaltopology.validHT(cell)) {
+            result.push_back (cell);
+          }
+        }
       }
     }
   }
   return result;
 }
 
-}
+}  // namespace
 
 HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iConfig ): he_recalibration(0), hf_recalibration(0)
 {

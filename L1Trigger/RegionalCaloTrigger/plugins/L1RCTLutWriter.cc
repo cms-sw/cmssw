@@ -23,6 +23,9 @@
 #include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
+
 //
 // constants, enums and typedefs
 //
@@ -175,11 +178,13 @@ L1RCTLutWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
 
       // HCAL
+      edm::ESHandle<HcalTrigTowerGeometry> theTrigTowerGeometry;
+      iSetup.get<CaloGeometryRecord>().get(theTrigTowerGeometry);
       for( unsigned short ieta = 1 ; ieta <= L1CaloHcalScale::nBinEta; ++ieta )
 	{
 	  for( unsigned short irank = 0 ; irank < L1CaloHcalScale::nBinRank; ++irank )
 	    {
-	      double etGeV = h_tpg->hcaletValue( ieta, irank ) ;
+	      double etGeV = h_tpg->hcaletValue( ieta, irank, *theTrigTowerGeometry ) ;
 
 	      hcalScale->setBin( irank, ieta, 1, etGeV ) ;
 	      hcalScale->setBin( irank, ieta, -1, etGeV ) ;

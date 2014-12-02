@@ -6,11 +6,12 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 #include "CalibFormats/CaloObjects/interface/IntegerCaloSamples.h"
-//#include "CalibFormats/HcalObjects/interface/HcalTPGCoder.h"
+
 #include "CalibCalorimetry/HcalTPGAlgos/interface/HcaluLUTTPGCoder.h"
 #include "CalibFormats/CaloTPG/interface/HcalTPGCompressor.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "SimCalorimetry/HcalTrigPrimAlgos/interface/HcalFeatureHFEMBit.h"//cuts based on short and long energy deposited.
 
 #include <map>
 #include <vector>
@@ -32,7 +33,7 @@ public:
            const HFDigiCollection& hfDigis,
            HcalTrigPrimDigiCollection& result,
 	   const HcalTrigTowerGeometry* trigTowerGeometry,
-           float rctlsb);
+           float rctlsb, const HcalFeatureBit* LongvrsShortCut=0);
 
   void runZS(HcalTrigPrimDigiCollection& tp);
   void runFEFormatError(const FEDRawDataCollection* rawraw,
@@ -49,7 +50,15 @@ public:
 
   /// adds the actual RecHits
   void analyze(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result);
-  void analyzeHF(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result, float rctlsb);
+  // Version 0: RCT
+  void analyzeHF(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result, const int hf_lumi_shift);
+  // Version 1: 1x1
+  void analyzeHFV1(
+          const IntegerCaloSamples& SAMPLES,
+          HcalTriggerPrimitiveDigi& result,
+          const int HF_LUMI_SHIFT,
+          const HcalFeatureBit* HCALFEM
+          );
 
    // Member initialized by constructor
   const HcaluLUTTPGCoder* incoder_;
@@ -79,6 +88,15 @@ public:
 
   typedef std::map<HcalTrigTowerDetId, IntegerCaloSamples> SumMap;
   SumMap theSumMap;  
+
+  struct HFDetails {
+      IntegerCaloSamples long_fiber;
+      IntegerCaloSamples short_fiber;
+      HFDataFrame ShortDigi;
+      HFDataFrame LongDigi;
+  };
+  typedef std::map<HcalTrigTowerDetId, HFDetails> HFDetailMap;
+  HFDetailMap theHFDetailMap;
   
   typedef std::vector<IntegerCaloSamples> SumFGContainer;
   typedef std::map< HcalTrigTowerDetId, SumFGContainer > TowerMapFGSum;
@@ -93,6 +111,7 @@ public:
   //  else VetoedSum = Sum; 
   // ==============================
   // Map from FG id to veto booleans
+  HcalFeatureBit* LongvrsShortCut;
   typedef std::map<uint32_t, std::vector<bool> > TowerMapVeto;
   TowerMapVeto HF_Veto;
 
