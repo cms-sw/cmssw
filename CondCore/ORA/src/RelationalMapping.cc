@@ -88,8 +88,9 @@ ora::RelationalMapping::_sizeInColumnsForCArray(const edm::TypeWithDict& topLeve
     return;
   }
 
-  size_t arraySize = typ.size();
+  size_t arraySize = typ.arrayLength();
   edm::TypeWithDict arrayType = typ.toType();
+  if( arrayType.isArray() ) arraySize /= arrayType.arrayLength();
   size_t arrayElementSize = 0;
   _sizeInColumns(arrayType, arrayElementSize, hasDependencies);
   size_t totSize = arraySize*arrayElementSize;
@@ -412,12 +413,15 @@ void ora::ArrayMapping::process( MappingElement& parentElement,
 
   edm::TypeWithDict contentType;
   edm::TypeWithDict keyType;
+  std::string contentTypeName;
   
   if( singleItemContainer ){
     contentType = ClassUtils::containerValueType(m_type);
+    contentTypeName = "value_type";
   }
   else if ( associativeContainer ) { // This is an associative container type
     contentType = ClassUtils::containerDataType( m_type );
+    contentTypeName = "mapped_type";
     keyType = ClassUtils::containerKeyType( m_type );
     if( !keyType || !ClassUtils::resolvedType(keyType) ){
       throwException( "Cannot not resolve the type of the key item of container \""+m_type.cppName()+"\".",
@@ -436,17 +440,14 @@ void ora::ArrayMapping::process( MappingElement& parentElement,
   }
   RelationalMappingFactory mappingFactory( m_tableRegister );
   if ( keyType ) {
+    std::string keyTypeName = "key_type";
     std::string keyTypeNameForSchema = MappingRules::variableNameForContainerKey();
     std::auto_ptr<IRelationalMapping> keyProcessor( mappingFactory.newProcessor( keyType ) );
-    keyProcessor->process( me, "key_type", keyTypeNameForSchema, arrayScopeNameForSchema  );
+    keyProcessor->process( me, keyTypeName, keyTypeNameForSchema, arrayScopeNameForSchema  );
   }
   std::string contentTypeNameForSchema = MappingRules::variableNameForContainerValue();
   std::auto_ptr<IRelationalMapping> contentProcessor( mappingFactory.newProcessor( contentType ) );
-  if ( keyType ) {
-    contentProcessor->process( me, "mapped_type", contentTypeNameForSchema, arrayScopeNameForSchema );
-  } else {
-    contentProcessor->process( me, "value_type", contentTypeNameForSchema, arrayScopeNameForSchema );
-  }
+  contentProcessor->process( me, contentTypeName, contentTypeNameForSchema, arrayScopeNameForSchema );
 }
 
 ora::CArrayMapping::CArrayMapping( const edm::TypeWithDict& attributeType, TableRegister& tableRegister ):
@@ -478,15 +479,16 @@ void ora::CArrayMapping::process( MappingElement& parentElement,
   arrayScopeNameForSchema += attributeNameForSchema;
 
   std::pair<bool,size_t> arraySizeInColumns = RelationalMapping::sizeInColumnsForCArray( m_type );
+
   if( !arraySizeInColumns.first && arraySizeInColumns.second < MappingRules::MaxColumnsForInlineCArray ) {
     size_t columnsInTable = m_tableRegister.numberOfColumns(parentElement.tableName()) + arraySizeInColumns.second;
-    if( columnsInTable < MappingRules::MaxColumnsPerTable ){
+   if( columnsInTable < MappingRules::MaxColumnsPerTable ){
       // Inline C-Array
       std::string mappingElementType = ora::MappingElement::inlineCArrayMappingElementType();
       ora::MappingElement& me = parentElement.appendSubElement( mappingElementType, attributeName, className, parentElement.tableName() );
       me.setColumnNames( parentElement.columnNames() );
       std::auto_ptr<IRelationalMapping> processor( mappingFactory.newProcessor( arrayElementType ) );
-      for(size_t i=0;i<m_type.size();i++){
+      for(size_t i=0;i<m_type.arrayLength();i++){
         processor->process( me, MappingRules::variableNameForArrayIndex(attributeName,i), 
                             MappingRules::variableNameForArrayColumn(i), arrayScopeNameForSchema );
       }

@@ -265,6 +265,7 @@ void ora::CArrayReader::read( void* destinationData ) {
   std::string positionColumn = m_mappingElement.posColumn();
 
   size_t arraySize = m_objectType.arrayLength();
+  if( iteratorDereferenceReturnType.isArray() ) arraySize /= iteratorDereferenceReturnType.arrayLength();
   
   m_arrayHandler->clear( address );
 

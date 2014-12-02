@@ -97,11 +97,10 @@ namespace ora {
                           m_objectType.cppName() + "\"",
                           "QVQueryMaker::build" );
         }
-        std::string valueName = valueType.name();
         // Retrieve the relevant mapping element
-        MappingElement::iterator iMe = m_mappingElement.find( valueName );
+        MappingElement::iterator iMe = m_mappingElement.find( "value_type" );
         if ( iMe == m_mappingElement.end() ) {
-          throwException( "Item for \"" + valueName + "\" not found in the mapping element",
+          throwException( "Item for \"value_type\" not found in the mapping element",
                           "QVQueryMaker::build" );
         }
 

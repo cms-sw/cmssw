@@ -171,7 +171,9 @@ ora::MappingRules::variableNameForArrayColumn( unsigned int arrayIndex ){
 std::string
 ora::MappingRules::variableNameForArrayColumn( const edm::TypeWithDict& array ){
   std::stringstream contentTypeName;
-  contentTypeName << "A" << array.arrayLength();
+  size_t arraySize = array.arrayLength();
+  if( array.toType().isArray() ) arraySize /= array.toType().arrayLength();
+  contentTypeName << "A" << arraySize;
   return contentTypeName.str();
 }
 
