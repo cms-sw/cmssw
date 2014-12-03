@@ -36,7 +36,6 @@ VertexFromTrackProducer::VertexFromTrackProducer(const edm::ParameterSet& conf) 
   fUseVertex( conf.getParameter<bool>("useVertex") ),
   fUseTriggerFilterElectrons( conf.getParameter<bool>("useTriggerFilterElectrons") ),
   fUseTriggerFilterMuons( conf.getParameter<bool>("useTriggerFilterMuons") ),
-  theConfig( conf ),
   fVerbose( conf.getUntrackedParameter<bool>("verbose", false) )
 {
   edm::LogInfo("PVDebugInfo") 
