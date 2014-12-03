@@ -1087,6 +1087,11 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltESRawToRecHitFacility" )
       self.options['modules'].append( "-hltEcalRecHitAll" )
       self.options['modules'].append( "-hltESRecHitAll" )
+      # === eGamma
+      self.options['modules'].append( "-hltEgammaCkfTrackCandidatesForGSF" )
+      self.options['modules'].append( "-hltEgammaGsfTracks" )
+      self.options['modules'].append( "-hltEgammaCkfTrackCandidatesForGSFUnseeded" )
+      self.options['modules'].append( "-hltEgammaGsfTracksUnseeded" )
       # === hltPF
       self.options['modules'].append( "-hltPFJetCkfTrackCandidates" )
       self.options['modules'].append( "-hltPFJetCtfWithMaterialTracks" )
