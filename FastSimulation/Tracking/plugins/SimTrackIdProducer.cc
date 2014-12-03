@@ -14,11 +14,8 @@
 //
 //
 #include <memory>
-//#include "FWCore/Framework/interface/Frameworkfwd.h"
-//#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-//#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -44,8 +41,7 @@ SimTrackIdProducer::SimTrackIdProducer(const edm::ParameterSet& conf)
 
 void
 SimTrackIdProducer::produce(edm::Event& e, const edm::EventSetup& es)
-{ 
-    
+{     
   // The produced object
   std::auto_ptr<std::vector<int> > SimTrackIds(new std::vector<int>());
   
@@ -67,9 +63,5 @@ SimTrackIdProducer::produce(edm::Event& e, const edm::EventSetup& es)
      SimTrackIds->push_back(SimTrackId); 
     
   }
-  // std::cout << "number of simtrack ids: " << SimTrackIds.get()  << std::endl;
-  e.put(SimTrackIds);
-  // std::cout << "number of simtrack ids: " << SimTrackIds.get()  << std::endl;
-    
-  
+  e.put(SimTrackIds);  
 }
