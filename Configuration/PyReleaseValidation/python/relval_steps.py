@@ -540,18 +540,17 @@ U2000by1={'--relval': '2000,1'}
 U80by1={'--relval': '80,1'}
 
 hiAlca        = {'--conditions':'auto:run2_mc_HIon'}
-hiDefaults    =merge([hiAlca,{'--scenario':'HeavyIons','-n':2}])
-hiDefaultsSim =merge([hiDefaults,{'--beamspot':'Realistic8TeVCollision'}])
+hiDefaults    = merge([hiAlca,{'--scenario':'HeavyIons','-n':2}])
 
-steps['HydjetQ_MinBias_2760GeV']=merge([{'-n':1},hiDefaultsSim,genS('Hydjet_Quenched_MinBias_2760GeV_cfi',U2000by1)])
+steps['HydjetQ_MinBias_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_MinBias_2760GeV_cfi',U2000by1)])
 steps['HydjetQ_MinBias_2760GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_MinBias_2760GeV/%s/GEN-SIM'%(baseDataSetRelease[1],),location='STD',split=5)}
-steps['HydjetQ_MinBias_2760GeV_UP15']=merge([{'-n':1},hiDefaultsSim,genS('Hydjet_Quenched_MinBias_2760GeV_cfi',U2000by1)])
+steps['HydjetQ_MinBias_2760GeV_UP15']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_MinBias_2760GeV_cfi',U2000by1)])
 steps['HydjetQ_MinBias_2760GeV_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_MinBias_2760GeV/%s/GEN-SIM'%(baseDataSetRelease[1],),location='STD',split=5)}
-#steps['HydjetQ_B8_2760GeV']=merge([{'-n':1},hiDefaultsSim,genS('Hydjet_Quenched_B8_2760GeV_cfi',U80by1)])
+#steps['HydjetQ_B8_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_B8_2760GeV_cfi',U80by1)])
 #steps['HydjetQ_B8_2760GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_B8_2760GeV/%s/GEN-SIM'%(baseDataSetRelease[7],),location='CAF')}
-steps['QCD_Pt_80_120_13_HI']=merge([hiDefaultsSim,steps['QCD_Pt_80_120_13']])
-steps['PhotonJets_Pt_10_13_HI']=merge([hiDefaultsSim,steps['PhotonJets_Pt_10_13']])
-steps['ZMM_13_HI']=merge([hiDefaultsSim,steps['ZMM_13']])
+steps['QCD_Pt_80_120_13_HI']=merge([hiDefaults,steps['QCD_Pt_80_120_13']])
+steps['PhotonJets_Pt_10_13_HI']=merge([hiDefaults,steps['PhotonJets_Pt_10_13']])
+steps['ZMM_13_HI']=merge([hiDefaults,steps['ZMM_13']])
 
 
 def changeRefRelease(steps,listOfPairs):
