@@ -79,11 +79,11 @@ void  RPCDqmClient::beginRun(const edm::Run& r, const edm::EventSetup& c){
   for ( std::vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ ){
     (*it)->beginRun(r,c);
   }
-
+  init_ = false;
   if(!offlineDQM_) this->getMonitorElements(r, c);
   
   lumiCounter_ = prescaleGlobalFactor_;
-  init_ = false;
+
 }
 
 
@@ -93,9 +93,9 @@ void  RPCDqmClient::endRun(const edm::Run& r, const edm::EventSetup& c){
 
   if (!enableDQMClients_) return;
 
-  if(offlineDQM_) this->getMonitorElements(r, c);
+  if(offlineDQM_  || !init_) {this->getMonitorElements(r, c);}
 
-  float   rpcevents = minimumEvents_;
+  float   rpcevents = minimumEvents_ + 1. ;
   if(RPCEvents_) rpcevents = RPCEvents_ ->getBinContent(1);
   
   if(rpcevents < minimumEvents_) return;
@@ -167,6 +167,8 @@ void  RPCDqmClient::getMonitorElements(const edm::Run& r, const edm::EventSetup&
     (*it)->getMonitorElements(myMeVect, myDetIds);
   }
 
+  if(myMeVect.size()>1){init_=true;}
+
   delete folderStr;
  
 }
@@ -191,9 +193,7 @@ void RPCDqmClient::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 void RPCDqmClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c){
  
-  if (!enableDQMClients_ ) return;
-
-  if(offlineDQM_) return;
+  if (!enableDQMClients_  || offlineDQM_) return;
 
   edm::LogVerbatim ("rpcdqmclient") <<"[RPCDqmClient]: End of LS ";
 
@@ -203,26 +203,19 @@ void RPCDqmClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::
   float   rpcevents = minimumEvents_;
   if(RPCEvents_) rpcevents = RPCEvents_ ->getBinContent(1);
   
-  if( rpcevents < minimumEvents_) return;
-
-  if( !init_ ){
-
-    for (std::vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ ){
-      (*it)->clientOperation(c);
+  if( rpcevents >= minimumEvents_) {
+    
+    if (lumiCounter_%prescaleGlobalFactor_ == 0){
+      
+      for (std::vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ ){
+	(*it)->clientOperation(c);
+      }
+      
+      return;
     }
-    init_ = true;
-    return;
+    
+    lumiCounter_++;
   }
-
-  lumiCounter_++;
-
-  if (lumiCounter_%prescaleGlobalFactor_ != 0) return;
-
-
-  for (std::vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ ){
-    (*it)->clientOperation(c);
-  }
-
 }
 
 
