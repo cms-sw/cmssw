@@ -39,7 +39,7 @@ namespace evf{
     {
     public:
 
-      enum FileStatus { noFile, sameFile, newFile, newLumi, runEnded };
+      enum FileStatus { noFile, sameFile, newFile, newLumi, runEnded, runAbort };
 
       explicit EvFDaqDirector( const edm::ParameterSet &pset, edm::ActivityRegistry& reg );
       ~EvFDaqDirector();
@@ -99,6 +99,7 @@ namespace evf{
       void lockFULocal2();
       void unlockFULocal2();
       void createRunOpendirMaybe();
+      int readLastLSEntry(std::string const& file);
       void setDeleteTracking( std::mutex* fileDeleteLock,std::list<std::pair<int,InputFile*>> *filesToDelete) {
         fileDeleteLockPtr_=fileDeleteLock;
         filesToDeletePtr_ = filesToDelete;
@@ -108,7 +109,7 @@ namespace evf{
     private:
       //bool bulock();
       //bool fulock();
-      bool bumpFile(unsigned int& ls, unsigned int& index, std::string& nextFile, uint32_t& fsize);
+      bool bumpFile(unsigned int& ls, unsigned int& index, std::string& nextFile, uint32_t& fsize, int maxLS);
       void openFULockfileStream(std::string& fuLockFilePath, bool create);
       std::string inputFileNameStem(const unsigned int ls, const unsigned int index) const;
       std::string outputFileNameStem(const unsigned int ls, std::string const& stream) const;
@@ -177,7 +178,7 @@ namespace evf{
 
       bool readEolsDefinition_ = true;
       unsigned int eolsNFilesIndex_ = 1;
-
+      std::string stopFilePath_;
   };
 }
 
