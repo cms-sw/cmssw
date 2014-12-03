@@ -322,7 +322,10 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
       currentFile_=nullptr;
       return status;
     }
-
+    else if ( status == evf::EvFDaqDirector::runAbort)
+    {
+      throw cms::Exception("FedRawDataInputSource::getNextEvent") << "Run has been aborted by the input source reader thread";
+    }
     else if (status == evf::EvFDaqDirector::newLumi)
     {
       if (getLSFromFilename_) {
@@ -371,10 +374,10 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
     freeChunks_.push(currentFile_->chunks_[currentFile_->currentChunk_]);
     if (currentFile_->nEvents_!=currentFile_->nProcessed_)
     {
-      throw cms::Exception("RuntimeError")
-	<< "Fully processed " << currentFile_->nProcessed_
-        << " from the file " << currentFile_->fileName_
-	<< " but according to BU JSON there should be "
+      throw cms::Exception("FedRawDataInputSource::getNextEvent")
+	<< "Fully processed " << currentFile_->nProcessed_ 
+        << " from the file " << currentFile_->fileName_ 
+	<< " but according to BU JSON there should be " 
 	<< currentFile_->nEvents_ << " events";
     }
     //try to wake up supervisor thread which might be sleeping waiting for the free chunk
@@ -401,7 +404,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
   //file is too short
   if (currentFile_->fileSize_ - currentFile_->bufferPosition_ < headerSize[detectedFRDversion_])
   {
-    throw cms::Exception("FedRawDataInputSource::cacheNextEvent") <<
+    throw cms::Exception("FedRawDataInputSource::getNextEvent") <<
       "Premature end of input file while reading event header";
   }
   if (singleBufferMode_) {
@@ -429,14 +432,14 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
       dataPosition = currentFile_->chunks_[0]->buf_+ currentFile_->chunkPosition_;
       if ( bufferInputRead_ < headerSize[detectedFRDversion_])
       {
-      throw cms::Exception("FedRawDataInputSource::cacheNextEvent") <<
+      throw cms::Exception("FedRawDataInputSource::getNextEvent") <<
 	"Premature end of input file while reading event header";
       }
     }
 
     event_.reset( new FRDEventMsgView(dataPosition) );
     if (event_->size()>eventChunkSize_) {
-      throw cms::Exception("FedRawDataInputSource::nextEvent")
+      throw cms::Exception("FedRawDataInputSource::getNextEvent")
 	      << " event id:"<< event_->event()<< " lumi:" << event_->lumi()
 	      << " run:" << event_->run() << " of size:" << event_->size()
 	      << " bytes does not fit into a chunk of size:" << eventChunkSize_ << " bytes";
@@ -446,7 +449,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
 
     if (currentFile_->fileSize_ - currentFile_->bufferPosition_ < msgSize)
     {
-      throw cms::Exception("FedRawDataInputSource::nextEvent") <<
+      throw cms::Exception("FedRawDataInputSource::getNextEvent") <<
 	"Premature end of input file while reading event data";
     }
     if (eventChunkSize_ - currentFile_->chunkPosition_ < msgSize) {
@@ -478,7 +481,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
 
     event_.reset( new FRDEventMsgView(dataPosition) );
     if (event_->size()>eventChunkSize_) {
-      throw cms::Exception("FedRawDataInputSource::nextEvent")
+      throw cms::Exception("FedRawDataInputSource::getNextEvent")
 	      << " event id:"<< event_->event()<< " lumi:" << event_->lumi()
 	      << " run:" << event_->run() << " of size:" << event_->size()
 	      << " bytes does not fit into a chunk of size:" << eventChunkSize_ << " bytes";
@@ -488,7 +491,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
 
     if (currentFile_->fileSize_ - currentFile_->bufferPosition_ < msgSize)
     {
-      throw cms::Exception("FedRawDataInputSource::nextEvent") <<
+      throw cms::Exception("FedRawDataInputSource::getNextEvent") <<
 	"Premature end of input file while reading event data";
     }
 
@@ -524,7 +527,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
     adler = adler32(adler,(Bytef*)event_->payload(),event_->eventSize());
 
     if ( adler != event_->adler32() ) {
-      throw cms::Exception("FedRawDataInputSource::nextEvent") <<
+      throw cms::Exception("FedRawDataInputSource::getNextEvent") <<
         "Found a wrong Adler32 checksum: expected 0x" << std::hex << event_->adler32() <<
         " but calculated 0x" << adler;
     }
@@ -768,19 +771,17 @@ int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonS
   {
     // Input dir gone?
     daqDirector_->unlockFULocal();
-    edm::LogError("FedRawDataInputSource") << "grabNextFile - BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what()
-                  << " - Maybe the BU run dir disappeared? Ending process with code 0...";
-    _exit(-1);
+    edm::LogError("FedRawDataInputSource") << "grabNextJsonFile - BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
   }
   catch (std::runtime_error e)
   {
     // Another process grabbed the file and NFS did not register this
     daqDirector_->unlockFULocal();
-    edm::LogError("FedRawDataInputSource") << "grabNextFile - runtime Exception -: " << e.what();
+    edm::LogError("FedRawDataInputSource") << "grabNextJsonFile - runtime Exception -: " << e.what();
   }
 
   catch( boost::bad_lexical_cast const& ) {
-    edm::LogError("FedRawDataInputSource") << "grabNextFile - error parsing number of events from BU JSON. "
+    edm::LogError("FedRawDataInputSource") << "grabNextJsonFile - error parsing number of events from BU JSON. "
                                            << "Input value is -: " << data;
   }
 
@@ -883,7 +884,9 @@ void FedRawDataInputSource::readSupervisor()
 
       if( getLSFromFilename_ && currentLumiSection>0 && ls < currentLumiSection) {
           edm::LogError("FedRawDataInputSource") << "Got old LS ("<<ls<<") file from EvFDAQDirector! Expected LS:" << currentLumiSection<<". Aborting execution."<<std::endl;
-          _exit(-1);
+	  fileQueue_.push(new InputFile(evf::EvFDaqDirector::runAbort, 0));
+	  stop=true;
+	  break;
       }
 
       int dbgcount=0;
