@@ -54,7 +54,8 @@ private:
   unsigned int period_;
   /// if invert_=true, invert that event accept decision
   bool invert_;
-
+  //FED from which to get lv1ID number
+  int fedId_;
 };
 
 #endif
