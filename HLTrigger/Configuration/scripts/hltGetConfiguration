@@ -171,6 +171,12 @@ group.add_argument('--fastsim',
                     default = defaults.fastsim,
                     help    = 'Prepare a menu suitable for Fast Simulation (implies --mc and --fragment)' )
 
+parser.add_argument('--hilton',
+                    dest    = 'hilton',
+                    action  = 'store_true',
+                    default = defaults.hilton,
+                    help    = 'Keep the hilton-specific modules' )
+
 group = parser.add_mutually_exclusive_group()
 group.add_argument('--full',
                     dest    = 'fragment',
