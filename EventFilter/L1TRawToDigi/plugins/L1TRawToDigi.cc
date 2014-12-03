@@ -68,6 +68,8 @@ namespace l1t {
          int amcTrailerSize_;
          int amc13HeaderSize_;
          int amc13TrailerSize_;
+
+         bool ctp7_mode_;
    };
 }
 
@@ -79,7 +81,8 @@ std::ostream & operator<<(std::ostream& o, const l1t::BlockHeader& h) {
 namespace l1t {
    L1TRawToDigi::L1TRawToDigi(const edm::ParameterSet& config) :
       fedId_(config.getParameter<int>("FedId")),
-      fwId_(config.getUntrackedParameter<int>("FWId", -1))
+      fwId_(config.getUntrackedParameter<int>("FWId", -1)),
+      ctp7_mode_(config.getUntrackedParameter<bool>("CTP7", false))
    {
       fedData_ = consumes<FEDRawDataCollection>(config.getParameter<edm::InputTag>("InputLabel"));
 
@@ -167,13 +170,18 @@ namespace l1t {
 
       for (auto& amc: packet.payload()) {
          auto payload64 = amc.data();
-         const uint32_t * payload = (const uint32_t*) payload64.get();
-         const uint32_t * end = payload + (amc.size() * 2);
+         const uint32_t * start = (const uint32_t*) payload64.get();
+         const uint32_t * end = start + (amc.size() * 2);
 
-         // TODO this skips the still to be added MP7 header containing the
-         // firmware version
-         unsigned fw = 0;
-         payload++;
+         std::auto_ptr<Payload> payload;
+         if (ctp7_mode_) {
+            LogDebug("L1T") << "Using CTP7 mode";
+            payload.reset(new CTP7Payload(start, end));
+         } else {
+            LogDebug("L1T") << "Using MP7 mode";
+            payload.reset(new MP7Payload(start, end));
+         }
+         unsigned fw = payload->getFirmwareId();
 
          // Let parameterset value override FW version
          if (fwId_ > 0)
@@ -183,35 +191,21 @@ namespace l1t {
 
          auto unpackers = prov_->getUnpackers(fedId_, board, fw);
 
-         while (payload != end) {
-            BlockHeader block_hdr(payload++);
-
-            /* LogDebug("L1T") << "Found " << block_hdr; */
-            //LogDebug("L1T") << "Found block " << block_hdr.getID() << " with size " << block_hdr.getSize();
-
-            if (end - payload < block_hdr.getSize()) {
-               LogError("L1T")
-                  << "Expecting a block size of " << block_hdr.getSize()
-                  << " but only " << (end - payload) << " words remaining";
-               return;
-            }
-
-            Block block(block_hdr, payload, payload + block_hdr.getSize());
-
-            auto unpacker = unpackers.find(block_hdr.getID());
+         // getBlock() returns a non-null auto_ptr on success
+         std::auto_ptr<Block> block;
+         while ((block = payload->getBlock()).get()) {
+            auto unpacker = unpackers.find(block->header().getID());
             if (unpacker == unpackers.end()) {
                LogDebug("L1T") << "Cannot find an unpacker for block ID "
-                  << block_hdr.getID() << ", FED ID " << fedId_ << ", and FW ID "
+                  << block->header().getID() << ", FED ID " << fedId_ << ", and FW ID "
                   << fw << "!";
                // TODO Handle error
-            } else if (!unpacker->second->unpack(block, coll.get())) {
+            } else if (!unpacker->second->unpack(*block, coll.get())) {
                LogDebug("L1T") << "Error unpacking data for block ID "
-                  << block_hdr.getID() << ", FED ID " << fedId_ << ", and FW ID "
+                  << block->header().getID() << ", FED ID " << fedId_ << ", and FW ID "
                   << fw << "!";
                // TODO Handle error
             }
-
-            payload += block_hdr.getSize();
          }
       }
    }
