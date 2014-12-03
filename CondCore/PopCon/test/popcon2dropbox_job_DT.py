@@ -1,5 +1,13 @@
-from popcon2dropbox_job_conf import md
-from popcon2dropbox_job_conf import process
+from CondCore.Utilities.popcon2dropbox_job_conf import md, process
+
+process.essource = cms.ESSource("PoolDBESSource",
+                                connect = cms.string( str(md.destinationDatabase()) ),
+                                DBParameters = cms.PSet( authenticationPath = cms.untracked.string( str(md.authPath()) ),
+                                                         authenticationSystem = cms.untracked.int32( int(md.authSys()) )
+                                                         ),
+                                DumpStat=cms.untracked.bool(True),
+                                toGet = cms.VPSet( psetForRec )
+)
 
 process.conf_o2o = cms.EDAnalyzer("DTKeyedConfigPopConAnalyzer",
     name = cms.untracked.string('DTCCBConfig'),
@@ -16,7 +24,6 @@ process.conf_o2o = cms.EDAnalyzer("DTKeyedConfigPopConAnalyzer",
         onlineAuthentication = cms.string( str(md.authPath()) ),
         onlineAuthSys = cms.untracked.int32( int(md.authSys()) )
     ),
-    #targetDBConnectionString = cms.untracked.string('oracle://cms_orcon_prod/CMS_COND_31X_DT'),
     targetDBConnectionString = cms.untracked.string(str(md.destinationDatabase())),
     authenticationPath = cms.untracked.string( str(md.authPath()) ),
     authenticationSystem = cms.untracked.int32( int(md.authSys()) ),
