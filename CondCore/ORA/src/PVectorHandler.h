@@ -7,7 +7,8 @@
 // externals
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 
-#include "TCollectionProxyInfo.h"
+#include "TVirtualCollectionIterators.h"
+#include "TVirtualCollectionProxy.h"
 
 namespace ora {
 
@@ -16,9 +17,9 @@ namespace ora {
 
     public:
     /// Constructor
-    PVectorIteratorHandler( ROOT::TCollectionProxyInfo::Environ<long>& collEnv,
-                            ROOT::TCollectionProxyInfo& collProxy,
-                            const edm::TypeWithDict& iteratorReturnType,
+    PVectorIteratorHandler( void* address,
+			    TVirtualCollectionProxy& collProxy,
+			    const edm::TypeWithDict& iteratorReturnType,
                             size_t startElement );
 
     /// Destructor
@@ -38,15 +39,15 @@ namespace ora {
     /// The return type of the iterator dereference method
     edm::TypeWithDict m_returnType;
 
-    /// Structure containing parameters of the collection instance
-    ROOT::TCollectionProxyInfo::Environ<long>& m_collEnv;
-
     /// Proxy of the generic collection
-    ROOT::TCollectionProxyInfo& m_collProxy;
+    TVirtualCollectionProxy& m_collProxy;
 
     /// Current element object pointer
     void* m_currentElement;
 
+    // holds the iterators when the branch is of fType==4.
+    TGenericCollectionIterator *m_Iterators;
+    
     size_t m_startElement;
     
   };
@@ -80,7 +81,7 @@ namespace ora {
 
       /// Returns the associativeness of the container
       bool isAssociative() const {
-        return m_isAssociative;
+        return false;
       }
 
       /// Returns the persistent size of the container
@@ -96,14 +97,8 @@ namespace ora {
       /// The iterator return type
       edm::TypeWithDict m_iteratorReturnType;
 
-      /// Flag indicating whether the container is associative
-      bool m_isAssociative;
-
-      /// Structure containing parameters of the collection instance
-      ROOT::TCollectionProxyInfo::Environ<long> m_collEnv;
-
       /// Proxy of the generic collection
-      std::auto_ptr<ROOT::TCollectionProxyInfo> m_collProxy;
+      TVirtualCollectionProxy* m_collProxy;
 
       size_t m_persistentSizeAttributeOffset;
 

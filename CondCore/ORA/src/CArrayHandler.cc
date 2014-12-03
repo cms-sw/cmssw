@@ -46,8 +46,10 @@ ora::CArrayHandler::~CArrayHandler(){
 
 size_t
 ora::CArrayHandler::size( const void* )
-{
-  return m_type.arrayLength();
+{ 
+  size_t ret = m_type.arrayLength();
+  if( m_elementType.isArray() ) ret /= m_elementType.arrayLength();
+  return ret;
 }
 
 
