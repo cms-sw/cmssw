@@ -33,4 +33,4 @@ VtxSmeared = {
 
 }
 VtxSmearedDefaultKey='NominalCollision2015'
-VtxSmearedHIDefaultKey='RealisticHI2011Collision'
+VtxSmearedHIDefaultKey='NominalCollision2015'
