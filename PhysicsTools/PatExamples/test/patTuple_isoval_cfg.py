@@ -23,7 +23,7 @@ process.maxEvents.input = 2000
 #                                         ##
 #   process.out.outputCommands = [ ... ]  ##  (e.g. taken from PhysicsTools/PatAlgos/python/patEventContent_cff.py)
 #                                         ##
-process.out.fileName = 'PAT_isoval.root'
+process.out.fileName = 'patTuple_isoval.root'
 #                                         ##
 #   process.options.wantSummary = False   ##  (to suppress the long output at the end of the job)
 
