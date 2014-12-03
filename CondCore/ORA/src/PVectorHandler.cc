@@ -9,17 +9,17 @@
 #include <cassert>
 #include <cstring>
 
-ora::PVectorIteratorHandler::PVectorIteratorHandler( ROOT::TCollectionProxyInfo::Environ<long>& collEnv,
-                                                     ROOT::TCollectionProxyInfo& collProxy,
-                                                     const edm::TypeWithDict& iteratorReturnType,
-                                                     size_t startElement):
+ora::PVectorIteratorHandler::PVectorIteratorHandler( void* address,
+						     TVirtualCollectionProxy& collProxy,
+						     const edm::TypeWithDict& iteratorReturnType,
+						     size_t startElement):
   m_returnType(iteratorReturnType),
-  m_collEnv(collEnv),
   m_collProxy(collProxy),
   m_currentElement(0),
+  m_Iterators(TGenericCollectionIterator::New(address, &collProxy)),
   m_startElement(startElement){
-  // retrieve the first element
-  m_currentElement = m_collProxy.fFirstFunc(&m_collEnv);
+
+  m_currentElement = m_Iterators->Next(); 
 
   if(startElement){
     size_t i = 0;
@@ -35,9 +35,7 @@ ora::PVectorIteratorHandler::~PVectorIteratorHandler(){
 
 void
 ora::PVectorIteratorHandler::increment(){
-  // this is requiredd! It sets the number of memory slots (of size sizeof(Class)) to be used for the step
-  m_collEnv.fIdx = 1;
-  m_currentElement = m_collProxy.fNextFunc(&m_collEnv);
+  m_currentElement = m_Iterators->Next(); 
 }
 
 void*
@@ -53,8 +51,6 @@ ora::PVectorIteratorHandler::returnType(){
 ora::PVectorHandler::PVectorHandler( const edm::TypeWithDict& dictionary ):
   m_type( dictionary ),
   m_iteratorReturnType(),
-  m_isAssociative( false ),
-  m_collEnv(),
   m_collProxy(),
   m_persistentSizeAttributeOffset(0),
   m_vecAttributeOffset(0)
@@ -62,14 +58,14 @@ ora::PVectorHandler::PVectorHandler( const edm::TypeWithDict& dictionary ):
   edm::MemberWithDict privateVectorAttribute = m_type.dataMemberByName("m_vec");
   if(privateVectorAttribute){
     m_vecAttributeOffset = privateVectorAttribute.offset();
-    ROOT::TCollectionProxyInfo* collProxyPtr = ROOT::TCollectionProxyInfo::Generate(ROOT::TCollectionProxyInfo::Pushback<std::vector<cond::IOVElement> >());
-    m_collProxy.reset( collProxyPtr );
-    if(! m_collProxy.get() ){
-      throwException( "Cannot find \"createTCollectionProxyInfo\" function for type \""+m_type.cppName()+"\"",
-                      "PVectorHandler::PVectorHandler");
+    TClass* cl = privateVectorAttribute.typeOf().getClass();
+    m_collProxy = cl->GetCollectionProxy();
+    if( !m_collProxy ){
+      throwException( "Cannot create \"TVirtualCollectionProxy\" for type \""+m_type.cppName()+"\"",
+		      "PVectorHandler::PVectorHandler");
     }
   }
-
+    
   edm::MemberWithDict persistentSizeAttribute = m_type.dataMemberByName("m_persistentSize");
   if( persistentSizeAttribute ){
     m_persistentSizeAttributeOffset = persistentSizeAttribute.offset();
@@ -85,16 +81,18 @@ ora::PVectorHandler::~PVectorHandler(){
 
 size_t
 ora::PVectorHandler::size( const void* address ){
-  m_collEnv.fObject = static_cast<char*>(const_cast<void*>(address))+m_vecAttributeOffset;
-  size_t transientSize = *(static_cast<size_t*>(m_collProxy->fSizeFunc(&m_collEnv)));
-  return transientSize;
+  TVirtualCollectionProxy::TPushPop helper(m_collProxy, static_cast<char*>(const_cast<void*>(address))+m_vecAttributeOffset );
+  return m_collProxy->Size();
 }
 
 size_t
 ora::PVectorHandler::startElementIndex( const void* address ){
   const void* persistentSizeAddress = static_cast<const char *>(address) + m_persistentSizeAttributeOffset;
   size_t persistentSize = *static_cast<const size_t*>(persistentSizeAddress);
-  size_t transientSize = *(static_cast<size_t*>(m_collProxy->fSizeFunc(&m_collEnv)));
+    
+  TVirtualCollectionProxy::TPushPop helper(m_collProxy, static_cast<char*>(const_cast<void*>(address))+m_vecAttributeOffset );
+  size_t transientSize = m_collProxy->Size();
+
   size_t startElement = 0;
   if(persistentSize < transientSize) startElement = persistentSize;
   return startElement;
@@ -112,27 +110,23 @@ ora::PVectorHandler::iterate( const void* address ){
                     m_type.cppName() + "\"",
                     "PVectorHandler" );
   }
-  m_collEnv.fObject = static_cast<char*>(const_cast<void*>(address))+m_vecAttributeOffset;
-  return new PVectorIteratorHandler( m_collEnv,*m_collProxy,m_iteratorReturnType,startElementIndex(address) );
+  void *addr = static_cast<char*>(const_cast<void*>(address))+m_vecAttributeOffset;
+
+  return new PVectorIteratorHandler( addr,*m_collProxy,m_iteratorReturnType,startElementIndex(address) );
 }
 
 void
 ora::PVectorHandler::appendNewElement( void* address, void* data ){
-  void* dest_address = static_cast<char*>(address)+m_vecAttributeOffset;
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,28,0)
-  m_collEnv.fObject = dest_address;
-  m_collEnv.fSize = 1;
-  m_collEnv.fStart = data;
-  m_collProxy->fFeedFunc(&m_collEnv);
-#else
-  m_collProxy->fFeedFunc(data,dest_address,1);
-#endif
+
+  void* addr = static_cast<char*>(const_cast<void*>(address))+m_vecAttributeOffset;
+  m_collProxy->Insert(data, addr, 1);
 }
 
 void
 ora::PVectorHandler::clear( const void* address ){
-  m_collEnv.fObject = static_cast<char*>(const_cast<void*>(address))+m_vecAttributeOffset;
-  m_collProxy->fClearFunc(&m_collEnv);
+  void* addr = static_cast<char*>(const_cast<void*>(address))+m_vecAttributeOffset;
+  TVirtualCollectionProxy::TPushPop helper(m_collProxy, const_cast<void*>(addr));
+  m_collProxy->Clear();
 }
 
 edm::TypeWithDict&

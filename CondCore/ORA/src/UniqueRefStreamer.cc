@@ -234,9 +234,9 @@ void ora::UniqueRefWriter::write( int oid,
   if(!isNull){
     // resolving the ref type
     const std::type_info *refTypeInfo = 0;
-    edm::ObjectWithDict refTIObj = edm::ObjectWithDict(edm::TypeWithDict( typeid(std::type_info)), const_cast<std::type_info *>(refTypeInfo) );
-    refObj.typeOf().functionMemberByName("typeInfo").invoke(refObj, &refTIObj);
-    
+    edm::TypeWithDict typeInfoDict( typeid(std::type_info*) );
+    edm::ObjectWithDict refTIObj( typeInfoDict, &refTypeInfo );
+    m_objectType.functionMemberByName("typeInfo").invoke( refObj,  &refTIObj);
     edm::TypeWithDict refType = ClassUtils::lookupDictionary( *refTypeInfo );
     className = refType.cppName();
 
@@ -249,8 +249,8 @@ void ora::UniqueRefWriter::write( int oid,
     DependentClassWriter writer;
     writer.build( refType, depMapping, m_schema, m_operationBuffer->addVolatileBuffer() );
     void* refData = 0;
-    edm::ObjectWithDict refDataObj = edm::ObjectWithDict(edm::TypeWithDict(typeid(void*)), refData);
-    refObj.typeOf().functionMemberByName("operator*").invoke(refObj, &refDataObj);
+    edm::ObjectWithDict refDataObj(edm::TypeWithDict(typeid(void*)), &refData);
+    m_objectType.functionMemberByName("operator*").invoke( refObj, &refDataObj );
     
     writer.write( oid, refId, refData );
 
