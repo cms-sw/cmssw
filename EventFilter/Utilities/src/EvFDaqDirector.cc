@@ -196,6 +196,7 @@ namespace evf {
 
     pthread_mutex_init(&init_lock_,NULL);
 
+    stopFilePath_ = run_dir_+"/CMSSW_STOP";
   }
 
   EvFDaqDirector::~EvFDaqDirector()
@@ -390,6 +391,14 @@ namespace evf {
     int retval = -1;
     int lock_attempts = 0;
 
+    struct stat buf;
+    int stopFileLS = -1;
+    if (stat(stopFilePath_.c_str(),&buf)==0) {
+        stopFileLS = readLastLSEntry(stopFilePath_);
+        edm::LogWarning("EvFDaqDirector") << "Detected stop request from hltd. Ending run for this process after LS -: " << stopFileLS;
+        //return runEnded;
+    }
+
     while (retval==-1) {
       retval = fcntl(fu_readwritelock_fd_, F_SETLK, &fu_rw_flk);
       if (retval==-1) usleep(50000);
@@ -402,7 +411,6 @@ namespace evf {
         else
           edm::LogWarning("EvFDaqDirector") << "Unable to obtain a lock for 5 seconds. Checking if run directory and fu.lock file are present -: errno "<< errno <<":"<< strerror(errno) << std::endl;
 
-        struct stat buf;
         if (stat(bu_run_dir_.c_str(), &buf)!=0) return runEnded;
         if (stat((bu_run_dir_+"/fu.lock").c_str(), &buf)!=0) return runEnded;
         lock_attempts=0;
@@ -433,7 +441,7 @@ namespace evf {
         }
 
 	// try to bump
-	bool bumpedOk = bumpFile(readLs, readIndex, nextFile, fsize);
+	bool bumpedOk = bumpFile(readLs, readIndex, nextFile, fsize, stopFileLS);
 	ls = readLs;
 	// there is a new file to grab or lumisection ended
 	if (bumpedOk) {
@@ -505,6 +513,10 @@ namespace evf {
       //edm::LogInfo("EvFDaqDirector") << " looking for EoR file: " << getEoRFilePath().c_str();
       if ( stat(getEoRFilePath().c_str(), &buf) == 0 || stat(bu_run_dir_.c_str(), &buf)!=0)
         fileStatus = runEnded;
+      if (stopFileLS>=0 && (int)ls > stopFileLS) {
+         edm::LogInfo("EvFDaqDirector") << "Reached maximum lumisection set by hltd";
+         fileStatus = runEnded;
+      }
     }
     return fileStatus;
   }
@@ -570,7 +582,7 @@ namespace evf {
     return boost::lexical_cast<int>(data);
   }
 
-  bool EvFDaqDirector::bumpFile(unsigned int& ls, unsigned int& index, std::string& nextFile, uint32_t& fsize) {
+  bool EvFDaqDirector::bumpFile(unsigned int& ls, unsigned int& index, std::string& nextFile, uint32_t& fsize, int maxLS) {
 
     if (previousFileSize_ != 0) {
       if (!fms_) {
@@ -627,6 +639,10 @@ namespace evf {
 	// this lumi ended, check for files
 	++ls;
         index = 0;
+
+        //reached limit
+        if (maxLS>=0 && ls > (unsigned int)maxLS) return false; 
+
 	nextFile = getInputJsonFilePath(ls,0);
 	if (stat(nextFile.c_str(), &buf) == 0) {
 	  // a new file was found at new lumisection, index 0
@@ -749,6 +765,23 @@ namespace evf {
       LogDebug("EvFDaqDirector") << "<open> FU dir not found. Creating... -:" << openPath.string();
       boost::filesystem::create_directories(openPath);
     }
+  }
+
+
+  int EvFDaqDirector::readLastLSEntry(std::string const& file) {
+
+    boost::filesystem::ifstream ij(file);
+    Json::Value deserializeRoot;
+    Json::Reader reader;
+
+    if (!reader.parse(ij, deserializeRoot)) {
+      edm::LogError("EvFDaqDirector") << "Cannot deserialize input JSON file -:" << file;
+      return -1;
+    }
+
+    int ret = deserializeRoot.get("lastLS","").asInt();
+    return ret;
+
   }
 
 }
