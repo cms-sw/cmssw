@@ -1245,18 +1245,22 @@ if 'GlobalTag' in %%(dict)s:
     self.data += "    %s,\n" % (token_close)
 
 
+  def expand_filenames(self, input):
+    # check if the input is a dataset or a list of files
+    if input[0:8] == 'dataset:':
+      from dasFileQuery import dasFileQuery
+      # extract the dataset name, and use DAS to fine the list of LFNs
+      dataset = input[8:]
+      files = dasFileQuery(dataset)
+    else:
+      # assume a comma-separated list of input files
+      files = self.config.input.split(',')
+    return files
+
   def build_source(self):
     if self.config.input:
       # if a dataset or a list of input files was given, use it
-      if self.config.input[0:8] == 'dataset:':
-        from dasFileQuery import dasFileQuery
-        # extract the dataset name, and use DAS to fine the list of LFNs
-        dataset = self.config.input[8:]
-        files   = dasFileQuery(dataset)
-        self.source = files
-      else:
-        # assume a list of input files
-        self.source = self.config.input.split(',')
+      self.source = self.expand_filenames(self.config.input)
     elif self.config.online:
       # online we always run on data
       self.source = [ "file:/tmp/InputCollection.root" ]
@@ -1266,6 +1270,10 @@ if 'GlobalTag' in %%(dict)s:
     else:
       # ...or on mc
       self.source = [ "file:RelVal_Raw_%s_MC.root" % self.config.type ]
+
+    if self.config.parent:
+      # if a dataset or a list of input files was given for the parent data, use it
+      self.parent = self.expand_filenames(self.config.parent)
 
     self.data += """
 %(process)ssource = cms.Source( "PoolSource",
