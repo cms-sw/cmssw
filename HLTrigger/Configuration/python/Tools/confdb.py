@@ -62,8 +62,8 @@ class HLTProcess(object):
   def __init__(self, configuration):
     self.config = configuration
     self.data   = None
-    self.source = None
-    self.parent = None
+    self.source = []
+    self.parent = []
 
     self.options = {
       'essources' : [],
@@ -1231,6 +1231,20 @@ if 'GlobalTag' in %%(dict)s:
         self.options['paths'].append( "-HLTAnalyzerEndpath" )
 
 
+  def append_filenames(self, name, filenames):
+    if len(filenames) > 255:
+      token_open  = "( *("
+      token_close = ") )"
+    else:
+      token_open  = "("
+      token_close = ")"
+
+    self.data += "    %s = cms.untracked.vstring%s\n" % (name, token_open)
+    for line in filenames:
+      self.data += "        '%s',\n" % line
+    self.data += "    %s,\n" % (token_close)
+
+
   def build_source(self):
     if self.config.input:
       # if a dataset or a list of input files was given, use it
@@ -1255,18 +1269,11 @@ if 'GlobalTag' in %%(dict)s:
 
     self.data += """
 %(process)ssource = cms.Source( "PoolSource",
-    fileNames = cms.untracked.vstring(
 """
-    if self.source: 
-      for line in self.source:
-        self.data += "        '%s',\n" % line
-    self.data += """    ),
-    secondaryFileNames = cms.untracked.vstring(
-"""
-    if self.parent: 
-      for line in self.parent:
-        self.data += "        '%s',\n" % line
-    self.data += """    ),
+    self.append_filenames("fileNames", self.source)
+    if (self.parent):
+      self.append_filenames("secondaryFileNames", self.parent)
+    self.data += """\
     inputCommands = cms.untracked.vstring(
         'keep *'
     )
