@@ -71,7 +71,7 @@ class Handle:
             print "Not deleting wrapper"
             del kwargs['noDelete']
         else:
-            self._wrapper.IsA().Destructor( self._wrapper )
+             ROOT.TClass.GetClass("edm::Wrapper<"+self._type+">").Destructor( self._wrapper )
         # Since we deleted the options as we used them, that means
         # that kwargs should be empty.  If it's not, that means that
         # somebody passed in an argument that we're not using and we
