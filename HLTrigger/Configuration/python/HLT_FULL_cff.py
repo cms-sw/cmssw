@@ -1918,6 +1918,11 @@ hltL1GtObjectMap = cms.EDProducer( "L1GlobalTrigger",
     WritePsbL1GtDaqRecord = cms.bool( False ),
     BstLengthBytes = cms.int32( -1 )
 )
+#
+# Modify for running in run 2
+#
+eras.run2.toModify( hltL1GtObjectMap, GctInputTag = cms.InputTag("hltCaloStage1LegacyFormatDigis") )
+
 hltL1extraParticles = cms.EDProducer( "L1ExtraParticlesProd",
     tauJetSource = cms.InputTag( 'hltGctDigis','tauJets' ),
     etHadSource = cms.InputTag( "hltGctDigis" ),
