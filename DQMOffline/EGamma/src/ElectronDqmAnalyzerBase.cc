@@ -114,7 +114,7 @@ MonitorElement * ElectronDqmAnalyzerBase::bookH1withSumw2
  {
   iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement * me = iBooker.book1D(newName(name),title,nchX,lowX,highX) ;
-  me->getTH1F()->Sumw2() ;
+  if (me->getTH1F()->GetSumw2N() == 0) me->getTH1F()->Sumw2() ;
   if (titleX!="") { me->getTH1F()->GetXaxis()->SetTitle(titleX.c_str()) ; }
   if (titleY!="") { me->getTH1F()->GetYaxis()->SetTitle(titleY.c_str()) ; }
   if (TString(option)!="") { me->getTH1F()->SetOption(option) ; }
@@ -147,7 +147,7 @@ MonitorElement * ElectronDqmAnalyzerBase::bookH2withSumw2
  {
   iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement * me = iBooker.book2D(newName(name),title,nchX,lowX,highX,nchY,lowY,highY) ;
-  me->getTH2F()->Sumw2() ;
+  if (me->getTH2F()->GetSumw2N() == 0) me->getTH2F()->Sumw2() ;
   if (titleX!="") { me->getTH2F()->GetXaxis()->SetTitle(titleX.c_str()) ; }
   if (titleY!="") { me->getTH2F()->GetYaxis()->SetTitle(titleY.c_str()) ; }
   if (TString(option)!="") { me->getTH2F()->SetOption(option) ; }
