@@ -117,22 +117,22 @@ ak8PFJetsCHS = ak5PFJetsCHS.clone(
 
 ak8PFJetsCHSPruned = ak5PFJetsCHSPruned.clone(
     rParam = 0.8,
-    jetPtMin = 15.0
+    jetPtMin = 100.0
     )
 
 ak8PFJetsCHSFiltered = ak5PFJetsCHSFiltered.clone(
     rParam = 0.8,
-    jetPtMin = 15.0
+    jetPtMin = 100.0
     )
 
 ak8PFJetsCHSTrimmed = ak5PFJetsCHSTrimmed.clone(
     rParam = 0.8,
-    jetPtMin = 15.0
+    jetPtMin = 100.0
     )
 
 ak8PFJetsCHSSoftDrop = ak5PFJetsCHSSoftDrop.clone(
     rParam = 0.8,
-    jetPtMin = 15.0
+    jetPtMin = 100.0
     )
 
 
