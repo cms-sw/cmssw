@@ -1,7 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-trajectorySeedProducer = cms.EDProducer("TrajectorySeedProducer",
+trajectorySeedProducer = cms.EDProducer(
+    "TrajectorySeedProducer",
     # The smallest number of layer crossed to create a track candidate
+    skipSimTrackIdTags = cms.untracked.VInputTag(),
     minRecHits = cms.vuint32(5),
     beamSpot = cms.InputTag("offlineBeamSpot"),
     originHalfLength = cms.vdouble(15.9),
@@ -39,5 +41,4 @@ trajectorySeedProducer = cms.EDProducer("TrajectorySeedProducer",
                             'BPix2+FPix1_pos', 'BPix2+FPix1_neg',
                             'FPix1_pos+FPix2_pos', 'FPix1_neg+FPix2_neg'),
 )
-
 

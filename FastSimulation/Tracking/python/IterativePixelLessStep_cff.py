@@ -6,6 +6,7 @@ import FWCore.ParameterSet.Config as cms
 #from FastSimulation.Tracking.IterativeFourthSeedProducer_cff import *
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 iterativePixelLessSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
+iterativePixelLessSeeds.skipSimTrackIdTags = [cms.InputTag("initialStepIds"), cms.InputTag("lowPtTripletStepIds"), cms.InputTag("pixelPairStepIds"), cms.InputTag("detachedTripletStepIds"),  cms.InputTag("mixedTripletStepIds")]
 iterativePixelLessSeeds.firstHitSubDetectorNumber = [3]
 iterativePixelLessSeeds.firstHitSubDetectors = [3, 4, 6]
 iterativePixelLessSeeds.secondHitSubDetectorNumber = [3]
@@ -46,8 +47,6 @@ iterativePixelLessSeeds.layerList = pixelLessStepSeedLayers.layerList
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 iterativePixelLessTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
 iterativePixelLessTrackCandidates.SeedProducer = cms.InputTag("iterativePixelLessSeeds","PixelLessPairs")
-iterativePixelLessTrackCandidates.TrackProducers = ['initialStepTracks', 'lowPtTripletStepTracks', 'pixelPairStepTracks', 'detachedTripletStepTracks','mixedTripletStepTracks'] # add 0 and 0.5 ?
-iterativePixelLessTrackCandidates.KeepFittedTracks = False
 iterativePixelLessTrackCandidates.MinNumberOfCrossedLayers = 6 # was 5
 
 
@@ -60,27 +59,23 @@ iterativePixelLessTracks.TTRHBuilder = 'WithoutRefit'
 ##iterativePixelLessTracks.Fitter = 'KFFittingSmootherWithOutlierRejection'
 iterativePixelLessTracks.Fitter = 'KFFittingSmootherFourth'
 iterativePixelLessTracks.Propagator = 'PropagatorWithMaterial'
+iterativePixelLessTracks.trackAlgo = cms.untracked.uint32(9)
+
+# simtrack id producer
+pixelLessStepIds = cms.EDProducer("SimTrackIdProducer",
+                                  trackCollection = cms.InputTag("iterativePixelLessTracks"),
+                                  HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits")
+                                  )
 
 
-# track merger
-#from FastSimulation.Tracking.IterativeFourthTrackMerger_cfi import *
-pixelLessStepTracks = cms.EDProducer("FastTrackMerger",
-                                     TrackProducers = cms.VInputTag(cms.InputTag("iterativePixelLessTrackCandidates"),
-                                                                    cms.InputTag("iterativePixelLessTracks")),
-                                     RemoveTrackProducers =  cms.untracked.VInputTag(cms.InputTag("initialStepTracksr"),
-                                                                                     cms.InputTag("lowPtTripletStepTracks"),   
-                                                                                     cms.InputTag("pixelPairStepTracks"),   
-                                                                                     cms.InputTag("detachedTripletStepTracks"),     
-                                                                                     cms.InputTag("mixedTripletStepTracks")),     
-                                     trackAlgo = cms.untracked.uint32(9),
-                                     MinNumberOfTrajHits = cms.untracked.uint32(6), # was 5
-                                     MaxLostTrajHits = cms.untracked.uint32(0)
-                                     )
+
+
+
 
 # track selection
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 pixelLessStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
-        src='pixelLessStepTracks',
+        src='iterativePixelLessTracks',
             trackSelectors= cms.VPSet(
             RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
                 name = 'pixelLessStepLoose',
@@ -128,6 +123,5 @@ pixelLessStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.m
 iterativePixelLessStep = cms.Sequence(iterativePixelLessSeeds+
                                       iterativePixelLessTrackCandidates+
                                       iterativePixelLessTracks+
-                                      pixelLessStepTracks+
+                                      pixelLessStepIds+
                                       pixelLessStepSelector)
-

@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 
 globalPixelSeedsForElectrons = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
+globalPixelSeedsForElectrons.skipSimTrackIdTags = [cms.InputTag("globalPixelStepIds")]
 globalPixelSeedsForElectrons.firstHitSubDetectorNumber = [2]
 globalPixelSeedsForElectrons.firstHitSubDetectors = [1, 2]
 globalPixelSeedsForElectrons.secondHitSubDetectorNumber = [2]
@@ -13,6 +14,7 @@ globalPixelSeedsForElectrons.originRadius = cms.vdouble(0.02)
 globalPixelSeedsForElectrons.originpTMin = cms.vdouble(1.5)
 
 globalPixelSeedsForPhotons = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
+globalPixelSeedsForPhotons.skipSimTrackIdTags = [cms.InputTag("globalPixelStepIds")]
 globalPixelSeedsForPhotons.firstHitSubDetectorNumber = [2]
 globalPixelSeedsForPhotons.firstHitSubDetectors = [1, 2]
 globalPixelSeedsForPhotons.secondHitSubDetectorNumber = [2]
