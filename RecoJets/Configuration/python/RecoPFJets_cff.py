@@ -16,8 +16,8 @@ from RecoJets.JetProducers.ca4PFJets_cfi import ca4PFJets
 from RecoJets.JetProducers.fixedGridRhoProducer_cfi import fixedGridRhoAll
 from RecoJets.JetProducers.fixedGridRhoProducerFastjet_cfi import fixedGridRhoFastjetAll
 from RecoJets.JetProducers.caTopTaggers_cff import *
-from RecoJets.JetProducers.ak8PFJetsCHS_groomingValueMaps_cfi import ak8PFJetsCHSPrunedLinks, ak8PFJetsCHSFilteredLinks, ak8PFJetsCHSTrimmedLinks, ak8PFJetsCHSSoftDropLinks
-from RecoJets.JetProducers.ca8PFJetsCHS_groomingValueMaps_cfi import ca8PFJetsCHSPrunedLinks, ca8PFJetsCHSFilteredLinks, ca8PFJetsCHSTrimmedLinks, ca8PFJetsCHSSoftDropLinks
+from RecoJets.JetProducers.ak8PFJetsCHS_groomingValueMaps_cfi import ak8PFJetsCHSPrunedMass, ak8PFJetsCHSFilteredMass, ak8PFJetsCHSTrimmedMass, ak8PFJetsCHSSoftDropMass
+from RecoJets.JetProducers.ca8PFJetsCHS_groomingValueMaps_cfi import ca8PFJetsCHSPrunedMass, ca8PFJetsCHSFilteredMass, ca8PFJetsCHSTrimmedMass, ca8PFJetsCHSSoftDropMass
 from CommonTools.PileupAlgos.Puppi_cff import puppi
 from CommonTools.PileupAlgos.softKiller_cfi import softKiller
 from RecoJets.JetProducers.ak4PFJetsPuppi_cfi import ak4PFJetsPuppi
@@ -193,10 +193,12 @@ recoPFJets   =cms.Sequence(#kt4PFJets+kt6PFJets+
                            ak5PFJetsCHS+
                            ak4PFJetsCHS+                           
                            ak8PFJetsCHS+
-                           ca8PFJetsCHS+
+                           #ca8PFJetsCHS+
                            ak8PFJetsCHSConstituents+
-                           ca8PFJetsCHSPruned+
-                           ca8PFJetsCHSPrunedLinks+
+                           ak8PFJetsCHSPruned+
+                           ak8PFJetsCHSPrunedMass+
+                           ak8PFJetsCHSSoftDrop+
+                           ak8PFJetsCHSSoftDropMass+
                            cmsTopTagPFJetsCHS+
                            hepTopTagPFJetsCHS+
                            ca15PFJetsCHSMassDropFiltered+
@@ -230,15 +232,15 @@ recoAllPFJets=cms.Sequence(sisCone5PFJets+sisCone7PFJets+
                            ak8PFJetsCHSFiltered+
                            ak8PFJetsCHSTrimmed+
                            ak8PFJetsCHSSoftDrop+
+                           ak8PFJetsCHSPrunedMass+
+                           ak8PFJetsCHSTrimmedMass+
+                           ak8PFJetsCHSSoftDropMass+
+                           ak8PFJetsCHSFilteredMass+
                            ca8PFJetsCHS+
                            ca8PFJetsCHSPruned+
                            ca8PFJetsCHSFiltered+
                            ca8PFJetsCHSTrimmed+
                            ca8PFJetsCHSSoftDrop+
-                           ca8PFJetsCHSPrunedLinks+
-                           ca8PFJetsCHSTrimmedLinks+
-                           ca8PFJetsCHSSoftDropLinks+
-                           ca8PFJetsCHSFilteredLinks+
                            cmsTopTagPFJetsCHS+
                            hepTopTagPFJetsCHS+
                            ca15PFJetsCHSMassDropFiltered+
@@ -272,15 +274,15 @@ recoPFJetsWithSubstructure=cms.Sequence(
                            ak8PFJetsCHSTrimmed+
                            ak8PFJetsCHSSoftDrop+
                            ak8PFJetsCHSConstituents+
+                           ak8PFJetsCHSPrunedMass+
+                           ak8PFJetsCHSTrimmedMass+
+                           ak8PFJetsCHSSoftDropMass+
+                           ak8PFJetsCHSFilteredMass+
                            ca8PFJetsCHS+
                            ca8PFJetsCHSPruned+
                            ca8PFJetsCHSFiltered+
                            ca8PFJetsCHSTrimmed+
                            ca8PFJetsCHSSoftDrop+
-                           ca8PFJetsCHSPrunedLinks+
-                           ca8PFJetsCHSTrimmedLinks+
-                           ca8PFJetsCHSSoftDropLinks+
-                           ca8PFJetsCHSFilteredLinks+
                            cmsTopTagPFJetsCHS+
                            hepTopTagPFJetsCHS+
                            ca15PFJetsCHSMassDropFiltered+
