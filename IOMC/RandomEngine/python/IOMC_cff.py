@@ -44,10 +44,6 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
         initialSeed = cms.untracked.uint32(12345),
         engineName = cms.untracked.string('HepJamesRandom')
     ),
-    mixGen = cms.PSet(
-        initialSeed = cms.untracked.uint32(12345),
-        engineName = cms.untracked.string('HepJamesRandom')
-    ),
     mixData = cms.PSet(
         initialSeed = cms.untracked.uint32(12345),
         engineName = cms.untracked.string('HepJamesRandom')
