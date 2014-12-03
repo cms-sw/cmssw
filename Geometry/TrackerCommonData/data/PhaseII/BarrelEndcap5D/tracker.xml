@@ -16027,28 +16027,28 @@
 <Tubs name="Tracker" rMin="25*mm" rMax="1190*mm" dz="2910*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 -->
     <Polycone name="Tracker" startPhi="0*deg" deltaPhi="360*deg">
-      <ZSection z="-291.0*cm" rMin="7.4*cm" rMax="120.0*cm"/>
-      <ZSection z="-270.65*cm" rMin="7.4*cm" rMax="120.0*cm"/>
-      <ZSection z="-270.65*cm" rMin="7.4*cm" rMax="120.0*cm"/>
-      <ZSection z="-180.0*cm" rMin="[cms:TrackLumiR2Min]" rMax="120.0*cm"/>
-      <ZSection z="-180.0*cm" rMin="[cms:TrackLumiR1]" rMax="120.0*cm"/>
-      <ZSection z="-172.2*cm" rMin="[cms:TrackLumiR1]" rMax="120.0*cm"/>
-      <ZSection z="-172.2*cm" rMin="[cms:TrackLumiR1Min]" rMax="120.0*cm"/>
-      <ZSection z="-[beampipe:BeampipeZ3]"  rMin="[beampipe:BeampipeRout4]" rMax="120.0*cm"/>
-      <ZSection z="-[beampipe:BeampipeZ2]"  rMin="[beampipe:BeampipeRout3]" rMax="120.0*cm"/>
-      <ZSection z="-[beampipe:BeampipeZ2]"  rMin="[beampipe:BeampipeRout2]" rMax="120.0*cm"/>
-      <ZSection z="-28.70*cm" rMin="[pixbar:Rin1]" rMax="120.0*cm"/>
-      <ZSection z="28.70*cm" rMin="[pixbar:Rin1]" rMax="120.0*cm"/>
-      <ZSection z="[beampipe:BeampipeZ2]"  rMin="[beampipe:BeampipeRout2]" rMax="120.0*cm"/>
-      <ZSection z="[beampipe:BeampipeZ2]"  rMin="[beampipe:BeampipeRout3]" rMax="120.0*cm"/>
-      <ZSection z="[beampipe:BeampipeZ3]"  rMin="[beampipe:BeampipeRout4]" rMax="120.0*cm"/>
-      <ZSection z="172.2*cm" rMin="[cms:TrackLumiR1Min]" rMax="120.0*cm"/>
-      <ZSection z="172.2*cm" rMin="[cms:TrackLumiR1]" rMax="120.0*cm"/>
-      <ZSection z="180.0*cm" rMin="[cms:TrackLumiR1]" rMax="120.0*cm"/>
-      <ZSection z="180.0*cm" rMin="[cms:TrackLumiR2Min]" rMax="120.0*cm"/>
-      <ZSection z="270.65*cm" rMin="7.4*cm" rMax="120.0*cm"/>
-      <ZSection z="270.65*cm" rMin="7.4*cm" rMax="120.0*cm"/>
-      <ZSection z="291.0*cm" rMin="7.4*cm" rMax="120.0*cm"/>
+      <ZSection z="-[cms:TrackBeamZ2]" rMin="7.4*cm" rMax="[cms:TrackCalorR]"/>
+      <ZSection z="-270.65*cm" rMin="7.4*cm" rMax="[cms:TrackCalorR]"/>
+      <ZSection z="-270.65*cm" rMin="7.4*cm" rMax="[cms:TrackCalorR]"/>
+      <ZSection z="-180.0*cm" rMin="[cms:TrackLumiR2Min]" rMax="[cms:TrackCalorR]"/>
+      <ZSection z="-180.0*cm" rMin="[cms:TrackLumiR1]" rMax="[cms:TrackCalorR]"/>
+      <ZSection z="-172.2*cm" rMin="[cms:TrackLumiR1]" rMax="[cms:TrackCalorR]"/>
+      <ZSection z="-172.2*cm" rMin="[cms:TrackLumiR1Min]" rMax="[cms:TrackCalorR]"/>
+      <ZSection z="-[beampipe:BeampipeZ3]"  rMin="[beampipe:BeampipeRout4]" rMax="[cms:TrackCalorR]"/>
+      <ZSection z="-[beampipe:BeampipeZ2]"  rMin="[beampipe:BeampipeRout3]" rMax="[cms:TrackCalorR]"/>
+      <ZSection z="-[beampipe:BeampipeZ2]"  rMin="[beampipe:BeampipeRout2]" rMax="[cms:TrackCalorR]"/>
+      <ZSection z="-28.70*cm" rMin="[pixbar:Rin1]" rMax="[cms:TrackCalorR]"/>
+      <ZSection z="28.70*cm" rMin="[pixbar:Rin1]" rMax="[cms:TrackCalorR]"/>
+      <ZSection z="[beampipe:BeampipeZ2]"  rMin="[beampipe:BeampipeRout2]" rMax="[cms:TrackCalorR]"/>
+      <ZSection z="[beampipe:BeampipeZ2]"  rMin="[beampipe:BeampipeRout3]" rMax="[cms:TrackCalorR]"/>
+      <ZSection z="[beampipe:BeampipeZ3]"  rMin="[beampipe:BeampipeRout4]" rMax="[cms:TrackCalorR]"/>
+      <ZSection z="172.2*cm" rMin="[cms:TrackLumiR1Min]" rMax="[cms:TrackCalorR]"/>
+      <ZSection z="172.2*cm" rMin="[cms:TrackLumiR1]" rMax="[cms:TrackCalorR]"/>
+      <ZSection z="180.0*cm" rMin="[cms:TrackLumiR1]" rMax="[cms:TrackCalorR]"/>
+      <ZSection z="180.0*cm" rMin="[cms:TrackLumiR2Min]" rMax="[cms:TrackCalorR]"/>
+      <ZSection z="270.65*cm" rMin="7.4*cm" rMax="[cms:TrackCalorR]"/>
+      <ZSection z="270.65*cm" rMin="7.4*cm" rMax="[cms:TrackCalorR]"/>
+      <ZSection z="[cms:TrackBeamZ2]" rMin="7.4*cm" rMax="[cms:TrackCalorR]"/>
     </Polycone>
  
 <Box name="BModule1Layer1" dx="48*mm" dy="23.13*mm" dz="1.4*mm"/>
