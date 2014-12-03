@@ -1,13 +1,14 @@
 #include "CondFormats/RecoMuonObjects/interface/DYTParamObject.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 double DYTParamObject::parameter(unsigned int iParam) const
 {
   
   if (iParam >= paramSize())
     {
-      std::cout << "[DYTParamObject::parameter] " 
-		<< "Requested parameter is outside size range (" 
-		<< paramSize() << ")." << std::endl;
+      edm::LogWarning("DYTParamObject") 
+	<< "The requested parameter (" << (iParam + 1) 
+	<< ") is outside size range (" << paramSize() << ").";
       return 0.;
     }
 

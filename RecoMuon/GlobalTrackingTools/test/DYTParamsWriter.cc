@@ -3,6 +3,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/RecoMuonObjects/interface/DYTParamsObject.h"
 #include "CondFormats/DataRecord/interface/DYTParamsObjectRcd.h" 
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
@@ -112,9 +113,9 @@ void DYTParamsWriter::endRun(edm::Run const&, edm::EventSetup const&)
       
     }
   
-  std::cout << "[DYTParamsWriter::endRun] " 
-	    << "Processed " << nLines << " lines with " 
-	    << nParams << " parameters for each line." << std::endl;
+  edm::LogInfo("DYTParamsWriter")
+    << "Processed " << nLines << " lines with " 
+    << nParams << " parameters for each line.";
   
   inputFile.close();
   
