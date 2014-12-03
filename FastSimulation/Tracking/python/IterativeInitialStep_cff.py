@@ -1,6 +1,9 @@
+
+
 import FWCore.ParameterSet.Config as cms
 
 ### ITERATIVE TRACKING: STEP 0 ###
+
 
 # seeding
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
@@ -30,8 +33,6 @@ iterativeInitialSeeds.layerList = PixelLayerTriplets.layerList
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 iterativeInitialTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
 iterativeInitialTrackCandidates.SeedProducer = cms.InputTag("iterativeInitialSeeds",'InitialPixelTriplets')
-#iterativeInitialTrackCandidates.TrackProducers = ['globalPixelWithMaterialTracks'] # why was it needed? I removed it (see line below) in order to solve a cyclic dependence issue that was troubling unscheduled execution, and I found no difference at all.
-iterativeInitialTrackCandidates.TrackProducers = []
 iterativeInitialTrackCandidates.MinNumberOfCrossedLayers = 3
 
 # track producer
@@ -41,33 +42,32 @@ iterativeInitialTracks.src = 'iterativeInitialTrackCandidates'
 iterativeInitialTracks.TTRHBuilder = 'WithoutRefit'
 iterativeInitialTracks.Fitter = 'KFFittingSmootherWithOutlierRejection'
 iterativeInitialTracks.Propagator = 'PropagatorWithMaterial'
-
-# track merger
-initialStepTracks = cms.EDProducer("FastTrackMerger",
-                                   TrackProducers = cms.VInputTag(cms.InputTag("iterativeInitialTrackCandidates"),
-                                                                  cms.InputTag("iterativeInitialTracks")),
-                                   trackAlgo = cms.untracked.uint32(4) # initialStep
-                                   )
+iterativeInitialTracks.trackAlgo = cms.untracked.uint32(4) # initialStep
 
 #vertices
 import RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi
 firstStepPrimaryVertices=RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi.offlinePrimaryVertices.clone()
-firstStepPrimaryVertices.TrackLabel = cms.InputTag("initialStepTracks")
+firstStepPrimaryVertices.TrackLabel = cms.InputTag("iterativeInitialTracks")
 firstStepPrimaryVertices.vertexCollections = cms.VPSet(
-     [cms.PSet(label=cms.string(""),
-               algorithm=cms.string("AdaptiveVertexFitter"),
-               minNdof=cms.double(0.0),
-               useBeamConstraint = cms.bool(False),
-               maxDistanceToBeam = cms.double(1.0)
-               )
-      ]
-    )
+    [cms.PSet(label=cms.string(""),
+              algorithm=cms.string("AdaptiveVertexFitter"),
+              minNdof=cms.double(0.0),
+              useBeamConstraint = cms.bool(False),
+              maxDistanceToBeam = cms.double(1.0)
+              )
+     ]
+)
 
+# simtrack id producer
+initialStepIds = cms.EDProducer("SimTrackIdProducer",
+                                trackCollection = cms.InputTag("iterativeInitialTracks"),
+                                HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits")
+                                )
 
 # Final selection
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 initialStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
-        src='initialStepTracks',
+        src='iterativeInitialTracks',
         trackSelectors= cms.VPSet(
             RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
                 name = 'initialStepLoose',
@@ -83,16 +83,13 @@ initialStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.mul
             ) #end of vpset
         ) #end of clone
 
-
-
 # Final sequence
 iterativeInitialStep = cms.Sequence(iterativeInitialSeeds
                                     +iterativeInitialTrackCandidates
-                                    +iterativeInitialTracks
-                                    +initialStepTracks
+                                    +iterativeInitialTracks                                    
                                     +firstStepPrimaryVertices
-                                    +initialStepSelector)
-
+                                    +initialStepSelector
+                                    +initialStepIds)
 
 
 
