@@ -49,8 +49,6 @@ public:
   virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
-  // access to config
-  const edm::ParameterSet& config() const { return theConfig; }
   // tokens
   const edm::EDGetTokenT<edm::View<reco::Track> > trackToken;
   const edm::EDGetTokenT<edm::View<reco::RecoCandidate> > candidateToken;
@@ -64,6 +62,5 @@ private:
   const bool fUseBeamSpot;
   const bool fUseVertex;
   const bool fUseTriggerFilterElectrons, fUseTriggerFilterMuons;
-  const edm::ParameterSet theConfig;
   const bool fVerbose;
 };
