@@ -77,7 +77,7 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 #    connect = cms.string('frontier://FrontierProd/CMS_COND_31X_FROM21X'),
 #    toGet = cms.VPSet(
 #      cms.PSet(
-#        record = cms.string('TrackerAlignmentErrorRcd'),
+#        record = cms.string('TrackerAlignmentErrorExtendedRcd'),
 #        tag = cms.string('TrackerIdealGeometryErrors210_mc')
 #        )
 #      )

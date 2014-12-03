@@ -60,7 +60,7 @@ process.trackerAlignment = cms.ESSource(
                                tag = cms.string("TrackerAlignment_GR10_v6_offline")
 #                               tag = cms.string("Alignments")
 #                               ),
-#                      cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"),
+#                      cms.PSet(record = cms.string("TrackerAlignmentErrorExtendedRcd"),
 #                               tag = cms.string("TrackerIdealGeometryErrors210_mc")
                                )
                       )

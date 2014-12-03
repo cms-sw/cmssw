@@ -68,7 +68,7 @@ process.trackerAlignment = cms.ESSource("PoolDBESSource",
 process.ZeroAPE = cms.ESSource("PoolDBESSource",
     process.CondDBSetup,
     toGet = cms.VPSet(cms.PSet(
-        record = cms.string('TrackerAlignmentErrorRcd'),
+        record = cms.string('TrackerAlignmentErrorExtendedRcd'),
         tag = cms.string('TrackerSurveyLASOnlyErrors_def_210_mc')
 		#tag = cms.string('TrackerCRAFTReRecoErrors_v1.10a_offline')
     )),

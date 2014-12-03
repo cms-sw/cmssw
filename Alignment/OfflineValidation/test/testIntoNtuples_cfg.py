@@ -37,7 +37,7 @@ process.ZeroAPE = cms.ESSource("PoolDBESSource",CondDBSetup,
 		timetype = cms.string("runnumber"),
 		toGet = cms.VPSet(
 			cms.PSet(
-				record = cms.string('TrackerAlignmentErrorRcd'),
+				record = cms.string('TrackerAlignmentErrorExtendedRcd'),
 				tag = cms.string('TrackerIdealGeometryErrors210_mc')
 				)
 			)		
