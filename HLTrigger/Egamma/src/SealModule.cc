@@ -37,8 +37,8 @@
 #include "HLTrigger/Egamma/interface/HLTDisplacedEgammaFilter.h"
 #include "HLTrigger/Egamma/interface/HLTElectronMissingHitsFilter.h"
 
-#include "HLTrigger/Egamma/interface/HLTElectronPFMTFilter.h"
-#include "HLTrigger/Egamma/src/HLTElectronPFMTFilter.cc"
+#include "HLTrigger/Egamma/interface/HLTEPFMTFilter.h"
+#include "HLTrigger/Egamma/src/HLTEPFMTFilter.cc"
 
 DEFINE_FWK_MODULE(HLTEgammaGenericQuadraticFilter);
 DEFINE_FWK_MODULE(HLTEgammaGenericQuadraticEtaFilter);
@@ -46,11 +46,13 @@ DEFINE_FWK_MODULE(HLTEgammaEtFilter);
 DEFINE_FWK_MODULE(HLTEgammaDoubleEtFilter);
 DEFINE_FWK_MODULE(HLTElectronPixelMatchFilter);
 
-typedef HLTElectronPFMTFilter<reco::Electron> HLTGsfElectronPFMTFilter;
+typedef HLTEPFMTFilter<reco::Electron> HLTGsfElectronPFMTFilter;
 DEFINE_FWK_MODULE(HLTGsfElectronPFMTFilter);
-typedef HLTElectronPFMTFilter<reco::RecoEcalCandidate> HLTEcalCandidatePFMTFilter;
+typedef HLTEPFMTFilter<reco::RecoEcalCandidate> HLTEcalCandidatePFMTFilter;
 DEFINE_FWK_MODULE(HLTEcalCandidatePFMTFilter);
-
+// backward compatibility
+typedef HLTGsfElectronPFMTFilter HLTElectronPFMTFilter;
+DEFINE_FWK_MODULE(HLTElectronPFMTFilter);
 
 DEFINE_FWK_MODULE(HLTPMMassFilter);
 DEFINE_FWK_MODULE(HLTElectronMuonInvMassFilter);
