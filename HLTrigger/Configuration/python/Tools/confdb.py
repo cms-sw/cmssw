@@ -62,8 +62,8 @@ class HLTProcess(object):
   def __init__(self, configuration):
     self.config = configuration
     self.data   = None
-    self.source = None
-    self.parent = None
+    self.source = []
+    self.parent = []
 
     self.options = {
       'essources' : [],
@@ -1231,18 +1231,36 @@ if 'GlobalTag' in %%(dict)s:
         self.options['paths'].append( "-HLTAnalyzerEndpath" )
 
 
+  def append_filenames(self, name, filenames):
+    if len(filenames) > 255:
+      token_open  = "( *("
+      token_close = ") )"
+    else:
+      token_open  = "("
+      token_close = ")"
+
+    self.data += "    %s = cms.untracked.vstring%s\n" % (name, token_open)
+    for line in filenames:
+      self.data += "        '%s',\n" % line
+    self.data += "    %s,\n" % (token_close)
+
+
+  def expand_filenames(self, input):
+    # check if the input is a dataset or a list of files
+    if input[0:8] == 'dataset:':
+      from dasFileQuery import dasFileQuery
+      # extract the dataset name, and use DAS to fine the list of LFNs
+      dataset = input[8:]
+      files = dasFileQuery(dataset)
+    else:
+      # assume a comma-separated list of input files
+      files = self.config.input.split(',')
+    return files
+
   def build_source(self):
     if self.config.input:
       # if a dataset or a list of input files was given, use it
-      if self.config.input[0:8] == 'dataset:':
-        from dasFileQuery import dasFileQuery
-        # extract the dataset name, and use DAS to fine the list of LFNs
-        dataset = self.config.input[8:]
-        files   = dasFileQuery(dataset)
-        self.source = files
-      else:
-        # assume a list of input files
-        self.source = self.config.input.split(',')
+      self.source = self.expand_filenames(self.config.input)
     elif self.config.online:
       # online we always run on data
       self.source = [ "file:/tmp/InputCollection.root" ]
@@ -1253,20 +1271,17 @@ if 'GlobalTag' in %%(dict)s:
       # ...or on mc
       self.source = [ "file:RelVal_Raw_%s_MC.root" % self.config.type ]
 
+    if self.config.parent:
+      # if a dataset or a list of input files was given for the parent data, use it
+      self.parent = self.expand_filenames(self.config.parent)
+
     self.data += """
 %(process)ssource = cms.Source( "PoolSource",
-    fileNames = cms.untracked.vstring(
 """
-    if self.source: 
-      for line in self.source:
-        self.data += "        '%s',\n" % line
-    self.data += """    ),
-    secondaryFileNames = cms.untracked.vstring(
-"""
-    if self.parent: 
-      for line in self.parent:
-        self.data += "        '%s',\n" % line
-    self.data += """    ),
+    self.append_filenames("fileNames", self.source)
+    if (self.parent):
+      self.append_filenames("secondaryFileNames", self.parent)
+    self.data += """\
     inputCommands = cms.untracked.vstring(
         'keep *'
     )
