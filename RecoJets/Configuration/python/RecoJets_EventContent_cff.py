@@ -63,7 +63,6 @@ RecoJetsRECO = cms.PSet(
                                            'keep *_ak4PFJetsCHS_*_*',
                                            'keep *_ak5PFJetsCHS_*_*',
                                            'keep *_ak8PFJetsCHS_*_*',
-                                           'keep *_ak8PFJetsCHS_*_*',
                                            'keep *_ak8PFJetsCHSPruned_*_*',                                           
                                            'keep *_ak8PFJetsCHSSoftDrop_*_*',                                           
                                            'keep *_cmsTopTagPFJetsCHS_*_*',
