@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-trajectorySeedProducer = cms.EDProducer("TrajectorySeedProducer2",
+trajectorySeedProducer = cms.EDProducer("TrajectorySeedProducer",
     # the name of the output seeds
     outputSeedCollectionName = cms.string("seeds"),
     # The smallest number of layer crossed to create a track candidate
