@@ -33,7 +33,6 @@ void L2TauJetsMerger::produce(edm::StreamID iSId, edm::Event& iEvent, const edm:
  //Getting the Collections of L2ReconstructedJets from L1Seeds
  //and removing the collinear jets
  CaloJetCollection myTmpJets;
- myTmpJets.clear();
 
  int iL1Jet = 0;
  for( vtoken_cjets::const_iterator s = jetSrc_token.begin(); s != jetSrc_token.end(); ++ s ) {
@@ -62,15 +61,14 @@ void L2TauJetsMerger::produce(edm::StreamID iSId, edm::Event& iEvent, const edm:
  
  //Remove Collinear Jets by prefering the highest ones!
  while(myTmpJets.size()>0) {
-   tauL2jets->push_back(myTmpJets.at(0));
+   tauL2jets->push_back(myTmpJets[0]);
    CaloJetCollection tmp;
    for(unsigned int i=1 ;i<myTmpJets.size();++i) {
-     double DR = ROOT::Math::VectorUtil::DeltaR(myTmpJets.at(0).p4(),myTmpJets.at(i).p4());
+     double DR = ROOT::Math::VectorUtil::DeltaR(myTmpJets[0].p4(),myTmpJets[i].p4());
      if(DR>0.1) 
-       tmp.push_back(myTmpJets.at(i));
+       tmp.push_back(myTmpJets[i]);
    }
    myTmpJets.swap(tmp);
-   tmp.clear();
  }
  
 

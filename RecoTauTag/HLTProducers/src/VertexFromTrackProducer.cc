@@ -36,7 +36,6 @@ VertexFromTrackProducer::VertexFromTrackProducer(const edm::ParameterSet& conf) 
   fUseVertex( conf.getParameter<bool>("useVertex") ),
   fUseTriggerFilterElectrons( conf.getParameter<bool>("useTriggerFilterElectrons") ),
   fUseTriggerFilterMuons( conf.getParameter<bool>("useTriggerFilterMuons") ),
-  theConfig( conf ),
   fVerbose( conf.getUntrackedParameter<bool>("verbose", false) )
 {
   edm::LogInfo("PVDebugInfo") 
@@ -187,16 +186,18 @@ VertexFromTrackProducer::produce(edm::StreamID iStreamId, edm::Event& iEvent, co
 
   if(fVerbose){
     int ivtx=0;
+    edm::LogInfo("PVDebugInfo")<< "Vertices by VertexFromTrackProducer: \n"; 
     for(reco::VertexCollection::const_iterator v=vColl.begin(); 
 	v!=vColl.end(); ++v){
-      std::cout << "recvtx "<< ivtx++ 
-		<< " x "  << std::setw(6) << v->position().x() 
-		<< " dx " << std::setw(6) << v->xError()
-		<< " y "  << std::setw(6) << v->position().y() 
-		<< " dy " << std::setw(6) << v->yError()
-		<< " z "  << std::setw(6) << v->position().z() 
-		<< " dz " << std::setw(6) << v->zError()
-		<< std::endl;
+      edm::LogInfo("PVDebugInfo")<< "\t" 
+				 << "recvtx "<< ivtx++ 
+				 << " x "  << std::setw(6) << v->position().x() 
+				 << " dx " << std::setw(6) << v->xError()
+				 << " y "  << std::setw(6) << v->position().y() 
+				 << " dy " << std::setw(6) << v->yError()
+				 << " z "  << std::setw(6) << v->position().z() 
+				 << " dz " << std::setw(6) << v->zError()
+				 << " \n ";
     }
   }
 
