@@ -9,5 +9,7 @@ ak5PFJetsSoftDrop = ak5PFJets.clone(
     zcut = cms.double(0.1),
     beta = cms.double(0.0),
     useExplicitGhosts = cms.bool(True)
+    writeCompound = cms.bool(True),
+    jetCollInstanceName=cms.string("SubJets")
     )
 
