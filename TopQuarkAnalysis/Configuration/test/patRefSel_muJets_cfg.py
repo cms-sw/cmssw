@@ -55,6 +55,8 @@ process = cms.Process( 'USER' )
 
 from TopQuarkAnalysis.Configuration.patRefSel_refMuJets import *
 
+inputFiles = []
+
 
 ### Selection steps
 # If a step is switched off here, its results will still be available in the coreespondinng TriggerResults of this process.
@@ -185,23 +187,21 @@ else:
 ### Input configuration
 ###
 
-inputFiles = [] # FIXME: Fill
-# DEBUG BEGIN
-if runOnMiniAOD:
-  if runOnMC:
-    from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarPileUpMINIAODSIM
-    inputFiles = filesRelValProdTTbarPileUpMINIAODSIM
+if len( inputFiles ) == 0:
+  if runOnMiniAOD:
+    if runOnMC:
+      from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarPileUpMINIAODSIM
+      inputFiles = filesRelValProdTTbarPileUpMINIAODSIM
+    else:
+      from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValSingleMuMINIAOD
+      inputFiles = filesRelValSingleMuMINIAOD
   else:
-    from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValSingleMuMINIAOD
-    inputFiles = filesRelValSingleMuMINIAOD
-else:
-  if runOnMC:
-    from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarAODSIM
-    inputFiles = filesRelValProdTTbarAODSIM
-  else:
-    from PhysicsTools.PatAlgos.patInputFiles_cff import filesSingleMuRECO # not available at CERN
-    inputFiles = filesSingleMuRECO
-# DEBUG END
+    if runOnMC:
+      from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarAODSIM
+      inputFiles = filesRelValProdTTbarAODSIM
+    else:
+      from PhysicsTools.PatAlgos.patInputFiles_cff import filesSingleMuRECO # not available at CERN
+      inputFiles = filesSingleMuRECO
 process.load( "TopQuarkAnalysis.Configuration.patRefSel_inputModule_cfi" )
 process.source.fileNames = inputFiles
 process.maxEvents.input  = maxEvents
