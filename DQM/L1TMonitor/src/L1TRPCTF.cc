@@ -32,14 +32,6 @@ L1TRPCTF::L1TRPCTF(const ParameterSet& ps)
 
   if(verbose_) cout << "L1TRPCTF: constructor...." << endl;
 
-
-  m_dbe = NULL;
-  if ( ps.getUntrackedParameter<bool>("DQMStore", false) ) 
-  {
-    m_dbe = Service<DQMStore>().operator->();
-    m_dbe->setVerbose(0);
-  }
-
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
   if ( outputFile_.size() != 0 ) {
     cout << "L1T Monitoring histograms will be saved to " << outputFile_.c_str() << endl;
@@ -49,165 +41,146 @@ L1TRPCTF::L1TRPCTF(const ParameterSet& ps)
   if(disable){
     outputFile_="";
   }
-
-
-  if ( m_dbe !=NULL ) {
-    m_dbe->setCurrentFolder(output_dir_);
-  }
-
-
-
 }
+
+
 
 L1TRPCTF::~L1TRPCTF()
 {
 }
 
-void L1TRPCTF::beginJob(void)
+void L1TRPCTF::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) 
 {
 
   nev_ = 0;
   nevRPC_ = 0;
-
-  // get hold of back-end interface
-  m_dbe = Service<DQMStore>().operator->();
-
-  if ( m_dbe ) {
-    m_dbe->setCurrentFolder(output_dir_);
-    m_dbe->rmdir(output_dir_);
-  }
-
-
-  if ( m_dbe ) 
-  {
-    
-
-    ostringstream oDir; oDir<< output_dir_ << "/CrateSynchroHistograms/";
-    m_dbe->setCurrentFolder(oDir.str());
-    for( unsigned int i = 0; i < 12; i++) {
+  
+  ostringstream oDir; oDir<< output_dir_ << "/CrateSynchroHistograms/";
+  ibooker.setCurrentFolder(oDir.str());
+  for( unsigned int i = 0; i < 12; i++) {
       
-       ostringstream o; o<<"RPCTF_crate_"<<i<<"_synchro";
-       rpctfcratesynchro[i] = m_dbe->book2D(o.str(), o.str(), 5, -2.5, 2.5, 33, -16.5, 16.5);
-       for (int bx = -2; bx < 3; ++bx){
-          ostringstream b; b<<"BX="<<bx;
-          rpctfcratesynchro[i]->setBinLabel(bx+3, b.str(),1);
-       }
-       rpctfcratesynchro[i]->setAxisTitle("Tower",2);
+     ostringstream o; o<<"RPCTF_crate_"<<i<<"_synchro";
+     rpctfcratesynchro[i] = ibooker.book2D(o.str(), o.str(), 5, -2.5, 2.5, 33, -16.5, 16.5);
+     for (int bx = -2; bx < 3; ++bx){
+        ostringstream b; b<<"BX="<<bx;
+        rpctfcratesynchro[i]->setBinLabel(bx+3, b.str(),1);
+     }
+     rpctfcratesynchro[i]->setAxisTitle("Tower",2);
      
-    }
-    m_dbe->setCurrentFolder(output_dir_);
+  }
+  ibooker.setCurrentFolder(output_dir_);
     
-    rpctfetavalue[1] = m_dbe->book1D("RPCTF_eta_value_bx0", 
+  rpctfetavalue[1] = ibooker.book1D("RPCTF_eta_value_bx0", 
        "RPCTF eta value bx=0", 33, -16.5, 16.5 ) ;
-    rpctfetavalue[2] = m_dbe->book1D("RPCTF_eta_value_bx+", 
+  rpctfetavalue[2] = ibooker.book1D("RPCTF_eta_value_bx+", 
        "RPCTF eta value bx>0", 33, -16.5, 16.5 ) ;
-    rpctfetavalue[0] = m_dbe->book1D("RPCTF_eta_value_bx-", 
+  rpctfetavalue[0] = ibooker.book1D("RPCTF_eta_value_bx-", 
        "RPCTF eta value bx<0", 33, -16.5, 16.5 ) ;
     
-    rpctfphivalue[1] = m_dbe->book1D("RPCTF_phi_value_bx0", 
+  rpctfphivalue[1] = ibooker.book1D("RPCTF_phi_value_bx0", 
        "RPCTF phi value bx=0", 144, -0.5, 143.5) ;
-    rpctfphivalue[2] = m_dbe->book1D("RPCTF_phi_value_bx+", 
+  rpctfphivalue[2] = ibooker.book1D("RPCTF_phi_value_bx+", 
        "RPCTF phi value bx>0", 144, -0.5, 143.5 ) ;
-    rpctfphivalue[0] = m_dbe->book1D("RPCTF_phi_value_bx-", 
+  rpctfphivalue[0] = ibooker.book1D("RPCTF_phi_value_bx-", 
        "RPCTF phi value bx<0", 144, -0.5, 143.5 ) ;
       
        
        
-    rpctfptvalue[1] = m_dbe->book1D("RPCTF_pt_value_bx0", 
+  rpctfptvalue[1] = ibooker.book1D("RPCTF_pt_value_bx0", 
                                     "RPCTF pt value bx=0", 160, -0.5, 159.5 );
-    rpctfptvalue[2] = m_dbe->book1D("RPCTF_pt_value_bx+", 
+  rpctfptvalue[2] = ibooker.book1D("RPCTF_pt_value_bx+", 
                                     "RPCTF pt value bx>0", 160, -0.5, 159.5 );
-    rpctfptvalue[0] = m_dbe->book1D("RPCTF_pt_value_bx-", 
+  rpctfptvalue[0] = ibooker.book1D("RPCTF_pt_value_bx-", 
                                     "RPCTF pt value bx<0", 160, -0.5, 159.5 );
     
     
-    rpctfchargevalue[1] = m_dbe->book1D("RPCTF_charge_value_bx0", 
+  rpctfchargevalue[1] = ibooker.book1D("RPCTF_charge_value_bx0", 
                                         "RPCTF charge value bx=0", 3, -1.5, 1.5 ) ;
-    rpctfchargevalue[2] = m_dbe->book1D("RPCTF_charge_value_bx+", 
+  rpctfchargevalue[2] = ibooker.book1D("RPCTF_charge_value_bx+", 
                                         "RPCTF charge value bx>0", 3, -1.5, 1.5 ) ;
-    rpctfchargevalue[0] = m_dbe->book1D("RPCTF_charge_value_bx-", 
+  rpctfchargevalue[0] = ibooker.book1D("RPCTF_charge_value_bx-", 
                                         "RPCTF charge value bx<01", 3, -1.5, 1.5 ) ;
 
-    rpctfquality[1] = m_dbe->book1D("RPCTF_quality", 
+  rpctfquality[1] = ibooker.book1D("RPCTF_quality", 
                                     "RPCTF quality bx=0", 6, -0.5, 5.5 ) ;
-    rpctfquality[2] = m_dbe->book1D("RPCTF_quality_bx+", 
+  rpctfquality[2] = ibooker.book1D("RPCTF_quality_bx+", 
                                     "RPCTF quality bx>0", 6, -0.5, 5.5 ) ;
-    rpctfquality[0] = m_dbe->book1D("RPCTF_quality_bx-", 
+  rpctfquality[0] = ibooker.book1D("RPCTF_quality_bx-", 
                                     "RPCTF quality bx<0", 6, -0.5, 5.5 ) ;
 
-    rpctfntrack_b[1] = m_dbe->book1D("RPCTF_ntrack_brl_bx0", 
+  rpctfntrack_b[1] = ibooker.book1D("RPCTF_ntrack_brl_bx0", 
                                      "RPCTF number of tracks - barrel, bx=0", 5, -0.5, 4.5 ) ;
-    rpctfntrack_b[2] = m_dbe->book1D("RPCTF_ntrack_brl_bx+", 
+  rpctfntrack_b[2] = ibooker.book1D("RPCTF_ntrack_brl_bx+", 
                                      "RPCTF number of tracks - barrel, bx>0", 5, -0.5, 4.5 ) ;
-    rpctfntrack_b[0] = m_dbe->book1D("RPCTF_ntrack_brl_bx-", 
+  rpctfntrack_b[0] = ibooker.book1D("RPCTF_ntrack_brl_bx-", 
                                      "RPCTF number of tracks - barrel, bx<0", 5, -0.5, 4.5 ) ;
     
     
            
-    rpctfntrack_e[1] = m_dbe->book1D("RPCTF_ntrack_fwd_bx0", 
+  rpctfntrack_e[1] = ibooker.book1D("RPCTF_ntrack_fwd_bx0", 
                                      "RPCTF number of tracks - endcap, bx=0", 5, -0.5, 4.5 ) ;
-    rpctfntrack_e[2] = m_dbe->book1D("RPCTF_ntrack_fwd_bx+", 
+  rpctfntrack_e[2] = ibooker.book1D("RPCTF_ntrack_fwd_bx+", 
                                      "RPCTF number of tracks - endcap, bx>0", 5, -0.5, 4.5 ) ;
-    rpctfntrack_e[0] = m_dbe->book1D("RPCTF_ntrack_fwd_bx-", 
+  rpctfntrack_e[0] = ibooker.book1D("RPCTF_ntrack_fwd_bx-", 
                                      "RPCTF number of tracks - endcap, bx<0", 5, -0.5, 4.5 ) ;
 
     
                                         
        
 
-    m_qualVsEta[1] = m_dbe->book2D("RPCTF_quality_vs_eta_bx0", 
+  m_qualVsEta[1] = ibooker.book2D("RPCTF_quality_vs_eta_bx0", 
                               "RPCTF quality vs eta, bx=0", 
                                33, -16.5, 16.5,
                                6, -0.5, 5.5); // Currently only 0...3 quals are possible
-    m_qualVsEta[2] = m_dbe->book2D("RPCTF_quality_vs_eta_bx+", 
+  m_qualVsEta[2] = ibooker.book2D("RPCTF_quality_vs_eta_bx+", 
                                    "RPCTF quality vs eta, bx>0", 
                                    33, -16.5, 16.5,
                                    6, -0.5, 5.5); // Currently only 0...3 quals are possible
-    m_qualVsEta[0] = m_dbe->book2D("RPCTF_quality_vs_eta_bx-", 
+  m_qualVsEta[0] = ibooker.book2D("RPCTF_quality_vs_eta_bx-", 
                                    "RPCTF quality vs eta, bx<0", 
                                    33, -16.5, 16.5,
                                    6, -0.5, 5.5); // Currently only 0...3 quals are possible
     
     
         
-    m_muonsEtaPhi[1] = m_dbe->book2D("RPCTF_muons_eta_phi_bx0", 
+  m_muonsEtaPhi[1] = ibooker.book2D("RPCTF_muons_eta_phi_bx0", 
                                   "RPCTF occupancy(eta,phi), bx=0",  
                                   33, -16.5, 16.5,
                                   144,  -0.5, 143.5);
-    m_muonsEtaPhi[2] = m_dbe->book2D("RPCTF_muons_eta_phi_bx+", 
+  m_muonsEtaPhi[2] = ibooker.book2D("RPCTF_muons_eta_phi_bx+", 
                                      "RPCTF occupancy(eta,phi), bx>0",  
                                      33, -16.5, 16.5,
                                      144,  -0.5, 143.5);
-    m_muonsEtaPhi[0] = m_dbe->book2D("RPCTF_muons_eta_phi_bx-", 
+  m_muonsEtaPhi[0] = ibooker.book2D("RPCTF_muons_eta_phi_bx-", 
                                      "RPCTF occupancy(eta,phi), bx<0",  
                                      33, -16.5, 16.5,
                                      144,  -0.5, 143.5);
 
-    rpctfbx = m_dbe->book1D("RPCTF_bx", 
+  rpctfbx = ibooker.book1D("RPCTF_bx", 
                             "RPCTF bx distribiution", 7, -3.5, 3.5 );
     
     //axis labels
-    for (int l = 0; l<3; ++l){
-      m_muonsEtaPhi[l]->setAxisTitle("tower",1);
-      m_qualVsEta[l]->setAxisTitle("tower");
-      rpctfetavalue[l]->setAxisTitle("tower");
+  for (int l = 0; l<3; ++l){
+    m_muonsEtaPhi[l]->setAxisTitle("tower",1);
+    m_qualVsEta[l]->setAxisTitle("tower");
+    rpctfetavalue[l]->setAxisTitle("tower");
       
-      m_muonsEtaPhi[l]->setAxisTitle("phi",2);
-      rpctfphivalue[l]->setAxisTitle("phi");
-    }
+    m_muonsEtaPhi[l]->setAxisTitle("phi",2);
+    rpctfphivalue[l]->setAxisTitle("phi");
+  }
     
     // set phi bin labels
-    for (int i = 0; i < 12 ; ++i ){
-       //float lPhi  = (30./360)*i*2*3.14;
-      int lPhi  = 30*i;
-      int lBin = int((30./360)*i*144)+1;
-      std::stringstream ss;
-      ss << "phi=" <<lPhi;
-      for (int l = 0; l<3; ++l){
-        rpctfphivalue[l]->setBinLabel(lBin,ss.str());
-        m_muonsEtaPhi[l]->setBinLabel(lBin,ss.str(), 2);
-      }
+  for (int i = 0; i < 12 ; ++i ){
+     //float lPhi  = (30./360)*i*2*3.14;
+    int lPhi  = 30*i;
+    int lBin = int((30./360)*i*144)+1;
+    std::stringstream ss;
+    ss << "phi=" <<lPhi;
+    for (int l = 0; l<3; ++l){
+      rpctfphivalue[l]->setBinLabel(lBin,ss.str());
+      m_muonsEtaPhi[l]->setBinLabel(lBin,ss.str(), 2);
     }
+  }
 
     /*
     // set TC numbers on phi axis
@@ -223,53 +196,21 @@ void L1TRPCTF::beginJob(void)
 
         
     // set eta bin labels
-    for (int i = -16; i < 17 ; ++i ){
-      std::stringstream ss;
-      ss << i;
-      for (int l = 0; l<3; ++l){
-        rpctfetavalue[l]->setBinLabel(i+17, ss.str());
-        m_muonsEtaPhi[l]->setBinLabel(i+17, ss.str(), 1);
-        m_qualVsEta[l]->setBinLabel(i+17, ss.str());
-      }
+  for (int i = -16; i < 17 ; ++i ){
+    std::stringstream ss;
+    ss << i;
+    for (int l = 0; l<3; ++l){
+      rpctfetavalue[l]->setBinLabel(i+17, ss.str());
+      m_muonsEtaPhi[l]->setBinLabel(i+17, ss.str(), 1);
+      m_qualVsEta[l]->setBinLabel(i+17, ss.str());
     }
+  }
 
     
                               
-    m_bxDiff = m_dbe->book1D("RPCTF_bx_diff",
+  m_bxDiff = ibooker.book1D("RPCTF_bx_diff",
 			      "RPCTrigger - bx difference", 12000, -.5, 11999.5); 
    
-
-
-  }   // if (m_dbe)
-}
-
-void L1TRPCTF::endRun(const edm::Run & r, const edm::EventSetup & c){
-  
-
-
-     // fixme, norm iteration would be better
-     while (m_globBX.begin() !=  m_globBX.end() ) {
-        long long int  diff = *m_globBX.begin()-m_lastUsedBxInBxdiff; // first entry will go to overflow bin, ignore
-        m_bxDiff->Fill(diff);
-        m_lastUsedBxInBxdiff = *m_globBX.begin();
-        m_globBX.erase(m_globBX.begin());
-
-     }
-
-     
-}
-
-
-void L1TRPCTF::endJob(void)
-{
-  
-  if(verbose_) cout << "L1TRPCTF: end job...." << endl;
-  LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
-
-  if ( outputFile_.size() != 0  && m_dbe ) m_dbe->save(outputFile_);
-    
-  return;
-
 }
 
 void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
@@ -394,13 +335,20 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
 
   }
   
+  while (m_globBX.begin() !=  m_globBX.end() ) {
+      long long int  diff = *m_globBX.begin()-m_lastUsedBxInBxdiff; // first entry will go to overflow bin, ignore
+      m_bxDiff->Fill(diff);
+      m_lastUsedBxInBxdiff = *m_globBX.begin();
+      m_globBX.erase(m_globBX.begin());  
+  }
+
+  if(verbose_) cout << "L1TRPCTF: end job...." << endl;
+  LogInfo("EndJob") << "analyzed " << nev_ << " events"; 
   
-  	
 }
 
-void L1TRPCTF::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                                    const edm::EventSetup& context)
-{
+void L1TRPCTF::beginLuminosityBlock(const edm::LuminosityBlock& l, 
+                                    const edm::EventSetup& c){
 //    m_rpcDigiWithBX0=0;
 //    m_rpcDigiWithBXnon0=0;
 //    m_bxs.clear();
@@ -410,9 +358,11 @@ void L1TRPCTF::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 }
 
 
-void L1TRPCTF::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                        const edm::EventSetup& c)
-{
+void L1TRPCTF::endLuminosityBlock(const edm::LuminosityBlock& l, 
+                        const edm::EventSetup& c){
 
 }
 
+void L1TRPCTF::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c){
+  
+}

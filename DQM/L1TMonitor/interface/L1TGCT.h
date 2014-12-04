@@ -113,7 +113,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
-
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 
 
@@ -121,13 +121,13 @@
 // class declaration
 //
 
-class L1TGCT : public edm::EDAnalyzer {
+class L1TGCT : public DQMEDAnalyzer {
 
 public:
 
 // Constructor
   L1TGCT(const edm::ParameterSet& ps);
-
+  
 // Destructor
  virtual ~L1TGCT();
 
@@ -135,15 +135,12 @@ protected:
 // Analyze
  void analyze(const edm::Event& e, const edm::EventSetup& c);
 
-// BeginJob
- void beginJob(void);
-
-// EndJob
-void endJob(void);
+  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
+  virtual void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
+  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
 
 private:
   // ----------member data ---------------------------
-  DQMStore * dbe;
 
   // trigger type information
   MonitorElement *triggerType_;
@@ -208,6 +205,8 @@ private:
   MonitorElement* l1GctHFRingRatioNegEta_;
   MonitorElement* l1GctHFRingETSumOccBx_;
   MonitorElement* l1GctHFRingTowerCountOccBx_;
+  MonitorElement* runId_;
+  MonitorElement* lumisecId_;
 
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput
