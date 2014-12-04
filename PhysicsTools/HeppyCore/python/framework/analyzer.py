@@ -31,8 +31,12 @@ class Analyzer(object):
         self.cfg_ana = cfg_ana
         self.cfg_comp = cfg_comp
         self.looperName = looperName
-        self.dirName = '/'.join( [self.looperName, self.name] )
-        os.mkdir( self.dirName )
+	if hasattr(cfg_ana,"nosubdir") and cfg_ana.nosubdir:
+       	    self.dirName = self.looperName
+	else:
+            self.dirName = '/'.join( [self.looperName, self.name] )
+	    os.mkdir( self.dirName )
+
 
         # this is the main logger corresponding to the looper.
         # each analyzer could also declare its own logger
