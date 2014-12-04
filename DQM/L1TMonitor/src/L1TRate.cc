@@ -59,13 +59,6 @@ L1TRate::L1TRate(const ParameterSet & ps){
   m_inputCategories["HTT"]    = Categories.getUntrackedParameter<bool>("HTT"); 
   m_inputCategories["HTM"]    = Categories.getUntrackedParameter<bool>("HTM"); 
 
-  // Inicializing Variables
-  dbe = NULL;
-
-  if (ps.getUntrackedParameter < bool > ("dqmStore", false)) {
-    dbe = Service < DQMStore > ().operator->();
-    dbe->setVerbose(0);
-  }
   
   // What to do if we want our output to be saved to a external file
   m_outputFile = ps.getUntrackedParameter < string > ("outputFile", "");
@@ -77,46 +70,16 @@ L1TRate::L1TRate(const ParameterSet & ps){
   bool disable = ps.getUntrackedParameter < bool > ("disableROOToutput", false);
   if (disable) {m_outputFile = "";}
   
-  if (dbe != NULL) {dbe->setCurrentFolder("L1T/L1TRate");}
-  
 }
 
 //_____________________________________________________________________
 L1TRate::~L1TRate(){}
 
 //_____________________________________________________________________
-void L1TRate::beginJob(void){
-
-  if (m_verbose) {cout << "[L1TRate:] Called beginJob." << endl;}
-
-  // get hold of back-end interface
-  DQMStore *dbe = 0;
-  dbe = Service < DQMStore > ().operator->();
-
-  if (dbe) {
-    dbe->setCurrentFolder("L1T/L1TRate");
-    dbe->rmdir("L1T/L1TRate");
-  }
- 
-}
-
-//_____________________________________________________________________
-void L1TRate::endJob(void){
-
-  if (m_verbose) {cout << "[L1TRate:] Called endJob." << endl;}
-
-  if (m_outputFile.size() != 0 && dbe)
-    dbe->save(m_outputFile);
-
-  return;
-}
-
-//_____________________________________________________________________
 // BeginRun
 //_____________________________________________________________________
-void L1TRate::beginRun(const edm::Run& run, const edm::EventSetup& iSetup){
+void L1TRate::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup& iSetup){
 
-  if (m_verbose) {cout << "[L1TRate:] Called beginRun." << endl;}
 
   ESHandle<L1GtTriggerMenu>     menuRcd;
   ESHandle<L1GtPrescaleFactors> l1GtPfAlgo;
@@ -128,8 +91,8 @@ void L1TRate::beginRun(const edm::Run& run, const edm::EventSetup& iSetup){
   const L1GtPrescaleFactors* m_l1GtPfAlgo = l1GtPfAlgo.product();
 
   // Initializing DQM Monitor Elements
-  dbe->setCurrentFolder("L1T/L1TRate");
-  m_ErrorMonitor = dbe->book1D("ErrorMonitor", "ErrorMonitor",5,0,5);
+  ibooker.setCurrentFolder("L1T/L1TRate");
+  m_ErrorMonitor = ibooker.book1D("ErrorMonitor", "ErrorMonitor",5,0,5);
   m_ErrorMonitor->setBinLabel(1,"WARNING_DB_CONN_FAILED");        // Errors from L1TOMDSHelper
   m_ErrorMonitor->setBinLabel(2,"WARNING_DB_QUERY_FAILED");       // Errors from L1TOMDSHelper
   m_ErrorMonitor->setBinLabel(3,"WARNING_DB_INCORRECT_NBUNCHES"); // Errors from L1TOMDSHelper
@@ -210,8 +173,8 @@ void L1TRate::beginRun(const edm::Run& run, const edm::EventSetup& iSetup){
 
 
 
-    dbe->setCurrentFolder("L1T/L1TRate/TriggerCrossSections");
-    m_xSecVsInstLumi[tTrigger] = dbe->bookProfile(tCategory,
+    ibooker.setCurrentFolder("L1T/L1TRate/TriggerCrossSections");
+    m_xSecVsInstLumi[tTrigger] = ibooker.bookProfile(tCategory,
                                                   "Cross Sec. vs Inst. Lumi Algo: "+tTrigger+tErrorMessage,
                                                   m_maxNbins,
                                                   minInstantLuminosity,
@@ -221,8 +184,8 @@ void L1TRate::beginRun(const edm::Run& run, const edm::EventSetup& iSetup){
     m_xSecVsInstLumi[tTrigger] ->getTProfile()->GetListOfFunctions()->Add(tTestFunction);
     m_xSecVsInstLumi[tTrigger] ->getTProfile()->SetMarkerStyle(23);
 
-    dbe->setCurrentFolder("L1T/L1TRate/Certification");
-    m_xSecObservedToExpected[tTrigger] = dbe->book1D(tCategory, "Algo: "+tTrigger+tErrorMessage,m_maxNbins,-0.5,double(m_maxNbins)-0.5);
+    ibooker.setCurrentFolder("L1T/L1TRate/Certification");
+    m_xSecObservedToExpected[tTrigger] = ibooker.book1D(tCategory, "Algo: "+tTrigger+tErrorMessage,m_maxNbins,-0.5,double(m_maxNbins)-0.5);
     m_xSecObservedToExpected[tTrigger] ->setAxisTitle("Lumi Section" ,1);
     m_xSecObservedToExpected[tTrigger] ->setAxisTitle("#sigma_{obs} / #sigma_{exp}" ,2);
 
@@ -230,11 +193,10 @@ void L1TRate::beginRun(const edm::Run& run, const edm::EventSetup& iSetup){
 
 }
 
-//_____________________________________________________________________
-void L1TRate::endRun(const edm::Run& run, const edm::EventSetup& iSetup){
-  if (m_verbose) {cout << "[L1TRate:] Called endRun." << endl;}
+void L1TRate::dqmBeginRun(edm::Run const&, edm::EventSetup const&){
+  //
+  if (m_verbose) {cout << "[L1TRate:] Called beginRun." << endl;}
 }
-
 //_____________________________________________________________________
 void L1TRate::beginLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) {
 
