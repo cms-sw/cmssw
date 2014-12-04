@@ -29424,8 +29424,6 @@ process.source = cms.Source( "PoolSource",
     fileNames = cms.untracked.vstring(
         'file:RelVal_Raw_Fake_DATA.root',
     ),
-    secondaryFileNames = cms.untracked.vstring(
-    ),
     inputCommands = cms.untracked.vstring(
         'keep *'
     )
