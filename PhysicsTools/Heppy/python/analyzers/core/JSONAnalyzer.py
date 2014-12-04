@@ -71,7 +71,7 @@ class JSONAnalyzer( Analyzer ):
             return False
         
 
-    def write(self):
-        super(JSONAnalyzer, self).write()
+    def write(self, setup):
+        super(JSONAnalyzer, self).write(setup)
         self.rltInfo.write( self.dirName )
 

@@ -64,7 +64,7 @@ class Analyzer(object):
         print self.cfg_ana.name
 
 
-    def write(self):
+    def write(self, setup):
         """Called by Looper.write, for all analyzers.
         Just overload it if you have histograms to write."""
         self.counters.write( self.dirName )
