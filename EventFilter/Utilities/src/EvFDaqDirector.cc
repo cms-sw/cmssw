@@ -828,9 +828,7 @@ namespace evf {
 
   void EvFDaqDirector::checkTransferSystemPSet()
   {
-
       transferSystemJson_.reset(new Json::Value);
- 
       if (edm::getProcessParameterSet().existsAs<edm::ParameterSet>("transferSystem",true))
       {
         const edm::ParameterSet& tsPset(edm::getProcessParameterSet().getParameterSet("transferSystem"));
@@ -847,27 +845,38 @@ namespace evf {
 
         for (auto psKeyItr =tsPset.psetTable().begin();psKeyItr!=tsPset.psetTable().end(); ++ psKeyItr) {
           if (psKeyItr->first!="destinations" && psKeyItr->first!="transferModes") {
-               const edm::ParameterSet & streamDef = tsPset.getParameterSet(psKeyItr->first);
-               Json::Value streamVal;
-               for (auto & mode : modes) {
-                 bool valid=false;
-                 //validation
-                 if (!streamDef.existsAs<std::string>(mode,true))
-                   throw cms::Exception("EvFDaqDirector") << " Missing transfer system specification for -:" << psKeyItr->first << " (transferMode " << mode << ")";
-                 std::string val =  streamDef.getParameter<std::string>(mode);
-                 streamVal[mode]=val;
-                 for (auto & dest: destinations) if (dest==val) valid=true;
-                 if (!valid)
-                   throw cms::Exception("EvFDaqDirector") << " Invalid transter system destination specified for -: "<< psKeyItr->first;
-               }
-               (*transferSystemJson_)[psKeyItr->first] = streamVal;
+            const edm::ParameterSet & streamDef = tsPset.getParameterSet(psKeyItr->first);
+            Json::Value streamVal;
+            for (auto & mode : modes) {
+              //validation
+              if (!streamDef.existsAs<std::vector<std::string>>(mode,true))
+                throw cms::Exception("EvFDaqDirector") << " Missing transfer system specification for -:" << psKeyItr->first << " (transferMode " << mode << ")";
+              std::vector<std::string> streamDestinations =  streamDef.getParameter<std::vector<std::string>>(mode);
+
+              Json::Value sDestsValue(Json::arrayValue);
+
+              if (!streamDestinations.size())
+                throw cms::Exception("EvFDaqDirector") << " Missing transter system destination for -: "<< psKeyItr->first << ", mode:" << mode;
+
+              for (auto & sdest:streamDestinations) {
+                bool sDestValid=false;
+                sDestsValue.append(sdest);
+                for (auto & dest: destinations) {
+                  if (dest==sdest) sDestValid=true;
+                }
+                if (!sDestValid)
+                  throw cms::Exception("EvFDaqDirector") << " Invalid transter system destination specified for -: "<< psKeyItr->first << ", mode:" << mode << ", dest:"<<sdest;
+              }
+              streamVal[mode]=sDestsValue;
+            }
+            (*transferSystemJson_)[psKeyItr->first] = streamVal;
           }
         }
       }
-      else
+      else {
         if (requireTSPSet_)
           throw cms::Exception("EvFDaqDirector") << "transferSystem PSet not found";
-
+      }
     }
 
   void EvFDaqDirector::writeTransferSystemJsonMaybe(std::string const& stream) const
