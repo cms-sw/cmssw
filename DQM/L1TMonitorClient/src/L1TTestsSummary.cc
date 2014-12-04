@@ -43,10 +43,6 @@ L1TTestsSummary::L1TTestsSummary(const edm::ParameterSet& ps){
   mL1TRatePath      = ps.getUntrackedParameter<string>("L1TRatePath"     ,"L1T/L1TRate/Certification/");
   mL1TSyncPath      = ps.getUntrackedParameter<string>("L1TSyncPath"     ,"L1T/L1TSync/Certification/");
   mL1TOccupancyPath = ps.getUntrackedParameter<string>("L1TOccupancyPath","L1T/L1TOccupancy/Certification/");
-  
-  // Get back-end interface
-  mDBE  = Service<DQMStore>().operator->();   
-
 }
 
 //____________________________________________________________________________
@@ -58,38 +54,13 @@ L1TTestsSummary::~L1TTestsSummary(){
 }
 
 //____________________________________________________________________________
-// Function: beginJob
-// Description: This will be run at the beginning of each job
-//____________________________________________________________________________
-void L1TTestsSummary::beginJob(void){
-
-  if(mVerbose){cout << "[L1TTestsSummary:] Called BeginJob" << endl;}
-
-  // get backend interface  
-  mDBE = Service<DQMStore>().operator->();
-
-  if (mDBE) {
-    mDBE->setCurrentFolder("L1T/L1TOccupancy");
-    mDBE->rmdir("L1T/L1TOccupancy");
-  }
-}
-
-//____________________________________________________________________________
-// Function: endJob
-// Description: This will be run at the end of each job
-//____________________________________________________________________________
-void L1TTestsSummary::endJob(){
-  if(mVerbose){cout << "[L1TTestsSummary:] Called endJob" << endl;}
-}
-
-//____________________________________________________________________________
 // Function: beginRun
 // Description: This is will be run at the begining of each run
 // Inputs: 
 // * const Run&        r       = Run information 
 // * const EventSetup& context = Event Setup information
 //____________________________________________________________________________
-void L1TTestsSummary::beginRun(const Run& r, const EventSetup& context){  
+void L1TTestsSummary::book(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter){  
   
   if(mVerbose){cout << "[L1TTestsSummary:] Called beginRun" << endl;}
   
@@ -99,17 +70,17 @@ void L1TTestsSummary::beginRun(const Run& r, const EventSetup& context){
 
     if(mVerbose){cout << "[L1TTestsSummary:] Initializing L1TRate Module Monitoring" << endl;}
     
-    mDBE->setCurrentFolder(mL1TRatePath);
-    vector<string> histToMonitor = mDBE->getMEs();
+    igetter.setCurrentFolder(mL1TRatePath);
+    vector<string> histToMonitor = igetter.getMEs();
     int            histLines     = histToMonitor.size()+1;
     
-    mDBE->setCurrentFolder("L1T/L1TTestsSummary/");    
-    mL1TRateMonitor = mDBE->book2D("RateQualitySummary","L1T Rates Monitor Summary",maxLS,+0.5,double(maxLS)+0.5,histLines,0,histLines); 
+    ibooker.setCurrentFolder("L1T/L1TTestsSummary/");    
+    mL1TRateMonitor = ibooker.book2D("RateQualitySummary","L1T Rates Monitor Summary",maxLS,+0.5,double(maxLS)+0.5,histLines,0,histLines); 
     mL1TRateMonitor->setAxisTitle("Lumi Section" ,1);
 
     mL1TRateMonitor->setBinLabel(1,"Summary",2);
     for(unsigned int i=0 ; i<histToMonitor.size() ; i++){
-      string name = mDBE->get(mL1TRatePath+histToMonitor[i])->getTH1()->GetName();
+      string name = igetter.get(mL1TRatePath+histToMonitor[i])->getTH1()->GetName();
       mL1TRateMonitor->setBinLabel(i+2,name,2);  
     }
   }
@@ -117,17 +88,17 @@ void L1TTestsSummary::beginRun(const Run& r, const EventSetup& context){
 
     if(mVerbose){cout << "[L1TTestsSummary:] Initializing L1TSync Module Monitoring" << endl;}
     
-    mDBE->setCurrentFolder(mL1TSyncPath);
-    vector<string> histToMonitor = mDBE->getMEs();
+    igetter.setCurrentFolder(mL1TSyncPath);
+    vector<string> histToMonitor = igetter.getMEs();
     int            histLines     = histToMonitor.size()+1;
 
-    mDBE->setCurrentFolder("L1T/L1TTestsSummary/");  
-    mL1TSyncMonitor = mDBE->book2D("SyncQualitySummary","L1T Synchronization Monitor Summary",maxLS,0.5,double(maxLS)+0.5,histLines,0,histLines); 
+    ibooker.setCurrentFolder("L1T/L1TTestsSummary/");  
+    mL1TSyncMonitor = ibooker.book2D("SyncQualitySummary","L1T Synchronization Monitor Summary",maxLS,0.5,double(maxLS)+0.5,histLines,0,histLines); 
     mL1TSyncMonitor->setAxisTitle("Lumi Section" ,1);
 
     mL1TSyncMonitor->setBinLabel(1,"Summary",2);
     for(unsigned int i=0 ; i<histToMonitor.size() ; i++){
-      string name = mDBE->get(mL1TSyncPath+histToMonitor[i])->getTH1()->GetName();
+      string name = igetter.get(mL1TSyncPath+histToMonitor[i])->getTH1()->GetName();
       mL1TSyncMonitor->setBinLabel(i+2,name,2);  
     }
     
@@ -136,17 +107,17 @@ void L1TTestsSummary::beginRun(const Run& r, const EventSetup& context){
         
     if(mVerbose){cout << "[L1TTestsSummary:] Initializing L1TOccupancy Module Monitoring" << endl;}
     
-    mDBE->setCurrentFolder(mL1TOccupancyPath);
-    vector<string> histToMonitor = mDBE->getMEs();
+    igetter.setCurrentFolder(mL1TOccupancyPath);
+    vector<string> histToMonitor = igetter.getMEs();
     int            histLines     = histToMonitor.size()+1;
 
-    mDBE->setCurrentFolder("L1T/L1TTestsSummary/");  
-    mL1TOccupancyMonitor = mDBE->book2D("OccupancySummary","L1T Occupancy Monitor Summary",maxLS,+0.5,double(maxLS)+0.5,histLines,0,histLines);
+    ibooker.setCurrentFolder("L1T/L1TTestsSummary/");  
+    mL1TOccupancyMonitor = ibooker.book2D("OccupancySummary","L1T Occupancy Monitor Summary",maxLS,+0.5,double(maxLS)+0.5,histLines,0,histLines);
     mL1TOccupancyMonitor->setAxisTitle("Lumi Section" ,1);   
 
     mL1TOccupancyMonitor->setBinLabel(1,"Summary",2);
     for(unsigned int i=0 ; i<histToMonitor.size() ; i++){
-      string name = mDBE->get(mL1TOccupancyPath+histToMonitor[i])->getTH1()->GetName();
+      string name = igetter.get(mL1TOccupancyPath+histToMonitor[i])->getTH1()->GetName();
       mL1TOccupancyMonitor->setBinLabel(i+2,name,2);  
     } 
   }
@@ -158,8 +129,8 @@ void L1TTestsSummary::beginRun(const Run& r, const EventSetup& context){
   if(mMonitorL1TOccupancy){testsToMonitor++;}
 
   // Creating
-  mDBE->setCurrentFolder("L1T/L1TTestsSummary/");  
-  mL1TSummary = mDBE->book2D("L1TQualitySummary","L1 Tests Summary",maxLS,+0.5,double(maxLS)+0.5,testsToMonitor,0,testsToMonitor);
+  ibooker.setCurrentFolder("L1T/L1TTestsSummary/");  
+  mL1TSummary = ibooker.book2D("L1TQualitySummary","L1 Tests Summary",maxLS,+0.5,double(maxLS)+0.5,testsToMonitor,0,testsToMonitor);
   mL1TSummary->setAxisTitle("Lumi Section" ,1);
   mL1TSummary->setBinLabel(1,"L1T Summary",2);
   
@@ -177,26 +148,17 @@ void L1TTestsSummary::beginRun(const Run& r, const EventSetup& context){
 // * const Run&        r       = Run information 
 // * const EventSetup& context = Event Setup information
 //____________________________________________________________________________
-void L1TTestsSummary::endRun(const Run& r, const EventSetup& context){
+void L1TTestsSummary::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter){
+
+  book(ibooker, igetter);
   
   if(mVerbose){cout << "[L1TTestsSummary:] Called endRun()" << endl;}
   
-  if(mMonitorL1TRate)     {updateL1TRateMonitor();}
-  if(mMonitorL1TSync)     {updateL1TSyncMonitor();}
-  if(mMonitorL1TOccupancy){updateL1TOccupancyMonitor();}
-  updateL1TSummary();
-  
-}
+  if(mMonitorL1TRate)     {updateL1TRateMonitor(ibooker, igetter);}
+  if(mMonitorL1TSync)     {updateL1TSyncMonitor(ibooker, igetter);}
+  if(mMonitorL1TOccupancy){updateL1TOccupancyMonitor(ibooker, igetter);}
+  updateL1TSummary(ibooker, igetter);
 
-//____________________________________________________________________________
-// Function: beginLuminosityBlock
-// Description: This is will be run at the begining of each luminosity block
-// Inputs: 
-// * const LuminosityBlock& lumiSeg = Luminosity Block information 
-// * const EventSetup&      context = Event Setup information
-//____________________________________________________________________________
-void L1TTestsSummary::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& context) {
-  if(mVerbose){cout << "[L1TTestsSummary:] Called beginLuminosityBlock()" << endl;}
 }
 
 //____________________________________________________________________________
@@ -206,10 +168,12 @@ void L1TTestsSummary::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const
 // * const LuminosityBlock& lumiSeg = Luminosity Block information 
 // * const EventSetup&      context = Event Setup information
 //____________________________________________________________________________
-void L1TTestsSummary::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c){
+void L1TTestsSummary::dqmEndLuminosityBlock(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c){
   
   int eventLS = lumiSeg.id().luminosityBlock();
 
+  book(ibooker, igetter);
+    
   mProcessedLS.push_back(eventLS);
   
   if(mVerbose) {
@@ -217,34 +181,25 @@ void L1TTestsSummary::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, co
     cout << "[L1TTestsSummary:] Lumisection: " << eventLS << endl;
   }
 
-  if(mMonitorL1TRate)     {updateL1TRateMonitor();}
-  if(mMonitorL1TSync)     {updateL1TSyncMonitor();}
-  if(mMonitorL1TOccupancy){updateL1TOccupancyMonitor();}
-  updateL1TSummary();
+  if(mMonitorL1TRate)     {updateL1TRateMonitor(ibooker, igetter);}
+  if(mMonitorL1TSync)     {updateL1TSyncMonitor(ibooker, igetter);}
+  if(mMonitorL1TOccupancy){updateL1TOccupancyMonitor(ibooker, igetter);}
+  updateL1TSummary(ibooker, igetter);
   
 }
-
-//____________________________________________________________________________
-// Function: analyze
-// Description: This is will be run for every event
-// Inputs: 
-// * const Event&      e       = Event information 
-// * const EventSetup& context = Event Setup information
-//____________________________________________________________________________
-void L1TTestsSummary::analyze(const Event& e, const EventSetup& context){}
 
 //____________________________________________________________________________
 // Function: updateL1TRateMonitor
 // Description: 
 //____________________________________________________________________________
-void L1TTestsSummary::updateL1TRateMonitor(){
+void L1TTestsSummary::updateL1TRateMonitor(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter){
   
-  mDBE->setCurrentFolder(mL1TRatePath);
-  vector<string> histToMonitor = mDBE->getMEs();
+  igetter.setCurrentFolder(mL1TRatePath);
+  vector<string> histToMonitor = igetter.getMEs();
   
   for(unsigned int i=0 ; i<histToMonitor.size() ; i++){
 
-    MonitorElement* me = mDBE->get(mL1TRatePath+histToMonitor[i]);
+    MonitorElement* me = igetter.get(mL1TRatePath+histToMonitor[i]);
     if(mVerbose) {cout << "[L1TTestsSummary:] Found ME: " << me->getTH1()->GetName() << endl;}
 
     const QReport * myQReport = me->getQReport("L1TRateTest"); //get QReport associated to your ME  
@@ -304,14 +259,14 @@ void L1TTestsSummary::updateL1TRateMonitor(){
 // Note: Values certified by L1TRates are always about currentLS-1 since we
 //       use rate averages from the previous LS from GT
 //____________________________________________________________________________
-void L1TTestsSummary::updateL1TSyncMonitor(){
+void L1TTestsSummary::updateL1TSyncMonitor(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter){
   
-  mDBE->setCurrentFolder(mL1TSyncPath);
-  vector<string> histToMonitor = mDBE->getMEs();
+  igetter.setCurrentFolder(mL1TSyncPath);
+  vector<string> histToMonitor = igetter.getMEs();
   
   for(unsigned int i=0 ; i<histToMonitor.size() ; i++){
 
-    MonitorElement* me = mDBE->get(mL1TSyncPath+histToMonitor[i]);
+    MonitorElement* me = igetter.get(mL1TSyncPath+histToMonitor[i]);
     if(mVerbose) {cout << "[L1TTestsSummary:] Found ME: " << me->getTH1()->GetName() << endl;}
 
     const QReport * myQReport = me->getQReport("L1TSyncTest"); //get QReport associated to your ME  
@@ -369,14 +324,14 @@ void L1TTestsSummary::updateL1TSyncMonitor(){
 // Function: updateL1TOccupancyMonitor
 // Description: 
 //____________________________________________________________________________
-void L1TTestsSummary::updateL1TOccupancyMonitor(){
+void L1TTestsSummary::updateL1TOccupancyMonitor(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter){
   
-  mDBE->setCurrentFolder(mL1TOccupancyPath);
-  vector<string> histToMonitor = mDBE->getMEs();
+  igetter.setCurrentFolder(mL1TOccupancyPath);
+  vector<string> histToMonitor = igetter.getMEs();
   
   for(unsigned int i=0 ; i<histToMonitor.size() ; i++){
 
-    MonitorElement* me = mDBE->get(mL1TOccupancyPath+histToMonitor[i]);
+    MonitorElement* me = igetter.get(mL1TOccupancyPath+histToMonitor[i]);
     if(mVerbose) {cout << "[L1TTestsSummary:] Found ME: " << me->getTH1()->GetName() << endl;}
 
     const QReport * myQReport = me->getQReport("L1TOccupancyTest"); //get QReport associated to your ME  
@@ -434,7 +389,7 @@ void L1TTestsSummary::updateL1TOccupancyMonitor(){
 // Function: updateL1TOccupancyMonitor
 // Description: 
 //____________________________________________________________________________
-void L1TTestsSummary::updateL1TSummary(){
+void L1TTestsSummary::updateL1TSummary(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter){
 
   int nBinX = mL1TSummary->getTH2F()->GetXaxis()->GetNbins();  
   for(int binx=1; binx<=nBinX ; binx++){
