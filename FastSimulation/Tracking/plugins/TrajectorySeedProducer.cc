@@ -79,16 +79,11 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     // The name of the hit producer
     hitProducer = conf.getParameter<edm::InputTag>("HitProducer");
 
-    //TODO: What is this???
     // The cuts for seed cleaning
     seedCleaning = conf.getParameter<bool>("seedCleaning");
 
     // Number of hits needed for a seed
     numberOfHits = conf.getParameter<unsigned int>("numberOfHits");
-    
-    //TODO: What is this??
-    // Seeding based on muons
-    selectMuons = conf.getParameter<bool>("selectMuons");
 
     // read Layers
     std::vector<std::string> layerStringList = conf.getParameter<std::vector<std::string>>("layerList");
@@ -399,8 +394,8 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	}
 	//std::cout<<std::endl;
 	//std::cout<<std::endl;
-    std::cout<<"collection: "<<outputSeedCollectionName.c_str()<<std::endl;
-    std::cout<<"-----------------------------"<<std::endl;
+    //std::cout<<"collection: "<<outputSeedCollectionName.c_str()<<std::endl;
+    //std::cout<<"-----------------------------"<<std::endl;
 	for (SiTrackerGSMatchedRecHit2DCollection::id_iterator itSimTrackId=theGSRecHits->id_begin();  itSimTrackId!=theGSRecHits->id_end(); ++itSimTrackId )
 	{
 	    
@@ -478,18 +473,18 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 
 		if (seedHitNumbers.size()>0)
 		{
-            std::cout<<"accept: "<<currentSimTrackId<<std::endl;
+            //std::cout<<"accept: "<<currentSimTrackId<<std::endl;
            
             
 			edm::OwnVector<TrackingRecHit> recHits;
-			std::cout<<"\t hits=";
+			//std::cout<<"\t hits=";
 			for ( unsigned ihit=0; ihit<seedHitNumbers.size(); ++ihit )
 			{
 				TrackingRecHit* aTrackingRecHit = trackerRecHits[seedHitNumbers[ihit]].hit()->clone();
 				recHits.push_back(aTrackingRecHit);
-				std::cout<<seedHitNumbers[ihit]<<",";
+				//std::cout<<seedHitNumbers[ihit]<<",";
 			}
-			std::cout<<std::endl;
+			//std::cout<<std::endl;
 			
 
 			GlobalPoint  position((*theSimVtx)[vertexIndex].position().x(),

@@ -68,8 +68,6 @@ class TrajectorySeedProducer:
         double originpTMin;
 
         double zVertexConstraint;
-
-        bool selectMuons;
         
         bool skipPVCompatibility;
 

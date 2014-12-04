@@ -27,20 +27,7 @@ trajectorySeedProducer = cms.EDProducer("TrajectorySeedProducer",
     # The seed cuts for compatibility with originating from the beam axis.
     seedCleaning = cms.bool(True),
     # The smallest d0 and z0 (true, in cm) to create a track candidate
-    maxD0 = cms.double(1.0),
-    
-    #these are obsolete
-    firstHitSubDetectorNumber = cms.vuint32(2),
-    secondHitSubDetectorNumber = cms.vuint32(2),
-    thirdHitSubDetectorNumber = cms.vuint32(0),
-    firstHitSubDetectors = cms.vuint32(1, 2),
-    secondHitSubDetectors = cms.vuint32(1, 2),
-    thirdHitSubDetectors = cms.vuint32(),
-    selectMuons = cms.bool(False),                                        
-    newSyntax = cms.bool(True),  
-    #seedingAlgo = cms.vstring(['GlobalPixel']),     
-    #primaryVertices = cms.VInputTag(cms.InputTag("none")),
-    ########################                          
+    maxD0 = cms.double(1.0),                     
                                      
     layerList = cms.vstring('BPix1+BPix2', 'BPix1+BPix3', 'BPix2+BPix3',
                             'BPix1+FPix1_pos', 'BPix1+FPix1_neg',
