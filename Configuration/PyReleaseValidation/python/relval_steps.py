@@ -1206,6 +1206,7 @@ steps['COPYPASTE']={'-s':'NONE',
 #miniaod
 stepMiniAODDefaults = { '-s'              : 'PAT',
                         '--runUnscheduled': '',
+                        '--customise'     : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
                         '-n'              : '100'
                         }
 stepMiniAODData = merge([{'--conditions'   : 'auto:run1_data',
