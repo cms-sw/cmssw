@@ -1,20 +1,19 @@
-'''Helper function to switch the MVA input from local root file to the sqlite DB'''
+'''Helper function to switch the MVA input to local root file from the sqlite DB'''
 import FWCore.ParameterSet.Config as cms
 
-#from CommonTools.ParticleFlow.Isolation.tools_cfi import *
 
 from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceParam
 
 def switchMVAtoDB(process):
-    '''Replace the MVA input by sqlite file for all MVA discriminators
+    '''Contrary to its name, replace the MVA input by local root files for all MVA discriminators
 
        usage: add following 2 lines to your config file in order to execute this function:
 
           from RecoTauTag.Configuration.switchMVAtoDB_cfi import switchMVAtoDB
           process = switchMVAtoDB(process)
 
-       The function takes no parameters. The sqlite input is defined in file
-       RecoTauTag/Configuration/python/loadRecoTauTagMVAsFromPrepDB_cfi.py
+       The function takes no parameters. The names of the input root files are defined in 
+       RecoTauTag/Configuration/python/HPSPFTaus_cff.py (parameter inputFileName).
     '''
 #    process.load("RecoTauTag.Configuration.loadRecoTauTagMVAsFromPrepDB_cfi")
     massSearchReplaceParam(getattr(process,"produceAndDiscriminateHPSPFTaus"),"loadMVAfromDB", cms.bool(True), cms.bool(False))
