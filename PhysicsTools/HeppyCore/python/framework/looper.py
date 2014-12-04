@@ -179,7 +179,7 @@ class Looper(object):
         See Analyzer.Write for more information.
         """
         for analyzer in self.analyzers:
-            analyzer.write()
+            analyzer.write(self.setup)
         self.setup.close() 
         pass
 

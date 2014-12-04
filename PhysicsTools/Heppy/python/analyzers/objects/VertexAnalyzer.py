@@ -152,8 +152,8 @@ class VertexAnalyzer( Analyzer ):
                 mindist = dist
         return mindist
                                                                  
-    def write(self):
-        super(VertexAnalyzer, self).write()
+    def write(self, setup):
+        super(VertexAnalyzer, self).write(setup)
         if self.doHists:
             self.pileup.write()
 

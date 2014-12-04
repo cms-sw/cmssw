@@ -28,7 +28,7 @@ class TreeAnalyzerNumpy( Analyzer ):
         print 'TreeAnalyzerNumpy.declareVariables : overload this function.'
         pass
 
-    def write(self):
-        super(TreeAnalyzerNumpy, self).write()
+    def write(self, setup):
+        super(TreeAnalyzerNumpy, self).write(setup)
         self.file.Write() 
 

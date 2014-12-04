@@ -94,9 +94,9 @@ class TriggerAnalyzer( Analyzer ):
         event.TriggerFired = 1
         return True
 
-    def write(self):
+    def write(self, setup):
         print 'writing TriggerAnalyzer'
-        super(TriggerAnalyzer, self).write()
+        super(TriggerAnalyzer, self).write(setup)
         self.triggerList.write( self.dirName )
 
     def __str__(self):

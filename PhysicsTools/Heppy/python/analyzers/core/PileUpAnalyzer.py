@@ -141,7 +141,7 @@ class PileUpAnalyzer( Analyzer ):
         self.averages['vertexWeight'].add( event.vertexWeight )
         return True
         
-    def write(self):
-        super(PileUpAnalyzer, self).write()
+    def write(self, setup):
+        super(PileUpAnalyzer, self).write(setup)
         if self.cfg_comp.isMC and self.doHists:
             self.rawmcpileup.write()

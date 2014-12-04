@@ -78,5 +78,5 @@ class MetAnalyzer( Analyzer ):
 
 
 
-##     def write(self):
-##         super(MetAnalyzer, self).write()
+##     def write(self, setup):
+##         super(MetAnalyzer, self).write(setup)

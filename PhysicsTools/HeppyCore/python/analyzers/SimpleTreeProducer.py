@@ -17,7 +17,7 @@ class SimpleTreeProducer(Analyzer):
         self.tree.fill('test_variable', event.input.var1)
         self.tree.tree.Fill()
 
-    def write(self):
+    def write(self, setup):
         self.rootfile.Write()
         self.rootfile.Close()
         
