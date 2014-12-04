@@ -114,6 +114,8 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
    double phiOfMuonIneteractionRegion( const reco::Muon& muon ) const;
 
    bool checkLinks(const reco::MuonTrackLinks*) const ;
+
+   void calculateMuonHitEtaRanges(const edm::EventSetup& eventSetup);
      
    TrackDetectorAssociator trackAssociator_;
    TrackAssociatorParameters parameters_;
@@ -124,6 +126,7 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
    MuonTimingFiller* theTimingFiller_;
 
    // selections
+   double muonTrackDeltaEta_;
    double minPt_;
    double minP_;
    double minPCaloMuon_;
@@ -164,9 +167,14 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
    edm::EDGetTokenT<reco::TrackToTrackMap>             pickyCollectionToken_;
    edm::EDGetTokenT<reco::TrackToTrackMap>             dytCollectionToken_;
 
+   edm::EDGetTokenT<DTRecSegment4DCollection> dtSegmentToken_;
+   edm::EDGetTokenT<CSCSegmentCollection> cscSegmentToken_;
    edm::EDGetTokenT<RPCRecHitCollection> rpcHitToken_;
    edm::EDGetTokenT<edm::ValueMap<reco::MuonQuality> > glbQualToken_;
 
+   edm::Handle<DTRecSegment4DCollection> dtSegmentHandle_;
+   edm::Handle<CSCSegmentCollection> cscSegmentHandle_;
+   edm::Handle<RPCRecHitCollection> rpcRecHitHandle_;
 
    
    MuonCaloCompatibility muonCaloCompatibility_;
@@ -190,6 +198,8 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
    
    bool arbClean_;
    MuonMesh* meshAlgo_;
+
+   std::vector<double> muonHitsEta_;
 
 };
 #endif
