@@ -40,7 +40,6 @@ postProcessorVertex = cms.EDAnalyzer("DQMGenericClient",
                                          "duplicate_vs_ClosestVertexInZ 'Duplicate vs ClosestsVtx In Z' RecoAllAssoc2MultiMatchedGen_ClosestDistanceZ RecoAllAssoc2Gen_ClosestDistanceZ"
                                      ),
                                      resolution = cms.vstring(),
-                                     profile= cms.vstring(),
                                      outputFileName = cms.untracked.string(""),
                                      verbose = cms.untracked.uint32(5)
 )
