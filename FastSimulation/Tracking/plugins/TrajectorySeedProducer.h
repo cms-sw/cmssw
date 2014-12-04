@@ -84,7 +84,6 @@ class TrajectorySeedProducer:
 
     TrajectorySeedProducer(const edm::ParameterSet& conf);
     
-    //TODO: clean thing really up!!!!
     virtual ~TrajectorySeedProducer()
     {
     }
@@ -92,29 +91,27 @@ class TrajectorySeedProducer:
     virtual void beginRun(edm::Run const& run, const edm::EventSetup & es);
     virtual void produce(edm::Event& e, const edm::EventSetup& es);
 
-    //! method checks if a SimTrack fulfills the requirements of the current seeding algorithm iteration.
+    //! method checks if a SimTrack fulfills the quality requirements.
     /*!
     \param theSimTrack the SimTrack to be tested.
     \param theSimVertex the associated SimVertex of the SimTrack.
-    \param trackingAlgorithmId id of the seeding algorithm iteration (e.g. "initial step", etc.).
     \return true if a track fulfills the requirements.
     */
-    virtual bool passSimTrackQualityCuts(const SimTrack& theSimTrack, const SimVertex& theSimVertex, unsigned int trackingAlgorithmId) const;
+    virtual bool passSimTrackQualityCuts(const SimTrack& theSimTrack, const SimVertex& theSimVertex) const;
 
-    //! method checks if a TrajectorySeedHitCandidate fulfills the requirements of the current seeding algorithm iteration.
+    //! method checks if a TrajectorySeedHitCandidate fulfills the quality requirements.
     /*!
+    \param seedingNode tree node at which the hit will be inserted. 
     \param trackerRecHits list of all TrackerRecHits.
-    \param previousHits list of indexes of hits which already got accepted before.
-    \param currentHit the current hit which needs to pass the criteria in addition to those in \e previousHits.
-    \param trackingAlgorithmId id of the seeding algorithm iteration (e.g. "initial step", etc.).
+    \param hitIndicesInTree hit indices which translates the tree node to the hits in \e trackerRecHits.
+    \param currentTrackerHit hit which is tested.
     \return true if a hit fulfills the requirements.
     */
     inline bool passHitTuplesCuts(
             const SeedingNode<TrackingLayer>& seedingNode,
             const std::vector<TrajectorySeedHitCandidate>& trackerRecHits,
             const std::vector<int>& hitIndicesInTree,
-            const TrajectorySeedHitCandidate& currentTrackerHit,
-            unsigned int trackingAlgorithmId
+            const TrajectorySeedHitCandidate& currentTrackerHit
         ) const
     {
         switch (seedingNode.getDepth())
@@ -135,7 +132,7 @@ class TrajectorySeedProducer:
                 const TrajectorySeedHitCandidate& hit1 = trackerRecHits[hitIndicesInTree[parentNode->getIndex()]];
                 const TrajectorySeedHitCandidate& hit2 = currentTrackerHit;
 
-                return pass2HitsCuts(hit1,hit2,trackingAlgorithmId);
+                return pass2HitsCuts(hit1,hit2);
             }
             case 2:
             {
@@ -154,15 +151,21 @@ class TrajectorySeedProducer:
         return true;
     }
 
-    bool pass2HitsCuts(const TrajectorySeedHitCandidate& hit1, const TrajectorySeedHitCandidate& hit2, unsigned int trackingAlgorithmId) const;
+    bool pass2HitsCuts(const TrajectorySeedHitCandidate& hit1, const TrajectorySeedHitCandidate& hit2) const;
 
-
+    //! method tries to insert all hits into the tree structure.
+    /*!
+    \param start index where to begin insertion. Important for recursion. 
+    \param trackerRecHits list of all TrackerRecHits.
+    \param hitIndicesInTree hit indices which translates the tree node to the hits in \e trackerRecHits.
+    \param currentTrackerHit hit which is tested.
+    \return list of hit indices which form a found seed. Returns empty list if no seed was found.
+    */
     virtual std::vector<unsigned int> iterateHits(
             unsigned int start,
             const std::vector<TrajectorySeedHitCandidate>& trackerRecHits,
             std::vector<int> hitIndicesInTree,
-            bool processSkippedHits,
-            unsigned int trackingAlgorithmId
+            bool processSkippedHits
         ) const;
 
     inline bool isHitOnLayer(const TrajectorySeedHitCandidate& trackerRecHit, const TrackingLayer& layer) const
@@ -176,16 +179,22 @@ class TrajectorySeedProducer:
             const GlobalPoint& gpos1, 
             const GlobalPoint& gpos2,
             double error,
-            bool forward,
-            unsigned algo
+            bool forward
     ) const;
 
+    //! method inserts hit into the tree structure at an empty position. 
+    /*!
+    \param trackerRecHits list of all TrackerRecHits.
+    \param hitIndicesInTree hit indices which translates the tree node to the hits in \e trackerRecHits. Empty positions are identified with '-1'.
+    \param node where to look for an empty position. Important for recursive tree traversing (Breadth-first). Starts with the root.
+    \param trackerHit hit which is tested.
+    \return pointer if this hit is inserted at a leaf which means that a seed has been found. Returns 'nullptr' otherwise.
+    */
     const SeedingNode<TrackingLayer>* insertHit(
             const std::vector<TrajectorySeedHitCandidate>& trackerRecHits,
             std::vector<int>& hitIndicesInTree,
             const SeedingNode<TrackingLayer>* node, 
-            unsigned int trackerHit,
-            const unsigned int trackingAlgorithmId
+            unsigned int trackerHit
     ) const;
 
 };

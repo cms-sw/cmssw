@@ -159,7 +159,7 @@ TrajectorySeedProducer::beginRun(edm::Run const&, const edm::EventSetup & es)
 }
 
 bool
-TrajectorySeedProducer::passSimTrackQualityCuts(const SimTrack& theSimTrack, const SimVertex& theSimVertex, unsigned int trackingAlgorithmId) const
+TrajectorySeedProducer::passSimTrackQualityCuts(const SimTrack& theSimTrack, const SimVertex& theSimVertex) const
 {
 
 	//require min pT of the simtrack
@@ -201,7 +201,7 @@ TrajectorySeedProducer::passSimTrackQualityCuts(const SimTrack& theSimTrack, con
 }
 
 bool
-TrajectorySeedProducer::pass2HitsCuts(const TrajectorySeedHitCandidate& hit1, const TrajectorySeedHitCandidate& hit2, unsigned int trackingAlgorithmId) const
+TrajectorySeedProducer::pass2HitsCuts(const TrajectorySeedHitCandidate& hit1, const TrajectorySeedHitCandidate& hit2) const
 {
 	bool compatible=false;
 	if(skipPVCompatibility)
@@ -214,7 +214,7 @@ TrajectorySeedProducer::pass2HitsCuts(const TrajectorySeedHitCandidate& hit1, co
 	    GlobalPoint gpos2 = hit2.globalPosition();
 	    bool forward = hit1.isForward();
 	    double error = std::sqrt(hit1.largerError()+hit2.largerError());
-		compatible = compatibleWithBeamAxis(gpos1,gpos2,error,forward,0);
+		compatible = compatibleWithBeamAxis(gpos1,gpos2,error,forward);
 	}
 	return compatible;
 }
@@ -222,8 +222,7 @@ TrajectorySeedProducer::pass2HitsCuts(const TrajectorySeedHitCandidate& hit1, co
 const SeedingNode<TrackingLayer>* TrajectorySeedProducer::insertHit(
     const std::vector<TrajectorySeedHitCandidate>& trackerRecHits,
     std::vector<int>& hitIndicesInTree,
-    const SeedingNode<TrackingLayer>* node, unsigned int trackerHit,
-    const unsigned int trackingAlgorithmId
+    const SeedingNode<TrackingLayer>* node, unsigned int trackerHit
 ) const
 {
     if (!node->getParent() || hitIndicesInTree[node->getParent()->getIndex()]>=0)
@@ -235,7 +234,7 @@ const SeedingNode<TrackingLayer>* TrajectorySeedProducer::insertHit(
             {
                 return nullptr;
             }
-            if (!passHitTuplesCuts(*node,trackerRecHits,hitIndicesInTree,currentTrackerHit,trackingAlgorithmId))
+            if (!passHitTuplesCuts(*node,trackerRecHits,hitIndicesInTree,currentTrackerHit))
             {
                 return nullptr;
             }
@@ -250,7 +249,7 @@ const SeedingNode<TrackingLayer>* TrajectorySeedProducer::insertHit(
         {
             for (unsigned int ichild = 0; ichild<node->getChildrenSize(); ++ichild)
             {
-                const SeedingNode<TrackingLayer>* seed = insertHit(trackerRecHits,hitIndicesInTree,node->getChild(ichild),trackerHit,trackingAlgorithmId);
+                const SeedingNode<TrackingLayer>* seed = insertHit(trackerRecHits,hitIndicesInTree,node->getChild(ichild),trackerHit);
                 if (seed)
                 {
                     return seed;
@@ -266,8 +265,7 @@ std::vector<unsigned int> TrajectorySeedProducer::iterateHits(
 		unsigned int start,
 		const std::vector<TrajectorySeedHitCandidate>& trackerRecHits,
 		std::vector<int> hitIndicesInTree,
-		bool processSkippedHits,
-		unsigned int trackingAlgorithmId
+		bool processSkippedHits
 	) const
 {
 	for (unsigned int irecHit = start; irecHit<trackerRecHits.size(); ++irecHit)
@@ -287,8 +285,7 @@ std::vector<unsigned int> TrajectorySeedProducer::iterateHits(
 		                inext,
 		                trackerRecHits,
 		                hitIndicesInTree,
-		                false,
-		                trackingAlgorithmId
+		                false
 	                );
 	                if (seedHits.size()>0)
 	                {
@@ -310,7 +307,7 @@ std::vector<unsigned int> TrajectorySeedProducer::iterateHits(
 		const SeedingNode<TrackingLayer>* seedNode = nullptr;
 		for (unsigned int iroot=0; seedNode==nullptr && iroot<_seedingTree.numberOfRoots(); ++iroot)
 		{
-		    seedNode=insertHit(trackerRecHits,hitIndicesInTree,_seedingTree.getRoot(iroot), currentHitIndex,trackingAlgorithmId);
+		    seedNode=insertHit(trackerRecHits,hitIndicesInTree,_seedingTree.getRoot(iroot), currentHitIndex);
 		}
 		if (seedNode)
 		{
@@ -385,7 +382,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 		}
 		const SimVertex& theSimVertex = (*theSimVtx)[vertexIndex];
 
-		if (!this->passSimTrackQualityCuts(theSimTrack,theSimVertex,0))
+		if (!this->passSimTrackQualityCuts(theSimTrack,theSimVertex))
 		{
 			continue;
 			
@@ -434,7 +431,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 		*/
 		
 		
-		std::vector<unsigned int> seedHitNumbers = iterateHits(0,trackerRecHits,hitIndicesInTree,true,0);
+		std::vector<unsigned int> seedHitNumbers = iterateHits(0,trackerRecHits,hitIndicesInTree,true);
 
 		if (seedHitNumbers.size()>0)
 		{
@@ -505,8 +502,7 @@ TrajectorySeedProducer::compatibleWithBeamAxis(
         const GlobalPoint& gpos1, 
         const GlobalPoint& gpos2,
         double error,
-        bool forward,
-        unsigned algo
+        bool forward
     ) const 
 {
 
