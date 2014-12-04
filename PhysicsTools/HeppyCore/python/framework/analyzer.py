@@ -35,7 +35,7 @@ class Analyzer(object):
        	    self.dirName = self.looperName
 	else:
             self.dirName = '/'.join( [self.looperName, self.name] )
-	    os.mkdir( self.dirName )
+            os.mkdir( self.dirName )
 
 
         # this is the main logger corresponding to the looper.
