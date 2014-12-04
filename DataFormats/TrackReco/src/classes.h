@@ -124,11 +124,9 @@ namespace DataFormats_TrackReco {
     reco::DeDxHitInfoRef hitInfoDEDXr;
     reco::DeDxHitInfoRefProd hitInfoDEDXp;
     reco::DeDxHitInfoRefVector hitInfoDEDXv;
-    reco::DeDxHitInfoValueMap hitInfoDEDXvm;
     reco::DeDxHitInfoAss hitInfoDEDXam;
     edm::Wrapper<reco::DeDxHitInfo> hitInfoDEDXW;
     edm::Wrapper<reco::DeDxHitInfoCollection> hitInfoDEDXcW;
-    edm::Wrapper<reco::DeDxHitInfoValueMap> hitInfoDEDXvmW;
     edm::Wrapper<reco::DeDxHitInfoAss> hitInfoDEDXamW;
 
     reco::DeDxHitInfo::DeDxHitInfoContainer hitInfoContainerDEDX;

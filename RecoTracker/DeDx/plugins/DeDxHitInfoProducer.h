@@ -40,30 +40,29 @@ private:
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
   void   makeCalibrationMap(const TrackerGeometry& tkGeom);
-  void   processHit(const TrackingRecHit* recHit, float trackMomentum, float& cosine, reco::DeDxHitInfo& hitDeDxInfo,  LocalPoint HitLocalPos);
+  void   processHit(const TrackingRecHit* recHit, const float trackMomentum, const float cosine, reco::DeDxHitInfo& hitDeDxInfo,  const LocalPoint& hitLocalPos);
 
   // ----------member data ---------------------------
 
   edm::EDGetTokenT<TrajTrackAssociationCollection>   m_trajTrackAssociationTag;
   edm::EDGetTokenT<reco::TrackCollection>  m_tracksTag;
 
-  bool useTrajectory;
-  bool usePixel;
-  bool useStrip;
-  float meVperADCPixel;
-  float meVperADCStrip;
+  const bool useTrajectory;
+  const bool usePixel;
+  const bool useStrip;
+  const float MeVperADCPixel;
+  const float MeVperADCStrip;
 
-  unsigned int minTrackHits;
-  float        minTrackPt;
-  float        maxTrackEta;
+  const unsigned int minTrackHits;
+  const float        minTrackPt;
+  const float        maxTrackEta;
 
-  std::string                       m_calibrationPath;
-  bool                              useCalibration;
-  bool                              shapetest;
+  const std::string                       m_calibrationPath;
+  const bool                              useCalibration;
+  const bool                              shapetest;
 
   std::vector< std::vector<float> > calibGains; 
   unsigned int m_off;
 };
 
 #endif
-

@@ -24,30 +24,27 @@ using namespace reco;
 using namespace std;
 using namespace edm;
 
-DeDxHitInfoProducer::DeDxHitInfoProducer(const edm::ParameterSet& iConfig)
+DeDxHitInfoProducer::DeDxHitInfoProducer(const edm::ParameterSet& iConfig):
+   useTrajectory     ( iConfig.getParameter<bool>    ("useTrajectory")  ),
+   usePixel          ( iConfig.getParameter<bool>    ("usePixel")       ),
+   useStrip          ( iConfig.getParameter<bool>    ("useStrip")       ),
+   MeVperADCPixel    ( iConfig.getParameter<double>  ("MeVperADCPixel") ),
+   MeVperADCStrip    ( iConfig.getParameter<double>  ("MeVperADCStrip") ),
+   minTrackHits      ( iConfig.getParameter<unsigned>("minTrackHits")   ),
+   minTrackPt        ( iConfig.getParameter<double>  ("minTrackPt"  )   ),
+   maxTrackEta       ( iConfig.getParameter<double>  ("maxTrackEta" )   ),
+   m_calibrationPath ( iConfig.getParameter<string>  ("calibrationPath")),
+   useCalibration    ( iConfig.getParameter<bool>    ("useCalibration") ),
+   shapetest         ( iConfig.getParameter<bool>    ("shapeTest")      )
 {
    produces<reco::DeDxHitInfoCollection >();
    produces<reco::DeDxHitInfoAss >();
 
-   minTrackHits        = iConfig.getParameter<unsigned>("minTrackHits");
-   minTrackPt          = iConfig.getParameter<double>  ("minTrackPt"  );
-   maxTrackEta         = iConfig.getParameter<double>  ("maxTrackEta" );
-
    m_tracksTag = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
    m_trajTrackAssociationTag   = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("trajectoryTrackAssociation"));
-   useTrajectory = iConfig.getParameter<bool>("useTrajectory");
-
-   usePixel = iConfig.getParameter<bool>("usePixel"); 
-   useStrip = iConfig.getParameter<bool>("useStrip");
-   meVperADCPixel = iConfig.getParameter<double>("MeVperADCPixel"); 
-   meVperADCStrip = iConfig.getParameter<double>("MeVperADCStrip"); 
-
-   shapetest = iConfig.getParameter<bool>("shapeTest");
-   useCalibration = iConfig.getParameter<bool>("useCalibration");
-   m_calibrationPath = iConfig.getParameter<string>("calibrationPath");
 
    if(!usePixel && !useStrip)
-   edm::LogWarning("DeDxHitsProducer") << "Pixel Hits AND Strip Hits will not be used to estimate dEdx --> BUG, Please Update the config file";
+   edm::LogError("DeDxHitsProducer") << "No Pixel Hits NOR Strip Hits will be saved.  Running this module is useless";
 }
 
 
@@ -76,18 +73,17 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   if(useTrajectory)iEvent.getByToken(m_trajTrackAssociationTag, trajTrackAssociationHandle);
 
   // creates the output collection
-  reco::DeDxHitInfoCollection* dedxHitColl = new reco::DeDxHitInfoCollection;
-  std::auto_ptr<reco::DeDxHitInfoCollection> resultdedxHitColl(dedxHitColl);
+  std::auto_ptr<reco::DeDxHitInfoCollection> resultdedxHitColl(new reco::DeDxHitInfoCollection);
 
   std::vector<int> indices;
 
   TrajTrackAssociationCollection::const_iterator cit;
   if(useTrajectory)cit = trajTrackAssociationHandle->begin();
   for(unsigned int j=0;j<trackCollectionHandle->size();j++){            
-     const reco::TrackRef track = reco::TrackRef( trackCollectionHandle.product(), j );
+     const reco::Track& track = trackCollectionHandle->at(j);
 
      //track selection
-     if(track->pt()<minTrackPt ||  fabs(track->eta())>maxTrackEta ||track->numberOfValidHits()<minTrackHits){
+     if(track.pt()<minTrackPt ||  std::abs(track.eta())>maxTrackEta ||track.numberOfValidHits()<minTrackHits){
         indices.push_back(-1);
         continue;
      }
@@ -98,32 +94,34 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
         const edm::Ref<std::vector<Trajectory> > traj = cit->key; cit++;
         const vector<TrajectoryMeasurement> & measurements = traj->measurements();
         for(vector<TrajectoryMeasurement>::const_iterator it = measurements.begin(); it!=measurements.end(); it++){
-           TrajectoryStateOnSurface trajState=it->updatedState();
+           const TrajectoryStateOnSurface& trajState=it->updatedState();
            if( !trajState.isValid()) continue;
      
-           const TrackingRecHit * recHit=(*it->recHit()).hit();
+           const TrackingRecHit* recHit=(*it->recHit()).hit();
            if(!recHit)continue;
-           LocalVector trackDirection = trajState.localDirection();
-           float cosine = trackDirection.z()/trackDirection.mag();
+           const LocalVector& trackDirection = trajState.localDirection();
+           float cosine = trackDirection.z()/trackDirection.mag();           
+           cosine = std::max(0.00000001f,cosine);//make sure cosine is not 0
 
            processHit(recHit, trajState.localMomentum().mag(), cosine, hitDeDxInfo, trajState.localPosition());
         }
 
      }else{ //assume that the particles trajectory is a straight line originating from the center of the detector  (can be improved)
-        for(unsigned int h=0;h<track->recHitsSize();h++){
-           const TrackingRecHit* recHit = &(*(track->recHit(h)));
+        for(unsigned int h=0;h<track.recHitsSize();h++){
+           const TrackingRecHit* recHit = &(*(track.recHit(h)));
            auto const & thit = static_cast<BaseTrackerRecHit const&>(*recHit);
            if(!thit.isValid())continue;//make sure it's a tracker hit
 
            const GlobalVector& ModuleNormal = recHit->detUnit()->surface().normalVector();         
-           float cosine = (track->px()*ModuleNormal.x()+track->py()*ModuleNormal.y()+track->pz()*ModuleNormal.z())/track->p();
-
-           processHit(recHit, track->p(), cosine, hitDeDxInfo, LocalPoint(0.0,0.0));
+           float cosine = (track.px()*ModuleNormal.x()+track.py()*ModuleNormal.y()+track.pz()*ModuleNormal.z())/track.p();
+           cosine = std::max(0.00000001f,cosine);//make sure cosine is not 0
+ 
+           processHit(recHit, track.p(), cosine, hitDeDxInfo, LocalPoint(0.0,0.0));
         } 
      }
 
      indices.push_back(j);
-     dedxHitColl->push_back(hitDeDxInfo);
+     resultdedxHitColl->push_back(hitDeDxInfo);
   }
   ///////////////////////////////////////
  
@@ -138,7 +136,7 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   iEvent.put(dedxMatch);
 }
 
-void DeDxHitInfoProducer::processHit(const TrackingRecHit* recHit, float trackMomentum, float& cosine, reco::DeDxHitInfo& hitDeDxInfo,  LocalPoint HitLocalPos){
+void DeDxHitInfoProducer::processHit(const TrackingRecHit* recHit, const float trackMomentum, const float cosine, reco::DeDxHitInfo& hitDeDxInfo,  const LocalPoint& hitLocalPos){
       auto const & thit = static_cast<BaseTrackerRecHit const&>(*recHit);
       if(!thit.isValid())return;
 
@@ -149,31 +147,17 @@ void DeDxHitInfoProducer::processHit(const TrackingRecHit* recHit, float trackMo
           if(!usePixel) return;
 
           auto& detUnit     = *(recHit->detUnit());
-          float pathLen     = detUnit.surface().bounds().thickness()/fabs(cosine);
+          float pathLen     = detUnit.surface().bounds().thickness()/std::abs(cosine);
           float chargeAbs   = clus.pixelCluster().charge();
-          reco::DeDxHitInfo::DeDxHitInfoContainer info;
-          info.charge     = chargeAbs;
-          info.pathlength = pathLen;
-          info.detId      = thit.geographicalId();
-          info.localPosX  = HitLocalPos.x();
-          info.localPosY  = HitLocalPos.y();
-          hitDeDxInfo.infos.push_back(info);
-          hitDeDxInfo.pixelClusters.push_back(clus.pixelCluster());
+          hitDeDxInfo.addHit(chargeAbs, pathLen, thit.geographicalId(), hitLocalPos, clus.pixelCluster() );
        }else if(clus.isStrip() && !thit.isMatched()){
           if(!useStrip) return;
 
           auto& detUnit     = *(recHit->detUnit());
           int   NSaturating = 0;
-          float pathLen     = detUnit.surface().bounds().thickness()/fabs(cosine);
+          float pathLen     = detUnit.surface().bounds().thickness()/std::abs(cosine);
           float chargeAbs   = DeDxTools::getCharge(&(clus.stripCluster()),NSaturating, detUnit, calibGains, m_off);
-          reco::DeDxHitInfo::DeDxHitInfoContainer info;
-          info.charge     = chargeAbs;
-          info.pathlength = pathLen;
-          info.detId      = thit.geographicalId();
-          info.localPosX  = HitLocalPos.x();
-          info.localPosY  = HitLocalPos.y();
-          hitDeDxInfo.infos.push_back(info);
-          hitDeDxInfo.stripClusters.push_back(clus.stripCluster());
+          hitDeDxInfo.addHit(chargeAbs, pathLen, thit.geographicalId(), hitLocalPos, clus.stripCluster() );
        }else if(clus.isStrip() && thit.isMatched()){
           if(!useStrip) return;
           const SiStripMatchedRecHit2D* matchedHit=dynamic_cast<const SiStripMatchedRecHit2D*>(recHit);
@@ -181,28 +165,15 @@ void DeDxHitInfoProducer::processHit(const TrackingRecHit* recHit, float trackMo
 
           auto& detUnitM     = *(matchedHit->monoHit().detUnit());
           int   NSaturating = 0;
-          float pathLen     = detUnitM.surface().bounds().thickness()/fabs(cosine);
+          float pathLen     = detUnitM.surface().bounds().thickness()/std::abs(cosine);
           float chargeAbs   = DeDxTools::getCharge(&(matchedHit->monoHit().stripCluster()),NSaturating, detUnitM, calibGains, m_off);
-          reco::DeDxHitInfo::DeDxHitInfoContainer info;
-          info.charge     = chargeAbs;
-          info.pathlength = pathLen;
-          info.detId      = thit.geographicalId();
-          info.localPosX  = HitLocalPos.x();
-          info.localPosY  = HitLocalPos.y();
-          hitDeDxInfo.infos.push_back(info);
-          hitDeDxInfo.stripClusters.push_back(matchedHit->monoHit().stripCluster());
+          hitDeDxInfo.addHit(chargeAbs, pathLen, thit.geographicalId(), hitLocalPos, matchedHit->monoHit().stripCluster() );
 
           auto& detUnitS     = *(matchedHit->stereoHit().detUnit());
           NSaturating = 0;
-          pathLen     = detUnitS.surface().bounds().thickness()/fabs(cosine);
+          pathLen     = detUnitS.surface().bounds().thickness()/std::abs(cosine);
           chargeAbs   = DeDxTools::getCharge(&(matchedHit->stereoHit().stripCluster()),NSaturating, detUnitS, calibGains, m_off);
-          info.charge      = chargeAbs;
-          info.pathlength  = pathLen;
-          info.detId       = thit.geographicalId();
-          info.localPosX   = HitLocalPos.x();
-          info.localPosY   = HitLocalPos.y();
-          hitDeDxInfo.infos.push_back(info);
-          hitDeDxInfo.stripClusters.push_back(matchedHit->stereoHit().stripCluster());
+          hitDeDxInfo.addHit(chargeAbs, pathLen, thit.geographicalId(), hitLocalPos, matchedHit->stereoHit().stripCluster() );          
        }
 }
 
