@@ -27,6 +27,8 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+
 
 // GCT and RCT data formats
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
@@ -35,7 +37,7 @@
 // class declaration
 //
 
-class L1TRCT : public edm::EDAnalyzer {
+class L1TRCT : public DQMEDAnalyzer {
 
 public:
 
@@ -47,20 +49,14 @@ public:
 
 protected:
 // Analyze
- void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c);
 
-// BeginRun
-  void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup);
-
-// BeginJob
- void beginJob(void);
-
-// EndJob
-void endJob(void);
-
+  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
+  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+  virtual void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
+ 
 private:
   // ----------member data ---------------------------
-  DQMStore * dbe;
 
   // trigger type information
   MonitorElement *triggerType_;
@@ -76,7 +72,6 @@ private:
 
   // Region rank
   MonitorElement* rctRegionRank_;
-
 
   MonitorElement* rctOverFlowEtaPhi_;
   MonitorElement* rctTauVetoEtaPhi_;
@@ -99,6 +94,8 @@ private:
   MonitorElement* rctNonIsoEmOccEtaPhi_;
   MonitorElement* rctIsoEmRank_;
   MonitorElement* rctNonIsoEmRank_;
+  MonitorElement* runId_;
+  MonitorElement* lumisecId_;
 
 
   int nev_; // Number of events processed

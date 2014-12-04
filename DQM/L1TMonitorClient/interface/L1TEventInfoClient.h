@@ -32,12 +32,13 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 // forward declarations
 class DQMStore;
 
 // class declaration
-class L1TEventInfoClient: public edm::EDAnalyzer {
+class L1TEventInfoClient: public DQMEDHarvester {
 
 public:
 
@@ -47,31 +48,15 @@ public:
     /// Destructor
     virtual ~L1TEventInfoClient();
 
-private:
-
-    /// begin job
-    void beginJob();
-
-    /// begin run
-    void beginRun(const edm::Run&, const edm::EventSetup&);
-
-    /// begin luminosity block
-    void beginLuminosityBlock(const edm::LuminosityBlock&,
-            const edm::EventSetup&);
-
-    /// analyze
-    void analyze(const edm::Event&, const edm::EventSetup&);
-
-    /// end luminosity block
+protected:
+    
     void
-    endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
-
-    /// end run
-    void endRun(const edm::Run&, const edm::EventSetup&);
+    dqmEndLuminosityBlock(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, const edm::LuminosityBlock&, const edm::EventSetup&);
 
     /// end job
-    void endJob();
+    void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter)override;
 
+    
 private:
 
     /// input parameters
@@ -95,13 +80,13 @@ private:
     void initialize();
 
     /// dump the content of the monitoring elements defined in this module
-    void dumpContentMonitorElements();
+    void dumpContentMonitorElements(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter);
 
     /// book histograms
-    void bookHistograms();
+    void book(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter);
 
     /// read quality test results
-    void readQtResults();
+    void readQtResults(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter);
 
     /// number of L1 trigger systems
     size_t m_nrL1Systems;
@@ -135,7 +120,6 @@ private:
     Float_t m_summarySum;
     std::vector<int> m_summaryContent;
 
-
     /// a summary report
     MonitorElement* m_meReportSummary;
 
@@ -144,12 +128,6 @@ private:
 
     /// report summary map
     MonitorElement* m_meReportSummaryMap;
-
-    //
-
-    DQMStore* m_dbe;
-
-
 };
 
 #endif

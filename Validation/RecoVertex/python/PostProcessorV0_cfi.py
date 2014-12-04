@@ -31,6 +31,5 @@ postProcessorV0 = cms.EDAnalyzer("DQMGenericClient",
        "LamTkFakeVsPt '#Lambda tracking fake rate vs p{T}' LamTkFakeVsPt_num LamFakeVsPt_denom"
    ),
    resolution = cms.vstring(),
-   profile = cms.vstring(),
    outputFileName = cms.untracked.string("")
 )
