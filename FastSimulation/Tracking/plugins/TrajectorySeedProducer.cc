@@ -32,17 +32,12 @@
 
 //Propagator withMaterial
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
-//analyticalpropagator
-//#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 
-//
+#include "FastSimulation/Tracking/plugins/SimTrackIdProducer.h"
 
-//for debug only 
-//#define FAMOS_DEBUG
 
 TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf) :thePropagator(0)
 {  
-
   // The input tag for the beam spot
   theBeamSpot = conf.getParameter<edm::InputTag>("beamSpot");
 
@@ -288,7 +283,7 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf) :t
     
     originRadius = conf.getParameter<std::vector<double> >("originRadius");
     if ( originRadius.size() != seedingAlgo.size() ) 
-      throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
+     throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
 	<< " WARNING : originRadius does not have the proper size "
 	<< std::endl;
     
@@ -315,8 +310,15 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf) :t
       throw cms::Exception("FastSimulation/TrajectorySeedProducer ") 
 	<< " WARNING : zVertexConstraint does not have the proper size "
 	<< std::endl;
-  //removed - }
+    //removed - }
 
+    //collections to read in
+    std::vector<edm::InputTag> defaultSkip;
+    std::vector<edm::InputTag> skipSimTrackIdTags = conf.getUntrackedParameter<std::vector<edm::InputTag> >("skipSimTrackIdTags",defaultSkip);
+    for ( unsigned int k=0; k<skipSimTrackIdTags.size(); ++k ) { 
+       skipSimTrackIdTokens.push_back(consumes<std::vector<int> >(skipSimTrackIdTags[k]));
+    }
+ 
     // consumes
     beamSpotToken = consumes<reco::BeamSpot>(theBeamSpot);
     edm::InputTag _label("famosSimHits");
@@ -368,9 +370,21 @@ TrajectorySeedProducer::beginRun(edm::Run const&, const edm::EventSetup & es) {
   
   // Functions that gets called by framework every event
 void 
-TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {        
+TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
-
+  std::cout << "start seeding" << std::endl;
+   
+  // First, the tracks to be removed
+  std::set<unsigned int> skipSimTrackIds;
+  for ( unsigned int i=0; i<skipSimTrackIdTokens.size(); ++i ) {
+    edm::Handle<std::vector<int> > skipSimTrackIds_temp;
+    e.getByToken(skipSimTrackIdTokens[i],skipSimTrackIds_temp);
+    for ( unsigned int j=0; j<skipSimTrackIds_temp->size(); ++j ) {
+      unsigned int mySimTrackId = (*skipSimTrackIds_temp)[j];
+      skipSimTrackIds.insert((unsigned int)mySimTrackId);
+    } 
+  }
+  
   //  if( seedingAlgo[0] ==  "FourthPixelLessPairs") std::cout << "Seed producer in 4th iteration " << std::endl;
 
 #ifdef FAMOS_DEBUG
@@ -420,10 +434,8 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   edm::Handle<edm::SimVertexContainer> theSimVtx;
   e.getByToken(simVertexToken,theSimVtx);
 
-#ifdef FAMOS_DEBUG
-  std::cout << " Step A: SimTracks found " << theSimTracks->size() << std::endl;
-#endif
-  
+  //std::cout << " Step A: SimTracks found " << theSimTracks->size() << std::endl;
+
   //  edm::Handle<SiTrackerGSRecHit2DCollection> theGSRecHits;
   edm::Handle<SiTrackerGSMatchedRecHit2DCollection> theGSRecHits;
   e.getByToken(recHitToken, theGSRecHits);
@@ -455,20 +467,24 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 #ifdef FAMOS_DEBUG
   std::cout << " Step C: Loop over the RecHits, track by track " << std::endl;
 #endif
-
+  
   // The vector of simTrack Id's carrying GSRecHits
   const std::vector<unsigned> theSimTrackIds = theGSRecHits->ids();
 
+  std::cout << "Total # charged tracks: " << theSimTrackIds.size() << std::endl;
+  std::cout << "# masked tracks: " << skipSimTrackIds.size() << std::endl;
+  int nTracksPass = 0;
+
   // loop over SimTrack Id's
-  for ( unsigned tkId=0;  tkId != theSimTrackIds.size(); ++tkId ) {
+ for ( unsigned i=0;  i != theSimTrackIds.size(); ++i ) {
+   ++nSimTracks;
+   unsigned int simTrackId = theSimTrackIds[i];
+   std::set<unsigned>::iterator iR = skipSimTrackIds.find(simTrackId);
+   if( iR != skipSimTrackIds.end() ) continue;
+   nTracksPass++ ;
+    
 
-#ifdef FAMOS_DEBUG
-    std::cout << "Track number " << tkId << std::endl;
-#endif
-
-    ++nSimTracks;
-    unsigned simTrackId = theSimTrackIds[tkId];
-    const SimTrack& theSimTrack = (*theSimTracks)[simTrackId]; 
+       const SimTrack& theSimTrack = (*theSimTracks)[simTrackId]; 
 #ifdef FAMOS_DEBUG
     std::cout << "Pt = " << std::sqrt(theSimTrack.momentum().Perp2()) 
 	      << " eta " << theSimTrack.momentum().Eta()
@@ -482,10 +498,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     // Check that the sim track comes from the main vertex (loose cut)
     int vertexIndex = theSimTrack.vertIndex();
     const SimVertex& theSimVertex = (*theSimVtx)[vertexIndex]; 
-#ifdef FAMOS_DEBUG
-    std::cout << " o SimTrack " << theSimTrack << std::endl;
-    std::cout << " o SimVertex " << theSimVertex << std::endl;
-#endif
+  
     
     BaseParticlePropagator theParticle = 
       BaseParticlePropagator( 
@@ -507,7 +520,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     SiTrackerGSMatchedRecHit2DCollection::const_iterator iterRecHit1;
     SiTrackerGSMatchedRecHit2DCollection::const_iterator iterRecHit2;
     SiTrackerGSMatchedRecHit2DCollection::const_iterator iterRecHit3;
-
+  
     // Check the number of layers crossed
     unsigned numberOfRecHits = 0;
     TrackerRecHit previousHit, currentHit;
@@ -791,6 +804,8 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     std::auto_ptr<TrajectorySeedCollection> p(output[ialgo]);
     e.put(p,seedingAlgo[ialgo]);
   }
+  std::cout << "# Tracks reconstructed in this iteration: " << nTracksPass << std::endl;
+  std::cout << "end seeding" << std::endl;
 
 }
 
@@ -800,6 +815,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 // but it does not return a pointer (thus avoiding a memory leak)
 // In addition, it's also CPU more efficient, because 
 // ts.localError().matrix() is not copied
+
 void 
 TrajectorySeedProducer::stateOnDet(const TrajectoryStateOnSurface& ts,
 				   unsigned int detid,
@@ -904,5 +920,4 @@ TrajectorySeedProducer::compatibleWithBeamAxis(GlobalPoint& gpos1,
   return false;
 
 }  
-
 

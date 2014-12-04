@@ -22,7 +22,7 @@ muonSeeds.primaryVertices = ['none']
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 muonSeededCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
 muonSeededCandidates.SeedProducer = cms.InputTag("muonSeeds","MuonSeeded")
-muonSeededCandidates.TrackProducers = ['initialStep','lowPtTripletStep','pixelPairStep','detachedTripletStepTracks','mixedTripletStepTracks','pixelLessStepTracks','tobTecStep']
+muonSeededCandidates.TrackProducers = cms.vstring(['initialStep','lowPtTripletStep','pixelPairStep','detachedTripletStepTracks','mixedTripletStepTracks','pixelLessStepTracks','tobTecStep'])
 muonSeededCandidates.MinNumberOfCrossedLayers = 3 # placeholder; how much should it be?
 
 # track producer
@@ -59,7 +59,7 @@ muonSeededTracksInOut = cms.EDProducer("FastTrackMerger", # notice that this is 
                                                                                   cms.InputTag("mixedTripletStepTracks"),     
                                                                                   cms.InputTag("pixelLessStepTracks"),   
                                                                                   cms.InputTag("tobTecStepTracks")),   
-                                  trackAlgo = cms.untracked.uint32(14), # muonSeededStepOutIn
+                                  trackAlgo = cms.untracked.uint32(14), #  muonSeededStepOutIn
                                   MinNumberOfTrajHits = cms.untracked.uint32(5), # placeholder; how much should it be?
                                   MaxLostTrajHits = cms.untracked.uint32(8) # placeholder; how much should it be?
                                   )

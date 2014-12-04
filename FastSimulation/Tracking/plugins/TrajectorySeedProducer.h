@@ -10,6 +10,7 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include <vector>
 #include <string>
@@ -60,6 +61,7 @@ class TrajectorySeedProducer : public edm::EDProducer
   Side setLayerSpecSide(const std::string& layerSpecSide) const;
 
  private:
+  std::vector<edm::EDGetTokenT<std::vector<int> > > skipSimTrackIdTokens;
 
   /// A mere copy (without memory leak) of an existing tracking method
   void stateOnDet(const TrajectoryStateOnSurface& ts,
@@ -87,7 +89,7 @@ class TrajectorySeedProducer : public edm::EDProducer
   std::vector<unsigned> minRecHits;
   edm::InputTag hitProducer;
   edm::InputTag theBeamSpot;
-
+ 
   bool seedCleaning;
   bool rejectOverlaps;
   unsigned int absMinRecHits;
@@ -108,7 +110,7 @@ class TrajectorySeedProducer : public edm::EDProducer
   std::vector<double> originRadius;
   std::vector<double> originHalfLength;
   std::vector<double> originpTMin;
-
+ 
   std::vector<edm::InputTag> primaryVertices;
   std::vector<double> zVertexConstraint;
 
@@ -117,12 +119,13 @@ class TrajectorySeedProducer : public edm::EDProducer
   std::vector<const reco::VertexCollection*> vertices;
   double x0, y0, z0;
 
-  // tokens
+  // tokens 
   edm::EDGetTokenT<reco::BeamSpot> beamSpotToken;
   edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken;
   edm::EDGetTokenT<edm::SimVertexContainer> simVertexToken;
   edm::EDGetTokenT<SiTrackerGSMatchedRecHit2DCollection> recHitToken;
   std::vector<edm::EDGetTokenT<reco::VertexCollection> > recoVertexToken;
+
 };
 
 #endif
