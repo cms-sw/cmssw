@@ -135,7 +135,15 @@ _fromScratchHGCClusterizer_HGCEE = cms.PSet(
         stopAtFirstClusterEncountered = cms.bool(False),
         expectedHadronicResolution = cms.PSet( stochastic = cms.double(70.0),
                                                noise = cms.double(0.0),
-                                               constant = cms.double(1.0) ) ),
+                                               constant = cms.double(1.0) ), 
+        #cluster afterburner
+        useAfterburner = cms.bool(True),
+        coneAngle = cms.double(0.298), # ~17 degrees
+        maxConeDepth = cms.double(60), #cm
+        minECALLayerToCone = cms.uint32(11), # ~9.5 radiation lengths
+        ),
+    
+    #energy calibrations
     emEnergyCalibration  = _HGCEE_EMEnergyCalibrator,
     hadEnergyCalibration = _HGCEE_HADEnergyCalibrator
     

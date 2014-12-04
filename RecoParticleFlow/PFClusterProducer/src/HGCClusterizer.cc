@@ -185,6 +185,11 @@ private:
   std::array<std::vector<ReferenceCountingPointer<BoundDisk> >,3> _plusSurface,_minusSurface;
   std::unique_ptr<PropagatorWithMaterial> _mat_prop;
   
+  // coning afterburner
+  bool _useAfterburner;
+  double _coneAngle, _maxConeDepth;
+  unsigned _minECALLayerToCone;
+
 
   // helper functions for various steps in the clustering
   void build2DCluster(const edm::Handle<reco::PFRecHitCollection>&,
@@ -203,11 +208,17 @@ private:
   // initial EM clustering step (output contains cluster result so far!)
   void trackAssistedClustering(const edm::Handle<reco::PFRecHitCollection>&,
 			       const reco::PFRecHitCollection& hits,
+			       const std::vector<bool>& rechitMask,
 			       std::vector<bool>& rechit_usable,
 			       std::vector<bool>& cluster_usable,
 			       reco::PFClusterCollection& output);
 
-  // run arbor 
+  // coning afterburner
+  void runConingAfterburner(const edm::Handle<reco::PFRecHitCollection>& handle,
+			    const reco::PFRecHitCollection& hits,
+			    const reco::PFCluster& tk_linked_cluster,
+			    std::vector<bool>& rechit_usable,
+			    reco::PFCluster& working_cluster);
 
   // utility
   reco::PFRecHitRef makeRefhit( const edm::Handle<reco::PFRecHitCollection>& h,
@@ -262,6 +273,11 @@ HGCClusterizer::HGCClusterizer(const edm::ParameterSet& conf,
     conf.getParameterSet("trackAssistedClustering");
   // consumes information
   _tracksToken = sumes.consumes<reco::TrackCollection>( tkConf.getParameter<edm::InputTag>("inputTracks") );
+  // coning afterburner
+  _useAfterburner = tkConf.getParameter<bool>("useAfterburner");
+  _coneAngle = tkConf.getParameter<double>("coneAngle");
+  _maxConeDepth = tkConf.getParameter<double>("maxConeDepth");
+  _minECALLayerToCone = tkConf.getParameter<unsigned>("minECALLayerToCone");
   
 }
 
@@ -325,7 +341,7 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
   // use tracking to clean up unclustered rechits
   std::vector<bool> usable_clusters(z_linked_clusters.size(),true);
   if( _useTrackAssistedClustering ) {
-    trackAssistedClustering(input,rechits,usable_rechits,
+    trackAssistedClustering(input,rechits,rechitMask,usable_rechits,
 			    usable_clusters,z_linked_clusters);
   }
   
@@ -568,6 +584,7 @@ linkClustersInLayer(const reco::PFClusterCollection& input_clusters,
 void HGCClusterizer::
 trackAssistedClustering(const edm::Handle<reco::PFRecHitCollection>& hits_handle,
 			const reco::PFRecHitCollection& hits,
+			const std::vector<bool>& rechitMask,
 			std::vector<bool>& rechit_usable,
 			std::vector<bool>& cluster_usable,
 			reco::PFClusterCollection& output) {
@@ -581,10 +598,9 @@ trackAssistedClustering(const edm::Handle<reco::PFRecHitCollection>& hits_handle
   _cluster_kdtree.build(_cluster_nodes,cluster_bounds);
   _cluster_nodes.clear();
   // setup rechits
-  std::vector<bool> dummy(hits.size(),true);
   KDTreeCube hit_bounds = 
     fill_and_bound_kd_tree(hits,
-			   dummy,
+			   rechitMask,
 			   _hit_nodes);
   _hit_kdtree.build(_hit_nodes,hit_bounds);
   _hit_nodes.clear();
@@ -647,6 +663,10 @@ trackAssistedClustering(const edm::Handle<reco::PFRecHitCollection>& hits_handle
 		  for( const auto& hAndF : output[cluster_match->second].recHitFractions() ) {
 		    temp.addRecHitFraction(hAndF);
 		  }
+		  if( _useAfterburner ) {
+		    runConingAfterburner(hits_handle,hits,output[cluster_match->second],
+					 rechit_usable,temp);
+		  }
 		  //std::cout << "adding cluster at: (" << pos.x() << ',' << pos.y() << ',' << pos.z() << ") to cluster!" << std::endl;
 		}
 	      }
@@ -676,4 +696,108 @@ trackAssistedClustering(const edm::Handle<reco::PFRecHitCollection>& hits_handle
   }
   _hit_kdtree.clear();
   _cluster_kdtree.clear();
+}
+
+void HGCClusterizer::
+runConingAfterburner(const edm::Handle<reco::PFRecHitCollection>& handle,
+		     const reco::PFRecHitCollection& hits,
+		     const reco::PFCluster& tk_linked_cluster,
+		     std::vector<bool>& rechit_usable,
+		     reco::PFCluster& working_cluster) {
+  typedef ROOT::Math::PositionVector3D<ROOT::Math::Polar3D<double>, ROOT::Math::DefaultCoordinateSystemTag> PolarPoint;
+  std::vector<KDNode> found;
+  // calculate the bounding cylinder for the cone at this depth
+  // first, get the minimum z of the cluster being used to position the cone
+  std::vector<unsigned> hits_input;
+  const auto& rhfs = tk_linked_cluster.recHitFractions();
+  for( unsigned k = 0; k < rhfs.size(); ++k ) {    
+    auto pos = std::lower_bound(hits_input.begin(),hits_input.end(),k,
+				[&](const unsigned i, const unsigned j) {
+				  return ( std::abs(hits[i].position().z()) < 
+					   std::abs(hits[rhfs[j].recHitRef().key()].position().z())   );
+				});
+    hits_input.insert(pos,rhfs[k].recHitRef().key());
+  }
+
+  if( std::abs(hits[hits_input[0]].position().z()) < _plusSurface[1][0]->position().z() ) {
+    const unsigned layer = HGCEEDetId(hits[hits_input[0]].detId()).layer();
+    if( layer < _minECALLayerToCone ) return;    
+  } 
+  /*
+  for( const unsigned idx : hits_input ) {
+    std::cout << hits[idx].position().z() << ' ';
+  }
+  std::cout << std::endl;
+  */
+  // get all the hits at the same depth
+  auto hits_first_depth = std::equal_range(hits_input.begin(),
+					   hits_input.end(),
+					   hits_input[0],
+					   [&](const unsigned i, const unsigned j) {
+					     return ( std::abs(hits[i].position().z()) < 
+						      std::abs(hits[j].position().z())   );
+					   });
+  const math::XYZVector& cone_axis = tk_linked_cluster.axis();
+  math::XYZPoint cone_vertex_cartesian = tk_linked_cluster.position();
+  PolarPoint cone_vertex_polar;
+  cone_vertex_polar.SetXYZ(cone_vertex_cartesian.x(),
+			   cone_vertex_cartesian.y(),
+			   cone_vertex_cartesian.z());
+  while( std::abs(cone_vertex_polar.z()) > 
+	 std::abs(hits[*hits_first_depth.first].position().z()) ) {
+    cone_vertex_polar = cone_vertex_polar - 10.0*cone_axis.Unit();
+  }
+  cone_vertex_cartesian.SetXYZ(cone_vertex_polar.x(),
+			       cone_vertex_polar.y(),
+			       cone_vertex_polar.z());
+  std::cout << "input cluster barycenter: " << tk_linked_cluster.position() << std::endl;
+  std::cout << "got initial cone vertex position: " << cone_vertex_cartesian << std::endl;
+  // see if the already built cluster exists within the cone as defined by default
+  double max_hit_angle = 0.0;
+  unsigned max_angle_index = std::numeric_limits<unsigned>::max();
+  for(unsigned i = 0; i < hits_input.size(); ++i ) {
+    double angle = (cone_vertex_cartesian - hits[hits_input[i]].position()).theta();
+    if( cone_vertex_cartesian.z() > 0.0f ) angle += M_PI;
+    while( angle > M_PI )  angle -= 2*M_PI;
+    while( angle < -M_PI ) angle += 2*M_PI;
+    if( std::abs(angle) > std::abs(max_hit_angle) ) {
+      max_hit_angle = angle;
+      max_angle_index = i;
+    }
+  }
+  std::cout << "index of max angle: " << max_angle_index << std::endl;
+  std::cout << "maximum angle to cone vertex: " << max_hit_angle << std::endl;
+  std::cout << "cone angle from python: " << _coneAngle << std::endl;
+  max_hit_angle = std::min(std::abs(max_hit_angle),1.0); // restrict to one radian
+  if( max_hit_angle <= 1.0 ) { // less than 1 radian, get rid of crazy
+    // if we have a good angle, create the KD tree bounding region using
+    // the cone radius at max cone depth
+    double radius = _maxConeDepth*std::tan(std::abs(max_hit_angle));
+    double signedConeDepth = ( cone_vertex_cartesian.z() > 0 ? _maxConeDepth : -_maxConeDepth );
+    auto x_rh = minmax(cone_vertex_cartesian.x()+radius,
+		       cone_vertex_cartesian.x()-radius);
+    auto y_rh = minmax(cone_vertex_cartesian.y()+radius,
+		       cone_vertex_cartesian.y()-radius);
+    auto z_rh = minmax(cone_vertex_cartesian.z(),
+		       cone_vertex_cartesian.z()+signedConeDepth);
+    KDTreeCube rechit_searchcube((float)x_rh.first,(float)x_rh.second,
+				 (float)y_rh.first,(float)y_rh.second,
+				 (float)z_rh.first,(float)z_rh.second);
+    _hit_kdtree.search(rechit_searchcube,found);
+    unsigned added_hits = 0;
+    for( const auto& fhit : found ) {
+      if( !rechit_usable[fhit.data] ) continue;
+      double rhangle = (cone_vertex_cartesian - hits[fhit.data].position()).theta();
+      if( cone_vertex_cartesian.z() > 0.0f ) rhangle += M_PI;
+      while( rhangle >  M_PI ) rhangle -= 2*M_PI;
+      while( rhangle < -M_PI ) rhangle += 2*M_PI;
+      if( std::abs(rhangle) < std::abs(max_hit_angle) && 
+	  std::abs(hits[fhit.data].position().z()) < std::abs(cone_vertex_cartesian.z())+_maxConeDepth ) {
+	rechit_usable[fhit.data] = false;
+	working_cluster.addRecHitFraction(reco::PFRecHitFraction(makeRefhit(handle,fhit.data),1.0));
+	++added_hits;
+      }
+    }
+    std::cout << "added: " << added_hits << " hits from coning" << std::endl;
+  }
 }
