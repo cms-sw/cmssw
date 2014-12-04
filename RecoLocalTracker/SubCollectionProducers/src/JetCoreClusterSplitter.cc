@@ -1,4 +1,3 @@
-//#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -12,7 +11,6 @@
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 #include "RecoLocalTracker/Records/interface/TkPixelCPERecord.h"
 
-//#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "DataFormats/GeometryVector/interface/VectorUtil.h"
@@ -21,14 +19,9 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 
-//#include "RecoLocalTracker/SiPixelClusterizer/interface/SiPixelArrayBuffer.h"
-//#include <stack>
-//#include <time.h>
 #include <algorithm>
 #include <vector>
-
-// bool pixelPosSort (const SiPixelCluster &  i, const SiPixelCluster & j) { if
-// (i.x<j.x) return true; return i.y<j.y; }
+#include <utility>
 
 class JetCoreClusterSplitter : public edm::stream::EDProducer<> {
  public:
@@ -168,8 +161,10 @@ void JetCoreClusterSplitter::produce(edm::Event& iEvent,
               if (verbose)
                 std::cout << "Trying to split: charge and deltaR "
                           << aCluster.charge() << " "
-                          << Geom::deltaR(jetDir, clusterDir) << " size x y"
+                          << Geom::deltaR(jetDir, clusterDir) << " size x y "
                           << aCluster.sizeX() << " " << aCluster.sizeY()
+                          << " exp. size (x,y) "
+                          << expSizeX << " " << expSizeY
                           << " detid " << detIt->id() << std::endl;
               if (verbose)
                 std::cout << "jetZOverRho=" << jetZOverRho << std::endl;
@@ -218,6 +213,7 @@ bool JetCoreClusterSplitter::split(
   return (sp.size() > 0);
 }
 
+// order with fast algo and pick first and second instead?
 std::pair<float, float> JetCoreClusterSplitter::closestClusters(
     const std::vector<float>& distanceMap) {
   float minDist = 9e99;
@@ -281,7 +277,7 @@ std::vector<SiPixelCluster> JetCoreClusterSplitter::fittingSplit(
   std::vector<float> oldclx(meanExp);
   std::vector<float> oldcly(meanExp);
   std::vector<SiPixelCluster::Pixel> originalpixels = aCluster.pixels();
-  std::vector<SiPixelCluster::Pixel> pixels;
+  std::vector<std::pair<int, SiPixelCluster::Pixel> > pixels;
   for (unsigned int j = 0; j < originalpixels.size(); j++) {
     int sub = originalpixels[j].adc / chargePerUnit_ * expectedADC /
               centralMIPCharge_;
@@ -289,11 +285,14 @@ std::vector<SiPixelCluster> JetCoreClusterSplitter::fittingSplit(
     int perDiv = originalpixels[j].adc / sub;
     if (verbose)
       std::cout << "Splitting  " << j << "  in [ " << pixels.size() << " , "
-                << pixels.size() + sub << " ] " << std::endl;
+                << pixels.size() + sub << " ], expected numb of clusters: "
+                << meanExp << " original pixel (x,y) "
+                << originalpixels[j].x << " " << originalpixels[j].y
+                << " sub " << sub << std::endl;
     for (int k = 0; k < sub; k++) {
       if (k == sub - 1) perDiv = originalpixels[j].adc - perDiv * k;
-      pixels.push_back(SiPixelCluster::Pixel(originalpixels[j].x,
-                                             originalpixels[j].y, perDiv));
+      pixels.push_back(std::make_pair(j, SiPixelCluster::Pixel(originalpixels[j].x,
+                                                               originalpixels[j].y, perDiv)));
     }
   }
   std::vector<int> clusterForPixel(pixels.size());
@@ -310,19 +309,19 @@ std::vector<SiPixelCluster> JetCoreClusterSplitter::fittingSplit(
   while (!stop && remainingSteps > 0) {
     remainingSteps--;
     // Compute all distances
-    std::vector<std::vector<float> > distanceMapX(pixels.size(),
+    std::vector<std::vector<float> > distanceMapX(originalpixels.size(),
                                                   std::vector<float>(meanExp));
-    std::vector<std::vector<float> > distanceMapY(pixels.size(),
+    std::vector<std::vector<float> > distanceMapY(originalpixels.size(),
                                                   std::vector<float>(meanExp));
-    std::vector<std::vector<float> > distanceMap(pixels.size(),
+    std::vector<std::vector<float> > distanceMap(originalpixels.size(),
                                                  std::vector<float>(meanExp));
-    for (unsigned int j = 0; j < pixels.size(); j++) {
+    for (unsigned int j = 0; j < originalpixels.size(); j++) {
       if (verbose)
-        std::cout << "pixel pos " << j << " " << pixels[j].x << " "
-                  << pixels[j].y << std::endl;
+        std::cout << "Original Pixel pos " << j << " " << pixels[j].second.x << " "
+                  << pixels[j].second.y << std::endl;
       for (unsigned int i = 0; i < meanExp; i++) {
-        distanceMapX[j][i] = 1. * pixels[j].x - clx[i];
-        distanceMapY[j][i] = 1. * pixels[j].y - cly[i];
+        distanceMapX[j][i] = 1. * originalpixels[j].x - clx[i];
+        distanceMapY[j][i] = 1. * originalpixels[j].y - cly[i];
         float dist = 0;
         //				float sizeX=2;
         if (std::abs(distanceMapX[j][i]) > sizeX / 2.) {
@@ -332,7 +331,6 @@ std::vector<SiPixelCluster> JetCoreClusterSplitter::fittingSplit(
           dist +=
               distanceMapX[j][i] / sizeX * 2 * distanceMapX[j][i] / sizeX * 2;
         }
-        //				dist+=1.*distanceMapX[j][i]*distanceMapX[j][i];
 
         if (std::abs(distanceMapY[j][i]) > sizeY / 2.) {
           dist += 1. * (std::abs(distanceMapY[j][i]) - sizeY / 2. + 1.) *
@@ -343,95 +341,104 @@ std::vector<SiPixelCluster> JetCoreClusterSplitter::fittingSplit(
         }
         distanceMap[j][i] = sqrt(dist);
         if (verbose)
-          std::cout << "Cluster " << i << " Pixel " << j
+          std::cout << "Cluster " << i << " Original Pixel " << j
                     << " distances: " << distanceMapX[j][i] << " "
                     << distanceMapY[j][i] << " " << distanceMap[j][i]
                     << std::endl;
       }
     }
-    // Compute scores for sequential addition
+    // Compute scores for sequential addition. The first index is the
+    // distance, in whatever metrics we use, while the second is the
+    // pixel index w.r.t which the distance is computed.
     std::multimap<float, int> scores;
+
     // Using different rankings to improve convergence (as Giulio proposed)
-    //		if(remainingSteps > 70){
     scores = secondDistScore(distanceMap);
-    //		} else { //if(remainingSteps > 40 ) {
-    //			scores=secondDistDiffScore(distanceMap);
-    //		} else {
-    //			scores = distScore(distanceMap);
-    //		}
 
     // Iterate starting from the ones with furthest second best clusters, i.e.
     // easy choices
     std::vector<float> weightOfPixel(pixels.size());
     for (std::multimap<float, int>::iterator it = scores.begin();
          it != scores.end(); it++) {
-      int j = it->second;
+      int pixel_index = it->second;
       if (verbose)
-        std::cout << "Pixel " << j << " with score " << it->first << std::endl;
+        std::cout << "Original Pixel " << pixel_index << " with score " << it->first << std::endl;
       // find cluster that is both close and has some charge still to assign
-      float maxEst = 0;
-      int cl = -1;
-      for (unsigned int i = 0; i < meanExp; i++) {
-        //				float
-        //nsig=(cls[i]*cls[i]-expectedADC*expectedADC)/2./(expectedADC*0.2);
-        ////20% uncertainty? realistic from Landau?
-        float nsig =
-            (cls[i] - expectedADC) /
-            (expectedADC *
-             fractionalWidth_);  // 20% uncertainty? realistic from Landau?
-        float clQest = 1. / (1. + exp(nsig)) + 1e-6;  // 1./(1.+exp(x*x-3*3))
-        float clDest = 1. / (distanceMap[j][i] + 0.05);
+      int subpixel_counter = 0;
+      for (auto subpixel = pixels.begin(); subpixel != pixels.end();
+           ++subpixel, ++subpixel_counter) {
+        if (subpixel->first > pixel_index) {
+          break;
+        } else if (subpixel->first != pixel_index) {
+          continue;
+        } else {
+          float maxEst = 0;
+          int cl = -1;
+          for (unsigned int subcluster_index = 0;
+               subcluster_index < meanExp; subcluster_index++) {
+            float nsig =
+                (cls[subcluster_index] - expectedADC) /
+                (expectedADC *
+                 fractionalWidth_);  // 20% uncertainty? realistic from Landau?
+            float clQest = 1. / (1. + exp(nsig)) + 1e-6;  // 1./(1.+exp(x*x-3*3))
+            float clDest = 1. / (distanceMap[pixel_index][subcluster_index] + 0.05);
 
-        if (verbose)
-          std::cout << " Q: " << clQest << " D: " << clDest << " "
-                    << distanceMap[j][i] << std::endl;
-        float est = clQest * clDest;
-        if (est > maxEst) {
-          cl = i;
-          maxEst = est;
+            if (verbose)
+              std::cout << " Q: " << clQest << " D: " << clDest << " "
+                        << distanceMap[pixel_index][subcluster_index] << std::endl;
+            float est = clQest * clDest;
+            if (est > maxEst) {
+              cl = subcluster_index;
+              maxEst = est;
+            }
+          }
+          cls[cl] += subpixel->second.adc;
+          clusterForPixel[subpixel_counter] = cl;
+          weightOfPixel[subpixel_counter] = maxEst;
+          if (verbose)
+            std::cout << "Pixel weight j cl " << weightOfPixel[subpixel_counter]
+                      << " " << subpixel_counter
+                      << " " << cl << std::endl;
         }
       }
-      cls[cl] += pixels[j].adc;
-      clusterForPixel[j] = cl;
-      weightOfPixel[j] = maxEst;
-      if (verbose)
-        std::cout << "Pixel j weight " << weightOfPixel[j] << " " << j
-                  << std::endl;
     }
     // Recompute cluster centers
     stop = true;
-    for (unsigned int i = 0; i < meanExp; i++) {
-      if (std::abs(clx[i] - oldclx[i]) > 0.01) stop = false;  // still moving
-      if (std::abs(cly[i] - oldcly[i]) > 0.01) stop = false;
-      oldclx[i] = clx[i];
-      oldcly[i] = cly[i];
-      clx[i] = 0;
-      cly[i] = 0;
-      cls[i] = 1e-99;
+    for (unsigned int subcluster_index = 0;
+         subcluster_index < meanExp; subcluster_index++) {
+      if (std::abs(clx[subcluster_index] - oldclx[subcluster_index]) > 0.01)
+        stop = false;  // still moving
+      if (std::abs(cly[subcluster_index] - oldcly[subcluster_index]) > 0.01)
+        stop = false;
+      oldclx[subcluster_index] = clx[subcluster_index];
+      oldcly[subcluster_index] = cly[subcluster_index];
+      clx[subcluster_index] = 0;
+      cly[subcluster_index] = 0;
+      cls[subcluster_index] = 1e-99;
     }
-    for (unsigned int j = 0; j < pixels.size(); j++) {
-      if (clusterForPixel[j] < 0) continue;
+    for (unsigned int pixel_index = 0;
+         pixel_index < pixels.size(); pixel_index++) {
+      if (clusterForPixel[pixel_index] < 0) continue;
       if (verbose)
-        std::cout << "x " << pixels[j].x << " * " << pixels[j].adc << " * "
-                  << weightOfPixel[j] << std::endl;
-      clx[clusterForPixel[j]] += pixels[j].x * pixels[j].adc;
-      cly[clusterForPixel[j]] += pixels[j].y * pixels[j].adc;
-      cls[clusterForPixel[j]] += pixels[j].adc;
-      //			std::cout << "update cluster " <<
-      //clusterForPixel[j] << " x,y " << clx[clusterForPixel[j]] << " " <<
-      //cly[clusterForPixel[j]] <<  "weight x,y " << cls[clusterForPixel[j]] <<
-      //" " << clx[clusterForPixel[j]]/cls[clusterForPixel[j]] << " " <<
-      //cly[clusterForPixel[j]]/cls[clusterForPixel[j]] <<std::endl;
+        std::cout << "j " << pixel_index << " x " << pixels[pixel_index].second.x << " * y "
+                  << pixels[pixel_index].second.y << " * ADC "
+                  << pixels[pixel_index].second.adc << " * W "
+                  << weightOfPixel[pixel_index] << std::endl;
+      clx[clusterForPixel[pixel_index]] += pixels[pixel_index].second.x * pixels[pixel_index].second.adc;
+      cly[clusterForPixel[pixel_index]] += pixels[pixel_index].second.y * pixels[pixel_index].second.adc;
+      cls[clusterForPixel[pixel_index]] += pixels[pixel_index].second.adc;
     }
-    for (unsigned int i = 0; i < meanExp; i++) {
-      if (cls[i] != 0) {
-        clx[i] /= cls[i];
-        cly[i] /= cls[i];
+    for (unsigned int subcluster_index = 0;
+         subcluster_index < meanExp; subcluster_index++) {
+      if (cls[subcluster_index] != 0) {
+        clx[subcluster_index] /= cls[subcluster_index];
+        cly[subcluster_index] /= cls[subcluster_index];
       }
       if (verbose)
-        std::cout << "Center for cluster " << i << " x,y " << clx[i] << " "
-                  << cly[i] << std::endl;
-      cls[i] = 0;
+        std::cout << "Center for cluster " << subcluster_index << " x,y "
+                  << clx[subcluster_index] << " "
+                  << cly[subcluster_index] << std::endl;
+      cls[subcluster_index] = 0;
     }
   }
   if (verbose) std::cout << "maxstep " << remainingSteps << std::endl;
@@ -440,17 +447,32 @@ std::vector<SiPixelCluster> JetCoreClusterSplitter::fittingSplit(
   for (int cl = 0; cl < (int)meanExp; cl++) {
     for (unsigned int j = 0; j < pixels.size(); j++) {
       if (clusterForPixel[j] == cl and
-          pixels[j].adc != 0) {  // for each pixel of cluster cl find the other
-                                 // pixels with same x,y and accumulate+reset
-                                 // their adc
+          pixels[j].second.adc != 0) {  // for each pixel of cluster
+                                        // cl find the other pixels
+                                        // with same x,y and
+                                        // accumulate+reset their adc
         for (unsigned int k = j + 1; k < pixels.size(); k++) {
-          if (pixels[k].adc != 0 and pixels[k].x == pixels[j].x and
-              pixels[k].y == pixels[j].y) {
-            pixels[j].adc += pixels[k].adc;
-            pixels[k].adc = 0;
+          if (pixels[k].second.adc != 0
+              and pixels[k].second.x == pixels[j].second.x
+              and pixels[k].second.y == pixels[j].second.y
+              and clusterForPixel[k] == cl) {
+            if (verbose)
+              std::cout << "Resetting all sub-pixel for location "
+                        << pixels[k].second.x << ", " << pixels[k].second.y
+                        << " at index " << k << " associated to cl "
+                        << clusterForPixel[k] << std::endl;
+            pixels[j].second.adc += pixels[k].second.adc;
+            pixels[k].second.adc = 0;
           }
         }
-        pixelsForCl[cl].push_back(pixels[j]);
+        for (unsigned int p = 0; p < pixels.size(); ++p)
+          std::cout << "index, x, y, ADC: " << p << ", "
+                    << pixels[p].second.x << ", " << pixels[p].second.y
+                    << ", " << pixels[p].second.adc
+                    << " associated to cl " << clusterForPixel[p] << std::endl;
+        std::cout << "Adding pixel " << pixels[j].second.x << ", " << pixels[j].second.y
+                  << " to cluster " << cl << std::endl;
+        pixelsForCl[cl].push_back(pixels[j].second);
       }
     }
   }
@@ -460,28 +482,22 @@ std::vector<SiPixelCluster> JetCoreClusterSplitter::fittingSplit(
   //>(512,std::vector<SiPixelCluster::Pixel *>(512,0)));
 
   for (int cl = 0; cl < (int)meanExp; cl++) {
-    SiPixelCluster* cluster = 0;
     if (verbose) std::cout << "Pixels of cl " << cl << " ";
     for (unsigned int j = 0; j < pixelsForCl[cl].size(); j++) {
+        SiPixelCluster::PixelPos newpix(pixelsForCl[cl][j].x,
+                                        pixelsForCl[cl][j].y);
       if (verbose)
         std::cout << pixelsForCl[cl][j].x << "," << pixelsForCl[cl][j].y << "|";
-      if (cluster) {
-        SiPixelCluster::PixelPos newpix(pixelsForCl[cl][j].x,
-                                        pixelsForCl[cl][j].y);
-        cluster->add(newpix, pixelsForCl[cl][j].adc);
+      if (j==0) {
+        output.emplace_back(newpix, pixelsForCl[cl][j].adc);
       } else {
-        SiPixelCluster::PixelPos newpix(pixelsForCl[cl][j].x,
-                                        pixelsForCl[cl][j].y);
-        cluster = new SiPixelCluster(
-            newpix, pixelsForCl[cl][j].adc);  // create protocluster
+        output.back().add(newpix, pixelsForCl[cl][j].adc);
       }
     }
     if (verbose) std::cout << std::endl;
-    if (cluster) {
-      if (forceXError_ > 0) cluster->setSplitClusterErrorX(forceXError_);
-      if (forceYError_ > 0) cluster->setSplitClusterErrorY(forceYError_);
-      output.push_back(*cluster);
-      delete cluster;
+    if (pixelsForCl[cl].size() > 0) {
+      if (forceXError_ > 0) output.back().setSplitClusterErrorX(forceXError_);
+      if (forceYError_ > 0) output.back().setSplitClusterErrorY(forceYError_);
     }
   }
   //	if(verbose)	std::cout << "Weights" << std::endl;
