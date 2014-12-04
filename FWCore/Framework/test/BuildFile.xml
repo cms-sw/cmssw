@@ -19,7 +19,7 @@
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/ParameterSet"/>
 </library>
-<library   file="stubs/TestTBBTasksAnalyzer.cc" name="TestTBBTasksAnalyzer">
+<library   file="stubs/TestTBBTasksAnalyzer.cc,stubs/TestNThreadsChecker.cc" name="TestTBBTasksAnalyzer">
   <flags   EDM_PLUGIN="1"/>
   <use   name="tbb"/>
   <use   name="DataFormats/Common"/>
