@@ -49,11 +49,10 @@ namespace edm {
       
       RetrievedDataMap m_retrievedDataMap;
       std::vector<eventsetup::EventSetupRecordKey> m_recordKeys;
-      bool m_printProviders;
-      
-      bool m_checkDuringBeginRun;
-      bool m_checkDuringBeginLumi;
-      bool m_checkDuringEvent;
+      const bool m_printProviders;
+      const bool m_checkDuringBeginRun;
+      const bool m_checkDuringBeginLumi;
+      const bool m_checkDuringEvent;
       
    };
 //
@@ -141,6 +140,7 @@ namespace edm {
       m_recordKeys.clear();
       iES.fillAvailableRecordKeys(m_recordKeys);
       
+      std::unique_ptr<LogSystem> msg;
       for(std::vector<eventsetup::EventSetupRecordKey>::const_iterator it = m_recordKeys.begin(), itEnd = m_recordKeys.end();
           it != itEnd;
           ++it) {
@@ -171,21 +171,21 @@ namespace edm {
          }
          
          for(std::map<eventsetup::DataKey,bool>::iterator itDatum = retrievedData.second.second.begin(), itDatumEnd = retrievedData.second.second.end();
-             itDatum != itDatumEnd;
-             ++itDatum) {
+            itDatum != itDatumEnd;
+            ++itDatum) {
             bool wasGotten = r->wasGotten(itDatum->first);
-            //std::cout <<"     "<<itDatum->first.type().name()<<" "<<wasGotten<<std::endl;
-            if(wasGotten != itDatum->second) {
+            if (wasGotten != itDatum->second) {
+               if (not msg)
+                  msg.reset(new LogSystem("ESContent"));
+               else
+                  *msg << "\n";
                itDatum->second = wasGotten;
-               if(m_printProviders) {
+               *msg << "Retrieved> record:" << it->name() << " data:" << itDatum->first.type().name() << " '" << itDatum->first.name().value() << "'";
+               if (m_printProviders) {
                   const edm::eventsetup::ComponentDescription* d = r->providerDescription(itDatum->first);
-                  assert(0!=d);
-                  edm::LogSystem("PrintEventSetupDataRetrieval")<<"Retrieved> Record:"<<it->name()<<" data:"<<itDatum->first.type().name()<<" '"<<itDatum->first.name().value()
-                  <<"' provider:"<<d->type_<<" '"<<d->label_<<"'";
-               } else {
-                  edm::LogSystem("PrintEventSetupDataRetrieval")<<"Retrieved> Record:"<<it->name()<<" data:"<<itDatum->first.type().name()<<" '"<<itDatum->first.name().value()<<"'";
+                  assert(nullptr != d);
+                  *msg << " provider:" << d->type_ << " '" << d->label_ << "'";
                }
-               //std::cout <<"CHANGED"<<std::endl;
             }
          }
       }

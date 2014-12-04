@@ -79,7 +79,7 @@ electronCut = electronGsfCut
 ### Electron selection
 
 # Signal b-tagged jet selection
-bTagCut = 'bDiscriminator("combinedSecondaryVertexBJetTags") > 0.679'
+bTagCut = 'bDiscriminator("combinedInclusiveSecondaryVertexV2BJetTags") > 0.679'
 
 
 ### Trigger matching
