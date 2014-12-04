@@ -161,8 +161,8 @@ akVs1PFpatJetsWithBtagging = patJets.clone(jetSource = cms.InputTag("akVs1PFJets
         addGenJetMatch = True,
         embedGenJetMatch = True,
         embedGenPartonMatch = True,
-        embedCaloTowers = False,
-        embedPFCandidates = True
+        # embedCaloTowers = False,
+        # embedPFCandidates = True
         )
 
 akVs1PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akVs1PFpatJetsWithBtagging"),
@@ -216,7 +216,7 @@ akVs1PFJetSequence_data = cms.Sequence(akVs1PFcorr
                                                     akVs1PFJetAnalyzer
                                                     )
 
-akVs1PFJetSequence_jec = akVs1PFJetSequence_mc
-akVs1PFJetSequence_mix = akVs1PFJetSequence_mc
+akVs1PFJetSequence_jec = cms.Sequence(akVs1PFJetSequence_mc)
+akVs1PFJetSequence_mix = cms.Sequence(akVs1PFJetSequence_mc)
 
 akVs1PFJetSequence = cms.Sequence(akVs1PFJetSequence_mc)

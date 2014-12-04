@@ -160,8 +160,8 @@ ALGO_SUB_RADIUS_OBJECT_patJetsWithBtagging = patJets.clone(jetSource = cms.Input
         addGenJetMatch = ISMC,
         embedGenJetMatch = ISMC,
         embedGenPartonMatch = ISMC,
-        embedCaloTowers = False,
-        embedPFCandidates = True
+        # embedCaloTowers = False,
+        # embedPFCandidates = True
         )
 
 ALGO_SUB_RADIUS_OBJECT_JetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("ALGO_SUB_RADIUS_OBJECT_patJetsWithBtagging"),
@@ -215,7 +215,7 @@ ALGO_SUB_RADIUS_OBJECT_JetSequence_data = cms.Sequence(ALGO_SUB_RADIUS_OBJECT_co
                                                     ALGO_SUB_RADIUS_OBJECT_JetAnalyzer
                                                     )
 
-ALGO_SUB_RADIUS_OBJECT_JetSequence_jec = ALGO_SUB_RADIUS_OBJECT_JetSequence_mc
-ALGO_SUB_RADIUS_OBJECT_JetSequence_mix = ALGO_SUB_RADIUS_OBJECT_JetSequence_mc
+ALGO_SUB_RADIUS_OBJECT_JetSequence_jec = cms.Sequence(ALGO_SUB_RADIUS_OBJECT_JetSequence_mc)
+ALGO_SUB_RADIUS_OBJECT_JetSequence_mix = cms.Sequence(ALGO_SUB_RADIUS_OBJECT_JetSequence_mc)
 
 ALGO_SUB_RADIUS_OBJECT_JetSequence = cms.Sequence(ALGO_SUB_RADIUS_OBJECT_JetSequence_SAMPLE_)

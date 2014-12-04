@@ -37,8 +37,8 @@ akPu3PFpatJets = patJets.clone(jetSource = cms.InputTag("akPu3PFJets"),
                                                addGenJetMatch      = True,
                                                embedGenJetMatch    = True,
                                                embedGenPartonMatch = True,
-                                               embedCaloTowers     = False,
-                                               embedPFCandidates = False
+                                               # embedCaloTowers     = False,
+                                               # embedPFCandidates = False
 				            )
 
 akPu3PFJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akPu3PFpatJets"),
@@ -73,8 +73,8 @@ akPu3PFJetSequence_data = cms.Sequence(akPu3PFcorr
                                                     akPu3PFJetAnalyzer
                                                     )
 
-akPu3PFJetSequence_jec = akPu3PFJetSequence_mc
-akPu3PFJetSequence_mix = akPu3PFJetSequence_mc
+akPu3PFJetSequence_jec = cms.Sequence(akPu3PFJetSequence_mc)
+akPu3PFJetSequence_mix = cms.Sequence(akPu3PFJetSequence_mc)
 
 akPu3PFJetSequence = cms.Sequence(akPu3PFJetSequence_jec)
 akPu3PFJetAnalyzer.genPtMin = cms.untracked.double(1)

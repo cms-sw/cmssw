@@ -7,7 +7,7 @@ from RecoHI.HiEgammaAlgos.HiEgammaIsolation_cff import *
 makeHeavyIonPhotons = cms.Sequence(
     # reco pre-production
     hiEgammaIsolationSequence *
-    patPhotonIsolation *
+    # patPhotonIsolation *
     # pat and HI specifics    
     photonMatch *
     # object production

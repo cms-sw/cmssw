@@ -37,8 +37,8 @@ akVs1CalopatJets = patJets.clone(jetSource = cms.InputTag("akVs1CaloJets"),
                                                addGenJetMatch      = True,
                                                embedGenJetMatch    = True,
                                                embedGenPartonMatch = True,
-                                               embedCaloTowers     = False,
-                                               embedPFCandidates = False
+                                               # embedCaloTowers     = False,
+                                               # embedPFCandidates = False
 				            )
 
 akVs1CaloJetAnalyzer = inclusiveJetAnalyzer.clone(jetTag = cms.InputTag("akVs1CalopatJets"),
@@ -73,7 +73,7 @@ akVs1CaloJetSequence_data = cms.Sequence(akVs1Calocorr
                                                     akVs1CaloJetAnalyzer
                                                     )
 
-akVs1CaloJetSequence_jec = akVs1CaloJetSequence_mc
-akVs1CaloJetSequence_mix = akVs1CaloJetSequence_mc
+akVs1CaloJetSequence_jec = cms.Sequence(akVs1CaloJetSequence_mc)
+akVs1CaloJetSequence_mix = cms.Sequence(akVs1CaloJetSequence_mc)
 
 akVs1CaloJetSequence = cms.Sequence(akVs1CaloJetSequence_mix)
