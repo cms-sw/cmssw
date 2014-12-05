@@ -456,7 +456,7 @@ linkClustersInLayer(const reco::PFClusterCollection& input_clusters,
     DetId seedid = input_clusters[i].seed();
     switch( seedid.subdetId() ) {
     case HGCEE:
-      moliere_radius = _em_profile(HGCEEDetId(seedid).layer());
+      moliere_radius = std::max((double)_moliere_radii[0],_em_profile(HGCEEDetId(seedid).layer()));
       break;
     case HGCHEF:
       moliere_radius = _moliere_radii[1];
