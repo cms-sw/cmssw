@@ -249,7 +249,7 @@ else
     mkdir -p ExtendedOfflineValidation_Images
 fi
 
-rfcp .oO[extendeValScriptPath]Oo. .
+rfcp .oO[extendedValScriptPath]Oo. .
 rfcp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/PlotAlignmentValidation.C .
 root -x -b -q -l TkAlExtendedOfflineValidation.C
 rfmkdir -p .oO[datadir]Oo./ExtendedOfflineValidation_Images

@@ -276,10 +276,10 @@ def createMergeScript( path, validations ):
                 comparisonLists[ validationName ] = [ validation ]
 
     if "OfflineValidation" in comparisonLists:
-        repMap["extendeValScriptPath"] = \
+        repMap["extendedValScriptPath"] = \
             os.path.join(path, "TkAlExtendedOfflineValidation.C")
         createExtendedValidationScript(comparisonLists["OfflineValidation"],
-                                       repMap["extendeValScriptPath"],
+                                       repMap["extendedValScriptPath"],
                                        "OfflineValidation")
         repMap["RunExtendedOfflineValidation"] = \
             replaceByMap(configTemplates.extendedValidationExecution, repMap)
@@ -335,7 +335,7 @@ def createParallelMergeScript( path, validations ):
                 comparisonLists[ validationName ] = [ validation ]
 
     if "OfflineValidationParallel" in comparisonLists:
-        repMap["extendeValScriptPath"] = os.path.join(path, "TkAlExtendedOfflineValidation.C")
+        repMap["extendedValScriptPath"] = os.path.join(path, "TkAlExtendedOfflineValidation.C")
         repMap["mergeOfflineParJobsScriptPath"] = os.path.join(path, "TkAlOfflineJobsMerge.C")
         createOfflineJobsMergeScript( comparisonLists["OfflineValidationParallel"],
                                       repMap["mergeOfflineParJobsScriptPath"] )
@@ -380,8 +380,16 @@ def createParallelMergeScript( path, validations ):
             comparisonLists["OfflineValidationParallel"].extend(comparisonLists["OfflineValidation"])
             del comparisonLists["OfflineValidation"]
         createExtendedValidationScript( comparisonLists["OfflineValidationParallel"],
-                                        repMap["extendeValScriptPath"],
+                                        repMap["extendedValScriptPath"],
                                         "OfflineValidationParallel")
+
+    if "TrackSplittingValidation" in comparisonLists:
+        repMap["trackSplitPlotScriptPath"] = \
+            os.path.join(path, "TkAlTrackSplitPlot.C")
+        createTrackSplitPlotScript(comparisonLists["TrackSplittingValidation"],
+                                       repMap["trackSplitPlotScriptPath"] )
+        repMap["RunTrackSplitPlot"] = \
+            replaceByMap(configTemplates.trackSplitPlotExecution, repMap)
 
     repMap["CompareAlignments"] = "#run comparisons"
     for validationId in comparisonLists:
