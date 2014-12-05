@@ -205,10 +205,6 @@ if __name__ == '__main__':
     	    cfg.config.components=comp
             events_class = cfg.config.events_class
 
-    looper = Looper( 'Loop', comp,
-                     cfg.config.sequence,
-                     cfg.config.services,
-                     events_class, 
-                     nPrint = 5)
+    looper = Looper( 'Loop', cfg.config,nPrint = 5)
     looper.loop()
     looper.write()
