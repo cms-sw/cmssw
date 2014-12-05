@@ -46,7 +46,8 @@ env
 # ulimit -v 3000000 # NO
 echo 'copying job dir to worker'
 ###cd $CMSSW_BASE/src
-eval `scramv1 ru -sh`
+cmsenv
+#eval `scramv1 ru -sh`
 # cd $LS_SUBCWD
 # eval `scramv1 ru -sh`
 ##cd -
@@ -54,10 +55,10 @@ eval `scramv1 ru -sh`
 ls
 echo `find . -type d | grep /`
 echo 'running'
-python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck
+python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck >& local.output
 echo
 echo 'sending the job directory back'
-cp -r Loop/* $LS_SUBCWD 
+echo cp -r Loop/* $LS_SUBCWD 
 """
    return script
 
