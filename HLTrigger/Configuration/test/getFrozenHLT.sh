@@ -2,7 +2,7 @@
 
 # ConfDB configurations to use
 TABLES="Fake Fake"
-HLT_Fake="/dev/CMSSW_7_2_1/Fake"
+HLT_Fake="/dev/CMSSW_7_3_0/Fake"
 
 # print extra messages ?
 VERBOSE=false
