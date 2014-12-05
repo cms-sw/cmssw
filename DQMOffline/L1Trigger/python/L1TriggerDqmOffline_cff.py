@@ -66,7 +66,6 @@ l1TriggerOnline = cms.Sequence(
                                     
 l1TriggerOffline = cms.Sequence(
                                 l1TriggerOnline
-                                 * l1TriggerRecoDQM
                                  * dqmEnvL1TriggerReco
                                 )
  
@@ -121,7 +120,6 @@ l1TriggerDqmOfflineClient = cms.Sequence(
 #
 
 #l1TriggerOffline.remove(l1TriggerOnline)
-#l1TriggerOffline.remove(l1TriggerRecoDQM)
 
 
 # l1tMonitorOnline sequence, defined in DQM/L1TMonitor/python/L1TMonitor_cff.py
