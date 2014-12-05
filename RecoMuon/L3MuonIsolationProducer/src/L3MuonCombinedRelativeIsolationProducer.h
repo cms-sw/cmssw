@@ -33,7 +33,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
   /// Produce isolation maps
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
 

@@ -120,11 +120,6 @@ void L2MuonIsolationProducer::fillDescriptions(edm::ConfigurationDescriptions& d
   descriptions.add("hltL2MuonIsolations", desc);
 }
 
-///beginJob
-void L2MuonIsolationProducer::beginJob(){
-
-}
-
 /// build deposits
 void L2MuonIsolationProducer::produce(Event& event, const EventSetup& eventSetup){
   std::string metname = "Muon|RecoMuon|L2MuonIsolationProducer";

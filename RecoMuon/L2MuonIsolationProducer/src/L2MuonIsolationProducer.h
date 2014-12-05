@@ -32,11 +32,8 @@ class L2MuonIsolationProducer : public edm::stream::EDProducer<> {
   /// ParameterSet descriptions
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
-  /// setup the job  
-  virtual void beginJob();
-
   /// Produce isolation maps
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
   // ex virtual void reconstruct();
 
  private:

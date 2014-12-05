@@ -37,7 +37,7 @@ class L2MuonProducer : public edm::stream::EDProducer<> {
   virtual ~L2MuonProducer(); 
   
   /// reconstruct muons
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
     
  private:
 
