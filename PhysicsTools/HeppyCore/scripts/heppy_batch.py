@@ -32,6 +32,36 @@ def split(comps):
     return splitComps
 
 
+def batchScriptPISA( index, remoteDir=''):
+   '''prepare the LSF version of the batch script, to run on LSF'''
+   script = """#!/bin/bash
+#BSUB -q cms
+echo 'PWD:'
+pwd
+export VO_CMS_SW_DIR=/cvmfs/cms.cern.ch
+source $VO_CMS_SW_DIR/cmsset_default.sh
+echo 'environment:'
+echo
+env
+# ulimit -v 3000000 # NO
+echo 'copying job dir to worker'
+###cd $CMSSW_BASE/src
+eval `scramv1 ru -sh`
+# cd $LS_SUBCWD
+# eval `scramv1 ru -sh`
+##cd -
+##cp -rf $LS_SUBCWD .
+ls
+echo `find . -type d | grep /`
+echo 'running'
+python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck
+echo
+echo 'sending the job directory back'
+cp -r Loop/* $LS_SUBCWD 
+"""
+   return script
+
+
 def batchScriptCERN( index, remoteDir=''):
    '''prepare the LSF version of the batch script, to run on LSF'''
    script = """#!/bin/bash
@@ -182,14 +212,16 @@ class MyBatchManager( BatchManager ):
            scriptFile.write( batchScriptPSI ( value, jobDir, storeDir ) ) # storeDir not implemented at the moment
        elif mode == 'LOCAL':
            scriptFile.write( batchScriptLocal( storeDir, value) )  # watch out arguments are swapped (although not used)
+       elif mode == 'PISA' :
+	   scriptFile.write( batchScriptPISA( storeDir, value) ) 	
        scriptFile.close()
        os.system('chmod +x %s' % scriptFileName)
        
        shutil.copyfile(cfgFileName, jobDir+'/pycfg.py')
-       jobConfig = copy.deepcopy(config)
-       jobConfig.components = [ components[value] ]
+#      jobConfig = copy.deepcopy(config)
+#      jobConfig.components = [ components[value] ]
        cfgFile = open(jobDir+'/config.pck','w')
-       pickle.dump( jobConfig, cfgFile )
+       pickle.dump(  components[value] , cfgFile )
        # pickle.dump( cfo, cfgFile )
        cfgFile.close()
 
