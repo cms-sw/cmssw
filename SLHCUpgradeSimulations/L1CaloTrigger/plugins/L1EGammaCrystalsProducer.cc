@@ -239,8 +239,8 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       float totalEnergy = 0.;
       float ECalIsolation = 0.;
       float ECalPileUpEnergy = 0.;
-      float upperSideLobeEnergy = 0.;
-      float lowerSideLobeEnergy = 0.;
+      float upperSideLobePt = 0.;
+      float lowerSideLobePt = 0.;
       std::vector<float> crystalPt;
       std::map<int, float> phiStrip;
       for(auto& hit : ecalhits)
@@ -268,7 +268,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
 
          if ( abs(hit.dieta(centerhit)) == 0 && abs(hit.diphi(centerhit)) <= 7 )
          {
-            phiStrip[hit.diphi(centerhit)] = hit.energy;
+            phiStrip[hit.diphi(centerhit)] = hit.pt();
          }
 
          // Isolation and pileup must not use hits used in the cluster
@@ -283,15 +283,15 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
                if ( hit.pt() > 1. )
                   params["nIsoCrystals1"]++;
             }
-            if ( (!centerhit.isEndcapHit && abs(hit.dieta(centerhit)) < 2 && hit.diphi(centerhit) >= 3 && hit.diphi(centerhit) < 6)
-                 || (centerhit.isEndcapHit && fabs(hit.deta(centerhit)) < 0.02 && hit.dphi(centerhit) >= 0.0173*3 && hit.dphi(centerhit) < 0.0173*6 ))
+            if ( (!centerhit.isEndcapHit && abs(hit.dieta(centerhit)) < 2 && hit.diphi(centerhit) >= 3 && hit.diphi(centerhit) < 8)
+                 || (centerhit.isEndcapHit && fabs(hit.deta(centerhit)) < 0.02 && hit.dphi(centerhit) >= 0.0173*3 && hit.dphi(centerhit) < 0.0173*8 ))
             {
-               upperSideLobeEnergy += hit.pt();
+               upperSideLobePt += hit.pt();
             }
-            if ( (!centerhit.isEndcapHit && abs(hit.dieta(centerhit)) < 2 && hit.diphi(centerhit) > -6 && hit.diphi(centerhit) <= -3)
-                 || (centerhit.isEndcapHit && fabs(hit.deta(centerhit)) < 0.02 && hit.dphi(centerhit)*-1 >= 0.0173*3 && hit.dphi(centerhit)*-1 < 0.0173*6 ))
+            if ( (!centerhit.isEndcapHit && abs(hit.dieta(centerhit)) < 2 && hit.diphi(centerhit) > -8 && hit.diphi(centerhit) <= -3)
+                 || (centerhit.isEndcapHit && fabs(hit.deta(centerhit)) < 0.02 && hit.dphi(centerhit)*-1 >= 0.0173*3 && hit.dphi(centerhit)*-1 < 0.0173*8 ))
             {
-               lowerSideLobeEnergy += hit.pt();
+               lowerSideLobePt += hit.pt();
             }
             if ( hit.pt() < 5. &&
                  ( (!centerhit.isEndcapHit && abs(hit.dieta(centerhit)) < 7 && abs(hit.diphi(centerhit)) < 57 )
@@ -351,13 +351,13 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       params["phiStripOneHole3p"] = threepair.second;
 
       // Check if sidelobes should be included in sum
-      if ( upperSideLobeEnergy/params["uncorrectedPt"] > 0.1 )
+      if ( upperSideLobePt/params["uncorrectedPt"] > 0.1 )
       {
          for(auto& hit : ecalhits)
          {
             if ( !hit.stale &&
-                 (  (!centerhit.isEndcapHit && abs(hit.dieta(centerhit)) < 2 && hit.diphi(centerhit) >= 3 && hit.diphi(centerhit) < 6)
-                   || (centerhit.isEndcapHit && fabs(hit.deta(centerhit)) < 0.02 && hit.dphi(centerhit) >= 0.0173*3 && hit.dphi(centerhit) < 0.0173*6 )
+                 (  (!centerhit.isEndcapHit && abs(hit.dieta(centerhit)) < 2 && hit.diphi(centerhit) >= 3 && hit.diphi(centerhit) < 8)
+                   || (centerhit.isEndcapHit && fabs(hit.deta(centerhit)) < 0.02 && hit.dphi(centerhit) >= 0.0173*3 && hit.dphi(centerhit) < 0.0173*8 )
                  ) )
             {
                weightedPosition += hit.position*hit.energy;
@@ -367,13 +367,13 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
             }
          }
       }
-      if ( lowerSideLobeEnergy/params["uncorrectedPt"] > 0.1 )
+      if ( lowerSideLobePt/params["uncorrectedPt"] > 0.1 )
       {
          for(auto& hit : ecalhits)
          {
             if ( !hit.stale &&
-                 (  (!centerhit.isEndcapHit && abs(hit.dieta(centerhit)) < 2 && hit.diphi(centerhit) > -6 && hit.diphi(centerhit) <= -3)
-                   || (centerhit.isEndcapHit && fabs(hit.deta(centerhit)) < 0.02 && hit.dphi(centerhit)*-1 >= 0.0173*3 && hit.dphi(centerhit)*-1 < 0.0173*6 )
+                 (  (!centerhit.isEndcapHit && abs(hit.dieta(centerhit)) < 2 && hit.diphi(centerhit) > -8 && hit.diphi(centerhit) <= -3)
+                   || (centerhit.isEndcapHit && fabs(hit.deta(centerhit)) < 0.02 && hit.dphi(centerhit)*-1 >= 0.0173*3 && hit.dphi(centerhit)*-1 < 0.0173*8 )
                  ) )
             {
                weightedPosition += hit.position*hit.energy;
@@ -383,11 +383,11 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
             }
          }
       }
-      weightedPosition /= totalEnergy;
+      // no need to rescale weightedPosition if we only use theta
       float correctedTotalPt = totalEnergy*sin(weightedPosition.theta());
       params["avgIsoCrystalE"] = (params["nIsoCrystals1"] > 0.) ? ECalIsolation/params["nIsoCrystals1"] : 0.;
-      params["upperSideLobeEnergy"] = upperSideLobeEnergy;
-      params["lowerSideLobeEnergy"] = lowerSideLobeEnergy;
+      params["upperSideLobePt"] = upperSideLobePt;
+      params["lowerSideLobePt"] = lowerSideLobePt;
       ECalIsolation /= params["uncorrectedPt"];
       float totalPtPUcorr = params["uncorrectedPt"] - ECalPileUpEnergy*sin(ECalPileUpVector.theta())/19.;
       float bremStrength = params["uncorrectedPt"] / correctedTotalPt;
