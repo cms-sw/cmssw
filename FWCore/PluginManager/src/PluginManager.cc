@@ -264,11 +264,14 @@ PluginManager::load(const std::string& iCategory,
       Sentry s(loadingLibraryNamed_(), p.string());
       //boost::filesystem::path native(p.string());
       std::shared_ptr<SharedLibrary> ptr;
-      {
-	//TEMPORARY: to avoid possible deadlocks from ROOT, we must
-	// take the lock ourselves
-	R__LOCKGUARD2(gCINTMutex);
-	ptr.reset( new SharedLibrary(p) );
+      try {
+        //TEMPORARY: to avoid possible deadlocks from ROOT, we must
+        // take the lock ourselves
+        R__LOCKGUARD2(gCINTMutex);
+        ptr.reset( new SharedLibrary(p) );
+      } catch(cms::Exception& iException) {
+        iException.addContext(std::string("while trying to load ")+iPlugin);
+        throw;
       }
       loadables_[p]=ptr;
       justLoaded_(*ptr);
@@ -304,11 +307,14 @@ PluginManager::tryToLoad(const std::string& iCategory,
       Sentry s(loadingLibraryNamed_(), p.string());
       //boost::filesystem::path native(p.string());
       std::shared_ptr<SharedLibrary> ptr;
-      {
-	//TEMPORARY: to avoid possible deadlocks from ROOT, we must
-	// take the lock ourselves
-	R__LOCKGUARD(gCINTMutex);
-	ptr.reset( new SharedLibrary(p) );
+      try {
+        //TEMPORARY: to avoid possible deadlocks from ROOT, we must
+        // take the lock ourselves
+        R__LOCKGUARD(gCINTMutex);
+        ptr.reset( new SharedLibrary(p) );
+      } catch(cms::Exception& iException) {
+        iException.addContext(std::string("while trying to load ")+iPlugin);
+        throw;
       }
       loadables_[p]=ptr;
       justLoaded_(*ptr);
