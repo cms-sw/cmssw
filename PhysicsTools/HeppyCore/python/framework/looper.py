@@ -202,7 +202,7 @@ if __name__ == '__main__':
             compFileName = sys.argv[2]
             pckfile = open( compFileName, 'r' )
             comp = pickle.load( pckfile )
-    	    cfg.config.components=comp
+    	    cfg.config.components=[comp]
             events_class = cfg.config.events_class
 
     looper = Looper( 'Loop', cfg.config,nPrint = 5)
