@@ -8,7 +8,7 @@
 */
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
@@ -21,7 +21,7 @@ class PixelTrackFilter;
 class L1MuonSeedsMerger;
 
 
-class TSGFromL1Muon : public edm::EDProducer {
+class TSGFromL1Muon : public edm::stream::EDProducer<> {
 public:
   TSGFromL1Muon(const edm::ParameterSet& cfg);
   virtual ~TSGFromL1Muon();

@@ -21,6 +21,7 @@ Implementation:
 #include <memory>
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+//#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -84,6 +85,7 @@ typedef RPCSeedPattern::weightedTrajectorySeed weightedTrajectorySeed;
 
 class RPCSeedFinder;
 
+//class RPCSeedGenerator : public edm::stream::EDProducer<> {
 class RPCSeedGenerator : public edm::EDProducer {
     public:
         explicit RPCSeedGenerator(const edm::ParameterSet& iConfig);

@@ -54,7 +54,7 @@ HLTL1MuonSelector::fillDescriptions(edm::ConfigurationDescriptions& descriptions
   descriptions.add("hltL1MuonSelector",desc);
 }
 
-void HLTL1MuonSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void HLTL1MuonSelector::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
   const std::string metname = "Muon|RecoMuon|HLTL1MuonSelector";
 

@@ -68,7 +68,7 @@ QuarkoniaTrackSelector::QuarkoniaTrackSelector(const edm::ParameterSet& iConfig)
 
 
 void
-QuarkoniaTrackSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+QuarkoniaTrackSelector::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
   //
   // the product

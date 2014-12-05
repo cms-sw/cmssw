@@ -1,7 +1,6 @@
 #include "L3MuonSumCaloPFIsolationProducer.h"
 
 // Framework
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -49,7 +48,7 @@ void L3MuonSumCaloPFIsolationProducer::fillDescriptions(edm::ConfigurationDescri
     descriptions.add(("hltL3MuonSumCaloPFIsolationProducer"), desc);
 }
 
-void L3MuonSumCaloPFIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
+void L3MuonSumCaloPFIsolationProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const{
     
     edm::Handle<reco::RecoChargedCandidateCollection> recochargedcandHandle;
     iEvent.getByToken(recoChargedCandidateProducer_,recochargedcandHandle);

@@ -8,7 +8,7 @@
  *   \author  J.Alcaraz
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -19,7 +19,7 @@
 
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
-class L2MuonIsolationProducer : public edm::EDProducer {
+class L2MuonIsolationProducer : public edm::stream::EDProducer<> {
 
  public:
 

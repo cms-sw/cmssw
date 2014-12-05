@@ -4,7 +4,7 @@
  *  of a track and a RecoChargedCandidate (typically a muon)
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
@@ -15,13 +15,13 @@
 #include <vector>
 
 
-class QuarkoniaTrackSelector : public edm::EDProducer {
+class QuarkoniaTrackSelector : public edm::global::EDProducer<> {
 public:
   explicit QuarkoniaTrackSelector(const edm::ParameterSet&);
   ~QuarkoniaTrackSelector() {}
 
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
       
 private:
   edm::InputTag muonTag_;          ///< tag for RecoChargedCandidateCollection

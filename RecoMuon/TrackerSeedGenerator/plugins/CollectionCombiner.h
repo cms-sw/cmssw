@@ -18,7 +18,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -26,13 +26,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 template <typename Collection>
-class CollectionCombiner : public edm::EDProducer{
+class CollectionCombiner : public edm::global::EDProducer<>{
 public:
   explicit CollectionCombiner(const edm::ParameterSet&);
   ~CollectionCombiner();
   
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   
   // ----------member data ---------------------------
   std::vector<edm::InputTag> labels;
@@ -51,7 +51,7 @@ template <typename Collection>
 CollectionCombiner<Collection>::~CollectionCombiner(){}
 
 template <typename Collection>
-void CollectionCombiner<Collection>::produce(edm::Event& iEvent, const edm::EventSetup& es)
+void CollectionCombiner<Collection>::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& es) const
 {
   unsigned int i=0,i_max=labels.size();
   edm::Handle<Collection> handle;

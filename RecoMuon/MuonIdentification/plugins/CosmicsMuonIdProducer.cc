@@ -7,7 +7,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "RecoMuon/MuonIdentification/interface/MuonCosmicsId.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -16,7 +16,7 @@
 
 #include "RecoMuon/MuonIdentification/interface/MuonCosmicCompatibilityFiller.h"
 
-class CosmicsMuonIdProducer : public edm::EDProducer {
+class CosmicsMuonIdProducer : public edm::stream::EDProducer<> {
 public:
   CosmicsMuonIdProducer(const edm::ParameterSet& iConfig) :
     inputMuonCollection_(iConfig.getParameter<edm::InputTag>("muonCollection")),

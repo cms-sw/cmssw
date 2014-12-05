@@ -16,7 +16,6 @@
  */
 
 // Framework
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -52,7 +51,7 @@ L2MuonCandidateProducer::~L2MuonCandidateProducer(){
 
 
 /// reconstruct muons
-void L2MuonCandidateProducer::produce(Event& event, const EventSetup& eventSetup){
+void L2MuonCandidateProducer::produce(edm::StreamID sid, Event& event, const EventSetup& eventSetup) const {
   const string metname = "Muon|RecoMuon|L2MuonCandidateProducer";
   
   // Take the SA container

@@ -7,7 +7,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -16,7 +16,7 @@
 
 #include "RecoMuon/MuonIdentification/interface/MuonShowerInformationFiller.h"
 
-class MuonShowerInformationProducer : public edm::EDProducer {
+class MuonShowerInformationProducer : public edm::stream::EDProducer<> {
 public:
   MuonShowerInformationProducer(const edm::ParameterSet& iConfig) :
     inputMuonCollection_(iConfig.getParameter<edm::InputTag>("muonCollection")),
