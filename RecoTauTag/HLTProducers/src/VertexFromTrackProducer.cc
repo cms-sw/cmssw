@@ -24,25 +24,23 @@
 //
 // constructors and destructor
 //
-VertexFromTrackProducer::VertexFromTrackProducer(const edm::ParameterSet& conf)
-  : theConfig(conf)
+VertexFromTrackProducer::VertexFromTrackProducer(const edm::ParameterSet& conf) : 
+  trackToken( consumes<edm::View<reco::Track> >(conf.getParameter<edm::InputTag>("trackLabel")) ),
+  candidateToken( consumes<edm::View<reco::RecoCandidate> >(conf.getParameter<edm::InputTag>("trackLabel")) ),
+  triggerFilterElectronsSrc( consumes<trigger::TriggerFilterObjectWithRefs>(conf.getParameter<edm::InputTag>("triggerFilterElectronsSrc")) ),
+  triggerFilterMuonsSrc( consumes<trigger::TriggerFilterObjectWithRefs>(conf.getParameter<edm::InputTag>("triggerFilterMuonsSrc")) ),
+  vertexLabel( consumes<edm::View<reco::Vertex> >(conf.getParameter<edm::InputTag>("vertexLabel")) ),
+  beamSpotLabel( consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpotLabel")) ),
+  fIsRecoCandidate( conf.getParameter<bool>("isRecoCandidate") ),
+  fUseBeamSpot( conf.getParameter<bool>("useBeamSpot") ),
+  fUseVertex( conf.getParameter<bool>("useVertex") ),
+  fUseTriggerFilterElectrons( conf.getParameter<bool>("useTriggerFilterElectrons") ),
+  fUseTriggerFilterMuons( conf.getParameter<bool>("useTriggerFilterMuons") ),
+  fVerbose( conf.getUntrackedParameter<bool>("verbose", false) )
 {
   edm::LogInfo("PVDebugInfo") 
     << "Initializing  VertexFromTrackProducer" << "\n";
-  fVerbose = conf.getUntrackedParameter<bool>("verbose", false);
-  trackLabel = conf.getParameter<edm::InputTag>("trackLabel");
-  trackToken = consumes<edm::View<reco::Track> >(trackLabel);
-  candidateToken = consumes<edm::View<reco::RecoCandidate> >(trackLabel);
-  fIsRecoCandidate = conf.getParameter<bool>("isRecoCandidate");
-  fUseBeamSpot = conf.getParameter<bool>("useBeamSpot");
-  fUseVertex = conf.getParameter<bool>("useVertex");
-  fUseTriggerFilterElectrons = conf.getParameter<bool>("useTriggerFilterElectrons");
-  fUseTriggerFilterMuons = conf.getParameter<bool>("useTriggerFilterMuons");
-  triggerFilterElectronsSrc = consumes<trigger::TriggerFilterObjectWithRefs>(conf.getParameter<edm::InputTag>("triggerFilterElectronsSrc"));
-  triggerFilterMuonsSrc = consumes<trigger::TriggerFilterObjectWithRefs>(conf.getParameter<edm::InputTag>("triggerFilterMuonsSrc"));
-  vertexLabel = consumes<edm::View<reco::Vertex> >(conf.getParameter<edm::InputTag>("vertexLabel"));
-  beamSpotLabel = consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpotLabel"));
- 
+
   produces<reco::VertexCollection>();
 
 }
@@ -56,7 +54,7 @@ VertexFromTrackProducer::~VertexFromTrackProducer() {}
 
 // ------------ method called to produce the data  ------------
 void
-VertexFromTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+VertexFromTrackProducer::produce(edm::StreamID iStreamId, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
   using namespace edm;
 
@@ -188,16 +186,18 @@ VertexFromTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
   if(fVerbose){
     int ivtx=0;
+    edm::LogInfo("PVDebugInfo")<< "Vertices by VertexFromTrackProducer: \n"; 
     for(reco::VertexCollection::const_iterator v=vColl.begin(); 
 	v!=vColl.end(); ++v){
-      std::cout << "recvtx "<< ivtx++ 
-		<< " x "  << std::setw(6) << v->position().x() 
-		<< " dx " << std::setw(6) << v->xError()
-		<< " y "  << std::setw(6) << v->position().y() 
-		<< " dy " << std::setw(6) << v->yError()
-		<< " z "  << std::setw(6) << v->position().z() 
-		<< " dz " << std::setw(6) << v->zError()
-		<< std::endl;
+      edm::LogInfo("PVDebugInfo")<< "\t" 
+				 << "recvtx "<< ivtx++ 
+				 << " x "  << std::setw(6) << v->position().x() 
+				 << " dx " << std::setw(6) << v->xError()
+				 << " y "  << std::setw(6) << v->position().y() 
+				 << " dy " << std::setw(6) << v->yError()
+				 << " z "  << std::setw(6) << v->position().z() 
+				 << " dz " << std::setw(6) << v->zError()
+				 << " \n ";
     }
   }
 
