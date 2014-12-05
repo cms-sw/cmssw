@@ -38,7 +38,6 @@
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
@@ -48,7 +47,7 @@
 #include <DataFormats/MuonReco/interface/Muon.h>
 
 #include <boost/algorithm/string.hpp>
-
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 using namespace edm;
 using namespace std;
@@ -92,6 +91,7 @@ class BaseHandler {
                              const edm::TriggerNames  & triggerNames,
                              float weight) = 0;
         virtual void book(DQMStore::IBooker & booker) = 0;
+        virtual void getAndStoreTokens(edm::ConsumesCollector && iC) = 0;
 
         triggerExpression::Evaluator * m_expression;
         triggerExpression::Data * m_eventCache;
@@ -99,7 +99,7 @@ class BaseHandler {
         std::string m_dirname;
 
         std::map<std::string,  MonitorElement*> m_histos;
-         std::set<std::string> m_usedPaths;
+        std::set<std::string> m_usedPaths;
 
         
 };
@@ -128,6 +128,7 @@ class HandlerTemplate: public BaseHandler {
         std::vector< edm::ParameterSet > m_drawables;
         bool m_isSetup;
         edm::InputTag m_input;
+        std::map<std::string, edm::EDGetToken> m_tokens;
 
     public:
         HandlerTemplate(const edm::ParameterSet& iConfig, triggerExpression::Data & eventCache):
@@ -168,6 +169,11 @@ class HandlerTemplate: public BaseHandler {
                 }   
             }
         }
+        void getAndStoreTokens(edm::ConsumesCollector && iC){
+                edm::EDGetTokenT<std::vector<TInputCandidateType>  > tok =  iC.consumes<std::vector<TInputCandidateType> > (m_input);
+                m_tokens[m_input.encode()] = edm::EDGetToken(tok);
+        }
+
 
         // Notes:
         //  - FIXME this function should take only event/ event setup (?)
@@ -184,7 +190,8 @@ class HandlerTemplate: public BaseHandler {
                      const trigger::TriggerEvent& trgEvent)
         {
                Handle<std::vector<TInputCandidateType> > hIn;
-               iEvent.getByLabel(InputTag(m_input), hIn);
+               iEvent.getByToken(m_tokens[m_input.encode()], hIn);
+
                if(!hIn.isValid()) {
                   edm::LogError("FSQDiJetAve") << "product not found: "<<  m_input.encode();
                   return;  
@@ -392,6 +399,13 @@ class HandlerTemplate: public BaseHandler {
 //
 //#############################################################################
 template<>
+void HandlerTemplate<reco::Candidate::LorentzVector, reco::Candidate::LorentzVector>::getAndStoreTokens(
+                edm::ConsumesCollector && iC)
+{
+    edm::EDGetTokenT<View<reco::Candidate> > tok =  iC.consumes< View<reco::Candidate>  > (m_input);
+    m_tokens[m_input.encode()] = edm::EDGetToken(tok);
+}
+template<>
 void HandlerTemplate<reco::Candidate::LorentzVector, reco::Candidate::LorentzVector>::getFilteredCands(
              reco::Candidate::LorentzVector *, // pass a dummy pointer, makes possible to select correct getFilteredCands
              std::vector<reco::Candidate::LorentzVector> & cands, // output collection
@@ -401,7 +415,7 @@ void HandlerTemplate<reco::Candidate::LorentzVector, reco::Candidate::LorentzVec
              const trigger::TriggerEvent& trgEvent)
 {  
    Handle<View<reco::Candidate> > hIn;
-   iEvent.getByLabel(InputTag(m_input), hIn);
+   iEvent.getByToken(m_tokens[m_input.encode()], hIn);
    if(!hIn.isValid()) {
       edm::LogError("FSQDiJetAve") << "product not found: "<<  m_input.encode();
       return;
@@ -433,7 +447,7 @@ void HandlerTemplate<reco::Track, int >::getFilteredCands(
    cands.push_back(0);
 
    Handle<std::vector<reco::Track > > hIn;
-   iEvent.getByLabel(InputTag(m_input), hIn);
+   iEvent.getByToken(m_tokens[m_input.encode()], hIn);
    if(!hIn.isValid()) {
       edm::LogError("FSQDiJetAve") << "product not found: "<<  m_input.encode();
       return;
@@ -451,6 +465,13 @@ void HandlerTemplate<reco::Track, int >::getFilteredCands(
 //
 //#############################################################################
 template<>
+void HandlerTemplate<reco::Candidate::LorentzVector, int>::getAndStoreTokens(
+                edm::ConsumesCollector && iC)
+{
+    edm::EDGetTokenT<View<reco::Candidate> > tok =  iC.consumes< View<reco::Candidate>  > (m_input);
+    m_tokens[m_input.encode()] = edm::EDGetToken(tok);
+}
+template<>
 void HandlerTemplate<reco::Candidate::LorentzVector, int >::getFilteredCands(
              reco::Candidate::LorentzVector *, // pass a dummy pointer, makes possible to select correct getFilteredCands
              std::vector<int > & cands, // output collection
@@ -463,7 +484,7 @@ void HandlerTemplate<reco::Candidate::LorentzVector, int >::getFilteredCands(
    cands.push_back(0);
 
    Handle<View<reco::Candidate> > hIn;
-   iEvent.getByLabel(InputTag(m_input), hIn);
+   iEvent.getByToken(m_tokens[m_input.encode()], hIn);
    if(!hIn.isValid()) {
       edm::LogError("FSQDiJetAve") << "product not found: "<<  m_input.encode();
       return;
@@ -546,6 +567,9 @@ FSQDiJetAve::FSQDiJetAve(const edm::ParameterSet& iConfig):
   m_isSetup(false)
 {
   m_useGenWeight = iConfig.getParameter<bool>("useGenWeight");
+  if (m_useGenWeight) {
+       m_genEvInfoToken = consumes <GenEventInfoProduct> (edm::InputTag("generator"));
+  }
 
   triggerSummaryLabel_ = iConfig.getParameter<edm::InputTag>("triggerSummaryLabel");
   triggerResultsLabel_ = iConfig.getParameter<edm::InputTag>("triggerResultsLabel");
@@ -587,6 +611,10 @@ FSQDiJetAve::FSQDiJetAve(const edm::ParameterSet& iConfig):
             throw cms::Exception("FSQ DQM handler not know: "+ type);
         }
   }
+  for (size_t i = 0; i < m_handlers.size(); ++i) {
+        m_handlers.at(i)->getAndStoreTokens(consumesCollector());
+  }
+
 }
 
 
@@ -634,7 +662,7 @@ FSQDiJetAve::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   float weight = 1.;  
   if (m_useGenWeight){
     edm::Handle<GenEventInfoProduct> hGW;
-    iEvent.getByLabel(edm::InputTag("generator"), hGW);
+    iEvent.getByToken(m_genEvInfoToken, hGW);
     weight = hGW->weight();
   }
 
