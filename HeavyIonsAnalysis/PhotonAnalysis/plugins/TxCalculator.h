@@ -28,7 +28,7 @@ class TxCalculator
 {
   public:
   
-   TxCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag trackLabel) ;
+   TxCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag trackLabel,std::string trackQuality_) ;
   
    double getTx(const reco::Photon clus, double i,double threshold, double innerDR=0,double effRatio=2);
    double getCTx(const reco::Photon clus, double i,double threshold, double innerDR=0, double effRatio=2);
@@ -42,7 +42,7 @@ class TxCalculator
    
    edm::Handle<reco::TrackCollection>  recCollection;
    CLHEP::RandFlat *theDice;
-
+   std::string trackQuality_;
    double dRDistance(double eta1,double phi1,double eta2,double phi2)
    {
       double deta = eta1 - eta2;

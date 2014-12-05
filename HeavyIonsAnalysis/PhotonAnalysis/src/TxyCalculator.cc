@@ -10,10 +10,11 @@
 using namespace edm;
 using namespace reco;
 
-TxyCalculator::TxyCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag trackLabel)
+TxyCalculator::TxyCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag trackLabel,std::string trackQuality)
 { 
    // Get reconstructed tracks
    iEvent.getByLabel(trackLabel, recCollection); // !!
+   trackQuality_=trackQuality;
 } 
 
 
@@ -27,6 +28,10 @@ int TxyCalculator::getNumAllTracks(double ptCut)
   for(reco::TrackCollection::const_iterator
 	recTrack = recCollection->begin(); recTrack!= recCollection->end(); recTrack++)
     {
+    
+      bool goodtrack = recTrack->quality(reco::TrackBase::qualityByName(trackQuality_));
+	    if(!goodtrack) continue;
+
       double pt = recTrack->pt();
       if ( pt > ptCut)  
 	nTracks = nTracks +1;

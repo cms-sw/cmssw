@@ -11,11 +11,11 @@
 using namespace edm;
 using namespace reco;
 
-dRxyCalculator::dRxyCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag trackLabel)
+dRxyCalculator::dRxyCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag trackLabel,std::string trackQuality)
 {
    // Get reconstructed tracks
    iEvent.getByLabel(trackLabel, recCollection); // !!
-
+   trackQuality_=trackQuality;
 } 
 
 double dRxyCalculator::getDRxy(const reco::Photon p, double x, double y)
@@ -31,6 +31,9 @@ double dRxyCalculator::getDRxy(const reco::Photon p, double x, double y)
    for(reco::TrackCollection::const_iterator
    	  recTrack = recCollection->begin(); recTrack!= recCollection->end(); recTrack++)
    {
+      bool goodtrack = recTrack->quality(reco::TrackBase::qualityByName(trackQuality_));
+	    if(!goodtrack) continue;
+
       double pt = recTrack->pt();
       double eta2 = recTrack->eta();
       double phi2 = recTrack->phi();

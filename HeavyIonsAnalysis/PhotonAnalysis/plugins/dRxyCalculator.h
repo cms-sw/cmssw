@@ -26,7 +26,7 @@
 class dRxyCalculator
 {
 public:
-   dRxyCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag trackLabel);
+   dRxyCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag trackLabel,std::string trackQuality_);
    double getDRxy(const reco::Photon cluster, double x, double y);
 
 private:
@@ -54,6 +54,7 @@ private:
 
 private:
    edm::Handle<reco::TrackCollection>  recCollection;
+   std::string trackQuality_;
 };
 
 #endif

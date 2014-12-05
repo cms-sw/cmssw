@@ -27,7 +27,7 @@
 class TxyCalculator
 {
 public:
-   TxyCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag trackLabel);
+   TxyCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag trackLabel, std::string trackQuality_);
    double getTxy(const reco::Photon p, double x, double y);
    double getHollSxy(const reco::Photon p, double thePtCut, double outerR, double innerR);
    int getNumAllTracks(double ptCut);
@@ -60,6 +60,8 @@ private:
 
 private:
    edm::Handle<reco::TrackCollection>  recCollection;
+   std::string trackQuality_;
+
 };
 
 #endif

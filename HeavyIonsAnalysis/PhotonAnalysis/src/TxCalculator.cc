@@ -21,10 +21,11 @@ using namespace std;
 using namespace ROOT::Math::VectorUtil;
 
 
-TxCalculator::TxCalculator (const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag trackLabel)
+TxCalculator::TxCalculator (const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag trackLabel,std::string trackQuality)
 {
    iEvent.getByLabel(trackLabel, recCollection);
    edm::Service<edm::RandomNumberGenerator> rng;
+   trackQuality_=trackQuality;
    if ( ! rng.isAvailable()) {
       throw cms::Exception("Configuration")
          << "XXXXXXX requires the RandomNumberGeneratorService\n"
@@ -60,6 +61,10 @@ double TxCalculator::getMPT( double ptCut     ,   double etaCut  )
    for(reco::TrackCollection::const_iterator
           recTrack = recCollection->begin(); recTrack!= recCollection->end(); recTrack++)
       {
+      
+      bool goodtrack = recTrack->quality(reco::TrackBase::qualityByName(trackQuality_));
+	    if(!goodtrack) continue;
+
 	 double pt = recTrack->pt();
          double eta = recTrack->eta();
 

@@ -105,6 +105,7 @@ protected:
   edm::InputTag towerCandidateLabel_; // tower hits
   edm::InputTag srcTowerVor_; // voronoi background
 
+  std::string trackQuality_;
 
   // HepMC switch for HI July Exercise.
 

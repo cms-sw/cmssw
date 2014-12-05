@@ -221,9 +221,9 @@ int MultiPhotonAnalyzerTree::selectStorePhotons(const edm::Event& e,const edm::E
   // Heavy Ion variable calculator
   CxCalculator CxC(e,iSetup, basicClusterBarrel_, basicClusterEndcap_);
   RxCalculator RxC(e,iSetup, hbhe_, hf_, ho_);
-  TxCalculator TxC(e,iSetup, trackProducer_);
-  TxyCalculator Txy(e,iSetup,trackProducer_);
-  dRxyCalculator dRxy(e,iSetup,trackProducer_);
+  TxCalculator TxC(e,iSetup, trackProducer_,trackQuality_);
+  TxyCalculator Txy(e,iSetup,trackProducer_,trackQuality_);
+  dRxyCalculator dRxy(e,iSetup,trackProducer_,trackQuality_);
   pfIsoCalculator pfIso(e,iSetup,pfCandidateLabel_, srcPfVor_, vertexProducer_);
   towerIsoCalculator towerIso(e,iSetup,towerCandidateLabel_, srcTowerVor_, vertexProducer_);
 

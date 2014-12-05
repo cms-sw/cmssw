@@ -32,7 +32,8 @@ process.HiForest.HiForestVersion = cms.untracked.string(version)
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
                             fileNames = cms.untracked.vstring(
-    "/store/user/istaslis/PyquenUnquenched_pthat80_73X_GEN-SIM/PyquenUnquenched_pthat80_73X_RECO/5d229172ba4d998b79858be1c5558681/step3_RAW2DIGI_L1Reco_RECO_PU_17_1_Rxk.root"
+    # "/store/user/istaslis/PyquenUnquenched_pthat80_73X_GEN-SIM/PyquenUnquenched_pthat80_73X_RECO/5d229172ba4d998b79858be1c5558681/step3_RAW2DIGI_L1Reco_RECO_PU_17_1_Rxk.root"
+    "/store/user/istaslis/PyquenUnquenched_pthat80_73X_GEN-SIM/PyquenUnquenched_pthat80_73X_RECO/5d229172ba4d998b79858be1c5558681/step3_RAW2DIGI_L1Reco_RECO_PU_10_1_pdT.root"
     ))
 
 # Number of events we want to process, -1 = all events
@@ -57,7 +58,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 
 # PbPb 53X MC
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'STARTHI53_LV1::All', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc_HIon', '')
 
 from HeavyIonsAnalysis.Configuration.CommonFunctions_cff import *
 overrideGT_PbPb2760(process)
@@ -202,8 +203,8 @@ process.ana_step = cms.Path(process.heavyIon*
                             process.rechitAna +
 #temp                            process.hltMuTree +
                             process.HiForest +
-                            process.cutsTPForFak +
-                            process.cutsTPForEff +
+                            # process.cutsTPForFak +
+                            # process.cutsTPForEff +
                             process.anaTrack +
                             process.pixelTrack
                             )

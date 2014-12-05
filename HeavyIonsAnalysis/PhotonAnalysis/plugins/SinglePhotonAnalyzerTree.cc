@@ -214,6 +214,7 @@ SinglePhotonAnalyzerTree::SinglePhotonAnalyzerTree(const edm::ParameterSet& ps):
   // electorn collection
   EleTag_                          = ps.getUntrackedParameter<edm::InputTag>("gsfElectronCollection");
 
+  trackQuality_                    = ps.getUntrackedParameter<string>("trackQuality","highPurity");
 
 
   // book ntuples; columns are defined dynamically later
