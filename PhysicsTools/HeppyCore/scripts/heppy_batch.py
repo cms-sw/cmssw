@@ -42,11 +42,12 @@ export VO_CMS_SW_DIR=/cvmfs/cms.cern.ch
 source $VO_CMS_SW_DIR/cmsset_default.sh
 echo 'environment:'
 echo
+env > local.env
 env
 # ulimit -v 3000000 # NO
 echo 'copying job dir to worker'
 ###cd $CMSSW_BASE/src
-cmsenv
+eval `scramv1 runtime -sh`
 #eval `scramv1 ru -sh`
 # cd $LS_SUBCWD
 # eval `scramv1 ru -sh`
@@ -56,9 +57,10 @@ ls
 echo `find . -type d | grep /`
 echo 'running'
 python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck >& local.output
-echo
-echo 'sending the job directory back'
-echo cp -r Loop/* $LS_SUBCWD 
+exit $? 
+#echo
+#echo 'sending the job directory back'
+#echo cp -r Loop/* $LS_SUBCWD 
 """
    return script
 
