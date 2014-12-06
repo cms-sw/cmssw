@@ -108,10 +108,10 @@ pfNoElectronJME.bottomCollection = 'pfNoMuonJME'
 
 #### Jets ####
 
-pfJetsEI = pfJets.clone()
-pfJetsPtrsEI = pfJetsPtrs.clone(src=cms.InputTag("pfJetsEI"))
+ak4PFJetsCHSEI = pfJets.clone()
+pfJetsPtrsEI = pfJetsPtrs.clone(src=cms.InputTag("ak4PFJetsCHSEI"))
 
-pfJetSequenceEI = cms.Sequence( pfJetsEI+ pfJetsPtrsEI )
+pfJetSequenceEI = cms.Sequence( ak4PFJetsCHSEI+ pfJetsPtrsEI )
 
 pfNoJetEI = pfNoJet.clone(
     topCollection = 'pfJetsPtrsEI',
@@ -135,7 +135,7 @@ pfTauEISequence = cms.Sequence(
 
 #### B-tagging ####
 pfJetTrackAssociatorEI = ak4JetTracksAssociatorAtVertex.clone (
-    src = cms.InputTag("pfJetsEI")
+    src = cms.InputTag("ak4PFJetsCHSEI")
     )
 impactParameterTagInfosEI = impactParameterTagInfos.clone(
     jetTracks = cms.InputTag( 'pfJetTrackAssociatorEI' )
@@ -151,7 +151,7 @@ combinedSecondaryVertexBJetTagsEI = combinedSecondaryVertexBJetTags.clone(
 
 
 #### MET ####
-pfMetEI = pfMET.clone(jets=cms.InputTag("pfJetsEI"))
+pfMetEI = pfMET.clone(jets=cms.InputTag("ak4PFJetsCHSEI"))
 
 #EITopPAG = cms.Sequence(
 EIsequence = cms.Sequence(

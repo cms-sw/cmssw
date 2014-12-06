@@ -305,7 +305,7 @@ addJetCollection(
 addJetCollection(
    process,
    labelName = 'EI',
-   jetSource = cms.InputTag('pfJetsEI'),
+   jetSource = cms.InputTag('ak4PFJetsCHSEI'),
    algo='ak',
    rParam=0.4,
    jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1'),
