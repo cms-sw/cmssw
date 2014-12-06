@@ -115,6 +115,7 @@ process.jetSequences = cms.Sequence(process.akPu3CaloJetSequence +
                                     )
 
 process.load('HeavyIonsAnalysis.EventAnalysis.hievtanalyzer_mc_cfi')
+process.hiEvtAnalyzer.doMC = cms.bool(False) #the gen info dataformat has changed in 73X, we need to update hiEvtAnalyzer code
 process.load('HeavyIonsAnalysis.EventAnalysis.hltanalysis_cff')
 process.load('HeavyIonsAnalysis.JetAnalysis.HiGenAnalyzer_cfi')
 
