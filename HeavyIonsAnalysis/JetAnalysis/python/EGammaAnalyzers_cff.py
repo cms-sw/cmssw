@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from HeavyIonsAnalysis.PhotonAnalysis.MultiPhotonAnalyzer_cfi import multiPhotonAnalyzer
 multiPhotonAnalyzer.GenParticleProducer = cms.InputTag("hiGenParticles")
 multiPhotonAnalyzer.PhotonProducer = cms.InputTag("selectedPatPhotons")
+multiPhotonAnalyzer.PhotonProducer = cms.InputTag("photons")
 multiPhotonAnalyzer.VertexProducer = cms.InputTag("hiSelectedVertex")
 multiPhotonAnalyzer.TrackProducer = cms.InputTag("hiGeneralTracks")
 multiPhotonAnalyzer.OutputFile = cms.string('mpa.root')
@@ -18,7 +19,13 @@ from PhysicsTools.PatAlgos.patHeavyIonSequences_cff import photonMatch, patPhoto
 
 # hiGoodTracks.src = cms.InputTag("hiGeneralTracks")
 photonMatch.matched = cms.InputTag("hiGenParticles")
+photonMatch.src = cms.InputTag("photons")
+
 patPhotons.addPhotonID = cms.bool(False)
+patPhotons.photonSource = cms.InputTag("photons")
+patPhotons.reducedBarrelRecHitCollection = cms.InputTag("ecalRecHit:EcalRecHitsEB")
+patPhotons.reducedEndcapRecHitCollection = cms.InputTag("ecalRecHit:EcalRecHitsEE")
+patPhotons.isoDeposits = cms.VInputTag()
 
 from RecoHI.HiEgammaAlgos.HiEgamma_cff import hiPhotonSequence
 
