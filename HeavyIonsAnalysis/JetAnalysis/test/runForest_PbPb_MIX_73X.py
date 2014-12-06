@@ -193,7 +193,7 @@ process.hiSelectGenJets = cms.Sequence(
 process.ana_step = cms.Path(process.heavyIon*
                             process.hltanalysis *
 #temp                            process.hltobject *
-                            process.hiEvtAnalyzer*
+                            #process.hiEvtAnalyzer* #evt analyzer is fundamentally broken with the new consumes model
                             process.HiGenParticleAna*
                             #process.hiGenJetsCleaned*
                             process.tpRecoAssocGeneralTracks + #used in HiPFJetAnalyzer

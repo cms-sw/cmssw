@@ -6,6 +6,7 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -32,7 +33,6 @@
 class HiEvtAnalyzer : public edm::EDAnalyzer {
 public:
   explicit HiEvtAnalyzer(const edm::ParameterSet&);
-  explicit HiEvtAnalyzer(const edm::ParameterSet&, const edm::EventSetup&, edm::ConsumesCollector &&);
   ~HiEvtAnalyzer();
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -42,11 +42,6 @@ private:
   virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override ;
-
-  // virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  // virtual void endRun(edm::Run const&, edm::EventSetup const&);
-  // virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-  // virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
   // ----------member data ---------------------------
   edm::InputTag CentralityTag_;
@@ -111,9 +106,7 @@ private:
 //
 // constructors and destructor
 //
-HiEvtAnalyzer::HiEvtAnalyzer(const edm::ParameterSet& iConfig){}
-
-HiEvtAnalyzer::HiEvtAnalyzer(const edm::ParameterSet& iConfig, const edm::EventSetup& iSetup, edm::ConsumesCollector&& iC) :
+HiEvtAnalyzer::HiEvtAnalyzer(const edm::ParameterSet& iConfig) :
   CentralityBinTag_(iConfig.getParameter<edm::InputTag> ("CentralityBin")),
   EvtPlaneTag_(iConfig.getParameter<edm::InputTag> ("EvtPlane")),
   EvtPlaneFlatTag_(iConfig.getParameter<edm::InputTag> ("EvtPlaneFlat")),
@@ -125,12 +118,14 @@ HiEvtAnalyzer::HiEvtAnalyzer(const edm::ParameterSet& iConfig, const edm::EventS
   doMC_(iConfig.getParameter<bool> ("doMC")),
   doVertex_(iConfig.getParameter<bool>("doVertex"))
 {
-  //now do what ever initialization is needed
   centProvider = 0;
   if(doCentrality_)
-    if (!centProvider) centProvider = new CentralityProvider(iSetup, std::move(iC));
-}
+  {
+    const edm::EventSetup *fakeSetup = (edm::EventSetup *)0;
+    centProvider = new CentralityProvider(*fakeSetup, consumesCollector());
+  }
 
+}
 
 HiEvtAnalyzer::~HiEvtAnalyzer()
 {
@@ -356,30 +351,6 @@ void
 HiEvtAnalyzer::endJob()
 {
 }
-
-// // ------------ method called when starting to processes a run  ------------
-// void
-// HiEvtAnalyzer::beginRun(edm::Run const&, edm::EventSetup const&)
-// {
-// }
-
-// // ------------ method called when ending the processing of a run  ------------
-// void
-// HiEvtAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
-// {
-// }
-
-// // ------------ method called when starting to processes a luminosity block  ------------
-// void
-// HiEvtAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-// {
-// }
-
-// // ------------ method called when ending the processing of a luminosity block  ------------
-// void
-// HiEvtAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-// {
-// }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
