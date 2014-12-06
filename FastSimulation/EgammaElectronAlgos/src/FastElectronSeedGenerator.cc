@@ -39,7 +39,6 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "FastSimulation/TrackerSetup/interface/TrackerInteractionGeometryRecord.h"
 #include "FastSimulation/ParticlePropagator/interface/MagneticFieldMapRecord.h"
-#include "FastSimulation/Tracking/interface/TrackerRecHit.h"
 
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
@@ -193,8 +192,8 @@ void  FastElectronSeedGenerator::run(edm::Event& e,
       //    Save a collection of Pixel +TEC +TID hits for seeding electrons
       std::vector<unsigned> layerHit(6,static_cast<unsigned>(0));
       // const SiTrackerGSMatchedRecHit2D *hit;
-      TrackerRecHit currentHit;
-      std::vector<TrackerRecHit> theHits;
+      TrajectorySeedHitCandidate currentHit;
+      std::vector<TrajectorySeedHitCandidate> theHits;
       TrajectorySeed theTrackerSeed;
 
       SiTrackerGSMatchedRecHit2DCollection::range theRecHitRange = theGSRecHits->get(simTrackId);
@@ -208,7 +207,7 @@ void  FastElectronSeedGenerator::run(edm::Event& e,
 	    ++iterRecHit) {
 	++numberOfRecHits;
 
-	currentHit = TrackerRecHit(&(*iterRecHit),theTrackerGeometry,tTopo);
+	currentHit = TrajectorySeedHitCandidate(&(*iterRecHit),theTrackerGeometry,tTopo);
 	if ( ( currentHit.subDetId() <= 2 ) ||  // Pixel Hits
 	     // Add TID/TEC (optional)
 	     ( searchInTIDTEC &&
@@ -248,8 +247,8 @@ void  FastElectronSeedGenerator::run(edm::Event& e,
 #endif
     for (unsigned int i=0;i<seeds->size();++i) {
 
-      TrackerRecHit currentHit;
-      std::vector<TrackerRecHit> theHits;
+      TrajectorySeedHitCandidate currentHit;
+      std::vector<TrajectorySeedHitCandidate> theHits;
       const TrajectorySeed& theTrackerSeed = (*seeds)[i];
       TrajectorySeed::range theSeedRange=theTrackerSeed.recHits();
       TrajectorySeed::const_iterator theSeedRangeIteratorBegin = theSeedRange.first;
@@ -259,7 +258,7 @@ void  FastElectronSeedGenerator::run(edm::Event& e,
       for ( ; theSeedItr != theSeedRangeIteratorEnd; ++theSeedItr ) {
 	const SiTrackerGSMatchedRecHit2D * theSeedingRecHit =
 	  (const SiTrackerGSMatchedRecHit2D*) (&(*theSeedItr));
-	currentHit = TrackerRecHit(theSeedingRecHit,theTrackerGeometry,tTopo);
+	currentHit = TrajectorySeedHitCandidate(theSeedingRecHit,theTrackerGeometry,tTopo);
 	theHits.push_back(currentHit);
       }
 
@@ -305,7 +304,7 @@ void  FastElectronSeedGenerator::run(edm::Event& e,
 
 void
 FastElectronSeedGenerator::addASeedToThisCluster(edm::Ref<reco::SuperClusterCollection> seedCluster,
-						    std::vector<TrackerRecHit>& theHits,
+						    std::vector<TrajectorySeedHitCandidate>& theHits,
 						    const TrajectorySeed& theTrackerSeed,
 						    std::vector<reco::ElectronSeed>& result)
 {

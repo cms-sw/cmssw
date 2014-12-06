@@ -13,7 +13,6 @@ from FastSimulation.Tracking.IterativeDetachedTripletStep_cff import *
 from FastSimulation.Tracking.IterativeMixedTripletStep_cff import *
 from FastSimulation.Tracking.IterativePixelLessStep_cff import *
 from FastSimulation.Tracking.IterativeTobTecStep_cff import *
-from FastSimulation.Tracking.MuonSeededStep_cff import *
 
 # this block is to switch between defaul behaviour (MixingMode=='GenMixing') and new mixing
 from FastSimulation.Configuration.CommonInputs_cff import MixingMode
@@ -43,8 +42,5 @@ iterativeTracking = cms.Sequence(
                                  +iterativeMixedTripletStep
                                  +iterativePixelLessStep
                                  +iterativeTobTecStep
-# not validated yet:                                 +muonSeededStep 
-#                                 +generalTracks
-#                                 +trackExtrapolator)
                                  +lastTrackingSteps)
 
