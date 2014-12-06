@@ -325,5 +325,14 @@ def customise_harvesting(process):
     process.dqmHarvesting.remove(process.dataCertificationJetMET)
     process.dqmHarvesting.remove(process.sipixelEDAClient)
     process.dqmHarvesting.remove(process.sipixelCertification)
+    
+    # Include Phase 2 Upgrade Outer Tracker
+    strip2Index=process.DQMOffline_SecondStep_PreDPG.index(process.SiStripOfflineDQMClient)
+    process.load("DQM.Phase2OuterTracker.OuterTrackerClientConfig_cff")
+    process.dqmHarvesting.insert(strip2Index, process.OuterTrackerClient) 
+    
+    strip2VIndex=process.postValidation.index(process.bTagCollectorSequenceMCbcl)
+    process.load("Validation.Phase2OuterTracker.OuterTrackerClientConfig_cff")
+    process.validationHarvesting.insert(strip2VIndex, process.OuterTrackerClient)    
     return (process)
 
