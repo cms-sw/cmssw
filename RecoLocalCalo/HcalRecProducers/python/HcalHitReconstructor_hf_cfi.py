@@ -12,7 +12,8 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
                         samplesToAdd = cms.int32(1),	
                         tsFromDB = cms.bool(True),
                         recoParamsFromDB = cms.bool(True),
-                        useLeakCorrection = cms.bool(False),
+                        useLeakCorrection = cms.bool(False),    
+                        puCorrMethod = cms.int32(0),
 	
                         correctTiming = cms.bool(True),
                         # Set time slice for first digi to be stored in aux word 

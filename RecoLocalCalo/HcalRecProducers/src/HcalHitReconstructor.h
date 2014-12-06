@@ -89,6 +89,7 @@ class HcalTopology;
       const HcalFlagHFDigiTimeParams* HFDigiTimeParams; // HF DigiTime parameters
 
       HcalTopology *theTopology;
+      int puCorrMethod_;
     };
 
 #endif
