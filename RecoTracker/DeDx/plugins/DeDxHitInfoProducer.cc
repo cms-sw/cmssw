@@ -68,6 +68,7 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 {  
   edm::Handle<reco::TrackCollection> trackCollectionHandle;
   iEvent.getByToken(m_tracksTag,trackCollectionHandle);
+  const TrackCollection& trackCollection(*trackCollectionHandle.product());
 
   Handle<TrajTrackAssociationCollection> trajTrackAssociationHandle;
   if(useTrajectory)iEvent.getByToken(m_trajTrackAssociationTag, trajTrackAssociationHandle);
@@ -79,8 +80,8 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   TrajTrackAssociationCollection::const_iterator cit;
   if(useTrajectory)cit = trajTrackAssociationHandle->begin();
-  for(unsigned int j=0;j<trackCollectionHandle->size();j++){            
-     const reco::Track& track = trackCollectionHandle->at(j);
+  for(unsigned int j=0;j<trackCollection.size();j++){            
+     const reco::Track& track = trackCollection[j];
 
      //track selection
      if(track.pt()<minTrackPt ||  std::abs(track.eta())>maxTrackEta ||track.numberOfValidHits()<minTrackHits){
@@ -101,7 +102,6 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
            if(!recHit)continue;
            const LocalVector& trackDirection = trajState.localDirection();
            float cosine = trackDirection.z()/trackDirection.mag();           
-           cosine = std::max(0.00000001f,cosine);//make sure cosine is not 0
 
            processHit(recHit, trajState.localMomentum().mag(), cosine, hitDeDxInfo, trajState.localPosition());
         }
@@ -114,7 +114,6 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
            const GlobalVector& ModuleNormal = recHit->detUnit()->surface().normalVector();         
            float cosine = (track.px()*ModuleNormal.x()+track.py()*ModuleNormal.y()+track.pz()*ModuleNormal.z())/track.p();
-           cosine = std::max(0.00000001f,cosine);//make sure cosine is not 0
  
            processHit(recHit, track.p(), cosine, hitDeDxInfo, LocalPoint(0.0,0.0));
         } 
@@ -140,6 +139,8 @@ void DeDxHitInfoProducer::processHit(const TrackingRecHit* recHit, const float t
       auto const & thit = static_cast<BaseTrackerRecHit const&>(*recHit);
       if(!thit.isValid())return;
 
+      float cosineAbs = std::max(0.00000001f,std::abs(cosine));//make sure cosine is not 0
+
       auto const & clus = thit.firstClusterRef();
       if(!clus.isValid())return;
 
@@ -147,7 +148,7 @@ void DeDxHitInfoProducer::processHit(const TrackingRecHit* recHit, const float t
           if(!usePixel) return;
 
           auto& detUnit     = *(recHit->detUnit());
-          float pathLen     = detUnit.surface().bounds().thickness()/std::abs(cosine);
+          float pathLen     = detUnit.surface().bounds().thickness()/cosineAbs;
           float chargeAbs   = clus.pixelCluster().charge();
           hitDeDxInfo.addHit(chargeAbs, pathLen, thit.geographicalId(), hitLocalPos, clus.pixelCluster() );
        }else if(clus.isStrip() && !thit.isMatched()){
@@ -155,7 +156,7 @@ void DeDxHitInfoProducer::processHit(const TrackingRecHit* recHit, const float t
 
           auto& detUnit     = *(recHit->detUnit());
           int   NSaturating = 0;
-          float pathLen     = detUnit.surface().bounds().thickness()/std::abs(cosine);
+          float pathLen     = detUnit.surface().bounds().thickness()/cosineAbs;
           float chargeAbs   = DeDxTools::getCharge(&(clus.stripCluster()),NSaturating, detUnit, calibGains, m_off);
           hitDeDxInfo.addHit(chargeAbs, pathLen, thit.geographicalId(), hitLocalPos, clus.stripCluster() );
        }else if(clus.isStrip() && thit.isMatched()){
@@ -165,13 +166,13 @@ void DeDxHitInfoProducer::processHit(const TrackingRecHit* recHit, const float t
 
           auto& detUnitM     = *(matchedHit->monoHit().detUnit());
           int   NSaturating = 0;
-          float pathLen     = detUnitM.surface().bounds().thickness()/std::abs(cosine);
+          float pathLen     = detUnitM.surface().bounds().thickness()/cosineAbs;
           float chargeAbs   = DeDxTools::getCharge(&(matchedHit->monoHit().stripCluster()),NSaturating, detUnitM, calibGains, m_off);
           hitDeDxInfo.addHit(chargeAbs, pathLen, thit.geographicalId(), hitLocalPos, matchedHit->monoHit().stripCluster() );
 
           auto& detUnitS     = *(matchedHit->stereoHit().detUnit());
           NSaturating = 0;
-          pathLen     = detUnitS.surface().bounds().thickness()/std::abs(cosine);
+          pathLen     = detUnitS.surface().bounds().thickness()/cosineAbs;
           chargeAbs   = DeDxTools::getCharge(&(matchedHit->stereoHit().stripCluster()),NSaturating, detUnitS, calibGains, m_off);
           hitDeDxInfo.addHit(chargeAbs, pathLen, thit.geographicalId(), hitLocalPos, matchedHit->stereoHit().stripCluster() );          
        }
