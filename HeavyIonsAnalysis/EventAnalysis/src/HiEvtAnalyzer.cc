@@ -32,6 +32,7 @@
 class HiEvtAnalyzer : public edm::EDAnalyzer {
 public:
   explicit HiEvtAnalyzer(const edm::ParameterSet&);
+  explicit HiEvtAnalyzer(const edm::ParameterSet&, const edm::EventSetup&, edm::ConsumesCollector &&);
   ~HiEvtAnalyzer();
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -110,7 +111,9 @@ private:
 //
 // constructors and destructor
 //
-HiEvtAnalyzer::HiEvtAnalyzer(const edm::ParameterSet& iConfig) :
+HiEvtAnalyzer::HiEvtAnalyzer(const edm::ParameterSet& iConfig){}
+
+HiEvtAnalyzer::HiEvtAnalyzer(const edm::ParameterSet& iConfig, const edm::EventSetup& iSetup, edm::ConsumesCollector&& iC) :
   CentralityBinTag_(iConfig.getParameter<edm::InputTag> ("CentralityBin")),
   EvtPlaneTag_(iConfig.getParameter<edm::InputTag> ("EvtPlane")),
   EvtPlaneFlatTag_(iConfig.getParameter<edm::InputTag> ("EvtPlaneFlat")),
@@ -123,7 +126,9 @@ HiEvtAnalyzer::HiEvtAnalyzer(const edm::ParameterSet& iConfig) :
   doVertex_(iConfig.getParameter<bool>("doVertex"))
 {
   //now do what ever initialization is needed
-
+  centProvider = 0;
+  if(doCentrality_)
+    if (!centProvider) centProvider = new CentralityProvider(iSetup, std::move(iC));
 }
 
 
@@ -154,7 +159,7 @@ HiEvtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   lumi = iEvent.id().luminosityBlock();
 
   edm::Handle<reco::EvtPlaneCollection> evtPlanes;
-  centProvider = 0;
+  //centProvider = 0;
 
   if(doMC_){
     edm::Handle<edm::GenHIEvent> mchievt;
@@ -181,7 +186,7 @@ HiEvtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //hiBin = *binHandle;
 
   if (doCentrality_) {
-    if (!centProvider) centProvider = new CentralityProvider(iSetup);
+    //if (!centProvider) centProvider = new CentralityProvider(iSetup, );
 
     // make supre you do this first in every event
     centProvider->newEvent(iEvent,iSetup);
@@ -256,7 +261,7 @@ HiEvtAnalyzer::beginJob()
 {
   thi_ = fs_->make<TTree>("HiTree", "");
 
-  centProvider = 0;
+  //centProvider = 0;
   HltEvtCnt = 0;
   const int kMaxEvtPlanes = 1000;
 
