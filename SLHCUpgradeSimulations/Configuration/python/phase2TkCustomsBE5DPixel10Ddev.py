@@ -254,6 +254,11 @@ def customise_DQM(process,pileup):
 #    process.dqmoffline_step.remove(process.TrackMonStep10)
 #    process.dqmoffline_step.remove(process.PixelTrackingRecHitsValid)
 
+    #add Phase 2 Upgrade Outer Tracker
+    stripIndex=process.DQMOfflinePreDPG.index(process.SiStripDQMTier0)
+    process.load("DQM.Phase2OuterTracker.OuterTrackerSourceConfig_cff")
+    process.dqmoffline_step.insert(stripIndex, process.OuterTrackerSource)
+
     #put isUpgrade flag==true
     process.SiPixelRawDataErrorSource.isUpgrade = cms.untracked.bool(True)
     process.SiPixelDigiSource.isUpgrade = cms.untracked.bool(True)
@@ -279,6 +284,12 @@ def customise_Validation(process,pileup):
     process.validation_step.remove(process.stripRecHitsValid)
     process.validation_step.remove(process.trackerHitsValid)
     process.validation_step.remove(process.StripTrackingRecHitsValid)
+    
+    # Include Phase 2 Upgrade Outer Tracker
+    stripVIndex=process.globalValidation.index(process.trackerDigisValidation)
+    process.load("Validation.Phase2OuterTracker.OuterTrackerSourceConfig_cff")
+    process.validation_step.insert(stripVIndex, process.OuterTrackerSource)
+    
     # We don't run the HLT
     process.validation_step.remove(process.HLTSusyExoVal)
     process.validation_step.remove(process.hltHiggsValidator)
