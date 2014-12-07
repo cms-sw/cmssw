@@ -32,9 +32,6 @@ import DQMServices.Components.DQMEnvironment_cfi
 dqmEnvL1TriggerReco = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
 dqmEnvL1TriggerReco.subSystemFolder = 'L1T/L1TriggerVsReco'
 
-from DQMOffline.L1Trigger.L1TriggerRecoDQM_cff import *
-
-
 #
 # DQM L1 Trigger Emulator in offline environment
 # Run also the L1HwVal producers (L1 Trigger emulators)
