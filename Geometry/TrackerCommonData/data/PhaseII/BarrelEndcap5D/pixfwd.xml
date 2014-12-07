@@ -187,22 +187,22 @@
     <rRotation name="pixfwdCylinder:EndFlangeRot2"/>  <!-- xt rRotation name="pixfwdCommon:Z180" / xt-->
   </PosPart>
     <PosPart copyNumber="1">
-      <rParent name="pixfwd:PixelForward"/>
+      <rParent name="pixfwd:Phase2OTForward"/>
       <rChild name="pixfwd:PixelBarrelConn3"/>
       <Translation x="[zero]" y="[zero]" z="[Conn3Z]"/>
     </PosPart>
     <PosPart copyNumber="1">
-      <rParent name="pixfwd:PixelForward"/>
+      <rParent name="pixfwd:Phase2OTForward"/>
       <rChild name="pixfwd:PixelBarrelConn4"/>
       <Translation x="[zero]" y="[zero]" z="[Conn4Z]"/>
     </PosPart>
     <PosPart copyNumber="1">
-      <rParent name="pixfwd:PixelForward"/>
+      <rParent name="pixfwd:Phase2OTForward"/>
       <rChild name="pixfwd:PixelBarrelService"/>
       <Translation x="[zero]" y="[zero]" z="[ServZ]"/>
     </PosPart>
     <PosPart copyNumber="1">
-      <rParent name="pixfwd:PixelForward"/>
+      <rParent name="pixfwd:Phase2OTForward"/>
       <rChild name="pixfwd:PixelBarrelSupTubCables"/>
       <Translation x="[zero]" y="[zero]" z="[ServCablZ]"/>
     </PosPart>

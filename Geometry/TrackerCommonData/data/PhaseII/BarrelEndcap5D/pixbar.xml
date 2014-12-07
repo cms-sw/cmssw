@@ -165,8 +165,8 @@
     </Polycone>
     <Polycone name="PixelBarrel" startPhi="0*deg" deltaPhi="360*deg">
       <ZSection z="-119.0*cm" rMin="19.0*cm" rMax="[Rout2]"/>
-      <ZSection z="-[Zv3]"          rMin="19.0*cm"          rMax="[Rout2]" />
-      <ZSection z="-[Zv3]"          rMin="19.0*cm"          rMax="[Rout1]" />
+      <ZSection z="-117.0*cm"          rMin="19.0*cm"          rMax="[Rout2]" />
+      <ZSection z="-117.0*cm"          rMin="19.0*cm"          rMax="[Rout1]" />
       <ZSection z="-29.12*cm" rMin="19.0*cm" rMax="[Rout1]"/>
       <ZSection z="-29.12*cm" rMin="[Rin2]" rMax="[Rout1]"/>
       <ZSection z="-[Zv1]"         rMin="[Rin2]"          rMax="[Rout1]" />
@@ -175,8 +175,8 @@
       <ZSection z="[Zv1]"          rMin="[Rin2]"          rMax="[Rout1]" />
       <ZSection z="29.12*cm" rMin="[Rin2]" rMax="[Rout1]"/>
       <ZSection z="29.12*cm" rMin="19.0*cm" rMax="[Rout1]"/>
-      <ZSection z="[Zv3]"          rMin="19.0*cm"          rMax="[Rout1]" />
-      <ZSection z="[Zv3]"          rMin="19.0*cm"          rMax="[Rout2]" />
+      <ZSection z="117.0*cm"          rMin="19.0*cm"          rMax="[Rout1]" />
+      <ZSection z="117.0*cm"          rMin="19.0*cm"          rMax="[Rout2]" />
       <ZSection z="119.0*cm" rMin="19.0*cm" rMax="[Rout2]"/>
     </Polycone> 
     <SubtractionSolid name="Phase2OTBarrel">
