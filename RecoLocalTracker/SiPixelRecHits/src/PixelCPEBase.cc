@@ -107,7 +107,13 @@ PixelCPEBase::setTheDet( const GeomDetUnit & det, const SiPixelCluster & cluster
     case GeomDetEnumerators::PixelBarrel:
       // A barrel!  A barrel!
       break;
+    case GeomDetEnumerators::P1PXB:
+      // A barrel!  A barrel!
+      break;
     case GeomDetEnumerators::PixelEndcap:
+      // A forward!  A forward!
+      break;
+    case GeomDetEnumerators::P1PXEC:
       // A forward!  A forward!
       break;
     default:

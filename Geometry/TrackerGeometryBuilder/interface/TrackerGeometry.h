@@ -2,6 +2,7 @@
 #define Geometry_TrackerGeometryBuilder_TrackerGeometry_H
 
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetEnumerators.h"
 
 class GeometricDet;
@@ -40,6 +41,8 @@ public:
   virtual const GeomDetUnit*       idToDetUnit(DetId) const;
   virtual const GeomDet*           idToDet(DetId)     const;
 
+  const GeomDetEnumerators::SubDetector geomDetSubDetector(int subdet) const;
+  unsigned int numberOfLayers(int subdet) const;
 
   void addType(GeomDetType* p);
   void addDetUnit(GeomDetUnit* p);
@@ -64,6 +67,7 @@ public:
 
 private:
 
+
   GeometricDet const * theTrackerDet; 
 
   /// Aligner has access to map
@@ -86,6 +90,10 @@ private:
   DetContainer      theTOBDets; // not owned: they're also in 'theDets'
   DetContainer      theTECDets; // not owned: they're also in 'theDets'
 
+  GeomDetEnumerators::SubDetector theSubDetTypeMap[6];
+  unsigned int theNumberOfLayers[6];
+
+  static const  GeomDetEnumerators::SubDetector geometricDetToGeomDet(GeometricDet::GDEnumType gdenum);
 
 };
 

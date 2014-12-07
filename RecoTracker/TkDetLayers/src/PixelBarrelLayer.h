@@ -37,7 +37,7 @@ class PixelBarrelLayer GCC11_FINAL : public RodBarrelLayer, public GeometricSear
     
 
   // DetLayer interface
-  virtual SubDetector subDetector() const { return GeomDetEnumerators::PixelBarrel;}
+  virtual SubDetector subDetector() const { return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::PixelBarrel];}
 
 
  private:

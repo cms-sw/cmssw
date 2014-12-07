@@ -10,6 +10,8 @@ CmsTrackerStringToEnum::Impl::Impl(){
   _map.insert(std::pair<std::string, GeometricDet::GeometricEnumType>("PixelBarrelLadder",GeometricDet::ladder));
   _map.insert(std::pair<std::string, GeometricDet::GeometricEnumType>("PixelBarrelDet",GeometricDet::DetUnit));
 
+  _map.insert(std::pair<std::string, GeometricDet::GeometricEnumType>("PixelPhase1Barrel",GeometricDet::PixelPhase1Barrel));
+
   _map.insert(std::pair<std::string, GeometricDet::GeometricEnumType>("Phase2OTBarrel",GeometricDet::OTPhase2Barrel));
   _map.insert(std::pair<std::string, GeometricDet::GeometricEnumType>("Phase2OTBarrelLayer",GeometricDet::OTPhase2Layer));
 
@@ -60,6 +62,7 @@ CmsTrackerStringToEnum::Impl::Impl(){
 
   _reverseMap.insert(std::pair<GeometricDet::GeometricEnumType, std::string>(GeometricDet::Tracker,"Tracker"));
   _reverseMap.insert(std::pair<GeometricDet::GeometricEnumType, std::string>(GeometricDet::PixelBarrel,"PixelBarrel"));
+  _reverseMap.insert(std::pair<GeometricDet::GeometricEnumType, std::string>(GeometricDet::PixelPhase1Barrel,"PixelBarrel"));
   _reverseMap.insert(std::pair<GeometricDet::GeometricEnumType, std::string>(GeometricDet::PixelEndCap,"PixelEndCap"));
   _reverseMap.insert(std::pair<GeometricDet::GeometricEnumType, std::string>(GeometricDet::PixelPhase1EndCap,"PixelEndCap"));
   _reverseMap.insert(std::pair<GeometricDet::GeometricEnumType, std::string>(GeometricDet::PixelPhase2EndCap,"PixelEndCap"));

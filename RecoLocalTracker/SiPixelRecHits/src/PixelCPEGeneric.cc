@@ -608,7 +608,7 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
       //cout << "Default angle estimation which assumes track from PV (0,0,0) does not work." << endl;
       //cout << "Use an error parameterization which only depends on cluster size (by Vincenzo Chiochia)." << endl; 
       
-      if ( thePart == GeomDetEnumerators::PixelBarrel ) 
+      if ( thePart == GeomDetEnumerators::PixelBarrel || thePart == GeomDetEnumerators::P1PXB ) 
 	{
 	  DetId id = (det.geographicalId());
 	  int layer=PXBDetId(id).layer();
@@ -644,7 +644,7 @@ PixelCPEGeneric::localError( const SiPixelCluster& cluster,
 	  xerr=thePitchX / sqrt( 12.0f );
 	  yerr=thePitchY / sqrt( 12.0f );
 	} 
-      else if( thePart == GeomDetEnumerators::PixelEndcap ) // PixelEndCap
+      else if( thePart == GeomDetEnumerators::PixelEndcap || thePart == GeomDetEnumerators::P1PXEC || thePart == GeomDetEnumerators::P2PXEC ) // PixelEndCap
 	{ 
 	  if ( !edgex )
 	    {

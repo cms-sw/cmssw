@@ -54,8 +54,11 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
       TrajectoryStateOnSurface ts = (*tm).updatedState();
       const GlobalVector gdir = ts.globalDirection();
 
-      if(ttRecHit->det()->subDetector() == GeomDetEnumerators::PixelBarrel ||
-         ttRecHit->det()->subDetector() == GeomDetEnumerators::PixelEndcap)
+      if(ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::PixelBarrel ||
+	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::PixelEndcap ||
+	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P1PXB ||
+	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P1PXEC ||
+	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P2PXEC) 
       { // pixel
         const SiPixelRecHit* recHit =
            dynamic_cast<const SiPixelRecHit *>(tRecHit);
@@ -63,7 +66,7 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
         if(recHit != 0)
           return theFilter->isCompatible(*recHit, gdir);
       }
-      else
+      else if(GeomDetEnumerators::isTrackerStrip(ttRecHit->det()->subDetector()))
       { // strip
         if(dynamic_cast<const SiStripMatchedRecHit2D *>(tRecHit)  != 0)
         { // glued
@@ -120,8 +123,11 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
       TrajectoryStateOnSurface ts = (*tm).updatedState();
       GlobalVector gdir = ts.globalDirection();
 
-      if(ttRecHit->det()->subDetector() == GeomDetEnumerators::PixelBarrel ||
-         ttRecHit->det()->subDetector() == GeomDetEnumerators::PixelEndcap)
+      if(ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::PixelBarrel ||
+	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::PixelEndcap ||
+	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P1PXB ||
+	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P1PXEC ||
+	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P2PXEC) 
       { // pixel
         const SiPixelRecHit* recHit =
            dynamic_cast<const SiPixelRecHit *>(tRecHit);
@@ -134,7 +140,7 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
             return false;
           }
       }
-      else
+      else if(GeomDetEnumerators::isTrackerStrip(ttRecHit->det()->subDetector()))
       { // strip
         if(dynamic_cast<const SiStripMatchedRecHit2D *>(tRecHit)  != 0)
         { // glued

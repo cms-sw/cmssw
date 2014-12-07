@@ -37,7 +37,7 @@ class Phase2OTBarrelLayer GCC11_FINAL : public RodBarrelLayer, public GeometricS
     
 
   // DetLayer interface
-  virtual SubDetector subDetector() const { return GeomDetEnumerators::PixelBarrel;}
+  virtual SubDetector subDetector() const { return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::P2OTB];}
 
 
  private:
