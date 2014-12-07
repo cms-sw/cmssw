@@ -200,7 +200,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
     subdetOther_=HcalCalibration;
     produces<HcalCalibRecHitCollection>();
   } else {
-     std::cout << "HcalHitReconstructor is not associated with a specific subdetector!" << std::endl;
+     edm::LogWarning("Configuration") << "HcalHitReconstructor is not associated with a specific subdetector!" << std::endl;
   }       
   
   reco_.setpuCorrMethod(puCorrMethod_);
