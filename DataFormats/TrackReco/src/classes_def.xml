@@ -479,4 +479,22 @@
      <class name="edm::Wrapper<std::vector<std::pair<TrackCandidate,std::pair<edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> > > > > >"/>
 
 
+   <class name="reco::DeDxHitInfo::DeDxHitInfoContainer" ClassVersion="2">
+    <version ClassVersion="2" checksum="3964047764"/>
+   </class>
+   <class name="reco::DeDxHitInfo::DeDxHitInfoContainerCollection"/>
+
+
+   <class name="reco::DeDxHitInfo" ClassVersion="2">
+    <version ClassVersion="2" checksum="3000986250"/>
+   </class>
+   <class name="reco::DeDxHitInfoCollection"/>
+   <class name="reco::DeDxHitInfoRef"/>
+   <class name="reco::DeDxHitInfoRefProd"/>
+   <class name="reco::DeDxHitInfoRefVector"/>
+   <class name="reco::DeDxHitInfoAss"/>
+   <class name="edm::Wrapper<reco::DeDxHitInfo>"/>
+   <class name="edm::Wrapper<reco::DeDxHitInfoCollection>"/>
+   <class name="edm::Wrapper<reco::DeDxHitInfoAss>"/>
+
   </lcgdict>
