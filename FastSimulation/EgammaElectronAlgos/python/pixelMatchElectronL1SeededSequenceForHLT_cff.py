@@ -40,14 +40,14 @@ import FastSimulation.Tracking.TrackCandidateProducer_cfi
 hltCkfL1SeededTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
 #hltCkfL1SeededTrackCandidates.SeedProducer = cms.InputTag("hltL1SeededElectronPixelSeeds")
 hltCkfL1SeededTrackCandidates.SeedProducer = cms.InputTag("hltL1SeededStartUpElectronPixelSeeds")
-hltCkfL1SeededTrackCandidates.TrackProducers = []
+#hltCkfL1SeededTrackCandidates.TrackProducers = []
 hltCkfL1SeededTrackCandidates.MaxNumberOfCrossedLayers = 999
 hltCkfL1SeededTrackCandidates.SeedCleaning = True
 hltCkfL1SeededTrackCandidates.SplitHits = False
 
 hltL1SeededCkfTrackCandidatesForGSF = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
 hltL1SeededCkfTrackCandidatesForGSF.SeedProducer = cms.InputTag("hltL1SeededStartUpElectronPixelSeeds")
-hltL1SeededCkfTrackCandidatesForGSF.TrackProducers = []
+#hltL1SeededCkfTrackCandidatesForGSF.TrackProducers = []
 hltL1SeededCkfTrackCandidatesForGSF.MaxNumberOfCrossedLayers = 999
 hltL1SeededCkfTrackCandidatesForGSF.SeedCleaning = True
 hltL1SeededCkfTrackCandidatesForGSF.SplitHits = True

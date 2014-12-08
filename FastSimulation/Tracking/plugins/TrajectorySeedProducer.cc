@@ -34,16 +34,12 @@
 
 //Propagator withMaterial
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
-//analyticalpropagator
-//#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 
-//
-
-//for debug only 
-//#define FAMOS_DEBUG
+#include "FastSimulation/Tracking/plugins/SimTrackIdProducer.h"
 
 template class SeedingTree<TrackingLayer>;
 template class SeedingNode<TrackingLayer>;
+
 
 TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     thePropagator(nullptr),
@@ -138,6 +134,7 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
 
 
 void 
+
 TrajectorySeedProducer::beginRun(edm::Run const&, const edm::EventSetup & es) 
 {
     edm::ESHandle<MagneticField> magneticFieldHandle;
@@ -329,6 +326,18 @@ std::vector<unsigned int> TrajectorySeedProducer::iterateHits(
 void 
 TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) 
 {        
+
+  // First, the tracks to be removed
+  std::set<unsigned int> skipSimTrackIds;
+  for ( unsigned int i=0; i<skipSimTrackIdTokens.size(); ++i ) {
+    edm::Handle<std::vector<int> > skipSimTrackIds_temp;
+    e.getByToken(skipSimTrackIdTokens[i],skipSimTrackIds_temp);
+    for ( unsigned int j=0; j<skipSimTrackIds_temp->size(); ++j ) {
+      unsigned int mySimTrackId = (*skipSimTrackIds_temp)[j];
+      skipSimTrackIds.insert((unsigned int)mySimTrackId);
+    } 
+  }
+
 	//  unsigned nTrackCandidates = 0;
 	PTrajectoryStateOnDet initialState;
 
@@ -347,6 +356,19 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	//  edm::Handle<SiTrackerGSRecHit2DCollection> theGSRecHits;
 	edm::Handle<SiTrackerGSMatchedRecHit2DCollection> theGSRecHits;
 	e.getByToken(recHitToken, theGSRecHits);
+ 
+	// The vector of simTrack Id's carrying GSRecHits
+	const std::vector<unsigned> theSimTrackIds = theGSRecHits->ids();
+	int nTracksPass = 0;
+
+	// loop over SimTrack Id's
+	for ( unsigned i=0;  i != theSimTrackIds.size(); ++i ) {
+	  ++nSimTracks;
+	  unsigned int simTrackId = theSimTrackIds[i];
+	  std::set<unsigned>::iterator iR = skipSimTrackIds.find(simTrackId);
+	  if( iR != skipSimTrackIds.end() ) continue;
+	  nTracksPass++ ;
+	}
 
     // Primary vertices
     edm::Handle<reco::VertexCollection> theRecVtx;
@@ -356,7 +378,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
         //this can be nullptr if the PV compatiblity should not be tested against
         vertices = &(*theRecVtx);
     }
-	    
+   
 	    
     // Output - gets moved, no delete needed
 	std::auto_ptr<TrajectorySeedCollection> output{new TrajectorySeedCollection()};
@@ -504,6 +526,7 @@ TrajectorySeedProducer::compatibleWithBeamAxis(
         double error,
         bool forward
     ) const 
+
 {
 
     const double x0 = beamspotPosition.X();

@@ -21,6 +21,7 @@
 #include "FastSimulation/Tracking/interface/SeedingTree.h"
 #include "FastSimulation/Tracking/interface/TrackingLayer.h"
 
+
 #include <vector>
 #include <sstream>
 
@@ -35,7 +36,7 @@ class TrajectorySeedProducer:
 {
     private:
         SeedingTree<TrackingLayer> _seedingTree;
-
+	std::vector<edm::EDGetTokenT<std::vector<int> > > skipSimTrackIdTokens;
 
         const MagneticField* magneticField;
         const MagneticFieldMap* magneticFieldMap;
@@ -196,7 +197,6 @@ class TrajectorySeedProducer:
             const SeedingNode<TrackingLayer>* node, 
             unsigned int trackerHit
     ) const;
-
 };
 
 #endif

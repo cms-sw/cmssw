@@ -19,6 +19,8 @@ iterativeTobTecSeeds.zVertexConstraint = -1.0
 # skip compatiblity with PV/beamspot
 iterativeTobTecSeeds.skipPVCompatibility = True
 iterativeTobTecSeeds.primaryVertex = 'none'
+iterativeTobTecSeeds.skipSimTrackIdTags = [cms.InputTag("initialStepIds"), cms.InputTag("lowPtTripletStepIds"), cms.InputTag("pixelPairStepIds"), cms.InputTag("detachedTripletStepIds"), cms.InputTag("mixedTripletStepIds"), cms.InputTag("pixelLessStepIds")]
+
 
 #iterativeTobTecSeeds.layerList = ['TOB1+TOB2', 
 #                                  'TOB1+TEC1_pos', 'TOB1+TEC1_neg', 
@@ -36,9 +38,7 @@ iterativeTobTecSeeds.layerList.extend(tobTecStepSeedLayersPair.layerList)
 #from FastSimulation.Tracking.IterativeFifthCandidateProducer_cff import *
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 iterativeTobTecTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
-iterativeTobTecTrackCandidates.SeedProducer = cms.InputTag("iterativeTobTecSeeds",'TobTecLayerPairs')
-iterativeTobTecTrackCandidates.TrackProducers = ['pixelPairStepTracks','detachedTripletStepTracks','mixedTripletStepTracks','pixelLessStepTracks'] # add 0 and 0.5?
-iterativeTobTecTrackCandidates.KeepFittedTracks = False
+iterativeTobTecTrackCandidates.SeedProducer = cms.InputTag("iterativeTobTecSeeds","TobTecLayerPairs")
 iterativeTobTecTrackCandidates.MinNumberOfCrossedLayers = 3
 
 
@@ -50,29 +50,20 @@ iterativeTobTecTracks.src = 'iterativeTobTecTrackCandidates'
 iterativeTobTecTracks.TTRHBuilder = 'WithoutRefit'
 iterativeTobTecTracks.Fitter = 'KFFittingSmootherFifth'
 iterativeTobTecTracks.Propagator = 'PropagatorWithMaterial'
+iterativeTobTecTracks.trackAlgo = cms.untracked.uint32(10) # tobTecStep
 
-
-# track merger
-#from FastSimulation.Tracking.IterativeFifthTrackMerger_cfi import *
-tobTecStepTracks = cms.EDProducer("FastTrackMerger",
-                                  TrackProducers = cms.VInputTag(cms.InputTag("iterativeTobTecTrackCandidates"),
-                                                                 cms.InputTag("iterativeTobTecTracks")),
-                                  RemoveTrackProducers =  cms.untracked.VInputTag(cms.InputTag("initialStepTracks"),
-                                                                                  cms.InputTag("lowPtTripletStepTracks"),  
-                                                                                  cms.InputTag("pixelPairStepTracks"),  
-                                                                                  cms.InputTag("detachedTripletStepTracks"),    
-                                                                                  cms.InputTag("mixedTripletStepTracks"),     
-                                                                                  cms.InputTag("pixelLessStepTracks")),   
-                                  trackAlgo = cms.untracked.uint32(10), # tobTecStep
-                                  MinNumberOfTrajHits = cms.untracked.uint32(6), # was 4
-                                  MaxLostTrajHits = cms.untracked.uint32(0)
+# simtrack id producer
+tobTecStepIds = cms.EDProducer("SimTrackIdProducer",
+                                  trackCollection = cms.InputTag("iterativeTobTecTracks"),
+                                  HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits")
                                   )
+
 
 
 # track selection
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 tobTecStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
-        src='tobTecStepTracks',
+        src='iterativeTobTecTracks',
             trackSelectors= cms.VPSet(
             RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
                 name = 'tobTecStepLoose',
@@ -119,6 +110,6 @@ tobTecStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.mult
 iterativeTobTecStep = cms.Sequence(iterativeTobTecSeeds
                                       +iterativeTobTecTrackCandidates
                                       +iterativeTobTecTracks
-                                      +tobTecStepTracks
-                                      +tobTecStepSelector)
+                                      +tobTecStepSelector
+                                      +tobTecStepIds)
 
