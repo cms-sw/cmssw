@@ -104,7 +104,7 @@ process.castorMonitor = cms.EDAnalyzer("CastorMonitorModule",
                            unpackerReportLabel  = cms.InputTag("castorDigis"),
                            CastorRecHitLabel    = cms.InputTag("castorreco"),
                            CastorTowerLabel     = cms.InputTag("CastorTowerReco"),
-                           CastorBasicJetsLabel = cms.InputTag("ak7BasicJets"),
+                           CastorBasicJetsLabel = cms.InputTag("ak7CastorJets"),
                            CastorJetIDLabel     = cms.InputTag("ak7CastorJetID"),
                           
 			   DataIntMonitor= cms.untracked.bool(True),

@@ -155,7 +155,7 @@ json = {
      {
       "instance": "ak7CastorJetID",
       "container": "reco::CastorJetIDValueMap",
-      "desc": "Corresponding JetID object to go with the ak7BasicJets, contains various information on how a jet in CASTOR looks, see CASTOR reconstruction page for more info"
+      "desc": "Corresponding JetID object to go with the ak7CastorJets, contains various information on how a jet in CASTOR looks, see CASTOR reconstruction page for more info"
      },
      {
       "instance": "ak5GenJets",
@@ -168,7 +168,7 @@ json = {
       "desc": "No documentation"
      },
      {
-      "instance": "ak7BasicJets",
+      "instance": "ak7CastorJets",
       "container": "reco::CastorTowerCollection",
       "desc": "Fastjet Anti-kT R=0.7 jets reconstructed from CastorTowers"
      },
@@ -370,10 +370,10 @@ json = {
      {
       "instance": "ak7CastorJetID",
       "container": "reco::CastorJetIDValueMap",
-      "desc": "Corresponding JetID object to go with the ak7BasicJets, contains various information on how a jet in CASTOR looks, see CASTOR reconstruction page for more info"
+      "desc": "Corresponding JetID object to go with the ak7CastorJets, contains various information on how a jet in CASTOR looks, see CASTOR reconstruction page for more info"
      },
      {
-      "instance": "ak7BasicJets",
+      "instance": "ak7CastorJets",
       "container": "reco::CastorTowerCollection",
       "desc": "Fastjet Anti-kT R=0.7 jets reconstructed from CastorTowers"
      },
@@ -590,10 +590,10 @@ json = {
      {
       "instance": "ak7CastorJetID",
       "container": "reco::CastorJetIDValueMap",
-      "desc": "Corresponding JetID object to go with the ak7BasicJets, contains various information on how a jet in CASTOR looks, see CASTOR reconstruction page for more info"
+      "desc": "Corresponding JetID object to go with the ak7CastorJets, contains various information on how a jet in CASTOR looks, see CASTOR reconstruction page for more info"
      },
      {
-      "instance": "ak7BasicJets",
+      "instance": "ak7CastorJets",
       "container": "reco::CastorTowerCollection",
       "desc": "Fastjet Anti-kT R=0.7 jets reconstructed from CastorTowers"
      },
