@@ -13,6 +13,7 @@ hbheprereco = cms.EDProducer(
     tsFromDB = cms.bool(True),
     recoParamsFromDB = cms.bool(True),
     useLeakCorrection = cms.bool(False),
+    puCorrMethod = cms.int32(2),
 
     # Set time slice for first digi to be stored in aux word
     # (HBHE uses time slices 4-7 for reco)
@@ -101,5 +102,25 @@ hbheprereco = cms.EDProducer(
                                           win_gain   = cms.double(3.0),
                                           ignorelowest=cms.bool(True),
                                           ignorehighest=cms.bool(False)
-                                          )
+                                          ),
+    applyPedConstraint    = cms.bool(True),
+    applyTimeConstraint   = cms.bool(True),
+    applyPulseJitter      = cms.bool(False),  
+    applyUnconstrainedFit = cms.bool(False),   #Turn on original Method 2
+    applyTimeSlew         = cms.bool(True),   #units
+    ts4Min                = cms.double(5.),   #fC
+    ts4Max                = cms.double(500.),   #fC
+    pulseJitter           = cms.double(1.),   #GeV/bin
+    meanTime              = cms.double(-2.5), #ns
+    timeSigma             = cms.double(5.),  #ns
+    meanPed               = cms.double(0.),   #GeV
+    pedSigma              = cms.double(0.5),  #GeV
+    noise                 = cms.double(1),    #fC
+    timeMin               = cms.double(-15),  #ns
+    timeMax               = cms.double( 10),  #ns
+    ts3chi2               = cms.double(5.),   #chi2 (not used)
+    ts4chi2               = cms.double(0.),   #chi2 for triple pulse 
+    ts345chi2             = cms.double(100.), #chi2 (not used)
+    chargeMax             = cms.double(6.),    #Charge cut (fC) for uncstrianed Fit 
+    fitTimes              = cms.int32(-1)       # -1 means no constraint on number of fits per channel
     )

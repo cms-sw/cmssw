@@ -13,6 +13,7 @@ horeco = cms.EDProducer(
     tsFromDB = cms.bool(True),
     recoParamsFromDB = cms.bool(True),
     useLeakCorrection = cms.bool(False),
+    puCorrMethod = cms.int32(0),
 
     # Set time slice for first digi to be stored in aux word
     # (HO uses time slices 4-7)

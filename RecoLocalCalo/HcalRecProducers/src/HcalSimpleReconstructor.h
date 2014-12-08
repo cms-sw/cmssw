@@ -50,6 +50,7 @@ class HcalTopology;
 
       HcalRecoParams* paramTS;  // firstSample & sampleToAdd from DB  
       HcalTopology *theTopology;
+      int puCorrMethod_;
     };
 
 #endif

@@ -39,7 +39,8 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   tsFromDB_(conf.getParameter<bool>("tsFromDB")),
   useLeakCorrection_( conf.getParameter<bool>("useLeakCorrection")),
   paramTS(0),
-  theTopology(0)
+  theTopology(0),
+  puCorrMethod_(conf.existsAs<int>("puCorrMethod") ? conf.getParameter<int>("puCorrMethod") : 0)
 {
 
   std::string subd=conf.getParameter<std::string>("Subdetector");
@@ -199,8 +200,35 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
     subdetOther_=HcalCalibration;
     produces<HcalCalibRecHitCollection>();
   } else {
-     std::cout << "HcalHitReconstructor is not associated with a specific subdetector!" << std::endl;
+     edm::LogWarning("Configuration") << "HcalHitReconstructor is not associated with a specific subdetector!" << std::endl;
   }       
+  
+  reco_.setpuCorrMethod(puCorrMethod_);
+  if(puCorrMethod_ == 2) { 
+    reco_.setpuCorrParams(
+              conf.getParameter<bool>  ("applyPedConstraint"),
+              conf.getParameter<bool>  ("applyTimeConstraint"),
+              conf.getParameter<bool>  ("applyPulseJitter"),
+              conf.getParameter<bool>  ("applyUnconstrainedFit"),
+              conf.getParameter<bool>  ("applyTimeSlew"),
+              conf.getParameter<double>("ts4Min"),
+              conf.getParameter<double>("ts4Max"),
+              conf.getParameter<double>("pulseJitter"),
+              conf.getParameter<double>("meanTime"),
+              conf.getParameter<double>("timeSigma"),
+              conf.getParameter<double>("meanPed"),
+              conf.getParameter<double>("pedSigma"),
+              conf.getParameter<double>("noise"),
+              conf.getParameter<double>("timeMin"),
+              conf.getParameter<double>("timeMax"),
+              conf.getParameter<double>("ts3chi2"),
+              conf.getParameter<double>("ts4chi2"),
+              conf.getParameter<double>("ts345chi2"),
+              conf.getParameter<double>("chargeMax"), //For the unconstrained Fit
+              conf.getParameter<int>   ("fitTimes")
+              );
+  }
+  
   
 }
 
