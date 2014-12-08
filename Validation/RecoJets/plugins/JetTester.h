@@ -39,7 +39,7 @@
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 class MonitorElement;
 
-class JetTester : public thread_unsafe::DQMEDAnalyzer {
+class JetTester : public DQMEDAnalyzer {
  public:
 
   JetTester (const edm::ParameterSet&);
