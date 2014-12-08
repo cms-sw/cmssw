@@ -106,7 +106,7 @@ RecoGenJetsRECO = cms.PSet(
                                            'keep *_ak4GenJets_*_*',
                                            'keep *_ak5GenJets_*_*',
                                            'keep *_ak7GenJets_*_*',
-                                           'keep *_iterativeCone5GenJets_*_*',
+                                           'keep *_ak8GenJets_*_*',
                                            'keep *_genParticle_*_*')
     )
 #AOD content
@@ -173,7 +173,6 @@ RecoGenJetsAOD = cms.PSet(
                                            'keep *_ak4GenJets_*_*',
                                            'keep *_ak5GenJets_*_*',
                                            'keep *_ak8GenJets_*_*',
-                                           #        'keep *_iterativeCone5GenJets_*_*', 
                                            'keep *_genParticle_*_*'
                                            )
     )
