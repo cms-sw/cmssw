@@ -382,11 +382,11 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig)
   trackSrc_ = iConfig.getParameter<edm::InputTag>("trackSrc");
   //   tpFakeSrc_ =  iConfig.getUntrackedParameter<edm::InputTag>("tpFakeSrc",edm::InputTag("cutsTPForFak"));
   //   tpEffSrc_ =  iConfig.getUntrackedParameter<edm::InputTag>("tpEffSrc",edm::InputTag("cutsTPForEff"));
-  // tpFakeSrc_ =  iConfig.getUntrackedParameter<edm::InputTag>("tpFakeSrc",edm::InputTag("mergedtruth","MergedTrackTruth"));
-  tpEffSrc_ =  iConfig.getUntrackedParameter<edm::InputTag>("tpEffSrc",edm::InputTag("mergedtruth","MergedTrackTruth"));
+  tpFakeSrc_ =  iConfig.getUntrackedParameter<edm::InputTag>("tpFakeSrc",edm::InputTag("mix","MergedTrackTruth"));
+  tpEffSrc_ =  iConfig.getUntrackedParameter<edm::InputTag>("tpEffSrc",edm::InputTag("mix","MergedTrackTruth"));
 
   vertexSrc_ = iConfig.getParameter<vector<string> >("vertexSrc");
-  simVertexSrc_ =  iConfig.getUntrackedParameter<edm::InputTag>("tpVtxSrc",edm::InputTag("mergedtruth","MergedTrackTruth"));
+  simVertexSrc_ =  iConfig.getUntrackedParameter<edm::InputTag>("tpVtxSrc",edm::InputTag("mix","MergedTrackTruth"));
   beamSpotProducer_  = iConfig.getUntrackedParameter<edm::InputTag>("beamSpotSrc",edm::InputTag("offlineBeamSpot"));
   pfCandSrc_ = iConfig.getParameter<edm::InputTag>("pfCandSrc");
   associatorMap_=iConfig.getParameter<edm::InputTag>("associatorMap");
