@@ -339,6 +339,32 @@ void TrackerHitAssociator::associateSiStripRecHit(const T *simplerechit, std::ve
   associateSimpleRecHitCluster(clust, simplerechit->geographicalId(), simtrackid, simhitCFPos);
 }
 
+//
+//  Method for obtaining simTracks and simHits from a cluster
+//
+void TrackerHitAssociator::associateCluster(const SiStripCluster* clust,
+					    const DetId& detid,
+					    std::vector<SimHitIdpr>& simtrackid,
+					    std::vector<PSimHit>& simhit) const {
+  std::vector<simhitAddr> simhitCFPos;
+  associateSimpleRecHitCluster(clust, detid, simtrackid, &simhitCFPos);
+
+  for(size_t i=0; i<simhitCFPos.size(); i++) {
+    simhitAddr theSimHitAddr = simhitCFPos[i];
+    simHitCollectionID theSimHitCollID = theSimHitAddr.first;
+    simhit_collectionMap::const_iterator it = SimHitCollMap.find(theSimHitCollID);
+    if (it!= SimHitCollMap.end()) {
+      unsigned int theSimHitIndex = theSimHitAddr.second;
+      if (theSimHitIndex < (it->second).size()) simhit.push_back((it->second)[theSimHitIndex]);
+      // const PSimHit& theSimHit = (it->second)[theSimHitIndex];
+      // std::cout << "For cluster, simHit detId =  " << theSimHit.detUnitId() << " address = (" << (theSimHitAddr.first).first
+      // 		<< ", " << (theSimHitAddr.first).second << ", " << theSimHitIndex
+      // 		<< "), process = " << theSimHit.processType() << " (" << theSimHit.eventId().bunchCrossing()
+      // 		<< ", " << theSimHit.eventId().event() << ", " << theSimHit.trackId() << ")" << std::endl;
+    }
+  }
+}
+
 void TrackerHitAssociator::associateSimpleRecHitCluster(const SiStripCluster* clust,
 							const DetId& detid,
 							std::vector<SimHitIdpr>& simtrackid,
