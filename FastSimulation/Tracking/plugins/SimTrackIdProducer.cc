@@ -56,7 +56,6 @@ SimTrackIdProducer::produce(edm::Event& e, const edm::EventSetup& es)
   for ( ; aTrack!=lastTrack; ++aTrack,++index ) {    
      int SimTrackId = -1;
     for( trackingRecHit_iterator hit = aTrack->recHitsBegin(); hit != aTrack->recHitsEnd(); ++ hit ) {
-      //   const SiTrackerGSMatchedRecHit2D * rechit = (const SiTrackerGSMatchedRecHit2D*) (hit->get());
       const SiTrackerGSMatchedRecHit2D * rechit = (const SiTrackerGSMatchedRecHit2D*) (*hit);
       SimTrackId = rechit->simtrackId();
       break;

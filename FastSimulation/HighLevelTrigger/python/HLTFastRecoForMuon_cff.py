@@ -62,8 +62,7 @@ hltCkfTrackCandidatesJpsiTk = cms.Sequence(globalPixelTracking)
 # Take all pixel tracks (pTMin>1GeV, nHits>=8)
 hltCtfWithMaterialTracksJpsiTk = cms.EDProducer("FastTrackMerger",
     SaveTracksOnly = cms.untracked.bool(True),
-    TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracks"),
-                                   cms.InputTag("globalPixelTrackCandidates")),
+    TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracks")),
     ptMin = cms.untracked.double(1.0),
     minHits = cms.untracked.uint32(8)
 )

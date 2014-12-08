@@ -371,9 +371,7 @@ TrajectorySeedProducer::beginRun(edm::Run const&, const edm::EventSetup & es) {
   // Functions that gets called by framework every event
 void 
 TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
-
-  std::cout << "start seeding" << std::endl;
-   
+  
   // First, the tracks to be removed
   std::set<unsigned int> skipSimTrackIds;
   for ( unsigned int i=0; i<skipSimTrackIdTokens.size(); ++i ) {
@@ -470,9 +468,6 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   
   // The vector of simTrack Id's carrying GSRecHits
   const std::vector<unsigned> theSimTrackIds = theGSRecHits->ids();
-
-  std::cout << "Total # charged tracks: " << theSimTrackIds.size() << std::endl;
-  std::cout << "# masked tracks: " << skipSimTrackIds.size() << std::endl;
   int nTracksPass = 0;
 
   // loop over SimTrack Id's
@@ -804,9 +799,6 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     std::auto_ptr<TrajectorySeedCollection> p(output[ialgo]);
     e.put(p,seedingAlgo[ialgo]);
   }
-  std::cout << "# Tracks reconstructed in this iteration: " << nTracksPass << std::endl;
-  std::cout << "end seeding" << std::endl;
-
 }
 
 

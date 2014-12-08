@@ -51,16 +51,10 @@ TrackCandidateProducer::TrackCandidateProducer(const edm::ParameterSet& conf):th
   std::cout << "TrackCandidateProducer created" << std::endl;
 #endif
     
- if(conf.exists("keepFittedTracks")){
-	std::cout << "TrackCandidateProducer no longer supports option keepFittedTracks" << std::endl;
-	assert(false);
-      }
- /*
- if(conf.exists("TrackProducers")){
-	std::cout << "TrackCandidateProducer no longer supports TrackProducers" << std::endl;
-	assert(false);
-      }
-  */ 
+  if(conf.exists("keepFittedTracks")){
+    std::cout << "TrackCandidateProducer no longer supports option keepFittedTracks" << std::endl;
+    assert(false);
+  }
   if(conf.exists("TrackProducers")){
     edm::LogError("TrackCandidateProducer") << "TrackCandidateProducer no longer supports TrackProducers" << std::endl;
     exit (0);
