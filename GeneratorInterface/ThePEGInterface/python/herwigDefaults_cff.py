@@ -10,7 +10,7 @@ herwigDefaultsBlock = cms.PSet(
 	run = cms.string('LHC'),
 
 	cmsDefaults = cms.vstring(
-		'+pdfMRST2001',
+		'+pdfCTEQ6LL',
 		'+basicSetup',
 		'+cm14TeV',
 		'+setParticlesStableForDetector',
@@ -25,8 +25,6 @@ herwigDefaultsBlock = cms.PSet(
 		'set LHCGenerator:PrintEvent 0',
 		'set LHCGenerator:MaxErrors 10000',
 		'cd /Herwig/Particles',
-		'set p+:PDF /cmsPDFSet',
-		'set pbar-:PDF /cmsPDFSet',
 		'set K0:Width 1e300*GeV',
 		'set Kbar0:Width 1e300*GeV',
 		'cd /',
@@ -43,31 +41,37 @@ herwigDefaultsBlock = cms.PSet(
 		'set MRST2001:RemnantHandler HadronRemnants',
 		'cd /',
 		'cp /Herwig/Partons/MRST2001 /cmsPDFSet',
+                'cd /Herwig/Particles',
+                'set p+:PDF /cmsPDFSet',
+                'set pbar-:PDF /cmsPDFSet',
 		'+ue_2_3',
 	),
 	# Default pdf for Herwig++ 2.4
 	pdfMRST2008LOss = cms.vstring(
 		'cp /Herwig/Partons/MRST /cmsPDFSet',
+                'cd /Herwig/Particles',
+                'set p+:PDF /cmsPDFSet',
+                'set pbar-:PDF /cmsPDFSet',
 		'+ue_2_4',
 	),
-	pdfCTEQ5L = cms.vstring(
-		'mkdir /LHAPDF',
-		'cd /LHAPDF',
-		'create ThePEG::LHAPDF CTEQ5L',
-		'set CTEQ5L:PDFName cteq5l.LHgrid',
-		'set CTEQ5L:RemnantHandler /Herwig/Partons/HadronRemnants',
-		'cp CTEQ5L /cmsPDFSet',
-		'cd /',
-	),
-	pdfCTEQ6L1 = cms.vstring(
-		'mkdir /LHAPDF',
-		'cd /LHAPDF',
-		'create ThePEG::LHAPDF CTEQ6L1',
-		'set CTEQ6L1:PDFName cteq6ll.LHpdf',
-		'set CTEQ6L1:RemnantHandler /Herwig/Partons/HadronRemnants',
-		'cp CTEQ6L1 /cmsPDFSet',
-		'cd /',
-	),
+	pdfCTEQ6LL = cms.vstring(
+                'cd /Herwig/Partons',
+                'create ThePEG::LHAPDF myPDFset ThePEGLHAPDF.so',
+                 'set myPDFset:PDFName cteq6ll.LHpdf',
+                 'set myPDFset:RemnantHandler HadronRemnants',
+                 'set /Herwig/Particles/p+:PDF myPDFset',
+                 'set /Herwig/Particles/pbar-:PDF myPDFset',
+                 'cd /'
+        ),
+        pdfCT10 = cms.vstring(
+                'cd /Herwig/Partons',
+                'create ThePEG::LHAPDF myPDFset ThePEGLHAPDF.so',
+                 'set myPDFset:PDFName CT10.LHgrid',
+                 'set myPDFset:RemnantHandler HadronRemnants',
+                 'set /Herwig/Particles/p+:PDF myPDFset',
+                 'set /Herwig/Particles/pbar-:PDF myPDFset',
+                 'cd /'
+        ),
 
 	# CME presets
 	##############################
