@@ -28,6 +28,8 @@
 
 #include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHit.h"
 
+#include "FastSimulation/Tracking/interface/TrajectorySeedHitCandidate.h"
+
 namespace edm {
   class EventSetup;
   class ParameterSet;
@@ -43,7 +45,6 @@ class TrackerInteractionGeometry;
 class PropagatorWithMaterial;
 class KFUpdator;
 class FastPixelHitMatcher;
-class TrackerRecHit;
 class TrajectorySeed;
 class TrackerTopology;
 
@@ -90,7 +91,7 @@ public:
  private:
 
   void addASeedToThisCluster(edm::Ref<reco::SuperClusterCollection> seedCluster,
-			     std::vector<TrackerRecHit>& theHits,
+			     std::vector<TrajectorySeedHitCandidate>& theHits,
 			     const TrajectorySeed& theTrackerSeed,
 			     std::vector<reco::ElectronSeed>& result);
 

@@ -1,63 +1,67 @@
-#ifndef FastSimulation_Tracking_TrackerRecHit_H_
-#define FastSimulation_Tracking_TrackerRecHit_H_
+#ifndef FastSimulation_Tracking_TrajectorySeedHitCandidate_H_
+#define FastSimulation_Tracking_TrajectorySeedHitCandidate_H_
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h" 
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2D.h" 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-#include "FastSimulation/Tracking/plugins/TrajectorySeedProducer.h"
+
+#include "FastSimulation/Tracking/interface/TrackingLayer.h"
 
 #include <vector>
 
 class TrackerTopology;
+class TrackerGeometry;
 
-/** A class that gives some properties of the Tracker Layers in FAMOS
- */
-
-class TrackerRecHit {
+class TrajectorySeedHitCandidate {
 public:
   
   /// Default Constructor
-  TrackerRecHit() :
+  TrajectorySeedHitCandidate() :
     theSplitHit(0),
     theMatchedHit(0),
     theGeomDet(0),
-    theSubDetId(0),
-    theLayerNumber(0),
+    seedingLayer(),
+    
     theRingNumber(0), 
     theCylinderNumber(0), 
     theLocalError(0.),
     theLargerError(0.),
-    forward(false) {}
-
+    forward(false)
+    
+   {
+    
+   }
+    
   /// Soft Copy Constructor from private members
-  TrackerRecHit( const SiTrackerGSRecHit2D* theSplitHit, 
-		 const TrackerRecHit& other ) : 
+  TrajectorySeedHitCandidate( const SiTrackerGSRecHit2D* theSplitHit, 
+		 const TrajectorySeedHitCandidate& other ) : 
     theSplitHit(theSplitHit),
     theMatchedHit(0),
     theGeomDet(other.geomDet()),
-    theSubDetId(other.subDetId()),
-    theLayerNumber(other.layerNumber()),
+    seedingLayer(other.getTrackingLayer()),
     theRingNumber(other.ringNumber()), 
     theCylinderNumber(other.cylinderNumber()), 
     theLocalError(0.),
     theLargerError(0.),
-    forward(other.isForward()) {}
+    forward(other.isForward())
+    
+    {
+        
+    }
 
   /// Constructor from a GSRecHit and the Geometry
-  TrackerRecHit(const SiTrackerGSRecHit2D* theHit, 
+  TrajectorySeedHitCandidate(const SiTrackerGSRecHit2D* theHit, 
 		const TrackerGeometry* theGeometry,
 		const TrackerTopology* tTopo);
   
-  TrackerRecHit(const SiTrackerGSMatchedRecHit2D* theHit, 
+  TrajectorySeedHitCandidate(const SiTrackerGSMatchedRecHit2D* theHit, 
 		const TrackerGeometry* theGeometry,
 		const TrackerTopology *tTopo);
 
@@ -76,12 +80,17 @@ public:
   inline const GSSiTrackerRecHit2DLocalPos* hit() const { 
     return theSplitHit ? (GSSiTrackerRecHit2DLocalPos*)theSplitHit : 
       (GSSiTrackerRecHit2DLocalPos*)theMatchedHit; }
+      
+  inline const TrackingLayer& getTrackingLayer() const
+  {
+    return seedingLayer;
+  }
   
   /// The subdet Id
-  inline unsigned int subDetId() const { return theSubDetId; }
+  inline unsigned int subDetId() const { return seedingLayer.getSubDetNumber(); }
   
   /// The Layer Number
-  inline unsigned int layerNumber() const { return theLayerNumber; }
+  inline unsigned int layerNumber() const { return seedingLayer.getLayerNumber(); }
   
   /// The Ring Number
   inline unsigned int ringNumber() const { return theRingNumber; }
@@ -104,30 +113,22 @@ public:
   inline LocalPoint localPosition() const { return hit()->localPosition(); }  
   /// Check if the hit is on one of the requested detector
   //  bool isOnRequestedDet(const std::vector<unsigned int>& whichDet) const;
-  bool isOnRequestedDet(const std::vector<unsigned int>& whichDet, const std::string& seedingAlgo) const; 
-  /// request check with 1, 2 and 3 seeds
-  bool isOnRequestedDet(const std::vector<std::vector<TrajectorySeedProducer::LayerSpec> >& theLayersInSets) const;
-  bool isOnRequestedDet(const std::vector<std::vector<TrajectorySeedProducer::LayerSpec> >& theLayersInSets, const TrackerRecHit& theSeedHitSecond) const;
-  bool isOnRequestedDet(const std::vector<std::vector<TrajectorySeedProducer::LayerSpec> >& theLayersInSets, const TrackerRecHit& theSeedHitSecond, const TrackerRecHit& theSeedHitThird) const;
-  
-  /// Check if a pair is on the proper combination of detectors
-  bool makesAPairWith(const TrackerRecHit& anotherHit) const;
-  bool makesAPairWith3rd(const TrackerRecHit& anotherHit) const;
 
-  /// Check if a triplet is on the proper combination of detectors
-  bool makesATripletWith(const TrackerRecHit& anotherHit,
-			 const TrackerRecHit& yetAnotherHit) const;
+  /// request check with 1, 2 and 3 seeds
+  bool isOnRequestedDet(const std::vector<std::vector<TrackingLayer> >& theLayersInSets) const;
+  bool isOnRequestedDet(const std::vector<std::vector<TrackingLayer> >& theLayersInSets, const TrajectorySeedHitCandidate& theSeedHitSecond) const;
+  bool isOnRequestedDet(const std::vector<std::vector<TrackingLayer> >& theLayersInSets, const TrajectorySeedHitCandidate& theSeedHitSecond, const TrajectorySeedHitCandidate& theSeedHitThird) const;
+
 
   /// Check if two hits are on the same layer of the same subdetector
-  inline bool isOnTheSameLayer(const TrackerRecHit& other) const {
+  inline bool isOnTheSameLayer(const TrajectorySeedHitCandidate& other) const {
     
-    return 
-      theSubDetId == other.subDetId() && 
-      theLayerNumber == other.layerNumber();
+    return seedingLayer==other.seedingLayer;
   }
 
   // The smaller local error
-  double localError() { 
+  double localError() const
+  { 
 
     // Check if it has been already computed
     if ( theLocalError != 0. ) return theLocalError;
@@ -143,7 +144,8 @@ public:
   }
   
   // The larger local error
-  double largerError() { 
+  double largerError() const
+  {
 
     // Check if it has been already computed
     if ( theLargerError != 0. ) return theLargerError;
@@ -158,7 +160,7 @@ public:
 
   }
   
-  inline bool operator!=(const TrackerRecHit& aHit) const {
+  inline bool operator!=(const TrajectorySeedHitCandidate& aHit) const {
     return 
       aHit.geomDet() != this->geomDet() ||
       aHit.hit()->localPosition().x() != this->hit()->localPosition().x() ||
@@ -171,12 +173,11 @@ public:
   const SiTrackerGSRecHit2D* theSplitHit;
   const SiTrackerGSMatchedRecHit2D* theMatchedHit;
   const GeomDet* theGeomDet;
-  unsigned int theSubDetId; 
-  unsigned int theLayerNumber;
+  TrackingLayer seedingLayer;
   unsigned int theRingNumber;
   unsigned int theCylinderNumber;
-  double theLocalError;
-  double theLargerError;
+  mutable double theLocalError; //only for caching
+  mutable double theLargerError; //only for caching
   bool forward;
 
 };
