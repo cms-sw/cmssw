@@ -242,7 +242,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
     ZnnHbb = cms.PSet( 
         hltPathsToCheck = cms.vstring(
             "HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDLoose_BTagCSV0p7_v",
-            "HLT_PFMET110_PFMHT110_IDLoose_v",
+            "HLT_PFMET120_PFMHT120_IDLoose_v",
             "HLT_CaloMHTNoPU90_PFMET90_PFMHT90_IDLoose_v"
             ),
         Jet_recCut   = cms.string("pt > 10 && abs(eta) < 2.6"),
