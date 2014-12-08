@@ -718,11 +718,7 @@ runConingAfterburner(const edm::Handle<reco::PFRecHitCollection>& handle,
 				});
     hits_input.insert(pos,rhfs[k].recHitRef().key());
   }
-
-  if( std::abs(hits[hits_input[0]].position().z()) < _plusSurface[1][0]->position().z() ) {
-    const unsigned layer = HGCEEDetId(hits[hits_input[0]].detId()).layer();
-    if( layer < _minECALLayerToCone ) return;    
-  } 
+  
   /*
   for( const unsigned idx : hits_input ) {
     std::cout << hits[idx].position().z() << ' ';
