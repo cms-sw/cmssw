@@ -36,7 +36,7 @@ using namespace std;
 
 DTDCSByLumiTask::DTDCSByLumiTask(const edm::ParameterSet& ps) : theEvents(0) , theLumis(0) {
 
-  theDQMStore = Service<DQMStore>().operator->();
+  //theDQMStore = Service<DQMStore>().operator->();
   LogTrace("DTDQM|DTMonitorModule|DTDCSByLumiTask")
     << "[DTDCSByLumiTask]: Constructor" << endl;
 
@@ -70,12 +70,10 @@ void DTDCSByLumiTask::beginJob(){
 
 }
 
-void DTDCSByLumiTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
+void DTDCSByLumiTask::dqmBeginRun(const edm::Run& run, const edm::EventSetup& context) {
 
   LogTrace("DTDQM|DTMonitorModule|DTDCSByLumiTask")
     << "[DTDCSByLumiTask]: begin run" << endl;
-
-  bookHistos();
 
   context.get<MuonGeometryRecord>().get(theDTGeom);
 
@@ -96,6 +94,22 @@ void DTDCSByLumiTask::beginRun(const edm::Run& run, const edm::EventSetup& conte
 
 }
 
+
+void DTDCSByLumiTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun, edm::EventSetup const & context) {
+
+  // Book bylumi histo (# of bins as reduced as possible)
+  ibooker.setCurrentFolder(topFolder());
+
+  for(int wheel=-2; wheel <=2; wheel++) {
+
+    stringstream wheel_str; wheel_str << wheel;
+
+    MonitorElement* ME = ibooker.book1D("hActiveUnits"+wheel_str.str(),"Active Untis x LS Wh"+wheel_str.str(),2,0.5,2.5);
+    ME->setLumiFlag();// Set LumiFlag in order to save histo every LS
+
+    hActiveUnits.push_back(ME);
+  }
+}
 
 void DTDCSByLumiTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
@@ -165,23 +179,6 @@ void DTDCSByLumiTask::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, co
    */
 }
 
-
-void DTDCSByLumiTask::bookHistos() {
-
-  // Book bylumi histo (# of bins as reduced as possible)
-  theDQMStore->setCurrentFolder(topFolder());
-
-  for(int wheel=-2; wheel <=2; wheel++) {
-
-    stringstream wheel_str; wheel_str << wheel;
-
-    MonitorElement* ME = theDQMStore->book1D("hActiveUnits"+wheel_str.str(),"Active Untis x LS Wh"+wheel_str.str(),2,0.5,2.5);
-    ME->setLumiFlag();// Set LumiFlag in order to save histo every LS
-
-    hActiveUnits.push_back(ME);
-  }
-
-}
 
 void DTDCSByLumiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
 

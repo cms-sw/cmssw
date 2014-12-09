@@ -61,8 +61,7 @@ DTChamberEfficiency::DTChamberEfficiency(const ParameterSet& pSet)
     << "DTChamberEfficiency: constructor called";
 
   // Get the DQM needed services
-  theDbe = Service<DQMStore>().operator->();
-  theDbe->setCurrentFolder("DT/05-ChamberEff/Task");
+  //theDbe = Service<DQMStore>().operator->();
 
   // service parameters
   ParameterSet serviceParameters = pSet.getParameter<ParameterSet>("ServiceParameters");
@@ -106,13 +105,10 @@ void DTChamberEfficiency::beginJob() {
 
   LogTrace("DTDQM|DTMonitorModule|DTChamberEfficiency")
     << "DTChamberEfficiency: beginOfJob";
-
-  bookHistos();
-
   return;
 }
 
-void DTChamberEfficiency::beginRun(const Run& run, const EventSetup& setup)
+void DTChamberEfficiency::dqmBeginRun(const Run& run, const EventSetup& setup)
 {
   // Get the DT Geometry
   setup.get<MuonGeometryRecord>().get(dtGeom);
@@ -123,22 +119,14 @@ void DTChamberEfficiency::beginRun(const Run& run, const EventSetup& setup)
   return;
 }
 
-void DTChamberEfficiency::endJob()
-{
-  LogTrace("DTDQM|DTMonitorModule|DTChamberEfficiency")
-    << "DTChamberEfficiency: endOfJob";
 
-  return;
-}
+void DTChamberEfficiency::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun, edm::EventSetup const & context) {
 
-// Book a set of histograms for a given Layer
-void DTChamberEfficiency::bookHistos()
-{
   LogTrace("DTDQM|DTMonitorModule|DTChamberEfficiency")
     << "DTChamberEfficiency: booking histos";
 
   // Create the monitor elements
-  theDbe->setCurrentFolder("DT/05-ChamberEff/Task");
+  ibooker.setCurrentFolder("DT/05-ChamberEff/Task");
 
   for(int wheel=-2;wheel<=2;wheel++){
 
@@ -146,18 +134,27 @@ void DTChamberEfficiency::bookHistos()
 
     stringstream wheel_str; wheel_str << wheel;
 
-    histos.push_back(theDbe->book2D("hCountSectVsChamb_All_W"+ wheel_str.str(),
+    histos.push_back(ibooker.book2D("hCountSectVsChamb_All_W"+ wheel_str.str(),
 				    "Countings for wheel " + wheel_str.str(),14,1.,15.,4,1.,5.));
 
-    histos.push_back(theDbe->book2D("hCountSectVsChamb_Qual_W"+ wheel_str.str(),
+    histos.push_back(ibooker.book2D("hCountSectVsChamb_Qual_W"+ wheel_str.str(),
 				    "Countings for wheel " + wheel_str.str(),14,1.,15.,4,1.,5.));
 
 
-    histos.push_back(theDbe->book2D("hExtrapSectVsChamb_W"+ wheel_str.str(),
+    histos.push_back(ibooker.book2D("hExtrapSectVsChamb_W"+ wheel_str.str(),
 				    "Extrapolations for wheel " + wheel_str.str(),14,1.,15.,4,1.,5.));
 
     histosPerW.push_back(histos);
   }
+
+  return;
+}
+
+
+void DTChamberEfficiency::endJob()
+{
+  LogTrace("DTDQM|DTMonitorModule|DTChamberEfficiency")
+    << "DTChamberEfficiency: endOfJob";
 
   return;
 }

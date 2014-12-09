@@ -18,6 +18,12 @@
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 
 #include <vector>
@@ -27,7 +33,7 @@ class DQMStore;
 class MonitorElement;
 class DTHVStatus;
 
-class DTDCSByLumiTask: public edm::EDAnalyzer{
+class DTDCSByLumiTask: public DQMEDAnalyzer{
 
 public:
 
@@ -43,10 +49,10 @@ protected:
   void beginJob();
 
   /// Begin Run
-  void beginRun(const edm::Run&, const edm::EventSetup&);
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
 
-  /// Book Monitor Elements
-  void bookHistos();
+  // Book the histograms
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   /// By Lumi DCS DB Operation
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;

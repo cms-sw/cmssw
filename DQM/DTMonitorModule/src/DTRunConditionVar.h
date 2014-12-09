@@ -13,6 +13,7 @@
  *
  */
 
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -40,7 +41,8 @@ class MonitorElement;
 class DetLayer;
 class DetId;
 
-class DTRunConditionVar : public edm::EDAnalyzer
+//-class DTRunConditionVar : public edm::EDAnalyzer
+class DTRunConditionVar : public DQMEDAnalyzer
 {
 
   public:
@@ -50,15 +52,19 @@ class DTRunConditionVar : public edm::EDAnalyzer
     //Destructor
     ~DTRunConditionVar() ;
 
+    //BookHistogram
+    void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+
     //Operations
     void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
-    void beginJob();
-    void beginRun(const edm::Run& , const edm::EventSetup&);
-    void endJob();
+//-    void beginJob();
+    void dqmBeginRun(const edm::Run& , const edm::EventSetup&);
+//-    void endJob();
 
   private:
 
-    void bookChamberHistos(const DTChamberId& dtCh, std::string histoType, int , float , float);
+//-    void bookChamberHistos(const DTChamberId& dtCh, std::string histoType, int , float , float);
+    void bookChamberHistos(DQMStore::IBooker &,const DTChamberId& dtCh, std::string histoType, int , float , float);
 
     bool debug;
     int nMinHitsPhi;

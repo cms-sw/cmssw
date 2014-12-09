@@ -14,6 +14,7 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
@@ -26,7 +27,7 @@
 class DQMStore;
 class MonitorElement;
 
-class DTTriggerCheck: public edm::EDAnalyzer{
+class DTTriggerCheck: public DQMEDAnalyzer{
 
 friend class DTMonitorModule;
 public:
@@ -38,6 +39,8 @@ public:
 
 /// Analyze
 void analyze(const edm::Event& event, const edm::EventSetup& setup);
+
+void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 // BeginJob
 void beginJob();

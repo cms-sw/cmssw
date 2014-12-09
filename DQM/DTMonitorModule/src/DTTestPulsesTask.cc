@@ -45,7 +45,7 @@ DTTestPulsesTask::DTTestPulsesTask(const edm::ParameterSet& ps){
 			    parameters.getUntrackedParameter<int>("t0sRangeUpperBound", 100));
 
 
-  dbe = edm::Service<DQMStore>().operator->();
+  //dbe = edm::Service<DQMStore>().operator->();
 
 }
 
@@ -59,125 +59,158 @@ DTTestPulsesTask::~DTTestPulsesTask(){
 void DTTestPulsesTask::beginJob(){
 
   cout<<"[DTTestPulsesTask]: BeginJob"<<endl;
-
   nevents = 0;
 
 }
 
-void DTTestPulsesTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
+void DTTestPulsesTask::dqmBeginRun(const edm::Run& run, const edm::EventSetup& context) {
 
   // Get the geometry
   context.get<MuonGeometryRecord>().get(muonGeom);
 
   // Get the pedestals tTrig (always get it, even if the TPRange is taken from conf)
   //context.get<DTRangeT0Rcd>().get(t0RangeMap);
-
 }
 
-void DTTestPulsesTask::bookHistos(const DTLayerId& dtLayer, string folder, string histoTag) {
+void DTTestPulsesTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun, edm::EventSetup const & context) {
 
+	  bookHistos( ibooker, string("TPOccupancy"), string("TestPulses") );
+          bookHistos( ibooker, string("TPProfile"), string("TestPulses2D") );
+          bookHistos( ibooker, string("TPTimeBox"), string("TestPulsesTB") );
+}
 
-  stringstream wheel; wheel << dtLayer.wheel();
-  stringstream station; station << dtLayer.station();
-  stringstream sector; sector << dtLayer.sector();
-  stringstream superLayer; superLayer << dtLayer.superlayer();
-  stringstream layer; layer << dtLayer.layer();
+void DTTestPulsesTask::bookHistos(DQMStore::IBooker & ibooker, string folder, string histoTag) {
 
   cout<<"[DTTestPulseTask]: booking"<<endl;
 
-  // TP Profiles
-  if ( folder == "TPProfile" ) {
 
-    const int nWires = muonGeom->layer(DTLayerId(dtLayer.wheel(),
+  //here put the static booking loop
+
+ // Loop over all the chambers
+  vector<const DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
+  vector<const DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
+
+  for (; ch_it != ch_end; ++ch_it) {
+
+    // Loop over the SLs
+    vector<const DTSuperLayer*>::const_iterator sl_it = (*ch_it)->superLayers().begin();
+    vector<const DTSuperLayer*>::const_iterator sl_end = (*ch_it)->superLayers().end();
+
+    for(; sl_it != sl_end; ++sl_it) {
+	DTSuperLayerId sl = (*sl_it)->id();
+	stringstream superLayer; superLayer << sl.superlayer();
+
+	// Loop over the Ls
+	vector<const DTLayer*>::const_iterator l_it = (*sl_it)->layers().begin();
+	vector<const DTLayer*>::const_iterator l_end = (*sl_it)->layers().end();
+
+	for(; l_it != l_end; ++l_it) {
+	  DTLayerId layerId = (*l_it)->id();
+	  stringstream layer; layer << layerId.layer();
+
+          stringstream superLayer; superLayer << layerId.superlayer();
+          stringstream station; station << layerId.superlayerId().chamberId().station();
+          stringstream sector; sector << layerId.superlayerId().chamberId().sector();
+          stringstream wheel; wheel << layerId.superlayerId().chamberId().wheel();
+          
+          // TP Profiles
+          if ( folder == "TPProfile" ) {
+
+	   const int nWires = (*l_it)->specificTopology().channels();
+           /*const int nWires = muonGeom->layer(DTLayerId(dtLayer.wheel(),
 						 dtLayer.station(),
 						 dtLayer.sector(),
 						 dtLayer.superlayer(),
-						 dtLayer.layer()))->specificTopology().channels();
+						 dtLayer.layer()))->specificTopology().channels();*/
 
-    dbe->setCurrentFolder("DT/DTTestPulsesTask/Wheel" + wheel.str() +
-			  "/Station" + station.str() +
-			  "/Sector" + sector.str() +
-			  "/SuperLayer" + superLayer.str() +
-			  "/" +folder);
+          ibooker.setCurrentFolder("DT/DTTestPulsesTask/Wheel" + wheel.str() +
+		         	  "/Station" + station.str() +
+			          "/Sector" + sector.str() +
+			          "/SuperLayer" + superLayer.str() +
+			           "/" +folder);
 
-    string histoName = histoTag
-      + "_W" + wheel.str()
-      + "_St" + station.str()
-      + "_Sec" + sector.str()
-      + "_SL" + superLayer.str()
-      + "_L" + layer.str();
+           string histoName = histoTag
+                   + "_W" + wheel.str()
+                   + "_St" + station.str()
+                   + "_Sec" + sector.str()
+                   + "_SL" + superLayer.str()
+                   + "_L" + layer.str();
 
-    // Setting the range
-    if ( parameters.getUntrackedParameter<bool>("readDB", false) ) {
-      t0RangeMap->slRangeT0( dtLayer.superlayerId() , t0sPeakRange.first, t0sPeakRange.second);
-    }
-
-
-    cout<<"t0sRangeLowerBound "<<t0sPeakRange.first<<"; "
-	<<"t0sRangeUpperBound "<<t0sPeakRange.second<<endl;
+          // Setting the range
+          if ( parameters.getUntrackedParameter<bool>("readDB", false) ) {
+            //t0RangeMap->slRangeT0( dtLayer.superlayerId() , t0sPeakRange.first, t0sPeakRange.second);
+            t0RangeMap->slRangeT0( layerId.superlayerId() , t0sPeakRange.first, t0sPeakRange.second);
+          }
 
 
-    testPulsesProfiles[int(DTLayerId(dtLayer.wheel(),
-				   dtLayer.station(),
-				   dtLayer.sector(),
-				   dtLayer.superlayer(),
-				   dtLayer.layer()).rawId())] =
-      dbe->bookProfile(histoName,histoName,
-		       nWires, 0, nWires, // Xaxis: channels
-		       t0sPeakRange.first - t0sPeakRange.second, t0sPeakRange.first, t0sPeakRange.second); // Yaxis: times
-  }
+          cout<<"t0sRangeLowerBound "<<t0sPeakRange.first<<"; "
+	      <<"t0sRangeUpperBound "<<t0sPeakRange.second<<endl;
 
-  // TP Occupancies
-  else if ( folder == "TPOccupancy" ) {
 
-    dbe->setCurrentFolder("DT/DTTestPulsesTask/Wheel" + wheel.str() +
-			  "/Station" + station.str() +
-			  "/Sector" + sector.str() +
-			  "/SuperLayer" + superLayer.str() +
-			  "/" +folder);
+          testPulsesProfiles[int(DTLayerId(layerId.wheel(),
+				   layerId.station(),
+				   layerId.sector(),
+				   layerId.superlayer(),
+				   layerId.layer()).rawId())] =
+          ibooker.bookProfile(histoName,histoName,
+		                   nWires, 0, nWires, // Xaxis: channels
+		                   t0sPeakRange.first - t0sPeakRange.second, t0sPeakRange.first, t0sPeakRange.second); // Yaxis: times
+	  }
 
-    string histoName = histoTag
-      + "_W" + wheel.str()
-      + "_St" + station.str()
-      + "_Sec" + sector.str()
-      + "_SL" + superLayer.str()
-      + "_L" + layer.str();
+          // TP Occupancies
+          else if ( folder == "TPOccupancy" ) {
 
-    const int nWires = muonGeom->layer(DTLayerId(dtLayer.wheel(),
-						 dtLayer.station(),
-						 dtLayer.sector(),
-						 dtLayer.superlayer(),
-						 dtLayer.layer()))->specificTopology().channels();
+          ibooker.setCurrentFolder("DT/DTTestPulsesTask/Wheel" + wheel.str() +
+		        	  "/Station" + station.str() +
+			          "/Sector" + sector.str() +
+			          "/SuperLayer" + superLayer.str() +
+			          "/" +folder);
 
-    testPulsesOccupancies[int(DTLayerId(dtLayer.wheel(),
-					dtLayer.station(),
-					dtLayer.sector(),
-					dtLayer.superlayer(),
-					dtLayer.layer()).rawId())] =
-      dbe->book1D(histoName, histoName, nWires, 0, nWires);
-  }
+           string histoName = histoTag
+             + "_W" + wheel.str()
+             + "_St" + station.str()
+             + "_Sec" + sector.str()
+             + "_SL" + superLayer.str()
+             + "_L" + layer.str();
 
-  // Time Box per Chamber
-  else if ( folder == "TPTimeBox" ) {
+           const int nWires = muonGeom->layer(DTLayerId(layerId.wheel(),
+	       					 layerId.station(),
+	       					 layerId.sector(),
+	       					 layerId.superlayer(),
+						 layerId.layer()))->specificTopology().channels();
 
-    dbe->setCurrentFolder("DT/DTTestPulsesTask/Wheel" + wheel.str() +
-			  "/Station" + station.str() +
-			  "/Sector" + sector.str() +
-			  "/" +folder);
+           testPulsesOccupancies[int(DTLayerId(layerId.wheel(),
+					layerId.station(),
+					layerId.sector(),
+					layerId.superlayer(),
+					layerId.layer()).rawId())] =
+           ibooker.book1D(histoName, histoName, nWires, 0, nWires);
+	  }
 
-    string histoName = histoTag
-      + "_W" + wheel.str()
-      + "_St" + station.str()
-      + "_Sec" + sector.str();
+          // Time Box per Chamber
+          else if ( folder == "TPTimeBox" ) {
 
-    testPulsesTimeBoxes[int( DTLayerId(dtLayer.wheel(),
-				       dtLayer.station(),
-				       dtLayer.sector(),
-				       dtLayer.superlayer(),
-				       dtLayer.layer()).chamberId().rawId())] =
-      dbe->book1D(histoName, histoName, 10000, 0, 10000); // Overview of the TP (and noise) times
-  }
+          ibooker.setCurrentFolder("DT/DTTestPulsesTask/Wheel" + wheel.str() +
+			          "/Station" + station.str() +
+			          "/Sector" + sector.str() +
+	         		  "/" +folder);
 
+          string histoName = histoTag
+                     + "_W" + wheel.str()
+                     + "_St" + station.str()
+                     + "_Sec" + sector.str();
+
+          testPulsesTimeBoxes[int( DTLayerId(layerId.wheel(),
+				       layerId.station(),
+				       layerId.sector(),
+				       layerId.superlayer(),
+				       layerId.layer()).chamberId().rawId())] =
+          ibooker.book1D(histoName, histoName, 10000, 0, 10000); // Overview of the TP (and noise) times
+	  }
+
+	} // close loop on layers
+    } // close loop on superlayers
+  } // close loop on chambers
 }
 
 
@@ -203,29 +236,17 @@ void DTTestPulsesTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 	  (int)(*digiIt).countsTDC() < t0sPeakRange.second ) {
 
 	// Occupancies
-	if (testPulsesOccupancies.find(layerIndex) != testPulsesOccupancies.end())
+
 	  testPulsesOccupancies.find(layerIndex)->second->Fill((*digiIt).wire());
-	else {
-	  bookHistos( (*dtLayerId_It).first , string("TPOccupancy"), string("TestPulses") );
-	  testPulsesOccupancies.find(layerIndex)->second->Fill((*digiIt).wire());
-	}
 
 	// Profiles
-	if (testPulsesProfiles.find(layerIndex) != testPulsesProfiles.end())
+
 	  testPulsesProfiles.find(layerIndex)->second->Fill((*digiIt).wire(),(*digiIt).countsTDC());
-	else {
-	  bookHistos( (*dtLayerId_It).first , string("TPProfile"), string("TestPulses2D") );
-	  testPulsesProfiles.find(layerIndex)->second->Fill((*digiIt).wire(),(*digiIt).countsTDC());
-	}
       }
 
-      // Time Box
-      if (testPulsesTimeBoxes.find(chIndex) != testPulsesTimeBoxes.end())
+        // Time Box
+
 	testPulsesTimeBoxes.find(chIndex)->second->Fill((*digiIt).countsTDC());
-      else {
-	bookHistos( (*dtLayerId_It).first , string("TPTimeBox"), string("TestPulsesTB") );
-	testPulsesTimeBoxes.find(chIndex)->second->Fill((*digiIt).countsTDC());
-      }
     }
   }
 

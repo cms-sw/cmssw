@@ -24,6 +24,8 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
@@ -43,7 +45,7 @@ class L1MuDTChambPhDigi;
 class L1MuDTChambThDigi;
 
 
-class DTLocalTriggerTask: public edm::EDAnalyzer{
+class DTLocalTriggerTask: public DQMEDAnalyzer{
 
   friend class DTMonitorModule;
 
@@ -61,16 +63,19 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
   void beginJob();
 
   ///Beginrun
-  void beginRun(const edm::Run& , const edm::EventSetup&);
+  void dqmBeginRun(const edm::Run& , const edm::EventSetup&);
 
   /// Book the histograms
-  void bookHistos(const DTChamberId& dtCh, std::string folder, std::string histoTag );
+protected:  
+
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void bookHistos(DQMStore::IBooker &, const DTChamberId& dtCh, std::string folder, std::string histoTag );
 
   /// Book the histograms
-  void bookWheelHistos(int wh, std::string histoTag );
+  void bookWheelHistos(DQMStore::IBooker &, int wh, std::string histoTag );
 
   /// Book the histograms
-  void bookBarrelHistos(std::string histoTag);
+  void bookBarrelHistos(DQMStore::IBooker &, std::string histoTag);
 
   /// Set Quality labels
   void setQLabels(MonitorElement* me, short int iaxis);
@@ -105,6 +110,7 @@ class DTLocalTriggerTask: public edm::EDAnalyzer{
  private:
 
   edm::EDGetTokenT<L1MuDTChambPhContainer> dcc_Token_;
+  edm::EDGetTokenT<L1MuDTChambThContainer> dccTh_Token_;    // NEW (M.C Fouz July14) Needed, since at least version 710
   edm::EDGetTokenT<DTLocalTriggerCollection> ros_Token_;
   edm::EDGetTokenT<DTRecSegment4DCollection> seg_Token_;
   edm::EDGetTokenT<LTCDigiCollection> ltcDigiCollectionToken_;
