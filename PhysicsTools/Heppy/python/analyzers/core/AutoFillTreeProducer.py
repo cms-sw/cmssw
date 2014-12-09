@@ -74,10 +74,16 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
                     else:
                         tr.vector('pdfWeight_%s' % pdf, nvals)
 
-    def declareVariables(self):
+    def declareVariables(self,setup):
         isMC = self.cfg_comp.isMC 
         tree = self.tree
         self.declareCoreVariables(tree, isMC)
+
+        if not hasattr(self.cfg_ana,"ignoreAnalyzerBookings") or not self.cfg_ana.ignoreAnalyzerBooking :
+	    #import variables declared by the analyzers
+	    self.globalVariables+=setup.globalVariables
+	    self.globalObjects+=setup.globalObjects
+            self.collections+=setup.collection
 
         for v in self.globalVariables:
             v.makeBranch(tree, isMC)

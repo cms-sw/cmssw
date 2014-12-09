@@ -47,7 +47,17 @@ TauAna = TauAnalyzer.defaultConfig
 from PhysicsTools.Heppy.analyzers.objects.JetAnalyzer import JetAnalyzer
 JetAna = JetAnalyzer.defaultConfig
 
-sequence = [VertexAna,LepAna,TauAna,PhoAna,JetAna,treeProducer]
+from PhysicsTools.Heppy.analyzers.core.TriggerBitAnalyzer import TriggerBitAnalyzer
+TrigAna= cfg.Analyzer(
+    verbose=False,
+    class_object=TriggerBitAnalyzer,
+    triggerBits={'any','HLT_.*'},
+#   processName='HLT',
+#   outprefix='HLT'
+    )
+
+
+sequence = [VertexAna,LepAna,TauAna,PhoAna,JetAna,TrigAna,treeProducer]
 
 
 from PhysicsTools.Heppy.utils.miniAodFiles import miniAodFiles
