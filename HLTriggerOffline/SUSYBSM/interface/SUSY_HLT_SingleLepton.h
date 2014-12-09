@@ -104,6 +104,10 @@ private:
   std::string triggerPathAuxiliary_;
   std::string triggerPathLeptonAuxiliary_;
 
+  double csvlCut_;
+  double csvmCut_;
+  double csvtCut_;
+
   double jetPtCut_;
   double jetEtaCut_;
   double metCut_;
