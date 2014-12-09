@@ -1,7 +1,6 @@
 # /dev/CMSSW_5_1_0/HLT/V82 (CMSSW_5_2_0_pre5_HLT3)
 
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
 
 HLTConfigVersion = cms.PSet(
@@ -4298,11 +4297,6 @@ hltL1GtObjectMap = cms.EDProducer( "L1GlobalTrigger",
     WritePsbL1GtDaqRecord = cms.bool( False ),
     BstLengthBytes = cms.int32( -1 )
 )
-#
-# Modify for running in run 2
-#
-eras.run2.toModify( hltL1GtObjectMap, GctInputTag = cms.InputTag("hltCaloStage1LegacyFormatDigis") )
-
 hltL1extraParticles = cms.EDProducer( "L1ExtraParticlesProd",
     tauJetSource = cms.InputTag( 'hltGctDigis','tauJets' ),
     etHadSource = cms.InputTag( "hltGctDigis" ),
@@ -5779,12 +5773,6 @@ hltCsc2DRecHits = cms.EDProducer( "CSCRecHitDProducer",
     NoiseLevel_ME22 = cms.double( 9.0 ),
     NoiseLevel_ME41 = cms.double( 9.0 )
 )
-#
-# Modify for running in run 2
-#
-eras.run2.toModify( hltCsc2DRecHits, readBadChannels=False )
-eras.run2.toModify( hltCsc2DRecHits, CSCUseGasGainCorrections=False )
-
 hltCscSegments = cms.EDProducer( "CSCSegmentProducer",
     inputObjects = cms.InputTag( "hltCsc2DRecHits" ),
     algo_psets = cms.VPSet(
@@ -38761,31 +38749,6 @@ hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
 )
 
 HLTL1UnpackerSequence = cms.Sequence( hltGtDigis + hltGctDigis + hltL1GtObjectMap + hltL1extraParticles )
-#
-# Modify for running in run 2
-#
-def _modifyHLTL1UnpackerSequenceForRun2( theProcess ) :
-    theProcess.load("L1Trigger.L1TCommon.caloStage1LegacyFormatDigis_cfi")
-    theProcess.load("L1Trigger.L1TCommon.l1tRawToDigi_cfi")
-    # Note that this function is applied before the objects in this file are added
-    # to the process. So things declared in this file should be used "bare", i.e.
-    # not with "theProcess." in front of them. Anything that is declared as a new
-    # module/sequence/whatever should be declared as part of theProcess, and anything
-    # that is loaded from the "load" commands above should be referenced by "theProcess.<object>"
-    theProcess.hltCaloStage1Digis = theProcess.caloStage1Digis.clone()
-    theProcess.hltCaloStage1LegacyFormatDigis = theProcess.caloStage1LegacyFormatDigis.clone(
-            InputCollection = cms.InputTag("hltCaloStage1Digis"),
-            InputRlxTauCollection = cms.InputTag("hltCaloStage1Digis:rlxTaus"),
-            InputIsoTauCollection = cms.InputTag("hltCaloStage1Digis:isoTaus"),
-            InputHFSumsCollection = cms.InputTag("hltCaloStage1Digis:HFRingSums"),
-            InputHFCountsCollection = cms.InputTag("hltCaloStage1Digis:HFBitCounts")
-        )
-    theProcess.hltL1RawToDigiSeq = cms.Sequence( theProcess.hltCaloStage1Digis + theProcess.hltCaloStage1LegacyFormatDigis )
-    HLTL1UnpackerSequence.replace( hltGctDigis, theProcess.hltL1RawToDigiSeq )
-
-# A unique name is required for this object, so I'll call it "modify<python filename>ForRun2_"
-modifyHLTriggerHLTanalyzersHLT_FULLForRun2_ = eras.run2.makeProcessModifier( _modifyHLTL1UnpackerSequenceForRun2 )
-
 HLTBeamSpot = cms.Sequence( hltScalersRawToDigi + hltOnlineBeamSpot + hltOfflineBeamSpot )
 HLTBeginSequence = cms.Sequence( hltTriggerType + HLTL1UnpackerSequence + HLTBeamSpot )
 HLTEcalActivitySequence = cms.Sequence( hltEcalRawToRecHitFacility + hltESRawToRecHitFacility + hltEcalRegionalRestFEDs + hltEcalRegionalESRestFEDs + hltEcalRecHitAll + hltESRecHitAll + hltHybridSuperClustersActivity + hltCorrectedHybridSuperClustersActivity + hltMulti5x5BasicClustersActivity + hltMulti5x5SuperClustersActivity + hltMulti5x5SuperClustersWithPreshowerActivity + hltCorrectedMulti5x5SuperClustersWithPreshowerActivity + hltRecoEcalSuperClusterActivityCandidate + hltEcalActivitySuperClusterWrapper )

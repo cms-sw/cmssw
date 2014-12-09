@@ -2,7 +2,6 @@
 # edmConfigFromDB --configName /dev/CMSSW_5_1_0/HLT/V22 --nopsets --noedsources --noservices --nopaths --nosequences --cff
 
 import FWCore.ParameterSet.Config as cms
-from Configuration.StandardSequences.Eras import eras
 
 
 HLTConfigVersion = cms.PSet(
@@ -2346,11 +2345,6 @@ CSCGeometryESModule = cms.ESProducer( "CSCGeometryESModule",
   useCentreTIOffsets = cms.bool( False ),
   applyAlignment = cms.bool( True )
 )
-#
-# Modify for running in run 2
-#
-eras.run2.toModify( CSCGeometryESModule, useGangedStripsInME1a=False )
-
 CaloGeometryBuilder = cms.ESProducer( "CaloGeometryBuilder",
   SelectedCalos = cms.vstring( 'HCAL',
     'ZDC',
