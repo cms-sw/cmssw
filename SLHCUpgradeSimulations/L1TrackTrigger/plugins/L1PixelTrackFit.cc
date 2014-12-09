@@ -357,8 +357,12 @@ void L1PixelTrackFit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double invrfit,phi0fit,d0fit,tfit,z0fit,chisqfit;
     double sigmainvr,sigmaphi0,sigmad0,sigmat,sigmaz0;
 
-    multifit(invr,phi0,d0,t,z0,hitL1,hitL2,hitL3,hitL4,hitD1,hitD2,hitD3,success,invrfit,phi0fit,d0fit,tfit,z0fit,chisqfit,sigmainvr,sigmaphi0,sigmad0,sigmat,sigmaz0);
-    
+    if (fabs(d0)<10.0) {
+      multifit(invr,phi0,d0,t,z0,hitL1,hitL2,hitL3,hitL4,
+	       hitD1,hitD2,hitD3,success,invrfit,phi0fit,d0fit,tfit,z0fit,
+	       chisqfit,sigmainvr,sigmaphi0,sigmad0,sigmat,sigmaz0);
+    }    
+
     if (success) {
 
       TTPixelTrack aTrack;
