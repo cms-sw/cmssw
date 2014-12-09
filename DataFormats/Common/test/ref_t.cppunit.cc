@@ -230,8 +230,6 @@ void testRef::getTest() {
 
    //std::cerr << ">>> RefToBaseProd from RefProd" << std::endl;
    RefToBaseProd<IntValue> refToBaseProd0(refProd0);
-   //std::cerr << ">>> RefToBaseProd from Ref" << std::endl;
-   RefToBaseProd<IntValue> refToBaseProd1(ref0);
    //std::cerr << ">>> RefToBaseProd from Handle" << std::endl;
    RefToBaseProd<IntValue> refToBaseProd2(handle);
    //std::cerr << ">>> checking View from RefToBaseProd" << std::endl;

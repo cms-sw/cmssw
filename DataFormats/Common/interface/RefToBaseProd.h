@@ -10,6 +10,7 @@
 
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/Common/interface/RefCore.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/ConstPtrCache.h"
 #include "DataFormats/Common/interface/FillView.h"
@@ -31,16 +32,14 @@ namespace edm {
     // HandleC must have the following methods:
     //   id(),      returning a ProductID,
    //   product(), returning a C*.
-    template<class HandleC>
-    explicit RefToBaseProd(HandleC const& handle);
+    template<typename C>
+    explicit RefToBaseProd(Handle<C> const& handle);
     explicit RefToBaseProd(Handle<View<T> > const& handle);
-    /// Constructor from Ref<C,T,F>
-    template<typename C, typename F>
-    explicit RefToBaseProd(Ref<C, T, F> const& ref);
-    explicit RefToBaseProd(RefToBase<T> const& ref);
+    template<typename C>
+    explicit RefToBaseProd(OrphanHandle<C> const& handle);
     RefToBaseProd(const RefToBaseProd<T>&);
     template<typename C>
-    RefToBaseProd(const RefProd<C>&);
+    explicit RefToBaseProd(const RefProd<C>&);
 
     /// Destructor
     ~RefToBaseProd() { delete viewPtr();}
@@ -230,9 +229,9 @@ namespace edm {
   }
 
   template<typename T>
-  template<class HandleC>
+  template<typename C>
   inline
-  RefToBaseProd<T>::RefToBaseProd(HandleC const& handle) :
+  RefToBaseProd<T>::RefToBaseProd(Handle<C> const& handle) :
     product_(handle.id(), handle.product(), 0, false) {
     std::vector<void const*> pointers;
     FillViewHelperVector helpers;
@@ -240,37 +239,16 @@ namespace edm {
     product_.setProductPtr(new View<T>(pointers, helpers,0));
   }
 
-  /// Constructor from Ref.
   template<typename T>
-  template<typename C, typename F>
+  template<typename C>
   inline
-  RefToBaseProd<T>::RefToBaseProd(Ref<C, T, F> const& ref) :
-      product_(ref.id(),
-               ref.hasProductCache() ? ref.product() : 0,
-               ref.productGetter(),
-               false) {
+  RefToBaseProd<T>::RefToBaseProd(OrphanHandle<C> const& handle) :
+    product_(handle.id(), handle.product(), 0, false) {
     std::vector<void const*> pointers;
     FillViewHelperVector helpers;
-    detail::reallyFillView(* ref.product(), ref.id(), pointers, helpers);
-    product_.setProductPtr(new View<T>(pointers, helpers,ref.productGetter()));
+    detail::reallyFillView(* handle, handle.id(), pointers, helpers);
+    product_.setProductPtr(new View<T>(pointers, helpers,0));
   }
-
-  /// Constructor from RefToBase.
-#ifndef __GCCXML__
-  template<typename T>
-  inline
-  RefToBaseProd<T>::RefToBaseProd(RefToBase<T> const& ref) :
-    product_(ref.id(),
-             ref.hasProductCache() ? ref.product() : 0,
-             ref.productGetter(),
-             false) {
-    std::vector<void const*> pointers;
-    FillViewHelperVector helpers;
-    auto holder(ref.holder_->makeVectorBaseHolder().release());
-    holder->reallyFillView(ref.product(), ref.id(), pointers,helpers);
-    product_.setProductPtr(new View<T>(pointers, helpers,ref.productGetter()));
-  }
-#endif
 }
 
 #endif
