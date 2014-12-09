@@ -25,7 +25,7 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
  
 	self.collections = {}      
         self.globalObjects = {}
-	self.globalVariables = {}
+	self.globalVariables = []
 	if hasattr(cfg_ana,"collections"):
 		self.collections=cfg_ana.collections
 	if hasattr(cfg_ana,"globalObjects"):
@@ -81,9 +81,12 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
 
         if not hasattr(self.cfg_ana,"ignoreAnalyzerBookings") or not self.cfg_ana.ignoreAnalyzerBooking :
 	    #import variables declared by the analyzers
-	    self.globalVariables+=setup.globalVariables
-	    self.globalObjects+=setup.globalObjects
-            self.collections+=setup.collection
+	    if hasattr(setup,"globalVariables"):
+	        self.globalVariables+=setup.globalVariables
+	    if hasattr(setup,"globalObjects"):
+	        self.globalObjects.update(setup.globalObjects)
+	    if hasattr(setup,"collections"):
+                self.collections.update(setup.collections)
 
         for v in self.globalVariables:
             v.makeBranch(tree, isMC)
