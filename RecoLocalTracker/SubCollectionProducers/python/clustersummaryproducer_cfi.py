@@ -9,3 +9,4 @@ clusterSummaryProducer = cms.EDProducer('ClusterSummaryProducer',
                                         wantedSubDets = cms.vstring("TOB","TIB","TID","TEC","STRIP","BPIX","FPIX","PIXEL"),
                                         wantedUserSubDets = cms.VPSet()
                                         )
+clusterSummaryProducerNoSplitting = clusterSummaryProducer.clone(pixelClusters = 'siPixelClusters')
