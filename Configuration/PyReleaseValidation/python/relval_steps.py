@@ -1161,7 +1161,7 @@ upgradeGTs={ '2017' : 'auto:upgrade2017',
              'Extended2023Muondev' : 'auto:upgradePLS3',
              'BE5DForwardFast' : 'auto:upgrade2019',
              'Extended2023' : 'auto:upgradePLS3',
-             'Extended2023HGCalMuon' : 'auto:upgradePLS3',
+             'Extended2023HGCalMuon' : 'PH2_1K_FB_V6::All', #EB aged at 1000fb-1
              'Extended2023SHCal' : 'auto:upgradePLS3',
              'Extended2023SHCal4Eta' : 'auto:upgradePLS3',
              'Extended2023TTI' : 'auto:upgradePLS3',
@@ -1170,7 +1170,7 @@ upgradeGTs={ '2017' : 'auto:upgrade2017',
              'Extended2023CFCal' : 'auto:upgradePLS3',
              'Extended2023CFCal4Eta' : 'auto:upgradePLS3',
              'Extended2023Pixel' : 'auto:upgradePLS3',
-             'Extended2023SHCalNoTaper' : 'auto:upgradePLS3',
+             'Extended2023SHCalNoTaper' : 'PH2_1K_FB_V6::All',#EB aged at 1000fb-1
              'Extended2023SHCalNoTaper4Eta' : 'auto:upgradePLS3',
              'Extended2023HGCal' : 'auto:upgradePLS3',
              'Extended2023HGCalMuon4Eta' : 'auto:upgradePLS3',
@@ -1229,14 +1229,16 @@ upgradeFragments=['FourMuPt_1_200_cfi','SingleElectronPt10_cfi',
                   'SingleMuPt100Extended_cfi',
                   'SingleMuPt1000Extended_cfi',
                   'TenMuE_0_200_cfi',
-                  'SinglePiE50HCAL_cfi']
+                  'SinglePiE50HCAL_cfi',
+		  'QCDForPF_14TeV_cfi'
+		  ]
 
 
 
 # for each geometry define the GT and processing string here
 defaultDataSets={}
-defaultDataSets['Extended2023HGCalMuon']='CMSSW_6_2_0_SLHC20-DES23_62_V1_refHGCALV5-v'
-defaultDataSets['Extended2023SHCalNoTaper']='CMSSW_6_2_0_SLHC20-DES23_62_V1_refSHNoTaper-v'
+defaultDataSets['Extended2023HGCalMuon']='CMSSW_6_2_0_SLHC20_patch1-DES23_62_V1_refHGCALV5-v'
+defaultDataSets['Extended2023SHCalNoTaper']='CMSSW_6_2_0_SLHC20_patch1-DES23_62_V1_refSHNoTaper-v'
 keys=defaultDataSets.keys()
 for key in keys:
   defaultDataSets[key+'PU']=defaultDataSets[key]
@@ -1475,7 +1477,8 @@ howMuches={'FourMuPt_1_200_cfi':Kby(10,100),
            'QQH1352T_Tauola_14TeV_cfi':Kby(9,100),
            'MinBias_TuneZ2star_14TeV_pythia6_cff':Kby(9,100),
            'WM_14TeV_cfi':Kby(9,100),
-           'ZMM_14TeV_cfi':Kby(18,100)
+           'ZMM_14TeV_cfi':Kby(18,100),
+	   'QCDForPF_14TeV_cfi':Kby(9,50)
            }
 
 upgradeDatasetFromFragment={'FourMuPt_1_200_cfi': 'FourMuPt1_200',
@@ -1539,7 +1542,8 @@ upgradeDatasetFromFragment={'FourMuPt_1_200_cfi': 'FourMuPt1_200',
                             'QQH1352T_Tauola_14TeV_cfi' : 'QQH1352T_Tauola_14TeV',
                             'MinBias_TuneZ2star_14TeV_pythia6_cff' : 'MinBias_TuneZ2star_14TeV',
                             'WM_14TeV_cfi' : 'WM_14TeV',
-                            'ZMM_14TeV_cfi' : 'ZMM_14TeV'
+                            'ZMM_14TeV_cfi' : 'ZMM_14TeV',
+			    'QCDForPF_14TeV_cfi' : 'QCDForPF_14TeV'
                             }
 
 
