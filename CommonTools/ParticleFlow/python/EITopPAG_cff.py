@@ -135,7 +135,7 @@ pfTauEISequence = cms.Sequence(
 
 #### B-tagging ####
 ak4JetTracksAssociatorAtVertexPFEI = ak4JetTracksAssociatorAtVertexPF.clone (
-    src = cms.InputTag("ak4PFJetsCHSEI")
+    jets = cms.InputTag("ak4PFJetsCHSEI")
     )
 impactParameterTagInfosEI = impactParameterTagInfos.clone(
     jetTracks = cms.InputTag( 'ak4JetTracksAssociatorAtVertexPFEI' )
