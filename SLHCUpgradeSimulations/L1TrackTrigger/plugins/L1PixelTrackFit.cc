@@ -337,7 +337,7 @@ void L1PixelTrackFit::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	double rhit=cl_pos[i].perp();
 	double tmp=0.5*(zhit-z0)*invr/t;
 	double r_proj=2.0*sin(tmp)/invr;
-	double phi_proj=phi0-tmp-d0*rhit;
+	double phi_proj=phi0-tmp-d0/rhit;
 	if (fabs(r_proj-rhit)>0.5) continue; // 5 mm cut in r!!!
         double dphi=phi_proj-cl_pos[i].phi();
 	if (dphi>m_pi) dphi-=2.0*m_pi;
