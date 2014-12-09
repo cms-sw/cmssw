@@ -6,28 +6,20 @@ import FWCore.ParameterSet.Config as cms
 #from FastSimulation.Tracking.IterativeFifthSeedProducer_cff import *
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 iterativeTobTecSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
-iterativeTobTecSeeds.firstHitSubDetectorNumber = [2]
-iterativeTobTecSeeds.firstHitSubDetectors = [5, 6]
-iterativeTobTecSeeds.secondHitSubDetectorNumber = [2]
-iterativeTobTecSeeds.secondHitSubDetectors = [5, 6]
-iterativeTobTecSeeds.thirdHitSubDetectorNumber = [0]
-iterativeTobTecSeeds.thirdHitSubDetectors = []
-iterativeTobTecSeeds.seedingAlgo = ['TobTecLayerPairs']
-iterativeTobTecSeeds.minRecHits = [4]
-iterativeTobTecSeeds.pTMin = [0.3]
-#cut on fastsim simtracks. I think it should be removed for the 5th step
-iterativeTobTecSeeds.maxD0 = [99.]
-iterativeTobTecSeeds.maxZ0 = [99.]
-#-----
-iterativeTobTecSeeds.numberOfHits = [2]
-#values for the seed compatibility constraint
-iterativeTobTecSeeds.originRadius = [6.0] # was 5.0
-iterativeTobTecSeeds.originHalfLength = [30.0] # was 10.0
-iterativeTobTecSeeds.originpTMin = [0.6] # was 0.5
-iterativeTobTecSeeds.zVertexConstraint = [-1.0]
-iterativeTobTecSeeds.primaryVertices = ['none']
+iterativeTobTecSeeds.outputSeedCollectionName = 'TobTecLayerPairs'
+iterativeTobTecSeeds.minRecHits = 4
+iterativeTobTecSeeds.pTMin = 0.3
+iterativeTobTecSeeds.maxD0 = 99.
+iterativeTobTecSeeds.maxZ0 = 99.
+iterativeTobTecSeeds.numberOfHits = 2
+iterativeTobTecSeeds.originRadius = 6.0 # was 5.0
+iterativeTobTecSeeds.originHalfLength = 30.0 # was 10.0
+iterativeTobTecSeeds.originpTMin = 0.6 # was 0.5
+iterativeTobTecSeeds.zVertexConstraint = -1.0
+# skip compatiblity with PV/beamspot
+iterativeTobTecSeeds.skipPVCompatibility = True
+iterativeTobTecSeeds.primaryVertex = 'none'
 
-iterativeTobTecSeeds.newSyntax = True
 #iterativeTobTecSeeds.layerList = ['TOB1+TOB2', 
 #                                  'TOB1+TEC1_pos', 'TOB1+TEC1_neg', 
 #                                  'TEC1_pos+TEC2_pos', 'TEC2_pos+TEC3_pos', 
@@ -44,7 +36,7 @@ iterativeTobTecSeeds.layerList.extend(tobTecStepSeedLayersPair.layerList)
 #from FastSimulation.Tracking.IterativeFifthCandidateProducer_cff import *
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 iterativeTobTecTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
-iterativeTobTecTrackCandidates.SeedProducer = cms.InputTag("iterativeTobTecSeeds","TobTecLayerPairs")
+iterativeTobTecTrackCandidates.SeedProducer = cms.InputTag("iterativeTobTecSeeds",'TobTecLayerPairs')
 iterativeTobTecTrackCandidates.TrackProducers = ['pixelPairStepTracks','detachedTripletStepTracks','mixedTripletStepTracks','pixelLessStepTracks'] # add 0 and 0.5?
 iterativeTobTecTrackCandidates.KeepFittedTracks = False
 iterativeTobTecTrackCandidates.MinNumberOfCrossedLayers = 3
