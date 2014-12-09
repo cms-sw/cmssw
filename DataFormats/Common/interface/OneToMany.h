@@ -38,20 +38,22 @@ namespace edm {
     /// transient val vector
     typedef std::vector<std::vector<const typename CVal::value_type *> > transient_val_vector;
     /// insert in the map
-    static void insert(ref_type & ref, map_type & m,
+    static void insert(const ref_type & ref, map_type & m,
 			const key_type & k, const data_type & v) {
       if (k.isNull() || v.isNull())
 	Exception::throwThis(errors::InvalidReference,
 	  "can't insert null references in AssociationMap");
       if (ref.key.isNull()) {
-	ref.key = KeyRefProd(k);
-	ref.val = ValRefProd(v);
+        Exception::throwThis(errors::InvalidReference, "Can not insert into an AssociationMap without first setting its 'RefProd'");
+      }
+      if(ref.val.isNull()) {
+        Exception::throwThis(errors::InvalidReference, "Can not insert into an AssociationMap without first setting its 'RefProd'");
       }
       helpers::checkRef(ref.key, k); helpers::checkRef(ref.val, v);
       index_type ik = index_type(k.key()), iv = index_type(v.key());
       m[ ik ].push_back(iv);
     }
-    static void insert(ref_type & ref, map_type & m, const key_type & k, const val_type & v) {
+    static void insert(const ref_type & ref, map_type & m, const key_type & k, const val_type & v) {
       for(typename val_type::const_iterator i = v.begin(), iEnd = v.end(); i != iEnd; ++i)
       insert(ref, m, k, *i);
     }
