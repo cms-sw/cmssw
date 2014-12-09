@@ -10,7 +10,7 @@ streamA_datasetInitialPD_selector.hltResults = cms.InputTag('TriggerResults', ''
 streamA_datasetInitialPD_selector.l1tResults = cms.InputTag('')
 streamA_datasetInitialPD_selector.throw      = cms.bool(False)
 streamA_datasetInitialPD_selector.triggerConditions = cms.vstring('HLT_Ele27_eta2p1_WP85_Gsf_v1', 
-    'HLT_Mu40_v1', 
+    'HLT_Mu50_v1', 
     'HLT_PFJet260_v1', 
     'HLT_Physics_v1')
 
