@@ -178,6 +178,10 @@ SUSY_HLT_SingleLepton::SUSY_HLT_SingleLepton(const edm::ParameterSet &ps):
   triggerPathAuxiliary_(ps.getParameter<std::string>("triggerPathAuxiliary")),
   triggerPathLeptonAuxiliary_(ps.getParameter<std::string>("triggerPathLeptonAuxiliary")),
 
+  csvlCut_(ps.getUntrackedParameter<double>("csvlCut")),
+  csvmCut_(ps.getUntrackedParameter<double>("csvmCut")),
+  csvtCut_(ps.getUntrackedParameter<double>("csvtCut")),
+
   jetPtCut_(ps.getUntrackedParameter<double>("jetPtCut")),
   jetEtaCut_(ps.getUntrackedParameter<double>("jetEtaCut")),
   metCut_(ps.getUntrackedParameter<double>("metCut")),
@@ -228,7 +232,7 @@ void SUSY_HLT_SingleLepton::dqmBeginRun(const edm::Run &run, const edm::EventSet
   }
 
   if(!pathFound){
-    edm::LogError ("SUSY_HLT_SingleLepton") << "Path not found: " << triggerPath_ << '\n';
+    edm::LogWarning("SUSY_HLT_SingleLepton") << "Path not found: " << triggerPath_ << '\n';
     return;
   }
 
@@ -485,6 +489,10 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
     size_t filterIndex = triggerSummary->filterIndex(theLeptonFilterTag_);
     trigger::TriggerObjectCollection triggerObjects = triggerSummary->getObjects();
     if( !(filterIndex >= triggerSummary->sizeFilters()) ){
+      size_t ilep = 0, num_keys = triggerSummary->filterKeys(filterIndex).size();
+      ptLepton.resize(num_keys);
+      etaLepton.resize(num_keys);
+      phiLepton.resize(num_keys);
       for(const auto &key: triggerSummary->filterKeys(filterIndex)){
         const trigger::TriggerObject &foundObject = triggerObjects[key];
 
@@ -492,9 +500,10 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
         if(h_triggerLepEta_) h_triggerLepEta_->Fill(foundObject.eta());
         if(h_triggerLepPhi_) h_triggerLepPhi_->Fill(foundObject.phi());
 
-        ptLepton.push_back(foundObject.pt());
-        etaLepton.push_back(foundObject.eta());
-        phiLepton.push_back(foundObject.phi());
+        ptLepton.at(ilep)=foundObject.pt();
+        etaLepton.at(ilep)=foundObject.eta();
+        phiLepton.at(ilep)=foundObject.phi();
+	++ilep;
       }
     }
   }
@@ -559,11 +568,11 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
         if(CSV>maxCSV){
           maxCSV=CSV;
         }
-        if(CSV>0.244){
+        if(CSV>csvlCut_){
           ++num_csvl;
-          if(CSV>0.679){
+          if(CSV>csvmCut_){
             ++num_csvm;
-            if(CSV>0.898){
+            if(CSV>csvtCut_){
               ++num_csvt;
             }
           }
