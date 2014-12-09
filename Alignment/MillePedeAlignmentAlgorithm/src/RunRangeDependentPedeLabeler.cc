@@ -162,8 +162,8 @@ unsigned int RunRangeDependentPedeLabeler::parameterLabel(Alignable *alignable, 
 	for (RunRangeVector::const_iterator iRunRange = runRanges.begin();
 	     iRunRange != runRanges.end();
 	     ++iRunRange) {
-	  if (eventInfo.eventId_.run() >= iRunRange->first &&
-	      eventInfo.eventId_.run() <= iRunRange->second) {
+	  if (eventInfo.eventId().run() >= iRunRange->first &&
+	      eventInfo.eventId().run() <= iRunRange->second) {
 	    return position->second + offset * theParamInstanceOffset + parNum;
 	  }
  	  offset++;
@@ -173,7 +173,7 @@ unsigned int RunRangeDependentPedeLabeler::parameterLabel(Alignable *alignable, 
 	  << "@SUB=RunRangeDependentPedeLabeler::parameterLabel" << "Instance for Alignable "
 	  << typeid(*alignable).name() << " not in map, det/subdet/alignableStructureType = "
 	  << detId.det() << "/" << detId.subdetId() << "/" << alignable->alignableObjectId()
-	  << " for run " << eventInfo.eventId_.run();
+	  << " for run " << eventInfo.eventId().run();
 	return 0;
       } else {
 	return position->second + parNum;
