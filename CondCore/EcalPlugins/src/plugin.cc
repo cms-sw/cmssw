@@ -145,6 +145,8 @@
 #include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
 #include "CondFormats/DataRecord/interface/EcalTimeBiasCorrectionsRcd.h"
 
+#include "CondFormats/EcalObjects/interface/EcalSamplesCorrelation.h"
+#include "CondFormats/DataRecord/interface/EcalSamplesCorrelationRcd.h"
 
 REGISTER_PLUGIN(EcalPedestalsRcd,EcalPedestals);
 REGISTER_PLUGIN(EcalWeightXtalGroupsRcd,EcalWeightXtalGroups);
@@ -198,3 +200,5 @@ REGISTER_PLUGIN(EcalSRSettingsRcd, EcalSRSettings);
 REGISTER_PLUGIN(EcalSampleMaskRcd, EcalSampleMask);
 
 REGISTER_PLUGIN(EcalTimeBiasCorrectionsRcd, EcalTimeBiasCorrections);
+
+REGISTER_PLUGIN(EcalSamplesCorrelationRcd, EcalSamplesCorrelation);
