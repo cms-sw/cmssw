@@ -87,10 +87,6 @@ namespace edm {
       checkTypeAtCompileTime(handle.product());
     }
 
-    /// Constructor from Ref<C, T, F>
-    template<typename T, typename F>
-    explicit RefProd(Ref<C, T, F> const& ref);
-
     /// Constructor from RefVector<C, T, F>
     template<typename T, typename F>
     explicit RefProd(RefVector<C, T, F> const& ref);
@@ -175,14 +171,6 @@ namespace edm {
 namespace edm {
   template<typename C, typename T, typename F>
   class RefVector;
-
-  /// Constructor from Ref.
-  template<typename C>
-  template<typename T, typename F>
-  inline
-  RefProd<C>::RefProd(Ref<C, T, F> const& ref) :
-      product_(ref.id(), ref.hasProductCache() ?  ref.product() : 0, ref.productGetter(), ref.isTransient()) {
-  }
 
   /// Constructor from RefVector.
   template<typename C>
