@@ -466,11 +466,12 @@ std::vector<SiPixelCluster> JetCoreClusterSplitter::fittingSplit(
           }
         }
         for (unsigned int p = 0; p < pixels.size(); ++p)
-          std::cout << "index, x, y, ADC: " << p << ", "
-                    << pixels[p].second.x << ", " << pixels[p].second.y
-                    << ", " << pixels[p].second.adc
-                    << " associated to cl " << clusterForPixel[p] << std::endl;
-        std::cout << "Adding pixel " << pixels[j].second.x << ", " << pixels[j].second.y
+          if (verbose)
+            std::cout << "index, x, y, ADC: " << p << ", "
+                      << pixels[p].second.x << ", " << pixels[p].second.y
+                      << ", " << pixels[p].second.adc
+                      << " associated to cl " << clusterForPixel[p] << std::endl
+                      << "Adding pixel " << pixels[j].second.x << ", " << pixels[j].second.y
                   << " to cluster " << cl << std::endl;
         pixelsForCl[cl].push_back(pixels[j].second);
       }
