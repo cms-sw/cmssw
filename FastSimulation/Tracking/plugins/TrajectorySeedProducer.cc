@@ -34,13 +34,9 @@
 
 //Propagator withMaterial
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
-//analyticalpropagator
-//#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 
-//
+#include "FastSimulation/Tracking/plugins/SimTrackIdProducer.h"
 
-//for debug only 
-//#define FAMOS_DEBUG
 
 template class SeedingTree<TrackingLayer>;
 template class SeedingNode<TrackingLayer>;
@@ -108,6 +104,13 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
 
     originRadius = conf.getParameter<double>("originRadius");
 
+    //collections to read in
+    std::vector<edm::InputTag> defaultSkip;
+    std::vector<edm::InputTag> skipSimTrackIdTags = conf.getUntrackedParameter<std::vector<edm::InputTag> >("skipSimTrackIdTags",defaultSkip);
+    for ( unsigned int k=0; k<skipSimTrackIdTags.size(); ++k ) { 
+       skipSimTrackIdTokens.push_back(consumes<std::vector<int> >(skipSimTrackIdTags[k]));
+    }
+
     originHalfLength = conf.getParameter<double>("originHalfLength");
 
     originpTMin = conf.getParameter<double>("originpTMin");
@@ -136,14 +139,20 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     recoVertexToken=consumes<reco::VertexCollection>(primaryVertex);
 } 
 
+// Virtual destructor needed.
+TrajectorySeedProducer::~TrajectorySeedProducer() {
+  
+  if(thePropagator) delete thePropagator;
+}
 
 void 
+
 TrajectorySeedProducer::beginRun(edm::Run const&, const edm::EventSetup & es) 
 {
     edm::ESHandle<MagneticField> magneticFieldHandle;
     edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
     edm::ESHandle<MagneticFieldMap> magneticFieldMapHandle;
-	edm::ESHandle<TrackerTopology> trackerTopologyHandle;
+    edm::ESHandle<TrackerTopology> trackerTopologyHandle;
 	
     es.get<IdealMagneticFieldRecord>().get(magneticFieldHandle);
     es.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
@@ -158,16 +167,17 @@ TrajectorySeedProducer::beginRun(edm::Run const&, const edm::EventSetup & es)
     thePropagator = new PropagatorWithMaterial(alongMomentum,0.105,magneticField); 
 }
 
+
 bool
 TrajectorySeedProducer::passSimTrackQualityCuts(const SimTrack& theSimTrack, const SimVertex& theSimVertex) const
 {
-
-	//require min pT of the simtrack
-	if ( theSimTrack.momentum().Perp2() < pTMin*pTMin)
-	{
-		return false;
-	}
-
+  
+  //require min pT of the simtrack
+  if ( theSimTrack.momentum().Perp2() < pTMin*pTMin)
+    {
+      return false;
+    }
+  
 	//require impact parameter of the simtrack
 	BaseParticlePropagator theParticle = BaseParticlePropagator(
 		RawParticle(
@@ -332,6 +342,17 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	//  unsigned nTrackCandidates = 0;
 	PTrajectoryStateOnDet initialState;
 
+	// First, the tracks to be removed
+	std::set<unsigned int> skipSimTrackIds;
+	for ( unsigned int i=0; i<skipSimTrackIdTokens.size(); ++i ) {
+	  edm::Handle<std::vector<int> > skipSimTrackIds_temp;
+	  e.getByToken(skipSimTrackIdTokens[i],skipSimTrackIds_temp);
+	  for ( unsigned int j=0; j<skipSimTrackIds_temp->size(); ++j ) {
+	    unsigned int mySimTrackId = (*skipSimTrackIds_temp)[j];
+	    skipSimTrackIds.insert((unsigned int)mySimTrackId);
+	  } 
+	}
+
 	// Beam spot
 	edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
 	e.getByToken(beamSpotToken,recoBeamSpotHandle);
@@ -372,6 +393,8 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	    
 		const unsigned int currentSimTrackId = *itSimTrackId;
 		
+		if(skipSimTrackIds.find(currentSimTrackId)!=skipSimTrackIds.end()) continue;
+
 		const SimTrack& theSimTrack = (*theSimTracks)[currentSimTrackId];
 
 		int vertexIndex = theSimTrack.vertIndex();

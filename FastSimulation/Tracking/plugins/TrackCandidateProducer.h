@@ -47,14 +47,7 @@ class TrackCandidateProducer : public edm::EDProducer
   
  private:
 
-  int findId(const reco::Track& aTrack) const;
-
   void addSplitHits(const TrajectorySeedHitCandidate&, std::vector<TrajectorySeedHitCandidate>&); 
-  bool isDuplicateCandidate(const TrackCandidateCollection& candidates, const TrackCandidate& newCand) const;
-  bool sameLocalParameters(const TrackingRecHit* aH, const TrackingRecHit* bH) const;
-
- private:
-
   const TrackerGeometry*  theGeometry;
   const MagneticField*  theMagField;
   PropagatorWithMaterial* thePropagator;
@@ -62,7 +55,6 @@ class TrackCandidateProducer : public edm::EDProducer
 
   edm::InputTag seedProducer;
   edm::InputTag hitProducer;
-  // edm::InputTag trackProducer;
   std::vector<edm::InputTag> trackProducers;
   
   unsigned int minNumberOfCrossedLayers;
@@ -71,8 +63,7 @@ class TrackCandidateProducer : public edm::EDProducer
   bool rejectOverlaps;
   bool splitHits;
   bool seedCleaning;
-  bool keepFittedTracks;
-
+ 
   edm::InputTag simTracks_;
   double estimatorCut_;
 
@@ -81,9 +72,6 @@ class TrackCandidateProducer : public edm::EDProducer
   edm::EDGetTokenT<SiTrackerGSMatchedRecHit2DCollection> recHitToken;
   edm::EDGetTokenT<edm::SimVertexContainer> simVertexToken;
   edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken;
-  std::vector<edm::EDGetTokenT<reco::TrackCollection> > trackTokens;
-  std::vector<edm::EDGetTokenT<std::vector<Trajectory> > > trajectoryTokens;
-  std::vector<edm::EDGetTokenT<TrajTrackAssociationCollection> >  assoMapTokens;
 };
 
 #endif
