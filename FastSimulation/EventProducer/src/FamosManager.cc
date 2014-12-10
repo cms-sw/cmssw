@@ -37,6 +37,7 @@
 #include "FastSimulation/Calorimetry/interface/CalorimetryManager.h"
 #include "FastSimulation/CaloGeometryTools/interface/CaloGeometryHelper.h"  
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
+#include "FastSimulation/ShowerDevelopment/interface/fastHFShowerLibrary.h"
 #include <iostream>
 #include <memory>
 #include <vector>
@@ -141,6 +142,8 @@ FamosManager::setupGeometryAndField(edm::Run const& run, const edm::EventSetup &
     es.get<CaloTopologyRecord>().get(theCaloTopology);     
     myCalorimetry->getCalorimeter()->setupTopology(*theCaloTopology);
     myCalorimetry->getCalorimeter()->initialize(bField000);
+
+    myCalorimetry->getHFShowerLibrary()->initHFShowerLibrary(es);
   }
 
   m_pRunNumber = run.run();
