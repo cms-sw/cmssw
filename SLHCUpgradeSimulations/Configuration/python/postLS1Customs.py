@@ -83,6 +83,8 @@ def customisePostLS1EraExtras(process):
         process.hltL1RawToDigiSeq = cms.Sequence( process.hltCaloStage1Digis + process.hltCaloStage1LegacyFormatDigis )
         process.HLTL1UnpackerSequence.replace( process.hltGctDigis, process.hltL1RawToDigiSeq )
 
+    return process
+
 
 def digiEventContent(process):
     #extend the event content
