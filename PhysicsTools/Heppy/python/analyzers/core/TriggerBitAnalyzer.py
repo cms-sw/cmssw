@@ -15,14 +15,14 @@ class TriggerBitAnalyzer( Analyzer ):
     def __init__(self, cfg_ana, cfg_comp, looperName ):
         super(TriggerBitAnalyzer,self).__init__(cfg_ana,cfg_comp,looperName)
         if hasattr(self.cfg_ana,"processName"):
-		self.processName = self.cfg_ana.processName
-	else :
-		self.processName = 'HLT'
+                self.processName = self.cfg_ana.processName
+        else :
+                self.processName = 'HLT'
 
         if hasattr(self.cfg_ana,"outprefix"):
-		self.outprefix = self.cfg_ana.outprefix
-	else :
-		self.outprefix = self.processName
+                self.outprefix = self.cfg_ana.outprefix
+        else :
+                self.outprefix = self.processName
 
     def declareHandles(self):
         super(TriggerBitAnalyzer, self).declareHandles()
@@ -35,10 +35,10 @@ class TriggerBitAnalyzer( Analyzer ):
                 trigVec = ROOT.vector(ROOT.string)()
                 for TP in TL:
                     trigVec.push_back(TP)
-		outname="%s_%s"%(self.outprefix,T)
-		if not hasattr(setup ,"globalVariables") :
-			setup.globalVariables = []
-		setup.globalVariables.append( NTupleVariable(outname, lambda ev : getattr(ev,outname), help="OR of %s"%TL) )
+                outname="%s_%s"%(self.outprefix,T)
+                if not hasattr(setup ,"globalVariables") :
+                        setup.globalVariables = []
+                setup.globalVariables.append( NTupleVariable(outname, lambda ev : getattr(ev,outname), help="OR of %s"%TL) )
                 self.triggerBitCheckers.append( (T, TriggerBitChecker(trigVec)) )
 
     def process(self, event):
@@ -46,7 +46,7 @@ class TriggerBitAnalyzer( Analyzer ):
         triggerResults = self.handles['TriggerResults'].product()
         for T,TC in self.triggerBitCheckers:
             outname="%s_%s"%(self.outprefix,T)
-	    setattr(event,outname, TC.check(event.input.object(), triggerResults))
+            setattr(event,outname, TC.check(event.input.object(), triggerResults))
 
         return True
 
