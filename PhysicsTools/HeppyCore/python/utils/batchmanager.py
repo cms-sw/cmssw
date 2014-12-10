@@ -238,14 +238,18 @@ class BatchManager:
         hostName = os.environ['HOSTNAME']
         onLxplus = hostName.startswith('lxplus')
         onPSI    = hostName.startswith('t3ui'  )
+        onPISA    = re.match('.*gridui.*',hostName) or  re.match('.*faiwn.*',hostName)
         batchCmd = batch.split()[0]
         
         if batchCmd == 'bsub':
-            if not onLxplus:
+            if not (onLxplus or onPISA) :
                 err = 'Cannot run %s on %s' % (batchCmd, hostName)
                 raise ValueError( err )
+            elif onPISA :
+                print 'running on LSF pisa : %s from %s' % (batchCmd, hostName)
+                return 'PISA'
             else:
-                print 'running on LSF : %s from %s' % (batchCmd, hostName)
+                print 'running on LSF lxplus: %s from %s' % (batchCmd, hostName)
                 return 'LXPLUS'
         elif batchCmd == "qsub":
             if not onPSI:

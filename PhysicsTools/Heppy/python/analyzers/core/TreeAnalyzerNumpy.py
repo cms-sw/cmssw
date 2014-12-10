@@ -22,9 +22,9 @@ class TreeAnalyzerNumpy( Analyzer ):
 
     def beginLoop(self, setup) :
         super(TreeAnalyzerNumpy, self).beginLoop(setup)
-        self.declareVariables()
+        self.declareVariables(setup)
         
-    def declareVariables(self):
+    def declareVariables(self,setup):
         print 'TreeAnalyzerNumpy.declareVariables : overload this function.'
         pass
 
