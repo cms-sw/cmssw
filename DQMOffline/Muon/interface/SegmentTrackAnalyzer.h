@@ -29,7 +29,7 @@
 
 class MuonServiceProxy;
 
-class SegmentTrackAnalyzer : public thread_unsafe::DQMEDAnalyzer {
+class SegmentTrackAnalyzer : public DQMEDAnalyzer {
  public:
 
   /// Constructor

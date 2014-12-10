@@ -51,7 +51,7 @@
 
 #include <boost/cstdint.hpp>
 
-class SiPixelRecHitSource : public thread_unsafe::DQMEDAnalyzer {
+class SiPixelRecHitSource : public DQMEDAnalyzer {
     public:
        explicit SiPixelRecHitSource(const edm::ParameterSet& conf);
        ~SiPixelRecHitSource();
