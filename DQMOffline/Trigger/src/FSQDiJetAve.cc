@@ -157,7 +157,7 @@ class HandlerTemplate: public BaseHandler {
                 todo[CombinedObjectPlotter]=&m_combinedObjectDrawables;
                 todo[SingleObjectPlotter]=&m_singleObjectDrawables;
                 for (size_t ti =0; ti<todo.size();++ti){
-                    for (unsigned int i = 0; i < todo[ti]->size(); ++i){
+                    for (size_t i = 0; i < todo[ti]->size(); ++i){
                         std::string histoName = m_dqmhistolabel + "_" + todo[ti]->at(i).getParameter<std::string>("name");
                         std::string expression = todo[ti]->at(i).getParameter<std::string>("expression");
                         int bins =  todo[ti]->at(i).getParameter<int>("bins");
@@ -197,7 +197,7 @@ class HandlerTemplate: public BaseHandler {
               edm::LogError("FSQDiJetAve") << "product not found: "<<  input.encode();
               return -1;  // return nonsense value
            }
-           for (unsigned int i = 0; i<hIn->size(); ++i) {
+           for (size_t i = 0; i<hIn->size(); ++i) {
                 bool preselection = sel(hIn->at(i));
                 if (preselection){
                     fillSingleObjectPlots(hIn->at(i), weight);
@@ -205,10 +205,6 @@ class HandlerTemplate: public BaseHandler {
                 }
            }
            return ret;
-        }
-        void getAndStoreTokens(edm::ConsumesCollector && iC){
-                edm::EDGetTokenT<std::vector<TInputCandidateType>  > tok =  iC.consumes<std::vector<TInputCandidateType> > (m_input);
-                m_tokens[m_input.encode()] = edm::EDGetToken(tok);
         }
 
         // FIXME (?): code duplication
@@ -489,7 +485,7 @@ void HandlerTemplate<reco::GenParticle, int >::getFilteredCands(
              reco::GenParticle *, // pass a dummy pointer, makes possible to select correct getFilteredCands
              std::vector<int > & cands, // output collection
              const edm::Event& iEvent, const edm::EventSetup& iSetup,
-             const HLTConfigProvider&  hltConfig, const trigger::TriggerEvent& trgEvent)
+             const HLTConfigProvider&  hltConfig, const trigger::TriggerEvent& trgEvent, float weight)
 {
    cands.clear();
    cands.push_back(count<reco::GenParticle>(iEvent, m_input, m_singleObjectSelection, weight) );
@@ -521,7 +517,7 @@ void HandlerTemplate<reco::Track, int, BestVertexMatching>::getFilteredCands(
              const edm::Event& iEvent,  
              const edm::EventSetup& iSetup,
              const HLTConfigProvider&  hltConfig,
-             const trigger::TriggerEvent& trgEvent)
+             const trigger::TriggerEvent& trgEvent, float weight)
 {  
     // this is not elegant, but should be thread safe
     static const edm::InputTag lVerticesTag = m_pset.getParameter<edm::InputTag>("vtxCollection");
@@ -567,7 +563,7 @@ void HandlerTemplate<reco::Track, int, BestVertexMatching>::getFilteredCands(
       return;
    }
 
-   for (unsigned int i = 0; i<hIn->size(); ++i) {
+   for (size_t i = 0; i<hIn->size(); ++i) {
         if (!m_singleObjectSelection(hIn->at(i))) continue;
         dxy=0.0, dz=0.0, dxysigma=0.0, dzsigma=0.0;
         dxy = -1.*hIn->at(i).dxy(vtxPoint);
