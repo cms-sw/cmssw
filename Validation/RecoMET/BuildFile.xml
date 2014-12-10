@@ -15,6 +15,7 @@
 <use   name="Geometry/CaloGeometry"/>
 <use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/EgammaCandidates"/>
+<use   name="DataFormats/PatCandidates"/>
 <export>
   <lib   name="1"/>
 </export>

@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 
 # Tracker
 from RecoVertex.BeamSpotProducer.BeamSpot_cfi import *
-from RecoLocalTracker.Configuration.RecoLocalTracker_cff import *
+from RecoLocalTracker.Configuration.RecoLocalTrackerHeavyIons_cff import *
 from RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi import *
 from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
 
