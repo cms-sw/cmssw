@@ -7,7 +7,7 @@ HTDisplacedJetsPSet = cms.PSet(
         "HLT_HT350_DisplacedDijet80_DisplacedTrack_v",
         "HLT_HT350_DisplacedDijet80_Tight_DisplacedTrack_v"
         ),
-    recPFMETLabel  = cms.InputTag("recoExoticaValidationHT"),
+    recPFMHTLabel  = cms.InputTag("recoExoticaValidationHT"),
     recPFJetLabel  = cms.InputTag("ak4PFJets"),
     # -- Analysis specific cuts
     MET_genCut      = cms.string("sumEt > 75"),
