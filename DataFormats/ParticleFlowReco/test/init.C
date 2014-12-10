@@ -4,7 +4,5 @@
 gSystem->Load("libFWCoreFWLite.so");
 gSystem->Load("libDataFormatsParticleFlowReco.so");
 AutoLibraryLoader::enable();
-gSystem->Load("libCintex.so");
-ROOT::Cintex::Cintex::Enable();
 
 }

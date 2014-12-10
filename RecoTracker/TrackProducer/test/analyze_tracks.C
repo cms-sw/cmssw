@@ -1,6 +1,4 @@
 {
-gSystem->Load("libCintex");
-Cintex::Enable();
 gSystem->Load("libFWCoreFWLite.so");
 AutoLibraryLoader::enable();
 /////////SET THESE VALUES///////////////
