@@ -13,6 +13,7 @@ mergedDuplicateTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProduce
     src = cms.InputTag("duplicateTrackCandidates","candidates"),
     )
 
+import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 duplicateTrackSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src='mergedDuplicateTracks',
     trackSelectors= cms.VPSet(
@@ -38,6 +39,7 @@ generalTracksSequence = cms.Sequence(
     generalTracks
     )
 
+import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 conversionStepTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
     TrackProducers = cms.VInputTag(cms.InputTag('convStepTracks')),
     hasSelector=cms.vint32(1),
