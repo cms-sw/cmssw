@@ -245,7 +245,7 @@ class BatchManager:
             if not (onLxplus or onPISA) :
                 err = 'Cannot run %s on %s' % (batchCmd, hostName)
                 raise ValueError( err )
-	    elif onPISA :
+            elif onPISA :
                 print 'running on LSF pisa : %s from %s' % (batchCmd, hostName)
                 return 'PISA'
             else:

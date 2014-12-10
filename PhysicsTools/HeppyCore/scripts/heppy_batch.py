@@ -83,7 +83,7 @@ cp -rf $LS_SUBCWD .
 ls
 cd `find . -type d | grep /`
 echo 'running'
-python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py config.pck
+python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck
 echo
 echo 'sending the job directory back'
 cp -r Loop/* $LS_SUBCWD 
@@ -168,7 +168,7 @@ ls
 cd `find . -type d | grep /`
 echo 'running'
 #python $CMSSW_BASE/src/CMGTools/RootTools/python/fwlite/looper.py config.pck
-python {cmssw}/src/CMGTools/RootTools/python/fwlite/looper.py config.pck
+python {cmssw}/src/CMGTools/RootTools/python/fwlite/looper.py pycfg.py config.pck
 echo
 {copy}
 ###########################################################################
@@ -188,7 +188,7 @@ def batchScriptLocal(  remoteDir, index ):
 
    script = """#!/bin/bash
 echo 'running'
-python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py config.pck                   echo
+python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck                   echo
 echo 'sending the job directory back'
 mv Loop/* ./
 """ 
