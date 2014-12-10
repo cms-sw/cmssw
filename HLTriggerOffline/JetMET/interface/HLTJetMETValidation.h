@@ -60,7 +60,7 @@ namespace edm {
   class TriggerNames;
 }
 
-class HLTJetMETValidation : public thread_unsafe::DQMEDAnalyzer {
+class HLTJetMETValidation : public DQMEDAnalyzer {
   
  public:
   explicit HLTJetMETValidation(const edm::ParameterSet&);
