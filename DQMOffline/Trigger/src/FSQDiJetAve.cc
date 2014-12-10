@@ -578,9 +578,6 @@ void HandlerTemplate<reco::Track, int, BestVertexMatching>::getFilteredCands(
         cands.at(0)+=1;
     }//loop over tracks
 }
-
-
-
 //#############################################################################
 //
 // Apply JEC to PFJets
@@ -608,11 +605,30 @@ void HandlerTemplate<reco::PFJet, reco::PFJet, ApplyJEC>::getFilteredCands(
              const HLTConfigProvider&  hltConfig,
              const trigger::TriggerEvent& trgEvent, float weight)
 {  
+    cands.clear();
     static const edm::InputTag jetCorTag = m_pset.getParameter<edm::InputTag>("PFJetCorLabel");
     edm::Handle<reco::JetCorrector> pfcorrector;
     iEvent.getByToken(m_tokens[jetCorTag.encode()], pfcorrector);
+ 
+    Handle<std::vector<reco::PFJet> > hIn;
+    iEvent.getByToken(m_tokens[m_input.encode()], hIn);
 
-    cands.clear();
+    if(!hIn.isValid()) {
+      edm::LogError("FSQDiJetAve") << "product not found: "<<  m_input.encode();
+      return;  
+    }
+
+    for (size_t i = 0; i<hIn->size(); ++i) {
+         double scale = pfcorrector->correction(hIn->at(i));
+         reco::PFJet newPFJet(scale*hIn->at(i).p4(), hIn->at(i).vertex(), 
+                              hIn->at(i).getSpecific(),  hIn->at(i).getJetConstituents());
+         
+         bool preselection = m_singleObjectSelection(newPFJet);
+         if (preselection){
+             fillSingleObjectPlots(newPFJet, weight);
+             cands.push_back(newPFJet);
+         }
+    }
 }
 //#############################################################################
 //
