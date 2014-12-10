@@ -47,6 +47,7 @@
 
 #include <boost/algorithm/string.hpp>
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 
 using namespace edm;
 using namespace std;
@@ -102,7 +103,7 @@ class BaseHandler {
 // Handle objects saved into hlt event by hlt filters
 //
 //################################################################################################
-enum SpecialFilters { None, BestVertexMatching };
+enum SpecialFilters { None, BestVertexMatching, ApplyJEC };
 template <class TInputCandidateType, class TOutputCandidateType, SpecialFilters filter = None>
 class HandlerTemplate: public BaseHandler {
     private:
@@ -577,6 +578,42 @@ void HandlerTemplate<reco::Track, int, BestVertexMatching>::getFilteredCands(
         cands.at(0)+=1;
     }//loop over tracks
 }
+
+
+
+//#############################################################################
+//
+// Apply JEC to PFJets
+//
+//#############################################################################
+template<>
+void HandlerTemplate<reco::PFJet, reco::PFJet, ApplyJEC>::getAndStoreTokens(
+                edm::ConsumesCollector && iC)
+{
+    edm::EDGetTokenT<std::vector<reco::PFJet>  > tok =  iC.consumes<std::vector<reco::PFJet> > (m_input);
+    m_tokens[m_input.encode()] = edm::EDGetToken(tok);
+
+    edm::InputTag jetCorTag = m_pset.getParameter<edm::InputTag>("PFJetCorLabel");
+    edm::EDGetTokenT<reco::JetCorrector> jetcortoken =  iC.consumes<reco::JetCorrector>(jetCorTag);
+    m_tokens[jetCorTag.encode()] = edm::EDGetToken(jetcortoken);
+
+}
+
+template<>
+void HandlerTemplate<reco::PFJet, reco::PFJet, ApplyJEC>::getFilteredCands(
+             reco::PFJet *, // pass a dummy pointer, makes possible to select correct getFilteredCands
+             std::vector<reco::PFJet > & cands, // output collection
+             const edm::Event& iEvent,  
+             const edm::EventSetup& iSetup,
+             const HLTConfigProvider&  hltConfig,
+             const trigger::TriggerEvent& trgEvent, float weight)
+{  
+    static const edm::InputTag jetCorTag = m_pset.getParameter<edm::InputTag>("PFJetCorLabel");
+    edm::Handle<reco::JetCorrector> pfcorrector;
+    iEvent.getByToken(m_tokens[jetCorTag.encode()], pfcorrector);
+
+    cands.clear();
+}
 //#############################################################################
 //
 // Count any object inheriting from reco::Candidate. Save into std::vector<int>
@@ -667,6 +704,7 @@ void HandlerTemplate<trigger::TriggerObject, trigger::TriggerObject>::getFiltere
 typedef HandlerTemplate<trigger::TriggerObject, trigger::TriggerObject> HLTHandler;
 typedef HandlerTemplate<reco::Candidate::LorentzVector, reco::Candidate::LorentzVector> RecoCandidateHandler;// in fact reco::Candidate, reco::Candidate::LorentzVector
 typedef HandlerTemplate<reco::PFJet, reco::PFJet> RecoPFJetHandler;
+typedef HandlerTemplate<reco::PFJet, reco::PFJet, ApplyJEC> RecoPFJetWithJECHandler;
 typedef HandlerTemplate<reco::Track, reco::Track> RecoTrackHandler;
 typedef HandlerTemplate<reco::Photon, reco::Photon> RecoPhotonHandler;
 typedef HandlerTemplate<reco::Muon, reco::Muon> RecoMuonHandler;
@@ -719,6 +757,9 @@ FSQDiJetAve::FSQDiJetAve(const edm::ParameterSet& iConfig):
         }
         else if (type == "RecoPFJet") {
             m_handlers.push_back(std::shared_ptr<FSQ::RecoPFJetHandler>(new FSQ::RecoPFJetHandler(pset, m_eventCache)));
+        }
+        else if (type == "RecoPFJetWithJEC") {
+            m_handlers.push_back(std::shared_ptr<FSQ::RecoPFJetWithJECHandler>(new FSQ::RecoPFJetWithJECHandler(pset, m_eventCache)));
         }
         else if (type == "RecoTrack") {
             m_handlers.push_back(std::shared_ptr<FSQ::RecoTrackHandler>(new FSQ::RecoTrackHandler(pset, m_eventCache)));
