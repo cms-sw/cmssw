@@ -17,8 +17,6 @@
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
 #include "CoralBase/Blob.h"
 
-#include "CondCore/ORA/src/oraHelper.h"
-
 using namespace testORA;
 
 class PrimitiveContainerStreamingService : public ora::IBlobStreamingService {
@@ -122,14 +120,7 @@ void PrimitiveContainerStreamingService::read( const coral::Blob& blobData,
    throw std::runtime_error( "Could not retrieve the end method of the container" );
 
   // Retrieve the insert method
-  edm::FunctionWithDict insertMethod;
-  for( unsigned int i = 0; i < type.functionMemberSize();i++){
-    edm::FunctionWithDict im = ora::helper::FunctionMemberAt(type, i);
-    if( im.name() != std::string( "insert" ) ) continue;
-    if( im.functionParameterSize() != 2) continue;
-    insertMethod = im;
-    break;
-  }
+  edm::FunctionWithDict insertMethod = type.functionMemberByName("insert");
 
   // Retrieve the clear method
   edm::FunctionWithDict clearMethod = type.functionMemberByName( "clear" );
