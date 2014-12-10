@@ -104,7 +104,7 @@ class Looper(object):
     def _prepareOutput(self, name):
         index = 0
         tmpname = name
-        while True:
+        while True and index < 2000:
             try:
                 # print 'mkdir', self.name
                 os.mkdir( tmpname )
@@ -112,6 +112,8 @@ class Looper(object):
             except OSError:
                 index += 1
                 tmpname = '%s_%d' % (name, index)
+        if index == 2000:
+              raise ValueError( "More than 2000 output folder with same name or 2000 attempts failed, please clean-up, change name or check permissions")
         return tmpname
 
 

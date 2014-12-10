@@ -23,15 +23,15 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
         ## Declare how we store floats by default
         self.tree.setDefaultFloatType("F"); # otherwise it's "D"
  
-	self.collections = {}      
+        self.collections = {}      
         self.globalObjects = {}
-	self.globalVariables = []
-	if hasattr(cfg_ana,"collections"):
-		self.collections=cfg_ana.collections
-	if hasattr(cfg_ana,"globalObjects"):
-		self.globalObjects=cfg_ana.globalObjects
-	if hasattr(cfg_ana,"globalVariables"):
-		self.globalVariables=cfg_ana.globalVariables
+        self.globalVariables = []
+        if hasattr(cfg_ana,"collections"):
+                self.collections=cfg_ana.collections
+        if hasattr(cfg_ana,"globalObjects"):
+                self.globalObjects=cfg_ana.globalObjects
+        if hasattr(cfg_ana,"globalVariables"):
+                self.globalVariables=cfg_ana.globalVariables
 
     def declareHandles(self):
         super(AutoFillTreeProducer, self).declareHandles()
@@ -80,12 +80,12 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
         self.declareCoreVariables(tree, isMC)
 
         if not hasattr(self.cfg_ana,"ignoreAnalyzerBookings") or not self.cfg_ana.ignoreAnalyzerBooking :
-	    #import variables declared by the analyzers
-	    if hasattr(setup,"globalVariables"):
-	        self.globalVariables+=setup.globalVariables
-	    if hasattr(setup,"globalObjects"):
-	        self.globalObjects.update(setup.globalObjects)
-	    if hasattr(setup,"collections"):
+            #import variables declared by the analyzers
+            if hasattr(setup,"globalVariables"):
+                self.globalVariables+=setup.globalVariables
+            if hasattr(setup,"globalObjects"):
+                self.globalObjects.update(setup.globalObjects)
+            if hasattr(setup,"collections"):
                 self.collections.update(setup.collections)
 
         for v in self.globalVariables:
@@ -112,18 +112,18 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
 
         if isMC:
             ## PU weights, check if a PU analyzer actually filled it
-	    if hasattr(event,"nPU"):
-	            tr.fill("nTrueInt", event.nPU)
-	            tr.fill("puWeight", event.eventWeight)
-	    else :
+            if hasattr(event,"nPU"):
+                    tr.fill("nTrueInt", event.nPU)
+                    tr.fill("puWeight", event.eventWeight)
+            else :
                     tr.fill("nTrueInt", -1)
-	            tr.fill("puWeight", 1.0)
-		
+                    tr.fill("puWeight", 1.0)
+                
             tr.fill("genWeight", self.mchandles['GenInfo'].product().weight())
             ## PDF weights
             if hasattr(event,"pdfWeights") :
               for (pdf,nvals) in self.pdfWeights:
-		if len(event.pdfWeights[pdf]) != nvals:
+                if len(event.pdfWeights[pdf]) != nvals:
                     raise RuntimeError, "PDF lenght mismatch for %s, declared %d but the event has %d" % (pdf,nvals,event.pdfWeights[pdf])
                 if self.scalar:
                     for i,w in enumerate(event.pdfWeights[pdf]):
