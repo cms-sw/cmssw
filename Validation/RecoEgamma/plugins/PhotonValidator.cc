@@ -3754,23 +3754,6 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
 }
 
-
-
-
-
-
-void PhotonValidator::endJob() {
-
-
-  std::string outputFileName = parameters_.getParameter<std::string>("OutputFileName");
-  if ( ! isRunCentrally_ ) {
-    edm::Service<DQMStore>()->save(outputFileName);
-  }
-
-  edm::LogInfo("PhotonValidator") << "Analyzed " << nEvt_  << "\n";
-  return ;
-}
-
 float PhotonValidator::phiNormalization(float & phi)
 {
   //---Definitions

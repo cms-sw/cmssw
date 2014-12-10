@@ -26,7 +26,7 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h" 
 
-class MuonRecoAnalyzer : public thread_unsafe::DQMEDAnalyzer {
+class MuonRecoAnalyzer : public DQMEDAnalyzer {
  public:
 
   /// Constructor

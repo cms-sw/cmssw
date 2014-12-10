@@ -45,7 +45,7 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 
-class SiPixelTrackResidualSource : public thread_unsafe::DQMEDAnalyzer {
+class SiPixelTrackResidualSource : public DQMEDAnalyzer {
   public:
     explicit SiPixelTrackResidualSource(const edm::ParameterSet&);
             ~SiPixelTrackResidualSource();

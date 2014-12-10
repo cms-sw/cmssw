@@ -64,7 +64,7 @@ class PtSorter {
    }
  };
 
-class JetMETHLTOfflineSource : public thread_unsafe::DQMEDAnalyzer {
+class JetMETHLTOfflineSource : public DQMEDAnalyzer {
  public:
   explicit JetMETHLTOfflineSource(const edm::ParameterSet&);
   ~JetMETHLTOfflineSource();

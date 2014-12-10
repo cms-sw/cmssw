@@ -78,7 +78,7 @@
 
 
 
-class METAnalyzer : public thread_unsafe::DQMEDAnalyzer{
+class METAnalyzer : public DQMEDAnalyzer{
  public:
 
   /// Constructor
