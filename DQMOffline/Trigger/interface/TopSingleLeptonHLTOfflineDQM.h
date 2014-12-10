@@ -222,7 +222,7 @@ namespace HLTOfflineDQMTopSingleLepton {
 /// define MonitorSingleLepton to be used
 //using HLTOfflineDQMTopSingleLepton::MonitorSingleLepton;
 
-class TopSingleLeptonHLTOfflineDQM : public thread_unsafe::DQMEDAnalyzer  {
+class TopSingleLeptonHLTOfflineDQM : public DQMEDAnalyzer  {
   public: 
     /// default constructor
     TopSingleLeptonHLTOfflineDQM(const edm::ParameterSet& cfg);
