@@ -8,17 +8,12 @@
 #include <sstream>
 // externals
 #include "FWCore/Utilities/interface/TypeWithDict.h"
-#include "oraHelper.h"
-#include "RflxPropList.h"
 
 std::string
 ora::MappingDatabase::versionOfClass( const edm::TypeWithDict& dictionary ){
   std::string className = dictionary.cppName();
-  Reflex::PropertyList classProps = ora::helper::Properties(dictionary);
-  std::string classVersion = MappingRules::defaultClassVersion(className);
-  if(classProps.HasProperty(MappingRules::classVersionPropertyNameInDictionary())){
-    classVersion = classProps.PropertyAsString(MappingRules::classVersionPropertyNameInDictionary());
-  }
+  std::string classVersion = ClassUtils::getClassProperty( MappingRules::classVersionPropertyNameInDictionary(), dictionary );
+  if( classVersion.empty() ) classVersion = MappingRules::defaultClassVersion(className);
   return classVersion;
 }
 

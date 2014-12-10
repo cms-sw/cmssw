@@ -12,7 +12,7 @@ int main(){
   try{
     edmplugin::PluginManager::configure(edmplugin::standard::config());
     cond::DbConnection connection;
-    connection.configuration().setMessageLevel( coral::Debug );
+    //connection.configuration().setMessageLevel( coral::Debug );
     std::cout<<"#0 "<<std::endl;
     connection.configure();
     cond::DbSession pooldb = connection.createSession();
