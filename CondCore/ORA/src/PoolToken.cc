@@ -1,13 +1,12 @@
 #include "CondCore/ORA/interface/PoolToken.h"
 #include "CondCore/ORA/interface/Exception.h"
 #include "CondCore/ORA/interface/Guid.h"
+#include "ClassUtils.h"
 //
 #include <cstring>
 #include <cstdio>
 // externals
 #include "FWCore/Utilities/interface/TypeWithDict.h"
-#include "RflxPropList.h"
-#include "oraHelper.h"
 
 namespace cond {
   
@@ -62,10 +61,7 @@ namespace cond {
     //  first lookup the class guid in the dictionary
     edm::TypeWithDict containerType = edm::TypeWithDict::byName( className );
     if( containerType ){
-      Reflex::PropertyList props = ora::helper::Properties(containerType);
-      if( props.HasProperty("ClassID")){
-        clguid = props.PropertyAsString("ClassID");
-      }
+      clguid = ora::ClassUtils::getClassProperty( std::string("ClassID"),containerType );
     }
     // if not found, generate one...
     if( clguid.empty() ){

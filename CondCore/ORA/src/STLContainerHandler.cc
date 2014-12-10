@@ -4,9 +4,7 @@
 #include "STLContainerHandler.h"
 // externals
 #include "RVersion.h"
-
 #include "FWCore/Utilities/interface/TypeWithDict.h"
-#include "oraHelper.h"
 
 ora::STLContainerIteratorHandler::STLContainerIteratorHandler( void* address,
                                                                TVirtualCollectionProxy& collProxy,

@@ -7,17 +7,11 @@
 // externals
 #include "FWCore/Utilities/interface/BaseWithDict.h"
 #include "FWCore/Utilities/interface/MemberWithDict.h"
-#include "RflxPropList.h"
-#include "oraHelper.h"
 
 namespace ora {
 
   bool isLoosePersistencyDataMember( const edm::MemberWithDict& dataMember ){
-    std::string persistencyType("");
-    Reflex::PropertyList memberProps = ora::helper::Properties(dataMember);
-    if( memberProps.HasProperty(ora::MappingRules::persistencyPropertyNameInDictionary())){
-       persistencyType = memberProps.PropertyAsString(ora::MappingRules::persistencyPropertyNameInDictionary());
-    }
+    std::string persistencyType = ClassUtils::getDataMemberProperty( ora::MappingRules::persistencyPropertyNameInDictionary(), dataMember );
     return ora::MappingRules::isLooseOnWriting( persistencyType ) || ora::MappingRules::isLooseOnReading( persistencyType ) ;
   }
 
@@ -80,14 +74,11 @@ void ora::ObjectStreamerBase::buildBaseDataMembers( DataElement& dataElement,
 	}
         processDataMember( dataMemberElement, relationalData, dataMemberType, dataMemberMapping, operationBuffer );
       } else {
-/*
-        // FIXME: Commented out because ROOT6 does not yet support attributes on "field name=" lines.
         if( !isLoosePersistencyDataMember( dataMember ) ){
 	  throwException( "Data member \"" + dataMemberName +
                           "\" not found in the mapping element of variable \""+m_mapping.variableName()+"\".",
                           "ObjectStreamerBase::buildBaseDataMembers" );
 	}
-*/
       }
     }
   }
@@ -137,14 +128,11 @@ bool ora::ObjectStreamerBase::buildDataMembers( DataElement& dataElement,
       }
       processDataMember( dataMemberElement, relationalData, dataMemberType, dataMemberMapping, operationBuffer );
     } else {
-/*
-      // FIXME: Commented out because ROOT6 does not yet support attributes on "field name=" lines.
       if(!isLoosePersistencyDataMember( dataMember ) ){
         throwException( "Data member \"" + dataMemberName +
                         "\" not found in the mapping element of variable \""+m_mapping.variableName()+"\".",
                         "ObjectStreamerBase::buildDataMembers" );
       }
-*/
     }
   }
   return true;

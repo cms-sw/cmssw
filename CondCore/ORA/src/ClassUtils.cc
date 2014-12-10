@@ -10,6 +10,7 @@
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
 #include "FWCore/Utilities/interface/BaseWithDict.h"
 #include "TROOT.h"
+#include "TDictAttributeMap.h"
 
 ora::RflxDeleter::RflxDeleter( const edm::TypeWithDict& type ):
   m_type( type ){
@@ -486,3 +487,38 @@ edm::TypeWithDict ora::ClassUtils::resolvedType(const edm::TypeWithDict& typ){
   return typ;
 }
 
+size_t ora::ClassUtils::arrayLength( const edm::TypeWithDict& typ ) {
+  size_t arraySize = typ.arrayLength();
+  edm::TypeWithDict arrayType = typ.toType();
+  if( arrayType.isArray() ) arraySize /= arrayType.arrayLength();
+  return arraySize;
+}
+
+std::string ora::ClassUtils::getClassProperty( const std::string& propertyName, 
+					       const edm::TypeWithDict& type ){
+  std::string ret("");
+  TClass* rclass = type.getClass();
+  if( rclass ){
+    TDictAttributeMap* classProps = rclass->GetAttributeMap();
+    if( classProps && classProps->HasKey( propertyName.c_str() ) ){
+      ret = classProps->GetPropertyAsString( propertyName.c_str() );
+    }
+  }
+  return ret;
+}
+
+std::string ora::ClassUtils::getDataMemberProperty( const std::string& propertyName, 
+						    const edm::MemberWithDict& dataMember ){
+  std::string ret("");
+  TClass* declaringClass = dataMember.declaringType().getClass();
+  if( declaringClass ){
+    auto dm = declaringClass->GetDataMember( dataMember.name().c_str() );
+    if( dm ) {
+      TDictAttributeMap* memberProps = dm->GetAttributeMap();
+      if( memberProps && memberProps->HasKey( propertyName.c_str() ) ){
+	ret = memberProps->GetPropertyAsString( propertyName.c_str() );
+      }
+    }
+  }
+  return ret;
+}

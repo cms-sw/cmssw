@@ -10,8 +10,6 @@
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/BaseWithDict.h"
 #include "CoralBase/AttributeSpecification.h"
-#include "RflxPropList.h"
-#include "oraHelper.h"
 
 size_t
 ora::RelationalMapping::sizeInColumns(const edm::TypeWithDict& topLevelClassType ){
@@ -88,9 +86,8 @@ ora::RelationalMapping::_sizeInColumnsForCArray(const edm::TypeWithDict& topLeve
     return;
   }
 
-  size_t arraySize = typ.arrayLength();
+  size_t arraySize = ClassUtils::arrayLength( typ );
   edm::TypeWithDict arrayType = typ.toType();
-  if( arrayType.isArray() ) arraySize /= arrayType.arrayLength();
   size_t arrayElementSize = 0;
   _sizeInColumns(arrayType, arrayElementSize, hasDependencies);
   size_t totSize = arraySize*arrayElementSize;
@@ -488,7 +485,8 @@ void ora::CArrayMapping::process( MappingElement& parentElement,
       ora::MappingElement& me = parentElement.appendSubElement( mappingElementType, attributeName, className, parentElement.tableName() );
       me.setColumnNames( parentElement.columnNames() );
       std::auto_ptr<IRelationalMapping> processor( mappingFactory.newProcessor( arrayElementType ) );
-      for(size_t i=0;i<m_type.arrayLength();i++){
+      size_t arraySize = ClassUtils::arrayLength( m_type );
+      for(size_t i=0;i<arraySize;i++){
         processor->process( me, MappingRules::variableNameForArrayIndex(attributeName,i), 
                             MappingRules::variableNameForArrayColumn(i), arrayScopeNameForSchema );
       }
@@ -541,13 +539,12 @@ ora::ObjectMapping::~ObjectMapping(){
 
 namespace ora {
 
-  bool isLoosePersistencyOnWriting( const edm::MemberWithDict& dataMember ){
-    std::string persistencyType("");
-    Reflex::PropertyList memberProps = ora::helper::Properties(dataMember);
-    if( memberProps.HasProperty(ora::MappingRules::persistencyPropertyNameInDictionary())){
-       persistencyType = memberProps.PropertyAsString(ora::MappingRules::persistencyPropertyNameInDictionary());
-    }
-    return ora::MappingRules::isLooseOnWriting( persistencyType );
+ bool isLoosePersistencyOnWriting( const edm::MemberWithDict& dataMember ){
+   return ora::MappingRules::isLooseOnWriting( ClassUtils::getDataMemberProperty(ora::MappingRules::persistencyPropertyNameInDictionary(), dataMember  ) );
+  }
+
+  bool isMappedToBlob( const edm::MemberWithDict& dataMember ){
+    return ora::MappingRules::isMappedToBlob( ClassUtils::getDataMemberProperty( ora::MappingRules::mappingPropertyNameInDictionary(), dataMember ) );
   }
   
   void processBaseClasses( MappingElement& mappingElement,
@@ -578,12 +575,7 @@ namespace ora {
         std::string objectMemberName = ora::MappingRules::scopedVariableName( baseMember.name(), scope );
         std::string objectMemberNameForSchema = ora::MappingRules::scopedVariableForSchemaObjects( baseMember.name(), scope );
 
-        std::string mappingType("");
-        Reflex::PropertyList memberProps = ora::helper::Properties(baseMember);
-        if( memberProps.HasProperty(ora::MappingRules::mappingPropertyNameInDictionary())){
-          mappingType = memberProps.PropertyAsString(ora::MappingRules::mappingPropertyNameInDictionary());
-        }
-        bool blobStreaming = ora::MappingRules::isMappedToBlob( mappingType );
+        bool blobStreaming = isMappedToBlob( baseMember ); 
         
         RelationalMappingFactory mappingFactory( tableRegister );
         std::auto_ptr<IRelationalMapping> processor( mappingFactory.newProcessor( type, blobStreaming ) );
@@ -637,12 +629,7 @@ void ora::ObjectMapping::process( MappingElement& parentElement,
     std::string objectMemberName = objectMember.name();
     std::string objectNameForSchema = objectMember.name();
     
-    std::string mappingType("");
-    Reflex::PropertyList memberProps = ora::helper::Properties(objectMember);
-    if( memberProps.HasProperty(ora::MappingRules::mappingPropertyNameInDictionary())){
-      mappingType = memberProps.PropertyAsString(ora::MappingRules::mappingPropertyNameInDictionary());
-    }
-    bool blobStreaming = ora::MappingRules::isMappedToBlob( mappingType );
+   bool blobStreaming = isMappedToBlob( objectMember ); 
 
     std::auto_ptr<IRelationalMapping> processor( mappingFactory.newProcessor( type, blobStreaming ) );
     processor->process( me, objectMemberName, objectNameForSchema, objectScopeNameForSchema  );

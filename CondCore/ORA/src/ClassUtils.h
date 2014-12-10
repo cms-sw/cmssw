@@ -84,6 +84,10 @@ namespace ora {
 
     bool isTypeObject( const edm::TypeWithDict& typ);
 
+    size_t arrayLength( const edm::TypeWithDict& typ );
+
+    std::string getClassProperty( const std::string& propertyName, const edm::TypeWithDict& type );
+    std::string getDataMemberProperty( const std::string& propertyName, const edm::MemberWithDict& dataMember );
 
   }
 

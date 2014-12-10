@@ -1,4 +1,5 @@
 #include "MappingRules.h"
+#include "ClassUtils.h"
 //
 #include <sstream>
 #include <vector>
@@ -171,8 +172,7 @@ ora::MappingRules::variableNameForArrayColumn( unsigned int arrayIndex ){
 std::string
 ora::MappingRules::variableNameForArrayColumn( const edm::TypeWithDict& array ){
   std::stringstream contentTypeName;
-  size_t arraySize = array.arrayLength();
-  if( array.toType().isArray() ) arraySize /= array.toType().arrayLength();
+  size_t arraySize = ClassUtils::arrayLength( array );
   contentTypeName << "A" << arraySize;
   return contentTypeName.str();
 }
