@@ -58,7 +58,7 @@ class TrackerTopology;
 // class declaration
 //
 
-class SiStripMonitorTrack : public thread_unsafe::DQMEDAnalyzer {
+class SiStripMonitorTrack : public DQMEDAnalyzer {
 public:
   typedef TrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
   enum RecHitType { Single=0, Matched=1, Projected=2, Null=3};
