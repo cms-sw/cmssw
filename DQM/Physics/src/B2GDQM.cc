@@ -382,7 +382,7 @@ void B2GDQM::analyzeJets(const Event& iEvent, const edm::EventSetup& iSetup) {
           }
 
           // For W-tagging, check the mass drop
-        } else if (jetLabels_[icoll].label() == "ak8PFJetsCHSPruned") {
+        } else if ((jetLabels_[icoll].label() == "ak8PFJetsCHSPruned")||(jetLabels_[icoll].label() == "ak8PFJetsCHSSoftdrop")) {
           if (jet->numberOfDaughters() > 1) {
             reco::Candidate const* da0 = jet->daughter(0);
             reco::Candidate const* da1 = jet->daughter(1);
