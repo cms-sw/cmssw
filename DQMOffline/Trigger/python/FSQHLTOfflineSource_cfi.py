@@ -73,18 +73,22 @@ def getHighMultVPSet():
             singleObjectsPreselection = cms.string("1==1"),
             singleObjectDrawables =  cms.VPSet(
                 cms.PSet (name = cms.string("pt"), expression = cms.string("pt"), bins = cms.int32(50), min = cms.double(0.4), max = cms.double(10)),
-                cms.PSet (name = cms.string("eta"), expression = cms.string("eta"), bins = cms.int32(100), min = cms.double(-2.5), max = cms.double(2.5))
+                cms.PSet (name = cms.string("eta"), expression = cms.string("eta"), bins = cms.int32(100), min = cms.double(-2.5), max = cms.double(2.5)),
+                cms.PSet (name = cms.string("phi"), expression = cms.string("phi"), bins = cms.int32(100), min = cms.double(-3.15), max = cms.double(3.15))
             ),
             combinedObjectSelection =  cms.string("1==1"),
             combinedObjectSortCriteria = cms.string("at(0).pt"),
             combinedObjectDimension = cms.int32(1),
-            combinedObjectDrawables =  cms.VPSet(
-                cms.PSet (name = cms.string("ptBest"), expression = cms.string("at(0).pt"), bins = cms.int32(50), min = cms.double(0.4), max = cms.double(10)),
-                cms.PSet (name = cms.string("etaBest"), expression = cms.string("at(0).eta"), bins = cms.int32(100), min = cms.double(-2.5), max = cms.double(2.5))
-
-            )
+            combinedObjectDrawables =  cms.VPSet()
         )
         ret.append(hltPixelTracks)
+
+        hltPixelTracksEta16to18 = hltPixelTracks.clone()
+        hltPixelTracksEta16to18.singleObjectsPreselection='abs(eta) > 1.6 && abs(eta) < 1.8'
+        hltPixelTracksEta16to18.dqmhistolabel  = cms.string("hltPixelTracksEta16to18")
+        ret.append(hltPixelTracksEta16to18)
+
+
 
         # FIXME: what variables it makes sense to plot in case of ETT seeds?
         l1 =  cms.PSet(
