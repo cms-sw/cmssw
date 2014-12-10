@@ -169,6 +169,12 @@ if __name__ == '__main__':
                       dest='dryRun',
                       default=False
                       )
+    parser.add_option('--testbed',
+                      help='workflow injection to cmswebtest (you need dedicated rqmgr account)',
+                      dest='testbed',
+                      default=False,
+                      action='store_true'
+                      )
     parser.add_option('--noCafVeto',
                       help='Run from any source, ignoring the CAF label',
                       dest='cafVeto',
