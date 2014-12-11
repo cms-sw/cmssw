@@ -76,10 +76,12 @@ pfNoPUMEtSequence += pfNoPUMEtData
 pfNoPUMEt = cms.EDProducer("NoPileUpPFMEtProducer",
     srcMEt = cms.InputTag('pfMet'),
     srcMEtCov = cms.InputTag(''), # NOTE: leave empty to take MET covariance matrix from reco::PFMET object //MM 08/29/14, bypass hardcoded as this variable has never been used so far
-    srcMVAMEtData = cms.InputTag('pfNoPUMEtData'),                               
+    srcPUSubMETDataJet = cms.InputTag('pfNoPUMEtData','jetInfos'), 
+    srcPUSubMETDataPFCands = cms.InputTag('pfNoPUMEtData','pfCandInfos'),               
     srcLeptons = cms.VInputTag(), # NOTE: you need to set this to collections of electrons, muons and tau-jets
-                                  #       passing the lepton reconstruction & identification criteria applied in your analysis                               
-    srcMVAMEtDataLeptonMatch = cms.InputTag('pfNoPUMEtData'),                       
+                                  #       passing the lepton reconstruction & identification criteria applied in your analysis      
+    srcPUSubMETDataJetLeptonMatch = cms.InputTag('pfNoPUMEtData','jetInfos'), 
+    srcPUSubMETDataPFCandsLeptonMatch = cms.InputTag('pfNoPUMEtData','pfCandInfos'),                  
     srcType0Correction = cms.InputTag('pfMETcorrType0ForPFNoPUMEt'),                    
     sfNoPUjets = cms.double(1.0),
     sfNoPUjetOffsetEnCorr = cms.double(0.0),                    

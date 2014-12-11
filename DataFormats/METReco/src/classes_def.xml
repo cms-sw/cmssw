@@ -24,23 +24,13 @@
   <class name="std::vector<metsig::SigInputObj>"/> 
   <class name="edm::Wrapper<std::vector<metsig::SigInputObj> >"/> 
 
-  <class name="reco::MVAMEtJetInfo" ClassVersion="13">
-   <version ClassVersion="10" checksum="695030979"/>
-   <version ClassVersion="11" checksum="2096949665"/>
-   <version ClassVersion="12" checksum="774362219"/>
-   <version ClassVersion="13" checksum="619222758"/>
+  <class name="reco::PUSubMETCandInfo" ClassVersion="11">
+    <version ClassVersion="10" checksum="2393759388"/>
+    <version ClassVersion="11" checksum="3750359744"/>
   </class>
-  <class name="reco::MVAMEtJetInfoCollection" />
-  <class name="edm::Wrapper<reco::MVAMEtJetInfoCollection>" />
-
-  <class name="reco::MVAMEtPFCandInfo" ClassVersion="12">
-   <version ClassVersion="10" checksum="2500257969"/>
-   <version ClassVersion="11" checksum="1494751375"/>
-   <version ClassVersion="12" checksum="1973163836"/>
-  </class>
-  <class name="reco::MVAMEtPFCandInfoCollection" />
-  <class name="edm::Wrapper<reco::MVAMEtPFCandInfoCollection>" />
-
+  <class name="reco::PUSubMETCandInfoCollection" />
+  <class name="edm::Wrapper<reco::PUSubMETCandInfoCollection>" />
+ 
   <class name="SpecificCaloMETData" ClassVersion="11">
    <version ClassVersion="10" checksum="3022746385"/>
    <version ClassVersion="11" checksum="747083523"/>

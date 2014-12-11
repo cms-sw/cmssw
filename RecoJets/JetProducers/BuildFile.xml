@@ -1,6 +1,7 @@
 <use   name="boost"/>
 <use   name="FWCore/Framework"/>
 <use   name="DataFormats/JetReco"/>
+<use   name="DataFormats/PatCandidates"/>
 <use   name="Geometry/CaloGeometry"/>
 <use   name="Geometry/CaloTopology"/>
 <use   name="Geometry/Records"/>

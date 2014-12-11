@@ -8,6 +8,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -64,13 +65,14 @@ namespace
     
     std::vector<reco::PFCandidatePtr> pfConsts = jet.getPFConstituents();
     for ( std::vector<reco::PFCandidatePtr>::const_iterator jetConstituent = pfConsts.begin(); jetConstituent != pfConsts.end(); ++jetConstituent ) {
-      //      reco::PFCandidate pfc=(*jetConstituent); //using the pointer along the sequence makes the code segfaulting for no apparent reason...
-      if ( (*jetConstituent)->charge() != 0 ) {
-	double trackPt = 0.;
-	if ( (*jetConstituent)->gsfTrackRef().isNonnull() && (*jetConstituent)->gsfTrackRef().isAvailable() ) trackPt = (*jetConstituent)->gsfTrackRef()->pt();
-	else if ( (*jetConstituent)->trackRef().isNonnull() && (*jetConstituent)->trackRef().isAvailable() ) trackPt = (*jetConstituent)->trackRef()->pt();
-	else trackPt = (*jetConstituent)->pt();
+      
+      if ( (*jetConstituent)->charge() == 0 ) continue;
 	
+	double trackPt = 0.;
+	if( (*jetConstituent)->gsfTrackRef().isNonnull() && (*jetConstituent)->gsfTrackRef().isAvailable() ) trackPt = (*jetConstituent)->gsfTrackRef()->pt();
+	else if ( (*jetConstituent)->trackRef().isNonnull() && (*jetConstituent)->trackRef().isAvailable() ) trackPt =(*jetConstituent)->trackRef()->pt();
+	else trackPt = (*jetConstituent)->pt();
+
 	if ( trackPt > minTrackPt ) {
 	  int jetConstituent_vtxAssociationType = isVertexAssociated( (*jetConstituent), pfCandToVertexAssociations, vertices, dZ);
 	  bool jetConstituent_isVtxAssociated = (jetConstituent_vtxAssociationType == noPuUtils::kChHSAssoc ); 
@@ -89,7 +91,6 @@ namespace
 	    trackSum_isNotVtxAssociated += jetConstituentPt;
 	  }
 	}
-      }
     }
 
     double trackSum = trackSum_isVtxAssociated + trackSum_isNotVtxAssociated;

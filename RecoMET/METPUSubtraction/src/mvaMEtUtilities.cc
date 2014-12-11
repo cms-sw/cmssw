@@ -39,6 +39,10 @@ mvaMEtUtilities::mvaMEtUtilities(const edm::ParameterSet& cfg)
   mvaCut_[2][1][0] = -0.2; mvaCut_[2][1][1] = -0.2; mvaCut_[2][1][2] = -0.5; mvaCut_[2][1][3] = -0.3;
   mvaCut_[2][2][0] = -0.2; mvaCut_[2][2][1] = -0.2; mvaCut_[2][2][2] = -0.2; mvaCut_[2][2][3] =  0.1;
   mvaCut_[2][3][0] = -0.2; mvaCut_[2][3][1] = -0.2; mvaCut_[2][3][2] =  0. ; mvaCut_[2][3][3] =  0.2;
+
+  _dzCut = cfg.getParameter<double>("dZcut");
+  _ptThreshold = ( cfg.exists("ptThreshold") ) ?
+    cfg.getParameter<int>("ptThreshold") : -1000;
 }
 
 mvaMEtUtilities::~mvaMEtUtilities() 
@@ -61,51 +65,46 @@ bool mvaMEtUtilities::passesMVA(const reco::Candidate::LorentzVector& jetP4, dou
   return ( mvaJetId > mvaCut_[2][ptBin][etaBin] );
 }
 
-reco::Candidate::LorentzVector mvaMEtUtilities::leadJetP4(const std::vector<JetInfo>& jets) 
+reco::Candidate::LorentzVector mvaMEtUtilities::leadJetP4(const std::vector<reco::PUSubMETCandInfo>& jets) 
 {
   return jetP4(jets, 0);
 }
 
-reco::Candidate::LorentzVector mvaMEtUtilities::subleadJetP4(const std::vector<JetInfo>& jets) 
+reco::Candidate::LorentzVector mvaMEtUtilities::subleadJetP4(const std::vector<reco::PUSubMETCandInfo>& jets) 
 {
   return jetP4(jets, 1);
 }
 
-bool operator<(const mvaMEtUtilities::JetInfo& jet1, const mvaMEtUtilities::JetInfo& jet2)
-{
-  return jet1.p4_.pt() > jet2.p4_.pt();
-} 
-
-reco::Candidate::LorentzVector mvaMEtUtilities::jetP4(const std::vector<JetInfo>& jets, unsigned idx) 
+reco::Candidate::LorentzVector mvaMEtUtilities::jetP4(const std::vector<reco::PUSubMETCandInfo>& jets, unsigned idx) 
 {
   reco::Candidate::LorentzVector retVal(0.,0.,0.,0.);
   if ( idx < jets.size() ) {
-    std::vector<JetInfo> jets_sorted = jets;
+    std::vector<reco::PUSubMETCandInfo> jets_sorted = jets;
     std::sort(jets_sorted.begin(), jets_sorted.end()); 
     retVal = jets_sorted[idx].p4_;
   }
   return retVal;
 }
-unsigned mvaMEtUtilities::numJetsAboveThreshold(const std::vector<JetInfo>& jets, double ptThreshold) 
+unsigned mvaMEtUtilities::numJetsAboveThreshold(const std::vector<reco::PUSubMETCandInfo>& jets, double ptThreshold) 
 {
   unsigned retVal = 0;
-  for ( std::vector<JetInfo>::const_iterator jet = jets.begin();
+  for ( std::vector<reco::PUSubMETCandInfo>::const_iterator jet = jets.begin();
 	jet != jets.end(); ++jet ) {
     if ( jet->p4_.pt() > ptThreshold ) ++retVal;
   }
   return retVal;
 }
-std::vector<mvaMEtUtilities::JetInfo> mvaMEtUtilities::cleanJets(const std::vector<JetInfo>&    jets, 
-								 const std::vector<leptonInfo>& leptons,
+std::vector<reco::PUSubMETCandInfo> mvaMEtUtilities::cleanJets(const std::vector<reco::PUSubMETCandInfo>&    jets, 
+								 const std::vector<reco::PUSubMETCandInfo>& leptons,
 								 double ptThreshold, double dRmatch)
 {
 
   double dR2match = dRmatch*dRmatch;
-  std::vector<JetInfo> retVal;
-  for ( std::vector<JetInfo>::const_iterator jet = jets.begin();
+  std::vector<reco::PUSubMETCandInfo> retVal;
+  for ( std::vector<reco::PUSubMETCandInfo>::const_iterator jet = jets.begin();
 	jet != jets.end(); ++jet ) {
     bool isOverlap = false;
-    for ( std::vector<leptonInfo>::const_iterator lepton = leptons.begin();
+    for ( std::vector<reco::PUSubMETCandInfo>::const_iterator lepton = leptons.begin();
 	  lepton != leptons.end(); ++lepton ) {
       if ( deltaR2(jet->p4_, lepton->p4_) < dR2match ) isOverlap = true;	
     }
@@ -114,17 +113,17 @@ std::vector<mvaMEtUtilities::JetInfo> mvaMEtUtilities::cleanJets(const std::vect
   return retVal;
 }
 
-std::vector<mvaMEtUtilities::pfCandInfo> mvaMEtUtilities::cleanPFCands(const std::vector<pfCandInfo>& pfCandidates, 
-								       const std::vector<leptonInfo>& leptons,
-								       double dRmatch, bool invert)
+std::vector<reco::PUSubMETCandInfo> mvaMEtUtilities::cleanPFCands(const std::vector<reco::PUSubMETCandInfo>& pfCandidates, 
+								     const std::vector<reco::PUSubMETCandInfo>& leptons,
+								     double dRmatch, bool invert)
 {
 
   double dR2match = dRmatch*dRmatch;
-  std::vector<pfCandInfo> retVal;
-  for ( std::vector<pfCandInfo>::const_iterator pfCandidate = pfCandidates.begin();
+  std::vector<reco::PUSubMETCandInfo> retVal;
+  for ( std::vector<reco::PUSubMETCandInfo>::const_iterator pfCandidate = pfCandidates.begin();
 	pfCandidate != pfCandidates.end(); ++pfCandidate ) {
     bool isOverlap = false;
-    for ( std::vector<leptonInfo>::const_iterator lepton = leptons.begin();
+    for ( std::vector<reco::PUSubMETCandInfo>::const_iterator lepton = leptons.begin();
 	  lepton != leptons.end(); ++lepton ) {
       if ( deltaR2(pfCandidate->p4_, lepton->p4_) < dR2match ) isOverlap = true;
     }
@@ -139,141 +138,153 @@ void mvaMEtUtilities::finalize(CommonMETData& metData)
   metData.phi = atan2(metData.mey, metData.mex);
 }
 
-CommonMETData mvaMEtUtilities::computePFCandSum(const std::vector<pfCandInfo>& pfCandidates, double dZmax, int dZflag)
-{
-  // dZcut
-  //   maximum distance within which tracks are considered to be associated to hard scatter vertex
-  // dZflag 
-  //   0 : select charged PFCandidates originating from hard scatter vertex
-  //   1 : select charged PFCandidates originating from pile-up vertices
-  //   2 : select all PFCandidates
+CommonMETData 
+mvaMEtUtilities::computeCandSum( int compKey, double dZmax, int dZflag,
+				 bool iCharged,  bool mvaPassFlag,
+				 const std::vector<reco::PUSubMETCandInfo>& objects ) {
+
   CommonMETData retVal;
   retVal.mex   = 0.;
   retVal.mey   = 0.;
   retVal.sumet = 0.;
-  for ( std::vector<pfCandInfo>::const_iterator pfCandidate = pfCandidates.begin();
-	pfCandidate != pfCandidates.end(); ++pfCandidate ) {
-    if ( pfCandidate->dZ_ < 0.    && dZflag != 2 ) continue;
-    if ( pfCandidate->dZ_ > dZmax && dZflag == 0 ) continue;
-    if ( pfCandidate->dZ_ < dZmax && dZflag == 1 ) continue;
-    retVal.mex   += pfCandidate->p4_.px();
-    retVal.mey   += pfCandidate->p4_.py();
-    retVal.sumet += pfCandidate->p4_.pt();
+
+  for ( std::vector<reco::PUSubMETCandInfo>::const_iterator object = objects.begin();
+	object != objects.end(); ++object ) {
+
+    double pFrac = 1;
+
+    //pf candidates
+    // dZcut
+    //   maximum distance within which tracks are 
+    //considered to be associated to hard scatter vertex
+    // dZflag 
+    //   0 : select charged PFCandidates originating from hard scatter vertex
+    //   1 : select charged PFCandidates originating from pile-up vertices
+    //   2 : select all PFCandidates
+    if( compKey==mvaMEtUtilities::kPFCands ) {
+      if ( object->dZ_ < 0.    && dZflag != 2 ) continue;
+      if ( object->dZ_ > dZmax && dZflag == 0 ) continue;
+      if ( object->dZ_ < dZmax && dZflag == 1 ) continue;
+    }
+
+    //leptons
+    if( compKey==mvaMEtUtilities::kLeptons) {
+      if(iCharged) pFrac = object->chargedEnFrac_;
+    }
+
+    //jets
+    if( compKey==mvaMEtUtilities::kJets) {
+      bool passesMVAjetId = passesMVA(object->p4_, object->mva_);
+      
+      if (  passesMVAjetId && !mvaPassFlag ) continue;
+      if ( !passesMVAjetId &&  mvaPassFlag ) continue;
+   
+      pFrac = 1-object->chargedEnFrac_;//neutral energy fraction
+    }
+
+    retVal.mex   += object->p4_.px()*pFrac;
+    retVal.mey   += object->p4_.py()*pFrac;
+    retVal.sumet += object->p4_.pt()*pFrac;
   }
+
   finalize(retVal);
   return retVal;
 }
 
-CommonMETData mvaMEtUtilities::computeSumLeptons(const std::vector<mvaMEtUtilities::leptonInfo>& leptons, bool iCharged)
-{
-  //Computes vectorial sum of charged(iCharged == true) or all(iCharged == false) components
+
+CommonMETData
+mvaMEtUtilities::computeRecoil(int metType) {
+
   CommonMETData retVal;
-  retVal.mex   = 0.;
-  retVal.mey   = 0.;
-  retVal.sumet = 0.;
-  for ( std::vector<leptonInfo>::const_iterator lepton = leptons.begin();
-	lepton != leptons.end(); ++lepton ) {
-    double pChargedFrac = 1;
-    if(iCharged) pChargedFrac = lepton->chargedFrac_;
-    retVal.mex   += lepton->p4_.px()*pChargedFrac;
-    retVal.mey   += lepton->p4_.py()*pChargedFrac;
-    retVal.sumet += lepton->p4_.pt()*pChargedFrac;
+
+  if(metType == mvaMEtUtilities::kPF ) {
+    //MET = pfMET = - all candidates 
+    // MET (1) in JME-13-003
+    retVal.mex  = _leptonsSum.mex - _pfCandSum.mex;
+    retVal.mey  = _leptonsSum.mey - _pfCandSum.mey;
+    retVal.sumet = _pfCandSum.sumet - _leptonsSum.sumet;
   }
-  finalize(retVal);
-  return retVal;
-}
-
-CommonMETData mvaMEtUtilities::computeJetSum_neutral(const std::vector<JetInfo>& jets, bool mvaPassFlag)
-{
-  CommonMETData retVal;
-  retVal.mex   = 0.;
-  retVal.mey   = 0.;
-  retVal.sumet = 0.;
-  for ( std::vector<JetInfo>::const_iterator jet = jets.begin();
-	jet != jets.end(); ++jet ) {
-    bool passesMVAjetId = passesMVA(jet->p4_, jet->mva_);
-    if (  passesMVAjetId && !mvaPassFlag ) continue;
-    if ( !passesMVAjetId &&  mvaPassFlag ) continue;
-    retVal.mex   += jet->p4_.px()*jet->neutralEnFrac_;
-    retVal.mey   += jet->p4_.py()*jet->neutralEnFrac_;
-    retVal.sumet += jet->p4_.pt()*jet->neutralEnFrac_;
+  if(metType == mvaMEtUtilities::kChHS ) {
+    //MET = - charged HS
+    // MET (2) in JME-13-003
+    retVal.mex  = _leptonsChSum.mex - _pfCandChHSSum.mex;
+    retVal.mey  = _leptonsChSum.mey - _pfCandChHSSum.mey;
+    retVal.sumet = _pfCandChHSSum.sumet - _leptonsChSum.sumet;
   }
+  if(metType == mvaMEtUtilities::kHS ) { 
+    //MET = - charged HS - neutral HS in jets
+    // MET (3) in JME-13-003
+    retVal.mex  = _leptonsChSum.mex - (_pfCandChHSSum.mex + _neutralJetHSSum.mex);
+    retVal.mey  = _leptonsChSum.mey - (_pfCandChHSSum.mey + _neutralJetHSSum.mey);
+    retVal.sumet = _pfCandChHSSum.sumet + _neutralJetHSSum.sumet - _leptonsChSum.sumet;
+  }
+  if(metType == mvaMEtUtilities::kPU ) {
+    //MET = - charged PU - neutral PU in jets  
+    //MET = -recoil in that particular case, - sign not useful for the MVA and then discarded
+    //motivated as PU IS its own recoil
+    // MET (4) in JME-13-003
+    retVal.mex   = -(_pfCandChPUSum.mex + _neutralJetPUSum.mex);
+    retVal.mey   = -(_pfCandChPUSum.mey + _neutralJetPUSum.mey);
+    retVal.sumet = _pfCandChPUSum.sumet + _neutralJetPUSum.sumet;
+  }
+  if(metType == mvaMEtUtilities::kHSMinusNeutralPU ) {
+    //MET = all candidates - charged PU - neutral PU in jets
+    // = all charged HS + all neutrals - neutral PU in jets
+    // MET (5) in JME-13-003
+    retVal.mex  = _leptonsSum.mex - (_pfCandSum.mex - _pfCandChPUSum.mex - _neutralJetPUSum.mex);
+    retVal.mey  = _leptonsSum.mey - (_pfCandSum.mey - _pfCandChPUSum.mey - _neutralJetPUSum.mey);
+    retVal.sumet = (_pfCandSum.sumet - _pfCandChPUSum.sumet - _neutralJetPUSum.sumet) -_leptonsSum.sumet;
+  }
+
   finalize(retVal);
   return retVal;
 }
 
-CommonMETData mvaMEtUtilities::computePUMEt(const std::vector<pfCandInfo>& pfCandidates, 
-					    const std::vector<JetInfo>& jets, double dZcut)
-{
-  CommonMETData retVal;
-  retVal.mex   = 0.;
-  retVal.mey   = 0.;
-  retVal.sumet = 0.;
-  CommonMETData trackSumPU = computePFCandSum(pfCandidates, dZcut, 1);
-  CommonMETData jetSumPU_neutral = computeJetSum_neutral(jets, false);
-  retVal.mex   = -(trackSumPU.mex + jetSumPU_neutral.mex);
-  retVal.mey   = -(trackSumPU.mey + jetSumPU_neutral.mey);
-  retVal.sumet = trackSumPU.sumet + jetSumPU_neutral.sumet;
-  finalize(retVal);
-  return retVal;
+void
+mvaMEtUtilities::computeAllSums(const std::vector<reco::PUSubMETCandInfo>& jets, 
+			       const std::vector<reco::PUSubMETCandInfo>& leptons,
+			       const std::vector<reco::PUSubMETCandInfo>& pfCandidates ) {
+
+  _cleanedJets = cleanJets(jets, leptons, _ptThreshold, 0.5);
+
+  _leptonsSum = computeCandSum( kLeptons, 0., 0, false , false, leptons );
+  _leptonsChSum = computeCandSum( kLeptons, 0., 0, true , false, leptons);
+  _pfCandSum = computeCandSum( kPFCands, _dzCut, 2, false , false, pfCandidates);
+  _pfCandChHSSum = computeCandSum( kPFCands, _dzCut, 0, false , false, pfCandidates);
+  _pfCandChPUSum = computeCandSum( kPFCands, _dzCut, 1, false , false, pfCandidates);
+  _neutralJetHSSum = computeCandSum( kJets, 0., 0, false , true, jets );
+  _neutralJetPUSum = computeCandSum( kJets, 0., 0, false , false, jets );
+
 }
 
-CommonMETData mvaMEtUtilities::computeNegPFRecoil(const CommonMETData& leptons, 
-						  const std::vector<pfCandInfo>& pfCandidates, double dZcut)
-{
-  CommonMETData retVal;
-  CommonMETData pfCandSum = computePFCandSum(pfCandidates, dZcut, 2);
-  retVal.mex   = -pfCandSum.mex + leptons.mex; 
-  retVal.mey   = -pfCandSum.mey + leptons.mey;
-  retVal.sumet = pfCandSum.sumet - leptons.sumet;
-  finalize(retVal);
-  return retVal;
+void 
+mvaMEtUtilities::setDzCut(double dzCut) {
+  _dzCut = dzCut;
 }
 
-CommonMETData mvaMEtUtilities::computeNegTrackRecoil(const CommonMETData& leptons, 
-						     const std::vector<pfCandInfo>& pfCandidates, double dZcut)
-{
-  CommonMETData retVal;
-  CommonMETData trackSum = computePFCandSum(pfCandidates, dZcut, 0);
-  retVal.mex   = -trackSum.mex  + leptons.mex; 
-  retVal.mey   = -trackSum.mey  + leptons.mey;
-  retVal.sumet = trackSum.sumet - leptons.sumet;
-  finalize(retVal);
-  return retVal;
+
+double
+mvaMEtUtilities::getLeptonsSumMEX() {
+  return _leptonsSum.mex;
 }
 
-CommonMETData mvaMEtUtilities::computeNegNoPURecoil(const CommonMETData& leptons,
-						    const std::vector<pfCandInfo>& pfCandidates, 
-						    const std::vector<JetInfo>& jets, double dZcut)
-{
-  CommonMETData retVal;
-  retVal.mex   = 0.;
-  retVal.mey   = 0.;
-  retVal.sumet = 0.;
-  CommonMETData trackSumNoPU = computePFCandSum(pfCandidates, dZcut, 0);
-  CommonMETData jetSumNoPU_neutral = computeJetSum_neutral(jets, true);
-  retVal.mex   = -(trackSumNoPU.mex + jetSumNoPU_neutral.mex)  + leptons.mex;
-  retVal.mey   = -(trackSumNoPU.mey + jetSumNoPU_neutral.mey)  + leptons.mey;
-  retVal.sumet = trackSumNoPU.sumet + jetSumNoPU_neutral.sumet - leptons.sumet;
-  finalize(retVal);
-  return retVal;
+double
+mvaMEtUtilities::getLeptonsSumMEY() {
+  return _leptonsSum.mey;
 }
 
-CommonMETData mvaMEtUtilities::computeNegPUCRecoil(const CommonMETData& leptons, 
-						   const std::vector<pfCandInfo>& pfCandidates, 
-						   const std::vector<JetInfo>& jets, double dZcut)
-{
-   CommonMETData retVal;
-  retVal.mex   = 0.;
-  retVal.mey   = 0.;
-  retVal.sumet = 0.;
-  CommonMETData pfCandSum = computePFCandSum(pfCandidates, dZcut, 2);
-  CommonMETData trackSumNoPU = computePFCandSum(pfCandidates, dZcut, 1);
-  CommonMETData jetSumPU_neutral = computeJetSum_neutral(jets, false);
-  retVal.mex   = -(pfCandSum.mex - (trackSumNoPU.mex + jetSumPU_neutral.mex))    + leptons.mex;
-  retVal.mey   = -(pfCandSum.mey - (trackSumNoPU.mey + jetSumPU_neutral.mey))    + leptons.mey;
-  retVal.sumet = pfCandSum.sumet - (trackSumNoPU.sumet + jetSumPU_neutral.sumet) - leptons.sumet;
-  finalize(retVal);
-  return retVal;
+double
+mvaMEtUtilities::getLeptonsChSumMEX() {
+  return _leptonsChSum.mex;
 }
-  
+
+double
+mvaMEtUtilities::getLeptonsChSumMEY() {
+  return _leptonsChSum.mey;
+} 
+
+
+std::vector<reco::PUSubMETCandInfo> 
+mvaMEtUtilities::getCleanedJets() {
+  return _cleanedJets;
+}
