@@ -5,7 +5,5 @@
 gSystem->Load("libFWCoreFWLite.so");
 gSystem->Load("libFastSimulationMaterialEffects.so");
 AutoLibraryLoader::enable();
-gSystem->Load("libCintex.so");
-ROOT::Cintex::Cintex::Enable();
 
 }
