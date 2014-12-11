@@ -10,4 +10,4 @@ namespace reco
   typedef std::vector<reco::PUSubMETCandInfo> PUSubMETCandInfoCollection;
 }
 
-#endif /* end of include guard: DataFormats_METReco_MVAMEtDataFwd_h */
+#endif 
