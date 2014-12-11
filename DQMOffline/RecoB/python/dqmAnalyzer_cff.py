@@ -21,7 +21,7 @@ from PhysicsTools.JetMCAlgos.CaloJetsMCFlavour_cfi import *
 AK4byRef.jets = cms.InputTag("ak4PFJetsCHS")
 #Get gen jet collection for real jets
 ak4GenJetsForPUid = cms.EDFilter("GenJetSelector",
-                                 src = cms.InputTag("ak4GenJetsNoNu"),
+                                 src = cms.InputTag("ak4GenJets"),
                                  cut = cms.string('pt > 8.'),
                                  filter = cms.bool(False)
                                  )

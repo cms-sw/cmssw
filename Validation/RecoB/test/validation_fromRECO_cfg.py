@@ -58,7 +58,7 @@ if runOnMC:
     process.bTagHarvestMC.flavPlots = flavPlots
     process.bTagValidation.doPUid = cms.bool(PUid)
     process.ak4GenJetsForPUid = cms.EDFilter("GenJetSelector",
-                                             src = cms.InputTag("ak4GenJetsNoNu"),
+                                             src = cms.InputTag("ak4GenJets"),
                                              cut = cms.string('pt > 8.'),
                                              filter = cms.bool(False)
                                              )

@@ -10,6 +10,6 @@ chargedParticles = cms.EDFilter("GenParticleSelector",
     cut    = cms.string('charge != 0 & pt > 0.05 & status = 1 & eta < 2.5 & eta > -2.5')
 )
 
-chargedak4GenJetsNoNu = ak4GenJetsNoNu.clone( src = cms.InputTag("chargedParticles") )
+chargedak4GenJets = ak4GenJets.clone( src = cms.InputTag("chargedParticles") )
 
-mbueAndqcd_seq = cms.Sequence(cms.ignore(chargedParticles)*chargedak4GenJetsNoNu*mbueAndqcdValidation)
+mbueAndqcd_seq = cms.Sequence(cms.ignore(chargedParticles)*chargedak4GenJets*mbueAndqcdValidation)

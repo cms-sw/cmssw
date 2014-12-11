@@ -120,7 +120,7 @@ void JetComparison::analyze(edm::Event const& event, edm::EventSetup const& c) {
 
 
   Handle<GenJetCollection> jetsgen;
-  event.getByLabel("ak4GenJetsNoNu", jetsgen);
+  event.getByLabel("ak4GenJets", jetsgen);
   for(unsigned int igen =0; igen < jetsgen->size();igen++)
     {
       //     cout << " GENS energy = " << (*jetsgen)[igen].et() <<endl;
