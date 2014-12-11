@@ -244,7 +244,8 @@ def getPTAveVPSet():
             recoThr = t/2
             recoPFtopology  =  cms.PSet(
                 triggerSelection = cms.string(partialPathName+"*"),
-                handlerType = cms.string("FromRecoCandidate"),
+                handlerType = cms.string("RecoPFJetWithJEC"),
+                PFJetCorLabel        = cms.InputTag("ak4PFL1FastL2L3Corrector"),
                 inputCol = cms.InputTag("ak4PFJetsCHS"),
                 partialPathName = cms.string(partialPathName),
                 partialFilterName  = cms.string("hltDiPFJetAve"),
@@ -320,6 +321,7 @@ fsqdirname = "HLT/FSQ/"
 
 processName = "HLT"
 #processName = "TEST"
+processName = "TTT"
 
 fsqHLTOfflineSource = cms.EDAnalyzer("FSQDiJetAve",
     triggerConfiguration =  cms.PSet(
@@ -340,3 +342,5 @@ fsqHLTOfflineSource = cms.EDAnalyzer("FSQDiJetAve",
     todo = cms.VPSet(getFSQAll())
 )
 
+from JetMETCorrections.Configuration.CorrectedJetProducers_cff import *
+fsqHLTOfflineSourceSequence = cms.Sequence(ak4PFL1FastL2L3CorrectorChain + fsqHLTOfflineSource)
