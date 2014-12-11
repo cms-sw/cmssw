@@ -75,5 +75,5 @@ tracksP5_wodEdX.remove(doAllCosmicdEdXEstimators)
 ckfTrackCandidatesP5.useHitsSplitting = True
 
 # REGIONAL RECONSTRUCTION
-from RecoTracker.Configuration.RecoTrackerNotStandard_cff import regionalCosmicTrackerSeeds,regionalCosmicCkfTrackCandidates,regionalCosmicTracks,regionalCosmicTracksSeq
+from RecoTracker.Configuration.RecoTrackerNotStandard_cff import *
 regionalCosmicTrackerSeeds.RegionInJetsCheckPSet = cms.PSet( doJetsExclusionCheck   = cms.bool( False ) )

@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include <memory>
 #include <iostream>
@@ -14,9 +15,9 @@
 #include <vector>
 #include <map>
 
-class DQMStore;
+//class DQMStore;
 
-class L1EmulatorErrorFlagClient: public edm::EDAnalyzer {
+class L1EmulatorErrorFlagClient: public DQMEDHarvester {
 
 public:
 
@@ -26,29 +27,10 @@ public:
     /// Destructor
     virtual ~L1EmulatorErrorFlagClient();
 
-private:
-
-    /// begin job
-    void beginJob();
-
-    /// begin run
-    void beginRun(const edm::Run&, const edm::EventSetup&);
-
-    /// analyze
-    void analyze(const edm::Event&, const edm::EventSetup&);
-
-    void beginLuminosityBlock(const edm::LuminosityBlock&,
-            const edm::EventSetup&);
-
-    /// end luminosity block
-    void
-    endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
-
-    /// end run
-    void endRun(const edm::Run&, const edm::EventSetup&);
-
-    /// end job
-    void endJob();
+protected:
+    virtual void dqmEndLuminosityBlock(DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&);  //performed in the endLumi
+    virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  //performed in the endJob
+    
 
 private:
 
@@ -69,7 +51,7 @@ private:
 
     void initialize();
 
-    Float_t setSummary(const unsigned int&) const;
+    Float_t setSummary(DQMStore::IGetter &igetter, const unsigned int&) const;
 
     /// number of L1 trigger systems
     size_t m_nrL1Systems;
@@ -85,11 +67,6 @@ private:
 
     std::vector<Float_t> m_summaryContent;
     MonitorElement* m_meSummaryErrorFlagMap;
-
-    //
-
-    DQMStore* m_dbe;
-
 };
 
 #endif

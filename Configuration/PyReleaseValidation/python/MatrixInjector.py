@@ -54,7 +54,12 @@ class MatrixInjector(object):
         if not self.wmagent:
             self.wmagent=os.getenv('WMAGENT_REQMGR')
         if not self.wmagent:
-            self.wmagent = 'cmsweb.cern.ch'
+            if not opt.testbed :
+                self.wmagent = 'cmsweb.cern.ch'
+                self.DbsUrl = "https://"+self.wmagent+"/dbs/prod/global/DBSReader"
+            else :
+                self.wmagent = 'cmsweb-testbed.cern.ch'
+                self.DbsUrl = "https://"+self.wmagent+"/dbs/int/global/DBSReader"
 
         if not self.dqmgui:
             self.dqmgui="https://cmsweb.cern.ch/dqm/relval"
@@ -91,7 +96,7 @@ class MatrixInjector(object):
             "GlobalTag": None,                                #Global Tag (overridden per task)
             "CouchURL": self.couch,                           #URL of CouchDB containing Config Cache
             "ConfigCacheURL": self.couch,                     #URL of CouchDB containing Config Cache
-            "DbsUrl": "https://cmsweb.cern.ch/dbs/prod/global/DBSReader",
+            "DbsUrl": self.DbsUrl,
             #- Will contain all configs for all Tasks
             #"SiteWhitelist" : ["T2_CH_CERN", "T1_US_FNAL"],   #Site whitelist
             "TaskChain" : None,                                  #Define number of tasks in chain.

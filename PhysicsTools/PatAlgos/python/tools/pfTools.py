@@ -11,54 +11,13 @@ from copy import deepcopy
 def warningIsolation():
     print "WARNING: particle based isolation must be studied"
 
-def adaptPFIsoElectrons(process,module, postfix = "PFIso", dR = "04"):
-    #FIXME: adaptPFElectrons can use this function.
-    module.isoDeposits = cms.PSet(
-        pfChargedHadrons = cms.InputTag("elPFIsoDepositCharged" + postfix),
-        pfChargedAll = cms.InputTag("elPFIsoDepositChargedAll" + postfix),
-        pfPUChargedHadrons = cms.InputTag("elPFIsoDepositPU" + postfix),
-        pfNeutralHadrons = cms.InputTag("elPFIsoDepositNeutral" + postfix),
-        pfPhotons = cms.InputTag("elPFIsoDepositGamma" + postfix)
-        )
-    module.isolationValues = cms.PSet(
-        pfChargedHadrons = cms.InputTag("elPFIsoValueCharged"+dR+"PFId"+ postfix),
-        pfChargedAll = cms.InputTag("elPFIsoValueChargedAll"+dR+"PFId"+ postfix),
-        pfPUChargedHadrons = cms.InputTag("elPFIsoValuePU"+dR+"PFId" + postfix),
-        pfNeutralHadrons = cms.InputTag("elPFIsoValueNeutral"+dR+"PFId" + postfix),
-        pfPhotons = cms.InputTag("elPFIsoValueGamma"+dR+"PFId" + postfix)
-        )
-    module.isolationValuesNoPFId = cms.PSet(
-        pfChargedHadrons = cms.InputTag("elPFIsoValueCharged"+dR+"NoPFId"+ postfix),
-        pfChargedAll = cms.InputTag("elPFIsoValueChargedAll"+dR+"NoPFId"+ postfix),
-        pfPUChargedHadrons = cms.InputTag("elPFIsoValuePU"+dR+"NoPFId" + postfix),
-        pfNeutralHadrons = cms.InputTag("elPFIsoValueNeutral"+dR+"NoPFId" + postfix),
-        pfPhotons = cms.InputTag("elPFIsoValueGamma"+dR+"NoPFId" + postfix)
-        )
-
-def adaptPFIsoMuons(process,module, postfix = "PFIso", dR = "04"):
-    #FIXME: adaptPFMuons can use this function.
-    module.isoDeposits = cms.PSet(
-        pfChargedHadrons = cms.InputTag("muPFIsoDepositCharged" + postfix),
-        pfChargedAll = cms.InputTag("muPFIsoDepositChargedAll" + postfix),
-        pfPUChargedHadrons = cms.InputTag("muPFIsoDepositPU" + postfix),
-        pfNeutralHadrons = cms.InputTag("muPFIsoDepositNeutral" + postfix),
-        pfPhotons = cms.InputTag("muPFIsoDepositGamma" + postfix)
-        )
-    module.isolationValues = cms.PSet(
-        pfChargedHadrons = cms.InputTag("muPFIsoValueCharged" + dR + postfix),
-        pfChargedAll = cms.InputTag("muPFIsoValueChargedAll" + dR + postfix),
-        pfPUChargedHadrons = cms.InputTag("muPFIsoValuePU" + dR + postfix),
-        pfNeutralHadrons = cms.InputTag("muPFIsoValueNeutral" + dR + postfix),
-        pfPhotons = cms.InputTag("muPFIsoValueGamma" + dR + postfix)
-        )
-
 def adaptPFMuons(process,module,postfix="", muonMatchModule=None ):
     print "Adapting PF Muons "
     print "***************** "
     #warningIsolation()
     print
     module.useParticleFlow = True
-    module.pfMuonSource    = cms.InputTag("pfIsolatedMuons" + postfix)
+    module.pfMuonSource    = cms.InputTag("pfIsolatedMuonsPFBRECO" + postfix)
     module.userIsolation   = cms.PSet()
     ## module.isoDeposits = cms.PSet(
     ##     pfChargedHadrons = cms.InputTag("muPFIsoDepositCharged" + postfix),
@@ -75,7 +34,7 @@ def adaptPFMuons(process,module,postfix="", muonMatchModule=None ):
     ##     pfPhotons = cms.InputTag("muPFIsoValueGamma04" + postfix)
     ##     )
     # matching the pfMuons, not the standard muons.
-    if muonMatchModule == None : 
+    if muonMatchModule == None :
         applyPostfix(process,"muonMatch",postfix).src = module.pfMuonSource
     else :
         muonMatchModule.src = module.pfMuonSource
@@ -95,7 +54,7 @@ def adaptPFElectrons(process,module, postfix):
     #warningIsolation()
     print
     module.useParticleFlow = True
-    module.pfElectronSource = cms.InputTag("pfIsolatedElectrons" + postfix)
+    module.pfElectronSource = cms.InputTag("pfIsolatedElectronsPFBRECO" + postfix)
     module.userIsolation   = cms.PSet()
     ## module.isoDeposits = cms.PSet(
     ##     pfChargedHadrons = cms.InputTag("elPFIsoDepositCharged" + postfix),
@@ -194,9 +153,9 @@ def reconfigurePF2PATTaus(process,
    #newTau.builders[0].pfCandSrc = oldTau.builders[0].pfCandSrc
    #newTau.jetRegionSrc = oldTau.jetRegionSrc
    #newTau.jetSrc = oldTau.jetSrc
-   #newTau.builders[0].pfCandSrc = cms.InputTag("pfNoElectronJMEPFlow")
-   #newTau.jetRegionSrc = cms.InputTag("pfTauPFJets08RegionPFlow")
-   #newTau.jetSrc = cms.InputTag("pfJetsPFlow")
+   #newTau.builders[0].pfCandSrc = cms.InputTag("pfNoElectronJME" + postfix)
+   #newTau.jetRegionSrc = cms.InputTag("pfTauPFJets08Region" + postfix)
+   #newTau.jetSrc = cms.InputTag("pfJetsPFBRECO" + postfix)
    # replace old tau producer by new one put it into baseSequence
    setattr(process,"pfTausBase"+postfix,newTau)
    if tauType=='shrinkingConePFTau':
@@ -334,7 +293,7 @@ def addPFCandidates(process,src,patLabel='PFParticles',cut="",postfix=""):
     applyPostfix(process, "selectedPatCandidateSummary", postfix).candidates.append(cms.InputTag('selectedPat' + patLabel))
 
 
-def switchToPFMET(process,input=cms.InputTag('pfMET'), type1=False, postfix=""):
+def switchToPFMET(process,input=cms.InputTag('pfMETPFBRECO'), type1=False, postfix=""):
     print 'MET: using ', input
     if( not type1 ):
         oldMETSource = applyPostfix(process, "patMETs",postfix).metSource
@@ -368,9 +327,9 @@ def switchToPFJets(process, input=cms.InputTag('pfNoTauClones'), algo='AK4', pos
 
     # changing the jet collection in PF2PAT:
     from CommonTools.ParticleFlow.Tools.jetTools import jetAlgo
-    inputCollection = getattr(process,"pfJets"+postfix).src
-    setattr(process,"pfJets"+postfix,jetAlgo(algo)) # problem for cfgBrowser
-    getattr(process,"pfJets"+postfix).src = inputCollection
+    inputCollection = getattr(process,"pfJetsPFBRECO"+postfix).src
+    setattr(process,"pfJetsPFBRECO"+postfix,jetAlgo(algo)) # problem for cfgBrowser
+    getattr(process,"pfJetsPFBRECO"+postfix).src = inputCollection
     inputJetCorrLabel=jetCorrections
 
     switchJetCollection(process,
@@ -389,7 +348,7 @@ def switchToPFJets(process, input=cms.InputTag('pfNoTauClones'), algo='AK4', pos
     for corr in inputJetCorrLabel[1]:
         if corr == 'L1FastJet':
             applyPostfix(process, "patJetCorrFactors", postfix).useRho = True
-            applyPostfix(process, "pfJets", postfix).doAreaFastjet = True
+            applyPostfix(process, "pfJetsPFBRECO", postfix).doAreaFastjet = True
             # do correct treatment for TypeI MET corrections
 	    #type1=True
             if type1:
@@ -452,7 +411,7 @@ def usePF2PAT(process,runPF2PAT=True, jetAlgo='AK4', runOnMC=True, postfix="", j
     from PhysicsTools.PatAlgos.tools.helpers import loadWithPostfix
     if runPF2PAT:
 	loadWithPostfix(process,'PhysicsTools.PatAlgos.patSequences_cff',postfix)
-	loadWithPostfix(process,"CommonTools.ParticleFlow.PF2PAT_cff",postfix)
+	loadWithPostfix(process,"CommonTools.ParticleFlow.PFBRECO_cff",postfix)
     else:
 	loadWithPostfix(process,'PhysicsTools.PatAlgos.patSequences_cff',postfix)
 
@@ -479,7 +438,7 @@ def usePF2PAT(process,runPF2PAT=True, jetAlgo='AK4', runOnMC=True, postfix="", j
 
     # Jets
     if runOnMC :
-        switchToPFJets( process, cms.InputTag('pfNoTauClones'+postfix), jetAlgo, postfix=postfix,
+        switchToPFJets( process, cms.InputTag('pfNoTauClonesPFBRECO'+postfix), jetAlgo, postfix=postfix,
                         jetCorrections=jetCorrections, type1=typeIMetCorrections, outputModules=outputModules )
 
     else :
@@ -489,14 +448,14 @@ def usePF2PAT(process,runPF2PAT=True, jetAlgo='AK4', runOnMC=True, postfix="", j
             print 'WARNING! Not using L2L3Residual but this is data.'
             print 'If this is okay with you, disregard this message.'
             print '#################################################'
-        switchToPFJets( process, cms.InputTag('pfNoTauClones'+postfix), jetAlgo, postfix=postfix,
+        switchToPFJets( process, cms.InputTag('pfNoTauClonesPFBRECO'+postfix), jetAlgo, postfix=postfix,
                         jetCorrections=jetCorrections, type1=typeIMetCorrections, outputModules=outputModules )
     # Taus
     #adaptPFTaus( process, tauType='shrinkingConePFTau', postfix=postfix )
     #adaptPFTaus( process, tauType='fixedConePFTau', postfix=postfix )
     adaptPFTaus( process, tauType='hpsPFTau', postfix=postfix )
     # MET
-    switchToPFMET(process, cms.InputTag('pfMET'+postfix), type1=typeIMetCorrections, postfix=postfix)
+    switchToPFMET(process, cms.InputTag('pfMETPFBRECO'+postfix), type1=typeIMetCorrections, postfix=postfix)
 
     # Unmasked PFCandidates
     addPFCandidates(process,cms.InputTag('pfNoJetClones'+postfix),patLabel='PFParticles'+postfix,cut="",postfix=postfix)
@@ -509,16 +468,16 @@ def usePF2PAT(process,runPF2PAT=True, jetAlgo='AK4', runOnMC=True, postfix="", j
 
     # Configure Top Projections
     getattr(process,"pfNoPileUpJME"+postfix).enable = True
-    getattr(process,"pfNoMuonJME"+postfix).enable = True
-    getattr(process,"pfNoElectronJME"+postfix).enable = True
-    getattr(process,"pfNoTau"+postfix).enable = False
-    getattr(process,"pfNoJet"+postfix).enable = True
+    getattr(process,"pfNoMuonJMEPFBRECO"+postfix).enable = True
+    getattr(process,"pfNoElectronJMEPFBRECO"+postfix).enable = True
+    getattr(process,"pfNoTauPFBRECO"+postfix).enable = False
+    getattr(process,"pfNoJetPFBRECO"+postfix).enable = True
     exclusionList = ''
     for object in excludeFromTopProjection:
         jme = ''
         if object in ['Muon','Electron']:
             jme = 'JME'
-        getattr(process,"pfNo"+object+jme+postfix).enable = False
+        getattr(process,"pfNo"+object+jme+'PFBRECO'+postfix).enable = False
         exclusionList=exclusionList+object+','
     exclusionList=exclusionList.rstrip(',')
-    print "Done: PF2PAT interfaced to PAT, postfix=", postfix,", Excluded from Top Projection:",exclusionList
+    print "Done: PFBRECO interfaced to PAT, postfix=", postfix,", Excluded from Top Projection:",exclusionList

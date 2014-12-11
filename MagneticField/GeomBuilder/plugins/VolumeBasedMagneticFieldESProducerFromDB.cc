@@ -95,17 +95,16 @@ std::auto_ptr<MagneticField> VolumeBasedMagneticFieldESProducerFromDB::produce(c
     message = " (from valueOverride card)";
   }
   string configLabel  = closerNominalLabel(current);
-  edm::LogInfo("MagneticField|AutoMagneticField") << "Current: " << current << message << "; using map configuration with label: " << configLabel;
 
   // Get configuration
   ESHandle<MagFieldConfig> confESH;
   iRecord.getRecord<MagFieldConfigRcd>().get(configLabel, confESH);
   const MagFieldConfig* conf = &*confESH;
 
-  if (debug) {
-    cout << "VolumeBasedMagneticFieldESProducerFromDB::produce() " << conf->version << endl;
-  }
-
+  edm::LogInfo("MagneticField|AutoMagneticField") << "Current: " << current << message << "; using map configuration with label: " << configLabel << endl
+						  << "Version: " << conf->version 
+						  << " geometryVersion: " << conf->geometryVersion
+						  << " slaveFieldVersion: " << conf->slaveFieldVersion;
 
   // Get the parametrized field
   std::auto_ptr<MagneticField> paramField = ParametrizedMagneticFieldFactory::get(conf->slaveFieldVersion, conf->slaveFieldParameters);

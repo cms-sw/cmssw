@@ -23,8 +23,9 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 // l1 dataformats, d|e record includes
 #include "L1Trigger/HardwareValidation/interface/DEtrait.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-class L1TdeGCT : public edm::EDAnalyzer {
+class L1TdeGCT : public DQMEDAnalyzer {
 
  public:
 
@@ -33,11 +34,11 @@ class L1TdeGCT : public edm::EDAnalyzer {
 
  protected:
 
-  virtual void beginJob(void) ;
-  virtual void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
-
+  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
+  virtual void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
+  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+ 
+  void analyze(const edm::Event&, const edm::EventSetup&);
 
  private:
 
@@ -56,7 +57,6 @@ class L1TdeGCT : public edm::EDAnalyzer {
   std::string histFolder_;
 
   // dqm common
-  DQMStore* dbe;
   bool monitorDaemon_;
  
   // (em) iso, no-iso, (jets) cen, for, tau & energy sums.

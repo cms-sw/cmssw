@@ -35,7 +35,7 @@ L1ExtraDQM::L1ExtraDQM(const edm::ParameterSet& paramSet) :
     m_nrBxInEventGmt(paramSet.getParameter<int>("NrBxInEventGmt")),
     m_nrBxInEventGct(paramSet.getParameter<int>("NrBxInEventGct")),
     //
-    m_dbe(0), m_resetModule(true), m_currentRun(-99),
+    m_resetModule(true), m_currentRun(-99),
     //
     m_nrEvJob(0),
     m_nrEvRun(0)
@@ -77,19 +77,6 @@ L1ExtraDQM::L1ExtraDQM(const edm::ParameterSet& paramSet) :
     m_meAnalysisL1ExtraHTM.reserve(m_nrBxInEventGct);
     m_meAnalysisL1ExtraHfBitCounts.reserve(m_nrBxInEventGct);
     m_meAnalysisL1ExtraHfRingEtSums.reserve(m_nrBxInEventGct);
-
-    m_dbe = edm::Service<DQMStore>().operator->();
-    if (m_dbe == 0) {
-        edm::LogInfo("L1ExtraDQM") << "\n Unable to get DQMStore service.";
-    } else {
-
-        if (paramSet.getUntrackedParameter<bool> ("DQMStore", false)) {
-            m_dbe->setVerbose(0);
-        }
-
-        m_dbe->setCurrentFolder(m_dirName);
-
-    }
 
 }
 
@@ -381,33 +368,23 @@ void L1ExtraDQM::analyzeL1ExtraHfRingEtSums(const edm::Event& iEvent,
                     isL1Coll, bxInEvent);
         }
     }
-
-}
-
-//
-void L1ExtraDQM::beginJob() {
-
-
 }
 
 
-void L1ExtraDQM::beginRun(const edm::Run& iRun, const edm::EventSetup& evSetup) {
+void L1ExtraDQM::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& evSetup){
+
+}
+
+void L1ExtraDQM::beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup& evSetup){
+
+}
+
+void L1ExtraDQM::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const& evSetup) {
 
     m_nrEvRun = 0;
 
-    DQMStore* dbe = 0;
-    dbe = edm::Service<DQMStore>().operator->();
-
-    // clean up directory
-    if (dbe) {
-        dbe->setCurrentFolder(m_dirName);
-        if (dbe->dirExists(m_dirName)) {
-            dbe->rmdir(m_dirName);
-        }
-        dbe->setCurrentFolder(m_dirName);
-    }
-
     std::vector<L1GtObject> l1Obj;
+    //const edm::EventSetup& evSetup;
 
     // define standard sets of histograms
 
@@ -418,14 +395,12 @@ void L1ExtraDQM::beginRun(const edm::Run& iRun, const edm::EventSetup& evSetup) 
 
     for (int iBxInEvent = 0; iBxInEvent < m_nrBxInEventGmt; ++iBxInEvent) {
 
-        m_meAnalysisL1ExtraMuon.push_back(new L1ExtraDQM::L1ExtraMonElement<
-                l1extra::L1MuonParticleCollection>(evSetup, nrMonElements));
+        m_meAnalysisL1ExtraMuon.push_back(new L1ExtraDQM::L1ExtraMonElement<l1extra::L1MuonParticleCollection>(evSetup, nrMonElements));
 
         // convert to actual convention used in the hardware
         // (from [o, m_nrBxInEventGct] -> [-X, 0, +X]
         // write it in hex [..., E, F, 0, 1, 2, ...]
-        int bxInEvent = iBxInEvent + (m_nrBxInEventGct + 1) / 2
-                - m_nrBxInEventGct;
+        int bxInEvent = iBxInEvent + (m_nrBxInEventGct + 1) / 2 - m_nrBxInEventGct;
         int bxInEventHex = (bxInEvent+ 16) % 16;
 
         std::stringstream ss;
@@ -433,13 +408,9 @@ void L1ExtraDQM::beginRun(const edm::Run& iRun, const edm::EventSetup& evSetup) 
         ss << std::uppercase << std::hex << bxInEventHex;
         ss >> bxInEventHexString;
 
-        if (m_dbe) {
-            dbe->setCurrentFolder(m_dirName + "/BxInEvent_"
-                    + bxInEventHexString);
-        }
+        ibooker.setCurrentFolder(m_dirName + "/BxInEvent_" + bxInEventHexString);
 
-        (m_meAnalysisL1ExtraMuon.at(iBxInEvent))->bookHistograms(evSetup, m_dbe,
-                "L1_Mu", l1Obj);
+        (m_meAnalysisL1ExtraMuon.at(iBxInEvent))->bookhistograms(evSetup, ibooker, "L1_Mu", l1Obj);
 
     }
 
@@ -450,14 +421,12 @@ void L1ExtraDQM::beginRun(const edm::Run& iRun, const edm::EventSetup& evSetup) 
 
     for (int iBxInEvent = 0; iBxInEvent < m_nrBxInEventGct; ++iBxInEvent) {
 
-        m_meAnalysisL1ExtraIsoEG.push_back(new L1ExtraDQM::L1ExtraMonElement<
-                l1extra::L1EmParticleCollection>(evSetup, nrMonElements));
+        m_meAnalysisL1ExtraIsoEG.push_back(new L1ExtraDQM::L1ExtraMonElement< l1extra::L1EmParticleCollection>(evSetup, nrMonElements));
 
         // convert to actual convention used in the hardware
         // (from [o, m_nrBxInEventGct] -> [-X, 0, +X]
         // write it in hex [..., E, F, 0, 1, 2, ...]
-        int bxInEvent = iBxInEvent + (m_nrBxInEventGct + 1) / 2
-                - m_nrBxInEventGct;
+        int bxInEvent = iBxInEvent + (m_nrBxInEventGct + 1) / 2 - m_nrBxInEventGct;
         int bxInEventHex = (bxInEvent+ 16) % 16;
 
         std::stringstream ss;
@@ -465,13 +434,9 @@ void L1ExtraDQM::beginRun(const edm::Run& iRun, const edm::EventSetup& evSetup) 
         ss << std::uppercase << std::hex << bxInEventHex;
         ss >> bxInEventHexString;
 
-        if (m_dbe) {
-            dbe->setCurrentFolder(m_dirName + "/BxInEvent_"
-                    + bxInEventHexString);
-        }
+        ibooker.setCurrentFolder(m_dirName + "/BxInEvent_" + bxInEventHexString);
 
-        (m_meAnalysisL1ExtraIsoEG.at(iBxInEvent))->bookHistograms(evSetup, m_dbe,
-                "L1_IsoEG", l1Obj);
+        (m_meAnalysisL1ExtraIsoEG.at(iBxInEvent))->bookhistograms(evSetup, ibooker, "L1_IsoEG", l1Obj);
     }
 
     //
@@ -481,14 +446,12 @@ void L1ExtraDQM::beginRun(const edm::Run& iRun, const edm::EventSetup& evSetup) 
 
     for (int iBxInEvent = 0; iBxInEvent < m_nrBxInEventGct; ++iBxInEvent) {
 
-        m_meAnalysisL1ExtraNoIsoEG.push_back(new L1ExtraDQM::L1ExtraMonElement<
-                l1extra::L1EmParticleCollection>(evSetup, nrMonElements));
+        m_meAnalysisL1ExtraNoIsoEG.push_back(new L1ExtraDQM::L1ExtraMonElement< l1extra::L1EmParticleCollection>(evSetup, nrMonElements));
 
         // convert to actual convention used in the hardware
         // (from [o, m_nrBxInEventGct] -> [-X, 0, +X]
         // write it in hex [..., E, F, 0, 1, 2, ...]
-        int bxInEvent = iBxInEvent + (m_nrBxInEventGct + 1) / 2
-                - m_nrBxInEventGct;
+        int bxInEvent = iBxInEvent + (m_nrBxInEventGct + 1) / 2 - m_nrBxInEventGct;
         int bxInEventHex = (bxInEvent+ 16) % 16;
 
         std::stringstream ss;
@@ -496,13 +459,11 @@ void L1ExtraDQM::beginRun(const edm::Run& iRun, const edm::EventSetup& evSetup) 
         ss << std::uppercase << std::hex << bxInEventHex;
         ss >> bxInEventHexString;
 
-        if (m_dbe) {
-            dbe->setCurrentFolder(m_dirName + "/BxInEvent_"
-                    + bxInEventHexString);
-        }
+        //if (m_dbe) {
+        ibooker.setCurrentFolder(m_dirName + "/BxInEvent_" + bxInEventHexString);
+        //}
 
-        (m_meAnalysisL1ExtraNoIsoEG.at(iBxInEvent))->bookHistograms(evSetup, m_dbe,
-                "L1_NoIsoEG", l1Obj);
+        (m_meAnalysisL1ExtraNoIsoEG.at(iBxInEvent))->bookhistograms(evSetup, ibooker, "L1_NoIsoEG", l1Obj);
     }
 
     //
@@ -512,14 +473,12 @@ void L1ExtraDQM::beginRun(const edm::Run& iRun, const edm::EventSetup& evSetup) 
 
     for (int iBxInEvent = 0; iBxInEvent < m_nrBxInEventGct; ++iBxInEvent) {
 
-        m_meAnalysisL1ExtraCenJet.push_back(new L1ExtraDQM::L1ExtraMonElement<
-                l1extra::L1JetParticleCollection>(evSetup, nrMonElements));
+        m_meAnalysisL1ExtraCenJet.push_back(new L1ExtraDQM::L1ExtraMonElement<l1extra::L1JetParticleCollection>(evSetup, nrMonElements));
 
         // convert to actual convention used in the hardware
         // (from [o, m_nrBxInEventGct] -> [-X, 0, +X]
         // write it in hex [..., E, F, 0, 1, 2, ...]
-        int bxInEvent = iBxInEvent + (m_nrBxInEventGct + 1) / 2
-                - m_nrBxInEventGct;
+        int bxInEvent = iBxInEvent + (m_nrBxInEventGct + 1) / 2 - m_nrBxInEventGct;
         int bxInEventHex = (bxInEvent+ 16) % 16;
 
         std::stringstream ss;
@@ -527,13 +486,9 @@ void L1ExtraDQM::beginRun(const edm::Run& iRun, const edm::EventSetup& evSetup) 
         ss << std::uppercase << std::hex << bxInEventHex;
         ss >> bxInEventHexString;
 
-        if (m_dbe) {
-            dbe->setCurrentFolder(m_dirName + "/BxInEvent_"
-                    + bxInEventHexString);
-        }
+        ibooker.setCurrentFolder(m_dirName + "/BxInEvent_" + bxInEventHexString);
 
-        (m_meAnalysisL1ExtraCenJet.at(iBxInEvent))->bookHistograms(evSetup, m_dbe,
-                "L1_CenJet", l1Obj);
+        (m_meAnalysisL1ExtraCenJet.at(iBxInEvent))->bookhistograms(evSetup, ibooker, "L1_CenJet", l1Obj);
     }
 
     //
@@ -542,14 +497,12 @@ void L1ExtraDQM::beginRun(const edm::Run& iRun, const edm::EventSetup& evSetup) 
 
     for (int iBxInEvent = 0; iBxInEvent < m_nrBxInEventGct; ++iBxInEvent) {
 
-        m_meAnalysisL1ExtraForJet.push_back(new L1ExtraDQM::L1ExtraMonElement<
-                l1extra::L1JetParticleCollection>(evSetup, nrMonElements));
+        m_meAnalysisL1ExtraForJet.push_back(new L1ExtraDQM::L1ExtraMonElement<l1extra::L1JetParticleCollection>(evSetup, nrMonElements));
 
         // convert to actual convention used in the hardware
         // (from [o, m_nrBxInEventGct] -> [-X, 0, +X]
         // write it in hex [..., E, F, 0, 1, 2, ...]
-        int bxInEvent = iBxInEvent + (m_nrBxInEventGct + 1) / 2
-                - m_nrBxInEventGct;
+        int bxInEvent = iBxInEvent + (m_nrBxInEventGct + 1) / 2 - m_nrBxInEventGct;
         int bxInEventHex = (bxInEvent+ 16) % 16;
 
         std::stringstream ss;
@@ -557,13 +510,9 @@ void L1ExtraDQM::beginRun(const edm::Run& iRun, const edm::EventSetup& evSetup) 
         ss << std::uppercase << std::hex << bxInEventHex;
         ss >> bxInEventHexString;
 
-        if (m_dbe) {
-            dbe->setCurrentFolder(m_dirName + "/BxInEvent_"
-                    + bxInEventHexString);
-        }
+        ibooker.setCurrentFolder(m_dirName + "/BxInEvent_" + bxInEventHexString);
 
-        (m_meAnalysisL1ExtraForJet.at(iBxInEvent))->bookHistograms(evSetup, m_dbe,
-                "L1_ForJet", l1Obj);
+        (m_meAnalysisL1ExtraForJet.at(iBxInEvent))->bookhistograms(evSetup, ibooker, "L1_ForJet", l1Obj);
     }
 
     //
@@ -572,14 +521,12 @@ void L1ExtraDQM::beginRun(const edm::Run& iRun, const edm::EventSetup& evSetup) 
 
     for (int iBxInEvent = 0; iBxInEvent < m_nrBxInEventGct; ++iBxInEvent) {
 
-        m_meAnalysisL1ExtraTauJet.push_back(new L1ExtraDQM::L1ExtraMonElement<
-                l1extra::L1JetParticleCollection>(evSetup, nrMonElements));
+        m_meAnalysisL1ExtraTauJet.push_back(new L1ExtraDQM::L1ExtraMonElement<l1extra::L1JetParticleCollection>(evSetup, nrMonElements));
 
         // convert to actual convention used in the hardware
         // (from [o, m_nrBxInEventGct] -> [-X, 0, +X]
         // write it in hex [..., E, F, 0, 1, 2, ...]
-        int bxInEvent = iBxInEvent + (m_nrBxInEventGct + 1) / 2
-                - m_nrBxInEventGct;
+        int bxInEvent = iBxInEvent + (m_nrBxInEventGct + 1) / 2 - m_nrBxInEventGct;
         int bxInEventHex = (bxInEvent+ 16) % 16;
 
         std::stringstream ss;
@@ -587,13 +534,9 @@ void L1ExtraDQM::beginRun(const edm::Run& iRun, const edm::EventSetup& evSetup) 
         ss << std::uppercase << std::hex << bxInEventHex;
         ss >> bxInEventHexString;
 
-        if (m_dbe) {
-            dbe->setCurrentFolder(m_dirName + "/BxInEvent_"
-                    + bxInEventHexString);
-        }
+        ibooker.setCurrentFolder(m_dirName + "/BxInEvent_" + bxInEventHexString);
 
-        (m_meAnalysisL1ExtraTauJet.at(iBxInEvent))->bookHistograms(evSetup, m_dbe,
-                "L1_TauJet", l1Obj);
+        (m_meAnalysisL1ExtraTauJet.at(iBxInEvent))->bookhistograms(evSetup, ibooker, "L1_TauJet", l1Obj);
     }
 
     //
@@ -606,14 +549,12 @@ void L1ExtraDQM::beginRun(const edm::Run& iRun, const edm::EventSetup& evSetup) 
 
     for (int iBxInEvent = 0; iBxInEvent < m_nrBxInEventGct; ++iBxInEvent) {
 
-        m_meAnalysisL1ExtraETT.push_back(new L1ExtraDQM::L1ExtraMonElement<
-                l1extra::L1EtMissParticleCollection>(evSetup, nrMonElements));
+        m_meAnalysisL1ExtraETT.push_back(new L1ExtraDQM::L1ExtraMonElement<l1extra::L1EtMissParticleCollection>(evSetup, nrMonElements));
 
         // convert to actual convention used in the hardware
         // (from [o, m_nrBxInEventGct] -> [-X, 0, +X]
         // write it in hex [..., E, F, 0, 1, 2, ...]
-        int bxInEvent = iBxInEvent + (m_nrBxInEventGct + 1) / 2
-                - m_nrBxInEventGct;
+        int bxInEvent = iBxInEvent + (m_nrBxInEventGct + 1) / 2 - m_nrBxInEventGct;
         int bxInEventHex = (bxInEvent+ 16) % 16;
 
         std::stringstream ss;
@@ -621,13 +562,9 @@ void L1ExtraDQM::beginRun(const edm::Run& iRun, const edm::EventSetup& evSetup) 
         ss << std::uppercase << std::hex << bxInEventHex;
         ss >> bxInEventHexString;
 
-        if (m_dbe) {
-            dbe->setCurrentFolder(m_dirName + "/BxInEvent_"
-                    + bxInEventHexString);
-        }
+        ibooker.setCurrentFolder(m_dirName + "/BxInEvent_" + bxInEventHexString);
 
-        (m_meAnalysisL1ExtraETT.at(iBxInEvent))->bookHistograms(evSetup, m_dbe,
-                "L1_ETT", l1Obj, bookPhi, bookEta);
+        (m_meAnalysisL1ExtraETT.at(iBxInEvent))->bookhistograms(evSetup, ibooker, "L1_ETT", l1Obj, bookPhi, bookEta);
     }
 
     //
@@ -640,14 +577,12 @@ void L1ExtraDQM::beginRun(const edm::Run& iRun, const edm::EventSetup& evSetup) 
 
     for (int iBxInEvent = 0; iBxInEvent < m_nrBxInEventGct; ++iBxInEvent) {
 
-        m_meAnalysisL1ExtraETM.push_back(new L1ExtraDQM::L1ExtraMonElement<
-                l1extra::L1EtMissParticleCollection>(evSetup, nrMonElements));
+        m_meAnalysisL1ExtraETM.push_back(new L1ExtraDQM::L1ExtraMonElement<l1extra::L1EtMissParticleCollection>(evSetup, nrMonElements));
 
         // convert to actual convention used in the hardware
         // (from [o, m_nrBxInEventGct] -> [-X, 0, +X]
         // write it in hex [..., E, F, 0, 1, 2, ...]
-        int bxInEvent = iBxInEvent + (m_nrBxInEventGct + 1) / 2
-                - m_nrBxInEventGct;
+        int bxInEvent = iBxInEvent + (m_nrBxInEventGct + 1) / 2 - m_nrBxInEventGct;
         int bxInEventHex = (bxInEvent+ 16) % 16;
 
         std::stringstream ss;
@@ -655,13 +590,9 @@ void L1ExtraDQM::beginRun(const edm::Run& iRun, const edm::EventSetup& evSetup) 
         ss << std::uppercase << std::hex << bxInEventHex;
         ss >> bxInEventHexString;
 
-        if (m_dbe) {
-            dbe->setCurrentFolder(m_dirName + "/BxInEvent_"
-                    + bxInEventHexString);
-        }
+        ibooker.setCurrentFolder(m_dirName + "/BxInEvent_" + bxInEventHexString);
 
-        (m_meAnalysisL1ExtraETM.at(iBxInEvent))->bookHistograms(evSetup, m_dbe,
-                "L1_ETM", l1Obj, bookPhi, bookEta);
+        (m_meAnalysisL1ExtraETM.at(iBxInEvent))->bookhistograms(evSetup, ibooker, "L1_ETM", l1Obj, bookPhi, bookEta);
     }
 
     //
@@ -674,14 +605,12 @@ void L1ExtraDQM::beginRun(const edm::Run& iRun, const edm::EventSetup& evSetup) 
 
     for (int iBxInEvent = 0; iBxInEvent < m_nrBxInEventGct; ++iBxInEvent) {
 
-        m_meAnalysisL1ExtraHTT.push_back(new L1ExtraDQM::L1ExtraMonElement<
-                l1extra::L1EtMissParticleCollection>(evSetup, nrMonElements));
+        m_meAnalysisL1ExtraHTT.push_back(new L1ExtraDQM::L1ExtraMonElement<l1extra::L1EtMissParticleCollection>(evSetup, nrMonElements));
 
         // convert to actual convention used in the hardware
         // (from [o, m_nrBxInEventGct] -> [-X, 0, +X]
         // write it in hex [..., E, F, 0, 1, 2, ...]
-        int bxInEvent = iBxInEvent + (m_nrBxInEventGct + 1) / 2
-                - m_nrBxInEventGct;
+        int bxInEvent = iBxInEvent + (m_nrBxInEventGct + 1) / 2 - m_nrBxInEventGct;
         int bxInEventHex = (bxInEvent+ 16) % 16;
 
         std::stringstream ss;
@@ -689,13 +618,9 @@ void L1ExtraDQM::beginRun(const edm::Run& iRun, const edm::EventSetup& evSetup) 
         ss << std::uppercase << std::hex << bxInEventHex;
         ss >> bxInEventHexString;
 
-        if (m_dbe) {
-            dbe->setCurrentFolder(m_dirName + "/BxInEvent_"
-                    + bxInEventHexString);
-        }
+        ibooker.setCurrentFolder(m_dirName + "/BxInEvent_" + bxInEventHexString);
 
-        (m_meAnalysisL1ExtraHTT.at(iBxInEvent))->bookHistograms(evSetup, m_dbe,
-                "L1_HTT", l1Obj, bookPhi, bookEta);
+        (m_meAnalysisL1ExtraHTT.at(iBxInEvent))->bookhistograms(evSetup, ibooker, "L1_HTT", l1Obj, bookPhi, bookEta);
     }
 
     //
@@ -708,14 +633,12 @@ void L1ExtraDQM::beginRun(const edm::Run& iRun, const edm::EventSetup& evSetup) 
 
     for (int iBxInEvent = 0; iBxInEvent < m_nrBxInEventGct; ++iBxInEvent) {
 
-        m_meAnalysisL1ExtraHTM.push_back(new L1ExtraDQM::L1ExtraMonElement<
-                l1extra::L1EtMissParticleCollection>(evSetup, nrMonElements));
+        m_meAnalysisL1ExtraHTM.push_back(new L1ExtraDQM::L1ExtraMonElement< l1extra::L1EtMissParticleCollection>(evSetup, nrMonElements));
 
         // convert to actual convention used in the hardware
         // (from [o, m_nrBxInEventGct] -> [-X, 0, +X]
         // write it in hex [..., E, F, 0, 1, 2, ...]
-        int bxInEvent = iBxInEvent + (m_nrBxInEventGct + 1) / 2
-                - m_nrBxInEventGct;
+        int bxInEvent = iBxInEvent + (m_nrBxInEventGct + 1) / 2 - m_nrBxInEventGct;
         int bxInEventHex = (bxInEvent+ 16) % 16;
 
         std::stringstream ss;
@@ -723,13 +646,9 @@ void L1ExtraDQM::beginRun(const edm::Run& iRun, const edm::EventSetup& evSetup) 
         ss << std::uppercase << std::hex << bxInEventHex;
         ss >> bxInEventHexString;
 
-        if (m_dbe) {
-            dbe->setCurrentFolder(m_dirName + "/BxInEvent_"
-                    + bxInEventHexString);
-        }
+        ibooker.setCurrentFolder(m_dirName + "/BxInEvent_" + bxInEventHexString);
 
-        (m_meAnalysisL1ExtraHTM.at(iBxInEvent))->bookHistograms(evSetup, m_dbe,
-                "L1_HTM", l1Obj, bookPhi, bookEta);
+        (m_meAnalysisL1ExtraHTM.at(iBxInEvent))->bookhistograms(evSetup, ibooker, "L1_HTM", l1Obj, bookPhi, bookEta);
     }
 
     //
@@ -743,14 +662,12 @@ void L1ExtraDQM::beginRun(const edm::Run& iRun, const edm::EventSetup& evSetup) 
     for (int iBxInEvent = 0; iBxInEvent < m_nrBxInEventGct; ++iBxInEvent) {
 
         m_meAnalysisL1ExtraHfBitCounts.push_back(
-                new L1ExtraDQM::L1ExtraMonElement<l1extra::L1HFRingsCollection>(
-                        evSetup, nrMonElements));
+                new L1ExtraDQM::L1ExtraMonElement<l1extra::L1HFRingsCollection>( evSetup, nrMonElements));
 
         // convert to actual convention used in the hardware
         // (from [o, m_nrBxInEventGct] -> [-X, 0, +X]
         // write it in hex [..., E, F, 0, 1, 2, ...]
-        int bxInEvent = iBxInEvent + (m_nrBxInEventGct + 1) / 2
-                - m_nrBxInEventGct;
+        int bxInEvent = iBxInEvent + (m_nrBxInEventGct + 1) / 2 - m_nrBxInEventGct;
         int bxInEventHex = (bxInEvent+ 16) % 16;
 
         std::stringstream ss;
@@ -758,13 +675,9 @@ void L1ExtraDQM::beginRun(const edm::Run& iRun, const edm::EventSetup& evSetup) 
         ss << std::uppercase << std::hex << bxInEventHex;
         ss >> bxInEventHexString;
 
-        if (m_dbe) {
-            dbe->setCurrentFolder(m_dirName + "/BxInEvent_"
-                    + bxInEventHexString);
-        }
+        ibooker.setCurrentFolder(m_dirName + "/BxInEvent_" + bxInEventHexString);
 
-        (m_meAnalysisL1ExtraHfBitCounts.at(iBxInEvent))->bookHistograms(evSetup,
-                m_dbe, "L1_HfBitCounts", l1Obj, bookPhi, bookEta);
+        (m_meAnalysisL1ExtraHfBitCounts.at(iBxInEvent))->bookhistograms(evSetup, ibooker, "L1_HfBitCounts", l1Obj, bookPhi, bookEta);
     }
 
     //
@@ -793,13 +706,9 @@ void L1ExtraDQM::beginRun(const edm::Run& iRun, const edm::EventSetup& evSetup) 
         ss << std::uppercase << std::hex << bxInEventHex;
         ss >> bxInEventHexString;
 
-        if (m_dbe) {
-            dbe->setCurrentFolder(m_dirName + "/BxInEvent_"
-                    + bxInEventHexString);
-        }
+        ibooker.setCurrentFolder(m_dirName + "/BxInEvent_" + bxInEventHexString);
 
-        (m_meAnalysisL1ExtraHfRingEtSums.at(iBxInEvent))->bookHistograms(evSetup,
-                m_dbe, "L1_HfRingEtSums", l1Obj, bookPhi, bookEta);
+        (m_meAnalysisL1ExtraHfRingEtSums.at(iBxInEvent))->bookhistograms(evSetup, ibooker, "L1_HfRingEtSums", l1Obj, bookPhi, bookEta);
     }
 
 }
@@ -952,15 +861,6 @@ void L1ExtraDQM::endRun(const edm::Run& run, const edm::EventSetup& evSetup) {
             << "\n  Total number of events analyzed in this job: " << m_nrEvJob
             << "\n" << std::endl;
 
-}
-
-void L1ExtraDQM::endJob() {
-
-    edm::LogInfo("L1ExtraDQM")
-            << "\n\nTotal number of events analyzed in this job: " << m_nrEvJob
-            << "\n" << std::endl;
-
-    return;
 }
 
 //define this as a plug-in

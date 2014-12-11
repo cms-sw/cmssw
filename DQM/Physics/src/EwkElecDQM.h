@@ -26,7 +26,7 @@ class BeamSpot;
 
 class DQMStore;
 class MonitorElement;
-class EwkElecDQM : public thread_unsafe::DQMEDAnalyzer {
+class EwkElecDQM : public DQMEDAnalyzer {
  public:
   EwkElecDQM(const edm::ParameterSet&);
   //Book histograms

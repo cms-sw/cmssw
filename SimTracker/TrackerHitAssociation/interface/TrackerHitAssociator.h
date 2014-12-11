@@ -76,6 +76,13 @@ class TrackerHitAssociator {
   void associateHitId(const TrackingRecHit & thit,std::vector<SimHitIdpr> &simhitid, std::vector<simhitAddr>* simhitCFPos=0) const;
   template<typename T>
     void associateSiStripRecHit(const T *simplerechit, std::vector<SimHitIdpr>& simtrackid, std::vector<simhitAddr>* simhitCFPos=0) const;
+
+  // Method for obtaining simTracks and simHits from a cluster
+  void associateCluster(const SiStripCluster* clust,
+			const DetId& detid,
+			std::vector<SimHitIdpr>& simtrackid, std::vector<PSimHit>& simhit) const;
+
+  // Obtain simTracks, and optionally simHit addresses, from a cluster 
   void associateSimpleRecHitCluster(const SiStripCluster* clust,
 				    const DetId& detid,
 				    std::vector<SimHitIdpr>& simtrackid, std::vector<simhitAddr>* simhitCFPos=0) const;
