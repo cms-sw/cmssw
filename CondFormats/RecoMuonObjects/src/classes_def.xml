@@ -3,4 +3,7 @@
    <class name="DYTThrObject" class_version="0"/>
    <class name="DYTThrObject::DytThrStruct"/>
    <class name="std::vector<DYTThrObject::DytThrStruct>"/>
+   <class name="DYTParamsObject" class_version="2"/>
+   <class name="DYTParamObject"/>
+   <class name="std::vector<DYTParamObject>"/>
 </lcgdict>   
