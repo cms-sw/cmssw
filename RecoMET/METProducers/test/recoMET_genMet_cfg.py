@@ -39,7 +39,6 @@ process.p = cms.Path(
     process.genJetParticles*
     process.genMETParticles *
     process.genMetCalo *
-    process.genMetCaloAndNonPrompt *
     process.genMetTrue
     )
 

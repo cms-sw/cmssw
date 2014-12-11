@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 ##____________________________________________________________________________||
 genMetCaloAndNonPrompt = cms.EDProducer(
     "GenMETProducer",
-    src = cms.InputTag("genParticlesForJetsNoNu"),
+    src = cms.InputTag("genParticlesForJets"),
     alias = cms.string('genMetCaloAndNonPrompt'), ## Alias for FWLite
     onlyFiducialParticles = cms.bool(True), ## use only fiducial GenParticles
     globalThreshold = cms.double(0.0), ## Global Threshold for input objects
