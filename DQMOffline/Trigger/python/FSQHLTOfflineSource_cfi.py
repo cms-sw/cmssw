@@ -321,7 +321,6 @@ fsqdirname = "HLT/FSQ/"
 
 processName = "HLT"
 #processName = "TEST"
-processName = "TTT"
 
 fsqHLTOfflineSource = cms.EDAnalyzer("FSQDiJetAve",
     triggerConfiguration =  cms.PSet(
