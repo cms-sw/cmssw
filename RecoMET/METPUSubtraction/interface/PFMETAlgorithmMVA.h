@@ -40,9 +40,9 @@ class PFMETAlgorithmMVA
 
   void setHasPhotons(bool hasPhotons) { hasPhotons_ = hasPhotons; }
 
-  void setInput(const std::vector<mvaMEtUtilities::leptonInfo>&,
-		const std::vector<mvaMEtUtilities::JetInfo>&,
-		const std::vector<mvaMEtUtilities::pfCandInfo>&,
+  void setInput(const std::vector<reco::PUSubMETCandInfo>&,
+		const std::vector<reco::PUSubMETCandInfo>&,
+		const std::vector<reco::PUSubMETCandInfo>&,
 		const std::vector<reco::Vertex::Point>&);
 
   void evaluateMVA();
