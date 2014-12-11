@@ -485,7 +485,8 @@
    <class name="reco::DeDxHitInfo::DeDxHitInfoContainerCollection"/>
 
 
-   <class name="reco::DeDxHitInfo" ClassVersion="2">
+   <class name="reco::DeDxHitInfo" ClassVersion="3">
+    <version ClassVersion="3" checksum="2577777556"/>
     <version ClassVersion="2" checksum="3000986250"/>
    </class>
    <class name="reco::DeDxHitInfoCollection"/>
