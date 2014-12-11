@@ -14,4 +14,6 @@ MeasurementTrackerEvent = cms.EDProducer("MeasurementTrackerEventProducer",
     switchOffPixelsIfEmpty = cms.bool(True), # let's keep it like this, for cosmics                                    
 )
 
-
+MeasurementTrackerEventPreSplitting = MeasurementTrackerEvent.clone(
+    pixelClusterProducer = 'siPixelClustersPreSplitting'
+    )

@@ -12,6 +12,8 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
+#include "FastSimulation/Tracking/interface/TrajectorySeedHitCandidate.h"
+
 class TrackerGeometry;
 class TrajectoryStateOnSurface;
 class PropagatorWithMaterial;
@@ -26,7 +28,7 @@ namespace reco {
   class Track;
 }
 
-class TrackerRecHit;
+
 class TrackingRecHit;
 
 #include <vector>
@@ -47,7 +49,7 @@ class TrackCandidateProducer : public edm::EDProducer
 
   int findId(const reco::Track& aTrack) const;
 
-  void addSplitHits(const TrackerRecHit&, std::vector<TrackerRecHit>&); 
+  void addSplitHits(const TrajectorySeedHitCandidate&, std::vector<TrajectorySeedHitCandidate>&); 
   bool isDuplicateCandidate(const TrackCandidateCollection& candidates, const TrackCandidate& newCand) const;
   bool sameLocalParameters(const TrackingRecHit* aH, const TrackingRecHit* bH) const;
 

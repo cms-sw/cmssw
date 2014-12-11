@@ -2,8 +2,8 @@
 #define FWCore_Framework_OccurrenceTraits_h
 
 /*----------------------------------------------------------------------
-  
-OccurrenceTraits: 
+
+OccurrenceTraits:
 
 ----------------------------------------------------------------------*/
 
@@ -128,7 +128,7 @@ namespace edm {
     }
     static void prePathSignal(ActivityRegistry *a, PathContext const* pathContext) {
     }
-    static void postPathSignal(ActivityRegistry *a, HLTPathStatus const& status, PathContext const* pathContext) {
+    static void postPathSignal(ActivityRegistry * /* a */, HLTPathStatus const& status, PathContext const* /* pathContext */) {
     }
     static void preModuleSignal(ActivityRegistry *a, StreamContext const* streamContext, ModuleCallingContext const*  moduleCallingContext) {
       a->preModuleStreamBeginRunSignal_(*streamContext, *moduleCallingContext);
@@ -208,7 +208,7 @@ namespace edm {
       a->postModuleGlobalEndRunSignal_(*globalContext, *moduleCallingContext);
     }
   };
-  
+
   template <>
   class OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin> {
   public:
@@ -244,7 +244,7 @@ namespace edm {
       a->postModuleGlobalBeginLumiSignal_(*globalContext, *moduleCallingContext);
     }
   };
-  
+
   template <>
   class OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin> {
   public:

@@ -40,7 +40,7 @@ namespace edm
     theFedAlgo(ps.getParameter<int>("FedAlgorithm")),
     geometryType(ps.getParameter<std::string>("GeometryType")),
     theSiZeroSuppress(new SiStripFedZeroSuppression(theFedAlgo)),
-    theSiDigitalConverter(new SiTrivialDigitalConverter(theElectronPerADC))
+    theSiDigitalConverter(new SiTrivialDigitalConverter(theElectronPerADC, false)) // no premixing
 
   {                                                         
 
@@ -67,6 +67,7 @@ namespace edm
     }
   
     theSiNoiseAdder.reset(new SiGaussianTailNoiseAdder(theThreshold));
+
     //    theSiZeroSuppress = new SiStripFedZeroSuppression(theFedAlgo);
     //theSiDigitalConverter(new SiTrivialDigitalConverter(theElectronPerADC));
 
@@ -90,6 +91,7 @@ namespace edm
 	 (isub == StripSubdetector::TID) ||
 	 (isub == StripSubdetector::TOB) ||
 	 (isub == StripSubdetector::TEC)) {
+
 	auto stripdet = dynamic_cast<StripGeomDetUnit const*>((*iu));
 	assert(stripdet != 0);
 	DMinitializeDetUnit(stripdet, iSetup);
@@ -263,7 +265,6 @@ namespace edm
 	    Signals.insert( std::make_pair(formerStrip, ADCSum));
 
 	    //detAmpl[formerStrip] = ADCSum;
-
 	    //if (ADCSum > 511) ADCSum = 255;
 	    //else if (ADCSum > 253 && ADCSum < 512) ADCSum = 254;
 	    //SiStripDigi aHit(formerStrip, ADCSum);
@@ -280,7 +281,6 @@ namespace edm
 	  Signals.insert( std::make_pair(formerStrip, ADCSum));
 
 	  //detAmpl[formerStrip] = ADCSum;
-
 	  //	  if (ADCSum > 511) ADCSum = 255;
 	  //else if (ADCSum > 253 && ADCSum < 512) ADCSum = 254;
 	  //SSD.push_back( SiStripDigi(formerStrip, ADCSum) );	  
@@ -294,6 +294,7 @@ namespace edm
     // This section stolen from SiStripDigitizerAlgorithm
     // must loop over all detIds in the tracker to get all of the noise added properly.
     for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
+
       const StripGeomDetUnit* sgd = dynamic_cast<const StripGeomDetUnit*>((*iu));
       if (sgd != 0){
 
@@ -333,7 +334,6 @@ namespace edm
 	    }
           }
         }
-
 
 	//SiStripPedestals::Range detPedestalRange = pedestalHandle->getRange(detID);
 

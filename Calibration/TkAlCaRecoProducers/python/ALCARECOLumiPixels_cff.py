@@ -4,8 +4,8 @@ from EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi import siPixelDigis
 siPixelDigisForLumi = siPixelDigis.clone()
 siPixelDigisForLumi.InputLabel = cms.InputTag("hltFEDSelectorLumiPixels")
 
-from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi import siPixelClusters
-siPixelClustersForLumi = siPixelClusters.clone()
+from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizerPreSplitting_cfi import siPixelClustersPreSplitting
+siPixelClustersForLumi = siPixelClustersPreSplitting.clone()
 siPixelClustersForLumi.src = cms.InputTag("siPixelDigisForLumi")
 
 # Sequence #

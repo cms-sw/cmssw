@@ -14,29 +14,25 @@
 #include "DataFormats/BTauReco/interface/JetTag.h"
 
 
-L2TauPixelIsoTagProducer::L2TauPixelIsoTagProducer(const edm::ParameterSet& conf)
+L2TauPixelIsoTagProducer::L2TauPixelIsoTagProducer(const edm::ParameterSet& conf):
+  m_jetSrc_token( consumes<edm::View<reco::Jet> >(conf.getParameter<edm::InputTag>("JetSrc") ) ),
+  m_vertexSrc_token( consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("VertexSrc") ) ),
+  m_trackSrc_token( consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("TrackSrc") ) ),  // for future use (now tracks are taken directly from PV)
+  m_beamSpotSrc_token( consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("BeamSpotSrc") ) ),
+  m_maxNumberPV( conf.getParameter<int>("MaxNumberPV") ), // for future use, now is assumed to be = 1
+  m_trackMinPt( conf.getParameter<double>("TrackMinPt") ),
+  m_trackMaxDxy( conf.getParameter<double>("TrackMaxDxy") ),
+  m_trackMaxNChi2( conf.getParameter<double>("TrackMaxNChi2") ),
+  m_trackMinNHits( conf.getParameter<int>("TrackMinNHits") ),
+  m_trackPVMaxDZ( conf.getParameter<double>("TrackPVMaxDZ") ), // for future use with tracks not from PV
+  m_isoCone2Min( std::pow(conf.getParameter<double>("IsoConeMin"), 2) ),
+  m_isoCone2Max( std::pow(conf.getParameter<double>("IsoConeMax"), 2) )
 {
-  m_jetSrc_token      = consumes<edm::View<reco::Jet> >(conf.getParameter<edm::InputTag>("JetSrc") );
-  m_vertexSrc_token   = consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("VertexSrc") );
-  m_trackSrc_token    = consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("TrackSrc") );  // for future use (now tracks are taken directly from PV)
-  m_beamSpotSrc_token = consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("BeamSpotSrc") );
-
-  m_maxNumberPV = conf.getParameter<int>("MaxNumberPV"); // for future use, now is assumed to be = 1
-
-  m_trackMinPt    = conf.getParameter<double>("TrackMinPt");
-  m_trackMaxDxy   = conf.getParameter<double>("TrackMaxDxy");
-  m_trackMaxNChi2 = conf.getParameter<double>("TrackMaxNChi2");
-  m_trackMinNHits = conf.getParameter<int>("TrackMinNHits");
-  m_trackPVMaxDZ  = conf.getParameter<double>("TrackPVMaxDZ"); // for future use with tracks not from PV
-
-  m_isoCone2Min  = std::pow(conf.getParameter<double>("IsoConeMin"), 2);
-  m_isoCone2Max  = std::pow(conf.getParameter<double>("IsoConeMax"), 2);
-
   produces<reco::JetTagCollection>(); 
 }
 
 
-void L2TauPixelIsoTagProducer::produce(edm::Event& ev, const edm::EventSetup& es)
+void L2TauPixelIsoTagProducer::produce(edm::StreamID sid, edm::Event& ev, const edm::EventSetup& es) const
 {
   using namespace reco;
   using namespace std;

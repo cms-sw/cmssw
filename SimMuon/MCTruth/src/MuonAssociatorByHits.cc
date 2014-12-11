@@ -1387,7 +1387,11 @@ void MuonAssociatorByHits::associateMuons(MuonToSimCollection & recToSim, SimToM
     for (unsigned int j=0; j<tPCH->size();j++)
       tpc.push_back(edm::Ref<TrackingParticleCollection>(tPCH,j));
     
-    associateMuons(recToSim, simToRec, tCH->refVector(),type,tpc,event,setup);
+    edm::RefToBaseVector<reco::Muon> muonBaseRefVector;
+    for (size_t i = 0; i < tCH->size(); ++i)
+      muonBaseRefVector.push_back(tCH->refAt(i));
+
+    associateMuons(recToSim, simToRec, muonBaseRefVector,type,tpc,event,setup);
 }
 
 void MuonAssociatorByHits::associateMuons(MuonToSimCollection & recToSim, SimToMuonCollection & simToRec,

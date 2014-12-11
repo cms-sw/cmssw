@@ -3,7 +3,7 @@ source = cms.Source("EmptySource")
 from GeneratorInterface.Hydjet2Interface.hydjet2DefaultParameters_cff import *
 
 generator = cms.EDFilter("Hydjet2GeneratorFilter",
-	collisionParameters2760GeV,
+	collisionParameters5100GeV,
 	qgpParameters,
 	hydjet2Parameters,
 	fNhsel 	= cms.int32(2), 	# Flag to include jet (J)/jet quenching (JQ) and hydro (H) state production, fNhsel (0 H on & J off, 1 H/J on & JQ off, 2 H/J/HQ on, 3 J on & H/JQ off, 4 H off & J/JQ on)

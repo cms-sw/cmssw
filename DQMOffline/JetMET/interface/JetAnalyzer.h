@@ -64,7 +64,7 @@
   //class StripSignalOverNoiseCalculator;
 //}
 
-class JetAnalyzer : public thread_unsafe::DQMEDAnalyzer {
+class JetAnalyzer : public DQMEDAnalyzer {
  public:
 
   /// Constructor

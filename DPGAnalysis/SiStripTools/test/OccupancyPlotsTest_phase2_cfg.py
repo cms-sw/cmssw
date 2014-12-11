@@ -34,16 +34,34 @@ process.options = cms.untracked.PSet(
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
+process.MessageLogger.destinations.extend(cms.vstring("detids"))
+process.MessageLogger.categories.extend(cms.vstring("GeometricDetBuilding","DuplicateHitFinder","BuildingTrackerDetId"))
 process.MessageLogger.cout.placeholder = cms.untracked.bool(False)
 process.MessageLogger.cout.threshold = cms.untracked.string("INFO")
+process.MessageLogger.debugModules = cms.untracked.vstring("*")
 process.MessageLogger.cout.default = cms.untracked.PSet(
     limit = cms.untracked.int32(0)
+    )
+process.MessageLogger.detids = cms.untracked.PSet(
+    default = cms.untracked.PSet(
+        limit = cms.untracked.int32(0)
+        ),
+    BuildingTrackerDetId = cms.untracked.PSet(
+        limit = cms.untracked.int32(100000000)
+        ),
+    GeometricDetBuilding = cms.untracked.PSet(
+        limit = cms.untracked.int32(100000000)
+        ),
+    threshold = cms.untracked.string("DEBUG")
+    )    
+process.MessageLogger.cout.DuplicateHitFinder = cms.untracked.PSet(
+    limit = cms.untracked.int32(100000000)
     )
 process.MessageLogger.cout.FwkSummary = cms.untracked.PSet(
     limit = cms.untracked.int32(100000000)
     )
 process.MessageLogger.cout.FwkReport = cms.untracked.PSet(
-    reportEvery = cms.untracked.int32(1000)
+    reportEvery = cms.untracked.int32(10000)
     )
 
 process.MessageLogger.cerr.placeholder = cms.untracked.bool(False)
@@ -57,7 +75,7 @@ process.MessageLogger.cerr.FwkReport = cms.untracked.PSet(
 
 #------------------------------------------------------------------
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 
 process.source = cms.Source("PoolSource",
                     fileNames = cms.untracked.vstring(options.inputFiles),
@@ -102,6 +120,11 @@ process.spclusmultprod = cms.EDProducer("SiPixelClusterMultiplicityProducer",
 process.spclusmultprod.wantedSubDets.extend(OccupancyPlotsPixelWantedSubDets)
 process.spclusmultprodontrack=process.spclusmultprod.clone(clusterdigiCollection = cms.InputTag("AlignmentTrackSelector"))
 
+process.spclusmultprodxy = process.spclusmultprod.clone()
+process.spclusmultprodxy.wantedSubDets = OccupancyPlotsFPIXmDetailedWantedSubDets
+process.spclusmultprodxy.wantedSubDets.extend(OccupancyPlotsFPIXpDetailedWantedSubDets)
+process.spclusmultprodxyontrack=process.spclusmultprodxy.clone(clusterdigiCollection = cms.InputTag("AlignmentTrackSelector"))
+
 process.spclusoccuprod = cms.EDProducer("SiPixelClusterMultiplicityProducer",
                                         clusterdigiCollection = cms.InputTag("siPixelClusters"),
                                         withClusterSize = cms.untracked.bool(True),
@@ -110,24 +133,41 @@ process.spclusoccuprod = cms.EDProducer("SiPixelClusterMultiplicityProducer",
 process.spclusoccuprod.wantedSubDets.extend(OccupancyPlotsPixelWantedSubDets)
 process.spclusoccuprodontrack=process.spclusoccuprod.clone(clusterdigiCollection = cms.InputTag("AlignmentTrackSelector"))
 
+process.spclusoccuprodxy = process.spclusoccuprod.clone()
+process.spclusoccuprodxy.wantedSubDets = OccupancyPlotsFPIXmDetailedWantedSubDets
+process.spclusoccuprodxy.wantedSubDets.extend(OccupancyPlotsFPIXpDetailedWantedSubDets)
+process.spclusoccuprodxyontrack=process.spclusoccuprodxy.clone(clusterdigiCollection = cms.InputTag("AlignmentTrackSelector"))
+
 process.seqMultProd = cms.Sequence(#process.ssclusmultprod + process.ssclusoccuprod +
                                    process.spclusmultprod + process.spclusoccuprod +
-                                   process.spclusmultprodontrack + process.spclusoccuprodontrack)
+                                   process.spclusmultprodontrack + process.spclusoccuprodontrack +
+                                   process.spclusmultprodxy + process.spclusoccuprodxy +
+                                   process.spclusmultprodxyontrack + process.spclusoccuprodxyontrack 
+                                   )
 
 process.load("DPGAnalysis.SiStripTools.occupancyplots_cfi")
 #process.occupancyplots.wantedSubDets = OccupancyPlotsStripWantedSubDets
 process.occupancyplots.file = cms.untracked.FileInPath("SLHCUpgradeSimulations/Geometry/data/PhaseII/Pixel10D/PixelSkimmedGeometry.txt")
 
 process.pixeloccupancyplots = process.occupancyplots.clone()
-process.pixeloccupancyplots.wantedSubDets = cms.VPSet()
-process.pixeloccupancyplots.wantedSubDets.extend(OccupancyPlotsPixelWantedSubDets)
+process.pixeloccupancyplots.wantedSubDets = process.spclusmultprod.wantedSubDets
 process.pixeloccupancyplots.multiplicityMaps = cms.VInputTag(cms.InputTag("spclusmultprod"))
 process.pixeloccupancyplots.occupancyMaps = cms.VInputTag(cms.InputTag("spclusoccuprod"))
 
+process.pixeloccupancyxyplots = process.occupancyplots.clone()
+process.pixeloccupancyxyplots.wantedSubDets = process.spclusmultprodxy.wantedSubDets
+process.pixeloccupancyxyplots.multiplicityMaps = cms.VInputTag(cms.InputTag("spclusmultprodxy"))
+process.pixeloccupancyxyplots.occupancyMaps = cms.VInputTag(cms.InputTag("spclusoccuprodxy"))
+
 process.pixeloccupancyplotsontrack = process.occupancyplots.clone()
+process.pixeloccupancyplotsontrack.wantedSubDets = process.spclusmultprodontrack.wantedSubDets
 process.pixeloccupancyplotsontrack.multiplicityMaps = cms.VInputTag(cms.InputTag("spclusmultprodontrack"))
 process.pixeloccupancyplotsontrack.occupancyMaps = cms.VInputTag(cms.InputTag("spclusoccuprodontrack"))
 
+process.pixeloccupancyxyplotsontrack = process.pixeloccupancyxyplots.clone()
+process.pixeloccupancyxyplotsontrack.wantedSubDets = process.spclusmultprodxyontrack.wantedSubDets
+process.pixeloccupancyxyplotsontrack.multiplicityMaps = cms.VInputTag(cms.InputTag("spclusmultprodxyontrack"))
+process.pixeloccupancyxyplotsontrack.occupancyMaps = cms.VInputTag(cms.InputTag("spclusoccuprodxyontrack"))
 
 #process.alloccupancyplots = process.occupancyplots.clone()
 #process.alloccupancyplots.wantedSubDets = cms.VPSet()
@@ -145,17 +185,18 @@ process.goodVertices = cms.EDFilter("VertexSelector",
    filter = cms.bool(False),   # otherwise it won't filter the events, just produce an empty vertex collection.
 )
 
-#process.load("Validation.RecoVertex.anotherprimaryvertexanalyzer_cfi")
-#process.primaryvertexanalyzer.pvCollection=cms.InputTag("goodVertices")
-#process.primaryvertexanalyzer.vHistogramMakerPSet.runHisto=cms.untracked.bool(False)
-#process.primaryvertexanalyzer.vHistogramMakerPSet.runHistoProfile=cms.untracked.bool(False)
-#process.primaryvertexanalyzer.vHistogramMakerPSet.runHistoBXProfile=cms.untracked.bool(False)
+process.load("Validation.RecoVertex.anotherprimaryvertexanalyzer_cfi")
+process.primaryvertexanalyzer.pvCollection=cms.InputTag("goodVertices")
+process.primaryvertexanalyzer.vHistogramMakerPSet.runHisto=cms.untracked.bool(False)
+process.primaryvertexanalyzer.vHistogramMakerPSet.runHistoProfile=cms.untracked.bool(False)
+process.primaryvertexanalyzer.vHistogramMakerPSet.runHistoBXProfile=cms.untracked.bool(False)
 
 process.seqAnalyzers = cms.Sequence(
     #process.bxlumianalyzer +
-#    process.goodVertices + process.primaryvertexanalyzer +
+    process.goodVertices + process.primaryvertexanalyzer +
 #    process.occupancyplots +
-    process.pixeloccupancyplots + process.pixeloccupancyplotsontrack) # + process.alloccupancyplots) 
+    process.pixeloccupancyplots + process.pixeloccupancyplotsontrack +
+    process.pixeloccupancyxyplots + process.pixeloccupancyxyplotsontrack)
 
 #-------------------------------------------------------------------------------------------
 
@@ -177,27 +218,24 @@ process.trackcount.nchi2bin2D=cms.untracked.uint32(400)
 process.trackcount.nndofbin2D=cms.untracked.uint32(100)
 process.trackcount.wanted2DHistos=cms.untracked.bool(True)
 
-process.p0 = cms.Path(
-    process.seqHLTSelection +
-    process.seqProducers +
-    process.seqAnalyzers +
-    process.trackcount
-    )
+process.load("DPGAnalysis.SiStripTools.duplicaterechits_cfi")
 
 #----GlobalTag ------------------------
 
 #process.load("Configuration.StandardSequences.GeometryDB_cff")
-process.load('Configuration.Geometry.GeometryExtendedPhase2TkBE5DPixel10DReco_cff')
+#process.load('Configuration.Geometry.GeometryExtendedPhase2TkBE5DPixel10DReco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
-
 #process.load("Configuration.Geometry.GeometryExtendedPhaseIPixelReco_cff")
 #process.load("Configuration.Geometry.GeometryExtendedPhaseIPixel_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
+from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10D import *
+
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = options.globalTag
-from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
+process.GlobalTag.globaltag = options.globalTag
+#from Configuration.AlCa.GlobalTag import GlobalTag
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 
 
 process.siStripQualityESProducer.ListOfRecordToMerge=cms.VPSet(
@@ -213,8 +251,25 @@ process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 
 process.TFileService = cms.Service('TFileService',
 #                                   fileName = cms.string('OccupancyPlotsTest_newschema.root')
-                                   fileName = cms.string('OccupancyPlotsTest_phase2.root')
+#                                   fileName = cms.string('OccupancyPlotsTest_phase2.root')
+                                   fileName = cms.string('OccupancyPlotsTest_phase2_'+options.tag+'.root')
                                    )
+
+process = customise_Reco(process,0)
+process = customise_condOverRides(process)
+
+process.myrereco = cms.Sequence(
+    process.siPixelRecHits + 
+    process.trackingGlobalReco)
+
+process.p0 = cms.Path(
+    process.myrereco +
+    process.seqHLTSelection +
+    process.seqProducers +
+    process.seqAnalyzers +
+    process.trackcount +
+    process.duplicaterechits 
+    )
 
 
 #print process.dumpPython()

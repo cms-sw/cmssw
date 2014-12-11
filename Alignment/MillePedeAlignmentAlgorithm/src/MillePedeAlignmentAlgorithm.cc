@@ -89,7 +89,8 @@ MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet
   theTrajectoryFactory(0),
   theMinNumHits(cfg.getParameter<unsigned int>("minNumHits")),
   theMaximalCor2D(cfg.getParameter<double>("max2Dcorrelation")),
-  theLastWrittenIov(0)
+  theLastWrittenIov(0),
+  theBinary(0),theGblDoubleBinary(cfg.getParameter<bool>("doubleBinary"))
 {
   if (!theDir.empty() && theDir.find_last_of('/') != theDir.size()-1) theDir += '/';// may need '/'
   edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm" << "Start in mode '"
@@ -97,6 +98,8 @@ MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet
                             << "' with output directory '" << theDir << "'.";
   if (this->isMode(myMilleBit)) {
     theMille = new Mille((theDir + theConfig.getParameter<std::string>("binaryFile")).c_str());// add ', false);' for text output);
+    // use same file for GBL
+    theBinary = new MilleBinary((theDir + theConfig.getParameter<std::string>("binaryFile")).c_str(), theGblDoubleBinary);
   }
 }
 
@@ -307,7 +310,7 @@ void MillePedeAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup)
 void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup, const EventInfo &eventInfo)
 {
   if (!this->isMode(myMilleBit)) return; // no theMille created...
-  const ConstTrajTrackPairCollection &tracks = eventInfo.trajTrackPairs_;
+  const ConstTrajTrackPairCollection &tracks = eventInfo.trajTrackPairs();
 
   if (theMonitor) { // monitor input tracks
     for (ConstTrajTrackPairCollection::const_iterator iTrajTrack = tracks.begin();
@@ -316,7 +319,7 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup, const EventI
     }
   }
 
-  const RefTrajColl trajectories(theTrajectoryFactory->trajectories(setup, tracks, eventInfo.beamSpot_));
+  const RefTrajColl trajectories(theTrajectoryFactory->trajectories(setup, tracks, eventInfo.beamSpot()));
 
   // Now loop over ReferenceTrajectoryCollection
   unsigned int refTrajCount = 0; // counter for track monitoring if 1 track per trajectory
@@ -350,38 +353,78 @@ MillePedeAlignmentAlgorithm::addReferenceTrajectory(const edm::EventSetup &setup
   std::pair<unsigned int, unsigned int> hitResultXy(0,0);
   if (refTrajPtr->isValid()) {
     
-    // to add hits if all fine:
-    std::vector<AlignmentParameters*> parVec(refTrajPtr->recHits().size());
-    // collect hit statistics, assuming that there are no y-only hits
-    std::vector<bool> validHitVecY(refTrajPtr->recHits().size(), false);
-    // Use recHits from ReferenceTrajectory (since they have the right order!):
-    for (unsigned int iHit = 0; iHit < refTrajPtr->recHits().size(); ++iHit) {
-      const int flagXY = this->addMeasurementData(setup, eventInfo, refTrajPtr, iHit, parVec[iHit]);
 
-      if (flagXY < 0) { // problem
-	hitResultXy.first = 0;
-	break;
-      } else { // hit is fine, increase x/y statistics
-	if (flagXY >= 1) ++hitResultXy.first;
-	validHitVecY[iHit] = (flagXY >= 2);
-      } 
-    } // end loop on hits
-
-    // add virtual measurements
-    for (unsigned int iVirtualMeas = 0; iVirtualMeas < refTrajPtr->numberOfVirtualMeas(); ++iVirtualMeas) {
-      this->addVirtualMeas(refTrajPtr, iVirtualMeas);
-    }
-             
-    // kill or end 'track' for mille, depends on #hits criterion
-    if (hitResultXy.first == 0 || hitResultXy.first < theMinNumHits) {
-      theMille->kill();
-      hitResultXy.first = hitResultXy.second = 0; //reset
+    // GblTrajectory?
+    if (refTrajPtr->gblInput().size() > 0) {
+      // by construction: number of GblPoints == number of recHits or == zero !!!
+      unsigned int iHit = 0;
+      unsigned int numPointsWithMeas = 0;
+      std::vector<GblPoint>::iterator itPoint;
+      std::vector<std::pair<std::vector<GblPoint>, TMatrixD> > theGblInput = refTrajPtr->gblInput();
+      for (unsigned int iTraj = 0; iTraj < refTrajPtr->gblInput().size(); ++iTraj) {
+        for (itPoint = refTrajPtr->gblInput()[iTraj].first.begin(); itPoint < refTrajPtr->gblInput()[iTraj].first.end(); ++itPoint) {
+          if (this->addGlobalData(setup, eventInfo, refTrajPtr, iHit++, *itPoint) < 0) return hitResultXy;
+          if (itPoint->hasMeasurement() >= 1) ++numPointsWithMeas;
+        }
+      }
+      hitResultXy.first = numPointsWithMeas;
+      // check #hits criterion
+      if (hitResultXy.first == 0 || hitResultXy.first < theMinNumHits) return hitResultXy;
+      // construct GBL trajectory
+      if (refTrajPtr->gblInput().size() == 1) {
+        // from single track
+        GblTrajectory aGblTrajectory( refTrajPtr->gblInput()[0].first, refTrajPtr->nominalField() != 0 );
+        // GBL fit trajectory
+        /*double Chi2;
+        int Ndf;
+        double lostWeight;
+        aGblTrajectory.fit(Chi2, Ndf, lostWeight);
+        std::cout << " GblFit: " << Chi2 << ", " << Ndf << ", " << lostWeight << std::endl; */
+        // write to MP binary file
+        if (aGblTrajectory.isValid() && aGblTrajectory.getNumPoints() >= theMinNumHits) aGblTrajectory.milleOut(*theBinary);
+      }
+      if (refTrajPtr->gblInput().size() == 2) {
+        // from TwoBodyDecay
+        GblTrajectory aGblTrajectory( refTrajPtr->gblInput(), refTrajPtr->gblExtDerivatives(), refTrajPtr->gblExtMeasurements(), refTrajPtr->gblExtPrecisions() );
+        // write to MP binary file
+        if (aGblTrajectory.isValid() && aGblTrajectory.getNumPoints() >= theMinNumHits) aGblTrajectory.milleOut(*theBinary);
+      }
     } else {
-      theMille->end();
-      // add x/y hit count to MillePedeVariables of parVec,
-      // returning number of y-hits of the reference trajectory
-      hitResultXy.second = this->addHitCount(parVec, validHitVecY);
+      // to add hits if all fine:
+      std::vector<AlignmentParameters*> parVec(refTrajPtr->recHits().size());
+      // collect hit statistics, assuming that there are no y-only hits
+      std::vector<bool> validHitVecY(refTrajPtr->recHits().size(), false);
+      // Use recHits from ReferenceTrajectory (since they have the right order!):
+      for (unsigned int iHit = 0; iHit < refTrajPtr->recHits().size(); ++iHit) {
+        const int flagXY = this->addMeasurementData(setup, eventInfo, refTrajPtr, iHit, parVec[iHit]);
+
+        if (flagXY < 0) { // problem
+          hitResultXy.first = 0;
+          break;
+        } else { // hit is fine, increase x/y statistics
+          if (flagXY >= 1) ++hitResultXy.first;
+          validHitVecY[iHit] = (flagXY >= 2);
+        }
+      } // end loop on hits
+
+      // add virtual measurements
+      for (unsigned int iVirtualMeas = 0; iVirtualMeas < refTrajPtr->numberOfVirtualMeas(); ++iVirtualMeas) {
+        this->addVirtualMeas(refTrajPtr, iVirtualMeas);
+      }
+
+      // kill or end 'track' for mille, depends on #hits criterion
+      if (hitResultXy.first == 0 || hitResultXy.first < theMinNumHits) {
+        theMille->kill();
+        hitResultXy.first = hitResultXy.second = 0; //reset
+      } else {
+        theMille->end();
+        // add x/y hit count to MillePedeVariables of parVec,
+        // returning number of y-hits of the reference trajectory
+        hitResultXy.second = this->addHitCount(parVec, validHitVecY);
+        //
+      }
     }
+
   } // end if valid trajectory
 
   return hitResultXy;
@@ -422,9 +465,9 @@ MillePedeAlignmentAlgorithm::addHitCount(const std::vector<AlignmentParameters*>
 void MillePedeAlignmentAlgorithm::endRun(const EventInfo &eventInfo, const EndRunInfo &runInfo,
 					 const edm::EventSetup &setup)
 {
-  if(runInfo.tkLasBeams_ && runInfo.tkLasBeamTsoses_){
+  if(runInfo.tkLasBeams() && runInfo.tkLasBeamTsoses()){
     // LAS beam treatment
-    this->addLaserData(eventInfo, *(runInfo.tkLasBeams_), *(runInfo.tkLasBeamTsoses_));
+    this->addLaserData(eventInfo, *(runInfo.tkLasBeams()), *(runInfo.tkLasBeamTsoses()));
   }
 }
 
@@ -464,6 +507,64 @@ int MillePedeAlignmentAlgorithm::addMeasurementData(const edm::EventSetup &setup
   }
 }
 
+//____________________________________________________
+
+int MillePedeAlignmentAlgorithm::addGlobalData(const edm::EventSetup &setup, const EventInfo &eventInfo,
+                                                    const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
+                                                    unsigned int iHit, GblPoint &gblPoint)
+{
+  AlignmentParameters* params = 0;
+  std::vector<double> theDoubleBufferX, theDoubleBufferY;
+  theDoubleBufferX.clear();
+  theDoubleBufferY.clear();
+  theIntBuffer.clear();
+  int iret = 0;
+
+  const TrajectoryStateOnSurface &tsos = refTrajPtr->trajectoryStates()[iHit];
+  const ConstRecHitPointer &recHitPtr = refTrajPtr->recHits()[iHit];
+  // ignore invalid hits
+  if (!recHitPtr->isValid()) return 0;
+
+  // get AlignableDet/Unit for this hit
+  AlignableDetOrUnitPtr alidet(theAlignableNavigator->alignableFromDetId(recHitPtr->geographicalId()));
+
+  if (!this->globalDerivativesHierarchy(eventInfo,
+                                        tsos, alidet, alidet, theDoubleBufferX, // 2x alidet, sic!
+                                        theDoubleBufferY, theIntBuffer, params)) {
+    return -1; // problem
+  }
+  //calibration parameters
+  int globalLabel;
+  std::vector<IntegratedCalibrationBase::ValuesIndexPair> derivs;
+  for (auto iCalib = theCalibrations.begin(); iCalib != theCalibrations.end(); ++iCalib) {
+    // get all derivatives of this calibration // const unsigned int num =
+    (*iCalib)->derivatives(derivs, *recHitPtr, tsos, setup, eventInfo);
+    for (auto iValuesInd = derivs.begin(); iValuesInd != derivs.end(); ++iValuesInd) {
+      // transfer label and x/y derivatives
+      globalLabel = thePedeLabels->calibrationLabel(*iCalib, iValuesInd->second);
+      if (globalLabel > 0 && globalLabel <= 2147483647) {
+        theIntBuffer.push_back(globalLabel);
+        theDoubleBufferX.push_back(iValuesInd->first.first);
+        theDoubleBufferY.push_back(iValuesInd->first.second);
+      } else {
+        std::cerr << "MillePedeAlignmentAlgorithm::addGlobalData: Invalid label " << globalLabel << " <= 0 or > 2147483647" << std::endl;
+      }
+    }
+  }
+  unsigned int numGlobals = theIntBuffer.size();
+  if (numGlobals > 0)
+  {
+    TMatrixD globalDer(2,numGlobals);
+    for (unsigned int i = 0; i < numGlobals; ++i) {
+      globalDer(0,i) = theDoubleBufferX[i];
+      globalDer(1,i) = theDoubleBufferY[i];
+    }
+    gblPoint.addGlobals( theIntBuffer, globalDer );
+    iret = 1;
+  }
+  return iret;
+}
+  
 //____________________________________________________
 bool MillePedeAlignmentAlgorithm
 ::globalDerivativesHierarchy(const EventInfo &eventInfo,
@@ -520,7 +621,66 @@ bool MillePedeAlignmentAlgorithm
 					  globalLabels, lowestParams);
 }
 
+//____________________________________________________
+bool MillePedeAlignmentAlgorithm
+::globalDerivativesHierarchy(const EventInfo &eventInfo,
+                             const TrajectoryStateOnSurface &tsos,
+                             Alignable *ali, const AlignableDetOrUnitPtr &alidet,
+                             std::vector<double> &globalDerivativesX,
+                             std::vector<double> &globalDerivativesY,
+                             std::vector<int> &globalLabels,
+                             AlignmentParameters *&lowestParams) const
+{
+  // derivatives and labels are recursively attached
+  if (!ali) return true; // no mother might be OK
 
+  if (false && theMonitor && alidet != ali) theMonitor->fillFrameToFrame(alidet, ali);
+
+  AlignmentParameters *params = ali->alignmentParameters();
+
+  if (params) {
+    if (!lowestParams) lowestParams = params; // set parameters of lowest level
+
+    bool hasSplitParameters = thePedeLabels->hasSplitParameters(ali);
+    const unsigned int alignableLabel = thePedeLabels->alignableLabel(ali);
+
+    if (0 == alignableLabel) { // FIXME: what about regardAllHits in Markus' code?
+      edm::LogWarning("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::globalDerivativesHierarchy"
+                                   << "Label not found, skip Alignable.";
+      return false;
+    }
+
+    const std::vector<bool> &selPars = params->selector();
+    const AlgebraicMatrix derivs(params->derivatives(tsos, alidet));
+    int globalLabel;
+
+    // cols: 2, i.e. x&y, rows: parameters, usually RigidBodyAlignmentParameters::N_PARAM
+    for (unsigned int iSel = 0; iSel < selPars.size(); ++iSel) {
+      if (selPars[iSel]) {
+        if (hasSplitParameters==true) {
+          globalLabel = thePedeLabels->parameterLabel(ali, iSel, eventInfo, tsos);
+        } else {
+          globalLabel = thePedeLabels->parameterLabel(alignableLabel, iSel);
+        }
+        if (globalLabel > 0 && globalLabel <= 2147483647) {
+          globalLabels.push_back(globalLabel);
+          globalDerivativesX.push_back(derivs[iSel][kLocalX] / thePedeSteer->cmsToPedeFactor(iSel));
+          globalDerivativesY.push_back(derivs[iSel][kLocalY] / thePedeSteer->cmsToPedeFactor(iSel));
+        } else {
+          std::cerr << "MillePedeAlignmentAlgorithm::globalDerivativesHierarchy: Invalid label " << globalLabel << " <= 0 or > 2147483647" << std::endl;
+        }
+      }
+    }
+    // Exclude mothers if Alignable selected to be no part of a hierarchy:
+    if (thePedeSteer->isNoHiera(ali)) return true;
+  }
+  // Call recursively for mother, will stop if mother == 0:
+  return this->globalDerivativesHierarchy(eventInfo,
+                                          tsos, ali->mother(), alidet,
+                                          globalDerivativesX, globalDerivativesY,
+                                          globalLabels, lowestParams);
+}
+					  
 //____________________________________________________
 void MillePedeAlignmentAlgorithm::
 globalDerivativesCalibration(const TransientTrackingRecHit::ConstRecHitPointer &recHit,

@@ -18,8 +18,7 @@
 
 using namespace edm;
 
-HLTMonSimpleBTag::HLTMonSimpleBTag(const edm::ParameterSet& iConfig):
-  resetMe_(true),  currentRun_(-99)
+HLTMonSimpleBTag::HLTMonSimpleBTag(const edm::ParameterSet& iConfig)
 {
   LogDebug("HLTMonSimpleBTag") << "constructor...." ;
 

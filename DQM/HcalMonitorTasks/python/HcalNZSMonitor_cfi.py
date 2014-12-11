@@ -19,4 +19,5 @@ hcalNZSMonitor=cms.EDAnalyzer("HcalNZSMonitor",
                               nzsHLTnames            = cms.untracked.vstring('HLT_HcalPhiSym',
                                                                    'HLT_HcalNZS_8E29'),
                               NZSeventPeriod         = cms.untracked.int32(4096),
+                              FEDRawDataCollection=cms.untracked.InputTag("rawDataCollector")
                               )

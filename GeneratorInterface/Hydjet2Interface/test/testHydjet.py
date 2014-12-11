@@ -6,9 +6,6 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("GeneratorInterface.Hydjet2Interface.hydjet2Default_cfi")
 
-# Event output
-#process.load("Configuration.EventContent.EventContent_cff")
-
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
 	generator = cms.PSet(
 		initialSeed = cms.untracked.uint32(123456789),
@@ -17,14 +14,9 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 )
 
 process.maxEvents = cms.untracked.PSet(
-	input = cms.untracked.int32(100)
+	input = cms.untracked.int32(1000)
 )
-'''
-process.SimpleMemoryCheck = cms.Service('SimpleMemoryCheck',
-	ignoreTotal=cms.untracked.int32(0),
-	oncePerEventMode = cms.untracked.bool(False)
-)
-'''
+
 process.ana = cms.EDAnalyzer('Hydjet2Analyzer')
 
 process.TFileService = cms.Service('TFileService',

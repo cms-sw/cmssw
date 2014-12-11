@@ -19,13 +19,12 @@ class HcalRecHitMonitor: public HcalBaseDQMonitor {
 
   ~HcalRecHitMonitor();
 
-  void setup();
-  void beginRun(const edm::Run& run, const edm::EventSetup& c);
+  void setup(DQMStore::IBooker &);
+  void bookHistograms(DQMStore::IBooker &ib, const edm::Run& run, const edm::EventSetup& c);
   void endRun(const edm::Run& run, const edm::EventSetup& c);
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 			  const edm::EventSetup& c);
   void endJob();
-  void cleanup();
   void reset();
   void zeroCounters();
  

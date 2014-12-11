@@ -5,44 +5,44 @@ from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
 from PhysicsTools.PatAlgos.producersLayer1.electronProducer_cfi import *
 
 from PhysicsTools.PatAlgos.recoLayer0.pfParticleSelectionForIso_cff import *
-from CommonTools.ParticleFlow.Isolation.pfElectronIsolation_cff import *
+from PhysicsTools.PatAlgos.recoLayer0.pfElectronIsolationPAT_cff import *
 
 sourceElectrons = patElectrons.electronSource
 
-elPFIsoDepositCharged.src = sourceElectrons
-elPFIsoDepositChargedAll.src = sourceElectrons
-elPFIsoDepositNeutral.src = sourceElectrons
-elPFIsoDepositGamma.src = sourceElectrons
-elPFIsoDepositPU.src = sourceElectrons
+elPFIsoDepositChargedPAT.src = sourceElectrons
+elPFIsoDepositChargedAllPAT.src = sourceElectrons
+elPFIsoDepositNeutralPAT.src = sourceElectrons
+elPFIsoDepositGammaPAT.src = sourceElectrons
+elPFIsoDepositPUPAT.src = sourceElectrons
 
 patElectrons.isoDeposits = cms.PSet(
-    pfChargedHadrons = cms.InputTag("elPFIsoDepositCharged" ),
-    pfChargedAll = cms.InputTag("elPFIsoDepositChargedAll" ),
-    pfPUChargedHadrons = cms.InputTag("elPFIsoDepositPU" ),
-    pfNeutralHadrons = cms.InputTag("elPFIsoDepositNeutral" ),
-    pfPhotons = cms.InputTag("elPFIsoDepositGamma" ),
+    pfChargedHadrons = cms.InputTag("elPFIsoDepositChargedPAT" ),
+    pfChargedAll = cms.InputTag("elPFIsoDepositChargedAllPAT" ),
+    pfPUChargedHadrons = cms.InputTag("elPFIsoDepositPUPAT" ),
+    pfNeutralHadrons = cms.InputTag("elPFIsoDepositNeutralPAT" ),
+    pfPhotons = cms.InputTag("elPFIsoDepositGammaPAT" ),
     )
 
 patElectrons.isolationValues = cms.PSet(
-    pfChargedHadrons = cms.InputTag("elPFIsoValueCharged04PFId"),
-    pfChargedAll = cms.InputTag("elPFIsoValueChargedAll04PFId"),
-    pfPUChargedHadrons = cms.InputTag("elPFIsoValuePU04PFId" ),
-    pfNeutralHadrons = cms.InputTag("elPFIsoValueNeutral04PFId" ),
-    pfPhotons = cms.InputTag("elPFIsoValueGamma04PFId" ),
+    pfChargedHadrons = cms.InputTag("elPFIsoValueCharged04PFIdPAT"),
+    pfChargedAll = cms.InputTag("elPFIsoValueChargedAll04PFIdPAT"),
+    pfPUChargedHadrons = cms.InputTag("elPFIsoValuePU04PFIdPAT" ),
+    pfNeutralHadrons = cms.InputTag("elPFIsoValueNeutral04PFIdPAT" ),
+    pfPhotons = cms.InputTag("elPFIsoValueGamma04PFIdPAT" ),
     )
 
 patElectrons.isolationValuesNoPFId = cms.PSet(
-    pfChargedHadrons = cms.InputTag("elPFIsoValueCharged04NoPFId"),
-    pfChargedAll = cms.InputTag("elPFIsoValueChargedAll04NoPFId"),
-    pfPUChargedHadrons = cms.InputTag("elPFIsoValuePU04NoPFId" ),
-    pfNeutralHadrons = cms.InputTag("elPFIsoValueNeutral04NoPFId" ),
-    pfPhotons = cms.InputTag("elPFIsoValueGamma04NoPFId" )
+    pfChargedHadrons = cms.InputTag("elPFIsoValueCharged04NoPFIdPAT"),
+    pfChargedAll = cms.InputTag("elPFIsoValueChargedAll04NoPFIdPAT"),
+    pfPUChargedHadrons = cms.InputTag("elPFIsoValuePU04NoPFIdPAT" ),
+    pfNeutralHadrons = cms.InputTag("elPFIsoValueNeutral04NoPFIdPAT" ),
+    pfPhotons = cms.InputTag("elPFIsoValueGamma04NoPFIdPAT" )
     )
 
 ## for scheduled mode
 makePatElectrons = cms.Sequence(
     pfParticleSelectionForIsoSequence *
-    pfElectronIsolationSequence *
+    pfElectronIsolationPATSequence *
     electronMatch *
     patElectrons
     )

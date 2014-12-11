@@ -1,29 +1,23 @@
 import FWCore.ParameterSet.Config as cms
 
-### STEP 0 ###
+### ITERATIVE TRACKING: STEP 0 ###
 
 # seeding
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 iterativeInitialSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
-iterativeInitialSeeds.firstHitSubDetectorNumber = [1]
-iterativeInitialSeeds.firstHitSubDetectors = [1]
-iterativeInitialSeeds.secondHitSubDetectorNumber = [2]
-iterativeInitialSeeds.secondHitSubDetectors = [1, 2]
-iterativeInitialSeeds.thirdHitSubDetectorNumber = [2]
-iterativeInitialSeeds.thirdHitSubDetectors = [1, 2]
-iterativeInitialSeeds.seedingAlgo = ['InitialPixelTriplets']
-iterativeInitialSeeds.minRecHits = [3] 
-iterativeInitialSeeds.pTMin = [0.4] # it was 0.3
-iterativeInitialSeeds.maxD0 = [1.]
-iterativeInitialSeeds.maxZ0 = [30.]
-iterativeInitialSeeds.numberOfHits = [3]
-iterativeInitialSeeds.originRadius = [1.0] # note: standard tracking uses 0.03, but this value gives a much better agreement in rate and shape for initialStep
-iterativeInitialSeeds.originHalfLength = [999] # it was 15.9 
-iterativeInitialSeeds.originpTMin = [0.6] 
-iterativeInitialSeeds.zVertexConstraint = [-1.0]
-iterativeInitialSeeds.primaryVertices = ['none']
 
-iterativeInitialSeeds.newSyntax = True
+iterativeInitialSeeds.outputSeedCollectionName = 'InitialPixelTriplets'
+iterativeInitialSeeds.minRecHits = 3
+iterativeInitialSeeds.pTMin = 0.4 # it was 0.3
+iterativeInitialSeeds.maxD0 = 1.
+iterativeInitialSeeds.maxZ0 = 30.
+iterativeInitialSeeds.numberOfHits = 3
+iterativeInitialSeeds.originRadius = 1.0 # note: standard tracking uses 0.03, but this value gives a much better agreement in rate and shape for iter0
+iterativeInitialSeeds.originHalfLength = 999 # it was 15.9 
+iterativeInitialSeeds.originpTMin = 0.6
+iterativeInitialSeeds.zVertexConstraint = -1.0
+iterativeInitialSeeds.primaryVertex = 'none'
+
 #iterativeInitialSeeds.layerList = ['BPix1+BPix2+BPix3',
 #                                   'BPix1+BPix2+FPix1_pos',
 #                                   'BPix1+BPix2+FPix1_neg',
@@ -35,7 +29,7 @@ iterativeInitialSeeds.layerList = PixelLayerTriplets.layerList
 # candidate producer
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 iterativeInitialTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
-iterativeInitialTrackCandidates.SeedProducer = cms.InputTag("iterativeInitialSeeds","InitialPixelTriplets")
+iterativeInitialTrackCandidates.SeedProducer = cms.InputTag("iterativeInitialSeeds",'InitialPixelTriplets')
 #iterativeInitialTrackCandidates.TrackProducers = ['globalPixelWithMaterialTracks'] # why was it needed? I removed it (see line below) in order to solve a cyclic dependence issue that was troubling unscheduled execution, and I found no difference at all.
 iterativeInitialTrackCandidates.TrackProducers = []
 iterativeInitialTrackCandidates.MinNumberOfCrossedLayers = 3

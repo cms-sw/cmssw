@@ -59,8 +59,6 @@ void ElectronMatchedCandidateProducer::produce(edm::Event &event,
   event.getByToken( scCollectionToken_ , recoCandColl);
 
 
-  const edm::PtrVector<reco::Candidate>& ptrVect = recoCandColl->ptrVector();
-  const edm::RefToBaseVector<reco::Candidate>& refs = recoCandColl->refVector();
   unsigned int counter=0;
 
   // Loop over candidates
@@ -77,8 +75,8 @@ void ElectronMatchedCandidateProducer::produce(edm::Event &event,
 
       if( dRval < delRMatchingCut_ ) {
 	//outCol->push_back( *scIt );
-	outColRef->push_back( refs[counter] );
-	outColPtr->push_back( ptrVect[counter]  );
+	outColRef->push_back( recoCandColl->refAt(counter) );
+	outColPtr->push_back( recoCandColl->ptrAt(counter) );
       } // end if loop
     } // end electron loop
 

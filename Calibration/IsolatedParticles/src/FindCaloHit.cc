@@ -4,17 +4,19 @@
 
 namespace spr {
 
-  void find(edm::Handle<EcalRecHitCollection>& hits, DetId thisDet, std::vector<EcalRecHitCollection::const_iterator>& hit, bool debug) {
+  void find(edm::Handle<EcalRecHitCollection>& hits, DetId thisDet, std::vector<EcalRecHitCollection::const_iterator>& hit, bool ) {
 
-    hit.push_back( hits->find(thisDet) );
+    if (hits->find(thisDet) != hits->end())
+      hit.push_back( hits->find(thisDet) );
   }
 
-  void find(edm::Handle<HBHERecHitCollection>& hits, DetId thisDet, std::vector<HBHERecHitCollection::const_iterator>& hit, bool debug) {
+  void find(edm::Handle<HBHERecHitCollection>& hits, DetId thisDet, std::vector<HBHERecHitCollection::const_iterator>& hit, bool ) {
 
-    hit.push_back( hits->find(thisDet) );
+    if (hits->find(thisDet) != hits->end())
+      hit.push_back( hits->find(thisDet) );
   }
 
-  void find(edm::Handle<edm::PCaloHitContainer>& hits, DetId thisDet, std::vector<edm::PCaloHitContainer::const_iterator>& hit, bool debug) {
+  void find(edm::Handle<edm::PCaloHitContainer>& hits, DetId thisDet, std::vector<edm::PCaloHitContainer::const_iterator>& hit, bool ) {
 
     edm::PCaloHitContainer::const_iterator ihit;
     for (ihit=hits->begin(); ihit!=hits->end(); ihit++) {

@@ -848,14 +848,15 @@ class ConfigBuilder(object):
 	if len(custMap)!=0:
 		final_snippet += '\n# End of customisation functions\n'
 
-	### now for a usuful command
-	if self._options.customise_commands:
-		import string
-		final_snippet +='\n# Customisation from command line'
-		for com in self._options.customise_commands.split('\\n'):
-			com=string.lstrip(com)
-			self.executeAndRemember(com)
-			final_snippet +='\n'+com
+	### now for a useful command
+	if unsch==1 or not self._options.runUnscheduled:
+		if self._options.customise_commands:
+			import string
+			final_snippet +='\n# Customisation from command line'
+			for com in self._options.customise_commands.split('\\n'):
+				com=string.lstrip(com)
+				self.executeAndRemember(com)
+				final_snippet +='\n'+com
 
         return final_snippet
 
@@ -1465,7 +1466,7 @@ class ConfigBuilder(object):
 	    self.scheduleSequence(sequence.split('.')[-1],'digi2raw_step')
 	    if "DIGIPREMIX" in self.stepMap.keys():
 		    self.executeAndRemember("process.esDigiToRaw.Label = cms.string('mix')")  ##terrible hack - bypass zero suppression
-
+		    self.executeAndRemember("process.SiStripDigiToRaw.FedReadoutMode = cms.string('PREMIX_RAW')") ##special readout mode for StripTracker
             return
 
     def prepare_REPACK(self, sequence = None):

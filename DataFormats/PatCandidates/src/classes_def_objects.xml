@@ -16,8 +16,9 @@
   <class name="pat::Lepton<reco::BaseTau>" />
 
   <!-- PAT Objects, and embedded data  -->
-  <class name="pat::Electron"  ClassVersion="25">
+  <class name="pat::Electron"  ClassVersion="26">
    <field name="superClusterRelinked_" transient="true"/>
+   <version ClassVersion="26" checksum="2045819644"/>
    <version ClassVersion="25" checksum="1488101799"/>
    <version ClassVersion="24" checksum="2646043873"/>
    <version ClassVersion="23" checksum="434577157"/>
@@ -36,13 +37,15 @@
     <![CDATA[superClusterRelinked_.reset();]]>
   </ioread>
 
-  <class name="pat::Muon"  ClassVersion="13">
+  <class name="pat::Muon"  ClassVersion="14">
+   <version ClassVersion="14" checksum="132269943"/>
    <version ClassVersion="13" checksum="2943499125"/>
    <version ClassVersion="12" checksum="462627330"/>
    <version ClassVersion="11" checksum="489577659"/>
    <version ClassVersion="10" checksum="2367573922"/>
   </class>
-  <class name="pat::Tau"  ClassVersion="15">
+  <class name="pat::Tau"  ClassVersion="16">
+   <version ClassVersion="16" checksum="2793593983"/>
    <field name="isolationTracksTransientRefVector_" transient="true"/>
    <field name="signalTracksTransientRefVector_" transient="true"/>
    <field name="signalPFCandsTransientPtrs_" transient="true"/>
@@ -110,8 +113,9 @@
     <version ClassVersion="10" checksum="1628501942" />
   </class>
   <class name="std::vector<pat::tau::TauPFEssential>" />
-  <class name="pat::Photon"  ClassVersion="15">
+  <class name="pat::Photon"  ClassVersion="16">
    <field name="superClusterRelinked_" transient="true"/>
+   <version ClassVersion="16" checksum="344001813"/>
    <version ClassVersion="15" checksum="3096238365"/>
    <version ClassVersion="14" checksum="2817723713"/>
    <version ClassVersion="13" checksum="3948496360"/>
@@ -124,7 +128,8 @@
     <![CDATA[superClusterRelinked_.reset();]]>
   </ioread>
 
-  <class name="pat::Jet"  ClassVersion="12">
+  <class name="pat::Jet"  ClassVersion="13">
+   <version ClassVersion="13" checksum="130552029"/>
    <field name="caloTowersTemp_" transient="true"/>
    <field name="pfCandidatesTemp_" transient="true"/>
    <version ClassVersion="12" checksum="862613450"/>
@@ -134,7 +139,8 @@
   <ioread sourceClass = "pat::Jet" version="[1-11]" targetClass="pat::Jet" source="int partonFlavour_" target="jetFlavourInfo_">
     <![CDATA[jetFlavourInfo_ = reco::JetFlavourInfo(0,onfile.partonFlavour_);]]>
   </ioread>
-  <class name="pat::MET"  ClassVersion="11">
+  <class name="pat::MET"  ClassVersion="12">
+   <version ClassVersion="12" checksum="1474251442"/>
    <version ClassVersion="11" checksum="1829185007"/>
    <version ClassVersion="10" checksum="1136648776"/>
     <field name="uncorInfo_" transient="true"/>
@@ -144,29 +150,36 @@
     <version ClassVersion="10" checksum="1984780659"/>
   </class>
   <class name="std::vector<pat::MET::PackedMETUncertainty>" />
-  <class name="pat::MHT"  ClassVersion="10">
+  <class name="pat::MHT"  ClassVersion="11">
+   <version ClassVersion="11" checksum="2562213081"/>
    <version ClassVersion="10" checksum="2696169357"/>
   </class>
-  <class name="pat::Particle"  ClassVersion="10">
+  <class name="pat::Particle"  ClassVersion="11">
+   <version ClassVersion="11" checksum="2960540813"/>
    <version ClassVersion="10" checksum="1421351288"/>
   </class>
-  <class name="pat::CompositeCandidate"  ClassVersion="10">
+  <class name="pat::CompositeCandidate"  ClassVersion="11">
+   <version ClassVersion="11" checksum="3492108938"/>
    <version ClassVersion="10" checksum="417284221"/>
   </class>
-  <class name="pat::PFParticle"  ClassVersion="10">
+  <class name="pat::PFParticle"  ClassVersion="11">
+   <version ClassVersion="11" checksum="2923110109"/>
    <version ClassVersion="10" checksum="2240381542"/>
   </class>
-  <class name="pat::GenericParticle"  ClassVersion="10">
+  <class name="pat::GenericParticle"  ClassVersion="11">
+   <version ClassVersion="11" checksum="4208136910"/>
    <version ClassVersion="10" checksum="3438694352"/>
   </class>
-  <class name="pat::Hemisphere"  ClassVersion="10">
+  <class name="pat::Hemisphere"  ClassVersion="11">
+   <version ClassVersion="11" checksum="1034779649"/>
    <version ClassVersion="10" checksum="2908192056"/>
   </class>
   <class name="pat::Conversion"  ClassVersion="11">
    <version ClassVersion="11" checksum="1239840459"/>
   </class>
 
-  <class name="pat::PackedCandidate" ClassVersion="15">
+  <class name="pat::PackedCandidate" ClassVersion="16">
+    <version ClassVersion="16" checksum="3261782486"/>
     <version ClassVersion="15" checksum="2118306102"/>
     <version ClassVersion="14" checksum="1075333340"/>
     <version ClassVersion="13" checksum="981046949"/>
@@ -189,7 +202,7 @@
     <field name="dphidphi_" transient="true" />
     <field name="detadeta_" transient="true" />
     <field name="dptdpt_" transient="true" />
-    <field name="track_" transient="true" />
+  <field name="track_" transient="true" />
   </class>
   <ioread sourceClass="pat::PackedCandidate"  version="[1-]" targetClass="pat::PackedCandidate" source="" target="unpacked_">
     <![CDATA[unpacked_ = false;

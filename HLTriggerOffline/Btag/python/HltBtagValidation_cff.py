@@ -4,11 +4,11 @@ from HLTriggerOffline.Btag.hltBtagJetMCTools_cff import *
 #denominator trigger
 hltBtagTriggerSelection = cms.EDFilter( "TriggerResultsFilter",
     triggerConditions = cms.vstring(
-      "HLT_PFMET170_*"),
+      "HLT_PFMET120_NoiseCleaned_BTagCSV07_*"),
     hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
 #    l1tResults = cms.InputTag( "simGtDigis" ),
     l1tResults = cms.InputTag( "gtDigis" ),
-    throw = cms.bool( True )
+    throw = cms.bool( False )
 )
 
 #correct the jet used for the matching
@@ -18,7 +18,7 @@ hltBtagJetsbyRef.jets = cms.InputTag("hltSelector4CentralJetsL1FastJet")
 HltVertexValidationVertices= cms.EDAnalyzer("HLTVertexPerformanceAnalyzer",
 	TriggerResults = cms.InputTag('TriggerResults','',"HLT"),
 	HLTPathNames =cms.vstring(
-	'HLT_PFMET170_', 
+	'HLT_PFMET120_NoiseCleaned_BTagCSV07_', 
 	),
 	Vertex = cms.VInputTag(
 		cms.InputTag("hltVerticesL3"), 
@@ -30,7 +30,7 @@ HltVertexValidationVertices= cms.EDAnalyzer("HLTVertexPerformanceAnalyzer",
 #define bTagValidation for the b-tag DQM validation (distribution plot)
 hltbTagValidation = cms.EDAnalyzer("HLTBTagPerformanceAnalyzer",
 	TriggerResults = cms.InputTag('TriggerResults','','HLT'),
-	HLTPathNames = cms.vstring('HLT_PFMET170_'),
+	HLTPathNames = cms.vstring('HLT_PFMET120_NoiseCleaned_BTagCSV07_'),
 	JetTag = cms.VInputTag(cms.InputTag("hltL3CombinedSecondaryVertexBJetTags")),
 	MinJetPT = cms.double(20),
 	mcFlavours = cms.PSet(

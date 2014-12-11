@@ -18,17 +18,18 @@
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandFlat.h"
 
-#include<iostream>
 #include <cmath>
 #include <math.h>
 
 HcalAmplifier::HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNoise, bool PreMix1, bool PreMix2) :
-  theDbService(0), 
+  theDbService(nullptr),
   theParameterMap(parameters),
-  theNoiseSignalGenerator(0),
-  theIonFeedbackSim(0),
-  theTimeSlewSim(0),
-  theStartingCapId(0), 
+  theNoiseSignalGenerator(nullptr),
+  myCholeskys(nullptr),
+  myADCPeds(nullptr),
+  theIonFeedbackSim(nullptr),
+  theTimeSlewSim(nullptr),
+  theStartingCapId(0),
   addNoise_(addNoise),
   preMixDigi_(PreMix1),
   preMixAdd_(PreMix2),
@@ -133,33 +134,56 @@ void HcalAmplifier::addPedestals(CaloSamples & frame, CLHEP::HepRandomEngine* en
   if(hcalGenDetId.isHcalCastorDetId()) return;
   if(hcalGenDetId.isHcalZDCDetId()) return;
 
-  const HcalCholeskyMatrix * thisChanCholesky = myCholeskys->getValues(hcalGenDetId,false);
-  if ( !thisChanCholesky) {
-    std::cout << "no Cholesky " << hcalSubDet << " " << hcalGenDetId.rawId() << " " << frame.id().subdetId() <<std::endl;
-    return;
-  }
-  const HcalPedestal * thisChanADCPeds = myADCPeds->getValues(hcalGenDetId);
   int theStartingCapId_2 = (int)floor(CLHEP::RandFlat::shoot(engine, 0., 4.));
-
   double noise [32] = {0.}; //big enough
-  if(addNoise_)
-  {
+
+  if( myCholeskys ) {
+    const HcalCholeskyMatrix * thisChanCholesky = myCholeskys->getValues(hcalGenDetId,false);
+    if ( !thisChanCholesky ) {
+      edm::LogWarning("HcalAmplifier") << "no Cholesky " << hcalSubDet << " "
+				       << hcalGenDetId.rawId() << " " 
+				       << frame.id().subdetId();
+      return;
+    }
+
+    if(addNoise_)
+    {
+      double gauss [32]; //big enough
+      for (int i = 0; i < frame.size(); i++) gauss[i] = CLHEP::RandGaussQ::shoot(engine, 0., 1.);
+      makeNoise(*thisChanCholesky, frame.size(), gauss, noise, (int)theStartingCapId_2);
+    }
+  } else if(addNoise_) {
+    /* TODO: Re-add the Cholesky matrix when computing the noise.
+     * The payloads currently stored in Condition DB suffer a bug in ROOT5 streamer.
+     * The workaround here is to fall back to the old noise computation when the matrix is not provided.
+     * When a permanent fix is found, this condition should be removed:
+     * when Cholesky matrix is not set from the digitizer, issue a warning.
+     * -Salvatore Di Guida
+     */
+    const HcalCalibrationWidths & calibWidths = theDbService->getHcalCalibrationWidths(hcalGenDetId);
     double gauss [32]; //big enough
     for (int i = 0; i < frame.size(); i++) gauss[i] = CLHEP::RandGaussQ::shoot(engine, 0., 1.);
-    makeNoise(*thisChanCholesky, frame.size(), gauss, noise, (int)theStartingCapId_2);
+    makeNoiseOld(hcalSubDet, calibWidths, frame.size(), gauss, noise);
+  } else {
+    edm::LogWarning("HcalAmplifier") << "No Cholesky Matrices provided for new HCAL noise simulation.";
   }
+  
+  if( myADCPeds ) {
+    const HcalPedestal* thisChanADCPeds = myADCPeds->getValues(hcalGenDetId);
+    const HcalQIECoder* coder = theDbService->getHcalCoder(hcalGenDetId);
+    const HcalQIEShape* shape = theDbService->getHcalShape(coder);
 
-  const HcalQIECoder* coder = theDbService->getHcalCoder(hcalGenDetId);
-  const HcalQIEShape* shape = theDbService->getHcalShape(coder);
-
-  for (int tbin = 0; tbin < frame.size(); ++tbin) {
-    int capId = (theStartingCapId_2 + tbin)%4;
-    double x = noise[tbin] * fudgefactor + thisChanADCPeds->getValue(capId);//*(values+capId); //*.70 goes here!
-    int x1=(int)std::floor(x);
-    int x2=(int)std::floor(x+1);
-    float y2=coder->charge(*shape,x2,capId);
-    float y1=coder->charge(*shape,x1,capId);
-    frame[tbin] = (y2-y1)*(x-x1)+y1;
+    for (int tbin = 0; tbin < frame.size(); ++tbin) {
+      int capId = (theStartingCapId_2 + tbin)%4;
+      double x = noise[tbin] * fudgefactor + thisChanADCPeds->getValue(capId);//*(values+capId); //*.70 goes here!
+      int x1=(int)std::floor(x);
+      int x2=(int)std::floor(x+1);
+      float y2=coder->charge(*shape,x2,capId);
+      float y1=coder->charge(*shape,x1,capId);
+      frame[tbin] = (y2-y1)*(x-x1)+y1;
+    }
+  } else {
+    edm::LogWarning("HcalAmplifier") << "No ADC pedestals provided for new HCAL simulation.";
   }
 }
 

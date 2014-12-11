@@ -14,15 +14,14 @@ class HcalNZSMonitor: public HcalBaseDQMonitor
   ~HcalNZSMonitor();
 
 
-  void setup();
-  void beginRun(const edm::Run& run, const edm::EventSetup& c);
+  void setup(DQMStore::IBooker &);
+  void bookHistograms(DQMStore::IBooker &ib, const edm::Run& run, const edm::EventSetup& c);
   void analyze(edm::Event const&e, edm::EventSetup const&s);
   void processEvent(const FEDRawDataCollection& rawraw, const edm::TriggerResults&, int bxNum,const edm::TriggerNames & triggerNames);
 
 
 
   void unpack(const FEDRawData& raw, const HcalElectronicsMap& emap);
-  void cleanup();
   void reset();
 
  private: 

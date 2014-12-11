@@ -51,28 +51,26 @@ HcalDeadCellClient::HcalDeadCellClient(std::string myname, const edm::ParameterS
   ProblemCellsByDepth=0;
   ProblemCells=0;
 
+  doProblemCellSetup_ = true;
+
 }
 
-void HcalDeadCellClient::analyze()
+void HcalDeadCellClient::analyze(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 {
   if (debug_>2) std::cout <<"\tHcalDeadCellClient::analyze()"<<std::endl;
-  calculateProblems();
+  if ( doProblemCellSetup_ ) setupProblemCells(ib,ig);
+  calculateProblems(ib,ig);
 }
 
-void HcalDeadCellClient::calculateProblems()
+void HcalDeadCellClient::calculateProblems(DQMStore::IBooker &ib, DQMStore::IGetter &ig)
 {
 
 
   if (debug_>2) std::cout <<"\t\tHcalDeadCellClient::calculateProblems()"<<std::endl;
-  if(!dqmStore_) 
-    {
-      if (debug_>2) std::cout <<"DQM STORE DOESN'T EXIST"<<std::endl;
-      return;
-    }
 
   MonitorElement* temp_present;
 
-  temp_present=dqmStore_->get(subdir_+"ExcludeHOring2");
+  temp_present=ig.get(subdir_+"ExcludeHOring2");
   int excludeFromHOring2 = 0;
   if (temp_present)
     {
@@ -90,25 +88,25 @@ void HcalDeadCellClient::calculateProblems()
   // Don't fill histograms if nothing from Hcal is present
   if (HBpresent_!=1)
     {
-      temp_present=dqmStore_->get(prefixME_+"HcalInfo/HBpresent");
+      temp_present=ig.get(prefixME_+"HcalInfo/HBpresent");
       if (temp_present!=0)
         HBpresent_=temp_present->getIntValue();
     }
   if (HEpresent_!=1)
     {
-      temp_present=dqmStore_->get(prefixME_+"HcalInfo/HEpresent");
+      temp_present=ig.get(prefixME_+"HcalInfo/HEpresent");
       if (temp_present!=0)
         HEpresent_=temp_present->getIntValue();
     }
   if (HOpresent_!=1)
     {
-      temp_present=dqmStore_->get(prefixME_+"HcalInfo/HOpresent");
+      temp_present=ig.get(prefixME_+"HcalInfo/HOpresent");
       if (temp_present!=0)
         HOpresent_=temp_present->getIntValue();
     }
   if (HFpresent_!=1)
     {
-      temp_present=dqmStore_->get(prefixME_+"HcalInfo/HFpresent");
+      temp_present=ig.get(prefixME_+"HcalInfo/HFpresent");
       if (temp_present!=0)
         HFpresent_=temp_present->getIntValue();
     }
@@ -154,19 +152,19 @@ void HcalDeadCellClient::calculateProblems()
       RecentMissingRecHitsByDepth[i]=0;
       
       std::string s=subdir_+"dead_digi_never_present/"+name[i]+"Digi Present At Least Once";
-      me=dqmStore_->get(s.c_str());
+      me=ig.get(s.c_str());
       if (me!=0) DigiPresentByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, DigiPresentByDepth[i], debug_);
       
       s=subdir_+"dead_digi_often_missing/"+name[i]+"Dead Cells with No Digis";
-      me=dqmStore_->get(s.c_str());
+      me=ig.get(s.c_str());
       if (me!=0) RecentMissingDigisByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, RecentMissingDigisByDepth[i], debug_);
      
       s=subdir_+"dead_rechit_never_present/"+name[i]+"RecHit Above Threshold At Least Once";
-      me=dqmStore_->get(s.c_str());
+      me=ig.get(s.c_str());
       if (me!=0) RecHitsPresentByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, RecHitsPresentByDepth[i], debug_);
 
        s=subdir_+"dead_rechit_often_missing/"+name[i]+"RecHits Failing Energy Threshold Test";
-      me=dqmStore_->get(s.c_str());
+      me=ig.get(s.c_str());
       if (me!=0)RecentMissingRecHitsByDepth[i]=HcalUtilsClient::getHisto<TH2F*>(me, cloneME_, RecentMissingRecHitsByDepth[i], debug_);
 
     }
@@ -275,16 +273,29 @@ void HcalDeadCellClient::calculateProblems()
   return;
 }
 
-void HcalDeadCellClient::beginJob()
-{
-  dqmStore_ = edm::Service<DQMStore>().operator->();
-  if (debug_>0) 
-    {
-      std::cout <<"<HcalDeadCellClient::beginJob()>  Displaying dqmStore directory structure:"<<std::endl;
-      dqmStore_->showDirStructure();
-    }
-}
 void HcalDeadCellClient::endJob(){}
+
+void HcalDeadCellClient::setupProblemCells(DQMStore::IBooker &ib, DQMStore::IGetter &ig )
+{
+
+  ib.setCurrentFolder(subdir_);
+  problemnames_.clear();
+  ProblemCells=ib.book2D(" ProblemDeadCells",
+				 " Problem Dead Cell Rate for all HCAL;ieta;iphi",
+				 85,-42.5,42.5,
+				 72,0.5,72.5);
+  problemnames_.push_back(ProblemCells->getName());
+  if (debug_>1)
+    std::cout << "Tried to create ProblemCells Monitor Element in directory "<<subdir_<<"  \t  Failed?  "<<(ProblemCells==0)<<std::endl;
+  ib.setCurrentFolder(subdir_+"problem_deadcells");
+  ProblemCellsByDepth = new EtaPhiHists();
+  ProblemCellsByDepth->setup(ib," Problem Dead Cell Rate");
+  for (unsigned int i=0; i<ProblemCellsByDepth->depth.size();++i)
+    problemnames_.push_back(ProblemCellsByDepth->depth[i]->getName());
+
+  doProblemCellSetup_ = false;
+
+}
 
 void HcalDeadCellClient::beginRun(void)
 {
@@ -293,30 +304,11 @@ void HcalDeadCellClient::beginRun(void)
   HEpresent_=-1;
   HOpresent_=-1;
   HFpresent_=-1;
-  if (!dqmStore_) 
-    {
-      if (debug_>0) std::cout <<"<HcalDeadCellClient::beginRun> dqmStore does not exist!"<<std::endl;
-      return;
-    }
-  dqmStore_->setCurrentFolder(subdir_);
-  problemnames_.clear();
-  ProblemCells=dqmStore_->book2D(" ProblemDeadCells",
-				 " Problem Dead Cell Rate for all HCAL;ieta;iphi",
-				 85,-42.5,42.5,
-				 72,0.5,72.5);
-  problemnames_.push_back(ProblemCells->getName());
-  if (debug_>1)
-    std::cout << "Tried to create ProblemCells Monitor Element in directory "<<subdir_<<"  \t  Failed?  "<<(ProblemCells==0)<<std::endl;
-  dqmStore_->setCurrentFolder(subdir_+"problem_deadcells");
-  ProblemCellsByDepth = new EtaPhiHists();
-  ProblemCellsByDepth->setup(dqmStore_," Problem Dead Cell Rate");
-  for (unsigned int i=0; i<ProblemCellsByDepth->depth.size();++i)
-    problemnames_.push_back(ProblemCellsByDepth->depth[i]->getName());
 
   nevts_=0;
 }
 
-void HcalDeadCellClient::endRun(void){analyze();}
+//void HcalDeadCellClient::endRun(void){analyze();}
 
 void HcalDeadCellClient::setup(void){}
 void HcalDeadCellClient::cleanup(void){}
@@ -442,4 +434,6 @@ void HcalDeadCellClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& 
 } //void HcalDeadCellClient::updateChannelStatus
 
 HcalDeadCellClient::~HcalDeadCellClient()
-{}
+{
+  if ( ProblemCellsByDepth ) delete ProblemCellsByDepth;
+}

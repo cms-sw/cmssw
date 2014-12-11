@@ -1,0 +1,11 @@
+#ifndef RecoBTag_SecondaryVertex_CandidateSimpleSecondaryVertexComputer_h
+#define RecoBTag_SecondaryVertex_CandidateSimpleSecondaryVertexComputer_h
+
+#include "DataFormats/BTauReco/interface/CandIPTagInfo.h"
+#include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
+#include "RecoBTag/SecondaryVertex/interface/TemplatedSimpleSecondaryVertexComputer.h"
+
+
+typedef TemplatedSimpleSecondaryVertexComputer<reco::CandIPTagInfo,reco::VertexCompositePtrCandidate> CandidateSimpleSecondaryVertexComputer;
+
+#endif // RecoBTag_SecondaryVertex_CandidateSimpleSecondaryVertexComputer_h

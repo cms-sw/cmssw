@@ -72,6 +72,7 @@ l1extraParticles.nonIsolatedEmSource = cms.InputTag("simGctDigis","nonIsoEm")
 
 l1extraParticles.centralJetSource = cms.InputTag("simGctDigis","cenJets")
 l1extraParticles.tauJetSource     = cms.InputTag("simGctDigis","tauJets")
+l1extraParticles.isoTauJetSource  = cms.InputTag("simGctDigis","isoTauJets")
 l1extraParticles.forwardJetSource = cms.InputTag("simGctDigis","forJets")
 
 l1extraParticles.muonSource = cms.InputTag('simGmtDigis')

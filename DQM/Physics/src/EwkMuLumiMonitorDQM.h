@@ -34,7 +34,7 @@ class MET;
 
 class DQMStore;
 class MonitorElement;
-class EwkMuLumiMonitorDQM : public thread_unsafe::DQMEDAnalyzer {
+class EwkMuLumiMonitorDQM : public DQMEDAnalyzer {
  public:
   EwkMuLumiMonitorDQM(const edm::ParameterSet&);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);

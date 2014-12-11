@@ -34,6 +34,8 @@ class GflashHadronShowerProfile;
 class GflashPiKShowerProfile;
 class GflashProtonShowerProfile;
 class GflashAntiProtonShowerProfile;
+// fastHFshowerLibrary
+class fastHFShowerLibrary;
 
 class DQMStore;
 
@@ -57,6 +59,9 @@ class CalorimetryManager{
 
     // Return the address of the Calorimeter 
   CaloGeometryHelper * getCalorimeter() const {return myCalorimeter_;}
+
+  // Return the address of the fastHFShowerLibrary 
+  fastHFShowerLibrary * getHFShowerLibrary() const {return theHFShowerLibrary;}
 
   // load container from edm::Event
   void loadFromEcalBarrel(edm::PCaloHitContainer & c) const;
@@ -181,5 +186,9 @@ class CalorimetryManager{
   GflashPiKShowerProfile *thePiKProfile;
   GflashProtonShowerProfile *theProtonProfile;
   GflashAntiProtonShowerProfile *theAntiProtonProfile;
+
+  // HFShowerLibrary
+  bool useShowerLibrary;
+  fastHFShowerLibrary *theHFShowerLibrary;
 };
 #endif

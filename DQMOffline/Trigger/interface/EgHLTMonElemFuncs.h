@@ -23,7 +23,7 @@
 
 namespace egHLT {
 
-  class CutMasks;
+  struct CutMasks;
 
   namespace MonElemFuncs {
     

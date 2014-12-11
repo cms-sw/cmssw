@@ -312,7 +312,7 @@ void CastorShowerLibraryMaker::update(const BeginOfEvent * evt) {
 
 //=================================================================== per STEP
 void CastorShowerLibraryMaker::update(const G4Step * aStep) {
-   static int CurrentPrimary = 0;
+   static thread_local int CurrentPrimary = 0;
    G4Track *trk = aStep->GetTrack();
    if (trk->GetCurrentStepNumber()==1) {
       if (trk->GetParentID()==0) {

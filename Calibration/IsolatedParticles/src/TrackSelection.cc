@@ -21,28 +21,33 @@ namespace spr{
     if (pTrack->normalizedChi2() > parameters.maxChi2)        select = false;
     if (dpbyp > parameters.maxDpOverP)                        select = false;
 
-    const reco::HitPattern &hitp = pTrack->hitPattern();
     if (parameters.minLayerCrossed>0 || parameters.minOuterHit>0) {
-        if (parameters.minLayerCrossed > 0 && hitp.trackerLayersWithMeasurement() < parameters.minLayerCrossed) select = false;
-        if (parameters.minOuterHit > 0 && (hitp.stripTOBLayersWithMeasurement() + hitp.stripTECLayersWithMeasurement()) < parameters.minOuterHit) select = false;
-        if (debug) {
-            std::cout << "Default Hit Pattern with " << hitp.numberOfHits(reco::HitPattern::TRACK_HITS) << " hits" << std::endl;
-            hitp.print(reco::HitPattern::TRACK_HITS, std::cout);
-        }
+      const reco::HitPattern& hitp = pTrack->hitPattern();
+      if (parameters.minLayerCrossed>0 && hitp.trackerLayersWithMeasurement() < parameters.minLayerCrossed) select = false;
+      if (parameters.minOuterHit>0 && (hitp.stripTOBLayersWithMeasurement()+hitp.stripTECLayersWithMeasurement() ) < parameters.minOuterHit) select = false;
+      if (debug) {
+	std::cout << "Default Hit Pattern with " << hitp.numberOfHits(reco::HitPattern::TRACK_HITS) << " hits" << std::endl;
+	for (int i=0; i<hitp.numberOfHits(reco::HitPattern::TRACK_HITS); i++) 
+	  hitp.printHitPattern(reco::HitPattern::TRACK_HITS, i, std::cout);
+      }
     }
     if (parameters.maxInMiss >= 0) {
-        if (hitp.trackerLayersWithoutMeasurement(reco::HitPattern::MISSING_INNER_HITS) > parameters.maxInMiss) select = false;
-        if (debug) {
-            std::cout << "Inner Hit Pattern with " << hitp.numberOfHits(reco::HitPattern::MISSING_INNER_HITS) << " hits" << std::endl;
-            hitp.print(reco::HitPattern::MISSING_INNER_HITS, std::cout);
-        }
+      const reco::HitPattern& hitp  = pTrack->hitPattern();
+      if (hitp.trackerLayersWithoutMeasurement(reco::HitPattern::MISSING_INNER_HITS) > parameters.maxInMiss) select = false;
+      if (debug) {
+	std::cout << "Inner Hit Pattern with " << hitp.numberOfHits(reco::HitPattern::MISSING_INNER_HITS) << " hits" << std::endl;
+	for (int i=0; i<hitp.numberOfHits(reco::HitPattern::MISSING_INNER_HITS); i++) 
+	  hitp.printHitPattern(reco::HitPattern::MISSING_INNER_HITS, i, std::cout);
+      }
     }
     if (parameters.maxOutMiss >= 0) {
-        if (hitp.trackerLayersWithoutMeasurement(reco::HitPattern::MISSING_OUTER_HITS) > parameters.maxOutMiss) select = false;
-        if (debug) {
-            std::cout << "Outer Hit Pattern with " << hitp.numberOfHits(reco::HitPattern::MISSING_OUTER_HITS) << " hits" << std::endl;
-            hitp.print(reco::HitPattern::MISSING_OUTER_HITS, std::cout);
-        }
+      const reco::HitPattern& hitp  = pTrack->hitPattern();
+      if (hitp.trackerLayersWithoutMeasurement(reco::HitPattern::MISSING_OUTER_HITS) > parameters.maxOutMiss) select = false;
+      if (debug) {
+	std::cout << "Outer Hit Pattern with " << hitp.numberOfHits(reco::HitPattern::MISSING_OUTER_HITS) << " hits" << std::endl;
+	for (int i=0; i<hitp.numberOfHits(reco::HitPattern::MISSING_OUTER_HITS); i++) 
+	  hitp.printHitPattern(reco::HitPattern::MISSING_OUTER_HITS, i, std::cout);
+      }
     }
     if (debug) std::cout << "Final Selection Result " << select << std::endl;
 

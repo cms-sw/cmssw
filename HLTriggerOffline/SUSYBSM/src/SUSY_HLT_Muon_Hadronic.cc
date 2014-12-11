@@ -5,15 +5,17 @@
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "HLTriggerOffline/SUSYBSM/interface/SUSY_HLT_Muon_Hadronic.h"
 
+bool comparePt(Lepton a, Lepton b) { return (a.pt > b.pt); }
+
 
 SUSY_HLT_Muon_Hadronic::SUSY_HLT_Muon_Hadronic(const edm::ParameterSet& ps)
 {
+
   edm::LogInfo("SUSY_HLT_Muon_Hadronic") << "Constructor SUSY_HLT_Muon_Hadronic::SUSY_HLT_Muon_Hadronic " << std::endl;
   // Get parameters from configuration file
   theTrigSummary_ = consumes<trigger::TriggerEvent>(ps.getParameter<edm::InputTag>("trigSummary"));
   theMuonCollection_ = consumes<reco::MuonCollection>(ps.getParameter<edm::InputTag>("MuonCollection")); 
   thePfMETCollection_ = consumes<reco::PFMETCollection>(ps.getParameter<edm::InputTag>("pfMETCollection"));
-  theCaloMETCollection_ = consumes<reco::CaloMETCollection>(ps.getParameter<edm::InputTag>("caloMETCollection"));
   thePfJetCollection_ = consumes<reco::PFJetCollection>(ps.getParameter<edm::InputTag>("pfJetCollection"));
   theCaloJetCollection_ = consumes<reco::CaloJetCollection>(ps.getParameter<edm::InputTag>("caloJetCollection"));
   triggerResults_ = consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>("TriggerResults"));
@@ -22,7 +24,11 @@ SUSY_HLT_Muon_Hadronic::SUSY_HLT_Muon_Hadronic(const edm::ParameterSet& ps)
   triggerPathAuxiliaryForMuon_ = ps.getParameter<std::string>("TriggerPathAuxiliaryForMuon");
   triggerPathAuxiliaryForHadronic_ = ps.getParameter<std::string>("TriggerPathAuxiliaryForHadronic");
   triggerFilter_ = ps.getParameter<edm::InputTag>("TriggerFilter");
-  ptThrJet_ = ps.getUntrackedParameter<double>("PtThrJet");
+  ptMuonOffline_ = ps.getUntrackedParameter<double>("ptMuonOffline");
+  etaMuonOffline_ = ps.getUntrackedParameter<double>("etaMuonOffline");
+  HTOffline_ = ps.getUntrackedParameter<double>("HTOffline");
+  METOffline_ = ps.getUntrackedParameter<double>("METOffline");
+  ptThrJet_ = ps.getUntrackedParameter<double>("PtThrJet"); 
   etaThrJet_ = ps.getUntrackedParameter<double>("EtaThrJet");
 }
 
@@ -50,7 +56,7 @@ void SUSY_HLT_Muon_Hadronic::dqmBeginRun(edm::Run const &run, edm::EventSetup co
   }
 
   if(!pathFound) {
-    edm::LogError ("SUSY_HLT_Muon_Hadronic") << "Path not found" << "\n";
+    edm::LogWarning ("SUSY_HLT_Muon_Hadronic") << "Path not found" << "\n";
     return;
   }
   //std::vector<std::string> filtertags = fHltConfig.moduleLabels( triggerPath_ );
@@ -87,12 +93,6 @@ void SUSY_HLT_Muon_Hadronic::analyze(edm::Event const& e, edm::EventSetup const&
   if ( !pfMETCollection.isValid() ){
     edm::LogError ("SUSY_HLT_Muon_Hadronic") << "invalid collection: PFMET" << "\n";
    return;
-  }
-  edm::Handle<reco::CaloMETCollection> caloMETCollection;
-  e.getByToken(theCaloMETCollection_, caloMETCollection);
-  if ( !caloMETCollection.isValid() ){
-    edm::LogError ("SUSY_HLT_Muon_Hadronic") << "invalid collection: CaloMET" << "\n";
-    return;
   }
   //-------------------------------
   //--- Jets
@@ -139,7 +139,7 @@ void SUSY_HLT_Muon_Hadronic::analyze(edm::Event const& e, edm::EventSetup const&
 
 
   //get online objects
-  std::vector<float> ptMuon, etaMuon, phiMuon;
+  std::vector<Lepton> onlineMuons;
   size_t filterIndex = triggerSummary->filterIndex( triggerFilter_ );
   trigger::TriggerObjectCollection triggerObjects = triggerSummary->getObjects();
   if( !(filterIndex >= triggerSummary->sizeFilters()) ){
@@ -150,9 +150,8 @@ void SUSY_HLT_Muon_Hadronic::analyze(edm::Event const& e, edm::EventSetup const&
         h_triggerMuPt->Fill(foundObject.pt());
         h_triggerMuEta->Fill(foundObject.eta());
         h_triggerMuPhi->Fill(foundObject.phi());
-        ptMuon.push_back(foundObject.pt());
-        etaMuon.push_back(foundObject.eta());
-        phiMuon.push_back(foundObject.phi());
+        Lepton theMuon; theMuon.pt = foundObject.pt(); theMuon.phi = foundObject.phi(); theMuon.eta = foundObject.eta();
+        onlineMuons.push_back(theMuon);
       }
     }
   }
@@ -164,28 +163,48 @@ void SUSY_HLT_Muon_Hadronic::analyze(edm::Event const& e, edm::EventSetup const&
   const edm::TriggerNames& trigNames = e.triggerNames(*hltresults);
   unsigned int numTriggers = trigNames.size();
   for( unsigned int hltIndex=0; hltIndex<numTriggers; ++hltIndex ){
-    if (trigNames.triggerName(hltIndex)==triggerPath_ && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) hasFired = true;
-    if (trigNames.triggerName(hltIndex)==triggerPathAuxiliaryForMuon_ && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) hasFiredAuxiliaryForMuonLeg = true;
-    if (trigNames.triggerName(hltIndex)==triggerPathAuxiliaryForHadronic_ && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) hasFiredAuxiliaryForHadronicLeg = true;
+    if (trigNames.triggerName(hltIndex).find(triggerPath_) != std::string::npos && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) hasFired = true;
+    if (trigNames.triggerName(hltIndex).find(triggerPathAuxiliaryForMuon_) != std::string::npos && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) hasFiredAuxiliaryForMuonLeg = true;
+    if (trigNames.triggerName(hltIndex).find(triggerPathAuxiliaryForHadronic_) != std::string::npos && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)) hasFiredAuxiliaryForHadronicLeg = true;
   }
 
-
-
-  if(hasFiredAuxiliaryForMuonLeg || hasFiredAuxiliaryForHadronicLeg) {
   
+
+  if(hasFiredAuxiliaryForMuonLeg || hasFiredAuxiliaryForHadronicLeg || !e.isRealData()) {
+  
+    std::vector<Lepton> offlineMuons;
+    for(reco::MuonCollection::const_iterator muon = MuonCollection->begin(); muon != MuonCollection->end() ; ++muon) {
+      if(fabs(muon->eta())>etaMuonOffline_) continue;
+      Lepton theMuon; theMuon.pt = muon->pt(); theMuon.phi = muon->phi(); theMuon.eta = muon->eta();
+      offlineMuons.push_back(theMuon);
+    }
+
+    std::sort(onlineMuons.begin(), onlineMuons.end(), comparePt);
+    std::sort(offlineMuons.begin(), offlineMuons.end(), comparePt);
+    /*
+    std::cout << "OFFLINE MUON" << std::endl;
+    for(std::vector<Lepton>::iterator offline_muon = offlineMuons.begin(); offline_muon != offlineMuons.end(); offline_muon++) {
+      std::cout << offline_muon->pt << std::endl;
+    }
+    std::cout << "ONLINE MUON" << std::endl;
+    for(std::vector<Lepton>::iterator online_muon = onlineMuons.begin();  online_muon != onlineMuons.end(); online_muon++) {
+      std::cout << online_muon->pt << std::endl;
+    }
+    */ 
     //Matching the muon
     int indexOfMatchedMuon = -1;
     int offlineCounter = 0;
-    for(reco::MuonCollection::const_iterator muon = MuonCollection->begin(); (muon != MuonCollection->end() && indexOfMatchedMuon == -1) ; ++muon) {
-      for(size_t off_i = 0; off_i < ptMuon.size(); ++off_i) {
-        if(sqrt((muon->phi()-phiMuon[off_i])*(muon->phi()-phiMuon[off_i]) + (muon->eta()-etaMuon[off_i])*(muon->eta()-etaMuon[off_i])) < 0.5) {
+    for(std::vector<Lepton>::iterator offline_muon = offlineMuons.begin(); (offline_muon != offlineMuons.end() && indexOfMatchedMuon == -1); offline_muon++) {
+      for(std::vector<Lepton>::iterator online_muon = onlineMuons.begin();  online_muon != onlineMuons.end(); online_muon++) {
+        if(sqrt( (offline_muon->phi-online_muon->phi)*(offline_muon->phi-online_muon->phi) +
+                 (offline_muon->eta-online_muon->eta)*(offline_muon->eta-online_muon->eta)) < 0.5) {
           indexOfMatchedMuon = offlineCounter;
+          //std::cout << "Offline " << offline_muon->pt << " " << "Online " << online_muon->pt << std::endl;
           break;
         }
       }
       offlineCounter++;
     }
-   
     float caloHT = 0.0;
     float pfHT = 0.0;
     for (reco::PFJetCollection::const_iterator i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end(); ++i_pfjet){
@@ -198,19 +217,26 @@ void SUSY_HLT_Muon_Hadronic::analyze(edm::Event const& e, edm::EventSetup const&
       if (fabs(i_calojet->eta()) > etaThrJet_) continue;
       caloHT += i_calojet->pt();
     }
-
-    if(hasFiredAuxiliaryForMuonLeg && MuonCollection->size()>0) {
+    //Need to apply the MET offline cut to be in the MET plateau
+    if((hasFiredAuxiliaryForMuonLeg || !e.isRealData()) && offlineMuons.size()>0 && pfMETCollection->begin()->et() > METOffline_ && pfHT > HTOffline_) {
       if(hasFired && indexOfMatchedMuon >= 0) {
-        h_MuTurnOn_num-> Fill(MuonCollection->at(indexOfMatchedMuon).pt());
+        h_MuTurnOn_num-> Fill(offlineMuons.at(indexOfMatchedMuon).pt);
+        h_MuTurnOn_den-> Fill(offlineMuons.at(indexOfMatchedMuon).pt);
+      } else {
+        h_MuTurnOn_den-> Fill(offlineMuons.at(0).pt);
       } 
-      h_MuTurnOn_den-> Fill(MuonCollection->at(0).pt());
     }
-    if(hasFiredAuxiliaryForHadronicLeg) {
+    //Need to apply the pt offline cut to be in the muon pt plateau
+    if((hasFiredAuxiliaryForHadronicLeg || !e.isRealData()) && indexOfMatchedMuon >= 0 && offlineMuons.at(indexOfMatchedMuon).pt > ptMuonOffline_ && pfHT > HTOffline_) {
       if(hasFired) {
         h_pfMetTurnOn_num-> Fill(pfMETCollection->begin()->et());
-        h_pfHTTurnOn_num-> Fill(pfHT);
       } 
       h_pfMetTurnOn_den-> Fill(pfMETCollection->begin()->et());
+    }
+    if((hasFiredAuxiliaryForHadronicLeg || !e.isRealData()) && indexOfMatchedMuon >= 0 && offlineMuons.at(indexOfMatchedMuon).pt > ptMuonOffline_ && pfMETCollection->begin()->et() > METOffline_) {
+      if(hasFired) {
+        h_pfHTTurnOn_num-> Fill(pfHT);
+      } 
       h_pfHTTurnOn_den-> Fill(pfHT);
     }
   }

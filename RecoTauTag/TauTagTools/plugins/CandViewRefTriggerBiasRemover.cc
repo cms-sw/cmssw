@@ -48,7 +48,7 @@ void CandViewRefTriggerBiasRemover::produce(edm::Event& evt,
   if (nCands > 1) {
     //output->reserve(nCands);
     for (size_t iCand = 0; iCand < nCands; ++iCand) {
-      output->push_back(cands->refVector().at(iCand));
+      output->push_back(cands->refAt(iCand));
     }
   }
   evt.put(output);

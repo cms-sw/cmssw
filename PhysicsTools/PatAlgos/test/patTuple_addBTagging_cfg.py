@@ -11,70 +11,100 @@ process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 ## to the event content
 from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
 
+# b-tag discriminators
+btagDiscriminators = [
+     'pfJetBProbabilityBJetTags'
+    ,'pfJetProbabilityBJetTags'
+    ,'jetBProbabilityBJetTags'
+    ,'jetProbabilityBJetTags'
+    ,'positiveOnlyJetBProbabilityBJetTags'
+    ,'positiveOnlyJetProbabilityBJetTags'
+    ,'negativeOnlyJetBProbabilityBJetTags'
+    ,'negativeOnlyJetProbabilityBJetTags'
+    ,'pfTrackCountingHighPurBJetTags'
+    ,'pfTrackCountingHighEffBJetTags'
+    ,'trackCountingHighPurBJetTags'
+    ,'trackCountingHighEffBJetTags'
+    ,'negativeTrackCountingHighEffBJetTags'
+    ,'negativeTrackCountingHighPurBJetTags'
+    ,'pfSimpleSecondaryVertexHighEffBJetTags'
+    ,'pfSimpleSecondaryVertexHighPurBJetTags'
+    ,'simpleSecondaryVertexHighEffBJetTags'
+    ,'simpleSecondaryVertexHighPurBJetTags'
+    ,'negativeSimpleSecondaryVertexHighEffBJetTags'
+    ,'negativeSimpleSecondaryVertexHighPurBJetTags'
+    ,'pfCombinedSecondaryVertexBJetTags'
+    ,'combinedSecondaryVertexBJetTags'
+    ,'positiveCombinedSecondaryVertexBJetTags'
+    ,'negativeCombinedSecondaryVertexBJetTags'
+    ,'simpleInclusiveSecondaryVertexHighEffBJetTags'
+    ,'simpleInclusiveSecondaryVertexHighPurBJetTags'
+    ,'negativeSimpleInclusiveSecondaryVertexHighEffBJetTags'
+    ,'negativeSimpleInclusiveSecondaryVertexHighPurBJetTags'
+    ,'doubleSecondaryVertexHighEffBJetTags'
+    ,'combinedInclusiveSecondaryVertexBJetTags'
+    ,'positiveCombinedInclusiveSecondaryVertexBJetTags'
+    ,'negativeCombinedInclusiveSecondaryVertexBJetTags'
+    ,'pfCombinedInclusiveSecondaryVertexV2BJetTags'
+    ,'combinedInclusiveSecondaryVertexV2BJetTags'
+    ,'positiveCombinedInclusiveSecondaryVertexV2BJetTags'
+    ,'negativeCombinedInclusiveSecondaryVertexV2BJetTags'
+    ,'combinedSecondaryVertexMVABJetTags'
+    ,'softPFMuonBJetTags'
+    ,'softPFMuonByPtBJetTags'
+    ,'softPFMuonByIP3dBJetTags'
+    ,'softPFMuonByIP2dBJetTags'
+    ,'positiveSoftPFMuonBJetTags'
+    ,'positiveSoftPFMuonByPtBJetTags'
+    ,'positiveSoftPFMuonByIP3dBJetTags'
+    ,'positiveSoftPFMuonByIP2dBJetTags'
+    ,'negativeSoftPFMuonBJetTags'
+    ,'negativeSoftPFMuonByPtBJetTags'
+    ,'negativeSoftPFMuonByIP3dBJetTags'
+    ,'negativeSoftPFMuonByIP2dBJetTags'
+    ,'softPFElectronBJetTags'
+    ,'softPFElectronByPtBJetTags'
+    ,'softPFElectronByIP3dBJetTags'
+    ,'softPFElectronByIP2dBJetTags'
+    ,'positiveSoftPFElectronBJetTags'
+    ,'positiveSoftPFElectronByPtBJetTags'
+    ,'positiveSoftPFElectronByIP3dBJetTags'
+    ,'positiveSoftPFElectronByIP2dBJetTags'
+    ,'negativeSoftPFElectronBJetTags'
+    ,'negativeSoftPFElectronByPtBJetTags'
+    ,'negativeSoftPFElectronByIP3dBJetTags'
+    ,'negativeSoftPFElectronByIP2dBJetTags'
+    ,'combinedMVABJetTags'
+    ,'positiveCombinedMVABJetTags'
+    ,'negativeCombinedMVABJetTags'
+]
+
 # uncomment the following lines to add ak4PFJets with new b-tags to your PAT output
 addJetCollection(
    process,
    labelName = 'AK4PF',
    jetSource = cms.InputTag('ak4PFJets'),
    jetCorrections = ('AK4PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'), # FIXME: Use proper JECs, as soon as available
-   btagDiscriminators = [
-       'jetBProbabilityBJetTags'
-      ,'jetProbabilityBJetTags'
-      ,'trackCountingHighPurBJetTags'
-      ,'trackCountingHighEffBJetTags'
-      ,'negativeOnlyJetBProbabilityJetTags'
-      ,'negativeOnlyJetProbabilityJetTags'
-      ,'negativeTrackCountingHighEffJetTags'
-      ,'negativeTrackCountingHighPurJetTags'
-      ,'positiveOnlyJetBProbabilityJetTags'
-      ,'positiveOnlyJetProbabilityJetTags'
-      ,'simpleSecondaryVertexHighEffBJetTags'
-      ,'simpleSecondaryVertexHighPurBJetTags'
-      ,'simpleSecondaryVertexNegativeHighEffBJetTags'
-      ,'simpleSecondaryVertexNegativeHighPurBJetTags'
-      ,'pfCombinedSecondaryVertexBJetTags'
-      ,'combinedSecondaryVertexBJetTags'
-      ,'combinedSecondaryVertexPositiveBJetTags'
-      ,'combinedInclusiveSecondaryVertexV2BJetTags'
-      ,'combinedInclusiveSecondaryVertexV2PositiveBJetTags'
-      ,'combinedInclusiveSecondaryVertexV2NegativeBJetTags'
-      ,'combinedSecondaryVertexMVABJetTags'
-      ,'combinedSecondaryVertexNegativeBJetTags'
-      ,'softPFMuonBJetTags'
-      ,'softPFMuonByPtBJetTags'
-      ,'softPFMuonByIP3dBJetTags'
-      ,'softPFMuonByIP2dBJetTags'
-      ,'positiveSoftPFMuonBJetTags'
-      ,'positiveSoftPFMuonByPtBJetTags'
-      ,'positiveSoftPFMuonByIP3dBJetTags'
-      ,'positiveSoftPFMuonByIP2dBJetTags'
-      ,'negativeSoftPFMuonBJetTags'
-      ,'negativeSoftPFMuonByPtBJetTags'
-      ,'negativeSoftPFMuonByIP3dBJetTags'
-      ,'negativeSoftPFMuonByIP2dBJetTags'
-      ,'softPFElectronBJetTags'
-      ,'softPFElectronByPtBJetTags'
-      ,'softPFElectronByIP3dBJetTags'
-      ,'softPFElectronByIP2dBJetTags'
-      ,'positiveSoftPFElectronBJetTags'
-      ,'positiveSoftPFElectronByPtBJetTags'
-      ,'positiveSoftPFElectronByIP3dBJetTags'
-      ,'positiveSoftPFElectronByIP2dBJetTags'
-      ,'negativeSoftPFElectronBJetTags'
-      ,'negativeSoftPFElectronByPtBJetTags'
-      ,'negativeSoftPFElectronByIP3dBJetTags'
-      ,'negativeSoftPFElectronByIP2dBJetTags'
-      ,'simpleInclusiveSecondaryVertexHighEffBJetTags'
-      ,'simpleInclusiveSecondaryVertexHighPurBJetTags'
-      ,'doubleSecondaryVertexHighEffBJetTags'
-      ,'combinedInclusiveSecondaryVertexBJetTags'
-      ,'combinedInclusiveSecondaryVertexPositiveBJetTags'
-      ,'combinedMVABJetTags'
-      ,'positiveCombinedMVABJetTags'
-      ,'negativeCombinedMVABJetTags'
-    ],
-  )
+   btagDiscriminators = btagDiscriminators
+)
 process.patJetsAK4PF.addTagInfos = True
+
+# uncomment the following lines to add subjets of pruned ca8PFJetsCHS with new b-tags to your PAT output
+addJetCollection(
+   process,
+   labelName = 'CA8PFCHSPrunedSubjets',
+   jetSource = cms.InputTag('ca8PFJetsCHSPruned','SubJets'),
+   jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'), # FIXME: Use proper JECs, as soon as available
+   algo = 'CA',
+   rParam = 0.8,
+   btagDiscriminators = btagDiscriminators,
+   explicitJTA = True,
+   svClustering = True,
+   fatJets = cms.InputTag("ca8PFJetsCHS"),
+   groomedFatJets = cms.InputTag("ca8PFJetsCHSPruned"),
+)
+process.patJetsCA8PFCHSPrunedSubjets.addTagInfos = True
+
 ## JetID works only with RECO input for the CaloTowers (s. below for 'process.source.fileNames')
 #process.patJets.addJetID=True
 #process.load("RecoJets.JetProducers.ak4JetID_cfi")

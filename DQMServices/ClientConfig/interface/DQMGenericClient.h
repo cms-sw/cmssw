@@ -47,6 +47,12 @@ class DQMGenericClient : public DQMEDHarvester
     std::string srcName;
   };
 
+  struct ProfileOption
+  {
+    std::string name, title;
+    std::string srcName;
+  };
+
   struct NormOption
   {
     std::string name, normHistName;
@@ -71,6 +77,11 @@ class DQMGenericClient : public DQMEDHarvester
 			 const std::string& startDir, 
                          const std::string& fitMEPrefix, const std::string& fitMETitlePrefix, 
                          const std::string& srcMEName);
+  void computeProfile(DQMStore::IBooker& ibooker,
+                      DQMStore::IGetter& igetter,
+                      const std::string& startDir,
+                      const std::string& profileMEName, const std::string& profileMETitle,
+                      const std::string& srcMEName);
 
   void normalizeToEntries(DQMStore::IBooker& ibooker,
 			  DQMStore::IGetter& igetter,
@@ -95,6 +106,7 @@ class DQMGenericClient : public DQMEDHarvester
 
   std::vector<EfficOption> efficOptions_;
   std::vector<ResolOption> resolOptions_;
+  std::vector<ProfileOption> profileOptions_;
   std::vector<NormOption> normOptions_;
   std::vector<CDOption> cdOptions_;
 

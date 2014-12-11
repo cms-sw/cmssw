@@ -203,7 +203,10 @@ MuonMCClassifier::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::RefToBaseVector<reco::Muon> selMuons;
     if (!hasMuonCut_) {
         // all muons
-        selMuons = muons->refVector();
+        for (size_t i = 0, n = muons->size(); i < n; ++i) {
+            edm::RefToBase<reco::Muon> rmu = muons->refAt(i);
+            selMuons.push_back(rmu);
+        }
     } else {
         // filter, fill refvectors, associate
         // I pass through pat::Muon so that I can access muon id selectors

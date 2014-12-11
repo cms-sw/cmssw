@@ -14,6 +14,7 @@
 #include "CondFormats/DataRecord/interface/HcalOOTPileupCorrectionRcd.h"
 #include "CondFormats/DataRecord/interface/HcalOOTPileupCompatibilityRcd.h"
 #include "CondFormats/HcalObjects/interface/OOTPileupCorrectionColl.h"
+#include "CondFormats/HcalObjects/interface/OOTPileupCorrData.h"
 #include <iostream>
 #include <fstream>
 
@@ -46,7 +47,10 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   setPileupCorrection_(0),
   setPileupCorrectionForNegative_(0),
   paramTS(0),
-  puCorrMethod_(conf.existsAs<int>("puCorrMethod") ? conf.getParameter<int>("puCorrMethod") : 0)
+  puCorrMethod_(conf.existsAs<int>("puCorrMethod") ? conf.getParameter<int>("puCorrMethod") : 0),
+  cntprtCorrMethod_(0),
+  first_(true)
+
 {
   // register for data access
   tok_hbhe_ = consumes<HBHEDigiCollection>(inputLabel_);
@@ -90,8 +94,11 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 
   if (!strcasecmp(subd.c_str(),"HBHE")) {
     subdet_=HcalBarrel;
-    setPileupCorrection_ = &HcalSimpleRecAlgo::setHBHEPileupCorrection;
+
+    setPileupCorrection_            = 0;
+    if(puCorrMethod_ == 1) setPileupCorrection_            = &HcalSimpleRecAlgo::setHBHEPileupCorrection;    
     setPileupCorrectionForNegative_ = &HBHENegativeFlagSetter::setHBHEPileupCorrection;
+
     bool timingShapedCutsFlags = conf.getParameter<bool>("setTimingShapedCutsFlags");
     if (timingShapedCutsFlags)
       {
@@ -232,7 +239,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
     subdetOther_=HcalCalibration;
     produces<HcalCalibRecHitCollection>();
   } else {
-     std::cout << "HcalHitReconstructor is not associated with a specific subdetector!" << std::endl;
+    edm::LogWarning("Configuration") << "HcalHitReconstructor is not associated with a specific subdetector!" << std::endl;
   }
 
   // If no valid OOT pileup correction name specified,
@@ -252,7 +259,30 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   }
 
   reco_.setpuCorrMethod(puCorrMethod_);
-  if(conf.existsAs<double>("pufitChargeThreshold")) reco_.setpufitChrgThr(conf.getParameter<double>("pufitChargeThreshold"));
+  if(puCorrMethod_ == 2) { 
+    reco_.setpuCorrParams(
+			  conf.getParameter<bool>  ("applyPedConstraint"),
+			  conf.getParameter<bool>  ("applyTimeConstraint"),
+			  conf.getParameter<bool>  ("applyPulseJitter"),
+			  conf.getParameter<bool>  ("applyUnconstrainedFit"),
+			  conf.getParameter<bool>  ("applyTimeSlew"),
+			  conf.getParameter<double>("ts4Min"),
+			  conf.getParameter<double>("ts4Max"),
+			  conf.getParameter<double>("pulseJitter"),
+			  conf.getParameter<double>("meanTime"),
+			  conf.getParameter<double>("timeSigma"),
+			  conf.getParameter<double>("meanPed"),
+			  conf.getParameter<double>("pedSigma"),
+			  conf.getParameter<double>("noise"),
+			  conf.getParameter<double>("timeMin"),
+			  conf.getParameter<double>("timeMax"),
+			  conf.getParameter<double>("ts3chi2"),
+			  conf.getParameter<double>("ts4chi2"),
+			  conf.getParameter<double>("ts345chi2"),
+			  conf.getParameter<double>("chargeMax"), //For the unconstrained Fit
+                          conf.getParameter<int>   ("fitTimes")
+			  );
+  }
 }
 
 HcalHitReconstructor::~HcalHitReconstructor() {
@@ -323,8 +353,13 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
   eventSetup.get<HcalDbRecord>().get(conditions);
 
   // HACK related to HB- corrections
-  const bool isData = e.isRealData();
-  if (isData) reco_.setForData(e.run()); else reco_.setForData(0);
+  if ( first_ ) {
+    const bool isData = e.isRealData();
+    if (isData) reco_.setForData(e.run()); else reco_.setForData(0);
+    corrName_ = isData ? dataOOTCorrectionName_ : mcOOTCorrectionName_;
+    cat_ = isData ? dataOOTCorrectionCategory_ : mcOOTCorrectionCategory_;
+    first_=false;
+  }
   if (useLeakCorrection_) reco_.setLeakCorrection();
 
   edm::ESHandle<HcalChannelQuality> p;
@@ -336,23 +371,36 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
   const HcalSeverityLevelComputer* mySeverity = mycomputer.product();
 
   // Configure OOT pileup corrections
-  if (setPileupCorrection_)
+  bool isMethod1Set = false;
+  if (!corrName_.empty())
   {
-      const std::string& corrName = isData ? dataOOTCorrectionName_ : mcOOTCorrectionName_;
-      if (!corrName.empty())
-      {
-          edm::ESHandle<OOTPileupCorrectionColl> pileupCorrections;
-          if (eventSetup.find(edm::eventsetup::EventSetupRecordKey::makeKey<HcalOOTPileupCorrectionRcd>()))
-              eventSetup.get<HcalOOTPileupCorrectionRcd>().get(pileupCorrections);
-          else
-              eventSetup.get<HcalOOTPileupCompatibilityRcd>().get(pileupCorrections);
-          const std::string& cat = isData ? dataOOTCorrectionCategory_ : mcOOTCorrectionCategory_;
-          (reco_.*setPileupCorrection_)(pileupCorrections->get(corrName, cat));
+      edm::ESHandle<OOTPileupCorrectionColl> pileupCorrections;
+      if (eventSetup.find(edm::eventsetup::EventSetupRecordKey::makeKey<HcalOOTPileupCorrectionRcd>()))
+          eventSetup.get<HcalOOTPileupCorrectionRcd>().get(pileupCorrections);
+      else
+          eventSetup.get<HcalOOTPileupCompatibilityRcd>().get(pileupCorrections);
 
-          if(setPileupCorrectionForNegative_ && hbheNegativeFlagSetter_)
-            (hbheNegativeFlagSetter_->*setPileupCorrectionForNegative_)(pileupCorrections->get(corrName, cat));
+      if( setPileupCorrection_ ){
+         const OOTPileupCorrData * testMethod1Ptr = dynamic_cast<OOTPileupCorrData*>((pileupCorrections->get(corrName_, cat_)).get());
+         if( testMethod1Ptr ) isMethod1Set = true;
+         (reco_.*setPileupCorrection_)(pileupCorrections->get(corrName_, cat_));
       }
-  }
+
+      if(setPileupCorrectionForNegative_ && hbheNegativeFlagSetter_)
+        (hbheNegativeFlagSetter_->*setPileupCorrectionForNegative_)(pileupCorrections->get(corrName_, cat_));
+   }
+// Only for HBHE
+   if( subdet_ == HcalBarrel ){
+      if( !cntprtCorrMethod_ ){
+         cntprtCorrMethod_++;
+         if( puCorrMethod_ == 2 ) edm::LogWarning("HcalPUcorrMethod") << "Using Hcal OOTPU method 2" << std::endl;
+         else if( puCorrMethod_ == 1 ){
+            if( isMethod1Set ) edm::LogWarning("HcalPUcorrMethod") << "Using Hcal OOTPU method 1" << std::endl;
+            else edm::LogWarning("HcalPUcorrMethod") <<"puCorrMethod_ set to be 1 but method 1 is NOT activated (method 0 used instead)!\n"
+                                                     <<"Please check GlobalTag usage or method 1 seperately disabled by dataOOTCorrectionName & mcOOTCorrectionName?" << std::endl;
+         }else edm::LogWarning("HcalPUcorrMethod") << "Using Hcal OOTPU method 0" << std::endl;
+      }
+   }
 
   // GET THE BEAM CROSSING INFO HERE, WHEN WE UNDERSTAND HOW THINGS WORK.
   // Then, call "setBXInfo" method of the reco_ object.
@@ -579,7 +627,6 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	// bits 28 and 29 are reserved for capid of the first time slice saved in aux
 	auxflag+=((i->sample(fTS).capid())<<28);
 	(rec->back()).setAux(auxflag);
-
 	(rec->back()).setFlags(0);
 	// Fill Presample ADC flag
 	if (fTS>0)
