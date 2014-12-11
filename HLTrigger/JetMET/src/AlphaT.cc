@@ -15,7 +15,7 @@ double AlphaT::value_(std::vector<bool> * jet_sign) const {
 
   if (et_.size() > (unsigned int) std::numeric_limits<unsigned int>::digits)
     // too many jets, return AlphaT = a very large number
-    return std::numeric_limits<double>::max();
+    return std::numeric_limits<double>::max(); 
 
   // Momentum sums in transverse plane
   const double sum_et = std::accumulate( et_.begin(), et_.end(), 0. );
