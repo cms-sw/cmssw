@@ -270,6 +270,8 @@ class GenericValidationData(GenericValidation):
             if self.jobmode.split( ',' )[0] == "crab":
                 print ("For jobmode 'crab' the parameter 'maxevents' will be "
                        "ignored and all events will be processed.")
+        else:
+            raise AllInOneError("Unknown data type!  Can't run in crab mode")
         crabCfg = {crabCfgName: replaceByMap( configTemplates.crabCfgTemplate,
                                               repMap ) }
         return GenericValidation.createCrabCfg( self, crabCfg, path )

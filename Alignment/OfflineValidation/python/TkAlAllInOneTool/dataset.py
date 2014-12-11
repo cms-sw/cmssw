@@ -6,6 +6,7 @@ import json
 import os
 import bisect
 import re
+import datetime
 from FWCore.PythonUtilities.LumiList import LumiList
 from TkAlExceptions import AllInOneError
 
@@ -109,12 +110,12 @@ class Dataset:
                 selectedRunList = self.__getRunList()
                 if firstRun:
                     selectedRunList = [ run for run in selectedRunList \
-                                        if run["run_number"] >= firstRun ]
+                                        if self.__findInJson(run, "run_number") >= firstRun ]
                 if lastRun:
                     selectedRunList = [ run for run in selectedRunList \
-                                        if run["run_number"] <= lastRun ]
-                lumiList = [ str( run["run_number"] ) + ":1-" \
-                             + str( run["run_number"] ) + ":max" \
+                                        if self.__findInJson(run, "run_number") <= lastRun ]
+                lumiList = [ str( self.__findInJson(run, "run_number") ) + ":1-" \
+                             + str( self.__findInJson(run, "run_number") ) + ":max" \
                              for run in selectedRunList ]
                 splitLumiList = list( self.__chunks( lumiList, 255 ) )
             else:
@@ -188,6 +189,28 @@ class Dataset:
             return i
         raise ValueError
 
+    def __findInJson(self, jsondict, strings):
+        if isinstance(strings, str):
+            strings = [ strings ]
+
+        if len(strings) == 0:
+            return jsondict
+        if isinstance(jsondict,dict):
+            if strings[0] in jsondict:
+                try:
+                    return self.__findInJson(jsondict[strings[0]], strings[1:])
+                except KeyError:
+                    pass
+        else:
+            for a in jsondict:
+                if strings[0] in a:
+                    try:
+                        return self.__findInJson(a[strings[0]], strings[1:])
+                    except (TypeError, KeyError):  #TypeError because a could be a string and contain strings[0]
+                        pass
+        #if it's not found
+        raise KeyError("Can't find " + strings[0])
+
     def __getData( self, dasQuery, dasLimit = 0 ):
         dasData = das_client.get_data( 'https://cmsweb.cern.ch',
                                        dasQuery, 0, dasLimit, False )
@@ -196,10 +219,15 @@ class Dataset:
         else:
             jsondict = dasData
         # Check, if the DAS query fails
-        if jsondict["status"] != 'ok':
-            msg = "Status not 'ok', but:", jsondict["status"]
+        try:
+            error = self.__findInJson(jsondict,["data","error"])
+        except KeyError:
+            error = None
+        if error or self.__findInJson(jsondict,"status") != 'ok' or "data" not in jsondict:
+            msg = ("The DAS query returned a error.  Here is the output\n" + str(jsondict) +
+                   "\nIt's possible that this was a server error.  If so, it may work if you try again later")
             raise AllInOneError(msg)
-        return jsondict["data"]
+        return self.__findInJson(jsondict,"data")
 
     def __getDataType( self ):
         if self.__predefined:
@@ -215,23 +243,39 @@ class Dataset:
         dasQuery_type = ( 'dataset dataset=%s | grep dataset.datatype,'
                           'dataset.name'%( self.__name ) )
         data = self.__getData( dasQuery_type )
-        for a in data[0]["dataset"]:
-            if "datatype" in a:
-                return a["datatype"]
-        msg = ("Cannot find the datatype of the dataset '%s'"%( self.name() ))
-        raise AllInOneError( msg )
+
+        try:
+            return self.__findInJson(data, ["dataset", "datatype"])
+        except KeyError:
+            print ("Cannot find the datatype of the dataset '%s'\n"
+                   "It may not be possible to automatically find the magnetic field,\n"
+                   "and you will not be able run in CRAB mode"
+                   %( self.name() ))
+            return "unknown"
 
     def __getMagneticField( self ):
+        Bfieldlocation = os.path.join( os.environ["CMSSW_RELEASE_BASE"], "python", "Configuration", "StandardSequences" )
+        Bfieldlist = [ f.replace("MagneticField_",'').replace("_cff.py",'') \
+                           for f in os.listdir(Bfieldlocation) \
+                               if f.startswith("MagneticField_") and f.endswith("_cff.py") and f != "MagneticField_cff.py" ]
+        Bfieldlist.sort( key = lambda Bfield: -len(Bfield) ) #Put it in order of decreasing length, so that searching in the name gives the longer match
+
         if self.__predefined:
             with open(self.__filename) as f:
                 f.readline()
                 f.readline()
-                datatype = f.readline().replace("\n",'')
-                Bfield = f.readline().replace("\n",'')
+                datatype = f.readline().replace("\n", '')
+                Bfield = f.readline().replace("\n", '')
                 if "#magnetic field: " in Bfield:
-                    return Bfield.replace("#magnetic field: ","")
+                    Bfield = Bfield.replace("#magnetic field: ", "")
+                    if Bfield in Bfieldlist or Bfield == "unknown":
+                        return Bfield
+                    else:
+                        print "Your dataset has magnetic field '%s', which does not exist in your CMSSW version!" % Bfield
+                        print "Using Bfield='unknown' - this will revert to the default"
+                        return "unknown"
                 elif datatype == "#data type: data":
-                    return "AutoFromDBCurrent"           #this should be in the "#magnetic field" line, but just in case it got messed up
+                    return "AutoFromDBCurrent"           #this should be in the "#magnetic field" line, but for safety in case it got messed up
                 else:
                     return "unknown"
 
@@ -240,14 +284,22 @@ class Dataset:
 
         dasQuery_type = ( 'dataset dataset=%s'%( self.__name ) )             #try to find the magnetic field from DAS
         data = self.__getData( dasQuery_type )                               #it seems to be there for the newer (7X) MC samples, except cosmics
-        for a in data[0]["dataset"]:
-            if "mcm" in a and "sequences" in a["mcm"]:
-                for b in a["mcm"]["sequences"]:
-                    if "magField" in b and b["magField"] != "":
-                        return b["magField"]
 
-        for possibleB in ["20T","30T","35T","38T_PostLS1","38T","40T","0T"]:
-            if possibleB in self.__name.replace("TkAlCosmics0T",""):         #for some reason all cosmics MC names contain this string
+        try:
+            Bfield = self.__findInJson(data, ["dataset", "mcm", "sequences", "magField"])
+            if Bfield in Bfieldlist:
+                return Bfield
+            elif Bfield == "":
+                pass
+            else:
+                print "Your dataset has magnetic field '%s', which does not exist in your CMSSW version!" % Bfield
+                print "Using Bfield='unknown' - this will revert to the default magnetic field"
+                return "unknown"
+        except KeyError:
+            pass
+
+        for possibleB in Bfieldlist:
+            if possibleB in self.__name.replace("TkAlCosmics0T", ""):         #for some reason all cosmics dataset names contain this string
                 return possibleB
 
         return "unknown"
@@ -261,7 +313,7 @@ class Dataset:
         print "Requesting file information for '%s' from DAS..."%( self.__name ),
         data = self.__getData( dasQuery_files, dasLimit )
         print "Done."
-        data = [ entry["file"] for entry in data ]
+        data = [ self.__findInJson(entry,"file") for entry in data ]
         if len( data ) == 0:
             msg = ("No files are available for the dataset '%s'. This can be "
                    "due to a typo or due to a DAS problem. Please check the "
@@ -270,14 +322,9 @@ class Dataset:
             raise AllInOneError( msg )
         fileInformationList = []
         for file in data:
-            fileName = file[0]["name"]
-            fileCreationTime = file[0]["creation_time"]
-            for ii in range(3):
-                try:
-                    fileNEvents = file[ii]["nevents"]
-                except KeyError:
-                    continue
-                break
+            fileName = self.__findInJson(file, "name")
+            fileCreationTime = self.__findInJson(file, "creation_time")
+            fileNEvents = self.__findInJson(file, "nevents")
             # select only non-empty files
             if fileNEvents == 0:
                 continue
@@ -286,7 +333,7 @@ class Dataset:
                          "nevents": fileNEvents
                          }
             fileInformationList.append( fileDict )
-        fileInformationList.sort( key=lambda info: info["name"] )
+        fileInformationList.sort( key=lambda info: self.__findInJson(info,"name") )
         return fileInformationList
 
     def __getRunList( self ):
@@ -297,8 +344,8 @@ class Dataset:
         print "Requesting run information for '%s' from DAS..."%( self.__name ),
         data = self.__getData( dasQuery_runs )
         print "Done."
-        data = [ entry["run"][0] for entry in data ]
-        data.sort( key = lambda run: run["creation_time"] )
+        data = [ self.__findInJson(entry,"run") for entry in data ]
+        data.sort( key = lambda run: self.__findInJson(run, "run_number") )
         self.__runList = data
         return data
 
@@ -319,6 +366,18 @@ class Dataset:
                         "%(files)s\n"
                         "%(lumiSecExtend)s\n")
 
+    def __datetime(self, stringForDas):
+        if len(stringForDas) != 8:
+            raise AllInOneError(stringForDas + " is not a valid date string.\n"
+                              + "DAS accepts dates in the form 'yyyymmdd'")
+        year = stringForDas[:4]
+        month = stringForDas[4:6]
+        day = stringForDas[6:8]
+        return datetime.date(int(year), int(month), int(day))
+
+    def __dateString(self, date):
+        return str(date.year) + str(date.month).zfill(2) + str(date.day).zfill(2)
+
     def convertTimeToRun( self, begin = None, end = None,
                           firstRun = None, lastRun = None,
                           shortTuple = True ):
@@ -332,26 +391,55 @@ class Dataset:
                     + "is ambigous." )
             raise AllInOneError( msg )
 
-        runList = [ run["run_number"] for run in self.__getRunList() ]
-        runTimeList = [ run["creation_time"] for run in self.__getRunList() ]
+        if begin or end:
+            runList = [ self.__findInJson(run, "run_number") for run in self.__getRunList() ]
+
         if begin:
-            try:
-                runIndex = self.__find_ge( runTimeList, begin )
-            except ValueError:
-                msg = ( "Your 'begin' is after the creation time of the last "
-                        "run in the dataset\n'%s'"%( self.__name ) )
-                raise AllInOneError( msg )
-            firstRun = runList[runIndex]
-            begin = None
+            lastdate = begin
+            for delta in [ 1, 5, 10, 20, 30 ]:                       #try searching for about 2 months after begin
+                firstdate = lastdate
+                lastdate = self.__dateString(self.__datetime(firstdate) + datetime.timedelta(delta))
+                dasQuery_begin = "run date between[%s,%s]" % (firstdate, lastdate)
+                begindata = self.__getData(dasQuery_begin)
+                if len(begindata) > 0:
+                    begindata.sort(key = lambda run: self.__findInJson(run, ["run", "run_number"]))
+                    try:
+                        runIndex = self.__find_ge( runList, self.__findInJson(begindata[0], ["run", "run_number"]))
+                    except ValueError:
+                        msg = ( "Your 'begin' is after the creation time of the last "
+                                "run in the dataset\n'%s'"%( self.__name ) )
+                        raise AllInOneError( msg )
+                    firstRun = runList[runIndex]
+                    begin = None
+                    break
+
+        if begin:
+            raise AllInOneError("No runs within a reasonable time interval after your 'begin'."
+                                "Try using a 'begin' that has runs soon after it (within 2 months at most)")
+
         if end:
-            try:
-                runIndex = self.__find_lt( runTimeList, end )
-            except ValueError:
-                msg = ( "Your 'end' is before the creation time of the first "
-                        "run in the dataset\n'%s'"%( self.__name ) )
-                raise AllInOneError( msg )
-            lastRun = runList[runIndex]
-            end = None
+            firstdate = end
+            for delta in [ 1, 5, 10, 20, 30 ]:                       #try searching for about 2 months before end
+                lastdate = firstdate
+                firstdate = self.__dateString(self.__datetime(lastdate) - datetime.timedelta(delta))
+                dasQuery_end = "run date between[%s,%s]" % (firstdate, lastdate)
+                enddata = self.__getData(dasQuery_end)
+                if len(enddata) > 0:
+                    enddata.sort(key = lambda run: self.__findInJson(run, ["run", "run_number"]))
+                    try:
+                        runIndex = self.__find_lt( runList, self.__findInJson(enddata[-1], ["run", "run_number"]))
+                    except ValueError:
+                        msg = ( "Your 'end' is before the creation time of the first "
+                                "run in the dataset\n'%s'"%( self.__name ) )
+                        raise AllInOneError( msg )
+                    lastRun = runList[runIndex]
+                    end = None
+                    break
+
+        if end:
+            raise AllInOneError("No runs within a reasonable time interval before your 'end'."
+                                "Try using an 'end' that has runs soon before it (within 2 months at most)")
+
         if shortTuple:
             return firstRun, lastRun
         else:
@@ -400,7 +488,7 @@ class Dataset:
             return     
         self.__alreadyStored = True
         if outName == None:
-            outName = "Dataset" + self.__name.replace("/","_")
+            outName = "Dataset" + self.__name.replace("/", "_")
         packageName = os.path.join( "Alignment", "OfflineValidation" )
         if not os.path.exists( os.path.join(
             os.environ["CMSSW_BASE"], "src", packageName ) ):
@@ -413,7 +501,7 @@ class Dataset:
                    "tab": "",
                    "nEvents": str( -1 ),
                    "importCms": "import FWCore.ParameterSet.Config as cms\n",
-                   "header": "#Do not change, delete, or put anything before these comments\n"
+                   "header": "#Do not delete, put anything before, or (unless you know what you're doing) change these comments\n"
                              "#%s\n"
                              "#data type: %s\n"
                              "#magnetic field: %s\n"
@@ -452,7 +540,7 @@ class Dataset:
     def fileList( self ):
         if self.__fileList:
             return self.__fileList
-        fileList = [ fileInfo["name"] \
+        fileList = [ self.__findInJson(fileInfo,"name") \
                      for fileInfo in self.fileInfoList() ]
         self.__fileList = fileList
         return fileList
@@ -480,9 +568,9 @@ if __name__ == '__main__':
                  'Cert_190456-207898_8TeV_PromptReco_Collisions12_JSON.txt' )
     dataset = Dataset( datasetName )
     print dataset.datasetSnippet( nEvents = 100,jsonPath = jsonFile,
-                                  firstRun = "207983",
-                                  end = "2012-11-28 00:00:00" )
+                                  firstRun = "207800",
+                                  end = "20121128")
     dataset.dump_cff( outName = "Dataset_Test_TkAlMinBias_Run2012D",
                       jsonPath = jsonFile,
-                      firstRun = "207983",
-                      end = "2012-11-28 00:00:00" )
+                      firstRun = "207800",
+                      end = "20121128" )
