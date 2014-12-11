@@ -63,6 +63,7 @@ SiStripSimBlock = cms.PSet(
     LorentzAngle               = cms.string(''),
     Gain                       = cms.string(''),
     #-----SiStripDigitizerAlgorithm
+    PreMixingMode              = cms.bool(False),
     NoiseSigmaThreshold        = cms.double(2.0),
     electronPerAdcDec          = cms.double(247.0), #tuned on collisions at 7 TeV
     electronPerAdcPeak         = cms.double(262.0), #tuned on craft08

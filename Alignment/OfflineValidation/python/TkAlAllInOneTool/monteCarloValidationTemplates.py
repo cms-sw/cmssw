@@ -11,7 +11,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 ### standard includes
-process.load('Configuration/StandardSequences/GeometryPilot2_cff')
+process.load('Configuration.Geometry.GeometryPilot2_cff')
 process.load("Configuration.StandardSequences.RawToDigi_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")

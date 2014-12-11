@@ -12,16 +12,17 @@ chargeCut2069Clusters =  cms.EDProducer("ClusterChargeMasker",
      minGoodStripCharge = cms.double(2069)
 )
 
-mixedTripletStepClusters = cms.EDProducer("TrackClusterRemover",
-#    oldClusterRemovalInfo = cms.InputTag("pixelPairStepClusters"),
-    oldClusterRemovalInfo = cms.InputTag("chargeCut2069Clusters"),
-    trajectories = cms.InputTag("pixelPairStepTracks"),
-    overrideTrkQuals = cms.InputTag('pixelPairStepSelector','pixelPairStep'),
-    TrackQuality = cms.string('highPurity'),
+from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import *
+mixedTripletStepClusters = trackClusterRemover.clone(
+    maxChi2                                  = cms.double(9.0),
+    trajectories                             = cms.InputTag("pixelPairStepTracks"),
+    pixelClusters                            = cms.InputTag("siPixelClusters"),
+    stripClusters                            = cms.InputTag("siStripClusters"),
+#    oldClusterRemovalInfo                    = cms.InputTag("pixelPairStepClusters"),
+    oldClusterRemovalInfo                    = cms.InputTag("chargeCut2069Clusters"),
+    overrideTrkQuals                         = cms.InputTag('pixelPairStepSelector','pixelPairStep'),
+    TrackQuality                             = cms.string('highPurity'),
     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
-    pixelClusters = cms.InputTag("siPixelClusters"),
-    stripClusters = cms.InputTag("siStripClusters"),
-    maxChi2 = cms.double(9.0)
 )
 
 # SEEDING LAYERS

@@ -62,8 +62,8 @@ class HLTProcess(object):
   def __init__(self, configuration):
     self.config = configuration
     self.data   = None
-    self.source = None
-    self.parent = None
+    self.source = []
+    self.parent = []
 
     self.options = {
       'essources' : [],
@@ -855,34 +855,35 @@ if 'GlobalTag' in %%(dict)s:
 
 
   def instrumentDQM(self):
-    # remove any reference to the hltDQMFileSaver
-    if 'hltDQMFileSaver' in self.data:
-      self.data = re.sub(r'\b(process\.)?hltDQMFileSaver \+ ', '', self.data)
-      self.data = re.sub(r' \+ \b(process\.)?hltDQMFileSaver', '', self.data)
-      self.data = re.sub(r'\b(process\.)?hltDQMFileSaver',     '', self.data)
+    if not self.config.hilton:
+      # remove any reference to the hltDQMFileSaver
+      if 'hltDQMFileSaver' in self.data:
+        self.data = re.sub(r'\b(process\.)?hltDQMFileSaver \+ ', '', self.data)
+        self.data = re.sub(r' \+ \b(process\.)?hltDQMFileSaver', '', self.data)
+        self.data = re.sub(r'\b(process\.)?hltDQMFileSaver',     '', self.data)
 
-    # instrument the HLT menu with DQMStore and DQMRootOutputModule suitable for running offline
-    dqmstore  = "\n# load the DQMStore and DQMRootOutputModule\n"
-    dqmstore += self.loadCffCommand('DQMServices.Core.DQMStore_cfi')
-    dqmstore += "%(process)sDQMStore.enableMultiThread = True\n"
-    dqmstore += """
+      # instrument the HLT menu with DQMStore and DQMRootOutputModule suitable for running offline
+      dqmstore  = "\n# load the DQMStore and DQMRootOutputModule\n"
+      dqmstore += self.loadCffCommand('DQMServices.Core.DQMStore_cfi')
+      dqmstore += "%(process)sDQMStore.enableMultiThread = True\n"
+      dqmstore += """
 %(process)sdqmOutput = cms.OutputModule("DQMRootOutputModule",
     fileName = cms.untracked.string("DQMIO.root")
 )
 """
 
-    empty_path = re.compile(r'.*\b(process\.)?DQMOutput = cms\.EndPath\( *\).*')
-    other_path = re.compile(r'(.*\b(process\.)?DQMOutput = cms\.EndPath\()(.*)')
-    if empty_path.search(self.data):
-      # replace an empty DQMOutput path
-      self.data = empty_path.sub(dqmstore + '\n%(process)sDQMOutput = cms.EndPath( %(process)sdqmOutput )\n', self.data)
-    elif other_path.search(self.data):
-      # prepend the dqmOutput to the DQMOutput path
-      self.data = other_path.sub(dqmstore + r'\g<1> %(process)sdqmOutput +\g<3>', self.data)
-    else:
-      # ceate a new DQMOutput path with the dqmOutput module
-      self.data += dqmstore
-      self.data += '\n%(process)sDQMOutput = cms.EndPath( %(process)sdqmOutput )\n'
+      empty_path = re.compile(r'.*\b(process\.)?DQMOutput = cms\.EndPath\( *\).*')
+      other_path = re.compile(r'(.*\b(process\.)?DQMOutput = cms\.EndPath\()(.*)')
+      if empty_path.search(self.data):
+        # replace an empty DQMOutput path
+        self.data = empty_path.sub(dqmstore + '\n%(process)sDQMOutput = cms.EndPath( %(process)sdqmOutput )\n', self.data)
+      elif other_path.search(self.data):
+        # prepend the dqmOutput to the DQMOutput path
+        self.data = other_path.sub(dqmstore + r'\g<1> %(process)sdqmOutput +\g<3>', self.data)
+      else:
+        # ceate a new DQMOutput path with the dqmOutput module
+        self.data += dqmstore
+        self.data += '\n%(process)sDQMOutput = cms.EndPath( %(process)sdqmOutput )\n'
 
 
   @staticmethod
@@ -952,16 +953,18 @@ if 'GlobalTag' in %%(dict)s:
   def buildOptions(self):
     # common configuration for all scenarios
     self.options['services'].append( "-DQM" )
-    self.options['services'].append( "-EvFDaqDirector" )
-    self.options['services'].append( "-FastMonitoringService" )
     self.options['services'].append( "-FUShmDQMOutputService" )
     self.options['services'].append( "-MicroStateService" )
     self.options['services'].append( "-ModuleWebRegistry" )
     self.options['services'].append( "-TimeProfilerService" )
 
-    # drop the online definition of the DQMStore and DQMFileSaver
-    self.options['services'].append( "-DQMStore" )
-    self.options['modules'].append( "-hltDQMFileSaver" )
+    # remove the DAQ modules and the online definition of the DQMStore and DQMFileSaver
+    # unless a hilton-like configuration has been requested
+    if not self.config.hilton:
+      self.options['services'].append( "-EvFDaqDirector" )
+      self.options['services'].append( "-FastMonitoringService" )
+      self.options['services'].append( "-DQMStore" )
+      self.options['modules'].append( "-hltDQMFileSaver" )
 
     if self.config.fragment:
       # extract a configuration file fragment
@@ -1087,6 +1090,11 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltESRawToRecHitFacility" )
       self.options['modules'].append( "-hltEcalRecHitAll" )
       self.options['modules'].append( "-hltESRecHitAll" )
+      # === eGamma
+      self.options['modules'].append( "-hltEgammaCkfTrackCandidatesForGSF" )
+      self.options['modules'].append( "-hltEgammaGsfTracks" )
+      self.options['modules'].append( "-hltEgammaCkfTrackCandidatesForGSFUnseeded" )
+      self.options['modules'].append( "-hltEgammaGsfTracksUnseeded" )
       # === hltPF
       self.options['modules'].append( "-hltPFJetCkfTrackCandidates" )
       self.options['modules'].append( "-hltPFJetCtfWithMaterialTracks" )
@@ -1231,18 +1239,36 @@ if 'GlobalTag' in %%(dict)s:
         self.options['paths'].append( "-HLTAnalyzerEndpath" )
 
 
+  def append_filenames(self, name, filenames):
+    if len(filenames) > 255:
+      token_open  = "( *("
+      token_close = ") )"
+    else:
+      token_open  = "("
+      token_close = ")"
+
+    self.data += "    %s = cms.untracked.vstring%s\n" % (name, token_open)
+    for line in filenames:
+      self.data += "        '%s',\n" % line
+    self.data += "    %s,\n" % (token_close)
+
+
+  def expand_filenames(self, input):
+    # check if the input is a dataset or a list of files
+    if input[0:8] == 'dataset:':
+      from dasFileQuery import dasFileQuery
+      # extract the dataset name, and use DAS to fine the list of LFNs
+      dataset = input[8:]
+      files = dasFileQuery(dataset)
+    else:
+      # assume a comma-separated list of input files
+      files = self.config.input.split(',')
+    return files
+
   def build_source(self):
     if self.config.input:
       # if a dataset or a list of input files was given, use it
-      if self.config.input[0:8] == 'dataset:':
-        from dasFileQuery import dasFileQuery
-        # extract the dataset name, and use DAS to fine the list of LFNs
-        dataset = self.config.input[8:]
-        files   = dasFileQuery(dataset)
-        self.source = files
-      else:
-        # assume a list of input files
-        self.source = self.config.input.split(',')
+      self.source = self.expand_filenames(self.config.input)
     elif self.config.online:
       # online we always run on data
       self.source = [ "file:/tmp/InputCollection.root" ]
@@ -1253,20 +1279,17 @@ if 'GlobalTag' in %%(dict)s:
       # ...or on mc
       self.source = [ "file:RelVal_Raw_%s_MC.root" % self.config.type ]
 
+    if self.config.parent:
+      # if a dataset or a list of input files was given for the parent data, use it
+      self.parent = self.expand_filenames(self.config.parent)
+
     self.data += """
 %(process)ssource = cms.Source( "PoolSource",
-    fileNames = cms.untracked.vstring(
 """
-    if self.source: 
-      for line in self.source:
-        self.data += "        '%s',\n" % line
-    self.data += """    ),
-    secondaryFileNames = cms.untracked.vstring(
-"""
-    if self.parent: 
-      for line in self.parent:
-        self.data += "        '%s',\n" % line
-    self.data += """    ),
+    self.append_filenames("fileNames", self.source)
+    if (self.parent):
+      self.append_filenames("secondaryFileNames", self.parent)
+    self.data += """\
     inputCommands = cms.untracked.vstring(
         'keep *'
     )

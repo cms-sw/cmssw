@@ -53,7 +53,7 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
 
-class HcalRecHitsAnalyzer : public thread_unsafe::DQMEDAnalyzer {
+class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
  public:
   HcalRecHitsAnalyzer(edm::ParameterSet const& conf);
 

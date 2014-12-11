@@ -131,7 +131,14 @@ parser.add_argument('--input',
                     type    = str,
                     default = defaults.input,
                     metavar = 'SOURCE',
-                    help    = 'If specified, run over the specified SOURCE file. Otherwise a default is chosen up depending on the other options' )
+                    help    = 'If set, specify the SOURCE input file(s) or dataset, otherwise a default is chosen up depending on the other options.\nSOURCE can be a single file nane, a comma-separated list of file names, or have the format "dataset:DATASET" to query a DATASET definition from DAS' )
+parser.add_argument('--parent',
+                    dest    = 'parent',
+                    action  = 'store',
+                    type    = str,
+                    default = defaults.parent,
+                    metavar = 'PARENT',
+                    help    = 'If set, specify the PARENT input file(s) or dataset, using the same syntax as SOURCE, above' )
 parser.add_argument('--max-events',
                     dest    = 'events',
                     action  = 'store',
@@ -170,6 +177,12 @@ group.add_argument('--fastsim',
                     action  = 'store_true',
                     default = defaults.fastsim,
                     help    = 'Prepare a menu suitable for Fast Simulation (implies --mc and --fragment)' )
+
+parser.add_argument('--hilton',
+                    dest    = 'hilton',
+                    action  = 'store_true',
+                    default = defaults.hilton,
+                    help    = 'Keep the hilton-specific modules' )
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument('--full',

@@ -12,14 +12,14 @@
 //
 // -- Constructor
 //
-DetectorStateFilter::DetectorStateFilter( const edm::ParameterSet & pset ) {
-   verbose_        = pset.getUntrackedParameter<bool>( "DebugOn", false );
-   detectorType_   = pset.getUntrackedParameter<std::string>( "DetectorType", "sistrip");
-   dcsStatusLabel_ = consumes<DcsStatusCollection>(pset.getUntrackedParameter<edm::InputTag>( "DcsStatusLabel", edm::InputTag("scalersRawToDigi")));
-
-   nEvents_         = 0;
-   nSelectedEvents_ = 0;
-   detectorOn_  = false;
+DetectorStateFilter::DetectorStateFilter( const edm::ParameterSet & pset ) 
+  : verbose_      ( pset.getUntrackedParameter<bool>       ( "DebugOn",      false )    )
+  , detectorType_ ( pset.getUntrackedParameter<std::string>( "DetectorType", "sistrip") )
+  , dcsStatusLabel_ ( consumes<DcsStatusCollection>( pset.getUntrackedParameter<edm::InputTag>( "DcsStatusLabel", edm::InputTag("scalersRawToDigi")) ) )
+{
+  nEvents_         = 0;
+  nSelectedEvents_ = 0;
+  detectorOn_      = false;
 }
 //
 // -- Destructor

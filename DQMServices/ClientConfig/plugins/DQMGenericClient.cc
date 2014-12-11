@@ -96,14 +96,14 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
     efficOptions_.push_back(opt);
   }
 
-  // Parse profiles
-  vstring profileCmds = pset.getUntrackedParameter<vstring>("efficiencyProfile", vstring());
-  for ( vstring::const_iterator profileCmd = profileCmds.begin();
-        profileCmd != profileCmds.end(); ++profileCmd )
+  // Parse efficiency profiles
+  vstring effProfileCmds = pset.getUntrackedParameter<vstring>("efficiencyProfile", vstring());
+  for ( vstring::const_iterator effProfileCmd = effProfileCmds.begin();
+        effProfileCmd != effProfileCmds.end(); ++effProfileCmd )
   {
-    if ( profileCmd->empty() ) continue;
+    if ( effProfileCmd->empty() ) continue;
 
-    boost::tokenizer<elsc> tokens(*profileCmd, commonEscapes);
+    boost::tokenizer<elsc> tokens(*effProfileCmd, commonEscapes);
 
     vector<string> args;
     for(boost::tokenizer<elsc>::const_iterator iToken = tokens.begin();
@@ -113,7 +113,7 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
     }
 
     if ( args.size() < 4 ) {
-      LogInfo("DQMGenericClient") << "Wrong input to profileCmds\n";
+      LogInfo("DQMGenericClient") << "Wrong input to effProfileCmds\n";
       continue;
     }
 
@@ -132,18 +132,18 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
     efficOptions_.push_back(opt);
   }
 
-  VPSet profileSets = pset.getUntrackedParameter<VPSet>("efficiencyProfileSets", VPSet());
-  for ( VPSet::const_iterator profileSet = profileSets.begin();
-        profileSet != profileSets.end(); ++profileSet )
+  VPSet effProfileSets = pset.getUntrackedParameter<VPSet>("efficiencyProfileSets", VPSet());
+  for ( VPSet::const_iterator effProfileSet = effProfileSets.begin();
+        effProfileSet != effProfileSets.end(); ++effProfileSet )
   {
     EfficOption opt;
-    opt.name = profileSet->getUntrackedParameter<string>("name");
-    opt.title = profileSet->getUntrackedParameter<string>("title");
-    opt.numerator = profileSet->getUntrackedParameter<string>("numerator");
-    opt.denominator = profileSet->getUntrackedParameter<string>("denominator");
+    opt.name = effProfileSet->getUntrackedParameter<string>("name");
+    opt.title = effProfileSet->getUntrackedParameter<string>("title");
+    opt.numerator = effProfileSet->getUntrackedParameter<string>("numerator");
+    opt.denominator = effProfileSet->getUntrackedParameter<string>("denominator");
     opt.isProfile = true;
 
-    const string typeName = profileSet->getUntrackedParameter<string>("typeName", "eff");
+    const string typeName = effProfileSet->getUntrackedParameter<string>("typeName", "eff");
     if ( typeName == "eff" ) opt.type = 1;
     else if ( typeName == "fake" ) opt.type = 2;
     else opt.type = 0;
@@ -189,6 +189,41 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
     opt.srcName = resolSet->getUntrackedParameter<string>("srcName");
 
     resolOptions_.push_back(opt);
+  }
+
+  // Parse profiles
+  vstring profileCmds = pset.getUntrackedParameter<vstring>("profile", vstring());
+  for(const auto& profileCmd: profileCmds) {
+    boost::tokenizer<elsc> tokens(profileCmd, commonEscapes);
+
+    vector<string> args;
+    for(boost::tokenizer<elsc>::const_iterator iToken = tokens.begin();
+        iToken != tokens.end(); ++iToken) {
+      if ( iToken->empty() ) continue;
+      args.push_back(*iToken);
+    }
+
+    if ( args.size() != 3 ) {
+      LogInfo("DQMGenericClient") << "Wrong input to profileCmds\n";
+      continue;
+    }
+
+    ProfileOption opt;
+    opt.name = args[0];
+    opt.title = args[1];
+    opt.srcName = args[2];
+
+    profileOptions_.push_back(opt);
+  }
+
+  VPSet profileSets = pset.getUntrackedParameter<VPSet>("profileSets", VPSet());
+  for(const auto& profileSet: profileSets) {
+    ProfileOption opt;
+    opt.name = profileSet.getUntrackedParameter<string>("name");
+    opt.title = profileSet.getUntrackedParameter<string>("title");
+    opt.srcName = profileSet.getUntrackedParameter<string>("srcName");
+
+    profileOptions_.push_back(opt);
   }
 
   // Parse Normalization commands
@@ -335,6 +370,10 @@ void DQMGenericClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter 
           resolOption != resolOptions_.end(); ++resolOption )
     {
       computeResolution(ibooker, igetter, dirName, resolOption->namePrefix, resolOption->titlePrefix, resolOption->srcName);
+    }
+
+    for(const auto& profileOption: profileOptions_) {
+      computeProfile(ibooker, igetter, dirName, profileOption.name, profileOption.title, profileOption.srcName);
     }
 
     for ( vector<NormOption>::const_iterator normOption = normOptions_.begin();
@@ -638,6 +677,50 @@ void DQMGenericClient::computeResolution(DQMStore::IBooker& ibooker, DQMStore::I
   }
   delete[] lowedgesfloats;
 }
+
+void DQMGenericClient::computeProfile(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, const std::string& startDir, const std::string& profileMEName, const std::string& profileMETitle, const std::string& srcMEName) {
+  if(!igetter.dirExists(startDir)) {
+    if(verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
+      LogInfo("DQMGenericClient") << "computeProfile() : "
+                                  << "Cannot find sub-directory " << startDir << endl;
+    }
+    return;
+  }
+
+  ibooker.cd();
+
+  ME* srcME = igetter.get(startDir+"/"+srcMEName);
+  if ( !srcME ) {
+    if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
+      LogInfo("DQMGenericClient") << "computeProfile() : "
+                                  << "No source ME '" << srcMEName << "' found\n";
+    }
+    return;
+  }
+
+  TH2F* hSrc = srcME->getTH2F();
+  if ( !hSrc ) {
+    if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
+      LogInfo("DQMGenericClient") << "computeProfile() : "
+                                  << "Cannot create TH2F from source-ME\n";
+    }
+    return;
+  }
+
+  string profileDir = startDir;
+  string newProfileMEName = profileMEName;
+  string::size_type shiftPos;
+  if ( string::npos != (shiftPos = profileMEName.rfind('/')) ) {
+    profileDir += "/"+profileMEName.substr(0, shiftPos);
+    newProfileMEName.erase(0, shiftPos+1);
+  }
+  ibooker.setCurrentFolder(profileDir);
+
+  std::unique_ptr<TProfile> profile(hSrc->ProfileX()); // We own the pointer
+  profile->SetTitle(profileMETitle.c_str());
+  ibooker.bookProfile(profileMEName, profile.get()); // ibooker makes a copy
+}
+
 
 void DQMGenericClient::normalizeToEntries(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, const std::string& startDir, const std::string& histName,
 					  const std::string& normHistName) 

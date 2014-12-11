@@ -2,8 +2,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-SiTrivialDigitalConverter::SiTrivialDigitalConverter(float in) :
-  electronperADC(in) {
+SiTrivialDigitalConverter::SiTrivialDigitalConverter(float in, bool PreMix) :
+  electronperADC(in), PreMixing_(PreMix) {
   _temp.reserve(800);
   _tempRaw.reserve(800);
 }
@@ -63,8 +63,14 @@ int SiTrivialDigitalConverter::truncate(float in_adc) const {
     254 ADC: 254  <= raw charge < 1023
     255 ADC: raw charge >= 1023
   */
-  if (adc > 1022 ) return 255;
-  if (adc > 253) return 254;
+  if(PreMixing_) {
+    if (adc > 2047 ) return 1023;
+    if (adc > 1022 ) return 1022;
+  }
+  else {
+    if (adc > 1022 ) return 255;
+    if (adc > 253) return 254;
+  }
   //Protection
   if (adc < 0) return 0;
   return adc;

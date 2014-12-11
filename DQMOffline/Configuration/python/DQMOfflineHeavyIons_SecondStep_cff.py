@@ -40,7 +40,6 @@ from DQM.TrackingMonitorClient.TrackingDQMClientHeavyIons_cfi import *
 
 DQMOfflineHeavyIons_SecondStep_PrePOG = cms.Sequence( muonQualityTests 
                                                       * photonOfflineDQMClient
-                                                      * l1TriggerDqmOfflineClient
                                                       * triggerOfflineDQMClient 
                                                       * hltOfflineDQMClient
                                                       * alcaBeamMonitorClient

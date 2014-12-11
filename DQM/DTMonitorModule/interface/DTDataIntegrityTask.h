@@ -125,6 +125,10 @@ private:
   std::string outputFile;
   double rob_max[25];
 
+  int FEDIDmin;
+  int FEDIDMax;
+
+
   //Event counter for the graphs VS time
   int myPrevEv;
 

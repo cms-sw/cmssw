@@ -76,8 +76,8 @@ void HcalDataIntegrityTask::setup(DQMStore::IBooker &ib)
   HcalBaseDQMonitor::setup(ib);
   
   //Initialize phatmap to a vector of vectors of uint64_t 0
-  static size_t iphirange = IPHIMAX - IPHIMIN;
-  static size_t ietarange = IETAMAX - IETAMIN;
+  const static size_t iphirange = IPHIMAX - IPHIMIN;
+  const static size_t ietarange = IETAMAX - IETAMIN;
   
   std::vector<uint64_t> phatv (iphirange + 1, 0);
   

@@ -70,8 +70,6 @@ namespace edm
 
     addMCDigiNoise_ = ps.getUntrackedParameter<bool>("addMCDigiNoise");  // for Sim on Sim mixing
 
-    
-
     // Put Fast Sim Sequences here for Simplification: Fewer options!
 
     if(DoFastSim_) {
@@ -243,7 +241,6 @@ namespace edm
     } else {
 
       produces< edm::DetSetVector<SiStripDigi> > (SiStripDigiCollectionDM_);
-      SiStripWorker_ = new DataMixingSiStripWorker(ps, consumesCollector());
 
       if( addMCDigiNoise_ ) {
 	SiStripMCDigiWorker_ = new DataMixingSiStripMCDigiWorker(ps, consumesCollector());
@@ -332,6 +329,14 @@ namespace edm
     }
   }
 
+  void DataMixingModule::endRun(edm::Run const& run, const edm::EventSetup& ES) { 
+    //if( addMCDigiNoise_ ) {
+      // HcalDigiWorkerProd_->endRun( run, ES ); // FIXME not implemented
+      // EcalDigiWorkerProd_->endRun( ES );      // FIXME not implemented
+    //}
+    BMixingModule::endRun( run, ES);
+  }
+
   // Virtual destructor needed.
   DataMixingModule::~DataMixingModule() { 
     if(MergeEMDigis_){ 
@@ -351,7 +356,6 @@ namespace edm
 	delete SiStripRawWorker_;
       else if(addMCDigiNoise_ ) delete SiStripMCDigiWorker_;
       else delete SiStripWorker_;
-
       delete SiPixelWorker_;
     }
     if(MergePileup_) { delete PUWorker_;}
@@ -545,6 +549,16 @@ namespace edm
     if(MergePileup_) { PUWorker_->putPileupInfo(e);}
 
 
+  }
+
+  void DataMixingModule::beginLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) {
+    BMixingModule::beginLuminosityBlock(l1, c);
+    EcalDigiWorkerProd_->beginLuminosityBlock(l1,c);
+  }
+
+  void DataMixingModule::endLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) {
+    // EcalDigiWorkerProd_->endLuminosityBlock(l1,c);  // FIXME Not implemented.
+    BMixingModule::endLuminosityBlock(l1, c);
   }
 
 

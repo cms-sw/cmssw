@@ -9,6 +9,7 @@
 // FWCore
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -22,21 +23,17 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 
-class SiPixelCertification : public edm::EDAnalyzer {
+class SiPixelCertification: public DQMEDHarvester{
 public:
   explicit SiPixelCertification(const edm::ParameterSet&);
   ~SiPixelCertification();
   
 
 private:
-  virtual void beginJob() ;
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock& , const  edm::EventSetup&);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endLuminosityBlock(const edm::LuminosityBlock& , const  edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const  edm::EventSetup&) ;
-  virtual void endJob() ;
-  
-  DQMStore *dbe_;  
+  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, const edm::LuminosityBlock& , const  edm::EventSetup&) override;
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
+
+  bool firstLumi;
   
   MonitorElement * CertificationPixel;
   MonitorElement * CertificationBarrel;

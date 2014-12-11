@@ -16,6 +16,8 @@ supportedBtagInfos = [
   , 'inclusiveSecondaryVertexFinderFilteredNegativeTagInfos'
   , 'caTopTagInfos'
   ]
+# extend for "internal use" in PAT/MINIAOD (renaming)
+supportedBtagInfos.append( 'caTopTagInfosPAT' )
 
 ## dictionary with all available btag discriminators and the btagInfos that they require
 supportedBtagDiscr = {
@@ -81,7 +83,7 @@ supportedBtagDiscr = {
   , 'negativeSoftPFElectronByPtBJetTags'                    : ['softPFElectronsTagInfos']
   , 'negativeSoftPFElectronByIP3dBJetTags'                  : ['softPFElectronsTagInfos']
   , 'negativeSoftPFElectronByIP2dBJetTags'                  : ['softPFElectronsTagInfos']
-  , 'combinedMVABJetTags'                                   : ['impactParameterTagInfos', 'secondaryVertexTagInfos', 'softPFMuonsTagInfos', 'softPFElectronsTagInfos']
-  , 'positiveCombinedMVABJetTags'                           : ['impactParameterTagInfos', 'secondaryVertexTagInfos', 'softPFMuonsTagInfos', 'softPFElectronsTagInfos']
-  , 'negativeCombinedMVABJetTags'                           : ['impactParameterTagInfos', 'secondaryVertexNegativeTagInfos', 'softPFMuonsTagInfos', 'softPFElectronsTagInfos']
+  , 'combinedMVABJetTags'                                   : ['impactParameterTagInfos', 'inclusiveSecondaryVertexFinderTagInfos', 'softPFMuonsTagInfos', 'softPFElectronsTagInfos']
+  , 'positiveCombinedMVABJetTags'                           : ['impactParameterTagInfos', 'inclusiveSecondaryVertexFinderTagInfos', 'softPFMuonsTagInfos', 'softPFElectronsTagInfos']
+  , 'negativeCombinedMVABJetTags'                           : ['impactParameterTagInfos', 'inclusiveSecondaryVertexFinderNegativeTagInfos', 'softPFMuonsTagInfos', 'softPFElectronsTagInfos']
   }

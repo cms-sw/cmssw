@@ -14,6 +14,7 @@
 #include "DataFormats/Common/interface/FwdPtr.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h" 
 #include "DataFormats/JetReco/interface/PFJet.h"
@@ -32,6 +33,7 @@
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
 #include "DataFormats/BTauReco/interface/CandSecondaryVertexTagInfo.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
+#include "DataFormats/BTauReco/interface/CandSoftLeptonTagInfo.h"
 #include "DataFormats/BTauReco/interface/TauImpactParameterInfo.h"
 #include "DataFormats/BTauReco/interface/TauMassTagInfo.h"
 #include "DataFormats/BTauReco/interface/JetEisolAssociation.h"
@@ -103,9 +105,9 @@ namespace DataFormats_BTauReco {
 
 
     reco::SoftLeptonProperties                                          slp;
+
     std::pair<edm::RefToBase<reco::Track>, reco::SoftLeptonProperties>  slp_p;
     reco::SoftLeptonTagInfo::LeptonMap                                  slp_m;
-
     reco::SoftLeptonTagInfo                                             sl;
     reco::SoftLeptonTagInfoCollection                                   sl_c;
     reco::SoftLeptonTagInfoRef                                          sl_r;
@@ -113,6 +115,16 @@ namespace DataFormats_BTauReco {
     reco::SoftLeptonTagInfoRefProd                                      sl_rp;
     reco::SoftLeptonTagInfoRefVector                                    sl_rv;
     edm::Wrapper<reco::SoftLeptonTagInfoCollection>                     sl_wc;
+
+    std::pair<edm::Ptr<reco::Candidate>, reco::SoftLeptonProperties>    cslp_p;
+    reco::CandSoftLeptonTagInfo::LeptonMap                                  cslp_m;
+    reco::CandSoftLeptonTagInfo                                             csl;
+    reco::CandSoftLeptonTagInfoCollection                                   csl_c;
+    reco::CandSoftLeptonTagInfoRef                                          csl_r;
+    reco::CandSoftLeptonTagInfoFwdRef                                       csl_fr;
+    reco::CandSoftLeptonTagInfoRefProd                                      csl_rp;
+    reco::CandSoftLeptonTagInfoRefVector                                    csl_rv;
+    edm::Wrapper<reco::CandSoftLeptonTagInfoCollection>                     csl_wc;
 
     std::pair< reco::btau::TaggingVariableName, float >                 ptt1;
     std::vector<std::pair<reco::btau::TaggingVariableName,float> >      vptt1;
@@ -257,6 +269,8 @@ namespace DataFormats_BTauReco {
     edm::reftobase::RefHolder<reco::IsolatedTauTagInfoRef>                      rbh_it;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::SoftLeptonTagInfoRef>       rb_sl;
     edm::reftobase::RefHolder<reco::SoftLeptonTagInfoRef>                       rbh_sl;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::CandSoftLeptonTagInfoRef>   rb_csl;
+    edm::reftobase::RefHolder<reco::CandSoftLeptonTagInfoRef>                   rbh_csl;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::TauMassTagInfoRef>          rb_tmt;
     edm::reftobase::RefHolder<reco::TauMassTagInfoRef>                          rbh_tmt;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackProbabilityTagInfoRef> rb_tp;
@@ -284,6 +298,8 @@ namespace DataFormats_BTauReco {
     edm::reftobase::RefHolder<reco::IsolatedTauTagInfoFwdRef>                      rbh_itf;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::SoftLeptonTagInfoFwdRef>       rb_slf;
     edm::reftobase::RefHolder<reco::SoftLeptonTagInfoFwdRef>                       rbh_slf;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::CandSoftLeptonTagInfoFwdRef>   rb_cslf;
+    edm::reftobase::RefHolder<reco::CandSoftLeptonTagInfoFwdRef>                   rbh_cslf;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::TauMassTagInfoFwdRef>          rb_tmtf;
     edm::reftobase::RefHolder<reco::TauMassTagInfoFwdRef>                          rbh_tmtf;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackProbabilityTagInfoFwdRef> rb_tpf;
