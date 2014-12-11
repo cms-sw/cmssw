@@ -66,7 +66,7 @@ if runOnMC:
     process.bTagValidation.genJetsMatched = cms.InputTag("patJetGenJetMatch")
     process.bTagValidation.doPUid = cms.bool(True)
     process.ak4GenJetsForPUid = cms.EDFilter("GenJetSelector",
-                                             src = cms.InputTag("ak4GenJetsNoNu"),
+                                             src = cms.InputTag("ak4GenJets"),
                                              cut = cms.string('pt > 8.'),
                                              filter = cms.bool(False)
                                              )

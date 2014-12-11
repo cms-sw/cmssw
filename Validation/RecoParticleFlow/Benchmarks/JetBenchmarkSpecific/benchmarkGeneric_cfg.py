@@ -61,10 +61,10 @@ process.caloJetBenchmarkGeneric.maxEta = cms.double(5.0)
 process.jptJetBenchmarkGeneric.maxEta = cms.double(5.0)
 
 # should do a cloning
-process.genParticlesForJetsNoNu.ignoreParticleIDs.append(14)
-process.genParticlesForJetsNoNu.ignoreParticleIDs.append(12)
-process.genParticlesForJetsNoNu.ignoreParticleIDs.append(16)
-process.genParticlesForJetsNoNu.excludeResonances = False
+process.genParticlesForJets.ignoreParticleIDs.append(14)
+process.genParticlesForJets.ignoreParticleIDs.append(12)
+process.genParticlesForJets.ignoreParticleIDs.append(16)
+process.genParticlesForJets.excludeResonances = False
 
 
 process.pfJetBenchmarkGeneric.OutputFile = cms.untracked.string('JetBenchmarkGeneric.root')
@@ -73,7 +73,7 @@ process.jptJetBenchmarkGeneric.OutputFile = cms.untracked.string('JetBenchmarkGe
 
 process.p =cms.Path(
     process.genJetParticles+
-    process.ak4GenJetsNoNu+
+    process.ak4GenJets+
     #process.iterativeCone5PFJets+
     process.pfJetBenchmarkGeneric+
     process.caloJetBenchmarkGeneric
