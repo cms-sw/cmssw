@@ -17,6 +17,7 @@ from HLTriggerOffline.SUSYBSM.SUSYBSM_HLT_HT_DoubleElectron_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_HLT_HT_MuEle_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_HLT_Muon_BJet_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_HLT_Electron_BJet_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_alphaT_cff import *
 
 
 SusyExoPostVal = cms.Sequence(SUSY_HLT_HT_MET_POSTPROCESSING +
@@ -37,7 +38,8 @@ SusyExoPostVal = cms.Sequence(SUSY_HLT_HT_MET_POSTPROCESSING +
                              SUSY_HLT_HT_DoubleEle_POSTPROCESSING +
                              SUSY_HLT_HT_MuEle_POSTPROCESSING +
                              SUSY_HLT_Muon_BJet_POSTPROCESSING +
-                             SUSY_HLT_Electron_BJet_POSTPROCESSING)
+                             SUSY_HLT_Electron_BJet_POSTPROCESSING +
+                             SUSY_HLT_alphaT_POSTPROCESSING )
 
 
 SusyExoPostVal_fastsim = cms.Sequence(SUSY_HLT_HT_MET_FASTSIM_POSTPROCESSING +
