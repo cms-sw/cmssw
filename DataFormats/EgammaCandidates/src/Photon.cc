@@ -53,7 +53,7 @@ void Photon::setVertex(const Point & vertex) {
   math::XYZVectorF momentum = direction.unit() * energy;
   math::XYZTLorentzVector lv(momentum.x(), momentum.y(), momentum.z(), energy );
   setP4(lv);
-  vertex_ = vertex;
+  LeafCandidate::setVertex(vertex);
 }
 
 reco::SuperClusterRef Photon::superCluster() const {
