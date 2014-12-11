@@ -50,7 +50,6 @@ process.ctfProducerCustomised.src = 'TrackerTrackHitFilter'
 process.ctfProducerCustomised.TTRHBuilder = 'WithAngleAndTemplate'
 process.ctfProducerCustomised.TrajectoryInEvent = True
 
-
 # parameters for TrackSelector
 ###process.AlignmentTrackSelector.src = '<SKIM>'
 process.AlignmentTrackSelector.src = 'ctfProducerCustomised'
