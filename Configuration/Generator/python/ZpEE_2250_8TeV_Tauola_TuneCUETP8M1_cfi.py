@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.Generator.Pythia8CommonSettings_cfi import *
 from Configuration.Generator.Pythia8CUEP8M1Settings_cfi import *
-from GeneratorInterface.ExternalDecays.TauolaSettings_cff import *
 source = cms.Source("EmptySource")
 generator = cms.EDFilter("Pythia8GeneratorFilter",
                          #pythiaHepMCVerbosity = cms.untracked.bool(False),
@@ -10,13 +9,6 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
                          pythiaPylistVerbosity = cms.untracked.int32(1),
                          filterEfficiency = cms.untracked.double(1.0),
                          crossSection = cms.untracked.double(0.00002497),
-                         ExternalDecays = cms.PSet(
-        Tauola = cms.untracked.PSet(
-            TauolaPolar,
-            TauolaDefaultInputCards
-            ),
-        parameterSets = cms.vstring('Tauola')
-        ),
                          PythiaParameters = cms.PSet(
         pythia8CommonSettingsBlock,
         pythia8CUEP8M1SettingsBlock,
