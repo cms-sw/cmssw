@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_3_0/GRun/V8 (CMSSW_7_3_0)
+# /dev/CMSSW_7_3_0/GRun/V9 (CMSSW_7_3_0)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_3_0/GRun/V8')
+  tableName = cms.string('/dev/CMSSW_7_3_0/GRun/V9')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -3924,7 +3924,7 @@ hltL1sL1HTT150ORHTT175 = cms.EDFilter( "HLTLevel1GTSeed",
     L1GtObjectMapTag = cms.InputTag( "gtDigis" ),
     L1TechTriggerSeeding = cms.bool( False )
 )
-hltPreAK8PFHT850TrimR0p1PT0p03Mass50 = cms.EDFilter( "HLTPrescaler",
+hltPreAK8PFHT700TrimR0p1PT0p03Mass50 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "gtDigis" ),
     offset = cms.uint32( 0 )
 )
@@ -28227,7 +28227,7 @@ HLTEle15GsfSequence = cms.Sequence( HLTDoFullUnpackingEgammaEcalSequence + HLTPF
 
 HLTriggerFirstPath = cms.Path( hltGetConditions + hltGetRaw + hltBoolFalse )
 HLT_AK8PFJet360TrimMod_Mass30_v1 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet176ORSingleJet200 + hltPreAK8PFJet360TrimModMass30 + HLTAK8CaloJetsSequence + hltAK8SingleCaloJet260 + HLTAK8PFJetsSequence + hltAK8PFJetsCorrectedMatchedToCaloJets260 + hltAK8TrimModJets + hltAK8SinglePFJet360TrimModMass30 + cms.SequencePlaceholder( "HLTEndSequence" ) )
-HLT_AK8PFHT700_TrimR0p1PT0p03Mass50_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT150ORHTT175 + hltPreAK8PFHT850TrimR0p1PT0p03Mass50 + HLTAK8CaloJetsSequence + hltAK8HtMht + hltAK8Ht600 + HLTAK8PFJetsSequence + hltAK8PFHT + hltAK8PFJetsTrimR0p1PT0p03 + hlt1AK8PFJetsTrimR0p1PT0p03Mass50 + hltAK8PFHT700 + cms.SequencePlaceholder( "HLTEndSequence" ) )
+HLT_AK8PFHT700_TrimR0p1PT0p03Mass50_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT150ORHTT175 + hltPreAK8PFHT700TrimR0p1PT0p03Mass50 + HLTAK8CaloJetsSequence + hltAK8HtMht + hltAK8Ht600 + HLTAK8PFJetsSequence + hltAK8PFHT + hltAK8PFJetsTrimR0p1PT0p03 + hlt1AK8PFJetsTrimR0p1PT0p03Mass50 + hltAK8PFHT700 + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_CaloJet500_NoJetID_v1 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet200 + hltPreCaloJet500NoJetID + HLTAK4CaloJetsReconstructionNoIDSequence + HLTAK4CaloJetsCorrectionNoIDSequence + hltSingleCaloJet500 + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_Dimuon13_PsiPrime_v1 = cms.Path( HLTBeginSequence + hltL1sL1DoubleMu10MuOpenHighQ + hltPreDimuon13PsiPrime + hltL1fL1sL1DoubleMu10MuOpenHighQL1Filtered0 + HLTL2muonrecoSequence + hltL2fL1sL1DoubleMu10MuOpenHighQL1f0L2PreFiltered0 + HLTL3muonrecoSequence + hltDimuon13PsiPrimeL3Filtered + hltDisplacedmumuVtxProducerDimuon13PsiPrime + hltDisplacedmumuFilterDimuon13PsiPrime + cms.SequencePlaceholder( "HLTEndSequence" ) )
 HLT_Dimuon13_Upsilon_v1 = cms.Path( HLTBeginSequence + hltL1sL1DoubleMu10MuOpenHighQ + hltPreDimuon13Upsilon + hltL1fL1sL1DoubleMu10MuOpenHighQL1Filtered0 + HLTL2muonrecoSequence + hltL2fL1sL1DoubleMu10MuOpenHighQL1f0L2PreFiltered0 + HLTL3muonrecoSequence + hltDimuon13UpsilonL3Filtered + hltDisplacedmumuVtxProducerDimuon13Upsilon + hltDisplacedmumuFilterDimuon13Upsilon + cms.SequencePlaceholder( "HLTEndSequence" ) )
