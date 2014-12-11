@@ -59,14 +59,6 @@ hltL3TrackCandidateFromL2NoVtx.SeedProducer = "hltL3TrajectorySeedNoVtx"
 # Paths that need a regional pixel seed (which accesses Pixel RecHits in its usual implementation)
 hltJpsiTkPixelSeedFromL3Candidate = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
 hltCkfTrackCandidatesJpsiTk = cms.Sequence(globalPixelTracking)
-# Take all pixel tracks (pTMin>1GeV, nHits>=8)
-hltCtfWithMaterialTracksJpsiTk = cms.EDProducer("FastTrackMerger",
-    SaveTracksOnly = cms.untracked.bool(True),
-    TrackProducers = cms.VInputTag(cms.InputTag("globalPixelWithMaterialTracks"),
-                                   cms.InputTag("globalPixelTrackCandidates")),
-    ptMin = cms.untracked.double(1.0),
-    minHits = cms.untracked.uint32(8)
-)
 
 # CKFTrackCandidateMaker
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
