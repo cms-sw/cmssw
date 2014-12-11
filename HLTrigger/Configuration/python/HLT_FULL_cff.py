@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_3_0/HLT/V18 (CMSSW_7_3_0)
+# /dev/CMSSW_7_3_0/HLT/V19 (CMSSW_7_3_0)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_3_0/HLT/V18')
+  tableName = cms.string('/dev/CMSSW_7_3_0/HLT/V19')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -5868,7 +5868,7 @@ hltL1sL1HTT150ORHTT175 = cms.EDFilter( "HLTLevel1GTSeed",
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1TechTriggerSeeding = cms.bool( False )
 )
-hltPreAK8PFHT850TrimR0p1PT0p03Mass50 = cms.EDFilter( "HLTPrescaler",
+hltPreAK8PFHT700TrimR0p1PT0p03Mass50 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
@@ -43155,7 +43155,7 @@ HLTRecopixelvertexingForHighMultSequence = cms.Sequence( hltPixelLayerTriplets +
 
 HLTriggerFirstPath = cms.Path( hltGetConditions + hltGetRaw + hltBoolFalse )
 HLT_AK8PFJet360TrimMod_Mass30_v1 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet176ORSingleJet200 + hltPreAK8PFJet360TrimModMass30 + HLTAK8CaloJetsSequence + hltAK8SingleCaloJet260 + HLTAK8PFJetsSequence + hltAK8PFJetsCorrectedMatchedToCaloJets260 + hltAK8TrimModJets + hltAK8SinglePFJet360TrimModMass30 + HLTEndSequence )
-HLT_AK8PFHT700_TrimR0p1PT0p03Mass50_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT150ORHTT175 + hltPreAK8PFHT850TrimR0p1PT0p03Mass50 + HLTAK8CaloJetsSequence + hltAK8HtMht + hltAK8Ht600 + HLTAK8PFJetsSequence + hltAK8PFHT + hltAK8PFJetsTrimR0p1PT0p03 + hlt1AK8PFJetsTrimR0p1PT0p03Mass50 + hltAK8PFHT700 + HLTEndSequence )
+HLT_AK8PFHT700_TrimR0p1PT0p03Mass50_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT150ORHTT175 + hltPreAK8PFHT700TrimR0p1PT0p03Mass50 + HLTAK8CaloJetsSequence + hltAK8HtMht + hltAK8Ht600 + HLTAK8PFJetsSequence + hltAK8PFHT + hltAK8PFJetsTrimR0p1PT0p03 + hlt1AK8PFJetsTrimR0p1PT0p03Mass50 + hltAK8PFHT700 + HLTEndSequence )
 HLT_BTagCSV07_v1 = cms.Path( HLTBeginSequence + hltPreBTagCSV07 + HLTAK4CaloJetsSequence + HLTFastPrimaryVertexSequence + hltFastPVPixelVertexSelector + HLTBtagCSVSequenceL3 + hltBLifetimeL3FilterCSV + HLTEndSequence )
 HLT_CaloJet260_v1 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet200 + hltPreCaloJet260 + HLTAK4CaloJetsSequence + hltSingleCaloJet260 + HLTEndSequence )
 HLT_CaloJet500_NoJetID_v1 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet200 + hltPreCaloJet500NoJetID + HLTAK4CaloJetsReconstructionNoIDSequence + HLTAK4CaloJetsCorrectionNoIDSequence + hltSingleCaloJet500 + HLTEndSequence )
