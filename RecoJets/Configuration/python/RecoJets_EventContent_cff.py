@@ -102,12 +102,11 @@ RecoJetsRECO = cms.PSet(
                                            )
 )
 RecoGenJetsRECO = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_kt4GenJets_*_*', 
-                                           'keep *_kt6GenJets_*_*',
-                                           'keep *_ak4GenJets_*_*',
-                                           'keep *_ak5GenJets_*_*',
-                                           'keep *_ak7GenJets_*_*',
-                                           'keep *_iterativeCone5GenJets_*_*',
+    outputCommands = cms.untracked.vstring('keep *_ak4GenJets_*_*',
+                                           'keep *_ak4GenJetsNoNu_*_*',
+                                           'keep *_ak5GenJetsNoNu_*_*',
+                                           'keep *_ak7GenJetsNoNu_*_*',
+                                           'keep *_ak8GenJetsNoNu_*_*',
                                            'keep *_genParticle_*_*')
     )
 #AOD content
@@ -170,12 +169,10 @@ RecoJetsAOD = cms.PSet(
                                            )
     )
 RecoGenJetsAOD = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_kt4GenJets_*_*', 
-                                           'keep *_kt6GenJets_*_*',
-                                           'keep *_ak4GenJets_*_*',
-                                           'keep *_ak5GenJets_*_*',
-                                           'keep *_ak8GenJets_*_*',
-                                           #        'keep *_iterativeCone5GenJets_*_*', 
+    outputCommands = cms.untracked.vstring('keep *_ak4GenJets_*_*',
+                                           'keep *_ak4GenJetsNoNu_*_*',
+                                           'keep *_ak5GenJetsNoNu_*_*',
+                                           'keep *_ak8GenJetsNoNu_*_*',
                                            'keep *_genParticle_*_*'
                                            )
     )

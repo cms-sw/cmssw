@@ -38,6 +38,7 @@ for newAttr in newProcAttributes:
 
 produceDenominatorQCD = cms.Sequence(
     genParticlesForJets
+    *ak5GenJets
     *kinematicSelectedTauValDenominatorQCD
     )
 
