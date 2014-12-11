@@ -47,7 +47,7 @@ iterativeInitialTracks.trackAlgo = cms.untracked.uint32(4) # initialStep
 #vertices
 import RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi
 firstStepPrimaryVertices=RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi.offlinePrimaryVertices.clone()
-firstStepPrimaryVertices.TrackLabel = cms.InputTag("initialStepTracks")
+firstStepPrimaryVertices.TrackLabel = cms.InputTag("iterativeInitialTracks")
 firstStepPrimaryVertices.vertexCollections = cms.VPSet(
     [cms.PSet(label=cms.string(""),
               algorithm=cms.string("AdaptiveVertexFitter"),
@@ -69,7 +69,7 @@ import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 initialStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
         src='iterativeInitialTracks',
         trackSelectors= cms.VPSet(
-7            RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+            RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
                 name = 'initialStepLoose',
                             ), #end of pset
                     RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
