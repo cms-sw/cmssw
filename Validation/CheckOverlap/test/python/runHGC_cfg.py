@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
-#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2023HGCalMuonXML_cfi")
-process.load("Geometry.HGCalCommonData.testHGCXML_cfi")
+process.load("Geometry.CMSCommonData.cmsExtendedGeometry2023HGCalV6MuonXML_cfi")
+#process.load("Geometry.HGCalCommonData.testHGCXML_cfi")
 
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
@@ -14,7 +14,7 @@ process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('G4cout', 'G4cerr', 'HGCalGeom'),
+    categories = cms.untracked.vstring('G4cout', 'G4cerr', 'HGCalGeom', 'HCalGeom'),
     debugModules = cms.untracked.vstring('*'),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('DEBUG'),
@@ -28,6 +28,9 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(-1)
         ),
         HGCalGeom = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        HCalGeom = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         )
     ),
