@@ -2,8 +2,8 @@ import operator
 import itertools
 import copy
 from math import *
-
-from ROOT import TriggerBitChecker
+import ROOT
+from ROOT.heppy import TriggerBitChecker
 
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.HeppyCore.framework.event import Event
@@ -13,6 +13,10 @@ from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 class TriggerBitFilter( Analyzer ):
     def __init__(self, cfg_ana, cfg_comp, looperName ):
         super(TriggerBitFilter,self).__init__(cfg_ana,cfg_comp,looperName)
+        if hasattr(self.cfg_ana,"processName"):
+                self.processName = self.cfg_ana.processName
+        else :
+                self.processName = 'HLT'
         triggers = cfg_comp.triggers
         self.autoAccept = True if len(triggers) == 0 else False
         vetoTriggers = cfg_comp.vetoTriggers if hasattr(cfg_comp, 'vetoTriggers') else []
@@ -29,17 +33,17 @@ class TriggerBitFilter( Analyzer ):
         
     def declareHandles(self):
         super(TriggerBitFilter, self).declareHandles()
-        self.handles['TriggerResults'] = AutoHandle( ('TriggerResults','','HLT'), 'edm::TriggerResults' )
+        self.handles['TriggerResults'] = AutoHandle( ('TriggerResults','',self.processName), 'edm::TriggerResults' )
 
     def beginLoop(self, setup):
         super(TriggerBitFilter,self).beginLoop(setup)
 
-    def process(self, iEvent, event):
+    def process(self, event):
         if self.autoAccept: return True
-        self.readCollections( iEvent )
-        if not self.mainFilter.check(iEvent.object(), self.handles['TriggerResults'].product()):
+        self.readCollections( event.input )
+        if not self.mainFilter.check(event.input.object(), self.handles['TriggerResults'].product()):
             return False
-        if self.vetoFilter != None and self.vetoFilter.check(iEvent.object(), self.handles['TriggerResults'].product()):
+        if self.vetoFilter != None and self.vetoFilter.check(event.input.object(), self.handles['TriggerResults'].product()):
             return False
         return True
 
