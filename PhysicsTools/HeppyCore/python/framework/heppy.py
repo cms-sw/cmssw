@@ -11,6 +11,15 @@ import copy
 from multiprocessing import Pool
 from pprint import pprint
 
+# import root in batch mode if "-i" is not among the options
+if "-i" not in sys.argv:
+    oldv = sys.argv[:]
+    sys.argv = [ "-b-"]
+    import ROOT
+    ROOT.gROOT.SetBatch(True)
+    sys.argv = oldv
+
+
 from PhysicsTools.HeppyCore.framework.looper import Looper
 
 # global, to be used interactively when only one component is processed.
@@ -120,18 +129,20 @@ def main( options, args ):
     selComps = split(selComps)
     for comp in selComps:
         print comp
-    if len(selComps)>14:
-        raise ValueError('too many threads: {tnum}'.format(tnum=len(selComps)))
+    if len(selComps)>10:
+        print "WARNING: too many threads {tnum}, will just use a maximum of 10.".format(tnum=len(selComps))
     if not createOutputDir(outDir, selComps, options.force):
         print 'exiting'
         sys.exit(0)
     if len(selComps)>1:
         shutil.copy( cfgFileName, outDir )
-        pool = Pool(processes=len(selComps))
+        pool = Pool(processes=min(len(selComps),10))
+        ## workaround for a scoping problem in ipython+multiprocessing
+        import PhysicsTools.HeppyCore.framework.heppy as ML 
         for comp in selComps:
             print 'submitting', comp.name
-            pool.apply_async( runLoopAsync, [comp, outDir, cfg.config, options],
-                              callback=callBack)
+            pool.apply_async( ML.runLoopAsync, [comp, outDir, cfg.config, options],
+                              callback=ML.callBack)
         pool.close()
         pool.join()
     else:
@@ -160,7 +171,7 @@ if __name__ == '__main__':
                       dest="nprint",
                       help="number of events to print at the beginning",
                       default=5)
-    parser.add_option("-i", "--iEvent",
+    parser.add_option("-e", "--iEvent", 
                       dest="iEvent",
                       help="jump to a given event. ignored in multiprocessing.",
                       default=None)
@@ -169,7 +180,15 @@ if __name__ == '__main__':
                       action='store_true',
                       help="don't ask questions in case output directory already exists.",
                       default=False)
+    parser.add_option("-i", "--interactive", 
+                      dest="interactive",
+                      action='store_true',
+                      help="stay in the command line prompt instead of exiting",
+                      default=False)
+
 
     (options,args) = parser.parse_args()
 
     main(options, args)
+    if not options.interactive:
+        exit() # trigger exit also from ipython
