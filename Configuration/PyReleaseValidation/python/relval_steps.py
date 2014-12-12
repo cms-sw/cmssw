@@ -932,8 +932,9 @@ step3Up2015Hal = {'-s'            :'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
                  '--customise'    :'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'
                  }
 
-step3Up2015DefaultsUnsch = merge([{'--runUnscheduled':''},step3Up2015Defaults])
-step3DefaultsUnsch = merge([{'--runUnscheduled':''},step3Defaults])
+unSchOverrides={'--runUnscheduled':'','-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION,DQM','--eventcontent':'RECOSIM,MINIAODSIM,DQM','--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO'}
+step3Up2015DefaultsUnsch = merge([unSchOverrides,step3Up2015Defaults])
+step3DefaultsUnsch = merge([unSchOverrides,step3Defaults])
 
                              
 steps['RECOUP15']=merge([step3Up2015Defaults]) # todo: remove UP from label
