@@ -17,4 +17,5 @@ StripCPEfromTrackAngleESProducer.parameters    = cms.PSet(
    mTEC_P0        = cms.double(-1.885),
    mTEC_P1        = cms.double( .471),
    useLegacyError = cms.bool(True),
+   maxChgOneMIP   = cms.double(-6000.)
 )
