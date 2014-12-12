@@ -17,6 +17,68 @@ import math
 #   note: be extra carefull when using singleObject and combinedObject drawables in same
 #          handler definition. Histo names may be the same, currently there is no protection against it
 #
+def getZeroBias_SinglePixelTrackVPSet():
+    ret=cms.VPSet()
+    partialPathName = "HLT_ZeroBias_SinglePixelTrack_v"
+    hltPixelTracksZB =  cms.PSet(
+        triggerSelection = cms.string(partialPathName+"*"),
+        handlerType = cms.string("FromHLT"),
+        partialPathName = cms.string(partialPathName),
+        partialFilterName  = cms.string("hltMinBiasPixelFilt"),
+        dqmhistolabel  = cms.string("hltPixelTracks"),
+        mainDQMDirname = cms.untracked.string(fsqdirname),
+        singleObjectsPreselection = cms.string("1==1"),
+        singleObjectDrawables =  cms.VPSet(
+            cms.PSet (name = cms.string("pt"), expression = cms.string("pt"), bins = cms.int32(50), min = cms.double(0.4), max = cms.double(10)),
+            cms.PSet (name = cms.string("eta"), expression = cms.string("eta"), bins = cms.int32(100), min = cms.double(-2.5), max = cms.double(2.5)),
+            cms.PSet (name = cms.string("phi"), expression = cms.string("phi"), bins = cms.int32(100), min = cms.double(-3.15), max = cms.double(3.15))
+        ),
+        combinedObjectSelection =  cms.string("1==1"),
+        combinedObjectSortCriteria = cms.string("at(0).pt"),
+        combinedObjectDimension = cms.int32(1),
+        combinedObjectDrawables =  cms.VPSet()
+    )
+    ret.append(hltPixelTracksZB)
+
+    # note: for global efficiency (ie not efficiency as a funtion of something)
+    # calculation we use RecoTrack handler in a bit twisted way.
+    #     RecoTrack handler assumes, that the efficiency calculation is done
+    #   only for events with at least one offline track (from generalTracks collection)
+    #   passing the selection criteria from singleObjectsPreselection variable
+    #     Such events are used to fill 1-bin-large-histogram with a range -0.5...0.5
+    #     Note, that the histogram is always filled with the 0 value ("0*" part in 
+    #   expression string). The "at(0).pt()" part is needed to make expression parses
+    #   happy.
+    tracksCountZB  =  cms.PSet(
+            triggerSelection = cms.string(partialPathName+"*"),
+            handlerType = cms.string("RecoTrack"),
+            inputCol = cms.InputTag("generalTracks"),
+            # l parameters
+            partialPathName = cms.string(partialPathName),
+            partialFilterName  = cms.string("hltL1sETT"),
+            dqmhistolabel  = cms.string("zb"),
+            mainDQMDirname = cms.untracked.string(fsqdirname),
+            singleObjectsPreselection = cms.string("pt > 0.4 && abs(eta) < 2.4"), 
+            singleObjectDrawables =  cms.VPSet(),
+            combinedObjectSelection =  cms.string("1==1"),
+            combinedObjectSortCriteria = cms.string('at(0).pt()'), # doesnt matter
+            combinedObjectDimension = cms.int32(1),
+            combinedObjectDrawables =  cms.VPSet(
+                cms.PSet (name = cms.string("Eff_nominator"), expression = cms.string('0*at(0).pt()'), 
+                         bins = cms.int32(1), min = cms.double(-0.5), max = cms.double(0.5))
+            )
+    )
+    ret.append(tracksCountZB)
+    tracksCountDenomZB = tracksCountZB.clone()
+    tracksCountDenomZB.triggerSelection = cms.string("HLT_ZeroBias_v*")
+    tracksCountDenomZB.combinedObjectDrawables =  cms.VPSet(
+        cms.PSet (name = cms.string("Eff_denominator"), expression = cms.string("0*at(0).pt()"),
+                         bins = cms.int32(1), min = cms.double(-0.5), max = cms.double(0.5))
+    )
+    ret.append(tracksCountDenomZB)
+
+    return ret
+
 def getHighMultVPSet():
     ret=cms.VPSet()
     thresholds = [60, 85, 110, 135, 160]
@@ -312,6 +374,7 @@ def getFSQAll():
     ret = cms.VPSet()
     ret.extend(getHighMultVPSet())
     ret.extend(getPTAveVPSet())
+    ret.extend(getZeroBias_SinglePixelTrackVPSet())
     return ret
 
 
