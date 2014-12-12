@@ -135,10 +135,11 @@ class Component( CFG ):
         self.dataset_entries = 0
         self.isData = False
         self.isMC = False
+        self.isEmbed = False
 
 class DataComponent( Component ):
 
-    def __init__(self, name, files, intLumi, triggers, json=None):
+    def __init__(self, name, files, intLumi=None, triggers=[], json=None):
         super(DataComponent, self).__init__(name, files, triggers)
         self.isData = True
         self.intLumi = intLumi
@@ -154,10 +155,9 @@ class DataComponent( Component ):
 
 
 class MCComponent( Component ):
-    def __init__(self, name, files, triggers, xSection,
-                 nGenEvents,
-                 # vertexWeight,tauEffWeight, muEffWeight,
-                 effCorrFactor, **kwargs ):
+    def __init__(self, name, files, triggers=[], xSection=1,
+                 nGenEvents=None,
+                 effCorrFactor=None, **kwargs ):
         super( MCComponent, self).__init__( name = name,
                                             files = files,
                                             triggers = triggers, **kwargs )
