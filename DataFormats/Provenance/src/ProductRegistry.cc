@@ -108,6 +108,8 @@ namespace edm {
     std::pair<ProductList::iterator, bool> ret =
          productList_.insert(std::make_pair(BranchKey(bd), bd));
     assert(ret.second);
+    transient_.aliasToOriginal_.emplace_back(labelAlias,
+                                             productDesc.moduleLabel());
     addCalled(bd, false);
   }
 
@@ -151,6 +153,7 @@ namespace edm {
     if(initializeLookupInfo) {
       initializeLookupTables();
     }
+    sort_all(transient_.aliasToOriginal_);
   }
 
   void

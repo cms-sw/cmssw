@@ -10,6 +10,7 @@ Toy EDAnalyzers for testing purposes only.
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 //
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -52,6 +53,30 @@ namespace edmtest {
       value_(iPSet.getUntrackedParameter<int>("valueMustMatch")),
       moduleLabel_(iPSet.getUntrackedParameter<std::string>("moduleLabel"), "") {
       consumes<IntProduct>(moduleLabel_);
+    }
+
+    void analyze(edm::Event const& iEvent, edm::EventSetup const&) {
+      edm::Handle<IntProduct> handle;
+      iEvent.getByLabel(moduleLabel_, handle);
+      if(handle->value != value_) {
+        throw cms::Exception("ValueMissMatch")
+          << "The value for \"" << moduleLabel_ << "\" is "
+          << handle->value << " but it was supposed to be " << value_;
+      }
+    }
+  private:
+    int value_;
+    edm::InputTag moduleLabel_;
+  };
+
+  //--------------------------------------------------------------------
+  //
+  class ConsumingStreamAnalyzer : public edm::stream::EDAnalyzer<> {
+  public:
+    ConsumingStreamAnalyzer(edm::ParameterSet const& iPSet) :
+      value_(iPSet.getUntrackedParameter<int>("valueMustMatch")),
+      moduleLabel_(iPSet.getUntrackedParameter<std::string>("moduleLabel"), "") {
+      mayConsume<IntProduct>(moduleLabel_);
     }
 
     void analyze(edm::Event const& iEvent, edm::EventSetup const&) {
@@ -173,10 +198,12 @@ namespace edmtest {
 
 using edmtest::NonAnalyzer;
 using edmtest::IntTestAnalyzer;
+using edmtest::ConsumingStreamAnalyzer;
 using edmtest::SCSimpleAnalyzer;
 using edmtest::DSVAnalyzer;
 DEFINE_FWK_MODULE(NonAnalyzer);
 DEFINE_FWK_MODULE(IntTestAnalyzer);
+DEFINE_FWK_MODULE(ConsumingStreamAnalyzer);
 DEFINE_FWK_MODULE(SCSimpleAnalyzer);
 DEFINE_FWK_MODULE(DSVAnalyzer);
 

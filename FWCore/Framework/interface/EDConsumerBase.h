@@ -19,10 +19,13 @@
 //
 
 // system include files
+#include <map>
+#include <string>
 #include <vector>
 
 // user include files
 #include "FWCore/Framework/interface/ProductHolderIndexAndSkipBit.h"
+#include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/TypeToGet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -36,7 +39,9 @@
 // forward declarations
 
 namespace edm {
+  class ModuleDescription;
   class ProductHolderIndexHelper;
+  class ProductRegistry;
   class ConsumesCollector;
   template<typename T> class WillGetIfMatch;
 
@@ -75,7 +80,14 @@ namespace edm {
     
     void modulesDependentUpon(const std::string& iProcessName,
                               std::vector<const char*>& oModuleLabels) const;
-    
+
+    void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,
+                                         ProductRegistry const& preg,
+                                         std::map<std::string, ModuleDescription const*> const& labelsToDesc,
+                                         std::string const& processName) const;
+
+    std::vector<ConsumesInfo> consumesInfo() const;
+
   protected:
     friend class ConsumesCollector;
     template<typename T> friend class WillGetIfMatch;
@@ -133,7 +145,7 @@ namespace edm {
     const EDConsumerBase& operator=(const EDConsumerBase&) = delete;
     
     unsigned int recordConsumes(BranchType iBranch, TypeToGet const& iType, edm::InputTag const& iTag, bool iAlwaysGets);
-    
+
     void throwTypeMismatch(edm::TypeID const&, EDGetToken) const;
     void throwBranchMismatch(BranchType, EDGetToken) const;
     void throwBadToken(edm::TypeID const& iType, EDGetToken iToken) const;

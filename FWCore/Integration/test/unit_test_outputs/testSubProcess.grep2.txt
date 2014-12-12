@@ -33,6 +33,9 @@
 ++++ starting: constructing module with label 'out' id = 16
 ++++ finished: constructing module with label 'out' id = 16
 ++ preallocate: 1 concurrent runs, 1 concurrent luminosity sections, 1 streams
+++ starting: begin job
+++ starting: begin job
+++ starting: begin job
 ++++ starting: begin job for module with label 'thingWithMergeProducer' id = 2
 ++++ finished: begin job for module with label 'thingWithMergeProducer' id = 2
 ++++ starting: begin job for module with label 'get' id = 3
@@ -49,6 +52,8 @@
 ++++ finished: begin job for module with label 'noPut' id = 8
 ++++ starting: begin job for module with label 'TriggerResults' id = 1
 ++++ finished: begin job for module with label 'TriggerResults' id = 1
+++ starting: begin job
+++ starting: begin job
 ++++ starting: begin job for module with label 'thingWithMergeProducer' id = 10
 ++++ finished: begin job for module with label 'thingWithMergeProducer' id = 10
 ++++ starting: begin job for module with label 'test' id = 11
