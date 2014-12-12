@@ -173,7 +173,7 @@ namespace FitterFuncs{
 	for(j=0; j< parBy2; ++j ){
 	  int time = (pars[j*2]+timeShift_)*(double)HcalConst::invertnsPerBx;
 	  double time1 = -100.+time*HcalConst::nsPerBX;
-	  chisq += nbins*(inverttimeSig2_*(pars[j*2] - timeMean_ - time1)*(pars[j*2] - timeMean_ - time1));
+	  chisq += inverttimeSig2_*(pars[j*2] - timeMean_ - time1)*(pars[j*2] - timeMean_ - time1);
 	}
       }
       return chisq;
