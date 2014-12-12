@@ -409,8 +409,9 @@
   </class>
 
 
-      <class name="reco::DeDxHit"  ClassVersion="11">
+      <class name="reco::DeDxHit"  ClassVersion="12">
        <version ClassVersion="11" checksum="2617380234"/>
+       <version ClassVersion="12" checksum="3747851168"/>       
       </class>
       <class name="reco::DeDxHitCollection" />
 
