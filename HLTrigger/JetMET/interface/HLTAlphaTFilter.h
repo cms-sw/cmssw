@@ -46,6 +46,7 @@ class HLTAlphaTFilter : public HLTFilter {
       double minAlphaT_;
       int triggerType_;
       bool dynamicAlphaT_;
+      bool setDHtZero_;
 };
 
 #endif // HLTrigger_JetMET_HLTAlphaTFilter_h
