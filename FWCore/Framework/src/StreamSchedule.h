@@ -191,9 +191,25 @@ namespace edm {
     ///adds to oLabelsToFill the labels for all paths in the process
     void availablePaths(std::vector<std::string>& oLabelsToFill) const;
 
+    ///adds to oLabelsToFill the labels for all trigger paths in the process
+    ///this is different from availablePaths because it includes the
+    ///empty paths so matches the entries in TriggerResults exactly.
+    void triggerPaths(std::vector<std::string>& oLabelsToFill) const;
+
+    ///adds to oLabelsToFill the labels for all end paths in the process
+    void endPaths(std::vector<std::string>& oLabelsToFill) const;
+
     ///adds to oLabelsToFill in execution order the labels of all modules in path iPathLabel
     void modulesInPath(std::string const& iPathLabel,
                        std::vector<std::string>& oLabelsToFill) const;
+
+    void moduleDescriptionsInPath(std::string const& iPathLabel,
+                                  std::vector<ModuleDescription const*>& descriptions,
+                                  unsigned int hint) const;
+
+    void moduleDescriptionsInEndPath(std::string const& iEndPathLabel,
+                                     std::vector<ModuleDescription const*>& descriptions,
+                                     unsigned int hint) const;
 
     /// Return the number of events this StreamSchedule has tried to process
     /// (inclues both successes and failures, including failures due

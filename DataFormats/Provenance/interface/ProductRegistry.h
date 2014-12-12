@@ -21,6 +21,7 @@
 #include <iosfwd>
 #include <map>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace edm {
@@ -116,6 +117,10 @@ namespace edm {
 
     std::vector<TypeID>& missingDictionariesForUpdate() {
       return transient_.missingDictionaries_;
+    }
+
+    std::vector<std::pair<std::string, std::string> > const& aliasToOriginal() const {
+      return transient_.aliasToOriginal_;
     }
 
     ProductHolderIndex const& getNextIndexValue(BranchType branchType) const;

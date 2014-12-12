@@ -214,6 +214,10 @@ void TestProductHolderIndexHelper::testManyEntries() {
   CPPUNIT_ASSERT(indexB2 == 18);
   CPPUNIT_ASSERT(indexB3 == 17);
 
+  CPPUNIT_ASSERT(std::string(matches.moduleLabel(4)) == "labelB");
+  CPPUNIT_ASSERT(std::string(matches.processName(4)) == "processB3");
+  CPPUNIT_ASSERT(std::string(matches.processName(0)) == "");
+
   matches = helper.relatedIndexes(ELEMENT_TYPE, typeID_Simple);
   CPPUNIT_ASSERT(matches.numberOfMatches() == 2);
   ProductHolderIndex indexC = matches.index(1);

@@ -25,6 +25,7 @@
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
 #include "FWCore/ParameterSet/interface/IllegalParameters.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
 
 #include <cassert>
@@ -110,6 +111,7 @@ namespace edm {
     std::shared_ptr<ParameterSet> subProcessParameterSet(popSubProcessParameterSet(*processParameterSet_).release());
   
     ScheduleItems items(*parentProductRegistry, *this);
+    actReg_ = items.actReg_;
 
     ParameterSet const& optionsPset(processParameterSet_->getUntrackedParameterSet("options", ParameterSet()));
     IllegalParameters::setThrowAnException(optionsPset.getUntrackedParameter<bool>("throwIfIllegalParameter", true));
@@ -197,6 +199,8 @@ namespace edm {
       fixBranchIDListsForEDAliases(droppedBranchIDToKeptBranchID());
     }
     ServiceRegistry::Operate operate(serviceToken_);
+    pathsAndConsumesOfModules_.initialize(schedule_.get(), preg_);
+    actReg_->preBeginJobSignal_(pathsAndConsumesOfModules_, processContext_);
     schedule_->beginJob(*preg_);
     if(subProcess_.get()) subProcess_->doBeginJob();
   }
