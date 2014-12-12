@@ -77,7 +77,12 @@ CmsTrackerDetIdBuilder::iterate( GeometricDet *in, int level, unsigned int ID )
 	    
 	    if(iSubDet>0 && iSubDet<=nSubDet && m_detidshifts[level*nSubDet+iSubDet-1]>=0) {
 	      if(m_detidshifts[level*nSubDet+iSubDet-1]+2<25) temp|= (0<<(m_detidshifts[level*nSubDet+iSubDet-1]+2)); 
-	      if(component->translation().z()<0. )
+	      bool negside = component->translation().z()<0.;
+	      if(std::abs(component->translation().z())<1.) negside = component->components().front()->translation().z()<0.; // needed for subdet like TID which are NOT translated
+	      LogTrace("BuildingTrackerDetId") << "Is negative endcap? " << negside 
+					       << ", because z translation is " << component->translation().z()
+					       << " and component z translation is " << component->components().front()->translation().z();
+	      if(negside)
 		{
 		  temp |= (1<<m_detidshifts[level*nSubDet+iSubDet-1]);
 		}
