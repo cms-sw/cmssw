@@ -6,6 +6,7 @@ Toy EDProducers of Ints for testing purposes only.
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 //
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -14,6 +15,7 @@ Toy EDProducers of Ints for testing purposes only.
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 //
 #include <cassert>
 #include <string>
@@ -87,9 +89,39 @@ namespace edmtest {
     int value_;
   };
 
+  //--------------------------------------------------------------------
+
   void
   IntProducer::produce(edm::Event& e, edm::EventSetup const&) {
     // EventSetup is not used.
+    std::unique_ptr<IntProduct> p(new IntProduct(value_));
+    e.put(std::move(p));
+  }
+
+  class ConsumingIntProducer : public edm::stream::EDProducer<> {
+  public:
+    explicit ConsumingIntProducer(edm::ParameterSet const& p) :
+      value_(p.getParameter<int>("ivalue")) {
+      produces<IntProduct>();
+      // not used, only exists to test PathAndConsumesOfModules
+      consumes<edm::TriggerResults>(edm::InputTag("TriggerResults"));
+      consumesMany<edm::TriggerResults>();
+    }
+    explicit ConsumingIntProducer(int i) : value_(i) {
+      produces<IntProduct>();
+      // not used, only exists to test PathAndConsumesOfModules
+      consumes<edm::TriggerResults>(edm::InputTag("TriggerResults"));
+      consumesMany<edm::TriggerResults>();
+    }
+    virtual ~ConsumingIntProducer() {}
+    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+
+  private:
+    int value_;
+  };
+
+  void
+  ConsumingIntProducer::produce(edm::Event& e, edm::EventSetup const&) {
     std::unique_ptr<IntProduct> p(new IntProduct(value_));
     e.put(std::move(p));
   }
@@ -242,6 +274,7 @@ namespace edmtest {
 using edmtest::FailingProducer;
 using edmtest::NonProducer;
 using edmtest::IntProducer;
+using edmtest::ConsumingIntProducer;
 using edmtest::EventNumberIntProducer;
 using edmtest::TransientIntProducer;
 using edmtest::IntProducerFromTransient;
@@ -250,6 +283,7 @@ using edmtest::AddIntsProducer;
 DEFINE_FWK_MODULE(FailingProducer);
 DEFINE_FWK_MODULE(NonProducer);
 DEFINE_FWK_MODULE(IntProducer);
+DEFINE_FWK_MODULE(ConsumingIntProducer);
 DEFINE_FWK_MODULE(EventNumberIntProducer);
 DEFINE_FWK_MODULE(TransientIntProducer);
 DEFINE_FWK_MODULE(IntProducerFromTransient);

@@ -20,6 +20,7 @@
 #include <iosfwd>
 #include <map>
 #include <string>
+#include <utility>
 #include <vector>
 #include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
@@ -118,6 +119,10 @@ namespace edm {
       return transient_.missingDictionaries_;
     }
 
+    std::vector<std::pair<std::string, std::string> > const& aliasToOriginal() const {
+      return transient_.aliasToOriginal_;
+    }
+
     ProductHolderIndex const& getNextIndexValue(BranchType branchType) const;
 
     void initializeTransients() {transient_.reset();}
@@ -144,6 +149,8 @@ namespace edm {
       std::map<BranchID, ProductHolderIndex> branchIDToIndex_;
 
       std::vector<std::string> missingDictionaries_;
+
+      std::vector<std::pair<std::string, std::string> > aliasToOriginal_;
     };
 
   private:
