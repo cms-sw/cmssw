@@ -406,6 +406,15 @@ def cust_2023HGCalMuon(process):
         process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_particleFlowSuperClusterHGCEE_*_*')
     return process
 
+def cust_2023HGCalV6Muon(process):
+    """
+    Customisation function for the Extended2023HGCalV6Muon geometry. Currently just
+    delegates to the cust_2023HGCalMuon
+    """
+    process = cust_2023HGCalMuon(process)
+    
+    return process;
+
 def cust_2023Pixel(process):
     process=customisePostLS1(process)
     process=customiseBE5DPixel10D(process)
