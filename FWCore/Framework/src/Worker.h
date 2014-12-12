@@ -30,6 +30,7 @@ the worker is reset().
 #include "FWCore/Framework/interface/ProductHolderIndexAndSkipBit.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
 #include "FWCore/ServiceRegistry/interface/InternalContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
@@ -43,8 +44,10 @@ the worker is reset().
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
+#include <map>
 #include <memory>
 #include <sstream>
+#include <string>
 #include <vector>
 
 namespace edm {
@@ -106,6 +109,12 @@ namespace edm {
                       ProductHolderIndexHelper const&) = 0;
 
     virtual void modulesDependentUpon(std::vector<const char*>& oModuleLabels) const = 0;
+
+    virtual void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,
+                                                 ProductRegistry const& preg,
+                                                 std::map<std::string, ModuleDescription const*> const& labelsToDesc) const = 0;
+
+    virtual std::vector<ConsumesInfo> consumesInfo() const = 0;
 
     virtual Types moduleType() const =0;
 
