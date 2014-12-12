@@ -184,6 +184,14 @@ namespace edm {
     return !(a == b);
   }
 
+  inline bool operator==(TypeWithDict const& a, std::type_info const& b) {
+    return a.typeInfo() == b;
+  }
+
+  inline bool operator!=(TypeWithDict const& a, std::type_info const& b) {
+    return !(a == b);
+  }
+
   std::ostream& operator<<(std::ostream& os, TypeWithDict const& id);
 
   class TypeBases {
