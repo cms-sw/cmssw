@@ -77,7 +77,7 @@ void
 
    iEvent.put(out,"");
    iEvent.put(cleaned,"Cleaned");
-
+   hitmap.clear();
 }
 
 
