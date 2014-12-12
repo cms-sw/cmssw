@@ -160,7 +160,7 @@ public:
     virtual bool isConvertedPhoton() const GCC11_FINAL  { return false; }
     virtual bool isJet() const GCC11_FINAL  { return false; }
 
-    CMS_CLASS_VERSION(11)
+    CMS_CLASS_VERSION(13)
 
   protected:
  
