@@ -94,8 +94,8 @@ class PileUpAnalyzer( Analyzer ):
         self.averages.add('vertexWeight', Average('vertexWeight') )
 
 
-    def process(self, iEvent, event):
-        self.readCollections( iEvent )
+    def process(self, event):
+        self.readCollections( event.input )
         ## if component is embed return (has no trigger obj)
         if self.cfg_comp.isEmbed :
           return True
