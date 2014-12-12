@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+ipython -noconfirm_exit -- $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/heppy.py "$@" 
