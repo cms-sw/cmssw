@@ -30,9 +30,7 @@ class noPileUpMEtUtilities
   reco::PUSubMETCandInfoCollection cleanJets(const reco::PUSubMETCandInfoCollection&, 
 					     const std::vector<reco::Candidate::LorentzVector>&, 
 					     double, bool);
-  /* reco::MVAMEtJetInfoCollection selectJets(const reco::MVAMEtJetInfoCollection&, */
-  /* 					   double, double, int); */
-
+  
   reco::PUSubMETCandInfo jet(const reco::PUSubMETCandInfoCollection&, unsigned);
   reco::PUSubMETCandInfo leadJet(const reco::PUSubMETCandInfoCollection&);
   reco::PUSubMETCandInfo subleadJet(const reco::PUSubMETCandInfoCollection&);
@@ -48,38 +46,11 @@ class noPileUpMEtUtilities
 		       const reco::PUSubMETCandInfoCollection& pfCandidates);
 
   CommonMETData computeRecoil(int metType, double& sumAbsPx, double& sumAbsPy);
-
-  /* CommonMETData computeJetSum(const reco::MVAMEtJetInfoCollection&, double* sumAbsPx = 0, double* sumAbsPy = 0); */
-  /* CommonMETData computeJetSum_neutral(const reco::MVAMEtJetInfoCollection&, double* sumAbsPx = 0, double* sumAbsPy = 0); */
-
-  //-------------------------------------------------------------------------------
-
-  //-------------------------------------------------------------------------------
- 
-  /* reco::MVAMEtPFCandInfoCollection selectPFCandidates(const reco::MVAMEtPFCandInfoCollection&, */
-  /* 						      double, double, int, int); */
-  /* CommonMETData computePFCandidateSum(const reco::MVAMEtPFCandInfoCollection&, double* sumAbsPx = 0, double* sumAbsPy = 0); */
-  //-------------------------------------------------------------------------------
-
-  //-------------------------------------------------------------------------------
-  // auxiliary functions to compute different types of MEt/hadronic recoils
-  //
-  // NOTE: all pfCandidates and jets passed as function arguments
-  //       need to be cleaned wrt. leptons
-  //
-  /* CommonMETData computeTrackRecoil(const reco::MVAMEtPFCandInfoCollection&, double* sumAbsPx = 0, double* sumAbsPy = 0); */
-  /* CommonMETData computeTrackRecoilNoPU(const reco::MVAMEtPFCandInfoCollection&, double* sumAbsPx = 0, double* sumAbsPy = 0); */
-  /* CommonMETData computeTrackRecoilPU(const reco::MVAMEtPFCandInfoCollection&, double* sumAbsPx = 0, double* sumAbsPy = 0); */
-  /* CommonMETData computeNeutralRecoil_unclustered(const reco::MVAMEtPFCandInfoCollection&, double* sumAbsPx = 0, double* sumAbsPy = 0); */
-  /* CommonMETData computeHadRecoilNoPU(const reco::MVAMEtJetInfoCollection&, */
-  /* 				     const reco::MVAMEtPFCandInfoCollection&, double* sumAbsPx = 0, double* sumAbsPy = 0); */
-  /* CommonMETData computeHadRecoilPU(const reco::MVAMEtJetInfoCollection&, */
-  /* 				   const reco::MVAMEtPFCandInfoCollection&, double* sumAbsPx = 0, double* sumAbsPy = 0); */
   //-------------------------------------------------------------------------------
 
  private:
  
-  // common internal functions for jets and pfCandidates
+  // common internal functions for jets and pfCandidates, to compute the different object sums
   CommonMETData computeCandidateSum(const reco::PUSubMETCandInfoCollection& cands,
 				    bool neutralFracOnly, double& sumAbsPx, double& sumAbsPy);
   

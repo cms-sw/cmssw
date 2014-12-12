@@ -30,13 +30,20 @@ namespace noPuUtils {
 }
 
 
-
+// check if the pf candidate is associated with a vertex, 
+// return the type of association
 int isVertexAssociated(const reco::PFCandidate&, const PFCandToVertexAssMap&, const reco::VertexCollection&, double);
 
+// reverse the vertex-pfcandidate association map
 noPuUtils::reversedPFCandToVertexAssMap reversePFCandToVertexAssociation(const PFCandToVertexAssMap&);
 
+// check if the pf candidate is associated with a vertex,
+// based over references keys 
+// return the type of association
 int isVertexAssociated_fast(const reco::PFCandidateRef&, const noPuUtils::reversedPFCandToVertexAssMap&, const reco::VertexCollection&, double, int&, int);
 
+//promote a low quality association to a better level
+// if dz justifies it 
 void promoteAssocToHSAssoc(int quality, double z,
 			   const reco::VertexCollection& vertices,
 			   double dZ, int& vtxAssociationType, bool checkdR2);

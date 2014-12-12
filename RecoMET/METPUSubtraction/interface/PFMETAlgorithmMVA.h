@@ -57,7 +57,7 @@ class PFMETAlgorithmMVA
   
   void print(std::ostream&) const;
 
- protected:
+ private:
 
   void setInput(double, double, double,
 		double, double, double,
@@ -82,11 +82,8 @@ class PFMETAlgorithmMVA
   std::string mvaNameCovU2_;
 
   int    mvaType_;
-  bool   is42_;
-  bool   isOld42_;
   bool   hasPhotons_;
-  double dZcut_;
-
+ 
   Float_t pfSumEt_;
   Float_t pfU_;
   Float_t pfPhi_;

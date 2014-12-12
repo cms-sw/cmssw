@@ -257,12 +257,6 @@ mvaMEtUtilities::computeAllSums(const std::vector<reco::PUSubMETCandInfo>& jets,
 
 }
 
-void 
-mvaMEtUtilities::setDzCut(double dzCut) {
-  _dzCut = dzCut;
-}
-
-
 double
 mvaMEtUtilities::getLeptonsSumMEX() {
   return _leptonsSum.mex;

@@ -162,14 +162,6 @@ namespace DataFormats_METReco {
     reco::PUSubMETCandInfoCollection dummyPUSubMETCandInfoCollection;
     edm::Wrapper<reco::PUSubMETCandInfoCollection> dummyPUSubMETCandInfoCollectionWrapped;
 
-    /* reco::MVAMEtJetInfo dummyMVAMEtJetInfo; */
-    /* reco::MVAMEtJetInfoCollection dummyMVAMEtJetInfoCollection; */
-    /* edm::Wrapper<reco::MVAMEtJetInfoCollection> dummyMVAMEtJetInfoCollectionWrapped; */
-    
-    /* reco::MVAMEtPFCandInfo dummyMVAMEtPFCandInfo; */
-    /* reco::MVAMEtPFCandInfoCollection dummyMVAMEtPFCandInfoCollection; */
-    /* edm::Wrapper<reco::MVAMEtPFCandInfoCollection> dummyMVAMEtPFCandInfoCollectionWrapped; */
-
     AnomalousECALVariables dummyBE20;
     edm::Wrapper<AnomalousECALVariables> dummyBE21;
     BoundaryInformation dummyBE22;

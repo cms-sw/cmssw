@@ -29,7 +29,7 @@ PileupJetIdAlgo::PileupJetIdAlgo(const edm::ParameterSet & ps)
 	    tmvaSpectators_      = ps.getParameter<std::vector<std::string> >("tmvaSpectators");
 	    version_             = ps.getParameter<int>("version");
 	  }
-	reader_              = 0;
+	reader_              = nullptr;
 	edm::ParameterSet jetConfig = ps.getParameter<edm::ParameterSet>("JetIdParams");
 	for(int i0 = 0; i0 < 3; i0++) { 
 	  std::string lCutType                            = "Tight";
@@ -83,7 +83,7 @@ PileupJetIdAlgo::PileupJetIdAlgo(int version,
 	tmvaVariables_       = tmvaVariables;
 	version_             = version;
 	
-	reader_              = 0;
+	reader_              = nullptr;
 	
 	setup();
 }
@@ -220,8 +220,8 @@ void PileupJetIdAlgo::runMva()
 		internalId_.idFlag_ = computeCutIDflag(internalId_.betaStarClassic_,internalId_.dR2Mean_,internalId_.nvtx_,internalId_.jetPt_,internalId_.jetEta_);
 	} else {
 		if( ! reader_ ) { bookReader();}
-		if(fabs(internalId_.jetEta_) <  5.0) internalId_.mva_ = reader_->EvaluateMVA( tmvaMethod_.c_str() );
-		if(fabs(internalId_.jetEta_) >= 5.0) internalId_.mva_ = -2.;
+		if(std::abs(internalId_.jetEta_) <  5.0) internalId_.mva_ = reader_->EvaluateMVA( tmvaMethod_.c_str() );
+		if(std::abs(internalId_.jetEta_) >= 5.0) internalId_.mva_ = -2.;
 		internalId_.idFlag_ = computeIDflag(internalId_.mva_,internalId_.jetPt_,internalId_.jetEta_);
 	}
 }
@@ -235,9 +235,9 @@ std::pair<int,int> PileupJetIdAlgo::getJetIdKey(float jetPt, float jetEta)
   if(jetPt > 30              ) ptId = 3;                                                                                          
   
   int etaId = 0;
-  if(fabs(jetEta) > 2.5  && fabs(jetEta) < 2.75) etaId = 1;                                                              
-  if(fabs(jetEta) > 2.75 && fabs(jetEta) < 3.0 ) etaId = 2;                                                              
-  if(fabs(jetEta) > 3.0  && fabs(jetEta) < 5.0 ) etaId = 3;                                 
+  if(std::abs(jetEta) > 2.5  && std::abs(jetEta) < 2.75) etaId = 1;                                                              
+  if(std::abs(jetEta) > 2.75 && std::abs(jetEta) < 3.0 ) etaId = 2;                                                              
+  if(std::abs(jetEta) > 3.0  && std::abs(jetEta) < 5.0 ) etaId = 3;                                 
 
   return std::pair<int,int>(ptId,etaId);
 }
@@ -340,10 +340,10 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 	    float candPt = icand->pt();
 	    float candPtFrac = candPt/jetPt;
 	    float candDr   = reco::deltaR(*icand,*jet);
-	    float candDeta = fabs( icand->eta() - jet->eta() );
+	    float candDeta = std::abs( icand->eta() - jet->eta() );
 	    float candDphi = reco::deltaPhi(*icand,*jet);
 	    float candPtDr = candPt * candDr;
-		size_t icone = std::lower_bound(&cones[0],&cones[ncones],candDr) - &cones[0];
+	    size_t icone = std::lower_bound(&cones[0],&cones[ncones],candDr) - &cones[0];
 
 		// // all particles
 		if( lLead == nullptr || candPt > lLead->pt() ) {
@@ -397,8 +397,8 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 			  }
 			  
 			  reco::Track impactTrack = (lPack==nullptr)?(*pfTrk):lPack->pseudoTrack();
-			  internalId_.d0_ = fabs(impactTrack.dxy(vtx->position()));
-			  internalId_.dZ_ = fabs(impactTrack.dz(vtx->position()));
+			  internalId_.d0_ = std::abs(impactTrack.dxy(vtx->position()));
+			  internalId_.dZ_ = std::abs(impactTrack.dz(vtx->position()));
 			}
 			internalId_.dRMeanCh_  += candPtDr;
 			internalId_.ptDCh_     += candPt*candPt;
@@ -416,7 +416,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 					bool inVtx0 = find( vtx->tracks_begin(), vtx->tracks_end(), reco::TrackBaseRef(lPF->trackRef()) ) != vtx->tracks_end();
 					bool inAnyOther = false;
 					// alternative beta definition based on track-vertex distance of closest approach
-					double dZ0 = fabs(lPF->trackRef()->dz(vtx->position()));
+					double dZ0 = std::abs(lPF->trackRef()->dz(vtx->position()));
 					double dZ = dZ0;
 					for(reco::VertexCollection::const_iterator  vi=allvtx.begin(); vi!=allvtx.end(); ++vi ) {
 						const reco::Vertex & iv = *vi;
@@ -428,7 +428,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 							inAnyOther = find( iv.tracks_begin(), iv.tracks_end(), reco::TrackBaseRef(lPF->trackRef()) ) != iv.tracks_end();
 						}
 						// alternative beta: find closest vertex to the track
-						dZ = std::min(dZ,fabs(lPF->trackRef()->dz(iv.position())));
+						dZ = std::min(dZ,std::abs(lPF->trackRef()->dz(iv.position())));
 					}
 					// classic beta/betaStar
 					if( inVtx0 && ! inAnyOther ) {
@@ -447,8 +447,8 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 				}
 			}
 			else{
-				// setting classic and aloternative to be the same for now
-      			float tkpt = candPt; //icand->trackRef()->pt();
+				// setting classic and alternative to be the same for now
+			        float tkpt = candPt;
 			        sumTkPt += tkpt;
 				bool inVtx0 = false; 
 				bool inVtxOther = false; 
@@ -469,9 +469,6 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 			lTrail = icand; 
 		}
 	
-		// delete lPack;
-		// delete lPF;
-
 	}
 
 	// // Finalize all variables
@@ -513,8 +510,8 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 	internalId_.phiW_ = sqrt(covMatrix(1,1));
 	internalId_.jetW_ = 0.5*(internalId_.etaW_+internalId_.phiW_);
 	TVectorD eigVals(2); eigVals = TMatrixDSymEigen(covMatrix).GetEigenValues();
-	internalId_.majW_ = sqrt(fabs(eigVals(0)));
-	internalId_.minW_ = sqrt(fabs(eigVals(1)));
+	internalId_.majW_ = sqrt(std::abs(eigVals(0)));
+	internalId_.minW_ = sqrt(std::abs(eigVals(1)));
 	if( internalId_.majW_ < internalId_.minW_ ) { std::swap(internalId_.majW_,internalId_.minW_); }
 	
 	internalId_.dRLeadCent_ = reco::deltaR(*jet,*lLead);
