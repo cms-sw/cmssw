@@ -141,10 +141,10 @@ namespace edm {
   void
   public_base_classes(TypeWithDict const& typeID,
                       std::vector<TypeWithDict>& baseTypes) {
-    TypeWithDict type(typeID.typeInfo());
-    if (!type.isClass()) {
+    if (!typeID.isClass()) {
       return;
     }
+    TypeWithDict type(typeID.typeInfo());
     TypeBases bases(type);
     for (auto const& basex : bases) {
       BaseWithDict base(basex);
@@ -157,7 +157,7 @@ namespace edm {
       }
       TypeWithDict baseType(baseRflxType.typeInfo());
       // Check to make sure this base appears only once in the
-      // inheritance heirarchy.
+      // inheritance hierarchy.
       if (!search_all(baseTypes, baseType)) {
         // Save the type and recursive look for its base types
         baseTypes.push_back(baseType);

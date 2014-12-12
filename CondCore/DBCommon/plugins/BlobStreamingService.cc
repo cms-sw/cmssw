@@ -164,10 +164,9 @@ namespace cond {
   };
   
   
-  int BlobStreamingService::isVectorChar(edm::TypeWithDict const & classDictionary) {
-    std::type_info const & t = classDictionary.typeInfo();
-    if (t==typeid(std::vector<unsigned char>) ) return 1;
-    if (t==typeid(std::vector<char>) ) return 2;
+  int BlobStreamingService::isVectorChar(edm::TypeWithDict const& classDictionary) {
+    if (classDictionary == typeid(std::vector<unsigned char>)) return 1;
+    if (classDictionary == typeid(std::vector<char>)) return 2;
     return 0;
   }
   

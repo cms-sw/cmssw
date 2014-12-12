@@ -55,7 +55,7 @@ checkMethod(const edm::FunctionWithDict& mem,
   if (mem.name().substr(0, 2) == "__") {
     return -1 * parser::kIsFunctionAddedByROOT;
   }
-  if (mem.declaringType().id() != type.id()) {
+  if (mem.declaringType() != type) {
     //std::cerr <<
     //  "\nMETHOD OVERLOAD " <<
     //  mem.name() <<

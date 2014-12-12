@@ -45,7 +45,7 @@ ora::RelationalMapping::_sizeInColumns(const edm::TypeWithDict& topLevelClassTyp
     _sizeInColumnsForCArray( typ,arraySize, hasDependencies );
     if( arraySize < MappingRules::MaxColumnsForInlineCArray ) sz += arraySize;
     else hasDependencies = true;
-  } else if (typ.typeInfo() == typeid(ora::Reference) ||
+  } else if (typ == typeid(ora::Reference) ||
              typ.hasBase( edm::TypeWithDict( typeid(ora::Reference) ) )){
     sz += 2;
   } else {
@@ -126,11 +126,11 @@ ora::IRelationalMapping* ora::RelationalMappingFactory::newProcessor( const edm:
   else if ( ora::ClassUtils::isTypeUniqueReference( resType )){
     return new UniqueReferenceMapping( attributeType, m_tableRegister );
   }
-  else if ( resType.typeInfo() == typeid(ora::Reference) ||
+  else if ( resType == typeid(ora::Reference) ||
             resType.hasBase( edm::TypeWithDict( typeid(ora::Reference) ) ) ){
     return new OraReferenceMapping( attributeType, m_tableRegister );
   }
-  else if ( resType.typeInfo() == typeid(ora::NamedReference) ||
+  else if ( resType == typeid(ora::NamedReference) ||
             resType.hasBase( edm::TypeWithDict( typeid(ora::NamedReference) ) ) ){
     return new NamedRefMapping( attributeType, m_tableRegister );
   }
@@ -185,8 +185,7 @@ void ora::PrimitiveMapping::process( MappingElement& parentElement,
                                      const std::string& attributeNameForSchema,
                                      const std::string& scopeNameForSchema ){
   edm::TypeWithDict t = ClassUtils::resolvedType( m_type );
-  const std::type_info* attrType = &t.typeInfo();
-  if(t.isEnum()) attrType = &typeid(int);
+  const std::type_info* attrType = t.isEnum() ? &typeid(int) : &t.typeInfo();
   //std::string tn = ClassUtils::demangledName(*attrType);
   if(ClassUtils::isTypeString( t )) attrType = &typeid(std::string);
   std::string typeName = coral::AttributeSpecification::typeNameForId(*attrType);

@@ -1718,7 +1718,7 @@ namespace edm {
     for(auto const& product : prodList) {
       BranchDescription const& prod = product.second;
       // Special handling for ThinnedAssociations
-      if(prod.unwrappedType().typeInfo() == typeid(ThinnedAssociation) && prod.present()) {
+      if(prod.unwrappedType() == typeid(ThinnedAssociation) && prod.present()) {
         if(inputType != InputType::SecondarySource) {
           associationDescriptions.push_back(&prod);
         } else {
@@ -1777,7 +1777,7 @@ namespace edm {
       BranchDescription const& prod = it->second;
       bool drop = branchesToDrop.find(prod.branchID()) != branchesToDropEnd;
       if(drop) {
-        if(productSelector.selected(prod) && prod.unwrappedType().typeInfo() != typeid(ThinnedAssociation)) {
+        if(productSelector.selected(prod) && prod.unwrappedType() != typeid(ThinnedAssociation)) {
           LogWarning("RootFile")
             << "Branch '" << prod.branchName() << "' is being dropped from the input\n"
             << "of file '" << file_ << "' because it is dependent on a branch\n"

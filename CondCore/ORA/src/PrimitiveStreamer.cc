@@ -27,8 +27,7 @@ bool ora::PrimitiveStreamerBase::buildDataElement(DataElement& dataElement,
                     "PrimitiveStreamerBase::buildDataElement");
   }
 
-  const std::type_info* attrType = &m_objectType.typeInfo();
-  if(m_objectType.isEnum()) attrType = &typeid(int);
+  const std::type_info* attrType = m_objectType.isEnum() ? &typeid(int) : &m_objectType.typeInfo();
   if(ClassUtils::isTypeString( m_objectType )) attrType = &typeid(std::string);
   std::string columnName = m_mapping.columnNames()[0];
   m_columnIndex = relationalData.addData( columnName, *attrType );
