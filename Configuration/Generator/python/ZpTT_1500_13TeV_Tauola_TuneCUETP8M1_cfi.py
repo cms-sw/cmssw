@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.Generator.Pythia8CommonSettings_cfi import *
 from Configuration.Generator.Pythia8CUEP8M1Settings_cfi import *
+from GeneratorInterface.ExternalDecays.TauolaSettings_cff import *
 source = cms.Source("EmptySource")
 generator = cms.EDFilter("Pythia8GeneratorFilter",
-                         #pythiaHepMCVerbosity = cms.untracked.bool(False),
                          comEnergy = cms.double(13000.0),
                          maxEventsToPrint = cms.untracked.int32(0),
                          pythiaPylistVerbosity = cms.untracked.int32(1),

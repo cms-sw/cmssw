@@ -9,13 +9,6 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
                          pythiaPylistVerbosity = cms.untracked.int32(1),
                          filterEfficiency = cms.untracked.double(1.0),
                          crossSection = cms.untracked.double(0.00002497),
-                         ExternalDecays = cms.PSet(
-        Tauola = cms.untracked.PSet(
-            TauolaPolar,
-            TauolaDefaultInputCards
-            ),
-        parameterSets = cms.vstring('Tauola')
-        ),
                          PythiaParameters = cms.PSet(
         pythia8CommonSettingsBlock,
         pythia8CUEP8M1SettingsBlock,
@@ -56,3 +49,4 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
                                     )
         )
                          )
+ProductionFilterSequence = cms.Sequence(generator)
