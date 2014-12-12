@@ -38,7 +38,6 @@ public:
 					       bool calculateMva=false);
 
 	PileupJetIdentifier computeIdVariables(const pat::Jet * jet,
-					       //					       const reco::Vertex *, 
 					       const edm::Ptr<reco::Vertex>,
 					       const std::map<edm::Ptr<reco::Vertex>,edm::PtrVector<pat::PackedCandidate> >&,
 					       bool calculateMva);

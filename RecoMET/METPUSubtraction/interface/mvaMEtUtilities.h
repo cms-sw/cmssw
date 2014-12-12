@@ -17,21 +17,6 @@ class mvaMEtUtilities
   enum {kPFCands=0,kLeptons,kJets};
   enum {kPF=0, kChHS, kHS, kPU, kHSMinusNeutralPU};
 
-  /* struct candInfo */
-  /* { */
-  /*   candInfo() */
-  /*   : p4_(0.,0.,0.,0.), */
-  /*     dZ_(0.), */
-  /*     chargedFrac_(0.), */
-  /*     mva_(0.) */
-  /*   {} */
-  /*   ~candInfo() {};     */
-  /*   reco::Candidate::LorentzVector p4_; */
-  /*   double dZ_; */
-  /*   double chargedFrac_; */
-  /*   double mva_; */
-  /* }; */
-
  private:
 
   CommonMETData _leptonsSum;
@@ -52,33 +37,27 @@ class mvaMEtUtilities
   mvaMEtUtilities(const edm::ParameterSet& cfg);
   virtual ~mvaMEtUtilities();
 
-  bool passesMVA(const reco::Candidate::LorentzVector&, double);
-
   reco::Candidate::LorentzVector leadJetP4(const std::vector<reco::PUSubMETCandInfo>&);
   reco::Candidate::LorentzVector subleadJetP4(const std::vector<reco::PUSubMETCandInfo>&);
   unsigned numJetsAboveThreshold(const std::vector<reco::PUSubMETCandInfo>&, double);
 
-  void setDzCut(double dzCut);
-  void setPtThreshold(double _ptThreshold);
+  std::vector<reco::PUSubMETCandInfo> getCleanedJets();
 
+  //access functions for lepton suns ============
   double getLeptonsSumMEX();
   double getLeptonsSumMEY();
 
   double getLeptonsChSumMEX();
   double getLeptonsChSumMEY(); 
 
-  std::vector<reco::PUSubMETCandInfo> getCleanedJets();
-
-  std::vector<reco::PUSubMETCandInfo> cleanPFCands(const std::vector<reco::PUSubMETCandInfo>&, 
-						   const std::vector<reco::PUSubMETCandInfo>&, double, bool);
-
+  //recoil and sum computing functions ========
   void computeAllSums(const std::vector<reco::PUSubMETCandInfo>& jets, 
 		      const std::vector<reco::PUSubMETCandInfo>& leptons,
 		      const std::vector<reco::PUSubMETCandInfo>& pfCandidates);
   
   CommonMETData computeRecoil(int metType);
 
-  void finalize(CommonMETData& metData);
+
  protected:
 
   reco::Candidate::LorentzVector jetP4(const std::vector<reco::PUSubMETCandInfo>&, unsigned);
@@ -88,12 +67,23 @@ class mvaMEtUtilities
 
  private:
 
+  //utilities functions for jets ===============
+  bool passesMVA(const reco::Candidate::LorentzVector&, double);
+
   std::vector<reco::PUSubMETCandInfo> cleanJets(const std::vector<reco::PUSubMETCandInfo>&, 
 						const std::vector<reco::PUSubMETCandInfo>&, double, double);
   
+  //utilities functions for pf candidate ====== 
+  std::vector<reco::PUSubMETCandInfo> cleanPFCands(const std::vector<reco::PUSubMETCandInfo>&, 
+						   const std::vector<reco::PUSubMETCandInfo>&, double, bool);
+
   CommonMETData computeCandSum( int compKey, double dZmax, int dZflag,
 				bool iCharged,  bool mvaPassFlag,
 				const std::vector<reco::PUSubMETCandInfo>& objects );
+
+
+  void finalize(CommonMETData& metData);
+
 };
 
 #endif
