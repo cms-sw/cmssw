@@ -51,7 +51,7 @@ from PhysicsTools.Heppy.analyzers.core.TriggerBitAnalyzer import TriggerBitAnaly
 TrigAna= cfg.Analyzer(
     verbose=False,
     class_object=TriggerBitAnalyzer,
-    triggerBits={'any','HLT_.*'},
+    triggerBits={'any':'HLT_.*'},
 #   processName='HLT',
 #   outprefix='HLT'
     )

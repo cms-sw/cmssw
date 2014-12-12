@@ -9,7 +9,7 @@ def decorate(orig,deco):
    for m in deco.__dict__ :
         if m[0] != "_" or m[1] != "_" :
                 setattr(orig,m,deco.__dict__[m])
-                print m
+                #print m
 
 
 #$ef decorate(oldstyle):
