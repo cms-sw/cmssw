@@ -593,6 +593,9 @@ namespace edm {
                                  preallocations_.numberOfRuns(),
                                  preallocations_.numberOfThreads());
     actReg_->preallocateSignal_(bounds);
+    pathsAndConsumesOfModules_.initialize(schedule_.get(), preg_);
+    actReg_->preBeginJobSignal_(pathsAndConsumesOfModules_, processContext_);
+
     //NOTE:  This implementation assumes 'Job' means one call
     // the EventProcessor::run
     // If it really means once per 'application' then this code will

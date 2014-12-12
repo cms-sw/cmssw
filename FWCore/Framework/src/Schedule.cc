@@ -1022,9 +1022,65 @@ namespace edm {
   }
 
   void
+  Schedule::triggerPaths(std::vector<std::string>& oLabelsToFill) const {
+    streamSchedules_[0]->triggerPaths(oLabelsToFill);
+  }
+
+  void
+  Schedule::endPaths(std::vector<std::string>& oLabelsToFill) const {
+    streamSchedules_[0]->endPaths(oLabelsToFill);
+  }
+
+  void
   Schedule::modulesInPath(std::string const& iPathLabel,
                           std::vector<std::string>& oLabelsToFill) const {
     streamSchedules_[0]->modulesInPath(iPathLabel,oLabelsToFill);
+  }
+
+  void
+  Schedule::moduleDescriptionsInPath(std::string const& iPathLabel,
+                                     std::vector<ModuleDescription const*>& descriptions,
+                                     unsigned int hint) const {
+    streamSchedules_[0]->moduleDescriptionsInPath(iPathLabel, descriptions, hint);
+  }
+
+  void
+  Schedule::moduleDescriptionsInEndPath(std::string const& iEndPathLabel,
+                                        std::vector<ModuleDescription const*>& descriptions,
+                                        unsigned int hint) const {
+    streamSchedules_[0]->moduleDescriptionsInEndPath(iEndPathLabel, descriptions, hint);
+  }
+
+  void
+  Schedule::fillModuleAndConsumesInfo(std::vector<ModuleDescription const*>& allModuleDescriptions,
+                                      std::vector<std::pair<unsigned int, unsigned int> >& moduleIDToIndex,
+                                      std::vector<std::vector<ModuleDescription const*> >& modulesWhoseProductsAreConsumedBy,
+                                      ProductRegistry const& preg) const {
+    allModuleDescriptions.clear();
+    moduleIDToIndex.clear();
+    modulesWhoseProductsAreConsumedBy.clear();
+
+    allModuleDescriptions.reserve(allWorkers().size());
+    moduleIDToIndex.reserve(allWorkers().size());
+    modulesWhoseProductsAreConsumedBy.resize(allWorkers().size());
+
+    std::map<std::string, ModuleDescription const*> labelToDesc;
+    unsigned int i = 0;
+    for (auto const& worker : allWorkers()) {
+      ModuleDescription const* p = worker->descPtr();
+      allModuleDescriptions.push_back(p);
+      moduleIDToIndex.push_back(std::pair<unsigned int, unsigned int>(p->id(), i));
+      labelToDesc[p->moduleLabel()] = p;
+      ++i;
+    }
+    sort_all(moduleIDToIndex);
+
+    i = 0;
+    for (auto const& worker : allWorkers()) {
+      std::vector<ModuleDescription const*>& modules = modulesWhoseProductsAreConsumedBy.at(i);
+      worker->modulesWhoseProductsAreConsumed(modules, preg, labelToDesc);
+      ++i;
+    }
   }
 
   void
