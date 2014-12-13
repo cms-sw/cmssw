@@ -71,8 +71,9 @@ bool HLTPixlMBFilt::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup,
    // All HLT filters must create and fill an HLT filter object,
    // recording any reconstructed physics objects satisfying (or not)
    // this HLT filter, and place it in the Event.
-
-
+   if (saveTags()) {
+       filterproduct.addCollectionTag(pixlTag_);
+   }
 
    // Specific filter code
 
