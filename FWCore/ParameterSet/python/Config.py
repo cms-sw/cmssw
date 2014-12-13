@@ -688,7 +688,7 @@ class Process(object):
         return returnValue
     def _dumpPython(self, d, options):
         result = ''
-        for name, value in d.iteritems():
+        for name, value in sorted(d.iteritems()):
            result += value.dumpPythonAs(name,options)+'\n'
         return result
     def dumpPython(self, options=PrintOptions()):
