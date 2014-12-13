@@ -84,10 +84,10 @@ class PixelCPEGeneric : public PixelCPEBase
 
 #ifdef NEW_CPEERROR
   PixelCPEGeneric(edm::ParameterSet const& conf, const MagneticField *, 
-		  const TrackerGeometry&, const SiPixelLorentzAngle *, 
+		  const TrackerGeometry&, const TrackerTopology&, const SiPixelLorentzAngle *, 
 		  const SiPixelGenErrorDBObject *, const SiPixelLorentzAngle *);
 #else
-  PixelCPEGeneric(edm::ParameterSet const& conf, const MagneticField *, const TrackerGeometry&,
+  PixelCPEGeneric(edm::ParameterSet const& conf, const MagneticField *, const TrackerGeometry&, const TrackerTopology&,
 		  const SiPixelLorentzAngle *, const SiPixelGenErrorDBObject *, 
 		  const SiPixelTemplateDBObject *,const SiPixelLorentzAngle *);
 #endif

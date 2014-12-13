@@ -41,6 +41,7 @@ namespace {
 PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, 
                            const MagneticField *mag, 
                            const TrackerGeometry& geom,
+			   const TrackerTopology& ttopo,
 			   const SiPixelLorentzAngle * lorentzAngle, 
 			   const SiPixelGenErrorDBObject * genErrorDBObject, 
 			   const SiPixelTemplateDBObject * templateDBobject,
@@ -49,7 +50,7 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf,
   //  : useLAAlignmentOffsets_(false), useLAOffsetFromConfig_(false),
   : useLAOffsetFromConfig_(false),
     useLAWidthFromConfig_(false), useLAWidthFromDB_(false), theFlag_(flag),
-    magfield_(mag), geom_(geom)
+    magfield_(mag), geom_(geom), ttopo_(ttopo)
 {
 
 #ifdef EDM_ML_DEBUG

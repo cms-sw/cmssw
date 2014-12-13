@@ -42,9 +42,10 @@ namespace {
 PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf, 
 					   const MagneticField * mag,
                                            const TrackerGeometry& geom,
+					   const TrackerTopology& ttopo,
                                            const SiPixelLorentzAngle * lorentzAngle, 
 					   const SiPixelTemplateDBObject * templateDBobject) 
-  : PixelCPEBase(conf, mag, geom, lorentzAngle, 0, templateDBobject, 0,1)
+  : PixelCPEBase(conf, mag, geom, ttopo, lorentzAngle, 0, templateDBobject, 0,1)
 {
   //cout << endl;
   //cout << "Constructing PixelCPETemplateReco::PixelCPETemplateReco(...)................................................." << endl;

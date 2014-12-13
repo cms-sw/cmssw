@@ -56,7 +56,7 @@ class PixelCPETemplateReco : public PixelCPEBase
   };
 
   // PixelCPETemplateReco( const DetUnit& det );
-  PixelCPETemplateReco(edm::ParameterSet const& conf, const MagneticField *, const TrackerGeometry&,
+  PixelCPETemplateReco(edm::ParameterSet const& conf, const MagneticField *, const TrackerGeometry&, const TrackerTopology&,
                        const SiPixelLorentzAngle *, const SiPixelTemplateDBObject *);
 
   ~PixelCPETemplateReco();

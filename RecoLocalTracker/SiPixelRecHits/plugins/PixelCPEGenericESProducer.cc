@@ -4,6 +4,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -51,6 +52,9 @@ PixelCPEGenericESProducer::produce(const TkPixelCPERecord & iRecord){
   edm::ESHandle<TrackerGeometry> pDD;
   iRecord.getRecord<TrackerDigiGeometryRecord>().get( pDD );
 
+  edm::ESHandle<TrackerTopology> hTT;
+  iRecord.getRecord<TrackerDigiGeometryRecord>().getRecord<IdealGeometryRecord>().get(hTT);
+
   // Lorant angle for offsets
   ESHandle<SiPixelLorentzAngle> lorentzAngle;
   if(useLAAlignmentOffsets_) // LA offsets from alignment 
@@ -76,8 +80,8 @@ PixelCPEGenericESProducer::produce(const TkPixelCPERecord & iRecord){
   genErrorDBObjectProduct = genErrorDBObject.product();
 
   cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>(new PixelCPEGeneric(
-	  pset_,magfield.product(),*pDD.product(),lorentzAngle.product(),genErrorDBObjectProduct,
-          lorentzAngleWidthProduct) );
+										pset_,magfield.product(),*pDD.product(),*hTT.product(),lorentzAngle.product(),genErrorDBObjectProduct,
+										lorentzAngleWidthProduct) );
 
 #else
   // Errors can be used from tempaltes or from GenError, for testing only
@@ -93,8 +97,8 @@ PixelCPEGenericESProducer::produce(const TkPixelCPERecord & iRecord){
   iRecord.getRecord<SiPixelTemplateDBObjectESProducerRcd>().get(templateDBobject);
 
   cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>(new PixelCPEGeneric(
-	  pset_,magfield.product(),*pDD.product(),lorentzAngle.product(),genErrorDBObjectProduct,
-          templateDBobject.product(),lorentzAngleWidthProduct) );
+										pset_,magfield.product(),*pDD.product(),*hTT.product(),lorentzAngle.product(),genErrorDBObjectProduct,
+										templateDBobject.product(),lorentzAngleWidthProduct) );
 #endif
 
   return cpe_;
