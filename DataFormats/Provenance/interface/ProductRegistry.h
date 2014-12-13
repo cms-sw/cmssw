@@ -149,6 +149,8 @@ namespace edm {
       std::map<BranchID, ProductHolderIndex> branchIDToIndex_;
 
       std::vector<TypeID> missingDictionaries_;
+
+      std::vector<std::pair<std::string, std::string> > aliasToOriginal_;
     };
 
   private:
