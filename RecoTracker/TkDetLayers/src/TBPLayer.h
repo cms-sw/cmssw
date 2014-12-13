@@ -28,7 +28,7 @@ class TBPLayer GCC11_FINAL : public TBLayer {
 
   TBPLayer(std::vector<const Phase2OTBarrelRod*>& inner,
 	   std::vector<const Phase2OTBarrelRod*>& outer) __attribute__ ((cold)):  
-    TBLayer(inner,outer, GeomDetEnumerators::PixelBarrel){construct();}
+    TBLayer(inner,outer, GeomDetEnumerators::P2OTB){construct();}
 
   
   ~TBPLayer()  __attribute__ ((cold));

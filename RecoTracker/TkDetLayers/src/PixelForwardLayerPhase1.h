@@ -29,7 +29,7 @@ class PixelForwardLayerPhase1 GCC11_FINAL : public ForwardDetLayer {
 			       std::vector<DetGroup> & result) const __attribute__ ((hot));
 
   // DetLayer interface
-  virtual SubDetector subDetector() const {return GeomDetEnumerators::PixelEndcap;}
+  virtual SubDetector subDetector() const {return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::P1PXEC];}
 
 
  private:

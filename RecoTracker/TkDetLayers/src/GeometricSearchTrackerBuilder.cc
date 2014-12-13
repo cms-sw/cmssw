@@ -112,16 +112,15 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
       vector<const GeometricDet*> thePxlBarGeometricDetLayers = (*it)->components();
       for(vector<const GeometricDet*>::const_iterator it2=thePxlBarGeometricDetLayers.begin();
 	  it2!=thePxlBarGeometricDetLayers.end(); it2++){
-	if((*it2)->type() ==GeometricDet::layer) {
-	  LogDebug("BuildingPixelBarrelLayer") << "I got  " << (*it2)->name() << " type " << (*it2)->type();
-	  thePxlBarLayers.push_back( aPixelBarrelLayerBuilder.build(*it2,theGeomDetGeometry) );
-	}
-	else if ((*it2)->type() ==GeometricDet::OTPhase2Layer) {
-	  LogDebug("BuildingPhase2OTBarrelLayer") << "I got  " << (*it2)->name() << " type " << (*it2)->type();
-	  thePxlBarLayers.push_back( aPhase2OTBarrelLayerBuilder.build(*it2,theGeomDetGeometry) );
-	}
-	else edm::LogError("WrongLayerType") <<" ERROR - I was expecting a PixelBarrelLayer or a OTPhase2Layer... I got a "
-					     << (*it2)->name() << " type " << (*it2)->type();
+	thePxlBarLayers.push_back( aPixelBarrelLayerBuilder.build(*it2,theGeomDetGeometry) );
+      }
+    }
+
+    if( (*it)->type() == GeometricDet::PixelPhase1Barrel) {
+      vector<const GeometricDet*> thePxlBarGeometricDetLayers = (*it)->components();
+      for(vector<const GeometricDet*>::const_iterator it2=thePxlBarGeometricDetLayers.begin();
+	  it2!=thePxlBarGeometricDetLayers.end(); it2++){
+	thePxlBarLayers.push_back( aPixelBarrelLayerBuilder.build(*it2,theGeomDetGeometry) );
       }
     }
     
@@ -141,6 +140,13 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
       }
     }
 
+    if( (*it)->type() == GeometricDet::OTPhase2Barrel) {
+      vector<const GeometricDet*> theTOBGeometricDetLayers = (*it)->components();
+      for(vector<const GeometricDet*>::const_iterator it2=theTOBGeometricDetLayers.begin();
+	  it2!=theTOBGeometricDetLayers.end(); it2++){
+	theTOBLayers.push_back( aPhase2OTBarrelLayerBuilder.build(*it2,theGeomDetGeometry) );
+      }
+    }
     
     if( (*it)->type() == GeometricDet::PixelEndCap) {
       vector<const GeometricDet*> thePxlFwdGeometricDetLayers = (*it)->components();
@@ -168,22 +174,10 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
       vector<const GeometricDet*> thePxlFwdGeometricDetLayers = (*it)->components();
       for(vector<const GeometricDet*>::const_iterator it2=thePxlFwdGeometricDetLayers.begin();
 	  it2!=thePxlFwdGeometricDetLayers.end(); it2++){
-	if((*it2)->type() == GeometricDet::PixelPhase2FullDisk || (*it2)->type() == GeometricDet::PixelPhase2ReducedDisk ){
-	  LogDebug("BuildingPixelPhase2Disk") << "I got  " << (*it2)->name() << " type " << (*it2)->type();
-	  if((*it2)->positionBounds().z() < 0)
-	    theNegPxlFwdLayers.push_back( aPhase1PixelForwardLayerBuilder.build(*it2,theGeomDetGeometry) );
-	  if((*it2)->positionBounds().z() > 0)
-	    thePosPxlFwdLayers.push_back( aPhase1PixelForwardLayerBuilder.build(*it2,theGeomDetGeometry) );
-	}
-	else if((*it2)->type() == GeometricDet::OTPhase2Wheel){
-	  LogDebug("BuildingPhase2OTECRingedLayer") << "I got " << (*it2)->name() << " type " << (*it2)->type();
-	  if((*it2)->positionBounds().z() < 0)
-	    theNegPxlFwdLayers.push_back( aPhase2OTECRingedLayerBuilder.build(*it2,theGeomDetGeometry) );
-	  if((*it2)->positionBounds().z() > 0)
-	    thePosPxlFwdLayers.push_back( aPhase2OTECRingedLayerBuilder.build(*it2,theGeomDetGeometry) );
-	}
-	else edm::LogError("WrongDiskType") <<" ERROR - I was expecting a PixelPhase2Disk or a OTPhase2Wheel... I got a "
-					    << (*it2)->name() << " type " << (*it2)->type();
+	if((*it2)->positionBounds().z() < 0)
+	  theNegPxlFwdLayers.push_back( aPhase1PixelForwardLayerBuilder.build(*it2,theGeomDetGeometry) );
+	if((*it2)->positionBounds().z() > 0)
+	  thePosPxlFwdLayers.push_back( aPhase1PixelForwardLayerBuilder.build(*it2,theGeomDetGeometry) );
       }
     }
 
@@ -200,6 +194,17 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
       }
     }
 
+    if( (*it)->type() == GeometricDet::OTPhase2EndCap ){
+      vector<const GeometricDet*> thePxlFwdGeometricDetLayers = (*it)->components();
+      for(vector<const GeometricDet*>::const_iterator it2=thePxlFwdGeometricDetLayers.begin();
+	  it2!=thePxlFwdGeometricDetLayers.end(); it2++){
+	if((*it2)->positionBounds().z() < 0)
+	  theNegTIDLayers.push_back( aPhase2OTECRingedLayerBuilder.build(*it2,theGeomDetGeometry) );
+	if((*it2)->positionBounds().z() > 0)
+	  thePosTIDLayers.push_back( aPhase2OTECRingedLayerBuilder.build(*it2,theGeomDetGeometry) );
+      }
+    }
+    
     if( (*it)->type() == GeometricDet::TEC) {
       vector<const GeometricDet*> theTECGeometricDetLayers = (*it)->components();
       for(vector<const GeometricDet*>::const_iterator it2=theTECGeometricDetLayers.begin();
