@@ -121,8 +121,7 @@ HiEvtAnalyzer::HiEvtAnalyzer(const edm::ParameterSet& iConfig) :
   centProvider = 0;
   if(doCentrality_)
   {
-    const edm::EventSetup *fakeSetup = (edm::EventSetup *)0;
-    centProvider = new CentralityProvider(*fakeSetup, consumesCollector());
+    centProvider = new CentralityProvider(iConfig, consumesCollector());
   }
 
 }
@@ -156,7 +155,6 @@ HiEvtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   lumi = iEvent.id().luminosityBlock();
 
   edm::Handle<reco::EvtPlaneCollection> evtPlanes;
-  //centProvider = 0;
 
   if(doMC_){
     edm::Handle<edm::GenHIEvent> mchievt;
