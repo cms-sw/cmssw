@@ -364,99 +364,15 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
       seedPt[is] = t.globalMomentum().perp();
       seedQ[is] = (*MyS).getCharge();
       seedSubdet1[is] = id1.subdetId();
-      switch (seedSubdet1[is]) {
-        case 1:
-	  {
-	  
-	  seedLayer1[is] = tTopo->pxbLayer( id1);
-	  seedSide1[is] = 0;
-	  break;
-	  }
-        case 2:
-	{
-	  
-	  seedLayer1[is] = tTopo->pxfDisk( id1);
-	  seedSide1[is] = tTopo->pxfSide( id1);
-	  break;
-	  }
-        case 3:
-	  {
-	  
-	  seedLayer1[is] = tTopo->tibLayer( id1);
-	  seedSide1[is] = 0;
-	  break;
-	  }
-        case 4:
-	  {
-	  
-	  seedLayer1[is] = tTopo->tidWheel( id1);
-	  seedSide1[is] = tTopo->tidSide( id1);
-	  break;
-	  }
-        case 5:
-	  {
-	  
-	  seedLayer1[is] = tTopo->tobLayer( id1);
-	  seedSide1[is] = 0;
-	  break;
-	  }
-        case 6:
-	  {
-	  
-	  seedLayer1[is] = tTopo->tecWheel( id1);
-	  seedSide1[is] = tTopo->tecSide( id1);
-	  break;
-	  }
-      }
+      seedLayer1[is]=tTopo->layer(id1);
+      seedSide1[is]=tTopo->side(id1);
       seedPhi1[is] = phi1;
       seedRz1[is] = rz1;
       seedDphi1[is] = dphi1;
       seedDrz1[is] = drz1;
       seedSubdet2[is] = id2.subdetId();
-      switch (seedSubdet2[is]) {
-        case 1:
-	  {
-	  
-	  seedLayer2[is] = tTopo->pxbLayer( id2);
-	  seedSide2[is] = 0;
-	  break;
-	  }
-        case 2:
-	  {
-	  
-	  seedLayer2[is] = tTopo->pxfDisk( id2);
-	  seedSide2[is] = tTopo->pxfSide( id2);
-	  break;
-	  }
-        case 3:
-	  {
-	  
-	  seedLayer2[is] = tTopo->tibLayer( id2);
-	  seedSide2[is] = 0;
-	  break;
-	  }
-        case 4:
-	  {
-	  
-	  seedLayer2[is] = tTopo->tidWheel( id2);
-	  seedSide2[is] = tTopo->tidSide( id2);
-	  break;
-	  }
-        case 5:
-	  {
-	  
-	  seedLayer2[is] = tTopo->tobLayer( id2);
-	  seedSide2[is] = 0;
-	  break;
-	  }
-        case 6:
-	  {
-	  
-	  seedLayer2[is] = tTopo->tecWheel( id2);
-	  seedSide2[is] = tTopo->tecSide( id2);
-	  break;
-	  }
-      }
+      seedLayer2[is]=tTopo->layer(id2);
+      seedSide2[is]=tTopo->side(id2);
       seedDphi2[is] = dphi2;
       seedDrz2[is] = drz2;
       seedPhi2[is] = phi2;
