@@ -55,14 +55,15 @@ CmsTrackerSubStrctBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
   case GeometricDet::layer:
     std::sort( comp.begin(), comp.end(), LessR());
     break;	
+  case GeometricDet::OTPhase2Layer:
+    std::sort( comp.begin(), comp.end(), LessR());
+    break;  
   case GeometricDet::wheel:
     std::sort( comp.begin(), comp.end(), LessModZ());
     break;	
   case GeometricDet::disk:
     std::sort( comp.begin(), comp.end(), LessModZ());
     break;
-    // the case GeometricDet::OTPhase2Layer is not considered because so far they come together with the GeomtricDet::layer of the
-    // inner pixel. It will be solved when they are decoupled. Otherwise we can envisage a CmsTrackerPixelPhase2BarrelBuilder
   default:
     edm::LogError( "CmsTrackerSubStrctBuilder" ) << "ERROR - wrong SubDet to sort..... " << det->components().front()->type(); 
   }

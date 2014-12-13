@@ -58,40 +58,6 @@ public:
     }
   };
   
-  struct LessModExtPhase2Z{
-    bool operator()(const GeometricDet* a, const GeometricDet* b) const
-    {
-      if ( (a->type()!=GeometricDet::OTPhase2Wheel) &&
-	   (b->type()!=GeometricDet::OTPhase2Wheel ) )
-	{
-	  // both are inner pixels
-	  // sort by z
-	  return fabs(a->translation().z()) < fabs(b->translation().z());  
-	}
-      else if ( (a->type()==GeometricDet::OTPhase2Wheel) &&
-	   (b->type()==GeometricDet::OTPhase2Wheel ) )
-	{
-	  // both are outer tracker
-	  // sort by z
-	  return fabs(a->translation().z()) < fabs(b->translation().z());
-	}
-      else
-	{
-	  if ( b->type()==GeometricDet::OTPhase2Wheel )
-	    {
-	      // a is inner pixel
-	      // let it be first
-	      return true;
-	    }
-	  else
-	    {
-	      // b is inner pixel
-	      // let it be first
-	      return false;
-	    }
-	}
-    }
-  };
 
   struct ExtractPhi:public uFcn{
     double operator()(const GeometricDet* a)const{
