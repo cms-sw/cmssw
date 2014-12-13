@@ -18,15 +18,19 @@ dtAlcaResolutionMonitorCosmics.topHistoFolder = "AlCaReco/DtCalibSynchCosmics/01
 #dtTriggerSynchMonitorCosmics.nBXHigh        = 3
 #dtTriggerSynchMonitorCosmics.nBXLow         = -2
 
-from DQM.HLTEvF.HLTMonBitSummary_cfi import hltMonBitSummary
+#from DQM.HLTEvF.HLTMonBitSummary_cfi import hltMonBitSummary
 from CalibMuon.DTCalibration.ALCARECODtCalibCosmics_cff import ALCARECODtCalibCosmicsHLTFilter
-ALCARECODtCalibCosmicsHLTDQM = hltMonBitSummary.clone(
-    directory = 'AlCaReco/DtCalibSynchCosmics/HLTSummary',
-    histLabel = 'DtCalibSynchCosmics',
-    HLTPaths = ["HLT_.*Mu.*"],
-    eventSetupPathsKey =  ALCARECODtCalibCosmicsHLTFilter.eventSetupPathsKey.value()
-)
+#ALCARECODtCalibCosmicsHLTDQM = hltMonBitSummary.clone(
+#    directory = 'AlCaReco/DtCalibSynchCosmics/HLTSummary',
+#    histLabel = 'DtCalibSynchCosmics',
+#    HLTPaths = ["HLT_.*Mu.*"],
+#    eventSetupPathsKey =  ALCARECODtCalibCosmicsHLTFilter.eventSetupPathsKey.value()
+#)
+
+#ALCARECODTCalibSynchCosmicsDQM = cms.Sequence( dtPreCalibrationTaskAlcaCosmics +
+#                                               dtAlcaResolutionMonitorCosmics + 
+#                                               ALCARECODtCalibCosmicsHLTDQM )
 
 ALCARECODTCalibSynchCosmicsDQM = cms.Sequence( dtPreCalibrationTaskAlcaCosmics +
-                                               dtAlcaResolutionMonitorCosmics + 
-                                               ALCARECODtCalibCosmicsHLTDQM )
+                                               dtAlcaResolutionMonitorCosmics )
+
