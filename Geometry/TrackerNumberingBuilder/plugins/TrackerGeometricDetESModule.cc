@@ -76,45 +76,75 @@ TrackerGeometricDetESModule::fillDescriptions( edm::ConfigurationDescriptions & 
   presentDet.push_back(-1); presentDet.push_back(-1); presentDet.push_back(-1); 
   presentDet.push_back(-1); presentDet.push_back(-1); presentDet.push_back(0);
 
-  std::vector<int> slhcDet;
+  std::vector<int> phase1Det;
     // level 0
-  slhcDet.push_back(-1); slhcDet.push_back(23); slhcDet.push_back(-1); 
-  slhcDet.push_back(13); slhcDet.push_back(-1); slhcDet.push_back(18);
+  phase1Det.push_back(-1); phase1Det.push_back(23); phase1Det.push_back(-1); 
+  phase1Det.push_back(13); phase1Det.push_back(-1); phase1Det.push_back(18);
   // level 1
-  slhcDet.push_back(20); slhcDet.push_back(18); slhcDet.push_back(14); 
-  slhcDet.push_back(11); slhcDet.push_back(14); slhcDet.push_back(14);
+  phase1Det.push_back(20); phase1Det.push_back(18); phase1Det.push_back(14); 
+  phase1Det.push_back(11); phase1Det.push_back(14); phase1Det.push_back(14);
   // level 2
-  slhcDet.push_back(12); slhcDet.push_back(10); slhcDet.push_back(4); 
-  slhcDet.push_back(9) ; slhcDet.push_back(5) ; slhcDet.push_back(8);
+  phase1Det.push_back(12); phase1Det.push_back(10); phase1Det.push_back(4); 
+  phase1Det.push_back(9) ; phase1Det.push_back(5) ; phase1Det.push_back(8);
   // level 3
-  slhcDet.push_back(2) ; slhcDet.push_back(2) ; slhcDet.push_back(2); 
-  slhcDet.push_back(2) ; slhcDet.push_back(2) ; slhcDet.push_back(5);
+  phase1Det.push_back(2) ; phase1Det.push_back(2) ; phase1Det.push_back(2); 
+  phase1Det.push_back(2) ; phase1Det.push_back(2) ; phase1Det.push_back(5);
   // level 4
-  slhcDet.push_back(0) ; slhcDet.push_back(0) ; slhcDet.push_back(0); 
-  slhcDet.push_back(0) ; slhcDet.push_back(0) ; slhcDet.push_back(2);
+  phase1Det.push_back(0) ; phase1Det.push_back(0) ; phase1Det.push_back(0); 
+  phase1Det.push_back(0) ; phase1Det.push_back(0) ; phase1Det.push_back(2);
   // level 5
-  slhcDet.push_back(-1); slhcDet.push_back(-1); slhcDet.push_back(-1); 
-  slhcDet.push_back(-1); slhcDet.push_back(-1); slhcDet.push_back(0);
+  phase1Det.push_back(-1); phase1Det.push_back(-1); phase1Det.push_back(-1); 
+  phase1Det.push_back(-1); phase1Det.push_back(-1); phase1Det.push_back(0);
+
+  std::vector<int> phase2Det;
+    // level 0
+  phase2Det.push_back(-1); phase2Det.push_back(23); phase2Det.push_back(-1); 
+  phase2Det.push_back(23); phase2Det.push_back(-1); phase2Det.push_back(18);
+  // level 1
+  phase2Det.push_back(20); phase2Det.push_back(18); phase2Det.push_back(14); 
+  phase2Det.push_back(18); phase2Det.push_back(20); phase2Det.push_back(14);
+  // level 2
+  phase2Det.push_back(12); phase2Det.push_back(10); phase2Det.push_back(4); 
+  phase2Det.push_back(10) ; phase2Det.push_back(12); phase2Det.push_back(8);
+  // level 3
+  phase2Det.push_back(2) ; phase2Det.push_back(2) ; phase2Det.push_back(2); 
+  phase2Det.push_back(2) ; phase2Det.push_back(2) ; phase2Det.push_back(5);
+  // level 4
+  phase2Det.push_back(0) ; phase2Det.push_back(0) ; phase2Det.push_back(0); 
+  phase2Det.push_back(0) ; phase2Det.push_back(0) ; phase2Det.push_back(2);
+  // level 5
+  phase2Det.push_back(-1); phase2Det.push_back(-1); phase2Det.push_back(-1); 
+  phase2Det.push_back(-1); phase2Det.push_back(-1); phase2Det.push_back(0);
   
   edm::ParameterSetDescription descDB;
   descDB.add<bool>( "fromDDD", false );
   descDB.addOptional<std::vector<int> >( "detidShifts", presentDet );
   descriptions.add( "trackerNumberingGeometryDB", descDB );
 
-  edm::ParameterSetDescription descSLHCDB;
-  descSLHCDB.add<bool>( "fromDDD", false );
-  descSLHCDB.addOptional<std::vector<int> >( "detidShifts", slhcDet );
-  descriptions.add( "trackerNumberingSLHCGeometryDB", descSLHCDB );
+  edm::ParameterSetDescription descPhase1DB;
+  descPhase1DB.add<bool>( "fromDDD", false );
+  descPhase1DB.addOptional<std::vector<int> >( "detidShifts", phase1Det );
+  descriptions.add( "trackerNumbering2017GeometryDB", descPhase1DB );
+
+  edm::ParameterSetDescription descPhase2DB;
+  descPhase2DB.add<bool>( "fromDDD", false );
+  descPhase2DB.addOptional<std::vector<int> >( "detidShifts", phase2Det );
+  descriptions.add( "trackerNumbering2023GeometryDB", descPhase2DB );
 
   edm::ParameterSetDescription desc;
   desc.add<bool>( "fromDDD", true );
   desc.addOptional<std::vector<int> >( "detidShifts", presentDet );
   descriptions.add( "trackerNumberingGeometry", desc );
 
-  edm::ParameterSetDescription descSLHC;
-  descSLHC.add<bool>( "fromDDD", true );
-  descSLHC.addOptional<std::vector<int> >( "detidShifts", slhcDet );
-  descriptions.add( "trackerNumberingSLHCGeometry", descSLHC );
+  edm::ParameterSetDescription descPhase1;
+  descPhase1.add<bool>( "fromDDD", true );
+  descPhase1.addOptional<std::vector<int> >( "detidShifts", phase1Det );
+  descriptions.add( "trackerNumbering2017Geometry", descPhase1 );
+
+  edm::ParameterSetDescription descPhase2;
+  descPhase2.add<bool>( "fromDDD", true );
+  descPhase2.addOptional<std::vector<int> >( "detidShifts", phase2Det );
+  descriptions.add( "trackerNumbering2023Geometry", descPhase2 );
 }
 
 std::auto_ptr<GeometricDet> 
